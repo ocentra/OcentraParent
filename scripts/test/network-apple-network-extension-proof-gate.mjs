@@ -78,8 +78,11 @@ const proof = {
   proof: 'network-apple-network-extension-proof-gate',
   checkedAt: new Date().toISOString(),
   branch: runText('git', ['branch', '--show-current']).trim(),
-  commit: runText('git', ['rev-parse', 'HEAD']).trim(),
-  statusShort: runText('git', ['status', '--short']),
+  sourceCommit: runText('git', ['rev-parse', 'HEAD']).trim(),
+  artifactCommit: 'see the enclosing git commit for generated proof artifacts',
+  originMain: runText('git', ['rev-parse', 'origin/main']).trim(),
+  mergeBase: runText('git', ['merge-base', 'HEAD', 'origin/main']).trim(),
+  sourceStatusShort: sourceStatusShort(),
   proofRoot,
   testRoot,
   commands: commandResults,
@@ -127,4 +130,15 @@ function runText(command, args) {
     throw new Error(`${command} ${args.join(' ')} failed with exit ${result.status}`);
   }
   return `${result.stdout ?? ''}${result.stderr ?? ''}`;
+}
+
+function sourceStatusShort() {
+  return runText('git', [
+    'status',
+    '--short',
+    '--',
+    '.',
+    ':(exclude)output/network-plan-proof/41-apple-network-extension-proof-gate',
+    ':(exclude)test-results/network-apple-network-extension-proof-gate',
+  ]);
 }
