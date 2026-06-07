@@ -276,7 +276,8 @@ expose location or device-status features. Parents expect this category.
   production durable workers readiness blocker, production worker runtime
   artifact gate, physical-device artifact gate, provider-delivery artifact gate,
   provider-runtime readiness blocker, escalation-runtime readiness blocker, and
-  retention product-readiness blocker proof refs, writes
+  retention product-readiness blocker proof refs, retention runtime artifact
+  gate proof refs, writes
   `output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-gate/46-product-readiness-closure-proof.json`,
   explicitly enumerates retention writable-settings and platform-enforcement
   blockers from the retention product-readiness proof, and keeps Android/iOS
@@ -803,8 +804,10 @@ accessibility beyond the hosted parent route are proved.
       local durable settings persistence proof now exist; applied product-ready
       writable retention execution, platform runtime, and production hardening
       remain pending. Product-readiness blocker proof now enumerates the
-      remaining blockers over the durable-settings evidence instead of upgrading
-      the retention feature to product-ready.
+      remaining blockers over the durable-settings evidence, and retention
+      runtime artifact gate proof now checks the writable product settings and
+      platform retention runtime artifact refs without upgrading the retention
+      feature to product-ready.
 - [x] Alert intent contract.
 - [x] Expected-place alert policy UI-readiness rows. This proves parent
       alert/check-in/suppression/manual readiness rows from expected-place
@@ -1099,7 +1102,8 @@ workpack ownership. Keep AI as evidence, not authority, and keep LAN/IP/Wi-Fi
 presence as hints only. The pre-device proof gate is now repeatable; the next
 implementation layers are broader tracking journal/read-model product surfaces,
 applied/product-ready retention settings execution beyond hosted local service
-write rendering, full portal UI snapshots/accessibility beyond the hosted route,
-Android system geofencing/dwell proof, iOS Core Location/region proof beyond
-simulator package launch, then physical Android/iOS proof and authority proof
-only when matching devices are enrolled.
+write rendering, the runtime artifacts required for retention product readiness,
+full portal UI snapshots/accessibility beyond the hosted route, Android system
+geofencing/dwell proof, iOS Core Location/region proof beyond simulator package
+launch, then physical Android/iOS proof and authority proof only when matching
+devices are enrolled.

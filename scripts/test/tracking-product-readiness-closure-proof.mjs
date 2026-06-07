@@ -94,6 +94,10 @@ const sourceProofs = [
     'retention-product-readiness-blocker',
     'output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-gate/43-retention-product-readiness-proof.json'
   ),
+  sourceProof(
+    'retention-runtime-artifact-gate',
+    'output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-gate/60-retention-runtime-artifact-gate-proof.json'
+  ),
 ];
 
 await main();

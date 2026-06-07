@@ -101,6 +101,16 @@ export const ProductReadinessBlockers = [
   'production-worker-hardening',
 ] as const;
 
+export const RequiredTrackingRetentionRuntimeProductBlockers = [
+  'writable-product-settings-execution',
+  'platform-runtime-retention-enforcement',
+] as const;
+
+export const RequiredTrackingRetentionRuntimeArtifactRefs = [
+  'tracking-retention/product-settings-writable-execution.json',
+  'tracking-retention/platform-runtime-retention-enforcement.json',
+] as const;
+
 export function buildTrackingRetentionProductReadinessProof(
   generatedAt: string,
   sourceDurableSettingsProofRef: string,
