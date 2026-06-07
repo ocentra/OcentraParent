@@ -126,6 +126,15 @@ delivery, app blocking, child activity data, and hosted custody remain
 unclaimed. The next gap remains real external runtime writer device delivery,
 child delivery, provider/store execution, portal approval/report UI, and
 platform adapter proof before any app-install product claim can be upgraded.
+External runtime delivery handoff proof now consumes those external runtime
+device delivery evidence rows and records parent-owned handoff packet/queue refs
+while external runtime writer execution/delivery, parent action runtime
+delivery, provider/store execution, platform interception/adapters,
+child-device delivery, runtime report delivery, app blocking, child activity
+data, and hosted custody remain unclaimed. The next gap remains real external
+runtime writer device delivery, child delivery, provider/store execution,
+portal approval/report UI, and platform adapter proof before any app-install
+product claim can be upgraded.
 
 Windows package-source adapter evidence proof now links platform adapter
 evidence gap rows and package-source adapter execution rows to a local Windows
