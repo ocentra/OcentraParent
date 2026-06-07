@@ -18,6 +18,8 @@ describe('screen Android MediaProjection capability proof', () => {
       'android14AppWindowSharing',
       'notClaimed',
     ]);
+    expect(proof.rows.slice(0, 3).every((row) => row.requiresStopCallbackOnUserStop)).toBe(true);
+    expect(proof.rows[3]?.requiresStopCallbackOnUserStop).toBe(false);
     expect(proof.rows.every((row) => !row.silentBackgroundCaptureClaimed)).toBe(true);
     expect(proof.rows.every((row) => !row.rawFrameRemoteUploadAllowed)).toBe(true);
   });
@@ -36,9 +38,10 @@ describe('screen Android MediaProjection capability proof', () => {
     expect(ready.productAndroidCaptureReady).toBe(true);
     expect(ready.requiresUserConsentPerSession).toBe(true);
     expect(ready.requiresForegroundServiceType).toBe(true);
+    expect(ready.requiresStopCallbackOnUserStop).toBe(true);
   });
 
-  it('rejects silent background, raw upload, and physical readiness overclaims', () => {
+  it('rejects silent background, raw upload, missing stop callback, and physical readiness overclaims', () => {
     const physical = screenAndroidMediaProjectionCapabilityProof(CheckedAt).rows[1];
     const withoutPhysicalProof = ScreenAndroidMediaProjectionCapabilityRowSchema.safeParse({
       ...physical,
@@ -59,10 +62,15 @@ describe('screen Android MediaProjection capability proof', () => {
       ...physical,
       requiresUserConsentPerSession: false,
     });
+    const missingStopCallback = ScreenAndroidMediaProjectionCapabilityRowSchema.safeParse({
+      ...physical,
+      requiresStopCallbackOnUserStop: false,
+    });
 
     expect(withoutPhysicalProof.success).toBe(false);
     expect(silentBackgroundCapture.success).toBe(false);
     expect(remoteRawUpload.success).toBe(false);
     expect(missingConsent.success).toBe(false);
+    expect(missingStopCallback.success).toBe(false);
   });
 });

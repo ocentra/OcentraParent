@@ -11,6 +11,10 @@ The current branch has emulator MediaProjection proof with explicit consent,
 foreground-service capture, frame digest, and raw-temp deletion. The Android
 readiness gate consumes that proof and blocks physical-device product readiness
 until physical-device capture/deletion proof exists.
+The readiness contract now also defines stop-callback-on-user-stop behavior for
+MediaProjection rows and rejects capture-ready rows that drop the callback
+requirement. This is a contract/proof gate, not physical-device callback runtime
+execution.
 
 ## Checklist
 
@@ -18,7 +22,7 @@ until physical-device capture/deletion proof exists.
 - [x] Define consent/session state.
 - [x] Define foreground service requirements.
 - [x] Define app-window/full-display availability.
-- [ ] Define stop callback behavior.
+- [x] Define stop callback behavior.
 - [x] Prove no silent background capture.
 - [x] Prove emulator capture deletion.
 - [ ] Prove physical-device capture deletion.
@@ -29,5 +33,6 @@ until physical-device capture/deletion proof exists.
 - `output/screen-plan-proof/android-mediaprojection/proof-summary.json` records
   the existing emulator MediaProjection proof.
 - `output/screen-plan-proof/android/proof-summary.json` records the
-  source-doc/readiness gate and physical-device non-claim.
+  source-doc/readiness gate, stop-callback requirement, and physical-device
+  non-claim.
 - Physical/manual Android proof remains required before product readiness.

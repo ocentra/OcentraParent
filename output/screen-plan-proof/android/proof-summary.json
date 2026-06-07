@@ -1,6 +1,6 @@
 {
   "proof": "screen-android-mediaprojection-capability-proof",
-  "generatedAt": "2026-06-07T16:03:40.736Z",
+  "generatedAt": "2026-06-07T18:11:20.417Z",
   "claim": "Android MediaProjection emulator proof exists, but physical-device parity and silent background capture remain blocked before product readiness.",
   "androidDocsVerified": [
     {
@@ -31,6 +31,7 @@
       "proofState": "emulatorVerified",
       "requiresUserConsentPerSession": true,
       "requiresForegroundServiceType": true,
+      "requiresStopCallbackOnUserStop": true,
       "supportsAppWindowSelection": false,
       "silentBackgroundCaptureClaimed": false,
       "rawFrameRemoteUploadAllowed": false,
@@ -46,6 +47,7 @@
       "proofState": "physicalDeviceMissing",
       "requiresUserConsentPerSession": true,
       "requiresForegroundServiceType": true,
+      "requiresStopCallbackOnUserStop": true,
       "supportsAppWindowSelection": false,
       "silentBackgroundCaptureClaimed": false,
       "rawFrameRemoteUploadAllowed": false,
@@ -61,6 +63,7 @@
       "proofState": "physicalDeviceMissing",
       "requiresUserConsentPerSession": true,
       "requiresForegroundServiceType": true,
+      "requiresStopCallbackOnUserStop": true,
       "supportsAppWindowSelection": true,
       "silentBackgroundCaptureClaimed": false,
       "rawFrameRemoteUploadAllowed": false,
@@ -76,6 +79,7 @@
       "proofState": "sourceDocsVerified",
       "requiresUserConsentPerSession": false,
       "requiresForegroundServiceType": false,
+      "requiresStopCallbackOnUserStop": false,
       "supportsAppWindowSelection": false,
       "silentBackgroundCaptureClaimed": false,
       "rawFrameRemoteUploadAllowed": false,
@@ -102,10 +106,15 @@
     {
       "name": "MediaProjection rows require per-session consent",
       "rejected": true
+    },
+    {
+      "name": "MediaProjection rows require stop callback behavior",
+      "rejected": true
     }
   ],
   "gapStatus": {
     "emulatorMediaProjectionProofExists": true,
+    "stopCallbackBehaviorDefined": true,
     "physicalAndroidDeviceProofExists": false,
     "android14AppWindowPhysicalProofExists": false,
     "silentBackgroundCaptureClaimed": false,
@@ -117,6 +126,7 @@
   "nonClaims": [
     "This proof does not claim Android physical-device parity.",
     "This proof does not claim silent Android background capture.",
-    "This proof does not enable raw remote upload or raw-retention-by-default."
+    "This proof does not enable raw remote upload or raw-retention-by-default.",
+    "This proof defines stop-callback-on-user-stop behavior but does not claim physical-device runtime execution."
   ]
 }

@@ -38,7 +38,7 @@ const workpacks = [
     status: workpackStatus('12 Android MediaProjection adapter plan/proof'),
     readinessProof: 'output/screen-plan-proof/android/proof-summary.json',
     productReadyField: 'gapStatus.productAndroidCaptureReady',
-    gate: 'Needs physical/emulator parity beyond the existing consent/capture proof before broad Android product claim.',
+    gate: 'Emulator consent/capture/deletion and stop-callback behavior are proved; physical-device capture/deletion and local OCR on physical Android capture remain required before broad Android product claim.',
   },
   {
     id: '13',

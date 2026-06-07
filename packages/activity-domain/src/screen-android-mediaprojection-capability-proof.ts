@@ -36,6 +36,7 @@ const ScreenAndroidMediaProjectionCapabilityRowBaseSchema = Schema.Struct({
   androidDocRefs: Schema.NonEmptyArray(ScreenAndroidMediaProjectionDocRefSchema),
   requiresUserConsentPerSession: Schema.Boolean,
   requiresForegroundServiceType: Schema.Boolean,
+  requiresStopCallbackOnUserStop: Schema.Boolean,
   supportsAppWindowSelection: Schema.Boolean,
   silentBackgroundCaptureClaimed: RequiredFalse,
   rawFrameRemoteUploadAllowed: RequiredFalse,
@@ -102,7 +103,11 @@ export function screenAndroidMediaProjectionCapabilityRowIsConsistent(
     );
   }
 
-  if (!value.requiresUserConsentPerSession || !value.requiresForegroundServiceType) {
+  if (
+    !value.requiresUserConsentPerSession ||
+    !value.requiresForegroundServiceType ||
+    !value.requiresStopCallbackOnUserStop
+  ) {
     return false;
   }
 
@@ -162,6 +167,7 @@ export function screenAndroidMediaProjectionCapabilityProof(generatedAt: string)
       'This proof does not claim Android physical-device parity.',
       'This proof does not claim silent Android background capture.',
       'This proof does not enable raw remote upload or raw-retention-by-default.',
+      'This proof defines stop-callback-on-user-stop behavior but does not claim physical-device runtime execution.',
     ],
   });
 }
@@ -197,6 +203,7 @@ function notClaimedSilentBackgroundRow(checkedAt: string) {
     proofState: 'sourceDocsVerified',
     requiresUserConsentPerSession: false,
     requiresForegroundServiceType: false,
+    requiresStopCallbackOnUserStop: false,
     reason: ScreenAndroidMediaProjectionReasonSchema.parse(
       'Silent Android background screen capture is not a MediaProjection product claim and remains blocked before proof.'
     ),
@@ -216,6 +223,7 @@ function baseRow(checkedAt: string, mode: ScreenAndroidMediaProjectionMode) {
     ],
     requiresUserConsentPerSession: true,
     requiresForegroundServiceType: true,
+    requiresStopCallbackOnUserStop: true,
     supportsAppWindowSelection: false,
     silentBackgroundCaptureClaimed: false,
     rawFrameRemoteUploadAllowed: false,

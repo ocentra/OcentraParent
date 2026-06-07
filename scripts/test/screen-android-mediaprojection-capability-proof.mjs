@@ -59,6 +59,12 @@ const negativeChecks = [
       requiresUserConsentPerSession: false,
     })
   ),
+  rejects('MediaProjection rows require stop callback behavior', () =>
+    screenAndroid.ScreenAndroidMediaProjectionCapabilityRowSchema.safeParse({
+      ...proof.rows[1],
+      requiresStopCallbackOnUserStop: false,
+    })
+  ),
 ];
 
 if (negativeChecks.some((check) => !check.rejected)) {
@@ -99,6 +105,7 @@ const summary = {
     proofState: row.proofState,
     requiresUserConsentPerSession: row.requiresUserConsentPerSession,
     requiresForegroundServiceType: row.requiresForegroundServiceType,
+    requiresStopCallbackOnUserStop: row.requiresStopCallbackOnUserStop,
     supportsAppWindowSelection: row.supportsAppWindowSelection,
     silentBackgroundCaptureClaimed: row.silentBackgroundCaptureClaimed,
     rawFrameRemoteUploadAllowed: row.rawFrameRemoteUploadAllowed,
@@ -111,6 +118,9 @@ const summary = {
   negativeChecks,
   gapStatus: {
     emulatorMediaProjectionProofExists: proof.emulatorCaptureProved,
+    stopCallbackBehaviorDefined: proof.rows.every(
+      (row) => row.mode === 'notClaimed' || row.requiresStopCallbackOnUserStop === true
+    ),
     physicalAndroidDeviceProofExists: false,
     android14AppWindowPhysicalProofExists: false,
     silentBackgroundCaptureClaimed: false,

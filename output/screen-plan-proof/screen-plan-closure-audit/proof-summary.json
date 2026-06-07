@@ -1,6 +1,6 @@
 {
   "proof": "screen-plan-closure-audit",
-  "generatedAt": "2026-06-07T17:58:31.478Z",
+  "generatedAt": "2026-06-07T18:11:17.727Z",
   "branchScope": "codex/screen-ai-full-scope-b",
   "checklist": {
     "path": "docs/plans/screen-plan/implementation-checklist.md",
@@ -79,7 +79,7 @@
       "readinessProof": "output/screen-plan-proof/android/proof-summary.json",
       "readinessProofPresent": true,
       "productReady": false,
-      "gate": "Needs physical/emulator parity beyond the existing consent/capture proof before broad Android product claim."
+      "gate": "Emulator consent/capture/deletion and stop-callback behavior are proved; physical-device capture/deletion and local OCR on physical Android capture remain required before broad Android product claim."
     },
     {
       "id": "13",
@@ -156,7 +156,7 @@
       "label": "Android MediaProjection adapter plan/proof",
       "status": "~",
       "productReady": false,
-      "gate": "Needs physical/emulator parity beyond the existing consent/capture proof before broad Android product claim."
+      "gate": "Emulator consent/capture/deletion and stop-callback behavior are proved; physical-device capture/deletion and local OCR on physical Android capture remain required before broad Android product claim."
     },
     {
       "id": "13",

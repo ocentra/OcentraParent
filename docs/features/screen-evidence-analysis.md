@@ -465,9 +465,10 @@ only with explicit parent settings.
   records the Android MediaProjection source-doc/readiness gate at
   `output/screen-plan-proof/android/proof-summary.json`. It consumes the
   existing emulator proof, records per-session consent and Android 14
-  foreground-service/app-window-sharing requirements, rejects silent background
-  capture, and blocks physical-device product readiness until physical-device
-  capture and deletion proof exist.
+  foreground-service/app-window-sharing requirements, requires
+  stop-callback-on-user-stop behavior for MediaProjection modes, rejects silent
+  background capture, and blocks physical-device product readiness until
+  physical-device capture and deletion proof exist.
 - `scripts/test/screen-ios-replaykit-capability-proof.mjs` now records the iOS
   ReplayKit source-doc/no-overclaim gate at
   `output/screen-plan-proof/ios/proof-summary.json`. It treats iOS capture as
