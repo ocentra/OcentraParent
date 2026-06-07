@@ -17,7 +17,7 @@
     "docs/plans/network-plan/implementation-checklist.md",
     "docs/plans/network-plan/workpacks/README.md"
   ],
-  "mergeBase": "3ae5f3aebbd71208936257b93bd5111e638c87ed",
+  "mergeBase": "1afe73504408348c1e51fcd886da3e504bff8026",
   "proofRoot": "output\\network-plan-proof\\10g-remote-delivery-outbox-handoff",
   "testRoot": "test-results\\network-remote-delivery-outbox-handoff-proof",
   "commands": [
