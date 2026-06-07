@@ -1,28 +1,42 @@
 use ocentra_parent_agent_protocol::constants;
 
-use super::adapter::ScreenAiAnalysisAdapterOutput;
+use super::{adapter::ScreenAiAnalysisAdapterOutput, config::ScreenOcrRedactionPolicy};
 
 pub(super) fn apply_service_ocr_redaction(
     output: ScreenAiAnalysisAdapterOutput,
+    policy: &ScreenOcrRedactionPolicy,
 ) -> ScreenAiAnalysisAdapterOutput {
+    if !policy.ocr_text_enabled
+        || policy.text_retention_mode
+            == constants::local_ai_runtime::SCREEN_OCR_TEXT_RETENTION_DISABLED
+    {
+        return ScreenAiAnalysisAdapterOutput {
+            ocr_text_snippets: Vec::new(),
+            redaction_notes: redaction_notes_with(
+                output.redaction_notes,
+                constants::local_ai_runtime::SCREEN_OCR_REDACTION_NOTE_DISABLED,
+            ),
+            ..output
+        };
+    }
     let mut redaction_notes = output.redaction_notes;
     let mut snippets = Vec::new();
     for snippet in output.ocr_text_snippets {
-        if credential_like(&snippet) {
+        if policy.credential_suppression_enabled && credential_like(&snippet) {
             push_note(
                 &mut redaction_notes,
                 constants::local_ai_runtime::SCREEN_OCR_REDACTION_NOTE_CREDENTIAL,
             );
             continue;
         }
-        let (redacted, pii_redacted) = redact_pii_tokens(&snippet);
+        let (redacted, pii_redacted) = redact_pii_tokens(&snippet, policy);
         if pii_redacted {
             push_note(
                 &mut redaction_notes,
                 constants::local_ai_runtime::SCREEN_OCR_REDACTION_NOTE_PII,
             );
         }
-        if snippets.len() < constants::local_ai_runtime::SCREEN_SERVICE_OCR_SNIPPET_LIMIT {
+        if snippets.len() < policy.snippet_limit {
             snippets.push(redacted);
         }
     }
@@ -40,7 +54,13 @@ fn credential_like(snippet: &str) -> bool {
         || normalized.contains(constants::local_ai_runtime::SCREEN_OCR_CREDENTIAL_MARKER_SECRET)
 }
 
-fn redact_pii_tokens(snippet: &str) -> (String, bool) {
+fn redact_pii_tokens(snippet: &str, policy: &ScreenOcrRedactionPolicy) -> (String, bool) {
+    if !policy.pii_redaction_enabled
+        || policy.text_retention_mode
+            != constants::local_ai_runtime::SCREEN_OCR_TEXT_RETENTION_REDACTED_SNIPPETS
+    {
+        return (snippet.to_string(), false);
+    }
     let mut redacted = Vec::new();
     let mut pii_redacted = false;
     for token in snippet.split_whitespace() {
@@ -77,4 +97,9 @@ fn push_note(redaction_notes: &mut Vec<String>, note: &str) {
     if !redaction_notes.iter().any(|existing| existing == note) {
         redaction_notes.push(note.to_string());
     }
+}
+
+fn redaction_notes_with(mut redaction_notes: Vec<String>, note: &str) -> Vec<String> {
+    push_note(&mut redaction_notes, note);
+    redaction_notes
 }

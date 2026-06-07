@@ -7,16 +7,16 @@
       "familyId": "family-local",
       "deviceId": null
     },
-    "requestedAt": "2026-06-07T01:27:49.113Z",
+    "requestedAt": "2026-06-07T01:48:05.881Z",
     "rangeStart": "1970-01-01T00:00:00Z",
-    "rangeEnd": "2026-06-07T01:27:49.113Z"
+    "rangeEnd": "2026-06-07T01:48:05.880Z"
   },
   "state": "ready",
-  "generatedAt": "2026-06-07T01:27:49.115Z",
+  "generatedAt": "2026-06-07T01:48:05.883Z",
   "summary": "Windows WinRT OCR read a live local browser sensitive-text page from the service queued capture and service redaction removed sensitive snippets.",
   "rows": [
     {
-      "rowId": "screen-service-adapter-analysis-result-screen-service-queue-job-1780795665-1",
+      "rowId": "screen-service-adapter-analysis-result-screen-service-queue-job-1780796881-1",
       "label": "Windows WinRT OCR read a live local browser sensitive-text page from the service queued capture and service redaction removed sensitive snippets.",
       "deviceId": "local-dev-agent",
       "state": "ready",
@@ -26,7 +26,7 @@
       "captureReason": "timedCadence",
       "captureScope": "activeWindow",
       "capabilityStatus": "available",
-      "queueJobId": "screen-service-queue-job-1780795665-1",
+      "queueJobId": "screen-service-queue-job-1780796881-1",
       "modelRuntimeRef": "windows-winrt-ocr-local-runtime",
       "modelId": "windows-winrt-ocr",
       "providerKind": "localOcr",
@@ -40,13 +40,13 @@
       "custodyState": "child-device-journal",
       "evidence": [
         {
-          "evidenceId": "screen-service-adapter-evidence-screen-service-queue-job-1780795665-1",
+          "evidenceId": "screen-service-adapter-evidence-screen-service-queue-job-1780796881-1",
           "kind": "screenshot",
           "digest": "NuZh9fPFThw2AR9OlUm_D8DJDrvHTjA30AQwZ0RIiuU",
           "uri": null
         }
       ],
-      "policyDecisionRef": "screen-service-policy-dry-run-screen-service-queue-job-1780795665-1",
+      "policyDecisionRef": "screen-service-policy-dry-run-screen-service-queue-job-1780796881-1",
       "policyAction": "allow",
       "policyReasonCodes": [
         "screen-service-analysis-policy-dry-run"
@@ -58,7 +58,7 @@
         "windows-winrt-ocr-local-runtime"
       ],
       "parentExplanationRefs": [
-        "screen-service-parent-explanation-screen-service-queue-job-1780795665-1"
+        "screen-service-parent-explanation-screen-service-queue-job-1780796881-1"
       ],
       "explanationReasons": [
         "screen-service-policy-dry-run"
@@ -80,7 +80,7 @@
       "sourceEvidenceRefs": []
     },
     {
-      "rowId": "screen-service-analysis-result-1780795665-1",
+      "rowId": "screen-service-analysis-result-1780796882-2",
       "label": "Timed screen capture was queued by the local service cadence.",
       "deviceId": "local-dev-agent",
       "state": "ready",
@@ -90,7 +90,7 @@
       "captureReason": "timedCadence",
       "captureScope": "activeWindow",
       "capabilityStatus": "available",
-      "queueJobId": "screen-service-queue-job-1780795665-1",
+      "queueJobId": "screen-service-queue-job-1780796882-2",
       "modelRuntimeRef": "screen-service-deterministic-runtime",
       "modelId": "screen-service-cadence-metadata-v1",
       "providerKind": "serviceCaptureMetadata",
@@ -104,10 +104,10 @@
       "custodyState": "child-device-journal",
       "evidence": [
         {
-          "evidenceId": "screen-service-screenshot-1780795665-1",
+          "evidenceId": "screen-service-screenshot-1780796882-2",
           "kind": "screenshot",
           "digest": "NuZh9fPFThw2AR9OlUm_D8DJDrvHTjA30AQwZ0RIiuU",
-          "uri": "C:\\Users\\sujan\\AppData\\Local\\Temp\\ocentra-screen-service-winrt-xb5PEp\\screen-queue"
+          "uri": "C:\\Users\\sujan\\AppData\\Local\\Temp\\ocentra-screen-service-winrt-81R9Pg\\screen-queue"
         }
       ],
       "policyDecisionRef": null,
