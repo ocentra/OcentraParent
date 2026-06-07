@@ -7,6 +7,13 @@ const proofRoot = join(root, 'output', 'browser-plan-proof');
 const outputDirectory = join(proofRoot, 'social-23-tests-fixtures-playwright-manual-proof');
 const resultDirectory = join(root, 'test-results', 'social-platform-account-feed-proof-artifacts');
 const requiredProofFiles = ['00-source-snapshot.md', '08-security-negative-proof.md', '10-validation-commands.log'];
+const requiredSupplementalProofFiles = [
+  'test-results/social-alert-report-intent-ui-proof/proof.json',
+  'output/browser-plan-proof/social-alert-report-intent-ui-proof/07-rendered-alert-report-ui-proof.json',
+  'output/browser-plan-proof/social-alert-report-intent-ui-proof/06-ui-snapshots/social-alert-report-browser-route.png',
+  'output/browser-plan-proof/social-alert-report-intent-ui-proof/06-ui-snapshots/social-alert-report-browser-route-mobile.png',
+  'output/browser-plan-proof/social-alert-report-intent-ui-proof/06-ui-snapshots/social-alert-report-ui-playwright.log',
+];
 
 if (!existsSync(proofRoot)) {
   throw new Error(`Missing browser proof root: ${relativePath(proofRoot)}`);
@@ -21,7 +28,8 @@ async function main() {
   const docs = await loadDocs();
   const proofDirectories = await socialProofDirectories();
   const rows = await Promise.all(expectedRows().map((row) => validateSocialRow(row, proofDirectories, docs)));
-  const failures = rows.flatMap((row) => row.failures);
+  const supplementalProofFailures = validateSupplementalProofFiles();
+  const failures = [...rows.flatMap((row) => row.failures), ...supplementalProofFailures];
   const manifest = manifestFor(rows, failures);
 
   if (manifest.failures.length > 0) {
@@ -179,6 +187,7 @@ function manifestFor(rows, failures) {
       livePublicConnectorBoundary: 'proof-present',
       liveEvidenceDecisionMemoryBoundary: 'proof-present',
       alertReportIntent: 'proof-present',
+      alertReportIntentUi: 'service-backed-browser-route-proof-present',
       reportWriterDelivery: 'parent-owned-proof-present',
       appliedScheduleTimeBudget: 'parent-owned-proof-present',
       scheduleTimeBudgetCompiler: 'proof-present',
@@ -189,6 +198,10 @@ function manifestFor(rows, failures) {
       productChecklistUpgrade: 'not-claimed',
     },
     failures,
+    supplementalProofFiles: requiredSupplementalProofFiles.map((file) => ({
+      file,
+      present: existsSync(join(root, file)),
+    })),
   };
 }
 
@@ -229,6 +242,7 @@ function markdownFor(manifest) {
     'Live public connector boundary proof is present for SOCIAL-18 Google/YouTube, Meta, and TikTok surfaces.',
     'Live-evidence decision memory proof is present for SOCIAL-19 ref-only cache snapshots.',
     'Ref-only social alert/report intent proof is present.',
+    'Service-backed social alert/report intent UI proof is present for the real Browser route.',
     'Parent-owned social report writer delivery-readiness proof is present.',
     'Parent-owned social schedule/time-budget application-readiness proof is present.',
     'Schedule/time-budget compiler contract proof is present.',
@@ -239,6 +253,12 @@ function markdownFor(manifest) {
     'policy execution, external provider/report runtime delivery, runtime-applied schedules/budgets,',
     'enforcement, or product checklist completion.',
   ].join('\n');
+}
+
+function validateSupplementalProofFiles() {
+  return requiredSupplementalProofFiles
+    .filter((file) => !existsSync(join(root, file)))
+    .map((file) => `SOCIAL-23 missing supplemental proof file ${file}`);
 }
 
 function checklistRowText(rowId, checklist) {

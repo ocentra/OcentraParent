@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
-  "checkedAt": "2026-06-07T02:23:48.585Z",
-  "commit": "57ccbd897f4be385e43d452bace7161100fdfb2e",
+  "checkedAt": "2026-06-07T05:18:34.977Z",
+  "commit": "bbd3e4721cddf756ecf0be3b2174962756b83311",
   "workpackIds": [
     "social-alert-report-intent-ui-proof",
     "social-23-tests-fixtures-playwright-manual-proof"
@@ -89,7 +89,7 @@
       ],
       "values": [
         "2",
-        "2026-06-07T02:23:42.317Z",
+        "2026-06-07T05:18:29.989Z",
         "Rendered parent alert/report intent surface only; provider delivery, report delivery, notification UI delivery, final policy execution, and enforcement remain unclaimed.",
         "local-outbox-eligible",
         "local-outbox-only",

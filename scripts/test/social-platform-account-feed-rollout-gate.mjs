@@ -6,6 +6,12 @@ const root = process.cwd();
 const outputDirectory = join(root, 'output', 'browser-plan-proof', 'social-24-rollout-manual-required-labels');
 const resultDirectory = join(root, 'test-results', 'social-platform-account-feed-rollout-gate');
 const checklistPath = 'docs/plans/browser-plan/implementation-checklist.md';
+const requiredRolloutProofFiles = [
+  'test-results/social-alert-report-intent-ui-proof/proof.json',
+  'output/browser-plan-proof/social-alert-report-intent-ui-proof/07-rendered-alert-report-ui-proof.json',
+  'output/browser-plan-proof/social-alert-report-intent-ui-proof/06-ui-snapshots/social-alert-report-browser-route.png',
+  'output/browser-plan-proof/social-alert-report-intent-ui-proof/06-ui-snapshots/social-alert-report-browser-route-mobile.png',
+];
 
 const rolloutGuards = [
   {
@@ -43,7 +49,8 @@ async function main() {
   const docs = await loadDocs();
   const rows = expectedRows().map((row) => validateChecklistRow(row, docs.checklist));
   const guardFailures = validateRolloutGuards(docs);
-  const failures = [...rows.flatMap((row) => row.failures), ...guardFailures];
+  const proofFailures = validateRolloutProofFiles();
+  const failures = [...rows.flatMap((row) => row.failures), ...guardFailures, ...proofFailures];
   const manifest = manifestFor(rows, failures);
 
   if (manifest.failures.length > 0) {
@@ -144,6 +151,7 @@ function manifestFor(rows, failures) {
       'social-live-public-connector-boundary-proof-present',
       'social-live-evidence-decision-memory-proof-present',
       'social-alert-report-intent-proof-present',
+      'social-alert-report-intent-ui-proof-present',
       'social-report-writer-delivery-proof-present',
       'social-applied-schedule-time-budget-proof-present',
       'social-schedule-time-budget-compiler-proof-present',
@@ -158,6 +166,10 @@ function manifestFor(rows, failures) {
       'enforcement-not-claimed',
       'product-checklist-upgrade-not-claimed',
     ],
+    requiredRolloutProofFiles: requiredRolloutProofFiles.map((file) => ({
+      file,
+      present: existsSync(join(root, file)),
+    })),
     failures,
   };
 }
@@ -197,6 +209,7 @@ function markdownFor(manifest) {
     'Live SOCIAL-18 public connector boundary proof is present.',
     'Live SOCIAL-19 evidence-bound decision memory proof is present.',
     'Ref-only social alert/report intent proof is present.',
+    'Service-backed social alert/report intent UI proof is present for the real Browser route.',
     'Parent-owned report writer delivery-readiness proof is present.',
     'Parent-owned schedule/time-budget application-readiness proof is present.',
     'Schedule/time-budget compiler proof and parent sensitivity',
@@ -206,6 +219,12 @@ function markdownFor(manifest) {
     'schedules/budgets, final policy execution, and enforcement remain',
     'unclaimed.',
   ].join('\n');
+}
+
+function validateRolloutProofFiles() {
+  return requiredRolloutProofFiles
+    .filter((file) => !existsSync(join(root, file)))
+    .map((file) => `SOCIAL-24 missing rollout proof file ${file}`);
 }
 
 function checklistRowText(rowId, checklist) {

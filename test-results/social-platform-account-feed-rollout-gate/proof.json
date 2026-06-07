@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "proofMode": "social-platform-account-feed-rollout-gate",
-  "generatedAt": "2026-06-07T04:52:00.317Z",
+  "generatedAt": "2026-06-07T05:18:50.779Z",
   "rows": [
     {
       "rowNumber": 1,
@@ -220,6 +220,7 @@
     "social-live-public-connector-boundary-proof-present",
     "social-live-evidence-decision-memory-proof-present",
     "social-alert-report-intent-proof-present",
+    "social-alert-report-intent-ui-proof-present",
     "social-report-writer-delivery-proof-present",
     "social-applied-schedule-time-budget-proof-present",
     "social-schedule-time-budget-compiler-proof-present",
@@ -233,6 +234,24 @@
     "final-policy-execution-not-claimed",
     "enforcement-not-claimed",
     "product-checklist-upgrade-not-claimed"
+  ],
+  "requiredRolloutProofFiles": [
+    {
+      "file": "test-results/social-alert-report-intent-ui-proof/proof.json",
+      "present": true
+    },
+    {
+      "file": "output/browser-plan-proof/social-alert-report-intent-ui-proof/07-rendered-alert-report-ui-proof.json",
+      "present": true
+    },
+    {
+      "file": "output/browser-plan-proof/social-alert-report-intent-ui-proof/06-ui-snapshots/social-alert-report-browser-route.png",
+      "present": true
+    },
+    {
+      "file": "output/browser-plan-proof/social-alert-report-intent-ui-proof/06-ui-snapshots/social-alert-report-browser-route-mobile.png",
+      "present": true
+    }
   ],
   "failures": []
 }

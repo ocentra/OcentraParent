@@ -1,6 +1,6 @@
 
 Running 1 test using 1 worker
 
-  ok 1 [chromium] › e2e\social-alert-report-ui-proof.spec.ts:22:1 › browser route renders service-backed social alert and report intent rows (23.0s)
+  ok 1 [chromium] › e2e\social-alert-report-ui-proof.spec.ts:22:1 › browser route renders service-backed social alert and report intent rows (25.5s)
 
-  1 passed (24.6s)
+  1 passed (27.1s)

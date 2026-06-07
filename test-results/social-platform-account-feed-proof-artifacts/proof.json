@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "proofMode": "social-platform-account-feed-proof-artifacts",
-  "generatedAt": "2026-06-07T04:51:43.692Z",
+  "generatedAt": "2026-06-07T05:18:50.673Z",
   "proofRoot": "output/browser-plan-proof",
   "rows": [
     {
@@ -421,6 +421,7 @@
     "livePublicConnectorBoundary": "proof-present",
     "liveEvidenceDecisionMemoryBoundary": "proof-present",
     "alertReportIntent": "proof-present",
+    "alertReportIntentUi": "service-backed-browser-route-proof-present",
     "reportWriterDelivery": "parent-owned-proof-present",
     "appliedScheduleTimeBudget": "parent-owned-proof-present",
     "scheduleTimeBudgetCompiler": "proof-present",
@@ -430,5 +431,27 @@
     "enforcement": "not-claimed",
     "productChecklistUpgrade": "not-claimed"
   },
-  "failures": []
+  "failures": [],
+  "supplementalProofFiles": [
+    {
+      "file": "test-results/social-alert-report-intent-ui-proof/proof.json",
+      "present": true
+    },
+    {
+      "file": "output/browser-plan-proof/social-alert-report-intent-ui-proof/07-rendered-alert-report-ui-proof.json",
+      "present": true
+    },
+    {
+      "file": "output/browser-plan-proof/social-alert-report-intent-ui-proof/06-ui-snapshots/social-alert-report-browser-route.png",
+      "present": true
+    },
+    {
+      "file": "output/browser-plan-proof/social-alert-report-intent-ui-proof/06-ui-snapshots/social-alert-report-browser-route-mobile.png",
+      "present": true
+    },
+    {
+      "file": "output/browser-plan-proof/social-alert-report-intent-ui-proof/06-ui-snapshots/social-alert-report-ui-playwright.log",
+      "present": true
+    }
+  ]
 }

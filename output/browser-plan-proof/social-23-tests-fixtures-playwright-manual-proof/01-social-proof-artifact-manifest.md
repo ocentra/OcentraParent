@@ -1,6 +1,6 @@
 # SOCIAL-23 Social Proof Artifact Manifest
 
-Generated: 2026-06-07T04:51:43.692Z
+Generated: 2026-06-07T05:18:50.673Z
 
 Rows checked: 22
 Proof-present rows: 21
@@ -51,6 +51,7 @@ Live-evidence policy compiler proof is present for SOCIAL-12 non-final manual-re
 Live public connector boundary proof is present for SOCIAL-18 Google/YouTube, Meta, and TikTok surfaces.
 Live-evidence decision memory proof is present for SOCIAL-19 ref-only cache snapshots.
 Ref-only social alert/report intent proof is present.
+Service-backed social alert/report intent UI proof is present for the real Browser route.
 Parent-owned social report writer delivery-readiness proof is present.
 Parent-owned social schedule/time-budget application-readiness proof is present.
 Schedule/time-budget compiler contract proof is present.
