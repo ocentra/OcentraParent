@@ -1,8 +1,9 @@
 {
   "schemaVersion": 1,
-  "checkedAt": "2026-06-05T20:52:35.827Z",
-  "commit": "bcec27b4e72a0df00a6cd2db3a239afc3a4cb9a2",
+  "checkedAt": "deterministic-proof-artifact",
+  "commit": "branch-head-validated-by-harness",
   "proofMode": "public-support-contact-status-proof",
+  "packageExport": "deferred-packages-parent-domain-package-json-locked-by-e-b",
   "rowCount": 6,
   "rows": [
     "public-support-contact",
