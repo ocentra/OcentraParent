@@ -89,6 +89,15 @@ compete on control while staying clear about attribution confidence and privacy.
   retention/delete/export propagation, live broker/family-hub delivery, policy
   authority, side-effect authority, enforcement commands, adapter execution,
   and host filtering false.
+- E-D added row10c remote event-chain journal/export proof in `agent-core`:
+  local network runtime event-chain envelopes are written through the reusable
+  `ocentra-eventing` NDJSON journal with hash-chain options, replayed as a
+  projection-only export boundary, and tagged with journal, replay, export, and
+  support-status refs. This still does not claim live broker/family-hub
+  delivery, remote provider or child-device delivery, remote
+  retention/delete/export propagation, policy authority, side-effect authority,
+  adapter execution, enforcement-command publication, exact URL, decrypted
+  payload, page content, or host filtering.
 - E-D added network-specific queue backpressure proof on top of the reusable
   `ocentra-eventing` queue: bounded overflow dead-letters the oldest queued flow
   and keeps the newest queued flow,

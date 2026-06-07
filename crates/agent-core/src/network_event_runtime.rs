@@ -26,6 +26,12 @@ mod broker_delivery;
 mod queue;
 mod refs;
 #[cfg(test)]
+mod remote_delivery_event_chain_journal;
+#[cfg(test)]
+mod remote_delivery_event_chain_journal_types;
+#[cfg(test)]
+mod remote_delivery_event_chain_store;
+#[cfg(test)]
 mod remote_delivery_status;
 #[cfg(test)]
 mod review;
@@ -45,6 +51,12 @@ pub use queue::{
     NetworkRuntimeQueueTtlReport,
 };
 use refs::NetworkRuntimeChainRefs;
+#[cfg(test)]
+pub use remote_delivery_event_chain_journal::prove_network_runtime_remote_event_chain_journal;
+#[cfg(test)]
+pub use remote_delivery_event_chain_journal_types::{
+    NetworkRuntimeRemoteEventChainJournalError, NetworkRuntimeRemoteEventChainJournalReport,
+};
 #[cfg(test)]
 pub use remote_delivery_status::{
     prove_network_runtime_remote_delivery_status, NetworkRuntimeRemoteDeliveryState,
