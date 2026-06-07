@@ -1,0 +1,132 @@
+{
+  "schemaVersion": 1,
+  "proofMode": "tracking-child-runtime-artifact-gate-proof",
+  "generatedAt": "2026-06-07T18:55:00.000Z",
+  "branch": "codex/tracking-plan-full-continuation-a",
+  "commit": "b5af332577ef9969ebd405b7125ca3d9a39866da",
+  "gitStatusShort": "M docs/features/location-geofence-device-status.md\n M docs/plans/tracking-plan/implementation-checklist.md\n M docs/plans/tracking-plan/workpacks/30-parent-and-child-ui-ux-surfaces.md\n M docs/plans/tracking-plan/workpacks/33-proof-gates-fixtures-rollout-and-pr-gate.md\n?? packages/parent-domain/src/tracking-child-runtime-artifact-gate-proof.ts\n?? packages/parent-domain/tests/tracking-child-runtime-artifact-gate-proof.test.ts\n?? scripts/test/tracking-child-runtime-artifact-gate-proof.mjs",
+  "workpackIds": [
+    "30-parent-and-child-ui-ux-surfaces",
+    "33-proof-gates-fixtures-rollout-and-pr-gate"
+  ],
+  "requiredProofTier": "P4_PHYSICAL_DEVICE",
+  "currentProofTier": "P3_LOCAL_DEV_MACHINE",
+  "status": "manual_required",
+  "readModel": {
+    "schemaVersion": "v0.5-tracking",
+    "proofMode": "tracking-child-runtime-artifact-gate-proof",
+    "generatedAt": "2026-06-07T18:55:00.000Z",
+    "rows": [
+      {
+        "schemaVersion": "v0.5-tracking",
+        "rowId": "tracking-child-runtime-artifacts-device-execution",
+        "generatedAt": "2026-06-07T18:55:00.000Z",
+        "proofRoot": "output/tracking-plan-proof/child-device-runtime-execution",
+        "requiredProofTier": "P4_PHYSICAL_DEVICE",
+        "currentProofTier": "P3_LOCAL_DEV_MACHINE",
+        "status": "manual-required",
+        "requiredArtifacts": [
+          "00-run-metadata.json",
+          "01-child-device-metadata.json",
+          "02-delivery-envelope.json",
+          "03-execution-result.json",
+          "04-visible-child-ui-snapshot.png",
+          "05-parent-receipt.json",
+          "06-runtime-observation.ndjson",
+          "07-permission-consent-state.json",
+          "08-device-log.txt",
+          "09-result-summary.md"
+        ],
+        "presentArtifacts": [],
+        "missingArtifacts": [
+          "00-run-metadata.json",
+          "01-child-device-metadata.json",
+          "02-delivery-envelope.json",
+          "03-execution-result.json",
+          "04-visible-child-ui-snapshot.png",
+          "05-parent-receipt.json",
+          "06-runtime-observation.ndjson",
+          "07-permission-consent-state.json",
+          "08-device-log.txt",
+          "09-result-summary.md"
+        ],
+        "auditRefs": [
+          "tracking-child-runtime-artifacts-device-execution-audit"
+        ],
+        "childRuntimeArtifactSetComplete": false,
+        "childDeviceDeliveryRuntimeClaimed": false,
+        "childDeviceExecutionRuntimeClaimed": false,
+        "renderedChildDeviceUiRuntimeClaimed": false,
+        "parentReceiptRuntimeClaimed": false,
+        "runtimeObservationClaimed": false,
+        "physicalDeviceProofClaimed": false,
+        "authorityProofClaimed": false,
+        "providerDeliveryClaimed": false,
+        "productionWorkerClaimed": false,
+        "productClaimReady": false
+      }
+    ],
+    "proofClaims": {
+      "childRuntimeArtifactGateChecked": true,
+      "noChildDeviceDeliveryRuntimeClaim": true,
+      "noChildDeviceExecutionRuntimeClaim": true,
+      "noRenderedChildDeviceUiRuntimeClaim": true,
+      "noParentReceiptRuntimeClaim": true,
+      "noRuntimeObservationClaim": true,
+      "noPhysicalDeviceProofClaim": true,
+      "noAuthorityClaim": true,
+      "noProviderDeliveryClaim": true,
+      "noProductionClaim": true,
+      "noProductReadyClaim": true
+    },
+    "productClaims": {
+      "childDeviceDeliveryRuntimeClaimed": false,
+      "childDeviceExecutionRuntimeClaimed": false,
+      "renderedChildDeviceUiRuntimeClaimed": false,
+      "parentReceiptRuntimeClaimed": false,
+      "runtimeObservationClaimed": false,
+      "physicalDeviceProofClaimed": false,
+      "authorityProofClaimed": false,
+      "providerDeliveryClaimed": false,
+      "productionWorkerClaimed": false,
+      "productClaimReady": false
+    }
+  },
+  "summary": {
+    "rowCount": 1,
+    "completeRows": 0,
+    "manualRequiredRows": 1,
+    "missingArtifactCount": 10,
+    "childDeviceDeliveryRuntimeClaimedRows": 0,
+    "childDeviceExecutionRuntimeClaimedRows": 0,
+    "renderedChildDeviceUiRuntimeClaimedRows": 0,
+    "productReadyRows": 0
+  },
+  "proofLabels": [
+    "tracking-child-runtime.artifact-gate",
+    "tracking-child-runtime.delivery-execution-artifact-requirements",
+    "tracking-child-runtime.no-runtime-claim-from-file-presence",
+    "tracking-child-runtime.product-ready-false"
+  ],
+  "productClaims": {
+    "childDeviceDeliveryRuntimeClaimed": false,
+    "childDeviceExecutionRuntimeClaimed": false,
+    "renderedChildDeviceUiRuntimeClaimed": false,
+    "parentReceiptRuntimeClaimed": false,
+    "runtimeObservationClaimed": false,
+    "physicalDeviceProofClaimed": false,
+    "authorityProofClaimed": false,
+    "providerDeliveryClaimed": false,
+    "productionWorkerClaimed": false,
+    "productClaimReady": false
+  },
+  "missingProofReason": "Actual child-device delivery/execution still requires a real child-device run with delivery envelope, execution result, rendered child UI snapshot, parent receipt, runtime observation, consent state, and device logs. This gate validates required artifact presence only and keeps runtime, physical-device, authority, provider delivery, production, and product-ready claims false.",
+  "commands": [
+    {
+      "command": "cmd /c npm run build --workspace @ocentra-parent/parent-domain"
+    },
+    {
+      "command": "cmd /c npm run test --workspace @ocentra-parent/parent-domain -- tracking-child-runtime-artifact-gate-proof"
+    }
+  ]
+}

@@ -170,6 +170,16 @@ expose location or device-status features. Parents expect this category.
   artifacts, and keeps child-device delivery/execution, provider delivery,
   notification receipt ingestion, live location runtime, physical-device proof,
   authority, production workers, and product-ready claims false.
+- WP30/WP33 child-runtime artifact gate proof now exists through
+  `node scripts/test/tracking-child-runtime-artifact-gate-proof.mjs`. It checks
+  the required child-device runtime execution proof root for delivery envelope,
+  execution result, rendered child UI snapshot, parent receipt, runtime
+  observation, consent state, device log, and result-summary artifacts, writes
+  WP30/WP33 artifacts, and keeps child-device delivery/execution, rendered
+  child-device UI runtime, parent receipt runtime, runtime observation,
+  physical-device proof, authority, provider delivery, production workers, and
+  product-ready tracking unclaimed until those real child-device artifacts
+  exist.
 - WP33 tracking product-readiness closure proof now exists through
   `node scripts/test/tracking-product-readiness-closure-proof.mjs`. It cites the
   current pre-device, Android emulator, iOS simulator, WSL/local, hosted UI
@@ -651,7 +661,8 @@ with screenshot/accessibility proof, hosted missing-device state rendering
 with screenshot/accessibility proof, and local outbox/scheduler artifact
 readiness proof for tracking receipt rows, plus child-runtime
 product-readiness blocker proof over the existing delivery/execution/snapshot
-requirement rows.
+requirement rows and a child-runtime artifact gate for the real device
+delivery/execution artifact set.
 It remains a tracked product gap until platform location and
 geofence runtime adapters, broader product read models beyond these rows, full
 dashboard UI beyond the hosted parent route, applied product-ready service

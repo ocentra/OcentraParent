@@ -98,6 +98,8 @@ Proof root: `output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-g
   `40-child-runtime-snapshot-requirements-proof.json`
 - WP30 child-runtime product-readiness blocker proof:
   `45-child-runtime-product-readiness-blocker-proof.json`
+- WP30 child-runtime artifact gate proof:
+  `50-child-runtime-artifact-gate-proof.json`
 - Tracking product-readiness closure proof:
   `46-product-readiness-closure-proof.json`
 - Refreshed tracking product-readiness closure proof now consumes the
@@ -255,6 +257,14 @@ blocker, and retention product-readiness blocker proofs. It writes
 keeping Android/iOS physical background behavior, actual child-device runtime,
 full product parent/child UI, authority enrollment, provider delivery/receipt
 runtime, production workers, and product-ready tracking unclaimed.
+
+This branch adds `node scripts/test/tracking-child-runtime-artifact-gate-proof.mjs`,
+which writes WP30/WP33 child-runtime artifact gate proof artifacts for the
+exact real child-device runtime execution artifact names. The current row
+remains `manual_required`, and the proof keeps child-device delivery/execution,
+rendered child UI runtime, parent receipt runtime, runtime observation,
+physical-device proof, authority, provider delivery, production workers, and
+product-ready tracking unclaimed until those real child-device artifacts exist.
 
 This branch refreshes
 `node scripts/test/tracking-child-check-in-timeout-escalation-proof.mjs`, which
