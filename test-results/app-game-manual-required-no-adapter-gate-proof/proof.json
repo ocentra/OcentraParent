@@ -1,0 +1,43 @@
+{
+  "schemaVersion": 1,
+  "proofMode": "app-game-manual-required-no-adapter-gate-proof",
+  "generatedAt": "deterministic-proof-artifact",
+  "branch": "codex/app-game-manual-required-no-adapter-gate-proof-split",
+  "commit": "branch-head-validated-by-harness",
+  "commitMetadata": "This proof intentionally avoids embedding HEAD because a committed artifact cannot contain its own final commit hash.",
+  "gitStatusShort": "validated-by-explicit-handoff-status-check",
+  "commands": [
+    "cmd /c npm run build:contracts\nexit=0\n\n> @ocentra-parent/workspace@0.1.1 build:contracts\n> npm run build --workspace @ocentra-parent/schema-domain && npm run build --workspace @ocentra-parent/logging-domain && npm run build --workspace @ocentra-parent/parent-domain && npm run build --workspace @ocentra-parent/activity-domain && npm run build --workspace @ocentra-parent/agent-protocol-domain && npm run build --workspace @ocentra-parent/text-domain && npm run build --workspace @ocentra-parent/portal-domain\n\n\n> @ocentra-parent/schema-domain@0.1.1 build\n> tsc -p tsconfig.json && node ../../scripts/fix-esm-imports.mjs dist\n\n\n> @ocentra-parent/logging-domain@0.1.1 build\n> tsc -p tsconfig.json && node ../../scripts/fix-esm-imports.mjs dist\n\n\n> @ocentra-parent/parent-domain@0.1.1 build\n> tsc -p tsconfig.json && node ../../scripts/fix-esm-imports.mjs dist\n\n\n> @ocentra-parent/activity-domain@0.1.1 build\n> tsc -p tsconfig.json && node ../../scripts/fix-esm-imports.mjs dist\n\n\n> @ocentra-parent/agent-protocol-domain@0.1.1 build\n> tsc -p tsconfig.json && node ../../scripts/fix-esm-imports.mjs dist\n\n\n> @ocentra-parent/text-domain@0.1.1 build\n> tsc -p tsconfig.json && node ../../scripts/fix-esm-imports.mjs dist\n\n\n> @ocentra-parent/portal-domain@0.1.1 build\n> tsc -p tsconfig.json && node ../../scripts/fix-esm-imports.mjs dist\n\n",
+    "cmd /c npm run test --workspace @ocentra-parent/parent-domain -- app-game-broad-blocking-proof-gates.test.ts\nexit=0\n\n> @ocentra-parent/parent-domain@0.1.1 test\n> vitest run app-game-broad-blocking-proof-gates.test.ts\n\n\n RUN  v4.1.6 <repo-root>/packages/parent-domain\n\n\n Test Files  1 passed (1)\n      Tests  6 passed (6)\n   Start at <normalized>\n   Duration <normalized>\n\n",
+    "cmd /c npm run test --workspace @ocentra-parent/parent-domain -- app-game-policy-preview-handoff.test.ts\nexit=0\n\n> @ocentra-parent/parent-domain@0.1.1 test\n> vitest run app-game-policy-preview-handoff.test.ts\n\n\n RUN  v4.1.6 <repo-root>/packages/parent-domain\n\n\n Test Files  1 passed (1)\n      Tests  5 passed (5)\n   Start at <normalized>\n   Duration <normalized>\n\n",
+    "cmd /c npm run test --workspace @ocentra-parent/parent-domain -- app-game-policy-target-compiler.test.ts\nexit=0\n\n> @ocentra-parent/parent-domain@0.1.1 test\n> vitest run app-game-policy-target-compiler.test.ts\n\n\n RUN  v4.1.6 <repo-root>/packages/parent-domain\n\n\n Test Files  1 passed (1)\n      Tests  5 passed (5)\n   Start at <normalized>\n   Duration <normalized>\n\n",
+    "cmd /c npm run test --workspace @ocentra-parent/parent-domain -- app-game-category-risk-policy-routing.test.ts\nexit=0\n\n> @ocentra-parent/parent-domain@0.1.1 test\n> vitest run app-game-category-risk-policy-routing.test.ts\n\n\n RUN  v4.1.6 <repo-root>/packages/parent-domain\n\n\n Test Files  1 passed (1)\n      Tests  5 passed (5)\n   Start at <normalized>\n   Duration <normalized>\n\n"
+  ],
+  "gate": "Manual-required action calls an adapter.",
+  "gateState": "prevented-by-manual-required-and-blocked-before-adapter-contracts",
+  "evidence": {
+    "broadBlockingGate": "packages/parent-domain/src/app-game-broad-blocking-proof-gates.ts requires unproved platform blocking to remain manual-required, unavailable, or not-claimed before adapter dispatch.",
+    "broadBlockingGateData": "packages/parent-domain/src/app-game-broad-blocking-proof-gate-data.ts sets manual gates to blocked-before-adapter, canCallAdapter=false, supportedModes=[], and broadBlockingClaimed=false.",
+    "broadBlockingGateTests": "packages/parent-domain/tests/app-game-broad-blocking-proof-gates.test.ts rejects manual-required/unavailable rows that try canCallAdapter=true or dispatch-eligible.",
+    "previewHandoff": "packages/parent-domain/tests/app-game-policy-preview-handoff.test.ts keeps native-game block-launch manual-required rows not-dispatched with adapter/platform enforcement claims false.",
+    "compilerBoundary": "packages/parent-domain/tests/app-game-policy-target-compiler.test.ts keeps unproved block-launch manual-required and rejects dry-run-ready upgrades without proof.",
+    "categoryRiskRouting": "packages/parent-domain/src/app-game-category-risk-policy-routing.ts and tests keep manual-review category/risk routes not-dispatched and out of compile-ready routing."
+  },
+  "productBoundaries": {
+    "sharedEvidenceSpine": true,
+    "nativeAppMeaningProven": true,
+    "nativeGameMeaningProven": true,
+    "manualRequiredCallsAdapter": false,
+    "adapterDispatchClaimed": false,
+    "platformEnforcementClaimed": false,
+    "broadBlockingClaimed": false,
+    "runtimeAdapterClaimed": false,
+    "browserGameWorkDuplicated": false,
+    "packageExportsChanged": false
+  },
+  "proofPaths": {
+    "proof": "test-results/app-game-manual-required-no-adapter-gate-proof/proof.json",
+    "appGameProofPack": "output/app-game-plan-proof/merge-gates/manual-required-no-adapter",
+    "harness": "scripts/test/app-game-manual-required-no-adapter-gate-proof.mjs"
+  }
+}
