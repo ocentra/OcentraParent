@@ -97,6 +97,13 @@ fallback-ready, manual-required, and unsupported rows so the parent-visible
 fallback path remains explicit while product claims stay unapproved and
 provider/store execution, platform adapters, child delivery, portal UI, app
 blocking, child activity data, and hosted custody remain unclaimed.
+External runtime writer readiness proof now classifies external runtime device
+delivery evidence rows into writer-handoff-ready/manual-required rows with
+preflight, readiness receipt, target, audit, child-delivery audit, and report
+refs while preserving no external runtime writer execution/delivery, parent
+action runtime delivery, provider/store execution, platform interception/
+adapters, child-device delivery, runtime report delivery, app blocking, child
+activity data, or hosted custody.
 Provider/store API execution proof now links product-claim provider/store rows
 with platform limitation fallback rows into execution-ready, manual-required,
 unavailable, and blocked-before-claim evidence states while product-claim

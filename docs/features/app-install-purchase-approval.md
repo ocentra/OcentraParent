@@ -475,6 +475,19 @@ generic app blocking covers this concern.
   `test-results/app-install-purchase-external-runtime-delivery-handoff-proof/proof.json`
   when run, validates the public parent-domain package export, and records the
   product checklist row update.
+- `packages/parent-domain/src/app-install-purchase-external-runtime-writer-readiness-proof.ts`
+  classifies external runtime device delivery evidence rows into
+  writer-handoff-ready or manual-required rows with parent-owned preflight,
+  readiness receipt, target, audit, child-delivery audit, and report refs while
+  preserving no external runtime writer execution/delivery, parent action
+  runtime delivery, provider/store execution, platform interception/adapters,
+  child-device delivery, runtime report delivery, app blocking, child activity
+  data, or Ocentra-hosted family data custody claims.
+- `scripts/test/app-install-purchase-external-runtime-writer-readiness-proof.mjs`
+  records that external runtime writer readiness proof under
+  `test-results/app-install-purchase-external-runtime-writer-readiness-proof/proof.json`
+  when run, validates the public parent-domain package export, and records the
+  product checklist row update.
 - `packages/parent-domain/src/app-install-purchase-provider-store-execution-preflight-proof.ts`
   links provider/store execution readiness rows and runtime writer execution
   delivery receipts into parent-owned provider/store execution preflight ready,
@@ -553,10 +566,11 @@ report-runtime rows into approval/report domain
 rows, and
 convert parent-owned runtime writer delivery rows into deterministic envelope
 and delivery result receipt rows, link those receipts and child delivery
-envelope refs into external runtime device delivery evidence rows, convert
-those evidence rows into parent-owned external runtime handoff packet/queue
-refs, and link those receipts to parent-owned runtime report writer delivery-ready rows and
-report receipts, expose
+envelope refs into external runtime device delivery evidence rows, classify
+those evidence rows into external runtime writer readiness rows, convert those
+evidence rows into parent-owned external runtime handoff packet/queue refs, and
+link those receipts to parent-owned runtime report writer delivery-ready rows
+and report receipts, expose
 parent-visible report status read-model rows for ready/manual-required handoff,
 aggregate those rows into limitation summaries, and name platform manual
 evidence requirements before any platform product claim, and deny product claims
@@ -705,6 +719,13 @@ Ocentra-hosted family data custody.
       activity data, or hosted family data custody claims.
 - [x] External runtime delivery handoff proof consuming external runtime
       device delivery evidence rows into parent-owned handoff packet/queue refs
+      without external runtime writer execution/delivery, parent action runtime
+      delivery, provider/store execution, platform interception/adapters,
+      child-device delivery, runtime report delivery, app blocking, child
+      activity data, or hosted family data custody claims.
+- [x] External runtime writer readiness proof classifying external runtime
+      device delivery evidence rows into writer-handoff-ready/manual-required
+      rows with preflight, readiness receipt, target, audit, and report refs
       without external runtime writer execution/delivery, parent action runtime
       delivery, provider/store execution, platform interception/adapters,
       child-device delivery, runtime report delivery, app blocking, child
