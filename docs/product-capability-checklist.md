@@ -63,6 +63,15 @@ AI execution, full report/policy UI, child-device runtime, provider delivery,
 authority, physical-device behavior, production, and product-ready tracking
 remain proof-gated.
 
+Location/geofence hosted storage default addendum: WP32 now proves that tracking
+journal, SQLite read-model, parent export, AI context, and remote-sync custody
+default to local, parent-owned, or remote-disabled states through
+`output/tracking-plan-proof/32-journal-sqlite-and-read-model-proof/31-hosted-storage-default-boundary-proof.json`.
+Ocentra-hosted default storage, raw location remote upload, SQLite snapshot
+remote upload, remote sync, remote AI, portal UI, service mutation, platform
+runtime, child-device delivery, authority, production, and product-ready
+tracking remain proof-gated.
+
 ## AI, Policy, And Parent Control
 
 | Capability               | Status              | Expectation docs                                                                                                                                 | Current proof                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         | Next gap                                                                                                          |

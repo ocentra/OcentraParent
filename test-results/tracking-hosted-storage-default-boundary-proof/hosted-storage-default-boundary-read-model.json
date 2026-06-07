@@ -1,0 +1,294 @@
+[
+  {
+    "schemaVersion": "v0.5-tracking",
+    "rowId": "tracking-hosted-storage-default-row-journal-local",
+    "boundaryKind": "journal-local-default",
+    "boundaryState": "hosted-storage-not-default",
+    "requiredProofTier": "P2_HOSTED_CI",
+    "currentProofTier": "P2_HOSTED_CI",
+    "generatedAt": "2026-06-07T06:12:00.000Z",
+    "sourceProofRefs": [
+      "output/tracking-plan-proof/07-retention-and-custody-model/14-retention-delete-proof.json",
+      "output/tracking-plan-proof/22-local-parent-defined-place-database/proof.json",
+      "output/tracking-plan-proof/32-journal-sqlite-and-read-model-proof/18-service-read-model-proof.json"
+    ],
+    "journalProofRefs": [
+      "output/tracking-plan-proof/32-journal-sqlite-and-read-model-proof/10-journal-sqlite-proof.json"
+    ],
+    "readModelProofRefs": [
+      "output/tracking-plan-proof/32-journal-sqlite-and-read-model-proof/18-service-read-model-proof.json",
+      "output/tracking-plan-proof/32-journal-sqlite-and-read-model-proof/21-product-surface-summary-proof.json"
+    ],
+    "retentionProofRefs": [
+      "output/tracking-plan-proof/07-retention-and-custody-model/14-retention-delete-proof.json",
+      "output/tracking-plan-proof/32-journal-sqlite-and-read-model-proof/24-retention-settings-read-model-proof.json"
+    ],
+    "aiConsumerProofRefs": [],
+    "evidenceReferences": [
+      {
+        "evidenceReferenceId": "tracking-hosted-storage-default-evidence-journal-local",
+        "kind": "journal-event",
+        "observedAt": "2026-06-07T06:12:00.000Z"
+      }
+    ],
+    "defaultCustody": "parent-device-local",
+    "ocentraHostedStorageDefault": false,
+    "rawLocationRemoteUploadEnabled": false,
+    "sqliteSnapshotRemoteUploadEnabled": false,
+    "remoteSyncEnabled": false,
+    "remoteAiEnabled": false,
+    "parentOwnedExportRequired": false,
+    "storedRefConsumerRequired": false,
+    "reasonCodes": [
+      "tracking-journal-local-default"
+    ],
+    "auditRefs": [
+      "tracking-hosted-storage-default-audit-journal-local"
+    ],
+    "hostedStorageBoundaryClaimed": true,
+    "portalUiClaimed": false,
+    "serviceMutationClaimed": false,
+    "platformRuntimeClaimed": false,
+    "childDeviceDeliveryClaimed": false,
+    "providerDeliveryClaimed": false,
+    "notificationReceiptClaimed": false,
+    "physicalDeviceClaimed": false,
+    "authorityClaimed": false,
+    "productionBehaviorClaimed": false,
+    "productClaimReady": false
+  },
+  {
+    "schemaVersion": "v0.5-tracking",
+    "rowId": "tracking-hosted-storage-default-row-sqlite-read-model-local",
+    "boundaryKind": "sqlite-read-model-local-default",
+    "boundaryState": "hosted-storage-not-default",
+    "requiredProofTier": "P2_HOSTED_CI",
+    "currentProofTier": "P2_HOSTED_CI",
+    "generatedAt": "2026-06-07T06:12:00.000Z",
+    "sourceProofRefs": [
+      "output/tracking-plan-proof/07-retention-and-custody-model/14-retention-delete-proof.json",
+      "output/tracking-plan-proof/22-local-parent-defined-place-database/proof.json",
+      "output/tracking-plan-proof/32-journal-sqlite-and-read-model-proof/18-service-read-model-proof.json"
+    ],
+    "journalProofRefs": [
+      "output/tracking-plan-proof/32-journal-sqlite-and-read-model-proof/10-journal-sqlite-proof.json"
+    ],
+    "readModelProofRefs": [
+      "output/tracking-plan-proof/32-journal-sqlite-and-read-model-proof/18-service-read-model-proof.json",
+      "output/tracking-plan-proof/32-journal-sqlite-and-read-model-proof/21-product-surface-summary-proof.json"
+    ],
+    "retentionProofRefs": [
+      "output/tracking-plan-proof/07-retention-and-custody-model/14-retention-delete-proof.json",
+      "output/tracking-plan-proof/32-journal-sqlite-and-read-model-proof/24-retention-settings-read-model-proof.json"
+    ],
+    "aiConsumerProofRefs": [],
+    "evidenceReferences": [
+      {
+        "evidenceReferenceId": "tracking-hosted-storage-default-evidence-sqlite-read-model-local",
+        "kind": "query-store-summary",
+        "observedAt": "2026-06-07T06:12:00.000Z"
+      }
+    ],
+    "defaultCustody": "parent-device-local",
+    "ocentraHostedStorageDefault": false,
+    "rawLocationRemoteUploadEnabled": false,
+    "sqliteSnapshotRemoteUploadEnabled": false,
+    "remoteSyncEnabled": false,
+    "remoteAiEnabled": false,
+    "parentOwnedExportRequired": false,
+    "storedRefConsumerRequired": false,
+    "reasonCodes": [
+      "tracking-sqlite-read-model-local-default"
+    ],
+    "auditRefs": [
+      "tracking-hosted-storage-default-audit-sqlite-read-model-local"
+    ],
+    "hostedStorageBoundaryClaimed": true,
+    "portalUiClaimed": false,
+    "serviceMutationClaimed": false,
+    "platformRuntimeClaimed": false,
+    "childDeviceDeliveryClaimed": false,
+    "providerDeliveryClaimed": false,
+    "notificationReceiptClaimed": false,
+    "physicalDeviceClaimed": false,
+    "authorityClaimed": false,
+    "productionBehaviorClaimed": false,
+    "productClaimReady": false
+  },
+  {
+    "schemaVersion": "v0.5-tracking",
+    "rowId": "tracking-hosted-storage-default-row-parent-export-local",
+    "boundaryKind": "parent-export-local-default",
+    "boundaryState": "hosted-storage-not-default",
+    "requiredProofTier": "P2_HOSTED_CI",
+    "currentProofTier": "P2_HOSTED_CI",
+    "generatedAt": "2026-06-07T06:12:00.000Z",
+    "sourceProofRefs": [
+      "output/tracking-plan-proof/07-retention-and-custody-model/14-retention-delete-proof.json",
+      "output/tracking-plan-proof/22-local-parent-defined-place-database/proof.json",
+      "output/tracking-plan-proof/32-journal-sqlite-and-read-model-proof/18-service-read-model-proof.json"
+    ],
+    "journalProofRefs": [
+      "output/tracking-plan-proof/32-journal-sqlite-and-read-model-proof/10-journal-sqlite-proof.json"
+    ],
+    "readModelProofRefs": [
+      "output/tracking-plan-proof/32-journal-sqlite-and-read-model-proof/18-service-read-model-proof.json",
+      "output/tracking-plan-proof/32-journal-sqlite-and-read-model-proof/21-product-surface-summary-proof.json"
+    ],
+    "retentionProofRefs": [
+      "output/tracking-plan-proof/07-retention-and-custody-model/14-retention-delete-proof.json",
+      "output/tracking-plan-proof/32-journal-sqlite-and-read-model-proof/24-retention-settings-read-model-proof.json"
+    ],
+    "aiConsumerProofRefs": [],
+    "evidenceReferences": [
+      {
+        "evidenceReferenceId": "tracking-hosted-storage-default-evidence-parent-export-local",
+        "kind": "query-store-summary",
+        "observedAt": "2026-06-07T06:12:00.000Z"
+      }
+    ],
+    "defaultCustody": "parent-owned-export",
+    "ocentraHostedStorageDefault": false,
+    "rawLocationRemoteUploadEnabled": false,
+    "sqliteSnapshotRemoteUploadEnabled": false,
+    "remoteSyncEnabled": false,
+    "remoteAiEnabled": false,
+    "parentOwnedExportRequired": true,
+    "storedRefConsumerRequired": false,
+    "reasonCodes": [
+      "tracking-parent-export-local-default"
+    ],
+    "auditRefs": [
+      "tracking-hosted-storage-default-audit-parent-export-local"
+    ],
+    "hostedStorageBoundaryClaimed": true,
+    "portalUiClaimed": false,
+    "serviceMutationClaimed": false,
+    "platformRuntimeClaimed": false,
+    "childDeviceDeliveryClaimed": false,
+    "providerDeliveryClaimed": false,
+    "notificationReceiptClaimed": false,
+    "physicalDeviceClaimed": false,
+    "authorityClaimed": false,
+    "productionBehaviorClaimed": false,
+    "productClaimReady": false
+  },
+  {
+    "schemaVersion": "v0.5-tracking",
+    "rowId": "tracking-hosted-storage-default-row-ai-context-stored-ref-local",
+    "boundaryKind": "ai-context-stored-ref-local-default",
+    "boundaryState": "hosted-storage-not-default",
+    "requiredProofTier": "P2_HOSTED_CI",
+    "currentProofTier": "P2_HOSTED_CI",
+    "generatedAt": "2026-06-07T06:12:00.000Z",
+    "sourceProofRefs": [
+      "output/tracking-plan-proof/07-retention-and-custody-model/14-retention-delete-proof.json",
+      "output/tracking-plan-proof/22-local-parent-defined-place-database/proof.json",
+      "output/tracking-plan-proof/32-journal-sqlite-and-read-model-proof/18-service-read-model-proof.json"
+    ],
+    "journalProofRefs": [
+      "output/tracking-plan-proof/32-journal-sqlite-and-read-model-proof/10-journal-sqlite-proof.json"
+    ],
+    "readModelProofRefs": [
+      "output/tracking-plan-proof/32-journal-sqlite-and-read-model-proof/18-service-read-model-proof.json",
+      "output/tracking-plan-proof/32-journal-sqlite-and-read-model-proof/21-product-surface-summary-proof.json"
+    ],
+    "retentionProofRefs": [
+      "output/tracking-plan-proof/07-retention-and-custody-model/14-retention-delete-proof.json",
+      "output/tracking-plan-proof/32-journal-sqlite-and-read-model-proof/24-retention-settings-read-model-proof.json"
+    ],
+    "aiConsumerProofRefs": [
+      "output/tracking-plan-proof/32-journal-sqlite-and-read-model-proof/30-ai-stored-ref-consumer-proof.json"
+    ],
+    "evidenceReferences": [
+      {
+        "evidenceReferenceId": "tracking-hosted-storage-default-evidence-ai-context-stored-ref-local",
+        "kind": "query-store-summary",
+        "observedAt": "2026-06-07T06:12:00.000Z"
+      }
+    ],
+    "defaultCustody": "parent-device-local",
+    "ocentraHostedStorageDefault": false,
+    "rawLocationRemoteUploadEnabled": false,
+    "sqliteSnapshotRemoteUploadEnabled": false,
+    "remoteSyncEnabled": false,
+    "remoteAiEnabled": false,
+    "parentOwnedExportRequired": false,
+    "storedRefConsumerRequired": true,
+    "reasonCodes": [
+      "tracking-ai-context-stored-ref-local-default"
+    ],
+    "auditRefs": [
+      "tracking-hosted-storage-default-audit-ai-context-stored-ref-local"
+    ],
+    "hostedStorageBoundaryClaimed": true,
+    "portalUiClaimed": false,
+    "serviceMutationClaimed": false,
+    "platformRuntimeClaimed": false,
+    "childDeviceDeliveryClaimed": false,
+    "providerDeliveryClaimed": false,
+    "notificationReceiptClaimed": false,
+    "physicalDeviceClaimed": false,
+    "authorityClaimed": false,
+    "productionBehaviorClaimed": false,
+    "productClaimReady": false
+  },
+  {
+    "schemaVersion": "v0.5-tracking",
+    "rowId": "tracking-hosted-storage-default-row-remote-sync-disabled",
+    "boundaryKind": "remote-sync-disabled-default",
+    "boundaryState": "hosted-storage-not-default",
+    "requiredProofTier": "P2_HOSTED_CI",
+    "currentProofTier": "P2_HOSTED_CI",
+    "generatedAt": "2026-06-07T06:12:00.000Z",
+    "sourceProofRefs": [
+      "output/tracking-plan-proof/07-retention-and-custody-model/14-retention-delete-proof.json",
+      "output/tracking-plan-proof/22-local-parent-defined-place-database/proof.json",
+      "output/tracking-plan-proof/32-journal-sqlite-and-read-model-proof/18-service-read-model-proof.json"
+    ],
+    "journalProofRefs": [
+      "output/tracking-plan-proof/32-journal-sqlite-and-read-model-proof/10-journal-sqlite-proof.json"
+    ],
+    "readModelProofRefs": [
+      "output/tracking-plan-proof/32-journal-sqlite-and-read-model-proof/18-service-read-model-proof.json",
+      "output/tracking-plan-proof/32-journal-sqlite-and-read-model-proof/21-product-surface-summary-proof.json"
+    ],
+    "retentionProofRefs": [
+      "output/tracking-plan-proof/07-retention-and-custody-model/14-retention-delete-proof.json",
+      "output/tracking-plan-proof/32-journal-sqlite-and-read-model-proof/24-retention-settings-read-model-proof.json"
+    ],
+    "aiConsumerProofRefs": [],
+    "evidenceReferences": [
+      {
+        "evidenceReferenceId": "tracking-hosted-storage-default-evidence-remote-sync-disabled",
+        "kind": "query-store-summary",
+        "observedAt": "2026-06-07T06:12:00.000Z"
+      }
+    ],
+    "defaultCustody": "remote-disabled",
+    "ocentraHostedStorageDefault": false,
+    "rawLocationRemoteUploadEnabled": false,
+    "sqliteSnapshotRemoteUploadEnabled": false,
+    "remoteSyncEnabled": false,
+    "remoteAiEnabled": false,
+    "parentOwnedExportRequired": false,
+    "storedRefConsumerRequired": false,
+    "reasonCodes": [
+      "tracking-remote-sync-disabled-default"
+    ],
+    "auditRefs": [
+      "tracking-hosted-storage-default-audit-remote-sync-disabled"
+    ],
+    "hostedStorageBoundaryClaimed": true,
+    "portalUiClaimed": false,
+    "serviceMutationClaimed": false,
+    "platformRuntimeClaimed": false,
+    "childDeviceDeliveryClaimed": false,
+    "providerDeliveryClaimed": false,
+    "notificationReceiptClaimed": false,
+    "physicalDeviceClaimed": false,
+    "authorityClaimed": false,
+    "productionBehaviorClaimed": false,
+    "productClaimReady": false
+  }
+]

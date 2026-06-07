@@ -39,6 +39,7 @@ Proof root: `output/tracking-plan-proof/32-journal-sqlite-and-read-model-proof/`
 - `27-retention-settings-write-command-proof.json`
 - `28-report-export-read-model-proof.json`
 - `30-ai-stored-ref-consumer-proof.json`
+- `31-hosted-storage-default-boundary-proof.json`
 - `16-validation-commands.log`
 - Pre-device gate:
   `output/tracking-plan-proof/pre-device-gap-closure/proof-summary.json`
@@ -49,7 +50,7 @@ Proof root: `output/tracking-plan-proof/32-journal-sqlite-and-read-model-proof/`
 - [x] Add replay/query/delete tests.
 - [x] Add tombstone proof.
 - [x] Ensure AI/report/policy cite stored refs.
-- [ ] Keep Ocentra-hosted storage off by default.
+- [x] Keep Ocentra-hosted storage off by default.
 - [x] Include the P2 service read-model proof in the pre-device gate.
 - [x] Record P3 WSL/local replay proof for the read-model proof stack.
 - [x] Expose live portal citation rows for service-backed read-model rows and
@@ -107,6 +108,11 @@ Proof root: `output/tracking-plan-proof/32-journal-sqlite-and-read-model-proof/`
       report/policy use without claiming model execution, assistant policy
       writes, assistant enforcement, device runtime, provider delivery,
       authority, production behavior, or product-ready behavior.
+- [x] Prove that Ocentra-hosted storage is not the default tracking journal,
+      SQLite read-model, parent export, AI context, or remote-sync custody path
+      without claiming remote upload, portal UI, service mutation, platform
+      runtime, device delivery, authority, production, or product-ready
+      behavior.
 
 ## Where We Are
 
@@ -162,6 +168,16 @@ the row counts in
 while keeping model execution, assistant policy writes, assistant enforcement,
 child-device runtime, provider delivery, notification receipt, physical-device,
 authority, production, and product-ready claims false.
+The hosted storage default boundary proof now requires tracking journal,
+SQLite read-model, parent export, AI context, and remote-sync default rows to
+stay local, parent-owned, or remote-disabled by default. The repeatable
+`node scripts/test/tracking-hosted-storage-default-boundary-proof.mjs` command
+records this in
+`output/tracking-plan-proof/32-journal-sqlite-and-read-model-proof/31-hosted-storage-default-boundary-proof.json`
+while keeping Ocentra-hosted default storage, raw location remote upload,
+SQLite snapshot remote upload, remote sync, remote AI, portal UI, service
+mutation, platform runtime, device delivery, authority, production, and
+product-ready claims false.
 The hosted parent route now consumes the typed retention settings write
 preflight response as a command/result rendering path and captures the accepted
 result plus mutation proof refs in
@@ -580,3 +596,27 @@ tracking-status-panel` passed; `cmd /c npm run build --workspace
       delivery/runtime execution, Android/iOS physical proof, authority,
       provider delivery, notification receipt ingestion, production workers,
       and product-ready export behavior remain proof-gated.
+- [x] Workpack id and branch:
+      `codex/tracking-plan-full-continuation-a`.
+- [x] Touched files: parent-domain hosted storage default boundary proof source
+      and test, proof harness, tracking feature doc, implementation checklist,
+      WP32, central capability checklist, and generated WP32/WP33/test-results
+      proof artifacts.
+- [x] Validation commands and results:
+      `node scripts/test/tracking-hosted-storage-default-boundary-proof.mjs`
+      passed locally.
+- [x] Proof artifacts:
+      `output/tracking-plan-proof/32-journal-sqlite-and-read-model-proof/31-hosted-storage-default-boundary-proof.json`,
+      `output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-gate/38-hosted-storage-default-boundary-proof.json`,
+      `test-results/tracking-hosted-storage-default-boundary-proof/proof.json`,
+      and
+      `test-results/tracking-hosted-storage-default-boundary-proof/hosted-storage-default-boundary-read-model.json`.
+- [x] Product doc/checklist updates: owning feature doc, implementation
+      checklist, WP32, and central product capability checklist updated.
+- [x] Known gaps/manual-required states: this proves only that Ocentra-hosted
+      storage, raw location remote upload, SQLite snapshot remote upload,
+      remote sync, and remote AI are not default tracking custody paths.
+      Rendered UI/report/policy surfaces, service mutation, platform runtime,
+      child-device delivery/runtime execution, Android/iOS physical proof,
+      authority, provider delivery, notification receipt ingestion, production
+      workers, and product-ready behavior remain proof-gated.
