@@ -4,6 +4,7 @@ import {
   type AgentEventEnvelope,
 } from '@ocentra-parent/agent-protocol-domain/contracts';
 import { decodeDisplayText, type DisplayText } from '@ocentra-parent/text-domain/contracts';
+import type { PortalActivityMemoryGraphReadModel } from './activity-memory-graph';
 import { decodePortalDetailValue, type PortalDetailValue } from './detail-values';
 import { PortalDetails } from './details';
 
@@ -30,11 +31,14 @@ export type LocalAiRuntimePanelIntent = {
 
 export function createLocalAiRuntimePanelIntent(
   runtimeEvent: AgentEventEnvelope | null,
-  lanAiJobEvent: AgentEventEnvelope | null
+  lanAiJobEvent: AgentEventEnvelope | null,
+  memoryGraphReadModel: PortalActivityMemoryGraphReadModel | null = null
 ): LocalAiRuntimePanelIntent {
-  const cards = [runtimeStatusCard(runtimeEvent), lanAiJobCard(lanAiJobEvent)].filter(
-    (card): card is LocalAiRuntimePanelCard => card !== null
-  );
+  const cards = [
+    runtimeStatusCard(runtimeEvent),
+    lanAiJobCard(lanAiJobEvent),
+    memoryGraphCard(memoryGraphReadModel),
+  ].filter((card): card is LocalAiRuntimePanelCard => card !== null);
   return {
     eyebrow: decodeDisplayText('Local child-device AI'),
     title: decodeDisplayText('AI jobs and runtime activity'),
@@ -101,6 +105,45 @@ function lanAiJobCard(event: AgentEventEnvelope | null): LocalAiRuntimePanelCard
       detail(PortalDetails.Reason, event.payload[AgentProtocolDefaults.Field.Reason]),
     ],
   };
+}
+
+function memoryGraphCard(readModel: PortalActivityMemoryGraphReadModel | null): LocalAiRuntimePanelCard | null {
+  if (readModel === null) {
+    return null;
+  }
+  return {
+    title: decodeDisplayText('Cited memory and graph evidence'),
+    details: [
+      detail(PortalDetails.Custody, readModel.custody),
+      detail(PortalDetails.Capability, readModel.capabilityStatus),
+      detail(PortalDetails.GeneratedAt, readModel.generatedAt),
+      detail(PortalDetails.GraphNodes, readModel.returnedNodeCount),
+      detail(PortalDetails.GraphEdges, readModel.returnedEdgeCount),
+      detail(PortalDetails.GraphOmittedEdges, readModel.omittedEdgeCount),
+      detail(PortalDetails.EvidenceReferences, memoryGraphEvidenceRefs(readModel)),
+      detail(PortalDetails.DegradedState, detailList(readModel.degradedReasons)),
+      detail(PortalDetails.ProductClaim, 'source-cited-memory-graph-read-model-only'),
+    ],
+  };
+}
+
+function memoryGraphEvidenceRefs(readModel: PortalActivityMemoryGraphReadModel): string {
+  const refs = new Set<string>();
+  for (const node of readModel.nodes) {
+    for (const evidenceRef of node.trace.sourceEvidenceReferences) {
+      refs.add(evidenceRef.evidenceReferenceId);
+    }
+  }
+  for (const edge of readModel.edges) {
+    for (const evidenceRef of edge.trace.sourceEvidenceReferences) {
+      refs.add(evidenceRef.evidenceReferenceId);
+    }
+  }
+  return refs.size === 0 ? 'not-reported' : Array.from(refs).join(',');
+}
+
+function detailList(values: readonly string[]): string {
+  return values.length === 0 ? 'not-reported' : values.join(',');
 }
 
 function detail(label: DisplayText, value: unknown): LocalAiRuntimePanelDetail {

@@ -4,7 +4,7 @@ import {
   AgentEventEnvelopeSchema,
   AgentProtocolDefaults,
 } from '@ocentra-parent/agent-protocol-domain/contracts';
-import { createLocalAiRuntimePanelIntent, PortalDetails } from '../src/contracts';
+import { createLocalAiRuntimePanelIntent, parseActivityMemoryGraphReadModel, PortalDetails } from '../src/contracts';
 
 describe('local AI runtime panel intent', () => {
   it('renders runtime and household job rows from real agent event envelopes', () => {
@@ -27,6 +27,29 @@ describe('local AI runtime panel intent', () => {
     expect(intent.cards[1]?.details).toContainEqual({
       label: PortalDetails.Status,
       value: 'claimed',
+    });
+  });
+
+  it('renders source-cited memory and graph evidence rows from the service read model', () => {
+    const graph = parseActivityMemoryGraphReadModel(memoryGraphEvent().payload);
+    const intent = createLocalAiRuntimePanelIntent(localAiRuntimeStatusEvent(), lanAiJobEvent(), graph);
+
+    expect(intent.cards.map((card) => card.title)).toEqual([
+      'Local AI runtime status',
+      'Household AI job activity',
+      'Cited memory and graph evidence',
+    ]);
+    expect(intent.cards[2]?.details).toContainEqual({
+      label: PortalDetails.GraphEdges,
+      value: '1',
+    });
+    expect(intent.cards[2]?.details).toContainEqual({
+      label: PortalDetails.EvidenceReferences,
+      value: 'evidence-screen-summary-1',
+    });
+    expect(intent.cards[2]?.details).toContainEqual({
+      label: PortalDetails.ProductClaim,
+      value: 'source-cited-memory-graph-read-model-only',
     });
   });
 
@@ -99,4 +122,109 @@ function lanAiJobEvent() {
     },
     snapshot: null,
   });
+}
+
+function memoryGraphEvent() {
+  return AgentEventEnvelopeSchema.parse({
+    schemaVersion: 1,
+    eventId: 'evt-memory-graph',
+    correlationId: 'cmd-memory-graph',
+    sentAt: '2026-06-07T19:16:00Z',
+    source: {
+      peerId: 'local-dev-agent',
+      role: 'agent-service',
+    },
+    target: {
+      peerId: 'portal-dev',
+      role: 'portal',
+    },
+    event: AgentEvent.ActivityMemoryGraphReported,
+    severity: 'info',
+    payload: {
+      [AgentProtocolDefaults.Field.ActivityDigest]: JSON.stringify(memoryGraphDigest()),
+    },
+    snapshot: null,
+  });
+}
+
+function memoryGraphDigest() {
+  return {
+    schemaVersion: 1,
+    generatedAt: '2026-06-07T19:16:00Z',
+    custody: 'child-device-query-store',
+    capabilityStatus: 'ready',
+    query: {
+      queryId: 'query-memory-graph-1',
+      queryKind: 'explain-evidence',
+      childProfile: {
+        childProfileId: 'child-profile-1',
+        displayName: 'Child',
+      },
+      device: {
+        deviceId: 'child-device-1',
+        childProfileId: 'child-profile-1',
+        label: 'Child desktop',
+        platform: 'windows',
+      },
+      timeRange: {
+        observedFrom: '2026-06-07T19:00:00Z',
+        observedUntil: '2026-06-07T19:16:00Z',
+      },
+      asOf: '2026-06-07T19:16:00Z',
+      limit: 10,
+    },
+    readAt: '2026-06-07T19:16:01Z',
+    nodes: [memoryGraphNode('node-device', 'device', 'Child desktop')],
+    edges: [memoryGraphEdge()],
+    returnedNodeCount: 1,
+    returnedEdgeCount: 1,
+    omittedEdgeCount: 0,
+    degradedReasons: [],
+  };
+}
+
+function memoryGraphNode(nodeId: string, nodeKind: string, label: string) {
+  return {
+    graphId: 'activity-memory-v1',
+    nodeId,
+    nodeKind,
+    label,
+    childProfile: null,
+    device: null,
+    trace: memoryGraphTrace(),
+  };
+}
+
+function memoryGraphEdge() {
+  return {
+    graphId: 'activity-memory-v1',
+    edgeId: 'edge-screen-summary-1',
+    edgeKind: 'derived-from-evidence',
+    fromNodeId: 'node-device',
+    toNodeId: 'node-device',
+    observedFrom: '2026-06-07T19:00:00Z',
+    observedUntil: '2026-06-07T19:16:00Z',
+    durationMs: 960000,
+    trace: memoryGraphTrace(),
+  };
+}
+
+function memoryGraphTrace() {
+  return {
+    entryStatus: 'usable',
+    sourceEvidenceReferences: [
+      {
+        evidenceReferenceId: 'evidence-screen-summary-1',
+        kind: 'screen-summary',
+        observedAt: '2026-06-07T19:00:00Z',
+      },
+    ],
+    sourcePolicyVersion: null,
+    sourceParentActionReferences: [],
+    generatedAt: '2026-06-07T19:16:00Z',
+    expiresAt: null,
+    confidence: 0.91,
+    derivedIndexVersion: 'activity-memory-v1',
+    degradedReasons: [],
+  };
 }

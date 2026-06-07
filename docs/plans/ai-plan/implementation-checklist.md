@@ -221,7 +221,10 @@ consumes the same results.
 - [x] AI jobs/activity surface renders existing local runtime status and LAN AI
       job events on the `#/ai-runtime` portal route.
 - [ ] AI decision explanation surface.
-- [ ] Memory/graph evidence surface.
+- [x] Memory/graph evidence surface renders source-cited service-backed
+      activity-memory graph rows on the `#/ai-runtime` portal route without
+      production graph storage/index runtime, model-quality, policy-authority,
+      remote/API AI, or enforcement claims.
 - [ ] Remote boundary surface.
 - [ ] Household AI provider mesh surface: provider class, trust, capability,
       queue depth, heartbeat, resource state, worker-only status, claim/lease,

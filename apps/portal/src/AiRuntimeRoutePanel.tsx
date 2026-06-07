@@ -28,7 +28,11 @@ export function AiRuntimeRoutePanel({
   readonly commandEnabled: boolean;
   readonly liveActivity: PortalLiveActivityState;
 }): ReactElement {
-  const intent = createLocalAiRuntimePanelIntent(liveActivity.localAiRuntimeStatusEvent, liveActivity.lanAiJobEvent);
+  const intent = createLocalAiRuntimePanelIntent(
+    liveActivity.localAiRuntimeStatusEvent,
+    liveActivity.lanAiJobEvent,
+    liveActivity.activityMemoryGraphReadModel
+  );
   return (
     <section
       aria-label={PortalText.Resolve(PortalTextToken.AiRuntime)}

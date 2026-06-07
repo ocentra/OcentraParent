@@ -16,7 +16,7 @@ describe('AI runtime route panel', () => {
   });
 
   it('selects real local AI runtime and household AI job events from live state', () => {
-    const state = resolveLiveActivityState([localAiRuntimeStatusEvent(), lanAiJobEvent()]);
+    const state = resolveLiveActivityState([localAiRuntimeStatusEvent(), lanAiJobEvent(), memoryGraphEvent()]);
 
     expect(state.localAiRuntimeStatusEvent?.event).toBe(AgentEvent.LocalAiRuntimeStatusReported);
     expect(state.localAiRuntimeStatusEvent?.payload[AgentProtocolDefaults.Field.LocalAiModelId]).toBe(
@@ -24,6 +24,10 @@ describe('AI runtime route panel', () => {
     );
     expect(state.lanAiJobEvent?.event).toBe(AgentEvent.LanAiJobReported);
     expect(state.lanAiJobEvent?.payload[AgentProtocolDefaults.Field.LanAiJobStatus]).toBe('claimed');
+    expect(state.activityMemoryGraphReadModel?.returnedEdgeCount).toBe(1);
+    expect(state.activityMemoryGraphReadModel?.edges[0]?.trace.sourceEvidenceReferences[0]?.evidenceReferenceId).toBe(
+      'evidence-screen-summary-1'
+    );
   });
 });
 
@@ -76,4 +80,109 @@ function lanAiJobEvent() {
     },
     snapshot: null,
   });
+}
+
+function memoryGraphEvent() {
+  return AgentEventEnvelopeSchema.parse({
+    schemaVersion: 1,
+    eventId: 'evt-memory-graph',
+    correlationId: 'cmd-memory-graph',
+    sentAt: '2026-06-07T19:16:00Z',
+    source: {
+      peerId: 'local-dev-agent',
+      role: 'agent-service',
+    },
+    target: {
+      peerId: 'portal-dev',
+      role: 'portal',
+    },
+    event: AgentEvent.ActivityMemoryGraphReported,
+    severity: 'info',
+    payload: {
+      [AgentProtocolDefaults.Field.ActivityDigest]: JSON.stringify(memoryGraphDigest()),
+    },
+    snapshot: null,
+  });
+}
+
+function memoryGraphDigest() {
+  return {
+    schemaVersion: 1,
+    generatedAt: '2026-06-07T19:16:00Z',
+    custody: 'child-device-query-store',
+    capabilityStatus: 'ready',
+    query: {
+      queryId: 'query-memory-graph-1',
+      queryKind: 'explain-evidence',
+      childProfile: {
+        childProfileId: 'child-profile-1',
+        displayName: 'Child',
+      },
+      device: {
+        deviceId: 'child-device-1',
+        childProfileId: 'child-profile-1',
+        label: 'Child desktop',
+        platform: 'windows',
+      },
+      timeRange: {
+        observedFrom: '2026-06-07T19:00:00Z',
+        observedUntil: '2026-06-07T19:16:00Z',
+      },
+      asOf: '2026-06-07T19:16:00Z',
+      limit: 10,
+    },
+    readAt: '2026-06-07T19:16:01Z',
+    nodes: [memoryGraphNode()],
+    edges: [memoryGraphEdge()],
+    returnedNodeCount: 1,
+    returnedEdgeCount: 1,
+    omittedEdgeCount: 0,
+    degradedReasons: [],
+  };
+}
+
+function memoryGraphNode() {
+  return {
+    graphId: 'activity-memory-v1',
+    nodeId: 'node-device',
+    nodeKind: 'device',
+    label: 'Child desktop',
+    childProfile: null,
+    device: null,
+    trace: memoryGraphTrace(),
+  };
+}
+
+function memoryGraphEdge() {
+  return {
+    graphId: 'activity-memory-v1',
+    edgeId: 'edge-screen-summary-1',
+    edgeKind: 'derived-from-evidence',
+    fromNodeId: 'node-device',
+    toNodeId: 'node-device',
+    observedFrom: '2026-06-07T19:00:00Z',
+    observedUntil: '2026-06-07T19:16:00Z',
+    durationMs: 960000,
+    trace: memoryGraphTrace(),
+  };
+}
+
+function memoryGraphTrace() {
+  return {
+    entryStatus: 'usable',
+    sourceEvidenceReferences: [
+      {
+        evidenceReferenceId: 'evidence-screen-summary-1',
+        kind: 'screen-summary',
+        observedAt: '2026-06-07T19:00:00Z',
+      },
+    ],
+    sourcePolicyVersion: null,
+    sourceParentActionReferences: [],
+    generatedAt: '2026-06-07T19:16:00Z',
+    expiresAt: null,
+    confidence: 0.91,
+    derivedIndexVersion: 'activity-memory-v1',
+    degradedReasons: [],
+  };
 }

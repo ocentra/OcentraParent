@@ -308,6 +308,13 @@ claim needs proof, not slogans.
   jobs/activity visibility surface for service-reported runtime/job rows only;
   it does not claim model quality, physical LAN execution, policy authority, or
   enforcement.
+- The same `#/ai-runtime` route now renders a cited memory/graph evidence card
+  from the existing service-backed `agent.activity.memory_graph.reported` event.
+  The card preserves child-device custody, graph node/edge counts, omitted-edge
+  counts, degraded reasons, and source evidence refs. This closes the
+  memory/graph evidence portal surface for reported read-model rows only; it
+  does not claim production graph storage/index runtime, model quality, policy
+  authority, remote/API AI, or enforcement.
 - `ScreenAiStricterParentRuleProofSchema` and
   `scripts/test/screen-ai-stricter-parent-rule-proof.mjs` now consume the real
   service WinRT OCR policy decision and prove a stricter parent-authored screen
@@ -399,7 +406,8 @@ public/live surface proof, production parent explanation portal rendering,
 broader enforcement handoff, production browser-trigger producers, physical
 household family AI hub runtime/discovery beyond the loopback proof,
 production remote assistant provider execution and portal assistant UI,
-memory/graph evidence UI, remote boundary UI, cloud-streamed frame proof,
+production memory/graph storage/index runtime, remote boundary UI,
+cloud-streamed frame proof,
 mobile browser parity, live service AI event consumers, degraded-result event
 flow, production household mesh transport over physical LAN, live provider
 advertisement/heartbeat gossip, live lease expiry and dead-letter handling, and
@@ -510,8 +518,9 @@ Production-installed model artifacts, production model/OCR quality,
 authenticated-account social proof, physical household family AI hub
 runtime/discovery, production mesh bridge transport over real LAN, live provider
 advertisement/heartbeat gossip, lease expiry/dead-letter handling, live service
-AI event consumers, degraded-result event flow, memory/graph UI, remote boundary
-UI, and broad enforcement handoff remain in the Current Gap section above.
+AI event consumers, degraded-result event flow, remote boundary UI, production
+memory/graph storage/index runtime, and broad enforcement handoff remain in the
+Current Gap section above.
 
 ## Next AI Instructions
 
