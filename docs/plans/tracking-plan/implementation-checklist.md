@@ -649,11 +649,11 @@ Every implementation workpack must update, or explicitly justify not updating:
       hosted parent action readiness proof, hosted child-safe check-in screenshot
       proof, hosted child-runtime UI proof, hosted child-runtime execution
       readiness proof, hosted read-only evidence drawer proof, hosted UI
-      artifact inventory proof, product-readiness closure proof,
-      physical-device artifact gate proof, and remaining Android/iOS
-      physical-device behavior, authority, actual child-device delivery/runtime
-      execution, full child/parent UI beyond the hosted parent route,
-      provider-delivery, and production gaps.
+      artifact inventory proof, physical-device artifact gate proof, refreshed
+      product-readiness closure proof, and remaining Android/iOS physical-device
+      behavior, authority, actual child-device delivery/runtime execution, full
+      child/parent UI beyond the hosted parent route, provider-delivery, and
+      production gaps.
 
 ## UI Snapshot Gates
 
