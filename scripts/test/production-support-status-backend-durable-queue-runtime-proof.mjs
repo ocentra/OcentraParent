@@ -215,7 +215,7 @@ async function assertDocumentationProof() {
     'docs/features/production-distribution-support.md',
     'docs/expectations/data-custody.md',
     'docs/product-capability-checklist.md',
-    'packages/parent-domain/readme.md',
+    'packages/parent-domain/README.md',
   ];
   for (const path of docs) {
     assertIncludes(await readRepoFile(path), proofMode, `${path} proof note`);
