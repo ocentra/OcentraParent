@@ -7,11 +7,27 @@ pub(crate) struct TimerParentSurfaceControlActionResults {
     pub(crate) enforcement_statuses: Vec<String>,
     pub(crate) child_reason_reference_ids: Vec<String>,
     pub(crate) child_status_reference_ids: Vec<String>,
+    pub(crate) child_ux_handoff_ready_count: u64,
+    pub(crate) child_ux_handoff_blocked_count: u64,
+    pub(crate) child_ux_handoff_reference_ids: Vec<String>,
 }
 
 pub(crate) fn timer_parent_surface_control_action_results(
     model: &AppGameServiceReadModel,
 ) -> TimerParentSurfaceControlActionResults {
+    let child_ux_handoff_reference_ids: Vec<String> = model
+        .approval_action_result_rows
+        .iter()
+        .filter(|row| {
+            !row.request.child_reason_references.is_empty()
+                && !row.request.child_status_references.is_empty()
+        })
+        .map(|row| row.result_id.clone())
+        .collect();
+    let child_ux_handoff_ready_count = child_ux_handoff_reference_ids.len() as u64;
+    let child_ux_handoff_blocked_count =
+        model.approval_action_result_rows.len() as u64 - child_ux_handoff_ready_count;
+
     TimerParentSurfaceControlActionResults {
         reference_ids: model
             .approval_action_result_rows
@@ -49,6 +65,9 @@ pub(crate) fn timer_parent_surface_control_action_results(
                 .iter()
                 .flat_map(|row| row.request.child_status_references.iter().cloned()),
         ),
+        child_ux_handoff_ready_count,
+        child_ux_handoff_blocked_count,
+        child_ux_handoff_reference_ids,
     }
 }
 

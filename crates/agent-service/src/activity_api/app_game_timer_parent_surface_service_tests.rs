@@ -74,6 +74,9 @@ async fn app_game_timer_parent_surface_command_reports_service_backed_rows() {
         .is_empty());
     assert!(read_model.child_facing_reason_reference_ids.is_empty());
     assert!(read_model.child_facing_status_reference_ids.is_empty());
+    assert_eq!(read_model.child_ux_handoff_ready_count, 0);
+    assert_eq!(read_model.child_ux_handoff_blocked_count, 0);
+    assert!(read_model.child_ux_handoff_reference_ids.is_empty());
     assert!(!read_model.timer_runtime_claimed);
     assert!(!read_model.scheduler_persistence_claimed);
     assert!(!read_model.durable_scheduler_storage_claimed);
@@ -160,6 +163,9 @@ async fn app_game_timer_parent_surface_reports_existing_active_timer_state_store
         .is_empty());
     assert!(read_model.child_facing_reason_reference_ids.is_empty());
     assert!(read_model.child_facing_status_reference_ids.is_empty());
+    assert_eq!(read_model.child_ux_handoff_ready_count, 0);
+    assert_eq!(read_model.child_ux_handoff_blocked_count, 0);
+    assert!(read_model.child_ux_handoff_reference_ids.is_empty());
     assert!(!read_model.adapter_dispatch_claimed);
     assert!(!read_model.child_delivery_claimed);
     assert!(!read_model.platform_enforcement_claimed);

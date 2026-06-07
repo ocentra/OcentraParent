@@ -35,6 +35,9 @@ const TimerParentSurfaceReadModel = {
   controlActionResultEnforcementStatuses: [],
   childFacingReasonReferenceIds: [],
   childFacingStatusReferenceIds: [],
+  childUxHandoffReadyCount: 0,
+  childUxHandoffBlockedCount: 0,
+  childUxHandoffReferenceIds: [],
   timerRuntimeClaimed: false,
   schedulerPersistenceClaimed: false,
   durableSchedulerStorageClaimed: false,
@@ -104,6 +107,9 @@ describe('agent app-game timer parent surface parser', () => {
           controlActionResultEnforcementStatuses: ['actually-enforced'],
           childFacingReasonReferenceIds: ['parent-approved'],
           childFacingStatusReferenceIds: ['child-status-limit-reached'],
+          childUxHandoffReadyCount: 1,
+          childUxHandoffBlockedCount: 0,
+          childUxHandoffReferenceIds: ['action-result-app-game-1'],
         })
       )
     );
@@ -119,6 +125,9 @@ describe('agent app-game timer parent surface parser', () => {
         controlActionResultEnforcementStatuses: ['actually-enforced'],
         childFacingReasonReferenceIds: ['parent-approved'],
         childFacingStatusReferenceIds: ['child-status-limit-reached'],
+        childUxHandoffReadyCount: 1,
+        childUxHandoffBlockedCount: 0,
+        childUxHandoffReferenceIds: ['action-result-app-game-1'],
       },
     });
   });

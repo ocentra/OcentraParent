@@ -673,6 +673,12 @@ service read model and parent portal. This gives the runtime audit and parent
 surface a child-safe reference chain for future warning/request UX while still
 not delivering child notifications, running adapters, exposing diagnostics, or
 claiming platform enforcement.
+The timer parent-surface read model now also reports child UX handoff readiness
+counts and result-reference ids for replayed action-result rows that have both
+child reason and child status refs. Parent-domain handoff validation turns
+child UX cards into ready or blocked local handoff rows without claiming child
+delivery, notification delivery, adapter dispatch, platform enforcement, private
+diagnostics, or raw private source rows.
 
 ## Checklist
 

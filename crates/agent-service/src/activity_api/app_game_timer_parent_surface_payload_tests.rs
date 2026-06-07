@@ -85,6 +85,12 @@ fn app_game_timer_parent_surface_payload_reports_game_rows_without_runtime_claim
         decoded.child_facing_status_reference_ids,
         vec![APP_GAME_TEST_ACTION_REFERENCE_ID.to_string()]
     );
+    assert_eq!(decoded.child_ux_handoff_ready_count, 1);
+    assert_eq!(decoded.child_ux_handoff_blocked_count, 0);
+    assert_eq!(
+        decoded.child_ux_handoff_reference_ids,
+        vec![APP_GAME_TEST_ACTION_RESULT_ID.to_string()]
+    );
     assert!(!decoded.timer_runtime_claimed);
     assert!(!decoded.scheduler_persistence_claimed);
     assert!(!decoded.durable_scheduler_storage_claimed);

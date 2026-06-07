@@ -34,6 +34,9 @@ const TimerParentSurfaceReadModel = {
   controlActionResultEnforcementStatuses: [],
   childFacingReasonReferenceIds: [],
   childFacingStatusReferenceIds: [],
+  childUxHandoffReadyCount: 0,
+  childUxHandoffBlockedCount: 0,
+  childUxHandoffReferenceIds: [],
   timerRuntimeClaimed: false,
   schedulerPersistenceClaimed: false,
   durableSchedulerStorageClaimed: false,
@@ -121,6 +124,18 @@ function expectServiceBackedIntent() {
     value: 'Not reported',
   });
   expect(intent.summaryDetails).toContainEqual({
+    label: 'Child UX handoff ready',
+    value: '0',
+  });
+  expect(intent.summaryDetails).toContainEqual({
+    label: 'Child UX handoff blocked',
+    value: '0',
+  });
+  expect(intent.summaryDetails).toContainEqual({
+    label: 'Child UX handoff refs',
+    value: 'Not reported',
+  });
+  expect(intent.summaryDetails).toContainEqual({
     label: 'Adapter dispatch',
     value: 'Not claimed',
   });
@@ -193,6 +208,9 @@ function expectControlActionResultVisibility() {
     controlActionResultEnforcementStatuses: ['actually-enforced'],
     childFacingReasonReferenceIds: ['parent-approved'],
     childFacingStatusReferenceIds: ['child-status-limit-reached'],
+    childUxHandoffReadyCount: 1,
+    childUxHandoffBlockedCount: 0,
+    childUxHandoffReferenceIds: ['action-result-app-game-1'],
   };
   const liveActivity = resolveLiveActivityState([timerParentSurfaceEvent(JSON.stringify(actionResultModel))]);
 
@@ -225,6 +243,18 @@ function expectControlActionResultVisibility() {
   expect(intent.summaryDetails).toContainEqual({
     label: 'Child-facing status refs',
     value: 'child-status-limit-reached',
+  });
+  expect(intent.summaryDetails).toContainEqual({
+    label: 'Child UX handoff ready',
+    value: '1',
+  });
+  expect(intent.summaryDetails).toContainEqual({
+    label: 'Child UX handoff blocked',
+    value: '0',
+  });
+  expect(intent.summaryDetails).toContainEqual({
+    label: 'Child UX handoff refs',
+    value: 'action-result-app-game-1',
   });
   expect(intent.summaryDetails).toContainEqual({
     label: 'Adapter dispatch',

@@ -1,0 +1,21 @@
+{
+  "workpack": "WP117",
+  "slug": "timer-parent-surface-child-ux-handoff-readiness",
+  "branch": "codex/app-game-control-product-completion",
+  "status": "validated",
+  "scope": [
+    "service timer parent-surface child UX handoff readiness counts",
+    "parent-domain child UX handoff read-model validation",
+    "portal timer parent-surface handoff summary rendering"
+  ],
+  "noClaims": [
+    "child delivery runtime",
+    "notification provider delivery",
+    "adapter dispatch",
+    "broad blocking",
+    "platform enforcement",
+    "private diagnostics",
+    "raw private source rows"
+  ],
+  "productChecklist": "deferred because another lane owns docs/product-capability-checklist.md"
+}
