@@ -107,6 +107,7 @@ before `DONE` or PR-ready reporting.
 99. WP108 app/game source-gated policy preview timer service read API response consumer parent-surface handoff.
 100. WP109 app/game timer parent-surface service read-model command/event.
 101. WP110 app/game timer parent-surface portal renderer.
+102. WP111 app/game timer parent-surface active state-store bridge.
 
 ## Standard AI Worker Checklist
 

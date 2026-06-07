@@ -1,8 +1,9 @@
 use ocentra_parent_agent_protocol::{
     constants, ActivityEvidenceKind, ActivityEvidenceRef, AgentCommandEnvelope, AgentEventEnvelope,
     AgentEventName, AppGameServiceReadModel, AppGameTimerParentSurfaceReadModel,
-    AppGameTimerParentSurfaceRow, LogFieldValue, LogFields, LogLevel, APP_GAME_PRODUCT_NATIVE_GAME,
-    APP_GAME_SCHEMA_VERSION, APP_GAME_TIMER_PARENT_SURFACE_CUSTODY_CHILD_DEVICE_QUERY_STORE,
+    AppGameTimerParentSurfaceRow, EnforcementActiveTimerState, LogFieldValue, LogFields, LogLevel,
+    APP_GAME_PRODUCT_NATIVE_GAME, APP_GAME_SCHEMA_VERSION,
+    APP_GAME_TIMER_PARENT_SURFACE_CUSTODY_CHILD_DEVICE_QUERY_STORE,
     APP_GAME_TIMER_PARENT_SURFACE_STATE_BLOCKED_BY_COMPILER_DECISION,
     APP_GAME_TIMER_PARENT_SURFACE_STATE_BLOCKED_BY_SOURCE_FRESHNESS,
     APP_GAME_TIMER_PARENT_SURFACE_STATE_READY_FOR_PARENT_SURFACE,
@@ -13,7 +14,9 @@ use ocentra_parent_agent_protocol::{
 };
 
 use crate::{
-    activity_surface_store::load_app_game_model, event_builder::build_event,
+    activity_surface_store::load_app_game_model,
+    enforcement_timer_state_file::read_active_timer_state,
+    enforcement_timer_state_path::enforcement_timer_state_path, event_builder::build_event,
     fields::fields_from_pairs,
 };
 
@@ -24,7 +27,14 @@ pub async fn build_activity_app_game_timer_parent_surface_report(
 ) -> AgentEventEnvelope {
     match load_app_game_model().await {
         Some(model) => {
-            let read_model = app_game_timer_parent_surface_from_service_model(model);
+            let timer_state = read_active_timer_state(&enforcement_timer_state_path())
+                .await
+                .ok()
+                .flatten();
+            let read_model = app_game_timer_parent_surface_from_service_model_with_timer_state(
+                model,
+                timer_state.as_ref(),
+            );
             build_event(
                 constants::event_id::ACTIVITY_APP_GAME_TIMER_PARENT_SURFACE_READ_MODEL_REPORTED,
                 &command.message_id,
@@ -43,8 +53,16 @@ pub async fn build_activity_app_game_timer_parent_surface_report(
     }
 }
 
+#[cfg_attr(not(test), allow(dead_code))]
 pub fn app_game_timer_parent_surface_from_service_model(
     model: AppGameServiceReadModel,
+) -> AppGameTimerParentSurfaceReadModel {
+    app_game_timer_parent_surface_from_service_model_with_timer_state(model, None)
+}
+
+pub fn app_game_timer_parent_surface_from_service_model_with_timer_state(
+    model: AppGameServiceReadModel,
+    active_timer_state: Option<&EnforcementActiveTimerState>,
 ) -> AppGameTimerParentSurfaceReadModel {
     let rows = timer_parent_surface_rows(&model);
     let returned = rows.len() as u64;
@@ -64,6 +82,7 @@ pub fn app_game_timer_parent_surface_from_service_model(
         &rows,
         APP_GAME_TIMER_PARENT_SURFACE_STATE_RUNTIME_MANUAL_REQUIRED,
     );
+    let active_timer_state_exists = active_timer_state.is_some();
 
     AppGameTimerParentSurfaceReadModel {
         schema_version: APP_GAME_SCHEMA_VERSION,
@@ -75,9 +94,9 @@ pub fn app_game_timer_parent_surface_from_service_model(
         blocked_by_source_freshness_count,
         blocked_by_compiler_decision_count,
         runtime_manual_required_count,
-        timer_runtime_claimed: false,
-        scheduler_persistence_claimed: false,
-        durable_scheduler_storage_claimed: false,
+        timer_runtime_claimed: active_timer_state_exists,
+        scheduler_persistence_claimed: active_timer_state_exists,
+        durable_scheduler_storage_claimed: active_timer_state_exists,
         audit_runtime_claimed: false,
         rollback_runtime_claimed: false,
         adapter_dispatch_claimed: false,

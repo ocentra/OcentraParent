@@ -2,26 +2,29 @@ use std::fs::remove_file;
 
 use ocentra_parent_agent_core::ActivityStore;
 use ocentra_parent_agent_protocol::{
-    constants, ActivityEvent, ActivityEventKind, ActivityEvidenceKind, ActivityEvidenceRef,
-    ActivityObserver, ActivitySource, ActivitySubject, ActivitySubjectKind, AgentCommandEnvelope,
-    AgentCommandName, AgentEventName, AgentMessageTarget, AgentPeer, AgentPeerRole, AgentRoute,
-    AppGameEvidenceClaim, AppGameTimerParentSurfaceReadModel, LogFieldValue, LogFields,
-    ACTIVITY_SCHEMA_VERSION, AGENT_PROTOCOL_SCHEMA_VERSION, APP_GAME_CATALOG_READY,
-    APP_GAME_CLASSIFICATION_KNOWN_GAME, APP_GAME_EVIDENCE_CLAIM_KIND_INVENTORY,
-    APP_GAME_FOREGROUND_NOT_CLAIMED, APP_GAME_IDENTITY_STRENGTH_CATALOG_MATCHED,
-    APP_GAME_JOURNAL_CUSTODY_LOCAL_JOURNAL, APP_GAME_JOURNAL_FIELD_CLASSIFICATION_STATE,
-    APP_GAME_JOURNAL_FIELD_CUSTODY_LABEL, APP_GAME_JOURNAL_FIELD_REPLAY_STATE,
-    APP_GAME_JOURNAL_FIELD_ROW_JSON, APP_GAME_JOURNAL_FIELD_ROW_KIND,
-    APP_GAME_JOURNAL_REPLAY_STATE_STORED, APP_GAME_JOURNAL_ROW_KIND_EVIDENCE_CLAIM,
-    APP_GAME_JOURNAL_SOURCE_ID, APP_GAME_OBSERVATION_MODE_INVENTORY_SCAN,
-    APP_GAME_RUNTIME_NOT_CLAIMED, APP_GAME_SCHEMA_VERSION, APP_GAME_TEST_DISPLAY_LABEL,
-    APP_GAME_TEST_EVIDENCE_CLAIM_ID, APP_GAME_TEST_EVIDENCE_REF_ID, APP_GAME_TEST_TIMESTAMP,
+    constants, policy_constants, ActivityEvent, ActivityEventKind, ActivityEvidenceKind,
+    ActivityEvidenceRef, ActivityObserver, ActivitySource, ActivitySubject, ActivitySubjectKind,
+    AgentCommandEnvelope, AgentCommandName, AgentEventName, AgentMessageTarget, AgentPeer,
+    AgentPeerRole, AgentRoute, AppGameEvidenceClaim, AppGameTimerParentSurfaceReadModel,
+    LogFieldValue, LogFields, ACTIVITY_SCHEMA_VERSION, AGENT_PROTOCOL_SCHEMA_VERSION,
+    APP_GAME_CATALOG_READY, APP_GAME_CLASSIFICATION_KNOWN_GAME,
+    APP_GAME_EVIDENCE_CLAIM_KIND_INVENTORY, APP_GAME_FOREGROUND_NOT_CLAIMED,
+    APP_GAME_IDENTITY_STRENGTH_CATALOG_MATCHED, APP_GAME_JOURNAL_CUSTODY_LOCAL_JOURNAL,
+    APP_GAME_JOURNAL_FIELD_CLASSIFICATION_STATE, APP_GAME_JOURNAL_FIELD_CUSTODY_LABEL,
+    APP_GAME_JOURNAL_FIELD_REPLAY_STATE, APP_GAME_JOURNAL_FIELD_ROW_JSON,
+    APP_GAME_JOURNAL_FIELD_ROW_KIND, APP_GAME_JOURNAL_REPLAY_STATE_STORED,
+    APP_GAME_JOURNAL_ROW_KIND_EVIDENCE_CLAIM, APP_GAME_JOURNAL_SOURCE_ID,
+    APP_GAME_OBSERVATION_MODE_INVENTORY_SCAN, APP_GAME_RUNTIME_NOT_CLAIMED,
+    APP_GAME_SCHEMA_VERSION, APP_GAME_TEST_DISPLAY_LABEL, APP_GAME_TEST_EVIDENCE_CLAIM_ID,
+    APP_GAME_TEST_EVIDENCE_REF_ID, APP_GAME_TEST_TIMESTAMP,
     APP_GAME_TIMER_PARENT_SURFACE_STATE_BLOCKED_BY_SOURCE_FRESHNESS,
     APP_GAME_TIMER_PARENT_SURFACE_STATUS_PARTIAL, APP_GAME_TIMER_PARENT_SURFACE_TARGET_NATIVE_APP,
 };
 
 use crate::{
-    activity_report_env_lock::REPORT_ENV_LOCK, lan_pairing::LanPairingRuntime,
+    activity_report_env_lock::REPORT_ENV_LOCK,
+    enforcement_api::{build_enforcement_audit_report_with_paths, EnforcementJournalPaths},
+    lan_pairing::LanPairingRuntime,
     websocket::handle_command_text_for_test,
 };
 
@@ -86,6 +89,61 @@ async fn app_game_timer_parent_surface_command_reports_service_backed_rows() {
     );
 }
 
+#[tokio::test]
+async fn app_game_timer_parent_surface_reports_existing_active_timer_state_store() {
+    let _guard = REPORT_ENV_LOCK.lock().await;
+    let store_path = temp_path(constants::activity_store::TEST_STORE_SUFFIX);
+    let timer_state_path = temp_path(constants::enforcement::TIMER_STATE_ID_PREFIX);
+    cleanup_path(&store_path);
+    cleanup_path(&timer_state_path);
+    std::env::set_var(constants::env_var::ACTIVITY_DB_PATH, &store_path);
+    std::env::set_var(
+        constants::env_var::AGENT_ENFORCEMENT_TIMER_STATE_PATH,
+        &timer_state_path,
+    );
+
+    let store = ActivityStore::open(&store_path).expect(constants::error::ACTIVITY_STORE_OPENS);
+    store
+        .ingest_events(&[evidence_claim_activity_event()])
+        .expect(constants::error::ACTIVITY_STORE_INGESTS);
+    let enforcement_paths = enforcement_paths(&store_path, &timer_state_path);
+    cleanup_path(&enforcement_paths.journal_path);
+    cleanup_path(&enforcement_paths.key_path);
+    let enforcement_event = build_enforcement_audit_report_with_paths(
+        enforcement_execute_command(),
+        enforcement_paths.clone(),
+    )
+    .await;
+
+    let body =
+        serde_json::to_string(&command_envelope()).expect(constants::error::AGENT_EVENT_SERIALIZES);
+    let event = handle_command_text_for_test(&body, LanPairingRuntime::empty(), None).await;
+    let read_model = timer_parent_surface_payload(
+        &event.payload[constants::field::APP_GAME_TIMER_PARENT_SURFACE_READ_MODEL],
+    );
+
+    std::env::remove_var(constants::env_var::ACTIVITY_DB_PATH);
+    std::env::remove_var(constants::env_var::AGENT_ENFORCEMENT_TIMER_STATE_PATH);
+    cleanup_path(&store_path);
+    cleanup_path(&timer_state_path);
+    cleanup_path(&enforcement_paths.journal_path);
+    cleanup_path(&enforcement_paths.key_path);
+
+    assert_eq!(
+        enforcement_event.event,
+        AgentEventName::AgentEnforcementAuditReported
+    );
+    assert!(read_model.timer_runtime_claimed);
+    assert!(read_model.scheduler_persistence_claimed);
+    assert!(read_model.durable_scheduler_storage_claimed);
+    assert!(!read_model.audit_runtime_claimed);
+    assert!(!read_model.rollback_runtime_claimed);
+    assert!(!read_model.adapter_dispatch_claimed);
+    assert!(!read_model.child_delivery_claimed);
+    assert!(!read_model.platform_enforcement_claimed);
+    assert!(!read_model.raw_private_source_rows_included);
+}
+
 fn command_envelope() -> AgentCommandEnvelope {
     AgentCommandEnvelope {
         schema_version: AGENT_PROTOCOL_SCHEMA_VERSION,
@@ -106,6 +164,94 @@ fn command_envelope() -> AgentCommandEnvelope {
         command: AgentCommandName::AgentActivityAppGameTimerParentSurfaceReadModelGet,
         payload: LogFields::new(),
     }
+}
+
+fn enforcement_execute_command() -> AgentCommandEnvelope {
+    AgentCommandEnvelope {
+        schema_version: AGENT_PROTOCOL_SCHEMA_VERSION,
+        message_id: constants::enforcement::TEST_ACTION_ID.to_string(),
+        sent_at: policy_constants::TEST_EVALUATED_AT.to_string(),
+        source: AgentPeer {
+            peer_id: constants::peer::PORTAL_DEV.to_string(),
+            role: AgentPeerRole::Portal,
+        },
+        target: AgentMessageTarget {
+            device_id: constants::enforcement::TEST_CHILD_DEVICE_ID.to_string(),
+            platform: constants::enforcement::PLATFORM_WINDOWS.to_string(),
+            route: AgentRoute::Localhost,
+        },
+        command: AgentCommandName::AgentEnforcementExecute,
+        payload: enforcement_execute_payload(),
+    }
+}
+
+fn enforcement_execute_payload() -> LogFields {
+    let mut fields = LogFields::new();
+    fields.insert(
+        constants::field::POLICY_DECISION_ID.to_string(),
+        LogFieldValue::String(policy_constants::TEST_DECISION_ID.to_string()),
+    );
+    fields.insert(
+        constants::field::POLICY_VERSION.to_string(),
+        LogFieldValue::String(policy_constants::TEST_POLICY_VERSION.to_string()),
+    );
+    fields.insert(
+        constants::field::REQUESTED_AT.to_string(),
+        LogFieldValue::String(policy_constants::TEST_EVALUATED_AT.to_string()),
+    );
+    fields.insert(
+        constants::field::POLICY_ACTION.to_string(),
+        LogFieldValue::String(policy_constants::ACTION_ASK_PARENT.to_string()),
+    );
+    fields.insert(
+        constants::field::POLICY_TARGET_TYPE.to_string(),
+        LogFieldValue::String(policy_constants::TARGET_TYPE_DEVICE.to_string()),
+    );
+    fields.insert(
+        constants::field::TARGET_ID.to_string(),
+        LogFieldValue::String(constants::enforcement::TEST_CHILD_DEVICE_ID.to_string()),
+    );
+    fields.insert(
+        constants::field::POLICY_TARGET_VALUE.to_string(),
+        LogFieldValue::String(constants::enforcement::TEST_CHILD_DEVICE_ID.to_string()),
+    );
+    fields.insert(
+        constants::field::POLICY_DRY_RUN.to_string(),
+        LogFieldValue::Boolean(false),
+    );
+    fields.insert(
+        constants::field::POLICY_REASON_CODES.to_string(),
+        LogFieldValue::String(policy_constants::TEST_REASON_PARENT_BLOCK.to_string()),
+    );
+    fields.insert(
+        constants::field::POLICY_RULE_IDS.to_string(),
+        LogFieldValue::String(policy_constants::TEST_BLOCK_RULE_ID.to_string()),
+    );
+    fields.insert(
+        constants::field::EVIDENCE_REFERENCE_IDS.to_string(),
+        LogFieldValue::String(policy_constants::TEST_EVIDENCE_ID.to_string()),
+    );
+    fields.insert(
+        constants::field::EXPIRES_AT.to_string(),
+        LogFieldValue::String(policy_constants::TEST_EXPIRES_AT.to_string()),
+    );
+    fields.insert(
+        constants::field::ENFORCEMENT_ACTION_ID.to_string(),
+        LogFieldValue::String(constants::enforcement::TEST_ACTION_ID.to_string()),
+    );
+    fields.insert(
+        constants::field::ENFORCEMENT_RESULT_ID.to_string(),
+        LogFieldValue::String(constants::enforcement::TEST_RESULT_ID.to_string()),
+    );
+    fields.insert(
+        constants::field::ENFORCEMENT_AUDIT_EVENT_ID.to_string(),
+        LogFieldValue::String(constants::enforcement::TEST_AUDIT_EVENT_ID.to_string()),
+    );
+    fields.insert(
+        constants::field::ENFORCEMENT_TIMER_EVENT_ID.to_string(),
+        LogFieldValue::String(constants::enforcement::TEST_TIMER_EVENT_ID.to_string()),
+    );
+    fields
 }
 
 fn evidence_claim_activity_event() -> ActivityEvent {
@@ -208,6 +354,18 @@ fn temp_path(suffix: &str) -> std::path::PathBuf {
     path.push(name);
     path.set_extension(constants::activity_store::FILE_EXTENSION);
     path
+}
+
+fn enforcement_paths(
+    store_path: &std::path::Path,
+    timer_state_path: &std::path::Path,
+) -> EnforcementJournalPaths {
+    EnforcementJournalPaths {
+        journal_path: temp_path(constants::activity_store::TEST_CAPTURE_JOURNAL_SUFFIX),
+        key_path: temp_path(constants::activity_store::TEST_CAPTURE_KEY_SUFFIX),
+        store_path: store_path.to_path_buf(),
+        timer_state_path: timer_state_path.to_path_buf(),
+    }
 }
 
 fn cleanup_path(path: &std::path::PathBuf) {

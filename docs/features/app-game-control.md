@@ -637,6 +637,13 @@ shows a refresh command, and renders timer parent-surface rows for native app
 and native game targets while keeping timer runtime, scheduler persistence,
 audit/rollback runtime, adapter dispatch, child delivery, platform enforcement,
 and raw private source rows unclaimed.
+The timer parent-surface service now also reads the existing enforcement active
+timer state file before reporting the read model. When a parsed active timer
+state exists, the read model can report timer runtime, scheduler persistence,
+and durable scheduler state-store visibility for the parent surface while still
+leaving live scheduling execution, audit/rollback runtime, adapter dispatch,
+child delivery, broad blocking, platform enforcement, and raw private source
+rows unclaimed.
 
 ## Checklist
 

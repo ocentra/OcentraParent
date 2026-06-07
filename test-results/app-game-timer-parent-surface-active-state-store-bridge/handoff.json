@@ -1,0 +1,26 @@
+{
+  "workpack": "111-timer-parent-surface-active-state-store-bridge",
+  "branch": "codex/app-game-control-product-completion",
+  "claimBoundary": {
+    "timerRuntimeClaimedWhenActiveStateExists": true,
+    "schedulerPersistenceClaimedWhenActiveStateExists": true,
+    "durableSchedulerStorageClaimedWhenActiveStateExists": true,
+    "auditRuntimeClaimed": false,
+    "rollbackRuntimeClaimed": false,
+    "adapterDispatchClaimed": false,
+    "childDeliveryClaimed": false,
+    "platformEnforcementClaimed": false,
+    "rawPrivateSourceRowsIncluded": false
+  },
+  "validation": [
+    {
+      "command": "cargo fmt --package ocentra-parent-agent-service",
+      "result": "passed"
+    },
+    {
+      "command": "cargo test -p ocentra-parent-agent-service app_game_timer_parent_surface",
+      "result": "passed",
+      "tests": 3
+    }
+  ]
+}
