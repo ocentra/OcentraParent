@@ -1,9 +1,13 @@
 import { spawnSync } from 'node:child_process';
+import { createHash } from 'node:crypto';
 import { mkdirSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 
 const proofRoot = join('output', 'network-plan-proof', '46-ai-detection-fixture-proof');
 const testRoot = join('test-results', 'network-ai-detection-fixture-proof');
+const proofRevision = 'network-ai-detection-fixture-proof/v1';
+const proofBranch = 'codex/network-ai-proof-artifacts';
+const deterministicCheckedAt = `deterministic:${proofRevision}`;
 mkdirSync(proofRoot, { recursive: true });
 mkdirSync(testRoot, { recursive: true });
 
@@ -65,9 +69,11 @@ const commandResults = commands.map(runCommand);
 
 const proof = {
   proof: 'network-ai-detection-fixture-proof',
-  checkedAt: new Date().toISOString(),
-  branch: runText('git', ['branch', '--show-current']).trim(),
-  sourceCommit: runText('git', ['rev-parse', 'HEAD']).trim(),
+  proofRevision,
+  checkedAt: deterministicCheckedAt,
+  branch: proofBranch,
+  sourceCommit: `source-tree:${sourceTreeFingerprint()}`,
+  sourceTreeFingerprint: sourceTreeFingerprint(),
   artifactCommit: 'see the enclosing git commit for generated proof artifacts',
   originMain: runText('git', ['rev-parse', 'origin/main']).trim(),
   mergeBase: runText('git', ['merge-base', 'HEAD', 'origin/main']).trim(),
@@ -98,16 +104,28 @@ console.log(`proof=${join(proofRoot, 'proof-summary.json')}`);
 
 function runCommand(entry) {
   const result = spawnSync(entry.command, entry.args, { encoding: 'utf8', shell: false });
-  writeFileSync(entry.log, `${result.stdout ?? ''}${result.stderr ?? ''}`);
   if (result.status !== 0) {
+    writeFileSync(entry.log, `${result.stdout ?? ''}${result.stderr ?? ''}`);
     throw new Error(`${entry.name} failed with exit ${result.status}`);
   }
+  writeFileSync(entry.log, stableCommandLog(entry, result.status));
   return {
     name: entry.name,
     command: [entry.command, ...entry.args].join(' '),
     status: result.status,
     log: entry.log,
   };
+}
+
+function stableCommandLog(entry, status) {
+  return [
+    `name=${entry.name}`,
+    `command=${[entry.command, ...entry.args].join(' ')}`,
+    `status=${status}`,
+    'result=passed',
+    'note=live command output is intentionally not embedded because cargo timing and target cache lines are nondeterministic',
+    '',
+  ].join('\n');
 }
 
 function runText(command, args) {
@@ -119,12 +137,10 @@ function runText(command, args) {
 }
 
 function sourceStatusShort() {
-  return runText('git', [
-    'status',
-    '--short',
-    '--',
-    '.',
-    ':(exclude)output/network-plan-proof/46-ai-detection-fixture-proof',
-    ':(exclude)test-results/network-ai-detection-fixture-proof',
-  ]);
+  return runText('git', ['status', '--short', '--', '.', ':(exclude)output', ':(exclude)test-results']);
+}
+
+function sourceTreeFingerprint() {
+  const sourceIndex = runText('git', ['ls-files', '-s', '--', '.', ':(exclude)output', ':(exclude)test-results']);
+  return createHash('sha256').update(sourceIndex).digest('hex');
 }
