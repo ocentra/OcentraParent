@@ -1,0 +1,42 @@
+{
+  "schemaVersion": 1,
+  "proofMode": "app-game-linux-universal-block-proof-gate",
+  "generatedAt": "deterministic-proof-artifact",
+  "branch": "codex/app-game-linux-universal-block-gate-proof-split",
+  "commit": "branch-head-validated-by-harness",
+  "commitMetadata": "This proof intentionally avoids embedding HEAD because a committed artifact cannot contain its own final commit hash.",
+  "gitStatusShort": "validated-by-explicit-handoff-status-check",
+  "commands": [
+    "cmd /c npm run build --workspace @ocentra-parent/schema-domain\nexit=0\n\n> @ocentra-parent/schema-domain@0.1.1 build\n> tsc -p tsconfig.json && node ../../scripts/fix-esm-imports.mjs dist\n\n",
+    "cmd /c npm run test --workspace @ocentra-parent/parent-domain -- app-game-broad-blocking-proof-gates.test.ts\nexit=0\n\n> @ocentra-parent/parent-domain@0.1.1 test\n> vitest run app-game-broad-blocking-proof-gates.test.ts\n\n\n RUN  v4.1.6 <repo-root>/packages/parent-domain\n\n\n Test Files  1 passed (1)\n      Tests  6 passed (6)\n   Start at <normalized>\n   Duration <normalized>\n\n"
+  ],
+  "gate": "Linux universal block is claimed without mechanism/distro proof.",
+  "gateState": "prevented-by-linux-unavailable-mechanism-distro-session-proof-gate",
+  "evidence": {
+    "linuxGate": "packages/parent-domain/src/app-game-broad-blocking-proof-gate-data.ts defines linux-hard-block-mechanism-unavailable as Linux block-launch, manual-required, adapter-unavailable, admin-or-root-required, canCallAdapter=false, and broadBlockingClaimed=false.",
+    "linuxGateRules": "packages/parent-domain/src/app-game-broad-blocking-proof-gate-rules.ts requires setup, authority, rollback, audit, and Linux mechanism/distro/session proof before broad block upgrades.",
+    "linuxGateTests": "packages/parent-domain/tests/app-game-broad-blocking-proof-gates.test.ts asserts Linux hard-block gates require mechanism, distro, and session proof.",
+    "catalogBoundary": "packages/parent-domain/src/app-control-guide-catalog-data.ts keeps Linux broad app blocking manual-required until a concrete adapter is proven on the target distro and desktop."
+  },
+  "productBoundaries": {
+    "sharedEvidenceSpine": true,
+    "nativeAppMeaningProven": true,
+    "nativeGameMeaningProven": true,
+    "linuxUniversalBlockClaimed": false,
+    "linuxMechanismProofAttached": false,
+    "linuxDistroProofAttached": false,
+    "linuxSessionProofAttached": false,
+    "rollbackProofAttached": false,
+    "auditProofAttached": false,
+    "adapterDispatchClaimed": false,
+    "platformEnforcementClaimed": false,
+    "broadBlockingClaimed": false,
+    "browserGameWorkDuplicated": false,
+    "packageExportsChanged": false
+  },
+  "proofPaths": {
+    "proof": "test-results/app-game-linux-universal-block-proof-gate/proof.json",
+    "appGameProofPack": "output/app-game-plan-proof/merge-gates/linux-universal-block-proof",
+    "harness": "scripts/test/app-game-linux-universal-block-proof-gate.mjs"
+  }
+}
