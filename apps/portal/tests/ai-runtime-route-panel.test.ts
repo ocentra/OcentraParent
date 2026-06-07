@@ -15,8 +15,13 @@ describe('AI runtime route panel', () => {
     expect(shouldRenderAiRuntimeRoute(PortalRoute.Overview)).toBe(false);
   });
 
-  it('selects real local AI runtime and household AI job events from live state', () => {
-    const state = resolveLiveActivityState([localAiRuntimeStatusEvent(), lanAiJobEvent(), memoryGraphEvent()]);
+  it('selects real local AI runtime, household AI job, and remote boundary events from live state', () => {
+    const state = resolveLiveActivityState([
+      localAiRuntimeStatusEvent(),
+      lanAiJobEvent(),
+      memoryGraphEvent(),
+      parentAssistantBoundaryEvent(),
+    ]);
 
     expect(state.localAiRuntimeStatusEvent?.event).toBe(AgentEvent.LocalAiRuntimeStatusReported);
     expect(state.localAiRuntimeStatusEvent?.payload[AgentProtocolDefaults.Field.LocalAiModelId]).toBe(
@@ -28,6 +33,10 @@ describe('AI runtime route panel', () => {
     expect(state.activityMemoryGraphReadModel?.edges[0]?.trace.sourceEvidenceReferences[0]?.evidenceReferenceId).toBe(
       'evidence-screen-summary-1'
     );
+    expect(state.parentAssistantBoundaryEvent?.event).toBe(AgentEvent.ParentAssistantAnswerReported);
+    expect(
+      state.parentAssistantBoundaryEvent?.payload[AgentProtocolDefaults.Field.ParentAssistantApiProviderBoundary]
+    ).toBe('parent-authorized-report-bundle');
   });
 });
 
@@ -77,6 +86,30 @@ function lanAiJobEvent() {
       [AgentProtocolDefaults.Field.LanAiJobId]: 'lan-ai-job-1',
       [AgentProtocolDefaults.Field.LanAiJobStatus]: 'claimed',
       [AgentProtocolDefaults.Field.LanAiJobState]: 'worker-running',
+    },
+    snapshot: null,
+  });
+}
+
+function parentAssistantBoundaryEvent() {
+  return AgentEventEnvelopeSchema.parse({
+    schemaVersion: 1,
+    eventId: 'evt-parent-assistant-boundary',
+    correlationId: 'cmd-parent-assistant-provider',
+    sentAt: '2026-06-07T19:17:00Z',
+    source: {
+      peerId: 'local-dev-agent',
+      role: 'agent-service',
+    },
+    target: {
+      peerId: 'portal-dev',
+      role: 'portal',
+    },
+    event: AgentEvent.ParentAssistantAnswerReported,
+    severity: 'info',
+    payload: {
+      [AgentProtocolDefaults.Field.ParentAssistantRequestId]: 'remote-assistant-request-1',
+      [AgentProtocolDefaults.Field.ParentAssistantApiProviderBoundary]: 'parent-authorized-report-bundle',
     },
     snapshot: null,
   });

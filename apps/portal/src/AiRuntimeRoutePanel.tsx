@@ -31,7 +31,8 @@ export function AiRuntimeRoutePanel({
   const intent = createLocalAiRuntimePanelIntent(
     liveActivity.localAiRuntimeStatusEvent,
     liveActivity.lanAiJobEvent,
-    liveActivity.activityMemoryGraphReadModel
+    liveActivity.activityMemoryGraphReadModel,
+    liveActivity.parentAssistantBoundaryEvent
   );
   return (
     <section

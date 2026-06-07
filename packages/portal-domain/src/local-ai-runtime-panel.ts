@@ -32,12 +32,14 @@ export type LocalAiRuntimePanelIntent = {
 export function createLocalAiRuntimePanelIntent(
   runtimeEvent: AgentEventEnvelope | null,
   lanAiJobEvent: AgentEventEnvelope | null,
-  memoryGraphReadModel: PortalActivityMemoryGraphReadModel | null = null
+  memoryGraphReadModel: PortalActivityMemoryGraphReadModel | null = null,
+  parentAssistantBoundaryEvent: AgentEventEnvelope | null = null
 ): LocalAiRuntimePanelIntent {
   const cards = [
     runtimeStatusCard(runtimeEvent),
     lanAiJobCard(lanAiJobEvent),
     memoryGraphCard(memoryGraphReadModel),
+    parentAssistantBoundaryCard(parentAssistantBoundaryEvent),
   ].filter((card): card is LocalAiRuntimePanelCard => card !== null);
   return {
     eyebrow: decodeDisplayText('Local child-device AI'),
@@ -135,6 +137,46 @@ function memoryGraphCard(readModel: PortalActivityMemoryGraphReadModel | null): 
       detail(PortalDetails.EvidenceReferences, memoryGraphEvidenceRefs(readModel)),
       detail(PortalDetails.DegradedState, detailList(readModel.degradedReasons)),
       detail(PortalDetails.ProductClaim, 'source-cited-memory-graph-read-model-only'),
+    ],
+  };
+}
+
+function parentAssistantBoundaryCard(event: AgentEventEnvelope | null): LocalAiRuntimePanelCard | null {
+  if (
+    event === null ||
+    ![
+      AgentEvent.ParentAssistantAnswerReported,
+      AgentEvent.ParentAssistantProviderDegraded,
+      AgentEvent.ParentAssistantErrorReported,
+    ].includes(event.event)
+  ) {
+    return null;
+  }
+  return {
+    title: decodeDisplayText('Remote assistant boundary'),
+    details: [
+      detail(PortalDetails.EventId, event.eventId),
+      detail(PortalDetails.SentAt, event.sentAt),
+      detail(PortalDetails.RequestId, event.payload[AgentProtocolDefaults.Field.ParentAssistantRequestId]),
+      detail(PortalDetails.State, event.payload[AgentProtocolDefaults.Field.ParentAssistantAnswerState]),
+      detail(PortalDetails.Provider, event.payload[AgentProtocolDefaults.Field.ParentAssistantProviderRoute]),
+      detail(
+        PortalDetails.AdapterBoundary,
+        event.payload[AgentProtocolDefaults.Field.ParentAssistantApiProviderBoundary]
+      ),
+      detail(
+        PortalDetails.PolicyReadiness,
+        event.payload[AgentProtocolDefaults.Field.ParentAssistantApiAuthorizationState]
+      ),
+      detail(PortalDetails.Custody, event.payload[AgentProtocolDefaults.Field.ParentAssistantApiCustodyLabel]),
+      detail(PortalDetails.DeletedEvidence, event.payload[AgentProtocolDefaults.Field.ParentAssistantApiDeletionState]),
+      detail(PortalDetails.PrivacyMode, event.payload[AgentProtocolDefaults.Field.ParentAssistantApiRetentionState]),
+      detail(
+        PortalDetails.EvidenceReferences,
+        event.payload[AgentProtocolDefaults.Field.ParentAssistantEvidenceSummary]
+      ),
+      detail(PortalDetails.RowCount, event.payload[AgentProtocolDefaults.Field.ParentAssistantCitationCount]),
+      detail(PortalDetails.ProductClaim, 'remote-assistant-report-only-local-policy-authority'),
     ],
   };
 }

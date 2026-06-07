@@ -228,7 +228,12 @@ consumes the same results.
       activity-memory graph rows on the `#/ai-runtime` portal route without
       production graph storage/index runtime, model-quality, policy-authority,
       remote/API AI, or enforcement claims.
-- [ ] Remote boundary surface.
+- [x] Remote boundary surface: service-reported Parent Assistant
+      answer/degraded/error events render on `#/ai-runtime` with provider route,
+      parent authorization, custody, deletion/retention, evidence summary,
+      citation count, and local-policy-authority-only non-claims, without
+      production remote provider execution, model-quality, policy-authority, or
+      enforcement claims.
 - [x] Household AI provider mesh surface: provider class, trust, capability,
       queue depth, heartbeat, resource state, worker-only status, claim/lease,
       validation, and child-agent authority render from service-reported LAN AI

@@ -229,8 +229,12 @@ claim needs proof, not slogans.
   remain outside the child-safety decision path, preserve local AI and
   deterministic policy authority, degrade to a local-only fallback, and reject
   raw retention, policy-authority, enforcement, and remote-override overclaims.
-  This does not execute a remote provider, render portal UI, prove model
-  quality, or change local safety decisions.
+  `#/ai-runtime` now renders the service-reported parent-assistant boundary
+  event with provider route, parent authorization, custody, deletion/retention,
+  evidence summary, citation count, and the explicit
+  `remote-assistant-report-only-local-policy-authority` claim. This does not
+  execute a remote provider, prove model quality, or change local safety
+  decisions.
 - The service WinRT OCR policy proof now reruns the real Windows service
   OCR path over live public Wikipedia pixels and consumes that exact
   `localOcr` Activity Screen row through `PolicyDecisionSchema`, producing an
@@ -419,7 +423,7 @@ public/live surface proof, production parent explanation portal rendering,
 broader enforcement handoff, production browser-trigger producers, physical
 household family AI hub runtime/discovery beyond the loopback proof,
 production remote assistant provider execution and portal assistant UI,
-production memory/graph storage/index runtime, remote boundary UI,
+production memory/graph storage/index runtime,
 cloud-streamed frame proof,
 mobile browser parity, live service AI event consumers, degraded-result event
 flow, production household mesh transport over physical LAN, live provider
@@ -526,12 +530,17 @@ validation against production external evidence variants.
 - [x] AI jobs/activity portal surface renders existing local runtime status and
       LAN AI job events on the `#/ai-runtime` route without model-quality,
       physical LAN execution, policy-authority, or enforcement claims.
+- [x] Remote assistant boundary portal surface renders service-reported
+      parent-assistant answer/degraded/error events on `#/ai-runtime`, including
+      provider route, parent authorization, custody, deletion/retention,
+      evidence summary, citation count, and local-policy-authority-only
+      non-claims.
 
 Production-installed model artifacts, production model/OCR quality,
 authenticated-account social proof, physical household family AI hub
 runtime/discovery, production mesh bridge transport over real LAN, live provider
 advertisement/heartbeat gossip, lease expiry/dead-letter handling, live service
-AI event consumers, degraded-result event flow, remote boundary UI, production
+AI event consumers, degraded-result event flow, production
 memory/graph storage/index runtime, and broad enforcement handoff remain in the
 Current Gap section above.
 

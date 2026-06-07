@@ -7,83 +7,128 @@ import {
 import { createLocalAiRuntimePanelIntent, parseActivityMemoryGraphReadModel, PortalDetails } from '../src/contracts';
 
 describe('local AI runtime panel intent', () => {
-  it('renders runtime and household job rows from real agent event envelopes', () => {
-    const intent = createLocalAiRuntimePanelIntent(localAiRuntimeStatusEvent(), lanAiJobEvent());
-
-    expect(intent.title).toBe('AI jobs and runtime activity');
-    expect(intent.summaryDetails).toContainEqual({
-      label: PortalDetails.Status,
-      value: 'reported',
-    });
-    expect(intent.summaryDetails).toContainEqual({
-      label: PortalDetails.ProductClaim,
-      value: 'no-model-quality-or-enforcement-claim',
-    });
-    expect(intent.cards.map((card) => card.title)).toEqual(['Local AI runtime status', 'Household AI job activity']);
-    expect(intent.cards[0]?.details).toContainEqual({
-      label: PortalDetails.Model,
-      value: 'screen-local-vlm-v1',
-    });
-    expect(intent.cards[1]?.details).toContainEqual({
-      label: PortalDetails.Status,
-      value: 'claimed',
-    });
-    expect(intent.cards[1]?.details).toContainEqual({
-      label: PortalDetails.ProviderSource,
-      value: 'trusted-household-desktop',
-    });
-    expect(intent.cards[1]?.details).toContainEqual({
-      label: PortalDetails.Capability,
-      value: 'screen-hard-visual-analysis',
-    });
-    expect(intent.cards[1]?.details).toContainEqual({
-      label: PortalDetails.PolicyReadiness,
-      value: 'authorized-result',
-    });
-    expect(intent.cards[1]?.details).toContainEqual({
-      label: PortalDetails.DecisionSource,
-      value: 'child-agent-local-policy-authority',
-    });
-    expect(intent.cards[1]?.details).toContainEqual({
-      label: PortalDetails.ProductClaim,
-      value: 'worker-only-child-agent-authority',
-    });
-  });
-
-  it('renders source-cited memory and graph evidence rows from the service read model', () => {
-    const graph = parseActivityMemoryGraphReadModel(memoryGraphEvent().payload);
-    const intent = createLocalAiRuntimePanelIntent(localAiRuntimeStatusEvent(), lanAiJobEvent(), graph);
-
-    expect(intent.cards.map((card) => card.title)).toEqual([
-      'Local AI runtime status',
-      'Household AI job activity',
-      'Cited memory and graph evidence',
-    ]);
-    expect(intent.cards[2]?.details).toContainEqual({
-      label: PortalDetails.GraphEdges,
-      value: '1',
-    });
-    expect(intent.cards[2]?.details).toContainEqual({
-      label: PortalDetails.EvidenceReferences,
-      value: 'evidence-screen-summary-1',
-    });
-    expect(intent.cards[2]?.details).toContainEqual({
-      label: PortalDetails.ProductClaim,
-      value: 'source-cited-memory-graph-read-model-only',
-    });
-  });
-
-  it('keeps missing runtime/job events visible as no-data rather than success', () => {
-    const intent = createLocalAiRuntimePanelIntent(null, null);
-
-    expect(intent.cards).toEqual([]);
-    expect(intent.emptyMessage).toBe('No local AI runtime or job event has been reported yet.');
-    expect(intent.summaryDetails).toContainEqual({
-      label: PortalDetails.Status,
-      value: 'not-reported',
-    });
-  });
+  it('renders runtime and household job rows from real agent event envelopes', rendersRuntimeAndHouseholdRows);
+  it('renders source-cited memory and graph evidence rows from the service read model', rendersMemoryGraphRows);
+  it(
+    'renders the parent-authorized remote assistant boundary without policy authority claims',
+    rendersRemoteAssistantBoundary
+  );
+  it('keeps missing runtime/job events visible as no-data rather than success', rendersMissingEventState);
 });
+
+function rendersRuntimeAndHouseholdRows() {
+  const intent = createLocalAiRuntimePanelIntent(localAiRuntimeStatusEvent(), lanAiJobEvent());
+
+  expect(intent.title).toBe('AI jobs and runtime activity');
+  expect(intent.summaryDetails).toContainEqual({
+    label: PortalDetails.Status,
+    value: 'reported',
+  });
+  expect(intent.summaryDetails).toContainEqual({
+    label: PortalDetails.ProductClaim,
+    value: 'no-model-quality-or-enforcement-claim',
+  });
+  expect(intent.cards.map((card) => card.title)).toEqual(['Local AI runtime status', 'Household AI job activity']);
+  expect(intent.cards[0]?.details).toContainEqual({
+    label: PortalDetails.Model,
+    value: 'screen-local-vlm-v1',
+  });
+  expect(intent.cards[1]?.details).toContainEqual({
+    label: PortalDetails.Status,
+    value: 'claimed',
+  });
+  expect(intent.cards[1]?.details).toContainEqual({
+    label: PortalDetails.ProviderSource,
+    value: 'trusted-household-desktop',
+  });
+  expect(intent.cards[1]?.details).toContainEqual({
+    label: PortalDetails.Capability,
+    value: 'screen-hard-visual-analysis',
+  });
+  expect(intent.cards[1]?.details).toContainEqual({
+    label: PortalDetails.PolicyReadiness,
+    value: 'authorized-result',
+  });
+  expect(intent.cards[1]?.details).toContainEqual({
+    label: PortalDetails.DecisionSource,
+    value: 'child-agent-local-policy-authority',
+  });
+  expect(intent.cards[1]?.details).toContainEqual({
+    label: PortalDetails.ProductClaim,
+    value: 'worker-only-child-agent-authority',
+  });
+}
+
+function rendersMemoryGraphRows() {
+  const graph = parseActivityMemoryGraphReadModel(memoryGraphEvent().payload);
+  const intent = createLocalAiRuntimePanelIntent(localAiRuntimeStatusEvent(), lanAiJobEvent(), graph);
+
+  expect(intent.cards.map((card) => card.title)).toEqual([
+    'Local AI runtime status',
+    'Household AI job activity',
+    'Cited memory and graph evidence',
+  ]);
+  expect(intent.cards[2]?.details).toContainEqual({
+    label: PortalDetails.GraphEdges,
+    value: '1',
+  });
+  expect(intent.cards[2]?.details).toContainEqual({
+    label: PortalDetails.EvidenceReferences,
+    value: 'evidence-screen-summary-1',
+  });
+  expect(intent.cards[2]?.details).toContainEqual({
+    label: PortalDetails.ProductClaim,
+    value: 'source-cited-memory-graph-read-model-only',
+  });
+}
+
+function rendersRemoteAssistantBoundary() {
+  const graph = parseActivityMemoryGraphReadModel(memoryGraphEvent().payload);
+  const intent = createLocalAiRuntimePanelIntent(
+    localAiRuntimeStatusEvent(),
+    lanAiJobEvent(),
+    graph,
+    parentAssistantBoundaryEvent()
+  );
+
+  expect(intent.cards.map((card) => card.title)).toEqual([
+    'Local AI runtime status',
+    'Household AI job activity',
+    'Cited memory and graph evidence',
+    'Remote assistant boundary',
+  ]);
+  expect(intent.cards[3]?.details).toContainEqual({
+    label: PortalDetails.AdapterBoundary,
+    value: 'parent-authorized-report-bundle',
+  });
+  expect(intent.cards[3]?.details).toContainEqual({
+    label: PortalDetails.PolicyReadiness,
+    value: 'parent-authorized',
+  });
+  expect(intent.cards[3]?.details).toContainEqual({
+    label: PortalDetails.Custody,
+    value: 'parent-owned-local-storage',
+  });
+  expect(intent.cards[3]?.details).toContainEqual({
+    label: PortalDetails.DeletedEvidence,
+    value: 'raw-model-output-not-retained',
+  });
+  expect(intent.cards[3]?.details).toContainEqual({
+    label: PortalDetails.ProductClaim,
+    value: 'remote-assistant-report-only-local-policy-authority',
+  });
+}
+
+function rendersMissingEventState() {
+  const intent = createLocalAiRuntimePanelIntent(null, null);
+
+  expect(intent.cards).toEqual([]);
+  expect(intent.emptyMessage).toBe('No local AI runtime or job event has been reported yet.');
+  expect(intent.summaryDetails).toContainEqual({
+    label: PortalDetails.Status,
+    value: 'not-reported',
+  });
+}
 
 function localAiRuntimeStatusEvent() {
   return AgentEventEnvelopeSchema.parse({
@@ -150,6 +195,38 @@ function lanAiJobEvent() {
       [AgentProtocolDefaults.Field.LanControllerLeaseExpiresAt]: '2026-06-07T19:20:01Z',
       [AgentProtocolDefaults.Field.LanParentAuthority]: 'child-agent-local-policy-authority',
       [AgentProtocolDefaults.Field.LocalAiExecutionState]: 'running',
+    },
+    snapshot: null,
+  });
+}
+
+function parentAssistantBoundaryEvent() {
+  return AgentEventEnvelopeSchema.parse({
+    schemaVersion: 1,
+    eventId: 'evt-parent-assistant-boundary',
+    correlationId: 'cmd-parent-assistant-provider',
+    sentAt: '2026-06-07T19:17:00Z',
+    source: {
+      peerId: 'local-dev-agent',
+      role: 'agent-service',
+    },
+    target: {
+      peerId: 'portal-dev',
+      role: 'portal',
+    },
+    event: AgentEvent.ParentAssistantAnswerReported,
+    severity: 'info',
+    payload: {
+      [AgentProtocolDefaults.Field.ParentAssistantRequestId]: 'remote-assistant-request-1',
+      [AgentProtocolDefaults.Field.ParentAssistantAnswerState]: 'ready-answer',
+      [AgentProtocolDefaults.Field.ParentAssistantProviderRoute]: 'remote-api-report-only',
+      [AgentProtocolDefaults.Field.ParentAssistantApiProviderBoundary]: 'parent-authorized-report-bundle',
+      [AgentProtocolDefaults.Field.ParentAssistantApiAuthorizationState]: 'parent-authorized',
+      [AgentProtocolDefaults.Field.ParentAssistantApiCustodyLabel]: 'parent-owned-local-storage',
+      [AgentProtocolDefaults.Field.ParentAssistantApiDeletionState]: 'raw-model-output-not-retained',
+      [AgentProtocolDefaults.Field.ParentAssistantApiRetentionState]: 'report-summary-only',
+      [AgentProtocolDefaults.Field.ParentAssistantEvidenceSummary]: 'evidence-screen-summary-1',
+      [AgentProtocolDefaults.Field.ParentAssistantCitationCount]: '1',
     },
     snapshot: null,
   });

@@ -87,6 +87,7 @@ export interface PortalLiveActivityState {
   readonly browserManagedStatus: BrowserManagedSessionStatus | null;
   readonly localAiRuntimeStatusEvent: AgentEventEnvelope | null;
   readonly lanAiJobEvent: AgentEventEnvelope | null;
+  readonly parentAssistantBoundaryEvent: AgentEventEnvelope | null;
   readonly activityMemoryGraphEvent: AgentEventEnvelope | null;
   readonly activityMemoryGraphReadModel: PortalActivityMemoryGraphReadModel | null;
   readonly activityReportEvent: AgentEventEnvelope | null;
@@ -205,6 +206,11 @@ function resolveLocalAiActivityEvents(events: readonly AgentEventEnvelope[]) {
   return {
     localAiRuntimeStatusEvent: latestEvent(events, AgentEvent.LocalAiRuntimeStatusReported),
     lanAiJobEvent: latestEvent(events, AgentEvent.LanAiJobReported),
+    parentAssistantBoundaryEvent: latestEventOf(events, [
+      AgentEvent.ParentAssistantAnswerReported,
+      AgentEvent.ParentAssistantProviderDegraded,
+      AgentEvent.ParentAssistantErrorReported,
+    ]),
   };
 }
 
