@@ -73,6 +73,12 @@ behavior belongs behind platform adapters and must be proved per platform.
   Microsoft Store execution, provider credentials, store integration, platform
   interception, production adapter implementation, child delivery, app
   blocking, or product-claim approval.
+- Windows app-install package-source runtime handoff proof may project that
+  sanitized command/probe status and package-source evidence refs into a typed
+  parent-domain read model. It still does not prove runtime writer execution or
+  delivery, Microsoft Store execution, provider credentials, store integration,
+  production adapter implementation, child-device delivery, app blocking, or
+  product-claim approval.
 - Validation needs real Windows adapter tests or guarded integration/manual evidence for each claimed OS capability, plus contract tests for every event shape crossing TypeScript and Rust.
 
 ## macOS
