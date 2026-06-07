@@ -246,7 +246,7 @@ fn validate_screen_setting(
     {
         return Err(ScreenSettingsRejectionReason::InvalidSetting);
     }
-    if setting.retain_raw_image {
+    if setting.retain_raw_image && !raw_retention_local_ttl_allowed(setting) {
         return Err(ScreenSettingsRejectionReason::RawRetentionForbidden);
     }
     if !setting.screen_analysis_enabled
@@ -293,6 +293,14 @@ fn validate_screen_setting(
         return Err(ScreenSettingsRejectionReason::OcrModeInconsistent);
     }
     Ok(())
+}
+
+fn raw_retention_local_ttl_allowed(setting: &ScreenAnalysisParentSetting) -> bool {
+    setting.screen_analysis_enabled
+        && setting.temporary_image_ttl_seconds
+            <= constants::screen_settings::RAW_RETENTION_MAX_TTL_SECONDS
+        && setting.delete_after_success
+        && setting.delete_after_expiry
 }
 
 fn accepted_response(

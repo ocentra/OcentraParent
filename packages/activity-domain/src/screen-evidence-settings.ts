@@ -25,6 +25,7 @@ const RequiredFalse = Schema.Literal(false);
 const RequiredTrue = Schema.Literal(true);
 const ScreenDisabledMode = Schema.Literal('disabled');
 const ScreenRemoteSummaryModeSchema = withParser(Schema.Literal('disabled', 'parentApprovedRedactedSummary'));
+const ApprovedRawRetentionMaxTtlSeconds = 120;
 
 export const ScreenAnalysisParentSettingSchema = withParser(
   Schema.Struct({
@@ -47,7 +48,7 @@ export const ScreenAnalysisParentSettingSchema = withParser(
     maxRetryCount: ScreenEvidenceRetryCountSchema,
     deleteAfterSuccess: RequiredTrue,
     deleteAfterExpiry: RequiredTrue,
-    retainRawImage: RequiredFalse,
+    retainRawImage: Schema.Boolean,
     policyUseEnabled: Schema.Boolean,
     changedByParentRef: ScreenEvidenceParentSettingRefSchema,
     changedAt: ActivityTimestampSchema,
@@ -97,6 +98,15 @@ export const ScreenAnalysisParentSettingSchema = withParser(
           value.redactionMode !== 'disabled' &&
           value.ocrTextRetentionMode !== 'disabled') ||
         'Expected enabled OCR text settings to select explicit snippet retention and redaction behavior'
+    ),
+    Schema.filter(
+      (value) =>
+        !value.retainRawImage ||
+        (value.screenAnalysisEnabled &&
+          value.temporaryImageTtlSeconds <= ApprovedRawRetentionMaxTtlSeconds &&
+          value.deleteAfterSuccess &&
+          value.deleteAfterExpiry) ||
+        'Expected raw screenshot retention to require parent-enabled local short TTL custody with deletion after success and expiry'
     )
   )
 );

@@ -76,10 +76,35 @@ async fn screen_settings_runtime_persists_parent_opt_in_across_reload() {
 }
 
 #[tokio::test]
-async fn screen_settings_runtime_rejects_raw_image_retention() {
+async fn screen_settings_runtime_accepts_parent_approved_short_ttl_raw_retention() {
     let runtime = ScreenSettingsRuntime::in_memory();
     let mut setting = strict_dry_run_setting(2);
     setting.retain_raw_image = true;
+    setting.temporary_image_ttl_seconds = constants::screen_settings::RAW_RETENTION_MAX_TTL_SECONDS;
+    setting.reason = Some(constants::screen_settings::RAW_RETENTION_LOCAL_TTL_REASON.to_string());
+
+    let accepted = runtime
+        .handle_request(ScreenSettingsUpdateRequest::Replace(
+            ScreenSettingsReplaceRequest {
+                schema_version: SCREEN_EVIDENCE_SCHEMA_VERSION,
+                request_id: constants::screen_settings::REQUEST_ID_REPLACE.to_string(),
+                kind: ScreenSettingsUpdateKind::Replace,
+                base_setting_version: None,
+                setting: setting.clone(),
+            },
+        ))
+        .await;
+
+    assert_eq!(accepted.status, ScreenSettingsUpdateStatus::Accepted);
+    assert_eq!(accepted.setting, Some(setting));
+}
+
+#[tokio::test]
+async fn screen_settings_runtime_rejects_unsafe_raw_image_retention() {
+    let runtime = ScreenSettingsRuntime::in_memory();
+    let mut setting = strict_dry_run_setting(2);
+    setting.retain_raw_image = true;
+    setting.temporary_image_ttl_seconds = constants::screen_settings::DEFAULT_TTL_SECONDS;
 
     let rejected = runtime
         .handle_request(ScreenSettingsUpdateRequest::Replace(

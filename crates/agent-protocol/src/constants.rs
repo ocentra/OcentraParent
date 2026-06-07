@@ -523,6 +523,7 @@ pub mod screen_settings {
     pub const DEFAULT_CHANGED_AT: &str = "2026-06-07T04:20:00Z";
     pub const DEFAULT_REASON: &str = "screen-settings-service-default-disabled";
     pub const STRICT_REASON: &str = "parent-enabled-strict-dry-run";
+    pub const RAW_RETENTION_LOCAL_TTL_REASON: &str = "parent-approved-local-ttl-raw-retention";
     pub const REVISION_PREFIX: &str = "screen-setting-revision-";
     pub const AUDIT_PREFIX: &str = "screen-setting-audit-";
     pub const TEST_AUDIT_EVENT_ID_1: &str = "screen-setting-audit-1";
@@ -561,6 +562,7 @@ pub mod screen_settings {
     pub const MIN_TTL_SECONDS: u64 = 60;
     pub const MAX_TTL_SECONDS: u64 = 1800;
     pub const DEFAULT_TTL_SECONDS: u64 = 300;
+    pub const RAW_RETENTION_MAX_TTL_SECONDS: u64 = 120;
     pub const MAX_RETRY_COUNT: u64 = 5;
     pub const DEFAULT_RETRY_COUNT: u64 = 2;
     pub const MAX_OCR_SNIPPET_LIMIT: u64 = 20;

@@ -25,6 +25,25 @@ fn screen_parent_setting_serializes_parent_opt_in_and_retention_fields() {
 }
 
 #[test]
+fn screen_parent_setting_serializes_parent_approved_raw_retention_ttl() {
+    let mut setting = strict_dry_run_setting(3);
+    setting.retain_raw_image = true;
+    setting.temporary_image_ttl_seconds = constants::screen_settings::RAW_RETENTION_MAX_TTL_SECONDS;
+    setting.reason = Some(constants::screen_settings::RAW_RETENTION_LOCAL_TTL_REASON.to_string());
+    let serialized = serde_json::to_value(setting).expect(constants::error::AGENT_EVENT_SERIALIZES);
+
+    assert_eq!(serialized["retainRawImage"], true);
+    assert_eq!(
+        serialized["temporaryImageTtlSeconds"],
+        constants::screen_settings::RAW_RETENTION_MAX_TTL_SECONDS
+    );
+    assert_eq!(
+        serialized["reason"],
+        constants::screen_settings::RAW_RETENTION_LOCAL_TTL_REASON
+    );
+}
+
+#[test]
 fn screen_settings_request_rejects_unknown_fields() {
     let invalid = serde_json::json!({
         "schemaVersion": SCREEN_EVIDENCE_SCHEMA_VERSION,

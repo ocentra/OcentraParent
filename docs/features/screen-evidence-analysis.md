@@ -747,11 +747,21 @@ only with explicit parent settings.
   remains blocked when the only platform evidence is capture consent. This is a
   child/device capability readiness proof, not active raw screenshot storage or
   live transport.
+- `scripts/test/screen-raw-retention-runtime-proof.mjs` now proves the shared
+  `ScreenAnalysisParentSetting` contract and Rust service settings runtime can
+  accept optional raw screenshot retention only as a parent-approved local
+  short-TTL mode. The proof keeps delete-after-success and delete-after-expiry
+  mandatory, rejects long TTL, disabled-analysis, and delete-after-expiry=false
+  raw-retention settings, and records the service/runtime validation artifact at
+  `output/screen-plan-proof/raw-retention-runtime/proof-summary.json`. Raw
+  retention remains disabled by default, raw remote upload remains forbidden,
+  and this does not complete parent retention-control UI, live view,
+  relay/cache, privacy/legal approval, or broad platform parity.
 
 ## Current Gap
 
-Product-complete parent retention controls, active raw-retention storage
-execution, actual production live-view worker start/relay-cache transport,
+Product-complete parent retention controls, actual production live-view worker
+start/relay-cache transport,
 platform permission prompt proof, physical-device live-view parity, child-agent
 disclosure runtime deployment,
 privacy/legal approval, authenticated-account
@@ -828,6 +838,10 @@ parity, and UI remain separate proof gates.
       manual-required, and blocked child/device readiness rows and rejects
       product readiness without runtime/deletion, live-view platform prompt, and
       production session/UI proof.
+- [x] Optional raw screenshot retention runtime accepts only parent-approved
+      local short-TTL mode with delete-after-success and delete-after-expiry
+      still required; default raw retention, long TTL, raw remote upload, and
+      disabled-analysis retention remain rejected.
 - [x] Parent Settings renders optional raw-retention/live-view readiness rows
       from the same domain proof through the real portal/agent path without
       enabling raw retention, live view, live transport, relay/cache, remote
