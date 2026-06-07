@@ -572,9 +572,13 @@ only with explicit parent settings.
   `output/screen-plan-proof/36-vlm-resource-crop-readiness/proof-summary.json`,
   which verifies retained controlled and live-operator VLM capture inputs stay
   below the worker max-image-pixel budget and that the managed-browser CDP crop
-  capture path exists with deletion proof. It still does not claim
-  detector-specific VLM crop quality, per-inference timing/RSS suitability,
-  authenticated-account social proof, or production VLM model selection.
+  capture path exists with deletion proof. It also cross-checks
+  `output/screen-plan-proof/36-vlm-runtime-resource-measurement/proof-summary.json`,
+  which runs the local llama.cpp/Qwen2-VL runtime over retained parent proof
+  screenshots and records per-sample wall time, sampled CPU seconds, and peak
+  working set while producing normalized screen-analysis JSON. It still does not
+  claim detector-specific VLM crop quality, authenticated-account social proof,
+  or production VLM model selection.
 - `scripts/test/screen-ai-service-winrt-ocr-proof.mjs` now proves the
   service-owned Windows WinRT OCR analysis path over real live Chrome/Wikipedia
   pixels: the Rust service cadence loop captures an active-window frame into
@@ -662,7 +666,8 @@ live-view parity, child-agent disclosure runtime deployment,
 privacy/legal approval, authenticated-account
 social proof beyond public/live surface proof, production OCR/VLM quality beyond
 the WinRT OCR service proof, controlled fixtures, the full live operator matrix,
-and retained bounded-input proof, production local vision adapter quality beyond
+retained bounded-input proof, and retained proof-image VLM resource measurement,
+production local vision adapter quality beyond
 the service proof adapter, service-owned live trigger event producers beyond the
 timed cadence
 loop and native active-window foreground watcher capture/queue event producer
@@ -773,9 +778,10 @@ parity, and UI remain separate proof gates.
   retained controlled local VLM matrix proof, and retained nine-scenario live
   operator matrix proof. The retained resource/crop readiness audit verifies
   bounded VLM input dimensions and managed-browser CDP crop capture/deletion,
-  but detector-specific VLM crop quality, per-inference timing/RSS,
-  authenticated-account social proof, and production model selection remain
-  open.
+  and the retained proof-image runtime measurement records per-sample wall time,
+  sampled CPU seconds, peak working set, and normalized local VLM output.
+  Detector-specific VLM crop quality, authenticated-account social proof, and
+  production model selection remain open.
 - [x] Service WinRT OCR proof analyzes live public browser pixels through the
       encrypted service queue, records a `localOcr` Activity Screen row, drains
       the queue, and deletes adapter temp image material.

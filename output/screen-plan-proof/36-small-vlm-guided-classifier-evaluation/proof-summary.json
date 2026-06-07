@@ -1,6 +1,6 @@
 {
   "proof": "screen-vlm-guided-classifier-readiness-proof",
-  "generatedAt": "2026-06-07T07:47:26.260Z",
+  "generatedAt": "2026-06-07T08:05:12.875Z",
   "proofTier": "P3_CONTRACT_LOCAL_VLM_READINESS",
   "modelConstants": {
     "modelRuntimeRef": "screen-local-vlm-runtime",
@@ -157,7 +157,14 @@
     "resourceCropLiveExternalAnalyzedSampleCount": 8,
     "resourceCropAllSamplesWithinPixelBudget": true,
     "resourceCropAllSamplesDeleteRawImages": true,
-    "managedBrowserCdpCropPathVerified": true
+    "managedBrowserCdpCropPathVerified": true,
+    "runtimeResourceMeasurementProofPath": "output/screen-plan-proof/36-vlm-runtime-resource-measurement/proof-summary.json",
+    "runtimeResourceMeasurementProofPresent": true,
+    "runtimeResourceMeasurementSampleCount": 2,
+    "runtimeResourceMeasurementAllSamplesWithinEnvelope": true,
+    "runtimeResourceMeasurementMaxWallMs": 29729,
+    "runtimeResourceMeasurementMaxPeakWorkingSetBytes": 3527712768,
+    "runtimeResourceMeasurementMaxCpuSeconds": 247.390625
   },
   "providerRuntimeState": {
     "providerCommandAvailable": true,
@@ -170,8 +177,9 @@
     "retainedLiveOperatorVlmQualityAvailable": true,
     "retainedResourceCropBudgetAvailable": true,
     "managedBrowserCdpCropPathVerified": true,
+    "retainedRuntimeResourceMeasurementAvailable": true,
     "liveVlmInferenceReady": true,
-    "note": "Local llama.cpp/Qwen2-VL runtime files exist; retained controlled matrix proof and retained nine-scenario live operator proof show real local VLM analysis, schema validation, policy dry-run, and raw deletion over public/live URL plus native-app captures. The resource/crop audit proves retained VLM inputs stayed within the max pixel budget and CDP crop capture exists, but per-inference timing/RSS, VLM crop quality, authenticated-account social proof, and production model selection remain open."
+    "note": "Local llama.cpp/Qwen2-VL runtime files exist; retained controlled matrix proof and retained nine-scenario live operator proof show real local VLM analysis, schema validation, policy dry-run, and raw deletion over public/live URL plus native-app captures. Resource/crop audit proves retained VLM inputs stayed within the max pixel budget and CDP crop capture exists. Retained proof-image VLM measurement records per-sample wall time, CPU seconds, and peak working set. Detector-specific crop quality, authenticated-account social proof, and production model selection remain open."
   },
   "assertions": {
     "sourceReadinessProofPassed": true,
@@ -197,12 +205,13 @@
     "retained local llama.cpp/Qwen2-VL matrix proves real local VLM execution over controlled browser/native window captures with policy and deletion proof",
     "retained nine-scenario live operator proof covers public/live URL and native-app captures through local VLM classification, schema validation, policy dry-run, and raw image deletion",
     "retained controlled and live-operator VLM capture inputs are bounded below the worker max-image-pixel budget",
-    "managed-browser CDP crop capture path exists and deletes captured material"
+    "managed-browser CDP crop capture path exists and deletes captured material",
+    "retained proof-image VLM inference records per-sample wall time, CPU seconds, and peak working set inside the local measurement envelope"
   ],
   "openChecklistClaims": [
     "detector-specific VLM crop quality is not measured by this readiness proof",
     "detector-specific prompt-pack quality is not measured by this proof",
-    "per-inference wall time, CPU time, and peak RSS measurements remain unclaimed"
+    "detector-specific crop-quality measurement on freshly cropped live pages remains unclaimed"
   ],
   "nonClaims": [
     "This screen-plan proof reuses the VLM execution-readiness contract proof and does not run live VLM inference.",

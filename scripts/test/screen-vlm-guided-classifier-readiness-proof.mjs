@@ -28,6 +28,13 @@ const vlmResourceCropProofPath = resolve(
   '36-vlm-resource-crop-readiness',
   'proof-summary.json'
 );
+const vlmRuntimeResourceMeasurementProofPath = resolve(
+  repoRoot,
+  'output',
+  'screen-plan-proof',
+  '36-vlm-runtime-resource-measurement',
+  'proof-summary.json'
+);
 
 runCommand('cmd', ['/c', 'npm', 'run', 'build', '--workspace', '@ocentra-parent/activity-domain']);
 runCommand('cmd', [
@@ -203,6 +210,7 @@ const localProviderRuntimeProbe = {
 const localVlmMatrixProof = await readOptionalJson(localVlmMatrixProofPath);
 const liveOperatorProof = await readOptionalJson(liveOperatorProofPath);
 const vlmResourceCropProof = await readOptionalJson(vlmResourceCropProofPath);
+const vlmRuntimeResourceMeasurementProof = await readOptionalJson(vlmRuntimeResourceMeasurementProofPath);
 const requiredLiveOperatorScenarioIds = [
   'youtube-ordinary-video',
   'youtube-education-video',
@@ -266,6 +274,15 @@ const localLlamaRuntime = {
   managedBrowserCdpCropPathVerified:
     vlmResourceCropProof?.retainedProofs?.managedBrowserCdpCropProof?.cropModeCaptured === true &&
     vlmResourceCropProof?.retainedProofs?.managedBrowserCdpCropProof?.allDeleted === true,
+  runtimeResourceMeasurementProofPath: relativePath(vlmRuntimeResourceMeasurementProofPath),
+  runtimeResourceMeasurementProofPresent: vlmRuntimeResourceMeasurementProof !== null,
+  runtimeResourceMeasurementSampleCount: vlmRuntimeResourceMeasurementProof?.summary?.sampleCount ?? 0,
+  runtimeResourceMeasurementAllSamplesWithinEnvelope:
+    vlmRuntimeResourceMeasurementProof?.summary?.allSamplesWithinResourceEnvelope === true,
+  runtimeResourceMeasurementMaxWallMs: vlmRuntimeResourceMeasurementProof?.summary?.maxWallMsObserved ?? 0,
+  runtimeResourceMeasurementMaxPeakWorkingSetBytes:
+    vlmRuntimeResourceMeasurementProof?.summary?.maxPeakWorkingSetBytesObserved ?? 0,
+  runtimeResourceMeasurementMaxCpuSeconds: vlmRuntimeResourceMeasurementProof?.summary?.maxCpuSecondsObserved ?? 0,
 };
 const providerCommandAvailable = Object.values(localProviderRuntimeProbe).some((probe) => probe.available);
 const lmStudioCliDetected = localProviderRuntimeProbe.lmStudioCliVersion.available;
@@ -319,9 +336,12 @@ const screenProof = {
       localLlamaRuntime.resourceCropAllSamplesWithinPixelBudget &&
       localLlamaRuntime.resourceCropAllSamplesDeleteRawImages,
     managedBrowserCdpCropPathVerified: localLlamaRuntime.managedBrowserCdpCropPathVerified,
+    retainedRuntimeResourceMeasurementAvailable:
+      localLlamaRuntime.runtimeResourceMeasurementProofPresent &&
+      localLlamaRuntime.runtimeResourceMeasurementAllSamplesWithinEnvelope,
     liveVlmInferenceReady: providerRuntimeAvailable,
     note: retainedLiveOperatorVlmQualityAvailable
-      ? 'Local llama.cpp/Qwen2-VL runtime files exist; retained controlled matrix proof and retained nine-scenario live operator proof show real local VLM analysis, schema validation, policy dry-run, and raw deletion over public/live URL plus native-app captures. The resource/crop audit proves retained VLM inputs stayed within the max pixel budget and CDP crop capture exists, but per-inference timing/RSS, VLM crop quality, authenticated-account social proof, and production model selection remain open.'
+      ? 'Local llama.cpp/Qwen2-VL runtime files exist; retained controlled matrix proof and retained nine-scenario live operator proof show real local VLM analysis, schema validation, policy dry-run, and raw deletion over public/live URL plus native-app captures. Resource/crop audit proves retained VLM inputs stayed within the max pixel budget and CDP crop capture exists. Retained proof-image VLM measurement records per-sample wall time, CPU seconds, and peak working set. Detector-specific crop quality, authenticated-account social proof, and production model selection remain open.'
       : retainedLocalVlmMatrixAvailable
         ? 'Local llama.cpp/Qwen2-VL runtime files exist and the retained local VLM matrix proof shows real local model execution over controlled browser/native window captures with schema, policy, and deletion proof; live external-site/operator classification proof remains open.'
         : lmStudioCliDetected && !providerRuntimeAvailable
@@ -352,6 +372,10 @@ const screenProof = {
     localLlamaRuntime.managedBrowserCdpCropPathVerified
       ? 'managed-browser CDP crop capture path exists and deletes captured material'
       : null,
+    localLlamaRuntime.runtimeResourceMeasurementProofPresent &&
+    localLlamaRuntime.runtimeResourceMeasurementAllSamplesWithinEnvelope
+      ? 'retained proof-image VLM inference records per-sample wall time, CPU seconds, and peak working set inside the local measurement envelope'
+      : null,
   ].filter(Boolean),
   openChecklistClaims: [
     retainedLiveOperatorVlmQualityAvailable
@@ -362,7 +386,7 @@ const screenProof = {
           ? 'LM Studio lms CLI is detected, but the local server/model runtime is not ready for live inference'
           : 'no local VLM provider command was detected on PATH in this Windows lane',
     'detector-specific prompt-pack quality is not measured by this proof',
-    'per-inference wall time, CPU time, and peak RSS measurements remain unclaimed',
+    'detector-specific crop-quality measurement on freshly cropped live pages remains unclaimed',
   ],
   nonClaims: [
     'This screen-plan proof reuses the VLM execution-readiness contract proof and does not run live VLM inference.',
