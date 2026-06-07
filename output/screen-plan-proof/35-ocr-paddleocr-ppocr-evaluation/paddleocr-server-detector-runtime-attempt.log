@@ -1,0 +1,9 @@
+{"initSeconds": 2.471, "predictSeconds": 41.292, "texts": [], "itemCount": 1}
+None of PyTorch, TensorFlow >= 2.0, or Flax have been found. Models won't be available and only tokenizers, configuration and file/data utilities can be used.
+Creating model: ('PP-OCRv5_server_det', None, None)
+Model files already exist. Using cached files. To redownload, please delete the directory manually: `C:\Users\sujan\.paddlex\official_models\PP-OCRv5_server_det`.
+INFO: Could not find files for the given pattern(s).
+C:\Users\sujan\AppData\Roaming\Python\Python311\site-packages\paddle\utils\cpp_extension\extension_utils.py:712: UserWarning: No ccache found. Please be aware that recompiling all source files may be required. You can download and install ccache from: https://github.com/ccache/ccache/blob/master/doc/INSTALL.md
+  warnings.warn(warning_message)
+Creating model: ('en_PP-OCRv5_mobile_rec', None, None)
+Model files already exist. Using cached files. To redownload, please delete the directory manually: `C:\Users\sujan\.paddlex\official_models\en_PP-OCRv5_mobile_rec`.

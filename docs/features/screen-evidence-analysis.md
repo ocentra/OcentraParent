@@ -59,11 +59,14 @@ only with explicit parent settings.
   new live capture run or always-on production subscription claim.
 - `scripts/test/screen-service-event-subscription-proof.mjs` now proves a
   service-owned `screen.service.row.ready` subscriber using `ocentra-eventing`.
-  The subscriber consumes typed Activity Screen rows, invokes the existing
-  service bridge, records accepted/rejected row dispatch state, publishes the
-  ordered downstream screen runtime chain for safe rows, and rejects raw-image
-  retained rows before downstream screen events are recorded. This is
-  subscriber runtime proof; service startup wiring for every live producer
+  The service startup now retains `ScreenAiServiceEventRuntime::start()` before
+  serving requests, and the runtime-start test proves that helper registers the
+  real subscriber and dispatches through the event bus. The subscriber consumes
+  typed Activity Screen rows, invokes the existing service bridge, records
+  accepted/rejected row dispatch state, publishes the ordered downstream screen
+  runtime chain for safe rows, and rejects raw-image retained rows before
+  downstream screen events are recorded. This is subscriber startup/runtime
+  proof; externally proving every live trigger producer against the subscriber
   remains a separate production gate.
 - `scripts/test/screen-service-analysis-row-ready-proof.mjs` now proves the
   service analysis runtime starts the service row-ready event runtime, converts
@@ -102,6 +105,15 @@ only with explicit parent settings.
   calls the shared producer after queue removal. This closes the TTL deletion
   event producer hop without claiming parent retention UI persistence, final
   enforcement, a new live capture run, or model quality.
+- `scripts/test/screen-ai-degraded-portal-proof.mjs` now proves the real Rust
+  service plus parent portal Screen Analysis route can render degraded Activity
+  Screen OCR/VLM read-model rows from the local activity store. The proof fixes
+  the portal's default Activity Screen command payload, preserves
+  model/runtime/template refs, renders `localOcr` `modelUnavailable` and
+  `localVision` `degraded` rows, and screenshots the portal state under
+  `output/ai-plan-proof/activity-screen-ai-degraded-portal-proof`. This is
+  degraded read-model visibility proof; it does not execute OCR/VLM inference,
+  capture fresh pixels, grant policy authority, or dispatch enforcement.
 - `scripts/test/screen-child-disclosure-proof.mjs` now proves the screen child
   disclosure contract. It defines child-visible disabled, paused, active
   capture, protected-surface, and deleted-summary states with calm tokenized
@@ -301,6 +313,17 @@ only with explicit parent settings.
   retention is rejected before persistence. This is backend command-path proof,
   not parent portal form submission, product-complete retention-control UI,
   raw retention enablement, live view, or raw remote upload.
+- `scripts/test/screen-settings-portal-service-command-proof.mjs` now proves
+  the real parent Settings route submits schema-valid screen setting changes
+  through the Rust service WebSocket command path. The proof starts the actual
+  agent and Vite portal, clicks the strict dry-run setting, sends
+  `agent.screen-settings.replace`, renders the accepted service response and
+  audit ref, sends `agent.screen-settings.get`, verifies the persisted strict
+  no-raw-retention JSON store, and captures
+  `output/screen-plan-proof/settings-service-command/parent-settings-service-command.png`.
+  This is portal-to-service settings persistence proof; product-complete
+  retention controls, raw retention, live view, raw remote upload, and
+  production OCR/VLM quality remain separate gates.
 - `scripts/test/screen-ai-service-cadence-proof.mjs` now proves an explicit
   opt-in Rust service cadence loop on Windows: it opens a real foreground
   browser fixture, records three timed active-window captures through the
@@ -446,6 +469,67 @@ only with explicit parent settings.
   `output/screen-plan-proof/27-28-optional-retention-live-preflight/proof-summary.json`.
   This is not runtime retention enablement, live transport, relay/cache,
   platform permission prompt proof, or privacy/legal approval.
+- `scripts/test/screen-live-view-session-transport-proof.mjs` now proves the
+  first runtime transport slice for optional live view. It captures a real
+  active-window frame through the Rust screen-capture adapter, keeps the raw
+  temp frame only until transport, sends the frame over a local view-only
+  loopback session with digest/HMAC/sequence validation, deletes the raw temp
+  frame after transport, and records no raw-frame cache, session recording, or
+  remote input at
+  `output/screen-plan-proof/live-view-session-transport/proof-summary.json`.
+  This is a local harness proof only; production service session workers,
+  platform live-view permission-prompt screenshots, relay/cache execution,
+  parent UI persistence carry-forward, physical-device parity, and privacy/legal
+  approval remain separate gates.
+- `scripts/test/screen-live-view-service-session-proof.mjs` now consumes the
+  real loopback live-frame transport/deletion artifact and the parent Settings
+  command proof, then proves the service session readiness boundary. The
+  `ScreenLiveViewServiceSessionGateSchema` accepts disabled and
+  loopback-transport-only rows while keeping product live view false, carries
+  `parentUiPersistenceState: proved`, and rejects product-readiness overclaims
+  without live-view permission evidence, service runtime, no frame cache, no
+  session recording, and no remote input. The proof writes
+  `output/screen-plan-proof/live-view-service-session/proof-summary.json`, with
+  parent UI persistence evidence in
+  `output/screen-plan-proof/live-view-parent-ui-persistence/proof-summary.json`.
+  This is not production service runtime, platform prompt screenshot,
+  relay/cache, privacy/legal approval, or product-complete live view.
+- `scripts/test/screen-live-view-runtime-proof.mjs` now proves the Rust
+  `agent-service` live-view runtime decision boundary. The service-side state
+  machine consumes the retained loopback live-frame transport/deletion artifact,
+  carries parent UI persistence proof, rejects capture-only permission, rejects
+  missing transport/deletion proof, rejects frame caching, session recording,
+  and remote input, and can represent a service-runtime-ready but not
+  product-ready state. The proof writes
+  `output/screen-plan-proof/live-view-runtime/proof-summary.json`. This is not
+  production live-view worker startup, platform prompt screenshots, relay/cache
+  execution, physical-device parity, privacy/legal approval, or
+  product-complete live view.
+- `ScreenLiveViewProductionReadinessEvidenceSchema` and
+  `scripts/test/screen-live-view-platform-permission-proof.mjs` now prove live
+  view cannot become product-ready from opaque proof refs or ordinary capture
+  permission. A ready bundle must carry a matching live-view prompt artifact
+  ref/digest, viewer audit, live transport proof, physical-device parity proof,
+  privacy/legal approval, production worker start proof, and relay/cache proof
+  when relay-backed. The current proof keeps Android MediaProjection as
+  capture-only evidence and records `liveViewProductReady:false`; it does not
+  provide real platform prompt screenshots, live transport, physical-device
+  parity, production worker start, relay/cache execution, or privacy/legal
+  approval.
+- `scripts/test/screen-live-view-worker-startup-proof.mjs` now proves the Rust
+  `agent-service` live-view worker startup gate behind that runtime decision
+  boundary. The gate separates `startupPermitted` from actual worker execution,
+  refuses startup permission unless the runtime is product-ready and real
+  live-view prompt artifacts, relay/cache execution when needed, physical-device
+  parity, and privacy/legal approval are all present, and still records no
+  production worker execution in the current proof. The proof consumes the
+  existing real loopback frame transport/deletion, runtime, and parent UI
+  persistence artifacts, writes
+  `output/screen-plan-proof/live-view-worker-startup/proof-summary.json`, and
+  keeps `productionWorkerStarted: false`. Startup permission is not treated as
+  a real platform prompt screenshot, relay/cache execution, physical-device
+  live-view parity, privacy/legal approval, a started worker, or product-complete
+  live view.
 - `ScreenManagedBrowserCdpScreenshotRequestSchema`,
   `ScreenManagedBrowserCdpScreenshotArtifactSchema`, and
   `scripts/test/screen-managed-browser-cdp-capture-proof.mjs` now prove the
@@ -506,20 +590,32 @@ only with explicit parent settings.
   segmentation, downscaled small text, and cropped player UI. Production OCR
   selection and PaddleOCR comparison remain open.
 - `scripts/test/screen-ocr-paddleocr-evaluation-proof.mjs` now records the
-  PaddleOCR/PP-OCR candidate readiness and Windows runtime blocker. It verifies
+  PaddleOCR/PP-OCR candidate readiness and Windows runtime/quality gate. It verifies
   current PyPI versions, installed `paddleocr` 3.6.0 and `paddlepaddle` 3.3.1,
   Tesseract baseline availability, local official PP-OCRv5 model-cache custody,
   and an explicit local inference attempt against the retained real public Vimeo
-  screenshot. The runtime attempt fails before text extraction with
-  `ConvertPirAttribute2RuntimeAttribute not support [pir::ArrayAttribute<pir::DoubleAttribute>]`,
-  so the current PP-OCRv5 path is not selected for production. The same proof
-  can run an explicitly prepared isolated Python 3.10 fallback with
+  screenshot. The current PP-OCRv5 runtime now executes locally with
+  `enable_mkldnn=false`, but extracts zero text from that real proof image, so
+  it is not selected for production. The proof also runs deleted preprocessing
+  variants over the same real image, covering original, 2x upscale, grayscale
+  contrast 2x upscale, and grayscale sharpen 2x upscale inputs; current
+  PP-OCRv5 still extracts zero text from every variant. The same proof can run
+  an explicitly prepared isolated Python 3.10 fallback with
   `paddleocr` 2.7.0.3, `paddlepaddle` 2.6.2, and `numpy<2`; that fallback
   completed local inference against the same real Vimeo screenshot, extracted 15
   text strings, matched the `vimeo`, `video`, and `player` baseline terms, and
   recorded init/predict timing, CPU time, and peak RSS. This proves a local
   PaddleOCR-family fallback can analyze the captured evidence, but it does not
-  unblock current PP-OCRv5 or select production OCR.
+  prove current PP-OCRv5 quality or select production OCR.
+- `scripts/test/screen-ocr-windows-candidate-selection-proof.mjs` now records
+  the current Windows service OCR route decision. It aggregates the real WinRT
+  OCR service proof, WinRT redaction service proof, Tesseract baseline, and
+  PaddleOCR/PP-OCR quality evidence to select `windows-winrt-ocr` as the current
+  Windows service OCR route for this lane. Tesseract remains a measured fallback
+  baseline, current PP-OCRv5 remains not selected because it extracts zero text
+  from the real proof image and deleted preprocessing variants, and pinned
+  PaddleOCR 2.x remains a measured fallback candidate only.
+  This is not a cross-platform OCR or final production-quality claim.
 - `scripts/test/screen-vlm-guided-classifier-readiness-proof.mjs` records the
   small guided VLM classifier readiness boundary for screen-plan WP36 by
   reusing the typed execution-readiness proof. It proves local-only custody,
@@ -527,11 +623,41 @@ only with explicit parent settings.
   query-store custody before completed status, open-ended prompt rejection, and
   manual-required behavior when runtime is unavailable. The proof now records
   local provider command probes for `ollama`, LM Studio `lms`, legacy
-  `lmstudio`, and `llama-server`. LM Studio `lms` is installed, but the local
-  server is off/not running and no loaded local VLM model is available; `ollama`,
-  legacy `lmstudio`, and `llama-server` are not available on PATH. It does not
-  run live VLM inference, measure classifier quality, prove crop extraction, or
-  select a production VLM model.
+  `lmstudio`, `llama-server`, and the local `llama-mtmd-cli` runtime path. It
+  detects the cached llama.cpp/Qwen2-VL binary, model, and mmproj files plus the
+  retained `screen-ai-local-vlm-proof` matrix artifact, which covers 16
+  controlled browser/native scenarios, 17 real window captures, schema
+  validation, policy dry-runs, and raw image deletion. It also cross-checks the
+  retained nine-scenario live operator matrix at
+  `output/screen-ai-pipeline-proof/live-operator/proof-summary.json`, covering
+  public/live URL plus native-app captures through local VLM classification,
+  schema validation, policy dry-run, and raw image deletion. It also
+  cross-checks
+  `output/screen-plan-proof/36-vlm-resource-crop-readiness/proof-summary.json`,
+  which verifies retained controlled and live-operator VLM capture inputs stay
+  below the worker max-image-pixel budget and that the managed-browser CDP crop
+  capture path exists with deletion proof. It also cross-checks
+  `output/screen-plan-proof/36-vlm-runtime-resource-measurement/proof-summary.json`,
+  which runs the local llama.cpp/Qwen2-VL runtime over retained parent proof
+  screenshots and records per-sample wall time, sampled CPU seconds, and peak
+  working set while producing normalized screen-analysis JSON. It also records
+  `output/screen-plan-proof/36-vlm-live-crop-quality/proof-summary.json`, which
+  captures real public Vimeo, Wikipedia, 2048 browser game, and eBay
+  managed-browser crops through CDP, analyzes each crop with local Qwen2-VL,
+  matches expected `video`, `school`, `game`, and `shopping` categories plus
+  visible terms, and deletes each raw crop. It also records
+  `output/screen-plan-proof/36-vlm-model-selection/proof-summary.json`, which
+  selects the cached local llama.cpp/Qwen2-VL route for the current Windows
+  proof path after runtime, resource, quality, local-only, and deletion
+  evidence. It also records
+  `output/screen-plan-proof/36-vlm-rollout-fallback-gate/proof-summary.json`,
+  which allows that Windows route only inside the measured local image/resource
+  envelope after public live video/school/game/shopping/social-feed crop quality
+  passes, and proves runtime-missing, oversized-input, over-budget, and
+  authenticated-social-unproved states fall back to OCR/manual-required instead
+  of remote AI or raw screenshot retention. It still does not claim
+  authenticated-account social proof, broader rollout thresholds across more
+  hardware profiles, or cross-platform model/runtime parity.
 - `scripts/test/screen-ai-service-winrt-ocr-proof.mjs` now proves the
   service-owned Windows WinRT OCR analysis path over real live Chrome/Wikipedia
   pixels: the Rust service cadence loop captures an active-window frame into
@@ -597,23 +723,33 @@ only with explicit parent settings.
   `output/screen-plan-proof/screen-plan-closure-audit/proof-summary.json`. This
   prevents the stacked product-path artifact from being treated as full
   screen-plan completion before macOS, Linux, Android parity, iOS, live-view
-  transport, Tesseract runtime, PaddleOCR runtime, and live VLM quality gates
-  are completed or explicitly left as non-claims.
-- Parent portal form-to-service wiring for persisted product settings,
-  product-complete retention controls, and quality proof are incomplete.
+  platform prompt/actual worker start/relay-cache execution, current PP-OCRv5
+  quality/resource, cross-platform OCR parity, and live VLM quality gates are
+  completed or explicitly left as non-claims.
+- Product-complete retention controls and quality proof are incomplete.
 - Raw screen control settings are preserved as design inputs, not
   product-complete implementation proof.
+- `scripts/test/screen-optional-visibility-capability-status-proof.mjs` now
+  proves optional raw-retention/live-view parent opt-in readiness rows. Disabled
+  modes stay unavailable, approved raw retention remains manual-required until
+  runtime and deletion proof exist, and approved live view remains blocked when
+  the only platform evidence is capture consent. This is child/device
+  capability status proof, not raw retention runtime or live transport.
 
 ## Current Gap
 
-Parent portal form-to-service wiring for persisted parent setting changes, parent retention controls,
-optional raw-retention runtime enablement, live-view transport/relay/cache,
-platform permission prompt proof, child-agent disclosure runtime deployment,
+Product-complete parent retention controls, optional raw-retention runtime
+enablement, actual production live-view worker start/relay-cache transport,
+platform permission prompt proof, physical-device live-view parity, child-agent
+disclosure runtime deployment,
 privacy/legal approval, authenticated-account
 social proof beyond public/live surface proof, production OCR/VLM quality beyond
-the WinRT OCR service proof, controlled fixtures, and the full live operator
-matrix, production local vision adapter quality beyond the service proof
-adapter, service-owned live trigger event producers beyond the timed cadence
+the WinRT OCR service proof, controlled fixtures, the full live operator matrix,
+public live crop matrix, retained bounded-input proof, and retained proof-image
+VLM resource measurement,
+production local vision adapter quality beyond
+the service proof adapter, service-owned live trigger event producers beyond the
+timed cadence
 loop and native active-window foreground watcher capture/queue event producer
 and retention sweeper deletion event producer, startup wiring for remaining live
 producers beyond the service capture/deletion and analysis row-ready handoffs,
@@ -670,10 +806,38 @@ parity, and UI remain separate proof gates.
       protocol adapter, Rust command/event parity, WebSocket routing into the
       local JSON-backed runtime, strict dry-run persistence across restart, and
       raw-retention rejection before persistence.
+- [x] Parent Settings route submits persisted parent screen setting changes
+      through the real service command path and renders accepted get/replace
+      service responses with local JSON persistence.
 - [x] Raw-retention/live-view/remote boundary rejects raw screenshot retention,
       live view, and raw remote upload by default.
 - [x] Optional raw-retention/live-view preflight contract requires explicit
       opt-in, custody, audit, deletion/no-retention, and platform-proof gates.
+- [x] Optional raw-retention/live-view capability status records disabled,
+      manual-required, and blocked child/device readiness rows and rejects
+      product readiness without runtime/deletion, live-view platform prompt, and
+      production session/UI proof.
+- [x] Parent Settings renders optional raw-retention/live-view readiness rows
+      from the same domain proof through the real portal/agent path without
+      enabling raw retention, live view, live transport, relay/cache, remote
+      input, or privacy/legal approval.
+- [x] Local live-view session transport proof captures one real active-window
+      frame, validates view-only loopback delivery with digest/HMAC, and deletes
+      the raw temp frame without cache, recording, or remote input.
+- [x] Live-view service-session readiness proof consumes the real loopback
+      transport/deletion artifact as a non-product-ready row and rejects
+      product readiness until service runtime, live-view platform prompt proof,
+      no frame cache, no recording, and no remote input are present, while
+      carrying parent UI persistence proof.
+- [x] Rust agent-service live-view runtime decision proof rejects capture-only
+      permission, missing transport/deletion proof, frame cache, session
+      recording, and remote input, while preserving a service-ready but
+      product-blocked state until platform prompt, production worker,
+      relay/cache, physical parity, and privacy/legal gates exist.
+- [x] Rust agent-service live-view worker startup gate separates startup
+      permission from actual worker execution and refuses permission until
+      runtime readiness, real platform prompt artifact, relay/cache when needed,
+      physical-device parity, and privacy/legal approval exist.
 - [x] Local AI resource scheduler prevents multiple heavy OCR/VLM jobs and
       prioritizes policy-blocking screen analysis.
 - [x] Detector-specific prompt packs replace open-ended screen descriptions and
@@ -691,18 +855,38 @@ parity, and UI remain separate proof gates.
       emits schema-valid screen analysis evidence, feeds policy dry-run, and
       deletes raw temp images.
 - [~] Tesseract baseline source/license/runtime extraction, CPU/memory
-  measurement, and derived failure-mode scenarios are recorded against a
-  retained real public Vimeo screenshot artifact, but production-quality
-  selection and PaddleOCR comparison remain open.
+  measurement, derived failure-mode scenarios, and same-image comparison
+  against the isolated local PaddleOCR 2.x fallback are recorded against a
+  retained real public Vimeo screenshot artifact; Tesseract is a measured
+  fallback while the current Windows service OCR route is WinRT and current
+  PP-OCRv5 mobile detector, server detector, and preprocessing variants still
+  extract zero text.
 - [~] PaddleOCR/PP-OCR candidate readiness records current package availability,
-  current PP-OCRv5 runtime blocker evidence, and a pinned local PaddleOCR 2.x
-  fallback that extracts comparable text from the retained Vimeo screenshot, but
-  production OCR selection, broader quality/resource proof, and current 3.x
-  runtime resolution remain open.
+  current PP-OCRv5 mobile-detector and cached server-detector local execution
+  with zero extracted text from the retained Vimeo screenshot, zero text from
+  deleted preprocessing variants, and a pinned local PaddleOCR 2.x fallback
+  that extracts comparable text; PaddleOCR is not selected and broader PP-OCRv5
+  quality/resource proof remains open.
+- [x] Windows service OCR route selection proof chooses WinRT OCR for the
+      current Windows service path from retained real service/redaction evidence
+      while leaving Tesseract/PaddleOCR as non-selected fallback candidates.
 - [~] Small guided VLM classifier readiness records local-only handoff,
   template/version, max-pixel, open-ended prompt rejection, deletion,
-  provider-command probes, and manual-required gates, but live model execution,
-  crop extraction, quality, and resource measurement remain open.
+  provider-command probes, local llama.cpp/Qwen2-VL runtime availability,
+  retained controlled local VLM matrix proof, and retained nine-scenario live
+  operator matrix proof. The retained resource/crop readiness audit verifies
+  bounded VLM input dimensions and managed-browser CDP crop capture/deletion,
+  and the retained proof-image runtime measurement records per-sample wall time,
+  sampled CPU seconds, peak working set, and normalized local VLM output.
+  The public-live crop quality proof verifies real Vimeo, Wikipedia, 2048
+  browser game, eBay, and Bluesky public social/feed CDP crops with local
+  Qwen2-VL category/text matches and deletion. The current-route model
+  selection proof chooses cached local
+  llama.cpp/Qwen2-VL for the Windows proof path, and
+  the measured fallback gate blocks runtime-missing, oversized-input,
+  over-budget, and authenticated-social-unproved states before remote AI.
+  Authenticated-account social proof and broader rollout thresholds across more
+  hardware profiles remain open.
 - [x] Service WinRT OCR proof analyzes live public browser pixels through the
       encrypted service queue, records a `localOcr` Activity Screen row, drains
       the queue, and deletes adapter temp image material.
@@ -731,9 +915,9 @@ parity, and UI remain separate proof gates.
       rows into the existing typed screen event chain, rejects raw retention and
       missing policy refs, and avoids a duplicate service event bus.
 - [x] Screen service event subscription proof consumes typed service row-ready
-      events, invokes the existing bridge, publishes downstream screen runtime
-      events for safe rows, and rejects raw-retained rows before downstream
-      publication.
+      events from the service-started subscriber runtime, invokes the existing
+      bridge, publishes downstream screen runtime events for safe rows, and
+      rejects raw-retained rows before downstream publication.
 - [x] Screen service analysis row-ready producer proof starts the event
       subscriber runtime from the service analysis loop, publishes
       `screen.service.row.ready`, and gates current analysis rows as
@@ -757,14 +941,13 @@ parity, and UI remain separate proof gates.
       payloads, grants one child-owned lease, validates provider results on the
       child agent before policy, and rejects invalid provider results.
 
-Parent portal form-to-service wiring for persisted parent setting changes,
-product-complete retention controls, production OCR/VLM quality,
+Product-complete retention controls, production OCR/VLM quality,
 authenticated-account social proof,
-remaining production startup subscriptions for live producers beyond the service
-capture/queue, deletion, and analysis row-ready/policy-ref handoffs,
-child-agent disclosure runtime deployment, production household mesh transport over
-physical LAN, broad adapters, and production explanation portal rendering remain
-in the Current Gap section above.
+externally proved live producer coverage beyond the service capture/queue,
+deletion, and analysis row-ready/policy-ref handoffs, child-agent disclosure
+runtime deployment, production household mesh transport over physical LAN,
+writable optional retention/live-view runtime settings, broad adapters, and
+production explanation portal rendering remain in the Current Gap section above.
 
 ## Next AI Instructions
 

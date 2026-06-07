@@ -30,6 +30,7 @@ async function main() {
     commands,
     evidence: {
       protocolConstants: 'crates/agent-protocol/src/constants/screen_flow.rs',
+      serviceMain: 'crates/agent-service/src/main.rs',
       serviceSubscription: 'crates/agent-service/src/screen_ai_service_event_subscription.rs',
       serviceSubscriptionTests: 'crates/agent-service/src/screen_ai_service_event_subscription_tests.rs',
       serviceBridge: 'crates/agent-service/src/screen_ai_service_event_bridge.rs',
@@ -52,6 +53,8 @@ async function main() {
     ],
     rejectionCases: ['raw-image-retained-before-downstream-publish'],
     claimsProved: [
+      'the Rust service startup retains the screen event subscription runtime before serving requests',
+      'ScreenAiServiceEventRuntime::start registers the row-ready subscriber and dispatches through the real event bus',
       'the Rust service owns a typed screen.service.row.ready subscriber using ocentra-eventing',
       'a service row-ready event invokes the existing bridge into the reusable screen runtime chain',
       'accepted rows publish the ordered downstream capture, queue, AI, summary, policy, action, deletion, and portal-read-model event chain',
@@ -59,7 +62,7 @@ async function main() {
       'subscriber state records accepted and rejected service rows for proof and later production wiring',
     ],
     claimsNotProved: [
-      'service startup wires every live trigger producer into this subscriber',
+      'every live trigger producer is externally proved against this subscriber',
       'new live capture session',
       'production OCR or VLM quality',
       'authenticated-account social proof',
@@ -94,8 +97,18 @@ async function assertSourceContracts() {
     'screen service row-ready subscriber constant exists'
   );
   assertIncludes(serviceMain, 'mod screen_ai_service_event_subscription;', 'service subscription module is registered');
+  assertIncludes(
+    serviceMain,
+    'ScreenAiServiceEventRuntime::start()',
+    'service startup creates the screen event subscription runtime'
+  );
   assertIncludes(subscription, 'subscribe_screen_service_row_ready_events', 'service row-ready subscriber exists');
   assertIncludes(subscription, 'publish_screen_service_row_event_chain', 'subscriber invokes existing service bridge');
+  assertIncludes(
+    subscriptionTests,
+    'runtime_start_registers_subscriber_for_production_startup',
+    'tests prove startup helper registers the real subscriber'
+  );
   assertIncludes(
     subscriptionTests,
     'publishes_existing_runtime_chain',

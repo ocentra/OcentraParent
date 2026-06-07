@@ -15,6 +15,7 @@ import {
   PortalAssets,
   PortalExternalLinks,
   PortalFrameTuner,
+  PortalActivitySurfaceDefaultRequestPayload,
   PortalOverviewCommands,
   PortalRouteDescriptors,
   PortalRouteGroup,
@@ -499,6 +500,19 @@ describe('portal command contracts', () => {
       'agent.local-ai.runtime.status.get',
       'agent.policy.preview.read-model.get',
     ]);
+    expect(
+      PortalOverviewCommands.find((button) => button.command === 'agent.activity.screen.read-model.get')?.payload
+    ).toEqual(PortalActivitySurfaceDefaultRequestPayload);
+    expect(
+      PortalCommandButtons.find((button) => button.command === 'agent.activity.screen.read-model.get')?.payload
+    ).toEqual(PortalActivitySurfaceDefaultRequestPayload);
+    expect(PortalActivitySurfaceDefaultRequestPayload).toMatchObject({
+      scopeKind: 'family',
+      familyId: 'family-local',
+      rangeStart: expect.stringMatching(/^\d{4}-\d{2}-\d{2}T/u),
+      rangeEnd: expect.stringMatching(/^\d{4}-\d{2}-\d{2}T/u),
+      requestedAt: expect.stringMatching(/^\d{4}-\d{2}-\d{2}T/u),
+    });
   });
 });
 

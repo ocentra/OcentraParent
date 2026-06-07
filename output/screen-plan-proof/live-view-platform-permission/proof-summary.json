@@ -1,6 +1,6 @@
 {
   "proof": "screen-live-view-platform-permission",
-  "generatedAt": "2026-06-07T04:11:52.151Z",
+  "generatedAt": "2026-06-07T11:24:39.771Z",
   "claim": "Live view remains a separate optional mode and cannot become product-ready from ordinary screenshot/capture permission proof alone.",
   "sourceEvidence": {
     "androidCaptureProof": "output/screen-plan-proof/android-mediaprojection/proof-summary.json",
@@ -54,6 +54,36 @@
       "readyOnlyAfterEvidenceExists": true
     }
   ],
+  "futureReferenceProductionBundles": [
+    {
+      "referenceOnly": true,
+      "platform": "android-mediaprojection",
+      "liveViewMode": "lanOnlyView",
+      "promptArtifactKind": "platform-permission-prompt-screenshot",
+      "promptArtifactRef": "screen-live-view-android-mediaprojection-permission-proof",
+      "promptArtifactDigestRequired": true,
+      "liveTransportProofRef": "screen-live-view-lan-transport-proof",
+      "physicalDeviceParityProofRef": "screen-live-view-android-physical-parity-proof",
+      "privacyLegalApprovalRef": "screen-live-view-privacy-legal-approval",
+      "productionWorkerStartProofRef": "screen-live-view-production-worker-start-proof",
+      "relayCacheExecutionProofRef": null,
+      "readyOnlyAfterEvidenceExists": true
+    },
+    {
+      "referenceOnly": true,
+      "platform": "android-mediaprojection",
+      "liveViewMode": "relayBackedView",
+      "promptArtifactKind": "platform-permission-prompt-screenshot",
+      "promptArtifactRef": "screen-live-view-android-mediaprojection-permission-proof",
+      "promptArtifactDigestRequired": true,
+      "liveTransportProofRef": "screen-live-view-relay-transport-proof",
+      "physicalDeviceParityProofRef": "screen-live-view-android-physical-parity-proof",
+      "privacyLegalApprovalRef": "screen-live-view-privacy-legal-approval",
+      "productionWorkerStartProofRef": "screen-live-view-production-worker-start-proof",
+      "relayCacheExecutionProofRef": "screen-live-view-relay-cache-execution-proof",
+      "readyOnlyAfterEvidenceExists": true
+    }
+  ],
   "negativeChecks": [
     {
       "name": "capture-only proof cannot mark live view product-ready",
@@ -74,13 +104,40 @@
     {
       "name": "ready live view cannot allow remote input control",
       "rejected": true
+    },
+    {
+      "name": "production readiness rejects capture-only permission gate",
+      "rejected": true
+    },
+    {
+      "name": "production readiness rejects mismatched prompt artifact ref",
+      "rejected": true
+    },
+    {
+      "name": "production readiness rejects relay mode without relay/cache proof",
+      "rejected": true
+    },
+    {
+      "name": "production readiness rejects prompt artifact carrying raw frame content",
+      "rejected": true
     }
   ],
   "gapStatus": {
     "capturePermissionProofExists": true,
     "liveViewPermissionPromptProofExists": false,
     "liveTransportProofExists": false,
+    "physicalDeviceParityProofExists": false,
+    "privacyLegalApprovalExists": false,
+    "productionWorkerStartProofExists": false,
+    "relayCacheExecutionProofExists": false,
+    "productionReadinessEvidenceSchemaExists": true,
     "liveViewProductReady": false
+  },
+  "assertions": {
+    "productionReadinessRequiresStructuredEvidence": true,
+    "productionReadinessRejectsCaptureOnlyPermission": true,
+    "productionReadinessRejectsMismatchedPromptRef": true,
+    "productionReadinessRejectsRawFramePromptArtifact": true
   },
   "nonClaims": [
     "This proof does not implement live screen transport, relay/cache execution, or a service live-view session worker.",

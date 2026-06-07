@@ -9,6 +9,13 @@ const outputRoot = resolve(repoRoot, 'output', 'screen-plan-proof', '34-ocr-tess
 const proofSummaryPath = join(outputRoot, 'proof-summary.json');
 const extractionTextPath = join(outputRoot, 'vimeo-public-video-tesseract-output.txt');
 const failureModeTextPath = join(outputRoot, 'vimeo-public-video-tesseract-failure-modes.txt');
+const paddleOcrEvaluationPath = resolve(
+  repoRoot,
+  'output',
+  'screen-plan-proof',
+  '35-ocr-paddleocr-ppocr-evaluation',
+  'proof-summary.json'
+);
 const sourceImagePath = join(
   repoRoot,
   'output',
@@ -51,6 +58,8 @@ const cpuMemoryRuntimeMeasured =
   Number.isFinite(extraction.cpuTimeMs) &&
   extraction.peakWorkingSetBytes !== null &&
   extraction.peakWorkingSetBytes > 0;
+const paddleOcrEvaluation = readOptionalJson(paddleOcrEvaluationPath);
+const paddleOcrComparison = buildPaddleOcrComparison(paddleOcrEvaluation, expectedTerms);
 
 assert(existsSync(sourceImagePath), `Missing real screenshot source image: ${sourceImagePath}`);
 if (tesseractInstalled) {
@@ -113,9 +122,12 @@ const summary = {
     runtimeMeasured: localExtractionProofComplete,
     cpuMemoryRuntimeMeasured,
     failureModesRecorded,
-    comparedAgainstPaddleOcr: false,
+    comparedAgainstPaddleOcr: paddleOcrComparison.legacyFallbackMatchedExpectedTerms,
+    paddleOcrComparison,
     reason: localExtractionProofComplete
-      ? 'Tesseract is installed and extracted expected text from a retained real public Vimeo screenshot artifact.'
+      ? paddleOcrComparison.legacyFallbackMatchedExpectedTerms
+        ? 'Tesseract is installed and extracted expected text from a retained real public Vimeo screenshot artifact; the isolated local PaddleOCR 2.x fallback extracted the same expected terms, while current PP-OCRv5 remains unselected because it still extracts zero text.'
+        : 'Tesseract is installed and extracted expected text from a retained real public Vimeo screenshot artifact.'
       : tesseractInstalled
         ? 'Tesseract is available, but extraction proof did not complete.'
         : 'Tesseract is not available on PATH or the standard Windows install path in this lane; install/package proof must happen before extraction or quality claims.',
@@ -142,9 +154,11 @@ const summary = {
     cpuMemoryRuntimeMeasured,
     smallFontFailureModesRecorded: failureModes.some((mode) => mode.id === 'downscaled-small-text'),
     messyUiFailureModesRecorded: failureModes.some((mode) => mode.id === 'cropped-player-ui'),
-    paddleOcrComparisonComplete: false,
-    reason:
-      'This proof measures Tesseract process duration, CPU time, peak working set, and derived failure-mode OCR sensitivity. PaddleOCR remains runtime-blocked, so cross-runtime quality comparison is still open.',
+    paddleOcrComparisonComplete: paddleOcrComparison.legacyFallbackMatchedExpectedTerms,
+    currentPpOcrV5StillBlocked: paddleOcrComparison.currentPpOcrV5ExtractedTextCount === 0,
+    reason: paddleOcrComparison.legacyFallbackMatchedExpectedTerms
+      ? 'This proof measures Tesseract process duration, CPU time, peak working set, and derived failure-mode OCR sensitivity, then compares the matched terms against the existing isolated local PaddleOCR 2.x fallback. Current PP-OCRv5 remains blocked for production selection because it executes locally but extracts zero text from the same retained proof image.'
+      : 'This proof measures Tesseract process duration, CPU time, peak working set, and derived failure-mode OCR sensitivity. PaddleOCR comparison remains open until a local OCR candidate extracts comparable terms from the same retained proof image.',
   },
   nonClaims: [
     tesseractInstalled
@@ -152,7 +166,7 @@ const summary = {
       : 'Tesseract is not available on PATH in this Windows lane; install/package proof must happen before extraction or quality claims.',
     'This proof runs OCR over a retained real public browser screenshot artifact; it does not create a new screen capture.',
     'This proof records extraction duration, CPU time, peak working set, matched terms, and derived failure modes, but it does not claim production OCR quality or latency suitability.',
-    'This proof does not compare Tesseract against PaddleOCR/PP-OCR.',
+    'This proof does not select PaddleOCR/PP-OCR for production. The comparison only records that the already-isolated local PaddleOCR 2.x fallback matched terms while current PP-OCRv5 did not extract text.',
   ],
   validationCommands: [
     'node --check scripts/test/screen-ocr-tesseract-baseline-proof.mjs',
@@ -180,6 +194,43 @@ function resolveTesseractCommand(whereResult) {
   const windowsDefault = 'C:\\Program Files\\Tesseract-OCR\\tesseract.exe';
   if (process.platform === 'win32' && existsSync(windowsDefault)) return windowsDefault;
   return null;
+}
+
+function readOptionalJson(path) {
+  if (!existsSync(path)) return null;
+  return JSON.parse(readFileSync(path, 'utf8'));
+}
+
+function buildPaddleOcrComparison(evaluation, expectedTerms) {
+  const runtimeComparison = evaluation?.runtimeAndQualityComparison ?? {};
+  const currentAttempt = runtimeComparison.paddleOcrRuntimeAttempt ?? null;
+  const serverDetectorAttempt = runtimeComparison.paddleOcrServerDetectorRuntimeAttempt ?? null;
+  const preprocessAttempt = runtimeComparison.paddleOcrPreprocessRuntimeAttempt ?? null;
+  const legacyAttempt = runtimeComparison.legacyPaddleOcr2xRuntimeAttempt ?? null;
+  const legacyMatchedTerms = Array.isArray(legacyAttempt?.matchedTerms) ? legacyAttempt.matchedTerms : [];
+  return {
+    evaluationPath: relativePath(paddleOcrEvaluationPath),
+    evaluationPresent: evaluation !== null,
+    sameSourceImage: evaluation?.sourceEvidence?.sourceImagePath === sourceImagePath,
+    expectedTerms,
+    tesseractMatchedTerms: matchedTerms,
+    currentPpOcrV5Status: currentAttempt?.status ?? null,
+    currentPpOcrV5ExtractedTextCount: currentAttempt?.extractedTextCount ?? null,
+    currentPpOcrV5ServerDetectorStatus: serverDetectorAttempt?.status ?? null,
+    currentPpOcrV5ServerDetectorExtractedTextCount: serverDetectorAttempt?.extractedTextCount ?? null,
+    currentPpOcrV5PreprocessMaxTextCount: preprocessAttempt?.maxExtractedTextCount ?? null,
+    legacyFallbackStatus: legacyAttempt?.status ?? null,
+    legacyFallbackExtractedTextCount: legacyAttempt?.extractedTextCount ?? null,
+    legacyFallbackMatchedTerms: legacyMatchedTerms,
+    legacyFallbackMatchedExpectedTerms: expectedTerms.every((term) => legacyMatchedTerms.includes(term)),
+    conclusion:
+      expectedTerms.every((term) => legacyMatchedTerms.includes(term)) &&
+      currentAttempt?.extractedTextCount === 0 &&
+      serverDetectorAttempt?.extractedTextCount === 0 &&
+      preprocessAttempt?.maxExtractedTextCount === 0
+        ? 'Tesseract and the isolated local PaddleOCR 2.x fallback both matched the expected Vimeo proof terms; current PP-OCRv5 mobile detector, server detector, and preprocessing variants still extract zero text, so Windows service OCR selection remains WinRT and PaddleOCR remains unselected.'
+        : 'PaddleOCR comparison is incomplete or not production-selectable for this proof image.',
+  };
 }
 
 async function runMeasuredTesseract(command, args) {

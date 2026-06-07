@@ -1,6 +1,6 @@
 {
   "proof": "screen-ocr-tesseract-baseline",
-  "generatedAt": "2026-06-07T03:23:22.642Z",
+  "generatedAt": "2026-06-07T12:34:13.477Z",
   "officialSourceSnapshot": {
     "project": "https://github.com/tesseract-ocr/tesseract",
     "documentation": "https://tesseract-ocr.github.io/tessdoc/",
@@ -27,10 +27,10 @@
     "sourceImageKind": "retained real managed-browser public Vimeo screenshot artifact",
     "sourceImageExists": true,
     "commandStatus": 0,
-    "durationMs": 783,
-    "cpuTimeMs": 344,
-    "peakWorkingSetBytes": 46481408,
-    "peakWorkingSetMiB": 44.3,
+    "durationMs": 965,
+    "cpuTimeMs": 453,
+    "peakWorkingSetBytes": 46854144,
+    "peakWorkingSetMiB": 44.7,
     "outputArtifact": "output/screen-plan-proof/34-ocr-tesseract-baseline/vimeo-public-video-tesseract-output.txt",
     "outputCharacterCount": 469,
     "matchedTerms": [
@@ -54,10 +54,10 @@
         "description": "Same retained real screenshot with sparse-text OCR segmentation.",
         "sourceImage": "output/browser-plan-proof/social-14-managed-browser-feed-short-video-gate/06-live-screenshots/vimeo-public-video.png",
         "commandStatus": 0,
-        "durationMs": 702,
-        "cpuTimeMs": 359,
-        "peakWorkingSetBytes": 46088192,
-        "peakWorkingSetMiB": 44,
+        "durationMs": 888,
+        "cpuTimeMs": 391,
+        "peakWorkingSetBytes": 46055424,
+        "peakWorkingSetMiB": 43.9,
         "outputCharacterCount": 494,
         "matchedTerms": [
           "vimeo",
@@ -71,10 +71,10 @@
         "description": "Same retained real screenshot downscaled before OCR to simulate small text sensitivity.",
         "sourceImage": "output/screen-plan-proof/34-ocr-tesseract-baseline/vimeo-public-video-downscaled.png",
         "commandStatus": 0,
-        "durationMs": 545,
-        "cpuTimeMs": 172,
-        "peakWorkingSetBytes": 33226752,
-        "peakWorkingSetMiB": 31.7,
+        "durationMs": 719,
+        "cpuTimeMs": 281,
+        "peakWorkingSetBytes": 32292864,
+        "peakWorkingSetMiB": 30.8,
         "outputCharacterCount": 106,
         "matchedTerms": [
           "vimeo",
@@ -88,10 +88,10 @@
         "description": "Same retained real screenshot cropped to the lower player/control region before OCR.",
         "sourceImage": "output/screen-plan-proof/34-ocr-tesseract-baseline/vimeo-public-video-player-crop.png",
         "commandStatus": 0,
-        "durationMs": 667,
-        "cpuTimeMs": 250,
-        "peakWorkingSetBytes": 39759872,
-        "peakWorkingSetMiB": 37.9,
+        "durationMs": 757,
+        "cpuTimeMs": 297,
+        "peakWorkingSetBytes": 39849984,
+        "peakWorkingSetMiB": 38,
         "outputCharacterCount": 350,
         "matchedTerms": [
           "vimeo",
@@ -110,8 +110,37 @@
     "runtimeMeasured": true,
     "cpuMemoryRuntimeMeasured": true,
     "failureModesRecorded": true,
-    "comparedAgainstPaddleOcr": false,
-    "reason": "Tesseract is installed and extracted expected text from a retained real public Vimeo screenshot artifact."
+    "comparedAgainstPaddleOcr": true,
+    "paddleOcrComparison": {
+      "evaluationPath": "output/screen-plan-proof/35-ocr-paddleocr-ppocr-evaluation/proof-summary.json",
+      "evaluationPresent": true,
+      "sameSourceImage": true,
+      "expectedTerms": [
+        "vimeo",
+        "video",
+        "player"
+      ],
+      "tesseractMatchedTerms": [
+        "vimeo",
+        "video",
+        "player"
+      ],
+      "currentPpOcrV5Status": 0,
+      "currentPpOcrV5ExtractedTextCount": 0,
+      "currentPpOcrV5ServerDetectorStatus": 0,
+      "currentPpOcrV5ServerDetectorExtractedTextCount": 0,
+      "currentPpOcrV5PreprocessMaxTextCount": 0,
+      "legacyFallbackStatus": 0,
+      "legacyFallbackExtractedTextCount": 15,
+      "legacyFallbackMatchedTerms": [
+        "vimeo",
+        "video",
+        "player"
+      ],
+      "legacyFallbackMatchedExpectedTerms": true,
+      "conclusion": "Tesseract and the isolated local PaddleOCR 2.x fallback both matched the expected Vimeo proof terms; current PP-OCRv5 mobile detector, server detector, and preprocessing variants still extract zero text, so Windows service OCR selection remains WinRT and PaddleOCR remains unselected."
+    },
+    "reason": "Tesseract is installed and extracted expected text from a retained real public Vimeo screenshot artifact; the isolated local PaddleOCR 2.x fallback extracted the same expected terms, while current PP-OCRv5 remains unselected because it still extracts zero text."
   },
   "assertions": {
     "sourceImageExists": true,
@@ -134,14 +163,15 @@
     "cpuMemoryRuntimeMeasured": true,
     "smallFontFailureModesRecorded": true,
     "messyUiFailureModesRecorded": true,
-    "paddleOcrComparisonComplete": false,
-    "reason": "This proof measures Tesseract process duration, CPU time, peak working set, and derived failure-mode OCR sensitivity. PaddleOCR remains runtime-blocked, so cross-runtime quality comparison is still open."
+    "paddleOcrComparisonComplete": true,
+    "currentPpOcrV5StillBlocked": true,
+    "reason": "This proof measures Tesseract process duration, CPU time, peak working set, and derived failure-mode OCR sensitivity, then compares the matched terms against the existing isolated local PaddleOCR 2.x fallback. Current PP-OCRv5 remains blocked for production selection because it executes locally but extracts zero text from the same retained proof image."
   },
   "nonClaims": [
     "This proof installed and invoked Tesseract locally, but it does not select Tesseract as the production OCR runtime.",
     "This proof runs OCR over a retained real public browser screenshot artifact; it does not create a new screen capture.",
     "This proof records extraction duration, CPU time, peak working set, matched terms, and derived failure modes, but it does not claim production OCR quality or latency suitability.",
-    "This proof does not compare Tesseract against PaddleOCR/PP-OCR."
+    "This proof does not select PaddleOCR/PP-OCR for production. The comparison only records that the already-isolated local PaddleOCR 2.x fallback matched terms while current PP-OCRv5 did not extract text."
   ],
   "validationCommands": [
     "node --check scripts/test/screen-ocr-tesseract-baseline-proof.mjs",

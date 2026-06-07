@@ -1,0 +1,60 @@
+{
+  "proof": "screen-live-view-worker-startup-proof",
+  "generatedAt": "2026-06-07T12:50:19.335Z",
+  "claim": "The Rust agent-service live-view worker startup gate is wired behind the existing runtime decision boundary, distinguishes startup permission from an actually started worker, and stays fail-closed unless runtime readiness, live-view platform prompt artifact, relay/cache execution when needed, physical-device parity, and privacy/legal approval are all proved.",
+  "sourceEvidence": {
+    "liveTransportProof": "output/screen-plan-proof/live-view-session-transport/proof-summary.json",
+    "liveTransportProofPresent": true,
+    "realPixelsCaptured": true,
+    "localTransportDeliveredFrame": true,
+    "rawFrameDeletedAfterTransport": true,
+    "runtimeProof": "output/screen-plan-proof/live-view-runtime/proof-summary.json",
+    "runtimeProofPresent": true,
+    "runtimeDecisionBoundaryExists": true,
+    "runtimeStillProductBlocked": true,
+    "parentUiPersistenceProof": "output/screen-plan-proof/live-view-parent-ui-persistence/proof-summary.json",
+    "parentUiPersistenceProofPresent": true,
+    "parentUiPersistenceCarriedForward": true
+  },
+  "rustWorkerStartupGate": {
+    "module": "crates/agent-service/src/screen_ai_service_event_subscription/live_view_worker.rs",
+    "tests": "crates/agent-service/src/screen_ai_service_event_subscription/live_view_worker_tests.rs",
+    "validationCommand": "cargo test -p ocentra-parent-agent-service screen_live_view_worker -- --nocapture",
+    "validationPassed": true
+  },
+  "startupDecisionsProved": {
+    "disabledModeDoesNotStartWorker": true,
+    "runtimeNotReadyBlocksWorker": true,
+    "platformPromptArtifactRequired": true,
+    "relayCacheExecutionRequiredForRelayMode": true,
+    "physicalDeviceParityRequired": true,
+    "privacyLegalApprovalRequired": true,
+    "startupPermissionExistsOnlyAfterAllProductGates": true,
+    "startupPermissionDoesNotClaimWorkerStarted": true
+  },
+  "gapStatus": {
+    "workerStartupGateExists": true,
+    "productionWorkerStartPermittedOnlyAfterAllGates": true,
+    "productionWorkerStarted": false,
+    "liveViewPermissionPromptProofExists": false,
+    "relayCacheExecutionProofExists": false,
+    "physicalDeviceParityProofExists": false,
+    "privacyLegalApprovalExists": false,
+    "liveViewProductReady": false
+  },
+  "assertions": {
+    "rustWorkerStartupValidationPassed": true,
+    "runtimeProofConsumed": true,
+    "existingRuntimeStillBlocksProduct": true,
+    "realLoopbackTransportArtifactCarriedForward": true,
+    "rawFrameDeletionCarriedForward": true,
+    "parentUiPersistenceCarriedForward": true,
+    "workerRemainsStoppedWithoutExternalGates": true,
+    "startupPermissionIsNotWorkerExecution": true
+  },
+  "nonClaims": [
+    "This proof does not start a production live-view worker.",
+    "This proof does not prove real live-view platform permission-prompt screenshots, relay/cache execution, physical-device parity, or privacy/legal approval.",
+    "This proof does not enable product live view, raw frame caching, session recording, or remote input."
+  ]
+}

@@ -1,4 +1,5 @@
 import { useMemo, useState, type ReactElement, type ReactNode } from 'react';
+import type { AgentEventEnvelope } from '@ocentra-parent/agent-protocol-domain/contracts';
 import {
   screenEvidenceSettingsWritableUiProof,
   type ScreenEvidenceSettingsUiIntent,
@@ -10,13 +11,60 @@ import {
   PortalFormatting,
   type PortalDisplayText,
 } from '@ocentra-parent/portal-domain/contracts';
+import type { PortalRenderActions } from './portal-actions';
+import {
+  createScreenSettingsGetCommandDraft,
+  createScreenSettingsReplaceCommandDraft,
+  latestScreenSettingsServiceResponse,
+  screenSettingsBaseVersionForReplace,
+  type ScreenSettingsServiceRequestId,
+  screenSettingsServiceStatusText,
+} from './screen-settings-service-command-state';
+import { ScreenSettingsServiceCommandCard } from './ScreenSettingsServiceCommandCard';
 
 type ScreenSettingsWritableDetailValue = ReactNode;
 
-export function ScreenSettingsWritableControls(): ReactElement {
+export function ScreenSettingsWritableControls({
+  actions,
+  commandEnabled,
+  events,
+}: {
+  readonly actions: PortalRenderActions;
+  readonly commandEnabled: boolean;
+  readonly events: readonly AgentEventEnvelope[];
+}): ReactElement {
   const proof = useMemo(() => screenEvidenceSettingsWritableUiProof(), []);
   const [selectedIntentKey, setSelectedIntentKey] = useState(proof.defaultIntentKey);
+  const [requestSequence, setRequestSequence] = useState(1);
+  const [pendingRequestId, setPendingRequestId] = useState<ScreenSettingsServiceRequestId | null>(null);
   const selectedIntent = screenSettingsIntentByKey(proof.intents, selectedIntentKey);
+  const serviceResponse = latestScreenSettingsServiceResponse(events, pendingRequestId);
+  const serviceStatus = screenSettingsServiceStatusText({
+    commandEnabled,
+    pendingRequestId,
+    proof,
+    response: serviceResponse,
+  });
+  const submitDraft = (draft: ReturnType<typeof createScreenSettingsReplaceCommandDraft>): void => {
+    setPendingRequestId(draft.requestId);
+    setRequestSequence(requestSequence + 1);
+    actions.sendCommand(draft.command, draft.payload);
+  };
+  const sendReplace = (): void => {
+    submitDraft(
+      createScreenSettingsReplaceCommandDraft({
+        baseSettingVersion: screenSettingsBaseVersionForReplace(serviceResponse),
+        sequence: requestSequence,
+        setting: selectedIntent.setting,
+      })
+    );
+  };
+  const sendRefresh = (): void => {
+    const draft = createScreenSettingsGetCommandDraft(requestSequence);
+    setPendingRequestId(draft.requestId);
+    setRequestSequence(requestSequence + 1);
+    actions.sendCommand(draft.command, draft.payload);
+  };
 
   return (
     <>
@@ -53,6 +101,15 @@ export function ScreenSettingsWritableControls(): ReactElement {
         selectedIntent={selectedIntent}
       />
       <ScreenSettingsRetentionCard proofHeading={proof.retentionHeading} selectedIntent={selectedIntent} />
+      <ScreenSettingsServiceCommandCard
+        commandEnabled={commandEnabled}
+        onRefresh={sendRefresh}
+        onSave={sendReplace}
+        pendingRequestId={pendingRequestId}
+        proof={proof}
+        response={serviceResponse}
+        serviceStatus={serviceStatus}
+      />
       <article className={screenSettingsWritableCardClassName()}>
         <h2>{proof.validationStatusLabel}</h2>
         <dl className={PortalDom.Classes.TrackingStatusOverlayMeta}>

@@ -19,6 +19,11 @@ function specifyWritableIntentProof() {
 
     expect(ScreenEvidenceSettingsUiProofSchema.safeParse(proof).success).toBe(true);
     expect(proof.title).toBe('Writable screen settings proof');
+    expect(proof.note).toContain('submit it to the child service command path');
+    expect(proof.serviceCommandHeading).toBe('Service command');
+    expect(proof.serviceApplyActionLabel).toBe('Save selected screen setting');
+    expect(proof.serviceRefreshActionLabel).toBe('Refresh persisted screen setting');
+    expect(proof.serviceAcceptedStatus).toBe('service accepted persisted setting');
     expect(proof.defaultIntentKey).toBe('disabledLocalSummary');
     expect(proof.intents.map((intent) => intent.intentKey)).toEqual([
       'disabledLocalSummary',

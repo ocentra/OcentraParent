@@ -5,8 +5,16 @@ const repoRoot = process.cwd();
 const outputRoot = resolve(repoRoot, 'output', 'screen-plan-proof', 'screen-plan-closure-audit');
 const proofPath = join(outputRoot, 'proof-summary.json');
 const checklistPath = join(repoRoot, 'docs', 'plans', 'screen-plan', 'implementation-checklist.md');
+const windowsOcrSelectionPath = join(
+  repoRoot,
+  'output',
+  'screen-plan-proof',
+  'windows-ocr-candidate-selection',
+  'proof-summary.json'
+);
 
 const checklist = readText(checklistPath);
+const windowsOcrSelection = readJson(windowsOcrSelectionPath);
 const workpacks = [
   {
     id: '10',
@@ -40,8 +48,8 @@ const workpacks = [
     id: '28',
     label: 'Live view optional mode',
     status: workpackStatus('28 Live view optional mode'),
-    requiredProof: 'output/screen-plan-proof/live-view-platform-permission/proof-summary.json',
-    gate: 'Fail-closed platform permission gate exists; real live-view platform prompt screenshots, service session runtime, and live transport proof remain.',
+    requiredProof: 'output/screen-plan-proof/live-view-worker-startup/proof-summary.json',
+    gate: 'Fail-closed platform permission gate, structured production-readiness evidence bundle, local loopback live-frame transport proof, parent UI persistence proof, service-session readiness boundary proof, Rust service runtime decision proof, and worker startup gate proof exist; real platform live-view prompt screenshots, actual production worker start, relay/cache execution, physical-device parity, and privacy/legal approval remain.',
   },
   {
     id: '30',
@@ -55,21 +63,21 @@ const workpacks = [
     label: 'OCR Tesseract baseline',
     status: workpackStatus('34 OCR Tesseract baseline'),
     requiredProof: 'output/screen-plan-proof/34-ocr-tesseract-baseline/proof-summary.json',
-    gate: 'Local Tesseract extraction, CPU/memory measurement, and derived failure-mode capture are proved; production OCR selection remains open.',
+    gate: 'Local Tesseract extraction, CPU/memory measurement, derived failure-mode capture, and same-image comparison against the isolated local PaddleOCR 2.x fallback are proved; Tesseract is retained as a measured fallback while the current Windows service OCR route is WinRT and current PP-OCRv5 still extracts zero text. Cross-platform OCR parity, broad language coverage, and final production quality remain open.',
   },
   {
     id: '35',
     label: 'OCR PaddleOCR/PP-OCR evaluation',
     status: workpackStatus('35 OCR PaddleOCR/PP-OCR evaluation'),
     requiredProof: 'output/screen-plan-proof/35-ocr-paddleocr-ppocr-evaluation/proof-summary.json',
-    gate: 'Current PP-OCRv5 inference remains runtime-blocked before text extraction, but an isolated pinned PaddleOCR 2.x fallback extracts comparable text locally; no production selection or broad quality claim.',
+    gate: 'Current PP-OCRv5 mobile-detector inference and cached server-detector inference now run locally with oneDNN/MKLDNN disabled but extract zero text from the real proof image, and deleted preprocessing variants also extract zero text; an isolated pinned PaddleOCR 2.x fallback extracts comparable text locally. PaddleOCR is not selected; current Windows service OCR route selection is WinRT, while PP-OCRv5 quality/resource resolution and broad quality remain open.',
   },
   {
     id: '36',
     label: 'Small VLM guided classifier evaluation',
     status: workpackStatus('36 Small VLM guided classifier evaluation'),
     requiredProof: 'output/screen-plan-proof/36-small-vlm-guided-classifier-evaluation/proof-summary.json',
-    gate: 'Current proof is local VLM contract/readiness plus provider-command probe only; local provider commands are unavailable on PATH and no live VLM runtime or quality measurement is claimed.',
+    gate: 'Current proof detects the local llama.cpp/Qwen2-VL runtime, retained controlled local VLM matrix, retained nine-scenario live operator matrix, bounded retained VLM inputs, managed-browser CDP crop capture path, retained proof-image VLM wall/CPU/RSS measurement, public-live video/school/game/shopping/social-feed CDP crop quality, current Windows local VLM route selection, and measured rollout/fallback gate; authenticated-account social proof and broader hardware rollout thresholds remain open.',
   },
 ];
 
@@ -93,6 +101,14 @@ assert(
   'iOS ReplayKit must remain open without real iOS proof.'
 );
 assert(missingProofs.length > 0, 'Closure audit expects at least one missing external proof gate.');
+assert(
+  windowsOcrSelection.assertions?.windowsServiceOcrSelected === true,
+  'Closure audit expects the Windows OCR route selection artifact to select WinRT OCR.'
+);
+assert(
+  windowsOcrSelection.selectedCurrentRoute?.modelId === 'windows-winrt-ocr',
+  'Closure audit expects Windows OCR selection to name windows-winrt-ocr.'
+);
 
 const summary = {
   proof: 'screen-plan-closure-audit',
@@ -120,6 +136,18 @@ const summary = {
     'output/screen-ai-pipeline-proof/service-winrt-ocr-redaction/portal-screen-analysis-redaction.png',
     'output/screen-ai-pipeline-proof/service-winrt-ocr-redaction/parent-redaction-policy.json',
     'output/screen-ai-pipeline-proof/final-product-path/proof-summary.json',
+    'output/screen-plan-proof/live-view-session-transport/proof-summary.json',
+    'output/screen-plan-proof/live-view-platform-permission/proof-summary.json',
+    'output/screen-plan-proof/live-view-parent-ui-persistence/proof-summary.json',
+    'output/screen-plan-proof/live-view-service-session/proof-summary.json',
+    'output/screen-plan-proof/live-view-runtime/proof-summary.json',
+    'output/screen-plan-proof/live-view-worker-startup/proof-summary.json',
+    'output/screen-plan-proof/windows-ocr-candidate-selection/proof-summary.json',
+    'output/screen-plan-proof/36-vlm-resource-crop-readiness/proof-summary.json',
+    'output/screen-plan-proof/36-vlm-runtime-resource-measurement/proof-summary.json',
+    'output/screen-plan-proof/36-vlm-live-crop-quality/proof-summary.json',
+    'output/screen-plan-proof/36-vlm-model-selection/proof-summary.json',
+    'output/screen-plan-proof/36-vlm-rollout-fallback-gate/proof-summary.json',
   ].map((artifact) => ({
     artifact,
     present: existsSync(join(repoRoot, artifact)),
@@ -131,7 +159,7 @@ const summary = {
     noProductCompleteClaim: true,
   },
   nonClaims: [
-    'This audit does not complete macOS, Linux, Android parity, iOS, live-view platform prompt screenshots/transport/session runtime, current PP-OCRv5 resolution/production OCR selection, or live VLM provider/runtime quality gates.',
+    'This audit does not complete macOS, Linux, Android parity, iOS, live-view platform prompt screenshots/actual production worker start/relay-cache execution/physical-device parity, current PP-OCRv5 quality resolution, cross-platform OCR parity, authenticated-account social proof, or broader VLM hardware rollout-threshold gates.',
     'This audit does not replace real device/runtime proof for remaining partial rows.',
     'This audit exists to prevent product-complete wording before the remaining external proof gates are satisfied.',
   ],
@@ -150,6 +178,10 @@ function workpackStatus(label) {
 
 function readText(path) {
   return readFileSync(path, 'utf8');
+}
+
+function readJson(path) {
+  return JSON.parse(readFileSync(path, 'utf8'));
 }
 
 function relativePath(path) {

@@ -1,0 +1,539 @@
+{
+  "proof": "screen-vlm-live-crop-quality-proof",
+  "generatedAt": "2026-06-07T11:58:50.711Z",
+  "proofTier": "P2_REAL_LIVE_MANAGED_BROWSER_CROP_LOCAL_VLM_QUALITY_MATRIX",
+  "scenarioCount": 5,
+  "passedScenarioCount": 5,
+  "requiredScenarioGroups": [
+    "public-video",
+    "public-school",
+    "public-game",
+    "public-shopping",
+    "public-social-feed"
+  ],
+  "scenarios": [
+    {
+      "groupId": "public-video",
+      "status": "passed",
+      "scenario": {
+        "scenarioId": "vimeo-public-home-crop",
+        "sourceKind": "public-live-url",
+        "finalHost": "vimeo.com",
+        "requestedLiveUrlHash": "sha256:7a44bb7c3a82d2e2bd1e9fdc917944ea99a6db364a3f73e0aecfded8ecf02870",
+        "finalUrlHash": "sha256:7a44bb7c3a82d2e2bd1e9fdc917944ea99a6db364a3f73e0aecfded8ecf02870",
+        "finalUrlLength": 18,
+        "titleHash": "sha256:e1aac3bd1563760ac32dd44f56d3c9695cf6b77849dfc9bde6a9a233f018e65c",
+        "titleLength": 33,
+        "visibleTextHash": "sha256:75e779554089f301e54034ffd23f372e1a14671fb6c0a899e33265545371d5b9",
+        "visibleTextLength": 9524,
+        "readinessTermsMatched": [
+          "vimeo",
+          "video"
+        ]
+      },
+      "cropCapture": {
+        "cdpMethod": "Page.captureScreenshot",
+        "targetIdHash": "sha256:a373e3e8f424ece2d0091825a589823621d3e70a1376fd87044b68b74b6ef885",
+        "crop": {
+          "x": 0,
+          "y": 0,
+          "width": 900,
+          "height": 560,
+          "scale": 1
+        },
+        "imageWidth": 900,
+        "imageHeight": 560,
+        "imagePixelCount": 504000,
+        "imageByteSize": 332920,
+        "imageDigest": "sha256:aaf1d690cdc6c22840092351f5482655211fed5b4dcf046bf9bbb1e3acc475c1",
+        "rawTempPathRedacted": true,
+        "rawImageRetained": false,
+        "remoteUploadAllowed": false,
+        "desktopCaptureAttempted": false
+      },
+      "localVlmAnalysis": {
+        "runtimeBinary": "%USERPROFILE%\\.cache\\ocentra-parent\\llama.cpp\\b9279\\llama-mtmd-cli.exe",
+        "model": "%USERPROFILE%\\.cache\\ocentra-parent\\local-ai-models\\Qwen2-VL-2B-Instruct-Q4_K_M.gguf",
+        "mmproj": "%USERPROFILE%\\.cache\\ocentra-parent\\local-ai-models\\mmproj-Qwen2-VL-2B-Instruct-Q8_0.gguf",
+        "promptOrTemplateVersion": "screen-vlm-live-crop-quality-v2",
+        "wallMs": 27144,
+        "parsedResult": {
+          "primary_category": "video",
+          "visible_text": [
+            "Your videos, your way",
+            "Vimeo's ad-free platform provides everything you need to host, manage, and share high-quality videos",
+            "Join free"
+          ],
+          "risk_signals": [],
+          "confidence": 1
+        },
+        "normalizedResult": {
+          "primary_category": "video",
+          "visible_text": "Your videos, your way Vimeo's ad-free platform provides everything you need to host, manage, and share high-quality videos Join free",
+          "risk_signals": [],
+          "confidence": 1
+        },
+        "expectedCategory": "video",
+        "acceptedCategories": [
+          "video"
+        ],
+        "categoryMatched": true,
+        "expectedTerms": [
+          "vimeo",
+          "video"
+        ],
+        "vlmTermsMatched": [
+          "vimeo",
+          "video"
+        ],
+        "stdoutPreview": " ```json { \"primary_category\": \"video\", \"visible_text\": [ \"Your videos, your way\", \"Vimeo's ad-free platform provides everything you need to host, manage, and share high-quality videos\", \"Join free\" ], \"risk_signals\": [], \"confidence\": 1 } ``` ",
+        "stderrPreview": "0.00.525.443 W load: control-looking token: 128247 '</s>' was not control-type; this is probably a bug in the model. its type will be overridden 0.01.556.251 I mtmd_cli_context: chat template example: <|im_start|>system You are a helpful assistant<|im_end|> <|im_start|>user Hello<|im_end|> <|im_start|>assistant Hi there<|im_end|> <|im_start|>user How are you?<|im_end|> <|im_start|>assistant 0.01.560.053 W load_hparams: Qwen-VL models require at minimum 1024 image tokens to function correctly on "
+      },
+      "deletion": {
+        "rawCropDeleted": true,
+        "tempDirDeleted": true,
+        "rawImageRetained": false
+      },
+      "assertions": {
+        "realLivePageLoaded": true,
+        "managedBrowserCropCaptured": true,
+        "localVlmExecuted": true,
+        "parseableNormalizedJson": true,
+        "expectedTermsDetectedByVlm": true,
+        "expectedCategoryMatched": true,
+        "rawCropDeleted": true,
+        "noRemoteAiUsed": true,
+        "noRawImageRetained": true
+      }
+    },
+    {
+      "groupId": "public-school",
+      "status": "passed",
+      "scenario": {
+        "scenarioId": "wikipedia-public-home-crop",
+        "sourceKind": "public-live-url",
+        "finalHost": "www.wikipedia.org",
+        "requestedLiveUrlHash": "sha256:9a9d50ec8631eafde241ce5b6991ebb9ba74c8543397179e1b589e700bedefd4",
+        "finalUrlHash": "sha256:9a9d50ec8631eafde241ce5b6991ebb9ba74c8543397179e1b589e700bedefd4",
+        "finalUrlLength": 26,
+        "titleHash": "sha256:d38b38a2dd476e045c299e8ee5d6466834456d97bd592a71746b423a6a05f386",
+        "titleLength": 9,
+        "visibleTextHash": "sha256:3cfce725abea79350f53876bf1038fd372476b3398d739d58555f1889248209c",
+        "visibleTextLength": 2022,
+        "readinessTermsMatched": [
+          "wikipedia",
+          "encyclopedia",
+          "search"
+        ]
+      },
+      "cropCapture": {
+        "cdpMethod": "Page.captureScreenshot",
+        "targetIdHash": "sha256:ffc51945180ab1632ce250dca9d615b6821b8268ea5f56ec6e638895721eb1e5",
+        "crop": {
+          "x": 0,
+          "y": 0,
+          "width": 760,
+          "height": 520,
+          "scale": 1
+        },
+        "imageWidth": 760,
+        "imageHeight": 520,
+        "imagePixelCount": 395200,
+        "imageByteSize": 53790,
+        "imageDigest": "sha256:89d614587628284f9a550698a0c053900444102ddde2c590cdd25e807f5d9dfe",
+        "rawTempPathRedacted": true,
+        "rawImageRetained": false,
+        "remoteUploadAllowed": false,
+        "desktopCaptureAttempted": false
+      },
+      "localVlmAnalysis": {
+        "runtimeBinary": "%USERPROFILE%\\.cache\\ocentra-parent\\llama.cpp\\b9279\\llama-mtmd-cli.exe",
+        "model": "%USERPROFILE%\\.cache\\ocentra-parent\\local-ai-models\\Qwen2-VL-2B-Instruct-Q4_K_M.gguf",
+        "mmproj": "%USERPROFILE%\\.cache\\ocentra-parent\\local-ai-models\\mmproj-Qwen2-VL-2B-Instruct-Q8_0.gguf",
+        "promptOrTemplateVersion": "screen-vlm-live-crop-quality-v2",
+        "wallMs": 17483,
+        "parsedResult": {
+          "primary_category": "school",
+          "visible_text": "Wikipedia: The Free Encyclopedia",
+          "risk_signals": [],
+          "confidence": 1
+        },
+        "normalizedResult": {
+          "primary_category": "school",
+          "visible_text": "Wikipedia: The Free Encyclopedia",
+          "risk_signals": [],
+          "confidence": 1
+        },
+        "expectedCategory": "school",
+        "acceptedCategories": [
+          "school",
+          "productivity"
+        ],
+        "categoryMatched": true,
+        "expectedTerms": [
+          "wikipedia",
+          "encyclopedia",
+          "search"
+        ],
+        "vlmTermsMatched": [
+          "wikipedia",
+          "encyclopedia"
+        ],
+        "stdoutPreview": " ```json { \"primary_category\": \"school\", \"visible_text\": \"Wikipedia: The Free Encyclopedia\", \"risk_signals\": [], \"confidence\": 1 } ``` ",
+        "stderrPreview": "0.00.448.643 W load: control-looking token: 128247 '</s>' was not control-type; this is probably a bug in the model. its type will be overridden 0.01.445.573 I mtmd_cli_context: chat template example: <|im_start|>system You are a helpful assistant<|im_end|> <|im_start|>user Hello<|im_end|> <|im_start|>assistant Hi there<|im_end|> <|im_start|>user How are you?<|im_end|> <|im_start|>assistant 0.01.449.330 W load_hparams: Qwen-VL models require at minimum 1024 image tokens to function correctly on "
+      },
+      "deletion": {
+        "rawCropDeleted": true,
+        "tempDirDeleted": true,
+        "rawImageRetained": false
+      },
+      "assertions": {
+        "realLivePageLoaded": true,
+        "managedBrowserCropCaptured": true,
+        "localVlmExecuted": true,
+        "parseableNormalizedJson": true,
+        "expectedTermsDetectedByVlm": true,
+        "expectedCategoryMatched": true,
+        "rawCropDeleted": true,
+        "noRemoteAiUsed": true,
+        "noRawImageRetained": true
+      }
+    },
+    {
+      "groupId": "public-game",
+      "status": "passed",
+      "scenario": {
+        "scenarioId": "play2048-public-game-crop",
+        "sourceKind": "public-live-url",
+        "finalHost": "play2048.co",
+        "requestedLiveUrlHash": "sha256:f3f4680e36fc96be2aaa437fc76f4c47f87057cb96981d64dd6ed338b76a6845",
+        "finalUrlHash": "sha256:f3f4680e36fc96be2aaa437fc76f4c47f87057cb96981d64dd6ed338b76a6845",
+        "finalUrlLength": 20,
+        "titleHash": "sha256:3ccce14bf88ed8faa65ef20cc0e030a6da630e7be7ff2c112ddc3c8d127dead2",
+        "titleLength": 32,
+        "visibleTextHash": "sha256:d09c89fdc340ba428858d5468fa2dbed9fb6b4ae1ed2250aae2fb9d8fa6abbe1",
+        "visibleTextLength": 186,
+        "readinessTermsMatched": [
+          "2048",
+          "game",
+          "play"
+        ]
+      },
+      "cropCapture": {
+        "cdpMethod": "Page.captureScreenshot",
+        "targetIdHash": "sha256:d919834c268dc1083621b37b58983fe2ddcfae42caf8795be6fdf523029d2bc8",
+        "crop": {
+          "x": 0,
+          "y": 0,
+          "width": 760,
+          "height": 640,
+          "scale": 1
+        },
+        "imageWidth": 760,
+        "imageHeight": 640,
+        "imagePixelCount": 486400,
+        "imageByteSize": 50292,
+        "imageDigest": "sha256:f6d0714b7e8776c7bf4dd4d32ec152a913ae8e305dc331bc9993232b579be06c",
+        "rawTempPathRedacted": true,
+        "rawImageRetained": false,
+        "remoteUploadAllowed": false,
+        "desktopCaptureAttempted": false
+      },
+      "localVlmAnalysis": {
+        "runtimeBinary": "%USERPROFILE%\\.cache\\ocentra-parent\\llama.cpp\\b9279\\llama-mtmd-cli.exe",
+        "model": "%USERPROFILE%\\.cache\\ocentra-parent\\local-ai-models\\Qwen2-VL-2B-Instruct-Q4_K_M.gguf",
+        "mmproj": "%USERPROFILE%\\.cache\\ocentra-parent\\local-ai-models\\mmproj-Qwen2-VL-2B-Instruct-Q8_0.gguf",
+        "promptOrTemplateVersion": "screen-vlm-live-crop-quality-v2",
+        "wallMs": 39761,
+        "parsedResult": {
+          "primary_category": "game",
+          "visible_text": "Consent to Cookies & Data processing",
+          "risk_signals": [
+            "The website uses cookies and similar functions to store and/or access information on a device",
+            "The processing is used for purposes such as personalization, statistical analysis/measurement, and integration of social media"
+          ],
+          "confidence": 0.95
+        },
+        "normalizedResult": {
+          "primary_category": "game",
+          "visible_text": "Consent to Cookies & Data processing",
+          "risk_signals": [
+            "The website uses cookies and similar functions to store and/or access information on a device",
+            "The processing is used for purposes such as personalization, statistical analysis/measurement, and integration of social media"
+          ],
+          "confidence": 0.95
+        },
+        "expectedCategory": "game",
+        "acceptedCategories": [
+          "game"
+        ],
+        "categoryMatched": true,
+        "expectedTerms": [
+          "2048",
+          "game",
+          "play"
+        ],
+        "vlmTermsMatched": [
+          "game"
+        ],
+        "stdoutPreview": " ```json { \"primary_category\": \"game\", \"visible_text\": \"Consent to Cookies & Data processing\", \"risk_signals\": [ \"The website uses cookies and similar functions to store and/or access information on a device\", \"The processing is used for purposes such as personalization, statistical analysis/measurement, and integration of social media\" ], \"confidence\": 0.95 } ``` ",
+        "stderrPreview": "0.00.599.078 W load: control-looking token: 128247 '</s>' was not control-type; this is probably a bug in the model. its type will be overridden 0.01.639.848 I mtmd_cli_context: chat template example: <|im_start|>system You are a helpful assistant<|im_end|> <|im_start|>user Hello<|im_end|> <|im_start|>assistant Hi there<|im_end|> <|im_start|>user How are you?<|im_end|> <|im_start|>assistant 0.01.643.807 W load_hparams: Qwen-VL models require at minimum 1024 image tokens to function correctly on "
+      },
+      "deletion": {
+        "rawCropDeleted": true,
+        "tempDirDeleted": true,
+        "rawImageRetained": false
+      },
+      "assertions": {
+        "realLivePageLoaded": true,
+        "managedBrowserCropCaptured": true,
+        "localVlmExecuted": true,
+        "parseableNormalizedJson": true,
+        "expectedTermsDetectedByVlm": true,
+        "expectedCategoryMatched": true,
+        "rawCropDeleted": true,
+        "noRemoteAiUsed": true,
+        "noRawImageRetained": true
+      }
+    },
+    {
+      "groupId": "public-shopping",
+      "status": "passed",
+      "scenario": {
+        "scenarioId": "ebay-public-shopping-crop",
+        "sourceKind": "public-live-url",
+        "finalHost": "www.ebay.com",
+        "requestedLiveUrlHash": "sha256:4f0783365fcc0c95d96e5d4969cb7103d88605e25b80d9155f86b9f816006004",
+        "finalUrlHash": "sha256:4f0783365fcc0c95d96e5d4969cb7103d88605e25b80d9155f86b9f816006004",
+        "finalUrlLength": 21,
+        "titleHash": "sha256:53d224b9308195a16882a39d057185da070a00683ef95be4c05b5ff43fb00ffd",
+        "titleLength": 54,
+        "visibleTextHash": "sha256:c230c53a2f62bfe448370b2df4cef2ecdae085a62ef0682f623a39eb2a1e6459",
+        "visibleTextLength": 6767,
+        "readinessTermsMatched": [
+          "ebay",
+          "shop",
+          "buy"
+        ]
+      },
+      "cropCapture": {
+        "cdpMethod": "Page.captureScreenshot",
+        "targetIdHash": "sha256:8f73e14446707a22cd5698914391a6fd1839c0f0cf4f73183137dba1436867a9",
+        "crop": {
+          "x": 0,
+          "y": 0,
+          "width": 900,
+          "height": 560,
+          "scale": 1
+        },
+        "imageWidth": 900,
+        "imageHeight": 560,
+        "imagePixelCount": 504000,
+        "imageByteSize": 90769,
+        "imageDigest": "sha256:e8cb02ce8dd2895dd258245718a0cf293ef5e6574e4314023f7ccca36e8c2832",
+        "rawTempPathRedacted": true,
+        "rawImageRetained": false,
+        "remoteUploadAllowed": false,
+        "desktopCaptureAttempted": false
+      },
+      "localVlmAnalysis": {
+        "runtimeBinary": "%USERPROFILE%\\.cache\\ocentra-parent\\llama.cpp\\b9279\\llama-mtmd-cli.exe",
+        "model": "%USERPROFILE%\\.cache\\ocentra-parent\\local-ai-models\\Qwen2-VL-2B-Instruct-Q4_K_M.gguf",
+        "mmproj": "%USERPROFILE%\\.cache\\ocentra-parent\\local-ai-models\\mmproj-Qwen2-VL-2B-Instruct-Q8_0.gguf",
+        "promptOrTemplateVersion": "screen-vlm-live-crop-quality-v2",
+        "wallMs": 33377,
+        "parsedResult": {
+          "primary_category": "shopping",
+          "visible_text": [
+            "Score Nike at up to 60% off",
+            "Sport style and comfort with big savings on athletic clothing",
+            "Shop now"
+          ],
+          "risk_signals": [],
+          "confidence": 1
+        },
+        "normalizedResult": {
+          "primary_category": "shopping",
+          "visible_text": "Score Nike at up to 60% off Sport style and comfort with big savings on athletic clothing Shop now",
+          "risk_signals": [],
+          "confidence": 1
+        },
+        "expectedCategory": "shopping",
+        "acceptedCategories": [
+          "shopping"
+        ],
+        "categoryMatched": true,
+        "expectedTerms": [
+          "ebay",
+          "shop",
+          "buy"
+        ],
+        "vlmTermsMatched": [
+          "shop"
+        ],
+        "stdoutPreview": " ```json { \"primary_category\": \"shopping\", \"visible_text\": [ \"Score Nike at up to 60% off\", \"Sport style and comfort with big savings on athletic clothing\", \"Shop now\" ], \"risk_signals\": [], \"confidence\": 1 } ``` ",
+        "stderrPreview": "0.00.706.271 W load: control-looking token: 128247 '</s>' was not control-type; this is probably a bug in the model. its type will be overridden 0.02.147.561 I mtmd_cli_context: chat template example: <|im_start|>system You are a helpful assistant<|im_end|> <|im_start|>user Hello<|im_end|> <|im_start|>assistant Hi there<|im_end|> <|im_start|>user How are you?<|im_end|> <|im_start|>assistant 0.02.152.742 W load_hparams: Qwen-VL models require at minimum 1024 image tokens to function correctly on "
+      },
+      "deletion": {
+        "rawCropDeleted": true,
+        "tempDirDeleted": true,
+        "rawImageRetained": false
+      },
+      "assertions": {
+        "realLivePageLoaded": true,
+        "managedBrowserCropCaptured": true,
+        "localVlmExecuted": true,
+        "parseableNormalizedJson": true,
+        "expectedTermsDetectedByVlm": true,
+        "expectedCategoryMatched": true,
+        "rawCropDeleted": true,
+        "noRemoteAiUsed": true,
+        "noRawImageRetained": true
+      }
+    },
+    {
+      "groupId": "public-social-feed",
+      "status": "passed",
+      "scenario": {
+        "scenarioId": "bluesky-public-discover-feed-crop",
+        "sourceKind": "public-live-url",
+        "finalHost": "bsky.app",
+        "requestedLiveUrlHash": "sha256:4ce13482e5b691459805e6599c4bc31ebb78e189e4079a163068a75a1737c84d",
+        "finalUrlHash": "sha256:4ce13482e5b691459805e6599c4bc31ebb78e189e4079a163068a75a1737c84d",
+        "finalUrlLength": 17,
+        "titleHash": "sha256:8ed26d7492030d5acf17352702884e508715d1572f750ecc270e311898424ed2",
+        "titleLength": 18,
+        "visibleTextHash": "sha256:872ad9668095ceb1515e11f252f207d53058b9994914039e87103935c638ea31",
+        "visibleTextLength": 10427,
+        "readinessTermsMatched": [
+          "social",
+          "conversations",
+          "feeds"
+        ]
+      },
+      "cropCapture": {
+        "cdpMethod": "Page.captureScreenshot",
+        "targetIdHash": "sha256:0985911b8679fb1fb9a191d946f1050346212fd06d32f6716d67cf478aab8517",
+        "crop": {
+          "x": 0,
+          "y": 0,
+          "width": 900,
+          "height": 640,
+          "scale": 1
+        },
+        "imageWidth": 900,
+        "imageHeight": 640,
+        "imagePixelCount": 576000,
+        "imageByteSize": 329504,
+        "imageDigest": "sha256:db7aa08e64d97e970bd50736064c5cb2621d5415f71efc46914674d26bbbfd39",
+        "rawTempPathRedacted": true,
+        "rawImageRetained": false,
+        "remoteUploadAllowed": false,
+        "desktopCaptureAttempted": false
+      },
+      "localVlmAnalysis": {
+        "runtimeBinary": "%USERPROFILE%\\.cache\\ocentra-parent\\llama.cpp\\b9279\\llama-mtmd-cli.exe",
+        "model": "%USERPROFILE%\\.cache\\ocentra-parent\\local-ai-models\\Qwen2-VL-2B-Instruct-Q4_K_M.gguf",
+        "mmproj": "%USERPROFILE%\\.cache\\ocentra-parent\\local-ai-models\\mmproj-Qwen2-VL-2B-Instruct-Q8_0.gguf",
+        "promptOrTemplateVersion": "screen-vlm-live-crop-quality-v2",
+        "wallMs": 35193,
+        "parsedResult": {
+          "primary_category": "chat",
+          "visible_text": [
+            "Real people.",
+            "Real conversations.",
+            "Social media you control."
+          ],
+          "risk_signals": [],
+          "confidence": 1
+        },
+        "normalizedResult": {
+          "primary_category": "chat",
+          "visible_text": "Real people. Real conversations. Social media you control.",
+          "risk_signals": [],
+          "confidence": 1
+        },
+        "expectedCategory": "chat",
+        "acceptedCategories": [
+          "chat",
+          "productivity"
+        ],
+        "categoryMatched": true,
+        "expectedTerms": [
+          "social",
+          "conversations",
+          "feeds"
+        ],
+        "vlmTermsMatched": [
+          "social",
+          "conversations"
+        ],
+        "stdoutPreview": " ```json { \"primary_category\": \"chat\", \"visible_text\": [ \"Real people.\", \"Real conversations.\", \"Social media you control.\" ], \"risk_signals\": [], \"confidence\": 1 } ``` ",
+        "stderrPreview": "0.00.690.928 W load: control-looking token: 128247 '</s>' was not control-type; this is probably a bug in the model. its type will be overridden 0.02.127.675 I mtmd_cli_context: chat template example: <|im_start|>system You are a helpful assistant<|im_end|> <|im_start|>user Hello<|im_end|> <|im_start|>assistant Hi there<|im_end|> <|im_start|>user How are you?<|im_end|> <|im_start|>assistant 0.02.132.634 W load_hparams: Qwen-VL models require at minimum 1024 image tokens to function correctly on "
+      },
+      "deletion": {
+        "rawCropDeleted": true,
+        "tempDirDeleted": true,
+        "rawImageRetained": false
+      },
+      "assertions": {
+        "realLivePageLoaded": true,
+        "managedBrowserCropCaptured": true,
+        "localVlmExecuted": true,
+        "parseableNormalizedJson": true,
+        "expectedTermsDetectedByVlm": true,
+        "expectedCategoryMatched": true,
+        "rawCropDeleted": true,
+        "noRemoteAiUsed": true,
+        "noRawImageRetained": true
+      }
+    }
+  ],
+  "summary": {
+    "passedScenarioCount": 5,
+    "allRawCropsDeleted": true,
+    "allCategoriesMatched": true,
+    "allTermsDetected": true,
+    "categoriesCovered": [
+      "video",
+      "school",
+      "game",
+      "shopping",
+      "chat"
+    ],
+    "publicHostsCovered": [
+      "vimeo.com",
+      "www.wikipedia.org",
+      "play2048.co",
+      "www.ebay.com",
+      "bsky.app"
+    ]
+  },
+  "assertions": {
+    "everyRequiredPublicScenarioPassed": true,
+    "realLivePagesLoaded": true,
+    "managedBrowserCropsCaptured": true,
+    "localVlmExecutedForEveryCrop": true,
+    "expectedTermsDetectedByVlmForEveryCrop": true,
+    "expectedCategoryMatchedForEveryCrop": true,
+    "rawCropsDeleted": true,
+    "noRemoteAiUsed": true,
+    "noRawImageRetained": true
+  },
+  "completedChecklistClaims": [
+    "real public video, school/productivity, browser game, and shopping managed-browser crops are analyzed by local Qwen2-VL",
+    "real public social/forum feed managed-browser crop is analyzed by local Qwen2-VL without authenticated account access",
+    "each public live crop records expected visible terms and a meaningful category without remote AI",
+    "raw crop images are deleted after local VLM analysis and are not retained in proof artifacts"
+  ],
+  "openChecklistClaims": [
+    "authenticated-account social proof remains outside this public live crop proof",
+    "broader hardware rollout thresholds across more devices remain open",
+    "cross-platform VLM model/runtime parity remains open"
+  ],
+  "nonClaims": [
+    "This proof uses public live pages and does not claim authenticated-account social coverage.",
+    "This proof does not retain raw crop screenshots.",
+    "This proof does not claim broad hardware rollout readiness or cross-platform VLM parity."
+  ]
+}
