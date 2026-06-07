@@ -1,0 +1,13 @@
+<?xml version='1.0' encoding='utf-8' standalone='yes' ?>
+<map>
+    <boolean name="hasInsideState" value="true" />
+    <boolean name="insideState" value="true" />
+    <int name="exitCount" value="1" />
+    <long name="lastTransitionEpochMillis" value="1780795601764" />
+    <boolean name="registered" value="true" />
+    <string name="lastTransition">enter</string>
+    <string name="source">android-location-manager-gps-listener-local-geofence</string>
+    <int name="transitionCount" value="3" />
+    <int name="enterCount" value="2" />
+    <long name="registrationEpochMillis" value="1780795608137" />
+</map>

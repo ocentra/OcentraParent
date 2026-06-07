@@ -63,6 +63,7 @@ async function main() {
   await grantBackgroundLocationPermission(tools, selectedSerial, preGrantPermissionState);
   await adb(tools, selectedSerial, ['shell', 'input', 'keyevent', '224']);
   await adb(tools, selectedSerial, ['shell', 'wm', 'dismiss-keyguard']);
+  await resetGeofenceTransitionProof(tools, selectedSerial);
 
   const device = await readDeviceMetadata(tools, selectedSerial);
   const packageDump = await adbText(tools, selectedSerial, ['shell', 'dumpsys', 'package', packageName]);
@@ -77,12 +78,20 @@ async function main() {
   await writeText(path.join(resultDir, '02-resolve-activity.txt'), resolvedActivity);
   assertIncludes(resolvedActivity, 'MainActivity', 'resolved launcher activity');
 
+  await seedEmulatorGeofenceLocation(tools, selectedSerial, {
+    label: 'initial-outside-geofence',
+    artifact: '16-geofence-transition-route.txt',
+    longitude: '-122.090',
+    latitude: '37.427',
+  });
   await adb(tools, selectedSerial, ['shell', 'am', 'start', '-n', expectedActivity], {
     artifact: path.join(resultDir, '03-launch-activity.txt'),
   });
   await adb(tools, selectedSerial, ['shell', 'input', 'keyevent', '224']);
   await adb(tools, selectedSerial, ['shell', 'wm', 'dismiss-keyguard']);
   await seedEmulatorForegroundLocation(tools, selectedSerial, preGrantPermissionState);
+  await driveEmulatorGeofenceTransitions(tools, selectedSerial, preGrantPermissionState);
+  await refreshActivityAfterGeofenceRoute(tools, selectedSerial);
   await delay(5_000);
 
   const runtime = await collectRuntimeArtifacts(tools, selectedSerial);
@@ -145,6 +154,86 @@ async function seedEmulatorForegroundLocation(tools, serial, permissionState) {
     path.join(resultDir, '14-foreground-location-seed.txt'),
     `${result.exitCode === 0 ? 'PASS' : 'FAIL'} adb emu geo fix synthetic foreground location seed\n${result.output.trim()}`
   );
+}
+
+async function resetGeofenceTransitionProof(tools, serial) {
+  const result = await adbMaybe(tools, serial, [
+    'shell',
+    'run-as',
+    packageName,
+    'rm',
+    '-f',
+    'shared_prefs/tracking_geofence_transition_proof.xml',
+  ]);
+  await writeText(
+    path.join(resultDir, '16-geofence-transition-route.txt'),
+    `${result.exitCode === 0 ? 'PASS' : 'FAIL'} reset emulator geofence transition proof storage\n${result.output.trim()}`
+  );
+}
+
+async function driveEmulatorGeofenceTransitions(tools, serial, permissionState) {
+  if (!serial.startsWith('emulator-') || !permissionState.backgroundLocationPermissionRequested) {
+    await appendText(
+      path.join(resultDir, '16-geofence-transition-route.txt'),
+      'SKIP geofence transition route requires an Android emulator with declared background location permission.\n'
+    );
+    return;
+  }
+
+  await delay(3_000);
+  await seedEmulatorGeofenceLocation(tools, serial, {
+    label: 'outside-geofence-after-registration',
+    artifact: '16-geofence-transition-route.txt',
+    longitude: '-122.090',
+    latitude: '37.427',
+  });
+  await delay(3_000);
+  await seedEmulatorGeofenceLocation(tools, serial, {
+    label: 'inside-geofence-enter',
+    artifact: '16-geofence-transition-route.txt',
+    longitude: '-122.084',
+    latitude: '37.422',
+  });
+  await delay(3_000);
+  await seedEmulatorGeofenceLocation(tools, serial, {
+    label: 'outside-geofence-exit',
+    artifact: '16-geofence-transition-route.txt',
+    longitude: '-122.090',
+    latitude: '37.427',
+  });
+  await delay(3_000);
+  await seedEmulatorGeofenceLocation(tools, serial, {
+    label: 'inside-geofence-second-enter',
+    artifact: '16-geofence-transition-route.txt',
+    longitude: '-122.084',
+    latitude: '37.422',
+  });
+}
+
+async function seedEmulatorGeofenceLocation(tools, serial, { label, artifact, longitude, latitude }) {
+  if (!serial.startsWith('emulator-')) {
+    await appendText(path.join(resultDir, artifact), `SKIP ${label} requires an Android emulator.\n`);
+    return;
+  }
+  const result = await adbMaybe(tools, serial, ['emu', 'geo', 'fix', longitude, latitude]);
+  await appendText(
+    path.join(resultDir, artifact),
+    `${result.exitCode === 0 ? 'PASS' : 'FAIL'} ${label} adb emu geo fix ${longitude} ${latitude}\n${result.output.trim()}\n`
+  );
+}
+
+async function refreshActivityAfterGeofenceRoute(tools, serial) {
+  const forceStop = await adbMaybe(tools, serial, ['shell', 'am', 'force-stop', packageName]);
+  await writeText(
+    path.join(resultDir, '18-refresh-activity-after-geofence-route.txt'),
+    `${forceStop.exitCode === 0 ? 'PASS' : 'WARN'} adb shell am force-stop ${packageName}\n${forceStop.output.trim()}`
+  );
+  await delay(1_000);
+  await adb(tools, serial, ['shell', 'am', 'start', '-n', expectedActivity], {
+    artifact: path.join(resultDir, '19-relaunch-activity-after-geofence-route.txt'),
+  });
+  await adb(tools, serial, ['shell', 'input', 'keyevent', '224']);
+  await adb(tools, serial, ['shell', 'wm', 'dismiss-keyguard']);
 }
 
 function resolveAndroidTools() {
@@ -276,6 +365,7 @@ async function collectRuntimeArtifacts(tools, serial) {
   const batteryDump = await adbText(tools, serial, ['shell', 'dumpsys', 'battery']);
   const connectivityDump = await adbText(tools, serial, ['shell', 'dumpsys', 'connectivity']);
   const uiDump = await adbText(tools, serial, ['exec-out', 'uiautomator', 'dump', '/dev/tty']);
+  const geofencePrefs = await readGeofenceTransitionPrefs(tools, serial);
   const pid = (await adbText(tools, serial, ['shell', 'pidof', '-s', packageName])).trim();
   const logcat =
     pid.length > 0
@@ -294,6 +384,7 @@ async function collectRuntimeArtifacts(tools, serial) {
   await writeFile(path.join(resultDir, '10-screen.png'), screenshot);
   await writeText(path.join(resultDir, '11-logcat.txt'), logcat);
   await writeJson(path.join(resultDir, '12-screenshot-inspection.json'), screenshotInspection);
+  await writeText(path.join(resultDir, '17-geofence-transition-prefs.xml'), geofencePrefs.raw);
 
   return {
     pid,
@@ -303,10 +394,23 @@ async function collectRuntimeArtifacts(tools, serial) {
     battery: parseKeyValueDump(batteryDump),
     connectivitySummary: summarizeConnectivity(connectivityDump),
     ui: parseUiState(uiDump),
+    geofenceTransitions: geofencePrefs.parsed,
     screenshotInspection,
     logcatFindings: parseLogcat(logcat),
     artifacts: runtimeArtifactPaths(),
   };
+}
+
+async function readGeofenceTransitionPrefs(tools, serial) {
+  const result = await adbMaybe(tools, serial, [
+    'shell',
+    'run-as',
+    packageName,
+    'cat',
+    'shared_prefs/tracking_geofence_transition_proof.xml',
+  ]);
+  const raw = result.exitCode === 0 ? result.output : `UNAVAILABLE geofence transition prefs\n${result.output}`;
+  return { raw, parsed: parseGeofenceTransitionPrefs(raw) };
 }
 
 function parsePermissionState(packageDump) {
@@ -378,9 +482,50 @@ function parseUiState(uiDump) {
         : null,
     backgroundGeofenceStateText: text.includes('background-geofence-transition-manual-required')
       ? 'background-geofence-transition-manual-required'
-      : null,
+      : text.includes('background-geofence-transition-observed-emulator')
+        ? 'background-geofence-transition-observed-emulator'
+        : null,
+    backgroundGeofenceTransitionCount: parseNumberTextField(text, 'backgroundGeofenceTransitionCount'),
+    backgroundGeofenceEnterCount: parseNumberTextField(text, 'backgroundGeofenceEnterCount'),
+    backgroundGeofenceExitCount: parseNumberTextField(text, 'backgroundGeofenceExitCount'),
+    backgroundGeofenceLastTransition: parseTextField(text, 'backgroundGeofenceLastTransition'),
+    backgroundGeofenceSource: parseTextField(text, 'backgroundGeofenceSource'),
     text,
   };
+}
+
+function parseGeofenceTransitionPrefs(raw) {
+  return {
+    registered: parseXmlBoolean(raw, 'registered'),
+    source: parseXmlString(raw, 'source'),
+    hasInsideState: parseXmlBoolean(raw, 'hasInsideState'),
+    insideState: parseXmlBoolean(raw, 'insideState'),
+    transitionCount: parseXmlInt(raw, 'transitionCount'),
+    enterCount: parseXmlInt(raw, 'enterCount'),
+    exitCount: parseXmlInt(raw, 'exitCount'),
+    lastTransition: parseXmlString(raw, 'lastTransition'),
+    lastTransitionEpochMillis: parseXmlLong(raw, 'lastTransitionEpochMillis'),
+    registrationEpochMillis: parseXmlLong(raw, 'registrationEpochMillis'),
+  };
+}
+
+function parseXmlString(raw, name) {
+  return new RegExp(`<string name="${name}">([^<]*)</string>`, 'u').exec(raw)?.[1] ?? null;
+}
+
+function parseXmlInt(raw, name) {
+  const value = new RegExp(`<int name="${name}" value="(-?\\d+)"`, 'u').exec(raw)?.[1] ?? null;
+  return value === null ? 0 : Number(value);
+}
+
+function parseXmlLong(raw, name) {
+  const value = new RegExp(`<long name="${name}" value="(-?\\d+)"`, 'u').exec(raw)?.[1] ?? null;
+  return value === null ? null : Number(value);
+}
+
+function parseXmlBoolean(raw, name) {
+  const value = new RegExp(`<boolean name="${name}" value="(true|false)"`, 'u').exec(raw)?.[1] ?? null;
+  return value === 'true';
 }
 
 function parseTextField(text, fieldName) {
@@ -678,6 +823,8 @@ function runtimeArtifactPaths() {
     backgroundLocationPermissionGrant: relativePath(
       path.join(resultDir, '15-background-location-permission-grant.txt')
     ),
+    geofenceTransitionRoute: relativePath(path.join(resultDir, '16-geofence-transition-route.txt')),
+    geofenceTransitionPrefs: relativePath(path.join(resultDir, '17-geofence-transition-prefs.xml')),
   };
 }
 
@@ -711,7 +858,7 @@ function buildProof({ device, packageDump, permissionState, resolvedActivity, ru
     nonClaims: [
       'This proof does not claim Android fused/current foreground location sample capture.',
       'This proof does not claim Android background location sample behavior.',
-      'This proof does not claim Android geofence enter, exit, or dwell transitions.',
+      'This proof does not claim Android system geofencing, dwell transitions, or physical-device transition delivery.',
       'This proof does not claim notification delivery or alert provider behavior.',
       'This proof does not claim physical Android device behavior.',
       'This proof does not claim child-device enforcement, Device Owner, managed profile, or authority proof.',
@@ -727,6 +874,8 @@ function workpackProofState(permissionState, runtime) {
     runtime.ui.foregroundLocationProvider !== null &&
     runtime.ui.foregroundLocationObservedAtEpochMillis !== null &&
     runtime.ui.foregroundLocationAccuracyMeters !== null;
+  const geofenceEnterExitObserved =
+    runtime.geofenceTransitions.enterCount > 0 && runtime.geofenceTransitions.exitCount > 0;
   return {
     '08-android-foreground-location-adapter': {
       status:
@@ -751,18 +900,24 @@ function workpackProofState(permissionState, runtime) {
                 : 'Package launched on emulator, but the current scaffold does not request foreground location permission.',
     },
     '09-android-background-location-and-geofence-adapter': {
-      status: permissionState.backgroundLocationPermissionGranted
-        ? 'background_permission_granted_geofence_transition_manual_required'
-        : permissionState.backgroundLocationPermissionRequested
-          ? 'background_permission_declared_geofence_transition_manual_required'
-          : 'manual_required',
+      status:
+        permissionState.backgroundLocationPermissionGranted && geofenceEnterExitObserved
+          ? 'background_permission_granted_emulator_enter_exit_transition_observed'
+          : permissionState.backgroundLocationPermissionGranted
+            ? 'background_permission_granted_geofence_transition_manual_required'
+            : permissionState.backgroundLocationPermissionRequested
+              ? 'background_permission_declared_geofence_transition_manual_required'
+              : 'manual_required',
       proofArtifact:
         'output/tracking-plan-proof/09-android-background-location-and-geofence-adapter/05-geofence-transition-proof.json',
-      reason: permissionState.backgroundLocationPermissionGranted
-        ? 'Background location permission grant state was observed on the emulator package, but no background location sample, geofence transition, physical-device behavior, authority, or product-ready tracking is claimed.'
-        : permissionState.backgroundLocationPermissionRequested
-          ? 'Background permission is declared, but no background permission grant or geofence transition was observed.'
-          : 'No background location/geofence permission or transition adapter is present in the current scaffold.',
+      reason:
+        permissionState.backgroundLocationPermissionGranted && geofenceEnterExitObserved
+          ? 'Background location permission grant and emulator LocationManager GPS-listener local-geofence enter/exit transition rows were observed through app-owned proof storage; Android system geofencing, dwell, Android settings-page flow, physical-device behavior, authority, provider delivery, and product-ready tracking remain unclaimed.'
+          : permissionState.backgroundLocationPermissionGranted
+            ? 'Background location permission grant state was observed on the emulator package, but no background location sample, geofence transition, physical-device behavior, authority, or product-ready tracking is claimed.'
+            : permissionState.backgroundLocationPermissionRequested
+              ? 'Background permission is declared, but no background permission grant or geofence transition was observed.'
+              : 'No background location/geofence permission or transition adapter is present in the current scaffold.',
     },
     '10-android-battery-connectivity-and-status-adapter': {
       status: 'emulator_scaffold_observed',
@@ -854,6 +1009,7 @@ function foregroundLocationProof(proof) {
 }
 
 function geofenceProof(proof) {
+  const geofenceTransitions = proof.runtime.geofenceTransitions;
   return {
     schemaVersion: 1,
     checkedAt: proof.checkedAt,
@@ -867,7 +1023,18 @@ function geofenceProof(proof) {
     backgroundLocationPermissionGranted: proof.permissionState.backgroundLocationPermissionGranted,
     backgroundLocationPermissionStateText: proof.runtime.ui.backgroundLocationPermissionStateText,
     backgroundGeofenceStateText: proof.runtime.ui.backgroundGeofenceStateText,
-    geofenceTransitionCount: 0,
+    geofenceTransitionCount: geofenceTransitions.transitionCount,
+    geofenceEnterCount: geofenceTransitions.enterCount,
+    geofenceExitCount: geofenceTransitions.exitCount,
+    geofenceLastTransition: geofenceTransitions.lastTransition,
+    geofenceSource: geofenceTransitions.source,
+    geofenceRegistered: geofenceTransitions.registered,
+    geofenceHasInsideState: geofenceTransitions.hasInsideState,
+    geofenceInsideState: geofenceTransitions.insideState,
+    geofenceTransitionBoundary:
+      geofenceTransitions.enterCount > 0 && geofenceTransitions.exitCount > 0
+        ? 'emulator-location-manager-gps-listener-local-geofence-enter-exit-only'
+        : 'no-emulator-geofence-transition-observed',
     missingProofReason: proof.workpackProof['09-android-background-location-and-geofence-adapter'].reason,
     device: proof.device,
     artifacts: proof.runtime.artifacts,
@@ -938,6 +1105,10 @@ This proof was generated by \`npm run test:tracking-plan-android-emulator-proof\
 - Background location permission granted: ${String(proof.permissionState.backgroundLocationPermissionGranted)}.
 - Background location state text: ${proof.runtime.ui.backgroundLocationPermissionStateText ?? 'not-observed'}.
 - Background geofence state text: ${proof.runtime.ui.backgroundGeofenceStateText ?? 'not-observed'}.
+- Background geofence transition count: ${String(proof.runtime.geofenceTransitions.transitionCount)}.
+- Background geofence enter count: ${String(proof.runtime.geofenceTransitions.enterCount)}.
+- Background geofence exit count: ${String(proof.runtime.geofenceTransitions.exitCount)}.
+- Background geofence source: ${proof.runtime.geofenceTransitions.source ?? 'not-observed'}.
 - Battery and connectivity dumps collected.
 - UI tree collected and contains scaffold/manual-consent text: ${String(proof.runtime.ui.hasLaunchText)}.
 - Screenshot visual contrast observed: ${String(proof.runtime.screenshotInspection.visualClaimReady)}.
@@ -1050,6 +1221,11 @@ async function writeJson(filePath, value) {
 
 async function writeText(filePath, value) {
   await writeFile(filePath, normalizeText(value), 'utf8');
+}
+
+async function appendText(filePath, value) {
+  const existing = existsSync(filePath) ? await readFile(filePath, 'utf8') : '';
+  await writeText(filePath, `${existing}${value}`);
 }
 
 function normalizeText(value) {

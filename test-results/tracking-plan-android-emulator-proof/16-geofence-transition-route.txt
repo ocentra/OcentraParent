@@ -1,0 +1,11 @@
+PASS reset emulator geofence transition proof storage
+PASS initial-outside-geofence adb emu geo fix -122.090 37.427
+OK
+PASS outside-geofence-after-registration adb emu geo fix -122.090 37.427
+OK
+PASS inside-geofence-enter adb emu geo fix -122.084 37.422
+OK
+PASS outside-geofence-exit adb emu geo fix -122.090 37.427
+OK
+PASS inside-geofence-second-enter adb emu geo fix -122.084 37.422
+OK

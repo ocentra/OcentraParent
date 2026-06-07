@@ -47,7 +47,7 @@ Proof root: `output/tracking-plan-proof/09-android-background-location-and-geofe
 
 - [ ] Prove Android 10+ background permission where claimed.
 - [ ] Prove Android 11+ settings-page background permission flow.
-- [ ] Prove enter, exit, and dwell transitions.
+- [ ] Prove Android system enter, exit, and dwell transitions.
 - [ ] Represent active geofence limit.
 - [ ] Add battery/background degraded proof before claims.
 - [x] Record emulator package permission-grant proof for
@@ -59,6 +59,9 @@ Proof root: `output/tracking-plan-proof/09-android-background-location-and-geofe
       before device work.
 - [x] Record parent-domain manual-required proof rows for missing background
       permission grant and geofence transition runtime before device/runtime work.
+- [x] Record emulator local-geofence enter/exit transition rows from an
+      app-owned `LocationManager` GPS listener while preserving no Android
+      system geofencing, no dwell, and no physical-device claims.
 
 ## Where We Are
 
@@ -70,14 +73,17 @@ required before any Android background/geofence claim. Background runtime and
 product-complete behavior are still not claimed.
 
 `npm run test:tracking-plan-android-emulator-proof` now fills the local
-emulator background-permission layer for this workpack. The generated
-`05-geofence-transition-proof.json` records package launch, foreground service
-observation, declared `ACCESS_BACKGROUND_LOCATION`, emulator grant state, app UI
-text for `background-location-permission-granted`, and
-`background-geofence-transition-manual-required` while keeping
-`geofenceTransitionCount` at `0`. This proves emulator background permission
-state only; it is not background sample collection, geofence transition,
-physical-device, authority, or product-ready Android tracking proof.
+emulator background-permission and local-geofence enter/exit layer for this
+workpack. The generated `05-geofence-transition-proof.json` records package
+launch, foreground service observation, declared `ACCESS_BACKGROUND_LOCATION`,
+emulator grant state, an outside/inside/outside emulator `geo fix` route, app
+UI text for `background-location-permission-granted` and
+`background-geofence-transition-observed-emulator`, and app-owned proof storage
+with `geofenceTransitionCount: 3`, `geofenceEnterCount: 2`, and
+`geofenceExitCount: 1`. This proves emulator `LocationManager` GPS-listener
+local-geofence enter/exit rows only; it is not Android system geofencing, dwell
+transition, background sample collection, physical-device, authority, or
+product-ready Android tracking proof.
 
 `node scripts/test/tracking-android-permission-background-proof.mjs` now records
 WP09 parent-domain manual-required rows for the background permission grant and
@@ -117,8 +123,7 @@ This workpack can be assigned independently, implemented against the owning doma
       implementation checklist, owning tracking feature doc, WP09 generated
       proof artifacts, and focused Android permission/background proof results.
 - [x] Validation commands and results:
-      `node scripts/test/tracking-android-permission-background-proof.mjs`
-      passed locally.
+      `npm run test:tracking-plan-android-emulator-proof` passed locally.
 - [x] Proof artifacts under
       `output/tracking-plan-proof/09-android-background-location-and-geofence-adapter/`,
       including `02-platform-permission-proof.md`,
@@ -129,7 +134,7 @@ This workpack can be assigned independently, implemented against the owning doma
       background permission/geofence transition proof; central capability row
       update remains a hub/primary-owned doc delta.
 - [x] Known gaps/manual-required states: Android 11+ settings-page background
-      permission flow, background sample collection, enter/exit/dwell
-      transition delivery, active geofence-limit runtime, physical-device
-      proof, authority, provider delivery, notification delivery, and
-      product-ready Android tracking remain unclaimed.
+      permission flow, background sample collection, Android system
+      geofencing, dwell transition delivery, active geofence-limit runtime,
+      physical-device proof, authority, provider delivery, notification
+      delivery, and product-ready Android tracking remain unclaimed.

@@ -45,6 +45,9 @@
                 <action android:name="ca.ocentra.parent.agent.APP_GAME_CHILD_RUNTIME_NOTIFICATION_REQUEST_ACTION_PROOF" />
             </intent-filter>
         </receiver>
+        <receiver
+            android:name=".TrackingAndroidGeofenceTransitionReceiver"
+            android:exported="false" />
 
         <service
             android:name=".OcentraParentAgentService"
