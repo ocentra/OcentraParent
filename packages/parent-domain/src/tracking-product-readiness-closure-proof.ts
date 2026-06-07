@@ -18,6 +18,7 @@ export const TrackingProductReadinessClosureCoverageTagSchema = Schema.Literal(
   'android-system-geofence-blocker',
   'physical-device-artifact-gate',
   'provider-delivery-artifact-gate',
+  'provider-runtime-readiness-blocker',
   'child-runtime-product-readiness-blocker',
   'retention-product-readiness-blocker'
 );
@@ -31,6 +32,7 @@ export const RequiredTrackingProductReadinessClosureCoverageTags = [
   'android-system-geofence-blocker',
   'physical-device-artifact-gate',
   'provider-delivery-artifact-gate',
+  'provider-runtime-readiness-blocker',
   'child-runtime-product-readiness-blocker',
   'retention-product-readiness-blocker',
 ] as const;

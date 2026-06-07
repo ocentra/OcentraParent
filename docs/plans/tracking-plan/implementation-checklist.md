@@ -374,6 +374,10 @@ webhook receipt ingestion, credentials, adapter dispatch, retry/quiet-hours
 runtime, parent notification UI runtime, production durable outbox storage,
 child-device delivery, physical-device behavior, authority, or product-ready
 tracking.
+The tracking product-readiness closure proof now consumes this
+provider-runtime readiness blocker alongside the provider-delivery artifact
+gate, so the local/CI closure cannot pass without the aggregate
+provider-runtime blocker proof ref.
 WP33 `proof-summary.json` records a tracked `minimumSeriousMvpAuditSummary`.
 The runtime proof command also records the full `minimumSeriousMvpAudit` in
 generated `00-run-metadata.json`; both are first-checkpoint P1
