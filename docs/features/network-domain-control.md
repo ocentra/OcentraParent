@@ -397,7 +397,7 @@ UI rendering remain open.
 - [x] Domain/IP/protocol/process attribution status contracts.
       Replay-backed process/app correlation now links PID flow evidence to
       process snapshots and app inventory without claiming browser URL/content.
-- [ ] VPN/proxy/tunnel indicators where available.
+- [x] VPN/proxy/tunnel indicators where available.
       Deterministic indicator classification now exists for VPN adapter,
       proxy-port, Tor, and tunnel-protocol candidates, with encrypted-DNS-only
       negative proof and no hidden-destination claim.
