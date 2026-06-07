@@ -186,6 +186,16 @@ Remote access must not silently turn Ocentra into a family-data warehouse.
   secrets, backend upload payloads, public runtime payloads, remote support
   transcripts, production SLA commitments, default Ocentra-hosted family data,
   or any claim that Ocentra-hosted services executed export/delete custody.
+- `production-support-delete-executor-proof` may summarize delete executor
+  readiness/status rows with delete-request, authorization, redaction/audit,
+  custody, source-proof, and manual-proof refs for local export output, support
+  backend payload, status backend payload, public runtime payload, and legal
+  disclosure payload targets, but it must not include raw child activity, raw
+  support bundle payloads, provider secrets, backend upload payloads, status
+  backend payloads, public runtime payloads, legal execution payloads, remote
+  support transcripts, production SLA commitments, durable queue payloads,
+  payload deletion execution, default Ocentra-hosted family data, or any claim
+  that Ocentra-hosted services executed export/delete custody.
 - `production-support-process-runtime-status-proof` may summarize support
   process requested, parent-consent authorized, privacy/legal queued, redaction
   review running, backend-upload failed, case-resolution succeeded, and

@@ -238,6 +238,22 @@ execution, public runtime execution, provider execution, production SLA, remote
 support sessions, raw child activity custody, provider secrets, remote support
 transcripts, or default Ocentra-hosted family data.
 
+## Delete Executor Proof Contract
+
+`src/delete-executor-proof.ts` owns the logging-domain schema proof for
+`production-support-delete-executor-proof`, while
+`src/delete-executor-read-model.ts` owns the current fixture rows. They record
+delete executor readiness/status rows for local export output, support backend
+payload, status backend payload, public runtime payload, and legal disclosure
+payload targets with delete-request, authorization, redaction/audit, custody,
+source-proof, and manual-proof refs.
+
+This contract is metadata-only. It does not claim real delete execution,
+durable queue execution, payload deletion execution, provider execution, public
+runtime execution, legal execution, support backend upload execution, production
+SLA, raw child activity custody, raw support bundle payloads, provider secrets,
+remote support transcripts, or default Ocentra-hosted family data.
+
 ## Gaps To Fill
 
 - Keep log contracts aligned with every new remote, notification, and support

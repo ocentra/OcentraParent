@@ -174,6 +174,15 @@ dev-only repo when it claims consumer readiness.
   real backend upload execution, public runtime execution, provider execution,
   production SLA, remote support sessions, default Ocentra-hosted family data,
   and child activity custody as explicit non-claims.
+- `production-support-delete-executor-proof` adds logging-domain delete
+  executor readiness/status rows for local export output, support backend
+  payload, status backend payload, public runtime payload, and legal disclosure
+  payload boundaries. It proves only source-backed delete-request,
+  authorization, redaction/audit, custody, source-proof, and manual-proof refs
+  while preserving real delete execution, durable queue execution, payload
+  deletion, provider execution, public runtime execution, legal execution,
+  backend upload execution, production SLA, default Ocentra-hosted family data,
+  and child activity custody as explicit non-claims.
 - `production-support-publication-workflow-proof` adds parent-domain source
   contract rows for public privacy policy publication, privacy/legal disclosure
   execution, support runbook publication, support incident status publication,
@@ -629,6 +638,17 @@ package/runtime proof.
       public runtime execution, provider execution, production SLA, remote
       support sessions, default Ocentra-hosted family data, and child activity
       custody unclaimed.
+- [ ] Production support delete executor proof. Current
+      `production-support-delete-executor-proof` covers delete executor
+      readiness/status rows for local export output, support backend payload,
+      status backend payload, public runtime payload, and legal disclosure
+      payload targets with delete-request, authorization, redaction/audit,
+      custody, source-proof, and manual-proof refs. It remains deterministic
+      logging contract proof only: real delete execution, durable queues,
+      payload deletion execution, provider execution, public runtime, legal
+      execution, backend upload execution, production SLA, default
+      Ocentra-hosted family data, and child activity custody remain
+      unimplemented or unclaimed.
 - [ ] Production support public publication workflow proof. Current
       `production-support-publication-workflow-proof` covers public privacy
       policy publication, privacy/legal disclosure execution, support runbook

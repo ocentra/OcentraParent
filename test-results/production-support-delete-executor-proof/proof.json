@@ -1,0 +1,124 @@
+{
+  "schemaVersion": 1,
+  "checkedAt": "deterministic-proof-artifact",
+  "commit": "branch-head-validated-by-harness",
+  "proofMode": "production-support-delete-executor-proof",
+  "commands": [
+    "cmd /c npm run build --workspace @ocentra-parent/schema-domain",
+    "cmd /c npm run build --workspace @ocentra-parent/logging-domain",
+    "cmd /c npm run test --workspace @ocentra-parent/logging-domain -- tests/delete-executor-proof.test.ts"
+  ],
+  "evidence": {
+    "loggingContract": "packages/logging-domain/src/delete-executor-proof.ts",
+    "loggingReadModel": "packages/logging-domain/src/delete-executor-read-model.ts",
+    "loggingTest": "packages/logging-domain/tests/delete-executor-proof.test.ts",
+    "packageExports": [
+      "@ocentra-parent/logging-domain/delete-executor-proof",
+      "@ocentra-parent/logging-domain/delete-executor-read-model"
+    ],
+    "documentation": [
+      "docs/features/production-distribution-support.md",
+      "docs/expectations/data-custody.md",
+      "packages/logging-domain/README.md"
+    ],
+    "proofOutput": "test-results/production-support-delete-executor-proof/proof.json",
+    "summaryOutput": "output/production-support-delete-executor-proof/proof-summary.json"
+  },
+  "targetSummary": {
+    "local-export-output": 2,
+    "support-backend-payload": 1,
+    "status-backend-payload": 1,
+    "public-runtime-payload": 1,
+    "legal-disclosure-payload": 1
+  },
+  "statusSummary": {
+    "source-contract-ready": 0,
+    "delete-request-recorded": 1,
+    "executor-manual-required": 2,
+    "executor-unavailable": 1,
+    "blocked-before-runtime": 2
+  },
+  "rows": [
+    {
+      "rowId": "local-output-delete-request-recorded",
+      "target": "local-export-output",
+      "status": "delete-request-recorded",
+      "custodyBoundary": "parent-owned-local-output-only",
+      "sourceProofRefs": [
+        "production-support-data-export-delete-lifecycle-proof",
+        "parent-owned-local-export-runtime-proof"
+      ],
+      "manualProofRequirements": [
+        "manual delete executor proof required before execution claim"
+      ]
+    },
+    {
+      "rowId": "local-output-delete-executor-manual-required",
+      "target": "local-export-output",
+      "status": "executor-manual-required",
+      "custodyBoundary": "parent-owned-local-output-only",
+      "sourceProofRefs": [
+        "parent-owned-local-export-runtime-proof"
+      ],
+      "manualProofRequirements": [
+        "filesystem delete executor smoke proof required before local output deletion execution claim",
+        "durable audit persistence proof required before production delete executor readiness claim"
+      ]
+    },
+    {
+      "rowId": "support-backend-payload-delete-blocked",
+      "target": "support-backend-payload",
+      "status": "blocked-before-runtime",
+      "custodyBoundary": "no-hosted-payload-custody",
+      "sourceProofRefs": [
+        "production-support-backend-upload-custody-audit-proof"
+      ],
+      "manualProofRequirements": [
+        "support backend payload custody proof required before any support payload delete claim"
+      ]
+    },
+    {
+      "rowId": "status-backend-payload-delete-blocked",
+      "target": "status-backend-payload",
+      "status": "blocked-before-runtime",
+      "custodyBoundary": "no-hosted-payload-custody",
+      "sourceProofRefs": [
+        "production-support-status-backend-payload-custody-proof"
+      ],
+      "manualProofRequirements": [
+        "status backend payload custody proof required before status payload delete claim"
+      ]
+    },
+    {
+      "rowId": "public-runtime-payload-delete-unavailable",
+      "target": "public-runtime-payload",
+      "status": "executor-unavailable",
+      "custodyBoundary": "not-applicable-before-runtime",
+      "sourceProofRefs": [
+        "production-release-public-runtime-handoff-proof"
+      ],
+      "manualProofRequirements": [
+        "public runtime implementation required before public payload delete executor claim"
+      ]
+    },
+    {
+      "rowId": "legal-disclosure-payload-delete-manual-required",
+      "target": "legal-disclosure-payload",
+      "status": "executor-manual-required",
+      "custodyBoundary": "not-applicable-before-runtime",
+      "sourceProofRefs": [
+        "production-support-privacy-legal-disclosure-status-proof"
+      ],
+      "manualProofRequirements": [
+        "legal disclosure execution proof required before legal payload delete executor readiness claim",
+        "privacy/legal operator approval proof required before legal delete execution claim"
+      ]
+    }
+  ],
+  "knownGaps": [
+    "Real data export/delete runtime execution remains unimplemented.",
+    "Durable queues, payload deletion execution, provider execution, public runtime, legal execution, and production SLA remain unclaimed.",
+    "Child activity custody, raw support bundle payloads, provider secrets, remote support transcripts, and default Ocentra-hosted family data remain excluded.",
+    "docs/product-capability-checklist.md update is proposed in hub report because E-B owns the shared checklist lock."
+  ]
+}

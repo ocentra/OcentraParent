@@ -1,0 +1,28 @@
+{
+  "schemaVersion": 1,
+  "checkedAt": "deterministic-proof-artifact",
+  "commit": "branch-head-validated-by-harness",
+  "proofMode": "production-support-delete-executor-proof",
+  "rowCount": 6,
+  "targetSummary": {
+    "local-export-output": 2,
+    "support-backend-payload": 1,
+    "status-backend-payload": 1,
+    "public-runtime-payload": 1,
+    "legal-disclosure-payload": 1
+  },
+  "statusSummary": {
+    "source-contract-ready": 0,
+    "delete-request-recorded": 1,
+    "executor-manual-required": 2,
+    "executor-unavailable": 1,
+    "blocked-before-runtime": 2
+  },
+  "output": "test-results/production-support-delete-executor-proof/proof.json",
+  "knownGaps": [
+    "Real data export/delete runtime execution remains unimplemented.",
+    "Durable queues, payload deletion execution, provider execution, public runtime, legal execution, and production SLA remain unclaimed.",
+    "Child activity custody, raw support bundle payloads, provider secrets, remote support transcripts, and default Ocentra-hosted family data remain excluded.",
+    "docs/product-capability-checklist.md update is proposed in hub report because E-B owns the shared checklist lock."
+  ]
+}
