@@ -604,6 +604,18 @@ zero. Evidence:
 This does not add a visual portal surface, browser mutation, child intervention
 execution, final policy execution, or enforcement.
 
+WP13 action-intent topology addendum:
+`browser-runtime-action-intent-topology-proof` registers the named browser
+action-intent status request event in the reusable `ocentra-eventing` contract
+registry/topology manifest. The topology marks
+`browser.action-intent.status.requested` covered by the
+`browser-event-runtime-spine` publisher and `browser-action-intent-status`
+subscriber/target. Evidence:
+`test-results/browser-runtime-action-intent-topology-proof/proof.json` and
+`output/browser-plan-proof/browser-runtime-action-intent-topology/01-browser-runtime-action-intent-topology-proof.md`.
+This does not add another browser bus, external transport, browser mutation,
+child intervention execution, final policy execution, or enforcement.
+
 ## Worker Report Template
 
 Use this shape in the hub report or PR-ready note:

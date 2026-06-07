@@ -404,3 +404,25 @@ Evidence:
 This is protocol/parser and portal state proof only. It does not add a new
 portal visual surface, execute policy, mutate browser state, execute child
 intervention, or enforce.
+
+## Action-Intent Topology Addendum - 2026-06-07
+
+`browser-runtime-action-intent-topology-proof` registers the named browser
+action-intent status request event with the reusable `ocentra-eventing`
+contract registry and topology manifest. The manifest declares
+`browser-event-runtime-spine` as publisher and `browser-action-intent-status`
+as the subscriber/target for `browser.action-intent.status.requested`, with no
+unready topology entries.
+
+Evidence:
+
+- `crates/agent-core/src/browser_event_runtime/action_status.rs`
+- `crates/agent-core/src/browser_event_runtime_tests.rs`
+- `scripts/test/browser-runtime-action-intent-topology-proof.mjs`
+- `test-results/browser-runtime-action-intent-topology-proof/proof.json`
+- `output/browser-plan-proof/browser-runtime-action-intent-topology/01-browser-runtime-action-intent-topology-proof.md`
+- `cargo test -p ocentra-parent-agent-core browser_runtime_action_intent_topology_covers_named_event_and_subscriber --quiet`
+
+This is topology/registry proof only. It does not add another browser bus,
+external transport, adapter dispatch, browser mutation, child intervention
+execution, final policy execution, or enforcement.

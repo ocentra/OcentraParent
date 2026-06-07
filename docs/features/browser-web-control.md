@@ -1044,6 +1044,12 @@ intervention states can render through the child-agent page endpoint, and social
 explanation rows can render through the service-backed Browser route read-model
 with proof-bundle fallback. Connector/native runtime, final policy execution,
 enforcement, and product readiness remain unclaimed.
+WP13 now registers the browser action-intent status request event in the
+reusable Rust eventing topology manifest. The event is covered by the
+browser-runtime-spine publisher and browser-action-intent-status subscriber,
+but this is topology proof only: no external transport, adapter dispatch,
+browser mutation, child intervention execution, final policy execution, or
+enforcement is claimed.
 
 ## Checklist
 

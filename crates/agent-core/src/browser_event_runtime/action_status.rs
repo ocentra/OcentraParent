@@ -1,9 +1,10 @@
 use std::time::Duration;
 
 use ocentra_eventing::{
-    AggregateKey, DomainEvent, EventBus, EventContract, EventResponseContract, EventSubscriber,
-    EventType, EventingError, IdempotencyKey, RequestEvent, RequestId, RequestOptions,
-    SchemaVersion, SubscriberId, TargetHandler,
+    AggregateKey, DomainEvent, EventBus, EventContract, EventContractRegistry,
+    EventResponseContract, EventSubscriber, EventTopologyManifest, EventTopologyPublisher,
+    EventTopologySubscriber, EventType, EventingError, IdempotencyKey, RequestEvent, RequestId,
+    RequestOptions, SchemaVersion, SourceComponent, SubscriberId, TargetHandler,
 };
 use ocentra_parent_agent_protocol::constants;
 use serde::{Deserialize, Serialize};
@@ -144,6 +145,44 @@ pub async fn request_browser_runtime_action_intent_status_for_input(
         stored_events: bus.journal().await,
         dead_letters: bus.dead_letters().await,
     })
+}
+
+pub fn browser_runtime_action_intent_status_topology_manifest(
+) -> Result<EventTopologyManifest, EventingError> {
+    let payload = BrowserRuntimeEventPayload::from_input(
+        BrowserRuntimePhase::PolicyDecisionCompleted,
+        &BrowserRuntimeInput::dry_run_action_handoff_fixture(),
+    );
+    let request = BrowserRuntimeActionIntentStatusRequest {
+        request_id: RequestId::parse(action_intent_status_request_id(&payload))?,
+        payload,
+    };
+    let mut registry = EventContractRegistry::new();
+    registry.register_event(&request)?;
+    Ok(EventTopologyManifest::from_registry(
+        &registry,
+        &[EventTopologyPublisher {
+            event_type: EventType::parse(
+                constants::browser::EVENT_BROWSER_ACTION_INTENT_STATUS_REQUESTED,
+            )?,
+            source_component: SourceComponent::parse(
+                constants::browser::RUNTIME_COMPONENT_BROWSER_SPINE,
+            )?,
+        }],
+        &[EventTopologySubscriber {
+            event_type: EventType::parse(
+                constants::browser::EVENT_BROWSER_ACTION_INTENT_STATUS_REQUESTED,
+            )?,
+            subscriber_id: SubscriberId::parse(
+                constants::browser::SUBSCRIBER_BROWSER_ACTION_INTENT_STATUS,
+            )?,
+            target_handler: TargetHandler::parse(
+                constants::browser::TARGET_BROWSER_ACTION_INTENT_STATUS,
+            )?,
+        }],
+        &[],
+        &[],
+    ))
 }
 
 fn action_intent_status_request_id(payload: &BrowserRuntimeEventPayload) -> String {
