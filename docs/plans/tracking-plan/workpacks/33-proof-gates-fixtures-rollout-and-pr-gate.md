@@ -78,6 +78,8 @@ Proof root: `output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-g
   `42-notification-local-outbox-readiness-proof.json`
 - Retention product-readiness blocker proof:
   `43-retention-product-readiness-proof.json`
+- Retention runtime artifact gate proof:
+  `60-retention-runtime-artifact-gate-proof.json`
 - Android system geofence blocker proof:
   `44-android-system-geofence-blocker-proof.json`
 - WP18 child check-in timeout escalation proof:
@@ -134,6 +136,8 @@ Proof root: `output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-g
   `58-production-worker-runtime-artifact-gate-proof.json`
 - Tracking full product UI runtime artifact gate proof:
   `59-full-product-ui-runtime-artifact-gate-proof.json`
+- Tracking retention runtime artifact gate proof:
+  `60-retention-runtime-artifact-gate-proof.json`
 
 ## Merge Blockers
 
@@ -299,8 +303,9 @@ child-runtime product-readiness blocker, child-runtime artifact gate,
 physical-device artifact gate, provider-delivery artifact gate,
 provider-runtime readiness blocker, escalation-runtime readiness blocker, and
 retention product-readiness blocker proofs. The refreshed closure also consumes
-the production durable workers readiness blocker proof so local/CI proof
-accounting is explicit before any product-ready handoff. It writes
+the retention runtime artifact gate and the production durable workers readiness
+blocker proof so local/CI proof accounting is explicit before any product-ready
+handoff. It writes
 `46-product-readiness-closure-proof.json` and
 `test-results/tracking-product-readiness-closure-proof/proof.json` while
 keeping Android/iOS physical background behavior, actual child-device runtime,

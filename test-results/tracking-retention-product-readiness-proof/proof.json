@@ -63,8 +63,8 @@
     "productClaimReady": false
   },
   "branch": "codex/tracking-plan-full-continuation-a",
-  "baseCommitAtGeneration": "9a3cd1738a609e3dee9a577ad2a082944c434b06",
-  "gitStatusShort": "M docs/features/location-geofence-device-status.md\n M docs/plans/tracking-plan/implementation-checklist.md\n M docs/plans/tracking-plan/workpacks/07-retention-and-custody-model.md\n M docs/plans/tracking-plan/workpacks/32-journal-sqlite-and-read-model-proof.md\n M docs/plans/tracking-plan/workpacks/33-proof-gates-fixtures-rollout-and-pr-gate.md\n M output/tracking-plan-proof/07-retention-and-custody-model/21-retention-settings-write-command-proof.json\n M output/tracking-plan-proof/07-retention-and-custody-model/22-retention-local-service-state-proof.json\n M output/tracking-plan-proof/07-retention-and-custody-model/23-retention-durable-settings-proof.json\n M output/tracking-plan-proof/32-journal-sqlite-and-read-model-proof/27-retention-settings-write-command-proof.json\n M output/tracking-plan-proof/32-journal-sqlite-and-read-model-proof/33-retention-local-service-state-proof.json\n M output/tracking-plan-proof/32-journal-sqlite-and-read-model-proof/34-retention-durable-settings-proof.json\n M output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-gate/33-retention-settings-write-command-proof.json\n M output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-gate/40-retention-local-service-state-proof.json\n M output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-gate/41-retention-durable-settings-proof.json\n M test-results/tracking-retention-durable-settings-proof/proof.json\n M test-results/tracking-retention-local-service-state-proof/proof.json\n M test-results/tracking-retention-settings-write-command-proof/proof.json\n?? packages/parent-domain/src/tracking-retention-product-readiness-proof.ts\n?? packages/parent-domain/tests/tracking-retention-product-readiness-proof.test.ts\n?? scripts/test/tracking-retention-product-readiness-proof.mjs",
+  "baseCommitAtGeneration": "33961c685b7925914259ed5791ba524d25d3b334",
+  "gitStatusShort": "",
   "commands": [
     {
       "command": "node scripts/test/tracking-retention-durable-settings-proof.mjs",
@@ -81,7 +81,7 @@
     {
       "command": "cmd /c npm run test --workspace @ocentra-parent/parent-domain -- tracking-retention-product-readiness-proof",
       "status": 0,
-      "stdout": "> @ocentra-parent/parent-domain@0.1.1 test\n> vitest run tracking-retention-product-readiness-proof\n\n\n RUN  v4.1.6 C:/Users/sujan/.codex/worktrees/ocentra-parent-codex-a/OcentraParent/packages/parent-domain\n\n\n Test Files  1 passed (1)\n      Tests  3 passed (3)\n   Start at  11:27:09\n   Duration  912ms (transform 169ms, setup 0ms, import 656ms, tests 20ms, environment 0ms)",
+      "stdout": "> @ocentra-parent/parent-domain@0.1.1 test\n> vitest run tracking-retention-product-readiness-proof\n\n\n RUN  v4.1.6 C:/Users/sujan/.codex/worktrees/ocentra-parent-codex-a/OcentraParent/packages/parent-domain\n\n\n Test Files  1 passed (1)\n      Tests  3 passed (3)\n   Start at  19:56:45\n   Duration  1.14s (transform 211ms, setup 0ms, import 795ms, tests 25ms, environment 0ms)",
       "stderr": ""
     }
   ],

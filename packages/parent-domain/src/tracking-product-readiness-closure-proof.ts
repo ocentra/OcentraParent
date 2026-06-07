@@ -33,7 +33,8 @@ export const TrackingProductReadinessClosureCoverageTagSchema = Schema.Literal(
   'full-product-ui-runtime-artifact-gate',
   'production-durable-workers-readiness-blocker',
   'production-worker-runtime-artifact-gate',
-  'retention-product-readiness-blocker'
+  'retention-product-readiness-blocker',
+  'retention-runtime-artifact-gate'
 );
 
 export const RequiredTrackingProductReadinessClosureCoverageTags = [
@@ -61,6 +62,7 @@ export const RequiredTrackingProductReadinessClosureCoverageTags = [
   'production-durable-workers-readiness-blocker',
   'production-worker-runtime-artifact-gate',
   'retention-product-readiness-blocker',
+  'retention-runtime-artifact-gate',
 ] as const;
 
 export const TrackingProductReadinessClosureBlockerSchema = Schema.Literal(

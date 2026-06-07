@@ -1,0 +1,3 @@
+node scripts/test/tracking-retention-product-readiness-proof.mjs
+cmd /c npm run build --workspace @ocentra-parent/parent-domain
+cmd /c npm run test --workspace @ocentra-parent/parent-domain -- tracking-retention-runtime-artifact-gate-proof
