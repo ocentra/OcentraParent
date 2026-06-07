@@ -1,9 +1,10 @@
 {
   "schemaVersion": 1,
-  "checkedAt": "2026-06-06T13:08:33.929Z",
-  "commit": "186cccce4c2fcc6392ace98437ca674ab3fdc5fa",
+  "checkedAt": "deterministic-proof-artifact",
+  "commit": "branch-head-validated-by-harness",
   "proofMode": "production-support-status-backend-payload-custody-proof",
   "commands": [
+    "cmd /c npm run build --workspace @ocentra-parent/schema-domain",
     "cmd /c npm run build --workspace @ocentra-parent/logging-domain",
     "cmd /c npm run test --workspace @ocentra-parent/logging-domain -- tests/status-backend-payload-custody.test.ts"
   ],
@@ -12,8 +13,8 @@
     "guards": "packages/logging-domain/src/status-backend-payload-custody-guards.ts",
     "readModel": "packages/logging-domain/src/status-backend-payload-custody-read-model.ts",
     "contractTest": "packages/logging-domain/tests/status-backend-payload-custody.test.ts",
-    "proofOutput": "test-results\\production-support-status-backend-payload-custody-proof\\proof.json",
-    "summaryOutput": "output\\production-support-status-backend-payload-custody-proof\\proof-summary.json",
+    "proofOutput": "test-results/production-support-status-backend-payload-custody-proof/proof.json",
+    "summaryOutput": "output/production-support-status-backend-payload-custody-proof/proof-summary.json",
     "featureDoc": "docs/features/production-distribution-support.md",
     "expectations": [
       "docs/expectations/data-custody.md",
