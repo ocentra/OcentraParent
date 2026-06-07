@@ -1,9 +1,25 @@
 {
   "schemaVersion": 1,
   "proofMode": "app-game-policy-readiness-live-parent-surface",
-  "checkedAt": "2026-06-07T12:29:36.763Z",
-  "implementationCommit": "fdb52b5cea0150114ba7b1c7e9c191def7dc5ea3",
+  "checkedAt": "2026-06-07T12:49:21.249Z",
+  "implementationCommit": "7bf345980c9b26f486ae6a9c8b3c964754d82d59",
   "commands": [
+    {
+      "command": "cmd /c npm run build --workspace @ocentra-parent/schema-domain",
+      "exitCode": 0
+    },
+    {
+      "command": "cmd /c npm run build --workspace @ocentra-parent/logging-domain",
+      "exitCode": 0
+    },
+    {
+      "command": "cmd /c npm run build --workspace @ocentra-parent/parent-domain",
+      "exitCode": 0
+    },
+    {
+      "command": "cmd /c npm run build --workspace @ocentra-parent/activity-domain",
+      "exitCode": 0
+    },
     {
       "command": "cmd /c npm run build --workspace @ocentra-parent/text-domain",
       "exitCode": 0
