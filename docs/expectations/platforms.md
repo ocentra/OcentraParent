@@ -50,6 +50,12 @@ behavior belongs behind platform adapters and must be proved per platform.
   a parent-visible fallback workflow only; they do not prove Microsoft Store
   integration, provider execution, platform interception, child delivery, app
   blocking, or product-claim approval.
+- Windows app-install provider/store API execution proof rows may be
+  execution-ready only as a parent-domain evidence boundary that joins
+  provider/store product-claim proof with platform limitation fallback proof;
+  they do not prove Microsoft Store execution, provider credentials, billing
+  provider contact, store integration, platform interception, child delivery,
+  app blocking, or product-claim approval.
 - Validation needs real Windows adapter tests or guarded integration/manual evidence for each claimed OS capability, plus contract tests for every event shape crossing TypeScript and Rust.
 
 ## macOS
@@ -61,6 +67,9 @@ behavior belongs behind platform adapters and must be proved per platform.
 - macOS app-install package-source capture remains manual-required until host,
   signing, receipt, and store-source proof is attached behind a platform
   boundary.
+- macOS app-install provider/store API execution proof must remain
+  manual-required until Mac App Store credential, entitlement, provider contact,
+  and platform adapter evidence are attached.
 - Do not claim process/window, network, enforcement, or background notification parity from the package scaffold alone.
 
 ## Linux
@@ -72,6 +81,9 @@ behavior belongs behind platform adapters and must be proved per platform.
 - CI package install proof is not enough to claim child-device monitoring support.
 - Linux app-install package-source capture must stay unavailable until a tested
   distro/package-manager source path and limitation proof exists.
+- Linux app-install provider/store API execution proof must stay unavailable
+  until a tested distro/package-manager source path and provider/store evidence
+  exists.
 
 ## Android
 
@@ -83,6 +95,9 @@ behavior belongs behind platform adapters and must be proved per platform.
 - Parent-device Android app support and child-device Android agent support are separate claims.
 - Android app-install package-source capture is blocked until device-owner or
   managed-profile proof exists; generic parent-device app support is not enough.
+- Android app-install provider/store API execution proof must stay
+  blocked-before-claim until device-owner or managed-profile proof plus Google
+  Play policy/API evidence and child-device delivery proof exist.
 
 ## iOS
 
@@ -95,6 +110,9 @@ behavior belongs behind platform adapters and must be proved per platform.
 - iOS app-install package-source capture is blocked until Apple entitlement and
   review proof exists; limitation rows should be explicit when APIs do not allow
   parity.
+- iOS app-install provider/store API execution proof must stay
+  blocked-before-claim until Apple entitlement/review proof plus approved
+  App Store or Family Controls evidence and child-device delivery proof exist.
 
 ## Web
 

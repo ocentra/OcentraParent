@@ -158,6 +158,15 @@ Expected contract families:
   execution, store integration, platform interception, platform adapter
   implementation, child-device delivery, runtime writer delivery, app blocking,
   child activity data custody, or Ocentra-hosted family data custody.
+- Provider/store API execution proof rows link product-claim provider/store
+  rows with platform limitation fallback rows into execution-ready,
+  manual-required, unavailable, and blocked-before-claim evidence states
+  without claiming product-claim approval, Google Play execution, Apple App
+  Store execution, Microsoft Store execution, billing/provider contact,
+  provider API execution, store integration, platform interception, platform
+  adapter implementation, child-device delivery, runtime writer/report
+  delivery, portal approval/report UI, app blocking, child activity data
+  custody, or Ocentra-hosted family data custody.
 - Provider/store report status runtime proof rows link provider/store execution
   readiness rows to parent-owned runtime report writer receipts so store
   report statuses can be ready, manual-required, or unavailable without
@@ -668,6 +677,13 @@ Expected contract families:
   platform adapter implementation, child-device delivery, runtime writer/report
   delivery, app blocking, child activity custody, Ocentra-hosted family data
   custody, or proof that platform/store claims are product-ready.
+- Do not treat provider/store API execution proof refs as product claim
+  approval, Google Play, Apple App Store, Microsoft Store, or billing provider
+  execution/contact, provider API execution, store integration, platform
+  interception, platform adapter implementation, child-device delivery, runtime
+  writer/report delivery, portal approval/report UI, app blocking, child
+  activity custody, Ocentra-hosted family data custody, or proof that
+  platform/store claims are product-ready.
 
 ## Done Signal
 

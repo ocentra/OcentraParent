@@ -97,6 +97,16 @@ fallback-ready, manual-required, and unsupported rows so the parent-visible
 fallback path remains explicit while product claims stay unapproved and
 provider/store execution, platform adapters, child delivery, portal UI, app
 blocking, child activity data, and hosted custody remain unclaimed.
+Provider/store API execution proof now links product-claim provider/store rows
+with platform limitation fallback rows into execution-ready, manual-required,
+unavailable, and blocked-before-claim evidence states while product-claim
+approval, Google Play, Apple App Store, Microsoft Store, billing/provider
+contact, provider API execution, store integration, platform interception,
+platform adapters, child-device delivery, runtime writer/report delivery,
+portal approval/report UI, app blocking, child activity data, and hosted
+custody remain unclaimed. The next gap remains real provider credentials/API
+execution evidence, real portal approval/report UI, platform adapters, and
+child-device delivery before any app-install product claim can be upgraded.
 
 ## Multi-Device, Remote, And Platforms
 

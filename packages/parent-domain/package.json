@@ -125,6 +125,10 @@
       "import": "./dist/app-install-purchase-product-claim-platform-limitation-fallback-proof.js",
       "types": "./dist/app-install-purchase-product-claim-platform-limitation-fallback-proof.d.ts"
     },
+    "./app-install-purchase-provider-store-api-execution-proof": {
+      "import": "./dist/app-install-purchase-provider-store-api-execution-proof.js",
+      "types": "./dist/app-install-purchase-provider-store-api-execution-proof.d.ts"
+    },
     "./billing-entitlement": {
       "import": "./dist/billing-entitlement.js",
       "types": "./dist/billing-entitlement.d.ts"
