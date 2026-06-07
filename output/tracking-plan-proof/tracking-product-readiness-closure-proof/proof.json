@@ -58,6 +58,12 @@
       "proofTier": "P3_LOCAL_DEV_MACHINE"
     },
     {
+      "coverageTag": "notification-preference-status-handoff",
+      "proofRef": "output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-gate/54-notification-preference-status-handoff-proof.json",
+      "status": "proved",
+      "proofTier": "P3_LOCAL_DEV_MACHINE"
+    },
+    {
       "coverageTag": "notification-local-outbox-readiness",
       "proofRef": "output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-gate/42-notification-local-outbox-readiness-proof.json",
       "status": "proved",
@@ -127,6 +133,7 @@
         "output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-gate/44-android-system-geofence-blocker-proof.json",
         "output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-gate/22-notification-receipt-boundary-proof.json",
         "output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-gate/24-notification-preference-preflight-proof.json",
+        "output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-gate/54-notification-preference-status-handoff-proof.json",
         "output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-gate/42-notification-local-outbox-readiness-proof.json",
         "output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-gate/48-authority-enrollment-manual-required-proof.json",
         "output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-gate/50-child-runtime-artifact-gate-proof.json",
@@ -180,8 +187,8 @@
     "productReadyClaimed": false
   },
   "branch": "codex/tracking-plan-full-continuation-a",
-  "baseCommitAtGeneration": "73a2968cf9f78a665b9eba644a2f16436ed5992b",
-  "gitStatusShort": "M docs/features/location-geofence-device-status.md\n M docs/plans/tracking-plan/implementation-checklist.md\n M docs/plans/tracking-plan/workpacks/33-proof-gates-fixtures-rollout-and-pr-gate.md\n M packages/parent-domain/src/tracking-product-readiness-closure-proof.ts\n M scripts/test/tracking-product-readiness-closure-proof.mjs",
+  "baseCommitAtGeneration": "9fa3691d04c8e28372dc4f98241b830225f4b2de",
+  "gitStatusShort": "",
   "commands": [
     {
       "command": "cmd /c npm run build --workspace @ocentra-parent/parent-domain",
@@ -192,7 +199,7 @@
     {
       "command": "cmd /c npm run test --workspace @ocentra-parent/parent-domain -- tracking-product-readiness-closure-proof",
       "status": 0,
-      "stdout": "> @ocentra-parent/parent-domain@0.1.1 test\n> vitest run tracking-product-readiness-closure-proof\n\n\n RUN  v4.1.6 C:/Users/sujan/.codex/worktrees/ocentra-parent-codex-a/OcentraParent/packages/parent-domain\n\n\n Test Files  1 passed (1)\n      Tests  3 passed (3)\n   Start at  17:05:08\n   Duration  809ms (transform 126ms, setup 0ms, import 574ms, tests 15ms, environment 0ms)",
+      "stdout": "> @ocentra-parent/parent-domain@0.1.1 test\n> vitest run tracking-product-readiness-closure-proof\n\n\n RUN  v4.1.6 C:/Users/sujan/.codex/worktrees/ocentra-parent-codex-a/OcentraParent/packages/parent-domain\n\n\n Test Files  1 passed (1)\n      Tests  3 passed (3)\n   Start at  17:31:46\n   Duration  933ms (transform 140ms, setup 0ms, import 702ms, tests 17ms, environment 0ms)",
       "stderr": ""
     }
   ],

@@ -1,8 +1,8 @@
 {
   "proofMode": "tracking-notification-preference-preflight-proof",
   "generatedAt": "2026-06-06T08:02:00.000Z",
-  "branch": "codex/tracking-notification-preference-preflight-proof",
-  "gitStatusShort": "",
+  "branch": "codex/tracking-plan-full-continuation-a",
+  "gitStatusShort": "D output/tracking-plan-proof/tracking-notification-preference-status-handoff-proof/00-source-snapshot.md\n D output/tracking-plan-proof/tracking-notification-preference-status-handoff-proof/13-security-negative-proof.log\n D output/tracking-plan-proof/tracking-notification-preference-status-handoff-proof/16-validation-commands.log\n D output/tracking-plan-proof/tracking-notification-preference-status-handoff-proof/proof.json\n D test-results/tracking-notification-preference-status-handoff-proof/proof.json\n D test-results/tracking-notification-preference-status-handoff-proof/tracking-notification-preference-status-handoff-read-model.json\n D test-results/tracking-product-readiness-closure-proof/product-readiness-closure-read-model.json\n D test-results/tracking-product-readiness-closure-proof/proof.json",
   "commands": [
     "cmd /c npm run build --workspace @ocentra-parent/parent-domain",
     "cmd /c npm run test --workspace @ocentra-parent/parent-domain -- tracking-notification-preference-preflight-proof tracking-provider-notification-proof v3-notification-rule-provider-retry-contract"
