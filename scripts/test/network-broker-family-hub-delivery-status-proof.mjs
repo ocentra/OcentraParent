@@ -215,6 +215,8 @@ function normalizeLogText(text) {
       .replace(/\r\n/g, '\n')
       .split('\n')
       .filter((line) => !line.includes('Blocking waiting for'))
+      .filter((line) => !line.trimStart().startsWith('Compiling '))
+      .filter((line) => !line.trimStart().startsWith('Checking '))
       .map((line) =>
         line
           .replace(/finished in [0-9.]+s/g, 'finished in <duration>')
