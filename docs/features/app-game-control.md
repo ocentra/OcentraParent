@@ -370,6 +370,11 @@ control with better evidence and local audit.
   preserving scheduler/outbox/channel/readiness refs while provider delivery,
   receipt, credential, parent UI, child delivery, adapter, and platform claims
   remain false.
+- Timer parent-surface child UX scheduled rows now also bridge into parent
+  preference and quiet-hours preflight rows, requiring preference/frequency and
+  quiet-hours setup before delivery can be claimed while manual-required and
+  unavailable rows remain blocked and parent UI/provider/child/runtime/adapter/
+  platform claims remain false.
 - The App/Game Sessions portal route now has a route-level app/game
   notification parent-surface panel that projects the live service
   notification-readiness read-model event into schema-backed manual/unavailable
