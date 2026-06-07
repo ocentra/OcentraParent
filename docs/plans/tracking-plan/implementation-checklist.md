@@ -355,6 +355,11 @@ or receipt runtime can be claimed and keeps provider delivery, webhook receipt
 ingestion, credentials, adapter dispatch, retry/quiet-hours runtime,
 production durable outbox storage, child-device delivery, physical-device
 behavior, authority, and product-ready tracking unclaimed.
+The tracking product-readiness closure proof now consumes this
+provider-delivery artifact gate alongside the physical-device and
+child-runtime gates, so the local/CI closure cannot pass without citing the
+provider-delivery proof ref while still keeping provider delivery/receipt
+runtime unclaimed.
 WP33 `proof-summary.json` records a tracked `minimumSeriousMvpAuditSummary`.
 The runtime proof command also records the full `minimumSeriousMvpAudit` in
 generated `00-run-metadata.json`; both are first-checkpoint P1
@@ -688,10 +693,11 @@ Every implementation workpack must update, or explicitly justify not updating:
       proof, hosted child-runtime UI proof, hosted child-runtime execution
       readiness proof, hosted read-only evidence drawer proof, hosted UI
       artifact inventory proof, physical-device artifact gate proof, refreshed
-      product-readiness closure proof, child-runtime artifact gate proof, and
-      remaining Android/iOS physical-device behavior, authority, actual
-      child-device delivery/runtime execution, full child/parent UI beyond the
-      hosted parent route, provider-delivery, and production gaps.
+      product-readiness closure proof, child-runtime artifact gate proof,
+      provider-delivery artifact gate proof, and remaining Android/iOS
+      physical-device behavior, authority, actual child-device delivery/runtime
+      execution, full child/parent UI beyond the hosted parent route,
+      provider-delivery runtime, and production gaps.
 
 ## UI Snapshot Gates
 
