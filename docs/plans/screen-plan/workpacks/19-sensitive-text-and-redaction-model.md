@@ -15,9 +15,13 @@ intent renders those redacted fields while proving raw email, phone, credential,
 raw image retention, and remote AI are absent. The Windows service WinRT OCR
 proof now persists bounded OCR snippets and the structured `redactionNotes`
 array from adapter output into the Activity Screen read model while draining the
-encrypted queue and deleting the adapter temp image. A real service-emitted
-sensitive-redaction portal screenshot remains open because the current service
-proof uses a public Wikipedia page with no sensitive text to redact.
+encrypted queue and deleting the adapter temp image. The service also applies a
+local OCR redaction pass before event persistence: a real local Chrome text
+surface is captured as pixels, WinRT OCR reads sensitive text markers, the
+service row stores `[redacted-email]`/`[redacted-phone]` snippets plus
+redaction notes, and the real `#/screen-analysis` portal route screenshot shows
+the redacted service row without raw email or phone text. Parent-persisted
+redaction setting selection remains open.
 
 ## Checklist
 
@@ -29,8 +33,8 @@ proof uses a public Wikipedia page with no sensitive text to redact.
 - [x] Add security tests.
 - [x] Add portal read-model/intent proof for redacted snippets.
 - [x] Persist service-emitted OCR snippets and redaction-note shape into the Activity Screen read model.
-- [ ] Add real portal screenshot from a service-emitted redaction row.
-- [ ] Persist/apply redaction settings in the live service path.
+- [x] Add real portal screenshot from a service-emitted redaction row.
+- [~] Apply local redaction in the live service path; parent-persisted setting selection remains open.
 
 ## Proof
 
@@ -40,5 +44,8 @@ proof uses a public Wikipedia page with no sensitive text to redact.
 - `output/screen-ai-pipeline-proof/service-winrt-ocr/proof-summary.json` proves
   real service capture/OCR/read-model persistence of bounded OCR snippets and an
   explicit redaction-note array shape without raw image retention.
-- Service-backed portal screenshot showing actually redacted/disabled sensitive
-  snippets remains open.
+- `output/screen-ai-pipeline-proof/service-winrt-ocr-redaction/proof-summary.json`
+  and `portal-screen-analysis-redaction.png` prove service-emitted redacted OCR
+  snippets render on the real Screen Analysis portal route without raw sensitive
+  text.
+- Parent-persisted redaction setting selection remains open.

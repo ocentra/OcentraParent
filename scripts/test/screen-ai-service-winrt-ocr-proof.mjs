@@ -4,6 +4,7 @@ import { mkdtemp } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join, relative } from 'node:path';
 import { setTimeout as delay } from 'node:timers/promises';
+import { chromium } from 'playwright';
 import {
   AgentCommand,
   AgentEvent,
@@ -13,17 +14,22 @@ import {
 
 import {
   ParentDevEnv,
+  ParentDevHost,
+  createHttpOrigin,
   createAgentAddress,
   createAgentHealthUrl,
   createAgentWebSocketUrl,
   isLikelyParentAgentOccupant,
+  isLikelyParentPortalOccupant,
   resolveParentDevPort,
 } from '../dev/local-dev-config.mjs';
 import { ensurePortFree } from '../dev/port-utils.mjs';
-import { removeDirectoryWithRetry, stopProcessTreeAndWait } from './agent-service-process.mjs';
+import { removeDirectoryWithRetry, spawnVitePortal, stopProcessTreeAndWait } from './agent-service-process.mjs';
 
 const repoRoot = process.cwd();
-const outputDir = join(repoRoot, 'output', 'screen-ai-pipeline-proof', 'service-winrt-ocr');
+const sensitiveNativeMode = process.argv.includes('--sensitive-native-redaction');
+const proofSlug = sensitiveNativeMode ? 'service-winrt-ocr-redaction' : 'service-winrt-ocr';
+const outputDir = join(repoRoot, 'output', 'screen-ai-pipeline-proof', proofSlug);
 const validationLogPath = join(outputDir, '14-validation-commands.log');
 const sourceSnapshotPath = join(outputDir, '00-source-snapshot.md');
 const agentPort = resolveParentDevPort(
@@ -31,8 +37,23 @@ const agentPort = resolveParentDevPort(
   4691,
   'OCENTRA_SCREEN_SERVICE_WINRT_OCR_PROOF_AGENT_PORT'
 );
-const liveUrl = 'https://en.wikipedia.org/wiki/Mathematics';
-const expectedTerms = ['wikipedia', 'mathematics'];
+const portalPort = resolveParentDevPort(
+  process.env.OCENTRA_SCREEN_SERVICE_WINRT_OCR_PROOF_PORTAL_PORT,
+  4692,
+  'OCENTRA_SCREEN_SERVICE_WINRT_OCR_PROOF_PORTAL_PORT'
+);
+const sensitiveLiveText = [
+  'School portal account jane@example.com',
+  'Parent phone 555-010-1234',
+  'password reset token visible',
+].join('\n');
+const liveUrl = sensitiveNativeMode
+  ? `data:text/plain;charset=utf-8,${encodeURIComponent(sensitiveLiveText)}`
+  : 'https://en.wikipedia.org/wiki/Mathematics';
+const expectedTerms = sensitiveNativeMode ? ['jane', '555', 'password'] : ['wikipedia', 'mathematics'];
+const liveTitlePatterns = sensitiveNativeMode
+  ? ['*data:text/plain*', '*jane@example.com*']
+  : ['*Wikipedia*', '*Mathematics*'];
 const systemChromePath = 'C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe';
 const buildRoot = process.env.CARGO_TARGET_DIR ?? join(repoRoot, 'target');
 const activityRoot = await mkdtemp(join(tmpdir(), 'ocentra-screen-service-winrt-'));
@@ -46,7 +67,11 @@ const adapterScriptPath = join(activityRoot, 'screen-service-winrt-ocr-adapter.p
 const queuePath = join(queueDir, 'screen-evidence-queue.ndjson');
 const healthUrl = createAgentHealthUrl(agentPort);
 const wsUrl = createAgentWebSocketUrl(agentPort);
-const validationCommands = ['node scripts/test/screen-ai-service-winrt-ocr-proof.mjs'];
+const validationCommands = [
+  sensitiveNativeMode
+    ? 'node scripts/test/screen-ai-service-winrt-ocr-proof.mjs --sensitive-native-redaction'
+    : 'node scripts/test/screen-ai-service-winrt-ocr-proof.mjs',
+];
 const analysisReadModelWaitMs = 240000;
 
 if (process.platform !== 'win32') {
@@ -60,6 +85,8 @@ writeAdapterCommand();
 await ensurePortFree(agentPort, isLikelyParentAgentOccupant, console.log);
 
 let browser;
+let portal;
+let portalBrowser;
 let service;
 let serviceOutput = () => '';
 let lastObservedReadModel = null;
@@ -71,6 +98,7 @@ try {
   service = startService(serviceCaptureEnv());
   serviceOutput = collectOutput(service);
   await waitForHttp(healthUrl, serviceOutput);
+  await focusLivePage(browser);
   await waitForQueueRecords(1);
   await stopProcessTreeAndWait(service);
   service = undefined;
@@ -82,6 +110,7 @@ try {
   const readModel = await waitForAnalyzedScreenReadModel();
   const analysisRow = localOcrRow(readModel);
   await waitForAnalyzedQueueRemoval(analysisRow?.queueJobId);
+  await waitForQueueDrain();
   const queueRecords = readQueueRecordsAllowEmpty();
   const ocrObservation = await waitForOcrObservation();
   assertProof(readModel, queueRecords, ocrObservation);
@@ -89,12 +118,13 @@ try {
   const sanitizedReadModel = sanitizeReadModel(readModel);
   const sanitizedQueueRecords = sanitizeQueueRecords(queueRecords);
   const sanitizedObservation = sanitizeOcrObservation(ocrObservation);
+  const portalArtifact = sensitiveNativeMode ? await capturePortalScreenshot() : null;
   const summary = {
-    proof: 'screen-ai-service-winrt-ocr-proof',
+    proof: sensitiveNativeMode ? 'screen-ai-service-winrt-ocr-redaction-proof' : 'screen-ai-service-winrt-ocr-proof',
     proofTier: 'P3_REAL_CAPTURE_LOCAL_OCR_SERVICE_PATH',
     platform: process.platform,
     liveSource: {
-      kind: 'live-public-browser-page',
+      kind: browser.sourceEvidence.sourceKind,
       url: browser.sourceEvidence.url,
       title: browser.sourceEvidence.title,
       expectedTerms,
@@ -110,10 +140,12 @@ try {
       winRtOcrObservation: relative(repoRoot, join(outputDir, 'winrt-ocr-observation.json')),
       queueRecordMetadataAfterAnalysis: relative(repoRoot, join(outputDir, 'queue-records-after-analysis.json')),
       validationCommands: relative(repoRoot, validationLogPath),
+      portalScreenshot: portalArtifact === null ? null : relative(repoRoot, portalArtifact.screenshotPath),
     },
     assertions: {
       realWindowsServiceCaptureRequired: true,
-      liveExternalBrowserSurfaceUsed: true,
+      liveExternalBrowserSurfaceUsed: !sensitiveNativeMode,
+      liveLocalBrowserTextSurfaceUsed: sensitiveNativeMode,
       serviceAdapterRanWindowsWinRtOcr: sanitizedObservation.runtime === 'Windows.Media.Ocr.OcrEngine',
       ocrSawExpectedLivePageTerms: expectedTerms.every((term) =>
         sanitizedObservation.expectedTermsFound.includes(term)
@@ -130,6 +162,8 @@ try {
       rawImageNotRetainedInReadModel: analysisRow.rawImageRetained === false,
       ocrSnippetsPreservedInReadModel: (analysisRow.ocrTextSnippets ?? []).length > 0,
       redactionNotesShapePreservedInReadModel: Array.isArray(analysisRow.redactionNotes),
+      serviceRedactedSensitiveOcrSnippets: sensitiveNativeMode ? redactedServiceRowAssertions(analysisRow) : null,
+      realPortalScreenshotCaptured: portalArtifact === null ? null : existsSync(portalArtifact.screenshotPath),
     },
     nonClaims: [
       'This proves the Windows service path from timed cadence capture through encrypted queue, WinRT OCR adapter output, Activity Screen read model, and queue/raw temp deletion.',
@@ -142,14 +176,19 @@ try {
   writeJson(join(outputDir, 'screen-read-model.json'), sanitizedReadModel);
   writeJson(join(outputDir, 'winrt-ocr-observation.json'), sanitizedObservation);
   writeJson(join(outputDir, 'queue-records-after-analysis.json'), sanitizedQueueRecords);
+  if (portalArtifact !== null) {
+    writeJson(join(outputDir, 'portal-proof-summary.json'), portalArtifact.summary);
+  }
   writeText(validationLogPath, `${validationCommands.join('\n')}\n`);
-  console.log(`screen-ai-service-winrt-ocr-proof-ok:${analysisRow.providerKind}:${queueRecords.length}`);
+  console.log(`${proofSlug}-proof-ok:${analysisRow.providerKind}:${queueRecords.length}`);
 } catch (error) {
   writeFailureArtifacts(error);
   throw error;
 } finally {
   await Promise.allSettled([
     browser === undefined ? Promise.resolve() : browser.close(),
+    portalBrowser === undefined ? Promise.resolve() : portalBrowser.close(),
+    portal === undefined ? Promise.resolve() : stopProcessTreeAndWait(portal),
     service === undefined ? Promise.resolve() : stopProcessTreeAndWait(service),
   ]);
   await removeDirectoryWithRetry(activityRoot);
@@ -163,8 +202,8 @@ async function openLivePage() {
   activateBrowserWindow(liveWindow.title, launchedAfterIso, liveWindow.processId);
   return {
     sourceEvidence: {
-      sourceKind: 'live-public-browser-page',
-      liveExternalUrl: true,
+      sourceKind: sensitiveNativeMode ? 'live-local-browser-text-surface' : 'live-public-browser-page',
+      liveExternalUrl: !sensitiveNativeMode,
       url: liveUrl,
       title: liveWindow.title,
       processId: liveWindow.processId,
@@ -218,13 +257,13 @@ async function waitForLiveBrowserWindow(launchedAfterIso) {
     }
     await delay(500);
   }
-  throw new Error('Timed out waiting for live Wikipedia Chrome window.');
+  throw new Error('Timed out waiting for live Chrome proof window.');
 }
 
 function findLiveBrowserWindow(launchedAfterIso) {
   const script = [
     `$since = [DateTimeOffset]::Parse('${escapePowerShell(launchedAfterIso)}').LocalDateTime`,
-    "$target = Get-Process | Where-Object { try { $_.MainWindowTitle -like '*Wikipedia*' -or $_.MainWindowTitle -like '*Mathematics*' } catch { $false } } | Sort-Object StartTime -Descending | Select-Object -First 1",
+    `$target = Get-Process | Where-Object { try { ${powerShellLikeAny('$_.MainWindowTitle')} } catch { $false } } | Sort-Object StartTime -Descending | Select-Object -First 1`,
     'if ($null -eq $target) { return }',
     '[ordered]@{ processId = $target.Id; title = $target.MainWindowTitle } | ConvertTo-Json -Compress',
   ].join('\n');
@@ -257,7 +296,7 @@ function closeLiveBrowserWindow(processId) {
 
 function closeExistingLiveBrowserWindows() {
   const script = [
-    "$targets = Get-Process chrome -ErrorAction SilentlyContinue | Where-Object { $_.MainWindowTitle -like '*Wikipedia*' -or $_.MainWindowTitle -like '*Mathematics*' }",
+    `$targets = Get-Process chrome -ErrorAction SilentlyContinue | Where-Object { ${powerShellLikeAny('$_.MainWindowTitle')} }`,
     '$targets | ForEach-Object { $_.CloseMainWindow() | Out-Null }',
     'if (@($targets).Count -gt 0) { Start-Sleep -Milliseconds 900 }',
   ].join('\n');
@@ -318,15 +357,15 @@ function activateBrowserWindow(title, launchedAfterIso, processId) {
       ? '$target = $null'
       : `$target = Get-Process -Id ${targetProcessId} -ErrorAction SilentlyContinue`,
     'if ($null -ne $target -and $target.MainWindowHandle -eq 0) { $target = $null }',
-    "if ($null -ne $target -and $target.MainWindowTitle -notlike '*Wikipedia*' -and $target.MainWindowTitle -notlike '*Mathematics*') { $target = $null }",
-    "$windows = Get-Process | Where-Object { try { $_.MainWindowHandle -ne 0 -and $_.StartTime -ge $since -and ($_.MainWindowTitle -like '*Wikipedia*' -or $_.MainWindowTitle -like '*Mathematics*') } catch { $false } } | Sort-Object StartTime -Descending",
+    `if ($null -ne $target -and ${powerShellNotLikeAll('$target.MainWindowTitle')}) { $target = $null }`,
+    `$windows = Get-Process | Where-Object { try { $_.MainWindowHandle -ne 0 -and $_.StartTime -ge $since -and (${powerShellLikeAny('$_.MainWindowTitle')}) } catch { $false } } | Sort-Object StartTime -Descending`,
     'if ($null -eq $target) { $target = $windows | Select-Object -First 1 }',
     `if ($null -eq $target) { $target = Get-Process | Where-Object { $_.MainWindowTitle -like '*${escapePowerShell(title)}*' } | Select-Object -First 1 }`,
     "if ($null -eq $target) { throw 'No visible browser window found for proof activation.' }",
     '$foregroundTitle = $null',
     'for ($attempt = 0; $attempt -lt 5; $attempt++) {',
     '  $foregroundTitle = Invoke-OcentraActivateTarget $target',
-    "  if ($foregroundTitle -like '*Wikipedia*' -or $foregroundTitle -like '*Mathematics*') { break }",
+    `  if (${powerShellLikeAny('$foregroundTitle')}) { break }`,
     '  Start-Sleep -Milliseconds 400',
     '}',
     "if ($foregroundTitle -like 'native-ocr-worker-proof-*') {",
@@ -341,7 +380,7 @@ function activateBrowserWindow(title, launchedAfterIso, processId) {
     '  Start-Sleep -Milliseconds 900',
     '  $foregroundTitle = Invoke-OcentraActivateTarget $target',
     '}',
-    "if ($foregroundTitle -notlike '*Wikipedia*' -and $foregroundTitle -notlike '*Mathematics*') { throw ('Foreground window after activation was ' + $foregroundTitle + '; target was ' + $target.MainWindowTitle) }",
+    `if (${powerShellNotLikeAll('$foregroundTitle')}) { throw ('Foreground window after activation was ' + $foregroundTitle + '; target was ' + $target.MainWindowTitle) }`,
   ].join('\n');
   const result = spawnSync('powershell', ['-NoProfile', '-ExecutionPolicy', 'Bypass', '-Command', script], {
     cwd: repoRoot,
@@ -350,6 +389,45 @@ function activateBrowserWindow(title, launchedAfterIso, processId) {
   });
   if (result.status !== 0) {
     throw new Error(`Could not activate live browser window ${title}\n${result.stdout}\n${result.stderr}`);
+  }
+}
+
+function activateNativeWindow(processId, title) {
+  const script = [
+    'Add-Type -AssemblyName Microsoft.VisualBasic',
+    "Add-Type -TypeDefinition @'",
+    'using System;',
+    'using System.Runtime.InteropServices;',
+    'using System.Text;',
+    'public static class OcentraNativeWin32 {',
+    '  [DllImport("user32.dll")] public static extern bool SetForegroundWindow(IntPtr hWnd);',
+    '  [DllImport("user32.dll")] public static extern bool ShowWindowAsync(IntPtr hWnd, int nCmdShow);',
+    '  [DllImport("user32.dll")] public static extern IntPtr GetForegroundWindow();',
+    '  [DllImport("user32.dll", CharSet = CharSet.Unicode)] public static extern int GetWindowText(IntPtr hWnd, StringBuilder text, int count);',
+    '}',
+    "'@",
+    `$target = Get-Process -Id ${processId} -ErrorAction SilentlyContinue`,
+    "if ($null -eq $target -or $target.MainWindowHandle -eq 0) { throw 'No visible native window found for proof activation.' }",
+    '$foregroundTitle = $null',
+    'for ($attempt = 0; $attempt -lt 6; $attempt++) {',
+    '  [OcentraNativeWin32]::ShowWindowAsync($target.MainWindowHandle, 9) | Out-Null',
+    '  [Microsoft.VisualBasic.Interaction]::AppActivate($target.Id) | Out-Null',
+    '  [OcentraNativeWin32]::SetForegroundWindow($target.MainWindowHandle) | Out-Null',
+    '  Start-Sleep -Milliseconds 700',
+    '  $buffer = New-Object System.Text.StringBuilder 512',
+    '  [OcentraNativeWin32]::GetWindowText([OcentraNativeWin32]::GetForegroundWindow(), $buffer, $buffer.Capacity) | Out-Null',
+    '  $foregroundTitle = $buffer.ToString()',
+    `  if ($foregroundTitle -like '*${escapePowerShell(title)}*') { break }`,
+    '}',
+    `if ($foregroundTitle -notlike '*${escapePowerShell(title)}*') { throw ('Native foreground window after activation was ' + $foregroundTitle + '; target was ${escapePowerShell(title)}') }`,
+  ].join('\n');
+  const result = spawnSync('powershell', ['-NoProfile', '-ExecutionPolicy', 'Bypass', '-Command', script], {
+    cwd: repoRoot,
+    encoding: 'utf8',
+    windowsHide: true,
+  });
+  if (result.status !== 0) {
+    throw new Error(`Could not activate native OCR window ${title}\n${result.stdout}\n${result.stderr}`);
   }
 }
 
@@ -400,21 +478,44 @@ try {
   $text = [string]$result.Text
   if ([string]::IsNullOrWhiteSpace($text)) { throw 'WinRT OCR returned no text.' }
   $normalized = $text.ToLowerInvariant()
-  $expectedTerms = @('wikipedia', 'mathematics')
+  $expectedTerms = @(${expectedTerms.map((term) => powerShellString(term)).join(', ')})
   $foundTerms = @()
   foreach ($term in $expectedTerms) {
     if ($normalized.Contains($term)) {
       $foundTerms += $term
     }
   }
-  if ($foundTerms.Count -lt $expectedTerms.Count) { throw ('WinRT OCR missing expected live page terms. Found: ' + ($foundTerms -join ',')) }
+  if ($foundTerms.Count -lt $expectedTerms.Count -and ${sensitiveNativeMode ? '$false' : '$true'}) { throw ('WinRT OCR missing expected live page terms. Found: ' + ($foundTerms -join ',')) }
   $lineIndex = 0
-  $snippets = @()
+  $candidateSnippets = @()
   foreach ($line in $result.Lines) {
     $lineIndex += 1
     $lineText = ([string]$line.Text).Trim()
-    if ($lineText.Length -gt 0 -and $snippets.Count -lt 6) {
-      $snippets += [ordered]@{ text = $lineText; boundingBoxRef = ('line-' + $lineIndex) }
+    if ($lineText.Length -gt 0) {
+      $candidateSnippets += [ordered]@{ text = $lineText; boundingBoxRef = ('line-' + $lineIndex) }
+    }
+  }
+  $snippets = @()
+  foreach ($candidate in $candidateSnippets) {
+    $candidateText = ([string]$candidate.text).ToLowerInvariant()
+    foreach ($term in $expectedTerms) {
+      if ($candidateText.Contains($term) -and $snippets.Count -lt 6) {
+        $snippets += $candidate
+        break
+      }
+    }
+  }
+  foreach ($candidate in $candidateSnippets) {
+    if ($snippets.Count -ge 6) { break }
+    $alreadySelected = $false
+    foreach ($selected in $snippets) {
+      if ($selected.boundingBoxRef -eq $candidate.boundingBoxRef) {
+        $alreadySelected = $true
+        break
+      }
+    }
+    if (-not $alreadySelected) {
+      $snippets += $candidate
     }
   }
   $snippetTexts = @($snippets | ForEach-Object { [string]$_.text })
@@ -431,7 +532,11 @@ try {
     tempImagePath = $imagePath
   }
   $output = [ordered]@{
-    summary = 'Windows WinRT OCR read the live Wikipedia mathematics page from the service queued capture.'
+    summary = ${powerShellString(
+      sensitiveNativeMode
+        ? 'Windows WinRT OCR read a live local browser sensitive-text page from the service queued capture and service redaction removed sensitive snippets.'
+        : 'Windows WinRT OCR read the live Wikipedia mathematics page from the service queued capture.'
+    )}
     primaryCategory = 'school'
     confidence = 0.91
     policyEligible = $true
@@ -486,11 +591,22 @@ function serviceAnalysisEnv() {
     OCENTRA_PARENT_SCREEN_SERVICE_ANALYSIS_RUNTIME_ENABLED: 'true',
     OCENTRA_PARENT_SCREEN_SERVICE_ANALYSIS_ENABLED: 'true',
     OCENTRA_PARENT_SCREEN_SERVICE_ANALYSIS_POLL_SECONDS: '1',
-    OCENTRA_PARENT_SCREEN_SERVICE_ANALYSIS_MAX_JOBS: '1',
+    OCENTRA_PARENT_SCREEN_SERVICE_ANALYSIS_MAX_JOBS: sensitiveNativeMode ? '2' : '1',
     OCENTRA_PARENT_SCREEN_SERVICE_ANALYSIS_MAX_TICKS: '180',
     OCENTRA_PARENT_SCREEN_SERVICE_ANALYSIS_ADAPTER_TIMEOUT_MS: '120000',
     OCENTRA_PARENT_SCREEN_SERVICE_ANALYSIS_ADAPTER_COMMAND: adapterCommandPath,
     OCENTRA_SCREEN_SERVICE_WINRT_OCR_OBSERVATION_PATH: adapterObservationPath,
+  };
+}
+
+function portalServiceEnv() {
+  return {
+    ...baseServiceEnv(),
+    [ParentDevEnv.AgentAllowedOrigins]: portalUrl(),
+    OCENTRA_PARENT_SCREEN_SERVICE_CADENCE_RUNTIME_ENABLED: 'false',
+    OCENTRA_PARENT_SCREEN_SERVICE_FOREGROUND_RUNTIME_ENABLED: 'false',
+    OCENTRA_PARENT_SCREEN_SERVICE_RETENTION_SWEEPER_RUNTIME_ENABLED: 'false',
+    OCENTRA_PARENT_SCREEN_SERVICE_ANALYSIS_RUNTIME_ENABLED: 'false',
   };
 }
 
@@ -607,6 +723,17 @@ async function waitForAnalyzedQueueRemoval(queueJobId) {
   throw new Error(`Timed out waiting for analyzed queue job removal: ${queueJobId}`);
 }
 
+async function waitForQueueDrain() {
+  const startedAt = Date.now();
+  while (Date.now() - startedAt < 30000) {
+    if (readQueueRecordsAllowEmpty().length === 0) {
+      return;
+    }
+    await delay(250);
+  }
+  throw new Error(`Timed out waiting for screen queue drain: ${JSON.stringify(readQueueRecordsAllowEmpty())}`);
+}
+
 async function waitForOcrObservation() {
   const startedAt = Date.now();
   while (Date.now() - startedAt < 10000) {
@@ -616,6 +743,73 @@ async function waitForOcrObservation() {
     await delay(100);
   }
   throw new Error('Timed out waiting for WinRT OCR adapter observation.');
+}
+
+async function capturePortalScreenshot() {
+  const screenshotPath = join(outputDir, 'portal-screen-analysis-redaction.png');
+  if (service !== undefined) {
+    await stopProcessTreeAndWait(service);
+    service = undefined;
+  }
+  await ensurePortFree(agentPort, isLikelyParentAgentOccupant, console.log);
+  await ensurePortFree(portalPort, isLikelyParentPortalOccupant, console.log);
+  service = startService(portalServiceEnv());
+  serviceOutput = collectOutput(service);
+  await waitForHttp(healthUrl, serviceOutput);
+  portal = spawnVitePortal(portalPort, {
+    ...process.env,
+    [ParentDevEnv.PortalAgentWebSocketUrl]: wsUrl,
+  });
+  await waitForHttp(portalUrl(), () => '');
+  portalBrowser = await chromium.launch({ headless: true });
+  const page = await portalBrowser.newPage({ viewport: { width: 1600, height: 1200 } });
+  await page.goto(`${portalUrl()}#/screen-analysis`, { waitUntil: 'domcontentloaded' });
+  await page.getByText('Screen analysis').waitFor({ timeout: 20000 });
+  await page.getByText('[redacted-email]').waitFor({ timeout: 20000 });
+  await page.getByText('[redacted-phone]').waitFor({ timeout: 20000 });
+  await page.getByText('piiLikeTextRedacted').waitFor({ timeout: 20000 });
+  await page.getByText('credentialLikeTextRedacted').waitFor({ timeout: 20000 });
+  const rendered = await page.locator('body').innerText();
+  if (rendered.includes('jane@example.com') || rendered.includes('555-010-1234')) {
+    throw new Error('Portal rendered raw sensitive OCR text.');
+  }
+  await page.screenshot({ path: screenshotPath, fullPage: true });
+  return {
+    screenshotPath,
+    summary: {
+      proof: 'screen-ai-service-winrt-ocr-redaction-portal-proof',
+      proofTier: 'P3_REAL_CAPTURE_LOCAL_OCR_SERVICE_PORTAL',
+      route: '#/screen-analysis',
+      screenshot: relative(repoRoot, screenshotPath),
+      assertions: {
+        realPortalRouteRenderedServiceRow: true,
+        redactedEmailRendered: rendered.includes('[redacted-email]'),
+        redactedPhoneRendered: rendered.includes('[redacted-phone]'),
+        piiRedactionNoteRendered: rendered.includes('piiLikeTextRedacted'),
+        credentialRedactionNoteRendered: rendered.includes('credentialLikeTextRedacted'),
+        rawEmailOmitted: !rendered.includes('jane@example.com'),
+        rawPhoneOmitted: !rendered.includes('555-010-1234'),
+      },
+    },
+  };
+}
+
+function redactedServiceRowAssertions(row) {
+  const snippets = row.ocrTextSnippets ?? [];
+  const notes = row.redactionNotes ?? [];
+  return (
+    snippets.includes('School portal account [redacted-email]') &&
+    snippets.includes('Parent phone [redacted-phone]') &&
+    !snippets.includes('School portal account jane@example.com') &&
+    !snippets.includes('Parent phone 555-010-1234') &&
+    !snippets.includes('password reset token visible') &&
+    notes.includes('piiLikeTextRedacted') &&
+    notes.includes('credentialLikeTextRedacted')
+  );
+}
+
+function portalUrl() {
+  return createHttpOrigin(ParentDevHost.Loopback, portalPort);
 }
 
 function assertProof(readModel, queueRecords, observation) {
@@ -640,6 +834,7 @@ function assertProof(readModel, queueRecords, observation) {
   if (queueRecords.length !== 0) failures.push('queueDrained');
   if (observation.tempImageExistsAfterDelete !== false) failures.push('tempImageDeleted');
   if (!expectedTerms.every((term) => observation.expectedTermsFound?.includes(term))) failures.push('expectedTerms');
+  if (sensitiveNativeMode && !redactedServiceRowAssertions(analysisRow)) failures.push('serviceRedaction');
   if (failures.length > 0) {
     throw new Error(`Screen service WinRT OCR proof failed gates: ${failures.join(', ')}`);
   }
@@ -803,4 +998,16 @@ function writeJson(path, value) {
 
 function escapePowerShell(value) {
   return String(value).replace(/'/g, "''");
+}
+
+function powerShellString(value) {
+  return `'${escapePowerShell(value)}'`;
+}
+
+function powerShellLikeAny(expression) {
+  return liveTitlePatterns.map((pattern) => `${expression} -like ${powerShellString(pattern)}`).join(' -or ');
+}
+
+function powerShellNotLikeAll(expression) {
+  return liveTitlePatterns.map((pattern) => `${expression} -notlike ${powerShellString(pattern)}`).join(' -and ');
 }
