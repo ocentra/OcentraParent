@@ -137,6 +137,8 @@ Proof root: `output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-g
   `56-full-product-ui-readiness-blocker-proof.json`
 - Tracking production durable workers readiness blocker proof:
   `57-production-durable-workers-readiness-blocker-proof.json`
+- Tracking production worker runtime artifact gate proof:
+  `58-production-worker-runtime-artifact-gate-proof.json`
 
 ## Merge Blockers
 
@@ -1090,3 +1092,29 @@ test:tracking-plan-hosted-ui-proof` passed.
       full product parent/child UI beyond hosted route, authority,
       provider delivery/receipt runtime, production worker execution, and
       product-ready tracking remain proof-gated.
+
+- [x] Workpack id and branch:
+      `codex/tracking-plan-full-continuation-a`.
+- [x] Touched files: production worker runtime artifact gate proof/test,
+      focused proof script, owning tracking feature doc, implementation
+      checklist, this proof-gate doc, and generated production worker runtime
+      artifact gate proof artifacts.
+- [x] Validation commands and results:
+      `node scripts/test/tracking-production-worker-runtime-artifact-gate-proof.mjs`
+      passed.
+- [x] Proof artifacts:
+      `output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-gate/58-production-worker-runtime-artifact-gate-proof.json`,
+      `output/tracking-plan-proof/tracking-production-worker-runtime-artifact-gate-proof/proof.json`,
+      and
+      `test-results/tracking-production-worker-runtime-artifact-gate-proof/proof.json`.
+- [x] Product doc/checklist updates: owning feature doc, implementation
+      checklist, and this proof-gate doc updated. Central product capability
+      checklist is not edited by this branch.
+- [x] Known gaps/manual-required states: this artifact gate reuses the required
+      production artifact refs from the durable-workers readiness blocker, but
+      the real tracking production location-upload, retention-cleanup,
+      notification-outbox, escalation-timeout, provider-receipt,
+      child-device-delivery, authority-status, and audit durable storage
+      runtime artifacts are still missing; production worker execution, durable
+      production storage, physical-device behavior, authority, provider
+      delivery/receipt runtime, and product-ready tracking remain proof-gated.

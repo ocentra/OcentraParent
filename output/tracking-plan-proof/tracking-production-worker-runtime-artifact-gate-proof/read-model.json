@@ -1,0 +1,82 @@
+{
+  "schemaVersion": "v0.5-tracking",
+  "proofMode": "tracking-production-worker-runtime-artifact-gate-proof",
+  "generatedAt": "2026-06-07T22:50:00.000Z",
+  "rows": [
+    {
+      "schemaVersion": "v0.5-tracking",
+      "rowId": "tracking-production-worker-runtime-artifacts",
+      "generatedAt": "2026-06-07T22:50:00.000Z",
+      "proofRoot": "output/tracking-plan-proof",
+      "requiredProofTier": "P4_PRODUCTION_RUNTIME",
+      "currentProofTier": "P3_LOCAL_DEV_MACHINE",
+      "status": "manual-required",
+      "requiredArtifacts": [
+        "tracking-production/location-upload-worker-runtime.json",
+        "tracking-production/retention-cleanup-worker-runtime.json",
+        "tracking-production/notification-outbox-worker-runtime.json",
+        "tracking-production/escalation-timeout-worker-runtime.json",
+        "tracking-production/provider-receipt-worker-runtime.json",
+        "tracking-production/child-device-delivery-worker-runtime.json",
+        "tracking-production/authority-status-worker-runtime.json",
+        "tracking-production/audit-durable-storage-runtime.json"
+      ],
+      "presentArtifacts": [],
+      "missingArtifacts": [
+        "tracking-production/location-upload-worker-runtime.json",
+        "tracking-production/retention-cleanup-worker-runtime.json",
+        "tracking-production/notification-outbox-worker-runtime.json",
+        "tracking-production/escalation-timeout-worker-runtime.json",
+        "tracking-production/provider-receipt-worker-runtime.json",
+        "tracking-production/child-device-delivery-worker-runtime.json",
+        "tracking-production/authority-status-worker-runtime.json",
+        "tracking-production/audit-durable-storage-runtime.json"
+      ],
+      "auditRefs": [
+        "tracking-production-worker-runtime-artifacts-audit"
+      ],
+      "productionWorkerArtifactSetComplete": false,
+      "locationUploadWorkerRuntimeClaimed": false,
+      "retentionCleanupWorkerRuntimeClaimed": false,
+      "notificationOutboxWorkerRuntimeClaimed": false,
+      "escalationTimeoutWorkerRuntimeClaimed": false,
+      "providerReceiptWorkerRuntimeClaimed": false,
+      "childDeviceDeliveryWorkerRuntimeClaimed": false,
+      "authorityStatusWorkerRuntimeClaimed": false,
+      "productionAuditDurableStorageClaimed": false,
+      "physicalDeviceProofClaimed": false,
+      "authorityProofClaimed": false,
+      "providerDeliveryReceiptRuntimeClaimed": false,
+      "productClaimReady": false
+    }
+  ],
+  "proofClaims": {
+    "productionWorkerArtifactGateChecked": true,
+    "noLocationUploadWorkerRuntimeClaim": true,
+    "noRetentionCleanupWorkerRuntimeClaim": true,
+    "noNotificationOutboxWorkerRuntimeClaim": true,
+    "noEscalationTimeoutWorkerRuntimeClaim": true,
+    "noProviderReceiptWorkerRuntimeClaim": true,
+    "noChildDeviceDeliveryWorkerRuntimeClaim": true,
+    "noAuthorityStatusWorkerRuntimeClaim": true,
+    "noProductionAuditDurableStorageClaim": true,
+    "noPhysicalDeviceProofClaim": true,
+    "noAuthorityClaim": true,
+    "noProviderDeliveryReceiptRuntimeClaim": true,
+    "noProductReadyClaim": true
+  },
+  "productClaims": {
+    "locationUploadWorkerRuntimeClaimed": false,
+    "retentionCleanupWorkerRuntimeClaimed": false,
+    "notificationOutboxWorkerRuntimeClaimed": false,
+    "escalationTimeoutWorkerRuntimeClaimed": false,
+    "providerReceiptWorkerRuntimeClaimed": false,
+    "childDeviceDeliveryWorkerRuntimeClaimed": false,
+    "authorityStatusWorkerRuntimeClaimed": false,
+    "productionAuditDurableStorageClaimed": false,
+    "physicalDeviceProofClaimed": false,
+    "authorityProofClaimed": false,
+    "providerDeliveryReceiptRuntimeClaimed": false,
+    "productClaimReady": false
+  }
+}

@@ -449,6 +449,19 @@ production audit durable storage, production worker execution, and product-ready
 tracking claims false. The tracking product-readiness closure proof now
 consumes this production blocker too, so local/CI closure accounting cannot pass
 without the WP33 production durable workers blocker proof ref.
+WP33 now also has production worker runtime artifact gate proof from
+`node scripts/test/tracking-production-worker-runtime-artifact-gate-proof.mjs`,
+written to
+`output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-gate/58-production-worker-runtime-artifact-gate-proof.json`
+and `test-results/tracking-production-worker-runtime-artifact-gate-proof/proof.json`.
+It reuses the required `tracking-production/*.json` artifact refs from the
+production durable workers readiness blocker source and checks the shared proof
+root before any location-upload, retention-cleanup, notification-outbox,
+escalation-timeout, provider-receipt, child-device-delivery, authority-status,
+or audit durable storage worker runtime can be treated as present. The current
+row remains `manual-required` and keeps production worker execution, durable
+production storage, physical-device behavior, authority, provider
+delivery/receipt runtime, and product-ready tracking unclaimed.
 WP33 `proof-summary.json` records a tracked `minimumSeriousMvpAuditSummary`.
 The runtime proof command also records the full `minimumSeriousMvpAudit` in
 generated `00-run-metadata.json`; both are first-checkpoint P1
@@ -935,6 +948,16 @@ Every implementation workpack must update, or explicitly justify not updating:
       runtime, parent receipt runtime, runtime observation, physical-device
       proof, authority, provider delivery, production workers, and product-ready
       tracking false.
+- [x] Production worker runtime artifact gate proof now verifies the exact
+      required `tracking-production/*.json` artifact refs before any tracking
+      production worker runtime can be treated as present. Proof:
+      `output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-gate/58-production-worker-runtime-artifact-gate-proof.json`;
+      command:
+      `node scripts/test/tracking-production-worker-runtime-artifact-gate-proof.mjs`.
+      Current rows are `manual-required`, missing the real production worker
+      artifact set, and keep production worker execution, durable production
+      storage, physical-device behavior, authority, provider delivery/receipt
+      runtime, and product-ready tracking false.
 - [x] Authority enrollment manual-required proof records Android device-owner,
       Android managed-profile, iOS Family Controls entitlement, iOS App Review,
       and desktop managed-policy evidence requirements under WP31/WP33 without
