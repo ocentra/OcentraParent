@@ -89,6 +89,14 @@
       "import": "./dist/status-backend-redaction-manifest-read-model.js",
       "types": "./dist/status-backend-redaction-manifest-read-model.d.ts"
     },
+    "./delete-executor-proof": {
+      "import": "./dist/delete-executor-proof.js",
+      "types": "./dist/delete-executor-proof.d.ts"
+    },
+    "./delete-executor-read-model": {
+      "import": "./dist/delete-executor-read-model.js",
+      "types": "./dist/delete-executor-read-model.d.ts"
+    },
     "./support-incident-workflow": {
       "import": "./dist/support-incident-workflow.js",
       "types": "./dist/support-incident-workflow.d.ts"
