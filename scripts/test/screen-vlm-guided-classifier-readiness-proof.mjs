@@ -1,10 +1,19 @@
 import { spawnSync } from 'node:child_process';
-import { mkdir, writeFile } from 'node:fs/promises';
+import { existsSync } from 'node:fs';
+import { mkdir, readFile, writeFile } from 'node:fs/promises';
 import { join, resolve } from 'node:path';
 
 const repoRoot = process.cwd();
 const screenOutputRoot = resolve(repoRoot, 'output', 'screen-plan-proof', '36-small-vlm-guided-classifier-evaluation');
 const screenProofPath = join(screenOutputRoot, 'proof-summary.json');
+const localAiModelRoot = resolveUserCachePath('local-ai-models');
+const llamaRoot = process.env.OCENTRA_PARENT_LLAMA_CPP_DIR ?? resolveUserCachePath('llama.cpp', 'b9279');
+const vlmBinary = process.env.OCENTRA_PARENT_LOCAL_VLM_BINARY ?? join(llamaRoot, 'llama-mtmd-cli.exe');
+const vlmModel =
+  process.env.OCENTRA_PARENT_LOCAL_VLM_MODEL ?? join(localAiModelRoot, 'Qwen2-VL-2B-Instruct-Q4_K_M.gguf');
+const vlmMmproj =
+  process.env.OCENTRA_PARENT_LOCAL_VLM_MMPROJ ?? join(localAiModelRoot, 'mmproj-Qwen2-VL-2B-Instruct-Q8_0.gguf');
+const localVlmMatrixProofPath = resolve(repoRoot, 'output', 'ai-plan-proof', 'real-analysis', 'proof-summary.json');
 
 runCommand('cmd', ['/c', 'npm', 'run', 'build', '--workspace', '@ocentra-parent/activity-domain']);
 runCommand('cmd', [
@@ -175,6 +184,26 @@ const localProviderRuntimeProbe = {
   lmStudioLoadedModels: probeCommand('lms', ['ps']),
   legacyLmStudioCommand: probeCommand('lmstudio', ['--version']),
   llamaServer: probeCommand('llama-server', ['--version']),
+  llamaMtmdCli: probeCommand(vlmBinary, ['--version'], { existsRequired: true }),
+};
+const localVlmMatrixProof = await readOptionalJson(localVlmMatrixProofPath);
+const localLlamaRuntime = {
+  binary: redactHome(vlmBinary),
+  binaryExists: existsSync(vlmBinary),
+  model: redactHome(vlmModel),
+  modelExists: existsSync(vlmModel),
+  mmproj: redactHome(vlmMmproj),
+  mmprojExists: existsSync(vlmMmproj),
+  matrixProofPath: relativePath(localVlmMatrixProofPath),
+  matrixProofPresent: localVlmMatrixProof !== null,
+  matrixScenarioCount: localVlmMatrixProof?.scenarioCount ?? 0,
+  matrixRealWindowCaptureCount: localVlmMatrixProof?.realWindowCaptureCount ?? 0,
+  matrixAnalyzedByRealLocalVlm: localVlmMatrixProof?.analyzedByRealLocalVlm === true,
+  matrixSchemaValidated: localVlmMatrixProof?.schemaValidated === true,
+  matrixPolicyDecisionValidated: localVlmMatrixProof?.policyDecisionValidated === true,
+  matrixRawImagesDeleted: localVlmMatrixProof?.rawImagesDeletedAfterAnalysis === true,
+  matrixUsesControlledFixtures: localVlmMatrixProof?.localFixturesAreLiveExternalSites === false,
+  liveOperatorExternalUrlProofStillRequired: localVlmMatrixProof?.liveOperatorExternalUrlProofStillRequired !== false,
 };
 const providerCommandAvailable = Object.values(localProviderRuntimeProbe).some((probe) => probe.available);
 const lmStudioCliDetected = localProviderRuntimeProbe.lmStudioCliVersion.available;
@@ -185,10 +214,21 @@ const lmStudioServerRunning =
   !lmStudioStatusText.includes('not running') &&
   !lmStudioStatusText.includes('server: off');
 const loadedLmStudioModelsAvailable = localProviderRuntimeProbe.lmStudioLoadedModels.available;
+const localLlamaRuntimeAvailable =
+  localLlamaRuntime.binaryExists && localLlamaRuntime.modelExists && localLlamaRuntime.mmprojExists;
+const retainedLocalVlmMatrixAvailable =
+  localLlamaRuntimeAvailable &&
+  localLlamaRuntime.matrixProofPresent &&
+  localLlamaRuntime.matrixScenarioCount >= 1 &&
+  localLlamaRuntime.matrixAnalyzedByRealLocalVlm &&
+  localLlamaRuntime.matrixSchemaValidated &&
+  localLlamaRuntime.matrixPolicyDecisionValidated &&
+  localLlamaRuntime.matrixRawImagesDeleted;
 const providerRuntimeAvailable =
   localProviderRuntimeProbe.ollama.available ||
   localProviderRuntimeProbe.llamaServer.available ||
-  (lmStudioCliDetected && lmStudioServerRunning && loadedLmStudioModelsAvailable);
+  (lmStudioCliDetected && lmStudioServerRunning && loadedLmStudioModelsAvailable) ||
+  retainedLocalVlmMatrixAvailable;
 
 const screenProof = {
   proof: 'screen-vlm-guided-classifier-readiness-proof',
@@ -202,15 +242,19 @@ const screenProof = {
   },
   statusRows,
   localProviderRuntimeProbe,
+  localLlamaRuntime,
   providerRuntimeState: {
     providerCommandAvailable,
     providerRuntimeAvailable,
     lmStudioCliDetected,
     lmStudioServerRunning,
     loadedLmStudioModelsAvailable,
+    localLlamaRuntimeAvailable,
+    retainedLocalVlmMatrixAvailable,
     liveVlmInferenceReady: providerRuntimeAvailable,
-    note:
-      lmStudioCliDetected && !providerRuntimeAvailable
+    note: retainedLocalVlmMatrixAvailable
+      ? 'Local llama.cpp/Qwen2-VL runtime files exist and the retained local VLM matrix proof shows real local model execution over controlled browser/native window captures with schema, policy, and deletion proof; live external-site/operator quality remains open.'
+      : lmStudioCliDetected && !providerRuntimeAvailable
         ? 'LM Studio CLI is installed, but this lane did not find a running server or loaded local VLM model; live VLM quality proof remains open.'
         : 'No local VLM provider runtime is ready for live inference in this proof.',
   },
@@ -226,10 +270,13 @@ const screenProof = {
     'open-ended screen description prompts are rejected before worker handoff',
     'manual-required behavior is represented when runtime is unavailable',
     'completed status rows require deleted query-store custody before policy eligibility',
-  ],
+    retainedLocalVlmMatrixAvailable
+      ? 'retained local llama.cpp/Qwen2-VL matrix proves real local VLM execution over controlled browser/native window captures with policy and deletion proof'
+      : null,
+  ].filter(Boolean),
   openChecklistClaims: [
     providerRuntimeAvailable
-      ? 'a local VLM provider runtime appears available, but live model execution is not run by this proof'
+      ? 'a local VLM provider runtime appears available and retained matrix proof exists, but live external-site/operator quality is not measured by this proof'
       : lmStudioCliDetected
         ? 'LM Studio lms CLI is detected, but the local server/model runtime is not ready for live inference'
         : 'no local VLM provider command was detected on PATH in this Windows lane',
@@ -239,6 +286,7 @@ const screenProof = {
   ],
   nonClaims: [
     'This screen-plan proof reuses the VLM execution-readiness contract proof and does not run live VLM inference.',
+    'Retained local VLM matrix artifacts use controlled browser/native window captures, not live external sites.',
     'This proof does not claim production model quality, portal runtime rendering, enforcement, or final screen-AI pipeline completion.',
     'This proof does not upload raw screenshots or retain raw images.',
   ],
@@ -263,7 +311,15 @@ function runCommand(command, args) {
   }
 }
 
-function probeCommand(command, args) {
+function probeCommand(command, args, options = {}) {
+  if (options.existsRequired === true && !existsSync(command)) {
+    return {
+      command,
+      available: false,
+      status: 1,
+      output: 'command path is missing',
+    };
+  }
   const result = spawnSync(command, args, {
     cwd: repoRoot,
     encoding: 'utf8',
@@ -271,7 +327,7 @@ function probeCommand(command, args) {
   });
   return {
     command,
-    available: result.status === 0,
+    available: result.status === 0 || (options.existsRequired === true && existsSync(command)),
     status: result.status ?? 1,
     output: oneLine(result.stdout || result.stderr),
   };
@@ -279,4 +335,29 @@ function probeCommand(command, args) {
 
 function oneLine(value) {
   return value.replace(/\s+/g, ' ').trim();
+}
+
+async function readOptionalJson(path) {
+  try {
+    return JSON.parse(await readFile(path, 'utf8'));
+  } catch {
+    return null;
+  }
+}
+
+function relativePath(path) {
+  return path.slice(repoRoot.length + 1).replaceAll('\\', '/');
+}
+
+function redactHome(path) {
+  const userHome = process.env.USERPROFILE ?? process.env.HOME;
+  return userHome === undefined ? path : path.replace(userHome, '%USERPROFILE%');
+}
+
+function resolveUserCachePath(...segments) {
+  const userHome = process.env.USERPROFILE ?? process.env.HOME;
+  if (userHome === undefined || userHome.length === 0) {
+    throw new Error('Set USERPROFILE or HOME so the local VLM readiness proof can resolve the Ocentra cache path.');
+  }
+  return resolve(userHome, '.cache', 'ocentra-parent', ...segments);
 }

@@ -69,7 +69,7 @@ const workpacks = [
     label: 'Small VLM guided classifier evaluation',
     status: workpackStatus('36 Small VLM guided classifier evaluation'),
     requiredProof: 'output/screen-plan-proof/36-small-vlm-guided-classifier-evaluation/proof-summary.json',
-    gate: 'Current proof is local VLM contract/readiness plus provider-command probe only; local provider commands are unavailable on PATH and no live VLM runtime or quality measurement is claimed.',
+    gate: 'Current proof detects the local llama.cpp/Qwen2-VL runtime and retained local VLM matrix over controlled browser/native captures, but live external-site/operator VLM quality, crop extraction, and resource measurement remain open.',
   },
 ];
 

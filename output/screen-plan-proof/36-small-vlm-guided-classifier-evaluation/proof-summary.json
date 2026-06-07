@@ -1,6 +1,6 @@
 {
   "proof": "screen-vlm-guided-classifier-readiness-proof",
-  "generatedAt": "2026-06-07T03:56:48.591Z",
+  "generatedAt": "2026-06-07T06:59:23.163Z",
   "proofTier": "P3_CONTRACT_LOCAL_VLM_READINESS",
   "modelConstants": {
     "modelRuntimeRef": "screen-local-vlm-runtime",
@@ -105,16 +105,42 @@
       "available": false,
       "status": 1,
       "output": "'llama-server' is not recognized as an internal or external command, operable program or batch file."
+    },
+    "llamaMtmdCli": {
+      "command": "C:\\Users\\sujan\\.cache\\ocentra-parent\\llama.cpp\\b9279\\llama-mtmd-cli.exe",
+      "available": true,
+      "status": 0,
+      "output": "version: 9279 (47c0eda9d) built with Clang 19.1.5 for Windows x86_64"
     }
+  },
+  "localLlamaRuntime": {
+    "binary": "%USERPROFILE%\\.cache\\ocentra-parent\\llama.cpp\\b9279\\llama-mtmd-cli.exe",
+    "binaryExists": true,
+    "model": "%USERPROFILE%\\.cache\\ocentra-parent\\local-ai-models\\Qwen2-VL-2B-Instruct-Q4_K_M.gguf",
+    "modelExists": true,
+    "mmproj": "%USERPROFILE%\\.cache\\ocentra-parent\\local-ai-models\\mmproj-Qwen2-VL-2B-Instruct-Q8_0.gguf",
+    "mmprojExists": true,
+    "matrixProofPath": "output/ai-plan-proof/real-analysis/proof-summary.json",
+    "matrixProofPresent": true,
+    "matrixScenarioCount": 16,
+    "matrixRealWindowCaptureCount": 17,
+    "matrixAnalyzedByRealLocalVlm": true,
+    "matrixSchemaValidated": true,
+    "matrixPolicyDecisionValidated": true,
+    "matrixRawImagesDeleted": true,
+    "matrixUsesControlledFixtures": true,
+    "liveOperatorExternalUrlProofStillRequired": true
   },
   "providerRuntimeState": {
     "providerCommandAvailable": true,
-    "providerRuntimeAvailable": false,
+    "providerRuntimeAvailable": true,
     "lmStudioCliDetected": true,
     "lmStudioServerRunning": false,
     "loadedLmStudioModelsAvailable": false,
-    "liveVlmInferenceReady": false,
-    "note": "LM Studio CLI is installed, but this lane did not find a running server or loaded local VLM model; live VLM quality proof remains open."
+    "localLlamaRuntimeAvailable": true,
+    "retainedLocalVlmMatrixAvailable": true,
+    "liveVlmInferenceReady": true,
+    "note": "Local llama.cpp/Qwen2-VL runtime files exist and the retained local VLM matrix proof shows real local model execution over controlled browser/native window captures with schema, policy, and deletion proof; live external-site/operator quality remains open."
   },
   "assertions": {
     "sourceReadinessProofPassed": true,
@@ -136,16 +162,18 @@
     "image pixel budget is bounded for local worker handoff",
     "open-ended screen description prompts are rejected before worker handoff",
     "manual-required behavior is represented when runtime is unavailable",
-    "completed status rows require deleted query-store custody before policy eligibility"
+    "completed status rows require deleted query-store custody before policy eligibility",
+    "retained local llama.cpp/Qwen2-VL matrix proves real local VLM execution over controlled browser/native window captures with policy and deletion proof"
   ],
   "openChecklistClaims": [
-    "LM Studio lms CLI is detected, but the local server/model runtime is not ready for live inference",
+    "a local VLM provider runtime appears available and retained matrix proof exists, but live external-site/operator quality is not measured by this proof",
     "detector-specific prompt-pack quality is not measured by this proof",
     "real crop extraction and visual classifier quality are not measured by this proof",
     "CPU/GPU/memory/runtime measurements remain unclaimed"
   ],
   "nonClaims": [
     "This screen-plan proof reuses the VLM execution-readiness contract proof and does not run live VLM inference.",
+    "Retained local VLM matrix artifacts use controlled browser/native window captures, not live external sites.",
     "This proof does not claim production model quality, portal runtime rendering, enforcement, or final screen-AI pipeline completion.",
     "This proof does not upload raw screenshots or retain raw images."
   ]

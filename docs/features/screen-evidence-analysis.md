@@ -547,11 +547,13 @@ only with explicit parent settings.
   query-store custody before completed status, open-ended prompt rejection, and
   manual-required behavior when runtime is unavailable. The proof now records
   local provider command probes for `ollama`, LM Studio `lms`, legacy
-  `lmstudio`, and `llama-server`. LM Studio `lms` is installed, but the local
-  server is off/not running and no loaded local VLM model is available; `ollama`,
-  legacy `lmstudio`, and `llama-server` are not available on PATH. It does not
-  run live VLM inference, measure classifier quality, prove crop extraction, or
-  select a production VLM model.
+  `lmstudio`, `llama-server`, and the local `llama-mtmd-cli` runtime path. It
+  detects the cached llama.cpp/Qwen2-VL binary, model, and mmproj files plus the
+  retained `screen-ai-local-vlm-proof` matrix artifact, which covers 16
+  controlled browser/native scenarios, 17 real window captures, schema
+  validation, policy dry-runs, and raw image deletion. It still does not claim
+  live external-site/operator VLM quality, crop extraction quality, resource
+  suitability, or production VLM model selection.
 - `scripts/test/screen-ai-service-winrt-ocr-proof.mjs` now proves the
   service-owned Windows WinRT OCR analysis path over real live Chrome/Wikipedia
   pixels: the Rust service cadence loop captures an active-window frame into
@@ -739,8 +741,9 @@ parity, and UI remain separate proof gates.
       while leaving Tesseract/PaddleOCR as non-selected fallback candidates.
 - [~] Small guided VLM classifier readiness records local-only handoff,
   template/version, max-pixel, open-ended prompt rejection, deletion,
-  provider-command probes, and manual-required gates, but live model execution,
-  crop extraction, quality, and resource measurement remain open.
+  provider-command probes, local llama.cpp/Qwen2-VL runtime availability, and
+  retained controlled local VLM matrix proof, but live external-site/operator
+  quality, crop extraction, and resource measurement remain open.
 - [x] Service WinRT OCR proof analyzes live public browser pixels through the
       encrypted service queue, records a `localOcr` Activity Screen row, drains
       the queue, and deletes adapter temp image material.

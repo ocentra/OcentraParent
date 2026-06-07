@@ -1,6 +1,6 @@
 {
   "proof": "screen-plan-closure-audit",
-  "generatedAt": "2026-06-07T06:44:52.874Z",
+  "generatedAt": "2026-06-07T06:59:16.944Z",
   "branchScope": "codex/screen-ai-full-scope-b",
   "checklist": {
     "path": "docs/plans/screen-plan/implementation-checklist.md",
@@ -125,7 +125,7 @@
       "status": "~",
       "requiredProof": "output/screen-plan-proof/36-small-vlm-guided-classifier-evaluation/proof-summary.json",
       "proofPresent": true,
-      "gate": "Current proof is local VLM contract/readiness plus provider-command probe only; local provider commands are unavailable on PATH and no live VLM runtime or quality measurement is claimed."
+      "gate": "Current proof detects the local llama.cpp/Qwen2-VL runtime and retained local VLM matrix over controlled browser/native captures, but live external-site/operator VLM quality, crop extraction, and resource measurement remain open."
     }
   ],
   "currentWindowsEvidence": [
