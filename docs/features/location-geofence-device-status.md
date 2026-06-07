@@ -175,6 +175,14 @@ expose location or device-status features. Parents expect this category.
   runtime UI, provider delivery, notification receipt ingestion, live location
   runtime, physical-device proof, authority, production workers, and
   product-ready claims false.
+- WP30 child-runtime product-readiness blocker proof now exists through
+  `node scripts/test/tracking-child-runtime-product-readiness-blocker-proof.mjs`.
+  It consumes the snapshot-requirements proof, records the remaining actual
+  delivery, execution-result, rendered child UI, parent receipt, runtime
+  observation, physical-device, and authority blockers, writes WP30/WP33
+  artifacts, and keeps child-device delivery/execution, provider delivery,
+  notification receipt ingestion, live location runtime, physical-device proof,
+  authority, production workers, and product-ready claims false.
 - WP32 hosted report/policy consumer rendering proof now exists through
   `npm run test:tracking-plan-hosted-ui-proof`. It renders parent report
   summary, policy evidence drill-in, and retention audit export consumer rows
@@ -623,7 +631,9 @@ policy-drill-in, and metadata-fallback context rows,
 plus hosted notification parent-surface history/preference intent rendering
 with screenshot/accessibility proof, hosted missing-device state rendering
 with screenshot/accessibility proof, and local outbox/scheduler artifact
-readiness proof for tracking receipt rows.
+readiness proof for tracking receipt rows, plus child-runtime
+product-readiness blocker proof over the existing delivery/execution/snapshot
+requirement rows.
 It remains a tracked product gap until platform location and
 geofence runtime adapters, broader product read models beyond these rows, full
 dashboard UI beyond the hosted parent route, applied product-ready service
@@ -883,8 +893,9 @@ accessibility beyond the hosted parent route are proved.
       readiness, missing-device, and unsupported/manual platform screenshots,
       evidence drawer proof output, unsupported/manual platform proof output,
       parent overview/devices shell screenshots around the tracking route,
-      accessibility assertions, and 11-card no-overlap layout geometry without
-      claiming full product parent/child UI, child-device runtime,
+      accessibility assertions, child-runtime product-readiness blocker proof,
+      and 11-card no-overlap layout geometry without claiming full product
+      parent/child UI, child-device runtime,
       physical-device proof, authority, provider delivery, production proof, or
       product-ready tracking.
 - [x] WP08 Android emulator foreground permission and app-reported current
