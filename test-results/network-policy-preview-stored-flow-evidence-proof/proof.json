@@ -2,10 +2,11 @@
   "proof": "network-policy-preview-stored-flow-evidence-proof",
   "proofRevision": "network-policy-preview-stored-flow-evidence-proof/v2",
   "checkedAt": "deterministic:network-policy-preview-stored-flow-evidence-proof/v2",
-  "sourceFingerprint": "source-tree:05cbe256fd29cc071f8a9b55852288d028320faee48dac7f0d589244f9b9eaf3",
+  "sourceFingerprint": "source-tree:13e74d5a7c387075b5510f252027fbb688ed64126733b2b52037cc5211f3cd45",
   "sourceRefs": [
     "scripts/test/network-policy-preview-stored-flow-evidence-proof.mjs",
     "crates/agent-core/Cargo.toml",
+    "crates/agent-protocol/src/constants/field.rs",
     "crates/agent-protocol/src/constants/policy.rs",
     "crates/agent-protocol/src/constants/sqlite.rs",
     "crates/agent-core/src/activity_store_policy_preview.rs",
@@ -30,6 +31,7 @@
     "packages/agent-protocol-domain/tests/network-remote-delivery-status.test.ts",
     "packages/agent-protocol-domain/README.md",
     "docs/features/network-domain-control.md",
+    "docs/product-capability-checklist.md",
     "docs/plans/network-plan/implementation-checklist.md",
     "docs/plans/network-plan/workpacks/README.md"
   ],
@@ -118,7 +120,7 @@
     "agent-core policy preview excludes future, expired, and scheduled-without-proof parent rules from preview rows",
     "agent-core policy preview applies the shared row34 evidence-grade mapper so grade-B network block requests become parent-review ask-parent decisions",
     "agent-core policy preview emits a dry-run policy decision with disabled enforcement handoff",
-    "agent-service policy-preview payload exposes the latest dry-run decision without an adapter or enforcement claim",
+    "agent-service policy-preview payload exposes the latest dry-run decision with network evidence grade, requested action, mapped action, mapping mode, and false adapter/enforcement authorization flags",
     "agent-protocol-domain accepts the policy preview read-model command and reported event payload through the shared contracts",
     "the proof keeps row34 evidence-grade policy mapping as the grade-specific dependency instead of duplicating grade logic in the preview path"
   ],

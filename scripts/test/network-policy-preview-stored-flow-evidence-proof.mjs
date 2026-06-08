@@ -11,6 +11,7 @@ mkdirSync(testRoot, { recursive: true });
 const sourceFiles = [
   'scripts/test/network-policy-preview-stored-flow-evidence-proof.mjs',
   'crates/agent-core/Cargo.toml',
+  'crates/agent-protocol/src/constants/field.rs',
   'crates/agent-protocol/src/constants/policy.rs',
   'crates/agent-protocol/src/constants/sqlite.rs',
   'crates/agent-core/src/activity_store_policy_preview.rs',
@@ -35,6 +36,7 @@ const sourceFiles = [
   'packages/agent-protocol-domain/tests/network-remote-delivery-status.test.ts',
   'packages/agent-protocol-domain/README.md',
   'docs/features/network-domain-control.md',
+  'docs/product-capability-checklist.md',
   'docs/plans/network-plan/implementation-checklist.md',
   'docs/plans/network-plan/workpacks/README.md',
 ];
@@ -54,6 +56,12 @@ const expectedStatus = {
     'targetValue=example-network.test',
     'capabilityStatus=ready-for-preview-read-model',
     'decisionAction=ask-parent after row34 grade-B block downgrade',
+    'networkEvidenceGrade=B',
+    'networkRequestedPolicyAction=block',
+    'networkMappedPolicyAction=ask-parent',
+    'networkPolicyMappingMode=parent-review',
+    'networkAdapterActionAuthorized=false',
+    'networkEnforcementCommandAuthorized=false',
     'dryRun=true',
     'enforcementHandoffState=disabled',
     'parentRuleContextReferenceCount=1',
@@ -65,6 +73,7 @@ const expectedStatus = {
     'future, expired, or scheduled-without-proof parent rules are excluded before preview decisions',
     'this slice does not invent query-store, journal, AI, adapter, or enforcement refs',
     'row34 shared evidence-grade mapper downgrades grade-B block requests to parent review',
+    'service payload exposes row34 evidence-grade provenance without granting adapter or enforcement authority',
   ],
   noClaims: [
     'exact URL from network-only evidence',
@@ -217,7 +226,7 @@ const proof = {
     'agent-core policy preview excludes future, expired, and scheduled-without-proof parent rules from preview rows',
     'agent-core policy preview applies the shared row34 evidence-grade mapper so grade-B network block requests become parent-review ask-parent decisions',
     'agent-core policy preview emits a dry-run policy decision with disabled enforcement handoff',
-    'agent-service policy-preview payload exposes the latest dry-run decision without an adapter or enforcement claim',
+    'agent-service policy-preview payload exposes the latest dry-run decision with network evidence grade, requested action, mapped action, mapping mode, and false adapter/enforcement authorization flags',
     'agent-protocol-domain accepts the policy preview read-model command and reported event payload through the shared contracts',
     'the proof keeps row34 evidence-grade policy mapping as the grade-specific dependency instead of duplicating grade logic in the preview path',
   ],
@@ -231,6 +240,7 @@ console.log(`proof=${join(proofRoot, 'proof-summary.json')}`);
 
 function assertSourceContracts() {
   const coreCargo = readText('crates/agent-core/Cargo.toml');
+  const fieldConstants = readText('crates/agent-protocol/src/constants/field.rs');
   const policyConstants = readText('crates/agent-protocol/src/constants/policy.rs');
   const corePreview = readText('crates/agent-core/src/activity_store_policy_preview.rs');
   const coreRows = readText('crates/agent-core/src/activity_store_policy_preview_rows.rs');
@@ -247,16 +257,21 @@ function assertSourceContracts() {
   const tsContracts = readText('packages/agent-protocol-domain/tests/policy-preview-contracts.test.ts');
   const remoteDeliveryTsTest = readText('packages/agent-protocol-domain/tests/network-remote-delivery-status.test.ts');
   const featureDoc = readText('docs/features/network-domain-control.md');
+  const productCapabilityChecklist = readText('docs/product-capability-checklist.md');
   const checklist = readText('docs/plans/network-plan/implementation-checklist.md');
   const workpacks = readText('docs/plans/network-plan/workpacks/README.md');
   const networkPolicy = readText('crates/ocentra-network-evidence/src/policy.rs');
   const networkPolicyTests = readText('crates/ocentra-network-evidence/src/tests/policy.rs');
   const requiredSnippets = [
     [coreCargo, 'ocentra-network-evidence'],
+    [fieldConstants, 'NETWORK_EVIDENCE_GRADE'],
+    [fieldConstants, 'NETWORK_ENFORCEMENT_COMMAND_AUTHORIZED'],
     [policyConstants, 'REASON_NETWORK_EVIDENCE_GRADE_PARENT_REVIEW'],
+    [policyConstants, 'NETWORK_POLICY_MAPPING_MODE_PARENT_REVIEW'],
     [corePreview, 'evaluate_policy_dry_run'],
     [corePreview, 'map_network_evidence_grade_to_policy'],
     [corePreview, 'grade_mapped_network_decision'],
+    [corePreview, 'preview_network_evidence_mapping'],
     [corePreview, 'network_evidence_grade'],
     [coreRows, 'device_id'],
     [coreRows, 'NETWORK_RETENTION_DELETED'],
@@ -276,21 +291,28 @@ function assertSourceContracts() {
     [coreTests, 'policy_preview_read_model_excludes_network_flow_deleted_by_retention_tombstone'],
     [coreTests, 'policy_preview_read_model_applies_retention_tombstones_before_limit'],
     [coreTests, 'REASON_NETWORK_EVIDENCE_GRADE_PARENT_REVIEW'],
+    [coreTests, 'network_evidence_mapping'],
     [coreParentRuleTests, 'policy_preview_read_model_rejects_wrong_device_or_child_rule_contexts'],
     [coreParentRuleTests, 'policy_preview_read_model_rejects_future_or_expired_rule_windows'],
     [coreParentRuleTests, 'policy_preview_read_model_rejects_scheduled_rule_without_schedule_proof'],
     [servicePayload, 'POLICY_HANDOFF_STATE'],
+    [servicePayload, 'NETWORK_EVIDENCE_GRADE'],
+    [servicePayload, 'NETWORK_ADAPTER_ACTION_AUTHORIZED'],
     [coreReadme, 'Network policy-preview proof'],
     [serviceReadme, 'row10k typed status bridge'],
     [protocolReadme, 'row10k transport-dispatch status bridge'],
     [tsContracts, 'PolicyPreviewReadModelReported'],
+    [tsContracts, 'NetworkEvidenceGrade'],
+    [tsContracts, 'NetworkEnforcementCommandAuthorized'],
     [remoteDeliveryTsTest, 'parses row10k blocked dispatch status from a typed agent event'],
     [tsReadme, 'row10k transport-dispatch'],
     [featureDoc, 'Policy preview over stored flow evidence'],
     [featureDoc, 'network-policy-preview-stored-flow-evidence-proof'],
     [featureDoc, 'retention-deleted flow rows'],
+    [productCapabilityChecklist, 'policy-preview evidence-grade provenance'],
     [checklist, 'policy-preview-stored-flow-evidence'],
     [checklist, 'retention-deleted flow rows'],
+    [checklist, 'networkEvidenceGrade'],
     [workpacks, 'policy-preview'],
     [networkPolicy, 'mapped_mode_and_action'],
     [networkPolicyTests, 'policy_mapping_routes_grade_b_block_requests_to_parent_review'],

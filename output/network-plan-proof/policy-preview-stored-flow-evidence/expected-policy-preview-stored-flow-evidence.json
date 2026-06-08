@@ -11,6 +11,12 @@
     "targetValue=example-network.test",
     "capabilityStatus=ready-for-preview-read-model",
     "decisionAction=ask-parent after row34 grade-B block downgrade",
+    "networkEvidenceGrade=B",
+    "networkRequestedPolicyAction=block",
+    "networkMappedPolicyAction=ask-parent",
+    "networkPolicyMappingMode=parent-review",
+    "networkAdapterActionAuthorized=false",
+    "networkEnforcementCommandAuthorized=false",
     "dryRun=true",
     "enforcementHandoffState=disabled",
     "parentRuleContextReferenceCount=1"
@@ -21,7 +27,8 @@
     "wrong-device or wrong-child parent rule contexts are excluded before preview decisions",
     "future, expired, or scheduled-without-proof parent rules are excluded before preview decisions",
     "this slice does not invent query-store, journal, AI, adapter, or enforcement refs",
-    "row34 shared evidence-grade mapper downgrades grade-B block requests to parent review"
+    "row34 shared evidence-grade mapper downgrades grade-B block requests to parent review",
+    "service payload exposes row34 evidence-grade provenance without granting adapter or enforcement authority"
   ],
   "noClaims": [
     "exact URL from network-only evidence",

@@ -1,6 +1,6 @@
 use ocentra_parent_agent_protocol::{
     constants, policy_constants as policy, ParentEvidenceReferenceKind, PolicyAction,
-    PolicyDecisionHandoffState, PolicyTarget, PolicyTargetType,
+    PolicyDecisionHandoffState, PolicyPreviewReadModelRow, PolicyTarget, PolicyTargetType,
 };
 
 use super::{
@@ -44,6 +44,7 @@ fn policy_preview_read_model_evaluates_stored_browser_evidence_without_enforceme
         ParentEvidenceReferenceKind::ActivityEvent
     );
     assert_eq!(row.parent_rule_context_references.len(), 0);
+    assert_eq!(row.network_evidence_mapping, None);
     assert_eq!(row.decision.action, PolicyAction::Unknown);
     assert_eq!(
         row.decision.reason_codes,
@@ -114,6 +115,7 @@ fn policy_preview_read_model_evaluates_stored_network_flow_evidence_without_enfo
         row.parent_rule_context_references[0].target_evidence_refs,
         vec![row.source_event_id.clone()]
     );
+    assert_grade_b_network_mapping(row);
     assert_eq!(row.decision.action, PolicyAction::AskParent);
     assert_eq!(
         row.decision.reason_codes,
@@ -131,6 +133,25 @@ fn policy_preview_read_model_evaluates_stored_network_flow_evidence_without_enfo
         row.decision.enforcement_handoff_state,
         PolicyDecisionHandoffState::Disabled
     );
+}
+
+fn assert_grade_b_network_mapping(row: &PolicyPreviewReadModelRow) {
+    let network_mapping = row
+        .network_evidence_mapping
+        .as_ref()
+        .expect(constants::error::ACTIVITY_STORE_QUERIES);
+    assert_eq!(
+        network_mapping.evidence_grade,
+        policy::NETWORK_EVIDENCE_GRADE_B
+    );
+    assert_eq!(network_mapping.requested_action, policy::ACTION_BLOCK);
+    assert_eq!(network_mapping.mapped_action, policy::ACTION_ASK_PARENT);
+    assert_eq!(
+        network_mapping.mode,
+        policy::NETWORK_POLICY_MAPPING_MODE_PARENT_REVIEW
+    );
+    assert!(!network_mapping.adapter_action_authorized);
+    assert!(!network_mapping.enforcement_command_authorized);
 }
 
 #[test]

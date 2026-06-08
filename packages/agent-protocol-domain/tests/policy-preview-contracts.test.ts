@@ -57,6 +57,12 @@ it('AgentEventEnvelopeSchema: accepts a policy preview read-model report payload
       [AgentProtocolDefaults.Field.PolicyParentRuleContextReferenceCount]: 1,
       [AgentProtocolDefaults.Field.PolicyParentRuleContextRefIds]: 'parent-rule-context-1',
       [AgentProtocolDefaults.Field.PolicyHandoffState]: 'disabled',
+      [AgentProtocolDefaults.Field.NetworkEvidenceGrade]: 'B',
+      [AgentProtocolDefaults.Field.NetworkRequestedPolicyAction]: 'block',
+      [AgentProtocolDefaults.Field.NetworkMappedPolicyAction]: 'ask-parent',
+      [AgentProtocolDefaults.Field.NetworkPolicyMappingMode]: 'parent-review',
+      [AgentProtocolDefaults.Field.NetworkAdapterActionAuthorized]: false,
+      [AgentProtocolDefaults.Field.NetworkEnforcementCommandAuthorized]: false,
       [AgentProtocolDefaults.Field.PolicyReasonCodes]: 'no-matching-parent-rule',
       [AgentProtocolDefaults.Field.PolicyRuleIds]: 'rule-allow',
       [AgentProtocolDefaults.Field.PolicyTargetType]: 'domain',
@@ -74,11 +80,21 @@ it('AgentEventEnvelopeSchema: accepts a policy preview read-model report payload
     expect(parsed.data.payload[AgentProtocolDefaults.Field.PolicyParentRuleContextRefIds]).toBe(
       'parent-rule-context-1'
     );
+    expect(parsed.data.payload[AgentProtocolDefaults.Field.NetworkEvidenceGrade]).toBe('B');
+    expect(parsed.data.payload[AgentProtocolDefaults.Field.NetworkMappedPolicyAction]).toBe('ask-parent');
+    expect(parsed.data.payload[AgentProtocolDefaults.Field.NetworkAdapterActionAuthorized]).toBe(false);
+    expect(parsed.data.payload[AgentProtocolDefaults.Field.NetworkEnforcementCommandAuthorized]).toBe(false);
   }
 });
 
 it('AgentProtocolDefaults.Field: exposes policy preview payload fields', () => {
   expect(AgentProtocolDefaults.Field.LocalAiResultId).toBe('localAiResultId');
+  expect(AgentProtocolDefaults.Field.NetworkAdapterActionAuthorized).toBe('networkAdapterActionAuthorized');
+  expect(AgentProtocolDefaults.Field.NetworkEnforcementCommandAuthorized).toBe('networkEnforcementCommandAuthorized');
+  expect(AgentProtocolDefaults.Field.NetworkEvidenceGrade).toBe('networkEvidenceGrade');
+  expect(AgentProtocolDefaults.Field.NetworkMappedPolicyAction).toBe('networkMappedPolicyAction');
+  expect(AgentProtocolDefaults.Field.NetworkPolicyMappingMode).toBe('networkPolicyMappingMode');
+  expect(AgentProtocolDefaults.Field.NetworkRequestedPolicyAction).toBe('networkRequestedPolicyAction');
   expect(AgentProtocolDefaults.Field.PolicyAction).toBe('policyAction');
   expect(AgentProtocolDefaults.Field.PolicyDecisionId).toBe('policyDecisionId');
   expect(AgentProtocolDefaults.Field.PolicyDryRun).toBe('dryRun');

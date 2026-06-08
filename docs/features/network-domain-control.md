@@ -221,7 +221,10 @@ compete on control while staying clear about attribution confidence and privacy.
   contexts, apply the shared row34
   evidence-grade mapper so grade-B network block requests become parent-review
   ask-parent decisions, and serialize the latest dry-run decision through the
-  service payload. The proof writes
+  service payload with `networkEvidenceGrade`,
+  `networkRequestedPolicyAction`, `networkMappedPolicyAction`,
+  `networkPolicyMappingMode`, and false network adapter/enforcement
+  authorization flags. The proof writes
   `output/network-plan-proof/policy-preview-stored-flow-evidence/proof-summary.json`
   and `test-results/network-policy-preview-stored-flow-evidence-proof/proof.json`.
   It consumes the row34 evidence-grade mapper as the grade-specific dependency and
@@ -696,7 +699,9 @@ UI rendering remain open.
       context rejection, pre-limit retention-deleted flow row suppression, row34
       evidence-grade mapping that downgrades grade-B block requests to
       parent-review ask-parent, dry-run decision state, and disabled enforcement
-      handoff. Proof:
+      handoff plus service payload provenance fields for network evidence grade,
+      requested action, mapped action, mapping mode, and false adapter/
+      enforcement authorization. Proof:
       `output/network-plan-proof/policy-preview-stored-flow-evidence/proof-summary.json`
       and
       `test-results/network-policy-preview-stored-flow-evidence-proof/proof.json`.

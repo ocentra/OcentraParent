@@ -5,8 +5,8 @@ use ocentra_network_evidence::{
 use ocentra_parent_agent_protocol::{
     constants, policy_constants as policy, ActivityEvidenceKind, ActivityEvidenceRef,
     LocalAiParentRuleContextRef, LogFieldValue, LogFields, ParentEvidenceReference,
-    ParentEvidenceReferenceKind, PolicyAction, PolicyDecision, PolicyPreviewReadModel,
-    PolicyPreviewReadModelRow, POLICY_DRY_RUN_SCHEMA_VERSION,
+    ParentEvidenceReferenceKind, PolicyAction, PolicyDecision, PolicyPreviewNetworkEvidenceMapping,
+    PolicyPreviewReadModel, PolicyPreviewReadModelRow, POLICY_DRY_RUN_SCHEMA_VERSION,
 };
 use rusqlite::Connection;
 
@@ -69,7 +69,7 @@ fn preview_row(
         .iter()
         .map(|reference| reference.rule.clone())
         .collect::<Vec<_>>();
-    let decision = grade_mapped_network_decision(
+    let (decision, network_evidence_mapping) = grade_mapped_network_decision(
         &row,
         evaluate_policy_dry_run(PolicyDryRunEvaluationInput {
             decision_id: prefixed_id(policy::PREVIEW_DECISION_ID_PREFIX, &row.event_id),
@@ -91,21 +91,22 @@ fn preview_row(
         evidence_references,
         parent_rule_context_references,
         decision,
+        network_evidence_mapping,
     })
 }
 
 fn grade_mapped_network_decision(
     row: &PolicyPreviewStoreRow,
     mut decision: PolicyDecision,
-) -> PolicyDecision {
+) -> (PolicyDecision, Option<PolicyPreviewNetworkEvidenceMapping>) {
     let Some(evidence_grade) = network_evidence_grade(row) else {
-        return decision;
+        return (decision, None);
     };
     let Some(requested_action) = network_policy_action(decision.action) else {
-        return decision;
+        return (decision, None);
     };
     let Some(mapping) = network_policy_mapping(evidence_grade, requested_action, &decision) else {
-        return decision;
+        return (decision, None);
     };
     let mapped_action = policy_action(mapping.mapped_action);
     if mapped_action != decision.action {
@@ -115,7 +116,8 @@ fn grade_mapped_network_decision(
             grade_mapping_reason(mapping.mode),
         );
     }
-    decision
+    let preview_mapping = preview_network_evidence_mapping(&mapping);
+    (decision, Some(preview_mapping))
 }
 
 fn network_evidence_grade(row: &PolicyPreviewStoreRow) -> Option<NetworkEvidenceGrade> {
@@ -162,6 +164,49 @@ fn network_policy_mapping(
         adapter_capability_proof_ref: None,
     })
     .ok()
+}
+
+fn preview_network_evidence_mapping(
+    mapping: &NetworkEvidencePolicyMapping,
+) -> PolicyPreviewNetworkEvidenceMapping {
+    PolicyPreviewNetworkEvidenceMapping {
+        evidence_grade: network_evidence_grade_protocol(mapping.evidence_grade).to_string(),
+        requested_action: network_policy_action_protocol(mapping.requested_action).to_string(),
+        mapped_action: network_policy_action_protocol(mapping.mapped_action).to_string(),
+        mode: network_policy_mode_protocol(mapping.mode).to_string(),
+        adapter_action_authorized: mapping.adapter_action_authorized,
+        enforcement_command_authorized: mapping.enforcement_command_authorized,
+    }
+}
+
+fn network_evidence_grade_protocol(grade: NetworkEvidenceGrade) -> &'static str {
+    match grade {
+        NetworkEvidenceGrade::A => policy::NETWORK_EVIDENCE_GRADE_A,
+        NetworkEvidenceGrade::B => policy::NETWORK_EVIDENCE_GRADE_B,
+        NetworkEvidenceGrade::C => policy::NETWORK_EVIDENCE_GRADE_C,
+        NetworkEvidenceGrade::D => policy::NETWORK_EVIDENCE_GRADE_D,
+    }
+}
+
+fn network_policy_action_protocol(action: NetworkEvidencePolicyAction) -> &'static str {
+    match action {
+        NetworkEvidencePolicyAction::None => policy::NETWORK_POLICY_ACTION_NONE,
+        NetworkEvidencePolicyAction::AskParent => policy::ACTION_ASK_PARENT,
+        NetworkEvidencePolicyAction::WarnChild => policy::ACTION_WARN,
+        NetworkEvidencePolicyAction::Monitor => policy::NETWORK_POLICY_ACTION_MONITOR,
+        NetworkEvidencePolicyAction::Limit => policy::ACTION_TIME_LIMIT,
+        NetworkEvidencePolicyAction::Block => policy::ACTION_BLOCK,
+    }
+}
+
+fn network_policy_mode_protocol(mode: NetworkEvidencePolicyMode) -> &'static str {
+    match mode {
+        NetworkEvidencePolicyMode::ObserveOnly => policy::NETWORK_POLICY_MAPPING_MODE_OBSERVE_ONLY,
+        NetworkEvidencePolicyMode::DryRun => policy::NETWORK_POLICY_MAPPING_MODE_DRY_RUN,
+        NetworkEvidencePolicyMode::ParentReview => {
+            policy::NETWORK_POLICY_MAPPING_MODE_PARENT_REVIEW
+        }
+    }
 }
 
 fn network_policy_action(action: PolicyAction) -> Option<NetworkEvidencePolicyAction> {
