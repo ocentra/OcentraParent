@@ -168,6 +168,8 @@ Proof root: `output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-g
   `60-retention-runtime-artifact-gate-proof.json`
 - Tracking retention product-settings writable execution proof:
   `64-retention-product-settings-writable-execution-proof.json`
+- Tracking full product UI local runtime artifact capture proof:
+  `66-full-product-ui-local-runtime-artifact-capture-proof.json`
 
 ## Merge Blockers
 
@@ -1166,13 +1168,20 @@ test:tracking-plan-hosted-ui-proof` passed.
 - [x] Workpack id and branch:
       `codex/tracking-plan-full-continuation-a`.
 - [x] Touched files: full product UI readiness blocker proof source, full
-      product UI runtime artifact gate proof/test, focused proof script, owning
-      tracking feature doc, implementation checklist, this proof-gate doc, and
-      generated full product UI runtime artifact gate proof artifacts.
+      product UI runtime artifact gate proof/test, local artifact capture proof
+      source/test/script, owning tracking feature doc, implementation checklist,
+      this proof-gate doc, and generated full product UI runtime artifact gate
+      proof artifacts.
 - [x] Validation commands and results:
+      `node scripts/test/tracking-full-product-ui-local-runtime-artifact-capture-proof.mjs`
+      passed;
       `node scripts/test/tracking-full-product-ui-runtime-artifact-gate-proof.mjs`
       passed.
 - [x] Proof artifacts:
+      `output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/33-full-product-ui-local-runtime-artifact-capture-proof.json`,
+      `output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-gate/66-full-product-ui-local-runtime-artifact-capture-proof.json`,
+      `output/tracking-plan-proof/tracking-full-product-ui-local-runtime-artifact-capture-proof/proof.json`,
+      `test-results/tracking-full-product-ui-local-runtime-artifact-capture-proof/proof.json`,
       `output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/32-full-product-ui-runtime-artifact-gate-proof.json`,
       `output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-gate/59-full-product-ui-runtime-artifact-gate-proof.json`,
       `output/tracking-plan-proof/tracking-full-product-ui-runtime-artifact-gate-proof/proof.json`,
@@ -1181,15 +1190,16 @@ test:tracking-plan-hosted-ui-proof` passed.
 - [x] Product doc/checklist updates: owning feature doc, implementation
       checklist, and this proof-gate doc updated. Central product capability
       checklist is not edited by this branch.
-- [x] Known gaps/manual-required states: this artifact gate reuses the required
-      product parent/child UI artifact refs from the full product UI readiness
-      blocker, but the real parent overview, parent device detail, notification
-      history/preferences, production retention-settings write result, rendered
-      child-device check-in, rendered child-device location consent, safe/help
-      response, cross-surface accessibility, and end-to-end product UI trace
-      artifacts are still missing; full product UI runtime, child-device
-      delivery runtime, physical-device behavior, authority, provider delivery,
-      production product UI, and product-ready tracking remain proof-gated.
+- [x] Known gaps/manual-required states: the local capture proof now supplies
+      the parent overview, parent device detail, and cross-surface accessibility
+      artifacts from the hosted proof stack, and the refreshed artifact gate
+      reports three present local artifacts. Notification history/preferences,
+      production retention-settings write result, rendered child-device
+      check-in, rendered child-device location consent, safe/help response, and
+      end-to-end product UI trace artifacts remain missing; full product UI
+      runtime, child-device delivery runtime, physical-device behavior,
+      authority, provider delivery, production product UI, and product-ready
+      tracking remain proof-gated.
 
 - [x] Workpack id and branch:
       `codex/tracking-plan-full-continuation-a`.
