@@ -1,0 +1,142 @@
+{
+  "schemaVersion": 1,
+  "proofMode": "tracking-full-product-ui-local-runtime-artifact-capture-proof",
+  "generatedAt": "2026-06-08T04:35:00.000Z",
+  "branch": "codex/tracking-plan-full-continuation-a",
+  "commit": "88c75bd905709f42f82a83f3aa5b19093073e816",
+  "gitStatusShort": "M docs/features/location-geofence-device-status.md\n M docs/plans/tracking-plan/implementation-checklist.md\n M docs/plans/tracking-plan/workpacks/33-proof-gates-fixtures-rollout-and-pr-gate.md\n M output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/32-full-product-ui-runtime-artifact-gate-proof.json\n M output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-gate/46-product-readiness-closure-proof.json\n M output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-gate/59-full-product-ui-runtime-artifact-gate-proof.json\n M output/tracking-plan-proof/tracking-full-product-ui-runtime-artifact-gate-proof/00-source-snapshot.md\n M output/tracking-plan-proof/tracking-full-product-ui-runtime-artifact-gate-proof/proof.json\n M output/tracking-plan-proof/tracking-full-product-ui-runtime-artifact-gate-proof/read-model.json\n M output/tracking-plan-proof/tracking-product-readiness-closure-proof/00-source-snapshot.md\n M output/tracking-plan-proof/tracking-product-readiness-closure-proof/proof.json\n M packages/parent-domain/src/tracking-product-readiness-closure-proof.ts\n M scripts/test/tracking-full-product-ui-runtime-artifact-gate-proof.mjs\n M scripts/test/tracking-product-readiness-closure-proof.mjs\n M test-results/tracking-full-product-ui-runtime-artifact-gate-proof/proof.json\n M test-results/tracking-full-product-ui-runtime-artifact-gate-proof/read-model.json\n M test-results/tracking-product-readiness-closure-proof/product-readiness-closure-read-model.json\n M test-results/tracking-product-readiness-closure-proof/proof.json\n?? packages/parent-domain/src/tracking-full-product-ui-local-runtime-artifact-capture-proof.ts\n?? packages/parent-domain/tests/tracking-full-product-ui-local-runtime-artifact-capture-proof.test.ts\n?? scripts/test/tracking-full-product-ui-local-runtime-artifact-capture-proof.mjs",
+  "workpackIds": [
+    "30-parent-and-child-ui-ux-surfaces",
+    "33-proof-gates-fixtures-rollout-and-pr-gate"
+  ],
+  "requiredProofTier": "P4_PHYSICAL_DEVICE",
+  "currentProofTier": "P2_HOSTED_CI",
+  "status": "partial_local_artifacts_captured",
+  "sourceProofRefs": [
+    "test-results/tracking-hosted-ui-artifact-inventory-proof/proof.json",
+    "test-results/tracking-plan-hosted-ui-proof/accessibility-summary.json"
+  ],
+  "readModel": {
+    "schemaVersion": "v0.6",
+    "proofMode": "tracking-full-product-ui-local-runtime-artifact-capture-proof",
+    "generatedAt": "2026-06-08T04:35:00.000Z",
+    "sourceProofRefs": [
+      "test-results/tracking-hosted-ui-artifact-inventory-proof/proof.json",
+      "test-results/tracking-plan-hosted-ui-proof/accessibility-summary.json"
+    ],
+    "rows": [
+      {
+        "schemaVersion": "v0.6",
+        "artifactId": "parent-overview-runtime-ui",
+        "status": "local-artifact-captured",
+        "generatedAt": "2026-06-08T04:35:00.000Z",
+        "sourceArtifactRef": "output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/11-ui-snapshots/hosted-parent-overview-shell.png",
+        "outputArtifactRef": "output/tracking-plan-proof/product-parent-child-ui-runtime/01-parent-overview-runtime.png",
+        "sourceBytes": 455204,
+        "outputBytes": 455204,
+        "width": 1280,
+        "height": 960,
+        "currentProofTier": "P2_HOSTED_CI",
+        "requiredProofTier": "P4_PHYSICAL_DEVICE",
+        "localParentUiArtifactCaptured": true,
+        "fullProductUiRuntimeClaimed": false,
+        "childDeviceRuntimeClaimed": false,
+        "physicalDeviceProofClaimed": false,
+        "authorityProofClaimed": false,
+        "providerDeliveryRuntimeClaimed": false,
+        "productionProductUiClaimed": false,
+        "productClaimReady": false
+      },
+      {
+        "schemaVersion": "v0.6",
+        "artifactId": "parent-device-detail-runtime-ui",
+        "status": "local-artifact-captured",
+        "generatedAt": "2026-06-08T04:35:00.000Z",
+        "sourceArtifactRef": "output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/11-ui-snapshots/hosted-parent-devices-shell.png",
+        "outputArtifactRef": "output/tracking-plan-proof/product-parent-child-ui-runtime/02-parent-device-detail-runtime.png",
+        "sourceBytes": 445603,
+        "outputBytes": 445603,
+        "width": 1280,
+        "height": 960,
+        "currentProofTier": "P2_HOSTED_CI",
+        "requiredProofTier": "P4_PHYSICAL_DEVICE",
+        "localParentUiArtifactCaptured": true,
+        "fullProductUiRuntimeClaimed": false,
+        "childDeviceRuntimeClaimed": false,
+        "physicalDeviceProofClaimed": false,
+        "authorityProofClaimed": false,
+        "providerDeliveryRuntimeClaimed": false,
+        "productionProductUiClaimed": false,
+        "productClaimReady": false
+      },
+      {
+        "schemaVersion": "v0.6",
+        "artifactId": "cross-surface-accessibility-report",
+        "status": "local-artifact-captured",
+        "generatedAt": "2026-06-08T04:35:00.000Z",
+        "sourceArtifactRef": "test-results/tracking-plan-hosted-ui-proof/accessibility-summary.json",
+        "outputArtifactRef": "output/tracking-plan-proof/product-parent-child-ui-runtime/08-cross-surface-accessibility-report.json",
+        "sourceBytes": 42740,
+        "outputBytes": 4339,
+        "currentProofTier": "P2_HOSTED_CI",
+        "requiredProofTier": "P4_PHYSICAL_DEVICE",
+        "localParentUiArtifactCaptured": true,
+        "fullProductUiRuntimeClaimed": false,
+        "childDeviceRuntimeClaimed": false,
+        "physicalDeviceProofClaimed": false,
+        "authorityProofClaimed": false,
+        "providerDeliveryRuntimeClaimed": false,
+        "productionProductUiClaimed": false,
+        "productClaimReady": false
+      }
+    ],
+    "localArtifactCount": 3,
+    "productClaims": {
+      "parentOverviewLocalArtifactCaptured": true,
+      "parentDeviceDetailLocalArtifactCaptured": true,
+      "crossSurfaceAccessibilityLocalArtifactCaptured": true,
+      "fullProductUiRuntimeClaimed": false,
+      "childDeviceRuntimeClaimed": false,
+      "physicalDeviceProofClaimed": false,
+      "authorityProofClaimed": false,
+      "providerDeliveryRuntimeClaimed": false,
+      "productionProductUiClaimed": false,
+      "productClaimReady": false
+    }
+  },
+  "summary": {
+    "localArtifactCount": 3,
+    "screenshotArtifactCount": 2,
+    "accessibilityArtifactCount": 1,
+    "fullProductUiRuntimeClaimedRows": 0,
+    "childDeviceRuntimeClaimedRows": 0,
+    "productReadyRows": 0
+  },
+  "proofLabels": [
+    "tracking-full-product-ui-local-runtime.parent-overview-artifact",
+    "tracking-full-product-ui-local-runtime.parent-device-detail-artifact",
+    "tracking-full-product-ui-local-runtime.cross-surface-accessibility-artifact",
+    "tracking-full-product-ui-local-runtime.product-ready-false"
+  ],
+  "productClaims": {
+    "parentOverviewLocalArtifactCaptured": true,
+    "parentDeviceDetailLocalArtifactCaptured": true,
+    "crossSurfaceAccessibilityLocalArtifactCaptured": true,
+    "fullProductUiRuntimeClaimed": false,
+    "childDeviceRuntimeClaimed": false,
+    "physicalDeviceProofClaimed": false,
+    "authorityProofClaimed": false,
+    "providerDeliveryRuntimeClaimed": false,
+    "productionProductUiClaimed": false,
+    "productClaimReady": false
+  },
+  "missingProofReason": "This proof only captures locally hosted parent overview/device shell screenshots and cross-surface accessibility metadata into the product UI artifact root. Child-device rendered runtime UI, physical-device UI, authority-gated UI, provider-delivery UI, production product UI, and end-to-end product runtime still require real artifacts before product UI can be claimed.",
+  "commands": [
+    {
+      "command": "cmd /c npm run build --workspace @ocentra-parent/parent-domain"
+    },
+    {
+      "command": "cmd /c npm run test --workspace @ocentra-parent/parent-domain -- tracking-full-product-ui-local-runtime-artifact-capture-proof"
+    }
+  ]
+}

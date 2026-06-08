@@ -214,6 +214,18 @@ expose location or device-status features. Parents expect this category.
   UI runtime, child-device delivery runtime, physical-device behavior,
   authority, provider delivery, production product UI, and product-ready
   tracking unclaimed until those runtime artifacts exist.
+- WP30/WP33 full product UI local runtime artifact capture proof now exists
+  through
+  `node scripts/test/tracking-full-product-ui-local-runtime-artifact-capture-proof.mjs`.
+  It derives the local parent overview shell screenshot, parent devices shell
+  screenshot, and cross-surface accessibility report from the hosted UI proof
+  stack into
+  `output/tracking-plan-proof/product-parent-child-ui-runtime/`, writes WP30 and
+  WP33 proof artifacts, and keeps full product UI runtime, child-device runtime,
+  physical-device, authority, provider-delivery, production UI, and
+  product-ready claims false. The refreshed full product UI runtime artifact
+  gate now reports three local parent-side artifacts present and six hard
+  runtime artifacts still missing.
 - WP33 production durable workers readiness blocker proof now exists through
   `node scripts/test/tracking-production-durable-workers-readiness-blocker-proof.mjs`.
   It consumes the production-support durable queue runtime boundary plus the
@@ -278,9 +290,10 @@ expose location or device-status features. Parents expect this category.
   geofence blocker, notification receipt boundary, notification preference
   preflight, notification local outbox readiness, authority-enrollment
   manual-required, child-runtime blocker, child-runtime artifact gate, full
-  product UI readiness blocker, full product UI runtime artifact gate,
-  production durable workers readiness blocker, production worker runtime
-  artifact gate, physical-device artifact gate, provider-delivery artifact gate,
+  product UI readiness blocker, full product UI local runtime artifact capture,
+  full product UI runtime artifact gate, production durable workers readiness
+  blocker, production worker runtime artifact gate, physical-device artifact gate,
+  provider-delivery artifact gate,
   provider-runtime readiness blocker, escalation-runtime readiness blocker, and
   retention product-readiness blocker proof refs, retention runtime artifact
   gate proof refs, and tracking claim-audit proof refs, writes
@@ -931,11 +944,14 @@ accessibility beyond the hosted parent route are proved.
       retention production write result, rendered child-device check-in,
       rendered child-device location consent, safe/help response,
       cross-surface accessibility, and end-to-end product UI trace artifact
-      refs before full product UI runtime can be treated as present. Current
-      rows are manual-required and keep full product UI runtime,
-      child-device delivery runtime, physical-device behavior, authority,
-      provider delivery, production product UI, and product-ready tracking
-      unclaimed.
+      refs before full product UI runtime can be treated as present. The local
+      runtime artifact capture proof now supplies parent overview, parent device
+      detail, and cross-surface accessibility artifacts from the hosted proof
+      stack, so the gate reports three present local artifacts and six missing
+      hard runtime artifacts. Rows remain manual-required and keep full product
+      UI runtime, child-device delivery runtime, physical-device behavior,
+      authority, provider delivery, production product UI, and product-ready
+      tracking unclaimed.
 - [x] WP25 P1 parent-policy compiler/evaluator runtime proof for tracking
       rules, deterministic parent-policy final authority, AI non-authority,
       manual-required fallback, and dry-run/preview output. This is not runtime

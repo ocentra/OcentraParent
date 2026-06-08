@@ -1,0 +1,163 @@
+{
+  "schemaVersion": 1,
+  "reportMode": "tracking-full-product-ui-local-cross-surface-accessibility",
+  "generatedAt": "2026-06-08T04:35:00.000Z",
+  "sourceArtifactRef": "test-results/tracking-plan-hosted-ui-proof/accessibility-summary.json",
+  "route": "#/policy-tracking",
+  "assertions": [
+    "named-region",
+    "visible-heading",
+    "enabled-refresh-button",
+    "service-backed-row-citation-visible",
+    "service-data-coverage-visible",
+    "family-dashboard-rollup-visible",
+    "family-dashboard-rollup-screenshot",
+    "report-policy-consumer-visible",
+    "report-policy-consumer-screenshot",
+    "report-export-read-model-visible",
+    "report-export-read-model-screenshot",
+    "notification-parent-surface-history-visible",
+    "notification-parent-surface-history-screenshot",
+    "parent-action-readiness-visible",
+    "parent-action-readiness-screenshot",
+    "missing-device-visible",
+    "missing-device-screenshot",
+    "service-backed-evidence-drawer-visible",
+    "service-backed-evidence-drawer-screenshot",
+    "service-backed-citation-detail-visible",
+    "service-backed-citation-detail-screenshot",
+    "retention-settings-read-model-visible",
+    "retention-settings-local-write-clicked",
+    "retention-settings-local-write-result-visible",
+    "retention-settings-screenshot",
+    "manual-required-visible",
+    "physical-device-required-visible",
+    "no-product-claim-visible",
+    "child-check-in-copy-visible",
+    "child-check-in-actions-visible",
+    "child-device-delivery-not-claimed",
+    "child-runtime-disclosure-visible",
+    "child-runtime-safe-help-response-visible",
+    "child-runtime-location-share-consent-visible",
+    "child-runtime-hosted-only-boundary-visible",
+    "unsupported-manual-platform-render-state-visible",
+    "unsupported-manual-platform-screenshot",
+    "no-unlabeled-buttons",
+    "no-proof-card-overlap",
+    "desktop-screenshot",
+    "child-check-in-screenshot",
+    "child-runtime-ui-screenshot",
+    "parent-overview-shell-screenshot",
+    "parent-devices-shell-screenshot",
+    "mobile-screenshot"
+  ],
+  "layoutBoxes": [
+    {
+      "proofId": "family-dashboard-rollup",
+      "left": 21,
+      "top": -16857,
+      "right": 366,
+      "bottom": -15529,
+      "width": 345,
+      "height": 1328
+    },
+    {
+      "proofId": "missing-device-ui",
+      "left": 21,
+      "top": -7042,
+      "right": 366,
+      "bottom": -5242,
+      "width": 345,
+      "height": 1800
+    },
+    {
+      "proofId": "notification-parent-surface-history-ui",
+      "left": 21,
+      "top": -12364,
+      "right": 366,
+      "bottom": -10426,
+      "width": 345,
+      "height": 1937
+    },
+    {
+      "proofId": "parent-action-readiness-ui",
+      "left": 21,
+      "top": -10420,
+      "right": 366,
+      "bottom": -7048,
+      "width": 345,
+      "height": 3373
+    },
+    {
+      "proofId": "report-policy-consumer-ui",
+      "left": 21,
+      "top": -15523,
+      "right": 366,
+      "bottom": -14050,
+      "width": 345,
+      "height": 1473
+    },
+    {
+      "proofId": "report-export-ui",
+      "left": 21,
+      "top": -14044,
+      "right": 366,
+      "bottom": -12370,
+      "width": 345,
+      "height": 1674
+    },
+    {
+      "proofId": "service-backed-evidence-drawer",
+      "left": 21,
+      "top": -2664,
+      "right": 366,
+      "bottom": -1890,
+      "width": 345,
+      "height": 773
+    },
+    {
+      "proofId": "service-backed-citation-detail",
+      "left": 21,
+      "top": -1884,
+      "right": 366,
+      "bottom": -1439,
+      "width": 345,
+      "height": 446
+    },
+    {
+      "proofId": "retention-settings-ui",
+      "left": 21,
+      "top": -5236,
+      "right": 366,
+      "bottom": -2670,
+      "width": 345,
+      "height": 2566
+    },
+    {
+      "proofId": "child-check-in",
+      "left": 21,
+      "top": -981,
+      "right": 366,
+      "bottom": -438,
+      "width": 345,
+      "height": 543
+    },
+    {
+      "proofId": "child-runtime-ui",
+      "left": 21,
+      "top": -432,
+      "right": 366,
+      "bottom": 132,
+      "width": 345,
+      "height": 564
+    }
+  ],
+  "nonClaims": {
+    "renderedChildDeviceRuntimeUiClaimed": false,
+    "physicalDeviceProofClaimed": false,
+    "authorityProofClaimed": false,
+    "providerDeliveryRuntimeClaimed": false,
+    "productionProductUiClaimed": false,
+    "productClaimReady": false
+  }
+}

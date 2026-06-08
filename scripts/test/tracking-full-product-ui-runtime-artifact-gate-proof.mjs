@@ -35,10 +35,7 @@ async function main() {
 
   const proofModule = await importDist('tracking-full-product-ui-runtime-artifact-gate-proof.js');
   const inventory = {
-    presentArtifacts: await presentArtifactsForRoot(
-      path.join(repoRoot, proofModule.RequiredTrackingFullProductUiRuntimeArtifactPlan.proofRoot),
-      proofModule.RequiredTrackingFullProductUiRuntimeArtifactPlan.requiredArtifacts
-    ),
+    presentArtifacts: await presentArtifactsForRoot(proofModule.RequiredTrackingFullProductUiRuntimeArtifactPlan),
   };
   const readModel = proofModule.buildTrackingFullProductUiRuntimeArtifactGateProof(generatedAt, inventory);
   const proof = buildProof({ readModel });
@@ -50,10 +47,10 @@ async function main() {
   console.log(`evidence=${relativePath(path.join(resultDir, 'proof.json'))}`);
 }
 
-async function presentArtifactsForRoot(rootPath, requiredArtifacts) {
+async function presentArtifactsForRoot(plan) {
   const present = [];
-  for (const artifact of requiredArtifacts) {
-    const artifactPath = path.join(rootPath, artifact);
+  for (const artifact of plan.requiredArtifacts) {
+    const artifactPath = path.join(repoRoot, artifact);
     if (await pathExists(artifactPath)) present.push(artifact);
   }
   return present;

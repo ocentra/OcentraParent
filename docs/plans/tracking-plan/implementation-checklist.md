@@ -440,6 +440,19 @@ behavior, authority, provider delivery, production product UI, and product-ready
 tracking unclaimed. The tracking product-readiness closure proof now consumes
 this full-product UI runtime artifact gate too, so aggregate closure accounting
 cannot pass without the WP30/WP33 full-product UI runtime artifact gate ref.
+WP30/WP33 now also have local full product UI artifact capture proof from
+`node scripts/test/tracking-full-product-ui-local-runtime-artifact-capture-proof.mjs`,
+written to
+`output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/33-full-product-ui-local-runtime-artifact-capture-proof.json`,
+`output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-gate/66-full-product-ui-local-runtime-artifact-capture-proof.json`,
+and
+`test-results/tracking-full-product-ui-local-runtime-artifact-capture-proof/proof.json`.
+It copies the hosted parent overview and parent devices shell screenshots plus
+the hosted cross-surface accessibility summary into the product UI runtime
+artifact root. The refreshed full-product UI runtime artifact gate now reports
+three present local parent-side artifacts and six missing hard runtime
+artifacts, while full product UI runtime, child-device runtime, physical-device,
+authority, provider, production UI, and product-ready claims remain false.
 WP33 now also has production durable workers readiness blocker proof from
 `node scripts/test/tracking-production-durable-workers-readiness-blocker-proof.mjs`,
 written to
@@ -976,10 +989,12 @@ Every implementation workpack must update, or explicitly justify not updating:
       `output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-gate/59-full-product-ui-runtime-artifact-gate-proof.json`;
       command:
       `node scripts/test/tracking-full-product-ui-runtime-artifact-gate-proof.mjs`.
-      Current rows are `manual-required`, missing the real full product UI
-      artifact set, and keep full product UI runtime, child-device delivery
-      runtime, physical-device behavior, authority, provider delivery,
-      production product UI, and product-ready tracking false.
+      The local artifact capture proof now contributes parent overview, parent
+      device detail, and cross-surface accessibility artifacts; current rows are
+      still `manual-required`, missing six hard runtime artifacts, and keep full
+      product UI runtime, child-device delivery runtime, physical-device
+      behavior, authority, provider delivery, production product UI, and
+      product-ready tracking false.
 - [x] Production worker runtime artifact gate proof now verifies the exact
       required `tracking-production/*.json` artifact refs before any tracking
       production worker runtime can be treated as present. Proof:
