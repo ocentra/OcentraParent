@@ -3,15 +3,19 @@
   "proofMode": "tracking-child-runtime-product-readiness-blocker-proof",
   "generatedAt": "2026-06-07T16:05:00.000Z",
   "sourceSnapshotRequirementsProofRef": "output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/28-child-runtime-snapshot-requirements-proof.json",
+  "sourceAndroidEmulatorBridgeProofRef": "output/tracking-plan-proof/tracking-child-runtime-android-emulator-readiness-bridge-proof/proof.json",
   "sourceSnapshotRequirementsStatus": "proved",
+  "sourceAndroidEmulatorBridgeStatus": "emulator-prerequisites-observed-manual-runtime-required",
   "rows": [
     {
       "schemaVersion": "v0.5-tracking",
       "blockerProofId": "tracking-child-runtime-product-readiness-blocked-tracking-check-in-waiting",
       "generatedAt": "2026-06-07T16:05:00.000Z",
       "sourceSnapshotRequirementsProofRef": "output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/28-child-runtime-snapshot-requirements-proof.json",
+      "sourceAndroidEmulatorBridgeProofRef": "output/tracking-plan-proof/tracking-child-runtime-android-emulator-readiness-bridge-proof/proof.json",
       "sourceCheckInId": "tracking-check-in-waiting",
       "sourceSnapshotRequirementRowId": "tracking-child-runtime-snapshot-requirements-tracking-check-in-waiting",
+      "sourceAndroidEmulatorBridgeRowId": "tracking-child-runtime-android-emulator-readiness-bridge",
       "auditRefs": [
         "tracking-child-runtime-product-readiness-blocker-audit-tracking-check-in-waiting"
       ],
@@ -20,6 +24,11 @@
       "visibleSnapshotRequirementRefCount": 1,
       "parentReceiptRequirementRefCount": 1,
       "runtimeObservationRequirementRefCount": 2,
+      "androidEmulatorPrerequisitesObserved": true,
+      "androidPackageLaunchObserved": true,
+      "androidForegroundServiceObserved": true,
+      "androidLocalGeofenceTransitionCount": 3,
+      "androidEmulatorChildRuntimeMissingArtifactCount": 10,
       "blockerRefs": [
         "child-device-delivery-runtime-proof-required",
         "child-device-execution-result-proof-required",
@@ -50,8 +59,10 @@
       "blockerProofId": "tracking-child-runtime-product-readiness-blocked-tracking-check-in-safe",
       "generatedAt": "2026-06-07T16:05:00.000Z",
       "sourceSnapshotRequirementsProofRef": "output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/28-child-runtime-snapshot-requirements-proof.json",
+      "sourceAndroidEmulatorBridgeProofRef": "output/tracking-plan-proof/tracking-child-runtime-android-emulator-readiness-bridge-proof/proof.json",
       "sourceCheckInId": "tracking-check-in-safe",
       "sourceSnapshotRequirementRowId": "tracking-child-runtime-snapshot-requirements-tracking-check-in-safe",
+      "sourceAndroidEmulatorBridgeRowId": "tracking-child-runtime-android-emulator-readiness-bridge",
       "auditRefs": [
         "tracking-child-runtime-product-readiness-blocker-audit-tracking-check-in-safe"
       ],
@@ -60,6 +71,11 @@
       "visibleSnapshotRequirementRefCount": 1,
       "parentReceiptRequirementRefCount": 1,
       "runtimeObservationRequirementRefCount": 2,
+      "androidEmulatorPrerequisitesObserved": true,
+      "androidPackageLaunchObserved": true,
+      "androidForegroundServiceObserved": true,
+      "androidLocalGeofenceTransitionCount": 3,
+      "androidEmulatorChildRuntimeMissingArtifactCount": 10,
       "blockerRefs": [
         "child-device-delivery-runtime-proof-required",
         "child-device-execution-result-proof-required",
@@ -90,8 +106,10 @@
       "blockerProofId": "tracking-child-runtime-product-readiness-blocked-tracking-check-in-help",
       "generatedAt": "2026-06-07T16:05:00.000Z",
       "sourceSnapshotRequirementsProofRef": "output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/28-child-runtime-snapshot-requirements-proof.json",
+      "sourceAndroidEmulatorBridgeProofRef": "output/tracking-plan-proof/tracking-child-runtime-android-emulator-readiness-bridge-proof/proof.json",
       "sourceCheckInId": "tracking-check-in-help",
       "sourceSnapshotRequirementRowId": "tracking-child-runtime-snapshot-requirements-tracking-check-in-help",
+      "sourceAndroidEmulatorBridgeRowId": "tracking-child-runtime-android-emulator-readiness-bridge",
       "auditRefs": [
         "tracking-child-runtime-product-readiness-blocker-audit-tracking-check-in-help"
       ],
@@ -100,6 +118,11 @@
       "visibleSnapshotRequirementRefCount": 1,
       "parentReceiptRequirementRefCount": 1,
       "runtimeObservationRequirementRefCount": 2,
+      "androidEmulatorPrerequisitesObserved": true,
+      "androidPackageLaunchObserved": true,
+      "androidForegroundServiceObserved": true,
+      "androidLocalGeofenceTransitionCount": 3,
+      "androidEmulatorChildRuntimeMissingArtifactCount": 10,
       "blockerRefs": [
         "child-device-delivery-runtime-proof-required",
         "child-device-execution-result-proof-required",
@@ -130,8 +153,10 @@
       "blockerProofId": "tracking-child-runtime-product-readiness-blocked-tracking-check-in-call-parent",
       "generatedAt": "2026-06-07T16:05:00.000Z",
       "sourceSnapshotRequirementsProofRef": "output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/28-child-runtime-snapshot-requirements-proof.json",
+      "sourceAndroidEmulatorBridgeProofRef": "output/tracking-plan-proof/tracking-child-runtime-android-emulator-readiness-bridge-proof/proof.json",
       "sourceCheckInId": "tracking-check-in-call-parent",
       "sourceSnapshotRequirementRowId": "tracking-child-runtime-snapshot-requirements-tracking-check-in-call-parent",
+      "sourceAndroidEmulatorBridgeRowId": "tracking-child-runtime-android-emulator-readiness-bridge",
       "auditRefs": [
         "tracking-child-runtime-product-readiness-blocker-audit-tracking-check-in-call-parent"
       ],
@@ -140,6 +165,11 @@
       "visibleSnapshotRequirementRefCount": 1,
       "parentReceiptRequirementRefCount": 1,
       "runtimeObservationRequirementRefCount": 2,
+      "androidEmulatorPrerequisitesObserved": true,
+      "androidPackageLaunchObserved": true,
+      "androidForegroundServiceObserved": true,
+      "androidLocalGeofenceTransitionCount": 3,
+      "androidEmulatorChildRuntimeMissingArtifactCount": 10,
       "blockerRefs": [
         "child-device-delivery-runtime-proof-required",
         "child-device-execution-result-proof-required",
@@ -170,8 +200,10 @@
       "blockerProofId": "tracking-child-runtime-product-readiness-blocked-tracking-check-in-expired",
       "generatedAt": "2026-06-07T16:05:00.000Z",
       "sourceSnapshotRequirementsProofRef": "output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/28-child-runtime-snapshot-requirements-proof.json",
+      "sourceAndroidEmulatorBridgeProofRef": "output/tracking-plan-proof/tracking-child-runtime-android-emulator-readiness-bridge-proof/proof.json",
       "sourceCheckInId": "tracking-check-in-expired",
       "sourceSnapshotRequirementRowId": "tracking-child-runtime-snapshot-requirements-tracking-check-in-expired",
+      "sourceAndroidEmulatorBridgeRowId": "tracking-child-runtime-android-emulator-readiness-bridge",
       "auditRefs": [
         "tracking-child-runtime-product-readiness-blocker-audit-tracking-check-in-expired"
       ],
@@ -180,6 +212,11 @@
       "visibleSnapshotRequirementRefCount": 1,
       "parentReceiptRequirementRefCount": 1,
       "runtimeObservationRequirementRefCount": 2,
+      "androidEmulatorPrerequisitesObserved": true,
+      "androidPackageLaunchObserved": true,
+      "androidForegroundServiceObserved": true,
+      "androidLocalGeofenceTransitionCount": 3,
+      "androidEmulatorChildRuntimeMissingArtifactCount": 10,
       "blockerRefs": [
         "child-device-delivery-runtime-proof-required",
         "child-device-execution-result-proof-required",
@@ -208,6 +245,7 @@
   ],
   "proofClaims": {
     "snapshotRequirementRowsObserved": true,
+    "androidEmulatorBridgeObserved": true,
     "deliveryEnvelopeRequirementsObserved": true,
     "executionResultRequirementsObserved": true,
     "visibleSnapshotRequirementsObserved": true,
@@ -218,6 +256,7 @@
   },
   "productClaims": {
     "childRuntimeRequirementCoverageClaimed": true,
+    "androidEmulatorPrerequisitesObserved": true,
     "childDeviceDeliveryRuntimeClaimed": false,
     "childDeviceExecutionRuntimeClaimed": false,
     "renderedChildDeviceUiRuntimeClaimed": false,
@@ -229,9 +268,21 @@
     "productionWorkerClaimed": false,
     "productReadyClaimed": false
   },
+  "androidEmulatorBridgeAccounting": {
+    "sourceAndroidEmulatorBridgeProofRef": "output/tracking-plan-proof/tracking-child-runtime-android-emulator-readiness-bridge-proof/proof.json",
+    "bridgeRowId": "tracking-child-runtime-android-emulator-readiness-bridge",
+    "bridgeStatus": "emulator-prerequisites-observed-manual-runtime-required",
+    "androidEmulatorPrerequisitesObserved": true,
+    "packageLaunchObserved": true,
+    "foregroundServiceObserved": true,
+    "foregroundPermissionGranted": true,
+    "backgroundPermissionGranted": true,
+    "localGeofenceTransitionCount": 3,
+    "childRuntimeMissingArtifactCount": 10
+  },
   "branch": "codex/tracking-plan-full-continuation-a",
-  "baseCommitAtGeneration": "976cb77c385786207970618c4b3b7a22728a6334",
-  "gitStatusShort": "M docs/features/location-geofence-device-status.md\n M docs/plans/tracking-plan/implementation-checklist.md\n M docs/plans/tracking-plan/workpacks/30-parent-and-child-ui-ux-surfaces.md\n M docs/plans/tracking-plan/workpacks/33-proof-gates-fixtures-rollout-and-pr-gate.md\n?? packages/parent-domain/src/tracking-child-runtime-product-readiness-blocker-proof.ts\n?? packages/parent-domain/tests/tracking-child-runtime-product-readiness-blocker-proof.test.ts\n?? scripts/test/tracking-child-runtime-product-readiness-blocker-proof.mjs",
+  "baseCommitAtGeneration": "deb6224255acd28d00a24f865cb381202e56c673",
+  "gitStatusShort": "M docs/features/location-geofence-device-status.md\n M docs/plans/tracking-plan/current-tracking-snapshot.md\n M docs/plans/tracking-plan/implementation-checklist.md\n M docs/plans/tracking-plan/workpacks/30-parent-and-child-ui-ux-surfaces.md\n M docs/plans/tracking-plan/workpacks/33-proof-gates-fixtures-rollout-and-pr-gate.md\n M output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/29-child-runtime-product-readiness-blocker-proof.json\n M output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-gate/45-child-runtime-product-readiness-blocker-proof.json\n M output/tracking-plan-proof/tracking-child-runtime-product-readiness-blocker-proof/00-source-snapshot.md\n M output/tracking-plan-proof/tracking-child-runtime-product-readiness-blocker-proof/13-security-negative-proof.log\n M output/tracking-plan-proof/tracking-child-runtime-product-readiness-blocker-proof/proof.json\n M packages/parent-domain/src/tracking-child-runtime-product-readiness-blocker-proof.ts\n M packages/parent-domain/tests/tracking-child-runtime-product-readiness-blocker-proof.test.ts\n M scripts/test/tracking-child-runtime-product-readiness-blocker-proof.mjs\n M test-results/tracking-child-runtime-product-readiness-blocker-proof/child-runtime-product-readiness-blocker-read-model.json\n M test-results/tracking-child-runtime-product-readiness-blocker-proof/proof.json",
   "commands": [
     {
       "command": "cmd /c npm run build --workspace @ocentra-parent/parent-domain",
@@ -242,7 +293,7 @@
     {
       "command": "cmd /c npm run test --workspace @ocentra-parent/parent-domain -- tracking-child-runtime-product-readiness-blocker-proof",
       "status": 0,
-      "stdout": "> @ocentra-parent/parent-domain@0.1.1 test\n> vitest run tracking-child-runtime-product-readiness-blocker-proof\n\n\n RUN  v4.1.6 C:/Users/sujan/.codex/worktrees/ocentra-parent-codex-a/OcentraParent/packages/parent-domain\n\n\n Test Files  1 passed (1)\n      Tests  3 passed (3)\n   Start at  12:09:03\n   Duration  794ms (transform 169ms, setup 0ms, import 586ms, tests 14ms, environment 0ms)",
+      "stdout": "> @ocentra-parent/parent-domain@0.1.1 test\n> vitest run tracking-child-runtime-product-readiness-blocker-proof\n\n\n RUN  v4.1.6 C:/Users/sujan/.codex/worktrees/ocentra-parent-codex-a/OcentraParent/packages/parent-domain\n\n\n Test Files  1 passed (1)\n      Tests  3 passed (3)\n   Start at  03:07:20\n   Duration  774ms (transform 168ms, setup 0ms, import 575ms, tests 14ms, environment 0ms)",
       "stderr": ""
     }
   ],
@@ -250,6 +301,7 @@
     "wp30": "output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/29-child-runtime-product-readiness-blocker-proof.json",
     "wp33": "output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-gate/45-child-runtime-product-readiness-blocker-proof.json",
     "evidence": "test-results/tracking-child-runtime-product-readiness-blocker-proof/proof.json",
-    "sourceSnapshotRequirementsProof": "output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/28-child-runtime-snapshot-requirements-proof.json"
+    "sourceSnapshotRequirementsProof": "output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/28-child-runtime-snapshot-requirements-proof.json",
+    "sourceAndroidEmulatorBridgeProof": "output/tracking-plan-proof/tracking-child-runtime-android-emulator-readiness-bridge-proof/proof.json"
   }
 }

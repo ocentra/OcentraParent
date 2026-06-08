@@ -119,7 +119,9 @@ Proof root: `output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/`
       physical-device, authority, provider delivery, production, and
       product-ready claims false.
 - [x] Add a child-runtime product-readiness blocker proof that consumes the
-      snapshot requirements rows and records the remaining actual delivery,
+      snapshot requirements rows and the Android emulator readiness bridge,
+      records package launch, foreground-service, and local emulator geofence
+      prerequisite accounting, and records the remaining actual delivery,
       execution-result, rendered child UI, parent receipt, runtime observation,
       physical-device, and authority blockers without claiming child-device
       delivery, runtime execution, provider delivery, production, or
