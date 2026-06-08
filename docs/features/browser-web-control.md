@@ -170,6 +170,14 @@ control while being more honest about managed versus unmanaged sources.
   state exposes the stream. This is parser/state proof only; it adds no visual
   portal surface, browser mutation, child intervention execution, final policy
   execution, or enforcement.
+- Browser-plan WP13 now also has service-side handoff ref proof for the same
+  action-intent path. The service asks the named
+  `browser.action-intent.handoff.requested` subscriber and records prepared
+  local outbox/handoff refs in report state for store-backed dry-run policy
+  preview rows. The public wire shape is intentionally unchanged while shared
+  protocol field constants/defaults are owned by another active lane; dispatch,
+  adapter execution, browser mutation, child intervention execution, final
+  policy execution, and enforcement remain zero/unclaimed.
 - Browser-plan WP03 now carries publisher-signature and file-hash evidence refs
   through activity-domain inventory contracts, Rust protocol, and service
   payload/read-model proof. Contract tests cover mixed managed, unmanaged, and

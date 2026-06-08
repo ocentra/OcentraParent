@@ -462,6 +462,30 @@ This is protocol/parser and portal state proof only. It does not add a new
 portal visual surface, execute policy, mutate browser state, execute child
 intervention, or enforce.
 
+## Action-Intent Service Handoff Addendum - 2026-06-07
+
+`browser-runtime-action-intent-service-handoff-proof` extends the
+service-backed browser runtime path so the service asks the named
+`browser.action-intent.handoff.requested` subscriber and records prepared local
+outbox/handoff refs in report state for store-backed dry-run policy preview
+rows.
+
+Evidence:
+
+- `crates/agent-service/src/browser_runtime_stream_payload.rs`
+- `crates/agent-service/src/browser_runtime_stream_tests.rs`
+- `crates/agent-core/src/browser_event_runtime/action_handoff.rs`
+- `scripts/test/browser-runtime-action-intent-service-handoff-proof.mjs`
+- `test-results/browser-runtime-action-intent-service-handoff-proof/proof.json`
+- `output/browser-plan-proof/browser-runtime-action-intent-service-handoff/01-browser-runtime-action-intent-service-handoff-proof.md`
+- `cargo test -p ocentra-parent-agent-service service_browser_runtime_action_intent_status --quiet`
+- `cargo test -p ocentra-parent-agent-service service_browser_runtime_stream_projects_store_backed_policy_preview_candidate --quiet`
+
+The public wire shape is intentionally unchanged in this slice because shared
+protocol field constants/defaults are owned by another active lane. The service
+still keeps dispatch attempts, adapter execution, browser mutation, child
+intervention execution, final policy execution, and enforcement at zero.
+
 ## Action-Intent Topology Addendum - 2026-06-07
 
 `browser-runtime-action-intent-topology-proof` registers the named browser

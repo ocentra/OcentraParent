@@ -1,7 +1,9 @@
 use ocentra_parent_agent_core::{
     publish_browser_runtime_chain_for_input,
+    request_browser_runtime_action_intent_handoff_for_input,
     request_browser_runtime_action_intent_status_for_input,
-    BrowserRuntimeActionIntentStatusResponse, BrowserRuntimeReport,
+    BrowserRuntimeActionIntentHandoffResponse, BrowserRuntimeActionIntentStatusResponse,
+    BrowserRuntimeReport,
 };
 use ocentra_parent_agent_protocol::{
     constants, BrowserEvidenceReadModel, LogFieldValue, LogFields, PolicyPreviewReadModel,
@@ -29,6 +31,9 @@ pub(crate) struct BrowserRuntimeServiceStreamReport {
     pub(crate) action_intent_adapter_executions: usize,
     pub(crate) action_intent_child_intervention_executions: usize,
     pub(crate) action_intent_enforcement_executions: usize,
+    pub(crate) action_intent_handoff_candidates: usize,
+    pub(crate) action_intent_handoff_outbox_refs: Vec<String>,
+    pub(crate) action_intent_handoff_refs: Vec<String>,
     pub(crate) entries: Vec<BrowserRuntimeServiceStreamEntry>,
 }
 
@@ -59,6 +64,11 @@ pub(crate) async fn stream_browser_runtime_event_chain_for_read_model_with_polic
             request_browser_runtime_action_intent_status_for_input(input.clone()).await
         {
             stream.record_action_intent_status(&report.request_report.response);
+        }
+        if let Ok(report) =
+            request_browser_runtime_action_intent_handoff_for_input(input.clone()).await
+        {
+            stream.record_action_intent_handoff(&report.request_report.response);
         }
         match publish_browser_runtime_chain_for_input(input).await {
             Ok(report) => stream.record_success(&report),
@@ -161,6 +171,26 @@ impl BrowserRuntimeServiceStreamReport {
             usize::from(status.child_intervention_execution_count);
         self.action_intent_enforcement_executions +=
             usize::from(status.enforcement_execution_count);
+    }
+
+    pub(crate) fn record_action_intent_handoff(
+        &mut self,
+        handoff: &BrowserRuntimeActionIntentHandoffResponse,
+    ) {
+        self.action_intent_handoff_candidates += handoff.candidate_count;
+        if let Some(outbox_ref) = &handoff.outbox_ref {
+            self.action_intent_handoff_outbox_refs
+                .push(outbox_ref.clone());
+        }
+        if let Some(handoff_ref) = &handoff.handoff_ref {
+            self.action_intent_handoff_refs.push(handoff_ref.clone());
+        }
+        self.action_intent_dispatch_attempts += usize::from(handoff.dispatch_attempt_count);
+        self.action_intent_adapter_executions += usize::from(handoff.adapter_execution_count);
+        self.action_intent_child_intervention_executions +=
+            usize::from(handoff.child_intervention_execution_count);
+        self.action_intent_enforcement_executions +=
+            usize::from(handoff.enforcement_execution_count);
     }
 }
 

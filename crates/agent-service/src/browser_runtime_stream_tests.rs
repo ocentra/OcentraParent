@@ -1,8 +1,9 @@
 use std::fs::remove_file;
 
 use ocentra_parent_agent_core::{
-    browser_tab_observation_event, request_browser_runtime_action_intent_status_for_input,
-    ActivityStore, BrowserBridgeTargetObservation, BrowserRuntimeInput, BrowserRuntimePhase,
+    browser_tab_observation_event, request_browser_runtime_action_intent_handoff_for_input,
+    request_browser_runtime_action_intent_status_for_input, ActivityStore,
+    BrowserBridgeTargetObservation, BrowserRuntimeInput, BrowserRuntimePhase,
 };
 use ocentra_parent_agent_protocol::{
     constants, policy_constants, ActivityEvent, AgentCommandEnvelope, AgentCommandName,
@@ -48,6 +49,9 @@ async fn service_browser_runtime_streams_protocol_event_chain_entries() {
     assert_eq!(report.intervention_command_events, 0);
     assert_eq!(report.read_model_projection_events, 1);
     assert_eq!(report.action_intent_candidates, 0);
+    assert_eq!(report.action_intent_handoff_candidates, 0);
+    assert!(report.action_intent_handoff_outbox_refs.is_empty());
+    assert!(report.action_intent_handoff_refs.is_empty());
     assert_eq!(report.action_intent_dispatch_attempts, 0);
     assert_eq!(report.action_intent_adapter_executions, 0);
     assert_eq!(report.action_intent_child_intervention_executions, 0);
@@ -139,6 +143,35 @@ async fn service_browser_runtime_action_intent_status_projects_pending_candidate
         payload.get(constants::field::BROWSER_RUNTIME_ACTION_INTENT_ENFORCEMENT_EXECUTIONS),
         Some(&LogFieldValue::Number(0.0))
     );
+
+    let handoff = request_browser_runtime_action_intent_handoff_for_input(
+        BrowserRuntimeInput::dry_run_action_handoff_fixture(),
+    )
+    .await
+    .unwrap()
+    .request_report
+    .response;
+    let mut report = BrowserRuntimeServiceStreamReport::default();
+    report.record_action_intent_handoff(&handoff);
+    let payload = browser_runtime_event_chain_stream_payload(&report);
+
+    assert_eq!(report.action_intent_handoff_candidates, 1);
+    assert_eq!(
+        report.action_intent_handoff_outbox_refs,
+        vec![constants::browser::TEST_BROWSER_RUNTIME_ACTION_INTENT_OUTBOX_REF.to_string()]
+    );
+    assert_eq!(
+        report.action_intent_handoff_refs,
+        vec![constants::browser::TEST_BROWSER_RUNTIME_ACTION_INTENT_HANDOFF_REF.to_string()]
+    );
+    assert_eq!(report.action_intent_dispatch_attempts, 0);
+    assert_eq!(report.action_intent_adapter_executions, 0);
+    assert_eq!(report.action_intent_child_intervention_executions, 0);
+    assert_eq!(report.action_intent_enforcement_executions, 0);
+    assert_eq!(
+        payload.get(constants::field::BROWSER_RUNTIME_ACTION_INTENT_DISPATCH_ATTEMPTS),
+        Some(&LogFieldValue::Number(0.0))
+    );
 }
 
 #[tokio::test]
@@ -161,6 +194,15 @@ async fn service_browser_runtime_stream_projects_store_backed_policy_preview_can
         .expect(constants::error::AGENT_EVENT_SERIALIZES);
 
     assert_eq!(report.action_intent_candidates, 1);
+    assert_eq!(report.action_intent_handoff_candidates, 1);
+    assert_eq!(
+        report.action_intent_handoff_outbox_refs,
+        vec![constants::browser::TEST_BROWSER_RUNTIME_ACTION_INTENT_OUTBOX_REF.to_string()]
+    );
+    assert_eq!(
+        report.action_intent_handoff_refs,
+        vec![constants::browser::TEST_BROWSER_RUNTIME_ACTION_INTENT_HANDOFF_REF.to_string()]
+    );
     assert_eq!(report.action_intent_dispatch_attempts, 0);
     assert_eq!(report.action_intent_adapter_executions, 0);
     assert_eq!(report.action_intent_child_intervention_executions, 0);
@@ -252,6 +294,9 @@ async fn service_browser_runtime_stream_keeps_stale_and_unsupported_rows_parent_
     assert_eq!(report.manual_required_rows, 2);
     assert_eq!(report.intervention_command_events, 0);
     assert_eq!(report.action_intent_candidates, 0);
+    assert_eq!(report.action_intent_handoff_candidates, 0);
+    assert!(report.action_intent_handoff_outbox_refs.is_empty());
+    assert!(report.action_intent_handoff_refs.is_empty());
     assert_eq!(report.action_intent_dispatch_attempts, 0);
     assert_eq!(report.action_intent_adapter_executions, 0);
     assert_eq!(report.action_intent_child_intervention_executions, 0);
@@ -319,14 +364,14 @@ async fn websocket_browser_runtime_stream_command_reports_store_backed_chain() {
     );
     assert_eq!(
         entries.len(),
-        BrowserRuntimePhase::ordered_chain().len() - 6
+        BrowserRuntimePhase::ordered_chain().len() - 4
     );
     assert_eq!(
         event
             .payload
             .get(constants::field::BROWSER_RUNTIME_STREAMED_EVENTS),
         Some(&LogFieldValue::Number(
-            (BrowserRuntimePhase::ordered_chain().len() - 6) as f64
+            (BrowserRuntimePhase::ordered_chain().len() - 4) as f64
         ))
     );
     assert_eq!(

@@ -631,6 +631,20 @@ zero. Evidence:
 This does not add a visual portal surface, browser mutation, child intervention
 execution, final policy execution, or enforcement.
 
+WP13 action-intent service handoff addendum:
+`browser-runtime-action-intent-service-handoff-proof` extends the
+service-backed browser runtime path so the service asks the named
+`browser.action-intent.handoff.requested` subscriber and records prepared local
+outbox/handoff refs in report state for store-backed dry-run policy preview
+rows. Evidence:
+`test-results/browser-runtime-action-intent-service-handoff-proof/proof.json`
+and
+`output/browser-plan-proof/browser-runtime-action-intent-service-handoff/01-browser-runtime-action-intent-service-handoff-proof.md`.
+The public wire shape is intentionally unchanged while shared protocol field
+constants/defaults are owned by another active lane. Dispatch attempts, adapter
+execution, browser mutation, child intervention execution, final policy
+execution, and enforcement stay zero.
+
 WP13 action-intent topology addendum:
 `browser-runtime-action-intent-topology-proof` registers the named browser
 action-intent status request event in the reusable `ocentra-eventing` contract
