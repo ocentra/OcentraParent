@@ -69,6 +69,7 @@ Proof root: `output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/`
 - `28-child-runtime-snapshot-requirements-proof.json`
 - `29-child-runtime-product-readiness-blocker-proof.json`
 - `30-child-runtime-artifact-gate-proof.json`
+- `34-full-product-ui-runtime-preflight-proof.json`
 - Unsupported/manual platform screenshot:
   `output/tracking-plan-proof/31-platform-extension-checklists-and-proof-routing/19-unsupported-manual-hosted-ui.png`
 - Accessibility summary:
@@ -135,6 +136,14 @@ Proof root: `output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/`
       execution, rendered child UI runtime, parent receipt runtime, runtime
       observation, physical-device, authority, provider delivery, production,
       and product-ready claims false until those artifacts exist.
+- [x] Add a full product UI runtime preflight proof that turns the four remaining
+      hard product UI runtime artifact refs into manual-required rows: retention
+      settings production write-result UI, rendered child-device check-in,
+      rendered child-device location consent, and child-device safe/help
+      response. The proof keeps full product UI runtime, child-device runtime,
+      physical-device, authority, provider delivery, production product UI, and
+      product-ready claims false while closure/handoff carry the four required,
+      zero present, four missing artifact counts.
 - [x] Render and screenshot hosted family dashboard rollup rows without claiming
       full dashboard UI, child-device delivery, authority, provider delivery,
       physical-device execution, or production readiness.

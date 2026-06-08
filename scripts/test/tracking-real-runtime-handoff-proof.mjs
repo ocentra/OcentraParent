@@ -192,6 +192,18 @@ function assertProof(proof) {
     throw new Error(`Closure accounting lost local UI artifact evidence: ${JSON.stringify(proof.closureAccounting)}`);
   }
   if (
+    proof.closureAccounting.fullProductUiRuntimePreflightRequiredArtifactCount !==
+      proof.closureAccounting.fullProductUiRuntimePreflightPresentArtifactCount +
+        proof.closureAccounting.fullProductUiRuntimePreflightMissingArtifactCount ||
+    proof.closureAccounting.fullProductUiRuntimePreflightManualRequiredRowCount !==
+      proof.closureAccounting.fullProductUiRuntimePreflightRowCount ||
+    proof.closureAccounting.fullProductUiRuntimePreflightProductReadyRowCount !== 0
+  ) {
+    throw new Error(
+      `Closure accounting lost full product UI preflight evidence: ${JSON.stringify(proof.closureAccounting)}`
+    );
+  }
+  if (
     proof.closureAccounting.androidEmulatorRequiredArtifactCount !==
       proof.closureAccounting.androidEmulatorPresentArtifactCount +
         proof.closureAccounting.androidEmulatorMissingArtifactCount ||
@@ -296,6 +308,9 @@ function sourceSnapshot(proof) {
     '- status: manual_required',
     '- proves real-runtime handoff artifact requirements are derived from existing gates',
     `- fullProductUiLocalArtifactCount: ${proof.closureAccounting.fullProductUiLocalArtifactCount}`,
+    `- fullProductUiRuntimePreflightRowCount: ${proof.closureAccounting.fullProductUiRuntimePreflightRowCount}`,
+    `- fullProductUiRuntimePreflightRequiredArtifactCount: ${proof.closureAccounting.fullProductUiRuntimePreflightRequiredArtifactCount}`,
+    `- fullProductUiRuntimePreflightMissingArtifactCount: ${proof.closureAccounting.fullProductUiRuntimePreflightMissingArtifactCount}`,
     `- androidEmulatorRequiredArtifactCount: ${proof.closureAccounting.androidEmulatorRequiredArtifactCount}`,
     `- androidEmulatorPresentArtifactCount: ${proof.closureAccounting.androidEmulatorPresentArtifactCount}`,
     `- androidEmulatorMissingArtifactCount: ${proof.closureAccounting.androidEmulatorMissingArtifactCount}`,
@@ -355,6 +370,9 @@ function manualValidationRunbook(proof) {
     '- productReadyClaimed: false',
     `- ciRunnableRowCount: ${proof.summary.ciRunnableRowCount}`,
     `- fullProductUiLocalArtifactCount: ${proof.closureAccounting.fullProductUiLocalArtifactCount}`,
+    `- fullProductUiRuntimePreflightRowCount: ${proof.closureAccounting.fullProductUiRuntimePreflightRowCount}`,
+    `- fullProductUiRuntimePreflightRequiredArtifactCount: ${proof.closureAccounting.fullProductUiRuntimePreflightRequiredArtifactCount}`,
+    `- fullProductUiRuntimePreflightMissingArtifactCount: ${proof.closureAccounting.fullProductUiRuntimePreflightMissingArtifactCount}`,
     `- androidEmulatorRequiredArtifactCount: ${proof.closureAccounting.androidEmulatorRequiredArtifactCount}`,
     `- androidEmulatorPresentArtifactCount: ${proof.closureAccounting.androidEmulatorPresentArtifactCount}`,
     `- androidEmulatorMissingArtifactCount: ${proof.closureAccounting.androidEmulatorMissingArtifactCount}`,

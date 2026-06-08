@@ -10,6 +10,12 @@ const closureAccounting = {
   fullProductUiLocalArtifactCount: 6,
   fullProductUiClosureRetentionWritableExecutionRowCount: 1,
   fullProductUiClosureChildRuntimeMissingArtifactCount: 10,
+  fullProductUiRuntimePreflightRowCount: 4,
+  fullProductUiRuntimePreflightManualRequiredRowCount: 4,
+  fullProductUiRuntimePreflightRequiredArtifactCount: 4,
+  fullProductUiRuntimePreflightPresentArtifactCount: 0,
+  fullProductUiRuntimePreflightMissingArtifactCount: 4,
+  fullProductUiRuntimePreflightProductReadyRowCount: 0,
   androidEmulatorRequiredArtifactCount: 12,
   androidEmulatorPresentArtifactCount: 12,
   androidEmulatorMissingArtifactCount: 0,
@@ -101,6 +107,12 @@ function expectClaimAuditAcceptance(proof: TrackingRealRuntimeHandoffProof): voi
 
 function expectClosureAccounting(proof: TrackingRealRuntimeHandoffProof): void {
   expect(proof.closureAccounting.fullProductUiLocalArtifactCount).toBe(6);
+  expect(proof.closureAccounting.fullProductUiRuntimePreflightRowCount).toBe(4);
+  expect(proof.closureAccounting.fullProductUiRuntimePreflightManualRequiredRowCount).toBe(4);
+  expect(proof.closureAccounting.fullProductUiRuntimePreflightRequiredArtifactCount).toBe(4);
+  expect(proof.closureAccounting.fullProductUiRuntimePreflightPresentArtifactCount).toBe(0);
+  expect(proof.closureAccounting.fullProductUiRuntimePreflightMissingArtifactCount).toBe(4);
+  expect(proof.closureAccounting.fullProductUiRuntimePreflightProductReadyRowCount).toBe(0);
   expect(proof.closureAccounting.androidEmulatorRequiredArtifactCount).toBe(12);
   expect(proof.closureAccounting.androidEmulatorPresentArtifactCount).toBe(12);
   expect(proof.closureAccounting.androidEmulatorMissingArtifactCount).toBe(0);

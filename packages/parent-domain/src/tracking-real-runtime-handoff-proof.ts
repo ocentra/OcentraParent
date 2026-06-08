@@ -139,6 +139,12 @@ export const TrackingRealRuntimeHandoffClosureAccountingSchema = withParser(
     fullProductUiLocalArtifactCount: Schema.Number.pipe(Schema.int(), Schema.positive()),
     fullProductUiClosureRetentionWritableExecutionRowCount: Schema.Number.pipe(Schema.int(), Schema.positive()),
     fullProductUiClosureChildRuntimeMissingArtifactCount: Schema.Number.pipe(Schema.int()),
+    fullProductUiRuntimePreflightRowCount: Schema.Number.pipe(Schema.int(), Schema.positive()),
+    fullProductUiRuntimePreflightManualRequiredRowCount: Schema.Number.pipe(Schema.int(), Schema.positive()),
+    fullProductUiRuntimePreflightRequiredArtifactCount: Schema.Number.pipe(Schema.int(), Schema.positive()),
+    fullProductUiRuntimePreflightPresentArtifactCount: Schema.Literal(0),
+    fullProductUiRuntimePreflightMissingArtifactCount: Schema.Number.pipe(Schema.int(), Schema.positive()),
+    fullProductUiRuntimePreflightProductReadyRowCount: Schema.Literal(0),
     androidEmulatorRequiredArtifactCount: Schema.Number.pipe(Schema.int(), Schema.positive()),
     androidEmulatorPresentArtifactCount: Schema.Number.pipe(Schema.int()),
     androidEmulatorMissingArtifactCount: Schema.Number.pipe(Schema.int()),
@@ -180,6 +186,23 @@ export const TrackingRealRuntimeHandoffClosureAccountingSchema = withParser(
     claimAuditProductReadyRowCount: Schema.Literal(0),
     productClaimReady: Schema.Literal(false),
   })
+    .pipe(
+      Schema.filter(
+        (accounting) =>
+          accounting.fullProductUiRuntimePreflightRequiredArtifactCount ===
+            accounting.fullProductUiRuntimePreflightPresentArtifactCount +
+              accounting.fullProductUiRuntimePreflightMissingArtifactCount ||
+          'Real-runtime closure accounting must classify every full product UI runtime preflight artifact'
+      )
+    )
+    .pipe(
+      Schema.filter(
+        (accounting) =>
+          accounting.fullProductUiRuntimePreflightRowCount ===
+            accounting.fullProductUiRuntimePreflightManualRequiredRowCount ||
+          'Real-runtime closure accounting must keep full product UI runtime preflight manual-required'
+      )
+    )
     .pipe(
       Schema.filter(
         (accounting) =>

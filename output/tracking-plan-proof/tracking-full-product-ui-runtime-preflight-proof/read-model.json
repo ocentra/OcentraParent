@@ -1,0 +1,208 @@
+{
+  "schemaVersion": "v0.5-tracking",
+  "proofMode": "tracking-full-product-ui-runtime-preflight-proof",
+  "generatedAt": "2026-06-08T12:30:00.000Z",
+  "sourceRuntimeArtifactGateProofRef": "test-results/tracking-full-product-ui-runtime-artifact-gate-proof/proof.json",
+  "rows": [
+    {
+      "schemaVersion": "v0.5-tracking",
+      "rowId": "tracking-full-product-ui-runtime-preflight-retention-production-write",
+      "generatedAt": "2026-06-08T12:30:00.000Z",
+      "area": "retention-settings-production-write-result",
+      "requiredProofTier": "P4_PHYSICAL_DEVICE",
+      "currentProofTier": "P3_LOCAL_DEV_MACHINE",
+      "status": "manual-required",
+      "sourceRuntimeArtifactGateProofRef": "test-results/tracking-full-product-ui-runtime-artifact-gate-proof/proof.json",
+      "sourceMissingArtifactRef": "output/tracking-plan-proof/product-parent-child-ui-runtime/04-retention-settings-production-write-result.png",
+      "acceptanceCriteria": [
+        "Parent retention settings write is executed through the production runtime path.",
+        "The parent product UI renders the completed write result with source evidence and service status.",
+        "The artifact includes the command result, persisted setting revision, screenshot, and no-product-ready claim boundary."
+      ],
+      "manualValidationCommands": [
+        "cmd /c npm run dev:agent",
+        "cmd /c npm run dev:portal",
+        "manual: capture production retention settings product UI write result artifact under product-parent-child-ui-runtime"
+      ],
+      "requiredArtifacts": [
+        "output/tracking-plan-proof/product-parent-child-ui-runtime/04-retention-settings-production-write-result.png"
+      ],
+      "presentArtifacts": [],
+      "missingArtifacts": [
+        "output/tracking-plan-proof/product-parent-child-ui-runtime/04-retention-settings-production-write-result.png"
+      ],
+      "artifactAcceptanceNotes": [
+        "Hosted local write-result screenshot is not enough for production retention UI runtime.",
+        "Artifact must prove product runtime write/result rendering, not only local derivation."
+      ],
+      "auditRefs": [
+        "tracking-full-product-ui-runtime-preflight-retention-write-audit"
+      ],
+      "fullProductUiRuntimeClaimed": false,
+      "childDeviceRuntimeClaimed": false,
+      "retentionProductionWriteClaimed": false,
+      "physicalDeviceProofClaimed": false,
+      "authorityProofClaimed": false,
+      "providerDeliveryRuntimeClaimed": false,
+      "productionProductUiClaimed": false,
+      "productClaimReady": false
+    },
+    {
+      "schemaVersion": "v0.5-tracking",
+      "rowId": "tracking-full-product-ui-runtime-preflight-child-check-in",
+      "generatedAt": "2026-06-08T12:30:00.000Z",
+      "area": "rendered-child-device-check-in",
+      "requiredProofTier": "P4_PHYSICAL_DEVICE",
+      "currentProofTier": "P3_LOCAL_DEV_MACHINE",
+      "status": "manual-required",
+      "sourceRuntimeArtifactGateProofRef": "test-results/tracking-full-product-ui-runtime-artifact-gate-proof/proof.json",
+      "sourceMissingArtifactRef": "output/tracking-plan-proof/product-parent-child-ui-runtime/05-child-device-rendered-check-in-runtime.png",
+      "acceptanceCriteria": [
+        "Child runtime receives and renders the check-in request on the actual child surface.",
+        "The child check-in response is captured with parent receipt and runtime observation refs.",
+        "The artifact includes child UI screenshot, delivery envelope, response payload, and device/runtime log reference."
+      ],
+      "manualValidationCommands": [
+        "manual: run child-device check-in request against rendered child runtime UI",
+        "manual: capture child UI screenshot and parent receipt under product-parent-child-ui-runtime"
+      ],
+      "requiredArtifacts": [
+        "output/tracking-plan-proof/product-parent-child-ui-runtime/05-child-device-rendered-check-in-runtime.png"
+      ],
+      "presentArtifacts": [],
+      "missingArtifacts": [
+        "output/tracking-plan-proof/product-parent-child-ui-runtime/05-child-device-rendered-check-in-runtime.png"
+      ],
+      "artifactAcceptanceNotes": [
+        "Hosted child-check-in readiness card is not rendered child-device runtime proof.",
+        "Artifact must prove delivery and execution on the child runtime surface."
+      ],
+      "auditRefs": [
+        "tracking-full-product-ui-runtime-preflight-child-check-in-audit"
+      ],
+      "fullProductUiRuntimeClaimed": false,
+      "childDeviceRuntimeClaimed": false,
+      "retentionProductionWriteClaimed": false,
+      "physicalDeviceProofClaimed": false,
+      "authorityProofClaimed": false,
+      "providerDeliveryRuntimeClaimed": false,
+      "productionProductUiClaimed": false,
+      "productClaimReady": false
+    },
+    {
+      "schemaVersion": "v0.5-tracking",
+      "rowId": "tracking-full-product-ui-runtime-preflight-child-consent",
+      "generatedAt": "2026-06-08T12:30:00.000Z",
+      "area": "rendered-child-device-location-consent",
+      "requiredProofTier": "P4_PHYSICAL_DEVICE",
+      "currentProofTier": "P3_LOCAL_DEV_MACHINE",
+      "status": "manual-required",
+      "sourceRuntimeArtifactGateProofRef": "test-results/tracking-full-product-ui-runtime-artifact-gate-proof/proof.json",
+      "sourceMissingArtifactRef": "output/tracking-plan-proof/product-parent-child-ui-runtime/06-child-device-rendered-location-consent-runtime.png",
+      "acceptanceCriteria": [
+        "Child runtime renders the location consent state through the actual child surface.",
+        "Consent decision evidence is tied to parent-visible tracking status and source refs.",
+        "The artifact includes child UI screenshot, consent payload, parent receipt, and runtime log reference."
+      ],
+      "manualValidationCommands": [
+        "manual: run child location consent flow on rendered child runtime UI",
+        "manual: capture consent screenshot, payload, parent receipt, and logs under product-parent-child-ui-runtime"
+      ],
+      "requiredArtifacts": [
+        "output/tracking-plan-proof/product-parent-child-ui-runtime/06-child-device-rendered-location-consent-runtime.png"
+      ],
+      "presentArtifacts": [],
+      "missingArtifacts": [
+        "output/tracking-plan-proof/product-parent-child-ui-runtime/06-child-device-rendered-location-consent-runtime.png"
+      ],
+      "artifactAcceptanceNotes": [
+        "Hosted disclosure/readiness cards do not satisfy rendered child consent runtime proof.",
+        "Artifact must prove the child runtime consent flow and parent receipt together."
+      ],
+      "auditRefs": [
+        "tracking-full-product-ui-runtime-preflight-child-consent-audit"
+      ],
+      "fullProductUiRuntimeClaimed": false,
+      "childDeviceRuntimeClaimed": false,
+      "retentionProductionWriteClaimed": false,
+      "physicalDeviceProofClaimed": false,
+      "authorityProofClaimed": false,
+      "providerDeliveryRuntimeClaimed": false,
+      "productionProductUiClaimed": false,
+      "productClaimReady": false
+    },
+    {
+      "schemaVersion": "v0.5-tracking",
+      "rowId": "tracking-full-product-ui-runtime-preflight-safe-help",
+      "generatedAt": "2026-06-08T12:30:00.000Z",
+      "area": "child-device-safe-help-response",
+      "requiredProofTier": "P4_PHYSICAL_DEVICE",
+      "currentProofTier": "P3_LOCAL_DEV_MACHINE",
+      "status": "manual-required",
+      "sourceRuntimeArtifactGateProofRef": "test-results/tracking-full-product-ui-runtime-artifact-gate-proof/proof.json",
+      "sourceMissingArtifactRef": "output/tracking-plan-proof/product-parent-child-ui-runtime/07-child-device-safe-help-response-runtime.png",
+      "acceptanceCriteria": [
+        "Child runtime renders safe/help response UI and sends a response through the real runtime path.",
+        "Parent product UI receives and displays the safe/help response with source evidence refs.",
+        "The artifact includes child UI screenshot, response payload, parent receipt, and runtime log reference."
+      ],
+      "manualValidationCommands": [
+        "manual: run child safe/help response flow on rendered child runtime UI",
+        "manual: capture child response screenshot, parent receipt, and logs under product-parent-child-ui-runtime"
+      ],
+      "requiredArtifacts": [
+        "output/tracking-plan-proof/product-parent-child-ui-runtime/07-child-device-safe-help-response-runtime.png"
+      ],
+      "presentArtifacts": [],
+      "missingArtifacts": [
+        "output/tracking-plan-proof/product-parent-child-ui-runtime/07-child-device-safe-help-response-runtime.png"
+      ],
+      "artifactAcceptanceNotes": [
+        "Hosted parent route proof cannot satisfy rendered child safe/help runtime evidence.",
+        "Artifact must prove runtime child response and parent receipt, not only copy coverage."
+      ],
+      "auditRefs": [
+        "tracking-full-product-ui-runtime-preflight-safe-help-audit"
+      ],
+      "fullProductUiRuntimeClaimed": false,
+      "childDeviceRuntimeClaimed": false,
+      "retentionProductionWriteClaimed": false,
+      "physicalDeviceProofClaimed": false,
+      "authorityProofClaimed": false,
+      "providerDeliveryRuntimeClaimed": false,
+      "productionProductUiClaimed": false,
+      "productClaimReady": false
+    }
+  ],
+  "summary": {
+    "rowCount": 4,
+    "manualRequiredRowCount": 4,
+    "requiredArtifactCount": 4,
+    "presentArtifactCount": 0,
+    "missingArtifactCount": 4,
+    "productReadyRowCount": 0
+  },
+  "proofClaims": {
+    "fullProductUiRuntimePreflightGenerated": true,
+    "runtimeArtifactGateObserved": true,
+    "hardRuntimeUiArtifactsStillMissing": true,
+    "noFullProductUiRuntimeClaim": true,
+    "noChildDeviceRuntimeClaim": true,
+    "noRetentionProductionWriteClaim": true,
+    "noPhysicalDeviceProofClaim": true,
+    "noAuthorityClaim": true,
+    "noProviderDeliveryRuntimeClaim": true,
+    "noProductionProductUiClaim": true,
+    "noProductReadyClaim": true
+  },
+  "productClaims": {
+    "fullProductUiRuntimeClaimed": false,
+    "childDeviceRuntimeClaimed": false,
+    "retentionProductionWriteClaimed": false,
+    "physicalDeviceProofClaimed": false,
+    "authorityProofClaimed": false,
+    "providerDeliveryRuntimeClaimed": false,
+    "productionProductUiClaimed": false,
+    "productClaimReady": false
+  }
+}

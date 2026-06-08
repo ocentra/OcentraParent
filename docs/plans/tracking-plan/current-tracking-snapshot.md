@@ -105,6 +105,13 @@
   readiness screenshots into the local product UI artifact root, and keeps full
   product UI runtime, child-device runtime, physical-device, authority, provider
   delivery, production UI, and product-ready claims false.
+- Full product UI runtime preflight proof now consumes the full product UI
+  runtime artifact gate and turns the four still-missing hard runtime refs into
+  manual-required rows: retention settings production write-result UI, rendered
+  child-device check-in, rendered child-device location consent, and child-device
+  safe/help response. Product-readiness closure and real-runtime handoff now
+  carry those four required/missing artifact rows without upgrading local hosted
+  screenshots to product runtime proof.
 - Provider and notification local proof exists for POI/provider mapping,
   provider-notification intent, notification preference preflight/status handoff,
   notification receipt boundary, local outbox readiness, provider-delivery
@@ -121,7 +128,9 @@
   carries the latest product-readiness closure accounting, including two
   required retention runtime artifacts, one present local writable execution
   artifact, one missing platform retention runtime enforcement artifact, three
-  retention platform preflight rows, six preflight required artifacts, and
+  retention platform preflight rows, six preflight required artifacts, four
+  full-product UI runtime preflight rows, four full-product UI preflight required
+  artifacts, and
   classifies the remaining handoff rows as six physical/runtime-required rows, one
   provider-runtime-required row, two production-runtime-required rows, and zero
   CI-runnable rows. Handoff rows now consume the claim-audit acceptance matrix
@@ -135,7 +144,9 @@
   derivation row, two retention runtime artifact requirements with one local
   artifact present and one platform runtime enforcement artifact missing, three
   manual-required retention platform preflight rows with six missing platform
-  preflight artifacts, ten child-runtime artifact gaps, and the claim-audit
+  preflight artifacts, four manual-required full-product UI runtime preflight
+  rows with four missing runtime UI artifacts, ten child-runtime artifact gaps,
+  and the claim-audit
   blocker counts. The claim
   audit tier split is now machine-checked as six physical-device/runtime rows,
   one approved-manual desktop row, one manual provider-runtime row, and two
@@ -154,7 +165,8 @@
   preflight/runbook.
 - Actual child-device delivery/runtime execution and rendered child-device UI
   proof.
-- Full product parent/child UI beyond the hosted parent proof route.
+- Full product parent/child UI beyond the hosted parent proof route; the current
+  preflight only names the four remaining runtime UI artifacts and runbook rows.
 - Authority-enrolled device-owner/managed-profile/supervised-device hard-control
   runtime proof.
 - Live provider delivery/receipt runtime with credentials, adapter dispatch,
@@ -240,7 +252,9 @@ Hosted portal proof exists for the current tracking parent route, service-backed
 summary/citation states, report/export rows, notification parent surface,
 retention settings local write result, child check-in/runtime proof cards, and
 unsupported/manual platform states. Full product parent/child UI and actual
-child-device runtime UI remain proof-gated.
+child-device runtime UI remain proof-gated; the full-product UI runtime
+preflight records the missing production write-result, child check-in, child
+consent, and safe/help response refs as manual-required follow-up.
 
 ## Proof That Exists
 

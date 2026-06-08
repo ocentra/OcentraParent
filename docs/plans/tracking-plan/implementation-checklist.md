@@ -1075,6 +1075,19 @@ Every implementation workpack must update, or explicitly justify not updating:
       artifacts while keeping full product UI runtime, child-device delivery
       runtime, physical-device behavior, authority, provider delivery,
       production product UI, and product-ready tracking false.
+- [x] Full product UI runtime preflight proof now turns the four remaining hard
+      runtime UI artifact refs from the runtime gate into manual-required rows
+      without upgrading local hosted screenshots to product runtime proof. Proof:
+      `output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-gate/71-full-product-ui-runtime-preflight-proof.json`;
+      command:
+      `node scripts/test/tracking-full-product-ui-runtime-preflight-proof.mjs`.
+      The rows cover retention settings production write-result UI, rendered
+      child-device check-in, rendered child-device location consent, and
+      child-device safe/help response. Product-readiness closure and
+      real-runtime handoff now carry four required, zero present, and four
+      missing full-product UI preflight artifacts while full product UI runtime,
+      child-device runtime, physical-device, authority, provider delivery,
+      production product UI, and product-ready tracking stay false.
 - [x] Production worker runtime artifact gate proof now verifies the exact
       required `tracking-production/*.json` artifact refs before any tracking
       production worker runtime can be treated as present. Proof:
@@ -1119,7 +1132,8 @@ Every implementation workpack must update, or explicitly justify not updating:
       `node scripts/test/tracking-real-runtime-handoff-proof.mjs`.
       The handoff now carries product-readiness closure accounting, preserves
       the eight local full-product UI artifacts, child-runtime, retention-runtime,
-      and production-worker required/present/missing artifact counts, plus
+      production-worker, and full-product UI runtime preflight
+      required/present/missing artifact counts, plus
       retention platform preflight row/artifact counts, claim-audit blocker
       counts and tier split, and classifies the remaining manual follow-up as
       six physical/runtime rows, one provider-runtime row, two

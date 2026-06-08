@@ -24,6 +24,12 @@ describe('tracking product readiness closure proof', () => {
     expect(proof.aggregateEvidence.fullProductUiLocalArtifactCount).toBe(5);
     expect(proof.aggregateEvidence.fullProductUiClosureRetentionWritableExecutionRowCount).toBe(1);
     expect(proof.aggregateEvidence.fullProductUiClosureChildRuntimeMissingArtifactCount).toBe(10);
+    expect(proof.aggregateEvidence.fullProductUiRuntimePreflightRowCount).toBe(4);
+    expect(proof.aggregateEvidence.fullProductUiRuntimePreflightManualRequiredRowCount).toBe(4);
+    expect(proof.aggregateEvidence.fullProductUiRuntimePreflightRequiredArtifactCount).toBe(4);
+    expect(proof.aggregateEvidence.fullProductUiRuntimePreflightPresentArtifactCount).toBe(0);
+    expect(proof.aggregateEvidence.fullProductUiRuntimePreflightMissingArtifactCount).toBe(4);
+    expect(proof.aggregateEvidence.fullProductUiRuntimePreflightProductReadyRowCount).toBe(0);
     expect(proof.aggregateEvidence.androidEmulatorRequiredArtifactCount).toBe(12);
     expect(proof.aggregateEvidence.androidEmulatorPresentArtifactCount).toBe(12);
     expect(proof.aggregateEvidence.androidEmulatorMissingArtifactCount).toBe(0);
@@ -62,7 +68,9 @@ describe('tracking product readiness closure proof', () => {
     expect(proof.aggregateEvidence.claimAuditProductionRuntimeRequiredRowCount).toBe(2);
     expect(proof.aggregateEvidence.productClaimReady).toBe(false);
   });
+});
 
+describe('tracking product readiness closure row schema', () => {
   it('rejects product-ready overclaims', () => {
     const [row] = buildTrackingProductReadinessClosureProof(GeneratedAt, sourceProofs(), aggregateEvidence()).rows;
 
@@ -101,6 +109,12 @@ function aggregateEvidence() {
     fullProductUiClosureRetentionWritableExecutionRowCount: 1,
     fullProductUiClosureRetentionWritableExecutionDerivationCount: 1,
     fullProductUiClosureChildRuntimeMissingArtifactCount: 10,
+    fullProductUiRuntimePreflightRowCount: 4,
+    fullProductUiRuntimePreflightManualRequiredRowCount: 4,
+    fullProductUiRuntimePreflightRequiredArtifactCount: 4,
+    fullProductUiRuntimePreflightPresentArtifactCount: 0,
+    fullProductUiRuntimePreflightMissingArtifactCount: 4,
+    fullProductUiRuntimePreflightProductReadyRowCount: 0,
     androidEmulatorRequiredArtifactCount: 12,
     androidEmulatorPresentArtifactCount: 12,
     androidEmulatorMissingArtifactCount: 0,

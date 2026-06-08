@@ -1,11 +1,14 @@
 # Tracking Product Readiness Closure Source Snapshot
 
 - generatedAt: 2026-06-07T16:30:00.000Z
-- commit: 901be3cc799a791a3661cad0c9d62d366aa78a67
+- commit: 7b6432c7e51f81726136f31d6e8c4ec405d7d28a
 - requiredProofTier: P3_LOCAL_DEV_MACHINE
 - currentProofTier: P3_LOCAL_DEV_MACHINE
 - status: proved
 - proves local/CI proof accounting is closed for current tracking continuation scope
+- fullProductUiRuntimePreflightRowCount: 4
+- fullProductUiRuntimePreflightRequiredArtifactCount: 4
+- fullProductUiRuntimePreflightMissingArtifactCount: 4
 - androidEmulatorRequiredArtifactCount: 12
 - androidEmulatorPresentArtifactCount: 12
 - androidEmulatorMissingArtifactCount: 0
