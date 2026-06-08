@@ -60,7 +60,7 @@ commands ran, and which higher-tier/manual tests remain.
 14. Migration/rollback/version-skew tests.
 15. Chaos/fault-injection tests.
 16. Clock/DST/expiry tests.
-17. AI prompt-injection and safety-regression tests.
+17. AI boundary contract tests.
 18. Logging/metrics/tracing/alert tests.
 19. Human misuse/rate-limit tests.
 20. Platform tests for Windows, Linux/WSL, Docker, Android, and iOS as
@@ -246,10 +246,35 @@ Required location evidence chain tests:
 - stale/offline produces degraded state;
 - duplicate sample is idempotent.
 
-AI integration may use only a real local deterministic adapter or a recorded
-fixture-tier model response labelled as fixture-tier. It must prove AI receives
-evidence refs only, validates schema, rejects invalid output/prompt injection,
-and cannot publish policy, live-mode, notification, escalation, or enforcement.
+AI is an external consumer/dependency boundary for tracking. Tracking does not
+own AI provider selection, provider mesh, work lease/claim internals, model
+quality, prompt tuning, prompt-injection model behavior, temperature behavior,
+or summarizer accuracy beyond the contract boundary. Those tests belong to the
+AI lane.
+
+Tracking must prove only the AI handoff/result contract:
+
+- tracking-does-not-call-ai-directly-without-event;
+- tracking-publishes-ai-request-only-when-policy-or-detection-requires-analysis;
+- ai-request-cites-location-geofence-expected-place-nearby-place-evidence-refs;
+- ai-request-excludes-raw-private-location-history-bulk;
+- ai-request-has-purpose-scope-and-retention-state;
+- ai-result-contract-valid-accepted-as-evidence;
+- ai-result-missing-evidence-ref-rejected;
+- ai-result-hallucinated-evidence-ref-rejected;
+- ai-result-wrong-child-or-device-ref-rejected;
+- ai-result-stale-correlation-rejected;
+- ai-result-cannot-start-live-mode;
+- ai-result-cannot-create-notification;
+- ai-result-cannot-create-escalation;
+- ai-result-cannot-authorize-policy;
+- ai-result-cannot-execute-enforcement;
+- ai-unavailable-produces-manual-review-or-degraded-state;
+- ai-timeout-produces-manual-review-or-degraded-state.
+
+Accepted AI result events feed policy as evidence only. They must never create
+policy authority, live tracking, notification, escalation, enforcement, or audit
+authority directly.
 
 Notification provider integration must not claim delivery unless real
 credentials/provider/device proof exists. Provider unavailable, disabled, and
@@ -414,9 +439,10 @@ Security tests must cover:
 - CORS, origin, host header, forwarded-host, header injection, request
   splitting, open redirect, URL hijack, WebSocket origin, request smuggling,
   desync, and cache poisoning are rejected where applicable;
-- prompt injection in nearby-place names, child notes, provider results, and AI
-  output cannot create policy/live-mode/notification/escalation or unsafe
-  accusation copy.
+- malformed, stale, wrong-child/device, hallucinated-ref, or unauthorized AI
+  result events are rejected at the tracking boundary;
+- accepted AI result evidence cannot create policy/live-mode/notification/
+  escalation/enforcement authority or unsafe accusation copy.
 
 Concurrency/race tests must cover duplicate samples, config change while
 live-mode starts, parent stop while policy starts live, retention delete while
