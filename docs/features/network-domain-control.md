@@ -289,9 +289,15 @@ compete on control while staying clear about attribution confidence and privacy.
   into `agent-core` network runtime observations, publishes them through the
   local `ocentra-eventing` spine, and reports observed/delivered/failed,
   stored, dead-letter, manual-required, and enforcement-command event counts in
-  the read-model payload. This is service-local delivery only; broker/family-hub
-  transport, production retention/replay, policy execution, adapter execution,
-  and host filtering remain unclaimed.
+  the read-model payload. The same service payload now includes row51
+  stored-flow product-path proof counts and refs: stored rows with a domain
+  target derive row-scoped trigger/capture/ingest/typed-event refs through
+  `ocentra-network-evidence` into policy-decision, action-result,
+  retention/delete/export, and portal read-model refs, while tombstoned rows and
+  no-domain rows do not invent active policy/action refs. This is service-local
+  proof metadata only; broker/family-hub transport, production
+  retention/replay, policy execution, adapter execution, host filtering, exact
+  URL/content, and external routing remain unclaimed.
 - E-D added service-visible network runtime event-chain streaming:
   `agent.network.runtime.event-chain.stream.get` reads stored ActivityStore
   network rows, republishes metadata-only observations through the local runtime,
@@ -527,12 +533,14 @@ compete on control while staying clear about attribution confidence and privacy.
   publish network/policy/enforcement events, compute evidence grades, decide
   policy, or execute adapter/enforcement commands.
 - E-D added an integrated event-plus-network product-path proof in
-  `ocentra-network-evidence`: one deterministic artifact carries trigger refs,
-  typed-event refs, evidence refs, local-AI queue refs, AI detection/audit refs,
+  `ocentra-network-evidence` and the service network read-model path: one
+  deterministic artifact carries stored-row trigger refs, typed-event refs,
+  evidence refs, local-AI queue refs, AI detection/audit refs,
   policy/risk-budget refs, adapter proof refs, audit refs, portal read-model
   refs, and retention/delete/export refs while proving weak or unavailable
   evidence cannot authorize adapter apply and AI/UI/network surfaces cannot
-  bypass policy.
+  bypass policy. Tombstoned rows and rows without domain targets do not invent
+  policy/action refs.
 - E-D added a platform-claim manifest proof in `ocentra-network-evidence` that
   composes Windows Firewall/WFP, Android VpnService, Apple Network Extension
   macOS/iOS, and Linux nftables/eBPF/TUN gates into fixture platform-scope,

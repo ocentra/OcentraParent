@@ -1,9 +1,10 @@
 {
   "path": [
-    "trigger-ref",
-    "capture-ref",
-    "ingest-ref",
-    "typed-event-ref",
+    "stored-activity-network-flow-row",
+    "row-scoped-trigger-ref",
+    "row-scoped-capture-ref",
+    "row-scoped-ingest-ref",
+    "row-scoped-typed-event-ref",
     "evidence-bundle",
     "local-ai-queue-refs-only",
     "ai-detection",
@@ -31,6 +32,8 @@
     "retention/delete/export"
   ],
   "noBypassInvariants": [
+    "stored network rows without a domain target do not invent policy refs",
+    "retention tombstones do not drive active product path decisions",
     "weak or unavailable evidence cannot authorize adapter apply",
     "manual-required, dry-run, and unavailable action results stay non-enforcing",
     "AI remains advisory",
@@ -44,6 +47,7 @@
     "full policy engine execution",
     "host DNS/firewall mutation",
     "broker or family-hub delivery",
-    "portal risk-budget/performance UI rendering"
+    "portal risk-budget/performance UI rendering",
+    "exact URL/content from stored network-only rows"
   ]
 }

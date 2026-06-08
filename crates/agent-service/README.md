@@ -46,7 +46,12 @@ development paths and orchestrates runtime commands.
 - Network flow read-model reports through
   `agent.network.flow.read-model.get`, backed by ActivityStore SQLite rows and
   local `ocentra-eventing` runtime delivery counts for stored network rows
-  without broker, family-hub, adapter, or host-filter claims.
+  without broker, family-hub, adapter, or host-filter claims. The same service
+  payload includes row51 stored-flow product-path proof counts and refs: stored
+  rows with a domain target derive row-scoped trigger, capture, ingest,
+  typed-event, policy-decision, action-result, retention, delete, export, and
+  portal read-model refs through `ocentra-network-evidence`, while tombstoned
+  rows and rows without a domain target do not invent policy/action refs.
 - Network remote delivery status reports through
   `agent.network.remote-delivery.status.get`, derived from the row10n
   delete/export status bridge identity over the local row10k transport-dispatch
@@ -159,6 +164,10 @@ flowchart LR
 - Network runtime delivery output is service-local and read-model-count only;
   broker/family-hub delivery, cross-process durable replay/retention, policy
   execution, adapter execution, and host filtering remain separate gaps.
+- Network product-path bridge output is service-backed proof metadata only;
+  live capture drivers, local-AI model execution, full policy engine execution,
+  adapter mutation, exact URL/content claims, broker/family-hub delivery, and
+  host filtering remain separate gaps.
 - Network remote delivery status output is a read-only proof/status bridge;
   row10m delete/export readiness is visible there, but real broker or
   family-hub transport, remote acknowledgement, provider/child-device delivery,

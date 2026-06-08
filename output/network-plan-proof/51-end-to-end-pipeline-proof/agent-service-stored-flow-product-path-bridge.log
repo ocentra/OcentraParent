@@ -1,0 +1,9 @@
+running 3 tests
+test network_product_path_bridge_tests::rows_without_domain_target_are_skipped_without_inventing_policy_refs ... ok
+test network_product_path_bridge_tests::stored_network_flow_rows_drive_product_path_refs_without_enforcement ... ok
+test network_product_path_bridge_tests::tombstoned_network_flow_rows_do_not_drive_product_path_decisions ... ok
+
+test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 278 filtered out; finished in <duration>
+
+    Finished `test` profile [unoptimized + debuginfo] target(s) in <duration>
+     Running unittests src/main.rs (target/debug/deps/<test-binary>)

@@ -475,7 +475,7 @@ const proof = {
     'adapter action is gated by policy, capability proof, result state, rollback/unavailable refs, and audit refs',
     'journal, replay, receipt-ledger, durable envelope, outbox, and local read-model proof are present',
     'remote fixture transport, delete/export readiness, and delete/export status bridge proof are present without live propagation',
-    'portal evidence drawer and risk/performance/platform status are service/read-model backed and non-authoritative',
+    'portal evidence drawer, risk/performance/platform status, and row51 stored-flow product-path bridge are service/read-model backed and non-authoritative',
     'security readiness and performance benchmark proof roots are present',
   ],
   manualRequiredBoundaries: [

@@ -12,10 +12,11 @@ writeFileSync(
   `${JSON.stringify(
     {
       path: [
-        'trigger-ref',
-        'capture-ref',
-        'ingest-ref',
-        'typed-event-ref',
+        'stored-activity-network-flow-row',
+        'row-scoped-trigger-ref',
+        'row-scoped-capture-ref',
+        'row-scoped-ingest-ref',
+        'row-scoped-typed-event-ref',
         'evidence-bundle',
         'local-ai-queue-refs-only',
         'ai-detection',
@@ -43,6 +44,8 @@ writeFileSync(
         'retention/delete/export',
       ],
       noBypassInvariants: [
+        'stored network rows without a domain target do not invent policy refs',
+        'retention tombstones do not drive active product path decisions',
         'weak or unavailable evidence cannot authorize adapter apply',
         'manual-required, dry-run, and unavailable action results stay non-enforcing',
         'AI remains advisory',
@@ -57,6 +60,7 @@ writeFileSync(
         'host DNS/firewall mutation',
         'broker or family-hub delivery',
         'portal risk-budget/performance UI rendering',
+        'exact URL/content from stored network-only rows',
       ],
     },
     null,
@@ -94,6 +98,18 @@ const commands = [
     log: join(proofRoot, 'pipeline-tests.log'),
   },
   {
+    name: 'agent-service-stored-flow-product-path-bridge',
+    command: 'cargo',
+    args: ['test', '-p', 'ocentra-parent-agent-service', 'network_product_path_bridge'],
+    log: join(proofRoot, 'agent-service-stored-flow-product-path-bridge.log'),
+  },
+  {
+    name: 'agent-service-network-flow-payload-product-path',
+    command: 'cargo',
+    args: ['test', '-p', 'ocentra-parent-agent-service', 'network_flow_payload'],
+    log: join(proofRoot, 'agent-service-network-flow-payload-product-path.log'),
+  },
+  {
     name: 'network-evidence-clippy',
     command: 'cargo',
     args: ['clippy', '-p', 'ocentra-network-evidence', '--all-targets', '--', '-D', 'warnings'],
@@ -123,10 +139,12 @@ const proof = {
   },
   provenRows: ['51 Integrated event + network product path proof'],
   provenRootGates: [
+    'stored ActivityStore network-flow rows derive row-scoped trigger/capture/ingest/typed-event refs into the row51 pipeline proof',
     'typed local event-chain refs are preserved before product-path composition',
     'capture and ingest refs are carried before the typed event and evidence bundle',
     'evidence bundle to AI audit to policy to adapter proof to action result preserves exact refs',
     'manual-required, dry-run, and unavailable action-result states are proven in the same product path',
+    'retention tombstones and rows without domain targets do not invent active policy/action refs',
     'weak/unavailable evidence cannot publish enforcement commands',
     'AI/UI/network cannot bypass policy',
     'retention/delete/export refs are part of the same proof path',
@@ -138,6 +156,7 @@ const proof = {
     'notification provider delivery',
     'host DNS/firewall/WFP/VPN/NetworkExtension/Linux adapter mutation',
     'broker or family-hub transport',
+    'exact URL/content from stored network-only rows',
     'portal risk-budget/performance UI rendering',
     'production SLO or external audit completion',
   ],
@@ -145,7 +164,7 @@ const proof = {
 writeFileSync(join(proofRoot, 'proof-summary.json'), `${JSON.stringify(proof, null, 2)}\n`);
 writeFileSync(join(testRoot, 'proof.json'), `${JSON.stringify(proof, null, 2)}\n`);
 console.log(
-  'network-end-to-end-pipeline-proof-ok:agent-core-event-refs,agent-core-weak-no-enforcement,pipeline-tests,clippy,source-shape'
+  'network-end-to-end-pipeline-proof-ok:agent-core-event-refs,agent-core-weak-no-enforcement,pipeline-tests,service-stored-flow-bridge,service-payload,clippy,source-shape'
 );
 console.log(`proof=${join(proofRoot, 'proof-summary.json')}`);
 
