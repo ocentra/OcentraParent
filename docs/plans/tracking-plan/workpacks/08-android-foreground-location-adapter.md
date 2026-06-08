@@ -134,7 +134,8 @@ This workpack can be assigned independently, implemented against the owning doma
       sample state, fused current sample state, provider, timestamp, accuracy
       metadata, source, and raw latitude/longitude proof export are now observed
       on emulator. Samsung S9 physical proof now observes foreground/background
-      permission grants and foreground-service-backed background GPS samples;
+      permission grants and 3,194 foreground-service-backed background GPS
+      samples via debug APK push plus on-device package-manager install;
       authority, provider delivery, notification delivery, geofence
       transition/dwell delivery, Android system geofence delivery, and
       product-ready Android tracking remain unclaimed.
@@ -155,7 +156,8 @@ This workpack can be assigned independently, implemented against the owning doma
       `docs/product-capability-checklist.md` update is queued through the hub
       doc delta.
 - [x] Known gaps/manual-required states: this remains emulator P3 local proof
-      plus Samsung S9 physical permission/background-sample evidence. Android
+      plus Samsung S9 physical permission/background-sample evidence
+      (`backgroundLocationSampleCount: 3194`). Android
       physical geofence transition/dwell delivery, Android system geofence
       delivery, authority, provider delivery, notification delivery, and
       product-ready Android tracking remain unclaimed.

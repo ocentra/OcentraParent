@@ -1,5 +1,5 @@
 import { spawnSync } from 'node:child_process';
-import { mkdir, stat, writeFile } from 'node:fs/promises';
+import { mkdir, rm, stat, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 
@@ -11,7 +11,7 @@ const serviceName = 'OcentraParentAgentService';
 const appLaunchText = 'Ocentra Parent Agent service scaffold is running.';
 const defaultPhysicalSerial = '192.168.2.45:5555';
 const defaultPhysicalObservationWindowSeconds = 30;
-const androidCommandTimeoutMs = 120_000;
+const androidCommandTimeoutMs = 240_000;
 const buildCommandTimeoutMs = 300_000;
 const apkPath = path.join(
   repoRoot,
@@ -41,6 +41,7 @@ let requiredArtifactRefs = [];
 await main();
 
 async function main() {
+  await rm(resultDir, { recursive: true, force: true });
   await mkdir(resultDir, { recursive: true });
   await mkdir(output08, { recursive: true });
   await mkdir(output09, { recursive: true });
@@ -72,7 +73,7 @@ async function main() {
     throw new Error(`Physical proof requires a non-emulator serial, received ${serial}.`);
   }
 
-  await writeCommandArtifact('02-adb-install.txt', tools.adbPath, ['-s', serial, 'install', '-r', apkPath]);
+  await installPhysicalApk(tools, serial);
   await resetPhysicalRuntimeProofState(tools, serial);
   await grantDeclaredLocationPermissions(tools, serial);
   runCapture(tools.adbPath, ['-s', serial, 'logcat', '-c']);
@@ -212,7 +213,7 @@ async function buildProof(runtime) {
         runtime.uiDump,
         runtime.serviceDump
       ),
-      foregroundServiceObserved: runtime.serviceDump.includes(serviceName),
+      foregroundServiceObserved: foregroundServiceObserved(runtime.serviceDump),
       uiLaunchTextObserved: runtime.uiDump.includes(appLaunchText),
       batteryDumpObserved: runtime.batteryDump.includes('level:'),
       connectivityDumpObserved: /Network|Active|Connectivity/u.test(runtime.connectivityDump),
@@ -255,7 +256,7 @@ async function buildProof(runtime) {
         runtime.uiDump,
         runtime.serviceDump
       ),
-      foregroundServiceObserved: runtime.serviceDump.includes(serviceName),
+      foregroundServiceObserved: foregroundServiceObserved(runtime.serviceDump),
       uiLaunchTextObserved: runtime.uiDump.includes(appLaunchText),
       batteryDumpObserved: runtime.batteryDump.includes('level:'),
       connectivityDumpObserved: /Network|Active|Connectivity/u.test(runtime.connectivityDump),
@@ -309,22 +310,10 @@ function assertProof(proof) {
 async function writeProofArtifacts(proof) {
   await writeJson('proof.json', proof);
   await writeJson('tracking-android-physical-device-runtime-read-model.json', proof.rows);
-  await writeFile(
-    path.join(output08, '19-android-physical-device-runtime-proof.json'),
-    `${JSON.stringify(proof, null, 2)}\n`
-  );
-  await writeFile(
-    path.join(output09, '19-android-physical-device-runtime-proof.json'),
-    `${JSON.stringify(proof, null, 2)}\n`
-  );
-  await writeFile(
-    path.join(output10, '19-android-physical-device-runtime-proof.json'),
-    `${JSON.stringify(proof, null, 2)}\n`
-  );
-  await writeFile(
-    path.join(output33, '69-android-physical-device-runtime-proof.json'),
-    `${JSON.stringify(proof, null, 2)}\n`
-  );
+  await writeFile(path.join(output08, '19-android-physical-device-runtime-proof.json'), stringifyJson(proof));
+  await writeFile(path.join(output09, '19-android-physical-device-runtime-proof.json'), stringifyJson(proof));
+  await writeFile(path.join(output10, '19-android-physical-device-runtime-proof.json'), stringifyJson(proof));
+  await writeFile(path.join(output33, '69-android-physical-device-runtime-proof.json'), stringifyJson(proof));
   await writeFile(path.join(output10, '19-android-physical-device-runtime-validation.log'), validationLog(), 'utf8');
 }
 
@@ -367,9 +356,26 @@ async function collectScreenshot(tools, serial) {
 }
 
 async function collectTextArtifact(name, command, args) {
-  const output = runCapture(command, args);
+  const output = redactTextArtifact(runCapture(command, args));
   await writeText(name, output);
   return output;
+}
+
+async function installPhysicalApk(tools, serial) {
+  const remoteApkPath = '/data/local/tmp/ocentra-parent-agent-debug.apk';
+  const pushOutput = runCapture(tools.adbPath, ['-s', serial, 'push', apkPath, remoteApkPath]);
+  const installOutput = runCapture(tools.adbPath, [
+    '-s',
+    serial,
+    'shell',
+    'pm',
+    'install',
+    '-r',
+    '-t',
+    '-g',
+    remoteApkPath,
+  ]);
+  await writeText('02-adb-install.txt', `${pushOutput}\n${installOutput}`);
 }
 
 async function collectRunAsTextArtifact(name, tools, serial, args) {
@@ -419,6 +425,14 @@ function packageLaunchObserved(activityDump, windowDump, uiDump, serviceDump = '
     windowDump.includes(packageName) ||
     uiDump.includes(appLaunchText) ||
     serviceDump.includes(packageName)
+  );
+}
+
+function foregroundServiceObserved(serviceDump) {
+  return (
+    serviceDump.includes(`ServiceRecord`) &&
+    serviceDump.includes(serviceName) &&
+    (serviceDump.includes('isForeground=true') || serviceDump.includes('foregroundId='))
   );
 }
 
@@ -639,9 +653,38 @@ function delay(ms) {
 }
 
 async function writeText(name, value) {
-  await writeFile(path.join(resultDir, name), value, 'utf8');
+  await writeFile(path.join(resultDir, name), normalizeTextArtifact(value), 'utf8');
 }
 
 async function writeJson(name, value) {
-  await writeFile(path.join(resultDir, name), `${JSON.stringify(value, null, 2)}\n`, 'utf8');
+  await writeFile(path.join(resultDir, name), stringifyJson(value), 'utf8');
+}
+
+function normalizeTextArtifact(value) {
+  const normalized = redactTextArtifact(value).replaceAll('\r\n', '\n').replaceAll('\r', '\n');
+  return `${normalized
+    .split('\n')
+    .map((line) => line.trimEnd())
+    .join('\n')
+    .replace(/\n*$/u, '')}\n`;
+}
+
+function stringifyJson(value) {
+  return `${JSON.stringify(redactJsonValue(value), null, 2)}\n`;
+}
+
+function redactJsonValue(value) {
+  if (typeof value === 'string') return redactTextArtifact(value);
+  if (Array.isArray(value)) return value.map((item) => redactJsonValue(item));
+  if (value !== null && typeof value === 'object') {
+    return Object.fromEntries(Object.entries(value).map(([key, entry]) => [key, redactJsonValue(entry)]));
+  }
+  return value;
+}
+
+function redactTextArtifact(value) {
+  return value
+    .replaceAll(/AIza[0-9A-Za-z_-]+/gu, '[REDACTED_GOOGLE_API_KEY]')
+    .replaceAll(/AEdPqrE[0-9A-Za-z_-]+/gu, '[REDACTED_GOOGLE_BACKUP_KEY]')
+    .replaceAll(/com\.facebook\.sdk\.ClientToken=[^,}\]\r\n]+/gu, 'com.facebook.sdk.ClientToken=[REDACTED]');
 }

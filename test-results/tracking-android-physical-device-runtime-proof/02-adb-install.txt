@@ -1,2 +1,3 @@
-Performing Streamed Install
+C:\Users\sujan\.codex\worktrees\ocentra-parent-codex-a\OcentraParent\target\release-packages\android\ocentra-parent-agent-android-debug-latest.apk: 1 file pushed, 0 skipped. 4.7 MB/s (2404529 bytes in 0.486s)
+
 Success

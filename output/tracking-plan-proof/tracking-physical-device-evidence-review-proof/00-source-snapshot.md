@@ -1,7 +1,7 @@
 # Tracking Physical Device Evidence Review Proof
 
 - generatedAt: 2026-06-08T14:25:00.000Z
-- commit: 23430858cbbbaac5ec9b646b0234c30fd9a23ef0
+- commit: f18b002578dacca6e1c2ccf35992e27ab87aaa18
 - requiredProofTier: P4_PHYSICAL_DEVICE_CONTENT_REVIEW
 - currentProofTier: P3_LOCAL_DEV_MACHINE
 - currentStatus: artifact_missing

@@ -141,20 +141,23 @@ Every checked item must cite one or more proof artifacts.
       proximity broadcast counter is nonzero; Android system dwell transition
       delivery and physical location/geofence proof remain required before this
       can be checked. A Samsung S9 physical-device runtime proof now records
-      package install, foreground-service `ServiceRecord`, battery/connectivity
-      dumps, UI/keyguard screenshot, and logcat artifacts under
-      `test-results/tracking-android-physical-device-runtime-proof/` without
-      claiming physical location samples, physical geofence transitions,
-      authority, production, or product-ready Android tracking. WP33
-      physical-device artifact gate proof now consumes those 13 physical
-      package/service/status artifacts as Android supporting status evidence,
+      debug APK push plus on-device package-manager install,
+      foreground-service `ServiceRecord` with `isForeground=true`, 3,194
+      foreground-service-backed background GPS samples, app-owned geofence
+      registration, Android proximity registration metadata,
+      battery/connectivity dumps, UI/keyguard screenshot, and logcat artifacts
+      under `test-results/tracking-android-physical-device-runtime-proof/`
+      without claiming physical geofence transitions, Android system geofence
+      delivery, authority, production, or product-ready Android tracking. WP33
+      physical-device artifact gate proof now consumes those 20 physical
+      package/service/status/sample artifacts as Android supporting status evidence,
       while keeping the separate physical behavior artifact set missing. It
       writes a named proof root and manual validation runbook at
       `output/tracking-plan-proof/tracking-physical-device-artifact-gate-proof/`
       with Android physical-device acceptance criteria, commands, required
       artifacts, and no-claim acceptance notes. WP33 physical-device evidence
       review proof now consumes that gate, records one
-      `physicalDeviceStatusObserved` Android row with 13 supporting status
+      `physicalDeviceStatusObserved` Android row with 20 supporting status
       artifacts, and keeps Android behavior artifact content `artifact-missing`
       with zero accepted content rows and zero product-ready rows.
 - [ ] iOS background/region claims have real device permission/background
@@ -205,15 +208,16 @@ Every checked item must cite one or more proof artifacts.
       physical-device readiness. Artifact:
       `test-results/tracking-android-emulator-artifact-inventory-proof/proof.json`.
 - [x] Android physical-device runtime proof verifies a Samsung S9 over Wi-Fi ADB
-      (`192.168.2.45:5555`) with debug APK install, launch attempt,
-      foreground-service `ServiceRecord`, device metadata, foreground/background
-      location permissions, foreground-service-backed background GPS sample
-      delivery, app-owned geofence registration, Android proximity registration
-      metadata, battery/connectivity dumps, UI/keyguard screenshot, and logcat
-      evidence. Physical background location sample delivery is observed, but
-      physical geofence transition/dwell counters and Android system geofence
-      delivery remain zero/unclaimed; authority enrollment, production workers,
-      and product-ready Android tracking remain unclaimed. Artifact:
+      (`192.168.2.45:5555`) with debug APK push plus on-device package-manager
+      install, launch attempt, foreground-service `ServiceRecord` with
+      `isForeground=true`, device metadata, foreground/background location
+      permissions, 3,194 foreground-service-backed background GPS samples,
+      app-owned geofence registration, Android proximity registration metadata,
+      battery/connectivity dumps, UI/keyguard screenshot, and logcat evidence.
+      Physical background location sample delivery is observed, but physical
+      geofence transition/dwell counters and Android system geofence delivery
+      remain zero/unclaimed; authority enrollment, production workers, and
+      product-ready Android tracking remain unclaimed. Artifact:
       `test-results/tracking-android-physical-device-runtime-proof/proof.json`.
 - [x] WSL/local replay proof records WSL2/Ubuntu, linked-worktree Git mapping,
       contract build output, service read-model proof, and Rust core tracking
@@ -1121,7 +1125,7 @@ Every implementation workpack must update, or explicitly justify not updating:
       behavior artifact sets, and keep physical-device behavior, authority,
       provider delivery, production workers, and product-ready tracking false.
       The Android row separately records the Samsung S9 package/service/status
-      proof as 13 supporting status artifacts without completing the behavior
+      proof as 20 supporting status artifacts without completing the behavior
       artifact set.
 - [x] Physical-device evidence review proof now consumes the physical artifact
       gate and proves file presence is not content approval. Proof:
@@ -1130,7 +1134,7 @@ Every implementation workpack must update, or explicitly justify not updating:
       `node scripts/test/tracking-physical-device-evidence-review-proof.mjs`.
       Current Android/iOS rows have zero accepted content rows and zero
       product-ready rows; the Android row carries one physical status-observed
-      support chain with 13 artifacts while still reporting `artifact-missing`
+      support chain with 20 artifacts while still reporting `artifact-missing`
       for physical location/geofence behavior. Product-readiness closure and
       real-runtime handoff now carry those review counts before any real-device
       behavior claim can advance.

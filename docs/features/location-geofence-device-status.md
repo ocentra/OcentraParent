@@ -161,7 +161,7 @@ expose location or device-status features. Parents expect this category.
   consumes the Android/iOS physical-device artifact gate, preserves the
   required artifact names, acceptance criteria, manual commands, and review
   notes, and now carries the Samsung S9 Android package/service/status proof as
-  13 supporting status artifacts while keeping the Android physical
+  20 supporting status artifacts while keeping the Android physical
   location/geofence behavior artifact set missing. It keeps artifact content
   unaccepted, physical behavior unclaimed, and product-ready tracking false
   until real-device behavior artifacts exist and are reviewed.
@@ -252,14 +252,15 @@ expose location or device-status features. Parents expect this category.
 - WP08/WP09/WP10/WP33 Android physical-device runtime proof now exists through
   `node scripts/test/tracking-android-physical-device-runtime-proof.mjs`. It
   verifies the Samsung S9 Wi-Fi ADB target (`192.168.2.45:5555`) with debug APK
-  install, launch attempt, foreground-service `ServiceRecord`, device metadata,
-  foreground/background location permissions, foreground-service-backed
+  push plus on-device package-manager install, launch attempt, foreground-service
+  `ServiceRecord` with `isForeground=true`, device metadata,
+  foreground/background location permissions, 3,194 foreground-service-backed
   background GPS samples, app-owned geofence registration, Android proximity
   registration metadata, battery/connectivity dumps, UI/keyguard screenshot, and
-  logcat artifacts. Physical location sampling is observed, but physical
-  geofence transition/dwell counters and Android system geofence delivery remain
-  zero/unclaimed; authority enrollment, production workers, and product-ready
-  Android tracking remain unclaimed.
+  logcat artifacts. Physical background location sampling is observed, but
+  physical geofence transition/dwell counters and Android system geofence
+  delivery remain zero/unclaimed; authority enrollment, production workers, and
+  product-ready Android tracking remain unclaimed.
 - WP08/WP09/WP30/WP33 local platform proof batch now exists through
   `node scripts/test/tracking-local-platform-proof-batch.mjs`. It aggregates
   Android emulator runtime evidence, WSL/local replay, hosted parent UI
