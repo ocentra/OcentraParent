@@ -124,14 +124,14 @@
         "category": "device-status",
         "required": true,
         "present": true,
-        "byteSize": 17103
+        "byteSize": 4849
       },
       {
         "artifactRef": "output/tracking-plan-proof/10-android-battery-connectivity-and-status-adapter/16-validation-commands.log",
         "category": "validation-log",
         "required": true,
         "present": true,
-        "byteSize": 9821
+        "byteSize": 635
       }
     ],
     "foregroundPermissionGranted": true,
