@@ -1,12 +1,13 @@
 # Screen AI Final Product Path Proof
 
-Generated: 2026-06-06T12:18:01.309Z
+Generated: 2026-06-08T01:20:40.081Z
 
 ## Source Artifacts
 
 - actionDispatch: `output/screen-ai-pipeline-proof/action-dispatch/proof-summary.json`
 - blockActionDispatch: `output/screen-ai-pipeline-proof/block-action-dispatch/proof-summary.json`
 - deletionRetentionCustody: `output/screen-ai-pipeline-proof/deletion-retention-custody/proof-summary.json`
+- finalAdapterAudit: `output/screen-ai-pipeline-proof/final-adapter-dependency-audit/proof-summary.json`
 - liveOperator: `output/screen-ai-pipeline-proof/live-operator/proof-summary.json`
 - liveOperatorAi: `output/ai-plan-proof/live-operator/proof-summary.json`
 - portalChain: `output/screen-ai-pipeline-proof/portal-chain/proof-summary.json`
@@ -31,7 +32,11 @@ Generated: 2026-06-06T12:18:01.309Z
   "serviceBackedReadModelProven": true,
   "retentionCustodyProven": true,
   "protectedSurfaceSkipProven": true,
+  "finalAdapterAuditProven": true,
   "finalPathEvidenceComplete": true,
+  "broadBrowserNetworkMobileProductComplete": false,
+  "adapterProductCompleteBlockedByAudit": true,
+  "custodyArtifactRows": 3,
   "singleRuntimeSessionRerun": false,
   "retainedRealRunArtifactsVerified": true,
   "rawScreenshotsRetainedByDefault": false,

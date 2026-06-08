@@ -15,6 +15,7 @@ const liveOperatorAi = load(SourcePaths.liveOperatorAi);
 const actionDispatch = load(SourcePaths.actionDispatch);
 const blockActionDispatch = load(SourcePaths.blockActionDispatch);
 const deletionRetentionCustody = load(SourcePaths.deletionRetentionCustody);
+const finalAdapterAudit = load(SourcePaths.finalAdapterAudit);
 const portalChain = load(SourcePaths.portalChain);
 const protectedSurface = load(SourcePaths.protectedSurface);
 const readModel = load(SourcePaths.readModel);
@@ -35,6 +36,7 @@ const closure = {
   serviceBackedReadModelProven: validateServiceReadModel(),
   retentionCustodyProven: validateDeletionCustody(),
   protectedSurfaceSkipProven: validateProtectedSurface(),
+  finalAdapterAuditProven: validateFinalAdapterAudit(),
 };
 
 assert(
@@ -64,6 +66,9 @@ const proof = {
   closure: {
     ...closure,
     finalPathEvidenceComplete: true,
+    broadBrowserNetworkMobileProductComplete: false,
+    adapterProductCompleteBlockedByAudit: true,
+    custodyArtifactRows: finalAdapterAudit.closure?.custodyArtifactRows,
     singleRuntimeSessionRerun: false,
     retainedRealRunArtifactsVerified: true,
     rawScreenshotsRetainedByDefault: false,
@@ -72,7 +77,8 @@ const proof = {
   liveRows,
   nonClaims: [
     'This verifier validates retained real-run artifacts and does not rerun the live operator capture or model inference session.',
-    'Managed-browser trigger producer ownership, authenticated-account social proof, and broad browser/network/mobile adapters remain separate unless their own artifacts are cited.',
+    'Managed-browser trigger producer ownership, authenticated-account social proof, and broad browser/network/mobile/Linux adapters remain separate unless their own execution artifacts are cited.',
+    'The custody-aware final adapter audit is required by this proof and keeps broad/browser/network/mobile/Linux product-complete adapter execution blocked.',
     'The proof closes the stacked real trigger-to-analysis-to-policy-to-action/read-model-to-deletion evidence path from current artifacts; it does not make raw screenshot retention or live view product claims.',
   ],
 };
@@ -258,6 +264,41 @@ function validateDeletionCustody() {
 
 function validateProtectedSurface() {
   assert(protectedSurface.status === 'ok' || protectedSurface.proof, 'protected surface proof missing');
+  return true;
+}
+
+function validateFinalAdapterAudit() {
+  assert(
+    finalAdapterAudit.status === 'blocked-by-upstream-adapter-artifacts',
+    'final adapter audit status is not blocked'
+  );
+  assert(
+    finalAdapterAudit.closure?.windowsOwnedProcessAdaptersProved === true,
+    'final adapter audit lost Windows owned-process proof'
+  );
+  assert(
+    finalAdapterAudit.closure?.broadBrowserNetworkMobileProductComplete === false,
+    'final adapter audit unexpectedly claims product-complete adapters'
+  );
+  assert(
+    finalAdapterAudit.closure?.openChecklistRowRetained === true,
+    'final adapter audit did not retain open checklist row'
+  );
+  assert(
+    finalAdapterAudit.closure?.custodyArtifactRows === 3,
+    'final adapter audit did not consume three custody artifacts'
+  );
+  assert(finalAdapterAudit.closure?.claimUpgradeRows === 0, 'final adapter audit contains claim upgrades');
+  assert((finalAdapterAudit.blockedRows ?? []).length === 6, 'final adapter audit blocked row count changed');
+  assert((finalAdapterAudit.custodyRows ?? []).length === 3, 'final adapter audit custody row count changed');
+  assert(
+    finalAdapterAudit.custodyRows?.every((row) => row.finalAdapterCompletionClaimed === false) === true,
+    'final adapter audit custody row claims final completion'
+  );
+  assert(
+    finalAdapterAudit.custodyRows?.every((row) => row.productCompleteAdapterRowStillOpen === true) === true,
+    'final adapter audit custody row closes product-complete row'
+  );
   return true;
 }
 

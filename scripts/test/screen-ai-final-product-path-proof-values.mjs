@@ -33,6 +33,7 @@ export const SourcePaths = {
   actionDispatch: 'output/screen-ai-pipeline-proof/action-dispatch/proof-summary.json',
   blockActionDispatch: 'output/screen-ai-pipeline-proof/block-action-dispatch/proof-summary.json',
   deletionRetentionCustody: 'output/screen-ai-pipeline-proof/deletion-retention-custody/proof-summary.json',
+  finalAdapterAudit: 'output/screen-ai-pipeline-proof/final-adapter-dependency-audit/proof-summary.json',
   liveOperator: 'output/screen-ai-pipeline-proof/live-operator/proof-summary.json',
   liveOperatorAi: 'output/ai-plan-proof/live-operator/proof-summary.json',
   portalChain: 'output/screen-ai-pipeline-proof/portal-chain/proof-summary.json',
