@@ -1,0 +1,2 @@
+network-dns-adapter-proof-ok:dns-adapter-tests,clippy,source-shape
+proof=output/network-plan-proof/37-dns-proxy-block-redirect-adapter/proof-summary.json

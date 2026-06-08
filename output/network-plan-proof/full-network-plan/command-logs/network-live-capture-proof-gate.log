@@ -1,0 +1,2 @@
+network-live-capture-proof-gate-ok:live-capture-tests,clippy,source-shape
+proof=output/network-plan-proof/13-live-capture-proof-gate/proof-summary.json

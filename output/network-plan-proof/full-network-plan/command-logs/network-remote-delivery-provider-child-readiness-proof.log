@@ -1,0 +1,2 @@
+network-remote-delivery-provider-child-readiness-proof-ok:core,protocol,service,ts,clippy,fmt,source-shape,diff-check
+proof=output/network-plan-proof/10p-remote-delivery-provider-child-readiness/proof-summary.json

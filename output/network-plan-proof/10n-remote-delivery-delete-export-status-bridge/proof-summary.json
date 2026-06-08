@@ -2,7 +2,7 @@
   "proof": "network-remote-delivery-delete-export-status-bridge-proof",
   "proofRevision": "network-remote-delivery-delete-export-status-bridge-proof/v1",
   "checkedAt": "deterministic:network-remote-delivery-delete-export-status-bridge-proof/v1",
-  "sourceFingerprint": "source-tree:ced0ae7cadbdc4fa1e3b2d00026fc875ecb5dcca5a2f8c012e34f0bd07c1b268",
+  "sourceFingerprint": "source-tree:1033c73c0f4cb68b823c5bccdababb8cfef105bbcbe82c27cf4de9a0506ea5c3",
   "sourceRefs": [
     "scripts/test/network-remote-delivery-delete-export-status-bridge-proof.mjs",
     "crates/agent-protocol/src/constants/network_flow.rs",
@@ -20,7 +20,7 @@
     "docs/plans/network-plan/implementation-checklist.md",
     "docs/plans/network-plan/workpacks/README.md"
   ],
-  "sourceBase": "c3328c891af958153c1b64d92379e653de6ba2d0",
+  "sourceBase": "c99e70b85e33090dfa85d6dfe9df41da9d875fb1",
   "proofRoot": "output\\network-plan-proof\\10n-remote-delivery-delete-export-status-bridge",
   "testRoot": "test-results\\network-remote-delivery-delete-export-status-bridge-proof",
   "commands": [

@@ -109,6 +109,28 @@
         "kind": "refreshed-by-aggregate-command",
         "command": "network-remote-delivery-delete-export-status-bridge-proof"
       }
+    },
+    {
+      "id": "remote-fixture-transport-status-bridge",
+      "group": "10-remote-delivery-proof",
+      "path": "output/network-plan-proof/10o-remote-delivery-fixture-transport-status-bridge/proof-summary.json",
+      "kind": "json",
+      "parsedProof": "network-remote-delivery-fixture-transport-status-bridge-proof",
+      "freshness": {
+        "kind": "refreshed-by-aggregate-command",
+        "command": "network-remote-delivery-fixture-transport-status-bridge-proof"
+      }
+    },
+    {
+      "id": "remote-provider-child-readiness",
+      "group": "10-remote-delivery-proof",
+      "path": "output/network-plan-proof/10p-remote-delivery-provider-child-readiness/proof-summary.json",
+      "kind": "json",
+      "parsedProof": "network-remote-delivery-provider-child-readiness-proof",
+      "freshness": {
+        "kind": "refreshed-by-aggregate-command",
+        "command": "network-remote-delivery-provider-child-readiness-proof"
+      }
     }
   ]
 }

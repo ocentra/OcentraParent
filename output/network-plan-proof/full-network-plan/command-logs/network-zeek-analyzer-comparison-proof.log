@@ -1,0 +1,2 @@
+network-zeek-analyzer-comparison-proof-ok:zeek-tests,clippy,source-shape
+proof=output/network-plan-proof/43-zeek-structured-log-analyzer-comparison/proof-summary.json

@@ -1,0 +1,2 @@
+network-live-capture-storage-proof-ok:storage-tests,clippy,source-shape
+proof=output/network-plan-proof/03a-live-capture-storage-proof/proof-summary.json
