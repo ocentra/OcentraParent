@@ -1,6 +1,6 @@
 import { mkdir, readFile, rm, writeFile } from 'node:fs/promises';
 import { dirname, join } from 'node:path';
-import { fileURLToPath } from 'node:url';
+import { fileURLToPath, pathToFileURL } from 'node:url';
 import { spawnSync } from 'node:child_process';
 
 const repoRoot = dirname(dirname(dirname(fileURLToPath(import.meta.url))));
@@ -9,49 +9,6 @@ const resultRoot = join(repoRoot, 'test-results', proofMode);
 const proofRoot = join(repoRoot, 'output', 'tracking-plan-proof', proofMode);
 const wp33Root = join(repoRoot, 'output', 'tracking-plan-proof', '33-proof-gates-fixtures-rollout-and-pr-gate');
 const generatedAt = '2026-06-08T01:05:00.000Z';
-
-const gateProofs = [
-  {
-    handoffArea: 'physical-device-background-and-geofence',
-    proofRef: 'test-results/tracking-physical-device-artifact-gate-proof/proof.json',
-    requiredTier: 'P4_PHYSICAL_DEVICE',
-  },
-  {
-    handoffArea: 'child-device-runtime-execution',
-    proofRef: 'test-results/tracking-child-runtime-artifact-gate-proof/proof.json',
-    requiredTier: 'P4_PHYSICAL_DEVICE',
-  },
-  {
-    handoffArea: 'full-product-parent-child-ui-runtime',
-    proofRef: 'test-results/tracking-full-product-ui-runtime-artifact-gate-proof/proof.json',
-    requiredTier: 'P4_PHYSICAL_DEVICE',
-  },
-  {
-    handoffArea: 'authority-enrolled-hard-control-runtime',
-    proofRef: 'test-results/tracking-authority-runtime-artifact-gate-proof/proof.json',
-    requiredTier: 'P4_PHYSICAL_DEVICE',
-  },
-  {
-    handoffArea: 'provider-delivery-receipt-runtime',
-    proofRef: 'test-results/tracking-provider-delivery-artifact-gate-proof/proof.json',
-    requiredTier: 'P4_MANUAL_PROVIDER_RUNTIME',
-  },
-  {
-    handoffArea: 'retention-product-runtime-enforcement',
-    proofRef: 'test-results/tracking-retention-runtime-artifact-gate-proof/proof.json',
-    requiredTier: 'P4_PHYSICAL_DEVICE',
-  },
-  {
-    handoffArea: 'production-durable-workers-and-storage',
-    proofRef: 'test-results/tracking-production-worker-runtime-artifact-gate-proof/proof.json',
-    requiredTier: 'P4_PRODUCTION_RUNTIME',
-  },
-  {
-    handoffArea: 'escalation-runtime-workers-and-storage',
-    proofRef: 'test-results/tracking-escalation-runtime-artifact-gate-proof/proof.json',
-    requiredTier: 'P4_PRODUCTION_RUNTIME',
-  },
-];
 
 const requiredClosureBlockers = [
   'android-physical-background-proof-required',
@@ -74,6 +31,18 @@ async function main() {
   await mkdir(proofRoot, { recursive: true });
   await mkdir(wp33Root, { recursive: true });
 
+  run('cmd', ['/c', 'npm', 'run', 'build', '--workspace', '@ocentra-parent/parent-domain']);
+  run('cmd', [
+    '/c',
+    'npm',
+    'run',
+    'test',
+    '--workspace',
+    '@ocentra-parent/parent-domain',
+    '--',
+    'tracking-real-runtime-handoff-proof',
+  ]);
+
   const proof = await buildProof();
   assertProof(proof);
   await writeArtifacts(proof);
@@ -83,12 +52,14 @@ async function main() {
 }
 
 async function buildProof() {
+  const proofModule = await importDist('tracking-real-runtime-handoff-proof.js');
   const closure = await readJson('test-results/tracking-product-readiness-closure-proof/proof.json');
-  const gateRows = [];
-  for (const gate of gateProofs) {
-    const sourceProof = await readJson(gate.proofRef);
-    gateRows.push(...handoffRowsFrom(gate, sourceProof));
+  const inventories = [];
+  for (const gate of proofModule.RequiredTrackingRealRuntimeHandoffGates) {
+    const sourceProof = await readJson(gate.sourceProofRef);
+    inventories.push(handoffInventoryFrom(gate, sourceProof));
   }
+  const readModel = proofModule.buildTrackingRealRuntimeHandoffProof(generatedAt, inventories);
   return {
     schemaVersion: 1,
     proofMode,
@@ -98,10 +69,11 @@ async function buildProof() {
     requiredProofTier: 'P4_REAL_RUNTIME_HANDOFF',
     currentProofTier: 'P3_LOCAL_DEV_MACHINE',
     currentStatus: 'manual_required',
-    sourceGateRefs: gateProofs.map((gate) => gate.proofRef),
+    sourceGateRefs: readModel.sourceGateRefs,
     closureProofRef: 'test-results/tracking-product-readiness-closure-proof/proof.json',
-    handoffRows: gateRows,
-    summary: summarize(gateRows),
+    readModel,
+    handoffRows: readModel.handoffRows,
+    summary: readModel.summary,
     remainingProductBlockers: closure.rows?.[0]?.remainingBlockers ?? [],
     productClaims: {
       physicalDeviceClaimed: false,
@@ -122,22 +94,15 @@ async function buildProof() {
   };
 }
 
-function handoffRowsFrom(gate, sourceProof) {
+function handoffInventoryFrom(gate, sourceProof) {
   const rows = rowsFrom(sourceProof);
-  return rows.map((row) => ({
+  return {
     handoffArea: gate.handoffArea,
-    sourceProofRef: gate.proofRef,
-    rowId: row.rowId ?? `${gate.handoffArea}-row`,
-    proofRoot: row.proofRoot ?? '',
-    requiredProofTier: row.requiredProofTier ?? gate.requiredTier,
-    currentProofTier: row.currentProofTier ?? sourceProof.currentProofTier ?? 'P3_LOCAL_DEV_MACHINE',
-    status: row.status ?? sourceProof.status ?? 'manual-required',
-    requiredArtifacts: row.requiredArtifacts ?? [],
-    presentArtifacts: row.presentArtifacts ?? [],
-    missingArtifacts: row.missingArtifacts ?? [],
-    auditRefs: row.auditRefs ?? [],
-    productClaimReady: row.productClaimReady === true,
-  }));
+    proofRoot: rows[0]?.proofRoot ?? gate.sourceProofRef,
+    requiredArtifacts: unique(rows.flatMap((row) => row.requiredArtifacts ?? [])),
+    presentArtifacts: unique(rows.flatMap((row) => row.presentArtifacts ?? [])),
+    auditRefs: unique(rows.flatMap((row) => row.auditRefs ?? [])),
+  };
 }
 
 function rowsFrom(sourceProof) {
@@ -146,18 +111,8 @@ function rowsFrom(sourceProof) {
   throw new Error(`Artifact gate proof has no rows: ${sourceProof.proofMode ?? 'unknown'}`);
 }
 
-function summarize(rows) {
-  const requiredArtifactCount = rows.reduce((total, row) => total + row.requiredArtifacts.length, 0);
-  const missingArtifactCount = rows.reduce((total, row) => total + row.missingArtifacts.length, 0);
-  return {
-    handoffRowCount: rows.length,
-    requiredArtifactCount,
-    presentArtifactCount: rows.reduce((total, row) => total + row.presentArtifacts.length, 0),
-    missingArtifactCount,
-    manualRequiredRowCount: rows.filter((row) => row.status === 'manual-required').length,
-    artifactSetPresentRowCount: rows.filter((row) => row.status === 'artifact-set-present').length,
-    productReadyRowCount: rows.filter((row) => row.productClaimReady).length,
-  };
+function unique(values) {
+  return [...new Set(values)];
 }
 
 function assertProof(proof) {
@@ -166,7 +121,7 @@ function assertProof(proof) {
   if (missingBlockers.length > 0) {
     throw new Error(`Real-runtime handoff is missing closure blockers: ${missingBlockers.join(', ')}`);
   }
-  if (proof.handoffRows.length < gateProofs.length) {
+  if (proof.handoffRows.length < proof.sourceGateRefs.length) {
     throw new Error(`Expected at least one handoff row per gate proof: ${proof.handoffRows.length}`);
   }
   const emptyArtifactRows = proof.handoffRows.filter((row) => row.requiredArtifacts.length === 0);
@@ -237,4 +192,15 @@ function gitOutput(args) {
   });
   if (result.status !== 0) return '';
   return result.stdout.trim();
+}
+
+function importDist(name) {
+  return import(pathToFileURL(join(repoRoot, 'packages', 'parent-domain', 'dist', name)).href);
+}
+
+function run(command, args) {
+  const result = spawnSync(command, args, { cwd: repoRoot, stdio: 'inherit', shell: false });
+  if (result.status !== 0) {
+    throw new Error(`Command failed: ${command} ${args.join(' ')}`);
+  }
 }
