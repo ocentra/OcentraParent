@@ -1120,6 +1120,22 @@ notification UI delivery, external runtime report delivery, provider delivery,
 provider receipt ingestion, final policy execution, browser mutation, child
 intervention execution, unmanaged exact URL support, or enforcement.
 
+WP13 social report-writer delivery event handoff addendum:
+`social-parent-notification-delivery-ui-proof` now also verifies that the
+parent-notification delivery subscriber asks the local
+`browser.social.report-writer-delivery.status.requested` eventing request before
+projecting parent-visible notification rows. The service projection preserves
+the returned report-writer delivery row refs as
+`sourceReportWriterDeliveryRowRef`, so report-writer readiness is no longer
+duplicated inside the parent-notification projection. Evidence:
+`test-results/social-parent-notification-delivery-ui-proof/proof.json` and
+`output/browser-plan-proof/social-parent-notification-delivery-ui-proof/01-social-parent-notification-delivery-ui-proof.md`.
+This is internal local service eventing only and does not change the public
+portal command/event names or claim parent notification UI delivery, external
+runtime report delivery, provider delivery, provider receipt ingestion, final
+policy execution, browser mutation, child intervention execution, unmanaged
+exact URL support, or enforcement.
+
 ## Worker Report Template
 
 Use this shape in the hub report or PR-ready note:

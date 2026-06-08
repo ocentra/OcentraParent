@@ -90,6 +90,7 @@ const proof = {
     'no-provider-delivery-or-receipt-ingestion-claim',
     'no-final-policy-or-enforcement-claim',
     'internal-ocentra-eventing-request-response-boundary',
+    'report-writer-delivery-event-feeds-parent-notification-readiness',
   ],
   sourceProof,
   accessibilitySummary,
@@ -203,8 +204,35 @@ async function sourceAssertions() {
     ),
     'utf8'
   );
+  const reportWriterHandoffSource = await readFile(
+    join(
+      repoRoot,
+      'crates',
+      'agent-service',
+      'src',
+      'activity_api',
+      'social_parent_notification_delivery_read_model_payload',
+      'social_report_writer_delivery_event_handoff.rs'
+    ),
+    'utf8'
+  );
   assertIncludes(routeSource, 'BrowserSocialParentNotificationDeliveryReadModelGet', 'route sends readiness command');
   assertIncludes(routeSource, 'SocialParentNotificationDeliveryCards', 'route renders readiness cards');
+  assertIncludes(
+    serviceSource,
+    'request_social_report_writer_delivery_read_model_from_service',
+    'service asks report writer delivery status event before parent notification projection'
+  );
+  assertIncludes(
+    reportWriterHandoffSource,
+    'EVENT_BROWSER_SOCIAL_REPORT_WRITER_DELIVERY_STATUS_REQUESTED',
+    'service publishes named social report writer delivery status request'
+  );
+  assertIncludes(
+    serviceSource,
+    'source_report_writer_delivery_row_ref: report_writer_row.row_id.clone()',
+    'parent notification rows keep source report writer delivery row refs'
+  );
   assertIncludes(
     serviceSource,
     'request_social_parent_notification_delivery_read_model_from_service',
@@ -230,12 +258,18 @@ async function sourceAssertions() {
     'parent_notification_ui_delivered: false',
     'service keeps parent notification UI delivery unclaimed'
   );
-  assertIncludes(serviceSource, 'provider_delivery_attempted: false', 'service keeps provider delivery unclaimed');
+  assertIncludes(
+    reportWriterHandoffSource,
+    'provider_delivery_attempted: false',
+    'service keeps provider delivery unclaimed'
+  );
   return {
     routeSendsReadinessCommand: true,
     routeRendersReadinessCards: true,
     servicePreservesNoDeliveryClaims: true,
     serviceUsesNamedLocalEventingRequest: true,
+    serviceUsesReportWriterDeliveryEventHandoff: true,
+    parentNotificationRowsPreserveReportWriterRefs: true,
   };
 }
 
@@ -280,6 +314,7 @@ function markdown(proof) {
     `- Commit: ${proof.commit}`,
     '- Scope: Browser social route requests the service-backed parent notification delivery readiness read model and renders parent-report-ready, manual-required, and unavailable rows.',
     '- Eventing: the Rust service publishes the local `browser.social.parent-notification-delivery.status.requested` request and completes it through the reusable `ocentra-eventing` request/response path before reporting the portal read model.',
+    '- Report-writer handoff: the parent-notification subscriber first asks `browser.social.report-writer-delivery.status.requested` locally, then derives parent-visible notification rows from the returned report-writer delivery row refs.',
     '- Real runtime proof: portal E2E harness starts the Rust agent service and Vite portal, requests the service-backed Browser route, and captures desktop/mobile screenshots.',
     `- Evidence: ${proof.proofPaths.proof}`,
     `- Accessibility summary: ${proof.proofPaths.accessibilitySummary}`,

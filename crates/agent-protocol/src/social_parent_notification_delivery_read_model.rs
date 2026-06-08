@@ -14,18 +14,43 @@ pub const SOCIAL_PARENT_NOTIFICATION_DELIVERY_ROW_UNAVAILABLE: &str =
     "social-parent-notification-unavailable-service";
 pub const SOCIAL_PARENT_NOTIFICATION_DELIVERY_REPORT_WRITER_ROW_REF: &str =
     "social-report-writer-delivery-row-service";
+pub const SOCIAL_REPORT_WRITER_DELIVERY_ROW_REPORT_READY: &str =
+    "social-report-delivery-weekly-summary-service";
+pub const SOCIAL_REPORT_WRITER_DELIVERY_ROW_MANUAL_REQUIRED: &str =
+    "social-report-delivery-manual-required-service";
+pub const SOCIAL_REPORT_WRITER_DELIVERY_ROW_UNAVAILABLE: &str =
+    "social-report-delivery-unavailable-service";
+pub const SOCIAL_REPORT_WRITER_DELIVERY_SOURCE_INTENT_REF: &str =
+    "social-alert-report-high-risk-service";
 pub const SOCIAL_PARENT_NOTIFICATION_DELIVERY_SOURCE_INTENT_REF: &str =
     "social-alert-report-high-risk-service";
+pub const SOCIAL_REPORT_WRITER_DELIVERY_PARENT_VISIBLE_REPORT_STATUS_REF: &str =
+    "social-parent-visible-report-status-high-risk-service";
 pub const SOCIAL_PARENT_NOTIFICATION_DELIVERY_PARENT_VISIBLE_REPORT_STATUS_REF: &str =
     "social-parent-visible-report-status-high-risk-service";
+pub const SOCIAL_REPORT_WRITER_DELIVERY_PARENT_VISIBLE_MANUAL_REQUIRED_REF: &str =
+    "social-parent-visible-report-status-manual-required-service";
 pub const SOCIAL_PARENT_NOTIFICATION_DELIVERY_PARENT_VISIBLE_MANUAL_REQUIRED_REF: &str =
     "social-parent-visible-report-status-manual-required-service";
+pub const SOCIAL_REPORT_WRITER_DELIVERY_PARENT_REPORT_REF: &str =
+    "social-parent-report-high-risk-service";
 pub const SOCIAL_PARENT_NOTIFICATION_DELIVERY_PARENT_REPORT_REF: &str =
     "social-parent-report-high-risk-service";
+pub const SOCIAL_REPORT_WRITER_DELIVERY_REPORT_ARTIFACT_REF: &str =
+    "social-report-artifact-high-risk-service";
 pub const SOCIAL_PARENT_NOTIFICATION_DELIVERY_REPORT_ARTIFACT_REF: &str =
     "social-report-artifact-high-risk-service";
+pub const SOCIAL_REPORT_WRITER_DELIVERY_REPORT_RECEIPT_REF: &str =
+    "social-report-receipt-high-risk-service";
 pub const SOCIAL_PARENT_NOTIFICATION_DELIVERY_REPORT_RECEIPT_REF: &str =
     "social-report-receipt-high-risk-service";
+pub const SOCIAL_REPORT_WRITER_DELIVERY_STATE_REPORT_READY: &str = "report-delivery-ready";
+pub const SOCIAL_REPORT_WRITER_DELIVERY_STATE_MANUAL_REQUIRED: &str = "manual-required";
+pub const SOCIAL_REPORT_WRITER_DELIVERY_STATE_UNAVAILABLE: &str = "unavailable";
+pub const SOCIAL_REPORT_WRITER_DELIVERY_RECEIPT_RECORDED: &str =
+    "parent-owned-report-receipt-recorded";
+pub const SOCIAL_REPORT_WRITER_DELIVERY_RECEIPT_MANUAL_REQUIRED: &str = "manual-required";
+pub const SOCIAL_REPORT_WRITER_DELIVERY_RECEIPT_NOT_RECORDED: &str = "not-recorded";
 pub const SOCIAL_PARENT_NOTIFICATION_DELIVERY_EVIDENCE_REF: &str = "evidence-social-route-gate";
 pub const SOCIAL_PARENT_NOTIFICATION_DELIVERY_POLICY_REF: &str = "policy-ref-social-high-risk";
 pub const SOCIAL_PARENT_NOTIFICATION_DELIVERY_AUDIT_REF: &str = "audit-ref-social-alert-report";

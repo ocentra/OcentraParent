@@ -1309,3 +1309,28 @@ does not change the public portal command/event names and does not claim parent
 notification UI delivery, external runtime report delivery, provider delivery,
 provider receipt ingestion, final policy execution, browser mutation, child
 intervention execution, unmanaged exact URL support, or enforcement.
+
+## Social Report Writer Delivery Event Handoff Addendum - 2026-06-08
+
+`social-parent-notification-delivery-ui-proof` now also separates report-writer
+delivery readiness from the parent-notification projection. The service exposes
+a local `browser.social.report-writer-delivery.status.requested` request/
+subscriber boundary, and the parent-notification subscriber asks that boundary
+before deriving its readiness rows. Parent-notification rows preserve the
+returned report-writer delivery row ids as `sourceReportWriterDeliveryRowRef`.
+
+Evidence:
+
+- `crates/agent-protocol/src/constants/browser.rs`
+- `crates/agent-protocol/src/social_parent_notification_delivery_read_model.rs`
+- `crates/agent-service/src/activity_api/social_parent_notification_delivery_read_model_payload.rs`
+- `crates/agent-service/src/activity_api/social_parent_notification_delivery_read_model_payload_tests.rs`
+- `scripts/test/social-parent-notification-delivery-ui-proof.mjs`
+- `test-results/social-parent-notification-delivery-ui-proof/proof.json`
+- `output/browser-plan-proof/social-parent-notification-delivery-ui-proof/01-social-parent-notification-delivery-ui-proof.md`
+
+No-claim boundary: this is an internal local service eventing handoff only. It
+does not change public portal command/event names and does not claim parent
+notification UI delivery, external runtime report delivery, provider delivery,
+provider receipt ingestion, final policy execution, browser mutation, child
+intervention execution, unmanaged exact URL support, or enforcement.

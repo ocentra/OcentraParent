@@ -10,56 +10,63 @@ use ocentra_parent_agent_protocol::{
     constants, AgentCommandEnvelope, AgentEventEnvelope, AgentEventName, LogFieldValue, LogFields,
     LogLevel, SocialParentNotificationDeliveryReadinessRow,
     SocialParentNotificationDeliveryReadinessSnapshot,
-    SOCIAL_PARENT_NOTIFICATION_DELIVERY_AUDIT_REF,
     SOCIAL_PARENT_NOTIFICATION_DELIVERY_CAPABILITY_READY,
-    SOCIAL_PARENT_NOTIFICATION_DELIVERY_EVIDENCE_REF,
     SOCIAL_PARENT_NOTIFICATION_DELIVERY_EXECUTION_REPORT_READY,
-    SOCIAL_PARENT_NOTIFICATION_DELIVERY_EXTERNAL_RUNTIME_UNAVAILABLE,
-    SOCIAL_PARENT_NOTIFICATION_DELIVERY_MANUAL_UI_PROOF_REQUIRED,
     SOCIAL_PARENT_NOTIFICATION_DELIVERY_NON_CLAIM_ENFORCEMENT,
     SOCIAL_PARENT_NOTIFICATION_DELIVERY_NON_CLAIM_EXTERNAL_RUNTIME,
     SOCIAL_PARENT_NOTIFICATION_DELIVERY_NON_CLAIM_FINAL_POLICY,
     SOCIAL_PARENT_NOTIFICATION_DELIVERY_NON_CLAIM_PARENT_NOTIFICATION_UI,
     SOCIAL_PARENT_NOTIFICATION_DELIVERY_NON_CLAIM_PROVIDER_DELIVERY,
     SOCIAL_PARENT_NOTIFICATION_DELIVERY_NON_CLAIM_PROVIDER_RECEIPT,
-    SOCIAL_PARENT_NOTIFICATION_DELIVERY_PARENT_REPORT_REF,
-    SOCIAL_PARENT_NOTIFICATION_DELIVERY_PARENT_VISIBLE_MANUAL_REQUIRED_REF,
-    SOCIAL_PARENT_NOTIFICATION_DELIVERY_PARENT_VISIBLE_REPORT_STATUS_REF,
-    SOCIAL_PARENT_NOTIFICATION_DELIVERY_POLICY_REF,
     SOCIAL_PARENT_NOTIFICATION_DELIVERY_READINESS_ID,
-    SOCIAL_PARENT_NOTIFICATION_DELIVERY_REPORT_ARTIFACT_REF,
-    SOCIAL_PARENT_NOTIFICATION_DELIVERY_REPORT_RECEIPT_REF,
-    SOCIAL_PARENT_NOTIFICATION_DELIVERY_REPORT_WRITER_ROW_REF,
     SOCIAL_PARENT_NOTIFICATION_DELIVERY_ROW_MANUAL_REQUIRED,
     SOCIAL_PARENT_NOTIFICATION_DELIVERY_ROW_REPORT_READY,
     SOCIAL_PARENT_NOTIFICATION_DELIVERY_ROW_UNAVAILABLE,
     SOCIAL_PARENT_NOTIFICATION_DELIVERY_SCHEMA_VERSION,
-    SOCIAL_PARENT_NOTIFICATION_DELIVERY_SOURCE_INTENT_REF,
-    SOCIAL_PARENT_NOTIFICATION_DELIVERY_SOURCE_REPORT_WRITER_PROOF_REF,
     SOCIAL_PARENT_NOTIFICATION_DELIVERY_STATE_MANUAL_REQUIRED,
     SOCIAL_PARENT_NOTIFICATION_DELIVERY_STATE_REPORT_READY,
     SOCIAL_PARENT_NOTIFICATION_DELIVERY_STATE_UNAVAILABLE,
+    SOCIAL_REPORT_WRITER_DELIVERY_RECEIPT_MANUAL_REQUIRED,
+    SOCIAL_REPORT_WRITER_DELIVERY_RECEIPT_RECORDED,
+    SOCIAL_REPORT_WRITER_DELIVERY_STATE_MANUAL_REQUIRED,
+    SOCIAL_REPORT_WRITER_DELIVERY_STATE_REPORT_READY,
 };
 use serde::{Deserialize, Serialize};
 
 use crate::{event_builder::build_event, fields::fields_from_pairs, time::timestamp_now};
 
+mod social_report_writer_delivery_event_handoff;
+
+pub use social_report_writer_delivery_event_handoff::{
+    request_social_report_writer_delivery_read_model_from_service,
+    social_report_writer_delivery_read_model_from_service, SocialReportWriterDeliveryReadModel,
+    SocialReportWriterDeliveryReadModelRow,
+};
+
 type FieldPair = (&'static str, LogFieldValue);
 
 pub fn social_parent_notification_delivery_read_model_from_service(
 ) -> SocialParentNotificationDeliveryReadinessSnapshot {
+    let report_writer_read_model = social_report_writer_delivery_read_model_from_service();
+    social_parent_notification_delivery_read_model_from_report_writer(&report_writer_read_model)
+}
+
+fn social_parent_notification_delivery_read_model_from_report_writer(
+    report_writer_read_model: &SocialReportWriterDeliveryReadModel,
+) -> SocialParentNotificationDeliveryReadinessSnapshot {
     let generated_at = timestamp_now();
-    let rows = vec![
-        report_ready_row(&generated_at),
-        manual_required_row(&generated_at),
-        unavailable_row(&generated_at),
-    ];
+    let rows = report_writer_read_model
+        .rows
+        .iter()
+        .map(|report_writer_row| {
+            notification_row_from_report_writer(report_writer_row, &generated_at)
+        })
+        .collect::<Vec<_>>();
     SocialParentNotificationDeliveryReadinessSnapshot {
         schema_version: SOCIAL_PARENT_NOTIFICATION_DELIVERY_SCHEMA_VERSION.to_string(),
         readiness_id: SOCIAL_PARENT_NOTIFICATION_DELIVERY_READINESS_ID.to_string(),
         generated_at,
-        source_report_writer_proof_ref:
-            SOCIAL_PARENT_NOTIFICATION_DELIVERY_SOURCE_REPORT_WRITER_PROOF_REF.to_string(),
+        source_report_writer_proof_ref: report_writer_read_model.proof_ref.clone(),
         parent_report_status_ready_count: count_rows(
             &rows,
             SOCIAL_PARENT_NOTIFICATION_DELIVERY_STATE_REPORT_READY,
@@ -72,7 +79,8 @@ pub fn social_parent_notification_delivery_read_model_from_service(
         rows,
         non_claims: non_claims(),
         parent_notification_ui_delivery_claimed: false,
-        external_runtime_report_delivery_claimed: false,
+        external_runtime_report_delivery_claimed: report_writer_read_model
+            .external_runtime_report_delivery_claimed,
         final_policy_execution_claimed: false,
         enforcement_claimed: false,
     }
@@ -94,9 +102,15 @@ pub async fn request_social_parent_notification_delivery_read_model_from_service
             )?,
         ),
         |context| async move {
+            let report_writer_read_model =
+                request_social_report_writer_delivery_read_model_from_service()
+                    .await
+                    .unwrap_or_else(|_| social_report_writer_delivery_read_model_from_service());
             context
                 .complete_request(SocialParentNotificationDeliveryReadModelResponse {
-                    read_model: social_parent_notification_delivery_read_model_from_service(),
+                    read_model: social_parent_notification_delivery_read_model_from_report_writer(
+                        &report_writer_read_model,
+                    ),
                 })
                 .await?;
             Ok(())
@@ -255,93 +269,70 @@ fn read_model_pairs(
     ]
 }
 
-fn report_ready_row(created_at: &str) -> SocialParentNotificationDeliveryReadinessRow {
-    row(
-        SOCIAL_PARENT_NOTIFICATION_DELIVERY_ROW_REPORT_READY,
-        Some(SOCIAL_PARENT_NOTIFICATION_DELIVERY_PARENT_VISIBLE_REPORT_STATUS_REF.to_string()),
-        Some(SOCIAL_PARENT_NOTIFICATION_DELIVERY_PARENT_REPORT_REF.to_string()),
-        Some(SOCIAL_PARENT_NOTIFICATION_DELIVERY_REPORT_ARTIFACT_REF.to_string()),
-        Some(SOCIAL_PARENT_NOTIFICATION_DELIVERY_REPORT_RECEIPT_REF.to_string()),
-        Vec::new(),
-        SOCIAL_PARENT_NOTIFICATION_DELIVERY_STATE_REPORT_READY,
-        SOCIAL_PARENT_NOTIFICATION_DELIVERY_EXECUTION_REPORT_READY,
-        true,
-        true,
-        created_at,
-    )
-}
-
-fn manual_required_row(created_at: &str) -> SocialParentNotificationDeliveryReadinessRow {
-    row(
-        SOCIAL_PARENT_NOTIFICATION_DELIVERY_ROW_MANUAL_REQUIRED,
-        Some(SOCIAL_PARENT_NOTIFICATION_DELIVERY_PARENT_VISIBLE_MANUAL_REQUIRED_REF.to_string()),
-        None,
-        None,
-        None,
-        vec![SOCIAL_PARENT_NOTIFICATION_DELIVERY_MANUAL_UI_PROOF_REQUIRED.to_string()],
-        SOCIAL_PARENT_NOTIFICATION_DELIVERY_STATE_MANUAL_REQUIRED,
-        SOCIAL_PARENT_NOTIFICATION_DELIVERY_STATE_MANUAL_REQUIRED,
-        false,
-        false,
-        created_at,
-    )
-}
-
-fn unavailable_row(created_at: &str) -> SocialParentNotificationDeliveryReadinessRow {
-    row(
-        SOCIAL_PARENT_NOTIFICATION_DELIVERY_ROW_UNAVAILABLE,
-        None,
-        None,
-        None,
-        None,
-        vec![SOCIAL_PARENT_NOTIFICATION_DELIVERY_EXTERNAL_RUNTIME_UNAVAILABLE.to_string()],
-        SOCIAL_PARENT_NOTIFICATION_DELIVERY_STATE_UNAVAILABLE,
-        SOCIAL_PARENT_NOTIFICATION_DELIVERY_STATE_UNAVAILABLE,
-        false,
-        false,
-        created_at,
-    )
-}
-
-#[allow(clippy::too_many_arguments)]
-fn row(
-    row_id: &'static str,
-    parent_visible_report_status_ref: Option<String>,
-    parent_report_ref: Option<String>,
-    report_artifact_ref: Option<String>,
-    report_receipt_ref: Option<String>,
-    manual_proof_requirements: Vec<String>,
-    notification_delivery_readiness_state: &'static str,
-    report_delivery_execution_state: &'static str,
-    parent_owned_report_artifact_written: bool,
-    parent_owned_report_receipt_recorded: bool,
+fn notification_row_from_report_writer(
+    report_writer_row: &SocialReportWriterDeliveryReadModelRow,
     created_at: &str,
 ) -> SocialParentNotificationDeliveryReadinessRow {
+    let (row_id, readiness_state, execution_state) =
+        notification_states_from_report_writer(report_writer_row);
     SocialParentNotificationDeliveryReadinessRow {
         notification_delivery_readiness_row_id: row_id.to_string(),
-        source_report_writer_delivery_row_ref:
-            SOCIAL_PARENT_NOTIFICATION_DELIVERY_REPORT_WRITER_ROW_REF.to_string(),
-        source_intent_ref: SOCIAL_PARENT_NOTIFICATION_DELIVERY_SOURCE_INTENT_REF.to_string(),
-        parent_visible_report_status_ref,
+        source_report_writer_delivery_row_ref: report_writer_row.row_id.clone(),
+        source_intent_ref: report_writer_row.source_intent_ref.clone(),
+        parent_visible_report_status_ref: report_writer_row
+            .parent_visible_report_status_ref
+            .clone(),
         parent_notification_ui_ref: None,
-        parent_report_ref,
-        report_artifact_ref,
-        report_receipt_ref,
-        source_evidence_refs: vec![SOCIAL_PARENT_NOTIFICATION_DELIVERY_EVIDENCE_REF.to_string()],
-        source_policy_refs: vec![SOCIAL_PARENT_NOTIFICATION_DELIVERY_POLICY_REF.to_string()],
-        source_audit_refs: vec![SOCIAL_PARENT_NOTIFICATION_DELIVERY_AUDIT_REF.to_string()],
-        manual_proof_requirements,
-        notification_delivery_readiness_state: notification_delivery_readiness_state.to_string(),
-        report_delivery_execution_state: report_delivery_execution_state.to_string(),
-        parent_owned_report_artifact_written,
-        parent_owned_report_receipt_recorded,
+        parent_report_ref: report_writer_row.parent_report_ref.clone(),
+        report_artifact_ref: report_writer_row.report_artifact_ref.clone(),
+        report_receipt_ref: report_writer_row.report_receipt_ref.clone(),
+        source_evidence_refs: report_writer_row.source_evidence_refs.clone(),
+        source_policy_refs: report_writer_row.source_policy_refs.clone(),
+        source_audit_refs: report_writer_row.source_audit_refs.clone(),
+        manual_proof_requirements: report_writer_row.manual_proof_requirements.clone(),
+        notification_delivery_readiness_state: readiness_state.to_string(),
+        report_delivery_execution_state: execution_state.to_string(),
+        parent_owned_report_artifact_written: report_writer_row
+            .parent_owned_report_artifact_written,
+        parent_owned_report_receipt_recorded: report_writer_row
+            .parent_owned_report_receipt_recorded,
         parent_notification_ui_delivered: false,
-        external_runtime_report_delivery_claimed: false,
-        provider_delivery_attempted: false,
-        provider_receipt_ingested: false,
-        final_policy_decision_claimed: false,
-        enforcement_claimed: false,
+        external_runtime_report_delivery_claimed: report_writer_row
+            .external_runtime_report_delivery_claimed,
+        provider_delivery_attempted: report_writer_row.provider_delivery_attempted,
+        provider_receipt_ingested: report_writer_row.provider_receipt_ingested,
+        final_policy_decision_claimed: report_writer_row.final_policy_decision_claimed,
+        enforcement_claimed: report_writer_row.enforcement_claimed,
         created_at: created_at.to_string(),
+    }
+}
+
+fn notification_states_from_report_writer(
+    report_writer_row: &SocialReportWriterDeliveryReadModelRow,
+) -> (&'static str, &'static str, &'static str) {
+    if report_writer_row.delivery_state == SOCIAL_REPORT_WRITER_DELIVERY_STATE_REPORT_READY
+        && report_writer_row.receipt_state == SOCIAL_REPORT_WRITER_DELIVERY_RECEIPT_RECORDED
+    {
+        (
+            SOCIAL_PARENT_NOTIFICATION_DELIVERY_ROW_REPORT_READY,
+            SOCIAL_PARENT_NOTIFICATION_DELIVERY_STATE_REPORT_READY,
+            SOCIAL_PARENT_NOTIFICATION_DELIVERY_EXECUTION_REPORT_READY,
+        )
+    } else if report_writer_row.delivery_state
+        == SOCIAL_REPORT_WRITER_DELIVERY_STATE_MANUAL_REQUIRED
+        || report_writer_row.receipt_state == SOCIAL_REPORT_WRITER_DELIVERY_RECEIPT_MANUAL_REQUIRED
+    {
+        (
+            SOCIAL_PARENT_NOTIFICATION_DELIVERY_ROW_MANUAL_REQUIRED,
+            SOCIAL_PARENT_NOTIFICATION_DELIVERY_STATE_MANUAL_REQUIRED,
+            SOCIAL_PARENT_NOTIFICATION_DELIVERY_STATE_MANUAL_REQUIRED,
+        )
+    } else {
+        (
+            SOCIAL_PARENT_NOTIFICATION_DELIVERY_ROW_UNAVAILABLE,
+            SOCIAL_PARENT_NOTIFICATION_DELIVERY_STATE_UNAVAILABLE,
+            SOCIAL_PARENT_NOTIFICATION_DELIVERY_STATE_UNAVAILABLE,
+        )
     }
 }
 

@@ -1241,6 +1241,15 @@ WP13 now also registers the internal service read-model request
 Rust delivery-decision proof. The route stays local in-process from the browser
 runtime spine to the social parent-notification delivery status subscriber, and
 the public portal WebSocket command/event names remain unchanged.
+WP13 now also separates the social report-writer delivery source from the
+parent-notification projection. The parent-notification subscriber first asks
+the local `browser.social.report-writer-delivery.status.requested` eventing
+request, then derives parent-visible notification rows from the returned
+report-writer delivery row refs. This removes the duplicated service-side
+report-writer truth while keeping the same public portal command/event and
+without claiming parent notification UI delivery, external report delivery,
+provider delivery/receipt ingestion, final policy execution, browser mutation,
+child intervention execution, unmanaged exact URL support, or enforcement.
 WP13 Browser-route proof now renders a parent-visible browser action-intent
 stream status card from the existing parsed runtime stream, next to the social
 provider receipt stream and receipt ingestion readiness cards. The proof uses

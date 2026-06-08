@@ -52,6 +52,8 @@ pub const EVENT_BROWSER_RUNTIME_STREAM_REPORT_REQUESTED: &str =
     "browser.runtime.stream.report.requested";
 pub const EVENT_BROWSER_SOCIAL_PROVIDER_RECEIPT_STATUS_REQUESTED: &str =
     "browser.social.provider-receipt.status.requested";
+pub const EVENT_BROWSER_SOCIAL_REPORT_WRITER_DELIVERY_STATUS_REQUESTED: &str =
+    "browser.social.report-writer-delivery.status.requested";
 pub const EVENT_BROWSER_SOCIAL_PARENT_NOTIFICATION_DELIVERY_STATUS_REQUESTED: &str =
     "browser.social.parent-notification-delivery.status.requested";
 pub const EVENT_BROWSER_INTERVENTION_COMMAND_ISSUED: &str = "browser.intervention.command.issued";
@@ -69,6 +71,8 @@ pub const SUBSCRIBER_BROWSER_ACTION_INTENT_HANDOFF: &str = "browser-action-inten
 pub const SUBSCRIBER_BROWSER_RUNTIME_STREAM_REPORT: &str = "browser-runtime-stream-report";
 pub const SUBSCRIBER_BROWSER_SOCIAL_PROVIDER_RECEIPT_STATUS: &str =
     "browser-social-provider-receipt-status";
+pub const SUBSCRIBER_BROWSER_SOCIAL_REPORT_WRITER_DELIVERY_STATUS: &str =
+    "browser-social-report-writer-delivery-status";
 pub const SUBSCRIBER_BROWSER_SOCIAL_PARENT_NOTIFICATION_DELIVERY_STATUS: &str =
     "browser-social-parent-notification-delivery-status";
 pub const SUBSCRIBER_BROWSER_INTERVENTION_COMMAND: &str = "browser-intervention-command";
@@ -84,6 +88,8 @@ pub const TARGET_BROWSER_ACTION_INTENT_HANDOFF: &str = "browser-action-intent-ha
 pub const TARGET_BROWSER_RUNTIME_STREAM_REPORT: &str = "browser-runtime-stream-report";
 pub const TARGET_BROWSER_SOCIAL_PROVIDER_RECEIPT_STATUS: &str =
     "browser-social-provider-receipt-status";
+pub const TARGET_BROWSER_SOCIAL_REPORT_WRITER_DELIVERY_STATUS: &str =
+    "browser-social-report-writer-delivery-status";
 pub const TARGET_BROWSER_SOCIAL_PARENT_NOTIFICATION_DELIVERY_STATUS: &str =
     "browser-social-parent-notification-delivery-status";
 pub const TARGET_BROWSER_INTERVENTION_ADAPTER: &str = "browser-intervention-adapter";
@@ -102,6 +108,8 @@ pub const IDEMPOTENCY_BROWSER_RUNTIME_STREAM_REPORT_PREFIX: &str =
     "browser-runtime-stream-report-idempotency-";
 pub const IDEMPOTENCY_BROWSER_SOCIAL_PROVIDER_RECEIPT_STATUS_PREFIX: &str =
     "browser-social-provider-receipt-status-idempotency-";
+pub const IDEMPOTENCY_BROWSER_SOCIAL_REPORT_WRITER_DELIVERY_STATUS_PREFIX: &str =
+    "browser-social-report-writer-delivery-status-idempotency-";
 pub const IDEMPOTENCY_BROWSER_SOCIAL_PARENT_NOTIFICATION_DELIVERY_STATUS_PREFIX: &str =
     "browser-social-parent-notification-delivery-status-idempotency-";
 pub const REQUEST_BROWSER_ACTION_INTENT_STATUS_PREFIX: &str =
@@ -112,12 +120,15 @@ pub const REQUEST_BROWSER_RUNTIME_STREAM_REPORT_PREFIX: &str =
     "browser-runtime-stream-report-request-";
 pub const REQUEST_BROWSER_SOCIAL_PROVIDER_RECEIPT_STATUS_PREFIX: &str =
     "browser-social-provider-receipt-status-request-";
+pub const REQUEST_BROWSER_SOCIAL_REPORT_WRITER_DELIVERY_STATUS_PREFIX: &str =
+    "browser-social-report-writer-delivery-status-request-";
 pub const REQUEST_BROWSER_SOCIAL_PARENT_NOTIFICATION_DELIVERY_STATUS_PREFIX: &str =
     "browser-social-parent-notification-delivery-status-request-";
 pub const REQUEST_BROWSER_ACTION_INTENT_STATUS_TIMEOUT_MS: u64 = 50;
 pub const REQUEST_BROWSER_ACTION_INTENT_HANDOFF_TIMEOUT_MS: u64 = 50;
 pub const REQUEST_BROWSER_RUNTIME_STREAM_REPORT_TIMEOUT_MS: u64 = 250;
 pub const REQUEST_BROWSER_SOCIAL_PROVIDER_RECEIPT_STATUS_TIMEOUT_MS: u64 = 50;
+pub const REQUEST_BROWSER_SOCIAL_REPORT_WRITER_DELIVERY_STATUS_TIMEOUT_MS: u64 = 50;
 pub const REQUEST_BROWSER_SOCIAL_PARENT_NOTIFICATION_DELIVERY_STATUS_TIMEOUT_MS: u64 = 50;
 pub const TEST_BROWSER_RUNTIME_EVIDENCE_REF: &str = "browser-evidence-ref-test";
 pub const TEST_BROWSER_RUNTIME_JOURNAL_REF: &str = "browser-journal-ref-test";

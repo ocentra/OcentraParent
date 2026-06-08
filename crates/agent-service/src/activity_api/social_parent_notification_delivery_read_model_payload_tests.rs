@@ -7,8 +7,10 @@ use ocentra_parent_agent_protocol::{
 
 use super::social_parent_notification_delivery_read_model_payload::{
     request_social_parent_notification_delivery_read_model_from_service,
+    request_social_report_writer_delivery_read_model_from_service,
     social_parent_notification_delivery_read_model_from_service,
     social_parent_notification_delivery_read_model_payload,
+    social_report_writer_delivery_read_model_from_service,
 };
 
 #[test]
@@ -79,6 +81,74 @@ async fn social_parent_notification_delivery_event_request_matches_service_proje
             && !row.final_policy_decision_claimed
             && !row.enforcement_claimed
     }));
+}
+
+#[tokio::test]
+async fn social_report_writer_event_request_feeds_parent_notification_projection() {
+    let report_writer_direct = social_report_writer_delivery_read_model_from_service();
+    let report_writer_evented = request_social_report_writer_delivery_read_model_from_service()
+        .await
+        .expect(constants::error::AGENT_EVENT_SERIALIZES);
+    let parent_notification_evented =
+        request_social_parent_notification_delivery_read_model_from_service()
+            .await
+            .expect(constants::error::AGENT_EVENT_SERIALIZES);
+
+    assert_eq!(
+        report_writer_evented.rows.len(),
+        report_writer_direct.rows.len()
+    );
+    assert_eq!(
+        report_writer_evented
+            .rows
+            .iter()
+            .map(|row| (
+                row.row_id.clone(),
+                row.source_intent_ref.clone(),
+                row.delivery_state.clone(),
+                row.receipt_state.clone()
+            ))
+            .collect::<Vec<_>>(),
+        report_writer_direct
+            .rows
+            .iter()
+            .map(|row| (
+                row.row_id.clone(),
+                row.source_intent_ref.clone(),
+                row.delivery_state.clone(),
+                row.receipt_state.clone()
+            ))
+            .collect::<Vec<_>>()
+    );
+    assert_eq!(
+        parent_notification_evented.source_report_writer_proof_ref,
+        report_writer_evented.proof_ref
+    );
+    assert_eq!(
+        parent_notification_evented
+            .rows
+            .iter()
+            .map(|row| row.source_report_writer_delivery_row_ref.clone())
+            .collect::<Vec<_>>(),
+        report_writer_evented
+            .rows
+            .iter()
+            .map(|row| row.row_id.clone())
+            .collect::<Vec<_>>()
+    );
+    assert_eq!(
+        parent_notification_evented.rows[0].source_intent_ref,
+        report_writer_evented.rows[0].source_intent_ref
+    );
+    assert_eq!(
+        parent_notification_evented.rows[0].parent_report_ref,
+        report_writer_evented.rows[0].parent_report_ref
+    );
+    assert!(!parent_notification_evented.external_runtime_report_delivery_claimed);
+    assert!(parent_notification_evented
+        .rows
+        .iter()
+        .all(|row| !row.parent_notification_ui_delivered && !row.provider_delivery_attempted));
 }
 
 fn string_payload<T>(payload: &ocentra_parent_agent_protocol::LogFields, field: &str) -> T
