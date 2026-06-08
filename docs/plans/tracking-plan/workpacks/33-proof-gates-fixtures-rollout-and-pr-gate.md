@@ -112,6 +112,8 @@ Proof root: `output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-g
   `46-product-readiness-closure-proof.json`
 - Tracking real-runtime handoff proof:
   `63-real-runtime-handoff-proof.json`
+- Tracking claim-audit proof:
+  `65-claim-audit-proof.json`
 - Refreshed tracking product-readiness closure proof now consumes the
   authority manual-required proof, physical-device artifact gate, and
   provider-delivery artifact gate:
@@ -126,6 +128,12 @@ Proof root: `output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-g
 - Refreshed tracking product-readiness closure proof also enumerates the
   retention product-readiness blocker proof's writable-settings and platform
   retention enforcement blockers in the aggregate remaining-blocker row.
+- Refreshed tracking product-readiness closure proof also consumes the
+  claim-audit proof, which keeps Android/iOS/manual-desktop, child-runtime,
+  full-product UI, authority, provider, retention-runtime, production-worker,
+  and escalation-runtime claims manual-required until real artifacts or
+  approval exist:
+  `65-claim-audit-proof.json`
 - Tracking escalation-runtime readiness blocker proof:
   `53-escalation-runtime-readiness-blocker-proof.json`
 - Tracking escalation-runtime artifact gate proof:
@@ -1229,3 +1237,32 @@ test:tracking-plan-hosted-ui-proof` passed.
       child-device delivery, durable escalation storage, emergency
       auto-contact policy, physical-device proof, authority proof, and
       product-ready escalation remain proof-gated.
+
+- [x] Workpack id and branch:
+      `codex/tracking-plan-full-continuation-a`.
+- [x] Touched files: tracking claim-audit proof/test, focused proof script,
+      product-readiness closure proof model, closure harness, owning tracking
+      feature doc, implementation checklist, this proof-gate doc, generated
+      claim-audit proof artifacts, and refreshed closure proof artifacts.
+- [x] Validation commands and results:
+      `node scripts/test/tracking-claim-audit-proof.mjs` passed;
+      `npm run test --workspace @ocentra-parent/parent-domain --
+tracking-claim-audit-proof tracking-product-readiness-closure-proof`
+      passed; `node scripts/test/tracking-product-readiness-closure-proof.mjs`
+      passed.
+- [x] Proof artifacts:
+      `output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-gate/65-claim-audit-proof.json`,
+      `output/tracking-plan-proof/tracking-claim-audit-proof/proof.json`,
+      `test-results/tracking-claim-audit-proof/proof.json`,
+      `output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-gate/46-product-readiness-closure-proof.json`,
+      `output/tracking-plan-proof/tracking-product-readiness-closure-proof/proof.json`,
+      and `test-results/tracking-product-readiness-closure-proof/proof.json`.
+- [x] Product doc/checklist updates: owning feature doc, implementation
+      checklist, and this proof-gate doc updated. Central product capability
+      checklist is not edited by this branch; row deltas stay hub-routed.
+- [x] Known gaps/manual-required states: claim audit rows keep Android/iOS
+      physical behavior, approved-manual desktop location, actual child-device
+      runtime, full product parent/child UI, authority, provider delivery,
+      retention platform runtime enforcement, production workers, escalation
+      runtime workers, and product-ready tracking unclaimed until real artifact
+      sets or approval exist.
