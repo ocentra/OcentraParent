@@ -59,8 +59,11 @@ claim needs proof, not slogans.
 - `scripts/test/screen-ai-event-driven-runtime-proof.mjs` now proves the
   screen successful path can publish a typed AI result event from a typed screen
   evidence event and carry that result into policy/action/read-model/deletion
-  phases without direct AI-to-policy/action shortcuts. General AI job contracts,
-  degraded-result events, and live service consumers remain planned.
+  phases without direct AI-to-policy/action shortcuts. The screen-AI final path
+  now also requires service capture/analysis/policy/deletion producer,
+  bridge/subscriber, degraded portal/read-model, and service WinRT OCR policy
+  artifacts before passing. General physical household LAN execution and
+  production model-quality gates remain separate.
 - `scripts/test/screen-ai-household-mesh-proof.mjs` now proves the
   screen-derived household provider worker boundary: child-owned work item,
   provider claim/lease, no raw screenshot transfer, worker-only provider result,
@@ -116,8 +119,12 @@ claim needs proof, not slogans.
   now defines trusted household AI providers, the Household Mesh Bridge,
   provider advertisement/heartbeat, claim/lease, result validation, no raw
   screenshot transfer by default, mobile dormant/fallback rules, and
-  child-agent-only policy authority. These are planned gaps, not completed
-  product claims.
+  child-agent-only policy authority. The branch now has contract/proof coverage
+  for advertisement/heartbeat eligibility, claim/lease lifecycle, result
+  validation, no-raw-transfer, route selection, and child-agent-only policy
+  authority; physical household LAN execution, provider gossip runtime,
+  production model execution/quality, portal UI, and enforcement remain product
+  gaps.
 - `LocalAiRuntimeStatusSurfaceReadModelSchema` and
   `scripts/test/local-ai-runtime-status-read-model-proof.mjs` now project the
   existing provider proof rows into parent-facing runtime status rows. The proof

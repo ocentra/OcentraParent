@@ -68,6 +68,10 @@ assert(
   'AI closure lost service OCR captured-pixel proof'
 );
 assert(
+  aiPlanClosure.closure?.meshChecklistStatusConsistent === true,
+  'AI closure lost household mesh checklist consistency guard'
+);
+assert(
   aiPlanClosure.closure?.householdProviderAdvertisementHeartbeatCovered === true,
   'AI closure lost household provider advertisement/heartbeat proof'
 );
@@ -192,6 +196,7 @@ const proof = {
     serviceForegroundRuntimeCovered: true,
     serviceDeletionCustodyCovered: true,
     serviceWinRtOcrPolicyFreshRerunCovered: true,
+    householdMeshChecklistConsistent: true,
     householdProviderAdvertisementHeartbeatCovered: true,
     householdProviderClaimLeaseCovered: true,
     householdMeshNoRawProviderValidationCovered: true,

@@ -75,11 +75,11 @@ These rows prove the evented provider boundary used by the final pipeline gate.
 They do not upgrade the existing household-provider route or runtime-discovery
 proofs into physical LAN product execution.
 
-| Proof                          | Status    | Artifact                                                                          | Non-claim                                                                                                                                                                                                                                        |
-| ------------------------------ | --------- | --------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| Household mesh screen AI route | P2 proved | `output/screen-ai-pipeline-proof/household-mesh-screen-ai/proof-summary.json`     | Proves screen-derived child-owned AI work routes through typed local mesh events, claim/lease, provider worker result, child-agent validation, policy-after-acceptance, and no raw screenshot transfer. Physical LAN execution remains separate. |
-| No raw screen transfer mesh    | P2 proved | `output/ai-plan-proof/no-raw-screen-transfer-mesh/proof-summary.json`             | Proves raw screenshot payloads are forbidden by default for provider workers and redacted summary/custody refs are used instead. Production bridge transport remains separate.                                                                   |
-| Child provider result validity | P2 proved | `output/ai-plan-proof/household-ai-provider-result-validation/proof-summary.json` | Proves duplicate, expired, wrong-provider, wrong-claim, evidence-mismatch, custody-mismatch, raw-transfer, and provider-authority-invalid results are rejected before policy.                                                                    |
+| Proof                          | Status    | Artifact                                                                          | Non-claim                                                                                                                                                                                                                                                                                                                                                                                                                                           |
+| ------------------------------ | --------- | --------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Household mesh screen AI route | P2 proved | `output/screen-ai-pipeline-proof/household-mesh-screen-ai/proof-summary.json`     | Proves screen-derived child-owned AI work routes through typed local mesh events, claim/lease, provider worker result, child-agent validation, policy-after-acceptance, and no raw screenshot transfer, now stacked with provider advertisement/heartbeat eligibility and claim/lease lifecycle proofs. Physical LAN execution, provider gossip runtime, model execution/quality, policy authority, enforcement, and remote/API AI remain separate. |
+| No raw screen transfer mesh    | P2 proved | `output/ai-plan-proof/no-raw-screen-transfer-mesh/proof-summary.json`             | Proves raw screenshot payloads are forbidden by default for provider workers and redacted summary/custody refs are used instead. Production bridge transport remains separate.                                                                                                                                                                                                                                                                      |
+| Child provider result validity | P2 proved | `output/ai-plan-proof/household-ai-provider-result-validation/proof-summary.json` | Proves duplicate, expired, wrong-provider, wrong-claim, evidence-mismatch, custody-mismatch, raw-transfer, and provider-authority-invalid results are rejected before policy.                                                                                                                                                                                                                                                                       |
 
 ## Prerequisite Gates
 
@@ -93,7 +93,8 @@ proofs into physical LAN product execution.
       now requires service producer/subscriber proof artifacts for the service
       event path.
 - [x] Mesh route proof, when household provider execution is used, proves
-      provider claim/lease/result-validation and no raw screenshot transfer.
+      provider advertisement/heartbeat eligibility, claim/lease lifecycle,
+      result-validation, and no raw screenshot transfer.
 
 ## Real Trigger Gates
 
@@ -243,8 +244,9 @@ proofs into physical LAN product execution.
       service OCR policy proof to rerun the source live service OCR proof in
       the same validation flow.
 - [x] Household mesh screen AI proof, when mesh route is used, records provider
-      discovery, provider selection, claim/lease, provider result,
-      child-agent validation, policy authority, and custody artifacts.
+      discovery, provider selection, advertisement/heartbeat eligibility,
+      claim/lease lifecycle, provider result, child-agent validation, policy
+      authority, and custody artifacts.
 - [x] Final product path requires household mesh no-raw-transfer and provider
       result validation artifacts before its retained pipeline proof can pass.
 - [x] Final product path requires service event capture producer, analysis

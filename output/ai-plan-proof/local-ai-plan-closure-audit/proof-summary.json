@@ -1,8 +1,9 @@
 {
   "proof": "local-ai-plan-closure-audit-proof",
-  "generatedAt": "2026-06-08T05:04:58.802Z",
+  "generatedAt": "2026-06-08T05:17:47.976Z",
   "checklist": {
     "path": "docs/plans/ai-plan/implementation-checklist.md",
+    "featureDocPath": "docs/features/local-ai-safety-evaluator.md",
     "completeCount": 0,
     "partialCount": 0,
     "openCount": 0,
@@ -38,6 +39,7 @@
     "deterministicTextAndClassifierContractsCovered": true,
     "memoryAndGraphRefsCovered": true,
     "providerRuntimeAndSchedulerCovered": true,
+    "meshChecklistStatusConsistent": true,
     "householdProviderAdvertisementHeartbeatCovered": true,
     "householdProviderClaimLeaseCovered": true,
     "policyOnlyConsumptionCovered": true,

@@ -5,8 +5,10 @@ const repoRoot = process.cwd();
 const outputRoot = join(repoRoot, 'output', 'ai-plan-proof', 'local-ai-plan-closure-audit');
 const proofPath = join(outputRoot, 'proof-summary.json');
 const checklistPath = join(repoRoot, 'docs', 'plans', 'ai-plan', 'implementation-checklist.md');
+const featureDocPath = join(repoRoot, 'docs', 'features', 'local-ai-safety-evaluator.md');
 
 const checklist = readText(checklistPath);
+const featureDoc = readText(featureDocPath);
 const localVlm = readProof('output/ai-plan-proof/real-analysis/proof-summary.json');
 const liveOperatorGate = readProof('output/screen-ai-pipeline-proof/live-operator-artifact-gate/proof-summary.json');
 const serviceWinRtOcr = readProof('output/screen-ai-pipeline-proof/service-winrt-ocr/proof-summary.json');
@@ -44,6 +46,11 @@ const openChecklistItems = [...checklist.matchAll(/^- \[ \]\s+(.+)$/gm)].map((ma
 const expectedOpenChecklistItems = [
   'Final product-complete pipeline proof is deferred to `docs/plans/screen-ai-pipeline-plan` after screen and AI prerequisites are merged or explicitly stacked.',
 ];
+const staleMeshFollowUpText = 'Provider advertisement, heartbeat, and capability contracts remain follow-up work.';
+const staleMeshSnapshotText =
+  'Provider advertisement/capability contracts and physical household LAN product readiness remain planned.';
+const staleFeatureEventingText = 'degraded-result events, and live service consumers remain planned.';
+const staleFeatureMeshPlanText = 'These are planned gaps, not completed product claims.';
 
 assert(localVlm.analyzedByRealLocalVlm === true, 'local VLM proof must analyze captured screens.');
 assert(localVlm.schemaValidated === true, 'local VLM proof must schema-validate screen evidence.');
@@ -171,12 +178,23 @@ assert(
   openChecklistItems.every((item) => expectedOpenChecklistItems.includes(item)),
   'AI open checklist item must be the pipeline deferral only.'
 );
+assert(
+  !checklist.includes(staleMeshFollowUpText),
+  'AI checklist must not mark household provider advertisement/heartbeat as follow-up after closure proof.'
+);
+assert(
+  !checklist.includes(staleMeshSnapshotText),
+  'AI snapshot table must not mark household provider advertisement/capability contracts as planned after proof.'
+);
+assert(!featureDoc.includes(staleFeatureEventingText), 'local AI feature doc has stale service eventing gap text.');
+assert(!featureDoc.includes(staleFeatureMeshPlanText), 'local AI feature doc has stale household mesh proof gap text.');
 
 const summary = {
   proof: 'local-ai-plan-closure-audit-proof',
   generatedAt: new Date().toISOString(),
   checklist: {
     path: relativePath(checklistPath),
+    featureDocPath: relativePath(featureDocPath),
     completeCount: completeRows.length,
     partialCount: partialRows.length,
     openCount: openRows.length,
@@ -211,6 +229,7 @@ const summary = {
     deterministicTextAndClassifierContractsCovered: true,
     memoryAndGraphRefsCovered: true,
     providerRuntimeAndSchedulerCovered: true,
+    meshChecklistStatusConsistent: true,
     householdProviderAdvertisementHeartbeatCovered: true,
     householdProviderClaimLeaseCovered: true,
     policyOnlyConsumptionCovered: true,

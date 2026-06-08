@@ -648,6 +648,10 @@ function validateAiPlanClosure() {
     'AI-plan closure lost provider runtime or scheduler coverage'
   );
   assert(
+    aiPlanClosure.closure?.meshChecklistStatusConsistent === true,
+    'AI-plan closure lost household mesh checklist consistency guard'
+  );
+  assert(
     aiPlanClosure.closure?.householdProviderAdvertisementHeartbeatCovered === true,
     'AI-plan closure lost household provider advertisement/heartbeat coverage'
   );

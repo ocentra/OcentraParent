@@ -71,6 +71,10 @@ assert(
 );
 assert(aiPlanClosure.closure?.finalProductCompleteDeferredToPipeline === true, 'AI closure does not defer final path');
 assert(
+  aiPlanClosure.closure?.meshChecklistStatusConsistent === true,
+  'AI closure lost household mesh checklist consistency guard'
+);
+assert(
   aiPlanClosure.closure?.householdProviderAdvertisementHeartbeatCovered === true,
   'AI closure lost household provider advertisement/heartbeat proof'
 );
@@ -166,6 +170,7 @@ const proof = {
     linuxWsl2HostExecutionProved: true,
     nativeLinuxDesktopProductReady: false,
     aiPlanDefersFinalProductCompleteToPipeline: true,
+    householdMeshChecklistConsistent: true,
     householdProviderAdvertisementHeartbeatCovered: true,
     householdProviderClaimLeaseCovered: true,
     serviceCadenceRuntimeProved: true,

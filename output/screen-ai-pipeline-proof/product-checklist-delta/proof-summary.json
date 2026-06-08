@@ -1,7 +1,7 @@
 {
   "status": "doc-delta-ready-product-checklist-locked",
   "proofKind": "screen-ai-product-checklist-delta-proof",
-  "generatedAt": "2026-06-08T05:04:58.945Z",
+  "generatedAt": "2026-06-08T05:17:48.126Z",
   "sourceArtifacts": {
     "productChecklist": "docs/product-capability-checklist.md",
     "finalProductPath": "output/screen-ai-pipeline-proof/final-product-path/proof-summary.json",
@@ -35,6 +35,7 @@
     "linuxWsl2HostExecutionProved": true,
     "nativeLinuxDesktopProductReady": false,
     "aiPlanDefersFinalProductCompleteToPipeline": true,
+    "householdMeshChecklistConsistent": true,
     "householdProviderAdvertisementHeartbeatCovered": true,
     "householdProviderClaimLeaseCovered": true,
     "serviceCadenceRuntimeProved": true,
