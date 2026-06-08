@@ -1,6 +1,6 @@
 # Screen AI Adapter Dependency Handoff
 
-Generated: 2026-06-08T04:01:08.975Z
+Generated: 2026-06-08T05:48:58.344Z
 
 ## screen-ai-broad-installed-app-manual-required
 

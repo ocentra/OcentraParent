@@ -15,6 +15,8 @@ const liveOperatorArtifactGate = load(SourcePaths.liveOperatorArtifactGate);
 const liveOperatorAi = load(SourcePaths.liveOperatorAi);
 const actionDispatch = load(SourcePaths.actionDispatch);
 const aiPlanClosure = load(SourcePaths.aiPlanClosure);
+const adapterBlockerLedger = load(SourcePaths.adapterBlockerLedger);
+const adapterDependencyHandoff = load(SourcePaths.adapterDependencyHandoff);
 const blockActionDispatch = load(SourcePaths.blockActionDispatch);
 const deletionRetentionCustody = load(SourcePaths.deletionRetentionCustody);
 const finalAdapterAudit = load(SourcePaths.finalAdapterAudit);
@@ -56,6 +58,7 @@ const closure = {
   retentionCustodyProven: validateDeletionCustody(),
   protectedSurfaceSkipProven: validateProtectedSurface(),
   finalAdapterAuditProven: validateFinalAdapterAudit(),
+  adapterDependencyHandoffProven: validateAdapterDependencyHandoff(),
   householdMeshBoundaryProven: validateHouseholdMeshBoundary(),
   screenPlanClosureAudited: validateScreenPlanClosure(),
   aiPlanClosureAudited: validateAiPlanClosure(),
@@ -94,6 +97,9 @@ const proof = {
     finalPipelineProductComplete: false,
     finalPipelineProductCompleteBlockedByAdapterGate: true,
     custodyArtifactRows: finalAdapterAudit.closure?.custodyArtifactRows,
+    adapterBlockerRowsMapped: adapterBlockerLedger.closure?.blockerRows,
+    adapterDependencyRowsMapped: adapterDependencyHandoff.closure?.dependencyRowsMapped,
+    adapterDependencyHandoffRequired: closure.adapterDependencyHandoffProven,
     householdMeshConsumesRedactedRefsOnly: closure.householdMeshBoundaryProven,
     publicSocialSurfaceProof: true,
     authenticatedAccountSocialProof: false,
@@ -113,6 +119,7 @@ const proof = {
     'This verifier validates retained real-run artifacts and does not rerun the live operator capture or model inference session.',
     'Managed-browser trigger producer ownership, authenticated-account social proof, and broad browser/network/mobile/Linux adapters remain separate unless their own execution artifacts are cited.',
     'The custody-aware final adapter audit is required by this proof and keeps broad/browser/network/mobile/Linux product-complete adapter execution blocked.',
+    'The adapter blocker ledger and dependency handoff are required by this proof; they map upstream execution artifacts without upgrading product-complete claims.',
     'The screen-plan and AI-plan closure audits are required by this proof; they stack prerequisites without overriding remaining external adapter and platform gates.',
     'Household mesh provider routing artifacts are required by this proof; provider work may carry redacted/custody refs only and child-agent validation remains local before policy.',
     'Service event producer/subscriber artifacts are required by this proof; broad/browser/network/mobile/Linux adapter execution remains separate.',
@@ -519,6 +526,41 @@ function validateFinalAdapterAudit() {
   assert(
     finalAdapterAudit.custodyRows?.every((row) => row.productCompleteAdapterRowStillOpen === true) === true,
     'final adapter audit custody row closes product-complete row'
+  );
+  return true;
+}
+
+function validateAdapterDependencyHandoff() {
+  assert(adapterBlockerLedger.status === 'blocked-but-actionable', 'adapter blocker ledger is not actionable');
+  assert(
+    adapterBlockerLedger.closure?.adapterCompletionStillBlocked === true,
+    'adapter blocker ledger no longer blocks adapter completion'
+  );
+  assert(adapterBlockerLedger.closure?.blockerRows === 5, 'adapter blocker ledger row count changed');
+  assert(adapterBlockerLedger.closure?.claimUpgradeRows === 0, 'adapter blocker ledger contains claim upgrades');
+  assert(
+    adapterDependencyHandoff.status === 'adapter-dependency-handoff-ready-upstream-execution-required',
+    'adapter dependency handoff status changed'
+  );
+  assert(
+    adapterDependencyHandoff.closure?.dependencyRowsMapped === adapterBlockerLedger.closure?.blockerRows,
+    'adapter dependency handoff row count does not match blocker ledger'
+  );
+  assert(
+    adapterDependencyHandoff.closure?.expectedProofFilesMapped === true,
+    'adapter dependency handoff does not map expected proof files'
+  );
+  assert(
+    adapterDependencyHandoff.closure?.expectedContractShapesMapped === true,
+    'adapter dependency handoff does not map expected contract shapes'
+  );
+  assert(
+    adapterDependencyHandoff.closure?.productCompleteClaimed === false,
+    'adapter dependency handoff claims product completion'
+  );
+  assert(
+    adapterDependencyHandoff.closure?.rawImageRetainedByExpectedContracts === false,
+    'adapter dependency handoff allows raw image retention'
   );
   return true;
 }

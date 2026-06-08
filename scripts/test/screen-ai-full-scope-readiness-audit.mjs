@@ -10,6 +10,8 @@ const commandsPath = join(outputDir, '10-validation-commands.log');
 const sourceArtifacts = {
   screenPlanClosure: 'output/screen-plan-proof/screen-plan-closure-audit/proof-summary.json',
   aiPlanClosure: 'output/ai-plan-proof/local-ai-plan-closure-audit/proof-summary.json',
+  adapterBlockerLedger: 'output/screen-ai-pipeline-proof/adapter-blocker-ledger/proof-summary.json',
+  adapterDependencyHandoff: 'output/screen-ai-pipeline-proof/adapter-dependency-handoff/proof-summary.json',
   finalProductPath: 'output/screen-ai-pipeline-proof/final-product-path/proof-summary.json',
   finalAdapterAudit: 'output/screen-ai-pipeline-proof/final-adapter-dependency-audit/proof-summary.json',
   linuxHostExecution: 'output/screen-ai-pipeline-proof/linux-host-adapter-execution/proof-summary.json',
@@ -22,6 +24,8 @@ const sourceArtifacts = {
 const failures = [];
 const screenPlanClosure = readJson(sourceArtifacts.screenPlanClosure);
 const aiPlanClosure = readJson(sourceArtifacts.aiPlanClosure);
+const adapterBlockerLedger = readJson(sourceArtifacts.adapterBlockerLedger);
+const adapterDependencyHandoff = readJson(sourceArtifacts.adapterDependencyHandoff);
 const finalProductPath = readJson(sourceArtifacts.finalProductPath);
 const finalAdapterAudit = readJson(sourceArtifacts.finalAdapterAudit);
 const linuxHostExecution = readJson(sourceArtifacts.linuxHostExecution);
@@ -153,6 +157,36 @@ assert(
   finalProductPath.closure?.finalPipelineProductCompleteBlockedByAdapterGate === true,
   'final path is not blocked by adapter gate'
 );
+assert(
+  finalProductPath.closure?.adapterDependencyHandoffRequired === true,
+  'final path does not require adapter dependency handoff'
+);
+assert(finalProductPath.closure?.adapterBlockerRowsMapped === 5, 'final path lost adapter blocker row mapping');
+assert(
+  finalProductPath.closure?.adapterDependencyRowsMapped === 5,
+  'final path lost adapter dependency handoff row mapping'
+);
+
+assert(adapterBlockerLedger.status === 'blocked-but-actionable', 'adapter blocker ledger is not actionable');
+assert(adapterBlockerLedger.closure?.blockerRows === 5, 'adapter blocker ledger row count changed');
+assert(adapterBlockerLedger.closure?.claimUpgradeRows === 0, 'adapter blocker ledger contains claim upgrades');
+assert(
+  adapterDependencyHandoff.status === 'adapter-dependency-handoff-ready-upstream-execution-required',
+  'adapter dependency handoff status changed'
+);
+assert(adapterDependencyHandoff.closure?.dependencyRowsMapped === 5, 'adapter dependency handoff row count changed');
+assert(
+  adapterDependencyHandoff.closure?.expectedProofFilesMapped === true,
+  'adapter dependency handoff lost expected proof mapping'
+);
+assert(
+  adapterDependencyHandoff.closure?.expectedContractShapesMapped === true,
+  'adapter dependency handoff lost expected contract mapping'
+);
+assert(
+  adapterDependencyHandoff.closure?.productCompleteClaimed === false,
+  'adapter dependency handoff claims product completion'
+);
 
 assert(finalAdapterAudit.status === 'blocked-by-upstream-adapter-artifacts', 'adapter audit is not blocked');
 assert(
@@ -255,6 +289,9 @@ const proof = {
     nativeLinuxDesktopProductReady: false,
     finalPipelineProductComplete: false,
     finalPipelineProductCompleteBlockedByAdapterGate: true,
+    adapterDependencyHandoffRequired: true,
+    adapterBlockerRowsMapped: adapterBlockerLedger.closure?.blockerRows,
+    adapterDependencyRowsMapped: adapterDependencyHandoff.closure?.dependencyRowsMapped,
     externalAdapterDependencyRows: blockedAdapterRows.length,
   },
   blockedAdapterRows,

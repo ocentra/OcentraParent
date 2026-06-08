@@ -1,7 +1,7 @@
 {
   "status": "adapter-dependency-handoff-ready-upstream-execution-required",
   "proofKind": "screen-ai-adapter-dependency-handoff-proof",
-  "generatedAt": "2026-06-08T04:01:08.975Z",
+  "generatedAt": "2026-06-08T05:48:58.344Z",
   "sourceArtifacts": {
     "finalAdapterDependencyAudit": "output/screen-ai-pipeline-proof/final-adapter-dependency-audit/proof-summary.json",
     "adapterBlockerLedger": "output/screen-ai-pipeline-proof/adapter-blocker-ledger/proof-summary.json",

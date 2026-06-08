@@ -34,6 +34,8 @@ export const SourcePaths = {
   blockActionDispatch: 'output/screen-ai-pipeline-proof/block-action-dispatch/proof-summary.json',
   deletionRetentionCustody: 'output/screen-ai-pipeline-proof/deletion-retention-custody/proof-summary.json',
   aiPlanClosure: 'output/ai-plan-proof/local-ai-plan-closure-audit/proof-summary.json',
+  adapterBlockerLedger: 'output/screen-ai-pipeline-proof/adapter-blocker-ledger/proof-summary.json',
+  adapterDependencyHandoff: 'output/screen-ai-pipeline-proof/adapter-dependency-handoff/proof-summary.json',
   finalAdapterAudit: 'output/screen-ai-pipeline-proof/final-adapter-dependency-audit/proof-summary.json',
   childAgentPolicyAuthority: 'output/ai-plan-proof/child-agent-ai-policy-authority-proof/proof-summary.json',
   householdMeshEventBridge: 'output/ai-plan-proof/household-mesh-event-bridge-proof/proof-summary.json',

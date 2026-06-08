@@ -1,6 +1,6 @@
 # Screen AI Final Product Path Proof
 
-Generated: 2026-06-08T05:39:37.207Z
+Generated: 2026-06-08T05:48:58.434Z
 
 ## Source Artifacts
 
@@ -8,6 +8,8 @@ Generated: 2026-06-08T05:39:37.207Z
 - blockActionDispatch: `output/screen-ai-pipeline-proof/block-action-dispatch/proof-summary.json`
 - deletionRetentionCustody: `output/screen-ai-pipeline-proof/deletion-retention-custody/proof-summary.json`
 - aiPlanClosure: `output/ai-plan-proof/local-ai-plan-closure-audit/proof-summary.json`
+- adapterBlockerLedger: `output/screen-ai-pipeline-proof/adapter-blocker-ledger/proof-summary.json`
+- adapterDependencyHandoff: `output/screen-ai-pipeline-proof/adapter-dependency-handoff/proof-summary.json`
 - finalAdapterAudit: `output/screen-ai-pipeline-proof/final-adapter-dependency-audit/proof-summary.json`
 - childAgentPolicyAuthority: `output/ai-plan-proof/child-agent-ai-policy-authority-proof/proof-summary.json`
 - householdMeshEventBridge: `output/ai-plan-proof/household-mesh-event-bridge-proof/proof-summary.json`
@@ -52,6 +54,7 @@ Generated: 2026-06-08T05:39:37.207Z
   "retentionCustodyProven": true,
   "protectedSurfaceSkipProven": true,
   "finalAdapterAuditProven": true,
+  "adapterDependencyHandoffProven": true,
   "householdMeshBoundaryProven": true,
   "screenPlanClosureAudited": true,
   "aiPlanClosureAudited": true,
@@ -62,6 +65,9 @@ Generated: 2026-06-08T05:39:37.207Z
   "finalPipelineProductComplete": false,
   "finalPipelineProductCompleteBlockedByAdapterGate": true,
   "custodyArtifactRows": 3,
+  "adapterBlockerRowsMapped": 5,
+  "adapterDependencyRowsMapped": 5,
+  "adapterDependencyHandoffRequired": true,
   "householdMeshConsumesRedactedRefsOnly": true,
   "publicSocialSurfaceProof": true,
   "authenticatedAccountSocialProof": false,

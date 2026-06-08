@@ -1,11 +1,13 @@
 # Screen AI Full Scope Readiness Audit
 
-Generated: 2026-06-08T05:39:37.281Z
+Generated: 2026-06-08T05:48:58.499Z
 
 ## Source Artifacts
 
 - screenPlanClosure: `output/screen-plan-proof/screen-plan-closure-audit/proof-summary.json`
 - aiPlanClosure: `output/ai-plan-proof/local-ai-plan-closure-audit/proof-summary.json`
+- adapterBlockerLedger: `output/screen-ai-pipeline-proof/adapter-blocker-ledger/proof-summary.json`
+- adapterDependencyHandoff: `output/screen-ai-pipeline-proof/adapter-dependency-handoff/proof-summary.json`
 - finalProductPath: `output/screen-ai-pipeline-proof/final-product-path/proof-summary.json`
 - finalAdapterAudit: `output/screen-ai-pipeline-proof/final-adapter-dependency-audit/proof-summary.json`
 - linuxHostExecution: `output/screen-ai-pipeline-proof/linux-host-adapter-execution/proof-summary.json`
@@ -43,6 +45,9 @@ Generated: 2026-06-08T05:39:37.281Z
   "nativeLinuxDesktopProductReady": false,
   "finalPipelineProductComplete": false,
   "finalPipelineProductCompleteBlockedByAdapterGate": true,
+  "adapterDependencyHandoffRequired": true,
+  "adapterBlockerRowsMapped": 5,
+  "adapterDependencyRowsMapped": 5,
   "externalAdapterDependencyRows": 5
 }
 ```
