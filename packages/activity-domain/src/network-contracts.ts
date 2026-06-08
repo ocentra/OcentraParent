@@ -202,6 +202,7 @@ export const ActivityNetworkPolicyActionSchema = withParser(
     Schema.filter((entry) => {
       const canApply =
         entry.mode === 'apply-ready' &&
+        entry.evidenceGrade === 'A' &&
         entry.adapterCapability.state === 'proved-available' &&
         entry.policyDecisionRef !== null &&
         (entry.action === 'monitor' || entry.action === 'limit' || entry.action === 'block');

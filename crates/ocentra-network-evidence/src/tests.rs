@@ -23,6 +23,7 @@ mod dns_adapter;
 mod domain;
 mod flow;
 mod linux_adapter_gate;
+mod linux_nftables_lab_execution;
 mod live_capture;
 mod live_capture_execution;
 mod live_capture_execution_fixtures;

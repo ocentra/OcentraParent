@@ -18,6 +18,7 @@ pub mod fixtures;
 pub mod flow;
 pub mod http;
 pub mod linux_adapter_gate;
+pub mod linux_nftables_lab_execution;
 pub mod live_capture;
 pub mod live_capture_execution;
 pub mod local_ai_queue;
@@ -160,6 +161,12 @@ pub use linux_adapter_gate::{
     NetworkLinuxAdapterGateBoundaryReason, NetworkLinuxAdapterGateError,
     NetworkLinuxAdapterGateInput, NetworkLinuxAdapterGateProof, NetworkLinuxAdapterGateState,
     NetworkLinuxAdapterKind, NetworkLinuxAdapterRequiredArtifact,
+};
+pub use linux_nftables_lab_execution::{
+    prove_network_linux_nftables_lab_execution, NetworkLinuxNftablesLabCommandEvidence,
+    NetworkLinuxNftablesLabCommandKind, NetworkLinuxNftablesLabExecutionError,
+    NetworkLinuxNftablesLabExecutionInput, NetworkLinuxNftablesLabExecutionProof,
+    NetworkLinuxNftablesLabExecutionState, NetworkLinuxNftablesLabUnsupportedClaims,
 };
 pub use live_capture::{
     plan_network_live_capture_proof, NetworkLiveCapturePlatform, NetworkLiveCaptureProof,

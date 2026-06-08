@@ -7,6 +7,12 @@ import { resolveLiveActivityState } from '../src/live-activity-state';
 import { networkEvidenceDrawerSummary } from '../src/network-evidence-drawer';
 
 describe('portal live activity network flow state', () => {
+  registerNetworkFlowReadModelTests();
+  registerNetworkFlowRejectionTests();
+  registerNetworkEvidenceDrawerTests();
+});
+
+function registerNetworkFlowReadModelTests(): void {
   it('parses real service network flow read-model payload fields', () => {
     const state = resolveLiveActivityState([networkFlowEvent()]);
     const readModel = requireNetworkFlowReadModel(state.networkFlowReadModel);
@@ -15,27 +21,12 @@ describe('portal live activity network flow state', () => {
     expectNetworkFlowRow(readModel);
   });
 
-  it('projects the parent network evidence drawer without unsupported claims', () => {
-    const state = resolveLiveActivityState([networkFlowEvent()]);
-    const summary = networkEvidenceDrawerSummary(state.networkFlowReadModel);
+  it('keeps newest buffered network flow read models when sentAt ties', () => {
+    const state = resolveLiveActivityState([networkFlowEvent(), tiedOlderEmptyNetworkFlowEvent()]);
+    const readModel = requireNetworkFlowReadModel(state.networkFlowReadModel);
 
-    expect(summary.evidenceId).toBe('activity-network-flow-1');
-    expect(summary.sourceAdapter).toBe('windows-network-snapshot');
-    expect(summary.sourceQuality).toBe('available');
-    expect(summary.platformState).toBe('child-device-query-store | available');
-    expect(summary.readModelRows).toBe('1 | 1 | 0 | 1');
-    expect(summary.localEndpoint).toBe('127.0.0.1 | 4242');
-    expect(summary.remoteEndpoint).toBe('203.0.113.10 | 443');
-    expect(summary.domainEvidenceRef).toBe('example-network.test | domain-observed');
-    expect(summary.processRef).toBe('notepad.exe | 4242 | process-attributed');
-    expect(summary.evidenceReferences).toBe('network-evidence-1 | network-journal-1');
-    expect(summary.exactUrlClaim).toBe('Not reported');
-    expect(summary.aiAuditRef).toBe('Not reported');
-    expect(summary.policyDecisionRef).toBe('Not reported');
-    expect(summary.interventionResultRef).toBe('Not reported');
-    expect(summary.retentionState).toBe('0 | 1');
-    expect(summary.deletedEvidenceReferences).toBe('Not reported');
-    expect(summary.degradedState).toBe('available | domain-observed | process-attributed');
+    expectNetworkReadModelCounts(readModel, 1);
+    expectNetworkFlowRow(readModel);
   });
 
   it('keeps empty network flow read models visible without inventing destinations', () => {
@@ -69,12 +60,79 @@ describe('portal live activity network flow state', () => {
     expect(summary.policyDecisionRef).toBe('Not reported');
     expect(summary.interventionResultRef).toBe('Not reported');
   });
+}
+
+function registerNetworkFlowRejectionTests(): void {
+  it('rejects active network flow rows when service payload lacks evidence digest', () => {
+    const event = networkFlowEvent();
+    const state = resolveLiveActivityState([
+      {
+        ...event,
+        payload: {
+          ...event.payload,
+          activityDigest: null,
+        },
+      },
+    ]);
+
+    expect(state.networkFlowReadModel).toBeNull();
+  });
+
+  it('rejects network flow read models with mismatched returned and active counts', () => {
+    const event = networkFlowEvent();
+    const returnedMismatch = resolveLiveActivityState([
+      {
+        ...event,
+        payload: {
+          ...event.payload,
+          returned: 2,
+        },
+      },
+    ]);
+    const activeMismatch = resolveLiveActivityState([
+      {
+        ...event,
+        payload: {
+          ...event.payload,
+          activeRows: 2,
+        },
+      },
+    ]);
+
+    expect(returnedMismatch.networkFlowReadModel).toBeNull();
+    expect(activeMismatch.networkFlowReadModel).toBeNull();
+  });
+}
+
+function registerNetworkEvidenceDrawerTests(): void {
+  it('projects the parent network evidence drawer without unsupported claims', () => {
+    const state = resolveLiveActivityState([networkFlowEvent()]);
+    const summary = networkEvidenceDrawerSummary(state.networkFlowReadModel);
+
+    expect(summary.evidenceId).toBe('activity-network-flow-1');
+    expect(summary.sourceAdapter).toBe('windows-network-snapshot');
+    expect(summary.sourceQuality).toBe('available');
+    expect(summary.platformState).toBe('child-device-query-store | available');
+    expect(summary.readModelRows).toBe('1 | 1 | 0 | 1');
+    expect(summary.localEndpoint).toBe('127.0.0.1 | 4242');
+    expect(summary.remoteEndpoint).toBe('203.0.113.10 | 443');
+    expect(summary.domainEvidenceRef).toBe('example-network.test | domain-observed');
+    expect(summary.processRef).toBe('notepad.exe | 4242 | process-attributed');
+    expect(summary.evidenceReferences).toBe('network-evidence-1 | network-journal-1');
+    expect(summary.exactUrlClaim).toBe('Not reported');
+    expect(summary.aiAuditRef).toBe('Not reported');
+    expect(summary.policyDecisionRef).toBe('Not reported');
+    expect(summary.interventionResultRef).toBe('Not reported');
+    expect(summary.retentionState).toBe('0 | 1');
+    expect(summary.deletedEvidenceReferences).toBe('Not reported');
+    expect(summary.degradedState).toBe('available | domain-observed | process-attributed');
+  });
 
   it('mounts the network evidence drawer on the activity product route only', () => {
     expect(shouldRenderNetworkEvidenceDrawerRoute(PortalRoute.Activity)).toBe(true);
     expect(shouldRenderNetworkEvidenceDrawerRoute(PortalRoute.Overview)).toBe(false);
   });
-});
+}
 
 function requireNetworkFlowReadModel(readModel: ActivityNetworkFlowReadModel | null): ActivityNetworkFlowReadModel {
   expect(readModel).not.toBeNull();
@@ -239,6 +297,14 @@ function emptyNetworkFlowEvent() {
       lastSeenAt: null,
     },
     snapshot: null,
+  });
+}
+
+function tiedOlderEmptyNetworkFlowEvent() {
+  return AgentEventEnvelopeSchema.parse({
+    ...emptyNetworkFlowEvent(),
+    eventId: 'evt-network-empty-tie',
+    correlationId: 'cmd-network-empty-tie',
   });
 }
 

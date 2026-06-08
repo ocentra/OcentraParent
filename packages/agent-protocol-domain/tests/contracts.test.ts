@@ -34,7 +34,11 @@ const EXPECTED_AGENT_COMMAND_ENTRIES = [
   ['BrowserInterventionReadModelGet', 'agent.browser.intervention.read-model.get'],
   ['NetworkFlowReadModelGet', 'agent.network.flow.read-model.get'],
   ['NetworkRuntimeEventChainStreamGet', 'agent.network.runtime.event-chain.stream.get'],
+  ['NetworkRemoteDeliveryStatusGet', 'agent.network.remote-delivery.status.get'],
   ['NetworkLiveCaptureStatusGet', 'agent.network.live-capture.status.get'],
+  ['NetworkLinuxNftablesLabStatusGet', 'agent.network.linux-nftables-lab.status.get'],
+  ['NetworkWindowsFirewallLabStatusGet', 'agent.network.windows-firewall-lab.status.get'],
+  ['NetworkWindowsWfpGateStatusGet', 'agent.network.windows-wfp-gate.status.get'],
   ['LocalAiRuntimeStatusGet', 'agent.local-ai.runtime.status.get'],
   ['LocalAiChatGenerate', 'agent.local-ai.chat.generate'],
   ['ParentAssistantAnswerGenerate', 'agent.parent-assistant.answer.generate'],
@@ -102,7 +106,11 @@ const EXPECTED_AGENT_EVENT_ENTRIES = [
   ['BrowserInterventionReadModelReported', 'agent.browser.intervention.read-model.reported'],
   ['NetworkFlowReadModelReported', 'agent.network.flow.read-model.reported'],
   ['NetworkRuntimeEventChainStreamReported', 'agent.network.runtime.event-chain.stream.reported'],
+  ['NetworkRemoteDeliveryStatusReported', 'agent.network.remote-delivery.status.reported'],
   ['NetworkLiveCaptureStatusReported', 'agent.network.live-capture.status.reported'],
+  ['NetworkLinuxNftablesLabStatusReported', 'agent.network.linux-nftables-lab.status.reported'],
+  ['NetworkWindowsFirewallLabStatusReported', 'agent.network.windows-firewall-lab.status.reported'],
+  ['NetworkWindowsWfpGateStatusReported', 'agent.network.windows-wfp-gate.status.reported'],
   ['LocalAiRuntimeStatusReported', 'agent.local-ai.runtime.status.reported'],
   ['LocalAiChatGenerationReported', 'agent.local-ai.chat.generation.reported'],
   ['ParentAssistantAnswerReported', 'agent.parent-assistant.answer.reported'],
@@ -339,6 +347,20 @@ it('AgentProtocolDefaults.Field: exposes read-model payload fields', () => {
   expect(AgentProtocolDefaults.Delimiter.List).toBe(',');
 });
 
+it('AgentProtocolDefaults.PolicyPreview: exposes portal policy preview parser values', () => {
+  expect(AgentProtocolDefaults.Primitive.Number).toBe('number');
+  expect(AgentProtocolDefaults.PolicyPreview.TargetType.NetworkDomain).toBe('network-domain');
+  expect(AgentProtocolDefaults.PolicyPreview.Action.AskParent).toBe('ask-parent');
+  expect(AgentProtocolDefaults.PolicyPreview.Action.ManualReview).toBe('manual-review');
+  expect(AgentProtocolDefaults.PolicyPreview.EvidenceGrade.A).toBe('A');
+  expect(AgentProtocolDefaults.PolicyPreview.MappingMode.ParentReview).toBe('parent-review');
+  expect(AgentProtocolDefaults.PolicyPreview.MappingMode.AdapterUnavailable).toBe('adapter-unavailable');
+  expect(AgentProtocolDefaults.PolicyPreview.HandoffState.DisabledPreviewOnly).toBe('disabled-preview-only');
+  expect(AgentProtocolDefaults.PolicyPreview.ValidationMessage.DryRunPreviewOnlyHandoffRequired).toContain(
+    'preview-only handoff'
+  );
+});
+
 function expectReadModelBridgeAndActivityFields() {
   expect(AgentProtocolDefaults.Field.BridgeEndpointRef).toBe('bridgeEndpointRef');
   expect(AgentProtocolDefaults.Field.BridgeKind).toBe('bridgeKind');
@@ -398,9 +420,7 @@ function expectReadModelEnforcementAndUnmanagedFields() {
   expect(AgentProtocolDefaults.Field.EventType).toBe('eventType');
   expect(AgentProtocolDefaults.Field.EvidenceReferenceIds).toBe('evidenceReferenceIds');
   expect(AgentProtocolDefaults.Field.MostRecentSubjectName).toBe('mostRecentSubjectName');
-  expect(AgentProtocolDefaults.Field.NetworkRuntimeEventChainStream).toBe('networkRuntimeEventChainStream');
-  expect(AgentProtocolDefaults.Field.NetworkRuntimeStreamedEvents).toBe('networkRuntimeStreamedEvents');
-  expect(AgentProtocolDefaults.Field.NetworkLiveCaptureStatus).toBe('networkLiveCaptureStatus');
+  expectReadModelNetworkStatusFields();
   expect(AgentProtocolDefaults.Field.Payload).toBe('payload');
   expect(AgentProtocolDefaults.Field.VisibleManualRequired).toBe('visibleManualRequired');
   expect(AgentProtocolDefaults.Field.UnmanagedBrowserEnforcement).toBe('unmanagedBrowserEnforcement');
@@ -415,6 +435,16 @@ function expectReadModelEnforcementAndUnmanagedFields() {
   expect(AgentProtocolDefaults.Field.UnmanagedSignatureRef).toBe('unmanagedSignatureRef');
 }
 
+function expectReadModelNetworkStatusFields() {
+  expect(AgentProtocolDefaults.Field.NetworkRuntimeEventChainStream).toBe('networkRuntimeEventChainStream');
+  expect(AgentProtocolDefaults.Field.NetworkRuntimeStreamedEvents).toBe('networkRuntimeStreamedEvents');
+  expect(AgentProtocolDefaults.Field.NetworkRemoteDeliveryStatus).toBe('networkRemoteDeliveryStatus');
+  expect(AgentProtocolDefaults.Field.NetworkLiveCaptureStatus).toBe('networkLiveCaptureStatus');
+  expect(AgentProtocolDefaults.Field.NetworkLinuxNftablesLabStatus).toBe('networkLinuxNftablesLabStatus');
+  expect(AgentProtocolDefaults.Field.NetworkWindowsFirewallLabStatus).toBe('networkWindowsFirewallLabStatus');
+  expect(AgentProtocolDefaults.Field.NetworkWindowsWfpGateStatus).toBe('networkWindowsWfpGateStatus');
+}
+
 it('AgentProtocolDefaults.Field: exposes browser policy payload fields', () => {
   expect(AgentProtocolDefaults.Field.BrowserPolicyRequest).toBe('browserPolicyRequest');
   expect(AgentProtocolDefaults.Field.BrowserPolicyResponse).toBe('browserPolicyResponse');
@@ -426,6 +456,12 @@ it('AgentProtocolDefaults.Field: exposes browser policy payload fields', () => {
 
 it('AgentEvent: exposes typed constants for portal result rendering', () => {
   expectConstantEntries(AgentEvent, EXPECTED_AGENT_EVENT_ENTRIES);
+});
+
+it('AgentProtocolDefaults.NetworkRemoteDeliveryStatus: tracks row10t status identity', () => {
+  expect(AgentProtocolDefaults.NetworkRemoteDeliveryStatus.StatusRef).toBe(
+    'network.remote-delivery.external-cross-process-transport-status.10t'
+  );
 });
 
 it('AgentCommandEnvelopeSchema: rejects unknown commands', () => {

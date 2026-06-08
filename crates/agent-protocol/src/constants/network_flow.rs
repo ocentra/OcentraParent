@@ -165,7 +165,140 @@ pub const TEST_REMOTE_DELIVERY_EXTERNAL_CROSS_PROCESS_TRANSPORT_STATUS_REF: &str
     "network.remote-delivery.external-cross-process-transport-status.10t";
 pub const TEST_LIVE_CAPTURE_STATUS_REF: &str = "network.live-capture.status.13a";
 pub const FIELD_NETWORK_LIVE_CAPTURE_STATUS: &str = "networkLiveCaptureStatus";
+pub const FIELD_NETWORK_LINUX_NFTABLES_LAB_STATUS: &str = "networkLinuxNftablesLabStatus";
+pub const FIELD_NETWORK_WINDOWS_FIREWALL_LAB_STATUS: &str = "networkWindowsFirewallLabStatus";
+pub const FIELD_NETWORK_WINDOWS_WFP_GATE_STATUS: &str = "networkWindowsWfpGateStatus";
+pub const TEST_WINDOWS_FIREWALL_LAB_STATUS_REF: &str = "network.windows-firewall.lab-status.38a";
+pub const TEST_WINDOWS_FIREWALL_LAB_REF: &str = "network.windows-firewall.lab-execution.38a";
+pub const TEST_WINDOWS_FIREWALL_ADAPTER_PLAN_REF: &str =
+    "network.windows-firewall.adapter-plan.38a";
+pub const TEST_WINDOWS_FIREWALL_POLICY_DECISION_REF: &str =
+    "network.policy-decision.windows-firewall.38a";
+pub const TEST_WINDOWS_FIREWALL_PARENT_RULE_REF: &str = "network.parent-rule.windows-firewall.38a";
+pub const TEST_WINDOWS_FIREWALL_EVIDENCE_REF: &str = "network.evidence.windows-firewall.38a";
+pub const TEST_WINDOWS_FIREWALL_LOCAL_AI_RESULT_REF: &str = "network.local-ai.windows-firewall.38a";
+pub const TEST_WINDOWS_FIREWALL_CAPABILITY_PROOF_REF: &str =
+    "network.windows-firewall.capability-proof.38a";
+pub const TEST_WINDOWS_FIREWALL_OS_SCOPE_REF: &str = "network.windows-firewall.os-scope.38a";
+pub const TEST_WINDOWS_FIREWALL_TARGET_REF: &str =
+    "network.windows-firewall.target.remote-address.38a";
+pub const TEST_WINDOWS_FIREWALL_RULE_REF: &str = "network.windows-firewall.rule.38a";
+pub const TEST_WINDOWS_FIREWALL_AUTHORIZATION_REF: &str =
+    "network.windows-firewall.authorization.38a";
+pub const TEST_WINDOWS_FIREWALL_APPLY_ARTIFACT_REF: &str =
+    "network.windows-firewall.apply-artifact.38a";
+pub const TEST_WINDOWS_FIREWALL_RESULT_ARTIFACT_REF: &str =
+    "network.windows-firewall.result-artifact.38a";
+pub const TEST_WINDOWS_FIREWALL_ROLLBACK_ARTIFACT_REF: &str =
+    "network.windows-firewall.rollback-artifact.38a";
+pub const TEST_WINDOWS_FIREWALL_AUDIT_EVENT_REF: &str = "network.windows-firewall.audit-event.38a";
+pub const TEST_WINDOWS_FIREWALL_RULE_NAME: &str = "OcentraParentNetworkLab-row38a";
+pub const TEST_WINDOWS_FIREWALL_TARGET_REMOTE_ADDRESS: &str = "203.0.113.254";
+pub const TEST_WINDOWS_FIREWALL_APPLY_RULE_COMMAND_REF: &str =
+    "network.windows-firewall.command.apply-rule.38a";
+pub const TEST_WINDOWS_FIREWALL_VERIFY_PRESENT_COMMAND_REF: &str =
+    "network.windows-firewall.command.verify-rule-present.38a";
+pub const TEST_WINDOWS_FIREWALL_ROLLBACK_RULE_COMMAND_REF: &str =
+    "network.windows-firewall.command.rollback-rule.38a";
+pub const TEST_WINDOWS_FIREWALL_VERIFY_REMOVED_COMMAND_REF: &str =
+    "network.windows-firewall.command.verify-rule-removed.38a";
+pub const TEST_WINDOWS_FIREWALL_APPLY_RULE_OUTPUT_SHA256: &str =
+    "sha256:network-windows-firewall-apply-rule-38a";
+pub const TEST_WINDOWS_FIREWALL_VERIFY_PRESENT_OUTPUT_SHA256: &str =
+    "sha256:network-windows-firewall-verify-rule-present-38a";
+pub const TEST_WINDOWS_FIREWALL_ROLLBACK_RULE_OUTPUT_SHA256: &str =
+    "sha256:network-windows-firewall-rollback-rule-38a";
+pub const TEST_WINDOWS_FIREWALL_VERIFY_REMOVED_OUTPUT_SHA256: &str =
+    "sha256:network-windows-firewall-verify-rule-removed-38a";
+pub const TEST_WINDOWS_WFP_GATE_STATUS_REF: &str = "network.windows-wfp.gate-status.39";
+pub const TEST_WINDOWS_WFP_GATE_REF: &str = "network.windows-wfp.gate.39";
+pub const TEST_WINDOWS_WFP_POLICY_DECISION_REF: &str = "network.policy-decision.windows-wfp.39";
+pub const TEST_WINDOWS_WFP_PARENT_RULE_REF: &str = "network.parent-rule.windows-wfp.39";
+pub const TEST_WINDOWS_WFP_EVIDENCE_REF: &str = "network.evidence.windows-wfp.39";
+pub const TEST_WINDOWS_WFP_LOCAL_AI_RESULT_REF: &str = "network.local-ai.windows-wfp.39";
+pub const TEST_WINDOWS_WFP_TARGET_REF: &str = "network.windows-wfp.target.39";
+pub const TEST_WINDOWS_WFP_PROVIDER_REF: &str = "network.windows-wfp.provider.39";
+pub const TEST_WINDOWS_WFP_LAYER_REF: &str = "network.windows-wfp.layer.39";
+pub const TEST_WINDOWS_WFP_ADMIN_PERMISSION_PROOF_REF: &str =
+    "network.windows-wfp.admin-permission-proof.39";
+pub const TEST_WINDOWS_WFP_DRIVER_SIGNING_PROOF_REF: &str =
+    "network.windows-wfp.driver-signing-proof.39";
+pub const TEST_WINDOWS_WFP_DRIVER_PACKAGE_PROOF_REF: &str =
+    "network.windows-wfp.driver-package-proof.39";
+pub const TEST_WINDOWS_WFP_PROVIDER_REGISTRATION_PLAN_REF: &str =
+    "network.windows-wfp.provider-registration-plan.39";
+pub const TEST_WINDOWS_WFP_LAYER_CAPABILITY_MATRIX_REF: &str =
+    "network.windows-wfp.layer-capability-matrix.39";
+pub const TEST_WINDOWS_WFP_ROLLBACK_PLAN_REF: &str = "network.windows-wfp.rollback-plan.39";
+pub const TEST_WINDOWS_WFP_LAB_RESULT_ARTIFACT_REF: &str =
+    "network.windows-wfp.lab-result-artifact.39";
+pub const TEST_WINDOWS_WFP_AUDIT_EVENT_REF: &str = "network.windows-wfp.audit-event.39";
+pub const WFP_BOUNDARY_RESEARCH_ONLY_REQUESTED: &str = "research-only-requested";
+pub const WFP_BOUNDARY_CAPABILITY_MANUAL_REQUIRED: &str = "capability-manual-required";
+pub const WFP_BOUNDARY_CAPABILITY_UNAVAILABLE: &str = "capability-unavailable";
+pub const WFP_BOUNDARY_EVIDENCE_GRADE_BELOW_PROOF_THRESHOLD: &str =
+    "evidence-grade-below-proof-threshold";
+pub const WFP_BOUNDARY_POLICY_NOT_WFP_APPROVED: &str = "policy-not-wfp-approved";
+pub const WFP_BOUNDARY_MISSING_REQUIRED_ARTIFACT: &str = "missing-required-artifact";
+pub const WFP_ARTIFACT_ADMINISTRATOR_PERMISSION_PROOF: &str = "administrator-permission-proof";
+pub const WFP_ARTIFACT_DRIVER_SIGNING_PROOF: &str = "driver-signing-proof";
+pub const WFP_ARTIFACT_DRIVER_PACKAGE_PROOF: &str = "driver-package-proof";
+pub const WFP_ARTIFACT_PROVIDER_REGISTRATION_PLAN: &str = "provider-registration-plan";
+pub const WFP_ARTIFACT_LAYER_CAPABILITY_MATRIX: &str = "layer-capability-matrix";
+pub const WFP_ARTIFACT_ROLLBACK_PLAN: &str = "rollback-plan";
+pub const WFP_ARTIFACT_LAB_RESULT_ARTIFACT: &str = "lab-result-artifact";
+pub const WFP_ARTIFACT_AUDIT_EVENT: &str = "audit-event";
+pub const TEST_LINUX_NFTABLES_LAB_STATUS_REF: &str = "network.linux-nftables.lab-status.42a";
+pub const TEST_LINUX_NFTABLES_LAB_REF: &str = "network.linux-nftables.lab-execution.42a";
+pub const TEST_LINUX_ADAPTER_GATE_REF: &str = "network.linux-adapter.gate.42a";
+pub const TEST_LINUX_ADAPTER_POLICY_DECISION_REF: &str = "network.policy-decision.linux.42a";
+pub const TEST_LINUX_ADAPTER_PARENT_RULE_REF: &str = "network.parent-rule.linux.42a";
+pub const TEST_LINUX_ADAPTER_EVIDENCE_REF: &str = "network.evidence.linux.42a";
+pub const TEST_LINUX_ADAPTER_LOCAL_AI_RESULT_REF: &str = "network.local-ai.linux.42a";
+pub const TEST_LINUX_ADAPTER_CAPABILITY_PROOF_REF: &str =
+    "network.linux-adapter.capability-proof.42a";
+pub const TEST_LINUX_DISTRO_REF: &str = "network.linux.distro.42a";
+pub const TEST_LINUX_KERNEL_REF: &str = "network.linux.kernel.42a";
+pub const TEST_LINUX_DISTRO_KERNEL_PROOF_REF: &str = "network.linux.distro-kernel-proof.42a";
+pub const TEST_LINUX_ADAPTER_PERMISSION_PROOF_REF: &str = "network.linux.permission-proof.42a";
+pub const TEST_LINUX_ADAPTER_API_CAPABILITY_PROOF_REF: &str =
+    "network.linux.adapter-api-capability-proof.42a";
+pub const TEST_LINUX_ADAPTER_PLAN_PROOF_REF: &str = "network.linux.adapter-plan-proof.42a";
+pub const TEST_LINUX_SERVICE_MANAGER_SCOPE_PROOF_REF: &str =
+    "network.linux.service-manager-scope-proof.42a";
+pub const TEST_LINUX_ROLLBACK_PLAN_REF: &str = "network.linux.rollback-plan.42a";
+pub const TEST_LINUX_LAB_RESULT_ARTIFACT_REF: &str = "network.linux.lab-result-artifact.42a";
+pub const TEST_LINUX_ADAPTER_AUDIT_EVENT_REF: &str = "network.linux.audit-event.42a";
+pub const TEST_LINUX_NFTABLES_TABLE_NAME: &str = "ocentra_parent_lab_row42a";
+pub const TEST_LINUX_NFTABLES_CHAIN_NAME: &str = "ocentra_parent_lab_chain_row42a";
+pub const TEST_LINUX_NFTABLES_TARGET_REMOTE_ADDRESS: &str = "203.0.113.253";
+pub const TEST_LINUX_NFTABLES_CREATE_TABLE_COMMAND_REF: &str =
+    "network.linux-nftables.command.create-table.42a";
+pub const TEST_LINUX_NFTABLES_CREATE_CHAIN_COMMAND_REF: &str =
+    "network.linux-nftables.command.create-chain.42a";
+pub const TEST_LINUX_NFTABLES_ADD_RULE_COMMAND_REF: &str =
+    "network.linux-nftables.command.add-rule.42a";
+pub const TEST_LINUX_NFTABLES_VERIFY_RULE_COMMAND_REF: &str =
+    "network.linux-nftables.command.verify-rule-present.42a";
+pub const TEST_LINUX_NFTABLES_DELETE_TABLE_COMMAND_REF: &str =
+    "network.linux-nftables.command.delete-table.42a";
+pub const TEST_LINUX_NFTABLES_VERIFY_REMOVED_COMMAND_REF: &str =
+    "network.linux-nftables.command.verify-table-removed.42a";
+pub const TEST_LINUX_NFTABLES_CREATE_TABLE_OUTPUT_SHA256: &str =
+    "sha256:network-linux-nftables-create-table-42a";
+pub const TEST_LINUX_NFTABLES_CREATE_CHAIN_OUTPUT_SHA256: &str =
+    "sha256:network-linux-nftables-create-chain-42a";
+pub const TEST_LINUX_NFTABLES_ADD_RULE_OUTPUT_SHA256: &str =
+    "sha256:network-linux-nftables-add-rule-42a";
+pub const TEST_LINUX_NFTABLES_VERIFY_RULE_OUTPUT_SHA256: &str =
+    "sha256:network-linux-nftables-verify-rule-present-42a";
+pub const TEST_LINUX_NFTABLES_DELETE_TABLE_OUTPUT_SHA256: &str =
+    "sha256:network-linux-nftables-delete-table-42a";
+pub const TEST_LINUX_NFTABLES_VERIFY_REMOVED_OUTPUT_SHA256: &str =
+    "sha256:network-linux-nftables-verify-table-removed-42a";
 pub const TEST_LIVE_CAPTURE_ROW13_STATUS_REF: &str = "network.live-capture.proof-gate.13";
+pub const TEST_LIVE_CAPTURE_EXECUTION_STATUS_REF: &str =
+    "network.live-capture.execution-status.13b";
 pub const TEST_LIVE_CAPTURE_STORAGE_STATUS_REF: &str =
     "network.live-capture.raw-storage-custody.03a";
 pub const TEST_LIVE_CAPTURE_WINDOWS_PROOF_REF: &str = "network.live-capture.windows-npcap.13";
@@ -182,6 +315,28 @@ pub const TEST_LIVE_CAPTURE_RETENTION_REF: &str = "network.live-capture.retentio
 pub const TEST_LIVE_CAPTURE_CUSTODY_REF: &str = "network.live-capture.custody.13";
 pub const TEST_LIVE_CAPTURE_PRIVATE_TRAFFIC_EXCLUSION_REF: &str =
     "network.live-capture.private-traffic-exclusion.13";
+pub const TEST_LIVE_CAPTURE_WINDOWS_EXECUTION_REF: &str =
+    "network.live-capture.execution.windows-npcap.13b";
+pub const TEST_LIVE_CAPTURE_MANUAL_EXECUTION_REF: &str =
+    "network.live-capture.execution.manual-required.13b";
+pub const TEST_LIVE_CAPTURE_LINUX_EXECUTION_REF: &str =
+    "network.live-capture.execution.linux-libpcap.13b";
+pub const TEST_LIVE_CAPTURE_MACOS_EXECUTION_REF: &str =
+    "network.live-capture.execution.macos-bpf-libpcap.13b";
+pub const TEST_LIVE_CAPTURE_DRIVER_INVOCATION_REF: &str =
+    "network.live-capture.driver-invocation.13b";
+pub const TEST_LIVE_CAPTURE_INTERFACE_OBSERVATION_REF: &str =
+    "network.live-capture.interface-observation.13b";
+pub const TEST_LIVE_CAPTURE_EXECUTION_PERMISSION_REF: &str = "network.live-capture.permission.13b";
+pub const TEST_LIVE_CAPTURE_BOUNDED_WINDOW_REF: &str = "network.live-capture.bounded-window.13b";
+pub const TEST_LIVE_CAPTURE_EXECUTION_CLEAN_STOP_REF: &str = "network.live-capture.clean-stop.13b";
+pub const TEST_LIVE_CAPTURE_EXECUTION_CUSTODY_REF: &str = "network.live-capture.custody.13b";
+pub const TEST_LIVE_CAPTURE_EXECUTION_RETENTION_REF: &str =
+    "network.live-capture.retention-delete-export.13b";
+pub const TEST_LIVE_CAPTURE_METADATA_SANITIZATION_REF: &str =
+    "network.live-capture.metadata-sanitization.13b";
+pub const TEST_LIVE_CAPTURE_EXECUTION_PRIVATE_TRAFFIC_EXCLUSION_REF: &str =
+    "network.live-capture.private-traffic-exclusion.13b";
 pub const TEST_RAW_CAPTURE_MANIFEST_REF: &str = "network.raw-capture.manifest.03a";
 pub const TEST_RAW_CAPTURE_STORAGE_LOCATION_REF: &str = "network.raw-capture.storage-location.03a";
 pub const TEST_RAW_CAPTURE_ENCRYPTION_REF: &str = "network.raw-capture.encryption-at-rest.03a";
@@ -319,3 +474,7 @@ pub const ERROR_NETWORK_RUNTIME_REMOTE_CROSS_PROCESS_REPLAY_STATUS_BRIDGE: &str 
 pub const ERROR_NETWORK_RUNTIME_REMOTE_EXTERNAL_CROSS_PROCESS_TRANSPORT: &str =
     "network runtime remote external cross-process transport proof";
 pub const ERROR_NETWORK_LIVE_CAPTURE_STATUS: &str = "network live capture status proof";
+pub const ERROR_NETWORK_LINUX_NFTABLES_LAB_STATUS: &str = "network Linux nftables lab status proof";
+pub const ERROR_NETWORK_WINDOWS_FIREWALL_LAB_STATUS: &str =
+    "network Windows firewall lab status proof";
+pub const ERROR_NETWORK_WINDOWS_WFP_GATE_STATUS: &str = "network Windows WFP gate status proof";

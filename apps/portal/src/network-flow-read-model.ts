@@ -38,6 +38,7 @@ export function parseNetworkFlowReadModel(payload: AgentProtocolLogFields): Acti
 }
 
 function networkFlowObservation(payload: AgentProtocolLogFields, digest: ActivityNetworkFlowDigest | null) {
+  const evidence = digest?.evidence ?? [];
   return {
     schemaVersion: ActivityQuerySchemaVersion,
     eventId: payload[AgentProtocolDefaults.Field.LatestEventId],
@@ -67,7 +68,7 @@ function networkFlowObservation(payload: AgentProtocolLogFields, digest: Activit
       firstSeenAt: nullIfMissing(payload[AgentProtocolDefaults.Field.FirstSeenAt]),
       lastSeenAt: nullIfMissing(payload[AgentProtocolDefaults.Field.LastSeenAt]),
     },
-    evidence: digest?.evidence ?? [],
+    evidence,
   };
 }
 

@@ -147,6 +147,49 @@ describe('network flow query contracts', () => {
 
     expect(result.success).toBe(false);
   });
+
+  it('rejects active network rows without evidence references', () => {
+    const observation = ActivityNetworkFlowObservationSchema.safeParse({
+      ...NetworkFlowObservationSample,
+      evidence: [],
+    });
+    const readModel = ActivityNetworkFlowReadModelSchema.safeParse({
+      ...NetworkFlowReadModelSample,
+      rows: [
+        {
+          ...NetworkFlowObservationSample,
+          evidence: [],
+        },
+      ],
+    });
+
+    expect(observation.success).toBe(false);
+    expect(readModel.success).toBe(false);
+  });
+
+  it('rejects network read-model count and retention mismatches', () => {
+    const returnedMismatch = ActivityNetworkFlowReadModelSchema.safeParse({
+      ...NetworkFlowReadModelSample,
+      returned: 2,
+    });
+    const activeMismatch = ActivityNetworkFlowReadModelSchema.safeParse({
+      ...NetworkFlowReadModelSample,
+      activeRows: 2,
+    });
+    const exportableMismatch = ActivityNetworkFlowReadModelSchema.safeParse({
+      ...NetworkFlowReadModelSample,
+      exportableRows: 2,
+    });
+    const tombstoneWithoutDeletedEvidence = ActivityNetworkFlowReadModelSchema.safeParse({
+      ...NetworkFlowDeletedReadModelSample,
+      deletedEvidenceReferenceIds: [],
+    });
+
+    expect(returnedMismatch.success).toBe(false);
+    expect(activeMismatch.success).toBe(false);
+    expect(exportableMismatch.success).toBe(false);
+    expect(tombstoneWithoutDeletedEvidence.success).toBe(false);
+  });
 });
 
 describe('network flow numeric bounds', () => {
