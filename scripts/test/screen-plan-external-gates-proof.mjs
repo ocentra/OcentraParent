@@ -76,6 +76,21 @@ const negativeChecks = [
       capturedFromRealDeviceOrHost: true,
       capturesLiveSurface: true,
       rawPrivateContentIncluded: true,
+      localCaptureProofRef: 'linux-live-capture-proof',
+      localAnalysisProofRef: 'linux-local-analysis-proof',
+      rawImageDeletionProofRef: 'linux-raw-deletion-proof',
+    })
+  ),
+  rejects('pixel evidence without analysis and deletion refs is rejected', () =>
+    validateArtifact(requiredGates[2], {
+      gateId: requiredGates[2].gateId,
+      platform: requiredGates[2].platform,
+      evidenceKind: requiredGates[2].evidenceKind,
+      artifactPath: 'output/screen-plan-proof/external-gates/artifacts/android-physical-proof.mp4',
+      artifactSha256: 'sha256-placeholder',
+      capturedFromRealDeviceOrHost: true,
+      capturesLiveSurface: true,
+      rawPrivateContentIncluded: false,
     })
   ),
   rejects('authenticated account proof without consent and redaction is rejected', () =>
@@ -124,6 +139,9 @@ const summary = {
     authenticatedAccountSocialGateEnumerated: gateResults.some(
       (result) => result.gateId === 'authenticated-account-social-capture'
     ),
+    strictProofRefsRequired: gateResults.every(
+      (result) => result.status === 'missing' || Array.isArray(result.requiredProofRefFields)
+    ),
     productCompleteAllowed: satisfiedGateCount === requiredGates.length && invalidGateCount === 0,
     currentBranchMustRemainNonClaim: satisfiedGateCount !== requiredGates.length || invalidGateCount > 0,
     rejectsFixtureOrStaticEvidence: negativeChecks.every((check) => check.rejected),
@@ -164,16 +182,15 @@ function manifestTemplate() {
         requiredGate.evidenceKind
       )}`,
       artifactSha256: '<sha256-of-artifact-bytes>',
-      capturedFromRealDeviceOrHost: true,
-      capturesLiveSurface: true,
+      capturedFromRealDeviceOrHost: requiresLiveSurfaceArtifact(requiredGate) ? true : false,
+      capturesLiveSurface: requiresLiveSurfaceArtifact(requiredGate) ? true : false,
       rawPrivateContentIncluded: false,
+      ...templateProofRefsFor(requiredGate),
       ...(requiredGate.evidenceKind === 'authenticated-account-capture-proof'
         ? {
             operatorConsentRecorded: true,
             redactedAccountIdentifiers: true,
-            localAnalysisProofRef: '<proof ref showing OCR/VLM/AI analysis of the captured account surface>',
             policyDryRunProofRef: '<proof ref showing policy consumed the account-surface AI result>',
-            rawImageDeletionProofRef: '<proof ref showing raw screenshot deletion/custody>',
           }
         : {}),
     })),
@@ -206,6 +223,7 @@ function manualEvidenceRunbook() {
         `- evidence kind: ${requiredGate.evidenceKind}`,
         `- workpack: ${requiredGate.workpack}`,
         `- requirement: ${requiredGate.requirement}`,
+        `- required proof refs: ${requiredProofRefFields(requiredGate).join(', ') || 'artifact digest only'}`,
         '',
       ].join('\n')
     )
@@ -228,6 +246,7 @@ function validateGate(requiredGate, entries) {
       ...requiredGate,
       status: 'missing',
       artifactPath: null,
+      requiredProofRefFields: requiredProofRefFields(requiredGate),
       reason: 'No matching manifest entry exists.',
     };
   }
@@ -238,6 +257,7 @@ function validateGate(requiredGate, entries) {
     status: validation.ok ? 'satisfied' : 'invalid',
     artifactPath: typeof entry.artifactPath === 'string' ? normalizeArtifactPath(entry.artifactPath) : null,
     artifactSha256: typeof entry.artifactSha256 === 'string' ? entry.artifactSha256 : null,
+    requiredProofRefFields: requiredProofRefFields(requiredGate),
     reason: validation.reason,
   };
 }
@@ -259,7 +279,10 @@ function validateArtifact(requiredGate, entry) {
     return rejected('artifact digest is missing or too short');
   }
 
-  if (entry.capturedFromRealDeviceOrHost !== true || entry.capturesLiveSurface !== true) {
+  if (
+    requiresLiveSurfaceArtifact(requiredGate) &&
+    (entry.capturedFromRealDeviceOrHost !== true || entry.capturesLiveSurface !== true)
+  ) {
     return rejected('artifact must come from a real device or host and capture a live surface');
   }
 
@@ -267,13 +290,14 @@ function validateArtifact(requiredGate, entry) {
     return rejected('artifact must not include raw private content');
   }
 
+  const missingProofRef = requiredProofRefFields(requiredGate).find((field) => !isRealProofRef(entry[field]));
+  if (missingProofRef !== undefined) {
+    return rejected(`required proof ref is missing or placeholder: ${missingProofRef}`);
+  }
+
   if (
     requiredGate.evidenceKind === 'authenticated-account-capture-proof' &&
-    (entry.operatorConsentRecorded !== true ||
-      entry.redactedAccountIdentifiers !== true ||
-      typeof entry.localAnalysisProofRef !== 'string' ||
-      typeof entry.policyDryRunProofRef !== 'string' ||
-      typeof entry.rawImageDeletionProofRef !== 'string')
+    (entry.operatorConsentRecorded !== true || entry.redactedAccountIdentifiers !== true)
   ) {
     return rejected(
       'authenticated account proof must record operator consent, redacted account identifiers, local analysis proof, policy dry-run proof, and raw image deletion proof'
@@ -295,6 +319,54 @@ function validateArtifact(requiredGate, entry) {
   }
 
   return { ok: true, reason: 'Artifact entry satisfies the current gate contract.' };
+}
+
+function requiresLiveSurfaceArtifact(requiredGate) {
+  return !['hosted-relay-proof', 'privacy-legal-approval'].includes(requiredGate.evidenceKind);
+}
+
+function requiredProofRefFields(requiredGate) {
+  if (
+    requiredGate.evidenceKind === 'platform-permission-prompt-screenshot' ||
+    requiredGate.evidenceKind === 'platform-session-recording' ||
+    requiredGate.evidenceKind === 'physical-device-capture-recording'
+  ) {
+    const fields = ['localCaptureProofRef', 'localAnalysisProofRef', 'rawImageDeletionProofRef'];
+    if (requiredGate.gateId.startsWith('live-view-')) {
+      fields.push('liveViewRuntimeProofRef', 'viewerAuditProofRef');
+    }
+    return fields;
+  }
+
+  if (requiredGate.evidenceKind === 'authenticated-account-capture-proof') {
+    return ['localCaptureProofRef', 'localAnalysisProofRef', 'policyDryRunProofRef', 'rawImageDeletionProofRef'];
+  }
+
+  if (requiredGate.evidenceKind === 'hosted-relay-proof') {
+    return ['relayEncryptionProofRef', 'relayNoRetentionProofRef', 'viewerAuditProofRef'];
+  }
+
+  if (requiredGate.evidenceKind === 'privacy-legal-approval') {
+    return ['privacyApprovalRecordRef', 'approverRoleRef', 'approvalScopeRef'];
+  }
+
+  return [];
+}
+
+function templateProofRefsFor(requiredGate) {
+  return Object.fromEntries(
+    requiredProofRefFields(requiredGate).map((field) => [field, `<${field} for ${requiredGate.gateId}>`])
+  );
+}
+
+function isRealProofRef(value) {
+  return (
+    typeof value === 'string' &&
+    value.trim().length > 0 &&
+    !value.includes('<') &&
+    !value.includes('>') &&
+    !value.toLowerCase().includes('placeholder')
+  );
 }
 
 function artifactPathIsAllowed(path) {

@@ -10,7 +10,10 @@
       "artifactSha256": "<sha256-of-artifact-bytes>",
       "capturedFromRealDeviceOrHost": true,
       "capturesLiveSurface": true,
-      "rawPrivateContentIncluded": false
+      "rawPrivateContentIncluded": false,
+      "localCaptureProofRef": "<localCaptureProofRef for macos-live-capture-permission>",
+      "localAnalysisProofRef": "<localAnalysisProofRef for macos-live-capture-permission>",
+      "rawImageDeletionProofRef": "<rawImageDeletionProofRef for macos-live-capture-permission>"
     },
     {
       "gateId": "linux-desktop-session-capture",
@@ -20,7 +23,10 @@
       "artifactSha256": "<sha256-of-artifact-bytes>",
       "capturedFromRealDeviceOrHost": true,
       "capturesLiveSurface": true,
-      "rawPrivateContentIncluded": false
+      "rawPrivateContentIncluded": false,
+      "localCaptureProofRef": "<localCaptureProofRef for linux-desktop-session-capture>",
+      "localAnalysisProofRef": "<localAnalysisProofRef for linux-desktop-session-capture>",
+      "rawImageDeletionProofRef": "<rawImageDeletionProofRef for linux-desktop-session-capture>"
     },
     {
       "gateId": "android-physical-mediaprojection-capture",
@@ -30,7 +36,10 @@
       "artifactSha256": "<sha256-of-artifact-bytes>",
       "capturedFromRealDeviceOrHost": true,
       "capturesLiveSurface": true,
-      "rawPrivateContentIncluded": false
+      "rawPrivateContentIncluded": false,
+      "localCaptureProofRef": "<localCaptureProofRef for android-physical-mediaprojection-capture>",
+      "localAnalysisProofRef": "<localAnalysisProofRef for android-physical-mediaprojection-capture>",
+      "rawImageDeletionProofRef": "<rawImageDeletionProofRef for android-physical-mediaprojection-capture>"
     },
     {
       "gateId": "ios-physical-replaykit-capture",
@@ -40,7 +49,10 @@
       "artifactSha256": "<sha256-of-artifact-bytes>",
       "capturedFromRealDeviceOrHost": true,
       "capturesLiveSurface": true,
-      "rawPrivateContentIncluded": false
+      "rawPrivateContentIncluded": false,
+      "localCaptureProofRef": "<localCaptureProofRef for ios-physical-replaykit-capture>",
+      "localAnalysisProofRef": "<localAnalysisProofRef for ios-physical-replaykit-capture>",
+      "rawImageDeletionProofRef": "<rawImageDeletionProofRef for ios-physical-replaykit-capture>"
     },
     {
       "gateId": "live-view-platform-prompt",
@@ -50,7 +62,12 @@
       "artifactSha256": "<sha256-of-artifact-bytes>",
       "capturedFromRealDeviceOrHost": true,
       "capturesLiveSurface": true,
-      "rawPrivateContentIncluded": false
+      "rawPrivateContentIncluded": false,
+      "localCaptureProofRef": "<localCaptureProofRef for live-view-platform-prompt>",
+      "localAnalysisProofRef": "<localAnalysisProofRef for live-view-platform-prompt>",
+      "rawImageDeletionProofRef": "<rawImageDeletionProofRef for live-view-platform-prompt>",
+      "liveViewRuntimeProofRef": "<liveViewRuntimeProofRef for live-view-platform-prompt>",
+      "viewerAuditProofRef": "<viewerAuditProofRef for live-view-platform-prompt>"
     },
     {
       "gateId": "live-view-physical-device-parity",
@@ -60,7 +77,12 @@
       "artifactSha256": "<sha256-of-artifact-bytes>",
       "capturedFromRealDeviceOrHost": true,
       "capturesLiveSurface": true,
-      "rawPrivateContentIncluded": false
+      "rawPrivateContentIncluded": false,
+      "localCaptureProofRef": "<localCaptureProofRef for live-view-physical-device-parity>",
+      "localAnalysisProofRef": "<localAnalysisProofRef for live-view-physical-device-parity>",
+      "rawImageDeletionProofRef": "<rawImageDeletionProofRef for live-view-physical-device-parity>",
+      "liveViewRuntimeProofRef": "<liveViewRuntimeProofRef for live-view-physical-device-parity>",
+      "viewerAuditProofRef": "<viewerAuditProofRef for live-view-physical-device-parity>"
     },
     {
       "gateId": "live-view-hosted-relay-infrastructure",
@@ -68,9 +90,12 @@
       "evidenceKind": "hosted-relay-proof",
       "artifactPath": "output/screen-plan-proof/external-gates/artifacts/live-view-hosted-relay-infrastructure.json",
       "artifactSha256": "<sha256-of-artifact-bytes>",
-      "capturedFromRealDeviceOrHost": true,
-      "capturesLiveSurface": true,
-      "rawPrivateContentIncluded": false
+      "capturedFromRealDeviceOrHost": false,
+      "capturesLiveSurface": false,
+      "rawPrivateContentIncluded": false,
+      "relayEncryptionProofRef": "<relayEncryptionProofRef for live-view-hosted-relay-infrastructure>",
+      "relayNoRetentionProofRef": "<relayNoRetentionProofRef for live-view-hosted-relay-infrastructure>",
+      "viewerAuditProofRef": "<viewerAuditProofRef for live-view-hosted-relay-infrastructure>"
     },
     {
       "gateId": "live-view-privacy-legal-approval",
@@ -78,9 +103,12 @@
       "evidenceKind": "privacy-legal-approval",
       "artifactPath": "output/screen-plan-proof/external-gates/artifacts/live-view-privacy-legal-approval.md",
       "artifactSha256": "<sha256-of-artifact-bytes>",
-      "capturedFromRealDeviceOrHost": true,
-      "capturesLiveSurface": true,
-      "rawPrivateContentIncluded": false
+      "capturedFromRealDeviceOrHost": false,
+      "capturesLiveSurface": false,
+      "rawPrivateContentIncluded": false,
+      "privacyApprovalRecordRef": "<privacyApprovalRecordRef for live-view-privacy-legal-approval>",
+      "approverRoleRef": "<approverRoleRef for live-view-privacy-legal-approval>",
+      "approvalScopeRef": "<approvalScopeRef for live-view-privacy-legal-approval>"
     },
     {
       "gateId": "authenticated-account-social-capture",
@@ -91,11 +119,12 @@
       "capturedFromRealDeviceOrHost": true,
       "capturesLiveSurface": true,
       "rawPrivateContentIncluded": false,
-      "operatorConsentRecorded": true,
-      "redactedAccountIdentifiers": true,
-      "localAnalysisProofRef": "<proof ref showing OCR/VLM/AI analysis of the captured account surface>",
+      "localCaptureProofRef": "<localCaptureProofRef for authenticated-account-social-capture>",
+      "localAnalysisProofRef": "<localAnalysisProofRef for authenticated-account-social-capture>",
       "policyDryRunProofRef": "<proof ref showing policy consumed the account-surface AI result>",
-      "rawImageDeletionProofRef": "<proof ref showing raw screenshot deletion/custody>"
+      "rawImageDeletionProofRef": "<rawImageDeletionProofRef for authenticated-account-social-capture>",
+      "operatorConsentRecorded": true,
+      "redactedAccountIdentifiers": true
     }
   ]
 }

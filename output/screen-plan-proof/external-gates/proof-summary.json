@@ -1,6 +1,6 @@
 {
   "proof": "screen-plan-external-gates",
-  "generatedAt": "2026-06-08T07:03:35.838Z",
+  "generatedAt": "2026-06-08T13:57:56.180Z",
   "manifest": {
     "path": "output/screen-plan-proof/external-gates/manual-evidence-manifest.json",
     "present": false,
@@ -17,6 +17,11 @@
       "requirement": "real macOS ScreenCaptureKit session with Screen Recording permission, display/window pixels, OCR, and deletion proof",
       "status": "missing",
       "artifactPath": null,
+      "requiredProofRefFields": [
+        "localCaptureProofRef",
+        "localAnalysisProofRef",
+        "rawImageDeletionProofRef"
+      ],
       "reason": "No matching manifest entry exists."
     },
     {
@@ -27,6 +32,11 @@
       "requirement": "real Linux X11 or Wayland portal desktop-session capture with deletion proof",
       "status": "missing",
       "artifactPath": null,
+      "requiredProofRefFields": [
+        "localCaptureProofRef",
+        "localAnalysisProofRef",
+        "rawImageDeletionProofRef"
+      ],
       "reason": "No matching manifest entry exists."
     },
     {
@@ -37,6 +47,11 @@
       "requirement": "real physical Android MediaProjection capture, stop callback, deletion, and local OCR proof",
       "status": "missing",
       "artifactPath": null,
+      "requiredProofRefFields": [
+        "localCaptureProofRef",
+        "localAnalysisProofRef",
+        "rawImageDeletionProofRef"
+      ],
       "reason": "No matching manifest entry exists."
     },
     {
@@ -47,6 +62,11 @@
       "requirement": "real physical iOS ReplayKit or broadcast-extension capture with deletion proof",
       "status": "missing",
       "artifactPath": null,
+      "requiredProofRefFields": [
+        "localCaptureProofRef",
+        "localAnalysisProofRef",
+        "rawImageDeletionProofRef"
+      ],
       "reason": "No matching manifest entry exists."
     },
     {
@@ -57,6 +77,13 @@
       "requirement": "real live-view platform prompt artifact, not ordinary capture-only permission evidence",
       "status": "missing",
       "artifactPath": null,
+      "requiredProofRefFields": [
+        "localCaptureProofRef",
+        "localAnalysisProofRef",
+        "rawImageDeletionProofRef",
+        "liveViewRuntimeProofRef",
+        "viewerAuditProofRef"
+      ],
       "reason": "No matching manifest entry exists."
     },
     {
@@ -67,6 +94,13 @@
       "requirement": "physical-device parity for live view transport/custody/deletion behavior",
       "status": "missing",
       "artifactPath": null,
+      "requiredProofRefFields": [
+        "localCaptureProofRef",
+        "localAnalysisProofRef",
+        "rawImageDeletionProofRef",
+        "liveViewRuntimeProofRef",
+        "viewerAuditProofRef"
+      ],
       "reason": "No matching manifest entry exists."
     },
     {
@@ -77,6 +111,11 @@
       "requirement": "hosted relay infrastructure proof with end-to-end encrypted custody and no raw-frame retention",
       "status": "missing",
       "artifactPath": null,
+      "requiredProofRefFields": [
+        "relayEncryptionProofRef",
+        "relayNoRetentionProofRef",
+        "viewerAuditProofRef"
+      ],
       "reason": "No matching manifest entry exists."
     },
     {
@@ -87,6 +126,11 @@
       "requirement": "privacy/legal approval record for optional live view",
       "status": "missing",
       "artifactPath": null,
+      "requiredProofRefFields": [
+        "privacyApprovalRecordRef",
+        "approverRoleRef",
+        "approvalScopeRef"
+      ],
       "reason": "No matching manifest entry exists."
     },
     {
@@ -97,6 +141,12 @@
       "requirement": "real logged-in social/feed account capture with operator consent, redacted account identifiers, local OCR/VLM analysis, policy dry-run, and raw image deletion proof",
       "status": "missing",
       "artifactPath": null,
+      "requiredProofRefFields": [
+        "localCaptureProofRef",
+        "localAnalysisProofRef",
+        "policyDryRunProofRef",
+        "rawImageDeletionProofRef"
+      ],
       "reason": "No matching manifest entry exists."
     }
   ],
@@ -109,6 +159,7 @@
   "assertions": {
     "allCurrentExternalGatesEnumerated": true,
     "authenticatedAccountSocialGateEnumerated": true,
+    "strictProofRefsRequired": true,
     "productCompleteAllowed": false,
     "currentBranchMustRemainNonClaim": true,
     "rejectsFixtureOrStaticEvidence": true
@@ -120,6 +171,10 @@
     },
     {
       "name": "raw private content is rejected",
+      "rejected": true
+    },
+    {
+      "name": "pixel evidence without analysis and deletion refs is rejected",
       "rejected": true
     },
     {

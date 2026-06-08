@@ -459,8 +459,12 @@ only with explicit parent settings.
   surface proof. `scripts/test/screen-plan-external-gates-proof.mjs` now
   enumerates `authenticated-account-social-capture` as a digest-backed external
   evidence gate that requires operator consent, redacted account identifiers,
-  local analysis/policy/deletion proof, and no raw private content before any
-  authenticated-account claim can close.
+  local capture, local analysis, policy dry-run, raw image deletion proof, and
+  no raw private content before any authenticated-account claim can close. The
+  same external gate intake now rejects pixel evidence unless it carries
+  structured local capture, local analysis, and deletion refs; live-view relay
+  and privacy/legal gates require their own no-retention/encryption/viewer-audit
+  or approval-scope refs instead of generic live-surface booleans.
 - Android child-agent scaffold now has emulator MediaProjection proof with
   explicit OS consent, foreground service, captured frame digest, and raw temp
   deletion. Physical Android parity and silent background capture are not
