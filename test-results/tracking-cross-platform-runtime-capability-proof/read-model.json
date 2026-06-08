@@ -1,13 +1,13 @@
 {
   "schemaVersion": "v0.5-tracking",
   "proofMode": "tracking-cross-platform-runtime-capability-proof",
-  "generatedAt": "2026-06-08T20:01:03.393Z",
+  "generatedAt": "2026-06-08T21:00:45.150Z",
   "rows": [
     {
       "schemaVersion": "v0.5-tracking",
       "area": "windows-host-toolchain",
       "status": "local-proof-passed",
-      "generatedAt": "2026-06-08T20:01:03.393Z",
+      "generatedAt": "2026-06-08T21:00:45.150Z",
       "proofRef": "test-results/tracking-cross-platform-runtime-capability-proof/windows-host-toolchain.json",
       "sourceRefs": [],
       "currentProofTier": "P3_LOCAL_WINDOWS_HOST",
@@ -44,7 +44,7 @@
       "schemaVersion": "v0.5-tracking",
       "area": "wsl-linux-replay",
       "status": "local-proof-passed",
-      "generatedAt": "2026-06-08T20:01:03.393Z",
+      "generatedAt": "2026-06-08T21:00:45.150Z",
       "proofRef": "test-results/tracking-plan-wsl-local-proof/proof.json",
       "sourceRefs": [
         "output/tracking-plan-proof/wsl-local-replay/proof.json"
@@ -80,7 +80,7 @@
       "schemaVersion": "v0.5-tracking",
       "area": "docker-container-runtime",
       "status": "local-proof-passed",
-      "generatedAt": "2026-06-08T20:01:03.393Z",
+      "generatedAt": "2026-06-08T21:00:45.150Z",
       "proofRef": "test-results/tracking-cross-platform-runtime-capability-proof/docker-container-runtime.json",
       "sourceRefs": [],
       "currentProofTier": "P3_LOCAL_CONTAINER_RUNTIME",
@@ -108,7 +108,7 @@
       "schemaVersion": "v0.5-tracking",
       "area": "android-sdk-toolchain",
       "status": "local-proof-passed",
-      "generatedAt": "2026-06-08T20:01:03.393Z",
+      "generatedAt": "2026-06-08T21:00:45.150Z",
       "proofRef": "test-results/tracking-cross-platform-runtime-capability-proof/android-sdk-toolchain.json",
       "sourceRefs": [],
       "currentProofTier": "P3_LOCAL_ANDROID_TOOLCHAIN",
@@ -145,7 +145,7 @@
       "schemaVersion": "v0.5-tracking",
       "area": "android-gradle-project-build",
       "status": "local-proof-passed",
-      "generatedAt": "2026-06-08T20:01:03.393Z",
+      "generatedAt": "2026-06-08T21:00:45.150Z",
       "proofRef": "test-results/tracking-cross-platform-runtime-capability-proof/android-gradle-project-build.json",
       "sourceRefs": [
         "platforms/android/agent/build.gradle",
@@ -186,7 +186,7 @@
       "schemaVersion": "v0.5-tracking",
       "area": "android-emulator-runtime",
       "status": "local-proof-passed",
-      "generatedAt": "2026-06-08T20:01:03.393Z",
+      "generatedAt": "2026-06-08T21:00:45.150Z",
       "proofRef": "test-results/tracking-plan-android-emulator-proof/proof.json",
       "sourceRefs": [
         "test-results/tracking-android-emulator-artifact-inventory-proof/proof.json"
@@ -221,7 +221,7 @@
       "schemaVersion": "v0.5-tracking",
       "area": "android-physical-device-status",
       "status": "local-proof-passed",
-      "generatedAt": "2026-06-08T20:01:03.393Z",
+      "generatedAt": "2026-06-08T21:00:45.150Z",
       "proofRef": "test-results/tracking-android-physical-device-runtime-proof/proof.json",
       "sourceRefs": [],
       "currentProofTier": "P4_PHYSICAL_DEVICE_STATUS_ONLY",
@@ -254,7 +254,7 @@
       "schemaVersion": "v0.5-tracking",
       "area": "macos-ios-ci-manual-routing",
       "status": "ci-manual-required",
-      "generatedAt": "2026-06-08T20:01:03.393Z",
+      "generatedAt": "2026-06-08T21:00:45.150Z",
       "proofRef": "test-results/tracking-ios-simulator-artifact-inventory-proof/proof.json",
       "sourceRefs": [
         "test-results/tracking-plan-ios-simulator-proof/proof.json"

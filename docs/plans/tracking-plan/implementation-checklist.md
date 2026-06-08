@@ -224,11 +224,12 @@ Every checked item must cite one or more proof artifacts.
       read-model tests. Artifact:
       `output/tracking-plan-proof/wsl-local-replay/proof.json`.
 - [x] Local platform proof batch aggregates Android emulator runtime evidence,
-      WSL/local replay, hosted parent UI accessibility, product parent/child UI
-      local artifacts, product-readiness closure, and real-runtime handoff
-      accounting into one proof bundle. This is a local/hosted proof
-      consolidation only; physical Android/iOS behavior, actual child-device
-      runtime, authority enrollment, provider delivery, production runtime, and
+      Samsung S9 Android physical package/service/status evidence, WSL/local
+      replay, hosted parent UI accessibility, product parent/child UI local
+      artifacts, product-readiness closure, and real-runtime handoff accounting
+      into one proof bundle. This is a local/hosted/status proof consolidation
+      only; physical Android/iOS behavior, actual child-device runtime,
+      authority enrollment, provider delivery, production runtime, and
       product-ready tracking remain unclaimed. Artifact:
       `test-results/tracking-local-platform-proof-batch/proof.json`.
 - [x] iOS simulator package proof is routed through the existing macOS

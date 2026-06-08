@@ -113,6 +113,10 @@ WSL probe output before storing artifacts, records Docker runtime only when both
 CLI and daemon are reachable, and keeps macOS/iOS runtime proof CI/manual-routed
 on this Windows host without claiming physical-device behavior, authority,
 production, or product readiness.
+The local platform proof batch now consumes that cross-platform proof plus the
+Samsung S9 Android physical package/service/status proof as an explicit local
+status row while preserving physical behavior, authority, production, and
+product-ready claims as false.
 Authority-runtime readiness blocker proof now exists through
 `node scripts/test/tracking-authority-runtime-readiness-blocker-proof.mjs`. It
 consumes the existing authority enrollment manual-required rows, writes
