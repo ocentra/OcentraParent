@@ -1,7 +1,7 @@
 # WP01 Source Index And Repo Reconciliation
 
 - generatedAt: 2026-06-08T00:35:00.000Z
-- commit: 548b3ac8b5e7f53c8fb508bc25467a6deeb38c31
+- commit: d28ecd458275f7bdaf0dcd3624573515ffaaeec3
 - branch: codex/tracking-plan-full-continuation-a
 - requiredProofTier: P1_DOC_SOURCE_RECONCILIATION
 - currentProofTier: P1_DOC_SOURCE_RECONCILIATION

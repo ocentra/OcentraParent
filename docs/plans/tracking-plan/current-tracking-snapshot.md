@@ -32,6 +32,10 @@
 - Android emulator foreground/background scaffold proof exists, including
   emulator foreground permission and local background/geofence storage rows. It
   is not physical-device or Android system geofence delivery proof.
+- WP08/WP30/WP33 child-runtime Android emulator readiness bridge proof links the
+  Android emulator package, foreground-service, permission, and local emulator
+  geofence evidence into child-runtime readiness accounting while preserving
+  actual child-device runtime artifacts as P4 manual-required proof.
 - iOS simulator/manual-required proof exists for package-preview/simulator
   routing and privacy-disclosure release gates. It is not iOS Always/region or
   real-device proof.
