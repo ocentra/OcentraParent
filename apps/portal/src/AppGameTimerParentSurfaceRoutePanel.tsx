@@ -12,6 +12,7 @@ import {
 } from '@ocentra-parent/portal-domain/contracts';
 import type { PortalRenderActions } from './portal-actions';
 import {
+  createAppGameTimerParentPreferenceSetupRequestPayload,
   createAppGameTimerParentSurfacePanelIntent,
   type AppGameTimerParentSurfacePanelDetail,
   type AppGameTimerParentSurfacePanelIntent,
@@ -64,7 +65,12 @@ export function AppGameTimerParentSurfaceRoutePanel({
             <AppGameTimerParentSurfaceRowCard key={String(row.title)} row={row} />
           ))}
           {intent.parentPreferenceSetupRows.map((row) => (
-            <AppGameTimerParentSurfaceRowCard key={String(row.title)} row={row} />
+            <AppGameTimerParentSurfaceRowCard
+              actions={actions}
+              commandEnabled={commandEnabled}
+              key={String(row.title)}
+              row={row}
+            />
           ))}
           {intent.rows.length === 0 ? (
             <AppGameTimerParentSurfaceEmptyCard intent={intent} />
@@ -117,7 +123,15 @@ function AppGameTimerParentSurfaceEmptyCard({
   );
 }
 
-function AppGameTimerParentSurfaceRowCard({ row }: { readonly row: AppGameTimerParentSurfacePanelRow }): ReactElement {
+function AppGameTimerParentSurfaceRowCard({
+  actions,
+  commandEnabled = false,
+  row,
+}: {
+  readonly actions?: PortalRenderActions;
+  readonly commandEnabled?: boolean;
+  readonly row: AppGameTimerParentSurfacePanelRow;
+}): ReactElement {
   const className = [PortalDom.Classes.Summary, PortalDom.Classes.ProductStatusCard].join(
     PortalDom.Classes.ClassNameSeparator
   );
@@ -125,6 +139,26 @@ function AppGameTimerParentSurfaceRowCard({ row }: { readonly row: AppGameTimerP
     <article className={className}>
       <h2>{row.title}</h2>
       <AppGameTimerParentSurfaceDetails details={row.details} />
+      {row.preferenceSetupRequestAction === null || actions === undefined ? null : (
+        <button
+          className={PortalDom.Classes.CommandResultTab}
+          disabled={!commandEnabled}
+          type={PortalDom.ButtonType.Button}
+          onClick={() => {
+            const action = row.preferenceSetupRequestAction;
+            if (action === null) {
+              return;
+            }
+            actions.selectCommandResult(action.resultEvent);
+            actions.sendCommand(
+              action.command,
+              createAppGameTimerParentPreferenceSetupRequestPayload(action, new Date().toISOString())
+            );
+          }}
+        >
+          {row.preferenceSetupRequestAction.label}
+        </button>
+      )}
     </article>
   );
 }

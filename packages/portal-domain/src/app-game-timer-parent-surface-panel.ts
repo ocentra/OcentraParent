@@ -1,4 +1,13 @@
 import {
+  AgentCommand,
+  AgentEvent,
+  AgentProtocolDefaults,
+  AppGameTimerParentPreferenceSetupRequestSchema,
+  type AgentCommandName,
+  type AgentEventName,
+  type AgentProtocolLogFields,
+} from '@ocentra-parent/agent-protocol-domain/contracts';
+import {
   AgentAppGameTimerParentSurfaceState,
   AgentAppGameTimerParentSurfaceTargetDomain,
   type AgentAppGameTimerParentSurfaceChildUxParentPreferenceSetupRecord,
@@ -12,6 +21,8 @@ import { PortalDevTextToken, resolvePortalDevText } from '@ocentra-parent/text-d
 import { PortalDetails, PortalReadableValues } from './details';
 
 const DetailSeparator = ' | ';
+const RequestIdSeparator = '::';
+const ParentPreferenceSetupRequestIdPrefix = 'app-game-parent-preference-setup-request';
 
 const Readable = {
   HistoryRowVisible: decodeDisplayText('History row visible'),
@@ -77,6 +88,10 @@ const TimerParentSurfaceDetails = {
   TimerRuntime: decodeDisplayText('Timer runtime'),
 } as const;
 
+const TimerParentSurfaceActions = {
+  RequestParentPreferenceSetup: decodeDisplayText('Request parent setup'),
+} as const;
+
 const TimerParentSurfaceProductClaims = {
   ActiveStateAndControlResults: decodeDisplayText(
     'Active timer state-store and control action-result rows are visible; live scheduling automation, adapter dispatch, child delivery, platform enforcement, and raw private source rows remain unclaimed.'
@@ -94,9 +109,19 @@ export type AppGameTimerParentSurfacePanelDetail = {
   readonly value: DisplayText;
 };
 
+export type AppGameTimerParentSurfacePreferenceSetupRequestAction = {
+  readonly label: DisplayText;
+  readonly command: AgentCommandName;
+  readonly resultEvent: AgentEventName;
+  readonly parentSurfaceIntentReferenceId: string;
+  readonly parentPreferenceSetupReferenceId: string;
+  readonly requestReferenceIds: readonly string[];
+};
+
 export type AppGameTimerParentSurfacePanelRow = {
   readonly title: DisplayText;
   readonly details: readonly AppGameTimerParentSurfacePanelDetail[];
+  readonly preferenceSetupRequestAction: AppGameTimerParentSurfacePreferenceSetupRequestAction | null;
 };
 
 export type AppGameTimerParentSurfacePanelIntent = {
@@ -305,6 +330,7 @@ function timerSurfaceRow(
 ): AppGameTimerParentSurfacePanelRow {
   return {
     title: displayText(row.rowId),
+    preferenceSetupRequestAction: null,
     details: [
       detail(PortalDetails.TargetType, TimerParentSurfaceTargetLabels[row.targetDomain]),
       detail(PortalDetails.Status, TimerParentSurfaceStateLabels[row.timerSurfaceState]),
@@ -321,6 +347,7 @@ function parentSurfaceIntentRows(
 ): readonly AppGameTimerParentSurfacePanelRow[] {
   return readModel.childUxParentSurfaceIntentRecords.map((record) => ({
     title: displayText(record.parentSurfaceIntentReferenceId),
+    preferenceSetupRequestAction: null,
     details: [
       detail(PortalDetails.TargetType, TimerParentSurfaceTargetLabels[record.targetDomain]),
       detail(PortalDetails.Status, parentSurfaceRecordReadableValue(record.parentSurfaceStatus)),
@@ -366,6 +393,7 @@ function parentPreferenceSetupRow(
 ): AppGameTimerParentSurfacePanelRow {
   return {
     title: displayText(record.parentPreferenceSetupReferenceId),
+    preferenceSetupRequestAction: parentPreferenceSetupRequestAction(record),
     details: [
       detail(PortalDetails.TargetType, TimerParentSurfaceTargetLabels[record.targetDomain]),
       detail(
@@ -412,6 +440,40 @@ function parentPreferenceSetupRow(
       detail(PortalDetails.PlatformState, claimedValue(record.platformEnforcementClaimed)),
       detail(PortalDetails.ProductClaim, productClaim),
     ],
+  };
+}
+
+export function createAppGameTimerParentPreferenceSetupRequestPayload(
+  action: AppGameTimerParentSurfacePreferenceSetupRequestAction,
+  requestedAt: string
+): AgentProtocolLogFields {
+  const request = AppGameTimerParentPreferenceSetupRequestSchema.parse({
+    requestId: [ParentPreferenceSetupRequestIdPrefix, action.parentPreferenceSetupReferenceId, requestedAt].join(
+      RequestIdSeparator
+    ),
+    requestedAt,
+    parentSurfaceIntentReferenceId: action.parentSurfaceIntentReferenceId,
+    parentPreferenceSetupReferenceId: action.parentPreferenceSetupReferenceId,
+    requestReferenceIds: [...action.requestReferenceIds],
+  });
+  return {
+    [AgentProtocolDefaults.Field.ActivityAppGameTimerParentPreferenceSetupRequest]: JSON.stringify(request),
+  };
+}
+
+function parentPreferenceSetupRequestAction(
+  record: AgentAppGameTimerParentSurfaceChildUxParentPreferenceSetupRecord
+): AppGameTimerParentSurfacePreferenceSetupRequestAction | null {
+  if (record.parentPreferenceSetupRequestStatus !== 'request-ready') {
+    return null;
+  }
+  return {
+    label: TimerParentSurfaceActions.RequestParentPreferenceSetup,
+    command: AgentCommand.ActivityAppGameTimerParentPreferenceSetupRequest,
+    resultEvent: AgentEvent.ActivityAppGameTimerParentPreferenceSetupRequested,
+    parentSurfaceIntentReferenceId: record.sourceParentSurfaceIntentReferenceId,
+    parentPreferenceSetupReferenceId: record.parentPreferenceSetupReferenceId,
+    requestReferenceIds: record.parentPreferenceSetupRequestReferenceIds,
   };
 }
 

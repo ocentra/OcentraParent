@@ -16,6 +16,10 @@ contracts.
   parent-domain read model plus the live service notification-readiness
   projection, without claiming delivery, preference mutation, scheduler/outbox
   runtime, or adapter dispatch.
+- App/game timer parent-surface parent preference setup request action metadata
+  and payload construction for request-ready setup rows, without claiming
+  durable preference mutation, notification rule writes, provider delivery,
+  child delivery, adapter dispatch, or platform enforcement.
 - App/game policy readiness route intents that render service-backed readiness
   summaries and rows without policy execution or adapter dispatch claims.
 - Social dashboard panel intents that adapt parent-domain social dashboard
@@ -61,6 +65,9 @@ flowchart LR
 - Keep app/game notification parent-surface projection aligned with future
   provider/preference/scheduler/outbox service rows before showing those refs as
   reported runtime state.
+- Keep app/game timer parent-surface preference setup request actions limited to
+  parent-safe refs until durable preference mutation and notification rule write
+  paths exist.
 - Keep social dashboard rows unavailable until a real service-backed social
   snapshot path exists; do not promote connector/native/final-policy/enforcement
   claims from portal-only rendering.

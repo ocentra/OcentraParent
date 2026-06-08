@@ -59,6 +59,11 @@ The Playwright check starts the Rust agent and Vite portal on the scaffold smoke
 - Exposes grouped App/Game Sessions source-panel intent sections for existing
   service-backed source rows; SVG rendering remains a follow-up while the
   portal surface is owned by another lane.
+- Sends the app/game timer parent-surface parent preference setup request
+  command from request-ready setup cards and shows the accepted service event
+  through the command-result lane, without claiming durable preference
+  mutation, notification rule writes, delivery, outbox runtime, adapter
+  dispatch, or platform enforcement.
 - Displays an App/Game Sessions route overlay for app/game notification
   parent-surface rows by projecting the live service notification-readiness
   event into manual/unavailable setup rows, and otherwise shows the missing

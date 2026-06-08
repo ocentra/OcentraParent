@@ -1,0 +1,52 @@
+{
+  "workpack": "WP135",
+  "title": "Timer parent-surface parent preference setup request action",
+  "branch": "codex/app-game-control-product-completion",
+  "scope": [
+    "Portal-domain exposes a request-ready action for timer parent-surface child UX parent preference setup rows.",
+    "The App/Game Sessions route sends the schema-backed parent preference setup request command from request-ready setup cards.",
+    "The portal selects the accepted setup request event for the existing command-result panel."
+  ],
+  "touchedFiles": [
+    "apps/portal/src/AppGameTimerParentSurfaceRoutePanel.tsx",
+    "apps/portal/src/app-game-timer-parent-surface-panel.ts",
+    "apps/portal/src/event-results.ts",
+    "apps/portal/tests/app-game-timer-parent-surface-panel.test.ts",
+    "apps/portal/README.md",
+    "packages/portal-domain/src/app-game-timer-parent-surface-panel.ts",
+    "packages/portal-domain/src/contracts.ts",
+    "packages/portal-domain/README.md",
+    "docs/features/app-game-control.md",
+    "docs/plans/app-game-plan/implementation-checklist.md",
+    "docs/plans/app-game-plan/workpacks/README.md",
+    "docs/plans/app-game-plan/workpacks/135-timer-parent-surface-parent-preference-setup-request-action.md",
+    "output/app-game-plan-proof/135-timer-parent-surface-parent-preference-setup-request-action/00-summary.md",
+    "output/app-game-plan-proof/135-timer-parent-surface-parent-preference-setup-request-action/10-validation-commands.log"
+  ],
+  "validation": [
+    {
+      "command": "cmd /c npm run build --workspace @ocentra-parent/portal-domain",
+      "result": "PASS"
+    },
+    {
+      "command": "cmd /c npm run build --workspace @ocentra-parent/portal",
+      "result": "PASS",
+      "notes": "Existing Vite chunk-size warnings only."
+    },
+    {
+      "command": "cmd /c npm run test --workspace @ocentra-parent/portal -- --run tests/app-game-timer-parent-surface-panel.test.ts",
+      "result": "PASS",
+      "notes": "19 files, 78 tests; existing Vite esbuild/oxc warnings only."
+    }
+  ],
+  "knownGaps": [
+    "No durable parent preference mutation.",
+    "No notification rule mutation.",
+    "No provider delivery or receipt ingestion.",
+    "No child runtime delivery.",
+    "No durable outbox storage.",
+    "No adapter dispatch, broad blocking, or platform enforcement.",
+    "No raw private source rows, raw target values, screenshots, reports, or private diagnostics in the request action.",
+    "docs/product-capability-checklist.md was not updated because another lane owns that checklist churn."
+  ]
+}

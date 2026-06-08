@@ -412,6 +412,13 @@ control with better evidence and local audit.
   UI controls, frequency controls, preference mutation, notification rule
   mutation, delivery, adapter dispatch, platform enforcement, and raw private
   rows remain unclaimed.
+- Request-ready timer parent-surface setup records now render a parent setup
+  request action in the App/Game Sessions route. The action sends the
+  schema-backed parent preference setup request command with parent-safe refs
+  and selects the matching accepted event in the command-result panel, while
+  preference mutation, notification rule writes, durable outbox storage,
+  delivery, adapter dispatch, platform enforcement, and raw private rows remain
+  unclaimed.
 - The App/Game Sessions portal route now has a route-level app/game
   notification parent-surface panel that projects the live service
   notification-readiness read-model event into schema-backed manual/unavailable
@@ -1268,7 +1275,12 @@ diagnostics, or raw private source rows.
       setup refs. The App/Game Sessions portal marks request-ready setup records
       as UI-ready while preference mutation, notification rule writes, provider
       delivery, durable outbox storage, adapter dispatch, platform enforcement,
-      raw private rows, and raw targets remain unclaimed.
+      raw private rows, and raw targets remain unclaimed. Request-ready setup
+      rows now expose a parent setup request action that sends that command and
+      displays the accepted result through the existing command-result panel,
+      still without claiming durable preference mutation, notification rule
+      writes, delivery, adapter dispatch, platform enforcement, raw private
+      rows, or raw targets.
 - [ ] Adapter capability status per platform. Cross-platform authority and
       broad-blocking gate contracts now record manual-required, unavailable,
       and not-claimed proof requirements. Platform-extension routing now maps
