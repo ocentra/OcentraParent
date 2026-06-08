@@ -9,7 +9,13 @@ import { TrackingFullProductUiReadinessBlockerReferenceSchema } from './tracking
 const TrackingFullProductUiLocalRuntimeArtifactCaptureText = Schema.String.pipe(Schema.minLength(1));
 
 export const TrackingFullProductUiLocalRuntimeArtifactCaptureIdSchema = withParser(
-  Schema.Literal('parent-overview-runtime-ui', 'parent-device-detail-runtime-ui', 'cross-surface-accessibility-report')
+  Schema.Literal(
+    'parent-overview-runtime-ui',
+    'parent-device-detail-runtime-ui',
+    'parent-notification-history-preferences-runtime',
+    'cross-surface-accessibility-report',
+    'product-ui-end-to-end-trace'
+  )
 );
 
 export const TrackingFullProductUiLocalRuntimeArtifactCaptureStatusSchema = withParser(
@@ -48,6 +54,7 @@ export const TrackingFullProductUiLocalRuntimeArtifactCaptureRowSchema = withPar
       (row) =>
         row.sourceBytes === row.outputBytes ||
         row.artifactId === 'cross-surface-accessibility-report' ||
+        row.artifactId === 'product-ui-end-to-end-trace' ||
         'Copied UI artifact rows must preserve screenshot byte size'
     )
   )
@@ -64,7 +71,9 @@ export const TrackingFullProductUiLocalRuntimeArtifactCaptureProofSchema = withP
     productClaims: Schema.Struct({
       parentOverviewLocalArtifactCaptured: Schema.Literal(true),
       parentDeviceDetailLocalArtifactCaptured: Schema.Literal(true),
+      parentNotificationHistoryPreferencesLocalArtifactCaptured: Schema.Literal(true),
       crossSurfaceAccessibilityLocalArtifactCaptured: Schema.Literal(true),
+      productUiEndToEndTraceCaptured: Schema.Literal(true),
       fullProductUiRuntimeClaimed: Schema.Literal(false),
       childDeviceRuntimeClaimed: Schema.Literal(false),
       physicalDeviceProofClaimed: Schema.Literal(false),
@@ -108,7 +117,9 @@ export type TrackingFullProductUiLocalRuntimeArtifactCaptureInput = {
 export const RequiredTrackingFullProductUiLocalRuntimeArtifactCaptures = [
   'parent-overview-runtime-ui',
   'parent-device-detail-runtime-ui',
+  'parent-notification-history-preferences-runtime',
   'cross-surface-accessibility-report',
+  'product-ui-end-to-end-trace',
 ] as const;
 
 export function buildTrackingFullProductUiLocalRuntimeArtifactCaptureProof(
@@ -132,7 +143,9 @@ export function buildTrackingFullProductUiLocalRuntimeArtifactCaptureProof(
     productClaims: {
       parentOverviewLocalArtifactCaptured: true,
       parentDeviceDetailLocalArtifactCaptured: true,
+      parentNotificationHistoryPreferencesLocalArtifactCaptured: true,
       crossSurfaceAccessibilityLocalArtifactCaptured: true,
+      productUiEndToEndTraceCaptured: true,
       fullProductUiRuntimeClaimed: false,
       childDeviceRuntimeClaimed: false,
       physicalDeviceProofClaimed: false,

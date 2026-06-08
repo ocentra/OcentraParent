@@ -1177,15 +1177,15 @@ test:tracking-plan-hosted-ui-proof` passed.
       checklist, and this proof-gate doc updated. Central product capability
       checklist is not edited by this branch.
 - [x] Known gaps/manual-required states: the local capture proof now supplies
-      the parent overview, parent device detail, and cross-surface accessibility
-      artifacts from the hosted proof stack, and the refreshed artifact gate
-      reports three present local artifacts. Notification history/preferences,
-      production retention-settings write result, rendered child-device
-      check-in, rendered child-device location consent, safe/help response, and
-      end-to-end product UI trace artifacts remain missing; full product UI
-      runtime, child-device delivery runtime, physical-device behavior,
-      authority, provider delivery, production product UI, and product-ready
-      tracking remain proof-gated.
+      parent overview, parent device detail, notification history/preferences,
+      cross-surface accessibility, and local product UI trace artifacts from the
+      hosted proof stack, and the refreshed artifact gate reports five present
+      local artifacts. Production retention-settings write result, rendered
+      child-device check-in, rendered child-device location consent, and
+      safe/help response artifacts remain missing; full product UI runtime,
+      child-device delivery runtime, physical-device behavior, authority,
+      provider delivery, production product UI, and product-ready tracking remain
+      proof-gated.
 
 - [x] Workpack id and branch:
       `codex/tracking-plan-full-continuation-a`.

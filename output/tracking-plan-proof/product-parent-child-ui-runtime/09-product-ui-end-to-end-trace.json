@@ -1,0 +1,30 @@
+{
+  "schemaVersion": 1,
+  "traceMode": "tracking-full-product-ui-local-end-to-end-trace",
+  "generatedAt": "2026-06-08T04:35:00.000Z",
+  "sourceArtifactRef": "test-results/tracking-hosted-ui-artifact-inventory-proof/proof.json",
+  "presentLocalProductArtifacts": [
+    "output/tracking-plan-proof/product-parent-child-ui-runtime/01-parent-overview-runtime.png",
+    "output/tracking-plan-proof/product-parent-child-ui-runtime/02-parent-device-detail-runtime.png",
+    "output/tracking-plan-proof/product-parent-child-ui-runtime/03-parent-notification-history-preferences-runtime.png",
+    "output/tracking-plan-proof/product-parent-child-ui-runtime/08-cross-surface-accessibility-report.json"
+  ],
+  "stillMissingRuntimeArtifacts": [
+    "output/tracking-plan-proof/product-parent-child-ui-runtime/04-retention-settings-production-write-result.png",
+    "output/tracking-plan-proof/product-parent-child-ui-runtime/05-child-device-rendered-check-in-runtime.png",
+    "output/tracking-plan-proof/product-parent-child-ui-runtime/06-child-device-rendered-location-consent-runtime.png",
+    "output/tracking-plan-proof/product-parent-child-ui-runtime/07-child-device-safe-help-response-runtime.png"
+  ],
+  "proofBoundary": {
+    "currentProofTier": "P2_HOSTED_CI",
+    "requiredProofTier": "P4_PHYSICAL_DEVICE",
+    "localParentUiTraceOnly": true,
+    "fullProductUiRuntimeClaimed": false,
+    "childDeviceRuntimeClaimed": false,
+    "physicalDeviceProofClaimed": false,
+    "authorityProofClaimed": false,
+    "providerDeliveryRuntimeClaimed": false,
+    "productionProductUiClaimed": false,
+    "productClaimReady": false
+  }
+}

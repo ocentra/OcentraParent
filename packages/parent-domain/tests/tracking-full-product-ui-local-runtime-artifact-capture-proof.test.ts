@@ -15,20 +15,32 @@ describe('tracking full product UI local runtime artifact capture proof', () => 
       [
         capture('parent-overview-runtime-ui', '01-parent-overview-runtime.png', 2048, 1200, 900),
         capture('parent-device-detail-runtime-ui', '02-parent-device-detail-runtime.png', 4096, 1200, 900),
+        capture(
+          'parent-notification-history-preferences-runtime',
+          '03-parent-notification-history-preferences-runtime.png',
+          3072,
+          1200,
+          900
+        ),
         capture('cross-surface-accessibility-report', '08-cross-surface-accessibility-report.json', 1024),
+        capture('product-ui-end-to-end-trace', '09-product-ui-end-to-end-trace.json', 1536),
       ]
     );
 
     expect(proof.rows).toHaveLength(RequiredTrackingFullProductUiLocalRuntimeArtifactCaptures.length);
-    expect(proof.localArtifactCount).toBe(3);
+    expect(proof.localArtifactCount).toBe(5);
     expect(proof.rows.map((row) => row.status)).toEqual([
+      'local-artifact-captured',
+      'local-artifact-captured',
       'local-artifact-captured',
       'local-artifact-captured',
       'local-artifact-captured',
     ]);
     expect(proof.productClaims.parentOverviewLocalArtifactCaptured).toBe(true);
     expect(proof.productClaims.parentDeviceDetailLocalArtifactCaptured).toBe(true);
+    expect(proof.productClaims.parentNotificationHistoryPreferencesLocalArtifactCaptured).toBe(true);
     expect(proof.productClaims.crossSurfaceAccessibilityLocalArtifactCaptured).toBe(true);
+    expect(proof.productClaims.productUiEndToEndTraceCaptured).toBe(true);
     expect(proof.productClaims.fullProductUiRuntimeClaimed).toBe(false);
     expect(proof.productClaims.childDeviceRuntimeClaimed).toBe(false);
     expect(proof.productClaims.productClaimReady).toBe(false);
@@ -64,7 +76,12 @@ describe('tracking full product UI local runtime artifact capture proof', () => 
 });
 
 function capture(
-  artifactId: 'parent-overview-runtime-ui' | 'parent-device-detail-runtime-ui' | 'cross-surface-accessibility-report',
+  artifactId:
+    | 'parent-overview-runtime-ui'
+    | 'parent-device-detail-runtime-ui'
+    | 'parent-notification-history-preferences-runtime'
+    | 'cross-surface-accessibility-report'
+    | 'product-ui-end-to-end-trace',
   fileName: string,
   bytes: number,
   width?: number,
@@ -75,7 +92,9 @@ function capture(
     sourceArtifactRef:
       artifactId === 'cross-surface-accessibility-report'
         ? 'test-results/tracking-plan-hosted-ui-proof/accessibility-summary.json'
-        : `output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/11-ui-snapshots/hosted-${fileName}`,
+        : artifactId === 'product-ui-end-to-end-trace'
+          ? 'test-results/tracking-hosted-ui-artifact-inventory-proof/proof.json'
+          : `output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/11-ui-snapshots/hosted-${fileName}`,
     outputArtifactRef: `output/tracking-plan-proof/product-parent-child-ui-runtime/${fileName}`,
     sourceBytes: bytes,
     outputBytes: bytes,

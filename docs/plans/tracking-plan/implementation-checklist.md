@@ -990,8 +990,9 @@ Every implementation workpack must update, or explicitly justify not updating:
       command:
       `node scripts/test/tracking-full-product-ui-runtime-artifact-gate-proof.mjs`.
       The local artifact capture proof now contributes parent overview, parent
-      device detail, and cross-surface accessibility artifacts; current rows are
-      still `manual-required`, missing six hard runtime artifacts, and keep full
+      device detail, notification history/preferences, cross-surface
+      accessibility, and local product UI trace artifacts; current rows are
+      still `manual-required`, missing four hard runtime artifacts, and keep full
       product UI runtime, child-device delivery runtime, physical-device
       behavior, authority, provider delivery, production product UI, and
       product-ready tracking false.
