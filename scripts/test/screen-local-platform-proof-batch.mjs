@@ -12,6 +12,7 @@ const artifacts = {
   windowsScopeMatrix: 'output/screen-plan-proof/real-capture/scope-matrix/proof-summary.json',
   androidMediaProjection: 'output/screen-plan-proof/android-mediaprojection/proof-summary.json',
   androidCapability: 'output/screen-plan-proof/android/proof-summary.json',
+  androidPhysicalTargetReadiness: 'output/screen-plan-proof/android-physical-target-readiness/proof-summary.json',
   androidPhysicalExternalGate: 'output/screen-plan-proof/android-physical-external-gate-analysis/proof-summary.json',
   linuxWslg: 'output/screen-plan-proof/linux-wslg/proof-summary.json',
   linuxWslgExternalGate: 'output/screen-plan-proof/linux-wslg-external-gate-analysis/proof-summary.json',
@@ -31,6 +32,9 @@ if (args.has('--run-local')) {
   if (args.has('--run-android')) {
     runAndroidProofs();
   }
+  if (args.has('--run-android-target-readiness')) {
+    runAndroidTargetReadinessProof();
+  }
   if (args.has('--run-android-physical')) {
     runAndroidPhysicalProofs();
   }
@@ -43,6 +47,7 @@ const windowsActiveWindow = readJson(artifacts.windowsActiveWindow);
 const windowsScopeMatrix = readJson(artifacts.windowsScopeMatrix);
 const androidMediaProjection = readJson(artifacts.androidMediaProjection);
 const androidCapability = readJson(artifacts.androidCapability);
+const androidPhysicalTargetReadiness = readOptionalJson(artifacts.androidPhysicalTargetReadiness);
 const androidPhysicalExternalGate = readOptionalJson(artifacts.androidPhysicalExternalGate);
 const linuxWslg = readJson(artifacts.linuxWslg);
 const linuxWslgExternalGate = readJson(artifacts.linuxWslgExternalGate);
@@ -57,6 +62,7 @@ const rows = [
   androidPhysicalRow(
     androidMediaProjection,
     androidCapability,
+    androidPhysicalTargetReadiness,
     androidPhysicalExternalGate,
     externalGates,
     hostInventory
@@ -168,10 +174,11 @@ function androidEmulatorRow(summary, capability, inventory) {
   };
 }
 
-function androidPhysicalRow(summary, capability, externalGateSummary, externalGateProof, inventory) {
+function androidPhysicalRow(summary, capability, targetReadiness, externalGateSummary, externalGateProof, inventory) {
   const serial = String(summary.deviceInfo?.serial ?? '');
   const physicalDevice = serial.length > 0 && !serial.startsWith('emulator-');
   const physicalDeviceOnline = inventory.android.onlinePhysicalSerials.length > 0;
+  const targetReady = targetReadiness?.readiness?.mediaProjectionProofRunnableNow === true;
   const externalGateSatisfied =
     externalGateSummary?.assertions?.androidExternalGateSatisfied === true &&
     externalGateProof.gateResults?.some(
@@ -188,16 +195,22 @@ function androidPhysicalRow(summary, capability, externalGateSummary, externalGa
         : 'external-required',
     artifact: artifacts.androidMediaProjection,
     capabilityArtifact: artifacts.androidCapability,
+    targetReadinessArtifact: artifacts.androidPhysicalTargetReadiness,
     externalGateArtifact: artifacts.androidPhysicalExternalGate,
     capturedPixels: physicalDevice && physicalDeviceOnline && summary.captured === true,
     rawImageDeleted: physicalDevice && physicalDeviceOnline && summary.rawTempDeleted === true,
     localVlmAnalyzedCapturedArtifact: externalGateSummary?.assertions?.localVlmAnalyzedRetainedArtifact === true,
+    physicalTargetObservedOnline: targetReadiness?.assertions?.targetObservedOnline === true,
+    physicalTargetLockedBehindKeyguard: targetReadiness?.keyguard?.lockedBehindCredentialPrompt === true,
+    physicalTargetRunnableNow: targetReady,
     deviceSerial: serial || null,
     currentHostOnlinePhysicalSerials: inventory.android.onlinePhysicalSerials,
     productReadyContribution: 'required-for-android-physical-product-claim',
     reason: physicalDevice
       ? 'Physical Android device proof still requires capability and external gate proof to record physical parity.'
-      : 'Current proof is emulator-only or no physical Android is online; connect physical Android and rerun MediaProjection proof before product claim.',
+      : targetReadiness?.keyguard?.lockedBehindCredentialPrompt === true
+        ? 'Physical Android target is online but locked behind keyguard/PIN; unlock the target and rerun physical MediaProjection proof before product claim.'
+        : 'Current proof is emulator-only or no physical Android is online; connect physical Android and rerun MediaProjection proof before product claim.',
   };
 }
 
@@ -283,6 +296,10 @@ function runWindowsProofs() {
 function runAndroidProofs() {
   runNode('scripts/test/child-android-screen-capture-mediaprojection-proof.mjs');
   runNode('scripts/test/screen-android-mediaprojection-capability-proof.mjs');
+}
+
+function runAndroidTargetReadinessProof() {
+  runNode('scripts/test/screen-android-physical-target-readiness-proof.mjs');
 }
 
 function runAndroidPhysicalProofs() {
@@ -416,6 +433,7 @@ function validationCommands() {
     'node scripts/test/screen-local-platform-proof-batch.mjs',
     'node scripts/test/screen-local-platform-proof-batch.mjs --run-windows',
     'node scripts/test/screen-local-platform-proof-batch.mjs --run-android',
+    'OCENTRA_ANDROID_SERIAL=192.168.2.45:5555 node scripts/test/screen-local-platform-proof-batch.mjs --run-android-target-readiness',
     'OCENTRA_ANDROID_SERIAL=192.168.2.45:5555 node scripts/test/screen-local-platform-proof-batch.mjs --run-android-physical',
     'node scripts/test/screen-local-platform-proof-batch.mjs --run-linux',
     'node scripts/test/screen-local-platform-proof-batch.mjs --run-local',

@@ -19,6 +19,7 @@ const sourceArtifacts = {
   finalAdapterAudit: 'output/screen-ai-pipeline-proof/final-adapter-dependency-audit/proof-summary.json',
   linuxHostExecution: 'output/screen-ai-pipeline-proof/linux-host-adapter-execution/proof-summary.json',
   linuxWslgExternalGate: 'output/screen-plan-proof/linux-wslg-external-gate-analysis/proof-summary.json',
+  androidPhysicalTargetReadiness: 'output/screen-plan-proof/android-physical-target-readiness/proof-summary.json',
   androidPhysicalExternalGate: 'output/screen-plan-proof/android-physical-external-gate-analysis/proof-summary.json',
   productChecklistDelta: 'output/screen-ai-pipeline-proof/product-checklist-delta/proof-summary.json',
   productChecklistDeltaMarkdown:
@@ -130,6 +131,7 @@ const liveOperatorEvidenceBundle = readJson(sourceArtifacts.liveOperatorEvidence
 const finalAdapterAudit = readJson(sourceArtifacts.finalAdapterAudit);
 const linuxHostExecution = readJson(sourceArtifacts.linuxHostExecution);
 const linuxWslgExternalGate = readJson(sourceArtifacts.linuxWslgExternalGate);
+const androidPhysicalTargetReadiness = readOptionalJson(sourceArtifacts.androidPhysicalTargetReadiness);
 const androidPhysicalExternalGate = readOptionalJson(sourceArtifacts.androidPhysicalExternalGate);
 const productChecklistDelta = readJson(sourceArtifacts.productChecklistDelta);
 const productChecklistDeltaMarkdown = readText(sourceArtifacts.productChecklistDeltaMarkdown);
@@ -347,6 +349,11 @@ assert(
   androidPhysicalExternalGate === null || androidPhysicalExternalGate.assertions?.androidExternalGateSatisfied === true,
   'Android physical external gate proof exists but is not satisfied'
 );
+assert(
+  androidPhysicalTargetReadiness === null ||
+    androidPhysicalTargetReadiness.assertions?.targetIsPhysicalAndroid === true,
+  'Android physical target readiness proof exists but did not observe a physical target'
+);
 
 assert(
   productChecklistDelta.status === 'doc-delta-ready-product-checklist-locked',
@@ -428,6 +435,9 @@ const proof = {
     productChecklistDeltaReadyButNotApplied: true,
     linuxWsl2HostExecutionProved: true,
     linuxWslgExternalGateProved: true,
+    androidPhysicalTargetReadinessRecorded: androidPhysicalTargetReadiness?.assertions?.targetObservedOnline === true,
+    androidPhysicalTargetLockedBehindKeyguard:
+      androidPhysicalTargetReadiness?.keyguard?.lockedBehindCredentialPrompt === true,
     androidPhysicalExternalGateProved: androidPhysicalExternalGate?.assertions?.androidExternalGateSatisfied === true,
     nativeLinuxDesktopProductReady: false,
     finalPipelineProductComplete: false,
@@ -436,6 +446,8 @@ const proof = {
     adapterBlockerRowsMapped: adapterBlockerLedger.closure?.blockerRows,
     adapterDependencyRowsMapped: adapterDependencyHandoff.closure?.dependencyRowsMapped,
     physicalAndroidExternalGateRequired: androidPhysicalExternalGate?.assertions?.androidExternalGateSatisfied !== true,
+    physicalAndroidUnlockRequired:
+      androidPhysicalTargetReadiness?.keyguard?.unlockRequiredBeforeMediaProjection === true,
     externalAdapterDependencyRows: blockedAdapterRows.length,
     remainingAdapterDependencyOwnersStable: true,
     remainingAdapterExpectedProofFilesStable: true,
@@ -458,6 +470,7 @@ const proof = {
     'This audit does not edit docs/product-capability-checklist.md.',
     'This audit does not claim product-complete screen, AI, or pipeline execution.',
     'This audit does not fabricate physical Android external proof; when absent, the physical Android gate remains a blocker while other local proofs stay auditable.',
+    'This audit may cite physical Android target-readiness proof to explain a locked-device blocker, but target readiness is not capture proof.',
     'This audit does not implement broad installed-app, host network/domain, managed active-tab, Android, iOS, or native Linux desktop product-complete execution artifacts.',
     'This audit does not replace live macOS, native Linux Wayland/PipeWire/root-display, physical Android, physical iOS, authenticated-account social, live-view production, or production OCR/VLM quality gates still listed by the screen-plan closure audit.',
   ],

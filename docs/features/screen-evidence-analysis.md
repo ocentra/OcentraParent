@@ -503,9 +503,12 @@ only with explicit parent settings.
   `scripts/test/screen-android-physical-external-gate-proof.mjs` captures a
   real non-emulator Android target, verifies raw temp deletion, analyzes an
   operator-safe retained live app surface with local Qwen2-VL, and satisfies the
-  external-gate manifest. On the current worker host the Samsung S9 target is
-  reachable over Wi-Fi ADB but locked behind keyguard/PIN, so the physical gate
-  remains blocked instead of being claimed from emulator evidence.
+  external-gate manifest. `scripts/test/screen-android-physical-target-readiness-proof.mjs`
+  records the current Samsung S9 target at
+  `output/screen-plan-proof/android-physical-target-readiness/proof-summary.json`:
+  Wi-Fi ADB sees physical model `SM-G965W` on Android 10, but the target is
+  locked behind keyguard/PIN, so the physical gate remains blocked instead of
+  being claimed from emulator evidence.
 - `scripts/test/screen-ios-replaykit-capability-proof.mjs` now records the iOS
   ReplayKit source-doc/no-overclaim gate at
   `output/screen-plan-proof/ios/proof-summary.json`. It treats iOS capture as

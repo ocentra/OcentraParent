@@ -1,6 +1,6 @@
 # Screen AI Full Scope Readiness Audit
 
-Generated: 2026-06-08T16:43:08.103Z
+Generated: 2026-06-08T16:52:51.049Z
 
 ## Source Artifacts
 
@@ -14,6 +14,7 @@ Generated: 2026-06-08T16:43:08.103Z
 - finalAdapterAudit: `output/screen-ai-pipeline-proof/final-adapter-dependency-audit/proof-summary.json`
 - linuxHostExecution: `output/screen-ai-pipeline-proof/linux-host-adapter-execution/proof-summary.json`
 - linuxWslgExternalGate: `output/screen-plan-proof/linux-wslg-external-gate-analysis/proof-summary.json`
+- androidPhysicalTargetReadiness: `output/screen-plan-proof/android-physical-target-readiness/proof-summary.json`
 - androidPhysicalExternalGate: `output/screen-plan-proof/android-physical-external-gate-analysis/proof-summary.json`
 - productChecklistDelta: `output/screen-ai-pipeline-proof/product-checklist-delta/proof-summary.json`
 - productChecklistDeltaMarkdown: `output/screen-ai-pipeline-proof/product-checklist-delta/product-capability-checklist-delta.md`
@@ -49,6 +50,8 @@ Generated: 2026-06-08T16:43:08.103Z
   "productChecklistDeltaReadyButNotApplied": true,
   "linuxWsl2HostExecutionProved": true,
   "linuxWslgExternalGateProved": true,
+  "androidPhysicalTargetReadinessRecorded": true,
+  "androidPhysicalTargetLockedBehindKeyguard": false,
   "androidPhysicalExternalGateProved": false,
   "nativeLinuxDesktopProductReady": false,
   "finalPipelineProductComplete": false,
@@ -57,6 +60,7 @@ Generated: 2026-06-08T16:43:08.103Z
   "adapterBlockerRowsMapped": 5,
   "adapterDependencyRowsMapped": 5,
   "physicalAndroidExternalGateRequired": true,
+  "physicalAndroidUnlockRequired": false,
   "externalAdapterDependencyRows": 5,
   "remainingAdapterDependencyOwnersStable": true,
   "remainingAdapterExpectedProofFilesStable": true,
