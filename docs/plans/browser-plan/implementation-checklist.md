@@ -927,6 +927,21 @@ cloud routing, parent notification UI delivery, report delivery execution,
 final policy execution, connector/native runtime, browser mutation, child
 intervention execution, unmanaged exact URL support, or enforcement.
 
+WP13 social provider receipt live activity state addendum:
+`browser-runtime-social-provider-receipt-live-activity-state-proof` carries the
+parsed social provider receipt stream status and receipt ingestion readiness
+status into `PortalLiveActivityState`. The app state derives both intents from
+the existing shared protocol parser and portal-domain projections, rejects
+dishonest receipt rows before projection, and does not add a visual surface or
+direct raw receipt-field parser. Evidence:
+`test-results/browser-runtime-social-provider-receipt-live-activity-state-proof/proof.json`
+and
+`output/browser-plan-proof/browser-runtime-social-provider-receipt-live-activity-state/01-browser-runtime-social-provider-receipt-live-activity-state-proof.md`.
+This does not claim provider delivery, provider receipt ingestion runtime,
+provider webhook runtime, provider credentials, observed provider receipts,
+report delivery execution, final policy execution, browser mutation, child
+intervention execution, unmanaged exact URL support, or enforcement.
+
 ## Worker Report Template
 
 Use this shape in the hub report or PR-ready note:

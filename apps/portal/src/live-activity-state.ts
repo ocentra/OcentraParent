@@ -84,9 +84,13 @@ import {
   type AgentAppGamePolicyReadinessResult,
 } from '@ocentra-parent/agent-protocol-domain/app-game-policy-readiness';
 import {
+  createBrowserSocialProviderReceiptIngestionReadinessStatusIntent,
+  createBrowserSocialProviderReceiptStreamStatusIntent,
   createAppGameNotificationParentSurfaceReadModelFromReadiness,
   parseActivityMemoryGraphReadModel,
   PortalBrowserInventoryFields,
+  type BrowserSocialProviderReceiptIngestionReadinessStatusIntent,
+  type BrowserSocialProviderReceiptStreamStatusIntent,
   type PortalActivityMemoryGraphReadModel,
 } from '@ocentra-parent/portal-domain/contracts';
 import { parseBrowserInterventionReadModel } from './browser-intervention-read-model';
@@ -129,6 +133,9 @@ export interface PortalLiveActivityState {
   readonly browserManagedStatus: BrowserManagedSessionStatus | null;
   readonly browserRuntimeEventChainStreamEvent: AgentEventEnvelope | null;
   readonly browserRuntimeEventChainStream: PortalBrowserRuntimeEventChainStream | null;
+  readonly browserSocialProviderReceiptStreamStatusIntent: BrowserSocialProviderReceiptStreamStatusIntent | null;
+  readonly browserSocialProviderReceiptIngestionReadinessStatusIntent:
+    BrowserSocialProviderReceiptIngestionReadinessStatusIntent | null;
   readonly localAiRuntimeStatusEvent: AgentEventEnvelope | null;
   readonly lanAiJobEvent: AgentEventEnvelope | null;
   readonly parentAssistantBoundaryEvent: AgentEventEnvelope | null;
@@ -219,9 +226,29 @@ function resolveBrowserState(events: readonly AgentEventEnvelope[]) {
       browserInventoryEvent === null ? null : parseBrowserInventoryReadModel(browserInventoryEvent.payload),
     browserManagedEvent,
     browserManagedStatus: browserManagedEvent === null ? null : parseBrowserManagedStatus(browserManagedEvent.payload),
-    browserRuntimeEventChainStreamEvent,
-    browserRuntimeEventChainStream: parseNullableBrowserRuntimeEventChainStream(browserRuntimeEventChainStreamEvent),
+    ...resolveBrowserRuntimeLiveActivityState(browserRuntimeEventChainStreamEvent),
     ...resolveLocalAiActivityEvents(events),
+  };
+}
+
+function resolveBrowserRuntimeLiveActivityState(
+  event: AgentEventEnvelope | null
+): Pick<
+  PortalLiveActivityState,
+  | 'browserRuntimeEventChainStreamEvent'
+  | 'browserRuntimeEventChainStream'
+  | 'browserSocialProviderReceiptStreamStatusIntent'
+  | 'browserSocialProviderReceiptIngestionReadinessStatusIntent'
+> {
+  const stream = parseNullableBrowserRuntimeEventChainStream(event);
+
+  return {
+    browserRuntimeEventChainStreamEvent: event,
+    browserRuntimeEventChainStream: stream,
+    browserSocialProviderReceiptStreamStatusIntent:
+      stream === null ? null : createBrowserSocialProviderReceiptStreamStatusIntent(stream),
+    browserSocialProviderReceiptIngestionReadinessStatusIntent:
+      stream === null ? null : createBrowserSocialProviderReceiptIngestionReadinessStatusIntent(stream),
   };
 }
 

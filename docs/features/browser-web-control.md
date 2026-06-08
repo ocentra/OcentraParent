@@ -218,6 +218,15 @@ control while being more honest about managed versus unmanaged sources.
   notification UI delivery, report delivery, final policy execution,
   connector/native runtime, browser mutation, child intervention, unmanaged
   exact URL support, and enforcement remain unclaimed.
+- Browser-plan WP13 now also carries the parsed social provider receipt stream
+  status and receipt ingestion readiness status into the portal live activity
+  state. The app state derives both parent-visible status intents from the
+  shared protocol parser and portal-domain projections, rejects dishonest
+  receipt rows before projection, and does not add a visual surface or direct
+  raw receipt-field parser. Provider delivery, receipt ingestion runtime,
+  webhook runtime, credentials, observed provider receipts, report delivery,
+  final policy execution, browser mutation, child intervention, unmanaged exact
+  URL support, and enforcement remain unclaimed.
 - Browser-plan WP13 now projects that named subscriber status through the
   service-backed browser runtime event-chain stream payload. Current
   store-backed browser rows still report zero pending candidates because the

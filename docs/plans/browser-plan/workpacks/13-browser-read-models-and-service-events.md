@@ -956,3 +956,28 @@ report delivery execution, final policy execution, connector/native runtime,
 browser mutation, child intervention execution, unmanaged exact URL support, or
 enforcement. The parent-domain package subpath export remains deferred while
 another active lane owns `packages/parent-domain/package.json`.
+
+## Social Provider Receipt Live Activity State Addendum - 2026-06-08
+
+`browser-runtime-social-provider-receipt-live-activity-state-proof` carries the
+parsed social provider receipt stream status and receipt ingestion readiness
+status into the portal live activity state. The app state derives both
+parent-visible intents from the shared protocol-domain stream parser and the
+portal-domain status projections, and rejects dishonest receipt rows before
+either intent is populated.
+
+Evidence:
+
+- `apps/portal/src/live-activity-state.ts`
+- `apps/portal/tests/live-activity-state.test.ts`
+- `scripts/test/browser-runtime-social-provider-receipt-live-activity-state-proof.mjs`
+- `test-results/browser-runtime-social-provider-receipt-live-activity-state-proof/proof.json`
+- `output/browser-plan-proof/browser-runtime-social-provider-receipt-live-activity-state/01-browser-runtime-social-provider-receipt-live-activity-state-proof.md`
+- `cmd /c node scripts/test/browser-runtime-social-provider-receipt-live-activity-state-proof.mjs`
+
+This is app state projection proof only. It does not add a new visual surface,
+parse raw receipt stream fields in the portal app, claim provider delivery,
+provider receipt ingestion runtime, webhook runtime, credentials, observed
+provider receipts, report delivery execution, final policy execution, browser
+mutation, child intervention execution, unmanaged exact URL support, or
+enforcement.
