@@ -162,7 +162,7 @@ pub(crate) fn parent_rule_context(
             device_id: constants::peer::LOCAL_DEV_AGENT.to_string(),
             child_profile_id: Some(policy::TEST_CHILD_PROFILE_ID.to_string()),
             label: policy::TEST_PARENT_DEVICE_LABEL.to_string(),
-            platform: policy::TEST_PARENT_DEVICE_PLATFORM_WINDOWS.to_string(),
+            platform: std::env::consts::OS.to_string(),
         },
         rule: PolicyRule {
             rule_id: rule_id.to_string(),

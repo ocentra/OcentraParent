@@ -15,6 +15,12 @@ describe('portal policy-preview live activity state', () => {
     expect(state.policyPreviewReadModel?.parentRuleContextRefIds).toBe('parent-rule-context-1');
     expect(state.policyPreviewReadModel?.dryRun).toBe(true);
     expect(state.policyPreviewReadModel?.enforcementHandoffState).toBe('disabled-preview-only');
+    expect(state.policyPreviewReadModel?.networkEvidenceGrade).toBe('B');
+    expect(state.policyPreviewReadModel?.networkRequestedPolicyAction).toBe('block');
+    expect(state.policyPreviewReadModel?.networkMappedPolicyAction).toBe('ask-parent');
+    expect(state.policyPreviewReadModel?.networkPolicyMappingMode).toBe('parent-review');
+    expect(state.policyPreviewReadModel?.networkAdapterActionAuthorized).toBe(false);
+    expect(state.policyPreviewReadModel?.networkEnforcementCommandAuthorized).toBe(false);
   });
 
   it('parses service policy schema versions without weakening typed payload fields', () => {
@@ -49,6 +55,18 @@ describe('portal policy-preview live activity state', () => {
     expect(returnedAsText.policyPreviewReadModel).toBeNull();
     expect(countAsText.policyPreviewReadModel).toBeNull();
     expect(dryRunAsText.policyPreviewReadModel).toBeNull();
+  });
+
+  it('rejects policy-preview payloads that claim network authorization', () => {
+    const adapterAuthorized = resolveLiveActivityState([
+      policyPreviewEventWith({ networkAdapterActionAuthorized: true }),
+    ]);
+    const enforcementAuthorized = resolveLiveActivityState([
+      policyPreviewEventWith({ networkEnforcementCommandAuthorized: true }),
+    ]);
+
+    expect(adapterAuthorized.policyPreviewReadModel).toBeNull();
+    expect(enforcementAuthorized.policyPreviewReadModel).toBeNull();
   });
 });
 
@@ -95,6 +113,12 @@ function policyPreviewEventWith(payloadOverrides: Record<string, unknown>) {
       localAiResultId: 'local-ai-result-1',
       dryRun: true,
       enforcementHandoffState: 'disabled-preview-only',
+      networkEvidenceGrade: 'B',
+      networkRequestedPolicyAction: 'block',
+      networkMappedPolicyAction: 'ask-parent',
+      networkPolicyMappingMode: 'parent-review',
+      networkAdapterActionAuthorized: false,
+      networkEnforcementCommandAuthorized: false,
       ...payloadOverrides,
     },
     snapshot: null,
@@ -140,6 +164,12 @@ function emptyPolicyPreviewEvent() {
       localAiResultId: null,
       dryRun: null,
       enforcementHandoffState: 'disabled-preview-only',
+      networkEvidenceGrade: null,
+      networkRequestedPolicyAction: null,
+      networkMappedPolicyAction: null,
+      networkPolicyMappingMode: null,
+      networkAdapterActionAuthorized: null,
+      networkEnforcementCommandAuthorized: null,
     },
     snapshot: null,
   });

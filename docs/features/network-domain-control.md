@@ -701,7 +701,9 @@ UI rendering remain open.
       parent-review ask-parent, dry-run decision state, and disabled enforcement
       handoff plus service payload provenance fields for network evidence grade,
       requested action, mapped action, mapping mode, and false adapter/
-      enforcement authorization. Proof:
+      enforcement authorization. The portal live-activity parser now retains
+      those provenance fields and rejects adapter/enforcement authorization
+      claims. Proof:
       `output/network-plan-proof/policy-preview-stored-flow-evidence/proof-summary.json`
       and
       `test-results/network-policy-preview-stored-flow-evidence-proof/proof.json`.

@@ -135,6 +135,51 @@ fn policy_preview_read_model_evaluates_stored_network_flow_evidence_without_enfo
     );
 }
 
+#[test]
+fn policy_preview_read_model_fails_closed_when_network_mapping_refs_are_malformed() {
+    let store = ActivityStore::open_in_memory().expect(constants::error::ACTIVITY_STORE_OPENS);
+    let event = network_flow_event();
+    store
+        .ingest_events(std::slice::from_ref(&event))
+        .expect(constants::error::ACTIVITY_STORE_INGESTS);
+    store
+        .replace_parent_rule_contexts(&[parent_rule_context(
+            PolicyTarget {
+                target_id: event.subject.subject_id.clone(),
+                target_type: PolicyTargetType::Domain,
+                target_value: constants::activity_store::TEST_NETWORK_DOMAIN.to_string(),
+            },
+            constants::value::EMPTY,
+            PolicyAction::Block,
+            policy::TEST_REASON_PARENT_BLOCK,
+            vec![event.event_id.clone()],
+        )])
+        .expect(constants::error::ACTIVITY_STORE_INGESTS);
+
+    let read_model = store
+        .policy_preview_read_model(
+            constants::activity_store::DEFAULT_RECENT_LIMIT,
+            constants::activity_store::TEST_SECOND_OBSERVED_AT,
+        )
+        .expect(constants::error::ACTIVITY_STORE_QUERIES);
+
+    let row = &read_model.rows[0];
+    assert_grade_b_network_mapping(row);
+    assert_eq!(row.decision.action, PolicyAction::AskParent);
+    assert_eq!(
+        row.decision.reason_codes,
+        vec![
+            policy::TEST_REASON_PARENT_BLOCK.to_string(),
+            policy::REASON_NETWORK_EVIDENCE_GRADE_PARENT_REVIEW.to_string()
+        ]
+    );
+    assert!(row.decision.dry_run);
+    assert_eq!(
+        row.decision.enforcement_handoff_state,
+        PolicyDecisionHandoffState::Disabled
+    );
+}
+
 fn assert_grade_b_network_mapping(row: &PolicyPreviewReadModelRow) {
     let network_mapping = row
         .network_evidence_mapping

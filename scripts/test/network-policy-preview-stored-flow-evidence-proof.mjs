@@ -35,6 +35,10 @@ const sourceFiles = [
   'packages/agent-protocol-domain/tests/policy-preview-contracts.test.ts',
   'packages/agent-protocol-domain/tests/network-remote-delivery-status.test.ts',
   'packages/agent-protocol-domain/README.md',
+  'packages/portal-domain/src/details.ts',
+  'apps/portal/src/policy-preview-read-model.ts',
+  'apps/portal/src/policy-preview-details.ts',
+  'apps/portal/tests/policy-preview-live-activity-state.test.ts',
   'docs/features/network-domain-control.md',
   'docs/product-capability-checklist.md',
   'docs/plans/network-plan/implementation-checklist.md',
@@ -74,6 +78,7 @@ const expectedStatus = {
     'this slice does not invent query-store, journal, AI, adapter, or enforcement refs',
     'row34 shared evidence-grade mapper downgrades grade-B block requests to parent review',
     'service payload exposes row34 evidence-grade provenance without granting adapter or enforcement authority',
+    'portal parser retains row34 evidence-grade provenance and rejects adapter or enforcement authorization claims',
   ],
   noClaims: [
     'exact URL from network-only evidence',
@@ -134,6 +139,12 @@ const commands = [
     log: join(proofRoot, 'agent-protocol-domain-build.log'),
   },
   {
+    name: 'portal-domain-build',
+    command: 'cmd',
+    args: ['/c', 'npm', 'run', 'build', '--workspace', '@ocentra-parent/portal-domain'],
+    log: join(proofRoot, 'portal-domain-build.log'),
+  },
+  {
     name: 'agent-protocol-domain-policy-preview-contract-test',
     command: 'cmd',
     args: [
@@ -148,6 +159,22 @@ const commands = [
       'tests/policy-preview-contracts.test.ts',
     ],
     log: join(proofRoot, 'agent-protocol-domain-policy-preview-contract-test.log'),
+  },
+  {
+    name: 'portal-policy-preview-live-activity-state-test',
+    command: 'cmd',
+    args: [
+      '/c',
+      'npm',
+      'exec',
+      '--workspace',
+      '@ocentra-parent/portal',
+      '--',
+      'vitest',
+      'run',
+      'tests/policy-preview-live-activity-state.test.ts',
+    ],
+    log: join(proofRoot, 'portal-policy-preview-live-activity-state-test.log'),
   },
   {
     name: 'rust-format',
@@ -216,7 +243,7 @@ const proof = {
   coveredRows: [
     'network feature item Policy preview over stored flow evidence',
     'network-plan workpack 34 evidence-grade policy mapping remains the grade mapper dependency',
-    'network-plan workpack 36 parent UI network evidence drawer remains read-model-only',
+    'network-plan workpack 36 parent UI drawer remains outside this proof; this proof preserves read-model-only policy-preview payload boundaries',
   ],
   provenBoundaries: [
     'agent-core policy preview consumes a stored ActivityStore network flow row and maps destinationDomain into a domain policy target',
@@ -228,6 +255,7 @@ const proof = {
     'agent-core policy preview emits a dry-run policy decision with disabled enforcement handoff',
     'agent-service policy-preview payload exposes the latest dry-run decision with network evidence grade, requested action, mapped action, mapping mode, and false adapter/enforcement authorization flags',
     'agent-protocol-domain accepts the policy preview read-model command and reported event payload through the shared contracts',
+    'portal live-activity parser retains policy-preview network provenance fields and rejects authorized adapter/enforcement payloads',
     'the proof keeps row34 evidence-grade policy mapping as the grade-specific dependency instead of duplicating grade logic in the preview path',
   ],
   notClaimed: expectedStatus.noClaims,
@@ -235,7 +263,7 @@ const proof = {
 
 writeJson(join(proofRoot, 'proof-summary.json'), proof);
 writeJson(join(testRoot, 'proof.json'), proof);
-console.log('network-policy-preview-stored-flow-evidence-proof-ok:core,service,ts,fmt,source-shape,diff-check');
+console.log('network-policy-preview-stored-flow-evidence-proof-ok:core,service,ts,portal,fmt,source-shape,diff-check');
 console.log(`proof=${join(proofRoot, 'proof-summary.json')}`);
 
 function assertSourceContracts() {
@@ -256,6 +284,10 @@ function assertSourceContracts() {
   const tsReadme = readText('packages/agent-protocol-domain/README.md');
   const tsContracts = readText('packages/agent-protocol-domain/tests/policy-preview-contracts.test.ts');
   const remoteDeliveryTsTest = readText('packages/agent-protocol-domain/tests/network-remote-delivery-status.test.ts');
+  const portalDetails = readText('packages/portal-domain/src/details.ts');
+  const portalParser = readText('apps/portal/src/policy-preview-read-model.ts');
+  const portalDetailView = readText('apps/portal/src/policy-preview-details.ts');
+  const portalPolicyPreviewTest = readText('apps/portal/tests/policy-preview-live-activity-state.test.ts');
   const featureDoc = readText('docs/features/network-domain-control.md');
   const productCapabilityChecklist = readText('docs/product-capability-checklist.md');
   const checklist = readText('docs/plans/network-plan/implementation-checklist.md');
@@ -271,8 +303,10 @@ function assertSourceContracts() {
     [corePreview, 'evaluate_policy_dry_run'],
     [corePreview, 'map_network_evidence_grade_to_policy'],
     [corePreview, 'grade_mapped_network_decision'],
+    [corePreview, 'PolicyAction::AskParent'],
     [corePreview, 'preview_network_evidence_mapping'],
     [corePreview, 'network_evidence_grade'],
+    [coreRows, 'HashSet'],
     [coreRows, 'device_id'],
     [coreRows, 'NETWORK_RETENTION_DELETED'],
     [coreRows, 'row_deleted'],
@@ -288,6 +322,7 @@ function assertSourceContracts() {
     [coreParentRules, 'context_rule_has_supported_schedule'],
     [coreParentRules, 'context_rule_is_effective_at'],
     [coreTests, 'policy_preview_read_model_evaluates_stored_network_flow_evidence_without_enforcement'],
+    [coreTests, 'policy_preview_read_model_fails_closed_when_network_mapping_refs_are_malformed'],
     [coreTests, 'policy_preview_read_model_excludes_network_flow_deleted_by_retention_tombstone'],
     [coreTests, 'policy_preview_read_model_applies_retention_tombstones_before_limit'],
     [coreTests, 'REASON_NETWORK_EVIDENCE_GRADE_PARENT_REVIEW'],
@@ -304,12 +339,18 @@ function assertSourceContracts() {
     [tsContracts, 'PolicyPreviewReadModelReported'],
     [tsContracts, 'NetworkEvidenceGrade'],
     [tsContracts, 'NetworkEnforcementCommandAuthorized'],
+    [portalDetails, 'NetworkEvidenceGrade'],
+    [portalParser, 'FalseOrNullSchema'],
+    [portalParser, 'NetworkEvidenceGrade'],
+    [portalDetailView, 'NetworkAdapterAuthorization'],
+    [portalPolicyPreviewTest, 'rejects policy-preview payloads that claim network authorization'],
     [remoteDeliveryTsTest, 'parses row10k blocked dispatch status from a typed agent event'],
     [tsReadme, 'row10k transport-dispatch'],
     [featureDoc, 'Policy preview over stored flow evidence'],
     [featureDoc, 'network-policy-preview-stored-flow-evidence-proof'],
     [featureDoc, 'retention-deleted flow rows'],
     [productCapabilityChecklist, 'policy-preview evidence-grade provenance'],
+    [productCapabilityChecklist, 'complete live capture/runtime execution plus real OS adapter/platform proof'],
     [checklist, 'policy-preview-stored-flow-evidence'],
     [checklist, 'retention-deleted flow rows'],
     [checklist, 'networkEvidenceGrade'],

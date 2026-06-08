@@ -1,5 +1,6 @@
 use ocentra_parent_agent_protocol::{constants, ActivityEvidenceRef, LogFieldValue, LogFields};
 use rusqlite::{params, Connection};
+use std::collections::HashSet;
 
 use crate::ActivityStoreError;
 
@@ -99,17 +100,17 @@ fn store_row_from_sqlite(
     })
 }
 
-fn row_deleted(row: &PolicyPreviewStoreRow, deleted_ids: &[String]) -> bool {
-    deleted_ids.iter().any(|id| id == &row.event_id)
+fn row_deleted(row: &PolicyPreviewStoreRow, deleted_ids: &HashSet<String>) -> bool {
+    deleted_ids.contains(&row.event_id)
         || row
             .evidence
             .iter()
-            .any(|reference| deleted_ids.iter().any(|id| id == &reference.evidence_id))
+            .any(|reference| deleted_ids.contains(&reference.evidence_id))
 }
 
 fn deleted_evidence_reference_ids(
     connection: &Connection,
-) -> Result<Vec<String>, ActivityStoreError> {
+) -> Result<HashSet<String>, ActivityStoreError> {
     let mut statement =
         connection.prepare(constants::sqlite::SELECT_NETWORK_RETENTION_DELETED_ACTIVITY)?;
     let rows = statement.query_map(
@@ -117,15 +118,13 @@ fn deleted_evidence_reference_ids(
         |row| Ok((row.get::<_, String>(0)?, row.get::<_, String>(1)?)),
     )?;
 
-    let mut ids = Vec::new();
+    let mut ids = HashSet::new();
     for row in rows {
         let (fields_json, evidence_json) = row?;
         let fields = serde_json::from_str::<LogFields>(&fields_json)?;
         let evidence = serde_json::from_str::<Vec<ActivityEvidenceRef>>(&evidence_json)?;
         for id in evidence_reference_ids(&fields, &evidence) {
-            if !ids.iter().any(|existing| existing == &id) {
-                ids.push(id);
-            }
+            ids.insert(id);
         }
     }
     Ok(ids)

@@ -1,6 +1,7 @@
 use ocentra_network_evidence::{
     map_network_evidence_grade_to_policy, NetworkEvidenceGrade, NetworkEvidencePolicyAction,
-    NetworkEvidencePolicyMapping, NetworkEvidencePolicyMappingInput, NetworkEvidencePolicyMode,
+    NetworkEvidencePolicyMapping, NetworkEvidencePolicyMappingError,
+    NetworkEvidencePolicyMappingInput, NetworkEvidencePolicyMode,
 };
 use ocentra_parent_agent_protocol::{
     constants, policy_constants as policy, ActivityEvidenceKind, ActivityEvidenceRef,
@@ -105,8 +106,26 @@ fn grade_mapped_network_decision(
     let Some(requested_action) = network_policy_action(decision.action) else {
         return (decision, None);
     };
-    let Some(mapping) = network_policy_mapping(evidence_grade, requested_action, &decision) else {
-        return (decision, None);
+    let mapping = match network_policy_mapping(evidence_grade, requested_action, &decision) {
+        Ok(mapping) => mapping,
+        Err(_) => {
+            decision.action = PolicyAction::AskParent;
+            push_unique_reason(
+                &mut decision.reason_codes,
+                policy::REASON_NETWORK_EVIDENCE_GRADE_PARENT_REVIEW.to_string(),
+            );
+            return (
+                decision,
+                Some(PolicyPreviewNetworkEvidenceMapping {
+                    evidence_grade: network_evidence_grade_protocol(evidence_grade).to_string(),
+                    requested_action: network_policy_action_protocol(requested_action).to_string(),
+                    mapped_action: policy::ACTION_ASK_PARENT.to_string(),
+                    mode: policy::NETWORK_POLICY_MAPPING_MODE_PARENT_REVIEW.to_string(),
+                    adapter_action_authorized: false,
+                    enforcement_command_authorized: false,
+                }),
+            );
+        }
     };
     let mapped_action = policy_action(mapping.mapped_action);
     if mapped_action != decision.action {
@@ -147,8 +166,8 @@ fn network_policy_mapping(
     evidence_grade: NetworkEvidenceGrade,
     requested_action: NetworkEvidencePolicyAction,
     decision: &PolicyDecision,
-) -> Option<NetworkEvidencePolicyMapping> {
-    let parent_rule_ref = decision.rule_ids.first()?.clone();
+) -> Result<NetworkEvidencePolicyMapping, NetworkEvidencePolicyMappingError> {
+    let parent_rule_ref = decision.rule_ids.first().cloned().unwrap_or_default();
     let evidence_refs = decision
         .evidence_references
         .iter()
@@ -163,7 +182,6 @@ fn network_policy_mapping(
         requested_action,
         adapter_capability_proof_ref: None,
     })
-    .ok()
 }
 
 fn preview_network_evidence_mapping(

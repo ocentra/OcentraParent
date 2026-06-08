@@ -294,7 +294,9 @@ The proof pack must contain or explicitly mark N/A for each applicable item:
       decision with disabled enforcement handoff plus `networkEvidenceGrade`,
       `networkRequestedPolicyAction`, `networkMappedPolicyAction`,
       `networkPolicyMappingMode`, and false network adapter/enforcement
-      authorization fields.
+      authorization fields. The portal live-activity parser retains those
+      fields and rejects any payload that claims network adapter or enforcement
+      authorization.
       Row34 is the evidence-grade mapper dependency. This proof keeps AI
       execution, full policy-engine execution, adapter authorization, adapter
       action, enforcement-command publication, raw PCAP, exact URL, decrypted

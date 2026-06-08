@@ -2,7 +2,7 @@
   "proof": "network-policy-preview-stored-flow-evidence-proof",
   "proofRevision": "network-policy-preview-stored-flow-evidence-proof/v2",
   "checkedAt": "deterministic:network-policy-preview-stored-flow-evidence-proof/v2",
-  "sourceFingerprint": "source-tree:13e74d5a7c387075b5510f252027fbb688ed64126733b2b52037cc5211f3cd45",
+  "sourceFingerprint": "source-tree:8f6fd39dda715cdddee0077ce88187ab19c649dc7b0783dad92a2c661be0b28c",
   "sourceRefs": [
     "scripts/test/network-policy-preview-stored-flow-evidence-proof.mjs",
     "crates/agent-core/Cargo.toml",
@@ -30,6 +30,10 @@
     "packages/agent-protocol-domain/tests/policy-preview-contracts.test.ts",
     "packages/agent-protocol-domain/tests/network-remote-delivery-status.test.ts",
     "packages/agent-protocol-domain/README.md",
+    "packages/portal-domain/src/details.ts",
+    "apps/portal/src/policy-preview-read-model.ts",
+    "apps/portal/src/policy-preview-details.ts",
+    "apps/portal/tests/policy-preview-live-activity-state.test.ts",
     "docs/features/network-domain-control.md",
     "docs/product-capability-checklist.md",
     "docs/plans/network-plan/implementation-checklist.md",
@@ -76,10 +80,22 @@
       "log": "output\\network-plan-proof\\policy-preview-stored-flow-evidence\\agent-protocol-domain-build.log"
     },
     {
+      "name": "portal-domain-build",
+      "command": "cmd /c npm run build --workspace @ocentra-parent/portal-domain",
+      "status": 0,
+      "log": "output\\network-plan-proof\\policy-preview-stored-flow-evidence\\portal-domain-build.log"
+    },
+    {
       "name": "agent-protocol-domain-policy-preview-contract-test",
       "command": "cmd /c npm exec --workspace @ocentra-parent/agent-protocol-domain -- vitest run tests/policy-preview-contracts.test.ts",
       "status": 0,
       "log": "output\\network-plan-proof\\policy-preview-stored-flow-evidence\\agent-protocol-domain-policy-preview-contract-test.log"
+    },
+    {
+      "name": "portal-policy-preview-live-activity-state-test",
+      "command": "cmd /c npm exec --workspace @ocentra-parent/portal -- vitest run tests/policy-preview-live-activity-state.test.ts",
+      "status": 0,
+      "log": "output\\network-plan-proof\\policy-preview-stored-flow-evidence\\portal-policy-preview-live-activity-state-test.log"
     },
     {
       "name": "rust-format",
@@ -110,7 +126,7 @@
   "coveredRows": [
     "network feature item Policy preview over stored flow evidence",
     "network-plan workpack 34 evidence-grade policy mapping remains the grade mapper dependency",
-    "network-plan workpack 36 parent UI network evidence drawer remains read-model-only"
+    "network-plan workpack 36 parent UI drawer remains outside this proof; this proof preserves read-model-only policy-preview payload boundaries"
   ],
   "provenBoundaries": [
     "agent-core policy preview consumes a stored ActivityStore network flow row and maps destinationDomain into a domain policy target",
@@ -122,6 +138,7 @@
     "agent-core policy preview emits a dry-run policy decision with disabled enforcement handoff",
     "agent-service policy-preview payload exposes the latest dry-run decision with network evidence grade, requested action, mapped action, mapping mode, and false adapter/enforcement authorization flags",
     "agent-protocol-domain accepts the policy preview read-model command and reported event payload through the shared contracts",
+    "portal live-activity parser retains policy-preview network provenance fields and rejects authorized adapter/enforcement payloads",
     "the proof keeps row34 evidence-grade policy mapping as the grade-specific dependency instead of duplicating grade logic in the preview path"
   ],
   "notClaimed": [

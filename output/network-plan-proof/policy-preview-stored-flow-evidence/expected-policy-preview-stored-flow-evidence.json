@@ -28,7 +28,8 @@
     "future, expired, or scheduled-without-proof parent rules are excluded before preview decisions",
     "this slice does not invent query-store, journal, AI, adapter, or enforcement refs",
     "row34 shared evidence-grade mapper downgrades grade-B block requests to parent review",
-    "service payload exposes row34 evidence-grade provenance without granting adapter or enforcement authority"
+    "service payload exposes row34 evidence-grade provenance without granting adapter or enforcement authority",
+    "portal parser retains row34 evidence-grade provenance and rejects adapter or enforcement authorization claims"
   ],
   "noClaims": [
     "exact URL from network-only evidence",
