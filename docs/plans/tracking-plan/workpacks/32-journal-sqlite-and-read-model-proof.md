@@ -158,7 +158,11 @@ The hosted parent route now also exposes a service-data coverage panel
 backed by the parsed
 `trackingReadModel` payload, including active/tombstone counts, latest tombstone
 metadata, kind coverage, custody/capability, active evidence references, deleted
-evidence references, and `productClaimReady=false`. Full UI, platform replay,
+evidence references, and `productClaimReady=false`. The refreshed
+`20-service-data-ui-proof.json` also carries a service-backed citation matrix
+that binds the coverage card back to the same service command/event/payload,
+live citation fields, active evidence refs, tombstone deleted-evidence refs,
+and no-claim boundary set. Full UI, platform replay,
 export, broader product read models, and physical-device product claims are not
 claimed beyond the proof
 state recorded in `proof-summary.json`, `10-journal-sqlite-proof.json`,
@@ -402,6 +406,9 @@ This workpack can be assigned independently, implemented against the owning doma
       `output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/18-service-data-ui-proof.json`,
       `output/tracking-plan-proof/32-journal-sqlite-and-read-model-proof/20-service-data-ui-proof.json`,
       and `test-results/tracking-plan-service-data-ui-proof/proof.json`.
+- [x] Service-backed citation matrix recorded in those artifacts for the
+      command/event/payload, live citation field set, active evidence refs,
+      tombstone deleted-evidence refs, and no-claim boundaries.
 - [x] Product doc/checklist updates: owning feature doc, implementation
       checklist, WP30, and WP32 updated; central capability row delta queued
       through the hub instead of editing `docs/product-capability-checklist.md`.

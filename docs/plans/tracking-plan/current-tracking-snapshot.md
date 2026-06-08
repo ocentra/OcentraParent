@@ -49,6 +49,10 @@
   notification parent-surface history, retention settings local write result,
   and unsupported/manual platform states. It is not full product parent/child
   runtime UI proof.
+- Service-data UI proof now carries a service-backed citation matrix that ties
+  the hosted coverage card to the same read-model command, event, payload,
+  citation fields, active evidence refs, tombstone deleted-evidence refs, and
+  no-claim boundaries used by the live citation rows.
 - Provider and notification local proof exists for POI/provider mapping,
   provider-notification intent, notification preference preflight/status handoff,
   notification receipt boundary, local outbox readiness, provider-delivery

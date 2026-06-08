@@ -92,7 +92,11 @@ expose location or device-status features. Parents expect this category.
   plus `npm run test:tracking-plan-service-data-ui-proof`, with artifacts
   `output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/18-service-data-ui-proof.json`,
   `output/tracking-plan-proof/32-journal-sqlite-and-read-model-proof/20-service-data-ui-proof.json`,
-  and `test-results/tracking-plan-service-data-ui-proof/proof.json`.
+  and `test-results/tracking-plan-service-data-ui-proof/proof.json`. The
+  refreshed service-data UI proof includes a service-backed citation matrix that
+  verifies the route coverage card uses the same read-model command, event,
+  payload field, citation fields, active evidence refs, deleted-evidence
+  tombstone refs, and no-claim boundaries as the live citation rows.
 - WP07/WP32 local retention settings mutation proof now exists through
   `node scripts/test/tracking-retention-settings-mutation-proof.mjs`. It
   applies the existing retention-window, delete-after-alert, parent-export,

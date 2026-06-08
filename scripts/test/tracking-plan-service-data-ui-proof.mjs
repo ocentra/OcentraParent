@@ -1,5 +1,5 @@
 import { spawn } from 'node:child_process';
-import { mkdir, writeFile } from 'node:fs/promises';
+import { mkdir, readFile, writeFile } from 'node:fs/promises';
 import { join, relative } from 'node:path';
 
 const repoRoot = process.cwd();
@@ -9,6 +9,7 @@ const readModelProofRoot = join(proofRoot, '32-journal-sqlite-and-read-model-pro
 const testResultRoot = join(repoRoot, 'test-results', 'tracking-plan-service-data-ui-proof');
 const uiProofPath = join(uiProofRoot, '18-service-data-ui-proof.json');
 const readModelProofPath = join(readModelProofRoot, '20-service-data-ui-proof.json');
+const serviceReadModelProofPath = join(readModelProofRoot, '18-service-read-model-proof.json');
 const testResultProofPath = join(testResultRoot, 'proof.json');
 const commands = [];
 
@@ -21,6 +22,9 @@ async function main() {
 
   const checkedAt = new Date().toISOString();
   const commit = await gitHead();
+  const serviceReadModelProof = await readJson(serviceReadModelProofPath);
+  const serviceBackedCitationMatrix = buildServiceBackedCitationMatrix(serviceReadModelProof);
+  assertServiceBackedCitationMatrix(serviceBackedCitationMatrix);
   const proof = {
     schemaVersion: 1,
     checkedAt,
@@ -53,13 +57,20 @@ async function main() {
         'row.evidenceReferenceIds',
         'row.deletedEvidenceReferenceIds',
         'productClaimReady=false',
+        'portalCitationSurface.citedFields',
+        'portalCitationSurface.productClaimReady=false',
+        'activeProductSurfaceSummary.latestActiveEventIdField',
+        'tombstoneReplay.deletedEvidenceReferenceIdsField',
       ],
     },
+    serviceBackedCitationMatrix,
     assertions: [
       'The hosted policy-tracking route can render service-data coverage from the parsed tracking read model.',
       'The React hosted policy-tracking route renders the service-data coverage card beside the service read-model summary.',
       'The coverage row exposes active/tombstone row counts through existing portal detail fields.',
       'The coverage row exposes event-kind coverage and deleted evidence references separately from active evidence references.',
+      'The proof matrix ties the service-data coverage card to the same service read-model command, event, payload, citation field, and active/tombstone summary fields used by live citation rows.',
+      'The proof matrix preserves active evidence references and deleted evidence references as distinct UI coverage claims.',
       'The coverage row keeps productClaimReady=false and does not claim physical-device, provider, notification, or production readiness.',
       'The underlying service proof still validates the Rust service command, protocol parser, portal state parser, and SQLite ActivityStore read-model path.',
     ],
@@ -95,6 +106,99 @@ async function main() {
   console.log(`ui=${relative(repoRoot, uiProofPath).replace(/\\/gu, '/')}`);
   console.log(`readModel=${relative(repoRoot, readModelProofPath).replace(/\\/gu, '/')}`);
   console.log(`evidence=${relative(repoRoot, testResultProofPath).replace(/\\/gu, '/')}`);
+}
+
+async function readJson(path) {
+  return JSON.parse(await readFile(path, 'utf8'));
+}
+
+function buildServiceBackedCitationMatrix(serviceReadModelProof) {
+  const serviceBoundary = serviceReadModelProof.serviceBoundary;
+  const citationSurface = serviceBoundary.portalCitationSurface;
+  const tombstoneReplay = serviceBoundary.tombstoneReplay;
+  const activeSummary = serviceBoundary.activeProductSurfaceSummary;
+
+  return {
+    sourceProof: 'output/tracking-plan-proof/32-journal-sqlite-and-read-model-proof/18-service-read-model-proof.json',
+    serviceCommand: serviceBoundary.command,
+    serviceEvent: serviceBoundary.event,
+    payloadField: serviceBoundary.payloadField,
+    portalConsumer: serviceBoundary.portalConsumer,
+    portalRoute: 'policy-tracking',
+    serviceDataConsumer: 'trackingStatusServiceDataCoverage',
+    liveCitationConsumer: citationSurface.consumer,
+    citationRows: citationSurface.citationRows,
+    citationField: serviceBoundary.citationField,
+    citedFields: citationSurface.citedFields,
+    activeCoverage: {
+      activeRowsField: 'activeRows',
+      activeEvidenceField: 'evidenceReferenceIds',
+      activeLatestEventField: activeSummary.latestActiveEventIdField,
+      activeLatestObservedAtField: activeSummary.latestActiveObservedAtField,
+      activeKindCountsField: activeSummary.activeKindCountsField,
+      activeDeviceCountsField: activeSummary.activeDeviceCountsField,
+      activeCapabilityStatusCountsField: activeSummary.activeCapabilityStatusCountsField,
+    },
+    tombstoneCoverage: {
+      tombstoneRowsField: 'tombstoneRows',
+      deletedEvidenceField: tombstoneReplay.deletedEvidenceReferenceIdsField,
+      latestTombstoneEventIdField: 'latestTombstoneEventId',
+      latestTombstoneObservedAtField: 'latestTombstoneObservedAt',
+      rowVisibilityField: tombstoneReplay.rowVisibilityField,
+      tombstoneRowValue: tombstoneReplay.tombstoneRowValue,
+      retentionEventKind: tombstoneReplay.retentionEventKind,
+    },
+    noClaimBoundaries: {
+      productClaimReady: false,
+      physicalDeviceClaimed: false,
+      providerDeliveryClaimed: false,
+      notificationReceiptClaimed: false,
+      authorityClaimed: false,
+      productionClaimed: false,
+      childDeviceRuntimeClaimed: false,
+    },
+  };
+}
+
+function assertServiceBackedCitationMatrix(matrix) {
+  const requiredCitedFields = [
+    'eventId',
+    'observedAt',
+    'deviceId',
+    'platform',
+    'observer',
+    'kind',
+    'subjectKind',
+    'subjectId',
+    'queryVisibility',
+    'capabilityStatus',
+    'evidenceReferenceIds',
+    'deletedEvidenceReferenceIds',
+  ];
+  const missingFields = requiredCitedFields.filter((field) => !matrix.citedFields.includes(field));
+  if (missingFields.length > 0) {
+    throw new Error(`Service-backed citation matrix is missing cited fields: ${missingFields.join(', ')}`);
+  }
+  if (
+    matrix.serviceCommand !== 'agent.activity.tracking.read-model.get' ||
+    matrix.serviceEvent !== 'agent.activity.tracking.read-model.reported' ||
+    matrix.payloadField !== 'trackingReadModel' ||
+    matrix.citationField !== 'evidenceReferenceIds'
+  ) {
+    throw new Error(`Service-backed citation matrix drifted from read-model contract: ${JSON.stringify(matrix)}`);
+  }
+  if (
+    matrix.activeCoverage.activeEvidenceField !== 'evidenceReferenceIds' ||
+    matrix.tombstoneCoverage.deletedEvidenceField !== 'deletedEvidenceReferenceIds' ||
+    matrix.tombstoneCoverage.tombstoneRowValue !== 'tombstone'
+  ) {
+    throw new Error(
+      `Service-backed citation matrix lost active/tombstone evidence separation: ${JSON.stringify(matrix)}`
+    );
+  }
+  if (Object.values(matrix.noClaimBoundaries).some(Boolean)) {
+    throw new Error(`Service-backed citation matrix overclaimed product behavior: ${JSON.stringify(matrix)}`);
+  }
 }
 
 async function runNpmWorkspace(workspaceName, args) {

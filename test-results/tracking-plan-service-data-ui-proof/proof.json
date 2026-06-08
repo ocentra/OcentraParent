@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
-  "checkedAt": "2026-06-06T01:27:12.276Z",
-  "commit": "aa314281c1cdc414aa412a54e9f07640d1f56150",
+  "checkedAt": "2026-06-08T05:48:54.190Z",
+  "commit": "d389115f4bd18ee08261a0830d747fe532ccafb6",
   "workpackIds": [
     "30-parent-and-child-ui-ux-surfaces",
     "32-journal-sqlite-and-read-model-proof"
@@ -45,14 +45,73 @@
       "row.kind coverage",
       "row.evidenceReferenceIds",
       "row.deletedEvidenceReferenceIds",
-      "productClaimReady=false"
+      "productClaimReady=false",
+      "portalCitationSurface.citedFields",
+      "portalCitationSurface.productClaimReady=false",
+      "activeProductSurfaceSummary.latestActiveEventIdField",
+      "tombstoneReplay.deletedEvidenceReferenceIdsField"
     ]
+  },
+  "serviceBackedCitationMatrix": {
+    "sourceProof": "output/tracking-plan-proof/32-journal-sqlite-and-read-model-proof/18-service-read-model-proof.json",
+    "serviceCommand": "agent.activity.tracking.read-model.get",
+    "serviceEvent": "agent.activity.tracking.read-model.reported",
+    "payloadField": "trackingReadModel",
+    "portalConsumer": "apps/portal/src/tracking-status-panel.ts",
+    "portalRoute": "policy-tracking",
+    "serviceDataConsumer": "trackingStatusServiceDataCoverage",
+    "liveCitationConsumer": "trackingStatusLiveSummary",
+    "citationRows": "TrackingStatusLiveCitation[]",
+    "citationField": "evidenceReferenceIds",
+    "citedFields": [
+      "eventId",
+      "observedAt",
+      "deviceId",
+      "platform",
+      "observer",
+      "kind",
+      "subjectKind",
+      "subjectId",
+      "queryVisibility",
+      "capabilityStatus",
+      "evidenceReferenceIds",
+      "deletedEvidenceReferenceIds"
+    ],
+    "activeCoverage": {
+      "activeRowsField": "activeRows",
+      "activeEvidenceField": "evidenceReferenceIds",
+      "activeLatestEventField": "latestActiveEventId",
+      "activeLatestObservedAtField": "latestActiveObservedAt",
+      "activeKindCountsField": "activeKindCounts",
+      "activeDeviceCountsField": "activeDeviceCounts",
+      "activeCapabilityStatusCountsField": "activeCapabilityStatusCounts"
+    },
+    "tombstoneCoverage": {
+      "tombstoneRowsField": "tombstoneRows",
+      "deletedEvidenceField": "deletedEvidenceReferenceIds",
+      "latestTombstoneEventIdField": "latestTombstoneEventId",
+      "latestTombstoneObservedAtField": "latestTombstoneObservedAt",
+      "rowVisibilityField": "queryVisibility",
+      "tombstoneRowValue": "tombstone",
+      "retentionEventKind": "activity.tracking.retention.deleted"
+    },
+    "noClaimBoundaries": {
+      "productClaimReady": false,
+      "physicalDeviceClaimed": false,
+      "providerDeliveryClaimed": false,
+      "notificationReceiptClaimed": false,
+      "authorityClaimed": false,
+      "productionClaimed": false,
+      "childDeviceRuntimeClaimed": false
+    }
   },
   "assertions": [
     "The hosted policy-tracking route can render service-data coverage from the parsed tracking read model.",
     "The React hosted policy-tracking route renders the service-data coverage card beside the service read-model summary.",
     "The coverage row exposes active/tombstone row counts through existing portal detail fields.",
     "The coverage row exposes event-kind coverage and deleted evidence references separately from active evidence references.",
+    "The proof matrix ties the service-data coverage card to the same service read-model command, event, payload, citation field, and active/tombstone summary fields used by live citation rows.",
+    "The proof matrix preserves active evidence references and deleted evidence references as distinct UI coverage claims.",
     "The coverage row keeps productClaimReady=false and does not claim physical-device, provider, notification, or production readiness.",
     "The underlying service proof still validates the Rust service command, protocol parser, portal state parser, and SQLite ActivityStore read-model path."
   ],
