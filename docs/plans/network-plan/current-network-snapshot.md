@@ -25,6 +25,13 @@ Current Ocentra truth is:
   the target can satisfy physical-device evidence. This does not execute
   VpnService, packet capture, packet blocking, app correlation, or adapter
   authority;
+- Windows Firewall bounded lab execution is now a separate row38a proof: an
+  apply-ready row38 adapter proof can be paired with an Ocentra lab rule name,
+  an RFC 5737 TEST-NET target, administrator permission, and
+  apply/verify-present/rollback/verify-removed command evidence before it can
+  report executed-and-rolled-back. Without host/admin/command evidence it stays
+  manual-required or unavailable. This is not production enforcement and does
+  not claim persistent host filtering;
 - portal visibility exists for service-backed network read models, including
   network evidence drawer status for activity rows and adapter/platform
   capability state;
@@ -57,8 +64,10 @@ Current Ocentra truth is:
   remote acknowledgement handling, and remote delete/export propagation.
 - Local AI model execution or remote provider execution.
 - Full policy engine execution and notification provider delivery.
-- Live host DNS/firewall/WFP/VPN/NetworkExtension/Linux adapter mutation,
-  packet blocking, process termination execution, and host filtering.
+- Live host DNS/WFP/VPN/NetworkExtension/Linux adapter mutation, packet
+  blocking, process termination execution, and host filtering. Windows Firewall
+  has only a bounded reversible TEST-NET lab execution proof; production
+  enforcement and persistent policy-driven firewall rules remain open.
 - Physical-device proof beyond the named Android target, Device Owner or other
   authority-enrolled proof, and any platform adapter execution proof where a
   platform claim needs it.

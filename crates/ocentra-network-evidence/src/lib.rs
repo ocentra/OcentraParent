@@ -41,6 +41,7 @@ pub mod transfer;
 pub mod tunnel;
 pub mod unmanaged_browser;
 pub mod windows_firewall_adapter;
+pub mod windows_firewall_lab_execution;
 pub mod windows_wfp_gate;
 pub mod zeek;
 
@@ -281,6 +282,12 @@ pub use windows_firewall_adapter::{
     NetworkWindowsFirewallAdapterProofInput, NetworkWindowsFirewallBoundaryReason,
     NetworkWindowsFirewallCapabilityState, NetworkWindowsFirewallProofState,
     NetworkWindowsFirewallRequiredArtifact, NetworkWindowsFirewallTargetKind,
+};
+pub use windows_firewall_lab_execution::{
+    prove_network_windows_firewall_lab_execution, NetworkWindowsFirewallLabCommandEvidence,
+    NetworkWindowsFirewallLabCommandKind, NetworkWindowsFirewallLabExecutionError,
+    NetworkWindowsFirewallLabExecutionInput, NetworkWindowsFirewallLabExecutionProof,
+    NetworkWindowsFirewallLabExecutionState, NetworkWindowsFirewallLabUnsupportedClaims,
 };
 pub use windows_wfp_gate::{
     plan_network_windows_wfp_gate, NetworkWindowsWfpGateBoundaryReason,

@@ -1,0 +1,97 @@
+{
+  "proof": "network-windows-firewall-lab-execution",
+  "checkedAt": "2026-06-08T21:42:21.379Z",
+  "branch": "codex/network-live-capture-execution-proof",
+  "commit": "afe42975bc5f7c55e6289d700a16ab2c749dfa9f",
+  "originMain": "3365da676a28525e4ad112dd66d58977a2eb36db",
+  "mergeBase": "3365da676a28525e4ad112dd66d58977a2eb36db",
+  "statusShort": "M  crates/ocentra-network-evidence/README.md\nM  crates/ocentra-network-evidence/src/lib.rs\nM  crates/ocentra-network-evidence/src/tests.rs\nA  crates/ocentra-network-evidence/src/tests/windows_firewall_lab_execution/acceptance.rs\nA  crates/ocentra-network-evidence/src/tests/windows_firewall_lab_execution/fixtures.rs\nA  crates/ocentra-network-evidence/src/tests/windows_firewall_lab_execution/mod.rs\nA  crates/ocentra-network-evidence/src/tests/windows_firewall_lab_execution/rejections.rs\nA  crates/ocentra-network-evidence/src/windows_firewall_lab_execution/mod.rs\nA  crates/ocentra-network-evidence/src/windows_firewall_lab_execution/types.rs\nA  crates/ocentra-network-evidence/src/windows_firewall_lab_execution/validation.rs\nM  docs/features/network-domain-control.md\nM  docs/plans/network-plan/current-network-snapshot.md\nM  docs/plans/network-plan/implementation-checklist.md\nAM output/network-plan-proof/38a-windows-firewall-lab-execution-proof/clippy.log\nA  output/network-plan-proof/38a-windows-firewall-lab-execution-proof/diff-check.log\nA  output/network-plan-proof/38a-windows-firewall-lab-execution-proof/expected-windows-firewall-lab-execution-proof.json\nA  output/network-plan-proof/38a-windows-firewall-lab-execution-proof/host-lab-execution.json\nA  output/network-plan-proof/38a-windows-firewall-lab-execution-proof/proof-summary.json\nA  output/network-plan-proof/38a-windows-firewall-lab-execution-proof/source-shape.log\nA  output/network-plan-proof/38a-windows-firewall-lab-execution-proof/validation-commands.log\nAM output/network-plan-proof/38a-windows-firewall-lab-execution-proof/windows-firewall-adapter-tests.log\nAM output/network-plan-proof/38a-windows-firewall-lab-execution-proof/windows-firewall-lab-execution-tests.log\nAM scripts/test/network-windows-firewall-lab-execution-proof.mjs\nA  test-results/network-windows-firewall-lab-execution-proof/proof.json\n",
+  "proofRoot": "output\\network-plan-proof\\38a-windows-firewall-lab-execution-proof",
+  "testRoot": "test-results\\network-windows-firewall-lab-execution-proof",
+  "commands": [
+    {
+      "name": "network-windows-firewall-lab-execution-tests",
+      "command": "cargo test -p ocentra-network-evidence windows_firewall_lab_execution",
+      "status": 0,
+      "log": "output\\network-plan-proof\\38a-windows-firewall-lab-execution-proof\\windows-firewall-lab-execution-tests.log"
+    },
+    {
+      "name": "network-windows-firewall-adapter-tests",
+      "command": "cargo test -p ocentra-network-evidence windows_firewall_adapter",
+      "status": 0,
+      "log": "output\\network-plan-proof\\38a-windows-firewall-lab-execution-proof\\windows-firewall-adapter-tests.log"
+    },
+    {
+      "name": "network-evidence-clippy",
+      "command": "cargo clippy -p ocentra-network-evidence --all-targets -- -D warnings",
+      "status": 0,
+      "log": "output\\network-plan-proof\\38a-windows-firewall-lab-execution-proof\\clippy.log"
+    },
+    {
+      "name": "source-shape",
+      "command": "node scripts/check-source-shape.mjs",
+      "status": 0,
+      "log": "output\\network-plan-proof\\38a-windows-firewall-lab-execution-proof\\source-shape.log"
+    },
+    {
+      "name": "diff-check",
+      "command": "git diff --check",
+      "status": 0,
+      "log": "output\\network-plan-proof\\38a-windows-firewall-lab-execution-proof\\diff-check.log"
+    }
+  ],
+  "hostLabExecution": {
+    "state": "manual_required",
+    "executeLab": true,
+    "windowsHostObserved": true,
+    "administratorPermissionObserved": false,
+    "ruleName": "OcentraParentNetworkLab-row38a",
+    "targetRemoteAddress": "203.0.113.254",
+    "readOnlyState": {
+      "command": "netsh advfirewall show allprofiles state",
+      "status": 0,
+      "stdoutSha256": "de4316ade06a92c7160a7bf04e88e5f864a4b98744d518f2bb8fa41ab77976c2",
+      "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdoutLineCount": 12,
+      "stderrLineCount": 0
+    },
+    "adminProbe": {
+      "command": "net session",
+      "status": 2,
+      "stdoutSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderrSha256": "b207a455350469b3a9b71fb460f22b9a54b7536054fb7b8505962a32cf41168b",
+      "stdoutLineCount": 0,
+      "stderrLineCount": 3
+    },
+    "commandEvidence": [],
+    "cleanupEvidence": [],
+    "notes": [
+      "Administrator permission is required before firewall add/delete can be proved."
+    ]
+  },
+  "artifacts": {
+    "expectedWindowsFirewallLabExecutionProof": "output\\network-plan-proof\\38a-windows-firewall-lab-execution-proof\\expected-windows-firewall-lab-execution-proof.json",
+    "hostLabExecution": "output\\network-plan-proof\\38a-windows-firewall-lab-execution-proof\\host-lab-execution.json",
+    "validationCommands": "output\\network-plan-proof\\38a-windows-firewall-lab-execution-proof\\validation-commands.log",
+    "proofSummary": "output\\network-plan-proof\\38a-windows-firewall-lab-execution-proof\\proof-summary.json",
+    "testProof": "test-results\\network-windows-firewall-lab-execution-proof\\proof.json"
+  },
+  "provenRows": [
+    "38a Windows Firewall lab execution proof"
+  ],
+  "provenRootGates": [
+    "Rust model requires apply-ready row38 adapter proof before lab execution can be accepted",
+    "Rust model accepts only Ocentra lab rule names and RFC 5737 TEST-NET targets",
+    "Rust model requires apply, verify-present, rollback, and verify-removed command evidence",
+    "read-only and non-admin hosts remain manual-required or unavailable instead of claiming execution",
+    "production enforcement, persistent firewall rules, policy execution, enforcement commands, and content claims are rejected"
+  ],
+  "notClaimed": [
+    "production Windows Firewall enforcement",
+    "persistent host firewall mutation",
+    "policy engine execution",
+    "enforcement command publication",
+    "exact URL, page content, or decrypted payload from network-only evidence",
+    "Windows WFP, Android VpnService, Apple Network Extension, or Linux adapter execution"
+  ]
+}

@@ -45,6 +45,7 @@ mod tunnel;
 mod unmanaged_browser;
 mod visibility;
 mod windows_firewall_adapter;
+mod windows_firewall_lab_execution;
 mod windows_wfp_gate;
 mod zeek;
 
