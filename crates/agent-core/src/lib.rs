@@ -160,6 +160,7 @@ pub use journal_error::JournalError;
 pub use network_capture::{collect_network_snapshot, NetworkObservation};
 pub use network_capture_event::{network_observation_event, network_snapshot_events};
 pub use network_event_runtime::{
+    prove_network_runtime_remote_delivery_delete_export_propagation,
     prove_network_runtime_remote_delivery_dispatch_readiness,
     prove_network_runtime_remote_delivery_durable_envelope,
     prove_network_runtime_remote_delivery_fixture_transport,
@@ -168,6 +169,10 @@ pub use network_event_runtime::{
     prove_network_runtime_remote_delivery_transport_dispatch_state,
     publish_network_runtime_chain_for_observation, NetworkRuntimeEventPayload,
     NetworkRuntimeRemoteDeliveryBlockedDispatchRecord,
+    NetworkRuntimeRemoteDeliveryDeleteExportPropagationError,
+    NetworkRuntimeRemoteDeliveryDeleteExportPropagationRecord,
+    NetworkRuntimeRemoteDeliveryDeleteExportPropagationReport,
+    NetworkRuntimeRemoteDeliveryDeleteExportPropagationState,
     NetworkRuntimeRemoteDeliveryDispatchReadinessError,
     NetworkRuntimeRemoteDeliveryDispatchReadinessReport,
     NetworkRuntimeRemoteDeliveryDispatchReadinessState,
@@ -288,6 +293,8 @@ mod journal_tests;
 mod network_capture_tests;
 #[cfg(test)]
 mod network_event_runtime_broker_delivery_tests;
+#[cfg(test)]
+mod network_event_runtime_delete_export_propagation_tests;
 #[cfg(test)]
 mod network_event_runtime_fixture_transport_tests;
 #[cfg(test)]

@@ -121,6 +121,12 @@ pub const TEST_REMOTE_DELIVERY_FIXTURE_TRANSPORT_REF: &str =
 pub const TEST_REMOTE_DELIVERY_FIXTURE_DISPATCH_ATTEMPT_REF: &str =
     "network.remote-delivery.fixture-dispatch-attempt.10l";
 pub const TEST_REMOTE_DELIVERY_FIXTURE_ACK_REF: &str = "network.remote-delivery.fixture-ack.10l";
+pub const TEST_REMOTE_DELIVERY_DELETE_EXPORT_PROPAGATION_REF: &str =
+    "network.remote-delivery.delete-export-propagation-readiness.10m";
+pub const TEST_REMOTE_DELIVERY_REMOTE_DELETE_REF: &str =
+    "network.remote-delivery.remote-delete-readiness.10m";
+pub const TEST_REMOTE_DELIVERY_REMOTE_EXPORT_REF: &str =
+    "network.remote-delivery.remote-export-readiness.10m";
 pub const TEST_REMOTE_EVENT_CHAIN_JOURNAL_PATH_PREFIX: &str =
     "ocentra-network-remote-event-chain-journal";
 pub const TEST_REMOTE_EVENT_CHAIN_JOURNAL_EXTENSION: &str = "ndjson";
@@ -193,3 +199,5 @@ pub const ERROR_NETWORK_RUNTIME_REMOTE_TRANSPORT_DISPATCH_STATE: &str =
     "network runtime remote transport dispatch state proof";
 pub const ERROR_NETWORK_RUNTIME_REMOTE_FIXTURE_TRANSPORT: &str =
     "network runtime remote fixture transport proof";
+pub const ERROR_NETWORK_RUNTIME_REMOTE_DELETE_EXPORT_PROPAGATION: &str =
+    "network runtime remote delete export propagation proof";

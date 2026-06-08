@@ -71,6 +71,11 @@ service shell.
   while preserving event/outbox/handoff refs and keeping live broker/family-hub
   delivery, provider or child-device delivery, product-ready support, policy
   authority, adapter execution, and host filtering unclaimed.
+- Network remote delete/export propagation readiness proof that records
+  proof-local remote delete and export readiness refs for each fixture
+  acknowledgement while preserving event/outbox/handoff/ack refs and keeping
+  actual remote propagation, product-ready support, policy authority, adapter
+  execution, and host filtering unclaimed.
 - Network policy-preview proof that reads stored ActivityStore network flow
   rows, maps destination-domain metadata into a domain policy target, resolves
   parent-rule contexts only when they cite stored network activity event refs,
@@ -142,6 +147,10 @@ flowchart LR
   child-device delivery, production acknowledgement semantics, retry execution,
   remote delete/export propagation, and product-ready remote delivery remain
   separate gaps.
+- Network remote delete/export propagation readiness is local proof state only;
+  live broker/family-hub propagation, provider or child-device delete/export
+  delivery, remote acknowledgement semantics, retries, and product-ready remote
+  delivery remain separate gaps.
 - Network policy preview is stored-row dry-run proof only; AI model execution,
   full policy-engine execution, adapter authorization, adapter action,
   enforcement-command publication, exact URL/content inference, raw PCAP, and

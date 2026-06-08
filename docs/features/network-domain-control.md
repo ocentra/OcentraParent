@@ -225,6 +225,21 @@ compete on control while staying clear about attribution confidence and privacy.
   adapter execution, enforcement-command publication, raw PCAP, exact URL,
   decrypted payload, page content, video content, private-message content,
   search-query content, and host filtering remain false.
+- E-D added row10m remote delete/export propagation readiness proof in
+  `agent-core`: row10l fixture acknowledgements now produce proof-local remote
+  delete and export readiness records that preserve event id, event type,
+  correlation id, outbox refs, handoff refs, and fixture acknowledgement refs.
+  The proof writes
+  `output/network-plan-proof/10m-remote-delivery-delete-export-propagation/proof-summary.json`
+  and
+  `test-results/network-remote-delivery-delete-export-propagation-proof/proof.json`.
+  The readiness records do not upgrade the service remote-delivery status
+  payload or product support. Live broker/family-hub delivery, provider/child
+  delivery, actual remote delete/export propagation, product-ready delivery,
+  policy authority, side-effect authority, adapter execution,
+  enforcement-command publication, raw PCAP, exact URL, decrypted payload, page
+  content, video content, private-message content, search-query content, and
+  host filtering remain false.
 - E-D added policy-preview stored-flow evidence proof across `agent-core`,
   `agent-service`, and `agent-protocol-domain`: stored ActivityStore network
   flow rows now feed the existing policy-preview read model, map

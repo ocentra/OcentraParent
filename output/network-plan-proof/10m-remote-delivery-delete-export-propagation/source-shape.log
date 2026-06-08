@@ -1,0 +1,6 @@
+Source shape warnings scoped to row10m source refs:
+crates/agent-core/src/lib.rs:1 file has 334 lines; crossed 250-line advisory band; maximum is 1000
+crates/agent-core/src/network_event_runtime.rs:1 file has 385 lines; crossed 250-line advisory band; maximum is 1000
+crates/agent-core/src/network_event_runtime/remote_delivery_delete_export_propagation.rs:48 function has 74 lines; warning starts at 64 of 80
+crates/agent-core/src/network_event_runtime/remote_delivery_fixture_transport.rs:45 function has 69 lines; warning starts at 64 of 80
+Source shape guard passed.
