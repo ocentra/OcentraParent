@@ -353,8 +353,9 @@ expose location or device-status features. Parents expect this category.
   retention product runtime enforcement, production durable workers/storage,
   and escalation runtime artifacts before any final tracking claim can move
   beyond `manual-required`; its full product UI row now carries the runtime gate
-  and local runtime artifact capture supporting proof refs, records five
-  observed local UI artifacts and the four hard full-product UI runtime gaps
+  and local runtime artifact capture supporting proof refs, records six
+  observed local UI artifacts including the hosted retention settings local
+  write-result screenshot, and keeps the four hard full-product UI runtime gaps
   still required before that claim can advance, writes
   `output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-gate/65-claim-audit-proof.json`
   and keeps every audited claim and product-ready tracking false.
@@ -1209,8 +1210,11 @@ accessibility beyond the hosted parent route are proved.
 - [ ] Full live parent/child UI screenshots and accessibility proof beyond the
       hosted parent shell. Hosted parent overview/devices shell screenshots now
       render the service-backed tracking summary and no-product-claim cards as
-      local/CI proof only; actual child-device delivery/runtime execution and
-      full product parent/child UI remain pending.
+      local/CI proof only, and full-product UI local artifact capture now also
+      copies the hosted retention settings local write-result screenshot into
+      the product UI artifact root without filling the production write-result
+      runtime artifact; actual child-device delivery/runtime execution and full
+      product parent/child UI remain pending.
 
 ## Next AI Instructions
 

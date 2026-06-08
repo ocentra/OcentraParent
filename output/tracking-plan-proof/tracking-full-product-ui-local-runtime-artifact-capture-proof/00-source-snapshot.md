@@ -1,11 +1,11 @@
 # Tracking Full Product UI Local Runtime Artifact Capture Source Snapshot
 
 - generatedAt: 2026-06-08T04:35:00.000Z
-- commit: c277db7d82a06d1f69d0f9f9e3a843b58ef0dce3
+- commit: cbbc53f5ab16f783be7c9685a74ba0b03b50a695
 - status: partial_local_artifacts_captured
-- localArtifactCount: 5
+- localArtifactCount: 6
 - retentionWritableExecutionRowCount: 1
 - childRuntimeMissingArtifactCount: 10
-- source: hosted parent overview/devices shell screenshots, hosted notification parent-surface screenshot, hosted tracking accessibility summary, and hosted artifact inventory proof.
+- source: hosted parent overview/devices shell screenshots, hosted notification parent-surface screenshot, hosted retention settings local write-result screenshot, hosted tracking accessibility summary, and hosted artifact inventory proof.
 - closure evidence: consumes retention writable execution derivation proof and child runtime artifact gate proof without upgrading runtime claims.
 - boundary: local parent-side artifact capture and trace only; retention production write-result UI, child-device runtime, physical-device, authority, provider, production, and product-ready claims remain false.

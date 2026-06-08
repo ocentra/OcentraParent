@@ -45,6 +45,13 @@ const copiedScreenshotCaptures = [
     outputArtifactRef:
       'output/tracking-plan-proof/product-parent-child-ui-runtime/03-parent-notification-history-preferences-runtime.png',
   },
+  {
+    artifactId: 'retention-settings-local-write-result',
+    sourceArtifactRef:
+      'output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/11-ui-snapshots/hosted-policy-tracking-retention-settings.png',
+    outputArtifactRef:
+      'output/tracking-plan-proof/product-parent-child-ui-runtime/04-retention-settings-local-write-result.png',
+  },
 ];
 
 await main();
@@ -179,6 +186,7 @@ async function writeEndToEndTraceArtifact(closureEvidenceInput) {
       'output/tracking-plan-proof/product-parent-child-ui-runtime/01-parent-overview-runtime.png',
       'output/tracking-plan-proof/product-parent-child-ui-runtime/02-parent-device-detail-runtime.png',
       'output/tracking-plan-proof/product-parent-child-ui-runtime/03-parent-notification-history-preferences-runtime.png',
+      'output/tracking-plan-proof/product-parent-child-ui-runtime/04-retention-settings-local-write-result.png',
       'output/tracking-plan-proof/product-parent-child-ui-runtime/08-cross-surface-accessibility-report.json',
     ],
     localRuntimeClosureEvidence: {
@@ -252,6 +260,7 @@ function buildProof(readModel) {
       'tracking-full-product-ui-local-runtime.parent-overview-artifact',
       'tracking-full-product-ui-local-runtime.parent-device-detail-artifact',
       'tracking-full-product-ui-local-runtime.parent-notification-history-preferences-artifact',
+      'tracking-full-product-ui-local-runtime.retention-settings-local-write-result-artifact',
       'tracking-full-product-ui-local-runtime.cross-surface-accessibility-artifact',
       'tracking-full-product-ui-local-runtime.local-end-to-end-trace-artifact',
       'tracking-full-product-ui-local-runtime.product-ready-false',
@@ -264,8 +273,12 @@ function buildProof(readModel) {
 }
 
 function assertProof(proof) {
-  assert.equal(proof.summary.localArtifactCount, 5, 'expected five local parent UI artifacts');
-  assert.equal(proof.summary.screenshotArtifactCount, 3, 'expected overview, device, and notification screenshots');
+  assert.equal(proof.summary.localArtifactCount, 6, 'expected six local parent UI artifacts');
+  assert.equal(
+    proof.summary.screenshotArtifactCount,
+    4,
+    'expected overview, device, notification, and retention screenshots'
+  );
   assert.equal(proof.summary.jsonArtifactCount, 2, 'expected accessibility report and local trace artifacts');
   assert.equal(proof.summary.retentionWritableExecutionRowCount, 1, 'expected retention writable execution row');
   assert.equal(proof.summary.retentionWritableExecutionDerivationCount, 1, 'expected retention derivation matrix row');
@@ -299,7 +312,7 @@ async function writeArtifacts(proof) {
       `- localArtifactCount: ${proof.summary.localArtifactCount}`,
       `- retentionWritableExecutionRowCount: ${proof.summary.retentionWritableExecutionRowCount}`,
       `- childRuntimeMissingArtifactCount: ${proof.summary.childRuntimeMissingArtifactCount}`,
-      '- source: hosted parent overview/devices shell screenshots, hosted notification parent-surface screenshot, hosted tracking accessibility summary, and hosted artifact inventory proof.',
+      '- source: hosted parent overview/devices shell screenshots, hosted notification parent-surface screenshot, hosted retention settings local write-result screenshot, hosted tracking accessibility summary, and hosted artifact inventory proof.',
       '- closure evidence: consumes retention writable execution derivation proof and child runtime artifact gate proof without upgrading runtime claims.',
       '- boundary: local parent-side artifact capture and trace only; retention production write-result UI, child-device runtime, physical-device, authority, provider, production, and product-ready claims remain false.',
       '',

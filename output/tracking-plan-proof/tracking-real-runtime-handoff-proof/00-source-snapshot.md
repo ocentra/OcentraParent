@@ -1,12 +1,12 @@
 # Tracking Real Runtime Handoff Source Snapshot
 
 - generatedAt: 2026-06-08T01:05:00.000Z
-- commit: c277db7d82a06d1f69d0f9f9e3a843b58ef0dce3
+- commit: cbbc53f5ab16f783be7c9685a74ba0b03b50a695
 - requiredProofTier: P4_REAL_RUNTIME_HANDOFF
 - currentProofTier: P3_LOCAL_DEV_MACHINE
 - status: manual_required
 - proves real-runtime handoff artifact requirements are derived from existing gates
-- fullProductUiLocalArtifactCount: 5
+- fullProductUiLocalArtifactCount: 6
 - retentionRuntimeRequiredArtifactCount: 2
 - retentionRuntimePresentArtifactCount: 1
 - retentionRuntimeMissingArtifactCount: 1

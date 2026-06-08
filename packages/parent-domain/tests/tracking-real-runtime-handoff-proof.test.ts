@@ -7,7 +7,7 @@ import {
 
 const requiredArtifacts = ['00-runtime-metadata.json', '01-runtime-result.json'];
 const closureAccounting = {
-  fullProductUiLocalArtifactCount: 5,
+  fullProductUiLocalArtifactCount: 6,
   fullProductUiClosureRetentionWritableExecutionRowCount: 1,
   fullProductUiClosureChildRuntimeMissingArtifactCount: 10,
   retentionRuntimeRequiredArtifactCount: 2,
@@ -58,7 +58,7 @@ describe('tracking real runtime handoff proof', () => {
     expect(proof.handoffRows.every((row) => row.requiredValidationCommands.length > 0)).toBe(true);
     expect(proof.handoffRows.every((row) => row.artifactAcceptanceNotes.length > 0)).toBe(true);
     expect(proof.handoffRows.every((row) => row.ciRunnable === false)).toBe(true);
-    expect(proof.closureAccounting.fullProductUiLocalArtifactCount).toBe(5);
+    expect(proof.closureAccounting.fullProductUiLocalArtifactCount).toBe(6);
     expect(proof.closureAccounting.retentionRuntimeMissingArtifactCount).toBe(1);
     expect(proof.closureAccounting.retentionRuntimeArtifactSetPresentRowCount).toBe(0);
     expect(proof.closureAccounting.claimAuditMissingArtifactCount).toBe(61);
