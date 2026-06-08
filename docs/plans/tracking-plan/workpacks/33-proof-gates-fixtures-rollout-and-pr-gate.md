@@ -170,6 +170,8 @@ Proof root: `output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-g
   `64-retention-product-settings-writable-execution-proof.json`
 - Tracking full product UI local runtime artifact capture proof:
   `66-full-product-ui-local-runtime-artifact-capture-proof.json`
+- Tracking child-runtime Android emulator readiness bridge proof:
+  `67-child-runtime-android-emulator-readiness-bridge-proof.json`
 
 ## Merge Blockers
 
@@ -365,6 +367,16 @@ remains `manual_required`, and the proof keeps child-device delivery/execution,
 rendered child UI runtime, parent receipt runtime, runtime observation,
 physical-device proof, authority, provider delivery, production workers, and
 product-ready tracking unclaimed until those real child-device artifacts exist.
+
+This branch adds
+`node scripts/test/tracking-child-runtime-android-emulator-readiness-bridge-proof.mjs`,
+which consumes the existing Android emulator package/foreground-service,
+permission, and local emulator geofence proof plus the child-runtime artifact
+gate. It writes WP08/WP30/WP33 artifacts, records that emulator prerequisites are
+observed, and keeps actual child-device delivery/execution, rendered child UI
+runtime, parent receipt runtime, physical-device proof, authority, provider
+delivery, production workers, and product-ready tracking unclaimed until the P4
+child-device runtime artifacts exist.
 
 This branch refreshes
 `node scripts/test/tracking-child-check-in-timeout-escalation-proof.mjs`, which

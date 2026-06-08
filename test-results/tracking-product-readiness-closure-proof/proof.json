@@ -94,6 +94,12 @@
       "proofTier": "P3_LOCAL_DEV_MACHINE"
     },
     {
+      "coverageTag": "child-runtime-android-emulator-readiness-bridge",
+      "proofRef": "output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-gate/67-child-runtime-android-emulator-readiness-bridge-proof.json",
+      "status": "emulator_prerequisites_observed_manual_runtime_required",
+      "proofTier": "P3_LOCAL_DEV_MACHINE"
+    },
+    {
       "coverageTag": "physical-device-artifact-gate",
       "proofRef": "output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-gate/49-physical-device-artifact-gate-proof.json",
       "status": "manual_required",
@@ -199,6 +205,7 @@
         "output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-gate/55-authority-runtime-readiness-blocker-proof.json",
         "output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-gate/61-authority-runtime-artifact-gate-proof.json",
         "output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-gate/50-child-runtime-artifact-gate-proof.json",
+        "output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-gate/67-child-runtime-android-emulator-readiness-bridge-proof.json",
         "output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-gate/49-physical-device-artifact-gate-proof.json",
         "output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-gate/51-provider-delivery-artifact-gate-proof.json",
         "output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-gate/52-provider-runtime-readiness-blocker-proof.json",
@@ -259,8 +266,8 @@
     "productReadyClaimed": false
   },
   "branch": "codex/tracking-plan-full-continuation-a",
-  "baseCommitAtGeneration": "b97df6ed52fc31d3ca187518c04a70fd52de7db1",
-  "gitStatusShort": "M docs/features/location-geofence-device-status.md\n M docs/plans/tracking-plan/implementation-checklist.md\n M docs/plans/tracking-plan/workpacks/33-proof-gates-fixtures-rollout-and-pr-gate.md\n M output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/32-full-product-ui-runtime-artifact-gate-proof.json\n M output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/33-full-product-ui-local-runtime-artifact-capture-proof.json\n M output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-gate/46-product-readiness-closure-proof.json\n M output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-gate/59-full-product-ui-runtime-artifact-gate-proof.json\n M output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-gate/66-full-product-ui-local-runtime-artifact-capture-proof.json\n M output/tracking-plan-proof/tracking-full-product-ui-local-runtime-artifact-capture-proof/00-source-snapshot.md\n M output/tracking-plan-proof/tracking-full-product-ui-local-runtime-artifact-capture-proof/proof.json\n M output/tracking-plan-proof/tracking-full-product-ui-local-runtime-artifact-capture-proof/read-model.json\n M output/tracking-plan-proof/tracking-full-product-ui-runtime-artifact-gate-proof/00-source-snapshot.md\n M output/tracking-plan-proof/tracking-full-product-ui-runtime-artifact-gate-proof/proof.json\n M output/tracking-plan-proof/tracking-full-product-ui-runtime-artifact-gate-proof/read-model.json\n M output/tracking-plan-proof/tracking-product-readiness-closure-proof/00-source-snapshot.md\n M output/tracking-plan-proof/tracking-product-readiness-closure-proof/proof.json\n M packages/parent-domain/src/tracking-full-product-ui-local-runtime-artifact-capture-proof.ts\n M packages/parent-domain/tests/tracking-full-product-ui-local-runtime-artifact-capture-proof.test.ts\n M scripts/test/tracking-full-product-ui-local-runtime-artifact-capture-proof.mjs\n M test-results/tracking-full-product-ui-local-runtime-artifact-capture-proof/proof.json\n M test-results/tracking-full-product-ui-local-runtime-artifact-capture-proof/read-model.json\n M test-results/tracking-full-product-ui-runtime-artifact-gate-proof/proof.json\n M test-results/tracking-full-product-ui-runtime-artifact-gate-proof/read-model.json\n M test-results/tracking-product-readiness-closure-proof/proof.json",
+  "baseCommitAtGeneration": "31bc615c9f233d497b5bd10cc9ba8dc93e5f7174",
+  "gitStatusShort": "M  docs/features/location-geofence-device-status.md\nM  docs/plans/tracking-plan/implementation-checklist.md\nM  docs/plans/tracking-plan/workpacks/30-parent-and-child-ui-ux-surfaces.md\nM  docs/plans/tracking-plan/workpacks/33-proof-gates-fixtures-rollout-and-pr-gate.md\nA  output/tracking-plan-proof/08-android-foreground-location-adapter/10-child-runtime-android-emulator-readiness-bridge-proof.json\n M output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/30-child-runtime-artifact-gate-proof.json\nA  output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/34-child-runtime-android-emulator-readiness-bridge-proof.json\nM  output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-gate/46-product-readiness-closure-proof.json\n M output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-gate/50-child-runtime-artifact-gate-proof.json\nA  output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-gate/67-child-runtime-android-emulator-readiness-bridge-proof.json\nA  output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-gate/67-child-runtime-android-emulator-readiness-bridge-validation-commands.log\nA  output/tracking-plan-proof/tracking-child-runtime-android-emulator-readiness-bridge-proof/00-source-snapshot.md\nA  output/tracking-plan-proof/tracking-child-runtime-android-emulator-readiness-bridge-proof/proof.json\nA  output/tracking-plan-proof/tracking-child-runtime-android-emulator-readiness-bridge-proof/read-model.json\nM  output/tracking-plan-proof/tracking-product-readiness-closure-proof/00-source-snapshot.md\nM  output/tracking-plan-proof/tracking-product-readiness-closure-proof/proof.json\nA  packages/parent-domain/src/tracking-child-runtime-android-emulator-readiness-bridge-proof.ts\nM  packages/parent-domain/src/tracking-product-readiness-closure-proof.ts\nA  packages/parent-domain/tests/tracking-child-runtime-android-emulator-readiness-bridge-proof.test.ts\nA  scripts/test/tracking-child-runtime-android-emulator-readiness-bridge-proof.mjs\nM  scripts/test/tracking-product-readiness-closure-proof.mjs\nAD test-results/tracking-child-runtime-android-emulator-readiness-bridge-proof/proof.json\nAD test-results/tracking-child-runtime-android-emulator-readiness-bridge-proof/read-model.json\n M test-results/tracking-child-runtime-artifact-gate-proof/proof.json\nM  test-results/tracking-product-readiness-closure-proof/product-readiness-closure-read-model.json\nM  test-results/tracking-product-readiness-closure-proof/proof.json",
   "commands": [
     {
       "command": "cmd /c npm run build --workspace @ocentra-parent/parent-domain",
@@ -271,7 +278,7 @@
     {
       "command": "cmd /c npm run test --workspace @ocentra-parent/parent-domain -- tracking-product-readiness-closure-proof",
       "status": 0,
-      "stdout": "> @ocentra-parent/parent-domain@0.1.1 test\n> vitest run tracking-product-readiness-closure-proof\n\n\n RUN  v4.1.6 C:/Users/sujan/.codex/worktrees/ocentra-parent-codex-a/OcentraParent/packages/parent-domain\n\n\n Test Files  1 passed (1)\n      Tests  3 passed (3)\n   Start at  00:46:33\n   Duration  779ms (transform 122ms, setup 0ms, import 528ms, tests 18ms, environment 0ms)",
+      "stdout": "> @ocentra-parent/parent-domain@0.1.1 test\n> vitest run tracking-product-readiness-closure-proof\n\n\n RUN  v4.1.6 C:/Users/sujan/.codex/worktrees/ocentra-parent-codex-a/OcentraParent/packages/parent-domain\n\n\n Test Files  1 passed (1)\n      Tests  3 passed (3)\n   Start at  01:09:14\n   Duration  763ms (transform 118ms, setup 0ms, import 542ms, tests 16ms, environment 0ms)",
       "stderr": ""
     }
   ],
