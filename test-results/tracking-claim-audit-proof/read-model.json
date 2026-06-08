@@ -5,6 +5,9 @@
     "generatedAt": "2026-06-08T04:05:00.000Z",
     "auditArea": "android-physical-background-and-geofence",
     "sourceProofRef": "test-results/tracking-physical-device-artifact-gate-proof/proof.json",
+    "supportingProofRefs": [
+      "test-results/tracking-physical-device-artifact-gate-proof/proof.json"
+    ],
     "proofRoot": "output/tracking-plan-proof/android-background-geofence",
     "requiredProofTier": "P4_PHYSICAL_DEVICE",
     "currentProofTier": "P3_LOCAL_DEV_MACHINE",
@@ -56,6 +59,9 @@
     "generatedAt": "2026-06-08T04:05:00.000Z",
     "auditArea": "ios-physical-background-and-region",
     "sourceProofRef": "test-results/tracking-physical-device-artifact-gate-proof/proof.json",
+    "supportingProofRefs": [
+      "test-results/tracking-physical-device-artifact-gate-proof/proof.json"
+    ],
     "proofRoot": "output/tracking-plan-proof/ios-region-monitoring",
     "requiredProofTier": "P4_PHYSICAL_DEVICE",
     "currentProofTier": "P3_LOCAL_DEV_MACHINE",
@@ -107,6 +113,9 @@
     "generatedAt": "2026-06-08T04:05:00.000Z",
     "auditArea": "manual-desktop-location",
     "sourceProofRef": "output/tracking-plan-proof/31-platform-extension-checklists-and-proof-routing/20-platform-extension-inventory-proof.json",
+    "supportingProofRefs": [
+      "output/tracking-plan-proof/31-platform-extension-checklists-and-proof-routing/20-platform-extension-inventory-proof.json"
+    ],
     "proofRoot": "output/tracking-plan-proof/manual-desktop-location",
     "requiredProofTier": "P4_APPROVED_MANUAL_PROOF",
     "currentProofTier": "P3_LOCAL_DEV_MACHINE",
@@ -148,6 +157,9 @@
     "generatedAt": "2026-06-08T04:05:00.000Z",
     "auditArea": "child-device-runtime-execution",
     "sourceProofRef": "test-results/tracking-child-runtime-artifact-gate-proof/proof.json",
+    "supportingProofRefs": [
+      "test-results/tracking-child-runtime-artifact-gate-proof/proof.json"
+    ],
     "proofRoot": "output/tracking-plan-proof/child-runtime-delivery",
     "requiredProofTier": "P4_PHYSICAL_DEVICE",
     "currentProofTier": "P3_LOCAL_DEV_MACHINE",
@@ -193,6 +205,11 @@
     "generatedAt": "2026-06-08T04:05:00.000Z",
     "auditArea": "full-product-parent-child-ui-runtime",
     "sourceProofRef": "test-results/tracking-full-product-ui-runtime-artifact-gate-proof/proof.json",
+    "supportingProofRefs": [
+      "test-results/tracking-full-product-ui-runtime-artifact-gate-proof/proof.json",
+      "test-results/tracking-full-product-ui-local-runtime-artifact-capture-proof/proof.json",
+      "output/tracking-plan-proof/tracking-full-product-ui-local-runtime-artifact-capture-proof/proof.json"
+    ],
     "proofRoot": "output/tracking-plan-proof/product-parent-child-ui-runtime",
     "requiredProofTier": "P4_PHYSICAL_DEVICE",
     "currentProofTier": "P3_LOCAL_DEV_MACHINE",
@@ -208,17 +225,18 @@
       "08-cross-surface-accessibility-report.json",
       "09-product-ui-end-to-end-trace.json"
     ],
-    "presentArtifacts": [],
-    "missingArtifacts": [
+    "presentArtifacts": [
       "01-parent-overview-runtime.png",
       "02-parent-device-detail-runtime.png",
       "03-parent-notification-history-preferences-runtime.png",
+      "08-cross-surface-accessibility-report.json",
+      "09-product-ui-end-to-end-trace.json"
+    ],
+    "missingArtifacts": [
       "04-retention-settings-production-write-result.png",
       "05-child-device-rendered-check-in-runtime.png",
       "06-child-device-rendered-location-consent-runtime.png",
-      "07-child-device-safe-help-response-runtime.png",
-      "08-cross-surface-accessibility-report.json",
-      "09-product-ui-end-to-end-trace.json"
+      "07-child-device-safe-help-response-runtime.png"
     ],
     "auditRefs": [
       "tracking-claim-audit-full-product-parent-child-ui-runtime-audit"
@@ -242,6 +260,9 @@
     "generatedAt": "2026-06-08T04:05:00.000Z",
     "auditArea": "authority-enrolled-hard-control-runtime",
     "sourceProofRef": "test-results/tracking-authority-runtime-artifact-gate-proof/proof.json",
+    "supportingProofRefs": [
+      "test-results/tracking-authority-runtime-artifact-gate-proof/proof.json"
+    ],
     "proofRoot": "output/tracking-plan-proof/authority-runtime",
     "requiredProofTier": "P4_PHYSICAL_DEVICE",
     "currentProofTier": "P3_LOCAL_DEV_MACHINE",
@@ -285,6 +306,9 @@
     "generatedAt": "2026-06-08T04:05:00.000Z",
     "auditArea": "provider-delivery-receipt-runtime",
     "sourceProofRef": "test-results/tracking-provider-delivery-artifact-gate-proof/proof.json",
+    "supportingProofRefs": [
+      "test-results/tracking-provider-delivery-artifact-gate-proof/proof.json"
+    ],
     "proofRoot": "output/tracking-plan-proof/provider-delivery-runtime",
     "requiredProofTier": "P4_MANUAL_PROVIDER_RUNTIME",
     "currentProofTier": "P3_LOCAL_DEV_MACHINE",
@@ -326,6 +350,9 @@
     "generatedAt": "2026-06-08T04:05:00.000Z",
     "auditArea": "retention-product-runtime-enforcement",
     "sourceProofRef": "test-results/tracking-retention-runtime-artifact-gate-proof/proof.json",
+    "supportingProofRefs": [
+      "test-results/tracking-retention-runtime-artifact-gate-proof/proof.json"
+    ],
     "proofRoot": "output/tracking-plan-proof/tracking-retention",
     "requiredProofTier": "P4_PHYSICAL_DEVICE",
     "currentProofTier": "P3_LOCAL_DEV_MACHINE",
@@ -359,6 +386,9 @@
     "generatedAt": "2026-06-08T04:05:00.000Z",
     "auditArea": "production-durable-workers-and-storage",
     "sourceProofRef": "test-results/tracking-production-worker-runtime-artifact-gate-proof/proof.json",
+    "supportingProofRefs": [
+      "test-results/tracking-production-worker-runtime-artifact-gate-proof/proof.json"
+    ],
     "proofRoot": "output/tracking-plan-proof/tracking-production",
     "requiredProofTier": "P4_PRODUCTION_RUNTIME",
     "currentProofTier": "P3_LOCAL_DEV_MACHINE",
@@ -406,6 +436,9 @@
     "generatedAt": "2026-06-08T04:05:00.000Z",
     "auditArea": "escalation-runtime-workers-and-storage",
     "sourceProofRef": "test-results/tracking-escalation-runtime-artifact-gate-proof/proof.json",
+    "supportingProofRefs": [
+      "test-results/tracking-escalation-runtime-artifact-gate-proof/proof.json"
+    ],
     "proofRoot": "output/tracking-plan-proof/tracking-escalation-runtime",
     "requiredProofTier": "P4_PRODUCTION_RUNTIME",
     "currentProofTier": "P3_LOCAL_DEV_MACHINE",

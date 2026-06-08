@@ -322,10 +322,12 @@ expose location or device-status features. Parents expect this category.
   gate proof refs, and tracking claim-audit proof refs, writes
   `output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-gate/46-product-readiness-closure-proof.json`,
   explicitly enumerates retention writable-settings and platform-enforcement
-  blockers from the retention product-readiness proof, and keeps Android/iOS
-  physical background, actual child-device runtime, full product parent/child
-  UI, authority, provider delivery/receipt, production workers, and
-  product-ready tracking unclaimed.
+  blockers from the retention product-readiness proof, carries aggregate
+  evidence for five observed full-product UI local artifacts, one retention
+  writable execution derivation row, ten child-runtime artifact gaps, and the
+  claim-audit row counts, and keeps Android/iOS physical background, actual
+  child-device runtime, full product parent/child UI, authority, provider
+  delivery/receipt, production workers, and product-ready tracking unclaimed.
 - WP33 tracking claim-audit proof now exists through
   `node scripts/test/tracking-claim-audit-proof.mjs`. It verifies Android
   physical background/geofence, iOS physical background/region,
@@ -333,7 +335,10 @@ expose location or device-status features. Parents expect this category.
   parent/child UI runtime, authority, provider-delivery receipt runtime,
   retention product runtime enforcement, production durable workers/storage,
   and escalation runtime artifacts before any final tracking claim can move
-  beyond `manual-required`; it writes
+  beyond `manual-required`; its full product UI row now carries the runtime gate
+  and local runtime artifact capture supporting proof refs, records five
+  observed local UI artifacts and the four hard full-product UI runtime gaps
+  still required before that claim can advance, writes
   `output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-gate/65-claim-audit-proof.json`
   and keeps every audited claim and product-ready tracking false.
 - WP01/WP02 source reconciliation and current gap-map proof now exists through

@@ -87,10 +87,22 @@ function buildProof({ generatedAt, inventories, proofModule }) {
 }
 
 function assertProof(proof) {
+  const fullProductUiRow = proof.rows.find((row) => row.auditArea === 'full-product-parent-child-ui-runtime');
   assert.equal(proof.productClaims.productReadyClaimed, false, 'product ready must remain false');
   assert.equal(proof.summary.approvedClaimCount, 0, 'claim audit must not approve claims');
   assert.equal(proof.summary.productReadyRowCount, 0, 'claim audit must not mark rows product-ready');
   assert.ok(proof.summary.rowCount >= 10, 'claim audit should cover all final claim areas');
+  assert.ok(fullProductUiRow, 'claim audit needs full product UI runtime row');
+  assert.equal(fullProductUiRow.presentArtifacts.length, 5, 'expected five local product UI artifacts');
+  assert.equal(fullProductUiRow.missingArtifacts.length, 4, 'expected four hard product UI runtime gaps');
+  assert.equal(fullProductUiRow.fullProductUiClaimed, false, 'full product UI remains unclaimed');
+  assert.equal(fullProductUiRow.productClaimReady, false, 'full product UI row is not product-ready');
+  assert.ok(
+    fullProductUiRow.supportingProofRefs.includes(
+      'test-results/tracking-full-product-ui-local-runtime-artifact-capture-proof/proof.json'
+    ),
+    'full product UI row should cite local artifact capture proof'
+  );
 }
 
 async function writeArtifacts(proof) {

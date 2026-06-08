@@ -139,6 +139,8 @@ async function main() {
     '--',
     'tracking-product-readiness-closure-proof',
   ]);
+  run('cmd', ['/c', 'node', 'scripts/test/tracking-full-product-ui-local-runtime-artifact-capture-proof.mjs']);
+  run('cmd', ['/c', 'node', 'scripts/test/tracking-claim-audit-proof.mjs']);
 
   await assertSourceProofsExist();
   const proof = await buildProof();
@@ -155,7 +157,7 @@ async function buildProof() {
       .href
   );
   return {
-    ...proofModule.buildTrackingProductReadinessClosureProof(generatedAt, sourceProofs),
+    ...proofModule.buildTrackingProductReadinessClosureProof(generatedAt, sourceProofs, await aggregateEvidence()),
     branch: gitOutput(['rev-parse', '--abbrev-ref', 'HEAD']),
     baseCommitAtGeneration: gitOutput(['rev-parse', 'HEAD']),
     gitStatusShort: initialGitStatusShort,
@@ -165,6 +167,27 @@ async function buildProof() {
       evidence: 'test-results/tracking-product-readiness-closure-proof/proof.json',
       namedProofRoot: 'output/tracking-plan-proof/tracking-product-readiness-closure-proof/proof.json',
     },
+  };
+}
+
+async function aggregateEvidence() {
+  const fullProductUiProof = await readJson(
+    'test-results/tracking-full-product-ui-local-runtime-artifact-capture-proof/proof.json'
+  );
+  const claimAuditProof = await readJson('test-results/tracking-claim-audit-proof/proof.json');
+  return {
+    fullProductUiLocalArtifactCount: fullProductUiProof.readModel.localArtifactCount,
+    fullProductUiClosureRetentionWritableExecutionRowCount:
+      fullProductUiProof.readModel.closureEvidence.retentionWritableExecutionRowCount,
+    fullProductUiClosureRetentionWritableExecutionDerivationCount:
+      fullProductUiProof.readModel.closureEvidence.retentionWritableExecutionDerivationCount,
+    fullProductUiClosureChildRuntimeMissingArtifactCount:
+      fullProductUiProof.readModel.closureEvidence.childRuntimeMissingArtifactCount,
+    claimAuditPresentArtifactCount: claimAuditProof.summary.presentArtifactCount,
+    claimAuditMissingArtifactCount: claimAuditProof.summary.missingArtifactCount,
+    claimAuditManualRequiredRowCount: claimAuditProof.summary.manualRequiredRowCount,
+    claimAuditProductReadyRowCount: claimAuditProof.summary.productReadyRowCount,
+    productClaimReady: false,
   };
 }
 
@@ -290,4 +313,8 @@ function gitOutput(args) {
 async function writeJson(path, value) {
   await mkdir(dirname(path), { recursive: true });
   await writeFile(path, `${JSON.stringify(value, null, 2)}\n`);
+}
+
+async function readJson(path) {
+  return JSON.parse(await readFile(join(repoRoot, path), 'utf8'));
 }

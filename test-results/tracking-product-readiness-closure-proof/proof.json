@@ -184,6 +184,17 @@
       "proofTier": "P3_LOCAL_DEV_MACHINE"
     }
   ],
+  "aggregateEvidence": {
+    "fullProductUiLocalArtifactCount": 5,
+    "fullProductUiClosureRetentionWritableExecutionRowCount": 1,
+    "fullProductUiClosureRetentionWritableExecutionDerivationCount": 1,
+    "fullProductUiClosureChildRuntimeMissingArtifactCount": 10,
+    "claimAuditPresentArtifactCount": 5,
+    "claimAuditMissingArtifactCount": 61,
+    "claimAuditManualRequiredRowCount": 10,
+    "claimAuditProductReadyRowCount": 0,
+    "productClaimReady": false
+  },
   "rows": [
     {
       "schemaVersion": "v0.5-tracking",
@@ -266,8 +277,8 @@
     "productReadyClaimed": false
   },
   "branch": "codex/tracking-plan-full-continuation-a",
-  "baseCommitAtGeneration": "53549b670aca33eb5cb38ecb442c25ab6f8e8971",
-  "gitStatusShort": "M docs/features/location-geofence-device-status.md\n M docs/plans/tracking-plan/current-tracking-snapshot.md\n M docs/plans/tracking-plan/workpacks/33-proof-gates-fixtures-rollout-and-pr-gate.md\n M output/tracking-plan-proof/01-source-index-and-repo-reconciliation/00-source-snapshot.md\n M output/tracking-plan-proof/01-source-index-and-repo-reconciliation/proof.json\n M output/tracking-plan-proof/02-current-tracking-snapshot-and-gap-map/00-source-snapshot.md\n M output/tracking-plan-proof/02-current-tracking-snapshot-and-gap-map/proof.json\n M output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-gate/46-product-readiness-closure-proof.json\n M output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-gate/63-real-runtime-handoff-proof.json\n M output/tracking-plan-proof/tracking-product-readiness-closure-proof/00-source-snapshot.md\n M output/tracking-plan-proof/tracking-product-readiness-closure-proof/proof.json\n M output/tracking-plan-proof/tracking-real-runtime-handoff-proof/00-source-snapshot.md\n M output/tracking-plan-proof/tracking-real-runtime-handoff-proof/proof.json\n M packages/parent-domain/src/tracking-real-runtime-handoff-proof.ts\n M packages/parent-domain/tests/tracking-real-runtime-handoff-proof.test.ts\n M scripts/test/tracking-real-runtime-handoff-proof.mjs\n M test-results/tracking-product-readiness-closure-proof/proof.json\n M test-results/tracking-real-runtime-handoff-proof/proof.json\n M test-results/tracking-source-reconciliation-gap-map-proof/proof.json",
+  "baseCommitAtGeneration": "b2cadcf0371b686ac77bb14dbe0025e459a2f40d",
+  "gitStatusShort": "M docs/features/location-geofence-device-status.md\n M docs/plans/tracking-plan/current-tracking-snapshot.md\n M docs/plans/tracking-plan/implementation-checklist.md\n M docs/plans/tracking-plan/workpacks/33-proof-gates-fixtures-rollout-and-pr-gate.md\n M output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/33-full-product-ui-local-runtime-artifact-capture-proof.json\n M output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-gate/46-product-readiness-closure-proof.json\n M output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-gate/65-claim-audit-proof.json\n M output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-gate/66-full-product-ui-local-runtime-artifact-capture-proof.json\n M output/tracking-plan-proof/tracking-claim-audit-proof/00-source-snapshot.md\n M output/tracking-plan-proof/tracking-claim-audit-proof/proof.json\n M output/tracking-plan-proof/tracking-full-product-ui-local-runtime-artifact-capture-proof/00-source-snapshot.md\n M output/tracking-plan-proof/tracking-full-product-ui-local-runtime-artifact-capture-proof/proof.json\n M output/tracking-plan-proof/tracking-product-readiness-closure-proof/00-source-snapshot.md\n M output/tracking-plan-proof/tracking-product-readiness-closure-proof/16-validation-commands.log\n M output/tracking-plan-proof/tracking-product-readiness-closure-proof/proof.json\n M packages/parent-domain/src/tracking-claim-audit-proof.ts\n M packages/parent-domain/src/tracking-product-readiness-closure-proof.ts\n M packages/parent-domain/tests/tracking-claim-audit-proof.test.ts\n M packages/parent-domain/tests/tracking-product-readiness-closure-proof.test.ts\n M scripts/test/tracking-claim-audit-proof.mjs\n M scripts/test/tracking-product-readiness-closure-proof.mjs\n M test-results/tracking-claim-audit-proof/proof.json\n M test-results/tracking-claim-audit-proof/read-model.json\n M test-results/tracking-full-product-ui-local-runtime-artifact-capture-proof/proof.json\n M test-results/tracking-product-readiness-closure-proof/proof.json",
   "commands": [
     {
       "command": "cmd /c npm run build --workspace @ocentra-parent/parent-domain",
@@ -278,7 +289,19 @@
     {
       "command": "cmd /c npm run test --workspace @ocentra-parent/parent-domain -- tracking-product-readiness-closure-proof",
       "status": 0,
-      "stdout": "> @ocentra-parent/parent-domain@0.1.1 test\n> vitest run tracking-product-readiness-closure-proof\n\n\n RUN  v4.1.6 C:/Users/sujan/.codex/worktrees/ocentra-parent-codex-a/OcentraParent/packages/parent-domain\n\n\n Test Files  1 passed (1)\n      Tests  3 passed (3)\n   Start at  01:31:34\n   Duration  740ms (transform 120ms, setup 0ms, import 521ms, tests 16ms, environment 0ms)",
+      "stdout": "> @ocentra-parent/parent-domain@0.1.1 test\n> vitest run tracking-product-readiness-closure-proof\n\n\n RUN  v4.1.6 C:/Users/sujan/.codex/worktrees/ocentra-parent-codex-a/OcentraParent/packages/parent-domain\n\n\n Test Files  1 passed (1)\n      Tests  3 passed (3)\n   Start at  02:33:36\n   Duration  698ms (transform 110ms, setup 0ms, import 494ms, tests 16ms, environment 0ms)",
+      "stderr": ""
+    },
+    {
+      "command": "cmd /c node scripts/test/tracking-full-product-ui-local-runtime-artifact-capture-proof.mjs",
+      "status": 0,
+      "stdout": "> @ocentra-parent/parent-domain@0.1.1 build\n> tsc -p tsconfig.json && node ../../scripts/fix-esm-imports.mjs dist\n\n\n> @ocentra-parent/parent-domain@0.1.1 test\n> vitest run tracking-full-product-ui-local-runtime-artifact-capture-proof\n\n\n RUN  v4.1.6 C:/Users/sujan/.codex/worktrees/ocentra-parent-codex-a/OcentraParent/packages/parent-domain\n\n\n Test Files  1 passed (1)\n      Tests  2 passed (2)\n   Start at  02:33:41\n   Duration  799ms (transform 171ms, setup 0ms, import 588ms, tests 13ms, environment 0ms)\n\ntracking-full-product-ui-local-runtime-artifact-capture-proof-ok\nevidence=test-results/tracking-full-product-ui-local-runtime-artifact-capture-proof/proof.json",
+      "stderr": ""
+    },
+    {
+      "command": "cmd /c node scripts/test/tracking-claim-audit-proof.mjs",
+      "status": 0,
+      "stdout": "tracking-claim-audit-proof-ok\nevidence=test-results/tracking-claim-audit-proof/proof.json",
       "stderr": ""
     }
   ],

@@ -108,6 +108,35 @@ export const TrackingProductReadinessClosureSourceProofSchema = withParser(
   })
 );
 
+export const TrackingProductReadinessClosureAggregateEvidenceSchema = withParser(
+  Schema.Struct({
+    fullProductUiLocalArtifactCount: Schema.Number.pipe(Schema.int(), Schema.positive()),
+    fullProductUiClosureRetentionWritableExecutionRowCount: Schema.Number.pipe(Schema.int(), Schema.positive()),
+    fullProductUiClosureRetentionWritableExecutionDerivationCount: Schema.Number.pipe(Schema.int(), Schema.positive()),
+    fullProductUiClosureChildRuntimeMissingArtifactCount: Schema.Number.pipe(Schema.int()),
+    claimAuditPresentArtifactCount: Schema.Number.pipe(Schema.int()),
+    claimAuditMissingArtifactCount: Schema.Number.pipe(Schema.int(), Schema.positive()),
+    claimAuditManualRequiredRowCount: Schema.Number.pipe(Schema.int(), Schema.positive()),
+    claimAuditProductReadyRowCount: Schema.Literal(0),
+    productClaimReady: Schema.Literal(false),
+  })
+    .pipe(
+      Schema.filter(
+        (evidence) =>
+          evidence.fullProductUiClosureRetentionWritableExecutionRowCount ===
+            evidence.fullProductUiClosureRetentionWritableExecutionDerivationCount ||
+          'Aggregate closure evidence must preserve retention writable derivation count'
+      )
+    )
+    .pipe(
+      Schema.filter(
+        (evidence) =>
+          evidence.fullProductUiClosureChildRuntimeMissingArtifactCount >= 0 ||
+          'Aggregate closure evidence cannot record negative child-runtime missing artifacts'
+      )
+    )
+);
+
 const TrackingProductReadinessClosureRowBaseSchema = Schema.Struct({
   schemaVersion: Schema.Literal(TrackingPolicySchemaVersion),
   closureProofId: TrackingProductReadinessClosureProofIdSchema,
@@ -145,6 +174,7 @@ export const TrackingProductReadinessClosureProofSchema = withParser(
     proofMode: Schema.Literal('tracking-product-readiness-closure-proof'),
     generatedAt: ParentTimestampSchema,
     sourceProofs: Schema.Array(TrackingProductReadinessClosureSourceProofSchema),
+    aggregateEvidence: TrackingProductReadinessClosureAggregateEvidenceSchema,
     rows: Schema.Array(TrackingProductReadinessClosureRowSchema),
     proofClaims: Schema.Struct({
       localCiProofRefsObserved: Schema.Literal(true),
@@ -175,11 +205,15 @@ export const TrackingProductReadinessClosureProofSchema = withParser(
 );
 
 export type TrackingProductReadinessClosureProof = Infer<typeof TrackingProductReadinessClosureProofSchema>;
+export type TrackingProductReadinessClosureAggregateEvidence = Infer<
+  typeof TrackingProductReadinessClosureAggregateEvidenceSchema
+>;
 type TrackingProductReadinessClosureRowInput = Infer<typeof TrackingProductReadinessClosureRowBaseSchema>;
 
 export function buildTrackingProductReadinessClosureProof(
   generatedAt: string,
-  sourceProofs: readonly Infer<typeof TrackingProductReadinessClosureSourceProofSchema>[]
+  sourceProofs: readonly Infer<typeof TrackingProductReadinessClosureSourceProofSchema>[],
+  aggregateEvidenceInput: TrackingProductReadinessClosureAggregateEvidence
 ): TrackingProductReadinessClosureProof {
   const parsedSourceProofs = sourceProofs.map((sourceProof) =>
     TrackingProductReadinessClosureSourceProofSchema.parse(sourceProof)
@@ -190,6 +224,7 @@ export function buildTrackingProductReadinessClosureProof(
     proofMode: 'tracking-product-readiness-closure-proof',
     generatedAt,
     sourceProofs: parsedSourceProofs,
+    aggregateEvidence: TrackingProductReadinessClosureAggregateEvidenceSchema.parse(aggregateEvidenceInput),
     rows: [closureRow(generatedAt, parsedSourceProofs)],
     proofClaims: {
       localCiProofRefsObserved: true,

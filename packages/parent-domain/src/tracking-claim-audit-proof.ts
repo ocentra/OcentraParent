@@ -29,6 +29,7 @@ export const TrackingClaimAuditRowSchema = withParser(
     generatedAt: ParentTimestampSchema,
     auditArea: TrackingClaimAuditAreaSchema,
     sourceProofRef: TrackingClaimAuditPathSchema,
+    supportingProofRefs: Schema.Array(TrackingClaimAuditPathSchema),
     proofRoot: TrackingClaimAuditPathSchema,
     requiredProofTier: TrackingClaimAuditTextSchema,
     currentProofTier: Schema.Literal('P3_LOCAL_DEV_MACHINE'),
@@ -51,6 +52,7 @@ export const TrackingClaimAuditRowSchema = withParser(
     productClaimReady: Schema.Literal(false),
   })
     .pipe(Schema.filter((row) => row.requiredArtifacts.length > 0 || 'Claim audit rows need artifacts'))
+    .pipe(Schema.filter((row) => row.supportingProofRefs.length > 0 || 'Claim audit rows need proof refs'))
     .pipe(
       Schema.filter(
         (row) =>
@@ -184,6 +186,11 @@ export const RequiredTrackingClaimAuditPlans = [
   {
     auditArea: 'full-product-parent-child-ui-runtime',
     sourceProofRef: 'test-results/tracking-full-product-ui-runtime-artifact-gate-proof/proof.json',
+    supportingProofRefs: [
+      'test-results/tracking-full-product-ui-runtime-artifact-gate-proof/proof.json',
+      'test-results/tracking-full-product-ui-local-runtime-artifact-capture-proof/proof.json',
+      'output/tracking-plan-proof/tracking-full-product-ui-local-runtime-artifact-capture-proof/proof.json',
+    ],
     proofRoot: 'output/tracking-plan-proof/product-parent-child-ui-runtime',
     requiredProofTier: 'P4_PHYSICAL_DEVICE',
     requiredArtifacts: [
@@ -310,6 +317,7 @@ function claimAuditRow(
     generatedAt,
     auditArea: plan.auditArea,
     sourceProofRef: plan.sourceProofRef,
+    supportingProofRefs: supportingProofRefsForPlan(plan),
     proofRoot: plan.proofRoot,
     requiredProofTier: plan.requiredProofTier,
     currentProofTier: 'P3_LOCAL_DEV_MACHINE',
@@ -331,6 +339,10 @@ function claimAuditRow(
     escalationRuntimeClaimed: false,
     productClaimReady: false,
   });
+}
+
+function supportingProofRefsForPlan(plan: (typeof RequiredTrackingClaimAuditPlans)[number]): readonly string[] {
+  return 'supportingProofRefs' in plan ? plan.supportingProofRefs : [plan.sourceProofRef];
 }
 
 function summarizeRows(rows: readonly TrackingClaimAuditRow[]) {

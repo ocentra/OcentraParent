@@ -38,6 +38,39 @@ describe('tracking claim audit proof', () => {
     expect(proof.summary.artifactSetPresentReviewRequiredRowCount).toBe(1);
   });
 
+  it('carries full-product UI local artifact evidence without approving the claim', () => {
+    const fullProductPlan = RequiredTrackingClaimAuditPlans.find(
+      (plan) => plan.auditArea === 'full-product-parent-child-ui-runtime'
+    );
+    if (!fullProductPlan) throw new Error('Missing full product UI claim audit plan');
+
+    const proof = buildTrackingClaimAuditProof(GeneratedAt, [
+      {
+        auditArea: fullProductPlan.auditArea,
+        presentArtifacts: fullProductPlan.requiredArtifacts.filter((artifact) =>
+          ['01-', '02-', '03-', '08-', '09-'].some((prefix) => artifact.startsWith(prefix))
+        ),
+      },
+    ]);
+    const row = proof.rows.find((candidate) => candidate.auditArea === fullProductPlan.auditArea);
+
+    expect(row?.supportingProofRefs).toContain(
+      'test-results/tracking-full-product-ui-local-runtime-artifact-capture-proof/proof.json'
+    );
+    expect(row?.presentArtifacts).toHaveLength(5);
+    expect(row?.missingArtifacts).toEqual([
+      '04-retention-settings-production-write-result.png',
+      '05-child-device-rendered-check-in-runtime.png',
+      '06-child-device-rendered-location-consent-runtime.png',
+      '07-child-device-safe-help-response-runtime.png',
+    ]);
+    expect(row?.artifactSetComplete).toBe(false);
+    expect(row?.fullProductUiClaimed).toBe(false);
+    expect(row?.productClaimReady).toBe(false);
+  });
+});
+
+describe('tracking claim audit proof overclaim rejection', () => {
   it('rejects claim approval overclaims', () => {
     const [row] = buildTrackingClaimAuditProof(GeneratedAt, []).rows;
 
