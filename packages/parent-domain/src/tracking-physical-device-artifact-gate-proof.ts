@@ -30,6 +30,9 @@ export const TrackingPhysicalDeviceArtifactGateRowSchema = withParser(
     presentArtifacts: Schema.Array(TrackingPhysicalDeviceArtifactPathSchema),
     missingArtifacts: Schema.Array(TrackingPhysicalDeviceArtifactPathSchema),
     auditRefs: Schema.Array(TrackingPolicyAuditRefSchema),
+    acceptanceCriteria: Schema.Array(TrackingPhysicalDeviceArtifactTextSchema),
+    manualValidationCommands: Schema.Array(TrackingPhysicalDeviceArtifactTextSchema),
+    artifactAcceptanceNotes: Schema.Array(TrackingPhysicalDeviceArtifactTextSchema),
     physicalArtifactSetComplete: Schema.Boolean,
     physicalDeviceBehaviorClaimed: Schema.Literal(false),
     authorityEnrollmentClaimed: Schema.Literal(false),
@@ -58,6 +61,13 @@ export const TrackingPhysicalDeviceArtifactGateRowSchema = withParser(
           (row.physicalArtifactSetComplete ? row.missingArtifacts.length === 0 : row.missingArtifacts.length > 0) ||
           'Physical artifact completeness must match missing artifact count'
       )
+    )
+    .pipe(Schema.filter((row) => row.acceptanceCriteria.length >= 4 || 'Physical proof rows need criteria'))
+    .pipe(
+      Schema.filter((row) => row.manualValidationCommands.length >= 4 || 'Physical proof rows need manual commands')
+    )
+    .pipe(
+      Schema.filter((row) => row.artifactAcceptanceNotes.length >= 4 || 'Physical proof rows need acceptance notes')
     )
 );
 
@@ -118,6 +128,18 @@ export const RequiredTrackingPhysicalDeviceArtifactPlans = [
       '08-logcat.txt',
       '09-result-summary.md',
     ],
+    acceptanceCriteria: [
+      'Record a real child Android device run, not an emulator-only run.',
+      'Capture foreground and background permission state before and after the geofence scenario.',
+      'Show system geofence or background delivery evidence with timestamps, not only app-owned local listener rows.',
+      'Keep product-ready false until parent-visible UI, authority, provider, and production rows are separately complete.',
+    ],
+    manualValidationCommands: [
+      'adb devices -l',
+      'adb shell dumpsys package com.ocentra.parent.child | findstr ACCESS_BACKGROUND_LOCATION',
+      'adb logcat -d | findstr OcentraTracking',
+      'node scripts/test/tracking-physical-device-artifact-gate-proof.mjs',
+    ],
   },
   {
     platform: 'ios',
@@ -133,6 +155,18 @@ export const RequiredTrackingPhysicalDeviceArtifactPlans = [
       '07-screenshots',
       '08-xcode-test-log.txt',
       '09-result-summary.md',
+    ],
+    acceptanceCriteria: [
+      'Record a real child iOS device run, not simulator-only proof.',
+      'Capture Core Location authorization, Always/background state, and region monitoring registration evidence.',
+      'Show region/significant-change/visit delivery evidence with timestamps and parent alert decision refs.',
+      'Keep product-ready false until entitlement/review, authority, provider, and production rows are separately complete.',
+    ],
+    manualValidationCommands: [
+      'xcrun xctrace list devices',
+      'xcodebuild test -scheme OcentraParentChildTracking -destination id=<physical-device-udid>',
+      'xcrun simctl is not accepted for this row; attach physical-device logs instead',
+      'node scripts/test/tracking-physical-device-artifact-gate-proof.mjs',
     ],
   },
 ] as const;
@@ -191,6 +225,9 @@ function physicalArtifactRow(
     presentArtifacts,
     missingArtifacts,
     auditRefs: [`tracking-physical-device-artifacts-${plan.platform}-audit`],
+    acceptanceCriteria: [...plan.acceptanceCriteria],
+    manualValidationCommands: [...plan.manualValidationCommands],
+    artifactAcceptanceNotes: artifactAcceptanceNotesFor(plan.platform, plan.requiredArtifacts.length),
     physicalArtifactSetComplete,
     physicalDeviceBehaviorClaimed: false,
     authorityEnrollmentClaimed: false,
@@ -198,4 +235,16 @@ function physicalArtifactRow(
     productionWorkerClaimed: false,
     productClaimReady: false,
   });
+}
+
+function artifactAcceptanceNotesFor(
+  platform: TrackingPhysicalDeviceArtifactInventory['platform'],
+  artifactCount: number
+) {
+  return [
+    `Required ${platform} physical artifacts: ${artifactCount}.`,
+    'Artifact-set-present only means the required files exist in the proof root.',
+    'Physical-device behavior remains unclaimed until a reviewer accepts the artifact contents.',
+    'Product claims stay false for authority, provider delivery, production runtime, and product readiness in this gate.',
+  ];
 }
