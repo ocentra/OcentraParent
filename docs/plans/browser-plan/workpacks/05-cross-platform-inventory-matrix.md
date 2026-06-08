@@ -89,6 +89,18 @@ and enforcement gaps. The proof writes
 `test-results/browser-platform-android-owned-shell-runtime-proof/proof.json` and
 `output/browser-plan-proof/05-cross-platform-inventory-matrix/16-android-owned-shell-runtime-proof.json`.
 
+2026-06-08 codex-d continuation:
+`packages/activity-domain/src/browser-android-owned-shell-url-custody.ts` now
+projects the Android owned-shell proof into a requested-URL custody read model.
+The projection accepts exactly one physical requested-URL ref row when the proof
+has physical install, explicit launch, UI-tree, screenshot, WebView/BROWSABLE
+declaration, and local proof-page evidence. It rejects raw URL persistence,
+known active-tab claims, physical Device Owner/Browser Role claims, exact URL
+policy, final policy execution, and enforcement. The proof writes
+`test-results/browser-platform-android-owned-shell-url-custody-proof/proof.json`
+and
+`output/browser-plan-proof/05-cross-platform-inventory-matrix/17-android-owned-shell-url-custody-proof.json`.
+
 2026-06-07 codex-d continuation: `scripts/test/browser-platform-android-owned-shell-proof.mjs`
 adds the first real owned Android browser shell proof for WP05. The proof builds
 the separate `platforms/android/agent/browser-shell` APK, launches the configured
@@ -202,12 +214,14 @@ without claiming desktop CDP where it does not apply.
 - `scripts/test/browser-platform-inventory-matrix-proof.mjs`
 - `scripts/test/browser-platform-android-host-proof.mjs`
 - `scripts/test/browser-platform-android-owned-shell-proof.mjs`
+- `scripts/test/browser-platform-android-owned-shell-url-custody-proof.mjs`
 - `scripts/test/browser-platform-linux-host-proof.mjs`
 - `scripts/test/browser-platform-windows-host-proof.mjs`
 - `scripts/test/browser-platform-windows-managed-cdp-proof.mjs`
 - `test-results/browser-platform-inventory-matrix-proof/`
 - `test-results/browser-platform-android-host-proof/`
 - `test-results/browser-platform-android-owned-shell-proof/`
+- `test-results/browser-platform-android-owned-shell-url-custody-proof/`
 - `test-results/browser-platform-linux-host-proof/`
 - `test-results/browser-platform-windows-host-proof/`
 - `test-results/browser-platform-windows-managed-cdp-proof/`
@@ -223,6 +237,7 @@ without claiming desktop CDP where it does not apply.
 - `node scripts/test/browser-platform-windows-managed-cdp-proof.mjs`
 - `node scripts/test/browser-platform-android-host-proof.mjs`
 - `node scripts/test/browser-platform-android-owned-shell-proof.mjs`
+- `node scripts/test/browser-platform-android-owned-shell-url-custody-proof.mjs`
 - `node scripts/test/browser-platform-linux-host-proof.mjs`
 - Manual platform proof tables when platform work starts.
 
@@ -238,7 +253,7 @@ Fill this before reporting `DONE` or PR-ready:
 - [x] Contracts updated first where this workpack changes behavior.
 - [x] Rust/service/portal parity updated only after contracts exist; no Rust/service/portal surface changed in this contract-only slice.
 - [x] Raw evidence artifacts captured or marked N/A: this slice is a platform support matrix contract and has no bridge/CDP, journal, SQLite, policy, or action runtime evidence.
-- [x] Tests/proof listed in this workpack are implemented for matrix derivation, dishonest-state rejection, and the repeatable proof gate; Windows host browser executable proof and default URL handler association boundary evidence, Windows Ocentra-launched managed CDP proof for an exact local proof URL, Android emulator package-visibility proof, physical Samsung Galaxy S9 package/default-handler visibility proof, Android owned browser shell build/install/launch proof, Android proof-created AVD Device Owner enrollment proof, Android proof-created AVD persistent browser routing policy mutation proof, Android proof-created emulator browser-role implicit routing proof, and WSL Linux package/PATH/desktop-entry/headless-launch proof are present, while exact active-tab enforcement, final policy execution, browser blocking, live macOS/iOS fixtures, and manual proof remain manual-required.
+- [x] Tests/proof listed in this workpack are implemented for matrix derivation, dishonest-state rejection, and the repeatable proof gate; Windows host browser executable proof and default URL handler association boundary evidence, Windows Ocentra-launched managed CDP proof for an exact local proof URL, Android emulator package-visibility proof, physical Samsung Galaxy S9 package/default-handler visibility proof, Android owned browser shell build/install/launch proof, Android proof-created AVD Device Owner enrollment proof, Android proof-created AVD persistent browser routing policy mutation proof, Android proof-created emulator browser-role implicit routing proof, Android physical owned-shell requested-URL ref custody proof, and WSL Linux package/PATH/desktop-entry/headless-launch proof are present, while exact active-tab enforcement, final policy execution, browser blocking, live macOS/iOS fixtures, and manual proof remain manual-required.
 - [x] Validation command outputs saved in the proof pack and summarized in [main checklist](../implementation-checklist.md).
 - [x] UI snapshots captured for every touched parent portal, child UX, block/warn, policy authoring, or dashboard state; no UI changed, so `ui-not-applicable.md` records why.
 - [x] Security/no-claim negative proof captured: non-Windows entries reject managed exact-URL and known-active claims; iOS remains unsupported; unsupported entries cannot keep exact URL available.
@@ -263,11 +278,14 @@ build/install/launch proof, proof-created AVD Device Owner enrollment plus
 persistent browser routing policy mutation proof, and proof-created emulator
 browser-role implicit routing proof are now proved. Physical Samsung Galaxy S9
 visible owned-shell current-runtime projection is also proved from install,
-explicit launch, UI-tree, and screenshot evidence. Exact URL policy, active-tab
-policy, silent Device Owner default-browser assignment, physical Device
-Owner/Browser Role behavior, VPN/DNS browser proof, UsageStats/Accessibility
-route proof, final policy execution, browser blocking, and broad content-filter
-enforcement remain unclaimed.
+explicit launch, UI-tree, and screenshot evidence. Physical Samsung Galaxy S9
+requested-URL ref custody is proved from owned-shell install, explicit launch,
+UI-tree, screenshot, WebView/BROWSABLE declaration, and local proof-page
+evidence without raw URL persistence. Exact URL policy, active-tab policy,
+silent Device Owner default-browser assignment, physical Device Owner/Browser
+Role behavior, VPN/DNS browser proof, UsageStats/Accessibility route proof,
+final policy execution, browser blocking, and broad content-filter enforcement
+remain unclaimed.
 WSL Linux package/PATH/desktop-entry evidence and a headless Google Chrome
 launch/screenshot are now proved, but Linux desktop adapter integration,
 managed profile, exact URL, active-tab, Snap, Flatpak, and enforcement remain

@@ -103,6 +103,12 @@ control while being more honest about managed versus unmanaged sources.
   keeps managed, unmanaged, active-tab, exact-URL, stale, degraded, and custody
   labels separate; it does not upgrade portal UI, SQLite inventory storage, or
   real browser/platform proof claims.
+- Browser-plan WP05 now projects Android physical owned-shell proof into a
+  requested-URL custody read model. The accepted row requires physical install,
+  explicit launch, UI-tree, screenshot, WebView/BROWSABLE declaration, and
+  local proof-page evidence, stores only a requested-URL ref, and keeps exact
+  URL policy, active-tab proof, physical Device Owner/Browser Role, final policy
+  execution, and enforcement unclaimed.
 - Browser-plan WP13 now also has a protocol-domain parser for the browser
   runtime event-chain stream. It validates known browser runtime event types,
   Rust phase names, event type/phase consistency, stream counts, no AI-authority

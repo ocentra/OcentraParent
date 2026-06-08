@@ -15,6 +15,7 @@ const windowsHostProofPath = join(outputDirectory, '13-windows-host-browser-proo
 const windowsManagedCdpProofPath = join(outputDirectory, '14-windows-managed-cdp-proof.json');
 const androidOwnedShellProofPath = join(outputDirectory, '15-android-owned-browser-shell-proof.json');
 const androidOwnedShellRuntimeProofPath = join(outputDirectory, '16-android-owned-shell-runtime-proof.json');
+const androidOwnedShellUrlCustodyProofPath = join(outputDirectory, '17-android-owned-shell-url-custody-proof.json');
 
 const requiredProofFiles = [
   '00-source-snapshot.md',
@@ -50,6 +51,7 @@ async function main() {
   const windowsManagedCdpProof = await readWindowsManagedCdpProof();
   const androidOwnedShellProof = await readAndroidOwnedShellProof();
   const androidOwnedShellRuntimeProof = await readAndroidOwnedShellRuntimeProof();
+  const androidOwnedShellUrlCustodyProof = await readAndroidOwnedShellUrlCustodyProof();
   const failures = [
     ...validateMatrix(matrix.entries),
     ...proofFiles.filter((file) => !file.exists).map((file) => `missing proof artifact: ${file.path}`),
@@ -58,6 +60,7 @@ async function main() {
     ...validateWindowsManagedCdpProof(windowsManagedCdpProof),
     ...validateAndroidOwnedShellProof(androidOwnedShellProof),
     ...validateAndroidOwnedShellRuntimeProof(androidOwnedShellRuntimeProof),
+    ...validateAndroidOwnedShellUrlCustodyProof(androidOwnedShellUrlCustodyProof),
   ];
   const proof = {
     schemaVersion: 1,
@@ -96,6 +99,9 @@ async function main() {
       androidOwnedShellRuntimeProof
         ? 'android-owned-shell-physical-visible-runtime-proof-present-no-physical-device-owner-or-exact-url-claim'
         : 'android-owned-shell-current-runtime-proof-required',
+      androidOwnedShellUrlCustodyProof
+        ? 'android-owned-shell-requested-url-ref-custody-proof-present-no-active-tab-or-policy-claim'
+        : 'android-owned-shell-url-custody-proof-required',
       windowsHostProof
         ? 'windows-host-browser-inventory-and-default-handler-boundary-proof-present-managed-exact-url-still-unclaimed'
         : 'windows-host-browser-inventory-proof-required',
@@ -110,6 +116,7 @@ async function main() {
     androidHostProof,
     androidOwnedShellProof,
     androidOwnedShellRuntimeProof,
+    androidOwnedShellUrlCustodyProof,
     linuxHostProof,
     windowsHostProof,
     windowsManagedCdpProof,
@@ -131,6 +138,32 @@ async function main() {
   console.log(
     `rows=${proof.summary.totalRows} manualRequired=${proof.summary.manualRequiredRows} unsupported=${proof.summary.unsupportedRows}`
   );
+}
+
+async function readAndroidOwnedShellUrlCustodyProof() {
+  if (!existsSync(androidOwnedShellUrlCustodyProofPath)) {
+    return null;
+  }
+
+  const proof = JSON.parse(await readFile(androidOwnedShellUrlCustodyProofPath, 'utf8'));
+  return {
+    path: relativePath(androidOwnedShellUrlCustodyProofPath),
+    proofMode: proof.proofMode,
+    resultState:
+      proof.summary?.physicalRequestedUrlRefRows === 1
+        ? 'android-owned-shell-requested-url-ref-custody-proof'
+        : 'manual-required',
+    physicalRequestedUrlRefRows: proof.summary?.physicalRequestedUrlRefRows ?? 0,
+    manualRequiredRows: proof.summary?.manualRequiredRows ?? 0,
+    rawUrlPersisted: proof.summary?.rawUrlPersisted === true,
+    physicalDeviceOwnerClaimed: proof.summary?.physicalDeviceOwnerClaimed === true,
+    physicalBrowserRoleRoutingClaimed: proof.summary?.physicalBrowserRoleRoutingClaimed === true,
+    exactActiveTabClaimed: proof.summary?.exactActiveTabClaimed === true,
+    policyExecutionClaimed: proof.summary?.policyExecutionClaimed === true,
+    enforcementClaimed: proof.summary?.enforcementClaimed === true,
+    productClaimed: proof.summary?.productClaimed === true,
+    failures: proof.summary?.failures ?? proof.failures?.length ?? 0,
+  };
 }
 
 function buildWorkspace(workspace) {
@@ -657,6 +690,39 @@ function validateAndroidOwnedShellRuntimeProof(proof) {
   }
   if (proof.failures !== 0) {
     failures.push(`Android owned-shell runtime proof recorded ${proof.failures} failures`);
+  }
+  return failures;
+}
+
+function validateAndroidOwnedShellUrlCustodyProof(proof) {
+  if (proof === null) {
+    return [
+      'missing Android owned-shell URL custody proof artifact: output/browser-plan-proof/05-cross-platform-inventory-matrix/17-android-owned-shell-url-custody-proof.json',
+    ];
+  }
+
+  const failures = [];
+  if (proof.proofMode !== 'browser-platform-android-owned-shell-url-custody-proof') {
+    failures.push(`Android owned-shell URL custody proof has unexpected proofMode: ${proof.proofMode}`);
+  }
+  if (proof.physicalRequestedUrlRefRows !== 1 || proof.manualRequiredRows !== 1) {
+    failures.push('Android owned-shell URL custody proof lacks one physical requested-URL row and one manual row');
+  }
+  if (
+    proof.rawUrlPersisted ||
+    proof.physicalDeviceOwnerClaimed ||
+    proof.physicalBrowserRoleRoutingClaimed ||
+    proof.exactActiveTabClaimed ||
+    proof.policyExecutionClaimed ||
+    proof.enforcementClaimed ||
+    proof.productClaimed
+  ) {
+    failures.push(
+      'Android owned-shell URL custody proof made raw URL, physical Device Owner, physical Browser Role, active-tab, policy, product, or enforcement claims'
+    );
+  }
+  if (proof.failures !== 0) {
+    failures.push(`Android owned-shell URL custody proof recorded ${proof.failures} failures`);
   }
   return failures;
 }

@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "proofMode": "browser-platform-inventory-matrix-proof",
-  "generatedAt": "2026-06-08T23:16:45.393Z",
+  "generatedAt": "2026-06-08T23:40:30.045Z",
   "proofContract": "packages/activity-domain/src/browser-platform-inventory-matrix.ts",
   "sourceWorkpack": "docs/plans/browser-plan/workpacks/05-cross-platform-inventory-matrix.md",
   "rows": [
@@ -249,6 +249,7 @@
     "android-browser-package-visibility-proof-present",
     "android-owned-browser-shell-emulator-device-owner-policy-mutation-and-browser-role-routing-proof-present",
     "android-owned-shell-physical-visible-runtime-proof-present-no-physical-device-owner-or-exact-url-claim",
+    "android-owned-shell-requested-url-ref-custody-proof-present-no-active-tab-or-policy-claim",
     "windows-host-browser-inventory-and-default-handler-boundary-proof-present-managed-exact-url-still-unclaimed",
     "windows-managed-cdp-exact-url-proof-present-final-enforcement-still-unclaimed",
     "ios-familycontrols-safari-extension-manual-required",
@@ -316,6 +317,21 @@
     "exactUrlPolicyClaimed": false,
     "knownActiveTabProofClaimed": false,
     "enforcementClaimed": false,
+    "failures": 0
+  },
+  "androidOwnedShellUrlCustodyProof": {
+    "path": "output/browser-plan-proof/05-cross-platform-inventory-matrix/17-android-owned-shell-url-custody-proof.json",
+    "proofMode": "browser-platform-android-owned-shell-url-custody-proof",
+    "resultState": "android-owned-shell-requested-url-ref-custody-proof",
+    "physicalRequestedUrlRefRows": 1,
+    "manualRequiredRows": 1,
+    "rawUrlPersisted": false,
+    "physicalDeviceOwnerClaimed": false,
+    "physicalBrowserRoleRoutingClaimed": false,
+    "exactActiveTabClaimed": false,
+    "policyExecutionClaimed": false,
+    "enforcementClaimed": false,
+    "productClaimed": false,
     "failures": 0
   },
   "linuxHostProof": {

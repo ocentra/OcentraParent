@@ -1240,6 +1240,26 @@ and enforcement gaps. Evidence:
 The WP05 aggregate gate now requires that artifact. No product capability
 checklist update is claimed because WP05 remains partial/manual-required.
 
+WP05 Android owned-shell requested-URL custody addendum:
+`browser-android-owned-shell-url-custody` adds an activity-domain projection
+from the same real Android owned-shell proof artifact into a typed requested-URL
+custody read model. The projection accepts one physical Samsung Galaxy S9
+requested-URL ref row only when physical install, explicit launch, UI-tree,
+screenshot, WebView/BROWSABLE declaration, and local proof-page evidence are all
+present, and emits a manual-required row for the remaining physical Device
+Owner, physical Browser Role, exact URL policy, active-tab, final policy,
+blocking, and enforcement gaps. Evidence:
+`test-results/browser-platform-android-owned-shell-url-custody-proof/proof.json`
+and
+`output/browser-plan-proof/05-cross-platform-inventory-matrix/17-android-owned-shell-url-custody-proof.json`.
+The WP05 aggregate gate now requires that artifact. This proves requested-URL
+ref custody only; it does not persist raw URLs or claim exact URL policy,
+known-active tab custody, physical Device Owner/Browser Role routing, final
+policy execution, browser blocking, broad content-filter enforcement, release
+readiness, or product completion. No product capability checklist update is
+claimed because WP05 remains partial/manual-required and that checklist is owned
+by another active lane.
+
 SOCIAL-23/SOCIAL-24 managed-browser policy execution addendum:
 `social-managed-browser-policy-execution` adds a parent-domain managed-session
 execution boundary that consumes a non-final social policy decision candidate

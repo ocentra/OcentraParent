@@ -29,6 +29,10 @@
       "import": "./dist/browser-android-owned-shell-runtime.js",
       "types": "./dist/browser-android-owned-shell-runtime.d.ts"
     },
+    "./browser-android-owned-shell-url-custody": {
+      "import": "./dist/browser-android-owned-shell-url-custody.js",
+      "types": "./dist/browser-android-owned-shell-url-custody.d.ts"
+    },
     "./browser-managed-profile-store": {
       "import": "./dist/browser-managed-profile-store.js",
       "types": "./dist/browser-managed-profile-store.d.ts"
