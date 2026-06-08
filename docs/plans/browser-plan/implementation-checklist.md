@@ -892,6 +892,24 @@ cloud routing, parent notification UI delivery, report delivery execution,
 final policy execution, connector/native runtime, browser mutation, child
 intervention execution, unmanaged exact URL support, or enforcement.
 
+WP13 social provider receipt stream parser addendum:
+`browser-runtime-social-provider-receipt-stream-parser-proof` carries those
+service-published social provider receipt fields into the shared TypeScript
+protocol parser and portal-domain state projection. The parser accepts
+provider-dispatch-required receipt refs and manual-receipt-required rows,
+rejects manual rows that carry durable/provider refs, rejects dispatch rows
+missing provider attempt/durable refs, and keeps execution counters at zero.
+Portal-domain projects the parsed status without reading raw log fields.
+Evidence:
+`test-results/browser-runtime-social-provider-receipt-stream-parser-proof/proof.json`
+and
+`output/browser-plan-proof/browser-runtime-social-provider-receipt-stream-parser/01-browser-runtime-social-provider-receipt-stream-parser-proof.md`.
+This does not claim provider delivery, provider receipt ingestion runtime,
+provider webhook runtime, provider credentials, observed provider receipts,
+cloud routing, parent notification UI delivery, report delivery execution,
+final policy execution, connector/native runtime, browser mutation, child
+intervention execution, unmanaged exact URL support, or enforcement.
+
 ## Worker Report Template
 
 Use this shape in the hub report or PR-ready note:

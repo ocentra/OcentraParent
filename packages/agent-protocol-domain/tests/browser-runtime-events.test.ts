@@ -7,6 +7,7 @@ import {
   AgentBrowserRuntimeQueryVisibility,
   AgentProtocolDefaults,
   deriveAgentBrowserRuntimeActionIntentStatus,
+  deriveAgentBrowserRuntimeSocialProviderReceiptStatus,
   parseAgentBrowserRuntimeEventChainStreamFields,
 } from '../src/contracts';
 
@@ -140,6 +141,7 @@ describe('agent browser runtime event contracts', () => {
   it('parses every Rust browser runtime event type without name drift', specifyRustEventNameParity);
   it('parses dry-run policy action handoff without adapter dispatch', specifyDryRunActionHandoffParsing);
   it('derives pending action-intent subscriber status from dry-run stream entries', specifyActionIntentStatus);
+  it('derives social provider receipt boundary status from public stream fields', specifySocialProviderReceiptStatus);
   it('rejects mismatched phases, overclaims, invalid json, and count drift', specifyRejections);
 });
 
@@ -307,10 +309,75 @@ function specifyActionIntentStatus() {
   expect(emptyStatus.handoffRefs).toEqual([]);
 }
 
+function specifySocialProviderReceiptStatus() {
+  const parsed = parseAgentBrowserRuntimeEventChainStreamFields(
+    streamFields([entry(AgentBrowserRuntimeEventType.PolicyDecisionCompleted, PolicyDecisionPayload)], {
+      actionIntentCandidates: 1,
+      actionIntentHandoffCandidates: 1,
+      actionIntentHandoffOutboxRefs: ['browser-action-intent-outbox-ref-test'],
+      actionIntentHandoffRefs: ['browser-action-intent-handoff-ref-test'],
+      socialProviderReceiptBoundaryRows: 1,
+      socialProviderDispatchRequiredRows: 1,
+      socialProviderAttemptRefs: ['browser-social-provider-attempt-ref-test'],
+      socialProviderReceiptProofRefs: ['browser-social-provider-receipt-proof-ref-test'],
+      socialProviderDurableRows: 1,
+      socialProviderDurableResultRefs: ['browser-social-provider-durable-result-ref-test'],
+      socialProviderDurableStoreRefs: ['browser-social-provider-durable-store-ref-test'],
+      socialProviderReadModelRefs: ['browser-social-provider-read-model-ref-test'],
+      socialProviderSupportStatusRefs: ['browser-social-provider-support-status-ref-test'],
+    })
+  );
+
+  expect(parsed.ok).toBe(true);
+  if (!parsed.ok) {
+    return;
+  }
+
+  const status = deriveAgentBrowserRuntimeSocialProviderReceiptStatus(parsed.value);
+  expect(status).toMatchObject({
+    receiptBoundaryRows: 1,
+    providerDispatchRequiredRows: 1,
+    manualReceiptRequiredRows: 0,
+    providerAttemptRefs: ['browser-social-provider-attempt-ref-test'],
+    providerReceiptProofRefs: ['browser-social-provider-receipt-proof-ref-test'],
+    durableRows: 1,
+    durableResultRefs: ['browser-social-provider-durable-result-ref-test'],
+    durableStoreRefs: ['browser-social-provider-durable-store-ref-test'],
+    readModelRefs: ['browser-social-provider-read-model-ref-test'],
+    supportStatusRefs: ['browser-social-provider-support-status-ref-test'],
+    providerDeliveryClaimed: false,
+    receiptIngestionClaimed: false,
+    parentNotificationDeliveryClaimed: false,
+    reportDeliveryClaimed: false,
+    finalPolicyExecutionClaimed: false,
+    connectorNativeRuntimeClaimed: false,
+    enforcementClaimed: false,
+  });
+
+  const manualParsed = parseAgentBrowserRuntimeEventChainStreamFields(
+    streamFields(undefined, {
+      socialProviderReceiptBoundaryRows: 1,
+      socialProviderManualReceiptRequiredRows: 1,
+    })
+  );
+  expect(manualParsed.ok).toBe(true);
+  if (!manualParsed.ok) {
+    return;
+  }
+  expect(deriveAgentBrowserRuntimeSocialProviderReceiptStatus(manualParsed.value)).toMatchObject({
+    receiptBoundaryRows: 1,
+    providerDispatchRequiredRows: 0,
+    manualReceiptRequiredRows: 1,
+    durableRows: 0,
+    providerDeliveryClaimed: false,
+  });
+}
+
 function specifyRejections() {
   specifyStreamEnvelopeRejections();
   specifyRuntimePayloadRejections();
   specifyActionIntentOverclaimRejections();
+  specifySocialProviderReceiptOverclaimRejections();
 }
 
 function specifyStreamEnvelopeRejections() {
@@ -443,6 +510,41 @@ function specifyActionIntentOverclaimRejections() {
   ).toEqual({ ok: false, reason: 'invalid-entry' });
 }
 
+function specifySocialProviderReceiptOverclaimRejections() {
+  expect(
+    parseAgentBrowserRuntimeEventChainStreamFields(
+      streamFields(undefined, {
+        socialProviderReceiptBoundaryRows: 1,
+        socialProviderManualReceiptRequiredRows: 1,
+        socialProviderDurableRows: 1,
+        socialProviderDurableResultRefs: ['browser-social-provider-durable-result-ref-test'],
+      })
+    )
+  ).toEqual({ ok: false, reason: 'invalid-stream' });
+  expect(
+    parseAgentBrowserRuntimeEventChainStreamFields(
+      streamFields(undefined, {
+        socialProviderReceiptBoundaryRows: 1,
+        socialProviderDispatchRequiredRows: 1,
+        socialProviderDurableRows: 1,
+        socialProviderDurableResultRefs: ['browser-social-provider-durable-result-ref-test'],
+        socialProviderDurableStoreRefs: ['browser-social-provider-durable-store-ref-test'],
+        socialProviderReadModelRefs: ['browser-social-provider-read-model-ref-test'],
+        socialProviderSupportStatusRefs: ['browser-social-provider-support-status-ref-test'],
+      })
+    )
+  ).toEqual({ ok: false, reason: 'invalid-stream' });
+  expect(
+    parseAgentBrowserRuntimeEventChainStreamFields(
+      streamFields(undefined, {
+        socialProviderReceiptBoundaryRows: 1,
+        socialProviderDispatchRequiredRows: 1,
+        socialProviderManualReceiptRequiredRows: 1,
+      })
+    )
+  ).toEqual({ ok: false, reason: 'invalid-stream' });
+}
+
 function streamFields(
   entries = validEntries(),
   counters: {
@@ -454,8 +556,27 @@ function streamFields(
     readonly actionIntentAdapterExecutions?: number;
     readonly actionIntentChildInterventionExecutions?: number;
     readonly actionIntentEnforcementExecutions?: number;
+    readonly socialProviderReceiptBoundaryRows?: number;
+    readonly socialProviderDispatchRequiredRows?: number;
+    readonly socialProviderManualReceiptRequiredRows?: number;
+    readonly socialProviderAttemptRefs?: readonly string[];
+    readonly socialProviderReceiptProofRefs?: readonly string[];
+    readonly socialProviderDurableRows?: number;
+    readonly socialProviderDurableResultRefs?: readonly string[];
+    readonly socialProviderDurableStoreRefs?: readonly string[];
+    readonly socialProviderReadModelRefs?: readonly string[];
+    readonly socialProviderSupportStatusRefs?: readonly string[];
   } = {}
 ) {
+  return {
+    ...streamCountFields(entries),
+    ...streamActionIntentFields(counters),
+    ...streamSocialProviderReceiptFields(counters),
+    [AgentProtocolDefaults.Field.BrowserRuntimeEventChainStream]: JSON.stringify(entries),
+  };
+}
+
+function streamCountFields(entries: readonly unknown[]) {
   return {
     [AgentProtocolDefaults.Field.BrowserRuntimeObservedRows]: 1,
     [AgentProtocolDefaults.Field.BrowserRuntimeStreamedEvents]: entries.length,
@@ -464,6 +585,20 @@ function streamFields(
     [AgentProtocolDefaults.Field.BrowserRuntimeManualRequiredRows]: 1,
     [AgentProtocolDefaults.Field.BrowserRuntimeInterventionCommandEvents]: 0,
     [AgentProtocolDefaults.Field.BrowserRuntimeReadModelProjectionEvents]: 1,
+  };
+}
+
+function streamActionIntentFields(counters: {
+  readonly actionIntentCandidates?: number;
+  readonly actionIntentHandoffCandidates?: number;
+  readonly actionIntentHandoffOutboxRefs?: readonly string[];
+  readonly actionIntentHandoffRefs?: readonly string[];
+  readonly actionIntentDispatchAttempts?: number;
+  readonly actionIntentAdapterExecutions?: number;
+  readonly actionIntentChildInterventionExecutions?: number;
+  readonly actionIntentEnforcementExecutions?: number;
+}) {
+  return {
     [AgentProtocolDefaults.Field.BrowserRuntimeActionIntentCandidates]: counters.actionIntentCandidates ?? 0,
     [AgentProtocolDefaults.Field.BrowserRuntimeActionIntentHandoffCandidates]:
       counters.actionIntentHandoffCandidates ?? 0,
@@ -481,7 +616,47 @@ function streamFields(
       counters.actionIntentChildInterventionExecutions ?? 0,
     [AgentProtocolDefaults.Field.BrowserRuntimeActionIntentEnforcementExecutions]:
       counters.actionIntentEnforcementExecutions ?? 0,
-    [AgentProtocolDefaults.Field.BrowserRuntimeEventChainStream]: JSON.stringify(entries),
+  };
+}
+
+function streamSocialProviderReceiptFields(counters: {
+  readonly socialProviderReceiptBoundaryRows?: number;
+  readonly socialProviderDispatchRequiredRows?: number;
+  readonly socialProviderManualReceiptRequiredRows?: number;
+  readonly socialProviderAttemptRefs?: readonly string[];
+  readonly socialProviderReceiptProofRefs?: readonly string[];
+  readonly socialProviderDurableRows?: number;
+  readonly socialProviderDurableResultRefs?: readonly string[];
+  readonly socialProviderDurableStoreRefs?: readonly string[];
+  readonly socialProviderReadModelRefs?: readonly string[];
+  readonly socialProviderSupportStatusRefs?: readonly string[];
+}) {
+  return {
+    [AgentProtocolDefaults.Field.BrowserRuntimeSocialProviderReceiptBoundaryRows]:
+      counters.socialProviderReceiptBoundaryRows ?? 0,
+    [AgentProtocolDefaults.Field.BrowserRuntimeSocialProviderDispatchRequiredRows]:
+      counters.socialProviderDispatchRequiredRows ?? 0,
+    [AgentProtocolDefaults.Field.BrowserRuntimeSocialProviderManualReceiptRequiredRows]:
+      counters.socialProviderManualReceiptRequiredRows ?? 0,
+    [AgentProtocolDefaults.Field.BrowserRuntimeSocialProviderAttemptRefs]: JSON.stringify(
+      counters.socialProviderAttemptRefs ?? []
+    ),
+    [AgentProtocolDefaults.Field.BrowserRuntimeSocialProviderReceiptProofRefs]: JSON.stringify(
+      counters.socialProviderReceiptProofRefs ?? []
+    ),
+    [AgentProtocolDefaults.Field.BrowserRuntimeSocialProviderDurableRows]: counters.socialProviderDurableRows ?? 0,
+    [AgentProtocolDefaults.Field.BrowserRuntimeSocialProviderDurableResultRefs]: JSON.stringify(
+      counters.socialProviderDurableResultRefs ?? []
+    ),
+    [AgentProtocolDefaults.Field.BrowserRuntimeSocialProviderDurableStoreRefs]: JSON.stringify(
+      counters.socialProviderDurableStoreRefs ?? []
+    ),
+    [AgentProtocolDefaults.Field.BrowserRuntimeSocialProviderReadModelRefs]: JSON.stringify(
+      counters.socialProviderReadModelRefs ?? []
+    ),
+    [AgentProtocolDefaults.Field.BrowserRuntimeSocialProviderSupportStatusRefs]: JSON.stringify(
+      counters.socialProviderSupportStatusRefs ?? []
+    ),
   };
 }
 

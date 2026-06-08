@@ -164,6 +164,11 @@ export {
   type SocialAlertReportPanelRow,
 } from './social-alert-report-panel';
 export {
+  createBrowserSocialProviderReceiptStreamStatusIntent,
+  type BrowserSocialProviderReceiptStreamStatusDetail,
+  type BrowserSocialProviderReceiptStreamStatusIntent,
+} from './browser-social-provider-receipt-stream-status';
+export {
   PortalRoute,
   PortalDevToolWindow,
   PortalAiRuntimeRoutes,

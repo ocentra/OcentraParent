@@ -197,6 +197,17 @@ control while being more honest about managed versus unmanaged sources.
   UI delivery, report delivery, final policy execution, connector/native
   runtime, browser mutation, child intervention, unmanaged exact URL support,
   and enforcement remain unclaimed.
+- Browser-plan WP13 now also has TypeScript protocol and portal-domain state
+  coverage for the social provider receipt service stream fields. The shared
+  stream parser accepts provider-dispatch-required receipt refs and
+  manual-receipt-required rows, rejects durable/provider refs on manual rows or
+  incomplete dispatch rows, and the portal-domain projection exposes a
+  parent-visible receipt-boundary status without reading raw log fields.
+  Provider delivery, receipt ingestion runtime, webhook runtime, credentials,
+  observed provider receipts, cloud routing, parent notification UI delivery,
+  report delivery, final policy execution, connector/native runtime, browser
+  mutation, child intervention, unmanaged exact URL support, and enforcement
+  remain unclaimed.
 - Browser-plan WP13 now projects that named subscriber status through the
   service-backed browser runtime event-chain stream payload. Current
   store-backed browser rows still report zero pending candidates because the

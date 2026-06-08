@@ -193,6 +193,16 @@ export const AgentBrowserRuntimeEventChainStreamSchema = withParser(
     actionIntentAdapterExecutions: Schema.Literal(0),
     actionIntentChildInterventionExecutions: Schema.Literal(0),
     actionIntentEnforcementExecutions: Schema.Literal(0),
+    socialProviderReceiptBoundaryRows: Schema.Number,
+    socialProviderDispatchRequiredRows: Schema.Number,
+    socialProviderManualReceiptRequiredRows: Schema.Number,
+    socialProviderAttemptRefs: Schema.Array(BrowserRuntimeText),
+    socialProviderReceiptProofRefs: Schema.Array(BrowserRuntimeText),
+    socialProviderDurableRows: Schema.Number,
+    socialProviderDurableResultRefs: Schema.Array(BrowserRuntimeText),
+    socialProviderDurableStoreRefs: Schema.Array(BrowserRuntimeText),
+    socialProviderReadModelRefs: Schema.Array(BrowserRuntimeText),
+    socialProviderSupportStatusRefs: Schema.Array(BrowserRuntimeText),
     entries: Schema.Array(AgentBrowserRuntimeEventChainEntrySchema),
   }).pipe(
     Schema.filter(
@@ -211,6 +221,11 @@ export const AgentBrowserRuntimeEventChainStreamSchema = withParser(
           stream.actionIntentHandoffCandidates >= stream.actionIntentHandoffRefs.length &&
           stream.actionIntentHandoffOutboxRefs.length === stream.actionIntentHandoffRefs.length) ||
         'Expected browser runtime handoff refs to be paired with prepared handoff candidates'
+    ),
+    Schema.filter(
+      (stream) =>
+        browserRuntimeSocialProviderReceiptStateIsHonest(stream) ||
+        'Expected browser runtime social provider receipt refs to remain receipt-boundary proof only'
     )
   )
 );
@@ -245,6 +260,26 @@ export type AgentBrowserRuntimeActionIntentStatus = {
   readonly dryRunOnly: true;
   readonly policyAuthorityOnly: true;
   readonly candidates: readonly AgentBrowserRuntimeActionIntentCandidate[];
+};
+
+export type AgentBrowserRuntimeSocialProviderReceiptStatus = {
+  readonly receiptBoundaryRows: number;
+  readonly providerDispatchRequiredRows: number;
+  readonly manualReceiptRequiredRows: number;
+  readonly providerAttemptRefs: readonly string[];
+  readonly providerReceiptProofRefs: readonly string[];
+  readonly durableRows: number;
+  readonly durableResultRefs: readonly string[];
+  readonly durableStoreRefs: readonly string[];
+  readonly readModelRefs: readonly string[];
+  readonly supportStatusRefs: readonly string[];
+  readonly providerDeliveryClaimed: false;
+  readonly receiptIngestionClaimed: false;
+  readonly parentNotificationDeliveryClaimed: false;
+  readonly reportDeliveryClaimed: false;
+  readonly finalPolicyExecutionClaimed: false;
+  readonly connectorNativeRuntimeClaimed: false;
+  readonly enforcementClaimed: false;
 };
 
 export type AgentBrowserRuntimeEventChainStreamFailureReason =
@@ -291,53 +326,7 @@ export function parseAgentBrowserRuntimeEventChainStreamFields(
     entries.push(parsed.data);
   }
 
-  return streamResult(
-    AgentBrowserRuntimeEventChainStreamSchema.safeParse({
-      observedRows: numberField(fields, AgentProtocolDefaults.Field.BrowserRuntimeObservedRows),
-      streamedEvents: numberField(fields, AgentProtocolDefaults.Field.BrowserRuntimeStreamedEvents),
-      failedRows: numberField(fields, AgentProtocolDefaults.Field.BrowserRuntimeFailedRows),
-      exactUrlRows: numberField(fields, AgentProtocolDefaults.Field.BrowserRuntimeExactUrlRows),
-      manualRequiredRows: numberField(fields, AgentProtocolDefaults.Field.BrowserRuntimeManualRequiredRows),
-      interventionCommandEvents: numberField(
-        fields,
-        AgentProtocolDefaults.Field.BrowserRuntimeInterventionCommandEvents
-      ),
-      readModelProjectionEvents: numberField(
-        fields,
-        AgentProtocolDefaults.Field.BrowserRuntimeReadModelProjectionEvents
-      ),
-      actionIntentCandidates: numberField(fields, AgentProtocolDefaults.Field.BrowserRuntimeActionIntentCandidates),
-      actionIntentHandoffCandidates: numberField(
-        fields,
-        AgentProtocolDefaults.Field.BrowserRuntimeActionIntentHandoffCandidates
-      ),
-      actionIntentHandoffOutboxRefs: stringArrayField(
-        fields,
-        AgentProtocolDefaults.Field.BrowserRuntimeActionIntentHandoffOutboxRefs
-      ),
-      actionIntentHandoffRefs: stringArrayField(
-        fields,
-        AgentProtocolDefaults.Field.BrowserRuntimeActionIntentHandoffRefs
-      ),
-      actionIntentDispatchAttempts: numberField(
-        fields,
-        AgentProtocolDefaults.Field.BrowserRuntimeActionIntentDispatchAttempts
-      ),
-      actionIntentAdapterExecutions: numberField(
-        fields,
-        AgentProtocolDefaults.Field.BrowserRuntimeActionIntentAdapterExecutions
-      ),
-      actionIntentChildInterventionExecutions: numberField(
-        fields,
-        AgentProtocolDefaults.Field.BrowserRuntimeActionIntentChildInterventionExecutions
-      ),
-      actionIntentEnforcementExecutions: numberField(
-        fields,
-        AgentProtocolDefaults.Field.BrowserRuntimeActionIntentEnforcementExecutions
-      ),
-      entries,
-    })
-  );
+  return streamResult(AgentBrowserRuntimeEventChainStreamSchema.safeParse(streamFieldsCandidate(fields, entries)));
 }
 
 export function deriveAgentBrowserRuntimeActionIntentStatus(
@@ -356,6 +345,30 @@ export function deriveAgentBrowserRuntimeActionIntentStatus(
     dryRunOnly: true,
     policyAuthorityOnly: true,
     candidates,
+  };
+}
+
+export function deriveAgentBrowserRuntimeSocialProviderReceiptStatus(
+  stream: AgentBrowserRuntimeEventChainStream
+): AgentBrowserRuntimeSocialProviderReceiptStatus {
+  return {
+    receiptBoundaryRows: stream.socialProviderReceiptBoundaryRows,
+    providerDispatchRequiredRows: stream.socialProviderDispatchRequiredRows,
+    manualReceiptRequiredRows: stream.socialProviderManualReceiptRequiredRows,
+    providerAttemptRefs: stream.socialProviderAttemptRefs,
+    providerReceiptProofRefs: stream.socialProviderReceiptProofRefs,
+    durableRows: stream.socialProviderDurableRows,
+    durableResultRefs: stream.socialProviderDurableResultRefs,
+    durableStoreRefs: stream.socialProviderDurableStoreRefs,
+    readModelRefs: stream.socialProviderReadModelRefs,
+    supportStatusRefs: stream.socialProviderSupportStatusRefs,
+    providerDeliveryClaimed: false,
+    receiptIngestionClaimed: false,
+    parentNotificationDeliveryClaimed: false,
+    reportDeliveryClaimed: false,
+    finalPolicyExecutionClaimed: false,
+    connectorNativeRuntimeClaimed: false,
+    enforcementClaimed: false,
   };
 }
 
@@ -383,6 +396,103 @@ function parserFailure(
   return {
     ok: false,
     reason,
+  };
+}
+
+function streamFieldsCandidate(fields: LogFields, entries: readonly AgentBrowserRuntimeEventChainEntry[]) {
+  return {
+    ...streamCountFields(fields),
+    ...streamActionIntentFields(fields),
+    ...streamSocialProviderReceiptFields(fields),
+    entries,
+  };
+}
+
+function streamCountFields(fields: LogFields) {
+  return {
+    observedRows: numberField(fields, AgentProtocolDefaults.Field.BrowserRuntimeObservedRows),
+    streamedEvents: numberField(fields, AgentProtocolDefaults.Field.BrowserRuntimeStreamedEvents),
+    failedRows: numberField(fields, AgentProtocolDefaults.Field.BrowserRuntimeFailedRows),
+    exactUrlRows: numberField(fields, AgentProtocolDefaults.Field.BrowserRuntimeExactUrlRows),
+    manualRequiredRows: numberField(fields, AgentProtocolDefaults.Field.BrowserRuntimeManualRequiredRows),
+    interventionCommandEvents: numberField(fields, AgentProtocolDefaults.Field.BrowserRuntimeInterventionCommandEvents),
+    readModelProjectionEvents: numberField(fields, AgentProtocolDefaults.Field.BrowserRuntimeReadModelProjectionEvents),
+  };
+}
+
+function streamActionIntentFields(fields: LogFields) {
+  return {
+    actionIntentCandidates: numberField(fields, AgentProtocolDefaults.Field.BrowserRuntimeActionIntentCandidates),
+    actionIntentHandoffCandidates: numberField(
+      fields,
+      AgentProtocolDefaults.Field.BrowserRuntimeActionIntentHandoffCandidates
+    ),
+    actionIntentHandoffOutboxRefs: stringArrayField(
+      fields,
+      AgentProtocolDefaults.Field.BrowserRuntimeActionIntentHandoffOutboxRefs
+    ),
+    actionIntentHandoffRefs: stringArrayField(
+      fields,
+      AgentProtocolDefaults.Field.BrowserRuntimeActionIntentHandoffRefs
+    ),
+    actionIntentDispatchAttempts: numberField(
+      fields,
+      AgentProtocolDefaults.Field.BrowserRuntimeActionIntentDispatchAttempts
+    ),
+    actionIntentAdapterExecutions: numberField(
+      fields,
+      AgentProtocolDefaults.Field.BrowserRuntimeActionIntentAdapterExecutions
+    ),
+    actionIntentChildInterventionExecutions: numberField(
+      fields,
+      AgentProtocolDefaults.Field.BrowserRuntimeActionIntentChildInterventionExecutions
+    ),
+    actionIntentEnforcementExecutions: numberField(
+      fields,
+      AgentProtocolDefaults.Field.BrowserRuntimeActionIntentEnforcementExecutions
+    ),
+  };
+}
+
+function streamSocialProviderReceiptFields(fields: LogFields) {
+  return {
+    socialProviderReceiptBoundaryRows: numberField(
+      fields,
+      AgentProtocolDefaults.Field.BrowserRuntimeSocialProviderReceiptBoundaryRows
+    ),
+    socialProviderDispatchRequiredRows: numberField(
+      fields,
+      AgentProtocolDefaults.Field.BrowserRuntimeSocialProviderDispatchRequiredRows
+    ),
+    socialProviderManualReceiptRequiredRows: numberField(
+      fields,
+      AgentProtocolDefaults.Field.BrowserRuntimeSocialProviderManualReceiptRequiredRows
+    ),
+    socialProviderAttemptRefs: stringArrayField(
+      fields,
+      AgentProtocolDefaults.Field.BrowserRuntimeSocialProviderAttemptRefs
+    ),
+    socialProviderReceiptProofRefs: stringArrayField(
+      fields,
+      AgentProtocolDefaults.Field.BrowserRuntimeSocialProviderReceiptProofRefs
+    ),
+    socialProviderDurableRows: numberField(fields, AgentProtocolDefaults.Field.BrowserRuntimeSocialProviderDurableRows),
+    socialProviderDurableResultRefs: stringArrayField(
+      fields,
+      AgentProtocolDefaults.Field.BrowserRuntimeSocialProviderDurableResultRefs
+    ),
+    socialProviderDurableStoreRefs: stringArrayField(
+      fields,
+      AgentProtocolDefaults.Field.BrowserRuntimeSocialProviderDurableStoreRefs
+    ),
+    socialProviderReadModelRefs: stringArrayField(
+      fields,
+      AgentProtocolDefaults.Field.BrowserRuntimeSocialProviderReadModelRefs
+    ),
+    socialProviderSupportStatusRefs: stringArrayField(
+      fields,
+      AgentProtocolDefaults.Field.BrowserRuntimeSocialProviderSupportStatusRefs
+    ),
   };
 }
 
@@ -432,6 +542,58 @@ function actionIntentCandidateFromEntry(
       observedAt: payload.observedAt,
     },
   ];
+}
+
+function browserRuntimeSocialProviderReceiptStateIsHonest(stream: {
+  readonly socialProviderReceiptBoundaryRows: number;
+  readonly socialProviderDispatchRequiredRows: number;
+  readonly socialProviderManualReceiptRequiredRows: number;
+  readonly socialProviderAttemptRefs: readonly string[];
+  readonly socialProviderReceiptProofRefs: readonly string[];
+  readonly socialProviderDurableRows: number;
+  readonly socialProviderDurableResultRefs: readonly string[];
+  readonly socialProviderDurableStoreRefs: readonly string[];
+  readonly socialProviderReadModelRefs: readonly string[];
+  readonly socialProviderSupportStatusRefs: readonly string[];
+}): boolean {
+  if (
+    stream.socialProviderReceiptBoundaryRows !==
+    stream.socialProviderDispatchRequiredRows + stream.socialProviderManualReceiptRequiredRows
+  ) {
+    return false;
+  }
+  if (stream.socialProviderDispatchRequiredRows === 0) {
+    return socialProviderReceiptRefsAreEmpty(stream);
+  }
+  return (
+    stream.socialProviderAttemptRefs.length === stream.socialProviderDispatchRequiredRows &&
+    stream.socialProviderReceiptProofRefs.length === stream.socialProviderDispatchRequiredRows &&
+    stream.socialProviderDurableRows === stream.socialProviderDispatchRequiredRows &&
+    stream.socialProviderDurableResultRefs.length === stream.socialProviderDurableRows &&
+    stream.socialProviderDurableStoreRefs.length === stream.socialProviderDurableRows &&
+    stream.socialProviderReadModelRefs.length === stream.socialProviderDurableRows &&
+    stream.socialProviderSupportStatusRefs.length === stream.socialProviderDurableRows
+  );
+}
+
+function socialProviderReceiptRefsAreEmpty(stream: {
+  readonly socialProviderAttemptRefs: readonly string[];
+  readonly socialProviderReceiptProofRefs: readonly string[];
+  readonly socialProviderDurableRows: number;
+  readonly socialProviderDurableResultRefs: readonly string[];
+  readonly socialProviderDurableStoreRefs: readonly string[];
+  readonly socialProviderReadModelRefs: readonly string[];
+  readonly socialProviderSupportStatusRefs: readonly string[];
+}): boolean {
+  return (
+    stream.socialProviderAttemptRefs.length === 0 &&
+    stream.socialProviderReceiptProofRefs.length === 0 &&
+    stream.socialProviderDurableRows === 0 &&
+    stream.socialProviderDurableResultRefs.length === 0 &&
+    stream.socialProviderDurableStoreRefs.length === 0 &&
+    stream.socialProviderReadModelRefs.length === 0 &&
+    stream.socialProviderSupportStatusRefs.length === 0
+  );
 }
 
 function browserRuntimePayloadIsHonest(payload: {

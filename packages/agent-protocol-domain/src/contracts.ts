@@ -65,6 +65,7 @@ export {
   AgentBrowserRuntimeQueryVisibility,
   AgentBrowserRuntimeQueryVisibilitySchema,
   deriveAgentBrowserRuntimeActionIntentStatus,
+  deriveAgentBrowserRuntimeSocialProviderReceiptStatus,
   parseAgentBrowserRuntimeEventChainStreamFields,
   type AgentBrowserRuntimeActionIntentCandidate,
   type AgentBrowserRuntimeActionIntentStatus,
@@ -73,6 +74,7 @@ export {
   type AgentBrowserRuntimeEventChainStreamFailureReason,
   type AgentBrowserRuntimeEventChainStreamResult,
   type AgentBrowserRuntimeEventPayload,
+  type AgentBrowserRuntimeSocialProviderReceiptStatus,
 } from './browser-runtime-events';
 export {
   AgentLanBrowserAddDeviceDiscoveryDeviceSchema,

@@ -896,3 +896,36 @@ connector/native runtime, browser mutation, child intervention execution,
 unmanaged exact URL support, or enforcement. Parent-domain package subpath
 export remains deferred while another active lane owns
 `packages/parent-domain/package.json`.
+
+## Social Provider Receipt Stream Parser Addendum - 2026-06-08
+
+`browser-runtime-social-provider-receipt-stream-parser-proof` carries the
+service-published social provider receipt fields into the shared TypeScript
+protocol parser and a portal-domain status projection. The parser now reads
+social provider receipt boundary rows, provider-dispatch-required rows,
+manual-receipt-required rows, provider attempt refs, receipt proof refs,
+durable result/store refs, read-model refs, and support-status refs from the
+existing browser runtime stream payload. It rejects manual receipt rows that
+try to carry durable/provider refs, rejects provider-dispatch-required rows
+missing provider attempt or durable refs, and keeps all execution counters at
+zero. Portal-domain exposes the parsed status as a parent-visible intent
+without reading raw log fields.
+
+Evidence:
+
+- `packages/agent-protocol-domain/src/defaults.ts`
+- `packages/agent-protocol-domain/src/browser-runtime-events.ts`
+- `packages/agent-protocol-domain/tests/browser-runtime-events.test.ts`
+- `packages/portal-domain/src/browser-social-provider-receipt-stream-status.ts`
+- `packages/portal-domain/tests/browser-social-provider-receipt-stream-status.test.ts`
+- `scripts/test/browser-runtime-social-provider-receipt-stream-parser-proof.mjs`
+- `test-results/browser-runtime-social-provider-receipt-stream-parser-proof/proof.json`
+- `output/browser-plan-proof/browser-runtime-social-provider-receipt-stream-parser/01-browser-runtime-social-provider-receipt-stream-parser-proof.md`
+- `cmd /c node scripts/test/browser-runtime-social-provider-receipt-stream-parser-proof.mjs`
+
+This is public protocol/portal-domain status proof only. It does not claim
+provider delivery, provider receipt ingestion runtime, provider webhook
+runtime, provider credentials, observed provider receipts, cloud routing,
+parent notification UI delivery, report delivery execution, final policy
+execution, connector/native runtime, browser mutation, child intervention
+execution, unmanaged exact URL support, or enforcement.
