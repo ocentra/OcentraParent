@@ -7,7 +7,7 @@ test tests::platform_claims::platform_claim_manifest_reports_unavailable_states_
 test tests::platform_claims::platform_claim_manifest_names_fixture_platform_permission_and_device_refs ... ok
 test tests::platform_claims::platform_claim_manifest_rejects_broad_or_live_platform_claims ... ok
 
-test result: ok. 6 passed; 0 failed; 0 ignored; 0 measured; 223 filtered out; finished in 0.00s
+test result: ok. 6 passed; 0 failed; 0 ignored; 0 measured; 235 filtered out; finished in 0.00s
 
-    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.21s
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.14s
      Running unittests src\lib.rs (target\debug\deps\ocentra_network_evidence-36610952c1128119.exe)

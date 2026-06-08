@@ -1,4 +1,5 @@
 import { spawnSync } from 'node:child_process';
+import { createHash } from 'node:crypto';
 import { existsSync, mkdirSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 
@@ -12,6 +13,15 @@ const sourceCommit = runText('git', ['rev-parse', 'HEAD']).trim();
 const sourceOriginMain = runText('git', ['rev-parse', 'origin/main']).trim();
 const sourceMergeBase = runText('git', ['merge-base', 'HEAD', 'origin/main']).trim();
 const sourceStatusShort = readSourceStatusShort();
+const expectedAndroidTarget = {
+  targetRef: 'android-physical-target-sm-g965w-row40a',
+  serial: process.env.NETWORK_ANDROID_TARGET_SERIAL ?? '192.168.2.45:5555',
+  product: process.env.NETWORK_ANDROID_TARGET_PRODUCT ?? 'star2qltecs',
+  model: process.env.NETWORK_ANDROID_TARGET_MODEL ?? 'SM_G965W',
+  device: process.env.NETWORK_ANDROID_TARGET_DEVICE ?? 'star2qltecs',
+  androidRelease: process.env.NETWORK_ANDROID_TARGET_RELEASE ?? '10',
+  abi: process.env.NETWORK_ANDROID_TARGET_ABI ?? 'arm64-v8a',
+};
 
 writeFileSync(
   join(proofRoot, 'expected-platform-claims.json'),
@@ -33,6 +43,7 @@ writeFileSync(
         'every ready claim names permission, entitlement, capability, or manual follow-up refs',
         'every platform claim names an audit ref',
         'local Windows, Android SDK, Linux WSL, and Apple CI-unavailable probe observations align with adapter status rows',
+        'named Android physical target identity is attached as read-only row40a proof context without VpnService execution',
         'manual-required and unavailable states remain reportable without live execution',
         'adapter authorization is accepted only on ready platform claim rows',
         'UI has no policy authority',
@@ -118,6 +129,7 @@ const proof = {
     'manual-required missing artifacts have explicit follow-up entries',
     'unavailable platform rows remain visible without adapter authorization',
     'local Windows, Android SDK, Linux WSL, and Apple CI-unavailable probe observations stay read-only/manual/unavailable and match adapter status',
+    'named Android physical target identity proof context is recorded without upgrading Android VpnService execution',
     'proof sources cannot authorize adapters unless the platform claim row is ready',
     'generic platform support and live adapter execution claims are rejected',
     'proof sources cannot publish enforcement commands',
@@ -127,6 +139,7 @@ const proof = {
     'generic platform support',
     'live host adapter mutation or packet blocking',
     'production platform support',
+    'Device Owner or authority-enrolled Android support',
     'exact URL, page content, or decrypted payload from network-only evidence',
     'policy engine execution',
     'enforcement command publication',
@@ -172,7 +185,7 @@ Manual-required and unavailable labels:
 - Missing WFP administrator permission records manual follow-up label \`windows-wfp.administrator-permission\`.
 - Unavailable Linux TUN rows remain visible, do not authorize adapter apply, and record follow-up label \`linux-adapter.permission\` when permission proof is absent.
 - Non-ready platform rows cannot carry adapter authorization, so dry-run, research-only, manual-required, and unavailable states remain non-executable.
-- Local host probe observations are written to \`local-platform-observations.json\`: Windows read-only command output, Android SDK/emulator availability, WSL/Linux tool availability, and macOS/iOS CI/manual-unavailable boundaries.
+- Local host probe observations are written to \`local-platform-observations.json\`: Windows read-only command summaries, Android SDK/emulator availability, row40a named physical-target identity summaries, WSL/Linux tool availability, and macOS/iOS CI/manual-unavailable boundaries.
 
 Screenshots/logs:
 
@@ -202,8 +215,26 @@ function collectLocalPlatformObservations() {
   const emulatorPath = existingCommand(join(androidSdkRoot, 'emulator', 'emulator.exe'), 'emulator');
   const windowsNetsh = runProbe('netsh', ['advfirewall', 'show', 'allprofiles', 'state']);
   const windowsPktmon = runProbe('pktmon', ['status']);
+  const androidConnect = runProbe(adbPath, ['connect', expectedAndroidTarget.serial]);
   const androidDevices = runProbe(adbPath, ['devices', '-l']);
   const androidAvds = runProbe(emulatorPath, ['-list-avds']);
+  const androidModel = runProbe(adbPath, ['-s', expectedAndroidTarget.serial, 'shell', 'getprop', 'ro.product.model']);
+  const androidProduct = runProbe(adbPath, ['-s', expectedAndroidTarget.serial, 'shell', 'getprop', 'ro.product.name']);
+  const androidDevice = runProbe(adbPath, [
+    '-s',
+    expectedAndroidTarget.serial,
+    'shell',
+    'getprop',
+    'ro.product.device',
+  ]);
+  const androidRelease = runProbe(adbPath, [
+    '-s',
+    expectedAndroidTarget.serial,
+    'shell',
+    'getprop',
+    'ro.build.version.release',
+  ]);
+  const androidAbi = runProbe(adbPath, ['-s', expectedAndroidTarget.serial, 'shell', 'getprop', 'ro.product.cpu.abi']);
   const wslTools = runProbe('wsl', [
     '-d',
     'Ubuntu-22.04',
@@ -211,9 +242,20 @@ function collectLocalPlatformObservations() {
     '-lc',
     'command -v nft; command -v ip; command -v tcpdump; command -v bpftool || true; command -v tshark || true',
   ]);
-  const androidPhysicalDeviceDetected = /\n[^\n]*\sdevice\s/u.test(androidDevices.stdout);
+  const androidTargetRow = parseAndroidTargetRow(androidDevices.stdout, expectedAndroidTarget.serial);
+  const androidPhysicalDeviceDetected = androidTargetRow?.state === 'device';
   const androidAvdDetected = androidAvds.stdout.trim().length > 0;
   const linuxToolSetReady = ['nft', 'ip', 'tcpdump'].every((tool) => wslTools.stdout.includes(tool));
+  const androidObserved = {
+    serial: expectedAndroidTarget.serial,
+    product: androidTargetRow?.product ?? firstLine(androidProduct.stdout),
+    model: androidTargetRow?.model ?? firstLine(androidModel.stdout).replace(/-/gu, '_'),
+    device: androidTargetRow?.device ?? firstLine(androidDevice.stdout),
+    androidRelease: firstLine(androidRelease.stdout),
+    abi: firstLine(androidAbi.stdout),
+    getpropModelSha256: hashText(firstLine(androidModel.stdout)),
+  };
+  const androidIdentityMismatches = androidPhysicalDeviceDetected ? androidMismatches(androidObserved) : [];
 
   return {
     checkedAt: new Date().toISOString(),
@@ -221,18 +263,44 @@ function collectLocalPlatformObservations() {
     windows: {
       firewallProbeState: windowsNetsh.status === 0 ? 'read-only-observed' : 'manual-required',
       wfpProbeState: windowsPktmon.status === 0 ? 'read-only-observed' : 'manual-required',
-      probes: [windowsNetsh, windowsPktmon],
+      probes: [windowsNetsh.summary, windowsPktmon.summary],
     },
     android: {
       sdkProbeState: androidDevices.status === 0 || androidAvds.status === 0 ? 'manual-required' : 'unavailable',
       physicalDeviceDetected: androidPhysicalDeviceDetected,
       avdDetected: androidAvdDetected,
-      probes: [androidDevices, androidAvds],
+      physicalTargetProof: {
+        proofRef: 'android-physical-target-proof-row40a',
+        expectedTarget: expectedAndroidTarget,
+        observed: androidObserved,
+        state:
+          !androidConnect.summary.status && !androidDevices.summary.status && androidPhysicalDeviceDetected
+            ? androidIdentityMismatches.length === 0
+              ? 'physical-device-observed'
+              : 'mismatch'
+            : 'manual-required',
+        identityMatched: androidPhysicalDeviceDetected && androidIdentityMismatches.length === 0,
+        mismatches: androidIdentityMismatches,
+        liveVpnServiceExecutionClaimed: false,
+        packetCaptureClaimed: false,
+        packetBlockClaimed: false,
+        productionAndroidSupportClaimed: false,
+      },
+      probes: [
+        androidConnect.summary,
+        androidDevices.summary,
+        androidAvds.summary,
+        androidModel.summary,
+        androidProduct.summary,
+        androidDevice.summary,
+        androidRelease.summary,
+        androidAbi.summary,
+      ],
     },
     linux: {
       wslProbeState: linuxToolSetReady ? 'lab-ready' : 'manual-required',
       requiredToolsObserved: linuxToolSetReady,
-      probes: [wslTools],
+      probes: [wslTools.summary],
     },
     apple: {
       macOsProbeState: process.platform === 'darwin' ? 'ci-only' : 'unavailable-on-windows-host',
@@ -257,13 +325,78 @@ function existingCommand(path, fallback) {
 
 function runProbe(command, args) {
   const result = spawnSync(command, args, { encoding: 'utf8', shell: false });
+  const stdout = normalizeProbeOutput(result.stdout ?? '');
+  const stderr = normalizeProbeOutput(result.stderr ?? '');
   return {
-    command: [command, ...args].join(' '),
+    command: redactCommand([command, ...args]),
     status: result.status,
-    stdout: normalizeProbeOutput(result.stdout ?? ''),
-    stderr: normalizeProbeOutput(result.stderr ?? ''),
+    stdout,
+    stderr,
     error: result.error?.message,
+    summary: {
+      command: redactCommand([command, ...args]),
+      status: result.status,
+      stdoutLineCount: lineCount(stdout),
+      stderrLineCount: lineCount(stderr),
+      stdoutSha256: hashText(stdout),
+      stderrSha256: hashText(stderr),
+      error: result.error?.message,
+    },
   };
+}
+
+function parseAndroidTargetRow(output, serial) {
+  const row = output
+    .split('\n')
+    .map((line) => line.trim())
+    .find((line) => line.startsWith(`${serial} `));
+  if (!row) {
+    return undefined;
+  }
+  return {
+    state: row.split(/\s+/u)[1],
+    product: namedValue(row, 'product'),
+    model: namedValue(row, 'model'),
+    device: namedValue(row, 'device'),
+    rowSha256: hashText(row),
+  };
+}
+
+function namedValue(row, name) {
+  return row.match(new RegExp(`(?:^|\\s)${name}:([^\\s]+)`, 'u'))?.[1] ?? '';
+}
+
+function androidMismatches(observed) {
+  const rows = [];
+  for (const [field, expectedValue, observedValue] of [
+    ['serial', expectedAndroidTarget.serial, observed.serial],
+    ['product', expectedAndroidTarget.product, observed.product],
+    ['model', expectedAndroidTarget.model, observed.model],
+    ['device', expectedAndroidTarget.device, observed.device],
+    ['androidRelease', expectedAndroidTarget.androidRelease, observed.androidRelease],
+    ['abi', expectedAndroidTarget.abi, observed.abi],
+  ]) {
+    if (expectedValue !== observedValue) {
+      rows.push({ field, expected: expectedValue, observed: observedValue });
+    }
+  }
+  return rows;
+}
+
+function firstLine(value) {
+  return value.split('\n')[0]?.trim() ?? '';
+}
+
+function lineCount(value) {
+  return value.length === 0 ? 0 : value.split('\n').length;
+}
+
+function hashText(value) {
+  return createHash('sha256').update(value).digest('hex');
+}
+
+function redactCommand(parts) {
+  return parts.map((part) => part.replace(expectedAndroidTarget.serial, '<android-target>')).join(' ');
 }
 
 function normalizeProbeOutput(value) {
