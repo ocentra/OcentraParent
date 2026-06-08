@@ -61,6 +61,12 @@ describe('tracking product readiness closure proof', () => {
     expect(proof.aggregateEvidence.productionWorkerRequiredArtifactCount).toBe(8);
     expect(proof.aggregateEvidence.productionWorkerPresentArtifactCount).toBe(0);
     expect(proof.aggregateEvidence.productionWorkerMissingArtifactCount).toBe(8);
+    expect(proof.aggregateEvidence.productionWorkerPreflightRowCount).toBe(8);
+    expect(proof.aggregateEvidence.productionWorkerPreflightManualRequiredRowCount).toBe(8);
+    expect(proof.aggregateEvidence.productionWorkerPreflightRequiredArtifactCount).toBe(8);
+    expect(proof.aggregateEvidence.productionWorkerPreflightPresentArtifactCount).toBe(0);
+    expect(proof.aggregateEvidence.productionWorkerPreflightMissingArtifactCount).toBe(8);
+    expect(proof.aggregateEvidence.productionWorkerPreflightProductReadyRowCount).toBe(0);
     expect(proof.aggregateEvidence.claimAuditPresentArtifactCount).toBe(5);
     expect(proof.aggregateEvidence.claimAuditPhysicalDeviceRequiredRowCount).toBe(6);
     expect(proof.aggregateEvidence.claimAuditApprovedManualRequiredRowCount).toBe(1);
@@ -146,6 +152,12 @@ function aggregateEvidence() {
     productionWorkerRequiredArtifactCount: 8,
     productionWorkerPresentArtifactCount: 0,
     productionWorkerMissingArtifactCount: 8,
+    productionWorkerPreflightRowCount: 8,
+    productionWorkerPreflightManualRequiredRowCount: 8,
+    productionWorkerPreflightRequiredArtifactCount: 8,
+    productionWorkerPreflightPresentArtifactCount: 0,
+    productionWorkerPreflightMissingArtifactCount: 8,
+    productionWorkerPreflightProductReadyRowCount: 0,
     claimAuditPresentArtifactCount: 5,
     claimAuditMissingArtifactCount: 49,
     claimAuditManualRequiredRowCount: 10,

@@ -176,6 +176,12 @@ export const TrackingRealRuntimeHandoffClosureAccountingSchema = withParser(
     productionWorkerRequiredArtifactCount: Schema.Number.pipe(Schema.int(), Schema.positive()),
     productionWorkerPresentArtifactCount: Schema.Number.pipe(Schema.int()),
     productionWorkerMissingArtifactCount: Schema.Number.pipe(Schema.int()),
+    productionWorkerPreflightRowCount: Schema.Number.pipe(Schema.int(), Schema.positive()),
+    productionWorkerPreflightManualRequiredRowCount: Schema.Number.pipe(Schema.int(), Schema.positive()),
+    productionWorkerPreflightRequiredArtifactCount: Schema.Number.pipe(Schema.int(), Schema.positive()),
+    productionWorkerPreflightPresentArtifactCount: Schema.Literal(0),
+    productionWorkerPreflightMissingArtifactCount: Schema.Number.pipe(Schema.int(), Schema.positive()),
+    productionWorkerPreflightProductReadyRowCount: Schema.Literal(0),
     claimAuditPresentArtifactCount: Schema.Number.pipe(Schema.int()),
     claimAuditMissingArtifactCount: Schema.Number.pipe(Schema.int(), Schema.positive()),
     claimAuditManualRequiredRowCount: Schema.Number.pipe(Schema.int(), Schema.positive()),
@@ -268,6 +274,22 @@ export const TrackingRealRuntimeHandoffClosureAccountingSchema = withParser(
           accounting.productionWorkerRequiredArtifactCount ===
             accounting.productionWorkerPresentArtifactCount + accounting.productionWorkerMissingArtifactCount ||
           'Real-runtime closure accounting must classify every production worker artifact'
+      )
+    )
+    .pipe(
+      Schema.filter(
+        (accounting) =>
+          accounting.productionWorkerPreflightRequiredArtifactCount ===
+            accounting.productionWorkerPreflightPresentArtifactCount +
+              accounting.productionWorkerPreflightMissingArtifactCount ||
+          'Real-runtime closure accounting must classify every production worker preflight artifact'
+      )
+    )
+    .pipe(
+      Schema.filter(
+        (accounting) =>
+          accounting.productionWorkerPreflightRowCount === accounting.productionWorkerPreflightManualRequiredRowCount ||
+          'Real-runtime closure accounting must keep production worker preflight manual-required'
       )
     )
     .pipe(

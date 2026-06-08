@@ -6,4 +6,5 @@ cmd /c node scripts/test/tracking-android-emulator-artifact-inventory-proof.mjs 
 cmd /c node scripts/test/tracking-ios-simulator-artifact-inventory-proof.mjs exit=0
 cmd /c node scripts/test/tracking-retention-runtime-artifact-gate-proof.mjs exit=0
 cmd /c node scripts/test/tracking-retention-platform-enforcement-preflight-proof.mjs exit=0
+cmd /c node scripts/test/tracking-production-worker-runtime-preflight-proof.mjs exit=0
 cmd /c node scripts/test/tracking-claim-audit-proof.mjs exit=0
