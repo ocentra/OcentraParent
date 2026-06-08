@@ -25,6 +25,7 @@ test('browser route renders service-backed social alert and report intent rows',
   await assertSocialAlertReportRoute(page);
   await requestSocialAlertReportReadModel(page);
   await assertServiceBackedSocialAlertReportRows(page);
+  await assertBrowserReceiptStatusRows(page);
   await captureSocialAlertReportScreenshots(page);
   await writeAccessibilitySummary(await collectAccessibilitySummary(page));
 
@@ -85,6 +86,24 @@ async function assertServiceBackedSocialAlertReportRows(page: Page): Promise<voi
   expect(routeText ?? '').not.toMatch(/(?:report delivered|notification ui delivered|enforcement active)/iu);
 }
 
+async function assertBrowserReceiptStatusRows(page: Page): Promise<void> {
+  const alertRegion = page.getByRole('region', { name: 'Social alerts and reports' });
+  await expect(alertRegion.getByRole('heading', { name: 'Social provider receipt stream status' })).toBeVisible({
+    timeout: portalShellReadyTimeoutMs,
+  });
+  await expect(alertRegion.getByRole('heading', { name: 'Social provider receipt ingestion readiness' })).toBeVisible();
+  await expect(alertRegion.getByText('0 provider receipts observed').first()).toBeVisible();
+  await expect(alertRegion.getByText('not-observed').first()).toBeVisible();
+  await expect(alertRegion.getByText('unavailable').first()).toBeVisible();
+  await expect(alertRegion.getByText('not-claimed').first()).toBeVisible();
+
+  const routeText = await alertRegion.textContent();
+  expect(routeText ?? '').not.toMatch(
+    /(?:provider delivery complete|provider receipt ingested|webhook runtime ready)/iu
+  );
+  expect(routeText ?? '').not.toMatch(/(?:browser mutation complete|child intervention executed|enforcement active)/iu);
+}
+
 async function captureSocialAlertReportScreenshots(page: Page): Promise<void> {
   await mkdir(screenshotDir, { recursive: true });
   await page.screenshot({ fullPage: true, path: desktopScreenshotPath });
@@ -129,11 +148,14 @@ async function writeAccessibilitySummary(
   expect(summary.headings).toContain('High-risk social alert intent');
   expect(summary.headings).toContain('Manual alert/report proof required');
   expect(summary.headings).toContain('Provider status manual required');
+  expect(summary.headings).toContain('Social provider receipt stream status');
+  expect(summary.headings).toContain('Social provider receipt ingestion readiness');
   expect(summary.labels).toContain('Rows returned');
   expect(summary.labels).toContain('Generated at');
   expect(summary.labels).toContain('Capability');
   expect(summary.labels).toContain('Product claim');
   expect(summary.values).toContain('4');
+  expect(summary.values).toContain('0 provider receipts observed');
   expect(summary.values).toContain('local-outbox-only');
   expect(summary.values).toContain('manual-required');
   expect(summary.values).toContain('not-observed');
@@ -151,8 +173,12 @@ async function writeAccessibilitySummary(
           'high-risk-local-outbox-row-visible',
           'manual-required-row-visible',
           'provider-status-manual-required-row-visible',
+          'receipt-stream-status-visible',
+          'receipt-ingestion-readiness-visible',
+          'receipt-zero-provider-receipts-visible',
           'non-claim-copy-visible',
           'provider-report-notification-final-policy-enforcement-claims-not-visible',
+          'receipt-ingestion-runtime-provider-delivery-enforcement-claims-not-visible',
           'no-unlabeled-buttons',
           'desktop-screenshot',
           'mobile-screenshot',

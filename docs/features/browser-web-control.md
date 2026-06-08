@@ -227,6 +227,14 @@ control while being more honest about managed versus unmanaged sources.
   webhook runtime, credentials, observed provider receipts, report delivery,
   final policy execution, browser mutation, child intervention, unmanaged exact
   URL support, and enforcement remain unclaimed.
+- Browser-plan WP13 now renders those live-activity social provider receipt
+  stream and receipt ingestion readiness statuses in the existing Browser route
+  social alert/report panel. The proof uses the real portal E2E harness with
+  Rust agent service plus Vite portal and captures desktop/mobile screenshots
+  of the parent-visible Browser route cards. Provider delivery, receipt
+  ingestion runtime, webhook runtime, credentials, observed provider receipts,
+  report delivery, final policy execution, browser mutation, child
+  intervention, unmanaged exact URL support, and enforcement remain unclaimed.
 - Browser-plan WP13 now projects that named subscriber status through the
   service-backed browser runtime event-chain stream payload. Current
   store-backed browser rows still report zero pending candidates because the

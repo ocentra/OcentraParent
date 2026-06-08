@@ -981,3 +981,29 @@ provider receipt ingestion runtime, webhook runtime, credentials, observed
 provider receipts, report delivery execution, final policy execution, browser
 mutation, child intervention execution, unmanaged exact URL support, or
 enforcement.
+
+## Social Provider Receipt Route Status UI Addendum - 2026-06-08
+
+`browser-runtime-social-provider-receipt-route-status-ui-proof` renders the
+live-activity social provider receipt stream status and receipt ingestion
+readiness status in the existing Browser route social alert/report panel. The
+proof uses the real portal E2E harness, which starts the Rust agent service and
+Vite portal, requests the service-backed Browser route, asserts the receipt
+status cards, and captures desktop/mobile screenshots.
+
+Evidence:
+
+- `apps/portal/src/ParentPortalRoute.tsx`
+- `apps/portal/src/SocialAlertReportRoutePanel.tsx`
+- `apps/portal/e2e/social-alert-report-ui-proof.spec.ts`
+- `scripts/test/browser-runtime-social-provider-receipt-route-status-ui-proof.mjs`
+- `test-results/browser-runtime-social-provider-receipt-route-status-ui-proof/proof.json`
+- `test-results/browser-runtime-social-provider-receipt-route-status-ui-proof/accessibility-summary.json`
+- `output/browser-plan-proof/browser-runtime-social-provider-receipt-route-status-ui/06-ui-snapshots/social-alert-report-browser-route.png`
+- `output/browser-plan-proof/browser-runtime-social-provider-receipt-route-status-ui/06-ui-snapshots/social-alert-report-browser-route-mobile.png`
+
+This is parent-visible status rendering only. It does not claim provider
+delivery, provider receipt ingestion runtime, webhook runtime, credentials,
+observed provider receipts, report delivery execution, final policy execution,
+browser mutation, child intervention execution, unmanaged exact URL support, or
+enforcement.

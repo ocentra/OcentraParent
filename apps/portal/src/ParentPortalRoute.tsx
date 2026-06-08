@@ -146,6 +146,7 @@ export function ParentPortalRoute({
           actions={actions}
           commandEnabled={state.socket?.readyState === WebSocket.OPEN}
           events={state.events}
+          liveActivity={activityState}
         />
       ) : null}
       {shouldRenderSocialDashboardRoute(route) &&

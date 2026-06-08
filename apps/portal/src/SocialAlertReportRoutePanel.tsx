@@ -5,8 +5,13 @@ import {
   PortalDom,
   isPortalBrowserParentSurfaceRoute,
   type PortalRoute as PortalRouteValue,
+  type BrowserSocialProviderReceiptIngestionReadinessStatusDetail,
+  type BrowserSocialProviderReceiptIngestionReadinessStatusIntent,
+  type BrowserSocialProviderReceiptStreamStatusDetail,
+  type BrowserSocialProviderReceiptStreamStatusIntent,
 } from '@ocentra-parent/portal-domain/contracts';
 import { type ReactElement } from 'react';
+import type { PortalLiveActivityState } from './live-activity-state';
 import type { PortalRenderActions } from './portal-actions';
 import {
   createSocialAlertReportPanelIntent,
@@ -23,10 +28,12 @@ export function SocialAlertReportRoutePanel({
   actions,
   commandEnabled,
   events,
+  liveActivity,
 }: {
   readonly actions: PortalRenderActions;
   readonly commandEnabled: boolean;
   readonly events: readonly AgentEventEnvelope[];
+  readonly liveActivity: PortalLiveActivityState;
 }): ReactElement {
   const snapshot = latestSocialAlertReportSnapshot(events);
   const intent = createSocialAlertReportPanelIntent(snapshot);
@@ -60,6 +67,7 @@ export function SocialAlertReportRoutePanel({
           ) : (
             intent.rows.map((row) => <SocialAlertReportRowCard key={row.key} row={row} />)
           )}
+          <BrowserReceiptStatusCards liveActivity={liveActivity} />
         </div>
       </div>
     </section>
@@ -124,15 +132,50 @@ function SocialAlertReportRowCard({ row }: { readonly row: SocialAlertReportPane
   );
 }
 
+function BrowserReceiptStatusCards({ liveActivity }: { readonly liveActivity: PortalLiveActivityState }): ReactElement {
+  return (
+    <>
+      {browserReceiptStatusIntents(liveActivity).map((intent) => (
+        <BrowserReceiptStatusCard key={intent.title} intent={intent} />
+      ))}
+    </>
+  );
+}
+
+function BrowserReceiptStatusCard({ intent }: { readonly intent: BrowserReceiptStatusIntent }): ReactElement {
+  return (
+    <article className={cardClassName()}>
+      <h2>{intent.title}</h2>
+      <SocialAlertReportDetails details={intent.details} />
+    </article>
+  );
+}
+
+function browserReceiptStatusIntents(liveActivity: PortalLiveActivityState): readonly BrowserReceiptStatusIntent[] {
+  return [
+    liveActivity.browserSocialProviderReceiptStreamStatusIntent,
+    liveActivity.browserSocialProviderReceiptIngestionReadinessStatusIntent,
+  ].filter((intent): intent is BrowserReceiptStatusIntent => intent !== null);
+}
+
+type BrowserReceiptStatusIntent =
+  | BrowserSocialProviderReceiptStreamStatusIntent
+  | BrowserSocialProviderReceiptIngestionReadinessStatusIntent;
+
+type SocialAlertReportRenderableDetail =
+  | SocialAlertReportPanelDetail
+  | BrowserSocialProviderReceiptStreamStatusDetail
+  | BrowserSocialProviderReceiptIngestionReadinessStatusDetail;
+
 function SocialAlertReportDetails({
   details,
 }: {
-  readonly details: readonly SocialAlertReportPanelDetail[];
+  readonly details: readonly SocialAlertReportRenderableDetail[];
 }): ReactElement {
   return (
     <dl>
-      {details.map((detail) => (
-        <div key={detail.label}>
+      {details.map((detail, index) => (
+        <div key={`${detail.label}-${index}`}>
           <dt>{detail.label}</dt>
           <dd>{detail.value}</dd>
         </div>

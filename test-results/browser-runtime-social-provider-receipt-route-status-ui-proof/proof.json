@@ -1,0 +1,230 @@
+{
+  "schemaVersion": 1,
+  "proofName": "browser-runtime-social-provider-receipt-route-status-ui-proof",
+  "generatedAt": "2026-06-08T07:38:38.993Z",
+  "branch": "codex/d-runtime-ready",
+  "commit": "9929a1e44fd2865003f9691071dfaab3dcc64511",
+  "commands": [
+    {
+      "command": "cmd /c npm run build:contracts",
+      "exitCode": 0,
+      "stdout": "\n> @ocentra-parent/workspace@0.1.1 build:contracts\n> npm run build --workspace @ocentra-parent/schema-domain && npm run build --workspace @ocentra-parent/logging-domain && npm run build --workspace @ocentra-parent/parent-domain && npm run build --workspace @ocentra-parent/activity-domain && npm run build --workspace @ocentra-parent/agent-protocol-domain && npm run build --workspace @ocentra-parent/text-domain && npm run build --workspace @ocentra-parent/portal-domain\n\n\n> @ocentra-parent/schema-domain@0.1.1 build\n> tsc -p tsconfig.json && node ../../scripts/fix-esm-imports.mjs dist\n\n\n> @ocentra-parent/logging-domain@0.1.1 build\n> tsc -p tsconfig.json && node ../../scripts/fix-esm-imports.mjs dist\n\n\n> @ocentra-parent/parent-domain@0.1.1 build\n> tsc -p tsconfig.json && node ../../scripts/fix-esm-imports.mjs dist\n\n\n> @ocentra-parent/activity-domain@0.1.1 build\n> tsc -p tsconfig.json && node ../../scripts/fix-esm-imports.mjs dist\n\n\n> @ocentra-parent/agent-protocol-domain@0.1.1 build\n> tsc -p tsconfig.json && node ../../scripts/fix-esm-imports.mjs dist\n\n\n> @ocentra-parent/text-domain@0.1.1 build\n> tsc -p tsconfig.json && node ../../scripts/fix-esm-imports.mjs dist\n\n\n> @ocentra-parent/portal-domain@0.1.1 build\n> tsc -p tsconfig.json && node ../../scripts/fix-esm-imports.mjs dist\n\n",
+      "stderr": ""
+    },
+    {
+      "command": "cargo build -p ocentra-parent-agent-service",
+      "exitCode": 0,
+      "stdout": "",
+      "stderr": "    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.35s\n"
+    },
+    {
+      "command": "cmd /c npm run test:e2e --workspace @ocentra-parent/portal",
+      "exitCode": 0,
+      "stdout": "\n> @ocentra-parent/portal@0.1.1 test:e2e\n> node ../../scripts/test/portal-playwright-runner.mjs\n\n\nRunning 8 tests using 1 worker\n\n  ok 1 [chromium] › e2e\\assistant-chat-ui-proof.spec.ts:9:1 › assistant chat bubble controls support keyboard collapse and copy (8.0s)\n  -  2 [chromium] › e2e\\browser-ai-parent-explanation-ui-proof.spec.ts:25:1 › browser route renders evidence-backed parent explanation bundle\n  ok 3 [chromium] › e2e\\network-evidence-drawer-proof.spec.ts:7:1 › network evidence drawer renders service-backed refs without unsupported claims (18.7s)\n  ok 4 [chromium] › e2e\\portal-ui.spec.ts:12:1 › portal UI connects to the real agent and renders command results (3.0m)\n  ok 5 [chromium] › e2e\\social-alert-report-ui-proof.spec.ts:22:1 › browser route renders service-backed social alert and report intent rows (18.2s)\n  -  6 [chromium] › e2e\\social-audit-explanation-ui-proof.spec.ts:25:1 › browser route renders schema-backed social audit explanations\n  -  7 [chromium] › e2e\\social-dashboard-ui-proof.spec.ts:22:1 › browser route renders service-backed honest social dashboard rows\n  -  8 [chromium] › e2e\\tracking-hosted-ui-proof.spec.ts:35:1 › hosted policy tracking route renders real-service proof without product claims\n\n  4 skipped\n  4 passed (3.8m)\n",
+      "stderr": "(node:14036) ExperimentalWarning: SQLite is an experimental feature and might change at any time\n(Use `node --trace-warnings ...` to show where the warning was created)\n"
+    },
+    {
+      "command": "cmd /c npm --workspace @ocentra-parent/portal run lint:exec",
+      "exitCode": 0,
+      "stdout": "\n> @ocentra-parent/portal@0.1.1 lint:exec\n> eslint --cache src tests e2e playwright.config.ts && tsc -p tsconfig.json --noEmit\n\n",
+      "stderr": ""
+    }
+  ],
+  "assertions": [
+    "real-portal-e2e-harness",
+    "browser-route-social-alert-report-region",
+    "receipt-stream-status-card-visible",
+    "receipt-ingestion-readiness-card-visible",
+    "receipt-zero-provider-receipts-visible",
+    "desktop-screenshot",
+    "mobile-screenshot",
+    "no-provider-delivery-or-enforcement-claim"
+  ],
+  "sourceProof": {
+    "parentRoutePassesLiveActivity": true,
+    "routeRendersReceiptStatusCards": true,
+    "e2eRequiresReceiptCards": true
+  },
+  "accessibilitySummary": {
+    "route": "#/browser",
+    "assertions": [
+      "named-social-alert-report-region",
+      "zero-row-before-command-visible",
+      "service-backed-four-row-summary-visible",
+      "high-risk-local-outbox-row-visible",
+      "manual-required-row-visible",
+      "provider-status-manual-required-row-visible",
+      "receipt-stream-status-visible",
+      "receipt-ingestion-readiness-visible",
+      "receipt-zero-provider-receipts-visible",
+      "non-claim-copy-visible",
+      "provider-report-notification-final-policy-enforcement-claims-not-visible",
+      "receipt-ingestion-runtime-provider-delivery-enforcement-claims-not-visible",
+      "no-unlabeled-buttons",
+      "desktop-screenshot",
+      "mobile-screenshot"
+    ],
+    "summary": {
+      "hasNamedRegion": true,
+      "headings": [
+        "Social alerts and reports",
+        "4 social alert/report rows",
+        "High-risk social alert intent",
+        "Manual alert/report proof required",
+        "Provider status manual required",
+        "Provider status manual required",
+        "Social provider receipt stream status",
+        "Social provider receipt ingestion readiness"
+      ],
+      "labels": [
+        "Rows returned",
+        "Generated at",
+        "Product claim",
+        "Status",
+        "Capability",
+        "Reason codes",
+        "Evidence references",
+        "Policy evaluation",
+        "Intervention audit ID",
+        "Product claim",
+        "Status",
+        "Capability",
+        "Reason codes",
+        "Evidence references",
+        "Policy evaluation",
+        "Intervention audit ID",
+        "Product claim",
+        "Status",
+        "Capability",
+        "Reason codes",
+        "Evidence references",
+        "Policy evaluation",
+        "Intervention audit ID",
+        "Product claim",
+        "Status",
+        "Capability",
+        "Reason codes",
+        "Evidence references",
+        "Policy evaluation",
+        "Intervention audit ID",
+        "Product claim",
+        "Rows returned",
+        "Status",
+        "Capability",
+        "Evidence references",
+        "Intervention audit ID",
+        "Policy evaluation",
+        "Product claim",
+        "Status",
+        "Rows returned",
+        "Policy readiness",
+        "Capability",
+        "Evidence references",
+        "Intervention audit ID",
+        "Policy evaluation",
+        "Provider",
+        "Status",
+        "Product claim",
+        "Status"
+      ],
+      "values": [
+        "4",
+        "2026-06-08T07:38:19.443Z",
+        "Rendered parent alert/report intent surface only; provider delivery, report delivery, notification UI delivery, final policy execution, and enforcement remain unclaimed.",
+        "local-outbox-eligible",
+        "local-outbox-only",
+        "social-high-risk-signal",
+        "policy-decision:evidence-social-route-gate",
+        "policy-ref-social-high-risk",
+        "audit-ref-social-alert-report",
+        "Rendered parent alert/report intent surface only; provider delivery, report delivery, notification UI delivery, final policy execution, and enforcement remain unclaimed.",
+        "manual-required",
+        "manual-required",
+        "social-manual-review-required",
+        "policy-decision:evidence-social-manual-gap",
+        "policy-ref-social-manual-required",
+        "audit-ref-social-alert-report",
+        "Rendered parent alert/report intent surface only; provider delivery, report delivery, notification UI delivery, final policy execution, and enforcement remain unclaimed.",
+        "manual-required",
+        "not-observed",
+        "provider-adapter-required",
+        "provider-adapter-required-social-alert-report-high-risk-service, provider-credentials-required-social-alert-report-high-risk-service, provider-smoke-proof-required-social-alert-report-high-risk-service",
+        "provider-adapter-required-social-alert-report-high-risk-service, provider-credentials-required-social-alert-report-high-risk-service, provider-smoke-proof-required-social-alert-report-high-risk-service",
+        "social-provider-attempt-not-started-social-alert-report-high-risk-service",
+        "Rendered parent alert/report intent surface only; provider delivery, report delivery, notification UI delivery, final policy execution, and enforcement remain unclaimed.",
+        "manual-required",
+        "not-observed",
+        "manual-required",
+        "provider-delivery-runtime-proof-required",
+        "provider-delivery-runtime-proof-required",
+        "social-provider-attempt-not-started-social-alert-report-manual-required",
+        "Rendered parent alert/report intent surface only; provider delivery, report delivery, notification UI delivery, final policy execution, and enforcement remain unclaimed.",
+        "0",
+        "0",
+        "0",
+        "not-observed",
+        "not-observed",
+        "not-observed",
+        "Browser runtime social provider receipt stream status only; provider delivery, receipt ingestion, parent notification delivery, report delivery, final policy execution, connector/native runtime, and enforcement remain unclaimed.",
+        "not-claimed",
+        "0",
+        "unavailable",
+        "0",
+        "not-observed",
+        "not-observed",
+        "not-observed",
+        "not-observed",
+        "0 provider receipts observed",
+        "Browser runtime social provider receipt ingestion readiness status only; provider delivery, receipt ingestion runtime, webhook runtime, credentials, observed provider receipts, parent notification delivery, report delivery, final policy execution, connector/native runtime, browser mutation, child intervention, unmanaged exact URL support, and enforcement remain unclaimed.",
+        "not-claimed"
+      ],
+      "buttons": [
+        {
+          "text": "Social alerts and reports",
+          "disabled": false
+        }
+      ],
+      "unlabeledButtons": 0
+    },
+    "screenshots": {
+      "desktop": "output/browser-plan-proof/social-alert-report-intent-ui-proof/06-ui-snapshots/social-alert-report-browser-route.png",
+      "mobile": "output/browser-plan-proof/social-alert-report-intent-ui-proof/06-ui-snapshots/social-alert-report-browser-route-mobile.png"
+    }
+  },
+  "screenshotProof": [
+    {
+      "path": "output/browser-plan-proof/browser-runtime-social-provider-receipt-route-status-ui/06-ui-snapshots/social-alert-report-browser-route.png",
+      "bytes": 406499,
+      "width": 1280,
+      "height": 720
+    },
+    {
+      "path": "output/browser-plan-proof/browser-runtime-social-provider-receipt-route-status-ui/06-ui-snapshots/social-alert-report-browser-route-mobile.png",
+      "bytes": 142057,
+      "width": 390,
+      "height": 844
+    }
+  ],
+  "noClaimBoundaries": [
+    "provider delivery",
+    "provider receipt ingestion runtime",
+    "provider webhook runtime",
+    "provider credentials",
+    "observed provider receipts",
+    "report delivery execution",
+    "final policy execution",
+    "browser mutation",
+    "child intervention execution",
+    "unmanaged exact URL support",
+    "enforcement"
+  ],
+  "proofPaths": {
+    "proof": "test-results/browser-runtime-social-provider-receipt-route-status-ui-proof/proof.json",
+    "markdown": "output/browser-plan-proof/browser-runtime-social-provider-receipt-route-status-ui/01-browser-runtime-social-provider-receipt-route-status-ui-proof.md",
+    "accessibilitySummary": "test-results/browser-runtime-social-provider-receipt-route-status-ui-proof/accessibility-summary.json",
+    "screenshots": [
+      "output/browser-plan-proof/browser-runtime-social-provider-receipt-route-status-ui/06-ui-snapshots/social-alert-report-browser-route.png",
+      "output/browser-plan-proof/browser-runtime-social-provider-receipt-route-status-ui/06-ui-snapshots/social-alert-report-browser-route-mobile.png"
+    ]
+  }
+}

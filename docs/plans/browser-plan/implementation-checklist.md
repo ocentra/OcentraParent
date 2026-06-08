@@ -942,6 +942,24 @@ provider webhook runtime, provider credentials, observed provider receipts,
 report delivery execution, final policy execution, browser mutation, child
 intervention execution, unmanaged exact URL support, or enforcement.
 
+WP13 social provider receipt route status UI addendum:
+`browser-runtime-social-provider-receipt-route-status-ui-proof` renders the
+live-activity social provider receipt stream status and receipt ingestion
+readiness status in the existing Browser route social alert/report panel. The
+proof runs the real portal E2E harness with Rust agent service plus Vite portal,
+asserts the parent-visible receipt/readiness cards, and captures desktop/mobile
+screenshots. Evidence:
+`test-results/browser-runtime-social-provider-receipt-route-status-ui-proof/proof.json`,
+`test-results/browser-runtime-social-provider-receipt-route-status-ui-proof/accessibility-summary.json`,
+and
+`output/browser-plan-proof/browser-runtime-social-provider-receipt-route-status-ui/06-ui-snapshots/social-alert-report-browser-route.png`
+plus
+`output/browser-plan-proof/browser-runtime-social-provider-receipt-route-status-ui/06-ui-snapshots/social-alert-report-browser-route-mobile.png`.
+This does not claim provider delivery, provider receipt ingestion runtime,
+provider webhook runtime, provider credentials, observed provider receipts,
+report delivery execution, final policy execution, browser mutation, child
+intervention execution, unmanaged exact URL support, or enforcement.
+
 ## Worker Report Template
 
 Use this shape in the hub report or PR-ready note:
