@@ -476,17 +476,19 @@ written to
 and
 `test-results/tracking-full-product-ui-local-runtime-artifact-capture-proof/proof.json`.
 It copies the hosted parent overview and parent devices shell screenshots plus
-the hosted notification history/preferences screenshot, cross-surface
-accessibility summary, and product UI trace into the product UI runtime artifact
-root. The refreshed full-product UI runtime artifact gate and claim-audit row
-now report six present local UI artifacts and four missing hard full-product UI
-runtime artifacts, while full product UI runtime, child-device runtime,
-physical-device, authority, provider, production UI, and product-ready claims
-remain false. The tracking product-readiness closure proof now carries those
-aggregate counts with the retention writable execution derivation and
-child-runtime plus production-worker required/present/missing artifact counts,
-so local/CI closure accounting cannot pass without preserving the latest
-UI-local evidence and remaining blockers.
+the hosted notification history/preferences screenshot, hosted child check-in
+and child-runtime UI readiness screenshots, cross-surface accessibility summary,
+and product UI trace into the product UI runtime artifact root. The local
+capture proof now reports eight hosted/local artifacts, while the runtime
+artifact gate and claim-audit row still classify only the required P4 runtime
+refs as five present required refs and four missing hard full-product UI runtime
+artifacts. Full product UI runtime, child-device runtime, physical-device,
+authority, provider, production UI, and product-ready claims remain false. The
+tracking product-readiness closure proof now carries the eight local capture
+count with the retention writable execution derivation and child-runtime plus
+production-worker required/present/missing artifact counts, so local/CI closure
+accounting cannot pass without preserving the latest UI-local evidence and
+remaining blockers.
 WP33 now also has production durable workers readiness blocker proof from
 `node scripts/test/tracking-production-durable-workers-readiness-blocker-proof.mjs`,
 written to
@@ -859,7 +861,8 @@ Every implementation workpack must update, or explicitly justify not updating:
       proof, hosted child-runtime UI proof, hosted child-runtime execution
       readiness proof, hosted read-only evidence drawer proof, hosted UI
       artifact inventory proof, full-product UI local artifact capture including
-      the hosted retention settings local write-result screenshot, physical-device
+      the hosted retention settings local write-result screenshot and hosted
+      child check-in/runtime readiness screenshots, physical-device
       artifact gate proof, refreshed
       product-readiness closure proof, child-runtime artifact gate proof,
       provider-delivery artifact gate proof, provider-runtime blocker proof with
@@ -879,11 +882,12 @@ Every implementation workpack must update, or explicitly justify not updating:
       hosted parent route Playwright/a11y proof now captures live service-data
       desktop/mobile screenshots plus hosted evidence drawer, child-safe
       check-in, child-runtime UI, notification parent-surface history, parent
-      action readiness, report/policy consumer, and retention settings
-      local service write proof screenshots; full-product UI local artifact
-      capture now copies that retention local write-result screenshot into the
-      product UI artifact root without filling the missing production
-      write-result runtime artifact. It also captures parent overview and
+      action readiness, report/policy consumer, retention settings local service
+      write proof, and child check-in/runtime readiness screenshots; full-product
+      UI local artifact capture now copies the retention local write-result and
+      hosted child readiness screenshots into the product UI artifact root
+      without filling the missing production write-result or actual child-device
+      runtime artifacts. It also captures parent overview and
       devices shell screenshots around the tracking route. Hosted artifact
       inventory proof verifies the stored PNG files, unsupported/manual
       platform PNG, and full current hosted accessibility assertions; actual
@@ -1012,9 +1016,9 @@ Every implementation workpack must update, or explicitly justify not updating:
       command: `node scripts/test/tracking-claim-audit-proof.mjs`. Current rows
       remain `manual-required`, missing real artifacts/approval, and keep all
       product-ready claims false. The full product UI audit row now cites the
-      runtime gate and local runtime artifact capture proof refs, records six
-      present local UI artifacts, keeps the four hard runtime UI gaps as
-      blockers, and classifies the ten final manual-required claim rows as six
+      runtime gate and local runtime artifact capture proof refs, records five
+      present required runtime-root artifact refs, keeps the four hard runtime
+      UI gaps as blockers, and classifies the ten final manual-required claim rows as six
       physical-device/runtime rows, one approved-manual desktop row, one manual
       provider-runtime row, and two production-runtime rows.
 - [x] Physical-device artifact gate proof now verifies the required Android and
@@ -1098,7 +1102,7 @@ Every implementation workpack must update, or explicitly justify not updating:
       command:
       `node scripts/test/tracking-real-runtime-handoff-proof.mjs`.
       The handoff now carries product-readiness closure accounting, preserves
-      the six local full-product UI artifacts, child-runtime, retention-runtime,
+      the eight local full-product UI artifacts, child-runtime, retention-runtime,
       and production-worker required/present/missing artifact counts, plus
       claim-audit blocker counts and tier split, and classifies the remaining manual follow-up
       as six physical/runtime rows, one provider-runtime row, two

@@ -94,9 +94,10 @@
   and product-ready retention false.
 - Full product UI local runtime artifact capture proof now consumes the
   retention writable execution derivation proof and the child-runtime artifact
-  gate proof as closure evidence while keeping full product UI runtime,
-  child-device runtime, physical-device, authority, provider delivery,
-  production UI, and product-ready claims false.
+  gate proof as closure evidence, carries hosted child check-in/runtime UI
+  readiness screenshots into the local product UI artifact root, and keeps full
+  product UI runtime, child-device runtime, physical-device, authority, provider
+  delivery, production UI, and product-ready claims false.
 - Provider and notification local proof exists for POI/provider mapping,
   provider-notification intent, notification preference preflight/status handoff,
   notification receipt boundary, local outbox readiness, provider-delivery
@@ -119,7 +120,7 @@
 - Product-readiness closure proof exists through
   `node scripts/test/tracking-product-readiness-closure-proof.mjs`; it verifies
   the local/CI proof accounting chain, now carries aggregate evidence for the
-  Android emulator artifact inventory, iOS simulator artifact inventory, five
+  Android emulator artifact inventory, iOS simulator artifact inventory, eight
   observed full-product UI local artifacts, one retention writable execution
   derivation row, two retention runtime artifact requirements with one local
   artifact present and one platform runtime enforcement artifact missing, ten

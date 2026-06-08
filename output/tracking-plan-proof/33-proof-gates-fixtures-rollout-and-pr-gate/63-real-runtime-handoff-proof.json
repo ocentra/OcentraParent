@@ -3,7 +3,7 @@
   "proofMode": "tracking-real-runtime-handoff-proof",
   "generatedAt": "2026-06-08T01:05:00.000Z",
   "branch": "codex/tracking-plan-full-continuation-a",
-  "baseCommitAtGeneration": "eeb68208baab8c656f8ed1afe77069f2e9bf948e",
+  "baseCommitAtGeneration": "601f1b585ee912699447e64bde5b493994aa2264",
   "requiredProofTier": "P4_REAL_RUNTIME_HANDOFF",
   "currentProofTier": "P3_LOCAL_DEV_MACHINE",
   "currentStatus": "manual_required",
@@ -20,7 +20,7 @@
   ],
   "closureProofRef": "test-results/tracking-product-readiness-closure-proof/proof.json",
   "closureAccounting": {
-    "fullProductUiLocalArtifactCount": 6,
+    "fullProductUiLocalArtifactCount": 8,
     "fullProductUiClosureRetentionWritableExecutionRowCount": 1,
     "fullProductUiClosureChildRuntimeMissingArtifactCount": 10,
     "androidEmulatorRequiredArtifactCount": 12,
@@ -78,7 +78,7 @@
     ],
     "closureProofRef": "test-results/tracking-product-readiness-closure-proof/proof.json",
     "closureAccounting": {
-      "fullProductUiLocalArtifactCount": 6,
+      "fullProductUiLocalArtifactCount": 8,
       "fullProductUiClosureRetentionWritableExecutionRowCount": 1,
       "fullProductUiClosureChildRuntimeMissingArtifactCount": 10,
       "androidEmulatorRequiredArtifactCount": 12,

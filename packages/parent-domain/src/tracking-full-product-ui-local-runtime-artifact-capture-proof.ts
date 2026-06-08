@@ -19,6 +19,8 @@ export const TrackingFullProductUiLocalRuntimeArtifactCaptureIdSchema = withPars
     'parent-device-detail-runtime-ui',
     'parent-notification-history-preferences-runtime',
     'retention-settings-local-write-result',
+    'child-check-in-hosted-local-readiness-ui',
+    'child-runtime-hosted-local-readiness-ui',
     'cross-surface-accessibility-report',
     'product-ui-end-to-end-trace'
   )
@@ -116,6 +118,8 @@ export const TrackingFullProductUiLocalRuntimeArtifactCaptureProofSchema = withP
       parentDeviceDetailLocalArtifactCaptured: Schema.Literal(true),
       parentNotificationHistoryPreferencesLocalArtifactCaptured: Schema.Literal(true),
       retentionSettingsLocalWriteResultCaptured: Schema.Literal(true),
+      childCheckInHostedLocalReadinessArtifactCaptured: Schema.Literal(true),
+      childRuntimeHostedLocalReadinessArtifactCaptured: Schema.Literal(true),
       crossSurfaceAccessibilityLocalArtifactCaptured: Schema.Literal(true),
       productUiEndToEndTraceCaptured: Schema.Literal(true),
       fullProductUiRuntimeClaimed: Schema.Literal(false),
@@ -173,6 +177,8 @@ export const RequiredTrackingFullProductUiLocalRuntimeArtifactCaptures = [
   'parent-device-detail-runtime-ui',
   'parent-notification-history-preferences-runtime',
   'retention-settings-local-write-result',
+  'child-check-in-hosted-local-readiness-ui',
+  'child-runtime-hosted-local-readiness-ui',
   'cross-surface-accessibility-report',
   'product-ui-end-to-end-trace',
 ] as const;
@@ -203,6 +209,8 @@ export function buildTrackingFullProductUiLocalRuntimeArtifactCaptureProof(
       parentDeviceDetailLocalArtifactCaptured: true,
       parentNotificationHistoryPreferencesLocalArtifactCaptured: true,
       retentionSettingsLocalWriteResultCaptured: true,
+      childCheckInHostedLocalReadinessArtifactCaptured: true,
+      childRuntimeHostedLocalReadinessArtifactCaptured: true,
       crossSurfaceAccessibilityLocalArtifactCaptured: true,
       productUiEndToEndTraceCaptured: true,
       fullProductUiRuntimeClaimed: false,

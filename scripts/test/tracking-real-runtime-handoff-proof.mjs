@@ -9,7 +9,7 @@ const resultRoot = join(repoRoot, 'test-results', proofMode);
 const proofRoot = join(repoRoot, 'output', 'tracking-plan-proof', proofMode);
 const wp33Root = join(repoRoot, 'output', 'tracking-plan-proof', '33-proof-gates-fixtures-rollout-and-pr-gate');
 const generatedAt = '2026-06-08T01:05:00.000Z';
-const expectedFullProductUiLocalArtifactCount = 6;
+const expectedFullProductUiLocalArtifactCount = 8;
 
 const requiredClosureBlockers = [
   'android-physical-background-proof-required',
