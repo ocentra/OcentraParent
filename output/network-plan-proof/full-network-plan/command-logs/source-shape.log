@@ -78,9 +78,10 @@ packages/activity-domain/tests/social-video-ai-signal-aggregate.test.ts:1 file h
 packages/activity-domain/tests/tracking.test.ts:1 file has 290 lines; crossed 250-line advisory band; maximum is 1000
 packages/agent-protocol-domain/src/activity-surface-adapter-manifest.ts:1 file has 268 lines; crossed 250-line advisory band; maximum is 1000
 packages/agent-protocol-domain/src/activity-surface-adapter.ts:1 file has 478 lines; crossed 250-line advisory band; maximum is 1000
-packages/agent-protocol-domain/src/contracts.ts:1 file has 585 lines; crossed 500-line advisory band; maximum is 1000
-packages/agent-protocol-domain/src/defaults.ts:1 file has 506 lines; crossed 500-line advisory band; maximum is 1000
+packages/agent-protocol-domain/src/contracts.ts:1 file has 589 lines; crossed 500-line advisory band; maximum is 1000
+packages/agent-protocol-domain/src/defaults.ts:1 file has 533 lines; crossed 500-line advisory band; maximum is 1000
 packages/agent-protocol-domain/src/lan-pairing-browser-add-device-state.ts:1 file has 378 lines; crossed 250-line advisory band; maximum is 1000
+packages/agent-protocol-domain/src/network-live-capture-status.ts:1 file has 297 lines; crossed 250-line advisory band; maximum is 1000
 packages/agent-protocol-domain/src/network-remote-delivery-status.ts:1 file has 285 lines; crossed 250-line advisory band; maximum is 1000
 packages/agent-protocol-domain/src/network-runtime-events.ts:1 file has 357 lines; crossed 250-line advisory band; maximum is 1000
 packages/agent-protocol-domain/src/parent-assistant-adapter.ts:1 file has 385 lines; crossed 250-line advisory band; maximum is 1000
@@ -89,13 +90,14 @@ packages/agent-protocol-domain/tests/activity-surface-adapter.test.ts:1 file has
 packages/agent-protocol-domain/tests/activity-surface-adapter.test.ts:410 function has 73 lines; warning starts at 64 of 80
 packages/agent-protocol-domain/tests/activity-surface-adapter.test.ts:411 function has 71 lines; warning starts at 64 of 80
 packages/agent-protocol-domain/tests/activity-surface-adapter.test.ts:501 function has 65 lines; warning starts at 64 of 80
-packages/agent-protocol-domain/tests/contracts.test.ts:1 file has 468 lines; crossed 250-line advisory band; maximum is 1000
+packages/agent-protocol-domain/tests/contracts.test.ts:1 file has 471 lines; crossed 250-line advisory band; maximum is 1000
 packages/agent-protocol-domain/tests/enforcement-supported-adapter-runtime-proof-adapter.test.ts:1 file has 261 lines; crossed 250-line advisory band; maximum is 1000
 packages/agent-protocol-domain/tests/enforcement-supported-adapter-runtime-proof-adapter.test.ts:168 function has 68 lines; warning starts at 64 of 80
 packages/agent-protocol-domain/tests/enforcement-supported-adapter-runtime-proof-adapter.test.ts:169 function has 66 lines; warning starts at 64 of 80
 packages/agent-protocol-domain/tests/lan-pairing-browser-add-device-state.test.ts:1 file has 459 lines; crossed 250-line advisory band; maximum is 1000
 packages/agent-protocol-domain/tests/lan-pairing-multidevice-contracts.test.ts:1 file has 351 lines; crossed 250-line advisory band; maximum is 1000
 packages/agent-protocol-domain/tests/lan-signed-discovery-relay-spine.test.ts:1 file has 332 lines; crossed 250-line advisory band; maximum is 1000
+packages/agent-protocol-domain/tests/network-live-capture-status.test.ts:1 file has 297 lines; crossed 250-line advisory band; maximum is 1000
 packages/agent-protocol-domain/tests/parent-assistant-adapter.test.ts:1 file has 475 lines; crossed 250-line advisory band; maximum is 1000
 packages/agent-protocol-domain/tests/parent-assistant-adapter.test.ts:307 function has 64 lines; warning starts at 64 of 80
 packages/agent-protocol-domain/tests/social-alert-report-read-model.test.ts:141 function has 64 lines; warning starts at 64 of 80
@@ -585,9 +587,9 @@ crates/agent-protocol/src/browser_values.rs:1 file has 277 lines; crossed 250-li
 crates/agent-protocol/src/constants/browser.rs:1 file has 539 lines; crossed 500-line advisory band; maximum is 1000
 crates/agent-protocol/src/constants/field.rs:1 file has 428 lines; crossed 250-line advisory band; maximum is 1000
 crates/agent-protocol/src/constants/lan_pairing.rs:1 file has 460 lines; crossed 250-line advisory band; maximum is 1000
-crates/agent-protocol/src/constants/network_flow.rs:1 file has 259 lines; crossed 250-line advisory band; maximum is 1000
+crates/agent-protocol/src/constants/network_flow.rs:1 file has 288 lines; crossed 250-line advisory band; maximum is 1000
 crates/agent-protocol/src/constants/v08_browser_domain_adapter_proof.rs:1 file has 260 lines; crossed 250-line advisory band; maximum is 1000
-crates/agent-protocol/src/constants.rs:1 file has 579 lines; crossed 500-line advisory band; maximum is 1000
+crates/agent-protocol/src/constants.rs:1 file has 580 lines; crossed 500-line advisory band; maximum is 1000
 crates/agent-protocol/src/enforcement.rs:1 file has 536 lines; crossed 500-line advisory band; maximum is 1000
 crates/agent-protocol/src/enforcement.rs:1 file has 22 structs/enums; warning starts at 20 of 24
 crates/agent-protocol/src/enforcement_broad_adapter_proof_tests.rs:65 function has 65 lines; warning starts at 64 of 80
@@ -613,7 +615,8 @@ crates/agent-protocol/src/lan_pairing_tests.rs:1 file has 603 lines; crossed 500
 crates/agent-protocol/src/lan_pairing_tests.rs:1 file has 18 functions; warning starts at 15 of 18
 crates/agent-protocol/src/lan_pairing_tests.rs:102 function has 73 lines; warning starts at 64 of 80
 crates/agent-protocol/src/lan_pairing_tests.rs:431 function has 68 lines; warning starts at 64 of 80
-crates/agent-protocol/src/lib.rs:1 file has 262 lines; crossed 250-line advisory band; maximum is 1000
+crates/agent-protocol/src/lib.rs:1 file has 264 lines; crossed 250-line advisory band; maximum is 1000
+crates/agent-protocol/src/network_flow.rs:1 file has 360 lines; crossed 250-line advisory band; maximum is 1000
 crates/agent-protocol/src/network_flow_events.rs:1 file has 293 lines; crossed 250-line advisory band; maximum is 1000
 crates/agent-protocol/src/network_flow_events.rs:1 file has 21 structs/enums; warning starts at 20 of 24
 crates/agent-protocol/src/network_flow_event_fixtures.rs:1 file has 15 functions; warning starts at 15 of 18
@@ -627,7 +630,7 @@ crates/agent-protocol/src/parent_assistant_tests.rs:1 file has 17 functions; war
 crates/agent-protocol/src/screen_evidence.rs:1 file has 273 lines; crossed 250-line advisory band; maximum is 1000
 crates/agent-protocol/src/social_audit_explanation_read_model_tests.rs:17 function has 64 lines; warning starts at 64 of 80
 crates/agent-protocol/src/social_source_custody_mutation_tests.rs:9 function has 70 lines; warning starts at 64 of 80
-crates/agent-protocol/src/transport.rs:1 file has 375 lines; crossed 250-line advisory band; maximum is 1000
+crates/agent-protocol/src/transport.rs:1 file has 379 lines; crossed 250-line advisory band; maximum is 1000
 crates/agent-service/src/activity_api/app_game_boundary_read_model_payload.rs:1 file has 15 functions; warning starts at 15 of 18
 crates/agent-service/src/activity_api/app_game_notification_readiness_payload.rs:1 file has 299 lines; crossed 250-line advisory band; maximum is 1000
 crates/agent-service/src/activity_api/app_game_notification_readiness_payload.rs:1 file has 18 functions; warning starts at 15 of 18
@@ -796,9 +799,11 @@ crates/agent-service/src/local_ai_runtime_config_values.rs:1 file has 16 functio
 crates/agent-service/src/local_ai_runtime_payload.rs:95 function has 70 lines; warning starts at 64 of 80
 crates/agent-service/src/local_ai_runtime_provider_proof_read_model.rs:1 file has 306 lines; crossed 250-line advisory band; maximum is 1000
 crates/agent-service/src/local_ai_runtime_provider_proof_read_model.rs:1 file has 15 functions; warning starts at 15 of 18
-crates/agent-service/src/main.rs:1 file has 284 lines; crossed 250-line advisory band; maximum is 1000
+crates/agent-service/src/main.rs:1 file has 287 lines; crossed 250-line advisory band; maximum is 1000
 crates/agent-service/src/network_flow_payload_tests.rs:1 file has 260 lines; crossed 250-line advisory band; maximum is 1000
 crates/agent-service/src/network_flow_payload_tests.rs:129 function has 70 lines; warning starts at 64 of 80
+crates/agent-service/src/network_live_capture_readiness_bridge.rs:1 file has 410 lines; crossed 250-line advisory band; maximum is 1000
+crates/agent-service/src/network_live_capture_readiness_bridge.rs:1 file has 18 functions; warning starts at 15 of 18
 crates/agent-service/src/network_product_path_bridge.rs:1 file has 421 lines; crossed 250-line advisory band; maximum is 1000
 crates/agent-service/src/network_product_path_bridge.rs:1 file has 15 functions; warning starts at 15 of 18
 crates/agent-service/src/network_remote_delivery_status_payload.rs:1 file has 374 lines; crossed 250-line advisory band; maximum is 1000
@@ -838,9 +843,9 @@ crates/agent-service/src/screen_ai_cadence_runtime_tests.rs:76 function has 76 l
 crates/agent-service/src/screen_ai_retention_sweeper_runtime.rs:1 file has 326 lines; crossed 250-line advisory band; maximum is 1000
 crates/agent-service/src/screen_ai_retention_sweeper_runtime.rs:1 file has 18 functions; warning starts at 15 of 18
 crates/agent-service/src/screen_ai_retention_sweeper_runtime_tests.rs:30 function has 68 lines; warning starts at 64 of 80
-crates/agent-service/src/websocket.rs:1 file has 481 lines; crossed 250-line advisory band; maximum is 1000
+crates/agent-service/src/websocket.rs:1 file has 486 lines; crossed 250-line advisory band; maximum is 1000
 crates/agent-service/src/websocket.rs:1 file has 17 functions; warning starts at 15 of 18
-crates/agent-service/src/websocket.rs:169 function has 66 lines; warning starts at 64 of 80
+crates/agent-service/src/websocket.rs:170 function has 67 lines; warning starts at 64 of 80
 crates/agent-service/src/windows_adapter_artifact_gate_read_model.rs:1 file has 297 lines; crossed 250-line advisory band; maximum is 1000
 crates/agent-service/src/windows_adapter_artifact_gate_read_model.rs:1 file has 17 functions; warning starts at 15 of 18
 crates/agent-service/src/windows_adapter_artifact_ingestion_read_model.rs:1 file has 293 lines; crossed 250-line advisory band; maximum is 1000

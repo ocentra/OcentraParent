@@ -584,8 +584,33 @@ function snapshotTrackedProofSideEffects() {
 
 function restoreTrackedProofSideEffects(snapshot) {
   for (const [path, contents] of snapshot) {
-    writeFileSync(path, contents);
+    writeFileWithRetry(path, contents);
   }
+}
+
+function writeFileWithRetry(path, contents) {
+  let lastError = null;
+  for (let attempt = 0; attempt < 8; attempt += 1) {
+    try {
+      writeFileSync(path, contents);
+      return;
+    } catch (error) {
+      lastError = error;
+      if (!isTransientWriteError(error)) {
+        throw error;
+      }
+      sleepSync(75 * (attempt + 1));
+    }
+  }
+  throw lastError;
+}
+
+function isTransientWriteError(error) {
+  return ['UNKNOWN', 'EBUSY', 'EPERM', 'EACCES'].includes(error?.code);
+}
+
+function sleepSync(milliseconds) {
+  Atomics.wait(new Int32Array(new SharedArrayBuffer(4)), 0, 0, milliseconds);
 }
 
 function isAggregateProofPath(path) {

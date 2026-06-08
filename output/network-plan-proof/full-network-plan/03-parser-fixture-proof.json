@@ -98,6 +98,17 @@
         "kind": "refreshed-by-aggregate-command",
         "command": "network-live-capture-storage-proof"
       }
+    },
+    {
+      "id": "live-capture-service-readiness",
+      "group": "03-parser-fixture-proof",
+      "path": "output/network-plan-proof/13a-live-capture-service-readiness/proof-summary.json",
+      "kind": "json",
+      "parsedProof": "network-live-capture-service-readiness",
+      "freshness": {
+        "kind": "refreshed-by-aggregate-command",
+        "command": "network-live-capture-service-readiness-proof"
+      }
     }
   ]
 }

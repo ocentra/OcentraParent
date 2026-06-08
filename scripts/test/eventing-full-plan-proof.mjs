@@ -1,5 +1,5 @@
 import { spawnSync } from 'node:child_process';
-import { mkdirSync, writeFileSync } from 'node:fs';
+import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 
 const proofRoot = join('output', 'eventing-plan-proof', 'full-eventing-plan');
@@ -68,13 +68,19 @@ const directCommands = [
   },
 ];
 
-const scriptResults = proofScripts.map((scriptName) =>
-  runCommand({
-    name: scriptName.replace(/\.mjs$/, ''),
-    command: 'node',
-    args: [join('scripts', 'test', scriptName)],
-  })
-);
+const sideEffectSnapshot = snapshotTrackedProofSideEffects();
+let scriptResults = [];
+try {
+  scriptResults = proofScripts.map((scriptName) =>
+    runCommand({
+      name: scriptName.replace(/\.mjs$/, ''),
+      command: 'node',
+      args: [join('scripts', 'test', scriptName)],
+    })
+  );
+} finally {
+  restoreTrackedProofSideEffects(sideEffectSnapshot);
+}
 const directResults = directCommands.map(runCommand);
 const commands = [...scriptResults, ...directResults];
 
@@ -239,6 +245,63 @@ function runCommand(entry) {
   };
 }
 
+function snapshotTrackedProofSideEffects() {
+  const result = spawnSync(
+    'git',
+    ['ls-files', 'output/eventing-plan-proof', 'output/network-plan-proof', 'test-results'],
+    {
+      encoding: 'utf8',
+      shell: false,
+    }
+  );
+  if (result.status !== 0) {
+    throw new Error(`git ls-files failed with exit ${result.status}`);
+  }
+  return result.stdout
+    .split(/\r?\n/u)
+    .filter(Boolean)
+    .filter((path) => !isAggregateProofPath(path))
+    .map((path) => [path, readFileSync(path)]);
+}
+
+function restoreTrackedProofSideEffects(snapshot) {
+  for (const [path, contents] of snapshot) {
+    writeFileWithRetry(path, contents);
+  }
+}
+
+function writeFileWithRetry(path, contents) {
+  let lastError = null;
+  for (let attempt = 0; attempt < 8; attempt += 1) {
+    try {
+      writeFileSync(path, contents);
+      return;
+    } catch (error) {
+      lastError = error;
+      if (!isTransientWriteError(error)) {
+        throw error;
+      }
+      sleepSync(75 * (attempt + 1));
+    }
+  }
+  throw lastError;
+}
+
+function isTransientWriteError(error) {
+  return ['UNKNOWN', 'EBUSY', 'EPERM', 'EACCES'].includes(error?.code);
+}
+
+function sleepSync(milliseconds) {
+  Atomics.wait(new Int32Array(new SharedArrayBuffer(4)), 0, 0, milliseconds);
+}
+
+function isAggregateProofPath(path) {
+  const normalized = path.replace(/\\/gu, '/');
+  const normalizedProofRoot = proofRoot.replace(/\\/gu, '/');
+  const normalizedTestRoot = testRoot.replace(/\\/gu, '/');
+  return normalized.startsWith(`${normalizedProofRoot}/`) || normalized.startsWith(`${normalizedTestRoot}/`);
+}
+
 function writeGroupedLog(filename, commands, names) {
   const selected = commands.filter((entry) => names.includes(entry.name));
   const body = selected
@@ -290,6 +353,23 @@ function normalizeCommandOutput(value) {
     .replace(/target\(s\) in [^\n]+/gu, 'target(s) in <duration>')
     .replace(/finished in [^\n]+/giu, 'finished in <duration>')
     .replace(/Duration [^\n]+/gu, 'Duration <duration>')
+    .replace(/Start at\s+[0-9:]+/gu, 'Start at <time>')
+    .replace(
+      /file has \d+ lines; crossed \d+-line advisory band; maximum is \d+/gu,
+      'file has <lines> lines; crossed <band>-line advisory band; maximum is <max>'
+    )
+    .replace(
+      /function has \d+ lines; warning starts at \d+ of \d+/gu,
+      'function has <lines> lines; warning starts at <warn> of <max>'
+    )
+    .replace(
+      /file has \d+ functions; warning starts at \d+ of \d+/gu,
+      'file has <functions> functions; warning starts at <warn> of <max>'
+    )
+    .replace(
+      /file has \d+ structs\/enums; warning starts at \d+ of \d+/gu,
+      'file has <structs-enums> structs/enums; warning starts at <warn> of <max>'
+    )
     .split('\n')
     .filter((line) => !/^\s+Compiling /u.test(line))
     .filter((line) => !/^\s+Blocking waiting for file lock on build directory$/u.test(line));

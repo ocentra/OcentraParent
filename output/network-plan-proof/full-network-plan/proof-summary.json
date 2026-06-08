@@ -47,6 +47,12 @@
       "log": "output/network-plan-proof/full-network-plan/command-logs/network-live-capture-storage-proof.log"
     },
     {
+      "name": "network-live-capture-service-readiness-proof",
+      "command": "node scripts/test/network-live-capture-service-readiness-proof.mjs",
+      "status": 0,
+      "log": "output/network-plan-proof/full-network-plan/command-logs/network-live-capture-service-readiness-proof.log"
+    },
+    {
       "name": "network-zeek-analyzer-comparison-proof",
       "command": "node scripts/test/network-zeek-analyzer-comparison-proof.mjs",
       "status": 0,
@@ -302,7 +308,7 @@
   "freshnessAudit": {
     "policy": "Aggregate proof reruns current critical proof scripts, verifies source-tree fingerprints where artifacts provide sourceRefs, and labels legacy row artifacts instead of silently treating old branch metadata as fresh.",
     "counts": {
-      "refreshed-by-aggregate-command": 51
+      "refreshed-by-aggregate-command": 52
     },
     "refreshedArtifacts": [
       "contract-boundary",
@@ -316,6 +322,7 @@
       "encrypted-dns",
       "live-capture-gate",
       "live-capture-storage",
+      "live-capture-service-readiness",
       "zeek-analyzer",
       "signature-alerts",
       "ai-detection",
@@ -360,7 +367,7 @@
     "fingerprintCheckedArtifacts": [],
     "legacyMetadataArtifacts": []
   },
-  "artifactCount": 51,
+  "artifactCount": 52,
   "artifacts": [
     {
       "id": "contract-boundary",
@@ -481,6 +488,17 @@
       "freshness": {
         "kind": "refreshed-by-aggregate-command",
         "command": "network-live-capture-storage-proof"
+      }
+    },
+    {
+      "id": "live-capture-service-readiness",
+      "group": "03-parser-fixture-proof",
+      "path": "output/network-plan-proof/13a-live-capture-service-readiness/proof-summary.json",
+      "kind": "json",
+      "parsedProof": "network-live-capture-service-readiness",
+      "freshness": {
+        "kind": "refreshed-by-aggregate-command",
+        "command": "network-live-capture-service-readiness-proof"
       }
     },
     {
@@ -943,7 +961,7 @@
   "provenPlanGates": [
     "metadata-only network evidence and no exact URL/content from network-only evidence",
     "reusable Rust eventing dependency for network runtime routing without a network-only bus",
-    "PCAP/parser/analyzer/classifier fixture proof with unsupported-claim records",
+    "PCAP/parser/analyzer/classifier fixture proof with service-visible live-capture status and unsupported-claim records",
     "AI detection/audit and risk-budget outputs remain advisory until typed policy handoff",
     "adapter action is gated by policy, capability proof, result state, rollback/unavailable refs, and audit refs",
     "journal, replay, receipt-ledger, durable envelope, outbox, and local read-model proof are present",

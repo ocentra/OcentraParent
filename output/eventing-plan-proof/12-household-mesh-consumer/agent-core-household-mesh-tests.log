@@ -1,13 +1,13 @@
 
 running 6 tests
 test household_mesh_event_bridge_tests::household_mesh_exports_all_selected_local_events ... ok
-test household_mesh_event_bridge_tests::household_mesh_rejects_unauthenticated_incoming_messages ... ok
-test household_mesh_event_bridge_tests::household_mesh_rejects_raw_payload_and_invalid_refs ... ok
 test household_mesh_event_bridge_tests::household_mesh_rejects_direct_publish_and_policy_escalation ... ok
+test household_mesh_event_bridge_tests::household_mesh_rejects_raw_payload_and_invalid_refs ... ok
+test household_mesh_event_bridge_tests::household_mesh_rejects_unauthenticated_incoming_messages ... ok
 test household_mesh_event_bridge_tests::household_mesh_rejects_unselected_local_events ... ok
 test household_mesh_event_bridge_tests::household_mesh_validates_incoming_before_local_republish ... ok
 
-test result: ok. 6 passed; 0 failed; 0 ignored; 0 measured; 281 filtered out; finished in <duration>
+test result: ok. 6 passed; 0 failed; 0 ignored; 0 measured; <filtered> filtered out; finished in <duration>
 
     Finished `test` profile [unoptimized + debuginfo] target(s) in <duration>
-     Running unittests src\lib.rs (target\debug\deps\ocentra_parent_agent_core-9cb1b877e0051382.exe)
+     Running unittests src/lib.rs (target/debug/deps/<test-binary>)

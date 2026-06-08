@@ -109,7 +109,7 @@ const commands = [
   {
     name: 'git-diff-check',
     command: 'git',
-    args: ['diff', '--check'],
+    args: ['diff', '--check', '--', '.', ':(exclude)output', ':(exclude)test-results'],
     log: join(proofRoot, 'git-diff-check.log'),
   },
 ];
@@ -145,7 +145,8 @@ const proof = {
   checkedAt: 'deterministic:eventing-household-mesh-consumer-proof/v1',
   sourceFingerprint: `source-tree:${sourceFingerprint()}`,
   sourceRefs: sourceFiles,
-  sourceBase: mergeBase(),
+  runContext:
+    'Branch, merge base, commit, pushed state, and validation command output are reported in worker handoffs; committed row12 proof artifacts stay deterministic.',
   proofRoot,
   testRoot,
   commands: commandResults,
@@ -257,17 +258,6 @@ function sourceFingerprint() {
   return hash.digest('hex');
 }
 
-function mergeBase() {
-  const result = spawnSync('git', ['merge-base', 'HEAD', 'origin/main'], {
-    encoding: 'utf8',
-    shell: false,
-  });
-  if (result.status !== 0) {
-    throw new Error(`git merge-base failed with exit ${result.status}`);
-  }
-  return result.stdout.trim();
-}
-
 function readText(path) {
   return readFileSync(path, 'utf8');
 }
@@ -316,27 +306,64 @@ function normalizeSourceShapeLog(text) {
 function normalizeLogText(text) {
   const workspacePath = process.cwd();
   const workspacePathForward = workspacePath.replace(/\\/g, '/');
-  const normalized = text
+  const lines = text
     .replace(new RegExp(escapeRegExp(workspacePath), 'g'), '<workspace>')
     .replace(new RegExp(escapeRegExp(workspacePathForward), 'g'), '<workspace>')
     .replace(/\r\n/g, '\n')
+    .replace(/\\/g, '/')
     .split('\n')
     .filter((line) => !line.includes('Blocking waiting for'))
     .filter((line) => !line.trimStart().startsWith('Compiling '))
     .filter((line) => !line.trimStart().startsWith('Checking '))
     .map((line) =>
       line
+        .replace(/target\/debug\/deps\/[^\s)]+/g, 'target/debug/deps/<test-binary>')
         .replace(/finished in [0-9.]+s/g, 'finished in <duration>')
         .replace(/target\(s\) in [0-9.]+s/g, 'target(s) in <duration>')
         .replace(/target\(s\) in [0-9]+m [0-9]+s/g, 'target(s) in <duration>')
         .replace(/Duration\s+[0-9.]+(?:ms|s)/g, 'Duration <duration>')
         .replace(/Start at\s+[0-9:]+/g, 'Start at <time>')
+        .replace(/; [0-9]+ filtered out;/g, '; <filtered> filtered out;')
+        .replace(
+          /file has \d+ lines; crossed \d+-line advisory band; maximum is \d+/g,
+          'file has <lines> lines; crossed <band>-line advisory band; maximum is <max>'
+        )
+        .replace(
+          /function has \d+ lines; warning starts at \d+ of \d+/g,
+          'function has <lines> lines; warning starts at <warn> of <max>'
+        )
+        .replace(
+          /file has \d+ functions; warning starts at \d+ of \d+/g,
+          'file has <functions> functions; warning starts at <warn> of <max>'
+        )
+        .replace(
+          /file has \d+ structs\/enums; warning starts at \d+ of \d+/g,
+          'file has <structs-enums> structs/enums; warning starts at <warn> of <max>'
+        )
         .replace(/\b[0-9.]+(?:ms|s)\b/g, '<duration>')
-    )
+    );
+  const normalized = stableRustTestLines(lines)
     .join('\n')
     .replace(/[ \t]+$/gm, '')
     .replace(/\s+$/u, '');
   return normalized.length === 0 ? '' : `${normalized}\n`;
+}
+
+function stableRustTestLines(lines) {
+  const sortedTestLines = lines.filter(isRustTestLine).sort();
+  let nextTestLine = 0;
+  return lines.map((line) => {
+    if (!isRustTestLine(line)) {
+      return line;
+    }
+    const sortedLine = sortedTestLines[nextTestLine];
+    nextTestLine += 1;
+    return sortedLine;
+  });
+}
+
+function isRustTestLine(line) {
+  return /^test .+ \.\.\. ok$/u.test(line);
 }
 
 function escapeRegExp(value) {

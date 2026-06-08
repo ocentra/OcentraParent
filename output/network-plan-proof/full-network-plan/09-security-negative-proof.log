@@ -30,6 +30,10 @@ command=node scripts/test/network-live-capture-storage-proof.mjs
 status=0
 log=output/network-plan-proof/full-network-plan/command-logs/network-live-capture-storage-proof.log
 
+command=node scripts/test/network-live-capture-service-readiness-proof.mjs
+status=0
+log=output/network-plan-proof/full-network-plan/command-logs/network-live-capture-service-readiness-proof.log
+
 command=node scripts/test/network-zeek-analyzer-comparison-proof.mjs
 status=0
 log=output/network-plan-proof/full-network-plan/command-logs/network-zeek-analyzer-comparison-proof.log

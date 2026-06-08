@@ -2,7 +2,7 @@
   "proof": "eventing-household-mesh-consumer-proof",
   "proofRevision": "eventing-household-mesh-consumer-proof/v1",
   "checkedAt": "deterministic:eventing-household-mesh-consumer-proof/v1",
-  "sourceFingerprint": "source-tree:c48d449243b72f07cce8d53204a8676fce6eea05ea51f528e3dba900a7aae858",
+  "sourceFingerprint": "source-tree:618fccb267c3fbb974c2832b42a67031675f3596359131a4b93a167d6fbab0df",
   "sourceRefs": [
     "scripts/test/eventing-household-mesh-consumer-proof.mjs",
     "crates/agent-protocol/src/constants/household_mesh.rs",
@@ -19,7 +19,7 @@
     "docs/features/remote-lan-mobile-platforms.md",
     "docs/features/local-ai-safety-evaluator.md"
   ],
-  "sourceBase": "c3328c891af958153c1b64d92379e653de6ba2d0",
+  "runContext": "Branch, merge base, commit, pushed state, and validation command output are reported in worker handoffs; committed row12 proof artifacts stay deterministic.",
   "proofRoot": "output\\eventing-plan-proof\\12-household-mesh-consumer",
   "testRoot": "test-results\\eventing-household-mesh-consumer-proof",
   "commands": [
@@ -55,7 +55,7 @@
     },
     {
       "name": "git-diff-check",
-      "command": "git diff --check",
+      "command": "git diff --check -- . :(exclude)output :(exclude)test-results",
       "status": 0,
       "log": "output\\eventing-plan-proof\\12-household-mesh-consumer\\git-diff-check.log"
     }
