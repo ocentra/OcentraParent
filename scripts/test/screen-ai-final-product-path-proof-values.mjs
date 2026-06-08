@@ -42,6 +42,7 @@ export const SourcePaths = {
     'output/ai-plan-proof/household-ai-provider-route-selection-proof/proof-summary.json',
   householdProviderResultValidation: 'output/ai-plan-proof/household-ai-provider-result-validation/proof-summary.json',
   liveOperator: 'output/screen-ai-pipeline-proof/live-operator/proof-summary.json',
+  liveOperatorArtifactGate: 'output/screen-ai-pipeline-proof/live-operator-artifact-gate/proof-summary.json',
   liveOperatorAi: 'output/ai-plan-proof/live-operator/proof-summary.json',
   mobileDormantProvider: 'output/ai-plan-proof/mobile-dormant-ai-provider-proof/proof-summary.json',
   noRawScreenTransferMesh: 'output/ai-plan-proof/no-raw-screen-transfer-mesh/proof-summary.json',

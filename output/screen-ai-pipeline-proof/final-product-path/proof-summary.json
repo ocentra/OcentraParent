@@ -1,7 +1,7 @@
 {
   "status": "ok",
   "proofKind": "screen-ai-final-product-path-proof",
-  "generatedAt": "2026-06-08T05:28:15.066Z",
+  "generatedAt": "2026-06-08T05:39:37.207Z",
   "sourceArtifacts": {
     "actionDispatch": "output/screen-ai-pipeline-proof/action-dispatch/proof-summary.json",
     "blockActionDispatch": "output/screen-ai-pipeline-proof/block-action-dispatch/proof-summary.json",
@@ -14,6 +14,7 @@
     "householdProviderRouteSelection": "output/ai-plan-proof/household-ai-provider-route-selection-proof/proof-summary.json",
     "householdProviderResultValidation": "output/ai-plan-proof/household-ai-provider-result-validation/proof-summary.json",
     "liveOperator": "output/screen-ai-pipeline-proof/live-operator/proof-summary.json",
+    "liveOperatorArtifactGate": "output/screen-ai-pipeline-proof/live-operator-artifact-gate/proof-summary.json",
     "liveOperatorAi": "output/ai-plan-proof/live-operator/proof-summary.json",
     "mobileDormantProvider": "output/ai-plan-proof/mobile-dormant-ai-provider-proof/proof-summary.json",
     "noRawScreenTransferMesh": "output/ai-plan-proof/no-raw-screen-transfer-mesh/proof-summary.json",
@@ -58,6 +59,8 @@
     "finalPipelineProductCompleteBlockedByAdapterGate": true,
     "custodyArtifactRows": 3,
     "householdMeshConsumesRedactedRefsOnly": true,
+    "publicSocialSurfaceProof": true,
+    "authenticatedAccountSocialProof": false,
     "householdRouteSelectionCovered": true,
     "householdMeshBridgeMediated": true,
     "childAgentPolicyAuthorityCovered": true,

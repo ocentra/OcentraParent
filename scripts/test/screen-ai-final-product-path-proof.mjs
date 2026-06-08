@@ -11,6 +11,7 @@ import {
 
 const failures = [];
 const liveOperator = load(SourcePaths.liveOperator);
+const liveOperatorArtifactGate = load(SourcePaths.liveOperatorArtifactGate);
 const liveOperatorAi = load(SourcePaths.liveOperatorAi);
 const actionDispatch = load(SourcePaths.actionDispatch);
 const aiPlanClosure = load(SourcePaths.aiPlanClosure);
@@ -94,6 +95,8 @@ const proof = {
     finalPipelineProductCompleteBlockedByAdapterGate: true,
     custodyArtifactRows: finalAdapterAudit.closure?.custodyArtifactRows,
     householdMeshConsumesRedactedRefsOnly: closure.householdMeshBoundaryProven,
+    publicSocialSurfaceProof: true,
+    authenticatedAccountSocialProof: false,
     householdRouteSelectionCovered: true,
     householdMeshBridgeMediated: true,
     childAgentPolicyAuthorityCovered: true,
@@ -123,7 +126,19 @@ console.log(`screen-ai-final-product-path-proof-ok:${ProofPath}`);
 
 function validateLiveOperator() {
   assert(liveOperator.proof === 'screen-ai-live-operator-proof', 'live operator summary proof id mismatch');
+  assert(
+    liveOperatorArtifactGate.proof === 'screen-ai-live-operator-artifact-gate',
+    'live operator artifact gate proof id mismatch'
+  );
   assert(liveOperator.fullRequiredMatrixComplete === true, 'live operator matrix is not complete');
+  assert(
+    liveOperatorArtifactGate.publicSocialSurfaceRows === 1,
+    'live operator gate must prove exactly one public social surface row'
+  );
+  assert(
+    liveOperatorArtifactGate.authenticatedAccountSocialProof === false,
+    'live operator gate must not claim authenticated-account social proof'
+  );
   assert(liveOperator.liveExternalUrlProof === true, 'live operator missing live external URL proof');
   assert(liveOperator.localVlmAnalysisProof === true, 'live operator missing local VLM proof');
   assert(liveOperator.policyDryRunProof === true, 'live operator missing policy dry-run proof');

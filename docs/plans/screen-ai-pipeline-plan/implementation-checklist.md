@@ -280,7 +280,7 @@ proofs into physical LAN product execution.
 - [x] Screen-derived adapter readiness proof completed:
       `output/screen-ai-pipeline-proof/adapter-readiness/proof-summary.json`.
 - [x] Operator live proof completed before product-complete claim.
-- [x] Live external URL/surface proof completed for real YouTube/Vimeo/social/shopping/school surfaces; controlled fixture rows are harness proof only.
+- [x] Live external URL/surface proof completed for real YouTube/Vimeo/public social/shopping/school surfaces; controlled fixture rows are harness proof only, and authenticated-account social proof remains a separate non-claimed artifact gate.
 
 ## Validation
 

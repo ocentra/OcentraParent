@@ -139,6 +139,8 @@ const summary = {
   requiredScenarioStatus,
   rawImagesDeletedAfterAnalysis: scenarioResults.every((entry) => entry.rawImagesDeletedAfterAnalysis !== false),
   liveExternalUrlProof: scenarioResults.some((entry) => entry.liveExternalUrlProof === true),
+  publicSocialSurfaceProof: scenarioResults.some((entry) => entry.publicSocialSurfaceProof === true),
+  authenticatedAccountSocialProof: scenarioResults.some((entry) => entry.authenticatedAccountProof === true),
   localVlmAnalysisProof: scenarioResults.some((entry) => entry.analyzedByRealLocalVlm === true),
   policyDryRunProof: scenarioResults.some((entry) => entry.policyDecisionValidated === true),
   controlledFixtureProof: false,
@@ -147,6 +149,7 @@ const summary = {
   nonClaims: [
     'This harness opens operator-supplied live URLs/apps and captures the focused local window; it does not own managed-browser URL trigger integration.',
     'A product-complete live proof claim requires every required scenario id to pass with real operator-supplied URLs/apps.',
+    'The default social row proves a public live social/feed surface only; authenticated-account social proof requires an explicit operator-supplied logged-in account row.',
     'Raw screenshots are temporary inputs and are deleted after local analysis; artifacts store redacted source evidence and summaries only.',
   ],
   scenarios: scenarioResults,
@@ -220,6 +223,8 @@ async function runOperatorScenario(scenario) {
       captureReason: scenario.captureReason,
       captureScope: scenario.captureScope,
       liveExternalUrlProof: source.sourceEvidence.liveExternalUrl === true,
+      publicSocialSurfaceProof: source.sourceEvidence.publicSocialSurfaceProof === true,
+      authenticatedAccountProof: source.sourceEvidence.authenticatedAccountProof === true,
       analyzedByRealLocalVlm: true,
       schemaValidated: true,
       policyDecisionValidated: true,
@@ -959,10 +964,14 @@ function writeHarnessReadinessArtifact() {
 
 function redactedUrlEvidence(scenario) {
   const parsed = new URL(scenario.url);
+  const publicSocialSurfaceProof =
+    scenario.id === 'facebook-social-surface' && scenario.authenticatedAccountProof !== true;
   return {
     scenarioId: scenario.id,
     sourceKind: 'operator-live-url',
     liveExternalUrl: parsed.protocol === 'https:' || parsed.protocol === 'http:',
+    publicSocialSurfaceProof,
+    authenticatedAccountProof: scenario.authenticatedAccountProof === true,
     protocol: parsed.protocol.replace(':', ''),
     hostname: parsed.hostname,
     redactedUrl: `${parsed.protocol}//${parsed.hostname}/<redacted>`,

@@ -141,6 +141,11 @@ assert(
   finalProductPath.closure?.mobileDormantProviderFallbackCovered === true,
   'final path lost mobile dormant provider fallback coverage'
 );
+assert(finalProductPath.closure?.publicSocialSurfaceProof === true, 'final path lost public social surface proof');
+assert(
+  finalProductPath.closure?.authenticatedAccountSocialProof === false,
+  'final path overclaims authenticated-account social proof'
+);
 assert(finalProductPath.closure?.rawScreenshotsRetainedByDefault === false, 'final path retains raw screenshots');
 assert(finalProductPath.closure?.remoteAiUsedForChildSafety === false, 'final path uses remote AI for child safety');
 assert(finalProductPath.closure?.finalPipelineProductComplete === false, 'final path claims product-complete');
@@ -241,6 +246,8 @@ const proof = {
     householdMeshEventBridgeCovered: true,
     childAgentPolicyAuthorityCovered: true,
     mobileDormantProviderFallbackCovered: true,
+    publicSocialSurfaceProof: true,
+    authenticatedAccountSocialProof: false,
     rawScreenshotsRetainedByDefault: false,
     remoteAiUsedForChildSafety: false,
     productChecklistDeltaReadyButNotApplied: true,

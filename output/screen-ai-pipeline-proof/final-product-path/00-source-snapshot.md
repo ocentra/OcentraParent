@@ -1,6 +1,6 @@
 # Screen AI Final Product Path Proof
 
-Generated: 2026-06-08T05:28:15.066Z
+Generated: 2026-06-08T05:39:37.207Z
 
 ## Source Artifacts
 
@@ -15,6 +15,7 @@ Generated: 2026-06-08T05:28:15.066Z
 - householdProviderRouteSelection: `output/ai-plan-proof/household-ai-provider-route-selection-proof/proof-summary.json`
 - householdProviderResultValidation: `output/ai-plan-proof/household-ai-provider-result-validation/proof-summary.json`
 - liveOperator: `output/screen-ai-pipeline-proof/live-operator/proof-summary.json`
+- liveOperatorArtifactGate: `output/screen-ai-pipeline-proof/live-operator-artifact-gate/proof-summary.json`
 - liveOperatorAi: `output/ai-plan-proof/live-operator/proof-summary.json`
 - mobileDormantProvider: `output/ai-plan-proof/mobile-dormant-ai-provider-proof/proof-summary.json`
 - noRawScreenTransferMesh: `output/ai-plan-proof/no-raw-screen-transfer-mesh/proof-summary.json`
@@ -62,6 +63,8 @@ Generated: 2026-06-08T05:28:15.066Z
   "finalPipelineProductCompleteBlockedByAdapterGate": true,
   "custodyArtifactRows": 3,
   "householdMeshConsumesRedactedRefsOnly": true,
+  "publicSocialSurfaceProof": true,
+  "authenticatedAccountSocialProof": false,
   "householdRouteSelectionCovered": true,
   "householdMeshBridgeMediated": true,
   "childAgentPolicyAuthorityCovered": true,

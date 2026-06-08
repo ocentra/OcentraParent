@@ -45,6 +45,8 @@ writeProof({
   requiredScenarioCount: requiredRows.length,
   validatedScenarioCount: scenarioResults.length,
   realLiveUrlRows: scenarioResults.filter((entry) => entry.liveExternalUrlProof).length,
+  publicSocialSurfaceRows: scenarioResults.filter((entry) => entry.publicSocialSurfaceProof).length,
+  authenticatedAccountSocialProof: false,
   localVlmRows: scenarioResults.filter((entry) => entry.localVlmAnalysisProof).length,
   policyDryRunRows: scenarioResults.filter((entry) => entry.policyDryRunProof).length,
   rawImagesDeletedAfterAnalysis: true,
@@ -53,6 +55,7 @@ writeProof({
   scenarios: scenarioResults,
   nonClaims: [
     'This gate verifies existing operator-run live artifacts; it does not rerun browser capture or model inference.',
+    'The retained Facebook/social row proves a public live social/feed surface only and does not claim authenticated-account social coverage.',
     'Managed-browser trigger integration and broad browser/network/mobile adapters remain separate gates.',
     'The verified artifacts keep raw screenshots local and deleted after analysis.',
   ],
@@ -138,6 +141,13 @@ function validateSource(required, source) {
     assert(source.pageReadiness?.readinessAssertions?.hostnameMatches === true, `${required.id} host mismatch`);
     assert(source.pageReadiness?.readinessAssertions?.titleMatches === true, `${required.id} title readiness failed`);
     assert(source.pageReadiness?.readinessAssertions?.textMatches === true, `${required.id} text readiness failed`);
+    if (required.id === 'facebook-social-surface') {
+      assert(source.hostname === 'www.facebook.com', `${required.id} expected Facebook public social host`);
+      assert(source.publicSocialSurfaceProof !== false, `${required.id} must preserve public social surface proof`);
+      assert(source.authenticatedAccountProof !== true, `${required.id} must not claim authenticated-account proof`);
+    } else {
+      assert(source.authenticatedAccountProof !== true, `${required.id} must not claim account proof`);
+    }
     return;
   }
   assert(source.sourceKind === 'operator-native-app', `${required.id} did not use native app source`);
@@ -234,6 +244,9 @@ function scenarioResult(required, scenarioSummary) {
     category: required.category,
     policyAction: required.action,
     liveExternalUrlProof: scenarioSummary.liveExternalUrlProof,
+    publicSocialSurfaceProof:
+      required.id === 'facebook-social-surface' && scenarioSummary.authenticatedAccountProof !== true,
+    authenticatedAccountProof: scenarioSummary.authenticatedAccountProof === true,
     localVlmAnalysisProof: scenarioSummary.analyzedByRealLocalVlm === true,
     policyDryRunProof: scenarioSummary.policyDecisionValidated === true,
   };
