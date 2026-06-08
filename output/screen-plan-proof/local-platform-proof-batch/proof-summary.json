@@ -1,6 +1,6 @@
 {
   "proof": "screen-local-platform-proof-batch",
-  "generatedAt": "2026-06-08T16:25:58.349Z",
+  "generatedAt": "2026-06-08T16:43:08.028Z",
   "sourceArtifacts": {
     "windowsActiveWindow": "output/screen-plan-proof/real-capture/manual-parent-test-active-window/proof-summary.json",
     "windowsScopeMatrix": "output/screen-plan-proof/real-capture/scope-matrix/proof-summary.json",
@@ -27,7 +27,7 @@
         "avdToolAvailable": true,
         "avdError": null,
         "avds": [
-          "OcentraParentDeviceOwnerProofProbe",
+          "OcentraParentDeviceOwnerProof",
           "Ocentra_Screen_ATD_API33"
         ],
         "devices": [
@@ -98,7 +98,7 @@
       "api": "33",
       "currentHostDeviceOnline": true,
       "currentHostAvds": [
-        "OcentraParentDeviceOwnerProofProbe",
+        "OcentraParentDeviceOwnerProof",
         "Ocentra_Screen_ATD_API33"
       ],
       "productReadyContribution": "android-emulator-proof-only"

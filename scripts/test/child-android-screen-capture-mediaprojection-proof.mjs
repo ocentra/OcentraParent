@@ -9,10 +9,8 @@ const proofFile = 'files/screen-capture-mediaprojection-proof.json';
 const avdName = process.env.OCENTRA_ANDROID_AVD ?? 'Pixel_9_Pro_XL_API_35';
 const requestedSerial = process.env.OCENTRA_ANDROID_SERIAL ?? process.env.ANDROID_SERIAL ?? null;
 
-rmSync(outputDir, { recursive: true, force: true });
 mkdirSync(outputDir, { recursive: true });
 
-buildDebugApk();
 let device = firstOnlineDevice();
 if (device === null && process.env.OCENTRA_ANDROID_START_EMULATOR === '1') {
   startEmulator();
@@ -22,6 +20,10 @@ if (device === null) {
   throw new Error('No Android device/emulator is online; Android MediaProjection proof cannot be claimed.');
 }
 waitForAndroidReady(device);
+ensureDeviceUnlocked(device);
+rmSync(outputDir, { recursive: true, force: true });
+mkdirSync(outputDir, { recursive: true });
+buildDebugApk();
 ensureDeviceUnlocked(device);
 
 const deviceInfo = {

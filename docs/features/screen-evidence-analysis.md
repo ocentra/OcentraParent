@@ -174,7 +174,10 @@ only with explicit parent settings.
   distinguishable from a retained artifact. It explicitly keeps Android
   physical-device parity, native Linux Wayland/PipeWire parity, macOS
   ScreenCaptureKit, and iOS ReplayKit as external-required gates before
-  product-complete platform capture readiness.
+  product-complete platform capture readiness. It now also wires
+  `--run-android-physical` to the physical Android external-gate runner so a
+  real unlocked phone can upgrade the gate without changing the local batch
+  contract.
 - `ScreenMacosCaptureCapabilityProofSchema` and
   `scripts/test/screen-macos-capture-capability-proof.mjs` add the macOS
   ScreenCaptureKit readiness gate: the proof records current Apple
@@ -495,7 +498,14 @@ only with explicit parent settings.
   foreground-service/app-window-sharing requirements, requires
   stop-callback-on-user-stop behavior for MediaProjection modes, rejects silent
   background capture, and blocks physical-device product readiness until
-  physical-device capture and deletion proof exist.
+  physical-device capture and deletion proof exist. The capability proof now
+  accepts an optional physical-device proof ref only after
+  `scripts/test/screen-android-physical-external-gate-proof.mjs` captures a
+  real non-emulator Android target, verifies raw temp deletion, analyzes an
+  operator-safe retained live app surface with local Qwen2-VL, and satisfies the
+  external-gate manifest. On the current worker host the Samsung S9 target is
+  reachable over Wi-Fi ADB but locked behind keyguard/PIN, so the physical gate
+  remains blocked instead of being claimed from emulator evidence.
 - `scripts/test/screen-ios-replaykit-capability-proof.mjs` now records the iOS
   ReplayKit source-doc/no-overclaim gate at
   `output/screen-plan-proof/ios/proof-summary.json`. It treats iOS capture as
