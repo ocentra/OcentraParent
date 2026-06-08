@@ -1357,3 +1357,30 @@ public portal command/event names and does not claim external adapter dispatch,
 external transport, browser mutation, child intervention execution, final policy
 execution, parent notification UI delivery, provider delivery/receipt ingestion,
 or enforcement.
+
+## Social Parent Surface Preference Status Addendum - 2026-06-08
+
+`social-alert-report-parent-surface-intent-proof` now combines the social
+provider-status handoff with the social preference/quiet-hours status handoff
+before projecting parent-visible manual/unavailable surface intent rows. This
+matches the shared notification handoff shape used by app/game notifications:
+provider status, delivery result state, parent preference state, quiet-hours
+decision, notification status refs, preference status refs, audit refs, and
+manual-proof refs all travel together for a future authenticated parent surface.
+
+Evidence:
+
+- `packages/parent-domain/src/social-alert-report-parent-surface-intent-proof.ts`
+- `packages/parent-domain/tests/social-alert-report-parent-surface-intent-proof.test.ts`
+- `scripts/test/social-alert-report-parent-surface-intent-proof.mjs`
+- `test-results/social-alert-report-parent-surface-intent-proof/proof.json`
+- `test-results/social-alert-report-parent-surface-intent-proof/parent-surface-intent-read-model.json`
+- `output/browser-plan-proof/social-alert-report-parent-surface-intent-proof/01-social-alert-report-parent-surface-intent-proof.md`
+- `cmd /c node scripts/test/social-alert-report-parent-surface-intent-proof.mjs`
+
+No-claim boundary: this is parent-domain parent-surface status proof only. It
+does not render parent notification, preference, frequency-control, or history
+UI and does not claim provider delivery, receipt ingestion, child delivery,
+quiet-hours timer runtime, report delivery execution, final policy execution,
+connector/native runtime, browser mutation, unmanaged exact URL support, or
+enforcement.

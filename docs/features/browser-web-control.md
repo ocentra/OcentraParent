@@ -265,6 +265,15 @@ control while being more honest about managed versus unmanaged sources.
   external runtime report delivery, provider delivery or receipt ingestion,
   final policy execution, browser mutation, child intervention, unmanaged exact
   URL support, or enforcement.
+- Browser-plan SOCIAL-23/SOCIAL-24 now also aligns social alert/report
+  parent-surface intent with the shared notification handoff pattern already
+  used by app/game notifications. The parent-domain surface rows combine
+  provider status with preference/quiet-hours status, preserve notification,
+  preference, quiet-hours, audit, and manual-proof refs, and keep parent
+  notification/preference/history UI, provider delivery, child delivery,
+  quiet-hours timer runtime, report delivery execution, final policy execution,
+  connector/native runtime, browser mutation, unmanaged exact URL support, and
+  enforcement unclaimed.
 - Browser-plan WP13 now projects that named subscriber status through the
   service-backed browser runtime event-chain stream payload. Current
   store-backed browser rows still report zero pending candidates because the

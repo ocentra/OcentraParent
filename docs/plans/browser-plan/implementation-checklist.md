@@ -428,9 +428,10 @@ records. Evidence:
 `test-results/social-alert-report-local-outbox-bridge-proof/local-outbox-records.jsonl`,
 and
 `output/browser-plan-proof/social-alert-report-local-outbox-bridge-proof/01-social-alert-report-local-outbox-bridge-proof.md`.
-`social-alert-report-parent-surface-intent-proof` projects provider-status
-handoff rows into parent-visible manual/unavailable surface intent rows with
-status, readiness, audit, and manual-proof refs. Evidence:
+`social-alert-report-parent-surface-intent-proof` projects provider-status and
+preference/quiet-hours status handoff rows into parent-visible
+manual/unavailable surface intent rows with notification status, preference
+status, quiet-hours, audit, and manual-proof refs. Evidence:
 `test-results/social-alert-report-parent-surface-intent-proof/proof.json` and
 `output/browser-plan-proof/social-alert-report-parent-surface-intent-proof/01-social-alert-report-parent-surface-intent-proof.md`.
 `test-results/social-alert-report-provider-preflight-proof/proof.json` and

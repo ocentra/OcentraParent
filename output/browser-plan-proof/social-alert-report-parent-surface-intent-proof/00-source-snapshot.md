@@ -1,6 +1,6 @@
 # Source Snapshot
 
-Branch: codex/browser-child-intervention-endpoint-flow
-Commit: 0b3cb3c1f01c9757c8bf7a1e9cc9104448516f9b
+Branch: codex/d-runtime-ready
+Commit: 93ae079c2eb76905ee9f4ceb58e741ef446fb5e0
 
 Inspected social alert/report provider status handoff contracts and the app/game parent-surface intent pattern before adding a social-specific parent-surface intent proof.

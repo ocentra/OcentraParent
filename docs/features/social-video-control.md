@@ -313,13 +313,15 @@ message, video, and alert coverage. This is one of Ocentra's highest-risk gaps.
   report delivery execution, final policy execution, connector/native runtime,
   and enforcement remain unclaimed.
 - `social-alert-report-parent-surface-intent-proof` now adds a parent-domain
-  social alert/report parent-surface intent read model for provider-status
-  handoff rows. It exposes manual-action-required and unavailable-visible rows
-  with notification status refs, readiness refs, audit refs, and manual proof
+  social alert/report parent-surface intent read model for provider-status plus
+  preference/quiet-hours status handoff rows. It exposes
+  manual-action-required and unavailable-visible rows with notification status
+  refs, preference status refs, quiet-hours state, audit refs, and manual proof
   requirements for future authenticated drill-in. It does not render parent
-  notification UI and does not claim provider delivery, receipts, report
-  delivery execution, final policy execution, connector/native runtime, or
-  enforcement.
+  notification, preference, frequency-control, or notification-history UI and
+  does not claim provider delivery, receipts, child delivery, quiet-hours timer
+  runtime, report delivery execution, final policy execution,
+  connector/native runtime, or enforcement.
 - `social-alert-report-scheduler-bridge-proof` now adds a parent-domain social
   alert/report scheduler bridge. It consumes the local outbox bridge, writes
   only linked local outbox rows into the existing notification local outbox
