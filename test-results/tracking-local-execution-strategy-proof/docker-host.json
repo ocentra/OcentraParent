@@ -1,0 +1,7 @@
+{
+  "name": "docker-host",
+  "available": false,
+  "status": 1,
+  "output": "NO_OUTPUT",
+  "error": "spawnSync docker ENOENT"
+}

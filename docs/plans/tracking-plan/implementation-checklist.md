@@ -232,6 +232,18 @@ Every checked item must cite one or more proof artifacts.
       authority enrollment, provider delivery, production runtime, and
       product-ready tracking remain unclaimed. Artifact:
       `test-results/tracking-local-platform-proof-batch/proof.json`.
+- [x] Local execution strategy proof records the current batch process and
+      host capability split before PR handoff. It classifies Windows host
+      validation, WSL2/Ubuntu replay, Docker CLI availability, Android emulator
+      proof routing, Samsung S9 physical status-only routing, macOS/iOS
+      CI/manual routing, remaining physical/manual runtime routing, and final
+      sync/validation as 8 execution strategy rows: 4 local-runnable,
+      4 CI-runnable, 2 manual-required, and 1 unavailable-here row for Docker
+      on the current Windows PATH. This is execution planning/proof routing
+      only; Android physical behavior, iOS runtime, child-device runtime,
+      production runtime, and product-ready tracking remain unclaimed.
+      Artifact:
+      `test-results/tracking-local-execution-strategy-proof/proof.json`.
 - [x] iOS simulator package proof is routed through the existing macOS
       package-preview build/smoke path and tracking proof harness without
       claiming Core Location, background region monitoring, notifications,
