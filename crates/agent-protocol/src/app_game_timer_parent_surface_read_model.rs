@@ -71,6 +71,29 @@ pub struct AppGameTimerParentSurfaceChildUxParentSurfaceIntentRecord {
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
+pub struct AppGameTimerParentSurfaceChildUxParentPreferenceSetupRecord {
+    pub schema_version: u16,
+    pub parent_preference_setup_reference_id: String,
+    pub source_parent_surface_intent_reference_id: String,
+    pub source_result_id: String,
+    pub source_artifact_reference_id: String,
+    pub target_domain: String,
+    pub draft_status: String,
+    pub drill_in_reference_ids: Vec<String>,
+    pub manual_proof_reference_ids: Vec<String>,
+    pub parent_preference_ui_rendered: bool,
+    pub parent_frequency_control_ui_rendered: bool,
+    pub parent_preference_mutation_claimed: bool,
+    pub notification_rule_mutation_claimed: bool,
+    pub provider_delivery_claimed: bool,
+    pub child_delivery_claimed: bool,
+    pub adapter_dispatch_claimed: bool,
+    pub platform_enforcement_claimed: bool,
+    pub raw_private_source_rows_included: bool,
+}
+
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub struct AppGameTimerParentSurfaceReadModel {
     pub schema_version: u16,
     pub generated_at: String,
@@ -103,6 +126,11 @@ pub struct AppGameTimerParentSurfaceReadModel {
     pub child_ux_parent_surface_intent_reference_ids: Vec<String>,
     pub child_ux_parent_surface_intent_records:
         Vec<AppGameTimerParentSurfaceChildUxParentSurfaceIntentRecord>,
+    pub child_ux_parent_preference_setup_draft_ready_count: u64,
+    pub child_ux_parent_preference_setup_unavailable_visible_count: u64,
+    pub child_ux_parent_preference_setup_reference_ids: Vec<String>,
+    pub child_ux_parent_preference_setup_records:
+        Vec<AppGameTimerParentSurfaceChildUxParentPreferenceSetupRecord>,
     pub timer_runtime_claimed: bool,
     pub scheduler_persistence_claimed: bool,
     pub durable_scheduler_storage_claimed: bool,

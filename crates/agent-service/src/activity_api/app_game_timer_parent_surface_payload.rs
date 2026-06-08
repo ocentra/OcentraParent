@@ -66,26 +66,16 @@ pub fn app_game_timer_parent_surface_from_service_model_with_timer_state(
     active_timer_state: Option<&EnforcementActiveTimerState>,
 ) -> AppGameTimerParentSurfaceReadModel {
     let rows = timer_parent_surface_rows(&model);
-    let returned = rows.len() as u64;
-    let ready_for_parent_surface_count = count_rows_with_state(
-        &rows,
-        APP_GAME_TIMER_PARENT_SURFACE_STATE_READY_FOR_PARENT_SURFACE,
-    );
-    let blocked_by_source_freshness_count = count_rows_with_state(
-        &rows,
-        APP_GAME_TIMER_PARENT_SURFACE_STATE_BLOCKED_BY_SOURCE_FRESHNESS,
-    );
-    let blocked_by_compiler_decision_count = count_rows_with_state(
-        &rows,
-        APP_GAME_TIMER_PARENT_SURFACE_STATE_BLOCKED_BY_COMPILER_DECISION,
-    );
-    let runtime_manual_required_count = count_rows_with_state(
-        &rows,
-        APP_GAME_TIMER_PARENT_SURFACE_STATE_RUNTIME_MANUAL_REQUIRED,
-    );
+    let row_counts = timer_parent_surface_row_counts(&rows);
     let active_timer_state_exists = active_timer_state.is_some();
-    let (audit_runtime_claimed, rollback_runtime_claimed) =
-        timer_audit_rollback_runtime_claims(active_timer_state);
+    let audit_runtime_claimed = active_timer_state
+        .and_then(|state| state.audit_event.journal_sequence.as_ref())
+        .is_some();
+    let rollback_runtime_claimed = active_timer_state
+        .and_then(|state| state.action.rollback_token.as_ref())
+        .or_else(|| active_timer_state.and_then(|state| state.result.rollback_token.as_ref()))
+        .or_else(|| active_timer_state.and_then(|state| state.timer_event.rollback_token.as_ref()))
+        .is_some();
     let control_action_results = timer_parent_surface_control_action_results(&model);
     let control_action_result_count = control_action_results.reference_ids.len() as u64;
 
@@ -93,12 +83,12 @@ pub fn app_game_timer_parent_surface_from_service_model_with_timer_state(
         schema_version: APP_GAME_SCHEMA_VERSION,
         generated_at: model.generated_at,
         custody_label: APP_GAME_TIMER_PARENT_SURFACE_CUSTODY_CHILD_DEVICE_QUERY_STORE.to_string(),
-        capability_status: timer_parent_surface_status(returned, ready_for_parent_surface_count),
-        returned,
-        ready_for_parent_surface_count,
-        blocked_by_source_freshness_count,
-        blocked_by_compiler_decision_count,
-        runtime_manual_required_count,
+        capability_status: timer_parent_surface_status(row_counts.returned, row_counts.ready),
+        returned: row_counts.returned,
+        ready_for_parent_surface_count: row_counts.ready,
+        blocked_by_source_freshness_count: row_counts.blocked_by_source_freshness,
+        blocked_by_compiler_decision_count: row_counts.blocked_by_compiler_decision,
+        runtime_manual_required_count: row_counts.runtime_manual_required,
         control_action_result_count,
         control_action_result_reference_ids: control_action_results.reference_ids,
         control_action_result_statuses: control_action_results.statuses,
@@ -129,6 +119,14 @@ pub fn app_game_timer_parent_surface_from_service_model_with_timer_state(
             .child_ux_parent_surface_intent_reference_ids,
         child_ux_parent_surface_intent_records: control_action_results
             .child_ux_parent_surface_intent_records,
+        child_ux_parent_preference_setup_draft_ready_count: control_action_results
+            .child_ux_parent_preference_setup_draft_ready_count,
+        child_ux_parent_preference_setup_unavailable_visible_count: control_action_results
+            .child_ux_parent_preference_setup_unavailable_visible_count,
+        child_ux_parent_preference_setup_reference_ids: control_action_results
+            .child_ux_parent_preference_setup_reference_ids,
+        child_ux_parent_preference_setup_records: control_action_results
+            .child_ux_parent_preference_setup_records,
         timer_runtime_claimed: active_timer_state_exists,
         scheduler_persistence_claimed: active_timer_state_exists,
         durable_scheduler_storage_claimed: active_timer_state_exists,
@@ -142,18 +140,36 @@ pub fn app_game_timer_parent_surface_from_service_model_with_timer_state(
     }
 }
 
-fn timer_audit_rollback_runtime_claims(
-    active_timer_state: Option<&EnforcementActiveTimerState>,
-) -> (bool, bool) {
-    let audit_runtime_claimed = active_timer_state
-        .and_then(|state| state.audit_event.journal_sequence.as_ref())
-        .is_some();
-    let rollback_runtime_claimed = active_timer_state
-        .and_then(|state| state.action.rollback_token.as_ref())
-        .or_else(|| active_timer_state.and_then(|state| state.result.rollback_token.as_ref()))
-        .or_else(|| active_timer_state.and_then(|state| state.timer_event.rollback_token.as_ref()))
-        .is_some();
-    (audit_runtime_claimed, rollback_runtime_claimed)
+struct TimerParentSurfaceRowCounts {
+    returned: u64,
+    ready: u64,
+    blocked_by_source_freshness: u64,
+    blocked_by_compiler_decision: u64,
+    runtime_manual_required: u64,
+}
+
+fn timer_parent_surface_row_counts(
+    rows: &[AppGameTimerParentSurfaceRow],
+) -> TimerParentSurfaceRowCounts {
+    TimerParentSurfaceRowCounts {
+        returned: rows.len() as u64,
+        ready: count_rows_with_state(
+            rows,
+            APP_GAME_TIMER_PARENT_SURFACE_STATE_READY_FOR_PARENT_SURFACE,
+        ),
+        blocked_by_source_freshness: count_rows_with_state(
+            rows,
+            APP_GAME_TIMER_PARENT_SURFACE_STATE_BLOCKED_BY_SOURCE_FRESHNESS,
+        ),
+        blocked_by_compiler_decision: count_rows_with_state(
+            rows,
+            APP_GAME_TIMER_PARENT_SURFACE_STATE_BLOCKED_BY_COMPILER_DECISION,
+        ),
+        runtime_manual_required: count_rows_with_state(
+            rows,
+            APP_GAME_TIMER_PARENT_SURFACE_STATE_RUNTIME_MANUAL_REQUIRED,
+        ),
+    }
 }
 
 pub fn app_game_timer_parent_surface_payload(

@@ -144,6 +144,7 @@ fn assert_child_ux_local_artifact_visibility(decoded: &AppGameTimerParentSurface
     );
     assert_eq!(decoded.child_ux_local_handoff_artifact_records.len(), 1);
     assert_child_ux_parent_surface_intent_visibility(decoded);
+    assert_child_ux_parent_preference_setup_visibility(decoded);
     assert_child_ux_local_artifact_record_visibility(decoded);
 }
 
@@ -197,6 +198,58 @@ fn assert_child_ux_parent_surface_intent_visibility(decoded: &AppGameTimerParent
     assert!(!parent_surface_record.adapter_dispatch_claimed);
     assert!(!parent_surface_record.platform_enforcement_claimed);
     assert!(!parent_surface_record.raw_private_source_rows_included);
+}
+
+fn assert_child_ux_parent_preference_setup_visibility(
+    decoded: &AppGameTimerParentSurfaceReadModel,
+) {
+    assert_eq!(
+        decoded.child_ux_parent_preference_setup_draft_ready_count,
+        1
+    );
+    assert_eq!(
+        decoded.child_ux_parent_preference_setup_unavailable_visible_count,
+        0
+    );
+    assert_eq!(
+        decoded.child_ux_parent_preference_setup_reference_ids,
+        vec![[
+            constants::value::APP_GAME_CHILD_UX_PARENT_PREFERENCE_SETUP_PREFIX,
+            APP_GAME_TEST_ACTION_RESULT_ID
+        ]
+        .concat()]
+    );
+    assert_eq!(decoded.child_ux_parent_preference_setup_records.len(), 1);
+    let setup_record = &decoded.child_ux_parent_preference_setup_records[0];
+    assert_eq!(
+        setup_record.parent_preference_setup_reference_id,
+        [
+            constants::value::APP_GAME_CHILD_UX_PARENT_PREFERENCE_SETUP_PREFIX,
+            APP_GAME_TEST_ACTION_RESULT_ID
+        ]
+        .concat()
+    );
+    assert_eq!(
+        setup_record.source_parent_surface_intent_reference_id,
+        [
+            constants::value::APP_GAME_CHILD_UX_PARENT_SURFACE_INTENT_PREFIX,
+            APP_GAME_TEST_ACTION_RESULT_ID
+        ]
+        .concat()
+    );
+    assert_eq!(
+        setup_record.draft_status,
+        constants::value::APP_GAME_CHILD_UX_PARENT_PREFERENCE_SETUP_DRAFT_READY
+    );
+    assert!(!setup_record.parent_preference_ui_rendered);
+    assert!(!setup_record.parent_frequency_control_ui_rendered);
+    assert!(!setup_record.parent_preference_mutation_claimed);
+    assert!(!setup_record.notification_rule_mutation_claimed);
+    assert!(!setup_record.provider_delivery_claimed);
+    assert!(!setup_record.child_delivery_claimed);
+    assert!(!setup_record.adapter_dispatch_claimed);
+    assert!(!setup_record.platform_enforcement_claimed);
+    assert!(!setup_record.raw_private_source_rows_included);
 }
 
 fn assert_child_ux_local_artifact_record_visibility(decoded: &AppGameTimerParentSurfaceReadModel) {
@@ -296,8 +349,17 @@ fn approval_request() -> AppGameControlApprovalRequest {
         schema_version: APP_GAME_PARENT_CONTRACT_SCHEMA_VERSION.to_string(),
         request_id: APP_GAME_TEST_AUTHORITY_ID.to_string(),
         policy_kind: APP_GAME_CONTROL_POLICY_KIND_APP.to_string(),
-        device: parent_device(),
-        target: policy_target(),
+        device: AppGameParentDeviceReference {
+            device_id: APP_GAME_TEST_DEVICE_ID.to_string(),
+            child_profile_id: Some(APP_GAME_TEST_CHILD_PROFILE_ID.to_string()),
+            label: APP_GAME_TEST_DEVICE_LABEL.to_string(),
+            platform: APP_GAME_PARENT_PLATFORM_WINDOWS.to_string(),
+        },
+        target: AppGamePolicyTarget {
+            target_id: APP_GAME_TEST_TARGET_ID.to_string(),
+            target_type: APP_GAME_CONTROL_POLICY_KIND_APP.to_string(),
+            target_value: APP_GAME_TEST_TARGET_VALUE.to_string(),
+        },
         requested_action: APP_GAME_PLATFORM_ACTION_BLOCK_LAUNCH.to_string(),
         requested_mode: None,
         requested_setting_refs: Vec::new(),
@@ -341,23 +403,6 @@ fn supported_capability() -> AppGameEnforcementCapabilityStatus {
         supported_actions: vec![APP_GAME_PLATFORM_ACTION_BLOCK_LAUNCH.to_string()],
         degraded_reason: None,
         last_checked_at: APP_GAME_TEST_TIMESTAMP.to_string(),
-    }
-}
-
-fn policy_target() -> AppGamePolicyTarget {
-    AppGamePolicyTarget {
-        target_id: APP_GAME_TEST_TARGET_ID.to_string(),
-        target_type: APP_GAME_CONTROL_POLICY_KIND_APP.to_string(),
-        target_value: APP_GAME_TEST_TARGET_VALUE.to_string(),
-    }
-}
-
-fn parent_device() -> AppGameParentDeviceReference {
-    AppGameParentDeviceReference {
-        device_id: APP_GAME_TEST_DEVICE_ID.to_string(),
-        child_profile_id: Some(APP_GAME_TEST_CHILD_PROFILE_ID.to_string()),
-        label: APP_GAME_TEST_DEVICE_LABEL.to_string(),
-        platform: APP_GAME_PARENT_PLATFORM_WINDOWS.to_string(),
     }
 }
 
@@ -420,6 +465,15 @@ fn identity() -> AppGameIdentity {
         catalog_ref: None,
         child_game_evidence_claim_id: None,
         evidence: Vec::new(),
+    }
+}
+
+fn parent_device() -> AppGameParentDeviceReference {
+    AppGameParentDeviceReference {
+        device_id: APP_GAME_TEST_DEVICE_ID.to_string(),
+        child_profile_id: Some(APP_GAME_TEST_CHILD_PROFILE_ID.to_string()),
+        label: APP_GAME_TEST_DEVICE_LABEL.to_string(),
+        platform: APP_GAME_PARENT_PLATFORM_WINDOWS.to_string(),
     }
 }
 

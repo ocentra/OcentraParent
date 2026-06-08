@@ -63,25 +63,7 @@ async fn app_game_timer_parent_surface_command_reports_service_backed_rows() {
     assert_eq!(read_model.blocked_by_source_freshness_count, 1);
     assert_eq!(read_model.blocked_by_compiler_decision_count, 0);
     assert_eq!(read_model.runtime_manual_required_count, 0);
-    assert_eq!(read_model.control_action_result_count, 0);
-    assert!(read_model.control_action_result_reference_ids.is_empty());
-    assert!(read_model.control_action_result_statuses.is_empty());
-    assert!(read_model
-        .control_action_result_capability_states
-        .is_empty());
-    assert!(read_model
-        .control_action_result_enforcement_statuses
-        .is_empty());
-    assert!(read_model.child_facing_reason_reference_ids.is_empty());
-    assert!(read_model.child_facing_status_reference_ids.is_empty());
-    assert_eq!(read_model.child_ux_handoff_ready_count, 0);
-    assert_eq!(read_model.child_ux_handoff_blocked_count, 0);
-    assert!(read_model.child_ux_handoff_reference_ids.is_empty());
-    assert_eq!(read_model.child_ux_local_handoff_artifact_record_count, 0);
-    assert_eq!(read_model.child_ux_local_handoff_artifact_skipped_count, 0);
-    assert!(read_model
-        .child_ux_local_handoff_artifact_reference_ids
-        .is_empty());
+    assert_empty_control_child_ux_rows(&read_model);
     assert!(!read_model.timer_runtime_claimed);
     assert!(!read_model.scheduler_persistence_claimed);
     assert!(!read_model.durable_scheduler_storage_claimed);
@@ -157,6 +139,14 @@ async fn app_game_timer_parent_surface_reports_existing_active_timer_state_store
     assert!(read_model.durable_scheduler_storage_claimed);
     assert!(read_model.audit_runtime_claimed);
     assert!(read_model.rollback_runtime_claimed);
+    assert_empty_control_child_ux_rows(&read_model);
+    assert!(!read_model.adapter_dispatch_claimed);
+    assert!(!read_model.child_delivery_claimed);
+    assert!(!read_model.platform_enforcement_claimed);
+    assert!(!read_model.raw_private_source_rows_included);
+}
+
+fn assert_empty_control_child_ux_rows(read_model: &AppGameTimerParentSurfaceReadModel) {
     assert_eq!(read_model.control_action_result_count, 0);
     assert!(read_model.control_action_result_reference_ids.is_empty());
     assert!(read_model.control_action_result_statuses.is_empty());
@@ -176,10 +166,20 @@ async fn app_game_timer_parent_surface_reports_existing_active_timer_state_store
     assert!(read_model
         .child_ux_local_handoff_artifact_reference_ids
         .is_empty());
-    assert!(!read_model.adapter_dispatch_claimed);
-    assert!(!read_model.child_delivery_claimed);
-    assert!(!read_model.platform_enforcement_claimed);
-    assert!(!read_model.raw_private_source_rows_included);
+    assert_eq!(
+        read_model.child_ux_parent_preference_setup_draft_ready_count,
+        0
+    );
+    assert_eq!(
+        read_model.child_ux_parent_preference_setup_unavailable_visible_count,
+        0
+    );
+    assert!(read_model
+        .child_ux_parent_preference_setup_reference_ids
+        .is_empty());
+    assert!(read_model
+        .child_ux_parent_preference_setup_records
+        .is_empty());
 }
 
 fn command_envelope() -> AgentCommandEnvelope {

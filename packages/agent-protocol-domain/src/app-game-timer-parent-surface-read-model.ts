@@ -83,6 +83,32 @@ export const AgentAppGameTimerParentSurfaceChildUxParentSurfaceIntentRecordSchem
   })
 );
 
+export const AgentAppGameTimerParentSurfaceChildUxParentPreferenceSetupRecordSchema = withParser(
+  Schema.Struct({
+    schemaVersion: Schema.Literal(AppGameSchemaVersion),
+    parentPreferenceSetupReferenceId: TimerParentSurfaceText,
+    sourceParentSurfaceIntentReferenceId: TimerParentSurfaceText,
+    sourceResultId: TimerParentSurfaceText,
+    sourceArtifactReferenceId: TimerParentSurfaceText,
+    targetDomain: Schema.Literal(
+      AgentAppGameTimerParentSurfaceTargetDomain.NativeApp,
+      AgentAppGameTimerParentSurfaceTargetDomain.NativeGame
+    ),
+    draftStatus: Schema.Literal('draft-ready', 'unavailable-visible'),
+    drillInReferenceIds: Schema.Array(TimerParentSurfaceText),
+    manualProofReferenceIds: Schema.Array(TimerParentSurfaceText),
+    parentPreferenceUiRendered: Schema.Literal(false),
+    parentFrequencyControlUiRendered: Schema.Literal(false),
+    parentPreferenceMutationClaimed: Schema.Literal(false),
+    notificationRuleMutationClaimed: Schema.Literal(false),
+    providerDeliveryClaimed: Schema.Literal(false),
+    childDeliveryClaimed: Schema.Literal(false),
+    adapterDispatchClaimed: Schema.Literal(false),
+    platformEnforcementClaimed: Schema.Literal(false),
+    rawPrivateSourceRowsIncluded: Schema.Literal(false),
+  })
+);
+
 export const AgentAppGameTimerParentSurfaceReadModelSchema = withParser(
   Schema.Struct({
     schemaVersion: Schema.Literal(AppGameSchemaVersion),
@@ -116,6 +142,12 @@ export const AgentAppGameTimerParentSurfaceReadModelSchema = withParser(
     childUxParentSurfaceIntentRecords: Schema.Array(
       AgentAppGameTimerParentSurfaceChildUxParentSurfaceIntentRecordSchema
     ),
+    childUxParentPreferenceSetupDraftReadyCount: TimerParentSurfaceCount,
+    childUxParentPreferenceSetupUnavailableVisibleCount: TimerParentSurfaceCount,
+    childUxParentPreferenceSetupReferenceIds: Schema.Array(TimerParentSurfaceText),
+    childUxParentPreferenceSetupRecords: Schema.Array(
+      AgentAppGameTimerParentSurfaceChildUxParentPreferenceSetupRecordSchema
+    ),
     timerRuntimeClaimed: Schema.Boolean,
     schedulerPersistenceClaimed: Schema.Boolean,
     durableSchedulerStorageClaimed: Schema.Boolean,
@@ -141,6 +173,9 @@ export type AgentAppGameTimerParentSurfaceChildUxLocalArtifactRecord = Infer<
 >;
 export type AgentAppGameTimerParentSurfaceChildUxParentSurfaceIntentRecord = Infer<
   typeof AgentAppGameTimerParentSurfaceChildUxParentSurfaceIntentRecordSchema
+>;
+export type AgentAppGameTimerParentSurfaceChildUxParentPreferenceSetupRecord = Infer<
+  typeof AgentAppGameTimerParentSurfaceChildUxParentPreferenceSetupRecordSchema
 >;
 export type AgentAppGameTimerParentSurfaceReadModel = Infer<typeof AgentAppGameTimerParentSurfaceReadModelSchema>;
 

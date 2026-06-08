@@ -1,5 +1,6 @@
 use super::{
     constants, AppGameTimerParentSurfaceChildUxLocalArtifactRecord,
+    AppGameTimerParentSurfaceChildUxParentPreferenceSetupRecord,
     AppGameTimerParentSurfaceChildUxParentSurfaceIntentRecord, AppGameTimerParentSurfaceReadModel,
     AppGameTimerParentSurfaceRow, APP_GAME_SCHEMA_VERSION,
     APP_GAME_TIMER_PARENT_SURFACE_CUSTODY_CHILD_DEVICE_QUERY_STORE,
@@ -45,6 +46,19 @@ fn app_game_timer_parent_surface_read_model_serializes_no_runtime_claims() {
     );
     assert_eq!(
         serialized["childUxParentSurfaceIntentRecords"][0]["parentNotificationUiRendered"],
+        false
+    );
+    assert_eq!(serialized["childUxParentPreferenceSetupDraftReadyCount"], 1);
+    assert_eq!(
+        serialized["childUxParentPreferenceSetupUnavailableVisibleCount"],
+        0
+    );
+    assert_eq!(
+        serialized["childUxParentPreferenceSetupRecords"][0]["parentPreferenceUiRendered"],
+        false
+    );
+    assert_eq!(
+        serialized["childUxParentPreferenceSetupRecords"][0]["notificationRuleMutationClaimed"],
         false
     );
     assert_eq!(
@@ -93,6 +107,12 @@ fn app_game_timer_parent_surface_read_model() -> AppGameTimerParentSurfaceReadMo
         child_ux_parent_surface_intent_preference_setup_required_count: 1,
         child_ux_parent_surface_intent_reference_ids: vec![child_ux_parent_surface_reference_id()],
         child_ux_parent_surface_intent_records: vec![child_ux_parent_surface_record()],
+        child_ux_parent_preference_setup_draft_ready_count: 1,
+        child_ux_parent_preference_setup_unavailable_visible_count: 0,
+        child_ux_parent_preference_setup_reference_ids: vec![
+            child_ux_parent_preference_setup_reference_id(),
+        ],
+        child_ux_parent_preference_setup_records: vec![child_ux_parent_preference_setup_record()],
         timer_runtime_claimed: false,
         scheduler_persistence_claimed: false,
         durable_scheduler_storage_claimed: false,
@@ -138,6 +158,39 @@ fn child_ux_parent_surface_record() -> AppGameTimerParentSurfaceChildUxParentSur
         platform_enforcement_claimed: false,
         raw_private_source_rows_included: false,
     }
+}
+
+fn child_ux_parent_preference_setup_record(
+) -> AppGameTimerParentSurfaceChildUxParentPreferenceSetupRecord {
+    AppGameTimerParentSurfaceChildUxParentPreferenceSetupRecord {
+        schema_version: APP_GAME_SCHEMA_VERSION,
+        parent_preference_setup_reference_id: child_ux_parent_preference_setup_reference_id(),
+        source_parent_surface_intent_reference_id: child_ux_parent_surface_reference_id(),
+        source_result_id: APP_GAME_TIMER_PARENT_SURFACE_TARGET_NATIVE_GAME.to_string(),
+        source_artifact_reference_id: child_ux_artifact_reference_id(),
+        target_domain: APP_GAME_TIMER_PARENT_SURFACE_TARGET_NATIVE_GAME.to_string(),
+        draft_status: constants::value::APP_GAME_CHILD_UX_PARENT_PREFERENCE_SETUP_DRAFT_READY
+            .to_string(),
+        drill_in_reference_ids: vec![child_ux_artifact_reference_id()],
+        manual_proof_reference_ids: vec![child_ux_artifact_reference_id()],
+        parent_preference_ui_rendered: false,
+        parent_frequency_control_ui_rendered: false,
+        parent_preference_mutation_claimed: false,
+        notification_rule_mutation_claimed: false,
+        provider_delivery_claimed: false,
+        child_delivery_claimed: false,
+        adapter_dispatch_claimed: false,
+        platform_enforcement_claimed: false,
+        raw_private_source_rows_included: false,
+    }
+}
+
+fn child_ux_parent_preference_setup_reference_id() -> String {
+    [
+        constants::value::APP_GAME_CHILD_UX_PARENT_PREFERENCE_SETUP_PREFIX,
+        APP_GAME_TIMER_PARENT_SURFACE_TARGET_NATIVE_GAME,
+    ]
+    .concat()
 }
 
 fn child_ux_parent_surface_reference_id() -> String {

@@ -47,6 +47,10 @@ const TimerParentSurfaceReadModel = {
   childUxParentSurfaceIntentPreferenceSetupRequiredCount: 0,
   childUxParentSurfaceIntentReferenceIds: [],
   childUxParentSurfaceIntentRecords: [],
+  childUxParentPreferenceSetupDraftReadyCount: 0,
+  childUxParentPreferenceSetupUnavailableVisibleCount: 0,
+  childUxParentPreferenceSetupReferenceIds: [],
+  childUxParentPreferenceSetupRecords: [],
   timerRuntimeClaimed: false,
   schedulerPersistenceClaimed: false,
   durableSchedulerStorageClaimed: false,
@@ -67,6 +71,98 @@ const TimerParentSurfaceReadModel = {
       timerSurfaceState: AgentAppGameTimerParentSurfaceState.BlockedBySourceFreshness,
       evidenceReferenceIds: ['identity-voxel-quest', 'source-stale'],
     }),
+  ],
+} as const;
+
+const ActionResultReadModel = {
+  ...TimerParentSurfaceReadModel,
+  controlActionResultCount: 1,
+  controlActionResultReferenceIds: ['action-result-app-game-1'],
+  controlActionResultStatuses: ['enforced'],
+  controlActionResultCapabilityStates: ['supported'],
+  controlActionResultEnforcementStatuses: ['actually-enforced'],
+  childFacingReasonReferenceIds: ['parent-approved'],
+  childFacingStatusReferenceIds: ['child-status-limit-reached'],
+  childUxHandoffReadyCount: 1,
+  childUxHandoffBlockedCount: 0,
+  childUxHandoffReferenceIds: ['action-result-app-game-1'],
+  childUxLocalHandoffArtifactRecordCount: 1,
+  childUxLocalHandoffArtifactSkippedCount: 0,
+  childUxLocalHandoffArtifactReferenceIds: ['app-game-child-ux-local-handoff-action-result-app-game-1'],
+  childUxLocalHandoffArtifactRecords: [
+    {
+      schemaVersion: AppGameSchemaVersion,
+      artifactReferenceId: 'app-game-child-ux-local-handoff-action-result-app-game-1',
+      sourceResultId: 'action-result-app-game-1',
+      targetDomain: AgentAppGameTimerParentSurfaceTargetDomain.NativeGame,
+      childReasonReferenceIds: ['parent-approved'],
+      childStatusReferenceIds: ['child-status-limit-reached'],
+      childDeliveryClaimed: false,
+      notificationDeliveryClaimed: false,
+      adapterDispatchClaimed: false,
+      platformEnforcementClaimed: false,
+      rawPrivateSourceRowsIncluded: false,
+    },
+  ],
+  childUxParentSurfaceIntentManualActionRequiredCount: 1,
+  childUxParentSurfaceIntentUnavailableVisibleCount: 0,
+  childUxParentSurfaceIntentHistoryVisibleCount: 1,
+  childUxParentSurfaceIntentPreferenceSetupRequiredCount: 1,
+  childUxParentSurfaceIntentReferenceIds: ['app-game-child-ux-parent-surface-action-result-app-game-1'],
+  childUxParentSurfaceIntentRecords: [
+    {
+      schemaVersion: AppGameSchemaVersion,
+      parentSurfaceIntentReferenceId: 'app-game-child-ux-parent-surface-action-result-app-game-1',
+      sourceResultId: 'action-result-app-game-1',
+      sourceArtifactReferenceId: 'app-game-child-ux-local-handoff-action-result-app-game-1',
+      targetDomain: AgentAppGameTimerParentSurfaceTargetDomain.NativeGame,
+      historyVisibility: 'history-row-visible',
+      parentSurfaceStatus: 'manual-action-required',
+      preferenceVisibility: 'preference-setup-required',
+      drillInReferenceIds: [
+        'app-game-child-ux-local-handoff-action-result-app-game-1',
+        'parent-approved',
+        'child-status-limit-reached',
+      ],
+      manualProofReferenceIds: ['parent-approved', 'child-status-limit-reached'],
+      sensitiveDetailIncluded: false,
+      parentNotificationUiRendered: false,
+      parentPreferenceMutationClaimed: false,
+      providerDeliveryClaimed: false,
+      childDeliveryClaimed: false,
+      adapterDispatchClaimed: false,
+      platformEnforcementClaimed: false,
+      rawPrivateSourceRowsIncluded: false,
+    },
+  ],
+  childUxParentPreferenceSetupDraftReadyCount: 1,
+  childUxParentPreferenceSetupUnavailableVisibleCount: 0,
+  childUxParentPreferenceSetupReferenceIds: ['app-game-child-ux-parent-preference-setup-action-result-app-game-1'],
+  childUxParentPreferenceSetupRecords: [
+    {
+      schemaVersion: AppGameSchemaVersion,
+      parentPreferenceSetupReferenceId: 'app-game-child-ux-parent-preference-setup-action-result-app-game-1',
+      sourceParentSurfaceIntentReferenceId: 'app-game-child-ux-parent-surface-action-result-app-game-1',
+      sourceResultId: 'action-result-app-game-1',
+      sourceArtifactReferenceId: 'app-game-child-ux-local-handoff-action-result-app-game-1',
+      targetDomain: AgentAppGameTimerParentSurfaceTargetDomain.NativeGame,
+      draftStatus: 'draft-ready',
+      drillInReferenceIds: [
+        'app-game-child-ux-local-handoff-action-result-app-game-1',
+        'parent-approved',
+        'child-status-limit-reached',
+      ],
+      manualProofReferenceIds: ['parent-approved', 'child-status-limit-reached'],
+      parentPreferenceUiRendered: false,
+      parentFrequencyControlUiRendered: false,
+      parentPreferenceMutationClaimed: false,
+      notificationRuleMutationClaimed: false,
+      providerDeliveryClaimed: false,
+      childDeliveryClaimed: false,
+      adapterDispatchClaimed: false,
+      platformEnforcementClaimed: false,
+      rawPrivateSourceRowsIncluded: false,
+    },
   ],
 } as const;
 
@@ -150,69 +246,7 @@ function expectActiveStateVisibility() {
 }
 
 function expectControlActionResultVisibility() {
-  const actionResultModel = {
-    ...TimerParentSurfaceReadModel,
-    controlActionResultCount: 1,
-    controlActionResultReferenceIds: ['action-result-app-game-1'],
-    controlActionResultStatuses: ['enforced'],
-    controlActionResultCapabilityStates: ['supported'],
-    controlActionResultEnforcementStatuses: ['actually-enforced'],
-    childFacingReasonReferenceIds: ['parent-approved'],
-    childFacingStatusReferenceIds: ['child-status-limit-reached'],
-    childUxHandoffReadyCount: 1,
-    childUxHandoffBlockedCount: 0,
-    childUxHandoffReferenceIds: ['action-result-app-game-1'],
-    childUxLocalHandoffArtifactRecordCount: 1,
-    childUxLocalHandoffArtifactSkippedCount: 0,
-    childUxLocalHandoffArtifactReferenceIds: ['app-game-child-ux-local-handoff-action-result-app-game-1'],
-    childUxLocalHandoffArtifactRecords: [
-      {
-        schemaVersion: AppGameSchemaVersion,
-        artifactReferenceId: 'app-game-child-ux-local-handoff-action-result-app-game-1',
-        sourceResultId: 'action-result-app-game-1',
-        targetDomain: AgentAppGameTimerParentSurfaceTargetDomain.NativeGame,
-        childReasonReferenceIds: ['parent-approved'],
-        childStatusReferenceIds: ['child-status-limit-reached'],
-        childDeliveryClaimed: false,
-        notificationDeliveryClaimed: false,
-        adapterDispatchClaimed: false,
-        platformEnforcementClaimed: false,
-        rawPrivateSourceRowsIncluded: false,
-      },
-    ],
-    childUxParentSurfaceIntentManualActionRequiredCount: 1,
-    childUxParentSurfaceIntentUnavailableVisibleCount: 0,
-    childUxParentSurfaceIntentHistoryVisibleCount: 1,
-    childUxParentSurfaceIntentPreferenceSetupRequiredCount: 1,
-    childUxParentSurfaceIntentReferenceIds: ['app-game-child-ux-parent-surface-action-result-app-game-1'],
-    childUxParentSurfaceIntentRecords: [
-      {
-        schemaVersion: AppGameSchemaVersion,
-        parentSurfaceIntentReferenceId: 'app-game-child-ux-parent-surface-action-result-app-game-1',
-        sourceResultId: 'action-result-app-game-1',
-        sourceArtifactReferenceId: 'app-game-child-ux-local-handoff-action-result-app-game-1',
-        targetDomain: AgentAppGameTimerParentSurfaceTargetDomain.NativeGame,
-        historyVisibility: 'history-row-visible',
-        parentSurfaceStatus: 'manual-action-required',
-        preferenceVisibility: 'preference-setup-required',
-        drillInReferenceIds: [
-          'app-game-child-ux-local-handoff-action-result-app-game-1',
-          'parent-approved',
-          'child-status-limit-reached',
-        ],
-        manualProofReferenceIds: ['parent-approved', 'child-status-limit-reached'],
-        sensitiveDetailIncluded: false,
-        parentNotificationUiRendered: false,
-        parentPreferenceMutationClaimed: false,
-        providerDeliveryClaimed: false,
-        childDeliveryClaimed: false,
-        adapterDispatchClaimed: false,
-        platformEnforcementClaimed: false,
-        rawPrivateSourceRowsIncluded: false,
-      },
-    ],
-  };
-  const liveActivity = resolveLiveActivityState([timerParentSurfaceEvent(JSON.stringify(actionResultModel))]);
+  const liveActivity = resolveLiveActivityState([timerParentSurfaceEvent(JSON.stringify(ActionResultReadModel))]);
 
   const intent = createAppGameTimerParentSurfacePanelIntent(liveActivity.appGameTimerParentSurfaceReadModel);
 
@@ -342,13 +376,15 @@ function expectParentActionRows(
 function expectParentPreferenceSetupRows(
   rows: ReturnType<typeof createAppGameTimerParentSurfacePanelIntent>['parentPreferenceSetupRows']
 ) {
-  expect(rows.map((row) => row.title)).toEqual([
-    'parent-preference-setup-app-game-child-ux-parent-surface-action-result-app-game-1',
-  ]);
+  expect(rows.map((row) => row.title)).toEqual(['app-game-child-ux-parent-preference-setup-action-result-app-game-1']);
   expect(rowPairs(rows[0])).toContainEqual(['Target type', 'Native game']);
   expect(rowPairs(rows[0])).toContainEqual(['Parent preference setup draft status', 'Preference setup required']);
   expect(rowPairs(rows[0])).toContainEqual([
     'Parent preference setup draft refs',
+    'app-game-child-ux-parent-preference-setup-action-result-app-game-1',
+  ]);
+  expect(rowPairs(rows[0])).toContainEqual([
+    'Child UX parent-surface refs',
     'app-game-child-ux-parent-surface-action-result-app-game-1',
   ]);
   expect(rowPairs(rows[0])).toContainEqual(['Parent preference setup UI', 'Not claimed']);

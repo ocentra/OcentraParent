@@ -3,6 +3,8 @@ pub const APP_GAME_CHILD_UX_LOCAL_HANDOFF_ARTIFACT_PREFIX: &str =
     "app-game-child-ux-local-handoff-";
 pub const APP_GAME_CHILD_UX_PARENT_SURFACE_INTENT_PREFIX: &str =
     "app-game-child-ux-parent-surface-";
+pub const APP_GAME_CHILD_UX_PARENT_PREFERENCE_SETUP_PREFIX: &str =
+    "app-game-child-ux-parent-preference-setup-";
 pub const ACTIVITY_CAPTURE_IO_ERROR: &str = "activity-capture-io-error";
 pub const ACTIVITY_CAPTURE_INVALID_KEY_LENGTH: &str = "activity-capture-invalid-key-length";
 pub const ACTIVITY_CAPTURE_JOURNAL_ERROR: &str = "activity-capture-journal-error";
@@ -208,6 +210,9 @@ pub const APP_GAME_CHILD_UX_PARENT_SURFACE_HISTORY_ROW_VISIBLE: &str = "history-
 pub const APP_GAME_CHILD_UX_PARENT_SURFACE_MANUAL_ACTION_REQUIRED: &str = "manual-action-required";
 pub const APP_GAME_CHILD_UX_PARENT_SURFACE_PREFERENCE_SETUP_REQUIRED: &str =
     "preference-setup-required";
+pub const APP_GAME_CHILD_UX_PARENT_PREFERENCE_SETUP_DRAFT_READY: &str = "draft-ready";
+pub const APP_GAME_CHILD_UX_PARENT_PREFERENCE_SETUP_UNAVAILABLE_VISIBLE: &str =
+    "unavailable-visible";
 pub const TRANSPORT_WEBSOCKET: &str = "websocket";
 pub const TRUE: &str = "true";
 pub const UNKNOWN_HOST: &str = "unknown-host";

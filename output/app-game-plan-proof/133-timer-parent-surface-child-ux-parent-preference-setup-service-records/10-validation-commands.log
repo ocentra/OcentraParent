@@ -1,0 +1,44 @@
+cmd /c npx prettier --write packages/agent-protocol-domain/src/app-game-timer-parent-surface-read-model.ts packages/agent-protocol-domain/tests/app-game-timer-parent-surface-read-model.test.ts packages/portal-domain/src/app-game-timer-parent-surface-panel.ts apps/portal/tests/app-game-timer-parent-surface-panel.test.ts
+PASS.
+
+cmd /c npm run build --workspace @ocentra-parent/agent-protocol-domain
+PASS.
+
+cmd /c npm run test --workspace @ocentra-parent/agent-protocol-domain -- --run tests/app-game-timer-parent-surface-read-model.test.ts
+PASS: 1 file, 4 tests.
+
+cmd /c npm run build --workspace @ocentra-parent/portal-domain
+PASS.
+
+cmd /c npm run test --workspace @ocentra-parent/portal -- --run tests/app-game-timer-parent-surface-panel.test.ts
+PASS: 19 files, 78 tests.
+
+cargo fmt --all
+PASS.
+
+cargo test -p ocentra-parent-agent-protocol app_game_timer_parent_surface_read_model --quiet
+PASS: 1 passed.
+
+cargo test -p ocentra-parent-agent-service app_game_timer_parent_surface_payload --quiet
+PASS: 1 passed.
+
+cargo test -p ocentra-parent-agent-service app_game_timer_parent_surface_service --quiet
+PASS: 2 passed.
+
+cargo fmt --all --check
+PASS.
+
+node scripts/check-no-test-doubles.mjs
+PASS: No test doubles found across 2164 checked source files.
+
+node scripts/check-source-shape.mjs
+PASS: Source shape guard passed with existing advisory warnings only.
+
+git diff --check
+PASS.
+
+cmd /c npm run lanes:guard
+PASS.
+
+cmd /c npm run hub:guard
+PASS after acknowledging codex-c-msg-20260607T234433168Z-614 and locking the missing Rust protocol paths.

@@ -48,6 +48,10 @@ const TimerParentSurfaceReadModel = {
   childUxParentSurfaceIntentPreferenceSetupRequiredCount: 0,
   childUxParentSurfaceIntentReferenceIds: [],
   childUxParentSurfaceIntentRecords: [],
+  childUxParentPreferenceSetupDraftReadyCount: 0,
+  childUxParentPreferenceSetupUnavailableVisibleCount: 0,
+  childUxParentPreferenceSetupReferenceIds: [],
+  childUxParentPreferenceSetupRecords: [],
   timerRuntimeClaimed: false,
   schedulerPersistenceClaimed: false,
   durableSchedulerStorageClaimed: false,
@@ -154,6 +158,35 @@ const ActionResultReadModel = {
       rawPrivateSourceRowsIncluded: false,
     },
   ],
+  childUxParentPreferenceSetupDraftReadyCount: 1,
+  childUxParentPreferenceSetupUnavailableVisibleCount: 0,
+  childUxParentPreferenceSetupReferenceIds: ['app-game-child-ux-parent-preference-setup-action-result-app-game-1'],
+  childUxParentPreferenceSetupRecords: [
+    {
+      schemaVersion: AppGameSchemaVersion,
+      parentPreferenceSetupReferenceId: 'app-game-child-ux-parent-preference-setup-action-result-app-game-1',
+      sourceParentSurfaceIntentReferenceId: 'app-game-child-ux-parent-surface-action-result-app-game-1',
+      sourceResultId: 'action-result-app-game-1',
+      sourceArtifactReferenceId: 'app-game-child-ux-local-handoff-action-result-app-game-1',
+      targetDomain: AgentAppGameTimerParentSurfaceTargetDomain.NativeGame,
+      draftStatus: 'draft-ready',
+      drillInReferenceIds: [
+        'app-game-child-ux-local-handoff-action-result-app-game-1',
+        'parent-approved',
+        'child-status-limit-reached',
+      ],
+      manualProofReferenceIds: ['parent-approved', 'child-status-limit-reached'],
+      parentPreferenceUiRendered: false,
+      parentFrequencyControlUiRendered: false,
+      parentPreferenceMutationClaimed: false,
+      notificationRuleMutationClaimed: false,
+      providerDeliveryClaimed: false,
+      childDeliveryClaimed: false,
+      adapterDispatchClaimed: false,
+      platformEnforcementClaimed: false,
+      rawPrivateSourceRowsIncluded: false,
+    },
+  ],
 } as const;
 
 describe('agent app-game timer parent surface parser', () => {
@@ -247,6 +280,7 @@ describe('agent app-game timer parent surface parser rejection handling', () => 
               },
             ],
             childUxParentSurfaceIntentRecords: [],
+            childUxParentPreferenceSetupRecords: [],
           })
         )
       )

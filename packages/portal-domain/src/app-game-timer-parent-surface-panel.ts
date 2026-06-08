@@ -1,7 +1,7 @@
 import {
   AgentAppGameTimerParentSurfaceState,
   AgentAppGameTimerParentSurfaceTargetDomain,
-  type AgentAppGameTimerParentSurfaceChildUxParentSurfaceIntentRecord,
+  type AgentAppGameTimerParentSurfaceChildUxParentPreferenceSetupRecord,
   type AgentAppGameTimerParentSurfaceReadModel,
   type AgentAppGameTimerParentSurfaceResult,
   type AgentAppGameTimerParentSurfaceRow,
@@ -342,25 +342,28 @@ function parentPreferenceSetupRows(
   readModel: AgentAppGameTimerParentSurfaceReadModel,
   productClaim: DisplayText
 ): readonly AppGameTimerParentSurfacePanelRow[] {
-  return readModel.childUxParentSurfaceIntentRecords.map((record) => parentPreferenceSetupRow(record, productClaim));
+  return readModel.childUxParentPreferenceSetupRecords.map((record) => parentPreferenceSetupRow(record, productClaim));
 }
 
 function parentPreferenceSetupRow(
-  record: AgentAppGameTimerParentSurfaceChildUxParentSurfaceIntentRecord,
+  record: AgentAppGameTimerParentSurfaceChildUxParentPreferenceSetupRecord,
   productClaim: DisplayText
 ): AppGameTimerParentSurfacePanelRow {
-  const status = parentPreferenceSetupDraftStatus(record);
   return {
-    title: displayText(`parent-preference-setup-${record.parentSurfaceIntentReferenceId}`),
+    title: displayText(record.parentPreferenceSetupReferenceId),
     details: [
       detail(PortalDetails.TargetType, TimerParentSurfaceTargetLabels[record.targetDomain]),
       detail(
         TimerParentSurfaceDetails.ParentPreferenceSetupDraftStatus,
-        parentPreferenceSetupDraftReadableValue(status)
+        parentPreferenceSetupDraftReadableValue(record.draftStatus)
       ),
       detail(
         TimerParentSurfaceDetails.ParentPreferenceSetupDraftRefs,
-        displayText(record.parentSurfaceIntentReferenceId)
+        displayText(record.parentPreferenceSetupReferenceId)
+      ),
+      detail(
+        TimerParentSurfaceDetails.ChildUxParentSurfaceIntentRefs,
+        displayText(record.sourceParentSurfaceIntentReferenceId)
       ),
       detail(
         TimerParentSurfaceDetails.ChildUxParentSurfaceIntentArtifactRefs,
@@ -384,15 +387,6 @@ function parentPreferenceSetupRow(
       detail(PortalDetails.ProductClaim, productClaim),
     ],
   };
-}
-
-function parentPreferenceSetupDraftStatus(
-  record: AgentAppGameTimerParentSurfaceChildUxParentSurfaceIntentRecord
-): (typeof AppGameChildUxParentPreferenceSetupDraftStatus)[keyof typeof AppGameChildUxParentPreferenceSetupDraftStatus] {
-  if (record.preferenceVisibility === 'preference-setup-required') {
-    return AppGameChildUxParentPreferenceSetupDraftStatus.DraftReady;
-  }
-  return AppGameChildUxParentPreferenceSetupDraftStatus.UnavailableVisible;
 }
 
 function parentPreferenceSetupDraftReadableValue(
