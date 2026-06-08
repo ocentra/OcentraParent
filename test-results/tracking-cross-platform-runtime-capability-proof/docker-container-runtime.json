@@ -1,0 +1,17 @@
+{
+  "path": "C:\\Program Files\\Docker\\Docker\\resources\\bin\\docker.exe",
+  "version": {
+    "id": "docker-version",
+    "command": "C:\\Program Files\\Docker\\Docker\\resources\\bin\\docker.exe --version",
+    "exitCode": 0,
+    "stdout": "Docker version 28.2.2, build e6534b4\n",
+    "stderr": ""
+  },
+  "daemon": {
+    "id": "docker-daemon",
+    "command": "C:\\Program Files\\Docker\\Docker\\resources\\bin\\docker.exe version --format {{.Server.Version}}",
+    "exitCode": 1,
+    "stdout": "\n",
+    "stderr": "error during connect: in the default daemon configuration on Windows, the docker client must be run with elevated privileges to connect: Get \"http://%2F%2F.%2Fpipe%2Fdocker_engine/v1.50/version\": open //./pipe/docker_engine: The system cannot find the file specified.\n"
+  }
+}
