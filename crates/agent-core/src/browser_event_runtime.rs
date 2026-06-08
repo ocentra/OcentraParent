@@ -19,6 +19,10 @@ mod action_handoff_durable_types;
 mod action_status;
 mod delivery;
 mod social_provider_receipt;
+#[cfg(test)]
+mod social_provider_receipt_durable;
+#[cfg(test)]
+mod social_provider_receipt_durable_types;
 mod topology;
 
 use crate::{browser_event_runtime_refs::previous_phase_ref, BrowserRuntimePhase};
@@ -51,6 +55,10 @@ pub use social_provider_receipt::{
     BrowserRuntimeSocialProviderReceiptStatusReport,
     BrowserRuntimeSocialProviderReceiptStatusResponse,
 };
+#[cfg(test)]
+pub(crate) use social_provider_receipt_durable::prove_browser_runtime_social_provider_receipt_durable;
+#[cfg(test)]
+pub(crate) use social_provider_receipt_durable_types::BrowserRuntimeSocialProviderReceiptDurableReadModelState;
 pub use topology::browser_runtime_chain_topology_manifest;
 
 #[derive(Clone, Debug, PartialEq)]

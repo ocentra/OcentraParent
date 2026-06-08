@@ -826,6 +826,22 @@ runtime, parent notification UI delivery, final policy execution, browser
 mutation, child intervention execution, unmanaged exact URL support, or
 enforcement.
 
+WP13 social provider receipt durable addendum:
+`browser-runtime-social-provider-receipt-durable-proof` projects the named
+`browser.social.provider-receipt.status.requested` subscriber result into a
+durable receipt read-model row. Evidence:
+`test-results/browser-runtime-social-provider-receipt-durable-proof/proof.json`
+and
+`output/browser-plan-proof/browser-runtime-social-provider-receipt-durable/01-browser-runtime-social-provider-receipt-durable-proof.md`.
+The proof validates request event/correlation refs, parent action-intent refs,
+provider attempt/receipt proof refs, durable result/store refs, read-model and
+support-status refs, duplicate request event rejection, and zero provider
+receipt/provider dispatch/connector-native/parent notification/report delivery/
+final policy/enforcement counters. It does not claim provider delivery, receipt
+ingestion runtime, parent notification UI delivery, final policy execution,
+browser mutation, child intervention execution, unmanaged exact URL support, or
+enforcement.
+
 ## Worker Report Template
 
 Use this shape in the hub report or PR-ready note:

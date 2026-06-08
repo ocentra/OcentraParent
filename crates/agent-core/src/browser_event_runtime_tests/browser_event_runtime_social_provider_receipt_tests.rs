@@ -1,3 +1,7 @@
+use crate::browser_event_runtime::{
+    prove_browser_runtime_social_provider_receipt_durable,
+    BrowserRuntimeSocialProviderReceiptDurableReadModelState,
+};
 use crate::{
     browser_runtime_social_provider_receipt_status_topology_manifest,
     request_browser_runtime_social_provider_receipt_status_for_input, BrowserRuntimeInput,
@@ -116,4 +120,72 @@ fn browser_runtime_social_provider_receipt_topology_covers_named_event_and_subsc
         subscriber.target_handler.as_str(),
         constants::browser::TARGET_BROWSER_SOCIAL_PROVIDER_RECEIPT_STATUS
     );
+}
+
+#[tokio::test]
+async fn browser_runtime_social_provider_receipt_durable_preserves_refs_without_execution() {
+    let report = prove_browser_runtime_social_provider_receipt_durable()
+        .await
+        .unwrap();
+
+    assert_eq!(report.request_event_count, 1);
+    assert_eq!(report.durable_record_count, 1);
+    assert_eq!(report.read_model_row_count, 1);
+    assert_eq!(report.provider_dispatch_required_count, 1);
+    assert_eq!(report.manual_receipt_required_count, 0);
+    assert!(report.duplicate_request_event_rejected);
+    assert!(report.row_matches_receipt_response);
+    assert!(report.row_matches_request_event);
+
+    let row = report.rows.first().unwrap();
+    assert_eq!(
+        row.state,
+        BrowserRuntimeSocialProviderReceiptDurableReadModelState::ProviderDispatchRequiredManualReceipt
+    );
+    assert_eq!(
+        row.request_event_type.as_str(),
+        constants::browser::EVENT_BROWSER_SOCIAL_PROVIDER_RECEIPT_STATUS_REQUESTED
+    );
+    assert_eq!(
+        row.action_intent_id,
+        constants::browser::TEST_BROWSER_RUNTIME_ACTION_INTENT_ID
+    );
+    assert_eq!(
+        row.provider_attempt_ref.as_str(),
+        constants::browser::TEST_BROWSER_RUNTIME_SOCIAL_PROVIDER_ATTEMPT_REF
+    );
+    assert_eq!(
+        row.provider_receipt_proof_ref.as_str(),
+        constants::browser::TEST_BROWSER_RUNTIME_SOCIAL_PROVIDER_RECEIPT_PROOF_REF
+    );
+    assert_eq!(
+        row.durable_result_ref.as_str(),
+        constants::browser::TEST_BROWSER_RUNTIME_SOCIAL_PROVIDER_RECEIPT_DURABLE_RESULT_REF
+    );
+    assert_eq!(
+        row.durable_store_ref.as_str(),
+        constants::browser::TEST_BROWSER_RUNTIME_SOCIAL_PROVIDER_RECEIPT_DURABLE_STORE_REF
+    );
+    assert_eq!(
+        row.read_model_ref.as_str(),
+        constants::browser::TEST_BROWSER_RUNTIME_SOCIAL_PROVIDER_RECEIPT_READ_MODEL_REF
+    );
+    assert_eq!(
+        row.support_status_ref.as_str(),
+        constants::browser::TEST_BROWSER_RUNTIME_SOCIAL_PROVIDER_RECEIPT_SUPPORT_STATUS_REF
+    );
+    assert_eq!(report.provider_receipt_count, 0);
+    assert_eq!(report.provider_dispatch_count, 0);
+    assert_eq!(report.connector_native_runtime_count, 0);
+    assert_eq!(report.parent_notification_ui_delivery_count, 0);
+    assert_eq!(report.report_delivery_execution_count, 0);
+    assert_eq!(report.final_policy_execution_count, 0);
+    assert_eq!(report.enforcement_execution_count, 0);
+    assert!(!report.provider_receipt_claimed);
+    assert!(!report.provider_dispatch_claimed);
+    assert!(!report.connector_native_runtime_claimed);
+    assert!(!report.parent_notification_ui_delivery_claimed);
+    assert!(!report.report_delivery_execution_claimed);
+    assert!(!report.final_policy_execution_claimed);
+    assert!(!report.enforcement_claimed);
 }

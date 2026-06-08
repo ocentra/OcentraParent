@@ -161,6 +161,13 @@ control while being more honest about managed versus unmanaged sources.
   provider-dispatch-required receipt boundary rows, manual-required browser
   evidence stays manual-receipt-required, and public stream fields remain
   deferred until protocol field ownership is clear.
+- Browser-plan WP13 now also has durable social provider receipt read-model
+  proof for the named receipt subscriber. The durable row preserves the request
+  event, parent action-intent, provider attempt, receipt proof, durable result,
+  durable store, read-model, support-status, source, and evidence refs, rejects
+  duplicate request event ids, and keeps provider receipt ingestion, provider
+  dispatch, parent notification UI delivery, report delivery, final policy
+  execution, connector/native runtime, and enforcement unclaimed.
 - Browser-plan WP13 now projects that named subscriber status through the
   service-backed browser runtime event-chain stream payload. Current
   store-backed browser rows still report zero pending candidates because the

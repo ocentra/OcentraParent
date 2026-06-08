@@ -129,6 +129,16 @@ pub const TEST_BROWSER_RUNTIME_SOCIAL_PROVIDER_ATTEMPT_REF: &str =
     "browser-social-provider-attempt-test";
 pub const TEST_BROWSER_RUNTIME_SOCIAL_PROVIDER_RECEIPT_PROOF_REF: &str =
     "browser-social-provider-receipt-proof-required-test";
+pub const TEST_BROWSER_RUNTIME_SOCIAL_PROVIDER_RECEIPT_DURABLE_RESULT_REF: &str =
+    "browser-social-provider-receipt-durable-result-test";
+pub const TEST_BROWSER_RUNTIME_SOCIAL_PROVIDER_RECEIPT_DURABLE_STORE_REF: &str =
+    "browser-social-provider-receipt-durable-store-test";
+pub const TEST_BROWSER_RUNTIME_SOCIAL_PROVIDER_RECEIPT_READ_MODEL_REF: &str =
+    "browser-social-provider-receipt-read-model-test";
+pub const TEST_BROWSER_RUNTIME_SOCIAL_PROVIDER_RECEIPT_SUPPORT_STATUS_REF: &str =
+    "browser-social-provider-receipt-support-status-test";
+pub const ERROR_BROWSER_RUNTIME_SOCIAL_PROVIDER_RECEIPT_DURABLE: &str =
+    "browser social provider receipt durable proof failed";
 pub const TEST_BROWSER_RUNTIME_INTERVENTION_COMMAND_REF: &str =
     "browser-intervention-command-ref-test";
 pub const TEST_BROWSER_RUNTIME_INTERVENTION_RESULT_REF: &str =

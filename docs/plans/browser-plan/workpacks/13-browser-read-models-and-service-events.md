@@ -790,3 +790,28 @@ ingestion runtime, webhook runtime, credentials, parent notification UI delivery
 report delivery execution, final policy execution, connector/native runtime,
 browser mutation, child intervention execution, unmanaged exact URL support, or
 enforcement.
+
+## Social Provider Receipt Durable Addendum - 2026-06-08
+
+`browser-runtime-social-provider-receipt-durable-proof` projects the named
+`browser.social.provider-receipt.status.requested` subscriber result into a
+durable receipt read-model row. The row preserves the request event,
+correlation, parent action-intent, provider attempt, receipt proof, durable
+result, durable store, read-model, support-status, source, and evidence refs,
+and rejects duplicate request event ids before read-model projection.
+
+Evidence:
+
+- `crates/agent-core/src/browser_event_runtime/social_provider_receipt_durable.rs`
+- `crates/agent-core/src/browser_event_runtime/social_provider_receipt_durable_types.rs`
+- `crates/agent-core/src/browser_event_runtime_tests.rs`
+- `scripts/test/browser-runtime-social-provider-receipt-durable-proof.mjs`
+- `test-results/browser-runtime-social-provider-receipt-durable-proof/proof.json`
+- `output/browser-plan-proof/browser-runtime-social-provider-receipt-durable/01-browser-runtime-social-provider-receipt-durable-proof.md`
+- `cargo test -p ocentra-parent-agent-core social_provider_receipt_durable --quiet`
+
+This is durable/read-model proof only. It intentionally does not claim provider
+delivery, provider receipt ingestion runtime, webhook runtime, credentials,
+parent notification UI delivery, report delivery execution, final policy
+execution, connector/native runtime, browser mutation, child intervention
+execution, unmanaged exact URL support, or enforcement.
