@@ -53,6 +53,11 @@
   the hosted coverage card to the same read-model command, event, payload,
   citation fields, active evidence refs, tombstone deleted-evidence refs, and
   no-claim boundaries used by the live citation rows.
+- Retention product-settings writable execution proof now carries a derivation
+  matrix from accepted local service state to the local runtime artifact,
+  preserving source refs, service revision, snapshot ref, durable store ref,
+  applied values, and no-claim boundaries while keeping platform enforcement
+  and product-ready retention false.
 - Provider and notification local proof exists for POI/provider mapping,
   provider-notification intent, notification preference preflight/status handoff,
   notification receipt boundary, local outbox readiness, provider-delivery

@@ -35,6 +35,7 @@ export const TrackingRetentionProductSettingsWritableExecutionRowSchema = withPa
     outputArtifactRef: TrackingRetentionProductSettingsWritableExecutionArtifactRefSchema,
     auditRefs: Schema.Array(TrackingPolicyAuditRefSchema),
     localServiceStateRevision: Schema.Number.pipe(Schema.int(), Schema.positive()),
+    localServiceStateSnapshotRef: TrackingRetentionWritableExecutionTextSchema,
     durableSettingsStoreRef: TrackingRetentionWritableExecutionTextSchema,
     appliedRetentionWindowHours: Schema.Union(Schema.Number.pipe(Schema.int(), Schema.positive()), Schema.Null),
     appliedDeleteAfterAlertResolved: Schema.Boolean,
@@ -94,6 +95,26 @@ export const TrackingRetentionProductSettingsWritableExecutionProofSchema = with
       productionWorkerClaimed: Schema.Literal(false),
       productClaimReady: Schema.Literal(false),
     }),
+    derivationMatrix: Schema.Array(
+      Schema.Struct({
+        rowId: TrackingRetentionProductSettingsWritableExecutionRowIdSchema,
+        sourceLocalServiceStateProofRef: TrackingRetentionSettingsProofRefSchema,
+        sourceWriteCommandProofRef: TrackingRetentionSettingsProofRefSchema,
+        sourceReadModelProofRefs: Schema.Array(TrackingRetentionSettingsProofRefSchema),
+        sourceMutationProofRefs: Schema.Array(TrackingRetentionSettingsProofRefSchema),
+        localServiceStateRevision: Schema.Number.pipe(Schema.int(), Schema.positive()),
+        localServiceStateSnapshotRef: TrackingRetentionWritableExecutionTextSchema,
+        durableSettingsStoreRef: TrackingRetentionWritableExecutionTextSchema,
+        appliedRetentionWindowHours: Schema.Union(Schema.Number.pipe(Schema.int(), Schema.positive()), Schema.Null),
+        appliedDeleteAfterAlertResolved: Schema.Boolean,
+        outputArtifactRef: TrackingRetentionProductSettingsWritableExecutionArtifactRefSchema,
+        remoteSyncEnabled: Schema.Literal(false),
+        remoteAiEnabled: Schema.Literal(false),
+        portalWritableUiClaimed: Schema.Literal(false),
+        platformRuntimeRetentionEnforcementClaimed: Schema.Literal(false),
+        productClaimReady: Schema.Literal(false),
+      })
+    ),
   }).pipe(Schema.filter((proof) => proof.rows.length > 0 || 'Writable execution proof needs at least one source row'))
 );
 
@@ -113,13 +134,14 @@ export function buildTrackingRetentionProductSettingsWritableExecutionProof(
   localServiceStateProof: unknown
 ): TrackingRetentionProductSettingsWritableExecutionProof {
   const parsedLocalServiceStateProof = TrackingRetentionLocalServiceStateProofSchema.parse(localServiceStateProof);
+  const rows = parsedLocalServiceStateProof.rows.map((row) =>
+    writableExecutionRow(generatedAt, sourceLocalServiceStateProofRef, row)
+  );
   return TrackingRetentionProductSettingsWritableExecutionProofSchema.parse({
     schemaVersion: TrackingPolicySchemaVersion,
     proofMode: 'tracking-retention-product-settings-writable-execution-proof',
     generatedAt,
-    rows: parsedLocalServiceStateProof.rows.map((row) =>
-      writableExecutionRow(generatedAt, sourceLocalServiceStateProofRef, row)
-    ),
+    rows,
     proofClaims: {
       writeCommandAccepted: true,
       serviceMutationExecuted: true,
@@ -139,6 +161,24 @@ export function buildTrackingRetentionProductSettingsWritableExecutionProof(
       productionWorkerClaimed: false,
       productClaimReady: false,
     },
+    derivationMatrix: rows.map((row) => ({
+      rowId: row.rowId,
+      sourceLocalServiceStateProofRef: row.sourceLocalServiceStateProofRef,
+      sourceWriteCommandProofRef: row.sourceWriteCommandProofRef,
+      sourceReadModelProofRefs: row.sourceReadModelProofRefs,
+      sourceMutationProofRefs: row.sourceMutationProofRefs,
+      localServiceStateRevision: row.localServiceStateRevision,
+      localServiceStateSnapshotRef: row.localServiceStateSnapshotRef,
+      durableSettingsStoreRef: row.durableSettingsStoreRef,
+      appliedRetentionWindowHours: row.appliedRetentionWindowHours,
+      appliedDeleteAfterAlertResolved: row.appliedDeleteAfterAlertResolved,
+      outputArtifactRef: row.outputArtifactRef,
+      remoteSyncEnabled: false,
+      remoteAiEnabled: false,
+      portalWritableUiClaimed: false,
+      platformRuntimeRetentionEnforcementClaimed: false,
+      productClaimReady: false,
+    })),
   });
 }
 
@@ -159,6 +199,7 @@ function writableExecutionRow(
     outputArtifactRef: TrackingRetentionProductSettingsWritableExecutionArtifactRef,
     auditRefs: [`${String(row.stateProofId)}-product-settings-writable-execution-audit`],
     localServiceStateRevision: row.localServiceStateRevision,
+    localServiceStateSnapshotRef: String(row.localServiceStateSnapshotRef),
     durableSettingsStoreRef: String(row.durableSettingsStoreRef),
     appliedRetentionWindowHours: row.appliedRetentionWindowHours,
     appliedDeleteAfterAlertResolved: row.appliedDeleteAfterAlertResolved,

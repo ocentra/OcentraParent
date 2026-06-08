@@ -31,12 +31,16 @@ describe('tracking retention product settings writable execution proof', () => {
       noProductReadyClaim: true,
     });
     expect(proof.productClaims.productClaimReady).toBe(false);
+    expect(proof.derivationMatrix).toHaveLength(1);
 
     const [row] = proof.rows;
+    const [derivation] = proof.derivationMatrix;
     expect(row.outputArtifactRef).toBe(TrackingRetentionProductSettingsWritableExecutionArtifactRef);
     expect(row.sourceLocalServiceStateProofRef).toBe(SourceLocalServiceStateProofRef);
     expect(row.sourceWriteCommandProofRef).toBe(SourceWriteCommandProofRef);
     expect(row.localServiceStateRevision).toBe(1);
+    expect(row.localServiceStateSnapshotRef).toBe('agent-service-local-retention-settings-state');
+    expect(row.durableSettingsStoreRef).toBe('agent-service-local-retention-settings-durable-json');
     expect(row.appliedRetentionWindowHours).toBe(168);
     expect(row.remoteSyncEnabled).toBe(false);
     expect(row.remoteAiEnabled).toBe(false);
@@ -44,6 +48,7 @@ describe('tracking retention product settings writable execution proof', () => {
     expect(row.portalWritableUiClaimed).toBe(false);
     expect(row.platformRuntimeRetentionEnforcementClaimed).toBe(false);
     expect(row.productClaimReady).toBe(false);
+    expectDerivationMatrixEntry(derivation, row);
   });
 
   it('rejects product-ready or platform enforcement overclaims', () => {
@@ -73,6 +78,30 @@ describe('tracking retention product settings writable execution proof', () => {
     ).toBe(false);
   });
 });
+
+function expectDerivationMatrixEntry(
+  derivation: unknown,
+  row: ReturnType<typeof buildTrackingRetentionProductSettingsWritableExecutionProof>['rows'][number]
+) {
+  expect(derivation).toEqual({
+    rowId: row.rowId,
+    sourceLocalServiceStateProofRef: SourceLocalServiceStateProofRef,
+    sourceWriteCommandProofRef: SourceWriteCommandProofRef,
+    sourceReadModelProofRefs: row.sourceReadModelProofRefs,
+    sourceMutationProofRefs: row.sourceMutationProofRefs,
+    localServiceStateRevision: 1,
+    localServiceStateSnapshotRef: 'agent-service-local-retention-settings-state',
+    durableSettingsStoreRef: 'agent-service-local-retention-settings-durable-json',
+    appliedRetentionWindowHours: 168,
+    appliedDeleteAfterAlertResolved: false,
+    outputArtifactRef: TrackingRetentionProductSettingsWritableExecutionArtifactRef,
+    remoteSyncEnabled: false,
+    remoteAiEnabled: false,
+    portalWritableUiClaimed: false,
+    platformRuntimeRetentionEnforcementClaimed: false,
+    productClaimReady: false,
+  });
+}
 
 function localServiceStateProof(): unknown {
   return buildTrackingRetentionLocalServiceStateProof(GeneratedAt, SourceWriteCommandProofRef, writeResult());
