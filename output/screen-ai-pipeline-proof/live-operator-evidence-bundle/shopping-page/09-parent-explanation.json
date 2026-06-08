@@ -1,0 +1,23 @@
+{
+  "scenarioId": "shopping-page",
+  "title": "Live shopping page smoke",
+  "parentVisibleSummary": "Local AI saw shopping evidence and policy selected ask-parent.",
+  "category": "shopping",
+  "confidence": 1,
+  "action": "ask-parent",
+  "evidenceReferences": [
+    {
+      "evidenceReferenceId": "live-operator-screen-analysis-evidence-shopping-page",
+      "kind": "activity-event",
+      "observedAt": "2026-06-04T10:58:15.908Z"
+    }
+  ],
+  "parentRuleReferences": [
+    "live-operator-screen-policy-shopping-page"
+  ],
+  "rawImageRetained": false,
+  "imageDeletionState": "deleted",
+  "aiDoesNotEnforceDirectly": true,
+  "dryRun": true,
+  "nonClaim": "Operator proof screenshot is an artifact preview, not the production portal runtime."
+}

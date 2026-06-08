@@ -1,0 +1,8 @@
+{
+  "proofTier": "P3_LOCAL_OPERATOR_MACHINE",
+  "providerKind": "localVision",
+  "runtimeBinary": "<USER_HOME>\\.cache\\ocentra-parent\\llama.cpp\\b9279\\llama-mtmd-cli.exe",
+  "model": "<USER_HOME>\\.cache\\ocentra-parent\\local-ai-models\\Qwen2-VL-2B-Instruct-Q4_K_M.gguf",
+  "mmproj": "<USER_HOME>\\.cache\\ocentra-parent\\local-ai-models\\mmproj-Qwen2-VL-2B-Instruct-Q8_0.gguf",
+  "loadState": "loaded"
+}

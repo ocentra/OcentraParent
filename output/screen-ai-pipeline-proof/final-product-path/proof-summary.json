@@ -1,7 +1,7 @@
 {
   "status": "ok",
   "proofKind": "screen-ai-final-product-path-proof",
-  "generatedAt": "2026-06-08T07:21:20.848Z",
+  "generatedAt": "2026-06-08T14:50:57.278Z",
   "sourceArtifacts": {
     "actionDispatch": "output/screen-ai-pipeline-proof/action-dispatch/proof-summary.json",
     "blockActionDispatch": "output/screen-ai-pipeline-proof/block-action-dispatch/proof-summary.json",
@@ -17,6 +17,7 @@
     "householdProviderResultValidation": "output/ai-plan-proof/household-ai-provider-result-validation/proof-summary.json",
     "liveOperator": "output/screen-ai-pipeline-proof/live-operator/proof-summary.json",
     "liveOperatorArtifactGate": "output/screen-ai-pipeline-proof/live-operator-artifact-gate/proof-summary.json",
+    "liveOperatorEvidenceBundle": "output/screen-ai-pipeline-proof/live-operator-evidence-bundle/proof-summary.json",
     "liveOperatorAi": "output/ai-plan-proof/live-operator/proof-summary.json",
     "mobileDormantProvider": "output/ai-plan-proof/mobile-dormant-ai-provider-proof/proof-summary.json",
     "noRawScreenTransferMesh": "output/ai-plan-proof/no-raw-screen-transfer-mesh/proof-summary.json",
@@ -52,6 +53,7 @@
     "finalAdapterAuditProven": true,
     "adapterDependencyHandoffProven": true,
     "householdMeshBoundaryProven": true,
+    "retainedLiveOperatorBundlePortable": true,
     "screenPlanClosureAudited": true,
     "aiPlanClosureAudited": true,
     "finalPathEvidenceComplete": true,
@@ -172,6 +174,7 @@
   ],
   "nonClaims": [
     "This verifier validates retained real-run artifacts and does not rerun the live operator capture or model inference session.",
+    "This proof requires the sanitized live-operator evidence bundle so remote review can inspect retained redacted source, AI, policy, deletion, and parent explanation artifacts without raw screenshots or encrypted queues.",
     "Managed-browser trigger producer ownership, authenticated-account social proof, and broad browser/network/mobile/Linux adapters remain separate unless their own execution artifacts are cited.",
     "The custody-aware final adapter audit is required by this proof and keeps broad/browser/network/mobile/native-Linux product-complete adapter execution blocked while WSL2 Linux execution remains separately proved.",
     "The adapter blocker ledger and dependency handoff are required by this proof; they map upstream execution artifacts without upgrading product-complete claims.",

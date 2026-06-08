@@ -17,6 +17,14 @@ const checklist = readText(checklistPath);
 const windowsOcrSelection = readJson(windowsOcrSelectionPath);
 const externalGatesPath = join(repoRoot, 'output', 'screen-plan-proof', 'external-gates', 'proof-summary.json');
 const externalGates = readJson(externalGatesPath);
+const localPlatformProofPath = join(
+  repoRoot,
+  'output',
+  'screen-plan-proof',
+  'local-platform-proof-batch',
+  'proof-summary.json'
+);
+const localPlatformProof = readJson(localPlatformProofPath);
 const finalProductPathPath = join(
   repoRoot,
   'output',
@@ -346,6 +354,32 @@ assert(
   externalGates.counts?.missingGateCount > 0,
   'Closure audit expects remaining external gates to be missing until real artifacts are attached.'
 );
+assert(
+  localPlatformProof.closure?.windowsCaptureComplete === true,
+  'Local platform batch must prove Windows capture complete.'
+);
+assert(
+  localPlatformProof.closure?.androidEmulatorCaptureComplete === true,
+  'Local platform batch must prove Android emulator MediaProjection capture complete.'
+);
+assert(
+  localPlatformProof.closure?.androidPhysicalCaptureComplete === false,
+  'Local platform batch must keep Android physical parity open.'
+);
+assert(
+  localPlatformProof.closure?.linuxWslgCaptureComplete === true,
+  'Local platform batch must prove Linux WSLg selected-window capture complete.'
+);
+assert(
+  localPlatformProof.closure?.nativeLinuxWaylandComplete === false,
+  'Local platform batch must keep native Linux Wayland/PipeWire parity open.'
+);
+assert(localPlatformProof.closure?.macosCaptureComplete === false, 'macOS capture must remain external here.');
+assert(localPlatformProof.closure?.iosCaptureComplete === false, 'iOS capture must remain external here.');
+assert(
+  localPlatformProof.closure?.productCompletePlatformCaptureReady === false,
+  'Local platform batch must not claim full platform product readiness.'
+);
 assert(finalProductPath.closure?.finalAdapterAuditProven === true, 'Final path must prove final adapter audit.');
 assert(
   finalProductPath.closure?.adapterProductCompleteBlockedByAudit === true,
@@ -486,6 +520,7 @@ const summary = {
     'output/screen-ai-pipeline-proof/ios-mobile-control-custody/proof-summary.json',
     ...liveViewArtifacts.map((artifact) => artifact.path),
     'output/screen-plan-proof/external-gates/proof-summary.json',
+    'output/screen-plan-proof/local-platform-proof-batch/proof-summary.json',
     'output/screen-plan-proof/macos/proof-summary.json',
     'output/screen-plan-proof/linux/proof-summary.json',
     'output/screen-plan-proof/android/proof-summary.json',
@@ -507,6 +542,15 @@ const summary = {
     platformProductGatesRemainBlocked: productBlockedWorkpacks.length >= 4,
     wp34TesseractBaselineClosed: completeRows.includes('34 OCR Tesseract baseline'),
     externalGatesKeepProductNonClaim: externalGates.assertions.currentBranchMustRemainNonClaim === true,
+    localWindowsAndroidLinuxProofsAccounted:
+      localPlatformProof.closure.windowsCaptureComplete === true &&
+      localPlatformProof.closure.androidEmulatorCaptureComplete === true &&
+      localPlatformProof.closure.linuxWslgCaptureComplete === true,
+    localPlatformExternalGatesRemainBlocked:
+      localPlatformProof.closure.androidPhysicalCaptureComplete === false &&
+      localPlatformProof.closure.nativeLinuxWaylandComplete === false &&
+      localPlatformProof.closure.macosCaptureComplete === false &&
+      localPlatformProof.closure.iosCaptureComplete === false,
     finalProductPathRequiresAdapterAudit: finalProductPath.closure.finalAdapterAuditProven === true,
     adapterAuditKeepsProductCompletionBlocked:
       finalProductPath.closure.adapterProductCompleteBlockedByAudit === true &&

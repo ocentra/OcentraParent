@@ -1,0 +1,138 @@
+{
+  "screenResult": {
+    "schemaVersion": 1,
+    "screenAnalysisResultId": "live-operator-screen-analysis-browser-game",
+    "queueJobId": "live-operator-screen-capture-browser-game",
+    "analyzedAt": "2026-06-04T10:56:59.369Z",
+    "modelRuntimeRef": "local-qwen2-vl-2b-llama-mtmd",
+    "modelId": "Qwen2-VL-2B-Instruct-Q4_K_M",
+    "providerKind": "localVision",
+    "promptOrTemplateVersion": "screen-ai-live-operator-proof-v1",
+    "captureReason": "browserGameDetected",
+    "captureScope": "selectedWindow",
+    "capabilityStatus": "ready",
+    "summary": "Consent to Cookies & Data processing",
+    "visibleCategoryCandidates": [
+      {
+        "category": "game",
+        "confidence": 0.95,
+        "evidenceRefs": [
+          {
+            "evidenceId": "live-operator-screen-evidence-browser-game",
+            "kind": "screenshot",
+            "digest": "2aa7943b4ade611d35b7221cf48f10471881bb229091923f89637742dbf32a57",
+            "uri": null
+          }
+        ]
+      }
+    ],
+    "primaryCategory": "game",
+    "riskSignals": [
+      {
+        "signal": "unknown",
+        "confidence": 0.95,
+        "evidenceRefs": [
+          {
+            "evidenceId": "live-operator-screen-evidence-browser-game",
+            "kind": "screenshot",
+            "digest": "2aa7943b4ade611d35b7221cf48f10471881bb229091923f89637742dbf32a57",
+            "uri": null
+          }
+        ]
+      }
+    ],
+    "ocrTextSnippets": [
+      {
+        "text": "Consent to Cookies & Data processing",
+        "confidence": 0.95,
+        "evidenceRefs": [
+          {
+            "evidenceId": "live-operator-screen-evidence-browser-game",
+            "kind": "screenshot",
+            "digest": "2aa7943b4ade611d35b7221cf48f10471881bb229091923f89637742dbf32a57",
+            "uri": null
+          }
+        ]
+      }
+    ],
+    "redactionNotes": [],
+    "confidence": 0.95,
+    "uncertaintyReason": null,
+    "sourceEvidenceRefs": [
+      {
+        "evidenceId": "live-operator-screen-evidence-browser-game",
+        "kind": "screenshot",
+        "digest": "2aa7943b4ade611d35b7221cf48f10471881bb229091923f89637742dbf32a57",
+        "uri": null
+      }
+    ],
+    "imageDigest": "2aa7943b4ade611d35b7221cf48f10471881bb229091923f89637742dbf32a57",
+    "rawImageRetained": false,
+    "imageDeletionState": "deleted",
+    "custodyState": "child-device-query-store",
+    "policyEligible": true
+  },
+  "localAiSafetyResult": {
+    "schemaVersion": "v0.6",
+    "resultId": "live-operator-local-ai-result-browser-game",
+    "requestId": "live-operator-local-ai-request-browser-game",
+    "action": "time-limit",
+    "confidence": 0.95,
+    "unknownState": "none",
+    "degradedState": "none",
+    "reasonCodes": [
+      "screen-category-game"
+    ],
+    "explanationReference": "screen-analysis-result:live-operator-screen-analysis-browser-game",
+    "evidenceReferences": [
+      {
+        "evidenceReferenceId": "live-operator-screen-analysis-evidence-browser-game",
+        "kind": "activity-event",
+        "observedAt": "2026-06-04T10:56:59.369Z"
+      }
+    ],
+    "parentRuleReferences": [
+      "live-operator-screen-policy-browser-game"
+    ],
+    "memoryReferences": [],
+    "graphReferences": [],
+    "modelRuntime": {
+      "runtimeReferenceId": "runtime-local-qwen2-vl-2b-llama-mtmd",
+      "providerId": "local-qwen2-vl",
+      "modelId": "Qwen2-VL-2B-Instruct-Q4_K_M",
+      "modelReference": "local-model-cache/Qwen2-VL-2B-Instruct-Q4_K_M.gguf",
+      "privacyMode": "local-only",
+      "adapterBoundary": "local-adapter-ready",
+      "executionState": "dry-run-ready",
+      "providerSource": "local-model-cache",
+      "loadState": "loaded",
+      "capabilityFlags": [
+        "classification",
+        "safety-decision"
+      ],
+      "resourceClass": "cpu",
+      "degradedState": "none",
+      "lastCheckedAt": "2026-06-04T10:56:59.369Z",
+      "unavailableReason": null
+    },
+    "promptVersion": "screen-ai-live-operator-proof-v1",
+    "expiresAt": null
+  },
+  "parsedModel": {
+    "primary_category": "game",
+    "visible_text": "Consent to Cookies & Data processing",
+    "risk_signals": [
+      "The cookie banner is prominently displayed on the screen.",
+      "The cookie banner contains a detailed explanation of the data processing and third-party partners involved."
+    ],
+    "confidence": 0.95
+  },
+  "normalized": {
+    "primaryCategory": "game",
+    "visibleText": "Consent to Cookies & Data processing",
+    "confidence": 0.95,
+    "riskSignals": [
+      "unknown"
+    ]
+  }
+}

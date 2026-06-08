@@ -181,12 +181,16 @@ proofs into physical LAN product execution.
       redacted live surface evidence, local VLM rows, policy dry-runs,
       protected-surface non-claims, parent screenshots, and deletion custody:
       `output/screen-ai-pipeline-proof/live-operator-artifact-gate/proof-summary.json`.
+- [x] Live operator evidence bundle copies the retained redacted source, AI,
+      policy, deletion, model-log, and parent-explanation artifacts needed for
+      remote review without copying raw screenshots or encrypted queue payloads:
+      `output/screen-ai-pipeline-proof/live-operator-evidence-bundle/proof-summary.json`.
 - [x] Final product path artifact gate validates the retained live/operator,
       AI, policy, action, portal/read-model, service-backed Activity Screen
-      read-model, service WinRT OCR live-capture policy proof, retention,
-      deletion custody, household mesh no-raw/provider validation artifacts,
-      custody-aware final adapter audit, adapter blocker ledger, and adapter
-      dependency handoff artifacts:
+      read-model, portable live-operator evidence bundle, service WinRT OCR
+      live-capture policy proof, retention, deletion custody, household mesh
+      no-raw/provider validation artifacts, custody-aware final adapter audit,
+      adapter blocker ledger, and adapter dependency handoff artifacts:
       `output/screen-ai-pipeline-proof/final-product-path/proof-summary.json`.
 - [x] Final adapter dependency audit validates that product-complete
       broad/browser/network/mobile adapter claims remain blocked until their

@@ -1,6 +1,6 @@
 # Screen AI Final Product Path Proof
 
-Generated: 2026-06-08T07:21:20.848Z
+Generated: 2026-06-08T14:50:57.278Z
 
 ## Source Artifacts
 
@@ -18,6 +18,7 @@ Generated: 2026-06-08T07:21:20.848Z
 - householdProviderResultValidation: `output/ai-plan-proof/household-ai-provider-result-validation/proof-summary.json`
 - liveOperator: `output/screen-ai-pipeline-proof/live-operator/proof-summary.json`
 - liveOperatorArtifactGate: `output/screen-ai-pipeline-proof/live-operator-artifact-gate/proof-summary.json`
+- liveOperatorEvidenceBundle: `output/screen-ai-pipeline-proof/live-operator-evidence-bundle/proof-summary.json`
 - liveOperatorAi: `output/ai-plan-proof/live-operator/proof-summary.json`
 - mobileDormantProvider: `output/ai-plan-proof/mobile-dormant-ai-provider-proof/proof-summary.json`
 - noRawScreenTransferMesh: `output/ai-plan-proof/no-raw-screen-transfer-mesh/proof-summary.json`
@@ -56,6 +57,7 @@ Generated: 2026-06-08T07:21:20.848Z
   "finalAdapterAuditProven": true,
   "adapterDependencyHandoffProven": true,
   "householdMeshBoundaryProven": true,
+  "retainedLiveOperatorBundlePortable": true,
   "screenPlanClosureAudited": true,
   "aiPlanClosureAudited": true,
   "finalPathEvidenceComplete": true,

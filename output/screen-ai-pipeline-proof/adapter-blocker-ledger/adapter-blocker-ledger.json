@@ -1,7 +1,7 @@
 {
   "schemaVersion": "v0.6",
   "ledgerId": "screen-ai-adapter-blocker-ledger",
-  "generatedAt": "2026-06-08T06:46:43.166Z",
+  "generatedAt": "2026-06-08T14:50:40.103Z",
   "sourceArtifacts": {
     "finalAdapterDependencyAudit": "output/screen-ai-pipeline-proof/final-adapter-dependency-audit/proof-summary.json",
     "adapterReadinessReadModel": "output/screen-ai-pipeline-proof/adapter-readiness/read-model.json",

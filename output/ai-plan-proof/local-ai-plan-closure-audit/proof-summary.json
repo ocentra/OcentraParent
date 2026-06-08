@@ -1,6 +1,6 @@
 {
   "proof": "local-ai-plan-closure-audit-proof",
-  "generatedAt": "2026-06-08T05:28:14.989Z",
+  "generatedAt": "2026-06-08T14:50:57.190Z",
   "checklist": {
     "path": "docs/plans/ai-plan/implementation-checklist.md",
     "featureDocPath": "docs/features/local-ai-safety-evaluator.md",

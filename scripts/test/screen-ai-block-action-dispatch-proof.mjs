@@ -140,6 +140,7 @@ function spawnAgentService(runRoot, agentPort) {
       ...process.env,
       OCENTRA_PARENT_AGENT_ADDR: `127.0.0.1:${agentPort}`,
       OCENTRA_PARENT_ACTIVITY_DB_PATH: join(runRoot, 'activity.sqlite'),
+      OCENTRA_PARENT_ACTIVITY_CAPTURE_STARTUP_DISABLED: 'true',
       OCENTRA_PARENT_ACTIVITY_JOURNAL_PATH: join(runRoot, 'activity.ndjson'),
       OCENTRA_PARENT_ACTIVITY_JOURNAL_KEY_PATH: join(runRoot, 'activity.key'),
       OCENTRA_PARENT_DEV_LOG_DIR: join(runRoot, 'logs'),

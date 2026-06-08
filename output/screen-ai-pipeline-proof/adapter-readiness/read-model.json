@@ -1,7 +1,7 @@
 {
   "schemaVersion": "v0.6",
   "readModelId": "screen-ai-adapter-readiness-proof",
-  "generatedAt": "2026-06-05T17:54:17.384Z",
+  "generatedAt": "2026-06-08T14:50:40.020Z",
   "sourceArtifacts": [
     "output/screen-ai-pipeline-proof/action-dispatch/00-screen-policy-source.json",
     "output/screen-ai-pipeline-proof/action-dispatch/proof-summary.json",
@@ -21,7 +21,7 @@
         {
           "evidenceReferenceId": "screen-analysis-evidence-native-owned-process-time-limit",
           "kind": "activity-event",
-          "observedAt": "2026-06-03T17:37:07.196Z"
+          "observedAt": "2026-06-04T08:58:17.743Z"
         }
       ],
       "sourceImageDeletionState": "deleted",

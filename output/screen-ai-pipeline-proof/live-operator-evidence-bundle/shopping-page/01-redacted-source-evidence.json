@@ -1,0 +1,25 @@
+{
+  "scenarioId": "shopping-page",
+  "sourceKind": "operator-live-url",
+  "liveExternalUrl": true,
+  "protocol": "https",
+  "hostname": "www.apple.com",
+  "redactedUrl": "https://www.apple.com/<redacted>",
+  "urlHash": "1ce4aae8dee34dcc90e0e32d7b81b37b69f8cbde6cbfe74d78ee73b4337e1d3c",
+  "pathAndQueryHash": "f7208cf5ebce72957446497c6b7544d60ad165580c4f644abc72f0c08b427aa0",
+  "pageReadiness": {
+    "loaded": true,
+    "finalHostname": "www.apple.com",
+    "finalProtocol": "https",
+    "redactedFinalUrl": "https://www.apple.com/<redacted>",
+    "titleHash": "5332f2cdb9193308b8fd18ca2e794000edcaddc928f2eb50d2feed5d9cdef5be",
+    "titleLength": 18,
+    "visibleTextHash": "ffd416526bc1393ba414211e6c124f23addb907195c03eb9f5787d76d329a1e4",
+    "visibleTextLength": 60596,
+    "readinessAssertions": {
+      "hostnameMatches": true,
+      "titleMatches": true,
+      "textMatches": true
+    }
+  }
+}

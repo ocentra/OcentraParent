@@ -1,6 +1,6 @@
 # Screen AI Full Scope Readiness Audit
 
-Generated: 2026-06-08T13:57:56.308Z
+Generated: 2026-06-08T14:50:57.423Z
 
 ## Source Artifacts
 
@@ -10,6 +10,7 @@ Generated: 2026-06-08T13:57:56.308Z
 - adapterDependencyHandoff: `output/screen-ai-pipeline-proof/adapter-dependency-handoff/proof-summary.json`
 - adapterDependencyHandoffRows: `output/screen-ai-pipeline-proof/adapter-dependency-handoff/adapter-dependency-handoff.json`
 - finalProductPath: `output/screen-ai-pipeline-proof/final-product-path/proof-summary.json`
+- liveOperatorEvidenceBundle: `output/screen-ai-pipeline-proof/live-operator-evidence-bundle/proof-summary.json`
 - finalAdapterAudit: `output/screen-ai-pipeline-proof/final-adapter-dependency-audit/proof-summary.json`
 - linuxHostExecution: `output/screen-ai-pipeline-proof/linux-host-adapter-execution/proof-summary.json`
 - productChecklistDelta: `output/screen-ai-pipeline-proof/product-checklist-delta/proof-summary.json`

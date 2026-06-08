@@ -1,0 +1,69 @@
+{
+  "captureMetadata": {
+    "status": "ok",
+    "proofKind": "screen-ai-protected-surface-skip",
+    "artifact": "C:\\Users\\sujan\\.codex\\worktrees\\ocentra-parent-codex-b\\OcentraParent\\output\\screen-ai-pipeline-proof\\protected-surface\\proof-summary.json",
+    "capabilitySnapshot": {
+      "schemaVersion": 1,
+      "observedAt": "2026-06-03T21:10:00.000Z",
+      "capabilityStatus": "protectedSurface",
+      "captureScope": "selectedWindow",
+      "parentSettingRef": "screen-protected-surface-setting",
+      "settingVersion": 1,
+      "unavailableReason": "protected surface blocked capture",
+      "custodyState": "unavailable"
+    },
+    "protectedSkipResult": {
+      "schemaVersion": 1,
+      "screenAnalysisResultId": "screen-analysis-protected-surface-skip",
+      "queueJobId": "screen-queue-protected-surface-skip",
+      "analyzedAt": "2026-06-03T21:10:00.000Z",
+      "modelRuntimeRef": "local-model-unavailable-protected-surface",
+      "modelId": "unavailable-protected-surface",
+      "providerKind": "unavailable",
+      "promptOrTemplateVersion": "screen-protected-surface-v1",
+      "captureReason": "manualParentTestCapture",
+      "captureScope": "selectedWindow",
+      "capabilityStatus": "protectedSurface",
+      "summary": "Protected surface blocked local capture and analysis.",
+      "visibleCategoryCandidates": [],
+      "primaryCategory": null,
+      "riskSignals": [],
+      "ocrTextSnippets": [],
+      "redactionNotes": [
+        "protectedRegionSkipped"
+      ],
+      "confidence": 0,
+      "uncertaintyReason": "protectedSurface",
+      "sourceEvidenceRefs": [
+        {
+          "evidenceId": "screen-protected-surface-evidence",
+          "kind": "journal-entry",
+          "digest": "sha256:protected-surface-no-capture",
+          "uri": null
+        }
+      ],
+      "imageDigest": "sha256:protected-surface-no-capture",
+      "rawImageRetained": false,
+      "imageDeletionState": "unavailableNoImage",
+      "custodyState": "unavailable",
+      "policyEligible": false
+    },
+    "captureAttempted": false,
+    "aiAnalysisAttempted": false,
+    "policyDecisionCreated": false,
+    "policyEligibleProtectedRejected": true,
+    "assertions": [
+      "A protected surface is recorded as capabilityStatus protectedSurface with unavailable custody.",
+      "No raw image custody, OCR/VLM provider, or policy decision is claimed.",
+      "A protected-surface result cannot become policy eligible."
+    ],
+    "nonClaims": [
+      "This is a protected-surface degraded-state contract proof.",
+      "It does not claim a live OS permission prompt, protected-app bypass, or final enforcement execution."
+    ]
+  },
+  "noRawImageClaimed": true,
+  "noAiAnalysisClaimed": true,
+  "noPolicyDecisionClaimed": true
+}

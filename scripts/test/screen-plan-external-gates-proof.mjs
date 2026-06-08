@@ -8,43 +8,53 @@ const manifestPath = join(outputDir, 'manual-evidence-manifest.json');
 const manifestTemplatePath = join(outputDir, 'manual-evidence-manifest.template.json');
 const proofPath = join(outputDir, 'proof-summary.json');
 const runbookPath = join(outputDir, 'manual-evidence-runbook.md');
+const statusPath = join(outputDir, 'manual-evidence-status.md');
 
 const requiredGates = [
   gate('macos-live-capture-permission', 'macos', 'platform-permission-prompt-screenshot', {
     workpack: '10 macOS capture adapter plan/proof',
+    collectionMode: 'macos-runner-or-manual-macos-host',
     requirement:
       'real macOS ScreenCaptureKit session with Screen Recording permission, display/window pixels, OCR, and deletion proof',
   }),
   gate('linux-desktop-session-capture', 'linux-wayland', 'platform-session-recording', {
     workpack: '11 Linux capture adapter plan/proof',
+    collectionMode: 'local-wslg-or-linux-desktop-runner',
     requirement: 'real Linux X11 or Wayland portal desktop-session capture with deletion proof',
   }),
   gate('android-physical-mediaprojection-capture', 'android-mediaprojection', 'physical-device-capture-recording', {
     workpack: '12 Android MediaProjection adapter plan/proof',
+    collectionMode: 'local-adb-physical-device',
     requirement: 'real physical Android MediaProjection capture, stop callback, deletion, and local OCR proof',
   }),
   gate('ios-physical-replaykit-capture', 'ios-replaykit', 'physical-device-capture-recording', {
     workpack: '13 iOS ReplayKit adapter plan/proof',
+    collectionMode: 'ios-device-or-macos-runner-with-device',
     requirement: 'real physical iOS ReplayKit or broadcast-extension capture with deletion proof',
   }),
   gate('live-view-platform-prompt', 'android-mediaprojection', 'platform-permission-prompt-screenshot', {
     workpack: '28 Live view optional mode',
+    collectionMode: 'local-adb-physical-device',
     requirement: 'real live-view platform prompt artifact, not ordinary capture-only permission evidence',
   }),
   gate('live-view-physical-device-parity', 'android-mediaprojection', 'physical-device-capture-recording', {
     workpack: '28 Live view optional mode',
+    collectionMode: 'local-adb-physical-device',
     requirement: 'physical-device parity for live view transport/custody/deletion behavior',
   }),
   gate('live-view-hosted-relay-infrastructure', 'hosted-relay', 'hosted-relay-proof', {
     workpack: '28 Live view optional mode',
+    collectionMode: 'hosted-relay-integration-run',
     requirement: 'hosted relay infrastructure proof with end-to-end encrypted custody and no raw-frame retention',
   }),
   gate('live-view-privacy-legal-approval', 'policy-approval', 'privacy-legal-approval', {
     workpack: '28 Live view optional mode',
+    collectionMode: 'manual-approval-record',
     requirement: 'privacy/legal approval record for optional live view',
   }),
   gate('authenticated-account-social-capture', 'authenticated-social', 'authenticated-account-capture-proof', {
     workpack: '30 Test suite, Playwright, rollout, PR gate',
+    collectionMode: 'operator-consented-logged-in-session',
     requirement:
       'real logged-in social/feed account capture with operator consent, redacted account identifiers, local OCR/VLM analysis, policy dry-run, and raw image deletion proof',
   }),
@@ -126,6 +136,7 @@ const summary = {
     entryCount: manifestEntries.length,
     templatePath: relativePath(manifestTemplatePath),
     runbookPath: relativePath(runbookPath),
+    statusPath: relativePath(statusPath),
   },
   gateResults,
   counts: {
@@ -142,6 +153,7 @@ const summary = {
     strictProofRefsRequired: gateResults.every(
       (result) => result.status === 'missing' || Array.isArray(result.requiredProofRefFields)
     ),
+    collectionModesEnumerated: gateResults.every((result) => typeof result.collectionMode === 'string'),
     productCompleteAllowed: satisfiedGateCount === requiredGates.length && invalidGateCount === 0,
     currentBranchMustRemainNonClaim: satisfiedGateCount !== requiredGates.length || invalidGateCount > 0,
     rejectsFixtureOrStaticEvidence: negativeChecks.every((check) => check.rejected),
@@ -157,6 +169,7 @@ const summary = {
 mkdirSync(outputDir, { recursive: true });
 writeFileSync(manifestTemplatePath, `${JSON.stringify(manifestTemplate(), null, 2)}\n`);
 writeFileSync(runbookPath, manualEvidenceRunbook());
+writeFileSync(statusPath, manualEvidenceStatus(summary));
 writeFileSync(proofPath, `${JSON.stringify(summary, null, 2)}\n`);
 console.log(`screen-plan-external-gates-proof-ok:${proofPath}`);
 
@@ -178,6 +191,7 @@ function manifestTemplate() {
       gateId: requiredGate.gateId,
       platform: requiredGate.platform,
       evidenceKind: requiredGate.evidenceKind,
+      collectionMode: requiredGate.collectionMode,
       artifactPath: `output/screen-plan-proof/external-gates/artifacts/${requiredGate.gateId}${templateExtensionFor(
         requiredGate.evidenceKind
       )}`,
@@ -239,6 +253,43 @@ function manualEvidenceRunbook() {
   ].join('\n');
 }
 
+function manualEvidenceStatus(summary) {
+  const rows = summary.gateResults
+    .map((result) =>
+      [
+        `## ${result.gateId}`,
+        '',
+        `- status: ${result.status}`,
+        `- platform: ${result.platform}`,
+        `- evidence kind: ${result.evidenceKind}`,
+        `- collection mode: ${result.collectionMode}`,
+        `- workpack: ${result.workpack}`,
+        `- artifact: ${result.artifactPath ?? 'missing'}`,
+        `- required proof refs: ${result.requiredProofRefFields.join(', ') || 'artifact digest only'}`,
+        `- reason: ${result.reason}`,
+        '',
+      ].join('\n')
+    )
+    .join('\n');
+
+  return [
+    '# Screen Plan External Evidence Status',
+    '',
+    `Generated: ${summary.generatedAt}`,
+    '',
+    `Manifest present: ${summary.manifest.present}`,
+    `Required gates: ${summary.counts.requiredGateCount}`,
+    `Satisfied gates: ${summary.counts.satisfiedGateCount}`,
+    `Missing gates: ${summary.counts.missingGateCount}`,
+    `Invalid gates: ${summary.counts.invalidGateCount}`,
+    `Product-complete allowed: ${summary.assertions.productCompleteAllowed}`,
+    '',
+    'This status file is generated from the same validator as `proof-summary.json`. It is not a substitute for real artifacts; it lists what evidence must be attached before the external gates can close.',
+    '',
+    rows,
+  ].join('\n');
+}
+
 function validateGate(requiredGate, entries) {
   const entry = entries.find((candidate) => candidate?.gateId === requiredGate.gateId);
   if (entry === undefined) {
@@ -265,6 +316,10 @@ function validateGate(requiredGate, entries) {
 function validateArtifact(requiredGate, entry) {
   if (entry.platform !== requiredGate.platform || entry.evidenceKind !== requiredGate.evidenceKind) {
     return rejected('platform or evidence kind does not match the required gate');
+  }
+
+  if (entry.collectionMode !== requiredGate.collectionMode) {
+    return rejected('collection mode does not match the required gate');
   }
 
   if (typeof entry.artifactPath !== 'string' || !artifactPathIsAllowed(entry.artifactPath)) {

@@ -1,6 +1,6 @@
 {
   "serial": "emulator-5554",
-  "model": "sdk_gphone64_x86_64",
-  "api": "35",
-  "release": "15"
+  "model": "Android SDK built for x86_64",
+  "api": "33",
+  "release": "13"
 }

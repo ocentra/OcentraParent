@@ -1,0 +1,25 @@
+{
+  "scenarioId": "youtube-education-video",
+  "sourceKind": "operator-live-url",
+  "liveExternalUrl": true,
+  "protocol": "https",
+  "hostname": "www.youtube.com",
+  "redactedUrl": "https://www.youtube.com/<redacted>",
+  "urlHash": "ddaa0d701c18667e1c8566c402184e8d09e5302b47de641e7aa049acf3fc6728",
+  "pathAndQueryHash": "7ff3cbd8c7f56cd2882006ac7c6eb0bbfcef6ba3dd8c94066c6cd4d920e67e7e",
+  "pageReadiness": {
+    "loaded": true,
+    "finalHostname": "www.youtube.com",
+    "finalProtocol": "https",
+    "redactedFinalUrl": "https://www.youtube.com/<redacted>",
+    "titleHash": "eef533c5ffccf3e9491259e26fe96163bab2aa577bd5b8cd462bda5518823c3d",
+    "titleLength": 56,
+    "visibleTextHash": "c65d7ae9edc35cee97a43401e07325bd704d534cfbddca2857eb7dd27f89aa96",
+    "visibleTextLength": 2876,
+    "readinessAssertions": {
+      "hostnameMatches": true,
+      "titleMatches": true,
+      "textMatches": true
+    }
+  }
+}

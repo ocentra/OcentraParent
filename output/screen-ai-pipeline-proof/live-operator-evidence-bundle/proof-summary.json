@@ -1,0 +1,800 @@
+{
+  "proof": "screen-ai-live-operator-evidence-bundle",
+  "generatedAt": "2026-06-08T14:50:57.112Z",
+  "sourceArtifacts": {
+    "pipelineSummary": "output/screen-ai-pipeline-proof/live-operator/proof-summary.json",
+    "aiSummary": "output/ai-plan-proof/live-operator/proof-summary.json"
+  },
+  "scenarioCount": 9,
+  "localVlmRows": 8,
+  "policyDryRunRows": 8,
+  "parentExplanationScreenshots": 8,
+  "publicSocialSurfaceRows": 1,
+  "authenticatedAccountSocialProof": false,
+  "rawScreenshotFilesCopied": false,
+  "encryptedQueueFilesCopied": false,
+  "bundlePortableForReview": true,
+  "productCompleteClaimed": false,
+  "scenarios": [
+    {
+      "scenarioId": "youtube-ordinary-video",
+      "surface": "browser",
+      "category": "video",
+      "policyAction": "warn",
+      "liveExternalUrlProof": true,
+      "publicSocialSurfaceProof": false,
+      "authenticatedAccountProof": false,
+      "localVlmAnalysisProof": true,
+      "policyDryRunProof": true,
+      "rawImageDeletedAfterAnalysis": true,
+      "rawImagePathRetained": false,
+      "copiedArtifactCount": 13,
+      "parentExplanationScreenshot": {
+        "path": "output/screen-ai-pipeline-proof/live-operator-evidence-bundle/youtube-ordinary-video/10-parent-explanation.png",
+        "sha256": "e8850936d3bd0e3f81ae15c16283f33bb0ee057d6b2b735221f1563fe9046e63",
+        "bytes": 17230
+      },
+      "copiedArtifacts": [
+        {
+          "path": "output/screen-ai-pipeline-proof/live-operator-evidence-bundle/youtube-ordinary-video/00-scenario.md",
+          "sha256": "8902fb848305582ba896d3fa4b7401fc847c1c74f18446e698545848fd926512",
+          "bytes": 288
+        },
+        {
+          "path": "output/screen-ai-pipeline-proof/live-operator-evidence-bundle/youtube-ordinary-video/01-redacted-source-evidence.json",
+          "sha256": "4998bde46b3e6317aac01cd709d99f1b12761916f86971f8c1ec8150bb1dc58d",
+          "bytes": 919
+        },
+        {
+          "path": "output/screen-ai-pipeline-proof/live-operator-evidence-bundle/youtube-ordinary-video/02-capture-proof-ref.json",
+          "sha256": "0d3d91cd86f5210c74ffb2ce5b76d2cf72149f70efb566dca26e057e6d7215e6",
+          "bytes": 1034
+        },
+        {
+          "path": "output/screen-ai-pipeline-proof/live-operator-evidence-bundle/youtube-ordinary-video/03-ai-context.json",
+          "sha256": "8ec5adee7e569bd08bb46d65d49738e0f9f29cf03a65d4a59fd8920e903e7b13",
+          "bytes": 438
+        },
+        {
+          "path": "output/screen-ai-pipeline-proof/live-operator-evidence-bundle/youtube-ordinary-video/04-provider-route.json",
+          "sha256": "d19e45a40c6e3b086341b16b8f90b4c0fe051d8600849bf91f74613a29a4b92a",
+          "bytes": 131
+        },
+        {
+          "path": "output/screen-ai-pipeline-proof/live-operator-evidence-bundle/youtube-ordinary-video/05-model-runtime-status.json",
+          "sha256": "fa152349fd84be4c1ac83ce41730aa56f108009e06c83de53f20f2c91655f360",
+          "bytes": 409
+        },
+        {
+          "path": "output/screen-ai-pipeline-proof/live-operator-evidence-bundle/youtube-ordinary-video/06-ai-result.json",
+          "sha256": "c5506235b902081fae7014b9f620cc884119c36be56a8916fd8c692c91e12de9",
+          "bytes": 3932
+        },
+        {
+          "path": "output/screen-ai-pipeline-proof/live-operator-evidence-bundle/youtube-ordinary-video/07-policy-decision.json",
+          "sha256": "a2a2739152e004ae0a088849c2adb1052a7f655e3198b486e8dddbb4f2fe2589",
+          "bytes": 1894
+        },
+        {
+          "path": "output/screen-ai-pipeline-proof/live-operator-evidence-bundle/youtube-ordinary-video/08-deletion-after-analysis.json",
+          "sha256": "78237e536d0a799ef73d7f48f73806ef6bbca63dd433b1b09c20ff12023dfabd",
+          "bytes": 220
+        },
+        {
+          "path": "output/screen-ai-pipeline-proof/live-operator-evidence-bundle/youtube-ordinary-video/09-parent-explanation.json",
+          "sha256": "fc93a5b67f4c612910bbb9647624dbbfc96cc9ee3dc44d24aa32de4a741b82b2",
+          "bytes": 764
+        },
+        {
+          "path": "output/screen-ai-pipeline-proof/live-operator-evidence-bundle/youtube-ordinary-video/vlm-stdout-redacted.log",
+          "sha256": "4706241262724cfce018f6a5b040abfaa5248ceab6a8ecbe407af17a94084bc3",
+          "bytes": 138
+        },
+        {
+          "path": "output/screen-ai-pipeline-proof/live-operator-evidence-bundle/youtube-ordinary-video/vlm-stderr-redacted.log",
+          "sha256": "2e84751be3d7f2c3ed6f6e2eb0434225914a6db4edc35a199fa814074f3e39ee",
+          "bytes": 1067
+        },
+        {
+          "path": "output/screen-ai-pipeline-proof/live-operator-evidence-bundle/youtube-ordinary-video/10-parent-explanation.png",
+          "sha256": "e8850936d3bd0e3f81ae15c16283f33bb0ee057d6b2b735221f1563fe9046e63",
+          "bytes": 17230
+        }
+      ],
+      "portableAssertions": {
+        "sourceEvidenceRedacted": false,
+        "captureProofRefOnly": true,
+        "policyDryRun": true,
+        "localOnlyModelRuntime": true
+      }
+    },
+    {
+      "scenarioId": "youtube-education-video",
+      "surface": "browser",
+      "category": "school",
+      "policyAction": "allow",
+      "liveExternalUrlProof": true,
+      "publicSocialSurfaceProof": false,
+      "authenticatedAccountProof": false,
+      "localVlmAnalysisProof": true,
+      "policyDryRunProof": true,
+      "rawImageDeletedAfterAnalysis": true,
+      "rawImagePathRetained": false,
+      "copiedArtifactCount": 13,
+      "parentExplanationScreenshot": {
+        "path": "output/screen-ai-pipeline-proof/live-operator-evidence-bundle/youtube-education-video/10-parent-explanation.png",
+        "sha256": "534a8cad8d51704cc562a70e25cf5bc1b30bcf8bebb570907a88d58d44b435dd",
+        "bytes": 17428
+      },
+      "copiedArtifacts": [
+        {
+          "path": "output/screen-ai-pipeline-proof/live-operator-evidence-bundle/youtube-education-video/00-scenario.md",
+          "sha256": "02312858d249650a453f34254d2f33c71a2a81e965cb927287304eb0e0c7f51f",
+          "bytes": 291
+        },
+        {
+          "path": "output/screen-ai-pipeline-proof/live-operator-evidence-bundle/youtube-education-video/01-redacted-source-evidence.json",
+          "sha256": "e22fe9a0029dd414f72a574030cb13cf426b053a596d515d9b17de8cc3b4b4bc",
+          "bytes": 920
+        },
+        {
+          "path": "output/screen-ai-pipeline-proof/live-operator-evidence-bundle/youtube-education-video/02-capture-proof-ref.json",
+          "sha256": "42958b246b5a074e2aa175765845f7c94649fcbcbf77ddcb50dda9c712ed8509",
+          "bytes": 1034
+        },
+        {
+          "path": "output/screen-ai-pipeline-proof/live-operator-evidence-bundle/youtube-education-video/03-ai-context.json",
+          "sha256": "8121456b2a890bca6f38736eaec3dab327f276cfbf80d7680ff7904647f08f93",
+          "bytes": 440
+        },
+        {
+          "path": "output/screen-ai-pipeline-proof/live-operator-evidence-bundle/youtube-education-video/04-provider-route.json",
+          "sha256": "d19e45a40c6e3b086341b16b8f90b4c0fe051d8600849bf91f74613a29a4b92a",
+          "bytes": 131
+        },
+        {
+          "path": "output/screen-ai-pipeline-proof/live-operator-evidence-bundle/youtube-education-video/05-model-runtime-status.json",
+          "sha256": "fa152349fd84be4c1ac83ce41730aa56f108009e06c83de53f20f2c91655f360",
+          "bytes": 409
+        },
+        {
+          "path": "output/screen-ai-pipeline-proof/live-operator-evidence-bundle/youtube-education-video/06-ai-result.json",
+          "sha256": "c20f9f65b626a1bacef32c30f967d766d1585e055cf87e45f6454732e00c7b04",
+          "bytes": 4024
+        },
+        {
+          "path": "output/screen-ai-pipeline-proof/live-operator-evidence-bundle/youtube-education-video/07-policy-decision.json",
+          "sha256": "43d7ec570eed110ee98e8eea062877f5b8de938b095f3a5a0ae59a3930ffc278",
+          "bytes": 1908
+        },
+        {
+          "path": "output/screen-ai-pipeline-proof/live-operator-evidence-bundle/youtube-education-video/08-deletion-after-analysis.json",
+          "sha256": "5e7c602ab3e82e8ba1cc05f1e4fdfe98475ceaf314b41f0ac18e39434d39b2c3",
+          "bytes": 221
+        },
+        {
+          "path": "output/screen-ai-pipeline-proof/live-operator-evidence-bundle/youtube-education-video/09-parent-explanation.json",
+          "sha256": "e12e50454584f5ecfb8a2960a554fb93ee9ddb9afa96711e6e4d4c47952421a3",
+          "bytes": 772
+        },
+        {
+          "path": "output/screen-ai-pipeline-proof/live-operator-evidence-bundle/youtube-education-video/vlm-stdout-redacted.log",
+          "sha256": "ab55181d48f8e2bc3aff6984f02831504b3c5c7d3cd9a2b05996fbdfc41d4c90",
+          "bytes": 158
+        },
+        {
+          "path": "output/screen-ai-pipeline-proof/live-operator-evidence-bundle/youtube-education-video/vlm-stderr-redacted.log",
+          "sha256": "db1ef4428e7ec2af892f25c7372f03bb617d55432f4ec6e1df56b7e4a3caddec",
+          "bytes": 1067
+        },
+        {
+          "path": "output/screen-ai-pipeline-proof/live-operator-evidence-bundle/youtube-education-video/10-parent-explanation.png",
+          "sha256": "534a8cad8d51704cc562a70e25cf5bc1b30bcf8bebb570907a88d58d44b435dd",
+          "bytes": 17428
+        }
+      ],
+      "portableAssertions": {
+        "sourceEvidenceRedacted": false,
+        "captureProofRefOnly": true,
+        "policyDryRun": true,
+        "localOnlyModelRuntime": true
+      }
+    },
+    {
+      "scenarioId": "vimeo-video",
+      "surface": "browser",
+      "category": "video",
+      "policyAction": "warn",
+      "liveExternalUrlProof": true,
+      "publicSocialSurfaceProof": false,
+      "authenticatedAccountProof": false,
+      "localVlmAnalysisProof": true,
+      "policyDryRunProof": true,
+      "rawImageDeletedAfterAnalysis": true,
+      "rawImagePathRetained": false,
+      "copiedArtifactCount": 13,
+      "parentExplanationScreenshot": {
+        "path": "output/screen-ai-pipeline-proof/live-operator-evidence-bundle/vimeo-video/10-parent-explanation.png",
+        "sha256": "06fd2951f1dcf0d7c7412a0ab06562dd77fde01f9c2fe19f86ff4dad31f184dc",
+        "bytes": 15540
+      },
+      "copiedArtifacts": [
+        {
+          "path": "output/screen-ai-pipeline-proof/live-operator-evidence-bundle/vimeo-video/00-scenario.md",
+          "sha256": "f39b7b788081d94db22f030642ebd43f4744eccfb44d50431b685e61a2302857",
+          "bytes": 277
+        },
+        {
+          "path": "output/screen-ai-pipeline-proof/live-operator-evidence-bundle/vimeo-video/01-redacted-source-evidence.json",
+          "sha256": "b6fb66aaa836e58b9d46cf0e2bc1033c1520bb079c125d843c6d645a1b5d9eff",
+          "bytes": 884
+        },
+        {
+          "path": "output/screen-ai-pipeline-proof/live-operator-evidence-bundle/vimeo-video/02-capture-proof-ref.json",
+          "sha256": "94bb2d48e9b2e5d1fe9686c1112deaa1d30250302411fb82c3972a0a67f21b31",
+          "bytes": 1010
+        },
+        {
+          "path": "output/screen-ai-pipeline-proof/live-operator-evidence-bundle/vimeo-video/03-ai-context.json",
+          "sha256": "af0406737c4d2030c42cd63502f737080984a877fc5f295ffffcb1949bc20dbb",
+          "bytes": 416
+        },
+        {
+          "path": "output/screen-ai-pipeline-proof/live-operator-evidence-bundle/vimeo-video/04-provider-route.json",
+          "sha256": "d19e45a40c6e3b086341b16b8f90b4c0fe051d8600849bf91f74613a29a4b92a",
+          "bytes": 131
+        },
+        {
+          "path": "output/screen-ai-pipeline-proof/live-operator-evidence-bundle/vimeo-video/05-model-runtime-status.json",
+          "sha256": "fa152349fd84be4c1ac83ce41730aa56f108009e06c83de53f20f2c91655f360",
+          "bytes": 409
+        },
+        {
+          "path": "output/screen-ai-pipeline-proof/live-operator-evidence-bundle/vimeo-video/06-ai-result.json",
+          "sha256": "c47d9722fba9a6783590f664c864eea63c6300dd582e01bc881681bf6a0ff54d",
+          "bytes": 3878
+        },
+        {
+          "path": "output/screen-ai-pipeline-proof/live-operator-evidence-bundle/vimeo-video/07-policy-decision.json",
+          "sha256": "acffba74d9072bd294ac20656cc5d465207979b1d089fa20b8953a47a8704061",
+          "bytes": 1828
+        },
+        {
+          "path": "output/screen-ai-pipeline-proof/live-operator-evidence-bundle/vimeo-video/08-deletion-after-analysis.json",
+          "sha256": "5f3aa3ed04f63ef4d4966051ad3789323b27cbf2f21cb4e5c5d8be201517f16e",
+          "bytes": 209
+        },
+        {
+          "path": "output/screen-ai-pipeline-proof/live-operator-evidence-bundle/vimeo-video/09-parent-explanation.json",
+          "sha256": "be3fa04e099e507b6e90675a0ac2140e57a4c9b49c00e6cc1d2944db92dbea29",
+          "bytes": 720
+        },
+        {
+          "path": "output/screen-ai-pipeline-proof/live-operator-evidence-bundle/vimeo-video/vlm-stdout-redacted.log",
+          "sha256": "fe779556d43a389b784bb287c43fce32cd6253e682caad41ae52d6c0e22a2bb7",
+          "bytes": 152
+        },
+        {
+          "path": "output/screen-ai-pipeline-proof/live-operator-evidence-bundle/vimeo-video/vlm-stderr-redacted.log",
+          "sha256": "e5ae358692199b7a3340955708faef779f0eb65cf9dd3207119d06fc2c642a46",
+          "bytes": 1067
+        },
+        {
+          "path": "output/screen-ai-pipeline-proof/live-operator-evidence-bundle/vimeo-video/10-parent-explanation.png",
+          "sha256": "06fd2951f1dcf0d7c7412a0ab06562dd77fde01f9c2fe19f86ff4dad31f184dc",
+          "bytes": 15540
+        }
+      ],
+      "portableAssertions": {
+        "sourceEvidenceRedacted": false,
+        "captureProofRefOnly": true,
+        "policyDryRun": true,
+        "localOnlyModelRuntime": true
+      }
+    },
+    {
+      "scenarioId": "facebook-social-surface",
+      "surface": "browser",
+      "category": "chat",
+      "policyAction": "warn",
+      "liveExternalUrlProof": true,
+      "publicSocialSurfaceProof": true,
+      "authenticatedAccountProof": false,
+      "localVlmAnalysisProof": true,
+      "policyDryRunProof": true,
+      "rawImageDeletedAfterAnalysis": true,
+      "rawImagePathRetained": false,
+      "copiedArtifactCount": 13,
+      "parentExplanationScreenshot": {
+        "path": "output/screen-ai-pipeline-proof/live-operator-evidence-bundle/facebook-social-surface/10-parent-explanation.png",
+        "sha256": "17694ff2bec4b084daf1a1bdfd1dc5735615fa28bf6ffc7c6b1187af0716f66c",
+        "bytes": 18281
+      },
+      "copiedArtifacts": [
+        {
+          "path": "output/screen-ai-pipeline-proof/live-operator-evidence-bundle/facebook-social-surface/00-scenario.md",
+          "sha256": "f05c68e57d1e119bf2ba3bb3e3af596ee8d65a50718018b881e39eee68845fc8",
+          "bytes": 288
+        },
+        {
+          "path": "output/screen-ai-pipeline-proof/live-operator-evidence-bundle/facebook-social-surface/01-redacted-source-evidence.json",
+          "sha256": "7903f0da29d877f73caa2c8582c7f4f8ad4bd6bdd2fcbb21e6eb204cc52337b5",
+          "bytes": 923
+        },
+        {
+          "path": "output/screen-ai-pipeline-proof/live-operator-evidence-bundle/facebook-social-surface/02-capture-proof-ref.json",
+          "sha256": "abc268aa262a71b6793d0755c94dc0684965db13021dec735fe32fb02adc9436",
+          "bytes": 1034
+        },
+        {
+          "path": "output/screen-ai-pipeline-proof/live-operator-evidence-bundle/facebook-social-surface/03-ai-context.json",
+          "sha256": "fb3b322b1ebd567bf3c479f5035228106d3eedb25037a4c48ae04eb2415dc61e",
+          "bytes": 440
+        },
+        {
+          "path": "output/screen-ai-pipeline-proof/live-operator-evidence-bundle/facebook-social-surface/04-provider-route.json",
+          "sha256": "d19e45a40c6e3b086341b16b8f90b4c0fe051d8600849bf91f74613a29a4b92a",
+          "bytes": 131
+        },
+        {
+          "path": "output/screen-ai-pipeline-proof/live-operator-evidence-bundle/facebook-social-surface/05-model-runtime-status.json",
+          "sha256": "fa152349fd84be4c1ac83ce41730aa56f108009e06c83de53f20f2c91655f360",
+          "bytes": 409
+        },
+        {
+          "path": "output/screen-ai-pipeline-proof/live-operator-evidence-bundle/facebook-social-surface/06-ai-result.json",
+          "sha256": "9b43a98d30b8f1c7b025ecd9798697dfa7644e2424a343c304402dc736d86207",
+          "bytes": 3975
+        },
+        {
+          "path": "output/screen-ai-pipeline-proof/live-operator-evidence-bundle/facebook-social-surface/07-policy-decision.json",
+          "sha256": "3cfcb521983b1c45ae2d124fed5d56475547f6bdcb4b21df2889c03c8d120e41",
+          "bytes": 1900
+        },
+        {
+          "path": "output/screen-ai-pipeline-proof/live-operator-evidence-bundle/facebook-social-surface/08-deletion-after-analysis.json",
+          "sha256": "ebbe3b663181bf524b3e0bb88a7ede784201016ae01fededfb2654fa765caaf3",
+          "bytes": 221
+        },
+        {
+          "path": "output/screen-ai-pipeline-proof/live-operator-evidence-bundle/facebook-social-surface/09-parent-explanation.json",
+          "sha256": "8db7c8990ff7228075343fae04ed93223aa650348eaf3cdd4838581d76305d2b",
+          "bytes": 769
+        },
+        {
+          "path": "output/screen-ai-pipeline-proof/live-operator-evidence-bundle/facebook-social-surface/vlm-stdout-redacted.log",
+          "sha256": "adcba42edd27ad2d887eb173306f37e3f3b0ed715e6e230117cc448c94c51471",
+          "bytes": 143
+        },
+        {
+          "path": "output/screen-ai-pipeline-proof/live-operator-evidence-bundle/facebook-social-surface/vlm-stderr-redacted.log",
+          "sha256": "2caa9e97e5029a6022d0eb5bc590f54ab86ba4fdba63348d655f72baecaf3ba5",
+          "bytes": 1067
+        },
+        {
+          "path": "output/screen-ai-pipeline-proof/live-operator-evidence-bundle/facebook-social-surface/10-parent-explanation.png",
+          "sha256": "17694ff2bec4b084daf1a1bdfd1dc5735615fa28bf6ffc7c6b1187af0716f66c",
+          "bytes": 18281
+        }
+      ],
+      "portableAssertions": {
+        "sourceEvidenceRedacted": false,
+        "captureProofRefOnly": true,
+        "policyDryRun": true,
+        "localOnlyModelRuntime": true
+      }
+    },
+    {
+      "scenarioId": "browser-game",
+      "surface": "browser",
+      "category": "game",
+      "policyAction": "time-limit",
+      "liveExternalUrlProof": true,
+      "publicSocialSurfaceProof": false,
+      "authenticatedAccountProof": false,
+      "localVlmAnalysisProof": true,
+      "policyDryRunProof": true,
+      "rawImageDeletedAfterAnalysis": true,
+      "rawImagePathRetained": false,
+      "copiedArtifactCount": 13,
+      "parentExplanationScreenshot": {
+        "path": "output/screen-ai-pipeline-proof/live-operator-evidence-bundle/browser-game/10-parent-explanation.png",
+        "sha256": "d23eb6ba382433af3b7a294e4277df4890c1be82bf02a0c7c15e495560570039",
+        "bytes": 17173
+      },
+      "copiedArtifacts": [
+        {
+          "path": "output/screen-ai-pipeline-proof/live-operator-evidence-bundle/browser-game/00-scenario.md",
+          "sha256": "b6577b3dc27d4e6a5927ceacf1b84eab6844dcaa13ab1397372602feaec0dcc7",
+          "bytes": 283
+        },
+        {
+          "path": "output/screen-ai-pipeline-proof/live-operator-evidence-bundle/browser-game/01-redacted-source-evidence.json",
+          "sha256": "8d9b249066693bc2fbba15c60f3330b3a55fe7994a1087e652f628fe3760563b",
+          "bytes": 892
+        },
+        {
+          "path": "output/screen-ai-pipeline-proof/live-operator-evidence-bundle/browser-game/02-capture-proof-ref.json",
+          "sha256": "7fdf8cd4b3cd904be68ff8fb258890a9b80a1f1cfd2211e8c43c5f982bf3ce0e",
+          "bytes": 1012
+        },
+        {
+          "path": "output/screen-ai-pipeline-proof/live-operator-evidence-bundle/browser-game/03-ai-context.json",
+          "sha256": "e3b3bb8b138b902a6136b313a525c58da68b047e29fb92439f19cc28928a3aa8",
+          "bytes": 418
+        },
+        {
+          "path": "output/screen-ai-pipeline-proof/live-operator-evidence-bundle/browser-game/04-provider-route.json",
+          "sha256": "d19e45a40c6e3b086341b16b8f90b4c0fe051d8600849bf91f74613a29a4b92a",
+          "bytes": 131
+        },
+        {
+          "path": "output/screen-ai-pipeline-proof/live-operator-evidence-bundle/browser-game/05-model-runtime-status.json",
+          "sha256": "fa152349fd84be4c1ac83ce41730aa56f108009e06c83de53f20f2c91655f360",
+          "bytes": 409
+        },
+        {
+          "path": "output/screen-ai-pipeline-proof/live-operator-evidence-bundle/browser-game/06-ai-result.json",
+          "sha256": "4bc216c7b28c7519fb8459d85af2c187eaa55d721537136c3c70e93d55e50c0b",
+          "bytes": 4506
+        },
+        {
+          "path": "output/screen-ai-pipeline-proof/live-operator-evidence-bundle/browser-game/07-policy-decision.json",
+          "sha256": "7fa34b116d7108be678fa4bedcc8ed9b720bb50b5175c9bc5462b4541c3a8253",
+          "bytes": 1846
+        },
+        {
+          "path": "output/screen-ai-pipeline-proof/live-operator-evidence-bundle/browser-game/08-deletion-after-analysis.json",
+          "sha256": "d8af4be5d1220257c4af48995e44889c62c2b8683b8a572d498b94ce7091f749",
+          "bytes": 210
+        },
+        {
+          "path": "output/screen-ai-pipeline-proof/live-operator-evidence-bundle/browser-game/09-parent-explanation.json",
+          "sha256": "d6f7ca134f24ee362a5a68103029907d2ebe9106eaa40c5359c7a9a579e53b3b",
+          "bytes": 737
+        },
+        {
+          "path": "output/screen-ai-pipeline-proof/live-operator-evidence-bundle/browser-game/vlm-stdout-redacted.log",
+          "sha256": "95f05f69dd534a80865815625b891caf583acc52676395ac19aae6cb4df33bbb",
+          "bytes": 346
+        },
+        {
+          "path": "output/screen-ai-pipeline-proof/live-operator-evidence-bundle/browser-game/vlm-stderr-redacted.log",
+          "sha256": "0171e71f4ef2c80f833acf1c0d78c67647a98642247f9619be322f967cc37be4",
+          "bytes": 1067
+        },
+        {
+          "path": "output/screen-ai-pipeline-proof/live-operator-evidence-bundle/browser-game/10-parent-explanation.png",
+          "sha256": "d23eb6ba382433af3b7a294e4277df4890c1be82bf02a0c7c15e495560570039",
+          "bytes": 17173
+        }
+      ],
+      "portableAssertions": {
+        "sourceEvidenceRedacted": false,
+        "captureProofRefOnly": true,
+        "policyDryRun": true,
+        "localOnlyModelRuntime": true
+      }
+    },
+    {
+      "scenarioId": "shopping-page",
+      "surface": "browser",
+      "category": "shopping",
+      "policyAction": "ask-parent",
+      "liveExternalUrlProof": true,
+      "publicSocialSurfaceProof": false,
+      "authenticatedAccountProof": false,
+      "localVlmAnalysisProof": true,
+      "policyDryRunProof": true,
+      "rawImageDeletedAfterAnalysis": true,
+      "rawImagePathRetained": false,
+      "copiedArtifactCount": 13,
+      "parentExplanationScreenshot": {
+        "path": "output/screen-ai-pipeline-proof/live-operator-evidence-bundle/shopping-page/10-parent-explanation.png",
+        "sha256": "d4d09a534e99fadcde58927c8057aef0546d740989d6094a4068a440cd08e95a",
+        "bytes": 17905
+      },
+      "copiedArtifacts": [
+        {
+          "path": "output/screen-ai-pipeline-proof/live-operator-evidence-bundle/shopping-page/00-scenario.md",
+          "sha256": "56ebb9b263a1091ba7ab57e3344f18b6b2bddd745ba400f1bcd1b6212cc95753",
+          "bytes": 288
+        },
+        {
+          "path": "output/screen-ai-pipeline-proof/live-operator-evidence-bundle/shopping-page/01-redacted-source-evidence.json",
+          "sha256": "84d73e7d204e79d1e6473bff75ac19612510cb5189b2831ecd10262e5bec5aef",
+          "bytes": 903
+        },
+        {
+          "path": "output/screen-ai-pipeline-proof/live-operator-evidence-bundle/shopping-page/02-capture-proof-ref.json",
+          "sha256": "2dbbf80a6a695a5b0028b35935d5e8d3012c9719b1f1f74a6bf2305c136e5316",
+          "bytes": 1014
+        },
+        {
+          "path": "output/screen-ai-pipeline-proof/live-operator-evidence-bundle/shopping-page/03-ai-context.json",
+          "sha256": "0f91b7c0129c05a1988fddf632d16eabccaae9161c2877bb28996591760ff565",
+          "bytes": 420
+        },
+        {
+          "path": "output/screen-ai-pipeline-proof/live-operator-evidence-bundle/shopping-page/04-provider-route.json",
+          "sha256": "d19e45a40c6e3b086341b16b8f90b4c0fe051d8600849bf91f74613a29a4b92a",
+          "bytes": 131
+        },
+        {
+          "path": "output/screen-ai-pipeline-proof/live-operator-evidence-bundle/shopping-page/05-model-runtime-status.json",
+          "sha256": "fa152349fd84be4c1ac83ce41730aa56f108009e06c83de53f20f2c91655f360",
+          "bytes": 409
+        },
+        {
+          "path": "output/screen-ai-pipeline-proof/live-operator-evidence-bundle/shopping-page/06-ai-result.json",
+          "sha256": "a82c4f8f10642de5a1cafadaa1610c1e9dfddde83736fb3a6d6db7e6cdaf65c4",
+          "bytes": 4303
+        },
+        {
+          "path": "output/screen-ai-pipeline-proof/live-operator-evidence-bundle/shopping-page/07-policy-decision.json",
+          "sha256": "f1e9fd160fbf8f9a6abccb9af2a7b70390ad898e6605867d70b8e933b4282e93",
+          "bytes": 1864
+        },
+        {
+          "path": "output/screen-ai-pipeline-proof/live-operator-evidence-bundle/shopping-page/08-deletion-after-analysis.json",
+          "sha256": "04069e6fad5d5e7307dfb3de90d2f625ecc766f7903c63b98cd9fa53a98412b1",
+          "bytes": 211
+        },
+        {
+          "path": "output/screen-ai-pipeline-proof/live-operator-evidence-bundle/shopping-page/09-parent-explanation.json",
+          "sha256": "90399ae4678da5fccde751bbd716cfe07de7f83c620aadfa7f03366282dfbb1b",
+          "bytes": 746
+        },
+        {
+          "path": "output/screen-ai-pipeline-proof/live-operator-evidence-bundle/shopping-page/vlm-stdout-redacted.log",
+          "sha256": "47f32a671c45fd0a2f6f2768ff8a4b099bebf2c1748fe206fe9acfe872629a9c",
+          "bytes": 294
+        },
+        {
+          "path": "output/screen-ai-pipeline-proof/live-operator-evidence-bundle/shopping-page/vlm-stderr-redacted.log",
+          "sha256": "31a5a406f526c26705169213344361d0f12915bc58e3a7e6eca21e234abcdcb9",
+          "bytes": 1067
+        },
+        {
+          "path": "output/screen-ai-pipeline-proof/live-operator-evidence-bundle/shopping-page/10-parent-explanation.png",
+          "sha256": "d4d09a534e99fadcde58927c8057aef0546d740989d6094a4068a440cd08e95a",
+          "bytes": 17905
+        }
+      ],
+      "portableAssertions": {
+        "sourceEvidenceRedacted": false,
+        "captureProofRefOnly": true,
+        "policyDryRun": true,
+        "localOnlyModelRuntime": true
+      }
+    },
+    {
+      "scenarioId": "school-productivity",
+      "surface": "browser",
+      "category": "school",
+      "policyAction": "allow",
+      "liveExternalUrlProof": true,
+      "publicSocialSurfaceProof": false,
+      "authenticatedAccountProof": false,
+      "localVlmAnalysisProof": true,
+      "policyDryRunProof": true,
+      "rawImageDeletedAfterAnalysis": true,
+      "rawImagePathRetained": false,
+      "copiedArtifactCount": 13,
+      "parentExplanationScreenshot": {
+        "path": "output/screen-ai-pipeline-proof/live-operator-evidence-bundle/school-productivity/10-parent-explanation.png",
+        "sha256": "fd520e34212cc0a772c9c1e84bcef04a5d2612d6d0c04ebbb6cb17f06284be80",
+        "bytes": 18367
+      },
+      "copiedArtifacts": [
+        {
+          "path": "output/screen-ai-pipeline-proof/live-operator-evidence-bundle/school-productivity/00-scenario.md",
+          "sha256": "0b6ebdb570926e543c46e08364bcc8d08b26ec2bef975a51266140d19096a6b0",
+          "bytes": 287
+        },
+        {
+          "path": "output/screen-ai-pipeline-proof/live-operator-evidence-bundle/school-productivity/01-redacted-source-evidence.json",
+          "sha256": "a60f9489655fd86d7cb67e21e6472feadfc9c31b39814ac8dd740f22263d3384",
+          "bytes": 933
+        },
+        {
+          "path": "output/screen-ai-pipeline-proof/live-operator-evidence-bundle/school-productivity/02-capture-proof-ref.json",
+          "sha256": "859c325f542a7f95f560edc6361556628a20cc6dd034491486ae2317eddd8706",
+          "bytes": 1027
+        },
+        {
+          "path": "output/screen-ai-pipeline-proof/live-operator-evidence-bundle/school-productivity/03-ai-context.json",
+          "sha256": "cee1764cec15ab79fd95567fdb445432b2ddca1c4bcd90ba73d966f35159be5a",
+          "bytes": 432
+        },
+        {
+          "path": "output/screen-ai-pipeline-proof/live-operator-evidence-bundle/school-productivity/04-provider-route.json",
+          "sha256": "d19e45a40c6e3b086341b16b8f90b4c0fe051d8600849bf91f74613a29a4b92a",
+          "bytes": 131
+        },
+        {
+          "path": "output/screen-ai-pipeline-proof/live-operator-evidence-bundle/school-productivity/05-model-runtime-status.json",
+          "sha256": "fa152349fd84be4c1ac83ce41730aa56f108009e06c83de53f20f2c91655f360",
+          "bytes": 409
+        },
+        {
+          "path": "output/screen-ai-pipeline-proof/live-operator-evidence-bundle/school-productivity/06-ai-result.json",
+          "sha256": "7681533d51bcae7b46261f13b3d7a451154ef33ac9507275712d6835a21ce9bd",
+          "bytes": 3952
+        },
+        {
+          "path": "output/screen-ai-pipeline-proof/live-operator-evidence-bundle/school-productivity/07-policy-decision.json",
+          "sha256": "1ddc383ed97c05a2d8df3959b0f76a62677bac49ca31b1059d753574667c6b89",
+          "bytes": 1884
+        },
+        {
+          "path": "output/screen-ai-pipeline-proof/live-operator-evidence-bundle/school-productivity/08-deletion-after-analysis.json",
+          "sha256": "a2c1b440e43286307cffb58ddaee276aa0d3ed21244b09ca46980b3bc6ba3742",
+          "bytes": 217
+        },
+        {
+          "path": "output/screen-ai-pipeline-proof/live-operator-evidence-bundle/school-productivity/09-parent-explanation.json",
+          "sha256": "deff4c551bfc13578e117256aeb7ab93a528b7d460f9c5a4e07d8fb431e91a00",
+          "bytes": 761
+        },
+        {
+          "path": "output/screen-ai-pipeline-proof/live-operator-evidence-bundle/school-productivity/vlm-stdout-redacted.log",
+          "sha256": "792112f5d5fa978ecb3e2fc9754be5a6a6c1dc85e93d7b5627288a9391b8ddec",
+          "bytes": 148
+        },
+        {
+          "path": "output/screen-ai-pipeline-proof/live-operator-evidence-bundle/school-productivity/vlm-stderr-redacted.log",
+          "sha256": "d1cad4d98671d9c2cfab8ac39167f7f2f09918be64197b21cd80a4c24bf82cab",
+          "bytes": 1067
+        },
+        {
+          "path": "output/screen-ai-pipeline-proof/live-operator-evidence-bundle/school-productivity/10-parent-explanation.png",
+          "sha256": "fd520e34212cc0a772c9c1e84bcef04a5d2612d6d0c04ebbb6cb17f06284be80",
+          "bytes": 18367
+        }
+      ],
+      "portableAssertions": {
+        "sourceEvidenceRedacted": false,
+        "captureProofRefOnly": true,
+        "policyDryRun": true,
+        "localOnlyModelRuntime": true
+      }
+    },
+    {
+      "scenarioId": "native-app",
+      "surface": "nativeApp",
+      "category": "productivity",
+      "policyAction": "allow",
+      "liveExternalUrlProof": false,
+      "publicSocialSurfaceProof": false,
+      "authenticatedAccountProof": false,
+      "localVlmAnalysisProof": true,
+      "policyDryRunProof": true,
+      "rawImageDeletedAfterAnalysis": true,
+      "rawImagePathRetained": false,
+      "copiedArtifactCount": 13,
+      "parentExplanationScreenshot": {
+        "path": "output/screen-ai-pipeline-proof/live-operator-evidence-bundle/native-app/10-parent-explanation.png",
+        "sha256": "bf0fe5c1c16307d29cd259df0afd08e4fca940aa3396c43abea25cd8926b6702",
+        "bytes": 18505
+      },
+      "copiedArtifacts": [
+        {
+          "path": "output/screen-ai-pipeline-proof/live-operator-evidence-bundle/native-app/00-scenario.md",
+          "sha256": "7d47386c6be1f37c4d686dd13b95db87d1176843b649e6051b6d71dc3f538f75",
+          "bytes": 286
+        },
+        {
+          "path": "output/screen-ai-pipeline-proof/live-operator-evidence-bundle/native-app/01-redacted-source-evidence.json",
+          "sha256": "1b11bc283c42ba8276b8bab44615da41a7df7f77e024a0d5d68d2d5455a7195a",
+          "bytes": 156
+        },
+        {
+          "path": "output/screen-ai-pipeline-proof/live-operator-evidence-bundle/native-app/02-capture-proof-ref.json",
+          "sha256": "675facf5291c5993f8ae49bb53086a1a1d5d24b1aea99b59774c5f87e9d9d9e5",
+          "bytes": 1004
+        },
+        {
+          "path": "output/screen-ai-pipeline-proof/live-operator-evidence-bundle/native-app/03-ai-context.json",
+          "sha256": "44c8739ee6eb9129469138875cfa6a61bed0757aebe2e8fa6cd5eee24b943c1b",
+          "bytes": 414
+        },
+        {
+          "path": "output/screen-ai-pipeline-proof/live-operator-evidence-bundle/native-app/04-provider-route.json",
+          "sha256": "d19e45a40c6e3b086341b16b8f90b4c0fe051d8600849bf91f74613a29a4b92a",
+          "bytes": 131
+        },
+        {
+          "path": "output/screen-ai-pipeline-proof/live-operator-evidence-bundle/native-app/05-model-runtime-status.json",
+          "sha256": "fa152349fd84be4c1ac83ce41730aa56f108009e06c83de53f20f2c91655f360",
+          "bytes": 409
+        },
+        {
+          "path": "output/screen-ai-pipeline-proof/live-operator-evidence-bundle/native-app/06-ai-result.json",
+          "sha256": "07a755cb833f4b6d65f47be4a32fe9a471dcd95eb96b47b7b0b7b227aab3afab",
+          "bytes": 4685
+        },
+        {
+          "path": "output/screen-ai-pipeline-proof/live-operator-evidence-bundle/native-app/07-policy-decision.json",
+          "sha256": "e8715bba20951771622958a20505d0dbaf2d0710189b21d40e0ff849a285529a",
+          "bytes": 1848
+        },
+        {
+          "path": "output/screen-ai-pipeline-proof/live-operator-evidence-bundle/native-app/08-deletion-after-analysis.json",
+          "sha256": "18f13a807a5e210444f4cd793e7d465fca1b6bec85f74cc41b493f25d6f4095f",
+          "bytes": 208
+        },
+        {
+          "path": "output/screen-ai-pipeline-proof/live-operator-evidence-bundle/native-app/09-parent-explanation.json",
+          "sha256": "235c636e74df8b660e37727b07ae15375026435444998959b3cf9b3ad55d8a6a",
+          "bytes": 748
+        },
+        {
+          "path": "output/screen-ai-pipeline-proof/live-operator-evidence-bundle/native-app/vlm-stdout-redacted.log",
+          "sha256": "2eee98f8c09ef601afb467f60c85d294886f97092ba529b70bd25e343351ddfd",
+          "bytes": 351
+        },
+        {
+          "path": "output/screen-ai-pipeline-proof/live-operator-evidence-bundle/native-app/vlm-stderr-redacted.log",
+          "sha256": "8a6c94aa06b75f9a1019d7f9aeee02ccf1b3acf429038405a4bc421e09b5b9e5",
+          "bytes": 1067
+        },
+        {
+          "path": "output/screen-ai-pipeline-proof/live-operator-evidence-bundle/native-app/10-parent-explanation.png",
+          "sha256": "bf0fe5c1c16307d29cd259df0afd08e4fca940aa3396c43abea25cd8926b6702",
+          "bytes": 18505
+        }
+      ],
+      "portableAssertions": {
+        "sourceEvidenceRedacted": false,
+        "captureProofRefOnly": true,
+        "policyDryRun": true,
+        "localOnlyModelRuntime": true
+      }
+    },
+    {
+      "scenarioId": "protected-unsupported-state",
+      "surface": "protectedState",
+      "category": null,
+      "policyAction": null,
+      "liveExternalUrlProof": false,
+      "publicSocialSurfaceProof": false,
+      "authenticatedAccountProof": false,
+      "localVlmAnalysisProof": false,
+      "policyDryRunProof": false,
+      "rawImageDeletedAfterAnalysis": true,
+      "rawImagePathRetained": false,
+      "copiedArtifactCount": 3,
+      "parentExplanationScreenshot": null,
+      "copiedArtifacts": [
+        {
+          "path": "output/screen-ai-pipeline-proof/live-operator-evidence-bundle/protected-unsupported-state/00-scenario.md",
+          "sha256": "662f3723c55c4cf634ac2641c3a7235431ce8b7e24e48e315c561d2742fe6459",
+          "bytes": 319
+        },
+        {
+          "path": "output/screen-ai-pipeline-proof/live-operator-evidence-bundle/protected-unsupported-state/01-redacted-source-evidence.json",
+          "sha256": "5c322e2880c023aaffa10ba6b14797a2d9182b1be02701992f18202717c369d1",
+          "bytes": 345
+        },
+        {
+          "path": "output/screen-ai-pipeline-proof/live-operator-evidence-bundle/protected-unsupported-state/02-capture-proof-ref.json",
+          "sha256": "bea9054ecf8d36386ed2948efcc11018b97da7404edc3567cca558eced399f69",
+          "bytes": 2757
+        }
+      ],
+      "portableAssertions": {
+        "sourceEvidenceRedacted": false,
+        "captureProofRefOnly": true,
+        "policyDryRun": true,
+        "localOnlyModelRuntime": true
+      }
+    }
+  ],
+  "nonClaims": [
+    "This bundle copies redacted live-operator evidence and parent explanation screenshots only.",
+    "Raw screenshots, raw image paths, encrypted queue payloads, and operator-supplied full URLs are not copied into the bundle.",
+    "The bundle makes retained proof review portable; it does not rerun live capture, OCR, VLM, policy, or adapter execution.",
+    "Authenticated-account social proof and broad/browser/network/mobile product-complete adapters remain separate gates."
+  ]
+}

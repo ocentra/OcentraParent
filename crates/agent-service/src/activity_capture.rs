@@ -20,17 +20,30 @@ pub use errors::ActivityCaptureError;
 pub(crate) mod freshness;
 
 pub fn spawn_startup_activity_capture() {
-    if windows_activity_capture_supported() {
-        tokio::task::spawn(async {
-            loop {
-                run_activity_capture_once_blocking().await;
-                tokio::time::sleep(Duration::from_millis(
-                    constants::activity_capture::RECURRING_CAPTURE_INTERVAL_MS,
-                ))
-                .await;
-            }
-        });
+    if !startup_activity_capture_enabled() {
+        return;
     }
+    tokio::task::spawn(async {
+        loop {
+            run_activity_capture_once_blocking().await;
+            tokio::time::sleep(Duration::from_millis(
+                constants::activity_capture::RECURRING_CAPTURE_INTERVAL_MS,
+            ))
+            .await;
+        }
+    });
+}
+
+pub(crate) fn startup_activity_capture_enabled() -> bool {
+    startup_activity_capture_enabled_for_value(
+        std::env::var(constants::env_var::ACTIVITY_CAPTURE_STARTUP_DISABLED)
+            .ok()
+            .as_deref(),
+    )
+}
+
+pub(crate) fn startup_activity_capture_enabled_for_value(value: Option<&str>) -> bool {
+    windows_activity_capture_supported() && value != Some(constants::value::TRUE)
 }
 
 async fn run_activity_capture_once_blocking() {

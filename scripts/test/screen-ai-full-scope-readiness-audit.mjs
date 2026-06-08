@@ -15,6 +15,7 @@ const sourceArtifacts = {
   adapterDependencyHandoffRows:
     'output/screen-ai-pipeline-proof/adapter-dependency-handoff/adapter-dependency-handoff.json',
   finalProductPath: 'output/screen-ai-pipeline-proof/final-product-path/proof-summary.json',
+  liveOperatorEvidenceBundle: 'output/screen-ai-pipeline-proof/live-operator-evidence-bundle/proof-summary.json',
   finalAdapterAudit: 'output/screen-ai-pipeline-proof/final-adapter-dependency-audit/proof-summary.json',
   linuxHostExecution: 'output/screen-ai-pipeline-proof/linux-host-adapter-execution/proof-summary.json',
   productChecklistDelta: 'output/screen-ai-pipeline-proof/product-checklist-delta/proof-summary.json',
@@ -123,6 +124,7 @@ const adapterBlockerLedger = readJson(sourceArtifacts.adapterBlockerLedger);
 const adapterDependencyHandoff = readJson(sourceArtifacts.adapterDependencyHandoff);
 const adapterDependencyHandoffRows = readJson(sourceArtifacts.adapterDependencyHandoffRows);
 const finalProductPath = readJson(sourceArtifacts.finalProductPath);
+const liveOperatorEvidenceBundle = readJson(sourceArtifacts.liveOperatorEvidenceBundle);
 const finalAdapterAudit = readJson(sourceArtifacts.finalAdapterAudit);
 const linuxHostExecution = readJson(sourceArtifacts.linuxHostExecution);
 const productChecklistDelta = readJson(sourceArtifacts.productChecklistDelta);
@@ -251,6 +253,10 @@ assert(
 );
 assert(finalProductPath.closure?.publicSocialSurfaceProof === true, 'final path lost public social surface proof');
 assert(
+  finalProductPath.closure?.retainedLiveOperatorBundlePortable === true,
+  'final path lost portable live operator bundle requirement'
+);
+assert(
   finalProductPath.closure?.authenticatedAccountSocialProof === false,
   'final path overclaims authenticated-account social proof'
 );
@@ -270,6 +276,18 @@ assert(
   finalProductPath.closure?.adapterDependencyRowsMapped === 5,
   'final path lost adapter dependency handoff row mapping'
 );
+
+assert(
+  liveOperatorEvidenceBundle.proof === 'screen-ai-live-operator-evidence-bundle',
+  'live operator evidence bundle proof id changed'
+);
+assert(liveOperatorEvidenceBundle.bundlePortableForReview === true, 'live operator bundle is not portable');
+assert(liveOperatorEvidenceBundle.scenarioCount === 9, 'live operator bundle scenario count changed');
+assert(liveOperatorEvidenceBundle.localVlmRows === 8, 'live operator bundle lost local VLM rows');
+assert(liveOperatorEvidenceBundle.policyDryRunRows === 8, 'live operator bundle lost policy dry-run rows');
+assert(liveOperatorEvidenceBundle.parentExplanationScreenshots === 8, 'live operator bundle lost screenshots');
+assert(liveOperatorEvidenceBundle.rawScreenshotFilesCopied === false, 'live operator bundle copied raw screenshots');
+assert(liveOperatorEvidenceBundle.encryptedQueueFilesCopied === false, 'live operator bundle copied encrypted queues');
 
 assert(adapterBlockerLedger.status === 'blocked-but-actionable', 'adapter blocker ledger is not actionable');
 assert(adapterBlockerLedger.closure?.blockerRows === 5, 'adapter blocker ledger row count changed');

@@ -1,6 +1,6 @@
 {
   "proof": "screen-linux-capture-capability-proof",
-  "generatedAt": "2026-06-07T16:45:01.093Z",
+  "generatedAt": "2026-06-08T14:26:34.480Z",
   "claim": "Linux WSLg/X11 selected-window proof exists, but native Linux root-display and Wayland/PipeWire portal parity remain blocked before product readiness.",
   "linuxDocsVerified": [
     {

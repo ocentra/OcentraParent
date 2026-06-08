@@ -1,6 +1,6 @@
 {
   "proof": "screen-android-mediaprojection-capability-proof",
-  "generatedAt": "2026-06-07T18:11:20.417Z",
+  "generatedAt": "2026-06-08T14:42:13.394Z",
   "claim": "Android MediaProjection emulator proof exists, but physical-device parity and silent background capture remain blocked before product readiness.",
   "androidDocsVerified": [
     {
@@ -17,8 +17,8 @@
   "existingEmulatorProof": {
     "path": "output/screen-plan-proof/android-mediaprojection/proof-summary.json",
     "deviceSerial": "emulator-5554",
-    "model": "sdk_gphone64_x86_64",
-    "api": "35",
+    "model": "Android SDK built for x86_64",
+    "api": "33",
     "consentApproved": true,
     "captured": true,
     "rawTempDeleted": true,

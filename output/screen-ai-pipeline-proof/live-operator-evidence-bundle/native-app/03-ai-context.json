@@ -1,0 +1,14 @@
+{
+  "scenarioId": "native-app",
+  "sourceEvidenceRefs": [
+    {
+      "evidenceId": "live-operator-screen-evidence-native-app",
+      "kind": "screenshot",
+      "digest": "a9688e53638aed35084c2b6cf04d4655e42c81d7722f7c1bbb7cf5442dd64664",
+      "uri": null
+    }
+  ],
+  "promptVersion": "screen-ai-live-operator-proof-v1",
+  "contextBuiltFromTypedCaptureMetadata": true,
+  "directOsOrBrowserScanByModel": false
+}

@@ -164,6 +164,15 @@ only with explicit parent settings.
   proof captures a real X11 selected window with encrypted custody and raw
   deletion. macOS live capture proof still requires platform execution evidence
   before parity is claimed.
+- `scripts/test/screen-local-platform-proof-batch.mjs` now accounts for the
+  locally provable platform surface as one batch: Windows active/scope capture,
+  Android emulator MediaProjection consent/capture/deletion, and Linux WSLg/X11
+  selected-window capture/deletion. The batch records the current host inventory
+  for Android SDK/ADB/AVDs/devices and WSL display state, so a fresh emulator run
+  is distinguishable from a retained artifact. It explicitly keeps Android
+  physical-device parity, native Linux Wayland/PipeWire parity, macOS
+  ScreenCaptureKit, and iOS ReplayKit as external-required gates before
+  product-complete platform capture readiness.
 - `ScreenMacosCaptureCapabilityProofSchema` and
   `scripts/test/screen-macos-capture-capability-proof.mjs` add the macOS
   ScreenCaptureKit readiness gate: the proof records current Apple
@@ -464,7 +473,9 @@ only with explicit parent settings.
   same external gate intake now rejects pixel evidence unless it carries
   structured local capture, local analysis, and deletion refs; live-view relay
   and privacy/legal gates require their own no-retention/encryption/viewer-audit
-  or approval-scope refs instead of generic live-surface booleans.
+  or approval-scope refs instead of generic live-surface booleans. The generated
+  `output/screen-plan-proof/external-gates/manual-evidence-status.md` file lists
+  each missing gate and its required proof-ref fields for operator collection.
 - Android child-agent scaffold now has emulator MediaProjection proof with
   explicit OS consent, foreground service, captured frame digest, and raw temp
   deletion. Physical Android parity and silent background capture are not
@@ -775,9 +786,14 @@ only with explicit parent settings.
   proofs, portal/read-model proof, retention/deletion custody, and protected
   surface non-claims at
   `output/screen-ai-pipeline-proof/final-product-path/proof-summary.json`. This
-  is a stacked artifact gate; it does not rerun the live operator session or
-  claim managed-browser trigger ownership, authenticated-account social proof,
-  or broad browser/network/mobile adapters.
+  gate now requires
+  `output/screen-ai-pipeline-proof/live-operator-evidence-bundle/proof-summary.json`,
+  which copies only redacted source/AI/policy/deletion artifacts, redacted model
+  logs, and parent-explanation screenshots for remote review while excluding raw
+  screenshots and encrypted queue payloads. This is a stacked artifact gate; it
+  does not rerun the live operator session or claim managed-browser trigger
+  ownership, authenticated-account social proof, or broad browser/network/mobile
+  adapters.
 - `scripts/test/screen-plan-closure-audit-proof.mjs` now records the remaining
   partial screen-plan gates at
   `output/screen-plan-proof/screen-plan-closure-audit/proof-summary.json`. The
@@ -1009,7 +1025,9 @@ parity, and UI remain separate proof gates.
       display or product-complete enforcement claims.
 - [x] Final screen-AI product path artifact gate validates retained real-run
       trigger, capture, AI, policy, action/read-model, and deletion/custody
-      artifacts without raw screenshot retention.
+      artifacts without raw screenshot retention, and now requires the portable
+      live-operator evidence bundle for remote inspection of redacted retained
+      proof artifacts.
 - [x] Screen-plan closure audit records current readiness proof artifacts and
       remaining partial platform, live-view, and model-quality product gates so
       screen is not claimed product-complete prematurely.

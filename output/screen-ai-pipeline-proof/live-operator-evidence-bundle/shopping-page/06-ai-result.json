@@ -1,0 +1,128 @@
+{
+  "screenResult": {
+    "schemaVersion": 1,
+    "screenAnalysisResultId": "live-operator-screen-analysis-shopping-page",
+    "queueJobId": "live-operator-screen-capture-shopping-page",
+    "analyzedAt": "2026-06-04T10:58:15.908Z",
+    "modelRuntimeRef": "local-qwen2-vl-2b-llama-mtmd",
+    "modelId": "Qwen2-VL-2B-Instruct-Q4_K_M",
+    "providerKind": "localVision",
+    "promptOrTemplateVersion": "screen-ai-live-operator-proof-v1",
+    "captureReason": "managedBrowserUrlChange",
+    "captureScope": "selectedWindow",
+    "capabilityStatus": "ready",
+    "summary": "All Models Shopping Guides Ways to Save Accessories Setup and Support The iPhone Experience Special Stores",
+    "visibleCategoryCandidates": [
+      {
+        "category": "shopping",
+        "confidence": 1,
+        "evidenceRefs": [
+          {
+            "evidenceId": "live-operator-screen-evidence-shopping-page",
+            "kind": "screenshot",
+            "digest": "bfb32698c7e57935fbb9d8e0566160602000ef87daa2bc0aff244d4b1ec4bd5b",
+            "uri": null
+          }
+        ]
+      }
+    ],
+    "primaryCategory": "shopping",
+    "riskSignals": [],
+    "ocrTextSnippets": [
+      {
+        "text": "All Models Shopping Guides Ways to Save Accessories Setup and Support The iPhone Experience Special Stores",
+        "confidence": 1,
+        "evidenceRefs": [
+          {
+            "evidenceId": "live-operator-screen-evidence-shopping-page",
+            "kind": "screenshot",
+            "digest": "bfb32698c7e57935fbb9d8e0566160602000ef87daa2bc0aff244d4b1ec4bd5b",
+            "uri": null
+          }
+        ]
+      }
+    ],
+    "redactionNotes": [],
+    "confidence": 1,
+    "uncertaintyReason": null,
+    "sourceEvidenceRefs": [
+      {
+        "evidenceId": "live-operator-screen-evidence-shopping-page",
+        "kind": "screenshot",
+        "digest": "bfb32698c7e57935fbb9d8e0566160602000ef87daa2bc0aff244d4b1ec4bd5b",
+        "uri": null
+      }
+    ],
+    "imageDigest": "bfb32698c7e57935fbb9d8e0566160602000ef87daa2bc0aff244d4b1ec4bd5b",
+    "rawImageRetained": false,
+    "imageDeletionState": "deleted",
+    "custodyState": "child-device-query-store",
+    "policyEligible": true
+  },
+  "localAiSafetyResult": {
+    "schemaVersion": "v0.6",
+    "resultId": "live-operator-local-ai-result-shopping-page",
+    "requestId": "live-operator-local-ai-request-shopping-page",
+    "action": "ask-parent",
+    "confidence": 1,
+    "unknownState": "none",
+    "degradedState": "none",
+    "reasonCodes": [
+      "screen-category-shopping"
+    ],
+    "explanationReference": "screen-analysis-result:live-operator-screen-analysis-shopping-page",
+    "evidenceReferences": [
+      {
+        "evidenceReferenceId": "live-operator-screen-analysis-evidence-shopping-page",
+        "kind": "activity-event",
+        "observedAt": "2026-06-04T10:58:15.908Z"
+      }
+    ],
+    "parentRuleReferences": [
+      "live-operator-screen-policy-shopping-page"
+    ],
+    "memoryReferences": [],
+    "graphReferences": [],
+    "modelRuntime": {
+      "runtimeReferenceId": "runtime-local-qwen2-vl-2b-llama-mtmd",
+      "providerId": "local-qwen2-vl",
+      "modelId": "Qwen2-VL-2B-Instruct-Q4_K_M",
+      "modelReference": "local-model-cache/Qwen2-VL-2B-Instruct-Q4_K_M.gguf",
+      "privacyMode": "local-only",
+      "adapterBoundary": "local-adapter-ready",
+      "executionState": "dry-run-ready",
+      "providerSource": "local-model-cache",
+      "loadState": "loaded",
+      "capabilityFlags": [
+        "classification",
+        "safety-decision"
+      ],
+      "resourceClass": "cpu",
+      "degradedState": "none",
+      "lastCheckedAt": "2026-06-04T10:58:15.908Z",
+      "unavailableReason": null
+    },
+    "promptVersion": "screen-ai-live-operator-proof-v1",
+    "expiresAt": null
+  },
+  "parsedModel": {
+    "primary_category": "shopping",
+    "visible_text": [
+      "All Models",
+      "Shopping Guides",
+      "Ways to Save",
+      "Accessories",
+      "Setup and Support",
+      "The iPhone Experience",
+      "Special Stores"
+    ],
+    "risk_signals": [],
+    "confidence": 1
+  },
+  "normalized": {
+    "primaryCategory": "shopping",
+    "visibleText": "All Models Shopping Guides Ways to Save Accessories Setup and Support The iPhone Experience Special Stores",
+    "confidence": 1,
+    "riskSignals": []
+  }
+}

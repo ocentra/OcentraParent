@@ -1,3 +1,5 @@
+node --check scripts/test/screen-ai-live-operator-evidence-bundle.mjs
+node scripts/test/screen-ai-live-operator-evidence-bundle.mjs
 node --check scripts/test/screen-ai-final-product-path-proof.mjs
 node scripts/test/screen-ai-final-product-path-proof.mjs
 git diff --check

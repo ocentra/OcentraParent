@@ -99,16 +99,28 @@ function startEmulator() {
   const emulatorPath =
     process.env.OCENTRA_ANDROID_EMULATOR ??
     join(process.env.ANDROID_HOME ?? process.env.ANDROID_SDK_ROOT, 'emulator', 'emulator.exe');
-  const child = spawn(emulatorPath, ['-avd', avdName, '-no-snapshot-save'], {
-    detached: true,
-    stdio: 'ignore',
-    windowsHide: true,
-  });
+  const child = spawn(
+    emulatorPath,
+    [
+      '-avd',
+      avdName,
+      '-no-window',
+      '-no-audio',
+      '-no-snapshot-save',
+      '-gpu',
+      process.env.OCENTRA_ANDROID_EMULATOR_GPU ?? 'swiftshader_indirect',
+    ],
+    {
+      detached: true,
+      stdio: 'ignore',
+      windowsHide: true,
+    }
+  );
   child.unref();
 }
 
 function waitForDevice() {
-  for (let attempt = 0; attempt < 90; attempt += 1) {
+  for (let attempt = 0; attempt < 150; attempt += 1) {
     const device = firstOnlineDevice();
     if (device !== null) {
       return device;
@@ -119,7 +131,7 @@ function waitForDevice() {
 }
 
 function waitForAndroidReady(device) {
-  for (let attempt = 0; attempt < 90; attempt += 1) {
+  for (let attempt = 0; attempt < 150; attempt += 1) {
     const bootCompleted = adb(['shell', 'getprop', 'sys.boot_completed'], { allowFailure: true }).stdout.trim();
     const packageManagerReady =
       adb(['shell', 'cmd', 'package', 'path', 'android'], { allowFailure: true }).status === 0;
@@ -304,15 +316,27 @@ function waitForProofJson() {
 }
 
 function adb(args, options = {}) {
-  const result = spawnSync('adb', args, {
-    cwd: process.cwd(),
-    encoding: 'utf8',
-    shell: process.platform === 'win32',
-  });
+  let result = spawnAdb(args);
+  if (
+    result.status !== 0 &&
+    options.allowFailure !== true &&
+    /device offline|device still connecting|more than one device\/emulator/i.test(result.stderr || result.stdout)
+  ) {
+    waitForDevice();
+    result = spawnAdb(args);
+  }
   if (result.status !== 0 && options.allowFailure !== true) {
     throw new Error(`adb ${args.join(' ')} failed: ${result.stderr || result.stdout}`);
   }
   return result;
+}
+
+function spawnAdb(args) {
+  return spawnSync('adb', args, {
+    cwd: process.cwd(),
+    encoding: 'utf8',
+    shell: process.platform === 'win32',
+  });
 }
 
 function attr(node, name) {

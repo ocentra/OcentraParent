@@ -1,0 +1,14 @@
+{
+  "scenarioId": "school-productivity",
+  "sourceEvidenceRefs": [
+    {
+      "evidenceId": "live-operator-screen-evidence-school-productivity",
+      "kind": "screenshot",
+      "digest": "f7604915cd4cf7edf2d7b0ac56f2baf5023d08fce57a9b99c802306b6da2e3ea",
+      "uri": null
+    }
+  ],
+  "promptVersion": "screen-ai-live-operator-proof-v1",
+  "contextBuiltFromTypedCaptureMetadata": true,
+  "directOsOrBrowserScanByModel": false
+}

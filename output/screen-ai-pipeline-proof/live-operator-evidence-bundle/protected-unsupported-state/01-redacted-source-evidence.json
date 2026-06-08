@@ -1,0 +1,7 @@
+{
+  "scenarioId": "protected-unsupported-state",
+  "sourceKind": "protected-state-metadata",
+  "liveExternalUrl": false,
+  "captureMetadataRef": "<USER_HOME>\\.codex\\worktrees\\ocentra-parent-codex-b\\OcentraParent\\output\\screen-ai-pipeline-proof\\protected-surface\\proof-summary.json",
+  "protectedOrUnsupportedState": "protectedSurface"
+}

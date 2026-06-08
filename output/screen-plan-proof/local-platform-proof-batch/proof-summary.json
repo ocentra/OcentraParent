@@ -1,0 +1,143 @@
+{
+  "proof": "screen-local-platform-proof-batch",
+  "generatedAt": "2026-06-08T14:50:56.777Z",
+  "sourceArtifacts": {
+    "windowsActiveWindow": "output/screen-plan-proof/real-capture/manual-parent-test-active-window/proof-summary.json",
+    "windowsScopeMatrix": "output/screen-plan-proof/real-capture/scope-matrix/proof-summary.json",
+    "androidMediaProjection": "output/screen-plan-proof/android-mediaprojection/proof-summary.json",
+    "androidCapability": "output/screen-plan-proof/android/proof-summary.json",
+    "linuxWslg": "output/screen-plan-proof/linux-wslg/proof-summary.json",
+    "linuxCapability": "output/screen-plan-proof/linux/proof-summary.json"
+  },
+  "localHost": {
+    "platform": "win32",
+    "windowsRunnableHere": true,
+    "androidRunnableHere": true,
+    "linuxRunnableHere": true,
+    "macosRunnableHere": false,
+    "iosRunnableHere": false,
+    "inventory": {
+      "android": {
+        "sdkRoot": "C:\\Users\\sujan\\AppData\\Local\\Android\\Sdk",
+        "adbAvailable": true,
+        "adbError": null,
+        "avdToolAvailable": true,
+        "avdError": null,
+        "avds": [
+          "Ocentra_Screen_ATD_API33"
+        ],
+        "devices": [],
+        "onlineEmulatorSerials": [],
+        "onlinePhysicalSerials": []
+      },
+      "linux": {
+        "wslAvailable": true,
+        "wslError": null,
+        "wslKernel": "Linux 5.15.167.4-microsoft-standard-WSL2",
+        "display": ":0"
+      }
+    }
+  },
+  "closure": {
+    "windowsCaptureComplete": true,
+    "androidEmulatorCaptureComplete": true,
+    "androidPhysicalCaptureComplete": false,
+    "linuxWslgCaptureComplete": true,
+    "nativeLinuxWaylandComplete": false,
+    "macosCaptureComplete": false,
+    "iosCaptureComplete": false,
+    "localWindowsAndroidLinuxProofsAccounted": true,
+    "productCompletePlatformCaptureReady": false
+  },
+  "rows": [
+    {
+      "platformGate": "windows-active-window",
+      "status": "proved",
+      "artifact": "output/screen-plan-proof/real-capture/manual-parent-test-active-window/proof-summary.json",
+      "capturedPixels": true,
+      "rawImageDeleted": true,
+      "productReadyContribution": "local-windows-capture-ready"
+    },
+    {
+      "platformGate": "windows-scope-matrix",
+      "status": "proved",
+      "artifact": "output/screen-plan-proof/real-capture/scope-matrix/proof-summary.json",
+      "capturedPixels": true,
+      "rawImageDeleted": true,
+      "productReadyContribution": "local-windows-scope-ready"
+    },
+    {
+      "platformGate": "android-mediaprojection-emulator",
+      "status": "proved",
+      "artifact": "output/screen-plan-proof/android-mediaprojection/proof-summary.json",
+      "capabilityArtifact": "output/screen-plan-proof/android/proof-summary.json",
+      "capturedPixels": true,
+      "rawImageDeleted": true,
+      "deviceSerial": "emulator-5554",
+      "deviceModel": "Android SDK built for x86_64",
+      "api": "33",
+      "currentHostDeviceOnline": false,
+      "currentHostAvds": [
+        "Ocentra_Screen_ATD_API33"
+      ],
+      "productReadyContribution": "android-emulator-proof-only"
+    },
+    {
+      "platformGate": "android-mediaprojection-physical",
+      "status": "external-required",
+      "artifact": "output/screen-plan-proof/android-mediaprojection/proof-summary.json",
+      "capabilityArtifact": "output/screen-plan-proof/android/proof-summary.json",
+      "capturedPixels": false,
+      "rawImageDeleted": false,
+      "deviceSerial": "emulator-5554",
+      "currentHostOnlinePhysicalSerials": [],
+      "productReadyContribution": "required-for-android-physical-product-claim",
+      "reason": "Current proof is emulator-only or no physical Android is online; connect physical Android and rerun MediaProjection proof before product claim."
+    },
+    {
+      "platformGate": "linux-wslg-x11-selected-window",
+      "status": "proved",
+      "artifact": "output/screen-plan-proof/linux-wslg/proof-summary.json",
+      "capabilityArtifact": "output/screen-plan-proof/linux/proof-summary.json",
+      "capturedPixels": true,
+      "rawImageDeleted": true,
+      "display": ":0",
+      "productReadyContribution": "wslg-selected-window-proof-only"
+    },
+    {
+      "platformGate": "linux-native-wayland-pipewire",
+      "status": "external-required",
+      "artifact": "output/screen-plan-proof/linux/proof-summary.json",
+      "capturedPixels": false,
+      "rawImageDeleted": false,
+      "productReadyContribution": "required-for-native-linux-wayland-product-claim",
+      "reason": "Native Linux Wayland/PipeWire portal proof is separate from WSLg/X11 selected-window proof."
+    },
+    {
+      "platformGate": "macos-screencapturekit",
+      "status": "external-required",
+      "artifact": null,
+      "capturedPixels": false,
+      "rawImageDeleted": false,
+      "productReadyContribution": "required-for-apple-platform-product-claim",
+      "reason": "macOS ScreenCaptureKit live permission and capture proof"
+    },
+    {
+      "platformGate": "ios-replaykit",
+      "status": "external-required",
+      "artifact": null,
+      "capturedPixels": false,
+      "rawImageDeleted": false,
+      "productReadyContribution": "required-for-apple-platform-product-claim",
+      "reason": "iOS ReplayKit physical-device capture proof"
+    }
+  ],
+  "nonClaims": [
+    "This batch verifies the local platform evidence already produced on the Windows worker host and records which gates remain external.",
+    "Android emulator MediaProjection is not physical Android parity.",
+    "Android physical-device proof requires a current online physical device in adb inventory, not only retained emulator artifacts.",
+    "WSLg/X11 selected-window capture is not native Linux Wayland/PipeWire or root-display parity.",
+    "macOS and iOS native capture cannot be proved from this Windows worker host and remain external/CI/manual-required gates.",
+    "This batch does not claim screen-plan product completion while any external platform gate remains external-required."
+  ]
+}

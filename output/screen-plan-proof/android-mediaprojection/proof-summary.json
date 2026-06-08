@@ -3,17 +3,17 @@
   "outputDir": "output\\screen-plan-proof\\android-mediaprojection",
   "deviceInfo": {
     "serial": "emulator-5554",
-    "model": "sdk_gphone64_x86_64",
-    "api": "35",
-    "release": "15"
+    "model": "Android SDK built for x86_64",
+    "api": "33",
+    "release": "13"
   },
   "consentApproved": true,
   "selectorApproved": false,
   "selectorTarget": null,
   "captured": true,
-  "width": 1344,
-  "height": 2992,
-  "frameByteSize": 16084992,
+  "width": 1080,
+  "height": 2272,
+  "frameByteSize": 9815040,
   "rawTempDeleted": true,
   "degradedIsCaptureProof": false,
   "nonClaims": [

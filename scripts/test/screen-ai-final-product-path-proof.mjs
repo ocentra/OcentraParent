@@ -12,6 +12,7 @@ import {
 const failures = [];
 const liveOperator = load(SourcePaths.liveOperator);
 const liveOperatorArtifactGate = load(SourcePaths.liveOperatorArtifactGate);
+const liveOperatorEvidenceBundle = load(SourcePaths.liveOperatorEvidenceBundle);
 const liveOperatorAi = load(SourcePaths.liveOperatorAi);
 const actionDispatch = load(SourcePaths.actionDispatch);
 const aiPlanClosure = load(SourcePaths.aiPlanClosure);
@@ -60,6 +61,7 @@ const closure = {
   finalAdapterAuditProven: validateFinalAdapterAudit(),
   adapterDependencyHandoffProven: validateAdapterDependencyHandoff(),
   householdMeshBoundaryProven: validateHouseholdMeshBoundary(),
+  retainedLiveOperatorBundlePortable: validateLiveOperatorEvidenceBundle(),
   screenPlanClosureAudited: validateScreenPlanClosure(),
   aiPlanClosureAudited: validateAiPlanClosure(),
 };
@@ -111,12 +113,14 @@ const proof = {
     serviceWinRtOcrLivePolicyCovered: closure.serviceWinRtOcrPolicyProven,
     singleRuntimeSessionRerun: serviceWinRtOcrPolicy.assertions?.sourceProofRerunByThisGate === true,
     retainedRealRunArtifactsVerified: true,
+    retainedLiveOperatorBundlePortable: closure.retainedLiveOperatorBundlePortable,
     rawScreenshotsRetainedByDefault: false,
     remoteAiUsedForChildSafety: false,
   },
   liveRows,
   nonClaims: [
     'This verifier validates retained real-run artifacts and does not rerun the live operator capture or model inference session.',
+    'This proof requires the sanitized live-operator evidence bundle so remote review can inspect retained redacted source, AI, policy, deletion, and parent explanation artifacts without raw screenshots or encrypted queues.',
     'Managed-browser trigger producer ownership, authenticated-account social proof, and broad browser/network/mobile/Linux adapters remain separate unless their own execution artifacts are cited.',
     'The custody-aware final adapter audit is required by this proof and keeps broad/browser/network/mobile/native-Linux product-complete adapter execution blocked while WSL2 Linux execution remains separately proved.',
     'The adapter blocker ledger and dependency handoff are required by this proof; they map upstream execution artifacts without upgrading product-complete claims.',
@@ -154,6 +158,43 @@ function validateLiveOperator() {
   assert(liveOperatorAi.proof === 'screen-ai-live-operator-proof', 'AI live operator summary proof id mismatch');
 
   return LiveScenarioIds.map((scenarioId) => validateLiveScenario(scenarioId));
+}
+
+function validateLiveOperatorEvidenceBundle() {
+  assert(
+    liveOperatorEvidenceBundle.proof === 'screen-ai-live-operator-evidence-bundle',
+    'live operator evidence bundle proof id mismatch'
+  );
+  assert(liveOperatorEvidenceBundle.bundlePortableForReview === true, 'live operator bundle is not portable');
+  assert(liveOperatorEvidenceBundle.scenarioCount === LiveScenarioIds.length, 'live operator bundle scenario mismatch');
+  assert(liveOperatorEvidenceBundle.localVlmRows === 8, 'live operator bundle missing local VLM rows');
+  assert(liveOperatorEvidenceBundle.policyDryRunRows === 8, 'live operator bundle missing policy dry-run rows');
+  assert(
+    liveOperatorEvidenceBundle.parentExplanationScreenshots === 8,
+    'live operator bundle missing parent explanation screenshots'
+  );
+  assert(liveOperatorEvidenceBundle.rawScreenshotFilesCopied === false, 'live operator bundle copied raw screenshots');
+  assert(
+    liveOperatorEvidenceBundle.encryptedQueueFilesCopied === false,
+    'live operator bundle copied encrypted queues'
+  );
+  assert(
+    liveOperatorEvidenceBundle.authenticatedAccountSocialProof === false,
+    'live operator bundle overclaims authenticated-account proof'
+  );
+
+  for (const scenarioId of LiveScenarioIds) {
+    const row = liveOperatorEvidenceBundle.scenarios.find((candidate) => candidate.scenarioId === scenarioId);
+    assert(Boolean(row), `live operator bundle missing ${scenarioId}`);
+    assert(row.rawImagePathRetained === false, `${scenarioId} retained raw image path in bundle`);
+    for (const artifact of row.copiedArtifacts ?? []) {
+      assert(existsPath(repoPath(artifact.path)), `${scenarioId} bundle artifact missing ${artifact.path}`);
+      assert(!artifact.path.includes('/capture/'), `${scenarioId} bundle copied capture artifact ${artifact.path}`);
+      assert(!artifact.path.includes('/queue/'), `${scenarioId} bundle copied queue artifact ${artifact.path}`);
+    }
+  }
+
+  return true;
 }
 
 function validateLiveScenario(scenarioId) {
