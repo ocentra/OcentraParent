@@ -71,6 +71,10 @@ const sourceProofs = [
     'output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-gate/67-child-runtime-android-emulator-readiness-bridge-proof.json'
   ),
   sourceProof(
+    'parent-child-local-runtime-bridge',
+    'output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-gate/68-parent-child-local-runtime-bridge-proof.json'
+  ),
+  sourceProof(
     'physical-device-artifact-gate',
     'output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-gate/49-physical-device-artifact-gate-proof.json'
   ),
@@ -167,6 +171,7 @@ async function main() {
   run('cmd', ['/c', 'node', 'scripts/test/tracking-full-product-ui-runtime-preflight-proof.mjs']);
   run('cmd', ['/c', 'node', 'scripts/test/tracking-android-emulator-artifact-inventory-proof.mjs']);
   run('cmd', ['/c', 'node', 'scripts/test/tracking-ios-simulator-artifact-inventory-proof.mjs']);
+  run('cmd', ['/c', 'node', 'scripts/test/tracking-parent-child-local-runtime-bridge-proof.mjs']);
   run('cmd', ['/c', 'node', 'scripts/test/tracking-physical-device-artifact-gate-proof.mjs']);
   run('cmd', ['/c', 'node', 'scripts/test/tracking-physical-device-evidence-review-proof.mjs']);
   run('cmd', ['/c', 'node', 'scripts/test/tracking-retention-runtime-artifact-gate-proof.mjs']);
@@ -229,6 +234,9 @@ async function aggregateEvidence() {
   );
   const childRuntimeArtifactGateProof = await readJson(
     'test-results/tracking-child-runtime-artifact-gate-proof/proof.json'
+  );
+  const parentChildLocalRuntimeBridgeProof = await readJson(
+    'test-results/tracking-parent-child-local-runtime-bridge-proof/proof.json'
   );
   const physicalDeviceEvidenceReviewProof = await readJson(
     'test-results/tracking-physical-device-evidence-review-proof/proof.json'
@@ -293,6 +301,10 @@ async function aggregateEvidence() {
     childRuntimeRequiredArtifactCount: childRuntimeArtifactSummary.requiredArtifactCount,
     childRuntimePresentArtifactCount: childRuntimeArtifactSummary.presentArtifactCount,
     childRuntimeMissingArtifactCount: childRuntimeArtifactSummary.missingArtifactCount,
+    parentChildLocalRuntimeStoredEventCount: parentChildLocalRuntimeBridgeProof.summary.storedEventCount,
+    parentChildLocalRuntimeDeadLetterCount: parentChildLocalRuntimeBridgeProof.summary.deadLetterCount,
+    parentChildLocalRuntimeChildAgentPhaseCount: parentChildLocalRuntimeBridgeProof.summary.childAgentPhaseCount,
+    parentChildLocalRuntimeProductReadyRowCount: parentChildLocalRuntimeBridgeProof.summary.productReadyRows,
     physicalDeviceEvidenceReviewRowCount: physicalDeviceEvidenceReviewProof.summary.rowCount,
     physicalDeviceEvidenceReviewArtifactMissingRowCount: physicalDeviceEvidenceReviewProof.summary.artifactMissingRows,
     physicalDeviceEvidenceReviewContentReviewRequiredRowCount:
@@ -403,6 +415,18 @@ function assertProof(proof) {
     );
   }
   if (
+    proof.aggregateEvidence.parentChildLocalRuntimeStoredEventCount < 9 ||
+    proof.aggregateEvidence.parentChildLocalRuntimeDeadLetterCount !== 0 ||
+    proof.aggregateEvidence.parentChildLocalRuntimeChildAgentPhaseCount < 4 ||
+    proof.aggregateEvidence.parentChildLocalRuntimeProductReadyRowCount !== 0
+  ) {
+    throw new Error(
+      `Tracking product readiness closure lost parent-child local runtime bridge evidence: ${JSON.stringify(
+        proof.aggregateEvidence
+      )}`
+    );
+  }
+  if (
     proof.aggregateEvidence.physicalDeviceEvidenceReviewStatusObservedRowCount < 0 ||
     proof.aggregateEvidence.physicalDeviceEvidenceReviewStatusObservedRowCount >
       proof.aggregateEvidence.physicalDeviceEvidenceReviewRowCount ||
@@ -494,6 +518,9 @@ function sourceSnapshot(proof) {
     `- childRuntimeRequiredArtifactCount: ${proof.aggregateEvidence.childRuntimeRequiredArtifactCount}`,
     `- childRuntimePresentArtifactCount: ${proof.aggregateEvidence.childRuntimePresentArtifactCount}`,
     `- childRuntimeMissingArtifactCount: ${proof.aggregateEvidence.childRuntimeMissingArtifactCount}`,
+    `- parentChildLocalRuntimeStoredEventCount: ${proof.aggregateEvidence.parentChildLocalRuntimeStoredEventCount}`,
+    `- parentChildLocalRuntimeDeadLetterCount: ${proof.aggregateEvidence.parentChildLocalRuntimeDeadLetterCount}`,
+    `- parentChildLocalRuntimeChildAgentPhaseCount: ${proof.aggregateEvidence.parentChildLocalRuntimeChildAgentPhaseCount}`,
     `- physicalDeviceEvidenceReviewRowCount: ${proof.aggregateEvidence.physicalDeviceEvidenceReviewRowCount}`,
     `- physicalDeviceEvidenceReviewArtifactMissingRowCount: ${proof.aggregateEvidence.physicalDeviceEvidenceReviewArtifactMissingRowCount}`,
     `- physicalDeviceEvidenceReviewContentReviewRequiredRowCount: ${proof.aggregateEvidence.physicalDeviceEvidenceReviewContentReviewRequiredRowCount}`,
@@ -541,6 +568,7 @@ function securityNegativeProof() {
     'Closure rows cite existing local/CI proof refs and enumerate remaining product blockers.',
     'Android emulator artifact inventory records local adb, permission UI, location runtime, geofence runtime, device-status, and validation-log artifacts while keeping Android physical-device/system-delivery blockers open.',
     'iOS simulator artifact inventory records simulator package, manual-required Core Location, privacy disclosure, platform proof, and validation-log artifacts while keeping Core Location runtime and physical-device blockers open.',
+    'Parent-child local runtime bridge records typed local transport handoff and child-agent phase coverage while keeping physical child-device runtime and product claims false.',
     'Retention runtime closure accounting records the local writable settings artifact as present and the platform runtime retention enforcement artifact as missing.',
     'Retention platform enforcement preflight closure accounting records Android, iOS, and desktop manual-required acceptance rows while keeping product-ready retention false.',
     'Production worker runtime preflight closure accounting records eight manual-required production worker acceptance rows while keeping production and product-ready claims false.',

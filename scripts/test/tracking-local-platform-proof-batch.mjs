@@ -17,6 +17,7 @@ const proofRefs = {
   wsl: 'test-results/tracking-plan-wsl-local-proof/proof.json',
   hostedAccessibility: 'test-results/tracking-plan-hosted-ui-proof/accessibility-summary.json',
   hostedInventory: 'test-results/tracking-hosted-ui-artifact-inventory-proof/proof.json',
+  parentChildLocalRuntimeBridge: 'test-results/tracking-parent-child-local-runtime-bridge-proof/proof.json',
   productUiLocal: 'test-results/tracking-full-product-ui-local-runtime-artifact-capture-proof/proof.json',
   productUiPreflight: 'test-results/tracking-full-product-ui-runtime-preflight-proof/proof.json',
   productReadinessClosure: 'test-results/tracking-product-readiness-closure-proof/proof.json',
@@ -52,6 +53,7 @@ async function readSourceProofs() {
     wsl: await readJson(proofRefs.wsl),
     hostedAccessibility: await readJson(proofRefs.hostedAccessibility),
     hostedInventory: await readJson(proofRefs.hostedInventory),
+    parentChildLocalRuntimeBridge: await readJson(proofRefs.parentChildLocalRuntimeBridge),
     productUiLocal: await readJson(proofRefs.productUiLocal),
     productUiPreflight: await readJson(proofRefs.productUiPreflight),
     productReadinessClosure: await readJson(proofRefs.productReadinessClosure),
@@ -142,6 +144,36 @@ function rowsFromSource(source) {
       ciRunnable: true,
     },
     {
+      area: 'parent-child-local-runtime-bridge',
+      status: 'local-proof-passed',
+      proofRef: proofRefs.parentChildLocalRuntimeBridge,
+      sourceRefs: source.parentChildLocalRuntimeBridge.sourceProofRefs,
+      currentProofTier: source.parentChildLocalRuntimeBridge.currentProofTier,
+      requiredProofTier: source.parentChildLocalRuntimeBridge.requiredProofTier,
+      passedLocalAssertions: [
+        'local parent-child runtime bridge observes typed transport handoff and parent read-model projection',
+        'local bridge records ordered parent, transport, child-agent, health, and read-model phases',
+      ],
+      remainingBlockers: [
+        'physical child-device delivery/execution and rendered child UI runtime artifacts remain required',
+      ],
+      metrics: [
+        {
+          name: 'storedEventCount',
+          value: source.parentChildLocalRuntimeBridge.summary.storedEventCount,
+        },
+        {
+          name: 'deadLetterCount',
+          value: source.parentChildLocalRuntimeBridge.summary.deadLetterCount,
+        },
+        {
+          name: 'childAgentPhaseCount',
+          value: source.parentChildLocalRuntimeBridge.summary.childAgentPhaseCount,
+        },
+      ],
+      ciRunnable: true,
+    },
+    {
       area: 'real-runtime-handoff-accounting',
       status: 'manual-required',
       proofRef: proofRefs.realRuntimeHandoff,
@@ -205,8 +237,8 @@ function buildProof(readModel, source) {
 }
 
 function assertProof(proof) {
-  assert.equal(proof.summary.rowCount, 5, 'expected five local platform batch rows');
-  assert.equal(proof.summary.localProofPassedRows, 4, 'expected four local proof rows');
+  assert.equal(proof.summary.rowCount, 6, 'expected six local platform batch rows');
+  assert.equal(proof.summary.localProofPassedRows, 5, 'expected five local proof rows');
   assert.equal(proof.summary.manualRequiredRows, 1, 'expected one handoff/manual row');
   assert.equal(proof.summary.productReadyRows, 0, 'product-ready rows must stay zero');
   assert.equal(proof.remainingProductClaimsFalse.productReadyClaimed, false, 'product-ready claim must stay false');

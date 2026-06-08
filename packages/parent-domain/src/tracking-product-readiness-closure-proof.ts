@@ -28,6 +28,7 @@ export const TrackingProductReadinessClosureCoverageTagSchema = Schema.Literal(
   'authority-runtime-artifact-gate',
   'child-runtime-artifact-gate',
   'child-runtime-android-emulator-readiness-bridge',
+  'parent-child-local-runtime-bridge',
   'physical-device-artifact-gate',
   'physical-device-evidence-review',
   'provider-delivery-artifact-gate',
@@ -67,6 +68,7 @@ export const RequiredTrackingProductReadinessClosureCoverageTags = [
   'authority-runtime-artifact-gate',
   'child-runtime-artifact-gate',
   'child-runtime-android-emulator-readiness-bridge',
+  'parent-child-local-runtime-bridge',
   'physical-device-artifact-gate',
   'physical-device-evidence-review',
   'provider-delivery-artifact-gate',
@@ -153,6 +155,10 @@ export const TrackingProductReadinessClosureAggregateEvidenceSchema = withParser
     childRuntimeRequiredArtifactCount: Schema.Number.pipe(Schema.int(), Schema.positive()),
     childRuntimePresentArtifactCount: Schema.Number.pipe(Schema.int()),
     childRuntimeMissingArtifactCount: Schema.Number.pipe(Schema.int()),
+    parentChildLocalRuntimeStoredEventCount: Schema.Number.pipe(Schema.int(), Schema.positive()),
+    parentChildLocalRuntimeDeadLetterCount: Schema.Literal(0),
+    parentChildLocalRuntimeChildAgentPhaseCount: Schema.Number.pipe(Schema.int(), Schema.positive()),
+    parentChildLocalRuntimeProductReadyRowCount: Schema.Literal(0),
     physicalDeviceEvidenceReviewRowCount: Schema.Number.pipe(Schema.int(), Schema.positive()),
     physicalDeviceEvidenceReviewArtifactMissingRowCount: Schema.Number.pipe(Schema.int()),
     physicalDeviceEvidenceReviewContentReviewRequiredRowCount: Schema.Number.pipe(Schema.int()),
@@ -267,6 +273,15 @@ export const TrackingProductReadinessClosureAggregateEvidenceSchema = withParser
           evidence.childRuntimeRequiredArtifactCount ===
             evidence.childRuntimePresentArtifactCount + evidence.childRuntimeMissingArtifactCount ||
           'Aggregate closure evidence must classify every child-runtime artifact'
+      )
+    )
+    .pipe(
+      Schema.filter(
+        (evidence) =>
+          (evidence.parentChildLocalRuntimeStoredEventCount >= 9 &&
+            evidence.parentChildLocalRuntimeChildAgentPhaseCount >= 4 &&
+            evidence.parentChildLocalRuntimeProductReadyRowCount === 0) ||
+          'Aggregate closure evidence must preserve local parent-child runtime coverage without product-ready claims'
       )
     )
     .pipe(

@@ -103,6 +103,10 @@ function expectRuntimeAndProductionAggregate(proof: TrackingProductReadinessClos
   expect(proof.aggregateEvidence.childRuntimeRequiredArtifactCount).toBe(10);
   expect(proof.aggregateEvidence.childRuntimePresentArtifactCount).toBe(0);
   expect(proof.aggregateEvidence.childRuntimeMissingArtifactCount).toBe(10);
+  expect(proof.aggregateEvidence.parentChildLocalRuntimeStoredEventCount).toBe(9);
+  expect(proof.aggregateEvidence.parentChildLocalRuntimeDeadLetterCount).toBe(0);
+  expect(proof.aggregateEvidence.parentChildLocalRuntimeChildAgentPhaseCount).toBe(4);
+  expect(proof.aggregateEvidence.parentChildLocalRuntimeProductReadyRowCount).toBe(0);
   expect(proof.aggregateEvidence.physicalDeviceEvidenceReviewRowCount).toBe(2);
   expect(proof.aggregateEvidence.physicalDeviceEvidenceReviewArtifactMissingRowCount).toBe(2);
   expect(proof.aggregateEvidence.physicalDeviceEvidenceReviewContentReviewRequiredRowCount).toBe(0);
@@ -146,7 +150,7 @@ function expectRuntimeAndProductionAggregate(proof: TrackingProductReadinessClos
   expect(proof.aggregateEvidence.productClaimReady).toBe(false);
 }
 
-function aggregateEvidence() {
+function localPlatformAggregateEvidence() {
   return {
     fullProductUiLocalArtifactCount: 5,
     fullProductUiClosureRetentionWritableExecutionRowCount: 1,
@@ -179,6 +183,15 @@ function aggregateEvidence() {
     childRuntimeRequiredArtifactCount: 10,
     childRuntimePresentArtifactCount: 0,
     childRuntimeMissingArtifactCount: 10,
+    parentChildLocalRuntimeStoredEventCount: 9,
+    parentChildLocalRuntimeDeadLetterCount: 0,
+    parentChildLocalRuntimeChildAgentPhaseCount: 4,
+    parentChildLocalRuntimeProductReadyRowCount: 0,
+  };
+}
+
+function runtimeArtifactAggregateEvidence() {
+  return {
     physicalDeviceEvidenceReviewRowCount: 2,
     physicalDeviceEvidenceReviewArtifactMissingRowCount: 2,
     physicalDeviceEvidenceReviewContentReviewRequiredRowCount: 0,
@@ -199,6 +212,11 @@ function aggregateEvidence() {
     retentionRuntimeMissingArtifactCount: 1,
     retentionRuntimeManualRequiredRowCount: 1,
     retentionRuntimeArtifactSetPresentRowCount: 0,
+  };
+}
+
+function productionReadinessAggregateEvidence() {
+  return {
     retentionPlatformPreflightRowCount: 3,
     retentionPlatformPreflightManualRequiredRowCount: 3,
     retentionPlatformPreflightRequiredArtifactCount: 6,
@@ -223,5 +241,13 @@ function aggregateEvidence() {
     claimAuditProductionRuntimeRequiredRowCount: 2,
     claimAuditProductReadyRowCount: 0,
     productClaimReady: false,
+  };
+}
+
+function aggregateEvidence() {
+  return {
+    ...localPlatformAggregateEvidence(),
+    ...runtimeArtifactAggregateEvidence(),
+    ...productionReadinessAggregateEvidence(),
   };
 }
