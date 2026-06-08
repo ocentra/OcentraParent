@@ -31,6 +31,9 @@ export const ScreenAiAdapterReadinessRequirementSchema = NonEmptyReadinessText.p
 export const ScreenAiAdapterReadinessBoundarySchema = NonEmptyReadinessText.pipe(
   Schema.brand('ScreenAiAdapterReadinessBoundary')
 );
+export const ScreenAiAdapterCompletionResultRefSchema = NonEmptyReadinessText.pipe(
+  Schema.brand('ScreenAiAdapterCompletionResultRef')
+);
 
 export const ScreenAiAdapterReadinessRuntimeBoundarySchema = withParser(
   Schema.Union(V08SupportedAdapterRuntimeBoundarySchema, Schema.Literal('windows-screen-owned-process-block'))
@@ -134,11 +137,84 @@ export const ScreenAiAdapterReadinessReadModelSchema = withParser(
   )
 );
 
+const ScreenAiAdapterCompletionArtifactBaseSchema = Schema.Struct({
+  schemaVersion: ParentContractSchemaVersionSchema,
+  rowId: ScreenAiAdapterReadinessRowIdSchema,
+  sourcePolicyDecisionRef: PolicyDecisionIdSchema,
+  sourceEvidenceRefs: Schema.Array(ParentEvidenceReferenceSchema),
+  applyResultRef: ScreenAiAdapterCompletionResultRefSchema,
+  rollbackOrExpiryRef: ScreenAiAdapterCompletionResultRefSchema,
+  auditRef: ScreenAiAdapterCompletionResultRefSchema,
+  rawImageRetained: Schema.Boolean,
+  rawImageDeletedBeforeAdapter: Schema.Boolean,
+  screenDerivedPolicyDecision: Schema.Boolean,
+  finalAdapterCompletionClaimed: Schema.Boolean,
+});
+
+type ScreenAiAdapterCompletionArtifactCandidate = Infer<typeof ScreenAiAdapterCompletionArtifactBaseSchema>;
+
+export const ScreenAiAdapterCompletionArtifactSchema = withParser(
+  ScreenAiAdapterCompletionArtifactBaseSchema.pipe(
+    Schema.filter(
+      (artifact) =>
+        screenAiAdapterCompletionArtifactIsHonest(artifact) ||
+        'Expected screen AI adapter completion artifacts to preserve screen-derived custody, apply, rollback, and audit refs'
+    )
+  )
+);
+
 export function screenAiAdapterReadinessCoversRequiredBoundaries(
   readModel: ScreenAiAdapterReadinessReadModel
 ): boolean {
   const rowIds = new Set<string>(readModel.rows.map((row) => String(row.rowId)));
   return RequiredScreenAiAdapterReadinessRowIds.every((rowId) => rowIds.has(rowId));
+}
+
+export function screenAiFinalAdapterCompletionGate(
+  readModel: ScreenAiAdapterReadinessReadModel,
+  artifacts: readonly ScreenAiAdapterCompletionArtifact[]
+) {
+  const readinessRows = new Map<string, ScreenAiAdapterReadinessRow>(
+    readModel.rows.map((row) => [String(row.rowId), row])
+  );
+  const artifactsByRowId = new Map<string, ScreenAiAdapterCompletionArtifact>(
+    artifacts.map((artifact) => [String(artifact.rowId), artifact])
+  );
+  const missingRows: string[] = [];
+  const invalidRows: string[] = [];
+  const completedRows: string[] = [];
+
+  for (const rowId of RequiredScreenAiFinalAdapterCompletionRowIds) {
+    const readinessRow = readinessRows.get(rowId);
+    const artifact = artifactsByRowId.get(rowId);
+
+    if (!readinessRow || !artifact) {
+      missingRows.push(rowId);
+      continue;
+    }
+
+    if (screenAiCompletionArtifactMatchesReadinessRow(readinessRow, artifact)) {
+      completedRows.push(rowId);
+    } else {
+      invalidRows.push(rowId);
+    }
+  }
+
+  return {
+    completed: missingRows.length === 0 && invalidRows.length === 0,
+    requiredRows: RequiredScreenAiFinalAdapterCompletionRowIds.length,
+    completedRows: completedRows.length,
+    missingRows,
+    invalidRows,
+    rawImageRetainedRows: artifacts.filter((artifact) => artifact.rawImageRetained).length,
+  };
+}
+
+export function screenAiFinalAdapterCompletionGateIsSatisfied(
+  readModel: ScreenAiAdapterReadinessReadModel,
+  artifacts: readonly ScreenAiAdapterCompletionArtifact[]
+): boolean {
+  return screenAiFinalAdapterCompletionGate(readModel, artifacts).completed;
 }
 
 const RequiredScreenAiAdapterReadinessRowIds = [
@@ -152,6 +228,14 @@ const RequiredScreenAiAdapterReadinessRowIds = [
   'screen-ai-linux-host-adapter-unavailable',
 ] as const;
 
+const RequiredScreenAiFinalAdapterCompletionRowIds = [
+  'screen-ai-broad-installed-app-manual-required',
+  'screen-ai-host-network-domain-manual-required',
+  'screen-ai-managed-active-tab-not-claimed',
+  'screen-ai-android-mobile-control-manual-required',
+  'screen-ai-ios-mobile-control-manual-required',
+] as const;
+
 export function summarizeScreenAiAdapterReadiness(readModel: ScreenAiAdapterReadinessReadModel) {
   return {
     rowCount: readModel.rows.length,
@@ -162,6 +246,38 @@ export function summarizeScreenAiAdapterReadiness(readModel: ScreenAiAdapterRead
     rawImageRetainedRows: readModel.rows.filter((row) => row.rawImageRetained).length,
     claimUpgradeRows: readModel.rows.filter((row) => Object.values(row.claimFlags).some(Boolean)).length,
   };
+}
+
+function screenAiAdapterCompletionArtifactIsHonest(artifact: ScreenAiAdapterCompletionArtifactCandidate): boolean {
+  return (
+    artifact.sourceEvidenceRefs.length > 0 &&
+    artifact.applyResultRef.length > 0 &&
+    artifact.rollbackOrExpiryRef.length > 0 &&
+    artifact.auditRef.length > 0 &&
+    artifact.rawImageRetained === false &&
+    artifact.rawImageDeletedBeforeAdapter === true &&
+    artifact.screenDerivedPolicyDecision === true &&
+    artifact.finalAdapterCompletionClaimed === true
+  );
+}
+
+function screenAiCompletionArtifactMatchesReadinessRow(
+  row: ScreenAiAdapterReadinessRow,
+  artifact: ScreenAiAdapterCompletionArtifact
+): boolean {
+  return (
+    row.sourcePolicyDecisionId === artifact.sourcePolicyDecisionRef &&
+    row.sourceImageDeletionState === 'deleted' &&
+    row.rawImageRetained === false &&
+    row.rawImageDeletedBeforeAdapter === true &&
+    row.actionExecutionState === 'skipped' &&
+    row.adapterExecutionProofArtifact === null &&
+    artifact.sourceEvidenceRefs.length > 0 &&
+    artifact.rawImageRetained === false &&
+    artifact.rawImageDeletedBeforeAdapter === true &&
+    artifact.screenDerivedPolicyDecision === true &&
+    artifact.finalAdapterCompletionClaimed === true
+  );
 }
 
 function screenAiAdapterReadinessRowIsHonest(row: ScreenAiAdapterReadinessRowCandidate): boolean {
@@ -280,6 +396,7 @@ export type ScreenAiAdapterReadinessRowId = typeof ScreenAiAdapterReadinessRowId
 export type ScreenAiAdapterReadinessArtifactRef = typeof ScreenAiAdapterReadinessArtifactRefSchema.Type;
 export type ScreenAiAdapterReadinessRequirement = typeof ScreenAiAdapterReadinessRequirementSchema.Type;
 export type ScreenAiAdapterReadinessBoundary = typeof ScreenAiAdapterReadinessBoundarySchema.Type;
+export type ScreenAiAdapterCompletionResultRef = typeof ScreenAiAdapterCompletionResultRefSchema.Type;
 export type ScreenAiAdapterReadinessRuntimeBoundary = Infer<typeof ScreenAiAdapterReadinessRuntimeBoundarySchema>;
 export type ScreenAiAdapterReadinessCapability = Infer<typeof ScreenAiAdapterReadinessCapabilitySchema>;
 export type ScreenAiAdapterReadinessRollbackState = Infer<typeof ScreenAiAdapterReadinessRollbackStateSchema>;
@@ -290,3 +407,4 @@ export type ScreenAiAdapterReadinessActionExecutionState = Infer<
 export type ScreenAiAdapterReadinessClaimFlags = Infer<typeof ScreenAiAdapterReadinessClaimFlagsSchema>;
 export type ScreenAiAdapterReadinessRow = Infer<typeof ScreenAiAdapterReadinessRowSchema>;
 export type ScreenAiAdapterReadinessReadModel = Infer<typeof ScreenAiAdapterReadinessReadModelSchema>;
+export type ScreenAiAdapterCompletionArtifact = Infer<typeof ScreenAiAdapterCompletionArtifactSchema>;

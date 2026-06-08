@@ -1,3 +1,5 @@
+npm run build --workspace @ocentra-parent/parent-domain
+npm run test --workspace @ocentra-parent/parent-domain -- screen-ai-adapter-readiness-proof.test.ts
 node --check scripts/test/screen-ai-final-adapter-dependency-audit.mjs
 node scripts/test/screen-ai-final-adapter-dependency-audit.mjs
 git diff --check

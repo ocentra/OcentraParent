@@ -1,6 +1,6 @@
 # Screen AI Final Adapter Dependency Audit
 
-Generated: 2026-06-08T07:21:20.757Z
+Generated: 2026-06-08T17:08:33.172Z
 
 ## Source Artifacts
 
@@ -13,6 +13,8 @@ Generated: 2026-06-08T07:21:20.757Z
 - iosMobileCustody: `output/screen-ai-pipeline-proof/ios-mobile-control-custody/proof-summary.json`
 - adapterDependencyHandoff: `output/screen-ai-pipeline-proof/adapter-dependency-handoff/proof-summary.json`
 - adapterDependencyHandoffRows: `output/screen-ai-pipeline-proof/adapter-dependency-handoff/adapter-dependency-handoff.json`
+- screenAiAdapterReadinessContract: `packages/parent-domain/dist/screen-ai-adapter-readiness-proof.js`
+- screenAiAdapterReadinessContractSource: `packages/parent-domain/src/screen-ai-adapter-readiness-proof.ts`
 - checklist: `docs/plans/screen-ai-pipeline-plan/implementation-checklist.md`
 
 ## Blocked Adapter Rows
@@ -52,6 +54,10 @@ Generated: 2026-06-08T07:21:20.757Z
   "blockedAdapterRows": 5,
   "custodyArtifactRows": 3,
   "dependencyHandoffRows": 5,
+  "finalAdapterCompletionGateSatisfied": false,
+  "finalAdapterCompletionGateCompletedRows": 0,
+  "finalAdapterCompletionGateMissingRows": 5,
+  "finalAdapterCompletionGateInvalidRows": 0,
   "claimUpgradeRows": 0
 }
 ```

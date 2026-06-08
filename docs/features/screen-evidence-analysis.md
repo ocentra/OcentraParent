@@ -771,9 +771,15 @@ only with explicit parent settings.
   retained adapter execution proof, while broad installed-app, host
   network/domain, managed exact active-tab, Android/iOS mobile, and Linux host
   targets remain manual-required, not-claimed, or unavailable. The proof keeps
-  source evidence refs, deleted-image custody, and `rawImageRetained:false`; it
-  does not rerun live capture or implement broad/browser/network/mobile
-  adapters.
+  source evidence refs, deleted-image custody, and `rawImageRetained:false`.
+  The same parent-domain contract now exposes `ScreenAiAdapterCompletionArtifact`
+  parsing plus `screenAiFinalAdapterCompletionGate`, so the final pipeline row
+  cannot close unless every broad/browser/network/mobile blocker provides a
+  screen-derived apply result, rollback-or-expiry result, audit ref, and
+  deleted-image custody artifact. `scripts/test/screen-ai-final-adapter-dependency-audit.mjs`
+  imports the built contract and currently records the gate as unsatisfied with
+  all five required upstream artifacts missing. This does not rerun live capture
+  or implement broad/browser/network/mobile adapters.
 - `ScreenSummaryParentExplanationSchema` and
   `scripts/test/screen-summary-parent-explanation-proof.mjs` now prove the
   parent explanation/audit context can consume those deleted local

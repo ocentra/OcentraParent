@@ -1,5 +1,6 @@
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { join, relative, resolve } from 'node:path';
+import { pathToFileURL } from 'node:url';
 
 const repoRoot = process.cwd();
 const outputDir = resolve(repoRoot, 'output', 'screen-ai-pipeline-proof', 'final-adapter-dependency-audit');
@@ -18,6 +19,8 @@ const sourcePaths = {
   adapterDependencyHandoff: 'output/screen-ai-pipeline-proof/adapter-dependency-handoff/proof-summary.json',
   adapterDependencyHandoffRows:
     'output/screen-ai-pipeline-proof/adapter-dependency-handoff/adapter-dependency-handoff.json',
+  screenAiAdapterReadinessContract: 'packages/parent-domain/dist/screen-ai-adapter-readiness-proof.js',
+  screenAiAdapterReadinessContractSource: 'packages/parent-domain/src/screen-ai-adapter-readiness-proof.ts',
   checklist: 'docs/plans/screen-ai-pipeline-plan/implementation-checklist.md',
 };
 
@@ -68,6 +71,14 @@ const iosMobileCustody = readJson(sourcePaths.iosMobileCustody);
 const adapterDependencyHandoff = readJson(sourcePaths.adapterDependencyHandoff);
 const adapterDependencyHandoffRows = readJson(sourcePaths.adapterDependencyHandoffRows);
 const checklist = readText(sourcePaths.checklist);
+const screenAiAdapterContracts = await importScreenAiAdapterContracts();
+const parsedAdapterReadinessReadModel =
+  screenAiAdapterContracts.ScreenAiAdapterReadinessReadModelSchema.parse(adapterReadinessReadModel);
+const availableCompletionArtifacts = loadAvailableCompletionArtifacts(adapterDependencyHandoffRows.rows);
+const finalAdapterCompletionGate = screenAiAdapterContracts.screenAiFinalAdapterCompletionGate(
+  parsedAdapterReadinessReadModel,
+  availableCompletionArtifacts
+);
 
 const rowById = new Map(adapterReadinessReadModel.rows.map((row) => [row.rowId, row]));
 const blockedRows = requiredBlockedRows.map((requirement) => auditBlockedRow(requirement));
@@ -116,6 +127,12 @@ assert(
 assert(adapterReadiness.summary?.executedRows === 2, 'expected exactly two executed Windows owned-process rows');
 assert(adapterReadiness.summary?.skippedRows === 6, 'expected six non-product-complete adapter rows');
 assert(adapterReadiness.summary?.claimUpgradeRows === 0, 'adapter readiness proof contains claim upgrades');
+assert(finalAdapterCompletionGate.completed === false, 'final adapter completion gate closed unexpectedly');
+assert(finalAdapterCompletionGate.requiredRows === 5, 'final adapter completion gate required row count changed');
+assert(
+  finalAdapterCompletionGate.missingRows.length > 0,
+  'final adapter completion gate should still require upstream completion artifacts'
+);
 assert(
   executedRows.every((row) => row.platform === 'windows'),
   'non-Windows row executed unexpectedly'
@@ -164,12 +181,17 @@ const proof = {
     blockedAdapterRows: blockedRows.length,
     custodyArtifactRows: custodyRows.length,
     dependencyHandoffRows: handoffRows.length,
+    finalAdapterCompletionGateSatisfied: finalAdapterCompletionGate.completed,
+    finalAdapterCompletionGateCompletedRows: finalAdapterCompletionGate.completedRows,
+    finalAdapterCompletionGateMissingRows: finalAdapterCompletionGate.missingRows.length,
+    finalAdapterCompletionGateInvalidRows: finalAdapterCompletionGate.invalidRows.length,
     claimUpgradeRows: adapterReadiness.summary.claimUpgradeRows,
   },
   blockedRows,
   linuxExecutionRow,
   custodyRows,
   dependencyHandoffRows: handoffRows,
+  finalAdapterCompletionGate,
   nextRequiredArtifacts: blockedRows.map((row) => ({
     rowId: row.rowId,
     boundary: row.boundary,
@@ -363,6 +385,19 @@ function auditDependencyHandoff() {
   }));
 }
 
+async function importScreenAiAdapterContracts() {
+  const contractPath = resolve(repoRoot, sourcePaths.screenAiAdapterReadinessContract);
+  assert(existsSync(contractPath), 'screen AI adapter readiness contract must be built before this audit runs');
+  return import(pathToFileURL(contractPath).href);
+}
+
+function loadAvailableCompletionArtifacts(handoffRows) {
+  return handoffRows
+    .map((row) => row.expectedProofFile)
+    .filter((path) => typeof path === 'string' && existsSync(resolve(repoRoot, path)))
+    .map((path) => screenAiAdapterContracts.ScreenAiAdapterCompletionArtifactSchema.parse(readJson(path)));
+}
+
 function readJson(path) {
   return JSON.parse(readText(path));
 }
@@ -398,6 +433,8 @@ function snapshot(proof) {
 
 function validationCommands() {
   return [
+    'npm run build --workspace @ocentra-parent/parent-domain',
+    'npm run test --workspace @ocentra-parent/parent-domain -- screen-ai-adapter-readiness-proof.test.ts',
     'node --check scripts/test/screen-ai-final-adapter-dependency-audit.mjs',
     'node scripts/test/screen-ai-final-adapter-dependency-audit.mjs',
     'git diff --check',
