@@ -10,6 +10,12 @@ const closureAccounting = {
   fullProductUiLocalArtifactCount: 6,
   fullProductUiClosureRetentionWritableExecutionRowCount: 1,
   fullProductUiClosureChildRuntimeMissingArtifactCount: 10,
+  androidEmulatorRequiredArtifactCount: 12,
+  androidEmulatorPresentArtifactCount: 12,
+  androidEmulatorMissingArtifactCount: 0,
+  androidEmulatorPermissionUiArtifactCount: 3,
+  androidEmulatorRuntimeArtifactCount: 8,
+  androidEmulatorLocalGeofenceTransitionCount: 3,
   childRuntimeRequiredArtifactCount: 10,
   childRuntimePresentArtifactCount: 0,
   childRuntimeMissingArtifactCount: 10,
@@ -69,6 +75,12 @@ describe('tracking real runtime handoff proof', () => {
     expect(proof.handoffRows.every((row) => row.artifactAcceptanceNotes.length > 0)).toBe(true);
     expect(proof.handoffRows.every((row) => row.ciRunnable === false)).toBe(true);
     expect(proof.closureAccounting.fullProductUiLocalArtifactCount).toBe(6);
+    expect(proof.closureAccounting.androidEmulatorRequiredArtifactCount).toBe(12);
+    expect(proof.closureAccounting.androidEmulatorPresentArtifactCount).toBe(12);
+    expect(proof.closureAccounting.androidEmulatorMissingArtifactCount).toBe(0);
+    expect(proof.closureAccounting.androidEmulatorPermissionUiArtifactCount).toBe(3);
+    expect(proof.closureAccounting.androidEmulatorRuntimeArtifactCount).toBe(8);
+    expect(proof.closureAccounting.androidEmulatorLocalGeofenceTransitionCount).toBe(3);
     expect(proof.closureAccounting.childRuntimeMissingArtifactCount).toBe(10);
     expect(proof.closureAccounting.retentionRuntimeMissingArtifactCount).toBe(1);
     expect(proof.closureAccounting.retentionRuntimeArtifactSetPresentRowCount).toBe(0);

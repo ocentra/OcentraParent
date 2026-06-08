@@ -24,6 +24,12 @@ describe('tracking product readiness closure proof', () => {
     expect(proof.aggregateEvidence.fullProductUiLocalArtifactCount).toBe(5);
     expect(proof.aggregateEvidence.fullProductUiClosureRetentionWritableExecutionRowCount).toBe(1);
     expect(proof.aggregateEvidence.fullProductUiClosureChildRuntimeMissingArtifactCount).toBe(10);
+    expect(proof.aggregateEvidence.androidEmulatorRequiredArtifactCount).toBe(12);
+    expect(proof.aggregateEvidence.androidEmulatorPresentArtifactCount).toBe(12);
+    expect(proof.aggregateEvidence.androidEmulatorMissingArtifactCount).toBe(0);
+    expect(proof.aggregateEvidence.androidEmulatorPermissionUiArtifactCount).toBe(3);
+    expect(proof.aggregateEvidence.androidEmulatorRuntimeArtifactCount).toBe(8);
+    expect(proof.aggregateEvidence.androidEmulatorLocalGeofenceTransitionCount).toBe(3);
     expect(proof.aggregateEvidence.childRuntimeRequiredArtifactCount).toBe(10);
     expect(proof.aggregateEvidence.childRuntimePresentArtifactCount).toBe(0);
     expect(proof.aggregateEvidence.childRuntimeMissingArtifactCount).toBe(10);
@@ -81,6 +87,12 @@ function aggregateEvidence() {
     fullProductUiClosureRetentionWritableExecutionRowCount: 1,
     fullProductUiClosureRetentionWritableExecutionDerivationCount: 1,
     fullProductUiClosureChildRuntimeMissingArtifactCount: 10,
+    androidEmulatorRequiredArtifactCount: 12,
+    androidEmulatorPresentArtifactCount: 12,
+    androidEmulatorMissingArtifactCount: 0,
+    androidEmulatorPermissionUiArtifactCount: 3,
+    androidEmulatorRuntimeArtifactCount: 8,
+    androidEmulatorLocalGeofenceTransitionCount: 3,
     childRuntimeRequiredArtifactCount: 10,
     childRuntimePresentArtifactCount: 0,
     childRuntimeMissingArtifactCount: 10,

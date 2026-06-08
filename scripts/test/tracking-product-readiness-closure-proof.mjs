@@ -23,6 +23,10 @@ const sourceProofs = [
   sourceProof('wsl-local-replay', 'output/tracking-plan-proof/wsl-local-replay/proof.json'),
   sourceProof('hosted-ui-artifact-inventory', 'test-results/tracking-hosted-ui-artifact-inventory-proof/proof.json'),
   sourceProof(
+    'android-emulator-artifact-inventory',
+    'output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-gate/68-android-emulator-artifact-inventory-proof.json'
+  ),
+  sourceProof(
     'android-system-geofence-blocker',
     'output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-gate/44-android-system-geofence-blocker-proof.json'
   ),
@@ -140,6 +144,7 @@ async function main() {
     'tracking-product-readiness-closure-proof',
   ]);
   run('cmd', ['/c', 'node', 'scripts/test/tracking-full-product-ui-local-runtime-artifact-capture-proof.mjs']);
+  run('cmd', ['/c', 'node', 'scripts/test/tracking-android-emulator-artifact-inventory-proof.mjs']);
   run('cmd', ['/c', 'node', 'scripts/test/tracking-retention-runtime-artifact-gate-proof.mjs']);
   run('cmd', ['/c', 'node', 'scripts/test/tracking-claim-audit-proof.mjs']);
 
@@ -175,6 +180,9 @@ async function aggregateEvidence() {
   const fullProductUiProof = await readJson(
     'test-results/tracking-full-product-ui-local-runtime-artifact-capture-proof/proof.json'
   );
+  const androidEmulatorArtifactInventoryProof = await readJson(
+    'test-results/tracking-android-emulator-artifact-inventory-proof/proof.json'
+  );
   const retentionRuntimeProof = await readJson(
     'test-results/tracking-retention-runtime-artifact-gate-proof/proof.json'
   );
@@ -195,6 +203,13 @@ async function aggregateEvidence() {
       fullProductUiProof.readModel.closureEvidence.retentionWritableExecutionDerivationCount,
     fullProductUiClosureChildRuntimeMissingArtifactCount:
       fullProductUiProof.readModel.closureEvidence.childRuntimeMissingArtifactCount,
+    androidEmulatorRequiredArtifactCount: androidEmulatorArtifactInventoryProof.summary.requiredArtifactCount,
+    androidEmulatorPresentArtifactCount: androidEmulatorArtifactInventoryProof.summary.presentArtifactCount,
+    androidEmulatorMissingArtifactCount: androidEmulatorArtifactInventoryProof.summary.missingArtifactCount,
+    androidEmulatorPermissionUiArtifactCount: androidEmulatorArtifactInventoryProof.summary.permissionUiArtifactCount,
+    androidEmulatorRuntimeArtifactCount: androidEmulatorArtifactInventoryProof.summary.runtimeArtifactCount,
+    androidEmulatorLocalGeofenceTransitionCount:
+      androidEmulatorArtifactInventoryProof.summary.localGeofenceTransitionCount,
     childRuntimeRequiredArtifactCount: childRuntimeArtifactSummary.requiredArtifactCount,
     childRuntimePresentArtifactCount: childRuntimeArtifactSummary.presentArtifactCount,
     childRuntimeMissingArtifactCount: childRuntimeArtifactSummary.missingArtifactCount,
@@ -255,6 +270,12 @@ function sourceSnapshot(proof) {
     '- currentProofTier: P3_LOCAL_DEV_MACHINE',
     '- status: proved',
     '- proves local/CI proof accounting is closed for current tracking continuation scope',
+    `- androidEmulatorRequiredArtifactCount: ${proof.aggregateEvidence.androidEmulatorRequiredArtifactCount}`,
+    `- androidEmulatorPresentArtifactCount: ${proof.aggregateEvidence.androidEmulatorPresentArtifactCount}`,
+    `- androidEmulatorMissingArtifactCount: ${proof.aggregateEvidence.androidEmulatorMissingArtifactCount}`,
+    `- androidEmulatorPermissionUiArtifactCount: ${proof.aggregateEvidence.androidEmulatorPermissionUiArtifactCount}`,
+    `- androidEmulatorRuntimeArtifactCount: ${proof.aggregateEvidence.androidEmulatorRuntimeArtifactCount}`,
+    `- androidEmulatorLocalGeofenceTransitionCount: ${proof.aggregateEvidence.androidEmulatorLocalGeofenceTransitionCount}`,
     `- childRuntimeRequiredArtifactCount: ${proof.aggregateEvidence.childRuntimeRequiredArtifactCount}`,
     `- childRuntimePresentArtifactCount: ${proof.aggregateEvidence.childRuntimePresentArtifactCount}`,
     `- childRuntimeMissingArtifactCount: ${proof.aggregateEvidence.childRuntimeMissingArtifactCount}`,
@@ -281,6 +302,7 @@ function securityNegativeProof() {
   return [
     'workpack=33-proof-gates-fixtures-rollout-and-pr-gate',
     'Closure rows cite existing local/CI proof refs and enumerate remaining product blockers.',
+    'Android emulator artifact inventory records local adb, permission UI, location runtime, geofence runtime, device-status, and validation-log artifacts while keeping Android physical-device/system-delivery blockers open.',
     'Retention runtime closure accounting records the local writable settings artifact as present and the platform runtime retention enforcement artifact as missing.',
     'Rows do not claim writable retention product settings, platform retention enforcement, Android/iOS physical background behavior, authority enrollment, provider delivery/receipt runtime, production workers, actual child-device runtime, or product readiness.',
     '',

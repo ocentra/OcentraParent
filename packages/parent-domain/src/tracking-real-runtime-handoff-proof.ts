@@ -113,6 +113,12 @@ export const TrackingRealRuntimeHandoffClosureAccountingSchema = withParser(
     fullProductUiLocalArtifactCount: Schema.Number.pipe(Schema.int(), Schema.positive()),
     fullProductUiClosureRetentionWritableExecutionRowCount: Schema.Number.pipe(Schema.int(), Schema.positive()),
     fullProductUiClosureChildRuntimeMissingArtifactCount: Schema.Number.pipe(Schema.int()),
+    androidEmulatorRequiredArtifactCount: Schema.Number.pipe(Schema.int(), Schema.positive()),
+    androidEmulatorPresentArtifactCount: Schema.Number.pipe(Schema.int()),
+    androidEmulatorMissingArtifactCount: Schema.Number.pipe(Schema.int()),
+    androidEmulatorPermissionUiArtifactCount: Schema.Number.pipe(Schema.int(), Schema.positive()),
+    androidEmulatorRuntimeArtifactCount: Schema.Number.pipe(Schema.int(), Schema.positive()),
+    androidEmulatorLocalGeofenceTransitionCount: Schema.Number.pipe(Schema.int(), Schema.positive()),
     childRuntimeRequiredArtifactCount: Schema.Number.pipe(Schema.int(), Schema.positive()),
     childRuntimePresentArtifactCount: Schema.Number.pipe(Schema.int()),
     childRuntimeMissingArtifactCount: Schema.Number.pipe(Schema.int()),
@@ -134,6 +140,14 @@ export const TrackingRealRuntimeHandoffClosureAccountingSchema = withParser(
     claimAuditProductReadyRowCount: Schema.Literal(0),
     productClaimReady: Schema.Literal(false),
   })
+    .pipe(
+      Schema.filter(
+        (accounting) =>
+          accounting.androidEmulatorRequiredArtifactCount ===
+            accounting.androidEmulatorPresentArtifactCount + accounting.androidEmulatorMissingArtifactCount ||
+          'Real-runtime closure accounting must classify every Android emulator artifact'
+      )
+    )
     .pipe(
       Schema.filter(
         (accounting) =>

@@ -16,6 +16,7 @@ export const TrackingProductReadinessClosureCoverageTagSchema = Schema.Literal(
   'ios-privacy-disclosure-release-gate',
   'wsl-local-replay',
   'hosted-ui-artifact-inventory',
+  'android-emulator-artifact-inventory',
   'android-system-geofence-blocker',
   'notification-receipt-boundary',
   'notification-preference-preflight',
@@ -49,6 +50,7 @@ export const RequiredTrackingProductReadinessClosureCoverageTags = [
   'ios-privacy-disclosure-release-gate',
   'wsl-local-replay',
   'hosted-ui-artifact-inventory',
+  'android-emulator-artifact-inventory',
   'android-system-geofence-blocker',
   'notification-receipt-boundary',
   'notification-preference-preflight',
@@ -114,6 +116,12 @@ export const TrackingProductReadinessClosureAggregateEvidenceSchema = withParser
     fullProductUiClosureRetentionWritableExecutionRowCount: Schema.Number.pipe(Schema.int(), Schema.positive()),
     fullProductUiClosureRetentionWritableExecutionDerivationCount: Schema.Number.pipe(Schema.int(), Schema.positive()),
     fullProductUiClosureChildRuntimeMissingArtifactCount: Schema.Number.pipe(Schema.int()),
+    androidEmulatorRequiredArtifactCount: Schema.Number.pipe(Schema.int(), Schema.positive()),
+    androidEmulatorPresentArtifactCount: Schema.Number.pipe(Schema.int()),
+    androidEmulatorMissingArtifactCount: Schema.Number.pipe(Schema.int()),
+    androidEmulatorPermissionUiArtifactCount: Schema.Number.pipe(Schema.int(), Schema.positive()),
+    androidEmulatorRuntimeArtifactCount: Schema.Number.pipe(Schema.int(), Schema.positive()),
+    androidEmulatorLocalGeofenceTransitionCount: Schema.Number.pipe(Schema.int(), Schema.positive()),
     childRuntimeRequiredArtifactCount: Schema.Number.pipe(Schema.int(), Schema.positive()),
     childRuntimePresentArtifactCount: Schema.Number.pipe(Schema.int()),
     childRuntimeMissingArtifactCount: Schema.Number.pipe(Schema.int()),
@@ -148,6 +156,14 @@ export const TrackingProductReadinessClosureAggregateEvidenceSchema = withParser
         (evidence) =>
           evidence.fullProductUiClosureChildRuntimeMissingArtifactCount >= 0 ||
           'Aggregate closure evidence cannot record negative child-runtime missing artifacts'
+      )
+    )
+    .pipe(
+      Schema.filter(
+        (evidence) =>
+          evidence.androidEmulatorRequiredArtifactCount ===
+            evidence.androidEmulatorPresentArtifactCount + evidence.androidEmulatorMissingArtifactCount ||
+          'Aggregate closure evidence must classify every Android emulator artifact'
       )
     )
     .pipe(

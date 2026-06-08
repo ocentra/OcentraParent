@@ -1,7 +1,7 @@
 # Tracking Retention Runtime Artifact Gate Source Snapshot
 
 - generatedAt: 2026-06-07T23:45:00.000Z
-- commit: 82c250a077274559274e2d27d681c475e1d25a18
+- commit: 86d47767e940a109de9ece7a8737e835a54568e2
 - status: manual_required
 - requiredArtifactCount: 2
 - missingArtifactCount: 1
