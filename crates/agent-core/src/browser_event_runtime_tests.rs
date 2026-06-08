@@ -18,6 +18,7 @@ use ocentra_eventing::{
 use ocentra_parent_agent_protocol::constants;
 
 mod browser_event_runtime_child_status_tests;
+mod browser_event_runtime_parent_surface_tests;
 mod browser_event_runtime_social_provider_receipt_tests;
 mod browser_event_runtime_stream_report_tests;
 
@@ -441,7 +442,7 @@ fn browser_runtime_delivery_decision_keeps_current_routes_local_only() {
         }};
     }
 
-    assert_eq!(report.local_ready_route_count, 7);
+    assert_eq!(report.local_ready_route_count, 8);
     assert_ready_route!(
         report.chain_delivery,
         EventDeliveryRouteKind::LocalService,
@@ -454,6 +455,7 @@ fn browser_runtime_delivery_decision_keeps_current_routes_local_only() {
         report.social_provider_receipt_status_delivery,
         report.social_report_writer_delivery_status_delivery,
         report.social_parent_notification_delivery_status_delivery,
+        report.social_parent_surface_status_delivery,
     ] {
         assert_ready_route!(
             proof,

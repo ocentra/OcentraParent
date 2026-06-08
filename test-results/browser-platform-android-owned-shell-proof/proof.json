@@ -1,10 +1,10 @@
 {
   "schemaVersion": 1,
   "proofId": "browser-platform-android-owned-shell-proof",
-  "generatedAt": "2026-06-07T12:58:00.603Z",
-  "branch": "codex/browser-child-intervention-endpoint-flow",
-  "commit": "e619c02b8974b8ffc444d4891c48762b71524983",
-  "baseCommit": "07f541f7987c759011c77f3a28559523b64c70ce",
+  "generatedAt": "2026-06-08T16:57:56.135Z",
+  "branch": "codex/d-runtime-ready",
+  "commit": "a58610ef930aff35fc8309cc83e36a17f2457d8c",
+  "baseCommit": "c99e70b85e33090dfa85d6dfe9df41da9d875fb1",
   "hostProofSummary": {
     "adbInstalled": true,
     "adbPathPersisted": false,
@@ -20,6 +20,8 @@
     "proofAvdNameSha256": "f23d4bb20c63c9a442e6600cb73c21fb06999d0cf1021a851a3a3b60427d0459",
     "proofAvdPackagePersisted": false,
     "proofAvdPackageSha256": "eab04ba80001be6b04b07b637e081abeb26eabc03fb2e2f7671da37bc0a547d7",
+    "proofEmulatorPortPersisted": false,
+    "proofEmulatorPortSha256": "be3d629f02589a093027c0b917aa7668f22b2f89e833283df87e939d878c8bd8",
     "emulatorCleanupAttempted": true,
     "attachedDeviceCount": 1,
     "bootedDeviceCount": 1,
@@ -67,7 +69,7 @@
     "enforcementClaimed": false,
     "resultState": "android-owned-browser-shell-browser-role-routing-proof"
   },
-  "proofUrlRef": "redacted-android-owned-browser-proof-url-fbbf10f64a299587",
+  "proofUrlRef": "redacted-android-owned-browser-proof-url-b1a4165fc9fb7181",
   "proofUrlPersisted": false,
   "apk": {
     "path": "platforms/android/agent/browser-shell/build/outputs/apk/debug/browser-shell-debug.apk",
@@ -76,7 +78,7 @@
   },
   "devices": [
     {
-      "serialRef": "redacted-android-device-ref-04ab3fc382bfb33e",
+      "serialRef": "redacted-android-device-ref-31260905d0b70afd",
       "serialKind": "emulator",
       "proofLaunchedEmulator": true,
       "packageInstalled": true,
@@ -90,7 +92,7 @@
       "deviceOwnerPolicyMutationLimitedToProofLaunchedEmulator": true,
       "deviceOwnerSetResultSha256": "f2fa0a3f495c0db737c45046f0db949943aa0ed21d1bf3564008debf0f657d79",
       "deviceOwnerQuerySha256": "6924b0045b2c9973a150fe8f40184794a2754a1f0ad169c2b9fb61833ec3b4cd",
-      "devicePolicyDumpSha256": "51e13eb423ea971c1cf4a8a4e088ae382cbb7b66245f2d55c54a3d280959c746",
+      "devicePolicyDumpSha256": "363573123dd3d770998650e1c7a84cd22e1479ab016338c17056d410388ff2f1",
       "rawDpmOutputPersisted": false,
       "viewIntentResolved": false,
       "afterPolicyViewIntentResolved": false,
@@ -111,7 +113,7 @@
       "implicitViewIntentLaunchObserved": true,
       "uiTreeCaptured": true,
       "uiTreeRawPersisted": false,
-      "uiTreeSha256": "4d3930bb4ce2c071374d82ff6488131a162e8d32599a8522ba9894d7c8e56e45",
+      "uiTreeSha256": "30b08337ff82c25b895d1fbe7f3f6db56e075e111e5327314f424163a00e324b",
       "beforePolicyResolveSha256": "ed9540e9692998e32f05105d9cee0ee7345382c8d97a2585c1672930598aa5b1",
       "afterPolicyResolveSha256": "ed9540e9692998e32f05105d9cee0ee7345382c8d97a2585c1672930598aa5b1",
       "afterRoleResolveSha256": "5bf710c82c7bfa2fcb6c0e769669512d638b285f527167ba515a14c18f486cd9",

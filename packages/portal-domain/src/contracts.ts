@@ -170,6 +170,12 @@ export {
   type SocialParentNotificationDeliveryPanelRow,
 } from './social-parent-notification-delivery-panel';
 export {
+  createSocialAlertReportParentSurfacePanelIntent,
+  type SocialAlertReportParentSurfacePanelDetail,
+  type SocialAlertReportParentSurfacePanelIntent,
+  type SocialAlertReportParentSurfacePanelRow,
+} from './social-alert-report-parent-surface-panel';
+export {
   createBrowserSocialProviderReceiptStreamStatusIntent,
   type BrowserSocialProviderReceiptStreamStatusDetail,
   type BrowserSocialProviderReceiptStreamStatusIntent,

@@ -126,6 +126,8 @@ pub mod event_id {
         "browser-social-audit-explanation-read-model-reported";
     pub const BROWSER_SOCIAL_ALERT_REPORT_READ_MODEL_REPORTED: &str =
         "browser-social-alert-report-read-model-reported";
+    pub const BROWSER_SOCIAL_ALERT_REPORT_PARENT_SURFACE_READ_MODEL_REPORTED: &str =
+        "browser-social-alert-report-parent-surface-read-model-reported";
     pub const BROWSER_SOCIAL_PARENT_NOTIFICATION_DELIVERY_READ_MODEL_REPORTED: &str =
         "browser-social-parent-notification-delivery-read-model-reported";
     pub const BROWSER_SOCIAL_SOURCE_CUSTODY_MUTATION_APPLIED: &str =

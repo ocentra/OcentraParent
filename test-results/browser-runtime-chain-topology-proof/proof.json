@@ -1,6 +1,6 @@
 {
   "proofName": "browser-runtime-chain-topology-proof",
-  "branchHead": "08e1705c5 Add browser runtime stream status proof",
+  "branchHead": "a58610ef9 Align social parent surface status handoff",
   "sourceChecks": {
     "registersRuntimeContracts": true,
     "buildsTopologyManifest": true,
@@ -12,11 +12,13 @@
     "exportsTopologyHelper": true,
     "focusedTopologyTestExists": true,
     "focusedStreamReportTopologyTestExists": true,
+    "focusedParentSurfaceTopologyTestExists": true,
     "testAssertsCoveredStatus": true,
     "docsMentionTopologyProof": true,
     "workpackMentionsTopologyProof": true,
     "allExpectedEventsMentioned": true,
-    "streamReportRouteMentioned": true
+    "streamReportRouteMentioned": true,
+    "parentSurfaceRouteMentioned": true
   },
   "commands": [
     "cargo test -p ocentra-parent-agent-core browser_runtime_chain_topology_covers_ordered_event_spine --quiet"
@@ -98,12 +100,20 @@
       "subscriber": "browser-runtime-stream-report",
       "target": "browser-runtime-stream-report",
       "status": "covered"
+    },
+    {
+      "eventType": "browser.social-alert-report.parent-surface.status.requested",
+      "publisher": "browser-event-runtime-spine",
+      "subscriber": "browser-social-alert-report-parent-surface-status",
+      "target": "browser-social-alert-report-parent-surface-status",
+      "status": "covered"
     }
   ],
   "verified": {
     "reusableEventingTopologyManifestUsed": true,
     "orderedBrowserRuntimeChainRegistered": true,
     "browserRuntimeStreamReportRequestRegistered": true,
+    "browserRuntimeParentSurfaceStatusRequestRegistered": true,
     "namedPublishersDeclared": true,
     "namedSubscribersDeclared": true,
     "noUnreadyTopologyEntries": true,

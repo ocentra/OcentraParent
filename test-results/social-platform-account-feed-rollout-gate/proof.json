@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "proofMode": "social-platform-account-feed-rollout-gate",
-  "generatedAt": "2026-06-08T10:22:24.057Z",
+  "generatedAt": "2026-06-08T14:45:05.048Z",
   "rows": [
     {
       "rowNumber": 1,
@@ -222,6 +222,7 @@
     "social-alert-report-intent-proof-present",
     "social-alert-report-local-outbox-bridge-proof-present",
     "social-alert-report-parent-surface-intent-proof-present",
+    "social-alert-report-parent-surface-service-ui-proof-present",
     "social-alert-report-scheduler-bridge-proof-present",
     "social-alert-report-preference-preflight-proof-present",
     "social-alert-report-preference-status-handoff-proof-present",
@@ -296,6 +297,26 @@
     },
     {
       "file": "output/browser-plan-proof/social-alert-report-parent-surface-intent-proof/01-social-alert-report-parent-surface-intent-proof.md",
+      "present": true
+    },
+    {
+      "file": "test-results/social-alert-report-parent-surface-service-ui-proof/proof.json",
+      "present": true
+    },
+    {
+      "file": "test-results/social-alert-report-parent-surface-service-ui-proof/accessibility-summary.json",
+      "present": true
+    },
+    {
+      "file": "output/browser-plan-proof/social-alert-report-parent-surface-service-ui-proof/01-social-alert-report-parent-surface-service-ui-proof.md",
+      "present": true
+    },
+    {
+      "file": "output/browser-plan-proof/social-alert-report-parent-surface-service-ui-proof/06-ui-snapshots/social-alert-report-browser-route.png",
+      "present": true
+    },
+    {
+      "file": "output/browser-plan-proof/social-alert-report-parent-surface-service-ui-proof/06-ui-snapshots/social-alert-report-browser-route-mobile.png",
       "present": true
     },
     {

@@ -19,6 +19,14 @@ const files = {
     'browser_event_runtime_tests',
     'browser_event_runtime_stream_report_tests.rs'
   ),
+  parentSurfaceTests: path.join(
+    root,
+    'crates',
+    'agent-core',
+    'src',
+    'browser_event_runtime_tests',
+    'browser_event_runtime_parent_surface_tests.rs'
+  ),
   checklist: path.join(root, 'docs', 'plans', 'browser-plan', 'implementation-checklist.md'),
   workpack: path.join(
     root,
@@ -50,6 +58,12 @@ const expectedRequestRoutes = [
     'browser-runtime-stream-report',
     'browser-runtime-stream-report',
   ],
+  [
+    'browser.social-alert-report.parent-surface.status.requested',
+    'browser-event-runtime-spine',
+    'browser-social-alert-report-parent-surface-status',
+    'browser-social-alert-report-parent-surface-status',
+  ],
 ];
 
 function run(command, args) {
@@ -61,16 +75,19 @@ function run(command, args) {
 }
 
 async function sourceChecks() {
-  const [topology, runtime, lib, tests, streamReportTests, checklist, workpack] = await Promise.all([
-    readFile(files.topology, 'utf8'),
-    readFile(files.runtime, 'utf8'),
-    readFile(files.lib, 'utf8'),
-    readFile(files.tests, 'utf8'),
-    readFile(files.streamReportTests, 'utf8'),
-    readFile(files.checklist, 'utf8'),
-    readFile(files.workpack, 'utf8'),
-  ]);
-  const topologyTests = `${tests}\n${streamReportTests}`;
+  const [topology, runtime, lib, tests, streamReportTests, parentSurfaceTests, checklist, workpack] = await Promise.all(
+    [
+      readFile(files.topology, 'utf8'),
+      readFile(files.runtime, 'utf8'),
+      readFile(files.lib, 'utf8'),
+      readFile(files.tests, 'utf8'),
+      readFile(files.streamReportTests, 'utf8'),
+      readFile(files.parentSurfaceTests, 'utf8'),
+      readFile(files.checklist, 'utf8'),
+      readFile(files.workpack, 'utf8'),
+    ]
+  );
+  const topologyTests = `${tests}\n${streamReportTests}\n${parentSurfaceTests}`;
   return {
     registersRuntimeContracts: topology.includes('EventContractRegistry::new()'),
     buildsTopologyManifest: topology.includes('EventTopologyManifest::from_registry'),
@@ -84,6 +101,9 @@ async function sourceChecks() {
     focusedStreamReportTopologyTestExists: topologyTests.includes(
       'browser_runtime_stream_report_topology_covers_named_event_and_subscriber'
     ),
+    focusedParentSurfaceTopologyTestExists: topologyTests.includes(
+      'browser_runtime_parent_surface_topology_covers_named_event_and_subscriber'
+    ),
     testAssertsCoveredStatus: topologyTests.includes('EventTopologyStatus::Covered'),
     docsMentionTopologyProof: checklist.includes('browser-runtime-chain-topology-proof'),
     workpackMentionsTopologyProof: workpack.includes('Runtime Chain Topology Addendum'),
@@ -95,6 +115,11 @@ async function sourceChecks() {
       topology.includes('EVENT_BROWSER_RUNTIME_STREAM_REPORT_REQUESTED') &&
       topology.includes('SUBSCRIBER_BROWSER_RUNTIME_STREAM_REPORT') &&
       topology.includes('TARGET_BROWSER_RUNTIME_STREAM_REPORT'),
+    parentSurfaceRouteMentioned:
+      topology.includes('BrowserRuntimeParentSurfaceStatusTopologyRequest') &&
+      topology.includes('EVENT_BROWSER_SOCIAL_ALERT_REPORT_PARENT_SURFACE_STATUS_REQUESTED') &&
+      topology.includes('SUBSCRIBER_BROWSER_SOCIAL_ALERT_REPORT_PARENT_SURFACE_STATUS') &&
+      topology.includes('TARGET_BROWSER_SOCIAL_ALERT_REPORT_PARENT_SURFACE_STATUS'),
   };
 }
 
@@ -176,6 +201,7 @@ async function main() {
       reusableEventingTopologyManifestUsed: true,
       orderedBrowserRuntimeChainRegistered: true,
       browserRuntimeStreamReportRequestRegistered: true,
+      browserRuntimeParentSurfaceStatusRequestRegistered: true,
       namedPublishersDeclared: true,
       namedSubscribersDeclared: true,
       noUnreadyTopologyEntries: true,

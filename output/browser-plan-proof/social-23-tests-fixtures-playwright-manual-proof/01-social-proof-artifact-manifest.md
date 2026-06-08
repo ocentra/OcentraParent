@@ -1,6 +1,6 @@
 # SOCIAL-23 Social Proof Artifact Manifest
 
-Generated: 2026-06-08T10:22:24.055Z
+Generated: 2026-06-08T14:45:05.027Z
 
 Rows checked: 22
 Proof-present rows: 21
@@ -53,6 +53,7 @@ Live-evidence decision memory proof is present for SOCIAL-19 ref-only cache snap
 Ref-only social alert/report intent proof is present.
 Parent-owned social alert/report local outbox JSONL bridge proof is present.
 Social alert/report parent-surface intent proof is present for manual/unavailable status rows.
+Service-backed social alert/report parent-surface UI proof is present for the real Browser route.
 Parent-owned social alert/report scheduler JSONL bridge proof is present.
 Social alert/report audit-history bridge proof is present through the logging-domain handoff.
 Service-backed social alert/report intent UI proof is present for the real Browser route.

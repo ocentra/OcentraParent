@@ -5,6 +5,7 @@ use ocentra_parent_agent_protocol::{
 };
 
 use crate::{
+    activity_api::social_alert_report_parent_surface_read_model_payload::build_browser_social_alert_report_parent_surface_read_model_report,
     activity_api::social_alert_report_read_model_payload::build_browser_social_alert_report_read_model_report,
     activity_api::social_audit_explanation_read_model_payload::build_browser_social_audit_explanation_read_model_report,
     activity_api::social_dashboard_read_model_payload::build_browser_social_dashboard_read_model_report,
@@ -270,6 +271,7 @@ fn is_activity_command(command: &AgentCommandName) -> bool {
             | AgentCommandName::AgentBrowserSocialDashboardReadModelGet
             | AgentCommandName::AgentBrowserSocialAuditExplanationReadModelGet
             | AgentCommandName::AgentBrowserSocialAlertReportReadModelGet
+            | AgentCommandName::AgentBrowserSocialAlertReportParentSurfaceReadModelGet
             | AgentCommandName::AgentBrowserSocialParentNotificationDeliveryReadModelGet
             | AgentCommandName::AgentActivityNetworkReadModelGet
             | AgentCommandName::AgentActivityTrackingReadModelGet
@@ -381,6 +383,9 @@ async fn build_activity_command_report(command: AgentCommandEnvelope) -> AgentEv
         }
         AgentCommandName::AgentBrowserSocialAlertReportReadModelGet => {
             build_browser_social_alert_report_read_model_report(command).await
+        }
+        AgentCommandName::AgentBrowserSocialAlertReportParentSurfaceReadModelGet => {
+            build_browser_social_alert_report_parent_surface_read_model_report(command).await
         }
         AgentCommandName::AgentBrowserSocialParentNotificationDeliveryReadModelGet => {
             build_browser_social_parent_notification_delivery_read_model_report(command).await

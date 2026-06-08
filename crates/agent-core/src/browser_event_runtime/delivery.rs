@@ -17,6 +17,7 @@ pub struct BrowserRuntimeDeliveryDecisionReport {
     pub social_provider_receipt_status_delivery: EventDeliveryDecisionProof,
     pub social_report_writer_delivery_status_delivery: EventDeliveryDecisionProof,
     pub social_parent_notification_delivery_status_delivery: EventDeliveryDecisionProof,
+    pub social_parent_surface_status_delivery: EventDeliveryDecisionProof,
     pub external_transport_delivery: EventDeliveryDecisionProof,
     pub local_ready_route_count: usize,
     pub external_transport_manual_required: bool,
@@ -59,10 +60,13 @@ pub fn prove_browser_runtime_delivery_decision(
     let social_parent_notification_delivery_status_delivery =
         decide_event_delivery_route(social_parent_notification_delivery_status_delivery_input()?)
             .map_err(BrowserRuntimeDeliveryDecisionError::DeliveryDecision)?;
+    let social_parent_surface_status_delivery =
+        decide_event_delivery_route(social_parent_surface_status_delivery_input()?)
+            .map_err(BrowserRuntimeDeliveryDecisionError::DeliveryDecision)?;
     let external_transport_delivery = decide_event_delivery_route(external_transport_input()?)
         .map_err(BrowserRuntimeDeliveryDecisionError::DeliveryDecision)?;
 
-    let local_ready_route_count = count_local_ready_routes(
+    let local_routes = [
         &chain_delivery,
         &action_intent_status_delivery,
         &action_intent_handoff_delivery,
@@ -70,8 +74,10 @@ pub fn prove_browser_runtime_delivery_decision(
         &social_provider_receipt_status_delivery,
         &social_report_writer_delivery_status_delivery,
         &social_parent_notification_delivery_status_delivery,
-    );
-    if local_ready_route_count != 7 {
+        &social_parent_surface_status_delivery,
+    ];
+    let local_ready_route_count = count_local_ready_routes(&local_routes);
+    if local_ready_route_count != local_routes.len() {
         return Err(BrowserRuntimeDeliveryDecisionError::LocalRouteNotReady);
     }
     if external_transport_delivery.decision_state
@@ -99,6 +105,7 @@ pub fn prove_browser_runtime_delivery_decision(
         social_provider_receipt_status_delivery,
         social_report_writer_delivery_status_delivery,
         social_parent_notification_delivery_status_delivery,
+        social_parent_surface_status_delivery,
         external_transport_delivery,
     })
 }
@@ -181,6 +188,17 @@ fn social_parent_notification_delivery_status_delivery_input(
     )
 }
 
+fn social_parent_surface_status_delivery_input() -> Result<EventDeliveryDecisionInput, EventingError>
+{
+    delivery_input(
+        EventDeliveryRouteKind::LocalInProcess,
+        constants::browser::EVENT_BROWSER_SOCIAL_ALERT_REPORT_PARENT_SURFACE_STATUS_REQUESTED,
+        constants::browser::SUBSCRIBER_BROWSER_SOCIAL_ALERT_REPORT_PARENT_SURFACE_STATUS,
+        constants::browser::TARGET_BROWSER_SOCIAL_ALERT_REPORT_PARENT_SURFACE_STATUS,
+        vec![constants::browser::EVENT_BROWSER_SOCIAL_ALERT_REPORT_PARENT_SURFACE_STATUS_REQUESTED],
+    )
+}
+
 fn external_transport_input() -> Result<EventDeliveryDecisionInput, EventingError> {
     delivery_input(
         EventDeliveryRouteKind::ExternalTransport,
@@ -244,16 +262,8 @@ fn parse_event_types(values: Vec<&str>) -> Result<Vec<EventType>, EventingError>
     values.into_iter().map(EventType::parse).collect()
 }
 
-fn count_local_ready_routes(
-    first: &EventDeliveryDecisionProof,
-    second: &EventDeliveryDecisionProof,
-    third: &EventDeliveryDecisionProof,
-    fourth: &EventDeliveryDecisionProof,
-    fifth: &EventDeliveryDecisionProof,
-    sixth: &EventDeliveryDecisionProof,
-    seventh: &EventDeliveryDecisionProof,
-) -> usize {
-    [first, second, third, fourth, fifth, sixth, seventh]
+fn count_local_ready_routes(routes: &[&EventDeliveryDecisionProof]) -> usize {
+    routes
         .iter()
         .filter(|proof| proof.decision_state == EventDeliveryDecisionState::LocalRouteReady)
         .count()

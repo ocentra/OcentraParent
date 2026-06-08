@@ -46,6 +46,10 @@ function streamFields() {
     [AgentProtocolDefaults.Field.BrowserRuntimeActionIntentHandoffRefs]: JSON.stringify([
       'browser-action-intent-handoff-ref-test',
     ]),
+    [AgentProtocolDefaults.Field.BrowserRuntimeActionIntentChildAcceptedRows]: 0,
+    [AgentProtocolDefaults.Field.BrowserRuntimeActionIntentChildCommandRefs]: JSON.stringify([]),
+    [AgentProtocolDefaults.Field.BrowserRuntimeActionIntentChildAcceptedEventRefs]: JSON.stringify([]),
+    [AgentProtocolDefaults.Field.BrowserRuntimeActionIntentParentReadModelRefs]: JSON.stringify([]),
     [AgentProtocolDefaults.Field.BrowserRuntimeActionIntentDispatchAttempts]: 0,
     [AgentProtocolDefaults.Field.BrowserRuntimeActionIntentAdapterExecutions]: 0,
     [AgentProtocolDefaults.Field.BrowserRuntimeActionIntentChildInterventionExecutions]: 0,

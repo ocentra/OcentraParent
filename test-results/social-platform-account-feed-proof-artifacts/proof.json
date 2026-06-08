@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "proofMode": "social-platform-account-feed-proof-artifacts",
-  "generatedAt": "2026-06-08T10:22:24.055Z",
+  "generatedAt": "2026-06-08T14:45:05.027Z",
   "proofRoot": "output/browser-plan-proof",
   "rows": [
     {
@@ -423,6 +423,7 @@
     "alertReportIntent": "proof-present",
     "alertReportLocalOutboxBridge": "parent-owned-local-outbox-jsonl-proof-present",
     "alertReportParentSurfaceIntent": "manual-unavailable-parent-surface-intent-proof-present",
+    "alertReportParentSurfaceServiceUi": "service-backed-parent-surface-ui-proof-present",
     "alertReportSchedulerBridge": "parent-owned-scheduler-jsonl-proof-present",
     "alertReportPreferencePreflight": "parent-preference-quiet-hours-proof-present",
     "alertReportPreferenceStatusHandoff": "notification-preference-status-handoff-proof-present",
@@ -496,6 +497,26 @@
     },
     {
       "file": "output/browser-plan-proof/social-alert-report-parent-surface-intent-proof/01-social-alert-report-parent-surface-intent-proof.md",
+      "present": true
+    },
+    {
+      "file": "test-results/social-alert-report-parent-surface-service-ui-proof/proof.json",
+      "present": true
+    },
+    {
+      "file": "test-results/social-alert-report-parent-surface-service-ui-proof/accessibility-summary.json",
+      "present": true
+    },
+    {
+      "file": "output/browser-plan-proof/social-alert-report-parent-surface-service-ui-proof/01-social-alert-report-parent-surface-service-ui-proof.md",
+      "present": true
+    },
+    {
+      "file": "output/browser-plan-proof/social-alert-report-parent-surface-service-ui-proof/06-ui-snapshots/social-alert-report-browser-route.png",
+      "present": true
+    },
+    {
+      "file": "output/browser-plan-proof/social-alert-report-parent-surface-service-ui-proof/06-ui-snapshots/social-alert-report-browser-route-mobile.png",
       "present": true
     },
     {

@@ -157,6 +157,7 @@ export const AgentProtocolDefaults = {
     BrowserSocialDashboardReadModel: 'browserSocialDashboardReadModel',
     BrowserSocialAuditExplanationReadModel: 'browserSocialAuditExplanationReadModel',
     BrowserSocialAlertReportReadModel: 'browserSocialAlertReportReadModel',
+    BrowserSocialAlertReportParentSurfaceReadModel: 'browserSocialAlertReportParentSurfaceReadModel',
     BrowserSocialParentNotificationDeliveryReadModel: 'browserSocialParentNotificationDeliveryReadModel',
     BrowserSocialSourceCustodyMutation: 'browserSocialSourceCustodyMutation',
     ActivityTrackingReadModel: 'trackingReadModel',

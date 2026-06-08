@@ -61,6 +61,8 @@ pub(crate) use social_provider_receipt_durable::prove_browser_runtime_social_pro
 pub(crate) use social_provider_receipt_durable_types::BrowserRuntimeSocialProviderReceiptDurableReadModelState;
 pub use topology::browser_runtime_chain_topology_manifest;
 #[cfg(test)]
+pub(crate) use topology::browser_runtime_parent_surface_status_topology_manifest;
+#[cfg(test)]
 pub(crate) use topology::browser_runtime_stream_report_topology_manifest;
 
 #[derive(Clone, Debug, PartialEq)]

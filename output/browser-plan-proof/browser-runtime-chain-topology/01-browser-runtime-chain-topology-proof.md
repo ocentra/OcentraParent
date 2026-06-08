@@ -13,5 +13,6 @@
 | browser.audit.entry.committed | browser-event-runtime-spine | browser-audit-entry | browser-audit-writer | covered |
 | browser.read-model.projected | browser-event-runtime-spine | browser-read-model | browser-read-model | covered |
 | browser.runtime.stream.report.requested | browser-event-runtime-spine | browser-runtime-stream-report | browser-runtime-stream-report | covered |
+| browser.social-alert-report.parent-surface.status.requested | browser-event-runtime-spine | browser-social-alert-report-parent-surface-status | browser-social-alert-report-parent-surface-status | covered |
 
 This is topology proof for the existing local browser runtime event chain and the local browser runtime stream report request boundary. It does not add external transport, adapter dispatch, browser mutation, child intervention execution, final policy execution, or enforcement.

@@ -89,6 +89,10 @@
       "import": "./dist/social-parent-notification-delivery-read-model.js",
       "types": "./dist/social-parent-notification-delivery-read-model.d.ts"
     },
+    "./social-alert-report-parent-surface-read-model": {
+      "import": "./dist/social-alert-report-parent-surface-read-model.js",
+      "types": "./dist/social-alert-report-parent-surface-read-model.d.ts"
+    },
     "./social-source-custody-mutation": {
       "import": "./dist/social-source-custody-mutation.js",
       "types": "./dist/social-source-custody-mutation.d.ts"

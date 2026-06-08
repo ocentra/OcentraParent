@@ -240,6 +240,21 @@ WebView, VIEW handler, AccessibilityService, VpnService, DeviceAdminReceiver,
 UsageStats permission, or privileged browser enforcement adapter is currently
 declared. WP05 remains partial/manual-required.
 
+WP05 physical Android addendum: `scripts/test/browser-platform-android-host-proof.mjs`
+now accepts `ANDROID_SERIAL` to target one attached physical device and exclude
+emulator evidence from that run. The 2026-06-08 proof observed the available
+Samsung Galaxy S9 target as product `star2qltecs`, model `SM_G965W`, with boot
+completion, known browser package visibility, default VIEW handler query
+evidence, UI-tree hash evidence, and logcat hash evidence in
+`test-results/browser-platform-android-host-proof/proof.json` and
+`output/browser-plan-proof/05-cross-platform-inventory-matrix/11-android-host-device-proof.json`.
+The raw serial is not persisted. This upgrades physical Android host
+package/default-handler visibility only; physical owned-shell custody, Device
+Owner/Browser Role behavior, exact URL policy, known active tab, VPN/DNS,
+UsageStats, Accessibility, final policy execution, browser blocking,
+enforcement, Play signing, release readiness, macOS, and iOS proof remain
+unclaimed.
+
 WP05 Android owned-shell addendum:
 `scripts/test/browser-platform-android-owned-shell-proof.mjs` builds the separate
 `platforms/android/agent/browser-shell` APK, creates a disposable AOSP ATD proof
@@ -261,8 +276,9 @@ resolves the same `ACTION_VIEW`/`DEFAULT`/`BROWSABLE` HTTP proof URL to
 launch. The matrix gate consumes this artifact and still leaves WP05 partial
 because exact URL policy, known active tab, silent Device Owner default-browser
 assignment, VPN/DNS, UsageStats, Accessibility, final policy execution, browser
-blocking, enforcement, physical-device behavior, macOS desktop, and iOS proof
-remain unclaimed. No product capability checklist upgrade is claimed.
+blocking, enforcement, physical owned-shell/Device Owner behavior, macOS
+desktop, and iOS proof remain unclaimed. No product capability checklist
+upgrade is claimed.
 
 WP05 Windows managed CDP addendum:
 `scripts/test/browser-platform-windows-managed-cdp-proof.mjs` launches a real
@@ -277,10 +293,10 @@ and
 artifact and rejects raw executable path, raw profile path, raw CDP payload, raw
 page content, active-tab enforcement, final policy execution, and enforcement
 claims. WP05 remains partial/manual-required because macOS desktop proof, iOS
-managed browser proof, browser blocking, physical-device behavior, silent
-Device Owner default-browser assignment, final policy execution, broad
-enforcement, and exact active-tab enforcement are still unproved. No product
-capability checklist upgrade is claimed.
+managed browser proof, browser blocking, physical owned-shell/Device Owner
+behavior, silent Device Owner default-browser assignment, final policy
+execution, broad enforcement, and exact active-tab enforcement are still
+unproved. No product capability checklist upgrade is claimed.
 
 SOCIAL-23/SOCIAL-24 addendum: `test:social-alert-report-intent-ui-proof`
 now covers the service-backed Browser-route alert/report intent panel plus
@@ -1139,16 +1155,46 @@ exact URL support, or enforcement.
 
 WP13 social report-writer delivery route-decision addendum:
 `browser-runtime-delivery-decision-proof` now registers
-`browser.social.report-writer-delivery.status.requested` as the seventh
-local-ready browser runtime route. The route is local in-process from the
-browser runtime spine to the social report-writer delivery status subscriber,
-which keeps the report-writer handoff covered by the shared eventing route audit
-without changing public portal command/event names. Evidence:
+`browser.social.report-writer-delivery.status.requested` and
+`browser.social-alert-report.parent-surface.status.requested` as the seventh
+and eighth local-ready browser runtime routes. These routes are local
+in-process from the browser runtime spine to the social report-writer delivery
+and social alert/report parent-surface status subscribers, which keeps both
+handoffs covered by the shared eventing route audit without changing public
+portal command/event names. Evidence:
 `test-results/browser-runtime-delivery-decision-proof/proof.json` and
 `output/browser-plan-proof/browser-runtime-delivery-decision/01-browser-runtime-delivery-decision-proof.md`.
 This does not claim external adapter dispatch, external transport, browser
 mutation, child intervention execution, final policy execution, parent
 notification UI delivery, provider delivery/receipt ingestion, or enforcement.
+
+WP13 social parent-surface service eventing UI addendum:
+`social-alert-report-parent-surface-service-ui-proof` carries the social
+alert/report parent-surface status projection through a service-backed
+agent-protocol command/event and the existing Browser route social alert/report
+panel. The public route requests
+`agent.browser.social-alert-report.parent-surface.read-model.get`, the service
+publishes the local
+`browser.social-alert-report.parent-surface.status.requested` eventing request,
+asks the local provider-status and preference-status handoff subscribers, and
+the portal renders provider/preference-derived manual-action-required plus
+unavailable-visible parent-surface rows with desktop/mobile screenshots.
+Evidence:
+`test-results/social-alert-report-parent-surface-service-ui-proof/proof.json`,
+`test-results/social-alert-report-parent-surface-service-ui-proof/accessibility-summary.json`,
+`output/browser-plan-proof/social-alert-report-parent-surface-service-ui-proof/01-social-alert-report-parent-surface-service-ui-proof.md`,
+`output/browser-plan-proof/social-alert-report-parent-surface-service-ui-proof/06-ui-snapshots/social-alert-report-browser-route.png`,
+and
+`output/browser-plan-proof/social-alert-report-parent-surface-service-ui-proof/06-ui-snapshots/social-alert-report-browser-route-mobile.png`.
+This improves SOCIAL-23/SOCIAL-24 parent-visible status coverage but keeps those
+items partial/manual-required. It does not claim parent notification UI
+delivery, preference UI delivery, notification history UI, provider delivery,
+provider receipt ingestion, provider credentials, cloud routing, child
+delivery, quiet-hours timer runtime, retry-worker runtime, production durable
+outbox storage, adapter dispatch, report delivery execution, final policy
+execution, connector/native runtime, browser mutation, unmanaged exact URL
+support, or enforcement. Product capability checklist status is unchanged;
+`docs/product-capability-checklist.md` is currently locked by another lane.
 
 ## Worker Report Template
 

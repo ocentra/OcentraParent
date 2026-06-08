@@ -322,6 +322,22 @@ message, video, and alert coverage. This is one of Ocentra's highest-risk gaps.
   does not claim provider delivery, receipts, child delivery, quiet-hours timer
   runtime, report delivery execution, final policy execution,
   connector/native runtime, or enforcement.
+- `social-alert-report-parent-surface-service-ui-proof` now carries that
+  parent-surface status projection through a service-backed Rust WebSocket
+  command/event and the existing Browser route social alert/report panel. The
+  service publishes a named local
+  `browser.social-alert-report.parent-surface.status.requested` eventing
+  request, asks local provider-status and preference-status handoff
+  subscribers, and completes it through `ocentra-eventing`; the portal renders
+  provider/preference-derived manual-action-required and unavailable-visible
+  parent-surface rows with real Rust-service/Vite-portal desktop and mobile
+  screenshots. This does not claim parent notification UI delivery, preference
+  UI delivery, notification history UI, provider delivery, provider receipt
+  ingestion, provider credentials, cloud routing, child delivery, quiet-hours
+  timer runtime, retry-worker runtime, production durable outbox storage,
+  adapter dispatch, report delivery execution, final policy execution,
+  connector/native runtime, browser mutation, unmanaged exact URL support, or
+  enforcement.
 - `social-alert-report-scheduler-bridge-proof` now adds a parent-domain social
   alert/report scheduler bridge. It consumes the local outbox bridge, writes
   only linked local outbox rows into the existing notification local outbox

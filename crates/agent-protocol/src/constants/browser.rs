@@ -56,6 +56,8 @@ pub const EVENT_BROWSER_SOCIAL_REPORT_WRITER_DELIVERY_STATUS_REQUESTED: &str =
     "browser.social.report-writer-delivery.status.requested";
 pub const EVENT_BROWSER_SOCIAL_PARENT_NOTIFICATION_DELIVERY_STATUS_REQUESTED: &str =
     "browser.social.parent-notification-delivery.status.requested";
+pub const EVENT_BROWSER_SOCIAL_ALERT_REPORT_PARENT_SURFACE_STATUS_REQUESTED: &str =
+    "browser.social.alert-report.parent-surface.status.requested";
 pub const EVENT_BROWSER_INTERVENTION_COMMAND_ISSUED: &str = "browser.intervention.command.issued";
 pub const EVENT_BROWSER_INTERVENTION_RESULT_OBSERVED: &str = "browser.intervention.result.observed";
 pub const EVENT_BROWSER_AUDIT_ENTRY_COMMITTED: &str = "browser.audit.entry.committed";
@@ -75,6 +77,8 @@ pub const SUBSCRIBER_BROWSER_SOCIAL_REPORT_WRITER_DELIVERY_STATUS: &str =
     "browser-social-report-writer-delivery-status";
 pub const SUBSCRIBER_BROWSER_SOCIAL_PARENT_NOTIFICATION_DELIVERY_STATUS: &str =
     "browser-social-parent-notification-delivery-status";
+pub const SUBSCRIBER_BROWSER_SOCIAL_ALERT_REPORT_PARENT_SURFACE_STATUS: &str =
+    "browser-social-alert-report-parent-surface-status";
 pub const SUBSCRIBER_BROWSER_INTERVENTION_COMMAND: &str = "browser-intervention-command";
 pub const SUBSCRIBER_BROWSER_INTERVENTION_RESULT: &str = "browser-intervention-result";
 pub const SUBSCRIBER_BROWSER_AUDIT_ENTRY: &str = "browser-audit-entry";
@@ -92,6 +96,8 @@ pub const TARGET_BROWSER_SOCIAL_REPORT_WRITER_DELIVERY_STATUS: &str =
     "browser-social-report-writer-delivery-status";
 pub const TARGET_BROWSER_SOCIAL_PARENT_NOTIFICATION_DELIVERY_STATUS: &str =
     "browser-social-parent-notification-delivery-status";
+pub const TARGET_BROWSER_SOCIAL_ALERT_REPORT_PARENT_SURFACE_STATUS: &str =
+    "browser-social-alert-report-parent-surface-status";
 pub const TARGET_BROWSER_INTERVENTION_ADAPTER: &str = "browser-intervention-adapter";
 pub const TARGET_BROWSER_AUDIT_WRITER: &str = "browser-audit-writer";
 pub const TARGET_BROWSER_READ_MODEL: &str = "browser-read-model";
@@ -112,6 +118,8 @@ pub const IDEMPOTENCY_BROWSER_SOCIAL_REPORT_WRITER_DELIVERY_STATUS_PREFIX: &str 
     "browser-social-report-writer-delivery-status-idempotency-";
 pub const IDEMPOTENCY_BROWSER_SOCIAL_PARENT_NOTIFICATION_DELIVERY_STATUS_PREFIX: &str =
     "browser-social-parent-notification-delivery-status-idempotency-";
+pub const IDEMPOTENCY_BROWSER_SOCIAL_ALERT_REPORT_PARENT_SURFACE_STATUS_PREFIX: &str =
+    "browser-social-alert-report-parent-surface-status-idempotency-";
 pub const REQUEST_BROWSER_ACTION_INTENT_STATUS_PREFIX: &str =
     "browser-action-intent-status-request-";
 pub const REQUEST_BROWSER_ACTION_INTENT_HANDOFF_PREFIX: &str =
@@ -124,12 +132,15 @@ pub const REQUEST_BROWSER_SOCIAL_REPORT_WRITER_DELIVERY_STATUS_PREFIX: &str =
     "browser-social-report-writer-delivery-status-request-";
 pub const REQUEST_BROWSER_SOCIAL_PARENT_NOTIFICATION_DELIVERY_STATUS_PREFIX: &str =
     "browser-social-parent-notification-delivery-status-request-";
+pub const REQUEST_BROWSER_SOCIAL_ALERT_REPORT_PARENT_SURFACE_STATUS_PREFIX: &str =
+    "browser-social-alert-report-parent-surface-status-request-";
 pub const REQUEST_BROWSER_ACTION_INTENT_STATUS_TIMEOUT_MS: u64 = 50;
 pub const REQUEST_BROWSER_ACTION_INTENT_HANDOFF_TIMEOUT_MS: u64 = 50;
 pub const REQUEST_BROWSER_RUNTIME_STREAM_REPORT_TIMEOUT_MS: u64 = 250;
 pub const REQUEST_BROWSER_SOCIAL_PROVIDER_RECEIPT_STATUS_TIMEOUT_MS: u64 = 50;
 pub const REQUEST_BROWSER_SOCIAL_REPORT_WRITER_DELIVERY_STATUS_TIMEOUT_MS: u64 = 50;
 pub const REQUEST_BROWSER_SOCIAL_PARENT_NOTIFICATION_DELIVERY_STATUS_TIMEOUT_MS: u64 = 50;
+pub const REQUEST_BROWSER_SOCIAL_ALERT_REPORT_PARENT_SURFACE_STATUS_TIMEOUT_MS: u64 = 50;
 pub const TEST_BROWSER_RUNTIME_EVIDENCE_REF: &str = "browser-evidence-ref-test";
 pub const TEST_BROWSER_RUNTIME_JOURNAL_REF: &str = "browser-journal-ref-test";
 pub const TEST_BROWSER_RUNTIME_AI_REQUEST_REF: &str = "browser-ai-request-ref-test";

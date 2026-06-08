@@ -47,6 +47,9 @@ mod app_game_policy_readiness_payload_tests;
 mod app_game_policy_readiness_service_tests;
 mod browser_intervention_payload;
 mod browser_intervention_report;
+pub(crate) mod social_alert_report_parent_surface_read_model_payload;
+#[cfg(test)]
+mod social_alert_report_parent_surface_read_model_payload_tests;
 pub(crate) mod social_alert_report_read_model_payload;
 #[cfg(test)]
 mod social_alert_report_read_model_payload_tests;

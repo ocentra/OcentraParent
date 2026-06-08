@@ -265,6 +265,20 @@ preference, frequency-control, or notification-history UI, provider dispatch,
 provider receipt, child delivery, quiet-hours timer execution, report delivery
 execution, final policy execution, connector/native runtime, or enforcement.
 
+Service-backed social alert/report parent-surface read models may expose those
+manual-action-required and unavailable-visible rows through the Rust WebSocket
+command/event path and the existing Browser route only as status projection.
+The service path must use the shared local eventing request/subscriber pattern
+and must derive the parent-surface projection from provider-status and
+preference-status handoff subscribers rather than a narrower duplicate row
+source. It must preserve no-claim fields for parent notification UI delivery,
+preference UI delivery, notification history UI, provider delivery, provider
+receipt ingestion, provider credentials, cloud routing, child delivery,
+quiet-hours timer runtime, retry-worker runtime, production durable outbox
+storage, adapter dispatch, report delivery execution, final policy execution,
+connector/native runtime, browser mutation, unmanaged exact URL support, and
+enforcement.
+
 Social proof artifact gates may verify checklist ownership, proof folders,
 required source/security/validation/UI-marker files, README references, and
 feature/expectation coverage. They may cite rendered Playwright/screenshot

@@ -1,6 +1,6 @@
 # SOCIAL-24 Rollout Manual-Required Labels
 
-Generated: 2026-06-08T10:22:24.057Z
+Generated: 2026-06-08T14:45:05.048Z
 
 Rows checked: 23
 Proof-present rows: 21
@@ -54,6 +54,7 @@ Live SOCIAL-19 evidence-bound decision memory proof is present.
 Ref-only social alert/report intent proof is present.
 Parent-owned social alert/report local outbox JSONL bridge proof is present.
 Social alert/report parent-surface intent proof is present for manual/unavailable status rows.
+Service-backed social alert/report parent-surface UI proof is present for the real Browser route.
 Parent-owned social alert/report scheduler JSONL bridge proof is present.
 Social alert/report audit-history bridge proof is present through the logging-domain handoff.
 Service-backed social alert/report intent UI proof is present for the real Browser route.

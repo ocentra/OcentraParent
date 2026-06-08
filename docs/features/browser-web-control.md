@@ -372,6 +372,15 @@ control while being more honest about managed versus unmanaged sources.
   silent Device Owner default-browser assignment, physical-device behavior,
   final policy execution, browser blocking, and broad enforcement remain
   unclaimed.
+- Browser-plan WP05 now also has physical Android host evidence from an
+  explicit `ANDROID_SERIAL` run against the available Samsung Galaxy S9
+  (`star2qltecs`, `SM_G965W`). That proof filters out emulator evidence and
+  captures package/default VIEW handler query evidence plus UI-tree/logcat
+  hashes without persisting the raw device serial. This upgrades only physical
+  Android package/default-handler visibility; physical owned-shell custody,
+  Device Owner/Browser Role behavior, exact URL policy, active-tab proof, final
+  policy execution, browser blocking, Play signing, release readiness, and broad
+  enforcement remain unclaimed.
 - Browser-plan WP05 now adds Windows managed-CDP proof for an
   Ocentra-launched temporary managed browser profile. The proof launches real
   Edge/Chrome-family browser infrastructure on Windows, connects through
@@ -1259,9 +1268,10 @@ report-writer truth while keeping the same public portal command/event and
 without claiming parent notification UI delivery, external report delivery,
 provider delivery/receipt ingestion, final policy execution, browser mutation,
 child intervention execution, unmanaged exact URL support, or enforcement.
-The same report-writer status request is now registered in the browser runtime
-delivery-decision proof as a seventh local-ready route, keeping the internal
-event handoff visible to the shared `ocentra-eventing` route audit.
+The same report-writer status request and the social alert/report
+parent-surface status request are now registered in the browser runtime
+delivery-decision proof as seventh and eighth local-ready routes, keeping both
+internal event handoffs visible to the shared `ocentra-eventing` route audit.
 WP13 Browser-route proof now renders a parent-visible browser action-intent
 stream status card from the existing parsed runtime stream, next to the social
 provider receipt stream and receipt ingestion readiness cards. The proof uses
@@ -1271,6 +1281,20 @@ intervention execution, final policy execution, unmanaged exact URL support,
 and enforcement unclaimed. The focused action-intent projection lives in
 `portal-domain`; the route imports that focused source directly while C owns the
 shared barrel/package export files.
+
+- Browser-plan WP13 now also carries social alert/report parent-surface status
+  through a service-backed local eventing request and the existing Browser route
+  social alert/report panel. The Rust service publishes
+  `browser.social-alert-report.parent-surface.status.requested`, completes it
+  through `ocentra-eventing` after asking the local provider-status and
+  preference-status handoff subscribers, reports
+  `agent.browser.social-alert-report.parent-surface.read-model.reported`, and
+  the portal renders provider/preference-derived manual-action-required plus
+  unavailable-visible parent-surface rows with desktop/mobile screenshots. This remains
+  parent-visible status only and does not claim parent notification UI
+  delivery, preference UI delivery, history UI, provider delivery/receipt
+  ingestion, provider credentials, cloud routing, adapter dispatch, final policy
+  execution, browser mutation, unmanaged exact URL support, or enforcement.
 
 ## Checklist
 

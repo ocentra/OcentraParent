@@ -40,6 +40,7 @@ const browserViewIntentArgs = [
 const proofAvdName = 'OcentraParentDeviceOwnerProof';
 const proofAvdPackage = 'system-images;android-33;aosp_atd;x86_64';
 const proofAvdDevice = 'pixel_6';
+const proofEmulatorPort = process.env.OCENTRA_PARENT_ANDROID_PROOF_EMULATOR_PORT?.trim() ?? '5570';
 
 mkdirSync(proofRoot, { recursive: true });
 
@@ -152,6 +153,8 @@ try {
       proofAvdNameSha256: sha256(proofAvdName),
       proofAvdPackagePersisted: false,
       proofAvdPackageSha256: sha256(proofAvdPackage),
+      proofEmulatorPortPersisted: false,
+      proofEmulatorPortSha256: sha256(proofEmulatorPort),
       emulatorCleanupAttempted: launchedEmulator,
       attachedDeviceCount: devices.length,
       bootedDeviceCount: deviceProofs.length,
@@ -665,6 +668,8 @@ async function launchEmulatorIfAvailable(adbPath, emulatorPath, existingSerials)
       '-no-boot-anim',
       '-gpu',
       'swiftshader_indirect',
+      '-port',
+      proofEmulatorPort,
     ],
     {
       cwd: repoRoot,
@@ -675,22 +680,42 @@ async function launchEmulatorIfAvailable(adbPath, emulatorPath, existingSerials)
   );
   child.unref();
 
-  const serial = await waitForReadyEmulator(adbPath, existingSerials);
+  const serial = await waitForReadyEmulator(adbPath, existingSerials, child);
   await waitForBoot(adbPath, serial);
   return serial;
 }
 
-async function waitForReadyEmulator(adbPath, existingSerials) {
+async function waitForReadyEmulator(adbPath, existingSerials, child) {
   const deadline = Date.now() + 8 * 60_000;
+  const expectedSerial = `emulator-${proofEmulatorPort}`;
+  let childExit = null;
+  child.once('exit', (code, signal) => {
+    childExit = { code, signal };
+  });
   while (Date.now() < deadline) {
-    const ready = listDevices(adbPath).find(
+    const devices = listDevices(adbPath);
+    const expected = devices.find((device) => device.serial === expectedSerial);
+    if (expected && !existingSerials.includes(expected.serial)) {
+      return expected.serial;
+    }
+    const ready = devices.find(
       (device) =>
         device.state === 'device' && device.serial.startsWith('emulator-') && !existingSerials.includes(device.serial)
     );
     if (ready) {
       return ready.serial;
     }
+    if (childExit) {
+      throw new Error(
+        `Timed out waiting for Android emulator device after emulator process exited: ${JSON.stringify(childExit)}`
+      );
+    }
     await delay(2_000);
+  }
+  if (childExit) {
+    throw new Error(
+      `Timed out waiting for Android emulator device after emulator process exited: ${JSON.stringify(childExit)}`
+    );
   }
   throw new Error('Timed out waiting for Android emulator device');
 }

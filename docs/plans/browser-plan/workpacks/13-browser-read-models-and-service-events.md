@@ -1338,11 +1338,13 @@ intervention execution, unmanaged exact URL support, or enforcement.
 ## Social Report Writer Delivery Route Decision Addendum - 2026-06-08
 
 `browser-runtime-delivery-decision-proof` now also registers the internal
-`browser.social.report-writer-delivery.status.requested` request as a
-local-in-process route. The browser runtime delivery-decision report now proves
-seven local-ready routes: runtime chain, action-intent status, action-intent
+`browser.social.report-writer-delivery.status.requested` and
+`browser.social-alert-report.parent-surface.status.requested` requests as
+local-in-process routes. The browser runtime delivery-decision report now proves
+eight local-ready routes: runtime chain, action-intent status, action-intent
 handoff, runtime stream report, social provider receipt status, social
-report-writer delivery status, and social parent-notification delivery status.
+report-writer delivery status, social parent-notification delivery status, and
+social alert/report parent-surface status.
 
 Evidence:
 
@@ -1384,3 +1386,45 @@ UI and does not claim provider delivery, receipt ingestion, child delivery,
 quiet-hours timer runtime, report delivery execution, final policy execution,
 connector/native runtime, browser mutation, unmanaged exact URL support, or
 enforcement.
+
+## Social Parent Surface Service Eventing UI Addendum - 2026-06-08
+
+`social-alert-report-parent-surface-service-ui-proof` carries the social
+alert/report parent-surface status projection through a service-backed agent
+protocol command/event and the existing Browser route social alert/report
+panel. The public route requests
+`agent.browser.social-alert-report.parent-surface.read-model.get`, parses the
+reported snapshot, and renders provider/preference-derived
+manual-action-required plus unavailable-visible parent-surface rows with
+desktop/mobile screenshots.
+
+The Rust service projection is behind a named local eventing
+request/subscriber boundary. The service publishes
+`browser.social-alert-report.parent-surface.status.requested` internally and
+completes the response through the reusable `ocentra-eventing`
+request/response path before building the reported WebSocket event. The
+subscriber first asks the local provider-status and preference-status handoff
+subscribers, then projects the returned handoff refs into the parent-surface
+read model; it no longer maintains a narrower static parent-surface row source.
+
+Evidence:
+
+- `packages/agent-protocol-domain/src/social-alert-report-parent-surface-read-model.ts`
+- `crates/agent-protocol/src/social_alert_report_parent_surface_read_model.rs`
+- `crates/agent-service/src/activity_api/social_alert_report_parent_surface_read_model_payload.rs`
+- `packages/portal-domain/src/social-alert-report-parent-surface-panel.ts`
+- `apps/portal/src/SocialAlertReportRoutePanel.tsx`
+- `apps/portal/e2e/social-alert-report-ui-proof.spec.ts`
+- `scripts/test/social-alert-report-parent-surface-service-ui-proof.mjs`
+- `test-results/social-alert-report-parent-surface-service-ui-proof/proof.json`
+- `test-results/social-alert-report-parent-surface-service-ui-proof/accessibility-summary.json`
+- `output/browser-plan-proof/social-alert-report-parent-surface-service-ui-proof/06-ui-snapshots/social-alert-report-browser-route.png`
+- `output/browser-plan-proof/social-alert-report-parent-surface-service-ui-proof/06-ui-snapshots/social-alert-report-browser-route-mobile.png`
+
+No-claim boundary: this is local service eventing and parent-visible status
+projection only. It does not claim parent notification UI delivery, preference
+UI delivery, notification history UI, provider delivery, provider receipt
+ingestion, provider credentials, cloud routing, child delivery, quiet-hours
+timer runtime, retry-worker runtime, production durable outbox storage, adapter
+dispatch, report delivery execution, final policy execution, connector/native
+runtime, browser mutation, unmanaged exact URL support, or enforcement.
