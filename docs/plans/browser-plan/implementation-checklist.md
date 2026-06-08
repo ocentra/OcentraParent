@@ -408,6 +408,21 @@ manual-required/unavailable rows. Evidence:
 This advances provider-readiness/status proof without claiming provider
 dispatch, receipt ingestion, parent notification UI delivery, report delivery
 execution, final policy execution, connector/native runtime, or enforcement.
+`social-alert-report-provider-receipt-boundary-proof` now consumes
+provider-status handoff rows into provider-dispatch-required,
+manual-receipt-required, and provider-unavailable receipt boundary rows.
+Evidence:
+`test-results/social-alert-report-provider-receipt-boundary-proof/proof.json`,
+`test-results/social-alert-report-provider-receipt-boundary-proof/provider-receipt-boundary-read-model.json`,
+and
+`output/browser-plan-proof/social-alert-report-provider-receipt-boundary-proof/01-social-alert-report-provider-receipt-boundary-proof.md`.
+This advances receipt-boundary proof while keeping provider delivery execution,
+provider receipt ingestion runtime, provider webhook runtime, provider
+credentials, cloud routing, parent notification UI delivery, report delivery
+execution, final policy execution, connector/native runtime, and enforcement
+unclaimed. Parent-domain package subpath export/readme updates are deferred
+because another lane owns `packages/parent-domain/package.json` and
+`packages/parent-domain/readme.md`.
 `social-alert-report-scheduler-bridge-proof` now consumes the social
 alert/report local outbox bridge and writes only linked rows into the existing
 notification local outbox scheduler JSONL schema. Evidence:

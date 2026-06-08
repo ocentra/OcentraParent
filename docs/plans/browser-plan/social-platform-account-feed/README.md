@@ -560,6 +560,25 @@ It does not claim provider dispatch, delivered notification receipts, parent
 notification UI delivery, report delivery execution, final policy execution,
 connector/native runtime, or enforcement.
 
+The follow-up `social-alert-report-provider-receipt-boundary-proof` adds
+`packages/parent-domain/src/social-alert-report-provider-receipt-boundary-proof.ts`
+and
+`packages/parent-domain/tests/social-alert-report-provider-receipt-boundary-proof.test.ts`.
+It consumes provider-status handoff rows and projects them into
+provider-dispatch-required, manual-receipt-required, and provider-unavailable
+receipt boundary rows with source refs, provider attempt refs, readiness refs,
+audit refs, and receipt proof requirements. The proof writes
+`test-results/social-alert-report-provider-receipt-boundary-proof/proof.json`,
+`test-results/social-alert-report-provider-receipt-boundary-proof/provider-receipt-boundary-read-model.json`,
+and
+`output/browser-plan-proof/social-alert-report-provider-receipt-boundary-proof/01-social-alert-report-provider-receipt-boundary-proof.md`.
+It does not claim provider delivery execution, provider receipt ingestion
+runtime, provider webhook runtime, provider credentials, cloud routing, parent
+notification UI delivery, report delivery execution, final policy execution,
+connector/native runtime, or enforcement. Parent-domain package subpath export
+and README update are deferred because another lane currently owns
+`packages/parent-domain/package.json` and `packages/parent-domain/readme.md`.
+
 The follow-up `social-parent-sensitivity-settings-proof` adds
 `packages/parent-domain/src/social-parent-sensitivity-settings-values.ts`,
 `packages/parent-domain/src/social-parent-sensitivity-settings.ts`, and
