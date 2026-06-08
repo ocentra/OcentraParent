@@ -276,8 +276,10 @@ physical-device proof, authority, production, and product readiness unclaimed.
 `node scripts/test/tracking-hosted-ui-artifact-inventory-proof.mjs` now verifies
 the full current hosted screenshot PNG inventory, hosted proof outputs,
 unsupported/manual platform screenshot/proof output, parent overview/devices
-shell screenshots around the tracking route, accessibility assertions, and
-11-card no-overlap layout geometry as a separate inventory gate. It also
+shell screenshots around the tracking route, including service-backed tracking
+summary and no-product-claim assertions on the normal overview/devices routes,
+accessibility assertions, and 11-card no-overlap layout geometry as a separate
+inventory gate. It also
 verifies both the child-runtime execution readiness artifact and the
 child-runtime snapshot requirements artifact so those runtime-readiness refs do
 not become orphan proof rows. It writes
@@ -287,7 +289,8 @@ and
 without claiming full product parent/child UI, child-device runtime,
 physical-device proof, authority, provider delivery, production proof, or
 product-ready tracking.
-This is not product-complete UI proof: full dashboard UI beyond the hosted
+This is not product-complete UI proof: the normal overview/devices route cards
+are local hosted summary evidence only, and full dashboard UI beyond the hosted
 parent shell, actual child-device delivery/runtime execution, applied
 product-ready retention settings execution, physical-device evidence, authority,
 provider delivery, and production proof remain pending.
@@ -333,7 +336,8 @@ This workpack can be assigned independently, implemented against the owning doma
 - Full dashboard UI beyond the hosted parent route, actual child-device
   delivery/runtime execution, physical-device proof, authority proof, provider
   delivery, and production proof remain manual-required until the assigned proof
-  artifacts exist.
+  artifacts exist. The hosted overview/devices cards are service-backed summary
+  evidence only and do not close those product-runtime blockers.
 - Any unsupported platform or provider failure must surface as degraded/manual-required state, not as a silent success.
 
 ## Fill This Before Reporting DONE Or PR-ready

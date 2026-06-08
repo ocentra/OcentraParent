@@ -39,6 +39,10 @@ import {
 import { shouldRenderSocialAlertReportRoute, SocialAlertReportRoutePanel } from './SocialAlertReportRoutePanel';
 import { shouldRenderSocialDashboardRoute, SocialDashboardRoutePanel } from './SocialDashboardRoutePanel';
 import { ScreenSettingsRoutePanel, shouldRenderScreenSettingsRoute } from './ScreenSettingsRoutePanel';
+import {
+  shouldRenderTrackingParentPortalSummary,
+  TrackingParentPortalSummaryCard,
+} from './TrackingParentPortalSummaryCard';
 import { shouldRenderTrackingStatusRoute, TrackingStatusRoutePanel } from './TrackingStatusRoutePanel';
 
 type ParentPortalRouteProps = {
@@ -106,6 +110,9 @@ export function ParentPortalRoute({
           commandEnabled={state.socket?.readyState === WebSocket.OPEN}
           liveActivity={activityState}
         />
+      ) : null}
+      {shouldRenderTrackingParentPortalSummary(route) ? (
+        <TrackingParentPortalSummaryCard liveActivity={activityState} />
       ) : null}
       {shouldRenderNetworkEvidenceDrawerRoute(route) ? (
         <NetworkEvidenceDrawerRoutePanel liveActivity={activityState} />

@@ -3,7 +3,7 @@
   "proofMode": "tracking-hosted-ui-artifact-inventory-proof",
   "generatedAt": "2026-06-06T23:45:00.000Z",
   "branch": "codex/tracking-plan-full-continuation-a",
-  "baseCommitAtGeneration": "6961e88cf157eefb23354ee49dae986270ae6857",
+  "baseCommitAtGeneration": "ed76fb1ba723d5c49ac0e9acec2c37f4d267e419",
   "requiredProofTier": "P2_HOSTED_CI",
   "currentProofTier": "P2_HOSTED_CI",
   "currentStatus": "proved",
@@ -120,99 +120,99 @@
   "screenshots": [
     {
       "path": "output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/11-ui-snapshots/hosted-policy-tracking-live-summary.png",
-      "bytes": 458638,
+      "bytes": 407580,
       "width": 1280,
       "height": 720
     },
     {
       "path": "output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/11-ui-snapshots/hosted-policy-tracking-live-summary-mobile.png",
-      "bytes": 184225,
+      "bytes": 145967,
       "width": 390,
       "height": 844
     },
     {
       "path": "output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/11-ui-snapshots/hosted-policy-tracking-citation-detail.png",
-      "bytes": 34715,
-      "width": 944,
-      "height": 166
+      "bytes": 32585,
+      "width": 943,
+      "height": 165
     },
     {
       "path": "output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/11-ui-snapshots/hosted-policy-tracking-evidence-drawer.png",
-      "bytes": 138056,
-      "width": 944,
-      "height": 789
+      "bytes": 96780,
+      "width": 943,
+      "height": 757
     },
     {
       "path": "output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/11-ui-snapshots/hosted-policy-tracking-child-check-in.png",
-      "bytes": 68527,
-      "width": 944,
-      "height": 511
+      "bytes": 58243,
+      "width": 943,
+      "height": 510
     },
     {
       "path": "output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/11-ui-snapshots/hosted-policy-tracking-child-runtime-ui.png",
-      "bytes": 77367,
-      "width": 944,
-      "height": 539
+      "bytes": 60392,
+      "width": 943,
+      "height": 537
     },
     {
       "path": "output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/11-ui-snapshots/hosted-parent-overview-shell.png",
-      "bytes": 819797,
+      "bytes": 455204,
       "width": 1280,
       "height": 960
     },
     {
       "path": "output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/11-ui-snapshots/hosted-parent-devices-shell.png",
-      "bytes": 807674,
+      "bytes": 445603,
       "width": 1280,
       "height": 960
     },
     {
       "path": "output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/11-ui-snapshots/hosted-policy-tracking-family-dashboard-rollup.png",
-      "bytes": 138430,
-      "width": 944,
-      "height": 1370
+      "bytes": 97971,
+      "width": 943,
+      "height": 756
     },
     {
       "path": "output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/11-ui-snapshots/hosted-policy-tracking-report-policy-consumer.png",
-      "bytes": 139585,
-      "width": 944,
-      "height": 1629
+      "bytes": 98359,
+      "width": 943,
+      "height": 756
     },
     {
       "path": "output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/11-ui-snapshots/hosted-policy-tracking-report-export.png",
-      "bytes": 139853,
-      "width": 944,
-      "height": 1756
+      "bytes": 98284,
+      "width": 943,
+      "height": 756
     },
     {
       "path": "output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/11-ui-snapshots/hosted-policy-tracking-notification-parent-surface.png",
-      "bytes": 143834,
-      "width": 944,
-      "height": 2174
+      "bytes": 95482,
+      "width": 943,
+      "height": 757
     },
     {
       "path": "output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/11-ui-snapshots/hosted-policy-tracking-parent-action-readiness.png",
-      "bytes": 158786,
-      "width": 944,
-      "height": 3866
+      "bytes": 97296,
+      "width": 943,
+      "height": 757
     },
     {
       "path": "output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/11-ui-snapshots/hosted-policy-tracking-missing-device.png",
-      "bytes": 139631,
-      "width": 944,
-      "height": 2702
+      "bytes": 97476,
+      "width": 943,
+      "height": 756
     },
     {
       "path": "output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/11-ui-snapshots/hosted-policy-tracking-retention-settings.png",
-      "bytes": 187513,
-      "width": 944,
-      "height": 1122
+      "bytes": 110938,
+      "width": 943,
+      "height": 756
     },
     {
       "path": "output/tracking-plan-proof/31-platform-extension-checklists-and-proof-routing/19-unsupported-manual-hosted-ui.png",
-      "bytes": 114992,
-      "width": 944,
-      "height": 1481
+      "bytes": 97866,
+      "width": 943,
+      "height": 756
     }
   ],
   "requiredAssertions": [
@@ -269,99 +269,99 @@
       {
         "proofId": "family-dashboard-rollup",
         "left": 21,
-        "top": -16786,
+        "top": -16857,
         "right": 366,
-        "bottom": -15458,
+        "bottom": -15529,
         "width": 345,
         "height": 1328
       },
       {
         "proofId": "missing-device-ui",
         "left": 21,
-        "top": -6971,
+        "top": -7042,
         "right": 366,
-        "bottom": -5126,
+        "bottom": -5242,
         "width": 345,
-        "height": 1845
+        "height": 1800
       },
       {
         "proofId": "notification-parent-surface-history-ui",
         "left": 21,
-        "top": -12293,
+        "top": -12364,
         "right": 366,
-        "bottom": -10355,
+        "bottom": -10426,
         "width": 345,
         "height": 1937
       },
       {
         "proofId": "parent-action-readiness-ui",
         "left": 21,
-        "top": -10349,
+        "top": -10420,
         "right": 366,
-        "bottom": -6977,
+        "bottom": -7048,
         "width": 345,
         "height": 3373
       },
       {
         "proofId": "report-policy-consumer-ui",
         "left": 21,
-        "top": -15452,
+        "top": -15523,
         "right": 366,
-        "bottom": -13979,
+        "bottom": -14050,
         "width": 345,
         "height": 1473
       },
       {
         "proofId": "report-export-ui",
         "left": 21,
-        "top": -13973,
+        "top": -14044,
         "right": 366,
-        "bottom": -12299,
+        "bottom": -12370,
         "width": 345,
         "height": 1674
       },
       {
         "proofId": "service-backed-evidence-drawer",
         "left": 21,
-        "top": -2548,
+        "top": -2664,
         "right": 366,
-        "bottom": -1774,
+        "bottom": -1890,
         "width": 345,
         "height": 773
       },
       {
         "proofId": "service-backed-citation-detail",
         "left": 21,
-        "top": -1768,
+        "top": -1884,
         "right": 366,
-        "bottom": -1323,
+        "bottom": -1439,
         "width": 345,
         "height": 446
       },
       {
         "proofId": "retention-settings-ui",
         "left": 21,
-        "top": -5120,
+        "top": -5236,
         "right": 366,
-        "bottom": -2554,
+        "bottom": -2670,
         "width": 345,
         "height": 2566
       },
       {
         "proofId": "child-check-in",
         "left": 21,
-        "top": -865,
+        "top": -981,
         "right": 366,
-        "bottom": -322,
+        "bottom": -438,
         "width": 345,
         "height": 543
       },
       {
         "proofId": "child-runtime-ui",
         "left": 21,
-        "top": -316,
+        "top": -432,
         "right": 366,
-        "bottom": 248,
+        "bottom": 132,
         "width": 345,
         "height": 564
       }

@@ -863,7 +863,9 @@ Every implementation workpack must update, or explicitly justify not updating:
       `output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/11-ui-snapshots/hosted-policy-tracking-child-check-in.png`;
       the hosted child-runtime UI proof screenshot is stored at
       `output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/11-ui-snapshots/hosted-policy-tracking-child-runtime-ui.png`;
-      the hosted parent overview and devices shell screenshots are stored at
+      the hosted parent overview and devices shell screenshots now include
+      service-backed tracking summary and no-product-claim assertions and are
+      stored at
       `output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/11-ui-snapshots/hosted-parent-overview-shell.png`
       and
       `output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/11-ui-snapshots/hosted-parent-devices-shell.png`;
@@ -892,7 +894,8 @@ Every implementation workpack must update, or explicitly justify not updating:
       settings local service write result card, and hosted
       artifact inventory proof verifies the required hosted assertions and
       11-card no-overlap layout geometry plus the parent shell screenshot
-      inventory while actual child-device runtime/full product UI accessibility
+      inventory with overview/devices tracking summary and no-product-claim
+      assertions while actual child-device runtime/full product UI accessibility
       remains pending.
 
 ## Evidence Quality Gates

@@ -1157,99 +1157,99 @@
       {
         "proofId": "family-dashboard-rollup",
         "left": 21,
-        "top": -16786,
+        "top": -16857,
         "right": 366,
-        "bottom": -15458,
+        "bottom": -15529,
         "width": 345,
         "height": 1328
       },
       {
         "proofId": "missing-device-ui",
         "left": 21,
-        "top": -6971,
+        "top": -7042,
         "right": 366,
-        "bottom": -5126,
+        "bottom": -5242,
         "width": 345,
-        "height": 1845
+        "height": 1800
       },
       {
         "proofId": "notification-parent-surface-history-ui",
         "left": 21,
-        "top": -12293,
+        "top": -12364,
         "right": 366,
-        "bottom": -10355,
+        "bottom": -10426,
         "width": 345,
         "height": 1937
       },
       {
         "proofId": "parent-action-readiness-ui",
         "left": 21,
-        "top": -10349,
+        "top": -10420,
         "right": 366,
-        "bottom": -6977,
+        "bottom": -7048,
         "width": 345,
         "height": 3373
       },
       {
         "proofId": "report-policy-consumer-ui",
         "left": 21,
-        "top": -15452,
+        "top": -15523,
         "right": 366,
-        "bottom": -13979,
+        "bottom": -14050,
         "width": 345,
         "height": 1473
       },
       {
         "proofId": "report-export-ui",
         "left": 21,
-        "top": -13973,
+        "top": -14044,
         "right": 366,
-        "bottom": -12299,
+        "bottom": -12370,
         "width": 345,
         "height": 1674
       },
       {
         "proofId": "service-backed-evidence-drawer",
         "left": 21,
-        "top": -2548,
+        "top": -2664,
         "right": 366,
-        "bottom": -1774,
+        "bottom": -1890,
         "width": 345,
         "height": 773
       },
       {
         "proofId": "service-backed-citation-detail",
         "left": 21,
-        "top": -1768,
+        "top": -1884,
         "right": 366,
-        "bottom": -1323,
+        "bottom": -1439,
         "width": 345,
         "height": 446
       },
       {
         "proofId": "retention-settings-ui",
         "left": 21,
-        "top": -5120,
+        "top": -5236,
         "right": 366,
-        "bottom": -2554,
+        "bottom": -2670,
         "width": 345,
         "height": 2566
       },
       {
         "proofId": "child-check-in",
         "left": 21,
-        "top": -865,
+        "top": -981,
         "right": 366,
-        "bottom": -322,
+        "bottom": -438,
         "width": 345,
         "height": 543
       },
       {
         "proofId": "child-runtime-ui",
         "left": 21,
-        "top": -316,
+        "top": -432,
         "right": 366,
-        "bottom": 248,
+        "bottom": 132,
         "width": 345,
         "height": 564
       }
@@ -1281,7 +1281,9 @@
         "screenshot": "output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/11-ui-snapshots/hosted-parent-overview-shell.png",
         "assertions": [
           "parent-overview-shell-visible",
-          "parent-overview-custody-copy-visible"
+          "parent-overview-custody-copy-visible",
+          "parent-overview-tracking-summary-visible",
+          "parent-overview-no-product-claim-visible"
         ]
       },
       {
@@ -1289,7 +1291,9 @@
         "screenshot": "output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/11-ui-snapshots/hosted-parent-devices-shell.png",
         "assertions": [
           "parent-devices-shell-visible",
-          "parent-devices-context-copy-visible"
+          "parent-devices-context-copy-visible",
+          "parent-devices-tracking-summary-visible",
+          "parent-devices-no-product-claim-visible"
         ]
       }
     ]

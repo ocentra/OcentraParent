@@ -50,7 +50,9 @@ The Playwright check starts the Rust agent and Vite portal on the scaffold smoke
   detail proof, hosted child-safe check-in proof, hosted child-runtime UI
   disclosure/consent proof, hosted missing-device read-only state proof, and
   unsupported/manual platform rendered states as narrow Policy Tracking route
-  cards; this is not actual child-device delivery/runtime execution,
+  cards; the normal Overview and Devices routes also show a service-backed
+  tracking summary/no-product-claim card from the same parsed activity state.
+  This is not actual child-device delivery/runtime execution,
   current-location runtime, OS lost-mode runtime, physical-device execution,
   authority enrollment, provider delivery, or full parent/child tracking UI
   proof.
