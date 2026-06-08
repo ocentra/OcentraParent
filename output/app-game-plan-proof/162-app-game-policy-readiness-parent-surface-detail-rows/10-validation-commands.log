@@ -1,0 +1,40 @@
+WP162 validation commands
+
+- cmd /c npm run build --workspace @ocentra-parent/portal-domain
+  - PASS
+- cmd /c npm run test --workspace @ocentra-parent/portal -- --run tests/app-game-policy-readiness-panel.test.ts
+  - PASS after rebuilding portal-domain first
+  - 19 test files and 81 tests passed
+- git diff --check
+  - PASS
+- node scripts/check-no-test-doubles.mjs
+  - PASS
+  - No test doubles found across 2185 checked source files.
+- node scripts/check-source-shape.mjs
+  - PASS with existing advisory warnings
+- cmd /c npm run lanes:guard
+  - PASS
+  - lane-guard-ok: lane=codex-c owner=sujan thread=app-game-control-product-completion branch=codex/app-game-control-product-completion
+- cmd /c npm run hub:guard
+  - PASS
+  - hub-guard-ok: lane=codex-c
+- git commit -m "Add app-game policy readiness surface details"
+  - BLOCKED by pre-commit formatting check
+  - Prettier named `docs/plans/app-game-plan/workpacks/162-app-game-policy-readiness-parent-surface-detail-rows.md`
+    and `packages/portal-domain/src/app-game-policy-readiness-panel.ts`
+- cmd /c npx prettier --write docs/plans/app-game-plan/workpacks/162-app-game-policy-readiness-parent-surface-detail-rows.md packages/portal-domain/src/app-game-policy-readiness-panel.ts
+  - PASS
+- cmd /c npm run build --workspace @ocentra-parent/portal-domain
+  - PASS after formatting
+- git diff --check
+  - PASS after formatting
+- cmd /c npm run test --workspace @ocentra-parent/portal -- --run tests/app-game-policy-readiness-panel.test.ts
+  - PASS after formatting
+  - 19 test files and 81 tests passed
+
+Notes:
+
+- The first portal focused test run was executed in parallel with the
+  portal-domain build and failed because the test consumed the previous built
+  contract bundle. Rebuilding `@ocentra-parent/portal-domain` first and then
+  running the same focused portal test passed.

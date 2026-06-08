@@ -1,0 +1,80 @@
+{
+  "branch": "codex/app-game-control-product-completion",
+  "workpack": "WP162",
+  "scope": "app/game policy readiness parent-surface detail rows",
+  "status": "done",
+  "parentSurface": [
+    "policy readiness summary renders evidence claim row count",
+    "policy readiness summary renders identity row count",
+    "policy readiness summary renders approval authority row count",
+    "policy readiness summary renders approval action result row count",
+    "policy readiness summary renders platform authority row count",
+    "policy readiness summary renders AI classifier row count",
+    "readiness rows render ready/manual-required/missing reasons"
+  ],
+  "validation": [
+    {
+      "command": "cmd /c npm run build --workspace @ocentra-parent/portal-domain",
+      "status": "pass"
+    },
+    {
+      "command": "cmd /c npm run test --workspace @ocentra-parent/portal -- --run tests/app-game-policy-readiness-panel.test.ts",
+      "status": "pass",
+      "note": "19 test files and 81 tests passed after rebuilding portal-domain first"
+    },
+    {
+      "command": "git diff --check",
+      "status": "pass"
+    },
+    {
+      "command": "node scripts/check-no-test-doubles.mjs",
+      "status": "pass",
+      "note": "No test doubles found across 2185 checked source files."
+    },
+    {
+      "command": "node scripts/check-source-shape.mjs",
+      "status": "pass",
+      "note": "Passed with existing advisory warnings."
+    },
+    {
+      "command": "cmd /c npm run lanes:guard",
+      "status": "pass"
+    },
+    {
+      "command": "cmd /c npm run hub:guard",
+      "status": "pass"
+    },
+    {
+      "command": "cmd /c npx prettier --write docs/plans/app-game-plan/workpacks/162-app-game-policy-readiness-parent-surface-detail-rows.md packages/portal-domain/src/app-game-policy-readiness-panel.ts",
+      "status": "pass",
+      "note": "Applied after the first commit attempt was blocked by the pre-commit formatting check."
+    },
+    {
+      "command": "cmd /c npm run build --workspace @ocentra-parent/portal-domain",
+      "status": "pass",
+      "note": "Re-run after formatting."
+    },
+    {
+      "command": "git diff --check",
+      "status": "pass",
+      "note": "Re-run after formatting."
+    },
+    {
+      "command": "cmd /c npm run test --workspace @ocentra-parent/portal -- --run tests/app-game-policy-readiness-panel.test.ts",
+      "status": "pass",
+      "note": "Re-run after formatting; 19 test files and 81 tests passed."
+    }
+  ],
+  "noClaims": [
+    "policy execution",
+    "policy persistence",
+    "provider delivery",
+    "adapter dispatch",
+    "broad blocking",
+    "platform enforcement",
+    "raw private source rows",
+    "raw target values",
+    "private diagnostics"
+  ],
+  "productCapabilityChecklist": "intentionally untouched while another lane owns the lock"
+}

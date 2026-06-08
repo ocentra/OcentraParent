@@ -91,7 +91,31 @@ describe('app-game policy readiness portal route panel', () => {
       label: 'Manual review',
       value: 'Manual required',
     });
+    expect(intent.summaryDetails).toContainEqual({
+      label: 'Evidence claim rows',
+      value: '1',
+    });
+    expect(intent.summaryDetails).toContainEqual({
+      label: 'Approval action result rows',
+      value: '0',
+    });
+    expect(intent.summaryDetails).toContainEqual({
+      label: 'AI classifier rows',
+      value: '0',
+    });
     expect(intent.rows.map((row) => row.title)).toEqual(['Policy evidence', 'AI classifier context']);
+    expect(intent.rows[0]?.details).toContainEqual({
+      label: 'Reason',
+      value: 'Ready',
+    });
+    expect(intent.rows[1]?.details).toContainEqual({
+      label: 'Reason',
+      value: 'AI classifier context requires manual review',
+    });
+    expect(intent.rows[1]?.details).toContainEqual({
+      label: 'Evidence references',
+      value: 'Not reported',
+    });
   });
 });
 

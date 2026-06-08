@@ -28,6 +28,26 @@ const PolicyReadinessKindLabels = {
   [AgentAppGamePolicyReadinessKind.AiClassifierContext]: decodeDisplayText('AI classifier context'),
 } satisfies Readonly<Record<AgentAppGamePolicyReadinessKind, DisplayText>>;
 
+const PolicyReadinessManualReasons = {
+  [AgentAppGamePolicyReadinessKind.PolicyEvidence]: decodeDisplayText('Policy evidence requires manual review'),
+  [AgentAppGamePolicyReadinessKind.ApprovalAuthority]: decodeDisplayText('Approval authority requires manual review'),
+  [AgentAppGamePolicyReadinessKind.ApprovalActionResult]: decodeDisplayText(
+    'Approval action result requires manual review'
+  ),
+  [AgentAppGamePolicyReadinessKind.PlatformAuthority]: decodeDisplayText('Platform authority requires manual review'),
+  [AgentAppGamePolicyReadinessKind.AiClassifierContext]: decodeDisplayText(
+    'AI classifier context requires manual review'
+  ),
+} satisfies Readonly<Record<AgentAppGamePolicyReadinessKind, DisplayText>>;
+
+const PolicyReadinessMissingReasons = {
+  [AgentAppGamePolicyReadinessKind.PolicyEvidence]: decodeDisplayText('Policy evidence is missing'),
+  [AgentAppGamePolicyReadinessKind.ApprovalAuthority]: decodeDisplayText('Approval authority is missing'),
+  [AgentAppGamePolicyReadinessKind.ApprovalActionResult]: decodeDisplayText('Approval action result is missing'),
+  [AgentAppGamePolicyReadinessKind.PlatformAuthority]: decodeDisplayText('Platform authority is missing'),
+  [AgentAppGamePolicyReadinessKind.AiClassifierContext]: decodeDisplayText('AI classifier context is missing'),
+} satisfies Readonly<Record<AgentAppGamePolicyReadinessKind, DisplayText>>;
+
 export type AppGamePolicyReadinessPanelDetail = {
   readonly label: DisplayText;
   readonly value: DisplayText;
@@ -107,6 +127,12 @@ function readModelSummary(
     detail(PortalDetails.Custody, displayText(readModel.custodyLabel)),
     detail(PortalDetails.Capability, readableValue(readModel.capabilityStatus)),
     detail(PortalDetails.RowsReturned, countText(readModel.returned)),
+    detail(PortalDetails.EvidenceClaimRows, countText(readModel.evidenceClaimRowCount)),
+    detail(PortalDetails.IdentityRows, countText(readModel.identityRowCount)),
+    detail(PortalDetails.ApprovalAuthorityRows, countText(readModel.approvalAuthorityRowCount)),
+    detail(PortalDetails.ApprovalActionResultRows, countText(readModel.approvalActionResultRowCount)),
+    detail(PortalDetails.PlatformAuthorityRows, countText(readModel.platformAuthorityRowCount)),
+    detail(PortalDetails.AiClassifierRows, countText(readModel.aiClassifierResultRowCount)),
     detail(PortalDetails.PolicyEvaluation, readinessBoolean(readModel.policyEvaluationReady)),
     detail(PortalDetails.ManualReview, manualReviewValue(readModel.manualReviewRequired)),
     detail(PortalDetails.AdapterDispatch, Readable.NotClaimed),
@@ -121,6 +147,7 @@ function readinessRow(row: AgentAppGamePolicyReadinessRow, productClaim: Display
       detail(PortalDetails.ReadinessKind, PolicyReadinessKindLabels[row.readinessKind]),
       detail(PortalDetails.Status, readinessState(row.readinessState)),
       detail(PortalDetails.RowCount, countText(row.rowCount)),
+      detail(PortalDetails.Reason, readinessReason(row)),
       detail(PortalDetails.EvidenceReferences, evidenceReferences(row)),
       detail(PortalDetails.ProductClaim, productClaim),
     ],
@@ -145,6 +172,16 @@ function readinessState(state: AgentAppGamePolicyReadinessState): DisplayText {
     return Readable.ManualRequired;
   }
   return Readable.Unavailable;
+}
+
+function readinessReason(row: AgentAppGamePolicyReadinessRow): DisplayText {
+  if (row.readinessState === AgentAppGamePolicyReadinessState.Ready) {
+    return Readable.Ready;
+  }
+  if (row.readinessState === AgentAppGamePolicyReadinessState.ManualRequired) {
+    return PolicyReadinessManualReasons[row.readinessKind];
+  }
+  return PolicyReadinessMissingReasons[row.readinessKind];
 }
 
 function readinessBoolean(value: boolean): DisplayText {

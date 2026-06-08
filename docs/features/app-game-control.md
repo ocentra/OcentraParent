@@ -218,6 +218,11 @@ control with better evidence and local audit.
   action history, platform authority, and AI classifier readiness rows from the
   existing app/game service model, keeps missing inputs visible as
   missing/manual-required, and fixes `adapterDispatchClaimed=false`.
+- The App/Game Sessions policy-readiness parent route now renders the
+  service-backed evidence-claim, identity, approval authority, approval
+  action-result, platform authority, and AI classifier row counts, plus
+  per-readiness-row ready/manual-required/missing reasons, while preserving
+  `adapterDispatchClaimed=false`.
 - Parent-domain policy preview handoff contracts now map already-compiled
   app/game dry-run policy decisions into read-only preview rows, separating
   native app versus native game target meaning while keeping evaluator runtime,
@@ -805,9 +810,9 @@ diagnostics, or raw private source rows.
       input row availability, and a parent-domain policy preview handoff now
       maps compiled dry-run decisions into read-only native app/game preview
       rows, while the App/Game Sessions portal route renders those readiness
-      rows with no policy execution or adapter dispatch claim. Live evaluator,
-      authoring UI, persistence, timers, and enforcement
-      remain. Rust protocol
+      rows with source row counts and explicit ready/manual-required/missing
+      reasons but no policy execution or adapter dispatch claim. Live evaluator,
+      authoring UI, persistence, timers, and enforcement remain. Rust protocol
       parity now exists for approval authority/action-result, platform
       authority matrix, and classifier boundary shapes, and staged
       journal/SQLite projection plus service read-model evidence refs/counts
