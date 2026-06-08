@@ -1,7 +1,7 @@
 {
   "schemaVersion": "v0.6",
   "proofMode": "tracking-local-platform-proof-batch",
-  "generatedAt": "2026-06-08T21:00:39.415Z",
+  "generatedAt": "2026-06-08T22:11:27.950Z",
   "sourceProofRefs": [
     "test-results/tracking-plan-android-emulator-proof/proof.json",
     "test-results/tracking-android-emulator-artifact-inventory-proof/proof.json",
@@ -33,7 +33,7 @@
       "schemaVersion": "v0.6",
       "area": "android-emulator-runtime",
       "status": "local-proof-passed",
-      "generatedAt": "2026-06-08T21:00:39.415Z",
+      "generatedAt": "2026-06-08T22:11:27.950Z",
       "proofRef": "test-results/tracking-plan-android-emulator-proof/proof.json",
       "sourceRefs": [
         "test-results/tracking-android-emulator-artifact-inventory-proof/proof.json"
@@ -72,7 +72,7 @@
       "schemaVersion": "v0.6",
       "area": "android-physical-device-status",
       "status": "local-proof-passed",
-      "generatedAt": "2026-06-08T21:00:39.415Z",
+      "generatedAt": "2026-06-08T22:11:27.950Z",
       "proofRef": "test-results/tracking-android-physical-device-runtime-proof/proof.json",
       "sourceRefs": [
         "test-results/tracking-physical-device-evidence-review-proof/proof.json"
@@ -95,7 +95,7 @@
         },
         {
           "name": "physicalBackgroundSampleCount",
-          "value": 3194
+          "value": 4177
         },
         {
           "name": "physicalLocalGeofenceTransitionCount",
@@ -123,7 +123,7 @@
       "schemaVersion": "v0.6",
       "area": "cross-platform-runtime-capability",
       "status": "local-proof-passed",
-      "generatedAt": "2026-06-08T21:00:39.415Z",
+      "generatedAt": "2026-06-08T22:11:27.950Z",
       "proofRef": "test-results/tracking-cross-platform-runtime-capability-proof/proof.json",
       "sourceRefs": [
         "test-results/tracking-cross-platform-runtime-capability-proof/windows-host-toolchain.json",
@@ -177,7 +177,7 @@
       "schemaVersion": "v0.6",
       "area": "wsl-local-replay",
       "status": "local-proof-passed",
-      "generatedAt": "2026-06-08T21:00:39.415Z",
+      "generatedAt": "2026-06-08T22:11:27.950Z",
       "proofRef": "test-results/tracking-plan-wsl-local-proof/proof.json",
       "sourceRefs": [],
       "currentProofTier": "P3_LOCAL_DEV_MACHINE",
@@ -205,7 +205,7 @@
       "schemaVersion": "v0.6",
       "area": "hosted-parent-ui-accessibility",
       "status": "local-proof-passed",
-      "generatedAt": "2026-06-08T21:00:39.415Z",
+      "generatedAt": "2026-06-08T22:11:27.950Z",
       "proofRef": "test-results/tracking-plan-hosted-ui-proof/accessibility-summary.json",
       "sourceRefs": [
         "test-results/tracking-hosted-ui-artifact-inventory-proof/proof.json"
@@ -247,7 +247,7 @@
       "schemaVersion": "v0.6",
       "area": "parent-child-local-runtime-bridge",
       "status": "local-proof-passed",
-      "generatedAt": "2026-06-08T21:00:39.415Z",
+      "generatedAt": "2026-06-08T22:11:27.950Z",
       "proofRef": "test-results/tracking-parent-child-local-runtime-bridge-proof/proof.json",
       "sourceRefs": [
         "test-results/eventing-parent-child-runtime-proof/proof.json",
@@ -289,7 +289,7 @@
       "schemaVersion": "v0.6",
       "area": "product-parent-child-ui-local-artifacts",
       "status": "local-proof-passed",
-      "generatedAt": "2026-06-08T21:00:39.415Z",
+      "generatedAt": "2026-06-08T22:11:27.950Z",
       "proofRef": "test-results/tracking-full-product-ui-local-runtime-artifact-capture-proof/proof.json",
       "sourceRefs": [
         "test-results/tracking-full-product-ui-runtime-preflight-proof/proof.json"
@@ -326,7 +326,7 @@
       "schemaVersion": "v0.6",
       "area": "real-runtime-handoff-accounting",
       "status": "manual-required",
-      "generatedAt": "2026-06-08T21:00:39.415Z",
+      "generatedAt": "2026-06-08T22:11:27.950Z",
       "proofRef": "test-results/tracking-real-runtime-handoff-proof/proof.json",
       "sourceRefs": [
         "test-results/tracking-product-readiness-closure-proof/proof.json"
