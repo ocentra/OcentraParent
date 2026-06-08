@@ -23,6 +23,8 @@ mod domain;
 mod flow;
 mod linux_adapter_gate;
 mod live_capture;
+mod live_capture_execution;
+mod live_capture_execution_fixtures;
 mod local_ai_queue;
 mod local_platform_probe;
 mod managed_browser;

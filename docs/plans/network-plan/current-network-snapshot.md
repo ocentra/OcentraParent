@@ -14,6 +14,11 @@ Current Ocentra truth is:
   policy-preview, retention/read-model, platform/manual-required, adapter
   capability/status, action-result, performance, and security proof artifacts
   exist under `output/network-plan-proof/` and `test-results/network-*-proof/`;
+- bounded live-capture execution is modeled as a separate row13b proof: driver
+  execution needs proof-ready row13 refs plus invocation, interface, permission,
+  bounded-window, clean-stop, custody, retention/delete/export, metadata-only
+  sanitization, and private-traffic-exclusion refs; metadata snapshots do not
+  substitute for Npcap/libpcap capture;
 - portal visibility exists for service-backed network read models, including
   network evidence drawer status for activity rows and adapter/platform
   capability state;
@@ -40,7 +45,7 @@ Current Ocentra truth is:
 
 ## Known Gaps
 
-- Live packet capture driver invocation and live raw artifact creation.
+- Production live packet capture driver support and live raw artifact creation.
 - Router/log import implementation proof.
 - Live broker/family-hub transport, provider delivery, child-device delivery,
   remote acknowledgement handling, and remote delete/export propagation.
