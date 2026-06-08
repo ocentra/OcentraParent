@@ -56,7 +56,7 @@ const requiredGates = [
     workpack: '30 Test suite, Playwright, rollout, PR gate',
     collectionMode: 'operator-consented-logged-in-session',
     requirement:
-      'real logged-in social/feed account capture with operator consent, redacted account identifiers, local OCR/VLM analysis, policy dry-run, and raw image deletion proof',
+      'real logged-in social/feed account capture with operator consent, redacted account identifiers or identifier hash, browser session-source custody, local OCR/VLM analysis, policy dry-run, and raw image deletion proof',
   }),
 ];
 
@@ -115,6 +115,7 @@ const negativeChecks = [
       rawPrivateContentIncluded: false,
       operatorConsentRecorded: false,
       redactedAccountIdentifiers: false,
+      browserSessionSourceCustodyRef: '',
     })
   ),
 ];
@@ -204,6 +205,8 @@ function manifestTemplate() {
         ? {
             operatorConsentRecorded: true,
             redactedAccountIdentifiers: true,
+            browserSessionSourceCustodyRef:
+              '<proof ref for profile/storage-state/interactive browser session custody without raw credential retention>',
             policyDryRunProofRef: '<proof ref showing policy consumed the account-surface AI result>',
           }
         : {}),
@@ -247,7 +250,7 @@ function manualEvidenceRunbook() {
     '',
     'Use real live-device or live-host artifacts only. Attach artifacts under `output/screen-plan-proof/external-gates/artifacts/`, calculate the SHA-256 digest, and copy `manual-evidence-manifest.template.json` to `manual-evidence-manifest.json` only after all fields are true for the artifact.',
     '',
-    'Authenticated-account social proof must be operator-consented, must redact account identifiers, must cite local OCR/VLM/AI analysis, must cite policy dry-run consumption, and must cite raw image deletion/custody. Public social/feed proof is not enough for this gate.',
+    'Authenticated-account social proof must be operator-consented, must redact account identifiers or use identifier hashes, must cite browser profile/storage-state/interactive-session custody without raw credential retention, must cite local OCR/VLM/AI analysis, must cite policy dry-run consumption, and must cite raw image deletion/custody. Public social/feed proof is not enough for this gate.',
     '',
     rows,
   ].join('\n');
@@ -355,7 +358,7 @@ function validateArtifact(requiredGate, entry) {
     (entry.operatorConsentRecorded !== true || entry.redactedAccountIdentifiers !== true)
   ) {
     return rejected(
-      'authenticated account proof must record operator consent, redacted account identifiers, local analysis proof, policy dry-run proof, and raw image deletion proof'
+      'authenticated account proof must record operator consent, redacted account identifiers or identifier hashes, browser session-source custody, local analysis proof, policy dry-run proof, and raw image deletion proof'
     );
   }
 
@@ -394,7 +397,13 @@ function requiredProofRefFields(requiredGate) {
   }
 
   if (requiredGate.evidenceKind === 'authenticated-account-capture-proof') {
-    return ['localCaptureProofRef', 'localAnalysisProofRef', 'policyDryRunProofRef', 'rawImageDeletionProofRef'];
+    return [
+      'localCaptureProofRef',
+      'localAnalysisProofRef',
+      'policyDryRunProofRef',
+      'rawImageDeletionProofRef',
+      'browserSessionSourceCustodyRef',
+    ];
   }
 
   if (requiredGate.evidenceKind === 'hosted-relay-proof') {

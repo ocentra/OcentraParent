@@ -1,10 +1,11 @@
 {
   "proof": "screen-ai-live-operator-artifact-gate",
-  "generatedAt": "2026-06-08T05:39:37.095Z",
+  "generatedAt": "2026-06-08T17:35:37.622Z",
   "validatedPipelineSummary": "output/screen-ai-pipeline-proof/live-operator/proof-summary.json",
   "validatedAiSummary": "output/ai-plan-proof/live-operator/proof-summary.json",
   "requiredScenarioCount": 9,
   "validatedScenarioCount": 9,
+  "optionalAuthenticatedAccountScenarioCount": 0,
   "realLiveUrlRows": 7,
   "publicSocialSurfaceRows": 1,
   "authenticatedAccountSocialProof": false,
@@ -114,6 +115,7 @@
       "policyDryRunProof": false
     }
   ],
+  "optionalAuthenticatedAccountScenarios": [],
   "nonClaims": [
     "This gate verifies existing operator-run live artifacts; it does not rerun browser capture or model inference.",
     "The retained Facebook/social row proves a public live social/feed surface only and does not claim authenticated-account social coverage.",

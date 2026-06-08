@@ -132,6 +132,7 @@
       "localAnalysisProofRef": "<localAnalysisProofRef for authenticated-account-social-capture>",
       "policyDryRunProofRef": "<proof ref showing policy consumed the account-surface AI result>",
       "rawImageDeletionProofRef": "<rawImageDeletionProofRef for authenticated-account-social-capture>",
+      "browserSessionSourceCustodyRef": "<proof ref for profile/storage-state/interactive browser session custody without raw credential retention>",
       "operatorConsentRecorded": true,
       "redactedAccountIdentifiers": true
     }

@@ -9,7 +9,7 @@ const bundleRoot = resolve(repoRoot, 'output', 'screen-ai-pipeline-proof', 'live
 const proofPath = join(bundleRoot, 'proof-summary.json');
 const indexPath = join(bundleRoot, 'evidence-index.md');
 
-const scenarioIds = [
+const requiredScenarioIds = [
   'youtube-ordinary-video',
   'youtube-education-video',
   'vimeo-video',
@@ -20,6 +20,7 @@ const scenarioIds = [
   'native-app',
   'protected-unsupported-state',
 ];
+const optionalScenarioIds = ['facebook-authenticated-social-surface'];
 
 const portableJsonFiles = [
   '00-scenario.md',
@@ -44,6 +45,10 @@ const aiSummary = readJson(join(aiRoot, 'proof-summary.json'));
 assert(pipelineSummary.fullRequiredMatrixComplete === true, 'pipeline live operator matrix is incomplete');
 assert(aiSummary.fullRequiredMatrixComplete === true, 'AI live operator matrix is incomplete');
 
+const scenarioIds = [
+  ...requiredScenarioIds,
+  ...optionalScenarioIds.filter((scenarioId) => hasScenario(pipelineSummary, scenarioId)),
+];
 const rows = scenarioIds.map((scenarioId) => bundleScenario(scenarioId));
 const analyzedRows = rows.filter((row) => row.localVlmAnalysisProof === true);
 const policyRows = rows.filter((row) => row.policyDryRunProof === true);
@@ -76,11 +81,11 @@ const proof = {
 };
 
 assert(rows.length === scenarioIds.length, 'scenario bundle count mismatch');
-assert(analyzedRows.length === 8, `expected 8 local VLM rows, got ${analyzedRows.length}`);
-assert(policyRows.length === 8, `expected 8 policy rows, got ${policyRows.length}`);
-assert(screenshotRows.length === 8, `expected 8 parent explanation screenshots, got ${screenshotRows.length}`);
+assert(rows.length >= requiredScenarioIds.length, 'required scenario bundle count mismatch');
+assert(analyzedRows.length >= 8, `expected at least 8 local VLM rows, got ${analyzedRows.length}`);
+assert(policyRows.length >= 8, `expected at least 8 policy rows, got ${policyRows.length}`);
+assert(screenshotRows.length >= 8, `expected at least 8 parent explanation screenshots, got ${screenshotRows.length}`);
 assert(proof.publicSocialSurfaceRows === 1, 'expected one public social surface row');
-assert(proof.authenticatedAccountSocialProof === false, 'authenticated account proof must remain false');
 
 writeFileSync(proofPath, `${JSON.stringify(proof, null, 2)}\n`);
 writeFileSync(indexPath, evidenceIndex(proof));
@@ -161,7 +166,11 @@ function bundleScenario(scenarioId) {
 function copyPortableFile(sourcePath, destinationPath) {
   assert(!sourcePath.includes(`${join('capture', 'queue')}`), `refusing to copy queue artifact ${sourcePath}`);
   assert(basename(sourcePath) !== '03-encrypted-queue.ndjson', `refusing to copy encrypted queue ${sourcePath}`);
-  copyFileSync(sourcePath, destinationPath);
+  if (sourcePath.endsWith('.log')) {
+    writeFileSync(destinationPath, normalizePortableLog(readFileSync(sourcePath, 'utf8')));
+  } else {
+    copyFileSync(sourcePath, destinationPath);
+  }
   return {
     path: relativePath(destinationPath),
     sha256: sha256(destinationPath),
@@ -169,11 +178,23 @@ function copyPortableFile(sourcePath, destinationPath) {
   };
 }
 
+function normalizePortableLog(value) {
+  const normalizedLines = value
+    .replace(/\r\n/gu, '\n')
+    .split('\n')
+    .map((line) => line.trimEnd());
+  return `${normalizedLines.join('\n').trimEnd()}\n`;
+}
+
 function scenarioSummary(summary, scenarioId) {
   const row = summary.scenarios.find((candidate) => candidate.scenarioId === scenarioId);
   assert(Boolean(row), `missing scenario summary ${scenarioId}`);
   assert(row.status === 'passed', `${scenarioId} did not pass live operator proof`);
   return row;
+}
+
+function hasScenario(summary, scenarioId) {
+  return summary.scenarios.some((candidate) => candidate.scenarioId === scenarioId);
 }
 
 function evidenceIndex(proof) {

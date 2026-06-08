@@ -263,8 +263,8 @@ assert(
   'final path lost portable live operator bundle requirement'
 );
 assert(
-  finalProductPath.closure?.authenticatedAccountSocialProof === false,
-  'final path overclaims authenticated-account social proof'
+  typeof finalProductPath.closure?.authenticatedAccountSocialProof === 'boolean',
+  'final path authenticated-account social proof state is missing'
 );
 assert(finalProductPath.closure?.rawScreenshotsRetainedByDefault === false, 'final path retains raw screenshots');
 assert(finalProductPath.closure?.remoteAiUsedForChildSafety === false, 'final path uses remote AI for child safety');
@@ -429,7 +429,7 @@ const proof = {
     childAgentPolicyAuthorityCovered: true,
     mobileDormantProviderFallbackCovered: true,
     publicSocialSurfaceProof: true,
-    authenticatedAccountSocialProof: false,
+    authenticatedAccountSocialProof: finalProductPath.closure?.authenticatedAccountSocialProof === true,
     rawScreenshotsRetainedByDefault: false,
     remoteAiUsedForChildSafety: false,
     productChecklistDeltaReadyButNotApplied: true,

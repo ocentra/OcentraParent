@@ -1,6 +1,6 @@
 # Screen AI Live Operator Evidence Bundle
 
-Generated: 2026-06-08T14:50:57.112Z
+Generated: 2026-06-08T17:35:37.806Z
 
 Scenario count: 9
 Local VLM rows: 8

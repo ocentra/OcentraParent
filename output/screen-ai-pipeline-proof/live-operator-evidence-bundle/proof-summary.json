@@ -1,6 +1,6 @@
 {
   "proof": "screen-ai-live-operator-evidence-bundle",
-  "generatedAt": "2026-06-08T14:50:57.112Z",
+  "generatedAt": "2026-06-08T17:35:37.806Z",
   "sourceArtifacts": {
     "pipelineSummary": "output/screen-ai-pipeline-proof/live-operator/proof-summary.json",
     "aiSummary": "output/ai-plan-proof/live-operator/proof-summary.json"
@@ -87,13 +87,13 @@
         },
         {
           "path": "output/screen-ai-pipeline-proof/live-operator-evidence-bundle/youtube-ordinary-video/vlm-stdout-redacted.log",
-          "sha256": "4706241262724cfce018f6a5b040abfaa5248ceab6a8ecbe407af17a94084bc3",
-          "bytes": 138
+          "sha256": "ff8ee5dcce5f2c5bea076d0441175f211863eeaf4d6a0249f366da339685bf3b",
+          "bytes": 125
         },
         {
           "path": "output/screen-ai-pipeline-proof/live-operator-evidence-bundle/youtube-ordinary-video/vlm-stderr-redacted.log",
-          "sha256": "2e84751be3d7f2c3ed6f6e2eb0434225914a6db4edc35a199fa814074f3e39ee",
-          "bytes": 1067
+          "sha256": "bc1bcd739a430dde1602ec7a995de062ea0ec2e148ce19e934edb5b978d176dc",
+          "bytes": 1047
         },
         {
           "path": "output/screen-ai-pipeline-proof/live-operator-evidence-bundle/youtube-ordinary-video/10-parent-explanation.png",
@@ -179,13 +179,13 @@
         },
         {
           "path": "output/screen-ai-pipeline-proof/live-operator-evidence-bundle/youtube-education-video/vlm-stdout-redacted.log",
-          "sha256": "ab55181d48f8e2bc3aff6984f02831504b3c5c7d3cd9a2b05996fbdfc41d4c90",
-          "bytes": 158
+          "sha256": "3b45f1d3d25cb87aa0ffd2de4d19afad3c95b1fedbcd770cba457d7ac5017a34",
+          "bytes": 145
         },
         {
           "path": "output/screen-ai-pipeline-proof/live-operator-evidence-bundle/youtube-education-video/vlm-stderr-redacted.log",
-          "sha256": "db1ef4428e7ec2af892f25c7372f03bb617d55432f4ec6e1df56b7e4a3caddec",
-          "bytes": 1067
+          "sha256": "eec224c68c2fd31e79e8a2aea876d2d9dedcdcd8a8e586fb14ab500c76786e55",
+          "bytes": 1047
         },
         {
           "path": "output/screen-ai-pipeline-proof/live-operator-evidence-bundle/youtube-education-video/10-parent-explanation.png",
@@ -271,13 +271,13 @@
         },
         {
           "path": "output/screen-ai-pipeline-proof/live-operator-evidence-bundle/vimeo-video/vlm-stdout-redacted.log",
-          "sha256": "fe779556d43a389b784bb287c43fce32cd6253e682caad41ae52d6c0e22a2bb7",
-          "bytes": 152
+          "sha256": "e4855990cbdd4ad22dee0aab6fd26d5007954e038b2a6bdbdfbddb59231cd264",
+          "bytes": 139
         },
         {
           "path": "output/screen-ai-pipeline-proof/live-operator-evidence-bundle/vimeo-video/vlm-stderr-redacted.log",
-          "sha256": "e5ae358692199b7a3340955708faef779f0eb65cf9dd3207119d06fc2c642a46",
-          "bytes": 1067
+          "sha256": "8d6eb07aafb5b9e9ac5c681858faf6d58e82cbba5389a386c35f84ead9e75457",
+          "bytes": 1047
         },
         {
           "path": "output/screen-ai-pipeline-proof/live-operator-evidence-bundle/vimeo-video/10-parent-explanation.png",
@@ -363,13 +363,13 @@
         },
         {
           "path": "output/screen-ai-pipeline-proof/live-operator-evidence-bundle/facebook-social-surface/vlm-stdout-redacted.log",
-          "sha256": "adcba42edd27ad2d887eb173306f37e3f3b0ed715e6e230117cc448c94c51471",
-          "bytes": 143
+          "sha256": "5513f85651e51cd4d959b2e45a45c0f8a72651cdbc13b010db0ff5538f14fd31",
+          "bytes": 130
         },
         {
           "path": "output/screen-ai-pipeline-proof/live-operator-evidence-bundle/facebook-social-surface/vlm-stderr-redacted.log",
-          "sha256": "2caa9e97e5029a6022d0eb5bc590f54ab86ba4fdba63348d655f72baecaf3ba5",
-          "bytes": 1067
+          "sha256": "3011b61d6ae4485adcf4ad845365380c818c756e516658a746f43478682c3ad4",
+          "bytes": 1047
         },
         {
           "path": "output/screen-ai-pipeline-proof/live-operator-evidence-bundle/facebook-social-surface/10-parent-explanation.png",
@@ -455,13 +455,13 @@
         },
         {
           "path": "output/screen-ai-pipeline-proof/live-operator-evidence-bundle/browser-game/vlm-stdout-redacted.log",
-          "sha256": "95f05f69dd534a80865815625b891caf583acc52676395ac19aae6cb4df33bbb",
-          "bytes": 346
+          "sha256": "b74231f2364a2d28449d1499d7e7db6b41c8ca55cadbba1364851e70516cbb9e",
+          "bytes": 330
         },
         {
           "path": "output/screen-ai-pipeline-proof/live-operator-evidence-bundle/browser-game/vlm-stderr-redacted.log",
-          "sha256": "0171e71f4ef2c80f833acf1c0d78c67647a98642247f9619be322f967cc37be4",
-          "bytes": 1067
+          "sha256": "21d56e56f795eccb41cf3836600e7acf17dba59541846d7d3d2b7ee05a09bdb5",
+          "bytes": 1047
         },
         {
           "path": "output/screen-ai-pipeline-proof/live-operator-evidence-bundle/browser-game/10-parent-explanation.png",
@@ -547,13 +547,13 @@
         },
         {
           "path": "output/screen-ai-pipeline-proof/live-operator-evidence-bundle/shopping-page/vlm-stdout-redacted.log",
-          "sha256": "47f32a671c45fd0a2f6f2768ff8a4b099bebf2c1748fe206fe9acfe872629a9c",
-          "bytes": 294
+          "sha256": "f8ece12b7e1e6ee2632f1ea21442737d1d60999673632a0de23294e24458ad7e",
+          "bytes": 273
         },
         {
           "path": "output/screen-ai-pipeline-proof/live-operator-evidence-bundle/shopping-page/vlm-stderr-redacted.log",
-          "sha256": "31a5a406f526c26705169213344361d0f12915bc58e3a7e6eca21e234abcdcb9",
-          "bytes": 1067
+          "sha256": "37e7b7b49d3c5261e2aad425cc28513d522636a5251a76bf782ddbd19f64b777",
+          "bytes": 1047
         },
         {
           "path": "output/screen-ai-pipeline-proof/live-operator-evidence-bundle/shopping-page/10-parent-explanation.png",
@@ -639,13 +639,13 @@
         },
         {
           "path": "output/screen-ai-pipeline-proof/live-operator-evidence-bundle/school-productivity/vlm-stdout-redacted.log",
-          "sha256": "792112f5d5fa978ecb3e2fc9754be5a6a6c1dc85e93d7b5627288a9391b8ddec",
-          "bytes": 148
+          "sha256": "eec3710e4764bcfd5bca583d02489459208532ec9f537497d60d068887c35b2e",
+          "bytes": 135
         },
         {
           "path": "output/screen-ai-pipeline-proof/live-operator-evidence-bundle/school-productivity/vlm-stderr-redacted.log",
-          "sha256": "d1cad4d98671d9c2cfab8ac39167f7f2f09918be64197b21cd80a4c24bf82cab",
-          "bytes": 1067
+          "sha256": "ee6f39def487fb9ed6819e21b35b3d084688b2f45ef147c67c213c556120e2e8",
+          "bytes": 1047
         },
         {
           "path": "output/screen-ai-pipeline-proof/live-operator-evidence-bundle/school-productivity/10-parent-explanation.png",
@@ -731,13 +731,13 @@
         },
         {
           "path": "output/screen-ai-pipeline-proof/live-operator-evidence-bundle/native-app/vlm-stdout-redacted.log",
-          "sha256": "2eee98f8c09ef601afb467f60c85d294886f97092ba529b70bd25e343351ddfd",
-          "bytes": 351
+          "sha256": "8a54f9b1c93f8bd5bf26391983651d91ca74f4a85ceff6db5f3ebc2955b64fb6",
+          "bytes": 338
         },
         {
           "path": "output/screen-ai-pipeline-proof/live-operator-evidence-bundle/native-app/vlm-stderr-redacted.log",
-          "sha256": "8a6c94aa06b75f9a1019d7f9aeee02ccf1b3acf429038405a4bc421e09b5b9e5",
-          "bytes": 1067
+          "sha256": "03c45dba4bd55dfef853fe09c02d8b5b4b36d8a3b19118f3fc260dc7336da47c",
+          "bytes": 1047
         },
         {
           "path": "output/screen-ai-pipeline-proof/live-operator-evidence-bundle/native-app/10-parent-explanation.png",

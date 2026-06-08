@@ -43,6 +43,7 @@ const servicePolicyRefProducer = load(SourcePaths.servicePolicyRefProducer);
 const serviceWinRtOcrPolicy = load(SourcePaths.serviceWinRtOcrPolicy);
 
 const liveRows = validateLiveOperator();
+const authenticatedAccountSocialProof = validateAuthenticatedAccountProofAlignment();
 const closure = {
   realTriggerRows: liveRows.length,
   browserLiveRows: liveRows.filter((row) => BrowserScenarioIds.has(row.scenarioId)).length,
@@ -104,7 +105,7 @@ const proof = {
     adapterDependencyHandoffRequired: closure.adapterDependencyHandoffProven,
     householdMeshConsumesRedactedRefsOnly: closure.householdMeshBoundaryProven,
     publicSocialSurfaceProof: true,
-    authenticatedAccountSocialProof: false,
+    authenticatedAccountSocialProof,
     householdRouteSelectionCovered: true,
     householdMeshBridgeMediated: true,
     childAgentPolicyAuthorityCovered: true,
@@ -121,7 +122,9 @@ const proof = {
   nonClaims: [
     'This verifier validates retained real-run artifacts and does not rerun the live operator capture or model inference session.',
     'This proof requires the sanitized live-operator evidence bundle so remote review can inspect retained redacted source, AI, policy, deletion, and parent explanation artifacts without raw screenshots or encrypted queues.',
-    'Managed-browser trigger producer ownership, authenticated-account social proof, and broad browser/network/mobile/Linux adapters remain separate unless their own execution artifacts are cited.',
+    authenticatedAccountSocialProof
+      ? 'Authenticated-account social proof is included only because the retained optional logged-in live-operator row, artifact gate, and portable evidence bundle validate it; managed-browser trigger producer ownership and broad browser/network/mobile/Linux adapters remain separate unless their own execution artifacts are cited.'
+      : 'Managed-browser trigger producer ownership, authenticated-account social proof, and broad browser/network/mobile/Linux adapters remain separate unless their own execution artifacts are cited.',
     'The custody-aware final adapter audit is required by this proof and keeps broad/browser/network/mobile/native-Linux product-complete adapter execution blocked while WSL2 Linux execution remains separately proved.',
     'The adapter blocker ledger and dependency handoff are required by this proof; they map upstream execution artifacts without upgrading product-complete claims.',
     'The screen-plan and AI-plan closure audits are required by this proof; they stack prerequisites without overriding remaining external adapter and platform gates.',
@@ -146,10 +149,6 @@ function validateLiveOperator() {
     liveOperatorArtifactGate.publicSocialSurfaceRows === 1,
     'live operator gate must prove exactly one public social surface row'
   );
-  assert(
-    liveOperatorArtifactGate.authenticatedAccountSocialProof === false,
-    'live operator gate must not claim authenticated-account social proof'
-  );
   assert(liveOperator.liveExternalUrlProof === true, 'live operator missing live external URL proof');
   assert(liveOperator.localVlmAnalysisProof === true, 'live operator missing local VLM proof');
   assert(liveOperator.policyDryRunProof === true, 'live operator missing policy dry-run proof');
@@ -167,10 +166,10 @@ function validateLiveOperatorEvidenceBundle() {
   );
   assert(liveOperatorEvidenceBundle.bundlePortableForReview === true, 'live operator bundle is not portable');
   assert(liveOperatorEvidenceBundle.scenarioCount === LiveScenarioIds.length, 'live operator bundle scenario mismatch');
-  assert(liveOperatorEvidenceBundle.localVlmRows === 8, 'live operator bundle missing local VLM rows');
-  assert(liveOperatorEvidenceBundle.policyDryRunRows === 8, 'live operator bundle missing policy dry-run rows');
+  assert(liveOperatorEvidenceBundle.localVlmRows >= 8, 'live operator bundle missing local VLM rows');
+  assert(liveOperatorEvidenceBundle.policyDryRunRows >= 8, 'live operator bundle missing policy dry-run rows');
   assert(
-    liveOperatorEvidenceBundle.parentExplanationScreenshots === 8,
+    liveOperatorEvidenceBundle.parentExplanationScreenshots >= 8,
     'live operator bundle missing parent explanation screenshots'
   );
   assert(liveOperatorEvidenceBundle.rawScreenshotFilesCopied === false, 'live operator bundle copied raw screenshots');
@@ -179,8 +178,9 @@ function validateLiveOperatorEvidenceBundle() {
     'live operator bundle copied encrypted queues'
   );
   assert(
-    liveOperatorEvidenceBundle.authenticatedAccountSocialProof === false,
-    'live operator bundle overclaims authenticated-account proof'
+    liveOperatorEvidenceBundle.authenticatedAccountSocialProof ===
+      liveOperatorArtifactGate.authenticatedAccountSocialProof,
+    'live operator bundle and artifact gate disagree on authenticated-account proof'
   );
 
   for (const scenarioId of LiveScenarioIds) {
@@ -194,6 +194,24 @@ function validateLiveOperatorEvidenceBundle() {
     }
   }
 
+  return true;
+}
+
+function validateAuthenticatedAccountProofAlignment() {
+  const gateClaim = liveOperatorArtifactGate.authenticatedAccountSocialProof === true;
+  const bundleClaim = liveOperatorEvidenceBundle.authenticatedAccountSocialProof === true;
+  const summaryClaim = liveOperator.authenticatedAccountSocialProof === true;
+  assert(gateClaim === bundleClaim, 'artifact gate and bundle disagree on account proof');
+  assert(gateClaim === summaryClaim, 'artifact gate and live operator summary disagree on account proof');
+  if (!gateClaim) {
+    return false;
+  }
+  const accountRows = liveOperatorArtifactGate.optionalAuthenticatedAccountScenarios ?? [];
+  assert(accountRows.length > 0, 'account proof claimed without optional account rows');
+  assert(
+    accountRows.every((row) => row.authenticatedAccountProof === true && row.localVlmAnalysisProof === true),
+    'account proof rows missing account or local VLM proof'
+  );
   return true;
 }
 

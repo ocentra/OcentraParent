@@ -1,6 +1,6 @@
 {
   "proof": "screen-plan-external-gates",
-  "generatedAt": "2026-06-08T16:21:17.121Z",
+  "generatedAt": "2026-06-08T17:34:05.597Z",
   "manifest": {
     "path": "output/screen-plan-proof/external-gates/manual-evidence-manifest.json",
     "present": true,
@@ -149,14 +149,15 @@
       "evidenceKind": "authenticated-account-capture-proof",
       "workpack": "30 Test suite, Playwright, rollout, PR gate",
       "collectionMode": "operator-consented-logged-in-session",
-      "requirement": "real logged-in social/feed account capture with operator consent, redacted account identifiers, local OCR/VLM analysis, policy dry-run, and raw image deletion proof",
+      "requirement": "real logged-in social/feed account capture with operator consent, redacted account identifiers or identifier hash, browser session-source custody, local OCR/VLM analysis, policy dry-run, and raw image deletion proof",
       "status": "missing",
       "artifactPath": null,
       "requiredProofRefFields": [
         "localCaptureProofRef",
         "localAnalysisProofRef",
         "policyDryRunProofRef",
-        "rawImageDeletionProofRef"
+        "rawImageDeletionProofRef",
+        "browserSessionSourceCustodyRef"
       ],
       "reason": "No matching manifest entry exists."
     }
