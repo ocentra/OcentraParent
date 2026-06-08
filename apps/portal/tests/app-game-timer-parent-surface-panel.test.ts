@@ -391,6 +391,7 @@ function expectParentPreferenceSetupChildRuntimeReadiness(
 function expectParentPreferenceSetupProviderReadiness(
   details: readonly ReturnType<typeof createAppGameTimerParentPreferenceSetupCommandResultDetails>[number][]
 ) {
+  expectParentPreferenceSetupProviderAggregate(details);
   expect(details).toContainEqual({
     label: 'Provider delivery readiness refs',
     value:
@@ -462,6 +463,27 @@ function expectParentPreferenceSetupProviderReadiness(
   expect(details).toContainEqual({
     label: 'Provider delivery receipt ingested status',
     value: 'Ready',
+  });
+}
+
+function expectParentPreferenceSetupProviderAggregate(
+  details: readonly ReturnType<typeof createAppGameTimerParentPreferenceSetupCommandResultDetails>[number][]
+) {
+  expect(details).toContainEqual({
+    label: 'Provider delivery aggregate status',
+    value: 'Manual provider setup required; local outbox, queue, and receipt tracking are recorded.',
+  });
+  expect(details).toContainEqual({
+    label: 'Provider delivery next action',
+    value: 'Configure provider adapter and credential proof before external delivery.',
+  });
+  expect(details).toContainEqual({
+    label: 'Provider delivery proof state',
+    value: 'Local durable outbox, provider queue, receipt-required, pending, and ingested refs are visible.',
+  });
+  expect(details).toContainEqual({
+    label: 'Provider delivery no-claim boundary',
+    value: 'Provider delivery execution and external provider receipt ingestion are not claimed.',
   });
 }
 

@@ -1444,6 +1444,12 @@ diagnostics, or raw private source rows.
       delivery execution, external provider receipt ingestion, adapter
       dispatch, broad blocking, platform enforcement, raw private source rows,
       raw target values, and private diagnostics unclaimed.
+      The parent command-result surface now also aggregates the durable local
+      outbox, provider queue, receipt-required, receipt-pending, and
+      receipt-ingested chain into a parent-readable provider delivery status,
+      next action, proof-state, and no-claim boundary. This keeps the detailed
+      refs available while making the provider-delivery blocker understandable
+      without adding a new protocol command during E-D shared protocol locks.
 - [ ] Adapter capability status per platform. Cross-platform authority and
       broad-blocking gate contracts now record manual-required, unavailable,
       and not-claimed proof requirements. Platform-extension routing now maps

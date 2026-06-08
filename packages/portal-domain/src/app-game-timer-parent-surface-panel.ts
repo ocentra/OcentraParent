@@ -104,8 +104,12 @@ const TimerParentSurfaceDetails = {
   ProviderDeliveryAdapterRequirementStatus: decodeDisplayText('Provider delivery adapter requirement status'),
   ProviderDeliveryAttemptRefs: decodeDisplayText('Provider delivery attempt refs'),
   ProviderDeliveryAttemptStatus: decodeDisplayText('Provider delivery attempt status'),
+  ProviderDeliveryAggregateStatus: decodeDisplayText('Provider delivery aggregate status'),
   ProviderDeliveryCredentialRequirementRefs: decodeDisplayText('Provider delivery credential requirement refs'),
   ProviderDeliveryCredentialRequirementStatus: decodeDisplayText('Provider delivery credential requirement status'),
+  ProviderDeliveryNextAction: decodeDisplayText('Provider delivery next action'),
+  ProviderDeliveryNoClaimBoundary: decodeDisplayText('Provider delivery no-claim boundary'),
+  ProviderDeliveryProofState: decodeDisplayText('Provider delivery proof state'),
   ProviderDeliveryQueueRefs: decodeDisplayText('Provider delivery queue refs'),
   ProviderDeliveryQueueStatus: decodeDisplayText('Provider delivery queue status'),
   ProviderDeliveryReceiptRequirementRefs: decodeDisplayText('Provider delivery receipt requirement refs'),
@@ -132,6 +136,19 @@ const TimerParentSurfaceDetails = {
 
 const TimerParentSurfaceActions = {
   RequestParentPreferenceSetup: decodeDisplayText('Request parent setup'),
+} as const;
+
+const ProviderDeliveryAggregateValues = {
+  ManualProviderSetupRequired: decodeDisplayText(
+    'Manual provider setup required; local outbox, queue, and receipt tracking are recorded.'
+  ),
+  NextAction: decodeDisplayText('Configure provider adapter and credential proof before external delivery.'),
+  NoClaimBoundary: decodeDisplayText(
+    'Provider delivery execution and external provider receipt ingestion are not claimed.'
+  ),
+  ProofState: decodeDisplayText(
+    'Local durable outbox, provider queue, receipt-required, pending, and ingested refs are visible.'
+  ),
 } as const;
 
 const TimerParentSurfaceProductClaims = {
@@ -607,6 +624,7 @@ function parentPreferenceSetupProviderDeliveryDetails(
   result: AppGameTimerParentPreferenceSetupRequestResult
 ): readonly AppGameTimerParentSurfacePanelDetail[] {
   return [
+    ...parentPreferenceSetupProviderDeliveryAggregateDetails(result),
     detail(
       TimerParentSurfaceDetails.ProviderDeliveryReadinessRefs,
       joinedOrNotReported(result.providerDeliveryReadinessIds)
@@ -668,6 +686,22 @@ function parentPreferenceSetupProviderDeliveryDetails(
       TimerParentSurfaceDetails.ProviderDeliveryReceiptIngestedStatus,
       parentPreferenceSetupResultStatus(result.providerDeliveryReceiptIngestedStatus)
     ),
+  ];
+}
+
+function parentPreferenceSetupProviderDeliveryAggregateDetails(
+  result: AppGameTimerParentPreferenceSetupRequestResult
+): readonly AppGameTimerParentSurfacePanelDetail[] {
+  const aggregateStatus =
+    result.providerDeliveryClaimed || result.providerReceiptIngestionClaimed
+      ? Readable.Review
+      : ProviderDeliveryAggregateValues.ManualProviderSetupRequired;
+
+  return [
+    detail(TimerParentSurfaceDetails.ProviderDeliveryAggregateStatus, aggregateStatus),
+    detail(TimerParentSurfaceDetails.ProviderDeliveryNextAction, ProviderDeliveryAggregateValues.NextAction),
+    detail(TimerParentSurfaceDetails.ProviderDeliveryProofState, ProviderDeliveryAggregateValues.ProofState),
+    detail(TimerParentSurfaceDetails.ProviderDeliveryNoClaimBoundary, ProviderDeliveryAggregateValues.NoClaimBoundary),
   ];
 }
 
