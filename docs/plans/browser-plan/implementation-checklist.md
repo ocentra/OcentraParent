@@ -910,6 +910,23 @@ cloud routing, parent notification UI delivery, report delivery execution,
 final policy execution, connector/native runtime, browser mutation, child
 intervention execution, unmanaged exact URL support, or enforcement.
 
+WP13 social provider receipt ingestion readiness stream status addendum:
+`browser-runtime-social-provider-receipt-ingestion-readiness-status-proof`
+projects the parsed social provider receipt stream into a portal-domain receipt
+ingestion readiness status without importing locked parent-domain package
+metadata. Provider-dispatch-required receipt rows become
+ingestion-contract-required status because webhook contract, provider
+credential proof, durable receipt store proof, and observed provider receipt
+ingestion remain unavailable; manual receipt rows stay manual-required. Evidence:
+`test-results/browser-runtime-social-provider-receipt-ingestion-readiness-status-proof/proof.json`
+and
+`output/browser-plan-proof/browser-runtime-social-provider-receipt-ingestion-readiness-status/01-browser-runtime-social-provider-receipt-ingestion-readiness-status-proof.md`.
+This does not claim provider delivery, provider receipt ingestion runtime,
+provider webhook runtime, provider credentials, observed provider receipts,
+cloud routing, parent notification UI delivery, report delivery execution,
+final policy execution, connector/native runtime, browser mutation, child
+intervention execution, unmanaged exact URL support, or enforcement.
+
 ## Worker Report Template
 
 Use this shape in the hub report or PR-ready note:

@@ -929,3 +929,30 @@ runtime, provider credentials, observed provider receipts, cloud routing,
 parent notification UI delivery, report delivery execution, final policy
 execution, connector/native runtime, browser mutation, child intervention
 execution, unmanaged exact URL support, or enforcement.
+
+## Social Provider Receipt Ingestion Readiness Stream Status Addendum - 2026-06-08
+
+`browser-runtime-social-provider-receipt-ingestion-readiness-status-proof`
+projects the parsed social provider receipt stream into a portal-domain receipt
+ingestion readiness status. Provider-dispatch-required rows become
+ingestion-contract-required because webhook contract, provider credential proof,
+durable receipt store proof, and observed provider receipt ingestion remain
+unavailable. Manual receipt rows stay manual-required and carry no durable or
+provider refs.
+
+Evidence:
+
+- `packages/portal-domain/src/browser-social-provider-receipt-ingestion-readiness-status.ts`
+- `packages/portal-domain/tests/browser-social-provider-receipt-ingestion-readiness-status.test.ts`
+- `scripts/test/browser-runtime-social-provider-receipt-ingestion-readiness-status-proof.mjs`
+- `test-results/browser-runtime-social-provider-receipt-ingestion-readiness-status-proof/proof.json`
+- `output/browser-plan-proof/browser-runtime-social-provider-receipt-ingestion-readiness-status/01-browser-runtime-social-provider-receipt-ingestion-readiness-status-proof.md`
+- `cmd /c node scripts/test/browser-runtime-social-provider-receipt-ingestion-readiness-status-proof.mjs`
+
+This is portal-domain status projection proof only. It does not claim provider
+delivery, provider receipt ingestion runtime, webhook runtime, credentials,
+observed provider receipts, cloud routing, parent notification UI delivery,
+report delivery execution, final policy execution, connector/native runtime,
+browser mutation, child intervention execution, unmanaged exact URL support, or
+enforcement. The parent-domain package subpath export remains deferred while
+another active lane owns `packages/parent-domain/package.json`.

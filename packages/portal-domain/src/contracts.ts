@@ -169,6 +169,11 @@ export {
   type BrowserSocialProviderReceiptStreamStatusIntent,
 } from './browser-social-provider-receipt-stream-status';
 export {
+  createBrowserSocialProviderReceiptIngestionReadinessStatusIntent,
+  type BrowserSocialProviderReceiptIngestionReadinessStatusDetail,
+  type BrowserSocialProviderReceiptIngestionReadinessStatusIntent,
+} from './browser-social-provider-receipt-ingestion-readiness-status';
+export {
   PortalRoute,
   PortalDevToolWindow,
   PortalAiRuntimeRoutes,
