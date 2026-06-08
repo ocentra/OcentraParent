@@ -122,6 +122,8 @@ Proof root: `output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-g
   `50-child-runtime-artifact-gate-proof.json`
 - Tracking product-readiness closure proof:
   `46-product-readiness-closure-proof.json`
+- Tracking real-runtime handoff proof:
+  `63-real-runtime-handoff-proof.json`
 - Refreshed tracking product-readiness closure proof now consumes the
   authority manual-required proof, physical-device artifact gate, and
   provider-delivery artifact gate:
@@ -328,6 +330,16 @@ handoff. It writes
 keeping Android/iOS physical background behavior, actual child-device runtime,
 full product parent/child UI, authority enrollment, provider delivery/receipt
 runtime, production workers, and product-ready tracking unclaimed.
+
+This branch adds `node scripts/test/tracking-real-runtime-handoff-proof.mjs`,
+which derives a single real-runtime handoff from the existing physical-device,
+child-runtime, full-product UI, authority, provider-delivery,
+retention-runtime, production worker, escalation-runtime, and product-readiness
+closure proofs. It writes `63-real-runtime-handoff-proof.json`,
+`output/tracking-plan-proof/tracking-real-runtime-handoff-proof/proof.json`,
+and `test-results/tracking-real-runtime-handoff-proof/proof.json`, listing the
+exact remaining P4/manual artifacts for later real-device/provider/production
+validation while keeping product-ready tracking false.
 
 This branch adds `node scripts/test/tracking-child-runtime-artifact-gate-proof.mjs`,
 which writes WP30/WP33 child-runtime artifact gate proof artifacts for the

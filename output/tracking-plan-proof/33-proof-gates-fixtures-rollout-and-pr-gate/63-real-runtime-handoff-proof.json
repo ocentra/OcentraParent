@@ -1,0 +1,407 @@
+{
+  "schemaVersion": 1,
+  "proofMode": "tracking-real-runtime-handoff-proof",
+  "generatedAt": "2026-06-08T01:05:00.000Z",
+  "branch": "codex/tracking-plan-full-continuation-a",
+  "baseCommitAtGeneration": "8880dd45e2bdaf1c70693a4c6fcc4ab6943ef4d9",
+  "requiredProofTier": "P4_REAL_RUNTIME_HANDOFF",
+  "currentProofTier": "P3_LOCAL_DEV_MACHINE",
+  "currentStatus": "manual_required",
+  "sourceGateRefs": [
+    "test-results/tracking-physical-device-artifact-gate-proof/proof.json",
+    "test-results/tracking-child-runtime-artifact-gate-proof/proof.json",
+    "test-results/tracking-full-product-ui-runtime-artifact-gate-proof/proof.json",
+    "test-results/tracking-authority-runtime-artifact-gate-proof/proof.json",
+    "test-results/tracking-provider-delivery-artifact-gate-proof/proof.json",
+    "test-results/tracking-retention-runtime-artifact-gate-proof/proof.json",
+    "test-results/tracking-production-worker-runtime-artifact-gate-proof/proof.json",
+    "test-results/tracking-escalation-runtime-artifact-gate-proof/proof.json"
+  ],
+  "closureProofRef": "test-results/tracking-product-readiness-closure-proof/proof.json",
+  "handoffRows": [
+    {
+      "handoffArea": "physical-device-background-and-geofence",
+      "sourceProofRef": "test-results/tracking-physical-device-artifact-gate-proof/proof.json",
+      "rowId": "tracking-physical-device-artifacts-android",
+      "proofRoot": "output/tracking-plan-proof/android-background-geofence",
+      "requiredProofTier": "P4_PHYSICAL_DEVICE",
+      "currentProofTier": "P3_LOCAL_DEV_MACHINE",
+      "status": "manual-required",
+      "requiredArtifacts": [
+        "00-run-metadata.json",
+        "01-device-metadata.json",
+        "02-permission-state.json",
+        "03-geofence-definition.json",
+        "04-location-events.ndjson",
+        "05-geofence-transitions.ndjson",
+        "06-alert-decision.json",
+        "07-parent-ui-screenshot.png",
+        "08-logcat.txt",
+        "09-result-summary.md"
+      ],
+      "presentArtifacts": [],
+      "missingArtifacts": [
+        "00-run-metadata.json",
+        "01-device-metadata.json",
+        "02-permission-state.json",
+        "03-geofence-definition.json",
+        "04-location-events.ndjson",
+        "05-geofence-transitions.ndjson",
+        "06-alert-decision.json",
+        "07-parent-ui-screenshot.png",
+        "08-logcat.txt",
+        "09-result-summary.md"
+      ],
+      "auditRefs": [
+        "tracking-physical-device-artifacts-android-audit"
+      ],
+      "productClaimReady": false
+    },
+    {
+      "handoffArea": "physical-device-background-and-geofence",
+      "sourceProofRef": "test-results/tracking-physical-device-artifact-gate-proof/proof.json",
+      "rowId": "tracking-physical-device-artifacts-ios",
+      "proofRoot": "output/tracking-plan-proof/ios-region-monitoring",
+      "requiredProofTier": "P4_PHYSICAL_DEVICE",
+      "currentProofTier": "P3_LOCAL_DEV_MACHINE",
+      "status": "manual-required",
+      "requiredArtifacts": [
+        "00-run-metadata.json",
+        "01-device-metadata.json",
+        "02-authorization-state.json",
+        "03-region-definition.json",
+        "04-location-events.ndjson",
+        "05-region-transitions.ndjson",
+        "06-alert-decision.json",
+        "07-screenshots",
+        "08-xcode-test-log.txt",
+        "09-result-summary.md"
+      ],
+      "presentArtifacts": [],
+      "missingArtifacts": [
+        "00-run-metadata.json",
+        "01-device-metadata.json",
+        "02-authorization-state.json",
+        "03-region-definition.json",
+        "04-location-events.ndjson",
+        "05-region-transitions.ndjson",
+        "06-alert-decision.json",
+        "07-screenshots",
+        "08-xcode-test-log.txt",
+        "09-result-summary.md"
+      ],
+      "auditRefs": [
+        "tracking-physical-device-artifacts-ios-audit"
+      ],
+      "productClaimReady": false
+    },
+    {
+      "handoffArea": "child-device-runtime-execution",
+      "sourceProofRef": "test-results/tracking-child-runtime-artifact-gate-proof/proof.json",
+      "rowId": "tracking-child-runtime-artifacts-device-execution",
+      "proofRoot": "output/tracking-plan-proof/child-device-runtime-execution",
+      "requiredProofTier": "P4_PHYSICAL_DEVICE",
+      "currentProofTier": "P3_LOCAL_DEV_MACHINE",
+      "status": "manual-required",
+      "requiredArtifacts": [
+        "00-run-metadata.json",
+        "01-child-device-metadata.json",
+        "02-delivery-envelope.json",
+        "03-execution-result.json",
+        "04-visible-child-ui-snapshot.png",
+        "05-parent-receipt.json",
+        "06-runtime-observation.ndjson",
+        "07-permission-consent-state.json",
+        "08-device-log.txt",
+        "09-result-summary.md"
+      ],
+      "presentArtifacts": [],
+      "missingArtifacts": [
+        "00-run-metadata.json",
+        "01-child-device-metadata.json",
+        "02-delivery-envelope.json",
+        "03-execution-result.json",
+        "04-visible-child-ui-snapshot.png",
+        "05-parent-receipt.json",
+        "06-runtime-observation.ndjson",
+        "07-permission-consent-state.json",
+        "08-device-log.txt",
+        "09-result-summary.md"
+      ],
+      "auditRefs": [
+        "tracking-child-runtime-artifacts-device-execution-audit"
+      ],
+      "productClaimReady": false
+    },
+    {
+      "handoffArea": "full-product-parent-child-ui-runtime",
+      "sourceProofRef": "test-results/tracking-full-product-ui-runtime-artifact-gate-proof/proof.json",
+      "rowId": "tracking-full-product-ui-runtime-artifacts",
+      "proofRoot": "output/tracking-plan-proof",
+      "requiredProofTier": "P4_PHYSICAL_DEVICE",
+      "currentProofTier": "P2_HOSTED_CI",
+      "status": "manual-required",
+      "requiredArtifacts": [
+        "output/tracking-plan-proof/product-parent-child-ui-runtime/01-parent-overview-runtime.png",
+        "output/tracking-plan-proof/product-parent-child-ui-runtime/02-parent-device-detail-runtime.png",
+        "output/tracking-plan-proof/product-parent-child-ui-runtime/03-parent-notification-history-preferences-runtime.png",
+        "output/tracking-plan-proof/product-parent-child-ui-runtime/04-retention-settings-production-write-result.png",
+        "output/tracking-plan-proof/product-parent-child-ui-runtime/05-child-device-rendered-check-in-runtime.png",
+        "output/tracking-plan-proof/product-parent-child-ui-runtime/06-child-device-rendered-location-consent-runtime.png",
+        "output/tracking-plan-proof/product-parent-child-ui-runtime/07-child-device-safe-help-response-runtime.png",
+        "output/tracking-plan-proof/product-parent-child-ui-runtime/08-cross-surface-accessibility-report.json",
+        "output/tracking-plan-proof/product-parent-child-ui-runtime/09-product-ui-end-to-end-trace.json"
+      ],
+      "presentArtifacts": [],
+      "missingArtifacts": [
+        "output/tracking-plan-proof/product-parent-child-ui-runtime/01-parent-overview-runtime.png",
+        "output/tracking-plan-proof/product-parent-child-ui-runtime/02-parent-device-detail-runtime.png",
+        "output/tracking-plan-proof/product-parent-child-ui-runtime/03-parent-notification-history-preferences-runtime.png",
+        "output/tracking-plan-proof/product-parent-child-ui-runtime/04-retention-settings-production-write-result.png",
+        "output/tracking-plan-proof/product-parent-child-ui-runtime/05-child-device-rendered-check-in-runtime.png",
+        "output/tracking-plan-proof/product-parent-child-ui-runtime/06-child-device-rendered-location-consent-runtime.png",
+        "output/tracking-plan-proof/product-parent-child-ui-runtime/07-child-device-safe-help-response-runtime.png",
+        "output/tracking-plan-proof/product-parent-child-ui-runtime/08-cross-surface-accessibility-report.json",
+        "output/tracking-plan-proof/product-parent-child-ui-runtime/09-product-ui-end-to-end-trace.json"
+      ],
+      "auditRefs": [
+        "tracking-full-product-ui-runtime-artifacts-audit"
+      ],
+      "productClaimReady": false
+    },
+    {
+      "handoffArea": "authority-enrolled-hard-control-runtime",
+      "sourceProofRef": "test-results/tracking-authority-runtime-artifact-gate-proof/proof.json",
+      "rowId": "tracking-authority-runtime-artifacts",
+      "proofRoot": "output/tracking-plan-proof",
+      "requiredProofTier": "P4_PHYSICAL_DEVICE",
+      "currentProofTier": "P0_CONTRACT",
+      "status": "manual-required",
+      "requiredArtifacts": [
+        "tracking-authority-android-device-owner-device-identity-proof",
+        "tracking-authority-android-device-owner-enrollment-state-proof",
+        "tracking-authority-android-device-owner-approved-capability-proof",
+        "tracking-authority-android-device-owner-parent-visible-consent-proof",
+        "tracking-authority-android-managed-profile-device-identity-proof",
+        "tracking-authority-android-managed-profile-enrollment-state-proof",
+        "tracking-authority-android-managed-profile-approved-capability-proof",
+        "tracking-authority-android-managed-profile-parent-visible-consent-proof",
+        "tracking-authority-ios-family-controls-entitlement-device-identity-proof",
+        "tracking-authority-ios-family-controls-entitlement-enrollment-state-proof",
+        "tracking-authority-ios-family-controls-entitlement-approved-capability-proof",
+        "tracking-authority-ios-family-controls-entitlement-parent-visible-consent-proof",
+        "tracking-authority-ios-app-review-approval-device-identity-proof",
+        "tracking-authority-ios-app-review-approval-enrollment-state-proof",
+        "tracking-authority-ios-app-review-approval-approved-capability-proof",
+        "tracking-authority-ios-app-review-approval-parent-visible-consent-proof",
+        "tracking-authority-desktop-managed-policy-device-identity-proof",
+        "tracking-authority-desktop-managed-policy-enrollment-state-proof",
+        "tracking-authority-desktop-managed-policy-approved-capability-proof",
+        "tracking-authority-desktop-managed-policy-parent-visible-consent-proof"
+      ],
+      "presentArtifacts": [],
+      "missingArtifacts": [
+        "tracking-authority-android-device-owner-device-identity-proof",
+        "tracking-authority-android-device-owner-enrollment-state-proof",
+        "tracking-authority-android-device-owner-approved-capability-proof",
+        "tracking-authority-android-device-owner-parent-visible-consent-proof",
+        "tracking-authority-android-managed-profile-device-identity-proof",
+        "tracking-authority-android-managed-profile-enrollment-state-proof",
+        "tracking-authority-android-managed-profile-approved-capability-proof",
+        "tracking-authority-android-managed-profile-parent-visible-consent-proof",
+        "tracking-authority-ios-family-controls-entitlement-device-identity-proof",
+        "tracking-authority-ios-family-controls-entitlement-enrollment-state-proof",
+        "tracking-authority-ios-family-controls-entitlement-approved-capability-proof",
+        "tracking-authority-ios-family-controls-entitlement-parent-visible-consent-proof",
+        "tracking-authority-ios-app-review-approval-device-identity-proof",
+        "tracking-authority-ios-app-review-approval-enrollment-state-proof",
+        "tracking-authority-ios-app-review-approval-approved-capability-proof",
+        "tracking-authority-ios-app-review-approval-parent-visible-consent-proof",
+        "tracking-authority-desktop-managed-policy-device-identity-proof",
+        "tracking-authority-desktop-managed-policy-enrollment-state-proof",
+        "tracking-authority-desktop-managed-policy-approved-capability-proof",
+        "tracking-authority-desktop-managed-policy-parent-visible-consent-proof"
+      ],
+      "auditRefs": [
+        "tracking-authority-runtime-artifacts-audit"
+      ],
+      "productClaimReady": false
+    },
+    {
+      "handoffArea": "provider-delivery-receipt-runtime",
+      "sourceProofRef": "test-results/tracking-provider-delivery-artifact-gate-proof/proof.json",
+      "rowId": "tracking-provider-delivery-artifacts-notification-runtime",
+      "proofRoot": "output/tracking-plan-proof/notification-provider-delivery",
+      "requiredProofTier": "P4_MANUAL_PROVIDER_RUNTIME",
+      "currentProofTier": "P3_LOCAL_DEV_MACHINE",
+      "status": "manual-required",
+      "requiredArtifacts": [
+        "00-run-metadata.json",
+        "01-provider-runtime-config-redacted.json",
+        "02-credential-presence-attestation.json",
+        "03-minimal-payload-snapshot.json",
+        "04-provider-attempt.json",
+        "05-provider-response.json",
+        "06-receipt-webhook-event.json",
+        "07-receipt-ingestion-result.json",
+        "08-retry-quiet-hours-worker-log.txt",
+        "09-parent-notification-ui-screenshot.png",
+        "10-result-summary.md"
+      ],
+      "presentArtifacts": [],
+      "missingArtifacts": [
+        "00-run-metadata.json",
+        "01-provider-runtime-config-redacted.json",
+        "02-credential-presence-attestation.json",
+        "03-minimal-payload-snapshot.json",
+        "04-provider-attempt.json",
+        "05-provider-response.json",
+        "06-receipt-webhook-event.json",
+        "07-receipt-ingestion-result.json",
+        "08-retry-quiet-hours-worker-log.txt",
+        "09-parent-notification-ui-screenshot.png",
+        "10-result-summary.md"
+      ],
+      "auditRefs": [
+        "tracking-provider-delivery-artifacts-notification-runtime-audit"
+      ],
+      "productClaimReady": false
+    },
+    {
+      "handoffArea": "retention-product-runtime-enforcement",
+      "sourceProofRef": "test-results/tracking-retention-runtime-artifact-gate-proof/proof.json",
+      "rowId": "tracking-retention-runtime-artifacts",
+      "proofRoot": "output/tracking-plan-proof",
+      "requiredProofTier": "P4_PRODUCTION_RUNTIME",
+      "currentProofTier": "P3_LOCAL_DEV_MACHINE",
+      "status": "manual-required",
+      "requiredArtifacts": [
+        "tracking-retention/product-settings-writable-execution.json",
+        "tracking-retention/platform-runtime-retention-enforcement.json"
+      ],
+      "presentArtifacts": [],
+      "missingArtifacts": [
+        "tracking-retention/product-settings-writable-execution.json",
+        "tracking-retention/platform-runtime-retention-enforcement.json"
+      ],
+      "auditRefs": [
+        "tracking-retention-runtime-artifacts-audit"
+      ],
+      "productClaimReady": false
+    },
+    {
+      "handoffArea": "production-durable-workers-and-storage",
+      "sourceProofRef": "test-results/tracking-production-worker-runtime-artifact-gate-proof/proof.json",
+      "rowId": "tracking-production-worker-runtime-artifacts",
+      "proofRoot": "output/tracking-plan-proof",
+      "requiredProofTier": "P4_PRODUCTION_RUNTIME",
+      "currentProofTier": "P3_LOCAL_DEV_MACHINE",
+      "status": "manual-required",
+      "requiredArtifacts": [
+        "tracking-production/location-upload-worker-runtime.json",
+        "tracking-production/retention-cleanup-worker-runtime.json",
+        "tracking-production/notification-outbox-worker-runtime.json",
+        "tracking-production/escalation-timeout-worker-runtime.json",
+        "tracking-production/provider-receipt-worker-runtime.json",
+        "tracking-production/child-device-delivery-worker-runtime.json",
+        "tracking-production/authority-status-worker-runtime.json",
+        "tracking-production/audit-durable-storage-runtime.json"
+      ],
+      "presentArtifacts": [],
+      "missingArtifacts": [
+        "tracking-production/location-upload-worker-runtime.json",
+        "tracking-production/retention-cleanup-worker-runtime.json",
+        "tracking-production/notification-outbox-worker-runtime.json",
+        "tracking-production/escalation-timeout-worker-runtime.json",
+        "tracking-production/provider-receipt-worker-runtime.json",
+        "tracking-production/child-device-delivery-worker-runtime.json",
+        "tracking-production/authority-status-worker-runtime.json",
+        "tracking-production/audit-durable-storage-runtime.json"
+      ],
+      "auditRefs": [
+        "tracking-production-worker-runtime-artifacts-audit"
+      ],
+      "productClaimReady": false
+    },
+    {
+      "handoffArea": "escalation-runtime-workers-and-storage",
+      "sourceProofRef": "test-results/tracking-escalation-runtime-artifact-gate-proof/proof.json",
+      "rowId": "tracking-escalation-runtime-artifacts",
+      "proofRoot": "output/tracking-plan-proof",
+      "requiredProofTier": "P4_MANUAL_ESCALATION_RUNTIME",
+      "currentProofTier": "P1_FIXTURE_SIMULATION",
+      "status": "manual-required",
+      "requiredArtifacts": [
+        "test-results/tracking-escalation-readiness-proof/proof.json",
+        "test-results/tracking-provider-runtime-readiness-blocker-proof/proof.json",
+        "00-run-metadata.json",
+        "01-provider-runtime-config-redacted.json",
+        "02-credential-presence-attestation.json",
+        "03-minimal-payload-snapshot.json",
+        "04-provider-attempt.json",
+        "05-provider-response.json",
+        "06-receipt-webhook-event.json",
+        "07-receipt-ingestion-result.json",
+        "08-retry-quiet-hours-worker-log.txt",
+        "09-parent-notification-ui-screenshot.png",
+        "10-result-summary.md"
+      ],
+      "presentArtifacts": [],
+      "missingArtifacts": [
+        "test-results/tracking-escalation-readiness-proof/proof.json",
+        "test-results/tracking-provider-runtime-readiness-blocker-proof/proof.json",
+        "00-run-metadata.json",
+        "01-provider-runtime-config-redacted.json",
+        "02-credential-presence-attestation.json",
+        "03-minimal-payload-snapshot.json",
+        "04-provider-attempt.json",
+        "05-provider-response.json",
+        "06-receipt-webhook-event.json",
+        "07-receipt-ingestion-result.json",
+        "08-retry-quiet-hours-worker-log.txt",
+        "09-parent-notification-ui-screenshot.png",
+        "10-result-summary.md"
+      ],
+      "auditRefs": [
+        "tracking-escalation-runtime-artifacts-audit"
+      ],
+      "productClaimReady": false
+    }
+  ],
+  "summary": {
+    "handoffRowCount": 9,
+    "requiredArtifactCount": 93,
+    "presentArtifactCount": 0,
+    "missingArtifactCount": 93,
+    "manualRequiredRowCount": 9,
+    "artifactSetPresentRowCount": 0,
+    "productReadyRowCount": 0
+  },
+  "remainingProductBlockers": [
+    "android-physical-background-proof-required",
+    "ios-physical-region-proof-required",
+    "retention-writable-product-settings-required",
+    "retention-platform-runtime-enforcement-required",
+    "actual-child-device-runtime-required",
+    "full-product-parent-child-ui-required",
+    "authority-enrollment-proof-required",
+    "provider-delivery-receipt-runtime-required",
+    "production-durable-workers-required"
+  ],
+  "productClaims": {
+    "physicalDeviceClaimed": false,
+    "actualChildDeviceRuntimeClaimed": false,
+    "fullProductUiClaimed": false,
+    "authorityClaimed": false,
+    "providerDeliveryReceiptRuntimeClaimed": false,
+    "retentionProductRuntimeClaimed": false,
+    "productionWorkersClaimed": false,
+    "escalationRuntimeClaimed": false,
+    "productReadyClaimed": false
+  },
+  "proofPaths": {
+    "wp33": "output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-gate/63-real-runtime-handoff-proof.json",
+    "evidence": "test-results/tracking-real-runtime-handoff-proof/proof.json",
+    "namedProofRoot": "output/tracking-plan-proof/tracking-real-runtime-handoff-proof/proof.json"
+  }
+}
