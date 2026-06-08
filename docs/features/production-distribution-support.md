@@ -384,8 +384,10 @@ dev-only repo when it claims consumer readiness.
 - `public-support-contact-status-proof` adds parent-domain public support
   contact/status boundary rows for public support contact, support status page
   contact, support runbook contact, incident status contact, backend-upload
-  support contact, and billing-support contact. It proves only source-contract
-  readiness and manual requirements while keeping public runtime execution,
+  support contact, and billing-support contact. It now carries explicit
+  status-boundary references for each contact surface and proves only
+  source-contract readiness, status-boundary handoff metadata, and manual
+  requirements while keeping public runtime execution,
   support backend upload execution, account lookup execution, billing provider
   contact, remote support sessions, production SLA, legal disclosure execution,
   provider secrets, and child activity custody unclaimed.
@@ -948,7 +950,8 @@ package/runtime proof.
       `public-support-contact-status-proof` covers public support contact,
       support status page contact, support runbook contact, incident status
       contact, backend-upload support contact, and billing-support contact as
-      source-contract/manual-required rows. Public runtime execution, support
+      source-contract/manual-required rows with explicit status-boundary
+      references for each contact surface. Public runtime execution, support
       backend upload execution, account lookup execution, billing provider
       contact, remote support sessions, production SLA, legal disclosure
       execution, provider secrets, and child activity custody remain

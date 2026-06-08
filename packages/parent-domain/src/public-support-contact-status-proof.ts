@@ -38,11 +38,13 @@ export const PublicSupportContactStatusRowSchema = withParser(
     publicRouteState: PublicSupportContactStatusStateSchema,
     publicRuntimeState: PublicSupportContactStatusStateSchema,
     contactExecutionState: PublicSupportContactStatusStateSchema,
+    contactStatusBoundaryState: PublicSupportContactStatusStateSchema,
     supportBackendUploadState: PublicSupportContactStatusStateSchema,
     supportSafeDataClasses: Schema.Array(PublicSupportContactStatusDataClassSchema),
     forbiddenDataClasses: Schema.Array(PublicSupportContactStatusDataClassSchema),
     publicationReference: PublicSupportContactStatusReferenceSchema,
     runtimeReference: PublicSupportContactStatusReferenceSchema,
+    statusBoundaryReference: PublicSupportContactStatusReferenceSchema,
     manualRequirement: PublicSupportContactStatusRequirementSchema,
   }).pipe(
     Schema.filter(
@@ -59,6 +61,11 @@ export const PublicSupportContactStatusRowSchema = withParser(
       (row) =>
         row.contactExecutionState !== 'executed' ||
         'Expected public support contact status rows to keep contact execution manual-required'
+    ),
+    Schema.filter(
+      (row) =>
+        (row.contactStatusBoundaryState !== 'implemented' && row.contactStatusBoundaryState !== 'executed') ||
+        'Expected public support contact status rows to keep status boundary execution unclaimed'
     ),
     Schema.filter(
       (row) =>

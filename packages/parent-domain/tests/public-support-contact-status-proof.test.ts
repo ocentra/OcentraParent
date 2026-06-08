@@ -33,6 +33,22 @@ function acceptsPublicSupportContactStatusRows(): void {
     expect(proof.productionSlaClaim).toBe('not-implemented');
     expect(proof.legalDisclosureExecutionClaim).toBe('manual-required');
     expect(proof.childActivityCustodyClaim).toBe('not-implemented');
+    expect(proof.rows.map((row) => [row.surface, row.contactStatusBoundaryState])).toEqual([
+      ['public-support-contact', 'backend-required'],
+      ['support-status-page-contact', 'manual-required'],
+      ['support-runbook-contact', 'backend-required'],
+      ['incident-status-contact', 'backend-required'],
+      ['backend-upload-support-contact', 'backend-required'],
+      ['billing-support-contact', 'backend-required'],
+    ]);
+    expect(proof.rows.map((row) => row.statusBoundaryReference)).toEqual([
+      'public-support-contact-status-boundary-public-support-contact',
+      'public-support-contact-status-boundary-support-status-page-contact',
+      'public-support-contact-status-boundary-support-runbook-contact',
+      'public-support-contact-status-boundary-incident-status-contact',
+      'public-support-contact-status-boundary-backend-upload-support-contact',
+      'public-support-contact-status-boundary-billing-support-contact',
+    ]);
     expect(proof.nonClaims).toEqual([
       'no-public-runtime-execution',
       'no-support-backend-upload-execution',
@@ -68,6 +84,12 @@ function rejectsPublicRuntimeAndSupportExecutionOverclaims(): void {
       PublicSupportContactStatusRowSchema.safeParse({
         ...publicContact,
         contactExecutionState: 'executed',
+      }).success
+    ).toBe(false);
+    expect(
+      PublicSupportContactStatusRowSchema.safeParse({
+        ...publicContact,
+        contactStatusBoundaryState: 'implemented',
       }).success
     ).toBe(false);
     expect(
