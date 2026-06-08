@@ -53,18 +53,19 @@ development paths and orchestrates runtime commands.
   portal read-model refs through `ocentra-network-evidence`, while tombstoned
   rows and rows without a domain target do not invent policy/action refs.
 - Network remote delivery status reports through
-  `agent.network.remote-delivery.status.get`, derived from the row10n
-  delete/export status bridge identity over the local row10k transport-dispatch
-  state, row10l fixture transport proof, and row10m delete/export readiness
-  proof. The cached deterministic protocol snapshot carries row10b through
-  row10m refs, prepared candidate counts, blocked-dispatch refs, row10l fixture
-  dispatch/ack counts, delete/export readiness refs, row10p provider/child
-  readiness refs, row10q cross-process custody readiness refs, duplicate
-  rejection, and zero live dispatch/ack counters
-  without broker/family-hub transport, remote acknowledgement, provider or
-  child-device delivery, actual remote
-  delete/export propagation, policy, adapter, exact content, or host-filter
-  claims.
+  `agent.network.remote-delivery.status.get`, derived from the row10s
+  cross-process replay status bridge identity over the local row10k
+  transport-dispatch state, row10l fixture transport proof, row10m delete/export
+  readiness proof, row10p provider/child readiness, row10q cross-process custody
+  readiness, and row10r deterministic replay metadata. The cached deterministic
+  protocol snapshot carries row10b through row10s refs, prepared candidate
+  counts, blocked-dispatch refs, row10l fixture dispatch/ack counts,
+  delete/export readiness refs, provider/child readiness refs, cross-process
+  custody refs, replay/store/cursor refs, replay counts, duplicate rejection,
+  and zero live dispatch/ack counters without broker/family-hub transport,
+  remote acknowledgement, provider or child-device delivery, external
+  cross-process transport, actual remote delete/export propagation, policy,
+  adapter, exact content, or host-filter claims.
 - Network live-capture status reports through
   `agent.network.live-capture.status.get`, derived from row13 live-capture
   proof-gate state and row03a raw-capture custody readiness refs. The
@@ -178,12 +179,13 @@ flowchart LR
   adapter mutation, exact URL/content claims, broker/family-hub delivery, and
   host filtering remain separate gaps.
 - Network remote delivery status output is a read-only proof/status bridge;
-  row10l fixture transport, row10m delete/export readiness, and row10p
-  provider/child readiness plus row10q cross-process custody readiness are
-  visible there, but real broker or family-hub transport, remote acknowledgement,
-  provider/child-device delivery, cross-process replay, actual remote
-  delete/export propagation, product readiness, policy execution, adapter
-  execution, and host filtering remain separate gaps.
+  row10l fixture transport, row10m delete/export readiness, row10p
+  provider/child readiness, row10q cross-process custody readiness, and row10r
+  deterministic replay metadata are visible through the row10s cross-process
+  replay status bridge, but real broker or family-hub transport, remote
+  acknowledgement, provider/child-device delivery, external cross-process
+  transport, actual remote delete/export propagation, product readiness, policy
+  execution, adapter execution, and host filtering remain separate gaps.
 - Network live-capture status output is a read-only proof/status bridge. Real
   Npcap/libpcap invocation, packet capture, raw artifact creation, raw PCAP
   without custody, exact URL/content/decrypted-payload visibility, netstat

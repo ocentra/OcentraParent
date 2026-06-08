@@ -153,6 +153,17 @@
         "kind": "refreshed-by-aggregate-command",
         "command": "network-remote-delivery-cross-process-replay-proof"
       }
+    },
+    {
+      "id": "remote-cross-process-replay-status",
+      "group": "10-remote-delivery-proof",
+      "path": "output/network-plan-proof/10s-remote-delivery-cross-process-replay-status-bridge/proof-summary.json",
+      "kind": "json",
+      "parsedProof": "network-remote-delivery-cross-process-replay-status-bridge-proof",
+      "freshness": {
+        "kind": "refreshed-by-aggregate-command",
+        "command": "network-remote-delivery-cross-process-replay-status-bridge-proof"
+      }
     }
   ]
 }

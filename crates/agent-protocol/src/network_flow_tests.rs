@@ -129,7 +129,7 @@ fn network_flow_read_model_serializes_rows_without_payload_claims() {
 }
 
 #[test]
-fn network_remote_delivery_status_serializes_row10q_status_with_row10k_dispatch_state_without_product_claims(
+fn network_remote_delivery_status_serializes_row10s_replay_status_with_row10k_dispatch_state_without_product_claims(
 ) {
     let serialized = serde_json::to_value(remote_delivery_status_fixture())
         .expect(constants::error::AGENT_EVENT_SERIALIZES);
@@ -148,7 +148,7 @@ fn assert_remote_delivery_status_refs(serialized: &serde_json::Value) {
 fn assert_remote_delivery_status_core_refs(serialized: &serde_json::Value) {
     assert_eq!(
         serialized["statusRef"],
-        constants::network_flow::TEST_REMOTE_DELIVERY_CROSS_PROCESS_CUSTODY_STATUS_REF
+        constants::network_flow::TEST_REMOTE_DELIVERY_CROSS_PROCESS_REPLAY_STATUS_REF
     );
     assert_eq!(
         serialized["brokerStatus"],
@@ -258,6 +258,18 @@ fn assert_remote_delivery_status_provider_child_refs(serialized: &serde_json::Va
         constants::network_flow::TEST_REMOTE_DELIVERY_REMOTE_EXPORT_CUSTODY_REF
     );
     assert_eq!(
+        serialized["crossProcessReplayRef"],
+        constants::network_flow::TEST_REMOTE_DELIVERY_CROSS_PROCESS_REPLAY_REF
+    );
+    assert_eq!(
+        serialized["crossProcessReplayStoreRef"],
+        constants::network_flow::TEST_REMOTE_DELIVERY_CROSS_PROCESS_REPLAY_STORE_REF
+    );
+    assert_eq!(
+        serialized["crossProcessReplayCursorRef"],
+        constants::network_flow::TEST_REMOTE_DELIVERY_CROSS_PROCESS_REPLAY_CURSOR_REF
+    );
+    assert_eq!(
         serialized["crossProcessCustodyReadinessState"],
         "manual-required-unavailable"
     );
@@ -301,6 +313,17 @@ fn assert_remote_delivery_status_counts(serialized: &serde_json::Value) {
     assert_eq!(serialized["remoteRetentionArtifactCount"], 0);
     assert_eq!(serialized["remoteDeleteCustodyArtifactCount"], 0);
     assert_eq!(serialized["remoteExportCustodyArtifactCount"], 0);
+    assert_eq!(serialized["crossProcessReplayRecordCount"], 3);
+    assert_eq!(serialized["crossProcessReplayStoreWriteCount"], 3);
+    assert_eq!(serialized["crossProcessReplayCursorNextSequence"], 4);
+    assert_eq!(
+        serialized["crossProcessReplayRecordsMatchDurableEnvelopes"],
+        true
+    );
+    assert_eq!(
+        serialized["crossProcessReplayRecordsMatchCustodyReadiness"],
+        true
+    );
 }
 
 fn assert_remote_delivery_status_no_product_claims(serialized: &serde_json::Value) {
@@ -309,6 +332,11 @@ fn assert_remote_delivery_status_no_product_claims(serialized: &serde_json::Valu
     assert_eq!(serialized["remoteAckCount"], 0);
     assert_eq!(serialized["duplicateDurableEnvelopeRejected"], true);
     assert_eq!(serialized["remoteDeliveryAckImplemented"], false);
+    assert_eq!(serialized["crossProcessReplayImplemented"], true);
+    assert_eq!(
+        serialized["externalCrossProcessTransportImplemented"],
+        false
+    );
     assert_eq!(serialized["productReadyRemoteDelivery"], false);
     assert_eq!(serialized["hostFilteringClaimed"], false);
     assert_eq!(serialized["enforcementCommandEventCount"], 0);
@@ -319,7 +347,7 @@ fn assert_remote_delivery_status_no_product_claims(serialized: &serde_json::Valu
 
 fn remote_delivery_status_fixture() -> NetworkRemoteDeliveryStatus {
     with_cross_process_custody_fixture(NetworkRemoteDeliveryStatus {
-        status_ref: flow::TEST_REMOTE_DELIVERY_CROSS_PROCESS_CUSTODY_STATUS_REF.to_string(),
+        status_ref: flow::TEST_REMOTE_DELIVERY_CROSS_PROCESS_REPLAY_STATUS_REF.to_string(),
         custody_proof_ref: flow::TEST_BROKER_CUSTODY_PROOF_REF.to_string(),
         publisher_auth_ref: flow::TEST_BROKER_PUBLISHER_AUTH_REF.to_string(),
         subscriber_auth_ref: flow::TEST_BROKER_SUBSCRIBER_AUTH_REF.to_string(),
@@ -406,6 +434,12 @@ fn with_cross_process_custody_fixture(
         flow::TEST_REMOTE_DELIVERY_REMOTE_DELETE_CUSTODY_REF.to_string();
     status.remote_export_custody_readiness_ref =
         flow::TEST_REMOTE_DELIVERY_REMOTE_EXPORT_CUSTODY_REF.to_string();
+    status.cross_process_replay_ref =
+        flow::TEST_REMOTE_DELIVERY_CROSS_PROCESS_REPLAY_REF.to_string();
+    status.cross_process_replay_store_ref =
+        flow::TEST_REMOTE_DELIVERY_CROSS_PROCESS_REPLAY_STORE_REF.to_string();
+    status.cross_process_replay_cursor_ref =
+        flow::TEST_REMOTE_DELIVERY_CROSS_PROCESS_REPLAY_CURSOR_REF.to_string();
     status.cross_process_custody_readiness_state =
         NetworkRemoteDeliveryCrossProcessCustodyReadinessState::ManualRequiredUnavailable;
     status.cross_process_replay_readiness_record_count = 3;
@@ -413,6 +447,12 @@ fn with_cross_process_custody_fixture(
     status.remote_delete_custody_readiness_record_count = 3;
     status.remote_export_custody_readiness_record_count = 3;
     status.cross_process_custody_records_match_provider_child_readiness = true;
+    status.cross_process_replay_record_count = 3;
+    status.cross_process_replay_store_write_count = 3;
+    status.cross_process_replay_cursor_next_sequence = 4;
+    status.cross_process_replay_records_match_durable_envelopes = true;
+    status.cross_process_replay_records_match_custody_readiness = true;
+    status.cross_process_replay_implemented = true;
     status
 }
 

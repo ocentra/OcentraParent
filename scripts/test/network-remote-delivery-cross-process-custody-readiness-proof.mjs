@@ -18,6 +18,7 @@ const sourceFiles = [
   'crates/agent-core/src/network_event_runtime/remote_delivery_cross_process_custody_readiness_types.rs',
   'crates/agent-core/src/network_event_runtime/remote_delivery_provider_child_readiness.rs',
   'crates/agent-core/src/network_event_runtime/remote_delivery_provider_child_readiness_types.rs',
+  'crates/agent-service/src/network_remote_delivery_status_cross_process.rs',
   'crates/agent-service/src/network_remote_delivery_status_payload.rs',
   'crates/agent-service/src/network_remote_delivery_status_service_tests.rs',
   'packages/agent-protocol-domain/src/defaults.ts',
@@ -230,6 +231,7 @@ function assertSourceContracts() {
   const coreTypes = readText(
     'crates/agent-core/src/network_event_runtime/remote_delivery_cross_process_custody_readiness_types.rs'
   );
+  const serviceCrossProcess = readText('crates/agent-service/src/network_remote_delivery_status_cross_process.rs');
   const servicePayload = readText('crates/agent-service/src/network_remote_delivery_status_payload.rs');
   const serviceTests = readText('crates/agent-service/src/network_remote_delivery_status_service_tests.rs');
   const tsDefaults = readText('packages/agent-protocol-domain/src/defaults.ts');
@@ -253,9 +255,9 @@ function assertSourceContracts() {
     [coreProof, 'cross_process_replay_artifact_count: 0'],
     [coreTypes, 'NetworkRuntimeRemoteDeliveryCrossProcessCustodyReadinessReport'],
     [coreProof, 'preserves_provider_child_readiness_refs_without_cross_process_claims'],
-    [servicePayload, 'cross_process_custody_readiness_state'],
-    [servicePayload, 'RuntimeProviderChildReadinessState::ManualRequiredUnavailable'],
-    [servicePayload, 'RuntimeCrossProcessCustodyReadinessState::ManualRequiredUnavailable'],
+    [serviceCrossProcess, 'cross_process_custody_readiness_state'],
+    [serviceCrossProcess, 'RuntimeProviderChildReadinessState::ManualRequiredUnavailable'],
+    [serviceCrossProcess, 'RuntimeCrossProcessCustodyReadinessState::ManualRequiredUnavailable'],
     [servicePayload, 'host_filtering_claimed = false'],
     [serviceTests, 'assert_remote_delivery_cross_process_custody_readiness_status'],
     [serviceTests, 'host_filtering_claimed'],

@@ -2,7 +2,7 @@
   "proof": "network-remote-delivery-cross-process-custody-readiness-proof",
   "proofRevision": "network-remote-delivery-cross-process-custody-readiness-proof/v1",
   "checkedAt": "deterministic:network-remote-delivery-cross-process-custody-readiness-proof/v1",
-  "sourceFingerprint": "source-tree:4430353a48f5b44e4a3ebf42b83f1284a74c6298f9845e4f9f29d2aebd952764",
+  "sourceFingerprint": "source-tree:ba9474e1cbaf61cac48b99ec8ea89725b0151e4f3b69a93c0265521c2392371f",
   "sourceRefs": [
     "scripts/test/network-remote-delivery-cross-process-custody-readiness-proof.mjs",
     "crates/agent-protocol/src/constants/network_flow.rs",
@@ -13,6 +13,7 @@
     "crates/agent-core/src/network_event_runtime/remote_delivery_cross_process_custody_readiness_types.rs",
     "crates/agent-core/src/network_event_runtime/remote_delivery_provider_child_readiness.rs",
     "crates/agent-core/src/network_event_runtime/remote_delivery_provider_child_readiness_types.rs",
+    "crates/agent-service/src/network_remote_delivery_status_cross_process.rs",
     "crates/agent-service/src/network_remote_delivery_status_payload.rs",
     "crates/agent-service/src/network_remote_delivery_status_service_tests.rs",
     "packages/agent-protocol-domain/src/defaults.ts",

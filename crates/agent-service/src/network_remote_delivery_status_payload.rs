@@ -1,28 +1,32 @@
 use ocentra_parent_agent_core::{
-    prove_network_runtime_remote_delivery_cross_process_custody_readiness,
+    prove_network_runtime_remote_delivery_cross_process_replay,
     prove_network_runtime_remote_delivery_delete_export_propagation,
     prove_network_runtime_remote_delivery_transport_dispatch_state,
     NetworkRuntimeRemoteDeliveryCrossProcessCustodyReadinessReport,
-    NetworkRuntimeRemoteDeliveryCrossProcessCustodyReadinessState as RuntimeCrossProcessCustodyReadinessState,
+    NetworkRuntimeRemoteDeliveryCrossProcessReplayReport,
     NetworkRuntimeRemoteDeliveryDeleteExportPropagationReport,
     NetworkRuntimeRemoteDeliveryDurableEnvelopeReport,
     NetworkRuntimeRemoteDeliveryFixtureTransportReport,
     NetworkRuntimeRemoteDeliveryOutboxHandoffReport,
-    NetworkRuntimeRemoteDeliveryProviderChildReadinessReport,
-    NetworkRuntimeRemoteDeliveryProviderChildReadinessState as RuntimeProviderChildReadinessState,
-    NetworkRuntimeRemoteDeliveryState, NetworkRuntimeRemoteDeliveryStatusReport,
+    NetworkRuntimeRemoteDeliveryProviderChildReadinessReport, NetworkRuntimeRemoteDeliveryState,
+    NetworkRuntimeRemoteDeliveryStatusReport,
     NetworkRuntimeRemoteDeliveryTransportDispatchState as RuntimeTransportDispatchState,
     NetworkRuntimeRemoteDeliveryTransportDispatchStateReport,
 };
 use ocentra_parent_agent_protocol::{
     constants, AgentCommandEnvelope, AgentEventEnvelope, AgentEventName, LogFieldValue, LogFields,
-    LogLevel, NetworkRemoteDeliveryCrossProcessCustodyReadinessState,
-    NetworkRemoteDeliveryProviderChildReadinessState, NetworkRemoteDeliveryStatus,
-    NetworkRemoteDeliveryStatusState, NetworkRemoteDeliveryTransportDispatchState,
+    LogLevel, NetworkRemoteDeliveryStatus, NetworkRemoteDeliveryStatusState,
+    NetworkRemoteDeliveryTransportDispatchState,
 };
 use tokio::sync::OnceCell;
 
-use crate::{event_builder::build_event, fields::fields_from_pairs};
+use crate::{
+    event_builder::build_event,
+    fields::fields_from_pairs,
+    network_remote_delivery_status_cross_process::{
+        apply_cross_process_replay_status, apply_provider_child_readiness_status,
+    },
+};
 
 static NETWORK_REMOTE_DELIVERY_STATUS: OnceCell<NetworkRemoteDeliveryStatus> =
     OnceCell::const_new();
@@ -51,7 +55,7 @@ pub(crate) async fn build_network_remote_delivery_status_report(
             fields_from_pairs(vec![(
                 constants::field::REASON,
                 LogFieldValue::String(
-                    constants::network_flow::ERROR_NETWORK_RUNTIME_REMOTE_TRANSPORT_DISPATCH_STATE
+                    constants::network_flow::ERROR_NETWORK_RUNTIME_REMOTE_CROSS_PROCESS_REPLAY_STATUS_BRIDGE
                         .to_string(),
                 ),
             )]),
@@ -79,15 +83,17 @@ async fn network_remote_delivery_status() -> Result<&'static NetworkRemoteDelive
                 prove_network_runtime_remote_delivery_delete_export_propagation()
                     .await
                     .map_err(|_| ())?;
-            let cross_process_custody_readiness =
-                prove_network_runtime_remote_delivery_cross_process_custody_readiness()
-                    .await
-                    .map_err(|_| ())?;
+            let cross_process_replay = prove_network_runtime_remote_delivery_cross_process_replay()
+                .await
+                .map_err(|_| ())?;
             Ok::<NetworkRemoteDeliveryStatus, ()>(status_from_report(
                 &report,
                 &delete_export_report,
-                &cross_process_custody_readiness.provider_child_readiness,
-                &cross_process_custody_readiness,
+                &cross_process_replay
+                    .cross_process_custody_readiness
+                    .provider_child_readiness,
+                &cross_process_replay.cross_process_custody_readiness,
+                &cross_process_replay,
             ))
         })
         .await
@@ -98,6 +104,7 @@ fn status_from_report(
     delete_export_report: &NetworkRuntimeRemoteDeliveryDeleteExportPropagationReport,
     provider_child_readiness: &NetworkRuntimeRemoteDeliveryProviderChildReadinessReport,
     cross_process_custody_readiness: &NetworkRuntimeRemoteDeliveryCrossProcessCustodyReadinessReport,
+    cross_process_replay: &NetworkRuntimeRemoteDeliveryCrossProcessReplayReport,
 ) -> NetworkRemoteDeliveryStatus {
     let outbox_report = &report
         .no_enforcement_invariant
@@ -117,7 +124,8 @@ fn status_from_report(
         provider_child_readiness,
         cross_process_custody_readiness,
     );
-    apply_non_claim_status(&mut status, report, remote_status);
+    apply_cross_process_replay_status(&mut status, cross_process_replay);
+    apply_non_claim_status(&mut status, report, remote_status, cross_process_replay);
     status
 }
 
@@ -242,95 +250,20 @@ fn apply_delete_export_status(
         report.propagation_records_match_fixture_records;
 }
 
-fn apply_provider_child_readiness_status(
-    status: &mut NetworkRemoteDeliveryStatus,
-    report: &NetworkRuntimeRemoteDeliveryProviderChildReadinessReport,
-    cross_process_report: &NetworkRuntimeRemoteDeliveryCrossProcessCustodyReadinessReport,
-) {
-    status.provider_route_ref = report.provider_route_ref.as_str().to_string();
-    status.child_device_route_ref = report.child_device_route_ref.as_str().to_string();
-    status.provider_delivery_readiness_ref = report.provider_readiness_ref.as_str().to_string();
-    status.child_device_delivery_readiness_ref =
-        report.child_device_readiness_ref.as_str().to_string();
-    status.provider_delivery_readiness_state = match report.provider_state {
-        RuntimeProviderChildReadinessState::ManualRequiredUnavailable => {
-            NetworkRemoteDeliveryProviderChildReadinessState::ManualRequiredUnavailable
-        }
-    };
-    status.child_device_delivery_readiness_state = match report.child_device_state {
-        RuntimeProviderChildReadinessState::ManualRequiredUnavailable => {
-            NetworkRemoteDeliveryProviderChildReadinessState::ManualRequiredUnavailable
-        }
-    };
-    status.provider_delivery_readiness_record_count =
-        count(report.provider_delivery_readiness_record_count);
-    status.child_device_delivery_readiness_record_count =
-        count(report.child_device_delivery_readiness_record_count);
-    status.provider_delivery_artifact_count = count(report.provider_delivery_artifact_count);
-    status.child_device_delivery_artifact_count =
-        count(report.child_device_delivery_artifact_count);
-    status.provider_delivery_records_match_fixture_acks =
-        report.provider_delivery_records_match_fixture_acks;
-    status.child_device_delivery_records_match_fixture_acks =
-        report.child_device_delivery_records_match_fixture_acks;
-    status.status_ref =
-        constants::network_flow::TEST_REMOTE_DELIVERY_CROSS_PROCESS_CUSTODY_STATUS_REF.to_string();
-    status.cross_process_custody_status_ref = cross_process_report
-        .cross_process_custody_status_ref
-        .as_str()
-        .to_string();
-    status.cross_process_replay_readiness_ref = cross_process_report
-        .cross_process_replay_readiness_ref
-        .as_str()
-        .to_string();
-    status.remote_retention_readiness_ref = cross_process_report
-        .remote_retention_readiness_ref
-        .as_str()
-        .to_string();
-    status.remote_delete_custody_readiness_ref = cross_process_report
-        .remote_delete_custody_readiness_ref
-        .as_str()
-        .to_string();
-    status.remote_export_custody_readiness_ref = cross_process_report
-        .remote_export_custody_readiness_ref
-        .as_str()
-        .to_string();
-    status.cross_process_custody_readiness_state = match cross_process_report.custody_state {
-        RuntimeCrossProcessCustodyReadinessState::ManualRequiredUnavailable => {
-            NetworkRemoteDeliveryCrossProcessCustodyReadinessState::ManualRequiredUnavailable
-        }
-    };
-    status.cross_process_replay_readiness_record_count =
-        count(cross_process_report.cross_process_replay_readiness_record_count);
-    status.remote_retention_readiness_record_count =
-        count(cross_process_report.remote_retention_readiness_record_count);
-    status.remote_delete_custody_readiness_record_count =
-        count(cross_process_report.remote_delete_custody_readiness_record_count);
-    status.remote_export_custody_readiness_record_count =
-        count(cross_process_report.remote_export_custody_readiness_record_count);
-    status.cross_process_custody_records_match_provider_child_readiness =
-        cross_process_report.custody_records_match_provider_child_readiness;
-    status.cross_process_replay_artifact_count =
-        count(cross_process_report.cross_process_replay_artifact_count);
-    status.remote_retention_artifact_count =
-        count(cross_process_report.remote_retention_artifact_count);
-    status.remote_delete_custody_artifact_count =
-        count(cross_process_report.remote_delete_custody_artifact_count);
-    status.remote_export_custody_artifact_count =
-        count(cross_process_report.remote_export_custody_artifact_count);
-}
-
 fn apply_non_claim_status(
     status: &mut NetworkRemoteDeliveryStatus,
     report: &NetworkRuntimeRemoteDeliveryTransportDispatchStateReport,
     remote_status: &NetworkRuntimeRemoteDeliveryStatusReport,
+    cross_process_replay: &NetworkRuntimeRemoteDeliveryCrossProcessReplayReport,
 ) {
     status.broker_delivery_implemented = report.broker_delivery_implemented;
     status.family_hub_delivery_implemented = report.family_hub_delivery_implemented;
     status.remote_delivery_ack_implemented = report.remote_delivery_ack_implemented;
     status.provider_delivery_implemented = report.provider_delivery_implemented;
     status.child_device_delivery_implemented = report.child_device_delivery_implemented;
-    status.cross_process_replay_implemented = remote_status.cross_process_replay_implemented;
+    debug_assert!(!remote_status.cross_process_replay_implemented);
+    status.cross_process_replay_implemented = cross_process_replay.cross_process_replay_implemented;
+    status.external_cross_process_transport_implemented = false;
     status.remote_delete_export_propagation_implemented =
         report.remote_delete_export_propagation_implemented;
     status.product_ready_remote_delivery = report.product_ready_remote_delivery;

@@ -153,6 +153,8 @@ pub const TEST_REMOTE_DELIVERY_CROSS_PROCESS_REPLAY_STORE_REF: &str =
     "network.remote-delivery.cross-process-replay-store.10r";
 pub const TEST_REMOTE_DELIVERY_CROSS_PROCESS_REPLAY_CURSOR_REF: &str =
     "network.remote-delivery.cross-process-replay-cursor.10r";
+pub const TEST_REMOTE_DELIVERY_CROSS_PROCESS_REPLAY_STATUS_REF: &str =
+    "network.remote-delivery.cross-process-replay-status.10s";
 pub const TEST_LIVE_CAPTURE_STATUS_REF: &str = "network.live-capture.status.13a";
 pub const FIELD_NETWORK_LIVE_CAPTURE_STATUS: &str = "networkLiveCaptureStatus";
 pub const TEST_LIVE_CAPTURE_ROW13_STATUS_REF: &str = "network.live-capture.proof-gate.13";
@@ -304,4 +306,6 @@ pub const ERROR_NETWORK_RUNTIME_REMOTE_CROSS_PROCESS_CUSTODY_READINESS: &str =
     "network runtime remote cross-process custody readiness proof";
 pub const ERROR_NETWORK_RUNTIME_REMOTE_CROSS_PROCESS_REPLAY: &str =
     "network runtime remote cross-process replay proof";
+pub const ERROR_NETWORK_RUNTIME_REMOTE_CROSS_PROCESS_REPLAY_STATUS_BRIDGE: &str =
+    "network runtime remote cross-process replay status bridge proof";
 pub const ERROR_NETWORK_LIVE_CAPTURE_STATUS: &str = "network live capture status proof";

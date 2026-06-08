@@ -476,7 +476,7 @@ export const AgentProtocolDefaults = {
     String: 'string',
   },
   NetworkRemoteDeliveryStatus: {
-    StatusRef: 'network.remote-delivery.cross-process-custody-status.10q',
+    StatusRef: 'network.remote-delivery.cross-process-replay-status.10s',
     EventChainJournalRef: 'network.remote-delivery.event-chain-journal.10c',
     ReceiptLedgerRef: 'network.remote-delivery.event-chain.receipt-ledger.10d',
     LocalReceiptAckRef: 'network.remote-delivery.event-chain.local-receipt-ack.10d',
@@ -507,6 +507,9 @@ export const AgentProtocolDefaults = {
     RemoteRetentionReadinessRef: 'network.remote-delivery.remote-retention-readiness.10q',
     RemoteDeleteCustodyReadinessRef: 'network.remote-delivery.remote-delete-custody-readiness.10q',
     RemoteExportCustodyReadinessRef: 'network.remote-delivery.remote-export-custody-readiness.10q',
+    CrossProcessReplayRef: 'network.remote-delivery.cross-process-replay.10r',
+    CrossProcessReplayStoreRef: 'network.remote-delivery.cross-process-replay-store.10r',
+    CrossProcessReplayCursorRef: 'network.remote-delivery.cross-process-replay-cursor.10r',
   },
   NetworkLiveCaptureStatus: {
     StatusRef: 'network.live-capture.status.13a',

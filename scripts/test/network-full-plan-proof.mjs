@@ -115,6 +115,11 @@ const freshnessCommandSpecs = [
     'node',
     ['scripts/test/network-remote-delivery-cross-process-replay-proof.mjs'],
   ],
+  [
+    'network-remote-delivery-cross-process-replay-status-bridge-proof',
+    'node',
+    ['scripts/test/network-remote-delivery-cross-process-replay-status-bridge-proof.mjs'],
+  ],
   ['network-parent-ui-evidence-drawer-proof', 'node', ['scripts/test/network-parent-ui-evidence-drawer-proof.mjs']],
   [
     'network-portal-risk-performance-platform-proof',
@@ -195,6 +200,10 @@ const refreshedProofByName = new Map([
     'network-remote-delivery-cross-process-custody-readiness-proof',
   ],
   ['network-remote-delivery-cross-process-replay-proof', 'network-remote-delivery-cross-process-replay-proof'],
+  [
+    'network-remote-delivery-cross-process-replay-status-bridge-proof',
+    'network-remote-delivery-cross-process-replay-status-bridge-proof',
+  ],
   ['network-portal-risk-performance-platform-proof', 'network-portal-risk-performance-platform-proof'],
   ['network-security-readiness-proof', 'network-security-readiness-proof'],
   ['network-performance-benchmark-proof', 'network-performance-benchmark-proof'],
@@ -451,6 +460,11 @@ const proofArtifacts = [
     'output/network-plan-proof/10r-remote-delivery-cross-process-replay/proof-summary.json',
   ],
   [
+    'remote-cross-process-replay-status',
+    '10-remote-delivery-proof',
+    'output/network-plan-proof/10s-remote-delivery-cross-process-replay-status-bridge/proof-summary.json',
+  ],
+  [
     'vpn-proxy-tunnel',
     'classification-proof',
     'output/network-plan-proof/24-vpn-proxy-tor-tunnel-classifier/proof-summary.json',
@@ -535,7 +549,7 @@ const proof = {
     'AI detection/audit and risk-budget outputs remain advisory until typed policy handoff',
     'adapter action is gated by policy, capability proof, result state, rollback/unavailable refs, and audit refs',
     'journal, replay, receipt-ledger, durable envelope, outbox, and local read-model proof are present',
-    'remote fixture transport, fixture transport status bridge, provider/child readiness, cross-process custody readiness, cross-process replay metadata, delete/export readiness, and delete/export status bridge proof are present without live propagation',
+    'remote fixture transport, fixture transport status bridge, provider/child readiness, cross-process custody readiness, cross-process replay metadata, cross-process replay status visibility, delete/export readiness, and delete/export status bridge proof are present without live propagation',
     'portal evidence drawer, risk/performance/platform status, and row51 stored-flow product-path bridge are service/read-model backed and non-authoritative',
     'security readiness and performance benchmark proof roots are present',
   ],

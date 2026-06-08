@@ -1,10 +1,14 @@
 agent-core-provider-child-readiness-test
 
-running 2 tests
+running 3 tests
 test network_event_runtime::remote_delivery_provider_child_readiness::tests::preserves_fixture_ack_refs_without_live_delivery ... ok
+test network_event_runtime::remote_delivery_cross_process_custody_readiness::tests::preserves_provider_child_readiness_refs_without_cross_process_claims ... ok
 test network_event_runtime::remote_delivery_provider_child_readiness::tests::rejects_live_delivery_claims ... ok
 
-test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 287 filtered out; finished in 0.03s
+test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 291 filtered out; finished in 0.03s
 
-    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.34s
+    Blocking waiting for file lock on package cache
+    Blocking waiting for file lock on package cache
+    Blocking waiting for file lock on package cache
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.43s
      Running unittests src\lib.rs (target\debug\deps\ocentra_parent_agent_core-9cb1b877e0051382.exe)

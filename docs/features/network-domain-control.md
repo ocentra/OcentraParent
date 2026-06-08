@@ -369,6 +369,18 @@ compete on control while staying clear about attribution confidence and privacy.
   remote acknowledgement delivery, actual remote delete/export propagation,
   product-ready delivery, policy/side-effect authority, exact content, host
   filtering, adapter action, and enforcement-command publication unclaimed.
+- E-D added a row10s cross-process replay status bridge proof:
+  `network-remote-delivery-cross-process-replay-status-bridge-proof` exposes
+  row10r deterministic replay metadata through the existing
+  `agent.network.remote-delivery.status.get` /
+  `agent.network.remote-delivery.status.reported` path. Rust protocol,
+  service payload, and TypeScript parser coverage now carries the row10s
+  status ref, row10r replay/store/cursor refs, replay record/store-write
+  counts, cursor next sequence, and durable/custody match flags. The bridge
+  keeps external cross-process transport, live broker/family-hub/provider/child
+  delivery, remote acknowledgement delivery, remote delete/export propagation,
+  product-ready delivery, policy/side-effect authority, exact content, host
+  filtering, adapter action, and enforcement-command publication unclaimed.
 - E-D added `ocentra-network-evidence`, a reusable Rust network metadata crate,
   plus the first deterministic PCAP replay proof for classic
   Ethernet/IPv4/UDP DNS query metadata. The proof writes a fixture PCAP,

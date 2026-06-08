@@ -221,6 +221,12 @@
       "log": "output/network-plan-proof/full-network-plan/command-logs/network-remote-delivery-cross-process-replay-proof.log"
     },
     {
+      "name": "network-remote-delivery-cross-process-replay-status-bridge-proof",
+      "command": "node scripts/test/network-remote-delivery-cross-process-replay-status-bridge-proof.mjs",
+      "status": 0,
+      "log": "output/network-plan-proof/full-network-plan/command-logs/network-remote-delivery-cross-process-replay-status-bridge-proof.log"
+    },
+    {
       "name": "network-parent-ui-evidence-drawer-proof",
       "command": "node scripts/test/network-parent-ui-evidence-drawer-proof.mjs",
       "status": 0,
@@ -320,7 +326,7 @@
   "freshnessAudit": {
     "policy": "Aggregate proof reruns current critical proof scripts, verifies source-tree fingerprints where artifacts provide sourceRefs, and labels legacy row artifacts instead of silently treating old branch metadata as fresh.",
     "counts": {
-      "refreshed-by-aggregate-command": 54
+      "refreshed-by-aggregate-command": 55
     },
     "refreshedArtifacts": [
       "contract-boundary",
@@ -374,6 +380,7 @@
       "remote-provider-child-readiness",
       "remote-cross-process-custody-readiness",
       "remote-cross-process-replay",
+      "remote-cross-process-replay-status",
       "vpn-proxy-tunnel",
       "remote-torrent-download",
       "end-to-end-pipeline"
@@ -381,7 +388,7 @@
     "fingerprintCheckedArtifacts": [],
     "legacyMetadataArtifacts": []
   },
-  "artifactCount": 54,
+  "artifactCount": 55,
   "artifacts": [
     {
       "id": "contract-boundary",
@@ -945,6 +952,17 @@
       }
     },
     {
+      "id": "remote-cross-process-replay-status",
+      "group": "10-remote-delivery-proof",
+      "path": "output/network-plan-proof/10s-remote-delivery-cross-process-replay-status-bridge/proof-summary.json",
+      "kind": "json",
+      "parsedProof": "network-remote-delivery-cross-process-replay-status-bridge-proof",
+      "freshness": {
+        "kind": "refreshed-by-aggregate-command",
+        "command": "network-remote-delivery-cross-process-replay-status-bridge-proof"
+      }
+    },
+    {
       "id": "vpn-proxy-tunnel",
       "group": "classification-proof",
       "path": "output/network-plan-proof/24-vpn-proxy-tor-tunnel-classifier/proof-summary.json",
@@ -1001,7 +1019,7 @@
     "AI detection/audit and risk-budget outputs remain advisory until typed policy handoff",
     "adapter action is gated by policy, capability proof, result state, rollback/unavailable refs, and audit refs",
     "journal, replay, receipt-ledger, durable envelope, outbox, and local read-model proof are present",
-    "remote fixture transport, fixture transport status bridge, provider/child readiness, cross-process custody readiness, cross-process replay metadata, delete/export readiness, and delete/export status bridge proof are present without live propagation",
+    "remote fixture transport, fixture transport status bridge, provider/child readiness, cross-process custody readiness, cross-process replay metadata, cross-process replay status visibility, delete/export readiness, and delete/export status bridge proof are present without live propagation",
     "portal evidence drawer, risk/performance/platform status, and row51 stored-flow product-path bridge are service/read-model backed and non-authoritative",
     "security readiness and performance benchmark proof roots are present"
   ],

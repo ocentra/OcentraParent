@@ -18,7 +18,7 @@ use crate::{
 };
 
 #[tokio::test]
-async fn network_remote_delivery_status_payload_serializes_row10q_status_with_row10k_dispatch_state(
+async fn network_remote_delivery_status_payload_serializes_row10s_replay_status_with_row10k_dispatch_state(
 ) {
     let payload = network_remote_delivery_status_payload()
         .await
@@ -30,7 +30,7 @@ async fn network_remote_delivery_status_payload_serializes_row10q_status_with_ro
 }
 
 #[tokio::test]
-async fn network_remote_delivery_status_payload_reuses_stable_row10q_status_snapshot() {
+async fn network_remote_delivery_status_payload_reuses_stable_row10s_status_snapshot() {
     let first_payload = network_remote_delivery_status_payload()
         .await
         .expect(constants::error::AGENT_EVENT_SERIALIZES);
@@ -100,7 +100,7 @@ async fn network_remote_delivery_status_rejects_blocked_dispatch_identity_and_or
 fn assert_remote_delivery_status(status: &NetworkRemoteDeliveryStatus) {
     assert_eq!(
         status.status_ref,
-        constants::network_flow::TEST_REMOTE_DELIVERY_CROSS_PROCESS_CUSTODY_STATUS_REF
+        constants::network_flow::TEST_REMOTE_DELIVERY_CROSS_PROCESS_REPLAY_STATUS_REF
     );
     assert_eq!(
         status.broker_status,
@@ -138,6 +138,7 @@ fn assert_remote_delivery_status(status: &NetworkRemoteDeliveryStatus) {
     assert_remote_delivery_delete_export_status(status);
     assert_remote_delivery_provider_child_readiness_status(status);
     assert_remote_delivery_cross_process_custody_readiness_status(status);
+    assert_remote_delivery_cross_process_replay_status(status);
     assert_remote_delivery_outbox_status(status);
     assert_remote_delivery_non_claims(status);
 }
@@ -326,6 +327,35 @@ fn assert_remote_delivery_cross_process_custody_readiness_status(
     assert_eq!(status.remote_export_custody_artifact_count, 0);
 }
 
+fn assert_remote_delivery_cross_process_replay_status(status: &NetworkRemoteDeliveryStatus) {
+    assert_eq!(
+        status.cross_process_replay_ref,
+        constants::network_flow::TEST_REMOTE_DELIVERY_CROSS_PROCESS_REPLAY_REF
+    );
+    assert_eq!(
+        status.cross_process_replay_store_ref,
+        constants::network_flow::TEST_REMOTE_DELIVERY_CROSS_PROCESS_REPLAY_STORE_REF
+    );
+    assert_eq!(
+        status.cross_process_replay_cursor_ref,
+        constants::network_flow::TEST_REMOTE_DELIVERY_CROSS_PROCESS_REPLAY_CURSOR_REF
+    );
+    assert_eq!(
+        status.cross_process_replay_record_count,
+        status.outbox_candidate_count
+    );
+    assert_eq!(
+        status.cross_process_replay_store_write_count,
+        status.cross_process_replay_record_count
+    );
+    assert_eq!(
+        status.cross_process_replay_cursor_next_sequence,
+        status.cross_process_replay_record_count + 1
+    );
+    assert!(status.cross_process_replay_records_match_durable_envelopes);
+    assert!(status.cross_process_replay_records_match_custody_readiness);
+}
+
 fn assert_remote_delivery_outbox_status(status: &NetworkRemoteDeliveryStatus) {
     assert_eq!(
         status.outbox_ref,
@@ -365,7 +395,8 @@ fn assert_remote_delivery_non_claims(status: &NetworkRemoteDeliveryStatus) {
     assert!(!status.remote_delivery_ack_implemented);
     assert!(!status.provider_delivery_implemented);
     assert!(!status.child_device_delivery_implemented);
-    assert!(!status.cross_process_replay_implemented);
+    assert!(status.cross_process_replay_implemented);
+    assert!(!status.external_cross_process_transport_implemented);
     assert!(!status.remote_delete_export_propagation_implemented);
     assert!(!status.product_ready_remote_delivery);
     assert!(!status.policy_authority);

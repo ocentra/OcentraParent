@@ -1,2 +1,5 @@
 agent-service-clippy
-    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.33s
+    Blocking waiting for file lock on package cache
+    Blocking waiting for file lock on package cache
+    Blocking waiting for file lock on package cache
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.46s
