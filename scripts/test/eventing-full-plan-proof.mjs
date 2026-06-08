@@ -19,6 +19,7 @@ const proofScripts = [
   'eventing-enforcement-journal-action-proof.mjs',
   'eventing-family-variant-proof.mjs',
   'eventing-handler-policy-proof.mjs',
+  'eventing-household-mesh-consumer-proof.mjs',
   'eventing-journal-replay-proof.mjs',
   'eventing-lifecycle-clear-proof.mjs',
   'eventing-lock-await-proof.mjs',
@@ -162,6 +163,7 @@ writeGroupedLog('11-network-consumer-proof.log', commands, [
   'eventing-network-service-event-chain-stream-proof',
   'eventing-network-delivery-decision-proof',
 ]);
+writeGroupedLog('12-household-mesh-consumer-proof.log', commands, ['eventing-household-mesh-consumer-proof']);
 
 const proof = {
   schemaVersion: 1,
@@ -184,20 +186,32 @@ const proof = {
     '09-manual-platform-proof.md',
     '10-validation-commands.log',
     '11-network-consumer-proof.log',
+    '12-household-mesh-consumer-proof.log',
   ].map((name) => join(proofRoot, name)),
   provenRows: [
     '05-41 reusable eventing crate runtime rows',
     '42-62 parent/controller, child-agent, network, UI, enforcement, and command-boundary consumer rows',
     '63-78 reusable eventing type-safety, compatibility, lifecycle, topology, delivery, and source-safety rows',
+    '12-household-mesh-consumer proof-pack row for Household Mesh consumer bridge boundary',
   ],
   networkConsumerProof: {
     proofLog: join(proofRoot, '11-network-consumer-proof.log'),
     proves:
       'network consumes ocentra-eventing for typed publish/routing, queue/drain, request-response, service read-model delivery, service event-chain streaming, TypeScript parity, and broker/relay-hub manual-required delivery decisions without adding network business logic to crates/ocentra-eventing',
   },
+  householdMeshConsumerProof: {
+    proofLog: join(proofRoot, '12-household-mesh-consumer-proof.log'),
+    proves:
+      'Household Mesh consumer bridge exports only selected local events into typed authenticated LAN messages, validates incoming messages before local republish, rejects direct remote publish into another runtime bus, rejects raw payload transfer and provider/parent policy-authority escalation, and preserves child-agent-only AI policy authority without adding LAN, AI, policy, or enforcement behavior to crates/ocentra-eventing',
+  },
   notClaimed: [
     'broker-backed delivery',
     'relay-hub delivery',
+    'shared LAN-wide event bus',
+    'remote direct publish into another runtime local bus',
+    'provider-owned policy authority',
+    'raw screenshot or capture payload transfer by default',
+    'physical household provider execution',
     'platform adapter execution',
     'host DNS/filter enforcement',
     'portal-owned business event publishing',

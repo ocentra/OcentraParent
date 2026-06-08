@@ -34,6 +34,10 @@ command=node scripts\test\eventing-handler-policy-proof.mjs
 status=0
 log=output\eventing-plan-proof\full-eventing-plan\command-logs\eventing-handler-policy-proof.log
 
+command=node scripts\test\eventing-household-mesh-consumer-proof.mjs
+status=0
+log=output\eventing-plan-proof\full-eventing-plan\command-logs\eventing-household-mesh-consumer-proof.log
+
 command=node scripts\test\eventing-journal-replay-proof.mjs
 status=0
 log=output\eventing-plan-proof\full-eventing-plan\command-logs\eventing-journal-replay-proof.log

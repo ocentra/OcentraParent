@@ -497,6 +497,8 @@ pub mod browser_policy {
 }
 #[path = "constants/enforcement.rs"]
 pub mod enforcement;
+#[path = "constants/household_mesh.rs"]
+pub mod household_mesh;
 #[path = "constants/lan_pairing.rs"]
 pub mod lan_pairing;
 #[path = "constants/network_flow.rs"]

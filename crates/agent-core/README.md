@@ -80,6 +80,12 @@ service shell.
   rows, maps destination-domain metadata into a domain policy target, resolves
   parent-rule contexts only when they cite stored network activity event refs,
   and keeps the resulting decision dry-run with enforcement handoff disabled.
+- Household Mesh Bridge consumer proof that exports only selected local event
+  refs into typed authenticated LAN message refs, validates incoming LAN
+  messages before local republish, rejects direct remote publish into another
+  runtime bus, rejects unselected or mismatched event/message refs, rejects
+  provider/parent policy-authority escalation, rejects raw payload transfer, and
+  preserves child-agent-only AI policy authority.
 
 ## Must Not Own
 
@@ -155,3 +161,7 @@ flowchart LR
   full policy-engine execution, adapter authorization, adapter action,
   enforcement-command publication, exact URL/content inference, raw PCAP, and
   host filtering remain separate proof-gated gaps.
+- Household Mesh Bridge is a consumer-boundary proof only; live physical
+  household provider discovery/execution, cross-device claim/lease/idempotency,
+  production model quality, raw screenshot/capture transfer, portal UI,
+  enforcement commands, and adapter execution remain separate proof-gated gaps.

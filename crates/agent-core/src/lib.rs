@@ -50,6 +50,9 @@ mod enforcement_boundary;
 mod enforcement_policy_dispatch;
 mod enforcement_readiness;
 mod enforcement_timer_state;
+mod household_mesh_event_bridge;
+#[cfg(test)]
+mod household_mesh_event_bridge_tests;
 mod journal;
 mod journal_crypto;
 mod journal_error;
@@ -153,6 +156,12 @@ pub use enforcement_readiness::broad_os_adapter_readiness;
 pub use enforcement_timer_state::{
     active_timer_state_from_outcome, cancelled_timer_outcome, expired_timer_outcome,
     restart_recovered_timer_outcome, EnforcementTimerTransitionIds,
+};
+pub use household_mesh_event_bridge::{
+    export_selected_local_event, validate_incoming_lan_message, HouseholdMeshAuthenticationState,
+    HouseholdMeshBridgeRejection, HouseholdMeshExportDecision, HouseholdMeshImportDecision,
+    HouseholdMeshLanMessage, HouseholdMeshLocalEventKind, HouseholdMeshLocalRepublish,
+    HouseholdMeshPolicyAuthority,
 };
 pub use journal::ActivityJournal;
 pub use journal_crypto::{JournalKey, JOURNAL_KEY_BYTES};

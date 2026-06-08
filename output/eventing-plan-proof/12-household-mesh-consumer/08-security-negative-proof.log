@@ -1,0 +1,10 @@
+checkedAt=deterministic:eventing-household-mesh-consumer-proof/v1
+asserted=selected local events export as typed authenticated LAN messages
+asserted=local-only raw capture, adapter, private queue, policy, and enforcement events do not export
+asserted=incoming LAN messages validate authentication before local republish
+asserted=remote direct publish into another runtime bus is rejected
+asserted=provider and parent-UI policy-authority escalation is rejected
+asserted=raw payload transfer is rejected
+asserted=child-agent-only AI policy authority is preserved
+asserted=no shared LAN-wide event bus claim
+asserted=no physical household provider execution, portal UI, enforcement, or adapter execution claim

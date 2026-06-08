@@ -1,0 +1,11 @@
+Source shape warnings scoped to row12 source refs:
+crates/agent-core/src/household_mesh_event_bridge.rs:1 file has 286 lines; crossed 250-line advisory band; maximum is 1000
+crates/agent-core/src/household_mesh_event_bridge_tests.rs:1 file has 264 lines; crossed 250-line advisory band; maximum is 1000
+crates/agent-core/src/household_mesh_event_bridge_tests.rs:183 function has 69 lines; warning starts at 64 of 80
+crates/agent-core/src/lib.rs:1 file has 343 lines; crossed 250-line advisory band; maximum is 1000
+crates/agent-protocol/src/constants.rs:1 file has 579 lines; crossed 500-line advisory band; maximum is 1000
+crates/agent-service/src/lan_pairing/lan_ai_job.rs:1 file has 18 functions; warning starts at 15 of 18
+crates/agent-service/src/lan_pairing/lan_ai_job.rs:1 file has 430 lines; crossed 250-line advisory band; maximum is 1000
+crates/agent-service/src/lan_pairing/lan_ai_job_tests.rs:1 file has 18 functions; warning starts at 15 of 18
+crates/agent-service/src/lan_pairing/lan_ai_job_tests.rs:1 file has 425 lines; crossed 250-line advisory band; maximum is 1000
+Source shape guard passed.

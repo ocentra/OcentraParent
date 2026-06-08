@@ -60,6 +60,12 @@
       "log": "output\\eventing-plan-proof\\full-eventing-plan\\command-logs\\eventing-handler-policy-proof.log"
     },
     {
+      "name": "eventing-household-mesh-consumer-proof",
+      "command": "node scripts\\test\\eventing-household-mesh-consumer-proof.mjs",
+      "status": 0,
+      "log": "output\\eventing-plan-proof\\full-eventing-plan\\command-logs\\eventing-household-mesh-consumer-proof.log"
+    },
+    {
       "name": "eventing-journal-replay-proof",
       "command": "node scripts\\test\\eventing-journal-replay-proof.mjs",
       "status": 0,
@@ -234,20 +240,31 @@
     "output\\eventing-plan-proof\\full-eventing-plan\\08-security-negative-proof.log",
     "output\\eventing-plan-proof\\full-eventing-plan\\09-manual-platform-proof.md",
     "output\\eventing-plan-proof\\full-eventing-plan\\10-validation-commands.log",
-    "output\\eventing-plan-proof\\full-eventing-plan\\11-network-consumer-proof.log"
+    "output\\eventing-plan-proof\\full-eventing-plan\\11-network-consumer-proof.log",
+    "output\\eventing-plan-proof\\full-eventing-plan\\12-household-mesh-consumer-proof.log"
   ],
   "provenRows": [
     "05-41 reusable eventing crate runtime rows",
     "42-62 parent/controller, child-agent, network, UI, enforcement, and command-boundary consumer rows",
-    "63-78 reusable eventing type-safety, compatibility, lifecycle, topology, delivery, and source-safety rows"
+    "63-78 reusable eventing type-safety, compatibility, lifecycle, topology, delivery, and source-safety rows",
+    "12-household-mesh-consumer proof-pack row for Household Mesh consumer bridge boundary"
   ],
   "networkConsumerProof": {
     "proofLog": "output\\eventing-plan-proof\\full-eventing-plan\\11-network-consumer-proof.log",
     "proves": "network consumes ocentra-eventing for typed publish/routing, queue/drain, request-response, service read-model delivery, service event-chain streaming, TypeScript parity, and broker/relay-hub manual-required delivery decisions without adding network business logic to crates/ocentra-eventing"
   },
+  "householdMeshConsumerProof": {
+    "proofLog": "output\\eventing-plan-proof\\full-eventing-plan\\12-household-mesh-consumer-proof.log",
+    "proves": "Household Mesh consumer bridge exports only selected local events into typed authenticated LAN messages, validates incoming messages before local republish, rejects direct remote publish into another runtime bus, rejects raw payload transfer and provider/parent policy-authority escalation, and preserves child-agent-only AI policy authority without adding LAN, AI, policy, or enforcement behavior to crates/ocentra-eventing"
+  },
   "notClaimed": [
     "broker-backed delivery",
     "relay-hub delivery",
+    "shared LAN-wide event bus",
+    "remote direct publish into another runtime local bus",
+    "provider-owned policy authority",
+    "raw screenshot or capture payload transfer by default",
+    "physical household provider execution",
     "platform adapter execution",
     "host DNS/filter enforcement",
     "portal-owned business event publishing"
