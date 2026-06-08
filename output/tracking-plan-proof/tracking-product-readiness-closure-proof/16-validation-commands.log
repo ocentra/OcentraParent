@@ -2,5 +2,6 @@ cmd /c npm run build --workspace @ocentra-parent/parent-domain exit=0
 cmd /c npm run test --workspace @ocentra-parent/parent-domain -- tracking-product-readiness-closure-proof exit=0
 cmd /c node scripts/test/tracking-full-product-ui-local-runtime-artifact-capture-proof.mjs exit=0
 cmd /c node scripts/test/tracking-android-emulator-artifact-inventory-proof.mjs exit=0
+cmd /c node scripts/test/tracking-ios-simulator-artifact-inventory-proof.mjs exit=0
 cmd /c node scripts/test/tracking-retention-runtime-artifact-gate-proof.mjs exit=0
 cmd /c node scripts/test/tracking-claim-audit-proof.mjs exit=0

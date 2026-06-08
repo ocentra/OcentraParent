@@ -189,6 +189,14 @@ Every checked item must cite one or more proof artifacts.
       `test-results/tracking-plan-ios-simulator-proof/proof.json`; macOS CI
       uploads generated tracking artifacts from the iOS simulator
       package-preview job.
+- [x] iOS simulator artifact inventory proof verifies the simulator package
+      routing artifacts, manual-required Core Location proof rows, privacy
+      disclosure release-gate artifacts, platform proof notes, and validation
+      logs as required local simulator evidence, then carries those counts into
+      product-readiness closure and real-runtime handoff without claiming Core
+      Location runtime, background region delivery, or physical-device
+      readiness. Artifact:
+      `test-results/tracking-ios-simulator-artifact-inventory-proof/proof.json`.
 
 ## Proof Tier Gates
 

@@ -42,6 +42,7 @@ const requiredSnapshotPhrases = [
 const requiredClosureCoverageTags = [
   'android-emulator-proof',
   'android-emulator-artifact-inventory',
+  'ios-simulator-artifact-inventory',
   'child-runtime-artifact-gate',
   'child-runtime-android-emulator-readiness-bridge',
   'full-product-ui-runtime-artifact-gate',

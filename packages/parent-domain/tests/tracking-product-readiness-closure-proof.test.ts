@@ -30,6 +30,14 @@ describe('tracking product readiness closure proof', () => {
     expect(proof.aggregateEvidence.androidEmulatorPermissionUiArtifactCount).toBe(3);
     expect(proof.aggregateEvidence.androidEmulatorRuntimeArtifactCount).toBe(8);
     expect(proof.aggregateEvidence.androidEmulatorLocalGeofenceTransitionCount).toBe(3);
+    expect(proof.aggregateEvidence.iosSimulatorRequiredArtifactCount).toBe(13);
+    expect(proof.aggregateEvidence.iosSimulatorPresentArtifactCount).toBe(13);
+    expect(proof.aggregateEvidence.iosSimulatorMissingArtifactCount).toBe(0);
+    expect(proof.aggregateEvidence.iosSimulatorPackageArtifactCount).toBe(4);
+    expect(proof.aggregateEvidence.iosSimulatorLocationManualRequiredArtifactCount).toBe(3);
+    expect(proof.aggregateEvidence.iosSimulatorPrivacyDisclosureArtifactCount).toBe(2);
+    expect(proof.aggregateEvidence.iosSimulatorManualRequiredRowCount).toBe(7);
+    expect(proof.aggregateEvidence.iosSimulatorMissingRuntimeArtifactCount).toBe(9);
     expect(proof.aggregateEvidence.childRuntimeRequiredArtifactCount).toBe(10);
     expect(proof.aggregateEvidence.childRuntimePresentArtifactCount).toBe(0);
     expect(proof.aggregateEvidence.childRuntimeMissingArtifactCount).toBe(10);
@@ -93,6 +101,14 @@ function aggregateEvidence() {
     androidEmulatorPermissionUiArtifactCount: 3,
     androidEmulatorRuntimeArtifactCount: 8,
     androidEmulatorLocalGeofenceTransitionCount: 3,
+    iosSimulatorRequiredArtifactCount: 13,
+    iosSimulatorPresentArtifactCount: 13,
+    iosSimulatorMissingArtifactCount: 0,
+    iosSimulatorPackageArtifactCount: 4,
+    iosSimulatorLocationManualRequiredArtifactCount: 3,
+    iosSimulatorPrivacyDisclosureArtifactCount: 2,
+    iosSimulatorManualRequiredRowCount: 7,
+    iosSimulatorMissingRuntimeArtifactCount: 9,
     childRuntimeRequiredArtifactCount: 10,
     childRuntimePresentArtifactCount: 0,
     childRuntimeMissingArtifactCount: 10,

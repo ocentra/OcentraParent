@@ -197,6 +197,8 @@ Proof root: `output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-g
   `67-child-runtime-android-emulator-readiness-bridge-proof.json`
 - Tracking Android emulator artifact inventory proof:
   `68-android-emulator-artifact-inventory-proof.json`
+- Tracking iOS simulator artifact inventory proof:
+  `69-ios-simulator-artifact-inventory-proof.json`
 
 ## Merge Blockers
 
@@ -1380,3 +1382,12 @@ tracking-claim-audit-proof tracking-product-readiness-closure-proof`
       emulator artifact counts without changing Android system geofence
       delivery, physical-device, authority, production runtime, or product-ready
       claims.
+- [x] iOS simulator artifact inventory refresh: new WP11/WP12/WP31/WP33
+      inventory proof verifies existing simulator package proof artifacts,
+      manual-required Core Location proof artifacts, privacy disclosure
+      release-gate artifacts, platform proof notes, and validation logs as
+      required local simulator evidence. Product-readiness closure,
+      real-runtime handoff, and source reconciliation now carry those iOS
+      simulator artifact counts without changing Core Location runtime,
+      background region delivery, physical-device, authority, provider,
+      production runtime, or product-ready claims.

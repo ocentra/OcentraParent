@@ -233,6 +233,17 @@ expose location or device-status features. Parents expect this category.
   closure and real-runtime handoff accounting, and keeps Android system
   geofence delivery, physical-device proof, authority, production runtime, and
   product-ready tracking unclaimed.
+- WP11/WP12/WP31/WP33 iOS simulator artifact inventory proof now exists
+  through
+  `node scripts/test/tracking-ios-simulator-artifact-inventory-proof.mjs`. It
+  verifies the existing iOS simulator package proof artifacts, iOS
+  manual-required Core Location rows, privacy disclosure release-gate proof,
+  platform proof notes, and validation logs as required local simulator
+  artifacts, carries required/present/missing simulator and manual-required
+  counts into product-readiness closure and real-runtime handoff accounting,
+  and keeps Core Location runtime, background region delivery, physical-device
+  proof, authority, provider delivery, production runtime, and product-ready iOS
+  tracking unclaimed.
 - WP30/WP33 full product UI readiness blocker proof now exists through
   `node scripts/test/tracking-full-product-ui-readiness-blocker-proof.mjs`. It
   consumes the hosted UI artifact inventory and child-runtime artifact gate,

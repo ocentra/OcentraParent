@@ -174,6 +174,18 @@ function assertProof(proof) {
     );
   }
   if (
+    proof.closureAccounting.iosSimulatorRequiredArtifactCount !==
+      proof.closureAccounting.iosSimulatorPresentArtifactCount +
+        proof.closureAccounting.iosSimulatorMissingArtifactCount ||
+    proof.closureAccounting.iosSimulatorMissingArtifactCount !== 0 ||
+    proof.closureAccounting.iosSimulatorManualRequiredRowCount !== 7 ||
+    proof.closureAccounting.iosSimulatorMissingRuntimeArtifactCount !== 9
+  ) {
+    throw new Error(
+      `Closure accounting lost iOS simulator artifact inventory evidence: ${JSON.stringify(proof.closureAccounting)}`
+    );
+  }
+  if (
     proof.closureAccounting.childRuntimeRequiredArtifactCount !==
       proof.closureAccounting.childRuntimePresentArtifactCount +
         proof.closureAccounting.childRuntimeMissingArtifactCount ||
@@ -238,6 +250,14 @@ function sourceSnapshot(proof) {
     `- androidEmulatorPermissionUiArtifactCount: ${proof.closureAccounting.androidEmulatorPermissionUiArtifactCount}`,
     `- androidEmulatorRuntimeArtifactCount: ${proof.closureAccounting.androidEmulatorRuntimeArtifactCount}`,
     `- androidEmulatorLocalGeofenceTransitionCount: ${proof.closureAccounting.androidEmulatorLocalGeofenceTransitionCount}`,
+    `- iosSimulatorRequiredArtifactCount: ${proof.closureAccounting.iosSimulatorRequiredArtifactCount}`,
+    `- iosSimulatorPresentArtifactCount: ${proof.closureAccounting.iosSimulatorPresentArtifactCount}`,
+    `- iosSimulatorMissingArtifactCount: ${proof.closureAccounting.iosSimulatorMissingArtifactCount}`,
+    `- iosSimulatorPackageArtifactCount: ${proof.closureAccounting.iosSimulatorPackageArtifactCount}`,
+    `- iosSimulatorLocationManualRequiredArtifactCount: ${proof.closureAccounting.iosSimulatorLocationManualRequiredArtifactCount}`,
+    `- iosSimulatorPrivacyDisclosureArtifactCount: ${proof.closureAccounting.iosSimulatorPrivacyDisclosureArtifactCount}`,
+    `- iosSimulatorManualRequiredRowCount: ${proof.closureAccounting.iosSimulatorManualRequiredRowCount}`,
+    `- iosSimulatorMissingRuntimeArtifactCount: ${proof.closureAccounting.iosSimulatorMissingRuntimeArtifactCount}`,
     `- childRuntimeRequiredArtifactCount: ${proof.closureAccounting.childRuntimeRequiredArtifactCount}`,
     `- childRuntimePresentArtifactCount: ${proof.closureAccounting.childRuntimePresentArtifactCount}`,
     `- childRuntimeMissingArtifactCount: ${proof.closureAccounting.childRuntimeMissingArtifactCount}`,
@@ -281,6 +301,14 @@ function manualValidationRunbook(proof) {
     `- androidEmulatorPermissionUiArtifactCount: ${proof.closureAccounting.androidEmulatorPermissionUiArtifactCount}`,
     `- androidEmulatorRuntimeArtifactCount: ${proof.closureAccounting.androidEmulatorRuntimeArtifactCount}`,
     `- androidEmulatorLocalGeofenceTransitionCount: ${proof.closureAccounting.androidEmulatorLocalGeofenceTransitionCount}`,
+    `- iosSimulatorRequiredArtifactCount: ${proof.closureAccounting.iosSimulatorRequiredArtifactCount}`,
+    `- iosSimulatorPresentArtifactCount: ${proof.closureAccounting.iosSimulatorPresentArtifactCount}`,
+    `- iosSimulatorMissingArtifactCount: ${proof.closureAccounting.iosSimulatorMissingArtifactCount}`,
+    `- iosSimulatorPackageArtifactCount: ${proof.closureAccounting.iosSimulatorPackageArtifactCount}`,
+    `- iosSimulatorLocationManualRequiredArtifactCount: ${proof.closureAccounting.iosSimulatorLocationManualRequiredArtifactCount}`,
+    `- iosSimulatorPrivacyDisclosureArtifactCount: ${proof.closureAccounting.iosSimulatorPrivacyDisclosureArtifactCount}`,
+    `- iosSimulatorManualRequiredRowCount: ${proof.closureAccounting.iosSimulatorManualRequiredRowCount}`,
+    `- iosSimulatorMissingRuntimeArtifactCount: ${proof.closureAccounting.iosSimulatorMissingRuntimeArtifactCount}`,
     `- childRuntimeRequiredArtifactCount: ${proof.closureAccounting.childRuntimeRequiredArtifactCount}`,
     `- childRuntimePresentArtifactCount: ${proof.closureAccounting.childRuntimePresentArtifactCount}`,
     `- childRuntimeMissingArtifactCount: ${proof.closureAccounting.childRuntimeMissingArtifactCount}`,

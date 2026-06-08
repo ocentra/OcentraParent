@@ -27,6 +27,10 @@ const sourceProofs = [
     'output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-gate/68-android-emulator-artifact-inventory-proof.json'
   ),
   sourceProof(
+    'ios-simulator-artifact-inventory',
+    'output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-gate/69-ios-simulator-artifact-inventory-proof.json'
+  ),
+  sourceProof(
     'android-system-geofence-blocker',
     'output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-gate/44-android-system-geofence-blocker-proof.json'
   ),
@@ -145,6 +149,7 @@ async function main() {
   ]);
   run('cmd', ['/c', 'node', 'scripts/test/tracking-full-product-ui-local-runtime-artifact-capture-proof.mjs']);
   run('cmd', ['/c', 'node', 'scripts/test/tracking-android-emulator-artifact-inventory-proof.mjs']);
+  run('cmd', ['/c', 'node', 'scripts/test/tracking-ios-simulator-artifact-inventory-proof.mjs']);
   run('cmd', ['/c', 'node', 'scripts/test/tracking-retention-runtime-artifact-gate-proof.mjs']);
   run('cmd', ['/c', 'node', 'scripts/test/tracking-claim-audit-proof.mjs']);
 
@@ -183,6 +188,9 @@ async function aggregateEvidence() {
   const androidEmulatorArtifactInventoryProof = await readJson(
     'test-results/tracking-android-emulator-artifact-inventory-proof/proof.json'
   );
+  const iosSimulatorArtifactInventoryProof = await readJson(
+    'test-results/tracking-ios-simulator-artifact-inventory-proof/proof.json'
+  );
   const retentionRuntimeProof = await readJson(
     'test-results/tracking-retention-runtime-artifact-gate-proof/proof.json'
   );
@@ -210,6 +218,16 @@ async function aggregateEvidence() {
     androidEmulatorRuntimeArtifactCount: androidEmulatorArtifactInventoryProof.summary.runtimeArtifactCount,
     androidEmulatorLocalGeofenceTransitionCount:
       androidEmulatorArtifactInventoryProof.summary.localGeofenceTransitionCount,
+    iosSimulatorRequiredArtifactCount: iosSimulatorArtifactInventoryProof.summary.requiredArtifactCount,
+    iosSimulatorPresentArtifactCount: iosSimulatorArtifactInventoryProof.summary.presentArtifactCount,
+    iosSimulatorMissingArtifactCount: iosSimulatorArtifactInventoryProof.summary.missingArtifactCount,
+    iosSimulatorPackageArtifactCount: iosSimulatorArtifactInventoryProof.summary.simulatorPackageArtifactCount,
+    iosSimulatorLocationManualRequiredArtifactCount:
+      iosSimulatorArtifactInventoryProof.summary.locationManualRequiredArtifactCount,
+    iosSimulatorPrivacyDisclosureArtifactCount:
+      iosSimulatorArtifactInventoryProof.summary.privacyDisclosureArtifactCount,
+    iosSimulatorManualRequiredRowCount: iosSimulatorArtifactInventoryProof.summary.iosManualRequiredRowCount,
+    iosSimulatorMissingRuntimeArtifactCount: iosSimulatorArtifactInventoryProof.summary.iosMissingRuntimeArtifactCount,
     childRuntimeRequiredArtifactCount: childRuntimeArtifactSummary.requiredArtifactCount,
     childRuntimePresentArtifactCount: childRuntimeArtifactSummary.presentArtifactCount,
     childRuntimeMissingArtifactCount: childRuntimeArtifactSummary.missingArtifactCount,
@@ -276,6 +294,14 @@ function sourceSnapshot(proof) {
     `- androidEmulatorPermissionUiArtifactCount: ${proof.aggregateEvidence.androidEmulatorPermissionUiArtifactCount}`,
     `- androidEmulatorRuntimeArtifactCount: ${proof.aggregateEvidence.androidEmulatorRuntimeArtifactCount}`,
     `- androidEmulatorLocalGeofenceTransitionCount: ${proof.aggregateEvidence.androidEmulatorLocalGeofenceTransitionCount}`,
+    `- iosSimulatorRequiredArtifactCount: ${proof.aggregateEvidence.iosSimulatorRequiredArtifactCount}`,
+    `- iosSimulatorPresentArtifactCount: ${proof.aggregateEvidence.iosSimulatorPresentArtifactCount}`,
+    `- iosSimulatorMissingArtifactCount: ${proof.aggregateEvidence.iosSimulatorMissingArtifactCount}`,
+    `- iosSimulatorPackageArtifactCount: ${proof.aggregateEvidence.iosSimulatorPackageArtifactCount}`,
+    `- iosSimulatorLocationManualRequiredArtifactCount: ${proof.aggregateEvidence.iosSimulatorLocationManualRequiredArtifactCount}`,
+    `- iosSimulatorPrivacyDisclosureArtifactCount: ${proof.aggregateEvidence.iosSimulatorPrivacyDisclosureArtifactCount}`,
+    `- iosSimulatorManualRequiredRowCount: ${proof.aggregateEvidence.iosSimulatorManualRequiredRowCount}`,
+    `- iosSimulatorMissingRuntimeArtifactCount: ${proof.aggregateEvidence.iosSimulatorMissingRuntimeArtifactCount}`,
     `- childRuntimeRequiredArtifactCount: ${proof.aggregateEvidence.childRuntimeRequiredArtifactCount}`,
     `- childRuntimePresentArtifactCount: ${proof.aggregateEvidence.childRuntimePresentArtifactCount}`,
     `- childRuntimeMissingArtifactCount: ${proof.aggregateEvidence.childRuntimeMissingArtifactCount}`,
@@ -303,6 +329,7 @@ function securityNegativeProof() {
     'workpack=33-proof-gates-fixtures-rollout-and-pr-gate',
     'Closure rows cite existing local/CI proof refs and enumerate remaining product blockers.',
     'Android emulator artifact inventory records local adb, permission UI, location runtime, geofence runtime, device-status, and validation-log artifacts while keeping Android physical-device/system-delivery blockers open.',
+    'iOS simulator artifact inventory records simulator package, manual-required Core Location, privacy disclosure, platform proof, and validation-log artifacts while keeping Core Location runtime and physical-device blockers open.',
     'Retention runtime closure accounting records the local writable settings artifact as present and the platform runtime retention enforcement artifact as missing.',
     'Rows do not claim writable retention product settings, platform retention enforcement, Android/iOS physical background behavior, authority enrollment, provider delivery/receipt runtime, production workers, actual child-device runtime, or product readiness.',
     '',

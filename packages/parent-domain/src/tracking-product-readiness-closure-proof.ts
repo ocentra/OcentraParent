@@ -17,6 +17,7 @@ export const TrackingProductReadinessClosureCoverageTagSchema = Schema.Literal(
   'wsl-local-replay',
   'hosted-ui-artifact-inventory',
   'android-emulator-artifact-inventory',
+  'ios-simulator-artifact-inventory',
   'android-system-geofence-blocker',
   'notification-receipt-boundary',
   'notification-preference-preflight',
@@ -51,6 +52,7 @@ export const RequiredTrackingProductReadinessClosureCoverageTags = [
   'wsl-local-replay',
   'hosted-ui-artifact-inventory',
   'android-emulator-artifact-inventory',
+  'ios-simulator-artifact-inventory',
   'android-system-geofence-blocker',
   'notification-receipt-boundary',
   'notification-preference-preflight',
@@ -122,6 +124,14 @@ export const TrackingProductReadinessClosureAggregateEvidenceSchema = withParser
     androidEmulatorPermissionUiArtifactCount: Schema.Number.pipe(Schema.int(), Schema.positive()),
     androidEmulatorRuntimeArtifactCount: Schema.Number.pipe(Schema.int(), Schema.positive()),
     androidEmulatorLocalGeofenceTransitionCount: Schema.Number.pipe(Schema.int(), Schema.positive()),
+    iosSimulatorRequiredArtifactCount: Schema.Number.pipe(Schema.int(), Schema.positive()),
+    iosSimulatorPresentArtifactCount: Schema.Number.pipe(Schema.int()),
+    iosSimulatorMissingArtifactCount: Schema.Number.pipe(Schema.int()),
+    iosSimulatorPackageArtifactCount: Schema.Number.pipe(Schema.int(), Schema.positive()),
+    iosSimulatorLocationManualRequiredArtifactCount: Schema.Number.pipe(Schema.int(), Schema.positive()),
+    iosSimulatorPrivacyDisclosureArtifactCount: Schema.Number.pipe(Schema.int(), Schema.positive()),
+    iosSimulatorManualRequiredRowCount: Schema.Number.pipe(Schema.int(), Schema.positive()),
+    iosSimulatorMissingRuntimeArtifactCount: Schema.Number.pipe(Schema.int(), Schema.positive()),
     childRuntimeRequiredArtifactCount: Schema.Number.pipe(Schema.int(), Schema.positive()),
     childRuntimePresentArtifactCount: Schema.Number.pipe(Schema.int()),
     childRuntimeMissingArtifactCount: Schema.Number.pipe(Schema.int()),
@@ -164,6 +174,14 @@ export const TrackingProductReadinessClosureAggregateEvidenceSchema = withParser
           evidence.androidEmulatorRequiredArtifactCount ===
             evidence.androidEmulatorPresentArtifactCount + evidence.androidEmulatorMissingArtifactCount ||
           'Aggregate closure evidence must classify every Android emulator artifact'
+      )
+    )
+    .pipe(
+      Schema.filter(
+        (evidence) =>
+          evidence.iosSimulatorRequiredArtifactCount ===
+            evidence.iosSimulatorPresentArtifactCount + evidence.iosSimulatorMissingArtifactCount ||
+          'Aggregate closure evidence must classify every iOS simulator artifact'
       )
     )
     .pipe(
