@@ -1302,3 +1302,8 @@ tracking-claim-audit-proof tracking-product-readiness-closure-proof`
       runtime gaps, and the product-readiness closure proof now records those
       counts alongside the retention writable execution derivation and
       child-runtime artifact gap counts while keeping product-ready false.
+- [x] Real-runtime handoff accounting refresh: the handoff proof now consumes
+      the product-readiness closure aggregate counts, records readiness
+      categories for six physical/runtime rows, one provider-runtime row, and
+      two production-runtime rows, and keeps all manual handoff rows
+      `ciRunnable=false` with product-ready false.

@@ -75,7 +75,11 @@
   manual validation commands, artifact acceptance notes, and a generated manual
   validation runbook for the P4 handoff rows so the remaining Android, iOS,
   child-runtime, product UI, authority, provider, retention, production, and
-  escalation gaps can be closed without inventing duplicate truth.
+  escalation gaps can be closed without inventing duplicate truth. It now also
+  carries the latest product-readiness closure accounting and classifies the
+  remaining handoff rows as six physical/runtime-required rows, one
+  provider-runtime-required row, two production-runtime-required rows, and zero
+  CI-runnable rows.
 - Product-readiness closure proof exists through
   `node scripts/test/tracking-product-readiness-closure-proof.mjs`; it verifies
   the local/CI proof accounting chain, now carries aggregate evidence for five

@@ -6,6 +6,16 @@ import {
 } from '../src/tracking-real-runtime-handoff-proof';
 
 const requiredArtifacts = ['00-runtime-metadata.json', '01-runtime-result.json'];
+const closureAccounting = {
+  fullProductUiLocalArtifactCount: 5,
+  fullProductUiClosureRetentionWritableExecutionRowCount: 1,
+  fullProductUiClosureChildRuntimeMissingArtifactCount: 10,
+  claimAuditPresentArtifactCount: 5,
+  claimAuditMissingArtifactCount: 61,
+  claimAuditManualRequiredRowCount: 10,
+  claimAuditProductReadyRowCount: 0,
+  productClaimReady: false,
+} as const;
 
 describe('tracking real runtime handoff proof', () => {
   it('keeps Android and iOS physical-device handoff rows separate', () => {
@@ -26,7 +36,7 @@ describe('tracking real runtime handoff proof', () => {
       auditRefs: [`${gate.handoffArea}-audit`],
     }));
 
-    const proof = buildTrackingRealRuntimeHandoffProof('2026-06-08T02:20:00.000Z', inventories);
+    const proof = buildTrackingRealRuntimeHandoffProof('2026-06-08T02:20:00.000Z', inventories, closureAccounting);
 
     expect(proof.handoffRows).toHaveLength(RequiredTrackingRealRuntimeHandoffGates.length);
     expect(proof.sourceGateRefs).toEqual(RequiredTrackingRealRuntimeHandoffGates.map((gate) => gate.sourceProofRef));
@@ -36,8 +46,15 @@ describe('tracking real runtime handoff proof', () => {
       RequiredTrackingRealRuntimeHandoffGates.length
     );
     expect(proof.summary.productReadyRowCount).toBe(0);
+    expect(proof.summary.ciRunnableRowCount).toBe(0);
+    expect(proof.summary.physicalDeviceRequiredRowCount).toBe(6);
+    expect(proof.summary.manualProviderRuntimeRequiredRowCount).toBe(1);
+    expect(proof.summary.productionRuntimeRequiredRowCount).toBe(2);
     expect(proof.handoffRows.every((row) => row.requiredValidationCommands.length > 0)).toBe(true);
     expect(proof.handoffRows.every((row) => row.artifactAcceptanceNotes.length > 0)).toBe(true);
+    expect(proof.handoffRows.every((row) => row.ciRunnable === false)).toBe(true);
+    expect(proof.closureAccounting.fullProductUiLocalArtifactCount).toBe(5);
+    expect(proof.closureAccounting.claimAuditMissingArtifactCount).toBe(61);
     expect(Object.values(proof.productClaims).every((claim) => claim === false)).toBe(true);
   });
 
@@ -50,14 +67,16 @@ describe('tracking real runtime handoff proof', () => {
       auditRefs: [`${gate.handoffArea}-audit`],
     }));
 
-    const proof = buildTrackingRealRuntimeHandoffProof('2026-06-08T02:20:00.000Z', inventories);
+    const proof = buildTrackingRealRuntimeHandoffProof('2026-06-08T02:20:00.000Z', inventories, closureAccounting);
 
     expect(proof.handoffRows.every((row) => row.status === 'artifact-set-present')).toBe(true);
     expect(proof.handoffRows.every((row) => row.artifactSetComplete)).toBe(true);
     expect(proof.productClaims.productReadyClaimed).toBe(false);
     expect(proof.summary.productReadyRowCount).toBe(0);
   });
+});
 
+describe('tracking real runtime handoff overclaim rejection', () => {
   it('rejects handoff rows that claim product readiness', () => {
     const invalid = TrackingRealRuntimeHandoffRowSchema.safeParse({
       schemaVersion: 'v0.5-tracking',
@@ -73,6 +92,8 @@ describe('tracking real runtime handoff proof', () => {
       requiredArtifacts,
       presentArtifacts: ['00-runtime-metadata.json'],
       missingArtifacts: ['01-runtime-result.json'],
+      readinessCategory: 'physical-device-required',
+      ciRunnable: false,
       requiredValidationCommands: ['Run Android physical-device proof'],
       artifactAcceptanceNotes: ['Require physical-device artifact evidence'],
       auditRefs: ['tracking-real-runtime-handoff-invalid-audit'],

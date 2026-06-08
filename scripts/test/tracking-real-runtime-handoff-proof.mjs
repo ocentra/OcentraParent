@@ -59,7 +59,8 @@ async function buildProof() {
     const sourceProof = await readJson(gate.sourceProofRef);
     inventories.push(handoffInventoryFrom(gate, sourceProof));
   }
-  const readModel = proofModule.buildTrackingRealRuntimeHandoffProof(generatedAt, inventories);
+  const closureAccounting = closure.aggregateEvidence;
+  const readModel = proofModule.buildTrackingRealRuntimeHandoffProof(generatedAt, inventories, closureAccounting);
   return {
     schemaVersion: 1,
     proofMode,
@@ -71,6 +72,7 @@ async function buildProof() {
     currentStatus: 'manual_required',
     sourceGateRefs: readModel.sourceGateRefs,
     closureProofRef: 'test-results/tracking-product-readiness-closure-proof/proof.json',
+    closureAccounting: readModel.closureAccounting,
     readModel,
     handoffRows: readModel.handoffRows,
     summary: readModel.summary,
@@ -141,6 +143,15 @@ function assertProof(proof) {
   if (proof.summary.requiredValidationCommandCount < proof.handoffRows.length) {
     throw new Error(`Real-runtime handoff is missing manual validation commands: ${JSON.stringify(proof.summary)}`);
   }
+  if (proof.summary.ciRunnableRowCount !== 0) {
+    throw new Error(`Real-runtime handoff cannot mark manual runtime rows as CI-runnable: ${JSON.stringify(proof)}`);
+  }
+  if (proof.closureAccounting.productClaimReady || proof.closureAccounting.claimAuditProductReadyRowCount !== 0) {
+    throw new Error(`Closure accounting overclaimed product readiness: ${JSON.stringify(proof.closureAccounting)}`);
+  }
+  if (proof.closureAccounting.fullProductUiLocalArtifactCount !== 5) {
+    throw new Error(`Closure accounting lost local UI artifact evidence: ${JSON.stringify(proof.closureAccounting)}`);
+  }
   const rowsWithoutAcceptanceNotes = proof.handoffRows.filter((row) => row.artifactAcceptanceNotes.length === 0);
   if (rowsWithoutAcceptanceNotes.length > 0) {
     throw new Error(`Real-runtime handoff rows need acceptance notes: ${JSON.stringify(rowsWithoutAcceptanceNotes)}`);
@@ -169,6 +180,9 @@ function sourceSnapshot(proof) {
     '- currentProofTier: P3_LOCAL_DEV_MACHINE',
     '- status: manual_required',
     '- proves real-runtime handoff artifact requirements are derived from existing gates',
+    `- fullProductUiLocalArtifactCount: ${proof.closureAccounting.fullProductUiLocalArtifactCount}`,
+    `- claimAuditMissingArtifactCount: ${proof.closureAccounting.claimAuditMissingArtifactCount}`,
+    `- ciRunnableRowCount: ${proof.summary.ciRunnableRowCount}`,
     '- does not prove physical-device, child-device runtime, authority, provider, retention product runtime, escalation, production, or product-ready tracking behavior',
     '',
     '## Handoff Areas',
@@ -189,6 +203,9 @@ function manualValidationRunbook(proof) {
     '- currentProofTier: P3_LOCAL_DEV_MACHINE',
     '- requiredProofTier: P4_REAL_RUNTIME_HANDOFF',
     '- productReadyClaimed: false',
+    `- ciRunnableRowCount: ${proof.summary.ciRunnableRowCount}`,
+    `- fullProductUiLocalArtifactCount: ${proof.closureAccounting.fullProductUiLocalArtifactCount}`,
+    `- claimAuditMissingArtifactCount: ${proof.closureAccounting.claimAuditMissingArtifactCount}`,
     '',
     ...proof.handoffRows.flatMap((row) => [
       `## ${row.handoffArea}`,
@@ -197,6 +214,8 @@ function manualValidationRunbook(proof) {
       `- sourceProofRef: ${row.sourceProofRef}`,
       `- proofRoot: ${row.proofRoot}`,
       `- status: ${row.status}`,
+      `- readinessCategory: ${row.readinessCategory}`,
+      `- ciRunnable: ${row.ciRunnable}`,
       `- missingArtifacts: ${row.missingArtifacts.length}/${row.requiredArtifacts.length}`,
       '',
       '### Required Validation Commands',

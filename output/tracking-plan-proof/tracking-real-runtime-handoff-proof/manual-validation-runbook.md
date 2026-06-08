@@ -1,10 +1,13 @@
 # Tracking Real Runtime Handoff Manual Validation Runbook
 
 - generatedAt: 2026-06-08T01:05:00.000Z
-- commit: 53549b670aca33eb5cb38ecb442c25ab6f8e8971
+- commit: b5c43e78df3a3cc719af27543402c9f3df79fad8
 - currentProofTier: P3_LOCAL_DEV_MACHINE
 - requiredProofTier: P4_REAL_RUNTIME_HANDOFF
 - productReadyClaimed: false
+- ciRunnableRowCount: 0
+- fullProductUiLocalArtifactCount: 5
+- claimAuditMissingArtifactCount: 61
 
 ## android-physical-background-and-geofence
 
@@ -12,6 +15,8 @@
 - sourceProofRef: test-results/tracking-physical-device-artifact-gate-proof/proof.json
 - proofRoot: output/tracking-plan-proof/android-background-geofence
 - status: manual-required
+- readinessCategory: physical-device-required
+- ciRunnable: false
 - missingArtifacts: 10/10
 
 ### Required Validation Commands
@@ -43,6 +48,8 @@
 - sourceProofRef: test-results/tracking-physical-device-artifact-gate-proof/proof.json
 - proofRoot: output/tracking-plan-proof/ios-region-monitoring
 - status: manual-required
+- readinessCategory: physical-device-required
+- ciRunnable: false
 - missingArtifacts: 10/10
 
 ### Required Validation Commands
@@ -74,6 +81,8 @@
 - sourceProofRef: test-results/tracking-child-runtime-artifact-gate-proof/proof.json
 - proofRoot: output/tracking-plan-proof/child-device-runtime-execution
 - status: manual-required
+- readinessCategory: physical-device-required
+- ciRunnable: false
 - missingArtifacts: 10/10
 
 ### Required Validation Commands
@@ -105,6 +114,8 @@
 - sourceProofRef: test-results/tracking-full-product-ui-runtime-artifact-gate-proof/proof.json
 - proofRoot: output/tracking-plan-proof
 - status: manual-required
+- readinessCategory: physical-device-required
+- ciRunnable: false
 - missingArtifacts: 4/9
 
 ### Required Validation Commands
@@ -130,6 +141,8 @@
 - sourceProofRef: test-results/tracking-authority-runtime-artifact-gate-proof/proof.json
 - proofRoot: output/tracking-plan-proof
 - status: manual-required
+- readinessCategory: physical-device-required
+- ciRunnable: false
 - missingArtifacts: 20/20
 
 ### Required Validation Commands
@@ -171,6 +184,8 @@
 - sourceProofRef: test-results/tracking-provider-delivery-artifact-gate-proof/proof.json
 - proofRoot: output/tracking-plan-proof/notification-provider-delivery
 - status: manual-required
+- readinessCategory: manual-provider-runtime-required
+- ciRunnable: false
 - missingArtifacts: 11/11
 
 ### Required Validation Commands
@@ -203,6 +218,8 @@
 - sourceProofRef: test-results/tracking-retention-runtime-artifact-gate-proof/proof.json
 - proofRoot: output/tracking-plan-proof
 - status: manual-required
+- readinessCategory: physical-device-required
+- ciRunnable: false
 - missingArtifacts: 1/2
 
 ### Required Validation Commands
@@ -225,6 +242,8 @@
 - sourceProofRef: test-results/tracking-production-worker-runtime-artifact-gate-proof/proof.json
 - proofRoot: output/tracking-plan-proof
 - status: manual-required
+- readinessCategory: production-runtime-required
+- ciRunnable: false
 - missingArtifacts: 8/8
 
 ### Required Validation Commands
@@ -254,6 +273,8 @@
 - sourceProofRef: test-results/tracking-escalation-runtime-artifact-gate-proof/proof.json
 - proofRoot: output/tracking-plan-proof
 - status: manual-required
+- readinessCategory: production-runtime-required
+- ciRunnable: false
 - missingArtifacts: 13/13
 
 ### Required Validation Commands
