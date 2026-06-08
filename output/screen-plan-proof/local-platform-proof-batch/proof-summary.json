@@ -1,13 +1,15 @@
 {
   "proof": "screen-local-platform-proof-batch",
-  "generatedAt": "2026-06-08T14:50:56.777Z",
+  "generatedAt": "2026-06-08T15:54:11.498Z",
   "sourceArtifacts": {
     "windowsActiveWindow": "output/screen-plan-proof/real-capture/manual-parent-test-active-window/proof-summary.json",
     "windowsScopeMatrix": "output/screen-plan-proof/real-capture/scope-matrix/proof-summary.json",
     "androidMediaProjection": "output/screen-plan-proof/android-mediaprojection/proof-summary.json",
     "androidCapability": "output/screen-plan-proof/android/proof-summary.json",
     "linuxWslg": "output/screen-plan-proof/linux-wslg/proof-summary.json",
-    "linuxCapability": "output/screen-plan-proof/linux/proof-summary.json"
+    "linuxWslgExternalGate": "output/screen-plan-proof/linux-wslg-external-gate-analysis/proof-summary.json",
+    "linuxCapability": "output/screen-plan-proof/linux/proof-summary.json",
+    "externalGates": "output/screen-plan-proof/external-gates/proof-summary.json"
   },
   "localHost": {
     "platform": "win32",
@@ -24,11 +26,27 @@
         "avdToolAvailable": true,
         "avdError": null,
         "avds": [
+          "OcentraParentDeviceOwnerProof",
           "Ocentra_Screen_ATD_API33"
         ],
-        "devices": [],
-        "onlineEmulatorSerials": [],
-        "onlinePhysicalSerials": []
+        "devices": [
+          {
+            "serial": "192.168.2.45:5555",
+            "state": "device",
+            "details": "product:star2qltecs model:SM_G965W device:star2qltecs transport_id:2"
+          },
+          {
+            "serial": "emulator-5554",
+            "state": "device",
+            "details": "product:sdk_slim_x86_64 model:Android_SDK_built_for_x86_64 device:emulator64_x86_64 transport_id:3"
+          }
+        ],
+        "onlineEmulatorSerials": [
+          "emulator-5554"
+        ],
+        "onlinePhysicalSerials": [
+          "192.168.2.45:5555"
+        ]
       },
       "linux": {
         "wslAvailable": true,
@@ -43,6 +61,7 @@
     "androidEmulatorCaptureComplete": true,
     "androidPhysicalCaptureComplete": false,
     "linuxWslgCaptureComplete": true,
+    "linuxWslgExternalGateComplete": true,
     "nativeLinuxWaylandComplete": false,
     "macosCaptureComplete": false,
     "iosCaptureComplete": false,
@@ -76,8 +95,9 @@
       "deviceSerial": "emulator-5554",
       "deviceModel": "Android SDK built for x86_64",
       "api": "33",
-      "currentHostDeviceOnline": false,
+      "currentHostDeviceOnline": true,
       "currentHostAvds": [
+        "OcentraParentDeviceOwnerProof",
         "Ocentra_Screen_ATD_API33"
       ],
       "productReadyContribution": "android-emulator-proof-only"
@@ -90,7 +110,9 @@
       "capturedPixels": false,
       "rawImageDeleted": false,
       "deviceSerial": "emulator-5554",
-      "currentHostOnlinePhysicalSerials": [],
+      "currentHostOnlinePhysicalSerials": [
+        "192.168.2.45:5555"
+      ],
       "productReadyContribution": "required-for-android-physical-product-claim",
       "reason": "Current proof is emulator-only or no physical Android is online; connect physical Android and rerun MediaProjection proof before product claim."
     },
@@ -103,6 +125,19 @@
       "rawImageDeleted": true,
       "display": ":0",
       "productReadyContribution": "wslg-selected-window-proof-only"
+    },
+    {
+      "platformGate": "linux-wslg-external-gate",
+      "status": "proved",
+      "artifact": "output/screen-plan-proof/linux-wslg/proof-summary.json",
+      "externalGateArtifact": "output/screen-plan-proof/linux-wslg-external-gate-analysis/proof-summary.json",
+      "externalGateProof": "output/screen-plan-proof/external-gates/proof-summary.json",
+      "retainedInspectionArtifact": "output/screen-plan-proof/external-gates/artifacts/linux-wslg-xmessage-live-surface.png",
+      "capturedPixels": true,
+      "localVlmAnalyzedCapturedArtifact": true,
+      "rawImageDeleted": true,
+      "display": ":0",
+      "productReadyContribution": "wslg-x11-selected-window-external-gate-ready"
     },
     {
       "platformGate": "linux-native-wayland-pipewire",
@@ -137,6 +172,7 @@
     "Android emulator MediaProjection is not physical Android parity.",
     "Android physical-device proof requires a current online physical device in adb inventory, not only retained emulator artifacts.",
     "WSLg/X11 selected-window capture is not native Linux Wayland/PipeWire or root-display parity.",
+    "WSLg/X11 external-gate proof retains a controlled visual inspection artifact and does not retain the raw product capture queue image.",
     "macOS and iOS native capture cannot be proved from this Windows worker host and remain external/CI/manual-required gates.",
     "This batch does not claim screen-plan product completion while any external platform gate remains external-required."
   ]

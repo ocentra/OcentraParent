@@ -13,7 +13,9 @@ const artifacts = {
   androidMediaProjection: 'output/screen-plan-proof/android-mediaprojection/proof-summary.json',
   androidCapability: 'output/screen-plan-proof/android/proof-summary.json',
   linuxWslg: 'output/screen-plan-proof/linux-wslg/proof-summary.json',
+  linuxWslgExternalGate: 'output/screen-plan-proof/linux-wslg-external-gate-analysis/proof-summary.json',
   linuxCapability: 'output/screen-plan-proof/linux/proof-summary.json',
+  externalGates: 'output/screen-plan-proof/external-gates/proof-summary.json',
 };
 
 const args = new Set(process.argv.slice(2));
@@ -38,7 +40,9 @@ const windowsScopeMatrix = readJson(artifacts.windowsScopeMatrix);
 const androidMediaProjection = readJson(artifacts.androidMediaProjection);
 const androidCapability = readJson(artifacts.androidCapability);
 const linuxWslg = readJson(artifacts.linuxWslg);
+const linuxWslgExternalGate = readJson(artifacts.linuxWslgExternalGate);
 const linuxCapability = readJson(artifacts.linuxCapability);
+const externalGates = readJson(artifacts.externalGates);
 const hostInventory = collectHostInventory();
 
 const rows = [
@@ -46,7 +50,7 @@ const rows = [
   windowsScopeMatrixRow(windowsScopeMatrix),
   androidEmulatorRow(androidMediaProjection, androidCapability, hostInventory),
   androidPhysicalRow(androidMediaProjection, androidCapability, hostInventory),
-  linuxWslgRow(linuxWslg, linuxCapability),
+  ...linuxWslgRows(linuxWslg, linuxWslgExternalGate, linuxCapability, externalGates),
   linuxNativeWaylandRow(linuxCapability),
   appleExternalRow('macos-screencapturekit', 'macOS ScreenCaptureKit live permission and capture proof'),
   appleExternalRow('ios-replaykit', 'iOS ReplayKit physical-device capture proof'),
@@ -71,6 +75,7 @@ const proof = {
     androidEmulatorCaptureComplete: rowsByStatus('android-mediaprojection-emulator', 'proved'),
     androidPhysicalCaptureComplete: rowsByStatus('android-mediaprojection-physical', 'proved'),
     linuxWslgCaptureComplete: rowsByStatus('linux-wslg-x11-selected-window', 'proved'),
+    linuxWslgExternalGateComplete: rowsByStatus('linux-wslg-external-gate', 'proved'),
     nativeLinuxWaylandComplete: rowsByStatus('linux-native-wayland-pipewire', 'proved'),
     macosCaptureComplete: rowsByStatus('macos-screencapturekit', 'proved'),
     iosCaptureComplete: rowsByStatus('ios-replaykit', 'proved'),
@@ -83,6 +88,7 @@ const proof = {
     'Android emulator MediaProjection is not physical Android parity.',
     'Android physical-device proof requires a current online physical device in adb inventory, not only retained emulator artifacts.',
     'WSLg/X11 selected-window capture is not native Linux Wayland/PipeWire or root-display parity.',
+    'WSLg/X11 external-gate proof retains a controlled visual inspection artifact and does not retain the raw product capture queue image.',
     'macOS and iOS native capture cannot be proved from this Windows worker host and remain external/CI/manual-required gates.',
     'This batch does not claim screen-plan product completion while any external platform gate remains external-required.',
   ],
@@ -174,23 +180,49 @@ function androidPhysicalRow(summary, capability, inventory) {
   };
 }
 
-function linuxWslgRow(summary, capability) {
+function linuxWslgRows(summary, externalGateSummary, capability, externalGateProof) {
   assert(summary.proof === 'screen-capture-linux-wslg-proof', 'Linux WSLg proof id mismatch');
+  assert(
+    externalGateSummary.proof === 'screen-linux-wslg-external-gate-proof',
+    'Linux WSLg external gate proof id mismatch'
+  );
   assert(summary.selectedWindow?.captured === true, 'Linux WSLg proof did not capture selected window');
   assert(summary.selectedWindow?.actualScope === 'selectedWindow', 'Linux WSLg proof scope mismatch');
   assert(summary.custody?.rawImageDeleted === true, 'Linux WSLg proof did not delete raw image');
   assert(summary.custody?.existsAfterDelete === false, 'Linux WSLg raw image still exists');
+  assert(externalGateSummary.assertions?.linuxExternalGateSatisfied === true, 'Linux external gate is not satisfied');
+  assert(
+    externalGateProof.gateResults?.some(
+      (gate) => gate.gateId === 'linux-desktop-session-capture' && gate.status === 'satisfied'
+    ) === true,
+    'External gate proof does not show the Linux desktop-session gate satisfied'
+  );
   assert(capability.gapStatus?.wslgX11SelectedWindowProofExists === true, 'Linux capability lost WSLg proof');
-  return {
-    platformGate: 'linux-wslg-x11-selected-window',
-    status: 'proved',
-    artifact: artifacts.linuxWslg,
-    capabilityArtifact: artifacts.linuxCapability,
-    capturedPixels: true,
-    rawImageDeleted: true,
-    display: summary.session?.display ?? null,
-    productReadyContribution: 'wslg-selected-window-proof-only',
-  };
+  return [
+    {
+      platformGate: 'linux-wslg-x11-selected-window',
+      status: 'proved',
+      artifact: artifacts.linuxWslg,
+      capabilityArtifact: artifacts.linuxCapability,
+      capturedPixels: true,
+      rawImageDeleted: true,
+      display: summary.session?.display ?? null,
+      productReadyContribution: 'wslg-selected-window-proof-only',
+    },
+    {
+      platformGate: 'linux-wslg-external-gate',
+      status: 'proved',
+      artifact: artifacts.linuxWslg,
+      externalGateArtifact: artifacts.linuxWslgExternalGate,
+      externalGateProof: artifacts.externalGates,
+      retainedInspectionArtifact: externalGateSummary.retainedInspectionArtifact?.path ?? null,
+      capturedPixels: true,
+      localVlmAnalyzedCapturedArtifact: true,
+      rawImageDeleted: true,
+      display: summary.session?.display ?? null,
+      productReadyContribution: 'wslg-x11-selected-window-external-gate-ready',
+    },
+  ];
 }
 
 function linuxNativeWaylandRow(capability) {
@@ -233,8 +265,8 @@ function runAndroidProofs() {
 }
 
 function runLinuxProofs() {
-  runWsl('node scripts/test/screen-capture-linux-wslg-proof.mjs');
   runNode('scripts/test/screen-linux-capture-capability-proof.mjs');
+  runNode('scripts/test/screen-linux-wslg-external-gate-proof.mjs');
 }
 
 function runNode(script) {
@@ -349,6 +381,8 @@ function readJson(path) {
 function validationCommands() {
   return [
     'node --check scripts/test/screen-local-platform-proof-batch.mjs',
+    'node --check scripts/test/screen-linux-wslg-external-gate-proof.mjs',
+    'node scripts/test/screen-linux-wslg-external-gate-proof.mjs',
     'node scripts/test/screen-local-platform-proof-batch.mjs',
     'node scripts/test/screen-local-platform-proof-batch.mjs --run-windows',
     'node scripts/test/screen-local-platform-proof-batch.mjs --run-android',

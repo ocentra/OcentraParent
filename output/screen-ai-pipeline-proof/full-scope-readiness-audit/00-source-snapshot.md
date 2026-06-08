@@ -1,6 +1,6 @@
 # Screen AI Full Scope Readiness Audit
 
-Generated: 2026-06-08T14:50:57.423Z
+Generated: 2026-06-08T15:54:09.136Z
 
 ## Source Artifacts
 
@@ -13,6 +13,7 @@ Generated: 2026-06-08T14:50:57.423Z
 - liveOperatorEvidenceBundle: `output/screen-ai-pipeline-proof/live-operator-evidence-bundle/proof-summary.json`
 - finalAdapterAudit: `output/screen-ai-pipeline-proof/final-adapter-dependency-audit/proof-summary.json`
 - linuxHostExecution: `output/screen-ai-pipeline-proof/linux-host-adapter-execution/proof-summary.json`
+- linuxWslgExternalGate: `output/screen-plan-proof/linux-wslg-external-gate-analysis/proof-summary.json`
 - productChecklistDelta: `output/screen-ai-pipeline-proof/product-checklist-delta/proof-summary.json`
 - productChecklistDeltaMarkdown: `output/screen-ai-pipeline-proof/product-checklist-delta/product-capability-checklist-delta.md`
 - pipelineChecklist: `docs/plans/screen-ai-pipeline-plan/implementation-checklist.md`
@@ -46,6 +47,7 @@ Generated: 2026-06-08T14:50:57.423Z
   "remoteAiUsedForChildSafety": false,
   "productChecklistDeltaReadyButNotApplied": true,
   "linuxWsl2HostExecutionProved": true,
+  "linuxWslgExternalGateProved": true,
   "nativeLinuxDesktopProductReady": false,
   "finalPipelineProductComplete": false,
   "finalPipelineProductCompleteBlockedByAdapterGate": true,

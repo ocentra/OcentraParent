@@ -10,11 +10,11 @@
     "captured": true,
     "status": "available",
     "actualScope": "selectedWindow",
-    "width": 220,
-    "height": 220,
-    "imageByteSize": 3289,
+    "width": 420,
+    "height": 180,
+    "imageByteSize": 1291,
     "titlePresent": true,
-    "windowId": 6291466
+    "windowId": 6291479
   },
   "custody": {
     "rawImageDeleted": true,
@@ -22,9 +22,21 @@
     "encryptedQueueContainsRawDigest": false
   },
   "selectedWindowArtifact": "output/screen-plan-proof/linux-wslg/selected-window",
+  "visibleProofText": "Ocentra WSLg external gate proof\nCategory: school productivity\nPolicy dry run expects allow\nRaw product capture is deleted after analysis",
+  "externalGateArtifact": {
+    "present": true,
+    "path": "output/screen-plan-proof/external-gates/artifacts/linux-wslg-xmessage-live-surface.png",
+    "sha256": "e81749c606c43477d0a332a1ff910761ab75e4c1345353fb526978b315b552ec",
+    "bytes": 1291,
+    "width": 420,
+    "height": 180,
+    "sourceSurface": "real-wslg-x11-xmessage-window",
+    "rawPrivateContentIncluded": false
+  },
   "degradedIsCaptureProof": false,
   "nonClaims": [
-    "This proves WSLg/X11 selected-window capture only.",
+    "This proves WSLg/X11 selected-window capture of a real native xmessage surface only.",
+    "The retained external gate PNG is an operator-safe visual inspection artifact captured from the same controlled live Linux window; it is not the raw product capture queue image.",
     "It does not claim WSLg root display capture, native Linux Wayland portal capture, or macOS/iOS/Android physical parity."
   ]
 }

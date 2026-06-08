@@ -161,15 +161,17 @@ only with explicit parent settings.
   Windows/macOS and an X11 command backend on Linux. Windows proof captures
   active-window, selected-window, and parent-opt-in primary-display scopes with
   encrypted temporary custody and raw delete-after-success proof. Linux WSLg
-  proof captures a real X11 selected window with encrypted custody and raw
-  deletion. macOS live capture proof still requires platform execution evidence
-  before parity is claimed.
+  proof captures a real X11 selected `xmessage` window with encrypted custody,
+  raw deletion, a retained operator-safe visual artifact, and local Qwen2-VL
+  analysis for the Linux external-gate manifest. macOS live capture proof still
+  requires platform execution evidence before parity is claimed.
 - `scripts/test/screen-local-platform-proof-batch.mjs` now accounts for the
   locally provable platform surface as one batch: Windows active/scope capture,
-  Android emulator MediaProjection consent/capture/deletion, and Linux WSLg/X11
-  selected-window capture/deletion. The batch records the current host inventory
-  for Android SDK/ADB/AVDs/devices and WSL display state, so a fresh emulator run
-  is distinguishable from a retained artifact. It explicitly keeps Android
+  Android emulator MediaProjection consent/capture/deletion, Linux WSLg/X11
+  selected-window capture/deletion, and Linux WSLg external-gate local VLM
+  analysis. The batch records the current host inventory for Android
+  SDK/ADB/AVDs/devices and WSL display state, so a fresh emulator run is
+  distinguishable from a retained artifact. It explicitly keeps Android
   physical-device parity, native Linux Wayland/PipeWire parity, macOS
   ScreenCaptureKit, and iOS ReplayKit as external-required gates before
   product-complete platform capture readiness.
@@ -476,6 +478,12 @@ only with explicit parent settings.
   or approval-scope refs instead of generic live-surface booleans. The generated
   `output/screen-plan-proof/external-gates/manual-evidence-status.md` file lists
   each missing gate and its required proof-ref fields for operator collection.
+  The Linux WSLg external-gate entry is now satisfied by
+  `scripts/test/screen-linux-wslg-external-gate-proof.mjs`, which captures a real
+  native Linux `xmessage` surface, analyzes the retained operator-safe artifact
+  with local Qwen2-VL, and cites the screen-capture adapter deletion proof; the
+  remaining macOS, physical Android, iOS, live-view, hosted relay,
+  privacy/legal, and authenticated-account gates remain missing.
 - Android child-agent scaffold now has emulator MediaProjection proof with
   explicit OS consent, foreground service, captured frame digest, and raw temp
   deletion. Physical Android parity and silent background capture are not

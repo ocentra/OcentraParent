@@ -18,6 +18,7 @@ const sourceArtifacts = {
   liveOperatorEvidenceBundle: 'output/screen-ai-pipeline-proof/live-operator-evidence-bundle/proof-summary.json',
   finalAdapterAudit: 'output/screen-ai-pipeline-proof/final-adapter-dependency-audit/proof-summary.json',
   linuxHostExecution: 'output/screen-ai-pipeline-proof/linux-host-adapter-execution/proof-summary.json',
+  linuxWslgExternalGate: 'output/screen-plan-proof/linux-wslg-external-gate-analysis/proof-summary.json',
   productChecklistDelta: 'output/screen-ai-pipeline-proof/product-checklist-delta/proof-summary.json',
   productChecklistDeltaMarkdown:
     'output/screen-ai-pipeline-proof/product-checklist-delta/product-capability-checklist-delta.md',
@@ -127,6 +128,7 @@ const finalProductPath = readJson(sourceArtifacts.finalProductPath);
 const liveOperatorEvidenceBundle = readJson(sourceArtifacts.liveOperatorEvidenceBundle);
 const finalAdapterAudit = readJson(sourceArtifacts.finalAdapterAudit);
 const linuxHostExecution = readJson(sourceArtifacts.linuxHostExecution);
+const linuxWslgExternalGate = readJson(sourceArtifacts.linuxWslgExternalGate);
 const productChecklistDelta = readJson(sourceArtifacts.productChecklistDelta);
 const productChecklistDeltaMarkdown = readText(sourceArtifacts.productChecklistDeltaMarkdown);
 const pipelineChecklist = readText(sourceArtifacts.pipelineChecklist);
@@ -335,6 +337,10 @@ assert(
   linuxHostExecution.closure?.nativeLinuxDesktopProductReady === false,
   'Linux execution proof overclaims native Linux desktop readiness'
 );
+assert(
+  linuxWslgExternalGate.assertions?.linuxExternalGateSatisfied === true,
+  'Linux WSLg external gate proof is not satisfied'
+);
 
 assert(
   productChecklistDelta.status === 'doc-delta-ready-product-checklist-locked',
@@ -412,6 +418,7 @@ const proof = {
     remoteAiUsedForChildSafety: false,
     productChecklistDeltaReadyButNotApplied: true,
     linuxWsl2HostExecutionProved: true,
+    linuxWslgExternalGateProved: true,
     nativeLinuxDesktopProductReady: false,
     finalPipelineProductComplete: false,
     finalPipelineProductCompleteBlockedByAdapterGate: true,
@@ -440,7 +447,7 @@ const proof = {
     'This audit does not edit docs/product-capability-checklist.md.',
     'This audit does not claim product-complete screen, AI, or pipeline execution.',
     'This audit does not implement broad installed-app, host network/domain, managed active-tab, Android, iOS, or native Linux desktop product-complete execution artifacts.',
-    'This audit does not replace live macOS, Linux desktop, physical Android, physical iOS, authenticated-account social, live-view production, or production OCR/VLM quality gates still listed by the screen-plan closure audit.',
+    'This audit does not replace live macOS, native Linux Wayland/PipeWire/root-display, physical Android, physical iOS, authenticated-account social, live-view production, or production OCR/VLM quality gates still listed by the screen-plan closure audit.',
   ],
 };
 

@@ -208,7 +208,7 @@ const workpacks = [
     status: workpackStatus('11 Linux capture adapter plan/proof'),
     readinessProof: 'output/screen-plan-proof/linux/proof-summary.json',
     productReadyField: 'gapStatus.productLinuxCaptureReady',
-    gate: 'Requires real Linux X11/Wayland portal proof on a Linux desktop session.',
+    gate: 'WSLg/X11 selected-window plus local VLM external-gate proof exists; native Linux root-display and Wayland/PipeWire portal parity still require real Linux desktop session proof.',
   },
   {
     id: '12',
@@ -371,6 +371,16 @@ assert(
   'Local platform batch must prove Linux WSLg selected-window capture complete.'
 );
 assert(
+  localPlatformProof.closure?.linuxWslgExternalGateComplete === true,
+  'Local platform batch must prove Linux WSLg external gate complete.'
+);
+assert(
+  externalGates.gateResults?.some(
+    (gate) => gate.gateId === 'linux-desktop-session-capture' && gate.status === 'satisfied'
+  ) === true,
+  'Closure audit expects the Linux desktop-session external gate to be satisfied by the WSLg proof.'
+);
+assert(
   localPlatformProof.closure?.nativeLinuxWaylandComplete === false,
   'Local platform batch must keep native Linux Wayland/PipeWire parity open.'
 );
@@ -521,6 +531,7 @@ const summary = {
     ...liveViewArtifacts.map((artifact) => artifact.path),
     'output/screen-plan-proof/external-gates/proof-summary.json',
     'output/screen-plan-proof/local-platform-proof-batch/proof-summary.json',
+    'output/screen-plan-proof/linux-wslg-external-gate-analysis/proof-summary.json',
     'output/screen-plan-proof/macos/proof-summary.json',
     'output/screen-plan-proof/linux/proof-summary.json',
     'output/screen-plan-proof/android/proof-summary.json',
@@ -545,7 +556,8 @@ const summary = {
     localWindowsAndroidLinuxProofsAccounted:
       localPlatformProof.closure.windowsCaptureComplete === true &&
       localPlatformProof.closure.androidEmulatorCaptureComplete === true &&
-      localPlatformProof.closure.linuxWslgCaptureComplete === true,
+      localPlatformProof.closure.linuxWslgCaptureComplete === true &&
+      localPlatformProof.closure.linuxWslgExternalGateComplete === true,
     localPlatformExternalGatesRemainBlocked:
       localPlatformProof.closure.androidPhysicalCaptureComplete === false &&
       localPlatformProof.closure.nativeLinuxWaylandComplete === false &&
@@ -584,7 +596,7 @@ const summary = {
     noProductCompleteClaim: true,
   },
   nonClaims: [
-    'This audit does not complete macOS, Linux, Android parity, iOS, live-view platform prompt screenshots/actual production worker start/physical-device parity/hosted relay infrastructure/privacy-legal approval, current PP-OCRv5 quality resolution, cross-platform OCR parity, authenticated-account social proof, or broader VLM hardware rollout-threshold gates.',
+    'This audit does not complete macOS, native Linux Wayland/PipeWire/root-display parity, Android physical parity, iOS, live-view platform prompt screenshots/actual production worker start/physical-device parity/hosted relay infrastructure/privacy-legal approval, current PP-OCRv5 quality resolution, cross-platform OCR parity, authenticated-account social proof, or broader VLM hardware rollout-threshold gates.',
     'This audit does not replace real device/runtime proof for remaining partial rows.',
     'This audit exists to prevent product-complete wording before the remaining external proof gates are satisfied.',
   ],

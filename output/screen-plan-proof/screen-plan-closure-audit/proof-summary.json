@@ -1,6 +1,6 @@
 {
   "proof": "screen-plan-closure-audit",
-  "generatedAt": "2026-06-08T14:50:57.353Z",
+  "generatedAt": "2026-06-08T15:54:09.074Z",
   "branchScope": "codex/screen-ai-full-scope-b",
   "checklist": {
     "path": "docs/plans/screen-plan/implementation-checklist.md",
@@ -70,7 +70,7 @@
       "readinessProof": "output/screen-plan-proof/linux/proof-summary.json",
       "readinessProofPresent": true,
       "productReady": false,
-      "gate": "Requires real Linux X11/Wayland portal proof on a Linux desktop session."
+      "gate": "WSLg/X11 selected-window plus local VLM external-gate proof exists; native Linux root-display and Wayland/PipeWire portal parity still require real Linux desktop session proof."
     },
     {
       "id": "12",
@@ -149,7 +149,7 @@
       "label": "Linux capture adapter plan/proof",
       "status": "x",
       "productReady": false,
-      "gate": "Requires real Linux X11/Wayland portal proof on a Linux desktop session."
+      "gate": "WSLg/X11 selected-window plus local VLM external-gate proof exists; native Linux root-display and Wayland/PipeWire portal parity still require real Linux desktop session proof."
     },
     {
       "id": "12",
@@ -270,6 +270,10 @@
       "present": true
     },
     {
+      "artifact": "output/screen-plan-proof/linux-wslg-external-gate-analysis/proof-summary.json",
+      "present": true
+    },
+    {
       "artifact": "output/screen-plan-proof/macos/proof-summary.json",
       "present": true
     },
@@ -332,7 +336,7 @@
     "noProductCompleteClaim": true
   },
   "nonClaims": [
-    "This audit does not complete macOS, Linux, Android parity, iOS, live-view platform prompt screenshots/actual production worker start/physical-device parity/hosted relay infrastructure/privacy-legal approval, current PP-OCRv5 quality resolution, cross-platform OCR parity, authenticated-account social proof, or broader VLM hardware rollout-threshold gates.",
+    "This audit does not complete macOS, native Linux Wayland/PipeWire/root-display parity, Android physical parity, iOS, live-view platform prompt screenshots/actual production worker start/physical-device parity/hosted relay infrastructure/privacy-legal approval, current PP-OCRv5 quality resolution, cross-platform OCR parity, authenticated-account social proof, or broader VLM hardware rollout-threshold gates.",
     "This audit does not replace real device/runtime proof for remaining partial rows.",
     "This audit exists to prevent product-complete wording before the remaining external proof gates are satisfied."
   ]

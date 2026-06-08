@@ -1,0 +1,25 @@
+
+```json
+{
+  "primary_category": "school",
+  "visible_text": [
+    "Ocentra",
+    "WSLG",
+    "external gate",
+    "school productivity",
+    "Policy dry run expects allow",
+    "Raw product capture is deleted after analysis"
+  ],
+  "risk_signals": [
+    "Ocentra",
+    "WSLG",
+    "external gate",
+    "school productivity",
+    "Policy dry run",
+    "raw product capture deleted"
+  ],
+  "confidence": 1
+}
+```
+
+

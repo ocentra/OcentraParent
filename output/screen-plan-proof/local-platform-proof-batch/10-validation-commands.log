@@ -1,4 +1,6 @@
 node --check scripts/test/screen-local-platform-proof-batch.mjs
+node --check scripts/test/screen-linux-wslg-external-gate-proof.mjs
+node scripts/test/screen-linux-wslg-external-gate-proof.mjs
 node scripts/test/screen-local-platform-proof-batch.mjs
 node scripts/test/screen-local-platform-proof-batch.mjs --run-windows
 node scripts/test/screen-local-platform-proof-batch.mjs --run-android

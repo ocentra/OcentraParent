@@ -1,10 +1,10 @@
 {
   "proof": "screen-plan-external-gates",
-  "generatedAt": "2026-06-08T14:50:56.853Z",
+  "generatedAt": "2026-06-08T15:53:53.913Z",
   "manifest": {
     "path": "output/screen-plan-proof/external-gates/manual-evidence-manifest.json",
-    "present": false,
-    "entryCount": 0,
+    "present": true,
+    "entryCount": 1,
     "templatePath": "output/screen-plan-proof/external-gates/manual-evidence-manifest.template.json",
     "runbookPath": "output/screen-plan-proof/external-gates/manual-evidence-runbook.md",
     "statusPath": "output/screen-plan-proof/external-gates/manual-evidence-status.md"
@@ -33,14 +33,15 @@
       "workpack": "11 Linux capture adapter plan/proof",
       "collectionMode": "local-wslg-or-linux-desktop-runner",
       "requirement": "real Linux X11 or Wayland portal desktop-session capture with deletion proof",
-      "status": "missing",
-      "artifactPath": null,
+      "status": "satisfied",
+      "artifactPath": "output/screen-plan-proof/external-gates/artifacts/linux-wslg-xmessage-live-surface.png",
+      "artifactSha256": "e81749c606c43477d0a332a1ff910761ab75e4c1345353fb526978b315b552ec",
       "requiredProofRefFields": [
         "localCaptureProofRef",
         "localAnalysisProofRef",
         "rawImageDeletionProofRef"
       ],
-      "reason": "No matching manifest entry exists."
+      "reason": "Artifact entry satisfies the current gate contract."
     },
     {
       "gateId": "android-physical-mediaprojection-capture",
@@ -162,8 +163,8 @@
   ],
   "counts": {
     "requiredGateCount": 9,
-    "satisfiedGateCount": 0,
-    "missingGateCount": 9,
+    "satisfiedGateCount": 1,
+    "missingGateCount": 8,
     "invalidGateCount": 0
   },
   "assertions": {
