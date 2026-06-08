@@ -155,6 +155,12 @@ control while being more honest about managed versus unmanaged sources.
   request/response path, and dry-run rows return prepared local outbox/handoff
   refs while manual-required rows return none. Dispatch, adapter execution,
   browser mutation, child intervention execution, and enforcement remain zero.
+- Browser-plan WP13 now also records service-side social provider receipt
+  status from the named `browser.social.provider-receipt.status.requested`
+  subscriber. Store-backed dry-run policy preview rows become
+  provider-dispatch-required receipt boundary rows, manual-required browser
+  evidence stays manual-receipt-required, and public stream fields remain
+  deferred until protocol field ownership is clear.
 - Browser-plan WP13 now projects that named subscriber status through the
   service-backed browser runtime event-chain stream payload. Current
   store-backed browser rows still report zero pending candidates because the

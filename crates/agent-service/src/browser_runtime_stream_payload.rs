@@ -2,8 +2,9 @@ use ocentra_parent_agent_core::{
     publish_browser_runtime_chain_for_input,
     request_browser_runtime_action_intent_handoff_for_input,
     request_browser_runtime_action_intent_status_for_input,
+    request_browser_runtime_social_provider_receipt_status_for_input,
     BrowserRuntimeActionIntentHandoffResponse, BrowserRuntimeActionIntentStatusResponse,
-    BrowserRuntimeReport,
+    BrowserRuntimeReport, BrowserRuntimeSocialProviderReceiptStatusResponse,
 };
 use ocentra_parent_agent_protocol::{
     constants, BrowserEvidenceReadModel, LogFieldValue, LogFields, PolicyPreviewReadModel,
@@ -34,6 +35,11 @@ pub(crate) struct BrowserRuntimeServiceStreamReport {
     pub(crate) action_intent_handoff_candidates: usize,
     pub(crate) action_intent_handoff_outbox_refs: Vec<String>,
     pub(crate) action_intent_handoff_refs: Vec<String>,
+    pub(crate) social_provider_receipt_boundary_rows: usize,
+    pub(crate) social_provider_dispatch_required_rows: usize,
+    pub(crate) social_provider_manual_receipt_required_rows: usize,
+    pub(crate) social_provider_attempt_refs: Vec<String>,
+    pub(crate) social_provider_receipt_proof_refs: Vec<String>,
     pub(crate) entries: Vec<BrowserRuntimeServiceStreamEntry>,
 }
 
@@ -69,6 +75,11 @@ pub(crate) async fn stream_browser_runtime_event_chain_for_read_model_with_polic
             request_browser_runtime_action_intent_handoff_for_input(input.clone()).await
         {
             stream.record_action_intent_handoff(&report.request_report.response);
+        }
+        if let Ok(report) =
+            request_browser_runtime_social_provider_receipt_status_for_input(input.clone()).await
+        {
+            stream.record_social_provider_receipt(&report.request_report.response);
         }
         match publish_browser_runtime_chain_for_input(input).await {
             Ok(report) => stream.record_success(&report),
@@ -203,6 +214,30 @@ impl BrowserRuntimeServiceStreamReport {
             usize::from(handoff.child_intervention_execution_count);
         self.action_intent_enforcement_executions +=
             usize::from(handoff.enforcement_execution_count);
+    }
+
+    pub(crate) fn record_social_provider_receipt(
+        &mut self,
+        receipt: &BrowserRuntimeSocialProviderReceiptStatusResponse,
+    ) {
+        self.social_provider_receipt_boundary_rows += receipt.receipt_boundary_row_count;
+        self.social_provider_dispatch_required_rows += receipt.provider_dispatch_required_count;
+        self.social_provider_manual_receipt_required_rows += receipt.manual_receipt_required_count;
+        if let Some(provider_attempt_ref) = &receipt.provider_attempt_ref {
+            self.social_provider_attempt_refs
+                .push(provider_attempt_ref.clone());
+        }
+        if let Some(provider_receipt_proof_ref) = &receipt.provider_receipt_proof_ref {
+            self.social_provider_receipt_proof_refs
+                .push(provider_receipt_proof_ref.clone());
+        }
+        self.action_intent_dispatch_attempts += usize::from(receipt.provider_dispatch_count);
+        self.action_intent_adapter_executions +=
+            usize::from(receipt.connector_native_runtime_count);
+        self.action_intent_child_intervention_executions +=
+            usize::from(receipt.parent_notification_ui_delivery_count);
+        self.action_intent_enforcement_executions +=
+            usize::from(receipt.enforcement_execution_count);
     }
 }
 

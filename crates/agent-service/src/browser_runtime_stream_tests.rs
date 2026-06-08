@@ -28,6 +28,8 @@ use crate::{
     websocket::handle_command_text_for_test,
 };
 
+mod browser_runtime_social_provider_receipt_service_status_tests;
+
 const BROWSER_ACTION_INTENT_EXECUTION_FIELDS: [&str; 4] = [
     constants::field::BROWSER_RUNTIME_ACTION_INTENT_DISPATCH_ATTEMPTS,
     constants::field::BROWSER_RUNTIME_ACTION_INTENT_ADAPTER_EXECUTIONS,

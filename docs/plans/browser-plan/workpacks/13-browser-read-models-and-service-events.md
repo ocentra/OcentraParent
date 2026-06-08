@@ -762,3 +762,31 @@ provider delivery, provider receipt ingestion runtime, provider webhook runtime,
 provider credentials, parent notification UI delivery, report delivery
 execution, final policy execution, connector/native runtime, browser mutation,
 child intervention execution, unmanaged exact URL support, or enforcement.
+
+## Social Provider Receipt Service Status Addendum - 2026-06-08
+
+`browser-runtime-social-provider-receipt-service-status-proof` carries the named
+social provider receipt status subscriber into the existing service-side browser
+runtime stream report. The service now asks
+`browser.social.provider-receipt.status.requested` for each browser runtime
+input, records provider-dispatch-required receipt boundary rows for store-backed
+dry-run policy preview evidence, records manual-receipt-required rows for
+manual-required browser evidence, and preserves provider attempt/receipt proof
+refs internally.
+
+Evidence:
+
+- `crates/agent-service/src/browser_runtime_stream_payload.rs`
+- `crates/agent-service/src/browser_runtime_stream_tests/browser_runtime_social_provider_receipt_service_status_tests.rs`
+- `scripts/test/browser-runtime-social-provider-receipt-service-status-proof.mjs`
+- `test-results/browser-runtime-social-provider-receipt-service-status-proof/proof.json`
+- `output/browser-plan-proof/browser-runtime-social-provider-receipt-service-status/01-browser-runtime-social-provider-receipt-service-status-proof.md`
+- `cargo test -p ocentra-parent-agent-service social_provider_receipt --quiet`
+
+This is service-side status projection only. It intentionally does not add public
+browser runtime stream fields while protocol field constants are owned by
+another active lane. It does not claim provider delivery, provider receipt
+ingestion runtime, webhook runtime, credentials, parent notification UI delivery,
+report delivery execution, final policy execution, connector/native runtime,
+browser mutation, child intervention execution, unmanaged exact URL support, or
+enforcement.

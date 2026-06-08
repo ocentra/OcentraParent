@@ -809,6 +809,23 @@ only and does not add a generic event bus, portal UI, external transport,
 adapter dispatch, browser mutation, child intervention execution, final policy
 execution, unmanaged exact URL support, AI execution, or enforcement.
 
+WP13 social provider receipt service status addendum:
+`browser-runtime-social-provider-receipt-service-status-proof` carries the named
+social provider receipt status subscriber into the existing service-side browser
+runtime stream report. Store-backed dry-run policy preview rows record one
+provider-dispatch-required receipt boundary row with provider attempt/receipt
+proof refs, manual-required browser evidence records one
+manual-receipt-required row, and all provider dispatch/native/notification/
+enforcement execution counters remain zero. Evidence:
+`test-results/browser-runtime-social-provider-receipt-service-status-proof/proof.json`
+and
+`output/browser-plan-proof/browser-runtime-social-provider-receipt-service-status/01-browser-runtime-social-provider-receipt-service-status-proof.md`.
+This does not add public stream fields while protocol field constants are owned
+by another active lane, and does not claim provider delivery, receipt ingestion
+runtime, parent notification UI delivery, final policy execution, browser
+mutation, child intervention execution, unmanaged exact URL support, or
+enforcement.
+
 ## Worker Report Template
 
 Use this shape in the hub report or PR-ready note:
