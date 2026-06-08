@@ -54,6 +54,14 @@ Every checked item must cite one or more proof artifacts.
       evidence refs.
 - [ ] Nearby-place analysis is event-driven and ambiguity-aware.
 - [ ] AI analysis is event-driven and evidence-only.
+- [ ] Tracking AI tests stay boundary-only; AI model quality, prompt tuning,
+      temperature behavior, provider mesh, provider selection, work
+      lease/claim internals, and summarizer accuracy belong to the AI lane.
+- [ ] AI request/result boundary tests cover typed request publication,
+      evidence refs, uncertainty codes, child/profile/device context,
+      purpose/scope/retention, no raw bulk private history, validated result
+      acceptance, malformed/stale/wrong-child-or-device/hallucinated-ref
+      rejection, and unavailable/timeout manual-review or degraded state.
 - [ ] AI cannot publish policy, enforcement, notification, live-mode, or
       escalation events.
 - [ ] Parent policy is the first authority point for notify, live tracking,
