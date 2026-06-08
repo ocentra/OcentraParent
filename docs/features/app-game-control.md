@@ -1323,7 +1323,14 @@ diagnostics, or raw private source rows.
       rows, still without upgrading queue readiness into child delivery,
       provider delivery, receipt ingestion, durable outbox runtime, adapter
       dispatch, broad blocking, platform enforcement, raw private source rows,
-      raw target values, or private diagnostics.
+      raw target values, or private diagnostics. The accepted request result
+      now also carries service-local child-runtime delivery dispatch
+      refs/status, and the service persists a dispatch-ready audit event after
+      the queue row is accepted by the ActivityStore. This proves the queue can
+      advance to a local dispatch seam without claiming actual child runtime
+      receipt, provider delivery, receipt ingestion, durable production outbox
+      runtime, adapter dispatch, broad blocking, platform enforcement, raw
+      private source rows, raw target values, or private diagnostics.
 - [ ] Adapter capability status per platform. Cross-platform authority and
       broad-blocking gate contracts now record manual-required, unavailable,
       and not-claimed proof requirements. Platform-extension routing now maps

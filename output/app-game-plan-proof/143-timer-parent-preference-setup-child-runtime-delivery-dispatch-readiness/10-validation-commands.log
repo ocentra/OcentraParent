@@ -1,0 +1,26 @@
+cmd /c npm run build --workspace @ocentra-parent/agent-protocol-domain
+PASS - tsc build and ESM import fix completed.
+
+cmd /c npm run test --workspace @ocentra-parent/agent-protocol-domain -- --run tests/app-game-timer-parent-preference-setup-request.test.ts
+PASS - 1 test file, 2 tests passed.
+
+cargo test -p ocentra-parent-agent-service app_game_timer_parent_preference_setup_request --quiet
+PASS - 2 tests passed, 278 filtered out.
+
+cargo fmt --all --check
+PASS.
+
+git diff --check
+PASS.
+
+node scripts/check-no-test-doubles.mjs
+PASS - No test doubles found across 2179 checked source files.
+
+node scripts/check-source-shape.mjs
+PASS - existing advisory warnings printed; guard ended with Source shape guard passed.
+
+cmd /c npm run lanes:guard
+PASS - lane-guard-ok for codex-c on codex/app-game-control-product-completion.
+
+cmd /c npm run hub:guard
+PASS - hub-guard-ok for codex-c.

@@ -54,6 +54,14 @@ export const AppGameTimerParentPreferenceSetupRequestResultSchema = withParser(
     ),
     childRuntimeDeliveryQueueStatus: Schema.Literal('queued', 'unavailable'),
     childRuntimeDeliveryQueueClaimed: Schema.Boolean,
+    childRuntimeDeliveryDispatchId: NonEmptyTextSchema,
+    childRuntimeDeliveryDispatchIds: Schema.Array(NonEmptyTextSchema).pipe(
+      Schema.filter(
+        (value) => value.length > 0 || 'Expected parent preference setup child runtime delivery dispatch references'
+      )
+    ),
+    childRuntimeDeliveryDispatchStatus: Schema.Literal('dispatch-ready', 'unavailable'),
+    childRuntimeDeliveryDispatchClaimed: Schema.Boolean,
     commandBoundaryClaimed: Schema.Literal(true),
     actionResultHandoffClaimed: Schema.Literal(true),
     actionResultPersistenceClaimed: Schema.Boolean,
