@@ -31,6 +31,19 @@ Every checked item must cite one or more proof artifacts.
 
 ## Event-Driven Tracking Gates
 
+- [ ] Tracking runtime and decision behavior is Rust-owned before more
+      proof/accounting expansion.
+- [ ] Tracking reuses shared eventing, journal/replay, evidence refs,
+      custody/retention, provider status, LAN/network/browser/app-game evidence
+      refs, notification, and AI boundary infrastructure instead of duplicating
+      common runtime mechanics.
+- [ ] Tracking state helpers and local durable runtime state live in
+      `crates/agent-core`, not WebSocket transport modules.
+- [ ] TypeScript tracking code is limited to portal UI, protocol/read-model
+      mirrors, schema-facing contracts, and proof harnesses; it does not own
+      runtime decisions.
+- [ ] New Rust tracking tests are organized under crate-level `tests/` folders
+      when testing public crate APIs.
 - [ ] `tracking.*`, `location.*`, `geofence.*`, `expected_place.*`,
       `nearby_place.*`, `notification.*`, and `escalation.*` event families are
       first-class tracking consumer contracts and are not hidden under generic

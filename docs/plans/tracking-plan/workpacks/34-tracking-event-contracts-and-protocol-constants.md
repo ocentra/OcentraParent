@@ -20,6 +20,18 @@ Parent tracking event contracts exist in protocol/domain-owned constants and
 validated schemas. Runtime code does not invent local event strings, and
 tracking consumes the reusable eventing crate instead of creating a private bus.
 
+Rust owns tracking runtime decisions. TypeScript mirrors portal/protocol-facing
+contracts and renders read models, but it does not own tracking business
+decisions. Tracking state helpers and local durable state should live in
+`crates/agent-core`; WebSocket modules should remain transport/event-response
+construction only.
+
+Tracking event contracts must reuse common eventing, journal, replay,
+evidence-ref, provider-status, custody/retention, LAN/network/browser/app-game,
+notification, and AI-boundary infrastructure. Add tracking-specific payload
+meaning and safety rules only where the shared layer cannot express the
+location/geofence/expected-place/nearby-place semantics.
+
 ## Required Source Behavior
 
 - Add event type constants for:
@@ -46,9 +58,14 @@ tracking consumes the reusable eventing crate instead of creating a private bus.
   aggregate key, evidence refs, policy refs, custody, retention, capability,
   uncertainty, TTL/deadline, idempotency, and audit refs where applicable.
 - Keep generic reusable eventing code free of tracking product types.
+- Do not duplicate generic event bus, journal, replay, evidence-ref,
+  provider-status, notification, AI-provider, LAN, network, browser, or
+  app/game mechanics in tracking-specific source.
 - Add duplicate event-type tests and schema/serde roundtrip tests.
 - Add source-boundary guards or focused tests that reject local string invention
   where the repository already supports that check.
+- Put new Rust tracking tests under crate-level `tests/` folders when behavior
+  is exposed through a public crate API.
 
 ## Tests After Code
 

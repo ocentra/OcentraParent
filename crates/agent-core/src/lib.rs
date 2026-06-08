@@ -68,6 +68,7 @@ mod parent_child_event_runtime_phase;
 mod policy_dry_run_evaluator;
 mod process_capture;
 mod screen_evidence_queue;
+mod tracking_retention_settings;
 mod trusted_device_registry;
 mod trusted_device_registry_selection;
 mod window_capture;
@@ -189,6 +190,10 @@ pub use process_capture::{
 };
 pub use screen_evidence_queue::{
     ScreenEvidenceExpiredQueueEntry, ScreenEvidenceQueue, ScreenEvidenceQueueSweep,
+};
+pub use tracking_retention_settings::{
+    apply_tracking_retention_settings_write, tracking_retention_settings_durable_store_path,
+    TrackingRetentionSettingsWriteAppliedState,
 };
 pub use trusted_device_registry::TrustedDeviceRegistry;
 pub use window_capture::{collect_foreground_window_observation, ForegroundWindowObservation};

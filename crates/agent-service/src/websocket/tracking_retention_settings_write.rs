@@ -1,48 +1,21 @@
+use ocentra_parent_agent_core::apply_tracking_retention_settings_write;
 use ocentra_parent_agent_protocol::{
     constants, AgentCommandEnvelope, AgentEventEnvelope, AgentEventName, LogFieldValue, LogLevel,
     TrackingRetentionSettingsWriteRequest, TrackingRetentionSettingsWriteResult,
     AGENT_PROTOCOL_SCHEMA_VERSION,
 };
-use serde::Serialize;
-use std::fs;
-use std::path::PathBuf;
-use std::sync::{Mutex, OnceLock};
 
 use crate::{event_builder::build_event, fields::fields_from_pairs};
-
-#[derive(Debug, Default)]
-struct LocalRetentionSettingsState {
-    revision: u64,
-    retention_window_hours: Option<u16>,
-    delete_after_alert_resolved: bool,
-    parent_export_prepared: bool,
-    remote_sync_enabled: bool,
-    remote_ai_enabled: bool,
-}
-
-#[derive(Debug, Serialize)]
-struct LocalRetentionSettingsDurableRecord {
-    revision: u64,
-    retention_window_hours: Option<u16>,
-    delete_after_alert_resolved: bool,
-    parent_export_prepared: bool,
-    remote_sync_enabled: bool,
-    remote_ai_enabled: bool,
-}
-
-static LOCAL_RETENTION_SETTINGS_STATE: OnceLock<Mutex<LocalRetentionSettingsState>> =
-    OnceLock::new();
 
 pub(crate) async fn build_tracking_retention_settings_write_report(
     command: AgentCommandEnvelope,
 ) -> AgentEventEnvelope {
     let (request, accepted) = parse_write_request(&command);
-    let local_state_revision = if accepted {
-        Some(apply_local_retention_settings_state(&request))
+    let applied_state = if accepted {
+        Some(apply_tracking_retention_settings_write(&request))
     } else {
         None
     };
-    let durable_settings_persisted = accepted && persist_local_retention_settings_state();
     let result = TrackingRetentionSettingsWriteResult {
         schema_version: AGENT_PROTOCOL_SCHEMA_VERSION,
         command_id: request.command_id,
@@ -59,13 +32,17 @@ pub(crate) async fn build_tracking_retention_settings_write_report(
         parent_export_prepared: request.requested_parent_export,
         remote_sync_enabled: false,
         remote_ai_enabled: false,
-        local_service_state_revision: local_state_revision,
+        local_service_state_revision: applied_state
+            .as_ref()
+            .map(|state| state.local_service_state_revision),
         local_service_state_snapshot_ref:
             constants::tracking_retention_settings_write::LOCAL_SERVICE_STATE_SNAPSHOT_REF
                 .to_string(),
         durable_settings_store_ref:
             constants::tracking_retention_settings_write::DURABLE_SETTINGS_STORE_REF.to_string(),
-        durable_settings_persisted,
+        durable_settings_persisted: applied_state
+            .as_ref()
+            .is_some_and(|state| state.durable_settings_persisted),
         command_transport_claimed: true,
         service_write_preflight_claimed: true,
         service_mutation_executed: accepted,
@@ -93,47 +70,6 @@ pub(crate) async fn build_tracking_retention_settings_write_report(
         )]),
         None,
     )
-}
-
-fn apply_local_retention_settings_state(request: &TrackingRetentionSettingsWriteRequest) -> u64 {
-    let state = LOCAL_RETENTION_SETTINGS_STATE
-        .get_or_init(|| Mutex::new(LocalRetentionSettingsState::default()));
-    let mut guard = state
-        .lock()
-        .expect(constants::error::AGENT_EVENT_SERIALIZES);
-    guard.revision += 1;
-    guard.retention_window_hours = request.requested_retention_window_hours;
-    guard.delete_after_alert_resolved = request.requested_delete_after_alert_resolved;
-    guard.parent_export_prepared = request.requested_parent_export;
-    guard.remote_sync_enabled = false;
-    guard.remote_ai_enabled = false;
-    guard.revision
-}
-
-fn persist_local_retention_settings_state() -> bool {
-    let Some(state) = LOCAL_RETENTION_SETTINGS_STATE.get() else {
-        return false;
-    };
-    let guard = state
-        .lock()
-        .expect(constants::error::AGENT_EVENT_SERIALIZES);
-    let record = LocalRetentionSettingsDurableRecord {
-        revision: guard.revision,
-        retention_window_hours: guard.retention_window_hours,
-        delete_after_alert_resolved: guard.delete_after_alert_resolved,
-        parent_export_prepared: guard.parent_export_prepared,
-        remote_sync_enabled: guard.remote_sync_enabled,
-        remote_ai_enabled: guard.remote_ai_enabled,
-    };
-    let Ok(serialized) = serde_json::to_vec_pretty(&record) else {
-        return false;
-    };
-    fs::write(durable_settings_store_path(), serialized).is_ok()
-}
-
-fn durable_settings_store_path() -> PathBuf {
-    std::env::temp_dir()
-        .join(constants::tracking_retention_settings_write::DURABLE_SETTINGS_STORE_FILE_NAME)
 }
 
 fn parse_write_request(
@@ -181,6 +117,7 @@ fn default_write_request() -> TrackingRetentionSettingsWriteRequest {
 
 #[cfg(test)]
 mod tests {
+    use ocentra_parent_agent_core::tracking_retention_settings_durable_store_path;
     use ocentra_parent_agent_protocol::{
         AgentCommandEnvelope, AgentCommandName, AgentMessageTarget, AgentPeer, AgentPeerRole,
         AgentRoute, LogFields, TrackingRetentionSettingsWriteResult, AGENT_PROTOCOL_SCHEMA_VERSION,
@@ -228,7 +165,7 @@ mod tests {
             constants::tracking_retention_settings_write::DURABLE_SETTINGS_STORE_REF
         );
         assert!(write_result.durable_settings_persisted);
-        assert!(durable_settings_store_path().exists());
+        assert!(tracking_retention_settings_durable_store_path().exists());
         assert!(!write_result.portal_writable_ui_claimed);
         assert!(!write_result.platform_runtime_claimed);
         assert!(!write_result.child_device_delivery_claimed);
