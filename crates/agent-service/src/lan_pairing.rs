@@ -10,6 +10,9 @@ mod controller_lease_tests;
 #[cfg(test)]
 mod device_roles_tests;
 pub(crate) mod lan_ai_job;
+pub(crate) mod lan_ai_job_lease_events;
+#[cfg(test)]
+mod lan_ai_job_lease_tests;
 #[cfg(test)]
 mod lan_ai_job_tests;
 #[cfg(test)]
@@ -34,7 +37,7 @@ use crate::{
     },
     lan_pairing_browser_runtime::{browser_add_device_request_event, browser_discovery_scan_event},
     lan_pairing_payload::{is_challenge_request, parse_intent, parse_pairing_proof},
-    lan_pairing_runtime_state::LanAiProviderHeartbeatState,
+    lan_pairing_runtime_state::{LanAiJobLeaseState, LanAiProviderHeartbeatState},
     lan_pairing_status::{pairing_challenge_status_event, pairing_status_event},
     time::timestamp_now,
 };
@@ -54,6 +57,7 @@ pub struct LanPairingRuntime {
     pub(crate) challenges: Arc<Mutex<Vec<LanPairingChallengeState>>>,
     pub(crate) controller_lease: Arc<Mutex<Option<LanControllerLeaseState>>>,
     pub(crate) lan_ai_provider_heartbeat: Arc<Mutex<Option<LanAiProviderHeartbeatState>>>,
+    pub(crate) lan_ai_job_leases: Arc<Mutex<Vec<LanAiJobLeaseState>>>,
     pub(crate) persistence: LanPairingRegistryPersistence,
     pub(crate) local_child_device_id: Option<String>,
     pub(crate) device_roles: DeviceRoleRuntimeReadModel,

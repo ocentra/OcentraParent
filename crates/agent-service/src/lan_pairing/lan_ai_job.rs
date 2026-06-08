@@ -6,13 +6,17 @@ use ocentra_parent_agent_protocol::{
 use crate::{
     event_builder::build_event,
     fields::fields_from_pairs,
-    lan_pairing::lan_ai_route_metadata::lan_ai_household_route_fields,
     lan_pairing::{
         authority::{validate_authorized_lan_ai_job, validate_observer_read_intent},
+        lan_ai_job_lease_events::{
+            lan_ai_job_completed_event, lan_ai_job_duplicate_rejected_event,
+            lan_ai_job_lease_state_event,
+        },
         validate_command_target, LanPairingRuntime,
     },
     lan_pairing_audit::{controller_lease_audit_fields, rejected_control_audit_fields},
     lan_pairing_payload::parse_intent,
+    lan_pairing_runtime_state::LanAiJobLeaseTransition,
 };
 
 pub(crate) fn lan_ai_provider_status_get(
@@ -123,7 +127,45 @@ fn lan_ai_job_routed_event(
         return event;
     }
 
-    lan_ai_job_completed_event(&runtime, command, intent, origin, &requested_capability)
+    let job_id = lan_ai_job_id(&command, intent);
+    match runtime.claim_lan_ai_job_lease(&job_id) {
+        Ok(LanAiJobLeaseTransition::Claimed(lease)) => {
+            let completed_lease = runtime.complete_lan_ai_job_lease(&job_id).unwrap_or(lease);
+            lan_ai_job_completed_event(
+                &runtime,
+                command,
+                intent,
+                origin,
+                &requested_capability,
+                &completed_lease,
+            )
+        }
+        Ok(LanAiJobLeaseTransition::DuplicateCompleted(lease)) => lan_ai_job_completed_event(
+            &runtime,
+            command,
+            intent,
+            origin,
+            &requested_capability,
+            &lease,
+        ),
+        Ok(LanAiJobLeaseTransition::DuplicateActiveRejected(lease)) => {
+            lan_ai_job_duplicate_rejected_event(&runtime, command, intent, origin, &lease)
+        }
+        Ok(LanAiJobLeaseTransition::ExpiredRequeued(lease)) => {
+            lan_ai_job_lease_state_event(&runtime, command, intent, origin, &lease)
+        }
+        Ok(LanAiJobLeaseTransition::DeadLettered(lease)) => {
+            lan_ai_job_lease_state_event(&runtime, command, intent, origin, &lease)
+        }
+        Err(reason) => lan_ai_rejection_event(
+            &runtime,
+            command,
+            reason,
+            Some(intent),
+            origin,
+            constants::value::LAN_AUDIT_LAN_AI_JOB_REJECTED,
+        ),
+    }
 }
 
 fn lan_ai_job_degraded_event(
@@ -159,50 +201,6 @@ fn lan_ai_job_degraded_event(
     )
 }
 
-fn lan_ai_job_completed_event(
-    runtime: &LanPairingRuntime,
-    command: AgentCommandEnvelope,
-    intent: &LanParentIntentEnvelope,
-    origin: Option<&str>,
-    requested_capability: &str,
-) -> AgentEventEnvelope {
-    let mut payload = controller_lease_audit_fields(
-        &command,
-        intent,
-        origin,
-        constants::value::LAN_AUDIT_LAN_AI_JOB_COMPLETED,
-        None,
-    );
-    payload.extend(lan_ai_provider_fields(runtime));
-    payload.insert(
-        constants::field::LOCAL_AI_CAPABILITY_FLAGS.to_string(),
-        LogFieldValue::String(requested_capability.to_string()),
-    );
-    payload.extend(lan_ai_household_route_fields(
-        runtime,
-        &command,
-        intent,
-        requested_capability,
-    ));
-    payload.extend(lan_ai_job_fields(
-        &command,
-        intent,
-        constants::value::LAN_AI_JOB_STATE_ACCEPTED,
-        constants::value::LAN_AI_JOB_STATE_COMPLETED,
-        constants::local_ai_runtime::GENERATION_STATE_COMPLETE,
-        Some(constants::value::LAN_AI_PROVIDER_RESULT_REDACTED),
-    ));
-    build_event(
-        constants::lan_pairing::EVENT_LAN_AI_JOB_REPORTED,
-        &command.message_id,
-        command.source,
-        AgentEventName::AgentLanAiJobReported,
-        LogLevel::Info,
-        payload,
-        None,
-    )
-}
-
 fn lan_ai_rejection_event(
     runtime: &LanPairingRuntime,
     command: AgentCommandEnvelope,
@@ -230,7 +228,7 @@ fn lan_ai_rejection_event(
     )
 }
 
-fn lan_ai_provider_fields(runtime: &LanPairingRuntime) -> LogFields {
+pub(crate) fn lan_ai_provider_fields(runtime: &LanPairingRuntime) -> LogFields {
     let provider_status = runtime.lan_ai_provider_status_value();
     let capability_flags = runtime.lan_ai_provider_capability_flags();
     fields_from_pairs(vec![
