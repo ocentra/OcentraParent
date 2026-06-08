@@ -1,0 +1,205 @@
+import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
+import { join } from 'node:path';
+
+const repoRoot = process.cwd();
+const outputRoot = join(repoRoot, 'output', 'ai-plan-proof', 'local-ai-plan-closure-audit');
+const proofPath = join(outputRoot, 'proof-summary.json');
+const checklistPath = join(repoRoot, 'docs', 'plans', 'ai-plan', 'implementation-checklist.md');
+
+const checklist = readText(checklistPath);
+const localVlm = readProof('output/ai-plan-proof/real-analysis/proof-summary.json');
+const liveOperatorGate = readProof('output/screen-ai-pipeline-proof/live-operator-artifact-gate/proof-summary.json');
+const serviceWinRtOcr = readProof('output/screen-ai-pipeline-proof/service-winrt-ocr/proof-summary.json');
+const storedEvidenceContext = readProof('output/ai-plan-proof/local-ai-stored-evidence-context/proof-summary.json');
+const storedEvidenceIntegration = readProof(
+  'output/ai-plan-proof/local-ai-stored-evidence-integration-proof/proof-summary.json'
+);
+const deterministicClassifier = readProof(
+  'output/ai-plan-proof/local-ai-deterministic-classifier-proof/proof-summary.json'
+);
+const textInference = readProof('output/ai-plan-proof/local-ai-text-inference-dry-run/proof-summary.json');
+const resultJournal = readProof('output/ai-plan-proof/local-ai-result-journal-sqlite-proof/proof-summary.json');
+const recentMemory = readProof('output/ai-plan-proof/local-ai-recent-memory-window-proof/proof-summary.json');
+const graphReference = readProof('output/ai-plan-proof/local-ai-graph-reference-contract-proof/proof-summary.json');
+const contractCompleteness = readProof('output/ai-plan-proof/local-ai-contract-completeness-proof/proof-summary.json');
+const parentRuleContext = readProof(
+  'output/ai-plan-proof/local-ai-parent-rule-context-builder-proof/proof-summary.json'
+);
+const providerScheduler = readProof('output/ai-plan-proof/local-ai-provider-scheduler-proof/proof.json');
+const runtimeProvider = readProof('output/ai-plan-proof/local-ai-runtime-provider-proof/proof.json');
+const policyConsumption = readProof(
+  'output/ai-plan-proof/local-ai-policy-enforcement-consumption-proof/proof-summary.json'
+);
+
+const completeRows = [...checklist.matchAll(/\| \[x\]\s+\|\s+([^|]+?)\s+\|/g)].map((match) => match[1].trim());
+const partialRows = [...checklist.matchAll(/\| \[~\]\s+\|\s+([^|]+?)\s+\|/g)].map((match) => match[1].trim());
+const openRows = [...checklist.matchAll(/\| \[ \]\s+\|\s+([^|]+?)\s+\|/g)].map((match) => match[1].trim());
+const openChecklistItems = [...checklist.matchAll(/^- \[ \]\s+(.+)$/gm)].map((match) => match[1].trim());
+const expectedOpenChecklistItems = [
+  'Final product-complete pipeline proof is deferred to `docs/plans/screen-ai-pipeline-plan` after screen and AI prerequisites are merged or explicitly stacked.',
+];
+
+assert(localVlm.analyzedByRealLocalVlm === true, 'local VLM proof must analyze captured screens.');
+assert(localVlm.schemaValidated === true, 'local VLM proof must schema-validate screen evidence.');
+assert(localVlm.localAiSafetyResultValidated === true, 'local VLM proof must validate local AI safety results.');
+assert(localVlm.policyDecisionValidated === true, 'local VLM proof must validate policy dry-run decisions.');
+assert(localVlm.rawImagesDeletedAfterAnalysis === true, 'local VLM proof must delete raw images after analysis.');
+assert(localVlm.scenarioCount >= 16, 'local VLM proof must retain the controlled analysis matrix.');
+
+assert(liveOperatorGate.validatedScenarioCount === 9, 'live operator gate must validate all required scenarios.');
+assert(liveOperatorGate.realLiveUrlRows >= 7, 'live operator gate must retain live external URL rows.');
+assert(liveOperatorGate.localVlmRows >= 8, 'live operator gate must retain local VLM rows.');
+assert(liveOperatorGate.policyDryRunRows >= 8, 'live operator gate must retain policy dry-run rows.');
+assert(liveOperatorGate.rawImagesDeletedAfterAnalysis === true, 'live operator gate must prove raw deletion.');
+assert(liveOperatorGate.productCompleteClaimed === false, 'live operator gate must not claim product completion.');
+
+assert(serviceWinRtOcr.analysisRow?.providerKind === 'localOcr', 'service OCR proof must use local OCR.');
+assert(serviceWinRtOcr.analysisRow?.modelId === 'windows-winrt-ocr', 'service OCR proof must name WinRT OCR.');
+assert(serviceWinRtOcr.analysisRow?.imageDeletionState === 'deleted', 'service OCR proof must delete image material.');
+assert(serviceWinRtOcr.analysisRow?.rawImageRetained === false, 'service OCR row must not retain raw image.');
+assert(serviceWinRtOcr.assertions?.policyConsumedOcrResult === true, 'service OCR proof must feed policy dry-run.');
+assert(serviceWinRtOcr.assertions?.adapterTemporaryImageDeleted === true, 'service OCR temp image must be deleted.');
+
+assert(storedEvidenceContext.summary?.readyRows === 1, 'stored context must have one ready row.');
+assert(storedEvidenceContext.summary?.remoteAiUsed === false, 'stored context must not use remote AI.');
+assert(storedEvidenceContext.summary?.rawImagesRetained === false, 'stored context must not retain raw images.');
+assert(
+  storedEvidenceIntegration.assertions?.allStoredEvidenceRefsReachEvaluationInput === true,
+  'stored evidence refs must reach evaluation input.'
+);
+assert(
+  storedEvidenceIntegration.assertions?.dryRunConsumesStoredEvidenceRefs === true,
+  'stored dry-run must consume refs.'
+);
+assert(
+  storedEvidenceIntegration.assertions?.noRemoteOrPolicyAuthority === true,
+  'stored integration must stay local-only.'
+);
+
+assert(deterministicClassifier.summary?.failures === 0, 'deterministic classifier has failures.');
+assert(deterministicClassifier.summary?.modelExecuted === false, 'deterministic classifier must not execute a model.');
+assert(deterministicClassifier.summary?.remoteAiUsed === false, 'deterministic classifier must not use remote AI.');
+assert(textInference.assertions?.localRuntimePreserved === true, 'text inference must preserve local runtime.');
+assert(textInference.assertions?.noRemoteApiClaim === true, 'text inference must not claim remote API AI.');
+assert(resultJournal.assertions?.readyResultJournaledAndIngested === true, 'journal ingest proof missing ready row.');
+assert(resultJournal.assertions?.noRawPromptRetention === true, 'journal proof must reject raw prompt retention.');
+assert(
+  recentMemory.assertions?.sourceGroundedRecentActivitySelected === true,
+  'recent memory must select source-grounded recent evidence.'
+);
+assert(recentMemory.assertions?.ungroundedMemoryOmitted === true, 'recent memory must omit ungrounded memory.');
+assert(graphReference.summary?.selectedGraphReferenceCount === 1, 'graph proof must select one graph reference.');
+assert(graphReference.claimBoundaries?.remoteAiUsed === false, 'graph proof must not use remote AI.');
+assert(graphReference.claimBoundaries?.rawEvidenceRetained === false, 'graph proof must not retain raw evidence.');
+assert(contractCompleteness.assertions?.allContractKindsPresent === true, 'contract completeness proof is not closed.');
+assert(contractCompleteness.assertions?.memoryAndGraphCited === true, 'contract completeness must cite memory/graph.');
+assert(parentRuleContext.assertions?.ungroundedRuleRejected === true, 'ungrounded parent rules must be rejected.');
+assert(parentRuleContext.assertions?.ungroundedRuleDegrades === true, 'ungrounded parent rules must degrade.');
+assert(
+  providerScheduler.claimsProven?.includes('no-duplicate-local-model-load-for-same-physical-device'),
+  'provider scheduler must block duplicate model load.'
+);
+assert(runtimeProvider.counts?.duplicateRuntimeBlocked > 0, 'runtime provider must block duplicate runtime work.');
+assert(runtimeProvider.counts?.maxRuntimeAccessLaneCount === 1, 'runtime provider must keep one runtime lane.');
+assert(
+  policyConsumption.assertions?.actionDispatchConsumesPolicyDecision === true,
+  'policy consumption guard missing.'
+);
+assert(
+  policyConsumption.assertions?.localAiResultLinkedOnlyThroughPolicy === true,
+  'AI result must link through policy.'
+);
+
+assert(partialRows.length === 0, 'AI plan should not have partial table rows at closure audit time.');
+assert(openRows.length === 0, `Unexpected AI plan open table rows: ${JSON.stringify(openRows)}`);
+assert(
+  openChecklistItems.length === expectedOpenChecklistItems.length,
+  `Unexpected AI plan open checklist items: ${JSON.stringify(openChecklistItems)}`
+);
+assert(
+  openChecklistItems.every((item) => expectedOpenChecklistItems.includes(item)),
+  'AI open checklist item must be the pipeline deferral only.'
+);
+
+const summary = {
+  proof: 'local-ai-plan-closure-audit-proof',
+  generatedAt: new Date().toISOString(),
+  checklist: {
+    path: relativePath(checklistPath),
+    completeCount: completeRows.length,
+    partialCount: partialRows.length,
+    openCount: openRows.length,
+    openRows,
+    openChecklistItems,
+  },
+  sourceArtifacts: {
+    localVlm: 'output/ai-plan-proof/real-analysis/proof-summary.json',
+    liveOperatorGate: 'output/screen-ai-pipeline-proof/live-operator-artifact-gate/proof-summary.json',
+    serviceWinRtOcr: 'output/screen-ai-pipeline-proof/service-winrt-ocr/proof-summary.json',
+    storedEvidenceContext: 'output/ai-plan-proof/local-ai-stored-evidence-context/proof-summary.json',
+    storedEvidenceIntegration: 'output/ai-plan-proof/local-ai-stored-evidence-integration-proof/proof-summary.json',
+    deterministicClassifier: 'output/ai-plan-proof/local-ai-deterministic-classifier-proof/proof-summary.json',
+    textInference: 'output/ai-plan-proof/local-ai-text-inference-dry-run/proof-summary.json',
+    resultJournal: 'output/ai-plan-proof/local-ai-result-journal-sqlite-proof/proof-summary.json',
+    recentMemory: 'output/ai-plan-proof/local-ai-recent-memory-window-proof/proof-summary.json',
+    graphReference: 'output/ai-plan-proof/local-ai-graph-reference-contract-proof/proof-summary.json',
+    contractCompleteness: 'output/ai-plan-proof/local-ai-contract-completeness-proof/proof-summary.json',
+    parentRuleContext: 'output/ai-plan-proof/local-ai-parent-rule-context-builder-proof/proof-summary.json',
+    providerScheduler: 'output/ai-plan-proof/local-ai-provider-scheduler-proof/proof.json',
+    runtimeProvider: 'output/ai-plan-proof/local-ai-runtime-provider-proof/proof.json',
+    policyConsumption: 'output/ai-plan-proof/local-ai-policy-enforcement-consumption-proof/proof-summary.json',
+  },
+  closure: {
+    controlledCapturedScreensAnalyzed: true,
+    liveOperatorArtifactsAnalyzed: true,
+    serviceOcrAnalyzedCapturedPixels: true,
+    storedEvidenceCanReachLocalAiInput: true,
+    deterministicTextAndClassifierContractsCovered: true,
+    memoryAndGraphRefsCovered: true,
+    providerRuntimeAndSchedulerCovered: true,
+    policyOnlyConsumptionCovered: true,
+    remoteApiAiClaimed: false,
+    rawPromptRetained: false,
+    rawImageRetainedByDefault: false,
+    modelQualityClaimed: false,
+    enforcementClaimedByAiPlan: false,
+    finalProductCompleteDeferredToPipeline: true,
+  },
+  evidenceCounts: {
+    controlledScenarioCount: localVlm.scenarioCount,
+    controlledRealWindowCaptureCount: localVlm.realWindowCaptureCount,
+    liveOperatorScenarioCount: liveOperatorGate.validatedScenarioCount,
+    liveExternalUrlRows: liveOperatorGate.realLiveUrlRows,
+    localVlmRows: liveOperatorGate.localVlmRows,
+    policyDryRunRows: liveOperatorGate.policyDryRunRows,
+    storedEvidenceRefs: storedEvidenceIntegration.evaluationInput.evidenceReferenceCount,
+  },
+  nonClaims: [
+    'This audit proves AI-plan prerequisites from existing artifacts and does not rerun capture, OCR, VLM, or model inference.',
+    'This audit does not claim production model quality, remote/API AI, policy authority, enforcement, portal UI completion, or product-complete pipeline closure.',
+    'The remaining open item is intentionally owned by docs/plans/screen-ai-pipeline-plan after screen and AI prerequisites are stacked.',
+  ],
+};
+
+mkdirSync(outputRoot, { recursive: true });
+writeFileSync(proofPath, `${JSON.stringify(summary, null, 2)}\n`);
+console.log(`local-ai-plan-closure-audit-proof-ok:${proofPath}`);
+
+function readProof(path) {
+  assert(existsSync(join(repoRoot, path)), `Missing source proof: ${path}`);
+  return JSON.parse(readFileSync(join(repoRoot, path), 'utf8'));
+}
+
+function readText(path) {
+  return readFileSync(path, 'utf8');
+}
+
+function relativePath(path) {
+  return path.replace(`${repoRoot}\\`, '').replaceAll('\\', '/');
+}
+
+function assert(condition, message) {
+  if (!condition) {
+    throw new Error(message);
+  }
+}
