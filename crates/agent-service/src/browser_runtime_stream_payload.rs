@@ -4,11 +4,13 @@ use ocentra_parent_agent_core::{
     BrowserRuntimeActionIntentStatusResponse, BrowserRuntimeReport,
 };
 use ocentra_parent_agent_protocol::{
-    constants, BrowserEvidenceReadModel, LogFieldValue, LogFields,
+    constants, BrowserEvidenceReadModel, LogFieldValue, LogFields, PolicyPreviewReadModel,
 };
 
 use crate::{
-    browser_runtime_delivery::browser_runtime_input_from_row,
+    browser_runtime_delivery::{
+        browser_runtime_input_from_row, browser_runtime_input_from_row_with_policy_preview,
+    },
     browser_runtime_stream_events::{stream_entries_from_report, BrowserRuntimeServiceStreamEntry},
     fields::fields_from_pairs,
 };
@@ -30,8 +32,9 @@ pub(crate) struct BrowserRuntimeServiceStreamReport {
     pub(crate) entries: Vec<BrowserRuntimeServiceStreamEntry>,
 }
 
-pub(crate) async fn stream_browser_runtime_event_chain_for_read_model(
+pub(crate) async fn stream_browser_runtime_event_chain_for_read_model_with_policy_preview(
     read_model: &BrowserEvidenceReadModel,
+    policy_preview: Option<&PolicyPreviewReadModel>,
 ) -> BrowserRuntimeServiceStreamReport {
     let mut stream = BrowserRuntimeServiceStreamReport {
         observed_rows: read_model.rows.len(),
@@ -39,7 +42,14 @@ pub(crate) async fn stream_browser_runtime_event_chain_for_read_model(
     };
 
     for row in &read_model.rows {
-        let input = browser_runtime_input_from_row(read_model, row);
+        let input = match policy_preview {
+            Some(policy_preview) => browser_runtime_input_from_row_with_policy_preview(
+                read_model,
+                row,
+                Some(policy_preview),
+            ),
+            None => browser_runtime_input_from_row(read_model, row),
+        };
         if input.exact_url_claimed {
             stream.exact_url_rows += 1;
         } else {

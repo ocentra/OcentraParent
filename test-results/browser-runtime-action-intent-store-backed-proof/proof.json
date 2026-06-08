@@ -1,0 +1,38 @@
+{
+  "proofName": "browser-runtime-action-intent-store-backed-proof",
+  "branchHead": "c71f4f04e Refresh browser plan closure audit",
+  "sourceChecks": {
+    "protocolActionIntentPrefixRegistered": true,
+    "deliveryAcceptsPolicyPreviewReadModel": true,
+    "deliveryMatchesPreviewEvidenceRefs": true,
+    "deliveryDerivesStableBrowserActionIntentId": true,
+    "streamPayloadAcceptsPolicyPreviewReadModel": true,
+    "streamApiLoadsPolicyPreviewReadModel": true,
+    "policyPreviewLoaderAvailableToStream": true,
+    "focusedStoreBackedTestExists": true,
+    "websocketStoreBackedCandidateCountIsOne": true,
+    "dispatchAndExecutionRemainZero": true,
+    "checklistMentionsStoreBackedProof": true,
+    "workpackMentionsStoreBackedProof": true
+  },
+  "commands": [
+    "cargo test -p ocentra-parent-agent-service service_browser_runtime --quiet"
+  ],
+  "verified": {
+    "existingStreamCommand": "agent.browser.runtime.event-chain.stream.get",
+    "policyPreviewReadModelSource": "existing ActivityStore policy preview read model",
+    "browserEvidenceReadModelSource": "existing ActivityStore browser evidence read model",
+    "matchingEvidenceReferenceProjectsPendingCandidate": true,
+    "storeBackedBrowserRowsWithMatchingPolicyPreviewHavePendingCandidateCount": 1,
+    "dryRunPolicyAuthorityProjected": true,
+    "stableBrowserActionIntentIdDerivedFromPolicyDecision": true,
+    "dispatchAttemptCount": 0,
+    "adapterExecutionCount": 0,
+    "childInterventionExecutionCount": 0,
+    "enforcementExecutionCount": 0,
+    "finalPolicyExecutionClaimed": false,
+    "browserMutationClaimed": false,
+    "childInterventionClaimed": false,
+    "enforcementClaimed": false
+  }
+}

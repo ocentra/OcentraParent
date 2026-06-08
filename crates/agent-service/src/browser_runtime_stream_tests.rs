@@ -9,8 +9,10 @@ use ocentra_parent_agent_protocol::{
     AgentEventName, AgentMessageTarget, AgentPeer, AgentPeerRole, AgentRoute,
     BrowserActiveProofSource, BrowserActiveTabState, BrowserCapabilityStatus, BrowserChannel,
     BrowserCustodyLabel, BrowserEvidenceReadModel, BrowserFamily, BrowserQueryVisibilityLabel,
-    BrowserTabEvidence, LogFieldValue, LogFields, AGENT_PROTOCOL_SCHEMA_VERSION,
-    BROWSER_EVIDENCE_SCHEMA_VERSION,
+    BrowserTabEvidence, LogFieldValue, LogFields, ParentEvidenceReference,
+    ParentEvidenceReferenceKind, PolicyAction, PolicyDecision, PolicyDecisionHandoffState,
+    PolicyPreviewReadModel, PolicyPreviewReadModelRow, PolicyTarget, PolicyTargetType,
+    AGENT_PROTOCOL_SCHEMA_VERSION, BROWSER_EVIDENCE_SCHEMA_VERSION, POLICY_DRY_RUN_SCHEMA_VERSION,
 };
 use serde_json::Value;
 
@@ -18,7 +20,8 @@ use crate::{
     activity_report_env_lock::REPORT_ENV_LOCK,
     browser_runtime_stream_payload::{
         browser_runtime_event_chain_stream_payload,
-        stream_browser_runtime_event_chain_for_read_model, BrowserRuntimeServiceStreamReport,
+        stream_browser_runtime_event_chain_for_read_model_with_policy_preview,
+        BrowserRuntimeServiceStreamReport,
     },
     lan_pairing::LanPairingRuntime,
     websocket::handle_command_text_for_test,
@@ -26,8 +29,11 @@ use crate::{
 
 #[tokio::test]
 async fn service_browser_runtime_streams_protocol_event_chain_entries() {
-    let report =
-        stream_browser_runtime_event_chain_for_read_model(&read_model(vec![managed_row()])).await;
+    let report = stream_browser_runtime_event_chain_for_read_model_with_policy_preview(
+        &read_model(vec![managed_row()]),
+        None,
+    )
+    .await;
     let payload = browser_runtime_event_chain_stream_payload(&report);
     let entries = stream_entries(&payload);
 
@@ -136,10 +142,63 @@ async fn service_browser_runtime_action_intent_status_projects_pending_candidate
 }
 
 #[tokio::test]
+async fn service_browser_runtime_stream_projects_store_backed_policy_preview_candidate() {
+    let read_model = read_model(vec![managed_row()]);
+    let policy_preview = policy_preview_read_model_for_browser(&read_model);
+    let report = stream_browser_runtime_event_chain_for_read_model_with_policy_preview(
+        &read_model,
+        Some(&policy_preview),
+    )
+    .await;
+    let payload = browser_runtime_event_chain_stream_payload(&report);
+    let entries = stream_entries(&payload);
+    let policy_entry = entries
+        .iter()
+        .find(|entry| {
+            entry[constants::field::EVENT_TYPE]
+                == constants::browser::EVENT_BROWSER_POLICY_DECISION_COMPLETED
+        })
+        .expect(constants::error::AGENT_EVENT_SERIALIZES);
+
+    assert_eq!(report.action_intent_candidates, 1);
+    assert_eq!(report.action_intent_dispatch_attempts, 0);
+    assert_eq!(report.action_intent_adapter_executions, 0);
+    assert_eq!(report.action_intent_child_intervention_executions, 0);
+    assert_eq!(report.action_intent_enforcement_executions, 0);
+    assert_eq!(report.intervention_command_events, 0);
+    assert_eq!(
+        payload.get(constants::field::BROWSER_RUNTIME_ACTION_INTENT_CANDIDATES),
+        Some(&LogFieldValue::Number(1.0))
+    );
+    assert_eq!(
+        policy_entry[constants::field::PAYLOAD][constants::field::POLICY_PREVIEW_ID],
+        policy_constants::TEST_PREVIEW_ID
+    );
+    assert_eq!(
+        policy_entry[constants::field::PAYLOAD][constants::field::ACTION_INTENT_ID],
+        {
+            let mut value = String::from(constants::browser::ACTION_INTENT_ID_PREFIX);
+            value.push_str(policy_constants::TEST_DECISION_ID);
+            value
+        }
+    );
+    assert_eq!(
+        policy_entry[constants::field::PAYLOAD][constants::field::POLICY_DRY_RUN],
+        true
+    );
+    assert_eq!(
+        policy_entry[constants::field::PAYLOAD][constants::field::ADAPTER_DISPATCH_CLAIMED],
+        false
+    );
+}
+
+#[tokio::test]
 async fn service_browser_runtime_stream_keeps_unavailable_rows_manual_required() {
-    let report =
-        stream_browser_runtime_event_chain_for_read_model(&read_model(vec![unavailable_row()]))
-            .await;
+    let report = stream_browser_runtime_event_chain_for_read_model_with_policy_preview(
+        &read_model(vec![unavailable_row()]),
+        None,
+    )
+    .await;
     let entries = stream_entries(&browser_runtime_event_chain_stream_payload(&report));
     let event_types = entries
         .iter()
@@ -180,10 +239,10 @@ async fn service_browser_runtime_stream_keeps_unavailable_rows_manual_required()
 
 #[tokio::test]
 async fn service_browser_runtime_stream_keeps_stale_and_unsupported_rows_parent_visible() {
-    let report = stream_browser_runtime_event_chain_for_read_model(&read_model(vec![
-        stale_row(),
-        unsupported_row(),
-    ]))
+    let report = stream_browser_runtime_event_chain_for_read_model_with_policy_preview(
+        &read_model(vec![stale_row(), unsupported_row()]),
+        None,
+    )
     .await;
     let payload = browser_runtime_event_chain_stream_payload(&report);
     let entries = stream_entries(&payload);
@@ -286,6 +345,30 @@ async fn websocket_browser_runtime_stream_command_reports_store_backed_chain() {
         entries[0][constants::field::PAYLOAD][constants::field::DEGRADED_REASON],
         constants::value::BROWSER_BRIDGE_NO_PAGE_TARGETS
     );
+    assert_eq!(
+        event
+            .payload
+            .get(constants::field::BROWSER_RUNTIME_ACTION_INTENT_CANDIDATES),
+        Some(&LogFieldValue::Number(1.0))
+    );
+    assert_eq!(
+        event
+            .payload
+            .get(constants::field::BROWSER_RUNTIME_ACTION_INTENT_DISPATCH_ATTEMPTS),
+        Some(&LogFieldValue::Number(0.0))
+    );
+    assert_eq!(
+        event
+            .payload
+            .get(constants::field::BROWSER_RUNTIME_ACTION_INTENT_CHILD_INTERVENTION_EXECUTIONS),
+        Some(&LogFieldValue::Number(0.0))
+    );
+    assert_eq!(
+        event
+            .payload
+            .get(constants::field::BROWSER_RUNTIME_ACTION_INTENT_ENFORCEMENT_EXECUTIONS),
+        Some(&LogFieldValue::Number(0.0))
+    );
 }
 
 fn read_model(rows: Vec<BrowserTabEvidence>) -> BrowserEvidenceReadModel {
@@ -300,6 +383,51 @@ fn read_model(rows: Vec<BrowserTabEvidence>) -> BrowserEvidenceReadModel {
         custody_label: BrowserCustodyLabel::ChildDeviceLocal,
         query_visibility: BrowserQueryVisibilityLabel::LiveLocal,
         rows,
+    }
+}
+
+fn policy_preview_read_model_for_browser(
+    read_model: &BrowserEvidenceReadModel,
+) -> PolicyPreviewReadModel {
+    let evidence_reference_id = read_model
+        .latest_event_id
+        .clone()
+        .expect(constants::error::AGENT_EVENT_SERIALIZES);
+    PolicyPreviewReadModel {
+        schema_version: POLICY_DRY_RUN_SCHEMA_VERSION.to_string(),
+        generated_at: constants::activity_store::TEST_SECOND_OBSERVED_AT.to_string(),
+        custody: policy_constants::PREVIEW_CUSTODY_ACTIVITY_STORE.to_string(),
+        limit: constants::activity_store::DEFAULT_RECENT_LIMIT,
+        returned: 1,
+        capability_status: policy_constants::PREVIEW_CAPABILITY_READY.to_string(),
+        rows: vec![PolicyPreviewReadModelRow {
+            preview_id: policy_constants::TEST_PREVIEW_ID.to_string(),
+            source_event_id: evidence_reference_id.clone(),
+            observed_at: constants::activity_store::TEST_SECOND_OBSERVED_AT.to_string(),
+            target: PolicyTarget {
+                target_id: constants::activity_store::TEST_BROWSER_TARGET_ID.to_string(),
+                target_type: PolicyTargetType::Domain,
+                target_value: constants::activity_store::TEST_BROWSER_DOMAIN.to_string(),
+            },
+            evidence_references: vec![ParentEvidenceReference {
+                evidence_reference_id,
+                kind: ParentEvidenceReferenceKind::ActivityEvent,
+                observed_at: constants::activity_store::TEST_FIRST_OBSERVED_AT.to_string(),
+            }],
+            parent_rule_context_references: Vec::new(),
+            decision: PolicyDecision {
+                schema_version: POLICY_DRY_RUN_SCHEMA_VERSION.to_string(),
+                decision_id: policy_constants::TEST_DECISION_ID.to_string(),
+                action: PolicyAction::Block,
+                reason_codes: vec![policy_constants::TEST_REASON_PARENT_BLOCK.to_string()],
+                evidence_references: Vec::new(),
+                rule_ids: vec![policy_constants::TEST_BLOCK_RULE_ID.to_string()],
+                local_ai_result_id: None,
+                dry_run: true,
+                enforcement_handoff_state: PolicyDecisionHandoffState::Disabled,
+                expires_at: None,
+            },
+        }],
     }
 }
 

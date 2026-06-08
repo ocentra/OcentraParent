@@ -382,6 +382,35 @@ intervention execution, final policy execution, browser mutation, and
 enforcement at zero. It does not add a new browser command family, execute
 policy, mutate browser state, execute child intervention, or enforce.
 
+## Action-Intent Store-Backed Policy Preview Addendum - 2026-06-07
+
+`browser-runtime-action-intent-store-backed-proof` closes the prior
+store-backed action-intent projection gap for browser evidence rows that have a
+matching stored policy preview row. The service-backed browser runtime stream
+loads the existing browser evidence read model and the existing policy preview
+read model from the `ActivityStore`; matching evidence refs enrich the browser
+runtime input with policy preview, policy decision, stable browser
+action-intent, dry-run, and policy-authority refs before the named
+action-intent status subscriber reports one pending candidate.
+
+Evidence:
+
+- `crates/agent-protocol/src/constants/browser.rs`
+- `crates/agent-service/src/browser_runtime_delivery.rs`
+- `crates/agent-service/src/browser_runtime_stream_payload.rs`
+- `crates/agent-service/src/browser_runtime_stream_api.rs`
+- `crates/agent-service/src/browser_runtime_stream_tests.rs`
+- `crates/agent-service/src/policy_preview_api.rs`
+- `scripts/test/browser-runtime-action-intent-store-backed-proof.mjs`
+- `test-results/browser-runtime-action-intent-store-backed-proof/proof.json`
+- `output/browser-plan-proof/browser-runtime-action-intent-store-backed/01-browser-runtime-action-intent-store-backed-proof.md`
+- `cmd /c node scripts/test/browser-runtime-action-intent-store-backed-proof.mjs`
+
+This supersedes the earlier store-backed zero-candidate limitation only for
+rows with a matching stored policy preview evidence reference. Dispatch
+attempts, adapter execution, browser mutation, child intervention execution,
+final policy execution, and enforcement remain zero.
+
 ## Action-Intent Portal State Addendum - 2026-06-07
 
 `browser-runtime-action-intent-portal-state-proof` verifies that the shared

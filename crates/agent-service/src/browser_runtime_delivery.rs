@@ -4,7 +4,7 @@ use ocentra_parent_agent_core::{
 };
 use ocentra_parent_agent_protocol::{
     constants, BrowserCapabilityStatus, BrowserEvidenceReadModel, BrowserQueryVisibilityLabel,
-    BrowserTabEvidence,
+    BrowserTabEvidence, PolicyPreviewReadModel, PolicyPreviewReadModelRow,
 };
 
 #[derive(Clone, Debug, Default, PartialEq, Eq)]
@@ -44,8 +44,18 @@ pub(crate) fn browser_runtime_input_from_row(
     read_model: &BrowserEvidenceReadModel,
     row: &BrowserTabEvidence,
 ) -> BrowserRuntimeInput {
+    browser_runtime_input_from_row_with_policy_preview(read_model, row, None)
+}
+
+pub(crate) fn browser_runtime_input_from_row_with_policy_preview(
+    read_model: &BrowserEvidenceReadModel,
+    row: &BrowserTabEvidence,
+    policy_preview: Option<&PolicyPreviewReadModel>,
+) -> BrowserRuntimeInput {
     let latest_event_ref = read_model.latest_event_id.clone();
-    BrowserRuntimeInput {
+    let matched_preview =
+        policy_preview.and_then(|model| matching_policy_preview(read_model, row, model));
+    let mut input = BrowserRuntimeInput {
         source_ref: row.source_id.clone(),
         evidence_ref: row.browser_evidence_id.clone(),
         capability_status: row.capability_status.as_protocol_str().to_string(),
@@ -70,7 +80,18 @@ pub(crate) fn browser_runtime_input_from_row(
         dry_run: false,
         adapter_dispatch_claimed: false,
         intervention_command_allowed: false,
+    };
+
+    if let Some(preview) = matched_preview {
+        input.policy_evaluation_ref = Some(preview.source_event_id.clone());
+        input.policy_decision_ref = Some(preview.decision.decision_id.clone());
+        input.policy_preview_id = Some(preview.preview_id.clone());
+        input.action_intent_id = Some(action_intent_id_from_policy_decision(preview));
+        input.policy_authority = true;
+        input.dry_run = preview.decision.dry_run;
     }
+
+    input
 }
 
 impl BrowserRuntimeServiceDeliveryReport {
@@ -109,6 +130,37 @@ fn row_has_exact_url_boundary(row: &BrowserTabEvidence) -> bool {
             row.capability_status,
             BrowserCapabilityStatus::Available | BrowserCapabilityStatus::TabListOnly
         )
+}
+
+fn matching_policy_preview<'a>(
+    read_model: &BrowserEvidenceReadModel,
+    row: &BrowserTabEvidence,
+    policy_preview: &'a PolicyPreviewReadModel,
+) -> Option<&'a PolicyPreviewReadModelRow> {
+    policy_preview
+        .rows
+        .iter()
+        .find(|preview| policy_preview_references_browser_row(read_model, row, preview))
+}
+
+fn policy_preview_references_browser_row(
+    read_model: &BrowserEvidenceReadModel,
+    row: &BrowserTabEvidence,
+    preview: &PolicyPreviewReadModelRow,
+) -> bool {
+    preview.evidence_references.iter().any(|reference| {
+        reference.evidence_reference_id == row.browser_evidence_id
+            || read_model
+                .latest_event_id
+                .as_ref()
+                .is_some_and(|event_id| reference.evidence_reference_id == *event_id)
+    })
+}
+
+fn action_intent_id_from_policy_decision(preview: &PolicyPreviewReadModelRow) -> String {
+    let mut value = String::from(constants::browser::ACTION_INTENT_ID_PREFIX);
+    value.push_str(&preview.decision.decision_id);
+    value
 }
 
 fn count_phase(report: &BrowserRuntimeReport, phase: BrowserRuntimePhase) -> usize {

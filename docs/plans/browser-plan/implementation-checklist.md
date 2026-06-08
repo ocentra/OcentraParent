@@ -592,6 +592,19 @@ and
 This keeps dispatch attempts, adapter execution, browser mutation, child
 intervention execution, final policy execution, and enforcement at zero.
 
+WP13 action-intent store-backed policy preview addendum:
+`browser-runtime-action-intent-store-backed-proof` closes the previous
+store-backed zero-candidate limitation for browser evidence rows that have a
+matching stored policy preview evidence reference. The service stream loads the
+existing browser evidence read model and policy preview read model from the
+`ActivityStore`, enriches the browser runtime input with policy preview,
+decision, stable browser action-intent, dry-run, and policy-authority refs, and
+projects one pending action-intent candidate. Evidence:
+`test-results/browser-runtime-action-intent-store-backed-proof/proof.json` and
+`output/browser-plan-proof/browser-runtime-action-intent-store-backed/01-browser-runtime-action-intent-store-backed-proof.md`.
+Dispatch attempts, adapter execution, browser mutation, child intervention
+execution, final policy execution, and enforcement stay zero.
+
 WP13 action-intent portal state addendum:
 `browser-runtime-action-intent-portal-state-proof` verifies that the shared
 TypeScript protocol parser and portal live-activity state consume those service
