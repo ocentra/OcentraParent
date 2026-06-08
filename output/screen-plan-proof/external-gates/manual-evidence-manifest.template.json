@@ -1,0 +1,101 @@
+{
+  "schemaVersion": "v0.6",
+  "instructions": "Copy this template to manual-evidence-manifest.json only after attaching digest-backed artifacts captured from real devices or live host sessions. Do not use fixtures, generated HTML pages, static JSON, raw private content, or placeholder digests as final evidence.",
+  "entries": [
+    {
+      "gateId": "macos-live-capture-permission",
+      "platform": "macos",
+      "evidenceKind": "platform-permission-prompt-screenshot",
+      "artifactPath": "output/screen-plan-proof/external-gates/artifacts/macos-live-capture-permission.png",
+      "artifactSha256": "<sha256-of-artifact-bytes>",
+      "capturedFromRealDeviceOrHost": true,
+      "capturesLiveSurface": true,
+      "rawPrivateContentIncluded": false
+    },
+    {
+      "gateId": "linux-desktop-session-capture",
+      "platform": "linux-wayland",
+      "evidenceKind": "platform-session-recording",
+      "artifactPath": "output/screen-plan-proof/external-gates/artifacts/linux-desktop-session-capture.mp4",
+      "artifactSha256": "<sha256-of-artifact-bytes>",
+      "capturedFromRealDeviceOrHost": true,
+      "capturesLiveSurface": true,
+      "rawPrivateContentIncluded": false
+    },
+    {
+      "gateId": "android-physical-mediaprojection-capture",
+      "platform": "android-mediaprojection",
+      "evidenceKind": "physical-device-capture-recording",
+      "artifactPath": "output/screen-plan-proof/external-gates/artifacts/android-physical-mediaprojection-capture.mp4",
+      "artifactSha256": "<sha256-of-artifact-bytes>",
+      "capturedFromRealDeviceOrHost": true,
+      "capturesLiveSurface": true,
+      "rawPrivateContentIncluded": false
+    },
+    {
+      "gateId": "ios-physical-replaykit-capture",
+      "platform": "ios-replaykit",
+      "evidenceKind": "physical-device-capture-recording",
+      "artifactPath": "output/screen-plan-proof/external-gates/artifacts/ios-physical-replaykit-capture.mp4",
+      "artifactSha256": "<sha256-of-artifact-bytes>",
+      "capturedFromRealDeviceOrHost": true,
+      "capturesLiveSurface": true,
+      "rawPrivateContentIncluded": false
+    },
+    {
+      "gateId": "live-view-platform-prompt",
+      "platform": "android-mediaprojection",
+      "evidenceKind": "platform-permission-prompt-screenshot",
+      "artifactPath": "output/screen-plan-proof/external-gates/artifacts/live-view-platform-prompt.png",
+      "artifactSha256": "<sha256-of-artifact-bytes>",
+      "capturedFromRealDeviceOrHost": true,
+      "capturesLiveSurface": true,
+      "rawPrivateContentIncluded": false
+    },
+    {
+      "gateId": "live-view-physical-device-parity",
+      "platform": "android-mediaprojection",
+      "evidenceKind": "physical-device-capture-recording",
+      "artifactPath": "output/screen-plan-proof/external-gates/artifacts/live-view-physical-device-parity.mp4",
+      "artifactSha256": "<sha256-of-artifact-bytes>",
+      "capturedFromRealDeviceOrHost": true,
+      "capturesLiveSurface": true,
+      "rawPrivateContentIncluded": false
+    },
+    {
+      "gateId": "live-view-hosted-relay-infrastructure",
+      "platform": "hosted-relay",
+      "evidenceKind": "hosted-relay-proof",
+      "artifactPath": "output/screen-plan-proof/external-gates/artifacts/live-view-hosted-relay-infrastructure.json",
+      "artifactSha256": "<sha256-of-artifact-bytes>",
+      "capturedFromRealDeviceOrHost": true,
+      "capturesLiveSurface": true,
+      "rawPrivateContentIncluded": false
+    },
+    {
+      "gateId": "live-view-privacy-legal-approval",
+      "platform": "policy-approval",
+      "evidenceKind": "privacy-legal-approval",
+      "artifactPath": "output/screen-plan-proof/external-gates/artifacts/live-view-privacy-legal-approval.md",
+      "artifactSha256": "<sha256-of-artifact-bytes>",
+      "capturedFromRealDeviceOrHost": true,
+      "capturesLiveSurface": true,
+      "rawPrivateContentIncluded": false
+    },
+    {
+      "gateId": "authenticated-account-social-capture",
+      "platform": "authenticated-social",
+      "evidenceKind": "authenticated-account-capture-proof",
+      "artifactPath": "output/screen-plan-proof/external-gates/artifacts/authenticated-account-social-capture.json",
+      "artifactSha256": "<sha256-of-artifact-bytes>",
+      "capturedFromRealDeviceOrHost": true,
+      "capturesLiveSurface": true,
+      "rawPrivateContentIncluded": false,
+      "operatorConsentRecorded": true,
+      "redactedAccountIdentifiers": true,
+      "localAnalysisProofRef": "<proof ref showing OCR/VLM/AI analysis of the captured account surface>",
+      "policyDryRunProofRef": "<proof ref showing policy consumed the account-surface AI result>",
+      "rawImageDeletionProofRef": "<proof ref showing raw screenshot deletion/custody>"
+    }
+  ]
+}

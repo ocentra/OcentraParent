@@ -1,10 +1,12 @@
 {
   "proof": "screen-plan-external-gates",
-  "generatedAt": "2026-06-08T06:56:29.997Z",
+  "generatedAt": "2026-06-08T07:03:35.838Z",
   "manifest": {
     "path": "output/screen-plan-proof/external-gates/manual-evidence-manifest.json",
     "present": false,
-    "entryCount": 0
+    "entryCount": 0,
+    "templatePath": "output/screen-plan-proof/external-gates/manual-evidence-manifest.template.json",
+    "runbookPath": "output/screen-plan-proof/external-gates/manual-evidence-runbook.md"
   },
   "gateResults": [
     {

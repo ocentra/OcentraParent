@@ -5,7 +5,9 @@ import { basename, dirname, join, relative, resolve } from 'node:path';
 const repoRoot = process.cwd();
 const outputDir = join(repoRoot, 'output', 'screen-plan-proof', 'external-gates');
 const manifestPath = join(outputDir, 'manual-evidence-manifest.json');
+const manifestTemplatePath = join(outputDir, 'manual-evidence-manifest.template.json');
 const proofPath = join(outputDir, 'proof-summary.json');
+const runbookPath = join(outputDir, 'manual-evidence-runbook.md');
 
 const requiredGates = [
   gate('macos-live-capture-permission', 'macos', 'platform-permission-prompt-screenshot', {
@@ -107,6 +109,8 @@ const summary = {
     path: relativePath(manifestPath),
     present: manifest !== null,
     entryCount: manifestEntries.length,
+    templatePath: relativePath(manifestTemplatePath),
+    runbookPath: relativePath(runbookPath),
   },
   gateResults,
   counts: {
@@ -133,6 +137,8 @@ const summary = {
 };
 
 mkdirSync(outputDir, { recursive: true });
+writeFileSync(manifestTemplatePath, `${JSON.stringify(manifestTemplate(), null, 2)}\n`);
+writeFileSync(runbookPath, manualEvidenceRunbook());
 writeFileSync(proofPath, `${JSON.stringify(summary, null, 2)}\n`);
 console.log(`screen-plan-external-gates-proof-ok:${proofPath}`);
 
@@ -143,6 +149,76 @@ function gate(gateId, platform, evidenceKind, details) {
     evidenceKind,
     ...details,
   };
+}
+
+function manifestTemplate() {
+  return {
+    schemaVersion: 'v0.6',
+    instructions:
+      'Copy this template to manual-evidence-manifest.json only after attaching digest-backed artifacts captured from real devices or live host sessions. Do not use fixtures, generated HTML pages, static JSON, raw private content, or placeholder digests as final evidence.',
+    entries: requiredGates.map((requiredGate) => ({
+      gateId: requiredGate.gateId,
+      platform: requiredGate.platform,
+      evidenceKind: requiredGate.evidenceKind,
+      artifactPath: `output/screen-plan-proof/external-gates/artifacts/${requiredGate.gateId}${templateExtensionFor(
+        requiredGate.evidenceKind
+      )}`,
+      artifactSha256: '<sha256-of-artifact-bytes>',
+      capturedFromRealDeviceOrHost: true,
+      capturesLiveSurface: true,
+      rawPrivateContentIncluded: false,
+      ...(requiredGate.evidenceKind === 'authenticated-account-capture-proof'
+        ? {
+            operatorConsentRecorded: true,
+            redactedAccountIdentifiers: true,
+            localAnalysisProofRef: '<proof ref showing OCR/VLM/AI analysis of the captured account surface>',
+            policyDryRunProofRef: '<proof ref showing policy consumed the account-surface AI result>',
+            rawImageDeletionProofRef: '<proof ref showing raw screenshot deletion/custody>',
+          }
+        : {}),
+    })),
+  };
+}
+
+function templateExtensionFor(evidenceKind) {
+  if (evidenceKind === 'platform-session-recording' || evidenceKind === 'physical-device-capture-recording') {
+    return '.mp4';
+  }
+
+  if (evidenceKind === 'privacy-legal-approval') {
+    return '.md';
+  }
+
+  if (evidenceKind === 'hosted-relay-proof' || evidenceKind === 'authenticated-account-capture-proof') {
+    return '.json';
+  }
+
+  return '.png';
+}
+
+function manualEvidenceRunbook() {
+  const rows = requiredGates
+    .map((requiredGate) =>
+      [
+        `## ${requiredGate.gateId}`,
+        '',
+        `- platform: ${requiredGate.platform}`,
+        `- evidence kind: ${requiredGate.evidenceKind}`,
+        `- workpack: ${requiredGate.workpack}`,
+        `- requirement: ${requiredGate.requirement}`,
+        '',
+      ].join('\n')
+    )
+    .join('\n');
+  return [
+    '# Screen Plan External Evidence Runbook',
+    '',
+    'Use real live-device or live-host artifacts only. Attach artifacts under `output/screen-plan-proof/external-gates/artifacts/`, calculate the SHA-256 digest, and copy `manual-evidence-manifest.template.json` to `manual-evidence-manifest.json` only after all fields are true for the artifact.',
+    '',
+    'Authenticated-account social proof must be operator-consented, must redact account identifiers, must cite local OCR/VLM/AI analysis, must cite policy dry-run consumption, and must cite raw image deletion/custody. Public social/feed proof is not enough for this gate.',
+    '',
+    rows,
+  ].join('\n');
 }
 
 function validateGate(requiredGate, entries) {
