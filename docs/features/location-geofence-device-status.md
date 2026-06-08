@@ -258,16 +258,16 @@ expose location or device-status features. Parents expect this category.
   through
   `node scripts/test/tracking-full-product-ui-local-runtime-artifact-capture-proof.mjs`.
   It derives the local parent overview shell screenshot, parent devices shell
-  screenshot, notification history/preferences screenshot, cross-surface
-  accessibility report, and local end-to-end trace from the hosted UI proof
-  stack into
+  screenshot, notification history/preferences screenshot, hosted child check-in
+  and child-runtime UI readiness screenshots, cross-surface accessibility
+  report, and local end-to-end trace from the hosted UI proof stack into
   `output/tracking-plan-proof/product-parent-child-ui-runtime/`, writes WP30 and
   WP33 proof artifacts, now consumes the retention product-settings writable
   execution derivation proof and child-runtime artifact gate proof as closure
   evidence, and keeps full product UI runtime, child-device runtime,
   physical-device, authority, provider-delivery, production UI, and
-  product-ready claims false. The local capture proof records six local
-  parent-side artifacts, one retention writable execution row/derivation, and
+  product-ready claims false. The local capture proof records eight local
+  hosted parent-route artifacts, one retention writable execution row/derivation, and
   ten missing child-runtime artifacts from the real child-device runtime gate.
   The hard runtime UI artifacts still missing from the product UI artifact root
   are the retention settings production write-result UI, rendered child-device
@@ -352,7 +352,7 @@ expose location or device-status features. Parents expect this category.
   `output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-gate/46-product-readiness-closure-proof.json`,
   explicitly enumerates retention writable-settings and platform-enforcement
   blockers from the retention product-readiness proof, carries aggregate
-  evidence for six observed full-product UI local artifacts, one retention
+  evidence for eight observed full-product UI local artifacts, one retention
   writable execution derivation row, ten required child-runtime artifacts with
   zero present and ten missing, two required retention runtime artifacts with
   one present local writable execution artifact and one missing platform
@@ -372,10 +372,10 @@ expose location or device-status features. Parents expect this category.
   retention product runtime enforcement, production durable workers/storage,
   and escalation runtime artifacts before any final tracking claim can move
   beyond `manual-required`; its full product UI row now carries the runtime gate
-  and local runtime artifact capture supporting proof refs, records six
-  observed local UI artifacts including the hosted retention settings local
-  write-result screenshot, and keeps the four hard full-product UI runtime gaps
-  still required before that claim can advance. Its summary now classifies the
+  and local runtime artifact capture supporting proof refs, records five present
+  required runtime-root artifact refs plus the local capture proof's eight hosted
+  artifacts, and keeps the four hard full-product UI runtime gaps still required
+  before that claim can advance. Its summary now classifies the
   ten final manual-required claim rows into six physical-device/runtime rows,
   one approved-manual desktop row, one manual provider-runtime row, and two
   production-runtime rows, writes
@@ -1023,9 +1023,10 @@ accessibility beyond the hosted parent route are proved.
       cross-surface accessibility, and end-to-end product UI trace artifact
       refs before full product UI runtime can be treated as present. The local
       runtime artifact capture proof now supplies parent overview, parent device
-      detail, and cross-surface accessibility artifacts from the hosted proof
-      stack, so the gate reports three present local artifacts and six missing
-      hard runtime artifacts. Rows remain manual-required and keep full product
+      detail, notification, retention local write-result, hosted child
+      check-in/readiness, hosted child-runtime/readiness, cross-surface
+      accessibility, and local trace artifacts from the hosted proof stack
+      without satisfying the P4 runtime refs. Rows remain manual-required and keep full product
       UI runtime, child-device delivery runtime, physical-device behavior,
       authority, provider delivery, production product UI, and product-ready
       tracking unclaimed.
@@ -1243,9 +1244,10 @@ accessibility beyond the hosted parent route are proved.
       hosted parent shell. Hosted parent overview/devices shell screenshots now
       render the service-backed tracking summary and no-product-claim cards as
       local/CI proof only, and full-product UI local artifact capture now also
-      copies the hosted retention settings local write-result screenshot into
-      the product UI artifact root without filling the production write-result
-      runtime artifact; actual child-device delivery/runtime execution and full
+      copies the hosted retention settings local write-result plus hosted child
+      check-in/runtime readiness screenshots into the product UI artifact root
+      without filling the production write-result or child-device runtime
+      artifact refs; actual child-device delivery/runtime execution and full
       product parent/child UI remain pending.
 
 ## Next AI Instructions

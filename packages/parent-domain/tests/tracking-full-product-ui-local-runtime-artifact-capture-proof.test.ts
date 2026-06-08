@@ -66,6 +66,8 @@ function localArtifactCaptures() {
       900
     ),
     capture('retention-settings-local-write-result', '04-retention-settings-local-write-result.png', 3584, 1200, 900),
+    capture('child-check-in-hosted-local-readiness-ui', '10-child-check-in-hosted-local-readiness.png', 2048, 784, 560),
+    capture('child-runtime-hosted-local-readiness-ui', '11-child-runtime-hosted-local-readiness.png', 3072, 784, 640),
     capture('cross-surface-accessibility-report', '08-cross-surface-accessibility-report.json', 1024),
     capture('product-ui-end-to-end-trace', '09-product-ui-end-to-end-trace.json', 1536),
   ];
@@ -73,15 +75,13 @@ function localArtifactCaptures() {
 
 function expectLocalArtifactRows(proof: ReturnType<typeof localRuntimeArtifactProof>) {
   expect(proof.rows).toHaveLength(RequiredTrackingFullProductUiLocalRuntimeArtifactCaptures.length);
-  expect(proof.localArtifactCount).toBe(6);
-  expect(proof.rows.map((row) => row.status)).toEqual([
-    'local-artifact-captured',
-    'local-artifact-captured',
-    'local-artifact-captured',
-    'local-artifact-captured',
-    'local-artifact-captured',
-    'local-artifact-captured',
-  ]);
+  expect(proof.localArtifactCount).toBe(8);
+  expect(proof.rows.map((row) => row.status)).toEqual(
+    Array.from(
+      { length: RequiredTrackingFullProductUiLocalRuntimeArtifactCaptures.length },
+      () => 'local-artifact-captured'
+    )
+  );
 }
 
 function expectLocalProductClaims(proof: ReturnType<typeof localRuntimeArtifactProof>) {
@@ -89,6 +89,8 @@ function expectLocalProductClaims(proof: ReturnType<typeof localRuntimeArtifactP
   expect(proof.productClaims.parentDeviceDetailLocalArtifactCaptured).toBe(true);
   expect(proof.productClaims.parentNotificationHistoryPreferencesLocalArtifactCaptured).toBe(true);
   expect(proof.productClaims.retentionSettingsLocalWriteResultCaptured).toBe(true);
+  expect(proof.productClaims.childCheckInHostedLocalReadinessArtifactCaptured).toBe(true);
+  expect(proof.productClaims.childRuntimeHostedLocalReadinessArtifactCaptured).toBe(true);
   expect(proof.productClaims.crossSurfaceAccessibilityLocalArtifactCaptured).toBe(true);
   expect(proof.productClaims.productUiEndToEndTraceCaptured).toBe(true);
   expect(proof.productClaims.fullProductUiRuntimeClaimed).toBe(false);
@@ -115,6 +117,8 @@ function capture(
     | 'parent-device-detail-runtime-ui'
     | 'parent-notification-history-preferences-runtime'
     | 'retention-settings-local-write-result'
+    | 'child-check-in-hosted-local-readiness-ui'
+    | 'child-runtime-hosted-local-readiness-ui'
     | 'cross-surface-accessibility-report'
     | 'product-ui-end-to-end-trace',
   fileName: string,
@@ -129,9 +133,13 @@ function capture(
         ? 'test-results/tracking-plan-hosted-ui-proof/accessibility-summary.json'
         : artifactId === 'product-ui-end-to-end-trace'
           ? 'test-results/tracking-hosted-ui-artifact-inventory-proof/proof.json'
-          : artifactId === 'retention-settings-local-write-result'
-            ? 'output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/11-ui-snapshots/hosted-policy-tracking-retention-settings.png'
-            : `output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/11-ui-snapshots/hosted-${fileName}`,
+          : artifactId === 'child-check-in-hosted-local-readiness-ui'
+            ? 'output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/11-ui-snapshots/hosted-policy-tracking-child-check-in.png'
+            : artifactId === 'child-runtime-hosted-local-readiness-ui'
+              ? 'output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/11-ui-snapshots/hosted-policy-tracking-child-runtime-ui.png'
+              : artifactId === 'retention-settings-local-write-result'
+                ? 'output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/11-ui-snapshots/hosted-policy-tracking-retention-settings.png'
+                : `output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/11-ui-snapshots/hosted-${fileName}`,
     outputArtifactRef: `output/tracking-plan-proof/product-parent-child-ui-runtime/${fileName}`,
     sourceBytes: bytes,
     outputBytes: bytes,

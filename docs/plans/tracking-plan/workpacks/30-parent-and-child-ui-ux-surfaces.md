@@ -87,6 +87,9 @@ Proof root: `output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/`
 - [x] Render and screenshot hosted child-runtime disclosure, safe/help response,
       location-share consent, and delivery-boundary copy without claiming
       child-device delivery or runtime execution.
+- [x] Carry the hosted child-safe check-in and hosted child-runtime UI readiness
+      screenshots into the full-product local artifact capture proof while
+      keeping the actual child-device runtime artifact refs missing.
 - [x] Add a child-runtime delivery boundary proof that links hosted child-runtime
       UI proof refs to child check-in timeout rows while recording required
       runtime/device proof refs and keeping actual child-device delivery,

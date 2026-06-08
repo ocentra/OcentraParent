@@ -176,9 +176,10 @@ Proof root: `output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-g
   `66-full-product-ui-local-runtime-artifact-capture-proof.json`
   now consumes the retention product-settings writable execution derivation
   proof and child-runtime artifact gate proof as closure evidence, copies the
-  hosted retention settings local write-result screenshot into the local product
-  UI artifact root, and keeps full product UI, child runtime, physical-device,
-  authority, provider, production, and product-ready claims false.
+  hosted retention settings local write-result plus hosted child check-in/runtime
+  readiness screenshots into the local product UI artifact root, and keeps full
+  product UI, child runtime, physical-device, authority, provider, production,
+  and product-ready claims false.
 - Tracking child-runtime Android emulator readiness bridge proof:
   `67-child-runtime-android-emulator-readiness-bridge-proof.json`
 - Tracking Android emulator artifact inventory proof:
@@ -1332,7 +1333,7 @@ tracking-claim-audit-proof tracking-product-readiness-closure-proof`
       sets or approval exist.
 - [x] Aggregate closure refresh: claim audit now carries supporting proof refs
       for the full-product UI runtime gate and local runtime artifact capture,
-      records six observed local UI artifacts and four hard full-product UI
+      records eight observed local UI artifacts and four hard full-product UI
       runtime gaps, and the product-readiness closure proof now records those
       counts alongside the retention writable execution derivation and
       child-runtime plus production-worker required/present/missing artifact
