@@ -30,6 +30,10 @@ const closureAccounting = {
   iosSimulatorPrivacyDisclosureArtifactCount: 2,
   iosSimulatorManualRequiredRowCount: 7,
   iosSimulatorMissingRuntimeArtifactCount: 9,
+  authorityRuntimeRequiredArtifactCount: 20,
+  authorityRuntimePresentArtifactCount: 0,
+  authorityRuntimeMissingArtifactCount: 20,
+  authorityRuntimeBlockerCount: 10,
   childRuntimeRequiredArtifactCount: 10,
   childRuntimePresentArtifactCount: 0,
   childRuntimeMissingArtifactCount: 10,
@@ -38,6 +42,16 @@ const closureAccounting = {
   physicalDeviceEvidenceReviewContentReviewRequiredRowCount: 0,
   physicalDeviceEvidenceReviewContentAcceptedRowCount: 0,
   physicalDeviceEvidenceReviewProductReadyRowCount: 0,
+  physicalDeviceEvidenceReviewStatusObservedRowCount: 1,
+  physicalDeviceEvidenceReviewSupportingStatusArtifactCount: 13,
+  providerRuntimeRequiredArtifactCount: 11,
+  providerRuntimePresentArtifactCount: 0,
+  providerRuntimeMissingArtifactCount: 11,
+  providerRuntimeBlockerCount: 12,
+  escalationRuntimeRequiredArtifactCount: 13,
+  escalationRuntimePresentArtifactCount: 0,
+  escalationRuntimeMissingArtifactCount: 13,
+  escalationRuntimeBlockerCount: 12,
   retentionRuntimeRequiredArtifactCount: 2,
   retentionRuntimePresentArtifactCount: 1,
   retentionRuntimeMissingArtifactCount: 1,
@@ -148,6 +162,10 @@ function expectPlatformClosureAccounting(proof: TrackingRealRuntimeHandoffProof)
   expect(proof.closureAccounting.iosSimulatorPrivacyDisclosureArtifactCount).toBe(2);
   expect(proof.closureAccounting.iosSimulatorManualRequiredRowCount).toBe(7);
   expect(proof.closureAccounting.iosSimulatorMissingRuntimeArtifactCount).toBe(9);
+  expect(proof.closureAccounting.authorityRuntimeRequiredArtifactCount).toBe(20);
+  expect(proof.closureAccounting.authorityRuntimePresentArtifactCount).toBe(0);
+  expect(proof.closureAccounting.authorityRuntimeMissingArtifactCount).toBe(20);
+  expect(proof.closureAccounting.authorityRuntimeBlockerCount).toBe(10);
 }
 
 function expectRuntimeClosureAccounting(proof: TrackingRealRuntimeHandoffProof): void {
@@ -157,6 +175,16 @@ function expectRuntimeClosureAccounting(proof: TrackingRealRuntimeHandoffProof):
   expect(proof.closureAccounting.physicalDeviceEvidenceReviewContentReviewRequiredRowCount).toBe(0);
   expect(proof.closureAccounting.physicalDeviceEvidenceReviewContentAcceptedRowCount).toBe(0);
   expect(proof.closureAccounting.physicalDeviceEvidenceReviewProductReadyRowCount).toBe(0);
+  expect(proof.closureAccounting.physicalDeviceEvidenceReviewStatusObservedRowCount).toBe(1);
+  expect(proof.closureAccounting.physicalDeviceEvidenceReviewSupportingStatusArtifactCount).toBe(13);
+  expect(proof.closureAccounting.providerRuntimeRequiredArtifactCount).toBe(11);
+  expect(proof.closureAccounting.providerRuntimePresentArtifactCount).toBe(0);
+  expect(proof.closureAccounting.providerRuntimeMissingArtifactCount).toBe(11);
+  expect(proof.closureAccounting.providerRuntimeBlockerCount).toBe(12);
+  expect(proof.closureAccounting.escalationRuntimeRequiredArtifactCount).toBe(13);
+  expect(proof.closureAccounting.escalationRuntimePresentArtifactCount).toBe(0);
+  expect(proof.closureAccounting.escalationRuntimeMissingArtifactCount).toBe(13);
+  expect(proof.closureAccounting.escalationRuntimeBlockerCount).toBe(12);
   expect(proof.closureAccounting.retentionRuntimeMissingArtifactCount).toBe(1);
   expect(proof.closureAccounting.retentionRuntimeArtifactSetPresentRowCount).toBe(0);
   expect(proof.closureAccounting.retentionPlatformPreflightRowCount).toBe(3);
