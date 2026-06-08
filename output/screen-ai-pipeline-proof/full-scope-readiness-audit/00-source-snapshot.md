@@ -1,6 +1,6 @@
 # Screen AI Full Scope Readiness Audit
 
-Generated: 2026-06-08T05:59:02.367Z
+Generated: 2026-06-08T06:11:55.077Z
 
 ## Source Artifacts
 
@@ -8,6 +8,7 @@ Generated: 2026-06-08T05:59:02.367Z
 - aiPlanClosure: `output/ai-plan-proof/local-ai-plan-closure-audit/proof-summary.json`
 - adapterBlockerLedger: `output/screen-ai-pipeline-proof/adapter-blocker-ledger/proof-summary.json`
 - adapterDependencyHandoff: `output/screen-ai-pipeline-proof/adapter-dependency-handoff/proof-summary.json`
+- adapterDependencyHandoffRows: `output/screen-ai-pipeline-proof/adapter-dependency-handoff/adapter-dependency-handoff.json`
 - finalProductPath: `output/screen-ai-pipeline-proof/final-product-path/proof-summary.json`
 - finalAdapterAudit: `output/screen-ai-pipeline-proof/final-adapter-dependency-audit/proof-summary.json`
 - linuxHostExecution: `output/screen-ai-pipeline-proof/linux-host-adapter-execution/proof-summary.json`
@@ -50,6 +51,10 @@ Generated: 2026-06-08T05:59:02.367Z
   "adapterDependencyHandoffRequired": true,
   "adapterBlockerRowsMapped": 5,
   "adapterDependencyRowsMapped": 5,
-  "externalAdapterDependencyRows": 5
+  "externalAdapterDependencyRows": 5,
+  "remainingAdapterDependencyOwnersStable": true,
+  "remainingAdapterExpectedProofFilesStable": true,
+  "remainingAdapterExpectedContractShapesStable": true,
+  "remainingAdapterProductCompleteRowOpen": true
 }
 ```

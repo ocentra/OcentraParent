@@ -12,6 +12,7 @@ const sourceArtifacts = {
   finalProductPath: 'output/screen-ai-pipeline-proof/final-product-path/proof-summary.json',
   finalAdapterAudit: 'output/screen-ai-pipeline-proof/final-adapter-dependency-audit/proof-summary.json',
   adapterBlockerLedger: 'output/screen-ai-pipeline-proof/adapter-blocker-ledger/proof-summary.json',
+  adapterDependencyHandoff: 'output/screen-ai-pipeline-proof/adapter-dependency-handoff/proof-summary.json',
   linuxHostExecution: 'output/screen-ai-pipeline-proof/linux-host-adapter-execution/proof-summary.json',
   aiPlanClosure: 'output/ai-plan-proof/local-ai-plan-closure-audit/proof-summary.json',
   screenPlanClosure: 'output/screen-plan-proof/screen-plan-closure-audit/proof-summary.json',
@@ -22,6 +23,7 @@ const productChecklist = readText(sourceArtifacts.productChecklist);
 const finalProductPath = readJson(sourceArtifacts.finalProductPath);
 const finalAdapterAudit = readJson(sourceArtifacts.finalAdapterAudit);
 const adapterBlockerLedger = readJson(sourceArtifacts.adapterBlockerLedger);
+const adapterDependencyHandoff = readJson(sourceArtifacts.adapterDependencyHandoff);
 const linuxHostExecution = readJson(sourceArtifacts.linuxHostExecution);
 const aiPlanClosure = readJson(sourceArtifacts.aiPlanClosure);
 const screenPlanClosure = readJson(sourceArtifacts.screenPlanClosure);
@@ -44,11 +46,31 @@ assert(
   finalProductPath.closure?.finalPipelineProductCompleteBlockedByAdapterGate === true,
   'final path does not keep adapter gate blocked'
 );
+assert(
+  finalProductPath.closure?.adapterDependencyHandoffRequired === true,
+  'final path does not require adapter dependency handoff'
+);
 assert(finalAdapterAudit.closure?.broadBrowserNetworkMobileProductComplete === false, 'adapter audit overclaims');
 assert(finalAdapterAudit.closure?.blockedAdapterRows === 5, 'adapter audit blocker count changed');
 assert(finalAdapterAudit.closure?.custodyArtifactRows === 3, 'adapter audit custody count changed');
 assert(finalAdapterAudit.closure?.linuxHostExecutionRows === 1, 'adapter audit lost Linux execution row');
 assert(adapterBlockerLedger.closure?.blockerRows === 5, 'adapter blocker ledger row count changed');
+assert(
+  adapterDependencyHandoff.closure?.dependencyRowsMapped === adapterBlockerLedger.closure?.blockerRows,
+  'adapter dependency handoff row count does not match blocker ledger'
+);
+assert(
+  adapterDependencyHandoff.closure?.expectedProofFilesMapped === true,
+  'adapter dependency handoff lost expected proof file mapping'
+);
+assert(
+  adapterDependencyHandoff.closure?.expectedContractShapesMapped === true,
+  'adapter dependency handoff lost expected contract shape mapping'
+);
+assert(
+  adapterDependencyHandoff.closure?.productCompleteClaimed === false,
+  'adapter dependency handoff claims product completion'
+);
 assert(
   adapterBlockerLedger.closure?.linuxWsl2HostExecutionNoLongerBlocked === true,
   'adapter blocker ledger still treats Linux execution as blocked'
@@ -105,6 +127,14 @@ assert(
 );
 assert(screenPlanClosure.assertions?.noProductCompleteClaim === true, 'screen closure claims product complete');
 assert(
+  screenPlanClosure.assertions?.liveViewEvidenceGatesProved === true,
+  'screen closure lost live-view evidence gates'
+);
+assert(
+  screenPlanClosure.assertions?.liveViewProductReadyClaimed === false,
+  'screen closure overclaims live-view readiness'
+);
+assert(
   screenPlanClosure.assertions?.serviceCadenceRuntimeProved === true,
   'screen closure lost service cadence runtime proof'
 );
@@ -127,10 +157,10 @@ assert(
 
 const desiredRows = {
   localScreenEvidenceSummaries: [
-    '| Local screen evidence summaries | in progress | [screen evidence](expectations/screen-evidence.md), [roadmap V0.5.3](expectations/roadmap-v0-5-3-local-screen-evidence-analysis-queue.md) | Screen evidence settings, real Windows capture/scope/trigger proofs, local capture adapter, encrypted queue custody, deletion/retention custody, service cadence runtime, service foreground runtime, service disabled no-capture/no-AI suppression, service local-adapter/native-game analysis, service retention sweeper runtime, portal-chain, live-operator/live-external URL artifact gate, optional retention/live-view preflight, managed-browser CDP page/viewport/crop capture proof, Windows owned-process action/block dispatch proofs, service WinRT OCR redaction policy proof, Tesseract runtime extraction and fallback OCR evidence, small guided VLM provider/readiness proof, screen-plan closure audit, AI-plan closure audit, final product path artifact gate with fresh service OCR source rerun evidence, final adapter dependency audit, adapter blocker ledger proof, upstream adapter prerequisite bridge, Linux host adapter custody artifact, WSL2 Linux host adapter execution proof, Android mobile-control custody artifact, and iOS mobile-control custody artifact under `output/screen-ai-pipeline-proof/`, `output/screen-plan-proof/`, and `output/ai-plan-proof/`. The final product path artifact validates retained real-run artifacts across live/operator trigger rows, local AI rows, policy dry-runs, parent explanation snapshots, deletion rows, Windows action handoff, portal/read-model, service-backed Activity Screen read model, service cadence/foreground/disabled runtime evidence, service encrypted queue expiry deletion, delete-failed visibility, service WinRT OCR policy source rerun, retention custody, protected-surface non-claims, and screen/AI closure audits; the adapter audits prove Windows owned-process time-limit/block adapters and the reversible WSL2 Linux iptables apply/rollback proof execute today while broad/browser/network/mobile adapter classes remain blocked without product-complete claim upgrades and Android/iOS custody artifacts record non-executed apply/rollback/audit state. | Parent-facing settings and retention UI, optional raw-retention runtime enablement, live-view transport/relay/cache, platform permission proof, privacy/legal approval, current PP-OCRv5 runtime error resolution, production OCR/VLM provider quality/resource proof, live macOS/native Linux Wayland/physical Android/iOS parity, managed browser URL-trigger ownership, authenticated-account social variants, managed-browser trigger producer ownership, broad installed-app apply/rollback/audit, host network/domain apply/rollback/audit, managed active-tab exact URL apply/rollback/audit, Android device-owner/managed-profile/UsageStats/Accessibility/VPN-DNS execution after the custody artifact, iOS Family Controls/DeviceActivity/Network Extension execution after the custody artifact, native Linux desktop/Wayland/PipeWire product parity beyond the WSL2 host proof, product-complete reports, and final product-complete adapter execution remain. |',
+    '| Local screen evidence summaries | in progress | [screen evidence](expectations/screen-evidence.md), [roadmap V0.5.3](expectations/roadmap-v0-5-3-local-screen-evidence-analysis-queue.md) | Screen evidence settings, real Windows capture/scope/trigger proofs, local capture adapter, encrypted queue custody, deletion/retention custody, service cadence runtime, service foreground runtime, service disabled no-capture/no-AI suppression, service local-adapter/native-game analysis, service retention sweeper runtime, portal-chain, live-operator/live-external URL artifact gate, optional retention/live-view preflight, managed-browser CDP page/viewport/crop capture proof, Windows owned-process action/block dispatch proofs, service WinRT OCR redaction policy proof, Tesseract runtime extraction and fallback OCR evidence, small guided VLM provider/readiness proof, screen-plan closure audit with live-view transport/platform/parent UI/service-session/runtime/worker/relay-cache no-retention/no-input nonclaim guards, AI-plan closure audit, final product path artifact gate with fresh service OCR source rerun evidence, final adapter dependency audit, adapter blocker ledger proof, adapter dependency handoff proof, upstream adapter prerequisite bridge, Linux host adapter custody artifact, WSL2 Linux host adapter execution proof, Android mobile-control custody artifact, and iOS mobile-control custody artifact under `output/screen-ai-pipeline-proof/`, `output/screen-plan-proof/`, and `output/ai-plan-proof/`. The final product path artifact validates retained real-run artifacts across live/operator trigger rows, local AI rows, policy dry-runs, parent explanation snapshots, deletion rows, Windows action handoff, portal/read-model, service-backed Activity Screen read model, service cadence/foreground/disabled runtime evidence, service encrypted queue expiry deletion, delete-failed visibility, service WinRT OCR policy source rerun, retention custody, protected-surface non-claims, screen/AI closure audits, and adapter dependency handoff mapping; the adapter audits prove Windows owned-process time-limit/block adapters and the reversible WSL2 Linux iptables apply/rollback proof execute today while broad/browser/network/mobile adapter classes remain blocked without product-complete claim upgrades and Android/iOS custody artifacts record non-executed apply/rollback/audit state. | Parent-facing settings and retention UI application, production live-view platform prompt/worker/hosted relay/physical parity/privacy approval, current PP-OCRv5 runtime error resolution, production OCR/VLM provider quality/resource proof, live macOS/native Linux Wayland/physical Android/iOS parity, managed browser URL-trigger ownership, authenticated-account social variants, managed-browser trigger producer ownership, broad installed-app apply/rollback/audit, host network/domain apply/rollback/audit, managed active-tab exact URL apply/rollback/audit, Android device-owner/managed-profile/UsageStats/Accessibility/VPN-DNS execution after the custody artifact, iOS Family Controls/DeviceActivity/Network Extension execution after the custody artifact, native Linux desktop/Wayland/PipeWire product parity beyond the WSL2 host proof, product-complete reports, and final product-complete adapter execution remain. |',
   ].join('\n'),
   childSafetyAiDecision: [
-    '| Child-safety AI decision | in progress | [AI](expectations/ai.md), [policy](expectations/policy.md) | Dry-run local AI policy evaluator, evidence context builder, AI-plan closure audit, final product path artifacts proving real captured screen evidence becomes meaningful categories and dry-run policy decisions, and policy-only enforcement consumption that uses decision refs instead of raw AI output or raw screen pixels. Controlled captured-screen analysis, live operator artifacts, service WinRT OCR captured-pixel analysis plus source service OCR proof rerun, stored-evidence input routing, deterministic/text contracts, memory/graph refs, provider runtime/scheduler, household route selection, advertisement/heartbeat eligibility, claim/lease lifecycle, no-raw-transfer, provider result validation, mesh event bridge mediation, child-agent-only policy authority, mobile dormant/fallback proof, and policy-only consumption are stacked without remote/API AI, raw prompt retention, raw image retention by default, model-quality claims, provider policy authority, or AI-owned enforcement claims. The WSL2 Linux host execution artifact proves screen-derived reversible iptables apply/rollback/audit state without upgrading native Linux desktop product readiness; Android and iOS custody artifacts record screen-derived non-executed apply/rollback/audit state for their blocked adapter classes without upgrading execution claims. | Model quality, confidence calibration, authenticated-account social/video variants, physical household LAN execution/gossip, physical mobile execution, cross-platform OCR/VLM quality, and full enforcement handoff remain blocked until the broad installed-app, host network/domain, managed active-tab, Android, iOS, and native Linux desktop parity artifacts exist; the WSL2 Linux host proof does not claim native Linux Wayland/PipeWire product rollout, the Android custody artifact does not execute Device Owner/managed-profile/UsageStats/Accessibility/VPN-DNS control, and the iOS custody artifact does not execute Family Controls/DeviceActivity/Network Extension control. |',
+    '| Child-safety AI decision | in progress | [AI](expectations/ai.md), [policy](expectations/policy.md) | Dry-run local AI policy evaluator, evidence context builder, AI-plan closure audit, final product path artifacts proving real captured screen evidence becomes meaningful categories and dry-run policy decisions, and policy-only enforcement consumption that uses decision refs instead of raw AI output or raw screen pixels. Controlled captured-screen analysis, live operator artifacts, service WinRT OCR captured-pixel analysis plus source service OCR proof rerun, stored-evidence input routing, deterministic/text contracts, memory/graph refs, provider runtime/scheduler, household route selection, advertisement/heartbeat eligibility, claim/lease lifecycle, no-raw-transfer, provider result validation, mesh event bridge mediation, child-agent-only policy authority, mobile dormant/fallback proof, policy-only consumption, adapter blocker ledger, and adapter dependency handoff are stacked without remote/API AI, raw prompt retention, raw image retention by default, model-quality claims, provider policy authority, or AI-owned enforcement claims. The WSL2 Linux host execution artifact proves screen-derived reversible iptables apply/rollback/audit state without upgrading native Linux desktop product readiness; Android and iOS custody artifacts record screen-derived non-executed apply/rollback/audit state for their blocked adapter classes without upgrading execution claims. | Model quality, confidence calibration, authenticated-account social/video variants, physical household LAN execution/gossip, physical mobile execution, cross-platform OCR/VLM quality, and full enforcement handoff remain blocked until the broad installed-app, host network/domain, managed active-tab, Android, iOS, and native Linux desktop parity artifacts exist; the WSL2 Linux host proof does not claim native Linux Wayland/PipeWire product rollout, the Android custody artifact does not execute Device Owner/managed-profile/UsageStats/Accessibility/VPN-DNS control, and the iOS custody artifact does not execute Family Controls/DeviceActivity/Network Extension control. |',
   ].join('\n'),
 };
 
@@ -183,6 +213,8 @@ const proof = {
     childSafetyAiDecisionRowDeltaReady: true,
     finalPathScreenAndAiPrerequisitesStacked: true,
     finalPathFreshServiceRerunProved: true,
+    adapterDependencyHandoffRequired: true,
+    adapterDependencyRowsMapped: adapterDependencyHandoff.closure.dependencyRowsMapped,
     finalPipelineProductCompleteClaimed: false,
     broadBrowserNetworkMobileProductComplete: false,
     blockedAdapterRows: finalAdapterAudit.closure.blockedAdapterRows,
@@ -205,6 +237,8 @@ const proof = {
     serviceForegroundWatcherProved: true,
     serviceEncryptedQueueExpiryDeletionProved: true,
     deleteFailedVisibilityProved: true,
+    screenPlanLiveViewEvidenceGatesProved: true,
+    liveViewProductReadyClaimed: false,
   },
   nonClaims: [
     'This proof does not edit docs/product-capability-checklist.md while another lane owns that lock.',

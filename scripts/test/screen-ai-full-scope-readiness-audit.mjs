@@ -12,6 +12,8 @@ const sourceArtifacts = {
   aiPlanClosure: 'output/ai-plan-proof/local-ai-plan-closure-audit/proof-summary.json',
   adapterBlockerLedger: 'output/screen-ai-pipeline-proof/adapter-blocker-ledger/proof-summary.json',
   adapterDependencyHandoff: 'output/screen-ai-pipeline-proof/adapter-dependency-handoff/proof-summary.json',
+  adapterDependencyHandoffRows:
+    'output/screen-ai-pipeline-proof/adapter-dependency-handoff/adapter-dependency-handoff.json',
   finalProductPath: 'output/screen-ai-pipeline-proof/final-product-path/proof-summary.json',
   finalAdapterAudit: 'output/screen-ai-pipeline-proof/final-adapter-dependency-audit/proof-summary.json',
   linuxHostExecution: 'output/screen-ai-pipeline-proof/linux-host-adapter-execution/proof-summary.json',
@@ -21,11 +23,105 @@ const sourceArtifacts = {
   pipelineChecklist: 'docs/plans/screen-ai-pipeline-plan/implementation-checklist.md',
 };
 
+const expectedRemainingAdapterDependencies = [
+  {
+    rowId: 'screen-ai-broad-installed-app-manual-required',
+    boundary: 'broad-installed-app-blocking',
+    handoffOwner: 'codex-c',
+    expectedProofFile:
+      'output/app-game-plan-proof/screen-derived-broad-installed-app-apply-rollback-audit/proof-summary.json',
+    custodyArtifact: null,
+    expectedContractKeys: [
+      'sourcePolicyDecisionRef',
+      'sourceActivityEvidenceRef',
+      'applyResultRef',
+      'rollbackOrExpiryRef',
+      'auditRef',
+      'rawImageRetained',
+      'rawImageDeletedBeforeAdapter',
+      'finalAdapterCompletionClaimed',
+    ],
+  },
+  {
+    rowId: 'screen-ai-host-network-domain-manual-required',
+    boundary: 'host-network-domain-blocking',
+    handoffOwner: 'E-D',
+    expectedProofFile:
+      'output/network-plan-proof/screen-derived-host-network-domain-apply-rollback-audit/proof-summary.json',
+    custodyArtifact: null,
+    expectedContractKeys: [
+      'sourcePolicyDecisionRef',
+      'sourceNetworkEvidenceRef',
+      'applyResultRef',
+      'rollbackOrExpiryRef',
+      'auditRef',
+      'rawImageRetained',
+      'rawImageDeletedBeforeAdapter',
+      'finalAdapterCompletionClaimed',
+    ],
+  },
+  {
+    rowId: 'screen-ai-managed-active-tab-not-claimed',
+    boundary: 'managed-exact-active-tab-enforcement',
+    handoffOwner: 'codex-d',
+    expectedProofFile:
+      'output/browser-plan-proof/screen-derived-managed-active-tab-apply-rollback-audit/proof-summary.json',
+    custodyArtifact: null,
+    expectedContractKeys: [
+      'sourcePolicyDecisionRef',
+      'sourceBrowserEvidenceRef',
+      'applyResultRef',
+      'rollbackOrExpiryRef',
+      'auditRef',
+      'rawImageRetained',
+      'rawImageDeletedBeforeAdapter',
+      'finalAdapterCompletionClaimed',
+    ],
+  },
+  {
+    rowId: 'screen-ai-android-mobile-control-manual-required',
+    boundary: 'android-mobile-control-adapter',
+    handoffOwner: 'primary/mobile-child-agent-sequencing',
+    expectedProofFile:
+      'output/mobile-plan-proof/screen-derived-android-mobile-control-apply-rollback-audit/proof-summary.json',
+    custodyArtifact: 'output/screen-ai-pipeline-proof/android-mobile-control-custody/proof-summary.json',
+    expectedContractKeys: [
+      'sourcePolicyDecisionRef',
+      'sourceMobileEvidenceRef',
+      'applyResultRef',
+      'rollbackOrExpiryRef',
+      'auditRef',
+      'rawImageRetained',
+      'rawImageDeletedBeforeAdapter',
+      'finalAdapterCompletionClaimed',
+    ],
+  },
+  {
+    rowId: 'screen-ai-ios-mobile-control-manual-required',
+    boundary: 'ios-mobile-control-adapter',
+    handoffOwner: 'primary/mobile-child-agent-sequencing',
+    expectedProofFile:
+      'output/mobile-plan-proof/screen-derived-ios-mobile-control-apply-rollback-audit/proof-summary.json',
+    custodyArtifact: 'output/screen-ai-pipeline-proof/ios-mobile-control-custody/proof-summary.json',
+    expectedContractKeys: [
+      'sourcePolicyDecisionRef',
+      'sourceMobileEvidenceRef',
+      'applyResultRef',
+      'rollbackOrExpiryRef',
+      'auditRef',
+      'rawImageRetained',
+      'rawImageDeletedBeforeAdapter',
+      'finalAdapterCompletionClaimed',
+    ],
+  },
+];
+
 const failures = [];
 const screenPlanClosure = readJson(sourceArtifacts.screenPlanClosure);
 const aiPlanClosure = readJson(sourceArtifacts.aiPlanClosure);
 const adapterBlockerLedger = readJson(sourceArtifacts.adapterBlockerLedger);
 const adapterDependencyHandoff = readJson(sourceArtifacts.adapterDependencyHandoff);
+const adapterDependencyHandoffRows = readJson(sourceArtifacts.adapterDependencyHandoffRows);
 const finalProductPath = readJson(sourceArtifacts.finalProductPath);
 const finalAdapterAudit = readJson(sourceArtifacts.finalAdapterAudit);
 const linuxHostExecution = readJson(sourceArtifacts.linuxHostExecution);
@@ -250,12 +346,6 @@ assert(
   'pipeline checklist product-complete adapter row is no longer open'
 );
 
-if (failures.length > 0) {
-  throw new Error(
-    `Screen AI full-scope readiness audit failed:\n${failures.map((failure) => `- ${failure}`).join('\n')}`
-  );
-}
-
 const blockedAdapterRows = finalAdapterAudit.nextRequiredArtifacts.map((row) => ({
   rowId: row.rowId,
   boundary: row.boundary,
@@ -264,6 +354,14 @@ const blockedAdapterRows = finalAdapterAudit.nextRequiredArtifacts.map((row) => 
   custodyArtifact: row.custodyArtifact,
   missingArtifact: row.missingArtifact,
 }));
+
+assertRemainingAdapterDependencies();
+
+if (failures.length > 0) {
+  throw new Error(
+    `Screen AI full-scope readiness audit failed:\n${failures.map((failure) => `- ${failure}`).join('\n')}`
+  );
+}
 
 const proof = {
   status: 'ready-except-external-adapter-and-product-checklist-dependencies',
@@ -303,8 +401,16 @@ const proof = {
     adapterBlockerRowsMapped: adapterBlockerLedger.closure?.blockerRows,
     adapterDependencyRowsMapped: adapterDependencyHandoff.closure?.dependencyRowsMapped,
     externalAdapterDependencyRows: blockedAdapterRows.length,
+    remainingAdapterDependencyOwnersStable: true,
+    remainingAdapterExpectedProofFilesStable: true,
+    remainingAdapterExpectedContractShapesStable: true,
+    remainingAdapterProductCompleteRowOpen: true,
   },
-  blockedAdapterRows,
+  blockedAdapterRows: blockedAdapterRows.map((row) => ({
+    ...row,
+    expectedContractKeys: expectedRemainingAdapterDependencies.find((expected) => expected.rowId === row.rowId)
+      ?.expectedContractKeys,
+  })),
   productChecklistDelta: {
     status: productChecklistDelta.status,
     deltaMarkdown: productChecklistDelta.deltaMarkdown,
@@ -334,6 +440,58 @@ function readText(path) {
   const absolute = resolve(repoRoot, path);
   assert(existsSync(absolute), `missing source artifact ${path}`);
   return readFileSync(absolute, 'utf8');
+}
+
+function assertRemainingAdapterDependencies() {
+  assert(
+    blockedAdapterRows.length === expectedRemainingAdapterDependencies.length,
+    'remaining adapter dependency count changed'
+  );
+
+  for (const expected of expectedRemainingAdapterDependencies) {
+    const blockedRow = blockedAdapterRows.find((row) => row.rowId === expected.rowId);
+    assert(Boolean(blockedRow), `missing blocked adapter row ${expected.rowId}`);
+    if (!blockedRow) {
+      continue;
+    }
+
+    assert(blockedRow.boundary === expected.boundary, `${expected.rowId} boundary changed`);
+    assert(blockedRow.handoffOwner === expected.handoffOwner, `${expected.rowId} owner changed`);
+    assert(blockedRow.expectedProofFile === expected.expectedProofFile, `${expected.rowId} expected proof changed`);
+    assert(
+      (blockedRow.custodyArtifact ?? null) === expected.custodyArtifact,
+      `${expected.rowId} custody artifact changed`
+    );
+
+    const handoffRows = adapterDependencyHandoffRows.rows ?? [];
+    const handoffRow = handoffRows.find((row) => row.rowId === expected.rowId);
+    assert(Boolean(handoffRow), `missing dependency handoff row ${expected.rowId}`);
+    if (!handoffRow) {
+      continue;
+    }
+
+    assert(handoffRow.owningLane === expected.handoffOwner, `${expected.rowId} handoff owner changed`);
+    assert(handoffRow.expectedProofFile === expected.expectedProofFile, `${expected.rowId} handoff proof changed`);
+    assert(
+      handoffRow.expectedContractShape?.rawImageRetained === false,
+      `${expected.rowId} handoff allows raw image retention`
+    );
+    assert(
+      handoffRow.expectedContractShape?.rawImageDeletedBeforeAdapter === true,
+      `${expected.rowId} handoff does not require image deletion before adapter`
+    );
+    assert(
+      handoffRow.expectedContractShape?.finalAdapterCompletionClaimed === true,
+      `${expected.rowId} completed upstream proof would not claim its own adapter completion`
+    );
+
+    for (const key of expected.expectedContractKeys) {
+      assert(
+        Object.hasOwn(handoffRow.expectedContractShape ?? {}, key),
+        `${expected.rowId} expected contract shape is missing ${key}`
+      );
+    }
+  }
 }
 
 function sourceSnapshot(proof) {
