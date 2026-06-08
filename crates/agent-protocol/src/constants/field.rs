@@ -12,6 +12,8 @@ pub const APP_GAME_BOUNDARY_READ_MODEL: &str = "appGameBoundaryReadModel";
 pub const APP_GAME_POLICY_READINESS_READ_MODEL: &str = "appGamePolicyReadinessReadModel";
 pub const APP_GAME_NOTIFICATION_READINESS_READ_MODEL: &str =
     "appGameNotificationReadinessReadModel";
+pub const APP_GAME_ADAPTER_EXECUTION_READINESS_READ_MODEL: &str =
+    "appGameAdapterExecutionReadinessReadModel";
 pub const APP_GAME_TIMER_PARENT_SURFACE_READ_MODEL: &str = "appGameTimerParentSurfaceReadModel";
 pub const APP_GAME_TIMER_PARENT_PREFERENCE_SETUP_REQUEST: &str =
     "appGameTimerParentPreferenceSetupRequest";

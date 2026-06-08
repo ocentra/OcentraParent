@@ -49,6 +49,10 @@ import {
 } from '@ocentra-parent/agent-protocol-domain/contracts';
 import { parseAgentAppGameNotificationReadinessEvent } from '@ocentra-parent/agent-protocol-domain/app-game-notification-readiness';
 import {
+  parseAgentAppGameAdapterExecutionReadinessEvent,
+  type AgentAppGameAdapterExecutionReadinessResult,
+} from '@ocentra-parent/agent-protocol-domain/app-game-adapter-execution-readiness';
+import {
   parseAgentActivityTrackingReadModelEvent,
   type AgentActivityTrackingReadModelResult,
 } from '@ocentra-parent/agent-protocol-domain/tracking-read-model';
@@ -105,6 +109,8 @@ export interface PortalLiveActivityState {
   readonly activityGamesReadModel: ActivitySurfaceAdapterResult<ActivitySurfaceReadModel> | null;
   readonly appGameNotificationReadinessEvent: AgentEventEnvelope | null;
   readonly appGameNotificationParentSurfaceIntentReadModel: unknown | null;
+  readonly appGameAdapterExecutionReadinessEvent: AgentEventEnvelope | null;
+  readonly appGameAdapterExecutionReadinessReadModel: AgentAppGameAdapterExecutionReadinessResult | null;
   readonly activityNetworkReadModelEvent: AgentEventEnvelope | null;
   readonly activityNetworkReadModel: ActivitySurfaceAdapterResult<ActivitySurfaceReadModel> | null;
   readonly browserInterventionEvent: AgentEventEnvelope | null;
@@ -151,7 +157,6 @@ export function resolveLiveActivityState(events: readonly AgentEventEnvelope[]):
   ]);
   const lanPairingBrowserDiscoveryEvent = latestEvent(events, AgentEvent.LanPairingBrowserDiscoveryReported);
   const policyPreviewEvent = latestEvent(events, AgentEvent.PolicyPreviewReadModelReported);
-  const appGamePolicyReadinessEvent = latestEvent(events, AgentEvent.ActivityAppGamePolicyReadinessReadModelReported);
 
   return {
     activityServiceUiSpine: parseActivityServiceUiSpineEvents(events),
@@ -185,6 +190,7 @@ export function resolveLiveActivityState(events: readonly AgentEventEnvelope[]):
     appGameNotificationParentSurfaceIntentReadModel: parseNullableAppGameNotificationParentSurfaceReadModel(
       appGameNotificationReadinessEvent
     ),
+    ...resolveAppGameAdapterExecutionReadinessReadModel(events),
     browserInterventionEvent,
     browserInterventionReadModel:
       browserInterventionEvent === null ? null : parseBrowserInterventionReadModel(browserInterventionEvent.payload),
@@ -198,9 +204,7 @@ export function resolveLiveActivityState(events: readonly AgentEventEnvelope[]):
     policyPreviewEvent,
     policyPreviewReadModel:
       policyPreviewEvent === null ? null : parsePolicyPreviewReadModel(policyPreviewEvent.payload),
-    appGamePolicyReadinessEvent,
-    appGamePolicyReadinessReadModel:
-      appGamePolicyReadinessEvent === null ? null : parseAgentAppGamePolicyReadinessEvent(appGamePolicyReadinessEvent),
+    ...resolveAppGamePolicyReadinessReadModel(events),
     ...resolveAppGameTimerParentSurfaceReadModel(events),
   };
 }
@@ -254,6 +258,23 @@ function resolveAppGameTimerParentSurfaceReadModel(events: readonly AgentEventEn
   return {
     appGameTimerParentSurfaceEvent: event,
     appGameTimerParentSurfaceReadModel: event === null ? null : parseAgentAppGameTimerParentSurfaceEvent(event),
+  };
+}
+
+function resolveAppGameAdapterExecutionReadinessReadModel(events: readonly AgentEventEnvelope[]) {
+  const event = latestEvent(events, AgentEvent.ActivityAppGameAdapterExecutionReadinessReadModelReported);
+  return {
+    appGameAdapterExecutionReadinessEvent: event,
+    appGameAdapterExecutionReadinessReadModel:
+      event === null ? null : parseAgentAppGameAdapterExecutionReadinessEvent(event),
+  };
+}
+
+function resolveAppGamePolicyReadinessReadModel(events: readonly AgentEventEnvelope[]) {
+  const event = latestEvent(events, AgentEvent.ActivityAppGamePolicyReadinessReadModelReported);
+  return {
+    appGamePolicyReadinessEvent: event,
+    appGamePolicyReadinessReadModel: event === null ? null : parseAgentAppGamePolicyReadinessEvent(event),
   };
 }
 

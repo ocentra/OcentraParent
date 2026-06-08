@@ -476,6 +476,12 @@ describe('portal command contracts', () => {
     expect(PortalCommandButtons.map((button) => button.resultEvent)).toContain(
       'agent.policy.preview.read-model.reported'
     );
+    expect(PortalCommandButtons.map((button) => button.command)).toContain(
+      'agent.activity.app-game.adapter-execution-readiness.read-model.get'
+    );
+    expect(PortalCommandButtons.map((button) => button.resultEvent)).toContain(
+      'agent.activity.app-game.adapter-execution-readiness.read-model.reported'
+    );
     expect(PortalOverviewCommands.map((button) => button.command)).toEqual([
       'agent.health.check',
       'agent.log.snapshot.get',
@@ -492,6 +498,7 @@ describe('portal command contracts', () => {
       'agent.activity.browser.read-model.get',
       'agent.activity.games.read-model.get',
       'agent.activity.app-game.notification-readiness.read-model.get',
+      'agent.activity.app-game.adapter-execution-readiness.read-model.get',
       'agent.activity.network.read-model.get',
       'agent.browser.intervention.read-model.get',
       'agent.network.flow.read-model.get',

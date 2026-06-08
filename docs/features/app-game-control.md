@@ -128,6 +128,14 @@ control with better evidence and local audit.
   claim to Windows owned-process time-limit support with evidence, timer,
   rollback, and audit references while keeping package-wide app blocking
   manual-required.
+- The app/game adapter execution readiness live surface now carries that
+  supported-adapter proof through TypeScript protocol parsing, Rust
+  command/event parity, the agent-service WebSocket path, portal command
+  contracts, portal live state, and a parent-safe panel intent. It keeps only
+  the scoped Windows owned-process time-limit row execution-allowed and keeps
+  broad installed-app blocking, platform enforcement, provider delivery,
+  child-device delivery, raw private rows/targets, and private diagnostics
+  unclaimed.
 - The Windows owned-process time-limit proof now extends that same real-service
   harness with dry-run and stale-action negative paths while preserving the
   manual-required boundary for broad package/app blocking.

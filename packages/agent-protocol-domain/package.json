@@ -57,6 +57,10 @@
       "import": "./dist/app-game-notification-readiness.js",
       "types": "./dist/app-game-notification-readiness.d.ts"
     },
+    "./app-game-adapter-execution-readiness": {
+      "import": "./dist/app-game-adapter-execution-readiness.js",
+      "types": "./dist/app-game-adapter-execution-readiness.d.ts"
+    },
     "./app-game-timer-parent-surface-read-model": {
       "import": "./dist/app-game-timer-parent-surface-read-model.js",
       "types": "./dist/app-game-timer-parent-surface-read-model.d.ts"

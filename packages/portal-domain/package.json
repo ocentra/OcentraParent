@@ -5,6 +5,10 @@
   "type": "module",
   "description": "Portal route, DOM, and development UI contracts.",
   "exports": {
+    "./app-game-adapter-execution-readiness-panel": {
+      "import": "./dist/app-game-adapter-execution-readiness-panel.js",
+      "types": "./dist/app-game-adapter-execution-readiness-panel.d.ts"
+    },
     "./contracts": {
       "import": "./dist/contracts.js",
       "types": "./dist/contracts.d.ts"
