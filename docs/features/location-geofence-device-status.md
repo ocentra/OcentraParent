@@ -813,6 +813,12 @@ accessibility beyond the hosted parent route are proved.
       runtime, production durable outbox storage, retry/quiet-hours worker
       execution, child-device delivery, physical-device proof, authority, or
       product-ready notification behavior.
+- [x] Tracking authority runtime artifact gate. This consumes the existing
+      authority enrollment/manual-required and runtime-readiness blocker proofs,
+      classifies the required enrolled-device authority evidence artifacts as
+      present or missing, and keeps authority enrollment, hard-control runtime,
+      parent-visible authority status, physical-device, production worker, and
+      product-ready claims false.
 - [x] Hosted notification parent-surface history UI proof renders those rows on
       the hosted parent `policy-tracking` route with screenshot/accessibility
       evidence. This is not parent preference mutation, quiet-hours runtime,

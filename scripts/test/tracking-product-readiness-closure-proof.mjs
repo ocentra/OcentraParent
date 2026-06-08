@@ -51,6 +51,10 @@ const sourceProofs = [
     'output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-gate/55-authority-runtime-readiness-blocker-proof.json'
   ),
   sourceProof(
+    'authority-runtime-artifact-gate',
+    'output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-gate/61-authority-runtime-artifact-gate-proof.json'
+  ),
+  sourceProof(
     'child-runtime-artifact-gate',
     'output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-gate/50-child-runtime-artifact-gate-proof.json'
   ),
