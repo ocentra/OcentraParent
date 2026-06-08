@@ -155,6 +155,7 @@ before `DONE` or PR-ready reporting.
 147. WP156 app/game timer parent-surface parent preference setup provider delivery receipt tracking.
 148. WP157 app/game timer parent-surface parent preference setup provider delivery receipt-ingested boundary.
 149. WP158 app/game timer parent-surface parent preference setup provider delivery aggregate surface.
+150. WP159 app/game malicious metadata safety gate.
 
 ## Standard AI Worker Checklist
 

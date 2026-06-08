@@ -1,4 +1,7 @@
 import { describe, expect, it } from 'vitest';
+import { readFileSync } from 'node:fs';
+import { createElement } from 'react';
+import { renderToStaticMarkup } from 'react-dom/server';
 import { ActivitySurfaceSchemaVersion } from '@ocentra-parent/activity-domain/activity-surface';
 import { createParentPortalActivityUiIntent } from '../../../vendor/ocentra-parent-core-ui/AppPages/ParentPortal/activity-ui-intent';
 
@@ -27,6 +30,37 @@ describe('parent portal app/game dashboard intent', () => {
     );
 
     expectPopulatedDashboard(intent.appGameDashboard);
+  });
+
+  it('renders malicious app/game metadata as escaped bounded text', () => {
+    const intent = createParentPortalActivityUiIntent(
+      {
+        activityAppUseReadModel: adapterResult(appUseReadModel()),
+        activityGamesReadModel: adapterResult(gamesReadModel()),
+      },
+      3
+    );
+    const maliciousLabel = String(
+      intent.appGameDashboard.rows.find((row) => row.rowId === 'app-row-malicious-name')?.label
+    );
+    const markup = renderToStaticMarkup(createElement('svg', null, createElement('text', null, maliciousLabel)));
+    const rendererSource = readFileSync(
+      new URL(
+        '../../../vendor/ocentra-parent-core-ui/AppPages/ParentPortal/ParentPortalSvgSurface.tsx',
+        import.meta.url
+      ),
+      'utf8'
+    );
+
+    expect(markup).toContain('VPN Proxy Portable');
+    expect(markup).toContain('&lt;script&gt;alert(1)&lt;/script&gt;');
+    expect(markup).not.toContain('<script>alert(1)</script>');
+    expect(markup).not.toContain('<script');
+    expect(markup).not.toContain('dangerouslySetInnerHTML');
+    expect(rendererSource).toContain('{truncateTextForWidth(row.label, w - 28, titleSize, 0.58)}');
+    expect(rendererSource).not.toContain('dangerouslySetInnerHTML');
+    expect(markup).not.toContain('C:\\Users\\child\\AppData\\Local\\Study Timer\\study-timer.exe');
+    expect(markup).not.toContain('C:\\Program Files\\VoxelQuest\\VoxelQuest.exe');
   });
 
   it('does not create dashboard rows when app/game adapter data is absent or failed', () => {

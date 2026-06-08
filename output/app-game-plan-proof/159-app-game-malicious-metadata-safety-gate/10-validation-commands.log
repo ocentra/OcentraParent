@@ -1,0 +1,14 @@
+cmd /c npm run test --workspace @ocentra-parent/portal -- --run tests/activity-ui-app-game-dashboard-intent.test.ts
+PASS
+Test Files: 19 passed (19)
+Tests: 80 passed (80)
+Note: existing Vite esbuild/oxc deprecation warnings printed.
+
+git diff --check
+PASS
+
+cmd /c npm run lanes:guard
+PASS
+
+cmd /c npm run hub:guard
+PASS
