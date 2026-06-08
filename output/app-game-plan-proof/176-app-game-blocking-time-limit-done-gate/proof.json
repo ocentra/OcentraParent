@@ -1,0 +1,48 @@
+{
+  "schemaVersion": 1,
+  "proofMode": "app-game-blocking-time-limit-done-gate-proof",
+  "checkedAt": "2026-06-08T13:39:31.790Z",
+  "commit": "c6a3c08948700c27a4c1087ce76f767f78649a33",
+  "commands": [
+    "node scripts/test/app-game-scoped-adapter-dispatch-execute-command-proof.mjs",
+    "node scripts/test/app-game-scoped-adapter-dispatch-parent-action-surface-proof.mjs",
+    "node scripts/test/app-game-broad-blocking-proof-gates.mjs"
+  ],
+  "sourceProofs": {
+    "scopedExecute": "output/app-game-plan-proof/173-app-game-scoped-adapter-dispatch-execute-command/proof.json",
+    "parentAction": "output/app-game-plan-proof/175-app-game-scoped-adapter-dispatch-parent-action-surface/proof.json",
+    "broadBlocking": "output/app-game-plan-proof/23-broad-blocking-proof-gates/03-runtime-evidence.json"
+  },
+  "summary": {
+    "scopedWindowsOwnedProcessTimeLimitReady": true,
+    "parentActionRequiresExplicitClick": true,
+    "readModelCommandsSideEffectFree": true,
+    "broadInstalledAppBlockingClaimed": false,
+    "broadBlockingAdapterCallsAllowed": 0,
+    "broadBlockingDispatchEligibleRows": 0,
+    "platformEnforcementClaimedOutsideScopedWindowsOwnedProcess": false,
+    "providerDeliveryClaimed": false,
+    "childDeviceDeliveryClaimed": false,
+    "rawPrivateRowsOrTargetsClaimed": false,
+    "privateDiagnosticsClaimed": false
+  },
+  "doneGateDecision": {
+    "featureDocItemClosed": true,
+    "centralProductChecklistUpdated": false,
+    "centralProductChecklistReason": "This closes the app-game feature-local blocking/time-limit done gate without changing the central product capability row while another lane may own checklist churn.",
+    "remainingNoClaims": [
+      "broad installed-app blocking execution",
+      "non-scoped platform enforcement",
+      "provider delivery or provider receipt ingestion",
+      "child-device runtime delivery",
+      "raw private source rows or target values",
+      "private diagnostics"
+    ]
+  },
+  "claimsProved": [
+    "the scoped Windows owned-process app/game timer path can run the typed manual adapter-dispatch execute command",
+    "the App/Game Sessions parent surface exposes execution only as an explicit parent action",
+    "side-effect-free read-model refresh commands do not execute adapter dispatch",
+    "broad/platform blocking gates still have zero dispatch-eligible rows and zero adapter calls"
+  ]
+}

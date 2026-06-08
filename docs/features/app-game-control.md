@@ -1612,10 +1612,18 @@ diagnostics, or raw private source rows.
       keeping overview polling, broad installed-app blocking, non-scoped
       platform enforcement, provider delivery, child-device delivery, raw
       private rows, raw targets, and private diagnostics unclaimed.
-- [ ] Blocking/time-limit proof before done claim. Scoped owned-process
+- [x] Blocking/time-limit proof before done claim. Scoped owned-process
       time-limit proof exists; broad block-launch/hide/suspend/shield and
       allowlist remain manual-required or not-claimed until platform setup,
       authority-tier, rollback, audit, and platform proof are attached.
+      The feature-local done gate now aggregates the scoped
+      `agent.activity.app-game.adapter-dispatch.execute` proof, the explicit
+      App/Game Sessions parent action proof, and the broad-blocking
+      manual-required/not-claimed gate proof. The gate fails if read-model
+      refresh executes, if broad installed-app blocking gains a dispatch row or
+      adapter call, or if non-scoped platform enforcement, provider delivery,
+      child-device delivery, raw private rows/targets, or private diagnostics
+      become claimed.
 
 ## Next AI Instructions
 

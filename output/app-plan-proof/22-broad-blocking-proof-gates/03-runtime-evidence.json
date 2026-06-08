@@ -1,8 +1,8 @@
 {
   "schemaVersion": 1,
   "proofMode": "app-game-broad-blocking-proof-gates",
-  "checkedAt": "2026-06-03T10:34:42.775Z",
-  "commit": "5d5264e525150c0c1691a9802c623cba92cd511f",
+  "checkedAt": "2026-06-08T13:39:31.734Z",
+  "commit": "c6a3c08948700c27a4c1087ce76f767f78649a33",
   "commands": [
     "cmd /c npm run build:contracts",
     "cmd /c npm run test --workspace @ocentra-parent/parent-domain -- app-game-broad-blocking-proof-gates app-game-control-platform-authority app-game-policy-target-compiler"

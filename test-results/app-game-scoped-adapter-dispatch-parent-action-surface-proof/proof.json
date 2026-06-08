@@ -1,8 +1,8 @@
 {
   "schemaVersion": 1,
   "proofMode": "app-game-scoped-adapter-dispatch-parent-action-surface-proof",
-  "checkedAt": "2026-06-08T13:30:21.912Z",
-  "commit": "7ef7f660ad7efc8e6388b5a0d07eea6742de6fad",
+  "checkedAt": "2026-06-08T13:39:17.972Z",
+  "commit": "c6a3c08948700c27a4c1087ce76f767f78649a33",
   "commands": [
     "cmd /c npm run build:contracts",
     "cmd /c npm run test --workspace @ocentra-parent/portal-domain -- app-game-adapter-dispatch-result-panel",

@@ -172,6 +172,7 @@ before `DONE` or PR-ready reporting.
 164. WP173 app/game scoped adapter dispatch execute command.
 165. WP174 app/game scoped adapter dispatch executed parent surface.
 166. WP175 app/game scoped adapter dispatch parent action surface.
+167. WP176 app/game blocking time-limit done gate.
 
 ## Standard AI Worker Checklist
 
