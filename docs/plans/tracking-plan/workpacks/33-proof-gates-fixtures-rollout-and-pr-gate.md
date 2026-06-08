@@ -1490,7 +1490,7 @@ tracking-claim-audit-proof tracking-product-readiness-closure-proof`
 - [x] Android physical-device runtime refresh: Samsung S9 proof now uses debug
       APK push plus on-device package-manager install, verifies
       foreground-service `ServiceRecord` with `isForeground=true`, records
-      3,194 foreground-service-backed background GPS samples, app-owned
+      4,177 foreground-service-backed background GPS samples, app-owned
       geofence registration, Android proximity registration metadata, and 20
       supporting status/sample artifacts. Physical artifact gate and evidence
       review now carry those 20 supporting artifacts while keeping the Android

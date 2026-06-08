@@ -92,15 +92,17 @@ WINDOW MANAGER ANIMATOR STATE (dumpsys window animator)
       Window #2: WindowStateAnimator{de8b502 com.sec.android.daemonapp/com.samsung.android.weather.app.locations.activity.WXLocationsActivity}
       Window #3: WindowStateAnimator{a1dd3c0 com.sec.android.app.sbrowser/com.sec.android.app.sbrowser.SBrowserMainActivity}
       Window #4: WindowStateAnimator{bb7d8f9 com.sec.android.app.launcher/com.android.quickstep.RecentsActivity}
-      Window #5: WindowStateAnimator{af9703e com.linkedin.android/com.linkedin.android.authenticator.LaunchActivityDefault}
-      Window #6: WindowStateAnimator{4c7de13 com.microsoft.launcher/com.microsoft.launcher.Launcher}
-      Window #7: WindowStateAnimator{ed5aeda ca.ocentra.parent.agent/ca.ocentra.parent.agent.MainActivity}
-      Window #8: WindowStateAnimator{3739a49 DockedStackDivider}
-      Window #9: WindowStateAnimator{eb11f4e AssistPreviewPanel}
-      Window #10: WindowStateAnimator{d48486f StatusBar}
-      Window #11: WindowStateAnimator{2b2d97c Bouncer}
-      Window #12: WindowStateAnimator{6529205 NavigationBar0}
-      Window #13: WindowStateAnimator{3060bc9 InputMethod}
+      Window #5: WindowStateAnimator{4fa05c7 com.github.android/com.github.android.main.MainActivity}
+      Window #6: WindowStateAnimator{bd02b1d com.ocentra.parent.browser/ca.ocentra.parent.browser.OcentraOwnedBrowserShellActivity}
+      Window #7: WindowStateAnimator{b2147f4 com.linkedin.android/com.linkedin.android.infra.navigation.MainActivity}
+      Window #8: WindowStateAnimator{4c7de13 com.microsoft.launcher/com.microsoft.launcher.Launcher}
+      Window #9: WindowStateAnimator{a805744 ca.ocentra.parent.agent/ca.ocentra.parent.agent.MainActivity}
+      Window #10: WindowStateAnimator{3739a49 DockedStackDivider}
+      Window #11: WindowStateAnimator{eb11f4e AssistPreviewPanel}
+      Window #12: WindowStateAnimator{d48486f StatusBar}
+      Window #13: WindowStateAnimator{2b2d97c Bouncer}
+      Window #14: WindowStateAnimator{6529205 NavigationBar0}
+      Window #15: WindowStateAnimator{3060bc9 InputMethod}
 
 
     mBulkUpdateParams=0x4 ORIENTATION_CHANGE_COMPLETE
@@ -109,12 +111,6 @@ WINDOW MANAGER SESSIONS (dumpsys window sessions)
   Session Session{b19297 2052:u0a10052}:
     mNumWindow=6 mCanAddInternalSystemWindow=true mAppOverlaySurfaces=[] mAlertWindowSurfaces=[] mClientDead=false mSurfaceSession=android.view.SurfaceSession@e83e25a
     mPackageName=com.android.systemui
-  Session Session{20e6d6f 11181:u0a10259}:
-    mNumWindow=1 mCanAddInternalSystemWindow=false mAppOverlaySurfaces=[] mAlertWindowSurfaces=[] mClientDead=false mSurfaceSession=android.view.SurfaceSession@2de0f0b
-    mPackageName=ca.ocentra.parent.agent
-  Session Session{21588b4 16287:u0a10294}:
-    mNumWindow=1 mCanAddInternalSystemWindow=false mAppOverlaySurfaces=[] mAlertWindowSurfaces=[] mClientDead=false mSurfaceSession=android.view.SurfaceSession@6140bb5
-    mPackageName=com.linkedin.android
   Session Session{2466f8f 24023:u0a10246}:
     mNumWindow=1 mCanAddInternalSystemWindow=false mAppOverlaySurfaces=[] mAlertWindowSurfaces=[] mClientDead=false mSurfaceSession=android.view.SurfaceSession@518524a
     mPackageName=com.sec.android.app.sbrowser
@@ -133,12 +129,24 @@ WINDOW MANAGER SESSIONS (dumpsys window sessions)
   Session Session{834c7a1 1975:u0a10298}:
     mNumWindow=1 mCanAddInternalSystemWindow=false mAppOverlaySurfaces=[] mAlertWindowSurfaces=[] mClientDead=false mSurfaceSession=android.view.SurfaceSession@5aadc14
     mPackageName=com.microsoft.launcher
+  Session Session{850e0a3 32390:u0a10259}:
+    mNumWindow=1 mCanAddInternalSystemWindow=false mAppOverlaySurfaces=[] mAlertWindowSurfaces=[] mClientDead=false mSurfaceSession=android.view.SurfaceSession@5d4102d
+    mPackageName=ca.ocentra.parent.agent
+  Session Session{920dd3a 28228:u0a10284}:
+    mNumWindow=1 mCanAddInternalSystemWindow=false mAppOverlaySurfaces=[] mAlertWindowSurfaces=[] mClientDead=false mSurfaceSession=android.view.SurfaceSession@a336192
+    mPackageName=com.github.android
   Session Session{a50e0a6 2519:u0a10146}:
     mNumWindow=1 mCanAddInternalSystemWindow=false mAppOverlaySurfaces=[] mAlertWindowSurfaces=[] mClientDead=false mSurfaceSession=android.view.SurfaceSession@3a9c5bb
     mPackageName=com.sec.android.app.launcher
   Session Session{a51596c 19655:u0a10196}:
     mNumWindow=1 mCanAddInternalSystemWindow=true mAppOverlaySurfaces=[] mAlertWindowSurfaces=[] mClientDead=false mSurfaceSession=android.view.SurfaceSession@7a072ce
     mPackageName=com.samsung.android.honeyboard
+  Session Session{a5c6c94 30382:u0a10261}:
+    mNumWindow=1 mCanAddInternalSystemWindow=false mAppOverlaySurfaces=[] mAlertWindowSurfaces=[] mClientDead=false mSurfaceSession=android.view.SurfaceSession@8873763
+    mPackageName=com.ocentra.parent.browser
+  Session Session{d844244 29304:u0a10294}:
+    mNumWindow=1 mCanAddInternalSystemWindow=false mAppOverlaySurfaces=[] mAlertWindowSurfaces=[] mClientDead=false mSurfaceSession=android.view.SurfaceSession@e04ef60
+    mPackageName=com.linkedin.android
 
 WINDOW MANAGER DISPLAY CONTENTS (dumpsys window displays)
   Display: mDisplayId=0
@@ -148,10 +156,10 @@ WINDOW MANAGER DISPLAY CONTENTS (dumpsys window displays)
     initCutout=null
     baseCutout=null
 
-  mLayoutSeq=2197
+  mLayoutSeq=2723
   mDeferredRotationPauseCount=0
   mCurrentFocus=Window{7c6e11 u0 StatusBar}
-  mFocusedApp=AppWindowToken{d66fc0c token=Token{c241b3f ActivityRecord{e403b5e u0 ca.ocentra.parent.agent/.MainActivity t235}}}
+  mFocusedApp=AppWindowToken{f7a4a18 token=Token{512e9fb ActivityRecord{a1a5f8a u0 ca.ocentra.parent.agent/.MainActivity t251}}}
   mLastStatusBarVisibility=0x8008
 
   displayId=0
@@ -161,20 +169,20 @@ WINDOW MANAGER DISPLAY CONTENTS (dumpsys window displays)
 mSystemGestureExclusion=<no lstnrs>
 
   Application tokens in top down Z order:
-    mStackId=35
+    mStackId=51
     mDeferRemoval=false
     mBounds=[0,0][1080,2220]
-      taskId=235
+      taskId=251
         mBounds=[0,0][1080,2220]
         mdr=false
-        appTokens=[AppWindowToken{d66fc0c token=Token{c241b3f ActivityRecord{e403b5e u0 ca.ocentra.parent.agent/.MainActivity t235}}}]
+        appTokens=[AppWindowToken{f7a4a18 token=Token{512e9fb ActivityRecord{a1a5f8a u0 ca.ocentra.parent.agent/.MainActivity t251}}}]
         mDisplayedBounds=[0,0][0,0]
-          Activity #0 AppWindowToken{d66fc0c token=Token{c241b3f ActivityRecord{e403b5e u0 ca.ocentra.parent.agent/.MainActivity t235}}}
-            windows=[Window{2c80b5a u0 ca.ocentra.parent.agent/ca.ocentra.parent.agent.MainActivity}]
+          Activity #0 AppWindowToken{f7a4a18 token=Token{512e9fb ActivityRecord{a1a5f8a u0 ca.ocentra.parent.agent/.MainActivity t251}}}
+            windows=[Window{3d59f2a u0 ca.ocentra.parent.agent/ca.ocentra.parent.agent.MainActivity}]
             windowType=2 hidden=true hasVisible=true
             app=true mVoiceInteraction=false
             component=ca.ocentra.parent.agent/.MainActivity
-            task={taskId=235 appTokens=[AppWindowToken{d66fc0c token=Token{c241b3f ActivityRecord{e403b5e u0 ca.ocentra.parent.agent/.MainActivity t235}}}] mdr=false}
+            task={taskId=251 appTokens=[AppWindowToken{f7a4a18 token=Token{512e9fb ActivityRecord{a1a5f8a u0 ca.ocentra.parent.agent/.MainActivity t251}}}] mdr=false}
              mFillsParent=true mOrientation=-1
             hiddenRequested=true mClientHidden=true reportedDrawn=false reportedVisible=false
             mAppStopped=true
@@ -204,14 +212,52 @@ mSystemGestureExclusion=<no lstnrs>
       taskId=226
         mBounds=[0,0][1080,2220]
         mdr=false
-        appTokens=[AppWindowToken{87d24b1 token=Token{86e9b58 ActivityRecord{b4cb83b u0 com.linkedin.android/.authenticator.LaunchActivityDefault t226}}}]
+        appTokens=[AppWindowToken{f468cbd token=Token{113ac14 ActivityRecord{aa4e667 u0 com.linkedin.android/.infra.navigation.MainActivity t226}}}]
         mDisplayedBounds=[0,0][0,0]
-          Activity #0 AppWindowToken{87d24b1 token=Token{86e9b58 ActivityRecord{b4cb83b u0 com.linkedin.android/.authenticator.LaunchActivityDefault t226}}}
-            windows=[Window{85ff23 u0 com.linkedin.android/com.linkedin.android.authenticator.LaunchActivityDefault}]
+          Activity #0 AppWindowToken{f468cbd token=Token{113ac14 ActivityRecord{aa4e667 u0 com.linkedin.android/.infra.navigation.MainActivity t226}}}
+            windows=[Window{f8f11d0 u0 com.linkedin.android/com.linkedin.android.infra.navigation.MainActivity}]
             windowType=2 hidden=true hasVisible=true
             app=true mVoiceInteraction=false
             component=com.linkedin.android/.infra.navigation.MainActivity
-            task={taskId=226 appTokens=[AppWindowToken{87d24b1 token=Token{86e9b58 ActivityRecord{b4cb83b u0 com.linkedin.android/.authenticator.LaunchActivityDefault t226}}}] mdr=false}
+            task={taskId=226 appTokens=[AppWindowToken{f468cbd token=Token{113ac14 ActivityRecord{aa4e667 u0 com.linkedin.android/.infra.navigation.MainActivity t226}}}] mdr=false}
+             mFillsParent=true mOrientation=-1
+            hiddenRequested=true mClientHidden=true reportedDrawn=false reportedVisible=false
+            mAppStopped=true
+            mNumInterestingWindows=1 mNumDrawnWindows=1 inPendingTransaction=false allDrawn=true lastAllDrawn=true)
+            startingData=null removed=false firstWindowDrawn=true mIsExiting=false
+    mStackId=49
+    mDeferRemoval=false
+    mBounds=[0,0][1080,2220]
+      taskId=249
+        mBounds=[0,0][1080,2220]
+        mdr=false
+        appTokens=[AppWindowToken{c20e6aa token=Token{60ab595 ActivityRecord{20e114c u0 com.ocentra.parent.browser/ca.ocentra.parent.browser.OcentraOwnedBrowserShellActivity t249}}}]
+        mDisplayedBounds=[0,0][0,0]
+          Activity #0 AppWindowToken{c20e6aa token=Token{60ab595 ActivityRecord{20e114c u0 com.ocentra.parent.browser/ca.ocentra.parent.browser.OcentraOwnedBrowserShellActivity t249}}}
+            windows=[Window{4f0dcf5 u0 com.ocentra.parent.browser/ca.ocentra.parent.browser.OcentraOwnedBrowserShellActivity}]
+            windowType=2 hidden=true hasVisible=true
+            app=true mVoiceInteraction=false
+            component=com.ocentra.parent.browser/ca.ocentra.parent.browser.OcentraOwnedBrowserShellActivity
+            task={taskId=249 appTokens=[AppWindowToken{c20e6aa token=Token{60ab595 ActivityRecord{20e114c u0 com.ocentra.parent.browser/ca.ocentra.parent.browser.OcentraOwnedBrowserShellActivity t249}}}] mdr=false}
+             mFillsParent=true mOrientation=-1
+            hiddenRequested=true mClientHidden=true reportedDrawn=false reportedVisible=false
+            mAppStopped=true
+            mNumInterestingWindows=1 mNumDrawnWindows=1 inPendingTransaction=false allDrawn=true lastAllDrawn=true)
+            startingData=null removed=false firstWindowDrawn=true mIsExiting=false
+    mStackId=48
+    mDeferRemoval=false
+    mBounds=[0,0][1080,2220]
+      taskId=248
+        mBounds=[0,0][1080,2220]
+        mdr=false
+        appTokens=[AppWindowToken{7e7be74 token=Token{8e4647 ActivityRecord{a6b8d86 u0 com.github.android/.main.MainActivity t248}}}]
+        mDisplayedBounds=[0,0][0,0]
+          Activity #0 AppWindowToken{7e7be74 token=Token{8e4647 ActivityRecord{a6b8d86 u0 com.github.android/.main.MainActivity t248}}}
+            windows=[Window{30929e1 u0 com.github.android/com.github.android.main.MainActivity}]
+            windowType=2 hidden=true hasVisible=true
+            app=true mVoiceInteraction=false
+            component=com.github.android/.main.MainActivity
+            task={taskId=248 appTokens=[AppWindowToken{7e7be74 token=Token{8e4647 ActivityRecord{a6b8d86 u0 com.github.android/.main.MainActivity t248}}}] mdr=false}
              mFillsParent=true mOrientation=-1
             hiddenRequested=true mClientHidden=true reportedDrawn=false reportedVisible=false
             mAppStopped=true
@@ -452,22 +498,24 @@ WINDOW MANAGER TOKENS (dumpsys window tokens)
   Display #0
   AppWindowToken{a584450 token=Token{5d00a13 ActivityRecord{2861102 u0 com.sec.android.app.camera/.Camera t206}}}
   AppWindowToken{7de2eaa token=Token{d01d95 ActivityRecord{68194c u0 com.sec.android.daemonapp/com.samsung.android.weather.app.locations.activity.WXLocationsActivity t209}}}
+  AppWindowToken{f468cbd token=Token{113ac14 ActivityRecord{aa4e667 u0 com.linkedin.android/.infra.navigation.MainActivity t226}}}
+  WindowToken{369f0d5 android.os.Binder@544318c}
+  AppWindowToken{7e7be74 token=Token{8e4647 ActivityRecord{a6b8d86 u0 com.github.android/.main.MainActivity t248}}}
+  AppWindowToken{f7a4a18 token=Token{512e9fb ActivityRecord{a1a5f8a u0 ca.ocentra.parent.agent/.MainActivity t251}}}
   WindowToken{cb3e3d2 android.os.BinderProxy@8def034}
   WindowToken{ee1ae38 android.os.BinderProxy@384deaa}
   WindowToken{dadaded android.os.Binder@6ead404}
   AppWindowToken{22baaff token=Token{1f1321e ActivityRecord{54ff659 u0 com.microsoft.launcher/.Launcher t204}}}
   AppWindowToken{8c03d28 token=Token{a5b7f4b ActivityRecord{79db81a u0 com.google.android.gm/.ConversationListActivityGmail t224}}}
   WindowToken{2545ce3 android.os.BinderProxy@388749d}
-  AppWindowToken{87d24b1 token=Token{86e9b58 ActivityRecord{b4cb83b u0 com.linkedin.android/.authenticator.LaunchActivityDefault t226}}}
   WallpaperWindowToken{858a6a2 token=android.os.Binder@f7a1a6d}
+  WindowToken{8c5c577 android.os.Binder@3c1cb76}
   WindowToken{b784f90 android.os.BinderProxy@c3bda42}
   AppWindowToken{e6c3b36 token=Token{58b94d1 ActivityRecord{72e37f8 u0 com.sec.android.app.launcher/com.android.quickstep.RecentsActivity t227}}}
   AppWindowToken{c8d88fb token=Token{4701a8a ActivityRecord{ec8ccf5 u0 com.google.android.gm/com.google.android.libraries.user.peoplesheet.ui.view.PeopleSheetActivity t224}}}
-  WindowToken{df9bcff android.os.Binder@6c44c1e}
-  AppWindowToken{d66fc0c token=Token{c241b3f ActivityRecord{e403b5e u0 ca.ocentra.parent.agent/.MainActivity t235}}}
   WindowToken{9dd7577 android.os.BinderProxy@aa3b76}
   AppWindowToken{47d4715 token=Token{651f8cc ActivityRecord{d9e12ff u0 com.sec.android.app.sbrowser/.SBrowserMainActivity t228}}}
-  WindowToken{9e2affd android.os.Binder@e495454}
+  AppWindowToken{c20e6aa token=Token{60ab595 ActivityRecord{20e114c u0 com.ocentra.parent.browser/ca.ocentra.parent.browser.OcentraOwnedBrowserShellActivity t249}}}
 
 WINDOW MANAGER WINDOWS (dumpsys window windows)
   Window #0 Window{51f45b1 u0 InputMethod}:
@@ -475,12 +523,12 @@ WINDOW MANAGER WINDOWS (dumpsys window windows)
     mOwnerUid=10196 mShowToOwnerOnly=true package=com.samsung.android.honeyboard appop=SYSTEM_INTERNAL_WINDOW
     mAttrs={(0,0)(fillxwrap) gr=BOTTOM CENTER_VERTICAL sim={adjust=pan} ty=INPUT_METHOD fmt=TRANSPARENT wanim=0x7f13012f
       fl=81800108 dimDuration=150 naviIconColor=0}
-    Requested w=1080 h=2139 mLayoutSeq=2004
+    Requested w=1080 h=2139 mLayoutSeq=2688
     mIsImWindow=true mIsWallpaper=false mIsFloatingLayer=true mWallpaperVisible=false
     mPolicyVisibility=false mLegacyPolicyVisibilityAfterAnim=false mAppOpVisibility=true parentHidden=false mPermanentlyHidden=false mHiddenWhileSuspended=false mForceHideNonSystemOverlayWindow=false
     mHasSurface=false isReadyForDisplay()=false mWindowRemovalAllowed=false
     WindowStateAnimator{3060bc9 InputMethod}:
-    mForceSeamlesslyRotate=false seamlesslyRotate: pending=null finishedFrameNumber=0
+       mAnimationIsEntrance=true    mForceSeamlesslyRotate=false seamlesslyRotate: pending=null finishedFrameNumber=0
     isOnScreen=false
     isVisible=false
     mIsPortraitSystemWindow=false
@@ -494,7 +542,7 @@ WINDOW MANAGER WINDOWS (dumpsys window windows)
     mAttrs={(0,0)(fillxfill) sim={adjust=pan} ty=NAVIGATION_BAR fmt=TRANSLUCENT
       fl=21840068
       pfl=1000000 naviIconColor=0}
-    Requested w=1080 h=162 mLayoutSeq=2195
+    Requested w=1080 h=162 mLayoutSeq=2721
     mHasSurface=false isReadyForDisplay()=false mWindowRemovalAllowed=false
     WindowStateAnimator{6529205 NavigationBar0}:
        mAnimationIsEntrance=true    mLastFreezeDuration=+18s871ms
@@ -513,7 +561,7 @@ WINDOW MANAGER WINDOWS (dumpsys window windows)
       fl=85000548
       vsysui=500 dimAmount=0.0 screenDimDuration=0 naviIconColor=0
       sfl=40000}
-    Requested w=1080 h=0 mLayoutSeq=2197
+    Requested w=1080 h=0 mLayoutSeq=2723
     mPolicyVisibility=false mLegacyPolicyVisibilityAfterAnim=false mAppOpVisibility=true parentHidden=false mPermanentlyHidden=false mHiddenWhileSuspended=false mForceHideNonSystemOverlayWindow=false
     mHasSurface=false isReadyForDisplay()=false mWindowRemovalAllowed=false
     WindowStateAnimator{2b2d97c Bouncer}:
@@ -532,11 +580,11 @@ WINDOW MANAGER WINDOWS (dumpsys window windows)
       fl=81860040
       pfl=880400 dimAmount=0.0 screenDimDuration=0 naviIconColor=0
       sfl=40000}
-    Requested w=1080 h=2220 mLayoutSeq=2197
+    Requested w=1080 h=2220 mLayoutSeq=2723
     mHasSurface=true isReadyForDisplay()=true mWindowRemovalAllowed=false
     WindowStateAnimator{d48486f StatusBar}:
        mAnimationIsEntrance=true      Surface: shown=true layer=0 alpha=1.0 rect=(0.0,0.0) 1080 x 2220 transform=(1.0, 0.0, 1.0, 0.0)
-    mLastFreezeDuration=+5h8m39s669ms
+    mLastFreezeDuration=+6h53m4s231ms
     mForceSeamlesslyRotate=false seamlesslyRotate: pending=null finishedFrameNumber=0
     mDrawLock=WakeLock{bfc62b2 held=false, refCount=17}
     isOnScreen=true
@@ -572,7 +620,7 @@ WINDOW MANAGER WINDOWS (dumpsys window windows)
       fl=21840028
       pfl=40
       vsysui=700 naviIconColor=0}
-    Requested w=1080 h=169 mLayoutSeq=2197
+    Requested w=1080 h=169 mLayoutSeq=2723
     mPolicyVisibility=false mLegacyPolicyVisibilityAfterAnim=false mAppOpVisibility=true parentHidden=false mPermanentlyHidden=false mHiddenWhileSuspended=false mForceHideNonSystemOverlayWindow=false
     mHasSurface=false isReadyForDisplay()=false mWindowRemovalAllowed=false
     WindowStateAnimator{3739a49 DockedStackDivider}:
@@ -585,16 +633,16 @@ WINDOW MANAGER WINDOWS (dumpsys window windows)
     mPendingPolicyVisibility=false
     mIsTspNoteMode=false
     mHiddenWhileProfileLockedState=false
-  Window #6 Window{2c80b5a u0 ca.ocentra.parent.agent/ca.ocentra.parent.agent.MainActivity}:
-    mDisplayId=0 stackId=35 mSession=Session{20e6d6f 11181:u0a10259} mClient=android.os.BinderProxy@7d9bf05
+  Window #6 Window{3d59f2a u0 ca.ocentra.parent.agent/ca.ocentra.parent.agent.MainActivity}:
+    mDisplayId=0 stackId=51 mSession=Session{850e0a3 32390:u0a10259} mClient=android.os.BinderProxy@a350015
     mOwnerUid=10259 mShowToOwnerOnly=true package=ca.ocentra.parent.agent appop=NONE
     mAttrs={(0,0)(fillxfill) sim={adjust=pan forwardNavigation} ty=BASE_APPLICATION wanim=0x1030305
       fl=81810100
       pfl=10020000
       vsysui=10 naviIconColor=0}
-    Requested w=0 h=0 mLayoutSeq=2189
+    Requested w=0 h=0 mLayoutSeq=2715
     mHasSurface=false isReadyForDisplay()=false mWindowRemovalAllowed=false
-    WindowStateAnimator{ed5aeda ca.ocentra.parent.agent/ca.ocentra.parent.agent.MainActivity}:
+    WindowStateAnimator{a805744 ca.ocentra.parent.agent/ca.ocentra.parent.agent.MainActivity}:
       mShownAlpha=0.0 mAlpha=1.0 mLastAlpha=0.0
     mForceSeamlesslyRotate=false seamlesslyRotate: pending=null finishedFrameNumber=0
     isOnScreen=false
@@ -611,9 +659,10 @@ WINDOW MANAGER WINDOWS (dumpsys window windows)
       fl=81910100
       pfl=20000
       vsysui=700 naviIconColor=0}
-    Requested w=1080 h=2220 mLayoutSeq=2084
+    Requested w=1080 h=2220 mLayoutSeq=2692
     mHasSurface=false isReadyForDisplay()=false mWindowRemovalAllowed=false
     WindowStateAnimator{4c7de13 com.microsoft.launcher/com.microsoft.launcher.Launcher}:
+    mLastFreezeDuration=+6h53m3s913ms
     mForceSeamlesslyRotate=false seamlesslyRotate: pending=null finishedFrameNumber=0
     mWallpaperX=0.0 mWallpaperY=0.5
     isOnScreen=false
@@ -623,16 +672,16 @@ WINDOW MANAGER WINDOWS (dumpsys window windows)
     mPendingPolicyVisibility=false
     mIsTspNoteMode=false
     mHiddenWhileProfileLockedState=false
-  Window #8 Window{85ff23 u0 com.linkedin.android/com.linkedin.android.authenticator.LaunchActivityDefault}:
-    mDisplayId=0 stackId=28 mSession=Session{21588b4 16287:u0a10294} mClient=android.os.BinderProxy@cd57052
+  Window #8 Window{f8f11d0 u0 com.linkedin.android/com.linkedin.android.infra.navigation.MainActivity}:
+    mDisplayId=0 stackId=28 mSession=Session{d844244 29304:u0a10294} mClient=android.os.BinderProxy@4939d93
     mOwnerUid=10294 mShowToOwnerOnly=true package=com.linkedin.android appop=NONE
     mAttrs={(0,0)(fillxfill) sim={adjust=resize} layoutInDisplayCutoutMode=always ty=BASE_APPLICATION wanim=0x1030305
       fl=81810100
       pfl=20000
-      vsysui=2f10 naviIconColor=0}
-    Requested w=1080 h=2220 mLayoutSeq=2028
+      vsysui=2000 naviIconColor=0}
+    Requested w=1080 h=2220 mLayoutSeq=2660
     mHasSurface=false isReadyForDisplay()=false mWindowRemovalAllowed=false
-    WindowStateAnimator{af9703e com.linkedin.android/com.linkedin.android.authenticator.LaunchActivityDefault}:
+    WindowStateAnimator{b2147f4 com.linkedin.android/com.linkedin.android.infra.navigation.MainActivity}:
     mForceSeamlesslyRotate=false seamlesslyRotate: pending=null finishedFrameNumber=0
     isOnScreen=false
     isVisible=false
@@ -641,7 +690,43 @@ WINDOW MANAGER WINDOWS (dumpsys window windows)
     mPendingPolicyVisibility=false
     mIsTspNoteMode=false
     mHiddenWhileProfileLockedState=false
-  Window #9 Window{e895e7e u0 com.sec.android.app.launcher/com.android.quickstep.RecentsActivity}:
+  Window #9 Window{4f0dcf5 u0 com.ocentra.parent.browser/ca.ocentra.parent.browser.OcentraOwnedBrowserShellActivity}:
+    mDisplayId=0 stackId=49 mSession=Session{a5c6c94 30382:u0a10261} mClient=android.os.BinderProxy@d60ba2c
+    mOwnerUid=10261 mShowToOwnerOnly=true package=com.ocentra.parent.browser appop=NONE
+    mAttrs={(0,0)(fillxfill) sim={adjust=pan} ty=BASE_APPLICATION wanim=0x1030305
+      fl=81810100
+      pfl=20000
+      vsysui=2000 naviIconColor=0}
+    Requested w=1080 h=2220 mLayoutSeq=2581
+    mHasSurface=false isReadyForDisplay()=false mWindowRemovalAllowed=false
+    WindowStateAnimator{bd02b1d com.ocentra.parent.browser/ca.ocentra.parent.browser.OcentraOwnedBrowserShellActivity}:
+    mForceSeamlesslyRotate=false seamlesslyRotate: pending=null finishedFrameNumber=0
+    isOnScreen=false
+    isVisible=false
+    mIsPortraitSystemWindow=false
+    mIsHiddenByAodPolicy=false
+    mPendingPolicyVisibility=false
+    mIsTspNoteMode=false
+    mHiddenWhileProfileLockedState=false
+  Window #10 Window{30929e1 u0 com.github.android/com.github.android.main.MainActivity}:
+    mDisplayId=0 stackId=48 mSession=Session{920dd3a 28228:u0a10284} mClient=android.os.BinderProxy@a1fb748
+    mOwnerUid=10284 mShowToOwnerOnly=true package=com.github.android appop=NONE
+    mAttrs={(0,0)(fillxfill) sim={adjust=resize} layoutInDisplayCutoutMode=always ty=BASE_APPLICATION wanim=0x1030305
+      fl=81810100
+      pfl=20000
+      vsysui=700 naviIconColor=0}
+    Requested w=1080 h=2220 mLayoutSeq=2517
+    mHasSurface=false isReadyForDisplay()=false mWindowRemovalAllowed=false
+    WindowStateAnimator{4fa05c7 com.github.android/com.github.android.main.MainActivity}:
+    mForceSeamlesslyRotate=false seamlesslyRotate: pending=null finishedFrameNumber=0
+    isOnScreen=false
+    isVisible=false
+    mIsPortraitSystemWindow=false
+    mIsHiddenByAodPolicy=false
+    mPendingPolicyVisibility=false
+    mIsTspNoteMode=false
+    mHiddenWhileProfileLockedState=false
+  Window #11 Window{e895e7e u0 com.sec.android.app.launcher/com.android.quickstep.RecentsActivity}:
     mDisplayId=0 stackId=23 mSession=Session{a50e0a6 2519:u0a10146} mClient=android.os.BinderProxy@f759839
     mOwnerUid=10146 mShowToOwnerOnly=true package=com.sec.android.app.launcher appop=NONE
     mAttrs={(0,0)(fillxfill) sim={adjust=pan forwardNavigation} layoutInDisplayCutoutMode=always ty=BASE_APPLICATION fmt=TRANSPARENT wanim=0x10302f1
@@ -659,7 +744,7 @@ WINDOW MANAGER WINDOWS (dumpsys window windows)
     mPendingPolicyVisibility=false
     mIsTspNoteMode=false
     mHiddenWhileProfileLockedState=false
-  Window #10 Window{5910bfa u0 com.sec.android.app.sbrowser/com.sec.android.app.sbrowser.SBrowserMainActivity}:
+  Window #12 Window{5910bfa u0 com.sec.android.app.sbrowser/com.sec.android.app.sbrowser.SBrowserMainActivity}:
     mDisplayId=0 stackId=26 mSession=Session{2466f8f 24023:u0a10246} mClient=android.os.BinderProxy@859de25
     mOwnerUid=10246 mShowToOwnerOnly=true package=com.sec.android.app.sbrowser appop=NONE
     mAttrs={(0,0)(fillxfill) sim={adjust=nothing} layoutInDisplayCutoutMode=always ty=BASE_APPLICATION fmt=TRANSLUCENT wanim=0x10302f1 sysuil=true
@@ -677,7 +762,7 @@ WINDOW MANAGER WINDOWS (dumpsys window windows)
     mPendingPolicyVisibility=false
     mIsTspNoteMode=false
     mHiddenWhileProfileLockedState=false
-  Window #11 Window{7edc4a0 u0 com.sec.android.daemonapp/com.samsung.android.weather.app.locations.activity.WXLocationsActivity}:
+  Window #13 Window{7edc4a0 u0 com.sec.android.daemonapp/com.samsung.android.weather.app.locations.activity.WXLocationsActivity}:
     mDisplayId=0 stackId=5 mSession=Session{44b4934 5067:u0a10199} mClient=android.os.BinderProxy@86519a3
     mOwnerUid=10199 mShowToOwnerOnly=true package=com.sec.android.daemonapp appop=NONE
     mAttrs={(0,0)(fillxfill) sim={adjust=pan} layoutInDisplayCutoutMode=always ty=BASE_APPLICATION wanim=0x10302f1
@@ -694,7 +779,7 @@ WINDOW MANAGER WINDOWS (dumpsys window windows)
     mPendingPolicyVisibility=false
     mIsTspNoteMode=false
     mHiddenWhileProfileLockedState=false
-  Window #12 Window{4e44a56 u0 com.sec.android.app.camera/com.sec.android.app.camera.Camera}:
+  Window #14 Window{4e44a56 u0 com.sec.android.app.camera/com.sec.android.app.camera.Camera}:
     mDisplayId=0 stackId=2 mSession=Session{521bf8a 10063:u0a10114} mClient=android.os.BinderProxy@6ebec71
     mOwnerUid=10114 mShowToOwnerOnly=true package=com.sec.android.app.camera appop=NONE
     mAttrs={(0,0)(fillxfill) sim={adjust=pan} layoutInDisplayCutoutMode=always ty=BASE_APPLICATION fmt=TRANSLUCENT wanim=0x10302f1 rotAnim=CROSSFADE
@@ -712,14 +797,14 @@ WINDOW MANAGER WINDOWS (dumpsys window windows)
     mPendingPolicyVisibility=false
     mIsTspNoteMode=false
     mHiddenWhileProfileLockedState=false
-  Window #13 Window{c2ad405 u0 com.android.systemui.ImageWallpaper}:
+  Window #15 Window{c2ad405 u0 com.android.systemui.ImageWallpaper}:
     mDisplayId=0 stackId=0 mSession=Session{b19297 2052:u0a10052} mClient=android.os.BinderProxy@79ae37c
     mOwnerUid=10052 mShowToOwnerOnly=true package=com.android.systemui appop=SYSTEM_INTERNAL_WINDOW
     mAttrs={(0,0)(1080x2220) gr=TOP START CENTER layoutInDisplayCutoutMode=always ty=WALLPAPER fmt=RGBX_8888 wanim=0x1030316
       fl=14318
       pfl=4 naviIconColor=0
       sfl=8}
-    Requested w=1080 h=2220 mLayoutSeq=2085
+    Requested w=1080 h=2220 mLayoutSeq=2693
     mIsImWindow=false mIsWallpaper=true mIsFloatingLayer=true mWallpaperVisible=false
     mHasSurface=true isReadyForDisplay()=false mWindowRemovalAllowed=false
     WindowStateAnimator{ca531e4 com.android.systemui.ImageWallpaper}:
@@ -741,23 +826,26 @@ WINDOW MANAGER WINDOWS (dumpsys window windows)
   mGlobalConfiguration={1.1 302mcc610mnc [en_CA] ldltr sw320dp w320dp h585dp 540dpi nrml long port night finger -keyb/v/h -nav/h winConfig={ mBounds=Rect(0, 0 - 1080, 2220) mAppBounds=Rect(0, 0 - 1080, 2058) mWindowingMode=fullscreen mDisplayWindowingMode=fullscreen mActivityType=undefined mAlwaysOnTop=undefined mRotation=ROTATION_0} s.19 desktop/d ?dc bts=0 ff=0 bf=0 themeSeq=0}
   mHasPermanentDpad=false
   mTopFocusedDisplayId=0
-  mInTouchMode=true
+  mInTouchMode=false
   mLastDisplayFreezeDuration=0 due to Window{7c6e11 u0 StatusBar}
-  mLastWakeLockHoldingWindow=null mLastWakeLockObscuringWindow=Window{53b206a u0 com.samsung.android.incallui/com.android.incallui.call.InCallActivity}
+  mLastWakeLockHoldingWindow=null mLastWakeLockObscuringWindow=Window{f8f11d0 u0 com.linkedin.android/com.linkedin.android.infra.navigation.MainActivity}
   mFullSnapshotScale=1.0
   SnapshotCache
+    Entry taskId=249
+      topApp=AppWindowToken{c20e6aa token=Token{60ab595 ActivityRecord{20e114c u0 com.ocentra.parent.browser/ca.ocentra.parent.browser.OcentraOwnedBrowserShellActivity t249}}}
+      snapshot=TaskSnapshot{ mTopActivityComponent=com.ocentra.parent.browser/ca.ocentra.parent.browser.OcentraOwnedBrowserShellActivity mSnapshot=android.graphics.GraphicBuffer@806c962 (1080x2220) mColorSpace=sRGB IEC61966-2.1 (id=0, model=RGB) mOrientation=1 mContentInsets=[0,81][0,162] mReducedResolution=false mScale=1.0 mIsRealSnapshot=true mWindowingMode=1 mSystemUiVisibility=8192 mIsTranslucent=false
+    Entry taskId=248
+      topApp=AppWindowToken{7e7be74 token=Token{8e4647 ActivityRecord{a6b8d86 u0 com.github.android/.main.MainActivity t248}}}
+      snapshot=TaskSnapshot{ mTopActivityComponent=com.github.android/.main.MainActivity mSnapshot=android.graphics.GraphicBuffer@d495c19 (1080x2220) mColorSpace=sRGB IEC61966-2.1 (id=0, model=RGB) mOrientation=1 mContentInsets=[0,81][0,162] mReducedResolution=false mScale=1.0 mIsRealSnapshot=true mWindowingMode=1 mSystemUiVisibility=1792 mIsTranslucent=false
     Entry taskId=228
       topApp=AppWindowToken{47d4715 token=Token{651f8cc ActivityRecord{d9e12ff u0 com.sec.android.app.sbrowser/.SBrowserMainActivity t228}}}
       snapshot=TaskSnapshot{ mTopActivityComponent=com.sec.android.app.sbrowser/.SBrowserMainActivity mSnapshot=android.graphics.GraphicBuffer@bc6ae31 (1080x2220) mColorSpace=sRGB IEC61966-2.1 (id=0, model=RGB) mOrientation=1 mContentInsets=[0,81][0,162] mReducedResolution=false mScale=1.0 mIsRealSnapshot=true mWindowingMode=1 mSystemUiVisibility=1792 mIsTranslucent=true
     Entry taskId=226
-      topApp=AppWindowToken{87d24b1 token=Token{86e9b58 ActivityRecord{b4cb83b u0 com.linkedin.android/.authenticator.LaunchActivityDefault t226}}}
-      snapshot=TaskSnapshot{ mTopActivityComponent=com.linkedin.android/.infra.navigation.MainActivity mSnapshot=android.graphics.GraphicBuffer@7914916 (1080x2220) mColorSpace=sRGB IEC61966-2.1 (id=0, model=RGB) mOrientation=1 mContentInsets=[0,81][0,162] mReducedResolution=false mScale=1.0 mIsRealSnapshot=true mWindowingMode=1 mSystemUiVisibility=14096 mIsTranslucent=false
+      topApp=AppWindowToken{f468cbd token=Token{113ac14 ActivityRecord{aa4e667 u0 com.linkedin.android/.infra.navigation.MainActivity t226}}}
+      snapshot=TaskSnapshot{ mTopActivityComponent=com.linkedin.android/.infra.navigation.MainActivity mSnapshot=android.graphics.GraphicBuffer@bcaf3 (1080x2220) mColorSpace=sRGB IEC61966-2.1 (id=0, model=RGB) mOrientation=1 mContentInsets=[0,81][0,162] mReducedResolution=false mScale=1.0 mIsRealSnapshot=true mWindowingMode=1 mSystemUiVisibility=8192 mIsTranslucent=false
     Entry taskId=209
       topApp=AppWindowToken{7de2eaa token=Token{d01d95 ActivityRecord{68194c u0 com.sec.android.daemonapp/com.samsung.android.weather.app.locations.activity.WXLocationsActivity t209}}}
       snapshot=TaskSnapshot{ mTopActivityComponent=com.sec.android.daemonapp/com.samsung.android.weather.app.locations.activity.WXLocationsActivity mSnapshot=android.graphics.GraphicBuffer@8347203 (1080x2220) mColorSpace=sRGB IEC61966-2.1 (id=0, model=RGB) mOrientation=1 mContentInsets=[0,81][0,162] mReducedResolution=false mScale=1.0 mIsRealSnapshot=true mWindowingMode=1 mSystemUiVisibility=0 mIsTranslucent=false
-    Entry taskId=206
-      topApp=AppWindowToken{a584450 token=Token{5d00a13 ActivityRecord{2861102 u0 com.sec.android.app.camera/.Camera t206}}}
-      snapshot=TaskSnapshot{ mTopActivityComponent=com.sec.android.app.camera/.Camera mSnapshot=android.graphics.GraphicBuffer@a63a580 (1080x2220) mColorSpace=sRGB IEC61966-2.1 (id=0, model=RGB) mOrientation=1 mContentInsets=[0,0][0,162] mReducedResolution=false mScale=1.0 mIsRealSnapshot=false mWindowingMode=1 mSystemUiVisibility=512 mIsTranslucent=false
   MaxSnapshotCache=6
 
 WINDOW MANAGER EXTENSION (dumpsys window extension)

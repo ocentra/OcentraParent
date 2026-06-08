@@ -1,504 +1,502 @@
---------- beginning of system
-06-08 16:39:11.797  1442  2254 D SamsungAlarmManager: setExact Listener (T:2/F:9/AC:false) 20260608T163916 - CU:1000/CP:1442
-06-08 16:39:11.797  1442  2254 I SamsungAlarmManager: setLocked to kernel - T:2 / 20260608T163916, SetElapsed=20908114, nowELAPSED=20903839
 --------- beginning of main
-06-08 16:39:11.797  1442  2254 D SLocation: GeofenceLocationFilter - alarm set, next time to send location : 20908114
-06-08 16:39:11.797  2226  2295 V GmsPassiveListener_FLP: Got the onLocationResult !!!!
-06-08 16:39:11.797  1442  2254 W Settings: Setting airplane_mode_on has moved from android.provider.Settings.System to android.provider.Settings.Global, returning read-only value.
-06-08 16:39:11.797  1442  2254 D TelephonyManager: getAllCellInfo : Caller (PID / UID / TID): 1442 / 1000 / 2254
-06-08 16:39:11.799  1442  2254 D SLocation: TrackingReceiverFilter - isChangedCellInfo - false
-06-08 16:39:11.799  1442  2254 D SLocation: TrackingReceiverFilter - checkValidForTrackingReceiver - LastGpsTimeThreshold = 120000
-06-08 16:39:11.799  1442  2254 D SLocation: TrackingReceiverFilter - checkValidForTrackingReceiver - gps location is always valid.
-06-08 16:39:11.800  1442  2254 D SLocation: PositionManager - PassiveonLocationChanged fused 1780951151777
-06-08 16:39:11.800  1442  2254 W SLocation: PositionManager - do not refresh last location about fused location
-06-08 16:39:11.801  2226  2295 V PassiveListener_FLP: onLocationChanged, provider=fused / isMock=false
-06-08 16:39:11.802  1442  2254 W Settings: Setting airplane_mode_on has moved from android.provider.Settings.System to android.provider.Settings.Global, returning read-only value.
-06-08 16:39:11.802  1442  2254 D TelephonyManager: getAllCellInfo : Caller (PID / UID / TID): 1442 / 1000 / 2254
-06-08 16:39:11.803  1442  3574 I SamsungAlarmManager: setLocked to kernel - T:2 / 20260608T163916, SetElapsed=20908114, nowELAPSED=20903845
-06-08 16:39:11.803  1442  3574 D SamsungAlarmManager: setExact Listener (T:3/F:9/AC:false) 20260608T233905 - CU:1000/CP:1442
-06-08 16:39:11.803  1442  3574 I SamsungAlarmManager: setLocked to kernel - T:2 / 20260608T163916, SetElapsed=20908114, nowELAPSED=20903845
-06-08 16:39:11.804  1442  2254 D SLocation: TrackingReceiverFilter - isChangedCellInfo - false
-06-08 16:39:11.804  1442  2254 D SLocation: TrackingReceiverFilter - checkValidForTrackingReceiver - LastGpsTimeThreshold = 120000
-06-08 16:39:11.804  1442  2254 D SLocation: TrackingReceiverFilter - checkValidForTrackingReceiver - blocking diff GPS time 0
-06-08 16:39:11.804  1442  2254 D SLocation: PositionManager - receive fused location
-06-08 16:39:11.805  1442  3574 I SamsungAlarmManager: setLocked to kernel - T:2 / 20260608T163916, SetElapsed=20908114, nowELAPSED=20903847
-06-08 16:39:11.805  1442  3574 D SamsungAlarmManager: setExact Listener (T:3/F:9/AC:false) 20260608T175056 - CU:1000/CP:1442
-06-08 16:39:11.806  1442  3574 I SamsungAlarmManager: setLocked to kernel - T:2 / 20260608T163916, SetElapsed=20908114, nowELAPSED=20903848
-06-08 16:39:11.807  1442  3574 I SamsungAlarmManager: setLocked to kernel - T:2 / 20260608T163916, SetElapsed=20908114, nowELAPSED=20903849
-06-08 16:39:11.807  1442  3574 D SamsungAlarmManager: setExact Listener (T:3/F:9/AC:false) 20260608T173911 - CU:1000/CP:1442
-06-08 16:39:11.808  1442  3574 I SamsungAlarmManager: setLocked to kernel - T:2 / 20260608T163916, SetElapsed=20908114, nowELAPSED=20903850
-06-08 16:39:11.809  1442  3574 I SamsungAlarmManager: setLocked to kernel - T:2 / 20260608T163916, SetElapsed=20908114, nowELAPSED=20903851
-06-08 16:39:11.809  1442  3574 D SamsungAlarmManager: setExact Listener (T:3/F:9/AC:false) 20260608T233905 - CU:1000/CP:1442
-06-08 16:39:11.810  1442  3574 I SamsungAlarmManager: setLocked to kernel - T:2 / 20260608T163916, SetElapsed=20908114, nowELAPSED=20903852
-06-08 16:39:11.814  3227  3227 I io_stats: !@   8,0 r 1315131 48505216 w 249476 3646568 d 35429 998452 f 104912 105392 iot 484800 428682 th 102400 0 0 pt 0 inp 0 0 16947.750
-06-08 16:39:11.931  1278  1951 I bauth_FPBAuthService: pcf : 0x1012, 0 ,1 ,0 ,0 ,0 ,0, 5.0.0.23
-06-08 16:39:11.932  1278  1951 I bauth_FPBAuthService: thread id : 1, preenroll_flag : 0, nd cnt : 0, cso : 0, et : 0
-06-08 16:39:11.932  1278  1951 I bauth_FPBAuthService: FPBAuthService, 11438
-06-08 16:39:11.935 16079 16079 D AndroidRuntime: >>>>>> START com.android.internal.os.RuntimeInit uid 2000 <<<<<<
-06-08 16:39:11.940 16079 16079 I AndroidRuntime: Using default boot image
-06-08 16:39:11.940 16079 16079 I AndroidRuntime: Leaving lock profiling enabled
-06-08 16:39:11.941 16079 16079 D SecNativeFeatureCppIf: encoded
-06-08 16:39:11.941 16079 16079 D SecNativeFeatureCppIf: decoding and unzip finish
-06-08 16:39:11.941 16079 16079 D SecNativeFeatureCppIf: use unCompDataBuff. encoded
-06-08 16:39:11.941 16079 16079 D SecNativeFeatureCppIf: Free unCompDataBuff
-06-08 16:39:11.941 16079 16079 D SecNativeFeatureCppIf: encoded
-06-08 16:39:11.941 16079 16079 D SecNativeFeatureCppIf: decoding and unzip finish
-06-08 16:39:11.941 16079 16079 D SecNativeFeatureCppIf: use unCompDataBuff. encoded
-06-08 16:39:11.941 16079 16079 D SecNativeFeatureCppIf: Free unCompDataBuff
-06-08 16:39:11.942 16079 16079 D AndroidRuntime: addProductProperty
-06-08 16:39:11.942 16079 16079 D AndroidRuntime: addProductProperty: pBrand1 != NULL
-06-08 16:39:11.942 16079 16079 D AndroidRuntime: addProductProperty: else
-06-08 16:39:12.013  1442 15660 V LocSvc_HIDL_DebugReportService_jni: DebugReportService_getReport
-06-08 16:39:12.013  1442 15660 D LocSvc_HIDL_DebugReportService_jni: DebugReportService_getReport, Get Latest 1 sec data.
-06-08 16:39:12.013  1442 15660 V LocSvc_HIDL_DebugReportService_jni: [DebugReportService_getReport][942] [HC] =>> [HS]
-06-08 16:39:12.015   821   821 E LocSvc_HIDL_DebugReportService: Invalid count: 0
-06-08 16:39:12.015  1442 15660 V LocSvc_HIDL_DebugReportService_jni: populateEphemerisStatusListObj
-06-08 16:39:12.015  1442 15660 V LocSvc_HIDL_DebugReportService_jni: populateFixStatusListObj
-06-08 16:39:12.015  1442 15660 V LocSvc_HIDL_DebugReportService_jni: populateEpiReportListObj
-06-08 16:39:12.015  1442 15660 V LocSvc_HIDL_DebugReportService_jni: populateBestLocationListObj
-06-08 16:39:12.015  1442 15660 V LocSvc_HIDL_DebugReportService_jni: populateGpsTimeReportListObj
-06-08 16:39:12.015  1442 15660 V LocSvc_HIDL_DebugReportService_jni: populateXoStateReportListObj
-06-08 16:39:12.015  1442 15660 V LocSvc_HIDL_DebugReportService_jni: populateRfStateReportListObjV1_1
-06-08 16:39:12.015  1442 15660 V LocSvc_HIDL_DebugReportService_jni: populateErrorRecoveriesListObj
-06-08 16:39:12.015  1442 15660 V LocSvc_HIDL_DebugReportService_jni: populatePdrReporListObj
-06-08 16:39:12.015  1442 15660 V LocSvc_HIDL_DebugReportService_jni: populateSvHealthReportListObj
-06-08 16:39:12.016  1442 15660 V LocSvc_HIDL_DebugReportService_jni: populateXtraReportListObj
-06-08 16:39:12.063 16079 16079 D ICU     : Time zone APEX file found: /apex/com.android.tzdata/etc/icu/icu_tzdata.dat
-06-08 16:39:12.080 16079 16079 I app_process: The ClassLoaderContext is a special shared library.
-06-08 16:39:12.088 16079 16079 I app_process: The ClassLoaderContext is a special shared library.
-06-08 16:39:12.113 16079 16079 W app_process: JNI RegisterNativeMethods: attempt to register 0 native methods for android.media.AudioAttributes
-06-08 16:39:12.114 16079 16079 E SemAffinityControl: SemAffinityControl: registerfunction enter
-06-08 16:39:12.118 16079 16079 D AndroidRuntime: Calling main entry com.android.commands.uiautomator.Launcher
-06-08 16:39:12.135   925  3639 I SurfaceFlinger: id=1079 createSurf (0x0),-1 flag=80004, WindowToken{d411600 android.os.Binder@c575483}#0
-06-08 16:39:12.151  1442  3574 W WindowManager: removeWindowToken: Attempted to remove non-existing token: android.os.Binder@e495454
-06-08 16:39:12.157  1442  3574 D SettingsProvider: isChangeAllowed() : name = accessibility_enabled
-06-08 16:39:12.157  1442  3574 I AccessibilityManagerService: semIsAccessibilityServiceEnabled()
-06-08 16:39:12.158  1442  3574 I WindowManager: unregisterDesktopModeListener()
-06-08 16:39:12.159  1442  3574 I SemDesktopModeManager: unregisterListener: com.android.server.wm.AccessibilityController$WindowsForAccessibilityObserver$1@1d234f2
-06-08 16:39:12.166   925  3639 I Layer   : id=1066 removeFromCurrentState WindowToken{9e2affd android.os.Binder@e495454}#0 (73)
-06-08 16:39:12.166   925  3639 I SurfaceFlinger: id=1066 Removed WindowToken{9e2affd android.os.Binder@e495454}#0 (73)
-06-08 16:39:12.167  1442  6043 D FreecessController: UFZ : com.sec.android.app.camera(10063)
-06-08 16:39:12.169  1442  6043 D FreecessController: UFZ : com.sec.android.app.camera(0), reason: Binder(1)-android.view.accessibility.IAccessibilityMan
-06-08 16:39:12.169  1442  3225 D FreecessController: apply [LRs:false] to uid[10114]
-06-08 16:39:12.169  1442  3225 W LocationManagerService: onFreezeStateChanged, uid[10114]=false
-06-08 16:39:12.170  1442  3225 V AlarmManager: unblockMARsRestrictedAlarmsForUidPackage: uid = 10114, packageName = null
-06-08 16:39:12.170  1442  3225 D FreecessController: send pending alarm to packageName:null, uid:10114
-06-08 16:39:12.170  2029  2944 W BtGatt.GattService: unfreezeScan() - No AppScanStats found with uid: 10114
-06-08 16:39:12.170 10063  6635 I CameraManagerGlobal: Camera 1 facing CAMERA_FACING_FRONT state now CAMERA_STATE_OPEN for client com.samsung.android.biometrics.service API Level 2
-06-08 16:39:12.171 10063  6635 I CameraManagerGlobal: Camera 90 facing CAMERA_FACING_FRONT state now CAMERA_STATE_OPEN for client com.samsung.android.biometrics.service API Level 2
-06-08 16:39:12.171 10063  6635 I CameraManagerGlobal: Camera 90 facing CAMERA_FACING_FRONT state now CAMERA_STATE_ACTIVE for client com.samsung.android.biometrics.service API Level 2
-06-08 16:39:12.171 10063  6635 I CameraManagerGlobal: Camera 1 facing CAMERA_FACING_FRONT state now CAMERA_STATE_ACTIVE for client com.samsung.android.biometrics.service API Level 2
-06-08 16:39:12.171 10063 26230 I CameraManagerGlobal: Camera 90 facing CAMERA_FACING_FRONT state now CAMERA_STATE_IDLE for client com.samsung.android.biometrics.service API Level 2
-06-08 16:39:12.171 10063 26230 I CameraManagerGlobal: Camera 1 facing CAMERA_FACING_FRONT state now CAMERA_STATE_IDLE for client com.samsung.android.biometrics.service API Level 2
-06-08 16:39:12.171 10063 10063 V PlugInFilterLoader: PlugInFilterLoader : onChange
-06-08 16:39:12.171 10063 26230 I CameraManagerGlobal: Camera 90 facing CAMERA_FACING_FRONT state now CAMERA_STATE_CLOSED for client com.samsung.android.biometrics.service API Level 2
-06-08 16:39:12.171 10063 26230 I CameraManagerGlobal: Camera 1 facing CAMERA_FACING_FRONT state now CAMERA_STATE_CLOSED for client com.samsung.android.biometrics.service API Level 2
-06-08 16:39:12.171  1442  1442 I AccessibilityManagerService: semIsAccessibilityServiceEnabled()
-06-08 16:39:12.172 10063 10063 V PlugInFilterLoader: PlugInFilterLoader : onChange
-06-08 16:39:12.172 10063 10063 D PlugInFilterLoader: handleUninstall
-06-08 16:39:12.172  1442  1442 I AccessibilityManagerService: semIsAccessibilityServiceEnabled()
-06-08 16:39:12.172 10063 10063 D PlugInFilterLoader: load PlugInFilter
-06-08 16:39:12.172 10063 10063 D PlugInFilterStorage: clear PlugInFilterLoader
-06-08 16:39:12.173  2052  2052 V NavBarStoreImpl: ------handleEvent [EventType] ON_UPDATE_REMOTEVIEW [Module] SecNavigationBarView  KEYS_LEFT_REMOTEVIEW_CONTAINER=android.widget.LinearLayout{1a5d9bb I.E...... ......I. 0,0-118,162 #7f0a0398 app:id/left_remoteview}  KEYS_NAVBAR_DARK_INTENSITY=0.0  KEYS_CONTEXTUALBUTTON_VISIBLE=false  KEYS_RIGHT_REMOTEVIEW_CONTAINER=android.widget.LinearLayout{d96ded8 I.E...... ......I. 962,0-1080,162 #7f0a0549 app:id/right_remoteview}
-06-08 16:39:12.173  2052  2052 V NavBarStoreImpl: --------[Band]REMOTE_VIEW_PACK_SET_REMOTEVIEW_CONTAINER
-06-08 16:39:12.173  2052  2052 V NavBarStoreImpl: ----------apply(UPDATE_NAVBAR_REMOTEVIEW_CONTAINER)
-06-08 16:39:12.174  2052  2052 V NavBarStoreImpl: ----------apply(UPDATE_NAVBAR_RIGHT_REMOTEVIEW_VISIBILITY)
-06-08 16:39:12.174  2052  2052 V NavBarStoreImpl: ----------isEnabled(NAVBAR_REMOTEVIEW_DARKINTENSITY_CHANGED)=false
-06-08 16:39:12.176  1442  1442 D AS.AudioService: Accessibility volume enabled = false
-06-08 16:39:12.178   925   925 I Layer   : id=1066[1] Destroyed WindowToken{9e2affd android.os.Binder@e495454}#0
-06-08 16:39:12.179  1144  1855 I netd    : firewallSetUidRule(4, 10114, 1) <5.83ms>
-06-08 16:39:12.179  1442  3225 I PowerManagerService: [PWL] SetWakeLockEnableDisable uid = 10114 , disable= false
-06-08 16:39:12.179  1442  3225 I PowerManagerService: [PWL] can not change uid =  10114
-06-08 16:39:12.181  1442  5758 D FreecessController: UFZ : com.google.android.youtube(10339)
-06-08 16:39:12.181  1442  3594 D SettingsProvider: isChangeAllowed() : name = accessibility_enabled
-06-08 16:39:12.182  1442  3594 I AccessibilityManagerService: semIsAccessibilityServiceEnabled()
-06-08 16:39:12.183  1442  3225 D FreecessController: apply [LRs:false] to uid[10239]
-06-08 16:39:12.183  1442  3225 W LocationManagerService: onFreezeStateChanged, uid[10239]=false
-06-08 16:39:12.183  1442  1442 I AccessibilityManagerService: semIsAccessibilityServiceEnabled()
-06-08 16:39:12.183  1442  3225 V AlarmManager: unblockMARsRestrictedAlarmsForUidPackage: uid = 10239, packageName = null
-06-08 16:39:12.183  1442  1442 I AccessibilityManagerService: semIsAccessibilityServiceEnabled()
-06-08 16:39:12.183  1442  3225 D FreecessController: send pending alarm to packageName:null, uid:10239
-06-08 16:39:12.184  1442  5758 D FreecessController: UFZ : com.google.android.youtube(0), reason: Binder(1)-android.view.accessibility.IAccessibilityMan
-06-08 16:39:12.184  2029  2944 W BtGatt.GattService: unfreezeScan() - No AppScanStats found with uid: 10239
-06-08 16:39:12.186  1442  1442 D AS.AudioService: Accessibility volume enabled = false
-06-08 16:39:12.190  1144  1855 I netd    : firewallSetUidRule(4, 10239, 1) <5.05ms>
-06-08 16:39:12.190  1442  3225 I PowerManagerService: [PWL] SetWakeLockEnableDisable uid = 10239 , disable= false
-06-08 16:39:12.190  1442  3225 I PowerManagerService: [PWL] can not change uid =  10239
-06-08 16:39:12.192  2052  2052 V NavBarStoreImpl: handleEvent [EventType] GET_BOOL_NAVBAR_CAN_MOVE_STATE [Module] SecNavigationBarView
-06-08 16:39:12.192  1442  6043 D FreecessController: UFZ : com.google.android.gm(5449)
-06-08 16:39:12.192  2052  2052 V NavBarStoreImpl: --[Band]GESTURE_PACK_GET_BOOL_NAVBAR_CAN_MOVE_NAVBARVIEW
-06-08 16:39:12.193  2052  2052 V NavBarStoreImpl: ----apply(SET_CURRENT_NAVBAR_CAN_MOVE)
-06-08 16:39:12.193  2052  2052 V NavBarStoreImpl: getResult(GET_BOOL_NAVBAR_CAN_MOVE_STATE)=true
-06-08 16:39:12.193 10063 10063 D PlugInFilterLoader: id[1], title[Cream], filterName[Cream], preloadFilter[1], libName[com.samsung.android.provider.filterprovider.libcreamy.so], version[2], filterType[SINGLE], vendor[SAMSUNG_MOBILE]
-06-08 16:39:12.194  1442  3225 D FreecessController: apply [LRs:false] to uid[10228]
-06-08 16:39:12.194  1442  3225 W LocationManagerService: onFreezeStateChanged, uid[10228]=false
-06-08 16:39:12.194  1442  6043 D FreecessController: UFZ : com.google.android.gm(0), reason: Binder(1)-android.view.accessibility.IAccessibilityMan
-06-08 16:39:12.194  1442  3225 V AlarmManager: unblockMARsRestrictedAlarmsForUidPackage: uid = 10228, packageName = null
-06-08 16:39:12.195  1442  3225 D FreecessController: send pending alarm to packageName:null, uid:10228
-06-08 16:39:12.195  2029  2944 W BtGatt.GattService: unfreezeScan() - No AppScanStats found with uid: 10228
-06-08 16:39:12.195  5449  8764 I CameraManagerGlobal: Camera 1 facing CAMERA_FACING_FRONT state now CAMERA_STATE_OPEN for client com.samsung.android.biometrics.service API Level 2
-06-08 16:39:12.196  5449  8764 I CameraManagerGlobal: Camera 90 facing CAMERA_FACING_FRONT state now CAMERA_STATE_OPEN for client com.samsung.android.biometrics.service API Level 2
-06-08 16:39:12.196  5449  8764 I CameraManagerGlobal: Camera 90 facing CAMERA_FACING_FRONT state now CAMERA_STATE_ACTIVE for client com.samsung.android.biometrics.service API Level 2
-06-08 16:39:12.196  5449  8764 I CameraManagerGlobal: Camera 1 facing CAMERA_FACING_FRONT state now CAMERA_STATE_ACTIVE for client com.samsung.android.biometrics.service API Level 2
-06-08 16:39:12.196  5449  8764 I CameraManagerGlobal: Camera 90 facing CAMERA_FACING_FRONT state now CAMERA_STATE_IDLE for client com.samsung.android.biometrics.service API Level 2
-06-08 16:39:12.197  5449  8764 I CameraManagerGlobal: Camera 1 facing CAMERA_FACING_FRONT state now CAMERA_STATE_IDLE for client com.samsung.android.biometrics.service API Level 2
-06-08 16:39:12.197 10063 10063 D PlugInFilterLoader: id[2], title[Deep], filterName[Deep], preloadFilter[1], libName[com.samsung.android.provider.filterprovider.libdeep.so], version[2], filterType[SINGLE], vendor[SAMSUNG_MOBILE]
-06-08 16:39:12.197  5449  8764 I CameraManagerGlobal: Camera 90 facing CAMERA_FACING_FRONT state now CAMERA_STATE_CLOSED for client com.samsung.android.biometrics.service API Level 2
-06-08 16:39:12.197  5449  8764 I CameraManagerGlobal: Camera 1 facing CAMERA_FACING_FRONT state now CAMERA_STATE_CLOSED for client com.samsung.android.biometrics.service API Level 2
-06-08 16:39:12.198 10063 10063 D PlugInFilterLoader: id[3], title[Forest], filterName[Forest], preloadFilter[1], libName[com.samsung.android.provider.filterprovider.libforest.so], version[2], filterType[SINGLE], vendor[SAMSUNG_MOBILE]
-06-08 16:39:12.198 10063 10063 D PlugInFilterLoader: id[4], title[Classic], filterName[Classic], preloadFilter[1], libName[com.samsung.android.provider.filterprovider.libclassic.so], version[2], filterType[SINGLE], vendor[SAMSUNG_MOBILE]
-06-08 16:39:12.199  1144  1855 I netd    : firewallSetUidRule(4, 10228, 1) <3.52ms>
-06-08 16:39:12.199  1442  3225 I PowerManagerService: [PWL] SetWakeLockEnableDisable uid = 10228 , disable= false
-06-08 16:39:12.199  1442  3225 I PowerManagerService: [PWL] can not change uid =  10228
-06-08 16:39:12.199 10063 10063 D PlugInFilterLoader: id[5], title[Cozy], filterName[Cozy], preloadFilter[1], libName[com.samsung.android.provider.filterprovider.libcozy.so], version[2], filterType[SINGLE], vendor[SAMSUNG_MOBILE]
-06-08 16:39:12.201 10063 10063 D PlugInFilterLoader: id[6], title[Memory], filterName[Memory], preloadFilter[1], libName[com.samsung.android.provider.filterprovider.libmemory.so], version[2], filterType[SINGLE], vendor[Camera360]
-06-08 16:39:12.202  1442  3574 D FreecessController: UFZ : com.sec.android.app.sbrowser(24023)
-06-08 16:39:12.202  2052  2052 V NavBarStoreImpl: ------handleEvent [EventType] ON_UPDATE_REMOTEVIEW [Module] SecNavigationBarView  KEYS_LEFT_REMOTEVIEW_CONTAINER=android.widget.LinearLayout{1a5d9bb I.E...... ......I. 0,0-118,162 #7f0a0398 app:id/left_remoteview}  KEYS_NAVBAR_DARK_INTENSITY=0.0  KEYS_CONTEXTUALBUTTON_VISIBLE=false  KEYS_RIGHT_REMOTEVIEW_CONTAINER=android.widget.LinearLayout{d96ded8 I.E...... ......I. 962,0-1080,162 #7f0a0549 app:id/right_remoteview}
-06-08 16:39:12.202  2052  2052 V NavBarStoreImpl: --------[Band]REMOTE_VIEW_PACK_SET_REMOTEVIEW_CONTAINER
-06-08 16:39:12.202  2052  2052 V NavBarStoreImpl: ----------apply(UPDATE_NAVBAR_REMOTEVIEW_CONTAINER)
-06-08 16:39:12.203  2052  2052 V NavBarStoreImpl: ----------apply(UPDATE_NAVBAR_RIGHT_REMOTEVIEW_VISIBILITY)
-06-08 16:39:12.203  2052  2052 V NavBarStoreImpl: ----------isEnabled(NAVBAR_REMOTEVIEW_DARKINTENSITY_CHANGED)=false
-06-08 16:39:12.203  1442  3574 D FreecessController: UFZ : com.sec.android.app.sbrowser(29196)
-06-08 16:39:12.203 10063 10063 D PlugInFilterLoader: id[7], title[Maple], filterName[Maple], preloadFilter[1], libName[com.samsung.android.provider.filterprovider.libmaple.so], version[2], filterType[SINGLE], vendor[UCam]
-06-08 16:39:12.204  1442  3574 D FreecessController: UFZ : com.sec.android.app.sbrowser(0), reason: Binder(1)-android.view.accessibility.IAccessibilityMan
-06-08 16:39:12.204  1442  3225 D FreecessController: apply [LRs:false] to uid[10246]
-06-08 16:39:12.204  1442  3225 W LocationManagerService: onFreezeStateChanged, uid[10246]=false
-06-08 16:39:12.204  1442  3225 V AlarmManager: unblockMARsRestrictedAlarmsForUidPackage: uid = 10246, packageName = null
-06-08 16:39:12.204  1442  3225 D FreecessController: send pending alarm to packageName:null, uid:10246
-06-08 16:39:12.204  2029  2944 W BtGatt.GattService: unfreezeScan() - No AppScanStats found with uid: 10246
-06-08 16:39:12.205 10063 10063 D PlugInFilterLoader: id[8], title[Blossom], filterName[Blossom], preloadFilter[1], libName[com.samsung.android.provider.filterprovider.libblossom.so], version[2], filterType[SINGLE], vendor[SAMSUNG_MOBILE]
-06-08 16:39:12.206 10063 10063 D PlugInFilterLoader: id[9], title[Breeze], filterName[Breeze], preloadFilter[1], libName[com.samsung.android.provider.filterprovider.libbreeze.so], version[2], filterType[SINGLE], vendor[SAMSUNG_MOBILE]
-06-08 16:39:12.206 10063 10063 D PlugInFilterLoader: id[10], title[Evergreen], filterName[Evergreen], preloadFilter[1], libName[com.samsung.android.provider.filterprovider.libevergreen.so], version[2], filterType[SINGLE], vendor[SAMSUNG_MOBILE]
-06-08 16:39:12.207 10063 10063 D PlugInFilterLoader: id[11], title[Sunshine], filterName[Sunshine], preloadFilter[1], libName[com.samsung.android.provider.filterprovider.libsunshine.so], version[2], filterType[SINGLE], vendor[SAMSUNG_MOBILE]
-06-08 16:39:12.210  1144  1855 I netd    : firewallSetUidRule(4, 10246, 1) <5.10ms>
-06-08 16:39:12.210 10063 10063 D PlugInFilterLoader: id[12], title[Greyscale], filterName[Grayscale], preloadFilter[1], libName[com.samsung.android.provider.filterprovider.libgrayscale.so], version[2], filterType[SINGLE], vendor[SAMSUNG_MOBILE]
-06-08 16:39:12.210  1442  3225 I PowerManagerService: [PWL] SetWakeLockEnableDisable uid = 10246 , disable= false
-06-08 16:39:12.210  1442  3225 I PowerManagerService: [PWL] can not change uid =  10246
-06-08 16:39:12.211 10063 10063 D PlugInFilterLoader: id[13], title[Cookie Cream], filterName[CookiNCream], preloadFilter[1], libName[com.samsung.android.provider.filterprovider.libcookiencream.so], version[2], filterType[SINGLE], vendor[CandyCamera]
-06-08 16:39:12.212  1442  6043 D FreecessController: UFZ : com.linkedin.android(16287)
-06-08 16:39:12.212 10063 10063 D PlugInFilterLoader: id[14], title[Nostalgia], filterName[Nostalgia], preloadFilter[1], libName[com.samsung.android.provider.filterprovider.libnostalgia.so], version[2], filterType[SINGLE], vendor[UCam]
-06-08 16:39:12.213 16287 16287 I Choreographer: Skipped 2618 frames!  The application may be doing too much work on its main thread.
-06-08 16:39:12.214  1442  6043 D FreecessController: UFZ : com.linkedin.android(0), reason: Binder(1)-android.view.accessibility.IAccessibilityMan
-06-08 16:39:12.214  1442  3225 D FreecessController: apply [LRs:false] to uid[10294]
-06-08 16:39:12.214  1442  3225 W LocationManagerService: onFreezeStateChanged, uid[10294]=false
-06-08 16:39:12.214  1442  3225 V AlarmManager: unblockMARsRestrictedAlarmsForUidPackage: uid = 10294, packageName = null
-06-08 16:39:12.214  1442  3225 D FreecessController: send pending alarm to packageName:null, uid:10294
-06-08 16:39:12.214  2029  2944 W BtGatt.GattService: unfreezeScan() - No AppScanStats found with uid: 10294
-06-08 16:39:12.216 10063 10063 D PlugInFilterLoader: id[15], title[Riddle], filterName[Riddle], preloadFilter[1], libName[com.samsung.android.provider.filterprovider.libriddle.so], version[2], filterType[SINGLE], vendor[B612]
-06-08 16:39:12.219  1144  1855 I netd    : firewallSetUidRule(4, 10294, 1) <3.92ms>
-06-08 16:39:12.219 10063 10063 D PlugInFilterLoader: load PlugInFilter end
-06-08 16:39:12.219  1442  3225 I PowerManagerService: [PWL] SetWakeLockEnableDisable uid = 10294 , disable= false
-06-08 16:39:12.219  1442  3225 I PowerManagerService: [PWL] can not change uid =  10294
-06-08 16:39:12.220  2052  2052 V NavBarStoreImpl: handleEvent [EventType] GET_BOOL_NAVBAR_CAN_MOVE_STATE [Module] SecNavigationBarView
-06-08 16:39:12.220  2052  2052 V NavBarStoreImpl: --[Band]GESTURE_PACK_GET_BOOL_NAVBAR_CAN_MOVE_NAVBARVIEW
-06-08 16:39:12.221  2052  2052 V NavBarStoreImpl: ----apply(SET_CURRENT_NAVBAR_CAN_MOVE)
-06-08 16:39:12.221  2052  2052 V NavBarStoreImpl: getResult(GET_BOOL_NAVBAR_CAN_MOVE_STATE)=true
-06-08 16:39:12.221 10063 10063 V PlugInMyFilterLoader: PlugInMyFilterLoader : onChange
-06-08 16:39:12.221 10063 10063 V PlugInMyFilterLoader: PlugInMyFilterLoader : onChange
-06-08 16:39:12.221 10063 10063 D PlugInMyFilterLoader: handleUninstall
-06-08 16:39:12.221 10063 10063 D PlugInMyFilterLoader: load MyFilter
-06-08 16:39:12.221 10063 10063 D PlugInMyFilterStorage: clear PlugInMyFilterStorage
-06-08 16:39:12.231 10063 10063 D PlugInMyFilterLoader: filterId[1], id[1], filterName[Filter 1], fileName[Filter 1.sel]
-06-08 16:39:12.640  1442  1600 I PowerManagerService: [PWL] Off : 50s ago
-06-08 16:39:12.640  1442  1600 I PowerManagerService: [PWL]   PowerManagerService.WakeLocks: ref count=1
-06-08 16:39:12.640  1442  1600 I PowerManagerService: [PWL]     mWakeLockSummary : 0x41
-06-08 16:39:12.640  1442  1600 I PowerManagerService: [PWL]       PARTIAL_WAKE_LOCK              'GnssLocationProvider_ex' ACQ=-1m2s629ms LONG (uid=1000 pid=1442 pkg=android)
-06-08 16:39:12.706   821  1142 I LocSvc_ApiV02: <--- globalEventCb line 245 QMI_LOC_EVENT_NMEA_IND_V02
-06-08 16:39:12.770   821  1142 I chatty  : uid=1000(system) LocApiMsgTask identical 2 lines
-06-08 16:39:12.771   821  1142 I LocSvc_ApiV02: <--- globalEventCb line 245 QMI_LOC_EVENT_NMEA_IND_V02
-06-08 16:39:12.771   821  1142 I LocSvc_ApiV02: <--- globalEventCb line 245 QMI_LOC_EVENT_GNSS_SV_INFO_IND_V02
-06-08 16:39:12.771   821  1142 I LocSvc_ApiV02: <--- globalEventCb line 245 QMI_LOC_EVENT_NMEA_IND_V02
-06-08 16:39:12.771   821  1142 I LocSvc_ApiV02: <--- globalEventCb line 245 QMI_LOC_EVENT_POSITION_REPORT_IND_V02
-06-08 16:39:12.773   821  1142 I LocSvc_ApiV02: <--- globalEventCb line 245 QMI_LOC_EVENT_NMEA_IND_V02
-06-08 16:39:12.773   821  1142 I chatty  : uid=1000(system) LocApiMsgTask identical 2 lines
-06-08 16:39:12.773   821  1142 I LocSvc_ApiV02: <--- globalEventCb line 245 QMI_LOC_EVENT_NMEA_IND_V02
-06-08 16:39:12.776  1442  2261 I GnssLocationProvider: WakeLock acquired by sendMessage(REPORT_SV_STATUS, 0, com.android.server.location.GnssLocationProvider$SvStatusInfo@35e8448)
-06-08 16:39:12.777  1442  1887 D GnssLocationProvider_ex: SV Count : 7 / 10      (PRN, Constellation, SNR, Used)
-06-08 16:39:12.777  1442  1887 D GnssLocationProvider_ex: (5, GPS, 27.3, 1) (18, GPS, 43.3, 1) (20, GPS, 35.0, 1) (23, GPS, 32.4, 1) (24, GPS, 31.3, 1) (27, GPS, 21.4, 0)
-06-08 16:39:12.777  1442  1887 D GnssLocationProvider_ex: (22, GLONASS, 35.2, 0) (16, GLONASS, 20.0, 1) (23, GLONASS, 21.2, 0) (7, GLONASS, 27.1, 1)
-06-08 16:39:12.778  1442  1887 I GnssLocationProvider: WakeLock released by handleMessage(REPORT_SV_STATUS, 0, com.android.server.location.GnssLocationProvider$SvStatusInfo@35e8448)
-06-08 16:39:12.780  1442  1553 I GnssLocationProvider: WakeLock acquired by sendMessage(REPORT_LOCATION, 1)
-06-08 16:39:12.782  2226  2295 V GnssStatusListener_FLP: updateSatelliteStatus, top4=36, top6=33, visibleSv=10, usedSv=8, usedL5Sv=0
-06-08 16:39:12.783   821   943 E LocSvc_SystemStatus: PQWP7parser - invalid size=404
-06-08 16:39:12.786  1442  1887 I GnssLocationProvider: WakeLock released by handleMessage(REPORT_LOCATION, 1)
-06-08 16:39:12.793  2226  2295 V PassiveListener_FLP: onLocationChanged, provider=gps / isMock=false
-06-08 16:39:12.793  1442  2254 D SLocation: PositionManager - PassiveonLocationChanged gps 1780951153000
-06-08 16:39:12.793  1442  2254 D SLocation: TrackingReceiverFilter - refreshCellInfo
-06-08 16:39:12.793  1442  2254 W Settings: Setting airplane_mode_on has moved from android.provider.Settings.System to android.provider.Settings.Global, returning read-only value.
-06-08 16:39:12.793  1442  2254 D TelephonyManager: getAllCellInfo : Caller (PID / UID / TID): 1442 / 1000 / 2254
-06-08 16:39:12.800  2752  5182 I FusedLocation: (REDACTED) location delivery to %s blocked - too fast
-06-08 16:39:12.800  1442  2254 D SLocation: GeofenceLocationFilter - location sent before 1728, need to filter / provider : gps, accuracy : 11.792
-06-08 16:39:12.800  1442  2254 W Settings: Setting airplane_mode_on has moved from android.provider.Settings.System to android.provider.Settings.Global, returning read-only value.
-06-08 16:39:12.801  1442  2254 D TelephonyManager: getAllCellInfo : Caller (PID / UID / TID): 1442 / 1000 / 2254
-06-08 16:39:12.801  2752  5182 I FusedLocation: (REDACTED) location delivery to %s blocked - too fast
-06-08 16:39:12.803  1442  2254 D SLocation: TrackingReceiverFilter - isChangedCellInfo - false
-06-08 16:39:12.803  1442  2254 D SLocation: TrackingReceiverFilter - checkValidForTrackingReceiver - LastGpsTimeThreshold = 120000
-06-08 16:39:12.803  1442  2254 D SLocation: TrackingReceiverFilter - checkValidForTrackingReceiver - gps location is always valid.
-06-08 16:39:12.805  1442  2254 D SLocation: PositionManager - PassiveonLocationChanged fused 1780951152780
-06-08 16:39:12.805  1442  5758 I SamsungAlarmManager: setLocked to kernel - T:2 / 20260608T163916, SetElapsed=20908114, nowELAPSED=20904847
-06-08 16:39:12.805  1442  2254 W SLocation: PositionManager - do not refresh last location about fused location
-06-08 16:39:12.805  1442  5758 D SamsungAlarmManager: setExact Listener (T:3/F:9/AC:false) 20260608T175056 - CU:1000/CP:1442
-06-08 16:39:12.805  1442  5758 I SamsungAlarmManager: setLocked to kernel - T:2 / 20260608T163916, SetElapsed=20908114, nowELAPSED=20904847
-06-08 16:39:12.807  1442  2254 W Settings: Setting airplane_mode_on has moved from android.provider.Settings.System to android.provider.Settings.Global, returning read-only value.
-06-08 16:39:12.807  1442  2254 D TelephonyManager: getAllCellInfo : Caller (PID / UID / TID): 1442 / 1000 / 2254
-06-08 16:39:12.807  2226  2295 V PassiveListener_FLP: onLocationChanged, provider=fused / isMock=false
-06-08 16:39:12.807  2752  5182 I FusedLocation: (REDACTED) location delivery to %s blocked - too close
-06-08 16:39:12.808  1442  5758 I SamsungAlarmManager: setLocked to kernel - T:2 / 20260608T163916, SetElapsed=20908114, nowELAPSED=20904850
-06-08 16:39:12.808  1442  5758 D SamsungAlarmManager: setExact Listener (T:3/F:9/AC:false) 20260608T173912 - CU:1000/CP:1442
-06-08 16:39:12.808  1442  5758 I SamsungAlarmManager: setLocked to kernel - T:2 / 20260608T163916, SetElapsed=20908114, nowELAPSED=20904850
-06-08 16:39:12.808  2752  5182 I FusedLocation: (REDACTED) location delivery to %s blocked - too close
-06-08 16:39:12.810  1442  2254 D SLocation: TrackingReceiverFilter - isChangedCellInfo - false
-06-08 16:39:12.810  1442  2254 D SLocation: TrackingReceiverFilter - checkValidForTrackingReceiver - LastGpsTimeThreshold = 120000
-06-08 16:39:12.810  1442  2254 D SLocation: TrackingReceiverFilter - checkValidForTrackingReceiver - blocking diff GPS time 0
-06-08 16:39:12.810  1442  2254 D SLocation: PositionManager - receive fused location
-06-08 16:39:12.810  1442  3594 I SamsungAlarmManager: setLocked to kernel - T:2 / 20260608T163916, SetElapsed=20908114, nowELAPSED=20904852
-06-08 16:39:12.810  2226  2295 V GmsPassiveListener_FLP: Got the onLocationResult !!!!
-06-08 16:39:12.810  1442  3594 D SamsungAlarmManager: setExact Listener (T:3/F:9/AC:false) 20260608T233905 - CU:1000/CP:1442
-06-08 16:39:12.810  1442  3594 I SamsungAlarmManager: setLocked to kernel - T:2 / 20260608T163916, SetElapsed=20908114, nowELAPSED=20904852
-06-08 16:39:12.813  1442  3594 I SamsungAlarmManager: setLocked to kernel - T:2 / 20260608T163916, SetElapsed=20908114, nowELAPSED=20904855
-06-08 16:39:12.813  1442  3594 D SamsungAlarmManager: setExact Listener (T:3/F:9/AC:false) 20260608T175056 - CU:1000/CP:1442
-06-08 16:39:12.813  1442  3594 I SamsungAlarmManager: setLocked to kernel - T:2 / 20260608T163916, SetElapsed=20908114, nowELAPSED=20904855
-06-08 16:39:12.815  1442  3594 I SamsungAlarmManager: setLocked to kernel - T:2 / 20260608T163916, SetElapsed=20908114, nowELAPSED=20904857
-06-08 16:39:12.815  1442  3594 D SamsungAlarmManager: setExact Listener (T:3/F:9/AC:false) 20260608T173912 - CU:1000/CP:1442
-06-08 16:39:12.815  1442  3594 I SamsungAlarmManager: setLocked to kernel - T:2 / 20260608T163916, SetElapsed=20908114, nowELAPSED=20904857
-06-08 16:39:12.817  1442  3594 I SamsungAlarmManager: setLocked to kernel - T:2 / 20260608T163916, SetElapsed=20908114, nowELAPSED=20904859
-06-08 16:39:12.817  1442  3594 D SamsungAlarmManager: setExact Listener (T:3/F:9/AC:false) 20260608T233905 - CU:1000/CP:1442
-06-08 16:39:12.818  1442  3594 I SamsungAlarmManager: setLocked to kernel - T:2 / 20260608T163916, SetElapsed=20908114, nowELAPSED=20904860
-06-08 16:39:12.932  3734  4142 D SDHMS:com.sec.android.sdhms.thermal.siop.B: SIOP:: AP:216(296,90) BAT:292(292,0) CHG:295(295,0) USB:285(285,0) WIFI:297(308,0) PA:306(300,0)
-06-08 16:39:12.932  1278  1951 I bauth_FPBAuthService: pcf : 0x1012, 0 ,1 ,0 ,0 ,0 ,0, 5.0.0.23
-06-08 16:39:12.932  1278  1951 I bauth_FPBAuthService: thread id : 1, preenroll_flag : 0, nd cnt : 0, cso : 0, et : 0
-06-08 16:39:12.932  1278  1951 I bauth_FPBAuthService: FPBAuthService, 11438
-06-08 16:39:13.012  1442 15660 V LocSvc_HIDL_DebugReportService_jni: DebugReportService_getReport
-06-08 16:39:13.012  1442 15660 D LocSvc_HIDL_DebugReportService_jni: DebugReportService_getReport, Get Latest 1 sec data.
-06-08 16:39:13.012  1442 15660 V LocSvc_HIDL_DebugReportService_jni: [DebugReportService_getReport][942] [HC] =>> [HS]
-06-08 16:39:13.014   821   821 E LocSvc_HIDL_DebugReportService: Invalid count: 0
-06-08 16:39:13.015  1442 15660 V LocSvc_HIDL_DebugReportService_jni: populateEphemerisStatusListObj
-06-08 16:39:13.015  1442 15660 V LocSvc_HIDL_DebugReportService_jni: populateFixStatusListObj
-06-08 16:39:13.015  1442 15660 V LocSvc_HIDL_DebugReportService_jni: populateEpiReportListObj
-06-08 16:39:13.015  1442 15660 V LocSvc_HIDL_DebugReportService_jni: populateBestLocationListObj
-06-08 16:39:13.015  1442 15660 V LocSvc_HIDL_DebugReportService_jni: populateGpsTimeReportListObj
-06-08 16:39:13.015  1442 15660 V LocSvc_HIDL_DebugReportService_jni: populateXoStateReportListObj
-06-08 16:39:13.015  1442 15660 V LocSvc_HIDL_DebugReportService_jni: populateRfStateReportListObjV1_1
-06-08 16:39:13.015  1442 15660 V LocSvc_HIDL_DebugReportService_jni: populateErrorRecoveriesListObj
-06-08 16:39:13.015  1442 15660 V LocSvc_HIDL_DebugReportService_jni: populatePdrReporListObj
-06-08 16:39:13.015  1442 15660 V LocSvc_HIDL_DebugReportService_jni: populateSvHealthReportListObj
-06-08 16:39:13.016  1442 15660 V LocSvc_HIDL_DebugReportService_jni: populateXtraReportListObj
-06-08 16:39:13.207  2052  2052 W View    : couldn't find view with id 16908291
-06-08 16:39:13.266 16079 16079 D SemCscFeature: Encoded
-06-08 16:39:13.270 16079 16079 I chatty  : uid=2000(shell) identical 1 line
-06-08 16:39:13.270 16079 16079 D SemCscFeature: Encoded
-06-08 16:39:13.324 16079 16079 I AccessibilityNodeInfoDumper: Skipping invisible child: android.view.accessibility.AccessibilityNodeInfo@36e50; boundsInParent: Rect(0, 0 - 1080, 426); boundsInScreen: Rect(0, 0 - 1080, 0); packageName: com.android.systemui; className: android.widget.FrameLayout; text: null; error: null; maxTextLength: -1; contentDescription: null; tooltipText: null; viewIdResName: com.android.systemui:id/quick_settings_container; checkable: false; checked: false; focusable: false; focused: false; selected: false; clickable: false; longClickable: false; contextClickable: false; enabled: true; password: false; scrollable: false; importantForAccessibility: false; visible: false; actions: [AccessibilityAction: ACTION_SELECT - null, AccessibilityAction: ACTION_CLEAR_SELECTION - null, AccessibilityAction: ACTION_ACCESSIBILITY_FOCUS - null, AccessibilityAction: ACTION_SHOW_ON_SCREEN - null]
-06-08 16:39:13.350 16079 16079 I AccessibilityNodeInfoDumper: Skipping invisible child: android.view.accessibility.AccessibilityNodeInfo@28592; boundsInParent: Rect(0, 0 - 1007, 381); boundsInScreen: Rect(1007, 229 - 1007, 610); packageName: com.android.systemui; className: android.widget.FrameLayout; text: null; error: null; maxTextLength: -1; contentDescription: null; tooltipText: null; viewIdResName: null; checkable: false; checked: false; focusable: true; focused: false; selected: false; clickable: false; longClickable: false; contextClickable: false; enabled: true; password: false; scrollable: false; importantForAccessibility: true; visible: false; actions: [AccessibilityAction: ACTION_FOCUS - null, AccessibilityAction: ACTION_SELECT - null, AccessibilityAction: ACTION_CLEAR_SELECTION - null, AccessibilityAction: ACTION_ACCESSIBILITY_FOCUS - null, AccessibilityAction: ACTION_SHOW_ON_SCREEN - null]
-06-08 16:39:13.351 16079 16079 I AccessibilityNodeInfoDumper: Skipping invisible child: android.view.accessibility.AccessibilityNodeInfo@28d14; boundsInParent: Rect(0, 0 - 1007, 381); boundsInScreen: Rect(1007, 229 - 1080, 610); packageName: com.android.systemui; className: android.widget.FrameLayout; text: null; error: null; maxTextLength: -1; contentDescription: null; tooltipText: null; viewIdResName: null; checkable: false; checked: false; focusable: true; focused: false; selected: false; clickable: false; longClickable: false; contextClickable: false; enabled: true; password: false; scrollable: false; importantForAccessibility: true; visible: false; actions: [AccessibilityAction: ACTION_FOCUS - null, AccessibilityAction: ACTION_SELECT - null, AccessibilityAction: ACTION_CLEAR_SELECTION - null, AccessibilityAction: ACTION_ACCESSIBILITY_FOCUS - null, AccessibilityAction: ACTION_SHOW_ON_SCREEN - null]
-06-08 16:39:13.351 16079 16079 I AccessibilityNodeInfoDumper: Skipping invisible child: android.view.accessibility.AccessibilityNodeInfo@ea60d; boundsInParent: Rect(0, 0 - 1007, 381); boundsInScreen: Rect(1007, 229 - 1080, 610); packageName: com.android.systemui; className: android.widget.FrameLayout; text: null; error: null; maxTextLength: -1; contentDescription: null; tooltipText: null; viewIdResName: null; checkable: false; checked: false; focusable: true; focused: false; selected: false; clickable: false; longClickable: false; contextClickable: false; enabled: true; password: false; scrollable: false; importantForAccessibility: true; visible: false; actions: [AccessibilityAction: ACTION_FOCUS - null, AccessibilityAction: ACTION_SELECT - null, AccessibilityAction: ACTION_CLEAR_SELECTION - null, AccessibilityAction: ACTION_ACCESSIBILITY_FOCUS - null, AccessibilityAction: ACTION_SHOW_ON_SCREEN - null]
-06-08 16:39:13.351 16079 16079 I AccessibilityNodeInfoDumper: Skipping invisible child: android.view.accessibility.AccessibilityNodeInfo@ca9c; boundsInParent: Rect(0, 0 - 1007, 0); boundsInScreen: Rect(0, 610 - 1007, 610); packageName: com.android.systemui; className: android.widget.LinearLayout; text: null; error: null; maxTextLength: -1; contentDescription: null; tooltipText: null; viewIdResName: com.android.systemui:id/keyguard_aod_ui_container; checkable: false; checked: false; focusable: false; focused: false; selected: false; clickable: false; longClickable: false; contextClickable: false; enabled: true; password: false; scrollable: false; importantForAccessibility: false; visible: false; actions: [AccessibilityAction: ACTION_SELECT - null, AccessibilityAction: ACTION_CLEAR_SELECTION - null, AccessibilityAction: ACTION_ACCESSIBILITY_FOCUS - null, AccessibilityAction: ACTION_SHOW_ON_SCREEN - null]
-06-08 16:39:13.352 16079 16079 I AccessibilityNodeInfoDumper: Skipping invisible child: android.view.accessibility.AccessibilityNodeInfo@e8a4; boundsInParent: Rect(0, 0 - 1080, 0); boundsInScreen: Rect(0, 157 - 1080, 157); packageName: com.android.systemui; className: android.widget.LinearLayout; text: null; error: null; maxTextLength: -1; contentDescription: null; tooltipText: null; viewIdResName: null; checkable: false; checked: false; focusable: false; focused: false; selected: false; clickable: false; longClickable: false; contextClickable: false; enabled: true; password: false; scrollable: false; importantForAccessibility: false; visible: false; actions: [AccessibilityAction: ACTION_SELECT - null, AccessibilityAction: ACTION_CLEAR_SELECTION - null, AccessibilityAction: ACTION_ACCESSIBILITY_FOCUS - null, AccessibilityAction: ACTION_SHOW_ON_SCREEN - null]
-06-08 16:39:13.352 16079 16079 I AccessibilityNodeInfoDumper: Skipping invisible child: android.view.accessibility.AccessibilityNodeInfo@cd491; boundsInParent: Rect(0, 0 - 220, 220); boundsInScreen: Rect(540, 1836 - 760, 2056); packageName: com.android.systemui; className: android.widget.LinearLayout; text: null; error: null; maxTextLength: -1; contentDescription: Phone; tooltipText: null; viewIdResName: null; checkable: false; checked: false; focusable: true; focused: false; selected: false; clickable: false; longClickable: false; contextClickable: false; enabled: true; password: false; scrollable: false; importantForAccessibility: true; visible: false; actions: [AccessibilityAction: ACTION_FOCUS - null, AccessibilityAction: ACTION_SELECT - null, AccessibilityAction: ACTION_CLEAR_SELECTION - null, AccessibilityAction: ACTION_ACCESSIBILITY_FOCUS - null, AccessibilityAction: ACTION_NEXT_AT_MOVEMENT_GRANULARITY - null, AccessibilityAction: ACTION_PREVIOUS_AT_MOVEMENT_GRANULARITY - null, AccessibilityAction: ACTION_SET_SELECTION - null, AccessibilityAction: ACTION_SHOW_ON_SCREEN - null]
-06-08 16:39:13.353 16079 16079 I AccessibilityNodeInfoDumper: Skipping invisible child: android.view.accessibility.AccessibilityNodeInfo@cdfd4; boundsInParent: Rect(0, 0 - 220, 220); boundsInScreen: Rect(752, 1836 - 972, 2056); packageName: com.android.systemui; className: android.widget.LinearLayout; text: null; error: null; maxTextLength: -1; contentDescription: Camera; tooltipText: null; viewIdResName: null; checkable: false; checked: false; focusable: true; focused: false; selected: false; clickable: false; longClickable: false; contextClickable: false; enabled: true; password: false; scrollable: false; importantForAccessibility: true; visible: false; actions: [AccessibilityAction: ACTION_FOCUS - null, AccessibilityAction: ACTION_SELECT - null, AccessibilityAction: ACTION_CLEAR_SELECTION - null, AccessibilityAction: ACTION_ACCESSIBILITY_FOCUS - null, AccessibilityAction: ACTION_NEXT_AT_MOVEMENT_GRANULARITY - null, AccessibilityAction: ACTION_PREVIOUS_AT_MOVEMENT_GRANULARITY - null, AccessibilityAction: ACTION_SET_SELECTION - null, AccessibilityAction: ACTION_SHOW_ON_SCREEN - null]
-06-08 16:39:13.353 16079 16079 I AccessibilityNodeInfoDumper: Skipping invisible child: android.view.accessibility.AccessibilityNodeInfo@25886; boundsInParent: Rect(0, 0 - 54, 54); boundsInScreen: Rect(0, 0 - 54, 54); packageName: com.android.systemui; className: android.widget.ImageView; text: null; error: null; maxTextLength: -1; contentDescription: null; tooltipText: null; viewIdResName: null; checkable: false; checked: false; focusable: false; focused: false; selected: false; clickable: false; longClickable: false; contextClickable: false; enabled: true; password: false; scrollable: false; importantForAccessibility: false; visible: false; actions: [AccessibilityAction: ACTION_SELECT - null, AccessibilityAction: ACTION_CLEAR_SELECTION - null, AccessibilityAction: ACTION_CLICK - null, AccessibilityAction: ACTION_ACCESSIBILITY_FOCUS - null, AccessibilityAction: ACTION_SHOW_ON_SCREEN - null]
-06-08 16:39:13.354 16079 16079 I AccessibilityNodeInfoDumper: Skipping invisible child: android.view.accessibility.AccessibilityNodeInfo@26008; boundsInParent: Rect(0, 0 - 229, 229); boundsInScreen: Rect(426, 1934 - 655, 2163); packageName: com.android.systemui; className: android.widget.FrameLayout; text: null; error: null; maxTextLength: -1; contentDescription: null; tooltipText: null; viewIdResName: com.android.systemui:id/floating_app_shortcut_image_container; checkable: false; checked: false; focusable: false; focused: false; selected: false; clickable: false; longClickable: false; contextClickable: false; enabled: true; password: false; scrollable: false; importantForAccessibility: false; visible: false; actions: [AccessibilityAction: ACTION_SELECT - null, AccessibilityAction: ACTION_CLEAR_SELECTION - null, AccessibilityAction: ACTION_ACCESSIBILITY_FOCUS - null, AccessibilityAction: ACTION_SHOW_ON_SCREEN - null]
-06-08 16:39:13.355 16079 16079 I AccessibilityNodeInfoDumper: Skipping invisible child: android.view.accessibility.AccessibilityNodeInfo@2bde1; boundsInParent: Rect(0, 0 - 0, 81); boundsInScreen: Rect(74, 0 - 74, 81); packageName: com.android.systemui; className: android.widget.LinearLayout; text: null; error: null; maxTextLength: -1; contentDescription: null; tooltipText: null; viewIdResName: com.android.systemui:id/home_carrier_information_container_hun; checkable: false; checked: false; focusable: false; focused: false; selected: false; clickable: false; longClickable: false; contextClickable: false; enabled: true; password: false; scrollable: false; importantForAccessibility: false; visible: false; actions: [AccessibilityAction: ACTION_SELECT - null, AccessibilityAction: ACTION_CLEAR_SELECTION - null, AccessibilityAction: ACTION_ACCESSIBILITY_FOCUS - null, AccessibilityAction: ACTION_SHOW_ON_SCREEN - null]
-06-08 16:39:13.355 16079 16079 I AccessibilityNodeInfoDumper: Skipping invisible child: android.view.accessibility.AccessibilityNodeInfo@2c563; boundsInParent: Rect(0, 0 - 0, 81); boundsInScreen: Rect(74, 0 - 74, 81); packageName: com.android.systemui; className: android.widget.LinearLayout; text: null; error: null; maxTextLength: -1; contentDescription: null; tooltipText: null; viewIdResName: com.android.systemui:id/left_clock_container; checkable: false; checked: false; focusable: false; focused: false; selected: false; clickable: false; longClickable: false; contextClickable: false; enabled: true; password: false; scrollable: false; importantForAccessibility: false; visible: false; actions: [AccessibilityAction: ACTION_SELECT - null, AccessibilityAction: ACTION_CLEAR_SELECTION - null, AccessibilityAction: ACTION_ACCESSIBILITY_FOCUS - null, AccessibilityAction: ACTION_SHOW_ON_SCREEN - null]
-06-08 16:39:13.356 16079 16079 I AccessibilityNodeInfoDumper: Skipping invisible child: android.view.accessibility.AccessibilityNodeInfo@2e36b; boundsInParent: Rect(0, 0 - 0, 81); boundsInScreen: Rect(792, 0 - 792, 81); packageName: com.android.systemui; className: android.widget.LinearLayout; text: null; error: null; maxTextLength: -1; contentDescription: null; tooltipText: null; viewIdResName: com.android.systemui:id/divided_statusIcons; checkable: false; checked: false; focusable: false; focused: false; selected: false; clickable: false; longClickable: false; contextClickable: false; enabled: true; password: false; scrollable: false; importantForAccessibility: false; visible: false; actions: [AccessibilityAction: ACTION_SELECT - null, AccessibilityAction: ACTION_CLEAR_SELECTION - null, AccessibilityAction: ACTION_ACCESSIBILITY_FOCUS - null, AccessibilityAction: ACTION_SHOW_ON_SCREEN - null]
-06-08 16:39:13.357 16079 16079 W AccessibilityNodeInfoDumper: Fetch time: 80ms
-06-08 16:39:13.360  1442  6043 W WindowManager: removeWindowToken: Attempted to remove non-existing token: android.os.Binder@c575483
-06-08 16:39:13.367   925  3639 I Layer   : id=1079 removeFromCurrentState WindowToken{d411600 android.os.Binder@c575483}#0 (72)
-06-08 16:39:13.368   925  3639 I SurfaceFlinger: id=1079 Removed WindowToken{d411600 android.os.Binder@c575483}#0 (72)
-06-08 16:39:13.371  1442  6043 D SettingsProvider: isChangeAllowed() : name = accessibility_enabled
-06-08 16:39:13.371  1442  6043 I AccessibilityManagerService: semIsAccessibilityServiceEnabled()
-06-08 16:39:13.376   925  3639 I SurfaceFlinger: id=1080 createSurf (0x0),-1 flag=80004, WindowToken{de23e92 android.os.Binder@9ac5c1d}#0
-06-08 16:39:13.377  1442  3594 D SettingsProvider: isChangeAllowed() : name = accelerometer_rotation
-06-08 16:39:13.378  1442  3594 D SettingsProvider: isChangeAllowed() : name = user_rotation
-06-08 16:39:13.378  1442  1442 D SettingsProvider: isChangeAllowed() : name = accessibility_enabled
-06-08 16:39:13.378  1442  3594 V WindowManager: rotationForOrientation(orient=5, last=0); user=0
-06-08 16:39:13.378  1442  1442 I AccessibilityManagerService: semIsAccessibilityServiceEnabled()
-06-08 16:39:13.378  1442  3594 V WindowManager: Computed rotation=0 for display id=0 based on lastOrientation=5 and oldRotation=0, caller=com.android.server.wm.DisplayContent.updateRotationUnchecked:1578 com.android.server.wm.WindowManagerService.updateRotationUnchecked:4312 com.android.server.wm.WindowManagerService.thawDisplayRotation:4264 com.android.server.wm.WindowManagerService.thawRotation:4227 android.view.IWindowManager$Stub.onTransact:2145 com.android.server.wm.WindowManagerService.onTransact:1392
-06-08 16:39:13.380   925   925 I Layer   : id=1079[1] Destroyed WindowToken{d411600 android.os.Binder@c575483}#0
-06-08 16:39:13.382  1442  1442 I SemDesktopModeManager: registerListener: com.android.server.wm.AccessibilityController$WindowsForAccessibilityObserver$1@f515063
-06-08 16:39:13.382  1442  1442 D WindowManager: focusedDisplayId : 0
-06-08 16:39:13.382  1442  1442 D WindowManager: w is invisible : c2ad405 com.android.systemui.ImageWallpaper
-06-08 16:39:13.382  1442  1442 D WindowManager: w is invisible : 4e44a56 com.sec.android.app.camera/com.sec.android.app.camera.Camera
-06-08 16:39:13.382  1442  1442 D WindowManager: w is invisible : 7edc4a0 com.sec.android.daemonapp/com.samsung.android.weather.app.locations.activity.WXLocationsActivity
-06-08 16:39:13.382  1442  1442 D WindowManager: w is invisible : 5910bfa com.sec.android.app.sbrowser/com.sec.android.app.sbrowser.SBrowserMainActivity
-06-08 16:39:13.382  1442  1442 D WindowManager: w is invisible : e895e7e com.sec.android.app.launcher/com.android.quickstep.RecentsActivity
-06-08 16:39:13.382  1442  1442 D WindowManager: w is invisible : 85ff23 com.linkedin.android/com.linkedin.android.authenticator.LaunchActivityDefault
-06-08 16:39:13.382  1442  1442 D WindowManager: w is invisible : f8ba476 com.microsoft.launcher/com.microsoft.launcher.Launcher
-06-08 16:39:13.383  1442  1442 D WindowManager: w is invisible : 2c80b5a ca.ocentra.parent.agent/ca.ocentra.parent.agent.MainActivity
-06-08 16:39:13.383  1442  1442 D WindowManager: w is invisible : ccae6e0 DockedStackDivider
-06-08 16:39:13.383  1442  1442 D WindowManager: w is invisible : b0c7359 AssistPreviewPanel
-06-08 16:39:13.383  1442  1442 D WindowManager: w is invisible : e1f75e4 Bouncer
-06-08 16:39:13.383  1442  1442 D WindowManager: w is invisible : 63ad4bc NavigationBar0
-06-08 16:39:13.383  1442  1442 D WindowManager: w is invisible : 51f45b1 InputMethod
-06-08 16:39:13.383  1442  1442 D WindowManager: w is invisible : c2ad405 com.android.systemui.ImageWallpaper
-06-08 16:39:13.383  1442  1442 D WindowManager: w is invisible : 4e44a56 com.sec.android.app.camera/com.sec.android.app.camera.Camera
-06-08 16:39:13.383  1442  1442 D WindowManager: w is invisible : 7edc4a0 com.sec.android.daemonapp/com.samsung.android.weather.app.locations.activity.WXLocationsActivity
-06-08 16:39:13.383  1442  1442 D WindowManager: w is invisible : 5910bfa com.sec.android.app.sbrowser/com.sec.android.app.sbrowser.SBrowserMainActivity
-06-08 16:39:13.383  1442  1442 D WindowManager: w is invisible : e895e7e com.sec.android.app.launcher/com.android.quickstep.RecentsActivity
-06-08 16:39:13.383  1442  1442 D WindowManager: w is invisible : 85ff23 com.linkedin.android/com.linkedin.android.authenticator.LaunchActivityDefault
-06-08 16:39:13.383  1442  1442 D WindowManager: w is invisible : f8ba476 com.microsoft.launcher/com.microsoft.launcher.Launcher
-06-08 16:39:13.383  1442  1442 D WindowManager: w is invisible : 2c80b5a ca.ocentra.parent.agent/ca.ocentra.parent.agent.MainActivity
-06-08 16:39:13.383  1442  1442 D WindowManager: w is invisible : ccae6e0 DockedStackDivider
-06-08 16:39:13.383  1442  1442 D WindowManager: w is invisible : b0c7359 AssistPreviewPanel
-06-08 16:39:13.383  1442  1442 D WindowManager: w is invisible : 7c6e11 StatusBar
-06-08 16:39:13.383  1442  1442 D WindowManager: w is invisible : e1f75e4 Bouncer
-06-08 16:39:13.383  1442  1442 D WindowManager: w is invisible : 63ad4bc NavigationBar0
-06-08 16:39:13.383  1442  1442 D WindowManager: w is invisible : 51f45b1 InputMethod
-06-08 16:39:13.383  1442  1442 D WindowManager: windowMattersToAccessibility, check : 7c6e11 StatusBar
-06-08 16:39:13.388 16079 16079 D AndroidRuntime: Shutting down VM
-06-08 16:39:13.388  1442  1442 I AccessibilityManagerService: semIsAccessibilityServiceEnabled()
-06-08 16:39:13.389  1442  1442 I AccessibilityManagerService: semIsAccessibilityServiceEnabled()
-06-08 16:39:13.392  1442  1442 D AS.AudioService: Accessibility volume enabled = false
-06-08 16:39:13.395  2052  2052 V NavBarStoreImpl: ------handleEvent [EventType] ON_UPDATE_REMOTEVIEW [Module] SecNavigationBarView  KEYS_LEFT_REMOTEVIEW_CONTAINER=android.widget.LinearLayout{1a5d9bb I.E...... ......I. 0,0-118,162 #7f0a0398 app:id/left_remoteview}  KEYS_NAVBAR_DARK_INTENSITY=0.0  KEYS_CONTEXTUALBUTTON_VISIBLE=false  KEYS_RIGHT_REMOTEVIEW_CONTAINER=android.widget.LinearLayout{d96ded8 I.E...... ......I. 962,0-1080,162 #7f0a0549 app:id/right_remoteview}
-06-08 16:39:13.395  2052  2052 V NavBarStoreImpl: --------[Band]REMOTE_VIEW_PACK_SET_REMOTEVIEW_CONTAINER
-06-08 16:39:13.395  2052  2052 V NavBarStoreImpl: ----------apply(UPDATE_NAVBAR_REMOTEVIEW_CONTAINER)
-06-08 16:39:13.396  2052  2052 V NavBarStoreImpl: ----------apply(UPDATE_NAVBAR_RIGHT_REMOTEVIEW_VISIBILITY)
-06-08 16:39:13.396  2052  2052 V NavBarStoreImpl: ----------isEnabled(NAVBAR_REMOTEVIEW_DARKINTENSITY_CHANGED)=false
-06-08 16:39:13.413  2052  2052 V NavBarStoreImpl: handleEvent [EventType] GET_BOOL_NAVBAR_CAN_MOVE_STATE [Module] SecNavigationBarView
-06-08 16:39:13.413  2052  2052 V NavBarStoreImpl: --[Band]GESTURE_PACK_GET_BOOL_NAVBAR_CAN_MOVE_NAVBARVIEW
-06-08 16:39:13.413  2052  2052 V NavBarStoreImpl: ----apply(SET_CURRENT_NAVBAR_CAN_MOVE)
-06-08 16:39:13.413  2052  2052 V NavBarStoreImpl: getResult(GET_BOOL_NAVBAR_CAN_MOVE_STATE)=true
-06-08 16:39:13.707   821  1142 I LocSvc_ApiV02: <--- globalEventCb line 245 QMI_LOC_EVENT_NMEA_IND_V02
-06-08 16:39:13.769   821  1142 I chatty  : uid=1000(system) LocApiMsgTask identical 2 lines
-06-08 16:39:13.770   821  1142 I LocSvc_ApiV02: <--- globalEventCb line 245 QMI_LOC_EVENT_NMEA_IND_V02
-06-08 16:39:13.770   821  1142 I LocSvc_ApiV02: <--- globalEventCb line 245 QMI_LOC_EVENT_GNSS_SV_INFO_IND_V02
-06-08 16:39:13.770   821  1142 I LocSvc_ApiV02: <--- globalEventCb line 245 QMI_LOC_EVENT_NMEA_IND_V02
-06-08 16:39:13.770   821  1142 I LocSvc_ApiV02: <--- globalEventCb line 245 QMI_LOC_EVENT_POSITION_REPORT_IND_V02
-06-08 16:39:13.771   821  1142 I LocSvc_ApiV02: <--- globalEventCb line 245 QMI_LOC_EVENT_NMEA_IND_V02
-06-08 16:39:13.771   821  1142 I chatty  : uid=1000(system) LocApiMsgTask identical 2 lines
-06-08 16:39:13.771   821  1142 I LocSvc_ApiV02: <--- globalEventCb line 245 QMI_LOC_EVENT_NMEA_IND_V02
-06-08 16:39:13.773  1442  2261 I GnssLocationProvider: WakeLock acquired by sendMessage(REPORT_SV_STATUS, 0, com.android.server.location.GnssLocationProvider$SvStatusInfo@b379d19)
-06-08 16:39:13.774  1442  1887 D GnssLocationProvider_ex: SV Count : 7 / 10      (PRN, Constellation, SNR, Used)
-06-08 16:39:13.774  1442  1887 D GnssLocationProvider_ex: (5, GPS, 27.3, 1) (18, GPS, 43.3, 1) (20, GPS, 34.9, 1) (23, GPS, 32.6, 1) (24, GPS, 30.4, 1) (27, GPS, 21.4, 0)
-06-08 16:39:13.774  1442  1887 D GnssLocationProvider_ex: (22, GLONASS, 35.4, 0) (16, GLONASS, 20.0, 1) (23, GLONASS, 21.2, 0) (7, GLONASS, 25.7, 1)
-06-08 16:39:13.774  1442  1887 I GnssLocationProvider: WakeLock released by handleMessage(REPORT_SV_STATUS, 0, com.android.server.location.GnssLocationProvider$SvStatusInfo@b379d19)
-06-08 16:39:13.777  1442  1553 I GnssLocationProvider: WakeLock acquired by sendMessage(REPORT_LOCATION, 1)
-06-08 16:39:13.778  2226  2295 V GnssStatusListener_FLP: updateSatelliteStatus, top4=36, top6=33, visibleSv=10, usedSv=8, usedL5Sv=0
-06-08 16:39:13.780   821   943 E LocSvc_SystemStatus: PQWP7parser - invalid size=404
-06-08 16:39:13.782  1442  1887 I GnssLocationProvider: WakeLock released by handleMessage(REPORT_LOCATION, 1)
-06-08 16:39:13.784  1442  3574 I LocationManagerService: getGPSUsingApps() called
-06-08 16:39:13.784  1442  3574 I NSLocationMonitor: getGPSUsingApps() called
-06-08 16:39:13.784  2226 15044 W NSLocationManager_FLP: add uid 10259 to freeze whitelist by using gps in foreground
-06-08 16:39:13.784  2226 15044 W NSLocationManager_FLP: add uid 10259 to freeze whitelist by using gps in foreground
-06-08 16:39:13.790  1442  2254 D SLocation: PositionManager - PassiveonLocationChanged gps 1780951154000
-06-08 16:39:13.790  1442  2254 D SLocation: TrackingReceiverFilter - refreshCellInfo
-06-08 16:39:13.790  1442  2254 W Settings: Setting airplane_mode_on has moved from android.provider.Settings.System to android.provider.Settings.Global, returning read-only value.
-06-08 16:39:13.790  2226  2295 V PassiveListener_FLP: onLocationChanged, provider=gps / isMock=false
-06-08 16:39:13.790  1442  2254 D TelephonyManager: getAllCellInfo : Caller (PID / UID / TID): 1442 / 1000 / 2254
-06-08 16:39:13.793  2752  5182 I FusedLocation: (REDACTED) location delivery to %s blocked - too fast
-06-08 16:39:13.794  1442  2254 D SLocation: GeofenceLocationFilter - location sent before 2722, need to filter / provider : gps, accuracy : 13.936001
-06-08 16:39:13.794  1442  2254 W Settings: Setting airplane_mode_on has moved from android.provider.Settings.System to android.provider.Settings.Global, returning read-only value.
-06-08 16:39:13.794  1442  2254 D TelephonyManager: getAllCellInfo : Caller (PID / UID / TID): 1442 / 1000 / 2254
-06-08 16:39:13.796  1442  2396 I SamsungAlarmManager: setLocked to kernel - T:2 / 20260608T163916, SetElapsed=20908114, nowELAPSED=20905838
-06-08 16:39:13.796  1442  2396 D SamsungAlarmManager: setExact Listener (T:3/F:9/AC:false) 20260608T175056 - CU:1000/CP:1442
-06-08 16:39:13.796  1442  2396 I SamsungAlarmManager: setLocked to kernel - T:2 / 20260608T163916, SetElapsed=20908114, nowELAPSED=20905838
-06-08 16:39:13.797  2752  5182 I FusedLocation: (REDACTED) location delivery to %s blocked - too fast
-06-08 16:39:13.798  2752  5182 I FusedLocation: (REDACTED) location delivery to %s blocked - too close
-06-08 16:39:13.799  2226  2295 V PassiveListener_FLP: onLocationChanged, provider=fused / isMock=false
-06-08 16:39:13.799  1442  2254 D SLocation: TrackingReceiverFilter - isChangedCellInfo - false
-06-08 16:39:13.799  1442  2254 D SLocation: TrackingReceiverFilter - checkValidForTrackingReceiver - LastGpsTimeThreshold = 120000
-06-08 16:39:13.799  1442  2254 D SLocation: TrackingReceiverFilter - checkValidForTrackingReceiver - gps location is always valid.
-06-08 16:39:13.799  1442  2396 I SamsungAlarmManager: setLocked to kernel - T:2 / 20260608T163916, SetElapsed=20908114, nowELAPSED=20905841
-06-08 16:39:13.799  1442  2254 D SLocation: PositionManager - PassiveonLocationChanged fused 1780951153777
-06-08 16:39:13.799  1442  2396 D SamsungAlarmManager: setExact Listener (T:3/F:9/AC:false) 20260608T173913 - CU:1000/CP:1442
-06-08 16:39:13.799  1442  2396 I SamsungAlarmManager: setLocked to kernel - T:2 / 20260608T163916, SetElapsed=20908114, nowELAPSED=20905841
-06-08 16:39:13.799  1442  2254 W SLocation: PositionManager - do not refresh last location about fused location
-06-08 16:39:13.800  2752  5182 I FusedLocation: (REDACTED) location delivery to %s blocked - too close
-06-08 16:39:13.803  1442  2254 W Settings: Setting airplane_mode_on has moved from android.provider.Settings.System to android.provider.Settings.Global, returning read-only value.
-06-08 16:39:13.803  1442  2254 D TelephonyManager: getAllCellInfo : Caller (PID / UID / TID): 1442 / 1000 / 2254
-06-08 16:39:13.803  2226 15044 V NSLocationManager_FLP: getGPSUsingApps, NO_FREEZE={5013, 10259}/ FREEZE={}
-06-08 16:39:13.804  2226  2295 V GmsPassiveListener_FLP: Got the onLocationResult !!!!
-06-08 16:39:13.804  1442  2254 D SLocation: TrackingReceiverFilter - isChangedCellInfo - false
-06-08 16:39:13.804  1442  2254 D SLocation: TrackingReceiverFilter - checkValidForTrackingReceiver - LastGpsTimeThreshold = 120000
-06-08 16:39:13.804  1442  2254 D SLocation: TrackingReceiverFilter - checkValidForTrackingReceiver - blocking diff GPS time 0
-06-08 16:39:13.804  1442  2254 D SLocation: PositionManager - receive fused location
-06-08 16:39:13.804  1442  2396 I SamsungAlarmManager: setLocked to kernel - T:2 / 20260608T163916, SetElapsed=20908114, nowELAPSED=20905846
-06-08 16:39:13.804  1442  2396 D SamsungAlarmManager: setExact Listener (T:3/F:9/AC:false) 20260608T233905 - CU:1000/CP:1442
-06-08 16:39:13.804  1442  2396 I SamsungAlarmManager: setLocked to kernel - T:2 / 20260608T163916, SetElapsed=20908114, nowELAPSED=20905847
-06-08 16:39:13.806  1442  2396 I SamsungAlarmManager: setLocked to kernel - T:2 / 20260608T163916, SetElapsed=20908114, nowELAPSED=20905848
-06-08 16:39:13.806  1442  2396 D SamsungAlarmManager: setExact Listener (T:3/F:9/AC:false) 20260608T175056 - CU:1000/CP:1442
-06-08 16:39:13.806  1442  2396 I SamsungAlarmManager: setLocked to kernel - T:2 / 20260608T163916, SetElapsed=20908114, nowELAPSED=20905848
-06-08 16:39:13.808  1442  2396 I SamsungAlarmManager: setLocked to kernel - T:2 / 20260608T163916, SetElapsed=20908114, nowELAPSED=20905850
-06-08 16:39:13.808  3734  5614 W ContextImpl: Calling a method in the system process without a qualified user: android.app.ContextImpl.sendBroadcast:1088 android.content.ContextWrapper.sendBroadcast:454 Ka.a.a:18 _a.i.a:1 com.sec.android.sdhms.common.d.H:4
-06-08 16:39:13.808  1442  2396 D SamsungAlarmManager: setExact Listener (T:3/F:9/AC:false) 20260608T173913 - CU:1000/CP:1442
-06-08 16:39:13.808  1442  2396 I SamsungAlarmManager: setLocked to kernel - T:2 / 20260608T163916, SetElapsed=20908114, nowELAPSED=20905850
-06-08 16:39:13.810  1442  2396 I SamsungAlarmManager: setLocked to kernel - T:2 / 20260608T163916, SetElapsed=20908114, nowELAPSED=20905852
-06-08 16:39:13.810  1442  2396 D SamsungAlarmManager: setExact Listener (T:3/F:9/AC:false) 20260608T233905 - CU:1000/CP:1442
-06-08 16:39:13.810  1442  2396 I SamsungAlarmManager: setLocked to kernel - T:2 / 20260608T163916, SetElapsed=20908114, nowELAPSED=20905852
-06-08 16:39:13.811  1442  1593 D FreecessController: FZ : com.google.android.youtube(10339)
-06-08 16:39:13.812  1442  1593 D FreecessController: FZ : com.google.android.youtube(0), reason: SDHMS
-06-08 16:39:13.817  1144  1855 I netd    : firewallSetUidRule(4, 10239, 2) <4.99ms>
-06-08 16:39:13.818  1144  1855 I netd    : socketDestroy([]) <0.36ms>
-06-08 16:39:13.818  1442  3225 I PowerManagerService: [PWL] SetWakeLockEnableDisable uid = 10239 , disable= true
-06-08 16:39:13.818  1442  3225 I PowerManagerService: [PWL] can not change uid =  10239
-06-08 16:39:13.819  1442  3225 D FreecessController: apply [LRs:true] to uid[10239]
-06-08 16:39:13.819  1442  3225 W LocationManagerService: onFreezeStateChanged, uid[10239]=true
-06-08 16:39:13.819  1442  1593 D FreecessController: FZ : com.google.android.gm(5449)
-06-08 16:39:13.820  1442  1593 D FreecessController: FZ : com.google.android.gm(0), reason: SDHMS
-06-08 16:39:13.822  1144  1855 I netd    : firewallSetUidRule(4, 10228, 2) <2.27ms>
-06-08 16:39:13.823  1144  1855 I netd    : socketDestroy([]) <0.91ms>
-06-08 16:39:13.824  1442  3225 I PowerManagerService: [PWL] SetWakeLockEnableDisable uid = 10228 , disable= true
-06-08 16:39:13.824  1442  3225 I PowerManagerService: [PWL] can not change uid =  10228
-06-08 16:39:13.824  1442  3225 D FreecessController: apply [LRs:true] to uid[10228]
-06-08 16:39:13.824  1442  3225 W LocationManagerService: onFreezeStateChanged, uid[10228]=true
-06-08 16:39:13.825  1442  1593 D FreecessController: FZ : com.sec.android.app.sbrowser(24023)
-06-08 16:39:13.826  1442  1593 D FreecessController: FZ : com.sec.android.app.sbrowser(29196)
-06-08 16:39:13.827  1442  1593 D FreecessController: FZ : com.sec.android.app.sbrowser(0), reason: SDHMS
-06-08 16:39:13.831  1144  1855 I netd    : firewallSetUidRule(4, 10246, 2) <4.26ms>
-06-08 16:39:13.833  1144  1855 I netd    : socketDestroy([]) <0.90ms>
-06-08 16:39:13.833  1442  3225 I PowerManagerService: [PWL] SetWakeLockEnableDisable uid = 10246 , disable= true
-06-08 16:39:13.833  1442  3225 I PowerManagerService: [PWL] can not change uid =  10246
-06-08 16:39:13.833  1442  3225 D FreecessController: apply [LRs:true] to uid[10246]
-06-08 16:39:13.833  1442  3225 W LocationManagerService: onFreezeStateChanged, uid[10246]=true
-06-08 16:39:13.835  1442  1593 D FreecessController: FZ : com.linkedin.android(16287)
-06-08 16:39:13.836  1442  1593 D FreecessController: FZ : com.linkedin.android(0), reason: SDHMS
-06-08 16:39:13.841  1144  1855 I netd    : firewallSetUidRule(4, 10294, 2) <4.34ms>
-06-08 16:39:13.843  1144  1855 I netd    : socketDestroy([]) <1.00ms>
-06-08 16:39:13.843  1442  3225 I PowerManagerService: [PWL] SetWakeLockEnableDisable uid = 10294 , disable= true
-06-08 16:39:13.843  1442  3225 I PowerManagerService: [PWL] can not change uid =  10294
-06-08 16:39:13.843  1442  3225 D FreecessController: apply [LRs:true] to uid[10294]
-06-08 16:39:13.843  1442  3225 W LocationManagerService: onFreezeStateChanged, uid[10294]=true
-06-08 16:39:13.844  1442  1593 D FreecessController: FZ : com.sec.android.app.camera(10063)
-06-08 16:39:13.845  1442  3574 I EDMNativeHelperService: isScreenCaptureEnabled
-06-08 16:39:13.845  1442  1593 D FreecessController: FZ : com.sec.android.app.camera(0), reason: SDHMS
-06-08 16:39:13.846  1442  3574 D RestrictionPolicy: isScreenCaptureEnabled : ret=true userId=0
-06-08 16:39:13.852  1144  1855 I netd    : firewallSetUidRule(4, 10114, 2) <6.43ms>
-06-08 16:39:13.853  1144  1855 I netd    : socketDestroy([]) <0.97ms>
-06-08 16:39:13.854  1442  3225 I PowerManagerService: [PWL] SetWakeLockEnableDisable uid = 10114 , disable= true
-06-08 16:39:13.854  1442  3225 I PowerManagerService: [PWL] can not change uid =  10114
-06-08 16:39:13.854  1442  3225 D FreecessController: apply [LRs:true] to uid[10114]
-06-08 16:39:13.854  1442  3225 W LocationManagerService: onFreezeStateChanged, uid[10114]=true
-06-08 16:39:13.859   600   600 I hwservicemanager: getTransport: Cannot find entry android.hardware.graphics.mapper@3.0::IMapper/default in either framework or device manifest.
-06-08 16:39:13.860 16110 16110 W Gralloc3: mapper 3.x is not supported
-06-08 16:39:13.932  1278  1951 I bauth_FPBAuthService: pcf : 0x1012, 0 ,1 ,0 ,0 ,0 ,0, 5.0.0.23
-06-08 16:39:13.932  1278  1951 I bauth_FPBAuthService: thread id : 1, preenroll_flag : 0, nd cnt : 0, cso : 0, et : 0
-06-08 16:39:13.932  1278  1951 I bauth_FPBAuthService: FPBAuthService, 11438
-06-08 16:39:14.013  1442 15660 V LocSvc_HIDL_DebugReportService_jni: DebugReportService_getReport
-06-08 16:39:14.013  1442 15660 D LocSvc_HIDL_DebugReportService_jni: DebugReportService_getReport, Get Latest 1 sec data.
-06-08 16:39:14.013  1442 15660 V LocSvc_HIDL_DebugReportService_jni: [DebugReportService_getReport][942] [HC] =>> [HS]
-06-08 16:39:14.014   821   821 E LocSvc_HIDL_DebugReportService: Invalid count: 0
-06-08 16:39:14.014  1442 15660 V LocSvc_HIDL_DebugReportService_jni: populateEphemerisStatusListObj
-06-08 16:39:14.014  1442 15660 V LocSvc_HIDL_DebugReportService_jni: populateFixStatusListObj
-06-08 16:39:14.014  1442 15660 V LocSvc_HIDL_DebugReportService_jni: populateEpiReportListObj
-06-08 16:39:14.014  1442 15660 V LocSvc_HIDL_DebugReportService_jni: populateBestLocationListObj
-06-08 16:39:14.015  1442 15660 V LocSvc_HIDL_DebugReportService_jni: populateGpsTimeReportListObj
-06-08 16:39:14.015  1442 15660 V LocSvc_HIDL_DebugReportService_jni: populateXoStateReportListObj
-06-08 16:39:14.015  1442 15660 V LocSvc_HIDL_DebugReportService_jni: populateRfStateReportListObjV1_1
-06-08 16:39:14.015  1442 15660 V LocSvc_HIDL_DebugReportService_jni: populateErrorRecoveriesListObj
-06-08 16:39:14.015  1442 15660 V LocSvc_HIDL_DebugReportService_jni: populatePdrReporListObj
-06-08 16:39:14.015  1442 15660 V LocSvc_HIDL_DebugReportService_jni: populateSvHealthReportListObj
-06-08 16:39:14.015  1442 15660 V LocSvc_HIDL_DebugReportService_jni: populateXtraReportListObj
-06-08 16:39:14.062  1442  3574 D NtpTrustedTime: currentTimeMillis() cache hit
-06-08 16:39:14.076  1144  1855 I netd    : tetherGetStats() <4.48ms>
-06-08 16:39:14.083  1442  3574 D NtpTrustedTime: currentTimeMillis() cache hit
-06-08 16:39:14.086  1442  1865 D NtpTrustedTime: currentTimeMillis() cache hit
-06-08 16:39:14.086  1442  1865 D NetworkStatsCollection: getHistory: mached - UID: -1, isVideoCall: false
-06-08 16:39:14.086  1442  1865 D NetworkStatsCollection: getHistory: mached - UID: -1, isVideoCall: false
-06-08 16:39:14.087  1442  1865 D NtpTrustedTime: currentTimeMillis() cache hit
-06-08 16:39:14.087  1442  1865 V NetworkPolicy: updateNotificationsNL() - totalBytes : 9241823, policy : NetworkPolicy{template=NetworkTemplate: matchRule=MOBILE, subscriberId=302610..., matchSubscriberIds=[302610...] cycleRule=RecurrenceRule{start=2025-01-01T00:00-05:00[America/Toronto] end=null period=P1M} warningBytes=2000000000 limitBytes=-1 lastWarningSnooze=-1 lastLimitSnooze=-1 lastRapidSnooze=-1 metered=true inferred=true}
-06-08 16:39:14.090  1442  3574 D NtpTrustedTime: currentTimeMillis() cache hit
-06-08 16:39:14.097  1144  1855 I netd    : tetherGetStats() <3.20ms>
-06-08 16:39:14.102  1442  3574 D NtpTrustedTime: currentTimeMillis() cache hit
-06-08 16:39:14.104  1442  1865 D NtpTrustedTime: currentTimeMillis() cache hit
-06-08 16:39:14.105  1442  1865 D NetworkStatsCollection: getHistory: mached - UID: -1, isVideoCall: false
-06-08 16:39:14.105  1442  1865 D NetworkStatsCollection: getHistory: mached - UID: -1, isVideoCall: false
-06-08 16:39:14.105  1442  1865 D NtpTrustedTime: currentTimeMillis() cache hit
+06-08 17:47:57.660  1442  1470 I BatteryStatsService: In wakeup_callback: resumed from suspend
+06-08 17:47:57.764   694  5839 I         : !@SystemSuspend: mWakeupCountFd+
+06-08 17:47:57.955  1442  4090 V LocSvc_HIDL_DebugReportService_jni: DebugReportService_getReport
+06-08 17:47:57.956  1442  4090 D LocSvc_HIDL_DebugReportService_jni: DebugReportService_getReport, Get Latest 1 sec data.
+06-08 17:47:57.956  1442  4090 V LocSvc_HIDL_DebugReportService_jni: [DebugReportService_getReport][942] [HC] =>> [HS]
+06-08 17:47:57.957   821   821 E LocSvc_HIDL_DebugReportService: Invalid count: 0
+06-08 17:47:57.957  1442  4090 V LocSvc_HIDL_DebugReportService_jni: populateEphemerisStatusListObj
+06-08 17:47:57.958  1442  4090 V LocSvc_HIDL_DebugReportService_jni: populateFixStatusListObj
+06-08 17:47:57.958  1442  4090 V LocSvc_HIDL_DebugReportService_jni: populateEpiReportListObj
+06-08 17:47:57.958  1442  4090 V LocSvc_HIDL_DebugReportService_jni: populateBestLocationListObj
+06-08 17:47:57.958  1442  4090 V LocSvc_HIDL_DebugReportService_jni: populateGpsTimeReportListObj
+06-08 17:47:57.958  1442  4090 V LocSvc_HIDL_DebugReportService_jni: populateXoStateReportListObj
+06-08 17:47:57.958  1442  4090 V LocSvc_HIDL_DebugReportService_jni: populateRfStateReportListObjV1_1
+06-08 17:47:57.958  1442  4090 V LocSvc_HIDL_DebugReportService_jni: populateErrorRecoveriesListObj
+06-08 17:47:57.958  1442  4090 V LocSvc_HIDL_DebugReportService_jni: populatePdrReporListObj
+06-08 17:47:57.958  1442  4090 V LocSvc_HIDL_DebugReportService_jni: populateSvHealthReportListObj
+06-08 17:47:57.959  1442  4090 V LocSvc_HIDL_DebugReportService_jni: populateXtraReportListObj
+--------- beginning of system
+06-08 17:47:57.999  3227  3227 I io_stats: !@   8,0 r 1442981 52303504 w 305604 4426612 d 42142 1211792 f 131344 131950 iot 560080 492228 th 102400 0 0 pt 0 inp 0 0 20288.184
+06-08 17:47:58.124   694  5839 I         : !@SystemSuspend: mWakeupCountFd-
+06-08 17:47:58.125  4231  4261 I ng.storyservic: Waiting for a blocking GC ProfileSaver
+06-08 17:47:58.125   694  5839 I         : !@SystemSuspend: write mem+
+06-08 17:47:59.476  1278  1951 I bauth_FPBAuthService: pcf : 0x1012, 0 ,1 ,0 ,0 ,0 ,0, 5.0.0.23
+06-08 17:47:59.476  1278  1951 I bauth_FPBAuthService: thread id : 1, preenroll_flag : 0, nd cnt : 0, cso : 0, et : 0
+06-08 17:47:59.477  1278  1951 I bauth_FPBAuthService: FPBAuthService, 11438
+06-08 17:47:59.477  1442  1811 D SamsungAlarmManager: Expired : 65536
+06-08 17:47:59.477  1442  1811 I SamsungAlarmManager: setLocked to kernel - T:2 / 20260608T174827, SetElapsed=25059623, nowELAPSED=25031519
+06-08 17:47:59.478  1442  1811 I SamsungAlarmManager: setLocked to kernel - T:3 / 20260608T174759, SetElapsed=25032042, nowELAPSED=25031520
+06-08 17:47:59.490   694  5839 I         : !@SystemSuspend: write mem-
+06-08 17:47:59.491  1442  1470 I BatteryStatsService: In wakeup_callback: resumed from suspend
+06-08 17:47:59.592   694  5839 I         : !@SystemSuspend: mWakeupCountFd+
+06-08 17:47:59.642  1442  4090 V LocSvc_HIDL_DebugReportService_jni: DebugReportService_getReport
+06-08 17:47:59.642  1442  4090 D LocSvc_HIDL_DebugReportService_jni: DebugReportService_getReport, Get Latest 1 sec data.
+06-08 17:47:59.642  1442  4090 V LocSvc_HIDL_DebugReportService_jni: [DebugReportService_getReport][942] [HC] =>> [HS]
+06-08 17:47:59.644   821   821 E LocSvc_HIDL_DebugReportService: Invalid count: 0
+06-08 17:47:59.644  1442  4090 V LocSvc_HIDL_DebugReportService_jni: populateEphemerisStatusListObj
+06-08 17:47:59.645  1442  4090 V LocSvc_HIDL_DebugReportService_jni: populateFixStatusListObj
+06-08 17:47:59.645  1442  4090 V LocSvc_HIDL_DebugReportService_jni: populateEpiReportListObj
+06-08 17:47:59.645  1442  4090 V LocSvc_HIDL_DebugReportService_jni: populateBestLocationListObj
+06-08 17:47:59.645  1442  4090 V LocSvc_HIDL_DebugReportService_jni: populateGpsTimeReportListObj
+06-08 17:47:59.645  1442  4090 V LocSvc_HIDL_DebugReportService_jni: populateXoStateReportListObj
+06-08 17:47:59.645  1442  4090 V LocSvc_HIDL_DebugReportService_jni: populateRfStateReportListObjV1_1
+06-08 17:47:59.645  1442  4090 V LocSvc_HIDL_DebugReportService_jni: populateErrorRecoveriesListObj
+06-08 17:47:59.645  1442  4090 V LocSvc_HIDL_DebugReportService_jni: populatePdrReporListObj
+06-08 17:47:59.645  1442  4090 V LocSvc_HIDL_DebugReportService_jni: populateSvHealthReportListObj
+06-08 17:47:59.645  1442  4090 V LocSvc_HIDL_DebugReportService_jni: populateXtraReportListObj
+06-08 17:47:59.955  1442  4090 V LocSvc_HIDL_DebugReportService_jni: DebugReportService_getReport
+06-08 17:47:59.955  1442  4090 D LocSvc_HIDL_DebugReportService_jni: DebugReportService_getReport, Get Latest 1 sec data.
+06-08 17:47:59.955  1442  4090 V LocSvc_HIDL_DebugReportService_jni: [DebugReportService_getReport][942] [HC] =>> [HS]
+06-08 17:47:59.958   821   821 E LocSvc_HIDL_DebugReportService: Invalid count: 0
+06-08 17:47:59.958  1442  4090 V LocSvc_HIDL_DebugReportService_jni: populateEphemerisStatusListObj
+06-08 17:47:59.959  1442  4090 V LocSvc_HIDL_DebugReportService_jni: populateFixStatusListObj
+06-08 17:47:59.959  1442  4090 V LocSvc_HIDL_DebugReportService_jni: populateEpiReportListObj
+06-08 17:47:59.959  1442  4090 V LocSvc_HIDL_DebugReportService_jni: populateBestLocationListObj
+06-08 17:47:59.959  1442  4090 V LocSvc_HIDL_DebugReportService_jni: populateGpsTimeReportListObj
+06-08 17:47:59.959  1442  4090 V LocSvc_HIDL_DebugReportService_jni: populateXoStateReportListObj
+06-08 17:47:59.959  1442  4090 V LocSvc_HIDL_DebugReportService_jni: populateRfStateReportListObjV1_1
+06-08 17:47:59.959  1442  4090 V LocSvc_HIDL_DebugReportService_jni: populateErrorRecoveriesListObj
+06-08 17:47:59.959  1442  4090 V LocSvc_HIDL_DebugReportService_jni: populatePdrReporListObj
+06-08 17:47:59.959  1442  4090 V LocSvc_HIDL_DebugReportService_jni: populateSvHealthReportListObj
+06-08 17:47:59.960  1442  4090 V LocSvc_HIDL_DebugReportService_jni: populateXtraReportListObj
+06-08 17:48:00.000  1442  1811 D SamsungAlarmManager: Expired : 8
+06-08 17:48:00.000  1442  1811 I SamsungAlarmManager: setLocked to kernel - T:2 / 20260608T174827, SetElapsed=25059623, nowELAPSED=25032042
+06-08 17:48:00.000  1442  1811 E AlarmManager: Set nextNonWakeup as mNextNonWakeupDeliveryTime=25212042 , orig nextNonWakeup=0
+06-08 17:48:00.001  1442  1811 I SamsungAlarmManager: setLocked to kernel - T:3 / 20260608T175100, SetElapsed=25212042, nowELAPSED=25032043
+06-08 17:48:00.477  1278  1951 I bauth_FPBAuthService: pcf : 0x1012, 0 ,1 ,0 ,0 ,0 ,0, 5.0.0.23
+06-08 17:48:00.477  1278  1951 I bauth_FPBAuthService: thread id : 1, preenroll_flag : 0, nd cnt : 0, cso : 0, et : 0
+06-08 17:48:00.477  1278  1951 I bauth_FPBAuthService: FPBAuthService, 11438
+06-08 17:48:00.532  1442  1470 W ActivityManager: Permission Denial: Accessing service com.samsung.knox.securefolder/.common.provider.DebugService from pid=4295, uid=2000 that is not exported from uid 10130
+06-08 17:48:00.535  1442  1470 D ActivityManager: No process found for: com.samsung.knox.securefolder.common.provider.DebugService
+06-08 17:48:00.690  1442  1470 W ActivityManager: Permission Denial: Accessing service com.samsung.knox.securefolder/.common.provider.DebugService from pid=4298, uid=2000 that is not exported from uid 10130
+06-08 17:48:00.691  1442  1470 D ActivityManager: No process found for: com.samsung.knox.securefolder.common.provider.DebugService
+06-08 17:48:00.955  1442  4090 V LocSvc_HIDL_DebugReportService_jni: DebugReportService_getReport
+06-08 17:48:00.955  1442  4090 D LocSvc_HIDL_DebugReportService_jni: DebugReportService_getReport, Get Latest 1 sec data.
+06-08 17:48:00.955  1442  4090 V LocSvc_HIDL_DebugReportService_jni: [DebugReportService_getReport][942] [HC] =>> [HS]
+06-08 17:48:00.957   821   821 E LocSvc_HIDL_DebugReportService: Invalid count: 0
+06-08 17:48:00.957  1442  4090 V LocSvc_HIDL_DebugReportService_jni: populateEphemerisStatusListObj
+06-08 17:48:00.958  1442  4090 V LocSvc_HIDL_DebugReportService_jni: populateFixStatusListObj
+06-08 17:48:00.958  1442  4090 V LocSvc_HIDL_DebugReportService_jni: populateEpiReportListObj
+06-08 17:48:00.958  1442  4090 V LocSvc_HIDL_DebugReportService_jni: populateBestLocationListObj
+06-08 17:48:00.958  1442  4090 V LocSvc_HIDL_DebugReportService_jni: populateGpsTimeReportListObj
+06-08 17:48:00.958  1442  4090 V LocSvc_HIDL_DebugReportService_jni: populateXoStateReportListObj
+06-08 17:48:00.958  1442  4090 V LocSvc_HIDL_DebugReportService_jni: populateRfStateReportListObjV1_1
+06-08 17:48:00.958  1442  4090 V LocSvc_HIDL_DebugReportService_jni: populateErrorRecoveriesListObj
+06-08 17:48:00.958  1442  4090 V LocSvc_HIDL_DebugReportService_jni: populatePdrReporListObj
+06-08 17:48:00.958  1442  4090 V LocSvc_HIDL_DebugReportService_jni: populateSvHealthReportListObj
+06-08 17:48:00.958  1442  4090 V LocSvc_HIDL_DebugReportService_jni: populateXtraReportListObj
+06-08 17:48:01.477  1278  1951 I bauth_FPBAuthService: pcf : 0x1012, 0 ,1 ,0 ,0 ,0 ,0, 5.0.0.23
+06-08 17:48:01.477  1278  1951 I bauth_FPBAuthService: thread id : 1, preenroll_flag : 0, nd cnt : 0, cso : 0, et : 0
+06-08 17:48:01.478  1278  1951 I bauth_FPBAuthService: FPBAuthService, 11438
+06-08 17:48:01.577  4313  4313 D AndroidRuntime: >>>>>> START com.android.internal.os.RuntimeInit uid 2000 <<<<<<
+06-08 17:48:01.581  4313  4313 I AndroidRuntime: Using default boot image
+06-08 17:48:01.581  4313  4313 I AndroidRuntime: Leaving lock profiling enabled
+06-08 17:48:01.582  4313  4313 D SecNativeFeatureCppIf: encoded
+06-08 17:48:01.582  4313  4313 D SecNativeFeatureCppIf: decoding and unzip finish
+06-08 17:48:01.582  4313  4313 D SecNativeFeatureCppIf: use unCompDataBuff. encoded
+06-08 17:48:01.582  4313  4313 D SecNativeFeatureCppIf: Free unCompDataBuff
+06-08 17:48:01.582  4313  4313 D SecNativeFeatureCppIf: encoded
+06-08 17:48:01.582  4313  4313 D SecNativeFeatureCppIf: decoding and unzip finish
+06-08 17:48:01.582  4313  4313 D SecNativeFeatureCppIf: use unCompDataBuff. encoded
+06-08 17:48:01.583  4313  4313 D SecNativeFeatureCppIf: Free unCompDataBuff
+06-08 17:48:01.583  4313  4313 D AndroidRuntime: addProductProperty
+06-08 17:48:01.583  4313  4313 D AndroidRuntime: addProductProperty: pBrand1 != NULL
+06-08 17:48:01.583  4313  4313 D AndroidRuntime: addProductProperty: else
+06-08 17:48:01.698  4313  4313 D ICU     : Time zone APEX file found: /apex/com.android.tzdata/etc/icu/icu_tzdata.dat
+06-08 17:48:01.715  4313  4313 I app_process: The ClassLoaderContext is a special shared library.
+06-08 17:48:01.721  4313  4313 I app_process: The ClassLoaderContext is a special shared library.
+06-08 17:48:01.740  4313  4313 W app_process: JNI RegisterNativeMethods: attempt to register 0 native methods for android.media.AudioAttributes
+06-08 17:48:01.741  4313  4313 E SemAffinityControl: SemAffinityControl: registerfunction enter
+06-08 17:48:01.746  4313  4313 D AndroidRuntime: Calling main entry com.android.commands.uiautomator.Launcher
+06-08 17:48:01.759   925   991 I SurfaceFlinger: id=1408 createSurf (0x0),-1 flag=80004, WindowToken{70422ba android.os.Binder@16417e5}#0
+06-08 17:48:01.769  1442  1470 I ActivityManager: Killing 3048:com.samsung.accessibility/1000 (adj 975): empty #21
+06-08 17:48:01.782  1442  1470 W WindowManager: removeWindowToken: Attempted to remove non-existing token: android.os.Binder@3c1cb76
+06-08 17:48:01.784  1442  1470 D SettingsProvider: isChangeAllowed() : name = accessibility_enabled
+06-08 17:48:01.784  1442  1470 I AccessibilityManagerService: semIsAccessibilityServiceEnabled()
+06-08 17:48:01.785  1442  1470 I WindowManager: unregisterDesktopModeListener()
+06-08 17:48:01.788  1442  1470 I SemDesktopModeManager: unregisterListener: com.android.server.wm.AccessibilityController$WindowsForAccessibilityObserver$1@f6985e4
+06-08 17:48:01.792   925   987 I Layer   : id=1385 removeFromCurrentState WindowToken{8c5c577 android.os.Binder@3c1cb76}#0 (83)
+06-08 17:48:01.795   925   987 I SurfaceFlinger: id=1385 Removed WindowToken{8c5c577 android.os.Binder@3c1cb76}#0 (83)
+06-08 17:48:01.799  1442  2166 D FreecessController: UFZ : com.sec.android.app.camera(10063)
+06-08 17:48:01.802  2052  2052 V NavBarStoreImpl: ------handleEvent [EventType] ON_UPDATE_REMOTEVIEW [Module] SecNavigationBarView  KEYS_LEFT_REMOTEVIEW_CONTAINER=android.widget.LinearLayout{1a5d9bb I.E...... ......I. 0,0-118,162 #7f0a0398 app:id/left_remoteview}  KEYS_NAVBAR_DARK_INTENSITY=0.0  KEYS_CONTEXTUALBUTTON_VISIBLE=false  KEYS_RIGHT_REMOTEVIEW_CONTAINER=android.widget.LinearLayout{d96ded8 I.E...... ......I. 962,0-1080,162 #7f0a0549 app:id/right_remoteview}
+06-08 17:48:01.802  2052  2052 V NavBarStoreImpl: --------[Band]REMOTE_VIEW_PACK_SET_REMOTEVIEW_CONTAINER
+06-08 17:48:01.802  2052  2052 V NavBarStoreImpl: ----------apply(UPDATE_NAVBAR_REMOTEVIEW_CONTAINER)
+06-08 17:48:01.802 10063 10063 V PlugInFilterLoader: PlugInFilterLoader : onChange
+06-08 17:48:01.802 10063 10063 V PlugInFilterLoader: PlugInFilterLoader : onChange
+06-08 17:48:01.802 10063 10063 D PlugInFilterLoader: handleUninstall
+06-08 17:48:01.802 10063 10063 D PlugInFilterLoader: load PlugInFilter
+06-08 17:48:01.802 10063 10063 D PlugInFilterStorage: clear PlugInFilterLoader
+06-08 17:48:01.803  2052  2052 V NavBarStoreImpl: ----------apply(UPDATE_NAVBAR_RIGHT_REMOTEVIEW_VISIBILITY)
+06-08 17:48:01.803  2052  2052 V NavBarStoreImpl: ----------isEnabled(NAVBAR_REMOTEVIEW_DARKINTENSITY_CHANGED)=false
+06-08 17:48:01.804   925   925 I Layer   : id=1385[1] Destroyed WindowToken{8c5c577 android.os.Binder@3c1cb76}#0
+06-08 17:48:01.806 10063  9928 I CameraManagerGlobal: Camera 1 facing CAMERA_FACING_FRONT state now CAMERA_STATE_OPEN for client com.samsung.android.biometrics.service API Level 2
+06-08 17:48:01.806 10063  9928 I CameraManagerGlobal: Camera 90 facing CAMERA_FACING_FRONT state now CAMERA_STATE_OPEN for client com.samsung.android.biometrics.service API Level 2
+06-08 17:48:01.806 10063  9928 I CameraManagerGlobal: Camera 90 facing CAMERA_FACING_FRONT state now CAMERA_STATE_ACTIVE for client com.samsung.android.biometrics.service API Level 2
+06-08 17:48:01.806 10063  6862 I CameraManagerGlobal: Camera 1 facing CAMERA_FACING_FRONT state now CAMERA_STATE_ACTIVE for client com.samsung.android.biometrics.service API Level 2
+06-08 17:48:01.807 10063  6271 I CameraManagerGlobal: Camera 90 facing CAMERA_FACING_FRONT state now CAMERA_STATE_IDLE for client com.samsung.android.biometrics.service API Level 2
+06-08 17:48:01.807 10063  6271 I CameraManagerGlobal: Camera 1 facing CAMERA_FACING_FRONT state now CAMERA_STATE_IDLE for client com.samsung.android.biometrics.service API Level 2
+06-08 17:48:01.807  1442  3225 D FreecessController: apply [LRs:false] to uid[10114]
+06-08 17:48:01.807  1442  3225 W LocationManagerService: onFreezeStateChanged, uid[10114]=false
+06-08 17:48:01.807 10063  6271 I CameraManagerGlobal: Camera 90 facing CAMERA_FACING_FRONT state now CAMERA_STATE_CLOSED for client com.samsung.android.biometrics.service API Level 2
+06-08 17:48:01.807  1442  1442 I AccessibilityManagerService: semIsAccessibilityServiceEnabled()
+06-08 17:48:01.807  1442  3225 V AlarmManager: unblockMARsRestrictedAlarmsForUidPackage: uid = 10114, packageName = null
+06-08 17:48:01.807 10063  6271 I CameraManagerGlobal: Camera 1 facing CAMERA_FACING_FRONT state now CAMERA_STATE_CLOSED for client com.samsung.android.biometrics.service API Level 2
+06-08 17:48:01.807  1442  3225 D FreecessController: send pending alarm to packageName:null, uid:10114
+06-08 17:48:01.808  1442  2166 D FreecessController: UFZ : com.sec.android.app.camera(0), reason: Binder(1)-android.view.accessibility.IAccessibilityMan
+06-08 17:48:01.808  1442  1442 I AccessibilityManagerService: semIsAccessibilityServiceEnabled()
+06-08 17:48:01.809  2029  2047 W BtGatt.GattService: unfreezeScan() - No AppScanStats found with uid: 10114
+06-08 17:48:01.810  1442  3599 D SettingsProvider: isChangeAllowed() : name = accessibility_enabled
+06-08 17:48:01.810  1442  3599 I AccessibilityManagerService: semIsAccessibilityServiceEnabled()
+06-08 17:48:01.817  1144  1855 I netd    : firewallSetUidRule(4, 10114, 1) <7.01ms>
+06-08 17:48:01.818  1442  3225 I PowerManagerService: [PWL] SetWakeLockEnableDisable uid = 10114 , disable= false
+06-08 17:48:01.818  1442  3225 I PowerManagerService: [PWL] can not change uid =  10114
+06-08 17:48:01.819  1442  3599 D FreecessController: UFZ : com.google.android.youtube(10339)
+06-08 17:48:01.821  2052  2052 V NavBarStoreImpl: handleEvent [EventType] GET_BOOL_NAVBAR_CAN_MOVE_STATE [Module] SecNavigationBarView
+06-08 17:48:01.822  1442  3225 D FreecessController: apply [LRs:false] to uid[10239]
+06-08 17:48:01.822  2052  2052 V NavBarStoreImpl: --[Band]GESTURE_PACK_GET_BOOL_NAVBAR_CAN_MOVE_NAVBARVIEW
+06-08 17:48:01.822  1442  3225 W LocationManagerService: onFreezeStateChanged, uid[10239]=false
+06-08 17:48:01.822  2052  2052 V NavBarStoreImpl: ----apply(SET_CURRENT_NAVBAR_CAN_MOVE)
+06-08 17:48:01.822  2052  2052 V NavBarStoreImpl: getResult(GET_BOOL_NAVBAR_CAN_MOVE_STATE)=true
+06-08 17:48:01.822  1442  3225 V AlarmManager: unblockMARsRestrictedAlarmsForUidPackage: uid = 10239, packageName = null
+06-08 17:48:01.822  1442  3225 D FreecessController: send pending alarm to packageName:null, uid:10239
+06-08 17:48:01.822  1442  3599 D FreecessController: UFZ : com.google.android.youtube(0), reason: Binder(1)-android.view.accessibility.IAccessibilityMan
+06-08 17:48:01.822  1442  1442 D AS.AudioService: Accessibility volume enabled = false
+06-08 17:48:01.822  2029  2047 W BtGatt.GattService: unfreezeScan() - No AppScanStats found with uid: 10239
+06-08 17:48:01.826  2052  2052 V NavBarStoreImpl: ------handleEvent [EventType] ON_UPDATE_REMOTEVIEW [Module] SecNavigationBarView  KEYS_LEFT_REMOTEVIEW_CONTAINER=android.widget.LinearLayout{1a5d9bb I.E...... ......I. 0,0-118,162 #7f0a0398 app:id/left_remoteview}  KEYS_NAVBAR_DARK_INTENSITY=0.0  KEYS_CONTEXTUALBUTTON_VISIBLE=false  KEYS_RIGHT_REMOTEVIEW_CONTAINER=android.widget.LinearLayout{d96ded8 I.E...... ......I. 962,0-1080,162 #7f0a0549 app:id/right_remoteview}
+06-08 17:48:01.826  2052  2052 V NavBarStoreImpl: --------[Band]REMOTE_VIEW_PACK_SET_REMOTEVIEW_CONTAINER
+06-08 17:48:01.826  2052  2052 V NavBarStoreImpl: ----------apply(UPDATE_NAVBAR_REMOTEVIEW_CONTAINER)
+06-08 17:48:01.827  2052  2052 V NavBarStoreImpl: ----------apply(UPDATE_NAVBAR_RIGHT_REMOTEVIEW_VISIBILITY)
+06-08 17:48:01.827  2052  2052 V NavBarStoreImpl: ----------isEnabled(NAVBAR_REMOTEVIEW_DARKINTENSITY_CHANGED)=false
+06-08 17:48:01.828 10063 10063 D PlugInFilterLoader: id[1], title[Cream], filterName[Cream], preloadFilter[1], libName[com.samsung.android.provider.filterprovider.libcreamy.so], version[2], filterType[SINGLE], vendor[SAMSUNG_MOBILE]
+06-08 17:48:01.828 10063 10063 D PlugInFilterLoader: id[2], title[Deep], filterName[Deep], preloadFilter[1], libName[com.samsung.android.provider.filterprovider.libdeep.so], version[2], filterType[SINGLE], vendor[SAMSUNG_MOBILE]
+06-08 17:48:01.828  1144  1855 I netd    : firewallSetUidRule(4, 10239, 1) <5.78ms>
+06-08 17:48:01.829  1442  1442 I AccessibilityManagerService: semIsAccessibilityServiceEnabled()
+06-08 17:48:01.829 10063 10063 D PlugInFilterLoader: id[3], title[Forest], filterName[Forest], preloadFilter[1], libName[com.samsung.android.provider.filterprovider.libforest.so], version[2], filterType[SINGLE], vendor[SAMSUNG_MOBILE]
+06-08 17:48:01.829  1442  3225 I PowerManagerService: [PWL] SetWakeLockEnableDisable uid = 10239 , disable= false
+06-08 17:48:01.829  1442  3225 I PowerManagerService: [PWL] can not change uid =  10239
+06-08 17:48:01.829  1442  1442 I AccessibilityManagerService: semIsAccessibilityServiceEnabled()
+06-08 17:48:01.829 10063 10063 D PlugInFilterLoader: id[4], title[Classic], filterName[Classic], preloadFilter[1], libName[com.samsung.android.provider.filterprovider.libclassic.so], version[2], filterType[SINGLE], vendor[SAMSUNG_MOBILE]
+06-08 17:48:01.830 10063 10063 D PlugInFilterLoader: id[5], title[Cozy], filterName[Cozy], preloadFilter[1], libName[com.samsung.android.provider.filterprovider.libcozy.so], version[2], filterType[SINGLE], vendor[SAMSUNG_MOBILE]
+06-08 17:48:01.830  1442  6043 D FreecessController: UFZ : com.ocentra.parent.browser(30382)
+06-08 17:48:01.831 10063 10063 D PlugInFilterLoader: id[6], title[Memory], filterName[Memory], preloadFilter[1], libName[com.samsung.android.provider.filterprovider.libmemory.so], version[2], filterType[SINGLE], vendor[Camera360]
+06-08 17:48:01.831 10063 10063 D PlugInFilterLoader: id[7], title[Maple], filterName[Maple], preloadFilter[1], libName[com.samsung.android.provider.filterprovider.libmaple.so], version[2], filterType[SINGLE], vendor[UCam]
+06-08 17:48:01.831  1442  1442 D AS.AudioService: Accessibility volume enabled = false
+06-08 17:48:01.832 10063 10063 D PlugInFilterLoader: id[8], title[Blossom], filterName[Blossom], preloadFilter[1], libName[com.samsung.android.provider.filterprovider.libblossom.so], version[2], filterType[SINGLE], vendor[SAMSUNG_MOBILE]
+06-08 17:48:01.832 10063 10063 D PlugInFilterLoader: id[9], title[Breeze], filterName[Breeze], preloadFilter[1], libName[com.samsung.android.provider.filterprovider.libbreeze.so], version[2], filterType[SINGLE], vendor[SAMSUNG_MOBILE]
+06-08 17:48:01.833 10063 10063 D PlugInFilterLoader: id[10], title[Evergreen], filterName[Evergreen], preloadFilter[1], libName[com.samsung.android.provider.filterprovider.libevergreen.so], version[2], filterType[SINGLE], vendor[SAMSUNG_MOBILE]
+06-08 17:48:01.833  1442  3225 D FreecessController: apply [LRs:false] to uid[10261]
+06-08 17:48:01.833  1442  3225 W LocationManagerService: onFreezeStateChanged, uid[10261]=false
+06-08 17:48:01.833 10063 10063 D PlugInFilterLoader: id[11], title[Sunshine], filterName[Sunshine], preloadFilter[1], libName[com.samsung.android.provider.filterprovider.libsunshine.so], version[2], filterType[SINGLE], vendor[SAMSUNG_MOBILE]
+06-08 17:48:01.833  1442  3225 V AlarmManager: unblockMARsRestrictedAlarmsForUidPackage: uid = 10261, packageName = null
+06-08 17:48:01.833  1442  3225 D FreecessController: send pending alarm to packageName:null, uid:10261
+06-08 17:48:01.834 10063 10063 D PlugInFilterLoader: id[12], title[Greyscale], filterName[Grayscale], preloadFilter[1], libName[com.samsung.android.provider.filterprovider.libgrayscale.so], version[2], filterType[SINGLE], vendor[SAMSUNG_MOBILE]
+06-08 17:48:01.834 10063 10063 D PlugInFilterLoader: id[13], title[Cookie Cream], filterName[CookiNCream], preloadFilter[1], libName[com.samsung.android.provider.filterprovider.libcookiencream.so], version[2], filterType[SINGLE], vendor[CandyCamera]
+06-08 17:48:01.835 10063 10063 D PlugInFilterLoader: id[14], title[Nostalgia], filterName[Nostalgia], preloadFilter[1], libName[com.samsung.android.provider.filterprovider.libnostalgia.so], version[2], filterType[SINGLE], vendor[UCam]
+06-08 17:48:01.835  1442  6043 D FreecessController: UFZ : com.ocentra.parent.browser(0), reason: Binder(1)-android.view.accessibility.IAccessibilityMan
+06-08 17:48:01.835 10063 10063 D PlugInFilterLoader: id[15], title[Riddle], filterName[Riddle], preloadFilter[1], libName[com.samsung.android.provider.filterprovider.libriddle.so], version[2], filterType[SINGLE], vendor[B612]
+06-08 17:48:01.836  2029  2047 W BtGatt.GattService: unfreezeScan() - No AppScanStats found with uid: 10261
+06-08 17:48:01.838 10063 10063 D PlugInFilterLoader: load PlugInFilter end
+06-08 17:48:01.839 10063 10063 V PlugInMyFilterLoader: PlugInMyFilterLoader : onChange
+06-08 17:48:01.839 10063 10063 V PlugInMyFilterLoader: PlugInMyFilterLoader : onChange
+06-08 17:48:01.839 10063 10063 D PlugInMyFilterLoader: handleUninstall
+06-08 17:48:01.839 10063 10063 D PlugInMyFilterLoader: load MyFilter
+06-08 17:48:01.839 10063 10063 D PlugInMyFilterStorage: clear PlugInMyFilterStorage
+06-08 17:48:01.840 30382 32193 I CameraManagerGlobal: Camera 1 facing CAMERA_FACING_FRONT state now CAMERA_STATE_OPEN for client com.samsung.android.biometrics.service API Level 2
+06-08 17:48:01.841   694  5839 I         : !@SystemSuspend: mWakeupCountFd-
+06-08 17:48:01.841   694  5839 I         : !@SystemSuspend: write mem+
+06-08 17:48:01.843  1144  1855 I netd    : firewallSetUidRule(4, 10261, 1) <7.14ms>
+06-08 17:48:01.844  1442  3225 I PowerManagerService: [PWL] SetWakeLockEnableDisable uid = 10261 , disable= false
+06-08 17:48:01.844  1442  3225 I PowerManagerService: [PWL] can not change uid =  10261
+06-08 17:48:01.845  2052  2052 V NavBarStoreImpl: handleEvent [EventType] GET_BOOL_NAVBAR_CAN_MOVE_STATE [Module] SecNavigationBarView
+06-08 17:48:01.845  2052  2052 V NavBarStoreImpl: --[Band]GESTURE_PACK_GET_BOOL_NAVBAR_CAN_MOVE_NAVBARVIEW
+06-08 17:48:01.845  2052  2052 V NavBarStoreImpl: ----apply(SET_CURRENT_NAVBAR_CAN_MOVE)
+06-08 17:48:01.845  2052  2052 V NavBarStoreImpl: getResult(GET_BOOL_NAVBAR_CAN_MOVE_STATE)=true
+06-08 17:48:01.846  1442  3599 D FreecessController: UFZ : com.google.android.gm(5449)
+06-08 17:48:01.847 30382 32193 I CameraManagerGlobal: Camera 90 facing CAMERA_FACING_FRONT state now CAMERA_STATE_OPEN for client com.samsung.android.biometrics.service API Level 2
+06-08 17:48:01.848 30382 32061 I CameraManagerGlobal: Camera 90 facing CAMERA_FACING_FRONT state now CAMERA_STATE_ACTIVE for client com.samsung.android.biometrics.service API Level 2
+06-08 17:48:01.848 30382 32061 I CameraManagerGlobal: Camera 1 facing CAMERA_FACING_FRONT state now CAMERA_STATE_ACTIVE for client com.samsung.android.biometrics.service API Level 2
+06-08 17:48:01.849 30382 32061 I CameraManagerGlobal: Camera 90 facing CAMERA_FACING_FRONT state now CAMERA_STATE_IDLE for client com.samsung.android.biometrics.service API Level 2
+06-08 17:48:01.849 10063 10063 D PlugInMyFilterLoader: filterId[1], id[1], filterName[Filter 1], fileName[Filter 1.sel]
+06-08 17:48:01.850 30382 32061 I CameraManagerGlobal: Camera 1 facing CAMERA_FACING_FRONT state now CAMERA_STATE_IDLE for client com.samsung.android.biometrics.service API Level 2
+06-08 17:48:01.850 30382 32061 I CameraManagerGlobal: Camera 90 facing CAMERA_FACING_FRONT state now CAMERA_STATE_CLOSED for client com.samsung.android.biometrics.service API Level 2
+06-08 17:48:01.851 30382 32060 I CameraManagerGlobal: Camera 1 facing CAMERA_FACING_FRONT state now CAMERA_STATE_CLOSED for client com.samsung.android.biometrics.service API Level 2
+06-08 17:48:01.853  1442  3599 D FreecessController: UFZ : com.google.android.gm(0), reason: Binder(1)-android.view.accessibility.IAccessibilityMan
+06-08 17:48:01.854  5449  8764 I CameraManagerGlobal: Camera 1 facing CAMERA_FACING_FRONT state now CAMERA_STATE_OPEN for client com.samsung.android.biometrics.service API Level 2
+06-08 17:48:01.854  2029  2047 W BtGatt.GattService: unfreezeScan() - No AppScanStats found with uid: 10228
+06-08 17:48:01.854  5449  8764 I CameraManagerGlobal: Camera 90 facing CAMERA_FACING_FRONT state now CAMERA_STATE_OPEN for client com.samsung.android.biometrics.service API Level 2
+06-08 17:48:01.854  5449  8764 I CameraManagerGlobal: Camera 90 facing CAMERA_FACING_FRONT state now CAMERA_STATE_ACTIVE for client com.samsung.android.biometrics.service API Level 2
+06-08 17:48:01.854  5449  8764 I CameraManagerGlobal: Camera 1 facing CAMERA_FACING_FRONT state now CAMERA_STATE_ACTIVE for client com.samsung.android.biometrics.service API Level 2
+06-08 17:48:01.854  5449 11308 I CameraManagerGlobal: Camera 90 facing CAMERA_FACING_FRONT state now CAMERA_STATE_IDLE for client com.samsung.android.biometrics.service API Level 2
+06-08 17:48:01.855  5449 11308 I CameraManagerGlobal: Camera 1 facing CAMERA_FACING_FRONT state now CAMERA_STATE_IDLE for client com.samsung.android.biometrics.service API Level 2
+06-08 17:48:01.855  5449 11308 I CameraManagerGlobal: Camera 90 facing CAMERA_FACING_FRONT state now CAMERA_STATE_CLOSED for client com.samsung.android.biometrics.service API Level 2
+06-08 17:48:01.855  5449 11308 I CameraManagerGlobal: Camera 1 facing CAMERA_FACING_FRONT state now CAMERA_STATE_CLOSED for client com.samsung.android.biometrics.service API Level 2
+06-08 17:48:01.856  1442  3225 D FreecessController: apply [LRs:false] to uid[10228]
+06-08 17:48:01.856  1442  3225 W LocationManagerService: onFreezeStateChanged, uid[10228]=false
+06-08 17:48:01.856  1442  3225 V AlarmManager: unblockMARsRestrictedAlarmsForUidPackage: uid = 10228, packageName = null
+06-08 17:48:01.856  1442  3225 D FreecessController: send pending alarm to packageName:null, uid:10228
+06-08 17:48:01.863  1144  1855 I netd    : firewallSetUidRule(4, 10228, 1) <5.90ms>
+06-08 17:48:01.864  1442  3225 I PowerManagerService: [PWL] SetWakeLockEnableDisable uid = 10228 , disable= false
+06-08 17:48:01.864  1442  3225 I PowerManagerService: [PWL] can not change uid =  10228
+06-08 17:48:01.866  1442  2166 D FreecessController: UFZ : com.linkedin.android(29304)
+06-08 17:48:01.870  1442  2166 D FreecessController: UFZ : com.linkedin.android(0), reason: Binder(1)-android.view.accessibility.IAccessibilityMan
+06-08 17:48:02.643  1442  1811 D SamsungAlarmManager: Expired : 65536
+06-08 17:48:02.644  1442  1811 I SamsungAlarmManager: setLocked to kernel - T:2 / 20260608T174827, SetElapsed=25059623, nowELAPSED=25034686
+06-08 17:48:02.644  1442  1811 E AlarmManager: Set nextNonWakeup as mNextNonWakeupDeliveryTime=25212042 , orig nextNonWakeup=0
+06-08 17:48:02.644  1442  1811 I SamsungAlarmManager: setLocked to kernel - T:3 / 20260608T175100, SetElapsed=25212042, nowELAPSED=25034686
+06-08 17:48:02.644  1442  3225 D FreecessController: apply [LRs:false] to uid[10294]
+06-08 17:48:02.645  1442  3225 W LocationManagerService: onFreezeStateChanged, uid[10294]=false
+06-08 17:48:02.645  1442  3225 V AlarmManager: unblockMARsRestrictedAlarmsForUidPackage: uid = 10294, packageName = null
+06-08 17:48:02.645  1442  3225 D FreecessController: send pending alarm to packageName:null, uid:10294
+06-08 17:48:02.645  1442  4090 V LocSvc_HIDL_DebugReportService_jni: DebugReportService_getReport
+06-08 17:48:02.645  1442  4090 D LocSvc_HIDL_DebugReportService_jni: DebugReportService_getReport, Get Latest 1 sec data.
+06-08 17:48:02.645  1442  4090 V LocSvc_HIDL_DebugReportService_jni: [DebugReportService_getReport][942] [HC] =>> [HS]
+06-08 17:48:02.648  1442  1559 I libprocessgroup: Successfully killed process cgroup uid 1000 pid 3048 in 697ms
+06-08 17:48:02.649  2029  2047 W BtGatt.GattService: unfreezeScan() - No AppScanStats found with uid: 10294
+06-08 17:48:02.652   694  5839 I         : !@SystemSuspend: write mem-
+06-08 17:48:02.652  1278  1951 I bauth_FPBAuthService: pcf : 0x1012, 0 ,1 ,0 ,0 ,0 ,0, 5.0.0.23
+06-08 17:48:02.652  1278  1951 I bauth_FPBAuthService: thread id : 1, preenroll_flag : 0, nd cnt : 0, cso : 0, et : 0
+06-08 17:48:02.652  1278  1951 I bauth_FPBAuthService: FPBAuthService, 11438
+06-08 17:48:02.652  1442  3671 I BatteryStatsService: In wakeup_callback: resumed from suspend
+06-08 17:48:02.654  1047  1047 I Zygote  : Process 3048 exited due to signal 9 (Killed)
+06-08 17:48:02.654   821   821 E LocSvc_HIDL_DebugReportService: Invalid count: 0
+06-08 17:48:02.654  1442  4090 V LocSvc_HIDL_DebugReportService_jni: populateEphemerisStatusListObj
+06-08 17:48:02.654  1442  4090 V LocSvc_HIDL_DebugReportService_jni: populateFixStatusListObj
+06-08 17:48:02.655  1442  4090 V LocSvc_HIDL_DebugReportService_jni: populateEpiReportListObj
+06-08 17:48:02.655  1442  4090 V LocSvc_HIDL_DebugReportService_jni: populateBestLocationListObj
+06-08 17:48:02.655  1442  4090 V LocSvc_HIDL_DebugReportService_jni: populateGpsTimeReportListObj
+06-08 17:48:02.655  1442  4090 V LocSvc_HIDL_DebugReportService_jni: populateXoStateReportListObj
+06-08 17:48:02.655  1442  4090 V LocSvc_HIDL_DebugReportService_jni: populateRfStateReportListObjV1_1
+06-08 17:48:02.655  1442  4090 V LocSvc_HIDL_DebugReportService_jni: populateErrorRecoveriesListObj
+06-08 17:48:02.655  1442  4090 V LocSvc_HIDL_DebugReportService_jni: populatePdrReporListObj
+06-08 17:48:02.655  1442  4090 V LocSvc_HIDL_DebugReportService_jni: populateSvHealthReportListObj
+06-08 17:48:02.655  1442  4090 V LocSvc_HIDL_DebugReportService_jni: populateXtraReportListObj
+06-08 17:48:02.655 29304 30408 I CameraManagerGlobal: Camera 1 facing CAMERA_FACING_FRONT state now CAMERA_STATE_OPEN for client com.samsung.android.biometrics.service API Level 2
+06-08 17:48:02.656 29304 30861 I CameraManagerGlobal: Camera 90 facing CAMERA_FACING_FRONT state now CAMERA_STATE_OPEN for client com.samsung.android.biometrics.service API Level 2
+06-08 17:48:02.657 29304 30861 I CameraManagerGlobal: Camera 90 facing CAMERA_FACING_FRONT state now CAMERA_STATE_ACTIVE for client com.samsung.android.biometrics.service API Level 2
+06-08 17:48:02.658 29304 30861 I CameraManagerGlobal: Camera 1 facing CAMERA_FACING_FRONT state now CAMERA_STATE_ACTIVE for client com.samsung.android.biometrics.service API Level 2
+06-08 17:48:02.658  1144  1855 I netd    : firewallSetUidRule(4, 10294, 1) <7.73ms>
+06-08 17:48:02.659  1442  3225 I PowerManagerService: [PWL] SetWakeLockEnableDisable uid = 10294 , disable= false
+06-08 17:48:02.659  1442  3225 I PowerManagerService: [PWL] can not change uid =  10294
+06-08 17:48:02.662  1442  3671 D FreecessController: UFZ : com.github.android(28228)
+06-08 17:48:02.663  1442  3225 D FreecessController: apply [LRs:false] to uid[10284]
+06-08 17:48:02.663  1442  3225 W LocationManagerService: onFreezeStateChanged, uid[10284]=false
+06-08 17:48:02.664  1442  3225 V AlarmManager: unblockMARsRestrictedAlarmsForUidPackage: uid = 10284, packageName = null
+06-08 17:48:02.664  1442  3225 D FreecessController: send pending alarm to packageName:null, uid:10284
+06-08 17:48:02.664  1442  3671 D FreecessController: UFZ : com.github.android(0), reason: Binder(1)-android.view.accessibility.IAccessibilityMan
+06-08 17:48:02.664  2029  2047 W BtGatt.GattService: unfreezeScan() - No AppScanStats found with uid: 10284
+06-08 17:48:02.667  1144  1855 I netd    : firewallSetUidRule(4, 10284, 1) <2.65ms>
+06-08 17:48:02.667  1442  3225 I PowerManagerService: [PWL] SetWakeLockEnableDisable uid = 10284 , disable= false
+06-08 17:48:02.667  1442  3225 I PowerManagerService: [PWL] can not change uid =  10284
+06-08 17:48:02.670  1442  3599 D FreecessController: UFZ : com.sec.android.app.sbrowser(24023)
+06-08 17:48:02.671  1442  3599 D FreecessController: UFZ : com.sec.android.app.sbrowser(29196)
+06-08 17:48:02.672  1442  3599 D FreecessController: UFZ : com.sec.android.app.sbrowser(0), reason: Binder(1)-android.view.accessibility.IAccessibilityMan
+06-08 17:48:02.672  1442  3225 D FreecessController: apply [LRs:false] to uid[10246]
+06-08 17:48:02.672  1442  3225 W LocationManagerService: onFreezeStateChanged, uid[10246]=false
+06-08 17:48:02.672  1442  3225 V AlarmManager: unblockMARsRestrictedAlarmsForUidPackage: uid = 10246, packageName = null
+06-08 17:48:02.672  1442  3225 D FreecessController: send pending alarm to packageName:null, uid:10246
+06-08 17:48:02.672  2029  2047 W BtGatt.GattService: unfreezeScan() - No AppScanStats found with uid: 10246
+06-08 17:48:02.673  1442  5434 I GenerationRegistry: mBackingStore.isClosed() : false
+06-08 17:48:02.677  1144  1855 I netd    : firewallSetUidRule(4, 10246, 1) <3.76ms>
+06-08 17:48:02.677  1442  3225 I PowerManagerService: [PWL] SetWakeLockEnableDisable uid = 10246 , disable= false
+06-08 17:48:02.677  1442  3225 I PowerManagerService: [PWL] can not change uid =  10246
+06-08 17:48:02.684 29304 30861 I CameraManagerGlobal: Camera 90 facing CAMERA_FACING_FRONT state now CAMERA_STATE_IDLE for client com.samsung.android.biometrics.service API Level 2
+06-08 17:48:02.685 29304 30861 I CameraManagerGlobal: Camera 1 facing CAMERA_FACING_FRONT state now CAMERA_STATE_IDLE for client com.samsung.android.biometrics.service API Level 2
+06-08 17:48:02.685 29304 30861 I CameraManagerGlobal: Camera 90 facing CAMERA_FACING_FRONT state now CAMERA_STATE_CLOSED for client com.samsung.android.biometrics.service API Level 2
+06-08 17:48:02.685 29304  1379 I CameraManagerGlobal: Camera 1 facing CAMERA_FACING_FRONT state now CAMERA_STATE_CLOSED for client com.samsung.android.biometrics.service API Level 2
+06-08 17:48:02.731  1442  3599 D ConnectivityService: Returning BLOCKED NetworkInfo to uid=10228
+06-08 17:48:02.754   694  5839 I         : !@SystemSuspend: mWakeupCountFd+
+06-08 17:48:02.955  1442  4090 V LocSvc_HIDL_DebugReportService_jni: DebugReportService_getReport
+06-08 17:48:02.955  1442  4090 D LocSvc_HIDL_DebugReportService_jni: DebugReportService_getReport, Get Latest 1 sec data.
+06-08 17:48:02.955  1442  4090 V LocSvc_HIDL_DebugReportService_jni: [DebugReportService_getReport][942] [HC] =>> [HS]
+06-08 17:48:02.957   821   821 E LocSvc_HIDL_DebugReportService: Invalid count: 0
+06-08 17:48:02.958  1442  4090 V LocSvc_HIDL_DebugReportService_jni: populateEphemerisStatusListObj
+06-08 17:48:02.958  1442  4090 V LocSvc_HIDL_DebugReportService_jni: populateFixStatusListObj
+06-08 17:48:02.958  1442  4090 V LocSvc_HIDL_DebugReportService_jni: populateEpiReportListObj
+06-08 17:48:02.958  1442  4090 V LocSvc_HIDL_DebugReportService_jni: populateBestLocationListObj
+06-08 17:48:02.958  1442  4090 V LocSvc_HIDL_DebugReportService_jni: populateGpsTimeReportListObj
+06-08 17:48:02.959  1442  4090 V LocSvc_HIDL_DebugReportService_jni: populateXoStateReportListObj
+06-08 17:48:02.959  1442  4090 V LocSvc_HIDL_DebugReportService_jni: populateRfStateReportListObjV1_1
+06-08 17:48:02.959  1442  4090 V LocSvc_HIDL_DebugReportService_jni: populateErrorRecoveriesListObj
+06-08 17:48:02.959  1442  4090 V LocSvc_HIDL_DebugReportService_jni: populatePdrReporListObj
+06-08 17:48:02.959  1442  4090 V LocSvc_HIDL_DebugReportService_jni: populateSvHealthReportListObj
+06-08 17:48:02.959  1442  4090 V LocSvc_HIDL_DebugReportService_jni: populateXtraReportListObj
+06-08 17:48:03.012  2052  2052 W View    : couldn't find view with id 16908291
+06-08 17:48:03.082  1442  1600 I PowerManagerService: [PWL] Off : 36s ago
+06-08 17:48:03.082  4313  4313 D SemCscFeature: Encoded
+06-08 17:48:03.086  4313  4313 I chatty  : uid=2000(shell) identical 1 line
+06-08 17:48:03.086  4313  4313 D SemCscFeature: Encoded
+06-08 17:48:03.123  1442  1548 E Watchdog: !@Sync: 674 heap: 87 / 99 [2026-06-08 17:48:03.123] sdogWay: softdog
+06-08 17:48:03.125   694  5839 I         : !@SystemSuspend: mWakeupCountFd-
+06-08 17:48:03.125   694  5839 I         : !@SystemSuspend: write mem+
+06-08 17:48:03.131  4313  4313 I AccessibilityNodeInfoDumper: Skipping invisible child: android.view.accessibility.AccessibilityNodeInfo@36e50; boundsInParent: Rect(0, 0 - 1080, 426); boundsInScreen: Rect(0, 0 - 1080, 0); packageName: com.android.systemui; className: android.widget.FrameLayout; text: null; error: null; maxTextLength: -1; contentDescription: null; tooltipText: null; viewIdResName: com.android.systemui:id/quick_settings_container; checkable: false; checked: false; focusable: false; focused: false; selected: false; clickable: false; longClickable: false; contextClickable: false; enabled: true; password: false; scrollable: false; importantForAccessibility: false; visible: false; actions: [AccessibilityAction: ACTION_SELECT - null, AccessibilityAction: ACTION_CLEAR_SELECTION - null, AccessibilityAction: ACTION_ACCESSIBILITY_FOCUS - null, AccessibilityAction: ACTION_SHOW_ON_SCREEN - null]
+06-08 17:48:04.484  1278  1951 I bauth_FPBAuthService: pcf : 0x1012, 0 ,1 ,0 ,0 ,0 ,0, 5.0.0.23
+06-08 17:48:04.484  1278  1951 I bauth_FPBAuthService: thread id : 1, preenroll_flag : 0, nd cnt : 0, cso : 0, et : 0
+06-08 17:48:04.484  1278  1951 I bauth_FPBAuthService: FPBAuthService, 11438
+06-08 17:48:04.484  1442  1811 D SamsungAlarmManager: Expired : 65536
+06-08 17:48:04.485  1442  1811 I SamsungAlarmManager: setLocked to kernel - T:2 / 20260608T174827, SetElapsed=25059623, nowELAPSED=25036527
+06-08 17:48:04.485  1442  1811 E AlarmManager: Set nextNonWakeup as mNextNonWakeupDeliveryTime=25212042 , orig nextNonWakeup=0
+06-08 17:48:04.485  1442  1811 I SamsungAlarmManager: setLocked to kernel - T:3 / 20260608T175100, SetElapsed=25212042, nowELAPSED=25036527
+06-08 17:48:04.495   694  5839 I         : !@SystemSuspend: write mem-
+06-08 17:48:04.496  4313  4313 I AccessibilityNodeInfoDumper: Skipping invisible child: android.view.accessibility.AccessibilityNodeInfo@28592; boundsInParent: Rect(0, 0 - 1007, 381); boundsInScreen: Rect(1007, 229 - 1007, 610); packageName: com.android.systemui; className: android.widget.FrameLayout; text: null; error: null; maxTextLength: -1; contentDescription: null; tooltipText: null; viewIdResName: null; checkable: false; checked: false; focusable: true; focused: false; selected: false; clickable: false; longClickable: false; contextClickable: false; enabled: true; password: false; scrollable: false; importantForAccessibility: true; visible: false; actions: [AccessibilityAction: ACTION_FOCUS - null, AccessibilityAction: ACTION_SELECT - null, AccessibilityAction: ACTION_CLEAR_SELECTION - null, AccessibilityAction: ACTION_ACCESSIBILITY_FOCUS - null, AccessibilityAction: ACTION_SHOW_ON_SCREEN - null]
+06-08 17:48:04.496  4313  4313 I AccessibilityNodeInfoDumper: Skipping invisible child: android.view.accessibility.AccessibilityNodeInfo@28d14; boundsInParent: Rect(0, 0 - 1007, 381); boundsInScreen: Rect(1007, 229 - 1080, 610); packageName: com.android.systemui; className: android.widget.FrameLayout; text: null; error: null; maxTextLength: -1; contentDescription: null; tooltipText: null; viewIdResName: null; checkable: false; checked: false; focusable: true; focused: false; selected: false; clickable: false; longClickable: false; contextClickable: false; enabled: true; password: false; scrollable: false; importantForAccessibility: true; visible: false; actions: [AccessibilityAction: ACTION_FOCUS - null, AccessibilityAction: ACTION_SELECT - null, AccessibilityAction: ACTION_CLEAR_SELECTION - null, AccessibilityAction: ACTION_ACCESSIBILITY_FOCUS - null, AccessibilityAction: ACTION_SHOW_ON_SCREEN - null]
+06-08 17:48:04.496  4313  4313 I AccessibilityNodeInfoDumper: Skipping invisible child: android.view.accessibility.AccessibilityNodeInfo@ea60d; boundsInParent: Rect(0, 0 - 1007, 381); boundsInScreen: Rect(1007, 229 - 1080, 610); packageName: com.android.systemui; className: android.widget.FrameLayout; text: null; error: null; maxTextLength: -1; contentDescription: null; tooltipText: null; viewIdResName: null; checkable: false; checked: false; focusable: true; focused: false; selected: false; clickable: false; longClickable: false; contextClickable: false; enabled: true; password: false; scrollable: false; importantForAccessibility: true; visible: false; actions: [AccessibilityAction: ACTION_FOCUS - null, AccessibilityAction: ACTION_SELECT - null, AccessibilityAction: ACTION_CLEAR_SELECTION - null, AccessibilityAction: ACTION_ACCESSIBILITY_FOCUS - null, AccessibilityAction: ACTION_SHOW_ON_SCREEN - null]
+06-08 17:48:04.496  1442  3599 I BatteryStatsService: In wakeup_callback: resumed from suspend
+06-08 17:48:04.497  4313  4313 I AccessibilityNodeInfoDumper: Skipping invisible child: android.view.accessibility.AccessibilityNodeInfo@ca9c; boundsInParent: Rect(0, 0 - 1007, 0); boundsInScreen: Rect(0, 610 - 1007, 610); packageName: com.android.systemui; className: android.widget.LinearLayout; text: null; error: null; maxTextLength: -1; contentDescription: null; tooltipText: null; viewIdResName: com.android.systemui:id/keyguard_aod_ui_container; checkable: false; checked: false; focusable: false; focused: false; selected: false; clickable: false; longClickable: false; contextClickable: false; enabled: true; password: false; scrollable: false; importantForAccessibility: false; visible: false; actions: [AccessibilityAction: ACTION_SELECT - null, AccessibilityAction: ACTION_CLEAR_SELECTION - null, AccessibilityAction: ACTION_ACCESSIBILITY_FOCUS - null, AccessibilityAction: ACTION_SHOW_ON_SCREEN - null]
+06-08 17:48:04.497  4313  4313 I AccessibilityNodeInfoDumper: Skipping invisible child: android.view.accessibility.AccessibilityNodeInfo@e8a4; boundsInParent: Rect(0, 0 - 1080, 0); boundsInScreen: Rect(0, 157 - 1080, 157); packageName: com.android.systemui; className: android.widget.LinearLayout; text: null; error: null; maxTextLength: -1; contentDescription: null; tooltipText: null; viewIdResName: null; checkable: false; checked: false; focusable: false; focused: false; selected: false; clickable: false; longClickable: false; contextClickable: false; enabled: true; password: false; scrollable: false; importantForAccessibility: false; visible: false; actions: [AccessibilityAction: ACTION_SELECT - null, AccessibilityAction: ACTION_CLEAR_SELECTION - null, AccessibilityAction: ACTION_ACCESSIBILITY_FOCUS - null, AccessibilityAction: ACTION_SHOW_ON_SCREEN - null]
+06-08 17:48:04.497  1442  1542 W Looper  : Slow dispatch took 674ms android.fg h=android.os.Handler c=com.android.server.Watchdog$HandlerChecker@d4de715 m=0
+06-08 17:48:04.498  4313  4313 I AccessibilityNodeInfoDumper: Skipping invisible child: android.view.accessibility.AccessibilityNodeInfo@cd491; boundsInParent: Rect(0, 0 - 220, 220); boundsInScreen: Rect(540, 1836 - 760, 2056); packageName: com.android.systemui; className: android.widget.LinearLayout; text: null; error: null; maxTextLength: -1; contentDescription: Phone; tooltipText: null; viewIdResName: null; checkable: false; checked: false; focusable: true; focused: true; selected: false; clickable: false; longClickable: false; contextClickable: false; enabled: true; password: false; scrollable: false; importantForAccessibility: true; visible: false; actions: [AccessibilityAction: ACTION_CLEAR_FOCUS - null, AccessibilityAction: ACTION_SELECT - null, AccessibilityAction: ACTION_CLEAR_SELECTION - null, AccessibilityAction: ACTION_ACCESSIBILITY_FOCUS - null, AccessibilityAction: ACTION_NEXT_AT_MOVEMENT_GRANULARITY - null, AccessibilityAction: ACTION_PREVIOUS_AT_MOVEMENT_GRANULARITY - null, AccessibilityAction: ACTION_SET_SELECTION - null, AccessibilityAction: ACTION_SHOW_ON_SCREEN - null]
+06-08 17:48:04.498  4313  4313 I AccessibilityNodeInfoDumper: Skipping invisible child: android.view.accessibility.AccessibilityNodeInfo@cdfd4; boundsInParent: Rect(0, 0 - 220, 220); boundsInScreen: Rect(752, 1836 - 972, 2056); packageName: com.android.systemui; className: android.widget.LinearLayout; text: null; error: null; maxTextLength: -1; contentDescription: Camera; tooltipText: null; viewIdResName: null; checkable: false; checked: false; focusable: true; focused: false; selected: false; clickable: false; longClickable: false; contextClickable: false; enabled: true; password: false; scrollable: false; importantForAccessibility: true; visible: false; actions: [AccessibilityAction: ACTION_FOCUS - null, AccessibilityAction: ACTION_SELECT - null, AccessibilityAction: ACTION_CLEAR_SELECTION - null, AccessibilityAction: ACTION_ACCESSIBILITY_FOCUS - null, AccessibilityAction: ACTION_NEXT_AT_MOVEMENT_GRANULARITY - null, AccessibilityAction: ACTION_PREVIOUS_AT_MOVEMENT_GRANULARITY - null, AccessibilityAction: ACTION_SET_SELECTION - null, AccessibilityAction: ACTION_SHOW_ON_SCREEN - null]
+06-08 17:48:04.498  4313  4313 I AccessibilityNodeInfoDumper: Skipping invisible child: android.view.accessibility.AccessibilityNodeInfo@25886; boundsInParent: Rect(0, 0 - 54, 54); boundsInScreen: Rect(0, 0 - 54, 54); packageName: com.android.systemui; className: android.widget.ImageView; text: null; error: null; maxTextLength: -1; contentDescription: null; tooltipText: null; viewIdResName: null; checkable: false; checked: false; focusable: false; focused: false; selected: false; clickable: false; longClickable: false; contextClickable: false; enabled: true; password: false; scrollable: false; importantForAccessibility: false; visible: false; actions: [AccessibilityAction: ACTION_SELECT - null, AccessibilityAction: ACTION_CLEAR_SELECTION - null, AccessibilityAction: ACTION_CLICK - null, AccessibilityAction: ACTION_ACCESSIBILITY_FOCUS - null, AccessibilityAction: ACTION_SHOW_ON_SCREEN - null]
+06-08 17:48:04.499  4313  4313 I AccessibilityNodeInfoDumper: Skipping invisible child: android.view.accessibility.AccessibilityNodeInfo@26008; boundsInParent: Rect(0, 0 - 229, 229); boundsInScreen: Rect(426, 1934 - 655, 2163); packageName: com.android.systemui; className: android.widget.FrameLayout; text: null; error: null; maxTextLength: -1; contentDescription: null; tooltipText: null; viewIdResName: com.android.systemui:id/floating_app_shortcut_image_container; checkable: false; checked: false; focusable: false; focused: false; selected: false; clickable: false; longClickable: false; contextClickable: false; enabled: true; password: false; scrollable: false; importantForAccessibility: false; visible: false; actions: [AccessibilityAction: ACTION_SELECT - null, AccessibilityAction: ACTION_CLEAR_SELECTION - null, AccessibilityAction: ACTION_ACCESSIBILITY_FOCUS - null, AccessibilityAction: ACTION_SHOW_ON_SCREEN - null]
+06-08 17:48:04.500  4313  4313 I AccessibilityNodeInfoDumper: Skipping invisible child: android.view.accessibility.AccessibilityNodeInfo@2bde1; boundsInParent: Rect(0, 0 - 0, 81); boundsInScreen: Rect(86, 0 - 86, 81); packageName: com.android.systemui; className: android.widget.LinearLayout; text: null; error: null; maxTextLength: -1; contentDescription: null; tooltipText: null; viewIdResName: com.android.systemui:id/home_carrier_information_container_hun; checkable: false; checked: false; focusable: false; focused: false; selected: false; clickable: false; longClickable: false; contextClickable: false; enabled: true; password: false; scrollable: false; importantForAccessibility: false; visible: false; actions: [AccessibilityAction: ACTION_SELECT - null, AccessibilityAction: ACTION_CLEAR_SELECTION - null, AccessibilityAction: ACTION_ACCESSIBILITY_FOCUS - null, AccessibilityAction: ACTION_SHOW_ON_SCREEN - null]
+06-08 17:48:04.500  4313  4313 I AccessibilityNodeInfoDumper: Skipping invisible child: android.view.accessibility.AccessibilityNodeInfo@2c563; boundsInParent: Rect(0, 0 - 0, 81); boundsInScreen: Rect(86, 0 - 86, 81); packageName: com.android.systemui; className: android.widget.LinearLayout; text: null; error: null; maxTextLength: -1; contentDescription: null; tooltipText: null; viewIdResName: com.android.systemui:id/left_clock_container; checkable: false; checked: false; focusable: false; focused: false; selected: false; clickable: false; longClickable: false; contextClickable: false; enabled: true; password: false; scrollable: false; importantForAccessibility: false; visible: false; actions: [AccessibilityAction: ACTION_SELECT - null, AccessibilityAction: ACTION_CLEAR_SELECTION - null, AccessibilityAction: ACTION_ACCESSIBILITY_FOCUS - null, AccessibilityAction: ACTION_SHOW_ON_SCREEN - null]
+06-08 17:48:04.500  1442  1557 I ApplicationPolicy: isApplicationExternalStorageWhitelisted:com.samsung.faceservice user:0
+06-08 17:48:04.500  1442  1557 D ApplicationPolicy: isApplicationExternalStorageWhitelisted: DO is not enabled on user 0. Allowed.
+06-08 17:48:04.501  1442  1557 D ActivityManager: package  com.samsung.faceservice, user - 0 is SDcard whitelisted
+06-08 17:48:04.501  1442  1557 I ApplicationPolicy: isApplicationExternalStorageBlacklisted:com.samsung.faceservice user:0
+06-08 17:48:04.501  1442  1557 D ApplicationPolicy: isApplicationExternalStorageBlacklisted: DO is not enabled on user 0. Allowed.
+06-08 17:48:04.501  1442  1557 I ApplicationPolicy: isApplicationExternalStorageBlacklisted:com.samsung.faceservice user:0
+06-08 17:48:04.501  1442  1557 D ApplicationPolicy: isApplicationExternalStorageBlacklisted: DO is not enabled on user 0. Allowed.
+06-08 17:48:04.501  4313  4313 I AccessibilityNodeInfoDumper: Skipping invisible child: android.view.accessibility.AccessibilityNodeInfo@2e36b; boundsInParent: Rect(0, 0 - 0, 81); boundsInScreen: Rect(780, 0 - 780, 81); packageName: com.android.systemui; className: android.widget.LinearLayout; text: null; error: null; maxTextLength: -1; contentDescription: null; tooltipText: null; viewIdResName: com.android.systemui:id/divided_statusIcons; checkable: false; checked: false; focusable: false; focused: false; selected: false; clickable: false; longClickable: false; contextClickable: false; enabled: true; password: false; scrollable: false; importantForAccessibility: false; visible: false; actions: [AccessibilityAction: ACTION_SELECT - null, AccessibilityAction: ACTION_CLEAR_SELECTION - null, AccessibilityAction: ACTION_ACCESSIBILITY_FOCUS - null, AccessibilityAction: ACTION_SHOW_ON_SCREEN - null]
+06-08 17:48:04.502  4313  4313 W AccessibilityNodeInfoDumper: Fetch time: 698ms
+06-08 17:48:04.504  1442  3599 W WindowManager: removeWindowToken: Attempted to remove non-existing token: android.os.Binder@16417e5
+06-08 17:48:04.511  1442  3599 D SettingsProvider: isChangeAllowed() : name = accessibility_enabled
+06-08 17:48:04.511  1442  3599 I AccessibilityManagerService: semIsAccessibilityServiceEnabled()
+06-08 17:48:04.513   925   991 I SurfaceFlinger: id=1409 createSurf (0x0),-1 flag=80004, WindowToken{823e9e6 android.os.Binder@58f1041}#0
+06-08 17:48:04.516  1442  1442 D SettingsProvider: isChangeAllowed() : name = accessibility_enabled
+06-08 17:48:04.516  1442  1442 I AccessibilityManagerService: semIsAccessibilityServiceEnabled()
+06-08 17:48:04.517   925   991 I Layer   : id=1408 removeFromCurrentState WindowToken{70422ba android.os.Binder@16417e5}#0 (83)
+06-08 17:48:04.518   925   991 I SurfaceFlinger: id=1408 Removed WindowToken{70422ba android.os.Binder@16417e5}#0 (83)
+06-08 17:48:04.518  1442  1442 I SemDesktopModeManager: registerListener: com.android.server.wm.AccessibilityController$WindowsForAccessibilityObserver$1@672db27
+06-08 17:48:04.518  1442  1442 D WindowManager: focusedDisplayId : 0
+06-08 17:48:04.520  1442  1442 D WindowManager: w is invisible : c2ad405 com.android.systemui.ImageWallpaper
+06-08 17:48:04.520  1442  1442 D WindowManager: w is invisible : 4e44a56 com.sec.android.app.camera/com.sec.android.app.camera.Camera
+06-08 17:48:04.520  1442  1442 D WindowManager: w is invisible : 7edc4a0 com.sec.android.daemonapp/com.samsung.android.weather.app.locations.activity.WXLocationsActivity
+06-08 17:48:04.520  1442  1442 D WindowManager: w is invisible : 5910bfa com.sec.android.app.sbrowser/com.sec.android.app.sbrowser.SBrowserMainActivity
+06-08 17:48:04.521  1442  1442 D WindowManager: w is invisible : e895e7e com.sec.android.app.launcher/com.android.quickstep.RecentsActivity
+06-08 17:48:04.521  1442  1442 D WindowManager: w is invisible : 30929e1 com.github.android/com.github.android.main.MainActivity
+06-08 17:48:04.521  1442  1442 D WindowManager: w is invisible : 4f0dcf5 com.ocentra.parent.browser/ca.ocentra.parent.browser.OcentraOwnedBrowserShellActivity
+06-08 17:48:04.521  1442  1442 D WindowManager: w is invisible : f8f11d0 com.linkedin.android/com.linkedin.android.infra.navigation.MainActivity
+06-08 17:48:04.521  1442  1442 D WindowManager: w is invisible : f8ba476 com.microsoft.launcher/com.microsoft.launcher.Launcher
+06-08 17:48:04.522  1442  1442 D WindowManager: w is invisible : 3d59f2a ca.ocentra.parent.agent/ca.ocentra.parent.agent.MainActivity
+06-08 17:48:04.522  1442  1442 D WindowManager: w is invisible : ccae6e0 DockedStackDivider
+06-08 17:48:04.522  1442  1442 D WindowManager: w is invisible : b0c7359 AssistPreviewPanel
+06-08 17:48:04.522  1442  1442 D WindowManager: w is invisible : e1f75e4 Bouncer
+06-08 17:48:04.522  1442  1442 D WindowManager: w is invisible : 63ad4bc NavigationBar0
+06-08 17:48:04.522  1442  1442 D WindowManager: w is invisible : 51f45b1 InputMethod
+06-08 17:48:04.522  1442  1442 D WindowManager: w is invisible : c2ad405 com.android.systemui.ImageWallpaper
+06-08 17:48:04.523  1442  1442 D WindowManager: w is invisible : 4e44a56 com.sec.android.app.camera/com.sec.android.app.camera.Camera
+06-08 17:48:04.523  1442  1442 D WindowManager: w is invisible : 7edc4a0 com.sec.android.daemonapp/com.samsung.android.weather.app.locations.activity.WXLocationsActivity
+06-08 17:48:04.523  1442  1442 D WindowManager: w is invisible : 5910bfa com.sec.android.app.sbrowser/com.sec.android.app.sbrowser.SBrowserMainActivity
+06-08 17:48:04.523  1442  1442 D WindowManager: w is invisible : e895e7e com.sec.android.app.launcher/com.android.quickstep.RecentsActivity
+06-08 17:48:04.524  1442  1442 D WindowManager: w is invisible : 30929e1 com.github.android/com.github.android.main.MainActivity
+06-08 17:48:04.524  1442  1442 D WindowManager: w is invisible : 4f0dcf5 com.ocentra.parent.browser/ca.ocentra.parent.browser.OcentraOwnedBrowserShellActivity
+06-08 17:48:04.524  1442  1442 D WindowManager: w is invisible : f8f11d0 com.linkedin.android/com.linkedin.android.infra.navigation.MainActivity
+06-08 17:48:04.524  1442  1442 D WindowManager: w is invisible : f8ba476 com.microsoft.launcher/com.microsoft.launcher.Launcher
+06-08 17:48:04.524  1442  1442 D WindowManager: w is invisible : 3d59f2a ca.ocentra.parent.agent/ca.ocentra.parent.agent.MainActivity
+06-08 17:48:04.524  1442  1442 D WindowManager: w is invisible : ccae6e0 DockedStackDivider
+06-08 17:48:04.524  1442  1442 D WindowManager: w is invisible : b0c7359 AssistPreviewPanel
+06-08 17:48:04.524  1442  1442 D WindowManager: w is invisible : 7c6e11 StatusBar
+06-08 17:48:04.524  1442  1442 D WindowManager: w is invisible : e1f75e4 Bouncer
+06-08 17:48:04.524  1442  1442 D WindowManager: w is invisible : 63ad4bc NavigationBar0
+06-08 17:48:04.524  1442  1442 D WindowManager: w is invisible : 51f45b1 InputMethod
+06-08 17:48:04.524  1442  1442 D WindowManager: windowMattersToAccessibility, check : 7c6e11 StatusBar
+06-08 17:48:04.525  1442  3599 D SettingsProvider: isChangeAllowed() : name = accelerometer_rotation
+06-08 17:48:04.525  1442  3599 D SettingsProvider: isChangeAllowed() : name = user_rotation
+06-08 17:48:04.527  1442  3599 V WindowManager: rotationForOrientation(orient=5, last=0); user=0
+06-08 17:48:04.530   925   925 I Layer   : id=1408[1] Destroyed WindowToken{70422ba android.os.Binder@16417e5}#0
+06-08 17:48:04.530  1442  1442 I AccessibilityManagerService: semIsAccessibilityServiceEnabled()
+06-08 17:48:04.531  1442  3599 V WindowManager: Computed rotation=0 for display id=0 based on lastOrientation=5 and oldRotation=0, caller=com.android.server.wm.DisplayContent.updateRotationUnchecked:1578 com.android.server.wm.WindowManagerService.updateRotationUnchecked:4312 com.android.server.wm.WindowManagerService.thawDisplayRotation:4264 com.android.server.wm.WindowManagerService.thawRotation:4227 android.view.IWindowManager$Stub.onTransact:2145 com.android.server.wm.WindowManagerService.onTransact:1392
+06-08 17:48:04.531  1442  1442 I AccessibilityManagerService: semIsAccessibilityServiceEnabled()
+06-08 17:48:04.534  4313  4313 D AndroidRuntime: Shutting down VM
+06-08 17:48:04.535  1442  1442 D AS.AudioService: Accessibility volume enabled = false
+06-08 17:48:04.542  2052  2052 V NavBarStoreImpl: ------handleEvent [EventType] ON_UPDATE_REMOTEVIEW [Module] SecNavigationBarView  KEYS_LEFT_REMOTEVIEW_CONTAINER=android.widget.LinearLayout{1a5d9bb I.E...... ......I. 0,0-118,162 #7f0a0398 app:id/left_remoteview}  KEYS_NAVBAR_DARK_INTENSITY=0.0  KEYS_CONTEXTUALBUTTON_VISIBLE=false  KEYS_RIGHT_REMOTEVIEW_CONTAINER=android.widget.LinearLayout{d96ded8 I.E...... ......I. 962,0-1080,162 #7f0a0549 app:id/right_remoteview}
+06-08 17:48:04.543  2052  2052 V NavBarStoreImpl: --------[Band]REMOTE_VIEW_PACK_SET_REMOTEVIEW_CONTAINER
+06-08 17:48:04.543  2052  2052 V NavBarStoreImpl: ----------apply(UPDATE_NAVBAR_REMOTEVIEW_CONTAINER)
+06-08 17:48:04.543  2052  2052 V NavBarStoreImpl: ----------apply(UPDATE_NAVBAR_RIGHT_REMOTEVIEW_VISIBILITY)
+06-08 17:48:04.543  2052  2052 V NavBarStoreImpl: ----------isEnabled(NAVBAR_REMOTEVIEW_DARKINTENSITY_CHANGED)=false
+06-08 17:48:04.552  1047  1047 D Zygote  : Forked child process 4381
+06-08 17:48:04.555  1442  1558 I ActivityManager: Start proc 4381:com.samsung.faceservice/5004 for service {com.samsung.faceservice/com.samsung.faceservice.FaceService}
+06-08 17:48:04.558  4381  4381 E Zygote  : isWhitelistProcess - Process is Whitelisted
+06-08 17:48:04.561  4381  4381 E Zygote  : accessInfo : 1
+06-08 17:48:04.561  2052  2052 V NavBarStoreImpl: handleEvent [EventType] GET_BOOL_NAVBAR_CAN_MOVE_STATE [Module] SecNavigationBarView
+06-08 17:48:04.561  2052  2052 V NavBarStoreImpl: --[Band]GESTURE_PACK_GET_BOOL_NAVBAR_CAN_MOVE_NAVBARVIEW
+06-08 17:48:04.561  2052  2052 V NavBarStoreImpl: ----apply(SET_CURRENT_NAVBAR_CAN_MOVE)
+06-08 17:48:04.561  2052  2052 V NavBarStoreImpl: getResult(GET_BOOL_NAVBAR_CAN_MOVE_STATE)=true
+06-08 17:48:04.580  3227  3227 I io_stats: !@   8,0 r 1443318 52310264 w 305655 4427016 d 42143 1211808 f 131370 131976 iot 560230 492334 th 102400 0 0 pt 0 inp 0 0 20293.191
+06-08 17:48:04.597   694  5839 I         : !@SystemSuspend: mWakeupCountFd+
+06-08 17:48:04.598  4381  4381 E ung.faceservic: Not starting debugger since process cannot load the jdwp agent.
+06-08 17:48:04.611  4381  4381 D ActivityThread: setConscryptValidator
+06-08 17:48:04.611  4381  4381 D ActivityThread: setConscryptValidator - put
+06-08 17:48:04.617  1442  3578 I ActivityManager: DSS OFF for com.samsung.faceservice
+06-08 17:48:04.647  4381  4381 I ung.faceservic: The ClassLoaderContext is a special shared library.
+06-08 17:48:04.667  1442  4090 V LocSvc_HIDL_DebugReportService_jni: DebugReportService_getReport
+06-08 17:48:04.667  1442  4090 D LocSvc_HIDL_DebugReportService_jni: DebugReportService_getReport, Get Latest 1 sec data.
+06-08 17:48:04.667  1442  4090 V LocSvc_HIDL_DebugReportService_jni: [DebugReportService_getReport][942] [HC] =>> [HS]
+06-08 17:48:04.669   821   821 E LocSvc_HIDL_DebugReportService: Invalid count: 0
+06-08 17:48:04.669  1442  4090 V LocSvc_HIDL_DebugReportService_jni: populateEphemerisStatusListObj
+06-08 17:48:04.669  1442  4090 V LocSvc_HIDL_DebugReportService_jni: populateFixStatusListObj
+06-08 17:48:04.669  1442  4090 V LocSvc_HIDL_DebugReportService_jni: populateEpiReportListObj
+06-08 17:48:04.669  1442  4090 V LocSvc_HIDL_DebugReportService_jni: populateBestLocationListObj
+06-08 17:48:04.669  1442  4090 V LocSvc_HIDL_DebugReportService_jni: populateGpsTimeReportListObj
+06-08 17:48:04.669  1442  4090 V LocSvc_HIDL_DebugReportService_jni: populateXoStateReportListObj
+06-08 17:48:04.669  1442  4090 V LocSvc_HIDL_DebugReportService_jni: populateRfStateReportListObjV1_1
+06-08 17:48:04.669  1442  4090 V LocSvc_HIDL_DebugReportService_jni: populateErrorRecoveriesListObj
+06-08 17:48:04.670  1442  4090 V LocSvc_HIDL_DebugReportService_jni: populatePdrReporListObj
+06-08 17:48:04.670  1442  4090 V LocSvc_HIDL_DebugReportService_jni: populateSvHealthReportListObj
+06-08 17:48:04.670  1442  4090 V LocSvc_HIDL_DebugReportService_jni: populateXtraReportListObj
+06-08 17:48:04.681  4381  4381 I FaceService: [FaceService] onBind() called
+06-08 17:48:04.706  4381  4381 I FaceController: [FaceService] release engines before initialize
+06-08 17:48:04.720  4381  4381 I SemFaceRecognition: create new instance
+06-08 17:48:04.773  4381  4381 I SAIV_FACE: File : /data/user/0/com.samsung.faceservice/face/face_data
+06-08 17:48:04.792  4381  4381 I [SCE_3] : [SmartCropping v3.0] native version is 2019-10-30-01
+06-08 17:48:04.792  4381  4381 I [SCE_3] : [SmartCropping v3.0] DB path is /system/saiv/smartcropping_2.0/db
+06-08 17:48:04.794  4381  4381 I [SCE_3] : smart_cropping in srcb_Smartcrop_Init() : 531968158720 & its size is 8
+06-08 17:48:04.794  4381  4381 I [SCE_3] : SmartCropper Handle after srcb_Smartcrop_Init() : 531968158720 & its size is 8
+06-08 17:48:04.794  4381  4381 I [SCE_3] : long bytes num: 8
+06-08 17:48:04.794  4381  4381 I [SCE_3] : jlong bytes num: 8
+06-08 17:48:04.794  4381  4381 I [SCE_3] : filepathname: /system/saiv/smartcropping_2.0/db/smartcrop_saliency_deploy.prototxt
+06-08 17:48:04.794  4381  4381 I [SCE_3] : o_f_d loading start
+06-08 17:48:04.795  4381  4381 I [SCE_3] : o_f_d loading success
+06-08 17:48:04.795  4381  4381 I [SCE_3] : filepathname: /system/saiv/smartcropping_2.0/db/smartcrop_saliency_train
+06-08 17:48:04.795  4381  4381 I [SCE_3] : o_f_t loading start
+06-08 17:48:04.822  4381  4381 I [SCE_3] : o_f_t loading success
+06-08 17:48:04.822  4381  4381 I [SCE_3] : filepathname: /system/saiv/smartcropping_2.0/db/..
+06-08 17:48:04.822  4381  4381 I [SCE_3] : filepathname: /system/saiv/smartcropping_2.0/db/.
+06-08 17:48:04.822  4381  4381 I [SCE_3] : DB file count : 2
+06-08 17:48:04.882  1442  3578 I EDMNativeHelperService: isScreenCaptureEnabled
+06-08 17:48:04.885  1442  3578 D RestrictionPolicy: isScreenCaptureEnabled : ret=true userId=0
+06-08 17:48:04.895  4381  4381 I [SCE_3] : native init exit
+06-08 17:48:04.895  4381  4381 I [SCE_3] : SmartCropper Handle is 531968158720
+06-08 17:48:04.895  4381  4381 I [SCE_3] : SmartCropper Handle is 531968158720 & its size is 8
+06-08 17:48:04.895  4381  4381 I [SCE_3] : address(jlong): 531968158720
+06-08 17:48:04.899   600   600 I hwservicemanager: getTransport: Cannot find entry android.hardware.graphics.mapper@3.0::IMapper/default in either framework or device manifest.
+06-08 17:48:04.901  4415  4415 W Gralloc3: mapper 3.x is not supported
+06-08 17:48:04.905  4381  4381 I SAIV_FACE: SAIV_HPRFACE_GAE_VERSION : 20170310
+06-08 17:48:04.905  4381  4381 I SAIV_FACE: FSInterfaceGAEDetect : Init FPP Q1.3.6 GAE 1.5.4
+06-08 17:48:04.905  4381  4381 D native_gae: CGAEMain_success
+06-08 17:48:04.921  4381  4381 D native_gae: GAE Init Success
+06-08 17:48:04.922  4381  4381 I SAIV_FACE_LD_API: FSInterfaceLandmarkDetect : Init FPP Q1.3.8 SLD 1.0.9
+06-08 17:48:04.922  4381  4381 I SAIV_FACE_LD_API: DMC LMD ENGINE INIT [Option-0/Profile-0]
+06-08 17:48:04.932  4381  4381 I SAIV_FACE_LD_API: DMC LMD ENGINE : ret 4096
+06-08 17:48:04.938  7588  7588 I ServiceManager: [#CMH#] Bound to Package  com.samsung.faceservice
+06-08 17:48:04.945  1442  3578 I ActivityManager: Killing 3295:com.android.keychain/1000 (adj 975): empty #21
+06-08 17:48:04.954  1442  4090 V LocSvc_HIDL_DebugReportService_jni: DebugReportService_getReport
+06-08 17:48:04.955  1442  4090 D LocSvc_HIDL_DebugReportService_jni: DebugReportService_getReport, Get Latest 1 sec data.
+06-08 17:48:04.955  1442  4090 V LocSvc_HIDL_DebugReportService_jni: [DebugReportService_getReport][942] [HC] =>> [HS]
+06-08 17:48:04.955   821   821 E LocSvc_HIDL_DebugReportService: Invalid count: 0
+06-08 17:48:04.955  1442  4090 V LocSvc_HIDL_DebugReportService_jni: populateEphemerisStatusListObj
+06-08 17:48:04.955  1442  4090 V LocSvc_HIDL_DebugReportService_jni: populateFixStatusListObj
+06-08 17:48:04.955  1442  4090 V LocSvc_HIDL_DebugReportService_jni: populateEpiReportListObj
+06-08 17:48:04.955  1442  4090 V LocSvc_HIDL_DebugReportService_jni: populateBestLocationListObj
+06-08 17:48:04.955  1442  4090 V LocSvc_HIDL_DebugReportService_jni: populateGpsTimeReportListObj
+06-08 17:48:04.955  1442  4090 V LocSvc_HIDL_DebugReportService_jni: populateXoStateReportListObj
+06-08 17:48:04.955  1442  4090 V LocSvc_HIDL_DebugReportService_jni: populateRfStateReportListObjV1_1
+06-08 17:48:04.955  1442  4090 V LocSvc_HIDL_DebugReportService_jni: populateErrorRecoveriesListObj
+06-08 17:48:04.956  1442  4090 V LocSvc_HIDL_DebugReportService_jni: populatePdrReporListObj
+06-08 17:48:04.956  1442  4090 V LocSvc_HIDL_DebugReportService_jni: populateSvHealthReportListObj
+06-08 17:48:04.956  1442  4090 V LocSvc_HIDL_DebugReportService_jni: populateXtraReportListObj
+06-08 17:48:04.977  1047  1047 I Zygote  : Process 3295 exited due to signal 9 (Killed)
+06-08 17:48:04.980  1442  1559 I libprocessgroup: Successfully killed process cgroup uid 1000 pid 3295 in 31ms
+06-08 17:48:04.987  7588  7604 W samsung.cmh:CM: Reducing the number of considered missed Gc histogram windows from 231 to 100

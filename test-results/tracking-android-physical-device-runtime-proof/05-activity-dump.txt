@@ -1,15 +1,15 @@
 ACTIVITY MANAGER ACTIVITIES (dumpsys activity activities)
 Display #0 (activities from top to bottom):
 
-  Stack #35: type=standard mode=fullscreen
+  Stack #51: type=standard mode=fullscreen
   isSleeping=true
   mBounds=Rect(0, 0 - 0, 0)
-    Task id #235
+    Task id #251
     mBounds=Rect(0, 0 - 0, 0)
     mMinWidth=-1
     mMinHeight=-1
     mLastNonFullscreenBounds=null
-    * TaskRecord{ed0251f #235 A=ca.ocentra.parent.agent U=0 StackId=35 sz=1}
+    * TaskRecord{ba63dfd #251 A=ca.ocentra.parent.agent U=0 StackId=51 sz=1}
       userId=0 effectiveUid=u0a259 mCallingUid=2000 mUserSetupComplete=true mCallingPackage=null
        lastReportedWindowingMode=1
       affinity=ca.ocentra.parent.agent
@@ -17,22 +17,22 @@ Display #0 (activities from top to bottom):
       mActivityComponent=ca.ocentra.parent.agent/.MainActivity
       autoRemoveRecents=false isPersistable=true numFullscreen=1 activityType=1
       rootWasReset=false mNeverRelinquishIdentity=true mReuseTask=false mLockTaskAuth=LOCK_TASK_AUTH_PINNABLE
-      Activities=[ActivityRecord{e403b5e u0 ca.ocentra.parent.agent/.MainActivity t235}]
+      Activities=[ActivityRecord{a1a5f8a u0 ca.ocentra.parent.agent/.MainActivity t251}]
       askedCompatMode=false inRecents=true isAvailable=true
-      mRootProcess=ProcessRecord{43e718b 11181:ca.ocentra.parent.agent/u0a259}
-      stackId=35
-      hasBeenVisible=false mResizeMode=RESIZE_MODE_RESIZEABLE_VIA_SDK_VERSION mSupportsPictureInPicture=false isResizeable=true lastActiveTime=20895451 lastGainFocusTime=20841567 (inactive for 7s)
+      mRootProcess=ProcessRecord{a8b3893 32390:ca.ocentra.parent.agent/u0a259}
+      stackId=51
+      hasBeenVisible=false mResizeMode=RESIZE_MODE_RESIZEABLE_VIA_SDK_VERSION mSupportsPictureInPicture=false isResizeable=true lastActiveTime=25023540 lastGainFocusTime=24986490 (inactive for 9s)
       dexBoundsPolicy:
        mLastNonFullBoundsDisplayId=-1
-      * Hist #0: ActivityRecord{e403b5e u0 ca.ocentra.parent.agent/.MainActivity t235}
+      * Hist #0: ActivityRecord{a1a5f8a u0 ca.ocentra.parent.agent/.MainActivity t251}
           packageName=ca.ocentra.parent.agent processName=ca.ocentra.parent.agent
           launchedFromUid=2000 launchedFromPackage=null userId=0
-          app=ProcessRecord{43e718b 11181:ca.ocentra.parent.agent/u0a259}
+          app=ProcessRecord{a8b3893 32390:ca.ocentra.parent.agent/u0a259}
           Intent { flg=0x10000000 cmp=ca.ocentra.parent.agent/.MainActivity }
-          frontOfTask=true task=TaskRecord{ed0251f #235 A=ca.ocentra.parent.agent U=0 StackId=35 sz=1}
+          frontOfTask=true task=TaskRecord{ba63dfd #251 A=ca.ocentra.parent.agent U=0 StackId=51 sz=1}
           taskAffinity=ca.ocentra.parent.agent
           mActivityComponent=ca.ocentra.parent.agent/.MainActivity
-          baseDir=/data/app/ca.ocentra.parent.agent-4NyAH6pL7Dsn9YyL2hc1jA==/base.apk
+          baseDir=/data/app/ca.ocentra.parent.agent-2PYe8rST8-GA7PA5vlOFWw==/base.apk
           dataDir=/data/user/0/ca.ocentra.parent.agent
           appMetaData=Bundle[{com.google.android.gms.version=12451000}]
           stateNotNeeded=false componentSpecified=true mActivityType=standard
@@ -45,23 +45,23 @@ Display #0 (activities from top to bottom):
            backgroundColor=fffafafa
            statusBarColor=ff757575
            navigationBarColor=fff2f2f2
-          launchFailed=false launchCount=0 lastLaunchTime=-1m1s493ms
+          launchFailed=false launchCount=0 lastLaunchTime=-39s960ms
           haveState=true icicle=Bundle[mParcelledData.dataSize=256]
           state=STOPPED stopped=true delayedResume=false finishing=false
           keysPaused=false inHistory=true visible=false sleeping=true idle=true mStartingWindowState=STARTING_WINDOW_SHOWN
           fullscreen=true noDisplay=false immersive=false launchMode=0
           frozenBeforeDestroy=false forceNewConfig=false
           mActivityType=standard
-          displayStartTime=-1m1s480ms startTime=0
+          displayStartTime=-39s955ms startTime=0
           resizeMode=RESIZE_MODE_RESIZEABLE_VIA_SDK_VERSION
           mLastReportedMultiWindowMode=false mLastReportedPictureInPictureMode=false
           mUseDeviceDefaultTheme=false
 
     Running activities (most recent first):
-      TaskRecord{ed0251f #235 A=ca.ocentra.parent.agent U=0 StackId=35 sz=1}
-        Run #0: ActivityRecord{e403b5e u0 ca.ocentra.parent.agent/.MainActivity t235}
+      TaskRecord{ba63dfd #251 A=ca.ocentra.parent.agent U=0 StackId=51 sz=1}
+        Run #0: ActivityRecord{a1a5f8a u0 ca.ocentra.parent.agent/.MainActivity t251}
 
-    mLastPausedActivity: ActivityRecord{e403b5e u0 ca.ocentra.parent.agent/.MainActivity t235}
+    mLastPausedActivity: ActivityRecord{a1a5f8a u0 ca.ocentra.parent.agent/.MainActivity t251}
 
   Stack #0: type=home mode=fullscreen
   isSleeping=true
@@ -83,7 +83,7 @@ Display #0 (activities from top to bottom):
       Activities=[ActivityRecord{54ff659 u0 com.microsoft.launcher/.Launcher t204}]
       askedCompatMode=false inRecents=true isAvailable=true
       stackId=0
-      hasBeenVisible=true mResizeMode=RESIZE_MODE_RESIZEABLE mSupportsPictureInPicture=false isResizeable=true lastActiveTime=20841384 lastGainFocusTime=18458919 (inactive for 61s)
+      hasBeenVisible=true mResizeMode=RESIZE_MODE_RESIZEABLE mSupportsPictureInPicture=false isResizeable=true lastActiveTime=24985986 lastGainFocusTime=24719981 (inactive for 46s)
       dexBoundsPolicy:
        mLastNonFullBoundsDisplayId=-1
       * Hist #0: ActivityRecord{54ff659 u0 com.microsoft.launcher/.Launcher t204}
@@ -108,14 +108,14 @@ Display #0 (activities from top to bottom):
            backgroundColor=fffafafa
            statusBarColor=0
            navigationBarColor=0
-          launchFailed=false launchCount=0 lastLaunchTime=-4h42m3s708ms
+          launchFailed=false launchCount=0 lastLaunchTime=-5h37m46s950ms
           haveState=false icicle=null
           state=STOPPED stopped=true delayedResume=false finishing=false
           keysPaused=false inHistory=true visible=false sleeping=true idle=true mStartingWindowState=STARTING_WINDOW_REMOVED
           fullscreen=true noDisplay=false immersive=false launchMode=2
           frozenBeforeDestroy=false forceNewConfig=false
           mActivityType=home
-           nowVisible=false lastVisibleTime=-35m11s745ms
+           nowVisible=false lastVisibleTime=-4m5s273ms
           resizeMode=RESIZE_MODE_RESIZEABLE
           mLastReportedMultiWindowMode=false mLastReportedPictureInPictureMode=false
           mUseDeviceDefaultTheme=false
@@ -144,18 +144,18 @@ Display #0 (activities from top to bottom):
       mActivityComponent=com.linkedin.android/.infra.navigation.MainActivity
       autoRemoveRecents=false isPersistable=true numFullscreen=1 activityType=1
       rootWasReset=true mNeverRelinquishIdentity=true mReuseTask=false mLockTaskAuth=LOCK_TASK_AUTH_PINNABLE
-      Activities=[ActivityRecord{b4cb83b u0 com.linkedin.android/.authenticator.LaunchActivityDefault t226}]
+      Activities=[ActivityRecord{aa4e667 u0 com.linkedin.android/.infra.navigation.MainActivity t226}]
       askedCompatMode=false inRecents=true isAvailable=true
-      mRootProcess=ProcessRecord{76b5041 16287:com.linkedin.android/u0a294}
+      mRootProcess=ProcessRecord{71af48d 29304:com.linkedin.android/u0a294}
       stackId=28
-      hasBeenVisible=true mResizeMode=RESIZE_MODE_RESIZEABLE_VIA_SDK_VERSION mSupportsPictureInPicture=false isResizeable=true lastActiveTime=16829996 lastGainFocusTime=16539543 (inactive for 4073s)
+      hasBeenVisible=true mResizeMode=RESIZE_MODE_RESIZEABLE_VIA_SDK_VERSION mSupportsPictureInPicture=false isResizeable=true lastActiveTime=24713613 lastGainFocusTime=24561729 (inactive for 319s)
       dexBoundsPolicy:
        mLastNonFullBoundsDisplayId=-1
-      * Hist #0: ActivityRecord{b4cb83b u0 com.linkedin.android/.authenticator.LaunchActivityDefault t226}
+      * Hist #0: ActivityRecord{aa4e667 u0 com.linkedin.android/.infra.navigation.MainActivity t226}
           packageName=com.linkedin.android processName=com.linkedin.android
-          launchedFromUid=10298 launchedFromPackage=com.microsoft.launcher userId=0
-          app=ProcessRecord{76b5041 16287:com.linkedin.android/u0a294}
-          Intent { act=android.intent.action.MAIN cat=[android.intent.category.LAUNCHER] flg=0x10200000 cmp=com.linkedin.android/.authenticator.LaunchActivityDefault bnds=[20,403][228,725] }
+          launchedFromUid=10294 launchedFromPackage=com.linkedin.android userId=0
+          app=ProcessRecord{71af48d 29304:com.linkedin.android/u0a294}
+          Intent { flg=0x10008000 cmp=com.linkedin.android/.infra.navigation.MainActivity bnds=[64,461][183,580] (has extras) }
           frontOfTask=true task=TaskRecord{c5e4d39 #226 A=com.linkedin.android U=0 StackId=28 sz=1}
           taskAffinity=com.linkedin.android
           mActivityComponent=com.linkedin.android/.infra.navigation.MainActivity
@@ -168,29 +168,154 @@ Display #0 (activities from top to bottom):
           mLastReportedConfigurations:
            mGlobalConfig={1.1 302mcc610mnc [en_CA] ldltr sw320dp w320dp h585dp 540dpi nrml long port night finger -keyb/v/h -nav/h winConfig={ mBounds=Rect(0, 0 - 1080, 2220) mAppBounds=Rect(0, 0 - 1080, 2058) mWindowingMode=fullscreen mDisplayWindowingMode=fullscreen mActivityType=undefined mAlwaysOnTop=undefined mRotation=ROTATION_0} s.19 desktop/d ?dc bts=0 ff=0 bf=0 themeSeq=0}
            mOverrideConfig={1.1 302mcc610mnc [en_CA] ldltr sw320dp w320dp h585dp 540dpi nrml long port night finger -keyb/v/h -nav/h winConfig={ mBounds=Rect(0, 0 - 1080, 2220) mAppBounds=Rect(0, 0 - 1080, 2058) mWindowingMode=fullscreen mDisplayWindowingMode=fullscreen mActivityType=standard mAlwaysOnTop=undefined mRotation=ROTATION_0} s.1 desktop/d dc/d bts=0 ff=0 bf=0 themeSeq=0}
-          CurrentConfiguration={1.1 302mcc610mnc [en_CA] ldltr sw320dp w320dp h585dp 540dpi nrml long port night finger -keyb/v/h -nav/h winConfig={ mBounds=Rect(0, 0 - 1080, 2220) mAppBounds=Rect(0, 0 - 1080, 2058) mWindowingMode=fullscreen mDisplayWindowingMode=fullscreen mActivityType=standard mAlwaysOnTop=undefined mRotation=ROTATION_0} s.3 desktop/d dc/d bts=0 ff=0 bf=0 themeSeq=0}
+          CurrentConfiguration={1.1 302mcc610mnc [en_CA] ldltr sw320dp w320dp h585dp 540dpi nrml long port night finger -keyb/v/h -nav/h winConfig={ mBounds=Rect(0, 0 - 1080, 2220) mAppBounds=Rect(0, 0 - 1080, 2058) mWindowingMode=fullscreen mDisplayWindowingMode=fullscreen mActivityType=standard mAlwaysOnTop=undefined mRotation=ROTATION_0} s.1 desktop/d dc/d bts=0 ff=0 bf=0 themeSeq=0}
           taskDescription: label="null" icon=null iconResource=0 iconFilename=null primaryColor=ff0a66c2
            backgroundColor=ffe9e5df
-           statusBarColor=ff000000
+           statusBarColor=ff0a66c2
            navigationBarColor=fff2f2f2
-          launchFailed=false launchCount=0 lastLaunchTime=-1h0m41s144ms
-          haveState=true icicle=Bundle[mParcelledData.dataSize=58736]
+          launchFailed=false launchCount=0 lastLaunchTime=-9m29s408ms
+          haveState=true icicle=Bundle[mParcelledData.dataSize=27548]
           state=STOPPED stopped=true delayedResume=false finishing=false
           keysPaused=false inHistory=true visible=false sleeping=true idle=true mStartingWindowState=STARTING_WINDOW_REMOVED
           fullscreen=true noDisplay=false immersive=false launchMode=1
           frozenBeforeDestroy=false forceNewConfig=false
           mActivityType=standard
-           nowVisible=false lastVisibleTime=-58m20s176ms
-          connections=com.android.server.wm.ActivityServiceConnectionsHolder@9492c1
+           nowVisible=false lastVisibleTime=-6m43s485ms
           resizeMode=RESIZE_MODE_RESIZEABLE_VIA_SDK_VERSION
           mLastReportedMultiWindowMode=false mLastReportedPictureInPictureMode=false
           mUseDeviceDefaultTheme=false
 
     Running activities (most recent first):
       TaskRecord{c5e4d39 #226 A=com.linkedin.android U=0 StackId=28 sz=1}
-        Run #0: ActivityRecord{b4cb83b u0 com.linkedin.android/.authenticator.LaunchActivityDefault t226}
+        Run #0: ActivityRecord{aa4e667 u0 com.linkedin.android/.infra.navigation.MainActivity t226}
 
-    mLastPausedActivity: ActivityRecord{b4cb83b u0 com.linkedin.android/.authenticator.LaunchActivityDefault t226}
+    mLastPausedActivity: ActivityRecord{aa4e667 u0 com.linkedin.android/.infra.navigation.MainActivity t226}
+
+  Stack #49: type=standard mode=fullscreen
+  isSleeping=true
+  mBounds=Rect(0, 0 - 0, 0)
+
+    Task id #249
+    mBounds=Rect(0, 0 - 0, 0)
+    mMinWidth=-1
+    mMinHeight=-1
+    mLastNonFullscreenBounds=null
+    * TaskRecord{e201024 #249 A=com.ocentra.parent.browser U=0 StackId=49 sz=1}
+      userId=0 effectiveUid=u0a261 mCallingUid=2000 mUserSetupComplete=true mCallingPackage=null
+       lastReportedWindowingMode=1
+      affinity=com.ocentra.parent.browser
+      intent={act=android.intent.action.VIEW cat=[android.intent.category.DEFAULT,android.intent.category.BROWSABLE] dat=http://127.0.0.1:63184/owned-browser-shell-proof flg=0x10000000 cmp=com.ocentra.parent.browser/ca.ocentra.parent.browser.OcentraOwnedBrowserShellActivity}
+      mActivityComponent=com.ocentra.parent.browser/ca.ocentra.parent.browser.OcentraOwnedBrowserShellActivity
+      autoRemoveRecents=false isPersistable=true numFullscreen=1 activityType=1
+      rootWasReset=false mNeverRelinquishIdentity=true mReuseTask=false mLockTaskAuth=LOCK_TASK_AUTH_PINNABLE
+      Activities=[ActivityRecord{20e114c u0 com.ocentra.parent.browser/ca.ocentra.parent.browser.OcentraOwnedBrowserShellActivity t249}]
+      askedCompatMode=false inRecents=true isAvailable=true
+      mRootProcess=ProcessRecord{1fdb54f 30382:com.ocentra.parent.browser/u0a261}
+      stackId=49
+      hasBeenVisible=true mResizeMode=RESIZE_MODE_RESIZEABLE_VIA_SDK_VERSION mSupportsPictureInPicture=false isResizeable=true lastActiveTime=24559340 lastGainFocusTime=24547726 (inactive for 473s)
+      dexBoundsPolicy:
+       mLastNonFullBoundsDisplayId=-1
+      * Hist #0: ActivityRecord{20e114c u0 com.ocentra.parent.browser/ca.ocentra.parent.browser.OcentraOwnedBrowserShellActivity t249}
+          packageName=com.ocentra.parent.browser processName=com.ocentra.parent.browser
+          launchedFromUid=2000 launchedFromPackage=null userId=0
+          app=ProcessRecord{1fdb54f 30382:com.ocentra.parent.browser/u0a261}
+          Intent { act=android.intent.action.VIEW cat=[android.intent.category.DEFAULT,android.intent.category.BROWSABLE] dat=http://127.0.0.1:63184/owned-browser-shell-proof flg=0x10000000 cmp=com.ocentra.parent.browser/ca.ocentra.parent.browser.OcentraOwnedBrowserShellActivity }
+          frontOfTask=true task=TaskRecord{e201024 #249 A=com.ocentra.parent.browser U=0 StackId=49 sz=1}
+          taskAffinity=com.ocentra.parent.browser
+          mActivityComponent=com.ocentra.parent.browser/ca.ocentra.parent.browser.OcentraOwnedBrowserShellActivity
+          baseDir=/data/app/com.ocentra.parent.browser-5P2i0E8SebyLVLZX1A4BSA==/base.apk
+          dataDir=/data/user/0/com.ocentra.parent.browser
+          stateNotNeeded=false componentSpecified=true mActivityType=standard
+          compat={540dpi} labelRes=0x7f010005 icon=0x0 theme=0x7f020000
+          mLastReportedConfigurations:
+           mGlobalConfig={1.1 302mcc610mnc [en_CA] ldltr sw320dp w320dp h585dp 540dpi nrml long port night finger -keyb/v/h -nav/h winConfig={ mBounds=Rect(0, 0 - 1080, 2220) mAppBounds=Rect(0, 0 - 1080, 2058) mWindowingMode=fullscreen mDisplayWindowingMode=fullscreen mActivityType=undefined mAlwaysOnTop=undefined mRotation=ROTATION_0} s.19 desktop/d ?dc bts=0 ff=0 bf=0 themeSeq=0}
+           mOverrideConfig={1.1 302mcc610mnc [en_CA] ldltr sw320dp w320dp h585dp 540dpi nrml long port night finger -keyb/v/h -nav/h winConfig={ mBounds=Rect(0, 0 - 1080, 2220) mAppBounds=Rect(0, 0 - 1080, 2058) mWindowingMode=fullscreen mDisplayWindowingMode=fullscreen mActivityType=standard mAlwaysOnTop=undefined mRotation=ROTATION_0} s.1 desktop/d dc/d bts=0 ff=0 bf=0 themeSeq=0}
+          CurrentConfiguration={1.1 302mcc610mnc [en_CA] ldltr sw320dp w320dp h585dp 540dpi nrml long port night finger -keyb/v/h -nav/h winConfig={ mBounds=Rect(0, 0 - 1080, 2220) mAppBounds=Rect(0, 0 - 1080, 2058) mWindowingMode=fullscreen mDisplayWindowingMode=fullscreen mActivityType=standard mAlwaysOnTop=undefined mRotation=ROTATION_0} s.1 desktop/d dc/d bts=0 ff=0 bf=0 themeSeq=0}
+          taskDescription: label="null" icon=null iconResource=0 iconFilename=null primaryColor=fff5f5f5
+           backgroundColor=fffafafa
+           statusBarColor=ffffffff
+           navigationBarColor=ffffffff
+          launchFailed=false launchCount=0 lastLaunchTime=-6m57s888ms
+          haveState=true icicle=Bundle[mParcelledData.dataSize=256]
+          state=STOPPED stopped=true delayedResume=false finishing=false
+          keysPaused=false inHistory=true visible=false sleeping=true idle=true mStartingWindowState=STARTING_WINDOW_REMOVED
+          fullscreen=true noDisplay=false immersive=false launchMode=0
+          frozenBeforeDestroy=false forceNewConfig=false
+          mActivityType=standard
+           nowVisible=false lastVisibleTime=-6m57s276ms
+          resizeMode=RESIZE_MODE_RESIZEABLE_VIA_SDK_VERSION
+          mLastReportedMultiWindowMode=false mLastReportedPictureInPictureMode=false
+          mUseDeviceDefaultTheme=false
+
+    Running activities (most recent first):
+      TaskRecord{e201024 #249 A=com.ocentra.parent.browser U=0 StackId=49 sz=1}
+        Run #0: ActivityRecord{20e114c u0 com.ocentra.parent.browser/ca.ocentra.parent.browser.OcentraOwnedBrowserShellActivity t249}
+
+    mLastPausedActivity: ActivityRecord{20e114c u0 com.ocentra.parent.browser/ca.ocentra.parent.browser.OcentraOwnedBrowserShellActivity t249}
+
+  Stack #48: type=standard mode=fullscreen
+  isSleeping=true
+  mBounds=Rect(0, 0 - 0, 0)
+
+    Task id #248
+    mBounds=Rect(0, 0 - 0, 0)
+    mMinWidth=-1
+    mMinHeight=-1
+    mLastNonFullscreenBounds=null
+    * TaskRecord{923267a #248 A=com.github.android U=0 StackId=48 sz=1}
+      userId=0 effectiveUid=u0a284 mCallingUid=u0a298 mUserSetupComplete=true mCallingPackage=com.microsoft.launcher
+       lastReportedWindowingMode=1
+      affinity=com.github.android
+      intent={act=android.intent.action.MAIN cat=[android.intent.category.LAUNCHER] flg=0x10200000 cmp=com.github.android/.main.MainActivity}
+      mActivityComponent=com.github.android/.main.MainActivity
+      autoRemoveRecents=false isPersistable=true numFullscreen=1 activityType=1
+      rootWasReset=true mNeverRelinquishIdentity=true mReuseTask=false mLockTaskAuth=LOCK_TASK_AUTH_PINNABLE
+      Activities=[ActivityRecord{a6b8d86 u0 com.github.android/.main.MainActivity t248}]
+      askedCompatMode=false inRecents=true isAvailable=true
+      mRootProcess=ProcessRecord{1d637c9 28228:com.github.android/u0a284}
+      stackId=48
+      hasBeenVisible=true mResizeMode=RESIZE_MODE_RESIZEABLE_VIA_SDK_VERSION mSupportsPictureInPicture=false isResizeable=true lastActiveTime=24393216 lastGainFocusTime=24390441 (inactive for 639s)
+      dexBoundsPolicy:
+       mLastNonFullBoundsDisplayId=-1
+      * Hist #0: ActivityRecord{a6b8d86 u0 com.github.android/.main.MainActivity t248}
+          packageName=com.github.android processName=com.github.android
+          launchedFromUid=10298 launchedFromPackage=com.microsoft.launcher userId=0
+          app=ProcessRecord{1d637c9 28228:com.github.android/u0a284}
+          Intent { act=android.intent.action.MAIN cat=[android.intent.category.LAUNCHER] flg=0x10200000 cmp=com.github.android/.main.MainActivity bnds=[852,403][1060,725] }
+          frontOfTask=true task=TaskRecord{923267a #248 A=com.github.android U=0 StackId=48 sz=1}
+          taskAffinity=com.github.android
+          mActivityComponent=com.github.android/.main.MainActivity
+          baseDir=/data/app/com.github.android-PPd4yKXEn-fwwCcpRvOHzw==/base.apk
+          dataDir=/data/user/0/com.github.android
+          splitDir=[/data/app/com.github.android-PPd4yKXEn-fwwCcpRvOHzw==/split_config.arm64_v8a.apk, /data/app/com.github.android-PPd4yKXEn-fwwCcpRvOHzw==/split_config.xxhdpi.apk]
+          appMetaData=Bundle[{com.google.android.play.billingclient.version=8.3.0, com.google.firebase.messaging.default_notification_icon=2131231298, com.android.vending.derived.apk.id=3, com.android.stamp.source=https://play.google.com/store, com.android.vending.splits.required=true, firebase_crashlytics_collection_enabled=false, com.google.android.gms.version=12451000, com.google.firebase.messaging.default_notification_color=2131100885, com.android.vending.splits=2132148244, com.android.stamp.type=STAMP_TYPE_DISTRIBUTION_APK}]
+          stateNotNeeded=false componentSpecified=true mActivityType=standard
+          compat={540dpi} labelRes=0x7f1300bb icon=0x7f100000 theme=0x7f140159
+          mLastReportedConfigurations:
+           mGlobalConfig={1.1 302mcc610mnc [en_CA] ldltr sw320dp w320dp h585dp 540dpi nrml long port night finger -keyb/v/h -nav/h winConfig={ mBounds=Rect(0, 0 - 1080, 2220) mAppBounds=Rect(0, 0 - 1080, 2058) mWindowingMode=fullscreen mDisplayWindowingMode=fullscreen mActivityType=undefined mAlwaysOnTop=undefined mRotation=ROTATION_0} s.19 desktop/d ?dc bts=0 ff=0 bf=0 themeSeq=0}
+           mOverrideConfig={1.1 302mcc610mnc [en_CA] ldltr sw320dp w320dp h585dp 540dpi nrml long port night finger -keyb/v/h -nav/h winConfig={ mBounds=Rect(0, 0 - 1080, 2220) mAppBounds=Rect(0, 0 - 1080, 2058) mWindowingMode=fullscreen mDisplayWindowingMode=fullscreen mActivityType=standard mAlwaysOnTop=undefined mRotation=ROTATION_0} s.1 desktop/d dc/d bts=0 ff=0 bf=0 themeSeq=0}
+          CurrentConfiguration={1.1 302mcc610mnc [en_CA] ldltr sw320dp w320dp h585dp 540dpi nrml long port night finger -keyb/v/h -nav/h winConfig={ mBounds=Rect(0, 0 - 1080, 2220) mAppBounds=Rect(0, 0 - 1080, 2058) mWindowingMode=fullscreen mDisplayWindowingMode=fullscreen mActivityType=standard mAlwaysOnTop=undefined mRotation=ROTATION_0} s.1 desktop/d dc/d bts=0 ff=0 bf=0 themeSeq=0}
+          taskDescription: label="null" icon=null iconResource=0 iconFilename=null primaryColor=ff17181c
+           backgroundColor=ff050505
+           statusBarColor=ff17181c
+           navigationBarColor=ff000000
+          launchFailed=false launchCount=0 lastLaunchTime=-9m35s174ms
+          haveState=true icicle=Bundle[mParcelledData.dataSize=10388]
+          state=STOPPED stopped=true delayedResume=false finishing=false
+          keysPaused=false inHistory=true visible=false sleeping=true idle=true mStartingWindowState=STARTING_WINDOW_REMOVED
+          fullscreen=true noDisplay=false immersive=false launchMode=1
+          frozenBeforeDestroy=false forceNewConfig=false
+          mActivityType=standard
+           nowVisible=false lastVisibleTime=-9m34s432ms
+          resizeMode=RESIZE_MODE_RESIZEABLE_VIA_SDK_VERSION
+          mLastReportedMultiWindowMode=false mLastReportedPictureInPictureMode=false
+          mUseDeviceDefaultTheme=false
+
+    Running activities (most recent first):
+      TaskRecord{923267a #248 A=com.github.android U=0 StackId=48 sz=1}
+        Run #0: ActivityRecord{a6b8d86 u0 com.github.android/.main.MainActivity t248}
+
+    mLastPausedActivity: ActivityRecord{a6b8d86 u0 com.github.android/.main.MainActivity t248}
 
   Stack #23: type=recents mode=fullscreen
   isSleeping=true
@@ -211,7 +336,7 @@ Display #0 (activities from top to bottom):
       Activities=[ActivityRecord{72e37f8 u0 com.sec.android.app.launcher/com.android.quickstep.RecentsActivity t227}]
       askedCompatMode=false inRecents=true isAvailable=true
       stackId=23
-      hasBeenVisible=true mResizeMode=RESIZE_MODE_RESIZEABLE mSupportsPictureInPicture=false isResizeable=true lastActiveTime=16539534 lastGainFocusTime=16533909 (inactive for 4363s)
+      hasBeenVisible=true mResizeMode=RESIZE_MODE_RESIZEABLE mSupportsPictureInPicture=false isResizeable=true lastActiveTime=16539534 lastGainFocusTime=16533909 (inactive for 8493s)
       dexBoundsPolicy:
        mLastNonFullBoundsDisplayId=-1
       * Hist #0: ActivityRecord{72e37f8 u0 com.sec.android.app.launcher/com.android.quickstep.RecentsActivity t227}
@@ -236,14 +361,14 @@ Display #0 (activities from top to bottom):
            backgroundColor=ff252525
            statusBarColor=0
            navigationBarColor=0
-          launchFailed=false launchCount=0 lastLaunchTime=-59m46s218ms
+          launchFailed=false launchCount=0 lastLaunchTime=-1h55m29s464ms
           haveState=true icicle=Bundle[mParcelledData.dataSize=1884]
           state=STOPPED stopped=true delayedResume=false finishing=false
           keysPaused=false inHistory=true visible=false sleeping=true idle=true mStartingWindowState=STARTING_WINDOW_NOT_SHOWN
           fullscreen=true noDisplay=false immersive=false launchMode=2
           frozenBeforeDestroy=false forceNewConfig=false
           mActivityType=recents
-           nowVisible=false lastVisibleTime=-58m25s776ms
+           nowVisible=false lastVisibleTime=-1h54m9s22ms
           resizeMode=RESIZE_MODE_RESIZEABLE
           mLastReportedMultiWindowMode=false mLastReportedPictureInPictureMode=false
           mUseDeviceDefaultTheme=true
@@ -275,7 +400,7 @@ Display #0 (activities from top to bottom):
       askedCompatMode=false inRecents=true isAvailable=true
       mRootProcess=ProcessRecord{2233d3c 24023:com.sec.android.app.sbrowser/u0a246}
       stackId=26
-      hasBeenVisible=true mResizeMode=RESIZE_MODE_RESIZEABLE mSupportsPictureInPicture=true isResizeable=true lastActiveTime=16518790 lastGainFocusTime=16511819 (inactive for 4384s)
+      hasBeenVisible=true mResizeMode=RESIZE_MODE_RESIZEABLE mSupportsPictureInPicture=true isResizeable=true lastActiveTime=16518790 lastGainFocusTime=16511819 (inactive for 8513s)
       dexBoundsPolicy:
        mLastNonFullBoundsDisplayId=-1
       * Hist #0: ActivityRecord{d9e12ff u0 com.sec.android.app.sbrowser/.SBrowserMainActivity t228}
@@ -299,14 +424,14 @@ Display #0 (activities from top to bottom):
            backgroundColor=ff17171a
            statusBarColor=ff17171a
            navigationBarColor=ff17171a
-          launchFailed=false launchCount=0 lastLaunchTime=-59m30s769ms
+          launchFailed=false launchCount=0 lastLaunchTime=-1h55m14s15ms
           haveState=true icicle=Bundle[mParcelledData.dataSize=7780]
           state=STOPPED stopped=true delayedResume=false finishing=false
           keysPaused=false inHistory=true visible=false sleeping=true idle=true mStartingWindowState=STARTING_WINDOW_REMOVED
           fullscreen=true noDisplay=false immersive=false launchMode=2
           frozenBeforeDestroy=false forceNewConfig=false
           mActivityType=standard
-           nowVisible=false lastVisibleTime=-58m47s900ms
+           nowVisible=false lastVisibleTime=-1h54m31s146ms
           resizeMode=RESIZE_MODE_RESIZEABLE
           mLastReportedMultiWindowMode=false mLastReportedPictureInPictureMode=false
           supportsPictureInPicture=true
@@ -341,7 +466,7 @@ Display #0 (activities from top to bottom):
       Activities=[ActivityRecord{79db81a u0 com.google.android.gm/.ConversationListActivityGmail t224}, ActivityRecord{ec8ccf5 u0 com.google.android.gm/com.google.android.libraries.user.peoplesheet.ui.view.PeopleSheetActivity t224}]
       askedCompatMode=false inRecents=true isAvailable=true
       stackId=24
-      hasBeenVisible=true mResizeMode=RESIZE_MODE_RESIZEABLE mSupportsPictureInPicture=false isResizeable=true lastActiveTime=16469260 lastGainFocusTime=16469148 (inactive for 4433s)
+      hasBeenVisible=true mResizeMode=RESIZE_MODE_RESIZEABLE mSupportsPictureInPicture=false isResizeable=true lastActiveTime=16469260 lastGainFocusTime=16469148 (inactive for 8563s)
       dexBoundsPolicy:
        mLastNonFullBoundsDisplayId=-1
       * Hist #1: ActivityRecord{ec8ccf5 u0 com.google.android.gm/com.google.android.libraries.user.peoplesheet.ui.view.PeopleSheetActivity t224}
@@ -367,14 +492,14 @@ Display #0 (activities from top to bottom):
            backgroundColor=ff131314
            statusBarColor=ff131314
            navigationBarColor=fff2f2f2
-          launchFailed=false launchCount=0 lastLaunchTime=-59m37s726ms
+          launchFailed=false launchCount=0 lastLaunchTime=-1h55m20s970ms
           haveState=true icicle=Bundle[mParcelledData.dataSize=13032]
           state=DESTROYED stopped=true delayedResume=false finishing=false
           keysPaused=false inHistory=true visible=false sleeping=false idle=true mStartingWindowState=STARTING_WINDOW_NOT_SHOWN
           fullscreen=false noDisplay=false immersive=false launchMode=0
           frozenBeforeDestroy=false forceNewConfig=false
           mActivityType=standard
-           nowVisible=false lastVisibleTime=-59m37s409ms
+           nowVisible=false lastVisibleTime=-1h55m20s653ms
           resizeMode=RESIZE_MODE_RESIZEABLE
           mLastReportedMultiWindowMode=false mLastReportedPictureInPictureMode=false
           mUseDeviceDefaultTheme=false
@@ -400,14 +525,14 @@ Display #0 (activities from top to bottom):
            backgroundColor=ff131314
            statusBarColor=ff202124
            navigationBarColor=ff202124
-          launchFailed=false launchCount=0 lastLaunchTime=-1h2m21s692ms
+          launchFailed=false launchCount=0 lastLaunchTime=-1h58m4s935ms
           haveState=true icicle=Bundle[mParcelledData.dataSize=141636]
           state=DESTROYED stopped=true delayedResume=false finishing=false
           keysPaused=false inHistory=true visible=false sleeping=false idle=true mStartingWindowState=STARTING_WINDOW_REMOVED
           fullscreen=true noDisplay=false immersive=false launchMode=1
           frozenBeforeDestroy=false forceNewConfig=false
           mActivityType=standard
-           nowVisible=false lastVisibleTime=-59m43s660ms
+           nowVisible=false lastVisibleTime=-1h55m26s903ms
           resizeMode=RESIZE_MODE_RESIZEABLE
           mLastReportedMultiWindowMode=false mLastReportedPictureInPictureMode=false
           activityMetaData=Bundle[{android.app.shortcuts=2132344932}]
@@ -436,7 +561,7 @@ Display #0 (activities from top to bottom):
       askedCompatMode=false inRecents=true isAvailable=true
       mRootProcess=ProcessRecord{33666c 5067:com.sec.android.daemonapp:com.samsung.android.weather/u0a199}
       stackId=5
-      hasBeenVisible=true mResizeMode=RESIZE_MODE_RESIZEABLE mSupportsPictureInPicture=true isResizeable=true lastActiveTime=2423586 lastGainFocusTime=2422063 (inactive for 18479s)
+      hasBeenVisible=true mResizeMode=RESIZE_MODE_RESIZEABLE mSupportsPictureInPicture=true isResizeable=true lastActiveTime=2423586 lastGainFocusTime=2422063 (inactive for 22609s)
       dexBoundsPolicy:
        mLastNonFullBoundsDisplayId=-1
       * Hist #0: ActivityRecord{68194c u0 com.sec.android.daemonapp/com.samsung.android.weather.app.locations.activity.WXLocationsActivity t209}
@@ -460,14 +585,14 @@ Display #0 (activities from top to bottom):
            backgroundColor=ff252525
            statusBarColor=ff010101
            navigationBarColor=ff010101
-          launchFailed=false launchCount=0 lastLaunchTime=-4h13m49s143ms
+          launchFailed=false launchCount=0 lastLaunchTime=-5h9m32s387ms
           haveState=true icicle=Bundle[mParcelledData.dataSize=4872]
           state=STOPPED stopped=true delayedResume=false finishing=false
           keysPaused=false inHistory=true visible=false sleeping=true idle=true mStartingWindowState=STARTING_WINDOW_REMOVED
           fullscreen=true noDisplay=false immersive=false launchMode=0
           frozenBeforeDestroy=false forceNewConfig=false
           mActivityType=standard
-           nowVisible=false lastVisibleTime=-4h2m4s712ms
+           nowVisible=false lastVisibleTime=-4h57m47s956ms
           resizeMode=RESIZE_MODE_RESIZEABLE
           mLastReportedMultiWindowMode=false mLastReportedPictureInPictureMode=false
           supportsPictureInPicture=true
@@ -501,7 +626,7 @@ Display #0 (activities from top to bottom):
       askedCompatMode=false inRecents=true isAvailable=true
       mRootProcess=ProcessRecord{b1f664e 10063:com.sec.android.app.camera/u0a114}
       stackId=2
-      hasBeenVisible=true mResizeMode=RESIZE_MODE_RESIZEABLE mSupportsPictureInPicture=false isResizeable=true lastActiveTime=1699455 lastGainFocusTime=1697250 (inactive for 19203s)
+      hasBeenVisible=true mResizeMode=RESIZE_MODE_RESIZEABLE mSupportsPictureInPicture=false isResizeable=true lastActiveTime=1699455 lastGainFocusTime=1697250 (inactive for 23333s)
       dexBoundsPolicy:
        mLastNonFullBoundsDisplayId=-1
       * Hist #0: ActivityRecord{2861102 u0 com.sec.android.app.camera/.Camera t206}
@@ -525,14 +650,14 @@ Display #0 (activities from top to bottom):
            backgroundColor=ff000000
            statusBarColor=ff010101
            navigationBarColor=0
-          launchFailed=false launchCount=0 lastLaunchTime=-4h14m23s31ms
+          launchFailed=false launchCount=0 lastLaunchTime=-5h10m6s275ms
           haveState=true icicle=Bundle[mParcelledData.dataSize=1280]
           state=STOPPED stopped=true delayedResume=false finishing=false
           keysPaused=false inHistory=true visible=false sleeping=true idle=true mStartingWindowState=STARTING_WINDOW_REMOVED
           fullscreen=true noDisplay=false immersive=false launchMode=0
           frozenBeforeDestroy=false forceNewConfig=false
           mActivityType=standard
-           nowVisible=false lastVisibleTime=-4h14m9s416ms
+           nowVisible=false lastVisibleTime=-5h9m52s660ms
           resizeMode=RESIZE_MODE_RESIZEABLE
           mLastReportedMultiWindowMode=false mLastReportedPictureInPictureMode=false
           activityMetaData=Bundle[{com.samsung.android.activity.showWhenLocked=true, android.app.shortcuts=2132017161, com.samsung.android.support.REMOTE_ACTION=2132017154, com.samsung.android.rotation.animation.disable=true, assistant=2132017153}]
@@ -544,18 +669,26 @@ Display #0 (activities from top to bottom):
 
     mLastPausedActivity: ActivityRecord{2861102 u0 com.sec.android.app.camera/.Camera t206}
 
- ResumedActivity:ActivityRecord{e403b5e u0 ca.ocentra.parent.agent/.MainActivity t235}
+ ResumedActivity:ActivityRecord{a1a5f8a u0 ca.ocentra.parent.agent/.MainActivity t251}
 
-  ResumedActivity: ActivityRecord{e403b5e u0 ca.ocentra.parent.agent/.MainActivity t235}
+  Activities waiting to sleep:
+    TaskRecord{b4ade3c #206 A=android.task.camera U=0 StackId=2 sz=1}
+      Sleep #2: ActivityRecord{2861102 u0 com.sec.android.app.camera/.Camera t206}
+    TaskRecord{923267a #248 A=com.github.android U=0 StackId=48 sz=1}
+      Sleep #1: ActivityRecord{a6b8d86 u0 com.github.android/.main.MainActivity t248}
+    TaskRecord{e201024 #249 A=com.ocentra.parent.browser U=0 StackId=49 sz=1}
+      Sleep #0: ActivityRecord{20e114c u0 com.ocentra.parent.browser/ca.ocentra.parent.browser.OcentraOwnedBrowserShellActivity t249}
+
+  ResumedActivity: ActivityRecord{a1a5f8a u0 ca.ocentra.parent.agent/.MainActivity t251}
 
 ActivityStackSupervisor state:
-  topDisplayFocusedStack=ActivityStack{7d52093 stackId=35 type=standard mode=fullscreen visible=true translucent=false, 1 tasks}
-  displayId=0 stacks=8
+  topDisplayFocusedStack=ActivityStack{97605f1 stackId=51 type=standard mode=fullscreen visible=true translucent=false, 1 tasks}
+  displayId=0 stacks=10
    mHomeStack=ActivityStack{343aa38 stackId=0 type=home mode=fullscreen visible=false translucent=true, 1 tasks}
    mRecentsStack=ActivityStack{13661a7 stackId=23 type=recents mode=fullscreen visible=false translucent=true, 1 tasks}
-   mPreferredTopFocusableStack=ActivityStack{7d52093 stackId=35 type=standard mode=fullscreen visible=true translucent=false, 1 tasks}
-   mLastFocusedStack=ActivityStack{7d52093 stackId=35 type=standard mode=fullscreen visible=true translucent=false, 1 tasks}
-  mCurTaskIdForUser={0=235}
+   mPreferredTopFocusableStack=ActivityStack{97605f1 stackId=51 type=standard mode=fullscreen visible=true translucent=false, 1 tasks}
+   mLastFocusedStack=ActivityStack{97605f1 stackId=51 type=standard mode=fullscreen visible=true translucent=false, 1 tasks}
+  mCurTaskIdForUser={0=251}
   mUserStackInFront={}
   isHomeRecentsComponent=false  KeyguardController:
     mKeyguardShowing=true
