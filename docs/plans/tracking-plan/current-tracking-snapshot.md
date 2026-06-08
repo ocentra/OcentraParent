@@ -92,6 +92,11 @@
   preserving source refs, service revision, snapshot ref, durable store ref,
   applied values, and no-claim boundaries while keeping platform enforcement
   and product-ready retention false.
+- Retention platform enforcement preflight proof now consumes the retention
+  runtime artifact gate and emits Android, iOS, and desktop manual-required
+  acceptance rows plus a manual validation runbook for the missing platform
+  runtime retention enforcement artifact. It is CI/local preflight only and
+  keeps platform enforcement and product-ready retention false.
 - Full product UI local runtime artifact capture proof now consumes the
   retention writable execution derivation proof and the child-runtime artifact
   gate proof as closure evidence, carries hosted child check-in/runtime UI
@@ -140,7 +145,8 @@
   proof.
 - Real iOS Always/region/background physical-device proof.
 - Product-ready retention settings execution and platform runtime enforcement
-  proof beyond the local writable execution artifact.
+  proof beyond the local writable execution artifact and platform enforcement
+  preflight/runbook.
 - Actual child-device delivery/runtime execution and rendered child-device UI
   proof.
 - Full product parent/child UI beyond the hosted parent proof route.

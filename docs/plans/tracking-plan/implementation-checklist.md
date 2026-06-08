@@ -100,6 +100,9 @@ Every checked item must cite one or more proof artifacts.
       now records the local product-settings writable execution artifact plus a
       derivation matrix for source refs, service revision, snapshot, durable
       store, applied values, and no-claim boundaries.
+      `output/tracking-plan-proof/07-retention-and-custody-model/27-retention-platform-enforcement-preflight-proof.json`
+      now records Android, iOS, and desktop manual-required acceptance rows plus
+      a runbook for the missing platform runtime retention enforcement artifact.
       Product-readiness blocker proof still enumerates the remaining product
       blockers over that durable-settings evidence while product-ready writable
       retention execution, platform runtime, and production hardening remain
@@ -1024,6 +1027,13 @@ Every implementation workpack must update, or explicitly justify not updating:
       carries generated acceptance criteria, manual validation commands, and
       artifact acceptance notes so the P4/manual handoff is explicit while all
       audited claims remain unapproved.
+- [x] Retention platform enforcement preflight proof now turns the remaining
+      retention platform runtime artifact gap into Android, iOS, and desktop
+      manual-required acceptance rows without claiming runtime enforcement or
+      product readiness. Proof:
+      `output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-gate/70-retention-platform-enforcement-preflight-proof.json`;
+      command:
+      `node scripts/test/tracking-retention-platform-enforcement-preflight-proof.mjs`.
 - [x] Physical-device artifact gate proof now verifies the required Android and
       iOS physical evidence roots and required artifact names before any
       physical-device behavior can be claimed. Proof:
@@ -1107,11 +1117,13 @@ Every implementation workpack must update, or explicitly justify not updating:
       The handoff now carries product-readiness closure accounting, preserves
       the eight local full-product UI artifacts, child-runtime, retention-runtime,
       and production-worker required/present/missing artifact counts, plus
-      claim-audit blocker counts and tier split, and classifies the remaining manual follow-up
-      as six physical/runtime rows, one provider-runtime row, two
-      production-runtime rows, and zero CI-runnable rows. It also consumes the
-      matching claim-audit acceptance matrix so the generated handoff runbook
-      carries source-derived criteria, manual validation commands, and
+      claim-audit blocker counts and tier split, and classifies the remaining
+      manual follow-up as six physical/runtime rows, one provider-runtime row,
+      two production-runtime rows, and zero CI-runnable rows. The separate
+      retention platform enforcement preflight proof now records the platform
+      artifact acceptance rows for that retention gap. The handoff also consumes
+      the matching claim-audit acceptance matrix so the generated handoff
+      runbook carries source-derived criteria, manual validation commands, and
       `claimApproved remains false` artifact notes without creating a second
       truth source.
 
