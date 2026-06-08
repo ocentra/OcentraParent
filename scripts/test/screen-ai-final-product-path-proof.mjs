@@ -13,6 +13,7 @@ const failures = [];
 const liveOperator = load(SourcePaths.liveOperator);
 const liveOperatorAi = load(SourcePaths.liveOperatorAi);
 const actionDispatch = load(SourcePaths.actionDispatch);
+const aiPlanClosure = load(SourcePaths.aiPlanClosure);
 const blockActionDispatch = load(SourcePaths.blockActionDispatch);
 const deletionRetentionCustody = load(SourcePaths.deletionRetentionCustody);
 const finalAdapterAudit = load(SourcePaths.finalAdapterAudit);
@@ -20,6 +21,7 @@ const portalChain = load(SourcePaths.portalChain);
 const protectedSurface = load(SourcePaths.protectedSurface);
 const readModel = load(SourcePaths.readModel);
 const retentionSweeper = load(SourcePaths.retentionSweeper);
+const screenPlanClosure = load(SourcePaths.screenPlanClosure);
 const serviceReadModel = load(SourcePaths.serviceReadModel);
 
 const liveRows = validateLiveOperator();
@@ -37,6 +39,8 @@ const closure = {
   retentionCustodyProven: validateDeletionCustody(),
   protectedSurfaceSkipProven: validateProtectedSurface(),
   finalAdapterAuditProven: validateFinalAdapterAudit(),
+  screenPlanClosureAudited: validateScreenPlanClosure(),
+  aiPlanClosureAudited: validateAiPlanClosure(),
 };
 
 assert(
@@ -66,8 +70,11 @@ const proof = {
   closure: {
     ...closure,
     finalPathEvidenceComplete: true,
+    screenAndAiPrerequisitesStacked: closure.screenPlanClosureAudited && closure.aiPlanClosureAudited,
     broadBrowserNetworkMobileProductComplete: false,
     adapterProductCompleteBlockedByAudit: true,
+    finalPipelineProductComplete: false,
+    finalPipelineProductCompleteBlockedByAdapterGate: true,
     custodyArtifactRows: finalAdapterAudit.closure?.custodyArtifactRows,
     singleRuntimeSessionRerun: false,
     retainedRealRunArtifactsVerified: true,
@@ -79,6 +86,7 @@ const proof = {
     'This verifier validates retained real-run artifacts and does not rerun the live operator capture or model inference session.',
     'Managed-browser trigger producer ownership, authenticated-account social proof, and broad browser/network/mobile/Linux adapters remain separate unless their own execution artifacts are cited.',
     'The custody-aware final adapter audit is required by this proof and keeps broad/browser/network/mobile/Linux product-complete adapter execution blocked.',
+    'The screen-plan and AI-plan closure audits are required by this proof; they stack prerequisites without overriding remaining external adapter and platform gates.',
     'The proof closes the stacked real trigger-to-analysis-to-policy-to-action/read-model-to-deletion evidence path from current artifacts; it does not make raw screenshot retention or live view product claims.',
   ],
 };
@@ -298,6 +306,72 @@ function validateFinalAdapterAudit() {
   assert(
     finalAdapterAudit.custodyRows?.every((row) => row.productCompleteAdapterRowStillOpen === true) === true,
     'final adapter audit custody row closes product-complete row'
+  );
+  return true;
+}
+
+function validateScreenPlanClosure() {
+  assert(screenPlanClosure.proof === 'screen-plan-closure-audit', 'screen-plan closure proof id mismatch');
+  assert(screenPlanClosure.checklist?.openCount === 0, 'screen-plan closure still has open table rows');
+  assert(
+    (screenPlanClosure.checklist?.partialCount ?? 0) > 0,
+    'screen-plan closure lost external partial-gate tracking'
+  );
+  assert(
+    screenPlanClosure.assertions?.readinessProofsPresent === true,
+    'screen-plan closure readiness proofs are not present'
+  );
+  assert(
+    screenPlanClosure.assertions?.adapterAuditKeepsProductCompletionBlocked === true,
+    'screen-plan closure no longer keeps adapter completion blocked'
+  );
+  assert(
+    screenPlanClosure.assertions?.custodyArtifactsDoNotUpgradeClaims === true,
+    'screen-plan closure custody artifacts upgrade claims'
+  );
+  assert(screenPlanClosure.assertions?.noProductCompleteClaim === true, 'screen-plan closure claims product complete');
+  assert(
+    (screenPlanClosure.remainingProductGates ?? []).length > 0,
+    'screen-plan closure lost remaining product gates'
+  );
+  return true;
+}
+
+function validateAiPlanClosure() {
+  assert(aiPlanClosure.proof === 'local-ai-plan-closure-audit-proof', 'AI-plan closure proof id mismatch');
+  assert(aiPlanClosure.checklist?.openCount === 0, 'AI-plan closure still has open table rows');
+  assert(
+    aiPlanClosure.closure?.controlledCapturedScreensAnalyzed === true,
+    'AI-plan closure lost controlled captured-screen analysis'
+  );
+  assert(
+    aiPlanClosure.closure?.liveOperatorArtifactsAnalyzed === true,
+    'AI-plan closure lost live operator analysis coverage'
+  );
+  assert(
+    aiPlanClosure.closure?.serviceOcrAnalyzedCapturedPixels === true,
+    'AI-plan closure lost service OCR captured-pixel proof'
+  );
+  assert(
+    aiPlanClosure.closure?.storedEvidenceCanReachLocalAiInput === true,
+    'AI-plan closure lost stored-evidence local AI input proof'
+  );
+  assert(
+    aiPlanClosure.closure?.providerRuntimeAndSchedulerCovered === true,
+    'AI-plan closure lost provider runtime or scheduler coverage'
+  );
+  assert(
+    aiPlanClosure.closure?.policyOnlyConsumptionCovered === true,
+    'AI-plan closure lost policy-only consumption coverage'
+  );
+  assert(aiPlanClosure.closure?.remoteApiAiClaimed === false, 'AI-plan closure claims remote/API AI');
+  assert(aiPlanClosure.closure?.rawPromptRetained === false, 'AI-plan closure retains raw prompt');
+  assert(aiPlanClosure.closure?.rawImageRetainedByDefault === false, 'AI-plan closure retains raw image by default');
+  assert(aiPlanClosure.closure?.modelQualityClaimed === false, 'AI-plan closure claims model quality');
+  assert(aiPlanClosure.closure?.enforcementClaimedByAiPlan === false, 'AI-plan closure claims enforcement');
+  assert(
+    aiPlanClosure.closure?.finalProductCompleteDeferredToPipeline === true,
+    'AI-plan closure no longer defers final product-complete to pipeline'
   );
   return true;
 }
