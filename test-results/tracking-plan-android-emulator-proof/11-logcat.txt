@@ -1,28 +1,37 @@
 --------- beginning of main
-06-07 08:11:01.250  6516  6516 I ra.parent.agent: Late-enabling -Xcheck:jni
-06-07 08:11:01.326  6516  6516 I ra.parent.agent: Using CollectorTypeCMC GC.
-06-07 08:11:01.329  6516  6516 W ra.parent.agent: Unexpected CPU variant for x86: x86_64.
-06-07 08:11:01.329  6516  6516 W ra.parent.agent: Known variants: atom, sandybridge, silvermont, goldmont, goldmont-plus, goldmont-without-sha-xsaves, tremont, kabylake, default
-06-07 08:11:01.414  6516  6516 D nativeloader: Load libframework-connectivity-tiramisu-jni.so using APEX ns com_android_tethering for caller /apex/com.android.tethering/javalib/framework-connectivity-t.jar: ok
-06-07 08:11:01.610  6516  6516 D nativeloader: Load libstats_jni.so using APEX ns com_android_os_statsd for caller /apex/com.android.os.statsd/javalib/framework-statsd.jar: ok
-06-07 08:11:01.638  6516  6516 W ziparchive: Unable to open '/data/app/~~GWT3GDfBtE1Kjkebn6_yfQ==/ca.ocentra.parent.agent-cVH6vgpH66KW4GN4-eZ1bA==/base.dm': No such file or directory
-06-07 08:11:01.638  6516  6516 W ziparchive: Unable to open '/data/app/~~GWT3GDfBtE1Kjkebn6_yfQ==/ca.ocentra.parent.agent-cVH6vgpH66KW4GN4-eZ1bA==/base.dm': No such file or directory
-06-07 08:11:01.798  6516  6516 D nativeloader: Configuring clns-7 for other apk /data/app/~~GWT3GDfBtE1Kjkebn6_yfQ==/ca.ocentra.parent.agent-cVH6vgpH66KW4GN4-eZ1bA==/base.apk. target_sdk_version=35, uses_libraries=, library_path=/data/app/~~GWT3GDfBtE1Kjkebn6_yfQ==/ca.ocentra.parent.agent-cVH6vgpH66KW4GN4-eZ1bA==/lib/x86_64, permitted_path=/data:/mnt/expand:/data/user/0/ca.ocentra.parent.agent
-06-07 08:11:01.827  6516  6516 D CompatChangeReporter: Compat change id reported: 202956589; UID 10212; state: ENABLED
-06-07 08:11:01.855  6516  6516 V GraphicsEnvironment: Currently set values for:
-06-07 08:11:01.856  6516  6516 V GraphicsEnvironment:   angle_gl_driver_selection_pkgs=[]
-06-07 08:11:01.856  6516  6516 V GraphicsEnvironment:   angle_gl_driver_selection_values=[]
-06-07 08:11:01.856  6516  6516 V GraphicsEnvironment: Global.Settings values are invalid: number of packages: 0, number of values: 0
-06-07 08:11:01.858  6516  6516 V GraphicsEnvironment: Neither updatable production driver nor prerelease driver is supported.
-06-07 08:11:02.757  6516  6516 D CompatChangeReporter: Compat change id reported: 279646685; UID 10212; state: ENABLED
-06-07 08:11:02.775  6516  6516 D CompatChangeReporter: Compat change id reported: 63938206; UID 10212; state: ENABLED
-06-07 08:11:03.041  6516  6516 D CompatChangeReporter: Compat change id reported: 309578419; UID 10212; state: ENABLED
-06-07 08:11:03.141  6516  6516 W HWUI    : Unknown dataspace 0
-06-07 08:11:03.592  6516  6600 I EGL_emulation: Opening libGLESv1_CM_emulation.so
-06-07 08:11:03.592  6516  6600 I EGL_emulation: Opening libGLESv2_emulation.so
-06-07 08:11:03.626  6516  6600 W HWUI    : Failed to initialize 101010-2 format, error = EGL_SUCCESS
-06-07 08:11:03.668  6516  6600 I Gralloc4: mapper 4.x is not supported
-06-07 08:11:04.250  6516  6564 I HWUI    : Davey! duration=979ms; Flags=1, FrameTimelineVsyncId=231226, IntendedVsync=564385430210, Vsync=564585430202, InputEventId=0, HandleInputStart=564594439700, AnimationStart=564594489900, PerformTraversalsStart=564594543200, DrawStart=564858824400, FrameDeadline=564402096876, FrameInterval=564593356500, FrameStartTime=16666666, SyncQueued=564879795100, SyncStart=564880279400, IssueDrawCommandsStart=564882837100, SwapBuffers=564939402500, FrameCompleted=565365504300, DequeueBufferDuration=34500, QueueBufferDuration=4323700, GpuCompleted=565365334300, SwapBuffersCompleted=565365504300, DisplayPresentTime=72904454231359566, CommandSubmissionCompleted=564939402500,
-06-07 08:11:06.164  6516  6546 I ra.parent.agent: Compiler allocated 4219KB to compile void android.widget.TextView.<init>(android.content.Context, android.util.AttributeSet, int, int)
-06-07 08:11:07.205  6516  6546 I ra.parent.agent: Compiler allocated 5174KB to compile void android.view.ViewRootImpl.performTraversals()
-06-07 08:11:10.842  6516  6600 D EGL_emulation: app_time_stats: avg=2214.86ms min=839.46ms max=3135.66ms count=3
+06-08 10:56:41.663  1929  1929 I ra.parent.agent: Late-enabling -Xcheck:jni
+06-08 10:56:41.678  1929  1929 W ra.parent.agent: Unexpected CPU variant for x86: x86_64.
+06-08 10:56:41.678  1929  1929 W ra.parent.agent: Known variants: atom, sandybridge, silvermont, kabylake, default
+06-08 10:56:41.700  1929  1929 D CompatibilityChangeReporter: Compat change id reported: 171979766; UID 10094; state: ENABLED
+06-08 10:56:41.704  1929  1929 W ziparchive: Unable to open '/data/app/~~u3lFcngmawNNNONPV_lmvA==/ca.ocentra.parent.agent-BjQ7uq3iMUM6iEKyz5nYvg==/base.dm': No such file or directory
+06-08 10:56:41.705  1929  1929 W ziparchive: Unable to open '/data/app/~~u3lFcngmawNNNONPV_lmvA==/ca.ocentra.parent.agent-BjQ7uq3iMUM6iEKyz5nYvg==/base.dm': No such file or directory
+06-08 10:56:41.802  1929  1929 V GraphicsEnvironment: ANGLE Developer option for 'ca.ocentra.parent.agent' set to: 'default'
+06-08 10:56:41.802  1929  1929 V GraphicsEnvironment: ANGLE GameManagerService for ca.ocentra.parent.agent: false
+06-08 10:56:41.803  1929  1929 V GraphicsEnvironment: Neither updatable production driver nor prerelease driver is supported.
+06-08 10:56:41.806  1929  1929 D NetworkSecurityConfig: No Network Security Config specified, using platform default
+06-08 10:56:41.807  1929  1929 D NetworkSecurityConfig: No Network Security Config specified, using platform default
+06-08 10:56:41.818  1929  1949 D libEGL  : loaded /vendor/lib64/egl/libEGL_emulation.so
+06-08 10:56:41.819  1929  1949 D libEGL  : loaded /vendor/lib64/egl/libGLESv1_CM_emulation.so
+06-08 10:56:41.820  1929  1949 D libEGL  : loaded /vendor/lib64/egl/libGLESv2_emulation.so
+06-08 10:56:41.832  1929  1929 D CompatibilityChangeReporter: Compat change id reported: 160794467; UID 10094; state: ENABLED
+06-08 10:56:41.834  1929  1929 D CompatibilityChangeReporter: Compat change id reported: 148963590; UID 10094; state: ENABLED
+06-08 10:56:41.835  1929  1929 D CompatibilityChangeReporter: Compat change id reported: 171317480; UID 10094; state: ENABLED
+06-08 10:56:41.855  1929  1929 D CompatibilityChangeReporter: Compat change id reported: 210923482; UID 10094; state: ENABLED
+06-08 10:56:41.906  1929  1953 W GooglePlayServicesUtil: ca.ocentra.parent.agent requires the Google Play Store, but it is missing.
+06-08 10:56:41.907  1929  1953 W GoogleApiManager: The service for com.google.android.gms.internal.location.zzdz is not available: ConnectionResult{statusCode=SERVICE_INVALID, resolution=null, message=null}
+06-08 10:56:41.908  1929  1953 W GooglePlayServicesUtil: ca.ocentra.parent.agent requires the Google Play Store, but it is missing.
+06-08 10:56:41.908  1929  1953 W GoogleApiManager: The service for com.google.android.gms.internal.location.zzdz is not available: ConnectionResult{statusCode=SERVICE_INVALID, resolution=null, message=null}
+06-08 10:56:41.945  1929  1947 D HostConnection: HostComposition ext ANDROID_EMU_CHECKSUM_HELPER_v1 ANDROID_EMU_native_sync_v2 ANDROID_EMU_dma_v1 ANDROID_EMU_direct_mem ANDROID_EMU_host_composition_v1 ANDROID_EMU_host_composition_v2 ANDROID_EMU_vulkan ANDROID_EMU_deferred_vulkan_commands ANDROID_EMU_vulkan_null_optional_strings ANDROID_EMU_vulkan_create_resources_with_requirements ANDROID_EMU_YUV_Cache ANDROID_EMU_vulkan_ignored_handles ANDROID_EMU_has_shared_slots_host_memory_allocator ANDROID_EMU_vulkan_free_memory_sync ANDROID_EMU_vulkan_shader_float16_int8 ANDROID_EMU_vulkan_async_queue_submit ANDROID_EMU_vulkan_queue_submit_with_commands ANDROID_EMU_sync_buffer_data ANDROID_EMU_vulkan_async_qsri ANDROID_EMU_read_color_buffer_dma ANDROID_EMU_hwc_multi_configs ANDROID_EMU_hwc_color_transform GL_OES_EGL_image_external_essl3 GL_OES_vertex_array_object GL_KHR_texture_compression_astc_ldr ANDROID_EMU_host_side_tracing ANDROID_EMU_gles_max_version_3_0
+06-08 10:56:41.946  1929  1947 W OpenGLRenderer: Failed to initialize 101010-2 format, error = EGL_SUCCESS
+06-08 10:56:41.947  1929  1947 D EGL_emulation: eglCreateContext: 0x735869047c50: maj 3 min 0 rcv 3
+06-08 10:56:41.948  1929  1947 D EGL_emulation: eglMakeCurrent: 0x735869047c50: ver 3 0 (tinfo 0x735a92bf8080) (first time)
+06-08 10:56:41.957  1929  1947 I Gralloc4: mapper 4.x is not supported
+06-08 10:56:41.960  1929  1947 W Gralloc4: allocator 4.x is not supported
+06-08 10:56:41.964  1929  1947 D HostConnection: HostComposition ext ANDROID_EMU_CHECKSUM_HELPER_v1 ANDROID_EMU_native_sync_v2 ANDROID_EMU_dma_v1 ANDROID_EMU_direct_mem ANDROID_EMU_host_composition_v1 ANDROID_EMU_host_composition_v2 ANDROID_EMU_vulkan ANDROID_EMU_deferred_vulkan_commands ANDROID_EMU_vulkan_null_optional_strings ANDROID_EMU_vulkan_create_resources_with_requirements ANDROID_EMU_YUV_Cache ANDROID_EMU_vulkan_ignored_handles ANDROID_EMU_has_shared_slots_host_memory_allocator ANDROID_EMU_vulkan_free_memory_sync ANDROID_EMU_vulkan_shader_float16_int8 ANDROID_EMU_vulkan_async_queue_submit ANDROID_EMU_vulkan_queue_submit_with_commands ANDROID_EMU_sync_buffer_data ANDROID_EMU_vulkan_async_qsri ANDROID_EMU_read_color_buffer_dma ANDROID_EMU_hwc_multi_configs ANDROID_EMU_hwc_color_transform GL_OES_EGL_image_external_essl3 GL_OES_vertex_array_object GL_KHR_texture_compression_astc_ldr ANDROID_EMU_host_side_tracing ANDROID_EMU_gles_max_version_3_0
+06-08 10:56:41.970  1929  1947 W Parcel  : Expecting binder but got null!
+06-08 10:56:41.972  1929  1953 W GooglePlayServicesUtil: ca.ocentra.parent.agent requires the Google Play Store, but it is missing.
+06-08 10:56:41.973  1929  1953 W GoogleApiManager: The service for com.google.android.gms.internal.location.zzdz is not available: ConnectionResult{statusCode=SERVICE_INVALID, resolution=null, message=null}
+06-08 10:56:46.941  1929  1953 W GooglePlayServicesUtil: ca.ocentra.parent.agent requires the Google Play Store, but it is missing.
+06-08 10:56:46.942  1929  1953 W GoogleApiManager: The service for com.google.android.gms.common.internal.service.zap is not available: ConnectionResult{statusCode=SERVICE_INVALID, resolution=null, message=null}
+06-08 10:56:46.943  1929  1953 W GooglePlayServicesUtil: ca.ocentra.parent.agent requires the Google Play Store, but it is missing.
+06-08 10:56:46.943  1929  1953 W GoogleApiManager: The service for com.google.android.gms.common.internal.service.zap is not available: ConnectionResult{statusCode=SERVICE_INVALID, resolution=null, message=null}

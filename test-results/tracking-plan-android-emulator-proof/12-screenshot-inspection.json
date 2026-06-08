@@ -1,18 +1,18 @@
 {
   "schemaVersion": 1,
-  "width": 1344,
-  "height": 2992,
+  "width": 1080,
+  "height": 2400,
   "bitDepth": 8,
   "colorType": 6,
-  "pixelCount": 4021248,
-  "visiblePixelCount": 0,
+  "pixelCount": 2592000,
+  "visiblePixelCount": 2592000,
   "nonBlackPixelCount": 0,
-  "transparentPixelCount": 4021248,
-  "distinctColorSampleCount": 0,
-  "minLuma": null,
-  "maxLuma": null,
+  "transparentPixelCount": 0,
+  "distinctColorSampleCount": 1,
+  "minLuma": 0,
+  "maxLuma": 0,
   "lumaRange": 0,
   "isAllBlack": true,
   "visualClaimReady": false,
-  "reason": "PNG has no visible pixels, so the headless screenshot cannot be claimed as visual evidence"
+  "reason": "PNG did not contain enough visible contrast to claim screenshot evidence"
 }

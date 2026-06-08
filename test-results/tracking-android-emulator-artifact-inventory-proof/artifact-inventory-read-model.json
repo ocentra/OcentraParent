@@ -15,9 +15,9 @@
     "packageName": "ca.ocentra.parent.agent",
     "activityName": "ca.ocentra.parent.agent/.MainActivity",
     "deviceSerial": "emulator-5554",
-    "androidRelease": "15",
-    "androidSdk": "35",
-    "productModel": "sdk_gphone64_x86_64",
+    "androidRelease": "13",
+    "androidSdk": "33",
+    "productModel": "Android SDK built for x86_64",
     "abi": "x86_64",
     "requiredArtifacts": [
       "test-results/tracking-plan-android-emulator-proof/proof.json",
@@ -54,7 +54,7 @@
         "category": "adb-runtime-output",
         "required": true,
         "present": true,
-        "byteSize": 47812
+        "byteSize": 45018
       },
       {
         "artifactRef": "test-results/tracking-plan-android-emulator-proof/01-adb-install.txt",
@@ -89,58 +89,58 @@
         "category": "permission-ui",
         "required": true,
         "present": true,
-        "byteSize": 7319
+        "byteSize": 7178
       },
       {
         "artifactRef": "test-results/tracking-plan-android-emulator-proof/24-background-location-settings-page.json",
         "category": "permission-ui",
         "required": true,
         "present": true,
-        "byteSize": 749
+        "byteSize": 1806
       },
       {
         "artifactRef": "output/tracking-plan-proof/08-android-foreground-location-adapter/01-device-metadata.json",
         "category": "adb-runtime-output",
         "required": true,
         "present": true,
-        "byteSize": 281
+        "byteSize": 300
       },
       {
         "artifactRef": "output/tracking-plan-proof/08-android-foreground-location-adapter/03-runtime-location-evidence.json",
         "category": "location-runtime",
         "required": true,
         "present": true,
-        "byteSize": 6739
+        "byteSize": 6742
       },
       {
         "artifactRef": "output/tracking-plan-proof/09-android-background-location-and-geofence-adapter/05-geofence-transition-proof.json",
         "category": "geofence-runtime",
         "required": true,
         "present": true,
-        "byteSize": 9855
+        "byteSize": 11049
       },
       {
         "artifactRef": "output/tracking-plan-proof/10-android-battery-connectivity-and-status-adapter/04-device-status-proof.json",
         "category": "device-status",
         "required": true,
         "present": true,
-        "byteSize": 17623
+        "byteSize": 17091
       },
       {
         "artifactRef": "output/tracking-plan-proof/10-android-battery-connectivity-and-status-adapter/16-validation-commands.log",
         "category": "validation-log",
         "required": true,
         "present": true,
-        "byteSize": 10971
+        "byteSize": 9386
       }
     ],
     "foregroundPermissionGranted": true,
     "backgroundPermissionGranted": true,
     "foregroundPermissionUxObserved": true,
-    "backgroundSettingsPageObserved": true,
+    "backgroundSettingsPageObserved": false,
     "packageLaunchObserved": true,
     "foregroundServiceObserved": true,
-    "localGeofenceTransitionCount": 3,
+    "localGeofenceTransitionCount": 4,
     "systemProximityRegistered": true,
     "systemProximityTransitionCount": 0,
     "emulatorArtifactInventoryComplete": true,

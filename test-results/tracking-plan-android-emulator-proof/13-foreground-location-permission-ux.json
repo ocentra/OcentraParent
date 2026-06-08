@@ -21,9 +21,9 @@
     "Precise",
     "Approximate",
     "",
-    "While using the app",
-    "Only this time",
-    "Don’t allow"
+    "WHILE USING THE APP",
+    "ONLY THIS TIME",
+    "DON’T ALLOW"
   ],
   "resetArtifact": "test-results/tracking-plan-android-emulator-proof/13-foreground-location-permission-ux-reset.txt",
   "launchArtifact": "test-results/tracking-plan-android-emulator-proof/13-foreground-location-permission-ux-launch.txt",

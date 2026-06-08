@@ -1,7 +1,7 @@
 # Tracking Real Runtime Handoff Source Snapshot
 
 - generatedAt: 2026-06-08T01:05:00.000Z
-- commit: de7ac52cd2cea19c09ecdb89282d3dcffe1ca8fd
+- commit: 915e6d43de5a7288e40711d96392e85b4544bd61
 - requiredProofTier: P4_REAL_RUNTIME_HANDOFF
 - currentProofTier: P3_LOCAL_DEV_MACHINE
 - status: manual_required
@@ -15,7 +15,7 @@
 - androidEmulatorMissingArtifactCount: 0
 - androidEmulatorPermissionUiArtifactCount: 3
 - androidEmulatorRuntimeArtifactCount: 8
-- androidEmulatorLocalGeofenceTransitionCount: 3
+- androidEmulatorLocalGeofenceTransitionCount: 4
 - iosSimulatorRequiredArtifactCount: 13
 - iosSimulatorPresentArtifactCount: 13
 - iosSimulatorMissingArtifactCount: 0

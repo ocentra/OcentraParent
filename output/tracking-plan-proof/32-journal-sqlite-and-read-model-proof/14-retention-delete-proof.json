@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
-  "checkedAt": "2026-06-08T05:48:47.307Z",
-  "commit": "d389115f4bd18ee08261a0830d747fe532ccafb6",
+  "checkedAt": "2026-06-08T15:07:28.323Z",
+  "commit": "915e6d43de5a7288e40711d96392e85b4544bd61",
   "workpackId": "32-journal-sqlite-and-read-model-proof",
   "proofMode": "tracking-service-retention-tombstone-replay",
   "requiredProofTier": "P2_HOSTED_CI",
@@ -10,23 +10,23 @@
   "productClaimReady": false,
   "commands": [
     {
-      "command": "cmd /c npm --workspace @ocentra-parent/text-domain run build",
+      "command": "npm --workspace @ocentra-parent/text-domain run build",
       "exitCode": 0
     },
     {
-      "command": "cmd /c npm --workspace @ocentra-parent/agent-protocol-domain run build",
+      "command": "npm --workspace @ocentra-parent/agent-protocol-domain run build",
       "exitCode": 0
     },
     {
-      "command": "cmd /c npm --workspace @ocentra-parent/agent-protocol-domain run test -- tracking-read-model contracts",
+      "command": "npm --workspace @ocentra-parent/agent-protocol-domain run test -- tracking-read-model contracts",
       "exitCode": 0
     },
     {
-      "command": "cmd /c npm --workspace @ocentra-parent/portal-domain run test -- contracts",
+      "command": "npm --workspace @ocentra-parent/portal-domain run test -- contracts",
       "exitCode": 0
     },
     {
-      "command": "cmd /c npm --workspace @ocentra-parent/portal run test -- tracking-status-panel",
+      "command": "npm --workspace @ocentra-parent/portal run test -- tracking-status-panel",
       "exitCode": 0
     },
     {

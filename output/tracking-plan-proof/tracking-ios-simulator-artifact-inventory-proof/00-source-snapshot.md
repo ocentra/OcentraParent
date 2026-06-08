@@ -1,7 +1,7 @@
 # Tracking iOS Simulator Artifact Inventory Source Snapshot
 
 - generatedAt: 2026-06-08T11:00:00.000Z
-- commit: eeb68208baab8c656f8ed1afe77069f2e9bf948e
+- commit: 915e6d43de5a7288e40711d96392e85b4544bd61
 - requiredProofTier: P4_PHYSICAL_DEVICE
 - currentProofTier: P3_LOCAL_DEV_MACHINE
 - status: ios-simulator-local-artifacts-present-physical-device-required

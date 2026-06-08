@@ -1,7 +1,7 @@
 # Tracking Android Emulator Artifact Inventory Source Snapshot
 
 - generatedAt: 2026-06-08T10:00:00.000Z
-- commit: eeb68208baab8c656f8ed1afe77069f2e9bf948e
+- commit: 915e6d43de5a7288e40711d96392e85b4544bd61
 - requiredProofTier: P4_PHYSICAL_DEVICE
 - currentProofTier: P3_LOCAL_DEV_MACHINE
 - status: android-emulator-local-artifacts-present-physical-device-required
@@ -11,7 +11,7 @@
 - missingArtifactCount: 0
 - permissionUiArtifactCount: 3
 - runtimeArtifactCount: 8
-- localGeofenceTransitionCount: 3
+- localGeofenceTransitionCount: 4
 - systemProximityTransitionCount: 0
 - does not prove Android physical-device background behavior, Android system geofence delivery, authority enrollment, production runtime, or product readiness
 - proof module: packages/parent-domain/src/tracking-android-emulator-artifact-inventory-proof.ts
