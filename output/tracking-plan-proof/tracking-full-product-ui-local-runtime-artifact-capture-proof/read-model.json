@@ -4,7 +4,9 @@
   "generatedAt": "2026-06-08T04:35:00.000Z",
   "sourceProofRefs": [
     "test-results/tracking-hosted-ui-artifact-inventory-proof/proof.json",
-    "test-results/tracking-plan-hosted-ui-proof/accessibility-summary.json"
+    "test-results/tracking-plan-hosted-ui-proof/accessibility-summary.json",
+    "output/tracking-plan-proof/tracking-retention-product-settings-writable-execution-proof/proof.json",
+    "output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-gate/50-child-runtime-artifact-gate-proof.json"
   ],
   "rows": [
     {
@@ -101,7 +103,7 @@
       "sourceArtifactRef": "test-results/tracking-hosted-ui-artifact-inventory-proof/proof.json",
       "outputArtifactRef": "output/tracking-plan-proof/product-parent-child-ui-runtime/09-product-ui-end-to-end-trace.json",
       "sourceBytes": 13456,
-      "outputBytes": 1625,
+      "outputBytes": 2965,
       "currentProofTier": "P2_HOSTED_CI",
       "requiredProofTier": "P4_PHYSICAL_DEVICE",
       "localParentUiArtifactCaptured": true,
@@ -114,6 +116,29 @@
       "productClaimReady": false
     }
   ],
+  "closureEvidence": {
+    "retentionWritableExecutionProofRef": "output/tracking-plan-proof/tracking-retention-product-settings-writable-execution-proof/proof.json",
+    "retentionWritableExecutionRowCount": 1,
+    "retentionWritableExecutionDerivationCount": 1,
+    "retentionWritableExecutionArtifactRefs": [
+      "tracking-retention/product-settings-writable-execution.json"
+    ],
+    "retentionLocalProductSettingsWritableExecutionObserved": true,
+    "retentionPortalWritableUiClaimed": false,
+    "retentionPlatformRuntimeEnforcementClaimed": false,
+    "childRuntimeArtifactGateProofRef": "output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-gate/50-child-runtime-artifact-gate-proof.json",
+    "childRuntimeRequiredArtifactCount": 10,
+    "childRuntimeMissingArtifactCount": 10,
+    "childRuntimeArtifactSetComplete": false,
+    "childDeviceRuntimeClaimed": false,
+    "renderedChildDeviceUiRuntimeClaimed": false,
+    "parentReceiptRuntimeClaimed": false,
+    "physicalDeviceProofClaimed": false,
+    "authorityProofClaimed": false,
+    "providerDeliveryRuntimeClaimed": false,
+    "productionProductUiClaimed": false,
+    "productClaimReady": false
+  },
   "localArtifactCount": 5,
   "productClaims": {
     "parentOverviewLocalArtifactCaptured": true,

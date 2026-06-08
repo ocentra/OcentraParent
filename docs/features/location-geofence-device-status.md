@@ -238,13 +238,17 @@ expose location or device-status features. Parents expect this category.
   accessibility report, and local end-to-end trace from the hosted UI proof
   stack into
   `output/tracking-plan-proof/product-parent-child-ui-runtime/`, writes WP30 and
-  WP33 proof artifacts, and keeps full product UI runtime, child-device runtime,
+  WP33 proof artifacts, now consumes the retention product-settings writable
+  execution derivation proof and child-runtime artifact gate proof as closure
+  evidence, and keeps full product UI runtime, child-device runtime,
   physical-device, authority, provider-delivery, production UI, and
-  product-ready claims false. The refreshed full product UI runtime artifact
-  gate now reports five local parent-side artifacts present and four hard
-  runtime artifacts still missing: retention settings production write result,
-  rendered child-device check-in, rendered child-device location consent, and
-  child-device safe/help response.
+  product-ready claims false. The local capture proof records five local
+  parent-side artifacts, one retention writable execution row/derivation, and
+  ten missing child-runtime artifacts from the real child-device runtime gate.
+  The hard runtime UI artifacts still missing from the product UI artifact root
+  are the retention settings production write-result UI, rendered child-device
+  check-in, rendered child-device location consent, and child-device safe/help
+  response.
 - WP33 production durable workers readiness blocker proof now exists through
   `node scripts/test/tracking-production-durable-workers-readiness-blocker-proof.mjs`.
   It consumes the production-support durable queue runtime boundary plus the
