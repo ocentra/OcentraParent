@@ -19,6 +19,12 @@ Current Ocentra truth is:
   bounded-window, clean-stop, custody, retention/delete/export, metadata-only
   sanitization, and private-traffic-exclusion refs; metadata snapshots do not
   substitute for Npcap/libpcap capture;
+- Android physical target identity is now a separate read-only proof for the
+  named Galaxy S9 target: ADB connect, `adb devices -l`, and getprop
+  observations must match expected product/model/device/release/ABI refs before
+  the target can satisfy physical-device evidence. This does not execute
+  VpnService, packet capture, packet blocking, app correlation, or adapter
+  authority;
 - portal visibility exists for service-backed network read models, including
   network evidence drawer status for activity rows and adapter/platform
   capability state;
@@ -53,7 +59,9 @@ Current Ocentra truth is:
 - Full policy engine execution and notification provider delivery.
 - Live host DNS/firewall/WFP/VPN/NetworkExtension/Linux adapter mutation,
   packet blocking, process termination execution, and host filtering.
-- Physical device and authority-enrolled proof where a platform claim needs it.
+- Physical-device proof beyond the named Android target, Device Owner or other
+  authority-enrolled proof, and any platform adapter execution proof where a
+  platform claim needs it.
 - Parent-facing rule UX and broader risk-budget/performance/platform UI beyond
   the current service-backed network drawer.
 - Production SLO validation, external audit or penetration-test execution,

@@ -57,6 +57,13 @@ snapshots can be recorded as observations, but cannot substitute for
 Npcap/libpcap packet capture. Raw artifact creation, raw PCAP without custody,
 content visibility, policy authority, adapter authority, host filtering, and
 enforcement commands stay rejected.
+The Android physical target proof observes a named physical device through
+read-only ADB identity probes and accepts readiness only when serial, product,
+model, device, Android release, ABI, command refs, and evidence refs match.
+Missing ADB, disconnected targets, missing observations, and mismatches stay
+explicit, while emulator-only product support, live VpnService execution,
+packet capture/blocking, app package correlation, adapter authority, production
+Android support, content visibility, and enforcement commands remain rejected.
 Unmanaged-browser
 correlation records known or portable browser processes as process-only bypass
 evidence, keeps browser-like process names candidate-only, preserves managed

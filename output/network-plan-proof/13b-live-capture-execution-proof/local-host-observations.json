@@ -1,5 +1,5 @@
 {
-  "checkedAt": "2026-06-08T20:19:05.909Z",
+  "checkedAt": "2026-06-08T21:04:51.880Z",
   "hostPlatform": "win32",
   "windows": {
     "npcapDriverProbeState": "manual-required",
@@ -9,9 +9,9 @@
       {
         "command": "netstat -ano",
         "status": 0,
-        "stdoutLineCount": 717,
+        "stdoutLineCount": 691,
         "stderrLineCount": 0,
-        "stdoutSha256": "3231d74c4f0d326b0bfca7aa9c7a6e4dd9b3cec474e2ce598c52c299f471913e",
+        "stdoutSha256": "8994f5bb8f4e44e8fa713686b0059f2c9709af4130bcfadf52c245412ad795e9",
         "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
       },
       {
@@ -41,17 +41,17 @@
       {
         "command": "C:\\Users\\sujan\\AppData\\Local\\Android\\Sdk\\platform-tools\\adb.exe devices -l",
         "status": 0,
-        "stdoutLineCount": 2,
+        "stdoutLineCount": 3,
         "stderrLineCount": 0,
-        "stdoutSha256": "aa270a525d5f22a712b11ad4765d7df5e09a2aff0c5d76ffd614bac914dfd4b2",
+        "stdoutSha256": "70716475925f209de7dd4c4aa4ac3fd6d189689f9037fa8f6a57b48a60002641",
         "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
       },
       {
         "command": "C:\\Users\\sujan\\AppData\\Local\\Android\\Sdk\\emulator\\emulator.exe -list-avds",
         "status": 0,
-        "stdoutLineCount": 1,
+        "stdoutLineCount": 2,
         "stderrLineCount": 0,
-        "stdoutSha256": "489a3f7448bdb8893e3b51cfc002e09ca99a95e4de65548c02ced69c38172754",
+        "stdoutSha256": "38442cca7c14ed5869733d8d09a869a682021ae27a2479adc3ebb29db12ce1aa",
         "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
       }
     ]

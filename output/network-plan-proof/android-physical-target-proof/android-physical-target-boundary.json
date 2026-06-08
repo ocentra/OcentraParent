@@ -1,0 +1,33 @@
+{
+  "reportRef": "network-android-physical-target-row40a",
+  "sourceRows": [
+    "40 Android VpnService proof gate",
+    "52 Platform claim manifest proof",
+    "13b Live-capture bounded execution/status proof context"
+  ],
+  "expectedTarget": {
+    "targetRef": "android-physical-target-sm-g965w-row40a",
+    "serial": "192.168.2.45:5555",
+    "product": "star2qltecs",
+    "model": "SM_G965W",
+    "device": "star2qltecs",
+    "androidRelease": "10",
+    "abi": "arm64-v8a"
+  },
+  "proofBoundary": "Read-only ADB identity observation proves only that the named physical Android target is reachable and matches product/model/device/release/ABI expectations.",
+  "unsupportedClaimsRejected": [
+    "production Android support",
+    "emulator-only product support",
+    "live VpnService tunnel execution",
+    "packet capture",
+    "packet blocking",
+    "app package correlation",
+    "adapter authority",
+    "policy authority",
+    "host filtering",
+    "enforcement command",
+    "exact URL",
+    "decrypted payload",
+    "page content"
+  ]
+}
