@@ -33,9 +33,18 @@ const requiredSourceIndexPhrases = [
 const requiredSnapshotPhrases = [
   'Snapshot Date',
   'Local/CI Proof Now Exists',
+  'child-runtime Android emulator readiness bridge',
   'Runtime/Product Claims Still Missing',
   'Remaining Product-Claim Blockers',
   'product-ready tracking remains false',
+];
+
+const requiredClosureCoverageTags = [
+  'android-emulator-proof',
+  'child-runtime-artifact-gate',
+  'child-runtime-android-emulator-readiness-bridge',
+  'full-product-ui-runtime-artifact-gate',
+  'tracking-claim-audit',
 ];
 
 const requiredClosureBlockers = [
@@ -120,6 +129,7 @@ function assertProof(proof) {
   }
   assertAllPresent('source index phrase', proof.sourceIndexAssertions);
   assertAllPresent('current snapshot phrase', proof.currentSnapshotAssertions);
+  assertClosureCoverageTags(proof.closureCoverageTags);
   const blockerSet = new Set(proof.remainingProductBlockers);
   const missingBlockers = requiredClosureBlockers.filter((blocker) => !blockerSet.has(blocker));
   if (missingBlockers.length > 0) {
@@ -134,6 +144,14 @@ function assertProof(proof) {
     proof.productClaims.productReadyClaimed
   ) {
     throw new Error(`Tracking source/gap proof overclaimed product readiness: ${JSON.stringify(proof.productClaims)}`);
+  }
+}
+
+function assertClosureCoverageTags(coverageTags) {
+  const tagSet = new Set(coverageTags);
+  const missingTags = requiredClosureCoverageTags.filter((tag) => !tagSet.has(tag));
+  if (missingTags.length > 0) {
+    throw new Error(`Tracking closure coverage tags missing from gap map: ${missingTags.join(', ')}`);
   }
 }
 

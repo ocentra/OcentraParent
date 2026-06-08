@@ -3,7 +3,7 @@
   "proofMode": "tracking-source-reconciliation-gap-map-proof",
   "generatedAt": "2026-06-08T00:35:00.000Z",
   "branch": "codex/tracking-plan-full-continuation-a",
-  "baseCommitAtGeneration": "548b3ac8b5e7f53c8fb508bc25467a6deeb38c31",
+  "baseCommitAtGeneration": "d28ecd458275f7bdaf0dcd3624573515ffaaeec3",
   "requiredProofTier": "P1_DOC_SOURCE_RECONCILIATION",
   "currentProofTier": "P1_DOC_SOURCE_RECONCILIATION",
   "currentStatus": "proved",
@@ -11,8 +11,8 @@
     {
       "path": "docs/features/location-geofence-device-status.md",
       "exists": true,
-      "sha256": "1640c27b43eba82826c51836fe0c218058c50a85820eafa9521e029683862b5e",
-      "lineCount": 1141
+      "sha256": "085ba1e3df9fd5328878b7e9ac36f85e99c1fb6704d354d212cc4c23ef74f6ce",
+      "lineCount": 1190
     },
     {
       "path": "docs/expectations/location-geofence.md",
@@ -47,8 +47,8 @@
     {
       "path": "docs/plans/tracking-plan/current-tracking-snapshot.md",
       "exists": true,
-      "sha256": "642ae807a3e7b29f80ea9cf23e92048d28cd6f77a91d6427ba67ebc6f82b1d9f",
-      "lineCount": 195
+      "sha256": "03579f00e336ee05cf10aec4a39db3c7649d2906566a56e9b2ae1de9bdff5f21",
+      "lineCount": 199
     },
     {
       "path": "docs/plans/tracking-plan/pasted-content-coverage-audit.md",
@@ -59,8 +59,8 @@
     {
       "path": "docs/plans/tracking-plan/implementation-checklist.md",
       "exists": true,
-      "sha256": "56221e9cd52016b5626d40d017fd7f1719776908927baacb8102d4d8a0eefffe",
-      "lineCount": 1035
+      "sha256": "4882c8348b86160a8437abb831df16b76d33102c24787b1ba6f254ff80a5e665",
+      "lineCount": 1067
     }
   ],
   "sourceIndexAssertions": [
@@ -88,6 +88,10 @@
     },
     {
       "phrase": "Local/CI Proof Now Exists",
+      "present": true
+    },
+    {
+      "phrase": "child-runtime Android emulator readiness bridge",
       "present": true
     },
     {
@@ -119,6 +123,7 @@
     "authority-runtime-readiness-blocker",
     "authority-runtime-artifact-gate",
     "child-runtime-artifact-gate",
+    "child-runtime-android-emulator-readiness-bridge",
     "physical-device-artifact-gate",
     "provider-delivery-artifact-gate",
     "provider-runtime-readiness-blocker",
@@ -126,11 +131,13 @@
     "escalation-runtime-artifact-gate",
     "child-runtime-product-readiness-blocker",
     "full-product-ui-readiness-blocker",
+    "full-product-ui-local-runtime-artifact-capture",
     "full-product-ui-runtime-artifact-gate",
     "production-durable-workers-readiness-blocker",
     "production-worker-runtime-artifact-gate",
     "retention-product-readiness-blocker",
-    "retention-runtime-artifact-gate"
+    "retention-runtime-artifact-gate",
+    "tracking-claim-audit"
   ],
   "remainingProductBlockers": [
     "android-physical-background-proof-required",
