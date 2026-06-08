@@ -1129,11 +1129,12 @@ Do not infer precise location from IP/network data. Treat mobile permission,
 background execution, retention, and custody as first-class requirements.
 Use `docs/plans/tracking-plan/README.md` for implementation sequencing and
 workpack ownership. Keep AI as evidence, not authority, and keep LAN/IP/Wi-Fi
-presence as hints only. The pre-device proof gate is now repeatable; the next
-implementation layers are broader tracking journal/read-model product surfaces,
-applied/product-ready retention settings execution beyond hosted local service
-write rendering, the runtime artifacts required for retention product readiness,
-full portal UI snapshots/accessibility beyond the hosted route, Android system
+presence as hints only. The pre-device proof gate is now repeatable, and the
+current WP32 read-model/accounting proof set is closed at the local-dev/hosted
+route tier. The next implementation layers are applied/product-ready retention
+settings execution beyond hosted local service write rendering, the runtime
+artifacts required for retention product readiness, full portal UI
+snapshots/accessibility beyond the hosted route, Android system
 geofencing/dwell proof, iOS Core Location/region proof beyond simulator package
 launch, then physical Android/iOS proof and authority proof only when matching
 devices are enrolled.
