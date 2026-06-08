@@ -1,0 +1,28 @@
+{
+  "status": "adapter-dependency-handoff-ready-upstream-execution-required",
+  "proofKind": "screen-ai-adapter-dependency-handoff-proof",
+  "generatedAt": "2026-06-08T02:21:51.553Z",
+  "sourceArtifacts": {
+    "finalAdapterDependencyAudit": "output/screen-ai-pipeline-proof/final-adapter-dependency-audit/proof-summary.json",
+    "adapterBlockerLedger": "output/screen-ai-pipeline-proof/adapter-blocker-ledger/proof-summary.json",
+    "finalProductPath": "output/screen-ai-pipeline-proof/final-product-path/proof-summary.json",
+    "screenAiPipelineChecklist": "docs/plans/screen-ai-pipeline-plan/implementation-checklist.md"
+  },
+  "handoff": "output/screen-ai-pipeline-proof/adapter-dependency-handoff/adapter-dependency-handoff.json",
+  "handoffMarkdown": "output/screen-ai-pipeline-proof/adapter-dependency-handoff/adapter-dependency-handoff.md",
+  "closure": {
+    "dependencyRowsMapped": 6,
+    "owningLanesMapped": true,
+    "expectedProofFilesMapped": true,
+    "expectedContractShapesMapped": true,
+    "finalScreenAiAdapterRowStillOpen": true,
+    "productChecklistEdited": false,
+    "productCompleteClaimed": false,
+    "rawImageRetainedByExpectedContracts": false
+  },
+  "nonClaims": [
+    "This proof does not implement broad installed-app, host network/domain, managed active-tab, Android, iOS, or Linux adapters.",
+    "This proof does not edit docs/product-capability-checklist.md while another lane owns the file.",
+    "This proof does not close the final screen-AI adapter row or mark product-complete execution."
+  ]
+}
