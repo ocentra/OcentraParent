@@ -75,6 +75,7 @@ async fn app_game_timer_parent_preference_setup_request_command_returns_accepted
     assert_child_runtime_delivery_handoff_boundary(&result);
     assert_child_runtime_delivery_queue_boundary(&result);
     assert_child_runtime_delivery_dispatch_boundary(&result);
+    assert_child_runtime_delivery_receipt_requirement_boundary(&result);
     assert_no_delivery_or_platform_claims(&result);
 }
 
@@ -106,7 +107,7 @@ async fn app_game_timer_parent_preference_setup_request_persists_action_result_r
     cleanup_path(&store_path);
 
     assert_persisted_setup_result(&result);
-    assert_eq!(status.events_stored, 5);
+    assert_eq!(status.events_stored, 6);
     assert_persisted_action_result_model(&model);
 }
 
@@ -152,6 +153,15 @@ fn assert_persisted_setup_result(result: &AppGameTimerParentPreferenceSetupReque
         constants::value::APP_GAME_PARENT_PREFERENCE_SETUP_CHILD_RUNTIME_DELIVERY_DISPATCH_READY
     );
     assert!(result.child_runtime_delivery_dispatch_claimed);
+    assert_eq!(
+        result.child_runtime_delivery_receipt_requirement_id,
+        child_runtime_delivery_receipt_requirement_id()
+    );
+    assert_eq!(
+        result.child_runtime_delivery_receipt_requirement_status,
+        constants::value::APP_GAME_PARENT_PREFERENCE_SETUP_CHILD_RUNTIME_DELIVERY_RECEIPT_REQUIRED
+    );
+    assert!(result.child_runtime_delivery_receipt_requirement_claimed);
     assert_no_delivery_or_platform_claims(result);
 }
 
@@ -253,6 +263,33 @@ fn assert_child_runtime_delivery_dispatch_boundary(
     );
 }
 
+fn assert_child_runtime_delivery_receipt_requirement_boundary(
+    result: &AppGameTimerParentPreferenceSetupRequestResult,
+) {
+    assert_eq!(
+        result.child_runtime_delivery_receipt_requirement_id,
+        child_runtime_delivery_receipt_requirement_id()
+    );
+    assert_eq!(
+        result.child_runtime_delivery_receipt_requirement_ids,
+        vec![
+            child_runtime_delivery_receipt_requirement_id(),
+            child_runtime_delivery_dispatch_id(),
+            child_runtime_delivery_queue_id(),
+            child_runtime_delivery_handoff_id(),
+            parent_preference_mutation_receipt_id(),
+            constants::value::APP_GAME_CHILD_UX_PARENT_PREFERENCE_SETUP_PREFIX.to_string(),
+            constants::value::APP_GAME_CHILD_UX_PARENT_SURFACE_INTENT_PREFIX.to_string(),
+        ]
+    );
+    assert!(
+        result.child_runtime_delivery_receipt_requirement_status
+            == constants::value::APP_GAME_PARENT_PREFERENCE_SETUP_CHILD_RUNTIME_DELIVERY_RECEIPT_REQUIRED
+            || result.child_runtime_delivery_receipt_requirement_status
+                == constants::value::APP_GAME_PARENT_PREFERENCE_SETUP_CHILD_RUNTIME_DELIVERY_RECEIPT_UNAVAILABLE
+    );
+}
+
 fn assert_no_delivery_or_platform_claims(result: &AppGameTimerParentPreferenceSetupRequestResult) {
     assert!(!result.parent_preference_mutation_claimed);
     assert!(!result.notification_rule_mutation_claimed);
@@ -304,6 +341,16 @@ fn child_runtime_delivery_dispatch_id() -> String {
         constants::value::APP_GAME_PARENT_PREFERENCE_SETUP_CHILD_RUNTIME_DELIVERY_DISPATCH_SUFFIX,
     );
     dispatch_id
+}
+
+fn child_runtime_delivery_receipt_requirement_id() -> String {
+    let mut receipt_requirement_id =
+        constants::value::APP_GAME_CHILD_UX_PARENT_PREFERENCE_SETUP_PREFIX.to_string();
+    receipt_requirement_id.push(constants::delimiter::HYPHEN);
+    receipt_requirement_id.push_str(
+        constants::value::APP_GAME_PARENT_PREFERENCE_SETUP_CHILD_RUNTIME_DELIVERY_RECEIPT_REQUIREMENT_SUFFIX,
+    );
+    receipt_requirement_id
 }
 
 fn command_envelope() -> AgentCommandEnvelope {

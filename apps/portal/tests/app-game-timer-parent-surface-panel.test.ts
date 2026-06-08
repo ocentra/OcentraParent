@@ -635,6 +635,14 @@ function parentPreferenceSetupRequestedEvent(): AgentEventEnvelope {
         childRuntimeDeliveryDispatchIds: ['app-game-parent-preference-setup-child-runtime-dispatch::request-1'],
         childRuntimeDeliveryDispatchStatus: 'dispatch-ready',
         childRuntimeDeliveryDispatchClaimed: true,
+        childRuntimeDeliveryReceiptRequirementId:
+          'app-game-parent-preference-setup-child-runtime-receipt-required::request-1',
+        childRuntimeDeliveryReceiptRequirementIds: [
+          'app-game-parent-preference-setup-child-runtime-receipt-required::request-1',
+          'app-game-parent-preference-setup-child-runtime-dispatch::request-1',
+        ],
+        childRuntimeDeliveryReceiptRequirementStatus: 'receipt-required',
+        childRuntimeDeliveryReceiptRequirementClaimed: true,
         commandBoundaryClaimed: true,
         actionResultHandoffClaimed: true,
         actionResultPersistenceClaimed: true,

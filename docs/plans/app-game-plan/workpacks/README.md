@@ -141,6 +141,7 @@ before `DONE` or PR-ready reporting.
 133. WP142 app/game timer parent-surface parent preference setup child-runtime delivery queue command-result visibility.
 134. WP143 app/game timer parent-surface parent preference setup child-runtime delivery dispatch readiness.
 135. WP144 app/game timer parent-surface parent preference setup child-runtime delivery dispatch command-result visibility.
+136. WP145 app/game timer parent-surface parent preference setup child-runtime delivery receipt-required seam.
 
 ## Standard AI Worker Checklist
 

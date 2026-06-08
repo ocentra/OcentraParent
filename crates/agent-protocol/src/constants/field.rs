@@ -23,6 +23,8 @@ pub const APP_GAME_TIMER_PARENT_PREFERENCE_SETUP_CHILD_RUNTIME_DELIVERY_QUEUE: &
     "appGameTimerParentPreferenceSetupChildRuntimeDeliveryQueue";
 pub const APP_GAME_TIMER_PARENT_PREFERENCE_SETUP_CHILD_RUNTIME_DELIVERY_DISPATCH: &str =
     "appGameTimerParentPreferenceSetupChildRuntimeDeliveryDispatch";
+pub const APP_GAME_TIMER_PARENT_PREFERENCE_SETUP_CHILD_RUNTIME_DELIVERY_RECEIPT_REQUIREMENT: &str =
+    "appGameTimerParentPreferenceSetupChildRuntimeDeliveryReceiptRequirement";
 pub const BROWSER_SOCIAL_DASHBOARD_READ_MODEL: &str = "browserSocialDashboardReadModel";
 pub const BROWSER_SOCIAL_AUDIT_EXPLANATION_READ_MODEL: &str =
     "browserSocialAuditExplanationReadModel";
