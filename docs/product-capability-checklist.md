@@ -198,6 +198,15 @@ store integration, platform interception/adapters, child-device delivery,
 runtime report delivery, app blocking, child activity data, and hosted custody
 remain unclaimed.
 
+Execution receipt gate proof now consumes external runtime writer transport
+execution rows into first-class gate rows for external writer dispatch executor,
+provider/store execution, platform adapter execution, and child-device
+transport receipt artifacts. Product progress stays blocked/manual-required
+until those receipt artifacts are real, and external runtime writer
+execution/delivery, provider/store execution, platform adapter execution,
+child-device delivery, runtime report delivery, app blocking, child activity
+data, and hosted custody remain unclaimed.
+
 Windows package-source adapter evidence proof now links platform adapter
 evidence gap rows and package-source adapter execution rows to a local Windows
 host command probe artifact for package-source inspection readiness. The proof

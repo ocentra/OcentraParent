@@ -101,6 +101,10 @@
       "import": "./dist/app-install-purchase-external-runtime-writer-transport-execution-proof.js",
       "types": "./dist/app-install-purchase-external-runtime-writer-transport-execution-proof.d.ts"
     },
+    "./app-install-purchase-execution-receipt-gate-proof": {
+      "import": "./dist/app-install-purchase-execution-receipt-gate-proof.js",
+      "types": "./dist/app-install-purchase-execution-receipt-gate-proof.d.ts"
+    },
     "./app-install-purchase-runtime-report-writer-delivery-proof": {
       "import": "./dist/app-install-purchase-runtime-report-writer-delivery-proof.js",
       "types": "./dist/app-install-purchase-runtime-report-writer-delivery-proof.d.ts"

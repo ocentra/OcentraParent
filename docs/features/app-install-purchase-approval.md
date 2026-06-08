@@ -607,6 +607,18 @@ generic app blocking covers this concern.
   `test-results/app-install-purchase-external-runtime-writer-transport-execution-proof/proof.json`
   when run, validates the public parent-domain package export, updates the
   parent-domain README, and updates the product checklist row/addendum.
+- `packages/parent-domain/src/app-install-purchase-execution-receipt-gate-proof.ts`
+  consumes external runtime writer transport execution rows into first-class
+  gate rows for external writer dispatch executor, provider/store execution,
+  platform adapter execution, and child-device transport receipt artifacts
+  while preserving no runtime writer execution/delivery, provider/store
+  execution, platform adapter execution, child delivery, report delivery,
+  custody, interception, or app blocking claims.
+- `scripts/test/app-install-purchase-execution-receipt-gate-proof.mjs`
+  records that execution receipt gate proof under
+  `test-results/app-install-purchase-execution-receipt-gate-proof/proof.json`
+  when run, validates the public parent-domain package export, updates the
+  parent-domain README, and updates the product checklist row/addendum.
 - `packages/parent-domain/src/app-install-purchase-provider-store-execution-preflight-proof.ts`
   links provider/store execution readiness rows and runtime writer execution
   delivery receipts into parent-owned provider/store execution preflight ready,
@@ -916,6 +928,14 @@ Ocentra-hosted family data custody.
       external runtime writer execution/delivery, provider/store execution,
       platform adapters, child-device delivery, runtime report delivery, app
       blocking, child activity data, or hosted family data custody.
+- [x] Execution receipt gate proof consuming external runtime writer transport
+      execution rows into first-class gate rows for external writer dispatch
+      executor receipt, provider/store execution receipt, platform adapter
+      execution receipt, and child-device transport receipt artifacts while
+      blocking product progress and preserving no external runtime writer
+      execution/delivery, provider/store execution, platform adapters,
+      child-device delivery, runtime report delivery, app blocking, child
+      activity data, or hosted family data custody claims.
 - [x] Provider/store execution preflight proof linking provider/store execution
       readiness rows and runtime writer execution delivery receipts into
       parent-owned ready/manual/unavailable preflight rows without provider API
