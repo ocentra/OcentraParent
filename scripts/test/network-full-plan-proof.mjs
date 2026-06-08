@@ -18,6 +18,11 @@ const freshnessCommandSpecs = [
   ['network-visibility-parser-proof', 'node', ['scripts/test/network-visibility-parser-proof.mjs']],
   ['network-live-capture-proof-gate', 'node', ['scripts/test/network-live-capture-proof-gate.mjs']],
   ['network-live-capture-storage-proof', 'node', ['scripts/test/network-live-capture-storage-proof.mjs']],
+  [
+    'network-live-capture-service-readiness-proof',
+    'node',
+    ['scripts/test/network-live-capture-service-readiness-proof.mjs'],
+  ],
   ['network-zeek-analyzer-comparison-proof', 'node', ['scripts/test/network-zeek-analyzer-comparison-proof.mjs']],
   ['network-signature-alert-ingestion-proof', 'node', ['scripts/test/network-signature-alert-ingestion-proof.mjs']],
   ['network-ai-detection-fixture-proof', 'node', ['scripts/test/network-ai-detection-fixture-proof.mjs']],
@@ -136,6 +141,7 @@ const refreshedProofByName = new Map([
   ['network-visibility-parser', 'network-visibility-parser-proof'],
   ['network-live-capture-proof-gate', 'network-live-capture-proof-gate'],
   ['network-live-capture-storage', 'network-live-capture-storage-proof'],
+  ['network-live-capture-service-readiness', 'network-live-capture-service-readiness-proof'],
   ['network-zeek-analyzer-comparison', 'network-zeek-analyzer-comparison-proof'],
   ['network-signature-alert-ingestion', 'network-signature-alert-ingestion-proof'],
   ['network-ai-detection-fixture-proof', 'network-ai-detection-fixture-proof'],
@@ -240,6 +246,11 @@ const proofArtifacts = [
     'live-capture-storage',
     '03-parser-fixture-proof',
     'output/network-plan-proof/03a-live-capture-storage-proof/proof-summary.json',
+  ],
+  [
+    'live-capture-service-readiness',
+    '03-parser-fixture-proof',
+    'output/network-plan-proof/13a-live-capture-service-readiness/proof-summary.json',
   ],
   [
     'zeek-analyzer',
@@ -495,7 +506,7 @@ const proof = {
   provenPlanGates: [
     'metadata-only network evidence and no exact URL/content from network-only evidence',
     'reusable Rust eventing dependency for network runtime routing without a network-only bus',
-    'PCAP/parser/analyzer/classifier fixture proof with unsupported-claim records',
+    'PCAP/parser/analyzer/classifier fixture proof with service-visible live-capture status and unsupported-claim records',
     'AI detection/audit and risk-budget outputs remain advisory until typed policy handoff',
     'adapter action is gated by policy, capability proof, result state, rollback/unavailable refs, and audit refs',
     'journal, replay, receipt-ledger, durable envelope, outbox, and local read-model proof are present',

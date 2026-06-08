@@ -45,6 +45,10 @@
       "import": "./dist/network-remote-delivery-status.js",
       "types": "./dist/network-remote-delivery-status.d.ts"
     },
+    "./network-live-capture-status": {
+      "import": "./dist/network-live-capture-status.js",
+      "types": "./dist/network-live-capture-status.d.ts"
+    },
     "./app-game-boundary-read-model": {
       "import": "./dist/app-game-boundary-read-model.js",
       "types": "./dist/app-game-boundary-read-model.d.ts"

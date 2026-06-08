@@ -373,6 +373,17 @@ compete on control while staying clear about attribution confidence and privacy.
   remain visible, and live capture execution, remote upload, raw PCAP without
   custody, exact-content, policy/adapter authority, and enforcement-command
   claims are rejected.
+- E-D added a service-visible row13a live-capture status bridge:
+  `agent.network.live-capture.status.get` returns
+  `agent.network.live-capture.status.reported` with the row13 proof-gate state,
+  row03a raw-capture custody readiness refs, proof-ready/manual-required/
+  unavailable/degraded platform counts, TypeScript parser rejection for stale
+  refs/count drift/claim upgrades, and zero driver invocation, packet capture,
+  raw-PCAP-without-custody, content, policy, adapter, enforcement, netstat
+  substitution, remote-upload, and host-filter claims. The proof writes
+  `output/network-plan-proof/13a-live-capture-service-readiness/proof-summary.json`
+  and
+  `test-results/network-live-capture-service-readiness-proof/proof.json`.
 - E-D added fixture-backed visibility parsers for TLS ClientHello SNI, plain
   HTTP Host, QUIC limited-visibility detection, and DoH/DoT resolver-candidate
   detection. These parsers keep exact URL, visited domain, page content, and

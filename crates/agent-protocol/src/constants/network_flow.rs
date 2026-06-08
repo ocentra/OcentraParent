@@ -137,6 +137,34 @@ pub const TEST_REMOTE_DELIVERY_PROVIDER_READINESS_REF: &str =
     "network.remote-delivery.provider-readiness.10p";
 pub const TEST_REMOTE_DELIVERY_CHILD_DEVICE_READINESS_REF: &str =
     "network.remote-delivery.child-device-readiness.10p";
+pub const TEST_LIVE_CAPTURE_STATUS_REF: &str = "network.live-capture.status.13a";
+pub const FIELD_NETWORK_LIVE_CAPTURE_STATUS: &str = "networkLiveCaptureStatus";
+pub const TEST_LIVE_CAPTURE_ROW13_STATUS_REF: &str = "network.live-capture.proof-gate.13";
+pub const TEST_LIVE_CAPTURE_STORAGE_STATUS_REF: &str =
+    "network.live-capture.raw-storage-custody.03a";
+pub const TEST_LIVE_CAPTURE_WINDOWS_PROOF_REF: &str = "network.live-capture.windows-npcap.13";
+pub const TEST_LIVE_CAPTURE_MANUAL_PROOF_REF: &str = "network.live-capture.manual-required.13";
+pub const TEST_LIVE_CAPTURE_LINUX_PROOF_REF: &str = "network.live-capture.linux-libpcap.13";
+pub const TEST_LIVE_CAPTURE_MACOS_PROOF_REF: &str = "network.live-capture.macos-bpf-libpcap.13";
+pub const TEST_LIVE_CAPTURE_INTERFACE_REF: &str = "network.live-capture.interface.13";
+pub const TEST_LIVE_CAPTURE_DRIVER_REF: &str = "network.live-capture.driver-proof.13";
+pub const TEST_LIVE_CAPTURE_PERMISSION_REF: &str = "network.live-capture.permission-proof.13";
+pub const TEST_LIVE_CAPTURE_BOUNDED_REF: &str = "network.live-capture.bounded-capture.13";
+pub const TEST_LIVE_CAPTURE_CLEAN_STOP_REF: &str = "network.live-capture.clean-stop.13";
+pub const TEST_LIVE_CAPTURE_QUOTA_REF: &str = "network.live-capture.quota-rotation.13";
+pub const TEST_LIVE_CAPTURE_RETENTION_REF: &str = "network.live-capture.retention-delete-export.13";
+pub const TEST_LIVE_CAPTURE_CUSTODY_REF: &str = "network.live-capture.custody.13";
+pub const TEST_LIVE_CAPTURE_PRIVATE_TRAFFIC_EXCLUSION_REF: &str =
+    "network.live-capture.private-traffic-exclusion.13";
+pub const TEST_RAW_CAPTURE_MANIFEST_REF: &str = "network.raw-capture.manifest.03a";
+pub const TEST_RAW_CAPTURE_STORAGE_LOCATION_REF: &str = "network.raw-capture.storage-location.03a";
+pub const TEST_RAW_CAPTURE_ENCRYPTION_REF: &str = "network.raw-capture.encryption-at-rest.03a";
+pub const TEST_RAW_CAPTURE_QUOTA_REF: &str = "network.raw-capture.quota-rotation.03a";
+pub const TEST_RAW_CAPTURE_RETENTION_REF: &str = "network.raw-capture.retention-policy.03a";
+pub const TEST_RAW_CAPTURE_DELETE_EXPORT_REF: &str = "network.raw-capture.delete-export.03a";
+pub const TEST_RAW_CAPTURE_CUSTODY_CHAIN_REF: &str = "network.raw-capture.custody-chain.03a";
+pub const TEST_RAW_CAPTURE_PRIVATE_TRAFFIC_EXCLUSION_REF: &str =
+    "network.raw-capture.private-traffic-exclusion.03a";
 pub const TEST_REMOTE_EVENT_CHAIN_JOURNAL_PATH_PREFIX: &str =
     "ocentra-network-remote-event-chain-journal";
 pub const TEST_REMOTE_EVENT_CHAIN_JOURNAL_EXTENSION: &str = "ndjson";
@@ -256,3 +284,4 @@ pub const ERROR_NETWORK_RUNTIME_REMOTE_DELETE_EXPORT_PROPAGATION: &str =
     "network runtime remote delete export propagation proof";
 pub const ERROR_NETWORK_RUNTIME_REMOTE_PROVIDER_CHILD_READINESS: &str =
     "network runtime remote provider child readiness proof";
+pub const ERROR_NETWORK_LIVE_CAPTURE_STATUS: &str = "network live capture status proof";

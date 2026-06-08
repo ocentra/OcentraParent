@@ -193,6 +193,9 @@ mod network_flow_digest_rollups;
 mod network_flow_digest_tests;
 #[cfg(test)]
 mod network_flow_payload_tests;
+mod network_live_capture_readiness_bridge;
+#[cfg(test)]
+mod network_live_capture_readiness_bridge_tests;
 mod network_product_path_bridge;
 #[cfg(test)]
 mod network_product_path_bridge_tests;

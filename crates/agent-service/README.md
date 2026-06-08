@@ -64,6 +64,13 @@ development paths and orchestrates runtime commands.
   child-device delivery, actual remote
   delete/export propagation, policy, adapter, exact content, or host-filter
   claims.
+- Network live-capture status reports through
+  `agent.network.live-capture.status.get`, derived from row13 live-capture
+  proof-gate state and row03a raw-capture custody readiness refs. The
+  deterministic service snapshot exposes proof-ready, manual-required,
+  unavailable, and degraded platform rows plus zero driver, packet capture,
+  raw-PCAP-without-custody, content, policy, adapter, enforcement, netstat
+  substitution, remote upload, and host-filter claims.
 - App/game live process capture bridge rows through the existing activity
   capture journal/store path, exposing runtime-only app/game rows to the
   existing app-use/games read models without foreground, policy, or adapter
@@ -176,6 +183,11 @@ flowchart LR
   provider/child-device delivery, cross-process replay, actual remote
   delete/export propagation, product readiness, policy execution, adapter
   execution, and host filtering remain separate gaps.
+- Network live-capture status output is a read-only proof/status bridge. Real
+  Npcap/libpcap invocation, packet capture, raw artifact creation, raw PCAP
+  without custody, exact URL/content/decrypted-payload visibility, netstat
+  substitution, policy execution, adapter execution, enforcement command
+  publication, and host filtering remain separate gaps.
 - App/game live process, optional foreground, Windows shortcut inventory,
   Windows packaged-app manifest capture, and Windows registry inventory capture
   have bounded service proof; subscribed foreground transitions, policy

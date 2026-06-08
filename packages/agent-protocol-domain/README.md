@@ -46,6 +46,11 @@ transports.
   stale-ref rejection, blocked-dispatch/fixture/readiness count validation, and
   no-claim booleans for live delivery, product readiness, policy authority,
   adapter execution, and exact content.
+- Network live-capture status event parsing for row13 live-capture proof-gate
+  and row03a raw-capture custody bridge refs, including stale-ref rejection,
+  proof/manual/unavailable/degraded count validation, required artifact refs,
+  and no-claim booleans for driver execution, raw PCAP, content, policy,
+  adapter, enforcement, netstat substitution, and host filtering.
 
 ## Must Not Own
 
@@ -132,3 +137,10 @@ flowchart LR
   acknowledgement, provider/child-device delivery, cross-process replay, actual
   remote delete/export propagation, product readiness, policy authority, adapter
   execution, exact content, and host filtering remain separate proof-gated work.
+- Network live-capture status parsing proves the service payload shape only.
+  The parser accepts proof-ready/manual-required/unavailable/degraded row13
+  status and row03a custody readiness refs, but live Npcap/libpcap invocation,
+  packet capture, raw artifact creation, raw PCAP without custody, exact URL,
+  decrypted payload, page/private-message/search content, policy authority,
+  adapter execution, enforcement command publication, netstat substitution, and
+  host filtering remain separate proof-gated work.

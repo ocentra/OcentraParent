@@ -37,6 +37,10 @@ Rust protocol parity crate for data that crosses the TypeScript/Rust boundary.
   row10m delete/export readiness refs plus row10p provider/child readiness refs
   over the row10b through row10p proof chain consumed by the Rust service and
   TypeScript protocol adapter.
+- Network live-capture status bridge command/event names, constants, status
+  structs, and parity tests for row13 live-capture proof-gate state plus row03a
+  raw-capture custody readiness refs consumed by the Rust service and
+  TypeScript protocol adapter.
 - App/game boundary read-model structs, command/event names, payload field, and
   parity tests for the service-backed authority/classifier row-count proof
   path.
@@ -127,6 +131,12 @@ flowchart LR
   actual remote delete/export propagation, policy authority, adapter execution,
   exact content, and host filtering remain unclaimed until separate proof
   exists.
+- Network live-capture status bridge structs preserve row13 proof-gate and
+  row03a storage-custody refs only. Live Npcap/libpcap invocation, packet
+  capture, raw artifact creation, raw PCAP without custody, exact URL,
+  decrypted payload, page/private-message/search content, policy authority,
+  adapter execution, enforcement command publication, netstat substitution, and
+  host filtering remain unclaimed until separate proof exists.
 - App/game evidence/identity/authority/classifier parity structs preserve
   serialization proof only; core live process snapshots now exist for runtime
   rows, core live foreground-window source proof exists for foreground rows, and

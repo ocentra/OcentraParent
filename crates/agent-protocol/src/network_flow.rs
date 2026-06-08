@@ -234,6 +234,125 @@ pub struct NetworkRemoteDeliveryStatus {
     pub search_query_available_count: u64,
 }
 
+#[derive(Clone, Debug, Default, PartialEq, Eq, Serialize, Deserialize)]
+pub enum NetworkLiveCaptureStatusPlatform {
+    #[default]
+    #[serde(rename = "windows-npcap")]
+    WindowsNpcap,
+    #[serde(rename = "linux-libpcap")]
+    LinuxLibpcap,
+    #[serde(rename = "macos-bpf-libpcap")]
+    MacosBpfLibpcap,
+}
+
+#[derive(Clone, Debug, Default, PartialEq, Eq, Serialize, Deserialize)]
+pub enum NetworkLiveCaptureProofStatusState {
+    #[default]
+    #[serde(rename = "proof-ready")]
+    ProofReady,
+    #[serde(rename = "manual-required")]
+    ManualRequired,
+    #[serde(rename = "unavailable")]
+    Unavailable,
+    #[serde(rename = "degraded")]
+    Degraded,
+}
+
+#[derive(Clone, Debug, Default, PartialEq, Eq, Serialize, Deserialize)]
+pub enum NetworkRawCaptureStorageStatusState {
+    #[default]
+    #[serde(rename = "custody-ready")]
+    CustodyReady,
+    #[serde(rename = "manual-required")]
+    ManualRequired,
+    #[serde(rename = "unavailable")]
+    Unavailable,
+    #[serde(rename = "degraded")]
+    Degraded,
+}
+
+#[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct NetworkLiveCaptureStatusRow {
+    pub platform: NetworkLiveCaptureStatusPlatform,
+    pub capture_proof_ref: String,
+    pub proof_state: NetworkLiveCaptureProofStatusState,
+    pub storage_proof_ref: String,
+    pub storage_state: NetworkRawCaptureStorageStatusState,
+    pub interface_ref: Option<String>,
+    pub driver_proof_ref: Option<String>,
+    pub permission_proof_ref: Option<String>,
+    pub bounded_capture_ref: Option<String>,
+    pub clean_stop_ref: Option<String>,
+    pub quota_rotation_ref: Option<String>,
+    pub retention_delete_export_ref: Option<String>,
+    pub custody_ref: Option<String>,
+    pub private_traffic_exclusion_ref: Option<String>,
+    pub raw_artifact_manifest_ref: Option<String>,
+    pub storage_location_ref: Option<String>,
+    pub encryption_at_rest_ref: Option<String>,
+    pub storage_quota_rotation_ref: Option<String>,
+    pub retention_policy_ref: Option<String>,
+    pub storage_delete_export_ref: Option<String>,
+    pub custody_chain_ref: Option<String>,
+    pub storage_private_traffic_exclusion_ref: Option<String>,
+    pub missing_artifact_count: u64,
+    pub storage_missing_artifact_count: u64,
+    pub capture_ready: bool,
+    pub raw_artifact_storage_authorized: bool,
+    pub driver_invoked: bool,
+    pub live_capture_executed: bool,
+    pub remote_upload_enabled: bool,
+    pub raw_pcap_without_custody_available: bool,
+    pub exact_url_available: bool,
+    pub decrypted_payload_available: bool,
+    pub page_content_available: bool,
+    pub private_message_available: bool,
+    pub search_query_available: bool,
+    pub policy_authority: bool,
+    pub adapter_authority: bool,
+    pub enforcement_commands_published: u64,
+    pub netstat_metadata_substituted_for_live_capture: bool,
+    pub host_filtering_claimed: bool,
+}
+
+#[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct NetworkLiveCaptureStatus {
+    pub status_ref: String,
+    pub row13_status_ref: String,
+    pub raw_storage_status_ref: String,
+    pub platform_row_count: u64,
+    pub proof_ready_count: u64,
+    pub manual_required_count: u64,
+    pub unavailable_count: u64,
+    pub degraded_count: u64,
+    pub required_artifact_count: u64,
+    pub missing_artifact_count: u64,
+    pub storage_custody_ready_count: u64,
+    pub storage_manual_required_count: u64,
+    pub storage_unavailable_count: u64,
+    pub storage_degraded_count: u64,
+    pub storage_missing_artifact_count: u64,
+    pub capture_ready_count: u64,
+    pub raw_artifact_storage_authorized_count: u64,
+    pub driver_invoked_count: u64,
+    pub live_capture_executed_count: u64,
+    pub remote_upload_enabled_count: u64,
+    pub raw_pcap_without_custody_available_count: u64,
+    pub exact_url_available_count: u64,
+    pub decrypted_payload_available_count: u64,
+    pub page_content_available_count: u64,
+    pub private_message_available_count: u64,
+    pub search_query_available_count: u64,
+    pub policy_authority_count: u64,
+    pub adapter_authority_count: u64,
+    pub enforcement_command_event_count: u64,
+    pub netstat_metadata_substitution_count: u64,
+    pub host_filtering_claim_count: u64,
+    pub rows: Vec<NetworkLiveCaptureStatusRow>,
+}
+
 #[path = "network_flow_events.rs"]
 mod network_flow_events;
 

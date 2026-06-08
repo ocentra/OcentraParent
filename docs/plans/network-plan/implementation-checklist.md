@@ -63,7 +63,8 @@ The proof pack must contain or explicitly mark N/A for each applicable item:
       E-D full-network proof writes
       `output/network-plan-proof/full-network-plan/03-parser-fixture-proof.json`
       across PCAP replay, packet/DNS/TLS/HTTP/QUIC/DoH/DoT visibility, live
-      capture proof-gate, and raw capture storage custody artifacts.
+      capture proof-gate, raw capture storage custody, and live-capture service
+      readiness artifacts.
 - [x] `03a-live-capture-storage-proof.json`: encryption-at-rest, quota
       rotation, retention/delete/export behavior, private-family-traffic
       exclusion where possible, and manual-required custody state when live
@@ -74,6 +75,16 @@ The proof pack must contain or explicitly mark N/A for each applicable item:
       raw capture artifact custody gate over proof-ready live-capture refs,
       raw artifact manifest, encrypted local storage, quota, retention,
       delete/export, custody-chain, and private-traffic-exclusion refs.
+- [x] `13a-live-capture-service-readiness`: WebSocket-visible row13 live-capture
+      proof-gate and row03a raw-capture custody readiness status.
+      E-D row13a proof writes
+      `output/network-plan-proof/13a-live-capture-service-readiness/proof-summary.json`
+      and
+      `test-results/network-live-capture-service-readiness-proof/proof.json`
+      with typed Rust command/event parity, service WebSocket payload proof,
+      TypeScript stale-ref/count/claim rejection, and explicit zero live
+      capture, raw-PCAP-without-custody, content, policy, adapter, enforcement,
+      netstat-substitution, remote-upload, and host-filter claims.
 - [x] `04-analyzer-alert-proof.json`: Zeek-style summaries,
       Suricata/Snort-compatible alert fixtures, false-positive guards, and
       no-signature-only-enforcement proof. E-D full-network proof writes
