@@ -247,6 +247,10 @@ pub const APP_GAME_PARENT_PREFERENCE_SETUP_CHILD_RUNTIME_DELIVERY_RECEIPT_PENDIN
     "receipt-pending";
 pub const APP_GAME_PARENT_PREFERENCE_SETUP_CHILD_RUNTIME_DELIVERY_RECEIPT_PENDING_SUFFIX: &str =
     "child-runtime-delivery-receipt-pending";
+pub const APP_GAME_PARENT_PREFERENCE_SETUP_CHILD_RUNTIME_DELIVERY_RECEIPT_INGESTED: &str =
+    "receipt-ingested";
+pub const APP_GAME_PARENT_PREFERENCE_SETUP_CHILD_RUNTIME_DELIVERY_RECEIPT_INGESTED_SUFFIX: &str =
+    "child-runtime-delivery-receipt-ingested";
 pub const APP_GAME_CHILD_UX_PARENT_PREFERENCE_SETUP_UNAVAILABLE_VISIBLE: &str =
     "unavailable-visible";
 pub const TRANSPORT_WEBSOCKET: &str = "websocket";

@@ -8,6 +8,7 @@ import {
   type AgentEventEnvelope,
   type AgentEventName,
   type AgentProtocolLogFields,
+  type AppGameTimerParentPreferenceSetupRequestResult,
 } from '@ocentra-parent/agent-protocol-domain/contracts';
 import {
   AgentAppGameTimerParentSurfaceState,
@@ -80,6 +81,8 @@ const TimerParentSurfaceDetails = {
   ChildRuntimeReceiptRequirementStatus: decodeDisplayText('Child runtime receipt-required status'),
   ChildRuntimeReceiptPendingRefs: decodeDisplayText('Child runtime receipt-pending refs'),
   ChildRuntimeReceiptPendingStatus: decodeDisplayText('Child runtime receipt-pending status'),
+  ChildRuntimeReceiptIngestedRefs: decodeDisplayText('Child runtime receipt-ingested refs'),
+  ChildRuntimeReceiptIngestedStatus: decodeDisplayText('Child runtime receipt-ingested status'),
   ParentPreferenceSetupAcceptedAt: decodeDisplayText('Parent preference setup accepted at'),
   ParentPreferenceSetupActionResultRefs: decodeDisplayText('Parent preference setup action-result refs'),
   ParentPreferenceSetupActionResultStatus: decodeDisplayText('Parent preference setup action-result status'),
@@ -513,51 +516,64 @@ export function createAppGameTimerParentPreferenceSetupCommandResultDetails(
       TimerParentSurfaceDetails.ParentPreferenceSetupMutationReceiptStatus,
       parentPreferenceSetupResultStatus(result.value.parentPreferenceMutationReceiptStatus)
     ),
-    detail(
-      TimerParentSurfaceDetails.ChildRuntimeHandoffRefs,
-      joinedOrNotReported(result.value.childRuntimeDeliveryHandoffIds)
-    ),
-    detail(
-      TimerParentSurfaceDetails.ChildRuntimeHandoffStatus,
-      parentPreferenceSetupResultStatus(result.value.childRuntimeDeliveryHandoffStatus)
-    ),
-    detail(
-      TimerParentSurfaceDetails.ChildRuntimeQueueRefs,
-      joinedOrNotReported(result.value.childRuntimeDeliveryQueueIds)
-    ),
-    detail(
-      TimerParentSurfaceDetails.ChildRuntimeQueueStatus,
-      parentPreferenceSetupResultStatus(result.value.childRuntimeDeliveryQueueStatus)
-    ),
-    detail(
-      TimerParentSurfaceDetails.ChildRuntimeDispatchRefs,
-      joinedOrNotReported(result.value.childRuntimeDeliveryDispatchIds)
-    ),
-    detail(
-      TimerParentSurfaceDetails.ChildRuntimeDispatchStatus,
-      parentPreferenceSetupResultStatus(result.value.childRuntimeDeliveryDispatchStatus)
-    ),
-    detail(
-      TimerParentSurfaceDetails.ChildRuntimeReceiptRequirementRefs,
-      joinedOrNotReported(result.value.childRuntimeDeliveryReceiptRequirementIds)
-    ),
-    detail(
-      TimerParentSurfaceDetails.ChildRuntimeReceiptRequirementStatus,
-      parentPreferenceSetupResultStatus(result.value.childRuntimeDeliveryReceiptRequirementStatus)
-    ),
-    detail(
-      TimerParentSurfaceDetails.ChildRuntimeReceiptPendingRefs,
-      joinedOrNotReported(result.value.childRuntimeDeliveryReceiptPendingIds)
-    ),
-    detail(
-      TimerParentSurfaceDetails.ChildRuntimeReceiptPendingStatus,
-      parentPreferenceSetupResultStatus(result.value.childRuntimeDeliveryReceiptPendingStatus)
-    ),
+    ...parentPreferenceSetupChildRuntimeDetails(result.value),
     detail(TimerParentSurfaceDetails.ParentPreferenceSetupMutation, Readable.NotClaimed),
     detail(TimerParentSurfaceDetails.ParentPreferenceSetupRuleMutation, Readable.NotClaimed),
     detail(PortalDetails.ChildDelivery, claimedValue(result.value.childRuntimeDeliveryClaimed)),
     detail(PortalDetails.AdapterDispatch, claimedValue(result.value.adapterDispatchClaimed)),
     detail(PortalDetails.PlatformState, claimedValue(result.value.platformEnforcementClaimed)),
+  ];
+}
+
+function parentPreferenceSetupChildRuntimeDetails(
+  result: AppGameTimerParentPreferenceSetupRequestResult
+): readonly AppGameTimerParentSurfacePanelDetail[] {
+  return [
+    detail(
+      TimerParentSurfaceDetails.ChildRuntimeHandoffRefs,
+      joinedOrNotReported(result.childRuntimeDeliveryHandoffIds)
+    ),
+    detail(
+      TimerParentSurfaceDetails.ChildRuntimeHandoffStatus,
+      parentPreferenceSetupResultStatus(result.childRuntimeDeliveryHandoffStatus)
+    ),
+    detail(TimerParentSurfaceDetails.ChildRuntimeQueueRefs, joinedOrNotReported(result.childRuntimeDeliveryQueueIds)),
+    detail(
+      TimerParentSurfaceDetails.ChildRuntimeQueueStatus,
+      parentPreferenceSetupResultStatus(result.childRuntimeDeliveryQueueStatus)
+    ),
+    detail(
+      TimerParentSurfaceDetails.ChildRuntimeDispatchRefs,
+      joinedOrNotReported(result.childRuntimeDeliveryDispatchIds)
+    ),
+    detail(
+      TimerParentSurfaceDetails.ChildRuntimeDispatchStatus,
+      parentPreferenceSetupResultStatus(result.childRuntimeDeliveryDispatchStatus)
+    ),
+    detail(
+      TimerParentSurfaceDetails.ChildRuntimeReceiptRequirementRefs,
+      joinedOrNotReported(result.childRuntimeDeliveryReceiptRequirementIds)
+    ),
+    detail(
+      TimerParentSurfaceDetails.ChildRuntimeReceiptRequirementStatus,
+      parentPreferenceSetupResultStatus(result.childRuntimeDeliveryReceiptRequirementStatus)
+    ),
+    detail(
+      TimerParentSurfaceDetails.ChildRuntimeReceiptPendingRefs,
+      joinedOrNotReported(result.childRuntimeDeliveryReceiptPendingIds)
+    ),
+    detail(
+      TimerParentSurfaceDetails.ChildRuntimeReceiptPendingStatus,
+      parentPreferenceSetupResultStatus(result.childRuntimeDeliveryReceiptPendingStatus)
+    ),
+    detail(
+      TimerParentSurfaceDetails.ChildRuntimeReceiptIngestedRefs,
+      joinedOrNotReported(result.childRuntimeDeliveryReceiptIngestedIds)
+    ),
+    detail(
+      TimerParentSurfaceDetails.ChildRuntimeReceiptIngestedStatus,
+      parentPreferenceSetupResultStatus(result.childRuntimeDeliveryReceiptIngestedStatus)
+    ),
   ];
 }
 
@@ -608,6 +624,9 @@ function parentPreferenceSetupResultStatus(status: string): DisplayText {
     return Readable.Ready;
   }
   if (status === 'receipt-pending') {
+    return Readable.Ready;
+  }
+  if (status === 'receipt-ingested') {
     return Readable.Ready;
   }
   if (status === 'accepted') {

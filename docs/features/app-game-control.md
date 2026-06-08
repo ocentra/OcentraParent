@@ -1367,6 +1367,18 @@ diagnostics, or raw private source rows.
       delivery/receipt, provider delivery/receipt ingestion, durable outbox
       runtime, adapter dispatch, broad-blocking, platform-enforcement,
       raw-source, raw-target, and private-diagnostic claims.
+      The accepted request result now also carries service-local child-runtime
+      delivery receipt-ingested refs/status, and the service persists a local
+      receipt-ingested audit event after receipt-pending is accepted by the
+      ActivityStore. This proves the service can record a local receipt
+      ingestion boundary for the setup path while still not claiming provider
+      receipt ingestion, durable production outbox runtime, adapter dispatch,
+      broad blocking, platform enforcement, raw private source rows, raw target
+      values, or private diagnostics. The portal command-result panel renders
+      those receipt-ingested refs/status beside the action-result persistence,
+      mutation receipt, handoff, queue, dispatch, receipt-required, and
+      receipt-pending details while keeping local receipt ingestion distinct
+      from provider delivery/receipt ingestion and platform enforcement.
 - [ ] Adapter capability status per platform. Cross-platform authority and
       broad-blocking gate contracts now record manual-required, unavailable,
       and not-claimed proof requirements. Platform-extension routing now maps

@@ -367,6 +367,15 @@ function expectParentPreferenceSetupChildRuntimeReadiness(
     label: 'Child runtime receipt-pending status',
     value: 'Ready',
   });
+  expect(details).toContainEqual({
+    label: 'Child runtime receipt-ingested refs',
+    value:
+      'app-game-parent-preference-setup-child-runtime-receipt-ingested::request-1 | app-game-parent-preference-setup-child-runtime-receipt-pending::request-1',
+  });
+  expect(details).toContainEqual({
+    label: 'Child runtime receipt-ingested status',
+    value: 'Ready',
+  });
 }
 
 function expectParentPreferenceSetupNoClaimBoundaries(
@@ -695,6 +704,13 @@ function parentPreferenceSetupAcceptedResult() {
     ],
     childRuntimeDeliveryReceiptPendingStatus: 'receipt-pending',
     childRuntimeDeliveryReceiptPendingClaimed: true,
+    childRuntimeDeliveryReceiptIngestedId: 'app-game-parent-preference-setup-child-runtime-receipt-ingested::request-1',
+    childRuntimeDeliveryReceiptIngestedIds: [
+      'app-game-parent-preference-setup-child-runtime-receipt-ingested::request-1',
+      'app-game-parent-preference-setup-child-runtime-receipt-pending::request-1',
+    ],
+    childRuntimeDeliveryReceiptIngestedStatus: 'receipt-ingested',
+    childRuntimeDeliveryReceiptIngestedClaimed: true,
     commandBoundaryClaimed: true,
     actionResultHandoffClaimed: true,
     actionResultPersistenceClaimed: true,

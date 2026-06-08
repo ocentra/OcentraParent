@@ -1,0 +1,13 @@
+cmd /c npm run build --workspace @ocentra-parent/schema-domain
+cmd /c npm run build --workspace @ocentra-parent/agent-protocol-domain
+cmd /c npm run test --workspace @ocentra-parent/agent-protocol-domain -- --run tests/app-game-timer-parent-preference-setup-request.test.ts
+cargo test -p ocentra-parent-agent-service app_game_timer_parent_preference_setup_request -- --nocapture
+cmd /c npm run build --workspace @ocentra-parent/portal-domain
+cmd /c npm run type-check --workspace @ocentra-parent/portal
+cmd /c npm run test --workspace @ocentra-parent/portal -- --run tests/app-game-timer-parent-surface-panel.test.ts
+cargo fmt --all --check
+git diff --check
+node scripts/check-no-test-doubles.mjs
+node scripts/check-source-shape.mjs
+cmd /c npm run lanes:guard
+cmd /c npm run hub:guard

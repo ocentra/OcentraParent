@@ -16,6 +16,13 @@ use crate::{
 type FieldPair = (&'static str, LogFieldValue);
 
 struct SetupRequestRefs {
+    parent_preference_mutation_receipt_id: String,
+    child_runtime_delivery_handoff_id: String,
+    child_runtime_delivery_queue_id: String,
+    child_runtime_delivery_dispatch_id: String,
+    child_runtime_delivery_receipt_requirement_id: String,
+    child_runtime_delivery_receipt_pending_id: String,
+    child_runtime_delivery_receipt_ingested_id: String,
     action_result_reference_ids: Vec<String>,
     parent_preference_mutation_receipt_ids: Vec<String>,
     child_runtime_delivery_handoff_ids: Vec<String>,
@@ -23,6 +30,17 @@ struct SetupRequestRefs {
     child_runtime_delivery_dispatch_ids: Vec<String>,
     child_runtime_delivery_receipt_requirement_ids: Vec<String>,
     child_runtime_delivery_receipt_pending_ids: Vec<String>,
+    child_runtime_delivery_receipt_ingested_ids: Vec<String>,
+}
+
+struct SetupRequestIds {
+    parent_preference_mutation_receipt_id: String,
+    child_runtime_delivery_handoff_id: String,
+    child_runtime_delivery_queue_id: String,
+    child_runtime_delivery_dispatch_id: String,
+    child_runtime_delivery_receipt_requirement_id: String,
+    child_runtime_delivery_receipt_pending_id: String,
+    child_runtime_delivery_receipt_ingested_id: String,
 }
 
 pub async fn build_activity_app_game_timer_parent_preference_setup_request_report(
@@ -68,6 +86,10 @@ pub(crate) async fn build_activity_app_game_timer_parent_preference_setup_reques
             constants::value::APP_GAME_PARENT_PREFERENCE_SETUP_CHILD_RUNTIME_DELIVERY_RECEIPT_PENDING
                 .to_string();
         result.child_runtime_delivery_receipt_pending_claimed = true;
+        result.child_runtime_delivery_receipt_ingested_status =
+            constants::value::APP_GAME_PARENT_PREFERENCE_SETUP_CHILD_RUNTIME_DELIVERY_RECEIPT_INGESTED
+                .to_string();
+        result.child_runtime_delivery_receipt_ingested_claimed = true;
     }
     build_event(
         constants::event_id::ACTIVITY_APP_GAME_TIMER_PARENT_PREFERENCE_SETUP_REQUESTED,
@@ -84,60 +106,17 @@ pub fn app_game_timer_parent_preference_setup_request_from_command(
     command: &AgentCommandEnvelope,
 ) -> AppGameTimerParentPreferenceSetupRequestResult {
     let request = request_from_command(command);
-    let parent_preference_mutation_receipt_id = parent_preference_setup_suffixed_id(
-        &request,
-        constants::value::APP_GAME_PARENT_PREFERENCE_SETUP_MUTATION_RECEIPT_SUFFIX,
-    );
-    let child_runtime_delivery_handoff_id = parent_preference_setup_suffixed_id(
-        &request,
-        constants::value::APP_GAME_PARENT_PREFERENCE_SETUP_CHILD_RUNTIME_DELIVERY_HANDOFF_SUFFIX,
-    );
-    let child_runtime_delivery_queue_id = parent_preference_setup_suffixed_id(
-        &request,
-        constants::value::APP_GAME_PARENT_PREFERENCE_SETUP_CHILD_RUNTIME_DELIVERY_QUEUE_SUFFIX,
-    );
-    let child_runtime_delivery_dispatch_id = parent_preference_setup_suffixed_id(
-        &request,
-        constants::value::APP_GAME_PARENT_PREFERENCE_SETUP_CHILD_RUNTIME_DELIVERY_DISPATCH_SUFFIX,
-    );
-    let child_runtime_delivery_receipt_requirement_id = parent_preference_setup_suffixed_id(
-        &request,
-        constants::value::APP_GAME_PARENT_PREFERENCE_SETUP_CHILD_RUNTIME_DELIVERY_RECEIPT_REQUIREMENT_SUFFIX,
-    );
-    let child_runtime_delivery_receipt_pending_id = parent_preference_setup_suffixed_id(
-        &request,
-        constants::value::APP_GAME_PARENT_PREFERENCE_SETUP_CHILD_RUNTIME_DELIVERY_RECEIPT_PENDING_SUFFIX,
-    );
-    setup_request_result(
-        request,
-        parent_preference_mutation_receipt_id,
-        child_runtime_delivery_handoff_id,
-        child_runtime_delivery_queue_id,
-        child_runtime_delivery_dispatch_id,
-        child_runtime_delivery_receipt_requirement_id,
-        child_runtime_delivery_receipt_pending_id,
-    )
+    let refs = setup_request_refs(&request);
+    setup_request_result(request, refs)
 }
 
 fn setup_request_result(
     request: AppGameTimerParentPreferenceSetupRequest,
-    parent_preference_mutation_receipt_id: String,
-    child_runtime_delivery_handoff_id: String,
-    child_runtime_delivery_queue_id: String,
-    child_runtime_delivery_dispatch_id: String,
-    child_runtime_delivery_receipt_requirement_id: String,
-    child_runtime_delivery_receipt_pending_id: String,
+    refs: SetupRequestRefs,
 ) -> AppGameTimerParentPreferenceSetupRequestResult {
-    let refs = setup_request_refs(
-        &request,
-        &parent_preference_mutation_receipt_id,
-        &child_runtime_delivery_handoff_id,
-        &child_runtime_delivery_queue_id,
-        &child_runtime_delivery_dispatch_id,
-        &child_runtime_delivery_receipt_requirement_id,
-        &child_runtime_delivery_receipt_pending_id,
-    );
+    let parent_preference_setup_reference_id = request.parent_preference_setup_reference_id.clone();
     let unavailable = constants::value::APP_GAME_PARENT_PREFERENCE_SETUP_ACTION_RESULT_UNAVAILABLE;
+    let setup_value = |value: &str| value.to_string();
     AppGameTimerParentPreferenceSetupRequestResult {
         schema_version: setup_value(
             constants::value::APP_GAME_PARENT_PREFERENCE_SETUP_REQUEST_SCHEMA_VERSION,
@@ -149,36 +128,42 @@ fn setup_request_result(
             constants::value::APP_GAME_PARENT_PREFERENCE_SETUP_REQUEST_ACCEPTED,
         ),
         parent_surface_intent_reference_id: request.parent_surface_intent_reference_id,
-        parent_preference_setup_reference_id: request.parent_preference_setup_reference_id.clone(),
+        parent_preference_setup_reference_id: parent_preference_setup_reference_id.clone(),
         request_reference_ids: request.request_reference_ids,
-        action_result_reference_id: request.parent_preference_setup_reference_id.clone(),
+        action_result_reference_id: parent_preference_setup_reference_id,
         action_result_reference_ids: refs.action_result_reference_ids,
         action_result_persistence_status: setup_value(unavailable),
-        parent_preference_mutation_receipt_id,
+        parent_preference_mutation_receipt_id: refs.parent_preference_mutation_receipt_id,
         parent_preference_mutation_receipt_ids: refs.parent_preference_mutation_receipt_ids,
         parent_preference_mutation_receipt_status: setup_value(unavailable),
         parent_preference_mutation_receipt_claimed: false,
-        child_runtime_delivery_handoff_id,
+        child_runtime_delivery_handoff_id: refs.child_runtime_delivery_handoff_id,
         child_runtime_delivery_handoff_ids: refs.child_runtime_delivery_handoff_ids,
         child_runtime_delivery_handoff_status: setup_value(unavailable),
         child_runtime_delivery_handoff_claimed: false,
-        child_runtime_delivery_queue_id,
+        child_runtime_delivery_queue_id: refs.child_runtime_delivery_queue_id,
         child_runtime_delivery_queue_ids: refs.child_runtime_delivery_queue_ids,
         child_runtime_delivery_queue_status: setup_value(unavailable),
         child_runtime_delivery_queue_claimed: false,
-        child_runtime_delivery_dispatch_id,
+        child_runtime_delivery_dispatch_id: refs.child_runtime_delivery_dispatch_id,
         child_runtime_delivery_dispatch_ids: refs.child_runtime_delivery_dispatch_ids,
         child_runtime_delivery_dispatch_status: setup_value(unavailable),
         child_runtime_delivery_dispatch_claimed: false,
-        child_runtime_delivery_receipt_requirement_id,
+        child_runtime_delivery_receipt_requirement_id: refs
+            .child_runtime_delivery_receipt_requirement_id,
         child_runtime_delivery_receipt_requirement_ids: refs
             .child_runtime_delivery_receipt_requirement_ids,
         child_runtime_delivery_receipt_requirement_status: setup_value(unavailable),
         child_runtime_delivery_receipt_requirement_claimed: false,
-        child_runtime_delivery_receipt_pending_id,
+        child_runtime_delivery_receipt_pending_id: refs.child_runtime_delivery_receipt_pending_id,
         child_runtime_delivery_receipt_pending_ids: refs.child_runtime_delivery_receipt_pending_ids,
         child_runtime_delivery_receipt_pending_status: setup_value(unavailable),
         child_runtime_delivery_receipt_pending_claimed: false,
+        child_runtime_delivery_receipt_ingested_id: refs.child_runtime_delivery_receipt_ingested_id,
+        child_runtime_delivery_receipt_ingested_ids: refs
+            .child_runtime_delivery_receipt_ingested_ids,
+        child_runtime_delivery_receipt_ingested_status: setup_value(unavailable),
+        child_runtime_delivery_receipt_ingested_claimed: false,
         command_boundary_claimed: true,
         action_result_handoff_claimed: true,
         action_result_persistence_claimed: false,
@@ -197,54 +182,109 @@ fn setup_request_result(
     }
 }
 
-fn setup_value(value: &str) -> String {
-    value.to_string()
-}
-
-fn setup_request_refs(
-    request: &AppGameTimerParentPreferenceSetupRequest,
-    receipt_id: &str,
-    handoff_id: &str,
-    queue_id: &str,
-    dispatch_id: &str,
-    receipt_requirement_id: &str,
-    receipt_pending_id: &str,
-) -> SetupRequestRefs {
+fn setup_request_refs(request: &AppGameTimerParentPreferenceSetupRequest) -> SetupRequestRefs {
+    let ids = setup_request_ids(request);
     SetupRequestRefs {
+        parent_preference_mutation_receipt_id: ids.parent_preference_mutation_receipt_id.clone(),
+        child_runtime_delivery_handoff_id: ids.child_runtime_delivery_handoff_id.clone(),
+        child_runtime_delivery_queue_id: ids.child_runtime_delivery_queue_id.clone(),
+        child_runtime_delivery_dispatch_id: ids.child_runtime_delivery_dispatch_id.clone(),
+        child_runtime_delivery_receipt_requirement_id: ids
+            .child_runtime_delivery_receipt_requirement_id
+            .clone(),
+        child_runtime_delivery_receipt_pending_id: ids
+            .child_runtime_delivery_receipt_pending_id
+            .clone(),
+        child_runtime_delivery_receipt_ingested_id: ids
+            .child_runtime_delivery_receipt_ingested_id
+            .clone(),
         action_result_reference_ids: action_result_reference_ids(request),
         parent_preference_mutation_receipt_ids: parent_preference_mutation_receipt_ids(
-            request, receipt_id,
+            request,
+            &ids.parent_preference_mutation_receipt_id,
         ),
         child_runtime_delivery_handoff_ids: child_runtime_delivery_handoff_ids(
-            request, receipt_id, handoff_id,
+            request,
+            &ids.parent_preference_mutation_receipt_id,
+            &ids.child_runtime_delivery_handoff_id,
         ),
         child_runtime_delivery_queue_ids: child_runtime_delivery_queue_ids(
-            request, receipt_id, handoff_id, queue_id,
+            request,
+            &ids.parent_preference_mutation_receipt_id,
+            &ids.child_runtime_delivery_handoff_id,
+            &ids.child_runtime_delivery_queue_id,
         ),
         child_runtime_delivery_dispatch_ids: child_runtime_delivery_dispatch_ids(
             request,
-            receipt_id,
-            handoff_id,
-            queue_id,
-            dispatch_id,
+            &ids.parent_preference_mutation_receipt_id,
+            &ids.child_runtime_delivery_handoff_id,
+            &ids.child_runtime_delivery_queue_id,
+            &ids.child_runtime_delivery_dispatch_id,
         ),
         child_runtime_delivery_receipt_requirement_ids:
             child_runtime_delivery_receipt_requirement_ids(
                 request,
-                receipt_id,
-                handoff_id,
-                queue_id,
-                dispatch_id,
-                receipt_requirement_id,
+                &ids.parent_preference_mutation_receipt_id,
+                &ids.child_runtime_delivery_handoff_id,
+                &ids.child_runtime_delivery_queue_id,
+                &ids.child_runtime_delivery_dispatch_id,
+                &ids.child_runtime_delivery_receipt_requirement_id,
             ),
         child_runtime_delivery_receipt_pending_ids: child_runtime_delivery_receipt_pending_ids(
             request,
-            receipt_id,
-            handoff_id,
-            queue_id,
-            dispatch_id,
-            receipt_requirement_id,
-            receipt_pending_id,
+            &ids.parent_preference_mutation_receipt_id,
+            &ids.child_runtime_delivery_handoff_id,
+            &ids.child_runtime_delivery_queue_id,
+            &ids.child_runtime_delivery_dispatch_id,
+            &ids.child_runtime_delivery_receipt_requirement_id,
+            &ids.child_runtime_delivery_receipt_pending_id,
+        ),
+        child_runtime_delivery_receipt_ingested_ids: unique_refs({
+            let mut refs = vec![
+                ids.child_runtime_delivery_receipt_ingested_id.clone(),
+                ids.child_runtime_delivery_receipt_pending_id.clone(),
+                ids.child_runtime_delivery_receipt_requirement_id.clone(),
+                ids.child_runtime_delivery_dispatch_id.clone(),
+                ids.child_runtime_delivery_queue_id.clone(),
+                ids.child_runtime_delivery_handoff_id.clone(),
+                ids.parent_preference_mutation_receipt_id.clone(),
+                request.parent_preference_setup_reference_id.clone(),
+            ];
+            refs.extend(request.request_reference_ids.clone());
+            refs
+        }),
+    }
+}
+
+fn setup_request_ids(request: &AppGameTimerParentPreferenceSetupRequest) -> SetupRequestIds {
+    SetupRequestIds {
+        parent_preference_mutation_receipt_id: parent_preference_setup_suffixed_id(
+            request,
+            constants::value::APP_GAME_PARENT_PREFERENCE_SETUP_MUTATION_RECEIPT_SUFFIX,
+        ),
+        child_runtime_delivery_handoff_id: parent_preference_setup_suffixed_id(
+            request,
+            constants::value::APP_GAME_PARENT_PREFERENCE_SETUP_CHILD_RUNTIME_DELIVERY_HANDOFF_SUFFIX,
+        ),
+        child_runtime_delivery_queue_id: parent_preference_setup_suffixed_id(
+            request,
+            constants::value::APP_GAME_PARENT_PREFERENCE_SETUP_CHILD_RUNTIME_DELIVERY_QUEUE_SUFFIX,
+        ),
+        child_runtime_delivery_dispatch_id: parent_preference_setup_suffixed_id(
+            request,
+            constants::value::APP_GAME_PARENT_PREFERENCE_SETUP_CHILD_RUNTIME_DELIVERY_DISPATCH_SUFFIX,
+        ),
+        child_runtime_delivery_receipt_requirement_id: parent_preference_setup_suffixed_id(
+            request,
+            constants::value::APP_GAME_PARENT_PREFERENCE_SETUP_CHILD_RUNTIME_DELIVERY_RECEIPT_REQUIREMENT_SUFFIX,
+        ),
+        child_runtime_delivery_receipt_pending_id: parent_preference_setup_suffixed_id(
+            request,
+            constants::value::APP_GAME_PARENT_PREFERENCE_SETUP_CHILD_RUNTIME_DELIVERY_RECEIPT_PENDING_SUFFIX,
+        ),
+        child_runtime_delivery_receipt_ingested_id: parent_preference_setup_suffixed_id(
+            request,
+            constants::value::APP_GAME_PARENT_PREFERENCE_SETUP_CHILD_RUNTIME_DELIVERY_RECEIPT_INGESTED_SUFFIX,
         ),
     }
 }
