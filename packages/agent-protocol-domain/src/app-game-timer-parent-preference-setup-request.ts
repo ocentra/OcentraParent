@@ -71,6 +71,15 @@ export const AppGameTimerParentPreferenceSetupRequestResultSchema = withParser(
     ),
     childRuntimeDeliveryReceiptRequirementStatus: Schema.Literal('receipt-required', 'unavailable'),
     childRuntimeDeliveryReceiptRequirementClaimed: Schema.Boolean,
+    childRuntimeDeliveryReceiptPendingId: NonEmptyTextSchema,
+    childRuntimeDeliveryReceiptPendingIds: Schema.Array(NonEmptyTextSchema).pipe(
+      Schema.filter(
+        (value) =>
+          value.length > 0 || 'Expected parent preference setup child runtime delivery receipt pending references'
+      )
+    ),
+    childRuntimeDeliveryReceiptPendingStatus: Schema.Literal('receipt-pending', 'unavailable'),
+    childRuntimeDeliveryReceiptPendingClaimed: Schema.Boolean,
     commandBoundaryClaimed: Schema.Literal(true),
     actionResultHandoffClaimed: Schema.Literal(true),
     actionResultPersistenceClaimed: Schema.Boolean,
