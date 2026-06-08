@@ -29,6 +29,8 @@ struct SetupRequestRefs {
     provider_delivery_adapter_requirement_id: String,
     provider_delivery_credential_requirement_id: String,
     provider_delivery_queue_id: String,
+    provider_delivery_receipt_requirement_id: String,
+    provider_delivery_receipt_pending_id: String,
     action_result_reference_ids: Vec<String>,
     parent_preference_mutation_receipt_ids: Vec<String>,
     child_runtime_delivery_handoff_ids: Vec<String>,
@@ -43,6 +45,8 @@ struct SetupRequestRefs {
     provider_delivery_adapter_requirement_ids: Vec<String>,
     provider_delivery_credential_requirement_ids: Vec<String>,
     provider_delivery_queue_ids: Vec<String>,
+    provider_delivery_receipt_requirement_ids: Vec<String>,
+    provider_delivery_receipt_pending_ids: Vec<String>,
 }
 
 struct SetupRequestIds {
@@ -59,6 +63,8 @@ struct SetupRequestIds {
     provider_delivery_adapter_requirement_id: String,
     provider_delivery_credential_requirement_id: String,
     provider_delivery_queue_id: String,
+    provider_delivery_receipt_requirement_id: String,
+    provider_delivery_receipt_pending_id: String,
 }
 
 pub async fn build_activity_app_game_timer_parent_preference_setup_request_report(
@@ -131,6 +137,14 @@ pub(crate) async fn build_activity_app_game_timer_parent_preference_setup_reques
             constants::value::APP_GAME_PARENT_PREFERENCE_SETUP_PROVIDER_DELIVERY_QUEUE_QUEUED
                 .to_string();
         result.provider_delivery_queue_claimed = true;
+        result.provider_delivery_receipt_requirement_status =
+            constants::value::APP_GAME_PARENT_PREFERENCE_SETUP_PROVIDER_DELIVERY_RECEIPT_REQUIRED
+                .to_string();
+        result.provider_delivery_receipt_requirement_claimed = true;
+        result.provider_delivery_receipt_pending_status =
+            constants::value::APP_GAME_PARENT_PREFERENCE_SETUP_PROVIDER_DELIVERY_RECEIPT_PENDING
+                .to_string();
+        result.provider_delivery_receipt_pending_claimed = true;
     }
     build_event(
         constants::event_id::ACTIVITY_APP_GAME_TIMER_PARENT_PREFERENCE_SETUP_REQUESTED,
@@ -216,6 +230,14 @@ macro_rules! setup_request_result_defaults {
             provider_delivery_queue_ids: Vec::new(),
             provider_delivery_queue_status: String::new(),
             provider_delivery_queue_claimed: false,
+            provider_delivery_receipt_requirement_id: String::new(),
+            provider_delivery_receipt_requirement_ids: Vec::new(),
+            provider_delivery_receipt_requirement_status: String::new(),
+            provider_delivery_receipt_requirement_claimed: false,
+            provider_delivery_receipt_pending_id: String::new(),
+            provider_delivery_receipt_pending_ids: Vec::new(),
+            provider_delivery_receipt_pending_status: String::new(),
+            provider_delivery_receipt_pending_claimed: false,
             command_boundary_claimed: false,
             action_result_handoff_claimed: false,
             action_result_persistence_claimed: false,
@@ -285,6 +307,24 @@ macro_rules! provider_delivery_queue_ids {
         unique_refs(vec![
             $ids.provider_delivery_queue_id.clone(),
             $ids.provider_delivery_credential_requirement_id.clone(),
+        ])
+    };
+}
+
+macro_rules! provider_delivery_receipt_requirement_ids {
+    ($ids:expr) => {
+        unique_refs(vec![
+            $ids.provider_delivery_receipt_requirement_id.clone(),
+            $ids.provider_delivery_queue_id.clone(),
+        ])
+    };
+}
+
+macro_rules! provider_delivery_receipt_pending_ids {
+    ($ids:expr) => {
+        unique_refs(vec![
+            $ids.provider_delivery_receipt_pending_id.clone(),
+            $ids.provider_delivery_receipt_requirement_id.clone(),
         ])
     };
 }
@@ -404,34 +444,27 @@ fn setup_request_result(
         parent_preference_mutation_receipt_id: refs.parent_preference_mutation_receipt_id,
         parent_preference_mutation_receipt_ids: refs.parent_preference_mutation_receipt_ids,
         parent_preference_mutation_receipt_status: setup_value(unavailable),
-        parent_preference_mutation_receipt_claimed: false,
         child_runtime_delivery_handoff_id: refs.child_runtime_delivery_handoff_id,
         child_runtime_delivery_handoff_ids: refs.child_runtime_delivery_handoff_ids,
         child_runtime_delivery_handoff_status: setup_value(unavailable),
-        child_runtime_delivery_handoff_claimed: false,
         child_runtime_delivery_queue_id: refs.child_runtime_delivery_queue_id,
         child_runtime_delivery_queue_ids: refs.child_runtime_delivery_queue_ids,
         child_runtime_delivery_queue_status: setup_value(unavailable),
-        child_runtime_delivery_queue_claimed: false,
         child_runtime_delivery_dispatch_id: refs.child_runtime_delivery_dispatch_id,
         child_runtime_delivery_dispatch_ids: refs.child_runtime_delivery_dispatch_ids,
         child_runtime_delivery_dispatch_status: setup_value(unavailable),
-        child_runtime_delivery_dispatch_claimed: false,
         child_runtime_delivery_receipt_requirement_id: refs
             .child_runtime_delivery_receipt_requirement_id,
         child_runtime_delivery_receipt_requirement_ids: refs
             .child_runtime_delivery_receipt_requirement_ids,
         child_runtime_delivery_receipt_requirement_status: setup_value(unavailable),
-        child_runtime_delivery_receipt_requirement_claimed: false,
         child_runtime_delivery_receipt_pending_id: refs.child_runtime_delivery_receipt_pending_id,
         child_runtime_delivery_receipt_pending_ids: refs.child_runtime_delivery_receipt_pending_ids,
         child_runtime_delivery_receipt_pending_status: setup_value(unavailable),
-        child_runtime_delivery_receipt_pending_claimed: false,
         child_runtime_delivery_receipt_ingested_id: refs.child_runtime_delivery_receipt_ingested_id,
         child_runtime_delivery_receipt_ingested_ids: refs
             .child_runtime_delivery_receipt_ingested_ids,
         child_runtime_delivery_receipt_ingested_status: setup_value(unavailable),
-        child_runtime_delivery_receipt_ingested_claimed: false,
         durable_outbox_record_id: refs.durable_outbox_record_id,
         durable_outbox_record_ids: refs.durable_outbox_record_ids,
         durable_outbox_status: setup_value(unavailable),
@@ -452,6 +485,12 @@ fn setup_request_result(
         provider_delivery_queue_id: refs.provider_delivery_queue_id,
         provider_delivery_queue_ids: refs.provider_delivery_queue_ids,
         provider_delivery_queue_status: setup_value(unavailable),
+        provider_delivery_receipt_requirement_id: refs.provider_delivery_receipt_requirement_id,
+        provider_delivery_receipt_requirement_ids: refs.provider_delivery_receipt_requirement_ids,
+        provider_delivery_receipt_requirement_status: setup_value(unavailable),
+        provider_delivery_receipt_pending_id: refs.provider_delivery_receipt_pending_id,
+        provider_delivery_receipt_pending_ids: refs.provider_delivery_receipt_pending_ids,
+        provider_delivery_receipt_pending_status: setup_value(unavailable),
         command_boundary_claimed: true,
         action_result_handoff_claimed: true,
         ..setup_request_result_defaults!()
@@ -489,6 +528,11 @@ fn setup_request_refs(request: &AppGameTimerParentPreferenceSetupRequest) -> Set
             provider_delivery_credential_requirement_id
         ),
         provider_delivery_queue_id: ids.provider_delivery_queue_id.clone(),
+        provider_delivery_receipt_requirement_id: setup_id_ref!(
+            ids,
+            provider_delivery_receipt_requirement_id
+        ),
+        provider_delivery_receipt_pending_id: ids.provider_delivery_receipt_pending_id.clone(),
         action_result_reference_ids: setup_action_reference_ids!(request),
         parent_preference_mutation_receipt_ids: setup_mutation_receipt_ids!(request, ids),
         child_runtime_delivery_handoff_ids: setup_handoff_ids!(request, ids),
@@ -507,6 +551,8 @@ fn setup_request_refs(request: &AppGameTimerParentPreferenceSetupRequest) -> Set
             ids
         ),
         provider_delivery_queue_ids: provider_delivery_queue_ids!(ids),
+        provider_delivery_receipt_requirement_ids: provider_delivery_receipt_requirement_ids!(ids),
+        provider_delivery_receipt_pending_ids: provider_delivery_receipt_pending_ids!(ids),
     }
 }
 
@@ -581,6 +627,14 @@ fn setup_request_ids(request: &AppGameTimerParentPreferenceSetupRequest) -> Setu
         provider_delivery_queue_id: parent_preference_setup_suffixed_id(
             request,
             constants::value::APP_GAME_PARENT_PREFERENCE_SETUP_PROVIDER_DELIVERY_QUEUE_SUFFIX,
+        ),
+        provider_delivery_receipt_requirement_id: parent_preference_setup_suffixed_id(
+            request,
+            constants::value::APP_GAME_PARENT_PREFERENCE_SETUP_PROVIDER_DELIVERY_RECEIPT_REQUIREMENT_SUFFIX,
+        ),
+        provider_delivery_receipt_pending_id: parent_preference_setup_suffixed_id(
+            request,
+            constants::value::APP_GAME_PARENT_PREFERENCE_SETUP_PROVIDER_DELIVERY_RECEIPT_PENDING_SUFFIX,
         ),
     }
 }

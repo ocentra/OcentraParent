@@ -14,7 +14,7 @@ use crate::{
     lan_pairing::LanPairingRuntime, websocket::handle_command_text_for_test,
 };
 
-const PERSISTED_SETUP_EVENT_COUNT: u64 = 13;
+const PERSISTED_SETUP_EVENT_COUNT: u64 = 15;
 
 #[tokio::test]
 async fn app_game_timer_parent_preference_setup_request_command_returns_accepted_boundary_result() {
@@ -460,6 +460,40 @@ macro_rules! assert_provider_delivery_requirement_boundary {
                 || $result.provider_delivery_queue_status
                     == constants::value::APP_GAME_PARENT_PREFERENCE_SETUP_ACTION_RESULT_UNAVAILABLE
         );
+        assert_eq!(
+            $result.provider_delivery_receipt_requirement_id,
+            setup_id(constants::value::APP_GAME_PARENT_PREFERENCE_SETUP_PROVIDER_DELIVERY_RECEIPT_REQUIREMENT_SUFFIX)
+        );
+        assert_eq!(
+            $result.provider_delivery_receipt_requirement_ids,
+            vec![
+                setup_id(constants::value::APP_GAME_PARENT_PREFERENCE_SETUP_PROVIDER_DELIVERY_RECEIPT_REQUIREMENT_SUFFIX),
+                setup_id(constants::value::APP_GAME_PARENT_PREFERENCE_SETUP_PROVIDER_DELIVERY_QUEUE_SUFFIX),
+            ]
+        );
+        assert!(
+            $result.provider_delivery_receipt_requirement_status
+                == constants::value::APP_GAME_PARENT_PREFERENCE_SETUP_PROVIDER_DELIVERY_RECEIPT_REQUIRED
+                || $result.provider_delivery_receipt_requirement_status
+                    == constants::value::APP_GAME_PARENT_PREFERENCE_SETUP_ACTION_RESULT_UNAVAILABLE
+        );
+        assert_eq!(
+            $result.provider_delivery_receipt_pending_id,
+            setup_id(constants::value::APP_GAME_PARENT_PREFERENCE_SETUP_PROVIDER_DELIVERY_RECEIPT_PENDING_SUFFIX)
+        );
+        assert_eq!(
+            $result.provider_delivery_receipt_pending_ids,
+            vec![
+                setup_id(constants::value::APP_GAME_PARENT_PREFERENCE_SETUP_PROVIDER_DELIVERY_RECEIPT_PENDING_SUFFIX),
+                setup_id(constants::value::APP_GAME_PARENT_PREFERENCE_SETUP_PROVIDER_DELIVERY_RECEIPT_REQUIREMENT_SUFFIX),
+            ]
+        );
+        assert!(
+            $result.provider_delivery_receipt_pending_status
+                == constants::value::APP_GAME_PARENT_PREFERENCE_SETUP_PROVIDER_DELIVERY_RECEIPT_PENDING
+                || $result.provider_delivery_receipt_pending_status
+                    == constants::value::APP_GAME_PARENT_PREFERENCE_SETUP_ACTION_RESULT_UNAVAILABLE
+        );
     };
 }
 
@@ -495,6 +529,66 @@ macro_rules! assert_outbox_provider_preflight_requirements {
                 [constants::field::APP_GAME_PARENT_PREFERENCE_SETUP_OUTBOX_PROVIDER_DELIVERY_QUEUE_STATUS],
             $result.provider_delivery_queue_status
         );
+        assert_eq!(
+            $outbox_record
+                [constants::field::APP_GAME_PARENT_PREFERENCE_SETUP_OUTBOX_PROVIDER_DELIVERY_RECEIPT_REQUIREMENT_ID],
+            $result.provider_delivery_receipt_requirement_id
+        );
+        assert_eq!(
+            $outbox_record
+                [constants::field::APP_GAME_PARENT_PREFERENCE_SETUP_OUTBOX_PROVIDER_DELIVERY_RECEIPT_REQUIREMENT_STATUS],
+            $result.provider_delivery_receipt_requirement_status
+        );
+        assert_eq!(
+            $outbox_record
+                [constants::field::APP_GAME_PARENT_PREFERENCE_SETUP_OUTBOX_PROVIDER_DELIVERY_RECEIPT_PENDING_ID],
+            $result.provider_delivery_receipt_pending_id
+        );
+        assert_eq!(
+            $outbox_record
+                [constants::field::APP_GAME_PARENT_PREFERENCE_SETUP_OUTBOX_PROVIDER_DELIVERY_RECEIPT_PENDING_STATUS],
+            $result.provider_delivery_receipt_pending_status
+        );
+    };
+}
+
+macro_rules! assert_provider_delivery_persisted_statuses {
+    ($result:expr) => {
+        assert_eq!(
+            $result.provider_delivery_readiness_status,
+            constants::value::APP_GAME_PARENT_PREFERENCE_SETUP_PROVIDER_DELIVERY_MANUAL_REQUIRED
+        );
+        assert!($result.provider_delivery_readiness_claimed);
+        assert_eq!(
+            $result.provider_delivery_attempt_status,
+            constants::value::APP_GAME_PARENT_PREFERENCE_SETUP_PROVIDER_DELIVERY_ATTEMPT_MANUAL_REQUIRED
+        );
+        assert!($result.provider_delivery_attempt_claimed);
+        assert_eq!(
+            $result.provider_delivery_adapter_requirement_status,
+            constants::value::APP_GAME_PARENT_PREFERENCE_SETUP_PROVIDER_DELIVERY_ADAPTER_REQUIRED
+        );
+        assert!($result.provider_delivery_adapter_requirement_claimed);
+        assert_eq!(
+            $result.provider_delivery_credential_requirement_status,
+            constants::value::APP_GAME_PARENT_PREFERENCE_SETUP_PROVIDER_DELIVERY_CREDENTIAL_PROOF_REQUIRED
+        );
+        assert!($result.provider_delivery_credential_requirement_claimed);
+        assert_eq!(
+            $result.provider_delivery_queue_status,
+            constants::value::APP_GAME_PARENT_PREFERENCE_SETUP_PROVIDER_DELIVERY_QUEUE_QUEUED
+        );
+        assert!($result.provider_delivery_queue_claimed);
+        assert_eq!(
+            $result.provider_delivery_receipt_requirement_status,
+            constants::value::APP_GAME_PARENT_PREFERENCE_SETUP_PROVIDER_DELIVERY_RECEIPT_REQUIRED
+        );
+        assert!($result.provider_delivery_receipt_requirement_claimed);
+        assert_eq!(
+            $result.provider_delivery_receipt_pending_status,
+            constants::value::APP_GAME_PARENT_PREFERENCE_SETUP_PROVIDER_DELIVERY_RECEIPT_PENDING
+        );
+        assert!($result.provider_delivery_receipt_pending_claimed);
     };
 }
 
@@ -567,31 +661,7 @@ fn assert_persisted_setup_outbox(
         constants::value::APP_GAME_PARENT_PREFERENCE_SETUP_DURABLE_OUTBOX_RECORDED
     );
     assert!(result.durable_outbox_claimed);
-    assert_eq!(
-        result.provider_delivery_readiness_status,
-        constants::value::APP_GAME_PARENT_PREFERENCE_SETUP_PROVIDER_DELIVERY_MANUAL_REQUIRED
-    );
-    assert!(result.provider_delivery_readiness_claimed);
-    assert_eq!(
-        result.provider_delivery_attempt_status,
-        constants::value::APP_GAME_PARENT_PREFERENCE_SETUP_PROVIDER_DELIVERY_ATTEMPT_MANUAL_REQUIRED
-    );
-    assert!(result.provider_delivery_attempt_claimed);
-    assert_eq!(
-        result.provider_delivery_adapter_requirement_status,
-        constants::value::APP_GAME_PARENT_PREFERENCE_SETUP_PROVIDER_DELIVERY_ADAPTER_REQUIRED
-    );
-    assert!(result.provider_delivery_adapter_requirement_claimed);
-    assert_eq!(
-        result.provider_delivery_credential_requirement_status,
-        constants::value::APP_GAME_PARENT_PREFERENCE_SETUP_PROVIDER_DELIVERY_CREDENTIAL_PROOF_REQUIRED
-    );
-    assert!(result.provider_delivery_credential_requirement_claimed);
-    assert_eq!(
-        result.provider_delivery_queue_status,
-        constants::value::APP_GAME_PARENT_PREFERENCE_SETUP_PROVIDER_DELIVERY_QUEUE_QUEUED
-    );
-    assert!(result.provider_delivery_queue_claimed);
+    assert_provider_delivery_persisted_statuses!(result);
     let first_line = outbox_jsonl
         .lines()
         .next()

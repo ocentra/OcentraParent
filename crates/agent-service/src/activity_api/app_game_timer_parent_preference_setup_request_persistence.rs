@@ -61,10 +61,22 @@ macro_rules! provider_delivery_events {
             provider_setup_audit_event!(
                 $command,
                 $result,
-                provider_delivery_queue_id,
-                constants::value::APP_GAME_PARENT_PREFERENCE_SETUP_PROVIDER_DELIVERY_QUEUE_QUEUED
-            ),
-        ]
+            provider_delivery_queue_id,
+            constants::value::APP_GAME_PARENT_PREFERENCE_SETUP_PROVIDER_DELIVERY_QUEUE_QUEUED
+        ),
+        provider_setup_audit_event!(
+            $command,
+            $result,
+            provider_delivery_receipt_requirement_id,
+            constants::value::APP_GAME_PARENT_PREFERENCE_SETUP_PROVIDER_DELIVERY_RECEIPT_REQUIRED
+        ),
+        provider_setup_audit_event!(
+            $command,
+            $result,
+            provider_delivery_receipt_pending_id,
+            constants::value::APP_GAME_PARENT_PREFERENCE_SETUP_PROVIDER_DELIVERY_RECEIPT_PENDING
+        ),
+    ]
     };
 }
 
@@ -172,6 +184,14 @@ fn persisted_result(
         constants::value::APP_GAME_PARENT_PREFERENCE_SETUP_PROVIDER_DELIVERY_QUEUE_QUEUED
             .to_string();
     persisted.provider_delivery_queue_claimed = true;
+    persisted.provider_delivery_receipt_requirement_status =
+        constants::value::APP_GAME_PARENT_PREFERENCE_SETUP_PROVIDER_DELIVERY_RECEIPT_REQUIRED
+            .to_string();
+    persisted.provider_delivery_receipt_requirement_claimed = true;
+    persisted.provider_delivery_receipt_pending_status =
+        constants::value::APP_GAME_PARENT_PREFERENCE_SETUP_PROVIDER_DELIVERY_RECEIPT_PENDING
+            .to_string();
+    persisted.provider_delivery_receipt_pending_claimed = true;
     persisted
 }
 

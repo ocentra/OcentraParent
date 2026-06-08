@@ -34,8 +34,10 @@ const Readable = {
   ManualActionRequired: decodeDisplayText('Manual action required'),
   NotClaimed: requiredReadableValue('not-claimed'),
   Persisted: decodeDisplayText('Persisted'),
+  Pending: decodeDisplayText('Pending'),
   PreferenceSetupRequired: decodeDisplayText('Preference setup required'),
   Ready: requiredReadableValue('ready'),
+  Required: decodeDisplayText('Required'),
   Review: requiredReadableValue('warn'),
   Unavailable: requiredReadableValue('unavailable'),
 } as const;
@@ -106,6 +108,10 @@ const TimerParentSurfaceDetails = {
   ProviderDeliveryCredentialRequirementStatus: decodeDisplayText('Provider delivery credential requirement status'),
   ProviderDeliveryQueueRefs: decodeDisplayText('Provider delivery queue refs'),
   ProviderDeliveryQueueStatus: decodeDisplayText('Provider delivery queue status'),
+  ProviderDeliveryReceiptRequirementRefs: decodeDisplayText('Provider delivery receipt requirement refs'),
+  ProviderDeliveryReceiptRequirementStatus: decodeDisplayText('Provider delivery receipt requirement status'),
+  ProviderDeliveryReceiptPendingRefs: decodeDisplayText('Provider delivery receipt pending refs'),
+  ProviderDeliveryReceiptPendingStatus: decodeDisplayText('Provider delivery receipt pending status'),
   ProviderDeliveryReadinessRefs: decodeDisplayText('Provider delivery readiness refs'),
   ProviderDeliveryReadinessStatus: decodeDisplayText('Provider delivery readiness status'),
   ChildUxHandoffBlocked: decodeDisplayText('Child UX handoff blocked'),
@@ -636,6 +642,22 @@ function parentPreferenceSetupProviderDeliveryDetails(
       TimerParentSurfaceDetails.ProviderDeliveryQueueStatus,
       parentPreferenceSetupResultStatus(result.providerDeliveryQueueStatus)
     ),
+    detail(
+      TimerParentSurfaceDetails.ProviderDeliveryReceiptRequirementRefs,
+      joinedOrNotReported(result.providerDeliveryReceiptRequirementIds)
+    ),
+    detail(
+      TimerParentSurfaceDetails.ProviderDeliveryReceiptRequirementStatus,
+      parentPreferenceSetupResultStatus(result.providerDeliveryReceiptRequirementStatus)
+    ),
+    detail(
+      TimerParentSurfaceDetails.ProviderDeliveryReceiptPendingRefs,
+      joinedOrNotReported(result.providerDeliveryReceiptPendingIds)
+    ),
+    detail(
+      TimerParentSurfaceDetails.ProviderDeliveryReceiptPendingStatus,
+      parentPreferenceSetupResultStatus(result.providerDeliveryReceiptPendingStatus)
+    ),
   ];
 }
 
@@ -708,6 +730,12 @@ function parentPreferenceSetupResultStatus(status: string): DisplayText {
   }
   if (status === 'provider-delivery-queued') {
     return Readable.Ready;
+  }
+  if (status === 'provider-delivery-receipt-required') {
+    return Readable.Required;
+  }
+  if (status === 'provider-delivery-receipt-pending') {
+    return Readable.Pending;
   }
   if (status === 'accepted') {
     return Readable.Ready;

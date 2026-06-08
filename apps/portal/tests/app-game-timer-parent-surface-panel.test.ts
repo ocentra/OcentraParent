@@ -436,6 +436,24 @@ function expectParentPreferenceSetupProviderReadiness(
     label: 'Provider delivery queue status',
     value: 'Ready',
   });
+  expect(details).toContainEqual({
+    label: 'Provider delivery receipt requirement refs',
+    value:
+      'app-game-parent-preference-setup-provider-delivery-receipt-required::request-1 | app-game-parent-preference-setup-provider-delivery-local-queue::request-1',
+  });
+  expect(details).toContainEqual({
+    label: 'Provider delivery receipt requirement status',
+    value: 'Required',
+  });
+  expect(details).toContainEqual({
+    label: 'Provider delivery receipt pending refs',
+    value:
+      'app-game-parent-preference-setup-provider-delivery-receipt-pending::request-1 | app-game-parent-preference-setup-provider-delivery-receipt-required::request-1',
+  });
+  expect(details).toContainEqual({
+    label: 'Provider delivery receipt pending status',
+    value: 'Pending',
+  });
 }
 
 function expectParentPreferenceSetupNoClaimBoundaries(
@@ -833,6 +851,21 @@ const ProviderDeliveryReadinessAcceptedResultFields = {
   ],
   providerDeliveryQueueStatus: 'provider-delivery-queued',
   providerDeliveryQueueClaimed: true,
+  providerDeliveryReceiptRequirementId:
+    'app-game-parent-preference-setup-provider-delivery-receipt-required::request-1',
+  providerDeliveryReceiptRequirementIds: [
+    'app-game-parent-preference-setup-provider-delivery-receipt-required::request-1',
+    'app-game-parent-preference-setup-provider-delivery-local-queue::request-1',
+  ],
+  providerDeliveryReceiptRequirementStatus: 'provider-delivery-receipt-required',
+  providerDeliveryReceiptRequirementClaimed: true,
+  providerDeliveryReceiptPendingId: 'app-game-parent-preference-setup-provider-delivery-receipt-pending::request-1',
+  providerDeliveryReceiptPendingIds: [
+    'app-game-parent-preference-setup-provider-delivery-receipt-pending::request-1',
+    'app-game-parent-preference-setup-provider-delivery-receipt-required::request-1',
+  ],
+  providerDeliveryReceiptPendingStatus: 'provider-delivery-receipt-pending',
+  providerDeliveryReceiptPendingClaimed: true,
 } as const;
 
 function timerParentSurfaceRow(
