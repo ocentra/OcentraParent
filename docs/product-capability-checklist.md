@@ -187,6 +187,17 @@ store integration, platform interception/adapters, child-device delivery,
 runtime report delivery, app blocking, child activity data, and hosted custody
 remain unclaimed.
 
+External runtime writer transport execution proof now consumes runtime
+transport delivery execution rows into parent-owned external writer transport
+packet, execution-status, and ack refs while keeping transport execution
+blocked/manual-required until an external writer dispatch executor,
+provider/store execution receipt, platform adapter execution receipt, and
+child-device transport receipt proof refs are real. External runtime writer
+execution/delivery, parent action runtime delivery, provider/store execution,
+store integration, platform interception/adapters, child-device delivery,
+runtime report delivery, app blocking, child activity data, and hosted custody
+remain unclaimed.
+
 Windows package-source adapter evidence proof now links platform adapter
 evidence gap rows and package-source adapter execution rows to a local Windows
 host command probe artifact for package-source inspection readiness. The proof
