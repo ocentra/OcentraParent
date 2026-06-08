@@ -8,6 +8,7 @@ export const TrackingClaimAuditAreaSchema = Schema.Literal(
   'android-physical-background-and-geofence',
   'ios-physical-background-and-region',
   'manual-desktop-location',
+  'retention-product-settings-writable-runtime',
   'child-device-runtime-execution',
   'full-product-parent-child-ui-runtime',
   'authority-enrolled-hard-control-runtime',
@@ -177,6 +178,18 @@ export const RequiredTrackingClaimAuditPlans = [
       '03-parent-ui-screenshot.png',
       '04-result-summary.md',
     ],
+  },
+  {
+    auditArea: 'retention-product-settings-writable-runtime',
+    sourceProofRef: 'test-results/tracking-full-product-ui-runtime-preflight-proof/proof.json',
+    supportingProofRefs: [
+      'test-results/tracking-retention-product-settings-writable-execution-proof/proof.json',
+      'test-results/tracking-full-product-ui-runtime-artifact-gate-proof/proof.json',
+      'test-results/tracking-full-product-ui-runtime-preflight-proof/proof.json',
+    ],
+    proofRoot: 'output/tracking-plan-proof/product-parent-child-ui-runtime',
+    requiredProofTier: 'P4_PHYSICAL_DEVICE',
+    requiredArtifacts: ['04-retention-settings-production-write-result.png'],
   },
   {
     auditArea: 'child-device-runtime-execution',

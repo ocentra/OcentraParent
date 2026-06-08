@@ -1,7 +1,7 @@
 # Tracking Real Runtime Handoff Source Snapshot
 
 - generatedAt: 2026-06-08T01:05:00.000Z
-- commit: 7b1ac68e3fc36351f897d846c872cacc87e4c57f
+- commit: e2f9943cac45c65f5506953fc5d3517ed5bdcaed
 - requiredProofTier: P4_REAL_RUNTIME_HANDOFF
 - currentProofTier: P3_LOCAL_DEV_MACHINE
 - status: manual_required
@@ -41,14 +41,14 @@
 - productionWorkerPreflightRowCount: 8
 - productionWorkerPreflightRequiredArtifactCount: 8
 - productionWorkerPreflightMissingArtifactCount: 8
-- claimAuditMissingArtifactCount: 61
-- claimAuditPhysicalDeviceRequiredRowCount: 6
+- claimAuditMissingArtifactCount: 62
+- claimAuditPhysicalDeviceRequiredRowCount: 7
 - claimAuditApprovedManualRequiredRowCount: 1
 - claimAuditManualProviderRuntimeRequiredRowCount: 1
 - claimAuditProductionRuntimeRequiredRowCount: 2
-- claimAuditAcceptanceCriteriaCount: 36
-- claimAuditManualValidationCommandCount: 27
-- claimAuditArtifactAcceptanceNoteCount: 36
+- claimAuditAcceptanceCriteriaCount: 40
+- claimAuditManualValidationCommandCount: 30
+- claimAuditArtifactAcceptanceNoteCount: 40
 - ciRunnableRowCount: 0
 - does not prove physical-device, child-device runtime, authority, provider, retention product runtime, escalation, production, or product-ready tracking behavior
 
@@ -56,6 +56,7 @@
 
 - android-physical-background-and-geofence: 10/10 artifacts missing
 - ios-physical-background-and-region: 10/10 artifacts missing
+- retention-product-settings-writable-runtime: 1/1 artifacts missing
 - child-device-runtime-execution: 10/10 artifacts missing
 - full-product-parent-child-ui-runtime: 4/9 artifacts missing
 - authority-enrolled-hard-control-runtime: 20/20 artifacts missing

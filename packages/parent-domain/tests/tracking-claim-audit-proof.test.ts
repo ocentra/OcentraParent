@@ -13,7 +13,7 @@ describe('tracking claim audit proof', () => {
 
     expect(proof.rows).toHaveLength(RequiredTrackingClaimAuditPlans.length);
     expect(proof.summary.manualRequiredRowCount).toBe(RequiredTrackingClaimAuditPlans.length);
-    expect(proof.summary.physicalDeviceRequiredRowCount).toBe(6);
+    expect(proof.summary.physicalDeviceRequiredRowCount).toBe(7);
     expect(proof.summary.approvedManualRequiredRowCount).toBe(1);
     expect(proof.summary.manualProviderRuntimeRequiredRowCount).toBe(1);
     expect(proof.summary.productionRuntimeRequiredRowCount).toBe(2);
@@ -94,6 +94,26 @@ describe('tracking claim audit acceptance matrix', () => {
     ]);
     expect(row?.artifactSetComplete).toBe(false);
     expect(row?.fullProductUiClaimed).toBe(false);
+    expect(row?.productClaimReady).toBe(false);
+  });
+
+  it('gives retention writable product settings its own runtime claim row', () => {
+    const retentionRuntimePlan = RequiredTrackingClaimAuditPlans.find(
+      (plan) => plan.auditArea === 'retention-product-settings-writable-runtime'
+    );
+    if (!retentionRuntimePlan) throw new Error('Missing retention writable runtime claim audit plan');
+
+    const proof = buildTrackingClaimAuditProof(GeneratedAt, []);
+    const row = proof.rows.find((candidate) => candidate.auditArea === retentionRuntimePlan.auditArea);
+
+    expect(row?.sourceProofRef).toBe('test-results/tracking-full-product-ui-runtime-preflight-proof/proof.json');
+    expect(row?.supportingProofRefs).toContain(
+      'test-results/tracking-retention-product-settings-writable-execution-proof/proof.json'
+    );
+    expect(row?.requiredArtifacts).toEqual(['04-retention-settings-production-write-result.png']);
+    expect(row?.missingArtifacts).toEqual(['04-retention-settings-production-write-result.png']);
+    expect(row?.fullProductUiClaimed).toBe(false);
+    expect(row?.retentionProductRuntimeClaimed).toBe(false);
     expect(row?.productClaimReady).toBe(false);
   });
 });

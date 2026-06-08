@@ -7,6 +7,7 @@ const TrackingRealRuntimeHandoffTextSchema = Schema.String.pipe(Schema.minLength
 export const TrackingRealRuntimeHandoffAreaSchema = Schema.Literal(
   'android-physical-background-and-geofence',
   'ios-physical-background-and-region',
+  'retention-product-settings-writable-runtime',
   'child-device-runtime-execution',
   'full-product-parent-child-ui-runtime',
   'authority-enrolled-hard-control-runtime',
@@ -431,6 +432,21 @@ export const RequiredTrackingRealRuntimeHandoffGates = [
     artifactAcceptanceNotes: [
       'iOS artifacts must come from an entitled physical device run',
       'Simulator privacy disclosure or package-preview proof does not satisfy this handoff row',
+    ],
+  },
+  {
+    handoffArea: 'retention-product-settings-writable-runtime',
+    blockerId: 'retention-writable-product-settings-required',
+    sourceProofRef: 'test-results/tracking-full-product-ui-runtime-preflight-proof/proof.json',
+    sourceRowIds: ['tracking-full-product-ui-runtime-preflight-retention-production-write'],
+    requiredProofTier: 'P4_PHYSICAL_DEVICE',
+    requiredValidationCommands: [
+      'Run product retention settings write-result UI proof on the full parent/child product runtime',
+      'Record the production retention write-result artifact under output/tracking-plan-proof/product-parent-child-ui-runtime/04-retention-settings-production-write-result.png',
+    ],
+    artifactAcceptanceNotes: [
+      'Local retention service writable execution proves the typed service path only',
+      'The artifact must show the production parent/child runtime UI write result, not only the hosted local proof route',
     ],
   },
   {

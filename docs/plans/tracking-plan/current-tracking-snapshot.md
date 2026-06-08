@@ -125,7 +125,7 @@
   retention platform preflight rows, six preflight required artifacts, four
   full-product UI runtime preflight rows, four full-product UI preflight required
   artifacts, and
-  classifies the remaining handoff rows as six physical/runtime-required rows, one
+  classifies the remaining handoff rows as seven physical/runtime-required rows, one
   provider-runtime-required row, two production-runtime-required rows, and zero
   CI-runnable rows. Handoff rows now consume the claim-audit acceptance matrix
   so each generated manual runbook section includes source-derived acceptance
@@ -142,12 +142,16 @@
   rows with four missing runtime UI artifacts, ten child-runtime artifact gaps,
   and the claim-audit
   blocker counts. The claim
-  audit tier split is now machine-checked as six physical-device/runtime rows,
+  audit tier split is now machine-checked as seven physical-device/runtime rows,
   one approved-manual desktop row, one manual provider-runtime row, and two
   production-runtime rows, all product-ready false. The claim-audit rows now
-  also carry acceptance criteria, manual validation commands, and artifact
-  acceptance notes for each hard claim row so the next handoff has a concrete
-  P4 evidence checklist without changing product-readiness status.
+  include an explicit retention product settings writable runtime row tied to
+  the production retention write-result artifact, so the
+  `retention-writable-product-settings-required` blocker is no longer only
+  implicit under full-product UI. The rows also carry acceptance criteria,
+  manual validation commands, and artifact acceptance notes for each hard claim
+  row so the next handoff has a concrete P4 evidence checklist without changing
+  product-readiness status.
 
 ## Runtime/Product Claims Still Missing
 

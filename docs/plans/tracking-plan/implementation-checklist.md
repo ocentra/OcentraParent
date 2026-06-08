@@ -1021,12 +1021,14 @@ Every implementation workpack must update, or explicitly justify not updating:
       product-ready claims false. The full product UI audit row now cites the
       runtime gate and local runtime artifact capture proof refs, records five
       present required runtime-root artifact refs, keeps the four hard runtime
-      UI gaps as blockers, and classifies the ten final manual-required claim rows as six
-      physical-device/runtime rows, one approved-manual desktop row, one manual
-      provider-runtime row, and two production-runtime rows. Each row now also
-      carries generated acceptance criteria, manual validation commands, and
-      artifact acceptance notes so the P4/manual handoff is explicit while all
-      audited claims remain unapproved.
+      UI gaps as blockers, and gives retention writable product settings its
+      own runtime claim-audit row tied to the production retention write-result
+      artifact. The audit now classifies the eleven final manual-required claim
+      rows as seven physical-device/runtime rows, one approved-manual desktop
+      row, one manual provider-runtime row, and two production-runtime rows.
+      Each row now also carries generated acceptance criteria, manual
+      validation commands, and artifact acceptance notes so the P4/manual
+      handoff is explicit while all audited claims remain unapproved.
 - [x] Retention platform enforcement preflight proof now turns the remaining
       retention platform runtime artifact gap into Android, iOS, and desktop
       manual-required acceptance rows without claiming runtime enforcement or
@@ -1148,7 +1150,7 @@ Every implementation workpack must update, or explicitly justify not updating:
       required/present/missing artifact counts, plus
       retention platform preflight row/artifact counts, claim-audit blocker
       counts and tier split, and classifies the remaining manual follow-up as
-      six physical/runtime rows, one provider-runtime row, two
+      seven physical/runtime rows, one provider-runtime row, two
       production-runtime rows, and zero CI-runnable rows. The handoff also consumes
       the matching claim-audit acceptance matrix so the generated handoff
       runbook carries source-derived criteria, manual validation commands, and
