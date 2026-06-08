@@ -33,6 +33,22 @@ const finalAdapterAuditPath = join(
   'proof-summary.json'
 );
 const finalAdapterAudit = readJson(finalAdapterAuditPath);
+const retentionSweeperPath = join(
+  repoRoot,
+  'output',
+  'screen-ai-pipeline-proof',
+  'service-retention-sweeper',
+  'proof-summary.json'
+);
+const retentionSweeper = readJson(retentionSweeperPath);
+const deletionRetentionCustodyPath = join(
+  repoRoot,
+  'output',
+  'screen-ai-pipeline-proof',
+  'deletion-retention-custody',
+  'proof-summary.json'
+);
+const deletionRetentionCustody = readJson(deletionRetentionCustodyPath);
 const adapterCustodyArtifacts = [
   {
     label: 'Linux host adapter custody',
@@ -228,6 +244,26 @@ assert(
   finalAdapterAudit.custodyRows?.every((row) => row.finalAdapterCompletionClaimed === false) === true,
   'Final adapter custody rows must not claim final adapter completion.'
 );
+assert(
+  retentionSweeper.assertions?.capturePhaseCreatedEncryptedExpiringQueueRecord === true,
+  'Retention sweeper proof must show the service capture phase created encrypted expiring queue records.'
+);
+assert(
+  retentionSweeper.assertions?.retentionSweeperRemovedExpiredQueueRecord === true,
+  'Retention sweeper proof must show expired encrypted queue records were removed.'
+);
+assert(
+  retentionSweeper.assertions?.expiredDeletionSurfacedInActivityReadModel === true,
+  'Retention sweeper proof must surface expired deletion in the Activity Screen read model.'
+);
+assert(
+  deletionRetentionCustody.assertions?.deleteFailureRemainsVisible === true,
+  'Deletion custody proof must keep delete-failure state visible.'
+);
+assert(
+  deletionRetentionCustody.assertions?.readModelSurfacesExpiredAndDeleteFailedCounts === true,
+  'Deletion custody proof must surface expired and delete-failed counts in the read model.'
+);
 for (const artifact of adapterCustodyArtifacts) {
   assert(artifact.summary.status === artifact.expectedStatus, `${artifact.label} status changed.`);
   assert(
@@ -275,6 +311,8 @@ const summary = {
     'output/screen-ai-pipeline-proof/service-winrt-ocr-redaction/parent-redaction-policy.json',
     'output/screen-ai-pipeline-proof/final-product-path/proof-summary.json',
     'output/screen-ai-pipeline-proof/final-adapter-dependency-audit/proof-summary.json',
+    'output/screen-ai-pipeline-proof/service-retention-sweeper/proof-summary.json',
+    'output/screen-ai-pipeline-proof/deletion-retention-custody/proof-summary.json',
     'output/screen-ai-pipeline-proof/linux-host-adapter-custody/proof-summary.json',
     'output/screen-ai-pipeline-proof/android-mobile-control-custody/proof-summary.json',
     'output/screen-ai-pipeline-proof/ios-mobile-control-custody/proof-summary.json',
@@ -311,6 +349,13 @@ const summary = {
     adapterAuditKeepsProductCompletionBlocked:
       finalProductPath.closure.adapterProductCompleteBlockedByAudit === true &&
       finalAdapterAudit.closure.broadBrowserNetworkMobileProductComplete === false,
+    serviceEncryptedQueueExpiryDeletionProved:
+      retentionSweeper.assertions.capturePhaseCreatedEncryptedExpiringQueueRecord === true &&
+      retentionSweeper.assertions.retentionSweeperRemovedExpiredQueueRecord === true &&
+      retentionSweeper.assertions.expiredDeletionSurfacedInActivityReadModel === true,
+    deleteFailedVisibilityProved:
+      deletionRetentionCustody.assertions.deleteFailureRemainsVisible === true &&
+      deletionRetentionCustody.assertions.readModelSurfacesExpiredAndDeleteFailedCounts === true,
     custodyArtifactsDoNotUpgradeClaims: adapterCustodyArtifacts.every(
       (artifact) =>
         artifact.summary.closure.finalAdapterCompletionClaimed === false &&

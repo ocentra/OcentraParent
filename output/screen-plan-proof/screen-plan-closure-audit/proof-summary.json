@@ -1,6 +1,6 @@
 {
   "proof": "screen-plan-closure-audit",
-  "generatedAt": "2026-06-08T01:31:52.527Z",
+  "generatedAt": "2026-06-08T04:18:07.096Z",
   "branchScope": "codex/screen-ai-full-scope-b",
   "checklist": {
     "path": "docs/plans/screen-plan/implementation-checklist.md",
@@ -202,6 +202,14 @@
       "present": true
     },
     {
+      "artifact": "output/screen-ai-pipeline-proof/service-retention-sweeper/proof-summary.json",
+      "present": true
+    },
+    {
+      "artifact": "output/screen-ai-pipeline-proof/deletion-retention-custody/proof-summary.json",
+      "present": true
+    },
+    {
       "artifact": "output/screen-ai-pipeline-proof/linux-host-adapter-custody/proof-summary.json",
       "present": true
     },
@@ -295,6 +303,8 @@
     "externalGatesKeepProductNonClaim": true,
     "finalProductPathRequiresAdapterAudit": true,
     "adapterAuditKeepsProductCompletionBlocked": true,
+    "serviceEncryptedQueueExpiryDeletionProved": true,
+    "deleteFailedVisibilityProved": true,
     "custodyArtifactsDoNotUpgradeClaims": true,
     "noProductCompleteClaim": true
   },
