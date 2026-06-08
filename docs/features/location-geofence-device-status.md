@@ -137,6 +137,15 @@ expose location or device-status features. Parents expect this category.
   WP07/WP32/WP33 artifacts, and keeps writable product settings, platform
   runtime, child-device delivery, physical-device, authority, provider-delivery,
   notification receipts, production workers, and product-ready claims false.
+- WP07/WP33 retention product-settings writable execution artifact proof now
+  exists through
+  `node scripts/test/tracking-retention-product-settings-writable-execution-proof.mjs`.
+  It consumes the local service state readback proof and writes
+  `output/tracking-plan-proof/tracking-retention/product-settings-writable-execution.json`
+  plus WP07/WP33 companion artifacts for the local writable execution row while
+  keeping portal writable UI, platform runtime retention enforcement,
+  child-device delivery, provider delivery, notification receipts,
+  physical-device proof, authority, production, and product-ready claims false.
 - Hosted parent `policy-tracking` route screenshot and accessibility proof now
   exists through `npm run test:tracking-plan-hosted-ui-proof`. It starts the
   real Rust service against a seeded temporary ActivityStore SQLite database,
@@ -828,14 +837,15 @@ accessibility beyond the hosted parent route are proved.
       delete-after-alert, parent export, remote-sync disabled, and remote-AI
       disabled write intents, and the service transport now accepts a typed
       local write command/result. The hosted parent route now sends and
-      renders that local service execution result. Local service-state readback and
-      local durable settings persistence proof now exist; applied product-ready
-      writable retention execution, platform runtime, and production hardening
-      remain pending. Product-readiness blocker proof now enumerates the
-      remaining blockers over the durable-settings evidence, and retention
-      runtime artifact gate proof now checks the writable product settings and
-      platform retention runtime artifact refs without upgrading the retention
-      feature to product-ready.
+      renders that local service execution result. Local service-state readback,
+      local durable settings persistence proof, and the retention
+      product-settings writable execution artifact now exist; applied
+      product-ready writable retention execution, platform runtime, and
+      production hardening remain pending. Product-readiness blocker proof now
+      enumerates the remaining blockers over the durable-settings evidence, and
+      retention runtime artifact gate proof now checks the writable product
+      settings and platform retention runtime artifact refs without upgrading
+      the retention feature to product-ready.
 - [x] Alert intent contract.
 - [x] Expected-place alert policy UI-readiness rows. This proves parent
       alert/check-in/suppression/manual readiness rows from expected-place

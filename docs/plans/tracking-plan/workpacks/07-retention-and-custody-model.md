@@ -48,6 +48,7 @@ Proof root: `output/tracking-plan-proof/07-retention-and-custody-model/`
 - `23-retention-durable-settings-proof.json`
 - `24-retention-product-readiness-proof.json`
 - `25-retention-runtime-artifact-gate-proof.json`
+- `26-retention-product-settings-writable-execution-proof.json`
 - `16-validation-commands.log`
 
 ## AI Worker Checklist
@@ -90,6 +91,15 @@ remaining blockers for writable product settings execution, platform runtime,
 child-device delivery, provider delivery, notification receipt ingestion,
 physical-device proof, authority enrollment, and production worker hardening
 without changing the no-product-ready claim.
+Product-settings writable execution artifact proof now consumes the local
+service state readback proof through
+`node scripts/test/tracking-retention-product-settings-writable-execution-proof.mjs`
+and writes
+`output/tracking-plan-proof/tracking-retention/product-settings-writable-execution.json`
+plus WP07/WP33 companion artifacts for the local writable execution row while
+keeping platform runtime retention enforcement, portal writable UI,
+child-device delivery, provider delivery, notification receipts,
+physical-device proof, authority, production, and product-ready claims false.
 Retention runtime artifact gate proof now consumes the product-readiness blocker
 source and checks the required writable product settings and platform retention
 runtime artifact refs through
@@ -108,6 +118,7 @@ and product claim readiness are not claimed beyond the proof state recorded in
 `23-retention-durable-settings-proof.json`,
 `24-retention-product-readiness-proof.json`,
 `25-retention-runtime-artifact-gate-proof.json`,
+`26-retention-product-settings-writable-execution-proof.json`,
 the WP30 hosted UI proof artifact, and the implementation checklist.
 
 ## Where We Want To Be
@@ -146,7 +157,9 @@ This workpack can be assigned independently, implemented against the owning doma
   delivery, notification receipt, or child-device behavior proof.
 - Retention runtime artifact gate proof checks required artifact refs for
   writable product settings execution and platform runtime retention
-  enforcement; it is not runtime execution, platform enforcement, production, or
+  enforcement. The local product-settings writable execution artifact may be
+  present, but the gate remains manual-required until platform retention
+  enforcement is proved; it is not platform enforcement, production, or
   product-ready proof.
 - Any unsupported platform or provider failure must surface as degraded/manual-required state, not as a silent success.
 

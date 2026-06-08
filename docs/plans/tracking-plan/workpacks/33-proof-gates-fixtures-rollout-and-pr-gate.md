@@ -94,6 +94,8 @@ Proof root: `output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-g
   `43-retention-product-readiness-proof.json`
 - Retention runtime artifact gate proof:
   `60-retention-runtime-artifact-gate-proof.json`
+- Retention product-settings writable execution proof:
+  `64-retention-product-settings-writable-execution-proof.json`
 - Android system geofence blocker proof:
   `44-android-system-geofence-blocker-proof.json`
 - WP18 child check-in timeout escalation proof:
@@ -156,6 +158,8 @@ Proof root: `output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-g
   `59-full-product-ui-runtime-artifact-gate-proof.json`
 - Tracking retention runtime artifact gate proof:
   `60-retention-runtime-artifact-gate-proof.json`
+- Tracking retention product-settings writable execution proof:
+  `64-retention-product-settings-writable-execution-proof.json`
 
 ## Merge Blockers
 

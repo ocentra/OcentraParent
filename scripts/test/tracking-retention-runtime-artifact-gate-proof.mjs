@@ -22,6 +22,7 @@ async function main() {
   await mkdir(output33, { recursive: true });
 
   run('node', ['scripts/test/tracking-retention-product-readiness-proof.mjs']);
+  run('node', ['scripts/test/tracking-retention-product-settings-writable-execution-proof.mjs']);
   run('cmd', ['/c', 'npm', 'run', 'build', '--workspace', '@ocentra-parent/parent-domain']);
   run('cmd', [
     '/c',
@@ -116,7 +117,7 @@ function buildProof({ readModel }) {
     ],
     productClaims: readModel.productClaims,
     missingProofReason:
-      'Actual retention product runtime still requires writable product settings execution and platform runtime retention enforcement artifacts. This gate validates artifact presence only and keeps writable product settings execution, platform runtime retention enforcement, child-device delivery, provider delivery, notification receipts, physical-device, authority, production worker, and product-ready claims false.',
+      'Actual retention product runtime still requires the platform runtime retention enforcement artifact. The local product-settings writable execution artifact is present, but this gate validates artifact presence only and keeps writable product settings execution, platform runtime retention enforcement, child-device delivery, provider delivery, notification receipts, physical-device, authority, production worker, and product-ready claims false.',
     commands,
   };
 }

@@ -96,7 +96,9 @@ Every checked item must cite one or more proof artifacts.
       typed local service execution command result with a local service state
       revision, snapshot ref, and local durable settings store ref; local
       durable settings persistence proof now exists, and
-      product-readiness blocker proof now enumerates the remaining product
+      `output/tracking-plan-proof/tracking-retention/product-settings-writable-execution.json`
+      now records the local product-settings writable execution artifact.
+      Product-readiness blocker proof still enumerates the remaining product
       blockers over that durable-settings evidence while product-ready writable
       retention execution, platform runtime, and production hardening remain
       pending.
