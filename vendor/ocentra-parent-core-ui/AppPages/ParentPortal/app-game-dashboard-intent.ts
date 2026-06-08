@@ -231,6 +231,7 @@ function appGameDashboardMetrics(
     { label: 'Source rows', value: String(sumRows(sourceStatusRows, (row) => row.rowCount)), tone: 'cyan' },
     { label: 'Boundary rows', value: String(sumRows(rows, (row) => row.boundaryRowCount)), tone: 'cyan' },
     { label: 'AI classifier', value: String(sumRows(rows, (row) => row.aiClassifierResultRowCount)), tone: 'gold' },
+    { label: 'Readiness blockers', value: String(readinessBlockerCount(rows)), tone: 'gold' },
     {
       label: 'Fresh sources',
       value: String(sourceStatusRows.filter(sourceStatusRowFresh).length),
@@ -303,6 +304,7 @@ function evidenceRows(
     value: `${row.rowCount} source rows; ${row.capabilityStatus}; ${row.lastObservedLabel}; ${row.evidenceCount} refs`,
     tone: row.tone,
   }));
+  const blockerRows = rows.flatMap((row) => readinessBlockerRows(row));
   const boundaryRows = rows
     .filter((row) => row.boundaryRowCount > 0)
     .map((row) => ({
@@ -317,10 +319,67 @@ function evidenceRows(
       value: `${row.evidenceCount} refs; ${row.lastObservedLabel}`,
       tone: row.tone,
     }));
-  const visibleRows = [...sourceRows, ...boundaryRows, ...serviceRows].slice(0, 6);
+  const visibleRows = [...blockerRows, ...sourceRows, ...boundaryRows, ...serviceRows].slice(0, 14);
   return visibleRows.length > 0
     ? visibleRows
     : [{ label: 'Evidence drawer', value: 'No evidence refs reported', tone: 'gold' }];
+}
+
+function readinessBlockerCount(rows: readonly ParentPortalAppGameDashboardRow[]): number {
+  return sumRows(rows, (row) => readinessBlockerRows(row).length);
+}
+
+function readinessBlockerRows(row: ParentPortalAppGameDashboardRow): readonly ParentPortalAppGameDashboardMetric[] {
+  return [
+    approvalActionResultBlocker(row),
+    aiClassifierReviewBlocker(row),
+    manualRequiredBlocker(row),
+    unknownApprovalBlocker(row),
+  ].filter((metric): metric is ParentPortalAppGameDashboardMetric => metric !== null);
+}
+
+function approvalActionResultBlocker(row: ParentPortalAppGameDashboardRow): ParentPortalAppGameDashboardMetric | null {
+  if (row.approvalAuthorityRowCount <= row.approvalActionResultRowCount) {
+    return null;
+  }
+  return {
+    label: `${row.label} approval blocker`,
+    value: `Approval action result missing; ${row.approvalAuthorityRowCount}/${row.approvalActionResultRowCount}; policy manual-required`,
+    tone: 'gold',
+  };
+}
+
+function aiClassifierReviewBlocker(row: ParentPortalAppGameDashboardRow): ParentPortalAppGameDashboardMetric | null {
+  if (row.aiClassifierResultRowCount <= 0) {
+    return null;
+  }
+  return {
+    label: `${row.label} AI review`,
+    value: `${row.aiClassifierResultRowCount} classifier rows; evidence-only; no direct action`,
+    tone: 'gold',
+  };
+}
+
+function manualRequiredBlocker(row: ParentPortalAppGameDashboardRow): ParentPortalAppGameDashboardMetric | null {
+  if (!row.manualRequired) {
+    return null;
+  }
+  return {
+    label: `${row.label} manual blocker`,
+    value: `${row.capabilityStatus}; ${row.state}; adapter dispatch not claimed`,
+    tone: 'gold',
+  };
+}
+
+function unknownApprovalBlocker(row: ParentPortalAppGameDashboardRow): ParentPortalAppGameDashboardMetric | null {
+  if (!row.unknownApproval) {
+    return null;
+  }
+  return {
+    label: `${row.label} approval review`,
+    value: `${row.classificationState}; ${row.inventoryState}; parent approval required`,
+    tone: row.riskCandidate ? 'red' : 'gold',
+  };
 }
 
 function boundaryRowValue(row: ParentPortalAppGameDashboardRow): string {

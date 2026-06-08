@@ -140,6 +140,7 @@ function expectPopulatedDashboard(dashboard: ActivityUiIntent['appGameDashboard'
   expect(dashboard.rows.some((row) => row.label.includes('<script>alert(1)</script>'))).toBe(true);
   expect(dashboard.capabilityRows.map((row) => row.label)).toContain('manual-required');
   expect(dashboard.capabilityRows.map((row) => row.label)).toContain('permission-required');
+  expectReadinessBlockerCards(dashboard, metricPairs);
   expectSourceStatusRows(dashboard);
   expectSourcePanelSections(dashboard);
   expectNoRawExecutablePathLeak(dashboard);
@@ -164,6 +165,30 @@ function expectBoundaryCountVisibility(
       row.boundaryRowCount,
     ])
   ).toContainEqual(['Study Timer', 1, 1, 1, 0, 1, 1, 5]);
+}
+
+function expectReadinessBlockerCards(
+  dashboard: ActivityUiIntent['appGameDashboard'],
+  metricPairs: (string | number)[][]
+) {
+  const evidenceRows = dashboard.evidenceRows.map((row) => [row.label, row.value, row.tone]);
+  expect(metricPairs).toContainEqual(['Readiness blockers', '7']);
+  expect(evidenceRows).toContainEqual([
+    'Study Timer approval blocker',
+    'Approval action result missing; 1/0; policy manual-required',
+    'gold',
+  ]);
+  expect(evidenceRows).toContainEqual([
+    'Study Timer AI review',
+    '1 classifier rows; evidence-only; no direct action',
+    'gold',
+  ]);
+  expect(evidenceRows).toContainEqual([
+    'Steam Launcher manual blocker',
+    'manual-required; manual-required; adapter dispatch not claimed',
+    'gold',
+  ]);
+  expect(evidenceRows.map((row) => row.join(' ')).join(' ')).toContain('approval review');
 }
 
 function expectSourceStatusRows(dashboard: ActivityUiIntent['appGameDashboard']) {

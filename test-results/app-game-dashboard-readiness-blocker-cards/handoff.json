@@ -1,0 +1,66 @@
+{
+  "branch": "codex/app-game-control-product-completion",
+  "workpack": "WP164",
+  "scope": "app/game dashboard readiness blocker cards",
+  "status": "done",
+  "parentSurface": [
+    "dashboard metrics expose aggregate readiness blocker count",
+    "evidence drawer exposes missing approval action result blocker cards",
+    "evidence drawer exposes AI classifier evidence-only review cards",
+    "evidence drawer exposes manual-required capability blocker cards",
+    "evidence drawer exposes unknown approval review cards",
+    "source and boundary evidence summaries remain available"
+  ],
+  "validation": [
+    {
+      "command": "cmd /c npx prettier --write vendor/ocentra-parent-core-ui/AppPages/ParentPortal/app-game-dashboard-intent.ts apps/portal/tests/activity-ui-app-game-dashboard-intent.test.ts",
+      "status": "pass"
+    },
+    {
+      "command": "cmd /c npm run test --workspace @ocentra-parent/portal -- --run tests/activity-ui-app-game-dashboard-intent.test.ts",
+      "status": "pass",
+      "note": "19 test files and 81 tests passed"
+    },
+    {
+      "command": "cmd /c npm run build --workspace @ocentra-parent/portal",
+      "status": "pass",
+      "note": "Vite emitted existing chunk-size warnings for large portal bundles."
+    },
+    {
+      "command": "git diff --check",
+      "status": "pass"
+    },
+    {
+      "command": "node scripts/check-no-test-doubles.mjs",
+      "status": "pass",
+      "note": "No test doubles found across 2185 checked source files."
+    },
+    {
+      "command": "node scripts/check-source-shape.mjs",
+      "status": "pass",
+      "note": "Existing advisory warnings remain."
+    },
+    {
+      "command": "cmd /c npm run lanes:guard",
+      "status": "pass",
+      "note": "lane-guard-ok for codex-c app-game-control-product-completion"
+    },
+    {
+      "command": "cmd /c npm run hub:guard",
+      "status": "pass",
+      "note": "hub-guard-ok for codex-c"
+    }
+  ],
+  "noClaims": [
+    "policy execution",
+    "policy persistence",
+    "provider delivery",
+    "adapter dispatch",
+    "broad blocking",
+    "platform enforcement",
+    "raw private source rows",
+    "raw target values",
+    "private diagnostics"
+  ],
+  "productCapabilityChecklist": "intentionally untouched while another lane owns the lock"
+}

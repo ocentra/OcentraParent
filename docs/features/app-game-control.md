@@ -1476,6 +1476,14 @@ diagnostics, or raw private source rows.
       contract hardening and proof only; provider delivery execution, adapter
       dispatch, broad blocking, platform enforcement, raw private rows, and the
       central product checklist remain unclaimed.
+      The main App/Game Sessions dashboard now turns existing service-backed
+      boundary counts and row states into parent-readable readiness blocker
+      cards in the evidence drawer: missing approval action result, AI
+      classifier evidence-only review, manual-required capability, and unknown
+      approval review. It also exposes an aggregate `Readiness blockers` metric
+      while keeping policy execution, adapter dispatch, broad blocking,
+      platform enforcement, raw private source rows, raw target values, and
+      private diagnostics unclaimed.
 - [ ] Adapter capability status per platform. Cross-platform authority and
       broad-blocking gate contracts now record manual-required, unavailable,
       and not-claimed proof requirements. Platform-extension routing now maps
