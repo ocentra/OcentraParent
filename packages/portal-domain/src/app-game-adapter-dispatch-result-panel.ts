@@ -1,4 +1,6 @@
 import {
+  AgentAppGameAdapterDispatchAdapterExecutionDecision,
+  AgentAppGameAdapterDispatchAdapterExecutionState,
   AgentAppGameAdapterDispatchCommandResultDecision,
   AgentAppGameAdapterDispatchCommandResultState,
   AgentAppGameAdapterDispatchExecutionAuditDecision,
@@ -31,7 +33,7 @@ const CommandResultLabels = {
 } as const;
 
 const ProductClaim = decodeDisplayText(
-  'Adapter dispatch command-result is limited to the scoped Windows owned-process app/game timer row. Adapter execution, broad installed-app blocking, platform enforcement, provider delivery, child delivery, and private diagnostics remain unclaimed.'
+  'Adapter dispatch execution is reported only for the scoped Windows owned-process app/game timer row when real enforcement audit evidence is attached. Broad installed-app blocking, platform enforcement, provider delivery, child delivery, and private diagnostics remain unclaimed.'
 );
 const DispatchCommand = decodeDisplayText('Dispatch command');
 const DispatchEvent = decodeDisplayText('Dispatch event');
@@ -41,6 +43,10 @@ const AuditReferences = decodeDisplayText('Audit references');
 const TimerReferences = decodeDisplayText('Timer references');
 const ExecutionAudit = decodeDisplayText('Execution audit');
 const ExecutionAuditReferences = decodeDisplayText('Execution audit refs');
+const AdapterExecution = decodeDisplayText('Adapter execution');
+const AdapterExecutionResult = decodeDisplayText('Adapter execution result');
+const AdapterExecutionStatus = decodeDisplayText('Adapter execution status');
+const AdapterExecutionRefs = decodeDisplayText('Adapter execution refs');
 
 export type AppGameAdapterDispatchResultPanelDetail = {
   readonly label: DisplayText;
@@ -125,6 +131,7 @@ function readModelSummary(
     detail(PortalDetails.AdapterDispatch, claimedValue(readModel.adapterDispatchCommandResultClaimedCount > 0)),
     detail(ExecutionAudit, claimedValue(readModel.serviceLocalExecutionAuditClaimedCount > 0)),
     detail(PortalDetails.ExecutionState, claimedValue(readModel.adapterDispatchExecutedClaimedCount > 0)),
+    detail(AdapterExecution, countText(readModel.adapterExecutionReportedCount)),
     detail(PortalDetails.PlatformState, claimedValue(readModel.platformEnforcementClaimed)),
     detail(PortalDetails.ChildDelivery, claimedValue(readModel.childDeviceDeliveryClaimed)),
     detail(PortalDetails.ProductClaim, ProductClaim),
@@ -148,6 +155,10 @@ function dispatchResultRow(row: AgentAppGameAdapterDispatchResultRow): AppGameAd
       detail(TimerReferences, joinedOrNotReported(row.dispatchCommandTimerRefs)),
       detail(ExecutionAudit, executionAuditLabel(row.dispatchExecutionAuditState)),
       detail(ExecutionAuditReferences, joinedOrNotReported(row.dispatchExecutionAuditRefs)),
+      detail(AdapterExecution, adapterExecutionLabel(row.dispatchAdapterExecutionState)),
+      detail(AdapterExecutionResult, optionalText(row.dispatchAdapterExecutionResultId)),
+      detail(AdapterExecutionStatus, optionalText(row.dispatchAdapterExecutionStatus)),
+      detail(AdapterExecutionRefs, joinedOrNotReported(row.dispatchAdapterExecutionRefs)),
       detail(PortalDetails.ManualReview, joinedOrNotReported(row.manualProofRequirements)),
       detail(PortalDetails.AdapterDispatch, claimedValue(row.adapterDispatchCommandResultClaimed)),
       detail(ExecutionAudit, claimedValue(row.serviceLocalExecutionAuditClaimed)),
@@ -175,6 +186,19 @@ function executionAuditLabel(state: string): DisplayText {
   }
   if (state === AgentAppGameAdapterDispatchExecutionAuditDecision.BlockedBeforeExecutionAudit) {
     return decodeDisplayText('Blocked before execution audit');
+  }
+  return displayText(state);
+}
+
+function adapterExecutionLabel(state: string): DisplayText {
+  if (state === AgentAppGameAdapterDispatchAdapterExecutionState.AdapterExecutionReported) {
+    return decodeDisplayText('Adapter execution reported');
+  }
+  if (state === AgentAppGameAdapterDispatchAdapterExecutionDecision.AdapterExecutionEvidenceMissing) {
+    return decodeDisplayText('Execution evidence missing');
+  }
+  if (state === AgentAppGameAdapterDispatchAdapterExecutionDecision.BlockedBeforeAdapterExecution) {
+    return decodeDisplayText('Blocked before adapter execution');
   }
   return displayText(state);
 }

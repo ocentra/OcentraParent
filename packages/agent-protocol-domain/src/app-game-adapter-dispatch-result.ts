@@ -36,6 +36,18 @@ export const AgentAppGameAdapterDispatchExecutionAuditDecision = {
   BlockedBeforeExecutionAudit: 'blocked-before-execution-audit',
 } as const;
 
+export const AgentAppGameAdapterDispatchAdapterExecutionState = {
+  AdapterExecutionReported: 'adapter-execution-reported',
+  AdapterExecutionEvidenceMissing: 'adapter-execution-evidence-missing',
+  BlockedBeforeAdapterExecution: 'blocked-before-adapter-execution',
+} as const;
+
+export const AgentAppGameAdapterDispatchAdapterExecutionDecision = {
+  AdapterExecutionReported: 'adapter-execution-reported',
+  AdapterExecutionEvidenceMissing: 'adapter-execution-evidence-missing',
+  BlockedBeforeAdapterExecution: 'blocked-before-adapter-execution',
+} as const;
+
 const AgentAppGameAdapterDispatchResultRowBaseSchema = Schema.Struct({
   schemaVersion: Schema.Literal(AppGameSchemaVersion),
   rowId: DispatchResultText,
@@ -93,11 +105,26 @@ const AgentAppGameAdapterDispatchResultRowBaseSchema = Schema.Struct({
   ),
   dispatchExecutionAuditId: Schema.Union(DispatchResultText, Schema.Null),
   dispatchExecutionAuditRefs: Schema.Array(DispatchResultText),
+  dispatchAdapterExecutionState: Schema.Literal(
+    AgentAppGameAdapterDispatchAdapterExecutionState.AdapterExecutionReported,
+    AgentAppGameAdapterDispatchAdapterExecutionState.AdapterExecutionEvidenceMissing,
+    AgentAppGameAdapterDispatchAdapterExecutionState.BlockedBeforeAdapterExecution
+  ),
+  dispatchAdapterExecutionDecision: Schema.Literal(
+    AgentAppGameAdapterDispatchAdapterExecutionDecision.AdapterExecutionReported,
+    AgentAppGameAdapterDispatchAdapterExecutionDecision.AdapterExecutionEvidenceMissing,
+    AgentAppGameAdapterDispatchAdapterExecutionDecision.BlockedBeforeAdapterExecution
+  ),
+  dispatchAdapterExecutionResultId: Schema.Union(DispatchResultText, Schema.Null),
+  dispatchAdapterExecutionStatus: Schema.Union(DispatchResultText, Schema.Null),
+  dispatchAdapterExecutionAdapterResultCode: Schema.Union(DispatchResultText, Schema.Null),
+  dispatchAdapterExecutionAuditEventId: Schema.Union(DispatchResultText, Schema.Null),
+  dispatchAdapterExecutionRefs: Schema.Array(DispatchResultText),
   manualProofRequirements: Schema.Array(DispatchResultText),
   claimBoundary: DispatchResultText,
   fallbackBehavior: DispatchResultText,
   adapterDispatchCommandResultClaimed: Schema.Boolean,
-  adapterDispatchExecutedClaimed: Schema.Literal(false),
+  adapterDispatchExecutedClaimed: Schema.Boolean,
   serviceLocalExecutionAuditClaimed: Schema.Boolean,
   broadInstalledAppBlockingClaimed: Schema.Literal(false),
   childDeviceDeliveryClaimed: Schema.Literal(false),
@@ -131,9 +158,12 @@ const AgentAppGameAdapterDispatchResultReadModelBaseSchema = Schema.Struct({
   blockedBeforeCommandCount: DispatchResultCount,
   executionAuditRecordedCount: DispatchResultCount,
   blockedBeforeExecutionAuditCount: DispatchResultCount,
+  adapterExecutionReportedCount: DispatchResultCount,
+  adapterExecutionEvidenceMissingCount: DispatchResultCount,
+  blockedBeforeAdapterExecutionCount: DispatchResultCount,
   adapterDispatchCommandResultClaimedCount: DispatchResultCount,
   serviceLocalExecutionAuditClaimedCount: DispatchResultCount,
-  adapterDispatchExecutedClaimedCount: Schema.Literal(0),
+  adapterDispatchExecutedClaimedCount: DispatchResultCount,
   broadInstalledAppBlockingClaimed: Schema.Literal(false),
   childDeviceDeliveryClaimed: Schema.Literal(false),
   platformEnforcementClaimed: Schema.Literal(false),
@@ -174,10 +204,30 @@ export const AgentAppGameAdapterDispatchResultReadModelSchema = withParser(
                 row.dispatchExecutionAuditDecision ===
                 AgentAppGameAdapterDispatchExecutionAuditDecision.BlockedBeforeExecutionAudit
             ).length &&
+          readModel.adapterExecutionReportedCount ===
+            readModel.rows.filter(
+              (row) =>
+                row.dispatchAdapterExecutionDecision ===
+                AgentAppGameAdapterDispatchAdapterExecutionDecision.AdapterExecutionReported
+            ).length &&
+          readModel.adapterExecutionEvidenceMissingCount ===
+            readModel.rows.filter(
+              (row) =>
+                row.dispatchAdapterExecutionDecision ===
+                AgentAppGameAdapterDispatchAdapterExecutionDecision.AdapterExecutionEvidenceMissing
+            ).length &&
+          readModel.blockedBeforeAdapterExecutionCount ===
+            readModel.rows.filter(
+              (row) =>
+                row.dispatchAdapterExecutionDecision ===
+                AgentAppGameAdapterDispatchAdapterExecutionDecision.BlockedBeforeAdapterExecution
+            ).length &&
           readModel.adapterDispatchCommandResultClaimedCount ===
             readModel.rows.filter((row) => row.adapterDispatchCommandResultClaimed).length &&
           readModel.serviceLocalExecutionAuditClaimedCount ===
             readModel.rows.filter((row) => row.serviceLocalExecutionAuditClaimed).length &&
+          readModel.adapterDispatchExecutedClaimedCount ===
+            readModel.rows.filter((row) => row.adapterDispatchExecutedClaimed).length &&
           new Set(readModel.rows.map((row) => row.rowId)).size === readModel.rows.length) ||
         'Expected app/game adapter dispatch result counts and row ids to match the rows'
     )
@@ -256,8 +306,8 @@ function dispatchResultRowIsHonest(row: AgentAppGameAdapterDispatchResultRowCand
       row.dispatchExecutionAuditRefs.length > 0 &&
       row.manualProofRequirements.length === 0 &&
       row.adapterDispatchCommandResultClaimed &&
-      !row.adapterDispatchExecutedClaimed &&
-      row.serviceLocalExecutionAuditClaimed
+      row.serviceLocalExecutionAuditClaimed &&
+      acceptedExecutionEvidenceIsHonest(row)
     );
   }
 
@@ -272,10 +322,49 @@ function dispatchResultRowIsHonest(row: AgentAppGameAdapterDispatchResultRowCand
       AgentAppGameAdapterDispatchExecutionAuditDecision.BlockedBeforeExecutionAudit &&
     row.dispatchExecutionAuditId === null &&
     row.dispatchExecutionAuditRefs.length === 0 &&
+    row.dispatchAdapterExecutionState ===
+      AgentAppGameAdapterDispatchAdapterExecutionState.BlockedBeforeAdapterExecution &&
+    row.dispatchAdapterExecutionDecision ===
+      AgentAppGameAdapterDispatchAdapterExecutionDecision.BlockedBeforeAdapterExecution &&
+    row.dispatchAdapterExecutionResultId === null &&
+    row.dispatchAdapterExecutionStatus === null &&
+    row.dispatchAdapterExecutionAdapterResultCode === null &&
+    row.dispatchAdapterExecutionAuditEventId === null &&
+    row.dispatchAdapterExecutionRefs.length === 0 &&
     row.manualProofRequirements.length > 0 &&
     !row.adapterDispatchCommandResultClaimed &&
     !row.adapterDispatchExecutedClaimed &&
     !row.serviceLocalExecutionAuditClaimed
+  );
+}
+
+function acceptedExecutionEvidenceIsHonest(row: AgentAppGameAdapterDispatchResultRowCandidate): boolean {
+  if (
+    row.dispatchAdapterExecutionDecision ===
+    AgentAppGameAdapterDispatchAdapterExecutionDecision.AdapterExecutionReported
+  ) {
+    return (
+      row.dispatchAdapterExecutionState === AgentAppGameAdapterDispatchAdapterExecutionState.AdapterExecutionReported &&
+      row.dispatchAdapterExecutionResultId !== null &&
+      row.dispatchAdapterExecutionStatus === 'actually-enforced' &&
+      row.dispatchAdapterExecutionAdapterResultCode !== null &&
+      row.dispatchAdapterExecutionAuditEventId !== null &&
+      row.dispatchAdapterExecutionRefs.length > 0 &&
+      row.adapterDispatchExecutedClaimed
+    );
+  }
+
+  return (
+    row.dispatchAdapterExecutionState ===
+      AgentAppGameAdapterDispatchAdapterExecutionState.AdapterExecutionEvidenceMissing &&
+    row.dispatchAdapterExecutionDecision ===
+      AgentAppGameAdapterDispatchAdapterExecutionDecision.AdapterExecutionEvidenceMissing &&
+    row.dispatchAdapterExecutionResultId === null &&
+    row.dispatchAdapterExecutionStatus === null &&
+    row.dispatchAdapterExecutionAdapterResultCode === null &&
+    row.dispatchAdapterExecutionAuditEventId === null &&
+    row.dispatchAdapterExecutionRefs.length === 0 &&
+    !row.adapterDispatchExecutedClaimed
   );
 }
 

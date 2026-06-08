@@ -24,6 +24,19 @@ pub const APP_GAME_ADAPTER_DISPATCH_EXECUTION_AUDIT_DECISION_RECORDED: &str =
     "service-local-audit-recorded";
 pub const APP_GAME_ADAPTER_DISPATCH_EXECUTION_AUDIT_DECISION_BLOCKED: &str =
     "blocked-before-execution-audit";
+pub const APP_GAME_ADAPTER_DISPATCH_ADAPTER_EXECUTION_STATE_REPORTED: &str =
+    "adapter-execution-reported";
+pub const APP_GAME_ADAPTER_DISPATCH_ADAPTER_EXECUTION_STATE_MISSING: &str =
+    "adapter-execution-evidence-missing";
+pub const APP_GAME_ADAPTER_DISPATCH_ADAPTER_EXECUTION_STATE_BLOCKED: &str =
+    "blocked-before-adapter-execution";
+pub const APP_GAME_ADAPTER_DISPATCH_ADAPTER_EXECUTION_DECISION_REPORTED: &str =
+    "adapter-execution-reported";
+pub const APP_GAME_ADAPTER_DISPATCH_ADAPTER_EXECUTION_DECISION_MISSING: &str =
+    "adapter-execution-evidence-missing";
+pub const APP_GAME_ADAPTER_DISPATCH_ADAPTER_EXECUTION_DECISION_BLOCKED: &str =
+    "blocked-before-adapter-execution";
+pub const APP_GAME_ADAPTER_DISPATCH_ADAPTER_EXECUTION_REF_PREFIX: &str = "adapter-execution-audit-";
 pub const APP_GAME_ADAPTER_DISPATCH_RESULT_OWNED_PROCESS_ID: &str =
     "app-game-dispatch-command-result-owned-process-time-limit";
 pub const APP_GAME_ADAPTER_DISPATCH_COMMAND_AUDIT_OWNED_PROCESS: &str =
@@ -77,6 +90,13 @@ pub struct AppGameAdapterDispatchResultRow {
     pub dispatch_execution_audit_decision: String,
     pub dispatch_execution_audit_id: Option<String>,
     pub dispatch_execution_audit_refs: Vec<String>,
+    pub dispatch_adapter_execution_state: String,
+    pub dispatch_adapter_execution_decision: String,
+    pub dispatch_adapter_execution_result_id: Option<String>,
+    pub dispatch_adapter_execution_status: Option<String>,
+    pub dispatch_adapter_execution_adapter_result_code: Option<String>,
+    pub dispatch_adapter_execution_audit_event_id: Option<String>,
+    pub dispatch_adapter_execution_refs: Vec<String>,
     pub manual_proof_requirements: Vec<String>,
     pub claim_boundary: String,
     pub fallback_behavior: String,
@@ -105,6 +125,9 @@ pub struct AppGameAdapterDispatchResultReadModel {
     pub blocked_before_command_count: u64,
     pub execution_audit_recorded_count: u64,
     pub blocked_before_execution_audit_count: u64,
+    pub adapter_execution_reported_count: u64,
+    pub adapter_execution_evidence_missing_count: u64,
+    pub blocked_before_adapter_execution_count: u64,
     pub adapter_dispatch_command_result_claimed_count: u64,
     pub service_local_execution_audit_claimed_count: u64,
     pub adapter_dispatch_executed_claimed_count: u64,

@@ -167,6 +167,7 @@ before `DONE` or PR-ready reporting.
 159. WP168 app/game adapter dispatch preflight live handoff.
 160. WP169 app/game scoped adapter dispatch command-result.
 161. WP170 app/game adapter dispatch execution audit.
+162. WP171 app/game scoped adapter execution result bridge.
 
 ## Standard AI Worker Checklist
 

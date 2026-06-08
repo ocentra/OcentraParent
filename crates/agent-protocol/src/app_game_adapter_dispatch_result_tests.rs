@@ -1,5 +1,7 @@
 use crate::{
     AppGameAdapterDispatchResultReadModel, AppGameAdapterDispatchResultRow,
+    APP_GAME_ADAPTER_DISPATCH_ADAPTER_EXECUTION_DECISION_MISSING,
+    APP_GAME_ADAPTER_DISPATCH_ADAPTER_EXECUTION_STATE_MISSING,
     APP_GAME_ADAPTER_DISPATCH_COMMAND_AUDIT_OWNED_PROCESS,
     APP_GAME_ADAPTER_DISPATCH_COMMAND_RESULT_DECISION_ACCEPTED,
     APP_GAME_ADAPTER_DISPATCH_COMMAND_RESULT_STATE_ACCEPTED,
@@ -43,6 +45,9 @@ fn app_game_adapter_dispatch_result_serializes_parent_safe_command_result_rows()
         blocked_before_command_count: 0,
         execution_audit_recorded_count: 1,
         blocked_before_execution_audit_count: 0,
+        adapter_execution_reported_count: 0,
+        adapter_execution_evidence_missing_count: 1,
+        blocked_before_adapter_execution_count: 0,
         adapter_dispatch_command_result_claimed_count: 1,
         service_local_execution_audit_claimed_count: 1,
         adapter_dispatch_executed_claimed_count: 0,
@@ -106,6 +111,15 @@ fn scoped_command_result_row() -> AppGameAdapterDispatchResultRow {
         dispatch_execution_audit_refs: vec![
             APP_GAME_ADAPTER_DISPATCH_EXECUTION_AUDIT_OWNED_PROCESS_REF.to_string(),
         ],
+        dispatch_adapter_execution_state: APP_GAME_ADAPTER_DISPATCH_ADAPTER_EXECUTION_STATE_MISSING
+            .to_string(),
+        dispatch_adapter_execution_decision:
+            APP_GAME_ADAPTER_DISPATCH_ADAPTER_EXECUTION_DECISION_MISSING.to_string(),
+        dispatch_adapter_execution_result_id: None,
+        dispatch_adapter_execution_status: None,
+        dispatch_adapter_execution_adapter_result_code: None,
+        dispatch_adapter_execution_audit_event_id: None,
+        dispatch_adapter_execution_refs: vec![],
         manual_proof_requirements: vec![],
         claim_boundary: APP_GAME_ADAPTER_DISPATCH_RESULT_CLAIM_SCOPED_TIMER.to_string(),
         fallback_behavior: APP_GAME_ADAPTER_DISPATCH_RESULT_FALLBACK_SCOPED_TIMER.to_string(),

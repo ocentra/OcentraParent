@@ -1564,6 +1564,16 @@ diagnostics, or raw private source rows.
       adapter execution, broad blocking, child delivery, provider delivery,
       platform enforcement, raw private rows, and private diagnostics remain
       unclaimed.
+      The dispatch result path now also accepts real `agent.enforcement.execute`
+      audit evidence for that same scoped Windows owned-process app/game timer
+      row. The read-model command remains side-effect-free and reports
+      execution evidence as missing until a real
+      `agent.enforcement.audit.reported` payload is attached; the focused proof
+      runs the real service execution path that records audit events to journal
+      and store. Broad installed-app blocking, platform enforcement outside the
+      scoped Windows owned-process boundary, provider delivery, child-device
+      delivery, raw private rows, raw target values, and private diagnostics
+      remain unclaimed.
 - [ ] Blocking/time-limit proof before done claim. Scoped owned-process
       time-limit proof exists; broad block-launch/hide/suspend/shield and
       allowlist remain manual-required or not-claimed until platform setup,

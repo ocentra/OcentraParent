@@ -1,5 +1,7 @@
 import { AppGameSchemaVersion } from '@ocentra-parent/activity-domain/app-game';
 import {
+  AgentAppGameAdapterDispatchAdapterExecutionDecision,
+  AgentAppGameAdapterDispatchAdapterExecutionState,
   AgentAppGameAdapterDispatchCommandResultDecision,
   AgentAppGameAdapterDispatchCommandResultState,
   AgentAppGameAdapterDispatchExecutionAuditDecision,
@@ -26,9 +28,12 @@ const ReadModel: AgentAppGameAdapterDispatchResultReadModel = {
   blockedBeforeCommandCount: 1,
   executionAuditRecordedCount: 1,
   blockedBeforeExecutionAuditCount: 1,
+  adapterExecutionReportedCount: 1,
+  adapterExecutionEvidenceMissingCount: 0,
+  blockedBeforeAdapterExecutionCount: 1,
   adapterDispatchCommandResultClaimedCount: 1,
   serviceLocalExecutionAuditClaimedCount: 1,
-  adapterDispatchExecutedClaimedCount: 0,
+  adapterDispatchExecutedClaimedCount: 1,
   broadInstalledAppBlockingClaimed: false,
   childDeviceDeliveryClaimed: false,
   platformEnforcementClaimed: false,
@@ -59,12 +64,19 @@ const ReadModel: AgentAppGameAdapterDispatchResultReadModel = {
       dispatchExecutionAuditDecision: AgentAppGameAdapterDispatchExecutionAuditDecision.ServiceLocalAuditRecorded,
       dispatchExecutionAuditId: 'app-game-adapter-dispatch-execution-audit-owned-process-time-limit',
       dispatchExecutionAuditRefs: ['audit-owned-process-dispatch-service-local-execution-recorded'],
+      dispatchAdapterExecutionState: AgentAppGameAdapterDispatchAdapterExecutionState.AdapterExecutionReported,
+      dispatchAdapterExecutionDecision: AgentAppGameAdapterDispatchAdapterExecutionDecision.AdapterExecutionReported,
+      dispatchAdapterExecutionResultId: 'enforcement-result-app-game-owned-process',
+      dispatchAdapterExecutionStatus: 'actually-enforced',
+      dispatchAdapterExecutionAdapterResultCode: 'process-already-exited',
+      dispatchAdapterExecutionAuditEventId: 'enforcement-audit-app-game-owned-process',
+      dispatchAdapterExecutionRefs: ['adapter-execution-audit-enforcement-audit-app-game-owned-process'],
       manualProofRequirements: [],
       claimBoundary:
         'Dispatch command-result is limited to scoped Windows owned-process app/game time-limit rows and reuses agent.enforcement.execute.',
       fallbackBehavior: 'Rows without scoped process/session identity stay blocked before dispatch command handoff.',
       adapterDispatchCommandResultClaimed: true,
-      adapterDispatchExecutedClaimed: false,
+      adapterDispatchExecutedClaimed: true,
       serviceLocalExecutionAuditClaimed: true,
       broadInstalledAppBlockingClaimed: false,
       childDeviceDeliveryClaimed: false,
@@ -98,6 +110,14 @@ const ReadModel: AgentAppGameAdapterDispatchResultReadModel = {
       dispatchExecutionAuditDecision: AgentAppGameAdapterDispatchExecutionAuditDecision.BlockedBeforeExecutionAudit,
       dispatchExecutionAuditId: null,
       dispatchExecutionAuditRefs: [],
+      dispatchAdapterExecutionState: AgentAppGameAdapterDispatchAdapterExecutionState.BlockedBeforeAdapterExecution,
+      dispatchAdapterExecutionDecision:
+        AgentAppGameAdapterDispatchAdapterExecutionDecision.BlockedBeforeAdapterExecution,
+      dispatchAdapterExecutionResultId: null,
+      dispatchAdapterExecutionStatus: null,
+      dispatchAdapterExecutionAdapterResultCode: null,
+      dispatchAdapterExecutionAuditEventId: null,
+      dispatchAdapterExecutionRefs: [],
       manualProofRequirements: ['same app identity proof'],
       claimBoundary: 'Broad installed-app blocking stays blocked before dispatch command handoff.',
       fallbackBehavior: 'The parent surface must route this row to manual review instead of dispatch.',
@@ -115,7 +135,7 @@ const ReadModel: AgentAppGameAdapterDispatchResultReadModel = {
 };
 
 describe('app-game adapter dispatch result panel', () => {
-  it('renders accepted scoped dispatch command-result without execution claims', () => {
+  it('renders accepted scoped dispatch command-result with scoped execution evidence', () => {
     const intent = createAppGameAdapterDispatchResultPanelIntent({
       ok: true,
       value: ReadModel,
@@ -128,7 +148,7 @@ describe('app-game adapter dispatch result panel', () => {
     ]);
     expect(intent.summaryDetails.map((detail) => [detail.label, detail.value])).toContainEqual([
       'Execution state',
-      'Not claimed',
+      'Ready',
     ]);
     expect(intent.rows[0]?.details.map((detail) => [detail.label, detail.value])).toEqual(
       expect.arrayContaining([
@@ -137,7 +157,10 @@ describe('app-game adapter dispatch result panel', () => {
         ['Dispatch action', 'terminate-process'],
         ['Execution audit', 'Ready'],
         ['Execution audit refs', 'audit-owned-process-dispatch-service-local-execution-recorded'],
-        ['Execution state', 'Not claimed'],
+        ['Adapter execution', 'Adapter execution reported'],
+        ['Adapter execution result', 'enforcement-result-app-game-owned-process'],
+        ['Adapter execution status', 'actually-enforced'],
+        ['Execution state', 'Ready'],
       ])
     );
     expect(intent.rows[1]?.details.map((detail) => [detail.label, detail.value])).toEqual(
@@ -147,6 +170,7 @@ describe('app-game adapter dispatch result panel', () => {
         ['Manual review', 'same app identity proof'],
         ['Adapter dispatch', 'Not claimed'],
         ['Execution audit', 'Not claimed'],
+        ['Adapter execution', 'Blocked before adapter execution'],
       ])
     );
   });
