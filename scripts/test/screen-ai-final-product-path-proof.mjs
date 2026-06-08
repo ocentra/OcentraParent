@@ -92,7 +92,7 @@ const proof = {
     householdMeshConsumesRedactedRefsOnly: closure.householdMeshBoundaryProven,
     serviceEventProducersAndSubscriberCovered: closure.serviceEventChainProven,
     serviceWinRtOcrLivePolicyCovered: closure.serviceWinRtOcrPolicyProven,
-    singleRuntimeSessionRerun: false,
+    singleRuntimeSessionRerun: serviceWinRtOcrPolicy.assertions?.sourceProofRerunByThisGate === true,
     retainedRealRunArtifactsVerified: true,
     rawScreenshotsRetainedByDefault: false,
     remoteAiUsedForChildSafety: false,
@@ -104,8 +104,8 @@ const proof = {
     'The custody-aware final adapter audit is required by this proof and keeps broad/browser/network/mobile/Linux product-complete adapter execution blocked.',
     'The screen-plan and AI-plan closure audits are required by this proof; they stack prerequisites without overriding remaining external adapter and platform gates.',
     'Household mesh provider routing artifacts are required by this proof; provider work may carry redacted/custody refs only and child-agent validation remains local before policy.',
-    'Service event producer/subscriber artifacts are required by this proof; the retained final path still does not rerun one single live service session.',
-    'The real Windows service WinRT OCR policy artifact is required by this proof; it reruns live public browser capture/OCR and consumes the row through typed policy dry-run contracts.',
+    'Service event producer/subscriber artifacts are required by this proof; broad/browser/network/mobile/Linux adapter execution remains separate.',
+    'The real Windows service WinRT OCR policy artifact is required by this proof and must rerun live public browser capture/OCR before consuming the row through typed policy dry-run contracts.',
     'The proof closes the stacked real trigger-to-analysis-to-policy-to-action/read-model-to-deletion evidence path from current artifacts; it does not make raw screenshot retention or live view product claims.',
   ],
 };
@@ -376,6 +376,10 @@ function validateServiceWinRtOcrPolicy() {
   assert(
     serviceWinRtOcrPolicy.proofTier === 'P3_REAL_CAPTURE_LOCAL_OCR_POLICY_CONSUMPTION',
     'service OCR policy proof tier mismatch'
+  );
+  assert(
+    serviceWinRtOcrPolicy.assertions?.sourceProofRerunByThisGate === true,
+    'service OCR policy proof did not rerun the source service OCR proof'
   );
   assert(
     serviceWinRtOcrPolicy.sourceLiveSurface?.kind === 'live-public-browser-page',

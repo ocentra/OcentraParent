@@ -233,8 +233,9 @@ proofs into physical LAN product execution.
       and deletion/custody event in one in-process runtime chain. Service
       producer/subscriber coverage is required through the capture producer,
       analysis row-ready, policy-ref producer, deletion producer, bridge, and
-      subscription artifacts; one single fresh live service-session rerun
-      remains a non-claim.
+      subscription artifacts; the final product path now also requires the
+      service OCR policy proof to rerun the source live service OCR proof in
+      the same validation flow.
 - [x] Household mesh screen AI proof, when mesh route is used, records provider
       discovery, provider selection, claim/lease, provider result,
       child-agent validation, policy authority, and custody artifacts.
@@ -245,7 +246,8 @@ proofs into physical LAN product execution.
       artifacts before its retained pipeline proof can pass.
 - [x] Final product path requires the service WinRT OCR policy artifact proving
       live public browser capture, Windows OCR, WebSocket read-model projection,
-      typed policy dry-run, queue drain, temp deletion, and no raw retention.
+      typed policy dry-run, queue drain, temp deletion, no raw retention, and
+      a source service OCR proof rerun assertion.
 - [x] Parent explanation refs survive service-backed Activity Screen read-model
       projection:
       `output/ai-plan-proof/screen-summary-parent-explanation-service-read-model/proof-summary.json`.
