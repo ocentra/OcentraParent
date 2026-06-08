@@ -1,0 +1,41 @@
+{
+  "statusCommandAndEvent": {
+    "command": "agent.network.remote-delivery.status.get",
+    "event": "agent.network.remote-delivery.status.reported",
+    "payloadField": "networkRemoteDeliveryStatus"
+  },
+  "providerChildReadinessRefs": [
+    "network.remote-delivery.provider-route.10p",
+    "network.remote-delivery.child-device-route.10p",
+    "network.remote-delivery.provider-readiness.10p",
+    "network.remote-delivery.child-device-readiness.10p"
+  ],
+  "provenStates": [
+    "providerDeliveryReadinessState=manual-required-unavailable",
+    "childDeviceDeliveryReadinessState=manual-required-unavailable",
+    "providerDeliveryReadinessRecordCount equals fixtureRemoteAckCount",
+    "childDeviceDeliveryReadinessRecordCount equals fixtureRemoteAckCount",
+    "providerDeliveryArtifactCount remains zero",
+    "childDeviceDeliveryArtifactCount remains zero"
+  ],
+  "noClaims": [
+    "live broker dispatch",
+    "live family-hub relay dispatch",
+    "remote provider delivery",
+    "child-device delivery",
+    "actual remote delete/export propagation",
+    "product-ready remote delivery",
+    "policy authority",
+    "side-effect authority",
+    "enforcement command publication",
+    "adapter action execution",
+    "raw PCAP",
+    "exact URL from network-only evidence",
+    "decrypted payload",
+    "page content",
+    "video content",
+    "private-message content",
+    "search-query content",
+    "host filtering"
+  ]
+}

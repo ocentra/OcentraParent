@@ -129,6 +129,14 @@ pub const TEST_REMOTE_DELIVERY_REMOTE_EXPORT_REF: &str =
     "network.remote-delivery.remote-export-readiness.10m";
 pub const TEST_REMOTE_DELIVERY_DELETE_EXPORT_STATUS_BRIDGE_REF: &str =
     "network.remote-delivery.delete-export-status-bridge.10n";
+pub const TEST_REMOTE_DELIVERY_PROVIDER_ROUTE_REF: &str =
+    "network.remote-delivery.provider-route.10p";
+pub const TEST_REMOTE_DELIVERY_CHILD_DEVICE_ROUTE_REF: &str =
+    "network.remote-delivery.child-device-route.10p";
+pub const TEST_REMOTE_DELIVERY_PROVIDER_READINESS_REF: &str =
+    "network.remote-delivery.provider-readiness.10p";
+pub const TEST_REMOTE_DELIVERY_CHILD_DEVICE_READINESS_REF: &str =
+    "network.remote-delivery.child-device-readiness.10p";
 pub const TEST_REMOTE_EVENT_CHAIN_JOURNAL_PATH_PREFIX: &str =
     "ocentra-network-remote-event-chain-journal";
 pub const TEST_REMOTE_EVENT_CHAIN_JOURNAL_EXTENSION: &str = "ndjson";
@@ -246,3 +254,5 @@ pub const ERROR_NETWORK_RUNTIME_REMOTE_FIXTURE_TRANSPORT: &str =
     "network runtime remote fixture transport proof";
 pub const ERROR_NETWORK_RUNTIME_REMOTE_DELETE_EXPORT_PROPAGATION: &str =
     "network runtime remote delete export propagation proof";
+pub const ERROR_NETWORK_RUNTIME_REMOTE_PROVIDER_CHILD_READINESS: &str =
+    "network runtime remote provider child readiness proof";

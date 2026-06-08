@@ -39,6 +39,8 @@ mod remote_delivery_no_enforcement_invariant;
 mod remote_delivery_no_enforcement_invariant_types;
 mod remote_delivery_outbox_handoff;
 mod remote_delivery_outbox_handoff_types;
+mod remote_delivery_provider_child_readiness;
+mod remote_delivery_provider_child_readiness_types;
 mod remote_delivery_receipt_ledger;
 mod remote_delivery_receipt_ledger_types;
 mod remote_delivery_status;
@@ -109,6 +111,13 @@ pub use remote_delivery_outbox_handoff::prove_network_runtime_remote_delivery_ou
 pub use remote_delivery_outbox_handoff_types::{
     NetworkRuntimeRemoteDeliveryOutboxHandoffError,
     NetworkRuntimeRemoteDeliveryOutboxHandoffReport, NetworkRuntimeRemoteDeliveryOutboxState,
+};
+pub use remote_delivery_provider_child_readiness::prove_network_runtime_remote_delivery_provider_child_readiness;
+pub use remote_delivery_provider_child_readiness_types::{
+    NetworkRuntimeRemoteDeliveryProviderChildReadinessError,
+    NetworkRuntimeRemoteDeliveryProviderChildReadinessRecord,
+    NetworkRuntimeRemoteDeliveryProviderChildReadinessReport,
+    NetworkRuntimeRemoteDeliveryProviderChildReadinessState,
 };
 pub use remote_delivery_receipt_ledger::prove_network_runtime_remote_delivery_receipt_ledger;
 pub use remote_delivery_receipt_ledger_types::{

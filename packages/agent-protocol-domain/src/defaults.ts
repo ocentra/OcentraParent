@@ -497,5 +497,9 @@ export const AgentProtocolDefaults = {
     DeleteExportPropagationRef: 'network.remote-delivery.delete-export-propagation-readiness.10m',
     RemoteDeleteReadinessRef: 'network.remote-delivery.remote-delete-readiness.10m',
     RemoteExportReadinessRef: 'network.remote-delivery.remote-export-readiness.10m',
+    ProviderRouteRef: 'network.remote-delivery.provider-route.10p',
+    ChildDeviceRouteRef: 'network.remote-delivery.child-device-route.10p',
+    ProviderDeliveryReadinessRef: 'network.remote-delivery.provider-readiness.10p',
+    ChildDeviceDeliveryReadinessRef: 'network.remote-delivery.child-device-readiness.10p',
   },
 } as const;

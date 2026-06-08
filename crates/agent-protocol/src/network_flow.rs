@@ -122,6 +122,13 @@ pub enum NetworkRemoteDeliveryTransportDispatchState {
     ManualRequiredBlocked,
 }
 
+#[derive(Clone, Debug, Default, PartialEq, Eq, Serialize, Deserialize)]
+pub enum NetworkRemoteDeliveryProviderChildReadinessState {
+    #[default]
+    #[serde(rename = "manual-required-unavailable")]
+    ManualRequiredUnavailable,
+}
+
 #[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct NetworkRemoteDeliveryStatus {
@@ -170,7 +177,13 @@ pub struct NetworkRemoteDeliveryStatus {
     pub delete_export_propagation_ref: String,
     pub remote_delete_readiness_ref: String,
     pub remote_export_readiness_ref: String,
+    pub provider_route_ref: String,
+    pub child_device_route_ref: String,
+    pub provider_delivery_readiness_ref: String,
+    pub child_device_delivery_readiness_ref: String,
     pub transport_dispatch_state: NetworkRemoteDeliveryTransportDispatchState,
+    pub provider_delivery_readiness_state: NetworkRemoteDeliveryProviderChildReadinessState,
+    pub child_device_delivery_readiness_state: NetworkRemoteDeliveryProviderChildReadinessState,
     pub outbox_candidate_count: u64,
     pub source_outbox_candidate_count: u64,
     pub prepared_not_dispatched_count: u64,
@@ -184,6 +197,12 @@ pub struct NetworkRemoteDeliveryStatus {
     pub remote_delete_ready_count: u64,
     pub remote_export_ready_count: u64,
     pub delete_export_records_match_fixture_acks: bool,
+    pub provider_delivery_readiness_record_count: u64,
+    pub child_device_delivery_readiness_record_count: u64,
+    pub provider_delivery_artifact_count: u64,
+    pub child_device_delivery_artifact_count: u64,
+    pub provider_delivery_records_match_fixture_acks: bool,
+    pub child_device_delivery_records_match_fixture_acks: bool,
     pub dispatch_ready_candidate_count: u64,
     pub dispatch_attempt_count: u64,
     pub remote_ack_count: u64,

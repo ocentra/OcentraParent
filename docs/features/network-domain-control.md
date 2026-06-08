@@ -337,6 +337,16 @@ compete on control while staying clear about attribution confidence and privacy.
   provider/child delivery, actual remote delete/export propagation,
   product-ready delivery, policy/side-effect authority, exact content, host
   filtering, adapter action, and enforcement-command publication unclaimed.
+- E-D added a row10p provider/child readiness proof:
+  `network-remote-delivery-provider-child-readiness-proof` maps row10l fixture
+  acknowledgements into provider-route and child-device-route readiness records,
+  surfaces provider/child readiness refs and manual-required unavailable states
+  through the existing typed remote-delivery status payload, and keeps provider
+  delivery artifacts, child-device delivery artifacts, live dispatch attempts,
+  live remote acknowledgements, broker/family-hub delivery, actual remote
+  delete/export propagation, product-ready delivery, policy/side-effect
+  authority, exact content, host filtering, adapter action, and
+  enforcement-command publication unclaimed.
 - E-D added `ocentra-network-evidence`, a reusable Rust network metadata crate,
   plus the first deterministic PCAP replay proof for classic
   Ethernet/IPv4/UDP DNS query metadata. The proof writes a fixture PCAP,

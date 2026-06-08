@@ -6,8 +6,9 @@ use super::{
     NetworkEnforcementCommandIssuedEvent, NetworkEnforcementResultObservedEvent,
     NetworkEnforcementResultStatus, NetworkFlowObservedEvent, NetworkPolicyDecisionCompletedEvent,
     NetworkPolicyEvaluationRequestedEvent, NetworkPortalReadModelUpdatedEvent,
-    NetworkRemoteDeliveryStatus, NetworkRuntimeEventContract,
-    NETWORK_FLOW_CUSTODY_CHILD_DEVICE_QUERY_STORE, NETWORK_FLOW_SCHEMA_VERSION,
+    NetworkRemoteDeliveryProviderChildReadinessState, NetworkRemoteDeliveryStatus,
+    NetworkRuntimeEventContract, NETWORK_FLOW_CUSTODY_CHILD_DEVICE_QUERY_STORE,
+    NETWORK_FLOW_SCHEMA_VERSION,
 };
 
 #[path = "network_flow_event_fixtures.rs"]
@@ -139,6 +140,12 @@ fn network_remote_delivery_status_serializes_row10n_status_with_row10k_dispatch_
 }
 
 fn assert_remote_delivery_status_refs(serialized: &serde_json::Value) {
+    assert_remote_delivery_status_core_refs(serialized);
+    assert_remote_delivery_status_fixture_refs(serialized);
+    assert_remote_delivery_status_provider_child_refs(serialized);
+}
+
+fn assert_remote_delivery_status_core_refs(serialized: &serde_json::Value) {
     assert_eq!(
         serialized["statusRef"],
         constants::network_flow::TEST_REMOTE_DELIVERY_DELETE_EXPORT_STATUS_BRIDGE_REF
@@ -160,6 +167,9 @@ fn assert_remote_delivery_status_refs(serialized: &serde_json::Value) {
         serialized["outboxHandoffRef"],
         constants::network_flow::TEST_REMOTE_DELIVERY_OUTBOX_HANDOFF_REF
     );
+}
+
+fn assert_remote_delivery_status_fixture_refs(serialized: &serde_json::Value) {
     assert_eq!(
         serialized["transportDispatchStateRef"],
         constants::network_flow::TEST_REMOTE_DELIVERY_TRANSPORT_DISPATCH_STATE_REF
@@ -202,6 +212,33 @@ fn assert_remote_delivery_status_refs(serialized: &serde_json::Value) {
     );
 }
 
+fn assert_remote_delivery_status_provider_child_refs(serialized: &serde_json::Value) {
+    assert_eq!(
+        serialized["providerRouteRef"],
+        constants::network_flow::TEST_REMOTE_DELIVERY_PROVIDER_ROUTE_REF
+    );
+    assert_eq!(
+        serialized["childDeviceRouteRef"],
+        constants::network_flow::TEST_REMOTE_DELIVERY_CHILD_DEVICE_ROUTE_REF
+    );
+    assert_eq!(
+        serialized["providerDeliveryReadinessRef"],
+        constants::network_flow::TEST_REMOTE_DELIVERY_PROVIDER_READINESS_REF
+    );
+    assert_eq!(
+        serialized["childDeviceDeliveryReadinessRef"],
+        constants::network_flow::TEST_REMOTE_DELIVERY_CHILD_DEVICE_READINESS_REF
+    );
+    assert_eq!(
+        serialized["providerDeliveryReadinessState"],
+        "manual-required-unavailable"
+    );
+    assert_eq!(
+        serialized["childDeviceDeliveryReadinessState"],
+        "manual-required-unavailable"
+    );
+}
+
 fn assert_remote_delivery_status_counts(serialized: &serde_json::Value) {
     assert_eq!(serialized["outboxCandidateCount"], 3);
     assert_eq!(serialized["sourceOutboxCandidateCount"], 3);
@@ -219,6 +256,15 @@ fn assert_remote_delivery_status_counts(serialized: &serde_json::Value) {
     assert_eq!(serialized["remoteDeleteReadyCount"], 3);
     assert_eq!(serialized["remoteExportReadyCount"], 3);
     assert_eq!(serialized["deleteExportRecordsMatchFixtureAcks"], true);
+    assert_eq!(serialized["providerDeliveryReadinessRecordCount"], 3);
+    assert_eq!(serialized["childDeviceDeliveryReadinessRecordCount"], 3);
+    assert_eq!(serialized["providerDeliveryArtifactCount"], 0);
+    assert_eq!(serialized["childDeviceDeliveryArtifactCount"], 0);
+    assert_eq!(serialized["providerDeliveryRecordsMatchFixtureAcks"], true);
+    assert_eq!(
+        serialized["childDeviceDeliveryRecordsMatchFixtureAcks"],
+        true
+    );
 }
 
 fn assert_remote_delivery_status_no_product_claims(serialized: &serde_json::Value) {
@@ -279,6 +325,16 @@ fn remote_delivery_status_fixture() -> NetworkRemoteDeliveryStatus {
             .to_string(),
         remote_delete_readiness_ref: flow::TEST_REMOTE_DELIVERY_REMOTE_DELETE_REF.to_string(),
         remote_export_readiness_ref: flow::TEST_REMOTE_DELIVERY_REMOTE_EXPORT_REF.to_string(),
+        provider_route_ref: flow::TEST_REMOTE_DELIVERY_PROVIDER_ROUTE_REF.to_string(),
+        child_device_route_ref: flow::TEST_REMOTE_DELIVERY_CHILD_DEVICE_ROUTE_REF.to_string(),
+        provider_delivery_readiness_ref: flow::TEST_REMOTE_DELIVERY_PROVIDER_READINESS_REF
+            .to_string(),
+        child_device_delivery_readiness_ref: flow::TEST_REMOTE_DELIVERY_CHILD_DEVICE_READINESS_REF
+            .to_string(),
+        provider_delivery_readiness_state:
+            NetworkRemoteDeliveryProviderChildReadinessState::ManualRequiredUnavailable,
+        child_device_delivery_readiness_state:
+            NetworkRemoteDeliveryProviderChildReadinessState::ManualRequiredUnavailable,
         outbox_candidate_count: 3,
         source_outbox_candidate_count: 3,
         prepared_not_dispatched_count: 3,
@@ -292,6 +348,12 @@ fn remote_delivery_status_fixture() -> NetworkRemoteDeliveryStatus {
         remote_delete_ready_count: 3,
         remote_export_ready_count: 3,
         delete_export_records_match_fixture_acks: true,
+        provider_delivery_readiness_record_count: 3,
+        child_device_delivery_readiness_record_count: 3,
+        provider_delivery_artifact_count: 0,
+        child_device_delivery_artifact_count: 0,
+        provider_delivery_records_match_fixture_acks: true,
+        child_device_delivery_records_match_fixture_acks: true,
         duplicate_durable_envelope_rejected: true,
         outbox_candidates_match_durable_envelopes: true,
         outbox_candidates_match_receipts: true,

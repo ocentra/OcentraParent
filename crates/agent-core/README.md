@@ -76,6 +76,10 @@ service shell.
   acknowledgement while preserving event/outbox/handoff/ack refs and keeping
   actual remote propagation, product-ready support, policy authority, adapter
   execution, and host filtering unclaimed.
+- Network row10p provider/child readiness proof that maps row10l fixture
+  acknowledgements into provider-route and child-device-route readiness records
+  with manual-required unavailable state, zero delivery artifacts, and no live
+  provider/child delivery claim.
 - Network policy-preview proof that reads stored ActivityStore network flow
   rows, maps destination-domain metadata into a domain policy target, resolves
   parent-rule contexts only when they cite stored network activity event refs,
@@ -157,6 +161,9 @@ flowchart LR
   live broker/family-hub propagation, provider or child-device delete/export
   delivery, remote acknowledgement semantics, retries, and product-ready remote
   delivery remain separate gaps.
+- Network row10p provider/child readiness is a typed unavailable-state gate
+  only; live provider transport, child-device delivery, remote acknowledgement
+  semantics, retries, and product-ready remote delivery remain separate gaps.
 - Network policy preview is stored-row dry-run proof only; AI model execution,
   full policy-engine execution, adapter authorization, adapter action,
   enforcement-command publication, exact URL/content inference, raw PCAP, and

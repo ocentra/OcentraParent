@@ -1,0 +1,4 @@
+agent-service-clippy
+    Checking ocentra-parent-screen-capture-adapter v0.1.1 (<repo>\crates\screen-capture-adapter)
+    Checking ocentra-parent-agent-service v0.1.1 (<repo>\crates\agent-service)
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 4.07s

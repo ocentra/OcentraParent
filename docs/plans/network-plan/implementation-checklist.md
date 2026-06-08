@@ -346,6 +346,24 @@ The proof pack must contain or explicitly mark N/A for each applicable item:
       raw PCAP, exact URL, decrypted payload, page content, video content,
       private-message content, search-query content, and host filtering remain
       false.
+- [x] `10p-remote-delivery-provider-child-readiness`: typed core/protocol/
+      service/domain readiness gate for provider and child-device remote
+      delivery. Row10p proof writes
+      `output/network-plan-proof/10p-remote-delivery-provider-child-readiness/proof-summary.json`
+      and
+      `test-results/network-remote-delivery-provider-child-readiness-proof/proof.json`
+      and proves row10l fixture acknowledgements become provider-route and
+      child-device-route readiness records with manual-required unavailable
+      states. The existing `agent.network.remote-delivery.status.get` /
+      `agent.network.remote-delivery.status.reported` path carries row10p refs,
+      provider/child readiness counts, zero provider/child delivery artifact
+      counts, and parser rejection for stale refs or mismatched counts. Live
+      broker/family-hub/provider/child-device delivery, actual remote
+      delete/export propagation, product-ready delivery, policy authority,
+      side-effect authority, adapter execution, enforcement-command publication,
+      raw PCAP, exact URL, decrypted payload, page content, video content,
+      private-message content, search-query content, and host filtering remain
+      false.
 - [x] `policy-preview-stored-flow-evidence`: stored ActivityStore network flow
       evidence feeds the existing policy-preview read model and service payload.
       The proof writes
@@ -560,7 +578,9 @@ The proof pack must contain or explicitly mark N/A for each applicable item:
       and row10n surfaces those refs through the existing typed remote-delivery
       status bridge with a row10n status identity. Row10o now carries the
       row10l fixture transport refs and fixture dispatch/ack counts through the
-      typed status payload while live dispatch/ack counters remain zero. Live broker/family-hub
+      typed status payload while live dispatch/ack counters remain zero, and
+      row10p now carries provider/child readiness refs and unavailable-state
+      counts while provider/child artifact counts remain zero. Live broker/family-hub
       delivery, live transport remote acknowledgements, cross-process durable
       replay, raw PCAP/live-capture retention and remote
       delete/export propagation, live analyzer/model/policy execution, adapter

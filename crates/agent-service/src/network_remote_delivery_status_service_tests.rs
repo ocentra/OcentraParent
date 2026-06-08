@@ -2,8 +2,9 @@ use ocentra_parent_agent_core::prove_network_runtime_remote_delivery_transport_d
 use ocentra_parent_agent_protocol::{
     constants, policy_constants, AgentCommandEnvelope, AgentCommandName, AgentEventName,
     AgentMessageTarget, AgentPeer, AgentPeerRole, AgentRoute, LogFieldValue,
-    NetworkRemoteDeliveryStatus, NetworkRemoteDeliveryStatusState,
-    NetworkRemoteDeliveryTransportDispatchState, AGENT_PROTOCOL_SCHEMA_VERSION,
+    NetworkRemoteDeliveryProviderChildReadinessState, NetworkRemoteDeliveryStatus,
+    NetworkRemoteDeliveryStatusState, NetworkRemoteDeliveryTransportDispatchState,
+    AGENT_PROTOCOL_SCHEMA_VERSION,
 };
 use serde::de::DeserializeOwned;
 
@@ -128,6 +129,7 @@ fn assert_remote_delivery_status(status: &NetworkRemoteDeliveryStatus) {
     assert_remote_delivery_transport_dispatch_status(status);
     assert_remote_delivery_fixture_transport_status(status);
     assert_remote_delivery_delete_export_status(status);
+    assert_remote_delivery_provider_child_readiness_status(status);
     assert_remote_delivery_outbox_status(status);
     assert_remote_delivery_non_claims(status);
 }
@@ -215,6 +217,45 @@ fn assert_remote_delivery_delete_export_status(status: &NetworkRemoteDeliverySta
         status.outbox_candidate_count
     );
     assert!(status.delete_export_records_match_fixture_acks);
+}
+
+fn assert_remote_delivery_provider_child_readiness_status(status: &NetworkRemoteDeliveryStatus) {
+    assert_eq!(
+        status.provider_route_ref,
+        constants::network_flow::TEST_REMOTE_DELIVERY_PROVIDER_ROUTE_REF
+    );
+    assert_eq!(
+        status.child_device_route_ref,
+        constants::network_flow::TEST_REMOTE_DELIVERY_CHILD_DEVICE_ROUTE_REF
+    );
+    assert_eq!(
+        status.provider_delivery_readiness_ref,
+        constants::network_flow::TEST_REMOTE_DELIVERY_PROVIDER_READINESS_REF
+    );
+    assert_eq!(
+        status.child_device_delivery_readiness_ref,
+        constants::network_flow::TEST_REMOTE_DELIVERY_CHILD_DEVICE_READINESS_REF
+    );
+    assert_eq!(
+        status.provider_delivery_readiness_state,
+        NetworkRemoteDeliveryProviderChildReadinessState::ManualRequiredUnavailable
+    );
+    assert_eq!(
+        status.child_device_delivery_readiness_state,
+        NetworkRemoteDeliveryProviderChildReadinessState::ManualRequiredUnavailable
+    );
+    assert_eq!(
+        status.provider_delivery_readiness_record_count,
+        status.fixture_remote_ack_count
+    );
+    assert_eq!(
+        status.child_device_delivery_readiness_record_count,
+        status.fixture_remote_ack_count
+    );
+    assert_eq!(status.provider_delivery_artifact_count, 0);
+    assert_eq!(status.child_device_delivery_artifact_count, 0);
+    assert!(status.provider_delivery_records_match_fixture_acks);
+    assert!(status.child_device_delivery_records_match_fixture_acks);
 }
 
 fn assert_remote_delivery_outbox_status(status: &NetworkRemoteDeliveryStatus) {

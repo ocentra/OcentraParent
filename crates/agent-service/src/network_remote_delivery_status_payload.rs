@@ -1,18 +1,20 @@
 use ocentra_parent_agent_core::{
     prove_network_runtime_remote_delivery_delete_export_propagation,
+    prove_network_runtime_remote_delivery_provider_child_readiness,
     prove_network_runtime_remote_delivery_transport_dispatch_state,
     NetworkRuntimeRemoteDeliveryDeleteExportPropagationReport,
     NetworkRuntimeRemoteDeliveryDurableEnvelopeReport,
     NetworkRuntimeRemoteDeliveryFixtureTransportReport,
-    NetworkRuntimeRemoteDeliveryOutboxHandoffReport, NetworkRuntimeRemoteDeliveryState,
+    NetworkRuntimeRemoteDeliveryOutboxHandoffReport,
+    NetworkRuntimeRemoteDeliveryProviderChildReadinessReport, NetworkRuntimeRemoteDeliveryState,
     NetworkRuntimeRemoteDeliveryStatusReport,
     NetworkRuntimeRemoteDeliveryTransportDispatchState as RuntimeTransportDispatchState,
     NetworkRuntimeRemoteDeliveryTransportDispatchStateReport,
 };
 use ocentra_parent_agent_protocol::{
     constants, AgentCommandEnvelope, AgentEventEnvelope, AgentEventName, LogFieldValue, LogFields,
-    LogLevel, NetworkRemoteDeliveryStatus, NetworkRemoteDeliveryStatusState,
-    NetworkRemoteDeliveryTransportDispatchState,
+    LogLevel, NetworkRemoteDeliveryProviderChildReadinessState, NetworkRemoteDeliveryStatus,
+    NetworkRemoteDeliveryStatusState, NetworkRemoteDeliveryTransportDispatchState,
 };
 use tokio::sync::OnceCell;
 
@@ -73,7 +75,15 @@ async fn network_remote_delivery_status() -> Result<NetworkRemoteDeliveryStatus,
                 prove_network_runtime_remote_delivery_delete_export_propagation()
                     .await
                     .map_err(|_| ())?;
-            Ok(status_from_report(&report, &delete_export_report))
+            let provider_child_readiness =
+                prove_network_runtime_remote_delivery_provider_child_readiness()
+                    .await
+                    .map_err(|_| ())?;
+            Ok(status_from_report(
+                &report,
+                &delete_export_report,
+                &provider_child_readiness,
+            ))
         })
         .await
         .cloned()
@@ -82,6 +92,7 @@ async fn network_remote_delivery_status() -> Result<NetworkRemoteDeliveryStatus,
 fn status_from_report(
     report: &NetworkRuntimeRemoteDeliveryTransportDispatchStateReport,
     delete_export_report: &NetworkRuntimeRemoteDeliveryDeleteExportPropagationReport,
+    provider_child_readiness: &NetworkRuntimeRemoteDeliveryProviderChildReadinessReport,
 ) -> NetworkRemoteDeliveryStatus {
     let outbox_report = &report
         .no_enforcement_invariant
@@ -89,19 +100,16 @@ fn status_from_report(
         .outbox_handoff;
     let durable_report = &outbox_report.durable_envelope;
     let remote_status = &durable_report.receipt_ledger.remote_delivery_status;
-    let mut status = empty_status();
+    let mut status = NetworkRemoteDeliveryStatus::default();
     apply_remote_status(&mut status, remote_status);
     apply_durable_status(&mut status, outbox_report, durable_report);
     apply_outbox_status(&mut status, outbox_report);
     apply_transport_dispatch_status(&mut status, report, outbox_report);
     apply_fixture_transport_status(&mut status, &delete_export_report.fixture_transport);
     apply_delete_export_status(&mut status, delete_export_report);
+    apply_provider_child_readiness_status(&mut status, provider_child_readiness);
     apply_non_claim_status(&mut status, report, remote_status);
     status
-}
-
-fn empty_status() -> NetworkRemoteDeliveryStatus {
-    NetworkRemoteDeliveryStatus::default()
 }
 
 fn apply_remote_status(
@@ -223,6 +231,32 @@ fn apply_delete_export_status(
     status.remote_export_ready_count = count(report.remote_export_ready_count);
     status.delete_export_records_match_fixture_acks =
         report.propagation_records_match_fixture_records;
+}
+
+fn apply_provider_child_readiness_status(
+    status: &mut NetworkRemoteDeliveryStatus,
+    report: &NetworkRuntimeRemoteDeliveryProviderChildReadinessReport,
+) {
+    status.provider_route_ref = report.provider_route_ref.as_str().to_string();
+    status.child_device_route_ref = report.child_device_route_ref.as_str().to_string();
+    status.provider_delivery_readiness_ref = report.provider_readiness_ref.as_str().to_string();
+    status.child_device_delivery_readiness_ref =
+        report.child_device_readiness_ref.as_str().to_string();
+    status.provider_delivery_readiness_state =
+        NetworkRemoteDeliveryProviderChildReadinessState::ManualRequiredUnavailable;
+    status.child_device_delivery_readiness_state =
+        NetworkRemoteDeliveryProviderChildReadinessState::ManualRequiredUnavailable;
+    status.provider_delivery_readiness_record_count =
+        count(report.provider_delivery_readiness_record_count);
+    status.child_device_delivery_readiness_record_count =
+        count(report.child_device_delivery_readiness_record_count);
+    status.provider_delivery_artifact_count = count(report.provider_delivery_artifact_count);
+    status.child_device_delivery_artifact_count =
+        count(report.child_device_delivery_artifact_count);
+    status.provider_delivery_records_match_fixture_acks =
+        report.provider_delivery_records_match_fixture_acks;
+    status.child_device_delivery_records_match_fixture_acks =
+        report.child_device_delivery_records_match_fixture_acks;
 }
 
 fn apply_non_claim_status(

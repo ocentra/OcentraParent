@@ -42,9 +42,9 @@ transports.
 - Network remote delivery status event parsing for the row10n delete/export
   status bridge identity, row10k transport-dispatch service refs, row10l
   fixture transport refs/counts, and row10m delete/export readiness refs over
-  row10b through row10m refs, including stale-ref rejection,
-  blocked-dispatch/fixture/readiness count validation, and no-claim booleans for
-  live delivery, product readiness, policy authority,
+  row10b through row10p refs, including Row10p provider/child readiness refs,
+  stale-ref rejection, blocked-dispatch/fixture/readiness count validation, and
+  no-claim booleans for live delivery, product readiness, policy authority,
   adapter execution, and exact content.
 
 ## Must Not Own
@@ -127,7 +127,8 @@ flowchart LR
   rendering remain separate proof-gated work.
 - Network remote delivery status parsing proves the service payload shape only.
   Row10l fixture transport refs/counts and row10m delete/export readiness refs
-  are accepted only as proof-local status. Broker/family-hub transport, remote
+  plus Row10p provider/child readiness refs are accepted only as proof-local or
+  manual-required unavailable status. Broker/family-hub transport, remote
   acknowledgement, provider/child-device delivery, cross-process replay, actual
   remote delete/export propagation, product readiness, policy authority, adapter
   execution, exact content, and host filtering remain separate proof-gated work.

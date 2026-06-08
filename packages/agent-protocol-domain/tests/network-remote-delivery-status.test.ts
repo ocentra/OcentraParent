@@ -54,7 +54,13 @@ const RemoteDeliveryStatus = {
   deleteExportPropagationRef: RemoteDeliveryStatusRefs.DeleteExportPropagationRef,
   remoteDeleteReadinessRef: RemoteDeliveryStatusRefs.RemoteDeleteReadinessRef,
   remoteExportReadinessRef: RemoteDeliveryStatusRefs.RemoteExportReadinessRef,
+  providerRouteRef: RemoteDeliveryStatusRefs.ProviderRouteRef,
+  childDeviceRouteRef: RemoteDeliveryStatusRefs.ChildDeviceRouteRef,
+  providerDeliveryReadinessRef: RemoteDeliveryStatusRefs.ProviderDeliveryReadinessRef,
+  childDeviceDeliveryReadinessRef: RemoteDeliveryStatusRefs.ChildDeviceDeliveryReadinessRef,
   transportDispatchState: 'manual-required-blocked',
+  providerDeliveryReadinessState: 'manual-required-unavailable',
+  childDeviceDeliveryReadinessState: 'manual-required-unavailable',
   outboxCandidateCount: 3,
   sourceOutboxCandidateCount: 3,
   preparedNotDispatchedCount: 3,
@@ -68,6 +74,12 @@ const RemoteDeliveryStatus = {
   remoteDeleteReadyCount: 3,
   remoteExportReadyCount: 3,
   deleteExportRecordsMatchFixtureAcks: true,
+  providerDeliveryReadinessRecordCount: 3,
+  childDeviceDeliveryReadinessRecordCount: 3,
+  providerDeliveryArtifactCount: 0,
+  childDeviceDeliveryArtifactCount: 0,
+  providerDeliveryRecordsMatchFixtureAcks: true,
+  childDeviceDeliveryRecordsMatchFixtureAcks: true,
   dispatchReadyCandidateCount: 0,
   dispatchAttemptCount: 0,
   remoteAckCount: 0,
@@ -137,134 +149,75 @@ it('rejects missing fields and malformed JSON', () => {
 });
 
 it('rejects stale row refs', () => {
-  expectInvalid({
-    ...RemoteDeliveryStatus,
-    durableEnvelopeRef: 'network.remote-delivery.durable-envelope.10d',
-  });
-  expectInvalid({
-    ...RemoteDeliveryStatus,
-    statusRef: 'network.remote-delivery.outbox-status-bridge.10h',
-  });
-  expectInvalid({
-    ...RemoteDeliveryStatus,
-    statusRef: 'network.remote-delivery.transport-dispatch-state.10k',
-  });
-  expectInvalid({
-    ...RemoteDeliveryStatus,
+  expectInvalidPatch({ durableEnvelopeRef: 'network.remote-delivery.durable-envelope.10d' });
+  expectInvalidPatch({ statusRef: 'network.remote-delivery.outbox-status-bridge.10h' });
+  expectInvalidPatch({ statusRef: 'network.remote-delivery.transport-dispatch-state.10k' });
+  expectInvalidPatch({
     statusRef: 'wrong.network.remote-delivery.delete-export-status-bridge.10n',
   });
-  expectInvalid({
-    ...RemoteDeliveryStatus,
-    durableEnvelopeRef: 'wrong.network.remote-delivery.durable-envelope.10e',
-  });
-  expectInvalid({
-    ...RemoteDeliveryStatus,
-    outboxRef: 'network.remote-delivery.outbox.10f',
-  });
-  expectInvalid({
-    ...RemoteDeliveryStatus,
-    outboxHandoffRef: 'wrong.network.remote-delivery.outbox-handoff.10g',
-  });
-  expectInvalid({
-    ...RemoteDeliveryStatus,
+  expectInvalidPatch({ durableEnvelopeRef: 'wrong.network.remote-delivery.durable-envelope.10e' });
+  expectInvalidPatch({ outboxRef: 'network.remote-delivery.outbox.10f' });
+  expectInvalidPatch({ outboxHandoffRef: 'wrong.network.remote-delivery.outbox-handoff.10g' });
+  expectInvalidPatch({
     transportDispatchStateRef: 'network.remote-delivery.transport-dispatch-state.10j',
   });
-  expectInvalid({
-    ...RemoteDeliveryStatus,
+  expectInvalidPatch({
     blockedDispatchRef: 'network.remote-delivery.dispatch-blocked-manual-required.10j',
   });
-  expectInvalid({
-    ...RemoteDeliveryStatus,
+  expectInvalidPatch({
     futureTransportSeamRef: 'network.remote-delivery.future-transport-seam.10j',
   });
-  expectInvalid({
-    ...RemoteDeliveryStatus,
-    fixtureTransportRef: 'network.remote-delivery.fixture-transport.10k',
-  });
-  expectInvalid({
-    ...RemoteDeliveryStatus,
+  expectInvalidPatch({ fixtureTransportRef: 'network.remote-delivery.fixture-transport.10k' });
+  expectInvalidPatch({
     fixtureDispatchAttemptRef: 'network.remote-delivery.fixture-dispatch-attempt.10k',
   });
-  expectInvalid({
-    ...RemoteDeliveryStatus,
-    fixtureAckRef: 'network.remote-delivery.fixture-ack.10k',
-  });
-  expectInvalid({
-    ...RemoteDeliveryStatus,
+  expectInvalidPatch({ fixtureAckRef: 'network.remote-delivery.fixture-ack.10k' });
+  expectInvalidPatch({
     deleteExportPropagationRef: 'network.remote-delivery.delete-export-propagation-readiness.10l',
   });
-  expectInvalid({
-    ...RemoteDeliveryStatus,
+  expectInvalidPatch({
     remoteDeleteReadinessRef: 'network.remote-delivery.remote-delete-readiness.10l',
   });
-  expectInvalid({
-    ...RemoteDeliveryStatus,
+  expectInvalidPatch({
     remoteExportReadinessRef: 'network.remote-delivery.remote-export-readiness.10l',
+  });
+  expectInvalidPatch({ providerRouteRef: 'network.remote-delivery.provider-route.10o' });
+  expectInvalidPatch({ childDeviceRouteRef: 'network.remote-delivery.child-device-route.10o' });
+  expectInvalidPatch({ providerDeliveryReadinessRef: 'network.remote-delivery.provider-readiness.10o' });
+  expectInvalidPatch({
+    childDeviceDeliveryReadinessRef: 'network.remote-delivery.child-device-readiness.10o',
   });
 });
 
-it('rejects row10k dispatch, row10m readiness, and candidate-count mismatches', () => {
-  expectInvalid({
-    ...RemoteDeliveryStatus,
-    preparedNotDispatchedCount: 2,
-  });
-  expectInvalid({
-    ...RemoteDeliveryStatus,
-    sourceOutboxCandidateCount: 2,
-  });
-  expectInvalid({
-    ...RemoteDeliveryStatus,
-    blockedDispatchRecordCount: 2,
-  });
-  expectInvalid({
-    ...RemoteDeliveryStatus,
-    blockedDispatchRecordsMatchOutboxCandidates: false,
-  });
-  expectInvalid({
-    ...RemoteDeliveryStatus,
-    fixtureSourceOutboxCandidateCount: 2,
-  });
-  expectInvalid({
-    ...RemoteDeliveryStatus,
-    fixtureDispatchAttemptCount: 2,
-  });
-  expectInvalid({
-    ...RemoteDeliveryStatus,
-    fixtureRemoteAckCount: 2,
-  });
-  expectInvalid({
-    ...RemoteDeliveryStatus,
-    fixtureRecordsMatchOutboxCandidates: false,
-  });
-  expectInvalid({
-    ...RemoteDeliveryStatus,
-    dispatchReadyCandidateCount: 1,
-  });
-  expectInvalid({
-    ...RemoteDeliveryStatus,
-    deleteExportReadinessRecordCount: 2,
-  });
-  expectInvalid({
-    ...RemoteDeliveryStatus,
-    remoteDeleteReadyCount: 2,
-  });
-  expectInvalid({
-    ...RemoteDeliveryStatus,
-    remoteExportReadyCount: 2,
-  });
-  expectInvalid({
-    ...RemoteDeliveryStatus,
-    deleteExportRecordsMatchFixtureAcks: false,
-  });
-  expectInvalid({
-    ...RemoteDeliveryStatus,
-    transportDispatchState: 'dispatch-ready',
-  });
-  expectInvalid({
-    ...RemoteDeliveryStatus,
-    brokerMissingArtifactCount: 1,
-  });
+it('rejects row10k dispatch, row10m readiness, row10p readiness, and candidate-count mismatches', () => {
+  expectInvalidPatch({ preparedNotDispatchedCount: 2 });
+  expectInvalidPatch({ sourceOutboxCandidateCount: 2 });
+  expectInvalidPatch({ blockedDispatchRecordCount: 2 });
+  expectInvalidPatch({ blockedDispatchRecordsMatchOutboxCandidates: false });
+  expectInvalidPatch({ fixtureSourceOutboxCandidateCount: 2 });
+  expectInvalidPatch({ fixtureDispatchAttemptCount: 2 });
+  expectInvalidPatch({ fixtureRemoteAckCount: 2 });
+  expectInvalidPatch({ fixtureRecordsMatchOutboxCandidates: false });
+  expectInvalidPatch({ dispatchReadyCandidateCount: 1 });
+  expectInvalidPatch({ deleteExportReadinessRecordCount: 2 });
+  expectInvalidPatch({ remoteDeleteReadyCount: 2 });
+  expectInvalidPatch({ remoteExportReadyCount: 2 });
+  expectInvalidPatch({ deleteExportRecordsMatchFixtureAcks: false });
+  expectInvalidPatch({ providerDeliveryReadinessRecordCount: 2 });
+  expectInvalidPatch({ childDeviceDeliveryReadinessRecordCount: 2 });
+  expectInvalidPatch({ providerDeliveryArtifactCount: 1 });
+  expectInvalidPatch({ childDeviceDeliveryArtifactCount: 1 });
+  expectInvalidPatch({ providerDeliveryRecordsMatchFixtureAcks: false });
+  expectInvalidPatch({ childDeviceDeliveryRecordsMatchFixtureAcks: false });
+  expectInvalidPatch({ providerDeliveryReadinessState: 'available' });
+  expectInvalidPatch({ childDeviceDeliveryReadinessState: 'available' });
+  expectInvalidPatch({ transportDispatchState: 'dispatch-ready' });
+  expectInvalidPatch({ brokerMissingArtifactCount: 1 });
 });
+
+function expectInvalidPatch(patch: Partial<AgentNetworkRemoteDeliveryStatus>) {
+  expectInvalid({ ...RemoteDeliveryStatus, ...patch });
+}
 
 function expectInvalid(value: unknown) {
   expect(

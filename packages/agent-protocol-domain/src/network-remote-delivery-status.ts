@@ -14,6 +14,10 @@ export const AgentNetworkRemoteDeliveryTransportDispatchStateSchema = withParser
   Schema.Literal('manual-required-blocked')
 );
 
+export const AgentNetworkRemoteDeliveryProviderChildReadinessStateSchema = withParser(
+  Schema.Literal('manual-required-unavailable')
+);
+
 const AgentNetworkRemoteDeliveryStatusFields = Schema.Struct({
   statusRef: NetworkRemoteDeliveryText,
   brokerStatus: AgentNetworkRemoteDeliveryStatusStateSchema,
@@ -60,7 +64,13 @@ const AgentNetworkRemoteDeliveryStatusFields = Schema.Struct({
   deleteExportPropagationRef: NetworkRemoteDeliveryText,
   remoteDeleteReadinessRef: NetworkRemoteDeliveryText,
   remoteExportReadinessRef: NetworkRemoteDeliveryText,
+  providerRouteRef: NetworkRemoteDeliveryText,
+  childDeviceRouteRef: NetworkRemoteDeliveryText,
+  providerDeliveryReadinessRef: NetworkRemoteDeliveryText,
+  childDeviceDeliveryReadinessRef: NetworkRemoteDeliveryText,
   transportDispatchState: AgentNetworkRemoteDeliveryTransportDispatchStateSchema,
+  providerDeliveryReadinessState: AgentNetworkRemoteDeliveryProviderChildReadinessStateSchema,
+  childDeviceDeliveryReadinessState: AgentNetworkRemoteDeliveryProviderChildReadinessStateSchema,
   outboxCandidateCount: NetworkRemoteDeliveryCount,
   sourceOutboxCandidateCount: NetworkRemoteDeliveryCount,
   preparedNotDispatchedCount: NetworkRemoteDeliveryCount,
@@ -74,6 +84,12 @@ const AgentNetworkRemoteDeliveryStatusFields = Schema.Struct({
   remoteDeleteReadyCount: NetworkRemoteDeliveryCount,
   remoteExportReadyCount: NetworkRemoteDeliveryCount,
   deleteExportRecordsMatchFixtureAcks: Schema.Boolean,
+  providerDeliveryReadinessRecordCount: NetworkRemoteDeliveryCount,
+  childDeviceDeliveryReadinessRecordCount: NetworkRemoteDeliveryCount,
+  providerDeliveryArtifactCount: Schema.Literal(0),
+  childDeviceDeliveryArtifactCount: Schema.Literal(0),
+  providerDeliveryRecordsMatchFixtureAcks: Schema.Boolean,
+  childDeviceDeliveryRecordsMatchFixtureAcks: Schema.Boolean,
   dispatchReadyCandidateCount: Schema.Literal(0),
   dispatchAttemptCount: Schema.Literal(0),
   remoteAckCount: Schema.Literal(0),
@@ -117,8 +133,9 @@ export const AgentNetworkRemoteDeliveryStatusSchema = withParser(
           transportDispatchStateMatches(status) &&
           fixtureTransportMatches(status) &&
           deleteExportReadinessMatches(status) &&
+          providerChildReadinessMatches(status) &&
           localDeliveryProofMatches(status)) ||
-        'Network remote delivery status must preserve row10n status identity, row10g outbox refs, row10k blocked dispatch refs, row10l fixture transport refs, and row10m delete/export readiness refs without live delivery or content claims'
+        'Network remote delivery status must preserve row10n status identity, row10g outbox refs, row10k blocked dispatch refs, row10l fixture transport refs, row10m delete/export readiness refs, and row10p provider/child readiness refs without live delivery or content claims'
     )
   )
 );
@@ -233,6 +250,23 @@ function deleteExportReadinessMatches(status: AgentNetworkRemoteDeliveryStatus):
     status.remoteDeleteReadyCount === status.outboxCandidateCount &&
     status.remoteExportReadyCount === status.outboxCandidateCount &&
     status.deleteExportRecordsMatchFixtureAcks
+  );
+}
+
+function providerChildReadinessMatches(status: AgentNetworkRemoteDeliveryStatus): boolean {
+  return (
+    status.providerRouteRef === NetworkRemoteDeliveryRefs.ProviderRouteRef &&
+    status.childDeviceRouteRef === NetworkRemoteDeliveryRefs.ChildDeviceRouteRef &&
+    status.providerDeliveryReadinessRef === NetworkRemoteDeliveryRefs.ProviderDeliveryReadinessRef &&
+    status.childDeviceDeliveryReadinessRef === NetworkRemoteDeliveryRefs.ChildDeviceDeliveryReadinessRef &&
+    status.providerDeliveryReadinessState === 'manual-required-unavailable' &&
+    status.childDeviceDeliveryReadinessState === 'manual-required-unavailable' &&
+    status.providerDeliveryReadinessRecordCount === status.fixtureRemoteAckCount &&
+    status.childDeviceDeliveryReadinessRecordCount === status.fixtureRemoteAckCount &&
+    status.providerDeliveryArtifactCount === 0 &&
+    status.childDeviceDeliveryArtifactCount === 0 &&
+    status.providerDeliveryRecordsMatchFixtureAcks &&
+    status.childDeviceDeliveryRecordsMatchFixtureAcks
   );
 }
 
