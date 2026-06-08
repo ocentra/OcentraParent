@@ -1,0 +1,70 @@
+{
+  "branch": "codex/app-game-control-product-completion",
+  "workpack": "WP155",
+  "scope": "timer parent preference setup provider delivery local queue",
+  "status": "done",
+  "runtimeBoundary": [
+    "accepted setup request result carries provider delivery local queue refs/status",
+    "agent-service persists provider delivery local queue audit row",
+    "durable setup outbox serializes provider queue ID/status",
+    "parent command-result details render provider queue refs/status"
+  ],
+  "validation": [
+    {
+      "command": "cmd /c npm run build --workspace @ocentra-parent/agent-protocol-domain",
+      "status": "pass"
+    },
+    {
+      "command": "cmd /c npm run test --workspace @ocentra-parent/agent-protocol-domain -- --run tests/app-game-timer-parent-preference-setup-request.test.ts",
+      "status": "pass"
+    },
+    {
+      "command": "cargo test -p ocentra-parent-agent-service app_game_timer_parent_preference_setup_request -- --nocapture",
+      "status": "pass"
+    },
+    {
+      "command": "cmd /c npm run build --workspace @ocentra-parent/portal-domain",
+      "status": "pass"
+    },
+    {
+      "command": "cmd /c npm run test --workspace @ocentra-parent/portal -- --run tests/app-game-timer-parent-surface-panel.test.ts",
+      "status": "pass"
+    },
+    {
+      "command": "cargo fmt --all --check",
+      "status": "pass"
+    },
+    {
+      "command": "git diff --check",
+      "status": "pass"
+    },
+    {
+      "command": "node scripts/check-no-test-doubles.mjs",
+      "status": "pass"
+    },
+    {
+      "command": "node scripts/check-source-shape.mjs",
+      "status": "pass",
+      "note": "existing advisory warnings only"
+    },
+    {
+      "command": "cmd /c npm run lanes:guard",
+      "status": "pass"
+    },
+    {
+      "command": "cmd /c npm run hub:guard",
+      "status": "pass"
+    }
+  ],
+  "noClaims": [
+    "provider delivery execution",
+    "provider receipt ingestion",
+    "adapter dispatch",
+    "broad blocking",
+    "platform enforcement",
+    "raw private source rows",
+    "raw target values",
+    "private diagnostics"
+  ],
+  "productCapabilityChecklist": "intentionally untouched"
+}

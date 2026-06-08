@@ -14,7 +14,7 @@ use crate::{
     lan_pairing::LanPairingRuntime, websocket::handle_command_text_for_test,
 };
 
-const PERSISTED_SETUP_EVENT_COUNT: u64 = 12;
+const PERSISTED_SETUP_EVENT_COUNT: u64 = 13;
 
 #[tokio::test]
 async fn app_game_timer_parent_preference_setup_request_command_returns_accepted_boundary_result() {
@@ -443,6 +443,23 @@ macro_rules! assert_provider_delivery_requirement_boundary {
                 || $result.provider_delivery_credential_requirement_status
                     == constants::value::APP_GAME_PARENT_PREFERENCE_SETUP_ACTION_RESULT_UNAVAILABLE
         );
+        assert_eq!(
+            $result.provider_delivery_queue_id,
+            setup_id(constants::value::APP_GAME_PARENT_PREFERENCE_SETUP_PROVIDER_DELIVERY_QUEUE_SUFFIX)
+        );
+        assert_eq!(
+            $result.provider_delivery_queue_ids,
+            vec![
+                setup_id(constants::value::APP_GAME_PARENT_PREFERENCE_SETUP_PROVIDER_DELIVERY_QUEUE_SUFFIX),
+                setup_id(constants::value::APP_GAME_PARENT_PREFERENCE_SETUP_PROVIDER_DELIVERY_CREDENTIAL_REQUIREMENT_SUFFIX),
+            ]
+        );
+        assert!(
+            $result.provider_delivery_queue_status
+                == constants::value::APP_GAME_PARENT_PREFERENCE_SETUP_PROVIDER_DELIVERY_QUEUE_QUEUED
+                || $result.provider_delivery_queue_status
+                    == constants::value::APP_GAME_PARENT_PREFERENCE_SETUP_ACTION_RESULT_UNAVAILABLE
+        );
     };
 }
 
@@ -467,6 +484,16 @@ macro_rules! assert_outbox_provider_preflight_requirements {
             $outbox_record
                 [constants::field::APP_GAME_PARENT_PREFERENCE_SETUP_OUTBOX_PROVIDER_DELIVERY_CREDENTIAL_REQUIREMENT_STATUS],
             $result.provider_delivery_credential_requirement_status
+        );
+        assert_eq!(
+            $outbox_record
+                [constants::field::APP_GAME_PARENT_PREFERENCE_SETUP_OUTBOX_PROVIDER_DELIVERY_QUEUE_ID],
+            $result.provider_delivery_queue_id
+        );
+        assert_eq!(
+            $outbox_record
+                [constants::field::APP_GAME_PARENT_PREFERENCE_SETUP_OUTBOX_PROVIDER_DELIVERY_QUEUE_STATUS],
+            $result.provider_delivery_queue_status
         );
     };
 }
@@ -560,6 +587,11 @@ fn assert_persisted_setup_outbox(
         constants::value::APP_GAME_PARENT_PREFERENCE_SETUP_PROVIDER_DELIVERY_CREDENTIAL_PROOF_REQUIRED
     );
     assert!(result.provider_delivery_credential_requirement_claimed);
+    assert_eq!(
+        result.provider_delivery_queue_status,
+        constants::value::APP_GAME_PARENT_PREFERENCE_SETUP_PROVIDER_DELIVERY_QUEUE_QUEUED
+    );
+    assert!(result.provider_delivery_queue_claimed);
     let first_line = outbox_jsonl
         .lines()
         .next()

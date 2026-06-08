@@ -427,6 +427,15 @@ function expectParentPreferenceSetupProviderReadiness(
     label: 'Provider delivery credential requirement status',
     value: 'Manual required',
   });
+  expect(details).toContainEqual({
+    label: 'Provider delivery queue refs',
+    value:
+      'app-game-parent-preference-setup-provider-delivery-local-queue::request-1 | app-game-parent-preference-setup-provider-credential-proof-required::request-1',
+  });
+  expect(details).toContainEqual({
+    label: 'Provider delivery queue status',
+    value: 'Ready',
+  });
 }
 
 function expectParentPreferenceSetupNoClaimBoundaries(
@@ -817,6 +826,13 @@ const ProviderDeliveryReadinessAcceptedResultFields = {
   ],
   providerDeliveryCredentialRequirementStatus: 'provider-credential-proof-required',
   providerDeliveryCredentialRequirementClaimed: true,
+  providerDeliveryQueueId: 'app-game-parent-preference-setup-provider-delivery-local-queue::request-1',
+  providerDeliveryQueueIds: [
+    'app-game-parent-preference-setup-provider-delivery-local-queue::request-1',
+    'app-game-parent-preference-setup-provider-credential-proof-required::request-1',
+  ],
+  providerDeliveryQueueStatus: 'provider-delivery-queued',
+  providerDeliveryQueueClaimed: true,
 } as const;
 
 function timerParentSurfaceRow(

@@ -25,6 +25,49 @@ use ocentra_parent_agent_protocol::{
     APP_GAME_PLATFORM_ACTION_BLOCK_LAUNCH, APP_GAME_POLICY_TARGET_TYPE_APP,
 };
 
+macro_rules! provider_setup_audit_event {
+    ($command:expr, $result:expr, $field:ident, $status:expr) => {
+        provider_audit_activity_event($command, $result, &$result.$field, $status)
+    };
+}
+
+macro_rules! provider_delivery_events {
+    ($command:expr, $result:expr) => {
+        vec![
+            provider_setup_audit_event!(
+                $command,
+                $result,
+                provider_delivery_readiness_id,
+                constants::value::APP_GAME_PARENT_PREFERENCE_SETUP_PROVIDER_DELIVERY_MANUAL_REQUIRED
+            ),
+            provider_setup_audit_event!(
+                $command,
+                $result,
+                provider_delivery_attempt_id,
+                constants::value::APP_GAME_PARENT_PREFERENCE_SETUP_PROVIDER_DELIVERY_ATTEMPT_MANUAL_REQUIRED
+            ),
+            provider_setup_audit_event!(
+                $command,
+                $result,
+                provider_delivery_adapter_requirement_id,
+                constants::value::APP_GAME_PARENT_PREFERENCE_SETUP_PROVIDER_DELIVERY_ADAPTER_REQUIRED
+            ),
+            provider_setup_audit_event!(
+                $command,
+                $result,
+                provider_delivery_credential_requirement_id,
+                constants::value::APP_GAME_PARENT_PREFERENCE_SETUP_PROVIDER_DELIVERY_CREDENTIAL_PROOF_REQUIRED
+            ),
+            provider_setup_audit_event!(
+                $command,
+                $result,
+                provider_delivery_queue_id,
+                constants::value::APP_GAME_PARENT_PREFERENCE_SETUP_PROVIDER_DELIVERY_QUEUE_QUEUED
+            ),
+        ]
+    };
+}
+
 pub(crate) async fn persist_setup_handoff(
     command: &AgentCommandEnvelope,
     result: &AppGameTimerParentPreferenceSetupRequestResult,
@@ -45,30 +88,7 @@ pub(crate) async fn persist_setup_handoff(
         child_runtime_delivery_receipt_pending_activity_event(command, &persisted_result);
     let child_runtime_delivery_receipt_ingested_event =
         child_runtime_delivery_receipt_ingested_activity_event(command, &persisted_result);
-    let provider_delivery_readiness_event = provider_audit_activity_event(
-        command,
-        &persisted_result,
-        &persisted_result.provider_delivery_readiness_id,
-        constants::value::APP_GAME_PARENT_PREFERENCE_SETUP_PROVIDER_DELIVERY_MANUAL_REQUIRED,
-    );
-    let provider_delivery_attempt_event = provider_audit_activity_event(
-        command,
-        &persisted_result,
-        &persisted_result.provider_delivery_attempt_id,
-        constants::value::APP_GAME_PARENT_PREFERENCE_SETUP_PROVIDER_DELIVERY_ATTEMPT_MANUAL_REQUIRED,
-    );
-    let provider_delivery_adapter_requirement_event = provider_audit_activity_event(
-        command,
-        &persisted_result,
-        &persisted_result.provider_delivery_adapter_requirement_id,
-        constants::value::APP_GAME_PARENT_PREFERENCE_SETUP_PROVIDER_DELIVERY_ADAPTER_REQUIRED,
-    );
-    let provider_delivery_credential_requirement_event = provider_audit_activity_event(
-        command,
-        &persisted_result,
-        &persisted_result.provider_delivery_credential_requirement_id,
-        constants::value::APP_GAME_PARENT_PREFERENCE_SETUP_PROVIDER_DELIVERY_CREDENTIAL_PROOF_REQUIRED,
-    );
+    let provider_delivery_events = provider_delivery_events!(command, &persisted_result);
     tokio::task::spawn_blocking(move || {
         let store = ActivityStore::open(&store_path).map_err(|_| ())?;
         store
@@ -85,14 +105,7 @@ pub(crate) async fn persist_setup_handoff(
             .map_err(|_| ())?;
         append_setup_outbox_record(&persisted_result, &store_path)?;
         store
-            .ingest_events(&[provider_delivery_readiness_event])
-            .map_err(|_| ())?;
-        store
-            .ingest_events(&[
-                provider_delivery_attempt_event,
-                provider_delivery_adapter_requirement_event,
-                provider_delivery_credential_requirement_event,
-            ])
+            .ingest_events(&provider_delivery_events)
             .map_err(|_| ())?;
         Ok::<(), ()>(())
     })
@@ -155,6 +168,10 @@ fn persisted_result(
         constants::value::APP_GAME_PARENT_PREFERENCE_SETUP_PROVIDER_DELIVERY_CREDENTIAL_PROOF_REQUIRED
             .to_string();
     persisted.provider_delivery_credential_requirement_claimed = true;
+    persisted.provider_delivery_queue_status =
+        constants::value::APP_GAME_PARENT_PREFERENCE_SETUP_PROVIDER_DELIVERY_QUEUE_QUEUED
+            .to_string();
+    persisted.provider_delivery_queue_claimed = true;
     persisted
 }
 

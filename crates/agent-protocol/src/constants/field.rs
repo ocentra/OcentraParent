@@ -27,6 +27,8 @@ pub const APP_GAME_TIMER_PARENT_PREFERENCE_SETUP_CHILD_RUNTIME_DELIVERY_RECEIPT_
     "appGameTimerParentPreferenceSetupChildRuntimeDeliveryReceiptRequirement";
 pub const APP_GAME_TIMER_PARENT_PREFERENCE_SETUP_CHILD_RUNTIME_DELIVERY_RECEIPT_PENDING: &str =
     "appGameTimerParentPreferenceSetupChildRuntimeDeliveryReceiptPending";
+pub const APP_GAME_TIMER_PARENT_PREFERENCE_SETUP_PROVIDER_DELIVERY_QUEUE: &str =
+    "appGameTimerParentPreferenceSetupProviderDeliveryQueue";
 pub const BROWSER_SOCIAL_DASHBOARD_READ_MODEL: &str = "browserSocialDashboardReadModel";
 pub const BROWSER_SOCIAL_AUDIT_EXPLANATION_READ_MODEL: &str =
     "browserSocialAuditExplanationReadModel";
@@ -70,6 +72,10 @@ pub const APP_GAME_PARENT_PREFERENCE_SETUP_OUTBOX_PROVIDER_DELIVERY_CREDENTIAL_R
     &str = "providerDeliveryCredentialRequirementId";
 pub const APP_GAME_PARENT_PREFERENCE_SETUP_OUTBOX_PROVIDER_DELIVERY_CREDENTIAL_REQUIREMENT_STATUS: &str =
     "providerDeliveryCredentialRequirementStatus";
+pub const APP_GAME_PARENT_PREFERENCE_SETUP_OUTBOX_PROVIDER_DELIVERY_QUEUE_ID: &str =
+    "providerDeliveryQueueId";
+pub const APP_GAME_PARENT_PREFERENCE_SETUP_OUTBOX_PROVIDER_DELIVERY_QUEUE_STATUS: &str =
+    "providerDeliveryQueueStatus";
 pub const APP_GAME_PARENT_PREFERENCE_SETUP_OUTBOX_PROVIDER_DELIVERY_CLAIMED: &str =
     "providerDeliveryClaimed";
 pub const APP_GAME_PARENT_PREFERENCE_SETUP_OUTBOX_PROVIDER_RECEIPT_INGESTION_CLAIMED: &str =

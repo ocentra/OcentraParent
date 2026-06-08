@@ -124,6 +124,13 @@ export const AppGameTimerParentPreferenceSetupRequestResultSchema = withParser(
       )
     ),
     providerDeliveryCredentialRequirementStatus: Schema.Literal('provider-credential-proof-required', 'unavailable'),
+    providerDeliveryQueueId: NonEmptyTextSchema,
+    providerDeliveryQueueIds: Schema.Array(NonEmptyTextSchema).pipe(
+      Schema.filter(
+        (value) => value.length > 0 || 'Expected parent preference setup provider delivery queue references'
+      )
+    ),
+    providerDeliveryQueueStatus: Schema.Literal('provider-delivery-queued', 'unavailable'),
     commandBoundaryClaimed: Schema.Literal(true),
     actionResultHandoffClaimed: Schema.Literal(true),
     actionResultPersistenceClaimed: Schema.Boolean,
@@ -133,6 +140,7 @@ export const AppGameTimerParentPreferenceSetupRequestResultSchema = withParser(
     providerDeliveryAttemptClaimed: Schema.Boolean,
     providerDeliveryAdapterRequirementClaimed: Schema.Boolean,
     providerDeliveryCredentialRequirementClaimed: Schema.Boolean,
+    providerDeliveryQueueClaimed: Schema.Boolean,
     providerDeliveryClaimed: Schema.Literal(false),
     providerReceiptIngestionClaimed: Schema.Literal(false),
     childRuntimeDeliveryClaimed: Schema.Literal(false),

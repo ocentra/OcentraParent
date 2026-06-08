@@ -104,6 +104,8 @@ const TimerParentSurfaceDetails = {
   ProviderDeliveryAttemptStatus: decodeDisplayText('Provider delivery attempt status'),
   ProviderDeliveryCredentialRequirementRefs: decodeDisplayText('Provider delivery credential requirement refs'),
   ProviderDeliveryCredentialRequirementStatus: decodeDisplayText('Provider delivery credential requirement status'),
+  ProviderDeliveryQueueRefs: decodeDisplayText('Provider delivery queue refs'),
+  ProviderDeliveryQueueStatus: decodeDisplayText('Provider delivery queue status'),
   ProviderDeliveryReadinessRefs: decodeDisplayText('Provider delivery readiness refs'),
   ProviderDeliveryReadinessStatus: decodeDisplayText('Provider delivery readiness status'),
   ChildUxHandoffBlocked: decodeDisplayText('Child UX handoff blocked'),
@@ -629,6 +631,11 @@ function parentPreferenceSetupProviderDeliveryDetails(
       TimerParentSurfaceDetails.ProviderDeliveryCredentialRequirementStatus,
       parentPreferenceSetupResultStatus(result.providerDeliveryCredentialRequirementStatus)
     ),
+    detail(TimerParentSurfaceDetails.ProviderDeliveryQueueRefs, joinedOrNotReported(result.providerDeliveryQueueIds)),
+    detail(
+      TimerParentSurfaceDetails.ProviderDeliveryQueueStatus,
+      parentPreferenceSetupResultStatus(result.providerDeliveryQueueStatus)
+    ),
   ];
 }
 
@@ -698,6 +705,9 @@ function parentPreferenceSetupResultStatus(status: string): DisplayText {
   }
   if (status === 'provider-credential-proof-required') {
     return Readable.ManualRequired;
+  }
+  if (status === 'provider-delivery-queued') {
+    return Readable.Ready;
   }
   if (status === 'accepted') {
     return Readable.Ready;
