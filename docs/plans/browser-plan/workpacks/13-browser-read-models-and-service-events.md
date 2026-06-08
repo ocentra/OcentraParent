@@ -409,6 +409,32 @@ intervention execution, final policy execution, browser mutation, and
 enforcement at zero. It does not add a new browser command family, execute
 policy, mutate browser state, execute child intervention, or enforce.
 
+## Action-Intent Durable Handoff Result Addendum - 2026-06-07
+
+`browser-runtime-action-intent-durable-handoff-proof` carries the named
+browser action-intent handoff subscriber result into a durable result/read-model
+row. The row preserves the request event, policy preview id, parent
+action-intent id, source event ref, local outbox ref, local handoff ref,
+durable result ref, durable store ref, read-model ref, and support-status ref.
+Duplicate request event ids are rejected before projection.
+
+Evidence:
+
+- `crates/agent-core/src/browser_event_runtime/action_handoff_durable.rs`
+- `crates/agent-core/src/browser_event_runtime/action_handoff_durable_types.rs`
+- `crates/agent-core/src/browser_event_runtime.rs`
+- `crates/agent-core/src/browser_event_runtime_tests.rs`
+- `crates/agent-protocol/src/constants/browser.rs`
+- `scripts/test/browser-runtime-action-intent-durable-handoff-proof.mjs`
+- `test-results/browser-runtime-action-intent-durable-handoff-proof/proof.json`
+- `output/browser-plan-proof/browser-runtime-action-intent-durable-handoff/01-browser-runtime-action-intent-durable-handoff-proof.md`
+- `cargo test -p ocentra-parent-agent-core browser_runtime_action_intent_durable_handoff --quiet`
+
+The durable proof does not add external transport, dispatch attempts, adapter
+execution, browser mutation, child intervention execution, final policy
+execution, or enforcement. It is a local durable/read-model handoff proof for
+later runtime subscribers.
+
 ## Action-Intent Store-Backed Policy Preview Addendum - 2026-06-07
 
 `browser-runtime-action-intent-store-backed-proof` closes the prior

@@ -8,6 +8,10 @@ use ocentra_parent_agent_protocol::constants;
 use serde::{Deserialize, Serialize};
 
 mod action_handoff;
+#[cfg(test)]
+mod action_handoff_durable;
+#[cfg(test)]
+mod action_handoff_durable_types;
 mod action_status;
 mod delivery;
 mod topology;
@@ -19,6 +23,10 @@ pub use action_handoff::{
     request_browser_runtime_action_intent_handoff_for_input,
     BrowserRuntimeActionIntentHandoffReport, BrowserRuntimeActionIntentHandoffResponse,
 };
+#[cfg(test)]
+pub(crate) use action_handoff_durable::prove_browser_runtime_action_intent_durable_handoff;
+#[cfg(test)]
+pub(crate) use action_handoff_durable_types::BrowserRuntimeActionIntentDurableHandoffReadModelState;
 pub use action_status::{
     browser_runtime_action_intent_status_topology_manifest,
     request_browser_runtime_action_intent_status_for_input, BrowserRuntimeActionIntentStatusReport,

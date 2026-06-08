@@ -180,6 +180,13 @@ control while being more honest about managed versus unmanaged sources.
   live-activity state. Dispatch, adapter execution, browser mutation, child
   intervention execution, final policy execution, and enforcement remain
   zero/unclaimed.
+- Browser-plan WP13 now also has durable handoff result/read-model proof for
+  the named browser action-intent handoff subscriber. The durable row preserves
+  the request event, policy preview, parent action-intent, local outbox,
+  handoff, durable result, durable store, read-model, and support-status refs,
+  rejects duplicate request event ids, and keeps external transport, dispatch,
+  browser mutation, child intervention execution, final policy execution, and
+  enforcement unclaimed.
 - Browser-plan WP03 now carries publisher-signature and file-hash evidence refs
   through activity-domain inventory contracts, Rust protocol, and service
   payload/read-model proof. Contract tests cover mixed managed, unmanaged, and

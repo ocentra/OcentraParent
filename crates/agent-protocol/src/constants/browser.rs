@@ -100,6 +100,16 @@ pub const ACTION_INTENT_ID_PREFIX: &str = "browser-action-intent-";
 pub const TEST_BROWSER_RUNTIME_ACTION_INTENT_OUTBOX_REF: &str = "browser-action-intent-outbox-test";
 pub const TEST_BROWSER_RUNTIME_ACTION_INTENT_HANDOFF_REF: &str =
     "browser-action-intent-handoff-test";
+pub const TEST_BROWSER_RUNTIME_ACTION_INTENT_DURABLE_RESULT_REF: &str =
+    "browser-action-intent-durable-result-test";
+pub const TEST_BROWSER_RUNTIME_ACTION_INTENT_DURABLE_STORE_REF: &str =
+    "browser-action-intent-durable-store-test";
+pub const TEST_BROWSER_RUNTIME_ACTION_INTENT_HANDOFF_READ_MODEL_REF: &str =
+    "browser-action-intent-handoff-read-model-test";
+pub const TEST_BROWSER_RUNTIME_ACTION_INTENT_HANDOFF_SUPPORT_STATUS_REF: &str =
+    "browser-action-intent-handoff-support-status-test";
+pub const ERROR_BROWSER_RUNTIME_ACTION_INTENT_DURABLE_HANDOFF: &str =
+    "browser action-intent durable handoff proof failed";
 pub const TEST_BROWSER_RUNTIME_INTERVENTION_COMMAND_REF: &str =
     "browser-intervention-command-ref-test";
 pub const TEST_BROWSER_RUNTIME_INTERVENTION_RESULT_REF: &str =

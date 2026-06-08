@@ -1,3 +1,7 @@
+use crate::browser_event_runtime::{
+    prove_browser_runtime_action_intent_durable_handoff,
+    BrowserRuntimeActionIntentDurableHandoffReadModelState,
+};
 use crate::{
     browser_runtime_action_intent_handoff_topology_manifest,
     browser_runtime_action_intent_status_topology_manifest,
@@ -214,6 +218,75 @@ async fn browser_runtime_action_intent_handoff_event_subscriber_keeps_manual_row
     assert_eq!(handoff.browser_mutation_count, 0);
     assert_eq!(handoff.child_intervention_execution_count, 0);
     assert_eq!(handoff.enforcement_execution_count, 0);
+}
+
+#[tokio::test]
+async fn browser_runtime_action_intent_durable_handoff_preserves_refs_without_execution() {
+    let report = prove_browser_runtime_action_intent_durable_handoff()
+        .await
+        .unwrap();
+
+    assert_eq!(report.request_event_count, 1);
+    assert_eq!(report.durable_record_count, 1);
+    assert_eq!(report.read_model_row_count, 1);
+    assert_eq!(report.prepared_not_dispatched_count, 1);
+    assert!(report.duplicate_request_event_rejected);
+    assert!(report.row_matches_handoff_response);
+    assert!(report.row_matches_request_event);
+
+    let row = report.rows.first().unwrap();
+    assert_eq!(
+        row.state,
+        BrowserRuntimeActionIntentDurableHandoffReadModelState::PreparedNotDispatched
+    );
+    assert_eq!(
+        row.request_event_type.as_str(),
+        constants::browser::EVENT_BROWSER_ACTION_INTENT_HANDOFF_REQUESTED
+    );
+    assert_eq!(
+        row.policy_preview_id,
+        constants::browser::TEST_BROWSER_RUNTIME_POLICY_PREVIEW_ID
+    );
+    assert_eq!(
+        row.action_intent_id,
+        constants::browser::TEST_BROWSER_RUNTIME_ACTION_INTENT_ID
+    );
+    assert_eq!(
+        row.durable_result_ref.as_str(),
+        constants::browser::TEST_BROWSER_RUNTIME_ACTION_INTENT_DURABLE_RESULT_REF
+    );
+    assert_eq!(
+        row.durable_store_ref.as_str(),
+        constants::browser::TEST_BROWSER_RUNTIME_ACTION_INTENT_DURABLE_STORE_REF
+    );
+    assert_eq!(
+        row.outbox_ref.as_str(),
+        constants::browser::TEST_BROWSER_RUNTIME_ACTION_INTENT_OUTBOX_REF
+    );
+    assert_eq!(
+        row.handoff_ref.as_str(),
+        constants::browser::TEST_BROWSER_RUNTIME_ACTION_INTENT_HANDOFF_REF
+    );
+    assert_eq!(
+        row.read_model_ref.as_str(),
+        constants::browser::TEST_BROWSER_RUNTIME_ACTION_INTENT_HANDOFF_READ_MODEL_REF
+    );
+    assert_eq!(
+        row.support_status_ref.as_str(),
+        constants::browser::TEST_BROWSER_RUNTIME_ACTION_INTENT_HANDOFF_SUPPORT_STATUS_REF
+    );
+    assert_eq!(report.dispatch_attempt_count, 0);
+    assert_eq!(report.adapter_execution_count, 0);
+    assert_eq!(report.browser_mutation_count, 0);
+    assert_eq!(report.child_intervention_execution_count, 0);
+    assert_eq!(report.final_policy_execution_count, 0);
+    assert_eq!(report.enforcement_execution_count, 0);
+    assert!(!report.external_transport_implemented);
+    assert!(!report.adapter_dispatch_claimed);
+    assert!(!report.browser_mutation_claimed);
+    assert!(!report.child_intervention_execution_claimed);
+    assert!(!report.final_policy_execution_claimed);
+    assert!(!report.enforcement_claimed);
 }
 
 #[tokio::test]

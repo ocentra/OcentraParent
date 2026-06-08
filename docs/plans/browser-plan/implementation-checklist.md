@@ -655,6 +655,19 @@ constants/defaults are owned by another active lane. Dispatch attempts, adapter
 execution, browser mutation, child intervention execution, final policy
 execution, and enforcement stay zero.
 
+WP13 action-intent durable handoff result addendum:
+`browser-runtime-action-intent-durable-handoff-proof` carries the named browser
+action-intent handoff subscriber result into a durable result/read-model row.
+The row preserves request event, policy preview, parent action-intent, source
+event, local outbox, local handoff, durable result, durable store, read-model,
+and support-status refs, and rejects duplicate request event ids before
+projection. Evidence:
+`test-results/browser-runtime-action-intent-durable-handoff-proof/proof.json`
+and
+`output/browser-plan-proof/browser-runtime-action-intent-durable-handoff/01-browser-runtime-action-intent-durable-handoff-proof.md`.
+This does not add external transport, dispatch, adapter execution, browser
+mutation, child intervention execution, final policy execution, or enforcement.
+
 WP13 action-intent topology addendum:
 `browser-runtime-action-intent-topology-proof` registers the named browser
 action-intent status request event in the reusable `ocentra-eventing` contract
