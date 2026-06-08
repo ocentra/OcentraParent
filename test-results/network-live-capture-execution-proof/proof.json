@@ -1,0 +1,82 @@
+{
+  "schemaVersion": 1,
+  "proof": "network-live-capture-execution",
+  "checkedAt": "2026-06-08T20:19:19.403Z",
+  "branch": "codex/network-live-capture-execution-proof",
+  "commit": "c2055a263eeca7f701a9491629b317e50caa5aaf",
+  "statusShort": "M  crates/ocentra-network-evidence/README.md\nM  crates/ocentra-network-evidence/src/lib.rs\nA  crates/ocentra-network-evidence/src/live_capture_execution.rs\nA  crates/ocentra-network-evidence/src/live_capture_execution/types.rs\nAM crates/ocentra-network-evidence/src/live_capture_execution/validation.rs\nM  crates/ocentra-network-evidence/src/tests.rs\nAM crates/ocentra-network-evidence/src/tests/live_capture_execution.rs\nA  crates/ocentra-network-evidence/src/tests/live_capture_execution_fixtures.rs\nM  docs/features/network-domain-control.md\nM  docs/plans/network-plan/current-network-snapshot.md\nM  docs/plans/network-plan/implementation-checklist.md\nM  output/network-plan-proof/03a-live-capture-storage-proof/clippy.log\nM  output/network-plan-proof/03a-live-capture-storage-proof/proof-summary.json\nM  output/network-plan-proof/03a-live-capture-storage-proof/raw-capture-storage-tests.log\nM  output/network-plan-proof/03a-live-capture-storage-proof/source-shape.log\nM  output/network-plan-proof/13a-live-capture-service-readiness/command-logs/agent-protocol-domain-network-live-capture-tests.log\nM  output/network-plan-proof/13a-live-capture-service-readiness/command-logs/agent-protocol-network-live-capture-tests.log\nM  output/network-plan-proof/13a-live-capture-service-readiness/command-logs/agent-service-network-live-capture-tests.log\nM  output/network-plan-proof/13a-live-capture-service-readiness/command-logs/no-test-doubles.log\nM  output/network-plan-proof/13a-live-capture-service-readiness/command-logs/source-shape.log\nM  output/network-plan-proof/13a-live-capture-service-readiness/proof-summary.json\nA  output/network-plan-proof/13b-live-capture-execution-proof/command-logs/diff-check.log\nAM output/network-plan-proof/13b-live-capture-execution-proof/command-logs/network-evidence-clippy.log\nAM output/network-plan-proof/13b-live-capture-execution-proof/command-logs/network-live-capture-execution-tests.log\nA  output/network-plan-proof/13b-live-capture-execution-proof/command-logs/source-shape.log\nA  output/network-plan-proof/13b-live-capture-execution-proof/live-capture-execution-boundary.json\nAM output/network-plan-proof/13b-live-capture-execution-proof/local-host-observations.json\nA  output/network-plan-proof/13b-live-capture-execution-proof/proof-summary.json\nA  output/network-plan-proof/13b-live-capture-execution-proof/validation-commands.log\nA  scripts/test/network-live-capture-execution-proof.mjs\nA  test-results/network-live-capture-execution-proof/proof.json\nM  test-results/network-live-capture-service-readiness-proof/proof.json\nM  test-results/network-live-capture-storage-proof/proof.json\n",
+  "sourceRefs": [
+    "crates/ocentra-network-evidence/src/live_capture.rs",
+    "crates/ocentra-network-evidence/src/live_capture_execution.rs",
+    "crates/ocentra-network-evidence/src/live_capture_execution/types.rs",
+    "crates/ocentra-network-evidence/src/live_capture_execution/validation.rs",
+    "crates/ocentra-network-evidence/src/lib.rs",
+    "crates/ocentra-network-evidence/src/tests.rs",
+    "crates/ocentra-network-evidence/src/tests/live_capture.rs",
+    "crates/ocentra-network-evidence/src/tests/live_capture_execution.rs",
+    "crates/ocentra-network-evidence/src/tests/live_capture_execution_fixtures.rs",
+    "crates/ocentra-network-evidence/README.md",
+    "docs/features/network-domain-control.md",
+    "docs/plans/network-plan/implementation-checklist.md",
+    "docs/plans/network-plan/current-network-snapshot.md",
+    "scripts/test/network-live-capture-execution-proof.mjs"
+  ],
+  "sourceFingerprint": "source-tree:8049ee886466933c8b4c5b96f3cd980396d0da8275624b12b82c50cefd558bd3",
+  "proofRoot": "output\\network-plan-proof\\13b-live-capture-execution-proof",
+  "testRoot": "test-results\\network-live-capture-execution-proof",
+  "commands": [
+    {
+      "name": "network-live-capture-execution-tests",
+      "command": "cargo test -p ocentra-network-evidence live_capture_execution",
+      "status": 0,
+      "log": "output\\network-plan-proof\\13b-live-capture-execution-proof\\command-logs\\network-live-capture-execution-tests.log"
+    },
+    {
+      "name": "network-evidence-clippy",
+      "command": "cargo clippy -p ocentra-network-evidence --all-targets -- -D warnings",
+      "status": 0,
+      "log": "output\\network-plan-proof\\13b-live-capture-execution-proof\\command-logs\\network-evidence-clippy.log"
+    },
+    {
+      "name": "source-shape",
+      "command": "node scripts/check-source-shape.mjs",
+      "status": 0,
+      "log": "output\\network-plan-proof\\13b-live-capture-execution-proof\\command-logs\\source-shape.log"
+    },
+    {
+      "name": "diff-check",
+      "command": "git diff --check",
+      "status": 0,
+      "log": "output\\network-plan-proof\\13b-live-capture-execution-proof\\command-logs\\diff-check.log"
+    }
+  ],
+  "artifacts": {
+    "boundary": "output\\network-plan-proof\\13b-live-capture-execution-proof\\live-capture-execution-boundary.json",
+    "localHostObservations": "output\\network-plan-proof\\13b-live-capture-execution-proof\\local-host-observations.json",
+    "commandLog": "output\\network-plan-proof\\13b-live-capture-execution-proof\\validation-commands.log",
+    "proofSummary": "output\\network-plan-proof\\13b-live-capture-execution-proof\\proof-summary.json",
+    "testProof": "test-results\\network-live-capture-execution-proof\\proof.json"
+  },
+  "provenRows": [
+    "13b Live-capture bounded execution/status proof"
+  ],
+  "provenBoundaries": [
+    "bounded driver execution is accepted only with proof-ready row13 capture refs and all row13b execution/custody refs",
+    "metadata-only Windows snapshots remain observable but cannot substitute for Npcap/libpcap capture",
+    "manual-required, unavailable, and degraded states stay visible without packet capture claims",
+    "raw artifact creation, raw PCAP without custody, content, policy, adapter, host-filter, and enforcement claims are rejected",
+    "Windows, Android SDK/emulator, WSL/Linux, and Apple CI/manual-unavailable host observations are recorded as proof context without product support claims"
+  ],
+  "notClaimed": [
+    "production live capture support",
+    "raw artifact creation",
+    "remote upload",
+    "raw PCAP without custody",
+    "exact URL, decrypted payload, page content, private message, or search query visibility",
+    "policy authority",
+    "adapter execution or authority",
+    "host filtering",
+    "enforcement command publication",
+    "macOS or iOS local device proof from this Windows host"
+  ]
+}

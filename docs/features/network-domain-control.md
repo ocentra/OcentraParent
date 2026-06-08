@@ -434,6 +434,14 @@ compete on control while staying clear about attribution confidence and privacy.
   `output/network-plan-proof/13a-live-capture-service-readiness/proof-summary.json`
   and
   `test-results/network-live-capture-service-readiness-proof/proof.json`.
+- E-D added a bounded row13b live-capture execution proof model:
+  driver-backed execution is accepted only with proof-ready row13 capture refs
+  plus driver invocation, interface observation, permission, bounded window,
+  clean stop, custody, retention/delete/export, metadata-only sanitization, and
+  private-traffic-exclusion refs. Windows metadata snapshots stay observable but
+  cannot substitute for Npcap/libpcap capture. Raw artifact creation, raw PCAP
+  without custody, exact content, policy, adapter, host-filter, and enforcement
+  claims remain rejected.
 - E-D added fixture-backed visibility parsers for TLS ClientHello SNI, plain
   HTTP Host, QUIC limited-visibility detection, and DoH/DoT resolver-candidate
   detection. These parsers keep exact URL, visited domain, page content, and
@@ -640,8 +648,8 @@ compete on control while staying clear about attribution confidence and privacy.
 ## Current Gap
 
 Real OS/domain blocking adapter execution, broader DNS/VPN/proxy handling,
-attribution quality, live capture driver invocation, live analyzer fixture
-proof, broker/family-hub transport, remote network runtime event-chain
+attribution quality, production live capture driver support, live analyzer
+fixture proof, broker/family-hub transport, remote network runtime event-chain
 delivery, product remote acknowledgements, raw PCAP/live-capture retention,
 production risk-budget service/UI wiring,
 production SLO validation,

@@ -3,6 +3,10 @@ test network_live_capture_status_tests::network_live_capture_status_serializes_r
 
 test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 189 filtered out; finished in <duration>
 
-   Compiling ocentra-parent-agent-protocol v0.1.1 (E:/OcentraParentWorktrees/E-D/OcentraParent/crates/agent-protocol)
+    Blocking waiting for file lock on package cache
+    Blocking waiting for file lock on package cache
+    Blocking waiting for file lock on package cache
+    Blocking waiting for file lock on package cache
+    Blocking waiting for file lock on build directory
     Finished `test` profile [unoptimized + debuginfo] target(s) in <duration>
      Running unittests src/lib.rs (target/debug/deps/<test-binary>)

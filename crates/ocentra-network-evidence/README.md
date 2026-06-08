@@ -49,6 +49,14 @@ delete/export, custody-chain, and private-traffic-exclusion refs are all
 present. Missing refs stay manual-required, unavailable/degraded live-capture
 states stay visible, and live capture execution, remote upload, raw PCAP without
 custody, content, policy, adapter, and enforcement claims are rejected.
+The bounded live-capture execution proof accepts driver-backed execution only
+when a proof-ready row13 gate is paired with driver invocation, interface,
+permission, bounded-window, clean-stop, custody, retention/delete/export,
+metadata-only sanitization, and private-traffic-exclusion refs. Windows metadata
+snapshots can be recorded as observations, but cannot substitute for
+Npcap/libpcap packet capture. Raw artifact creation, raw PCAP without custody,
+content visibility, policy authority, adapter authority, host filtering, and
+enforcement commands stay rejected.
 Unmanaged-browser
 correlation records known or portable browser processes as process-only bypass
 evidence, keeps browser-like process names candidate-only, preserves managed
@@ -215,18 +223,18 @@ refs plus adapter proof refs while rejecting live host mutation, process
 termination execution, exact URL/content claims, and enforcement-command
 publication.
 
-Live Npcap/libpcap driver invocation and packet capture, full vendor category
-feeds, production CDN intelligence, unmanaged browser exact URL or active-tab
-correlation, unmanaged browser adapter action or process termination, foreground
-session live adapter implementation, app/game policy evaluation, process
-termination, time-limit execution, screen capture adapter execution, OCR/VLM
-execution, screen analysis result creation, raw image retention, remote upload,
-live network adapter enforcement, file/content inspection, local-AI model
-execution/worker runtime, production model-quality monitoring, production SLO
-validation, full policy engine execution, notification provider delivery, portal
-AI audit UI, risk-budget, or performance rendering, live WFP driver/callout
-proof, live adapter execution, Android physical-device behavior, Apple
-entitlement/device behavior, Linux distro/kernel adapter behavior, live
+Production live Npcap/libpcap driver support, raw artifact creation, full vendor
+category feeds, production CDN intelligence, unmanaged browser exact URL or
+active-tab correlation, unmanaged browser adapter action or process termination,
+foreground session live adapter implementation, app/game policy evaluation,
+process termination, time-limit execution, screen capture adapter execution,
+OCR/VLM execution, screen analysis result creation, raw image retention, remote
+upload, live network adapter enforcement, file/content inspection, local-AI
+model execution/worker runtime, production model-quality monitoring, production
+SLO validation, full policy engine execution, notification provider delivery,
+portal AI audit UI, risk-budget, or performance rendering, live WFP
+driver/callout proof, live adapter execution, Android physical-device behavior,
+Apple entitlement/device behavior, Linux distro/kernel adapter behavior, live
 Zeek/TShark/Wireshark/Suricata/Snort execution, full support-material authoring,
 external audit execution, production deployment, and portal rendering remain
 separate proof-gated workpacks.

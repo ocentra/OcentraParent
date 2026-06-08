@@ -18,6 +18,7 @@ pub mod flow;
 pub mod http;
 pub mod linux_adapter_gate;
 pub mod live_capture;
+pub mod live_capture_execution;
 pub mod local_ai_queue;
 pub mod local_platform_probe;
 pub mod managed_browser;
@@ -154,6 +155,12 @@ pub use live_capture::{
     plan_network_live_capture_proof, NetworkLiveCapturePlatform, NetworkLiveCaptureProof,
     NetworkLiveCaptureProofError, NetworkLiveCaptureProofInput, NetworkLiveCaptureProofState,
     NetworkLiveCaptureRequiredArtifact,
+};
+pub use live_capture_execution::{
+    prove_network_live_capture_execution, NetworkLiveCaptureExecutionError,
+    NetworkLiveCaptureExecutionInput, NetworkLiveCaptureExecutionProof,
+    NetworkLiveCaptureExecutionRequiredArtifact, NetworkLiveCaptureExecutionSource,
+    NetworkLiveCaptureExecutionState,
 };
 pub use local_ai_queue::{
     plan_network_local_ai_queue, NetworkLocalAiQueueError, NetworkLocalAiQueueInput,
