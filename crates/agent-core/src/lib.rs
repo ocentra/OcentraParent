@@ -162,6 +162,7 @@ pub use network_capture_event::{network_observation_event, network_snapshot_even
 pub use network_event_runtime::{
     prove_network_runtime_remote_delivery_dispatch_readiness,
     prove_network_runtime_remote_delivery_durable_envelope,
+    prove_network_runtime_remote_delivery_fixture_transport,
     prove_network_runtime_remote_delivery_no_enforcement_invariant,
     prove_network_runtime_remote_delivery_outbox_handoff,
     prove_network_runtime_remote_delivery_transport_dispatch_state,
@@ -172,6 +173,10 @@ pub use network_event_runtime::{
     NetworkRuntimeRemoteDeliveryDispatchReadinessState,
     NetworkRuntimeRemoteDeliveryDurableEnvelopeError,
     NetworkRuntimeRemoteDeliveryDurableEnvelopeReport,
+    NetworkRuntimeRemoteDeliveryFixtureTransportError,
+    NetworkRuntimeRemoteDeliveryFixtureTransportRecord,
+    NetworkRuntimeRemoteDeliveryFixtureTransportReport,
+    NetworkRuntimeRemoteDeliveryFixtureTransportState,
     NetworkRuntimeRemoteDeliveryNoEnforcementInvariantError,
     NetworkRuntimeRemoteDeliveryNoEnforcementInvariantReport,
     NetworkRuntimeRemoteDeliveryNoEnforcementInvariantState,
@@ -283,6 +288,8 @@ mod journal_tests;
 mod network_capture_tests;
 #[cfg(test)]
 mod network_event_runtime_broker_delivery_tests;
+#[cfg(test)]
+mod network_event_runtime_fixture_transport_tests;
 #[cfg(test)]
 mod network_event_runtime_queue_tests;
 #[cfg(test)]

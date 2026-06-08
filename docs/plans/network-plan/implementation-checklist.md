@@ -277,6 +277,20 @@ The proof pack must contain or explicitly mark N/A for each applicable item:
       execution, enforcement-command publication, raw PCAP, exact URL, decrypted
       payload, page content, video content, private-message content,
       search-query content, and host filtering remain false.
+- [x] `10l-remote-delivery-fixture-transport`: fixture-only transport receipt
+      proof for the row10g prepared outbox candidates. Row10l proof writes
+      `output/network-plan-proof/10l-remote-delivery-fixture-transport/proof-summary.json`
+      and
+      `test-results/network-remote-delivery-fixture-transport-proof/proof.json`
+      and proves each prepared outbox candidate gets one fixture dispatch attempt
+      and one fixture acknowledgement record with preserved event id, event type,
+      correlation id, outbox ref, and handoff ref. These fixture records do not
+      upgrade the service status payload or product support. Live broker/family-hub
+      delivery, remote provider/child-device delivery, remote delete/export
+      propagation, product-ready delivery, policy authority, side-effect authority,
+      adapter execution, enforcement-command publication, raw PCAP, exact URL,
+      decrypted payload, page content, video content, private-message content,
+      search-query content, and host filtering remain false.
 - [x] `policy-preview-stored-flow-evidence`: stored ActivityStore network flow
       evidence feeds the existing policy-preview read model and service payload.
       The proof writes
@@ -482,15 +496,17 @@ The proof pack must contain or explicitly mark N/A for each applicable item:
       ledger rows. Row10f exposes the row10b through row10e refs as a read-only
       status bridge, row10g prepares local outbox candidates from durable envelope
       records, row10h preserves those prepared outbox refs in the typed remote
-      delivery status bridge evidence, and row10i derives manual-required
-      dispatch-readiness gates. Live broker/family-hub delivery, remote acknowledgements,
+      delivery status bridge evidence, row10i derives manual-required
+      dispatch-readiness gates, row10k maps that metadata into manual-required
+      blocked dispatch records exposed through a cached typed status payload, and
+      row10l records fixture-only dispatch attempts/acks over row10g candidates
+      without attempting live transport. Live broker/family-hub delivery, remote acknowledgements,
       cross-process durable replay, raw PCAP/live-capture retention and remote
       delete/export propagation, live analyzer/model/policy execution, adapter
       execution, provider/child-device delivery, product-ready remote delivery, and
       host filtering remain open. Row10j now proves available remote metadata across
       the row10b through row10i chain stays non-enforcing until those artifacts
-      exist, and row10k now maps that metadata into manual-required blocked dispatch
-      records exposed through a cached typed status payload without attempting live transport. E-D full-network proof links the
+      exist. E-D full-network proof links the
       consolidated eventing proof and remote-delivery non-enforcement artifacts
       under `output/network-plan-proof/full-network-plan/02-eventing-proof.log` and
       `output/network-plan-proof/full-network-plan/12-remote-delivery-proof.json`.

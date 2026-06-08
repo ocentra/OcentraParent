@@ -211,6 +211,20 @@ compete on control while staying clear about attribution confidence and privacy.
   raw PCAP, exact URL, decrypted payload, page content, video content,
   private-message content, search-query content, and host filtering remain
   false.
+- E-D added row10l remote delivery fixture transport proof in `agent-core`:
+  row10g prepared outbox candidates now produce fixture-only dispatch attempt
+  and acknowledgement records that preserve event id, event type, correlation id,
+  outbox refs, and handoff refs. The proof writes
+  `output/network-plan-proof/10l-remote-delivery-fixture-transport/proof-summary.json`
+  and
+  `test-results/network-remote-delivery-fixture-transport-proof/proof.json`.
+  Fixture acknowledgements are local proof records only and do not upgrade the
+  service remote-delivery status payload or product support. Live
+  broker/family-hub delivery, provider/child delivery, remote delete/export
+  propagation, product-ready delivery, policy authority, side-effect authority,
+  adapter execution, enforcement-command publication, raw PCAP, exact URL,
+  decrypted payload, page content, video content, private-message content,
+  search-query content, and host filtering remain false.
 - E-D added policy-preview stored-flow evidence proof across `agent-core`,
   `agent-service`, and `agent-protocol-domain`: stored ActivityStore network
   flow rows now feed the existing policy-preview read model, map

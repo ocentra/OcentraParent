@@ -1,0 +1,95 @@
+{
+  "proof": "network-remote-delivery-fixture-transport-proof",
+  "proofRevision": "network-remote-delivery-fixture-transport-proof/v1",
+  "checkedAt": "deterministic:network-remote-delivery-fixture-transport-proof/v1",
+  "sourceFingerprint": "source-tree:0e7489a62ddc5c61c62c2d7bc86640c201404ffda960cb2bf640e00688fad3fb",
+  "sourceRefs": [
+    "scripts/test/network-remote-delivery-fixture-transport-proof.mjs",
+    "crates/agent-protocol/src/constants/network_flow.rs",
+    "crates/agent-core/src/lib.rs",
+    "crates/agent-core/src/network_event_runtime.rs",
+    "crates/agent-core/src/network_event_runtime/remote_delivery_fixture_transport.rs",
+    "crates/agent-core/src/network_event_runtime/remote_delivery_fixture_transport_types.rs",
+    "crates/agent-core/src/network_event_runtime/remote_delivery_outbox_handoff.rs",
+    "crates/agent-core/src/network_event_runtime/remote_delivery_outbox_handoff_types.rs",
+    "crates/agent-core/src/network_event_runtime_fixture_transport_tests.rs",
+    "crates/agent-core/README.md",
+    "docs/features/network-domain-control.md",
+    "docs/plans/network-plan/implementation-checklist.md",
+    "docs/plans/network-plan/workpacks/README.md"
+  ],
+  "sourceBase": "c3328c891af958153c1b64d92379e653de6ba2d0",
+  "proofRoot": "output\\network-plan-proof\\10l-remote-delivery-fixture-transport",
+  "testRoot": "test-results\\network-remote-delivery-fixture-transport-proof",
+  "commands": [
+    {
+      "name": "agent-core-remote-delivery-fixture-transport-test",
+      "command": "cargo test -p ocentra-parent-agent-core network_runtime_remote_delivery_fixture_transport",
+      "status": 0,
+      "log": "output\\network-plan-proof\\10l-remote-delivery-fixture-transport\\agent-core-remote-delivery-fixture-transport-test.log"
+    },
+    {
+      "name": "agent-core-clippy",
+      "command": "cargo clippy -p ocentra-parent-agent-core --all-targets -- -D warnings",
+      "status": 0,
+      "log": "output\\network-plan-proof\\10l-remote-delivery-fixture-transport\\agent-core-clippy.log"
+    },
+    {
+      "name": "rust-format",
+      "command": "cargo fmt --all --check",
+      "status": 0,
+      "log": "output\\network-plan-proof\\10l-remote-delivery-fixture-transport\\rust-format.log"
+    },
+    {
+      "name": "source-shape",
+      "command": "node scripts/check-source-shape.mjs",
+      "status": 0,
+      "log": "output\\network-plan-proof\\10l-remote-delivery-fixture-transport\\source-shape.log"
+    },
+    {
+      "name": "git-diff-check",
+      "command": "git diff --check",
+      "status": 0,
+      "log": "output\\network-plan-proof\\10l-remote-delivery-fixture-transport\\git-diff-check.log"
+    }
+  ],
+  "artifacts": {
+    "expectedRemoteDeliveryFixtureTransport": "output\\network-plan-proof\\10l-remote-delivery-fixture-transport\\expected-remote-delivery-fixture-transport.json",
+    "securityNegativeLog": "output\\network-plan-proof\\10l-remote-delivery-fixture-transport\\09-security-negative-proof.log",
+    "validationCommands": "output\\network-plan-proof\\10l-remote-delivery-fixture-transport\\12-validation-commands.log",
+    "proofSummary": "output\\network-plan-proof\\10l-remote-delivery-fixture-transport\\proof-summary.json",
+    "testProof": "test-results\\network-remote-delivery-fixture-transport-proof\\proof.json"
+  },
+  "coveredRows": [
+    "network-plan supplemental row 10l remote delivery fixture transport receipt proof",
+    "network-plan supplemental row 10g remote delivery outbox handoff",
+    "network-plan supplemental rows 10b through 10f remote delivery refs"
+  ],
+  "provenBoundaries": [
+    "agent-core consumes row10g prepared outbox candidates and records one fixture dispatch attempt plus one fixture acknowledgement per candidate",
+    "fixture transport records preserve event id, event type, correlation id, outbox refs, and handoff refs",
+    "fixture dispatch and acknowledgement counts equal the source outbox candidate count",
+    "the proof rejects product-ready remote delivery, policy authority, side-effect authority, adapter execution, enforcement command publication, live broker/family-hub delivery, provider delivery, child-device delivery, remote delete/export propagation, exact-content, and host-filter claims",
+    "fixture acknowledgements remain local proof records and do not upgrade the service remote-delivery status payload or production transport support"
+  ],
+  "notClaimed": [
+    "live broker dispatch",
+    "live family-hub relay dispatch",
+    "remote provider delivery",
+    "child-device delivery",
+    "remote delete/export propagation implementation",
+    "product-ready remote delivery",
+    "policy authority",
+    "side-effect authority",
+    "enforcement command publication",
+    "adapter action execution",
+    "raw PCAP",
+    "exact URL from network-only evidence",
+    "decrypted payload",
+    "page content",
+    "video content",
+    "private-message content",
+    "search-query content",
+    "host filtering"
+  ]
+}

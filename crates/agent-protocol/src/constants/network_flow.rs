@@ -116,6 +116,11 @@ pub const TEST_REMOTE_DELIVERY_DISPATCH_BLOCKED_MANUAL_REF: &str =
     "network.remote-delivery.dispatch-blocked-manual-required.10k";
 pub const TEST_REMOTE_DELIVERY_FUTURE_TRANSPORT_SEAM_REF: &str =
     "network.remote-delivery.future-transport-seam.10k";
+pub const TEST_REMOTE_DELIVERY_FIXTURE_TRANSPORT_REF: &str =
+    "network.remote-delivery.fixture-transport.10l";
+pub const TEST_REMOTE_DELIVERY_FIXTURE_DISPATCH_ATTEMPT_REF: &str =
+    "network.remote-delivery.fixture-dispatch-attempt.10l";
+pub const TEST_REMOTE_DELIVERY_FIXTURE_ACK_REF: &str = "network.remote-delivery.fixture-ack.10l";
 pub const TEST_REMOTE_EVENT_CHAIN_JOURNAL_PATH_PREFIX: &str =
     "ocentra-network-remote-event-chain-journal";
 pub const TEST_REMOTE_EVENT_CHAIN_JOURNAL_EXTENSION: &str = "ndjson";
@@ -186,3 +191,5 @@ pub const ERROR_NETWORK_RUNTIME_REMOTE_NO_ENFORCEMENT_INVARIANT: &str =
     "network runtime remote no-enforcement invariant proof";
 pub const ERROR_NETWORK_RUNTIME_REMOTE_TRANSPORT_DISPATCH_STATE: &str =
     "network runtime remote transport dispatch state proof";
+pub const ERROR_NETWORK_RUNTIME_REMOTE_FIXTURE_TRANSPORT: &str =
+    "network runtime remote fixture transport proof";
