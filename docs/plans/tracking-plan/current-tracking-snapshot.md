@@ -36,6 +36,10 @@
   Android emulator package, foreground-service, permission, and local emulator
   geofence evidence into child-runtime readiness accounting while preserving
   actual child-device runtime artifacts as P4 manual-required proof.
+- Child-runtime product-readiness blocker proof now consumes that Android
+  emulator readiness bridge, so local package launch, foreground-service, and
+  emulator geofence prerequisite accounting are tied to the child-runtime
+  blocker rows without claiming actual child-device delivery/execution.
 - iOS simulator/manual-required proof exists for package-preview/simulator
   routing and privacy-disclosure release gates. It is not iOS Always/region or
   real-device proof.

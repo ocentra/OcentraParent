@@ -372,6 +372,15 @@ runtime, parent receipt runtime, physical-device proof, authority, provider
 delivery, production workers, and product-ready tracking unclaimed until the P4
 child-device runtime artifacts exist.
 
+The child-runtime product-readiness blocker proof now consumes that Android
+emulator readiness bridge in addition to the snapshot-requirements proof. Its
+rows carry package launch, foreground-service, local emulator geofence count,
+and missing child-runtime artifact accounting while still blocking actual
+child-device delivery/execution, rendered child UI runtime, parent receipt
+runtime, physical-device proof, authority, provider delivery, production
+workers, and product-ready tracking until the real child-device runtime artifact
+set exists.
+
 This branch refreshes
 `node scripts/test/tracking-child-check-in-timeout-escalation-proof.mjs`, which
 derives WP18 child check-in rows for waiting, safe response, help response,

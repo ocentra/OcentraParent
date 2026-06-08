@@ -181,12 +181,14 @@ expose location or device-status features. Parents expect this category.
   product-ready claims false.
 - WP30 child-runtime product-readiness blocker proof now exists through
   `node scripts/test/tracking-child-runtime-product-readiness-blocker-proof.mjs`.
-  It consumes the snapshot-requirements proof, records the remaining actual
-  delivery, execution-result, rendered child UI, parent receipt, runtime
-  observation, physical-device, and authority blockers, writes WP30/WP33
-  artifacts, and keeps child-device delivery/execution, provider delivery,
-  notification receipt ingestion, live location runtime, physical-device proof,
-  authority, production workers, and product-ready claims false.
+  It consumes the snapshot-requirements proof plus the Android emulator
+  readiness bridge, records package/foreground-service/local geofence
+  prerequisite accounting, records the remaining actual delivery,
+  execution-result, rendered child UI, parent receipt, runtime observation,
+  physical-device, and authority blockers, writes WP30/WP33 artifacts, and
+  keeps child-device delivery/execution, provider delivery, notification receipt
+  ingestion, live location runtime, physical-device proof, authority, production
+  workers, and product-ready claims false.
 - WP30/WP33 child-runtime artifact gate proof now exists through
   `node scripts/test/tracking-child-runtime-artifact-gate-proof.mjs`. It checks
   the required child-device runtime execution proof root for delivery envelope,
