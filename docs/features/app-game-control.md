@@ -1360,6 +1360,13 @@ diagnostics, or raw private source rows.
       or receipt, provider delivery/receipt ingestion, durable production
       outbox runtime, adapter dispatch, broad blocking, platform enforcement,
       raw private source rows, raw target values, or private diagnostics.
+      The portal command-result panel now renders those receipt-pending
+      refs/status beside the action-result persistence, mutation receipt,
+      handoff, queue, dispatch, and receipt-required details while keeping
+      receipt-pending readiness distinct from actual child runtime
+      delivery/receipt, provider delivery/receipt ingestion, durable outbox
+      runtime, adapter dispatch, broad-blocking, platform-enforcement,
+      raw-source, raw-target, and private-diagnostic claims.
 - [ ] Adapter capability status per platform. Cross-platform authority and
       broad-blocking gate contracts now record manual-required, unavailable,
       and not-claimed proof requirements. Platform-extension routing now maps

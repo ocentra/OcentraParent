@@ -78,6 +78,8 @@ const TimerParentSurfaceDetails = {
   ChildRuntimeDispatchStatus: decodeDisplayText('Child runtime dispatch status'),
   ChildRuntimeReceiptRequirementRefs: decodeDisplayText('Child runtime receipt-required refs'),
   ChildRuntimeReceiptRequirementStatus: decodeDisplayText('Child runtime receipt-required status'),
+  ChildRuntimeReceiptPendingRefs: decodeDisplayText('Child runtime receipt-pending refs'),
+  ChildRuntimeReceiptPendingStatus: decodeDisplayText('Child runtime receipt-pending status'),
   ParentPreferenceSetupAcceptedAt: decodeDisplayText('Parent preference setup accepted at'),
   ParentPreferenceSetupActionResultRefs: decodeDisplayText('Parent preference setup action-result refs'),
   ParentPreferenceSetupActionResultStatus: decodeDisplayText('Parent preference setup action-result status'),
@@ -543,6 +545,14 @@ export function createAppGameTimerParentPreferenceSetupCommandResultDetails(
       TimerParentSurfaceDetails.ChildRuntimeReceiptRequirementStatus,
       parentPreferenceSetupResultStatus(result.value.childRuntimeDeliveryReceiptRequirementStatus)
     ),
+    detail(
+      TimerParentSurfaceDetails.ChildRuntimeReceiptPendingRefs,
+      joinedOrNotReported(result.value.childRuntimeDeliveryReceiptPendingIds)
+    ),
+    detail(
+      TimerParentSurfaceDetails.ChildRuntimeReceiptPendingStatus,
+      parentPreferenceSetupResultStatus(result.value.childRuntimeDeliveryReceiptPendingStatus)
+    ),
     detail(TimerParentSurfaceDetails.ParentPreferenceSetupMutation, Readable.NotClaimed),
     detail(TimerParentSurfaceDetails.ParentPreferenceSetupRuleMutation, Readable.NotClaimed),
     detail(PortalDetails.ChildDelivery, claimedValue(result.value.childRuntimeDeliveryClaimed)),
@@ -595,6 +605,9 @@ function parentPreferenceSetupResultStatus(status: string): DisplayText {
     return Readable.Ready;
   }
   if (status === 'receipt-required') {
+    return Readable.Ready;
+  }
+  if (status === 'receipt-pending') {
     return Readable.Ready;
   }
   if (status === 'accepted') {

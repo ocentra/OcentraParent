@@ -292,6 +292,14 @@ function expectControlActionResultVisibility() {
 function expectParentPreferenceSetupCommandResultVisibility() {
   const details = createAppGameTimerParentPreferenceSetupCommandResultDetails(parentPreferenceSetupRequestedEvent());
 
+  expectParentPreferenceSetupResultPersistence(details);
+  expectParentPreferenceSetupChildRuntimeReadiness(details);
+  expectParentPreferenceSetupNoClaimBoundaries(details);
+}
+
+function expectParentPreferenceSetupResultPersistence(
+  details: readonly ReturnType<typeof createAppGameTimerParentPreferenceSetupCommandResultDetails>[number][]
+) {
   expect(details).toContainEqual({
     label: 'Status',
     value: 'Ready',
@@ -312,6 +320,11 @@ function expectParentPreferenceSetupCommandResultVisibility() {
     label: 'Parent preference setup mutation receipt status',
     value: 'Persisted',
   });
+}
+
+function expectParentPreferenceSetupChildRuntimeReadiness(
+  details: readonly ReturnType<typeof createAppGameTimerParentPreferenceSetupCommandResultDetails>[number][]
+) {
   expect(details).toContainEqual({
     label: 'Child runtime handoff refs',
     value: 'app-game-parent-preference-setup-child-runtime-handoff::request-1',
@@ -345,6 +358,20 @@ function expectParentPreferenceSetupCommandResultVisibility() {
     label: 'Child runtime receipt-required status',
     value: 'Ready',
   });
+  expect(details).toContainEqual({
+    label: 'Child runtime receipt-pending refs',
+    value:
+      'app-game-parent-preference-setup-child-runtime-receipt-pending::request-1 | app-game-parent-preference-setup-child-runtime-receipt-required::request-1',
+  });
+  expect(details).toContainEqual({
+    label: 'Child runtime receipt-pending status',
+    value: 'Ready',
+  });
+}
+
+function expectParentPreferenceSetupNoClaimBoundaries(
+  details: readonly ReturnType<typeof createAppGameTimerParentPreferenceSetupCommandResultDetails>[number][]
+) {
   expect(details).toContainEqual({
     label: 'Parent preference setup mutation',
     value: 'Not claimed',
