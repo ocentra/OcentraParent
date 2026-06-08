@@ -65,6 +65,10 @@ Proof root: `output/tracking-plan-proof/09-android-background-location-and-geofe
 - [x] Add a parent-domain system-geofence blocker proof that consumes the
       emulator proof and fails if zero system proximity broadcast counters are
       treated as Android system geofence delivery.
+- [x] Classify local emulator evidence separately from the missing Android
+      system runtime artifact set for system proximity broadcasts, dwell
+      transitions, physical-device background geofencing, and authority-enrolled
+      runtime proof.
 - [x] Cross-reference WP10 low-power, app-killed/restarted, pending-upload, and
       manual-required status-gap rows from the WP09 geofence proof while
       preserving no Android system geofencing, no dwell, and no physical-device
@@ -112,10 +116,14 @@ rows exist; a future nonzero system count must come from
 system geofence blocker proof now writes
 `26-android-system-geofence-blocker-proof.json` and
 `test-results/tracking-android-system-geofence-blocker-proof/proof.json` for
-that exact blocker. Android
-system geofence delivery, dwell transition, physical-device background
-behavior, authority, provider delivery, production upload worker, and
-product-ready Android tracking remain unclaimed.
+that exact blocker. The blocker row now carries local evidence refs separately
+from the required runtime artifact refs for system-proximity broadcast
+transitions, dwell-transition observations, physical-device background geofence
+results, and authority-enrolled geofence runtime proof; all runtime refs remain
+missing until a real Android system/physical/authority execution artifact fills
+them. Android system geofence delivery, dwell transition, physical-device
+background behavior, authority, provider delivery, production upload worker,
+and product-ready Android tracking remain unclaimed.
 The same proof now embeds a `backgroundDegradedStatusProof` bridge to
 `output/tracking-plan-proof/10-android-battery-connectivity-and-status-adapter/17-status-gap-proof.json`.
 That bridge covers low-power degraded, app-killed/restarted, pending-upload,
@@ -183,7 +191,10 @@ This workpack can be assigned independently, implemented against the owning doma
       app-owned local geofence enter/exit, and active geofence-limit
       representation are locally observed. Android proximity-alert registration
       and system broadcast transition counters are separated from those local
-      rows. Android system geofencing delivery remains unclaimed unless the
-      system counter is nonzero; dwell transition delivery, physical-device
-      proof, authority, provider delivery, notification delivery, production
-      upload workers, and product-ready Android tracking remain unclaimed.
+      rows. The blocker proof also names the missing Android runtime artifact
+      set for system broadcast delivery, dwell delivery, physical-device proof,
+      and authority proof. Android system geofencing delivery remains unclaimed
+      unless the system counter is nonzero; dwell transition delivery,
+      physical-device proof, authority, provider delivery, notification
+      delivery, production upload workers, and product-ready Android tracking
+      remain unclaimed.

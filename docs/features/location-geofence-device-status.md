@@ -931,7 +931,9 @@ accessibility beyond the hosted parent route are proved.
       proof rows still preserve the remaining Android system geofencing, dwell,
       and device gaps. Android system geofence blocker proof now records that
       app-owned local listener transitions exist while Android system proximity
-      broadcast counters are zero; Android system geofencing/dwell and
+      broadcast counters are zero, and it separately classifies the missing
+      system-proximity broadcast, dwell-transition, physical-device, and
+      authority runtime artifacts; Android system geofencing/dwell and
       physical-device proof remain pending.
 - [x] Android emulator package launch, foreground-service scaffold, battery,
       and connectivity proof. This is not foreground location or geofence
@@ -1181,11 +1183,12 @@ accessibility beyond the hosted parent route are proved.
       enter/exit proof plus active geofence-limit representation and WP10
       status-gap bridge plus separate proximity-alert registration metadata.
       Android system geofence blocker proof now records zero system proximity
-      broadcast counters from that same emulator evidence. This is local
-      emulator evidence only; Android system geofence delivery, dwell
-      transitions, physical-device, authority, provider
-      delivery, production workers, and product-ready Android tracking remain
-      unclaimed.
+      broadcast counters from that same emulator evidence, local evidence
+      artifact refs, and the required Android runtime artifact refs that are
+      still missing. This is local emulator evidence only; Android system
+      geofence delivery, dwell transitions, physical-device, authority,
+      provider delivery, production workers, and product-ready Android tracking
+      remain unclaimed.
 - [x] Evidence-quality gate proof for tracking UI evidence refs, geofence
       source refs, nearby-place context fields, AI no-final-action constraints,
       alert policy-decision refs, and retention before/after proof. This is not

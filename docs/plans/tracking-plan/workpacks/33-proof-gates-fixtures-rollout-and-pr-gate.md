@@ -84,6 +84,9 @@ Proof root: `output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-g
   `64-retention-product-settings-writable-execution-proof.json`
 - Android system geofence blocker proof:
   `44-android-system-geofence-blocker-proof.json`
+  - Classifies the local emulator geofence evidence separately from missing
+    Android system-proximity broadcast, dwell-transition, physical-device, and
+    authority runtime artifacts.
 - WP18 child check-in timeout escalation proof:
   `31-child-check-in-timeout-escalation-proof.json`
 - Hosted child-safe check-in screenshot:

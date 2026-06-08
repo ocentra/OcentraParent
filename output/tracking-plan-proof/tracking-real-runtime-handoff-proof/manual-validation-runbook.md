@@ -1,7 +1,7 @@
 # Tracking Real Runtime Handoff Manual Validation Runbook
 
 - generatedAt: 2026-06-08T01:05:00.000Z
-- commit: 18f779c22e7567c18022e84400783f71d86b74be
+- commit: c277db7d82a06d1f69d0f9f9e3a843b58ef0dce3
 - currentProofTier: P3_LOCAL_DEV_MACHINE
 - requiredProofTier: P4_REAL_RUNTIME_HANDOFF
 - productReadyClaimed: false

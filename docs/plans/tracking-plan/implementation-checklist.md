@@ -122,6 +122,9 @@ Every checked item must cite one or more proof artifacts.
       limit,
       Android system geofence blocker proof for the observed zero
       `LocationManager.addProximityAlert` broadcast counters,
+      explicit local-evidence refs plus missing runtime-artifact refs for the
+      system-proximity broadcast, dwell-transition, physical-device, and
+      authority Android geofence artifacts,
       WP10 low-power/app-restart/pending-upload/manual-required status-gap bridge,
       separate `LocationManager.addProximityAlert` registration metadata plus
       separate Android system proximity broadcast counters that remain distinct
@@ -681,9 +684,10 @@ Every implementation workpack must update, or explicitly justify not updating:
       routing, foreground-service-backed background-activity sample storage,
       local-geofence enter/exit rows, and active geofence-limit representation,
       plus system geofence blocker proof over the observed zero system
-      proximity broadcast counters, but Android system geofencing, dwell
-      transitions, physical-device proof, authority, and product-ready tracking
-      remain manual-required.
+      proximity broadcast counters with explicit missing runtime-artifact
+      accounting, but Android system geofencing, dwell transitions,
+      physical-device proof, authority, and product-ready tracking remain
+      manual-required.
 - [ ] iOS background/region proof is not complete. Parent-domain manual-required
       rows exist, but real Core Location authorization, region monitoring,
       significant-change/visit, background delivery, terminated/relaunch,

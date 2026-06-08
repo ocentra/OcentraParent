@@ -1,5 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import {
+  LocalAndroidSystemGeofenceEvidenceArtifactRefs,
+  RequiredAndroidSystemGeofenceRuntimeArtifactRefs,
   RequiredSystemGeofenceBlockers,
   TrackingAndroidSystemGeofenceBlockerRowSchema,
   buildTrackingAndroidSystemGeofenceBlockerProof,
@@ -24,6 +26,11 @@ describe('tracking android system geofence blocker proof', () => {
     });
     expect(proof.rows[0].localListenerGeofenceTransitionCount).toBe(3);
     expect(proof.rows[0].systemProximityTransitionCount).toBe(0);
+    expect(proof.rows[0].localEvidenceArtifactRefs).toEqual([...LocalAndroidSystemGeofenceEvidenceArtifactRefs]);
+    expect(proof.rows[0].requiredRuntimeArtifactRefs).toEqual([...RequiredAndroidSystemGeofenceRuntimeArtifactRefs]);
+    expect(proof.rows[0].presentRuntimeArtifactRefs).toEqual([]);
+    expect(proof.rows[0].missingRuntimeArtifactRefs).toEqual([...RequiredAndroidSystemGeofenceRuntimeArtifactRefs]);
+    expect(proof.rows[0].runtimeArtifactSetComplete).toBe(false);
     expect(proof.rows[0].blockerRefs).toEqual([...RequiredSystemGeofenceBlockers]);
     expect(proof.productClaims.androidSystemGeofenceDeliveryClaimed).toBe(false);
     expect(proof.productClaims.productClaimReady).toBe(false);
@@ -55,6 +62,21 @@ describe('tracking android system geofence blocker proof', () => {
       TrackingAndroidSystemGeofenceBlockerRowSchema.safeParse({
         ...row,
         blockerRefs: RequiredSystemGeofenceBlockers.slice(0, 1),
+      }).success
+    ).toBe(false);
+  });
+
+  it('rejects incomplete Android system geofence runtime artifact accounting', () => {
+    const [row] = buildTrackingAndroidSystemGeofenceBlockerProof(
+      GeneratedAt,
+      SourceAndroidEmulatorProofRef,
+      emulatorProof()
+    ).rows;
+
+    expect(
+      TrackingAndroidSystemGeofenceBlockerRowSchema.safeParse({
+        ...row,
+        missingRuntimeArtifactRefs: row.missingRuntimeArtifactRefs.slice(0, 1),
       }).success
     ).toBe(false);
   });
