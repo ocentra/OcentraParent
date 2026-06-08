@@ -182,7 +182,9 @@ or runtime-discovery proofs into full household mesh execution.
       `output/screen-ai-pipeline-proof/final-product-path/proof-summary.json`.
 - [x] Final adapter dependency audit validates that product-complete
       broad/browser/network/mobile adapter claims remain blocked until their
-      own screen-derived execution artifacts exist:
+      own screen-derived execution artifacts exist, and now consumes the
+      Linux/Android/iOS custody artifacts while keeping execution claims
+      blocked:
       `output/screen-ai-pipeline-proof/final-adapter-dependency-audit/proof-summary.json`.
 - [x] Adapter blocker ledger proof names the exact missing adapter source
       boundaries, required apply/rollback/audit custody artifacts, and rows

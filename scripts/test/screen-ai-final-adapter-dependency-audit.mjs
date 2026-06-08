@@ -11,6 +11,9 @@ const sourcePaths = {
   adapterReadiness: 'output/screen-ai-pipeline-proof/adapter-readiness/proof-summary.json',
   adapterReadinessReadModel: 'output/screen-ai-pipeline-proof/adapter-readiness/read-model.json',
   finalProductPath: 'output/screen-ai-pipeline-proof/final-product-path/proof-summary.json',
+  linuxHostCustody: 'output/screen-ai-pipeline-proof/linux-host-adapter-custody/proof-summary.json',
+  androidMobileCustody: 'output/screen-ai-pipeline-proof/android-mobile-control-custody/proof-summary.json',
+  iosMobileCustody: 'output/screen-ai-pipeline-proof/ios-mobile-control-custody/proof-summary.json',
   checklist: 'docs/plans/screen-ai-pipeline-plan/implementation-checklist.md',
 };
 
@@ -60,10 +63,39 @@ const failures = [];
 const adapterReadiness = readJson(sourcePaths.adapterReadiness);
 const adapterReadinessReadModel = readJson(sourcePaths.adapterReadinessReadModel);
 const finalProductPath = readJson(sourcePaths.finalProductPath);
+const linuxHostCustody = readJson(sourcePaths.linuxHostCustody);
+const androidMobileCustody = readJson(sourcePaths.androidMobileCustody);
+const iosMobileCustody = readJson(sourcePaths.iosMobileCustody);
 const checklist = readText(sourcePaths.checklist);
 
 const rowById = new Map(adapterReadinessReadModel.rows.map((row) => [row.rowId, row]));
 const blockedRows = requiredBlockedRows.map((requirement) => auditBlockedRow(requirement));
+const custodyRows = [
+  auditCustodyArtifact({
+    rowId: 'screen-ai-linux-host-adapter-unavailable',
+    proof: linuxHostCustody,
+    expectedStatus: 'linux-host-custody-artifact-written-final-execution-blocked',
+    closureKey: 'linuxHostApplyCustodyRecorded',
+    executionKey: 'linuxHostApplyExecuted',
+    artifactPath: sourcePaths.linuxHostCustody,
+  }),
+  auditCustodyArtifact({
+    rowId: 'screen-ai-android-mobile-control-manual-required',
+    proof: androidMobileCustody,
+    expectedStatus: 'android-mobile-control-custody-artifact-written-final-execution-blocked',
+    closureKey: 'androidMobileApplyCustodyRecorded',
+    executionKey: 'androidMobileApplyExecuted',
+    artifactPath: sourcePaths.androidMobileCustody,
+  }),
+  auditCustodyArtifact({
+    rowId: 'screen-ai-ios-mobile-control-manual-required',
+    proof: iosMobileCustody,
+    expectedStatus: 'ios-mobile-control-custody-artifact-written-final-execution-blocked',
+    closureKey: 'iosMobileApplyCustodyRecorded',
+    executionKey: 'iosMobileApplyExecuted',
+    artifactPath: sourcePaths.iosMobileCustody,
+  }),
+];
 const executedRows = adapterReadinessReadModel.rows.filter((row) => row.actionExecutionState === 'executed');
 const openChecklistRowPresent = checklist.includes(
   '- [ ] Browser, network, mobile, and broad block adapters proven from screen-derived decisions before product-complete action claims.'
@@ -85,6 +117,18 @@ assert(
   openChecklistRowPresent,
   'product-complete adapter checklist row should remain open until upstream artifacts exist'
 );
+assert(
+  checklist.includes('`output/screen-ai-pipeline-proof/linux-host-adapter-custody/proof-summary.json`'),
+  'screen-ai checklist must cite Linux custody artifact'
+);
+assert(
+  checklist.includes('`output/screen-ai-pipeline-proof/android-mobile-control-custody/proof-summary.json`'),
+  'screen-ai checklist must cite Android custody artifact'
+);
+assert(
+  checklist.includes('`output/screen-ai-pipeline-proof/ios-mobile-control-custody/proof-summary.json`'),
+  'screen-ai checklist must cite iOS custody artifact'
+);
 
 if (failures.length > 0) {
   throw new Error(
@@ -105,12 +149,15 @@ const proof = {
     openChecklistRowRetained: true,
     executedAdapterRows: executedRows.length,
     blockedAdapterRows: blockedRows.length,
+    custodyArtifactRows: custodyRows.length,
     claimUpgradeRows: adapterReadiness.summary.claimUpgradeRows,
   },
   blockedRows,
+  custodyRows,
   nextRequiredArtifacts: blockedRows.map((row) => ({
     rowId: row.rowId,
     boundary: row.boundary,
+    custodyArtifact: row.custodyArtifact ?? null,
     missingArtifact: row.missingArtifact,
   })),
   nonClaims: [
@@ -152,6 +199,32 @@ function auditBlockedRow(requirement) {
   return rowAudit;
 }
 
+function auditCustodyArtifact({ rowId, proof, expectedStatus, closureKey, executionKey, artifactPath }) {
+  assert(proof.status === expectedStatus, `${rowId} custody proof status changed`);
+  assert(proof.closure?.screenDerivedBlockDecisionPreserved === true, `${rowId} lost screen-derived decision custody`);
+  assert(proof.closure?.[closureKey] === true, `${rowId} apply custody is not recorded`);
+  assert(proof.closure?.[executionKey] === false, `${rowId} execution unexpectedly claimed`);
+  assert(proof.closure?.finalAdapterCompletionClaimed === false, `${rowId} claimed final adapter completion`);
+  assert(proof.closure?.productCompleteAdapterRowStillOpen === true, `${rowId} closed product-complete row`);
+
+  const blockedRow = blockedRows.find((row) => row.rowId === rowId);
+  if (blockedRow) {
+    blockedRow.custodyArtifact = artifactPath;
+    blockedRow.custodyRecorded = true;
+  }
+
+  return {
+    rowId,
+    artifactPath,
+    status: proof.status,
+    screenDerivedBlockDecisionPreserved: proof.closure?.screenDerivedBlockDecisionPreserved === true,
+    applyCustodyRecorded: proof.closure?.[closureKey] === true,
+    executionClaimed: proof.closure?.[executionKey] === true,
+    finalAdapterCompletionClaimed: proof.closure?.finalAdapterCompletionClaimed === true,
+    productCompleteAdapterRowStillOpen: proof.closure?.productCompleteAdapterRowStillOpen === true,
+  };
+}
+
 function readJson(path) {
   return JSON.parse(readText(path));
 }
@@ -176,7 +249,10 @@ function snapshot(proof) {
   const blockers = proof.blockedRows
     .map((row) => `- ${row.rowId}: ${row.readinessState}, ${row.missingArtifact}`)
     .join('\n');
-  return `# Screen AI Final Adapter Dependency Audit\n\nGenerated: ${proof.generatedAt}\n\n## Source Artifacts\n\n${sources}\n\n## Blocked Adapter Rows\n\n${blockers}\n\n## Closure\n\n\`\`\`json\n${JSON.stringify(proof.closure, null, 2)}\n\`\`\`\n`;
+  const custody = proof.custodyRows
+    .map((row) => `- ${row.rowId}: ${row.status}, executionClaimed=${row.executionClaimed}`)
+    .join('\n');
+  return `# Screen AI Final Adapter Dependency Audit\n\nGenerated: ${proof.generatedAt}\n\n## Source Artifacts\n\n${sources}\n\n## Blocked Adapter Rows\n\n${blockers}\n\n## Custody Artifacts\n\n${custody}\n\n## Closure\n\n\`\`\`json\n${JSON.stringify(proof.closure, null, 2)}\n\`\`\`\n`;
 }
 
 function validationCommands() {

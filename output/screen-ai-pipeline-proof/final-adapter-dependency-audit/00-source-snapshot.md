@@ -1,12 +1,15 @@
 # Screen AI Final Adapter Dependency Audit
 
-Generated: 2026-06-07T22:23:47.749Z
+Generated: 2026-06-08T01:11:12.414Z
 
 ## Source Artifacts
 
 - adapterReadiness: `output/screen-ai-pipeline-proof/adapter-readiness/proof-summary.json`
 - adapterReadinessReadModel: `output/screen-ai-pipeline-proof/adapter-readiness/read-model.json`
 - finalProductPath: `output/screen-ai-pipeline-proof/final-product-path/proof-summary.json`
+- linuxHostCustody: `output/screen-ai-pipeline-proof/linux-host-adapter-custody/proof-summary.json`
+- androidMobileCustody: `output/screen-ai-pipeline-proof/android-mobile-control-custody/proof-summary.json`
+- iosMobileCustody: `output/screen-ai-pipeline-proof/ios-mobile-control-custody/proof-summary.json`
 - checklist: `docs/plans/screen-ai-pipeline-plan/implementation-checklist.md`
 
 ## Blocked Adapter Rows
@@ -17,6 +20,12 @@ Generated: 2026-06-07T22:23:47.749Z
 - screen-ai-android-mobile-control-manual-required: manual-required, Android device-owner/managed-profile control proof from a screen-derived mobile decision
 - screen-ai-ios-mobile-control-manual-required: manual-required, iOS Family Controls/DeviceActivity control proof from a screen-derived mobile decision
 - screen-ai-linux-host-adapter-unavailable: unavailable, Linux host adapter apply, rollback, and audit custody proof from a screen-derived decision
+
+## Custody Artifacts
+
+- screen-ai-linux-host-adapter-unavailable: linux-host-custody-artifact-written-final-execution-blocked, executionClaimed=false
+- screen-ai-android-mobile-control-manual-required: android-mobile-control-custody-artifact-written-final-execution-blocked, executionClaimed=false
+- screen-ai-ios-mobile-control-manual-required: ios-mobile-control-custody-artifact-written-final-execution-blocked, executionClaimed=false
 
 ## Closure
 
@@ -29,6 +38,7 @@ Generated: 2026-06-07T22:23:47.749Z
   "openChecklistRowRetained": true,
   "executedAdapterRows": 2,
   "blockedAdapterRows": 6,
+  "custodyArtifactRows": 3,
   "claimUpgradeRows": 0
 }
 ```

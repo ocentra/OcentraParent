@@ -1,11 +1,14 @@
 {
   "status": "blocked-by-upstream-adapter-artifacts",
   "proofKind": "screen-ai-final-adapter-dependency-audit",
-  "generatedAt": "2026-06-07T22:23:47.749Z",
+  "generatedAt": "2026-06-08T01:11:12.414Z",
   "sourceArtifacts": {
     "adapterReadiness": "output/screen-ai-pipeline-proof/adapter-readiness/proof-summary.json",
     "adapterReadinessReadModel": "output/screen-ai-pipeline-proof/adapter-readiness/read-model.json",
     "finalProductPath": "output/screen-ai-pipeline-proof/final-product-path/proof-summary.json",
+    "linuxHostCustody": "output/screen-ai-pipeline-proof/linux-host-adapter-custody/proof-summary.json",
+    "androidMobileCustody": "output/screen-ai-pipeline-proof/android-mobile-control-custody/proof-summary.json",
+    "iosMobileCustody": "output/screen-ai-pipeline-proof/ios-mobile-control-custody/proof-summary.json",
     "checklist": "docs/plans/screen-ai-pipeline-plan/implementation-checklist.md"
   },
   "closure": {
@@ -16,6 +19,7 @@
     "openChecklistRowRetained": true,
     "executedAdapterRows": 2,
     "blockedAdapterRows": 6,
+    "custodyArtifactRows": 3,
     "claimUpgradeRows": 0
   },
   "blockedRows": [
@@ -61,7 +65,9 @@
       "rawImageRetained": false,
       "rawImageDeletedBeforeAdapter": true,
       "claimFlagsAllFalse": true,
-      "missingArtifact": "Android device-owner/managed-profile control proof from a screen-derived mobile decision"
+      "missingArtifact": "Android device-owner/managed-profile control proof from a screen-derived mobile decision",
+      "custodyArtifact": "output/screen-ai-pipeline-proof/android-mobile-control-custody/proof-summary.json",
+      "custodyRecorded": true
     },
     {
       "rowId": "screen-ai-ios-mobile-control-manual-required",
@@ -72,7 +78,9 @@
       "rawImageRetained": false,
       "rawImageDeletedBeforeAdapter": true,
       "claimFlagsAllFalse": true,
-      "missingArtifact": "iOS Family Controls/DeviceActivity control proof from a screen-derived mobile decision"
+      "missingArtifact": "iOS Family Controls/DeviceActivity control proof from a screen-derived mobile decision",
+      "custodyArtifact": "output/screen-ai-pipeline-proof/ios-mobile-control-custody/proof-summary.json",
+      "custodyRecorded": true
     },
     {
       "rowId": "screen-ai-linux-host-adapter-unavailable",
@@ -83,38 +91,78 @@
       "rawImageRetained": false,
       "rawImageDeletedBeforeAdapter": true,
       "claimFlagsAllFalse": true,
-      "missingArtifact": "Linux host adapter apply, rollback, and audit custody proof from a screen-derived decision"
+      "missingArtifact": "Linux host adapter apply, rollback, and audit custody proof from a screen-derived decision",
+      "custodyArtifact": "output/screen-ai-pipeline-proof/linux-host-adapter-custody/proof-summary.json",
+      "custodyRecorded": true
+    }
+  ],
+  "custodyRows": [
+    {
+      "rowId": "screen-ai-linux-host-adapter-unavailable",
+      "artifactPath": "output/screen-ai-pipeline-proof/linux-host-adapter-custody/proof-summary.json",
+      "status": "linux-host-custody-artifact-written-final-execution-blocked",
+      "screenDerivedBlockDecisionPreserved": true,
+      "applyCustodyRecorded": true,
+      "executionClaimed": false,
+      "finalAdapterCompletionClaimed": false,
+      "productCompleteAdapterRowStillOpen": true
+    },
+    {
+      "rowId": "screen-ai-android-mobile-control-manual-required",
+      "artifactPath": "output/screen-ai-pipeline-proof/android-mobile-control-custody/proof-summary.json",
+      "status": "android-mobile-control-custody-artifact-written-final-execution-blocked",
+      "screenDerivedBlockDecisionPreserved": true,
+      "applyCustodyRecorded": true,
+      "executionClaimed": false,
+      "finalAdapterCompletionClaimed": false,
+      "productCompleteAdapterRowStillOpen": true
+    },
+    {
+      "rowId": "screen-ai-ios-mobile-control-manual-required",
+      "artifactPath": "output/screen-ai-pipeline-proof/ios-mobile-control-custody/proof-summary.json",
+      "status": "ios-mobile-control-custody-artifact-written-final-execution-blocked",
+      "screenDerivedBlockDecisionPreserved": true,
+      "applyCustodyRecorded": true,
+      "executionClaimed": false,
+      "finalAdapterCompletionClaimed": false,
+      "productCompleteAdapterRowStillOpen": true
     }
   ],
   "nextRequiredArtifacts": [
     {
       "rowId": "screen-ai-broad-installed-app-manual-required",
       "boundary": "broad-installed-app-blocking",
+      "custodyArtifact": null,
       "missingArtifact": "broad installed-app apply, rollback, and audit custody proof from a screen-derived block decision"
     },
     {
       "rowId": "screen-ai-host-network-domain-manual-required",
       "boundary": "host-network-domain-blocking",
+      "custodyArtifact": null,
       "missingArtifact": "host DNS/filter apply, rollback, and audit custody proof from a screen-derived network/domain decision"
     },
     {
       "rowId": "screen-ai-managed-active-tab-not-claimed",
       "boundary": "managed-exact-active-tab-enforcement",
+      "custodyArtifact": null,
       "missingArtifact": "managed active-tab exact URL apply, rollback, and audit custody proof from a screen-derived browser decision"
     },
     {
       "rowId": "screen-ai-android-mobile-control-manual-required",
       "boundary": "android-mobile-control-adapter",
+      "custodyArtifact": "output/screen-ai-pipeline-proof/android-mobile-control-custody/proof-summary.json",
       "missingArtifact": "Android device-owner/managed-profile control proof from a screen-derived mobile decision"
     },
     {
       "rowId": "screen-ai-ios-mobile-control-manual-required",
       "boundary": "ios-mobile-control-adapter",
+      "custodyArtifact": "output/screen-ai-pipeline-proof/ios-mobile-control-custody/proof-summary.json",
       "missingArtifact": "iOS Family Controls/DeviceActivity control proof from a screen-derived mobile decision"
     },
     {
       "rowId": "screen-ai-linux-host-adapter-unavailable",
       "boundary": "linux-host-adapter",
+      "custodyArtifact": "output/screen-ai-pipeline-proof/linux-host-adapter-custody/proof-summary.json",
       "missingArtifact": "Linux host adapter apply, rollback, and audit custody proof from a screen-derived decision"
     }
   ],
