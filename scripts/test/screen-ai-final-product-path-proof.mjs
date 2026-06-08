@@ -17,9 +17,12 @@ const aiPlanClosure = load(SourcePaths.aiPlanClosure);
 const blockActionDispatch = load(SourcePaths.blockActionDispatch);
 const deletionRetentionCustody = load(SourcePaths.deletionRetentionCustody);
 const finalAdapterAudit = load(SourcePaths.finalAdapterAudit);
+const householdMeshScreenAi = load(SourcePaths.householdMeshScreenAi);
+const householdProviderResultValidation = load(SourcePaths.householdProviderResultValidation);
 const portalChain = load(SourcePaths.portalChain);
 const protectedSurface = load(SourcePaths.protectedSurface);
 const readModel = load(SourcePaths.readModel);
+const noRawScreenTransferMesh = load(SourcePaths.noRawScreenTransferMesh);
 const retentionSweeper = load(SourcePaths.retentionSweeper);
 const screenPlanClosure = load(SourcePaths.screenPlanClosure);
 const serviceReadModel = load(SourcePaths.serviceReadModel);
@@ -39,6 +42,7 @@ const closure = {
   retentionCustodyProven: validateDeletionCustody(),
   protectedSurfaceSkipProven: validateProtectedSurface(),
   finalAdapterAuditProven: validateFinalAdapterAudit(),
+  householdMeshBoundaryProven: validateHouseholdMeshBoundary(),
   screenPlanClosureAudited: validateScreenPlanClosure(),
   aiPlanClosureAudited: validateAiPlanClosure(),
 };
@@ -76,6 +80,7 @@ const proof = {
     finalPipelineProductComplete: false,
     finalPipelineProductCompleteBlockedByAdapterGate: true,
     custodyArtifactRows: finalAdapterAudit.closure?.custodyArtifactRows,
+    householdMeshConsumesRedactedRefsOnly: closure.householdMeshBoundaryProven,
     singleRuntimeSessionRerun: false,
     retainedRealRunArtifactsVerified: true,
     rawScreenshotsRetainedByDefault: false,
@@ -87,6 +92,7 @@ const proof = {
     'Managed-browser trigger producer ownership, authenticated-account social proof, and broad browser/network/mobile/Linux adapters remain separate unless their own execution artifacts are cited.',
     'The custody-aware final adapter audit is required by this proof and keeps broad/browser/network/mobile/Linux product-complete adapter execution blocked.',
     'The screen-plan and AI-plan closure audits are required by this proof; they stack prerequisites without overriding remaining external adapter and platform gates.',
+    'Household mesh provider routing artifacts are required by this proof; provider work may carry redacted/custody refs only and child-agent validation remains local before policy.',
     'The proof closes the stacked real trigger-to-analysis-to-policy-to-action/read-model-to-deletion evidence path from current artifacts; it does not make raw screenshot retention or live view product claims.',
   ],
 };
@@ -306,6 +312,83 @@ function validateFinalAdapterAudit() {
   assert(
     finalAdapterAudit.custodyRows?.every((row) => row.productCompleteAdapterRowStillOpen === true) === true,
     'final adapter audit custody row closes product-complete row'
+  );
+  return true;
+}
+
+function validateHouseholdMeshBoundary() {
+  assert(
+    householdMeshScreenAi.proofMode === 'household-mesh-screen-ai',
+    'household mesh screen AI proof mode mismatch'
+  );
+  for (const expectedEvent of [
+    'screen.mesh.work.queued',
+    'screen.mesh.claim.granted',
+    'screen.mesh.lease.created',
+    'screen.mesh.provider-result.returned',
+    'screen.mesh.child-result.accepted',
+    'screen.mesh.policy.requested',
+  ]) {
+    assert(householdMeshScreenAi.eventChain?.includes(expectedEvent), `household mesh missing ${expectedEvent}`);
+  }
+  assert(
+    (householdMeshScreenAi.claimsProved ?? []).some((claim) => claim.includes('provider claim and lease phases')),
+    'household mesh proof does not claim provider claim/lease phases'
+  );
+  assert(
+    (householdMeshScreenAi.claimsProved ?? []).some((claim) =>
+      claim.includes('validates provider result before policy')
+    ),
+    'household mesh proof lacks child-agent validation before policy'
+  );
+  assert(
+    (householdMeshScreenAi.claimsProved ?? []).some((claim) =>
+      claim.includes('cannot publish policy or enforcement events')
+    ),
+    'household mesh proof allows provider-authored policy/enforcement'
+  );
+  assert(
+    (householdMeshScreenAi.claimsProved ?? []).some((claim) => claim.includes('not raw screenshot transfer')),
+    'household mesh proof lacks no-raw-screenshot-transfer claim'
+  );
+  assert(
+    noRawScreenTransferMesh.proofMode === 'no-raw-screen-transfer-mesh',
+    'no-raw screen transfer proof mode mismatch'
+  );
+  assert(
+    (noRawScreenTransferMesh.claimsProved ?? []).some((claim) => claim.includes('not raw screenshot transfer')),
+    'no-raw screen transfer proof lacks no-raw-transfer claim'
+  );
+  assert(
+    noRawScreenTransferMesh.claimsNotProved?.includes(
+      'production mesh bridge transport over authenticated LAN messages'
+    ),
+    'no-raw screen transfer proof lost production transport non-claim'
+  );
+  assert(
+    householdProviderResultValidation.proofMode === 'household-ai-provider-result-validation',
+    'provider result validation proof mode mismatch'
+  );
+  for (const rejectionCase of [
+    'duplicate-result',
+    'expired-lease',
+    'wrong-provider',
+    'wrong-claim',
+    'evidence-mismatch',
+    'custody-mismatch',
+    'raw-image-transfer',
+    'provider-authority-violation',
+  ]) {
+    assert(
+      householdProviderResultValidation.rejectionCases?.includes(rejectionCase),
+      `provider result validation missing ${rejectionCase}`
+    );
+  }
+  assert(
+    (householdProviderResultValidation.claimsProved ?? []).some((claim) =>
+      claim.includes('validates provider result before policy')
+    ),
+    'provider result validation proof lacks child-agent validation claim'
   );
   return true;
 }

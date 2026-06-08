@@ -1,6 +1,6 @@
 # Screen AI Final Product Path Proof
 
-Generated: 2026-06-08T02:30:18.770Z
+Generated: 2026-06-08T02:43:10.373Z
 
 ## Source Artifacts
 
@@ -9,8 +9,11 @@ Generated: 2026-06-08T02:30:18.770Z
 - deletionRetentionCustody: `output/screen-ai-pipeline-proof/deletion-retention-custody/proof-summary.json`
 - aiPlanClosure: `output/ai-plan-proof/local-ai-plan-closure-audit/proof-summary.json`
 - finalAdapterAudit: `output/screen-ai-pipeline-proof/final-adapter-dependency-audit/proof-summary.json`
+- householdMeshScreenAi: `output/screen-ai-pipeline-proof/household-mesh-screen-ai/proof-summary.json`
+- householdProviderResultValidation: `output/ai-plan-proof/household-ai-provider-result-validation/proof-summary.json`
 - liveOperator: `output/screen-ai-pipeline-proof/live-operator/proof-summary.json`
 - liveOperatorAi: `output/ai-plan-proof/live-operator/proof-summary.json`
+- noRawScreenTransferMesh: `output/ai-plan-proof/no-raw-screen-transfer-mesh/proof-summary.json`
 - portalChain: `output/screen-ai-pipeline-proof/portal-chain/proof-summary.json`
 - protectedSurface: `output/screen-ai-pipeline-proof/protected-surface/proof-summary.json`
 - readModel: `output/ai-plan-proof/screen-summary-parent-explanation-read-model/proof-summary.json`
@@ -35,6 +38,7 @@ Generated: 2026-06-08T02:30:18.770Z
   "retentionCustodyProven": true,
   "protectedSurfaceSkipProven": true,
   "finalAdapterAuditProven": true,
+  "householdMeshBoundaryProven": true,
   "screenPlanClosureAudited": true,
   "aiPlanClosureAudited": true,
   "finalPathEvidenceComplete": true,
@@ -44,6 +48,7 @@ Generated: 2026-06-08T02:30:18.770Z
   "finalPipelineProductComplete": false,
   "finalPipelineProductCompleteBlockedByAdapterGate": true,
   "custodyArtifactRows": 3,
+  "householdMeshConsumesRedactedRefsOnly": true,
   "singleRuntimeSessionRerun": false,
   "retainedRealRunArtifactsVerified": true,
   "rawScreenshotsRetainedByDefault": false,

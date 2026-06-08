@@ -1,15 +1,18 @@
 {
   "status": "ok",
   "proofKind": "screen-ai-final-product-path-proof",
-  "generatedAt": "2026-06-08T02:30:18.770Z",
+  "generatedAt": "2026-06-08T02:43:10.373Z",
   "sourceArtifacts": {
     "actionDispatch": "output/screen-ai-pipeline-proof/action-dispatch/proof-summary.json",
     "blockActionDispatch": "output/screen-ai-pipeline-proof/block-action-dispatch/proof-summary.json",
     "deletionRetentionCustody": "output/screen-ai-pipeline-proof/deletion-retention-custody/proof-summary.json",
     "aiPlanClosure": "output/ai-plan-proof/local-ai-plan-closure-audit/proof-summary.json",
     "finalAdapterAudit": "output/screen-ai-pipeline-proof/final-adapter-dependency-audit/proof-summary.json",
+    "householdMeshScreenAi": "output/screen-ai-pipeline-proof/household-mesh-screen-ai/proof-summary.json",
+    "householdProviderResultValidation": "output/ai-plan-proof/household-ai-provider-result-validation/proof-summary.json",
     "liveOperator": "output/screen-ai-pipeline-proof/live-operator/proof-summary.json",
     "liveOperatorAi": "output/ai-plan-proof/live-operator/proof-summary.json",
+    "noRawScreenTransferMesh": "output/ai-plan-proof/no-raw-screen-transfer-mesh/proof-summary.json",
     "portalChain": "output/screen-ai-pipeline-proof/portal-chain/proof-summary.json",
     "protectedSurface": "output/screen-ai-pipeline-proof/protected-surface/proof-summary.json",
     "readModel": "output/ai-plan-proof/screen-summary-parent-explanation-read-model/proof-summary.json",
@@ -31,6 +34,7 @@
     "retentionCustodyProven": true,
     "protectedSurfaceSkipProven": true,
     "finalAdapterAuditProven": true,
+    "householdMeshBoundaryProven": true,
     "screenPlanClosureAudited": true,
     "aiPlanClosureAudited": true,
     "finalPathEvidenceComplete": true,
@@ -40,6 +44,7 @@
     "finalPipelineProductComplete": false,
     "finalPipelineProductCompleteBlockedByAdapterGate": true,
     "custodyArtifactRows": 3,
+    "householdMeshConsumesRedactedRefsOnly": true,
     "singleRuntimeSessionRerun": false,
     "retainedRealRunArtifactsVerified": true,
     "rawScreenshotsRetainedByDefault": false,
@@ -142,6 +147,7 @@
     "Managed-browser trigger producer ownership, authenticated-account social proof, and broad browser/network/mobile/Linux adapters remain separate unless their own execution artifacts are cited.",
     "The custody-aware final adapter audit is required by this proof and keeps broad/browser/network/mobile/Linux product-complete adapter execution blocked.",
     "The screen-plan and AI-plan closure audits are required by this proof; they stack prerequisites without overriding remaining external adapter and platform gates.",
+    "Household mesh provider routing artifacts are required by this proof; provider work may carry redacted/custody refs only and child-agent validation remains local before policy.",
     "The proof closes the stacked real trigger-to-analysis-to-policy-to-action/read-model-to-deletion evidence path from current artifacts; it does not make raw screenshot retention or live view product claims."
   ]
 }
