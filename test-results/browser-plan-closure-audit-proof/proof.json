@@ -1,9 +1,9 @@
 {
   "schemaVersion": 1,
   "proofMode": "browser-plan-closure-audit-proof",
-  "generatedAt": "2026-06-08T03:16:07.069Z",
+  "generatedAt": "2026-06-08T03:24:40.564Z",
   "branch": "codex/d-runtime-ready",
-  "sourceCommitAtGeneration": "8a40052cc537756548e6b89b248df4f4bd367184",
+  "sourceCommitAtGeneration": "eddb23139085955f2f594e104ec1f7a4c35c933e",
   "baseCommit": "893666471dc90fa6b038115e773faa6e35e0e221",
   "checklist": "docs/plans/browser-plan/implementation-checklist.md",
   "summary": {
