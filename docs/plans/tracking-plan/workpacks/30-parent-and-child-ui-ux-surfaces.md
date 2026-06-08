@@ -276,6 +276,15 @@ no-product-claim boundary. It still records no durable production/product-ready
 settings, product-ready service mutation execution, platform
 runtime, child-device delivery, provider delivery, authority, physical-device,
 or product readiness claim.
+
+The child-runtime product-readiness blocker proof now consumes the existing
+parent-child local runtime bridge alongside the child runtime snapshot
+requirements proof and Android emulator readiness bridge. It records typed local
+transport, stored-event count, zero dead letters, child-agent phase coverage,
+and parent read-model projection before the final physical child-device runtime
+handoff, while keeping child-device delivery/execution, rendered child runtime
+UI, parent receipt runtime, physical-device, authority, provider, production,
+and product-ready claims false.
 The hosted route now also renders a read-only evidence drawer card from the
 selected service-backed citation. The repeatable hosted proof captures it at
 `output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/11-ui-snapshots/hosted-policy-tracking-evidence-drawer.png`

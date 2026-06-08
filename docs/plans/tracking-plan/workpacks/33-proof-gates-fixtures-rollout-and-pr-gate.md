@@ -348,6 +348,15 @@ no-overlap layout geometry while keeping full parent/child UI, child-device
 runtime, physical-device, authority, provider delivery, production, and
 product-ready tracking unclaimed.
 
+This branch refreshes
+`node scripts/test/tracking-child-runtime-product-readiness-blocker-proof.mjs`
+so the WP30/WP33 child-runtime blocker consumes the parent-child local runtime
+bridge proof in addition to snapshot requirements and Android emulator
+readiness. The generated blocker evidence now records local stored event count,
+zero dead letters, child-agent phase coverage, typed local transport, and parent
+read-model projection while keeping physical child-device runtime and
+product-ready tracking blocked.
+
 This branch adds
 `node scripts/test/tracking-provider-delivery-artifact-gate-proof.mjs`, which
 writes WP26/WP33 provider-delivery artifact gate proof to

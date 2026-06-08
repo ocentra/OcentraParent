@@ -1,15 +1,20 @@
 # Tracking Child Runtime Product Readiness Blocker Source Snapshot
 
 - generatedAt: 2026-06-07T16:05:00.000Z
-- commit: 1b71968d9db652291cb4f6154122c7b13709df8e
+- commit: 586618738408de6817d5d70e772d9eece066ccfa
 - requiredProofTier: P2_HOSTED_CI
 - currentProofTier: P2_HOSTED_CI
 - status: proved
 - consumes: output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/28-child-runtime-snapshot-requirements-proof.json
 - consumes: output/tracking-plan-proof/tracking-child-runtime-android-emulator-readiness-bridge-proof/proof.json
-- proves child runtime requirement coverage is still product-readiness blocked even with Android emulator prerequisites observed
+- consumes: output/tracking-plan-proof/tracking-parent-child-local-runtime-bridge-proof/proof.json
+- proves child runtime requirement coverage is still product-readiness blocked even with Android emulator prerequisites and local parent-child runtime observed
 - androidEmulatorPrerequisitesObserved: true
 - androidLocalGeofenceTransitionCount: 3
+- localParentChildRuntimeObserved: true
+- parentChildLocalRuntimeStoredEventCount: 9
+- parentChildLocalRuntimeDeadLetterCount: 0
+- parentChildLocalRuntimeChildAgentPhaseCount: 4
 - childRuntimeRequiredArtifactCount: 10
 - childRuntimePresentArtifactCount: 0
 - childRuntimeMissingArtifactCount: 10
