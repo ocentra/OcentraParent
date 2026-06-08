@@ -14,6 +14,7 @@ const commands = [];
 const proofRefs = {
   android: 'test-results/tracking-plan-android-emulator-proof/proof.json',
   androidInventory: 'test-results/tracking-android-emulator-artifact-inventory-proof/proof.json',
+  crossPlatformRuntimeCapability: 'test-results/tracking-cross-platform-runtime-capability-proof/proof.json',
   wsl: 'test-results/tracking-plan-wsl-local-proof/proof.json',
   hostedAccessibility: 'test-results/tracking-plan-hosted-ui-proof/accessibility-summary.json',
   hostedInventory: 'test-results/tracking-hosted-ui-artifact-inventory-proof/proof.json',
@@ -33,6 +34,7 @@ async function main() {
 
   run('cmd', ['/c', 'npm', 'run', 'build', '--workspace', '@ocentra-parent/parent-domain']);
   run('cmd', ['/c', 'npm', 'run', 'test', '--workspace', '@ocentra-parent/parent-domain', '--', proofMode]);
+  run('cmd', ['/c', 'node', 'scripts/test/tracking-cross-platform-runtime-capability-proof.mjs']);
 
   const proofModule = await importDist('tracking-local-platform-proof-batch.js');
   const source = await readSourceProofs();
@@ -50,6 +52,7 @@ async function readSourceProofs() {
   return {
     android: await readJson(proofRefs.android),
     androidInventory: await readJson(proofRefs.androidInventory),
+    crossPlatformRuntimeCapability: await readJson(proofRefs.crossPlatformRuntimeCapability),
     wsl: await readJson(proofRefs.wsl),
     hostedAccessibility: await readJson(proofRefs.hostedAccessibility),
     hostedInventory: await readJson(proofRefs.hostedInventory),
@@ -90,6 +93,34 @@ function rowsFromSource(source) {
         { name: 'systemProximityBroadcastCount', value: systemBroadcastCount },
       ],
       ciRunnable: false,
+    },
+    {
+      area: 'cross-platform-runtime-capability',
+      status: 'local-proof-passed',
+      proofRef: proofRefs.crossPlatformRuntimeCapability,
+      sourceRefs: source.crossPlatformRuntimeCapability.readModel.rows.flatMap((row) => [
+        row.proofRef,
+        ...row.sourceRefs,
+      ]),
+      currentProofTier: 'P3_LOCAL_DEV_MACHINE',
+      requiredProofTier: 'P4_PHYSICAL_DEVICE',
+      passedLocalAssertions: [
+        'cross-platform proof accounts Windows host, WSL/Linux, Docker, Android SDK, Android Gradle, Android emulator, Android physical status, and macOS/iOS CI/manual routing',
+        'Android SDK and Gradle project build capability are separated from Android physical behavior claims',
+      ],
+      remainingBlockers: [
+        'macOS/iOS runtime execution remains CI/manual-routed from this Windows host',
+        'Android physical location/geofence behavior remains separately gated',
+      ],
+      metrics: [
+        { name: 'crossPlatformRowCount', value: source.crossPlatformRuntimeCapability.summary.rowCount },
+        {
+          name: 'localProofPassedRows',
+          value: source.crossPlatformRuntimeCapability.summary.localProofPassedRows,
+        },
+        { name: 'productReadyRows', value: source.crossPlatformRuntimeCapability.summary.productReadyRows },
+      ],
+      ciRunnable: true,
     },
     {
       area: 'wsl-local-replay',
@@ -227,6 +258,7 @@ function buildProof(readModel, source) {
     },
     proofLabels: [
       'tracking.local-platform-batch.android-emulator',
+      'tracking.local-platform-batch.cross-platform-runtime-capability',
       'tracking.local-platform-batch.wsl-local-replay',
       'tracking.local-platform-batch.hosted-ui-accessibility',
       'tracking.local-platform-batch.product-ui-local-artifacts',
@@ -237,8 +269,8 @@ function buildProof(readModel, source) {
 }
 
 function assertProof(proof) {
-  assert.equal(proof.summary.rowCount, 6, 'expected six local platform batch rows');
-  assert.equal(proof.summary.localProofPassedRows, 5, 'expected five local proof rows');
+  assert.equal(proof.summary.rowCount, 7, 'expected seven local platform batch rows');
+  assert.equal(proof.summary.localProofPassedRows, 6, 'expected six local proof rows');
   assert.equal(proof.summary.manualRequiredRows, 1, 'expected one handoff/manual row');
   assert.equal(proof.summary.productReadyRows, 0, 'product-ready rows must stay zero');
   assert.equal(proof.remainingProductClaimsFalse.productReadyClaimed, false, 'product-ready claim must stay false');
@@ -266,7 +298,7 @@ function sourceSnapshot(proof) {
     `- status: ${proof.status}`,
     `- localProofPassedRows: ${proof.summary.localProofPassedRows}`,
     `- manualRequiredRows: ${proof.summary.manualRequiredRows}`,
-    '- Android emulator, WSL replay, hosted UI accessibility, and product UI local artifacts are aggregated.',
+    '- Android emulator, cross-platform host capability, WSL replay, hosted UI accessibility, and product UI local artifacts are aggregated.',
     '- Physical Android/iOS, child-device runtime, authority, provider, production, and product-ready claims remain false.',
     '',
   ].join('\n');

@@ -48,6 +48,34 @@ const baseRows = [
     localRuntimeClaimed: false,
   },
   {
+    area: 'android-sdk-toolchain',
+    status: 'local-proof-passed',
+    proofRef: 'test-results/tracking-cross-platform-runtime-capability-proof/android-sdk-toolchain.json',
+    sourceRefs: [],
+    currentProofTier: 'P3_LOCAL_ANDROID_TOOLCHAIN',
+    requiredProofTier: 'P3_LOCAL_DEV_MACHINE',
+    observedTooling: ['ANDROID_HOME=C:\\Users\\sujan\\AppData\\Local\\Android\\Sdk', 'adb 36.0.0', 'Java 21'],
+    passedAssertions: ['Android SDK, adb, and Java toolchain are reachable'],
+    remainingBlockers: ['Android SDK proof is not device-owner or physical background proof'],
+    artifactCount: 3,
+    ciRunnable: true,
+    localRuntimeClaimed: true,
+  },
+  {
+    area: 'android-gradle-project-build',
+    status: 'local-proof-passed',
+    proofRef: 'test-results/tracking-cross-platform-runtime-capability-proof/android-gradle-project-build.json',
+    sourceRefs: ['platforms/android/agent/app/build.gradle'],
+    currentProofTier: 'P3_LOCAL_ANDROID_GRADLE_BUILD',
+    requiredProofTier: 'P3_LOCAL_DEV_MACHINE',
+    observedTooling: ['Gradle 8.12.1', ':app:assembleDebug'],
+    passedAssertions: ['Android agent Gradle project can build the debug APK'],
+    remainingBlockers: ['Gradle build is not physical-device runtime behavior'],
+    artifactCount: 2,
+    ciRunnable: true,
+    localRuntimeClaimed: true,
+  },
+  {
     area: 'android-emulator-runtime',
     status: 'local-proof-passed',
     proofRef: 'test-results/tracking-plan-android-emulator-proof/proof.json',
@@ -97,6 +125,8 @@ describe('tracking cross-platform runtime capability proof', () => {
       'windows-host-toolchain',
       'wsl-linux-replay',
       'docker-container-runtime',
+      'android-sdk-toolchain',
+      'android-gradle-project-build',
       'android-emulator-runtime',
       'android-physical-device-status',
       'macos-ios-ci-manual-routing',
@@ -106,13 +136,15 @@ describe('tracking cross-platform runtime capability proof', () => {
   it('keeps product and physical behavior claims false while aggregating local proof', () => {
     const proof = buildTrackingCrossPlatformRuntimeCapabilityProof('2026-06-08T16:30:00.000Z', baseRows);
 
-    expect(proof.rows).toHaveLength(6);
-    expect(proof.summary.localProofPassedRows).toBe(4);
+    expect(proof.rows).toHaveLength(8);
+    expect(proof.summary.localProofPassedRows).toBe(6);
     expect(proof.summary.hostToolUnavailableRows).toBe(1);
     expect(proof.summary.ciManualRequiredRows).toBe(1);
     expect(proof.productClaims.windowsHostToolchainObserved).toBe(true);
     expect(proof.productClaims.wslLinuxReplayObserved).toBe(true);
     expect(proof.productClaims.dockerContainerRuntimeObserved).toBe(false);
+    expect(proof.productClaims.androidSdkToolchainObserved).toBe(true);
+    expect(proof.productClaims.androidGradleProjectBuildObserved).toBe(true);
     expect(proof.productClaims.productClaimReady).toBe(false);
     expect(proof.rows.every((row) => row.physicalDeviceBehaviorClaimed === false)).toBe(true);
   });
