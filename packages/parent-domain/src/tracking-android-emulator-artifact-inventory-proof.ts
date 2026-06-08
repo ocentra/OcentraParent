@@ -299,17 +299,41 @@ function androidEmulatorArtifactInventoryRowIsHonest(row: TrackingAndroidEmulato
   const requiredArtifactSet = new Set(row.requiredArtifacts.map((artifactRef) => String(artifactRef)));
   const artifactRowSet = new Set(row.artifactRows.map((artifact) => String(artifact.artifactRef)));
   return (
+    androidEmulatorArtifactRowsCoverRequirements(row, requiredArtifactSet, artifactRowSet) &&
+    androidEmulatorRuntimeRowsAreObserved(row) &&
+    androidEmulatorArtifactInventoryNonClaimsAreHonest(row)
+  );
+}
+
+function androidEmulatorArtifactRowsCoverRequirements(
+  row: TrackingAndroidEmulatorArtifactInventoryRowInput,
+  requiredArtifactSet: ReadonlySet<string>,
+  artifactRowSet: ReadonlySet<string>
+): boolean {
+  return (
     RequiredTrackingAndroidEmulatorArtifactRefs.every(
       (artifactRef) => requiredArtifactSet.has(artifactRef) && artifactRowSet.has(artifactRef)
     ) &&
     row.requiredArtifacts.length === row.presentArtifacts.length + row.missingArtifacts.length &&
     row.artifactRows.every((artifact) => artifact.required === true) &&
     row.presentArtifacts.every((artifactRef) => requiredArtifactSet.has(String(artifactRef))) &&
-    row.missingArtifacts.every((artifactRef) => requiredArtifactSet.has(String(artifactRef))) &&
+    row.missingArtifacts.every((artifactRef) => requiredArtifactSet.has(String(artifactRef)))
+  );
+}
+
+function androidEmulatorRuntimeRowsAreObserved(row: TrackingAndroidEmulatorArtifactInventoryRowInput): boolean {
+  return (
     row.packageLaunchObserved === true &&
     row.foregroundServiceObserved === true &&
     row.localGeofenceTransitionCount > 0 &&
-    row.systemProximityRegistered === true &&
+    row.systemProximityRegistered === true
+  );
+}
+
+function androidEmulatorArtifactInventoryNonClaimsAreHonest(
+  row: TrackingAndroidEmulatorArtifactInventoryRowInput
+): boolean {
+  return (
     row.androidSystemGeofenceDeliveryClaimed === false &&
     row.physicalDeviceProofClaimed === false &&
     row.authorityProofClaimed === false &&

@@ -231,6 +231,16 @@ function trackingChildRuntimeAndroidEmulatorBridgeRowIsHonest(
   row: TrackingChildRuntimeAndroidEmulatorBridgeRowInput
 ): boolean {
   return (
+    trackingChildRuntimeAndroidEmulatorBridgeRefsAreHonest(row) &&
+    trackingChildRuntimeAndroidEmulatorBridgePrereqsAreHonest(row) &&
+    trackingChildRuntimeAndroidEmulatorBridgeNonClaimsAreHonest(row)
+  );
+}
+
+function trackingChildRuntimeAndroidEmulatorBridgeRefsAreHonest(
+  row: TrackingChildRuntimeAndroidEmulatorBridgeRowInput
+): boolean {
+  return (
     row.sourceProofRefs.includes(row.androidEmulatorProofRef) &&
     row.sourceProofRefs.includes(row.childRuntimeArtifactGateProofRef) &&
     row.androidEvidenceRefs.length > 0 &&
@@ -238,11 +248,25 @@ function trackingChildRuntimeAndroidEmulatorBridgeRowIsHonest(
     row.childRuntimeRequiredArtifacts.length ===
       row.childRuntimePresentArtifacts.length + row.childRuntimeMissingArtifacts.length &&
     row.childRuntimeMissingArtifacts.length > 0 &&
-    row.missingProofReasonRefs.length > 0 &&
+    row.missingProofReasonRefs.length > 0
+  );
+}
+
+function trackingChildRuntimeAndroidEmulatorBridgePrereqsAreHonest(
+  row: TrackingChildRuntimeAndroidEmulatorBridgeRowInput
+): boolean {
+  return (
     row.packageLaunchObserved === true &&
     row.foregroundServiceObserved === true &&
     row.emulatorPrerequisitesObserved === true &&
-    row.childRuntimeArtifactSetComplete === false &&
+    row.childRuntimeArtifactSetComplete === false
+  );
+}
+
+function trackingChildRuntimeAndroidEmulatorBridgeNonClaimsAreHonest(
+  row: TrackingChildRuntimeAndroidEmulatorBridgeRowInput
+): boolean {
+  return (
     row.childDeviceDeliveryRuntimeClaimed === false &&
     row.childDeviceExecutionRuntimeClaimed === false &&
     row.renderedChildDeviceUiRuntimeClaimed === false &&

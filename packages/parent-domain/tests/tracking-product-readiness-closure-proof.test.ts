@@ -12,72 +12,10 @@ describe('tracking product readiness closure proof', () => {
   it('enumerates remaining product blockers while preserving local CI proof refs', () => {
     const proof = buildTrackingProductReadinessClosureProof(GeneratedAt, sourceProofs(), aggregateEvidence());
 
-    expect(proof.sourceProofs.map((sourceProof) => sourceProof.coverageTag)).toEqual([
-      ...RequiredTrackingProductReadinessClosureCoverageTags,
-    ]);
-    expect(proof.rows).toHaveLength(1);
-    expect(proof.rows[0].remainingBlockers).toEqual([...RequiredTrackingProductReadinessClosureBlockers]);
-    expect(proof.productClaims.localCiProofAccountingReady).toBe(true);
-    expect(proof.productClaims.physicalAndroidBackgroundClaimed).toBe(false);
-    expect(proof.productClaims.physicalIosBackgroundClaimed).toBe(false);
-    expect(proof.productClaims.productReadyClaimed).toBe(false);
-    expect(proof.aggregateEvidence.fullProductUiLocalArtifactCount).toBe(5);
-    expect(proof.aggregateEvidence.fullProductUiClosureRetentionWritableExecutionRowCount).toBe(1);
-    expect(proof.aggregateEvidence.fullProductUiClosureChildRuntimeMissingArtifactCount).toBe(10);
-    expect(proof.aggregateEvidence.fullProductUiRuntimePreflightRowCount).toBe(4);
-    expect(proof.aggregateEvidence.fullProductUiRuntimePreflightManualRequiredRowCount).toBe(4);
-    expect(proof.aggregateEvidence.fullProductUiRuntimePreflightRequiredArtifactCount).toBe(4);
-    expect(proof.aggregateEvidence.fullProductUiRuntimePreflightPresentArtifactCount).toBe(0);
-    expect(proof.aggregateEvidence.fullProductUiRuntimePreflightMissingArtifactCount).toBe(4);
-    expect(proof.aggregateEvidence.fullProductUiRuntimePreflightProductReadyRowCount).toBe(0);
-    expect(proof.aggregateEvidence.androidEmulatorRequiredArtifactCount).toBe(12);
-    expect(proof.aggregateEvidence.androidEmulatorPresentArtifactCount).toBe(12);
-    expect(proof.aggregateEvidence.androidEmulatorMissingArtifactCount).toBe(0);
-    expect(proof.aggregateEvidence.androidEmulatorPermissionUiArtifactCount).toBe(3);
-    expect(proof.aggregateEvidence.androidEmulatorRuntimeArtifactCount).toBe(8);
-    expect(proof.aggregateEvidence.androidEmulatorLocalGeofenceTransitionCount).toBe(3);
-    expect(proof.aggregateEvidence.iosSimulatorRequiredArtifactCount).toBe(13);
-    expect(proof.aggregateEvidence.iosSimulatorPresentArtifactCount).toBe(13);
-    expect(proof.aggregateEvidence.iosSimulatorMissingArtifactCount).toBe(0);
-    expect(proof.aggregateEvidence.iosSimulatorPackageArtifactCount).toBe(4);
-    expect(proof.aggregateEvidence.iosSimulatorLocationManualRequiredArtifactCount).toBe(3);
-    expect(proof.aggregateEvidence.iosSimulatorPrivacyDisclosureArtifactCount).toBe(2);
-    expect(proof.aggregateEvidence.iosSimulatorManualRequiredRowCount).toBe(7);
-    expect(proof.aggregateEvidence.iosSimulatorMissingRuntimeArtifactCount).toBe(9);
-    expect(proof.aggregateEvidence.childRuntimeRequiredArtifactCount).toBe(10);
-    expect(proof.aggregateEvidence.childRuntimePresentArtifactCount).toBe(0);
-    expect(proof.aggregateEvidence.childRuntimeMissingArtifactCount).toBe(10);
-    expect(proof.aggregateEvidence.physicalDeviceEvidenceReviewRowCount).toBe(2);
-    expect(proof.aggregateEvidence.physicalDeviceEvidenceReviewArtifactMissingRowCount).toBe(2);
-    expect(proof.aggregateEvidence.physicalDeviceEvidenceReviewContentReviewRequiredRowCount).toBe(0);
-    expect(proof.aggregateEvidence.physicalDeviceEvidenceReviewContentAcceptedRowCount).toBe(0);
-    expect(proof.aggregateEvidence.physicalDeviceEvidenceReviewProductReadyRowCount).toBe(0);
-    expect(proof.aggregateEvidence.retentionRuntimeRequiredArtifactCount).toBe(2);
-    expect(proof.aggregateEvidence.retentionRuntimePresentArtifactCount).toBe(1);
-    expect(proof.aggregateEvidence.retentionRuntimeMissingArtifactCount).toBe(1);
-    expect(proof.aggregateEvidence.retentionRuntimeManualRequiredRowCount).toBe(1);
-    expect(proof.aggregateEvidence.retentionRuntimeArtifactSetPresentRowCount).toBe(0);
-    expect(proof.aggregateEvidence.retentionPlatformPreflightRowCount).toBe(3);
-    expect(proof.aggregateEvidence.retentionPlatformPreflightManualRequiredRowCount).toBe(3);
-    expect(proof.aggregateEvidence.retentionPlatformPreflightRequiredArtifactCount).toBe(6);
-    expect(proof.aggregateEvidence.retentionPlatformPreflightPresentArtifactCount).toBe(0);
-    expect(proof.aggregateEvidence.retentionPlatformPreflightMissingArtifactCount).toBe(6);
-    expect(proof.aggregateEvidence.retentionPlatformPreflightProductReadyRowCount).toBe(0);
-    expect(proof.aggregateEvidence.productionWorkerRequiredArtifactCount).toBe(8);
-    expect(proof.aggregateEvidence.productionWorkerPresentArtifactCount).toBe(0);
-    expect(proof.aggregateEvidence.productionWorkerMissingArtifactCount).toBe(8);
-    expect(proof.aggregateEvidence.productionWorkerPreflightRowCount).toBe(8);
-    expect(proof.aggregateEvidence.productionWorkerPreflightManualRequiredRowCount).toBe(8);
-    expect(proof.aggregateEvidence.productionWorkerPreflightRequiredArtifactCount).toBe(8);
-    expect(proof.aggregateEvidence.productionWorkerPreflightPresentArtifactCount).toBe(0);
-    expect(proof.aggregateEvidence.productionWorkerPreflightMissingArtifactCount).toBe(8);
-    expect(proof.aggregateEvidence.productionWorkerPreflightProductReadyRowCount).toBe(0);
-    expect(proof.aggregateEvidence.claimAuditPresentArtifactCount).toBe(5);
-    expect(proof.aggregateEvidence.claimAuditPhysicalDeviceRequiredRowCount).toBe(7);
-    expect(proof.aggregateEvidence.claimAuditApprovedManualRequiredRowCount).toBe(1);
-    expect(proof.aggregateEvidence.claimAuditManualProviderRuntimeRequiredRowCount).toBe(1);
-    expect(proof.aggregateEvidence.claimAuditProductionRuntimeRequiredRowCount).toBe(2);
-    expect(proof.aggregateEvidence.productClaimReady).toBe(false);
+    expectClosureCoverage(proof);
+    expectFullProductUiAggregate(proof);
+    expectPlatformAggregate(proof);
+    expectRuntimeAndProductionAggregate(proof);
   });
 });
 
@@ -112,6 +50,86 @@ function sourceProofs() {
     status: 'proved',
     proofTier: 'P3_LOCAL_DEV_MACHINE',
   }));
+}
+
+type TrackingProductReadinessClosureProof = ReturnType<typeof buildTrackingProductReadinessClosureProof>;
+
+function expectClosureCoverage(proof: TrackingProductReadinessClosureProof): void {
+  expect(proof.sourceProofs.map((sourceProof) => sourceProof.coverageTag)).toEqual([
+    ...RequiredTrackingProductReadinessClosureCoverageTags,
+  ]);
+  expect(proof.rows).toHaveLength(1);
+  expect(proof.rows[0].remainingBlockers).toEqual([...RequiredTrackingProductReadinessClosureBlockers]);
+  expect(proof.productClaims.localCiProofAccountingReady).toBe(true);
+  expect(proof.productClaims.physicalAndroidBackgroundClaimed).toBe(false);
+  expect(proof.productClaims.physicalIosBackgroundClaimed).toBe(false);
+  expect(proof.productClaims.productReadyClaimed).toBe(false);
+}
+
+function expectFullProductUiAggregate(proof: TrackingProductReadinessClosureProof): void {
+  expect(proof.aggregateEvidence.fullProductUiLocalArtifactCount).toBe(5);
+  expect(proof.aggregateEvidence.fullProductUiClosureRetentionWritableExecutionRowCount).toBe(1);
+  expect(proof.aggregateEvidence.fullProductUiClosureChildRuntimeMissingArtifactCount).toBe(10);
+  expect(proof.aggregateEvidence.fullProductUiRuntimePreflightRowCount).toBe(4);
+  expect(proof.aggregateEvidence.fullProductUiRuntimePreflightManualRequiredRowCount).toBe(4);
+  expect(proof.aggregateEvidence.fullProductUiRuntimePreflightRequiredArtifactCount).toBe(4);
+  expect(proof.aggregateEvidence.fullProductUiRuntimePreflightPresentArtifactCount).toBe(0);
+  expect(proof.aggregateEvidence.fullProductUiRuntimePreflightMissingArtifactCount).toBe(4);
+  expect(proof.aggregateEvidence.fullProductUiRuntimePreflightProductReadyRowCount).toBe(0);
+}
+
+function expectPlatformAggregate(proof: TrackingProductReadinessClosureProof): void {
+  expect(proof.aggregateEvidence.androidEmulatorRequiredArtifactCount).toBe(12);
+  expect(proof.aggregateEvidence.androidEmulatorPresentArtifactCount).toBe(12);
+  expect(proof.aggregateEvidence.androidEmulatorMissingArtifactCount).toBe(0);
+  expect(proof.aggregateEvidence.androidEmulatorPermissionUiArtifactCount).toBe(3);
+  expect(proof.aggregateEvidence.androidEmulatorRuntimeArtifactCount).toBe(8);
+  expect(proof.aggregateEvidence.androidEmulatorLocalGeofenceTransitionCount).toBe(3);
+  expect(proof.aggregateEvidence.iosSimulatorRequiredArtifactCount).toBe(13);
+  expect(proof.aggregateEvidence.iosSimulatorPresentArtifactCount).toBe(13);
+  expect(proof.aggregateEvidence.iosSimulatorMissingArtifactCount).toBe(0);
+  expect(proof.aggregateEvidence.iosSimulatorPackageArtifactCount).toBe(4);
+  expect(proof.aggregateEvidence.iosSimulatorLocationManualRequiredArtifactCount).toBe(3);
+  expect(proof.aggregateEvidence.iosSimulatorPrivacyDisclosureArtifactCount).toBe(2);
+  expect(proof.aggregateEvidence.iosSimulatorManualRequiredRowCount).toBe(7);
+  expect(proof.aggregateEvidence.iosSimulatorMissingRuntimeArtifactCount).toBe(9);
+}
+
+function expectRuntimeAndProductionAggregate(proof: TrackingProductReadinessClosureProof): void {
+  expect(proof.aggregateEvidence.childRuntimeRequiredArtifactCount).toBe(10);
+  expect(proof.aggregateEvidence.childRuntimePresentArtifactCount).toBe(0);
+  expect(proof.aggregateEvidence.childRuntimeMissingArtifactCount).toBe(10);
+  expect(proof.aggregateEvidence.physicalDeviceEvidenceReviewRowCount).toBe(2);
+  expect(proof.aggregateEvidence.physicalDeviceEvidenceReviewArtifactMissingRowCount).toBe(2);
+  expect(proof.aggregateEvidence.physicalDeviceEvidenceReviewContentReviewRequiredRowCount).toBe(0);
+  expect(proof.aggregateEvidence.physicalDeviceEvidenceReviewContentAcceptedRowCount).toBe(0);
+  expect(proof.aggregateEvidence.physicalDeviceEvidenceReviewProductReadyRowCount).toBe(0);
+  expect(proof.aggregateEvidence.retentionRuntimeRequiredArtifactCount).toBe(2);
+  expect(proof.aggregateEvidence.retentionRuntimePresentArtifactCount).toBe(1);
+  expect(proof.aggregateEvidence.retentionRuntimeMissingArtifactCount).toBe(1);
+  expect(proof.aggregateEvidence.retentionRuntimeManualRequiredRowCount).toBe(1);
+  expect(proof.aggregateEvidence.retentionRuntimeArtifactSetPresentRowCount).toBe(0);
+  expect(proof.aggregateEvidence.retentionPlatformPreflightRowCount).toBe(3);
+  expect(proof.aggregateEvidence.retentionPlatformPreflightManualRequiredRowCount).toBe(3);
+  expect(proof.aggregateEvidence.retentionPlatformPreflightRequiredArtifactCount).toBe(6);
+  expect(proof.aggregateEvidence.retentionPlatformPreflightPresentArtifactCount).toBe(0);
+  expect(proof.aggregateEvidence.retentionPlatformPreflightMissingArtifactCount).toBe(6);
+  expect(proof.aggregateEvidence.retentionPlatformPreflightProductReadyRowCount).toBe(0);
+  expect(proof.aggregateEvidence.productionWorkerRequiredArtifactCount).toBe(8);
+  expect(proof.aggregateEvidence.productionWorkerPresentArtifactCount).toBe(0);
+  expect(proof.aggregateEvidence.productionWorkerMissingArtifactCount).toBe(8);
+  expect(proof.aggregateEvidence.productionWorkerPreflightRowCount).toBe(8);
+  expect(proof.aggregateEvidence.productionWorkerPreflightManualRequiredRowCount).toBe(8);
+  expect(proof.aggregateEvidence.productionWorkerPreflightRequiredArtifactCount).toBe(8);
+  expect(proof.aggregateEvidence.productionWorkerPreflightPresentArtifactCount).toBe(0);
+  expect(proof.aggregateEvidence.productionWorkerPreflightMissingArtifactCount).toBe(8);
+  expect(proof.aggregateEvidence.productionWorkerPreflightProductReadyRowCount).toBe(0);
+  expect(proof.aggregateEvidence.claimAuditPresentArtifactCount).toBe(5);
+  expect(proof.aggregateEvidence.claimAuditPhysicalDeviceRequiredRowCount).toBe(7);
+  expect(proof.aggregateEvidence.claimAuditApprovedManualRequiredRowCount).toBe(1);
+  expect(proof.aggregateEvidence.claimAuditManualProviderRuntimeRequiredRowCount).toBe(1);
+  expect(proof.aggregateEvidence.claimAuditProductionRuntimeRequiredRowCount).toBe(2);
+  expect(proof.aggregateEvidence.productClaimReady).toBe(false);
 }
 
 function aggregateEvidence() {

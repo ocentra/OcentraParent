@@ -250,6 +250,15 @@ expose location or device-status features. Parents expect this category.
   closure and real-runtime handoff accounting, and keeps Android system
   geofence delivery, physical-device proof, authority, production runtime, and
   product-ready tracking unclaimed.
+- WP08/WP09/WP30/WP33 local platform proof batch now exists through
+  `node scripts/test/tracking-local-platform-proof-batch.mjs`. It aggregates
+  Android emulator runtime evidence, WSL/local replay, hosted parent UI
+  accessibility, product parent/child UI local artifacts, product-readiness
+  closure, and real-runtime handoff accounting into one parent-domain proof
+  bundle. The batch records four local proof-passed rows plus one
+  manual-required real-runtime handoff row, and keeps Android physical-device,
+  iOS runtime, child-device runtime, authority, provider-delivery, production,
+  and product-ready tracking claims false.
 - WP11/WP12/WP31/WP33 iOS simulator artifact inventory proof now exists
   through
   `node scripts/test/tracking-ios-simulator-artifact-inventory-proof.mjs`. It
@@ -1315,6 +1324,13 @@ accessibility beyond the hosted parent route are proved.
       source refs, nearby-place context fields, AI no-final-action constraints,
       alert policy-decision refs, and retention before/after proof. This is not
       live device/provider behavior proof.
+- [x] Local platform proof batch aggregates Android emulator runtime evidence,
+      WSL/local replay, hosted parent UI accessibility, product parent/child UI
+      local artifacts, product-readiness closure, and real-runtime handoff
+      accounting into one proof bundle. This is local/hosted proof only; Android
+      physical-device behavior, iOS Core Location runtime, actual child-device
+      runtime, authority enrollment, provider delivery, production runtime, and
+      product-ready tracking remain unclaimed.
 - [ ] Full live parent/child UI screenshots and accessibility proof beyond the
       hosted parent shell. Hosted parent overview/devices shell screenshots now
       render the service-backed tracking summary and no-product-claim cards as
@@ -1348,6 +1364,11 @@ false. Claim-audit and real-runtime handoff now give
 retention-writable-product-settings-required its own retention product settings
 writable runtime row tied to the production retention write-result artifact,
 instead of leaving that blocker implicit under the broader full-product UI row.
+The local platform proof batch now gives Android emulator runtime evidence,
+WSL/local replay, hosted parent UI accessibility, product UI local artifacts,
+product-readiness closure, and real-runtime handoff accounting one repeatable
+local proof bundle without upgrading any physical-device, child-device runtime,
+authority, provider, production, or product-ready claim.
 The next implementation layers are applied/product-ready retention settings
 execution beyond hosted local service write rendering, the platform runtime
 artifacts required for retention product readiness, full portal UI

@@ -117,6 +117,13 @@ function expectClaimAuditAcceptance(proof: TrackingRealRuntimeHandoffProof): voi
 }
 
 function expectClosureAccounting(proof: TrackingRealRuntimeHandoffProof): void {
+  expectFullProductUiClosureAccounting(proof);
+  expectPlatformClosureAccounting(proof);
+  expectRuntimeClosureAccounting(proof);
+  expectProductionClosureAccounting(proof);
+}
+
+function expectFullProductUiClosureAccounting(proof: TrackingRealRuntimeHandoffProof): void {
   expect(proof.closureAccounting.fullProductUiLocalArtifactCount).toBe(6);
   expect(proof.closureAccounting.fullProductUiRuntimePreflightRowCount).toBe(4);
   expect(proof.closureAccounting.fullProductUiRuntimePreflightManualRequiredRowCount).toBe(4);
@@ -124,6 +131,9 @@ function expectClosureAccounting(proof: TrackingRealRuntimeHandoffProof): void {
   expect(proof.closureAccounting.fullProductUiRuntimePreflightPresentArtifactCount).toBe(0);
   expect(proof.closureAccounting.fullProductUiRuntimePreflightMissingArtifactCount).toBe(4);
   expect(proof.closureAccounting.fullProductUiRuntimePreflightProductReadyRowCount).toBe(0);
+}
+
+function expectPlatformClosureAccounting(proof: TrackingRealRuntimeHandoffProof): void {
   expect(proof.closureAccounting.androidEmulatorRequiredArtifactCount).toBe(12);
   expect(proof.closureAccounting.androidEmulatorPresentArtifactCount).toBe(12);
   expect(proof.closureAccounting.androidEmulatorMissingArtifactCount).toBe(0);
@@ -138,6 +148,9 @@ function expectClosureAccounting(proof: TrackingRealRuntimeHandoffProof): void {
   expect(proof.closureAccounting.iosSimulatorPrivacyDisclosureArtifactCount).toBe(2);
   expect(proof.closureAccounting.iosSimulatorManualRequiredRowCount).toBe(7);
   expect(proof.closureAccounting.iosSimulatorMissingRuntimeArtifactCount).toBe(9);
+}
+
+function expectRuntimeClosureAccounting(proof: TrackingRealRuntimeHandoffProof): void {
   expect(proof.closureAccounting.childRuntimeMissingArtifactCount).toBe(10);
   expect(proof.closureAccounting.physicalDeviceEvidenceReviewRowCount).toBe(2);
   expect(proof.closureAccounting.physicalDeviceEvidenceReviewArtifactMissingRowCount).toBe(2);
@@ -152,6 +165,9 @@ function expectClosureAccounting(proof: TrackingRealRuntimeHandoffProof): void {
   expect(proof.closureAccounting.retentionPlatformPreflightPresentArtifactCount).toBe(0);
   expect(proof.closureAccounting.retentionPlatformPreflightMissingArtifactCount).toBe(6);
   expect(proof.closureAccounting.retentionPlatformPreflightProductReadyRowCount).toBe(0);
+}
+
+function expectProductionClosureAccounting(proof: TrackingRealRuntimeHandoffProof): void {
   expect(proof.closureAccounting.productionWorkerMissingArtifactCount).toBe(8);
   expect(proof.closureAccounting.productionWorkerPreflightRowCount).toBe(8);
   expect(proof.closureAccounting.productionWorkerPreflightManualRequiredRowCount).toBe(8);
