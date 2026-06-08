@@ -876,6 +876,22 @@ UI delivery, report delivery execution, final policy execution, browser
 mutation, child intervention execution, unmanaged exact URL support, or
 enforcement.
 
+WP13 social provider receipt ingestion readiness addendum:
+`social-alert-report-provider-receipt-ingestion-readiness-proof` adds a
+parent-domain readiness boundary after the social provider receipt boundary.
+The proof projects provider-dispatch-required receipt rows into
+ingestion-contract-required rows, keeps manual-required and unavailable rows
+explicit, and requires webhook contract, provider credential, and durable
+receipt store proof before provider receipt ingestion can be claimed. Evidence:
+`test-results/social-alert-report-provider-receipt-ingestion-readiness-proof/proof.json`
+and
+`output/browser-plan-proof/social-alert-report-provider-receipt-ingestion-readiness-proof/01-social-alert-report-provider-receipt-ingestion-readiness-proof.md`.
+This does not claim provider delivery, provider receipt ingestion runtime,
+provider webhook runtime, provider credentials, observed provider receipts,
+cloud routing, parent notification UI delivery, report delivery execution,
+final policy execution, connector/native runtime, browser mutation, child
+intervention execution, unmanaged exact URL support, or enforcement.
+
 ## Worker Report Template
 
 Use this shape in the hub report or PR-ready note:

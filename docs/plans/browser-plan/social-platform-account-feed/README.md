@@ -579,6 +579,28 @@ connector/native runtime, or enforcement. Parent-domain package subpath export
 and README update are deferred because another lane currently owns
 `packages/parent-domain/package.json` and `packages/parent-domain/readme.md`.
 
+The follow-up `social-alert-report-provider-receipt-ingestion-readiness-proof`
+adds
+`packages/parent-domain/src/social-alert-report-provider-receipt-ingestion-readiness.ts`
+and
+`packages/parent-domain/tests/social-alert-report-provider-receipt-ingestion-readiness.test.ts`.
+It consumes provider receipt boundary rows and projects them into ingestion
+contract-required, manual-receipt-required, and provider-unavailable readiness
+rows. The proof writes
+`test-results/social-alert-report-provider-receipt-ingestion-readiness-proof/proof.json`,
+`test-results/social-alert-report-provider-receipt-ingestion-readiness-proof/provider-receipt-ingestion-readiness-read-model.json`,
+and
+`output/browser-plan-proof/social-alert-report-provider-receipt-ingestion-readiness-proof/01-social-alert-report-provider-receipt-ingestion-readiness-proof.md`.
+It requires webhook contract, provider credential, and durable receipt store
+proof before provider receipt ingestion can be claimed, and it rejects forged
+webhook refs or provider receipt refs. It does not claim provider delivery
+execution, provider receipt ingestion runtime, provider webhook runtime,
+provider credentials, observed provider receipts, cloud routing, parent
+notification UI delivery, report delivery execution, final policy execution,
+connector/native runtime, or enforcement. Parent-domain package subpath export
+and README update are deferred because another lane currently owns
+`packages/parent-domain/package.json` and `packages/parent-domain/readme.md`.
+
 The follow-up `social-parent-sensitivity-settings-proof` adds
 `packages/parent-domain/src/social-parent-sensitivity-settings-values.ts`,
 `packages/parent-domain/src/social-parent-sensitivity-settings.ts`, and

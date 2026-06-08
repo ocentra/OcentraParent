@@ -869,3 +869,30 @@ claim provider delivery, provider receipt ingestion runtime, webhook runtime,
 credentials, parent notification UI delivery, report delivery execution, final
 policy execution, connector/native runtime, browser mutation, child intervention
 execution, unmanaged exact URL support, or enforcement.
+
+## Social Provider Receipt Ingestion Readiness Addendum - 2026-06-08
+
+`social-alert-report-provider-receipt-ingestion-readiness-proof` adds a
+parent-domain readiness boundary after the social provider receipt boundary. It
+projects provider-dispatch-required, manual-receipt-required, and
+provider-unavailable receipt rows into ingestion-readiness rows that require
+webhook contract, provider credential proof, and durable receipt store proof
+before any provider receipt can be observed or ingested.
+
+Evidence:
+
+- `packages/parent-domain/src/social-alert-report-provider-receipt-ingestion-readiness.ts`
+- `packages/parent-domain/tests/social-alert-report-provider-receipt-ingestion-readiness.test.ts`
+- `scripts/test/social-alert-report-provider-receipt-ingestion-readiness-proof.mjs`
+- `test-results/social-alert-report-provider-receipt-ingestion-readiness-proof/proof.json`
+- `output/browser-plan-proof/social-alert-report-provider-receipt-ingestion-readiness-proof/01-social-alert-report-provider-receipt-ingestion-readiness-proof.md`
+- `cmd /c node scripts/test/social-alert-report-provider-receipt-ingestion-readiness-proof.mjs`
+
+This is readiness/status proof only. It does not claim provider delivery,
+provider receipt ingestion runtime, provider webhook runtime, provider
+credentials, observed provider receipts, cloud routing, parent notification UI
+delivery, report delivery execution, final policy execution,
+connector/native runtime, browser mutation, child intervention execution,
+unmanaged exact URL support, or enforcement. Parent-domain package subpath
+export remains deferred while another active lane owns
+`packages/parent-domain/package.json`.
