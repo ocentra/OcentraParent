@@ -78,6 +78,11 @@
 - Rust ActivityStore and service read-model proof exists for local tracking
   event ingestion and the `agent.activity.tracking.read-model.get` service
   path.
+- The reusable Rust `ocentra-eventing` crate exists and has generic runtime
+  proof coverage, but tracking has not yet implemented first-class consumer
+  event families such as `tracking.config.*`, `location.evidence.*`,
+  `geofence.*`, `expected_place.*`, `nearby_place.*`,
+  `tracking.live_mode.*`, `notification.*`, or `escalation.*`.
 - Hosted parent-route UI proof exists for the current tracking route, hosted
   child check-in/runtime cards, evidence drawer, report/export surfaces,
   notification parent-surface history, retention settings local write result,
@@ -186,6 +191,12 @@
   runtime.
 - Production durable workers, durable outbox/history/storage, escalation worker,
   quiet-hours timer, and production support proof.
+- Event-driven tracking runtime contracts and chains: parent config changes are
+  not yet carried through validated tracking config events, child-agent apply
+  events, policy decision events, audit events, and portal projection events;
+  location evidence is not yet carried through a tracking detection cascade that
+  orders geofence, expected-place, nearby-place, AI, policy, live tracking,
+  notification, escalation, audit, and read-model updates.
 
 ## Manual Required
 
@@ -297,6 +308,11 @@ gates, and closure proof:
 - `authority-enrollment-proof-required`
 - `provider-delivery-receipt-runtime-required`
 - `production-durable-workers-required`
+- `tracking-event-contracts-required`
+- `tracking-config-event-flow-required`
+- `tracking-detection-cascade-required`
+- `tracking-event-replay-projection-required`
+- `tracking-notification-escalation-event-flow-required`
 
 These blockers are expected. Local/CI proof accounting can be complete while
 product-ready tracking remains false.
