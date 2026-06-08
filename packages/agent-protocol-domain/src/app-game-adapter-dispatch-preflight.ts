@@ -1,0 +1,237 @@
+import { AppGameSchemaVersion } from '@ocentra-parent/activity-domain/app-game';
+import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
+import {
+  AgentAppGameAdapterExecutionDecision,
+  AgentAppGameAdapterExecutionState,
+} from './app-game-adapter-execution-readiness';
+import { AgentEvent, isAgentProtocolLogText, type AgentEventEnvelope } from './contracts';
+
+const DispatchPreflightText = Schema.String.pipe(Schema.minLength(1));
+const DispatchPreflightCount = Schema.Number.pipe(Schema.nonNegative(), Schema.int());
+
+export const AgentAppGameAdapterDispatchPreflightPayloadField = 'appGameAdapterDispatchPreflightReadModel' as const;
+
+export const AgentAppGameAdapterDispatchPreflightState = {
+  DispatchEligible: 'dispatch-eligible',
+  BlockedBeforeDispatch: 'blocked-before-dispatch',
+  ManualRequired: 'manual-required',
+  Unavailable: 'unavailable',
+  Unsupported: 'unsupported',
+  Degraded: 'degraded',
+} as const;
+
+export const AgentAppGameAdapterDispatchDecision = {
+  DispatchEligible: 'dispatch-eligible',
+  BlockedBeforeDispatch: 'blocked-before-dispatch',
+} as const;
+
+export const AgentAppGameAdapterDispatchOutcomeState = {
+  DispatchReady: 'dispatch-ready',
+  ManualRequired: 'manual-required',
+  Unavailable: 'unavailable',
+  Unsupported: 'unsupported',
+  Degraded: 'degraded',
+  NotDispatched: 'not-dispatched',
+} as const;
+
+const AgentAppGameAdapterDispatchPreflightRowBaseSchema = Schema.Struct({
+  schemaVersion: Schema.Literal(AppGameSchemaVersion),
+  rowId: DispatchPreflightText,
+  sourceExecutionReadinessRowId: DispatchPreflightText,
+  sourceProofEntryId: DispatchPreflightText,
+  platform: DispatchPreflightText,
+  productMeanings: Schema.Array(Schema.Literal('native-app', 'native-game')),
+  adapterCapability: DispatchPreflightText,
+  adapterExecutionState: Schema.Literal(
+    AgentAppGameAdapterExecutionState.ProvedScopedExecution,
+    AgentAppGameAdapterExecutionState.ManualRequired,
+    AgentAppGameAdapterExecutionState.Unavailable,
+    AgentAppGameAdapterExecutionState.Unsupported,
+    AgentAppGameAdapterExecutionState.Degraded,
+    AgentAppGameAdapterExecutionState.NotClaimed
+  ),
+  executionDecision: Schema.Literal(
+    AgentAppGameAdapterExecutionDecision.ExecutionAllowed,
+    AgentAppGameAdapterExecutionDecision.BlockedBeforeExecution
+  ),
+  dispatchPreflightState: Schema.Literal(
+    AgentAppGameAdapterDispatchPreflightState.DispatchEligible,
+    AgentAppGameAdapterDispatchPreflightState.BlockedBeforeDispatch,
+    AgentAppGameAdapterDispatchPreflightState.ManualRequired,
+    AgentAppGameAdapterDispatchPreflightState.Unavailable,
+    AgentAppGameAdapterDispatchPreflightState.Unsupported,
+    AgentAppGameAdapterDispatchPreflightState.Degraded
+  ),
+  dispatchDecision: Schema.Literal(
+    AgentAppGameAdapterDispatchDecision.DispatchEligible,
+    AgentAppGameAdapterDispatchDecision.BlockedBeforeDispatch
+  ),
+  dispatchIntentId: Schema.Union(DispatchPreflightText, Schema.Null),
+  dispatchOutcomeState: Schema.Literal(
+    AgentAppGameAdapterDispatchOutcomeState.DispatchReady,
+    AgentAppGameAdapterDispatchOutcomeState.ManualRequired,
+    AgentAppGameAdapterDispatchOutcomeState.Unavailable,
+    AgentAppGameAdapterDispatchOutcomeState.Unsupported,
+    AgentAppGameAdapterDispatchOutcomeState.Degraded,
+    AgentAppGameAdapterDispatchOutcomeState.NotDispatched
+  ),
+  dispatchEvidenceRefs: Schema.Array(DispatchPreflightText),
+  dispatchAuditRefs: Schema.Array(DispatchPreflightText),
+  dispatchTimerRefs: Schema.Array(DispatchPreflightText),
+  manualProofRequirements: Schema.Array(DispatchPreflightText),
+  claimBoundary: DispatchPreflightText,
+  fallbackBehavior: DispatchPreflightText,
+  adapterDispatchEligible: Schema.Boolean,
+  adapterDispatchExecutedClaimed: Schema.Literal(false),
+  broadInstalledAppBlockingClaimed: Schema.Literal(false),
+  childDeviceDeliveryClaimed: Schema.Literal(false),
+  platformEnforcementClaimed: Schema.Literal(false),
+  providerDeliveryClaimed: Schema.Literal(false),
+  privateDiagnosticsClaimed: Schema.Literal(false),
+  lastCheckedAt: DispatchPreflightText,
+});
+
+type AgentAppGameAdapterDispatchPreflightRowCandidate = Infer<typeof AgentAppGameAdapterDispatchPreflightRowBaseSchema>;
+
+export const AgentAppGameAdapterDispatchPreflightRowSchema = withParser(
+  AgentAppGameAdapterDispatchPreflightRowBaseSchema.pipe(
+    Schema.filter(
+      (row: AgentAppGameAdapterDispatchPreflightRowCandidate) =>
+        dispatchPreflightRowIsHonest(row) ||
+        'Expected only the scoped Windows owned-process time-limit row to be dispatch-eligible without claiming adapter execution'
+    )
+  )
+);
+
+const AgentAppGameAdapterDispatchPreflightReadModelBaseSchema = Schema.Struct({
+  schemaVersion: Schema.Literal(AppGameSchemaVersion),
+  readModelId: DispatchPreflightText,
+  generatedAt: DispatchPreflightText,
+  sourceReadModelIds: Schema.Array(DispatchPreflightText),
+  custodyLabel: DispatchPreflightText,
+  capabilityStatus: DispatchPreflightText,
+  returned: DispatchPreflightCount,
+  dispatchEligibleCount: DispatchPreflightCount,
+  blockedBeforeDispatchCount: DispatchPreflightCount,
+  adapterDispatchEligibleCount: DispatchPreflightCount,
+  adapterDispatchExecutedClaimedCount: Schema.Literal(0),
+  broadInstalledAppBlockingClaimed: Schema.Literal(false),
+  childDeviceDeliveryClaimed: Schema.Literal(false),
+  platformEnforcementClaimed: Schema.Literal(false),
+  providerDeliveryClaimed: Schema.Literal(false),
+  privateDiagnosticsClaimed: Schema.Literal(false),
+  rows: Schema.Array(AgentAppGameAdapterDispatchPreflightRowSchema),
+});
+
+type AgentAppGameAdapterDispatchPreflightReadModelCandidate = Infer<
+  typeof AgentAppGameAdapterDispatchPreflightReadModelBaseSchema
+>;
+
+export const AgentAppGameAdapterDispatchPreflightReadModelSchema = withParser(
+  AgentAppGameAdapterDispatchPreflightReadModelBaseSchema.pipe(
+    Schema.filter(
+      (readModel: AgentAppGameAdapterDispatchPreflightReadModelCandidate) =>
+        (readModel.returned === readModel.rows.length &&
+          readModel.dispatchEligibleCount ===
+            readModel.rows.filter(
+              (row) => row.dispatchDecision === AgentAppGameAdapterDispatchDecision.DispatchEligible
+            ).length &&
+          readModel.blockedBeforeDispatchCount ===
+            readModel.rows.filter(
+              (row) => row.dispatchDecision === AgentAppGameAdapterDispatchDecision.BlockedBeforeDispatch
+            ).length &&
+          readModel.adapterDispatchEligibleCount ===
+            readModel.rows.filter((row) => row.adapterDispatchEligible).length &&
+          new Set(readModel.rows.map((row) => row.rowId)).size === readModel.rows.length) ||
+        'Expected app/game adapter dispatch preflight counts and row ids to match the rows'
+    )
+  )
+);
+
+export type AgentAppGameAdapterDispatchPreflightRow = Infer<typeof AgentAppGameAdapterDispatchPreflightRowSchema>;
+export type AgentAppGameAdapterDispatchPreflightReadModel = Infer<
+  typeof AgentAppGameAdapterDispatchPreflightReadModelSchema
+>;
+
+export type AgentAppGameAdapterDispatchPreflightFailureReason =
+  | 'wrong-event'
+  | 'missing-json-field'
+  | 'invalid-json'
+  | 'invalid-payload';
+
+export type AgentAppGameAdapterDispatchPreflightResult =
+  | {
+      readonly ok: true;
+      readonly value: AgentAppGameAdapterDispatchPreflightReadModel;
+    }
+  | {
+      readonly ok: false;
+      readonly reason: AgentAppGameAdapterDispatchPreflightFailureReason;
+    };
+
+export function parseAgentAppGameAdapterDispatchPreflightEvent(
+  event: AgentEventEnvelope
+): AgentAppGameAdapterDispatchPreflightResult {
+  if (event.event !== AgentEvent.ActivityAppGameAdapterDispatchPreflightReadModelReported) {
+    return dispatchPreflightFailure('wrong-event');
+  }
+
+  const raw = event.payload[AgentAppGameAdapterDispatchPreflightPayloadField];
+  if (!isAgentProtocolLogText(raw)) {
+    return dispatchPreflightFailure('missing-json-field');
+  }
+
+  let decoded: unknown;
+  try {
+    decoded = JSON.parse(raw);
+  } catch {
+    return dispatchPreflightFailure('invalid-json');
+  }
+
+  const parsed = AgentAppGameAdapterDispatchPreflightReadModelSchema.safeParse(decoded);
+  if (!parsed.success || parsed.data === undefined) {
+    return dispatchPreflightFailure('invalid-payload');
+  }
+
+  return {
+    ok: true,
+    value: parsed.data,
+  };
+}
+
+function dispatchPreflightRowIsHonest(row: AgentAppGameAdapterDispatchPreflightRowCandidate): boolean {
+  if (row.dispatchPreflightState === AgentAppGameAdapterDispatchPreflightState.DispatchEligible) {
+    return (
+      row.platform === 'windows' &&
+      row.sourceProofEntryId === 'windows-app-game-owned-process-time-limit' &&
+      row.executionDecision === AgentAppGameAdapterExecutionDecision.ExecutionAllowed &&
+      row.dispatchDecision === AgentAppGameAdapterDispatchDecision.DispatchEligible &&
+      row.dispatchOutcomeState === AgentAppGameAdapterDispatchOutcomeState.DispatchReady &&
+      row.dispatchIntentId !== null &&
+      row.dispatchEvidenceRefs.length > 0 &&
+      row.dispatchAuditRefs.length > 0 &&
+      row.dispatchTimerRefs.length > 0 &&
+      row.manualProofRequirements.length === 0 &&
+      row.adapterDispatchEligible &&
+      !row.adapterDispatchExecutedClaimed
+    );
+  }
+
+  return (
+    row.dispatchDecision === AgentAppGameAdapterDispatchDecision.BlockedBeforeDispatch &&
+    row.dispatchIntentId === null &&
+    row.dispatchOutcomeState !== AgentAppGameAdapterDispatchOutcomeState.DispatchReady &&
+    row.manualProofRequirements.length > 0 &&
+    !row.adapterDispatchEligible &&
+    !row.adapterDispatchExecutedClaimed
+  );
+}
+
+function dispatchPreflightFailure(
+  reason: AgentAppGameAdapterDispatchPreflightFailureReason
+): AgentAppGameAdapterDispatchPreflightResult {
+  return {
+    ok: false,
+    reason,
+  };
+}

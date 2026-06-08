@@ -53,6 +53,10 @@ import {
   type AgentAppGameAdapterExecutionReadinessResult,
 } from '@ocentra-parent/agent-protocol-domain/app-game-adapter-execution-readiness';
 import {
+  parseAgentAppGameAdapterDispatchPreflightEvent,
+  type AgentAppGameAdapterDispatchPreflightResult,
+} from '@ocentra-parent/agent-protocol-domain/app-game-adapter-dispatch-preflight';
+import {
   parseAgentActivityTrackingReadModelEvent,
   type AgentActivityTrackingReadModelResult,
 } from '@ocentra-parent/agent-protocol-domain/tracking-read-model';
@@ -111,6 +115,8 @@ export interface PortalLiveActivityState {
   readonly appGameNotificationParentSurfaceIntentReadModel: unknown | null;
   readonly appGameAdapterExecutionReadinessEvent: AgentEventEnvelope | null;
   readonly appGameAdapterExecutionReadinessReadModel: AgentAppGameAdapterExecutionReadinessResult | null;
+  readonly appGameAdapterDispatchPreflightEvent: AgentEventEnvelope | null;
+  readonly appGameAdapterDispatchPreflightReadModel: AgentAppGameAdapterDispatchPreflightResult | null;
   readonly activityNetworkReadModelEvent: AgentEventEnvelope | null;
   readonly activityNetworkReadModel: ActivitySurfaceAdapterResult<ActivitySurfaceReadModel> | null;
   readonly browserInterventionEvent: AgentEventEnvelope | null;
@@ -191,6 +197,7 @@ export function resolveLiveActivityState(events: readonly AgentEventEnvelope[]):
       appGameNotificationReadinessEvent
     ),
     ...resolveAppGameAdapterExecutionReadinessReadModel(events),
+    ...resolveAppGameAdapterDispatchPreflightReadModel(events),
     browserInterventionEvent,
     browserInterventionReadModel:
       browserInterventionEvent === null ? null : parseBrowserInterventionReadModel(browserInterventionEvent.payload),
@@ -267,6 +274,15 @@ function resolveAppGameAdapterExecutionReadinessReadModel(events: readonly Agent
     appGameAdapterExecutionReadinessEvent: event,
     appGameAdapterExecutionReadinessReadModel:
       event === null ? null : parseAgentAppGameAdapterExecutionReadinessEvent(event),
+  };
+}
+
+function resolveAppGameAdapterDispatchPreflightReadModel(events: readonly AgentEventEnvelope[]) {
+  const event = latestEvent(events, AgentEvent.ActivityAppGameAdapterDispatchPreflightReadModelReported);
+  return {
+    appGameAdapterDispatchPreflightEvent: event,
+    appGameAdapterDispatchPreflightReadModel:
+      event === null ? null : parseAgentAppGameAdapterDispatchPreflightEvent(event),
   };
 }
 

@@ -136,6 +136,16 @@ control with better evidence and local audit.
   broad installed-app blocking, platform enforcement, provider delivery,
   child-device delivery, raw private rows/targets, and private diagnostics
   unclaimed.
+- The app/game adapter dispatch preflight live handoff now connects that
+  readiness surface to the existing V0.8 policy-dispatch spine through
+  TypeScript protocol parsing, Rust command/event parity, the agent-service
+  WebSocket path, portal command contracts, portal live state, and a
+  parent-safe panel intent. It marks only the scoped Windows owned-process
+  app/game time-limit row as dispatch-eligible, keeps seven unsupported,
+  unavailable, degraded, broad, or manual-required rows blocked before
+  dispatch, and still does not claim adapter execution, broad blocking,
+  platform enforcement, provider delivery, child-device delivery, raw private
+  rows/targets, or private diagnostics.
 - The Windows owned-process time-limit proof now extends that same real-service
   harness with dry-run and stale-action negative paths while preserving the
   manual-required boundary for broad package/app blocking.
@@ -1517,6 +1527,14 @@ diagnostics, or raw private source rows.
       This narrows the runtime adapter execution truth without claiming broad
       blocking, child delivery, provider delivery, platform enforcement, or
       private diagnostics.
+      App/game adapter dispatch preflight now connects the live execution
+      readiness read model to the existing V0.8 policy dispatch spine:
+      exactly one scoped Windows owned-process app/game time-limit row is
+      dispatch-eligible, and all broad, degraded, unavailable, unsupported, or
+      manual-required rows stay blocked before dispatch. This is preflight
+      visibility only; adapter dispatch execution, broad blocking, child
+      delivery, provider delivery, platform enforcement, raw private rows, and
+      private diagnostics remain unclaimed.
 - [ ] Blocking/time-limit proof before done claim. Scoped owned-process
       time-limit proof exists; broad block-launch/hide/suspend/shield and
       allowlist remain manual-required or not-claimed until platform setup,

@@ -10,6 +10,7 @@ use crate::{
     activity_api::social_dashboard_read_model_payload::build_browser_social_dashboard_read_model_report,
     activity_api::social_source_custody_mutation_payload::build_browser_social_source_custody_mutation_report,
     activity_api::{
+        build_activity_app_game_adapter_dispatch_preflight_report,
         build_activity_app_game_adapter_execution_readiness_report,
         build_activity_app_game_boundary_read_model_report,
         build_activity_app_game_notification_readiness_report,
@@ -255,6 +256,7 @@ fn is_activity_command(command: &AgentCommandName) -> bool {
             | AgentCommandName::AgentActivityAppGamePolicyReadinessReadModelGet
             | AgentCommandName::AgentActivityAppGameNotificationReadinessReadModelGet
             | AgentCommandName::AgentActivityAppGameAdapterExecutionReadinessReadModelGet
+            | AgentCommandName::AgentActivityAppGameAdapterDispatchPreflightReadModelGet
             | AgentCommandName::AgentActivityAppGameTimerParentSurfaceReadModelGet
             | AgentCommandName::AgentActivityAppGameTimerParentPreferenceSetupRequest
             | AgentCommandName::AgentBrowserSocialDashboardReadModelGet
@@ -353,6 +355,9 @@ async fn build_activity_command_report(command: AgentCommandEnvelope) -> AgentEv
         }
         AgentCommandName::AgentActivityAppGameAdapterExecutionReadinessReadModelGet => {
             build_activity_app_game_adapter_execution_readiness_report(command).await
+        }
+        AgentCommandName::AgentActivityAppGameAdapterDispatchPreflightReadModelGet => {
+            build_activity_app_game_adapter_dispatch_preflight_report(command).await
         }
         AgentCommandName::AgentActivityAppGameTimerParentSurfaceReadModelGet => {
             build_activity_app_game_timer_parent_surface_report(command).await

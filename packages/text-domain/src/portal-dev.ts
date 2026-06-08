@@ -185,6 +185,9 @@ export const PortalDevTextToken = {
   GetActivityAppGameAdapterExecutionReadinessReadModel: decodeTextTokenId(
     'portal.dev.command.getActivityAppGameAdapterExecutionReadinessReadModel'
   ),
+  GetActivityAppGameAdapterDispatchPreflightReadModel: decodeTextTokenId(
+    'portal.dev.command.getActivityAppGameAdapterDispatchPreflightReadModel'
+  ),
   GetActivityAppGameTimerParentSurfaceReadModel: decodeTextTokenId(
     'portal.dev.command.getActivityAppGameTimerParentSurfaceReadModel'
   ),
@@ -430,6 +433,9 @@ export const PortalDevText: Record<PortalDevTextTokenValue, DisplayText> = {
   [PortalDevTextToken.GetActivityAppGamePolicyReadinessReadModel]: decodeDisplayText('Refresh policy readiness'),
   [PortalDevTextToken.GetActivityAppGameAdapterExecutionReadinessReadModel]:
     decodeDisplayText('Refresh adapter readiness'),
+  [PortalDevTextToken.GetActivityAppGameAdapterDispatchPreflightReadModel]: decodeDisplayText(
+    'Refresh adapter dispatch preflight'
+  ),
   [PortalDevTextToken.GetActivityAppGameTimerParentSurfaceReadModel]: decodeDisplayText('Refresh timer parent surface'),
   [PortalDevTextToken.GetLocalAiRuntimeStatus]: decodeDisplayText('Refresh local AI'),
   [PortalDevTextToken.GetPolicyPreviewReadModel]: decodeDisplayText('Refresh policy decision'),

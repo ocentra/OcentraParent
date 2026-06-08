@@ -212,6 +212,7 @@ export const AgentCommandNameSchema = withParser(
     'agent.activity.app-game.policy-readiness.read-model.get',
     'agent.activity.app-game.notification-readiness.read-model.get',
     'agent.activity.app-game.adapter-execution-readiness.read-model.get',
+    'agent.activity.app-game.adapter-dispatch-preflight.read-model.get',
     'agent.activity.app-game.timer-parent-surface.read-model.get',
     'agent.activity.app-game.timer-parent-surface.parent-preference-setup.request',
     'agent.browser.social-dashboard.read-model.get',
@@ -290,6 +291,7 @@ export const AgentEventNameSchema = withParser(
     'agent.activity.app-game.policy-readiness.read-model.reported',
     'agent.activity.app-game.notification-readiness.read-model.reported',
     'agent.activity.app-game.adapter-execution-readiness.read-model.reported',
+    'agent.activity.app-game.adapter-dispatch-preflight.read-model.reported',
     'agent.activity.app-game.timer-parent-surface.read-model.reported',
     'agent.activity.app-game.timer-parent-surface.parent-preference-setup.requested',
     'agent.browser.social-dashboard.read-model.reported',
@@ -439,6 +441,9 @@ export const AgentCommand = {
   ActivityAppGameAdapterExecutionReadinessReadModelGet: AgentCommandNameSchema.parse(
     'agent.activity.app-game.adapter-execution-readiness.read-model.get'
   ),
+  ActivityAppGameAdapterDispatchPreflightReadModelGet: AgentCommandNameSchema.parse(
+    'agent.activity.app-game.adapter-dispatch-preflight.read-model.get'
+  ),
   ActivityAppGameTimerParentSurfaceReadModelGet: AgentCommandNameSchema.parse(
     'agent.activity.app-game.timer-parent-surface.read-model.get'
   ),
@@ -548,6 +553,9 @@ export const AgentEvent = {
   ),
   ActivityAppGameAdapterExecutionReadinessReadModelReported: AgentEventNameSchema.parse(
     'agent.activity.app-game.adapter-execution-readiness.read-model.reported'
+  ),
+  ActivityAppGameAdapterDispatchPreflightReadModelReported: AgentEventNameSchema.parse(
+    'agent.activity.app-game.adapter-dispatch-preflight.read-model.reported'
   ),
   ActivityAppGameTimerParentSurfaceReadModelReported: AgentEventNameSchema.parse(
     'agent.activity.app-game.timer-parent-surface.read-model.reported'

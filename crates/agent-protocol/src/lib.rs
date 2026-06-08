@@ -7,6 +7,7 @@ mod activity_memory_graph;
 mod activity_query;
 mod activity_surface;
 mod app_game;
+mod app_game_adapter_dispatch_preflight;
 mod app_game_adapter_execution_readiness;
 mod app_game_authority_classifier;
 mod app_game_boundary_read_model;
@@ -74,6 +75,7 @@ pub use activity_memory_graph::*;
 pub use activity_query::*;
 pub use activity_surface::*;
 pub use app_game::*;
+pub use app_game_adapter_dispatch_preflight::*;
 pub use app_game_adapter_execution_readiness::*;
 pub use app_game_authority_classifier::*;
 pub use app_game_boundary_read_model::*;
@@ -159,6 +161,8 @@ mod activity_query_tests;
 mod activity_surface_tests;
 #[cfg(test)]
 mod activity_tests;
+#[cfg(test)]
+mod app_game_adapter_dispatch_preflight_tests;
 #[cfg(test)]
 mod app_game_adapter_execution_readiness_tests;
 #[cfg(test)]

@@ -9,6 +9,10 @@
       "import": "./dist/app-game-adapter-execution-readiness-panel.js",
       "types": "./dist/app-game-adapter-execution-readiness-panel.d.ts"
     },
+    "./app-game-adapter-dispatch-preflight-panel": {
+      "import": "./dist/app-game-adapter-dispatch-preflight-panel.js",
+      "types": "./dist/app-game-adapter-dispatch-preflight-panel.d.ts"
+    },
     "./contracts": {
       "import": "./dist/contracts.js",
       "types": "./dist/contracts.d.ts"
