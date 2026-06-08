@@ -254,7 +254,7 @@ expose location or device-status features. Parents expect this category.
   verifies the Samsung S9 Wi-Fi ADB target (`192.168.2.45:5555`) with debug APK
   push plus on-device package-manager install, launch attempt, foreground-service
   `ServiceRecord` with `isForeground=true`, device metadata,
-  foreground/background location permissions, 3,194 foreground-service-backed
+  foreground/background location permissions, 4,177 foreground-service-backed
   background GPS samples, app-owned geofence registration, Android proximity
   registration metadata, battery/connectivity dumps, UI/keyguard screenshot, and
   logcat artifacts. Physical background location sampling is observed, but

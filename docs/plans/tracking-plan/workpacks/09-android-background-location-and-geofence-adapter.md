@@ -32,7 +32,7 @@ Proof root: `output/tracking-plan-proof/09-android-background-location-and-geofe
 
 ## AI Worker Checklist
 
-- [ ] Prove Android 10+ background permission where claimed.
+- [x] Prove Android 10+ background permission where claimed.
 - [ ] Prove Android 11+ settings-page background permission flow on an image
       with a resolvable Settings activity.
 - [ ] Prove Android system enter, exit, and dwell transitions.
@@ -142,7 +142,7 @@ product-ready Android tracking proof.
 
 `node scripts/test/tracking-android-physical-device-runtime-proof.mjs` now
 records Samsung S9 physical-device foreground/background permission grants,
-3,194 foreground-service-backed background GPS samples, app-owned geofence
+4,177 foreground-service-backed background GPS samples, app-owned geofence
 registration, and Android proximity registration metadata after debug APK push
 plus on-device package-manager install. The physical proof also records
 `shellLocationInjectionAvailable=false`, so route injection cannot be driven
@@ -210,5 +210,5 @@ This workpack can be assigned independently, implemented against the owning doma
       physical geofence transition/dwell delivery, authority, provider delivery,
       notification delivery, production upload workers, and product-ready
       Android tracking remain unclaimed. Samsung S9 physical proof now observes
-      permission grants, 3,194 background GPS samples, app-owned geofence
+      permission grants, 4,177 background GPS samples, app-owned geofence
       registration, and system proximity registration metadata only.
