@@ -54,6 +54,9 @@ const AgentNetworkRemoteDeliveryStatusFields = Schema.Struct({
   transportDispatchStateRef: NetworkRemoteDeliveryText,
   blockedDispatchRef: NetworkRemoteDeliveryText,
   futureTransportSeamRef: NetworkRemoteDeliveryText,
+  fixtureTransportRef: NetworkRemoteDeliveryText,
+  fixtureDispatchAttemptRef: NetworkRemoteDeliveryText,
+  fixtureAckRef: NetworkRemoteDeliveryText,
   deleteExportPropagationRef: NetworkRemoteDeliveryText,
   remoteDeleteReadinessRef: NetworkRemoteDeliveryText,
   remoteExportReadinessRef: NetworkRemoteDeliveryText,
@@ -63,6 +66,10 @@ const AgentNetworkRemoteDeliveryStatusFields = Schema.Struct({
   preparedNotDispatchedCount: NetworkRemoteDeliveryCount,
   blockedDispatchRecordCount: NetworkRemoteDeliveryCount,
   blockedDispatchRecordsMatchOutboxCandidates: Schema.Boolean,
+  fixtureSourceOutboxCandidateCount: NetworkRemoteDeliveryCount,
+  fixtureDispatchAttemptCount: NetworkRemoteDeliveryCount,
+  fixtureRemoteAckCount: NetworkRemoteDeliveryCount,
+  fixtureRecordsMatchOutboxCandidates: Schema.Boolean,
   deleteExportReadinessRecordCount: NetworkRemoteDeliveryCount,
   remoteDeleteReadyCount: NetworkRemoteDeliveryCount,
   remoteExportReadyCount: NetworkRemoteDeliveryCount,
@@ -108,9 +115,10 @@ export const AgentNetworkRemoteDeliveryStatusSchema = withParser(
           durableEnvelopeRefsMatch(status) &&
           outboxHandoffRefsMatch(status) &&
           transportDispatchStateMatches(status) &&
+          fixtureTransportMatches(status) &&
           deleteExportReadinessMatches(status) &&
           localDeliveryProofMatches(status)) ||
-        'Network remote delivery status must preserve row10n status identity, row10g outbox refs, row10k blocked dispatch refs, and row10m delete/export readiness refs without live delivery or content claims'
+        'Network remote delivery status must preserve row10n status identity, row10g outbox refs, row10k blocked dispatch refs, row10l fixture transport refs, and row10m delete/export readiness refs without live delivery or content claims'
     )
   )
 );
@@ -201,6 +209,18 @@ function transportDispatchStateMatches(status: AgentNetworkRemoteDeliveryStatus)
     status.transportDispatchState === 'manual-required-blocked' &&
     status.blockedDispatchRecordCount === status.outboxCandidateCount &&
     status.blockedDispatchRecordsMatchOutboxCandidates
+  );
+}
+
+function fixtureTransportMatches(status: AgentNetworkRemoteDeliveryStatus): boolean {
+  return (
+    status.fixtureTransportRef === NetworkRemoteDeliveryRefs.FixtureTransportRef &&
+    status.fixtureDispatchAttemptRef === NetworkRemoteDeliveryRefs.FixtureDispatchAttemptRef &&
+    status.fixtureAckRef === NetworkRemoteDeliveryRefs.FixtureAckRef &&
+    status.fixtureSourceOutboxCandidateCount === status.outboxCandidateCount &&
+    status.fixtureDispatchAttemptCount === status.outboxCandidateCount &&
+    status.fixtureRemoteAckCount === status.outboxCandidateCount &&
+    status.fixtureRecordsMatchOutboxCandidates
   );
 }
 

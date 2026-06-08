@@ -329,6 +329,14 @@ compete on control while staying clear about attribution confidence and privacy.
   delivery, provider/child delivery, remote delete/export propagation,
   production platform support, external audit signoff, exact content claims,
   and enforcement-command publication unclaimed.
+- E-D added a row10o fixture transport status bridge proof:
+  `network-remote-delivery-fixture-transport-status-bridge-proof` carries
+  row10l fixture transport refs and fixture dispatch/ack counts through the
+  existing typed remote-delivery status payload while keeping live dispatch
+  attempts, live remote acknowledgements, broker/family-hub delivery,
+  provider/child delivery, actual remote delete/export propagation,
+  product-ready delivery, policy/side-effect authority, exact content, host
+  filtering, adapter action, and enforcement-command publication unclaimed.
 - E-D added `ocentra-network-evidence`, a reusable Rust network metadata crate,
   plus the first deterministic PCAP replay proof for classic
   Ethernet/IPv4/UDP DNS query metadata. The proof writes a fixture PCAP,

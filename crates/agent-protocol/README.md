@@ -33,9 +33,9 @@ Rust protocol parity crate for data that crosses the TypeScript/Rust boundary.
   `agent.activity.tracking.read-model.get` proof path.
 - Network remote delivery status bridge command/event names, constants, status
   structs, and parity tests for the row10n delete/export status bridge identity,
-  row10k transport-dispatch refs, and row10m delete/export readiness refs over
-  the row10b through row10m proof chain consumed by the Rust service and
-  TypeScript protocol adapter.
+  row10k transport-dispatch refs, row10l fixture transport refs/counts, and
+  row10m delete/export readiness refs over the row10b through row10m proof chain
+  consumed by the Rust service and TypeScript protocol adapter.
 - App/game boundary read-model structs, command/event names, payload field, and
   parity tests for the service-backed authority/classifier row-count proof
   path.
@@ -118,8 +118,9 @@ flowchart LR
   only; they do not claim mobile background behavior, provider delivery, or
   product-complete tracking UI beyond narrow portal summary consumption.
 - Network remote delivery status bridge structs preserve proof/status refs only;
-  row10k blocked-dispatch state is manual-required and row10m delete/export
-  readiness is proof-local. Broker/family-hub transport, remote
+  row10k blocked-dispatch state is manual-required, row10l fixture transport is
+  proof-local, and row10m delete/export readiness is proof-local.
+  Broker/family-hub transport, remote
   acknowledgement, provider or child-device delivery, cross-process replay,
   actual remote delete/export propagation, policy authority, adapter execution,
   exact content, and host filtering remain unclaimed until separate proof

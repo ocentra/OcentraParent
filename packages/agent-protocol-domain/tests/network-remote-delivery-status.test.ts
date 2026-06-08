@@ -48,6 +48,9 @@ const RemoteDeliveryStatus = {
   transportDispatchStateRef: RemoteDeliveryStatusRefs.TransportDispatchStateRef,
   blockedDispatchRef: RemoteDeliveryStatusRefs.BlockedDispatchRef,
   futureTransportSeamRef: RemoteDeliveryStatusRefs.FutureTransportSeamRef,
+  fixtureTransportRef: RemoteDeliveryStatusRefs.FixtureTransportRef,
+  fixtureDispatchAttemptRef: RemoteDeliveryStatusRefs.FixtureDispatchAttemptRef,
+  fixtureAckRef: RemoteDeliveryStatusRefs.FixtureAckRef,
   deleteExportPropagationRef: RemoteDeliveryStatusRefs.DeleteExportPropagationRef,
   remoteDeleteReadinessRef: RemoteDeliveryStatusRefs.RemoteDeleteReadinessRef,
   remoteExportReadinessRef: RemoteDeliveryStatusRefs.RemoteExportReadinessRef,
@@ -57,6 +60,10 @@ const RemoteDeliveryStatus = {
   preparedNotDispatchedCount: 3,
   blockedDispatchRecordCount: 3,
   blockedDispatchRecordsMatchOutboxCandidates: true,
+  fixtureSourceOutboxCandidateCount: 3,
+  fixtureDispatchAttemptCount: 3,
+  fixtureRemoteAckCount: 3,
+  fixtureRecordsMatchOutboxCandidates: true,
   deleteExportReadinessRecordCount: 3,
   remoteDeleteReadyCount: 3,
   remoteExportReadyCount: 3,
@@ -172,6 +179,18 @@ it('rejects stale row refs', () => {
   });
   expectInvalid({
     ...RemoteDeliveryStatus,
+    fixtureTransportRef: 'network.remote-delivery.fixture-transport.10k',
+  });
+  expectInvalid({
+    ...RemoteDeliveryStatus,
+    fixtureDispatchAttemptRef: 'network.remote-delivery.fixture-dispatch-attempt.10k',
+  });
+  expectInvalid({
+    ...RemoteDeliveryStatus,
+    fixtureAckRef: 'network.remote-delivery.fixture-ack.10k',
+  });
+  expectInvalid({
+    ...RemoteDeliveryStatus,
     deleteExportPropagationRef: 'network.remote-delivery.delete-export-propagation-readiness.10l',
   });
   expectInvalid({
@@ -200,6 +219,22 @@ it('rejects row10k dispatch, row10m readiness, and candidate-count mismatches', 
   expectInvalid({
     ...RemoteDeliveryStatus,
     blockedDispatchRecordsMatchOutboxCandidates: false,
+  });
+  expectInvalid({
+    ...RemoteDeliveryStatus,
+    fixtureSourceOutboxCandidateCount: 2,
+  });
+  expectInvalid({
+    ...RemoteDeliveryStatus,
+    fixtureDispatchAttemptCount: 2,
+  });
+  expectInvalid({
+    ...RemoteDeliveryStatus,
+    fixtureRemoteAckCount: 2,
+  });
+  expectInvalid({
+    ...RemoteDeliveryStatus,
+    fixtureRecordsMatchOutboxCandidates: false,
   });
   expectInvalid({
     ...RemoteDeliveryStatus,

@@ -55,11 +55,11 @@ development paths and orchestrates runtime commands.
 - Network remote delivery status reports through
   `agent.network.remote-delivery.status.get`, derived from the row10n
   delete/export status bridge identity over the local row10k transport-dispatch
-  state plus row10m delete/export readiness proof and serialized from a cached
-  deterministic protocol snapshot as the typed status bridge with row10b through
-  row10m refs, prepared candidate counts,
-  blocked-dispatch refs, delete/export readiness refs, duplicate rejection, and
-  zero dispatch/ack counters without broker/family-hub transport, remote
+  state, row10l fixture transport proof, and row10m delete/export readiness
+  proof. The cached deterministic protocol snapshot carries row10b through
+  row10m refs, prepared candidate counts, blocked-dispatch refs, row10l fixture
+  dispatch/ack counts, delete/export readiness refs, duplicate rejection, and
+  zero live dispatch/ack counters without broker/family-hub transport, remote
   acknowledgement, provider or child-device delivery, actual remote
   delete/export propagation, policy, adapter, exact content, or host-filter
   claims.
@@ -169,11 +169,11 @@ flowchart LR
   adapter mutation, exact URL/content claims, broker/family-hub delivery, and
   host filtering remain separate gaps.
 - Network remote delivery status output is a read-only proof/status bridge;
-  row10m delete/export readiness is visible there, but real broker or
-  family-hub transport, remote acknowledgement, provider/child-device delivery,
-  cross-process replay, actual remote delete/export propagation, product
-  readiness, policy execution, adapter execution, and host filtering remain
-  separate gaps.
+  row10l fixture transport and row10m delete/export readiness are visible there,
+  but real broker or family-hub transport, remote acknowledgement,
+  provider/child-device delivery, cross-process replay, actual remote
+  delete/export propagation, product readiness, policy execution, adapter
+  execution, and host filtering remain separate gaps.
 - App/game live process, optional foreground, Windows shortcut inventory,
   Windows packaged-app manifest capture, and Windows registry inventory capture
   have bounded service proof; subscribed foreground transitions, policy

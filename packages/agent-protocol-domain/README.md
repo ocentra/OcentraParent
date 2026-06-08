@@ -40,10 +40,11 @@ transports.
   flow/domain/classification, AI advisory, policy, enforcement dry-run/result,
   audit, and portal read-model update shapes mirrored from `crates/agent-protocol`.
 - Network remote delivery status event parsing for the row10n delete/export
-  status bridge identity, row10k transport-dispatch service refs, and row10m
-  delete/export readiness refs over row10b through row10m refs, including
-  stale-ref rejection, blocked-dispatch/readiness count validation, and
-  no-claim booleans for live delivery, product readiness, policy authority,
+  status bridge identity, row10k transport-dispatch service refs, row10l
+  fixture transport refs/counts, and row10m delete/export readiness refs over
+  row10b through row10m refs, including stale-ref rejection,
+  blocked-dispatch/fixture/readiness count validation, and no-claim booleans for
+  live delivery, product readiness, policy authority,
   adapter execution, and exact content.
 
 ## Must Not Own
@@ -125,8 +126,8 @@ flowchart LR
   streaming of the event chain, host filtering, adapter execution, and portal UI
   rendering remain separate proof-gated work.
 - Network remote delivery status parsing proves the service payload shape only.
-  Row10m delete/export readiness refs are accepted only as proof-local status.
-  Broker/family-hub transport, remote acknowledgement, provider/child-device
-  delivery, cross-process replay, actual remote delete/export propagation,
-  product readiness, policy authority, adapter execution, exact content, and
-  host filtering remain separate proof-gated work.
+  Row10l fixture transport refs/counts and row10m delete/export readiness refs
+  are accepted only as proof-local status. Broker/family-hub transport, remote
+  acknowledgement, provider/child-device delivery, cross-process replay, actual
+  remote delete/export propagation, product readiness, policy authority, adapter
+  execution, exact content, and host filtering remain separate proof-gated work.

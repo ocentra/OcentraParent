@@ -90,6 +90,11 @@ const freshnessCommandSpecs = [
     'node',
     ['scripts/test/network-remote-delivery-delete-export-status-bridge-proof.mjs'],
   ],
+  [
+    'network-remote-delivery-fixture-transport-status-bridge-proof',
+    'node',
+    ['scripts/test/network-remote-delivery-fixture-transport-status-bridge-proof.mjs'],
+  ],
   ['network-parent-ui-evidence-drawer-proof', 'node', ['scripts/test/network-parent-ui-evidence-drawer-proof.mjs']],
   [
     'network-portal-risk-performance-platform-proof',
@@ -158,6 +163,10 @@ const refreshedProofByName = new Map([
   [
     'network-remote-delivery-delete-export-status-bridge-proof',
     'network-remote-delivery-delete-export-status-bridge-proof',
+  ],
+  [
+    'network-remote-delivery-fixture-transport-status-bridge-proof',
+    'network-remote-delivery-fixture-transport-status-bridge-proof',
   ],
   ['network-portal-risk-performance-platform-proof', 'network-portal-risk-performance-platform-proof'],
   ['network-security-readiness-proof', 'network-security-readiness-proof'],
@@ -390,6 +399,11 @@ const proofArtifacts = [
     'output/network-plan-proof/10n-remote-delivery-delete-export-status-bridge/proof-summary.json',
   ],
   [
+    'remote-fixture-transport-status-bridge',
+    '10-remote-delivery-proof',
+    'output/network-plan-proof/10o-remote-delivery-fixture-transport-status-bridge/proof-summary.json',
+  ],
+  [
     'vpn-proxy-tunnel',
     'classification-proof',
     'output/network-plan-proof/24-vpn-proxy-tor-tunnel-classifier/proof-summary.json',
@@ -474,7 +488,7 @@ const proof = {
     'AI detection/audit and risk-budget outputs remain advisory until typed policy handoff',
     'adapter action is gated by policy, capability proof, result state, rollback/unavailable refs, and audit refs',
     'journal, replay, receipt-ledger, durable envelope, outbox, and local read-model proof are present',
-    'remote fixture transport, delete/export readiness, and delete/export status bridge proof are present without live propagation',
+    'remote fixture transport, fixture transport status bridge, delete/export readiness, and delete/export status bridge proof are present without live propagation',
     'portal evidence drawer, risk/performance/platform status, and row51 stored-flow product-path bridge are service/read-model backed and non-authoritative',
     'security readiness and performance benchmark proof roots are present',
   ],

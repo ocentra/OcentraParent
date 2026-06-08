@@ -126,6 +126,7 @@ fn assert_remote_delivery_status(status: &NetworkRemoteDeliveryStatus) {
     assert!(status.durable_envelope_ready);
     assert_eq!(status.durable_envelope_missing_artifact_count, 0);
     assert_remote_delivery_transport_dispatch_status(status);
+    assert_remote_delivery_fixture_transport_status(status);
     assert_remote_delivery_delete_export_status(status);
     assert_remote_delivery_outbox_status(status);
     assert_remote_delivery_non_claims(status);
@@ -158,6 +159,34 @@ fn assert_remote_delivery_transport_dispatch_status(status: &NetworkRemoteDelive
     );
     assert!(status.blocked_dispatch_records_match_outbox_candidates);
     assert_eq!(status.dispatch_ready_candidate_count, 0);
+}
+
+fn assert_remote_delivery_fixture_transport_status(status: &NetworkRemoteDeliveryStatus) {
+    assert_eq!(
+        status.fixture_transport_ref,
+        constants::network_flow::TEST_REMOTE_DELIVERY_FIXTURE_TRANSPORT_REF
+    );
+    assert_eq!(
+        status.fixture_dispatch_attempt_ref,
+        constants::network_flow::TEST_REMOTE_DELIVERY_FIXTURE_DISPATCH_ATTEMPT_REF
+    );
+    assert_eq!(
+        status.fixture_ack_ref,
+        constants::network_flow::TEST_REMOTE_DELIVERY_FIXTURE_ACK_REF
+    );
+    assert_eq!(
+        status.fixture_source_outbox_candidate_count,
+        status.outbox_candidate_count
+    );
+    assert_eq!(
+        status.fixture_dispatch_attempt_count,
+        status.outbox_candidate_count
+    );
+    assert_eq!(
+        status.fixture_remote_ack_count,
+        status.outbox_candidate_count
+    );
+    assert!(status.fixture_records_match_outbox_candidates);
 }
 
 fn assert_remote_delivery_delete_export_status(status: &NetworkRemoteDeliveryStatus) {

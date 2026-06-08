@@ -3,6 +3,7 @@ use ocentra_parent_agent_core::{
     prove_network_runtime_remote_delivery_transport_dispatch_state,
     NetworkRuntimeRemoteDeliveryDeleteExportPropagationReport,
     NetworkRuntimeRemoteDeliveryDurableEnvelopeReport,
+    NetworkRuntimeRemoteDeliveryFixtureTransportReport,
     NetworkRuntimeRemoteDeliveryOutboxHandoffReport, NetworkRuntimeRemoteDeliveryState,
     NetworkRuntimeRemoteDeliveryStatusReport,
     NetworkRuntimeRemoteDeliveryTransportDispatchState as RuntimeTransportDispatchState,
@@ -93,6 +94,7 @@ fn status_from_report(
     apply_durable_status(&mut status, outbox_report, durable_report);
     apply_outbox_status(&mut status, outbox_report);
     apply_transport_dispatch_status(&mut status, report, outbox_report);
+    apply_fixture_transport_status(&mut status, &delete_export_report.fixture_transport);
     apply_delete_export_status(&mut status, delete_export_report);
     apply_non_claim_status(&mut status, report, remote_status);
     status
@@ -191,6 +193,19 @@ fn apply_transport_dispatch_status(
     status.dispatch_ready_candidate_count = count(report.dispatch_ready_candidate_count);
     status.dispatch_attempt_count = count(report.dispatch_attempt_count);
     status.remote_ack_count = count(report.remote_ack_count);
+}
+
+fn apply_fixture_transport_status(
+    status: &mut NetworkRemoteDeliveryStatus,
+    report: &NetworkRuntimeRemoteDeliveryFixtureTransportReport,
+) {
+    status.fixture_transport_ref = report.fixture_transport_ref.as_str().to_string();
+    status.fixture_dispatch_attempt_ref = report.fixture_dispatch_attempt_ref.as_str().to_string();
+    status.fixture_ack_ref = report.fixture_ack_ref.as_str().to_string();
+    status.fixture_source_outbox_candidate_count = count(report.source_outbox_candidate_count);
+    status.fixture_dispatch_attempt_count = count(report.fixture_dispatch_attempt_count);
+    status.fixture_remote_ack_count = count(report.fixture_remote_ack_count);
+    status.fixture_records_match_outbox_candidates = report.fixture_records_match_outbox_candidates;
 }
 
 fn apply_delete_export_status(

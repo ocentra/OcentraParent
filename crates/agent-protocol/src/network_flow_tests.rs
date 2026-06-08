@@ -133,6 +133,12 @@ fn network_remote_delivery_status_serializes_row10n_status_with_row10k_dispatch_
     let serialized = serde_json::to_value(remote_delivery_status_fixture())
         .expect(constants::error::AGENT_EVENT_SERIALIZES);
 
+    assert_remote_delivery_status_refs(&serialized);
+    assert_remote_delivery_status_counts(&serialized);
+    assert_remote_delivery_status_no_product_claims(&serialized);
+}
+
+fn assert_remote_delivery_status_refs(serialized: &serde_json::Value) {
     assert_eq!(
         serialized["statusRef"],
         constants::network_flow::TEST_REMOTE_DELIVERY_DELETE_EXPORT_STATUS_BRIDGE_REF
@@ -167,6 +173,18 @@ fn network_remote_delivery_status_serializes_row10n_status_with_row10k_dispatch_
         constants::network_flow::TEST_REMOTE_DELIVERY_FUTURE_TRANSPORT_SEAM_REF
     );
     assert_eq!(
+        serialized["fixtureTransportRef"],
+        constants::network_flow::TEST_REMOTE_DELIVERY_FIXTURE_TRANSPORT_REF
+    );
+    assert_eq!(
+        serialized["fixtureDispatchAttemptRef"],
+        constants::network_flow::TEST_REMOTE_DELIVERY_FIXTURE_DISPATCH_ATTEMPT_REF
+    );
+    assert_eq!(
+        serialized["fixtureAckRef"],
+        constants::network_flow::TEST_REMOTE_DELIVERY_FIXTURE_ACK_REF
+    );
+    assert_eq!(
         serialized["deleteExportPropagationRef"],
         constants::network_flow::TEST_REMOTE_DELIVERY_DELETE_EXPORT_PROPAGATION_REF
     );
@@ -182,6 +200,9 @@ fn network_remote_delivery_status_serializes_row10n_status_with_row10k_dispatch_
         serialized["transportDispatchState"],
         "manual-required-blocked"
     );
+}
+
+fn assert_remote_delivery_status_counts(serialized: &serde_json::Value) {
     assert_eq!(serialized["outboxCandidateCount"], 3);
     assert_eq!(serialized["sourceOutboxCandidateCount"], 3);
     assert_eq!(serialized["preparedNotDispatchedCount"], 3);
@@ -190,10 +211,17 @@ fn network_remote_delivery_status_serializes_row10n_status_with_row10k_dispatch_
         serialized["blockedDispatchRecordsMatchOutboxCandidates"],
         true
     );
+    assert_eq!(serialized["fixtureSourceOutboxCandidateCount"], 3);
+    assert_eq!(serialized["fixtureDispatchAttemptCount"], 3);
+    assert_eq!(serialized["fixtureRemoteAckCount"], 3);
+    assert_eq!(serialized["fixtureRecordsMatchOutboxCandidates"], true);
     assert_eq!(serialized["deleteExportReadinessRecordCount"], 3);
     assert_eq!(serialized["remoteDeleteReadyCount"], 3);
     assert_eq!(serialized["remoteExportReadyCount"], 3);
     assert_eq!(serialized["deleteExportRecordsMatchFixtureAcks"], true);
+}
+
+fn assert_remote_delivery_status_no_product_claims(serialized: &serde_json::Value) {
     assert_eq!(serialized["dispatchReadyCandidateCount"], 0);
     assert_eq!(serialized["dispatchAttemptCount"], 0);
     assert_eq!(serialized["remoteAckCount"], 0);
@@ -243,6 +271,10 @@ fn remote_delivery_status_fixture() -> NetworkRemoteDeliveryStatus {
             .to_string(),
         blocked_dispatch_ref: flow::TEST_REMOTE_DELIVERY_DISPATCH_BLOCKED_MANUAL_REF.to_string(),
         future_transport_seam_ref: flow::TEST_REMOTE_DELIVERY_FUTURE_TRANSPORT_SEAM_REF.to_string(),
+        fixture_transport_ref: flow::TEST_REMOTE_DELIVERY_FIXTURE_TRANSPORT_REF.to_string(),
+        fixture_dispatch_attempt_ref: flow::TEST_REMOTE_DELIVERY_FIXTURE_DISPATCH_ATTEMPT_REF
+            .to_string(),
+        fixture_ack_ref: flow::TEST_REMOTE_DELIVERY_FIXTURE_ACK_REF.to_string(),
         delete_export_propagation_ref: flow::TEST_REMOTE_DELIVERY_DELETE_EXPORT_PROPAGATION_REF
             .to_string(),
         remote_delete_readiness_ref: flow::TEST_REMOTE_DELIVERY_REMOTE_DELETE_REF.to_string(),
@@ -252,6 +284,10 @@ fn remote_delivery_status_fixture() -> NetworkRemoteDeliveryStatus {
         prepared_not_dispatched_count: 3,
         blocked_dispatch_record_count: 3,
         blocked_dispatch_records_match_outbox_candidates: true,
+        fixture_source_outbox_candidate_count: 3,
+        fixture_dispatch_attempt_count: 3,
+        fixture_remote_ack_count: 3,
+        fixture_records_match_outbox_candidates: true,
         delete_export_readiness_record_count: 3,
         remote_delete_ready_count: 3,
         remote_export_ready_count: 3,
