@@ -142,6 +142,11 @@ Proof root: `output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-g
 - Refreshed tracking product-readiness closure proof also enumerates the
   retention product-readiness blocker proof's writable-settings and platform
   retention enforcement blockers in the aggregate remaining-blocker row.
+- Refreshed tracking product-readiness closure proof now carries retention
+  runtime artifact counts from the retention runtime gate: two required
+  artifacts, one present local writable execution artifact, one missing
+  platform retention runtime enforcement artifact, one manual-required row, and
+  zero artifact-complete retention runtime rows.
 - Refreshed tracking product-readiness closure proof also consumes the
   claim-audit proof, which keeps Android/iOS/manual-desktop, child-runtime,
   full-product UI, authority, provider, retention-runtime, production-worker,
@@ -344,7 +349,8 @@ escalation-runtime artifact gate, and retention product-readiness blocker
 proofs. The refreshed closure also consumes
 the retention runtime artifact gate and the production durable workers readiness
 blocker proof so local/CI proof accounting is explicit before any product-ready
-handoff. It writes
+handoff, and it now derives the retention runtime required/present/missing
+artifact counts from the generated retention runtime gate. It writes
 `46-product-readiness-closure-proof.json` and
 `test-results/tracking-product-readiness-closure-proof/proof.json` while
 keeping Android/iOS physical background behavior, actual child-device runtime,
@@ -1330,3 +1336,8 @@ tracking-claim-audit-proof tracking-product-readiness-closure-proof`
       categories for six physical/runtime rows, one provider-runtime row, and
       two production-runtime rows, and keeps all manual handoff rows
       `ciRunnable=false` with product-ready false.
+- [x] Retention runtime closure accounting refresh: product-readiness closure
+      and real-runtime handoff now carry two required retention runtime
+      artifacts, one present local writable execution artifact, one missing
+      platform retention runtime enforcement artifact, one manual-required
+      retention row, and zero artifact-complete retention runtime rows.

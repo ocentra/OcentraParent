@@ -140,6 +140,7 @@ async function main() {
     'tracking-product-readiness-closure-proof',
   ]);
   run('cmd', ['/c', 'node', 'scripts/test/tracking-full-product-ui-local-runtime-artifact-capture-proof.mjs']);
+  run('cmd', ['/c', 'node', 'scripts/test/tracking-retention-runtime-artifact-gate-proof.mjs']);
   run('cmd', ['/c', 'node', 'scripts/test/tracking-claim-audit-proof.mjs']);
 
   await assertSourceProofsExist();
@@ -174,6 +175,9 @@ async function aggregateEvidence() {
   const fullProductUiProof = await readJson(
     'test-results/tracking-full-product-ui-local-runtime-artifact-capture-proof/proof.json'
   );
+  const retentionRuntimeProof = await readJson(
+    'test-results/tracking-retention-runtime-artifact-gate-proof/proof.json'
+  );
   const claimAuditProof = await readJson('test-results/tracking-claim-audit-proof/proof.json');
   return {
     fullProductUiLocalArtifactCount: fullProductUiProof.readModel.localArtifactCount,
@@ -183,6 +187,12 @@ async function aggregateEvidence() {
       fullProductUiProof.readModel.closureEvidence.retentionWritableExecutionDerivationCount,
     fullProductUiClosureChildRuntimeMissingArtifactCount:
       fullProductUiProof.readModel.closureEvidence.childRuntimeMissingArtifactCount,
+    retentionRuntimeRequiredArtifactCount: retentionRuntimeProof.summary.requiredArtifactCount,
+    retentionRuntimePresentArtifactCount:
+      retentionRuntimeProof.summary.requiredArtifactCount - retentionRuntimeProof.summary.missingArtifactCount,
+    retentionRuntimeMissingArtifactCount: retentionRuntimeProof.summary.missingArtifactCount,
+    retentionRuntimeManualRequiredRowCount: retentionRuntimeProof.summary.manualRequiredRows,
+    retentionRuntimeArtifactSetPresentRowCount: retentionRuntimeProof.summary.completeRows,
     claimAuditPresentArtifactCount: claimAuditProof.summary.presentArtifactCount,
     claimAuditMissingArtifactCount: claimAuditProof.summary.missingArtifactCount,
     claimAuditManualRequiredRowCount: claimAuditProof.summary.manualRequiredRowCount,
@@ -227,6 +237,10 @@ function sourceSnapshot(proof) {
     '- currentProofTier: P3_LOCAL_DEV_MACHINE',
     '- status: proved',
     '- proves local/CI proof accounting is closed for current tracking continuation scope',
+    `- retentionRuntimeRequiredArtifactCount: ${proof.aggregateEvidence.retentionRuntimeRequiredArtifactCount}`,
+    `- retentionRuntimePresentArtifactCount: ${proof.aggregateEvidence.retentionRuntimePresentArtifactCount}`,
+    `- retentionRuntimeMissingArtifactCount: ${proof.aggregateEvidence.retentionRuntimeMissingArtifactCount}`,
+    `- retentionRuntimeManualRequiredRowCount: ${proof.aggregateEvidence.retentionRuntimeManualRequiredRowCount}`,
     '- does not prove retention product settings, physical-device, authority, provider-delivery, production, or product-ready tracking behavior',
     '- proof module: packages/parent-domain/src/tracking-product-readiness-closure-proof.ts',
     '- proof tests: packages/parent-domain/tests/tracking-product-readiness-closure-proof.test.ts',
@@ -239,6 +253,7 @@ function securityNegativeProof() {
   return [
     'workpack=33-proof-gates-fixtures-rollout-and-pr-gate',
     'Closure rows cite existing local/CI proof refs and enumerate remaining product blockers.',
+    'Retention runtime closure accounting records the local writable settings artifact as present and the platform runtime retention enforcement artifact as missing.',
     'Rows do not claim writable retention product settings, platform retention enforcement, Android/iOS physical background behavior, authority enrollment, provider delivery/receipt runtime, production workers, actual child-device runtime, or product readiness.',
     '',
   ].join('\n');

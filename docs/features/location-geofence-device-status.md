@@ -339,7 +339,9 @@ expose location or device-status features. Parents expect this category.
   explicitly enumerates retention writable-settings and platform-enforcement
   blockers from the retention product-readiness proof, carries aggregate
   evidence for five observed full-product UI local artifacts, one retention
-  writable execution derivation row, ten child-runtime artifact gaps, and the
+  writable execution derivation row, two required retention runtime artifacts,
+  one present local writable execution artifact, one missing platform retention
+  runtime enforcement artifact, ten child-runtime artifact gaps, and the
   claim-audit row counts, and keeps Android/iOS physical background, actual
   child-device runtime, full product parent/child UI, authority, provider
   delivery/receipt, production workers, and product-ready tracking unclaimed.
@@ -373,6 +375,7 @@ expose location or device-status features. Parents expect this category.
   the WP33 handoff artifact plus a generated manual validation runbook with
   row-level blocker ids, validation commands, acceptance notes, and missing
   artifacts. It now carries the product-readiness closure accounting totals,
+  including the retention runtime required/present/missing artifact counts,
   classifies six physical/runtime rows, one provider-runtime row, and two
   production-runtime rows as non-CI-runnable manual follow-up, and keeps
   physical-device, actual child-device runtime, full product UI, authority,
