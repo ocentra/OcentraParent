@@ -1,6 +1,6 @@
 # Screen AI Adapter Blocker Ledger Proof
 
-Generated: 2026-06-07T23:46:15.781Z
+Generated: 2026-06-08T04:00:59.668Z
 
 Status: blocked-but-actionable
 
@@ -11,7 +11,6 @@ Status: blocked-but-actionable
 - managed-active-tab-exact-url: screen-derived browser decision to exact active-tab URL action, rollback, and audit custody proof; source boundary: browser managed-control adapter layer; readiness: not-claimed.
 - android-device-owner-or-managed-profile: screen-derived mobile decision to Android DO/profile action with rollback, audit, and custody proof on real device or managed profile; source boundary: Android child-agent Device Owner or managed-profile adapter layer; readiness: manual-required.
 - ios-family-controls-device-activity: screen-derived mobile decision to iOS Family Controls or DeviceActivity action with rollback, audit, and custody proof; source boundary: iOS Family Controls and DeviceActivity adapter layer; readiness: manual-required.
-- linux-host-control: screen-derived Linux host decision to host action with rollback, audit, and custody proof; source boundary: Linux host enforcement adapter layer; readiness: unavailable.
 
 ## Closure
 
@@ -21,8 +20,9 @@ Status: blocked-but-actionable
   "adapterCompletionStillBlocked": true,
   "openScreenAiPipelineRowRetained": true,
   "openAiPlanDeferralRowRetained": true,
-  "blockerRows": 6,
-  "requiredProofArtifactRows": 6,
+  "blockerRows": 5,
+  "requiredProofArtifactRows": 5,
+  "linuxWsl2HostExecutionNoLongerBlocked": true,
   "claimUpgradeRows": 0
 }
 ```

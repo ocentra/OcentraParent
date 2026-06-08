@@ -1,7 +1,7 @@
 {
   "status": "blocked-by-upstream-adapter-artifacts",
   "proofKind": "screen-ai-final-adapter-dependency-audit",
-  "generatedAt": "2026-06-08T03:49:07.897Z",
+  "generatedAt": "2026-06-08T04:01:16.162Z",
   "sourceArtifacts": {
     "adapterReadiness": "output/screen-ai-pipeline-proof/adapter-readiness/proof-summary.json",
     "adapterReadinessReadModel": "output/screen-ai-pipeline-proof/adapter-readiness/read-model.json",
@@ -25,7 +25,7 @@
     "linuxHostExecutionRows": 1,
     "blockedAdapterRows": 5,
     "custodyArtifactRows": 3,
-    "dependencyHandoffRows": 6,
+    "dependencyHandoffRows": 5,
     "claimUpgradeRows": 0
   },
   "blockedRows": [
@@ -213,23 +213,6 @@
         "applyResultRef": "real Family Controls, DeviceActivity, or Network Extension apply result",
         "rollbackOrExpiryRef": "rollback or expiry result for the same mobile control",
         "auditRef": "durable iOS adapter audit/custody ref",
-        "rawImageRetained": false,
-        "rawImageDeletedBeforeAdapter": true,
-        "finalAdapterCompletionClaimed": true
-      }
-    },
-    {
-      "rowId": "screen-ai-linux-host-adapter-unavailable",
-      "adapterClass": "linux-host-control",
-      "owningLane": "codex-b-after-linux-host-target",
-      "owningDomain": "Linux host enforcement adapter layer",
-      "expectedProofFile": "output/screen-ai-pipeline-proof/linux-host-adapter-execution/proof-summary.json",
-      "expectedContractShape": {
-        "sourcePolicyDecisionRef": "screen-derived Linux host policy decision id",
-        "sourceLinuxEvidenceRef": "Linux capture/host evidence ref",
-        "applyResultRef": "real Linux host mutation result",
-        "rollbackOrExpiryRef": "rollback or expiry result for the same host mutation",
-        "auditRef": "durable Linux host adapter audit/custody ref",
         "rawImageRetained": false,
         "rawImageDeletedBeforeAdapter": true,
         "finalAdapterCompletionClaimed": true

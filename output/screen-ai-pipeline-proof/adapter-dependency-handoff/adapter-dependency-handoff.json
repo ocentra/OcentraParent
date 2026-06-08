@@ -1,6 +1,6 @@
 {
   "schemaVersion": "v0.6",
-  "generatedAt": "2026-06-08T02:21:51.553Z",
+  "generatedAt": "2026-06-08T04:01:08.975Z",
   "sourceArtifacts": {
     "finalAdapterDependencyAudit": "output/screen-ai-pipeline-proof/final-adapter-dependency-audit/proof-summary.json",
     "adapterBlockerLedger": "output/screen-ai-pipeline-proof/adapter-blocker-ledger/proof-summary.json",
@@ -137,33 +137,7 @@
         "product-capability-checklist: Child-safety AI decision"
       ],
       "claimGate": "Do not move this row to product-complete until requiredProofArtifact exists and cites a screen-derived policy decision, apply result, rollback or expiry result, audit ref, and custody/deletion ref."
-    },
-    {
-      "rowId": "screen-ai-linux-host-adapter-unavailable",
-      "adapterClass": "linux-host-control",
-      "readinessState": "unavailable",
-      "actionExecutionState": "skipped",
-      "currentMissingArtifact": "Linux host adapter apply, rollback, and audit custody proof from a screen-derived decision",
-      "owningLane": "codex-b-after-linux-host-target",
-      "owningDomain": "Linux host enforcement adapter layer",
-      "expectedProofFile": "output/screen-ai-pipeline-proof/linux-host-adapter-execution/proof-summary.json",
-      "expectedContractShape": {
-        "sourcePolicyDecisionRef": "screen-derived Linux host policy decision id",
-        "sourceLinuxEvidenceRef": "Linux capture/host evidence ref",
-        "applyResultRef": "real Linux host mutation result",
-        "rollbackOrExpiryRef": "rollback or expiry result for the same host mutation",
-        "auditRef": "durable Linux host adapter audit/custody ref",
-        "rawImageRetained": false,
-        "rawImageDeletedBeforeAdapter": true,
-        "finalAdapterCompletionClaimed": true
-      },
-      "unblocksFinalRows": [
-        "screen-ai-pipeline-plan: Browser, network, mobile, and broad block adapters proven from screen-derived decisions before product-complete action claims.",
-        "product-capability-checklist: Local screen evidence summaries",
-        "product-capability-checklist: Child-safety AI decision"
-      ],
-      "claimGate": "Do not move this row to product-complete until requiredProofArtifact exists and cites a screen-derived policy decision, apply result, rollback or expiry result, audit ref, and custody/deletion ref."
     }
   ],
-  "claimBoundary": "These rows are dependency handoff requirements only. They do not prove execution until the expected proof files exist and satisfy the expected contract shape."
+  "claimBoundary": "These rows are remaining dependency handoff requirements only. They do not prove execution until the expected proof files exist and satisfy the expected contract shape."
 }

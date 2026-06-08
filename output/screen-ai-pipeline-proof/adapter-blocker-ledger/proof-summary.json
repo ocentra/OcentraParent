@@ -1,7 +1,7 @@
 {
   "status": "blocked-but-actionable",
   "proofKind": "screen-ai-adapter-blocker-ledger-proof",
-  "generatedAt": "2026-06-07T23:46:15.781Z",
+  "generatedAt": "2026-06-08T04:00:59.668Z",
   "sourceArtifacts": {
     "finalAdapterDependencyAudit": "output/screen-ai-pipeline-proof/final-adapter-dependency-audit/proof-summary.json",
     "adapterReadinessReadModel": "output/screen-ai-pipeline-proof/adapter-readiness/read-model.json",
@@ -15,8 +15,9 @@
     "adapterCompletionStillBlocked": true,
     "openScreenAiPipelineRowRetained": true,
     "openAiPlanDeferralRowRetained": true,
-    "blockerRows": 6,
-    "requiredProofArtifactRows": 6,
+    "blockerRows": 5,
+    "requiredProofArtifactRows": 5,
+    "linuxWsl2HostExecutionNoLongerBlocked": true,
     "claimUpgradeRows": 0
   },
   "rows": [
@@ -119,26 +120,6 @@
       "finalAuditMissingArtifact": "iOS Family Controls/DeviceActivity control proof from a screen-derived mobile decision",
       "claimUpgradeAllowed": false,
       "claimGate": "Do not move this row to product-complete until requiredProofArtifact exists and cites a screen-derived policy decision, apply result, rollback or expiry result, audit ref, and custody/deletion ref."
-    },
-    {
-      "rowId": "screen-ai-linux-host-adapter-unavailable",
-      "adapterClass": "linux-host-control",
-      "expectedSourceBoundary": "Linux host enforcement adapter layer",
-      "requiredProofArtifact": "screen-derived Linux host decision to host action with rollback, audit, and custody proof",
-      "unblocksRows": [
-        "screen-ai-pipeline-plan: browser/network/mobile/broad adapter completion row",
-        "ai-plan: final product-complete pipeline deferral row",
-        "product-capability-checklist: Local screen evidence summaries",
-        "product-capability-checklist: Child-safety AI decision"
-      ],
-      "readinessState": "unavailable",
-      "actionExecutionState": "skipped",
-      "adapterExecutionProofArtifact": null,
-      "rawImageRetained": false,
-      "rawImageDeletedBeforeAdapter": true,
-      "finalAuditMissingArtifact": "Linux host adapter apply, rollback, and audit custody proof from a screen-derived decision",
-      "claimUpgradeAllowed": false,
-      "claimGate": "Do not move this row to product-complete until requiredProofArtifact exists and cites a screen-derived policy decision, apply result, rollback or expiry result, audit ref, and custody/deletion ref."
     }
   ],
   "unblockedSafeWork": [
@@ -147,7 +128,7 @@
     "Validate new adapter artifacts when upstream lanes provide them, then close only the matching blocker row."
   ],
   "nonClaims": [
-    "This proof does not implement broad installed-app, host network/domain, managed active-tab, Android, iOS, or Linux adapters.",
+    "This proof does not implement broad installed-app, host network/domain, managed active-tab, Android, iOS, or native Linux desktop product-complete adapters.",
     "This proof does not close the final product-complete adapter row.",
     "This proof does not edit docs/product-capability-checklist.md while another lane owns that lock."
   ]

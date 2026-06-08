@@ -81,18 +81,6 @@ const expectedBlockers = [
       'product-capability-checklist: Child-safety AI decision',
     ],
   },
-  {
-    rowId: 'screen-ai-linux-host-adapter-unavailable',
-    adapterClass: 'linux-host-control',
-    expectedSourceBoundary: 'Linux host enforcement adapter layer',
-    requiredProofArtifact: 'screen-derived Linux host decision to host action with rollback, audit, and custody proof',
-    unblocksRows: [
-      'screen-ai-pipeline-plan: browser/network/mobile/broad adapter completion row',
-      'ai-plan: final product-complete pipeline deferral row',
-      'product-capability-checklist: Local screen evidence summaries',
-      'product-capability-checklist: Child-safety AI decision',
-    ],
-  },
 ];
 
 const failures = [];
@@ -112,6 +100,14 @@ assert(
   finalAdapterDependencyAudit.closure?.broadBrowserNetworkMobileProductComplete === false,
   'final adapter dependency audit unexpectedly claims broad/browser/network/mobile completion'
 );
+assert(
+  finalAdapterDependencyAudit.closure?.blockedAdapterRows === 5,
+  'final adapter dependency audit blocker count changed'
+);
+assert(
+  finalAdapterDependencyAudit.closure?.linuxHostExecutionRows === 1,
+  'final adapter dependency audit lost WSL2 Linux execution row'
+);
 assert(finalProductPath.status === 'ok', 'final product path artifact gate must remain ok');
 assert(finalProductPath.closure?.portalReadModelProven === true, 'portal/read-model proof is not retained');
 assert(finalProductPath.closure?.retentionCustodyProven === true, 'retention custody proof is not retained');
@@ -129,7 +125,7 @@ assert(
 );
 
 const blockerRows = expectedBlockers.map((blocker) => buildBlockerLedgerRow(blocker));
-assert(blockerRows.length === 6, 'expected six blocked adapter ledger rows');
+assert(blockerRows.length === 5, 'expected five remaining blocked adapter ledger rows');
 assert(
   blockerRows.every((row) => row.claimUpgradeAllowed === false),
   'every blocker ledger row must reject claim upgrades'
@@ -162,6 +158,7 @@ const proof = {
     openAiPlanDeferralRowRetained: true,
     blockerRows: blockerRows.length,
     requiredProofArtifactRows: blockerRows.length,
+    linuxWsl2HostExecutionNoLongerBlocked: true,
     claimUpgradeRows: blockerRows.filter((row) => row.claimUpgradeAllowed).length,
   },
   rows: blockerRows,
@@ -171,7 +168,7 @@ const proof = {
     'Validate new adapter artifacts when upstream lanes provide them, then close only the matching blocker row.',
   ],
   nonClaims: [
-    'This proof does not implement broad installed-app, host network/domain, managed active-tab, Android, iOS, or Linux adapters.',
+    'This proof does not implement broad installed-app, host network/domain, managed active-tab, Android, iOS, or native Linux desktop product-complete adapters.',
     'This proof does not close the final product-complete adapter row.',
     'This proof does not edit docs/product-capability-checklist.md while another lane owns that lock.',
   ],

@@ -121,26 +121,6 @@ const expectedHandoff = {
       'product-capability-checklist: Child-safety AI decision',
     ],
   },
-  'screen-ai-linux-host-adapter-unavailable': {
-    owningLane: 'codex-b-after-linux-host-target',
-    owningDomain: 'Linux host enforcement adapter layer',
-    expectedProofFile: 'output/screen-ai-pipeline-proof/linux-host-adapter-execution/proof-summary.json',
-    expectedContractShape: {
-      sourcePolicyDecisionRef: 'screen-derived Linux host policy decision id',
-      sourceLinuxEvidenceRef: 'Linux capture/host evidence ref',
-      applyResultRef: 'real Linux host mutation result',
-      rollbackOrExpiryRef: 'rollback or expiry result for the same host mutation',
-      auditRef: 'durable Linux host adapter audit/custody ref',
-      rawImageRetained: false,
-      rawImageDeletedBeforeAdapter: true,
-      finalAdapterCompletionClaimed: true,
-    },
-    unblocksFinalRows: [
-      'screen-ai-pipeline-plan: Browser, network, mobile, and broad block adapters proven from screen-derived decisions before product-complete action claims.',
-      'product-capability-checklist: Local screen evidence summaries',
-      'product-capability-checklist: Child-safety AI decision',
-    ],
-  },
 };
 
 const failures = [];
@@ -150,9 +130,10 @@ const finalProductPath = readJson(sourceArtifacts.finalProductPath);
 const checklist = readText(sourceArtifacts.screenAiPipelineChecklist);
 
 assert(finalAdapterAudit.status === 'blocked-by-upstream-adapter-artifacts', 'final adapter audit is not blocked');
-assert(finalAdapterAudit.closure?.blockedAdapterRows === 6, 'final adapter audit blocker count changed');
+assert(finalAdapterAudit.closure?.blockedAdapterRows === 5, 'final adapter audit blocker count changed');
+assert(finalAdapterAudit.closure?.linuxHostExecutionRows === 1, 'final adapter audit lost Linux execution row');
 assert(adapterBlockerLedger.status === 'blocked-but-actionable', 'adapter blocker ledger is not actionable');
-assert(adapterBlockerLedger.closure?.blockerRows === 6, 'adapter blocker ledger blocker count changed');
+assert(adapterBlockerLedger.closure?.blockerRows === 5, 'adapter blocker ledger blocker count changed');
 assert(finalProductPath.closure?.finalPipelineProductComplete === false, 'final product path claims complete');
 assert(
   checklist.includes(
@@ -186,7 +167,7 @@ const handoffRows = finalAdapterAudit.blockedRows.map((blockedRow) => {
   };
 });
 
-assert(handoffRows.length === 6, 'handoff row count changed');
+assert(handoffRows.length === 5, 'handoff row count changed');
 
 for (const row of handoffRows) {
   assert(row.expectedContractShape.rawImageRetained === false, `${row.rowId} expected shape retains raw image`);
@@ -213,7 +194,7 @@ const handoff = {
   sourceArtifacts,
   rows: handoffRows,
   claimBoundary:
-    'These rows are dependency handoff requirements only. They do not prove execution until the expected proof files exist and satisfy the expected contract shape.',
+    'These rows are remaining dependency handoff requirements only. They do not prove execution until the expected proof files exist and satisfy the expected contract shape.',
 };
 const proof = {
   status: 'adapter-dependency-handoff-ready-upstream-execution-required',
@@ -224,6 +205,7 @@ const proof = {
   handoffMarkdown: relativePath(markdownPath),
   closure: {
     dependencyRowsMapped: handoffRows.length,
+    linuxWsl2HostExecutionAlreadyProved: true,
     owningLanesMapped: true,
     expectedProofFilesMapped: true,
     expectedContractShapesMapped: true,
@@ -233,7 +215,7 @@ const proof = {
     rawImageRetainedByExpectedContracts: false,
   },
   nonClaims: [
-    'This proof does not implement broad installed-app, host network/domain, managed active-tab, Android, iOS, or Linux adapters.',
+    'This proof does not implement broad installed-app, host network/domain, managed active-tab, Android, iOS, or native Linux desktop product-complete adapters.',
     'This proof does not edit docs/product-capability-checklist.md while another lane owns the file.',
     'This proof does not close the final screen-AI adapter row or mark product-complete execution.',
   ],

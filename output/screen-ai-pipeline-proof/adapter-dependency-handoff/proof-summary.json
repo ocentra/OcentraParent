@@ -1,7 +1,7 @@
 {
   "status": "adapter-dependency-handoff-ready-upstream-execution-required",
   "proofKind": "screen-ai-adapter-dependency-handoff-proof",
-  "generatedAt": "2026-06-08T02:21:51.553Z",
+  "generatedAt": "2026-06-08T04:01:08.975Z",
   "sourceArtifacts": {
     "finalAdapterDependencyAudit": "output/screen-ai-pipeline-proof/final-adapter-dependency-audit/proof-summary.json",
     "adapterBlockerLedger": "output/screen-ai-pipeline-proof/adapter-blocker-ledger/proof-summary.json",
@@ -11,7 +11,8 @@
   "handoff": "output/screen-ai-pipeline-proof/adapter-dependency-handoff/adapter-dependency-handoff.json",
   "handoffMarkdown": "output/screen-ai-pipeline-proof/adapter-dependency-handoff/adapter-dependency-handoff.md",
   "closure": {
-    "dependencyRowsMapped": 6,
+    "dependencyRowsMapped": 5,
+    "linuxWsl2HostExecutionAlreadyProved": true,
     "owningLanesMapped": true,
     "expectedProofFilesMapped": true,
     "expectedContractShapesMapped": true,
@@ -21,7 +22,7 @@
     "rawImageRetainedByExpectedContracts": false
   },
   "nonClaims": [
-    "This proof does not implement broad installed-app, host network/domain, managed active-tab, Android, iOS, or Linux adapters.",
+    "This proof does not implement broad installed-app, host network/domain, managed active-tab, Android, iOS, or native Linux desktop product-complete adapters.",
     "This proof does not edit docs/product-capability-checklist.md while another lane owns the file.",
     "This proof does not close the final screen-AI adapter row or mark product-complete execution."
   ]

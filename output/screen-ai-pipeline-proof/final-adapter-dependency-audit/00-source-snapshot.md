@@ -1,6 +1,6 @@
 # Screen AI Final Adapter Dependency Audit
 
-Generated: 2026-06-08T03:49:07.897Z
+Generated: 2026-06-08T04:01:16.162Z
 
 ## Source Artifacts
 
@@ -36,7 +36,6 @@ Generated: 2026-06-08T03:49:07.897Z
 - screen-ai-managed-active-tab-not-claimed: codex-d, output/browser-plan-proof/screen-derived-managed-active-tab-apply-rollback-audit/proof-summary.json
 - screen-ai-android-mobile-control-manual-required: primary/mobile-child-agent-sequencing, output/mobile-plan-proof/screen-derived-android-mobile-control-apply-rollback-audit/proof-summary.json
 - screen-ai-ios-mobile-control-manual-required: primary/mobile-child-agent-sequencing, output/mobile-plan-proof/screen-derived-ios-mobile-control-apply-rollback-audit/proof-summary.json
-- screen-ai-linux-host-adapter-unavailable: codex-b-after-linux-host-target, output/screen-ai-pipeline-proof/linux-host-adapter-execution/proof-summary.json
 
 ## Closure
 
@@ -52,7 +51,7 @@ Generated: 2026-06-08T03:49:07.897Z
   "linuxHostExecutionRows": 1,
   "blockedAdapterRows": 5,
   "custodyArtifactRows": 3,
-  "dependencyHandoffRows": 6,
+  "dependencyHandoffRows": 5,
   "claimUpgradeRows": 0
 }
 ```

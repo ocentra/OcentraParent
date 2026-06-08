@@ -285,8 +285,12 @@ function auditDependencyHandoff() {
     'adapter dependency handoff status changed'
   );
   assert(
-    adapterDependencyHandoff.closure?.dependencyRowsMapped === requiredBlockedRows.length + 1,
+    adapterDependencyHandoff.closure?.dependencyRowsMapped === requiredBlockedRows.length,
     'adapter dependency handoff row count changed'
+  );
+  assert(
+    adapterDependencyHandoff.closure?.linuxWsl2HostExecutionAlreadyProved === true,
+    'adapter dependency handoff lost completed Linux execution marker'
   );
   assert(
     adapterDependencyHandoff.closure?.finalScreenAiAdapterRowStillOpen === true,
@@ -306,7 +310,7 @@ function auditDependencyHandoff() {
   );
 
   const rows = adapterDependencyHandoffRows.rows ?? [];
-  assert(rows.length === requiredBlockedRows.length + 1, 'adapter dependency handoff rows length mismatch');
+  assert(rows.length === requiredBlockedRows.length, 'adapter dependency handoff rows length mismatch');
 
   for (const requirement of requiredBlockedRows) {
     const row = rows.find((candidate) => candidate.rowId === requirement.rowId);

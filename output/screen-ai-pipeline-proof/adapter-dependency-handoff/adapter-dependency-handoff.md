@@ -1,6 +1,6 @@
 # Screen AI Adapter Dependency Handoff
 
-Generated: 2026-06-08T02:21:51.553Z
+Generated: 2026-06-08T04:01:08.975Z
 
 ## screen-ai-broad-installed-app-manual-required
 
@@ -101,27 +101,6 @@ Generated: 2026-06-08T02:21:51.553Z
   "applyResultRef": "real Family Controls, DeviceActivity, or Network Extension apply result",
   "rollbackOrExpiryRef": "rollback or expiry result for the same mobile control",
   "auditRef": "durable iOS adapter audit/custody ref",
-  "rawImageRetained": false,
-  "rawImageDeletedBeforeAdapter": true,
-  "finalAdapterCompletionClaimed": true
-}
-```
-
-## screen-ai-linux-host-adapter-unavailable
-
-- adapter class: linux-host-control
-- owner: codex-b-after-linux-host-target (Linux host enforcement adapter layer)
-- expected proof: `output/screen-ai-pipeline-proof/linux-host-adapter-execution/proof-summary.json`
-- missing now: Linux host adapter apply, rollback, and audit custody proof from a screen-derived decision
-- unblocks: screen-ai-pipeline-plan: Browser, network, mobile, and broad block adapters proven from screen-derived decisions before product-complete action claims.; product-capability-checklist: Local screen evidence summaries; product-capability-checklist: Child-safety AI decision
-
-```json
-{
-  "sourcePolicyDecisionRef": "screen-derived Linux host policy decision id",
-  "sourceLinuxEvidenceRef": "Linux capture/host evidence ref",
-  "applyResultRef": "real Linux host mutation result",
-  "rollbackOrExpiryRef": "rollback or expiry result for the same host mutation",
-  "auditRef": "durable Linux host adapter audit/custody ref",
   "rawImageRetained": false,
   "rawImageDeletedBeforeAdapter": true,
   "finalAdapterCompletionClaimed": true

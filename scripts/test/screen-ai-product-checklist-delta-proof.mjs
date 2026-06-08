@@ -47,7 +47,11 @@ assert(finalAdapterAudit.closure?.broadBrowserNetworkMobileProductComplete === f
 assert(finalAdapterAudit.closure?.blockedAdapterRows === 5, 'adapter audit blocker count changed');
 assert(finalAdapterAudit.closure?.custodyArtifactRows === 3, 'adapter audit custody count changed');
 assert(finalAdapterAudit.closure?.linuxHostExecutionRows === 1, 'adapter audit lost Linux execution row');
-assert(adapterBlockerLedger.closure?.blockerRows === 6, 'adapter blocker ledger row count changed');
+assert(adapterBlockerLedger.closure?.blockerRows === 5, 'adapter blocker ledger row count changed');
+assert(
+  adapterBlockerLedger.closure?.linuxWsl2HostExecutionNoLongerBlocked === true,
+  'adapter blocker ledger still treats Linux execution as blocked'
+);
 assert(
   linuxHostExecution.status === 'linux-host-adapter-execution-proved-wsl2',
   'Linux execution proof status changed'
