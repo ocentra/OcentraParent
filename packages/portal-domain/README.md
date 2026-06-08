@@ -22,10 +22,10 @@ contracts.
   child delivery, adapter dispatch, or platform enforcement.
 - App/game timer parent preference setup accepted-result detail rows for
   parent-safe action-result persistence, mutation receipt, child-runtime
-  handoff, and service-local child-runtime queue refs/status, without claiming
-  child delivery, provider delivery, receipt ingestion, durable outbox runtime,
-  adapter dispatch, broad blocking, platform enforcement, raw target values, or
-  private diagnostics.
+  handoff, service-local child-runtime queue refs/status, and service-local
+  child-runtime dispatch refs/status, without claiming child delivery, provider
+  delivery, receipt ingestion, durable outbox runtime, adapter dispatch, broad
+  blocking, platform enforcement, raw target values, or private diagnostics.
 - App/game policy readiness route intents that render service-backed readiness
   summaries and rows without policy execution or adapter dispatch claims.
 - Social dashboard panel intents that adapt parent-domain social dashboard
@@ -75,8 +75,8 @@ flowchart LR
   parent-safe refs until durable preference mutation and notification rule write
   paths exist.
 - Keep accepted parent preference setup command-result details parent-safe; do
-  not show child-runtime handoff or service-local queue readiness as actual
-  delivery or platform enforcement.
+  not show child-runtime handoff, service-local queue readiness, or
+  service-local dispatch readiness as actual delivery or platform enforcement.
 - Keep social dashboard rows unavailable until a real service-backed social
   snapshot path exists; do not promote connector/native/final-policy/enforcement
   claims from portal-only rendering.

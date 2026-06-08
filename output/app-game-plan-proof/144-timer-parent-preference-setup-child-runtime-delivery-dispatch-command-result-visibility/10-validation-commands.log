@@ -1,0 +1,26 @@
+WP144 validation commands
+
+PASS - cmd /c npm run build --workspace @ocentra-parent/portal-domain
+Result: tsc build completed and ESM imports fixed.
+
+PASS - cmd /c npm run type-check --workspace @ocentra-parent/portal
+Result: portal TypeScript check completed with no errors.
+
+PASS - cmd /c npm run test --workspace @ocentra-parent/portal -- --run tests/app-game-timer-parent-surface-panel.test.ts
+Result: Vitest completed successfully; 19 test files passed, 79 tests passed.
+Note: Vite printed existing esbuild/oxc deprecation warnings.
+
+PASS - git diff --check
+Result: no whitespace errors.
+
+PASS - node scripts/check-no-test-doubles.mjs
+Result: No test doubles found across 2179 checked source files.
+
+PASS - node scripts/check-source-shape.mjs
+Result: Source shape guard passed with existing advisory warnings.
+
+PASS - cmd /c npm run lanes:guard
+Result: lane-guard-ok for codex-c on codex/app-game-control-product-completion.
+
+PASS - cmd /c npm run hub:guard
+Result: hub-guard-ok for codex-c.

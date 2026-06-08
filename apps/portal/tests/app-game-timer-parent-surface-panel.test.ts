@@ -329,6 +329,14 @@ function expectParentPreferenceSetupCommandResultVisibility() {
     value: 'Ready',
   });
   expect(details).toContainEqual({
+    label: 'Child runtime dispatch refs',
+    value: 'app-game-parent-preference-setup-child-runtime-dispatch::request-1',
+  });
+  expect(details).toContainEqual({
+    label: 'Child runtime dispatch status',
+    value: 'Ready',
+  });
+  expect(details).toContainEqual({
     label: 'Parent preference setup mutation',
     value: 'Not claimed',
   });
@@ -623,6 +631,10 @@ function parentPreferenceSetupRequestedEvent(): AgentEventEnvelope {
         childRuntimeDeliveryQueueIds: ['app-game-parent-preference-setup-child-runtime-queue::request-1'],
         childRuntimeDeliveryQueueStatus: 'queued',
         childRuntimeDeliveryQueueClaimed: true,
+        childRuntimeDeliveryDispatchId: 'app-game-parent-preference-setup-child-runtime-dispatch::request-1',
+        childRuntimeDeliveryDispatchIds: ['app-game-parent-preference-setup-child-runtime-dispatch::request-1'],
+        childRuntimeDeliveryDispatchStatus: 'dispatch-ready',
+        childRuntimeDeliveryDispatchClaimed: true,
         commandBoundaryClaimed: true,
         actionResultHandoffClaimed: true,
         actionResultPersistenceClaimed: true,
