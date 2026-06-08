@@ -16,6 +16,11 @@ describe('tracking Android physical-device runtime proof', () => {
     expect(proof.summary.presentArtifactCount).toBe(RequiredTrackingAndroidPhysicalDeviceRuntimeArtifactRefs.length);
     expect(proof.summary.missingArtifactCount).toBe(0);
     expect(proof.summary.physicalDeviceRuntimeObserved).toBe(true);
+    expect(proof.summary.physicalLocationArtifactCount).toBe(1);
+    expect(proof.summary.physicalGeofenceArtifactCount).toBe(1);
+    expect(proof.summary.backgroundLocationSampleCount).toBe(1);
+    expect(proof.summary.localGeofenceTransitionCount).toBe(2);
+    expect(proof.summary.localGeofenceDwellCount).toBe(1);
     expect(proof.productClaims.physicalDeviceRuntimeObserved).toBe(true);
     expect(proof.productClaims.physicalLocationRuntimeClaimed).toBe(false);
     expect(proof.productClaims.physicalGeofenceRuntimeClaimed).toBe(false);
@@ -76,9 +81,12 @@ function input() {
     connectivityDumpObserved: true,
     foregroundPermissionGranted: false,
     backgroundPermissionGranted: false,
-    locationSampleObserved: false,
-    localGeofenceTransitionCount: 0,
-    localGeofenceDwellCount: 0,
+    locationSampleObserved: true,
+    backgroundLocationSampleCount: 1,
+    physicalRouteObservationWindowSeconds: 60,
+    shellLocationInjectionAvailable: false,
+    localGeofenceTransitionCount: 2,
+    localGeofenceDwellCount: 1,
     androidSystemGeofenceTransitionCount: 0,
     artifactRows: artifactRows(),
   };
@@ -101,6 +109,10 @@ function categoryFor(artifactRef: string) {
   if (artifactRef.includes('service')) return 'foreground-service';
   if (artifactRef.includes('battery') || artifactRef.includes('connectivity')) return 'device-status';
   if (artifactRef.includes('ui') || artifactRef.includes('screen')) return 'ui-screenshot';
+  if (artifactRef.includes('permission')) return 'permission-state';
+  if (artifactRef.includes('sample')) return 'physical-location-runtime';
+  if (artifactRef.includes('geofence')) return 'physical-geofence-runtime';
+  if (artifactRef.includes('route') || artifactRef.includes('location-manager')) return 'physical-route-observation';
   if (artifactRef.includes('logcat')) return 'validation-log';
   return 'adb-runtime-output';
 }
