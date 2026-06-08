@@ -87,6 +87,15 @@ claim needs proof, not slogans.
   before local republish, remote peers cannot publish directly into another
   runtime bus, and private local queue/capture internals plus raw screen
   payloads are rejected before export or republish.
+- `HouseholdAiProviderAdvertisementHeartbeatProofSchema` and
+  `scripts/test/household-ai-provider-advertisement-heartbeat-proof.mjs` now
+  prove the household provider advertisement/heartbeat contract: fresh trusted
+  local providers with `screen-ai-analysis` capability can be represented as
+  eligible, while stale, offline, revoked, and unsupported provider
+  advertisements are rejected with reason refs. The proof rejects raw screenshot
+  and remote/API advertisement overclaims and keeps physical LAN execution,
+  provider gossip runtime, model execution/quality, policy authority, and
+  enforcement unclaimed.
 - `scripts/test/household-ai-provider-route-selection-proof.mjs` now proves
   household AI provider route selection for the local mesh contract: trusted
   parent desktop providers outrank laptop, child-desktop, and mobile providers;
@@ -524,6 +533,11 @@ validation against production external evidence variants.
 - [x] Household Mesh Bridge proof validates selected-event export/import,
       authenticated/authorized local republish, no direct remote bus publish,
       and no private/raw screen payload transfer.
+- [x] Household AI provider advertisement/heartbeat proof validates fresh
+      trusted screen-capable local providers and rejects stale, offline,
+      revoked, unsupported, raw-payload, and remote/API advertisement overclaims
+      without physical LAN, gossip runtime, model, policy, or enforcement
+      claims.
 - [x] Household AI provider route selection proof validates desktop/laptop
       preference, mobile dormant/fallback, stale/offline/revoked rejection,
       degraded/unsupported rejection, and custody mismatch rejection without

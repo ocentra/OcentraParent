@@ -1,0 +1,104 @@
+{
+  "status": "ok",
+  "proofKind": "household-ai-provider-advertisement-heartbeat-proof",
+  "generatedAt": "2026-06-08T04:57:37.161Z",
+  "proof": "output/ai-plan-proof/household-ai-provider-advertisement-heartbeat-proof/proof-summary.json",
+  "sourceContracts": [
+    "packages/parent-domain/src/household-ai-provider-advertisement-heartbeat-proof.ts"
+  ],
+  "requestedCapability": "screen-ai-analysis",
+  "providerStates": [
+    {
+      "providerId": "household-provider-parent-desktop-1",
+      "state": "eligible",
+      "capabilities": [
+        "screen-ai-analysis",
+        "text-classification"
+      ],
+      "resourceClass": "desktop-gpu",
+      "heartbeatAgeMs": 2000,
+      "heartbeatTtlMs": 30000,
+      "rejectionReason": null
+    },
+    {
+      "providerId": "household-provider-stale-laptop-1",
+      "state": "stale",
+      "capabilities": [
+        "screen-ai-analysis"
+      ],
+      "resourceClass": "laptop-cpu",
+      "heartbeatAgeMs": 61000,
+      "heartbeatTtlMs": 30000,
+      "rejectionReason": "heartbeat-expired"
+    },
+    {
+      "providerId": "household-provider-offline-desktop-1",
+      "state": "offline",
+      "capabilities": [
+        "screen-ai-analysis"
+      ],
+      "resourceClass": "desktop-cpu",
+      "heartbeatAgeMs": 0,
+      "heartbeatTtlMs": 30000,
+      "rejectionReason": "provider-offline"
+    },
+    {
+      "providerId": "household-provider-revoked-mobile-1",
+      "state": "revoked",
+      "capabilities": [
+        "screen-ai-analysis"
+      ],
+      "resourceClass": "mobile-light",
+      "heartbeatAgeMs": 1000,
+      "heartbeatTtlMs": 30000,
+      "rejectionReason": "provider-revoked"
+    },
+    {
+      "providerId": "household-provider-text-only-1",
+      "state": "unsupported",
+      "capabilities": [
+        "text-classification"
+      ],
+      "resourceClass": "desktop-cpu",
+      "heartbeatAgeMs": 1000,
+      "heartbeatTtlMs": 30000,
+      "rejectionReason": "missing-screen-ai-analysis-capability"
+    }
+  ],
+  "validationSummary": {
+    "eligibleProviderCount": 1,
+    "staleProviderRejectedCount": 1,
+    "offlineProviderRejectedCount": 1,
+    "revokedProviderRejectedCount": 1,
+    "unsupportedProviderRejectedCount": 1,
+    "rawPayloadAdvertisementCount": 0,
+    "remoteApiAdvertisementCount": 0
+  },
+  "assertions": {
+    "freshTrustedProviderEligible": true,
+    "staleProviderRejected": true,
+    "offlineProviderRejected": true,
+    "revokedProviderRejected": true,
+    "unsupportedProviderRejected": true,
+    "noRawPayloadAdvertisement": true,
+    "noRemoteApiAdvertisement": true,
+    "noRuntimePolicyEnforcementOrRawTransferClaims": true
+  },
+  "claimBoundaries": {
+    "physicalLanExecutionClaimed": false,
+    "providerGossipRuntimeClaimed": false,
+    "modelExecutionClaimed": false,
+    "modelQualityClaimed": false,
+    "policyAuthorityClaimed": false,
+    "enforcementClaimed": false,
+    "rawScreenshotTransferred": false,
+    "remoteApiAiUsed": false
+  },
+  "nonClaims": [
+    "This proof does not execute over a physical household LAN or run provider gossip.",
+    "This proof does not execute a model or prove model quality.",
+    "This proof does not grant provider policy authority or dispatch enforcement.",
+    "This proof does not transfer raw screenshots, retain raw screen pixels, or use remote/API AI.",
+    "This proof does not add a package export while packages/parent-domain/package.json is locked by another lane."
+  ]
+}
