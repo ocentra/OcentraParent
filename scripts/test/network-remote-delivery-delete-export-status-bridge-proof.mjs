@@ -34,6 +34,7 @@ const expectedStatus = {
     event: 'agent.network.remote-delivery.status.reported',
     payloadField: 'networkRemoteDeliveryStatus',
   },
+  statusBridgeRef: 'network.remote-delivery.delete-export-status-bridge.10n',
   deleteExportStatusRefs: [
     'network.remote-delivery.delete-export-propagation-readiness.10m',
     'network.remote-delivery.remote-delete-readiness.10m',
@@ -47,9 +48,9 @@ const expectedStatus = {
     'remoteDeleteExportPropagationImplemented=false',
   ],
   parserInvariants: [
-    'Rust protocol serializes row10m readiness refs in the existing remote delivery status shape',
-    'service payload composes row10k blocked dispatch refs and row10m delete/export readiness refs into one cached status object',
-    'TypeScript parser rejects stale row10m refs and mismatched readiness counts',
+    'Rust protocol serializes row10n status identity and row10m readiness refs in the existing remote delivery status shape',
+    'service payload composes row10n status identity, row10k blocked dispatch refs, and row10m delete/export readiness refs into one cached status object',
+    'TypeScript parser rejects stale row10n status refs, stale row10m refs, and mismatched readiness counts',
     'status bridge does not claim live propagation, product-ready delivery, policy authority, adapter execution, enforcement commands, exact content, raw PCAP, or host filtering',
   ],
   noClaims: [
@@ -200,8 +201,8 @@ const proof = {
     'network-plan supplemental row 10h remote delivery outbox status bridge',
   ],
   provenBoundaries: [
-    'Rust protocol serializes row10m delete/export readiness refs inside the existing remote delivery status shape',
-    'agent-service reports row10m delete/export readiness refs and counts through the existing cached remote delivery status payload',
+    'Rust protocol serializes row10n status identity with row10m delete/export readiness refs inside the existing remote delivery status shape',
+    'agent-service reports row10n status identity plus row10m delete/export readiness refs and counts through the existing cached remote delivery status payload',
     'TypeScript parser rejects stale row10m readiness refs and readiness counts that do not match the source outbox candidate count',
     'the status bridge keeps remote delete/export propagation implementation false and does not upgrade service payload or product support into live delivery',
     'the status bridge rejects product-ready remote delivery, policy authority, side-effect authority, adapter execution, enforcement command publication, live broker/family-hub delivery, provider delivery, child-device delivery, exact-content, and host-filter claims',
@@ -217,6 +218,7 @@ console.log(
 console.log(`proof=${join(proofRoot, 'proof-summary.json')}`);
 
 function assertSourceContracts() {
+  const protocolConstants = readText('crates/agent-protocol/src/constants/network_flow.rs');
   const protocolShape = readText('crates/agent-protocol/src/network_flow.rs');
   const protocolTests = readText('crates/agent-protocol/src/network_flow_tests.rs');
   const servicePayload = readText('crates/agent-service/src/network_remote_delivery_status_payload.rs');
@@ -234,16 +236,25 @@ function assertSourceContracts() {
     [protocolShape, 'delete_export_propagation_ref'],
     [protocolShape, 'remote_delete_readiness_ref'],
     [protocolShape, 'delete_export_readiness_record_count'],
+    [protocolConstants, 'TEST_REMOTE_DELIVERY_DELETE_EXPORT_STATUS_BRIDGE_REF'],
+    [
+      protocolTests,
+      'network_remote_delivery_status_serializes_row10n_status_with_row10k_dispatch_state_without_product_claims',
+    ],
     [protocolTests, 'deleteExportPropagationRef'],
     [servicePayload, 'prove_network_runtime_remote_delivery_delete_export_propagation'],
     [servicePayload, 'apply_delete_export_status'],
+    [servicePayload, 'TEST_REMOTE_DELIVERY_DELETE_EXPORT_STATUS_BRIDGE_REF'],
     [serviceTests, 'assert_remote_delivery_delete_export_status'],
     [tsDefaults, 'DeleteExportPropagationRef'],
+    [tsDefaults, 'delete-export-status-bridge.10n'],
     [tsParser, 'deleteExportReadinessMatches'],
+    [tsParser, 'row10n status identity'],
+    [tsTests, 'parses row10n delete export status with row10k blocked dispatch refs'],
     [tsTests, 'rejects row10k dispatch, row10m readiness, and candidate-count mismatches'],
-    [protocolReadme, 'row10m delete/export readiness refs'],
+    [protocolReadme, 'row10m delete/export readiness refs over'],
     [serviceReadme, 'row10m delete/export readiness proof'],
-    [tsReadme, 'row10m delete/export readiness refs'],
+    [tsReadme, 'Row10m delete/export readiness refs'],
     [featureDoc, 'network-remote-delivery-delete-export-status-bridge-proof'],
     [checklist, '10n-remote-delivery-delete-export-status-bridge'],
     [workpacks, '10n'],

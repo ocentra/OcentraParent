@@ -9,5 +9,6 @@ crates/agent-core/src/activity_store_policy_preview_tests.rs:64 function has 73 
 crates/agent-protocol/src/constants/field.rs:1 file has 402 lines; crossed 250-line advisory band; maximum is 1000
 crates/agent-service/src/policy_preview_tests.rs:12 function has 66 lines; warning starts at 64 of 80
 packages/agent-protocol-domain/src/contracts.ts:1 file has 585 lines; crossed 500-line advisory band; maximum is 1000
-packages/agent-protocol-domain/src/defaults.ts:1 file has 496 lines; crossed 250-line advisory band; maximum is 1000
+packages/agent-protocol-domain/src/defaults.ts:1 file has 499 lines; crossed 250-line advisory band; maximum is 1000
+packages/agent-protocol-domain/tests/network-remote-delivery-status.test.ts:1 file has 256 lines; crossed 250-line advisory band; maximum is 1000
 Source shape guard passed.

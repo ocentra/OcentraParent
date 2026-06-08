@@ -318,8 +318,9 @@ The proof pack must contain or explicitly mark N/A for each applicable item:
       `agent.network.remote-delivery.status.reported` path carries
       delete/export propagation refs, remote delete/export readiness refs,
       readiness counts, and fixture-ack matching state while preserving row10k
-      blocked-dispatch refs. Rust and TypeScript parsers reject stale refs and
-      mismatched readiness counts. Actual remote delete/export propagation, live
+      blocked-dispatch refs under a row10n status identity. Rust and TypeScript
+      parsers reject stale refs and mismatched readiness counts. Actual remote
+      delete/export propagation, live
       broker/family-hub/provider/child-device delivery, product-ready delivery,
       policy authority, side-effect authority, adapter execution,
       enforcement-command publication, raw PCAP, exact URL, decrypted payload,
@@ -537,15 +538,16 @@ The proof pack must contain or explicitly mark N/A for each applicable item:
       without attempting live transport, and row10m records proof-local remote
       delete/export propagation readiness refs without actual remote propagation,
       and row10n surfaces those refs through the existing typed remote-delivery
-      status bridge. Live broker/family-hub delivery, remote acknowledgements,
-      cross-process durable replay, raw PCAP/live-capture retention and remote
+      status bridge with a row10n status identity. Live broker/family-hub
+      delivery, live transport remote acknowledgements, cross-process durable
+      replay, raw PCAP/live-capture retention and remote
       delete/export propagation, live analyzer/model/policy execution, adapter
       execution, provider/child-device delivery, product-ready remote delivery,
       and host filtering remain open. Row10j now proves available remote metadata across
       the row10b through row10i chain stays non-enforcing until those artifacts
       exist. E-D full-network proof links the
       consolidated eventing proof and remote-delivery non-enforcement artifacts
-      under `output/network-plan-proof/full-network-plan/02-eventing-proof.log` and
+      through row10n under `output/network-plan-proof/full-network-plan/02-eventing-proof.log` and
       `output/network-plan-proof/full-network-plan/12-remote-delivery-proof.json`.
 - [x] TypeScript Effect Schema contracts land before Rust/service/portal
       consumers where TypeScript domain boundaries are touched. Workpack 03
@@ -582,7 +584,7 @@ The proof pack must contain or explicitly mark N/A for each applicable item:
       unclaimed boundaries.
 - [x] Required proof pack exists with logs, JSON, screenshots, or explicit N/A
       reasons for every applicable gate. E-D full-network proof lives under
-      `output/network-plan-proof/full-network-plan/` and ties together 45
+      `output/network-plan-proof/full-network-plan/` and ties together 49
       row-level artifacts plus focused Rust/no-test-double/source-shape/diff
       validation. Workpack 03 contract proof remains under
       `output/network-plan-proof/03-contract-boundary-and-effect-schemas/`.

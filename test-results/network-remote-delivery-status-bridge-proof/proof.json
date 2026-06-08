@@ -2,7 +2,7 @@
   "proof": "network-remote-delivery-status-bridge-proof",
   "proofRevision": "network-remote-delivery-status-bridge-proof/v1",
   "checkedAt": "deterministic:network-remote-delivery-status-bridge-proof/v1",
-  "sourceFingerprint": "source-tree:3b46b2d59a12d857829bc185719c42171611f67e972bb9adf086c19cc39f1510",
+  "sourceFingerprint": "source-tree:45d718ce06eb3784e903a7e9455617790ebd5dd3e6e824e3facd143e7242708d",
   "sourceRefs": [
     "scripts/test/network-remote-delivery-status-bridge-proof.mjs",
     "crates/agent-protocol/src/constants.rs",

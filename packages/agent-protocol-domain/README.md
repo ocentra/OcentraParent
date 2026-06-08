@@ -39,11 +39,12 @@ transports.
 - Network runtime event contracts for the local eventing spine, including
   flow/domain/classification, AI advisory, policy, enforcement dry-run/result,
   audit, and portal read-model update shapes mirrored from `crates/agent-protocol`.
-- Network remote delivery status event parsing for the row10k transport-dispatch
-  service bridge plus row10m delete/export readiness refs over row10b through
-  row10m refs, including stale-ref rejection, blocked-dispatch/readiness count
-  validation, and no-claim booleans for live delivery, product readiness,
-  policy authority, adapter execution, and exact content.
+- Network remote delivery status event parsing for the row10n delete/export
+  status bridge identity, row10k transport-dispatch service refs, and row10m
+  delete/export readiness refs over row10b through row10m refs, including
+  stale-ref rejection, blocked-dispatch/readiness count validation, and
+  no-claim booleans for live delivery, product readiness, policy authority,
+  adapter execution, and exact content.
 
 ## Must Not Own
 

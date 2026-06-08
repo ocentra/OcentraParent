@@ -32,9 +32,10 @@ Rust protocol parity crate for data that crosses the TypeScript/Rust boundary.
   parity tests for the narrow service-backed
   `agent.activity.tracking.read-model.get` proof path.
 - Network remote delivery status bridge command/event names, constants, status
-  structs, and parity tests for the row10k transport-dispatch status bridge and
-  row10m delete/export readiness refs over the row10b through row10m proof
-  chain consumed by the Rust service and TypeScript protocol adapter.
+  structs, and parity tests for the row10n delete/export status bridge identity,
+  row10k transport-dispatch refs, and row10m delete/export readiness refs over
+  the row10b through row10m proof chain consumed by the Rust service and
+  TypeScript protocol adapter.
 - App/game boundary read-model structs, command/event names, payload field, and
   parity tests for the service-backed authority/classifier row-count proof
   path.

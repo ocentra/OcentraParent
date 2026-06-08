@@ -197,6 +197,8 @@ fn apply_delete_export_status(
     status: &mut NetworkRemoteDeliveryStatus,
     report: &NetworkRuntimeRemoteDeliveryDeleteExportPropagationReport,
 ) {
+    status.status_ref =
+        constants::network_flow::TEST_REMOTE_DELIVERY_DELETE_EXPORT_STATUS_BRIDGE_REF.to_string();
     status.delete_export_propagation_ref =
         report.delete_export_propagation_ref.as_str().to_string();
     status.remote_delete_readiness_ref = report.remote_delete_readiness_ref.as_str().to_string();

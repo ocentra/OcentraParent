@@ -110,7 +110,7 @@ export const AgentNetworkRemoteDeliveryStatusSchema = withParser(
           transportDispatchStateMatches(status) &&
           deleteExportReadinessMatches(status) &&
           localDeliveryProofMatches(status)) ||
-        'Network remote delivery status must preserve row10g outbox refs, row10k blocked dispatch refs, and row10m delete/export readiness refs without live delivery or content claims'
+        'Network remote delivery status must preserve row10n status identity, row10g outbox refs, row10k blocked dispatch refs, and row10m delete/export readiness refs without live delivery or content claims'
     )
   )
 );

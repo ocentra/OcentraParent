@@ -75,6 +75,21 @@ const freshnessCommandSpecs = [
     'node',
     ['scripts/test/network-remote-delivery-transport-dispatch-state-proof.mjs'],
   ],
+  [
+    'network-remote-delivery-fixture-transport-proof',
+    'node',
+    ['scripts/test/network-remote-delivery-fixture-transport-proof.mjs'],
+  ],
+  [
+    'network-remote-delivery-delete-export-propagation-proof',
+    'node',
+    ['scripts/test/network-remote-delivery-delete-export-propagation-proof.mjs'],
+  ],
+  [
+    'network-remote-delivery-delete-export-status-bridge-proof',
+    'node',
+    ['scripts/test/network-remote-delivery-delete-export-status-bridge-proof.mjs'],
+  ],
   ['network-parent-ui-evidence-drawer-proof', 'node', ['scripts/test/network-parent-ui-evidence-drawer-proof.mjs']],
   [
     'network-portal-risk-performance-platform-proof',
@@ -135,6 +150,15 @@ const refreshedProofByName = new Map([
   ['network-remote-delivery-dispatch-readiness-proof', 'network-remote-delivery-dispatch-readiness-proof'],
   ['network-remote-delivery-no-enforcement-invariant-proof', 'network-remote-delivery-no-enforcement-invariant-proof'],
   ['network-remote-delivery-transport-dispatch-state-proof', 'network-remote-delivery-transport-dispatch-state-proof'],
+  ['network-remote-delivery-fixture-transport-proof', 'network-remote-delivery-fixture-transport-proof'],
+  [
+    'network-remote-delivery-delete-export-propagation-proof',
+    'network-remote-delivery-delete-export-propagation-proof',
+  ],
+  [
+    'network-remote-delivery-delete-export-status-bridge-proof',
+    'network-remote-delivery-delete-export-status-bridge-proof',
+  ],
   ['network-portal-risk-performance-platform-proof', 'network-portal-risk-performance-platform-proof'],
   ['network-security-readiness-proof', 'network-security-readiness-proof'],
   ['network-performance-benchmark-proof', 'network-performance-benchmark-proof'],
@@ -351,6 +375,21 @@ const proofArtifacts = [
     'output/network-plan-proof/10k-remote-delivery-transport-dispatch-state/proof-summary.json',
   ],
   [
+    'remote-fixture-transport',
+    '10-remote-delivery-proof',
+    'output/network-plan-proof/10l-remote-delivery-fixture-transport/proof-summary.json',
+  ],
+  [
+    'remote-delete-export-readiness',
+    '10-remote-delivery-proof',
+    'output/network-plan-proof/10m-remote-delivery-delete-export-propagation/proof-summary.json',
+  ],
+  [
+    'remote-delete-export-status-bridge',
+    '10-remote-delivery-proof',
+    'output/network-plan-proof/10n-remote-delivery-delete-export-status-bridge/proof-summary.json',
+  ],
+  [
     'vpn-proxy-tunnel',
     'classification-proof',
     'output/network-plan-proof/24-vpn-proxy-tor-tunnel-classifier/proof-summary.json',
@@ -376,7 +415,13 @@ const commandSpecs = [
   ['git-diff-check', 'git', ['diff', '--check']],
 ];
 
-const refreshCommands = freshnessCommandSpecs.map(runCommand);
+const sideEffectSnapshot = snapshotTrackedProofSideEffects();
+let refreshCommands = [];
+try {
+  refreshCommands = freshnessCommandSpecs.map(runCommand);
+} finally {
+  restoreTrackedProofSideEffects(sideEffectSnapshot);
+}
 const artifacts = proofArtifacts.map(readArtifact);
 const commands = [...refreshCommands, ...commandSpecs.map(runCommand)];
 const groupedArtifacts = groupArtifacts(artifacts);
@@ -429,13 +474,14 @@ const proof = {
     'AI detection/audit and risk-budget outputs remain advisory until typed policy handoff',
     'adapter action is gated by policy, capability proof, result state, rollback/unavailable refs, and audit refs',
     'journal, replay, receipt-ledger, durable envelope, outbox, and local read-model proof are present',
+    'remote fixture transport, delete/export readiness, and delete/export status bridge proof are present without live propagation',
     'portal evidence drawer and risk/performance/platform status are service/read-model backed and non-authoritative',
     'security readiness and performance benchmark proof roots are present',
   ],
   manualRequiredBoundaries: [
     'live packet capture driver invocation remains proof-gated/manual-required',
     'broker/family-hub remote delivery, provider delivery, and child-device delivery remain manual-required',
-    'remote delete/export propagation remains future transport work',
+    'remote delete/export propagation remains proof-local readiness/status and future transport work',
     'production platform support and external audit/penetration-test signoff remain unclaimed',
   ],
   notClaimed: [
@@ -479,6 +525,36 @@ function runCommand([name, command, args]) {
     throw new Error(`${name} failed with exit ${result.status}; log=${log}`);
   }
   return { name, command: [command, ...args].join(' '), status: result.status, log };
+}
+
+function snapshotTrackedProofSideEffects() {
+  const result = spawnSync(
+    'git',
+    ['ls-files', 'output/eventing-plan-proof', 'output/network-plan-proof', 'test-results'],
+    {
+      encoding: 'utf8',
+      shell: false,
+    }
+  );
+  if (result.status !== 0) {
+    throw new Error(`git ls-files failed with exit ${result.status}`);
+  }
+  return result.stdout
+    .split(/\r?\n/u)
+    .filter(Boolean)
+    .filter((path) => !isAggregateProofPath(path))
+    .map((path) => [path, readFileSync(path)]);
+}
+
+function restoreTrackedProofSideEffects(snapshot) {
+  for (const [path, contents] of snapshot) {
+    writeFileSync(path, contents);
+  }
+}
+
+function isAggregateProofPath(path) {
+  const normalized = path.replace(/\\/gu, '/');
+  return normalized.startsWith(`${proofRoot}/`) || normalized.startsWith(`${testRoot}/`);
 }
 
 function groupArtifacts(artifactsToGroup) {

@@ -128,13 +128,14 @@ fn network_flow_read_model_serializes_rows_without_payload_claims() {
 }
 
 #[test]
-fn network_remote_delivery_status_serializes_row10k_dispatch_state_without_product_claims() {
+fn network_remote_delivery_status_serializes_row10n_status_with_row10k_dispatch_state_without_product_claims(
+) {
     let serialized = serde_json::to_value(remote_delivery_status_fixture())
         .expect(constants::error::AGENT_EVENT_SERIALIZES);
 
     assert_eq!(
         serialized["statusRef"],
-        constants::network_flow::TEST_REMOTE_DELIVERY_TRANSPORT_DISPATCH_STATE_REF
+        constants::network_flow::TEST_REMOTE_DELIVERY_DELETE_EXPORT_STATUS_BRIDGE_REF
     );
     assert_eq!(
         serialized["brokerStatus"],
@@ -207,7 +208,7 @@ fn network_remote_delivery_status_serializes_row10k_dispatch_state_without_produ
 
 fn remote_delivery_status_fixture() -> NetworkRemoteDeliveryStatus {
     NetworkRemoteDeliveryStatus {
-        status_ref: flow::TEST_REMOTE_DELIVERY_TRANSPORT_DISPATCH_STATE_REF.to_string(),
+        status_ref: flow::TEST_REMOTE_DELIVERY_DELETE_EXPORT_STATUS_BRIDGE_REF.to_string(),
         custody_proof_ref: flow::TEST_BROKER_CUSTODY_PROOF_REF.to_string(),
         publisher_auth_ref: flow::TEST_BROKER_PUBLISHER_AUTH_REF.to_string(),
         subscriber_auth_ref: flow::TEST_BROKER_SUBSCRIBER_AUTH_REF.to_string(),

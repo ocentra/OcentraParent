@@ -76,6 +76,39 @@
         "kind": "refreshed-by-aggregate-command",
         "command": "network-remote-delivery-transport-dispatch-state-proof"
       }
+    },
+    {
+      "id": "remote-fixture-transport",
+      "group": "10-remote-delivery-proof",
+      "path": "output/network-plan-proof/10l-remote-delivery-fixture-transport/proof-summary.json",
+      "kind": "json",
+      "parsedProof": "network-remote-delivery-fixture-transport-proof",
+      "freshness": {
+        "kind": "refreshed-by-aggregate-command",
+        "command": "network-remote-delivery-fixture-transport-proof"
+      }
+    },
+    {
+      "id": "remote-delete-export-readiness",
+      "group": "10-remote-delivery-proof",
+      "path": "output/network-plan-proof/10m-remote-delivery-delete-export-propagation/proof-summary.json",
+      "kind": "json",
+      "parsedProof": "network-remote-delivery-delete-export-propagation-proof",
+      "freshness": {
+        "kind": "refreshed-by-aggregate-command",
+        "command": "network-remote-delivery-delete-export-propagation-proof"
+      }
+    },
+    {
+      "id": "remote-delete-export-status-bridge",
+      "group": "10-remote-delivery-proof",
+      "path": "output/network-plan-proof/10n-remote-delivery-delete-export-status-bridge/proof-summary.json",
+      "kind": "json",
+      "parsedProof": "network-remote-delivery-delete-export-status-bridge-proof",
+      "freshness": {
+        "kind": "refreshed-by-aggregate-command",
+        "command": "network-remote-delivery-delete-export-status-bridge-proof"
+      }
     }
   ]
 }

@@ -4,6 +4,7 @@
     "event": "agent.network.remote-delivery.status.reported",
     "payloadField": "networkRemoteDeliveryStatus"
   },
+  "statusBridgeRef": "network.remote-delivery.delete-export-status-bridge.10n",
   "deleteExportStatusRefs": [
     "network.remote-delivery.delete-export-propagation-readiness.10m",
     "network.remote-delivery.remote-delete-readiness.10m",
@@ -17,9 +18,9 @@
     "remoteDeleteExportPropagationImplemented=false"
   ],
   "parserInvariants": [
-    "Rust protocol serializes row10m readiness refs in the existing remote delivery status shape",
-    "service payload composes row10k blocked dispatch refs and row10m delete/export readiness refs into one cached status object",
-    "TypeScript parser rejects stale row10m refs and mismatched readiness counts",
+    "Rust protocol serializes row10n status identity and row10m readiness refs in the existing remote delivery status shape",
+    "service payload composes row10n status identity, row10k blocked dispatch refs, and row10m delete/export readiness refs into one cached status object",
+    "TypeScript parser rejects stale row10n status refs, stale row10m refs, and mismatched readiness counts",
     "status bridge does not claim live propagation, product-ready delivery, policy authority, adapter execution, enforcement commands, exact content, raw PCAP, or host filtering"
   ],
   "noClaims": [

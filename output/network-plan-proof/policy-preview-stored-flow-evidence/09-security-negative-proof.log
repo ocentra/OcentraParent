@@ -1,4 +1,4 @@
-checkedAt=deterministic:network-policy-preview-stored-flow-evidence-proof/v1
+checkedAt=deterministic:network-policy-preview-stored-flow-evidence-proof/v2
 asserted=stored ActivityStore network flow row can produce a dry-run parent-review policy preview decision
 asserted=network retention tombstones suppress deleted flow rows before preview decisions
 asserted=parent rule context must cite stored network activity evidence refs and match source device/platform scope

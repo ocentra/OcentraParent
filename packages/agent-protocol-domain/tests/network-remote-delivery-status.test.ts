@@ -92,7 +92,7 @@ const RemoteDeliveryStatus = {
   searchQueryAvailableCount: 0,
 } satisfies AgentNetworkRemoteDeliveryStatus;
 
-it('parses row10k blocked dispatch status from a typed agent event', () => {
+it('parses row10n delete export status with row10k blocked dispatch refs from a typed agent event', () => {
   const parsed = parseAgentNetworkRemoteDeliveryStatusEvent(
     eventWithPayload({
       [AgentProtocolDefaults.Field.NetworkRemoteDeliveryStatus]: JSON.stringify(RemoteDeliveryStatus),
@@ -140,7 +140,11 @@ it('rejects stale row refs', () => {
   });
   expectInvalid({
     ...RemoteDeliveryStatus,
-    statusRef: 'wrong.network.remote-delivery.transport-dispatch-state.10k',
+    statusRef: 'network.remote-delivery.transport-dispatch-state.10k',
+  });
+  expectInvalid({
+    ...RemoteDeliveryStatus,
+    statusRef: 'wrong.network.remote-delivery.delete-export-status-bridge.10n',
   });
   expectInvalid({
     ...RemoteDeliveryStatus,

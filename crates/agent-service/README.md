@@ -48,10 +48,11 @@ development paths and orchestrates runtime commands.
   local `ocentra-eventing` runtime delivery counts for stored network rows
   without broker, family-hub, adapter, or host-filter claims.
 - Network remote delivery status reports through
-  `agent.network.remote-delivery.status.get`, derived from the local row10k
-  transport-dispatch state plus row10m delete/export readiness proof and
-  serialized from a cached deterministic protocol snapshot as the typed status
-  bridge with row10b through row10m refs, prepared candidate counts,
+  `agent.network.remote-delivery.status.get`, derived from the row10n
+  delete/export status bridge identity over the local row10k transport-dispatch
+  state plus row10m delete/export readiness proof and serialized from a cached
+  deterministic protocol snapshot as the typed status bridge with row10b through
+  row10m refs, prepared candidate counts,
   blocked-dispatch refs, delete/export readiness refs, duplicate rejection, and
   zero dispatch/ack counters without broker/family-hub transport, remote
   acknowledgement, provider or child-device delivery, actual remote

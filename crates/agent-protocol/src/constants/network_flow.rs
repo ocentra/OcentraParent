@@ -127,6 +127,8 @@ pub const TEST_REMOTE_DELIVERY_REMOTE_DELETE_REF: &str =
     "network.remote-delivery.remote-delete-readiness.10m";
 pub const TEST_REMOTE_DELIVERY_REMOTE_EXPORT_REF: &str =
     "network.remote-delivery.remote-export-readiness.10m";
+pub const TEST_REMOTE_DELIVERY_DELETE_EXPORT_STATUS_BRIDGE_REF: &str =
+    "network.remote-delivery.delete-export-status-bridge.10n";
 pub const TEST_REMOTE_EVENT_CHAIN_JOURNAL_PATH_PREFIX: &str =
     "ocentra-network-remote-event-chain-journal";
 pub const TEST_REMOTE_EVENT_CHAIN_JOURNAL_EXTENSION: &str = "ndjson";

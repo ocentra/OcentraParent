@@ -1,7 +1,13 @@
-running 24 tests
+running 30 tests
 test network_event_runtime::remote_delivery_transport_dispatch_state::tests::network_runtime_remote_delivery_transport_dispatch_state_blocks_without_transport ... ok
 test network_event_runtime::remote_delivery_transport_dispatch_state::tests::network_runtime_remote_delivery_transport_dispatch_state_rejects_action_claims ... ok
 test network_event_runtime_broker_delivery_tests::network_runtime_broker_delivery_semantics_preserve_refs_without_live_broker ... ok
+test network_event_runtime_delete_export_propagation_tests::network_runtime_remote_delivery_delete_export_propagation_records_readiness_refs ... ok
+test network_event_runtime_delete_export_propagation_tests::network_runtime_remote_delivery_delete_export_propagation_rejects_product_claims ... ok
+test network_event_runtime_delete_export_propagation_tests::network_runtime_remote_delivery_delete_export_propagation_stays_proof_only ... ok
+test network_event_runtime_fixture_transport_tests::network_runtime_remote_delivery_fixture_transport_keeps_product_delivery_false ... ok
+test network_event_runtime_fixture_transport_tests::network_runtime_remote_delivery_fixture_transport_records_attempts_and_acks ... ok
+test network_event_runtime_fixture_transport_tests::network_runtime_remote_delivery_fixture_transport_rejects_product_claims ... ok
 test network_event_runtime_queue_tests::network_runtime_queue_idempotency_rejects_queued_and_completed_duplicates ... ok
 test network_event_runtime_queue_tests::network_runtime_queue_overflow_dead_letters_oldest_flow ... ok
 test network_event_runtime_queue_tests::network_runtime_queue_ttl_expires_before_dispatch ... ok
@@ -24,7 +30,7 @@ test network_event_runtime_tests::network_runtime_chain_carries_exact_refs_witho
 test network_event_runtime_tests::network_runtime_chain_publishes_full_metadata_only_flow ... ok
 test network_event_runtime_tests::network_runtime_review_request_resolves_associated_response ... ok
 
-test result: ok. 24 passed; 0 failed; 0 ignored; 0 measured; 245 filtered out; finished in <duration>
+test result: ok. 30 passed; 0 failed; 0 ignored; 0 measured; 257 filtered out; finished in <duration>
 
     Finished `test` profile [unoptimized + debuginfo] target(s) in <duration>
      Running unittests src/lib.rs (target/debug/deps/<test-binary>)

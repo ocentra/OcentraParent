@@ -114,6 +114,18 @@ command=node scripts/test/network-remote-delivery-transport-dispatch-state-proof
 status=0
 log=output/network-plan-proof/full-network-plan/command-logs/network-remote-delivery-transport-dispatch-state-proof.log
 
+command=node scripts/test/network-remote-delivery-fixture-transport-proof.mjs
+status=0
+log=output/network-plan-proof/full-network-plan/command-logs/network-remote-delivery-fixture-transport-proof.log
+
+command=node scripts/test/network-remote-delivery-delete-export-propagation-proof.mjs
+status=0
+log=output/network-plan-proof/full-network-plan/command-logs/network-remote-delivery-delete-export-propagation-proof.log
+
+command=node scripts/test/network-remote-delivery-delete-export-status-bridge-proof.mjs
+status=0
+log=output/network-plan-proof/full-network-plan/command-logs/network-remote-delivery-delete-export-status-bridge-proof.log
+
 command=node scripts/test/network-parent-ui-evidence-drawer-proof.mjs
 status=0
 log=output/network-plan-proof/full-network-plan/command-logs/network-parent-ui-evidence-drawer-proof.log

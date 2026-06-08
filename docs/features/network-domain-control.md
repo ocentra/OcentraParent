@@ -245,7 +245,7 @@ compete on control while staying clear about attribution confidence and privacy.
   `agent.network.remote-delivery.status.get` /
   `agent.network.remote-delivery.status.reported` path now carries row10m
   delete/export propagation readiness refs and record counts alongside the
-  row10k blocked-dispatch status. The proof writes
+  row10k blocked-dispatch refs under a row10n status identity. The proof writes
   `output/network-plan-proof/10n-remote-delivery-delete-export-status-bridge/proof-summary.json`
   and
   `test-results/network-remote-delivery-delete-export-status-bridge-proof/proof.json`.
@@ -315,7 +315,8 @@ compete on control while staying clear about attribution confidence and privacy.
 - E-D added an aggregate full-network-plan proof pack that ties together
   contract, reusable eventing, parser/fixture, analyzer alert, AI/policy,
   adapter action, journal/read-model, UI, security-negative, performance,
-  classification, remote-delivery, and end-to-end product-path proof artifacts
+  classification, remote-delivery through row10n delete/export readiness/status,
+  and end-to-end product-path proof artifacts
   under `output/network-plan-proof/full-network-plan/proof-summary.json` and
   `test-results/network-full-plan-proof/proof.json`. The proof keeps live
   capture drivers, live host adapter mutation/filtering, broker/family-hub

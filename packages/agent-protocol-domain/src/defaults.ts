@@ -475,7 +475,7 @@ export const AgentProtocolDefaults = {
     String: 'string',
   },
   NetworkRemoteDeliveryStatus: {
-    StatusRef: 'network.remote-delivery.transport-dispatch-state.10k',
+    StatusRef: 'network.remote-delivery.delete-export-status-bridge.10n',
     EventChainJournalRef: 'network.remote-delivery.event-chain-journal.10c',
     ReceiptLedgerRef: 'network.remote-delivery.event-chain.receipt-ledger.10d',
     LocalReceiptAckRef: 'network.remote-delivery.event-chain.local-receipt-ack.10d',

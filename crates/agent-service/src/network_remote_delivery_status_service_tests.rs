@@ -16,7 +16,8 @@ use crate::{
 };
 
 #[tokio::test]
-async fn network_remote_delivery_status_payload_serializes_row10k_dispatch_state() {
+async fn network_remote_delivery_status_payload_serializes_row10n_status_with_row10k_dispatch_state(
+) {
     let payload = network_remote_delivery_status_payload()
         .await
         .expect(constants::error::AGENT_EVENT_SERIALIZES);
@@ -27,7 +28,7 @@ async fn network_remote_delivery_status_payload_serializes_row10k_dispatch_state
 }
 
 #[tokio::test]
-async fn network_remote_delivery_status_payload_reuses_stable_row10k_status_snapshot() {
+async fn network_remote_delivery_status_payload_reuses_stable_row10n_status_snapshot() {
     let first_payload = network_remote_delivery_status_payload()
         .await
         .expect(constants::error::AGENT_EVENT_SERIALIZES);
@@ -91,7 +92,7 @@ async fn network_remote_delivery_status_rejects_blocked_dispatch_identity_mismat
 fn assert_remote_delivery_status(status: &NetworkRemoteDeliveryStatus) {
     assert_eq!(
         status.status_ref,
-        constants::network_flow::TEST_REMOTE_DELIVERY_TRANSPORT_DISPATCH_STATE_REF
+        constants::network_flow::TEST_REMOTE_DELIVERY_DELETE_EXPORT_STATUS_BRIDGE_REF
     );
     assert_eq!(
         status.broker_status,

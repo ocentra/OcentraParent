@@ -2,7 +2,7 @@
 
 proofRevision=network-remote-delivery-outbox-status-bridge-proof/v1
 scopeMarker=row10h-remote-delivery-outbox-status-bridge
-sourceBase=466978a9b8f6ac946977169fd2e16e01b4cf6d92
+sourceBase=c3328c891af958153c1b64d92379e653de6ba2d0
 worktreeStatus=expected to contain generated row10h proof artifacts until committed
 
 Inspected paths:
