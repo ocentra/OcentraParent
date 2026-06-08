@@ -206,6 +206,12 @@ or runtime-discovery proofs into full household mesh execution.
       managed-profile, UsageStats, Accessibility, VPN/DNS, and physical-device
       control claims blocked:
       `output/screen-ai-pipeline-proof/android-mobile-control-custody/proof-summary.json`.
+- [x] iOS mobile-control custody artifact records screen-derived apply,
+      rollback, and audit custody for the iOS blocker while preserving
+      not-executed manual-required state and keeping Family Controls,
+      DeviceActivity, Network Extension, ReplayKit physical execution, live iOS
+      pixels, deletion proof, and rollback claims blocked:
+      `output/screen-ai-pipeline-proof/ios-mobile-control-custody/proof-summary.json`.
 - [x] Fresh event-driven runtime path proof proves capture event, AI
       result event, policy event, action/dry-run event, portal/read-model event,
       and deletion/custody event in one in-process runtime chain. Live trigger
@@ -316,6 +322,9 @@ or runtime-discovery proofs into full household mesh execution.
       `node --check scripts/test/screen-ai-android-mobile-control-custody-proof.mjs`
       and
       `node scripts/test/screen-ai-android-mobile-control-custody-proof.mjs`.
+- [x] iOS mobile-control custody proof run:
+      `node --check scripts/test/screen-ai-ios-mobile-control-custody-proof.mjs`
+      and `node scripts/test/screen-ai-ios-mobile-control-custody-proof.mjs`.
 - [x] Event-driven Screen-AI runtime chain proof run:
       `node --check scripts/test/screen-ai-event-driven-runtime-proof.mjs` and
       `node scripts/test/screen-ai-event-driven-runtime-proof.mjs`.
