@@ -291,7 +291,7 @@ function assertSourceContracts() {
     [protocolShape, 'NetworkRemoteDeliveryTransportDispatchState'],
     [
       protocolTests,
-      'network_remote_delivery_status_serializes_row10n_status_with_row10k_dispatch_state_without_product_claims',
+      'network_remote_delivery_status_serializes_row10q_status_with_row10k_dispatch_state_without_product_claims',
     ],
     [coreLib, 'prove_network_runtime_remote_delivery_transport_dispatch_state'],
     [coreRuntime, 'remote_delivery_transport_dispatch_state'],
@@ -304,7 +304,7 @@ function assertSourceContracts() {
     [servicePayload, 'OnceCell<NetworkRemoteDeliveryStatus>'],
     [servicePayload, 'get_or_try_init'],
     [servicePayload, 'RuntimeTransportDispatchState::ManualRequiredBlocked'],
-    [serviceTests, 'network_remote_delivery_status_payload_serializes_row10n_status_with_row10k_dispatch_state'],
+    [serviceTests, 'network_remote_delivery_status_payload_serializes_row10q_status_with_row10k_dispatch_state'],
     [serviceTests, 'network_remote_delivery_status_payload_reuses_stable_row10n_status_snapshot'],
     [tsDefaults, 'TransportDispatchStateRef'],
     [tsParser, 'transportDispatchStateMatches'],

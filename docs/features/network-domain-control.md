@@ -347,6 +347,17 @@ compete on control while staying clear about attribution confidence and privacy.
   delete/export propagation, product-ready delivery, policy/side-effect
   authority, exact content, host filtering, adapter action, and
   enforcement-command publication unclaimed.
+- E-D added a row10q cross-process custody readiness proof:
+  `network-remote-delivery-cross-process-custody-readiness-proof` maps row10p
+  provider/child readiness records into proof-local cross-process replay,
+  remote retention, remote delete custody, and remote export custody readiness
+  records. The existing typed remote-delivery status payload now carries row10q
+  refs and manual-required unavailable state while keeping cross-process replay
+  artifacts, remote retention artifacts, remote delete/export custody artifacts,
+  live broker/family-hub/provider/child delivery, actual remote delete/export
+  propagation, product-ready delivery, policy/side-effect authority, exact
+  content, host filtering, adapter action, and enforcement-command publication
+  unclaimed.
 - E-D added `ocentra-network-evidence`, a reusable Rust network metadata crate,
   plus the first deterministic PCAP replay proof for classic
   Ethernet/IPv4/UDP DNS query metadata. The proof writes a fixture PCAP,

@@ -137,6 +137,16 @@ pub const TEST_REMOTE_DELIVERY_PROVIDER_READINESS_REF: &str =
     "network.remote-delivery.provider-readiness.10p";
 pub const TEST_REMOTE_DELIVERY_CHILD_DEVICE_READINESS_REF: &str =
     "network.remote-delivery.child-device-readiness.10p";
+pub const TEST_REMOTE_DELIVERY_CROSS_PROCESS_CUSTODY_STATUS_REF: &str =
+    "network.remote-delivery.cross-process-custody-status.10q";
+pub const TEST_REMOTE_DELIVERY_CROSS_PROCESS_REPLAY_READINESS_REF: &str =
+    "network.remote-delivery.cross-process-replay-readiness.10q";
+pub const TEST_REMOTE_DELIVERY_REMOTE_RETENTION_READINESS_REF: &str =
+    "network.remote-delivery.remote-retention-readiness.10q";
+pub const TEST_REMOTE_DELIVERY_REMOTE_DELETE_CUSTODY_REF: &str =
+    "network.remote-delivery.remote-delete-custody-readiness.10q";
+pub const TEST_REMOTE_DELIVERY_REMOTE_EXPORT_CUSTODY_REF: &str =
+    "network.remote-delivery.remote-export-custody-readiness.10q";
 pub const TEST_LIVE_CAPTURE_STATUS_REF: &str = "network.live-capture.status.13a";
 pub const FIELD_NETWORK_LIVE_CAPTURE_STATUS: &str = "networkLiveCaptureStatus";
 pub const TEST_LIVE_CAPTURE_ROW13_STATUS_REF: &str = "network.live-capture.proof-gate.13";
@@ -284,4 +294,6 @@ pub const ERROR_NETWORK_RUNTIME_REMOTE_DELETE_EXPORT_PROPAGATION: &str =
     "network runtime remote delete export propagation proof";
 pub const ERROR_NETWORK_RUNTIME_REMOTE_PROVIDER_CHILD_READINESS: &str =
     "network runtime remote provider child readiness proof";
+pub const ERROR_NETWORK_RUNTIME_REMOTE_CROSS_PROCESS_CUSTODY_READINESS: &str =
+    "network runtime remote cross-process custody readiness proof";
 pub const ERROR_NETWORK_LIVE_CAPTURE_STATUS: &str = "network live capture status proof";

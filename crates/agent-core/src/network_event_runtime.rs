@@ -23,6 +23,8 @@ use crate::{
 mod broker_delivery;
 mod queue;
 mod refs;
+mod remote_delivery_cross_process_custody_readiness;
+mod remote_delivery_cross_process_custody_readiness_types;
 mod remote_delivery_delete_export_propagation;
 mod remote_delivery_delete_export_propagation_types;
 mod remote_delivery_dispatch_readiness;
@@ -64,6 +66,13 @@ pub(crate) use queue::{
     queue_network_runtime_flow_rejects_duplicate_idempotency,
 };
 use refs::NetworkRuntimeChainRefs;
+pub use remote_delivery_cross_process_custody_readiness::prove_network_runtime_remote_delivery_cross_process_custody_readiness;
+pub use remote_delivery_cross_process_custody_readiness_types::{
+    NetworkRuntimeRemoteDeliveryCrossProcessCustodyReadinessError,
+    NetworkRuntimeRemoteDeliveryCrossProcessCustodyReadinessRecord,
+    NetworkRuntimeRemoteDeliveryCrossProcessCustodyReadinessReport,
+    NetworkRuntimeRemoteDeliveryCrossProcessCustodyReadinessState,
+};
 pub use remote_delivery_delete_export_propagation::prove_network_runtime_remote_delivery_delete_export_propagation;
 #[cfg(test)]
 pub(crate) use remote_delivery_delete_export_propagation::prove_network_runtime_remote_delivery_delete_export_propagation_from_fixture_transport;

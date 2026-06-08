@@ -1,7 +1,8 @@
 use ocentra_parent_agent_core::{
+    prove_network_runtime_remote_delivery_cross_process_custody_readiness,
     prove_network_runtime_remote_delivery_delete_export_propagation,
-    prove_network_runtime_remote_delivery_provider_child_readiness,
     prove_network_runtime_remote_delivery_transport_dispatch_state,
+    NetworkRuntimeRemoteDeliveryCrossProcessCustodyReadinessReport,
     NetworkRuntimeRemoteDeliveryDeleteExportPropagationReport,
     NetworkRuntimeRemoteDeliveryDurableEnvelopeReport,
     NetworkRuntimeRemoteDeliveryFixtureTransportReport,
@@ -13,7 +14,8 @@ use ocentra_parent_agent_core::{
 };
 use ocentra_parent_agent_protocol::{
     constants, AgentCommandEnvelope, AgentEventEnvelope, AgentEventName, LogFieldValue, LogFields,
-    LogLevel, NetworkRemoteDeliveryProviderChildReadinessState, NetworkRemoteDeliveryStatus,
+    LogLevel, NetworkRemoteDeliveryCrossProcessCustodyReadinessState,
+    NetworkRemoteDeliveryProviderChildReadinessState, NetworkRemoteDeliveryStatus,
     NetworkRemoteDeliveryStatusState, NetworkRemoteDeliveryTransportDispatchState,
 };
 use tokio::sync::OnceCell;
@@ -75,14 +77,15 @@ async fn network_remote_delivery_status() -> Result<NetworkRemoteDeliveryStatus,
                 prove_network_runtime_remote_delivery_delete_export_propagation()
                     .await
                     .map_err(|_| ())?;
-            let provider_child_readiness =
-                prove_network_runtime_remote_delivery_provider_child_readiness()
+            let cross_process_custody_readiness =
+                prove_network_runtime_remote_delivery_cross_process_custody_readiness()
                     .await
                     .map_err(|_| ())?;
             Ok(status_from_report(
                 &report,
                 &delete_export_report,
-                &provider_child_readiness,
+                &cross_process_custody_readiness.provider_child_readiness,
+                &cross_process_custody_readiness,
             ))
         })
         .await
@@ -93,6 +96,7 @@ fn status_from_report(
     report: &NetworkRuntimeRemoteDeliveryTransportDispatchStateReport,
     delete_export_report: &NetworkRuntimeRemoteDeliveryDeleteExportPropagationReport,
     provider_child_readiness: &NetworkRuntimeRemoteDeliveryProviderChildReadinessReport,
+    cross_process_custody_readiness: &NetworkRuntimeRemoteDeliveryCrossProcessCustodyReadinessReport,
 ) -> NetworkRemoteDeliveryStatus {
     let outbox_report = &report
         .no_enforcement_invariant
@@ -107,7 +111,11 @@ fn status_from_report(
     apply_transport_dispatch_status(&mut status, report, outbox_report);
     apply_fixture_transport_status(&mut status, &delete_export_report.fixture_transport);
     apply_delete_export_status(&mut status, delete_export_report);
-    apply_provider_child_readiness_status(&mut status, provider_child_readiness);
+    apply_provider_child_readiness_status(
+        &mut status,
+        provider_child_readiness,
+        cross_process_custody_readiness,
+    );
     apply_non_claim_status(&mut status, report, remote_status);
     status
 }
@@ -236,6 +244,7 @@ fn apply_delete_export_status(
 fn apply_provider_child_readiness_status(
     status: &mut NetworkRemoteDeliveryStatus,
     report: &NetworkRuntimeRemoteDeliveryProviderChildReadinessReport,
+    cross_process_report: &NetworkRuntimeRemoteDeliveryCrossProcessCustodyReadinessReport,
 ) {
     status.provider_route_ref = report.provider_route_ref.as_str().to_string();
     status.child_device_route_ref = report.child_device_route_ref.as_str().to_string();
@@ -257,6 +266,48 @@ fn apply_provider_child_readiness_status(
         report.provider_delivery_records_match_fixture_acks;
     status.child_device_delivery_records_match_fixture_acks =
         report.child_device_delivery_records_match_fixture_acks;
+    status.status_ref =
+        constants::network_flow::TEST_REMOTE_DELIVERY_CROSS_PROCESS_CUSTODY_STATUS_REF.to_string();
+    status.cross_process_custody_status_ref = cross_process_report
+        .cross_process_custody_status_ref
+        .as_str()
+        .to_string();
+    status.cross_process_replay_readiness_ref = cross_process_report
+        .cross_process_replay_readiness_ref
+        .as_str()
+        .to_string();
+    status.remote_retention_readiness_ref = cross_process_report
+        .remote_retention_readiness_ref
+        .as_str()
+        .to_string();
+    status.remote_delete_custody_readiness_ref = cross_process_report
+        .remote_delete_custody_readiness_ref
+        .as_str()
+        .to_string();
+    status.remote_export_custody_readiness_ref = cross_process_report
+        .remote_export_custody_readiness_ref
+        .as_str()
+        .to_string();
+    status.cross_process_custody_readiness_state =
+        NetworkRemoteDeliveryCrossProcessCustodyReadinessState::ManualRequiredUnavailable;
+    status.cross_process_replay_readiness_record_count =
+        count(cross_process_report.cross_process_replay_readiness_record_count);
+    status.remote_retention_readiness_record_count =
+        count(cross_process_report.remote_retention_readiness_record_count);
+    status.remote_delete_custody_readiness_record_count =
+        count(cross_process_report.remote_delete_custody_readiness_record_count);
+    status.remote_export_custody_readiness_record_count =
+        count(cross_process_report.remote_export_custody_readiness_record_count);
+    status.cross_process_custody_records_match_provider_child_readiness =
+        cross_process_report.custody_records_match_provider_child_readiness;
+    status.cross_process_replay_artifact_count =
+        count(cross_process_report.cross_process_replay_artifact_count);
+    status.remote_retention_artifact_count =
+        count(cross_process_report.remote_retention_artifact_count);
+    status.remote_delete_custody_artifact_count =
+        count(cross_process_report.remote_delete_custody_artifact_count);
+    status.remote_export_custody_artifact_count =
+        count(cross_process_report.remote_export_custody_artifact_count);
 }
 
 fn apply_non_claim_status(

@@ -6,7 +6,7 @@ use super::{
     NetworkEnforcementCommandIssuedEvent, NetworkEnforcementResultObservedEvent,
     NetworkEnforcementResultStatus, NetworkFlowObservedEvent, NetworkPolicyDecisionCompletedEvent,
     NetworkPolicyEvaluationRequestedEvent, NetworkPortalReadModelUpdatedEvent,
-    NetworkRemoteDeliveryProviderChildReadinessState, NetworkRemoteDeliveryStatus,
+    NetworkRemoteDeliveryCrossProcessCustodyReadinessState, NetworkRemoteDeliveryStatus,
     NetworkRuntimeEventContract, NETWORK_FLOW_CUSTODY_CHILD_DEVICE_QUERY_STORE,
     NETWORK_FLOW_SCHEMA_VERSION,
 };
@@ -129,7 +129,7 @@ fn network_flow_read_model_serializes_rows_without_payload_claims() {
 }
 
 #[test]
-fn network_remote_delivery_status_serializes_row10n_status_with_row10k_dispatch_state_without_product_claims(
+fn network_remote_delivery_status_serializes_row10q_status_with_row10k_dispatch_state_without_product_claims(
 ) {
     let serialized = serde_json::to_value(remote_delivery_status_fixture())
         .expect(constants::error::AGENT_EVENT_SERIALIZES);
@@ -148,7 +148,7 @@ fn assert_remote_delivery_status_refs(serialized: &serde_json::Value) {
 fn assert_remote_delivery_status_core_refs(serialized: &serde_json::Value) {
     assert_eq!(
         serialized["statusRef"],
-        constants::network_flow::TEST_REMOTE_DELIVERY_DELETE_EXPORT_STATUS_BRIDGE_REF
+        constants::network_flow::TEST_REMOTE_DELIVERY_CROSS_PROCESS_CUSTODY_STATUS_REF
     );
     assert_eq!(
         serialized["brokerStatus"],
@@ -237,6 +237,30 @@ fn assert_remote_delivery_status_provider_child_refs(serialized: &serde_json::Va
         serialized["childDeviceDeliveryReadinessState"],
         "manual-required-unavailable"
     );
+    assert_eq!(
+        serialized["crossProcessCustodyStatusRef"],
+        constants::network_flow::TEST_REMOTE_DELIVERY_CROSS_PROCESS_CUSTODY_STATUS_REF
+    );
+    assert_eq!(
+        serialized["crossProcessReplayReadinessRef"],
+        constants::network_flow::TEST_REMOTE_DELIVERY_CROSS_PROCESS_REPLAY_READINESS_REF
+    );
+    assert_eq!(
+        serialized["remoteRetentionReadinessRef"],
+        constants::network_flow::TEST_REMOTE_DELIVERY_REMOTE_RETENTION_READINESS_REF
+    );
+    assert_eq!(
+        serialized["remoteDeleteCustodyReadinessRef"],
+        constants::network_flow::TEST_REMOTE_DELIVERY_REMOTE_DELETE_CUSTODY_REF
+    );
+    assert_eq!(
+        serialized["remoteExportCustodyReadinessRef"],
+        constants::network_flow::TEST_REMOTE_DELIVERY_REMOTE_EXPORT_CUSTODY_REF
+    );
+    assert_eq!(
+        serialized["crossProcessCustodyReadinessState"],
+        "manual-required-unavailable"
+    );
 }
 
 fn assert_remote_delivery_status_counts(serialized: &serde_json::Value) {
@@ -265,6 +289,18 @@ fn assert_remote_delivery_status_counts(serialized: &serde_json::Value) {
         serialized["childDeviceDeliveryRecordsMatchFixtureAcks"],
         true
     );
+    assert_eq!(serialized["crossProcessReplayReadinessRecordCount"], 3);
+    assert_eq!(serialized["remoteRetentionReadinessRecordCount"], 3);
+    assert_eq!(serialized["remoteDeleteCustodyReadinessRecordCount"], 3);
+    assert_eq!(serialized["remoteExportCustodyReadinessRecordCount"], 3);
+    assert_eq!(
+        serialized["crossProcessCustodyRecordsMatchProviderChildReadiness"],
+        true
+    );
+    assert_eq!(serialized["crossProcessReplayArtifactCount"], 0);
+    assert_eq!(serialized["remoteRetentionArtifactCount"], 0);
+    assert_eq!(serialized["remoteDeleteCustodyArtifactCount"], 0);
+    assert_eq!(serialized["remoteExportCustodyArtifactCount"], 0);
 }
 
 fn assert_remote_delivery_status_no_product_claims(serialized: &serde_json::Value) {
@@ -281,8 +317,8 @@ fn assert_remote_delivery_status_no_product_claims(serialized: &serde_json::Valu
 }
 
 fn remote_delivery_status_fixture() -> NetworkRemoteDeliveryStatus {
-    NetworkRemoteDeliveryStatus {
-        status_ref: flow::TEST_REMOTE_DELIVERY_DELETE_EXPORT_STATUS_BRIDGE_REF.to_string(),
+    with_cross_process_custody_fixture(NetworkRemoteDeliveryStatus {
+        status_ref: flow::TEST_REMOTE_DELIVERY_CROSS_PROCESS_CUSTODY_STATUS_REF.to_string(),
         custody_proof_ref: flow::TEST_BROKER_CUSTODY_PROOF_REF.to_string(),
         publisher_auth_ref: flow::TEST_BROKER_PUBLISHER_AUTH_REF.to_string(),
         subscriber_auth_ref: flow::TEST_BROKER_SUBSCRIBER_AUTH_REF.to_string(),
@@ -307,7 +343,8 @@ fn remote_delivery_status_fixture() -> NetworkRemoteDeliveryStatus {
         durable_store_ref: flow::TEST_REMOTE_DELIVERY_DURABLE_STORE_REF.to_string(),
         durable_replay_ref: flow::TEST_REMOTE_DELIVERY_DURABLE_REPLAY_REF.to_string(),
         durable_delete_export_ref: flow::TEST_REMOTE_DELIVERY_DURABLE_DELETE_EXPORT_REF.to_string(),
-        durable_support_status_ref: durable_support_status_ref(),
+        durable_support_status_ref: flow::TEST_REMOTE_DELIVERY_DURABLE_SUPPORT_STATUS_REF
+            .to_string(),
         durable_envelope_ready: true,
         outbox_ref: flow::TEST_REMOTE_DELIVERY_OUTBOX_REF.to_string(),
         outbox_handoff_ref: flow::TEST_REMOTE_DELIVERY_OUTBOX_HANDOFF_REF.to_string(),
@@ -331,10 +368,6 @@ fn remote_delivery_status_fixture() -> NetworkRemoteDeliveryStatus {
             .to_string(),
         child_device_delivery_readiness_ref: flow::TEST_REMOTE_DELIVERY_CHILD_DEVICE_READINESS_REF
             .to_string(),
-        provider_delivery_readiness_state:
-            NetworkRemoteDeliveryProviderChildReadinessState::ManualRequiredUnavailable,
-        child_device_delivery_readiness_state:
-            NetworkRemoteDeliveryProviderChildReadinessState::ManualRequiredUnavailable,
         outbox_candidate_count: 3,
         source_outbox_candidate_count: 3,
         prepared_not_dispatched_count: 3,
@@ -350,19 +383,36 @@ fn remote_delivery_status_fixture() -> NetworkRemoteDeliveryStatus {
         delete_export_records_match_fixture_acks: true,
         provider_delivery_readiness_record_count: 3,
         child_device_delivery_readiness_record_count: 3,
-        provider_delivery_artifact_count: 0,
-        child_device_delivery_artifact_count: 0,
         provider_delivery_records_match_fixture_acks: true,
         child_device_delivery_records_match_fixture_acks: true,
         duplicate_durable_envelope_rejected: true,
         outbox_candidates_match_durable_envelopes: true,
         outbox_candidates_match_receipts: true,
         ..NetworkRemoteDeliveryStatus::default()
-    }
+    })
 }
 
-fn durable_support_status_ref() -> String {
-    constants::network_flow::TEST_REMOTE_DELIVERY_DURABLE_SUPPORT_STATUS_REF.to_string()
+fn with_cross_process_custody_fixture(
+    mut status: NetworkRemoteDeliveryStatus,
+) -> NetworkRemoteDeliveryStatus {
+    status.cross_process_custody_status_ref =
+        flow::TEST_REMOTE_DELIVERY_CROSS_PROCESS_CUSTODY_STATUS_REF.to_string();
+    status.cross_process_replay_readiness_ref =
+        flow::TEST_REMOTE_DELIVERY_CROSS_PROCESS_REPLAY_READINESS_REF.to_string();
+    status.remote_retention_readiness_ref =
+        flow::TEST_REMOTE_DELIVERY_REMOTE_RETENTION_READINESS_REF.to_string();
+    status.remote_delete_custody_readiness_ref =
+        flow::TEST_REMOTE_DELIVERY_REMOTE_DELETE_CUSTODY_REF.to_string();
+    status.remote_export_custody_readiness_ref =
+        flow::TEST_REMOTE_DELIVERY_REMOTE_EXPORT_CUSTODY_REF.to_string();
+    status.cross_process_custody_readiness_state =
+        NetworkRemoteDeliveryCrossProcessCustodyReadinessState::ManualRequiredUnavailable;
+    status.cross_process_replay_readiness_record_count = 3;
+    status.remote_retention_readiness_record_count = 3;
+    status.remote_delete_custody_readiness_record_count = 3;
+    status.remote_export_custody_readiness_record_count = 3;
+    status.cross_process_custody_records_match_provider_child_readiness = true;
+    status
 }
 
 #[test]

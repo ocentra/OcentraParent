@@ -80,6 +80,11 @@ service shell.
   acknowledgements into provider-route and child-device-route readiness records
   with manual-required unavailable state, zero delivery artifacts, and no live
   provider/child delivery claim.
+- Network row10q cross-process custody readiness proof that maps row10p
+  provider/child readiness records into cross-process replay, remote retention,
+  remote delete custody, and remote export custody readiness records with zero
+  custody/replay artifacts and no actual cross-process replay or remote
+  delete/export propagation claim.
 - Network policy-preview proof that reads stored ActivityStore network flow
   rows, maps destination-domain metadata into a domain policy target, resolves
   parent-rule contexts only when they cite stored network activity event refs,
@@ -164,6 +169,10 @@ flowchart LR
 - Network row10p provider/child readiness is a typed unavailable-state gate
   only; live provider transport, child-device delivery, remote acknowledgement
   semantics, retries, and product-ready remote delivery remain separate gaps.
+- Network row10q cross-process custody readiness is a typed unavailable-state
+  gate only; cross-process durable replay, remote retention, actual remote
+  delete/export propagation, live transport, retries, and product-ready remote
+  delivery remain separate gaps.
 - Network policy preview is stored-row dry-run proof only; AI model execution,
   full policy-engine execution, adapter authorization, adapter action,
   enforcement-command publication, exact URL/content inference, raw PCAP, and

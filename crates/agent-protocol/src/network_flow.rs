@@ -129,6 +129,13 @@ pub enum NetworkRemoteDeliveryProviderChildReadinessState {
     ManualRequiredUnavailable,
 }
 
+#[derive(Clone, Debug, Default, PartialEq, Eq, Serialize, Deserialize)]
+pub enum NetworkRemoteDeliveryCrossProcessCustodyReadinessState {
+    #[default]
+    #[serde(rename = "manual-required-unavailable")]
+    ManualRequiredUnavailable,
+}
+
 #[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct NetworkRemoteDeliveryStatus {
@@ -181,9 +188,16 @@ pub struct NetworkRemoteDeliveryStatus {
     pub child_device_route_ref: String,
     pub provider_delivery_readiness_ref: String,
     pub child_device_delivery_readiness_ref: String,
+    pub cross_process_custody_status_ref: String,
+    pub cross_process_replay_readiness_ref: String,
+    pub remote_retention_readiness_ref: String,
+    pub remote_delete_custody_readiness_ref: String,
+    pub remote_export_custody_readiness_ref: String,
     pub transport_dispatch_state: NetworkRemoteDeliveryTransportDispatchState,
     pub provider_delivery_readiness_state: NetworkRemoteDeliveryProviderChildReadinessState,
     pub child_device_delivery_readiness_state: NetworkRemoteDeliveryProviderChildReadinessState,
+    pub cross_process_custody_readiness_state:
+        NetworkRemoteDeliveryCrossProcessCustodyReadinessState,
     pub outbox_candidate_count: u64,
     pub source_outbox_candidate_count: u64,
     pub prepared_not_dispatched_count: u64,
@@ -203,6 +217,15 @@ pub struct NetworkRemoteDeliveryStatus {
     pub child_device_delivery_artifact_count: u64,
     pub provider_delivery_records_match_fixture_acks: bool,
     pub child_device_delivery_records_match_fixture_acks: bool,
+    pub cross_process_replay_readiness_record_count: u64,
+    pub remote_retention_readiness_record_count: u64,
+    pub remote_delete_custody_readiness_record_count: u64,
+    pub remote_export_custody_readiness_record_count: u64,
+    pub cross_process_custody_records_match_provider_child_readiness: bool,
+    pub cross_process_replay_artifact_count: u64,
+    pub remote_retention_artifact_count: u64,
+    pub remote_delete_custody_artifact_count: u64,
+    pub remote_export_custody_artifact_count: u64,
     pub dispatch_ready_candidate_count: u64,
     pub dispatch_attempt_count: u64,
     pub remote_ack_count: u64,

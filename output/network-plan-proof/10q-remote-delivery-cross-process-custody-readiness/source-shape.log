@@ -1,3 +1,4 @@
+source-shape
 Source shape warnings: files/functions are near their size limits.
 apps/portal/e2e/portal-route-scaffold-assertions.ts:1 file has 760 lines; crossed 750-line advisory band; maximum is 1000
 apps/portal/e2e/portal-ui.spec.ts:1 file has 321 lines; crossed 250-line advisory band; maximum is 1000

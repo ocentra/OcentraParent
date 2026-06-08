@@ -375,6 +375,25 @@ The proof pack must contain or explicitly mark N/A for each applicable item:
       raw PCAP, exact URL, decrypted payload, page content, video content,
       private-message content, search-query content, and host filtering remain
       false.
+- [x] `10q-remote-delivery-cross-process-custody-readiness`: typed
+      core/protocol/service/domain readiness gate for cross-process replay,
+      remote retention, remote delete custody, and remote export custody.
+      Row10q proof writes
+      `output/network-plan-proof/10q-remote-delivery-cross-process-custody-readiness/proof-summary.json`
+      and
+      `test-results/network-remote-delivery-cross-process-custody-readiness-proof/proof.json`
+      and proves row10p provider/child readiness records become proof-local
+      custody/replay readiness records with manual-required unavailable state.
+      The existing `agent.network.remote-delivery.status.get` /
+      `agent.network.remote-delivery.status.reported` path carries row10q refs,
+      cross-process custody readiness counts, zero custody/replay artifact
+      counts, and parser rejection for stale refs or mismatched counts.
+      Cross-process durable replay, live broker/family-hub/provider/child-device
+      delivery, actual remote delete/export propagation, product-ready delivery,
+      policy authority, side-effect authority, adapter execution,
+      enforcement-command publication, raw PCAP, exact URL, decrypted payload,
+      page content, video content, private-message content, search-query
+      content, and host filtering remain false.
 - [x] `policy-preview-stored-flow-evidence`: stored ActivityStore network flow
       evidence feeds the existing policy-preview read model and service payload.
       The proof writes
@@ -591,7 +610,9 @@ The proof pack must contain or explicitly mark N/A for each applicable item:
       row10l fixture transport refs and fixture dispatch/ack counts through the
       typed status payload while live dispatch/ack counters remain zero, and
       row10p now carries provider/child readiness refs and unavailable-state
-      counts while provider/child artifact counts remain zero. Live broker/family-hub
+      counts while provider/child artifact counts remain zero, and row10q now
+      carries cross-process custody/replay readiness refs and unavailable-state
+      counts while custody/replay artifact counts remain zero. Live broker/family-hub
       delivery, live transport remote acknowledgements, cross-process durable
       replay, raw PCAP/live-capture retention and remote
       delete/export propagation, live analyzer/model/policy execution, adapter
@@ -600,7 +621,7 @@ The proof pack must contain or explicitly mark N/A for each applicable item:
       the row10b through row10i chain stays non-enforcing until those artifacts
       exist. E-D full-network proof links the
       consolidated eventing proof and remote-delivery non-enforcement artifacts
-      through row10n under `output/network-plan-proof/full-network-plan/02-eventing-proof.log` and
+      through row10q under `output/network-plan-proof/full-network-plan/02-eventing-proof.log` and
       `output/network-plan-proof/full-network-plan/12-remote-delivery-proof.json`.
 - [x] TypeScript Effect Schema contracts land before Rust/service/portal
       consumers where TypeScript domain boundaries are touched. Workpack 03

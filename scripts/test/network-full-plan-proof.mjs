@@ -105,6 +105,11 @@ const freshnessCommandSpecs = [
     'node',
     ['scripts/test/network-remote-delivery-provider-child-readiness-proof.mjs'],
   ],
+  [
+    'network-remote-delivery-cross-process-custody-readiness-proof',
+    'node',
+    ['scripts/test/network-remote-delivery-cross-process-custody-readiness-proof.mjs'],
+  ],
   ['network-parent-ui-evidence-drawer-proof', 'node', ['scripts/test/network-parent-ui-evidence-drawer-proof.mjs']],
   [
     'network-portal-risk-performance-platform-proof',
@@ -180,6 +185,10 @@ const refreshedProofByName = new Map([
     'network-remote-delivery-fixture-transport-status-bridge-proof',
   ],
   ['network-remote-delivery-provider-child-readiness-proof', 'network-remote-delivery-provider-child-readiness-proof'],
+  [
+    'network-remote-delivery-cross-process-custody-readiness-proof',
+    'network-remote-delivery-cross-process-custody-readiness-proof',
+  ],
   ['network-portal-risk-performance-platform-proof', 'network-portal-risk-performance-platform-proof'],
   ['network-security-readiness-proof', 'network-security-readiness-proof'],
   ['network-performance-benchmark-proof', 'network-performance-benchmark-proof'],
@@ -426,6 +435,11 @@ const proofArtifacts = [
     'output/network-plan-proof/10p-remote-delivery-provider-child-readiness/proof-summary.json',
   ],
   [
+    'remote-cross-process-custody-readiness',
+    '10-remote-delivery-proof',
+    'output/network-plan-proof/10q-remote-delivery-cross-process-custody-readiness/proof-summary.json',
+  ],
+  [
     'vpn-proxy-tunnel',
     'classification-proof',
     'output/network-plan-proof/24-vpn-proxy-tor-tunnel-classifier/proof-summary.json',
@@ -510,14 +524,14 @@ const proof = {
     'AI detection/audit and risk-budget outputs remain advisory until typed policy handoff',
     'adapter action is gated by policy, capability proof, result state, rollback/unavailable refs, and audit refs',
     'journal, replay, receipt-ledger, durable envelope, outbox, and local read-model proof are present',
-    'remote fixture transport, fixture transport status bridge, provider/child readiness, delete/export readiness, and delete/export status bridge proof are present without live propagation',
+    'remote fixture transport, fixture transport status bridge, provider/child readiness, cross-process custody readiness, delete/export readiness, and delete/export status bridge proof are present without live propagation',
     'portal evidence drawer, risk/performance/platform status, and row51 stored-flow product-path bridge are service/read-model backed and non-authoritative',
     'security readiness and performance benchmark proof roots are present',
   ],
   manualRequiredBoundaries: [
     'live packet capture driver invocation remains proof-gated/manual-required',
     'broker/family-hub remote delivery, provider delivery, and child-device delivery remain manual-required',
-    'remote delete/export propagation remains proof-local readiness/status and future transport work',
+    'cross-process durable replay and remote retention/delete/export propagation remain proof-local readiness/status and future transport work',
     'production platform support and external audit/penetration-test signoff remain unclaimed',
   ],
   notClaimed: [

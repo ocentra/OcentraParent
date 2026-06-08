@@ -169,6 +169,7 @@ pub use journal_error::JournalError;
 pub use network_capture::{collect_network_snapshot, NetworkObservation};
 pub use network_capture_event::{network_observation_event, network_snapshot_events};
 pub use network_event_runtime::{
+    prove_network_runtime_remote_delivery_cross_process_custody_readiness,
     prove_network_runtime_remote_delivery_delete_export_propagation,
     prove_network_runtime_remote_delivery_dispatch_readiness,
     prove_network_runtime_remote_delivery_durable_envelope,
@@ -179,6 +180,10 @@ pub use network_event_runtime::{
     prove_network_runtime_remote_delivery_transport_dispatch_state,
     publish_network_runtime_chain_for_observation, NetworkRuntimeEventPayload,
     NetworkRuntimeRemoteDeliveryBlockedDispatchRecord,
+    NetworkRuntimeRemoteDeliveryCrossProcessCustodyReadinessError,
+    NetworkRuntimeRemoteDeliveryCrossProcessCustodyReadinessRecord,
+    NetworkRuntimeRemoteDeliveryCrossProcessCustodyReadinessReport,
+    NetworkRuntimeRemoteDeliveryCrossProcessCustodyReadinessState,
     NetworkRuntimeRemoteDeliveryDeleteExportPropagationError,
     NetworkRuntimeRemoteDeliveryDeleteExportPropagationRecord,
     NetworkRuntimeRemoteDeliveryDeleteExportPropagationReport,

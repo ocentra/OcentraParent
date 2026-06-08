@@ -131,6 +131,17 @@
         "kind": "refreshed-by-aggregate-command",
         "command": "network-remote-delivery-provider-child-readiness-proof"
       }
+    },
+    {
+      "id": "remote-cross-process-custody-readiness",
+      "group": "10-remote-delivery-proof",
+      "path": "output/network-plan-proof/10q-remote-delivery-cross-process-custody-readiness/proof-summary.json",
+      "kind": "json",
+      "parsedProof": "network-remote-delivery-cross-process-custody-readiness-proof",
+      "freshness": {
+        "kind": "refreshed-by-aggregate-command",
+        "command": "network-remote-delivery-cross-process-custody-readiness-proof"
+      }
     }
   ]
 }

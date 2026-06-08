@@ -1,0 +1,47 @@
+{
+  "statusCommandAndEvent": {
+    "command": "agent.network.remote-delivery.status.get",
+    "event": "agent.network.remote-delivery.status.reported",
+    "payloadField": "networkRemoteDeliveryStatus"
+  },
+  "crossProcessCustodyReadinessRefs": [
+    "network.remote-delivery.cross-process-custody-status.10q",
+    "network.remote-delivery.cross-process-replay-readiness.10q",
+    "network.remote-delivery.remote-retention-readiness.10q",
+    "network.remote-delivery.remote-delete-custody-readiness.10q",
+    "network.remote-delivery.remote-export-custody-readiness.10q"
+  ],
+  "provenStates": [
+    "crossProcessCustodyReadinessState=manual-required-unavailable",
+    "crossProcessReplayReadinessRecordCount equals providerDeliveryReadinessRecordCount",
+    "remoteRetentionReadinessRecordCount equals providerDeliveryReadinessRecordCount",
+    "remoteDeleteCustodyReadinessRecordCount equals providerDeliveryReadinessRecordCount",
+    "remoteExportCustodyReadinessRecordCount equals providerDeliveryReadinessRecordCount",
+    "crossProcessReplayArtifactCount remains zero",
+    "remoteRetentionArtifactCount remains zero",
+    "remoteDeleteCustodyArtifactCount remains zero",
+    "remoteExportCustodyArtifactCount remains zero"
+  ],
+  "noClaims": [
+    "live broker dispatch",
+    "live family-hub relay dispatch",
+    "live remote acknowledgement",
+    "remote provider delivery",
+    "child-device delivery",
+    "cross-process durable replay implementation",
+    "actual remote delete/export propagation",
+    "product-ready remote delivery",
+    "policy authority",
+    "side-effect authority",
+    "enforcement command publication",
+    "adapter action execution",
+    "raw PCAP",
+    "exact URL from network-only evidence",
+    "decrypted payload",
+    "page content",
+    "video content",
+    "private-message content",
+    "search-query content",
+    "host filtering"
+  ]
+}

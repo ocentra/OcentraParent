@@ -59,7 +59,8 @@ development paths and orchestrates runtime commands.
   proof. The cached deterministic protocol snapshot carries row10b through
   row10m refs, prepared candidate counts, blocked-dispatch refs, row10l fixture
   dispatch/ack counts, delete/export readiness refs, row10p provider/child
-  readiness refs, duplicate rejection, and zero live dispatch/ack counters
+  readiness refs, row10q cross-process custody readiness refs, duplicate
+  rejection, and zero live dispatch/ack counters
   without broker/family-hub transport, remote acknowledgement, provider or
   child-device delivery, actual remote
   delete/export propagation, policy, adapter, exact content, or host-filter
@@ -178,8 +179,8 @@ flowchart LR
   host filtering remain separate gaps.
 - Network remote delivery status output is a read-only proof/status bridge;
   row10l fixture transport, row10m delete/export readiness, and row10p
-  provider/child readiness are visible there, but real broker or family-hub
-  transport, remote acknowledgement,
+  provider/child readiness plus row10q cross-process custody readiness are
+  visible there, but real broker or family-hub transport, remote acknowledgement,
   provider/child-device delivery, cross-process replay, actual remote
   delete/export propagation, product readiness, policy execution, adapter
   execution, and host filtering remain separate gaps.

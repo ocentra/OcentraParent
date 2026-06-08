@@ -2,6 +2,7 @@ use ocentra_parent_agent_core::prove_network_runtime_remote_delivery_transport_d
 use ocentra_parent_agent_protocol::{
     constants, policy_constants, AgentCommandEnvelope, AgentCommandName, AgentEventName,
     AgentMessageTarget, AgentPeer, AgentPeerRole, AgentRoute, LogFieldValue,
+    NetworkRemoteDeliveryCrossProcessCustodyReadinessState,
     NetworkRemoteDeliveryProviderChildReadinessState, NetworkRemoteDeliveryStatus,
     NetworkRemoteDeliveryStatusState, NetworkRemoteDeliveryTransportDispatchState,
     AGENT_PROTOCOL_SCHEMA_VERSION,
@@ -17,7 +18,7 @@ use crate::{
 };
 
 #[tokio::test]
-async fn network_remote_delivery_status_payload_serializes_row10n_status_with_row10k_dispatch_state(
+async fn network_remote_delivery_status_payload_serializes_row10q_status_with_row10k_dispatch_state(
 ) {
     let payload = network_remote_delivery_status_payload()
         .await
@@ -93,7 +94,7 @@ async fn network_remote_delivery_status_rejects_blocked_dispatch_identity_mismat
 fn assert_remote_delivery_status(status: &NetworkRemoteDeliveryStatus) {
     assert_eq!(
         status.status_ref,
-        constants::network_flow::TEST_REMOTE_DELIVERY_DELETE_EXPORT_STATUS_BRIDGE_REF
+        constants::network_flow::TEST_REMOTE_DELIVERY_CROSS_PROCESS_CUSTODY_STATUS_REF
     );
     assert_eq!(
         status.broker_status,
@@ -130,6 +131,7 @@ fn assert_remote_delivery_status(status: &NetworkRemoteDeliveryStatus) {
     assert_remote_delivery_fixture_transport_status(status);
     assert_remote_delivery_delete_export_status(status);
     assert_remote_delivery_provider_child_readiness_status(status);
+    assert_remote_delivery_cross_process_custody_readiness_status(status);
     assert_remote_delivery_outbox_status(status);
     assert_remote_delivery_non_claims(status);
 }
@@ -256,6 +258,56 @@ fn assert_remote_delivery_provider_child_readiness_status(status: &NetworkRemote
     assert_eq!(status.child_device_delivery_artifact_count, 0);
     assert!(status.provider_delivery_records_match_fixture_acks);
     assert!(status.child_device_delivery_records_match_fixture_acks);
+}
+
+fn assert_remote_delivery_cross_process_custody_readiness_status(
+    status: &NetworkRemoteDeliveryStatus,
+) {
+    assert_eq!(
+        status.cross_process_custody_status_ref,
+        constants::network_flow::TEST_REMOTE_DELIVERY_CROSS_PROCESS_CUSTODY_STATUS_REF
+    );
+    assert_eq!(
+        status.cross_process_replay_readiness_ref,
+        constants::network_flow::TEST_REMOTE_DELIVERY_CROSS_PROCESS_REPLAY_READINESS_REF
+    );
+    assert_eq!(
+        status.remote_retention_readiness_ref,
+        constants::network_flow::TEST_REMOTE_DELIVERY_REMOTE_RETENTION_READINESS_REF
+    );
+    assert_eq!(
+        status.remote_delete_custody_readiness_ref,
+        constants::network_flow::TEST_REMOTE_DELIVERY_REMOTE_DELETE_CUSTODY_REF
+    );
+    assert_eq!(
+        status.remote_export_custody_readiness_ref,
+        constants::network_flow::TEST_REMOTE_DELIVERY_REMOTE_EXPORT_CUSTODY_REF
+    );
+    assert_eq!(
+        status.cross_process_custody_readiness_state,
+        NetworkRemoteDeliveryCrossProcessCustodyReadinessState::ManualRequiredUnavailable
+    );
+    assert_eq!(
+        status.cross_process_replay_readiness_record_count,
+        status.provider_delivery_readiness_record_count
+    );
+    assert_eq!(
+        status.remote_retention_readiness_record_count,
+        status.provider_delivery_readiness_record_count
+    );
+    assert_eq!(
+        status.remote_delete_custody_readiness_record_count,
+        status.provider_delivery_readiness_record_count
+    );
+    assert_eq!(
+        status.remote_export_custody_readiness_record_count,
+        status.provider_delivery_readiness_record_count
+    );
+    assert!(status.cross_process_custody_records_match_provider_child_readiness);
+    assert_eq!(status.cross_process_replay_artifact_count, 0);
+    assert_eq!(status.remote_retention_artifact_count, 0);
+    assert_eq!(status.remote_delete_custody_artifact_count, 0);
+    assert_eq!(status.remote_export_custody_artifact_count, 0);
 }
 
 fn assert_remote_delivery_outbox_status(status: &NetworkRemoteDeliveryStatus) {

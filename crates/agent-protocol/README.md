@@ -35,7 +35,8 @@ Rust protocol parity crate for data that crosses the TypeScript/Rust boundary.
   structs, and parity tests for the row10n delete/export status bridge identity,
   row10k transport-dispatch refs, row10l fixture transport refs/counts, and
   row10m delete/export readiness refs plus row10p provider/child readiness refs
-  over the row10b through row10p proof chain consumed by the Rust service and
+  and row10q cross-process custody readiness refs over the row10b through
+  row10q proof chain consumed by the Rust service and
   TypeScript protocol adapter.
 - Network live-capture status bridge command/event names, constants, status
   structs, and parity tests for row13 live-capture proof-gate state plus row03a
@@ -125,7 +126,8 @@ flowchart LR
 - Network remote delivery status bridge structs preserve proof/status refs only;
   row10k blocked-dispatch state is manual-required, row10l fixture transport is
   proof-local, row10m delete/export readiness is proof-local, and row10p
-  provider/child readiness is manual-required unavailable state.
+  provider/child readiness plus row10q cross-process custody readiness are
+  manual-required unavailable state.
   Broker/family-hub transport, remote
   acknowledgement, provider or child-device delivery, cross-process replay,
   actual remote delete/export propagation, policy authority, adapter execution,

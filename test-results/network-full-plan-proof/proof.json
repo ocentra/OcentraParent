@@ -209,6 +209,12 @@
       "log": "output/network-plan-proof/full-network-plan/command-logs/network-remote-delivery-provider-child-readiness-proof.log"
     },
     {
+      "name": "network-remote-delivery-cross-process-custody-readiness-proof",
+      "command": "node scripts/test/network-remote-delivery-cross-process-custody-readiness-proof.mjs",
+      "status": 0,
+      "log": "output/network-plan-proof/full-network-plan/command-logs/network-remote-delivery-cross-process-custody-readiness-proof.log"
+    },
+    {
       "name": "network-parent-ui-evidence-drawer-proof",
       "command": "node scripts/test/network-parent-ui-evidence-drawer-proof.mjs",
       "status": 0,
@@ -308,7 +314,7 @@
   "freshnessAudit": {
     "policy": "Aggregate proof reruns current critical proof scripts, verifies source-tree fingerprints where artifacts provide sourceRefs, and labels legacy row artifacts instead of silently treating old branch metadata as fresh.",
     "counts": {
-      "refreshed-by-aggregate-command": 52
+      "refreshed-by-aggregate-command": 53
     },
     "refreshedArtifacts": [
       "contract-boundary",
@@ -360,6 +366,7 @@
       "remote-delete-export-status-bridge",
       "remote-fixture-transport-status-bridge",
       "remote-provider-child-readiness",
+      "remote-cross-process-custody-readiness",
       "vpn-proxy-tunnel",
       "remote-torrent-download",
       "end-to-end-pipeline"
@@ -367,7 +374,7 @@
     "fingerprintCheckedArtifacts": [],
     "legacyMetadataArtifacts": []
   },
-  "artifactCount": 52,
+  "artifactCount": 53,
   "artifacts": [
     {
       "id": "contract-boundary",
@@ -909,6 +916,17 @@
       }
     },
     {
+      "id": "remote-cross-process-custody-readiness",
+      "group": "10-remote-delivery-proof",
+      "path": "output/network-plan-proof/10q-remote-delivery-cross-process-custody-readiness/proof-summary.json",
+      "kind": "json",
+      "parsedProof": "network-remote-delivery-cross-process-custody-readiness-proof",
+      "freshness": {
+        "kind": "refreshed-by-aggregate-command",
+        "command": "network-remote-delivery-cross-process-custody-readiness-proof"
+      }
+    },
+    {
       "id": "vpn-proxy-tunnel",
       "group": "classification-proof",
       "path": "output/network-plan-proof/24-vpn-proxy-tor-tunnel-classifier/proof-summary.json",
@@ -965,14 +983,14 @@
     "AI detection/audit and risk-budget outputs remain advisory until typed policy handoff",
     "adapter action is gated by policy, capability proof, result state, rollback/unavailable refs, and audit refs",
     "journal, replay, receipt-ledger, durable envelope, outbox, and local read-model proof are present",
-    "remote fixture transport, fixture transport status bridge, provider/child readiness, delete/export readiness, and delete/export status bridge proof are present without live propagation",
+    "remote fixture transport, fixture transport status bridge, provider/child readiness, cross-process custody readiness, delete/export readiness, and delete/export status bridge proof are present without live propagation",
     "portal evidence drawer, risk/performance/platform status, and row51 stored-flow product-path bridge are service/read-model backed and non-authoritative",
     "security readiness and performance benchmark proof roots are present"
   ],
   "manualRequiredBoundaries": [
     "live packet capture driver invocation remains proof-gated/manual-required",
     "broker/family-hub remote delivery, provider delivery, and child-device delivery remain manual-required",
-    "remote delete/export propagation remains proof-local readiness/status and future transport work",
+    "cross-process durable replay and remote retention/delete/export propagation remain proof-local readiness/status and future transport work",
     "production platform support and external audit/penetration-test signoff remain unclaimed"
   ],
   "notClaimed": [

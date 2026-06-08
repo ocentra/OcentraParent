@@ -18,6 +18,10 @@ export const AgentNetworkRemoteDeliveryProviderChildReadinessStateSchema = withP
   Schema.Literal('manual-required-unavailable')
 );
 
+export const AgentNetworkRemoteDeliveryCrossProcessCustodyReadinessStateSchema = withParser(
+  Schema.Literal('manual-required-unavailable')
+);
+
 const AgentNetworkRemoteDeliveryStatusFields = Schema.Struct({
   statusRef: NetworkRemoteDeliveryText,
   brokerStatus: AgentNetworkRemoteDeliveryStatusStateSchema,
@@ -68,9 +72,15 @@ const AgentNetworkRemoteDeliveryStatusFields = Schema.Struct({
   childDeviceRouteRef: NetworkRemoteDeliveryText,
   providerDeliveryReadinessRef: NetworkRemoteDeliveryText,
   childDeviceDeliveryReadinessRef: NetworkRemoteDeliveryText,
+  crossProcessCustodyStatusRef: NetworkRemoteDeliveryText,
+  crossProcessReplayReadinessRef: NetworkRemoteDeliveryText,
+  remoteRetentionReadinessRef: NetworkRemoteDeliveryText,
+  remoteDeleteCustodyReadinessRef: NetworkRemoteDeliveryText,
+  remoteExportCustodyReadinessRef: NetworkRemoteDeliveryText,
   transportDispatchState: AgentNetworkRemoteDeliveryTransportDispatchStateSchema,
   providerDeliveryReadinessState: AgentNetworkRemoteDeliveryProviderChildReadinessStateSchema,
   childDeviceDeliveryReadinessState: AgentNetworkRemoteDeliveryProviderChildReadinessStateSchema,
+  crossProcessCustodyReadinessState: AgentNetworkRemoteDeliveryCrossProcessCustodyReadinessStateSchema,
   outboxCandidateCount: NetworkRemoteDeliveryCount,
   sourceOutboxCandidateCount: NetworkRemoteDeliveryCount,
   preparedNotDispatchedCount: NetworkRemoteDeliveryCount,
@@ -90,6 +100,15 @@ const AgentNetworkRemoteDeliveryStatusFields = Schema.Struct({
   childDeviceDeliveryArtifactCount: Schema.Literal(0),
   providerDeliveryRecordsMatchFixtureAcks: Schema.Boolean,
   childDeviceDeliveryRecordsMatchFixtureAcks: Schema.Boolean,
+  crossProcessReplayReadinessRecordCount: NetworkRemoteDeliveryCount,
+  remoteRetentionReadinessRecordCount: NetworkRemoteDeliveryCount,
+  remoteDeleteCustodyReadinessRecordCount: NetworkRemoteDeliveryCount,
+  remoteExportCustodyReadinessRecordCount: NetworkRemoteDeliveryCount,
+  crossProcessCustodyRecordsMatchProviderChildReadiness: Schema.Boolean,
+  crossProcessReplayArtifactCount: Schema.Literal(0),
+  remoteRetentionArtifactCount: Schema.Literal(0),
+  remoteDeleteCustodyArtifactCount: Schema.Literal(0),
+  remoteExportCustodyArtifactCount: Schema.Literal(0),
   dispatchReadyCandidateCount: Schema.Literal(0),
   dispatchAttemptCount: Schema.Literal(0),
   remoteAckCount: Schema.Literal(0),
@@ -134,8 +153,9 @@ export const AgentNetworkRemoteDeliveryStatusSchema = withParser(
           fixtureTransportMatches(status) &&
           deleteExportReadinessMatches(status) &&
           providerChildReadinessMatches(status) &&
+          crossProcessCustodyReadinessMatches(status) &&
           localDeliveryProofMatches(status)) ||
-        'Network remote delivery status must preserve row10n status identity, row10g outbox refs, row10k blocked dispatch refs, row10l fixture transport refs, row10m delete/export readiness refs, and row10p provider/child readiness refs without live delivery or content claims'
+        'Network remote delivery status must preserve row10q status identity, row10g outbox refs, row10k blocked dispatch refs, row10l fixture transport refs, row10m delete/export readiness refs, row10p provider/child readiness refs, and row10q cross-process custody refs without live delivery or content claims'
     )
   )
 );
@@ -267,6 +287,26 @@ function providerChildReadinessMatches(status: AgentNetworkRemoteDeliveryStatus)
     status.childDeviceDeliveryArtifactCount === 0 &&
     status.providerDeliveryRecordsMatchFixtureAcks &&
     status.childDeviceDeliveryRecordsMatchFixtureAcks
+  );
+}
+
+function crossProcessCustodyReadinessMatches(status: AgentNetworkRemoteDeliveryStatus): boolean {
+  return (
+    status.crossProcessCustodyStatusRef === NetworkRemoteDeliveryRefs.CrossProcessCustodyStatusRef &&
+    status.crossProcessReplayReadinessRef === NetworkRemoteDeliveryRefs.CrossProcessReplayReadinessRef &&
+    status.remoteRetentionReadinessRef === NetworkRemoteDeliveryRefs.RemoteRetentionReadinessRef &&
+    status.remoteDeleteCustodyReadinessRef === NetworkRemoteDeliveryRefs.RemoteDeleteCustodyReadinessRef &&
+    status.remoteExportCustodyReadinessRef === NetworkRemoteDeliveryRefs.RemoteExportCustodyReadinessRef &&
+    status.crossProcessCustodyReadinessState === 'manual-required-unavailable' &&
+    status.crossProcessReplayReadinessRecordCount === status.providerDeliveryReadinessRecordCount &&
+    status.remoteRetentionReadinessRecordCount === status.providerDeliveryReadinessRecordCount &&
+    status.remoteDeleteCustodyReadinessRecordCount === status.providerDeliveryReadinessRecordCount &&
+    status.remoteExportCustodyReadinessRecordCount === status.providerDeliveryReadinessRecordCount &&
+    status.crossProcessCustodyRecordsMatchProviderChildReadiness &&
+    status.crossProcessReplayArtifactCount === 0 &&
+    status.remoteRetentionArtifactCount === 0 &&
+    status.remoteDeleteCustodyArtifactCount === 0 &&
+    status.remoteExportCustodyArtifactCount === 0
   );
 }
 

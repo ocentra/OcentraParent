@@ -1,0 +1,135 @@
+{
+  "proof": "network-remote-delivery-cross-process-custody-readiness-proof",
+  "proofRevision": "network-remote-delivery-cross-process-custody-readiness-proof/v1",
+  "checkedAt": "deterministic:network-remote-delivery-cross-process-custody-readiness-proof/v1",
+  "sourceFingerprint": "source-tree:2f4e6fec93113264190a6ff968a4973fd082948839c2f9dd191e34cbb34afa29",
+  "sourceRefs": [
+    "scripts/test/network-remote-delivery-cross-process-custody-readiness-proof.mjs",
+    "crates/agent-protocol/src/constants/network_flow.rs",
+    "crates/agent-protocol/src/network_flow.rs",
+    "crates/agent-protocol/src/network_flow_tests.rs",
+    "crates/agent-core/src/network_event_runtime.rs",
+    "crates/agent-core/src/network_event_runtime/remote_delivery_cross_process_custody_readiness.rs",
+    "crates/agent-core/src/network_event_runtime/remote_delivery_cross_process_custody_readiness_types.rs",
+    "crates/agent-core/src/network_event_runtime/remote_delivery_provider_child_readiness.rs",
+    "crates/agent-core/src/network_event_runtime/remote_delivery_provider_child_readiness_types.rs",
+    "crates/agent-service/src/network_remote_delivery_status_payload.rs",
+    "crates/agent-service/src/network_remote_delivery_status_service_tests.rs",
+    "packages/agent-protocol-domain/src/defaults.ts",
+    "packages/agent-protocol-domain/src/network-remote-delivery-status.ts",
+    "packages/agent-protocol-domain/tests/network-remote-delivery-status.test.ts",
+    "crates/agent-core/README.md",
+    "crates/agent-protocol/README.md",
+    "crates/agent-service/README.md",
+    "packages/agent-protocol-domain/README.md",
+    "docs/features/network-domain-control.md",
+    "docs/plans/network-plan/implementation-checklist.md",
+    "docs/plans/network-plan/workpacks/README.md"
+  ],
+  "runContext": "deterministic-row10q-cross-process-custody-readiness",
+  "proofRoot": "output\\network-plan-proof\\10q-remote-delivery-cross-process-custody-readiness",
+  "testRoot": "test-results\\network-remote-delivery-cross-process-custody-readiness-proof",
+  "commands": [
+    {
+      "name": "agent-core-cross-process-custody-readiness-test",
+      "command": "cargo test -p ocentra-parent-agent-core cross_process_custody_readiness",
+      "status": 0,
+      "log": "output\\network-plan-proof\\10q-remote-delivery-cross-process-custody-readiness\\agent-core-cross-process-custody-readiness-test.log"
+    },
+    {
+      "name": "agent-protocol-remote-delivery-status-test",
+      "command": "cargo test -p ocentra-parent-agent-protocol network_remote_delivery_status",
+      "status": 0,
+      "log": "output\\network-plan-proof\\10q-remote-delivery-cross-process-custody-readiness\\agent-protocol-remote-delivery-status-test.log"
+    },
+    {
+      "name": "agent-service-remote-delivery-status-test",
+      "command": "cargo test -p ocentra-parent-agent-service network_remote_delivery_status",
+      "status": 0,
+      "log": "output\\network-plan-proof\\10q-remote-delivery-cross-process-custody-readiness\\agent-service-remote-delivery-status-test.log"
+    },
+    {
+      "name": "agent-protocol-domain-build",
+      "command": "cmd /c npm run build --workspace @ocentra-parent/agent-protocol-domain",
+      "status": 0,
+      "log": "output\\network-plan-proof\\10q-remote-delivery-cross-process-custody-readiness\\agent-protocol-domain-build.log"
+    },
+    {
+      "name": "agent-protocol-domain-remote-delivery-status-test",
+      "command": "cmd /c npm run test --workspace @ocentra-parent/agent-protocol-domain -- network-remote-delivery-status.test.ts",
+      "status": 0,
+      "log": "output\\network-plan-proof\\10q-remote-delivery-cross-process-custody-readiness\\agent-protocol-domain-remote-delivery-status-test.log"
+    },
+    {
+      "name": "agent-core-clippy",
+      "command": "cargo clippy -p ocentra-parent-agent-core --all-targets -- -D warnings",
+      "status": 0,
+      "log": "output\\network-plan-proof\\10q-remote-delivery-cross-process-custody-readiness\\agent-core-clippy.log"
+    },
+    {
+      "name": "agent-service-clippy",
+      "command": "cargo clippy -p ocentra-parent-agent-service --all-targets -- -D warnings",
+      "status": 0,
+      "log": "output\\network-plan-proof\\10q-remote-delivery-cross-process-custody-readiness\\agent-service-clippy.log"
+    },
+    {
+      "name": "rust-format",
+      "command": "cargo fmt --all --check",
+      "status": 0,
+      "log": "output\\network-plan-proof\\10q-remote-delivery-cross-process-custody-readiness\\rust-format.log"
+    },
+    {
+      "name": "source-shape",
+      "command": "node scripts/check-source-shape.mjs",
+      "status": 0,
+      "log": "output\\network-plan-proof\\10q-remote-delivery-cross-process-custody-readiness\\source-shape.log"
+    },
+    {
+      "name": "git-diff-check",
+      "command": "git diff --check",
+      "status": 0,
+      "log": "output\\network-plan-proof\\10q-remote-delivery-cross-process-custody-readiness\\git-diff-check.log"
+    }
+  ],
+  "artifacts": {
+    "expectedCrossProcessCustodyReadinessStatus": "output\\network-plan-proof\\10q-remote-delivery-cross-process-custody-readiness\\expected-cross-process-custody-readiness-status.json",
+    "securityNegativeLog": "output\\network-plan-proof\\10q-remote-delivery-cross-process-custody-readiness\\09-security-negative-proof.log",
+    "validationCommands": "output\\network-plan-proof\\10q-remote-delivery-cross-process-custody-readiness\\12-validation-commands.log",
+    "proofSummary": "output\\network-plan-proof\\10q-remote-delivery-cross-process-custody-readiness\\proof-summary.json",
+    "testProof": "test-results\\network-remote-delivery-cross-process-custody-readiness-proof\\proof.json"
+  },
+  "coveredRows": [
+    "network-plan supplemental row 10q remote delivery cross-process custody readiness proof",
+    "network-plan supplemental row 10p remote delivery provider child readiness proof",
+    "network-plan supplemental row 10l remote delivery fixture transport receipt proof"
+  ],
+  "provenBoundaries": [
+    "Rust core turns row10p provider/child readiness records into row10q cross-process custody/replay readiness records without live remote transport artifacts",
+    "Rust protocol serializes row10q cross-process custody refs, manual-required-unavailable state, and zero custody/replay artifact counts in the existing remote delivery status shape",
+    "agent-service reports row10q cross-process custody readiness through agent.network.remote-delivery.status.reported",
+    "TypeScript parser rejects stale row10q refs, nonzero custody/replay artifact counts, mismatched readiness counts, live/product-ready delivery, and content claims",
+    "row10q readiness remains unavailable/manual-required and cannot authorize policy, adapter, host filtering, or enforcement commands"
+  ],
+  "notClaimed": [
+    "live broker dispatch",
+    "live family-hub relay dispatch",
+    "live remote acknowledgement",
+    "remote provider delivery",
+    "child-device delivery",
+    "cross-process durable replay implementation",
+    "actual remote delete/export propagation",
+    "product-ready remote delivery",
+    "policy authority",
+    "side-effect authority",
+    "enforcement command publication",
+    "adapter action execution",
+    "raw PCAP",
+    "exact URL from network-only evidence",
+    "decrypted payload",
+    "page content",
+    "video content",
+    "private-message content",
+    "search-query content",
+    "host filtering"
+  ]
+}
