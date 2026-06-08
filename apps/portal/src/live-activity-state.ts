@@ -57,6 +57,10 @@ import {
   type AgentAppGameAdapterDispatchPreflightResult,
 } from '@ocentra-parent/agent-protocol-domain/app-game-adapter-dispatch-preflight';
 import {
+  parseAgentAppGameAdapterDispatchResultEvent,
+  type AgentAppGameAdapterDispatchResult,
+} from '@ocentra-parent/agent-protocol-domain/app-game-adapter-dispatch-result';
+import {
   parseAgentActivityTrackingReadModelEvent,
   type AgentActivityTrackingReadModelResult,
 } from '@ocentra-parent/agent-protocol-domain/tracking-read-model';
@@ -117,6 +121,8 @@ export interface PortalLiveActivityState {
   readonly appGameAdapterExecutionReadinessReadModel: AgentAppGameAdapterExecutionReadinessResult | null;
   readonly appGameAdapterDispatchPreflightEvent: AgentEventEnvelope | null;
   readonly appGameAdapterDispatchPreflightReadModel: AgentAppGameAdapterDispatchPreflightResult | null;
+  readonly appGameAdapterDispatchResultEvent: AgentEventEnvelope | null;
+  readonly appGameAdapterDispatchResultReadModel: AgentAppGameAdapterDispatchResult | null;
   readonly activityNetworkReadModelEvent: AgentEventEnvelope | null;
   readonly activityNetworkReadModel: ActivitySurfaceAdapterResult<ActivitySurfaceReadModel> | null;
   readonly browserInterventionEvent: AgentEventEnvelope | null;
@@ -198,6 +204,7 @@ export function resolveLiveActivityState(events: readonly AgentEventEnvelope[]):
     ),
     ...resolveAppGameAdapterExecutionReadinessReadModel(events),
     ...resolveAppGameAdapterDispatchPreflightReadModel(events),
+    ...resolveAppGameAdapterDispatchResultReadModel(events),
     browserInterventionEvent,
     browserInterventionReadModel:
       browserInterventionEvent === null ? null : parseBrowserInterventionReadModel(browserInterventionEvent.payload),
@@ -283,6 +290,14 @@ function resolveAppGameAdapterDispatchPreflightReadModel(events: readonly AgentE
     appGameAdapterDispatchPreflightEvent: event,
     appGameAdapterDispatchPreflightReadModel:
       event === null ? null : parseAgentAppGameAdapterDispatchPreflightEvent(event),
+  };
+}
+
+function resolveAppGameAdapterDispatchResultReadModel(events: readonly AgentEventEnvelope[]) {
+  const event = latestEvent(events, AgentEvent.ActivityAppGameAdapterDispatchResultReadModelReported);
+  return {
+    appGameAdapterDispatchResultEvent: event,
+    appGameAdapterDispatchResultReadModel: event === null ? null : parseAgentAppGameAdapterDispatchResultEvent(event),
   };
 }
 

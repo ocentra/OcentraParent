@@ -65,6 +65,10 @@
       "import": "./dist/app-game-adapter-dispatch-preflight.js",
       "types": "./dist/app-game-adapter-dispatch-preflight.d.ts"
     },
+    "./app-game-adapter-dispatch-result": {
+      "import": "./dist/app-game-adapter-dispatch-result.js",
+      "types": "./dist/app-game-adapter-dispatch-result.d.ts"
+    },
     "./app-game-timer-parent-surface-read-model": {
       "import": "./dist/app-game-timer-parent-surface-read-model.js",
       "types": "./dist/app-game-timer-parent-surface-read-model.d.ts"

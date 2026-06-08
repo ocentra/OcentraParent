@@ -71,6 +71,10 @@ export const PortalOverviewCommands = [
     payload: {},
   },
   {
+    command: AgentCommand.ActivityAppGameAdapterDispatchResultReadModelGet,
+    payload: {},
+  },
+  {
     command: AgentCommand.ActivityNetworkReadModelGet,
     payload: {},
   },
@@ -193,6 +197,12 @@ export const PortalCommandButtons = [
     label: resolvePortalDevText(PortalDevTextToken.GetActivityAppGameAdapterDispatchPreflightReadModel),
     command: AgentCommand.ActivityAppGameAdapterDispatchPreflightReadModelGet,
     resultEvent: AgentEvent.ActivityAppGameAdapterDispatchPreflightReadModelReported,
+    payload: {},
+  },
+  {
+    label: resolvePortalDevText(PortalDevTextToken.GetActivityAppGameAdapterDispatchResultReadModel),
+    command: AgentCommand.ActivityAppGameAdapterDispatchResultReadModelGet,
+    resultEvent: AgentEvent.ActivityAppGameAdapterDispatchResultReadModelReported,
     payload: {},
   },
   {

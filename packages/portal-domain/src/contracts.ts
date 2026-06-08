@@ -24,6 +24,12 @@ export {
   type AppGameAdapterExecutionReadinessPanelIntent,
   type AppGameAdapterExecutionReadinessPanelRow,
 } from './app-game-adapter-execution-readiness-panel';
+export {
+  createAppGameAdapterDispatchResultPanelIntent,
+  type AppGameAdapterDispatchResultPanelDetail,
+  type AppGameAdapterDispatchResultPanelIntent,
+  type AppGameAdapterDispatchResultPanelRow,
+} from './app-game-adapter-dispatch-result-panel';
 export { createAppGameNotificationParentSurfaceReadModelFromReadiness } from './app-game-notification-parent-surface-live-readiness';
 export {
   PortalFrameChromeNumberFields,

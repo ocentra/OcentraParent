@@ -442,52 +442,35 @@ describe('portal parent assistant contracts', () => {
 
 describe('portal command contracts', () => {
   it('PortalCommandButtons: maps each button to a typed command', () => {
-    expect(PortalCommandButtons.map((button) => button.command)).toContain('agent.health.check');
-    expect(PortalCommandButtons.map((button) => button.resultEvent)).toContain('agent.health.reported');
-    expect(PortalCommandButtons.map((button) => button.command)).toContain('agent.activity.ingest.status.get');
-    expect(PortalCommandButtons.map((button) => button.resultEvent)).toContain(
-      'agent.activity.recent.summary.reported'
-    );
-    expect(PortalCommandButtons.map((button) => button.command)).toContain('agent.browser.evidence.recent.get');
-    expect(PortalCommandButtons.map((button) => button.resultEvent)).toContain(
-      'agent.browser.evidence.recent.reported'
-    );
-    expect(PortalCommandButtons.map((button) => button.command)).toContain('agent.activity.memory-graph.get');
-    expect(PortalCommandButtons.map((button) => button.resultEvent)).toContain('agent.activity.memory-graph.reported');
-    expect(PortalCommandButtons.map((button) => button.command)).toContain('agent.browser.intervention.read-model.get');
-    expect(PortalCommandButtons.map((button) => button.resultEvent)).toContain(
-      'agent.browser.intervention.read-model.reported'
-    );
-    expect(PortalCommandButtons.map((button) => button.command)).toContain('agent.browser.managed.bridge.poll');
-    expect(PortalCommandButtons.map((button) => button.resultEvent)).toContain('agent.browser.managed.status.reported');
-    expect(PortalCommandButtons.map((button) => button.command)).toContain('agent.network.flow.read-model.get');
-    expect(PortalCommandButtons.map((button) => button.resultEvent)).toContain(
-      'agent.network.flow.read-model.reported'
-    );
-    expect(PortalCommandButtons.map((button) => button.command)).toContain('agent.activity.tracking.read-model.get');
-    expect(PortalCommandButtons.map((button) => button.resultEvent)).toContain(
-      'agent.activity.tracking.read-model.reported'
-    );
-    expect(PortalCommandButtons.map((button) => button.command)).toContain('agent.local-ai.runtime.status.get');
-    expect(PortalCommandButtons.map((button) => button.resultEvent)).toContain(
-      'agent.local-ai.runtime.status.reported'
-    );
-    expect(PortalCommandButtons.map((button) => button.command)).toContain('agent.policy.preview.read-model.get');
-    expect(PortalCommandButtons.map((button) => button.resultEvent)).toContain(
-      'agent.policy.preview.read-model.reported'
-    );
-    expect(PortalCommandButtons.map((button) => button.command)).toContain(
-      'agent.activity.app-game.adapter-execution-readiness.read-model.get'
-    );
-    expect(PortalCommandButtons.map((button) => button.resultEvent)).toContain(
-      'agent.activity.app-game.adapter-execution-readiness.read-model.reported'
-    );
-    expect(PortalCommandButtons.map((button) => button.command)).toContain(
-      'agent.activity.app-game.adapter-dispatch-preflight.read-model.get'
-    );
-    expect(PortalCommandButtons.map((button) => button.resultEvent)).toContain(
-      'agent.activity.app-game.adapter-dispatch-preflight.read-model.reported'
-    );
+    const commands = PortalCommandButtons.map((button) => button.command);
+    const events = PortalCommandButtons.map((button) => button.resultEvent);
+    [
+      ['agent.health.check', 'agent.health.reported'],
+      ['agent.activity.ingest.status.get', 'agent.activity.recent.summary.reported'],
+      ['agent.browser.evidence.recent.get', 'agent.browser.evidence.recent.reported'],
+      ['agent.activity.memory-graph.get', 'agent.activity.memory-graph.reported'],
+      ['agent.browser.intervention.read-model.get', 'agent.browser.intervention.read-model.reported'],
+      ['agent.browser.managed.bridge.poll', 'agent.browser.managed.status.reported'],
+      ['agent.network.flow.read-model.get', 'agent.network.flow.read-model.reported'],
+      ['agent.activity.tracking.read-model.get', 'agent.activity.tracking.read-model.reported'],
+      ['agent.local-ai.runtime.status.get', 'agent.local-ai.runtime.status.reported'],
+      ['agent.policy.preview.read-model.get', 'agent.policy.preview.read-model.reported'],
+      [
+        'agent.activity.app-game.adapter-execution-readiness.read-model.get',
+        'agent.activity.app-game.adapter-execution-readiness.read-model.reported',
+      ],
+      [
+        'agent.activity.app-game.adapter-dispatch-preflight.read-model.get',
+        'agent.activity.app-game.adapter-dispatch-preflight.read-model.reported',
+      ],
+      [
+        'agent.activity.app-game.adapter-dispatch-result.read-model.get',
+        'agent.activity.app-game.adapter-dispatch-result.read-model.reported',
+      ],
+    ].forEach(([command, resultEvent]) => {
+      expect(commands).toContain(command);
+      expect(events).toContain(resultEvent);
+    });
     expect(PortalOverviewCommands.map((button) => button.command)).toEqual([
       'agent.health.check',
       'agent.log.snapshot.get',
@@ -506,6 +489,7 @@ describe('portal command contracts', () => {
       'agent.activity.app-game.notification-readiness.read-model.get',
       'agent.activity.app-game.adapter-execution-readiness.read-model.get',
       'agent.activity.app-game.adapter-dispatch-preflight.read-model.get',
+      'agent.activity.app-game.adapter-dispatch-result.read-model.get',
       'agent.activity.network.read-model.get',
       'agent.browser.intervention.read-model.get',
       'agent.network.flow.read-model.get',

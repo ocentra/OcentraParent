@@ -414,6 +414,8 @@ pub const RANGE_START: &str = "rangeStart";
 pub const REMOTE_SYNC: &str = "remoteSync";
 pub const ROLLBACK_TOKEN: &str = "rollbackToken";
 pub const RETURNED: &str = "returned";
+pub const APP_GAME_ADAPTER_DISPATCH_RESULT_READ_MODEL: &str =
+    "appGameAdapterDispatchResultReadModel";
 pub const SOURCE_ID: &str = "sourceId";
 pub const SOURCE_LABELS: &str = "sourceLabels";
 pub const SCHEMA_VERSION: &str = "schemaVersion";

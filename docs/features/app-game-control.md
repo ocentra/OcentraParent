@@ -146,6 +146,14 @@ control with better evidence and local audit.
   dispatch, and still does not claim adapter execution, broad blocking,
   platform enforcement, provider delivery, child-device delivery, raw private
   rows/targets, or private diagnostics.
+- The app/game scoped adapter dispatch command-result handoff now turns the
+  single dispatch-eligible scoped Windows owned-process app/game time-limit row
+  into a parent-visible result handoff to `agent.enforcement.execute` /
+  `agent.enforcement.audit.reported`. The service and portal keep the other
+  seven broad, degraded, unavailable, unsupported, or manual-required rows
+  blocked before command handoff and still do not claim adapter execution,
+  broad blocking, platform enforcement, provider delivery, child-device
+  delivery, raw private rows/targets, or private diagnostics.
 - The Windows owned-process time-limit proof now extends that same real-service
   harness with dry-run and stale-action negative paths while preserving the
   manual-required boundary for broad package/app blocking.
@@ -1533,6 +1541,13 @@ diagnostics, or raw private source rows.
       dispatch-eligible, and all broad, degraded, unavailable, unsupported, or
       manual-required rows stay blocked before dispatch. This is preflight
       visibility only; adapter dispatch execution, broad blocking, child
+      delivery, provider delivery, platform enforcement, raw private rows, and
+      private diagnostics remain unclaimed.
+      App/game adapter dispatch result now turns that scoped preflight row into
+      a parent-visible command-result handoff to `agent.enforcement.execute` /
+      `agent.enforcement.audit.reported`, while every broad, degraded,
+      unavailable, unsupported, or manual-required row remains blocked before
+      command handoff. Adapter dispatch execution, broad blocking, child
       delivery, provider delivery, platform enforcement, raw private rows, and
       private diagnostics remain unclaimed.
 - [ ] Blocking/time-limit proof before done claim. Scoped owned-process
