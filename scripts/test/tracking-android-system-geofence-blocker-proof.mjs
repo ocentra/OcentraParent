@@ -76,6 +76,18 @@ function assertProof(proof) {
   if (row.localListenerGeofenceTransitionCount <= 0 || !row.systemProximityRegistered) {
     throw new Error(`Android emulator geofence prerequisite evidence is missing: ${JSON.stringify(row)}`);
   }
+  if (row.localEvidenceArtifactRefs.length === 0) {
+    throw new Error(`Android system geofence blocker proof has no local evidence refs: ${JSON.stringify(row)}`);
+  }
+  if (row.requiredRuntimeArtifactRefs.length === 0 || row.presentRuntimeArtifactRefs.length !== 0) {
+    throw new Error(`Android system geofence runtime artifacts were overclaimed: ${JSON.stringify(row)}`);
+  }
+  if (row.missingRuntimeArtifactRefs.length !== row.requiredRuntimeArtifactRefs.length) {
+    throw new Error(`Android system geofence runtime artifact accounting is incomplete: ${JSON.stringify(row)}`);
+  }
+  if (row.runtimeArtifactSetComplete) {
+    throw new Error(`Android system geofence runtime artifact set was marked complete: ${JSON.stringify(row)}`);
+  }
 }
 
 async function writeProofArtifacts(proof) {

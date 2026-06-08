@@ -10,6 +10,10 @@ export const TrackingAndroidSystemGeofenceProofIdSchema = TrackingAndroidSystemG
   Schema.brand('TrackingAndroidSystemGeofenceProofId')
 );
 
+export const TrackingAndroidSystemGeofenceArtifactRefSchema = TrackingAndroidSystemGeofenceTextSchema.pipe(
+  Schema.brand('TrackingAndroidSystemGeofenceArtifactRef')
+);
+
 export const TrackingAndroidSystemGeofenceBlockerSchema = Schema.Literal(
   'system-proximity-broadcast-counter-zero',
   'dwell-transition-not-observed',
@@ -31,6 +35,11 @@ export const TrackingAndroidSystemGeofenceBlockerRowSchema = withParser(
     systemProximityTransitionCount: Schema.Literal(0),
     systemProximityEnterCount: Schema.Literal(0),
     systemProximityExitCount: Schema.Literal(0),
+    localEvidenceArtifactRefs: Schema.Array(TrackingAndroidSystemGeofenceArtifactRefSchema),
+    requiredRuntimeArtifactRefs: Schema.Array(TrackingAndroidSystemGeofenceArtifactRefSchema),
+    presentRuntimeArtifactRefs: Schema.Array(TrackingAndroidSystemGeofenceArtifactRefSchema),
+    missingRuntimeArtifactRefs: Schema.Array(TrackingAndroidSystemGeofenceArtifactRefSchema),
+    runtimeArtifactSetComplete: Schema.Literal(false),
     blockerRefs: Schema.Array(TrackingAndroidSystemGeofenceBlockerSchema),
     appOwnedLocalGeofenceClaimed: Schema.Literal(true),
     androidSystemGeofenceDeliveryClaimed: Schema.Literal(false),
@@ -46,6 +55,20 @@ export const TrackingAndroidSystemGeofenceBlockerRowSchema = withParser(
         (row) =>
           row.blockerRefs.length === RequiredSystemGeofenceBlockers.length ||
           'Android geofence blocker rows need every blocker ref'
+      )
+    )
+    .pipe(
+      Schema.filter(
+        (row) =>
+          row.localEvidenceArtifactRefs.length > 0 || 'Android geofence blocker rows need local evidence artifact refs'
+      )
+    )
+    .pipe(
+      Schema.filter(
+        (row) =>
+          row.requiredRuntimeArtifactRefs.length ===
+            row.presentRuntimeArtifactRefs.length + row.missingRuntimeArtifactRefs.length ||
+          'Android geofence blocker rows must classify every runtime artifact ref'
       )
     )
 );
@@ -81,6 +104,17 @@ export const RequiredSystemGeofenceBlockers = [
   'dwell-transition-not-observed',
   'physical-device-proof-required',
   'authority-proof-required',
+] as const;
+
+export const LocalAndroidSystemGeofenceEvidenceArtifactRefs = [
+  'output/tracking-plan-proof/09-android-background-location-and-geofence-adapter/05-geofence-transition-proof.json',
+] as const;
+
+export const RequiredAndroidSystemGeofenceRuntimeArtifactRefs = [
+  'output/tracking-plan-proof/android-background-geofence/system-proximity-broadcast-transitions.ndjson',
+  'output/tracking-plan-proof/android-background-geofence/system-dwell-transition-observations.ndjson',
+  'output/tracking-plan-proof/android-background-geofence/physical-device-background-geofence-result.json',
+  'output/tracking-plan-proof/android-background-geofence/authority-enrolled-geofence-runtime.json',
 ] as const;
 
 export function buildTrackingAndroidSystemGeofenceBlockerProof(
@@ -139,6 +173,11 @@ function blockerRow(generatedAt: string, sourceAndroidEmulatorProofRef: string, 
     systemProximityTransitionCount: geofence.systemProximityTransitionCount,
     systemProximityEnterCount: geofence.systemProximityEnterCount,
     systemProximityExitCount: geofence.systemProximityExitCount,
+    localEvidenceArtifactRefs: [...LocalAndroidSystemGeofenceEvidenceArtifactRefs],
+    requiredRuntimeArtifactRefs: [...RequiredAndroidSystemGeofenceRuntimeArtifactRefs],
+    presentRuntimeArtifactRefs: [],
+    missingRuntimeArtifactRefs: [...RequiredAndroidSystemGeofenceRuntimeArtifactRefs],
+    runtimeArtifactSetComplete: false,
     blockerRefs: [...RequiredSystemGeofenceBlockers],
     appOwnedLocalGeofenceClaimed: true,
     androidSystemGeofenceDeliveryClaimed: false,
