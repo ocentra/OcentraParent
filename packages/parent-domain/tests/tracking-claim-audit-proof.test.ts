@@ -64,6 +64,27 @@ describe('tracking claim audit acceptance matrix', () => {
     }
   });
 
+  it('routes physical Android and iOS claims through evidence-review proof', () => {
+    const proof = buildTrackingClaimAuditProof(GeneratedAt, []);
+    const physicalRows = proof.rows.filter((row) =>
+      ['android-physical-background-and-geofence', 'ios-physical-background-and-region'].includes(row.auditArea)
+    );
+
+    expect(physicalRows).toHaveLength(2);
+    expect(
+      physicalRows.every(
+        (row) => row.sourceProofRef === 'test-results/tracking-physical-device-evidence-review-proof/proof.json'
+      )
+    ).toBe(true);
+    expect(
+      physicalRows.every((row) =>
+        row.supportingProofRefs.includes('test-results/tracking-physical-device-artifact-gate-proof/proof.json')
+      )
+    ).toBe(true);
+  });
+});
+
+describe('tracking claim audit local artifact evidence', () => {
   it('carries full-product UI local artifact evidence without approving the claim', () => {
     const fullProductPlan = RequiredTrackingClaimAuditPlans.find(
       (plan) => plan.auditArea === 'full-product-parent-child-ui-runtime'

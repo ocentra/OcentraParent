@@ -237,6 +237,17 @@ function assertProof(proof) {
     );
   }
   if (
+    proof.closureAccounting.physicalDeviceEvidenceReviewRowCount !==
+      proof.closureAccounting.physicalDeviceEvidenceReviewArtifactMissingRowCount +
+        proof.closureAccounting.physicalDeviceEvidenceReviewContentReviewRequiredRowCount ||
+    proof.closureAccounting.physicalDeviceEvidenceReviewContentAcceptedRowCount !== 0 ||
+    proof.closureAccounting.physicalDeviceEvidenceReviewProductReadyRowCount !== 0
+  ) {
+    throw new Error(
+      `Closure accounting overclaimed physical evidence review: ${JSON.stringify(proof.closureAccounting)}`
+    );
+  }
+  if (
     proof.closureAccounting.retentionRuntimeRequiredArtifactCount !==
       proof.closureAccounting.retentionRuntimePresentArtifactCount +
         proof.closureAccounting.retentionRuntimeMissingArtifactCount ||
@@ -340,6 +351,10 @@ function sourceSnapshot(proof) {
     `- childRuntimeRequiredArtifactCount: ${proof.closureAccounting.childRuntimeRequiredArtifactCount}`,
     `- childRuntimePresentArtifactCount: ${proof.closureAccounting.childRuntimePresentArtifactCount}`,
     `- childRuntimeMissingArtifactCount: ${proof.closureAccounting.childRuntimeMissingArtifactCount}`,
+    `- physicalDeviceEvidenceReviewRowCount: ${proof.closureAccounting.physicalDeviceEvidenceReviewRowCount}`,
+    `- physicalDeviceEvidenceReviewArtifactMissingRowCount: ${proof.closureAccounting.physicalDeviceEvidenceReviewArtifactMissingRowCount}`,
+    `- physicalDeviceEvidenceReviewContentReviewRequiredRowCount: ${proof.closureAccounting.physicalDeviceEvidenceReviewContentReviewRequiredRowCount}`,
+    `- physicalDeviceEvidenceReviewContentAcceptedRowCount: ${proof.closureAccounting.physicalDeviceEvidenceReviewContentAcceptedRowCount}`,
     `- retentionRuntimeRequiredArtifactCount: ${proof.closureAccounting.retentionRuntimeRequiredArtifactCount}`,
     `- retentionRuntimePresentArtifactCount: ${proof.closureAccounting.retentionRuntimePresentArtifactCount}`,
     `- retentionRuntimeMissingArtifactCount: ${proof.closureAccounting.retentionRuntimeMissingArtifactCount}`,
@@ -405,6 +420,8 @@ function manualValidationRunbook(proof) {
     `- childRuntimeRequiredArtifactCount: ${proof.closureAccounting.childRuntimeRequiredArtifactCount}`,
     `- childRuntimePresentArtifactCount: ${proof.closureAccounting.childRuntimePresentArtifactCount}`,
     `- childRuntimeMissingArtifactCount: ${proof.closureAccounting.childRuntimeMissingArtifactCount}`,
+    `- physicalDeviceEvidenceReviewRowCount: ${proof.closureAccounting.physicalDeviceEvidenceReviewRowCount}`,
+    `- physicalDeviceEvidenceReviewContentAcceptedRowCount: ${proof.closureAccounting.physicalDeviceEvidenceReviewContentAcceptedRowCount}`,
     `- retentionRuntimeRequiredArtifactCount: ${proof.closureAccounting.retentionRuntimeRequiredArtifactCount}`,
     `- retentionRuntimePresentArtifactCount: ${proof.closureAccounting.retentionRuntimePresentArtifactCount}`,
     `- retentionRuntimeMissingArtifactCount: ${proof.closureAccounting.retentionRuntimeMissingArtifactCount}`,

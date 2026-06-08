@@ -1,7 +1,7 @@
 # Tracking Product Readiness Closure Source Snapshot
 
 - generatedAt: 2026-06-07T16:30:00.000Z
-- commit: e2f9943cac45c65f5506953fc5d3517ed5bdcaed
+- commit: de7ac52cd2cea19c09ecdb89282d3dcffe1ca8fd
 - requiredProofTier: P3_LOCAL_DEV_MACHINE
 - currentProofTier: P3_LOCAL_DEV_MACHINE
 - status: proved
@@ -26,6 +26,10 @@
 - childRuntimeRequiredArtifactCount: 10
 - childRuntimePresentArtifactCount: 0
 - childRuntimeMissingArtifactCount: 10
+- physicalDeviceEvidenceReviewRowCount: 2
+- physicalDeviceEvidenceReviewArtifactMissingRowCount: 2
+- physicalDeviceEvidenceReviewContentReviewRequiredRowCount: 0
+- physicalDeviceEvidenceReviewContentAcceptedRowCount: 0
 - retentionRuntimeRequiredArtifactCount: 2
 - retentionRuntimePresentArtifactCount: 1
 - retentionRuntimeMissingArtifactCount: 1

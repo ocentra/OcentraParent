@@ -131,7 +131,11 @@ export interface TrackingClaimAuditInventory {
 export const RequiredTrackingClaimAuditPlans = [
   {
     auditArea: 'android-physical-background-and-geofence',
-    sourceProofRef: 'test-results/tracking-physical-device-artifact-gate-proof/proof.json',
+    sourceProofRef: 'test-results/tracking-physical-device-evidence-review-proof/proof.json',
+    supportingProofRefs: [
+      'test-results/tracking-physical-device-artifact-gate-proof/proof.json',
+      'test-results/tracking-physical-device-evidence-review-proof/proof.json',
+    ],
     proofRoot: 'output/tracking-plan-proof/android-background-geofence',
     requiredProofTier: 'P4_PHYSICAL_DEVICE',
     requiredArtifacts: [
@@ -149,7 +153,11 @@ export const RequiredTrackingClaimAuditPlans = [
   },
   {
     auditArea: 'ios-physical-background-and-region',
-    sourceProofRef: 'test-results/tracking-physical-device-artifact-gate-proof/proof.json',
+    sourceProofRef: 'test-results/tracking-physical-device-evidence-review-proof/proof.json',
+    supportingProofRefs: [
+      'test-results/tracking-physical-device-artifact-gate-proof/proof.json',
+      'test-results/tracking-physical-device-evidence-review-proof/proof.json',
+    ],
     proofRoot: 'output/tracking-plan-proof/ios-region-monitoring',
     requiredProofTier: 'P4_PHYSICAL_DEVICE',
     requiredArtifacts: [

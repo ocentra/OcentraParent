@@ -29,6 +29,7 @@ export const TrackingProductReadinessClosureCoverageTagSchema = Schema.Literal(
   'child-runtime-artifact-gate',
   'child-runtime-android-emulator-readiness-bridge',
   'physical-device-artifact-gate',
+  'physical-device-evidence-review',
   'provider-delivery-artifact-gate',
   'provider-runtime-readiness-blocker',
   'escalation-runtime-readiness-blocker',
@@ -67,6 +68,7 @@ export const RequiredTrackingProductReadinessClosureCoverageTags = [
   'child-runtime-artifact-gate',
   'child-runtime-android-emulator-readiness-bridge',
   'physical-device-artifact-gate',
+  'physical-device-evidence-review',
   'provider-delivery-artifact-gate',
   'provider-runtime-readiness-blocker',
   'escalation-runtime-readiness-blocker',
@@ -147,6 +149,11 @@ export const TrackingProductReadinessClosureAggregateEvidenceSchema = withParser
     childRuntimeRequiredArtifactCount: Schema.Number.pipe(Schema.int(), Schema.positive()),
     childRuntimePresentArtifactCount: Schema.Number.pipe(Schema.int()),
     childRuntimeMissingArtifactCount: Schema.Number.pipe(Schema.int()),
+    physicalDeviceEvidenceReviewRowCount: Schema.Number.pipe(Schema.int(), Schema.positive()),
+    physicalDeviceEvidenceReviewArtifactMissingRowCount: Schema.Number.pipe(Schema.int()),
+    physicalDeviceEvidenceReviewContentReviewRequiredRowCount: Schema.Number.pipe(Schema.int()),
+    physicalDeviceEvidenceReviewContentAcceptedRowCount: Schema.Literal(0),
+    physicalDeviceEvidenceReviewProductReadyRowCount: Schema.Literal(0),
     retentionRuntimeRequiredArtifactCount: Schema.Number.pipe(Schema.int(), Schema.positive()),
     retentionRuntimePresentArtifactCount: Schema.Number.pipe(Schema.int()),
     retentionRuntimeMissingArtifactCount: Schema.Number.pipe(Schema.int()),
@@ -231,6 +238,17 @@ export const TrackingProductReadinessClosureAggregateEvidenceSchema = withParser
           evidence.childRuntimeRequiredArtifactCount ===
             evidence.childRuntimePresentArtifactCount + evidence.childRuntimeMissingArtifactCount ||
           'Aggregate closure evidence must classify every child-runtime artifact'
+      )
+    )
+    .pipe(
+      Schema.filter(
+        (evidence) =>
+          (evidence.physicalDeviceEvidenceReviewRowCount ===
+            evidence.physicalDeviceEvidenceReviewArtifactMissingRowCount +
+              evidence.physicalDeviceEvidenceReviewContentReviewRequiredRowCount &&
+            evidence.physicalDeviceEvidenceReviewContentAcceptedRowCount === 0 &&
+            evidence.physicalDeviceEvidenceReviewProductReadyRowCount === 0) ||
+          'Aggregate closure evidence must keep physical-device review unaccepted until content review passes'
       )
     )
     .pipe(

@@ -3,13 +3,13 @@
   "proofMode": "tracking-real-runtime-handoff-proof",
   "generatedAt": "2026-06-08T01:05:00.000Z",
   "branch": "codex/tracking-plan-full-continuation-a",
-  "baseCommitAtGeneration": "e2f9943cac45c65f5506953fc5d3517ed5bdcaed",
+  "baseCommitAtGeneration": "de7ac52cd2cea19c09ecdb89282d3dcffe1ca8fd",
   "requiredProofTier": "P4_REAL_RUNTIME_HANDOFF",
   "currentProofTier": "P3_LOCAL_DEV_MACHINE",
   "currentStatus": "manual_required",
   "sourceGateRefs": [
-    "test-results/tracking-physical-device-artifact-gate-proof/proof.json",
-    "test-results/tracking-physical-device-artifact-gate-proof/proof.json",
+    "test-results/tracking-physical-device-evidence-review-proof/proof.json",
+    "test-results/tracking-physical-device-evidence-review-proof/proof.json",
     "test-results/tracking-full-product-ui-runtime-preflight-proof/proof.json",
     "test-results/tracking-child-runtime-artifact-gate-proof/proof.json",
     "test-results/tracking-full-product-ui-runtime-artifact-gate-proof/proof.json",
@@ -47,6 +47,11 @@
     "childRuntimeRequiredArtifactCount": 10,
     "childRuntimePresentArtifactCount": 0,
     "childRuntimeMissingArtifactCount": 10,
+    "physicalDeviceEvidenceReviewRowCount": 2,
+    "physicalDeviceEvidenceReviewArtifactMissingRowCount": 2,
+    "physicalDeviceEvidenceReviewContentReviewRequiredRowCount": 0,
+    "physicalDeviceEvidenceReviewContentAcceptedRowCount": 0,
+    "physicalDeviceEvidenceReviewProductReadyRowCount": 0,
     "retentionRuntimeRequiredArtifactCount": 2,
     "retentionRuntimePresentArtifactCount": 1,
     "retentionRuntimeMissingArtifactCount": 1,
@@ -85,8 +90,8 @@
     "currentProofTier": "P3_LOCAL_DEV_MACHINE",
     "currentStatus": "manual_required",
     "sourceGateRefs": [
-      "test-results/tracking-physical-device-artifact-gate-proof/proof.json",
-      "test-results/tracking-physical-device-artifact-gate-proof/proof.json",
+      "test-results/tracking-physical-device-evidence-review-proof/proof.json",
+      "test-results/tracking-physical-device-evidence-review-proof/proof.json",
       "test-results/tracking-full-product-ui-runtime-preflight-proof/proof.json",
       "test-results/tracking-child-runtime-artifact-gate-proof/proof.json",
       "test-results/tracking-full-product-ui-runtime-artifact-gate-proof/proof.json",
@@ -124,6 +129,11 @@
       "childRuntimeRequiredArtifactCount": 10,
       "childRuntimePresentArtifactCount": 0,
       "childRuntimeMissingArtifactCount": 10,
+      "physicalDeviceEvidenceReviewRowCount": 2,
+      "physicalDeviceEvidenceReviewArtifactMissingRowCount": 2,
+      "physicalDeviceEvidenceReviewContentReviewRequiredRowCount": 0,
+      "physicalDeviceEvidenceReviewContentAcceptedRowCount": 0,
+      "physicalDeviceEvidenceReviewProductReadyRowCount": 0,
       "retentionRuntimeRequiredArtifactCount": 2,
       "retentionRuntimePresentArtifactCount": 1,
       "retentionRuntimeMissingArtifactCount": 1,
@@ -161,7 +171,7 @@
         "generatedAt": "2026-06-08T01:05:00.000Z",
         "handoffArea": "android-physical-background-and-geofence",
         "blockerId": "android-physical-background-proof-required",
-        "sourceProofRef": "test-results/tracking-physical-device-artifact-gate-proof/proof.json",
+        "sourceProofRef": "test-results/tracking-physical-device-evidence-review-proof/proof.json",
         "proofRoot": "output/tracking-plan-proof/android-background-geofence",
         "requiredProofTier": "P4_PHYSICAL_DEVICE",
         "currentProofTier": "P3_LOCAL_DEV_MACHINE",
@@ -202,11 +212,11 @@
           "Foreground-only emulator samples do not satisfy this handoff row"
         ],
         "claimAuditAcceptance": {
-          "sourceProofRef": "test-results/tracking-physical-device-artifact-gate-proof/proof.json",
+          "sourceProofRef": "test-results/tracking-physical-device-evidence-review-proof/proof.json",
           "acceptanceCriteria": [
             "Collect every required artifact under output/tracking-plan-proof/android-background-geofence before review.",
             "Keep required proof tier P4_PHYSICAL_DEVICE; local P3 artifacts cannot approve the claim.",
-            "Cite source proof test-results/tracking-physical-device-artifact-gate-proof/proof.json and all supporting proof refs in the final handoff.",
+            "Cite source proof test-results/tracking-physical-device-evidence-review-proof/proof.json and all supporting proof refs in the final handoff.",
             "Use real device or enrolled child runtime evidence with metadata, logs, screenshots, and transition or execution rows."
           ],
           "manualValidationCommands": [
@@ -221,9 +231,7 @@
             "Missing artifacts stay blocking until the P4_PHYSICAL_DEVICE evidence is produced outside local CI."
           ]
         },
-        "auditRefs": [
-          "tracking-physical-device-artifacts-android-audit"
-        ],
+        "auditRefs": [],
         "artifactSetComplete": false,
         "productClaimReady": false
       },
@@ -233,7 +241,7 @@
         "generatedAt": "2026-06-08T01:05:00.000Z",
         "handoffArea": "ios-physical-background-and-region",
         "blockerId": "ios-physical-region-proof-required",
-        "sourceProofRef": "test-results/tracking-physical-device-artifact-gate-proof/proof.json",
+        "sourceProofRef": "test-results/tracking-physical-device-evidence-review-proof/proof.json",
         "proofRoot": "output/tracking-plan-proof/ios-region-monitoring",
         "requiredProofTier": "P4_PHYSICAL_DEVICE",
         "currentProofTier": "P3_LOCAL_DEV_MACHINE",
@@ -274,11 +282,11 @@
           "Simulator privacy disclosure or package-preview proof does not satisfy this handoff row"
         ],
         "claimAuditAcceptance": {
-          "sourceProofRef": "test-results/tracking-physical-device-artifact-gate-proof/proof.json",
+          "sourceProofRef": "test-results/tracking-physical-device-evidence-review-proof/proof.json",
           "acceptanceCriteria": [
             "Collect every required artifact under output/tracking-plan-proof/ios-region-monitoring before review.",
             "Keep required proof tier P4_PHYSICAL_DEVICE; local P3 artifacts cannot approve the claim.",
-            "Cite source proof test-results/tracking-physical-device-artifact-gate-proof/proof.json and all supporting proof refs in the final handoff.",
+            "Cite source proof test-results/tracking-physical-device-evidence-review-proof/proof.json and all supporting proof refs in the final handoff.",
             "Use real device or enrolled child runtime evidence with metadata, logs, screenshots, and transition or execution rows."
           ],
           "manualValidationCommands": [
@@ -293,9 +301,7 @@
             "Missing artifacts stay blocking until the P4_PHYSICAL_DEVICE evidence is produced outside local CI."
           ]
         },
-        "auditRefs": [
-          "tracking-physical-device-artifacts-ios-audit"
-        ],
+        "auditRefs": [],
         "artifactSetComplete": false,
         "productClaimReady": false
       },
@@ -902,7 +908,7 @@
       "generatedAt": "2026-06-08T01:05:00.000Z",
       "handoffArea": "android-physical-background-and-geofence",
       "blockerId": "android-physical-background-proof-required",
-      "sourceProofRef": "test-results/tracking-physical-device-artifact-gate-proof/proof.json",
+      "sourceProofRef": "test-results/tracking-physical-device-evidence-review-proof/proof.json",
       "proofRoot": "output/tracking-plan-proof/android-background-geofence",
       "requiredProofTier": "P4_PHYSICAL_DEVICE",
       "currentProofTier": "P3_LOCAL_DEV_MACHINE",
@@ -943,11 +949,11 @@
         "Foreground-only emulator samples do not satisfy this handoff row"
       ],
       "claimAuditAcceptance": {
-        "sourceProofRef": "test-results/tracking-physical-device-artifact-gate-proof/proof.json",
+        "sourceProofRef": "test-results/tracking-physical-device-evidence-review-proof/proof.json",
         "acceptanceCriteria": [
           "Collect every required artifact under output/tracking-plan-proof/android-background-geofence before review.",
           "Keep required proof tier P4_PHYSICAL_DEVICE; local P3 artifacts cannot approve the claim.",
-          "Cite source proof test-results/tracking-physical-device-artifact-gate-proof/proof.json and all supporting proof refs in the final handoff.",
+          "Cite source proof test-results/tracking-physical-device-evidence-review-proof/proof.json and all supporting proof refs in the final handoff.",
           "Use real device or enrolled child runtime evidence with metadata, logs, screenshots, and transition or execution rows."
         ],
         "manualValidationCommands": [
@@ -962,9 +968,7 @@
           "Missing artifacts stay blocking until the P4_PHYSICAL_DEVICE evidence is produced outside local CI."
         ]
       },
-      "auditRefs": [
-        "tracking-physical-device-artifacts-android-audit"
-      ],
+      "auditRefs": [],
       "artifactSetComplete": false,
       "productClaimReady": false
     },
@@ -974,7 +978,7 @@
       "generatedAt": "2026-06-08T01:05:00.000Z",
       "handoffArea": "ios-physical-background-and-region",
       "blockerId": "ios-physical-region-proof-required",
-      "sourceProofRef": "test-results/tracking-physical-device-artifact-gate-proof/proof.json",
+      "sourceProofRef": "test-results/tracking-physical-device-evidence-review-proof/proof.json",
       "proofRoot": "output/tracking-plan-proof/ios-region-monitoring",
       "requiredProofTier": "P4_PHYSICAL_DEVICE",
       "currentProofTier": "P3_LOCAL_DEV_MACHINE",
@@ -1015,11 +1019,11 @@
         "Simulator privacy disclosure or package-preview proof does not satisfy this handoff row"
       ],
       "claimAuditAcceptance": {
-        "sourceProofRef": "test-results/tracking-physical-device-artifact-gate-proof/proof.json",
+        "sourceProofRef": "test-results/tracking-physical-device-evidence-review-proof/proof.json",
         "acceptanceCriteria": [
           "Collect every required artifact under output/tracking-plan-proof/ios-region-monitoring before review.",
           "Keep required proof tier P4_PHYSICAL_DEVICE; local P3 artifacts cannot approve the claim.",
-          "Cite source proof test-results/tracking-physical-device-artifact-gate-proof/proof.json and all supporting proof refs in the final handoff.",
+          "Cite source proof test-results/tracking-physical-device-evidence-review-proof/proof.json and all supporting proof refs in the final handoff.",
           "Use real device or enrolled child runtime evidence with metadata, logs, screenshots, and transition or execution rows."
         ],
         "manualValidationCommands": [
@@ -1034,9 +1038,7 @@
           "Missing artifacts stay blocking until the P4_PHYSICAL_DEVICE evidence is produced outside local CI."
         ]
       },
-      "auditRefs": [
-        "tracking-physical-device-artifacts-ios-audit"
-      ],
+      "auditRefs": [],
       "artifactSetComplete": false,
       "productClaimReady": false
     },

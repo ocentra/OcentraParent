@@ -102,6 +102,8 @@ Proof root: `output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-g
   `71-full-product-ui-runtime-preflight-proof.json`
 - Production worker runtime preflight proof:
   `72-production-worker-runtime-preflight-proof.json`
+- Physical-device evidence review proof:
+  `73-physical-device-evidence-review-proof.json`
 - Android system geofence blocker proof:
   `44-android-system-geofence-blocker-proof.json`
   - Classifies the local emulator geofence evidence separately from missing
@@ -141,6 +143,11 @@ Proof root: `output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-g
   authority manual-required proof, physical-device artifact gate, and
   provider-delivery artifact gate:
   `46-product-readiness-closure-proof.json`
+- Refreshed tracking product-readiness closure proof now also consumes the
+  physical-device evidence review gate:
+  `73-physical-device-evidence-review-proof.json`. The aggregate closure counts
+  keep Android/iOS physical artifact content unaccepted and product-ready false
+  even if a future artifact set becomes file-complete before reviewer approval.
 - Refreshed tracking product-readiness closure proof also consumes the
   notification preference status handoff gate:
   `54-notification-preference-status-handoff-proof.json`
@@ -178,6 +185,9 @@ Proof root: `output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-g
   runbook carries source-derived acceptance criteria, claim-audit validation
   commands, and claim-approval-false artifact notes without introducing a
   duplicate handoff source of truth.
+- Refreshed real-runtime handoff proof now routes Android/iOS physical rows
+  through the physical-device evidence review proof instead of treating artifact
+  file presence as sufficient content approval.
 - Refreshed tracking product-readiness closure proof also consumes the
   claim-audit proof, which keeps Android/iOS/manual-desktop, child-runtime,
   full-product UI, authority, provider, retention-runtime, production-worker,

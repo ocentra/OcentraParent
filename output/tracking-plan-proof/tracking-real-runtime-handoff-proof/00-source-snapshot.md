@@ -1,7 +1,7 @@
 # Tracking Real Runtime Handoff Source Snapshot
 
 - generatedAt: 2026-06-08T01:05:00.000Z
-- commit: e2f9943cac45c65f5506953fc5d3517ed5bdcaed
+- commit: de7ac52cd2cea19c09ecdb89282d3dcffe1ca8fd
 - requiredProofTier: P4_REAL_RUNTIME_HANDOFF
 - currentProofTier: P3_LOCAL_DEV_MACHINE
 - status: manual_required
@@ -27,6 +27,10 @@
 - childRuntimeRequiredArtifactCount: 10
 - childRuntimePresentArtifactCount: 0
 - childRuntimeMissingArtifactCount: 10
+- physicalDeviceEvidenceReviewRowCount: 2
+- physicalDeviceEvidenceReviewArtifactMissingRowCount: 2
+- physicalDeviceEvidenceReviewContentReviewRequiredRowCount: 0
+- physicalDeviceEvidenceReviewContentAcceptedRowCount: 0
 - retentionRuntimeRequiredArtifactCount: 2
 - retentionRuntimePresentArtifactCount: 1
 - retentionRuntimeMissingArtifactCount: 1
