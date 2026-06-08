@@ -290,7 +290,10 @@ expose location or device-status features. Parents expect this category.
   webhook receipt ingestion runtime, credentials, adapter dispatch,
   retry/quiet-hours runtime, parent notification UI runtime, production durable
   outbox storage, child-device delivery, physical-device proof, authority, and
-  product-ready tracking until the real provider-runtime artifacts exist.
+  product-ready tracking until the real provider-runtime artifacts exist. The
+  aggregate now preserves the provider delivery runtime artifact inventory from
+  the artifact gate, including required, present, and missing artifact
+  refs/counts with zero provider runtime artifacts present.
 - WP27/WP33 escalation-runtime readiness blocker proof now exists through
   `node scripts/test/tracking-escalation-runtime-readiness-blocker-proof.mjs`.
   It consumes the escalation readiness proof and provider-runtime blocker proof,

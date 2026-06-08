@@ -76,7 +76,10 @@ function buildProof(readModel, sourceProofRefs) {
       providerNotificationRows: readModel.providerNotificationRows,
       receiptBoundaryRows: readModel.receiptBoundaryRows,
       localOutboxReadinessRows: readModel.localOutboxReadinessRows,
+      requiredProviderRuntimeArtifactCount: readModel.requiredProviderRuntimeArtifactCount,
+      presentProviderRuntimeArtifactCount: readModel.presentProviderRuntimeArtifactCount,
       missingProviderRuntimeArtifactCount: readModel.missingProviderRuntimeArtifactCount,
+      providerRuntimeArtifactSetComplete: readModel.providerRuntimeArtifactSetComplete,
       blockerCount: readModel.blockers.length,
       productReadyBlockers: readModel.blockers.filter((row) => row.blockerId === 'product-ready-tracking').length,
     },
@@ -96,7 +99,19 @@ function assertProof(proof) {
   assert.equal(proof.summary.providerNotificationRows > 0, true, 'expected provider notification rows');
   assert.equal(proof.summary.receiptBoundaryRows > 0, true, 'expected receipt boundary rows');
   assert.equal(proof.summary.localOutboxReadinessRows > 0, true, 'expected local outbox readiness rows');
-  assert.equal(proof.summary.missingProviderRuntimeArtifactCount > 0, true, 'expected missing runtime artifacts');
+  assert.equal(proof.summary.requiredProviderRuntimeArtifactCount, 11, 'expected every provider runtime artifact');
+  assert.equal(proof.summary.presentProviderRuntimeArtifactCount, 0, 'expected no present provider runtime artifacts');
+  assert.equal(proof.summary.missingProviderRuntimeArtifactCount, 11, 'expected missing runtime artifacts');
+  assert.equal(
+    proof.summary.providerRuntimeArtifactSetComplete,
+    false,
+    'expected incomplete provider runtime artifacts'
+  );
+  assert.deepEqual(
+    proof.readModel.requiredProviderRuntimeArtifactRefs,
+    proof.readModel.missingProviderRuntimeArtifactRefs,
+    'all required provider runtime artifacts should still be missing'
+  );
   assert.equal(proof.summary.blockerCount, 12, 'expected every provider runtime blocker');
   assert.equal(proof.summary.productReadyBlockers, 1, 'expected product-ready blocker row');
   assert.equal(
@@ -119,7 +134,10 @@ async function writeArtifacts(proof) {
       `- generatedAt: ${timestamp}`,
       `- commit: ${proof.commit}`,
       `- status: ${proof.status}`,
+      `- requiredProviderRuntimeArtifactCount: ${proof.summary.requiredProviderRuntimeArtifactCount}`,
+      `- presentProviderRuntimeArtifactCount: ${proof.summary.presentProviderRuntimeArtifactCount}`,
       `- missingProviderRuntimeArtifactCount: ${proof.summary.missingProviderRuntimeArtifactCount}`,
+      `- missingProviderRuntimeArtifactRefs: ${proof.readModel.missingProviderRuntimeArtifactRefs.join(', ')}`,
       '',
     ].join('\n'),
     'utf8'

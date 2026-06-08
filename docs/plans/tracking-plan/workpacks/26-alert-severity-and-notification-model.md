@@ -86,6 +86,11 @@ credentials, adapter dispatch, retry/quiet-hours runtime, parent notification
 UI runtime, production durable outbox storage, child-device delivery,
 physical-device behavior, authority, and product-ready notification behavior
 unclaimed until those artifacts exist.
+Tracking provider-runtime readiness blocker proof now consumes that artifact
+gate plus provider notification, receipt-boundary, and local outbox readiness
+proofs, preserving exact required, present, and missing provider runtime
+artifact refs while keeping zero provider runtime artifacts present and all
+provider/product claims false.
 Tracking notification preference preflight proof now derives
 parent-preference-required, source-manual-required, and source-unavailable rows
 from those provider-notification proof rows through

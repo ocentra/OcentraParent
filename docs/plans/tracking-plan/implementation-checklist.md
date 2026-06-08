@@ -843,8 +843,9 @@ Every implementation workpack must update, or explicitly justify not updating:
       the hosted retention settings local write-result screenshot, physical-device
       artifact gate proof, refreshed
       product-readiness closure proof, child-runtime artifact gate proof,
-      provider-delivery artifact gate proof, production durable workers
-      readiness blocker proof, and remaining Android/iOS physical-device
+      provider-delivery artifact gate proof, provider-runtime blocker proof with
+      exact required/present/missing provider artifact refs, production durable
+      workers readiness blocker proof, and remaining Android/iOS physical-device
       behavior, authority, actual child-device delivery/runtime execution, full
       child/parent UI beyond the hosted parent route, provider-delivery runtime,
       and production gaps.

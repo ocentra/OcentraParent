@@ -9,7 +9,10 @@ import {
 import { TrackingLocationPolicyReadModelSchema, TrackingPolicySchemaVersion } from '../src/tracking-location-policy';
 import { buildTrackingNotificationLocalOutboxReadinessReadModel } from '../src/tracking-notification-local-outbox-readiness-proof';
 import { buildTrackingNotificationReceiptBoundaryReadModel } from '../src/tracking-notification-receipt-boundary-proof';
-import { buildTrackingProviderDeliveryArtifactGateProof } from '../src/tracking-provider-delivery-artifact-gate-proof';
+import {
+  RequiredTrackingProviderDeliveryArtifactPlan,
+  buildTrackingProviderDeliveryArtifactGateProof,
+} from '../src/tracking-provider-delivery-artifact-gate-proof';
 import { buildTrackingProviderNotificationProofReadModel } from '../src/tracking-provider-notification-proof';
 
 const generatedAt = '2026-06-07T20:10:00.000Z';
@@ -33,7 +36,19 @@ describe('tracking provider runtime readiness blocker proof', () => {
     expect(proof.providerNotificationRows).toBeGreaterThan(0);
     expect(proof.receiptBoundaryRows).toBeGreaterThan(0);
     expect(proof.localOutboxReadinessRows).toBeGreaterThan(0);
+    expect(proof.requiredProviderRuntimeArtifactCount).toBe(
+      RequiredTrackingProviderDeliveryArtifactPlan.requiredArtifacts.length
+    );
+    expect(proof.presentProviderRuntimeArtifactCount).toBe(0);
     expect(proof.missingProviderRuntimeArtifactCount).toBeGreaterThan(0);
+    expect(proof.requiredProviderRuntimeArtifactRefs).toEqual([
+      ...RequiredTrackingProviderDeliveryArtifactPlan.requiredArtifacts,
+    ]);
+    expect(proof.presentProviderRuntimeArtifactRefs).toEqual([]);
+    expect(proof.missingProviderRuntimeArtifactRefs).toEqual([
+      ...RequiredTrackingProviderDeliveryArtifactPlan.requiredArtifacts,
+    ]);
+    expect(proof.providerRuntimeArtifactSetComplete).toBe(false);
     expect(proof.blockers.every((row) => row.status === 'manual-required')).toBe(true);
     expect(proof.productClaims.providerDeliveryRuntimeClaimed).toBe(false);
     expect(proof.productClaims.webhookReceiptIngestionRuntimeClaimed).toBe(false);
