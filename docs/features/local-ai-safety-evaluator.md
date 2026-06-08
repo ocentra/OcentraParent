@@ -114,6 +114,15 @@ claim needs proof, not slogans.
   service-event metadata proof only; it does not execute physical LAN sockets,
   provider gossip, production models, policy authority, enforcement, or raw
   screenshot transfer.
+- `scripts/test/lan-ai-provider-heartbeat-runtime-proof.mjs` now proves the
+  Rust service LAN AI provider route uses `LanPairingRuntime` heartbeat
+  reachability before completing screen-derived AI jobs. Stale heartbeat
+  degrades provider routing, offline heartbeat makes the provider unavailable,
+  job events remain degraded instead of completed, and provider-selection rows
+  stop selecting stale-heartbeat providers. This is service runtime state
+  proof only; it does not execute physical LAN sockets, mDNS/multicast provider
+  gossip, production models, policy authority, enforcement, or raw screenshot
+  transfer.
 - `HouseholdAiProviderClaimLeaseProofSchema` and
   `scripts/test/household-ai-provider-claim-lease-proof.mjs` now prove the
   household AI provider claim/lease lifecycle contract over a screen-derived

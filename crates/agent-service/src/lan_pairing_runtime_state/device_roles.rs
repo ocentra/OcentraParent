@@ -37,6 +37,7 @@ impl LanPairingRuntime {
         self.device_role_read_model().lan_ai_provider_state
             == DeviceRuntimeAiProviderState::Available
             && !self.lan_ai_provider_capabilities.is_empty()
+            && self.lan_ai_provider_heartbeat_allows_routing()
             && !self.lan_ai_provider_busy()
     }
 

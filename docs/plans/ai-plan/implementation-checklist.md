@@ -23,6 +23,7 @@ consumes the same results.
 | Household mesh event bridge                       | P2 runtime proof         | `output/ai-plan-proof/household-mesh-event-bridge-proof/proof-summary.json`                                                            | Proves selected local events become typed LAN messages, incoming LAN messages authenticate/authorize before local republish, remote peers cannot publish directly into another runtime's bus, and private/raw screen payloads are rejected. Physical LAN sockets, provider gossip, route selection over live devices, and live lease expiry/dead-letter behavior remain planned.                                                                                                                                                                                                                                                                                        |
 | Household AI provider advertisement heartbeat     | P2 contract proved       | `output/ai-plan-proof/household-ai-provider-advertisement-heartbeat-proof/proof-summary.json`                                          | Proves fresh trusted local providers with `screen-ai-analysis` capability can be represented as eligible while stale, offline, revoked, and unsupported provider advertisements are rejected with reason refs. It rejects raw screenshot and remote/API advertisement overclaims. Physical household LAN execution, provider gossip runtime, model execution/quality, policy authority, and enforcement remain unclaimed.                                                                                                                                                                                                                                               |
 | LAN AI service route metadata                     | P2 service proof         | `output/ai-plan-proof/lan-ai-household-route-metadata-proof/proof-summary.json`                                                        | Proves the Rust `AgentLanAiJobSubmit` service path attaches selected provider peer, route reason, claim id, lease id, child-agent-only policy authority, provider-policy-publish=false, raw-screen-transfer=false, and child-result-validation=true after normal LAN authorization. It does not execute physical household LAN sockets, provider gossip, production models, policy authority, enforcement, or raw screenshot transfer.                                                                                                                                                                                                                                  |
+| LAN AI provider heartbeat runtime                 | P2 service proof         | `output/ai-plan-proof/lan-ai-provider-heartbeat-runtime-proof/proof-summary.json`                                                      | Proves `LanPairingRuntime` owns provider heartbeat reachability state and that stale/offline heartbeat degrades or disables LAN AI job routing plus provider-selection rows without raw transfer. It does not execute physical LAN sockets, mDNS/multicast provider gossip, production models, policy authority, enforcement, or raw screenshot transfer.                                                                                                                                                                                                                                                                                                               |
 | Household LAN AI provider claim lease             | P2 contract proved       | `output/ai-plan-proof/household-ai-provider-claim-lease-proof/proof-summary.json`                                                      | Proves one lease per job, duplicate claim rejection, lease expiry requeue, max-attempt dead-letter, and idempotent duplicate message behavior over the parent-domain contract. It does not execute over physical household LAN, execute a model, prove model quality, grant provider policy authority, dispatch enforcement, transfer raw screenshots, or use remote/API AI. Package export remains deferred while another lane owns `packages/parent-domain/package.json`.                                                                                                                                                                                             |
 | Child-agent AI policy authority proof             | P2 authority proof       | `output/ai-plan-proof/child-agent-ai-policy-authority-proof/proof-summary.json`                                                        | Proves provider output is worker-only, child agent validates the local AI result, child-owned policy decision cites the accepted result, child-agent action/read-model/deletion authority remains local, and provider-authored policy/enforcement payloads are rejected. It does not execute a physical household LAN provider, prove model quality, render portal UI, or dispatch final enforcement.                                                                                                                                                                                                                                                                   |
 | Mobile dormant AI provider proof                  | P2 route proof           | `output/ai-plan-proof/mobile-dormant-ai-provider-proof/proof-summary.json`                                                             | Proves mobile provider remains dormant while trusted desktop/laptop capacity exists, rejects low battery/thermal or disabled fallback policy, and becomes eligible only for explicit light fallback work. Physical household LAN provider discovery and production model execution remain planned.                                                                                                                                                                                                                                                                                                                                                                      |
@@ -107,6 +108,12 @@ consumes the same results.
       claim/lease refs, child-agent-only authority, no provider policy publish,
       no raw screen transfer, and child-result-validation fields after normal
       LAN authorization.
+- [x] LAN AI provider heartbeat runtime implemented in `LanPairingRuntime` so
+      stale provider heartbeat degrades job routing, offline heartbeat marks the
+      provider unavailable, and the provider-selection read model does not
+      select stale-heartbeat providers. Physical LAN sockets, multicast/mDNS
+      gossip, model execution, policy authority, enforcement, and raw screen
+      transfer remain unclaimed.
 - [x] Household AI provider claim/lease lifecycle contract proves one active
       lease per job, duplicate claim rejection, lease expiry requeue,
       max-attempt dead-letter, and idempotent duplicate message behavior without
@@ -172,6 +179,8 @@ consumes the same results.
       production retry lifecycle remains follow-up work.
 - [x] Provider result validation implemented and proved before policy
       consumption.
+- [x] Provider heartbeat reachability is enforced before service job completion
+      and provider-selection read-model selection.
 - [x] Runtime status parent-facing read-model proof implemented; production
       service and portal rendering remain follow-up runtime work.
 - [x] AI result journal and SQLite ingest proof implemented without production
@@ -287,6 +296,7 @@ consumes the same results.
       without raw retention, remote/API AI, policy authority, or enforcement.
 - [x] Provider route/status tests.
 - [x] LAN AI service route metadata tests.
+- [x] LAN AI provider heartbeat runtime tests.
 - [x] Model output parser tests exist in
       `packages/parent-domain/tests/screen-ai-model-output-parser-proof.test.ts`
       and `scripts/test/screen-ai-model-output-parser-proof.mjs`, with proof
@@ -429,6 +439,9 @@ consumes the same results.
 - [x] LAN AI service route metadata proof run:
       `node --check scripts/test/lan-ai-household-route-metadata-proof.mjs` and
       `node scripts/test/lan-ai-household-route-metadata-proof.mjs`.
+- [x] LAN AI provider heartbeat runtime proof run:
+      `node --check scripts/test/lan-ai-provider-heartbeat-runtime-proof.mjs`
+      and `node scripts/test/lan-ai-provider-heartbeat-runtime-proof.mjs`.
 - [x] Household AI provider result validation proof run:
       `node --check scripts/test/screen-ai-household-mesh-proof.mjs` and
       `node scripts/test/screen-ai-household-mesh-proof.mjs`.

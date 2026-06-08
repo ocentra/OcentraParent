@@ -271,6 +271,14 @@ proofs into physical LAN product execution.
       semantics on the Rust `AgentLanAiJobSubmit` service event without claiming
       physical LAN sockets, provider gossip, production model quality,
       enforcement, or raw screenshot transfer.
+- [x] LAN AI provider heartbeat runtime proof records service-owned stale/
+      offline heartbeat handling before screen-derived provider selection:
+      stale heartbeat degrades routing, offline heartbeat makes the provider
+      unavailable, job events stay degraded instead of completed, and raw screen
+      transfer stays false. It does not claim physical LAN sockets, mDNS/
+      multicast provider gossip, production model execution, policy authority,
+      enforcement, or raw screenshot transfer:
+      `output/ai-plan-proof/lan-ai-provider-heartbeat-runtime-proof/proof-summary.json`.
 - [x] Final product path requires household route selection, mesh bridge,
       no-raw-transfer, provider result validation, child-agent authority, mobile
       dormant/fallback, and provider advertisement/claim/lease artifacts before
@@ -429,6 +437,9 @@ proofs into physical LAN product execution.
 - [x] LAN AI service route metadata proof run:
       `node --check scripts/test/lan-ai-household-route-metadata-proof.mjs` and
       `node scripts/test/lan-ai-household-route-metadata-proof.mjs`.
+- [x] LAN AI provider heartbeat runtime proof run:
+      `node --check scripts/test/lan-ai-provider-heartbeat-runtime-proof.mjs`
+      and `node scripts/test/lan-ai-provider-heartbeat-runtime-proof.mjs`.
 - [x] No-raw-screen-transfer mesh proof run:
       `node --check scripts/test/screen-ai-household-mesh-proof.mjs` and
       `node scripts/test/screen-ai-household-mesh-proof.mjs`.

@@ -14,11 +14,13 @@ use crate::{
 };
 
 mod device_roles;
+mod provider_heartbeat;
 mod provider_routing;
 use device_roles::{
     default_device_role_read_model, device_role_read_model_from_env,
     lan_ai_provider_capabilities_from_env, non_empty_env,
 };
+pub(crate) use provider_heartbeat::LanAiProviderHeartbeatState;
 
 impl LanPairingRuntime {
     pub fn empty() -> Self {
@@ -26,6 +28,7 @@ impl LanPairingRuntime {
             registry: Arc::new(Mutex::new(TrustedDeviceRegistry::empty())),
             challenges: Arc::new(Mutex::new(Vec::new())),
             controller_lease: Arc::new(Mutex::new(None)),
+            lan_ai_provider_heartbeat: Arc::new(Mutex::new(None)),
             persistence: LanPairingRegistryPersistence::InMemory,
             local_child_device_id: None,
             device_roles: default_device_role_read_model(None),
@@ -58,6 +61,7 @@ impl LanPairingRuntime {
             registry: Arc::new(Mutex::new(TrustedDeviceRegistry::empty())),
             challenges: Arc::new(Mutex::new(Vec::new())),
             controller_lease: Arc::new(Mutex::new(None)),
+            lan_ai_provider_heartbeat: Arc::new(Mutex::new(None)),
             persistence: LanPairingRegistryPersistence::InMemory,
             local_child_device_id,
             device_roles: device_role_read_model_from_env(),
@@ -73,6 +77,7 @@ impl LanPairingRuntime {
             registry: Arc::new(Mutex::new(TrustedDeviceRegistry::load_json(path))),
             challenges: Arc::new(Mutex::new(Vec::new())),
             controller_lease: Arc::new(Mutex::new(None)),
+            lan_ai_provider_heartbeat: Arc::new(Mutex::new(None)),
             persistence: LanPairingRegistryPersistence::LocalJsonRegistry(path.to_path_buf()),
             local_child_device_id,
             device_roles: device_role_read_model_from_env(),
