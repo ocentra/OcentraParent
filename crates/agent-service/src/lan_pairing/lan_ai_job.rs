@@ -6,6 +6,7 @@ use ocentra_parent_agent_protocol::{
 use crate::{
     event_builder::build_event,
     fields::fields_from_pairs,
+    lan_pairing::lan_ai_route_metadata::lan_ai_household_route_fields,
     lan_pairing::{
         authority::{validate_authorized_lan_ai_job, validate_observer_read_intent},
         validate_command_target, LanPairingRuntime,
@@ -177,6 +178,12 @@ fn lan_ai_job_completed_event(
         constants::field::LOCAL_AI_CAPABILITY_FLAGS.to_string(),
         LogFieldValue::String(requested_capability.to_string()),
     );
+    payload.extend(lan_ai_household_route_fields(
+        runtime,
+        &command,
+        intent,
+        requested_capability,
+    ));
     payload.extend(lan_ai_job_fields(
         &command,
         intent,

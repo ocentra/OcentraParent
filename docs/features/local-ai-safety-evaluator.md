@@ -106,6 +106,14 @@ claim needs proof, not slogans.
   providers are rejected; mobile providers stay dormant while desktop/laptop
   capacity exists; and mobile is eligible only for explicit light fallback when
   battery, thermal, and fallback policy allow it.
+- `scripts/test/lan-ai-household-route-metadata-proof.mjs` now proves the Rust
+  service `AgentLanAiJobSubmit` path emits household route metadata after the
+  normal LAN authorization checks: selected provider peer, route reason, claim
+  id, lease id, child-agent-only policy authority, no provider policy publish,
+  no raw screen transfer, and child-agent result validation. This is
+  service-event metadata proof only; it does not execute physical LAN sockets,
+  provider gossip, production models, policy authority, enforcement, or raw
+  screenshot transfer.
 - `HouseholdAiProviderClaimLeaseProofSchema` and
   `scripts/test/household-ai-provider-claim-lease-proof.mjs` now prove the
   household AI provider claim/lease lifecycle contract over a screen-derived
@@ -558,6 +566,10 @@ validation against production external evidence variants.
       degraded/unsupported rejection, and custody mismatch rejection without
       claiming physical LAN routing, production model execution, portal UI,
       policy authority, or enforcement.
+- [x] LAN AI service job events emit household route metadata, claim/lease ids,
+      child-agent-only authority, no raw screen transfer, and provider
+      policy-publish rejection fields after real service authorization tests,
+      without claiming physical LAN/gossip/model/enforcement execution.
 - [x] Household AI provider claim/lease lifecycle proof validates one active
       lease per job, duplicate claim rejection, lease expiry requeue,
       max-attempt dead-letter, and idempotent duplicate message handling without

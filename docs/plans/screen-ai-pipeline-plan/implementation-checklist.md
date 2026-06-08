@@ -141,6 +141,10 @@ proofs into physical LAN product execution.
       paths.
 - [x] Household provider route, when used, starts from child-owned AI work,
       grants one lease, and returns only a provider result for child validation.
+- [x] LAN AI service job events surface selected provider, route reason,
+      claim/lease ids, child-agent-only authority, no provider policy publish,
+      no raw screen transfer, and child-validation metadata after normal LAN
+      authorization.
 - [x] Local text model route proof over typed context.
 - [x] Deterministic route proof where structured evidence is enough.
 - [x] Low confidence degrades safely.
@@ -263,6 +267,10 @@ proofs into physical LAN product execution.
       claim/lease lifecycle, no-raw-transfer, provider result validation, mesh
       bridge mediation, child-agent-only policy authority, mobile dormant/
       fallback behavior, and custody artifacts.
+- [x] LAN AI service route metadata proof records the same worker-only route
+      semantics on the Rust `AgentLanAiJobSubmit` service event without claiming
+      physical LAN sockets, provider gossip, production model quality,
+      enforcement, or raw screenshot transfer.
 - [x] Final product path requires household route selection, mesh bridge,
       no-raw-transfer, provider result validation, child-agent authority, mobile
       dormant/fallback, and provider advertisement/claim/lease artifacts before
@@ -418,6 +426,9 @@ proofs into physical LAN product execution.
 - [x] Household mesh screen AI route proof run:
       `node --check scripts/test/screen-ai-household-mesh-proof.mjs` and
       `node scripts/test/screen-ai-household-mesh-proof.mjs`.
+- [x] LAN AI service route metadata proof run:
+      `node --check scripts/test/lan-ai-household-route-metadata-proof.mjs` and
+      `node scripts/test/lan-ai-household-route-metadata-proof.mjs`.
 - [x] No-raw-screen-transfer mesh proof run:
       `node --check scripts/test/screen-ai-household-mesh-proof.mjs` and
       `node scripts/test/screen-ai-household-mesh-proof.mjs`.

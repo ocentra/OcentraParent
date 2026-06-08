@@ -12,6 +12,9 @@ mod device_roles_tests;
 pub(crate) mod lan_ai_job;
 #[cfg(test)]
 mod lan_ai_job_tests;
+pub(crate) mod lan_ai_route_metadata;
+#[cfg(test)]
+mod lan_ai_route_metadata_tests;
 
 use ocentra_parent_agent_core::TrustedDeviceRegistry;
 use ocentra_parent_agent_protocol::{
