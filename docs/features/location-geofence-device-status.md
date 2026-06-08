@@ -261,6 +261,12 @@ expose location or device-status features. Parents expect this category.
   physical geofence transition/dwell counters and Android system geofence
   delivery remain zero/unclaimed; authority enrollment, production workers, and
   product-ready Android tracking remain unclaimed.
+- WP10 Android status proof now consumes the Samsung S9 physical-device runtime
+  battery/connectivity/status artifacts through
+  `node scripts/test/tracking-android-status-proof.mjs`. The WP10 row is closed
+  only for emulator plus physical battery/connectivity/status evidence; offline
+  radio behavior, physical geofence behavior, production upload workers, and
+  product-ready Android tracking remain unclaimed.
 - WP08/WP09/WP30/WP33 local platform proof batch now exists through
   `node scripts/test/tracking-local-platform-proof-batch.mjs`. It aggregates
   Android emulator runtime evidence, Samsung S9 Android physical package/
@@ -1090,8 +1096,9 @@ accessibility beyond the hosted parent route are proved.
       authority runtime artifacts; Android system geofencing/dwell and
       physical-device proof remain pending.
 - [x] Android emulator package launch, foreground-service scaffold, battery,
-      and connectivity proof. This is not foreground location or geofence
-      proof.
+      connectivity, and Samsung S9 physical status proof. This is not
+      foreground location, offline radio behavior, physical geofence behavior,
+      production upload worker, or product-ready Android proof.
 - [x] iOS simulator package build/install/launch proof routing. This is not
       Core Location, entitlement, background region, notification, physical-device,
       or child-agent parity proof.

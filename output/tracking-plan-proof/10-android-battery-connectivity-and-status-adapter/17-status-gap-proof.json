@@ -79,6 +79,33 @@
     "physicalDeviceProofClaimed": false,
     "productionUploadWorkerClaimed": false
   },
+  "physicalStatus": {
+    "rowId": "tracking-android-status-physical-device-status",
+    "caseKind": "physical-status-observed",
+    "source": "physical-device-battery-connectivity-dump",
+    "claimState": "physical-status-observed",
+    "observedAt": "2026-06-05T22:36:00.000Z",
+    "batteryPercent": 83,
+    "charging": false,
+    "lowPowerMode": false,
+    "appProcessRunning": true,
+    "appRestartObserved": false,
+    "pendingUploadCount": 0,
+    "evidenceRefs": [
+      "test-results/tracking-android-physical-device-runtime-proof/07-battery.txt",
+      "test-results/tracking-android-physical-device-runtime-proof/08-connectivity.txt"
+    ],
+    "auditRefs": [
+      "tracking-android-status-audit-physical-status-observed"
+    ],
+    "parentVisibleStatusToken": "tracking-android-status-physical-battery-connectivity-observed",
+    "manualRequiredReasonRefs": [],
+    "foregroundLocationClaimed": false,
+    "backgroundLocationRuntimeClaimed": false,
+    "geofenceRuntimeClaimed": false,
+    "physicalDeviceProofClaimed": false,
+    "productionUploadWorkerClaimed": false
+  },
   "manualRequired": {
     "rowId": "tracking-android-status-manual-required",
     "caseKind": "manual-required",

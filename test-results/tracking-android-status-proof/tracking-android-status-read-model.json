@@ -14,6 +14,7 @@
   "sourceProofRefs": [
     "output/tracking-plan-proof/10-android-battery-connectivity-and-status-adapter/04-device-status-proof.json",
     "test-results/tracking-plan-android-emulator-proof/proof.json",
+    "test-results/tracking-android-physical-device-runtime-proof/proof.json",
     "docs/plans/tracking-plan/workpacks/10-android-battery-connectivity-and-status-adapter.md"
   ],
   "runtimeEvidenceRefs": [
@@ -30,6 +31,16 @@
     {
       "evidenceReferenceId": "android-query-store-pending-upload-count",
       "kind": "query-store-summary",
+      "observedAt": "2026-06-05T22:36:00.000Z"
+    },
+    {
+      "evidenceReferenceId": "test-results/tracking-android-physical-device-runtime-proof/07-battery.txt",
+      "kind": "activity-event",
+      "observedAt": "2026-06-05T22:36:00.000Z"
+    },
+    {
+      "evidenceReferenceId": "test-results/tracking-android-physical-device-runtime-proof/08-connectivity.txt",
+      "kind": "activity-event",
       "observedAt": "2026-06-05T22:36:00.000Z"
     },
     {
@@ -118,6 +129,33 @@
       "productionUploadWorkerClaimed": false
     },
     {
+      "rowId": "tracking-android-status-physical-device-status",
+      "caseKind": "physical-status-observed",
+      "source": "physical-device-battery-connectivity-dump",
+      "claimState": "physical-status-observed",
+      "observedAt": "2026-06-05T22:36:00.000Z",
+      "batteryPercent": 83,
+      "charging": false,
+      "lowPowerMode": false,
+      "appProcessRunning": true,
+      "appRestartObserved": false,
+      "pendingUploadCount": 0,
+      "evidenceRefs": [
+        "test-results/tracking-android-physical-device-runtime-proof/07-battery.txt",
+        "test-results/tracking-android-physical-device-runtime-proof/08-connectivity.txt"
+      ],
+      "auditRefs": [
+        "tracking-android-status-audit-physical-status-observed"
+      ],
+      "parentVisibleStatusToken": "tracking-android-status-physical-battery-connectivity-observed",
+      "manualRequiredReasonRefs": [],
+      "foregroundLocationClaimed": false,
+      "backgroundLocationRuntimeClaimed": false,
+      "geofenceRuntimeClaimed": false,
+      "physicalDeviceProofClaimed": false,
+      "productionUploadWorkerClaimed": false
+    },
+    {
       "rowId": "tracking-android-status-manual-required",
       "caseKind": "manual-required",
       "source": "manual-platform-plan",
@@ -151,17 +189,20 @@
   "lowPowerDegradedCount": 1,
   "appRestartObservedCount": 1,
   "pendingUploadAuditableCount": 1,
+  "physicalStatusObservedCount": 1,
   "manualRequiredCount": 1,
   "proofNonClaims": [
     "no-foreground-location-sample",
     "no-background-location-runtime",
     "no-geofence-transition-runtime",
-    "no-physical-device-proof",
+    "no-physical-device-behavior-proof",
+    "no-offline-radio-behavior-proof",
     "no-notification-delivery",
     "no-device-owner-authority",
     "no-production-upload-worker",
     "no-product-ready-android-tracking"
   ],
+  "physicalDeviceStatusEvidenceObserved": true,
   "foregroundLocationClaimed": false,
   "backgroundLocationRuntimeClaimed": false,
   "geofenceRuntimeClaimed": false,

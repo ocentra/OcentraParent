@@ -1,180 +1,146 @@
 {
-  "schemaVersion": 1,
-  "checkedAt": "2026-06-08T16:14:44.445Z",
-  "commit": "ca748d0c1f68def1d56f4b328bd1872951a81698",
-  "requiredProofTier": "P3_LOCAL_DEV_MACHINE",
-  "currentProofTier": "P3_LOCAL_DEV_MACHINE",
-  "currentStatus": "emulator_scaffold_and_status_gap_bridge_observed",
-  "packageLaunchObserved": true,
-  "foregroundServiceObserved": true,
-  "foregroundNotification": "Notification(channel=ocentra_parent_agent shortcut=null contentView=null vibrate=null sound=null defaults=0x0 flags=0x42 color=0x00000000 vis=PRIVATE)",
-  "battery": {
-    "Current_Battery_Service_state": "",
-    "AC_powered": "true",
-    "USB_powered": "false",
-    "Wireless_powered": "false",
-    "Max_charging_current": "5000000",
-    "Max_charging_voltage": "5000000",
-    "Charge_counter": "10000",
-    "status": "2",
-    "health": "2",
-    "present": "true",
-    "level": "100",
-    "scale": "100",
-    "voltage": "5000",
-    "temperature": "250",
-    "technology": "Li-ion"
-  },
-  "connectivitySummary": [
-    "Active default network: 102",
-    "  NetworkAgentInfo{network{101}  handle{437197393933}  ni{MOBILE[LTE] CONNECTED extra: epc.tmobile.com} Score(50 ; KeepConnected : 0 ; Policies : EVER_VALIDATED_NOT_AVOIDED_WHEN_BAD&IS_VALIDATED)  created everValidated lastValidated  lp{{InterfaceName: eth0 LinkAddresses: [ 10.0.2.15/24 ] DnsAddresses: [ /10.0.2.3 ] Domains: null MTU: 1500 TcpBufferSizes: 2097152,6291456,16777216,512000,2097152,8388608 Routes: [ 0.0.0.0/0 -> 10.0.2.2 eth0 mtu 1500,10.0.2.0/24 -> 0.0.0.0 eth0 mtu 0 ]}}  nc{[ Transports: CELLULAR Capabilities: MMS&SUPL&DUN&FOTA&IMS&CBS&INTERNET&NOT_RESTRICTED&TRUSTED&NOT_VPN&VALIDATED&NOT_ROAMING&NOT_CONGESTED&NOT_SUSPENDED&NOT_VCN_MANAGED LinkUpBandwidth>=1800Kbps LinkDnBandwidth>=4300Kbps Specifier: <TelephonyNetworkSpecifier [mSubId = 1]> SubscriptionIds: {1} UnderlyingNetworks: Null]}  factorySerialNumber=9}",
-    "      NetworkRequest [ BACKGROUND_REQUEST id=2, [ Transports: CELLULAR Capabilities: INTERNET&NOT_RESTRICTED&TRUSTED&NOT_VPN&NOT_VCN_MANAGED RequestorUid: 1000 RequestorPkg: android UnderlyingNetworks: Null] ]",
-    "      NetworkRequest [ LISTEN id=10, [ Capabilities: NOT_RESTRICTED&TRUSTED&NOT_VPN&NOT_VCN_MANAGED Uid: 1000 RequestorUid: 1000 RequestorPkg: android UnderlyingNetworks: Null] ]",
-    "      NetworkRequest [ LISTEN id=11, [ RequestorUid: 1000 RequestorPkg: android UnderlyingNetworks: Null] ]",
-    "      NetworkRequest [ LISTEN id=12, [ Transports: CELLULAR Capabilities: INTERNET&NOT_RESTRICTED&TRUSTED&NOT_VPN&NOT_VCN_MANAGED Uid: 1000 RequestorUid: 1000 RequestorPkg: android UnderlyingNetworks: Null] ]",
-    "      NetworkRequest [ LISTEN id=13, [ Capabilities: INTERNET&NOT_RESTRICTED&TRUSTED&VALIDATED&NOT_VCN_MANAGED Uid: 1000 RequestorUid: 1000 RequestorPkg: android UnderlyingNetworks: Null] ]",
-    "      NetworkRequest [ LISTEN id=25, [ Capabilities: NOT_RESTRICTED&TRUSTED&NOT_VPN&VALIDATED&NOT_VCN_MANAGED Uid: 1001 RequestorUid: 1001 RequestorPkg: com.android.ons UnderlyingNetworks: Null] ]",
-    "  NetworkAgentInfo{network{102}  handle{441492361229}  ni{WIFI CONNECTED extra: } Score(60 ; KeepConnected : 0 ; Policies : TRANSPORT_PRIMARY&EVER_VALIDATED_NOT_AVOIDED_WHEN_BAD&IS_UNMETERED&IS_VALIDATED)  created everValidated lastValidated  lp{{InterfaceName: wlan0 LinkAddresses: [ fe80::96b8:4771:4b66:38b/64,10.0.2.16/24,fec0::805a:a14a:ce9f:6a93/64,fec0::fa3e:ce7d:5422:9ec1/64 ] DnsAddresses: [ /10.0.2.3 ] Domains: null MTU: 0 ServerAddress: /10.0.2.2 TcpBufferSizes: 524288,1048576,2097152,262144,524288,1048576 Routes: [ fe80::/64 -> :: wlan0 mtu 0,::/0 -> fe80::2 wlan0 mtu 0,fec0::/64 -> :: wlan0 mtu 0,10.0.2.0/24 -> 0.0.0.0 wlan0 mtu 0,0.0.0.0/0 -> 10.0.2.2 wlan0 mtu 0 ]}}  nc{[ Transports: WIFI Capabilities: NOT_METERED&INTERNET&NOT_RESTRICTED&TRUSTED&NOT_VPN&VALIDATED&NOT_ROAMING&FOREGROUND&NOT_CONGESTED&NOT_SUSPENDED&NOT_VCN_MANAGED LinkUpBandwidth>=12000Kbps LinkDnBandwidth>=30000Kbps Specifier: <WifiNetworkAgentSpecifier [WifiConfiguration=, SSID=\"AndroidWifi\", BSSID=00:13:10:85:fe:01, band=1, mMatchLocalOnlySpecifiers=false]> TransportInfo: <SSID: \"AndroidWifi\", BSSID: 00:13:10:85:fe:01, MAC: 02:15:b2:00:00:00, IP: /10.0.2.16, Security type: 0, Supplicant state: COMPLETED, Wi-Fi standard: 1, RSSI: -50, Link speed: 1Mbps, Tx Link speed: 1Mbps, Max Supported Tx Link speed: 11Mbps, Rx Link speed: 2Mbps, Max Supported Rx Link speed: 11Mbps, Frequency: 2447MHz, Net ID: 0, Metered hint: false, score: 60, isUsable: true, CarrierMerged: false, SubscriptionId: -1, IsPrimary: 1, Trusted: true, Restricted: false, Ephemeral: false, OEM paid: false, OEM private: false, OSU AP: false, FQDN: <none>, Provider friendly name: <none>, Requesting package name: <none>\"AndroidWifi\"openMLO Information: , AP MLD Address: <none>, AP MLO Link Id: <none>, AP MLO Affiliated links: <none>> SignalStrength: -50 OwnerUid: 10075 AdminUids: [10075] SSID: \"AndroidWifi\" UnderlyingNetworks: Null]}  factorySerialNumber=3}",
-    "      NetworkRequest [ REQUEST id=1, [ Capabilities: INTERNET&NOT_RESTRICTED&TRUSTED&NOT_VPN&NOT_VCN_MANAGED RequestorUid: 1000 RequestorPkg: android UnderlyingNetworks: Null] ]",
-    "      NetworkRequest [ LISTEN id=5, [ Capabilities: FOREGROUND RequestorUid: 1000 RequestorPkg: android UnderlyingNetworks: Null] ]",
-    "      NetworkRequest [ REQUEST id=7, [ Capabilities: INTERNET&NOT_RESTRICTED&TRUSTED&NOT_VCN_MANAGED Uid: 1000 RequestorUid: 1000 RequestorPkg: android UnderlyingNetworks: Null] ]",
-    "      NetworkRequest [ LISTEN id=8, [ Capabilities: FOREGROUND RequestorUid: 1000 RequestorPkg: android UnderlyingNetworks: Null] ]",
-    "      NetworkRequest [ LISTEN id=9, [ Capabilities: NOT_RESTRICTED&TRUSTED&NOT_VPN&FOREGROUND&NOT_VCN_MANAGED Uid: 1000 RequestorUid: 1000 RequestorPkg: android UnderlyingNetworks: Null] ]",
-    "      NetworkRequest [ LISTEN id=10, [ Capabilities: NOT_RESTRICTED&TRUSTED&NOT_VPN&NOT_VCN_MANAGED Uid: 1000 RequestorUid: 1000 RequestorPkg: android UnderlyingNetworks: Null] ]",
-    "      NetworkRequest [ LISTEN id=11, [ RequestorUid: 1000 RequestorPkg: android UnderlyingNetworks: Null] ]",
-    "      NetworkRequest [ LISTEN id=13, [ Capabilities: INTERNET&NOT_RESTRICTED&TRUSTED&VALIDATED&NOT_VCN_MANAGED Uid: 1000 RequestorUid: 1000 RequestorPkg: android UnderlyingNetworks: Null] ]",
-    "      NetworkRequest [ REQUEST id=15, [ Capabilities: INTERNET&NOT_RESTRICTED&TRUSTED&NOT_VCN_MANAGED Uid: 1000 RequestorUid: 1000 RequestorPkg: android UnderlyingNetworks: Null] ]",
-    "      NetworkRequest [ REQUEST id=17, [ Capabilities: INTERNET&NOT_RESTRICTED&TRUSTED&NOT_VCN_MANAGED Uid: 1073 RequestorUid: 1073 RequestorPkg: com.android.networkstack UnderlyingNetworks: Null] ]",
-    "      NetworkRequest [ LISTEN id=18, [ Transports: WIFI Capabilities: NOT_RESTRICTED&TRUSTED&NOT_VPN&NOT_VCN_MANAGED Uid: 1073 RequestorUid: 1073 RequestorPkg: com.android.networkstack UnderlyingNetworks: Null] ]",
-    "      NetworkRequest [ TRACK_SYSTEM_DEFAULT id=19, [ Capabilities: INTERNET&NOT_RESTRICTED&TRUSTED&NOT_VPN&NOT_VCN_MANAGED RequestorUid: 1073 RequestorPkg: com.android.networkstack.tethering UnderlyingNetworks: Null] ]",
-    "      NetworkRequest [ REQUEST id=21, [ Capabilities: INTERNET&NOT_RESTRICTED&TRUSTED&NOT_VCN_MANAGED Uid: 1000 RequestorUid: 1000 RequestorPkg: android UnderlyingNetworks: Null] ]",
-    "      NetworkRequest [ LISTEN id=22, [ Transports: WIFI Capabilities: INTERNET&TRUSTED&NOT_VPN&NOT_VCN_MANAGED Uid: 1001 RequestorUid: 1001 RequestorPkg: com.android.phone UnderlyingNetworks: Null] ]",
-    "      NetworkRequest [ REQUEST id=24, [ Capabilities: INTERNET&NOT_RESTRICTED&TRUSTED&NOT_VCN_MANAGED Uid: 1001 RequestorUid: 1001 RequestorPkg: com.android.phone UnderlyingNetworks: Null] ]",
-    "      NetworkRequest [ LISTEN id=25, [ Capabilities: NOT_RESTRICTED&TRUSTED&NOT_VPN&VALIDATED&NOT_VCN_MANAGED Uid: 1001 RequestorUid: 1001 RequestorPkg: com.android.ons UnderlyingNetworks: Null] ]"
+  "rows": [
+    {
+      "rowId": "tracking-android-status-low-power",
+      "caseKind": "low-power-degraded",
+      "source": "emulator-battery-dump",
+      "claimState": "degraded",
+      "observedAt": "2026-06-05T22:36:00.000Z",
+      "batteryPercent": 14,
+      "charging": false,
+      "lowPowerMode": true,
+      "appProcessRunning": true,
+      "appRestartObserved": false,
+      "pendingUploadCount": 0,
+      "evidenceRefs": [
+        "android-battery-dumpsys-low-power"
+      ],
+      "auditRefs": [
+        "tracking-android-status-audit-low-power"
+      ],
+      "parentVisibleStatusToken": "tracking-android-status-low-power-degraded",
+      "manualRequiredReasonRefs": []
+    },
+    {
+      "rowId": "tracking-android-status-restarted",
+      "caseKind": "app-killed-restarted",
+      "source": "emulator-activity-manager",
+      "claimState": "degraded",
+      "observedAt": "2026-06-05T22:36:00.000Z",
+      "batteryPercent": 39,
+      "charging": false,
+      "lowPowerMode": false,
+      "appProcessRunning": true,
+      "appRestartObserved": true,
+      "pendingUploadCount": 0,
+      "evidenceRefs": [
+        "android-activity-manager-force-stop-and-restart"
+      ],
+      "auditRefs": [
+        "tracking-android-status-audit-restart"
+      ],
+      "parentVisibleStatusToken": "tracking-android-status-app-restarted-audit",
+      "manualRequiredReasonRefs": []
+    },
+    {
+      "rowId": "tracking-android-status-pending-upload",
+      "caseKind": "pending-upload-auditable",
+      "source": "query-store-pending-upload",
+      "claimState": "degraded",
+      "observedAt": "2026-06-05T22:36:00.000Z",
+      "batteryPercent": 21,
+      "charging": false,
+      "lowPowerMode": false,
+      "appProcessRunning": true,
+      "appRestartObserved": false,
+      "pendingUploadCount": 3,
+      "evidenceRefs": [
+        "android-query-store-pending-upload-count"
+      ],
+      "auditRefs": [
+        "tracking-android-status-audit-pending-upload"
+      ],
+      "parentVisibleStatusToken": "tracking-android-status-pending-upload-audit",
+      "manualRequiredReasonRefs": []
+    },
+    {
+      "rowId": "tracking-android-status-physical-device-status",
+      "caseKind": "physical-status-observed",
+      "source": "physical-device-battery-connectivity-dump",
+      "claimState": "physical-status-observed",
+      "observedAt": "2026-06-05T22:36:00.000Z",
+      "batteryPercent": 83,
+      "charging": false,
+      "lowPowerMode": false,
+      "appProcessRunning": true,
+      "appRestartObserved": false,
+      "pendingUploadCount": 0,
+      "evidenceRefs": [
+        "test-results/tracking-android-physical-device-runtime-proof/07-battery.txt",
+        "test-results/tracking-android-physical-device-runtime-proof/08-connectivity.txt"
+      ],
+      "auditRefs": [
+        "tracking-android-status-audit-physical-status-observed"
+      ],
+      "parentVisibleStatusToken": "tracking-android-status-physical-battery-connectivity-observed",
+      "manualRequiredReasonRefs": []
+    },
+    {
+      "rowId": "tracking-android-status-manual-required",
+      "caseKind": "manual-required",
+      "source": "manual-platform-plan",
+      "claimState": "manual-required",
+      "observedAt": "2026-06-05T22:36:00.000Z",
+      "batteryPercent": null,
+      "charging": false,
+      "lowPowerMode": false,
+      "appProcessRunning": false,
+      "appRestartObserved": false,
+      "pendingUploadCount": 0,
+      "evidenceRefs": [
+        "android-manual-platform-proof-plan"
+      ],
+      "auditRefs": [
+        "tracking-android-status-audit-manual-required"
+      ],
+      "parentVisibleStatusToken": "tracking-android-status-manual-platform-proof-required",
+      "manualRequiredReasonRefs": [
+        "tracking-android-background-location-not-proved",
+        "tracking-android-physical-device-not-proved",
+        "tracking-android-device-owner-not-proved"
+      ]
+    }
   ],
-  "statusGapBridge": {
-    "observed": true,
-    "proofArtifact": "output/tracking-plan-proof/10-android-battery-connectivity-and-status-adapter/17-status-gap-proof.json",
-    "evidenceArtifact": "test-results/tracking-android-status-proof/proof.json",
-    "coveredCaseKinds": [
-      "low-power-degraded",
-      "app-killed-restarted",
-      "pending-upload-auditable",
-      "manual-required"
-    ],
-    "lowPowerClaimState": "degraded",
-    "appRestartClaimState": "degraded",
-    "pendingUploadClaimState": "degraded",
-    "manualRequiredClaimState": "manual-required",
-    "proofBoundary": "WP10 parent-domain Android status-gap proof covers low-power degradation, app restart auditability, pending-upload auditability, and manual-required platform rows; it does not prove Android system geofence delivery, Android system dwell, or physical-device background behavior.",
-    "nonClaims": [
-      "No Android system geofence delivery is claimed from WP10 status rows.",
-      "No dwell transition delivery is claimed from WP10 status rows.",
-      "No physical-device background behavior is claimed from WP10 status rows.",
-      "No provider delivery, authority, production upload worker, or product-ready Android tracking claim is made."
-    ]
+  "summary": {
+    "rows": 5,
+    "lowPowerDegradedCount": 1,
+    "appRestartObservedCount": 1,
+    "pendingUploadAuditableCount": 1,
+    "physicalStatusObservedCount": 1,
+    "manualRequiredCount": 1,
+    "runtimeEvidenceRefs": 6,
+    "physicalDeviceStatusEvidenceObserved": true,
+    "claimStates": {
+      "degraded": 3,
+      "physical-status-observed": 1,
+      "manual-required": 1
+    },
+    "caseKinds": {
+      "low-power-degraded": 1,
+      "app-killed-restarted": 1,
+      "pending-upload-auditable": 1,
+      "physical-status-observed": 1,
+      "manual-required": 1
+    }
   },
-  "ui": {
-    "hasLaunchText": true,
-    "foregroundLocationPermissionStateText": "foreground-location-permission-granted",
-    "foregroundLocationSampleStateText": "current-location-sample-observed-emulator-location-manager",
-    "foregroundLocationProvider": "gps",
-    "foregroundLocationObservedAtEpochMillis": 1780935234223,
-    "foregroundLocationAccuracyMeters": 5,
-    "foregroundLocationSampleSource": "android-location-manager-current-listener-emulator",
-    "foregroundLocationLatitude": 37.42699833333333,
-    "foregroundLocationLongitude": -122.09,
-    "fusedForegroundLocationSampleStateText": "fused-foreground-location-sample-manual-required",
-    "fusedForegroundLocationProvider": null,
-    "fusedForegroundLocationObservedAtEpochMillis": null,
-    "fusedForegroundLocationAccuracyMeters": null,
-    "fusedForegroundLocationSampleSource": null,
-    "fusedForegroundLocationLatitude": null,
-    "fusedForegroundLocationLongitude": null,
-    "backgroundLocationPermissionStateText": "background-location-permission-granted",
-    "backgroundGeofenceStateText": "background-geofence-transition-manual-required",
-    "backgroundGeofenceTransitionCount": 0,
-    "backgroundGeofenceEnterCount": 0,
-    "backgroundGeofenceExitCount": 0,
-    "backgroundGeofenceDwellCount": 0,
-    "backgroundGeofenceDwellSource": "not-observed",
-    "backgroundGeofenceLastTransition": "none",
-    "backgroundGeofenceSource": "android-location-manager-proximity-alert",
-    "backgroundLocationSampleStateText": "background-location-sample-manual-required",
-    "backgroundLocationSampleCount": 0,
-    "backgroundLocationSampleProvider": "none",
-    "backgroundLocationSampleObservedAtEpochMillis": 0,
-    "backgroundLocationSampleAccuracyMeters": -1,
-    "backgroundLocationSampleSource": "none",
-    "backgroundLocationSampleActivityBackgrounded": false,
-    "text": "\n\n\nOcentra Parent Agent service scaffold is running.\npackage-local-scaffold\npackage-local-scaffold\ndeclared-started-by-package\npackage-local-scaffold\npackage-local-scaffold\nmanual-consent-required\nforeground-location-permission-granted\ncurrent-location-sample-observed-emulator-location-manager\nfused-foreground-location-sample-manual-required\nbackground-location-permission-granted\nbackground-geofence-transition-manual-required\nbackgroundGeofenceTransitionCount:0\nbackgroundGeofenceEnterCount:0\nbackgroundGeofenceExitCount:0\nbackgroundGeofenceDwellCount:0\nbackgroundGeofenceDwellSource:not-observed\nbackgroundGeofenceLastTransition:none\nbackgroundGeofenceSource:android-location-manager-proximity-alert\nbackground-location-sample-manual-required\nbackgroundLocationSampleCount:0\nbackgroundLocationSampleProvider:none\nbackgroundLocationSampleObservedAtEpochMillis:0\nbackgroundLocationSampleAccuracyMeters:-1.0\nbackgroundLocationSampleSource:none\nbackgroundLocationSampleActivityBackgrounded:false\nforegroundLocationProvider:gps\nforegroundLocationObservedAtEpochMillis:1780935234223\nforegroundLocationAccuracyMeters:5.0\nforegroundLocationSampleSource:android-location-manager-current-listener-emulator\nforegroundLocationLatitude:37.42699833333333\nforegroundLocationLongitude:-122.09"
-  },
-  "screenshotInspection": {
-    "schemaVersion": 1,
-    "width": 1080,
-    "height": 2400,
-    "bitDepth": 8,
-    "colorType": 6,
-    "pixelCount": 2592000,
-    "visiblePixelCount": 2592000,
-    "nonBlackPixelCount": 0,
-    "transparentPixelCount": 0,
-    "distinctColorSampleCount": 1,
-    "minLuma": 0,
-    "maxLuma": 0,
-    "lumaRange": 0,
-    "isAllBlack": true,
-    "visualClaimReady": false,
-    "reason": "PNG did not contain enough visible contrast to claim screenshot evidence"
-  },
-  "logcatFindings": {
-    "fatalExceptionCount": 0,
-    "androidRuntimeErrorCount": 0,
-    "packageLogLines": 9,
-    "foregroundServiceAllowed": false
-  },
-  "device": {
-    "serial": "emulator-5554",
-    "androidRelease": "13",
-    "androidSdk": "33",
-    "buildFingerprint": "Android/sdk_slim_x86_64/emulator64_x86_64:13/TE1A.220922.034/10940250:userdebug/test-keys",
-    "productModel": "Android SDK built for x86_64",
-    "productManufacturer": "unknown",
-    "abi": "x86_64"
-  },
-  "artifacts": {
-    "packageDump": "test-results/tracking-plan-android-emulator-proof/03-package-dump.txt",
-    "serviceDump": "test-results/tracking-plan-android-emulator-proof/04-service-dump.txt",
-    "activityDump": "test-results/tracking-plan-android-emulator-proof/05-activity-dump.txt",
-    "windowDump": "test-results/tracking-plan-android-emulator-proof/06-window-dump.txt",
-    "battery": "test-results/tracking-plan-android-emulator-proof/07-battery.txt",
-    "connectivity": "test-results/tracking-plan-android-emulator-proof/08-connectivity.txt",
-    "ui": "test-results/tracking-plan-android-emulator-proof/09-ui.xml",
-    "screenshot": "test-results/tracking-plan-android-emulator-proof/10-screen.png",
-    "logcat": "test-results/tracking-plan-android-emulator-proof/11-logcat.txt",
-    "screenshotInspection": "test-results/tracking-plan-android-emulator-proof/12-screenshot-inspection.json",
-    "foregroundLocationPermissionUxReset": "test-results/tracking-plan-android-emulator-proof/13-foreground-location-permission-ux-reset.txt",
-    "foregroundLocationPermissionUxLaunch": "test-results/tracking-plan-android-emulator-proof/13-foreground-location-permission-ux-launch.txt",
-    "foregroundLocationPermissionUx": "test-results/tracking-plan-android-emulator-proof/13-foreground-location-permission-ux.xml",
-    "foregroundLocationPermissionUxProof": "test-results/tracking-plan-android-emulator-proof/13-foreground-location-permission-ux.json",
-    "foregroundLocationPermissionGrant": "test-results/tracking-plan-android-emulator-proof/13-foreground-location-permission-grant.txt",
-    "foregroundLocationSeed": "test-results/tracking-plan-android-emulator-proof/14-foreground-location-seed.txt",
-    "backgroundLocationPermissionGrant": "test-results/tracking-plan-android-emulator-proof/15-background-location-permission-grant.txt",
-    "geofenceTransitionRoute": "test-results/tracking-plan-android-emulator-proof/16-geofence-transition-route.txt",
-    "geofenceTransitionPrefs": "test-results/tracking-plan-android-emulator-proof/17-geofence-transition-prefs.xml",
-    "activeGeofenceLimitProof": "test-results/tracking-plan-android-emulator-proof/25-active-geofence-limit-proof.json",
-    "backgroundLocationSamplePrefs": "test-results/tracking-plan-android-emulator-proof/20-background-location-sample-prefs.xml",
-    "backgroundActivityForSample": "test-results/tracking-plan-android-emulator-proof/21-background-activity-for-sample.txt",
-    "backgroundLocationSampleRoute": "test-results/tracking-plan-android-emulator-proof/22-background-location-sample-route.txt",
-    "relaunchAfterBackgroundSample": "test-results/tracking-plan-android-emulator-proof/23-relaunch-after-background-sample.txt",
-    "backgroundLocationSettingsPageLaunch": "test-results/tracking-plan-android-emulator-proof/24-background-location-settings-page-launch.txt",
-    "backgroundLocationSettingsPage": "test-results/tracking-plan-android-emulator-proof/24-background-location-settings-page.xml",
-    "backgroundLocationSettingsPageActivity": "test-results/tracking-plan-android-emulator-proof/24-background-location-settings-page-activity.txt",
-    "backgroundLocationSettingsPageWindow": "test-results/tracking-plan-android-emulator-proof/24-background-location-settings-page-window.txt",
-    "backgroundLocationSettingsPageProof": "test-results/tracking-plan-android-emulator-proof/24-background-location-settings-page.json"
-  },
-  "nonClaims": [
-    "No product tracking freshness claim is made from this emulator scaffold status proof.",
-    "No physical-device background behavior, Android system geofence delivery, production upload worker, or product-ready Android tracking claim is made from the status-gap bridge."
-  ]
+  "nonClaims": {
+    "foregroundLocationClaimed": false,
+    "backgroundLocationRuntimeClaimed": false,
+    "geofenceRuntimeClaimed": false,
+    "physicalDeviceProofClaimed": false,
+    "notificationDeliveryClaimed": false,
+    "deviceOwnerAuthorityClaimed": false,
+    "productionUploadWorkerClaimed": false,
+    "productReadyAndroidTrackingClaimed": false
+  }
 }
