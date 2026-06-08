@@ -23,6 +23,7 @@ async fn service_browser_runtime_social_provider_receipt_status_records_provider
     assert_eq!(report.social_provider_receipt_boundary_rows, 1);
     assert_eq!(report.social_provider_dispatch_required_rows, 1);
     assert_eq!(report.social_provider_manual_receipt_required_rows, 0);
+    assert_social_provider_durable_refs(&report);
     assert_eq!(
         report.social_provider_attempt_refs,
         vec![constants::browser::TEST_BROWSER_RUNTIME_SOCIAL_PROVIDER_ATTEMPT_REF.to_string()]
@@ -52,6 +53,7 @@ async fn service_browser_runtime_stream_records_store_backed_social_provider_rec
     assert_eq!(report.social_provider_receipt_boundary_rows, 1);
     assert_eq!(report.social_provider_dispatch_required_rows, 1);
     assert_eq!(report.social_provider_manual_receipt_required_rows, 0);
+    assert_social_provider_durable_refs(&report);
     assert_eq!(
         report.social_provider_attempt_refs,
         vec![constants::browser::TEST_BROWSER_RUNTIME_SOCIAL_PROVIDER_ATTEMPT_REF.to_string()]
@@ -80,6 +82,11 @@ async fn service_browser_runtime_stream_keeps_manual_social_provider_receipt_row
     assert_eq!(report.social_provider_receipt_boundary_rows, 1);
     assert_eq!(report.social_provider_dispatch_required_rows, 0);
     assert_eq!(report.social_provider_manual_receipt_required_rows, 1);
+    assert_eq!(report.social_provider_durable_rows, 0);
+    assert!(report.social_provider_durable_result_refs.is_empty());
+    assert!(report.social_provider_durable_store_refs.is_empty());
+    assert!(report.social_provider_read_model_refs.is_empty());
+    assert!(report.social_provider_support_status_refs.is_empty());
     assert!(report.social_provider_attempt_refs.is_empty());
     assert_eq!(
         report.social_provider_receipt_proof_refs,
@@ -91,4 +98,36 @@ async fn service_browser_runtime_stream_keeps_manual_social_provider_receipt_row
     assert_eq!(report.action_intent_adapter_executions, 0);
     assert_eq!(report.action_intent_child_intervention_executions, 0);
     assert_eq!(report.action_intent_enforcement_executions, 0);
+}
+
+fn assert_social_provider_durable_refs(report: &BrowserRuntimeServiceStreamReport) {
+    assert_eq!(report.social_provider_durable_rows, 1);
+    assert_eq!(
+        report.social_provider_durable_result_refs,
+        vec![
+            constants::browser::TEST_BROWSER_RUNTIME_SOCIAL_PROVIDER_RECEIPT_DURABLE_RESULT_REF
+                .to_string()
+        ]
+    );
+    assert_eq!(
+        report.social_provider_durable_store_refs,
+        vec![
+            constants::browser::TEST_BROWSER_RUNTIME_SOCIAL_PROVIDER_RECEIPT_DURABLE_STORE_REF
+                .to_string()
+        ]
+    );
+    assert_eq!(
+        report.social_provider_read_model_refs,
+        vec![
+            constants::browser::TEST_BROWSER_RUNTIME_SOCIAL_PROVIDER_RECEIPT_READ_MODEL_REF
+                .to_string()
+        ]
+    );
+    assert_eq!(
+        report.social_provider_support_status_refs,
+        vec![
+            constants::browser::TEST_BROWSER_RUNTIME_SOCIAL_PROVIDER_RECEIPT_SUPPORT_STATUS_REF
+                .to_string()
+        ]
+    );
 }

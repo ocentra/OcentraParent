@@ -168,6 +168,15 @@ control while being more honest about managed versus unmanaged sources.
   duplicate request event ids, and keeps provider receipt ingestion, provider
   dispatch, parent notification UI delivery, report delivery, final policy
   execution, connector/native runtime, and enforcement unclaimed.
+- Browser-plan WP13 now also carries those durable social provider receipt refs
+  through the service-side browser runtime report. Provider-dispatch-required
+  rows record durable result, durable store, read-model, and support-status refs;
+  manual-required rows keep durable rows empty. Public protocol/portal stream
+  fields remain deferred while the shared protocol defaults file is owned by
+  another active lane, so this does not claim provider delivery, receipt
+  ingestion, parent notification UI delivery, report delivery, final policy
+  execution, browser mutation, child intervention, unmanaged exact URL support,
+  or enforcement.
 - Browser-plan WP13 now projects that named subscriber status through the
   service-backed browser runtime event-chain stream payload. Current
   store-backed browser rows still report zero pending candidates because the

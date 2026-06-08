@@ -1,0 +1,38 @@
+{
+  "proofName": "browser-runtime-social-provider-receipt-service-durable-status-proof",
+  "branch": "codex/d-runtime-ready",
+  "commands": [
+    "cargo test -p ocentra-parent-agent-service social_provider_receipt --quiet"
+  ],
+  "sourceChecks": {
+    "serviceTracksDurableRows": true,
+    "serviceTracksDurableResultRefs": true,
+    "serviceTracksDurableStoreRefs": true,
+    "serviceTracksReadModelRefs": true,
+    "serviceTracksSupportStatusRefs": true,
+    "serviceKeepsProviderDispatchZero": true,
+    "serviceKeepsParentNotificationUiZero": true,
+    "noPublicStreamFieldAdded": true,
+    "focusedDurableRefTestExists": true,
+    "manualRowsStayWithoutDurableRefs": true,
+    "workpackMentionsServiceDurableStatus": true,
+    "checklistMentionsServiceDurableStatus": true,
+    "featureDocMentionsServiceDurableStatus": true
+  },
+  "verified": {
+    "serviceRecordsDurableReceiptRows": true,
+    "durableResultRefsPreserved": true,
+    "durableStoreRefsPreserved": true,
+    "readModelRefsPreserved": true,
+    "supportStatusRefsPreserved": true,
+    "manualRowsDoNotCreateDurableRows": true,
+    "publicProtocolFieldsAdded": false,
+    "providerReceiptCount": 0,
+    "providerDispatchCount": 0,
+    "connectorNativeRuntimeCount": 0,
+    "parentNotificationUiDeliveryCount": 0,
+    "reportDeliveryExecutionCount": 0,
+    "finalPolicyExecutionCount": 0,
+    "enforcementExecutionCount": 0
+  }
+}

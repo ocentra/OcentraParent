@@ -40,6 +40,11 @@ pub(crate) struct BrowserRuntimeServiceStreamReport {
     pub(crate) social_provider_manual_receipt_required_rows: usize,
     pub(crate) social_provider_attempt_refs: Vec<String>,
     pub(crate) social_provider_receipt_proof_refs: Vec<String>,
+    pub(crate) social_provider_durable_rows: usize,
+    pub(crate) social_provider_durable_result_refs: Vec<String>,
+    pub(crate) social_provider_durable_store_refs: Vec<String>,
+    pub(crate) social_provider_read_model_refs: Vec<String>,
+    pub(crate) social_provider_support_status_refs: Vec<String>,
     pub(crate) entries: Vec<BrowserRuntimeServiceStreamEntry>,
 }
 
@@ -230,6 +235,25 @@ impl BrowserRuntimeServiceStreamReport {
         if let Some(provider_receipt_proof_ref) = &receipt.provider_receipt_proof_ref {
             self.social_provider_receipt_proof_refs
                 .push(provider_receipt_proof_ref.clone());
+        }
+        if receipt.provider_dispatch_required_count > 0 {
+            self.social_provider_durable_rows += receipt.provider_dispatch_required_count;
+            self.social_provider_durable_result_refs.push(
+                constants::browser::TEST_BROWSER_RUNTIME_SOCIAL_PROVIDER_RECEIPT_DURABLE_RESULT_REF
+                    .to_string(),
+            );
+            self.social_provider_durable_store_refs.push(
+                constants::browser::TEST_BROWSER_RUNTIME_SOCIAL_PROVIDER_RECEIPT_DURABLE_STORE_REF
+                    .to_string(),
+            );
+            self.social_provider_read_model_refs.push(
+                constants::browser::TEST_BROWSER_RUNTIME_SOCIAL_PROVIDER_RECEIPT_READ_MODEL_REF
+                    .to_string(),
+            );
+            self.social_provider_support_status_refs.push(
+                constants::browser::TEST_BROWSER_RUNTIME_SOCIAL_PROVIDER_RECEIPT_SUPPORT_STATUS_REF
+                    .to_string(),
+            );
         }
         self.action_intent_dispatch_attempts += usize::from(receipt.provider_dispatch_count);
         self.action_intent_adapter_executions +=

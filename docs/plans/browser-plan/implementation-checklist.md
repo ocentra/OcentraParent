@@ -842,6 +842,22 @@ ingestion runtime, parent notification UI delivery, final policy execution,
 browser mutation, child intervention execution, unmanaged exact URL support, or
 enforcement.
 
+WP13 social provider receipt service durable status addendum:
+`browser-runtime-social-provider-receipt-service-durable-status-proof` carries
+those durable social provider receipt result/read-model refs into the
+service-side browser runtime report. Provider-dispatch-required rows now expose
+durable result, durable store, read-model, and support-status refs in service
+report state, while manual-required rows keep durable rows and durable refs
+empty. Evidence:
+`test-results/browser-runtime-social-provider-receipt-service-durable-status-proof/proof.json`
+and
+`output/browser-plan-proof/browser-runtime-social-provider-receipt-service-durable-status/01-browser-runtime-social-provider-receipt-service-durable-status-proof.md`.
+This does not add public protocol or portal stream fields while the shared
+protocol defaults file is owned by another active lane, and does not claim
+provider delivery, receipt ingestion runtime, parent notification UI delivery,
+report delivery execution, final policy execution, browser mutation, child
+intervention execution, unmanaged exact URL support, or enforcement.
+
 ## Worker Report Template
 
 Use this shape in the hub report or PR-ready note:

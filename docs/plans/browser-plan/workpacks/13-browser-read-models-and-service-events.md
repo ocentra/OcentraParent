@@ -815,3 +815,29 @@ delivery, provider receipt ingestion runtime, webhook runtime, credentials,
 parent notification UI delivery, report delivery execution, final policy
 execution, connector/native runtime, browser mutation, child intervention
 execution, unmanaged exact URL support, or enforcement.
+
+## Social Provider Receipt Service Durable Status Addendum - 2026-06-08
+
+`browser-runtime-social-provider-receipt-service-durable-status-proof` carries
+the durable social provider receipt result/read-model refs into the existing
+service-side browser runtime report. Provider-dispatch-required receipt boundary
+rows now preserve durable result, durable store, read-model, and support-status
+refs in service report state; manual-required receipt rows keep durable rows and
+durable refs empty.
+
+Evidence:
+
+- `crates/agent-service/src/browser_runtime_stream_payload.rs`
+- `crates/agent-service/src/browser_runtime_stream_tests/browser_runtime_social_provider_receipt_service_status_tests.rs`
+- `scripts/test/browser-runtime-social-provider-receipt-service-durable-status-proof.mjs`
+- `test-results/browser-runtime-social-provider-receipt-service-durable-status-proof/proof.json`
+- `output/browser-plan-proof/browser-runtime-social-provider-receipt-service-durable-status/01-browser-runtime-social-provider-receipt-service-durable-status-proof.md`
+- `cargo test -p ocentra-parent-agent-service social_provider_receipt --quiet`
+
+This is service-side durable status proof only. It intentionally does not add
+public protocol or portal stream fields while the shared protocol defaults file
+is owned by another active lane. It does not claim provider delivery, provider
+receipt ingestion runtime, webhook runtime, credentials, parent notification UI
+delivery, report delivery execution, final policy execution, connector/native
+runtime, browser mutation, child intervention execution, unmanaged exact URL
+support, or enforcement.
