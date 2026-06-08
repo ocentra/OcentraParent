@@ -766,6 +766,19 @@ only and does not add public child-status stream fields, external transport,
 adapter dispatch, browser mutation, child intervention execution, final policy
 execution, unmanaged exact URL support, or enforcement.
 
+WP13 event-name parity addendum:
+`browser-runtime-event-name-parity-proof` aligns the shared TypeScript browser
+runtime stream parser with the Rust browser runtime event type constants. The
+proof covers all ten browser runtime phases and prevents AI, policy,
+intervention, audit, evidence, and read-model event names from drifting across
+the Rust event bus to TypeScript protocol boundary. Evidence:
+`test-results/browser-runtime-event-name-parity-proof/proof.json` and
+`output/browser-plan-proof/browser-runtime-event-name-parity/01-browser-runtime-event-name-parity-proof.md`.
+No product capability checklist update: this is protocol parser parity proof
+only and does not add a generic event bus, portal UI, external transport,
+adapter dispatch, browser mutation, child intervention execution, final policy
+execution, unmanaged exact URL support, AI execution, or enforcement.
+
 ## Worker Report Template
 
 Use this shape in the hub report or PR-ready note:

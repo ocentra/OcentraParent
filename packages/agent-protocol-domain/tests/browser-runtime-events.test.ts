@@ -55,7 +55,7 @@ const AuditCommittedPayload = {
 const ReadModelProjectedPayload = {
   ...AuditCommittedPayload,
   phase: AgentBrowserRuntimePhase.ReadModelProjected,
-  previousPhaseRef: 'browser-runtime-correlation-browser-evidence.1-2026-06-07T19:30:00Z-browser.audit-entry.committed',
+  previousPhaseRef: 'browser-runtime-correlation-browser-evidence.1-2026-06-07T19:30:00Z-browser.audit.entry.committed',
 } as const;
 
 const StaleBridgePayload = {
@@ -85,11 +85,59 @@ const PolicyDecisionPayload = {
   dryRun: true,
   adapterDispatchClaimed: false,
   previousPhaseRef:
-    'browser-runtime-correlation-browser-evidence.1-2026-06-07T19:30:00Z-browser.policy-evaluation.requested',
+    'browser-runtime-correlation-browser-evidence.1-2026-06-07T19:30:00Z-browser.policy.evaluation.requested',
+} as const;
+
+const FinalPolicyDecisionPayload = {
+  ...PolicyDecisionPayload,
+  policyPreviewId: null,
+  assistantActionIntentId: null,
+  dryRun: false,
+} as const;
+
+const AiAnalysisRequestedPayload = {
+  ...EvidenceObservedPayload,
+  phase: AgentBrowserRuntimePhase.AiAnalysisRequested,
+  aiRequestRef: 'browser-ai-request-ref-test',
+  previousPhaseRef: 'browser-runtime-correlation-browser-evidence.1-2026-06-07T19:30:00Z-browser.evidence.journaled',
+} as const;
+
+const AiAnalysisCompletedPayload = {
+  ...AiAnalysisRequestedPayload,
+  phase: AgentBrowserRuntimePhase.AiAnalysisCompleted,
+  aiAnalysisRef: 'browser-ai-analysis-ref-test',
+  previousPhaseRef: 'browser-runtime-correlation-browser-evidence.1-2026-06-07T19:30:00Z-browser.ai.analysis.requested',
+} as const;
+
+const PolicyEvaluationPayload = {
+  ...AiAnalysisCompletedPayload,
+  phase: AgentBrowserRuntimePhase.PolicyEvaluationRequested,
+  policyEvaluationRef: 'browser-policy-evaluation-ref-test',
+  policyAuthority: true,
+  previousPhaseRef: 'browser-runtime-correlation-browser-evidence.1-2026-06-07T19:30:00Z-browser.ai.analysis.completed',
+} as const;
+
+const InterventionCommandPayload = {
+  ...FinalPolicyDecisionPayload,
+  phase: AgentBrowserRuntimePhase.InterventionCommandIssued,
+  adapterDispatchClaimed: true,
+  interventionCommandAllowed: true,
+  interventionCommandRef: 'browser-intervention-command-ref-test',
+  previousPhaseRef:
+    'browser-runtime-correlation-browser-evidence.1-2026-06-07T19:30:00Z-browser.policy.decision.completed',
+} as const;
+
+const InterventionResultPayload = {
+  ...InterventionCommandPayload,
+  phase: AgentBrowserRuntimePhase.InterventionResultObserved,
+  interventionResultRef: 'browser-intervention-result-ref-test',
+  previousPhaseRef:
+    'browser-runtime-correlation-browser-evidence.1-2026-06-07T19:30:00Z-browser.intervention.command.issued',
 } as const;
 
 describe('agent browser runtime event contracts', () => {
   it('parses service-backed browser runtime stream fields', specifyStreamParsing);
+  it('parses every Rust browser runtime event type without name drift', specifyRustEventNameParity);
   it('parses dry-run policy action handoff without adapter dispatch', specifyDryRunActionHandoffParsing);
   it('derives pending action-intent subscriber status from dry-run stream entries', specifyActionIntentStatus);
   it('rejects mismatched phases, overclaims, invalid json, and count drift', specifyRejections);
@@ -128,6 +176,53 @@ function specifyStreamParsing() {
   expect(parsed.value.entries.at(0)?.payload.interventionCommandAllowed).toBe(false);
   expect(parsed.value.entries.at(0)?.payload.dryRun).toBe(false);
   expect(parsed.value.entries.at(0)?.payload.adapterDispatchClaimed).toBe(false);
+}
+
+function specifyRustEventNameParity() {
+  const parsed = parseAgentBrowserRuntimeEventChainStreamFields(
+    streamFields([
+      entry(AgentBrowserRuntimeEventType.EvidenceObserved, EvidenceObservedPayload),
+      entry(AgentBrowserRuntimeEventType.EvidenceJournaled, EvidenceJournaledPayload),
+      entry(AgentBrowserRuntimeEventType.AiAnalysisRequested, AiAnalysisRequestedPayload),
+      entry(AgentBrowserRuntimeEventType.AiAnalysisCompleted, AiAnalysisCompletedPayload),
+      entry(AgentBrowserRuntimeEventType.PolicyEvaluationRequested, PolicyEvaluationPayload),
+      entry(AgentBrowserRuntimeEventType.PolicyDecisionCompleted, FinalPolicyDecisionPayload),
+      entry(AgentBrowserRuntimeEventType.InterventionCommandIssued, InterventionCommandPayload),
+      entry(AgentBrowserRuntimeEventType.InterventionResultObserved, InterventionResultPayload),
+      entry(AgentBrowserRuntimeEventType.AuditEntryCommitted, AuditCommittedPayload),
+      entry(AgentBrowserRuntimeEventType.ReadModelProjected, ReadModelProjectedPayload),
+    ])
+  );
+
+  expect(parsed.ok).toBe(true);
+  if (!parsed.ok) {
+    return;
+  }
+
+  expect(parsed.value.entries.map((entry) => entry.eventType)).toEqual([
+    'browser.evidence.observed',
+    'browser.evidence.journaled',
+    'browser.ai.analysis.requested',
+    'browser.ai.analysis.completed',
+    'browser.policy.evaluation.requested',
+    'browser.policy.decision.completed',
+    'browser.intervention.command.issued',
+    'browser.intervention.result.observed',
+    'browser.audit.entry.committed',
+    'browser.read-model.projected',
+  ]);
+  expect(parsed.value.entries.map((entry) => entry.payload.phase)).toEqual([
+    AgentBrowserRuntimePhase.EvidenceObserved,
+    AgentBrowserRuntimePhase.EvidenceJournaled,
+    AgentBrowserRuntimePhase.AiAnalysisRequested,
+    AgentBrowserRuntimePhase.AiAnalysisCompleted,
+    AgentBrowserRuntimePhase.PolicyEvaluationRequested,
+    AgentBrowserRuntimePhase.PolicyDecisionCompleted,
+    AgentBrowserRuntimePhase.InterventionCommandIssued,
+    AgentBrowserRuntimePhase.InterventionResultObserved,
+    AgentBrowserRuntimePhase.AuditEntryCommitted,
+    AgentBrowserRuntimePhase.ReadModelProjected,
+  ]);
 }
 
 function specifyDryRunActionHandoffParsing() {

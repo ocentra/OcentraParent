@@ -711,3 +711,27 @@ This is a no-overclaim guard only. It does not add public child-status stream
 fields, external transport, adapter dispatch, browser mutation, child
 intervention execution, final policy execution, unmanaged exact URL support, or
 enforcement.
+
+## Event Name Parity Addendum - 2026-06-08
+
+`browser-runtime-event-name-parity-proof` aligns the shared TypeScript browser
+runtime stream parser with the Rust browser runtime event type constants. The
+parser now accepts the same dotted AI, policy, intervention, audit, evidence,
+and read-model event names emitted by `crates/agent-protocol` and
+`agent-core`, and the focused contract test covers all ten browser runtime
+phases so later AI/policy/intervention stream entries cannot drift from the
+Rust event bus boundary.
+
+Evidence:
+
+- `packages/agent-protocol-domain/src/browser-runtime-events.ts`
+- `packages/agent-protocol-domain/tests/browser-runtime-events.test.ts`
+- `scripts/test/browser-runtime-event-name-parity-proof.mjs`
+- `test-results/browser-runtime-event-name-parity-proof/proof.json`
+- `output/browser-plan-proof/browser-runtime-event-name-parity/01-browser-runtime-event-name-parity-proof.md`
+- `cmd /c node scripts/test/browser-runtime-event-name-parity-proof.mjs`
+
+This is protocol parser parity proof only. It does not add a generic event bus,
+portal UI, external transport, adapter dispatch, browser mutation, child
+intervention execution, final policy execution, unmanaged exact URL support, AI
+execution, or enforcement.

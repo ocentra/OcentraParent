@@ -8,13 +8,13 @@ const NullableBrowserRuntimeText = Schema.Union(BrowserRuntimeText, Schema.Null)
 export const AgentBrowserRuntimeEventType = {
   EvidenceObserved: 'browser.evidence.observed',
   EvidenceJournaled: 'browser.evidence.journaled',
-  AiAnalysisRequested: 'browser.ai-analysis.requested',
-  AiAnalysisCompleted: 'browser.ai-analysis.completed',
-  PolicyEvaluationRequested: 'browser.policy-evaluation.requested',
-  PolicyDecisionCompleted: 'browser.policy-decision.completed',
-  InterventionCommandIssued: 'browser.intervention-command.issued',
-  InterventionResultObserved: 'browser.intervention-result.observed',
-  AuditEntryCommitted: 'browser.audit-entry.committed',
+  AiAnalysisRequested: 'browser.ai.analysis.requested',
+  AiAnalysisCompleted: 'browser.ai.analysis.completed',
+  PolicyEvaluationRequested: 'browser.policy.evaluation.requested',
+  PolicyDecisionCompleted: 'browser.policy.decision.completed',
+  InterventionCommandIssued: 'browser.intervention.command.issued',
+  InterventionResultObserved: 'browser.intervention.result.observed',
+  AuditEntryCommitted: 'browser.audit.entry.committed',
   ReadModelProjected: 'browser.read-model.projected',
 } as const;
 
