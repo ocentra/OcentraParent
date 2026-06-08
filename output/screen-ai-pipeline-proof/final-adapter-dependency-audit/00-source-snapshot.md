@@ -1,6 +1,6 @@
 # Screen AI Final Adapter Dependency Audit
 
-Generated: 2026-06-08T03:25:13.510Z
+Generated: 2026-06-08T03:49:07.897Z
 
 ## Source Artifacts
 
@@ -8,6 +8,7 @@ Generated: 2026-06-08T03:25:13.510Z
 - adapterReadinessReadModel: `output/screen-ai-pipeline-proof/adapter-readiness/read-model.json`
 - finalProductPath: `output/screen-ai-pipeline-proof/final-product-path/proof-summary.json`
 - linuxHostCustody: `output/screen-ai-pipeline-proof/linux-host-adapter-custody/proof-summary.json`
+- linuxHostExecution: `output/screen-ai-pipeline-proof/linux-host-adapter-execution/proof-summary.json`
 - androidMobileCustody: `output/screen-ai-pipeline-proof/android-mobile-control-custody/proof-summary.json`
 - iosMobileCustody: `output/screen-ai-pipeline-proof/ios-mobile-control-custody/proof-summary.json`
 - adapterDependencyHandoff: `output/screen-ai-pipeline-proof/adapter-dependency-handoff/proof-summary.json`
@@ -21,7 +22,6 @@ Generated: 2026-06-08T03:25:13.510Z
 - screen-ai-managed-active-tab-not-claimed: not-claimed, managed active-tab exact URL apply, rollback, and audit custody proof from a screen-derived browser decision
 - screen-ai-android-mobile-control-manual-required: manual-required, Android device-owner/managed-profile control proof from a screen-derived mobile decision
 - screen-ai-ios-mobile-control-manual-required: manual-required, iOS Family Controls/DeviceActivity control proof from a screen-derived mobile decision
-- screen-ai-linux-host-adapter-unavailable: unavailable, Linux host adapter apply, rollback, and audit custody proof from a screen-derived decision
 
 ## Custody Artifacts
 
@@ -49,7 +49,8 @@ Generated: 2026-06-08T03:25:13.510Z
   "broadBrowserNetworkMobileProductComplete": false,
   "openChecklistRowRetained": true,
   "executedAdapterRows": 2,
-  "blockedAdapterRows": 6,
+  "linuxHostExecutionRows": 1,
+  "blockedAdapterRows": 5,
   "custodyArtifactRows": 3,
   "dependencyHandoffRows": 6,
   "claimUpgradeRows": 0

@@ -189,8 +189,9 @@ proofs into physical LAN product execution.
 - [x] Final adapter dependency audit validates that product-complete
       broad/browser/network/mobile adapter claims remain blocked until their
       own screen-derived execution artifacts exist, and now consumes the
-      Linux/Android/iOS custody artifacts plus the adapter dependency handoff
-      while keeping execution claims blocked:
+      WSL2 Linux host execution artifact, Linux/Android/iOS custody artifacts,
+      and adapter dependency handoff while keeping product-complete claims
+      blocked:
       `output/screen-ai-pipeline-proof/final-adapter-dependency-audit/proof-summary.json`.
 - [x] Adapter blocker ledger proof names the exact missing adapter source
       boundaries, required apply/rollback/audit custody artifacts, and rows
@@ -216,6 +217,11 @@ proofs into physical LAN product execution.
       not-executed target-unavailable state and keeping product-complete Linux
       host control blocked:
       `output/screen-ai-pipeline-proof/linux-host-adapter-custody/proof-summary.json`.
+- [x] WSL2 Linux host adapter execution artifact applies and rolls back a
+      dedicated `iptables` rule from a screen-derived block decision, proves the
+      host mutation was removed, and keeps native Linux desktop/Wayland/PipeWire
+      product parity unclaimed:
+      `output/screen-ai-pipeline-proof/linux-host-adapter-execution/proof-summary.json`.
 - [x] Android mobile-control custody artifact records screen-derived apply,
       rollback, and audit custody for the Android blocker while preserving
       not-executed manual-required state and keeping Device Owner,
@@ -357,6 +363,9 @@ proofs into physical LAN product execution.
 - [x] Linux host adapter custody proof run:
       `node --check scripts/test/screen-ai-linux-host-adapter-custody-proof.mjs`
       and `node scripts/test/screen-ai-linux-host-adapter-custody-proof.mjs`.
+- [x] WSL2 Linux host adapter execution proof run:
+      `node --check scripts/test/screen-ai-linux-host-adapter-execution-proof.mjs`
+      and `node scripts/test/screen-ai-linux-host-adapter-execution-proof.mjs`.
 - [x] Android mobile-control custody proof run:
       `node --check scripts/test/screen-ai-android-mobile-control-custody-proof.mjs`
       and

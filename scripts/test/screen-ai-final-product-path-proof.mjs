@@ -477,9 +477,18 @@ function validateFinalAdapterAudit() {
     finalAdapterAudit.closure?.custodyArtifactRows === 3,
     'final adapter audit did not consume three custody artifacts'
   );
+  assert(
+    finalAdapterAudit.closure?.linuxHostExecutionRows === 1,
+    'final adapter audit did not consume Linux host execution proof'
+  );
   assert(finalAdapterAudit.closure?.claimUpgradeRows === 0, 'final adapter audit contains claim upgrades');
-  assert((finalAdapterAudit.blockedRows ?? []).length === 6, 'final adapter audit blocked row count changed');
+  assert((finalAdapterAudit.blockedRows ?? []).length === 5, 'final adapter audit blocked row count changed');
   assert((finalAdapterAudit.custodyRows ?? []).length === 3, 'final adapter audit custody row count changed');
+  assert(
+    finalAdapterAudit.linuxExecutionRow?.executionClaimed === true &&
+      finalAdapterAudit.linuxExecutionRow?.rollbackExecuted === true,
+    'final adapter audit Linux execution row is not applied and rolled back'
+  );
   assert(
     finalAdapterAudit.custodyRows?.every((row) => row.finalAdapterCompletionClaimed === false) === true,
     'final adapter audit custody row claims final completion'

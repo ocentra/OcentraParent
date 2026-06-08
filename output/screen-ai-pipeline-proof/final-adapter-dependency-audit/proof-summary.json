@@ -1,12 +1,13 @@
 {
   "status": "blocked-by-upstream-adapter-artifacts",
   "proofKind": "screen-ai-final-adapter-dependency-audit",
-  "generatedAt": "2026-06-08T03:25:13.510Z",
+  "generatedAt": "2026-06-08T03:49:07.897Z",
   "sourceArtifacts": {
     "adapterReadiness": "output/screen-ai-pipeline-proof/adapter-readiness/proof-summary.json",
     "adapterReadinessReadModel": "output/screen-ai-pipeline-proof/adapter-readiness/read-model.json",
     "finalProductPath": "output/screen-ai-pipeline-proof/final-product-path/proof-summary.json",
     "linuxHostCustody": "output/screen-ai-pipeline-proof/linux-host-adapter-custody/proof-summary.json",
+    "linuxHostExecution": "output/screen-ai-pipeline-proof/linux-host-adapter-execution/proof-summary.json",
     "androidMobileCustody": "output/screen-ai-pipeline-proof/android-mobile-control-custody/proof-summary.json",
     "iosMobileCustody": "output/screen-ai-pipeline-proof/ios-mobile-control-custody/proof-summary.json",
     "adapterDependencyHandoff": "output/screen-ai-pipeline-proof/adapter-dependency-handoff/proof-summary.json",
@@ -21,7 +22,8 @@
     "broadBrowserNetworkMobileProductComplete": false,
     "openChecklistRowRetained": true,
     "executedAdapterRows": 2,
-    "blockedAdapterRows": 6,
+    "linuxHostExecutionRows": 1,
+    "blockedAdapterRows": 5,
     "custodyArtifactRows": 3,
     "dependencyHandoffRows": 6,
     "claimUpgradeRows": 0
@@ -85,21 +87,19 @@
       "missingArtifact": "iOS Family Controls/DeviceActivity control proof from a screen-derived mobile decision",
       "custodyArtifact": "output/screen-ai-pipeline-proof/ios-mobile-control-custody/proof-summary.json",
       "custodyRecorded": true
-    },
-    {
-      "rowId": "screen-ai-linux-host-adapter-unavailable",
-      "boundary": "linux-host-adapter",
-      "readinessState": "unavailable",
-      "actionExecutionState": "skipped",
-      "adapterExecutionProofArtifact": null,
-      "rawImageRetained": false,
-      "rawImageDeletedBeforeAdapter": true,
-      "claimFlagsAllFalse": true,
-      "missingArtifact": "Linux host adapter apply, rollback, and audit custody proof from a screen-derived decision",
-      "custodyArtifact": "output/screen-ai-pipeline-proof/linux-host-adapter-custody/proof-summary.json",
-      "custodyRecorded": true
     }
   ],
+  "linuxExecutionRow": {
+    "rowId": "screen-ai-linux-host-adapter-unavailable",
+    "artifactPath": "output/screen-ai-pipeline-proof/linux-host-adapter-execution/proof-summary.json",
+    "status": "linux-host-adapter-execution-proved-wsl2",
+    "screenDerivedBlockDecisionPreserved": true,
+    "rawImageDeletedBeforeAdapter": true,
+    "executionClaimed": true,
+    "rollbackExecuted": true,
+    "finalAdapterCompletionClaimed": false,
+    "nativeLinuxDesktopProductReady": false
+  },
   "custodyRows": [
     {
       "rowId": "screen-ai-linux-host-adapter-unavailable",
@@ -276,19 +276,11 @@
       "missingArtifact": "iOS Family Controls/DeviceActivity control proof from a screen-derived mobile decision",
       "handoffOwner": "primary/mobile-child-agent-sequencing",
       "expectedProofFile": "output/mobile-plan-proof/screen-derived-ios-mobile-control-apply-rollback-audit/proof-summary.json"
-    },
-    {
-      "rowId": "screen-ai-linux-host-adapter-unavailable",
-      "boundary": "linux-host-adapter",
-      "custodyArtifact": "output/screen-ai-pipeline-proof/linux-host-adapter-custody/proof-summary.json",
-      "missingArtifact": "Linux host adapter apply, rollback, and audit custody proof from a screen-derived decision",
-      "handoffOwner": "codex-b-after-linux-host-target",
-      "expectedProofFile": "output/screen-ai-pipeline-proof/linux-host-adapter-execution/proof-summary.json"
     }
   ],
   "nonClaims": [
-    "This audit does not implement broad installed-app blocking, host network/domain blocking, managed active-tab enforcement, Android/iOS mobile control, or Linux host control.",
-    "This audit does not close the product-complete adapter checklist row; it verifies that the row remains open until upstream execution artifacts exist.",
+    "This audit does not implement broad installed-app blocking, host network/domain blocking, managed active-tab enforcement, or Android/iOS mobile control.",
+    "This audit consumes the WSL2 Linux host execution artifact but does not close the product-complete adapter checklist row; it verifies that the row remains open until the remaining upstream execution artifacts exist.",
     "This audit consumes the final product-path proof after its service OCR policy source rerun assertion, but does not rerun live capture, local AI inference, portal rendering, or adapter execution itself."
   ]
 }

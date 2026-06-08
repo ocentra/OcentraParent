@@ -12,6 +12,7 @@ const sourceArtifacts = {
   aiPlanClosure: 'output/ai-plan-proof/local-ai-plan-closure-audit/proof-summary.json',
   finalProductPath: 'output/screen-ai-pipeline-proof/final-product-path/proof-summary.json',
   finalAdapterAudit: 'output/screen-ai-pipeline-proof/final-adapter-dependency-audit/proof-summary.json',
+  linuxHostExecution: 'output/screen-ai-pipeline-proof/linux-host-adapter-execution/proof-summary.json',
   productChecklistDelta: 'output/screen-ai-pipeline-proof/product-checklist-delta/proof-summary.json',
   productChecklistDeltaMarkdown:
     'output/screen-ai-pipeline-proof/product-checklist-delta/product-capability-checklist-delta.md',
@@ -23,6 +24,7 @@ const screenPlanClosure = readJson(sourceArtifacts.screenPlanClosure);
 const aiPlanClosure = readJson(sourceArtifacts.aiPlanClosure);
 const finalProductPath = readJson(sourceArtifacts.finalProductPath);
 const finalAdapterAudit = readJson(sourceArtifacts.finalAdapterAudit);
+const linuxHostExecution = readJson(sourceArtifacts.linuxHostExecution);
 const productChecklistDelta = readJson(sourceArtifacts.productChecklistDelta);
 const productChecklistDeltaMarkdown = readText(sourceArtifacts.productChecklistDeltaMarkdown);
 const pipelineChecklist = readText(sourceArtifacts.pipelineChecklist);
@@ -83,9 +85,26 @@ assert(
   finalAdapterAudit.closure?.finalPathFreshServiceRerunProved === true,
   'adapter audit does not consume fresh service rerun proof'
 );
-assert(finalAdapterAudit.closure?.blockedAdapterRows === 6, 'adapter blocker row count changed');
+assert(finalAdapterAudit.closure?.blockedAdapterRows === 5, 'adapter blocker row count changed');
 assert(finalAdapterAudit.closure?.custodyArtifactRows === 3, 'adapter custody row count changed');
+assert(finalAdapterAudit.closure?.linuxHostExecutionRows === 1, 'adapter audit lost Linux execution row');
 assert(finalAdapterAudit.closure?.claimUpgradeRows === 0, 'adapter audit contains claim upgrades');
+assert(
+  linuxHostExecution.status === 'linux-host-adapter-execution-proved-wsl2',
+  'Linux execution proof status changed'
+);
+assert(
+  linuxHostExecution.closure?.linuxWsl2HostMutationExecuted === true,
+  'Linux execution proof did not mutate the WSL2 host target'
+);
+assert(
+  linuxHostExecution.closure?.linuxWsl2RollbackExecuted === true,
+  'Linux execution proof did not roll back the WSL2 host target'
+);
+assert(
+  linuxHostExecution.closure?.nativeLinuxDesktopProductReady === false,
+  'Linux execution proof overclaims native Linux desktop readiness'
+);
 
 assert(
   productChecklistDelta.status === 'doc-delta-ready-product-checklist-locked',
@@ -97,8 +116,16 @@ assert(
   'product checklist delta does not carry fresh service rerun proof'
 );
 assert(
+  productChecklistDelta.closure?.linuxWsl2HostExecutionProved === true,
+  'product checklist delta does not carry Linux WSL2 execution proof'
+);
+assert(
   productChecklistDeltaMarkdown.includes('fresh service OCR source rerun evidence'),
   'product checklist delta markdown omits fresh service rerun evidence'
+);
+assert(
+  productChecklistDeltaMarkdown.includes('WSL2 Linux host adapter execution proof'),
+  'product checklist delta markdown omits Linux execution proof'
 );
 assert(
   pipelineChecklist.includes(
@@ -137,6 +164,8 @@ const proof = {
     rawScreenshotsRetainedByDefault: false,
     remoteAiUsedForChildSafety: false,
     productChecklistDeltaReadyButNotApplied: true,
+    linuxWsl2HostExecutionProved: true,
+    nativeLinuxDesktopProductReady: false,
     finalPipelineProductComplete: false,
     finalPipelineProductCompleteBlockedByAdapterGate: true,
     externalAdapterDependencyRows: blockedAdapterRows.length,
@@ -147,11 +176,12 @@ const proof = {
     deltaMarkdown: productChecklistDelta.deltaMarkdown,
     productChecklistEdited: productChecklistDelta.closure?.productChecklistEdited === true,
     finalPathFreshServiceRerunProved: productChecklistDelta.closure?.finalPathFreshServiceRerunProved === true,
+    linuxWsl2HostExecutionProved: productChecklistDelta.closure?.linuxWsl2HostExecutionProved === true,
   },
   nonClaims: [
     'This audit does not edit docs/product-capability-checklist.md.',
     'This audit does not claim product-complete screen, AI, or pipeline execution.',
-    'This audit does not implement broad installed-app, host network/domain, managed active-tab, Android, iOS, or Linux execution artifacts.',
+    'This audit does not implement broad installed-app, host network/domain, managed active-tab, Android, iOS, or native Linux desktop product-complete execution artifacts.',
     'This audit does not replace live macOS, Linux desktop, physical Android, physical iOS, authenticated-account social, live-view production, or production OCR/VLM quality gates still listed by the screen-plan closure audit.',
   ],
 };

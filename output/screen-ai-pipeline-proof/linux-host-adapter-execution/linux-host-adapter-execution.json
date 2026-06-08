@@ -1,0 +1,65 @@
+{
+  "schemaVersion": "v0.6",
+  "executionId": "screen-ai-linux-host-adapter-execution-wsl2",
+  "generatedAt": "2026-06-08T03:48:45.713Z",
+  "target": {
+    "kind": "wsl2-linux-host",
+    "targetInfo": "Linux GameDev 5.15.167.4-microsoft-standard-WSL2 #1 SMP Tue Nov 5 00:21:55 UTC 2024 x86_64 x86_64 x86_64 GNU/Linux\nuid=0(root) gid=0(root) groups=0(root),1000(docker)\n/usr/sbin/iptables\niptables v1.8.7 (nf_tables)\n",
+    "chainName": "OCSAIPROOF",
+    "targetAddress": "203.0.113.42"
+  },
+  "sourcePolicyDecisionId": "policy-decision-screen-analysis-bypass-tool",
+  "sourcePolicyAction": "block",
+  "sourcePolicyDryRun": true,
+  "sourceEvidenceReferences": [
+    {
+      "evidenceReferenceId": "screen-analysis-evidence-bypass-tool",
+      "kind": "activity-event",
+      "observedAt": "2026-06-04T08:53:32.027Z"
+    }
+  ],
+  "rawImageRetained": false,
+  "rawImageDeletedBeforeAdapter": true,
+  "apply": {
+    "state": "executed",
+    "commandFamily": "iptables",
+    "appliedRuleContainsTarget": true,
+    "appliedRuleContainsReject": true,
+    "beforeRules": "-P OUTPUT ACCEPT\n",
+    "appliedRule": "REJECT  all opt -- in * out *  0.0.0.0/0  -> 203.0.113.42   reject-with icmp-port-unreachable\n-N OCSAIPROOF\n-A OCSAIPROOF -d 203.0.113.42/32 -j REJECT --reject-with icmp-port-unreachable\n"
+  },
+  "rollback": {
+    "state": "executed-clean",
+    "afterRules": "-P OUTPUT ACCEPT\n",
+    "proofChainRemoved": true
+  },
+  "audit": {
+    "auditRef": "screen-ai-linux-host-adapter-execution-audit",
+    "sourceArtifacts": {
+      "blockPolicySource": "output/screen-ai-pipeline-proof/block-action-dispatch/00-screen-block-source.json",
+      "linuxHostCustody": "output/screen-ai-pipeline-proof/linux-host-adapter-custody/proof-summary.json",
+      "finalAdapterAudit": "output/screen-ai-pipeline-proof/final-adapter-dependency-audit/proof-summary.json"
+    },
+    "commands": [
+      "wsl.exe -e sh -lc \"iptables -S OUTPUT; iptables -S OCSAIPROOF 2>/dev/null || true\"",
+      "wsl.exe -e sh -lc \"uname -a; id; command -v iptables; iptables --version\"",
+      "wsl.exe -e sh -lc \"iptables -D OCSAIPROOF -d 203.0.113.42 -j REJECT 2>/dev/null || true\"",
+      "wsl.exe -e sh -lc \"iptables -D OUTPUT -j OCSAIPROOF 2>/dev/null || true\"",
+      "wsl.exe -e sh -lc \"iptables -F OCSAIPROOF 2>/dev/null || true\"",
+      "wsl.exe -e sh -lc \"iptables -X OCSAIPROOF 2>/dev/null || true\"",
+      "wsl.exe -e sh -lc \"iptables -N OCSAIPROOF\"",
+      "wsl.exe -e sh -lc \"iptables -I OUTPUT 1 -j OCSAIPROOF\"",
+      "wsl.exe -e sh -lc \"iptables -A OCSAIPROOF -d 203.0.113.42 -j REJECT\"",
+      "wsl.exe -e sh -lc \"iptables -C OCSAIPROOF -d 203.0.113.42 -j REJECT; iptables -S OCSAIPROOF\"",
+      "wsl.exe -e sh -lc \"iptables -D OCSAIPROOF -d 203.0.113.42 -j REJECT\"",
+      "wsl.exe -e sh -lc \"iptables -D OUTPUT -j OCSAIPROOF\"",
+      "wsl.exe -e sh -lc \"iptables -F OCSAIPROOF\"",
+      "wsl.exe -e sh -lc \"iptables -X OCSAIPROOF\"",
+      "wsl.exe -e sh -lc \"iptables -S OUTPUT; iptables -S OCSAIPROOF 2>/dev/null || true\""
+    ],
+    "custodyRef": "output/screen-ai-pipeline-proof/linux-host-adapter-custody/proof-summary.json",
+    "rawImageRetained": false,
+    "rawImageDeletedBeforeAdapter": true
+  },
+  "claimBoundary": "This proves a reversible WSL2 Linux iptables host mutation for a screen-derived block decision; it does not claim native Linux desktop capture parity, Wayland/PipeWire proof, or broad Linux rollout readiness."
+}

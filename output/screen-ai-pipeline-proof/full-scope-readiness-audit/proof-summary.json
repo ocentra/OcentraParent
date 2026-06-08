@@ -1,12 +1,13 @@
 {
   "status": "ready-except-external-adapter-and-product-checklist-dependencies",
   "proofKind": "screen-ai-full-scope-readiness-audit",
-  "generatedAt": "2026-06-08T03:30:15.146Z",
+  "generatedAt": "2026-06-08T03:49:30.052Z",
   "sourceArtifacts": {
     "screenPlanClosure": "output/screen-plan-proof/screen-plan-closure-audit/proof-summary.json",
     "aiPlanClosure": "output/ai-plan-proof/local-ai-plan-closure-audit/proof-summary.json",
     "finalProductPath": "output/screen-ai-pipeline-proof/final-product-path/proof-summary.json",
     "finalAdapterAudit": "output/screen-ai-pipeline-proof/final-adapter-dependency-audit/proof-summary.json",
+    "linuxHostExecution": "output/screen-ai-pipeline-proof/linux-host-adapter-execution/proof-summary.json",
     "productChecklistDelta": "output/screen-ai-pipeline-proof/product-checklist-delta/proof-summary.json",
     "productChecklistDeltaMarkdown": "output/screen-ai-pipeline-proof/product-checklist-delta/product-capability-checklist-delta.md",
     "pipelineChecklist": "docs/plans/screen-ai-pipeline-plan/implementation-checklist.md"
@@ -21,9 +22,11 @@
     "rawScreenshotsRetainedByDefault": false,
     "remoteAiUsedForChildSafety": false,
     "productChecklistDeltaReadyButNotApplied": true,
+    "linuxWsl2HostExecutionProved": true,
+    "nativeLinuxDesktopProductReady": false,
     "finalPipelineProductComplete": false,
     "finalPipelineProductCompleteBlockedByAdapterGate": true,
-    "externalAdapterDependencyRows": 6
+    "externalAdapterDependencyRows": 5
   },
   "blockedAdapterRows": [
     {
@@ -65,26 +68,19 @@
       "expectedProofFile": "output/mobile-plan-proof/screen-derived-ios-mobile-control-apply-rollback-audit/proof-summary.json",
       "custodyArtifact": "output/screen-ai-pipeline-proof/ios-mobile-control-custody/proof-summary.json",
       "missingArtifact": "iOS Family Controls/DeviceActivity control proof from a screen-derived mobile decision"
-    },
-    {
-      "rowId": "screen-ai-linux-host-adapter-unavailable",
-      "boundary": "linux-host-adapter",
-      "handoffOwner": "codex-b-after-linux-host-target",
-      "expectedProofFile": "output/screen-ai-pipeline-proof/linux-host-adapter-execution/proof-summary.json",
-      "custodyArtifact": "output/screen-ai-pipeline-proof/linux-host-adapter-custody/proof-summary.json",
-      "missingArtifact": "Linux host adapter apply, rollback, and audit custody proof from a screen-derived decision"
     }
   ],
   "productChecklistDelta": {
     "status": "doc-delta-ready-product-checklist-locked",
     "deltaMarkdown": "output/screen-ai-pipeline-proof/product-checklist-delta/product-capability-checklist-delta.md",
     "productChecklistEdited": false,
-    "finalPathFreshServiceRerunProved": true
+    "finalPathFreshServiceRerunProved": true,
+    "linuxWsl2HostExecutionProved": true
   },
   "nonClaims": [
     "This audit does not edit docs/product-capability-checklist.md.",
     "This audit does not claim product-complete screen, AI, or pipeline execution.",
-    "This audit does not implement broad installed-app, host network/domain, managed active-tab, Android, iOS, or Linux execution artifacts.",
+    "This audit does not implement broad installed-app, host network/domain, managed active-tab, Android, iOS, or native Linux desktop product-complete execution artifacts.",
     "This audit does not replace live macOS, Linux desktop, physical Android, physical iOS, authenticated-account social, live-view production, or production OCR/VLM quality gates still listed by the screen-plan closure audit."
   ]
 }

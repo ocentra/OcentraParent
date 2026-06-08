@@ -12,6 +12,7 @@ const sourcePaths = {
   adapterReadinessReadModel: 'output/screen-ai-pipeline-proof/adapter-readiness/read-model.json',
   finalProductPath: 'output/screen-ai-pipeline-proof/final-product-path/proof-summary.json',
   linuxHostCustody: 'output/screen-ai-pipeline-proof/linux-host-adapter-custody/proof-summary.json',
+  linuxHostExecution: 'output/screen-ai-pipeline-proof/linux-host-adapter-execution/proof-summary.json',
   androidMobileCustody: 'output/screen-ai-pipeline-proof/android-mobile-control-custody/proof-summary.json',
   iosMobileCustody: 'output/screen-ai-pipeline-proof/ios-mobile-control-custody/proof-summary.json',
   adapterDependencyHandoff: 'output/screen-ai-pipeline-proof/adapter-dependency-handoff/proof-summary.json',
@@ -54,12 +55,6 @@ const requiredBlockedRows = [
     expectedState: 'manual-required',
     missingArtifact: 'iOS Family Controls/DeviceActivity control proof from a screen-derived mobile decision',
   },
-  {
-    rowId: 'screen-ai-linux-host-adapter-unavailable',
-    boundary: 'linux-host-adapter',
-    expectedState: 'unavailable',
-    missingArtifact: 'Linux host adapter apply, rollback, and audit custody proof from a screen-derived decision',
-  },
 ];
 
 const failures = [];
@@ -67,6 +62,7 @@ const adapterReadiness = readJson(sourcePaths.adapterReadiness);
 const adapterReadinessReadModel = readJson(sourcePaths.adapterReadinessReadModel);
 const finalProductPath = readJson(sourcePaths.finalProductPath);
 const linuxHostCustody = readJson(sourcePaths.linuxHostCustody);
+const linuxHostExecution = readJson(sourcePaths.linuxHostExecution);
 const androidMobileCustody = readJson(sourcePaths.androidMobileCustody);
 const iosMobileCustody = readJson(sourcePaths.iosMobileCustody);
 const adapterDependencyHandoff = readJson(sourcePaths.adapterDependencyHandoff);
@@ -102,6 +98,7 @@ const custodyRows = [
   }),
 ];
 const handoffRows = auditDependencyHandoff();
+const linuxExecutionRow = auditLinuxExecutionArtifact();
 const executedRows = adapterReadinessReadModel.rows.filter((row) => row.actionExecutionState === 'executed');
 const openChecklistRowPresent = checklist.includes(
   '- [ ] Browser, network, mobile, and broad block adapters proven from screen-derived decisions before product-complete action claims.'
@@ -163,12 +160,14 @@ const proof = {
     broadBrowserNetworkMobileProductComplete: false,
     openChecklistRowRetained: true,
     executedAdapterRows: executedRows.length,
+    linuxHostExecutionRows: 1,
     blockedAdapterRows: blockedRows.length,
     custodyArtifactRows: custodyRows.length,
     dependencyHandoffRows: handoffRows.length,
     claimUpgradeRows: adapterReadiness.summary.claimUpgradeRows,
   },
   blockedRows,
+  linuxExecutionRow,
   custodyRows,
   dependencyHandoffRows: handoffRows,
   nextRequiredArtifacts: blockedRows.map((row) => ({
@@ -180,8 +179,8 @@ const proof = {
     expectedProofFile: handoffRows.find((handoffRow) => handoffRow.rowId === row.rowId)?.expectedProofFile ?? null,
   })),
   nonClaims: [
-    'This audit does not implement broad installed-app blocking, host network/domain blocking, managed active-tab enforcement, Android/iOS mobile control, or Linux host control.',
-    'This audit does not close the product-complete adapter checklist row; it verifies that the row remains open until upstream execution artifacts exist.',
+    'This audit does not implement broad installed-app blocking, host network/domain blocking, managed active-tab enforcement, or Android/iOS mobile control.',
+    'This audit consumes the WSL2 Linux host execution artifact but does not close the product-complete adapter checklist row; it verifies that the row remains open until the remaining upstream execution artifacts exist.',
     'This audit consumes the final product-path proof after its service OCR policy source rerun assertion, but does not rerun live capture, local AI inference, portal rendering, or adapter execution itself.',
   ],
 };
@@ -244,13 +243,49 @@ function auditCustodyArtifact({ rowId, proof, expectedStatus, closureKey, execut
   };
 }
 
+function auditLinuxExecutionArtifact() {
+  assert(
+    linuxHostExecution.status === 'linux-host-adapter-execution-proved-wsl2',
+    'Linux host execution proof status changed'
+  );
+  assert(
+    linuxHostExecution.closure?.screenDerivedBlockDecisionPreserved === true,
+    'Linux execution lost screen-derived decision custody'
+  );
+  assert(
+    linuxHostExecution.closure?.rawImageDeletedBeforeAdapter === true,
+    'Linux execution lost deleted-image custody'
+  );
+  assert(linuxHostExecution.closure?.rawImageRetained === false, 'Linux execution retained raw image');
+  assert(linuxHostExecution.closure?.linuxWsl2HostMutationExecuted === true, 'Linux WSL2 host mutation not executed');
+  assert(linuxHostExecution.closure?.linuxWsl2RollbackExecuted === true, 'Linux WSL2 rollback not clean');
+  assert(linuxHostExecution.closure?.linuxExecutionAuditRecorded === true, 'Linux execution audit not recorded');
+  assert(linuxHostExecution.closure?.finalAdapterCompletionClaimed === false, 'Linux execution claimed completion');
+  assert(
+    linuxHostExecution.closure?.nativeLinuxDesktopProductReady === false,
+    'Linux execution overclaimed desktop readiness'
+  );
+
+  return {
+    rowId: 'screen-ai-linux-host-adapter-unavailable',
+    artifactPath: sourcePaths.linuxHostExecution,
+    status: linuxHostExecution.status,
+    screenDerivedBlockDecisionPreserved: true,
+    rawImageDeletedBeforeAdapter: true,
+    executionClaimed: true,
+    rollbackExecuted: true,
+    finalAdapterCompletionClaimed: false,
+    nativeLinuxDesktopProductReady: false,
+  };
+}
+
 function auditDependencyHandoff() {
   assert(
     adapterDependencyHandoff.status === 'adapter-dependency-handoff-ready-upstream-execution-required',
     'adapter dependency handoff status changed'
   );
   assert(
-    adapterDependencyHandoff.closure?.dependencyRowsMapped === requiredBlockedRows.length,
+    adapterDependencyHandoff.closure?.dependencyRowsMapped === requiredBlockedRows.length + 1,
     'adapter dependency handoff row count changed'
   );
   assert(
@@ -271,7 +306,7 @@ function auditDependencyHandoff() {
   );
 
   const rows = adapterDependencyHandoffRows.rows ?? [];
-  assert(rows.length === requiredBlockedRows.length, 'adapter dependency handoff rows length mismatch');
+  assert(rows.length === requiredBlockedRows.length + 1, 'adapter dependency handoff rows length mismatch');
 
   for (const requirement of requiredBlockedRows) {
     const row = rows.find((candidate) => candidate.rowId === requirement.rowId);
