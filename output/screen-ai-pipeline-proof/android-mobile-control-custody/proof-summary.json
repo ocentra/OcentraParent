@@ -1,0 +1,31 @@
+{
+  "status": "android-mobile-control-custody-artifact-written-final-execution-blocked",
+  "proofKind": "screen-ai-android-mobile-control-custody-proof",
+  "generatedAt": "2026-06-08T00:43:31.624Z",
+  "sourceArtifacts": {
+    "blockPolicySource": "output/screen-ai-pipeline-proof/block-action-dispatch/00-screen-block-source.json",
+    "adapterReadinessReadModel": "output/screen-ai-pipeline-proof/adapter-readiness/read-model.json",
+    "androidCaptureCapability": "output/screen-plan-proof/android/proof-summary.json",
+    "androidMediaProjectionProof": "output/screen-plan-proof/android-mediaprojection/proof-summary.json",
+    "adapterBlockerLedger": "output/screen-ai-pipeline-proof/adapter-blocker-ledger/proof-summary.json",
+    "screenAiPipelineChecklist": "docs/plans/screen-ai-pipeline-plan/implementation-checklist.md"
+  },
+  "screenDerivedPolicySource": "output/screen-ai-pipeline-proof/android-mobile-control-custody/01-screen-derived-policy-source.json",
+  "custodyArtifact": "output/screen-ai-pipeline-proof/android-mobile-control-custody/02-android-mobile-control-custody.json",
+  "closure": {
+    "screenDerivedBlockDecisionPreserved": true,
+    "androidEmulatorCapturePrerequisitePresent": true,
+    "androidRawImageDeletionPreserved": true,
+    "androidMobileApplyCustodyRecorded": true,
+    "androidMobileApplyExecuted": false,
+    "androidRollbackExecutionRecorded": false,
+    "androidAuditCustodyRecorded": true,
+    "finalAdapterCompletionClaimed": false,
+    "productCompleteAdapterRowStillOpen": true
+  },
+  "nonClaims": [
+    "This proof does not execute Android Device Owner or managed-profile control.",
+    "This proof does not execute Android rollback.",
+    "This proof does not claim physical-device parity, silent Android background capture, Accessibility enforcement, UsageStats enforcement, or VPN/DNS enforcement."
+  ]
+}

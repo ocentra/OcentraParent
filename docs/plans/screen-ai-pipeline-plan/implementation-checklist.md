@@ -200,6 +200,12 @@ or runtime-discovery proofs into full household mesh execution.
       not-executed target-unavailable state and keeping product-complete Linux
       host control blocked:
       `output/screen-ai-pipeline-proof/linux-host-adapter-custody/proof-summary.json`.
+- [x] Android mobile-control custody artifact records screen-derived apply,
+      rollback, and audit custody for the Android blocker while preserving
+      not-executed manual-required state and keeping Device Owner,
+      managed-profile, UsageStats, Accessibility, VPN/DNS, and physical-device
+      control claims blocked:
+      `output/screen-ai-pipeline-proof/android-mobile-control-custody/proof-summary.json`.
 - [x] Fresh event-driven runtime path proof proves capture event, AI
       result event, policy event, action/dry-run event, portal/read-model event,
       and deletion/custody event in one in-process runtime chain. Live trigger
@@ -306,6 +312,10 @@ or runtime-discovery proofs into full household mesh execution.
 - [x] Linux host adapter custody proof run:
       `node --check scripts/test/screen-ai-linux-host-adapter-custody-proof.mjs`
       and `node scripts/test/screen-ai-linux-host-adapter-custody-proof.mjs`.
+- [x] Android mobile-control custody proof run:
+      `node --check scripts/test/screen-ai-android-mobile-control-custody-proof.mjs`
+      and
+      `node scripts/test/screen-ai-android-mobile-control-custody-proof.mjs`.
 - [x] Event-driven Screen-AI runtime chain proof run:
       `node --check scripts/test/screen-ai-event-driven-runtime-proof.mjs` and
       `node scripts/test/screen-ai-event-driven-runtime-proof.mjs`.
