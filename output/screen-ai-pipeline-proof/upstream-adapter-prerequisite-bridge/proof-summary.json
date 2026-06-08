@@ -1,7 +1,7 @@
 {
   "status": "upstream-prerequisites-partial-final-adapters-blocked",
   "proofKind": "screen-ai-upstream-adapter-prerequisite-bridge-proof",
-  "generatedAt": "2026-06-08T00:18:55.928Z",
+  "generatedAt": "2026-06-08T06:46:43.239Z",
   "sourceArtifacts": {
     "blockerLedger": "output/screen-ai-pipeline-proof/adapter-blocker-ledger/proof-summary.json",
     "appGameBroadBlocking": "output/app-game-plan-proof/23-broad-blocking-proof-gates/03-runtime-evidence.json",
@@ -23,7 +23,7 @@
     "managedBrowserCapturePrerequisitePresent": true,
     "androidCapturePrerequisitePresentPhysicalControlMissing": true,
     "iosSourceDocPrerequisitePresentPhysicalControlMissing": true,
-    "linuxCapturePrerequisitePresentNativeControlMissing": true,
+    "linuxWsl2HostExecutionHandledBySeparateArtifact": true,
     "finalAdapterCompletionClaimed": false
   },
   "rows": [
@@ -86,18 +86,6 @@
       "requiredFinalArtifact": "screen-derived mobile decision to iOS Family Controls or DeviceActivity action with rollback, audit, and custody proof",
       "finalAdapterCompletionClaimed": false,
       "nextAction": "Wait for physical iOS Family Controls or DeviceActivity control execution with rollback, audit, and custody proof before closing this row."
-    },
-    {
-      "rowId": "screen-ai-linux-host-adapter-unavailable",
-      "adapterClass": "linux-host-control",
-      "upstreamPrerequisiteState": "capture-prerequisite-present-control-execution-missing",
-      "upstreamProofArtifact": "output/screen-plan-proof/linux/proof-summary.json",
-      "upstreamRollbackArtifact": null,
-      "upstreamReadinessProved": true,
-      "upstreamExecutionProved": false,
-      "requiredFinalArtifact": "screen-derived Linux host decision to host action with rollback, audit, and custody proof",
-      "finalAdapterCompletionClaimed": false,
-      "nextAction": "Wait for Linux host control execution with native session/platform proof, rollback, audit, and custody before closing this row."
     }
   ],
   "nonClaims": [

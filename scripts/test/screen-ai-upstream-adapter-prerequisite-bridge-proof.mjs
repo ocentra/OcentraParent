@@ -117,15 +117,15 @@ assert(
 
 const rows = blockerLedger.rows.map((row) => bridgeRowFor(row));
 
-assert(rows.length === 6, 'expected six upstream bridge rows');
+assert(rows.length === 5, 'expected five remaining upstream bridge rows');
 assert(
   rows.filter((row) => row.upstreamPrerequisiteState === 'readiness-proof-present-execution-missing').length === 2,
   'expected exactly two blockers with upstream readiness proof present'
 );
 assert(
   rows.filter((row) => row.upstreamPrerequisiteState === 'capture-prerequisite-present-control-execution-missing')
-    .length === 3,
-  'expected exactly three blockers with capture prerequisites present but control execution missing'
+    .length === 2,
+  'expected exactly two blockers with capture prerequisites present but control execution missing'
 );
 assert(
   rows.filter((row) => row.upstreamPrerequisiteState === 'source-doc-prerequisite-present-physical-execution-missing')
@@ -168,7 +168,7 @@ const proof = {
     managedBrowserCapturePrerequisitePresent: true,
     androidCapturePrerequisitePresentPhysicalControlMissing: true,
     iosSourceDocPrerequisitePresentPhysicalControlMissing: true,
-    linuxCapturePrerequisitePresentNativeControlMissing: true,
+    linuxWsl2HostExecutionHandledBySeparateArtifact: true,
     finalAdapterCompletionClaimed: false,
   },
   rows,

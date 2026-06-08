@@ -1,6 +1,6 @@
 # Screen AI Product Checklist Delta
 
-Generated: 2026-06-08T06:12:08.274Z
+Generated: 2026-06-08T06:46:43.381Z
 
 Do not apply this while another lane owns `docs/product-capability-checklist.md`.
 

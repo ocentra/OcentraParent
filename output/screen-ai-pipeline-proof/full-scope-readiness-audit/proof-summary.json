@@ -1,7 +1,7 @@
 {
   "status": "ready-except-external-adapter-and-product-checklist-dependencies",
   "proofKind": "screen-ai-full-scope-readiness-audit",
-  "generatedAt": "2026-06-08T06:11:55.077Z",
+  "generatedAt": "2026-06-08T06:46:43.449Z",
   "sourceArtifacts": {
     "screenPlanClosure": "output/screen-plan-proof/screen-plan-closure-audit/proof-summary.json",
     "aiPlanClosure": "output/ai-plan-proof/local-ai-plan-closure-audit/proof-summary.json",

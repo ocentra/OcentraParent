@@ -984,9 +984,10 @@ parity, and UI remain separate proof gates.
       encrypted service queue, records a `localOcr` Activity Screen row, drains
       the queue, and deletes adapter temp image material.
 - [x] Screen-derived adapter readiness preserves real owned-process adapter
-      proof while keeping broad/browser/network/mobile/Linux targets
+      proof while keeping broad/browser/network/mobile targets
       manual-required, not-claimed, or unavailable without raw retention or
-      claim upgrades.
+      claim upgrades. WSL2 Linux host execution is proved separately, while
+      native Linux desktop/Wayland/PipeWire product parity remains unclaimed.
 - [x] Screen-summary parent explanation/audit context cites local OCR replay
       refs, parent rules, dry-run policy refs, and deleted-image custody without
       remote AI or enforcement claims.

@@ -1,7 +1,7 @@
 {
   "status": "doc-delta-ready-product-checklist-locked",
   "proofKind": "screen-ai-product-checklist-delta-proof",
-  "generatedAt": "2026-06-08T06:12:08.274Z",
+  "generatedAt": "2026-06-08T06:46:43.381Z",
   "sourceArtifacts": {
     "productChecklist": "docs/product-capability-checklist.md",
     "finalProductPath": "output/screen-ai-pipeline-proof/final-product-path/proof-summary.json",

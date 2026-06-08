@@ -1,6 +1,6 @@
 # Screen AI Upstream Adapter Prerequisite Bridge
 
-Generated: 2026-06-08T00:18:55.928Z
+Generated: 2026-06-08T06:46:43.239Z
 
 Status: upstream-prerequisites-partial-final-adapters-blocked
 
@@ -11,7 +11,6 @@ Status: upstream-prerequisites-partial-final-adapters-blocked
 - managed-active-tab-exact-url: capture-prerequisite-present-control-execution-missing; final completion claimed: false.
 - android-device-owner-or-managed-profile: capture-prerequisite-present-control-execution-missing; final completion claimed: false.
 - ios-family-controls-device-activity: source-doc-prerequisite-present-physical-execution-missing; final completion claimed: false.
-- linux-host-control: capture-prerequisite-present-control-execution-missing; final completion claimed: false.
 
 ## Closure
 
@@ -25,7 +24,7 @@ Status: upstream-prerequisites-partial-final-adapters-blocked
   "managedBrowserCapturePrerequisitePresent": true,
   "androidCapturePrerequisitePresentPhysicalControlMissing": true,
   "iosSourceDocPrerequisitePresentPhysicalControlMissing": true,
-  "linuxCapturePrerequisitePresentNativeControlMissing": true,
+  "linuxWsl2HostExecutionHandledBySeparateArtifact": true,
   "finalAdapterCompletionClaimed": false
 }
 ```

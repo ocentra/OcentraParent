@@ -118,11 +118,11 @@ const proof = {
   nonClaims: [
     'This verifier validates retained real-run artifacts and does not rerun the live operator capture or model inference session.',
     'Managed-browser trigger producer ownership, authenticated-account social proof, and broad browser/network/mobile/Linux adapters remain separate unless their own execution artifacts are cited.',
-    'The custody-aware final adapter audit is required by this proof and keeps broad/browser/network/mobile/Linux product-complete adapter execution blocked.',
+    'The custody-aware final adapter audit is required by this proof and keeps broad/browser/network/mobile/native-Linux product-complete adapter execution blocked while WSL2 Linux execution remains separately proved.',
     'The adapter blocker ledger and dependency handoff are required by this proof; they map upstream execution artifacts without upgrading product-complete claims.',
     'The screen-plan and AI-plan closure audits are required by this proof; they stack prerequisites without overriding remaining external adapter and platform gates.',
     'Household mesh provider routing artifacts are required by this proof; provider work may carry redacted/custody refs only and child-agent validation remains local before policy.',
-    'Service event producer/subscriber artifacts are required by this proof; broad/browser/network/mobile/Linux adapter execution remains separate.',
+    'Service event producer/subscriber artifacts are required by this proof; broad/browser/network/mobile/native-Linux product adapter execution remains separate.',
     'The real Windows service WinRT OCR policy artifact is required by this proof and must rerun live public browser capture/OCR before consuming the row through typed policy dry-run contracts.',
     'The proof closes the stacked real trigger-to-analysis-to-policy-to-action/read-model-to-deletion evidence path from current artifacts; it does not make raw screenshot retention or live view product claims.',
   ],
