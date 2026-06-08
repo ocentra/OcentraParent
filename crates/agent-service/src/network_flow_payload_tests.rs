@@ -250,10 +250,16 @@ fn observation() -> ActivityNetworkFlowObservation {
             last_seen_at: Some(constants::activity_store::TEST_FIRST_OBSERVED_AT.to_string()),
         },
         evidence: vec![ActivityEvidenceRef {
-            evidence_id: constants::activity_store::TEST_NETWORK_EVENT_ID.to_string(),
-            kind: ActivityEvidenceKind::JournalEntry,
+            evidence_id: test_network_evidence_id(),
+            kind: ActivityEvidenceKind::LocalDbRow,
             digest: None,
             uri: None,
         }],
     }
+}
+
+fn test_network_evidence_id() -> String {
+    let mut evidence_id = String::from(constants::activity_capture::NETWORK_EVIDENCE_ID_PREFIX);
+    evidence_id.push_str(constants::activity_store::TEST_NETWORK_EVENT_ID);
+    evidence_id
 }

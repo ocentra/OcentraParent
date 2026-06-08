@@ -2,7 +2,7 @@
   "proof": "network-policy-preview-stored-flow-evidence-proof",
   "proofRevision": "network-policy-preview-stored-flow-evidence-proof/v2",
   "checkedAt": "deterministic:network-policy-preview-stored-flow-evidence-proof/v2",
-  "sourceFingerprint": "source-tree:b6a00a864eed5c1ed667a34ec169b2bdcdce289b0a5da04ed410b58f09b557d5",
+  "sourceFingerprint": "source-tree:fd665c1b8993f92efac2271a93b61879ebe1ab97e083e76dae097d0d39f15559",
   "sourceRefs": [
     "scripts/test/network-policy-preview-stored-flow-evidence-proof.mjs",
     "crates/agent-core/Cargo.toml",

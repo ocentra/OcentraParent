@@ -37,6 +37,8 @@ mod remote_delivery_durable_envelope_types;
 mod remote_delivery_event_chain_journal;
 mod remote_delivery_event_chain_journal_types;
 mod remote_delivery_event_chain_store;
+mod remote_delivery_external_cross_process_transport;
+mod remote_delivery_external_cross_process_transport_types;
 mod remote_delivery_fixture_transport;
 mod remote_delivery_fixture_transport_types;
 mod remote_delivery_no_enforcement_invariant;
@@ -109,6 +111,15 @@ pub(crate) use remote_delivery_event_chain_journal::prove_network_runtime_remote
 pub use remote_delivery_event_chain_journal_types::NetworkRuntimeRemoteEventChainJournalError;
 #[cfg(test)]
 pub(crate) use remote_delivery_event_chain_journal_types::NetworkRuntimeRemoteEventChainJournalReport;
+pub use remote_delivery_external_cross_process_transport::prove_network_runtime_remote_delivery_external_cross_process_transport;
+#[cfg(test)]
+pub(crate) use remote_delivery_external_cross_process_transport::prove_network_runtime_remote_delivery_external_cross_process_transport_from_replay;
+pub use remote_delivery_external_cross_process_transport_types::{
+    NetworkRuntimeRemoteDeliveryExternalCrossProcessTransportError,
+    NetworkRuntimeRemoteDeliveryExternalCrossProcessTransportRecord,
+    NetworkRuntimeRemoteDeliveryExternalCrossProcessTransportReport,
+    NetworkRuntimeRemoteDeliveryExternalCrossProcessTransportState,
+};
 pub use remote_delivery_fixture_transport::prove_network_runtime_remote_delivery_fixture_transport;
 #[cfg(test)]
 pub(crate) use remote_delivery_fixture_transport::prove_network_runtime_remote_delivery_fixture_transport_from_outbox;

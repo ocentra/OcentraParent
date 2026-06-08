@@ -120,6 +120,11 @@ const freshnessCommandSpecs = [
     'node',
     ['scripts/test/network-remote-delivery-cross-process-replay-status-bridge-proof.mjs'],
   ],
+  [
+    'network-remote-delivery-external-cross-process-transport-proof',
+    'node',
+    ['scripts/test/network-remote-delivery-external-cross-process-transport-proof.mjs'],
+  ],
   ['network-parent-ui-evidence-drawer-proof', 'node', ['scripts/test/network-parent-ui-evidence-drawer-proof.mjs']],
   [
     'network-portal-risk-performance-platform-proof',
@@ -203,6 +208,10 @@ const refreshedProofByName = new Map([
   [
     'network-remote-delivery-cross-process-replay-status-bridge-proof',
     'network-remote-delivery-cross-process-replay-status-bridge-proof',
+  ],
+  [
+    'network-remote-delivery-external-cross-process-transport-proof',
+    'network-remote-delivery-external-cross-process-transport-proof',
   ],
   ['network-portal-risk-performance-platform-proof', 'network-portal-risk-performance-platform-proof'],
   ['network-security-readiness-proof', 'network-security-readiness-proof'],
@@ -465,6 +474,11 @@ const proofArtifacts = [
     'output/network-plan-proof/10s-remote-delivery-cross-process-replay-status-bridge/proof-summary.json',
   ],
   [
+    'remote-external-cross-process-transport',
+    '10-remote-delivery-proof',
+    'output/network-plan-proof/10t-remote-delivery-external-cross-process-transport/proof-summary.json',
+  ],
+  [
     'vpn-proxy-tunnel',
     'classification-proof',
     'output/network-plan-proof/24-vpn-proxy-tor-tunnel-classifier/proof-summary.json',
@@ -556,7 +570,7 @@ const proof = {
   manualRequiredBoundaries: [
     'live packet capture driver invocation remains proof-gated/manual-required',
     'broker/family-hub remote delivery, provider delivery, and child-device delivery remain manual-required',
-    'external cross-process transport beyond deterministic replay metadata and remote retention/delete/export propagation remain future transport work',
+    'row10t deterministic transport envelope/ack records are proof-local; live dispatch, product remote acknowledgements, and remote retention/delete/export propagation remain future transport work',
     'production platform support and external audit/penetration-test signoff remain unclaimed',
   ],
   notClaimed: [

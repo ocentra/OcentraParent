@@ -48,9 +48,9 @@ const expectedStatus = {
     'remoteDeleteExportPropagationImplemented=false',
   ],
   parserInvariants: [
-    'Rust protocol serializes row10m readiness refs in the current row10q remote delivery status shape',
-    'service payload composes row10s status identity, row10k blocked dispatch refs, and row10m delete/export readiness refs into one cached status object',
-    'TypeScript parser rejects stale row10s status refs, stale row10m refs, and mismatched readiness counts',
+    'Rust protocol serializes row10m readiness refs in the current row10t remote delivery status shape',
+    'service payload composes row10t status identity, row10k blocked dispatch refs, and row10m delete/export readiness refs into one cached status object',
+    'TypeScript parser rejects stale row10t status refs, stale row10m refs, and mismatched readiness counts',
     'status bridge does not claim live propagation, product-ready delivery, policy authority, adapter execution, enforcement commands, exact content, raw PCAP, or host filtering',
   ],
   noClaims: [
@@ -201,8 +201,8 @@ const proof = {
     'network-plan supplemental row 10h remote delivery outbox status bridge',
   ],
   provenBoundaries: [
-    'Rust protocol serializes row10m delete/export readiness refs inside the current row10q remote delivery status shape',
-    'agent-service reports row10s status identity plus row10m delete/export readiness refs and counts through the existing cached remote delivery status payload',
+    'Rust protocol serializes row10m delete/export readiness refs inside the current row10t remote delivery status shape',
+    'agent-service reports row10t status identity plus row10m delete/export readiness refs and counts through the existing cached remote delivery status payload',
     'TypeScript parser rejects stale row10m readiness refs and readiness counts that do not match the source outbox candidate count',
     'the status bridge keeps remote delete/export propagation implementation false and does not upgrade service payload or product support into live delivery',
     'the status bridge rejects product-ready remote delivery, policy authority, side-effect authority, adapter execution, enforcement command publication, live broker/family-hub delivery, provider delivery, child-device delivery, exact-content, and host-filter claims',
@@ -239,7 +239,7 @@ function assertSourceContracts() {
     [protocolConstants, 'TEST_REMOTE_DELIVERY_DELETE_EXPORT_STATUS_BRIDGE_REF'],
     [
       protocolTests,
-      'network_remote_delivery_status_serializes_row10s_replay_status_with_row10k_dispatch_state_without_product_claims',
+      'network_remote_delivery_status_serializes_row10t_external_transport_status_without_product_claims',
     ],
     [protocolTests, 'deleteExportPropagationRef'],
     [servicePayload, 'prove_network_runtime_remote_delivery_delete_export_propagation'],
@@ -249,15 +249,14 @@ function assertSourceContracts() {
     [tsDefaults, 'DeleteExportPropagationRef'],
     [tsDefaults, 'cross-process-custody-status.10q'],
     [tsParser, 'deleteExportReadinessMatches'],
-    [tsParser, 'row10s status identity'],
-    [tsTests, 'parses row10s cross-process replay status'],
-    [
-      tsTests,
-      'rejects row10k dispatch, row10m readiness, row10p readiness, row10q custody, row10r replay, and candidate-count mismatches',
-    ],
+    [tsParser, 'row10t status identity'],
+    [tsTests, 'parses row10t external cross-process transport status from a typed agent event'],
+    [tsTests, 'rejects row10k dispatch, row10m readiness, and candidate-count mismatches'],
+    [tsTests, 'rejects row10p provider/child readiness and row10q custody mismatches'],
+    [tsTests, 'rejects row10r replay and row10t transport mismatches'],
     [protocolReadme, 'row10m'],
     [protocolReadme, 'delete/export readiness refs'],
-    [protocolReadme, 'row10s cross-process replay status identity'],
+    [protocolReadme, 'row10t external cross-process transport'],
     [serviceReadme, 'row10m delete/export readiness'],
     [tsReadme, 'row10m delete/export readiness refs'],
     [featureDoc, 'network-remote-delivery-delete-export-status-bridge-proof'],
@@ -338,7 +337,7 @@ function normalizeSourceShapeLog(text) {
     .sort();
   const passedLine = normalized.includes('Source shape guard passed.') ? 'Source shape guard passed.' : '';
   return (
-    ['Source shape warnings scoped to row10s source refs:', ...scopedWarnings, passedLine]
+    ['Source shape warnings scoped to row10n source refs:', ...scopedWarnings, passedLine]
       .filter((line) => line.length > 0)
       .join('\n') + '\n'
   );

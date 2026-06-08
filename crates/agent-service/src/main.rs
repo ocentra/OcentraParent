@@ -199,6 +199,8 @@ mod network_live_capture_readiness_bridge_tests;
 mod network_product_path_bridge;
 #[cfg(test)]
 mod network_product_path_bridge_tests;
+#[cfg(test)]
+mod network_product_path_integration_tests;
 mod network_remote_delivery_status_cross_process;
 mod network_remote_delivery_status_payload;
 #[cfg(test)]

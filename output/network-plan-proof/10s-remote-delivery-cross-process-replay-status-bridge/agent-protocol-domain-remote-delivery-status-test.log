@@ -8,6 +8,6 @@ agent-protocol-domain-remote-delivery-status-test
 
 
  Test Files  1 passed (1)
-      Tests  5 passed (5)
-   Start at  09:05:21
-   Duration  908ms (transform 294ms, setup 0ms, import 707ms, tests 37ms, environment 0ms)
+      Tests  7 passed (7)
+   Start at  14:24:48
+   Duration  950ms (transform 300ms, setup 0ms, import 730ms, tests 44ms, environment 0ms)

@@ -1,15 +1,16 @@
-Source shape warnings scoped to row10s source refs:
-crates/agent-protocol/src/constants/network_flow.rs:1 file has 312 lines; crossed 250-line advisory band; maximum is 1000
-crates/agent-protocol/src/network_flow.rs:1 file has 393 lines; crossed 250-line advisory band; maximum is 1000
+Source shape warnings scoped to row10n source refs:
+crates/agent-protocol/src/constants/network_flow.rs:1 file has 322 lines; crossed 250-line advisory band; maximum is 1000
+crates/agent-protocol/src/network_flow.rs:1 file has 410 lines; crossed 250-line advisory band; maximum is 1000
 crates/agent-protocol/src/network_flow_tests.rs:1 file has 18 functions; warning starts at 15 of 18
-crates/agent-protocol/src/network_flow_tests.rs:1 file has 659 lines; crossed 500-line advisory band; maximum is 1000
-crates/agent-protocol/src/network_flow_tests.rs:348 function has 75 lines; warning starts at 64 of 80
+crates/agent-protocol/src/network_flow_tests.rs:1 file has 699 lines; crossed 500-line advisory band; maximum is 1000
+crates/agent-protocol/src/network_flow_tests.rs:216 function has 78 lines; warning starts at 64 of 80
+crates/agent-protocol/src/network_flow_tests.rs:373 function has 76 lines; warning starts at 64 of 80
 crates/agent-service/src/network_remote_delivery_status_payload.rs:1 file has 17 functions; warning starts at 15 of 18
-crates/agent-service/src/network_remote_delivery_status_payload.rs:1 file has 369 lines; crossed 250-line advisory band; maximum is 1000
-crates/agent-service/src/network_remote_delivery_status_service_tests.rs:1 file has 16 functions; warning starts at 15 of 18
-crates/agent-service/src/network_remote_delivery_status_service_tests.rs:1 file has 446 lines; crossed 250-line advisory band; maximum is 1000
-packages/agent-protocol-domain/src/defaults.ts:1 file has 541 lines; crossed 500-line advisory band; maximum is 1000
-packages/agent-protocol-domain/src/network-remote-delivery-status.ts:1 file has 352 lines; crossed 250-line advisory band; maximum is 1000
-packages/agent-protocol-domain/tests/network-remote-delivery-status.test.ts:1 file has 313 lines; crossed 250-line advisory band; maximum is 1000
-packages/agent-protocol-domain/tests/network-remote-delivery-status.test.ts:180 function has 65 lines; warning starts at 64 of 80
+crates/agent-service/src/network_remote_delivery_status_payload.rs:1 file has 384 lines; crossed 250-line advisory band; maximum is 1000
+crates/agent-service/src/network_remote_delivery_status_service_tests.rs:1 file has 17 functions; warning starts at 15 of 18
+crates/agent-service/src/network_remote_delivery_status_service_tests.rs:1 file has 482 lines; crossed 250-line advisory band; maximum is 1000
+packages/agent-protocol-domain/src/defaults.ts:1 file has 544 lines; crossed 500-line advisory band; maximum is 1000
+packages/agent-protocol-domain/src/network-remote-delivery-status.ts:1 file has 400 lines; crossed 250-line advisory band; maximum is 1000
+packages/agent-protocol-domain/tests/network-remote-delivery-status.test.ts:1 file has 345 lines; crossed 250-line advisory band; maximum is 1000
+packages/agent-protocol-domain/tests/network-remote-delivery-status.test.ts:189 function has 75 lines; warning starts at 64 of 80
 Source shape guard passed.

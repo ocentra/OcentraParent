@@ -18,9 +18,9 @@
     "remoteDeleteExportPropagationImplemented=false"
   ],
   "parserInvariants": [
-    "Rust protocol serializes row10m readiness refs in the current row10q remote delivery status shape",
-    "service payload composes row10s status identity, row10k blocked dispatch refs, and row10m delete/export readiness refs into one cached status object",
-    "TypeScript parser rejects stale row10s status refs, stale row10m refs, and mismatched readiness counts",
+    "Rust protocol serializes row10m readiness refs in the current row10t remote delivery status shape",
+    "service payload composes row10t status identity, row10k blocked dispatch refs, and row10m delete/export readiness refs into one cached status object",
+    "TypeScript parser rejects stale row10t status refs, stale row10m refs, and mismatched readiness counts",
     "status bridge does not claim live propagation, product-ready delivery, policy authority, adapter execution, enforcement commands, exact content, raw PCAP, or host filtering"
   ],
   "noClaims": [

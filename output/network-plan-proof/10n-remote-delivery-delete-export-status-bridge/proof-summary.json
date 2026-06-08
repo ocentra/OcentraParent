@@ -2,7 +2,7 @@
   "proof": "network-remote-delivery-delete-export-status-bridge-proof",
   "proofRevision": "network-remote-delivery-delete-export-status-bridge-proof/v1",
   "checkedAt": "deterministic:network-remote-delivery-delete-export-status-bridge-proof/v1",
-  "sourceFingerprint": "source-tree:4395219146b888a62213c28542d1aee6f368d0e4cfa40858656273395ab6fba0",
+  "sourceFingerprint": "source-tree:366fcf1ebfcc04aba31997ea1d77330b64648175201b366725c4b9aaf58293e6",
   "sourceRefs": [
     "scripts/test/network-remote-delivery-delete-export-status-bridge-proof.mjs",
     "crates/agent-protocol/src/constants/network_flow.rs",
@@ -87,8 +87,8 @@
     "network-plan supplemental row 10h remote delivery outbox status bridge"
   ],
   "provenBoundaries": [
-    "Rust protocol serializes row10m delete/export readiness refs inside the current row10q remote delivery status shape",
-    "agent-service reports row10s status identity plus row10m delete/export readiness refs and counts through the existing cached remote delivery status payload",
+    "Rust protocol serializes row10m delete/export readiness refs inside the current row10t remote delivery status shape",
+    "agent-service reports row10t status identity plus row10m delete/export readiness refs and counts through the existing cached remote delivery status payload",
     "TypeScript parser rejects stale row10m readiness refs and readiness counts that do not match the source outbox candidate count",
     "the status bridge keeps remote delete/export propagation implementation false and does not upgrade service payload or product support into live delivery",
     "the status bridge rejects product-ready remote delivery, policy authority, side-effect authority, adapter execution, enforcement command publication, live broker/family-hub delivery, provider delivery, child-device delivery, exact-content, and host-filter claims"

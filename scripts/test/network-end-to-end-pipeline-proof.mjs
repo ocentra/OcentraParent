@@ -104,6 +104,12 @@ const commands = [
     log: join(proofRoot, 'agent-service-stored-flow-product-path-bridge.log'),
   },
   {
+    name: 'agent-service-capture-store-product-path-integration',
+    command: 'cargo',
+    args: ['test', '-p', 'ocentra-parent-agent-service', 'captured_network_metadata_drives_product_path_payload'],
+    log: join(proofRoot, 'agent-service-capture-store-product-path-integration.log'),
+  },
+  {
     name: 'agent-service-network-flow-payload-product-path',
     command: 'cargo',
     args: ['test', '-p', 'ocentra-parent-agent-service', 'network_flow_payload'],
@@ -140,6 +146,7 @@ const proof = {
   provenRows: ['51 Integrated event + network product path proof'],
   provenRootGates: [
     'stored ActivityStore network-flow rows derive row-scoped trigger/capture/ingest/typed-event refs into the row51 pipeline proof',
+    'captured metadata events carry durable local DB evidence refs through the real ActivityStore into service product-path payload refs',
     'typed local event-chain refs are preserved before product-path composition',
     'capture and ingest refs are carried before the typed event and evidence bundle',
     'evidence bundle to AI audit to policy to adapter proof to action result preserves exact refs',
@@ -164,7 +171,7 @@ const proof = {
 writeFileSync(join(proofRoot, 'proof-summary.json'), `${JSON.stringify(proof, null, 2)}\n`);
 writeFileSync(join(testRoot, 'proof.json'), `${JSON.stringify(proof, null, 2)}\n`);
 console.log(
-  'network-end-to-end-pipeline-proof-ok:agent-core-event-refs,agent-core-weak-no-enforcement,pipeline-tests,service-stored-flow-bridge,service-payload,clippy,source-shape'
+  'network-end-to-end-pipeline-proof-ok:agent-core-event-refs,agent-core-weak-no-enforcement,pipeline-tests,service-stored-flow-bridge,capture-store-product-path,service-payload,clippy,source-shape'
 );
 console.log(`proof=${join(proofRoot, 'proof-summary.json')}`);
 

@@ -223,7 +223,7 @@ function assertSourceContracts() {
     [tsDefaults, 'FixtureTransportRef'],
     [tsParser, 'fixtureTransportMatches'],
     [tsTests, 'fixtureTransportRef'],
-    [protocolReadme, 'row10l fixture transport refs/counts'],
+    [protocolReadme, 'row10l fixture transport'],
     [serviceReadme, 'row10l fixture transport proof'],
     [tsReadme, 'Row10l fixture transport refs/counts'],
     [featureDoc, 'network-remote-delivery-fixture-transport-status-bridge-proof'],

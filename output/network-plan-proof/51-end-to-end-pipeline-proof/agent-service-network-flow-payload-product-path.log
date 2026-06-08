@@ -4,7 +4,7 @@ test network_flow_payload_tests::network_flow_payload_includes_product_path_coun
 test network_flow_payload_tests::network_flow_payload_includes_runtime_delivery_counts_when_supplied ... ok
 test network_flow_payload_tests::network_flow_payload_reports_tombstone_refs_without_active_rows ... ok
 
-test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 277 filtered out; finished in <duration>
+test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 280 filtered out; finished in <duration>
 
     Finished `test` profile [unoptimized + debuginfo] target(s) in <duration>
      Running unittests src/main.rs (target/debug/deps/<test-binary>)

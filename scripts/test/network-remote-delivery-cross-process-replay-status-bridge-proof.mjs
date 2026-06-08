@@ -38,7 +38,8 @@ const expectedStatus = {
     event: 'agent.network.remote-delivery.status.reported',
     payloadField: 'networkRemoteDeliveryStatus',
   },
-  statusBridgeRef: 'network.remote-delivery.cross-process-replay-status.10s',
+  currentStatusRef: 'network.remote-delivery.external-cross-process-transport-status.10t',
+  replayStatusBridgeRef: 'network.remote-delivery.cross-process-replay-status.10s',
   replayMetadataRefs: [
     'network.remote-delivery.cross-process-replay.10r',
     'network.remote-delivery.cross-process-replay-store.10r',
@@ -51,11 +52,10 @@ const expectedStatus = {
     'crossProcessReplayRecordsMatchDurableEnvelopes=true',
     'crossProcessReplayRecordsMatchCustodyReadiness=true',
     'crossProcessReplayImplemented=true for deterministic row10r replay metadata only',
-    'externalCrossProcessTransportImplemented=false',
+    'externalCrossProcessTransportImplemented is owned by row10t external transport proof',
     'dispatchAttemptCount and remoteAckCount remain zero for live transport',
   ],
   noClaims: [
-    'external cross-process transport implementation',
     'live broker dispatch',
     'live family-hub relay dispatch',
     'remote acknowledgement delivery',
@@ -158,11 +158,11 @@ writeFileSync(
   securityLogPath,
   [
     'checkedAt=deterministic:network-remote-delivery-cross-process-replay-status-bridge-proof/v1',
-    'asserted=remote delivery status carries row10s status identity plus row10r replay/store/cursor refs',
+    'asserted=remote delivery status carries row10r replay/store/cursor refs inside the current row10t status shape',
     'asserted=row10r replay record/store/cursor counts match the row10g outbox candidate count',
     'asserted=row10r replay records match durable envelopes and row10q custody readiness inputs',
     'asserted=crossProcessReplayImplemented is true only for deterministic replay metadata visibility',
-    'asserted=externalCrossProcessTransportImplemented remains false',
+    'asserted=external cross-process transport implementation belongs to row10t status proof',
     'asserted=live dispatchAttemptCount and remoteAckCount remain zero',
     'asserted=no exact URL/page/video/message/search claim from network-only evidence',
     'asserted=no decrypted payload or raw PCAP claim',
@@ -194,10 +194,10 @@ const proof = {
     'network-plan supplemental row 10q remote delivery cross-process custody readiness proof',
   ],
   provenBoundaries: [
-    'Rust protocol serializes row10s status identity plus row10r replay refs, counts, and match flags in the existing remote delivery status shape',
+    'Rust protocol serializes row10r replay refs, counts, and match flags inside the current row10t remote delivery status shape',
     'agent-service builds the status snapshot from the row10r deterministic replay proof instead of inventing an external transport path',
-    'TypeScript parser rejects stale row10s refs, stale row10r replay refs, mismatched replay/store/cursor counts, missing match flags, and external transport claims',
-    'row10s keeps deterministic replay metadata visibility separate from external cross-process transport, which remains false',
+    'TypeScript parser rejects stale row10t refs, stale row10r replay refs, mismatched replay/store/cursor counts, missing match flags, and invalid external transport claims',
+    'row10s keeps deterministic replay metadata visibility separate from the row10t external cross-process transport envelope/ack proof',
     'the status bridge rejects product-ready remote delivery, policy authority, side-effect authority, adapter execution, enforcement command publication, live broker/family-hub delivery, provider delivery, child-device delivery, exact-content, and host-filter claims',
   ],
   notClaimed: expectedStatus.noClaims,
@@ -219,7 +219,6 @@ function assertSourceContracts() {
   const serviceCrossProcess = readText('crates/agent-service/src/network_remote_delivery_status_cross_process.rs');
   const servicePayload = readText('crates/agent-service/src/network_remote_delivery_status_payload.rs');
   const serviceTests = readText('crates/agent-service/src/network_remote_delivery_status_service_tests.rs');
-  const tsDefaults = readText('packages/agent-protocol-domain/src/defaults.ts');
   const tsParser = readText('packages/agent-protocol-domain/src/network-remote-delivery-status.ts');
   const tsTests = readText('packages/agent-protocol-domain/tests/network-remote-delivery-status.test.ts');
   const protocolReadme = readText('crates/agent-protocol/README.md');
@@ -234,20 +233,20 @@ function assertSourceContracts() {
     [protocolConstants, 'ERROR_NETWORK_RUNTIME_REMOTE_CROSS_PROCESS_REPLAY_STATUS_BRIDGE'],
     [protocolShape, 'cross_process_replay_record_count'],
     [protocolShape, 'external_cross_process_transport_implemented'],
-    [protocolTests, 'network_remote_delivery_status_serializes_row10s_replay_status'],
+    [protocolTests, 'network_remote_delivery_status_serializes_row10t_external_transport_status'],
     [protocolTests, 'externalCrossProcessTransportImplemented'],
     [coreProof, 'prove_network_runtime_remote_delivery_cross_process_replay'],
     [coreProofTests, 'assert_cross_process_replay_no_delivery_or_enforcement_claims'],
-    [servicePayload, 'prove_network_runtime_remote_delivery_cross_process_replay'],
+    [servicePayload, 'external_cross_process_transport.cross_process_replay'],
     [serviceCrossProcess, 'apply_cross_process_replay_status'],
     [serviceCrossProcess, 'TEST_REMOTE_DELIVERY_CROSS_PROCESS_REPLAY_STATUS_REF'],
-    [servicePayload, 'external_cross_process_transport_implemented = false'],
+    [servicePayload, 'prove_network_runtime_remote_delivery_external_cross_process_transport'],
     [serviceTests, 'assert_remote_delivery_cross_process_replay_status'],
-    [tsDefaults, 'CrossProcessReplayRef'],
-    [tsDefaults, 'cross-process-replay-status.10s'],
+    [tsParser, 'CrossProcessReplayRef'],
+    [tsParser, 'AgentNetworkRemoteDeliveryRow10tRefs'],
     [tsParser, 'crossProcessReplayMetadataMatches'],
-    [tsParser, 'externalCrossProcessTransportImplemented: Schema.Literal(false)'],
-    [tsTests, 'parses row10s cross-process replay status'],
+    [tsParser, 'externalCrossProcessTransportImplemented: Schema.Literal(true)'],
+    [tsTests, 'parses row10t external cross-process transport status'],
     [tsTests, 'crossProcessReplayRecordCount'],
     [protocolReadme, 'row10s'],
     [protocolReadme, 'cross-process replay status'],

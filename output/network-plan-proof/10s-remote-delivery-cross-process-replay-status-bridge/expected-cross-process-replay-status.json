@@ -4,7 +4,8 @@
     "event": "agent.network.remote-delivery.status.reported",
     "payloadField": "networkRemoteDeliveryStatus"
   },
-  "statusBridgeRef": "network.remote-delivery.cross-process-replay-status.10s",
+  "currentStatusRef": "network.remote-delivery.external-cross-process-transport-status.10t",
+  "replayStatusBridgeRef": "network.remote-delivery.cross-process-replay-status.10s",
   "replayMetadataRefs": [
     "network.remote-delivery.cross-process-replay.10r",
     "network.remote-delivery.cross-process-replay-store.10r",
@@ -17,11 +18,10 @@
     "crossProcessReplayRecordsMatchDurableEnvelopes=true",
     "crossProcessReplayRecordsMatchCustodyReadiness=true",
     "crossProcessReplayImplemented=true for deterministic row10r replay metadata only",
-    "externalCrossProcessTransportImplemented=false",
+    "externalCrossProcessTransportImplemented is owned by row10t external transport proof",
     "dispatchAttemptCount and remoteAckCount remain zero for live transport"
   ],
   "noClaims": [
-    "external cross-process transport implementation",
     "live broker dispatch",
     "live family-hub relay dispatch",
     "remote acknowledgement delivery",

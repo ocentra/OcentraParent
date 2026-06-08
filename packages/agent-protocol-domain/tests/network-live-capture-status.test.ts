@@ -229,28 +229,11 @@ function row(
   >,
   refState: 'complete' | 'live-only' | 'none' = 'complete'
 ): AgentNetworkLiveCaptureStatusRow {
-  const hasLiveRefs = refState === 'complete' || refState === 'live-only';
-  const hasStorageRefs = refState === 'complete';
   return {
     ...value,
     storageProofRef: LiveCaptureRefs.RawStorageStatusRef,
-    interfaceRef: hasLiveRefs ? LiveCaptureRefs.InterfaceRef : null,
-    driverProofRef: hasLiveRefs ? LiveCaptureRefs.DriverRef : null,
-    permissionProofRef: hasLiveRefs ? LiveCaptureRefs.PermissionRef : null,
-    boundedCaptureRef: hasLiveRefs ? LiveCaptureRefs.BoundedCaptureRef : null,
-    cleanStopRef: hasLiveRefs ? LiveCaptureRefs.CleanStopRef : null,
-    quotaRotationRef: hasLiveRefs ? LiveCaptureRefs.QuotaRef : null,
-    retentionDeleteExportRef: hasLiveRefs ? LiveCaptureRefs.RetentionRef : null,
-    custodyRef: hasLiveRefs ? LiveCaptureRefs.CustodyRef : null,
-    privateTrafficExclusionRef: hasLiveRefs ? LiveCaptureRefs.PrivateTrafficExclusionRef : null,
-    rawArtifactManifestRef: hasStorageRefs ? LiveCaptureRefs.RawManifestRef : null,
-    storageLocationRef: hasStorageRefs ? LiveCaptureRefs.RawStorageLocationRef : null,
-    encryptionAtRestRef: hasStorageRefs ? LiveCaptureRefs.RawEncryptionRef : null,
-    storageQuotaRotationRef: hasStorageRefs ? LiveCaptureRefs.RawQuotaRef : null,
-    retentionPolicyRef: hasStorageRefs ? LiveCaptureRefs.RawRetentionRef : null,
-    storageDeleteExportRef: hasStorageRefs ? LiveCaptureRefs.RawDeleteExportRef : null,
-    custodyChainRef: hasStorageRefs ? LiveCaptureRefs.RawCustodyChainRef : null,
-    storagePrivateTrafficExclusionRef: hasStorageRefs ? LiveCaptureRefs.RawPrivateTrafficExclusionRef : null,
+    ...liveRefs(refState),
+    ...storageRefs(refState),
     driverInvoked: false,
     liveCaptureExecuted: false,
     remoteUploadEnabled: false,
@@ -265,6 +248,58 @@ function row(
     enforcementCommandsPublished: 0,
     netstatMetadataSubstitutedForLiveCapture: false,
     hostFilteringClaimed: false,
+  };
+}
+
+function liveRefs(refState: 'complete' | 'live-only' | 'none') {
+  if (refState === 'none') {
+    return {
+      interfaceRef: null,
+      driverProofRef: null,
+      permissionProofRef: null,
+      boundedCaptureRef: null,
+      cleanStopRef: null,
+      quotaRotationRef: null,
+      retentionDeleteExportRef: null,
+      custodyRef: null,
+      privateTrafficExclusionRef: null,
+    };
+  }
+  return {
+    interfaceRef: LiveCaptureRefs.InterfaceRef,
+    driverProofRef: LiveCaptureRefs.DriverRef,
+    permissionProofRef: LiveCaptureRefs.PermissionRef,
+    boundedCaptureRef: LiveCaptureRefs.BoundedCaptureRef,
+    cleanStopRef: LiveCaptureRefs.CleanStopRef,
+    quotaRotationRef: LiveCaptureRefs.QuotaRef,
+    retentionDeleteExportRef: LiveCaptureRefs.RetentionRef,
+    custodyRef: LiveCaptureRefs.CustodyRef,
+    privateTrafficExclusionRef: LiveCaptureRefs.PrivateTrafficExclusionRef,
+  };
+}
+
+function storageRefs(refState: 'complete' | 'live-only' | 'none') {
+  if (refState !== 'complete') {
+    return {
+      rawArtifactManifestRef: null,
+      storageLocationRef: null,
+      encryptionAtRestRef: null,
+      storageQuotaRotationRef: null,
+      retentionPolicyRef: null,
+      storageDeleteExportRef: null,
+      custodyChainRef: null,
+      storagePrivateTrafficExclusionRef: null,
+    };
+  }
+  return {
+    rawArtifactManifestRef: LiveCaptureRefs.RawManifestRef,
+    storageLocationRef: LiveCaptureRefs.RawStorageLocationRef,
+    encryptionAtRestRef: LiveCaptureRefs.RawEncryptionRef,
+    storageQuotaRotationRef: LiveCaptureRefs.RawQuotaRef,
+    retentionPolicyRef: LiveCaptureRefs.RawRetentionRef,
+    storageDeleteExportRef: LiveCaptureRefs.RawDeleteExportRef,
+    custodyChainRef: LiveCaptureRefs.RawCustodyChainRef,
+    storagePrivateTrafficExclusionRef: LiveCaptureRefs.RawPrivateTrafficExclusionRef,
   };
 }
 

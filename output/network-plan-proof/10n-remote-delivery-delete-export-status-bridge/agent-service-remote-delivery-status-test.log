@@ -2,10 +2,10 @@
 running 4 tests
 test network_remote_delivery_status_service_tests::network_remote_delivery_status_rejects_blocked_dispatch_identity_and_order_mismatches ... ok
 test network_remote_delivery_status_service_tests::websocket_network_remote_delivery_status_command_reports_payload ... ok
-test network_remote_delivery_status_service_tests::network_remote_delivery_status_payload_serializes_row10s_replay_status_with_row10k_dispatch_state ... ok
-test network_remote_delivery_status_service_tests::network_remote_delivery_status_payload_reuses_stable_row10s_status_snapshot ... ok
+test network_remote_delivery_status_service_tests::network_remote_delivery_status_payload_serializes_row10t_external_transport_status ... ok
+test network_remote_delivery_status_service_tests::network_remote_delivery_status_payload_reuses_stable_row10t_status_snapshot ... ok
 
-test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 279 filtered out; finished in <duration>
+test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 280 filtered out; finished in <duration>
 
     Finished `test` profile [unoptimized + debuginfo] target(s) in <duration>
      Running unittests src\main.rs (target\debug\deps\ocentra_parent_agent_service-1fcbc5dcd647dd34.exe)

@@ -2,7 +2,7 @@
   "proof": "network-remote-delivery-outbox-status-bridge-proof",
   "proofRevision": "network-remote-delivery-outbox-status-bridge-proof/v1",
   "checkedAt": "deterministic:network-remote-delivery-outbox-status-bridge-proof/v1",
-  "sourceFingerprint": "source-tree:7225762953934a2b8c925083b1a3dbaf2db497e83713476d92dbbfc1c73c8dba",
+  "sourceFingerprint": "source-tree:b4a4767faccde86b49278fefb8ae4df9ffc12f4f8a2b0255be22b9d525825748",
   "sourceRefs": [
     "scripts/test/network-remote-delivery-outbox-status-bridge-proof.mjs",
     "crates/agent-protocol/src/constants/network_flow.rs",

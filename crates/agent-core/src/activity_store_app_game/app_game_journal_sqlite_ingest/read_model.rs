@@ -64,7 +64,7 @@ pub(crate) fn app_game_journal_sqlite_read_model(
         platform_authority_matrices: Vec::new(),
         ai_classifier_result_rows: Vec::new(),
     };
-    let mut statement = connection.prepare(constants::sqlite::SELECT_POLICY_PREVIEW_ACTIVITY)?;
+    let mut statement = connection.prepare(constants::sqlite::SELECT_APP_GAME_JOURNAL_ACTIVITY)?;
     let rows = statement.query_map(params![limit as i64], stored_row_from_sqlite)?;
     for row in rows {
         project_stored_row(
@@ -79,7 +79,7 @@ pub(crate) fn app_game_journal_sqlite_read_model(
 }
 
 fn stored_row_from_sqlite(row: &Row<'_>) -> rusqlite::Result<StoredAppGameJournalRow> {
-    let fields_json: String = row.get(5)?;
+    let fields_json: String = row.get(0)?;
     let fields = serde_json::from_str::<LogFields>(&fields_json).map_err(json_to_sqlite_error)?;
     Ok(StoredAppGameJournalRow { fields })
 }

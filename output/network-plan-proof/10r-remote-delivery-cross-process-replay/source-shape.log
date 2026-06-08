@@ -80,10 +80,10 @@ packages/activity-domain/tests/tracking.test.ts:1 file has 290 lines; crossed 25
 packages/agent-protocol-domain/src/activity-surface-adapter-manifest.ts:1 file has 268 lines; crossed 250-line advisory band; maximum is 1000
 packages/agent-protocol-domain/src/activity-surface-adapter.ts:1 file has 478 lines; crossed 250-line advisory band; maximum is 1000
 packages/agent-protocol-domain/src/contracts.ts:1 file has 589 lines; crossed 500-line advisory band; maximum is 1000
-packages/agent-protocol-domain/src/defaults.ts:1 file has 538 lines; crossed 500-line advisory band; maximum is 1000
+packages/agent-protocol-domain/src/defaults.ts:1 file has 544 lines; crossed 500-line advisory band; maximum is 1000
 packages/agent-protocol-domain/src/lan-pairing-browser-add-device-state.ts:1 file has 378 lines; crossed 250-line advisory band; maximum is 1000
 packages/agent-protocol-domain/src/network-live-capture-status.ts:1 file has 297 lines; crossed 250-line advisory band; maximum is 1000
-packages/agent-protocol-domain/src/network-remote-delivery-status.ts:1 file has 326 lines; crossed 250-line advisory band; maximum is 1000
+packages/agent-protocol-domain/src/network-remote-delivery-status.ts:1 file has 381 lines; crossed 250-line advisory band; maximum is 1000
 packages/agent-protocol-domain/src/network-runtime-events.ts:1 file has 357 lines; crossed 250-line advisory band; maximum is 1000
 packages/agent-protocol-domain/src/parent-assistant-adapter.ts:1 file has 385 lines; crossed 250-line advisory band; maximum is 1000
 packages/agent-protocol-domain/src/security.ts:1 file has 336 lines; crossed 250-line advisory band; maximum is 1000
@@ -99,7 +99,8 @@ packages/agent-protocol-domain/tests/lan-pairing-browser-add-device-state.test.t
 packages/agent-protocol-domain/tests/lan-pairing-multidevice-contracts.test.ts:1 file has 351 lines; crossed 250-line advisory band; maximum is 1000
 packages/agent-protocol-domain/tests/lan-signed-discovery-relay-spine.test.ts:1 file has 332 lines; crossed 250-line advisory band; maximum is 1000
 packages/agent-protocol-domain/tests/network-live-capture-status.test.ts:1 file has 297 lines; crossed 250-line advisory band; maximum is 1000
-packages/agent-protocol-domain/tests/network-remote-delivery-status.test.ts:1 file has 290 lines; crossed 250-line advisory band; maximum is 1000
+packages/agent-protocol-domain/tests/network-remote-delivery-status.test.ts:1 file has 338 lines; crossed 250-line advisory band; maximum is 1000
+packages/agent-protocol-domain/tests/network-remote-delivery-status.test.ts:189 function has 75 lines; warning starts at 64 of 80
 packages/agent-protocol-domain/tests/parent-assistant-adapter.test.ts:1 file has 475 lines; crossed 250-line advisory band; maximum is 1000
 packages/agent-protocol-domain/tests/parent-assistant-adapter.test.ts:307 function has 64 lines; warning starts at 64 of 80
 packages/agent-protocol-domain/tests/social-alert-report-read-model.test.ts:141 function has 64 lines; warning starts at 64 of 80
@@ -496,8 +497,7 @@ crates/agent-core/src/activity_store_memory_graph_nodes.rs:1 file has 15 functio
 crates/agent-core/src/activity_store_policy_preview.rs:1 file has 329 lines; crossed 250-line advisory band; maximum is 1000
 crates/agent-core/src/activity_store_policy_preview.rs:1 file has 18 functions; warning starts at 15 of 18
 crates/agent-core/src/activity_store_policy_preview_parent_rule_tests.rs:1 file has 282 lines; crossed 250-line advisory band; maximum is 1000
-crates/agent-core/src/activity_store_policy_preview_tests.rs:1 file has 295 lines; crossed 250-line advisory band; maximum is 1000
-crates/agent-core/src/activity_store_policy_preview_tests.rs:64 function has 73 lines; warning starts at 64 of 80
+crates/agent-core/src/activity_store_policy_preview_tests.rs:1 file has 312 lines; crossed 250-line advisory band; maximum is 1000
 crates/agent-core/src/activity_store_screen_evidence_tests.rs:1 file has 296 lines; crossed 250-line advisory band; maximum is 1000
 crates/agent-core/src/activity_store_tests.rs:1 file has 264 lines; crossed 250-line advisory band; maximum is 1000
 crates/agent-core/src/activity_store_tests.rs:92 function has 67 lines; warning starts at 64 of 80
@@ -536,11 +536,12 @@ crates/agent-core/src/enforcement_unavailable_adapter_tests.rs:1 file has 256 li
 crates/agent-core/src/household_mesh_event_bridge.rs:1 file has 286 lines; crossed 250-line advisory band; maximum is 1000
 crates/agent-core/src/household_mesh_event_bridge_tests.rs:1 file has 264 lines; crossed 250-line advisory band; maximum is 1000
 crates/agent-core/src/household_mesh_event_bridge_tests.rs:183 function has 69 lines; warning starts at 64 of 80
-crates/agent-core/src/lib.rs:1 file has 360 lines; crossed 250-line advisory band; maximum is 1000
+crates/agent-core/src/lib.rs:1 file has 365 lines; crossed 250-line advisory band; maximum is 1000
 crates/agent-core/src/network_event_runtime/broker_delivery.rs:48 function has 68 lines; warning starts at 64 of 80
 crates/agent-core/src/network_event_runtime/remote_delivery_cross_process_custody_readiness.rs:1 file has 340 lines; crossed 250-line advisory band; maximum is 1000
 crates/agent-core/src/network_event_runtime/remote_delivery_delete_export_propagation.rs:48 function has 74 lines; warning starts at 64 of 80
 crates/agent-core/src/network_event_runtime/remote_delivery_durable_envelope.rs:14 function has 73 lines; warning starts at 64 of 80
+crates/agent-core/src/network_event_runtime/remote_delivery_external_cross_process_transport.rs:1 file has 356 lines; crossed 250-line advisory band; maximum is 1000
 crates/agent-core/src/network_event_runtime/remote_delivery_fixture_transport.rs:45 function has 69 lines; warning starts at 64 of 80
 crates/agent-core/src/network_event_runtime/remote_delivery_no_enforcement_invariant.rs:136 function has 68 lines; warning starts at 64 of 80
 crates/agent-core/src/network_event_runtime/remote_delivery_outbox_handoff.rs:1 file has 262 lines; crossed 250-line advisory band; maximum is 1000
@@ -550,7 +551,7 @@ crates/agent-core/src/network_event_runtime/remote_delivery_receipt_ledger.rs:16
 crates/agent-core/src/network_event_runtime/remote_delivery_status.rs:62 function has 73 lines; warning starts at 64 of 80
 crates/agent-core/src/network_event_runtime/remote_delivery_transport_dispatch_state.rs:25 function has 78 lines; warning starts at 64 of 80
 crates/agent-core/src/network_event_runtime/remote_delivery_transport_dispatch_state.rs:136 function has 69 lines; warning starts at 64 of 80
-crates/agent-core/src/network_event_runtime.rs:1 file has 414 lines; crossed 250-line advisory band; maximum is 1000
+crates/agent-core/src/network_event_runtime.rs:1 file has 425 lines; crossed 250-line advisory band; maximum is 1000
 crates/agent-core/src/network_event_runtime_remote_delivery_tests.rs:1 file has 768 lines; crossed 750-line advisory band; maximum is 1000
 crates/agent-core/src/network_event_runtime_remote_delivery_tests.rs:1 file has 18 functions; warning starts at 15 of 18
 crates/agent-core/src/network_event_runtime_remote_delivery_tests.rs:31 function has 77 lines; warning starts at 64 of 80
@@ -590,7 +591,7 @@ crates/agent-protocol/src/browser_values.rs:1 file has 277 lines; crossed 250-li
 crates/agent-protocol/src/constants/browser.rs:1 file has 539 lines; crossed 500-line advisory band; maximum is 1000
 crates/agent-protocol/src/constants/field.rs:1 file has 428 lines; crossed 250-line advisory band; maximum is 1000
 crates/agent-protocol/src/constants/lan_pairing.rs:1 file has 460 lines; crossed 250-line advisory band; maximum is 1000
-crates/agent-protocol/src/constants/network_flow.rs:1 file has 308 lines; crossed 250-line advisory band; maximum is 1000
+crates/agent-protocol/src/constants/network_flow.rs:1 file has 322 lines; crossed 250-line advisory band; maximum is 1000
 crates/agent-protocol/src/constants/v08_browser_domain_adapter_proof.rs:1 file has 260 lines; crossed 250-line advisory band; maximum is 1000
 crates/agent-protocol/src/constants.rs:1 file has 580 lines; crossed 500-line advisory band; maximum is 1000
 crates/agent-protocol/src/enforcement.rs:1 file has 536 lines; crossed 500-line advisory band; maximum is 1000
@@ -619,13 +620,14 @@ crates/agent-protocol/src/lan_pairing_tests.rs:1 file has 18 functions; warning 
 crates/agent-protocol/src/lan_pairing_tests.rs:102 function has 73 lines; warning starts at 64 of 80
 crates/agent-protocol/src/lan_pairing_tests.rs:431 function has 68 lines; warning starts at 64 of 80
 crates/agent-protocol/src/lib.rs:1 file has 264 lines; crossed 250-line advisory band; maximum is 1000
-crates/agent-protocol/src/network_flow.rs:1 file has 384 lines; crossed 250-line advisory band; maximum is 1000
+crates/agent-protocol/src/network_flow.rs:1 file has 410 lines; crossed 250-line advisory band; maximum is 1000
 crates/agent-protocol/src/network_flow_events.rs:1 file has 293 lines; crossed 250-line advisory band; maximum is 1000
 crates/agent-protocol/src/network_flow_events.rs:1 file has 21 structs/enums; warning starts at 20 of 24
 crates/agent-protocol/src/network_flow_event_fixtures.rs:1 file has 15 functions; warning starts at 15 of 18
-crates/agent-protocol/src/network_flow_tests.rs:1 file has 619 lines; crossed 500-line advisory band; maximum is 1000
+crates/agent-protocol/src/network_flow_tests.rs:1 file has 699 lines; crossed 500-line advisory band; maximum is 1000
 crates/agent-protocol/src/network_flow_tests.rs:1 file has 18 functions; warning starts at 15 of 18
-crates/agent-protocol/src/network_flow_tests.rs:320 function has 75 lines; warning starts at 64 of 80
+crates/agent-protocol/src/network_flow_tests.rs:216 function has 78 lines; warning starts at 64 of 80
+crates/agent-protocol/src/network_flow_tests.rs:373 function has 76 lines; warning starts at 64 of 80
 crates/agent-protocol/src/parent_assistant.rs:1 file has 346 lines; crossed 250-line advisory band; maximum is 1000
 crates/agent-protocol/src/parent_assistant.rs:1 file has 24 structs/enums; warning starts at 20 of 24
 crates/agent-protocol/src/parent_assistant_tests.rs:1 file has 468 lines; crossed 250-line advisory band; maximum is 1000
@@ -802,18 +804,18 @@ crates/agent-service/src/local_ai_runtime_config_values.rs:1 file has 16 functio
 crates/agent-service/src/local_ai_runtime_payload.rs:95 function has 70 lines; warning starts at 64 of 80
 crates/agent-service/src/local_ai_runtime_provider_proof_read_model.rs:1 file has 306 lines; crossed 250-line advisory band; maximum is 1000
 crates/agent-service/src/local_ai_runtime_provider_proof_read_model.rs:1 file has 15 functions; warning starts at 15 of 18
-crates/agent-service/src/main.rs:1 file has 287 lines; crossed 250-line advisory band; maximum is 1000
-crates/agent-service/src/network_flow_payload_tests.rs:1 file has 260 lines; crossed 250-line advisory band; maximum is 1000
+crates/agent-service/src/main.rs:1 file has 290 lines; crossed 250-line advisory band; maximum is 1000
+crates/agent-service/src/network_flow_payload_tests.rs:1 file has 266 lines; crossed 250-line advisory band; maximum is 1000
 crates/agent-service/src/network_flow_payload_tests.rs:129 function has 70 lines; warning starts at 64 of 80
 crates/agent-service/src/network_live_capture_readiness_bridge.rs:1 file has 410 lines; crossed 250-line advisory band; maximum is 1000
 crates/agent-service/src/network_live_capture_readiness_bridge.rs:1 file has 18 functions; warning starts at 15 of 18
 crates/agent-service/src/network_product_path_bridge.rs:1 file has 421 lines; crossed 250-line advisory band; maximum is 1000
 crates/agent-service/src/network_product_path_bridge.rs:1 file has 15 functions; warning starts at 15 of 18
-crates/agent-service/src/network_remote_delivery_status_payload.rs:1 file has 436 lines; crossed 250-line advisory band; maximum is 1000
-crates/agent-service/src/network_remote_delivery_status_payload.rs:1 file has 18 functions; warning starts at 15 of 18
-crates/agent-service/src/network_remote_delivery_status_payload.rs:245 function has 77 lines; warning starts at 64 of 80
-crates/agent-service/src/network_remote_delivery_status_service_tests.rs:1 file has 415 lines; crossed 250-line advisory band; maximum is 1000
-crates/agent-service/src/network_remote_delivery_status_service_tests.rs:1 file has 15 functions; warning starts at 15 of 18
+crates/agent-service/src/network_remote_delivery_status_cross_process.rs:14 function has 77 lines; warning starts at 64 of 80
+crates/agent-service/src/network_remote_delivery_status_payload.rs:1 file has 384 lines; crossed 250-line advisory band; maximum is 1000
+crates/agent-service/src/network_remote_delivery_status_payload.rs:1 file has 17 functions; warning starts at 15 of 18
+crates/agent-service/src/network_remote_delivery_status_service_tests.rs:1 file has 482 lines; crossed 250-line advisory band; maximum is 1000
+crates/agent-service/src/network_remote_delivery_status_service_tests.rs:1 file has 17 functions; warning starts at 15 of 18
 crates/agent-service/src/network_runtime_stream_event_values.rs:1 file has 17 functions; warning starts at 15 of 18
 crates/agent-service/src/network_runtime_stream_tests.rs:1 file has 390 lines; crossed 250-line advisory band; maximum is 1000
 crates/agent-service/src/parent_assistant_api/thread_store.rs:1 file has 17 functions; warning starts at 15 of 18
@@ -898,9 +900,10 @@ crates/ocentra-network-evidence/src/apple_network_extension_gate.rs:1 file has 4
 crates/ocentra-network-evidence/src/app_game_session.rs:1 file has 374 lines; crossed 250-line advisory band; maximum is 1000
 crates/ocentra-network-evidence/src/app_game_session.rs:118 function has 73 lines; warning starts at 64 of 80
 crates/ocentra-network-evidence/src/dns_adapter.rs:1 file has 417 lines; crossed 250-line advisory band; maximum is 1000
-crates/ocentra-network-evidence/src/lib.rs:1 file has 274 lines; crossed 250-line advisory band; maximum is 1000
+crates/ocentra-network-evidence/src/lib.rs:1 file has 281 lines; crossed 250-line advisory band; maximum is 1000
 crates/ocentra-network-evidence/src/linux_adapter_gate.rs:1 file has 464 lines; crossed 250-line advisory band; maximum is 1000
 crates/ocentra-network-evidence/src/live_capture.rs:1 file has 283 lines; crossed 250-line advisory band; maximum is 1000
+crates/ocentra-network-evidence/src/local_platform_probe.rs:1 file has 339 lines; crossed 250-line advisory band; maximum is 1000
 crates/ocentra-network-evidence/src/performance.rs:1 file has 414 lines; crossed 250-line advisory band; maximum is 1000
 crates/ocentra-network-evidence/src/performance.rs:306 function has 66 lines; warning starts at 64 of 80
 crates/ocentra-network-evidence/src/pipeline.rs:1 file has 675 lines; crossed 500-line advisory band; maximum is 1000
@@ -925,6 +928,8 @@ crates/ocentra-network-evidence/src/tests/app_game_session.rs:1 file has 272 lin
 crates/ocentra-network-evidence/src/tests/dns_adapter.rs:1 file has 308 lines; crossed 250-line advisory band; maximum is 1000
 crates/ocentra-network-evidence/src/tests/linux_adapter_gate.rs:1 file has 322 lines; crossed 250-line advisory band; maximum is 1000
 crates/ocentra-network-evidence/src/tests/local_ai_queue.rs:1 file has 265 lines; crossed 250-line advisory band; maximum is 1000
+crates/ocentra-network-evidence/src/tests/local_platform_probe.rs:1 file has 333 lines; crossed 250-line advisory band; maximum is 1000
+crates/ocentra-network-evidence/src/tests/local_platform_probe.rs:140 function has 69 lines; warning starts at 64 of 80
 crates/ocentra-network-evidence/src/tests/pipeline.rs:1 file has 287 lines; crossed 250-line advisory band; maximum is 1000
 crates/ocentra-network-evidence/src/tests/pipeline.rs:12 function has 71 lines; warning starts at 64 of 80
 crates/ocentra-network-evidence/src/tests/platform_claims.rs:1 file has 435 lines; crossed 250-line advisory band; maximum is 1000

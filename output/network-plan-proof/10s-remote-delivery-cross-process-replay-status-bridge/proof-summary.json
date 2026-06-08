@@ -2,7 +2,7 @@
   "proof": "network-remote-delivery-cross-process-replay-status-bridge-proof",
   "proofRevision": "network-remote-delivery-cross-process-replay-status-bridge-proof/v1",
   "checkedAt": "deterministic:network-remote-delivery-cross-process-replay-status-bridge-proof/v1",
-  "sourceFingerprint": "source-tree:b433b04b1beb5ade797de12d5874a182eaea64292449706824f154b544bc8b96",
+  "sourceFingerprint": "source-tree:be459e6c44d250820b8bf41a672bde200383f96a2959a86c6bfab6a26b9dad4e",
   "sourceRefs": [
     "scripts/test/network-remote-delivery-cross-process-replay-status-bridge-proof.mjs",
     "crates/agent-protocol/src/constants/network_flow.rs",
@@ -95,14 +95,13 @@
     "network-plan supplemental row 10q remote delivery cross-process custody readiness proof"
   ],
   "provenBoundaries": [
-    "Rust protocol serializes row10s status identity plus row10r replay refs, counts, and match flags in the existing remote delivery status shape",
+    "Rust protocol serializes row10r replay refs, counts, and match flags inside the current row10t remote delivery status shape",
     "agent-service builds the status snapshot from the row10r deterministic replay proof instead of inventing an external transport path",
-    "TypeScript parser rejects stale row10s refs, stale row10r replay refs, mismatched replay/store/cursor counts, missing match flags, and external transport claims",
-    "row10s keeps deterministic replay metadata visibility separate from external cross-process transport, which remains false",
+    "TypeScript parser rejects stale row10t refs, stale row10r replay refs, mismatched replay/store/cursor counts, missing match flags, and invalid external transport claims",
+    "row10s keeps deterministic replay metadata visibility separate from the row10t external cross-process transport envelope/ack proof",
     "the status bridge rejects product-ready remote delivery, policy authority, side-effect authority, adapter execution, enforcement command publication, live broker/family-hub delivery, provider delivery, child-device delivery, exact-content, and host-filter claims"
   ],
   "notClaimed": [
-    "external cross-process transport implementation",
     "live broker dispatch",
     "live family-hub relay dispatch",
     "remote acknowledgement delivery",

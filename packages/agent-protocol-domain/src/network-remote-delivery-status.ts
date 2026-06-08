@@ -6,6 +6,13 @@ const NetworkRemoteDeliveryText = Schema.String.pipe(Schema.minLength(1));
 const NetworkRemoteDeliveryCount = Schema.Number.pipe(Schema.nonNegative(), Schema.int());
 const NetworkRemoteDeliveryRefs = AgentProtocolDefaults.NetworkRemoteDeliveryStatus;
 
+export const AgentNetworkRemoteDeliveryRow10tRefs = {
+  StatusRef: 'network.remote-delivery.external-cross-process-transport-status.10t',
+  ExternalCrossProcessTransportRef: 'network.remote-delivery.external-cross-process-transport.10t',
+  ExternalCrossProcessTransportEnvelopeRef: 'network.remote-delivery.external-cross-process-transport-envelope.10t',
+  ExternalCrossProcessTransportAckRef: 'network.remote-delivery.external-cross-process-transport-ack.10t',
+} as const;
+
 export const AgentNetworkRemoteDeliveryStatusStateSchema = withParser(
   Schema.Literal('fixture-requirements-recorded-but-not-implemented', 'manual-required')
 );
@@ -20,6 +27,10 @@ export const AgentNetworkRemoteDeliveryProviderChildReadinessStateSchema = withP
 
 export const AgentNetworkRemoteDeliveryCrossProcessCustodyReadinessStateSchema = withParser(
   Schema.Literal('manual-required-unavailable')
+);
+
+export const AgentNetworkRemoteDeliveryExternalCrossProcessTransportStateSchema = withParser(
+  Schema.Literal('deterministic-envelope-ack-recorded')
 );
 
 const AgentNetworkRemoteDeliveryStatusFields = Schema.Struct({
@@ -80,10 +91,14 @@ const AgentNetworkRemoteDeliveryStatusFields = Schema.Struct({
   crossProcessReplayRef: NetworkRemoteDeliveryText,
   crossProcessReplayStoreRef: NetworkRemoteDeliveryText,
   crossProcessReplayCursorRef: NetworkRemoteDeliveryText,
+  externalCrossProcessTransportRef: NetworkRemoteDeliveryText,
+  externalCrossProcessTransportEnvelopeRef: NetworkRemoteDeliveryText,
+  externalCrossProcessTransportAckRef: NetworkRemoteDeliveryText,
   transportDispatchState: AgentNetworkRemoteDeliveryTransportDispatchStateSchema,
   providerDeliveryReadinessState: AgentNetworkRemoteDeliveryProviderChildReadinessStateSchema,
   childDeviceDeliveryReadinessState: AgentNetworkRemoteDeliveryProviderChildReadinessStateSchema,
   crossProcessCustodyReadinessState: AgentNetworkRemoteDeliveryCrossProcessCustodyReadinessStateSchema,
+  externalCrossProcessTransportState: AgentNetworkRemoteDeliveryExternalCrossProcessTransportStateSchema,
   outboxCandidateCount: NetworkRemoteDeliveryCount,
   sourceOutboxCandidateCount: NetworkRemoteDeliveryCount,
   preparedNotDispatchedCount: NetworkRemoteDeliveryCount,
@@ -117,6 +132,11 @@ const AgentNetworkRemoteDeliveryStatusFields = Schema.Struct({
   crossProcessReplayCursorNextSequence: NetworkRemoteDeliveryCount,
   crossProcessReplayRecordsMatchDurableEnvelopes: Schema.Boolean,
   crossProcessReplayRecordsMatchCustodyReadiness: Schema.Boolean,
+  externalCrossProcessTransportRecordCount: NetworkRemoteDeliveryCount,
+  externalCrossProcessTransportEnvelopeCount: NetworkRemoteDeliveryCount,
+  externalCrossProcessTransportAckCount: NetworkRemoteDeliveryCount,
+  externalCrossProcessTransportRecordsMatchReplayRecords: Schema.Boolean,
+  externalCrossProcessTransportAckRecordsMatchEnvelopes: Schema.Boolean,
   dispatchReadyCandidateCount: Schema.Literal(0),
   dispatchAttemptCount: Schema.Literal(0),
   remoteAckCount: Schema.Literal(0),
@@ -133,7 +153,7 @@ const AgentNetworkRemoteDeliveryStatusFields = Schema.Struct({
   providerDeliveryImplemented: Schema.Literal(false),
   childDeviceDeliveryImplemented: Schema.Literal(false),
   crossProcessReplayImplemented: Schema.Literal(true),
-  externalCrossProcessTransportImplemented: Schema.Literal(false),
+  externalCrossProcessTransportImplemented: Schema.Literal(true),
   remoteDeleteExportPropagationImplemented: Schema.Literal(false),
   productReadyRemoteDelivery: Schema.Literal(false),
   policyAuthority: Schema.Literal(false),
@@ -165,8 +185,9 @@ export const AgentNetworkRemoteDeliveryStatusSchema = withParser(
           providerChildReadinessMatches(status) &&
           crossProcessCustodyReadinessMatches(status) &&
           crossProcessReplayMetadataMatches(status) &&
+          externalCrossProcessTransportMatches(status) &&
           localDeliveryProofMatches(status)) ||
-        'Network remote delivery status must preserve row10s status identity, row10g outbox refs, row10k blocked dispatch refs, row10l fixture transport refs, row10m delete/export readiness refs, row10p provider/child readiness refs, row10q cross-process custody refs, and row10r replay metadata refs without external transport, live delivery, or content claims'
+        'Network remote delivery status must preserve row10t status identity, row10g outbox refs, row10k blocked dispatch refs, row10l fixture transport refs, row10m delete/export readiness refs, row10p provider/child readiness refs, row10q cross-process custody refs, row10r replay metadata refs, and row10t external cross-process transport refs without live broker/family/provider delivery, product-ready delivery, or content claims'
     )
   )
 );
@@ -225,7 +246,7 @@ function durableEnvelopeRefsMatch(status: AgentNetworkRemoteDeliveryStatus): boo
   return (
     status.durableEnvelopeReady &&
     status.durableEnvelopeMissingArtifactCount === 0 &&
-    status.statusRef === NetworkRemoteDeliveryRefs.StatusRef &&
+    status.statusRef === AgentNetworkRemoteDeliveryRow10tRefs.StatusRef &&
     status.durableEnvelopeRef === NetworkRemoteDeliveryRefs.DurableEnvelopeRef &&
     status.durableStoreRef === NetworkRemoteDeliveryRefs.DurableStoreRef &&
     status.durableReplayRef === NetworkRemoteDeliveryRefs.DurableReplayRef &&
@@ -303,16 +324,35 @@ function providerChildReadinessMatches(status: AgentNetworkRemoteDeliveryStatus)
 
 function crossProcessCustodyReadinessMatches(status: AgentNetworkRemoteDeliveryStatus): boolean {
   return (
+    crossProcessCustodyReadinessRefsMatch(status) &&
+    crossProcessCustodyReadinessCountsMatch(status) &&
+    crossProcessCustodyReadinessArtifactsMatch(status)
+  );
+}
+
+function crossProcessCustodyReadinessRefsMatch(status: AgentNetworkRemoteDeliveryStatus): boolean {
+  return (
     status.crossProcessCustodyStatusRef === NetworkRemoteDeliveryRefs.CrossProcessCustodyStatusRef &&
     status.crossProcessReplayReadinessRef === NetworkRemoteDeliveryRefs.CrossProcessReplayReadinessRef &&
     status.remoteRetentionReadinessRef === NetworkRemoteDeliveryRefs.RemoteRetentionReadinessRef &&
     status.remoteDeleteCustodyReadinessRef === NetworkRemoteDeliveryRefs.RemoteDeleteCustodyReadinessRef &&
-    status.remoteExportCustodyReadinessRef === NetworkRemoteDeliveryRefs.RemoteExportCustodyReadinessRef &&
+    status.remoteExportCustodyReadinessRef === NetworkRemoteDeliveryRefs.RemoteExportCustodyReadinessRef
+  );
+}
+
+function crossProcessCustodyReadinessCountsMatch(status: AgentNetworkRemoteDeliveryStatus): boolean {
+  const expectedRecordCount = status.providerDeliveryReadinessRecordCount;
+  return (
     status.crossProcessCustodyReadinessState === 'manual-required-unavailable' &&
-    status.crossProcessReplayReadinessRecordCount === status.providerDeliveryReadinessRecordCount &&
-    status.remoteRetentionReadinessRecordCount === status.providerDeliveryReadinessRecordCount &&
-    status.remoteDeleteCustodyReadinessRecordCount === status.providerDeliveryReadinessRecordCount &&
-    status.remoteExportCustodyReadinessRecordCount === status.providerDeliveryReadinessRecordCount &&
+    status.crossProcessReplayReadinessRecordCount === expectedRecordCount &&
+    status.remoteRetentionReadinessRecordCount === expectedRecordCount &&
+    status.remoteDeleteCustodyReadinessRecordCount === expectedRecordCount &&
+    status.remoteExportCustodyReadinessRecordCount === expectedRecordCount
+  );
+}
+
+function crossProcessCustodyReadinessArtifactsMatch(status: AgentNetworkRemoteDeliveryStatus): boolean {
+  return (
     status.crossProcessCustodyRecordsMatchProviderChildReadiness &&
     status.crossProcessReplayArtifactCount === 0 &&
     status.remoteRetentionArtifactCount === 0 &&
@@ -323,7 +363,7 @@ function crossProcessCustodyReadinessMatches(status: AgentNetworkRemoteDeliveryS
 
 function crossProcessReplayMetadataMatches(status: AgentNetworkRemoteDeliveryStatus): boolean {
   return (
-    status.statusRef === NetworkRemoteDeliveryRefs.StatusRef &&
+    status.statusRef === AgentNetworkRemoteDeliveryRow10tRefs.StatusRef &&
     status.crossProcessReplayRef === NetworkRemoteDeliveryRefs.CrossProcessReplayRef &&
     status.crossProcessReplayStoreRef === NetworkRemoteDeliveryRefs.CrossProcessReplayStoreRef &&
     status.crossProcessReplayCursorRef === NetworkRemoteDeliveryRefs.CrossProcessReplayCursorRef &&
@@ -332,8 +372,24 @@ function crossProcessReplayMetadataMatches(status: AgentNetworkRemoteDeliverySta
     status.crossProcessReplayCursorNextSequence === status.crossProcessReplayRecordCount + 1 &&
     status.crossProcessReplayRecordsMatchDurableEnvelopes &&
     status.crossProcessReplayRecordsMatchCustodyReadiness &&
-    status.crossProcessReplayImplemented &&
-    !status.externalCrossProcessTransportImplemented
+    status.crossProcessReplayImplemented
+  );
+}
+
+function externalCrossProcessTransportMatches(status: AgentNetworkRemoteDeliveryStatus): boolean {
+  return (
+    status.externalCrossProcessTransportRef === AgentNetworkRemoteDeliveryRow10tRefs.ExternalCrossProcessTransportRef &&
+    status.externalCrossProcessTransportEnvelopeRef ===
+      AgentNetworkRemoteDeliveryRow10tRefs.ExternalCrossProcessTransportEnvelopeRef &&
+    status.externalCrossProcessTransportAckRef ===
+      AgentNetworkRemoteDeliveryRow10tRefs.ExternalCrossProcessTransportAckRef &&
+    status.externalCrossProcessTransportState === 'deterministic-envelope-ack-recorded' &&
+    status.externalCrossProcessTransportRecordCount === status.crossProcessReplayRecordCount &&
+    status.externalCrossProcessTransportEnvelopeCount === status.externalCrossProcessTransportRecordCount &&
+    status.externalCrossProcessTransportAckCount === status.externalCrossProcessTransportRecordCount &&
+    status.externalCrossProcessTransportRecordsMatchReplayRecords &&
+    status.externalCrossProcessTransportAckRecordsMatchEnvelopes &&
+    status.externalCrossProcessTransportImplemented
   );
 }
 

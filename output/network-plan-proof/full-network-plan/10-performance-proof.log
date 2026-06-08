@@ -150,6 +150,10 @@ command=node scripts/test/network-remote-delivery-cross-process-replay-status-br
 status=0
 log=output/network-plan-proof/full-network-plan/command-logs/network-remote-delivery-cross-process-replay-status-bridge-proof.log
 
+command=node scripts/test/network-remote-delivery-external-cross-process-transport-proof.mjs
+status=0
+log=output/network-plan-proof/full-network-plan/command-logs/network-remote-delivery-external-cross-process-transport-proof.log
+
 command=node scripts/test/network-parent-ui-evidence-drawer-proof.mjs
 status=0
 log=output/network-plan-proof/full-network-plan/command-logs/network-parent-ui-evidence-drawer-proof.log

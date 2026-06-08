@@ -2,6 +2,7 @@ use ocentra_parent_agent_core::{
     NetworkRuntimeRemoteDeliveryCrossProcessCustodyReadinessReport,
     NetworkRuntimeRemoteDeliveryCrossProcessCustodyReadinessState as RuntimeCrossProcessCustodyReadinessState,
     NetworkRuntimeRemoteDeliveryCrossProcessReplayReport,
+    NetworkRuntimeRemoteDeliveryExternalCrossProcessTransportReport,
     NetworkRuntimeRemoteDeliveryProviderChildReadinessReport,
     NetworkRuntimeRemoteDeliveryProviderChildReadinessState as RuntimeProviderChildReadinessState,
 };
@@ -109,6 +110,39 @@ pub(crate) fn apply_cross_process_replay_status(
     status.cross_process_replay_records_match_custody_readiness =
         report.cross_process_replay_records_match_custody_readiness;
     status.cross_process_replay_implemented = report.cross_process_replay_implemented;
+}
+
+pub(crate) fn apply_external_cross_process_transport_status(
+    status: &mut NetworkRemoteDeliveryStatus,
+    report: &NetworkRuntimeRemoteDeliveryExternalCrossProcessTransportReport,
+) {
+    status.status_ref =
+        constants::network_flow::TEST_REMOTE_DELIVERY_EXTERNAL_CROSS_PROCESS_TRANSPORT_STATUS_REF
+            .to_string();
+    status.external_cross_process_transport_ref = report
+        .external_cross_process_transport_ref
+        .as_str()
+        .to_string();
+    status.external_cross_process_transport_envelope_ref = report
+        .external_cross_process_transport_envelope_ref
+        .as_str()
+        .to_string();
+    status.external_cross_process_transport_ack_ref = report
+        .external_cross_process_transport_ack_ref
+        .as_str()
+        .to_string();
+    status.external_cross_process_transport_record_count =
+        count(report.external_cross_process_transport_record_count);
+    status.external_cross_process_transport_envelope_count =
+        count(report.external_cross_process_transport_envelope_count);
+    status.external_cross_process_transport_ack_count =
+        count(report.external_cross_process_transport_ack_count);
+    status.external_cross_process_transport_records_match_replay_records =
+        report.external_cross_process_transport_records_match_replay_records;
+    status.external_cross_process_transport_ack_records_match_envelopes =
+        report.external_cross_process_transport_ack_records_match_envelopes;
+    status.external_cross_process_transport_implemented =
+        report.external_cross_process_transport_implemented;
 }
 
 fn count(value: usize) -> u64 {

@@ -2,7 +2,7 @@
   "proof": "network-remote-delivery-cross-process-replay-proof",
   "proofRevision": "network-remote-delivery-cross-process-replay-proof/v1",
   "checkedAt": "deterministic:network-remote-delivery-cross-process-replay-proof/v1",
-  "sourceFingerprint": "source-tree:18d05f9d39efe87c13f6f24142670befb056d531db380997acd8a2bdee5873ff",
+  "sourceFingerprint": "source-tree:ded834ed11874ef011f5e1655514d45f58a14dd98a899608c606e5d0701d68b2",
   "sourceRefs": [
     "scripts/test/network-remote-delivery-cross-process-replay-proof.mjs",
     "crates/agent-protocol/src/constants/network_flow.rs",

@@ -252,7 +252,7 @@ function assertSourceContracts() {
     [tsParser, 'providerChildReadinessMatches'],
     [tsTests, 'providerDeliveryReadinessRef'],
     [coreReadme, 'row10p provider/child readiness'],
-    [protocolReadme, 'row10p provider/child readiness'],
+    [protocolReadme, 'row10p'],
     [serviceReadme, 'row10p provider/child'],
     [tsReadme, 'Row10p provider/child readiness'],
     [featureDoc, 'network-remote-delivery-provider-child-readiness-proof'],

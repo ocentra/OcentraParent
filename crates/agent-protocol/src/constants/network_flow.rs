@@ -155,6 +155,14 @@ pub const TEST_REMOTE_DELIVERY_CROSS_PROCESS_REPLAY_CURSOR_REF: &str =
     "network.remote-delivery.cross-process-replay-cursor.10r";
 pub const TEST_REMOTE_DELIVERY_CROSS_PROCESS_REPLAY_STATUS_REF: &str =
     "network.remote-delivery.cross-process-replay-status.10s";
+pub const TEST_REMOTE_DELIVERY_EXTERNAL_CROSS_PROCESS_TRANSPORT_REF: &str =
+    "network.remote-delivery.external-cross-process-transport.10t";
+pub const TEST_REMOTE_DELIVERY_EXTERNAL_CROSS_PROCESS_TRANSPORT_ENVELOPE_REF: &str =
+    "network.remote-delivery.external-cross-process-transport-envelope.10t";
+pub const TEST_REMOTE_DELIVERY_EXTERNAL_CROSS_PROCESS_TRANSPORT_ACK_REF: &str =
+    "network.remote-delivery.external-cross-process-transport-ack.10t";
+pub const TEST_REMOTE_DELIVERY_EXTERNAL_CROSS_PROCESS_TRANSPORT_STATUS_REF: &str =
+    "network.remote-delivery.external-cross-process-transport-status.10t";
 pub const TEST_LIVE_CAPTURE_STATUS_REF: &str = "network.live-capture.status.13a";
 pub const FIELD_NETWORK_LIVE_CAPTURE_STATUS: &str = "networkLiveCaptureStatus";
 pub const TEST_LIVE_CAPTURE_ROW13_STATUS_REF: &str = "network.live-capture.proof-gate.13";
@@ -308,4 +316,6 @@ pub const ERROR_NETWORK_RUNTIME_REMOTE_CROSS_PROCESS_REPLAY: &str =
     "network runtime remote cross-process replay proof";
 pub const ERROR_NETWORK_RUNTIME_REMOTE_CROSS_PROCESS_REPLAY_STATUS_BRIDGE: &str =
     "network runtime remote cross-process replay status bridge proof";
+pub const ERROR_NETWORK_RUNTIME_REMOTE_EXTERNAL_CROSS_PROCESS_TRANSPORT: &str =
+    "network runtime remote external cross-process transport proof";
 pub const ERROR_NETWORK_LIVE_CAPTURE_STATUS: &str = "network live capture status proof";

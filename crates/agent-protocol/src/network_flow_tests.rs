@@ -6,7 +6,8 @@ use super::{
     NetworkEnforcementCommandIssuedEvent, NetworkEnforcementResultObservedEvent,
     NetworkEnforcementResultStatus, NetworkFlowObservedEvent, NetworkPolicyDecisionCompletedEvent,
     NetworkPolicyEvaluationRequestedEvent, NetworkPortalReadModelUpdatedEvent,
-    NetworkRemoteDeliveryCrossProcessCustodyReadinessState, NetworkRemoteDeliveryStatus,
+    NetworkRemoteDeliveryCrossProcessCustodyReadinessState,
+    NetworkRemoteDeliveryExternalCrossProcessTransportState, NetworkRemoteDeliveryStatus,
     NetworkRuntimeEventContract, NETWORK_FLOW_CUSTODY_CHILD_DEVICE_QUERY_STORE,
     NETWORK_FLOW_SCHEMA_VERSION,
 };
@@ -129,7 +130,7 @@ fn network_flow_read_model_serializes_rows_without_payload_claims() {
 }
 
 #[test]
-fn network_remote_delivery_status_serializes_row10s_replay_status_with_row10k_dispatch_state_without_product_claims(
+fn network_remote_delivery_status_serializes_row10t_external_transport_status_without_product_claims(
 ) {
     let serialized = serde_json::to_value(remote_delivery_status_fixture())
         .expect(constants::error::AGENT_EVENT_SERIALIZES);
@@ -148,7 +149,7 @@ fn assert_remote_delivery_status_refs(serialized: &serde_json::Value) {
 fn assert_remote_delivery_status_core_refs(serialized: &serde_json::Value) {
     assert_eq!(
         serialized["statusRef"],
-        constants::network_flow::TEST_REMOTE_DELIVERY_CROSS_PROCESS_REPLAY_STATUS_REF
+        constants::network_flow::TEST_REMOTE_DELIVERY_EXTERNAL_CROSS_PROCESS_TRANSPORT_STATUS_REF
     );
     assert_eq!(
         serialized["brokerStatus"],
@@ -273,6 +274,22 @@ fn assert_remote_delivery_status_provider_child_refs(serialized: &serde_json::Va
         serialized["crossProcessCustodyReadinessState"],
         "manual-required-unavailable"
     );
+    assert_eq!(
+        serialized["externalCrossProcessTransportRef"],
+        constants::network_flow::TEST_REMOTE_DELIVERY_EXTERNAL_CROSS_PROCESS_TRANSPORT_REF
+    );
+    assert_eq!(
+        serialized["externalCrossProcessTransportEnvelopeRef"],
+        constants::network_flow::TEST_REMOTE_DELIVERY_EXTERNAL_CROSS_PROCESS_TRANSPORT_ENVELOPE_REF
+    );
+    assert_eq!(
+        serialized["externalCrossProcessTransportAckRef"],
+        constants::network_flow::TEST_REMOTE_DELIVERY_EXTERNAL_CROSS_PROCESS_TRANSPORT_ACK_REF
+    );
+    assert_eq!(
+        serialized["externalCrossProcessTransportState"],
+        "deterministic-envelope-ack-recorded"
+    );
 }
 
 fn assert_remote_delivery_status_counts(serialized: &serde_json::Value) {
@@ -324,6 +341,17 @@ fn assert_remote_delivery_status_counts(serialized: &serde_json::Value) {
         serialized["crossProcessReplayRecordsMatchCustodyReadiness"],
         true
     );
+    assert_eq!(serialized["externalCrossProcessTransportRecordCount"], 3);
+    assert_eq!(serialized["externalCrossProcessTransportEnvelopeCount"], 3);
+    assert_eq!(serialized["externalCrossProcessTransportAckCount"], 3);
+    assert_eq!(
+        serialized["externalCrossProcessTransportRecordsMatchReplayRecords"],
+        true
+    );
+    assert_eq!(
+        serialized["externalCrossProcessTransportAckRecordsMatchEnvelopes"],
+        true
+    );
 }
 
 fn assert_remote_delivery_status_no_product_claims(serialized: &serde_json::Value) {
@@ -333,10 +361,7 @@ fn assert_remote_delivery_status_no_product_claims(serialized: &serde_json::Valu
     assert_eq!(serialized["duplicateDurableEnvelopeRejected"], true);
     assert_eq!(serialized["remoteDeliveryAckImplemented"], false);
     assert_eq!(serialized["crossProcessReplayImplemented"], true);
-    assert_eq!(
-        serialized["externalCrossProcessTransportImplemented"],
-        false
-    );
+    assert_eq!(serialized["externalCrossProcessTransportImplemented"], true);
     assert_eq!(serialized["productReadyRemoteDelivery"], false);
     assert_eq!(serialized["hostFilteringClaimed"], false);
     assert_eq!(serialized["enforcementCommandEventCount"], 0);
@@ -347,7 +372,8 @@ fn assert_remote_delivery_status_no_product_claims(serialized: &serde_json::Valu
 
 fn remote_delivery_status_fixture() -> NetworkRemoteDeliveryStatus {
     with_cross_process_custody_fixture(NetworkRemoteDeliveryStatus {
-        status_ref: flow::TEST_REMOTE_DELIVERY_CROSS_PROCESS_REPLAY_STATUS_REF.to_string(),
+        status_ref: flow::TEST_REMOTE_DELIVERY_EXTERNAL_CROSS_PROCESS_TRANSPORT_STATUS_REF
+            .to_string(),
         custody_proof_ref: flow::TEST_BROKER_CUSTODY_PROOF_REF.to_string(),
         publisher_auth_ref: flow::TEST_BROKER_PUBLISHER_AUTH_REF.to_string(),
         subscriber_auth_ref: flow::TEST_BROKER_SUBSCRIBER_AUTH_REF.to_string(),
@@ -453,6 +479,20 @@ fn with_cross_process_custody_fixture(
     status.cross_process_replay_records_match_durable_envelopes = true;
     status.cross_process_replay_records_match_custody_readiness = true;
     status.cross_process_replay_implemented = true;
+    status.external_cross_process_transport_ref =
+        flow::TEST_REMOTE_DELIVERY_EXTERNAL_CROSS_PROCESS_TRANSPORT_REF.to_string();
+    status.external_cross_process_transport_envelope_ref =
+        flow::TEST_REMOTE_DELIVERY_EXTERNAL_CROSS_PROCESS_TRANSPORT_ENVELOPE_REF.to_string();
+    status.external_cross_process_transport_ack_ref =
+        flow::TEST_REMOTE_DELIVERY_EXTERNAL_CROSS_PROCESS_TRANSPORT_ACK_REF.to_string();
+    status.external_cross_process_transport_state =
+        NetworkRemoteDeliveryExternalCrossProcessTransportState::DeterministicEnvelopeAckRecorded;
+    status.external_cross_process_transport_record_count = 3;
+    status.external_cross_process_transport_envelope_count = 3;
+    status.external_cross_process_transport_ack_count = 3;
+    status.external_cross_process_transport_records_match_replay_records = true;
+    status.external_cross_process_transport_ack_records_match_envelopes = true;
+    status.external_cross_process_transport_implemented = true;
     status
 }
 

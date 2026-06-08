@@ -2,7 +2,7 @@
   "proof": "network-remote-delivery-provider-child-readiness-proof",
   "proofRevision": "network-remote-delivery-provider-child-readiness-proof/v1",
   "checkedAt": "deterministic:network-remote-delivery-provider-child-readiness-proof/v1",
-  "sourceFingerprint": "source-tree:8fc63790b3e46042cc32765a1f758fe4740c0771f98f3ff150ed76e933b2c404",
+  "sourceFingerprint": "source-tree:b1801501eb2fb73956ed21998c54d1bc4bc74fed2011b8acc6ac3e99c656892d",
   "sourceRefs": [
     "scripts/test/network-remote-delivery-provider-child-readiness-proof.mjs",
     "crates/agent-protocol/src/constants/network_flow.rs",

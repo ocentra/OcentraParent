@@ -1,11 +1,12 @@
 use ocentra_parent_agent_core::{
-    prove_network_runtime_remote_delivery_cross_process_replay,
     prove_network_runtime_remote_delivery_delete_export_propagation,
+    prove_network_runtime_remote_delivery_external_cross_process_transport,
     prove_network_runtime_remote_delivery_transport_dispatch_state,
     NetworkRuntimeRemoteDeliveryCrossProcessCustodyReadinessReport,
     NetworkRuntimeRemoteDeliveryCrossProcessReplayReport,
     NetworkRuntimeRemoteDeliveryDeleteExportPropagationReport,
     NetworkRuntimeRemoteDeliveryDurableEnvelopeReport,
+    NetworkRuntimeRemoteDeliveryExternalCrossProcessTransportReport,
     NetworkRuntimeRemoteDeliveryFixtureTransportReport,
     NetworkRuntimeRemoteDeliveryOutboxHandoffReport,
     NetworkRuntimeRemoteDeliveryProviderChildReadinessReport, NetworkRuntimeRemoteDeliveryState,
@@ -24,7 +25,8 @@ use crate::{
     event_builder::build_event,
     fields::fields_from_pairs,
     network_remote_delivery_status_cross_process::{
-        apply_cross_process_replay_status, apply_provider_child_readiness_status,
+        apply_cross_process_replay_status, apply_external_cross_process_transport_status,
+        apply_provider_child_readiness_status,
     },
 };
 
@@ -83,9 +85,11 @@ async fn network_remote_delivery_status() -> Result<&'static NetworkRemoteDelive
                 prove_network_runtime_remote_delivery_delete_export_propagation()
                     .await
                     .map_err(|_| ())?;
-            let cross_process_replay = prove_network_runtime_remote_delivery_cross_process_replay()
-                .await
-                .map_err(|_| ())?;
+            let external_cross_process_transport =
+                prove_network_runtime_remote_delivery_external_cross_process_transport()
+                    .await
+                    .map_err(|_| ())?;
+            let cross_process_replay = &external_cross_process_transport.cross_process_replay;
             Ok::<NetworkRemoteDeliveryStatus, ()>(status_from_report(
                 &report,
                 &delete_export_report,
@@ -93,7 +97,8 @@ async fn network_remote_delivery_status() -> Result<&'static NetworkRemoteDelive
                     .cross_process_custody_readiness
                     .provider_child_readiness,
                 &cross_process_replay.cross_process_custody_readiness,
-                &cross_process_replay,
+                cross_process_replay,
+                &external_cross_process_transport,
             ))
         })
         .await
@@ -105,6 +110,7 @@ fn status_from_report(
     provider_child_readiness: &NetworkRuntimeRemoteDeliveryProviderChildReadinessReport,
     cross_process_custody_readiness: &NetworkRuntimeRemoteDeliveryCrossProcessCustodyReadinessReport,
     cross_process_replay: &NetworkRuntimeRemoteDeliveryCrossProcessReplayReport,
+    external_cross_process_transport: &NetworkRuntimeRemoteDeliveryExternalCrossProcessTransportReport,
 ) -> NetworkRemoteDeliveryStatus {
     let outbox_report = &report
         .no_enforcement_invariant
@@ -125,7 +131,14 @@ fn status_from_report(
         cross_process_custody_readiness,
     );
     apply_cross_process_replay_status(&mut status, cross_process_replay);
-    apply_non_claim_status(&mut status, report, remote_status, cross_process_replay);
+    apply_external_cross_process_transport_status(&mut status, external_cross_process_transport);
+    apply_non_claim_status(
+        &mut status,
+        report,
+        remote_status,
+        cross_process_replay,
+        external_cross_process_transport,
+    );
     status
 }
 
@@ -255,6 +268,7 @@ fn apply_non_claim_status(
     report: &NetworkRuntimeRemoteDeliveryTransportDispatchStateReport,
     remote_status: &NetworkRuntimeRemoteDeliveryStatusReport,
     cross_process_replay: &NetworkRuntimeRemoteDeliveryCrossProcessReplayReport,
+    external_cross_process_transport: &NetworkRuntimeRemoteDeliveryExternalCrossProcessTransportReport,
 ) {
     status.broker_delivery_implemented = report.broker_delivery_implemented;
     status.family_hub_delivery_implemented = report.family_hub_delivery_implemented;
@@ -263,7 +277,8 @@ fn apply_non_claim_status(
     status.child_device_delivery_implemented = report.child_device_delivery_implemented;
     debug_assert!(!remote_status.cross_process_replay_implemented);
     status.cross_process_replay_implemented = cross_process_replay.cross_process_replay_implemented;
-    status.external_cross_process_transport_implemented = false;
+    status.external_cross_process_transport_implemented =
+        external_cross_process_transport.external_cross_process_transport_implemented;
     status.remote_delete_export_propagation_implemented =
         report.remote_delete_export_propagation_implemented;
     status.product_ready_remote_delivery = report.product_ready_remote_delivery;

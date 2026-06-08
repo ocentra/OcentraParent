@@ -64,6 +64,7 @@ fn policy_preview_read_model_evaluates_stored_browser_evidence_without_enforceme
 fn policy_preview_read_model_evaluates_stored_network_flow_evidence_without_enforcement() {
     let store = ActivityStore::open_in_memory().expect(constants::error::ACTIVITY_STORE_OPENS);
     let event = network_flow_event();
+    let network_evidence_id = event.evidence[0].evidence_id.clone();
     store
         .ingest_events(std::slice::from_ref(&event))
         .expect(constants::error::ACTIVITY_STORE_INGESTS);
@@ -77,7 +78,7 @@ fn policy_preview_read_model_evaluates_stored_network_flow_evidence_without_enfo
             policy::TEST_BLOCK_RULE_ID,
             PolicyAction::Block,
             policy::TEST_REASON_PARENT_BLOCK,
-            vec![event.event_id.clone()],
+            vec![event.event_id.clone(), network_evidence_id.clone()],
         )])
         .expect(constants::error::ACTIVITY_STORE_INGESTS);
 
@@ -101,20 +102,8 @@ fn policy_preview_read_model_evaluates_stored_network_flow_evidence_without_enfo
         row.target.target_value,
         constants::activity_store::TEST_NETWORK_DOMAIN
     );
-    assert_eq!(row.evidence_references.len(), 1);
-    assert_eq!(
-        row.evidence_references[0].kind,
-        ParentEvidenceReferenceKind::ActivityEvent
-    );
-    assert_eq!(
-        row.evidence_references[0].evidence_reference_id,
-        row.source_event_id
-    );
-    assert_eq!(row.parent_rule_context_references.len(), 1);
-    assert_eq!(
-        row.parent_rule_context_references[0].target_evidence_refs,
-        vec![row.source_event_id.clone()]
-    );
+    assert_network_evidence_refs(row, &network_evidence_id);
+    assert_network_parent_rule_refs(row, &network_evidence_id);
     assert_grade_b_network_mapping(row);
     assert_eq!(row.decision.action, PolicyAction::AskParent);
     assert_eq!(
@@ -132,6 +121,34 @@ fn policy_preview_read_model_evaluates_stored_network_flow_evidence_without_enfo
     assert_eq!(
         row.decision.enforcement_handoff_state,
         PolicyDecisionHandoffState::Disabled
+    );
+}
+
+fn assert_network_evidence_refs(row: &PolicyPreviewReadModelRow, network_evidence_id: &str) {
+    assert_eq!(row.evidence_references.len(), 2);
+    assert_eq!(
+        row.evidence_references[0].kind,
+        ParentEvidenceReferenceKind::ActivityEvent
+    );
+    assert_eq!(
+        row.evidence_references[0].evidence_reference_id,
+        row.source_event_id
+    );
+    assert_eq!(
+        row.evidence_references[1].kind,
+        ParentEvidenceReferenceKind::QueryStoreSummary
+    );
+    assert_eq!(
+        row.evidence_references[1].evidence_reference_id,
+        network_evidence_id
+    );
+}
+
+fn assert_network_parent_rule_refs(row: &PolicyPreviewReadModelRow, network_evidence_id: &str) {
+    assert_eq!(row.parent_rule_context_references.len(), 1);
+    assert_eq!(
+        row.parent_rule_context_references[0].target_evidence_refs,
+        vec![row.source_event_id.clone(), network_evidence_id.to_string()]
     );
 }
 

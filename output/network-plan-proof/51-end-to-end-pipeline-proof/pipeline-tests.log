@@ -6,7 +6,7 @@ test tests::pipeline::end_to_end_pipeline_keeps_unavailable_evidence_non_enforci
 test tests::pipeline::end_to_end_pipeline_keeps_weak_evidence_non_enforcing ... ok
 test tests::pipeline::end_to_end_pipeline_rejects_ai_ui_and_network_bypass_claims ... ok
 
-test result: ok. 6 passed; 0 failed; 0 ignored; 0 measured; 217 filtered out; finished in <duration>
+test result: ok. 6 passed; 0 failed; 0 ignored; 0 measured; 223 filtered out; finished in <duration>
 
     Finished `test` profile [unoptimized + debuginfo] target(s) in <duration>
      Running unittests src/lib.rs (target/debug/deps/<test-binary>)

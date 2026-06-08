@@ -24,6 +24,7 @@ mod flow;
 mod linux_adapter_gate;
 mod live_capture;
 mod local_ai_queue;
+mod local_platform_probe;
 mod managed_browser;
 mod notification;
 mod performance;

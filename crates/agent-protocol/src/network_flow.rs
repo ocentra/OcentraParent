@@ -136,6 +136,13 @@ pub enum NetworkRemoteDeliveryCrossProcessCustodyReadinessState {
     ManualRequiredUnavailable,
 }
 
+#[derive(Clone, Debug, Default, PartialEq, Eq, Serialize, Deserialize)]
+pub enum NetworkRemoteDeliveryExternalCrossProcessTransportState {
+    #[default]
+    #[serde(rename = "deterministic-envelope-ack-recorded")]
+    DeterministicEnvelopeAckRecorded,
+}
+
 #[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct NetworkRemoteDeliveryStatus {
@@ -196,11 +203,16 @@ pub struct NetworkRemoteDeliveryStatus {
     pub cross_process_replay_ref: String,
     pub cross_process_replay_store_ref: String,
     pub cross_process_replay_cursor_ref: String,
+    pub external_cross_process_transport_ref: String,
+    pub external_cross_process_transport_envelope_ref: String,
+    pub external_cross_process_transport_ack_ref: String,
     pub transport_dispatch_state: NetworkRemoteDeliveryTransportDispatchState,
     pub provider_delivery_readiness_state: NetworkRemoteDeliveryProviderChildReadinessState,
     pub child_device_delivery_readiness_state: NetworkRemoteDeliveryProviderChildReadinessState,
     pub cross_process_custody_readiness_state:
         NetworkRemoteDeliveryCrossProcessCustodyReadinessState,
+    pub external_cross_process_transport_state:
+        NetworkRemoteDeliveryExternalCrossProcessTransportState,
     pub outbox_candidate_count: u64,
     pub source_outbox_candidate_count: u64,
     pub prepared_not_dispatched_count: u64,
@@ -234,6 +246,11 @@ pub struct NetworkRemoteDeliveryStatus {
     pub cross_process_replay_cursor_next_sequence: u64,
     pub cross_process_replay_records_match_durable_envelopes: bool,
     pub cross_process_replay_records_match_custody_readiness: bool,
+    pub external_cross_process_transport_record_count: u64,
+    pub external_cross_process_transport_envelope_count: u64,
+    pub external_cross_process_transport_ack_count: u64,
+    pub external_cross_process_transport_records_match_replay_records: bool,
+    pub external_cross_process_transport_ack_records_match_envelopes: bool,
     pub dispatch_ready_candidate_count: u64,
     pub dispatch_attempt_count: u64,
     pub remote_ack_count: u64,

@@ -3,6 +3,7 @@ use ocentra_parent_agent_protocol::{
     constants, policy_constants, AgentCommandEnvelope, AgentCommandName, AgentEventName,
     AgentMessageTarget, AgentPeer, AgentPeerRole, AgentRoute, LogFieldValue,
     NetworkRemoteDeliveryCrossProcessCustodyReadinessState,
+    NetworkRemoteDeliveryExternalCrossProcessTransportState,
     NetworkRemoteDeliveryProviderChildReadinessState, NetworkRemoteDeliveryStatus,
     NetworkRemoteDeliveryStatusState, NetworkRemoteDeliveryTransportDispatchState,
     AGENT_PROTOCOL_SCHEMA_VERSION,
@@ -18,8 +19,7 @@ use crate::{
 };
 
 #[tokio::test]
-async fn network_remote_delivery_status_payload_serializes_row10s_replay_status_with_row10k_dispatch_state(
-) {
+async fn network_remote_delivery_status_payload_serializes_row10t_external_transport_status() {
     let payload = network_remote_delivery_status_payload()
         .await
         .expect(constants::error::AGENT_EVENT_SERIALIZES);
@@ -30,7 +30,7 @@ async fn network_remote_delivery_status_payload_serializes_row10s_replay_status_
 }
 
 #[tokio::test]
-async fn network_remote_delivery_status_payload_reuses_stable_row10s_status_snapshot() {
+async fn network_remote_delivery_status_payload_reuses_stable_row10t_status_snapshot() {
     let first_payload = network_remote_delivery_status_payload()
         .await
         .expect(constants::error::AGENT_EVENT_SERIALIZES);
@@ -100,7 +100,7 @@ async fn network_remote_delivery_status_rejects_blocked_dispatch_identity_and_or
 fn assert_remote_delivery_status(status: &NetworkRemoteDeliveryStatus) {
     assert_eq!(
         status.status_ref,
-        constants::network_flow::TEST_REMOTE_DELIVERY_CROSS_PROCESS_REPLAY_STATUS_REF
+        constants::network_flow::TEST_REMOTE_DELIVERY_EXTERNAL_CROSS_PROCESS_TRANSPORT_STATUS_REF
     );
     assert_eq!(
         status.broker_status,
@@ -139,6 +139,7 @@ fn assert_remote_delivery_status(status: &NetworkRemoteDeliveryStatus) {
     assert_remote_delivery_provider_child_readiness_status(status);
     assert_remote_delivery_cross_process_custody_readiness_status(status);
     assert_remote_delivery_cross_process_replay_status(status);
+    assert_remote_delivery_external_cross_process_transport_status(status);
     assert_remote_delivery_outbox_status(status);
     assert_remote_delivery_non_claims(status);
 }
@@ -356,6 +357,41 @@ fn assert_remote_delivery_cross_process_replay_status(status: &NetworkRemoteDeli
     assert!(status.cross_process_replay_records_match_custody_readiness);
 }
 
+fn assert_remote_delivery_external_cross_process_transport_status(
+    status: &NetworkRemoteDeliveryStatus,
+) {
+    assert_eq!(
+        status.external_cross_process_transport_ref,
+        constants::network_flow::TEST_REMOTE_DELIVERY_EXTERNAL_CROSS_PROCESS_TRANSPORT_REF
+    );
+    assert_eq!(
+        status.external_cross_process_transport_envelope_ref,
+        constants::network_flow::TEST_REMOTE_DELIVERY_EXTERNAL_CROSS_PROCESS_TRANSPORT_ENVELOPE_REF
+    );
+    assert_eq!(
+        status.external_cross_process_transport_ack_ref,
+        constants::network_flow::TEST_REMOTE_DELIVERY_EXTERNAL_CROSS_PROCESS_TRANSPORT_ACK_REF
+    );
+    assert_eq!(
+        status.external_cross_process_transport_state,
+        NetworkRemoteDeliveryExternalCrossProcessTransportState::DeterministicEnvelopeAckRecorded
+    );
+    assert_eq!(
+        status.external_cross_process_transport_record_count,
+        status.cross_process_replay_record_count
+    );
+    assert_eq!(
+        status.external_cross_process_transport_envelope_count,
+        status.external_cross_process_transport_record_count
+    );
+    assert_eq!(
+        status.external_cross_process_transport_ack_count,
+        status.external_cross_process_transport_record_count
+    );
+    assert!(status.external_cross_process_transport_records_match_replay_records);
+    assert!(status.external_cross_process_transport_ack_records_match_envelopes);
+}
+
 fn assert_remote_delivery_outbox_status(status: &NetworkRemoteDeliveryStatus) {
     assert_eq!(
         status.outbox_ref,
@@ -396,7 +432,7 @@ fn assert_remote_delivery_non_claims(status: &NetworkRemoteDeliveryStatus) {
     assert!(!status.provider_delivery_implemented);
     assert!(!status.child_device_delivery_implemented);
     assert!(status.cross_process_replay_implemented);
-    assert!(!status.external_cross_process_transport_implemented);
+    assert!(status.external_cross_process_transport_implemented);
     assert!(!status.remote_delete_export_propagation_implemented);
     assert!(!status.product_ready_remote_delivery);
     assert!(!status.policy_authority);

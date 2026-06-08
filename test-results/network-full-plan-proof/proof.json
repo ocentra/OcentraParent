@@ -227,6 +227,12 @@
       "log": "output/network-plan-proof/full-network-plan/command-logs/network-remote-delivery-cross-process-replay-status-bridge-proof.log"
     },
     {
+      "name": "network-remote-delivery-external-cross-process-transport-proof",
+      "command": "node scripts/test/network-remote-delivery-external-cross-process-transport-proof.mjs",
+      "status": 0,
+      "log": "output/network-plan-proof/full-network-plan/command-logs/network-remote-delivery-external-cross-process-transport-proof.log"
+    },
+    {
       "name": "network-parent-ui-evidence-drawer-proof",
       "command": "node scripts/test/network-parent-ui-evidence-drawer-proof.mjs",
       "status": 0,
@@ -326,7 +332,7 @@
   "freshnessAudit": {
     "policy": "Aggregate proof reruns current critical proof scripts, verifies source-tree fingerprints where artifacts provide sourceRefs, and labels legacy row artifacts instead of silently treating old branch metadata as fresh.",
     "counts": {
-      "refreshed-by-aggregate-command": 55
+      "refreshed-by-aggregate-command": 56
     },
     "refreshedArtifacts": [
       "contract-boundary",
@@ -381,6 +387,7 @@
       "remote-cross-process-custody-readiness",
       "remote-cross-process-replay",
       "remote-cross-process-replay-status",
+      "remote-external-cross-process-transport",
       "vpn-proxy-tunnel",
       "remote-torrent-download",
       "end-to-end-pipeline"
@@ -388,7 +395,7 @@
     "fingerprintCheckedArtifacts": [],
     "legacyMetadataArtifacts": []
   },
-  "artifactCount": 55,
+  "artifactCount": 56,
   "artifacts": [
     {
       "id": "contract-boundary",
@@ -963,6 +970,17 @@
       }
     },
     {
+      "id": "remote-external-cross-process-transport",
+      "group": "10-remote-delivery-proof",
+      "path": "output/network-plan-proof/10t-remote-delivery-external-cross-process-transport/proof-summary.json",
+      "kind": "json",
+      "parsedProof": "network-remote-delivery-external-cross-process-transport-proof",
+      "freshness": {
+        "kind": "refreshed-by-aggregate-command",
+        "command": "network-remote-delivery-external-cross-process-transport-proof"
+      }
+    },
+    {
       "id": "vpn-proxy-tunnel",
       "group": "classification-proof",
       "path": "output/network-plan-proof/24-vpn-proxy-tor-tunnel-classifier/proof-summary.json",
@@ -1026,7 +1044,7 @@
   "manualRequiredBoundaries": [
     "live packet capture driver invocation remains proof-gated/manual-required",
     "broker/family-hub remote delivery, provider delivery, and child-device delivery remain manual-required",
-    "external cross-process transport beyond deterministic replay metadata and remote retention/delete/export propagation remain future transport work",
+    "row10t deterministic transport envelope/ack records are proof-local; live dispatch, product remote acknowledgements, and remote retention/delete/export propagation remain future transport work",
     "production platform support and external audit/penetration-test signoff remain unclaimed"
   ],
   "notClaimed": [

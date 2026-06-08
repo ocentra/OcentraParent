@@ -336,7 +336,7 @@ function assertSourceContracts() {
     [coreReadme, 'Network policy-preview proof'],
     [serviceReadme, 'row10m delete/export readiness'],
     [serviceReadme, 'delete/export propagation, product readiness'],
-    [protocolReadme, 'row10s cross-process replay status identity'],
+    [protocolReadme, 'row10s cross-process replay status'],
     [protocolReadme, 'row10k transport-dispatch refs'],
     [tsContracts, 'PolicyPreviewReadModelReported'],
     [tsContracts, 'NetworkEvidenceGrade'],
@@ -346,7 +346,7 @@ function assertSourceContracts() {
     [portalParser, 'NetworkEvidenceGrade'],
     [portalDetailView, 'NetworkAdapterAuthorization'],
     [portalPolicyPreviewTest, 'rejects policy-preview payloads that claim network authorization'],
-    [remoteDeliveryTsTest, 'parses row10s cross-process replay status'],
+    [remoteDeliveryTsTest, 'parses row10t external cross-process transport status'],
     [tsReadme, 'row10k transport-dispatch'],
     [featureDoc, 'Policy preview over stored flow evidence'],
     [featureDoc, 'network-policy-preview-stored-flow-evidence-proof'],
@@ -444,6 +444,8 @@ function normalizeLogText(text) {
         .filter((line) => !line.trimStart().startsWith('Checking '))
         .map((line) =>
           line
+            .replace(/\x1b\[[0-9;]*m/g, '')
+            .replace(/^[0-9]{1,2}:[0-9]{2}:[0-9]{2}\s+[ap]\.m\.\s+/u, '<time> ')
             .replace(/finished in [0-9.]+s/g, 'finished in <duration>')
             .replace(/target\(s\) in [0-9.]+s/g, 'target(s) in <duration>')
             .replace(/target\(s\) in [0-9]+m [0-9]+s/g, 'target(s) in <duration>')

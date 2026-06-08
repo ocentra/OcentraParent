@@ -1,4 +1,4 @@
-running 223 tests
+running 229 tests
 test tests::action_result::action_result_accepts_blocked_state_from_policy_and_adapter_result_refs ... ok
 test tests::action_result::action_result_accepts_process_termination_result_without_live_mutation_claims ... ok
 test tests::action_result::action_result_dry_run_is_non_result_without_adapter_artifacts ... ok
@@ -106,6 +106,12 @@ test tests::local_ai_queue::local_ai_queue_keeps_managed_browser_exact_url_as_ev
 test tests::local_ai_queue::local_ai_queue_rejects_empty_queue_and_summary_refs ... ok
 test tests::local_ai_queue::local_ai_queue_rejects_raw_content_or_authority_claims ... ok
 test tests::local_ai_queue::local_ai_queue_skips_when_review_not_recommended ... ok
+test tests::local_platform_probe::local_platform_probe_aligns_windows_android_linux_and_apple_status_rows ... ok
+test tests::local_platform_probe::local_platform_probe_rejects_adapter_execution_attempts ... ok
+test tests::local_platform_probe::local_platform_probe_rejects_lab_ready_state_for_manual_status ... ok
+test tests::local_platform_probe::local_platform_probe_rejects_product_support_and_content_claims ... ok
+test tests::local_platform_probe::local_platform_probe_rejects_status_mismatches ... ok
+test tests::local_platform_probe::local_platform_probe_requires_read_only_probe_execution_refs ... ok
 test tests::managed_browser::managed_browser_correlation_keeps_network_domain_without_exact_url ... ok
 test tests::managed_browser::managed_browser_correlation_rejects_empty_browser_source_ref ... ok
 test tests::managed_browser::managed_browser_correlation_rejects_mismatched_browser_domain ... ok
@@ -223,7 +229,7 @@ test tests::zeek::zeek_generator_rejects_empty_refs_and_visible_value_mismatch .
 test tests::zeek::zeek_generator_rejects_missing_or_mismatched_comparison_artifacts ... ok
 test tests::zeek::zeek_generator_rejects_network_only_content_signature_live_and_authority_claims ... ok
 
-test result: ok. 223 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in <duration>
+test result: ok. 229 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in <duration>
 
 
 running 0 tests

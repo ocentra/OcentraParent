@@ -19,6 +19,7 @@ pub mod http;
 pub mod linux_adapter_gate;
 pub mod live_capture;
 pub mod local_ai_queue;
+pub mod local_platform_probe;
 pub mod managed_browser;
 pub mod notification;
 pub mod packet;
@@ -158,6 +159,12 @@ pub use local_ai_queue::{
     plan_network_local_ai_queue, NetworkLocalAiQueueError, NetworkLocalAiQueueInput,
     NetworkLocalAiQueueInputKind, NetworkLocalAiQueueJob, NetworkLocalAiQueuePlan,
     NetworkLocalAiQueueStatus,
+};
+pub use local_platform_probe::{
+    build_network_local_platform_probe_proof, NetworkLocalPlatformProbeError,
+    NetworkLocalPlatformProbeHost, NetworkLocalPlatformProbeInput,
+    NetworkLocalPlatformProbeObservation, NetworkLocalPlatformProbeProof,
+    NetworkLocalPlatformProbeState, NetworkLocalPlatformProbeUnsupportedClaims,
 };
 pub use managed_browser::{
     correlate_managed_browser_activity, ManagedBrowserCorrelation, ManagedBrowserCorrelationBasis,

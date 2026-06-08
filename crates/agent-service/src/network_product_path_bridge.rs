@@ -409,7 +409,7 @@ fn adapter_capability_state(available: bool) -> NetworkDnsAdapterCapabilityState
 
 fn row_ref(prefix: &str, row: &ActivityNetworkFlowObservation) -> String {
     let mut value = String::from(prefix);
-    value.push_str(&row.event_id);
+    value.push_str(&evidence_ref_for_row(row));
     value
 }
 

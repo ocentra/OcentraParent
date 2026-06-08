@@ -83,6 +83,13 @@ WHERE kind <> ?1
 ORDER BY observed_at DESC, event_id DESC
 ;";
 
+pub const SELECT_APP_GAME_JOURNAL_ACTIVITY: &str = "
+SELECT
+  fields_json
+FROM activity_events
+ORDER BY observed_at DESC, event_id DESC
+LIMIT ?1;";
+
 pub const SELECT_NETWORK_RETENTION_DELETED_ACTIVITY: &str = "
 SELECT
   fields_json,

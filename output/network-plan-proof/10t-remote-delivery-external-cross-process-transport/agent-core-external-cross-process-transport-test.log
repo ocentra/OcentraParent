@@ -1,0 +1,11 @@
+agent-core-external-cross-process-transport-test
+
+running 3 tests
+test network_event_runtime::remote_delivery_external_cross_process_transport::tests::rejects_replay_source_that_claims_remote_delivery_ack ... ok
+test network_event_runtime::remote_delivery_external_cross_process_transport::tests::records_external_cross_process_transport_from_replay_records ... ok
+test network_event_runtime::remote_delivery_external_cross_process_transport::tests::rejects_replay_records_that_do_not_match_source_count ... ok
+
+test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 294 filtered out; finished in 0.03s
+
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.27s
+     Running unittests src\lib.rs (target\debug\deps\ocentra_parent_agent_core-9cb1b877e0051382.exe)

@@ -39,14 +39,16 @@ transports.
 - Network runtime event contracts for the local eventing spine, including
   flow/domain/classification, AI advisory, policy, enforcement dry-run/result,
   audit, and portal read-model update shapes mirrored from `crates/agent-protocol`.
-- Network remote delivery status event parsing for the row10s cross-process
-  replay status bridge identity, row10k transport-dispatch service refs, row10l
-  fixture transport refs/counts, row10m delete/export readiness refs, row10p
-  provider/child readiness refs, row10q cross-process custody readiness refs,
-  and row10r deterministic replay refs/counts over row10b through row10s refs,
-  including stale-ref rejection, blocked-dispatch/fixture/readiness/replay count
-  validation, and no-claim booleans for external transport, live delivery,
-  product readiness, policy authority, adapter execution, and exact content.
+- Network remote delivery status event parsing for the row10t external
+  cross-process transport status bridge identity, row10k transport-dispatch
+  service refs, row10l fixture transport refs/counts, row10m delete/export
+  readiness refs, row10p provider/child readiness refs, row10q cross-process
+  custody readiness refs, row10r deterministic replay refs/counts exposed by the
+  row10s cross-process replay status bridge, and row10t transport envelope/ack
+  refs/counts over row10b through row10t refs, including stale-ref rejection,
+  blocked-dispatch/fixture/readiness/replay/transport count validation, and
+  no-claim booleans for live delivery, product readiness, policy authority,
+  adapter execution, and exact content.
 - Network live-capture status event parsing for row13 live-capture proof-gate
   and row03a raw-capture custody bridge refs, including stale-ref rejection,
   proof/manual/unavailable/degraded count validation, required artifact refs,
@@ -135,13 +137,14 @@ flowchart LR
   Row10l fixture transport refs/counts and row10m delete/export readiness refs
   plus Row10p provider/child readiness refs are accepted only as proof-local or
   manual-required unavailable status. Row10q cross-process custody refs are also
-  accepted only as proof-local unavailable status, and row10r cross-process
-  replay is accepted only as deterministic replay metadata through the row10s
-  cross-process replay status bridge. Broker/family-hub transport, remote
-  acknowledgement, provider/child-device delivery, external cross-process
-  transport, actual remote delete/export propagation, product readiness, policy
-  authority, adapter execution, exact content, and host filtering remain separate
-  proof-gated work.
+  accepted only as proof-local unavailable status, row10r cross-process replay
+  is accepted only as deterministic replay metadata through the row10s
+  cross-process replay status bridge, and row10t external cross-process
+  transport is accepted only as deterministic transport envelope/ack metadata.
+  Broker/family-hub transport, product remote acknowledgement,
+  provider/child-device delivery, actual remote delete/export propagation,
+  product readiness, policy authority, adapter execution, exact content, and
+  host filtering remain separate proof-gated work.
 - Network live-capture status parsing proves the service payload shape only.
   The parser accepts proof-ready/manual-required/unavailable/degraded row13
   status and row03a custody readiness refs, but live Npcap/libpcap invocation,

@@ -2,7 +2,7 @@
   "proof": "network-remote-delivery-fixture-transport-status-bridge-proof",
   "proofRevision": "network-remote-delivery-fixture-transport-status-bridge-proof/v1",
   "checkedAt": "deterministic:network-remote-delivery-fixture-transport-status-bridge-proof/v1",
-  "sourceFingerprint": "source-tree:d9283f2cd360af02515ea0b78687dc3f271264bd175e1bcc3c73799ceb61660f",
+  "sourceFingerprint": "source-tree:6e61f1d2a72b4b54236756e7d1cfff715dcdc2df15c000abe6e3d876a6c1eb13",
   "sourceRefs": [
     "scripts/test/network-remote-delivery-fixture-transport-status-bridge-proof.mjs",
     "crates/agent-protocol/src/constants/network_flow.rs",

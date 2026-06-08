@@ -2,6 +2,7 @@ import { expect, it } from 'vitest';
 import { AgentEvent } from '../src/contracts';
 import { AgentProtocolDefaults } from '../src/defaults';
 import {
+  AgentNetworkRemoteDeliveryRow10tRefs,
   parseAgentNetworkRemoteDeliveryStatusEvent,
   type AgentNetworkRemoteDeliveryStatus,
 } from '../src/network-remote-delivery-status';
@@ -9,7 +10,7 @@ import {
 const RemoteDeliveryStatusRefs = AgentProtocolDefaults.NetworkRemoteDeliveryStatus;
 
 const RemoteDeliveryStatus = {
-  statusRef: RemoteDeliveryStatusRefs.StatusRef,
+  statusRef: AgentNetworkRemoteDeliveryRow10tRefs.StatusRef,
   brokerStatus: 'fixture-requirements-recorded-but-not-implemented',
   familyHubStatus: 'fixture-requirements-recorded-but-not-implemented',
   custodyProofRef: 'broker.network.custody-proof.1',
@@ -66,10 +67,15 @@ const RemoteDeliveryStatus = {
   crossProcessReplayRef: RemoteDeliveryStatusRefs.CrossProcessReplayRef,
   crossProcessReplayStoreRef: RemoteDeliveryStatusRefs.CrossProcessReplayStoreRef,
   crossProcessReplayCursorRef: RemoteDeliveryStatusRefs.CrossProcessReplayCursorRef,
+  externalCrossProcessTransportRef: AgentNetworkRemoteDeliveryRow10tRefs.ExternalCrossProcessTransportRef,
+  externalCrossProcessTransportEnvelopeRef:
+    AgentNetworkRemoteDeliveryRow10tRefs.ExternalCrossProcessTransportEnvelopeRef,
+  externalCrossProcessTransportAckRef: AgentNetworkRemoteDeliveryRow10tRefs.ExternalCrossProcessTransportAckRef,
   transportDispatchState: 'manual-required-blocked',
   providerDeliveryReadinessState: 'manual-required-unavailable',
   childDeviceDeliveryReadinessState: 'manual-required-unavailable',
   crossProcessCustodyReadinessState: 'manual-required-unavailable',
+  externalCrossProcessTransportState: 'deterministic-envelope-ack-recorded',
   outboxCandidateCount: 3,
   sourceOutboxCandidateCount: 3,
   preparedNotDispatchedCount: 3,
@@ -103,6 +109,11 @@ const RemoteDeliveryStatus = {
   crossProcessReplayCursorNextSequence: 4,
   crossProcessReplayRecordsMatchDurableEnvelopes: true,
   crossProcessReplayRecordsMatchCustodyReadiness: true,
+  externalCrossProcessTransportRecordCount: 3,
+  externalCrossProcessTransportEnvelopeCount: 3,
+  externalCrossProcessTransportAckCount: 3,
+  externalCrossProcessTransportRecordsMatchReplayRecords: true,
+  externalCrossProcessTransportAckRecordsMatchEnvelopes: true,
   dispatchReadyCandidateCount: 0,
   dispatchAttemptCount: 0,
   remoteAckCount: 0,
@@ -119,7 +130,7 @@ const RemoteDeliveryStatus = {
   providerDeliveryImplemented: false,
   childDeviceDeliveryImplemented: false,
   crossProcessReplayImplemented: true,
-  externalCrossProcessTransportImplemented: false,
+  externalCrossProcessTransportImplemented: true,
   remoteDeleteExportPropagationImplemented: false,
   productReadyRemoteDelivery: false,
   policyAuthority: false,
@@ -136,7 +147,7 @@ const RemoteDeliveryStatus = {
   searchQueryAvailableCount: 0,
 } satisfies AgentNetworkRemoteDeliveryStatus;
 
-it('parses row10s cross-process replay status with row10r metadata from a typed agent event', () => {
+it('parses row10t external cross-process transport status from a typed agent event', () => {
   const parsed = parseAgentNetworkRemoteDeliveryStatusEvent(
     eventWithPayload({
       [AgentProtocolDefaults.Field.NetworkRemoteDeliveryStatus]: JSON.stringify(RemoteDeliveryStatus),
@@ -149,7 +160,7 @@ it('parses row10s cross-process replay status with row10r metadata from a typed 
 it('rejects live delivery, product-ready, adapter, and content claims', () => {
   expectInvalid({ ...RemoteDeliveryStatus, productReadyRemoteDelivery: true });
   expectInvalid({ ...RemoteDeliveryStatus, crossProcessReplayImplemented: false });
-  expectInvalid({ ...RemoteDeliveryStatus, externalCrossProcessTransportImplemented: true });
+  expectInvalid({ ...RemoteDeliveryStatus, externalCrossProcessTransportImplemented: false });
   expectInvalid({ ...RemoteDeliveryStatus, remoteDeleteExportPropagationImplemented: true });
   expectInvalid({ ...RemoteDeliveryStatus, providerDeliveryImplemented: true });
   expectInvalid({ ...RemoteDeliveryStatus, childDeviceDeliveryImplemented: true });
@@ -241,9 +252,18 @@ it('rejects stale row refs', () => {
   expectInvalidPatch({
     crossProcessReplayCursorRef: 'network.remote-delivery.cross-process-replay-cursor.10q',
   });
+  expectInvalidPatch({
+    externalCrossProcessTransportRef: 'network.remote-delivery.external-cross-process-transport.10s',
+  });
+  expectInvalidPatch({
+    externalCrossProcessTransportEnvelopeRef: 'network.remote-delivery.external-cross-process-transport-envelope.10s',
+  });
+  expectInvalidPatch({
+    externalCrossProcessTransportAckRef: 'network.remote-delivery.external-cross-process-transport-ack.10s',
+  });
 });
 
-it('rejects row10k dispatch, row10m readiness, row10p readiness, row10q custody, row10r replay, and candidate-count mismatches', () => {
+it('rejects row10k dispatch, row10m readiness, and candidate-count mismatches', () => {
   expectInvalidPatch({ preparedNotDispatchedCount: 2 });
   expectInvalidPatch({ sourceOutboxCandidateCount: 2 });
   expectInvalidPatch({ blockedDispatchRecordCount: 2 });
@@ -257,6 +277,12 @@ it('rejects row10k dispatch, row10m readiness, row10p readiness, row10q custody,
   expectInvalidPatch({ remoteDeleteReadyCount: 2 });
   expectInvalidPatch({ remoteExportReadyCount: 2 });
   expectInvalidPatch({ deleteExportRecordsMatchFixtureAcks: false });
+  expectInvalidPatch({ dispatchReadyCandidateCount: 1 });
+  expectInvalidPatch({ transportDispatchState: 'dispatch-ready' });
+  expectInvalidPatch({ brokerMissingArtifactCount: 1 });
+});
+
+it('rejects row10p provider/child readiness and row10q custody mismatches', () => {
   expectInvalidPatch({ providerDeliveryReadinessRecordCount: 2 });
   expectInvalidPatch({ childDeviceDeliveryReadinessRecordCount: 2 });
   expectInvalidPatch({ providerDeliveryArtifactCount: 1 });
@@ -274,14 +300,21 @@ it('rejects row10k dispatch, row10m readiness, row10p readiness, row10q custody,
   expectInvalidPatch({ remoteRetentionArtifactCount: 1 });
   expectInvalidPatch({ remoteDeleteCustodyArtifactCount: 1 });
   expectInvalidPatch({ remoteExportCustodyArtifactCount: 1 });
+  expectInvalidPatch({ crossProcessCustodyReadinessState: 'available' });
+});
+
+it('rejects row10r replay and row10t transport mismatches', () => {
   expectInvalidPatch({ crossProcessReplayRecordCount: 2 });
   expectInvalidPatch({ crossProcessReplayStoreWriteCount: 2 });
   expectInvalidPatch({ crossProcessReplayCursorNextSequence: 3 });
   expectInvalidPatch({ crossProcessReplayRecordsMatchDurableEnvelopes: false });
   expectInvalidPatch({ crossProcessReplayRecordsMatchCustodyReadiness: false });
-  expectInvalidPatch({ crossProcessCustodyReadinessState: 'available' });
-  expectInvalidPatch({ transportDispatchState: 'dispatch-ready' });
-  expectInvalidPatch({ brokerMissingArtifactCount: 1 });
+  expectInvalidPatch({ externalCrossProcessTransportRecordCount: 2 });
+  expectInvalidPatch({ externalCrossProcessTransportEnvelopeCount: 2 });
+  expectInvalidPatch({ externalCrossProcessTransportAckCount: 2 });
+  expectInvalidPatch({ externalCrossProcessTransportRecordsMatchReplayRecords: false });
+  expectInvalidPatch({ externalCrossProcessTransportAckRecordsMatchEnvelopes: false });
+  expectInvalidPatch({ externalCrossProcessTransportState: 'manual-required' });
 });
 
 function expectInvalidPatch(patch: Partial<AgentNetworkRemoteDeliveryStatus>) {

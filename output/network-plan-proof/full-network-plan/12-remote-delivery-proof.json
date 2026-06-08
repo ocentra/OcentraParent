@@ -164,6 +164,17 @@
         "kind": "refreshed-by-aggregate-command",
         "command": "network-remote-delivery-cross-process-replay-status-bridge-proof"
       }
+    },
+    {
+      "id": "remote-external-cross-process-transport",
+      "group": "10-remote-delivery-proof",
+      "path": "output/network-plan-proof/10t-remote-delivery-external-cross-process-transport/proof-summary.json",
+      "kind": "json",
+      "parsedProof": "network-remote-delivery-external-cross-process-transport-proof",
+      "freshness": {
+        "kind": "refreshed-by-aggregate-command",
+        "command": "network-remote-delivery-external-cross-process-transport-proof"
+      }
     }
   ]
 }

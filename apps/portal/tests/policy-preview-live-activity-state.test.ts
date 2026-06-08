@@ -7,20 +7,22 @@ describe('portal policy-preview live activity state', () => {
     const state = resolveLiveActivityState([policyPreviewEvent()]);
 
     expect(state.policyPreviewEvent?.severity).toBe('info');
-    expect(state.policyPreviewReadModel?.returned).toBe(1);
-    expect(state.policyPreviewReadModel?.previewId).toBe('policy-preview-1');
-    expect(state.policyPreviewReadModel?.targetValue).toBe('https://example.test/learn');
-    expect(state.policyPreviewReadModel?.decisionAction).toBe('allow');
-    expect(state.policyPreviewReadModel?.parentRuleContextReferenceCount).toBe(1);
-    expect(state.policyPreviewReadModel?.parentRuleContextRefIds).toBe('parent-rule-context-1');
-    expect(state.policyPreviewReadModel?.dryRun).toBe(true);
-    expect(state.policyPreviewReadModel?.enforcementHandoffState).toBe('disabled-preview-only');
-    expect(state.policyPreviewReadModel?.networkEvidenceGrade).toBe('B');
-    expect(state.policyPreviewReadModel?.networkRequestedPolicyAction).toBe('block');
-    expect(state.policyPreviewReadModel?.networkMappedPolicyAction).toBe('ask-parent');
-    expect(state.policyPreviewReadModel?.networkPolicyMappingMode).toBe('parent-review');
-    expect(state.policyPreviewReadModel?.networkAdapterActionAuthorized).toBe(false);
-    expect(state.policyPreviewReadModel?.networkEnforcementCommandAuthorized).toBe(false);
+    expect(state.policyPreviewReadModel).toMatchObject({
+      returned: 1,
+      previewId: 'policy-preview-1',
+      targetValue: 'https://example.test/learn',
+      decisionAction: 'allow',
+      parentRuleContextReferenceCount: 1,
+      parentRuleContextRefIds: 'parent-rule-context-1',
+      dryRun: true,
+      enforcementHandoffState: 'disabled-preview-only',
+      networkEvidenceGrade: 'B',
+      networkRequestedPolicyAction: 'block',
+      networkMappedPolicyAction: 'ask-parent',
+      networkPolicyMappingMode: 'parent-review',
+      networkAdapterActionAuthorized: false,
+      networkEnforcementCommandAuthorized: false,
+    });
   });
 
   it('parses service policy schema versions without weakening typed payload fields', () => {

@@ -2,7 +2,7 @@
   "proof": "network-remote-delivery-cross-process-custody-readiness-proof",
   "proofRevision": "network-remote-delivery-cross-process-custody-readiness-proof/v1",
   "checkedAt": "deterministic:network-remote-delivery-cross-process-custody-readiness-proof/v1",
-  "sourceFingerprint": "source-tree:ba9474e1cbaf61cac48b99ec8ea89725b0151e4f3b69a93c0265521c2392371f",
+  "sourceFingerprint": "source-tree:d8c2d2892cd01922ea2d1e0effa3043b6328be44884f07194be656ca6cf72c13",
   "sourceRefs": [
     "scripts/test/network-remote-delivery-cross-process-custody-readiness-proof.mjs",
     "crates/agent-protocol/src/constants/network_flow.rs",

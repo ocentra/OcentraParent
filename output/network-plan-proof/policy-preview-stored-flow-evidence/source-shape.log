@@ -1,15 +1,14 @@
 Source shape warnings scoped to policy-preview source refs:
 apps/portal/src/policy-preview-details.ts:101 function has 78 lines; warning starts at 64 of 80
-apps/portal/tests/policy-preview-live-activity-state.test.ts:5 function has 67 lines; warning starts at 64 of 80
+apps/portal/tests/policy-preview-live-activity-state.test.ts:5 function has 69 lines; warning starts at 64 of 80
 crates/agent-core/src/activity_store_policy_preview.rs:1 file has 18 functions; warning starts at 15 of 18
 crates/agent-core/src/activity_store_policy_preview.rs:1 file has 329 lines; crossed 250-line advisory band; maximum is 1000
 crates/agent-core/src/activity_store_policy_preview_parent_rule_tests.rs:1 file has 282 lines; crossed 250-line advisory band; maximum is 1000
-crates/agent-core/src/activity_store_policy_preview_tests.rs:1 file has 295 lines; crossed 250-line advisory band; maximum is 1000
-crates/agent-core/src/activity_store_policy_preview_tests.rs:64 function has 73 lines; warning starts at 64 of 80
+crates/agent-core/src/activity_store_policy_preview_tests.rs:1 file has 312 lines; crossed 250-line advisory band; maximum is 1000
 crates/agent-protocol/src/constants/field.rs:1 file has 428 lines; crossed 250-line advisory band; maximum is 1000
 crates/agent-service/src/policy_preview_tests.rs:12 function has 66 lines; warning starts at 64 of 80
 packages/agent-protocol-domain/src/contracts.ts:1 file has 589 lines; crossed 500-line advisory band; maximum is 1000
 packages/agent-protocol-domain/src/defaults.ts:1 file has 541 lines; crossed 500-line advisory band; maximum is 1000
-packages/agent-protocol-domain/tests/network-remote-delivery-status.test.ts:1 file has 313 lines; crossed 250-line advisory band; maximum is 1000
-packages/agent-protocol-domain/tests/network-remote-delivery-status.test.ts:180 function has 65 lines; warning starts at 64 of 80
+packages/agent-protocol-domain/tests/network-remote-delivery-status.test.ts:1 file has 346 lines; crossed 250-line advisory band; maximum is 1000
+packages/agent-protocol-domain/tests/network-remote-delivery-status.test.ts:191 function has 74 lines; warning starts at 64 of 80
 Source shape guard passed.
