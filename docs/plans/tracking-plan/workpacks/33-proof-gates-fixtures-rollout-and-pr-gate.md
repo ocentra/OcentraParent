@@ -124,6 +124,8 @@ Proof root: `output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-g
   retention enforcement blockers in the aggregate remaining-blocker row.
 - Tracking escalation-runtime readiness blocker proof:
   `53-escalation-runtime-readiness-blocker-proof.json`
+- Tracking escalation-runtime artifact gate proof:
+  `62-escalation-runtime-artifact-gate-proof.json`
 - Tracking notification preference status handoff proof:
   `54-notification-preference-status-handoff-proof.json`
 - Tracking authority-runtime readiness blocker proof:
@@ -301,8 +303,9 @@ notification receipt boundary, notification preference preflight, notification
 local outbox readiness, authority-enrollment manual-required proof,
 child-runtime product-readiness blocker, child-runtime artifact gate,
 physical-device artifact gate, provider-delivery artifact gate,
-provider-runtime readiness blocker, escalation-runtime readiness blocker, and
-retention product-readiness blocker proofs. The refreshed closure also consumes
+provider-runtime readiness blocker, escalation-runtime readiness blocker,
+escalation-runtime artifact gate, and retention product-readiness blocker
+proofs. The refreshed closure also consumes
 the retention runtime artifact gate and the production durable workers readiness
 blocker proof so local/CI proof accounting is explicit before any product-ready
 handoff. It writes
@@ -1176,3 +1179,34 @@ test:tracking-plan-hosted-ui-proof` passed.
       parent-visible authority runtime, physical-device behavior, provider
       delivery, production workers, and product-ready tracking remain
       proof-gated.
+
+- [x] Workpack id and branch:
+      `codex/tracking-plan-full-continuation-a`.
+- [x] Touched files: escalation runtime artifact gate proof/test, focused proof
+      script, product-readiness closure proof model, closure harness, owning
+      tracking feature doc, implementation checklist, WP27, this proof-gate
+      doc, generated escalation runtime artifact gate proof artifacts, and
+      refreshed closure proof artifacts.
+- [x] Validation commands and results:
+      `node scripts/test/tracking-escalation-runtime-artifact-gate-proof.mjs`
+      passed; `node scripts/test/tracking-product-readiness-closure-proof.mjs`
+      passed.
+- [x] Proof artifacts:
+      `output/tracking-plan-proof/27-escalation-engine/11-escalation-runtime-artifact-gate-proof.json`,
+      `output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-gate/62-escalation-runtime-artifact-gate-proof.json`,
+      `output/tracking-plan-proof/tracking-escalation-runtime-artifact-gate-proof/proof.json`,
+      `output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-gate/46-product-readiness-closure-proof.json`,
+      `output/tracking-plan-proof/tracking-product-readiness-closure-proof/proof.json`,
+      `test-results/tracking-escalation-runtime-artifact-gate-proof/proof.json`,
+      and `test-results/tracking-product-readiness-closure-proof/proof.json`.
+- [x] Product doc/checklist updates: owning feature doc, implementation
+      checklist, WP27, and this proof-gate doc updated. Central product
+      capability checklist is not edited by this branch; the row delta is
+      queued through hub doc-deltas.
+- [x] Known gaps/manual-required states: this artifact gate derives required
+      escalation runtime artifacts from the existing runtime-readiness blocker
+      proof, but production escalation workers, quiet-hours timers, provider
+      delivery/receipt runtime, parent notification history runtime,
+      child-device delivery, durable escalation storage, emergency
+      auto-contact policy, physical-device proof, authority proof, and
+      product-ready escalation remain proof-gated.
