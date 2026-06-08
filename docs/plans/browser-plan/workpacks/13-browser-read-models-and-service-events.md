@@ -1076,3 +1076,31 @@ delivery, provider receipt ingestion runtime, webhook runtime, credentials,
 observed provider receipts, report delivery execution, final policy execution,
 browser mutation, child intervention execution, unmanaged exact URL support, or
 enforcement.
+
+## Social Report Writer Delivery From Receipt Ingestion Addendum - 2026-06-08
+
+`social-report-writer-delivery-proof` now consumes social provider receipt
+ingestion readiness rows through a parent-domain builder instead of relying only
+on a static report-writer sample. Provider-dispatch, manual-receipt, and
+provider-unavailable receipt-ingestion rows become report-writer manual-required
+or unavailable rows, preserving webhook, credential, durable receipt, observed
+provider receipt, and runtime delivery proof requirements before any report
+artifact or receipt can be claimed.
+
+Evidence:
+
+- `packages/parent-domain/src/social-report-writer-delivery-proof.ts`
+- `packages/parent-domain/tests/social-report-writer-delivery-proof.test.ts`
+- `scripts/test/social-report-writer-delivery-proof.mjs`
+- `test-results/social-report-writer-delivery-proof/proof.json`
+- `output/browser-plan-proof/social-report-writer-delivery-proof/01-social-report-writer-delivery-proof.md`
+- `cmd /c npm run test --workspace @ocentra-parent/parent-domain -- social-report-writer-delivery-proof.test.ts`
+- `cmd /c node scripts/test/social-report-writer-delivery-proof.mjs`
+
+This is parent-domain report-writer readiness proof only. It does not claim
+external runtime report delivery, provider delivery, provider receipt ingestion
+runtime, webhook runtime, credentials, observed provider receipts, parent
+notification UI delivery, final policy execution, connector/native runtime,
+browser mutation, child intervention execution, unmanaged exact URL support, or
+enforcement. Protocol stream exposure remains sequenced behind the active
+`packages/agent-protocol-domain/src/defaults.ts` lock.

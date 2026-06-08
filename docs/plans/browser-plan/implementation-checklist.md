@@ -460,6 +460,18 @@ This advances redaction-safe audit/history handoff without claiming provider
 delivery, receipt ingestion, notification history UI, child delivery, runtime
 execution, quiet-hours/retry execution, report delivery execution, final policy
 execution, connector/native runtime, or enforcement.
+`social-report-writer-delivery-proof` now consumes social provider receipt
+ingestion readiness rows and projects provider-dispatch, manual-receipt, and
+provider-unavailable rows into report-writer manual-required or unavailable
+status without report artifact or receipt claims. Evidence:
+`test-results/social-report-writer-delivery-proof/proof.json` and
+`output/browser-plan-proof/social-report-writer-delivery-proof/01-social-report-writer-delivery-proof.md`.
+This advances report-writer readiness from receipt ingestion proof while keeping
+external runtime report delivery, provider delivery, provider receipt ingestion
+runtime, parent notification UI delivery, final policy execution,
+connector/native runtime, browser mutation, child intervention, unmanaged exact
+URL support, and enforcement unclaimed. Protocol stream exposure is deferred
+while E-D owns `packages/agent-protocol-domain/src/defaults.ts`.
 
 WP13 event-runtime spine addendum: `browser-event-runtime-spine-proof` adds a
 browser-specific `ocentra-eventing` consumer in `crates/agent-core` with ordered
