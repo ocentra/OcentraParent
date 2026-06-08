@@ -16,10 +16,22 @@ pub const APP_GAME_ADAPTER_DISPATCH_COMMAND_RESULT_STATE_DEGRADED: &str = "degra
 pub const APP_GAME_ADAPTER_DISPATCH_COMMAND_RESULT_DECISION_ACCEPTED: &str = "command-accepted";
 pub const APP_GAME_ADAPTER_DISPATCH_COMMAND_RESULT_DECISION_BLOCKED: &str =
     "blocked-before-command";
+pub const APP_GAME_ADAPTER_DISPATCH_EXECUTION_AUDIT_STATE_RECORDED: &str =
+    "service-local-audit-recorded";
+pub const APP_GAME_ADAPTER_DISPATCH_EXECUTION_AUDIT_STATE_BLOCKED: &str =
+    "blocked-before-execution-audit";
+pub const APP_GAME_ADAPTER_DISPATCH_EXECUTION_AUDIT_DECISION_RECORDED: &str =
+    "service-local-audit-recorded";
+pub const APP_GAME_ADAPTER_DISPATCH_EXECUTION_AUDIT_DECISION_BLOCKED: &str =
+    "blocked-before-execution-audit";
 pub const APP_GAME_ADAPTER_DISPATCH_RESULT_OWNED_PROCESS_ID: &str =
     "app-game-dispatch-command-result-owned-process-time-limit";
 pub const APP_GAME_ADAPTER_DISPATCH_COMMAND_AUDIT_OWNED_PROCESS: &str =
     "audit-owned-process-dispatch-command-accepted";
+pub const APP_GAME_ADAPTER_DISPATCH_EXECUTION_AUDIT_OWNED_PROCESS_ID: &str =
+    "app-game-adapter-dispatch-execution-audit-owned-process-time-limit";
+pub const APP_GAME_ADAPTER_DISPATCH_EXECUTION_AUDIT_OWNED_PROCESS_REF: &str =
+    "audit-owned-process-dispatch-service-local-execution-recorded";
 pub const APP_GAME_ADAPTER_DISPATCH_RESULT_ENFORCEMENT_COMMAND: &str = "agent.enforcement.execute";
 pub const APP_GAME_ADAPTER_DISPATCH_RESULT_ENFORCEMENT_EVENT: &str =
     "agent.enforcement.audit.reported";
@@ -61,11 +73,16 @@ pub struct AppGameAdapterDispatchResultRow {
     pub dispatch_command_result_id: Option<String>,
     pub dispatch_command_audit_refs: Vec<String>,
     pub dispatch_command_timer_refs: Vec<String>,
+    pub dispatch_execution_audit_state: String,
+    pub dispatch_execution_audit_decision: String,
+    pub dispatch_execution_audit_id: Option<String>,
+    pub dispatch_execution_audit_refs: Vec<String>,
     pub manual_proof_requirements: Vec<String>,
     pub claim_boundary: String,
     pub fallback_behavior: String,
     pub adapter_dispatch_command_result_claimed: bool,
     pub adapter_dispatch_executed_claimed: bool,
+    pub service_local_execution_audit_claimed: bool,
     pub broad_installed_app_blocking_claimed: bool,
     pub child_device_delivery_claimed: bool,
     pub platform_enforcement_claimed: bool,
@@ -86,7 +103,10 @@ pub struct AppGameAdapterDispatchResultReadModel {
     pub returned: u64,
     pub command_accepted_count: u64,
     pub blocked_before_command_count: u64,
+    pub execution_audit_recorded_count: u64,
+    pub blocked_before_execution_audit_count: u64,
     pub adapter_dispatch_command_result_claimed_count: u64,
+    pub service_local_execution_audit_claimed_count: u64,
     pub adapter_dispatch_executed_claimed_count: u64,
     pub broad_installed_app_blocking_claimed: bool,
     pub child_device_delivery_claimed: bool,

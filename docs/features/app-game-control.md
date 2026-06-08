@@ -154,6 +154,14 @@ control with better evidence and local audit.
   blocked before command handoff and still do not claim adapter execution,
   broad blocking, platform enforcement, provider delivery, child-device
   delivery, raw private rows/targets, or private diagnostics.
+- The app/game adapter dispatch execution-audit seam now records one
+  service-local execution audit for that scoped Windows owned-process
+  app/game time-limit command-result row, while the other seven broad,
+  degraded, unavailable, unsupported, or manual-required rows remain blocked
+  before execution audit. This is parent-visible audit progress only; actual
+  adapter execution, broad blocking, platform enforcement, provider delivery,
+  child-device delivery, raw private rows/targets, and private diagnostics
+  remain unclaimed.
 - The Windows owned-process time-limit proof now extends that same real-service
   harness with dry-run and stale-action negative paths while preserving the
   manual-required boundary for broad package/app blocking.
@@ -1550,6 +1558,12 @@ diagnostics, or raw private source rows.
       command handoff. Adapter dispatch execution, broad blocking, child
       delivery, provider delivery, platform enforcement, raw private rows, and
       private diagnostics remain unclaimed.
+      The dispatch result read model also records a service-local execution
+      audit for the scoped Windows owned-process app/game timer command-result
+      row and keeps all other rows blocked before execution audit. Actual
+      adapter execution, broad blocking, child delivery, provider delivery,
+      platform enforcement, raw private rows, and private diagnostics remain
+      unclaimed.
 - [ ] Blocking/time-limit proof before done claim. Scoped owned-process
       time-limit proof exists; broad block-launch/hide/suspend/shield and
       allowlist remain manual-required or not-claimed until platform setup,

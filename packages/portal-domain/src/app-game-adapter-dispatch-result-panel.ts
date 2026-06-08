@@ -1,6 +1,8 @@
 import {
   AgentAppGameAdapterDispatchCommandResultDecision,
   AgentAppGameAdapterDispatchCommandResultState,
+  AgentAppGameAdapterDispatchExecutionAuditDecision,
+  AgentAppGameAdapterDispatchExecutionAuditState,
   type AgentAppGameAdapterDispatchResult,
   type AgentAppGameAdapterDispatchResultReadModel,
   type AgentAppGameAdapterDispatchResultRow,
@@ -37,6 +39,8 @@ const DispatchResult = decodeDisplayText('Dispatch result');
 const DispatchAction = decodeDisplayText('Dispatch action');
 const AuditReferences = decodeDisplayText('Audit references');
 const TimerReferences = decodeDisplayText('Timer references');
+const ExecutionAudit = decodeDisplayText('Execution audit');
+const ExecutionAuditReferences = decodeDisplayText('Execution audit refs');
 
 export type AppGameAdapterDispatchResultPanelDetail = {
   readonly label: DisplayText;
@@ -119,6 +123,7 @@ function readModelSummary(
     detail(PortalDetails.ReadModelRows, countText(readModel.commandAcceptedCount)),
     detail(PortalDetails.ManualReview, countText(readModel.blockedBeforeCommandCount)),
     detail(PortalDetails.AdapterDispatch, claimedValue(readModel.adapterDispatchCommandResultClaimedCount > 0)),
+    detail(ExecutionAudit, claimedValue(readModel.serviceLocalExecutionAuditClaimedCount > 0)),
     detail(PortalDetails.ExecutionState, claimedValue(readModel.adapterDispatchExecutedClaimedCount > 0)),
     detail(PortalDetails.PlatformState, claimedValue(readModel.platformEnforcementClaimed)),
     detail(PortalDetails.ChildDelivery, claimedValue(readModel.childDeviceDeliveryClaimed)),
@@ -141,8 +146,11 @@ function dispatchResultRow(row: AgentAppGameAdapterDispatchResultRow): AppGameAd
       detail(DispatchResult, optionalText(row.dispatchCommandResultId)),
       detail(AuditReferences, joinedOrNotReported(row.dispatchCommandAuditRefs)),
       detail(TimerReferences, joinedOrNotReported(row.dispatchCommandTimerRefs)),
+      detail(ExecutionAudit, executionAuditLabel(row.dispatchExecutionAuditState)),
+      detail(ExecutionAuditReferences, joinedOrNotReported(row.dispatchExecutionAuditRefs)),
       detail(PortalDetails.ManualReview, joinedOrNotReported(row.manualProofRequirements)),
       detail(PortalDetails.AdapterDispatch, claimedValue(row.adapterDispatchCommandResultClaimed)),
+      detail(ExecutionAudit, claimedValue(row.serviceLocalExecutionAuditClaimed)),
       detail(PortalDetails.ExecutionState, claimedValue(row.adapterDispatchExecutedClaimed)),
       detail(PortalDetails.PlatformState, claimedValue(row.platformEnforcementClaimed)),
       detail(PortalDetails.ChildDelivery, claimedValue(row.childDeviceDeliveryClaimed)),
@@ -159,6 +167,16 @@ function dispatchResultLoadState(readModel: AgentAppGameAdapterDispatchResultRea
     return Readable.Review;
   }
   return Readable.Ready;
+}
+
+function executionAuditLabel(state: string): DisplayText {
+  if (state === AgentAppGameAdapterDispatchExecutionAuditState.ServiceLocalAuditRecorded) {
+    return decodeDisplayText('Service-local audit recorded');
+  }
+  if (state === AgentAppGameAdapterDispatchExecutionAuditDecision.BlockedBeforeExecutionAudit) {
+    return decodeDisplayText('Blocked before execution audit');
+  }
+  return displayText(state);
 }
 
 function decisionLabel(decision: string): DisplayText {

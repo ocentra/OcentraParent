@@ -26,6 +26,16 @@ export const AgentAppGameAdapterDispatchCommandResultDecision = {
   BlockedBeforeCommand: 'blocked-before-command',
 } as const;
 
+export const AgentAppGameAdapterDispatchExecutionAuditState = {
+  ServiceLocalAuditRecorded: 'service-local-audit-recorded',
+  BlockedBeforeExecutionAudit: 'blocked-before-execution-audit',
+} as const;
+
+export const AgentAppGameAdapterDispatchExecutionAuditDecision = {
+  ServiceLocalAuditRecorded: 'service-local-audit-recorded',
+  BlockedBeforeExecutionAudit: 'blocked-before-execution-audit',
+} as const;
+
 const AgentAppGameAdapterDispatchResultRowBaseSchema = Schema.Struct({
   schemaVersion: Schema.Literal(AppGameSchemaVersion),
   rowId: DispatchResultText,
@@ -73,11 +83,22 @@ const AgentAppGameAdapterDispatchResultRowBaseSchema = Schema.Struct({
   dispatchCommandResultId: Schema.Union(DispatchResultText, Schema.Null),
   dispatchCommandAuditRefs: Schema.Array(DispatchResultText),
   dispatchCommandTimerRefs: Schema.Array(DispatchResultText),
+  dispatchExecutionAuditState: Schema.Literal(
+    AgentAppGameAdapterDispatchExecutionAuditState.ServiceLocalAuditRecorded,
+    AgentAppGameAdapterDispatchExecutionAuditState.BlockedBeforeExecutionAudit
+  ),
+  dispatchExecutionAuditDecision: Schema.Literal(
+    AgentAppGameAdapterDispatchExecutionAuditDecision.ServiceLocalAuditRecorded,
+    AgentAppGameAdapterDispatchExecutionAuditDecision.BlockedBeforeExecutionAudit
+  ),
+  dispatchExecutionAuditId: Schema.Union(DispatchResultText, Schema.Null),
+  dispatchExecutionAuditRefs: Schema.Array(DispatchResultText),
   manualProofRequirements: Schema.Array(DispatchResultText),
   claimBoundary: DispatchResultText,
   fallbackBehavior: DispatchResultText,
   adapterDispatchCommandResultClaimed: Schema.Boolean,
   adapterDispatchExecutedClaimed: Schema.Literal(false),
+  serviceLocalExecutionAuditClaimed: Schema.Boolean,
   broadInstalledAppBlockingClaimed: Schema.Literal(false),
   childDeviceDeliveryClaimed: Schema.Literal(false),
   platformEnforcementClaimed: Schema.Literal(false),
@@ -108,7 +129,10 @@ const AgentAppGameAdapterDispatchResultReadModelBaseSchema = Schema.Struct({
   returned: DispatchResultCount,
   commandAcceptedCount: DispatchResultCount,
   blockedBeforeCommandCount: DispatchResultCount,
+  executionAuditRecordedCount: DispatchResultCount,
+  blockedBeforeExecutionAuditCount: DispatchResultCount,
   adapterDispatchCommandResultClaimedCount: DispatchResultCount,
+  serviceLocalExecutionAuditClaimedCount: DispatchResultCount,
   adapterDispatchExecutedClaimedCount: Schema.Literal(0),
   broadInstalledAppBlockingClaimed: Schema.Literal(false),
   childDeviceDeliveryClaimed: Schema.Literal(false),
@@ -138,8 +162,22 @@ export const AgentAppGameAdapterDispatchResultReadModelSchema = withParser(
                 row.dispatchCommandResultDecision ===
                 AgentAppGameAdapterDispatchCommandResultDecision.BlockedBeforeCommand
             ).length &&
+          readModel.executionAuditRecordedCount ===
+            readModel.rows.filter(
+              (row) =>
+                row.dispatchExecutionAuditDecision ===
+                AgentAppGameAdapterDispatchExecutionAuditDecision.ServiceLocalAuditRecorded
+            ).length &&
+          readModel.blockedBeforeExecutionAuditCount ===
+            readModel.rows.filter(
+              (row) =>
+                row.dispatchExecutionAuditDecision ===
+                AgentAppGameAdapterDispatchExecutionAuditDecision.BlockedBeforeExecutionAudit
+            ).length &&
           readModel.adapterDispatchCommandResultClaimedCount ===
             readModel.rows.filter((row) => row.adapterDispatchCommandResultClaimed).length &&
+          readModel.serviceLocalExecutionAuditClaimedCount ===
+            readModel.rows.filter((row) => row.serviceLocalExecutionAuditClaimed).length &&
           new Set(readModel.rows.map((row) => row.rowId)).size === readModel.rows.length) ||
         'Expected app/game adapter dispatch result counts and row ids to match the rows'
     )
@@ -211,9 +249,15 @@ function dispatchResultRowIsHonest(row: AgentAppGameAdapterDispatchResultRowCand
       row.dispatchCommandResultId !== null &&
       row.dispatchCommandAuditRefs.length > 0 &&
       row.dispatchCommandTimerRefs.length > 0 &&
+      row.dispatchExecutionAuditState === AgentAppGameAdapterDispatchExecutionAuditState.ServiceLocalAuditRecorded &&
+      row.dispatchExecutionAuditDecision ===
+        AgentAppGameAdapterDispatchExecutionAuditDecision.ServiceLocalAuditRecorded &&
+      row.dispatchExecutionAuditId !== null &&
+      row.dispatchExecutionAuditRefs.length > 0 &&
       row.manualProofRequirements.length === 0 &&
       row.adapterDispatchCommandResultClaimed &&
-      !row.adapterDispatchExecutedClaimed
+      !row.adapterDispatchExecutedClaimed &&
+      row.serviceLocalExecutionAuditClaimed
     );
   }
 
@@ -223,9 +267,15 @@ function dispatchResultRowIsHonest(row: AgentAppGameAdapterDispatchResultRowCand
     row.enforcementEventName === null &&
     row.enforcementActionMode === null &&
     row.dispatchCommandResultId === null &&
+    row.dispatchExecutionAuditState === AgentAppGameAdapterDispatchExecutionAuditState.BlockedBeforeExecutionAudit &&
+    row.dispatchExecutionAuditDecision ===
+      AgentAppGameAdapterDispatchExecutionAuditDecision.BlockedBeforeExecutionAudit &&
+    row.dispatchExecutionAuditId === null &&
+    row.dispatchExecutionAuditRefs.length === 0 &&
     row.manualProofRequirements.length > 0 &&
     !row.adapterDispatchCommandResultClaimed &&
-    !row.adapterDispatchExecutedClaimed
+    !row.adapterDispatchExecutedClaimed &&
+    !row.serviceLocalExecutionAuditClaimed
   );
 }
 

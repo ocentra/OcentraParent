@@ -10,8 +10,14 @@ use ocentra_parent_agent_protocol::{
     APP_GAME_ADAPTER_DISPATCH_COMMAND_RESULT_STATE_MANUAL_REQUIRED,
     APP_GAME_ADAPTER_DISPATCH_COMMAND_RESULT_STATE_UNAVAILABLE,
     APP_GAME_ADAPTER_DISPATCH_COMMAND_RESULT_STATE_UNSUPPORTED,
-    APP_GAME_ADAPTER_DISPATCH_DECISION_ELIGIBLE, APP_GAME_ADAPTER_DISPATCH_OUTCOME_READY,
-    APP_GAME_ADAPTER_DISPATCH_PREFLIGHT_READ_MODEL_ID,
+    APP_GAME_ADAPTER_DISPATCH_DECISION_ELIGIBLE,
+    APP_GAME_ADAPTER_DISPATCH_EXECUTION_AUDIT_DECISION_BLOCKED,
+    APP_GAME_ADAPTER_DISPATCH_EXECUTION_AUDIT_DECISION_RECORDED,
+    APP_GAME_ADAPTER_DISPATCH_EXECUTION_AUDIT_OWNED_PROCESS_ID,
+    APP_GAME_ADAPTER_DISPATCH_EXECUTION_AUDIT_OWNED_PROCESS_REF,
+    APP_GAME_ADAPTER_DISPATCH_EXECUTION_AUDIT_STATE_BLOCKED,
+    APP_GAME_ADAPTER_DISPATCH_EXECUTION_AUDIT_STATE_RECORDED,
+    APP_GAME_ADAPTER_DISPATCH_OUTCOME_READY, APP_GAME_ADAPTER_DISPATCH_PREFLIGHT_READ_MODEL_ID,
     APP_GAME_ADAPTER_DISPATCH_PREFLIGHT_STATE_DEGRADED,
     APP_GAME_ADAPTER_DISPATCH_PREFLIGHT_STATE_ELIGIBLE,
     APP_GAME_ADAPTER_DISPATCH_PREFLIGHT_STATE_UNAVAILABLE,
@@ -77,6 +83,24 @@ pub fn app_game_adapter_dispatch_result_read_model(
         .iter()
         .filter(|row| row.adapter_dispatch_command_result_claimed)
         .count() as u64;
+    let execution_audit_recorded_count = rows
+        .iter()
+        .filter(|row| {
+            row.dispatch_execution_audit_decision
+                == APP_GAME_ADAPTER_DISPATCH_EXECUTION_AUDIT_DECISION_RECORDED
+        })
+        .count() as u64;
+    let blocked_before_execution_audit_count = rows
+        .iter()
+        .filter(|row| {
+            row.dispatch_execution_audit_decision
+                == APP_GAME_ADAPTER_DISPATCH_EXECUTION_AUDIT_DECISION_BLOCKED
+        })
+        .count() as u64;
+    let service_local_execution_audit_claimed_count = rows
+        .iter()
+        .filter(|row| row.service_local_execution_audit_claimed)
+        .count() as u64;
 
     AppGameAdapterDispatchResultReadModel {
         schema_version: APP_GAME_SCHEMA_VERSION,
@@ -91,7 +115,10 @@ pub fn app_game_adapter_dispatch_result_read_model(
         returned,
         command_accepted_count,
         blocked_before_command_count,
+        execution_audit_recorded_count,
+        blocked_before_execution_audit_count,
         adapter_dispatch_command_result_claimed_count,
+        service_local_execution_audit_claimed_count,
         adapter_dispatch_executed_claimed_count: 0,
         broad_installed_app_blocking_claimed: false,
         child_device_delivery_claimed: false,
@@ -136,6 +163,8 @@ fn dispatch_result_row(
     generated_at: &str,
 ) -> AppGameAdapterDispatchResultRow {
     let accepted = dispatch_command_result_accepted(row);
+    let command = command_handoff_fields(accepted);
+    let audit = execution_audit_fields(accepted);
     let mut row_id = String::from(APP_GAME_ADAPTER_DISPATCH_RESULT_ROW_ID_PREFIX);
     row_id.push_str(&row.source_proof_entry_id);
 
@@ -158,6 +187,70 @@ fn dispatch_result_row(
             APP_GAME_ADAPTER_DISPATCH_COMMAND_RESULT_DECISION_BLOCKED
         }
         .to_string(),
+        enforcement_command_name: command.enforcement_command_name,
+        enforcement_event_name: command.enforcement_event_name,
+        enforcement_action_mode: command.enforcement_action_mode,
+        dispatch_command_result_id: command.dispatch_command_result_id,
+        dispatch_command_audit_refs: command.dispatch_command_audit_refs,
+        dispatch_command_timer_refs: command.dispatch_command_timer_refs,
+        dispatch_execution_audit_state: audit.state,
+        dispatch_execution_audit_decision: audit.decision,
+        dispatch_execution_audit_id: audit.id,
+        dispatch_execution_audit_refs: audit.refs,
+        manual_proof_requirements: if accepted {
+            Vec::new()
+        } else {
+            row.manual_proof_requirements.clone()
+        },
+        claim_boundary: if accepted {
+            APP_GAME_ADAPTER_DISPATCH_RESULT_CLAIM_SCOPED_TIMER
+        } else {
+            APP_GAME_ADAPTER_DISPATCH_RESULT_CLAIM_BLOCKED
+        }
+        .to_string(),
+        fallback_behavior: if accepted {
+            APP_GAME_ADAPTER_DISPATCH_RESULT_FALLBACK_SCOPED_TIMER
+        } else {
+            APP_GAME_ADAPTER_DISPATCH_RESULT_FALLBACK_BLOCKED
+        }
+        .to_string(),
+        adapter_dispatch_command_result_claimed: accepted,
+        adapter_dispatch_executed_claimed: false,
+        service_local_execution_audit_claimed: accepted,
+        broad_installed_app_blocking_claimed: false,
+        child_device_delivery_claimed: false,
+        platform_enforcement_claimed: false,
+        provider_delivery_claimed: false,
+        private_diagnostics_claimed: false,
+        last_checked_at: generated_at.to_string(),
+    }
+}
+
+struct CommandHandoffFields {
+    enforcement_command_name: Option<String>,
+    enforcement_event_name: Option<String>,
+    enforcement_action_mode: Option<String>,
+    dispatch_command_result_id: Option<String>,
+    dispatch_command_audit_refs: Vec<String>,
+    dispatch_command_timer_refs: Vec<String>,
+}
+
+struct ExecutionAuditFields {
+    state: String,
+    decision: String,
+    id: Option<String>,
+    refs: Vec<String>,
+}
+
+fn dispatch_command_result_accepted(row: &AppGameAdapterDispatchPreflightRow) -> bool {
+    row.dispatch_preflight_state == APP_GAME_ADAPTER_DISPATCH_PREFLIGHT_STATE_ELIGIBLE
+        && row.dispatch_decision == APP_GAME_ADAPTER_DISPATCH_DECISION_ELIGIBLE
+        && row.dispatch_outcome_state == APP_GAME_ADAPTER_DISPATCH_OUTCOME_READY
+        && row.adapter_dispatch_eligible
+}
+
+fn command_handoff_fields(accepted: bool) -> CommandHandoffFields {
+    CommandHandoffFields {
         enforcement_command_name: accepted_field(
             accepted,
             APP_GAME_ADAPTER_DISPATCH_RESULT_ENFORCEMENT_COMMAND,
@@ -182,39 +275,24 @@ fn dispatch_result_row(
             accepted,
             APP_GAME_ADAPTER_DISPATCH_TIMER_OWNED_PROCESS,
         ),
-        manual_proof_requirements: if accepted {
-            Vec::new()
-        } else {
-            row.manual_proof_requirements.clone()
-        },
-        claim_boundary: if accepted {
-            APP_GAME_ADAPTER_DISPATCH_RESULT_CLAIM_SCOPED_TIMER
-        } else {
-            APP_GAME_ADAPTER_DISPATCH_RESULT_CLAIM_BLOCKED
-        }
-        .to_string(),
-        fallback_behavior: if accepted {
-            APP_GAME_ADAPTER_DISPATCH_RESULT_FALLBACK_SCOPED_TIMER
-        } else {
-            APP_GAME_ADAPTER_DISPATCH_RESULT_FALLBACK_BLOCKED
-        }
-        .to_string(),
-        adapter_dispatch_command_result_claimed: accepted,
-        adapter_dispatch_executed_claimed: false,
-        broad_installed_app_blocking_claimed: false,
-        child_device_delivery_claimed: false,
-        platform_enforcement_claimed: false,
-        provider_delivery_claimed: false,
-        private_diagnostics_claimed: false,
-        last_checked_at: generated_at.to_string(),
     }
 }
 
-fn dispatch_command_result_accepted(row: &AppGameAdapterDispatchPreflightRow) -> bool {
-    row.dispatch_preflight_state == APP_GAME_ADAPTER_DISPATCH_PREFLIGHT_STATE_ELIGIBLE
-        && row.dispatch_decision == APP_GAME_ADAPTER_DISPATCH_DECISION_ELIGIBLE
-        && row.dispatch_outcome_state == APP_GAME_ADAPTER_DISPATCH_OUTCOME_READY
-        && row.adapter_dispatch_eligible
+fn execution_audit_fields(accepted: bool) -> ExecutionAuditFields {
+    if accepted {
+        return ExecutionAuditFields {
+            state: APP_GAME_ADAPTER_DISPATCH_EXECUTION_AUDIT_STATE_RECORDED.to_string(),
+            decision: APP_GAME_ADAPTER_DISPATCH_EXECUTION_AUDIT_DECISION_RECORDED.to_string(),
+            id: Some(APP_GAME_ADAPTER_DISPATCH_EXECUTION_AUDIT_OWNED_PROCESS_ID.to_string()),
+            refs: vec![APP_GAME_ADAPTER_DISPATCH_EXECUTION_AUDIT_OWNED_PROCESS_REF.to_string()],
+        };
+    }
+    ExecutionAuditFields {
+        state: APP_GAME_ADAPTER_DISPATCH_EXECUTION_AUDIT_STATE_BLOCKED.to_string(),
+        decision: APP_GAME_ADAPTER_DISPATCH_EXECUTION_AUDIT_DECISION_BLOCKED.to_string(),
+        id: None,
+        refs: Vec::new(),
+    }
 }
 
 fn accepted_field(accepted: bool, value: &str) -> Option<String> {
