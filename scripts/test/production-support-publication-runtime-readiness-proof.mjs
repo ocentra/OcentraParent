@@ -46,7 +46,7 @@ async function main() {
       documentation,
       proofOutput: relativePath(proofPath),
       summaryOutput: relativePath(summaryPath),
-      packageExport: 'not-added-package-json-locked-by-another-lane',
+      packageExport: 'deferred-shared-parent-domain-package-export-surface',
     },
     rows: contract.rows,
     nonClaims: contract.nonClaims,
