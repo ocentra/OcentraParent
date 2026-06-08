@@ -4,22 +4,22 @@ Current Battery Service state:
   Wireless powered: false
   Max charging current: 0
   Max charging voltage: 0
-  Charge counter: 2315403
+  Charge counter: 1915740
   status: 3
   health: 2
   present: true
-  level: 69
+  level: 57
   scale: 100
-  voltage: 3870
-  temperature: 284
+  voltage: 3795
+  temperature: 292
   technology: Li-ion
   batteryMiscEvent: 131072
   batteryCurrentEvent: 64
   mSecPlugTypeSummary: 0
   LED Charging: false
   LED Low Battery: false
-  current now: -1256
-  charge counter: 2315403
+  current now: -276
+  charge counter: 1915740
   Adaptive Fast Charging Settings: true
   Super Fast Charging Settings: false
 USE_FAKE_BATTERY: false
@@ -37,6 +37,6 @@ BatteryInfoBackUp
   mSavedBatteryAsoc: 82
   mSavedBatteryMaxTemp: 560
   mSavedBatteryMaxCurrent: 2570
-  mSavedBatteryUsage: 110743
+  mSavedBatteryUsage: 110753
   FEATURE_SAVE_BATTERY_CYCLE: true
   SEC_FEATURE_PREVENT_SWELLING: false

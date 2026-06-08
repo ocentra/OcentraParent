@@ -90,6 +90,15 @@ background location runtime, geofence transitions, notification delivery,
 device-owner authority, physical-device behavior, production upload workers, or
 product-ready Android tracking.
 
+`node scripts/test/tracking-android-physical-device-runtime-proof.mjs` now
+records Samsung S9 physical-device status artifacts for the Android runtime
+proof: foreground-service `ServiceRecord` with `isForeground=true`, device
+metadata, battery/connectivity dumps, UI/keyguard screenshot, logcat, and 3,194
+foreground-service-backed background GPS samples. These artifacts support WP10
+status evidence and WP33 physical-device review accounting, but they do not
+prove offline radio behavior, Android system geofence delivery, authority,
+production upload workers, or product-ready Android tracking.
+
 ## Where We Want To Be
 
 This workpack can be assigned independently, implemented against the owning domain boundaries, validated with real contracts or platform proof, and reported without leaving unclear tracking claims behind.
@@ -131,7 +140,8 @@ This workpack can be assigned independently, implemented against the owning doma
       low-power, killed/restarted, pending-upload, and manual-required status
       proof; central capability row update remains a hub/primary-owned doc
       delta.
-- [x] Known gaps/manual-required states: foreground location samples,
-      background location runtime, geofence transitions, notification delivery,
-      device-owner authority, physical-device behavior, production upload
-      workers, and product-ready Android tracking remain unclaimed.
+- [x] Known gaps/manual-required states: foreground-service-backed physical
+      background GPS samples are observed on the Samsung S9, but geofence
+      transitions, Android system delivery, offline radio behavior, notification
+      delivery, device-owner authority, production upload workers, and
+      product-ready Android tracking remain unclaimed.

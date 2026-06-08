@@ -1,15 +1,15 @@
 ACTIVITY MANAGER ACTIVITIES (dumpsys activity activities)
 Display #0 (activities from top to bottom):
 
-  Stack #18: type=standard mode=fullscreen
+  Stack #35: type=standard mode=fullscreen
   isSleeping=true
   mBounds=Rect(0, 0 - 0, 0)
-    Task id #222
+    Task id #235
     mBounds=Rect(0, 0 - 0, 0)
     mMinWidth=-1
     mMinHeight=-1
     mLastNonFullscreenBounds=null
-    * TaskRecord{69a35f #222 A=ca.ocentra.parent.agent U=0 StackId=18 sz=1}
+    * TaskRecord{ed0251f #235 A=ca.ocentra.parent.agent U=0 StackId=35 sz=1}
       userId=0 effectiveUid=u0a259 mCallingUid=2000 mUserSetupComplete=true mCallingPackage=null
        lastReportedWindowingMode=1
       affinity=ca.ocentra.parent.agent
@@ -17,22 +17,22 @@ Display #0 (activities from top to bottom):
       mActivityComponent=ca.ocentra.parent.agent/.MainActivity
       autoRemoveRecents=false isPersistable=true numFullscreen=1 activityType=1
       rootWasReset=false mNeverRelinquishIdentity=true mReuseTask=false mLockTaskAuth=LOCK_TASK_AUTH_PINNABLE
-      Activities=[ActivityRecord{b0249e4 u0 ca.ocentra.parent.agent/.MainActivity t222}]
+      Activities=[ActivityRecord{e403b5e u0 ca.ocentra.parent.agent/.MainActivity t235}]
       askedCompatMode=false inRecents=true isAvailable=true
-      mRootProcess=ProcessRecord{102aadf 15612:ca.ocentra.parent.agent/u0a259}
-      stackId=18
-      hasBeenVisible=true mResizeMode=RESIZE_MODE_RESIZEABLE_VIA_SDK_VERSION mSupportsPictureInPicture=false isResizeable=true lastActiveTime=14756865 lastGainFocusTime=14741513 (inactive for 15s)
+      mRootProcess=ProcessRecord{43e718b 11181:ca.ocentra.parent.agent/u0a259}
+      stackId=35
+      hasBeenVisible=false mResizeMode=RESIZE_MODE_RESIZEABLE_VIA_SDK_VERSION mSupportsPictureInPicture=false isResizeable=true lastActiveTime=20895451 lastGainFocusTime=20841567 (inactive for 7s)
       dexBoundsPolicy:
        mLastNonFullBoundsDisplayId=-1
-      * Hist #0: ActivityRecord{b0249e4 u0 ca.ocentra.parent.agent/.MainActivity t222}
+      * Hist #0: ActivityRecord{e403b5e u0 ca.ocentra.parent.agent/.MainActivity t235}
           packageName=ca.ocentra.parent.agent processName=ca.ocentra.parent.agent
           launchedFromUid=2000 launchedFromPackage=null userId=0
-          app=ProcessRecord{102aadf 15612:ca.ocentra.parent.agent/u0a259}
+          app=ProcessRecord{43e718b 11181:ca.ocentra.parent.agent/u0a259}
           Intent { flg=0x10000000 cmp=ca.ocentra.parent.agent/.MainActivity }
-          frontOfTask=true task=TaskRecord{69a35f #222 A=ca.ocentra.parent.agent U=0 StackId=18 sz=1}
+          frontOfTask=true task=TaskRecord{ed0251f #235 A=ca.ocentra.parent.agent U=0 StackId=35 sz=1}
           taskAffinity=ca.ocentra.parent.agent
           mActivityComponent=ca.ocentra.parent.agent/.MainActivity
-          baseDir=/data/app/ca.ocentra.parent.agent-WUHlk4dQH44cEMTe0jCJ5A==/base.apk
+          baseDir=/data/app/ca.ocentra.parent.agent-4NyAH6pL7Dsn9YyL2hc1jA==/base.apk
           dataDir=/data/user/0/ca.ocentra.parent.agent
           appMetaData=Bundle[{com.google.android.gms.version=12451000}]
           stateNotNeeded=false componentSpecified=true mActivityType=standard
@@ -45,22 +45,23 @@ Display #0 (activities from top to bottom):
            backgroundColor=fffafafa
            statusBarColor=ff757575
            navigationBarColor=fff2f2f2
-          launchFailed=false launchCount=0 lastLaunchTime=-30s49ms
+          launchFailed=false launchCount=0 lastLaunchTime=-1m1s493ms
           haveState=true icicle=Bundle[mParcelledData.dataSize=256]
           state=STOPPED stopped=true delayedResume=false finishing=false
           keysPaused=false inHistory=true visible=false sleeping=true idle=true mStartingWindowState=STARTING_WINDOW_SHOWN
           fullscreen=true noDisplay=false immersive=false launchMode=0
           frozenBeforeDestroy=false forceNewConfig=false
           mActivityType=standard
+          displayStartTime=-1m1s480ms startTime=0
           resizeMode=RESIZE_MODE_RESIZEABLE_VIA_SDK_VERSION
           mLastReportedMultiWindowMode=false mLastReportedPictureInPictureMode=false
           mUseDeviceDefaultTheme=false
 
     Running activities (most recent first):
-      TaskRecord{69a35f #222 A=ca.ocentra.parent.agent U=0 StackId=18 sz=1}
-        Run #0: ActivityRecord{b0249e4 u0 ca.ocentra.parent.agent/.MainActivity t222}
+      TaskRecord{ed0251f #235 A=ca.ocentra.parent.agent U=0 StackId=35 sz=1}
+        Run #0: ActivityRecord{e403b5e u0 ca.ocentra.parent.agent/.MainActivity t235}
 
-    mLastPausedActivity: ActivityRecord{b0249e4 u0 ca.ocentra.parent.agent/.MainActivity t222}
+    mLastPausedActivity: ActivityRecord{e403b5e u0 ca.ocentra.parent.agent/.MainActivity t235}
 
   Stack #0: type=home mode=fullscreen
   isSleeping=true
@@ -82,7 +83,7 @@ Display #0 (activities from top to bottom):
       Activities=[ActivityRecord{54ff659 u0 com.microsoft.launcher/.Launcher t204}]
       askedCompatMode=false inRecents=true isAvailable=true
       stackId=0
-      hasBeenVisible=true mResizeMode=RESIZE_MODE_RESIZEABLE mSupportsPictureInPicture=false isResizeable=true lastActiveTime=14741269 lastGainFocusTime=7269166 (inactive for 31s)
+      hasBeenVisible=true mResizeMode=RESIZE_MODE_RESIZEABLE mSupportsPictureInPicture=false isResizeable=true lastActiveTime=20841384 lastGainFocusTime=18458919 (inactive for 61s)
       dexBoundsPolicy:
        mLastNonFullBoundsDisplayId=-1
       * Hist #0: ActivityRecord{54ff659 u0 com.microsoft.launcher/.Launcher t204}
@@ -107,14 +108,14 @@ Display #0 (activities from top to bottom):
            backgroundColor=fffafafa
            statusBarColor=0
            navigationBarColor=0
-          launchFailed=false launchCount=0 lastLaunchTime=-3h14m16s129ms
-          haveState=true icicle=Bundle[mParcelledData.dataSize=12676]
+          launchFailed=false launchCount=0 lastLaunchTime=-4h42m3s708ms
+          haveState=false icicle=null
           state=STOPPED stopped=true delayedResume=false finishing=false
           keysPaused=false inHistory=true visible=false sleeping=true idle=true mStartingWindowState=STARTING_WINDOW_REMOVED
           fullscreen=true noDisplay=false immersive=false launchMode=2
           frozenBeforeDestroy=false forceNewConfig=false
           mActivityType=home
-           nowVisible=false lastVisibleTime=-1h33m19s674ms
+           nowVisible=false lastVisibleTime=-35m11s745ms
           resizeMode=RESIZE_MODE_RESIZEABLE
           mLastReportedMultiWindowMode=false mLastReportedPictureInPictureMode=false
           mUseDeviceDefaultTheme=false
@@ -124,6 +125,295 @@ Display #0 (activities from top to bottom):
         Run #0: ActivityRecord{54ff659 u0 com.microsoft.launcher/.Launcher t204}
 
     mLastPausedActivity: ActivityRecord{54ff659 u0 com.microsoft.launcher/.Launcher t204}
+
+  Stack #28: type=standard mode=fullscreen
+  isSleeping=true
+  mBounds=Rect(0, 0 - 0, 0)
+
+    Task id #226
+    mBounds=Rect(0, 0 - 0, 0)
+    mMinWidth=-1
+    mMinHeight=-1
+    mLastNonFullscreenBounds=null
+    * TaskRecord{c5e4d39 #226 A=com.linkedin.android U=0 StackId=28 sz=1}
+      userId=0 effectiveUid=u0a294 mCallingUid=u0a298 mUserSetupComplete=true mCallingPackage=com.microsoft.launcher
+       lastReportedWindowingMode=1
+      affinity=com.linkedin.android
+      intent={act=android.intent.action.MAIN cat=[android.intent.category.LAUNCHER] flg=0x10200000 cmp=com.linkedin.android/.authenticator.LaunchActivityDefault}
+      origActivity=com.linkedin.android/.authenticator.LaunchActivityDefault
+      mActivityComponent=com.linkedin.android/.infra.navigation.MainActivity
+      autoRemoveRecents=false isPersistable=true numFullscreen=1 activityType=1
+      rootWasReset=true mNeverRelinquishIdentity=true mReuseTask=false mLockTaskAuth=LOCK_TASK_AUTH_PINNABLE
+      Activities=[ActivityRecord{b4cb83b u0 com.linkedin.android/.authenticator.LaunchActivityDefault t226}]
+      askedCompatMode=false inRecents=true isAvailable=true
+      mRootProcess=ProcessRecord{76b5041 16287:com.linkedin.android/u0a294}
+      stackId=28
+      hasBeenVisible=true mResizeMode=RESIZE_MODE_RESIZEABLE_VIA_SDK_VERSION mSupportsPictureInPicture=false isResizeable=true lastActiveTime=16829996 lastGainFocusTime=16539543 (inactive for 4073s)
+      dexBoundsPolicy:
+       mLastNonFullBoundsDisplayId=-1
+      * Hist #0: ActivityRecord{b4cb83b u0 com.linkedin.android/.authenticator.LaunchActivityDefault t226}
+          packageName=com.linkedin.android processName=com.linkedin.android
+          launchedFromUid=10298 launchedFromPackage=com.microsoft.launcher userId=0
+          app=ProcessRecord{76b5041 16287:com.linkedin.android/u0a294}
+          Intent { act=android.intent.action.MAIN cat=[android.intent.category.LAUNCHER] flg=0x10200000 cmp=com.linkedin.android/.authenticator.LaunchActivityDefault bnds=[20,403][228,725] }
+          frontOfTask=true task=TaskRecord{c5e4d39 #226 A=com.linkedin.android U=0 StackId=28 sz=1}
+          taskAffinity=com.linkedin.android
+          mActivityComponent=com.linkedin.android/.infra.navigation.MainActivity
+          baseDir=/data/app/com.linkedin.android-YbAEVCdFM3XqzikW_RkvhA==/base.apk
+          dataDir=/data/user/0/com.linkedin.android
+          splitDir=[/data/app/com.linkedin.android-YbAEVCdFM3XqzikW_RkvhA==/split_config.arm64_v8a.apk, /data/app/com.linkedin.android-YbAEVCdFM3XqzikW_RkvhA==/split_config.en.apk, /data/app/com.linkedin.android-YbAEVCdFM3XqzikW_RkvhA==/split_config.xxhdpi.apk, /data/app/com.linkedin.android-YbAEVCdFM3XqzikW_RkvhA==/split_videoconferencing.apk, /data/app/com.linkedin.android-YbAEVCdFM3XqzikW_RkvhA==/split_videoconferencing.config.arm64_v8a.apk]
+          appMetaData=Bundle[{com.google.android.play.billingclient.version=8.3.0, com.facebook.sdk.ApplicationId=267271238774344, com.facebook.sdk.AutoInitEnabled=false, com.android.vending.derived.apk.id=4, asset_statements=2132017444, com.google.android.nearby.messages.API_KEY=[REDACTED_GOOGLE_API_KEY], com.android.stamp.source=https://play.google.com/store, com.android.vending.splits.required=true, com.google.android.gms.version=12451000, com.google.mlkit.vision.DEPENDENCIES=ocr,face,barcode, com.android.vending.splits=2132213778, com.facebook.sdk.ClientToken=[REDACTED]], com.android.stamp.type=STAMP_TYPE_DISTRIBUTION_APK, com.facebook.sdk.AutoLogAppEventsEnabled=false}]
+          stateNotNeeded=false componentSpecified=true mActivityType=standard
+          compat={540dpi} labelRes=0x7f14363c icon=0x7f110002 theme=0x7f1509de
+          mLastReportedConfigurations:
+           mGlobalConfig={1.1 302mcc610mnc [en_CA] ldltr sw320dp w320dp h585dp 540dpi nrml long port night finger -keyb/v/h -nav/h winConfig={ mBounds=Rect(0, 0 - 1080, 2220) mAppBounds=Rect(0, 0 - 1080, 2058) mWindowingMode=fullscreen mDisplayWindowingMode=fullscreen mActivityType=undefined mAlwaysOnTop=undefined mRotation=ROTATION_0} s.19 desktop/d ?dc bts=0 ff=0 bf=0 themeSeq=0}
+           mOverrideConfig={1.1 302mcc610mnc [en_CA] ldltr sw320dp w320dp h585dp 540dpi nrml long port night finger -keyb/v/h -nav/h winConfig={ mBounds=Rect(0, 0 - 1080, 2220) mAppBounds=Rect(0, 0 - 1080, 2058) mWindowingMode=fullscreen mDisplayWindowingMode=fullscreen mActivityType=standard mAlwaysOnTop=undefined mRotation=ROTATION_0} s.1 desktop/d dc/d bts=0 ff=0 bf=0 themeSeq=0}
+          CurrentConfiguration={1.1 302mcc610mnc [en_CA] ldltr sw320dp w320dp h585dp 540dpi nrml long port night finger -keyb/v/h -nav/h winConfig={ mBounds=Rect(0, 0 - 1080, 2220) mAppBounds=Rect(0, 0 - 1080, 2058) mWindowingMode=fullscreen mDisplayWindowingMode=fullscreen mActivityType=standard mAlwaysOnTop=undefined mRotation=ROTATION_0} s.3 desktop/d dc/d bts=0 ff=0 bf=0 themeSeq=0}
+          taskDescription: label="null" icon=null iconResource=0 iconFilename=null primaryColor=ff0a66c2
+           backgroundColor=ffe9e5df
+           statusBarColor=ff000000
+           navigationBarColor=fff2f2f2
+          launchFailed=false launchCount=0 lastLaunchTime=-1h0m41s144ms
+          haveState=true icicle=Bundle[mParcelledData.dataSize=58736]
+          state=STOPPED stopped=true delayedResume=false finishing=false
+          keysPaused=false inHistory=true visible=false sleeping=true idle=true mStartingWindowState=STARTING_WINDOW_REMOVED
+          fullscreen=true noDisplay=false immersive=false launchMode=1
+          frozenBeforeDestroy=false forceNewConfig=false
+          mActivityType=standard
+           nowVisible=false lastVisibleTime=-58m20s176ms
+          connections=com.android.server.wm.ActivityServiceConnectionsHolder@9492c1
+          resizeMode=RESIZE_MODE_RESIZEABLE_VIA_SDK_VERSION
+          mLastReportedMultiWindowMode=false mLastReportedPictureInPictureMode=false
+          mUseDeviceDefaultTheme=false
+
+    Running activities (most recent first):
+      TaskRecord{c5e4d39 #226 A=com.linkedin.android U=0 StackId=28 sz=1}
+        Run #0: ActivityRecord{b4cb83b u0 com.linkedin.android/.authenticator.LaunchActivityDefault t226}
+
+    mLastPausedActivity: ActivityRecord{b4cb83b u0 com.linkedin.android/.authenticator.LaunchActivityDefault t226}
+
+  Stack #23: type=recents mode=fullscreen
+  isSleeping=true
+  mBounds=Rect(0, 0 - 0, 0)
+
+    Task id #227
+    mBounds=Rect(0, 0 - 0, 0)
+    mMinWidth=-1
+    mMinHeight=-1
+    mLastNonFullscreenBounds=null
+    * TaskRecord{fe3da37 #227 I=com.sec.android.app.launcher/com.android.quickstep.RecentsActivity U=0 StackId=23 sz=1}
+      userId=0 effectiveUid=u0a146 mCallingUid=u0a146 mUserSetupComplete=true mCallingPackage=com.sec.android.app.launcher
+       lastReportedWindowingMode=1
+      intent={act=android.intent.action.MAIN cat=[android.intent.category.DEFAULT] flg=0x10800000 cmp=com.sec.android.app.launcher/com.android.quickstep.RecentsActivity}
+      mActivityComponent=com.sec.android.app.launcher/com.android.quickstep.RecentsActivity
+      autoRemoveRecents=false isPersistable=false numFullscreen=1 activityType=3
+      rootWasReset=false mNeverRelinquishIdentity=true mReuseTask=false mLockTaskAuth=LOCK_TASK_AUTH_PINNABLE
+      Activities=[ActivityRecord{72e37f8 u0 com.sec.android.app.launcher/com.android.quickstep.RecentsActivity t227}]
+      askedCompatMode=false inRecents=true isAvailable=true
+      stackId=23
+      hasBeenVisible=true mResizeMode=RESIZE_MODE_RESIZEABLE mSupportsPictureInPicture=false isResizeable=true lastActiveTime=16539534 lastGainFocusTime=16533909 (inactive for 4363s)
+      dexBoundsPolicy:
+       mLastNonFullBoundsDisplayId=-1
+      * Hist #0: ActivityRecord{72e37f8 u0 com.sec.android.app.launcher/com.android.quickstep.RecentsActivity t227}
+          packageName=com.sec.android.app.launcher processName=com.sec.android.app.launcher
+          launchedFromUid=10146 launchedFromPackage=com.sec.android.app.launcher userId=0
+          app=ProcessRecord{6193990 2519:com.sec.android.app.launcher/u0a146}
+          Intent { act=android.intent.action.MAIN cat=[android.intent.category.DEFAULT] flg=0x10800000 cmp=com.sec.android.app.launcher/com.android.quickstep.RecentsActivity }
+          frontOfTask=true task=TaskRecord{fe3da37 #227 I=com.sec.android.app.launcher/com.android.quickstep.RecentsActivity U=0 StackId=23 sz=1}
+          taskAffinity=null
+          mActivityComponent=com.sec.android.app.launcher/com.android.quickstep.RecentsActivity
+          baseDir=/system/priv-app/TouchWizHome_2017/TouchWizHome_2017.apk
+          dataDir=/data/user/0/com.sec.android.app.launcher
+          appMetaData=Bundle[{com.android.launcher3.launcher_dump_provider=com.android.launcher3.LauncherProvider, android.nfc.disable_beam_default=true, SPDE.env.version=3.4.2/L29.3.15/0.9.21, android.content.APP_RESTRICTIONS=2132082688, SPDE.build.signature=a55a5f8dc02c9b8252d4c4abee2cc799927175f9/75083456/release/TouchWizHome-1105047-11.5.07, disableSticker=true, backup_content_uri=content://com.sec.android.app.launcher.backup, disableGifKeyboard=true, DisplayCutoutBackground=true, backup_name=2132082689}]
+          stateNotNeeded=true componentSpecified=true mActivityType=recents
+          compat={540dpi} labelRes=0x7f120083 icon=0x7f0800cd theme=0x7f130132
+          mLastReportedConfigurations:
+           mGlobalConfig={1.1 302mcc610mnc [en_CA] ldltr sw320dp w320dp h585dp 540dpi nrml long port night finger -keyb/v/h -nav/h winConfig={ mBounds=Rect(0, 0 - 1080, 2220) mAppBounds=Rect(0, 0 - 1080, 2058) mWindowingMode=fullscreen mDisplayWindowingMode=fullscreen mActivityType=undefined mAlwaysOnTop=undefined mRotation=ROTATION_0} s.25 desktop/d ?dc bts=0 ff=0 bf=0 themeSeq=0}
+           mOverrideConfig={1.1 302mcc610mnc [en_CA] ldltr sw320dp w320dp h585dp 540dpi nrml long port night finger -keyb/v/h -nav/h winConfig={ mBounds=Rect(0, 0 - 1080, 2220) mAppBounds=Rect(0, 0 - 1080, 2058) mWindowingMode=fullscreen mDisplayWindowingMode=fullscreen mActivityType=recents mAlwaysOnTop=undefined mRotation=ROTATION_0} s.2 desktop/d dc/d bts=0 ff=0 bf=0 themeSeq=0}
+          CurrentConfiguration={1.1 302mcc610mnc [en_CA] ldltr sw320dp w320dp h585dp 540dpi nrml long port night finger -keyb/v/h -nav/h winConfig={ mBounds=Rect(0, 0 - 1080, 2220) mAppBounds=Rect(0, 0 - 1080, 2058) mWindowingMode=fullscreen mDisplayWindowingMode=fullscreen mActivityType=recents mAlwaysOnTop=undefined mRotation=ROTATION_0} s.2 desktop/d dc/d bts=0 ff=0 bf=0 themeSeq=0}
+          RequestedOverrideConfiguration={0.0 ?mcc?mnc ?localeList ?layoutDir ?swdp ?wdp ?hdp ?density ?lsize ?long ?ldr ?wideColorGamut ?orien ?uimode ?night ?touch ?keyb/?/? ?nav/? winConfig={ mBounds=Rect(0, 0 - 0, 0) mAppBounds=null mWindowingMode=undefined mDisplayWindowingMode=undefined mActivityType=recents mAlwaysOnTop=undefined mRotation=undefined} desktop/? ?dc bts=-1 ff=0 bf=-1 themeSeq=0}
+          taskDescription: label="null" icon=null iconResource=0 iconFilename=null primaryColor=ff0381fe
+           backgroundColor=ff252525
+           statusBarColor=0
+           navigationBarColor=0
+          launchFailed=false launchCount=0 lastLaunchTime=-59m46s218ms
+          haveState=true icicle=Bundle[mParcelledData.dataSize=1884]
+          state=STOPPED stopped=true delayedResume=false finishing=false
+          keysPaused=false inHistory=true visible=false sleeping=true idle=true mStartingWindowState=STARTING_WINDOW_NOT_SHOWN
+          fullscreen=true noDisplay=false immersive=false launchMode=2
+          frozenBeforeDestroy=false forceNewConfig=false
+          mActivityType=recents
+           nowVisible=false lastVisibleTime=-58m25s776ms
+          resizeMode=RESIZE_MODE_RESIZEABLE
+          mLastReportedMultiWindowMode=false mLastReportedPictureInPictureMode=false
+          mUseDeviceDefaultTheme=true
+
+    Running activities (most recent first):
+      TaskRecord{fe3da37 #227 I=com.sec.android.app.launcher/com.android.quickstep.RecentsActivity U=0 StackId=23 sz=1}
+        Run #0: ActivityRecord{72e37f8 u0 com.sec.android.app.launcher/com.android.quickstep.RecentsActivity t227}
+
+    mLastPausedActivity: ActivityRecord{72e37f8 u0 com.sec.android.app.launcher/com.android.quickstep.RecentsActivity t227}
+
+  Stack #26: type=standard mode=fullscreen
+  isSleeping=true
+  mBounds=Rect(0, 0 - 0, 0)
+
+    Task id #228
+    mBounds=Rect(0, 0 - 0, 0)
+    mMinWidth=-1
+    mMinHeight=-1
+    mLastNonFullscreenBounds=null
+    * TaskRecord{2fc1ce8 #228 A=com.sec.android.app.sbrowser U=0 StackId=26 sz=1}
+      userId=0 effectiveUid=u0a246 mCallingUid=u0a246 mUserSetupComplete=true mCallingPackage=com.sec.android.app.sbrowser
+       lastReportedWindowingMode=1
+      affinity=com.sec.android.app.sbrowser
+      intent={act=android.intent.action.VIEW dat=https://accounts.google.com/AccountChooser?continue=https%3A%2F%2Fcontacts.google.com%2Fperson%2F105596116128081965045%3Fauthuser&Email=sujanmishra%40gmail.com flg=0x10000000 cmp=com.sec.android.app.sbrowser/.SBrowserMainActivity}
+      mActivityComponent=com.sec.android.app.sbrowser/.SBrowserMainActivity
+      autoRemoveRecents=false isPersistable=true numFullscreen=1 activityType=1
+      rootWasReset=false mNeverRelinquishIdentity=true mReuseTask=false mLockTaskAuth=LOCK_TASK_AUTH_PINNABLE
+      Activities=[ActivityRecord{d9e12ff u0 com.sec.android.app.sbrowser/.SBrowserMainActivity t228}]
+      askedCompatMode=false inRecents=true isAvailable=true
+      mRootProcess=ProcessRecord{2233d3c 24023:com.sec.android.app.sbrowser/u0a246}
+      stackId=26
+      hasBeenVisible=true mResizeMode=RESIZE_MODE_RESIZEABLE mSupportsPictureInPicture=true isResizeable=true lastActiveTime=16518790 lastGainFocusTime=16511819 (inactive for 4384s)
+      dexBoundsPolicy:
+       mLastNonFullBoundsDisplayId=-1
+      * Hist #0: ActivityRecord{d9e12ff u0 com.sec.android.app.sbrowser/.SBrowserMainActivity t228}
+          packageName=com.sec.android.app.sbrowser processName=com.sec.android.app.sbrowser
+          launchedFromUid=10246 launchedFromPackage=com.sec.android.app.sbrowser userId=0
+          app=ProcessRecord{2233d3c 24023:com.sec.android.app.sbrowser/u0a246}
+          Intent { act=android.intent.action.VIEW dat=https://accounts.google.com/AccountChooser?continue=https%3A%2F%2Fcontacts.google.com%2Fperson%2F105596116128081965045%3Fauthuser&Email=sujanmishra%40gmail.com flg=0x10000000 cmp=com.sec.android.app.sbrowser/.SBrowserMainActivity (has extras) }
+          frontOfTask=true task=TaskRecord{2fc1ce8 #228 A=com.sec.android.app.sbrowser U=0 StackId=26 sz=1}
+          taskAffinity=com.sec.android.app.sbrowser
+          mActivityComponent=com.sec.android.app.sbrowser/.SBrowserMainActivity
+          baseDir=/data/app/com.sec.android.app.sbrowser-YlPHCCMIQbSjkW729dbGCw==/base.apk
+          dataDir=/data/user/0/com.sec.android.app.sbrowser
+          appMetaData=Bundle[{theming-meta=meta_87_2_sbrowser_beta, meta_87_1_sbrowser, scloud_setting_lib_provider_authority=com.sec.android.app.sbrowser.sync.setting.provider, sec.actions.intent.OPEN_URL=2132279298, com.samsung.android.sdk.smp.sdkvint=3031102, com.microsoft.crossdevice.browserContextService=com.samsung.android.mdx, org.chromium.content.browser.NUM_PRIVILEGED_SERVICES=3, com.samsung.android.sdk.bixby2.companionApp=true, org.chromium.content.browser.SMART_CLIP_PROVIDER=org.chromium.content_public.browser.SmartClipProvider, scloud_tables=kmjqYba23r:com.samsung.sbrowser.quickaccess:1, com.samsung.android.app.sdk.deepsky.versionName=0.0.2, scloud_sync_authority=com.sec.android.app.sbrowser, SUPPORT_BNR_FGS=true, SPDE.env.version=8.7.3/G36.1.14/1.2.12, scloud_support_sync=true, com.samsung.android.notification.blockable=true, com.samsung.android.bixby.capsuleId=viv.samsungInternetApp, com.samsung.android.resolver.ranking_priority=5000, com.samsung.android.samsungaccount.receive_minor_info=true, com.google.ar.core=optional, org.chromium.components.service_tab_launcher.SERVICE_TAB_LAUNCHER=com.sec.terrace.browser.TinServiceTabLauncher, scloud_contents_id=kmjqYba23r, android.content.APP_RESTRICTIONS=2132279301, org.chromium.content.browser.SANDBOXED_SERVICES_NAME=org.chromium.content.app.SandboxedProcessService, com.samsung.android.sdk.smp.sdkv=3.3.11.2, SPDE.build.signature=165525/181286862/highend-stable-global64-release/SBrowser-103502-1.0.85, com.samsung.android.samsungaccount.CLIENT_ID=4oe3617251, com.google.ar.core.min_apk_version=240220000, com.samsung.android.icon_container.has_icon_container=true, websignin_intelligentscan_support=true, backup_content_uri=content://com.sec.android.app.sbrowser.backup, com.samsung.android.sdk.spage.card.info=2132279312, android.supports_size_changes=true, org.chromium.content.browser.NUM_SANDBOXED_SERVICES=20, com.samsung.android.app.sdk.deepsky.objectcapture.versionName=8.5.9, sdp=enabled, org.chromium.content.browser.PRIVILEGED_SERVICES_NAME=org.chromium.content.app.PrivilegedProcessService, scloud_support_authority=com.sec.android.app.sbrowser.scloud.quickaccess.sync, com.samsung.android.dex.multiinstance.enable=true, scloud_data_authority=com.sec.android.app.sbrowser, com.sec.terrace.browser.MAIN_ACTIVITY=com.sec.android.app.sbrowser.SBrowserMainActivity, com.samsung.android.app.sdk.deepsky.textextraction.versionName=8.5.36, com.samsung.android.sdk.multiwindow.multiinstance.launchmode=singleTask, com.samsung.android.sdk.bixby2.version=1.1.3, enableClipBoardInWebView=true, com.sec.terrace.browser.CUSTOM_TAB_ACTIVITY=com.sec.android.app.sbrowser.custom_tab.CustomTabActivity, com.samsung.android.multiwindow.support.pair.shortcut=true, com.samsung.android.sdk.multiwindow.multiinstance.enable=true, scloud_lib_provider_authority=com.sec.android.app.sbrowser.scloud.sync, backup_name=2132279309, com.samsung.android.icon_container.feature_appicon=ADAPTIVEICON_SHADOW, com.samsung.android.sdk.multiwindow.enable=true, com.sec.terrace.browser.SETTINGS_AUTOFILL_CREDITCARD_EDITOR=com.sec.android.app.sbrowser.settings.autofill.AutofillCreditCardEditor, com.samsung.android.sdk.moneta.versionName=1.0.31, com.google.android.gms.version=12451000, support_smartswitch_d2d_delta=true, runtime.manifest.overlay=2132279396, com.samsung.android.smp.updated=true, com.sec.terrace.browser.SETTINGS_ACTIVITY=com.sec.android.app.sbrowser.settings.SettingsActivity, com.samsung.android.samsungaccount.b2b.CLIENT_ID=ssz581tyvg, com.samsung.android.support.executable=2132279338}]
+          stateNotNeeded=false componentSpecified=true mActivityType=standard
+          compat={540dpi} labelRes=0x7f1400e0 icon=0x7f110002 theme=0x7f15026e
+          mLastReportedConfigurations:
+           mGlobalConfig={1.1 302mcc610mnc [en_CA] ldltr sw320dp w320dp h585dp 540dpi nrml long port night finger -keyb/v/h -nav/h winConfig={ mBounds=Rect(0, 0 - 1080, 2220) mAppBounds=Rect(0, 0 - 1080, 2058) mWindowingMode=fullscreen mDisplayWindowingMode=fullscreen mActivityType=undefined mAlwaysOnTop=undefined mRotation=ROTATION_0} s.19 desktop/d ?dc bts=0 ff=0 bf=0 themeSeq=0}
+           mOverrideConfig={1.1 302mcc610mnc [en_CA] ldltr sw320dp w320dp h585dp 540dpi nrml long port night finger -keyb/v/h -nav/h winConfig={ mBounds=Rect(0, 0 - 1080, 2220) mAppBounds=Rect(0, 0 - 1080, 2058) mWindowingMode=fullscreen mDisplayWindowingMode=fullscreen mActivityType=standard mAlwaysOnTop=undefined mRotation=ROTATION_0} s.1 desktop/d dc/d bts=0 ff=0 bf=0 themeSeq=0}
+          CurrentConfiguration={1.1 302mcc610mnc [en_CA] ldltr sw320dp w320dp h585dp 540dpi nrml long port night finger -keyb/v/h -nav/h winConfig={ mBounds=Rect(0, 0 - 1080, 2220) mAppBounds=Rect(0, 0 - 1080, 2058) mWindowingMode=fullscreen mDisplayWindowingMode=fullscreen mActivityType=standard mAlwaysOnTop=undefined mRotation=ROTATION_0} s.2 desktop/d dc/d bts=0 ff=0 bf=0 themeSeq=0}
+          taskDescription: label="Samsung Browser" icon=null iconResource=0 iconFilename=null primaryColor=ff0381fe
+           backgroundColor=ff17171a
+           statusBarColor=ff17171a
+           navigationBarColor=ff17171a
+          launchFailed=false launchCount=0 lastLaunchTime=-59m30s769ms
+          haveState=true icicle=Bundle[mParcelledData.dataSize=7780]
+          state=STOPPED stopped=true delayedResume=false finishing=false
+          keysPaused=false inHistory=true visible=false sleeping=true idle=true mStartingWindowState=STARTING_WINDOW_REMOVED
+          fullscreen=true noDisplay=false immersive=false launchMode=2
+          frozenBeforeDestroy=false forceNewConfig=false
+          mActivityType=standard
+           nowVisible=false lastVisibleTime=-58m47s900ms
+          resizeMode=RESIZE_MODE_RESIZEABLE
+          mLastReportedMultiWindowMode=false mLastReportedPictureInPictureMode=false
+          supportsPictureInPicture=true
+          supportsEnterPipOnTaskSwitch: true
+          activityMetaData=Bundle[{com.samsung.android.multiwindow.activity.alias.targetactivity=com.sec.android.app.sbrowser.MultiInstanceActivity, com.samsung.android.sdk.multiwindow.freeform.densitychange=false, com.sec.android.app.launcher.icon_theme=themeColor, android.app.shortcuts=2132279362, com.samsung.android.support.REMOTE_ACTION=2132279395, com.samsung.android.vr.activity=false, com.samsung.android.vr.activity.mode=auto, assistantlist=2132279304, com.samsung.keyguard.shortcut.icon=2131231523}]
+          mUseDeviceDefaultTheme=false
+
+    Running activities (most recent first):
+      TaskRecord{2fc1ce8 #228 A=com.sec.android.app.sbrowser U=0 StackId=26 sz=1}
+        Run #0: ActivityRecord{d9e12ff u0 com.sec.android.app.sbrowser/.SBrowserMainActivity t228}
+
+    mLastPausedActivity: ActivityRecord{d9e12ff u0 com.sec.android.app.sbrowser/.SBrowserMainActivity t228}
+
+  Stack #24: type=standard mode=fullscreen
+  isSleeping=true
+  mBounds=Rect(0, 0 - 0, 0)
+
+    Task id #224
+    mBounds=Rect(0, 0 - 0, 0)
+    mMinWidth=-1
+    mMinHeight=-1
+    mLastNonFullscreenBounds=null
+    * TaskRecord{735872a #224 A=com.google.android.gm U=0 StackId=24 sz=2}
+      userId=0 effectiveUid=u0a228 mCallingUid=u0a298 mUserSetupComplete=true mCallingPackage=com.microsoft.launcher
+       lastReportedWindowingMode=1
+      affinity=com.google.android.gm
+      intent={act=android.intent.action.MAIN cat=[android.intent.category.LAUNCHER] flg=0x10200000 cmp=com.google.android.gm/.ConversationListActivityGmail}
+      origActivity=com.google.android.gm/.ConversationListActivityGmail
+      mActivityComponent=com.google.android.gm/.ui.MailActivityGmail
+      autoRemoveRecents=false isPersistable=true numFullscreen=1 activityType=1
+      rootWasReset=true mNeverRelinquishIdentity=true mReuseTask=false mLockTaskAuth=LOCK_TASK_AUTH_PINNABLE
+      Activities=[ActivityRecord{79db81a u0 com.google.android.gm/.ConversationListActivityGmail t224}, ActivityRecord{ec8ccf5 u0 com.google.android.gm/com.google.android.libraries.user.peoplesheet.ui.view.PeopleSheetActivity t224}]
+      askedCompatMode=false inRecents=true isAvailable=true
+      stackId=24
+      hasBeenVisible=true mResizeMode=RESIZE_MODE_RESIZEABLE mSupportsPictureInPicture=false isResizeable=true lastActiveTime=16469260 lastGainFocusTime=16469148 (inactive for 4433s)
+      dexBoundsPolicy:
+       mLastNonFullBoundsDisplayId=-1
+      * Hist #1: ActivityRecord{ec8ccf5 u0 com.google.android.gm/com.google.android.libraries.user.peoplesheet.ui.view.PeopleSheetActivity t224}
+          packageName=com.google.android.gm processName=com.google.android.gm
+          launchedFromUid=10228 launchedFromPackage=com.google.android.gm userId=0
+          app=null
+          Intent { cmp=com.google.android.gm/com.google.android.libraries.user.peoplesheet.ui.view.PeopleSheetActivity (has extras) }
+          frontOfTask=false task=TaskRecord{735872a #224 A=com.google.android.gm U=0 StackId=24 sz=2}
+          taskAffinity=com.google.android.gm
+          mActivityComponent=com.google.android.gm/com.google.android.libraries.user.peoplesheet.ui.view.PeopleSheetActivity
+          baseDir=/data/app/com.google.android.gm-qEqjuDGzkemHF2YC5q-NIg==/base.apk
+          dataDir=/data/user/0/com.google.android.gm
+          splitDir=[/data/app/com.google.android.gm-qEqjuDGzkemHF2YC5q-NIg==/split_config.arm64_v8a.apk, /data/app/com.google.android.gm-qEqjuDGzkemHF2YC5q-NIg==/split_config.en.apk, /data/app/com.google.android.gm-qEqjuDGzkemHF2YC5q-NIg==/split_config.xxhdpi.apk]
+          appMetaData=Bundle[{com.google.android.gms.phenotype.registration.xml:com.google.android.gms.auth_account_client=2132344846, com.google.android.gms.phenotype.registration.xml:com.google.apps_mobile.common.platforms.android.user=2132344876, com.google.android.gms.phenotype.registration.xml:com.google.workspace.acquisition.android=2132344882, com.google.android.gms.phenotype.registration.xml:clienttracing.android=2132344844, com.google.android.gms.phenotype.registration.xml:com.google.android.libraries.subscriptions_android_libraries_user=2132344862, com.google.android.gms.phenotype.registration.xml:com.google.android.partnersetup=2132344866, com.google.android.gms.phenotype.registration.xml:hub_android.device=2132344901, com.google.android.play.billingclient.version=9.0.0, com.google.android.gms.phenotype.registration.xml:gmail_android.user=2132344898, com.google.android.gms.phenotype.registration.xml:tiktok.device=2132344946, com.google.android.libraries.glide.fife.module.FifeGlideModule=GlideModule, com.google.android.gms.phenotype.registration.xml:com.google.apps.dynamite.device=2132344867, com.google.android.gms.phenotype.registration.xml:tiktok.directboot=2132344947, com.google.android.gms.phenotype.registration.xml:com.google.android.gms.droidguardclient=2132344848, com.google.android.gms.phenotype.registration.xml:com.google.android.gms.gmscompliance_client=2132344849, com.google.android.gms.phenotype.registration.xml:com.google.android.gms.clearcut_client=2132344847, android.content.APP_RESTRICTIONS=2132344837, com.google.android.gms.phenotype.registration.xml:com.google.android.gms.icing.mdd=2132344850, com.google.ambient.crossdevice.SDK_VERSION_NAME=0.2.0-preview01, com.google.android.gms.phenotype.registration.xml:com.google.android.libraries.social.peopleintelligence=2132344859, com.google.android.gms.phenotype.registration.xml:com.android.billingclient=2132344845, com.google.android.gms.phenotype.registration.xml:gmail_android.device=2132344897, com.google.android.backup.api_key=[REDACTED_GOOGLE_BACKUP_KEY], com.google.android.gms.phenotype.registration.xml:com.google.android.libraries.social.connections=2132344858, com.google.android.gms.phenotype.registration.xml:com.google.android.libraries.communications.conference.device=2132344851, com.google.android.gms.phenotype.registration.xml:com.google.android.libraries.surveys=2132344864, com.android.vending.derived.apk.id=4, com.google.android.gms.phenotype.registration.xml:com.google.android.libraries.performance.primes=2132344857, com.google.android.gms.phenotype.registration.xml:com.google.apps.dynamite.user=2132344868, com.google.android.gms.phenotype.registration.xml:com.google.android.libraries.onegoogle=2132344856, com.android.stamp.source=https://play.google.com/store, com.google.android.gms.phenotype.registration.xml:com.google.android.libraries.subscriptions=2132344863, android.app.default_searchable=com.google.android.gm.ui.MailActivityGmail, com.android.vending.splits.required=true, com.google.android.gms.phenotype.registration.xml:com.google.android.libraries.communications.conference.user=2132344852, com.google.android.gms.phenotype.registration.xml:com.google.apps_mobile.common.platforms.android.device=2132344872, com.google.android.gms.phenotype.registration.xml:com.google.apps.tasks.shared.android=2132344881, com.google.android.gms.phenotype.registration.xml:com.google.android.libraries.user.peoplesheet=2132344865, com.google.android.gms.phenotype.registration.xml:com.google.apps_mobile.common.services.gmail.android=2132344877, com.google.android.gms.version=262130000, com.google.android.gms.phenotype.registration.xml:com.google.android.libraries.social.populous=2132344861, com.google.android.gms.phenotype.registration.xml:com.google.android.libraries.notifications.platform=2132344855, com.android.vending.splits=2132344949, com.google.android.gms.phenotype.registration.xml:com.google.android.libraries.mdi.sync=2132344854, com.android.stamp.type=STAMP_TYPE_DISTRIBUTION_APK, com.google.android.gms.phenotype.registration.xml:com.google.android.libraries.consentverifier=2132344853, com.google.android.gms.phenotype.registration.xml:gsuite_cards_android.user=2132344900, com.google.android.gms.phenotype.registration.xml:com.google.android.libraries.social.peoplekit=2132344860}]
+          stateNotNeeded=false componentSpecified=true mActivityType=standard
+          compat={540dpi} labelRes=0x7f150ac3 icon=0x7f11001d theme=0x7f160579
+          mLastReportedConfigurations:
+           mGlobalConfig={1.1 302mcc610mnc [en_CA] ldltr sw320dp w320dp h585dp 540dpi nrml long port night finger -keyb/v/h -nav/h winConfig={ mBounds=Rect(0, 0 - 1080, 2220) mAppBounds=Rect(0, 0 - 1080, 2058) mWindowingMode=fullscreen mDisplayWindowingMode=fullscreen mActivityType=undefined mAlwaysOnTop=undefined mRotation=ROTATION_0} s.19 desktop/d ?dc bts=0 ff=0 bf=0 themeSeq=0}
+           mOverrideConfig={1.1 302mcc610mnc [en_CA] ldltr sw320dp w320dp h585dp 540dpi nrml long port night finger -keyb/v/h -nav/h winConfig={ mBounds=Rect(0, 0 - 1080, 2220) mAppBounds=Rect(0, 0 - 1080, 2058) mWindowingMode=fullscreen mDisplayWindowingMode=fullscreen mActivityType=standard mAlwaysOnTop=undefined mRotation=ROTATION_0} s.1 desktop/d dc/d bts=0 ff=0 bf=0 themeSeq=0}
+          CurrentConfiguration={1.1 302mcc610mnc [en_CA] ldltr sw320dp w320dp h585dp 540dpi nrml long port night finger -keyb/v/h -nav/h winConfig={ mBounds=Rect(0, 0 - 1080, 2220) mAppBounds=Rect(0, 0 - 1080, 2058) mWindowingMode=fullscreen mDisplayWindowingMode=fullscreen mActivityType=standard mAlwaysOnTop=undefined mRotation=ROTATION_0} s.1 desktop/d dc/d bts=0 ff=0 bf=0 themeSeq=0}
+          resultTo=ActivityRecord{79db81a u0 com.google.android.gm/.ConversationListActivityGmail t224} resultWho=null resultCode=0
+          taskDescription: label="null" icon=null iconResource=0 iconFilename=null primaryColor=ff202124
+           backgroundColor=ff131314
+           statusBarColor=ff131314
+           navigationBarColor=fff2f2f2
+          launchFailed=false launchCount=0 lastLaunchTime=-59m37s726ms
+          haveState=true icicle=Bundle[mParcelledData.dataSize=13032]
+          state=DESTROYED stopped=true delayedResume=false finishing=false
+          keysPaused=false inHistory=true visible=false sleeping=false idle=true mStartingWindowState=STARTING_WINDOW_NOT_SHOWN
+          fullscreen=false noDisplay=false immersive=false launchMode=0
+          frozenBeforeDestroy=false forceNewConfig=false
+          mActivityType=standard
+           nowVisible=false lastVisibleTime=-59m37s409ms
+          resizeMode=RESIZE_MODE_RESIZEABLE
+          mLastReportedMultiWindowMode=false mLastReportedPictureInPictureMode=false
+          mUseDeviceDefaultTheme=false
+      * Hist #0: ActivityRecord{79db81a u0 com.google.android.gm/.ConversationListActivityGmail t224}
+          packageName=com.google.android.gm processName=com.google.android.gm
+          launchedFromUid=10298 launchedFromPackage=com.microsoft.launcher userId=0
+          app=null
+          Intent { act=android.intent.action.MAIN cat=[android.intent.category.LAUNCHER] flg=0x10200000 cmp=com.google.android.gm/.ConversationListActivityGmail bnds=[228,725][436,1047] }
+          frontOfTask=true task=TaskRecord{735872a #224 A=com.google.android.gm U=0 StackId=24 sz=2}
+          taskAffinity=com.google.android.gm
+          mActivityComponent=com.google.android.gm/.ui.MailActivityGmail
+          baseDir=/data/app/com.google.android.gm-qEqjuDGzkemHF2YC5q-NIg==/base.apk
+          dataDir=/data/user/0/com.google.android.gm
+          splitDir=[/data/app/com.google.android.gm-qEqjuDGzkemHF2YC5q-NIg==/split_config.arm64_v8a.apk, /data/app/com.google.android.gm-qEqjuDGzkemHF2YC5q-NIg==/split_config.en.apk, /data/app/com.google.android.gm-qEqjuDGzkemHF2YC5q-NIg==/split_config.xxhdpi.apk]
+          appMetaData=Bundle[{com.google.android.gms.phenotype.registration.xml:com.google.android.gms.auth_account_client=2132344846, com.google.android.gms.phenotype.registration.xml:com.google.apps_mobile.common.platforms.android.user=2132344876, com.google.android.gms.phenotype.registration.xml:com.google.workspace.acquisition.android=2132344882, com.google.android.gms.phenotype.registration.xml:clienttracing.android=2132344844, com.google.android.gms.phenotype.registration.xml:com.google.android.libraries.subscriptions_android_libraries_user=2132344862, com.google.android.gms.phenotype.registration.xml:com.google.android.partnersetup=2132344866, com.google.android.gms.phenotype.registration.xml:hub_android.device=2132344901, com.google.android.play.billingclient.version=9.0.0, com.google.android.gms.phenotype.registration.xml:gmail_android.user=2132344898, com.google.android.gms.phenotype.registration.xml:tiktok.device=2132344946, com.google.android.libraries.glide.fife.module.FifeGlideModule=GlideModule, com.google.android.gms.phenotype.registration.xml:com.google.apps.dynamite.device=2132344867, com.google.android.gms.phenotype.registration.xml:tiktok.directboot=2132344947, com.google.android.gms.phenotype.registration.xml:com.google.android.gms.droidguardclient=2132344848, com.google.android.gms.phenotype.registration.xml:com.google.android.gms.gmscompliance_client=2132344849, com.google.android.gms.phenotype.registration.xml:com.google.android.gms.clearcut_client=2132344847, android.content.APP_RESTRICTIONS=2132344837, com.google.android.gms.phenotype.registration.xml:com.google.android.gms.icing.mdd=2132344850, com.google.ambient.crossdevice.SDK_VERSION_NAME=0.2.0-preview01, com.google.android.gms.phenotype.registration.xml:com.google.android.libraries.social.peopleintelligence=2132344859, com.google.android.gms.phenotype.registration.xml:com.android.billingclient=2132344845, com.google.android.gms.phenotype.registration.xml:gmail_android.device=2132344897, com.google.android.backup.api_key=[REDACTED_GOOGLE_BACKUP_KEY], com.google.android.gms.phenotype.registration.xml:com.google.android.libraries.social.connections=2132344858, com.google.android.gms.phenotype.registration.xml:com.google.android.libraries.communications.conference.device=2132344851, com.google.android.gms.phenotype.registration.xml:com.google.android.libraries.surveys=2132344864, com.android.vending.derived.apk.id=4, com.google.android.gms.phenotype.registration.xml:com.google.android.libraries.performance.primes=2132344857, com.google.android.gms.phenotype.registration.xml:com.google.apps.dynamite.user=2132344868, com.google.android.gms.phenotype.registration.xml:com.google.android.libraries.onegoogle=2132344856, com.android.stamp.source=https://play.google.com/store, com.google.android.gms.phenotype.registration.xml:com.google.android.libraries.subscriptions=2132344863, android.app.default_searchable=com.google.android.gm.ui.MailActivityGmail, com.android.vending.splits.required=true, com.google.android.gms.phenotype.registration.xml:com.google.android.libraries.communications.conference.user=2132344852, com.google.android.gms.phenotype.registration.xml:com.google.apps_mobile.common.platforms.android.device=2132344872, com.google.android.gms.phenotype.registration.xml:com.google.apps.tasks.shared.android=2132344881, com.google.android.gms.phenotype.registration.xml:com.google.android.libraries.user.peoplesheet=2132344865, com.google.android.gms.phenotype.registration.xml:com.google.apps_mobile.common.services.gmail.android=2132344877, com.google.android.gms.version=262130000, com.google.android.gms.phenotype.registration.xml:com.google.android.libraries.social.populous=2132344861, com.google.android.gms.phenotype.registration.xml:com.google.android.libraries.notifications.platform=2132344855, com.android.vending.splits=2132344949, com.google.android.gms.phenotype.registration.xml:com.google.android.libraries.mdi.sync=2132344854, com.android.stamp.type=STAMP_TYPE_DISTRIBUTION_APK, com.google.android.gms.phenotype.registration.xml:com.google.android.libraries.consentverifier=2132344853, com.google.android.gms.phenotype.registration.xml:gsuite_cards_android.user=2132344900, com.google.android.gms.phenotype.registration.xml:com.google.android.libraries.social.peoplekit=2132344860}]
+          stateNotNeeded=false componentSpecified=true mActivityType=standard
+          compat={540dpi} labelRes=0x7f150ac3 icon=0x7f11001d theme=0x7f16046d
+          mLastReportedConfigurations:
+           mGlobalConfig={1.1 302mcc610mnc [en_CA] ldltr sw320dp w320dp h585dp 540dpi nrml long port night finger -keyb/v/h -nav/h winConfig={ mBounds=Rect(0, 0 - 1080, 2220) mAppBounds=Rect(0, 0 - 1080, 2058) mWindowingMode=fullscreen mDisplayWindowingMode=fullscreen mActivityType=undefined mAlwaysOnTop=undefined mRotation=ROTATION_0} s.19 desktop/d ?dc bts=0 ff=0 bf=0 themeSeq=0}
+           mOverrideConfig={1.1 302mcc610mnc [en_CA] ldltr sw320dp w320dp h585dp 540dpi nrml long port night finger -keyb/v/h -nav/h winConfig={ mBounds=Rect(0, 0 - 1080, 2220) mAppBounds=Rect(0, 0 - 1080, 2058) mWindowingMode=fullscreen mDisplayWindowingMode=fullscreen mActivityType=standard mAlwaysOnTop=undefined mRotation=ROTATION_0} s.1 desktop/d dc/d bts=0 ff=0 bf=0 themeSeq=0}
+          CurrentConfiguration={1.1 302mcc610mnc [en_CA] ldltr sw320dp w320dp h585dp 540dpi nrml long port night finger -keyb/v/h -nav/h winConfig={ mBounds=Rect(0, 0 - 1080, 2220) mAppBounds=Rect(0, 0 - 1080, 2058) mWindowingMode=fullscreen mDisplayWindowingMode=fullscreen mActivityType=standard mAlwaysOnTop=undefined mRotation=ROTATION_0} s.2 desktop/d dc/d bts=0 ff=0 bf=0 themeSeq=0}
+          taskDescription: label="null" icon=null iconResource=0 iconFilename=null primaryColor=ffa8c7fa
+           backgroundColor=ff131314
+           statusBarColor=ff202124
+           navigationBarColor=ff202124
+          launchFailed=false launchCount=0 lastLaunchTime=-1h2m21s692ms
+          haveState=true icicle=Bundle[mParcelledData.dataSize=141636]
+          state=DESTROYED stopped=true delayedResume=false finishing=false
+          keysPaused=false inHistory=true visible=false sleeping=false idle=true mStartingWindowState=STARTING_WINDOW_REMOVED
+          fullscreen=true noDisplay=false immersive=false launchMode=1
+          frozenBeforeDestroy=false forceNewConfig=false
+          mActivityType=standard
+           nowVisible=false lastVisibleTime=-59m43s660ms
+          resizeMode=RESIZE_MODE_RESIZEABLE
+          mLastReportedMultiWindowMode=false mLastReportedPictureInPictureMode=false
+          activityMetaData=Bundle[{android.app.shortcuts=2132344932}]
+          mUseDeviceDefaultTheme=false
+
+    mLastPausedActivity: ActivityRecord{f219661 u0 com.sec.android.app.sbrowser/.SBrowserLauncherActivity t-1 f}
 
   Stack #5: type=standard mode=fullscreen
   isSleeping=true
@@ -146,7 +436,7 @@ Display #0 (activities from top to bottom):
       askedCompatMode=false inRecents=true isAvailable=true
       mRootProcess=ProcessRecord{33666c 5067:com.sec.android.daemonapp:com.samsung.android.weather/u0a199}
       stackId=5
-      hasBeenVisible=true mResizeMode=RESIZE_MODE_RESIZEABLE mSupportsPictureInPicture=true isResizeable=true lastActiveTime=2423586 lastGainFocusTime=2422063 (inactive for 12348s)
+      hasBeenVisible=true mResizeMode=RESIZE_MODE_RESIZEABLE mSupportsPictureInPicture=true isResizeable=true lastActiveTime=2423586 lastGainFocusTime=2422063 (inactive for 18479s)
       dexBoundsPolicy:
        mLastNonFullBoundsDisplayId=-1
       * Hist #0: ActivityRecord{68194c u0 com.sec.android.daemonapp/com.samsung.android.weather.app.locations.activity.WXLocationsActivity t209}
@@ -170,14 +460,14 @@ Display #0 (activities from top to bottom):
            backgroundColor=ff252525
            statusBarColor=ff010101
            navigationBarColor=ff010101
-          launchFailed=false launchCount=0 lastLaunchTime=-2h46m1s557ms
+          launchFailed=false launchCount=0 lastLaunchTime=-4h13m49s143ms
           haveState=true icicle=Bundle[mParcelledData.dataSize=4872]
           state=STOPPED stopped=true delayedResume=false finishing=false
           keysPaused=false inHistory=true visible=false sleeping=true idle=true mStartingWindowState=STARTING_WINDOW_REMOVED
           fullscreen=true noDisplay=false immersive=false launchMode=0
           frozenBeforeDestroy=false forceNewConfig=false
           mActivityType=standard
-           nowVisible=false lastVisibleTime=-2h34m17s126ms
+           nowVisible=false lastVisibleTime=-4h2m4s712ms
           resizeMode=RESIZE_MODE_RESIZEABLE
           mLastReportedMultiWindowMode=false mLastReportedPictureInPictureMode=false
           supportsPictureInPicture=true
@@ -211,7 +501,7 @@ Display #0 (activities from top to bottom):
       askedCompatMode=false inRecents=true isAvailable=true
       mRootProcess=ProcessRecord{b1f664e 10063:com.sec.android.app.camera/u0a114}
       stackId=2
-      hasBeenVisible=true mResizeMode=RESIZE_MODE_RESIZEABLE mSupportsPictureInPicture=false isResizeable=true lastActiveTime=1699455 lastGainFocusTime=1697250 (inactive for 13073s)
+      hasBeenVisible=true mResizeMode=RESIZE_MODE_RESIZEABLE mSupportsPictureInPicture=false isResizeable=true lastActiveTime=1699455 lastGainFocusTime=1697250 (inactive for 19203s)
       dexBoundsPolicy:
        mLastNonFullBoundsDisplayId=-1
       * Hist #0: ActivityRecord{2861102 u0 com.sec.android.app.camera/.Camera t206}
@@ -235,14 +525,14 @@ Display #0 (activities from top to bottom):
            backgroundColor=ff000000
            statusBarColor=ff010101
            navigationBarColor=0
-          launchFailed=false launchCount=0 lastLaunchTime=-2h46m35s445ms
+          launchFailed=false launchCount=0 lastLaunchTime=-4h14m23s31ms
           haveState=true icicle=Bundle[mParcelledData.dataSize=1280]
           state=STOPPED stopped=true delayedResume=false finishing=false
           keysPaused=false inHistory=true visible=false sleeping=true idle=true mStartingWindowState=STARTING_WINDOW_REMOVED
           fullscreen=true noDisplay=false immersive=false launchMode=0
           frozenBeforeDestroy=false forceNewConfig=false
           mActivityType=standard
-           nowVisible=false lastVisibleTime=-2h46m21s830ms
+           nowVisible=false lastVisibleTime=-4h14m9s416ms
           resizeMode=RESIZE_MODE_RESIZEABLE
           mLastReportedMultiWindowMode=false mLastReportedPictureInPictureMode=false
           activityMetaData=Bundle[{com.samsung.android.activity.showWhenLocked=true, android.app.shortcuts=2132017161, com.samsung.android.support.REMOTE_ACTION=2132017154, com.samsung.android.rotation.animation.disable=true, assistant=2132017153}]
@@ -254,17 +544,18 @@ Display #0 (activities from top to bottom):
 
     mLastPausedActivity: ActivityRecord{2861102 u0 com.sec.android.app.camera/.Camera t206}
 
- ResumedActivity:ActivityRecord{b0249e4 u0 ca.ocentra.parent.agent/.MainActivity t222}
+ ResumedActivity:ActivityRecord{e403b5e u0 ca.ocentra.parent.agent/.MainActivity t235}
 
-  ResumedActivity: ActivityRecord{b0249e4 u0 ca.ocentra.parent.agent/.MainActivity t222}
+  ResumedActivity: ActivityRecord{e403b5e u0 ca.ocentra.parent.agent/.MainActivity t235}
 
 ActivityStackSupervisor state:
-  topDisplayFocusedStack=ActivityStack{ffa7b5e stackId=18 type=standard mode=fullscreen visible=true translucent=false, 1 tasks}
-  displayId=0 stacks=4
+  topDisplayFocusedStack=ActivityStack{7d52093 stackId=35 type=standard mode=fullscreen visible=true translucent=false, 1 tasks}
+  displayId=0 stacks=8
    mHomeStack=ActivityStack{343aa38 stackId=0 type=home mode=fullscreen visible=false translucent=true, 1 tasks}
-   mPreferredTopFocusableStack=ActivityStack{ffa7b5e stackId=18 type=standard mode=fullscreen visible=true translucent=false, 1 tasks}
-   mLastFocusedStack=ActivityStack{ffa7b5e stackId=18 type=standard mode=fullscreen visible=true translucent=false, 1 tasks}
-  mCurTaskIdForUser={0=222}
+   mRecentsStack=ActivityStack{13661a7 stackId=23 type=recents mode=fullscreen visible=false translucent=true, 1 tasks}
+   mPreferredTopFocusableStack=ActivityStack{7d52093 stackId=35 type=standard mode=fullscreen visible=true translucent=false, 1 tasks}
+   mLastFocusedStack=ActivityStack{7d52093 stackId=35 type=standard mode=fullscreen visible=true translucent=false, 1 tasks}
+  mCurTaskIdForUser={0=235}
   mUserStackInFront={}
   isHomeRecentsComponent=false  KeyguardController:
     mKeyguardShowing=true
