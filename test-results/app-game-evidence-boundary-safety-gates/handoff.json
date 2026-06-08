@@ -1,0 +1,31 @@
+{
+  "branch": "codex/app-game-control-product-completion",
+  "workpack": "WP160",
+  "scope": "app/game evidence boundary safety gates",
+  "status": "done",
+  "runtimeBoundary": [
+    "inventory-only rows keep inventory count without usage or foreground upgrades",
+    "running-only rows keep running count without foreground upgrade",
+    "foreground rows expose foreground count and evidence refs without private content strings",
+    "launcher rows stay launcher-only without child-game proof",
+    "unknown process rows remain review candidates instead of known games"
+  ],
+  "validation": [
+    {
+      "command": "cmd /c npm run test --workspace @ocentra-parent/portal -- --run tests/activity-ui-app-game-dashboard-intent.test.ts",
+      "status": "pass",
+      "note": "19 test files and 81 tests passed; existing Vite esbuild/oxc warnings printed"
+    }
+  ],
+  "noClaims": [
+    "new source adapters",
+    "classifier provider execution",
+    "policy enforcement",
+    "adapter dispatch",
+    "broad blocking",
+    "platform enforcement",
+    "child-game proof",
+    "private foreground content visibility"
+  ],
+  "productCapabilityChecklist": "intentionally untouched while E-B owns the lock"
+}

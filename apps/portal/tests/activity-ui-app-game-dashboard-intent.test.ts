@@ -32,6 +32,18 @@ describe('parent portal app/game dashboard intent', () => {
     expectPopulatedDashboard(intent.appGameDashboard);
   });
 
+  it('keeps evidence boundary gates from upgrading weaker app/game evidence', () => {
+    const intent = createParentPortalActivityUiIntent(
+      {
+        activityAppUseReadModel: adapterResult(evidenceBoundaryAppUseReadModel()),
+        activityGamesReadModel: adapterResult(evidenceBoundaryGamesReadModel()),
+      },
+      3
+    );
+
+    expectEvidenceBoundarySafetyGates(intent.appGameDashboard);
+  });
+
   it('renders malicious app/game metadata as escaped bounded text', () => {
     const intent = createParentPortalActivityUiIntent(
       {
@@ -203,6 +215,49 @@ function expectMaliciousMetadataStaysTextOnly(dashboard: ActivityUiIntent['appGa
   expect(dashboard.rows.map((row) => row.rowId)).toContain('app-row-malicious-name');
 }
 
+function expectEvidenceBoundarySafetyGates(dashboard: ActivityUiIntent['appGameDashboard']) {
+  expectDashboardRow(dashboard, 'app-row-inventory-only').toMatchObject({
+    inventoryCount: 1,
+    runningCount: 0,
+    foregroundCount: 0,
+    totalDurationLabel: '0 min',
+    unknownApproval: false,
+  });
+  expectDashboardRow(dashboard, 'app-row-running-only').toMatchObject({
+    inventoryCount: 0,
+    runningCount: 1,
+    foregroundCount: 0,
+    totalDurationLabel: '0 min',
+    manualRequired: false,
+  });
+  expectDashboardRow(dashboard, 'app-row-foreground-with-title-ref').toMatchObject({
+    foregroundCount: 1,
+    evidenceCount: 1,
+    productKind: 'native-app',
+  });
+  expectDashboardRow(dashboard, 'game-row-launcher-only').toMatchObject({
+    launcherOnly: true,
+    launcherCount: 1,
+    foregroundCount: 0,
+    productKind: 'launcher',
+  });
+  expectDashboardRow(dashboard, 'app-row-unknown-process').toMatchObject({
+    unknownApproval: true,
+    classificationState: 'unknown-process',
+    productKind: 'native-app',
+    manualRequired: false,
+  });
+  expect(JSON.stringify(dashboard)).not.toContain('Secret homework window title');
+  expect(JSON.stringify(dashboard)).not.toContain('privateForegroundContent');
+  expect(dashboard.rows.some((row) => row.classificationState === 'known-game')).toBe(false);
+}
+
+function expectDashboardRow(dashboard: ActivityUiIntent['appGameDashboard'], rowId: string) {
+  const row = dashboard.rows.find((candidate) => candidate.rowId === rowId);
+  expect(row).toBeDefined();
+  return expect(row);
+}
+
 function appUseReadModel() {
   return {
     schemaVersion: ActivitySurfaceSchemaVersion,
@@ -211,6 +266,174 @@ function appUseReadModel() {
     generatedAt: '2026-06-01T15:00:01Z',
     summary: 'App-use read model from service projection',
     rows: [studyTimerAppRow(), manualRequiredAppRow()],
+  } as const;
+}
+
+function evidenceBoundaryAppUseReadModel() {
+  return {
+    schemaVersion: ActivitySurfaceSchemaVersion,
+    request: ActivityRequest,
+    state: 'ready',
+    generatedAt: '2026-06-01T15:10:01Z',
+    summary: 'App-use read model with boundary rows',
+    rows: [inventoryOnlyAppRow(), runningOnlyAppRow(), foregroundWithTitleRefAppRow(), unknownProcessAppRow()],
+  } as const;
+}
+
+function evidenceBoundaryGamesReadModel() {
+  return {
+    schemaVersion: ActivitySurfaceSchemaVersion,
+    request: ActivityRequest,
+    state: 'ready',
+    generatedAt: '2026-06-01T15:10:01Z',
+    summary: 'Games read model with launcher boundary rows',
+    rows: [launcherOnlyGameRow()],
+  } as const;
+}
+
+function inventoryOnlyAppRow() {
+  return {
+    rowId: 'app-row-inventory-only',
+    appName: 'Installed Only Reference',
+    deviceId: 'child-device-1',
+    state: 'ready',
+    productKind: 'native-app',
+    classificationState: 'known-app',
+    inventoryState: 'installed',
+    runtimeState: 'not-running',
+    foregroundState: 'not-foreground',
+    capabilityStatus: 'ready',
+    lastObservedAt: '2026-06-01T15:09:00Z',
+    totalMs: 0,
+    launchCount: 0,
+    inventoryRowCount: 1,
+    runningRowCount: 0,
+    foregroundRowCount: 0,
+    dailyRollupCount: 0,
+    evidence: [{ evidenceId: 'boundary-inventory-1', sourceId: 'inventory', capturedAt: '2026-06-01T15:09:00Z' }],
+    sourceStatusRows: [
+      sourceStatusRow('shortcut', 'ready', 'available', 'boundary-source-1', 'shortcut', '2026-06-01T15:09:00Z'),
+    ],
+  } as const;
+}
+
+function runningOnlyAppRow() {
+  return {
+    rowId: 'app-row-running-only',
+    appName: 'Running Background Reference',
+    deviceId: 'child-device-1',
+    state: 'ready',
+    productKind: 'native-app',
+    classificationState: 'known-app',
+    inventoryState: 'not-reported',
+    runtimeState: 'running',
+    foregroundState: 'not-foreground',
+    capabilityStatus: 'ready',
+    lastObservedAt: '2026-06-01T15:08:00Z',
+    totalMs: 0,
+    launchCount: 0,
+    inventoryRowCount: 0,
+    runningRowCount: 1,
+    foregroundRowCount: 0,
+    dailyRollupCount: 0,
+    evidence: [{ evidenceId: 'boundary-running-1', sourceId: 'runtime', capturedAt: '2026-06-01T15:08:00Z' }],
+    sourceStatusRows: [
+      sourceStatusRow('processSnapshot', 'ready', 'available', 'boundary-source-2', 'process', '2026-06-01T15:08:00Z'),
+    ],
+  } as const;
+}
+
+function foregroundWithTitleRefAppRow() {
+  return {
+    rowId: 'app-row-foreground-with-title-ref',
+    appName: 'Foreground Ref Only',
+    deviceId: 'child-device-1',
+    state: 'ready',
+    productKind: 'native-app',
+    classificationState: 'known-app',
+    inventoryState: 'not-reported',
+    runtimeState: 'running',
+    foregroundState: 'foreground',
+    capabilityStatus: 'ready',
+    windowTitleRef: 'Secret homework window title',
+    privateForegroundContent: 'privateForegroundContent',
+    lastObservedAt: '2026-06-01T15:07:00Z',
+    totalMs: 60000,
+    launchCount: 1,
+    inventoryRowCount: 0,
+    runningRowCount: 1,
+    foregroundRowCount: 1,
+    dailyRollupCount: 0,
+    evidence: [{ evidenceId: 'boundary-foreground-1', sourceId: 'foreground', capturedAt: '2026-06-01T15:07:00Z' }],
+    sourceStatusRows: [
+      sourceStatusRow(
+        'foregroundWindow',
+        'ready',
+        'available',
+        'boundary-source-3',
+        'foreground',
+        '2026-06-01T15:07:00Z'
+      ),
+    ],
+  } as const;
+}
+
+function unknownProcessAppRow() {
+  return {
+    rowId: 'app-row-unknown-process',
+    appName: 'Unknown Helper Process',
+    deviceId: 'child-device-1',
+    state: 'ready',
+    productKind: 'native-app',
+    classificationState: 'unknown-process',
+    inventoryState: 'not-reported',
+    runtimeState: 'running',
+    foregroundState: 'not-foreground',
+    capabilityStatus: 'ready',
+    lastObservedAt: '2026-06-01T15:06:00Z',
+    totalMs: 0,
+    launchCount: 0,
+    inventoryRowCount: 0,
+    runningRowCount: 1,
+    foregroundRowCount: 0,
+    dailyRollupCount: 0,
+    evidence: [{ evidenceId: 'boundary-unknown-1', sourceId: 'runtime', capturedAt: '2026-06-01T15:06:00Z' }],
+    sourceStatusRows: [
+      sourceStatusRow('processSnapshot', 'ready', 'available', 'boundary-source-4', 'process', '2026-06-01T15:06:00Z'),
+    ],
+  } as const;
+}
+
+function launcherOnlyGameRow() {
+  return {
+    rowId: 'game-row-launcher-only',
+    displayName: 'Launcher Only Reference',
+    deviceId: 'child-device-1',
+    state: 'ready',
+    productKind: 'launcher',
+    classificationState: 'known-launcher',
+    inventoryState: 'installed',
+    runtimeState: 'running',
+    foregroundState: 'not-foreground',
+    capabilityStatus: 'ready',
+    lastObservedAt: '2026-06-01T15:05:00Z',
+    totalMs: 0,
+    sessionCount: 0,
+    launcherRowCount: 1,
+    runningRowCount: 1,
+    foregroundRowCount: 0,
+    dailyRollupCount: 0,
+    evidence: [{ evidenceId: 'boundary-launcher-1', sourceId: 'launcher', capturedAt: '2026-06-01T15:05:00Z' }],
+    sourceStatusRows: [
+      sourceStatusRow(
+        'launcherManifest',
+        'ready',
+        'available',
+        'boundary-source-5',
+        'launcher',
+        '2026-06-01T15:05:00Z'
+      ),
+    ],
   } as const;
 }
 

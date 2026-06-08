@@ -80,6 +80,11 @@ control with better evidence and local audit.
   display label remains a manual-required/risk text row in the parent dashboard
   intent, while the SVG dashboard source renders labels through bounded text
   sizing/truncation and avoids app/game dashboard HTML injection sinks.
+- The app/game evidence-boundary UI safety gate now proves inventory-only rows
+  do not become usage, running rows do not become foreground, foreground rows do
+  not reveal content strings, launcher rows stay launcher-only without
+  child-game proof, and unknown processes stay review candidates instead of
+  becoming known games.
 - App/game unknown approval contracts now represent new inventory apps, unknown
   runtime processes, portable/installer candidates, launcher-game candidates,
   unknown game-like executables, child status/reason refs, parent response
