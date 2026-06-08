@@ -1,6 +1,6 @@
 {
   "proof": "local-ai-plan-closure-audit-proof",
-  "generatedAt": "2026-06-08T01:52:39.762Z",
+  "generatedAt": "2026-06-08T05:04:58.802Z",
   "checklist": {
     "path": "docs/plans/ai-plan/implementation-checklist.md",
     "completeCount": 0,
@@ -26,6 +26,8 @@
     "parentRuleContext": "output/ai-plan-proof/local-ai-parent-rule-context-builder-proof/proof-summary.json",
     "providerScheduler": "output/ai-plan-proof/local-ai-provider-scheduler-proof/proof.json",
     "runtimeProvider": "output/ai-plan-proof/local-ai-runtime-provider-proof/proof.json",
+    "householdAdvertisementHeartbeat": "output/ai-plan-proof/household-ai-provider-advertisement-heartbeat-proof/proof-summary.json",
+    "householdClaimLease": "output/ai-plan-proof/household-ai-provider-claim-lease-proof/proof-summary.json",
     "policyConsumption": "output/ai-plan-proof/local-ai-policy-enforcement-consumption-proof/proof-summary.json"
   },
   "closure": {
@@ -36,6 +38,8 @@
     "deterministicTextAndClassifierContractsCovered": true,
     "memoryAndGraphRefsCovered": true,
     "providerRuntimeAndSchedulerCovered": true,
+    "householdProviderAdvertisementHeartbeatCovered": true,
+    "householdProviderClaimLeaseCovered": true,
     "policyOnlyConsumptionCovered": true,
     "remoteApiAiClaimed": false,
     "rawPromptRetained": false,

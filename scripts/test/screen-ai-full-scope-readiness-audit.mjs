@@ -67,6 +67,14 @@ assert(
   aiPlanClosure.closure?.serviceOcrAnalyzedCapturedPixels === true,
   'AI closure lost service OCR captured-pixel proof'
 );
+assert(
+  aiPlanClosure.closure?.householdProviderAdvertisementHeartbeatCovered === true,
+  'AI closure lost household provider advertisement/heartbeat proof'
+);
+assert(
+  aiPlanClosure.closure?.householdProviderClaimLeaseCovered === true,
+  'AI closure lost household provider claim/lease proof'
+);
 assert(aiPlanClosure.closure?.remoteApiAiClaimed === false, 'AI closure claims remote/API AI');
 assert(aiPlanClosure.closure?.rawImageRetainedByDefault === false, 'AI closure permits raw image retention');
 assert(
@@ -184,6 +192,8 @@ const proof = {
     serviceForegroundRuntimeCovered: true,
     serviceDeletionCustodyCovered: true,
     serviceWinRtOcrPolicyFreshRerunCovered: true,
+    householdProviderAdvertisementHeartbeatCovered: true,
+    householdProviderClaimLeaseCovered: true,
     householdMeshNoRawProviderValidationCovered: true,
     rawScreenshotsRetainedByDefault: false,
     remoteAiUsedForChildSafety: false,

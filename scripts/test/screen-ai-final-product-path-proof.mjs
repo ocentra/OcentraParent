@@ -648,6 +648,14 @@ function validateAiPlanClosure() {
     'AI-plan closure lost provider runtime or scheduler coverage'
   );
   assert(
+    aiPlanClosure.closure?.householdProviderAdvertisementHeartbeatCovered === true,
+    'AI-plan closure lost household provider advertisement/heartbeat coverage'
+  );
+  assert(
+    aiPlanClosure.closure?.householdProviderClaimLeaseCovered === true,
+    'AI-plan closure lost household provider claim/lease lifecycle coverage'
+  );
+  assert(
     aiPlanClosure.closure?.policyOnlyConsumptionCovered === true,
     'AI-plan closure lost policy-only consumption coverage'
   );

@@ -27,6 +27,12 @@ const parentRuleContext = readProof(
 );
 const providerScheduler = readProof('output/ai-plan-proof/local-ai-provider-scheduler-proof/proof.json');
 const runtimeProvider = readProof('output/ai-plan-proof/local-ai-runtime-provider-proof/proof.json');
+const householdAdvertisementHeartbeat = readProof(
+  'output/ai-plan-proof/household-ai-provider-advertisement-heartbeat-proof/proof-summary.json'
+);
+const householdClaimLease = readProof(
+  'output/ai-plan-proof/household-ai-provider-claim-lease-proof/proof-summary.json'
+);
 const policyConsumption = readProof(
   'output/ai-plan-proof/local-ai-policy-enforcement-consumption-proof/proof-summary.json'
 );
@@ -109,6 +115,51 @@ assert(
   policyConsumption.assertions?.localAiResultLinkedOnlyThroughPolicy === true,
   'AI result must link through policy.'
 );
+assert(
+  householdAdvertisementHeartbeat.assertions?.freshTrustedProviderEligible === true,
+  'household provider advertisement proof must retain one fresh eligible provider.'
+);
+assert(
+  householdAdvertisementHeartbeat.assertions?.staleProviderRejected === true,
+  'household provider advertisement proof must reject stale providers.'
+);
+assert(
+  householdAdvertisementHeartbeat.assertions?.offlineProviderRejected === true,
+  'household provider advertisement proof must reject offline providers.'
+);
+assert(
+  householdAdvertisementHeartbeat.assertions?.revokedProviderRejected === true,
+  'household provider advertisement proof must reject revoked providers.'
+);
+assert(
+  householdAdvertisementHeartbeat.assertions?.unsupportedProviderRejected === true,
+  'household provider advertisement proof must reject unsupported providers.'
+);
+assert(
+  householdAdvertisementHeartbeat.assertions?.noRuntimePolicyEnforcementOrRawTransferClaims === true,
+  'household provider advertisement proof must not overclaim runtime/policy/enforcement/raw transfer.'
+);
+assert(householdClaimLease.assertions?.oneLeasePerJob === true, 'household claim lease proof must keep one lease.');
+assert(
+  householdClaimLease.assertions?.duplicateClaimRejected === true,
+  'household claim lease proof must reject duplicate claims.'
+);
+assert(
+  householdClaimLease.assertions?.leaseExpiryRequeued === true,
+  'household claim lease proof must requeue expired leases.'
+);
+assert(
+  householdClaimLease.assertions?.maxAttemptDeadLettered === true,
+  'household claim lease proof must dead-letter after max attempts.'
+);
+assert(
+  householdClaimLease.assertions?.duplicateMessageIdempotent === true,
+  'household claim lease proof must ignore duplicate messages idempotently.'
+);
+assert(
+  householdClaimLease.assertions?.noRuntimePolicyEnforcementOrRawTransferClaims === true,
+  'household claim lease proof must not overclaim runtime/policy/enforcement/raw transfer.'
+);
 
 assert(partialRows.length === 0, 'AI plan should not have partial table rows at closure audit time.');
 assert(openRows.length === 0, `Unexpected AI plan open table rows: ${JSON.stringify(openRows)}`);
@@ -147,6 +198,9 @@ const summary = {
     parentRuleContext: 'output/ai-plan-proof/local-ai-parent-rule-context-builder-proof/proof-summary.json',
     providerScheduler: 'output/ai-plan-proof/local-ai-provider-scheduler-proof/proof.json',
     runtimeProvider: 'output/ai-plan-proof/local-ai-runtime-provider-proof/proof.json',
+    householdAdvertisementHeartbeat:
+      'output/ai-plan-proof/household-ai-provider-advertisement-heartbeat-proof/proof-summary.json',
+    householdClaimLease: 'output/ai-plan-proof/household-ai-provider-claim-lease-proof/proof-summary.json',
     policyConsumption: 'output/ai-plan-proof/local-ai-policy-enforcement-consumption-proof/proof-summary.json',
   },
   closure: {
@@ -157,6 +211,8 @@ const summary = {
     deterministicTextAndClassifierContractsCovered: true,
     memoryAndGraphRefsCovered: true,
     providerRuntimeAndSchedulerCovered: true,
+    householdProviderAdvertisementHeartbeatCovered: true,
+    householdProviderClaimLeaseCovered: true,
     policyOnlyConsumptionCovered: true,
     remoteApiAiClaimed: false,
     rawPromptRetained: false,
