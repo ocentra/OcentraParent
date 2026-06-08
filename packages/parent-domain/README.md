@@ -259,6 +259,14 @@ mobile readiness, and control catalogs.
   execution, platform adapter execution, child-device delivery, runtime report
   delivery, install/purchase interception, app blocking, child activity data,
   and Ocentra-hosted family data custody unclaimed.
+- App install/purchase execution receipt gate proof contracts that consume
+  external runtime writer transport execution rows and keep product progress
+  blocked until external writer dispatch executor, provider/store execution,
+  platform adapter execution, and child-device transport receipt artifacts are
+  attached while keeping runtime writer execution/delivery, provider/store
+  execution, platform adapter execution, child delivery, report delivery, app
+  blocking, child activity data, and Ocentra-hosted family data custody
+  unclaimed.
 - App install/purchase external runtime device delivery evidence proof
   contracts that link runtime writer execution delivery receipts and
   child-device delivery runtime-writer envelope refs into external runtime
@@ -493,8 +501,8 @@ flowchart LR
   external runtime writer delivery blocker proof, external runtime transport
   queue proof, external runtime transport dispatch preflight proof, runtime
   delivery receipt boundary proof, runtime transport delivery execution proof,
-  external runtime writer transport execution proof, and runtime report writer
-  delivery proof; Windows package-source adapter evidence proof
+  external runtime writer transport execution proof, execution receipt gate
+  proof, and runtime report writer delivery proof; Windows package-source adapter evidence proof
   now records sanitized local host command evidence for the Windows row without
   claiming Microsoft Store/provider execution or a
   production platform adapter;
