@@ -1,0 +1,96 @@
+{
+  "proof": "eventing-household-mesh-consumer-proof",
+  "proofRevision": "eventing-household-mesh-consumer-proof/v1",
+  "checkedAt": "deterministic:eventing-household-mesh-consumer-proof/v1",
+  "sourceFingerprint": "source-tree:618fccb267c3fbb974c2832b42a67031675f3596359131a4b93a167d6fbab0df",
+  "sourceRefs": [
+    "scripts/test/eventing-household-mesh-consumer-proof.mjs",
+    "crates/agent-protocol/src/constants/household_mesh.rs",
+    "crates/agent-protocol/src/constants.rs",
+    "crates/agent-core/src/household_mesh_event_bridge.rs",
+    "crates/agent-core/src/household_mesh_event_bridge_tests.rs",
+    "crates/agent-core/src/lib.rs",
+    "crates/agent-core/README.md",
+    "crates/agent-service/src/lan_pairing/lan_ai_job.rs",
+    "crates/agent-service/src/lan_pairing/lan_ai_job_tests.rs",
+    "docs/plans/eventing-plan/README.md",
+    "docs/plans/eventing-plan/implementation-checklist.md",
+    "docs/plans/eventing-plan/workpacks/README.md",
+    "docs/features/remote-lan-mobile-platforms.md",
+    "docs/features/local-ai-safety-evaluator.md"
+  ],
+  "runContext": "Branch, merge base, commit, pushed state, and validation command output are reported in worker handoffs; committed row12 proof artifacts stay deterministic.",
+  "proofRoot": "output\\eventing-plan-proof\\12-household-mesh-consumer",
+  "testRoot": "test-results\\eventing-household-mesh-consumer-proof",
+  "commands": [
+    {
+      "name": "agent-core-household-mesh-tests",
+      "command": "cargo test -p ocentra-parent-agent-core household_mesh",
+      "status": 0,
+      "log": "output\\eventing-plan-proof\\12-household-mesh-consumer\\agent-core-household-mesh-tests.log"
+    },
+    {
+      "name": "agent-service-lan-ai-tests",
+      "command": "cargo test -p ocentra-parent-agent-service lan_ai",
+      "status": 0,
+      "log": "output\\eventing-plan-proof\\12-household-mesh-consumer\\agent-service-lan-ai-tests.log"
+    },
+    {
+      "name": "agent-core-clippy",
+      "command": "cargo clippy -p ocentra-parent-agent-core --all-targets -- -D warnings",
+      "status": 0,
+      "log": "output\\eventing-plan-proof\\12-household-mesh-consumer\\agent-core-clippy.log"
+    },
+    {
+      "name": "rust-format",
+      "command": "cargo fmt --all --check",
+      "status": 0,
+      "log": "output\\eventing-plan-proof\\12-household-mesh-consumer\\rust-format.log"
+    },
+    {
+      "name": "source-shape",
+      "command": "node scripts/check-source-shape.mjs",
+      "status": 0,
+      "log": "output\\eventing-plan-proof\\12-household-mesh-consumer\\source-shape.log"
+    },
+    {
+      "name": "git-diff-check",
+      "command": "git diff --check -- . :(exclude)output :(exclude)test-results",
+      "status": 0,
+      "log": "output\\eventing-plan-proof\\12-household-mesh-consumer\\git-diff-check.log"
+    }
+  ],
+  "artifacts": {
+    "expectedBoundary": "output\\eventing-plan-proof\\12-household-mesh-consumer\\expected-household-mesh-consumer-boundary.json",
+    "securityNegativeLog": "output\\eventing-plan-proof\\12-household-mesh-consumer\\08-security-negative-proof.log",
+    "validationCommands": "output\\eventing-plan-proof\\12-household-mesh-consumer\\12-validation-commands.log",
+    "proofSummary": "output\\eventing-plan-proof\\12-household-mesh-consumer\\proof-summary.json",
+    "testProof": "test-results\\eventing-household-mesh-consumer-proof\\proof.json"
+  },
+  "coveredRows": [
+    "eventing-plan proof-pack row 12 household mesh consumer proof",
+    "eventing-plan full-plan proof consumer boundary extension"
+  ],
+  "provenBoundaries": [
+    "agent-core exports a consumer bridge that maps only selected local event refs into typed authenticated LAN message refs",
+    "agent-core rejects local-only raw capture, adapter, private queue, policy, and enforcement event refs at export time",
+    "incoming LAN messages must be paired-trusted-device authenticated before local republish",
+    "incoming LAN messages cannot request direct remote publish into another runtime bus",
+    "provider and parent UI policy authority claims are rejected; child-agent-only AI policy authority is preserved",
+    "incoming raw payload transfer is rejected before local republish",
+    "existing LAN AI service tests still prove provider status/job routing uses typed LAN AI rows without raw activity transfer"
+  ],
+  "notClaimed": [
+    "shared LAN-wide event bus",
+    "remote direct publish into another runtime local bus",
+    "provider-owned policy authority",
+    "parent-UI-owned policy authority",
+    "raw screenshot transfer by default",
+    "raw capture payload transfer by default",
+    "live physical household device provider execution",
+    "production model quality",
+    "portal UI",
+    "enforcement command publication",
+    "adapter execution"
+  ]
+}

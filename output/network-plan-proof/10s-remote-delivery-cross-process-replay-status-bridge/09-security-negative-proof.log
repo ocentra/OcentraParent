@@ -1,0 +1,12 @@
+checkedAt=deterministic:network-remote-delivery-cross-process-replay-status-bridge-proof/v1
+asserted=remote delivery status carries row10r replay/store/cursor refs inside the current row10t status shape
+asserted=row10r replay record/store/cursor counts match the row10g outbox candidate count
+asserted=row10r replay records match durable envelopes and row10q custody readiness inputs
+asserted=crossProcessReplayImplemented is true only for deterministic replay metadata visibility
+asserted=external cross-process transport implementation belongs to row10t status proof
+asserted=live dispatchAttemptCount and remoteAckCount remain zero
+asserted=no exact URL/page/video/message/search claim from network-only evidence
+asserted=no decrypted payload or raw PCAP claim
+asserted=no live broker/family-hub/provider/child-device delivery claim
+asserted=no actual remote delete/export propagation claim
+asserted=no policy authority, side-effect authority, adapter action, host filtering, or enforcement command publication

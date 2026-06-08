@@ -167,7 +167,7 @@ fn temp_inventory_source_root(index: u32) -> PathBuf {
     let root = std::env::temp_dir()
         .join(constants::browser::DEVTOOLS_TEST_WINDOWS_BROWSER_INVENTORY_SOURCE_DIR)
         .join(std::process::id().to_string())
-        .join(index.to_string());
+        .join(index.saturating_add(1000).to_string());
     let _ = std::fs::remove_dir_all(&root);
     root
 }

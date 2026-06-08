@@ -7,14 +7,22 @@ describe('portal policy-preview live activity state', () => {
     const state = resolveLiveActivityState([policyPreviewEvent()]);
 
     expect(state.policyPreviewEvent?.severity).toBe('info');
-    expect(state.policyPreviewReadModel?.returned).toBe(1);
-    expect(state.policyPreviewReadModel?.previewId).toBe('policy-preview-1');
-    expect(state.policyPreviewReadModel?.targetValue).toBe('https://example.test/learn');
-    expect(state.policyPreviewReadModel?.decisionAction).toBe('allow');
-    expect(state.policyPreviewReadModel?.parentRuleContextReferenceCount).toBe(1);
-    expect(state.policyPreviewReadModel?.parentRuleContextRefIds).toBe('parent-rule-context-1');
-    expect(state.policyPreviewReadModel?.dryRun).toBe(true);
-    expect(state.policyPreviewReadModel?.enforcementHandoffState).toBe('disabled-preview-only');
+    expect(state.policyPreviewReadModel).toMatchObject({
+      returned: 1,
+      previewId: 'policy-preview-1',
+      targetValue: 'https://example.test/learn',
+      decisionAction: 'allow',
+      parentRuleContextReferenceCount: 1,
+      parentRuleContextRefIds: 'parent-rule-context-1',
+      dryRun: true,
+      enforcementHandoffState: 'disabled-preview-only',
+      networkEvidenceGrade: 'B',
+      networkRequestedPolicyAction: 'block',
+      networkMappedPolicyAction: 'ask-parent',
+      networkPolicyMappingMode: 'parent-review',
+      networkAdapterActionAuthorized: false,
+      networkEnforcementCommandAuthorized: false,
+    });
   });
 
   it('parses service policy schema versions without weakening typed payload fields', () => {
@@ -49,6 +57,18 @@ describe('portal policy-preview live activity state', () => {
     expect(returnedAsText.policyPreviewReadModel).toBeNull();
     expect(countAsText.policyPreviewReadModel).toBeNull();
     expect(dryRunAsText.policyPreviewReadModel).toBeNull();
+  });
+
+  it('rejects policy-preview payloads that claim network authorization', () => {
+    const adapterAuthorized = resolveLiveActivityState([
+      policyPreviewEventWith({ networkAdapterActionAuthorized: true }),
+    ]);
+    const enforcementAuthorized = resolveLiveActivityState([
+      policyPreviewEventWith({ networkEnforcementCommandAuthorized: true }),
+    ]);
+
+    expect(adapterAuthorized.policyPreviewReadModel).toBeNull();
+    expect(enforcementAuthorized.policyPreviewReadModel).toBeNull();
   });
 });
 
@@ -95,6 +115,12 @@ function policyPreviewEventWith(payloadOverrides: Record<string, unknown>) {
       localAiResultId: 'local-ai-result-1',
       dryRun: true,
       enforcementHandoffState: 'disabled-preview-only',
+      networkEvidenceGrade: 'B',
+      networkRequestedPolicyAction: 'block',
+      networkMappedPolicyAction: 'ask-parent',
+      networkPolicyMappingMode: 'parent-review',
+      networkAdapterActionAuthorized: false,
+      networkEnforcementCommandAuthorized: false,
       ...payloadOverrides,
     },
     snapshot: null,
@@ -140,6 +166,12 @@ function emptyPolicyPreviewEvent() {
       localAiResultId: null,
       dryRun: null,
       enforcementHandoffState: 'disabled-preview-only',
+      networkEvidenceGrade: null,
+      networkRequestedPolicyAction: null,
+      networkMappedPolicyAction: null,
+      networkPolicyMappingMode: null,
+      networkAdapterActionAuthorized: null,
+      networkEnforcementCommandAuthorized: null,
     },
     snapshot: null,
   });

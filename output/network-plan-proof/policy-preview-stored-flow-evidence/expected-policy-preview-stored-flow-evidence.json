@@ -1,0 +1,52 @@
+{
+  "acceptedInputs": [
+    "stored ActivityStore network flow row",
+    "network domain subject with destinationDomain field",
+    "local parent rule context targeting the stored network domain",
+    "parent-rule target_evidence_refs matching the stored network activity event ref",
+    "parent-rule context scoped to the stored event source device and platform"
+  ],
+  "previewState": [
+    "targetType=domain",
+    "targetValue=example-network.test",
+    "capabilityStatus=ready-for-preview-read-model",
+    "decisionAction=ask-parent after row34 grade-B block downgrade",
+    "networkEvidenceGrade=B",
+    "networkRequestedPolicyAction=block",
+    "networkMappedPolicyAction=ask-parent",
+    "networkPolicyMappingMode=parent-review",
+    "networkAdapterActionAuthorized=false",
+    "networkEnforcementCommandAuthorized=false",
+    "dryRun=true",
+    "enforcementHandoffState=disabled",
+    "parentRuleContextReferenceCount=1"
+  ],
+  "evidenceBoundary": [
+    "policy preview evidence references include the stored ActivityEvent ref",
+    "retention tombstones suppress deleted network flow evidence before preview limit and decisions",
+    "wrong-device or wrong-child parent rule contexts are excluded before preview decisions",
+    "future, expired, or scheduled-without-proof parent rules are excluded before preview decisions",
+    "this slice does not invent query-store, journal, AI, adapter, or enforcement refs",
+    "row34 shared evidence-grade mapper downgrades grade-B block requests to parent review",
+    "service payload exposes row34 evidence-grade provenance without granting adapter or enforcement authority",
+    "portal parser retains row34 evidence-grade provenance and rejects adapter or enforcement authorization claims"
+  ],
+  "noClaims": [
+    "exact URL from network-only evidence",
+    "page content",
+    "video content",
+    "private-message content",
+    "search-query content",
+    "decrypted payload",
+    "raw PCAP",
+    "AI model execution",
+    "full policy engine execution",
+    "adapter authorization",
+    "adapter action execution",
+    "enforcement command publication",
+    "host filtering",
+    "live broker delivery",
+    "family-hub delivery",
+    "product-ready remote delivery"
+  ]
+}

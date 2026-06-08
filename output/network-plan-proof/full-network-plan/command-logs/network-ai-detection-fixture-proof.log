@@ -1,0 +1,2 @@
+network-ai-detection-fixture-proof-ok:ai-detection-tests,clippy,source-shape
+proof=output/network-plan-proof/46-ai-detection-fixture-proof/proof-summary.json

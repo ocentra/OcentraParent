@@ -1,0 +1,13 @@
+
+running 6 tests
+test tests::policy::policy_mapping_allows_grade_a_dry_run_without_adapter_authority ... ok
+test tests::policy::policy_mapping_allows_grade_b_monitor_dry_run ... ok
+test tests::policy::policy_mapping_keeps_grade_c_and_d_non_enforcing ... ok
+test tests::policy::policy_mapping_rejects_empty_optional_refs_when_present ... ok
+test tests::policy::policy_mapping_rejects_missing_policy_rule_or_evidence_refs ... ok
+test tests::policy::policy_mapping_routes_grade_b_block_requests_to_parent_review ... ok
+
+test result: ok. 6 passed; 0 failed; 0 ignored; 0 measured; 217 filtered out; finished in <duration>
+
+    Finished `test` profile [unoptimized + debuginfo] target(s) in <duration>
+     Running unittests src\lib.rs (target\debug\deps\ocentra_network_evidence-36610952c1128119.exe)

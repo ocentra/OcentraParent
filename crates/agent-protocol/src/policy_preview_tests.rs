@@ -2,40 +2,14 @@ use super::{
     constants, policy_constants as policy, ChildProfileReference, FamilyReference,
     LocalAiParentRuleContextRef, ParentActorReference, ParentActorRole, ParentDeviceReference,
     ParentEvidenceReference, ParentEvidenceReferenceKind, PolicyAction, PolicyDecision,
-    PolicyDecisionHandoffState, PolicyPreviewReadModel, PolicyPreviewReadModelRow, PolicyRule,
-    PolicyTarget, PolicyTargetType, POLICY_DRY_RUN_SCHEMA_VERSION,
+    PolicyDecisionHandoffState, PolicyPreviewNetworkEvidenceMapping, PolicyPreviewReadModel,
+    PolicyPreviewReadModelRow, PolicyRule, PolicyTarget, PolicyTargetType,
+    POLICY_DRY_RUN_SCHEMA_VERSION,
 };
 
 #[test]
 fn policy_preview_read_model_serializes_stored_evidence_rows() {
-    let read_model = PolicyPreviewReadModel {
-        schema_version: POLICY_DRY_RUN_SCHEMA_VERSION.to_string(),
-        generated_at: policy::TEST_EVALUATED_AT.to_string(),
-        custody: policy::PREVIEW_CUSTODY_ACTIVITY_STORE.to_string(),
-        limit: 5,
-        returned: 1,
-        capability_status: policy::PREVIEW_CAPABILITY_READY.to_string(),
-        rows: vec![PolicyPreviewReadModelRow {
-            preview_id: policy::TEST_PREVIEW_ID.to_string(),
-            source_event_id: policy::TEST_EVIDENCE_ID.to_string(),
-            observed_at: policy::TEST_EVALUATED_AT.to_string(),
-            target: target(),
-            evidence_references: vec![evidence()],
-            parent_rule_context_references: vec![parent_rule_context()],
-            decision: PolicyDecision {
-                schema_version: POLICY_DRY_RUN_SCHEMA_VERSION.to_string(),
-                decision_id: policy::TEST_DECISION_ID.to_string(),
-                action: PolicyAction::Unknown,
-                reason_codes: vec![policy::REASON_LOCAL_AI_RESULT_MISSING.to_string()],
-                evidence_references: vec![evidence()],
-                rule_ids: Vec::new(),
-                local_ai_result_id: None,
-                dry_run: true,
-                enforcement_handoff_state: PolicyDecisionHandoffState::Disabled,
-                expires_at: None,
-            },
-        }],
-    };
+    let read_model = policy_preview_read_model();
 
     let serialized =
         serde_json::to_value(read_model).expect(constants::error::AGENT_EVENT_SERIALIZES);
@@ -61,6 +35,69 @@ fn policy_preview_read_model_serializes_stored_evidence_rows() {
         serialized["rows"][0]["parentRuleContextReferences"][0]["targetEvidenceRefs"][0],
         policy::TEST_EVIDENCE_ID
     );
+    assert_eq!(
+        serialized["rows"][0]["networkEvidenceMapping"]["evidenceGrade"],
+        policy::NETWORK_EVIDENCE_GRADE_B
+    );
+    assert_eq!(
+        serialized["rows"][0]["networkEvidenceMapping"]["requestedAction"],
+        policy::ACTION_BLOCK
+    );
+    assert_eq!(
+        serialized["rows"][0]["networkEvidenceMapping"]["mappedAction"],
+        policy::ACTION_ASK_PARENT
+    );
+    assert_eq!(
+        serialized["rows"][0]["networkEvidenceMapping"]["mode"],
+        policy::NETWORK_POLICY_MAPPING_MODE_PARENT_REVIEW
+    );
+    assert_eq!(
+        serialized["rows"][0]["networkEvidenceMapping"]["adapterActionAuthorized"],
+        false
+    );
+    assert_eq!(
+        serialized["rows"][0]["networkEvidenceMapping"]["enforcementCommandAuthorized"],
+        false
+    );
+}
+
+fn policy_preview_read_model() -> PolicyPreviewReadModel {
+    PolicyPreviewReadModel {
+        schema_version: POLICY_DRY_RUN_SCHEMA_VERSION.to_string(),
+        generated_at: policy::TEST_EVALUATED_AT.to_string(),
+        custody: policy::PREVIEW_CUSTODY_ACTIVITY_STORE.to_string(),
+        limit: 5,
+        returned: 1,
+        capability_status: policy::PREVIEW_CAPABILITY_READY.to_string(),
+        rows: vec![PolicyPreviewReadModelRow {
+            preview_id: policy::TEST_PREVIEW_ID.to_string(),
+            source_event_id: policy::TEST_EVIDENCE_ID.to_string(),
+            observed_at: policy::TEST_EVALUATED_AT.to_string(),
+            target: target(),
+            evidence_references: vec![evidence()],
+            parent_rule_context_references: vec![parent_rule_context()],
+            decision: PolicyDecision {
+                schema_version: POLICY_DRY_RUN_SCHEMA_VERSION.to_string(),
+                decision_id: policy::TEST_DECISION_ID.to_string(),
+                action: PolicyAction::Unknown,
+                reason_codes: vec![policy::REASON_LOCAL_AI_RESULT_MISSING.to_string()],
+                evidence_references: vec![evidence()],
+                rule_ids: Vec::new(),
+                local_ai_result_id: None,
+                dry_run: true,
+                enforcement_handoff_state: PolicyDecisionHandoffState::Disabled,
+                expires_at: None,
+            },
+            network_evidence_mapping: Some(PolicyPreviewNetworkEvidenceMapping {
+                evidence_grade: policy::NETWORK_EVIDENCE_GRADE_B.to_string(),
+                requested_action: policy::ACTION_BLOCK.to_string(),
+                mapped_action: policy::ACTION_ASK_PARENT.to_string(),
+                mode: policy::NETWORK_POLICY_MAPPING_MODE_PARENT_REVIEW.to_string(),
+                adapter_action_authorized: false,
+                enforcement_command_authorized: false,
+            }),
+        }],
+    }
 }
 
 fn target() -> PolicyTarget {

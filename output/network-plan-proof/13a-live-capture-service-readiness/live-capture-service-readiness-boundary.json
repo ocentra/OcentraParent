@@ -1,0 +1,38 @@
+{
+  "reportRef": "network-live-capture-service-readiness-row13a",
+  "command": "agent.network.live-capture.status.get",
+  "event": "agent.network.live-capture.status.reported",
+  "payloadField": "networkLiveCaptureStatus",
+  "sourceRows": [
+    "13 Live pcap/Npcap/libpcap capture adapter",
+    "03a Live capture storage custody proof"
+  ],
+  "requiredLiveCaptureRefs": [
+    "driver proof",
+    "interface enumeration",
+    "permission proof",
+    "bounded capture proof",
+    "clean stop proof",
+    "quota rotation proof",
+    "retention delete export proof",
+    "custody proof",
+    "private traffic exclusion proof"
+  ],
+  "requiredRawStorageRefs": [
+    "raw artifact manifest",
+    "local encrypted storage location",
+    "encryption-at-rest verification",
+    "quota rotation",
+    "retention policy",
+    "delete export",
+    "custody chain",
+    "private traffic exclusion"
+  ],
+  "supportedStates": [
+    "proof-ready",
+    "manual-required",
+    "unavailable",
+    "degraded"
+  ],
+  "authorityBoundary": "The service reports deterministic row13 and row03a proof readiness over WebSocket; it does not invoke Npcap/libpcap, capture packets, create raw artifacts, or publish policy/adapter/enforcement commands."
+}

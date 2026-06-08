@@ -1,7 +1,7 @@
 {
   "proof": "eventing-type-safety-source-gate",
   "proofRoot": "output\\eventing-plan-proof\\63-type-safety-source-gate",
-  "checkedAt": "2026-06-05T21:34:07.445Z",
+  "checkedAt": "2026-06-07T21:10:51.133Z",
   "commands": [
     {
       "name": "eventing-tests",
@@ -83,6 +83,7 @@
     "crates\\ocentra-eventing\\src\\error.rs",
     "crates\\ocentra-eventing\\src\\execution.rs",
     "crates\\ocentra-eventing\\src\\ids.rs",
+    "crates\\ocentra-eventing\\src\\journal\\hash_chain.rs",
     "crates\\ocentra-eventing\\src\\journal\\ndjson.rs",
     "crates\\ocentra-eventing\\src\\journal\\policy.rs",
     "crates\\ocentra-eventing\\src\\journal.rs",

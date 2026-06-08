@@ -1,0 +1,9 @@
+checkedAt=deterministic:network-remote-delivery-fixture-transport-status-bridge-proof/v1
+asserted=remote delivery status carries row10l fixture transport refs and counts
+asserted=fixture dispatch/ack counts match row10g outbox candidates
+asserted=live dispatchAttemptCount and remoteAckCount remain zero
+asserted=no exact URL/page/video/message/search claim from network-only evidence
+asserted=no decrypted payload or raw PCAP claim
+asserted=no live broker/family-hub/provider/child-device delivery claim
+asserted=no actual remote delete/export propagation claim
+asserted=no policy authority, side-effect authority, adapter action, host filtering, or enforcement command publication

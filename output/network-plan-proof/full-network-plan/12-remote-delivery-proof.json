@@ -1,0 +1,180 @@
+{
+  "artifacts": [
+    {
+      "id": "broker-delivery",
+      "group": "10-remote-delivery-proof",
+      "path": "output/network-plan-proof/10a-broker-delivery-proof/10a-broker-delivery-proof.log",
+      "kind": "log",
+      "parsedProof": null,
+      "freshness": {
+        "kind": "refreshed-by-aggregate-command",
+        "command": "network-broker-delivery-proof"
+      }
+    },
+    {
+      "id": "remote-delivery-status",
+      "group": "10-remote-delivery-proof",
+      "path": "output/network-plan-proof/10b-broker-family-hub-delivery-status/10b-remote-delivery-status.log",
+      "kind": "log",
+      "parsedProof": null,
+      "freshness": {
+        "kind": "refreshed-by-aggregate-command",
+        "command": "network-broker-family-hub-delivery-status-proof"
+      }
+    },
+    {
+      "id": "remote-outbox-handoff",
+      "group": "10-remote-delivery-proof",
+      "path": "output/network-plan-proof/10g-remote-delivery-outbox-handoff/proof-summary.json",
+      "kind": "json",
+      "parsedProof": "network-remote-delivery-outbox-handoff-proof",
+      "freshness": {
+        "kind": "refreshed-by-aggregate-command",
+        "command": "network-remote-delivery-outbox-handoff-proof"
+      }
+    },
+    {
+      "id": "remote-outbox-status-bridge",
+      "group": "10-remote-delivery-proof",
+      "path": "output/network-plan-proof/10h-remote-delivery-outbox-status-bridge/proof-summary.json",
+      "kind": "json",
+      "parsedProof": "network-remote-delivery-outbox-status-bridge-proof",
+      "freshness": {
+        "kind": "refreshed-by-aggregate-command",
+        "command": "network-remote-delivery-outbox-status-bridge-proof"
+      }
+    },
+    {
+      "id": "remote-dispatch-readiness",
+      "group": "10-remote-delivery-proof",
+      "path": "output/network-plan-proof/10i-remote-delivery-dispatch-readiness/proof-summary.json",
+      "kind": "json",
+      "parsedProof": "network-remote-delivery-dispatch-readiness-proof",
+      "freshness": {
+        "kind": "refreshed-by-aggregate-command",
+        "command": "network-remote-delivery-dispatch-readiness-proof"
+      }
+    },
+    {
+      "id": "remote-no-enforcement",
+      "group": "10-remote-delivery-proof",
+      "path": "output/network-plan-proof/10j-remote-delivery-no-enforcement-invariant/proof-summary.json",
+      "kind": "json",
+      "parsedProof": "network-remote-delivery-no-enforcement-invariant-proof",
+      "freshness": {
+        "kind": "refreshed-by-aggregate-command",
+        "command": "network-remote-delivery-no-enforcement-invariant-proof"
+      }
+    },
+    {
+      "id": "remote-transport-state",
+      "group": "10-remote-delivery-proof",
+      "path": "output/network-plan-proof/10k-remote-delivery-transport-dispatch-state/proof-summary.json",
+      "kind": "json",
+      "parsedProof": "network-remote-delivery-transport-dispatch-state-proof",
+      "freshness": {
+        "kind": "refreshed-by-aggregate-command",
+        "command": "network-remote-delivery-transport-dispatch-state-proof"
+      }
+    },
+    {
+      "id": "remote-fixture-transport",
+      "group": "10-remote-delivery-proof",
+      "path": "output/network-plan-proof/10l-remote-delivery-fixture-transport/proof-summary.json",
+      "kind": "json",
+      "parsedProof": "network-remote-delivery-fixture-transport-proof",
+      "freshness": {
+        "kind": "refreshed-by-aggregate-command",
+        "command": "network-remote-delivery-fixture-transport-proof"
+      }
+    },
+    {
+      "id": "remote-delete-export-readiness",
+      "group": "10-remote-delivery-proof",
+      "path": "output/network-plan-proof/10m-remote-delivery-delete-export-propagation/proof-summary.json",
+      "kind": "json",
+      "parsedProof": "network-remote-delivery-delete-export-propagation-proof",
+      "freshness": {
+        "kind": "refreshed-by-aggregate-command",
+        "command": "network-remote-delivery-delete-export-propagation-proof"
+      }
+    },
+    {
+      "id": "remote-delete-export-status-bridge",
+      "group": "10-remote-delivery-proof",
+      "path": "output/network-plan-proof/10n-remote-delivery-delete-export-status-bridge/proof-summary.json",
+      "kind": "json",
+      "parsedProof": "network-remote-delivery-delete-export-status-bridge-proof",
+      "freshness": {
+        "kind": "refreshed-by-aggregate-command",
+        "command": "network-remote-delivery-delete-export-status-bridge-proof"
+      }
+    },
+    {
+      "id": "remote-fixture-transport-status-bridge",
+      "group": "10-remote-delivery-proof",
+      "path": "output/network-plan-proof/10o-remote-delivery-fixture-transport-status-bridge/proof-summary.json",
+      "kind": "json",
+      "parsedProof": "network-remote-delivery-fixture-transport-status-bridge-proof",
+      "freshness": {
+        "kind": "refreshed-by-aggregate-command",
+        "command": "network-remote-delivery-fixture-transport-status-bridge-proof"
+      }
+    },
+    {
+      "id": "remote-provider-child-readiness",
+      "group": "10-remote-delivery-proof",
+      "path": "output/network-plan-proof/10p-remote-delivery-provider-child-readiness/proof-summary.json",
+      "kind": "json",
+      "parsedProof": "network-remote-delivery-provider-child-readiness-proof",
+      "freshness": {
+        "kind": "refreshed-by-aggregate-command",
+        "command": "network-remote-delivery-provider-child-readiness-proof"
+      }
+    },
+    {
+      "id": "remote-cross-process-custody-readiness",
+      "group": "10-remote-delivery-proof",
+      "path": "output/network-plan-proof/10q-remote-delivery-cross-process-custody-readiness/proof-summary.json",
+      "kind": "json",
+      "parsedProof": "network-remote-delivery-cross-process-custody-readiness-proof",
+      "freshness": {
+        "kind": "refreshed-by-aggregate-command",
+        "command": "network-remote-delivery-cross-process-custody-readiness-proof"
+      }
+    },
+    {
+      "id": "remote-cross-process-replay",
+      "group": "10-remote-delivery-proof",
+      "path": "output/network-plan-proof/10r-remote-delivery-cross-process-replay/proof-summary.json",
+      "kind": "json",
+      "parsedProof": "network-remote-delivery-cross-process-replay-proof",
+      "freshness": {
+        "kind": "refreshed-by-aggregate-command",
+        "command": "network-remote-delivery-cross-process-replay-proof"
+      }
+    },
+    {
+      "id": "remote-cross-process-replay-status",
+      "group": "10-remote-delivery-proof",
+      "path": "output/network-plan-proof/10s-remote-delivery-cross-process-replay-status-bridge/proof-summary.json",
+      "kind": "json",
+      "parsedProof": "network-remote-delivery-cross-process-replay-status-bridge-proof",
+      "freshness": {
+        "kind": "refreshed-by-aggregate-command",
+        "command": "network-remote-delivery-cross-process-replay-status-bridge-proof"
+      }
+    },
+    {
+      "id": "remote-external-cross-process-transport",
+      "group": "10-remote-delivery-proof",
+      "path": "output/network-plan-proof/10t-remote-delivery-external-cross-process-transport/proof-summary.json",
+      "kind": "json",
+      "parsedProof": "network-remote-delivery-external-cross-process-transport-proof",
+      "freshness": {
+        "kind": "refreshed-by-aggregate-command",
+        "command": "network-remote-delivery-external-cross-process-transport-proof"
+      }
+    }
+  ]
+}

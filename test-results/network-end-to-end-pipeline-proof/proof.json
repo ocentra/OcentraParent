@@ -1,11 +1,9 @@
 {
+  "schemaVersion": 1,
   "proof": "network-end-to-end-pipeline",
-  "checkedAt": "2026-06-05T09:58:30.854Z",
-  "branch": "codex/eventing-network-runtime-implementation",
-  "commit": "479c76c236fe434a10faa15d4c6a1e0ecc78428b",
-  "sourceStatusShort": "",
   "proofRoot": "output\\network-plan-proof\\51-end-to-end-pipeline-proof",
   "testRoot": "test-results\\network-end-to-end-pipeline-proof",
+  "runContext": "This committed proof artifact is deterministic; branch, commit, pushed state, and validation command output are reported in the worker handoff.",
   "commands": [
     {
       "name": "agent-core-network-runtime-typed-event-refs",
@@ -24,6 +22,24 @@
       "command": "cargo test -p ocentra-network-evidence end_to_end_pipeline",
       "status": 0,
       "log": "output\\network-plan-proof\\51-end-to-end-pipeline-proof\\pipeline-tests.log"
+    },
+    {
+      "name": "agent-service-stored-flow-product-path-bridge",
+      "command": "cargo test -p ocentra-parent-agent-service network_product_path_bridge",
+      "status": 0,
+      "log": "output\\network-plan-proof\\51-end-to-end-pipeline-proof\\agent-service-stored-flow-product-path-bridge.log"
+    },
+    {
+      "name": "agent-service-capture-store-product-path-integration",
+      "command": "cargo test -p ocentra-parent-agent-service captured_network_metadata_drives_product_path_payload",
+      "status": 0,
+      "log": "output\\network-plan-proof\\51-end-to-end-pipeline-proof\\agent-service-capture-store-product-path-integration.log"
+    },
+    {
+      "name": "agent-service-network-flow-payload-product-path",
+      "command": "cargo test -p ocentra-parent-agent-service network_flow_payload",
+      "status": 0,
+      "log": "output\\network-plan-proof\\51-end-to-end-pipeline-proof\\agent-service-network-flow-payload-product-path.log"
     },
     {
       "name": "network-evidence-clippy",
@@ -47,8 +63,13 @@
     "51 Integrated event + network product path proof"
   ],
   "provenRootGates": [
+    "stored ActivityStore network-flow rows derive row-scoped trigger/capture/ingest/typed-event refs into the row51 pipeline proof",
+    "captured metadata events carry durable local DB evidence refs through the real ActivityStore into service product-path payload refs",
     "typed local event-chain refs are preserved before product-path composition",
-    "evidence bundle to AI audit to policy to adapter proof preserves exact refs",
+    "capture and ingest refs are carried before the typed event and evidence bundle",
+    "evidence bundle to AI audit to policy to adapter proof to action result preserves exact refs",
+    "manual-required, dry-run, and unavailable action-result states are proven in the same product path",
+    "retention tombstones and rows without domain targets do not invent active policy/action refs",
     "weak/unavailable evidence cannot publish enforcement commands",
     "AI/UI/network cannot bypass policy",
     "retention/delete/export refs are part of the same proof path"
@@ -60,6 +81,7 @@
     "notification provider delivery",
     "host DNS/firewall/WFP/VPN/NetworkExtension/Linux adapter mutation",
     "broker or family-hub transport",
+    "exact URL/content from stored network-only rows",
     "portal risk-budget/performance UI rendering",
     "production SLO or external audit completion"
   ]

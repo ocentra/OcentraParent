@@ -1,0 +1,2 @@
+network-remote-delivery-delete-export-propagation-proof-ok:core,clippy,fmt,source-shape,diff-check
+proof=output/network-plan-proof/10m-remote-delivery-delete-export-propagation/proof-summary.json

@@ -1,0 +1,2 @@
+network-remote-delivery-outbox-handoff-proof-ok:core,clippy,source-shape,diff-check
+proof=output/network-plan-proof/10g-remote-delivery-outbox-handoff/proof-summary.json

@@ -12,6 +12,7 @@ pub fn policy_preview_read_model_payload(read_model: &PolicyPreviewReadModel) ->
     let mut pairs = read_model_pairs(read_model);
     pairs.extend(row_pairs(latest));
     pairs.extend(decision_pairs(latest));
+    pairs.extend(network_evidence_mapping_pairs(latest));
     fields_from_pairs(pairs)
 }
 
@@ -116,6 +117,36 @@ fn decision_pairs(row: Option<&PolicyPreviewReadModelRow>) -> Vec<FieldPair> {
             optional_protocol_string(
                 row.map(|value| value.decision.enforcement_handoff_state.as_protocol_str()),
             ),
+        ),
+    ]
+}
+
+fn network_evidence_mapping_pairs(row: Option<&PolicyPreviewReadModelRow>) -> Vec<FieldPair> {
+    let mapping = row.and_then(|value| value.network_evidence_mapping.as_ref());
+    vec![
+        (
+            constants::field::NETWORK_EVIDENCE_GRADE,
+            optional_string(mapping.map(|value| &value.evidence_grade)),
+        ),
+        (
+            constants::field::NETWORK_REQUESTED_POLICY_ACTION,
+            optional_string(mapping.map(|value| &value.requested_action)),
+        ),
+        (
+            constants::field::NETWORK_MAPPED_POLICY_ACTION,
+            optional_string(mapping.map(|value| &value.mapped_action)),
+        ),
+        (
+            constants::field::NETWORK_POLICY_MAPPING_MODE,
+            optional_string(mapping.map(|value| &value.mode)),
+        ),
+        (
+            constants::field::NETWORK_ADAPTER_ACTION_AUTHORIZED,
+            optional_bool(mapping.map(|value| value.adapter_action_authorized)),
+        ),
+        (
+            constants::field::NETWORK_ENFORCEMENT_COMMAND_AUTHORIZED,
+            optional_bool(mapping.map(|value| value.enforcement_command_authorized)),
         ),
     ]
 }

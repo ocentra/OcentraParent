@@ -98,6 +98,17 @@ Rows 42-62 are consumer integration rows layered on top of the reusable bus.
 Keep those in follow-up branches so other lanes can consume the stable bus API
 without waiting on network-specific integration.
 
+Household Mesh consumer proof is the separate consumer-layer bridge check for
+Household AI provider mesh handoff. Its proof harness is
+`scripts/test/eventing-household-mesh-consumer-proof.mjs`, with proof artifacts
+under `output/eventing-plan-proof/12-household-mesh-consumer/` and
+`test-results/eventing-household-mesh-consumer-proof/`. It must stay outside
+`crates/ocentra-eventing`, must reject unselected or mismatched event/message
+refs, and must not claim a shared LAN bus, direct remote publish into another
+runtime bus, provider policy authority, raw screenshot or capture payload
+transfer, production model quality, portal UI, enforcement, or adapter
+execution.
+
 ## AI Worker Checklist
 
 Each assigned workpack should fill this shape before reporting `DONE`:

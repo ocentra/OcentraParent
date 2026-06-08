@@ -7,6 +7,8 @@ use crate::{
 };
 
 mod action_result;
+mod adapter_capability_status;
+mod adapter_capability_status_rejections;
 mod ai_audit;
 mod ai_detection;
 mod android_vpn_service_gate;
@@ -22,6 +24,7 @@ mod flow;
 mod linux_adapter_gate;
 mod live_capture;
 mod local_ai_queue;
+mod local_platform_probe;
 mod managed_browser;
 mod notification;
 mod performance;

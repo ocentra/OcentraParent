@@ -58,6 +58,9 @@ mod household_mesh_bridge_runtime_phase;
 mod household_mesh_bridge_runtime_refs;
 mod household_mesh_bridge_runtime_source;
 mod household_mesh_bridge_runtime_state;
+mod household_mesh_event_bridge;
+#[cfg(test)]
+mod household_mesh_event_bridge_tests;
 mod journal;
 mod journal_crypto;
 mod journal_error;
@@ -192,22 +195,71 @@ pub use household_mesh_bridge_runtime_state::{
     HouseholdMeshBridgeCustody, HouseholdMeshBridgeDirection, HouseholdMeshBridgeEnvelopeState,
     HouseholdMeshBridgeRejectionReason, HouseholdMeshBridgeValidationState,
 };
+pub use household_mesh_event_bridge::{
+    export_selected_local_event, validate_incoming_lan_message, HouseholdMeshAuthenticationState,
+    HouseholdMeshBridgeRejection, HouseholdMeshExportDecision, HouseholdMeshImportDecision,
+    HouseholdMeshLanMessage, HouseholdMeshLocalEventKind, HouseholdMeshLocalRepublish,
+    HouseholdMeshPolicyAuthority,
+};
 pub use journal::ActivityJournal;
 pub use journal_crypto::{JournalKey, JOURNAL_KEY_BYTES};
 pub use journal_error::JournalError;
 pub use network_capture::{collect_network_snapshot, NetworkObservation};
 pub use network_capture_event::{network_observation_event, network_snapshot_events};
 pub use network_event_runtime::{
+    prove_network_runtime_remote_delivery_cross_process_custody_readiness,
+    prove_network_runtime_remote_delivery_cross_process_replay,
+    prove_network_runtime_remote_delivery_delete_export_propagation,
+    prove_network_runtime_remote_delivery_dispatch_readiness,
     prove_network_runtime_remote_delivery_durable_envelope,
+    prove_network_runtime_remote_delivery_external_cross_process_transport,
+    prove_network_runtime_remote_delivery_fixture_transport,
+    prove_network_runtime_remote_delivery_no_enforcement_invariant,
     prove_network_runtime_remote_delivery_outbox_handoff,
+    prove_network_runtime_remote_delivery_provider_child_readiness,
+    prove_network_runtime_remote_delivery_transport_dispatch_state,
     publish_network_runtime_chain_for_observation, NetworkRuntimeEventPayload,
+    NetworkRuntimeRemoteDeliveryBlockedDispatchRecord,
+    NetworkRuntimeRemoteDeliveryCrossProcessCustodyReadinessError,
+    NetworkRuntimeRemoteDeliveryCrossProcessCustodyReadinessRecord,
+    NetworkRuntimeRemoteDeliveryCrossProcessCustodyReadinessReport,
+    NetworkRuntimeRemoteDeliveryCrossProcessCustodyReadinessState,
+    NetworkRuntimeRemoteDeliveryCrossProcessReplayError,
+    NetworkRuntimeRemoteDeliveryCrossProcessReplayRecord,
+    NetworkRuntimeRemoteDeliveryCrossProcessReplayReport,
+    NetworkRuntimeRemoteDeliveryCrossProcessReplayState,
+    NetworkRuntimeRemoteDeliveryDeleteExportPropagationError,
+    NetworkRuntimeRemoteDeliveryDeleteExportPropagationRecord,
+    NetworkRuntimeRemoteDeliveryDeleteExportPropagationReport,
+    NetworkRuntimeRemoteDeliveryDeleteExportPropagationState,
+    NetworkRuntimeRemoteDeliveryDispatchReadinessError,
+    NetworkRuntimeRemoteDeliveryDispatchReadinessReport,
+    NetworkRuntimeRemoteDeliveryDispatchReadinessState,
     NetworkRuntimeRemoteDeliveryDurableEnvelopeError,
     NetworkRuntimeRemoteDeliveryDurableEnvelopeReport,
-    NetworkRuntimeRemoteDeliveryOutboxHandoffError,
+    NetworkRuntimeRemoteDeliveryExternalCrossProcessTransportError,
+    NetworkRuntimeRemoteDeliveryExternalCrossProcessTransportRecord,
+    NetworkRuntimeRemoteDeliveryExternalCrossProcessTransportReport,
+    NetworkRuntimeRemoteDeliveryExternalCrossProcessTransportState,
+    NetworkRuntimeRemoteDeliveryFixtureTransportError,
+    NetworkRuntimeRemoteDeliveryFixtureTransportRecord,
+    NetworkRuntimeRemoteDeliveryFixtureTransportReport,
+    NetworkRuntimeRemoteDeliveryFixtureTransportState,
+    NetworkRuntimeRemoteDeliveryNoEnforcementInvariantError,
+    NetworkRuntimeRemoteDeliveryNoEnforcementInvariantReport,
+    NetworkRuntimeRemoteDeliveryNoEnforcementInvariantState,
+    NetworkRuntimeRemoteDeliveryNoEnforcementStage, NetworkRuntimeRemoteDeliveryOutboxHandoffError,
     NetworkRuntimeRemoteDeliveryOutboxHandoffReport, NetworkRuntimeRemoteDeliveryOutboxState,
+    NetworkRuntimeRemoteDeliveryProviderChildReadinessError,
+    NetworkRuntimeRemoteDeliveryProviderChildReadinessRecord,
+    NetworkRuntimeRemoteDeliveryProviderChildReadinessReport,
+    NetworkRuntimeRemoteDeliveryProviderChildReadinessState,
     NetworkRuntimeRemoteDeliveryReceiptLedgerError,
     NetworkRuntimeRemoteDeliveryReceiptLedgerReport, NetworkRuntimeRemoteDeliveryState,
     NetworkRuntimeRemoteDeliveryStatusError, NetworkRuntimeRemoteDeliveryStatusReport,
+    NetworkRuntimeRemoteDeliveryTransportDispatchState,
+    NetworkRuntimeRemoteDeliveryTransportDispatchStateError,
+    NetworkRuntimeRemoteDeliveryTransportDispatchStateReport,
     NetworkRuntimeRemoteEventChainJournalError, NetworkRuntimeReport,
 };
 pub use network_event_runtime_phase::NetworkRuntimePhase;
@@ -337,6 +389,12 @@ mod journal_tests;
 mod network_capture_tests;
 #[cfg(test)]
 mod network_event_runtime_broker_delivery_tests;
+#[cfg(test)]
+mod network_event_runtime_cross_process_replay_tests;
+#[cfg(test)]
+mod network_event_runtime_delete_export_propagation_tests;
+#[cfg(test)]
+mod network_event_runtime_fixture_transport_tests;
 #[cfg(test)]
 mod network_event_runtime_queue_tests;
 #[cfg(test)]

@@ -89,6 +89,8 @@ pub const TEST_REMOTE_DELIVERY_DURABLE_SUPPORT_STATUS_REF: &str =
     "network.remote-delivery.durable-envelope-support-status.10e";
 pub const TEST_REMOTE_DELIVERY_STATUS_BRIDGE_REF: &str =
     "network.remote-delivery.status-bridge.10f";
+pub const TEST_REMOTE_DELIVERY_OUTBOX_STATUS_BRIDGE_REF: &str =
+    "network.remote-delivery.outbox-status-bridge.10h";
 pub const TEST_REMOTE_DELIVERY_OUTBOX_REF: &str = "network.remote-delivery.outbox.10g";
 pub const TEST_REMOTE_DELIVERY_OUTBOX_HANDOFF_REF: &str =
     "network.remote-delivery.outbox-handoff.10g";
@@ -96,6 +98,99 @@ pub const TEST_REMOTE_DELIVERY_OUTBOX_REPLAY_REF: &str =
     "network.remote-delivery.outbox-replay.10g";
 pub const TEST_REMOTE_DELIVERY_OUTBOX_SUPPORT_STATUS_REF: &str =
     "network.remote-delivery.outbox-support-status.10g";
+pub const TEST_REMOTE_DELIVERY_DISPATCH_READINESS_REF: &str =
+    "network.remote-delivery.dispatch-readiness.10i";
+pub const TEST_REMOTE_DELIVERY_TRANSPORT_REQUIREMENTS_REF: &str =
+    "network.remote-delivery.transport-requirements.10i";
+pub const TEST_REMOTE_DELIVERY_BROKER_DISPATCH_GATE_REF: &str =
+    "network.remote-delivery.broker-dispatch-gate.10i";
+pub const TEST_REMOTE_DELIVERY_FAMILY_HUB_DISPATCH_GATE_REF: &str =
+    "network.remote-delivery.family-hub-dispatch-gate.10i";
+pub const TEST_REMOTE_DELIVERY_NO_ENFORCEMENT_INVARIANT_REF: &str =
+    "network.remote-delivery.no-enforcement-invariant.10j";
+pub const TEST_REMOTE_DELIVERY_AVAILABLE_METADATA_REF: &str =
+    "network.remote-delivery.available-metadata.10j";
+pub const TEST_REMOTE_DELIVERY_TRANSPORT_DISPATCH_STATE_REF: &str =
+    "network.remote-delivery.transport-dispatch-state.10k";
+pub const TEST_REMOTE_DELIVERY_DISPATCH_BLOCKED_MANUAL_REF: &str =
+    "network.remote-delivery.dispatch-blocked-manual-required.10k";
+pub const TEST_REMOTE_DELIVERY_FUTURE_TRANSPORT_SEAM_REF: &str =
+    "network.remote-delivery.future-transport-seam.10k";
+pub const TEST_REMOTE_DELIVERY_FIXTURE_TRANSPORT_REF: &str =
+    "network.remote-delivery.fixture-transport.10l";
+pub const TEST_REMOTE_DELIVERY_FIXTURE_DISPATCH_ATTEMPT_REF: &str =
+    "network.remote-delivery.fixture-dispatch-attempt.10l";
+pub const TEST_REMOTE_DELIVERY_FIXTURE_ACK_REF: &str = "network.remote-delivery.fixture-ack.10l";
+pub const TEST_REMOTE_DELIVERY_DELETE_EXPORT_PROPAGATION_REF: &str =
+    "network.remote-delivery.delete-export-propagation-readiness.10m";
+pub const TEST_REMOTE_DELIVERY_REMOTE_DELETE_REF: &str =
+    "network.remote-delivery.remote-delete-readiness.10m";
+pub const TEST_REMOTE_DELIVERY_REMOTE_EXPORT_REF: &str =
+    "network.remote-delivery.remote-export-readiness.10m";
+pub const TEST_REMOTE_DELIVERY_DELETE_EXPORT_STATUS_BRIDGE_REF: &str =
+    "network.remote-delivery.delete-export-status-bridge.10n";
+pub const TEST_REMOTE_DELIVERY_PROVIDER_ROUTE_REF: &str =
+    "network.remote-delivery.provider-route.10p";
+pub const TEST_REMOTE_DELIVERY_CHILD_DEVICE_ROUTE_REF: &str =
+    "network.remote-delivery.child-device-route.10p";
+pub const TEST_REMOTE_DELIVERY_PROVIDER_READINESS_REF: &str =
+    "network.remote-delivery.provider-readiness.10p";
+pub const TEST_REMOTE_DELIVERY_CHILD_DEVICE_READINESS_REF: &str =
+    "network.remote-delivery.child-device-readiness.10p";
+pub const TEST_REMOTE_DELIVERY_CROSS_PROCESS_CUSTODY_STATUS_REF: &str =
+    "network.remote-delivery.cross-process-custody-status.10q";
+pub const TEST_REMOTE_DELIVERY_CROSS_PROCESS_REPLAY_READINESS_REF: &str =
+    "network.remote-delivery.cross-process-replay-readiness.10q";
+pub const TEST_REMOTE_DELIVERY_REMOTE_RETENTION_READINESS_REF: &str =
+    "network.remote-delivery.remote-retention-readiness.10q";
+pub const TEST_REMOTE_DELIVERY_REMOTE_DELETE_CUSTODY_REF: &str =
+    "network.remote-delivery.remote-delete-custody-readiness.10q";
+pub const TEST_REMOTE_DELIVERY_REMOTE_EXPORT_CUSTODY_REF: &str =
+    "network.remote-delivery.remote-export-custody-readiness.10q";
+pub const TEST_REMOTE_DELIVERY_CROSS_PROCESS_REPLAY_REF: &str =
+    "network.remote-delivery.cross-process-replay.10r";
+pub const TEST_REMOTE_DELIVERY_CROSS_PROCESS_REPLAY_STORE_REF: &str =
+    "network.remote-delivery.cross-process-replay-store.10r";
+pub const TEST_REMOTE_DELIVERY_CROSS_PROCESS_REPLAY_CURSOR_REF: &str =
+    "network.remote-delivery.cross-process-replay-cursor.10r";
+pub const TEST_REMOTE_DELIVERY_CROSS_PROCESS_REPLAY_STATUS_REF: &str =
+    "network.remote-delivery.cross-process-replay-status.10s";
+pub const TEST_REMOTE_DELIVERY_EXTERNAL_CROSS_PROCESS_TRANSPORT_REF: &str =
+    "network.remote-delivery.external-cross-process-transport.10t";
+pub const TEST_REMOTE_DELIVERY_EXTERNAL_CROSS_PROCESS_TRANSPORT_ENVELOPE_REF: &str =
+    "network.remote-delivery.external-cross-process-transport-envelope.10t";
+pub const TEST_REMOTE_DELIVERY_EXTERNAL_CROSS_PROCESS_TRANSPORT_ACK_REF: &str =
+    "network.remote-delivery.external-cross-process-transport-ack.10t";
+pub const TEST_REMOTE_DELIVERY_EXTERNAL_CROSS_PROCESS_TRANSPORT_STATUS_REF: &str =
+    "network.remote-delivery.external-cross-process-transport-status.10t";
+pub const TEST_LIVE_CAPTURE_STATUS_REF: &str = "network.live-capture.status.13a";
+pub const FIELD_NETWORK_LIVE_CAPTURE_STATUS: &str = "networkLiveCaptureStatus";
+pub const TEST_LIVE_CAPTURE_ROW13_STATUS_REF: &str = "network.live-capture.proof-gate.13";
+pub const TEST_LIVE_CAPTURE_STORAGE_STATUS_REF: &str =
+    "network.live-capture.raw-storage-custody.03a";
+pub const TEST_LIVE_CAPTURE_WINDOWS_PROOF_REF: &str = "network.live-capture.windows-npcap.13";
+pub const TEST_LIVE_CAPTURE_MANUAL_PROOF_REF: &str = "network.live-capture.manual-required.13";
+pub const TEST_LIVE_CAPTURE_LINUX_PROOF_REF: &str = "network.live-capture.linux-libpcap.13";
+pub const TEST_LIVE_CAPTURE_MACOS_PROOF_REF: &str = "network.live-capture.macos-bpf-libpcap.13";
+pub const TEST_LIVE_CAPTURE_INTERFACE_REF: &str = "network.live-capture.interface.13";
+pub const TEST_LIVE_CAPTURE_DRIVER_REF: &str = "network.live-capture.driver-proof.13";
+pub const TEST_LIVE_CAPTURE_PERMISSION_REF: &str = "network.live-capture.permission-proof.13";
+pub const TEST_LIVE_CAPTURE_BOUNDED_REF: &str = "network.live-capture.bounded-capture.13";
+pub const TEST_LIVE_CAPTURE_CLEAN_STOP_REF: &str = "network.live-capture.clean-stop.13";
+pub const TEST_LIVE_CAPTURE_QUOTA_REF: &str = "network.live-capture.quota-rotation.13";
+pub const TEST_LIVE_CAPTURE_RETENTION_REF: &str = "network.live-capture.retention-delete-export.13";
+pub const TEST_LIVE_CAPTURE_CUSTODY_REF: &str = "network.live-capture.custody.13";
+pub const TEST_LIVE_CAPTURE_PRIVATE_TRAFFIC_EXCLUSION_REF: &str =
+    "network.live-capture.private-traffic-exclusion.13";
+pub const TEST_RAW_CAPTURE_MANIFEST_REF: &str = "network.raw-capture.manifest.03a";
+pub const TEST_RAW_CAPTURE_STORAGE_LOCATION_REF: &str = "network.raw-capture.storage-location.03a";
+pub const TEST_RAW_CAPTURE_ENCRYPTION_REF: &str = "network.raw-capture.encryption-at-rest.03a";
+pub const TEST_RAW_CAPTURE_QUOTA_REF: &str = "network.raw-capture.quota-rotation.03a";
+pub const TEST_RAW_CAPTURE_RETENTION_REF: &str = "network.raw-capture.retention-policy.03a";
+pub const TEST_RAW_CAPTURE_DELETE_EXPORT_REF: &str = "network.raw-capture.delete-export.03a";
+pub const TEST_RAW_CAPTURE_CUSTODY_CHAIN_REF: &str = "network.raw-capture.custody-chain.03a";
+pub const TEST_RAW_CAPTURE_PRIVATE_TRAFFIC_EXCLUSION_REF: &str =
+    "network.raw-capture.private-traffic-exclusion.03a";
 pub const TEST_REMOTE_EVENT_CHAIN_JOURNAL_PATH_PREFIX: &str =
     "ocentra-network-remote-event-chain-journal";
 pub const TEST_REMOTE_EVENT_CHAIN_JOURNAL_EXTENSION: &str = "ndjson";
@@ -112,6 +207,49 @@ pub const TARGET_POLICY_ENGINE: &str = "network-policy-engine";
 pub const TARGET_ENFORCEMENT_DRY_RUN: &str = "network-enforcement-dry-run";
 pub const TARGET_AUDIT_WRITER: &str = "network-audit-writer";
 pub const TARGET_PORTAL_READ_MODEL: &str = "network-portal-read-model";
+
+pub const PRODUCT_PATH_ACTION_RESULT_REF_PREFIX: &str = "network.product-path.action-result.";
+pub const PRODUCT_PATH_ADAPTER_APPLY_REF_PREFIX: &str = "network.product-path.adapter-apply.";
+pub const PRODUCT_PATH_ADAPTER_AUTHORIZATION_REF_PREFIX: &str =
+    "network.product-path.adapter-authorization.";
+pub const PRODUCT_PATH_ADAPTER_CAPABILITY_REF_PREFIX: &str =
+    "network.product-path.adapter-capability.";
+pub const PRODUCT_PATH_ADAPTER_RESULT_REF_PREFIX: &str = "network.product-path.adapter-result.";
+pub const PRODUCT_PATH_AI_AUDIT_REF_PREFIX: &str = "network.product-path.ai-audit.";
+pub const PRODUCT_PATH_AI_BASELINE_REF: &str = "network.product-path.ai-baseline.v1";
+pub const PRODUCT_PATH_AI_DETECTION_REF_PREFIX: &str = "network.product-path.ai-detection.";
+pub const PRODUCT_PATH_AI_EVALUATION_RUN_REF_PREFIX: &str = "network.product-path.ai-evaluation.";
+pub const PRODUCT_PATH_AI_FIXTURE_REF_PREFIX: &str = "network.product-path.ai-fixture.";
+pub const PRODUCT_PATH_AI_FIXTURE_SET_REF: &str = "network.product-path.ai-fixture-set.v1";
+pub const PRODUCT_PATH_AI_MODEL_CARD_REF: &str = "network.product-path.ai-model-card.v1";
+pub const PRODUCT_PATH_AI_MODEL_VERSION_REF: &str = "network.product-path.ai-model-version.v1";
+pub const PRODUCT_PATH_ANALYZER_ALERT_REF_PREFIX: &str = "network.product-path.analyzer-alert.";
+pub const PRODUCT_PATH_AUDIT_EVENT_REF_PREFIX: &str = "network.product-path.audit.";
+pub const PRODUCT_PATH_CAPTURE_REF_PREFIX: &str = "network.product-path.capture.";
+pub const PRODUCT_PATH_CASCADE_REF_PREFIX: &str = "network.product-path.cascade.";
+pub const PRODUCT_PATH_CHILD_PROFILE_REF: &str = "network.product-path.child-profile.local";
+pub const PRODUCT_PATH_DELETION_REF_PREFIX: &str = "network.product-path.delete.";
+pub const PRODUCT_PATH_DNS_ADAPTER_PLAN_REF_PREFIX: &str = "network.product-path.dns-adapter-plan.";
+pub const PRODUCT_PATH_EXPORT_REF_PREFIX: &str = "network.product-path.export.";
+pub const PRODUCT_PATH_HOUSEHOLD_POLICY_REF: &str = "network.product-path.household-policy.local";
+pub const PRODUCT_PATH_INGEST_REF_PREFIX: &str = "network.product-path.ingest.";
+pub const PRODUCT_PATH_MODEL_RUNTIME_REF: &str = "network.product-path.local-model-runtime";
+pub const PRODUCT_PATH_NARRATIVE_TEMPLATE_REF: &str = "network.product-path.narrative-template.v1";
+pub const PRODUCT_PATH_PARENT_RULE_REF: &str = "network.product-path.parent-rule.network-domain";
+pub const PRODUCT_PATH_POLICY_CONTEXT_REF_PREFIX: &str = "network.product-path.policy-context.";
+pub const PRODUCT_PATH_POLICY_DECISION_REF_PREFIX: &str = "network.product-path.policy-decision.";
+pub const PRODUCT_PATH_PORTAL_READ_MODEL_REF_PREFIX: &str =
+    "network.product-path.portal-read-model.";
+pub const PRODUCT_PATH_QUEUE_JOB_REF_PREFIX: &str = "network.product-path.local-ai-job.";
+pub const PRODUCT_PATH_QUEUE_REF: &str = "network.product-path.local-ai-queue";
+pub const PRODUCT_PATH_RETENTION_REF_PREFIX: &str = "network.product-path.retention.";
+pub const PRODUCT_PATH_RISK_BUDGET_REF: &str = "network.product-path.risk-budget.local";
+pub const PRODUCT_PATH_RISK_EVALUATION_REF_PREFIX: &str = "network.product-path.risk-evaluation.";
+pub const PRODUCT_PATH_ROLLBACK_REF_PREFIX: &str = "network.product-path.rollback.";
+pub const PRODUCT_PATH_SUMMARY_REF_PREFIX: &str = "network.product-path.summary.";
+pub const PRODUCT_PATH_TOMBSTONE_REF_PREFIX: &str = "network.product-path.tombstone.";
+pub const PRODUCT_PATH_TRIGGER_REF_PREFIX: &str = "network.product-path.trigger.";
+pub const PRODUCT_PATH_TYPED_EVENT_REF_PREFIX: &str = "network.product-path.typed-event.";
 
 pub const SUBSCRIBER_NETWORK_OBSERVER: &str = "network-runtime-observer-subscriber";
 pub const SUBSCRIBER_DOMAIN_OBSERVER: &str = "network-runtime-domain-subscriber";
@@ -158,3 +296,26 @@ pub const ERROR_NETWORK_RUNTIME_REMOTE_DURABLE_ENVELOPE: &str =
     "network runtime remote durable envelope proof";
 pub const ERROR_NETWORK_RUNTIME_REMOTE_OUTBOX_HANDOFF: &str =
     "network runtime remote outbox handoff proof";
+pub const ERROR_NETWORK_RUNTIME_REMOTE_OUTBOX_STATUS_BRIDGE: &str =
+    "network runtime remote outbox status bridge proof";
+pub const ERROR_NETWORK_RUNTIME_REMOTE_DISPATCH_READINESS: &str =
+    "network runtime remote dispatch readiness proof";
+pub const ERROR_NETWORK_RUNTIME_REMOTE_NO_ENFORCEMENT_INVARIANT: &str =
+    "network runtime remote no-enforcement invariant proof";
+pub const ERROR_NETWORK_RUNTIME_REMOTE_TRANSPORT_DISPATCH_STATE: &str =
+    "network runtime remote transport dispatch state proof";
+pub const ERROR_NETWORK_RUNTIME_REMOTE_FIXTURE_TRANSPORT: &str =
+    "network runtime remote fixture transport proof";
+pub const ERROR_NETWORK_RUNTIME_REMOTE_DELETE_EXPORT_PROPAGATION: &str =
+    "network runtime remote delete export propagation proof";
+pub const ERROR_NETWORK_RUNTIME_REMOTE_PROVIDER_CHILD_READINESS: &str =
+    "network runtime remote provider child readiness proof";
+pub const ERROR_NETWORK_RUNTIME_REMOTE_CROSS_PROCESS_CUSTODY_READINESS: &str =
+    "network runtime remote cross-process custody readiness proof";
+pub const ERROR_NETWORK_RUNTIME_REMOTE_CROSS_PROCESS_REPLAY: &str =
+    "network runtime remote cross-process replay proof";
+pub const ERROR_NETWORK_RUNTIME_REMOTE_CROSS_PROCESS_REPLAY_STATUS_BRIDGE: &str =
+    "network runtime remote cross-process replay status bridge proof";
+pub const ERROR_NETWORK_RUNTIME_REMOTE_EXTERNAL_CROSS_PROCESS_TRANSPORT: &str =
+    "network runtime remote external cross-process transport proof";
+pub const ERROR_NETWORK_LIVE_CAPTURE_STATUS: &str = "network live capture status proof";

@@ -1,0 +1,2 @@
+network-packet-dns-parser-proof-ok:packet-fixtures,dns-response,clippy,source-shape
+proof=output/network-plan-proof/15-dns-query-response-parser/proof-summary.json

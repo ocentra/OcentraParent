@@ -74,10 +74,11 @@ crate.
 - Shared TypeScript/Rust branded scalar fixture parity for eventing identifiers:
   Effect Schema brands and Rust newtypes accept and reject the same canonical
   fixture values.
-- Durable `EventJournal` support with async NDJSON append, optional hash-chain
-  records, selected journaling by event type/namespace/allowlist, replay
-  cursors and filters, explicit projection-only replay mode, and journal
-  before/after dispatch policy hooks.
+- Durable `EventJournal` support with async NDJSON append, optional stable
+  SHA-256 hash-chain records, recovery/replay tamper verification, selected
+  journaling by event type/namespace/allowlist, replay cursors and filters,
+  explicit projection-only replay mode, and journal before/after dispatch
+  policy hooks.
 - Immutable handler-facing `EventContext<E>` accessors so handlers can inspect
   typed envelopes, payloads, and publishers without receiving mutable payload
   references or payload-carried completion/resource handles.

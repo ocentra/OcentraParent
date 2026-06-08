@@ -1,0 +1,2 @@
+network-platform-claims-proof-ok:manifest-tests,local-platform-probe,clippy,source-shape
+proof=output/network-plan-proof/52-platform-claims-proof/proof-summary.json

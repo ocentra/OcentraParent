@@ -1,0 +1,12 @@
+
+running 5 tests
+test tests::transfer::transfer_classifier_flags_remote_desktop_candidate ... ok
+test tests::transfer::transfer_classifier_flags_large_download_without_file_name_claim ... ok
+test tests::transfer::transfer_classifier_flags_torrent_candidate ... ok
+test tests::transfer::transfer_classifier_keeps_unattributed_high_volume_uncertain ... ok
+test tests::transfer::transfer_classifier_rejects_invalid_confidence ... ok
+
+test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 216 filtered out; finished in 0.00s
+
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.25s
+     Running unittests src\lib.rs (target\debug\deps\ocentra_network_evidence-36610952c1128119.exe)

@@ -1,0 +1,28 @@
+{
+  "reportRef": "network-readiness-row50",
+  "requiredGates": [
+    "security threat model",
+    "privacy and compliance review",
+    "retention delete export custody",
+    "key rotation and secret handling",
+    "rule and model provenance rollback",
+    "deployment rollback",
+    "support and staff training",
+    "staged rollout",
+    "known gap signoff"
+  ],
+  "productionGate": "Production rollout remains blocked unless external audit or penetration-test signoff is supplied.",
+  "unsupportedClaimsRejected": [
+    "default remote upload",
+    "raw PCAP without custody",
+    "exact URL",
+    "page content",
+    "private message",
+    "search query",
+    "decrypted payload",
+    "policy authority",
+    "adapter authority",
+    "enforcement command"
+  ],
+  "authorityBoundary": "Readiness proof records gate refs and blocked/ready states only; it does not deploy, enable uploads, publish commands, or claim production rollout without external signoff."
+}

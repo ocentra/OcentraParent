@@ -1,0 +1,2 @@
+network-remote-delivery-dispatch-readiness-proof-ok:core,clippy,fmt,source-shape,diff-check
+proof=output/network-plan-proof/10i-remote-delivery-dispatch-readiness/proof-summary.json

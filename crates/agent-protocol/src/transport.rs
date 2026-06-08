@@ -136,6 +136,8 @@ pub enum AgentCommandName {
     AgentNetworkRuntimeEventChainStreamGet,
     #[serde(rename = "agent.network.remote-delivery.status.get")]
     AgentNetworkRemoteDeliveryStatusGet,
+    #[serde(rename = "agent.network.live-capture.status.get")]
+    AgentNetworkLiveCaptureStatusGet,
     #[serde(rename = "agent.local-ai.runtime.status.get")]
     AgentLocalAiRuntimeStatusGet,
     #[serde(rename = "agent.local-ai.chat.generate")]
@@ -284,6 +286,8 @@ pub enum AgentEventName {
     AgentNetworkRuntimeEventChainStreamReported,
     #[serde(rename = "agent.network.remote-delivery.status.reported")]
     AgentNetworkRemoteDeliveryStatusReported,
+    #[serde(rename = "agent.network.live-capture.status.reported")]
+    AgentNetworkLiveCaptureStatusReported,
     #[serde(rename = "agent.local-ai.runtime.status.reported")]
     AgentLocalAiRuntimeStatusReported,
     #[serde(rename = "agent.local-ai.chat.generation.reported")]

@@ -1,0 +1,2 @@
+network-end-to-end-pipeline-proof-ok:agent-core-event-refs,agent-core-weak-no-enforcement,pipeline-tests,service-stored-flow-bridge,capture-store-product-path,service-payload,clippy,source-shape
+proof=output/network-plan-proof/51-end-to-end-pipeline-proof/proof-summary.json

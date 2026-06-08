@@ -1,0 +1,53 @@
+{
+  "acceptedInputs": [
+    "row10g prepared outbox candidates",
+    "row10g outbox handoff refs",
+    "row10f remote delivery status remains read-only",
+    "row10b broker and family-hub fixture requirements"
+  ],
+  "dispatchReadinessRefs": [
+    "network.remote-delivery.dispatch-readiness.10i",
+    "network.remote-delivery.transport-requirements.10i",
+    "network.remote-delivery.broker-dispatch-gate.10i",
+    "network.remote-delivery.family-hub-dispatch-gate.10i"
+  ],
+  "renderedStates": [
+    "state=ManualRequiredTransportNotImplemented",
+    "fixtureRequirementsSatisfied=true",
+    "transportImplemented=false",
+    "dispatchReady=false",
+    "manualRequired=true",
+    "manualRequiredCandidateCount equals sourceOutboxCandidateCount",
+    "dispatchReadyCandidateCount=0",
+    "dispatchAttemptCount=0",
+    "remoteAckCount=0"
+  ],
+  "parserInvariants": [
+    "dispatch readiness consumes row10g prepared candidates without mutating them",
+    "broker and family-hub dispatch gates preserve eventing required-artifact refs",
+    "fixture requirements alone do not make dispatch ready without transport implementation",
+    "manual-required outbox candidates cannot publish enforcement commands"
+  ],
+  "noClaims": [
+    "live broker dispatch",
+    "live family-hub relay dispatch",
+    "transport dispatch attempt",
+    "remote acknowledgement",
+    "remote provider delivery",
+    "child-device delivery",
+    "remote delete/export propagation implementation",
+    "product-ready remote delivery",
+    "policy authority",
+    "side-effect authority",
+    "enforcement command publication",
+    "adapter action execution",
+    "raw PCAP",
+    "exact URL from network-only evidence",
+    "decrypted payload",
+    "page content",
+    "video content",
+    "private-message content",
+    "search-query content",
+    "host filtering"
+  ]
+}

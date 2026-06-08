@@ -69,6 +69,23 @@ pub(super) async fn read_lines(path: &PathBuf) -> Vec<String> {
         .collect()
 }
 
+pub(super) async fn write_lines(path: &PathBuf, lines: &[String]) {
+    let mut content = lines.join("\n");
+    content.push('\n');
+    tokio::fs::write(path, content)
+        .await
+        .expect("journal file writes");
+}
+
+pub(super) async fn tamper_first_journal_payload_label(path: &PathBuf, label: &str) {
+    let mut lines = read_lines(path).await;
+    let mut entry: serde_json::Value =
+        serde_json::from_str(&lines[0]).expect("journal line decodes as value");
+    entry["envelope"]["payload"]["label"] = serde_json::Value::String(label.to_string());
+    lines[0] = serde_json::to_string(&entry).expect("journal value encodes");
+    write_lines(path, &lines).await;
+}
+
 pub(super) async fn cleanup(path: &PathBuf) {
     let _ = tokio::fs::remove_file(path).await;
 }

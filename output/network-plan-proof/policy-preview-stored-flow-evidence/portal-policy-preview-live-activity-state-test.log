@@ -1,0 +1,12 @@
+
+ RUN  v4.1.6 <workspace>/apps/portal
+
+
+ Test Files  1 passed (1)
+      Tests  6 passed (6)
+   Start at <time>
+   Duration <duration> (transform <duration>, setup <duration>, import <duration>, tests <duration>, environment <duration>)
+
+<time> [vite] warning: `esbuild` option was specified by "vite:react-babel" plugin. This option is deprecated, please use `oxc` instead.
+<time> [vite] warning: `optimizeDeps.esbuildOptions` option was specified by "vite:react-babel" plugin. This option is deprecated, please use `optimizeDeps.rolldownOptions` instead.
+Both esbuild and oxc options were set. oxc options will be used and esbuild options will be ignored. The following esbuild options were set: `{ jsx: 'automatic', jsxImportSource: undefined }`

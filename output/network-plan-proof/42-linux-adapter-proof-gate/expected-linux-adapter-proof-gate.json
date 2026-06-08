@@ -1,0 +1,39 @@
+{
+  "requiredRefs": [
+    "policy-decision-ref",
+    "parent-rule-ref",
+    "evidence-refs",
+    "distro-ref",
+    "kernel-ref",
+    "distro-kernel-proof-ref",
+    "permission-proof-ref",
+    "adapter-api-capability-proof-ref",
+    "adapter-plan-proof-ref",
+    "service-manager-scope-proof-ref",
+    "rollback-plan-ref",
+    "lab-result-artifact-ref",
+    "audit-event-ref"
+  ],
+  "supportedAdapterKinds": [
+    "nftables",
+    "eBPF",
+    "TUN"
+  ],
+  "distroProofReadyState": "grade A block policy plus distro/kernel, permission, adapter API, rollback, and audit proof artifacts",
+  "researchOnlyState": "non-executable and allowed without Linux artifacts",
+  "manualRequiredState": "weak evidence, non-block policy, manual capability, or missing artifacts",
+  "unavailableState": "non-executable Linux adapter capability-unavailable state",
+  "unsupportedClaimsRejected": [
+    "exact URL",
+    "decrypted payload",
+    "page content",
+    "generic Linux support",
+    "live adapter install",
+    "packet filtering",
+    "kernel hook load",
+    "TUN interface mutation",
+    "service-manager install"
+  ],
+  "adapterApplyAuthorized": false,
+  "enforcementCommandPublished": false
+}

@@ -10,6 +10,7 @@ use ocentra_parent_agent_protocol::{
 
 use crate::{
     fields::fields_from_pairs, network_flow_digest::network_flow_digest,
+    network_product_path_bridge::NetworkProductPathServiceProofReport,
     network_runtime_delivery::NetworkRuntimeServiceDeliveryReport,
 };
 
@@ -18,10 +19,12 @@ type FieldPair = (&'static str, LogFieldValue);
 pub fn network_flow_read_model_payload_with_runtime_delivery(
     read_model: &ActivityNetworkFlowReadModel,
     delivery: Option<&NetworkRuntimeServiceDeliveryReport>,
+    product_path: Option<&NetworkProductPathServiceProofReport>,
 ) -> LogFields {
     let latest = read_model.rows.first();
     let mut pairs = read_model_pairs(read_model);
     pairs.extend(runtime_delivery_pairs(delivery));
+    pairs.extend(product_path_pairs(product_path));
     pairs.extend(row_identity_pairs(latest));
     pairs.extend(endpoint_pairs(latest));
     pairs.extend(process_pairs(latest));
@@ -229,6 +232,116 @@ fn runtime_delivery_pairs(
     ]
 }
 
+fn product_path_pairs(
+    product_path: Option<&NetworkProductPathServiceProofReport>,
+) -> Vec<FieldPair> {
+    let mut pairs = product_path_count_pairs(product_path);
+    pairs.extend(product_path_ref_pairs(product_path));
+    pairs
+}
+
+fn product_path_count_pairs(
+    product_path: Option<&NetworkProductPathServiceProofReport>,
+) -> Vec<FieldPair> {
+    vec![
+        (
+            constants::field::NETWORK_PRODUCT_PATH_OBSERVED_ROWS,
+            optional_usize(product_path.map(|value| value.observed_rows)),
+        ),
+        (
+            constants::field::NETWORK_PRODUCT_PATH_PROVED_ROWS,
+            optional_usize(product_path.map(|value| value.proved_rows)),
+        ),
+        (
+            constants::field::NETWORK_PRODUCT_PATH_SKIPPED_ROWS,
+            optional_usize(product_path.map(|value| value.skipped_rows)),
+        ),
+        (
+            constants::field::NETWORK_PRODUCT_PATH_FAILED_ROWS,
+            optional_usize(product_path.map(|value| value.failed_rows)),
+        ),
+        (
+            constants::field::NETWORK_PRODUCT_PATH_MANUAL_REQUIRED_ROWS,
+            optional_usize(product_path.map(|value| value.manual_required_rows)),
+        ),
+        (
+            constants::field::NETWORK_PRODUCT_PATH_UNAVAILABLE_ROWS,
+            optional_usize(product_path.map(|value| value.unavailable_rows)),
+        ),
+        (
+            constants::field::NETWORK_PRODUCT_PATH_POLICY_DECISIONS,
+            optional_usize(product_path.map(|value| value.policy_decision_count)),
+        ),
+        (
+            constants::field::NETWORK_PRODUCT_PATH_ACTION_RESULTS,
+            optional_usize(product_path.map(|value| value.action_result_count)),
+        ),
+        (
+            constants::field::NETWORK_PRODUCT_PATH_RETENTION_RECORDS,
+            optional_usize(product_path.map(|value| value.retention_record_count)),
+        ),
+        (
+            constants::field::NETWORK_PRODUCT_PATH_DELETE_RECORDS,
+            optional_usize(product_path.map(|value| value.delete_record_count)),
+        ),
+        (
+            constants::field::NETWORK_PRODUCT_PATH_EXPORT_RECORDS,
+            optional_usize(product_path.map(|value| value.export_record_count)),
+        ),
+        (
+            constants::field::NETWORK_PRODUCT_PATH_PORTAL_READ_MODELS,
+            optional_usize(product_path.map(|value| value.portal_read_model_count)),
+        ),
+        (
+            constants::field::NETWORK_PRODUCT_PATH_ENFORCEMENT_COMMAND_EVENTS,
+            optional_usize(product_path.map(|value| value.enforcement_command_events)),
+        ),
+        (
+            constants::field::NETWORK_PRODUCT_PATH_ADAPTER_ACTION_EXECUTED,
+            optional_usize(product_path.map(|value| value.adapter_action_executed_count)),
+        ),
+        (
+            constants::field::NETWORK_PRODUCT_PATH_AI_ADVISORY_ROWS,
+            optional_usize(product_path.map(|value| value.ai_advisory_rows)),
+        ),
+        (
+            constants::field::NETWORK_PRODUCT_PATH_WEAK_OR_UNAVAILABLE_BLOCKED_ROWS,
+            optional_usize(product_path.map(|value| value.weak_or_unavailable_blocked_rows)),
+        ),
+    ]
+}
+
+fn product_path_ref_pairs(
+    product_path: Option<&NetworkProductPathServiceProofReport>,
+) -> Vec<FieldPair> {
+    vec![
+        (
+            constants::field::NETWORK_PRODUCT_PATH_POLICY_DECISION_REFS,
+            joined_refs(product_path.map(|value| value.policy_decision_refs.as_slice())),
+        ),
+        (
+            constants::field::NETWORK_PRODUCT_PATH_ACTION_RESULT_REFS,
+            joined_refs(product_path.map(|value| value.action_result_refs.as_slice())),
+        ),
+        (
+            constants::field::NETWORK_PRODUCT_PATH_RETENTION_REFS,
+            joined_refs(product_path.map(|value| value.retention_refs.as_slice())),
+        ),
+        (
+            constants::field::NETWORK_PRODUCT_PATH_DELETION_REFS,
+            joined_refs(product_path.map(|value| value.deletion_refs.as_slice())),
+        ),
+        (
+            constants::field::NETWORK_PRODUCT_PATH_EXPORT_REFS,
+            joined_refs(product_path.map(|value| value.export_refs.as_slice())),
+        ),
+        (
+            constants::field::NETWORK_PRODUCT_PATH_PORTAL_READ_MODEL_REFS,
+            joined_refs(product_path.map(|value| value.portal_read_model_refs.as_slice())),
+        ),
+    ]
+}
+
 fn optional_string(value: Option<&String>) -> LogFieldValue {
     match value {
         Some(text) => LogFieldValue::String(text.clone()),
@@ -249,4 +362,14 @@ fn optional_u64(value: Option<u64>) -> LogFieldValue {
 
 fn optional_usize(value: Option<usize>) -> LogFieldValue {
     optional_u64(value.map(|number| number as u64))
+}
+
+fn joined_refs(value: Option<&[String]>) -> LogFieldValue {
+    match value {
+        Some(refs) => {
+            let separator = constants::delimiter::LIST.to_string();
+            LogFieldValue::String(refs.join(&separator))
+        }
+        None => LogFieldValue::Null(()),
+    }
 }

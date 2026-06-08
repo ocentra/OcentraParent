@@ -1,0 +1,8 @@
+checkedAt=deterministic:network-remote-delivery-delete-export-status-bridge-proof/v1
+asserted=existing remote delivery status command carries row10m delete/export readiness refs
+asserted=Rust and TypeScript parsers reject stale row10m refs and mismatched readiness counts
+asserted=remote delete/export propagation remains not implemented and product support remains false
+asserted=no exact URL/page/video/message/search claim from network-only evidence
+asserted=no decrypted payload or raw PCAP claim
+asserted=no live broker/family-hub/provider/child-device delivery claim
+asserted=no policy authority, side-effect authority, adapter action, host filtering, or enforcement command publication

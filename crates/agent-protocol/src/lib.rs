@@ -234,6 +234,8 @@ mod local_provider_adapter_readiness_tests;
 #[cfg(test)]
 mod network_flow_tests;
 #[cfg(test)]
+mod network_live_capture_status_tests;
+#[cfg(test)]
 mod notification_provider_status_boundary_tests;
 #[cfg(test)]
 mod parent_assistant_tests;

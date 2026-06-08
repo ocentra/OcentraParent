@@ -21,8 +21,8 @@ apps/portal/src/portal-control-card.ts:18 function has 67 lines; warning starts 
 apps/portal/src/portal-frame-layout-state.ts:1 file has 310 lines; crossed 250-line advisory band; maximum is 1000
 apps/portal/src/portal-frame-layout-types.ts:1 file has 288 lines; crossed 250-line advisory band; maximum is 1000
 apps/portal/src/tracking-status-panel.ts:1 file has 929 lines; crossed 750-line advisory band; maximum is 1000
-apps/portal/tests/activity-ui-app-game-dashboard-intent.test.ts:1 file has 321 lines; crossed 250-line advisory band; maximum is 1000
-apps/portal/tests/activity-ui-app-game-dashboard-intent.test.ts:249 function has 64 lines; warning starts at 64 of 80
+apps/portal/tests/activity-ui-app-game-dashboard-intent.test.ts:1 file has 344 lines; crossed 250-line advisory band; maximum is 1000
+apps/portal/tests/activity-ui-app-game-dashboard-intent.test.ts:271 function has 65 lines; warning starts at 64 of 80
 apps/portal/tests/activity-ui-intent.test.ts:1 file has 551 lines; crossed 500-line advisory band; maximum is 1000
 apps/portal/tests/activity-ui-intent.test.ts:106 function has 65 lines; warning starts at 64 of 80
 apps/portal/tests/activity-ui-lan-pairing-fixtures.ts:1 file has 508 lines; crossed 500-line advisory band; maximum is 1000
@@ -63,6 +63,7 @@ crates/agent-core/src/activity_store_browser_intervention_tests.rs:1 file has 42
 crates/agent-core/src/activity_store_browser_intervention_tests.rs:18 function has 79 lines; warning starts at 64 of 80
 crates/agent-core/src/activity_store_browser_tests.rs:1 file has 330 lines; crossed 250-line advisory band; maximum is 1000
 crates/agent-core/src/activity_store_memory_graph_nodes.rs:1 file has 15 functions; warning starts at 15 of 18
+crates/agent-core/src/activity_store_policy_preview_tests.rs:62 function has 69 lines; warning starts at 64 of 80
 crates/agent-core/src/activity_store_screen_evidence_tests.rs:1 file has 296 lines; crossed 250-line advisory band; maximum is 1000
 crates/agent-core/src/activity_store_tests.rs:1 file has 264 lines; crossed 250-line advisory band; maximum is 1000
 crates/agent-core/src/activity_store_tests.rs:92 function has 67 lines; warning starts at 64 of 80
@@ -81,6 +82,7 @@ crates/agent-core/src/browser_windows_inventory_paths.rs:1 file has 16 functions
 crates/agent-core/src/browser_windows_inventory_paths.rs:1 file has 371 lines; crossed 250-line advisory band; maximum is 1000
 crates/agent-core/src/browser_windows_inventory_tests.rs:1 file has 18 functions; warning starts at 15 of 18
 crates/agent-core/src/browser_windows_inventory_tests.rs:1 file has 591 lines; crossed 500-line advisory band; maximum is 1000
+crates/agent-core/src/browser_windows_package_source.rs:1 file has 18 functions; warning starts at 15 of 18
 crates/agent-core/src/enforcement_adapter.rs:1 file has 16 functions; warning starts at 15 of 18
 crates/agent-core/src/enforcement_adapter.rs:1 file has 292 lines; crossed 250-line advisory band; maximum is 1000
 crates/agent-core/src/enforcement_app_time_limit_tests.rs:1 file has 16 functions; warning starts at 15 of 18
@@ -97,16 +99,23 @@ crates/agent-core/src/enforcement_timer_state.rs:1 file has 354 lines; crossed 2
 crates/agent-core/src/enforcement_timer_state_tests.rs:1 file has 17 functions; warning starts at 15 of 18
 crates/agent-core/src/enforcement_timer_state_tests.rs:1 file has 348 lines; crossed 250-line advisory band; maximum is 1000
 crates/agent-core/src/enforcement_unavailable_adapter_tests.rs:1 file has 256 lines; crossed 250-line advisory band; maximum is 1000
-crates/agent-core/src/lib.rs:1 file has 275 lines; crossed 250-line advisory band; maximum is 1000
-crates/agent-core/src/network_event_runtime.rs:1 file has 343 lines; crossed 250-line advisory band; maximum is 1000
+crates/agent-core/src/lib.rs:1 file has 320 lines; crossed 250-line advisory band; maximum is 1000
+crates/agent-core/src/network_event_runtime.rs:1 file has 363 lines; crossed 250-line advisory band; maximum is 1000
 crates/agent-core/src/network_event_runtime/broker_delivery.rs:48 function has 68 lines; warning starts at 64 of 80
 crates/agent-core/src/network_event_runtime/remote_delivery_durable_envelope.rs:14 function has 73 lines; warning starts at 64 of 80
+crates/agent-core/src/network_event_runtime/remote_delivery_no_enforcement_invariant.rs:136 function has 68 lines; warning starts at 64 of 80
+crates/agent-core/src/network_event_runtime/remote_delivery_outbox_handoff.rs:1 file has 262 lines; crossed 250-line advisory band; maximum is 1000
+crates/agent-core/src/network_event_runtime/remote_delivery_outbox_handoff.rs:42 function has 64 lines; warning starts at 64 of 80
 crates/agent-core/src/network_event_runtime/remote_delivery_receipt_ledger.rs:16 function has 70 lines; warning starts at 64 of 80
 crates/agent-core/src/network_event_runtime/remote_delivery_status.rs:62 function has 73 lines; warning starts at 64 of 80
-crates/agent-core/src/network_event_runtime_remote_delivery_tests.rs:1 file has 420 lines; crossed 250-line advisory band; maximum is 1000
-crates/agent-core/src/network_event_runtime_remote_delivery_tests.rs:19 function has 77 lines; warning starts at 64 of 80
-crates/agent-core/src/network_event_runtime_remote_delivery_tests.rs:211 function has 69 lines; warning starts at 64 of 80
-crates/agent-core/src/network_event_runtime_remote_delivery_tests.rs:313 function has 80 lines; warning starts at 64 of 80
+crates/agent-core/src/network_event_runtime/remote_delivery_transport_dispatch_state.rs:136 function has 69 lines; warning starts at 64 of 80
+crates/agent-core/src/network_event_runtime/remote_delivery_transport_dispatch_state.rs:25 function has 78 lines; warning starts at 64 of 80
+crates/agent-core/src/network_event_runtime_remote_delivery_tests.rs:1 file has 18 functions; warning starts at 15 of 18
+crates/agent-core/src/network_event_runtime_remote_delivery_tests.rs:1 file has 768 lines; crossed 750-line advisory band; maximum is 1000
+crates/agent-core/src/network_event_runtime_remote_delivery_tests.rs:223 function has 74 lines; warning starts at 64 of 80
+crates/agent-core/src/network_event_runtime_remote_delivery_tests.rs:31 function has 77 lines; warning starts at 64 of 80
+crates/agent-core/src/network_event_runtime_remote_delivery_tests.rs:318 function has 69 lines; warning starts at 64 of 80
+crates/agent-core/src/network_event_runtime_remote_delivery_tests.rs:420 function has 80 lines; warning starts at 64 of 80
 crates/agent-core/src/network_event_runtime_tests.rs:1 file has 17 functions; warning starts at 15 of 18
 crates/agent-core/src/network_event_runtime_tests.rs:1 file has 434 lines; crossed 250-line advisory band; maximum is 1000
 crates/agent-core/src/screen_evidence_queue.rs:1 file has 289 lines; crossed 250-line advisory band; maximum is 1000
@@ -137,9 +146,9 @@ crates/agent-protocol/src/browser_policy_model.rs:1 file has 330 lines; crossed 
 crates/agent-protocol/src/browser_policy_tests.rs:15 function has 64 lines; warning starts at 64 of 80
 crates/agent-protocol/src/browser_policy_values.rs:1 file has 388 lines; crossed 250-line advisory band; maximum is 1000
 crates/agent-protocol/src/browser_values.rs:1 file has 277 lines; crossed 250-line advisory band; maximum is 1000
-crates/agent-protocol/src/constants.rs:1 file has 567 lines; crossed 500-line advisory band; maximum is 1000
-crates/agent-protocol/src/constants/browser.rs:1 file has 493 lines; crossed 250-line advisory band; maximum is 1000
-crates/agent-protocol/src/constants/field.rs:1 file has 390 lines; crossed 250-line advisory band; maximum is 1000
+crates/agent-protocol/src/constants.rs:1 file has 577 lines; crossed 500-line advisory band; maximum is 1000
+crates/agent-protocol/src/constants/browser.rs:1 file has 539 lines; crossed 500-line advisory band; maximum is 1000
+crates/agent-protocol/src/constants/field.rs:1 file has 396 lines; crossed 250-line advisory band; maximum is 1000
 crates/agent-protocol/src/constants/lan_pairing.rs:1 file has 460 lines; crossed 250-line advisory band; maximum is 1000
 crates/agent-protocol/src/constants/v08_browser_domain_adapter_proof.rs:1 file has 260 lines; crossed 250-line advisory band; maximum is 1000
 crates/agent-protocol/src/enforcement.rs:1 file has 22 structs/enums; warning starts at 20 of 24
@@ -167,18 +176,22 @@ crates/agent-protocol/src/lan_pairing_tests.rs:1 file has 18 functions; warning 
 crates/agent-protocol/src/lan_pairing_tests.rs:1 file has 603 lines; crossed 500-line advisory band; maximum is 1000
 crates/agent-protocol/src/lan_pairing_tests.rs:102 function has 73 lines; warning starts at 64 of 80
 crates/agent-protocol/src/lan_pairing_tests.rs:431 function has 68 lines; warning starts at 64 of 80
+crates/agent-protocol/src/lib.rs:1 file has 262 lines; crossed 250-line advisory band; maximum is 1000
 crates/agent-protocol/src/network_flow_event_fixtures.rs:1 file has 15 functions; warning starts at 15 of 18
 crates/agent-protocol/src/network_flow_events.rs:1 file has 21 structs/enums; warning starts at 20 of 24
 crates/agent-protocol/src/network_flow_events.rs:1 file has 293 lines; crossed 250-line advisory band; maximum is 1000
-crates/agent-protocol/src/network_flow_tests.rs:1 file has 329 lines; crossed 250-line advisory band; maximum is 1000
+crates/agent-protocol/src/network_flow_tests.rs:1 file has 485 lines; crossed 250-line advisory band; maximum is 1000
+crates/agent-protocol/src/network_flow_tests.rs:193 function has 79 lines; warning starts at 64 of 80
 crates/agent-protocol/src/parent_assistant.rs:1 file has 24 structs/enums; warning starts at 20 of 24
 crates/agent-protocol/src/parent_assistant.rs:1 file has 346 lines; crossed 250-line advisory band; maximum is 1000
 crates/agent-protocol/src/parent_assistant_tests.rs:1 file has 17 functions; warning starts at 15 of 18
 crates/agent-protocol/src/parent_assistant_tests.rs:1 file has 468 lines; crossed 250-line advisory band; maximum is 1000
 crates/agent-protocol/src/screen_evidence.rs:1 file has 273 lines; crossed 250-line advisory band; maximum is 1000
-crates/agent-protocol/src/transport.rs:1 file has 355 lines; crossed 250-line advisory band; maximum is 1000
+crates/agent-protocol/src/social_audit_explanation_read_model_tests.rs:17 function has 64 lines; warning starts at 64 of 80
+crates/agent-protocol/src/social_source_custody_mutation_tests.rs:9 function has 70 lines; warning starts at 64 of 80
+crates/agent-protocol/src/transport.rs:1 file has 375 lines; crossed 250-line advisory band; maximum is 1000
 crates/agent-service/src/activity_api.rs:1 file has 18 functions; warning starts at 15 of 18
-crates/agent-service/src/activity_api.rs:1 file has 396 lines; crossed 250-line advisory band; maximum is 1000
+crates/agent-service/src/activity_api.rs:1 file has 420 lines; crossed 250-line advisory band; maximum is 1000
 crates/agent-service/src/activity_api/app_game_boundary_read_model_payload.rs:1 file has 15 functions; warning starts at 15 of 18
 crates/agent-service/src/activity_api/app_game_notification_readiness_payload.rs:1 file has 18 functions; warning starts at 15 of 18
 crates/agent-service/src/activity_api/app_game_notification_readiness_payload.rs:1 file has 299 lines; crossed 250-line advisory band; maximum is 1000
@@ -188,6 +201,9 @@ crates/agent-service/src/activity_api/app_game_policy_readiness_payload.rs:1 fil
 crates/agent-service/src/activity_api/app_game_policy_readiness_payload.rs:1 file has 281 lines; crossed 250-line advisory band; maximum is 1000
 crates/agent-service/src/activity_api/app_game_policy_readiness_payload_tests.rs:1 file has 267 lines; crossed 250-line advisory band; maximum is 1000
 crates/agent-service/src/activity_api/app_game_policy_readiness_payload_tests.rs:36 function has 68 lines; warning starts at 64 of 80
+crates/agent-service/src/activity_api/social_alert_report_read_model_payload.rs:1 file has 335 lines; crossed 250-line advisory band; maximum is 1000
+crates/agent-service/src/activity_api/social_audit_explanation_read_model_payload.rs:1 file has 318 lines; crossed 250-line advisory band; maximum is 1000
+crates/agent-service/src/activity_api/social_dashboard_read_model_payload.rs:52 function has 67 lines; warning starts at 64 of 80
 crates/agent-service/src/activity_capture_tests.rs:1 file has 256 lines; crossed 250-line advisory band; maximum is 1000
 crates/agent-service/src/activity_capture_tests/inventory.rs:1 file has 17 functions; warning starts at 15 of 18
 crates/agent-service/src/activity_capture_tests/inventory.rs:1 file has 369 lines; crossed 250-line advisory band; maximum is 1000
@@ -215,7 +231,7 @@ crates/agent-service/src/activity_surface_report_store_tests.rs:1 file has 368 l
 crates/agent-service/src/activity_surface_report_store_tests.rs:22 function has 70 lines; warning starts at 64 of 80
 crates/agent-service/src/browser_inventory_read_model.rs:1 file has 17 functions; warning starts at 15 of 18
 crates/agent-service/src/browser_inventory_read_model.rs:1 file has 312 lines; crossed 250-line advisory band; maximum is 1000
-crates/agent-service/src/browser_inventory_read_model_tests.rs:1 file has 295 lines; crossed 250-line advisory band; maximum is 1000
+crates/agent-service/src/browser_inventory_read_model_tests.rs:1 file has 381 lines; crossed 250-line advisory band; maximum is 1000
 crates/agent-service/src/browser_payload.rs:1 file has 327 lines; crossed 250-line advisory band; maximum is 1000
 crates/agent-service/src/browser_payload.rs:149 function has 80 lines; warning starts at 64 of 80
 crates/agent-service/src/browser_policy_api_tests.rs:1 file has 18 functions; warning starts at 15 of 18
@@ -340,7 +356,10 @@ crates/agent-service/src/local_ai_runtime_config_values.rs:1 file has 16 functio
 crates/agent-service/src/local_ai_runtime_payload.rs:95 function has 70 lines; warning starts at 64 of 80
 crates/agent-service/src/local_ai_runtime_provider_proof_read_model.rs:1 file has 15 functions; warning starts at 15 of 18
 crates/agent-service/src/local_ai_runtime_provider_proof_read_model.rs:1 file has 306 lines; crossed 250-line advisory band; maximum is 1000
-crates/agent-service/src/main.rs:1 file has 278 lines; crossed 250-line advisory band; maximum is 1000
+crates/agent-service/src/main.rs:1 file has 281 lines; crossed 250-line advisory band; maximum is 1000
+crates/agent-service/src/network_remote_delivery_status_payload.rs:1 file has 18 functions; warning starts at 15 of 18
+crates/agent-service/src/network_remote_delivery_status_payload.rs:1 file has 353 lines; crossed 250-line advisory band; maximum is 1000
+crates/agent-service/src/network_remote_delivery_status_payload.rs:84 function has 78 lines; warning starts at 64 of 80
 crates/agent-service/src/network_runtime_stream_event_values.rs:1 file has 17 functions; warning starts at 15 of 18
 crates/agent-service/src/network_runtime_stream_tests.rs:1 file has 390 lines; crossed 250-line advisory band; maximum is 1000
 crates/agent-service/src/parent_assistant_api.rs:1 file has 17 functions; warning starts at 15 of 18
@@ -375,9 +394,9 @@ crates/agent-service/src/screen_ai_cadence_runtime_tests.rs:76 function has 76 l
 crates/agent-service/src/screen_ai_retention_sweeper_runtime.rs:1 file has 18 functions; warning starts at 15 of 18
 crates/agent-service/src/screen_ai_retention_sweeper_runtime.rs:1 file has 326 lines; crossed 250-line advisory band; maximum is 1000
 crates/agent-service/src/screen_ai_retention_sweeper_runtime_tests.rs:30 function has 68 lines; warning starts at 64 of 80
-crates/agent-service/src/websocket.rs:1 file has 16 functions; warning starts at 15 of 18
-crates/agent-service/src/websocket.rs:1 file has 450 lines; crossed 250-line advisory band; maximum is 1000
-crates/agent-service/src/websocket.rs:164 function has 78 lines; warning starts at 64 of 80
+crates/agent-service/src/websocket.rs:1 file has 17 functions; warning starts at 15 of 18
+crates/agent-service/src/websocket.rs:1 file has 481 lines; crossed 250-line advisory band; maximum is 1000
+crates/agent-service/src/websocket.rs:169 function has 66 lines; warning starts at 64 of 80
 crates/agent-service/src/windows_adapter_artifact_gate_read_model.rs:1 file has 17 functions; warning starts at 15 of 18
 crates/agent-service/src/windows_adapter_artifact_gate_read_model.rs:1 file has 297 lines; crossed 250-line advisory band; maximum is 1000
 crates/agent-service/src/windows_adapter_artifact_ingestion_read_model.rs:1 file has 18 functions; warning starts at 15 of 18
@@ -396,8 +415,8 @@ crates/ocentra-eventing/src/delivery.rs:1 file has 281 lines; crossed 250-line a
 crates/ocentra-eventing/src/envelope.rs:1 file has 16 functions; warning starts at 15 of 18
 crates/ocentra-eventing/src/envelope.rs:1 file has 265 lines; crossed 250-line advisory band; maximum is 1000
 crates/ocentra-eventing/src/error.rs:1 file has 381 lines; crossed 250-line advisory band; maximum is 1000
-crates/ocentra-eventing/src/journal/ndjson.rs:1 file has 18 functions; warning starts at 15 of 18
-crates/ocentra-eventing/src/journal/ndjson.rs:1 file has 298 lines; crossed 250-line advisory band; maximum is 1000
+crates/ocentra-eventing/src/journal/ndjson.rs:1 file has 17 functions; warning starts at 15 of 18
+crates/ocentra-eventing/src/journal/ndjson.rs:1 file has 276 lines; crossed 250-line advisory band; maximum is 1000
 crates/ocentra-eventing/src/queue/state.rs:1 file has 18 functions; warning starts at 15 of 18
 crates/ocentra-eventing/src/queue/state.rs:1 file has 357 lines; crossed 250-line advisory band; maximum is 1000
 crates/ocentra-eventing/src/request.rs:1 file has 18 functions; warning starts at 15 of 18
@@ -414,6 +433,7 @@ crates/ocentra-eventing/src/tests/request_response_support.rs:1 file has 17 func
 crates/ocentra-eventing/src/topology.rs:1 file has 16 functions; warning starts at 15 of 18
 crates/ocentra-eventing/src/topology.rs:1 file has 256 lines; crossed 250-line advisory band; maximum is 1000
 crates/ocentra-network-evidence/src/action_result.rs:1 file has 426 lines; crossed 250-line advisory band; maximum is 1000
+crates/ocentra-network-evidence/src/adapter_capability_status.rs:1 file has 253 lines; crossed 250-line advisory band; maximum is 1000
 crates/ocentra-network-evidence/src/ai_audit.rs:1 file has 15 functions; warning starts at 15 of 18
 crates/ocentra-network-evidence/src/ai_audit.rs:1 file has 440 lines; crossed 250-line advisory band; maximum is 1000
 crates/ocentra-network-evidence/src/ai_detection.rs:1 file has 18 functions; warning starts at 15 of 18
@@ -424,13 +444,14 @@ crates/ocentra-network-evidence/src/app_game_session.rs:1 file has 374 lines; cr
 crates/ocentra-network-evidence/src/app_game_session.rs:118 function has 73 lines; warning starts at 64 of 80
 crates/ocentra-network-evidence/src/apple_network_extension_gate.rs:1 file has 494 lines; crossed 250-line advisory band; maximum is 1000
 crates/ocentra-network-evidence/src/dns_adapter.rs:1 file has 417 lines; crossed 250-line advisory band; maximum is 1000
-crates/ocentra-network-evidence/src/lib.rs:1 file has 267 lines; crossed 250-line advisory band; maximum is 1000
+crates/ocentra-network-evidence/src/lib.rs:1 file has 274 lines; crossed 250-line advisory band; maximum is 1000
 crates/ocentra-network-evidence/src/linux_adapter_gate.rs:1 file has 464 lines; crossed 250-line advisory band; maximum is 1000
 crates/ocentra-network-evidence/src/live_capture.rs:1 file has 283 lines; crossed 250-line advisory band; maximum is 1000
 crates/ocentra-network-evidence/src/performance.rs:1 file has 414 lines; crossed 250-line advisory band; maximum is 1000
 crates/ocentra-network-evidence/src/performance.rs:306 function has 66 lines; warning starts at 64 of 80
-crates/ocentra-network-evidence/src/pipeline.rs:1 file has 504 lines; crossed 500-line advisory band; maximum is 1000
-crates/ocentra-network-evidence/src/pipeline.rs:151 function has 73 lines; warning starts at 64 of 80
+crates/ocentra-network-evidence/src/pipeline.rs:1 file has 15 functions; warning starts at 15 of 18
+crates/ocentra-network-evidence/src/pipeline.rs:1 file has 675 lines; crossed 500-line advisory band; maximum is 1000
+crates/ocentra-network-evidence/src/pipeline.rs:224 function has 70 lines; warning starts at 64 of 80
 crates/ocentra-network-evidence/src/platform_claims.rs:1 file has 389 lines; crossed 250-line advisory band; maximum is 1000
 crates/ocentra-network-evidence/src/readiness.rs:1 file has 16 functions; warning starts at 15 of 18
 crates/ocentra-network-evidence/src/readiness.rs:1 file has 392 lines; crossed 250-line advisory band; maximum is 1000
@@ -449,6 +470,8 @@ crates/ocentra-network-evidence/src/tests/apple_network_extension_gate.rs:1 file
 crates/ocentra-network-evidence/src/tests/dns_adapter.rs:1 file has 308 lines; crossed 250-line advisory band; maximum is 1000
 crates/ocentra-network-evidence/src/tests/linux_adapter_gate.rs:1 file has 322 lines; crossed 250-line advisory band; maximum is 1000
 crates/ocentra-network-evidence/src/tests/local_ai_queue.rs:1 file has 265 lines; crossed 250-line advisory band; maximum is 1000
+crates/ocentra-network-evidence/src/tests/pipeline.rs:1 file has 287 lines; crossed 250-line advisory band; maximum is 1000
+crates/ocentra-network-evidence/src/tests/pipeline.rs:12 function has 71 lines; warning starts at 64 of 80
 crates/ocentra-network-evidence/src/tests/platform_claims.rs:1 file has 396 lines; crossed 250-line advisory band; maximum is 1000
 crates/ocentra-network-evidence/src/tests/risk_budget.rs:1 file has 15 functions; warning starts at 15 of 18
 crates/ocentra-network-evidence/src/tests/risk_budget.rs:1 file has 446 lines; crossed 250-line advisory band; maximum is 1000
@@ -472,7 +495,7 @@ crates/screen-capture-adapter/src/lib.rs:1 file has 17 functions; warning starts
 packages/activity-domain/src/activity-surface.ts:1 file has 416 lines; crossed 250-line advisory band; maximum is 1000
 packages/activity-domain/src/app-game.ts:1 file has 456 lines; crossed 250-line advisory band; maximum is 1000
 packages/activity-domain/src/browser-intervention-schemas.ts:1 file has 281 lines; crossed 250-line advisory band; maximum is 1000
-packages/activity-domain/src/browser-platform-inventory-matrix.ts:1 file has 263 lines; crossed 250-line advisory band; maximum is 1000
+packages/activity-domain/src/browser-platform-inventory-matrix.ts:1 file has 318 lines; crossed 250-line advisory band; maximum is 1000
 packages/activity-domain/src/browser-schemas.ts:1 file has 417 lines; crossed 250-line advisory band; maximum is 1000
 packages/activity-domain/src/browser-social-feed-video-route-gate.ts:1 file has 266 lines; crossed 250-line advisory band; maximum is 1000
 packages/activity-domain/src/browser-url-intelligence-schemas.ts:1 file has 363 lines; crossed 250-line advisory band; maximum is 1000
@@ -490,7 +513,7 @@ packages/activity-domain/tests/activity-surface.test.ts:350 function has 78 line
 packages/activity-domain/tests/app-game-category-risk.test.ts:1 file has 288 lines; crossed 250-line advisory band; maximum is 1000
 packages/activity-domain/tests/app-game.test.ts:1 file has 255 lines; crossed 250-line advisory band; maximum is 1000
 packages/activity-domain/tests/browser-ai-parent-explanation.test.ts:1 file has 268 lines; crossed 250-line advisory band; maximum is 1000
-packages/activity-domain/tests/browser-platform-inventory-matrix.test.ts:8 function has 66 lines; warning starts at 64 of 80
+packages/activity-domain/tests/browser-platform-inventory-matrix.test.ts:8 function has 68 lines; warning starts at 64 of 80
 packages/activity-domain/tests/browser-read-model.test.ts:50 function has 76 lines; warning starts at 64 of 80
 packages/activity-domain/tests/browser-tab-evidence.test.ts:14 function has 70 lines; warning starts at 64 of 80
 packages/activity-domain/tests/browser-url-intelligence.test.ts:1 file has 354 lines; crossed 250-line advisory band; maximum is 1000
@@ -509,8 +532,8 @@ packages/activity-domain/tests/social-video-ai-signal-aggregate.test.ts:1 file h
 packages/activity-domain/tests/tracking.test.ts:1 file has 290 lines; crossed 250-line advisory band; maximum is 1000
 packages/agent-protocol-domain/src/activity-surface-adapter-manifest.ts:1 file has 268 lines; crossed 250-line advisory band; maximum is 1000
 packages/agent-protocol-domain/src/activity-surface-adapter.ts:1 file has 478 lines; crossed 250-line advisory band; maximum is 1000
-packages/agent-protocol-domain/src/contracts.ts:1 file has 533 lines; crossed 500-line advisory band; maximum is 1000
-packages/agent-protocol-domain/src/defaults.ts:1 file has 467 lines; crossed 250-line advisory band; maximum is 1000
+packages/agent-protocol-domain/src/contracts.ts:1 file has 585 lines; crossed 500-line advisory band; maximum is 1000
+packages/agent-protocol-domain/src/defaults.ts:1 file has 490 lines; crossed 250-line advisory band; maximum is 1000
 packages/agent-protocol-domain/src/lan-pairing-browser-add-device-state.ts:1 file has 378 lines; crossed 250-line advisory band; maximum is 1000
 packages/agent-protocol-domain/src/network-runtime-events.ts:1 file has 357 lines; crossed 250-line advisory band; maximum is 1000
 packages/agent-protocol-domain/src/parent-assistant-adapter.ts:1 file has 385 lines; crossed 250-line advisory band; maximum is 1000
@@ -519,7 +542,7 @@ packages/agent-protocol-domain/tests/activity-surface-adapter.test.ts:1 file has
 packages/agent-protocol-domain/tests/activity-surface-adapter.test.ts:410 function has 73 lines; warning starts at 64 of 80
 packages/agent-protocol-domain/tests/activity-surface-adapter.test.ts:411 function has 71 lines; warning starts at 64 of 80
 packages/agent-protocol-domain/tests/activity-surface-adapter.test.ts:501 function has 65 lines; warning starts at 64 of 80
-packages/agent-protocol-domain/tests/contracts.test.ts:1 file has 460 lines; crossed 250-line advisory band; maximum is 1000
+packages/agent-protocol-domain/tests/contracts.test.ts:1 file has 468 lines; crossed 250-line advisory band; maximum is 1000
 packages/agent-protocol-domain/tests/enforcement-supported-adapter-runtime-proof-adapter.test.ts:1 file has 261 lines; crossed 250-line advisory band; maximum is 1000
 packages/agent-protocol-domain/tests/enforcement-supported-adapter-runtime-proof-adapter.test.ts:168 function has 68 lines; warning starts at 64 of 80
 packages/agent-protocol-domain/tests/enforcement-supported-adapter-runtime-proof-adapter.test.ts:169 function has 66 lines; warning starts at 64 of 80
@@ -528,6 +551,7 @@ packages/agent-protocol-domain/tests/lan-pairing-multidevice-contracts.test.ts:1
 packages/agent-protocol-domain/tests/lan-signed-discovery-relay-spine.test.ts:1 file has 332 lines; crossed 250-line advisory band; maximum is 1000
 packages/agent-protocol-domain/tests/parent-assistant-adapter.test.ts:1 file has 475 lines; crossed 250-line advisory band; maximum is 1000
 packages/agent-protocol-domain/tests/parent-assistant-adapter.test.ts:307 function has 64 lines; warning starts at 64 of 80
+packages/agent-protocol-domain/tests/social-alert-report-read-model.test.ts:141 function has 64 lines; warning starts at 64 of 80
 packages/logging-domain/src/notification-audit-history.ts:1 file has 436 lines; crossed 250-line advisory band; maximum is 1000
 packages/logging-domain/src/support-bundle-redaction.ts:1 file has 340 lines; crossed 250-line advisory band; maximum is 1000
 packages/logging-domain/src/tamper-integrity-audit.ts:1 file has 293 lines; crossed 250-line advisory band; maximum is 1000
@@ -565,6 +589,8 @@ packages/parent-domain/src/app-game-source-gated-policy-preview-timer-service-re
 packages/parent-domain/src/app-game-timer-service-event-handoff.ts:1 file has 272 lines; crossed 250-line advisory band; maximum is 1000
 packages/parent-domain/src/app-game-timer-service-handoff.ts:1 file has 289 lines; crossed 250-line advisory band; maximum is 1000
 packages/parent-domain/src/app-game-timer-service-read-api-handoff.ts:1 file has 272 lines; crossed 250-line advisory band; maximum is 1000
+packages/parent-domain/src/app-game-timer-service-read-api-response-consumer-handoff.ts:1 file has 277 lines; crossed 250-line advisory band; maximum is 1000
+packages/parent-domain/src/app-game-timer-service-read-api-response-handoff.ts:1 file has 277 lines; crossed 250-line advisory band; maximum is 1000
 packages/parent-domain/src/app-game-timer-service-read-model-handoff.ts:1 file has 271 lines; crossed 250-line advisory band; maximum is 1000
 packages/parent-domain/src/app-install-purchase-approval-package-sources.ts:1 file has 286 lines; crossed 250-line advisory band; maximum is 1000
 packages/parent-domain/src/app-install-purchase-approval-proof.ts:1 file has 515 lines; crossed 500-line advisory band; maximum is 1000
@@ -575,7 +601,14 @@ packages/parent-domain/src/app-install-purchase-approved-api-entitlement-proof.t
 packages/parent-domain/src/app-install-purchase-child-artifact-delivery-proof.ts:1 file has 364 lines; crossed 250-line advisory band; maximum is 1000
 packages/parent-domain/src/app-install-purchase-child-device-delivery-readiness-proof.ts:1 file has 265 lines; crossed 250-line advisory band; maximum is 1000
 packages/parent-domain/src/app-install-purchase-child-device-delivery-runtime-writer-proof.ts:1 file has 367 lines; crossed 250-line advisory band; maximum is 1000
+packages/parent-domain/src/app-install-purchase-external-runtime-delivery-handoff-proof.ts:1 file has 309 lines; crossed 250-line advisory band; maximum is 1000
 packages/parent-domain/src/app-install-purchase-external-runtime-device-delivery-proof.ts:1 file has 337 lines; crossed 250-line advisory band; maximum is 1000
+packages/parent-domain/src/app-install-purchase-external-runtime-transport-dispatch-preflight-proof.ts:1 file has 347 lines; crossed 250-line advisory band; maximum is 1000
+packages/parent-domain/src/app-install-purchase-external-runtime-transport-queue-proof.ts:1 file has 349 lines; crossed 250-line advisory band; maximum is 1000
+packages/parent-domain/src/app-install-purchase-external-runtime-writer-delivery-blocker-proof.ts:1 file has 353 lines; crossed 250-line advisory band; maximum is 1000
+packages/parent-domain/src/app-install-purchase-external-runtime-writer-delivery-boundary-proof.ts:1 file has 312 lines; crossed 250-line advisory band; maximum is 1000
+packages/parent-domain/src/app-install-purchase-external-runtime-writer-readiness-proof.ts:1 file has 323 lines; crossed 250-line advisory band; maximum is 1000
+packages/parent-domain/src/app-install-purchase-external-runtime-writer-transport-preflight-proof.ts:1 file has 388 lines; crossed 250-line advisory band; maximum is 1000
 packages/parent-domain/src/app-install-purchase-limitation-summary-proof.ts:1 file has 272 lines; crossed 250-line advisory band; maximum is 1000
 packages/parent-domain/src/app-install-purchase-package-source-adapter-execution-proof.ts:1 file has 374 lines; crossed 250-line advisory band; maximum is 1000
 packages/parent-domain/src/app-install-purchase-package-source-capture-status-proof.ts:1 file has 453 lines; crossed 250-line advisory band; maximum is 1000
@@ -600,6 +633,7 @@ packages/parent-domain/src/app-install-purchase-provider-store-api-execution-pro
 packages/parent-domain/src/app-install-purchase-provider-store-execution-preflight-proof.ts:1 file has 352 lines; crossed 250-line advisory band; maximum is 1000
 packages/parent-domain/src/app-install-purchase-provider-store-execution-readiness-proof.ts:1 file has 480 lines; crossed 250-line advisory band; maximum is 1000
 packages/parent-domain/src/app-install-purchase-provider-store-manual-evidence-packet-proof.ts:1 file has 299 lines; crossed 250-line advisory band; maximum is 1000
+packages/parent-domain/src/app-install-purchase-provider-store-platform-evidence-proof.ts:1 file has 462 lines; crossed 250-line advisory band; maximum is 1000
 packages/parent-domain/src/app-install-purchase-provider-store-report-status-proof.ts:1 file has 291 lines; crossed 250-line advisory band; maximum is 1000
 packages/parent-domain/src/app-install-purchase-provider-store-report-status-runtime-proof.ts:1 file has 286 lines; crossed 250-line advisory band; maximum is 1000
 packages/parent-domain/src/app-install-purchase-report-runtime-proof.ts:1 file has 310 lines; crossed 250-line advisory band; maximum is 1000
@@ -610,7 +644,7 @@ packages/parent-domain/src/app-install-purchase-runtime-report-writer-delivery-p
 packages/parent-domain/src/app-install-purchase-runtime-writer-delivery-proof.ts:1 file has 356 lines; crossed 250-line advisory band; maximum is 1000
 packages/parent-domain/src/app-install-purchase-runtime-writer-execution-delivery-proof.ts:1 file has 316 lines; crossed 250-line advisory band; maximum is 1000
 packages/parent-domain/src/app-install-purchase-store-status-handoff-proof.ts:1 file has 372 lines; crossed 250-line advisory band; maximum is 1000
-packages/parent-domain/src/app-install-purchase-windows-package-source-adapter-evidence.ts:1 file has 441 lines; crossed 250-line advisory band; maximum is 1000
+packages/parent-domain/src/app-install-purchase-windows-package-source-adapter-evidence.ts:1 file has 741 lines; crossed 500-line advisory band; maximum is 1000
 packages/parent-domain/src/billing-entitlement-proof.ts:1 file has 377 lines; crossed 250-line advisory band; maximum is 1000
 packages/parent-domain/src/billing-entitlement-runtime-proof.ts:1 file has 456 lines; crossed 250-line advisory band; maximum is 1000
 packages/parent-domain/src/billing-entitlement.ts:1 file has 301 lines; crossed 250-line advisory band; maximum is 1000
@@ -675,10 +709,20 @@ packages/parent-domain/src/parent-mobile-runtime.ts:1 file has 473 lines; crosse
 packages/parent-domain/src/parent-mobile-service-bridge-runtime.ts:1 file has 580 lines; crossed 500-line advisory band; maximum is 1000
 packages/parent-domain/src/parent-owned-local-export-runtime.ts:1 file has 435 lines; crossed 250-line advisory band; maximum is 1000
 packages/parent-domain/src/parent-owned-sync-export.ts:1 file has 816 lines; crossed 750-line advisory band; maximum is 1000
+packages/parent-domain/src/production-support-status-backend-runtime-execution-proof.ts:1 file has 271 lines; crossed 250-line advisory band; maximum is 1000
 packages/parent-domain/src/screen-ai-adapter-readiness-proof.ts:1 file has 293 lines; crossed 250-line advisory band; maximum is 1000
 packages/parent-domain/src/screen-control-catalog-metadata.ts:1 file has 433 lines; crossed 250-line advisory band; maximum is 1000
 packages/parent-domain/src/screen-control-catalog-schema.ts:1 file has 301 lines; crossed 250-line advisory band; maximum is 1000
 packages/parent-domain/src/screen-control-catalog.ts:1 file has 287 lines; crossed 250-line advisory band; maximum is 1000
+packages/parent-domain/src/social-alert-report-intent.ts:1 file has 288 lines; crossed 250-line advisory band; maximum is 1000
+packages/parent-domain/src/social-alert-report-local-outbox-bridge.ts:1 file has 260 lines; crossed 250-line advisory band; maximum is 1000
+packages/parent-domain/src/social-alert-report-preference-preflight.ts:1 file has 296 lines; crossed 250-line advisory band; maximum is 1000
+packages/parent-domain/src/social-alert-report-preference-status-handoff.ts:1 file has 393 lines; crossed 250-line advisory band; maximum is 1000
+packages/parent-domain/src/social-alert-report-provider-status-handoff-proof.ts:1 file has 306 lines; crossed 250-line advisory band; maximum is 1000
+packages/parent-domain/src/social-alert-report-scheduler-bridge.ts:1 file has 252 lines; crossed 250-line advisory band; maximum is 1000
+packages/parent-domain/src/social-applied-schedule-time-budget-proof.ts:1 file has 317 lines; crossed 250-line advisory band; maximum is 1000
+packages/parent-domain/src/social-policy-compiler.ts:1 file has 293 lines; crossed 250-line advisory band; maximum is 1000
+packages/parent-domain/src/social-report-writer-delivery-proof.ts:1 file has 267 lines; crossed 250-line advisory band; maximum is 1000
 packages/parent-domain/src/stateless-report-compiler-status.ts:1 file has 522 lines; crossed 500-line advisory band; maximum is 1000
 packages/parent-domain/src/tracking-android-permission-background-proof.ts:1 file has 382 lines; crossed 250-line advisory band; maximum is 1000
 packages/parent-domain/src/tracking-android-status-proof.ts:1 file has 334 lines; crossed 250-line advisory band; maximum is 1000
@@ -736,6 +780,7 @@ packages/parent-domain/tests/app-game-source-gated-policy-preview-timer-service-
 packages/parent-domain/tests/app-game-source-gated-policy-preview-timer-service-readiness-response-consumer-parent-surface-status-read-model-handoff.test.ts:32 function has 80 lines; warning starts at 64 of 80
 packages/parent-domain/tests/app-game-source-gated-policy-preview-timer-service-readiness-service-handler-handoff.test.ts:29 function has 68 lines; warning starts at 64 of 80
 packages/parent-domain/tests/app-game-time-budget-policy-runtime.test.ts:1 file has 251 lines; crossed 250-line advisory band; maximum is 1000
+packages/parent-domain/tests/app-game-timer-service-read-api-response-consumer-handoff.test.ts:57 function has 68 lines; warning starts at 64 of 80
 packages/parent-domain/tests/app-install-purchase-approval.test.ts:1 file has 575 lines; crossed 500-line advisory band; maximum is 1000
 packages/parent-domain/tests/app-install-purchase-child-artifact-delivery-proof.test.ts:17 function has 76 lines; warning starts at 64 of 80
 packages/parent-domain/tests/app-install-purchase-child-artifact-delivery-proof.test.ts:18 function has 74 lines; warning starts at 64 of 80
@@ -743,6 +788,7 @@ packages/parent-domain/tests/app-install-purchase-package-source-capture-status-
 packages/parent-domain/tests/app-install-purchase-package-source-capture-status-proof.test.ts:17 function has 66 lines; warning starts at 64 of 80
 packages/parent-domain/tests/app-install-purchase-provider-store-execution-readiness-proof.test.ts:16 function has 64 lines; warning starts at 64 of 80
 packages/parent-domain/tests/app-install-purchase-runtime-proof.test.ts:16 function has 64 lines; warning starts at 64 of 80
+packages/parent-domain/tests/app-install-purchase-windows-package-source-adapter-evidence.test.ts:1 file has 379 lines; crossed 250-line advisory band; maximum is 1000
 packages/parent-domain/tests/billing-entitlement.test.ts:1 file has 269 lines; crossed 250-line advisory band; maximum is 1000
 packages/parent-domain/tests/browser-control-contracts.test.ts:1 file has 700 lines; crossed 500-line advisory band; maximum is 1000
 packages/parent-domain/tests/browser-control-contracts.test.ts:179 function has 73 lines; warning starts at 64 of 80
@@ -803,8 +849,14 @@ packages/parent-domain/tests/screen-ai-stricter-parent-rule-proof.test.ts:33 fun
 packages/parent-domain/tests/screen-control-policy-catalog.test.ts:1 file has 562 lines; crossed 500-line advisory band; maximum is 1000
 packages/parent-domain/tests/screen-control-policy-catalog.test.ts:163 function has 65 lines; warning starts at 64 of 80
 packages/parent-domain/tests/screen-family-ai-hub-runtime-discovery-proof.test.ts:49 function has 69 lines; warning starts at 64 of 80
-packages/parent-domain/tests/social-android-native-app-capability-matrix.test.ts:112 function has 69 lines; warning starts at 64 of 80
+packages/parent-domain/tests/social-alert-report-parent-surface-intent-proof.test.ts:22 function has 64 lines; warning starts at 64 of 80
+packages/parent-domain/tests/social-alert-report-preference-preflight.test.ts:1 file has 258 lines; crossed 250-line advisory band; maximum is 1000
+packages/parent-domain/tests/social-alert-report-preference-preflight.test.ts:127 function has 65 lines; warning starts at 64 of 80
+packages/parent-domain/tests/social-alert-report-provider-status-handoff-proof.test.ts:77 function has 75 lines; warning starts at 64 of 80
+packages/parent-domain/tests/social-android-native-app-capability-matrix.test.ts:134 function has 69 lines; warning starts at 64 of 80
+packages/parent-domain/tests/social-applied-schedule-time-budget-proof.test.ts:12 function has 77 lines; warning starts at 64 of 80
 packages/parent-domain/tests/social-ios-screen-time-capability-matrix.test.ts:1 file has 256 lines; crossed 250-line advisory band; maximum is 1000
+packages/parent-domain/tests/social-report-writer-delivery-proof.test.ts:13 function has 67 lines; warning starts at 64 of 80
 packages/parent-domain/tests/tracking-control-catalog.test.ts:1 file has 621 lines; crossed 500-line advisory band; maximum is 1000
 packages/parent-domain/tests/tracking-control-catalog.test.ts:187 function has 74 lines; warning starts at 64 of 80
 packages/parent-domain/tests/tracking-control-catalog.test.ts:188 function has 72 lines; warning starts at 64 of 80
@@ -836,7 +888,7 @@ packages/portal-domain/src/browser-child-intervention-page.ts:1 file has 483 lin
 packages/portal-domain/src/browser-child-intervention-page.ts:148 function has 71 lines; warning starts at 64 of 80
 packages/portal-domain/src/browser-child-intervention-page.ts:220 function has 72 lines; warning starts at 64 of 80
 packages/portal-domain/src/browser-child-intervention-style.ts:1 file has 885 lines; crossed 750-line advisory band; maximum is 1000
-packages/portal-domain/src/contracts.ts:1 file has 434 lines; crossed 250-line advisory band; maximum is 1000
+packages/portal-domain/src/contracts.ts:1 file has 461 lines; crossed 250-line advisory band; maximum is 1000
 packages/portal-domain/src/frame-tuner.ts:1 file has 989 lines; crossed 750-line advisory band; maximum is 1000
 packages/portal-domain/src/parent-assistant-chat.ts:1 file has 632 lines; crossed 500-line advisory band; maximum is 1000
 packages/portal-domain/src/parent-portal-data.ts:1 file has 740 lines; crossed 500-line advisory band; maximum is 1000
@@ -848,6 +900,7 @@ packages/portal-domain/src/parent-portal-product-shell-row-signals.ts:1 file has
 packages/portal-domain/src/parent-portal-service-state-rows.ts:1 file has 346 lines; crossed 250-line advisory band; maximum is 1000
 packages/portal-domain/src/portal-background.ts:1 file has 255 lines; crossed 250-line advisory band; maximum is 1000
 packages/portal-domain/src/routes.ts:1 file has 495 lines; crossed 250-line advisory band; maximum is 1000
+packages/portal-domain/src/social-child-intervention-page-model.ts:85 function has 65 lines; warning starts at 64 of 80
 packages/portal-domain/tests/contracts.test.ts:1 file has 596 lines; crossed 500-line advisory band; maximum is 1000
 packages/portal-domain/tests/contracts.test.ts:199 function has 76 lines; warning starts at 64 of 80
 packages/portal-domain/tests/contracts.test.ts:200 function has 74 lines; warning starts at 64 of 80

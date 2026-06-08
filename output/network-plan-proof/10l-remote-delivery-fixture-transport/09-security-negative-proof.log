@@ -1,0 +1,9 @@
+checkedAt=deterministic:network-remote-delivery-fixture-transport-proof/v1
+asserted=fixture transport records dispatch attempts and acknowledgements for each prepared outbox candidate
+asserted=fixture transport records preserve outbox refs and handoff refs
+asserted=fixture transport rejects product-ready delivery, policy, adapter, enforcement, exact-content, and host-filter claims
+asserted=no exact URL/page/video/message/search claim from network-only evidence
+asserted=no decrypted payload or raw PCAP claim
+asserted=no live broker/family-hub/provider/child-device delivery claim
+asserted=no remote delete/export propagation implementation claim
+asserted=no policy authority, side-effect authority, adapter action, host filtering, or enforcement command publication
