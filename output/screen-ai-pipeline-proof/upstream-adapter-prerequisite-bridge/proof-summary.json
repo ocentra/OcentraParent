@@ -1,11 +1,12 @@
 {
   "status": "upstream-prerequisites-partial-final-adapters-blocked",
   "proofKind": "screen-ai-upstream-adapter-prerequisite-bridge-proof",
-  "generatedAt": "2026-06-07T23:55:42.215Z",
+  "generatedAt": "2026-06-08T00:07:44.969Z",
   "sourceArtifacts": {
     "blockerLedger": "output/screen-ai-pipeline-proof/adapter-blocker-ledger/proof-summary.json",
     "appGameBroadBlocking": "output/app-game-plan-proof/23-broad-blocking-proof-gates/03-runtime-evidence.json",
     "appGameBroadBlockingRollback": "output/app-game-plan-proof/23-broad-blocking-proof-gates/12-rollback-proof.md",
+    "networkActionResultState": "output/network-plan-proof/53-action-result-state-proof/proof-summary.json",
     "screenAiPipelineChecklist": "docs/plans/screen-ai-pipeline-plan/implementation-checklist.md"
   },
   "bridge": "output/screen-ai-pipeline-proof/upstream-adapter-prerequisite-bridge/upstream-adapter-prerequisite-bridge.json",
@@ -13,7 +14,9 @@
     "finalAdapterRowStillOpen": true,
     "appGameBroadBlockingReadinessPresent": true,
     "appGameBroadBlockingExecutionMissing": true,
-    "browserNetworkMobileLinuxUpstreamProofMissingInBranch": true,
+    "networkActionResultReadinessPresent": true,
+    "networkActionExecutionMissing": true,
+    "browserMobileLinuxUpstreamProofMissingInBranch": true,
     "finalAdapterCompletionClaimed": false
   },
   "rows": [
@@ -32,14 +35,14 @@
     {
       "rowId": "screen-ai-host-network-domain-manual-required",
       "adapterClass": "host-network-domain",
-      "upstreamPrerequisiteState": "upstream-proof-missing-or-owned-elsewhere",
-      "upstreamProofArtifact": null,
+      "upstreamPrerequisiteState": "readiness-proof-present-execution-missing",
+      "upstreamProofArtifact": "output/network-plan-proof/53-action-result-state-proof/proof-summary.json",
       "upstreamRollbackArtifact": null,
-      "upstreamReadinessProved": false,
+      "upstreamReadinessProved": true,
       "upstreamExecutionProved": false,
       "requiredFinalArtifact": "screen-derived domain or IP decision to host DNS/filter apply, rollback, and audit custody proof",
       "finalAdapterCompletionClaimed": false,
-      "nextAction": "Wait for the owning browser, network, mobile, or Linux adapter lane to provide readiness and screen-derived execution custody artifacts."
+      "nextAction": "Wait for the network lane to provide a screen-derived host network/domain apply, rollback, and audit custody execution artifact before closing this row."
     },
     {
       "rowId": "screen-ai-managed-active-tab-not-claimed",

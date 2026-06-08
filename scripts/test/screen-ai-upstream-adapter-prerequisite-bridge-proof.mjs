@@ -12,6 +12,7 @@ const sourceArtifacts = {
   blockerLedger: 'output/screen-ai-pipeline-proof/adapter-blocker-ledger/proof-summary.json',
   appGameBroadBlocking: 'output/app-game-plan-proof/23-broad-blocking-proof-gates/03-runtime-evidence.json',
   appGameBroadBlockingRollback: 'output/app-game-plan-proof/23-broad-blocking-proof-gates/12-rollback-proof.md',
+  networkActionResultState: 'output/network-plan-proof/53-action-result-state-proof/proof-summary.json',
   screenAiPipelineChecklist: 'docs/plans/screen-ai-pipeline-plan/implementation-checklist.md',
 };
 
@@ -19,6 +20,7 @@ const failures = [];
 const blockerLedger = readJson(sourceArtifacts.blockerLedger);
 const appGameBroadBlocking = readJson(sourceArtifacts.appGameBroadBlocking);
 const appGameBroadBlockingRollback = readText(sourceArtifacts.appGameBroadBlockingRollback);
+const networkActionResultState = readJson(sourceArtifacts.networkActionResultState);
 const screenAiPipelineChecklist = readText(sourceArtifacts.screenAiPipelineChecklist);
 
 assert(blockerLedger.status === 'blocked-but-actionable', 'blocker ledger must stay blocked-but-actionable');
@@ -42,6 +44,24 @@ assert(
   'app/game rollback proof must remain explicit non-execution'
 );
 assert(
+  networkActionResultState.proof === 'network-action-result-state-proof',
+  'network action result state proof mode mismatch'
+);
+assert(
+  networkActionResultState.claimsProved?.includes(
+    'blocked result state requires grade A block policy and apply-ready adapter proof refs'
+  ),
+  'network action result state proof must require apply-ready adapter proof refs'
+);
+assert(
+  networkActionResultState.notClaimed?.includes('live host DNS mutation'),
+  'network proof must not claim live host DNS mutation'
+);
+assert(
+  networkActionResultState.notClaimed?.includes('adapter command invocation'),
+  'network proof must not claim adapter command invocation'
+);
+assert(
   screenAiPipelineChecklist.includes(
     '- [ ] Browser, network, mobile, and broad block adapters proven from screen-derived decisions before product-complete action claims.'
   ),
@@ -52,12 +72,12 @@ const rows = blockerLedger.rows.map((row) => bridgeRowFor(row));
 
 assert(rows.length === 6, 'expected six upstream bridge rows');
 assert(
-  rows.filter((row) => row.upstreamPrerequisiteState === 'readiness-proof-present-execution-missing').length === 1,
-  'expected exactly one blocker with upstream readiness proof present'
+  rows.filter((row) => row.upstreamPrerequisiteState === 'readiness-proof-present-execution-missing').length === 2,
+  'expected exactly two blockers with upstream readiness proof present'
 );
 assert(
-  rows.filter((row) => row.upstreamPrerequisiteState === 'upstream-proof-missing-or-owned-elsewhere').length === 5,
-  'expected five blockers still waiting on upstream proof in this branch'
+  rows.filter((row) => row.upstreamPrerequisiteState === 'upstream-proof-missing-or-owned-elsewhere').length === 4,
+  'expected four blockers still waiting on upstream proof in this branch'
 );
 assert(
   rows.every((row) => row.finalAdapterCompletionClaimed === false),
@@ -90,7 +110,9 @@ const proof = {
     finalAdapterRowStillOpen: true,
     appGameBroadBlockingReadinessPresent: true,
     appGameBroadBlockingExecutionMissing: true,
-    browserNetworkMobileLinuxUpstreamProofMissingInBranch: true,
+    networkActionResultReadinessPresent: true,
+    networkActionExecutionMissing: true,
+    browserMobileLinuxUpstreamProofMissingInBranch: true,
     finalAdapterCompletionClaimed: false,
   },
   rows,
@@ -118,6 +140,22 @@ function bridgeRowFor(blockerRow) {
       finalAdapterCompletionClaimed: false,
       nextAction:
         'Wait for app/game lane to provide a screen-derived broad installed-app apply, rollback, and audit custody execution artifact before closing this row.',
+    };
+  }
+
+  if (blockerRow.rowId === 'screen-ai-host-network-domain-manual-required') {
+    return {
+      rowId: blockerRow.rowId,
+      adapterClass: blockerRow.adapterClass,
+      upstreamPrerequisiteState: 'readiness-proof-present-execution-missing',
+      upstreamProofArtifact: sourceArtifacts.networkActionResultState,
+      upstreamRollbackArtifact: null,
+      upstreamReadinessProved: true,
+      upstreamExecutionProved: false,
+      requiredFinalArtifact: blockerRow.requiredProofArtifact,
+      finalAdapterCompletionClaimed: false,
+      nextAction:
+        'Wait for the network lane to provide a screen-derived host network/domain apply, rollback, and audit custody execution artifact before closing this row.',
     };
   }
 

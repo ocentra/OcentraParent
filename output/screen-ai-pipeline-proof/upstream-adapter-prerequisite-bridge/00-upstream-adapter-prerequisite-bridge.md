@@ -1,13 +1,13 @@
 # Screen AI Upstream Adapter Prerequisite Bridge
 
-Generated: 2026-06-07T23:55:42.215Z
+Generated: 2026-06-08T00:07:44.969Z
 
 Status: upstream-prerequisites-partial-final-adapters-blocked
 
 ## Rows
 
 - broad-installed-app: readiness-proof-present-execution-missing; final completion claimed: false.
-- host-network-domain: upstream-proof-missing-or-owned-elsewhere; final completion claimed: false.
+- host-network-domain: readiness-proof-present-execution-missing; final completion claimed: false.
 - managed-active-tab-exact-url: upstream-proof-missing-or-owned-elsewhere; final completion claimed: false.
 - android-device-owner-or-managed-profile: upstream-proof-missing-or-owned-elsewhere; final completion claimed: false.
 - ios-family-controls-device-activity: upstream-proof-missing-or-owned-elsewhere; final completion claimed: false.
@@ -20,7 +20,9 @@ Status: upstream-prerequisites-partial-final-adapters-blocked
   "finalAdapterRowStillOpen": true,
   "appGameBroadBlockingReadinessPresent": true,
   "appGameBroadBlockingExecutionMissing": true,
-  "browserNetworkMobileLinuxUpstreamProofMissingInBranch": true,
+  "networkActionResultReadinessPresent": true,
+  "networkActionExecutionMissing": true,
+  "browserMobileLinuxUpstreamProofMissingInBranch": true,
   "finalAdapterCompletionClaimed": false
 }
 ```
