@@ -1,11 +1,18 @@
+use std::fs::remove_file;
+
+use ocentra_parent_agent_core::ActivityStore;
 use ocentra_parent_agent_protocol::{
     constants, AgentCommandEnvelope, AgentCommandName, AgentEventName, AgentMessageTarget,
     AgentPeer, AgentPeerRole, AgentRoute, AppGameTimerParentPreferenceSetupRequest,
     AppGameTimerParentPreferenceSetupRequestResult, LogFieldValue, LogFields,
-    AGENT_PROTOCOL_SCHEMA_VERSION,
+    AGENT_PROTOCOL_SCHEMA_VERSION, APP_GAME_CONTROL_ACTION_STATUS_MANUAL_REQUIRED,
+    APP_GAME_CONTROL_PERSISTENCE_REPLAYABLE,
 };
 
-use crate::{lan_pairing::LanPairingRuntime, websocket::handle_command_text_for_test};
+use crate::{
+    activity_api::app_game_timer_parent_preference_setup_request::build_activity_app_game_timer_parent_preference_setup_request_report_for_store_path,
+    lan_pairing::LanPairingRuntime, websocket::handle_command_text_for_test,
+};
 
 #[tokio::test]
 async fn app_game_timer_parent_preference_setup_request_command_returns_accepted_boundary_result() {
@@ -41,13 +48,67 @@ async fn app_game_timer_parent_preference_setup_request_command_returns_accepted
     );
     assert!(result.command_boundary_claimed);
     assert!(result.action_result_handoff_claimed);
-    assert!(!result.action_result_persistence_claimed);
+    assert!(
+        result.action_result_persistence_status
+            == constants::value::APP_GAME_PARENT_PREFERENCE_SETUP_ACTION_RESULT_PERSISTED
+            || result.action_result_persistence_status
+                == constants::value::APP_GAME_PARENT_PREFERENCE_SETUP_ACTION_RESULT_UNAVAILABLE
+    );
     assert!(!result.parent_preference_mutation_claimed);
     assert!(!result.notification_rule_mutation_claimed);
     assert!(!result.provider_delivery_claimed);
     assert!(!result.durable_outbox_claimed);
     assert!(!result.adapter_dispatch_claimed);
     assert!(!result.platform_enforcement_claimed);
+}
+
+#[tokio::test]
+async fn app_game_timer_parent_preference_setup_request_persists_action_result_row() {
+    let store_path = temp_path(constants::activity_store::TEST_STORE_SUFFIX);
+    cleanup_path(&store_path);
+
+    let event =
+        build_activity_app_game_timer_parent_preference_setup_request_report_for_store_path(
+            command_envelope(),
+            store_path.clone(),
+        )
+        .await;
+    let result = request_payload(
+        &event.payload[constants::field::APP_GAME_TIMER_PARENT_PREFERENCE_SETUP_REQUEST],
+    );
+
+    let store = ActivityStore::open(&store_path).expect(constants::error::ACTIVITY_STORE_OPENS);
+    let model = store
+        .app_game_service_read_model(
+            constants::activity_store::DEFAULT_RECENT_LIMIT,
+            constants::activity_store::TEST_TRACKING_RETENTION_DELETE_OBSERVED_AT,
+        )
+        .expect(constants::error::ACTIVITY_STORE_QUERIES);
+    cleanup_path(&store_path);
+
+    assert_eq!(
+        result.action_result_persistence_status,
+        constants::value::APP_GAME_PARENT_PREFERENCE_SETUP_ACTION_RESULT_PERSISTED
+    );
+    assert!(result.action_result_persistence_claimed);
+    assert_eq!(model.approval_action_result_returned, 1);
+    assert_eq!(
+        model.approval_action_result_rows[0].result_id,
+        constants::value::APP_GAME_CHILD_UX_PARENT_PREFERENCE_SETUP_PREFIX
+    );
+    assert_eq!(
+        model.approval_action_result_rows[0].result_status,
+        APP_GAME_CONTROL_ACTION_STATUS_MANUAL_REQUIRED
+    );
+    assert_eq!(
+        model.approval_action_result_rows[0]
+            .decision
+            .persistence_state,
+        APP_GAME_CONTROL_PERSISTENCE_REPLAYABLE
+    );
+    assert!(model.approval_action_result_rows[0]
+        .enforcement_result
+        .is_none());
 }
 
 fn command_envelope() -> AgentCommandEnvelope {
@@ -100,4 +161,28 @@ fn request_payload(value: &LogFieldValue) -> AppGameTimerParentPreferenceSetupRe
         }
         _ => std::panic::panic_any(constants::error::AGENT_EVENT_SERIALIZES),
     }
+}
+
+fn temp_path(suffix: &str) -> std::path::PathBuf {
+    let mut name = String::from(constants::activity_store::TEST_FILE_PREFIX);
+    name.push_str(&std::process::id().to_string());
+    name.push(constants::delimiter::HYPHEN);
+    name.push_str(suffix);
+    name.push(constants::delimiter::HYPHEN);
+    name.push_str(constants::field::APP_GAME_TIMER_PARENT_PREFERENCE_SETUP_REQUEST);
+
+    let mut path = std::env::temp_dir();
+    path.push(name);
+    path.set_extension(constants::activity_store::FILE_EXTENSION);
+    path
+}
+
+fn cleanup_path(path: &std::path::PathBuf) {
+    let _ = remove_file(path);
+    let mut wal_path = path.clone();
+    wal_path.set_extension(constants::activity_store::WAL_FILE_EXTENSION);
+    let _ = remove_file(wal_path);
+    let mut shm_path = path.clone();
+    shm_path.set_extension(constants::activity_store::SHM_FILE_EXTENSION);
+    let _ = remove_file(shm_path);
 }

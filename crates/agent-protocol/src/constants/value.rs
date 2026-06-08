@@ -215,6 +215,8 @@ pub const APP_GAME_CHILD_UX_PARENT_PREFERENCE_SETUP_REQUEST_READY: &str = "reque
 pub const APP_GAME_PARENT_PREFERENCE_SETUP_REQUEST_SCHEMA_VERSION: &str =
     "app-game-timer-parent-preference-setup-request-proof";
 pub const APP_GAME_PARENT_PREFERENCE_SETUP_REQUEST_ACCEPTED: &str = "accepted";
+pub const APP_GAME_PARENT_PREFERENCE_SETUP_ACTION_RESULT_PERSISTED: &str = "persisted";
+pub const APP_GAME_PARENT_PREFERENCE_SETUP_ACTION_RESULT_UNAVAILABLE: &str = "unavailable";
 pub const APP_GAME_CHILD_UX_PARENT_PREFERENCE_SETUP_UNAVAILABLE_VISIBLE: &str =
     "unavailable-visible";
 pub const TRANSPORT_WEBSOCKET: &str = "websocket";

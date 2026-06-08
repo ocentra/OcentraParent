@@ -31,9 +31,10 @@ export const AppGameTimerParentPreferenceSetupRequestResultSchema = withParser(
     actionResultReferenceIds: Schema.Array(NonEmptyTextSchema).pipe(
       Schema.filter((value) => value.length > 0 || 'Expected parent preference setup request action result references')
     ),
+    actionResultPersistenceStatus: Schema.Literal('persisted', 'unavailable'),
     commandBoundaryClaimed: Schema.Literal(true),
     actionResultHandoffClaimed: Schema.Literal(true),
-    actionResultPersistenceClaimed: Schema.Literal(false),
+    actionResultPersistenceClaimed: Schema.Boolean,
     parentPreferenceMutationClaimed: Schema.Literal(false),
     notificationRuleMutationClaimed: Schema.Literal(false),
     providerDeliveryClaimed: Schema.Literal(false),

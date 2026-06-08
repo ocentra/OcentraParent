@@ -1285,7 +1285,13 @@ diagnostics, or raw private source rows.
       persistence status, so the command boundary can feed the existing
       app/game action-result read-model path without claiming durable
       preference mutation, notification rule writes, delivery, adapter
-      dispatch, platform enforcement, raw private rows, or raw targets.
+      dispatch, platform enforcement, raw private rows, or raw targets. The
+      accepted request result now marks persistence as claimed only after the
+      service writes a replayable manual-required approval action-result row
+      into the local ActivityStore, keeping the parent setup command on the
+      shared app/game journal spine while still not mutating parent
+      preferences, notification rules, adapters, platforms, delivery paths,
+      raw private rows, or raw targets.
 - [ ] Adapter capability status per platform. Cross-platform authority and
       broad-blocking gate contracts now record manual-required, unavailable,
       and not-claimed proof requirements. Platform-extension routing now maps

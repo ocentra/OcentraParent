@@ -23,6 +23,7 @@ pub struct AppGameTimerParentPreferenceSetupRequestResult {
     pub request_reference_ids: Vec<String>,
     pub action_result_reference_id: String,
     pub action_result_reference_ids: Vec<String>,
+    pub action_result_persistence_status: String,
     pub command_boundary_claimed: bool,
     pub action_result_handoff_claimed: bool,
     pub action_result_persistence_claimed: bool,
