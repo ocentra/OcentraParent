@@ -164,6 +164,12 @@
       "proofRef": "output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-gate/60-retention-runtime-artifact-gate-proof.json",
       "status": "manual_required",
       "proofTier": "P3_LOCAL_DEV_MACHINE"
+    },
+    {
+      "coverageTag": "tracking-claim-audit",
+      "proofRef": "output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-gate/65-claim-audit-proof.json",
+      "status": "proved",
+      "proofTier": "P3_LOCAL_DEV_MACHINE"
     }
   ],
   "rows": [
@@ -198,7 +204,8 @@
         "output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-gate/57-production-durable-workers-readiness-blocker-proof.json",
         "output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-gate/58-production-worker-runtime-artifact-gate-proof.json",
         "output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-gate/43-retention-product-readiness-proof.json",
-        "output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-gate/60-retention-runtime-artifact-gate-proof.json"
+        "output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-gate/60-retention-runtime-artifact-gate-proof.json",
+        "output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-gate/65-claim-audit-proof.json"
       ],
       "auditRefs": [
         "tracking-product-readiness-closure-audit"
@@ -245,8 +252,8 @@
     "productReadyClaimed": false
   },
   "branch": "codex/tracking-plan-full-continuation-a",
-  "baseCommitAtGeneration": "42c8b0e5f414af9c41c38a6fa0ba807ae9b5f77d",
-  "gitStatusShort": "M docs/features/location-geofence-device-status.md\n M docs/plans/tracking-plan/implementation-checklist.md\n M docs/plans/tracking-plan/workpacks/07-retention-and-custody-model.md\n M docs/plans/tracking-plan/workpacks/33-proof-gates-fixtures-rollout-and-pr-gate.md\n M output/tracking-plan-proof/07-retention-and-custody-model/21-retention-settings-write-command-proof.json\n M output/tracking-plan-proof/07-retention-and-custody-model/22-retention-local-service-state-proof.json\n M output/tracking-plan-proof/07-retention-and-custody-model/23-retention-durable-settings-proof.json\n M output/tracking-plan-proof/07-retention-and-custody-model/24-retention-product-readiness-proof.json\n M output/tracking-plan-proof/07-retention-and-custody-model/25-retention-runtime-artifact-gate-proof.json\n M output/tracking-plan-proof/07-retention-and-custody-model/25-retention-runtime-artifact-gate-validation.log\n M output/tracking-plan-proof/32-journal-sqlite-and-read-model-proof/27-retention-settings-write-command-proof.json\n M output/tracking-plan-proof/32-journal-sqlite-and-read-model-proof/33-retention-local-service-state-proof.json\n M output/tracking-plan-proof/32-journal-sqlite-and-read-model-proof/34-retention-durable-settings-proof.json\n M output/tracking-plan-proof/32-journal-sqlite-and-read-model-proof/35-retention-product-readiness-proof.json\n M output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-gate/33-retention-settings-write-command-proof.json\n M output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-gate/40-retention-local-service-state-proof.json\n M output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-gate/41-retention-durable-settings-proof.json\n M output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-gate/43-retention-product-readiness-proof.json\n M output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-gate/46-product-readiness-closure-proof.json\n M output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-gate/60-retention-runtime-artifact-gate-proof.json\n M output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-gate/60-retention-runtime-artifact-gate-validation.log\n M output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-gate/63-real-runtime-handoff-proof.json\n M output/tracking-plan-proof/tracking-product-readiness-closure-proof/00-source-snapshot.md\n M output/tracking-plan-proof/tracking-product-readiness-closure-proof/proof.json\n D output/tracking-plan-proof/tracking-real-runtime-handoff-proof/00-source-snapshot.md\n D output/tracking-plan-proof/tracking-real-runtime-handoff-proof/16-validation-commands.log\n D output/tracking-plan-proof/tracking-real-runtime-handoff-proof/proof.json\n M output/tracking-plan-proof/tracking-retention-runtime-artifact-gate-proof/00-source-snapshot.md\n M output/tracking-plan-proof/tracking-retention-runtime-artifact-gate-proof/proof.json\n M output/tracking-plan-proof/tracking-retention-runtime-artifact-gate-proof/read-model.json\n M scripts/test/tracking-retention-runtime-artifact-gate-proof.mjs\n M test-results/tracking-product-readiness-closure-proof/proof.json\n D test-results/tracking-real-runtime-handoff-proof/proof.json\n M test-results/tracking-retention-durable-settings-proof/proof.json\n M test-results/tracking-retention-local-service-state-proof/proof.json\n M test-results/tracking-retention-product-readiness-proof/proof.json\n M test-results/tracking-retention-runtime-artifact-gate-proof/proof.json\n M test-results/tracking-retention-runtime-artifact-gate-proof/read-model.json\n M test-results/tracking-retention-settings-write-command-proof/proof.json\n?? packages/parent-domain/src/tracking-retention-product-settings-writable-execution-proof.ts\n?? packages/parent-domain/tests/tracking-retention-product-settings-writable-execution-proof.test.ts\n?? scripts/test/tracking-retention-product-settings-writable-execution-proof.mjs",
+  "baseCommitAtGeneration": "81e71b75f94156085a3e6966f61a58ed95f8405a",
+  "gitStatusShort": "M output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-gate/65-claim-audit-proof.json\n M output/tracking-plan-proof/tracking-claim-audit-proof/00-source-snapshot.md\n M output/tracking-plan-proof/tracking-claim-audit-proof/proof.json\n M test-results/tracking-claim-audit-proof/proof.json",
   "commands": [
     {
       "command": "cmd /c npm run build --workspace @ocentra-parent/parent-domain",
@@ -257,7 +264,7 @@
     {
       "command": "cmd /c npm run test --workspace @ocentra-parent/parent-domain -- tracking-product-readiness-closure-proof",
       "status": 0,
-      "stdout": "> @ocentra-parent/parent-domain@0.1.1 test\n> vitest run tracking-product-readiness-closure-proof\n\n\n RUN  v4.1.6 C:/Users/sujan/.codex/worktrees/ocentra-parent-codex-a/OcentraParent/packages/parent-domain\n\n\n Test Files  1 passed (1)\n      Tests  3 passed (3)\n   Start at  23:47:04\n   Duration  787ms (transform 122ms, setup 0ms, import 549ms, tests 17ms, environment 0ms)",
+      "stdout": "> @ocentra-parent/parent-domain@0.1.1 test\n> vitest run tracking-product-readiness-closure-proof\n\n\n RUN  v4.1.6 C:/Users/sujan/.codex/worktrees/ocentra-parent-codex-a/OcentraParent/packages/parent-domain\n\n\n Test Files  1 passed (1)\n      Tests  3 passed (3)\n   Start at  00:18:45\n   Duration  838ms (transform 131ms, setup 0ms, import 612ms, tests 20ms, environment 0ms)",
       "stderr": ""
     }
   ],

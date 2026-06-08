@@ -106,6 +106,10 @@ const sourceProofs = [
     'retention-runtime-artifact-gate',
     'output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-gate/60-retention-runtime-artifact-gate-proof.json'
   ),
+  sourceProof(
+    'tracking-claim-audit',
+    'output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-gate/65-claim-audit-proof.json'
+  ),
 ];
 
 await main();

@@ -296,13 +296,23 @@ expose location or device-status features. Parents expect this category.
   artifact gate, physical-device artifact gate, provider-delivery artifact gate,
   provider-runtime readiness blocker, escalation-runtime readiness blocker, and
   retention product-readiness blocker proof refs, retention runtime artifact
-  gate proof refs, writes
+  gate proof refs, and tracking claim-audit proof refs, writes
   `output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-gate/46-product-readiness-closure-proof.json`,
   explicitly enumerates retention writable-settings and platform-enforcement
   blockers from the retention product-readiness proof, and keeps Android/iOS
   physical background, actual child-device runtime, full product parent/child
   UI, authority, provider delivery/receipt, production workers, and
   product-ready tracking unclaimed.
+- WP33 tracking claim-audit proof now exists through
+  `node scripts/test/tracking-claim-audit-proof.mjs`. It verifies Android
+  physical background/geofence, iOS physical background/region,
+  approved-manual desktop location, actual child-device runtime, full product
+  parent/child UI runtime, authority, provider-delivery receipt runtime,
+  retention product runtime enforcement, production durable workers/storage,
+  and escalation runtime artifacts before any final tracking claim can move
+  beyond `manual-required`; it writes
+  `output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-gate/65-claim-audit-proof.json`
+  and keeps every audited claim and product-ready tracking false.
 - WP01/WP02 source reconciliation and current gap-map proof now exists through
   `node scripts/test/tracking-source-reconciliation-gap-map-proof.mjs`. It
   verifies the source index, current tracking snapshot, source docs, product

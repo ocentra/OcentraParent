@@ -938,7 +938,17 @@ Every implementation workpack must update, or explicitly justify not updating:
       and
       `output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/11-ui-snapshots/hosted-policy-tracking-missing-device.png`.
 - [ ] Android/iOS/manual desktop claims include real-device or explicitly
-      approved manual proof.
+      approved manual proof. WP33 claim-audit proof now verifies Android
+      physical background/geofence, iOS physical background/region,
+      approved-manual desktop location, actual child-device runtime, full
+      product UI runtime, authority, provider delivery/receipt runtime,
+      retention product runtime enforcement, production durable
+      workers/storage, and escalation runtime artifact sets before any final
+      tracking claim can move beyond `manual-required`. Proof:
+      `output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-gate/65-claim-audit-proof.json`;
+      command: `node scripts/test/tracking-claim-audit-proof.mjs`. Current rows
+      remain `manual-required`, missing real artifacts/approval, and keep all
+      product-ready claims false.
 - [x] Physical-device artifact gate proof now verifies the required Android and
       iOS physical evidence roots and required artifact names before any
       physical-device behavior can be claimed. Proof:
