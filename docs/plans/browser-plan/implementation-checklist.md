@@ -423,6 +423,21 @@ execution, final policy execution, connector/native runtime, and enforcement
 unclaimed. Parent-domain package subpath export/readme updates are deferred
 because another lane owns `packages/parent-domain/package.json` and
 `packages/parent-domain/readme.md`.
+`browser-runtime-social-provider-receipt-event-subscriber-proof` now carries
+that receipt boundary through a named Rust event-bus request/response
+subscriber. Evidence:
+`test-results/browser-runtime-social-provider-receipt-event-subscriber-proof/proof.json`
+and
+`output/browser-plan-proof/browser-runtime-social-provider-receipt-event-subscriber/01-browser-runtime-social-provider-receipt-event-subscriber-proof.md`.
+The named event is `browser.social.provider-receipt.status.requested`, the
+subscriber is `browser-social-provider-receipt-status`, dry-run action-intent
+rows return provider-dispatch-required receipt boundary status, and
+manual-required rows remain manual-receipt-required. Provider delivery
+execution, provider receipt ingestion runtime, provider webhook runtime,
+provider credentials, parent notification UI delivery, report delivery
+execution, final policy execution, connector/native runtime, browser mutation,
+child intervention execution, unmanaged exact URL support, and enforcement
+remain unclaimed.
 `social-alert-report-scheduler-bridge-proof` now consumes the social
 alert/report local outbox bridge and writes only linked rows into the existing
 notification local outbox scheduler JSONL schema. Evidence:

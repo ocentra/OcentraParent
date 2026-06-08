@@ -48,6 +48,8 @@ pub const EVENT_BROWSER_ACTION_INTENT_STATUS_REQUESTED: &str =
     "browser.action-intent.status.requested";
 pub const EVENT_BROWSER_ACTION_INTENT_HANDOFF_REQUESTED: &str =
     "browser.action-intent.handoff.requested";
+pub const EVENT_BROWSER_SOCIAL_PROVIDER_RECEIPT_STATUS_REQUESTED: &str =
+    "browser.social.provider-receipt.status.requested";
 pub const EVENT_BROWSER_INTERVENTION_COMMAND_ISSUED: &str = "browser.intervention.command.issued";
 pub const EVENT_BROWSER_INTERVENTION_RESULT_OBSERVED: &str = "browser.intervention.result.observed";
 pub const EVENT_BROWSER_AUDIT_ENTRY_COMMITTED: &str = "browser.audit.entry.committed";
@@ -60,6 +62,8 @@ pub const SUBSCRIBER_BROWSER_POLICY_REQUEST: &str = "browser-policy-request";
 pub const SUBSCRIBER_BROWSER_POLICY_DECISION: &str = "browser-policy-decision";
 pub const SUBSCRIBER_BROWSER_ACTION_INTENT_STATUS: &str = "browser-action-intent-status";
 pub const SUBSCRIBER_BROWSER_ACTION_INTENT_HANDOFF: &str = "browser-action-intent-handoff";
+pub const SUBSCRIBER_BROWSER_SOCIAL_PROVIDER_RECEIPT_STATUS: &str =
+    "browser-social-provider-receipt-status";
 pub const SUBSCRIBER_BROWSER_INTERVENTION_COMMAND: &str = "browser-intervention-command";
 pub const SUBSCRIBER_BROWSER_INTERVENTION_RESULT: &str = "browser-intervention-result";
 pub const SUBSCRIBER_BROWSER_AUDIT_ENTRY: &str = "browser-audit-entry";
@@ -70,6 +74,8 @@ pub const TARGET_BROWSER_AI_ANALYZER: &str = "browser-ai-analyzer";
 pub const TARGET_BROWSER_POLICY_ENGINE: &str = "browser-policy-engine";
 pub const TARGET_BROWSER_ACTION_INTENT_STATUS: &str = "browser-action-intent-status";
 pub const TARGET_BROWSER_ACTION_INTENT_HANDOFF: &str = "browser-action-intent-handoff";
+pub const TARGET_BROWSER_SOCIAL_PROVIDER_RECEIPT_STATUS: &str =
+    "browser-social-provider-receipt-status";
 pub const TARGET_BROWSER_INTERVENTION_ADAPTER: &str = "browser-intervention-adapter";
 pub const TARGET_BROWSER_AUDIT_WRITER: &str = "browser-audit-writer";
 pub const TARGET_BROWSER_READ_MODEL: &str = "browser-read-model";
@@ -82,12 +88,17 @@ pub const IDEMPOTENCY_BROWSER_ACTION_INTENT_STATUS_PREFIX: &str =
     "browser-action-intent-status-idempotency-";
 pub const IDEMPOTENCY_BROWSER_ACTION_INTENT_HANDOFF_PREFIX: &str =
     "browser-action-intent-handoff-idempotency-";
+pub const IDEMPOTENCY_BROWSER_SOCIAL_PROVIDER_RECEIPT_STATUS_PREFIX: &str =
+    "browser-social-provider-receipt-status-idempotency-";
 pub const REQUEST_BROWSER_ACTION_INTENT_STATUS_PREFIX: &str =
     "browser-action-intent-status-request-";
 pub const REQUEST_BROWSER_ACTION_INTENT_HANDOFF_PREFIX: &str =
     "browser-action-intent-handoff-request-";
+pub const REQUEST_BROWSER_SOCIAL_PROVIDER_RECEIPT_STATUS_PREFIX: &str =
+    "browser-social-provider-receipt-status-request-";
 pub const REQUEST_BROWSER_ACTION_INTENT_STATUS_TIMEOUT_MS: u64 = 50;
 pub const REQUEST_BROWSER_ACTION_INTENT_HANDOFF_TIMEOUT_MS: u64 = 50;
+pub const REQUEST_BROWSER_SOCIAL_PROVIDER_RECEIPT_STATUS_TIMEOUT_MS: u64 = 50;
 pub const TEST_BROWSER_RUNTIME_EVIDENCE_REF: &str = "browser-evidence-ref-test";
 pub const TEST_BROWSER_RUNTIME_JOURNAL_REF: &str = "browser-journal-ref-test";
 pub const TEST_BROWSER_RUNTIME_AI_REQUEST_REF: &str = "browser-ai-request-ref-test";
@@ -110,6 +121,14 @@ pub const TEST_BROWSER_RUNTIME_ACTION_INTENT_HANDOFF_SUPPORT_STATUS_REF: &str =
     "browser-action-intent-handoff-support-status-test";
 pub const ERROR_BROWSER_RUNTIME_ACTION_INTENT_DURABLE_HANDOFF: &str =
     "browser action-intent durable handoff proof failed";
+pub const SOCIAL_PROVIDER_RECEIPT_STATE_PROVIDER_DISPATCH_REQUIRED: &str =
+    "provider-dispatch-required";
+pub const SOCIAL_PROVIDER_RECEIPT_STATE_MANUAL_REQUIRED: &str = "manual-receipt-required";
+pub const SOCIAL_PROVIDER_RECEIPT_RUNTIME_STATE_MANUAL_REQUIRED: &str = "manual-required";
+pub const TEST_BROWSER_RUNTIME_SOCIAL_PROVIDER_ATTEMPT_REF: &str =
+    "browser-social-provider-attempt-test";
+pub const TEST_BROWSER_RUNTIME_SOCIAL_PROVIDER_RECEIPT_PROOF_REF: &str =
+    "browser-social-provider-receipt-proof-required-test";
 pub const TEST_BROWSER_RUNTIME_INTERVENTION_COMMAND_REF: &str =
     "browser-intervention-command-ref-test";
 pub const TEST_BROWSER_RUNTIME_INTERVENTION_RESULT_REF: &str =

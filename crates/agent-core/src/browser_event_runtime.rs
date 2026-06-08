@@ -18,6 +18,7 @@ mod action_handoff_durable;
 mod action_handoff_durable_types;
 mod action_status;
 mod delivery;
+mod social_provider_receipt;
 mod topology;
 
 use crate::{browser_event_runtime_refs::previous_phase_ref, BrowserRuntimePhase};
@@ -43,6 +44,12 @@ pub use action_status::{
 pub use delivery::{
     prove_browser_runtime_delivery_decision, BrowserRuntimeDeliveryDecisionError,
     BrowserRuntimeDeliveryDecisionReport,
+};
+pub use social_provider_receipt::{
+    browser_runtime_social_provider_receipt_status_topology_manifest,
+    request_browser_runtime_social_provider_receipt_status_for_input,
+    BrowserRuntimeSocialProviderReceiptStatusReport,
+    BrowserRuntimeSocialProviderReceiptStatusResponse,
 };
 pub use topology::browser_runtime_chain_topology_manifest;
 

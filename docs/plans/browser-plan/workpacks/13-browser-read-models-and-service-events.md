@@ -735,3 +735,30 @@ This is protocol parser parity proof only. It does not add a generic event bus,
 portal UI, external transport, adapter dispatch, browser mutation, child
 intervention execution, final policy execution, unmanaged exact URL support, AI
 execution, or enforcement.
+
+## Social Provider Receipt Event Subscriber Addendum - 2026-06-08
+
+`browser-runtime-social-provider-receipt-event-subscriber-proof` adds a named
+Rust event-bus request/response subscriber for the social alert/report provider
+receipt boundary. The browser runtime publishes
+`browser.social.provider-receipt.status.requested`; the
+`browser-social-provider-receipt-status` subscriber returns a typed status
+response. Dry-run action-intent rows become provider-dispatch-required receipt
+boundary rows, while manual-required rows stay manual-receipt-required.
+
+Evidence:
+
+- `crates/agent-protocol/src/constants/browser.rs`
+- `crates/agent-core/src/browser_event_runtime/social_provider_receipt.rs`
+- `crates/agent-core/src/browser_event_runtime.rs`
+- `crates/agent-core/src/browser_event_runtime_tests/browser_event_runtime_social_provider_receipt_tests.rs`
+- `scripts/test/browser-runtime-social-provider-receipt-event-subscriber-proof.mjs`
+- `test-results/browser-runtime-social-provider-receipt-event-subscriber-proof/proof.json`
+- `output/browser-plan-proof/browser-runtime-social-provider-receipt-event-subscriber/01-browser-runtime-social-provider-receipt-event-subscriber-proof.md`
+- `cargo test -p ocentra-parent-agent-core browser_runtime_social_provider_receipt --quiet`
+
+This is named event/subscriber boundary proof only. It does not claim external
+provider delivery, provider receipt ingestion runtime, provider webhook runtime,
+provider credentials, parent notification UI delivery, report delivery
+execution, final policy execution, connector/native runtime, browser mutation,
+child intervention execution, unmanaged exact URL support, or enforcement.

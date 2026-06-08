@@ -1,0 +1,43 @@
+{
+  "proofName": "browser-runtime-social-provider-receipt-event-subscriber-proof",
+  "branch": "codex/d-runtime-ready",
+  "commands": [
+    "cargo test -p ocentra-parent-agent-core browser_runtime_social_provider_receipt --quiet"
+  ],
+  "sourceChecks": {
+    "usesEventBusRequestResponse": true,
+    "completesTypedResponse": true,
+    "namedSubscriberRegistered": true,
+    "namedEventRegistered": true,
+    "namedTargetRegistered": true,
+    "responsePinsProviderReceiptToZero": true,
+    "responsePinsProviderDispatchToZero": true,
+    "responsePinsWebhookToZero": true,
+    "responsePinsCredentialsToZero": true,
+    "responsePinsFinalPolicyToZero": true,
+    "responsePinsEnforcementToZero": true,
+    "runtimeExportsRequest": true,
+    "focusedDispatchRequiredTestExists": true,
+    "focusedManualRequiredTestExists": true,
+    "topologyTestExists": true,
+    "docsMentionSubscriberProof": true,
+    "workpackMentionsSubscriberProof": true
+  },
+  "verified": {
+    "namedBrowserEventPublished": "browser.social.provider-receipt.status.requested",
+    "namedSubscriberReacts": "browser-social-provider-receipt-status",
+    "requestResponsePath": true,
+    "providerDispatchRequiredRows": 1,
+    "manualReceiptRequiredRows": 1,
+    "receiptRuntimeState": "manual-required",
+    "providerReceiptCount": 0,
+    "providerDispatchCount": 0,
+    "providerWebhookCount": 0,
+    "providerCredentialsCount": 0,
+    "parentNotificationUiDeliveryCount": 0,
+    "reportDeliveryExecutionCount": 0,
+    "finalPolicyExecutionCount": 0,
+    "connectorNativeRuntimeCount": 0,
+    "enforcementExecutionCount": 0
+  }
+}
