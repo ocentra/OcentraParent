@@ -24,6 +24,12 @@ export const TrackingRealRuntimeHandoffProofTierSchema = Schema.Literal(
 
 export const TrackingRealRuntimeHandoffStatusSchema = Schema.Literal('manual-required', 'artifact-set-present');
 
+export const TrackingRealRuntimeHandoffReadinessCategorySchema = Schema.Literal(
+  'physical-device-required',
+  'manual-provider-runtime-required',
+  'production-runtime-required'
+);
+
 export const TrackingRealRuntimeHandoffBlockerSchema = Schema.Literal(
   'android-physical-background-proof-required',
   'ios-physical-region-proof-required',
@@ -63,6 +69,8 @@ export const TrackingRealRuntimeHandoffRowSchema = withParser(
     requiredArtifacts: Schema.Array(TrackingRealRuntimeHandoffArtifactPathSchema),
     presentArtifacts: Schema.Array(TrackingRealRuntimeHandoffArtifactPathSchema),
     missingArtifacts: Schema.Array(TrackingRealRuntimeHandoffArtifactPathSchema),
+    readinessCategory: TrackingRealRuntimeHandoffReadinessCategorySchema,
+    ciRunnable: Schema.Literal(false),
     requiredValidationCommands: Schema.Array(TrackingRealRuntimeHandoffCommandSchema),
     artifactAcceptanceNotes: Schema.Array(TrackingRealRuntimeHandoffArtifactPathSchema),
     auditRefs: Schema.Array(TrackingPolicyAuditRefSchema),
@@ -100,6 +108,19 @@ export const TrackingRealRuntimeHandoffRowSchema = withParser(
     )
 );
 
+export const TrackingRealRuntimeHandoffClosureAccountingSchema = withParser(
+  Schema.Struct({
+    fullProductUiLocalArtifactCount: Schema.Number.pipe(Schema.int(), Schema.positive()),
+    fullProductUiClosureRetentionWritableExecutionRowCount: Schema.Number.pipe(Schema.int(), Schema.positive()),
+    fullProductUiClosureChildRuntimeMissingArtifactCount: Schema.Number.pipe(Schema.int()),
+    claimAuditPresentArtifactCount: Schema.Number.pipe(Schema.int()),
+    claimAuditMissingArtifactCount: Schema.Number.pipe(Schema.int(), Schema.positive()),
+    claimAuditManualRequiredRowCount: Schema.Number.pipe(Schema.int(), Schema.positive()),
+    claimAuditProductReadyRowCount: Schema.Literal(0),
+    productClaimReady: Schema.Literal(false),
+  })
+);
+
 export const TrackingRealRuntimeHandoffProofSchema = withParser(
   Schema.Struct({
     schemaVersion: Schema.Literal(TrackingPolicySchemaVersion),
@@ -110,6 +131,7 @@ export const TrackingRealRuntimeHandoffProofSchema = withParser(
     currentStatus: Schema.Literal('manual_required'),
     sourceGateRefs: Schema.Array(TrackingRealRuntimeHandoffArtifactPathSchema),
     closureProofRef: TrackingRealRuntimeHandoffArtifactPathSchema,
+    closureAccounting: TrackingRealRuntimeHandoffClosureAccountingSchema,
     handoffRows: Schema.Array(TrackingRealRuntimeHandoffRowSchema),
     summary: Schema.Struct({
       handoffRowCount: Schema.Number,
@@ -119,6 +141,10 @@ export const TrackingRealRuntimeHandoffProofSchema = withParser(
       requiredValidationCommandCount: Schema.Number,
       manualRequiredRowCount: Schema.Number,
       artifactSetPresentRowCount: Schema.Number,
+      physicalDeviceRequiredRowCount: Schema.Number,
+      manualProviderRuntimeRequiredRowCount: Schema.Number,
+      productionRuntimeRequiredRowCount: Schema.Number,
+      ciRunnableRowCount: Schema.Literal(0),
       productReadyRowCount: Schema.Literal(0),
     }),
     productClaims: Schema.Struct({
@@ -159,10 +185,19 @@ export const TrackingRealRuntimeHandoffProofSchema = withParser(
         (proof) => proof.summary.productReadyRowCount === 0 || 'Real-runtime handoff must not claim product-ready rows'
       )
     )
+    .pipe(
+      Schema.filter(
+        (proof) =>
+          proof.summary.ciRunnableRowCount === 0 || 'Real-runtime handoff cannot mark P4/P5/P6 rows as CI-runnable'
+      )
+    )
 );
 
 export type TrackingRealRuntimeHandoffProof = Infer<typeof TrackingRealRuntimeHandoffProofSchema>;
 export type TrackingRealRuntimeHandoffRow = Infer<typeof TrackingRealRuntimeHandoffRowSchema>;
+export type TrackingRealRuntimeHandoffClosureAccounting = Infer<
+  typeof TrackingRealRuntimeHandoffClosureAccountingSchema
+>;
 
 export interface TrackingRealRuntimeHandoffGateInventory {
   readonly handoffArea: (typeof RequiredTrackingRealRuntimeHandoffGates)[number]['handoffArea'];
@@ -305,11 +340,13 @@ export const RequiredTrackingRealRuntimeHandoffGates = [
 
 export function buildTrackingRealRuntimeHandoffProof(
   generatedAt: string,
-  inventories: readonly TrackingRealRuntimeHandoffGateInventory[]
+  inventories: readonly TrackingRealRuntimeHandoffGateInventory[],
+  closureAccountingInput: TrackingRealRuntimeHandoffClosureAccounting
 ): TrackingRealRuntimeHandoffProof {
   const handoffRows = RequiredTrackingRealRuntimeHandoffGates.map((gate) =>
     realRuntimeHandoffRow(generatedAt, gate, inventories)
   );
+  const closureAccounting = TrackingRealRuntimeHandoffClosureAccountingSchema.parse(closureAccountingInput);
 
   return TrackingRealRuntimeHandoffProofSchema.parse({
     schemaVersion: TrackingPolicySchemaVersion,
@@ -320,6 +357,7 @@ export function buildTrackingRealRuntimeHandoffProof(
     currentStatus: 'manual_required',
     sourceGateRefs: RequiredTrackingRealRuntimeHandoffGates.map((gate) => gate.sourceProofRef),
     closureProofRef: 'test-results/tracking-product-readiness-closure-proof/proof.json',
+    closureAccounting,
     handoffRows,
     summary: summarizeRealRuntimeHandoffRows(handoffRows),
     productClaims: {
@@ -362,12 +400,22 @@ function realRuntimeHandoffRow(
     requiredArtifacts,
     presentArtifacts,
     missingArtifacts,
+    readinessCategory: readinessCategoryForTier(gate.requiredProofTier),
+    ciRunnable: false,
     requiredValidationCommands: [...gate.requiredValidationCommands],
     artifactAcceptanceNotes: [...gate.artifactAcceptanceNotes],
     auditRefs: [...(inventory?.auditRefs ?? [`tracking-real-runtime-handoff-${gate.handoffArea}-audit`])],
     artifactSetComplete,
     productClaimReady: false,
   });
+}
+
+function readinessCategoryForTier(
+  tier: (typeof RequiredTrackingRealRuntimeHandoffGates)[number]['requiredProofTier']
+): TrackingRealRuntimeHandoffRow['readinessCategory'] {
+  if (tier === 'P4_MANUAL_PROVIDER_RUNTIME') return 'manual-provider-runtime-required';
+  if (tier === 'P4_PRODUCTION_RUNTIME') return 'production-runtime-required';
+  return 'physical-device-required';
 }
 
 function summarizeRealRuntimeHandoffRows(
@@ -384,6 +432,15 @@ function summarizeRealRuntimeHandoffRows(
     ),
     manualRequiredRowCount: handoffRows.filter((row) => row.status === 'manual-required').length,
     artifactSetPresentRowCount: handoffRows.filter((row) => row.status === 'artifact-set-present').length,
+    physicalDeviceRequiredRowCount: handoffRows.filter((row) => row.readinessCategory === 'physical-device-required')
+      .length,
+    manualProviderRuntimeRequiredRowCount: handoffRows.filter(
+      (row) => row.readinessCategory === 'manual-provider-runtime-required'
+    ).length,
+    productionRuntimeRequiredRowCount: handoffRows.filter(
+      (row) => row.readinessCategory === 'production-runtime-required'
+    ).length,
+    ciRunnableRowCount: 0,
     productReadyRowCount: 0,
   };
 }

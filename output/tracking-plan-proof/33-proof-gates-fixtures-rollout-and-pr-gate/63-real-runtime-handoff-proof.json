@@ -3,7 +3,7 @@
   "proofMode": "tracking-real-runtime-handoff-proof",
   "generatedAt": "2026-06-08T01:05:00.000Z",
   "branch": "codex/tracking-plan-full-continuation-a",
-  "baseCommitAtGeneration": "53549b670aca33eb5cb38ecb442c25ab6f8e8971",
+  "baseCommitAtGeneration": "b5c43e78df3a3cc719af27543402c9f3df79fad8",
   "requiredProofTier": "P4_REAL_RUNTIME_HANDOFF",
   "currentProofTier": "P3_LOCAL_DEV_MACHINE",
   "currentStatus": "manual_required",
@@ -19,6 +19,16 @@
     "test-results/tracking-escalation-runtime-artifact-gate-proof/proof.json"
   ],
   "closureProofRef": "test-results/tracking-product-readiness-closure-proof/proof.json",
+  "closureAccounting": {
+    "fullProductUiLocalArtifactCount": 5,
+    "fullProductUiClosureRetentionWritableExecutionRowCount": 1,
+    "fullProductUiClosureChildRuntimeMissingArtifactCount": 10,
+    "claimAuditPresentArtifactCount": 5,
+    "claimAuditMissingArtifactCount": 61,
+    "claimAuditManualRequiredRowCount": 10,
+    "claimAuditProductReadyRowCount": 0,
+    "productClaimReady": false
+  },
   "readModel": {
     "schemaVersion": "v0.5-tracking",
     "proofMode": "tracking-real-runtime-handoff-proof",
@@ -38,6 +48,16 @@
       "test-results/tracking-escalation-runtime-artifact-gate-proof/proof.json"
     ],
     "closureProofRef": "test-results/tracking-product-readiness-closure-proof/proof.json",
+    "closureAccounting": {
+      "fullProductUiLocalArtifactCount": 5,
+      "fullProductUiClosureRetentionWritableExecutionRowCount": 1,
+      "fullProductUiClosureChildRuntimeMissingArtifactCount": 10,
+      "claimAuditPresentArtifactCount": 5,
+      "claimAuditMissingArtifactCount": 61,
+      "claimAuditManualRequiredRowCount": 10,
+      "claimAuditProductReadyRowCount": 0,
+      "productClaimReady": false
+    },
     "handoffRows": [
       {
         "schemaVersion": "v0.5-tracking",
@@ -75,6 +95,8 @@
           "08-logcat.txt",
           "09-result-summary.md"
         ],
+        "readinessCategory": "physical-device-required",
+        "ciRunnable": false,
         "requiredValidationCommands": [
           "Run Android physical-device background location and geofence transition proof on enrolled child hardware",
           "Record device metadata, runtime permission state, location events, geofence transitions, logcat, parent UI receipt, and summary under output/tracking-plan-proof/android-background-geofence/"
@@ -125,6 +147,8 @@
           "08-xcode-test-log.txt",
           "09-result-summary.md"
         ],
+        "readinessCategory": "physical-device-required",
+        "ciRunnable": false,
         "requiredValidationCommands": [
           "Run iOS physical-device Always authorization, region monitoring, background delivery, and relaunch proof",
           "Record device metadata, authorization state, region transitions, Xcode/device logs, screenshots, and summary under output/tracking-plan-proof/ios-region-monitoring/"
@@ -175,6 +199,8 @@
           "08-device-log.txt",
           "09-result-summary.md"
         ],
+        "readinessCategory": "physical-device-required",
+        "ciRunnable": false,
         "requiredValidationCommands": [
           "Run actual child-device check-in, consent, safe/help, and timeout execution flow on child runtime hardware",
           "Record delivery envelope, execution result, visible child UI, parent receipt, runtime observations, device log, and summary under output/tracking-plan-proof/child-device-runtime-execution/"
@@ -224,6 +250,8 @@
           "output/tracking-plan-proof/product-parent-child-ui-runtime/06-child-device-rendered-location-consent-runtime.png",
           "output/tracking-plan-proof/product-parent-child-ui-runtime/07-child-device-safe-help-response-runtime.png"
         ],
+        "readinessCategory": "physical-device-required",
+        "ciRunnable": false,
         "requiredValidationCommands": [
           "Run full product parent and child UI runtime proof across parent overview, device detail, notifications, retention write, child check-in, child consent, safe/help, accessibility, and end-to-end trace",
           "Record the required product UI artifacts under output/tracking-plan-proof/product-parent-child-ui-runtime/"
@@ -294,6 +322,8 @@
           "tracking-authority-desktop-managed-policy-approved-capability-proof",
           "tracking-authority-desktop-managed-policy-parent-visible-consent-proof"
         ],
+        "readinessCategory": "physical-device-required",
+        "ciRunnable": false,
         "requiredValidationCommands": [
           "Run authority-enrolled hard-control tracking proof on enrolled child hardware",
           "Record enrollment status, control capability state, runtime observation, parent UI, device logs, and summary under output/tracking-plan-proof/authority-runtime/"
@@ -346,6 +376,8 @@
           "09-parent-notification-ui-screenshot.png",
           "10-result-summary.md"
         ],
+        "readinessCategory": "manual-provider-runtime-required",
+        "ciRunnable": false,
         "requiredValidationCommands": [
           "Run provider delivery and receipt ingestion proof with approved credentials and redacted runtime config",
           "Record provider attempt/response, receipt webhook, ingestion result, retry/quiet-hours worker log, parent notification UI, and summary under output/tracking-plan-proof/provider-delivery-runtime/"
@@ -381,6 +413,8 @@
         "missingArtifacts": [
           "tracking-retention/platform-runtime-retention-enforcement.json"
         ],
+        "readinessCategory": "physical-device-required",
+        "ciRunnable": false,
         "requiredValidationCommands": [
           "Run retention product runtime enforcement proof against platform/runtime storage",
           "Record retention config, persisted cleanup/enforcement event, audit snapshot, UI/result evidence, and summary under output/tracking-plan-proof/retention-runtime/"
@@ -427,6 +461,8 @@
           "tracking-production/authority-status-worker-runtime.json",
           "tracking-production/audit-durable-storage-runtime.json"
         ],
+        "readinessCategory": "production-runtime-required",
+        "ciRunnable": false,
         "requiredValidationCommands": [
           "Run production durable worker/storage proof for location upload, retention cleanup, notification outbox, escalation timeout, provider receipt, child-device delivery, authority status, and audit storage",
           "Record all production worker artifacts under output/tracking-plan-proof/tracking-production/"
@@ -483,6 +519,8 @@
           "09-parent-notification-ui-screenshot.png",
           "10-result-summary.md"
         ],
+        "readinessCategory": "production-runtime-required",
+        "ciRunnable": false,
         "requiredValidationCommands": [
           "Run escalation timeout worker/storage runtime proof with real durable queue/storage evidence",
           "Record queue state, timeout execution, parent notification/escalation output, worker logs, and summary under output/tracking-plan-proof/escalation-runtime/"
@@ -506,6 +544,10 @@
       "requiredValidationCommandCount": 18,
       "manualRequiredRowCount": 9,
       "artifactSetPresentRowCount": 0,
+      "physicalDeviceRequiredRowCount": 6,
+      "manualProviderRuntimeRequiredRowCount": 1,
+      "productionRuntimeRequiredRowCount": 2,
+      "ciRunnableRowCount": 0,
       "productReadyRowCount": 0
     },
     "productClaims": {
@@ -557,6 +599,8 @@
         "08-logcat.txt",
         "09-result-summary.md"
       ],
+      "readinessCategory": "physical-device-required",
+      "ciRunnable": false,
       "requiredValidationCommands": [
         "Run Android physical-device background location and geofence transition proof on enrolled child hardware",
         "Record device metadata, runtime permission state, location events, geofence transitions, logcat, parent UI receipt, and summary under output/tracking-plan-proof/android-background-geofence/"
@@ -607,6 +651,8 @@
         "08-xcode-test-log.txt",
         "09-result-summary.md"
       ],
+      "readinessCategory": "physical-device-required",
+      "ciRunnable": false,
       "requiredValidationCommands": [
         "Run iOS physical-device Always authorization, region monitoring, background delivery, and relaunch proof",
         "Record device metadata, authorization state, region transitions, Xcode/device logs, screenshots, and summary under output/tracking-plan-proof/ios-region-monitoring/"
@@ -657,6 +703,8 @@
         "08-device-log.txt",
         "09-result-summary.md"
       ],
+      "readinessCategory": "physical-device-required",
+      "ciRunnable": false,
       "requiredValidationCommands": [
         "Run actual child-device check-in, consent, safe/help, and timeout execution flow on child runtime hardware",
         "Record delivery envelope, execution result, visible child UI, parent receipt, runtime observations, device log, and summary under output/tracking-plan-proof/child-device-runtime-execution/"
@@ -706,6 +754,8 @@
         "output/tracking-plan-proof/product-parent-child-ui-runtime/06-child-device-rendered-location-consent-runtime.png",
         "output/tracking-plan-proof/product-parent-child-ui-runtime/07-child-device-safe-help-response-runtime.png"
       ],
+      "readinessCategory": "physical-device-required",
+      "ciRunnable": false,
       "requiredValidationCommands": [
         "Run full product parent and child UI runtime proof across parent overview, device detail, notifications, retention write, child check-in, child consent, safe/help, accessibility, and end-to-end trace",
         "Record the required product UI artifacts under output/tracking-plan-proof/product-parent-child-ui-runtime/"
@@ -776,6 +826,8 @@
         "tracking-authority-desktop-managed-policy-approved-capability-proof",
         "tracking-authority-desktop-managed-policy-parent-visible-consent-proof"
       ],
+      "readinessCategory": "physical-device-required",
+      "ciRunnable": false,
       "requiredValidationCommands": [
         "Run authority-enrolled hard-control tracking proof on enrolled child hardware",
         "Record enrollment status, control capability state, runtime observation, parent UI, device logs, and summary under output/tracking-plan-proof/authority-runtime/"
@@ -828,6 +880,8 @@
         "09-parent-notification-ui-screenshot.png",
         "10-result-summary.md"
       ],
+      "readinessCategory": "manual-provider-runtime-required",
+      "ciRunnable": false,
       "requiredValidationCommands": [
         "Run provider delivery and receipt ingestion proof with approved credentials and redacted runtime config",
         "Record provider attempt/response, receipt webhook, ingestion result, retry/quiet-hours worker log, parent notification UI, and summary under output/tracking-plan-proof/provider-delivery-runtime/"
@@ -863,6 +917,8 @@
       "missingArtifacts": [
         "tracking-retention/platform-runtime-retention-enforcement.json"
       ],
+      "readinessCategory": "physical-device-required",
+      "ciRunnable": false,
       "requiredValidationCommands": [
         "Run retention product runtime enforcement proof against platform/runtime storage",
         "Record retention config, persisted cleanup/enforcement event, audit snapshot, UI/result evidence, and summary under output/tracking-plan-proof/retention-runtime/"
@@ -909,6 +965,8 @@
         "tracking-production/authority-status-worker-runtime.json",
         "tracking-production/audit-durable-storage-runtime.json"
       ],
+      "readinessCategory": "production-runtime-required",
+      "ciRunnable": false,
       "requiredValidationCommands": [
         "Run production durable worker/storage proof for location upload, retention cleanup, notification outbox, escalation timeout, provider receipt, child-device delivery, authority status, and audit storage",
         "Record all production worker artifacts under output/tracking-plan-proof/tracking-production/"
@@ -965,6 +1023,8 @@
         "09-parent-notification-ui-screenshot.png",
         "10-result-summary.md"
       ],
+      "readinessCategory": "production-runtime-required",
+      "ciRunnable": false,
       "requiredValidationCommands": [
         "Run escalation timeout worker/storage runtime proof with real durable queue/storage evidence",
         "Record queue state, timeout execution, parent notification/escalation output, worker logs, and summary under output/tracking-plan-proof/escalation-runtime/"
@@ -988,6 +1048,10 @@
     "requiredValidationCommandCount": 18,
     "manualRequiredRowCount": 9,
     "artifactSetPresentRowCount": 0,
+    "physicalDeviceRequiredRowCount": 6,
+    "manualProviderRuntimeRequiredRowCount": 1,
+    "productionRuntimeRequiredRowCount": 2,
+    "ciRunnableRowCount": 0,
     "productReadyRowCount": 0
   },
   "remainingProductBlockers": [

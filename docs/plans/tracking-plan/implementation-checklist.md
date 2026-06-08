@@ -1053,6 +1053,11 @@ Every implementation workpack must update, or explicitly justify not updating:
       `output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-gate/63-real-runtime-handoff-proof.json`;
       command:
       `node scripts/test/tracking-real-runtime-handoff-proof.mjs`.
+      The handoff now carries product-readiness closure accounting, preserves
+      the five local full-product UI artifacts plus claim-audit blocker counts,
+      and classifies the remaining manual follow-up as six physical/runtime
+      rows, one provider-runtime row, two production-runtime rows, and zero
+      CI-runnable rows.
 
 ## Explicit Merge-Blocking Checklist
 
