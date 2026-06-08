@@ -3,8 +3,8 @@
   "proofMode": "tracking-child-runtime-artifact-gate-proof",
   "generatedAt": "2026-06-07T18:55:00.000Z",
   "branch": "codex/tracking-plan-full-continuation-a",
-  "commit": "0a65666d116fb3a65439674cba21553cccfd69dd",
-  "gitStatusShort": "",
+  "commit": "dc29674c5e842065a642a154793249449dbd9dc9",
+  "gitStatusShort": "M output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-gate/49-physical-device-artifact-gate-proof.json\n M test-results/tracking-physical-device-artifact-gate-proof/proof.json",
   "workpackIds": [
     "30-parent-and-child-ui-ux-surfaces",
     "33-proof-gates-fixtures-rollout-and-pr-gate"

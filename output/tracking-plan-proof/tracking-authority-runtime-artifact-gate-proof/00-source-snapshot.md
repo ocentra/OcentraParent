@@ -1,7 +1,7 @@
 # Tracking Authority Runtime Artifact Gate Source Snapshot
 
 - generatedAt: 2026-06-08T00:15:00.000Z
-- commit: c61954488f86eb6b9cf9b7da0e611cc483c455a5
+- commit: dc29674c5e842065a642a154793249449dbd9dc9
 - status: manual_required
 - requiredArtifactCount: 20
 - missingArtifactCount: 20

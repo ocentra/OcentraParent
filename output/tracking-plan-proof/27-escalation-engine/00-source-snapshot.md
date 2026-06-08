@@ -1,7 +1,7 @@
 # 27-escalation-engine Source Snapshot
 
-- checkedAt: 2026-06-08T00:33:32.204Z
-- commit: a61425f1
+- checkedAt: 2026-06-08T03:23:26.249Z
+- commit: dc29674c
 - requiredProofTier: P1_FIXTURE_SIMULATION
 - currentProofTier: P1_FIXTURE_SIMULATION
 - status: proved
