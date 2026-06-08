@@ -93,6 +93,10 @@ function expectPlatformAggregate(proof: TrackingProductReadinessClosureProof): v
   expect(proof.aggregateEvidence.iosSimulatorPrivacyDisclosureArtifactCount).toBe(2);
   expect(proof.aggregateEvidence.iosSimulatorManualRequiredRowCount).toBe(7);
   expect(proof.aggregateEvidence.iosSimulatorMissingRuntimeArtifactCount).toBe(9);
+  expect(proof.aggregateEvidence.authorityRuntimeRequiredArtifactCount).toBe(20);
+  expect(proof.aggregateEvidence.authorityRuntimePresentArtifactCount).toBe(0);
+  expect(proof.aggregateEvidence.authorityRuntimeMissingArtifactCount).toBe(20);
+  expect(proof.aggregateEvidence.authorityRuntimeBlockerCount).toBe(10);
 }
 
 function expectRuntimeAndProductionAggregate(proof: TrackingProductReadinessClosureProof): void {
@@ -104,6 +108,16 @@ function expectRuntimeAndProductionAggregate(proof: TrackingProductReadinessClos
   expect(proof.aggregateEvidence.physicalDeviceEvidenceReviewContentReviewRequiredRowCount).toBe(0);
   expect(proof.aggregateEvidence.physicalDeviceEvidenceReviewContentAcceptedRowCount).toBe(0);
   expect(proof.aggregateEvidence.physicalDeviceEvidenceReviewProductReadyRowCount).toBe(0);
+  expect(proof.aggregateEvidence.physicalDeviceEvidenceReviewStatusObservedRowCount).toBe(1);
+  expect(proof.aggregateEvidence.physicalDeviceEvidenceReviewSupportingStatusArtifactCount).toBe(13);
+  expect(proof.aggregateEvidence.providerRuntimeRequiredArtifactCount).toBe(11);
+  expect(proof.aggregateEvidence.providerRuntimePresentArtifactCount).toBe(0);
+  expect(proof.aggregateEvidence.providerRuntimeMissingArtifactCount).toBe(11);
+  expect(proof.aggregateEvidence.providerRuntimeBlockerCount).toBe(12);
+  expect(proof.aggregateEvidence.escalationRuntimeRequiredArtifactCount).toBe(13);
+  expect(proof.aggregateEvidence.escalationRuntimePresentArtifactCount).toBe(0);
+  expect(proof.aggregateEvidence.escalationRuntimeMissingArtifactCount).toBe(13);
+  expect(proof.aggregateEvidence.escalationRuntimeBlockerCount).toBe(12);
   expect(proof.aggregateEvidence.retentionRuntimeRequiredArtifactCount).toBe(2);
   expect(proof.aggregateEvidence.retentionRuntimePresentArtifactCount).toBe(1);
   expect(proof.aggregateEvidence.retentionRuntimeMissingArtifactCount).toBe(1);
@@ -158,6 +172,10 @@ function aggregateEvidence() {
     iosSimulatorPrivacyDisclosureArtifactCount: 2,
     iosSimulatorManualRequiredRowCount: 7,
     iosSimulatorMissingRuntimeArtifactCount: 9,
+    authorityRuntimeRequiredArtifactCount: 20,
+    authorityRuntimePresentArtifactCount: 0,
+    authorityRuntimeMissingArtifactCount: 20,
+    authorityRuntimeBlockerCount: 10,
     childRuntimeRequiredArtifactCount: 10,
     childRuntimePresentArtifactCount: 0,
     childRuntimeMissingArtifactCount: 10,
@@ -166,6 +184,16 @@ function aggregateEvidence() {
     physicalDeviceEvidenceReviewContentReviewRequiredRowCount: 0,
     physicalDeviceEvidenceReviewContentAcceptedRowCount: 0,
     physicalDeviceEvidenceReviewProductReadyRowCount: 0,
+    physicalDeviceEvidenceReviewStatusObservedRowCount: 1,
+    physicalDeviceEvidenceReviewSupportingStatusArtifactCount: 13,
+    providerRuntimeRequiredArtifactCount: 11,
+    providerRuntimePresentArtifactCount: 0,
+    providerRuntimeMissingArtifactCount: 11,
+    providerRuntimeBlockerCount: 12,
+    escalationRuntimeRequiredArtifactCount: 13,
+    escalationRuntimePresentArtifactCount: 0,
+    escalationRuntimeMissingArtifactCount: 13,
+    escalationRuntimeBlockerCount: 12,
     retentionRuntimeRequiredArtifactCount: 2,
     retentionRuntimePresentArtifactCount: 1,
     retentionRuntimeMissingArtifactCount: 1,

@@ -248,6 +248,44 @@ function assertProof(proof) {
     );
   }
   if (
+    proof.closureAccounting.physicalDeviceEvidenceReviewStatusObservedRowCount < 0 ||
+    proof.closureAccounting.physicalDeviceEvidenceReviewStatusObservedRowCount >
+      proof.closureAccounting.physicalDeviceEvidenceReviewRowCount ||
+    proof.closureAccounting.physicalDeviceEvidenceReviewSupportingStatusArtifactCount <
+      proof.closureAccounting.physicalDeviceEvidenceReviewStatusObservedRowCount
+  ) {
+    throw new Error(
+      `Closure accounting has inconsistent physical status support counts: ${JSON.stringify(proof.closureAccounting)}`
+    );
+  }
+  if (
+    proof.closureAccounting.authorityRuntimeRequiredArtifactCount !==
+      proof.closureAccounting.authorityRuntimePresentArtifactCount +
+        proof.closureAccounting.authorityRuntimeMissingArtifactCount ||
+    proof.closureAccounting.authorityRuntimePresentArtifactCount !== 0 ||
+    proof.closureAccounting.authorityRuntimeBlockerCount === 0
+  ) {
+    throw new Error(`Closure accounting lost authority runtime evidence: ${JSON.stringify(proof.closureAccounting)}`);
+  }
+  if (
+    proof.closureAccounting.providerRuntimeRequiredArtifactCount !==
+      proof.closureAccounting.providerRuntimePresentArtifactCount +
+        proof.closureAccounting.providerRuntimeMissingArtifactCount ||
+    proof.closureAccounting.providerRuntimePresentArtifactCount !== 0 ||
+    proof.closureAccounting.providerRuntimeBlockerCount === 0
+  ) {
+    throw new Error(`Closure accounting lost provider runtime evidence: ${JSON.stringify(proof.closureAccounting)}`);
+  }
+  if (
+    proof.closureAccounting.escalationRuntimeRequiredArtifactCount !==
+      proof.closureAccounting.escalationRuntimePresentArtifactCount +
+        proof.closureAccounting.escalationRuntimeMissingArtifactCount ||
+    proof.closureAccounting.escalationRuntimePresentArtifactCount !== 0 ||
+    proof.closureAccounting.escalationRuntimeBlockerCount === 0
+  ) {
+    throw new Error(`Closure accounting lost escalation runtime evidence: ${JSON.stringify(proof.closureAccounting)}`);
+  }
+  if (
     proof.closureAccounting.retentionRuntimeRequiredArtifactCount !==
       proof.closureAccounting.retentionRuntimePresentArtifactCount +
         proof.closureAccounting.retentionRuntimeMissingArtifactCount ||
@@ -348,6 +386,10 @@ function sourceSnapshot(proof) {
     `- iosSimulatorPrivacyDisclosureArtifactCount: ${proof.closureAccounting.iosSimulatorPrivacyDisclosureArtifactCount}`,
     `- iosSimulatorManualRequiredRowCount: ${proof.closureAccounting.iosSimulatorManualRequiredRowCount}`,
     `- iosSimulatorMissingRuntimeArtifactCount: ${proof.closureAccounting.iosSimulatorMissingRuntimeArtifactCount}`,
+    `- authorityRuntimeRequiredArtifactCount: ${proof.closureAccounting.authorityRuntimeRequiredArtifactCount}`,
+    `- authorityRuntimePresentArtifactCount: ${proof.closureAccounting.authorityRuntimePresentArtifactCount}`,
+    `- authorityRuntimeMissingArtifactCount: ${proof.closureAccounting.authorityRuntimeMissingArtifactCount}`,
+    `- authorityRuntimeBlockerCount: ${proof.closureAccounting.authorityRuntimeBlockerCount}`,
     `- childRuntimeRequiredArtifactCount: ${proof.closureAccounting.childRuntimeRequiredArtifactCount}`,
     `- childRuntimePresentArtifactCount: ${proof.closureAccounting.childRuntimePresentArtifactCount}`,
     `- childRuntimeMissingArtifactCount: ${proof.closureAccounting.childRuntimeMissingArtifactCount}`,
@@ -355,6 +397,16 @@ function sourceSnapshot(proof) {
     `- physicalDeviceEvidenceReviewArtifactMissingRowCount: ${proof.closureAccounting.physicalDeviceEvidenceReviewArtifactMissingRowCount}`,
     `- physicalDeviceEvidenceReviewContentReviewRequiredRowCount: ${proof.closureAccounting.physicalDeviceEvidenceReviewContentReviewRequiredRowCount}`,
     `- physicalDeviceEvidenceReviewContentAcceptedRowCount: ${proof.closureAccounting.physicalDeviceEvidenceReviewContentAcceptedRowCount}`,
+    `- physicalDeviceEvidenceReviewStatusObservedRowCount: ${proof.closureAccounting.physicalDeviceEvidenceReviewStatusObservedRowCount}`,
+    `- physicalDeviceEvidenceReviewSupportingStatusArtifactCount: ${proof.closureAccounting.physicalDeviceEvidenceReviewSupportingStatusArtifactCount}`,
+    `- providerRuntimeRequiredArtifactCount: ${proof.closureAccounting.providerRuntimeRequiredArtifactCount}`,
+    `- providerRuntimePresentArtifactCount: ${proof.closureAccounting.providerRuntimePresentArtifactCount}`,
+    `- providerRuntimeMissingArtifactCount: ${proof.closureAccounting.providerRuntimeMissingArtifactCount}`,
+    `- providerRuntimeBlockerCount: ${proof.closureAccounting.providerRuntimeBlockerCount}`,
+    `- escalationRuntimeRequiredArtifactCount: ${proof.closureAccounting.escalationRuntimeRequiredArtifactCount}`,
+    `- escalationRuntimePresentArtifactCount: ${proof.closureAccounting.escalationRuntimePresentArtifactCount}`,
+    `- escalationRuntimeMissingArtifactCount: ${proof.closureAccounting.escalationRuntimeMissingArtifactCount}`,
+    `- escalationRuntimeBlockerCount: ${proof.closureAccounting.escalationRuntimeBlockerCount}`,
     `- retentionRuntimeRequiredArtifactCount: ${proof.closureAccounting.retentionRuntimeRequiredArtifactCount}`,
     `- retentionRuntimePresentArtifactCount: ${proof.closureAccounting.retentionRuntimePresentArtifactCount}`,
     `- retentionRuntimeMissingArtifactCount: ${proof.closureAccounting.retentionRuntimeMissingArtifactCount}`,
@@ -422,6 +474,20 @@ function manualValidationRunbook(proof) {
     `- childRuntimeMissingArtifactCount: ${proof.closureAccounting.childRuntimeMissingArtifactCount}`,
     `- physicalDeviceEvidenceReviewRowCount: ${proof.closureAccounting.physicalDeviceEvidenceReviewRowCount}`,
     `- physicalDeviceEvidenceReviewContentAcceptedRowCount: ${proof.closureAccounting.physicalDeviceEvidenceReviewContentAcceptedRowCount}`,
+    `- physicalDeviceEvidenceReviewStatusObservedRowCount: ${proof.closureAccounting.physicalDeviceEvidenceReviewStatusObservedRowCount}`,
+    `- physicalDeviceEvidenceReviewSupportingStatusArtifactCount: ${proof.closureAccounting.physicalDeviceEvidenceReviewSupportingStatusArtifactCount}`,
+    `- authorityRuntimeRequiredArtifactCount: ${proof.closureAccounting.authorityRuntimeRequiredArtifactCount}`,
+    `- authorityRuntimePresentArtifactCount: ${proof.closureAccounting.authorityRuntimePresentArtifactCount}`,
+    `- authorityRuntimeMissingArtifactCount: ${proof.closureAccounting.authorityRuntimeMissingArtifactCount}`,
+    `- authorityRuntimeBlockerCount: ${proof.closureAccounting.authorityRuntimeBlockerCount}`,
+    `- providerRuntimeRequiredArtifactCount: ${proof.closureAccounting.providerRuntimeRequiredArtifactCount}`,
+    `- providerRuntimePresentArtifactCount: ${proof.closureAccounting.providerRuntimePresentArtifactCount}`,
+    `- providerRuntimeMissingArtifactCount: ${proof.closureAccounting.providerRuntimeMissingArtifactCount}`,
+    `- providerRuntimeBlockerCount: ${proof.closureAccounting.providerRuntimeBlockerCount}`,
+    `- escalationRuntimeRequiredArtifactCount: ${proof.closureAccounting.escalationRuntimeRequiredArtifactCount}`,
+    `- escalationRuntimePresentArtifactCount: ${proof.closureAccounting.escalationRuntimePresentArtifactCount}`,
+    `- escalationRuntimeMissingArtifactCount: ${proof.closureAccounting.escalationRuntimeMissingArtifactCount}`,
+    `- escalationRuntimeBlockerCount: ${proof.closureAccounting.escalationRuntimeBlockerCount}`,
     `- retentionRuntimeRequiredArtifactCount: ${proof.closureAccounting.retentionRuntimeRequiredArtifactCount}`,
     `- retentionRuntimePresentArtifactCount: ${proof.closureAccounting.retentionRuntimePresentArtifactCount}`,
     `- retentionRuntimeMissingArtifactCount: ${proof.closureAccounting.retentionRuntimeMissingArtifactCount}`,

@@ -160,6 +160,10 @@ export const TrackingRealRuntimeHandoffClosureAccountingSchema = withParser(
     iosSimulatorPrivacyDisclosureArtifactCount: Schema.Number.pipe(Schema.int(), Schema.positive()),
     iosSimulatorManualRequiredRowCount: Schema.Number.pipe(Schema.int(), Schema.positive()),
     iosSimulatorMissingRuntimeArtifactCount: Schema.Number.pipe(Schema.int(), Schema.positive()),
+    authorityRuntimeRequiredArtifactCount: Schema.Number.pipe(Schema.int(), Schema.positive()),
+    authorityRuntimePresentArtifactCount: Schema.Number.pipe(Schema.int()),
+    authorityRuntimeMissingArtifactCount: Schema.Number.pipe(Schema.int(), Schema.positive()),
+    authorityRuntimeBlockerCount: Schema.Number.pipe(Schema.int(), Schema.positive()),
     childRuntimeRequiredArtifactCount: Schema.Number.pipe(Schema.int(), Schema.positive()),
     childRuntimePresentArtifactCount: Schema.Number.pipe(Schema.int()),
     childRuntimeMissingArtifactCount: Schema.Number.pipe(Schema.int()),
@@ -168,6 +172,16 @@ export const TrackingRealRuntimeHandoffClosureAccountingSchema = withParser(
     physicalDeviceEvidenceReviewContentReviewRequiredRowCount: Schema.Number.pipe(Schema.int()),
     physicalDeviceEvidenceReviewContentAcceptedRowCount: Schema.Literal(0),
     physicalDeviceEvidenceReviewProductReadyRowCount: Schema.Literal(0),
+    physicalDeviceEvidenceReviewStatusObservedRowCount: Schema.Number.pipe(Schema.int()),
+    physicalDeviceEvidenceReviewSupportingStatusArtifactCount: Schema.Number.pipe(Schema.int()),
+    providerRuntimeRequiredArtifactCount: Schema.Number.pipe(Schema.int(), Schema.positive()),
+    providerRuntimePresentArtifactCount: Schema.Number.pipe(Schema.int()),
+    providerRuntimeMissingArtifactCount: Schema.Number.pipe(Schema.int(), Schema.positive()),
+    providerRuntimeBlockerCount: Schema.Number.pipe(Schema.int(), Schema.positive()),
+    escalationRuntimeRequiredArtifactCount: Schema.Number.pipe(Schema.int(), Schema.positive()),
+    escalationRuntimePresentArtifactCount: Schema.Number.pipe(Schema.int()),
+    escalationRuntimeMissingArtifactCount: Schema.Number.pipe(Schema.int(), Schema.positive()),
+    escalationRuntimeBlockerCount: Schema.Number.pipe(Schema.int(), Schema.positive()),
     retentionRuntimeRequiredArtifactCount: Schema.Number.pipe(Schema.int(), Schema.positive()),
     retentionRuntimePresentArtifactCount: Schema.Number.pipe(Schema.int()),
     retentionRuntimeMissingArtifactCount: Schema.Number.pipe(Schema.int()),
@@ -234,6 +248,21 @@ export const TrackingRealRuntimeHandoffClosureAccountingSchema = withParser(
     .pipe(
       Schema.filter(
         (accounting) =>
+          accounting.authorityRuntimeRequiredArtifactCount ===
+            accounting.authorityRuntimePresentArtifactCount + accounting.authorityRuntimeMissingArtifactCount ||
+          'Real-runtime closure accounting must classify every authority runtime artifact'
+      )
+    )
+    .pipe(
+      Schema.filter(
+        (accounting) =>
+          accounting.authorityRuntimePresentArtifactCount === 0 ||
+          'Real-runtime closure accounting must keep authority runtime artifacts missing until authority proof exists'
+      )
+    )
+    .pipe(
+      Schema.filter(
+        (accounting) =>
           accounting.childRuntimeRequiredArtifactCount ===
             accounting.childRuntimePresentArtifactCount + accounting.childRuntimeMissingArtifactCount ||
           'Real-runtime closure accounting must classify every child-runtime artifact'
@@ -248,6 +277,47 @@ export const TrackingRealRuntimeHandoffClosureAccountingSchema = withParser(
             accounting.physicalDeviceEvidenceReviewContentAcceptedRowCount === 0 &&
             accounting.physicalDeviceEvidenceReviewProductReadyRowCount === 0) ||
           'Real-runtime closure accounting must keep physical-device evidence review unaccepted'
+      )
+    )
+    .pipe(
+      Schema.filter(
+        (accounting) =>
+          (accounting.physicalDeviceEvidenceReviewStatusObservedRowCount >= 0 &&
+            accounting.physicalDeviceEvidenceReviewStatusObservedRowCount <=
+              accounting.physicalDeviceEvidenceReviewRowCount &&
+            accounting.physicalDeviceEvidenceReviewSupportingStatusArtifactCount >=
+              accounting.physicalDeviceEvidenceReviewStatusObservedRowCount) ||
+          'Real-runtime closure accounting must keep physical status support counts bounded by review rows'
+      )
+    )
+    .pipe(
+      Schema.filter(
+        (accounting) =>
+          accounting.providerRuntimeRequiredArtifactCount ===
+            accounting.providerRuntimePresentArtifactCount + accounting.providerRuntimeMissingArtifactCount ||
+          'Real-runtime closure accounting must classify every provider runtime artifact'
+      )
+    )
+    .pipe(
+      Schema.filter(
+        (accounting) =>
+          accounting.providerRuntimePresentArtifactCount === 0 ||
+          'Real-runtime closure accounting must keep provider runtime artifacts missing until provider proof exists'
+      )
+    )
+    .pipe(
+      Schema.filter(
+        (accounting) =>
+          accounting.escalationRuntimeRequiredArtifactCount ===
+            accounting.escalationRuntimePresentArtifactCount + accounting.escalationRuntimeMissingArtifactCount ||
+          'Real-runtime closure accounting must classify every escalation runtime artifact'
+      )
+    )
+    .pipe(
+      Schema.filter(
+        (accounting) =>
+          accounting.escalationRuntimePresentArtifactCount === 0 ||
+          'Real-runtime closure accounting must keep escalation runtime artifacts missing until runtime proof exists'
       )
     )
     .pipe(

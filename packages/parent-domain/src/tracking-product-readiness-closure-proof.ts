@@ -146,6 +146,10 @@ export const TrackingProductReadinessClosureAggregateEvidenceSchema = withParser
     iosSimulatorPrivacyDisclosureArtifactCount: Schema.Number.pipe(Schema.int(), Schema.positive()),
     iosSimulatorManualRequiredRowCount: Schema.Number.pipe(Schema.int(), Schema.positive()),
     iosSimulatorMissingRuntimeArtifactCount: Schema.Number.pipe(Schema.int(), Schema.positive()),
+    authorityRuntimeRequiredArtifactCount: Schema.Number.pipe(Schema.int(), Schema.positive()),
+    authorityRuntimePresentArtifactCount: Schema.Number.pipe(Schema.int()),
+    authorityRuntimeMissingArtifactCount: Schema.Number.pipe(Schema.int(), Schema.positive()),
+    authorityRuntimeBlockerCount: Schema.Number.pipe(Schema.int(), Schema.positive()),
     childRuntimeRequiredArtifactCount: Schema.Number.pipe(Schema.int(), Schema.positive()),
     childRuntimePresentArtifactCount: Schema.Number.pipe(Schema.int()),
     childRuntimeMissingArtifactCount: Schema.Number.pipe(Schema.int()),
@@ -154,6 +158,16 @@ export const TrackingProductReadinessClosureAggregateEvidenceSchema = withParser
     physicalDeviceEvidenceReviewContentReviewRequiredRowCount: Schema.Number.pipe(Schema.int()),
     physicalDeviceEvidenceReviewContentAcceptedRowCount: Schema.Literal(0),
     physicalDeviceEvidenceReviewProductReadyRowCount: Schema.Literal(0),
+    physicalDeviceEvidenceReviewStatusObservedRowCount: Schema.Number.pipe(Schema.int()),
+    physicalDeviceEvidenceReviewSupportingStatusArtifactCount: Schema.Number.pipe(Schema.int()),
+    providerRuntimeRequiredArtifactCount: Schema.Number.pipe(Schema.int(), Schema.positive()),
+    providerRuntimePresentArtifactCount: Schema.Number.pipe(Schema.int()),
+    providerRuntimeMissingArtifactCount: Schema.Number.pipe(Schema.int(), Schema.positive()),
+    providerRuntimeBlockerCount: Schema.Number.pipe(Schema.int(), Schema.positive()),
+    escalationRuntimeRequiredArtifactCount: Schema.Number.pipe(Schema.int(), Schema.positive()),
+    escalationRuntimePresentArtifactCount: Schema.Number.pipe(Schema.int()),
+    escalationRuntimeMissingArtifactCount: Schema.Number.pipe(Schema.int(), Schema.positive()),
+    escalationRuntimeBlockerCount: Schema.Number.pipe(Schema.int(), Schema.positive()),
     retentionRuntimeRequiredArtifactCount: Schema.Number.pipe(Schema.int(), Schema.positive()),
     retentionRuntimePresentArtifactCount: Schema.Number.pipe(Schema.int()),
     retentionRuntimeMissingArtifactCount: Schema.Number.pipe(Schema.int()),
@@ -235,6 +249,21 @@ export const TrackingProductReadinessClosureAggregateEvidenceSchema = withParser
     .pipe(
       Schema.filter(
         (evidence) =>
+          evidence.authorityRuntimeRequiredArtifactCount ===
+            evidence.authorityRuntimePresentArtifactCount + evidence.authorityRuntimeMissingArtifactCount ||
+          'Aggregate closure evidence must classify every authority runtime artifact'
+      )
+    )
+    .pipe(
+      Schema.filter(
+        (evidence) =>
+          evidence.authorityRuntimePresentArtifactCount === 0 ||
+          'Aggregate closure evidence must keep authority runtime artifacts missing until authority proof exists'
+      )
+    )
+    .pipe(
+      Schema.filter(
+        (evidence) =>
           evidence.childRuntimeRequiredArtifactCount ===
             evidence.childRuntimePresentArtifactCount + evidence.childRuntimeMissingArtifactCount ||
           'Aggregate closure evidence must classify every child-runtime artifact'
@@ -249,6 +278,47 @@ export const TrackingProductReadinessClosureAggregateEvidenceSchema = withParser
             evidence.physicalDeviceEvidenceReviewContentAcceptedRowCount === 0 &&
             evidence.physicalDeviceEvidenceReviewProductReadyRowCount === 0) ||
           'Aggregate closure evidence must keep physical-device review unaccepted until content review passes'
+      )
+    )
+    .pipe(
+      Schema.filter(
+        (evidence) =>
+          (evidence.physicalDeviceEvidenceReviewStatusObservedRowCount >= 0 &&
+            evidence.physicalDeviceEvidenceReviewStatusObservedRowCount <=
+              evidence.physicalDeviceEvidenceReviewRowCount &&
+            evidence.physicalDeviceEvidenceReviewSupportingStatusArtifactCount >=
+              evidence.physicalDeviceEvidenceReviewStatusObservedRowCount) ||
+          'Aggregate closure evidence must keep physical status support counts bounded by review rows'
+      )
+    )
+    .pipe(
+      Schema.filter(
+        (evidence) =>
+          evidence.providerRuntimeRequiredArtifactCount ===
+            evidence.providerRuntimePresentArtifactCount + evidence.providerRuntimeMissingArtifactCount ||
+          'Aggregate closure evidence must classify every provider runtime artifact'
+      )
+    )
+    .pipe(
+      Schema.filter(
+        (evidence) =>
+          evidence.providerRuntimePresentArtifactCount === 0 ||
+          'Aggregate closure evidence must keep provider runtime artifacts missing until provider proof exists'
+      )
+    )
+    .pipe(
+      Schema.filter(
+        (evidence) =>
+          evidence.escalationRuntimeRequiredArtifactCount ===
+            evidence.escalationRuntimePresentArtifactCount + evidence.escalationRuntimeMissingArtifactCount ||
+          'Aggregate closure evidence must classify every escalation runtime artifact'
+      )
+    )
+    .pipe(
+      Schema.filter(
+        (evidence) =>
+          evidence.escalationRuntimePresentArtifactCount === 0 ||
+          'Aggregate closure evidence must keep escalation runtime artifacts missing until runtime proof exists'
       )
     )
     .pipe(

@@ -215,6 +215,12 @@ async function aggregateEvidence() {
   const iosSimulatorArtifactInventoryProof = await readJson(
     'test-results/tracking-ios-simulator-artifact-inventory-proof/proof.json'
   );
+  const authorityRuntimeArtifactGateProof = await readJson(
+    'test-results/tracking-authority-runtime-artifact-gate-proof/proof.json'
+  );
+  const authorityRuntimeReadinessProof = await readJson(
+    'test-results/tracking-authority-runtime-readiness-blocker-proof/proof.json'
+  );
   const retentionRuntimeProof = await readJson(
     'test-results/tracking-retention-runtime-artifact-gate-proof/proof.json'
   );
@@ -226,6 +232,15 @@ async function aggregateEvidence() {
   );
   const physicalDeviceEvidenceReviewProof = await readJson(
     'test-results/tracking-physical-device-evidence-review-proof/proof.json'
+  );
+  const providerRuntimeReadinessProof = await readJson(
+    'test-results/tracking-provider-runtime-readiness-blocker-proof/proof.json'
+  );
+  const escalationRuntimeArtifactGateProof = await readJson(
+    'test-results/tracking-escalation-runtime-artifact-gate-proof/proof.json'
+  );
+  const escalationRuntimeReadinessProof = await readJson(
+    'test-results/tracking-escalation-runtime-readiness-blocker-proof/proof.json'
   );
   const productionWorkerRuntimeArtifactGateProof = await readJson(
     'test-results/tracking-production-worker-runtime-artifact-gate-proof/proof.json'
@@ -269,6 +284,12 @@ async function aggregateEvidence() {
       iosSimulatorArtifactInventoryProof.summary.privacyDisclosureArtifactCount,
     iosSimulatorManualRequiredRowCount: iosSimulatorArtifactInventoryProof.summary.iosManualRequiredRowCount,
     iosSimulatorMissingRuntimeArtifactCount: iosSimulatorArtifactInventoryProof.summary.iosMissingRuntimeArtifactCount,
+    authorityRuntimeRequiredArtifactCount: authorityRuntimeArtifactGateProof.summary.requiredArtifactCount,
+    authorityRuntimePresentArtifactCount:
+      authorityRuntimeArtifactGateProof.summary.requiredArtifactCount -
+      authorityRuntimeArtifactGateProof.summary.missingArtifactCount,
+    authorityRuntimeMissingArtifactCount: authorityRuntimeArtifactGateProof.summary.missingArtifactCount,
+    authorityRuntimeBlockerCount: authorityRuntimeReadinessProof.summary.blockerCount,
     childRuntimeRequiredArtifactCount: childRuntimeArtifactSummary.requiredArtifactCount,
     childRuntimePresentArtifactCount: childRuntimeArtifactSummary.presentArtifactCount,
     childRuntimeMissingArtifactCount: childRuntimeArtifactSummary.missingArtifactCount,
@@ -278,6 +299,20 @@ async function aggregateEvidence() {
       physicalDeviceEvidenceReviewProof.summary.contentReviewRequiredRows,
     physicalDeviceEvidenceReviewContentAcceptedRowCount: physicalDeviceEvidenceReviewProof.summary.contentAcceptedRows,
     physicalDeviceEvidenceReviewProductReadyRowCount: physicalDeviceEvidenceReviewProof.summary.productReadyRows,
+    physicalDeviceEvidenceReviewStatusObservedRowCount:
+      physicalDeviceEvidenceReviewProof.summary.physicalDeviceStatusObservedRows,
+    physicalDeviceEvidenceReviewSupportingStatusArtifactCount:
+      physicalDeviceEvidenceReviewProof.summary.supportingStatusArtifactCount,
+    providerRuntimeRequiredArtifactCount: providerRuntimeReadinessProof.summary.requiredProviderRuntimeArtifactCount,
+    providerRuntimePresentArtifactCount: providerRuntimeReadinessProof.summary.presentProviderRuntimeArtifactCount,
+    providerRuntimeMissingArtifactCount: providerRuntimeReadinessProof.summary.missingProviderRuntimeArtifactCount,
+    providerRuntimeBlockerCount: providerRuntimeReadinessProof.summary.blockerCount,
+    escalationRuntimeRequiredArtifactCount: escalationRuntimeArtifactGateProof.summary.requiredArtifactCount,
+    escalationRuntimePresentArtifactCount:
+      escalationRuntimeArtifactGateProof.summary.requiredArtifactCount -
+      escalationRuntimeArtifactGateProof.summary.missingArtifactCount,
+    escalationRuntimeMissingArtifactCount: escalationRuntimeArtifactGateProof.summary.missingArtifactCount,
+    escalationRuntimeBlockerCount: escalationRuntimeReadinessProof.summary.blockerCount,
     retentionRuntimeRequiredArtifactCount: retentionRuntimeProof.summary.requiredArtifactCount,
     retentionRuntimePresentArtifactCount:
       retentionRuntimeProof.summary.requiredArtifactCount - retentionRuntimeProof.summary.missingArtifactCount,
@@ -367,6 +402,52 @@ function assertProof(proof) {
       )}`
     );
   }
+  if (
+    proof.aggregateEvidence.physicalDeviceEvidenceReviewStatusObservedRowCount < 0 ||
+    proof.aggregateEvidence.physicalDeviceEvidenceReviewStatusObservedRowCount >
+      proof.aggregateEvidence.physicalDeviceEvidenceReviewRowCount ||
+    proof.aggregateEvidence.physicalDeviceEvidenceReviewSupportingStatusArtifactCount <
+      proof.aggregateEvidence.physicalDeviceEvidenceReviewStatusObservedRowCount
+  ) {
+    throw new Error(
+      `Tracking product readiness closure has inconsistent physical status support counts: ${JSON.stringify(
+        proof.aggregateEvidence
+      )}`
+    );
+  }
+  if (
+    proof.aggregateEvidence.authorityRuntimeRequiredArtifactCount !==
+      proof.aggregateEvidence.authorityRuntimePresentArtifactCount +
+        proof.aggregateEvidence.authorityRuntimeMissingArtifactCount ||
+    proof.aggregateEvidence.authorityRuntimePresentArtifactCount !== 0 ||
+    proof.aggregateEvidence.authorityRuntimeBlockerCount === 0
+  ) {
+    throw new Error(
+      `Tracking product readiness closure lost authority runtime evidence: ${JSON.stringify(proof.aggregateEvidence)}`
+    );
+  }
+  if (
+    proof.aggregateEvidence.providerRuntimeRequiredArtifactCount !==
+      proof.aggregateEvidence.providerRuntimePresentArtifactCount +
+        proof.aggregateEvidence.providerRuntimeMissingArtifactCount ||
+    proof.aggregateEvidence.providerRuntimePresentArtifactCount !== 0 ||
+    proof.aggregateEvidence.providerRuntimeBlockerCount === 0
+  ) {
+    throw new Error(
+      `Tracking product readiness closure lost provider runtime evidence: ${JSON.stringify(proof.aggregateEvidence)}`
+    );
+  }
+  if (
+    proof.aggregateEvidence.escalationRuntimeRequiredArtifactCount !==
+      proof.aggregateEvidence.escalationRuntimePresentArtifactCount +
+        proof.aggregateEvidence.escalationRuntimeMissingArtifactCount ||
+    proof.aggregateEvidence.escalationRuntimePresentArtifactCount !== 0 ||
+    proof.aggregateEvidence.escalationRuntimeBlockerCount === 0
+  ) {
+    throw new Error(
+      `Tracking product readiness closure lost escalation runtime evidence: ${JSON.stringify(proof.aggregateEvidence)}`
+    );
+  }
 }
 
 async function writeProofArtifacts(proof) {
@@ -406,6 +487,10 @@ function sourceSnapshot(proof) {
     `- iosSimulatorPrivacyDisclosureArtifactCount: ${proof.aggregateEvidence.iosSimulatorPrivacyDisclosureArtifactCount}`,
     `- iosSimulatorManualRequiredRowCount: ${proof.aggregateEvidence.iosSimulatorManualRequiredRowCount}`,
     `- iosSimulatorMissingRuntimeArtifactCount: ${proof.aggregateEvidence.iosSimulatorMissingRuntimeArtifactCount}`,
+    `- authorityRuntimeRequiredArtifactCount: ${proof.aggregateEvidence.authorityRuntimeRequiredArtifactCount}`,
+    `- authorityRuntimePresentArtifactCount: ${proof.aggregateEvidence.authorityRuntimePresentArtifactCount}`,
+    `- authorityRuntimeMissingArtifactCount: ${proof.aggregateEvidence.authorityRuntimeMissingArtifactCount}`,
+    `- authorityRuntimeBlockerCount: ${proof.aggregateEvidence.authorityRuntimeBlockerCount}`,
     `- childRuntimeRequiredArtifactCount: ${proof.aggregateEvidence.childRuntimeRequiredArtifactCount}`,
     `- childRuntimePresentArtifactCount: ${proof.aggregateEvidence.childRuntimePresentArtifactCount}`,
     `- childRuntimeMissingArtifactCount: ${proof.aggregateEvidence.childRuntimeMissingArtifactCount}`,
@@ -413,6 +498,16 @@ function sourceSnapshot(proof) {
     `- physicalDeviceEvidenceReviewArtifactMissingRowCount: ${proof.aggregateEvidence.physicalDeviceEvidenceReviewArtifactMissingRowCount}`,
     `- physicalDeviceEvidenceReviewContentReviewRequiredRowCount: ${proof.aggregateEvidence.physicalDeviceEvidenceReviewContentReviewRequiredRowCount}`,
     `- physicalDeviceEvidenceReviewContentAcceptedRowCount: ${proof.aggregateEvidence.physicalDeviceEvidenceReviewContentAcceptedRowCount}`,
+    `- physicalDeviceEvidenceReviewStatusObservedRowCount: ${proof.aggregateEvidence.physicalDeviceEvidenceReviewStatusObservedRowCount}`,
+    `- physicalDeviceEvidenceReviewSupportingStatusArtifactCount: ${proof.aggregateEvidence.physicalDeviceEvidenceReviewSupportingStatusArtifactCount}`,
+    `- providerRuntimeRequiredArtifactCount: ${proof.aggregateEvidence.providerRuntimeRequiredArtifactCount}`,
+    `- providerRuntimePresentArtifactCount: ${proof.aggregateEvidence.providerRuntimePresentArtifactCount}`,
+    `- providerRuntimeMissingArtifactCount: ${proof.aggregateEvidence.providerRuntimeMissingArtifactCount}`,
+    `- providerRuntimeBlockerCount: ${proof.aggregateEvidence.providerRuntimeBlockerCount}`,
+    `- escalationRuntimeRequiredArtifactCount: ${proof.aggregateEvidence.escalationRuntimeRequiredArtifactCount}`,
+    `- escalationRuntimePresentArtifactCount: ${proof.aggregateEvidence.escalationRuntimePresentArtifactCount}`,
+    `- escalationRuntimeMissingArtifactCount: ${proof.aggregateEvidence.escalationRuntimeMissingArtifactCount}`,
+    `- escalationRuntimeBlockerCount: ${proof.aggregateEvidence.escalationRuntimeBlockerCount}`,
     `- retentionRuntimeRequiredArtifactCount: ${proof.aggregateEvidence.retentionRuntimeRequiredArtifactCount}`,
     `- retentionRuntimePresentArtifactCount: ${proof.aggregateEvidence.retentionRuntimePresentArtifactCount}`,
     `- retentionRuntimeMissingArtifactCount: ${proof.aggregateEvidence.retentionRuntimeMissingArtifactCount}`,
