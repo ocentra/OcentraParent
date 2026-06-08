@@ -1,9 +1,9 @@
 {
   "schemaVersion": 1,
   "proofMode": "tracking-cross-platform-runtime-capability-proof",
-  "generatedAt": "2026-06-08T19:25:13.898Z",
+  "generatedAt": "2026-06-08T20:01:03.393Z",
   "branch": "codex/tracking-plan-full-continuation-a",
-  "commit": "23430858cbbbaac5ec9b646b0234c30fd9a23ef0",
+  "commit": "8d43701e43819f0b041e52f200b83ad1103bf51a",
   "workpackIds": [
     "08-android-foreground-location-adapter",
     "09-android-background-location-and-geofence-adapter",
@@ -17,13 +17,13 @@
   "readModel": {
     "schemaVersion": "v0.5-tracking",
     "proofMode": "tracking-cross-platform-runtime-capability-proof",
-    "generatedAt": "2026-06-08T19:25:13.898Z",
+    "generatedAt": "2026-06-08T20:01:03.393Z",
     "rows": [
       {
         "schemaVersion": "v0.5-tracking",
         "area": "windows-host-toolchain",
         "status": "local-proof-passed",
-        "generatedAt": "2026-06-08T19:25:13.898Z",
+        "generatedAt": "2026-06-08T20:01:03.393Z",
         "proofRef": "test-results/tracking-cross-platform-runtime-capability-proof/windows-host-toolchain.json",
         "sourceRefs": [],
         "currentProofTier": "P3_LOCAL_WINDOWS_HOST",
@@ -60,7 +60,7 @@
         "schemaVersion": "v0.5-tracking",
         "area": "wsl-linux-replay",
         "status": "local-proof-passed",
-        "generatedAt": "2026-06-08T19:25:13.898Z",
+        "generatedAt": "2026-06-08T20:01:03.393Z",
         "proofRef": "test-results/tracking-plan-wsl-local-proof/proof.json",
         "sourceRefs": [
           "output/tracking-plan-proof/wsl-local-replay/proof.json"
@@ -68,10 +68,9 @@
         "currentProofTier": "P3_LOCAL_DEV_MACHINE",
         "requiredProofTier": "P3_LOCAL_DEV_MACHINE",
         "observedTooling": [
-          "\u0000 \u0000N\u0000A\u0000M\u0000E\u0000 \u0000 \u0000 \u0000 \u0000 \u0000 \u0000 \u0000 \u0000 \u0000 \u0000 \u0000 \u0000 \u0000 \u0000S\u0000T\u0000A\u0000T\u0000E\u0000 \u0000 \u0000 \u0000 \u0000 \u0000 \u0000 \u0000 \u0000 \u0000 \u0000 \u0000V\u0000E\u0000R\u0000S\u0000I\u0000O\u0000N\u0000\r\u0000",
-          "\u0000*\u0000 \u0000U\u0000b\u0000u\u0000n\u0000t\u0000u\u0000-\u00002\u00002\u0000.\u00000\u00004\u0000 \u0000 \u0000 \u0000 \u0000 \u0000 \u0000R\u0000u\u0000n\u0000n\u0000i\u0000n\u0000g\u0000 \u0000 \u0000 \u0000 \u0000 \u0000 \u0000 \u0000 \u0000 \u00002\u0000\r\u0000",
-          "\u0000 \u0000 \u0000d\u0000o\u0000c\u0000k\u0000e\u0000r\u0000-\u0000d\u0000e\u0000s\u0000k\u0000t\u0000o\u0000p\u0000 \u0000 \u0000 \u0000 \u0000R\u0000u\u0000n\u0000n\u0000i\u0000n\u0000g\u0000 \u0000 \u0000 \u0000 \u0000 \u0000 \u0000 \u0000 \u0000 \u00002\u0000\r\u0000",
-          "\u0000",
+          "NAME              STATE           VERSION",
+          "* Ubuntu-22.04      Running         2",
+          "docker-desktop    Running         2",
           "Linux GameDev 5.15.167.4-microsoft-standard-WSL2 #1 SMP Tue Nov 5 00:21:55 UTC 2024 x86_64 x86_64 x86_64 GNU/Linux",
           "v22.22.0",
           "10.9.4",
@@ -97,7 +96,7 @@
         "schemaVersion": "v0.5-tracking",
         "area": "docker-container-runtime",
         "status": "local-proof-passed",
-        "generatedAt": "2026-06-08T19:25:13.898Z",
+        "generatedAt": "2026-06-08T20:01:03.393Z",
         "proofRef": "test-results/tracking-cross-platform-runtime-capability-proof/docker-container-runtime.json",
         "sourceRefs": [],
         "currentProofTier": "P3_LOCAL_CONTAINER_RUNTIME",
@@ -125,7 +124,7 @@
         "schemaVersion": "v0.5-tracking",
         "area": "android-sdk-toolchain",
         "status": "local-proof-passed",
-        "generatedAt": "2026-06-08T19:25:13.898Z",
+        "generatedAt": "2026-06-08T20:01:03.393Z",
         "proofRef": "test-results/tracking-cross-platform-runtime-capability-proof/android-sdk-toolchain.json",
         "sourceRefs": [],
         "currentProofTier": "P3_LOCAL_ANDROID_TOOLCHAIN",
@@ -162,7 +161,7 @@
         "schemaVersion": "v0.5-tracking",
         "area": "android-gradle-project-build",
         "status": "local-proof-passed",
-        "generatedAt": "2026-06-08T19:25:13.898Z",
+        "generatedAt": "2026-06-08T20:01:03.393Z",
         "proofRef": "test-results/tracking-cross-platform-runtime-capability-proof/android-gradle-project-build.json",
         "sourceRefs": [
           "platforms/android/agent/build.gradle",
@@ -203,7 +202,7 @@
         "schemaVersion": "v0.5-tracking",
         "area": "android-emulator-runtime",
         "status": "local-proof-passed",
-        "generatedAt": "2026-06-08T19:25:13.898Z",
+        "generatedAt": "2026-06-08T20:01:03.393Z",
         "proofRef": "test-results/tracking-plan-android-emulator-proof/proof.json",
         "sourceRefs": [
           "test-results/tracking-android-emulator-artifact-inventory-proof/proof.json"
@@ -238,7 +237,7 @@
         "schemaVersion": "v0.5-tracking",
         "area": "android-physical-device-status",
         "status": "local-proof-passed",
-        "generatedAt": "2026-06-08T19:25:13.898Z",
+        "generatedAt": "2026-06-08T20:01:03.393Z",
         "proofRef": "test-results/tracking-android-physical-device-runtime-proof/proof.json",
         "sourceRefs": [],
         "currentProofTier": "P4_PHYSICAL_DEVICE_STATUS_ONLY",
@@ -271,7 +270,7 @@
         "schemaVersion": "v0.5-tracking",
         "area": "macos-ios-ci-manual-routing",
         "status": "ci-manual-required",
-        "generatedAt": "2026-06-08T19:25:13.898Z",
+        "generatedAt": "2026-06-08T20:01:03.393Z",
         "proofRef": "test-results/tracking-ios-simulator-artifact-inventory-proof/proof.json",
         "sourceRefs": [
           "test-results/tracking-plan-ios-simulator-proof/proof.json"
@@ -360,7 +359,7 @@
       "id": "windows-host-toolchain",
       "command": "cmd /c ver & where node & node --version & where npm & npm --version & where cargo & cargo --version",
       "exitCode": 0,
-      "stdout": "\r\nMicrosoft Windows [Version 10.0.26200.8457]\r\nC:\\Program Files\\nodejs\\node.exe\r\nC:\\Program Files\\WindowsApps\\OpenAI.Codex_26.602.4764.0_x64__2p2nqsd0c76g0\\app\\resources\\node.exe\r\nv22.22.2\r\nC:\\Program Files\\nodejs\\npm\r\nC:\\Program Files\\nodejs\\npm.cmd\r\nC:\\Users\\sujan\\AppData\\Roaming\\npm\\npm\r\nC:\\Users\\sujan\\AppData\\Roaming\\npm\\npm.cmd\r\n11.7.0\nC:\\Users\\sujan\\.cargo\\bin\\cargo.exe\r\ncargo 1.90.0 (840b83a10 2025-07-30)\n",
+      "stdout": "\nMicrosoft Windows [Version 10.0.26200.8457]\nC:\\Program Files\\nodejs\\node.exe\nC:\\Program Files\\WindowsApps\\OpenAI.Codex_26.602.4764.0_x64__2p2nqsd0c76g0\\app\\resources\\node.exe\nv22.22.2\nC:\\Program Files\\nodejs\\npm\nC:\\Program Files\\nodejs\\npm.cmd\nC:\\Users\\sujan\\AppData\\Roaming\\npm\\npm\nC:\\Users\\sujan\\AppData\\Roaming\\npm\\npm.cmd\n11.7.0\nC:\\Users\\sujan\\.cargo\\bin\\cargo.exe\ncargo 1.90.0 (840b83a10 2025-07-30)\n",
       "stderr": ""
     },
     "wsl": {
@@ -374,7 +373,7 @@
       "id": "wsl-distros",
       "command": "wsl.exe -l -v",
       "exitCode": 0,
-      "stdout": " \u0000 \u0000N\u0000A\u0000M\u0000E\u0000 \u0000 \u0000 \u0000 \u0000 \u0000 \u0000 \u0000 \u0000 \u0000 \u0000 \u0000 \u0000 \u0000 \u0000S\u0000T\u0000A\u0000T\u0000E\u0000 \u0000 \u0000 \u0000 \u0000 \u0000 \u0000 \u0000 \u0000 \u0000 \u0000 \u0000V\u0000E\u0000R\u0000S\u0000I\u0000O\u0000N\u0000\r\u0000\n\u0000*\u0000 \u0000U\u0000b\u0000u\u0000n\u0000t\u0000u\u0000-\u00002\u00002\u0000.\u00000\u00004\u0000 \u0000 \u0000 \u0000 \u0000 \u0000 \u0000R\u0000u\u0000n\u0000n\u0000i\u0000n\u0000g\u0000 \u0000 \u0000 \u0000 \u0000 \u0000 \u0000 \u0000 \u0000 \u00002\u0000\r\u0000\n\u0000 \u0000 \u0000d\u0000o\u0000c\u0000k\u0000e\u0000r\u0000-\u0000d\u0000e\u0000s\u0000k\u0000t\u0000o\u0000p\u0000 \u0000 \u0000 \u0000 \u0000R\u0000u\u0000n\u0000n\u0000i\u0000n\u0000g\u0000 \u0000 \u0000 \u0000 \u0000 \u0000 \u0000 \u0000 \u0000 \u00002\u0000\r\u0000\n\u0000",
+      "stdout": "  NAME              STATE           VERSION\n* Ubuntu-22.04      Running         2\n  docker-desktop    Running         2\n",
       "stderr": ""
     },
     "dockerPath": "C:\\Program Files\\Docker\\Docker\\resources\\bin\\docker.exe",
@@ -396,22 +395,22 @@
       "id": "android-toolchain",
       "command": "cmd /c where adb & adb version & where java & java -version",
       "exitCode": 0,
-      "stdout": "C:\\Users\\sujan\\AppData\\Local\\Android\\Sdk\\platform-tools\\adb.exe\r\nAndroid Debug Bridge version 1.0.41\r\nVersion 37.0.0-14910828\r\nInstalled as C:\\Users\\sujan\\AppData\\Local\\Android\\Sdk\\platform-tools\\adb.exe\r\nRunning on Windows 10.0.26200\r\nC:\\Program Files\\Java\\jdk-17\\bin\\java.exe\r\nC:\\Program Files\\Eclipse Adoptium\\jdk-21.0.10.7-hotspot\\bin\\java.exe\r\n",
-      "stderr": "java version \"17.0.12\" 2024-07-16 LTS\r\nJava(TM) SE Runtime Environment (build 17.0.12+8-LTS-286)\r\nJava HotSpot(TM) 64-Bit Server VM (build 17.0.12+8-LTS-286, mixed mode, sharing)\r\n"
+      "stdout": "C:\\Users\\sujan\\AppData\\Local\\Android\\Sdk\\platform-tools\\adb.exe\nAndroid Debug Bridge version 1.0.41\nVersion 37.0.0-14910828\nInstalled as C:\\Users\\sujan\\AppData\\Local\\Android\\Sdk\\platform-tools\\adb.exe\nRunning on Windows 10.0.26200\nC:\\Program Files\\Java\\jdk-17\\bin\\java.exe\nC:\\Program Files\\Eclipse Adoptium\\jdk-21.0.10.7-hotspot\\bin\\java.exe\n",
+      "stderr": "java version \"17.0.12\" 2024-07-16 LTS\nJava(TM) SE Runtime Environment (build 17.0.12+8-LTS-286)\nJava HotSpot(TM) 64-Bit Server VM (build 17.0.12+8-LTS-286, mixed mode, sharing)\n"
     },
     "androidHome": "C:\\Users\\sujan\\AppData\\Local\\Android\\Sdk",
     "androidGradleVersion": {
       "id": "android-gradle-version",
       "command": "cmd /c gradlew.bat --version",
       "exitCode": 0,
-      "stdout": "\r\n------------------------------------------------------------\r\nGradle 8.12.1\r\n------------------------------------------------------------\r\n\r\nBuild time:    2025-01-24 12:55:12 UTC\r\nRevision:      0b1ee1ff81d1f4a26574ff4a362ac9180852b140\r\n\r\nKotlin:        2.0.21\r\nGroovy:        3.0.22\r\nAnt:           Apache Ant(TM) version 1.10.15 compiled on August 25 2024\r\nLauncher JVM:  21.0.10 (Eclipse Adoptium 21.0.10+7-LTS)\r\nDaemon JVM:    C:\\Program Files\\Eclipse Adoptium\\jdk-21.0.10.7-hotspot (no JDK specified, using current Java home)\r\nOS:            Windows 11 10.0 amd64\r\n\r\n",
+      "stdout": "\n------------------------------------------------------------\nGradle 8.12.1\n------------------------------------------------------------\n\nBuild time:    2025-01-24 12:55:12 UTC\nRevision:      0b1ee1ff81d1f4a26574ff4a362ac9180852b140\n\nKotlin:        2.0.21\nGroovy:        3.0.22\nAnt:           Apache Ant(TM) version 1.10.15 compiled on August 25 2024\nLauncher JVM:  21.0.10 (Eclipse Adoptium 21.0.10+7-LTS)\nDaemon JVM:    C:\\Program Files\\Eclipse Adoptium\\jdk-21.0.10.7-hotspot (no JDK specified, using current Java home)\nOS:            Windows 11 10.0 amd64\n\n",
       "stderr": ""
     },
     "androidGradleBuild": {
       "id": "android-gradle-build",
       "command": "cmd /c gradlew.bat :app:assembleDebug --no-daemon",
       "exitCode": 0,
-      "stdout": "To honour the JVM settings for this build a single-use Daemon process will be forked. For more on this, please refer to https://docs.gradle.org/8.12.1/userguide/gradle_daemon.html#sec:disabling_the_daemon in the Gradle documentation.\r\nDaemon will be stopped at the end of the build \r\n> Task :app:preBuild UP-TO-DATE\r\n> Task :app:preDebugBuild UP-TO-DATE\r\n> Task :app:mergeDebugNativeDebugMetadata NO-SOURCE\r\n> Task :app:javaPreCompileDebug UP-TO-DATE\r\n> Task :app:checkDebugAarMetadata UP-TO-DATE\r\n> Task :app:generateDebugResValues UP-TO-DATE\r\n> Task :app:mapDebugSourceSetPaths UP-TO-DATE\r\n> Task :app:generateDebugResources UP-TO-DATE\r\n> Task :app:mergeDebugResources UP-TO-DATE\r\n> Task :app:packageDebugResources UP-TO-DATE\r\n> Task :app:parseDebugLocalResources UP-TO-DATE\r\n> Task :app:createDebugCompatibleScreenManifests UP-TO-DATE\r\n> Task :app:extractDeepLinksDebug UP-TO-DATE\r\n> Task :app:processDebugMainManifest UP-TO-DATE\r\n> Task :app:processDebugManifest UP-TO-DATE\r\n> Task :app:processDebugManifestForPackage UP-TO-DATE\r\n> Task :app:processDebugResources UP-TO-DATE\r\n> Task :app:compileDebugJavaWithJavac UP-TO-DATE\r\n> Task :app:mergeDebugShaders UP-TO-DATE\r\n> Task :app:compileDebugShaders NO-SOURCE\r\n> Task :app:generateDebugAssets UP-TO-DATE\r\n> Task :app:mergeDebugAssets UP-TO-DATE\r\n> Task :app:compressDebugAssets UP-TO-DATE\r\n> Task :app:desugarDebugFileDependencies UP-TO-DATE\r\n> Task :app:dexBuilderDebug UP-TO-DATE\r\n> Task :app:mergeDebugGlobalSynthetics UP-TO-DATE\r\n> Task :app:processDebugJavaRes NO-SOURCE\r\n> Task :app:mergeDebugJavaResource UP-TO-DATE\r\n> Task :app:checkDebugDuplicateClasses UP-TO-DATE\r\n> Task :app:mergeExtDexDebug UP-TO-DATE\r\n> Task :app:mergeLibDexDebug UP-TO-DATE\r\n> Task :app:mergeProjectDexDebug UP-TO-DATE\r\n> Task :app:mergeDebugJniLibFolders UP-TO-DATE\r\n> Task :app:mergeDebugNativeLibs NO-SOURCE\r\n> Task :app:stripDebugDebugSymbols NO-SOURCE\r\n> Task :app:validateSigningDebug UP-TO-DATE\r\n> Task :app:writeDebugAppMetadata UP-TO-DATE\r\n> Task :app:writeDebugSigningConfigVersions UP-TO-DATE\r\n> Task :app:packageDebug UP-TO-DATE\r\n> Task :app:createDebugApkListingFileRedirect UP-TO-DATE\r\n> Task :app:assembleDebug UP-TO-DATE\r\n\r\nBUILD SUCCESSFUL in 10s\r\n32 actionable tasks: 32 up-to-date\r\n",
+      "stdout": "To honour the JVM settings for this build a single-use Daemon process will be forked. For more on this, please refer to https://docs.gradle.org/8.12.1/userguide/gradle_daemon.html#sec:disabling_the_daemon in the Gradle documentation.\nDaemon will be stopped at the end of the build\n> Task :app:preBuild UP-TO-DATE\n> Task :app:preDebugBuild UP-TO-DATE\n> Task :app:mergeDebugNativeDebugMetadata NO-SOURCE\n> Task :app:javaPreCompileDebug UP-TO-DATE\n> Task :app:checkDebugAarMetadata UP-TO-DATE\n> Task :app:generateDebugResValues UP-TO-DATE\n> Task :app:mapDebugSourceSetPaths UP-TO-DATE\n> Task :app:generateDebugResources UP-TO-DATE\n> Task :app:mergeDebugResources UP-TO-DATE\n> Task :app:packageDebugResources UP-TO-DATE\n> Task :app:parseDebugLocalResources UP-TO-DATE\n> Task :app:createDebugCompatibleScreenManifests UP-TO-DATE\n> Task :app:extractDeepLinksDebug UP-TO-DATE\n> Task :app:processDebugMainManifest UP-TO-DATE\n> Task :app:processDebugManifest UP-TO-DATE\n> Task :app:processDebugManifestForPackage UP-TO-DATE\n> Task :app:processDebugResources UP-TO-DATE\n> Task :app:compileDebugJavaWithJavac UP-TO-DATE\n> Task :app:mergeDebugShaders UP-TO-DATE\n> Task :app:compileDebugShaders NO-SOURCE\n> Task :app:generateDebugAssets UP-TO-DATE\n> Task :app:mergeDebugAssets UP-TO-DATE\n> Task :app:compressDebugAssets UP-TO-DATE\n> Task :app:desugarDebugFileDependencies UP-TO-DATE\n> Task :app:dexBuilderDebug UP-TO-DATE\n> Task :app:mergeDebugGlobalSynthetics UP-TO-DATE\n> Task :app:processDebugJavaRes NO-SOURCE\n> Task :app:mergeDebugJavaResource UP-TO-DATE\n> Task :app:checkDebugDuplicateClasses UP-TO-DATE\n> Task :app:mergeExtDexDebug UP-TO-DATE\n> Task :app:mergeLibDexDebug UP-TO-DATE\n> Task :app:mergeProjectDexDebug UP-TO-DATE\n> Task :app:mergeDebugJniLibFolders UP-TO-DATE\n> Task :app:mergeDebugNativeLibs NO-SOURCE\n> Task :app:stripDebugDebugSymbols NO-SOURCE\n> Task :app:validateSigningDebug UP-TO-DATE\n> Task :app:writeDebugAppMetadata UP-TO-DATE\n> Task :app:writeDebugSigningConfigVersions UP-TO-DATE\n> Task :app:packageDebug UP-TO-DATE\n> Task :app:createDebugApkListingFileRedirect UP-TO-DATE\n> Task :app:assembleDebug UP-TO-DATE\n\nBUILD SUCCESSFUL in 13s\n32 actionable tasks: 32 up-to-date\n",
       "stderr": ""
     }
   },
@@ -448,13 +447,13 @@
       "command": "cmd /c where docker",
       "exitCode": 1,
       "stdout": "",
-      "stderr": "INFO: Could not find files for the given pattern(s).\r\n"
+      "stderr": "INFO: Could not find files for the given pattern(s).\n"
     },
     {
       "id": "windows-host-toolchain",
       "command": "cmd /c ver & where node & node --version & where npm & npm --version & where cargo & cargo --version",
       "exitCode": 0,
-      "stdout": "\r\nMicrosoft Windows [Version 10.0.26200.8457]\r\nC:\\Program Files\\nodejs\\node.exe\r\nC:\\Program Files\\WindowsApps\\OpenAI.Codex_26.602.4764.0_x64__2p2nqsd0c76g0\\app\\resources\\node.exe\r\nv22.22.2\r\nC:\\Program Files\\nodejs\\npm\r\nC:\\Program Files\\nodejs\\npm.cmd\r\nC:\\Users\\sujan\\AppData\\Roaming\\npm\\npm\r\nC:\\Users\\sujan\\AppData\\Roaming\\npm\\npm.cmd\r\n11.7.0\nC:\\Users\\sujan\\.cargo\\bin\\cargo.exe\r\ncargo 1.90.0 (840b83a10 2025-07-30)\n",
+      "stdout": "\nMicrosoft Windows [Version 10.0.26200.8457]\nC:\\Program Files\\nodejs\\node.exe\nC:\\Program Files\\WindowsApps\\OpenAI.Codex_26.602.4764.0_x64__2p2nqsd0c76g0\\app\\resources\\node.exe\nv22.22.2\nC:\\Program Files\\nodejs\\npm\nC:\\Program Files\\nodejs\\npm.cmd\nC:\\Users\\sujan\\AppData\\Roaming\\npm\\npm\nC:\\Users\\sujan\\AppData\\Roaming\\npm\\npm.cmd\n11.7.0\nC:\\Users\\sujan\\.cargo\\bin\\cargo.exe\ncargo 1.90.0 (840b83a10 2025-07-30)\n",
       "stderr": ""
     },
     {
@@ -468,7 +467,7 @@
       "id": "wsl-distros",
       "command": "wsl.exe -l -v",
       "exitCode": 0,
-      "stdout": " \u0000 \u0000N\u0000A\u0000M\u0000E\u0000 \u0000 \u0000 \u0000 \u0000 \u0000 \u0000 \u0000 \u0000 \u0000 \u0000 \u0000 \u0000 \u0000 \u0000S\u0000T\u0000A\u0000T\u0000E\u0000 \u0000 \u0000 \u0000 \u0000 \u0000 \u0000 \u0000 \u0000 \u0000 \u0000 \u0000V\u0000E\u0000R\u0000S\u0000I\u0000O\u0000N\u0000\r\u0000\n\u0000*\u0000 \u0000U\u0000b\u0000u\u0000n\u0000t\u0000u\u0000-\u00002\u00002\u0000.\u00000\u00004\u0000 \u0000 \u0000 \u0000 \u0000 \u0000 \u0000R\u0000u\u0000n\u0000n\u0000i\u0000n\u0000g\u0000 \u0000 \u0000 \u0000 \u0000 \u0000 \u0000 \u0000 \u0000 \u00002\u0000\r\u0000\n\u0000 \u0000 \u0000d\u0000o\u0000c\u0000k\u0000e\u0000r\u0000-\u0000d\u0000e\u0000s\u0000k\u0000t\u0000o\u0000p\u0000 \u0000 \u0000 \u0000 \u0000R\u0000u\u0000n\u0000n\u0000i\u0000n\u0000g\u0000 \u0000 \u0000 \u0000 \u0000 \u0000 \u0000 \u0000 \u0000 \u00002\u0000\r\u0000\n\u0000",
+      "stdout": "  NAME              STATE           VERSION\n* Ubuntu-22.04      Running         2\n  docker-desktop    Running         2\n",
       "stderr": ""
     },
     {
@@ -489,21 +488,21 @@
       "id": "android-toolchain",
       "command": "cmd /c where adb & adb version & where java & java -version",
       "exitCode": 0,
-      "stdout": "C:\\Users\\sujan\\AppData\\Local\\Android\\Sdk\\platform-tools\\adb.exe\r\nAndroid Debug Bridge version 1.0.41\r\nVersion 37.0.0-14910828\r\nInstalled as C:\\Users\\sujan\\AppData\\Local\\Android\\Sdk\\platform-tools\\adb.exe\r\nRunning on Windows 10.0.26200\r\nC:\\Program Files\\Java\\jdk-17\\bin\\java.exe\r\nC:\\Program Files\\Eclipse Adoptium\\jdk-21.0.10.7-hotspot\\bin\\java.exe\r\n",
-      "stderr": "java version \"17.0.12\" 2024-07-16 LTS\r\nJava(TM) SE Runtime Environment (build 17.0.12+8-LTS-286)\r\nJava HotSpot(TM) 64-Bit Server VM (build 17.0.12+8-LTS-286, mixed mode, sharing)\r\n"
+      "stdout": "C:\\Users\\sujan\\AppData\\Local\\Android\\Sdk\\platform-tools\\adb.exe\nAndroid Debug Bridge version 1.0.41\nVersion 37.0.0-14910828\nInstalled as C:\\Users\\sujan\\AppData\\Local\\Android\\Sdk\\platform-tools\\adb.exe\nRunning on Windows 10.0.26200\nC:\\Program Files\\Java\\jdk-17\\bin\\java.exe\nC:\\Program Files\\Eclipse Adoptium\\jdk-21.0.10.7-hotspot\\bin\\java.exe\n",
+      "stderr": "java version \"17.0.12\" 2024-07-16 LTS\nJava(TM) SE Runtime Environment (build 17.0.12+8-LTS-286)\nJava HotSpot(TM) 64-Bit Server VM (build 17.0.12+8-LTS-286, mixed mode, sharing)\n"
     },
     {
       "id": "android-gradle-version",
       "command": "cmd /c gradlew.bat --version",
       "exitCode": 0,
-      "stdout": "\r\n------------------------------------------------------------\r\nGradle 8.12.1\r\n------------------------------------------------------------\r\n\r\nBuild time:    2025-01-24 12:55:12 UTC\r\nRevision:      0b1ee1ff81d1f4a26574ff4a362ac9180852b140\r\n\r\nKotlin:        2.0.21\r\nGroovy:        3.0.22\r\nAnt:           Apache Ant(TM) version 1.10.15 compiled on August 25 2024\r\nLauncher JVM:  21.0.10 (Eclipse Adoptium 21.0.10+7-LTS)\r\nDaemon JVM:    C:\\Program Files\\Eclipse Adoptium\\jdk-21.0.10.7-hotspot (no JDK specified, using current Java home)\r\nOS:            Windows 11 10.0 amd64\r\n\r\n",
+      "stdout": "\n------------------------------------------------------------\nGradle 8.12.1\n------------------------------------------------------------\n\nBuild time:    2025-01-24 12:55:12 UTC\nRevision:      0b1ee1ff81d1f4a26574ff4a362ac9180852b140\n\nKotlin:        2.0.21\nGroovy:        3.0.22\nAnt:           Apache Ant(TM) version 1.10.15 compiled on August 25 2024\nLauncher JVM:  21.0.10 (Eclipse Adoptium 21.0.10+7-LTS)\nDaemon JVM:    C:\\Program Files\\Eclipse Adoptium\\jdk-21.0.10.7-hotspot (no JDK specified, using current Java home)\nOS:            Windows 11 10.0 amd64\n\n",
       "stderr": ""
     },
     {
       "id": "android-gradle-build",
       "command": "cmd /c gradlew.bat :app:assembleDebug --no-daemon",
       "exitCode": 0,
-      "stdout": "To honour the JVM settings for this build a single-use Daemon process will be forked. For more on this, please refer to https://docs.gradle.org/8.12.1/userguide/gradle_daemon.html#sec:disabling_the_daemon in the Gradle documentation.\r\nDaemon will be stopped at the end of the build \r\n> Task :app:preBuild UP-TO-DATE\r\n> Task :app:preDebugBuild UP-TO-DATE\r\n> Task :app:mergeDebugNativeDebugMetadata NO-SOURCE\r\n> Task :app:javaPreCompileDebug UP-TO-DATE\r\n> Task :app:checkDebugAarMetadata UP-TO-DATE\r\n> Task :app:generateDebugResValues UP-TO-DATE\r\n> Task :app:mapDebugSourceSetPaths UP-TO-DATE\r\n> Task :app:generateDebugResources UP-TO-DATE\r\n> Task :app:mergeDebugResources UP-TO-DATE\r\n> Task :app:packageDebugResources UP-TO-DATE\r\n> Task :app:parseDebugLocalResources UP-TO-DATE\r\n> Task :app:createDebugCompatibleScreenManifests UP-TO-DATE\r\n> Task :app:extractDeepLinksDebug UP-TO-DATE\r\n> Task :app:processDebugMainManifest UP-TO-DATE\r\n> Task :app:processDebugManifest UP-TO-DATE\r\n> Task :app:processDebugManifestForPackage UP-TO-DATE\r\n> Task :app:processDebugResources UP-TO-DATE\r\n> Task :app:compileDebugJavaWithJavac UP-TO-DATE\r\n> Task :app:mergeDebugShaders UP-TO-DATE\r\n> Task :app:compileDebugShaders NO-SOURCE\r\n> Task :app:generateDebugAssets UP-TO-DATE\r\n> Task :app:mergeDebugAssets UP-TO-DATE\r\n> Task :app:compressDebugAssets UP-TO-DATE\r\n> Task :app:desugarDebugFileDependencies UP-TO-DATE\r\n> Task :app:dexBuilderDebug UP-TO-DATE\r\n> Task :app:mergeDebugGlobalSynthetics UP-TO-DATE\r\n> Task :app:processDebugJavaRes NO-SOURCE\r\n> Task :app:mergeDebugJavaResource UP-TO-DATE\r\n> Task :app:checkDebugDuplicateClasses UP-TO-DATE\r\n> Task :app:mergeExtDexDebug UP-TO-DATE\r\n> Task :app:mergeLibDexDebug UP-TO-DATE\r\n> Task :app:mergeProjectDexDebug UP-TO-DATE\r\n> Task :app:mergeDebugJniLibFolders UP-TO-DATE\r\n> Task :app:mergeDebugNativeLibs NO-SOURCE\r\n> Task :app:stripDebugDebugSymbols NO-SOURCE\r\n> Task :app:validateSigningDebug UP-TO-DATE\r\n> Task :app:writeDebugAppMetadata UP-TO-DATE\r\n> Task :app:writeDebugSigningConfigVersions UP-TO-DATE\r\n> Task :app:packageDebug UP-TO-DATE\r\n> Task :app:createDebugApkListingFileRedirect UP-TO-DATE\r\n> Task :app:assembleDebug UP-TO-DATE\r\n\r\nBUILD SUCCESSFUL in 10s\r\n32 actionable tasks: 32 up-to-date\r\n",
+      "stdout": "To honour the JVM settings for this build a single-use Daemon process will be forked. For more on this, please refer to https://docs.gradle.org/8.12.1/userguide/gradle_daemon.html#sec:disabling_the_daemon in the Gradle documentation.\nDaemon will be stopped at the end of the build\n> Task :app:preBuild UP-TO-DATE\n> Task :app:preDebugBuild UP-TO-DATE\n> Task :app:mergeDebugNativeDebugMetadata NO-SOURCE\n> Task :app:javaPreCompileDebug UP-TO-DATE\n> Task :app:checkDebugAarMetadata UP-TO-DATE\n> Task :app:generateDebugResValues UP-TO-DATE\n> Task :app:mapDebugSourceSetPaths UP-TO-DATE\n> Task :app:generateDebugResources UP-TO-DATE\n> Task :app:mergeDebugResources UP-TO-DATE\n> Task :app:packageDebugResources UP-TO-DATE\n> Task :app:parseDebugLocalResources UP-TO-DATE\n> Task :app:createDebugCompatibleScreenManifests UP-TO-DATE\n> Task :app:extractDeepLinksDebug UP-TO-DATE\n> Task :app:processDebugMainManifest UP-TO-DATE\n> Task :app:processDebugManifest UP-TO-DATE\n> Task :app:processDebugManifestForPackage UP-TO-DATE\n> Task :app:processDebugResources UP-TO-DATE\n> Task :app:compileDebugJavaWithJavac UP-TO-DATE\n> Task :app:mergeDebugShaders UP-TO-DATE\n> Task :app:compileDebugShaders NO-SOURCE\n> Task :app:generateDebugAssets UP-TO-DATE\n> Task :app:mergeDebugAssets UP-TO-DATE\n> Task :app:compressDebugAssets UP-TO-DATE\n> Task :app:desugarDebugFileDependencies UP-TO-DATE\n> Task :app:dexBuilderDebug UP-TO-DATE\n> Task :app:mergeDebugGlobalSynthetics UP-TO-DATE\n> Task :app:processDebugJavaRes NO-SOURCE\n> Task :app:mergeDebugJavaResource UP-TO-DATE\n> Task :app:checkDebugDuplicateClasses UP-TO-DATE\n> Task :app:mergeExtDexDebug UP-TO-DATE\n> Task :app:mergeLibDexDebug UP-TO-DATE\n> Task :app:mergeProjectDexDebug UP-TO-DATE\n> Task :app:mergeDebugJniLibFolders UP-TO-DATE\n> Task :app:mergeDebugNativeLibs NO-SOURCE\n> Task :app:stripDebugDebugSymbols NO-SOURCE\n> Task :app:validateSigningDebug UP-TO-DATE\n> Task :app:writeDebugAppMetadata UP-TO-DATE\n> Task :app:writeDebugSigningConfigVersions UP-TO-DATE\n> Task :app:packageDebug UP-TO-DATE\n> Task :app:createDebugApkListingFileRedirect UP-TO-DATE\n> Task :app:assembleDebug UP-TO-DATE\n\nBUILD SUCCESSFUL in 13s\n32 actionable tasks: 32 up-to-date\n",
       "stderr": ""
     }
   ]

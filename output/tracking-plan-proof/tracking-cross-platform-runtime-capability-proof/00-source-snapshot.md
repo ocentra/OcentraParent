@@ -1,7 +1,7 @@
 # Tracking Cross-Platform Runtime Capability Proof
 
-- generatedAt: 2026-06-08T19:25:13.898Z
-- commit: 23430858cbbbaac5ec9b646b0234c30fd9a23ef0
+- generatedAt: 2026-06-08T20:01:03.393Z
+- commit: 8d43701e43819f0b041e52f200b83ad1103bf51a
 - localProofPassedRows: 7
 - hostToolUnavailableRows: 0
 - ciManualRequiredRows: 1

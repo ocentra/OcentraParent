@@ -278,7 +278,9 @@ expose location or device-status features. Parents expect this category.
   CI/manual routing into one parent-domain proof. The current Windows host,
   WSL/Linux, Docker container runtime, Android emulator, Android physical
   status, Android physical app-owned geofence registration, and Android physical
-  system proximity registration rows pass locally; macOS/iOS remain
+  system proximity registration rows pass locally; the refreshed harness
+  normalizes WSL host probe output before writing proof artifacts and records
+  Docker only when both CLI and daemon are reachable; macOS/iOS remain
   CI/manual-required on this Windows host. The proof keeps
   physical device behavior, authority, production, and product-ready tracking
   claims false.

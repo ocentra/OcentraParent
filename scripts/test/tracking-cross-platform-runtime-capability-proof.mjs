@@ -410,7 +410,7 @@ function statusFrom(result) {
 }
 
 function lines(value) {
-  return value
+  return normalizeProbeOutput(value)
     .split(/\r?\n/u)
     .map((line) => line.trim())
     .filter((line) => line.length > 0)
@@ -448,5 +448,15 @@ function relativePath(filePath) {
 }
 
 function trim(value) {
-  return value.length > 4000 ? `${value.slice(0, 4000)}\n...[truncated]` : value;
+  const normalized = normalizeProbeOutput(value);
+  return normalized.length > 4000 ? `${normalized.slice(0, 4000)}\n...[truncated]` : normalized;
+}
+
+function normalizeProbeOutput(value) {
+  return value
+    .replaceAll('\u0000', '')
+    .replace(/\r\n?/gu, '\n')
+    .split('\n')
+    .map((line) => line.trimEnd())
+    .join('\n');
 }
