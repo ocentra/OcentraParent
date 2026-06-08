@@ -32,6 +32,13 @@ const copiedScreenshotCaptures = [
       'output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/11-ui-snapshots/hosted-parent-devices-shell.png',
     outputArtifactRef: 'output/tracking-plan-proof/product-parent-child-ui-runtime/02-parent-device-detail-runtime.png',
   },
+  {
+    artifactId: 'parent-notification-history-preferences-runtime',
+    sourceArtifactRef:
+      'output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/11-ui-snapshots/hosted-policy-tracking-notification-parent-surface.png',
+    outputArtifactRef:
+      'output/tracking-plan-proof/product-parent-child-ui-runtime/03-parent-notification-history-preferences-runtime.png',
+  },
 ];
 
 await main();
@@ -59,6 +66,7 @@ async function main() {
   const captures = [
     ...(await Promise.all(copiedScreenshotCaptures.map(copyScreenshotArtifact))),
     await writeAccessibilityArtifact(),
+    await writeEndToEndTraceArtifact(),
   ];
   const readModel = proofModule.buildTrackingFullProductUiLocalRuntimeArtifactCaptureProof(
     generatedAt,
@@ -132,6 +140,58 @@ async function writeAccessibilityArtifact() {
   };
 }
 
+async function writeEndToEndTraceArtifact() {
+  const sourceArtifactRef = 'test-results/tracking-hosted-ui-artifact-inventory-proof/proof.json';
+  const outputArtifactRef =
+    'output/tracking-plan-proof/product-parent-child-ui-runtime/09-product-ui-end-to-end-trace.json';
+  const sourcePath = path.join(repoRoot, sourceArtifactRef);
+  const outputPath = path.join(repoRoot, outputArtifactRef);
+  const inventoryProof = JSON.parse(await readFile(sourcePath, 'utf8'));
+  const trace = {
+    schemaVersion: 1,
+    traceMode: 'tracking-full-product-ui-local-end-to-end-trace',
+    generatedAt,
+    sourceArtifactRef,
+    hostedInventoryStatus: inventoryProof.status,
+    presentLocalProductArtifacts: [
+      'output/tracking-plan-proof/product-parent-child-ui-runtime/01-parent-overview-runtime.png',
+      'output/tracking-plan-proof/product-parent-child-ui-runtime/02-parent-device-detail-runtime.png',
+      'output/tracking-plan-proof/product-parent-child-ui-runtime/03-parent-notification-history-preferences-runtime.png',
+      'output/tracking-plan-proof/product-parent-child-ui-runtime/08-cross-surface-accessibility-report.json',
+    ],
+    stillMissingRuntimeArtifacts: [
+      'output/tracking-plan-proof/product-parent-child-ui-runtime/04-retention-settings-production-write-result.png',
+      'output/tracking-plan-proof/product-parent-child-ui-runtime/05-child-device-rendered-check-in-runtime.png',
+      'output/tracking-plan-proof/product-parent-child-ui-runtime/06-child-device-rendered-location-consent-runtime.png',
+      'output/tracking-plan-proof/product-parent-child-ui-runtime/07-child-device-safe-help-response-runtime.png',
+    ],
+    proofBoundary: {
+      currentProofTier: 'P2_HOSTED_CI',
+      requiredProofTier: 'P4_PHYSICAL_DEVICE',
+      localParentUiTraceOnly: true,
+      fullProductUiRuntimeClaimed: false,
+      childDeviceRuntimeClaimed: false,
+      physicalDeviceProofClaimed: false,
+      authorityProofClaimed: false,
+      providerDeliveryRuntimeClaimed: false,
+      productionProductUiClaimed: false,
+      productClaimReady: false,
+    },
+  };
+  await mkdir(path.dirname(outputPath), { recursive: true });
+  await writeJson(outputPath, trace);
+  const sourceStats = await stat(sourcePath);
+  const outputStats = await stat(outputPath);
+
+  return {
+    artifactId: 'product-ui-end-to-end-trace',
+    sourceArtifactRef,
+    outputArtifactRef,
+    sourceBytes: sourceStats.size,
+    outputBytes: outputStats.size,
+  };
+}
+
 function buildProof(readModel) {
   return {
     schemaVersion: 1,
@@ -149,7 +209,7 @@ function buildProof(readModel) {
     summary: {
       localArtifactCount: readModel.localArtifactCount,
       screenshotArtifactCount: readModel.rows.filter((row) => row.outputArtifactRef.endsWith('.png')).length,
-      accessibilityArtifactCount: readModel.rows.filter((row) => row.outputArtifactRef.endsWith('.json')).length,
+      jsonArtifactCount: readModel.rows.filter((row) => row.outputArtifactRef.endsWith('.json')).length,
       fullProductUiRuntimeClaimedRows: readModel.rows.filter((row) => row.fullProductUiRuntimeClaimed).length,
       childDeviceRuntimeClaimedRows: readModel.rows.filter((row) => row.childDeviceRuntimeClaimed).length,
       productReadyRows: readModel.rows.filter((row) => row.productClaimReady).length,
@@ -157,20 +217,22 @@ function buildProof(readModel) {
     proofLabels: [
       'tracking-full-product-ui-local-runtime.parent-overview-artifact',
       'tracking-full-product-ui-local-runtime.parent-device-detail-artifact',
+      'tracking-full-product-ui-local-runtime.parent-notification-history-preferences-artifact',
       'tracking-full-product-ui-local-runtime.cross-surface-accessibility-artifact',
+      'tracking-full-product-ui-local-runtime.local-end-to-end-trace-artifact',
       'tracking-full-product-ui-local-runtime.product-ready-false',
     ],
     productClaims: readModel.productClaims,
     missingProofReason:
-      'This proof only captures locally hosted parent overview/device shell screenshots and cross-surface accessibility metadata into the product UI artifact root. Child-device rendered runtime UI, physical-device UI, authority-gated UI, provider-delivery UI, production product UI, and end-to-end product runtime still require real artifacts before product UI can be claimed.',
+      'This proof only captures locally hosted parent overview/device shell screenshots, notification history/preferences screenshot, cross-surface accessibility metadata, and a local end-to-end trace into the product UI artifact root. Retention settings production write result, child-device rendered runtime UI, physical-device UI, authority-gated UI, provider-delivery UI, and production product UI still require real artifacts before product UI can be claimed.',
     commands,
   };
 }
 
 function assertProof(proof) {
-  assert.equal(proof.summary.localArtifactCount, 3, 'expected three local parent UI artifacts');
-  assert.equal(proof.summary.screenshotArtifactCount, 2, 'expected overview and device screenshots');
-  assert.equal(proof.summary.accessibilityArtifactCount, 1, 'expected cross-surface accessibility report');
+  assert.equal(proof.summary.localArtifactCount, 5, 'expected five local parent UI artifacts');
+  assert.equal(proof.summary.screenshotArtifactCount, 3, 'expected overview, device, and notification screenshots');
+  assert.equal(proof.summary.jsonArtifactCount, 2, 'expected accessibility report and local trace artifacts');
   assert.equal(proof.summary.fullProductUiRuntimeClaimedRows, 0, 'no full product UI runtime claims');
   assert.equal(proof.summary.childDeviceRuntimeClaimedRows, 0, 'no child runtime UI claims');
   assert.equal(proof.summary.productReadyRows, 0, 'no product-ready rows');
@@ -193,8 +255,8 @@ async function writeArtifacts(proof) {
       `- commit: ${proof.commit}`,
       `- status: ${proof.status}`,
       `- localArtifactCount: ${proof.summary.localArtifactCount}`,
-      '- source: hosted parent overview/devices shell screenshots plus hosted tracking accessibility summary.',
-      '- boundary: local parent-side artifact capture only; child-device runtime, physical-device, authority, provider, production, and product-ready claims remain false.',
+      '- source: hosted parent overview/devices shell screenshots, hosted notification parent-surface screenshot, hosted tracking accessibility summary, and hosted artifact inventory proof.',
+      '- boundary: local parent-side artifact capture and trace only; retention production write result, child-device runtime, physical-device, authority, provider, production, and product-ready claims remain false.',
       '',
     ].join('\n'),
     'utf8'
