@@ -121,13 +121,16 @@ pub use browser_bridge_poll::{
     BrowserBridgePollError, BrowserBridgePollSnapshot,
 };
 pub use browser_event_runtime::{
+    browser_runtime_action_intent_handoff_topology_manifest,
     browser_runtime_action_intent_status_topology_manifest,
     browser_runtime_chain_topology_manifest, prove_browser_runtime_delivery_decision,
     publish_browser_runtime_chain_for_input,
-    request_browser_runtime_action_intent_status_for_input, BrowserRuntimeActionIntentStatusReport,
-    BrowserRuntimeActionIntentStatusResponse, BrowserRuntimeDeliveryDecisionError,
-    BrowserRuntimeDeliveryDecisionReport, BrowserRuntimeEventPayload, BrowserRuntimeInput,
-    BrowserRuntimeReport,
+    request_browser_runtime_action_intent_handoff_for_input,
+    request_browser_runtime_action_intent_status_for_input,
+    BrowserRuntimeActionIntentHandoffReport, BrowserRuntimeActionIntentHandoffResponse,
+    BrowserRuntimeActionIntentStatusReport, BrowserRuntimeActionIntentStatusResponse,
+    BrowserRuntimeDeliveryDecisionError, BrowserRuntimeDeliveryDecisionReport,
+    BrowserRuntimeEventPayload, BrowserRuntimeInput, BrowserRuntimeReport,
 };
 pub use browser_event_runtime_phase::BrowserRuntimePhase;
 pub use browser_intervention_event::{

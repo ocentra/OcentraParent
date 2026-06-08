@@ -12,6 +12,7 @@ use crate::BrowserRuntimePhase;
 pub struct BrowserRuntimeDeliveryDecisionReport {
     pub chain_delivery: EventDeliveryDecisionProof,
     pub action_intent_status_delivery: EventDeliveryDecisionProof,
+    pub action_intent_handoff_delivery: EventDeliveryDecisionProof,
     pub external_transport_delivery: EventDeliveryDecisionProof,
     pub local_ready_route_count: usize,
     pub external_transport_manual_required: bool,
@@ -39,12 +40,18 @@ pub fn prove_browser_runtime_delivery_decision(
     let action_intent_status_delivery =
         decide_event_delivery_route(action_intent_delivery_input()?)
             .map_err(BrowserRuntimeDeliveryDecisionError::DeliveryDecision)?;
+    let action_intent_handoff_delivery =
+        decide_event_delivery_route(action_intent_handoff_delivery_input()?)
+            .map_err(BrowserRuntimeDeliveryDecisionError::DeliveryDecision)?;
     let external_transport_delivery = decide_event_delivery_route(external_transport_input()?)
         .map_err(BrowserRuntimeDeliveryDecisionError::DeliveryDecision)?;
 
-    let local_ready_route_count =
-        count_local_ready_routes(&chain_delivery, &action_intent_status_delivery);
-    if local_ready_route_count != 2 {
+    let local_ready_route_count = count_local_ready_routes(
+        &chain_delivery,
+        &action_intent_status_delivery,
+        &action_intent_handoff_delivery,
+    );
+    if local_ready_route_count != 3 {
         return Err(BrowserRuntimeDeliveryDecisionError::LocalRouteNotReady);
     }
     if external_transport_delivery.decision_state
@@ -67,6 +74,7 @@ pub fn prove_browser_runtime_delivery_decision(
         local_ready_route_count,
         chain_delivery,
         action_intent_status_delivery,
+        action_intent_handoff_delivery,
         external_transport_delivery,
     })
 }
@@ -91,6 +99,16 @@ fn action_intent_delivery_input() -> Result<EventDeliveryDecisionInput, Eventing
         constants::browser::SUBSCRIBER_BROWSER_ACTION_INTENT_STATUS,
         constants::browser::TARGET_BROWSER_ACTION_INTENT_STATUS,
         vec![constants::browser::EVENT_BROWSER_ACTION_INTENT_STATUS_REQUESTED],
+    )
+}
+
+fn action_intent_handoff_delivery_input() -> Result<EventDeliveryDecisionInput, EventingError> {
+    delivery_input(
+        EventDeliveryRouteKind::LocalInProcess,
+        constants::browser::EVENT_BROWSER_ACTION_INTENT_HANDOFF_REQUESTED,
+        constants::browser::SUBSCRIBER_BROWSER_ACTION_INTENT_HANDOFF,
+        constants::browser::TARGET_BROWSER_ACTION_INTENT_HANDOFF,
+        vec![constants::browser::EVENT_BROWSER_ACTION_INTENT_HANDOFF_REQUESTED],
     )
 }
 
@@ -160,8 +178,9 @@ fn parse_event_types(values: Vec<&str>) -> Result<Vec<EventType>, EventingError>
 fn count_local_ready_routes(
     first: &EventDeliveryDecisionProof,
     second: &EventDeliveryDecisionProof,
+    third: &EventDeliveryDecisionProof,
 ) -> usize {
-    [first, second]
+    [first, second, third]
         .iter()
         .filter(|proof| proof.decision_state == EventDeliveryDecisionState::LocalRouteReady)
         .count()

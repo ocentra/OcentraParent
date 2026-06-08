@@ -14,6 +14,11 @@ mod topology;
 
 use crate::{browser_event_runtime_refs::previous_phase_ref, BrowserRuntimePhase};
 
+pub use action_handoff::{
+    browser_runtime_action_intent_handoff_topology_manifest,
+    request_browser_runtime_action_intent_handoff_for_input,
+    BrowserRuntimeActionIntentHandoffReport, BrowserRuntimeActionIntentHandoffResponse,
+};
 pub use action_status::{
     browser_runtime_action_intent_status_topology_manifest,
     request_browser_runtime_action_intent_status_for_input, BrowserRuntimeActionIntentStatusReport,

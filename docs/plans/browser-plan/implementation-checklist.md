@@ -578,6 +578,20 @@ This uses the reusable `ocentra-eventing` request path and does not execute
 adapter dispatch, browser mutation, child intervention, final policy, or
 enforcement.
 
+WP13 action-intent handoff event subscriber addendum:
+`browser-runtime-action-intent-handoff-event-subscriber-proof` adds a named
+Rust event-bus request/response subscriber for browser action-intent handoff
+preparation. The runtime publishes `browser.action-intent.handoff.requested`,
+the `browser-action-intent-handoff` subscriber completes a typed response,
+dry-run policy decision rows produce one prepared local outbox/handoff
+candidate, and manual-required rows produce none. Evidence:
+`test-results/browser-runtime-action-intent-handoff-event-subscriber-proof/proof.json`
+and
+`output/browser-plan-proof/browser-runtime-action-intent-handoff-event-subscriber/01-browser-runtime-action-intent-handoff-event-subscriber-proof.md`.
+This uses the reusable `ocentra-eventing` request path and does not execute
+adapter dispatch, browser mutation, child intervention, final policy, or
+enforcement.
+
 WP13 action-intent service status addendum:
 `browser-runtime-action-intent-service-status-proof` projects the named
 event-bus subscriber status through the existing service-backed browser runtime
@@ -643,16 +657,17 @@ intervention execution, final policy execution, or enforcement.
 
 WP13 delivery-decision addendum:
 `browser-runtime-delivery-decision-proof` applies the reusable `ocentra-eventing`
-delivery decision API to the browser runtime chain and the browser
-action-intent status subscriber. Evidence:
+delivery decision API to the browser runtime chain, the browser action-intent
+status subscriber, and the browser action-intent handoff subscriber. Evidence:
 `test-results/browser-runtime-delivery-decision-proof/proof.json` and
 `output/browser-plan-proof/browser-runtime-delivery-decision/01-browser-runtime-delivery-decision-proof.md`.
 The proof marks the runtime chain `local-service` ready, the action-intent
-status subscriber `local-in-process` ready, and external transport
-manual-required until custody/auth/encryption/retention/replay/delete/offset/
-dedupe/transport artifacts exist. It does not add external transport, relay
-delivery, adapter dispatch, browser mutation, child intervention execution,
-final policy execution, or enforcement.
+status subscriber `local-in-process` ready, the action-intent handoff subscriber
+`local-in-process` ready, and external transport manual-required until
+custody/auth/encryption/retention/replay/delete/offset/dedupe/transport
+artifacts exist. It does not add external transport, relay delivery, adapter
+dispatch, browser mutation, child intervention execution, final policy
+execution, or enforcement.
 
 WP13 stale/unsupported runtime addendum:
 `browser-runtime-stale-unsupported-proof` proves bridge-disconnected rows as

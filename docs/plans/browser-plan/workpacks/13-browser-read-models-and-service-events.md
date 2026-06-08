@@ -356,6 +356,33 @@ with policy preview and action-intent refs, and zero candidates for
 manual-required rows. It does not execute adapter dispatch, final policy,
 browser mutation, child intervention, or enforcement.
 
+## Action-Intent Handoff Event Subscriber Addendum - 2026-06-07
+
+`browser-runtime-action-intent-handoff-event-subscriber-proof` adds a named
+Rust event-bus request/response subscriber for browser action-intent handoff
+preparation. It publishes `browser.action-intent.handoff.requested`, routes it
+to the `browser-action-intent-handoff` subscriber, and completes a typed
+response using the reusable `ocentra-eventing` request path.
+
+Evidence:
+
+- `crates/agent-core/src/browser_event_runtime/action_handoff.rs`
+- `crates/agent-core/src/browser_event_runtime/delivery.rs`
+- `crates/agent-core/src/browser_event_runtime.rs`
+- `crates/agent-core/src/browser_event_runtime_tests.rs`
+- `crates/agent-protocol/src/constants/browser.rs`
+- `scripts/test/browser-runtime-action-intent-handoff-event-subscriber-proof.mjs`
+- `test-results/browser-runtime-action-intent-handoff-event-subscriber-proof/proof.json`
+- `output/browser-plan-proof/browser-runtime-action-intent-handoff-event-subscriber/01-browser-runtime-action-intent-handoff-event-subscriber-proof.md`
+- `cargo test -p ocentra-parent-agent-core browser_runtime_action_intent_handoff --quiet`
+- `cargo test -p ocentra-parent-agent-core browser_runtime_delivery_decision --quiet`
+
+The subscriber returns one prepared local outbox/handoff candidate for dry-run
+policy decision events with policy preview and action-intent refs, and zero
+candidates for manual-required rows. The delivery decision proof now includes
+the handoff subscriber as a third local-ready route. It does not execute adapter
+dispatch, final policy, browser mutation, child intervention, or enforcement.
+
 ## Action-Intent Service Status Addendum - 2026-06-07
 
 `browser-runtime-action-intent-service-status-proof` keeps the existing
@@ -482,12 +509,13 @@ execution, final policy execution, or enforcement.
 ## Delivery Decision Addendum - 2026-06-07
 
 `browser-runtime-delivery-decision-proof` applies the reusable
-`ocentra-eventing` delivery decision API to the browser runtime chain and the
-browser action-intent status subscriber. The current runtime chain is
-`local-service` ready, the action-intent status subscriber is `local-in-process`
-ready, and the external transport route stays `manual-required` because the
-custody/auth/encryption/retention/replay/delete/offset/dedupe/transport
-artifacts are not present.
+`ocentra-eventing` delivery decision API to the browser runtime chain, the
+browser action-intent status subscriber, and the browser action-intent handoff
+subscriber. The current runtime chain is `local-service` ready, the
+action-intent status subscriber is `local-in-process` ready, the action-intent
+handoff subscriber is `local-in-process` ready, and the external transport
+route stays `manual-required` because the custody/auth/encryption/retention/
+replay/delete/offset/dedupe/transport artifacts are not present.
 
 Evidence:
 

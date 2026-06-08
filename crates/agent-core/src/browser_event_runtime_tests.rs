@@ -1,7 +1,9 @@
 use crate::{
+    browser_runtime_action_intent_handoff_topology_manifest,
     browser_runtime_action_intent_status_topology_manifest,
     browser_runtime_chain_topology_manifest, prove_browser_runtime_delivery_decision,
     publish_browser_runtime_chain_for_input,
+    request_browser_runtime_action_intent_handoff_for_input,
     request_browser_runtime_action_intent_status_for_input, BrowserRuntimeEventPayload,
     BrowserRuntimeInput, BrowserRuntimePhase, BrowserRuntimeReport,
 };
@@ -140,6 +142,81 @@ async fn browser_runtime_action_intent_handoff_prepares_outbox_without_dispatch(
 }
 
 #[tokio::test]
+async fn browser_runtime_action_intent_handoff_event_subscriber_prepares_outbox_without_dispatch() {
+    let report = request_browser_runtime_action_intent_handoff_for_input(
+        BrowserRuntimeInput::dry_run_action_handoff_fixture(),
+    )
+    .await
+    .unwrap();
+
+    assert_eq!(report.dead_letters.len(), 0);
+    assert_eq!(report.request_report.publish_report.handled_count, 1);
+    assert_eq!(
+        report
+            .stored_events
+            .first()
+            .unwrap()
+            .contract
+            .event_type
+            .as_str(),
+        constants::browser::EVENT_BROWSER_ACTION_INTENT_HANDOFF_REQUESTED
+    );
+
+    let handoff = report.request_report.response;
+    assert_eq!(handoff.candidate_count, 1);
+    assert_eq!(
+        handoff.policy_preview_id.as_deref(),
+        Some(constants::browser::TEST_BROWSER_RUNTIME_POLICY_PREVIEW_ID)
+    );
+    assert_eq!(
+        handoff.action_intent_id.as_deref(),
+        Some(constants::browser::TEST_BROWSER_RUNTIME_ACTION_INTENT_ID)
+    );
+    assert_eq!(
+        handoff.outbox_ref.as_deref(),
+        Some(constants::browser::TEST_BROWSER_RUNTIME_ACTION_INTENT_OUTBOX_REF)
+    );
+    assert_eq!(
+        handoff.handoff_ref.as_deref(),
+        Some(constants::browser::TEST_BROWSER_RUNTIME_ACTION_INTENT_HANDOFF_REF)
+    );
+    assert!(handoff
+        .source_event_ref
+        .as_deref()
+        .unwrap()
+        .ends_with(constants::browser::EVENT_BROWSER_POLICY_DECISION_COMPLETED));
+    assert_eq!(handoff.dispatch_attempt_count, 0);
+    assert_eq!(handoff.adapter_execution_count, 0);
+    assert_eq!(handoff.browser_mutation_count, 0);
+    assert_eq!(handoff.child_intervention_execution_count, 0);
+    assert_eq!(handoff.enforcement_execution_count, 0);
+    assert!(handoff.dry_run_only);
+    assert!(handoff.policy_authority_only);
+}
+
+#[tokio::test]
+async fn browser_runtime_action_intent_handoff_event_subscriber_keeps_manual_rows_empty() {
+    let report = request_browser_runtime_action_intent_handoff_for_input(
+        BrowserRuntimeInput::manual_required_fixture(),
+    )
+    .await
+    .unwrap();
+
+    let handoff = report.request_report.response;
+    assert_eq!(handoff.candidate_count, 0);
+    assert_eq!(handoff.policy_preview_id, None);
+    assert_eq!(handoff.action_intent_id, None);
+    assert_eq!(handoff.source_event_ref, None);
+    assert_eq!(handoff.outbox_ref, None);
+    assert_eq!(handoff.handoff_ref, None);
+    assert_eq!(handoff.dispatch_attempt_count, 0);
+    assert_eq!(handoff.adapter_execution_count, 0);
+    assert_eq!(handoff.browser_mutation_count, 0);
+    assert_eq!(handoff.child_intervention_execution_count, 0);
+    assert_eq!(handoff.enforcement_execution_count, 0);
+}
+
+#[tokio::test]
 async fn browser_runtime_action_intent_event_subscriber_returns_pending_status() {
     let report = request_browser_runtime_action_intent_status_for_input(
         BrowserRuntimeInput::dry_run_action_handoff_fixture(),
@@ -194,6 +271,33 @@ async fn browser_runtime_action_intent_event_subscriber_keeps_manual_rows_empty(
     assert_eq!(status.adapter_execution_count, 0);
     assert_eq!(status.child_intervention_execution_count, 0);
     assert_eq!(status.enforcement_execution_count, 0);
+}
+
+#[test]
+fn browser_runtime_action_intent_handoff_topology_covers_named_event_and_subscriber() {
+    let manifest = browser_runtime_action_intent_handoff_topology_manifest().unwrap();
+    assert_eq!(manifest.unready_entries().len(), 0);
+    assert_eq!(manifest.entries().len(), 1);
+
+    let entry = manifest.entries().first().unwrap();
+    assert_eq!(entry.status, EventTopologyStatus::Covered);
+    assert_eq!(
+        entry.contract.event_type.as_str(),
+        constants::browser::EVENT_BROWSER_ACTION_INTENT_HANDOFF_REQUESTED
+    );
+    assert_eq!(
+        entry.publishers.first().unwrap().as_str(),
+        constants::browser::RUNTIME_COMPONENT_BROWSER_SPINE
+    );
+    let subscriber = entry.subscribers.first().unwrap();
+    assert_eq!(
+        subscriber.subscriber_id.as_str(),
+        constants::browser::SUBSCRIBER_BROWSER_ACTION_INTENT_HANDOFF
+    );
+    assert_eq!(
+        subscriber.target_handler.as_str(),
+        constants::browser::TARGET_BROWSER_ACTION_INTENT_HANDOFF
+    );
 }
 
 #[test]
@@ -253,7 +357,7 @@ fn browser_runtime_chain_topology_covers_ordered_event_spine() {
 fn browser_runtime_delivery_decision_keeps_current_routes_local_only() {
     let report = prove_browser_runtime_delivery_decision().unwrap();
 
-    assert_eq!(report.local_ready_route_count, 2);
+    assert_eq!(report.local_ready_route_count, 3);
     assert_eq!(
         report.chain_delivery.route_kind,
         EventDeliveryRouteKind::LocalService
@@ -268,6 +372,14 @@ fn browser_runtime_delivery_decision_keeps_current_routes_local_only() {
     );
     assert_eq!(
         report.action_intent_status_delivery.decision_state,
+        EventDeliveryDecisionState::LocalRouteReady
+    );
+    assert_eq!(
+        report.action_intent_handoff_delivery.route_kind,
+        EventDeliveryRouteKind::LocalInProcess
+    );
+    assert_eq!(
+        report.action_intent_handoff_delivery.decision_state,
         EventDeliveryDecisionState::LocalRouteReady
     );
     assert_eq!(

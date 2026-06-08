@@ -148,6 +148,13 @@ control while being more honest about managed versus unmanaged sources.
   request/response path, and dry-run rows return pending candidates while
   manual-required rows return none. Dispatch, adapter execution, browser
   mutation, child intervention execution, and enforcement remain zero.
+- Browser-plan WP13 now also proves a named Rust event-bus subscriber for
+  browser action-intent handoff preparation. The runtime publishes
+  `browser.action-intent.handoff.requested`, the
+  `browser-action-intent-handoff` subscriber completes the typed eventing
+  request/response path, and dry-run rows return prepared local outbox/handoff
+  refs while manual-required rows return none. Dispatch, adapter execution,
+  browser mutation, child intervention execution, and enforcement remain zero.
 - Browser-plan WP13 now projects that named subscriber status through the
   service-backed browser runtime event-chain stream payload. Current
   store-backed browser rows still report zero pending candidates because the
@@ -1065,7 +1072,8 @@ enforcement.
 WP13 now adds a browser runtime delivery-decision proof using the reusable Rust
 eventing delivery decision API. The browser runtime chain is local-service
 ready, the browser action-intent status subscriber is local-in-process ready,
-and external transport remains manual-required until custody/auth/encryption/
+the browser action-intent handoff subscriber is local-in-process ready, and
+external transport remains manual-required until custody/auth/encryption/
 retention/replay/delete/offset/dedupe/transport artifacts exist. This adds no
 external transport, relay delivery, adapter dispatch, browser mutation, child
 intervention execution, final policy execution, or enforcement.
