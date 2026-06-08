@@ -1,0 +1,34 @@
+{
+  "proofName": "browser-runtime-no-fixture-service-exposure-proof",
+  "branchHead": "8a40052cc Harden browser runtime delivery decision proof",
+  "sourceChecks": {
+    "childStatusModuleIsTestOnly": true,
+    "childStatusTypesAreTestOnly": true,
+    "childStatusComposesParentChildFixtureOnly": true,
+    "serviceStreamDoesNotCallChildStatusFixture": true,
+    "serviceTestsDoNotAssertChildStatusAsRuntimePayload": true,
+    "protocolParserHasNoChildStatusFields": true,
+    "portalStateHasNoChildStatusRuntimeField": true,
+    "childStatusProofDeclaresRemainingGap": true,
+    "docsRecordNoFixtureExposureProof": true
+  },
+  "commands": [
+    "cmd /c node scripts/test/browser-runtime-action-intent-child-status-proof.mjs"
+  ],
+  "verified": {
+    "childStatusProofRemainsTestOnly": true,
+    "serviceStreamDoesNotExposeFixtureChildStatus": true,
+    "portalParserDoesNotInventChildStatusFields": true,
+    "publicStreamFieldRegistryReady": false,
+    "externalTransportImplemented": false,
+    "adapterDispatchClaimed": false,
+    "browserMutationClaimed": false,
+    "childInterventionExecutionClaimed": false,
+    "finalPolicyExecutionClaimed": false,
+    "enforcementClaimed": false
+  },
+  "requiredFollowUp": {
+    "condition": "Only expose child accepted/read-model refs through the service stream after a real runtime child transport/status read model exists and shared protocol fields are sequenced.",
+    "forbiddenShortcut": "Do not call the fixture-backed child-status proof from agent-service or portal state parsing."
+  }
+}

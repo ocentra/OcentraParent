@@ -690,3 +690,24 @@ stream fields for child acceptance refs remain a follow-up because
 lane. It does not add external broker or relay delivery, adapter dispatch,
 browser mutation, child intervention execution, final policy execution,
 unmanaged exact URL support, or enforcement.
+
+## No Fixture Service Exposure Addendum - 2026-06-08
+
+`browser-runtime-no-fixture-service-exposure-proof` guards the child-status
+boundary from becoming a fake runtime claim. The child-status composition stays
+`#[cfg(test)]`, the service-backed browser runtime stream does not call the
+fixture-backed proof, and the shared protocol parser plus portal state do not
+invent child accepted/read-model fields until a real child transport/status
+read model exists.
+
+Evidence:
+
+- `scripts/test/browser-runtime-no-fixture-service-exposure-proof.mjs`
+- `test-results/browser-runtime-no-fixture-service-exposure-proof/proof.json`
+- `output/browser-plan-proof/browser-runtime-no-fixture-service-exposure/01-browser-runtime-no-fixture-service-exposure-proof.md`
+- `cmd /c node scripts/test/browser-runtime-no-fixture-service-exposure-proof.mjs`
+
+This is a no-overclaim guard only. It does not add public child-status stream
+fields, external transport, adapter dispatch, browser mutation, child
+intervention execution, final policy execution, unmanaged exact URL support, or
+enforcement.

@@ -752,6 +752,20 @@ owned by another lane. No product capability checklist update: this is
 agent-core proof/status composition only and does not upgrade real browser,
 exact URL, intervention, or enforcement capability.
 
+WP13 no-fixture service exposure addendum:
+`browser-runtime-no-fixture-service-exposure-proof` guards the child-status
+boundary from fake runtime promotion. Evidence:
+`test-results/browser-runtime-no-fixture-service-exposure-proof/proof.json` and
+`output/browser-plan-proof/browser-runtime-no-fixture-service-exposure/01-browser-runtime-no-fixture-service-exposure-proof.md`.
+The proof verifies that the child-status composition remains `#[cfg(test)]`,
+the service-backed browser runtime stream does not call fixture-backed
+child-status proof code, and protocol/portal parsers do not invent public child
+accepted/read-model fields before a real child transport/status read model
+exists. No product capability checklist update: this is a no-overclaim guard
+only and does not add public child-status stream fields, external transport,
+adapter dispatch, browser mutation, child intervention execution, final policy
+execution, unmanaged exact URL support, or enforcement.
+
 ## Worker Report Template
 
 Use this shape in the hub report or PR-ready note:

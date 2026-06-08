@@ -1,6 +1,6 @@
 {
   "proofName": "browser-runtime-action-intent-child-status-proof",
-  "branchHead": "b54524326 Add browser action-intent parent-child handoff proof",
+  "branchHead": "8a40052cc Harden browser runtime delivery decision proof",
   "sourceChecks": {
     "proofModuleExported": true,
     "durableHandoffComposed": true,
