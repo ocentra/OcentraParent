@@ -49,6 +49,14 @@
       "import": "./dist/support-backend-upload-custody-audit-read-model.js",
       "types": "./dist/support-backend-upload-custody-audit-read-model.d.ts"
     },
+    "./support-backend-provider-runtime-readiness": {
+      "import": "./dist/support-backend-provider-runtime-readiness.js",
+      "types": "./dist/support-backend-provider-runtime-readiness.d.ts"
+    },
+    "./support-backend-provider-runtime-readiness-read-model": {
+      "import": "./dist/support-backend-provider-runtime-readiness-read-model.js",
+      "types": "./dist/support-backend-provider-runtime-readiness-read-model.d.ts"
+    },
     "./support-case-resolution-status": {
       "import": "./dist/support-case-resolution-status.js",
       "types": "./dist/support-case-resolution-status.d.ts"

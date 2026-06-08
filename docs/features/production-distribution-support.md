@@ -190,6 +190,17 @@ dev-only repo when it claims consumer readiness.
   support backend upload execution, account lookup, billing provider contact,
   remote support sessions, production SLA, default Ocentra-hosted family data,
   and child activity custody unclaimed.
+- `production-support-backend-provider-runtime-readiness-proof` adds a
+  logging-domain readiness boundary that composes support backend upload
+  execution runtime, upload custody/audit, provider-secret execution readiness,
+  account/SLA, privacy/legal, and case-resolution proof refs. It proves only
+  support-safe status metadata for upload runtime linkage, provider-secret
+  preflight, billing provider, account lookup, legal disclosure, remote support,
+  SLA, and audit export rows while keeping real support backend upload
+  execution, provider-secret delivery/custody execution, account lookup,
+  billing provider contact, legal disclosure execution, remote support sessions,
+  production SLA, default Ocentra-hosted family data, and child activity custody
+  unclaimed.
 - `production-support-data-export-delete-lifecycle-proof` adds parent-domain
   and logging-domain export/delete runtime lifecycle rows for requested,
   authorized, queued, running, succeeded, failed, and manual-required export and
@@ -923,6 +934,16 @@ package/runtime proof.
       upload execution, account lookup, billing provider contact, remote support
       sessions, production SLA, default Ocentra-hosted family data, and child
       activity custody remain unimplemented or unclaimed.
+- [ ] Production support backend provider runtime readiness proof. Current
+      `production-support-backend-provider-runtime-readiness-proof` composes
+      support backend upload execution runtime, upload custody/audit,
+      provider-secret execution readiness, account/SLA, privacy/legal, and case
+      resolution proof refs into support-safe upload/provider readiness rows. It
+      remains deterministic logging contract proof only: real support backend
+      upload execution, provider-secret delivery/custody execution, account
+      lookup, billing provider contact, legal disclosure execution, remote
+      support sessions, production SLA, default Ocentra-hosted family data, and
+      child activity custody remain unimplemented or unclaimed.
 - [ ] Public support contact/status boundary proof. Current
       `public-support-contact-status-proof` covers public support contact,
       support status page contact, support runbook contact, incident status
