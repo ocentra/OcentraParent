@@ -96,6 +96,7 @@ export const PortalDetails = {
   NetworkProtocol: decodeDisplayText('Network protocol'),
   Platform: decodeDisplayText('Platform'),
   PlatformState: decodeDisplayText('Platform state'),
+  ParentExplanationReferences: decodeDisplayText('Parent explanation refs'),
   ParentRuleContextReferences: decodeDisplayText('Parent rule context references'),
   ParentRuleContextRefIds: decodeDisplayText('Parent rule context ref IDs'),
   PolicyPreview: decodeDisplayText('Policy check'),

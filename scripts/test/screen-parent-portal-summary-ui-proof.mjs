@@ -31,7 +31,7 @@ const proof = {
   source: '@ocentra-parent/portal screen summary route panel',
   assertions: [
     'screen-analysis route renders a dedicated parent summary overlay without using the shared Activity/network route',
-    'service-backed Activity Screen read-model rows produce parent-visible capability, queue, model, category, confidence, custody, deletion, policy, audit, and evidence details',
+    'service-backed Activity Screen read-model rows produce parent-visible capability, queue, model, category, confidence, custody, deletion, policy, audit, evidence, and parent explanation ref details',
     'unavailable screen read-model state stays visible without invented rows',
     'enforcement remains not-claimed in this UI proof; adapter execution stays a separate gate',
   ],
@@ -40,6 +40,7 @@ const proof = {
     renderSharedActivityRoute: false,
     productClaim: 'No family setting is configured for this area yet.',
     rawScreenshotDisplayed: false,
+    parentExplanationRefsDisplayed: true,
     adapterExecutionClaimed: false,
   },
   screenshots: {

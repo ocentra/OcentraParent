@@ -28,6 +28,8 @@ test('screen analysis route renders service-backed summary evidence without raw 
   await expect(screenRegion.getByText(productBoundaryCopy).first()).toBeVisible();
   await expect(screenRegion.getByText('Status').first()).toBeVisible();
   await expect(screenRegion.getByText('Product claim').first()).toBeVisible();
+  await expect(screenRegion.getByText('Parent explanation refs').first()).toBeVisible();
+  await expect(screenRegion.getByText('screen-summary-parent-explanation-service-explanation').first()).toBeVisible();
   await expect(screenRegion.getByText('Raw screenshot')).toHaveCount(0);
   await expect(screenRegion.getByText('Product ready')).toHaveCount(0);
 
@@ -84,6 +86,8 @@ async function writeAccessibilitySummary(
   expect(summary.headings).toContain('Screen analysis');
   expect(summary.labels).toContain('Status');
   expect(summary.labels).toContain('Product claim');
+  expect(summary.labels).toContain('Parent explanation refs');
+  expect(summary.values).toContain('screen-summary-parent-explanation-service-explanation');
   expect(summary.values).toContain(productBoundaryCopy);
 
   await mkdir(path.dirname(accessibilitySummaryPath), { recursive: true });
@@ -97,6 +101,7 @@ async function writeAccessibilitySummary(
           'visible-heading',
           'service-backed-screen-read-model-command',
           'screen-summary-route-visible',
+          'parent-explanation-refs-visible',
           'product-claim-boundary-visible',
           'raw-screenshot-not-rendered',
           'desktop-screenshot',

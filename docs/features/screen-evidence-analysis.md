@@ -755,6 +755,12 @@ only with explicit parent settings.
   runtime refs, parent explanation refs, deletion reasons, deleted-image state,
   and child-device custody. It does not claim production portal rendering, new
   capture/model inference, remote/API AI, or enforcement.
+- The Screen Analysis portal route now renders those service-backed parent
+  explanation refs as explicit `Parent explanation refs` details instead of
+  hiding them under local-AI result wording. The
+  `SCREEN_PARENT_PORTAL_SUMMARY_UI_PROOF` Playwright proof asserts the real
+  portal/agent command path, parent explanation ref visibility, product-boundary
+  copy, raw screenshot absence, desktop screenshot, and mobile screenshot.
 - `scripts/test/screen-ai-final-product-path-proof.mjs` now validates the
   retained final path evidence across real live/operator trigger artifacts,
   capture metadata, local VLM analysis, policy dry-runs, Windows action handoff
@@ -832,8 +838,8 @@ Android parity, physical iOS ReplayKit execution/deletion proof, live macOS
 capture proof, Linux root/Wayland portal proof,
 browser-trigger artifact closure,
 browser/network/mobile/broad block action adapters from screen-derived
-decisions, physical household mesh discovery/runtime proof beyond the loopback
-runtime exchange, and production parent explanation portal rendering remain.
+decisions, and physical household mesh discovery/runtime proof beyond the
+loopback runtime exchange remain.
 Browser-trigger proof now covers contract flow into screen evidence and
 local-AI context only; live trigger producers, production startup subscriptions
 for all live producers, authenticated surfaces, cloud-streamed frames, mobile
@@ -989,6 +995,9 @@ parity, and UI remain separate proof gates.
       runtime claims.
 - [x] Parent explanation refs preserved through the service-backed Activity
       Screen read-model projection.
+- [x] Parent explanation refs render on the real Screen Analysis portal route
+      from the service-backed Activity Screen read model without raw screenshot
+      display or product-complete enforcement claims.
 - [x] Final screen-AI product path artifact gate validates retained real-run
       trigger, capture, AI, policy, action/read-model, and deletion/custody
       artifacts without raw screenshot retention.
@@ -1035,8 +1044,7 @@ authenticated-account social proof,
 externally proved live producer coverage beyond the service capture/queue,
 deletion, and analysis row-ready/policy-ref handoffs, child-agent disclosure
 runtime deployment, production household mesh transport over physical LAN, broad
-adapters, and production explanation portal rendering remain in the Current Gap
-section above.
+adapters remain in the Current Gap section above.
 
 ## Next AI Instructions
 

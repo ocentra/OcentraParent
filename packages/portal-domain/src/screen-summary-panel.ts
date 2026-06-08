@@ -172,7 +172,7 @@ function screenSummaryRow(row: ScreenReadModelRow, productClaim: DisplayText): S
       detail(PortalDetails.Reason, referenceList(row.explanationReasons ?? [])),
       detail(PortalDetails.OcrSnippets, referenceList(row.ocrTextSnippets ?? [])),
       detail(PortalDetails.RedactionNotes, referenceList(row.redactionNotes ?? [])),
-      detail(PortalDetails.LocalAiResult, referenceList(row.parentExplanationRefs ?? [])),
+      detail(PortalDetails.ParentExplanationReferences, referenceList(row.parentExplanationRefs ?? [])),
       detail(PortalDetails.ProductClaim, productClaim),
     ],
   };

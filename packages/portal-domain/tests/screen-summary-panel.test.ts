@@ -31,7 +31,7 @@ describe('screen summary panel intent', () => {
       value: 'local-ai-screen-summary | stricter-parent-rule-checked',
     });
     expect(intent.rows[0]?.details).toContainEqual({
-      label: 'Local AI result',
+      label: 'Parent explanation refs',
       value: 'screen-parent-explanation-ref',
     });
     expect(intent.rows[0]?.details).toContainEqual({
