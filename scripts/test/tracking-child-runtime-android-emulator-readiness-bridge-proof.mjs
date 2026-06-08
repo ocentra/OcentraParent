@@ -55,8 +55,14 @@ async function main() {
 }
 
 function buildProof({ proofModule, androidProof, childRuntimeArtifactGateProof }) {
-  const childRuntimeMissingArtifacts = childRuntimeArtifactGateProof.readModel.rows.flatMap(
-    (row) => row.missingArtifacts
+  const childRuntimeRequiredArtifacts = unique(
+    childRuntimeArtifactGateProof.readModel.rows.flatMap((row) => row.requiredArtifacts)
+  );
+  const childRuntimePresentArtifacts = unique(
+    childRuntimeArtifactGateProof.readModel.rows.flatMap((row) => row.presentArtifacts)
+  );
+  const childRuntimeMissingArtifacts = unique(
+    childRuntimeArtifactGateProof.readModel.rows.flatMap((row) => row.missingArtifacts)
   );
   const androidEvidenceRefs = [
     androidProofRef,
@@ -75,6 +81,8 @@ function buildProof({ proofModule, androidProof, childRuntimeArtifactGateProof }
     backgroundPermissionGranted: androidProof.permissionState.backgroundLocationPermissionGranted,
     localGeofenceTransitionCount: androidProof.runtime.geofenceTransitions.transitionCount,
     androidEvidenceRefs,
+    childRuntimeRequiredArtifacts,
+    childRuntimePresentArtifacts,
     childRuntimeMissingArtifacts,
   });
 
@@ -102,6 +110,8 @@ function buildProof({ proofModule, androidProof, childRuntimeArtifactGateProof }
       foregroundPermissionGranted: androidProof.permissionState.foregroundLocationPermissionGranted,
       backgroundPermissionGranted: androidProof.permissionState.backgroundLocationPermissionGranted,
       localGeofenceTransitionCount: androidProof.runtime.geofenceTransitions.transitionCount,
+      childRuntimeRequiredArtifactCount: childRuntimeRequiredArtifacts.length,
+      childRuntimePresentArtifactCount: childRuntimePresentArtifacts.length,
       childRuntimeMissingArtifactCount: childRuntimeMissingArtifacts.length,
       productReadyRows: readModel.rows.filter((row) => row.productClaimReady).length,
     },
@@ -163,6 +173,10 @@ function sourceSnapshot(proof) {
 
 function validationLog() {
   return `${commands.map((entry) => `${entry.command} exit=${entry.status}`).join('\n')}\n`;
+}
+
+function unique(values) {
+  return [...new Set(values)];
 }
 
 async function readJson(relativePath) {

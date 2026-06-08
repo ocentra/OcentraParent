@@ -18,6 +18,8 @@ describe('tracking child runtime Android emulator readiness bridge proof', () =>
     expect(proof.rows[0].sourceProofRefs).toEqual([...RequiredTrackingChildRuntimeAndroidEmulatorBridgeSourceRefs]);
     expect(proof.rows[0].emulatorPrerequisitesObserved).toBe(true);
     expect(proof.rows[0].childRuntimeArtifactSetComplete).toBe(false);
+    expect(proof.rows[0].childRuntimeRequiredArtifacts).toHaveLength(3);
+    expect(proof.rows[0].childRuntimePresentArtifacts).toHaveLength(0);
     expect(proof.rows[0].childRuntimeMissingArtifacts).toContain('04-visible-child-ui-snapshot.png');
     expect(proof.productClaims.androidEmulatorPrerequisitesObserved).toBe(true);
     expect(proof.productClaims.childDeviceDeliveryRuntimeClaimed).toBe(false);
@@ -64,6 +66,12 @@ function bridgeInput() {
       'output/tracking-plan-proof/08-android-foreground-location-adapter/03-runtime-location-evidence.json',
     ],
     childRuntimeMissingArtifacts: [
+      '02-delivery-envelope.json',
+      '03-execution-result.json',
+      '04-visible-child-ui-snapshot.png',
+    ],
+    childRuntimePresentArtifacts: [],
+    childRuntimeRequiredArtifacts: [
       '02-delivery-envelope.json',
       '03-execution-result.json',
       '04-visible-child-ui-snapshot.png',

@@ -217,11 +217,11 @@ expose location or device-status features. Parents expect this category.
   `node scripts/test/tracking-child-runtime-android-emulator-readiness-bridge-proof.mjs`.
   It links the existing Android emulator package/foreground-service/permission
   and local emulator geofence evidence to the child-runtime artifact gate,
-  records the remaining missing child-device runtime artifacts, writes
-  WP08/WP30/WP33 artifacts, and keeps child-device delivery/execution, rendered
-  child-device UI runtime, parent receipt runtime, physical-device proof,
-  authority, provider delivery, production workers, and product-ready tracking
-  unclaimed.
+  records the required, present, and missing child-device runtime artifact
+  refs/counts, writes WP08/WP30/WP33 artifacts, and keeps child-device
+  delivery/execution, rendered child-device UI runtime, parent receipt runtime,
+  physical-device proof, authority, provider delivery, production workers, and
+  product-ready tracking unclaimed.
 - WP30/WP33 full product UI readiness blocker proof now exists through
   `node scripts/test/tracking-full-product-ui-readiness-blocker-proof.mjs`. It
   consumes the hosted UI artifact inventory and child-runtime artifact gate,
@@ -271,9 +271,11 @@ expose location or device-status features. Parents expect this category.
   proof refs, writes WP33 artifacts, and records manual-required blockers for
   tracking location upload, retention cleanup, notification outbox, escalation
   timeout, provider receipt, child-device delivery, authority status, and
-  production audit durable storage workers. Production support boundary evidence
-  is acknowledged, but tracking production worker execution, production durable
-  storage, and product-ready tracking remain false.
+  production audit durable storage workers. The aggregate now preserves the
+  production worker runtime artifact inventory from the artifact gate, including
+  required, present, and missing artifact refs/counts. Production support
+  boundary evidence is acknowledged, but tracking production worker execution,
+  production durable storage, and product-ready tracking remain false.
 - WP33 production worker runtime artifact gate proof now exists through
   `node scripts/test/tracking-production-worker-runtime-artifact-gate-proof.mjs`.
   It imports the required `tracking-production/*.json` artifact refs from the
@@ -342,12 +344,14 @@ expose location or device-status features. Parents expect this category.
   explicitly enumerates retention writable-settings and platform-enforcement
   blockers from the retention product-readiness proof, carries aggregate
   evidence for six observed full-product UI local artifacts, one retention
-  writable execution derivation row, two required retention runtime artifacts,
-  one present local writable execution artifact, one missing platform retention
-  runtime enforcement artifact, ten child-runtime artifact gaps, and the
-  claim-audit row counts, and keeps Android/iOS physical background, actual
-  child-device runtime, full product parent/child UI, authority, provider
-  delivery/receipt, production workers, and product-ready tracking unclaimed.
+  writable execution derivation row, ten required child-runtime artifacts with
+  zero present and ten missing, two required retention runtime artifacts with
+  one present local writable execution artifact and one missing platform
+  retention runtime enforcement artifact, eight required production-worker
+  runtime artifacts with zero present and eight missing, and the claim-audit row
+  counts. It keeps Android/iOS physical background, actual child-device runtime,
+  full product parent/child UI, authority, provider delivery/receipt, production
+  workers, and product-ready tracking unclaimed.
 - WP33 tracking claim-audit proof now exists through
   `node scripts/test/tracking-claim-audit-proof.mjs`. It verifies Android
   physical background/geofence, iOS physical background/region,
@@ -379,12 +383,13 @@ expose location or device-status features. Parents expect this category.
   the WP33 handoff artifact plus a generated manual validation runbook with
   row-level blocker ids, validation commands, acceptance notes, and missing
   artifacts. It now carries the product-readiness closure accounting totals,
-  including the retention runtime required/present/missing artifact counts,
-  classifies six physical/runtime rows, one provider-runtime row, and two
-  production-runtime rows as non-CI-runnable manual follow-up, and keeps
-  physical-device, actual child-device runtime, full product UI, authority,
-  provider delivery/receipt, retention product runtime, production, escalation,
-  and product-ready tracking unclaimed.
+  including child-runtime, retention-runtime, and production-worker
+  required/present/missing artifact counts, classifies six physical/runtime
+  rows, one provider-runtime row, and two production-runtime rows as
+  non-CI-runnable manual follow-up, and keeps physical-device, actual
+  child-device runtime, full product UI, authority, provider delivery/receipt,
+  retention product runtime, production, escalation, and product-ready tracking
+  unclaimed.
 - WP31/WP33 authority-runtime readiness blocker proof now exists through
   `node scripts/test/tracking-authority-runtime-readiness-blocker-proof.mjs`.
   It consumes the existing authority-enrollment manual-required proof rows,

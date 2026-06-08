@@ -23,6 +23,19 @@
         "output/tracking-plan-proof/09-android-background-location-and-geofence-adapter/04-background-geofence-evidence.json",
         "output/tracking-plan-proof/10-android-battery-connectivity-and-status-adapter/02-android-status-proof.json"
       ],
+      "childRuntimeRequiredArtifacts": [
+        "00-run-metadata.json",
+        "01-child-device-metadata.json",
+        "02-delivery-envelope.json",
+        "03-execution-result.json",
+        "04-visible-child-ui-snapshot.png",
+        "05-parent-receipt.json",
+        "06-runtime-observation.ndjson",
+        "07-permission-consent-state.json",
+        "08-device-log.txt",
+        "09-result-summary.md"
+      ],
+      "childRuntimePresentArtifacts": [],
       "childRuntimeMissingArtifacts": [
         "00-run-metadata.json",
         "01-child-device-metadata.json",

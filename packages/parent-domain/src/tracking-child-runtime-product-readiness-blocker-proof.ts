@@ -55,6 +55,12 @@ const TrackingChildRuntimeProductReadinessBlockerRowBaseSchema = Schema.Struct({
   androidPackageLaunchObserved: Schema.Literal(true),
   androidForegroundServiceObserved: Schema.Literal(true),
   androidLocalGeofenceTransitionCount: TrackingChildRuntimeProductReadinessCounterSchema,
+  childRuntimeRequiredArtifacts: Schema.Array(TrackingChildRuntimeProductReadinessTextSchema),
+  childRuntimePresentArtifacts: Schema.Array(TrackingChildRuntimeProductReadinessTextSchema),
+  childRuntimeMissingArtifacts: Schema.Array(TrackingChildRuntimeProductReadinessTextSchema),
+  childRuntimeRequiredArtifactCount: TrackingChildRuntimeProductReadinessCounterSchema,
+  childRuntimePresentArtifactCount: TrackingChildRuntimeProductReadinessCounterSchema,
+  childRuntimeMissingArtifactCount: TrackingChildRuntimeProductReadinessCounterSchema,
   androidEmulatorChildRuntimeMissingArtifactCount: TrackingChildRuntimeProductReadinessCounterSchema,
   blockerRefs: Schema.Array(TrackingChildRuntimeProductReadinessBlockerSchema),
   deliveryEnvelopeRequirementClaimed: Schema.Literal(true),
@@ -95,6 +101,9 @@ export const TrackingChildRuntimeProductReadinessBlockerProofSchema = withParser
     sourceAndroidEmulatorBridgeProofRef: TrackingRetentionSettingsProofRefSchema,
     sourceSnapshotRequirementsStatus: TrackingChildRuntimeProductReadinessTextSchema,
     sourceAndroidEmulatorBridgeStatus: TrackingChildRuntimeProductReadinessTextSchema,
+    childRuntimeRequiredArtifactCount: TrackingChildRuntimeProductReadinessCounterSchema,
+    childRuntimePresentArtifactCount: TrackingChildRuntimeProductReadinessCounterSchema,
+    childRuntimeMissingArtifactCount: TrackingChildRuntimeProductReadinessCounterSchema,
     rows: Schema.Array(TrackingChildRuntimeProductReadinessBlockerRowSchema),
     proofClaims: Schema.Struct({
       snapshotRequirementRowsObserved: Schema.Literal(true),
@@ -169,6 +178,9 @@ export function buildTrackingChildRuntimeProductReadinessBlockerProof(
     sourceAndroidEmulatorBridgeProofRef,
     sourceSnapshotRequirementsStatus: statusFrom(sourceSnapshotRequirementsProof),
     sourceAndroidEmulatorBridgeStatus: androidEmulatorBridgeRow.status,
+    childRuntimeRequiredArtifactCount: androidEmulatorBridgeRow.childRuntimeRequiredArtifacts.length,
+    childRuntimePresentArtifactCount: androidEmulatorBridgeRow.childRuntimePresentArtifacts.length,
+    childRuntimeMissingArtifactCount: androidEmulatorBridgeRow.childRuntimeMissingArtifacts.length,
     rows: snapshotRequirements.rows.map((row) =>
       blockerRow(
         generatedAt,
@@ -232,6 +244,12 @@ function blockerRow(
     androidPackageLaunchObserved: androidEmulatorBridgeRow.packageLaunchObserved,
     androidForegroundServiceObserved: androidEmulatorBridgeRow.foregroundServiceObserved,
     androidLocalGeofenceTransitionCount: androidEmulatorBridgeRow.localGeofenceTransitionCount,
+    childRuntimeRequiredArtifacts: [...androidEmulatorBridgeRow.childRuntimeRequiredArtifacts],
+    childRuntimePresentArtifacts: [...androidEmulatorBridgeRow.childRuntimePresentArtifacts],
+    childRuntimeMissingArtifacts: [...androidEmulatorBridgeRow.childRuntimeMissingArtifacts],
+    childRuntimeRequiredArtifactCount: androidEmulatorBridgeRow.childRuntimeRequiredArtifacts.length,
+    childRuntimePresentArtifactCount: androidEmulatorBridgeRow.childRuntimePresentArtifacts.length,
+    childRuntimeMissingArtifactCount: androidEmulatorBridgeRow.childRuntimeMissingArtifacts.length,
     androidEmulatorChildRuntimeMissingArtifactCount: androidEmulatorBridgeRow.childRuntimeMissingArtifacts.length,
     blockerRefs: [...RequiredTrackingChildRuntimeProductReadinessBlockers],
     deliveryEnvelopeRequirementClaimed: true,
@@ -286,6 +304,13 @@ function trackingChildRuntimeProductReadinessBlockerRowIsHonest(
     row.androidPackageLaunchObserved === true &&
     row.androidForegroundServiceObserved === true &&
     row.androidLocalGeofenceTransitionCount > 0 &&
+    row.childRuntimeRequiredArtifacts.length > 0 &&
+    row.childRuntimeRequiredArtifacts.length === row.childRuntimeRequiredArtifactCount &&
+    row.childRuntimePresentArtifacts.length === row.childRuntimePresentArtifactCount &&
+    row.childRuntimeMissingArtifacts.length === row.childRuntimeMissingArtifactCount &&
+    row.childRuntimeRequiredArtifactCount ===
+      row.childRuntimePresentArtifactCount + row.childRuntimeMissingArtifactCount &&
+    row.childRuntimeMissingArtifactCount > 0 &&
     row.androidEmulatorChildRuntimeMissingArtifactCount > 0 &&
     row.deliveryEnvelopeRequirementClaimed === true &&
     row.executionResultRequirementClaimed === true &&

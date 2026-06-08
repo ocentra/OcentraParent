@@ -178,7 +178,15 @@ async function aggregateEvidence() {
   const retentionRuntimeProof = await readJson(
     'test-results/tracking-retention-runtime-artifact-gate-proof/proof.json'
   );
+  const childRuntimeArtifactGateProof = await readJson(
+    'test-results/tracking-child-runtime-artifact-gate-proof/proof.json'
+  );
+  const productionWorkerRuntimeArtifactGateProof = await readJson(
+    'test-results/tracking-production-worker-runtime-artifact-gate-proof/proof.json'
+  );
   const claimAuditProof = await readJson('test-results/tracking-claim-audit-proof/proof.json');
+  const childRuntimeArtifactSummary = artifactSummaryFromRows(childRuntimeArtifactGateProof);
+  const productionWorkerArtifactSummary = artifactSummaryFromRows(productionWorkerRuntimeArtifactGateProof);
   return {
     fullProductUiLocalArtifactCount: fullProductUiProof.readModel.localArtifactCount,
     fullProductUiClosureRetentionWritableExecutionRowCount:
@@ -187,12 +195,18 @@ async function aggregateEvidence() {
       fullProductUiProof.readModel.closureEvidence.retentionWritableExecutionDerivationCount,
     fullProductUiClosureChildRuntimeMissingArtifactCount:
       fullProductUiProof.readModel.closureEvidence.childRuntimeMissingArtifactCount,
+    childRuntimeRequiredArtifactCount: childRuntimeArtifactSummary.requiredArtifactCount,
+    childRuntimePresentArtifactCount: childRuntimeArtifactSummary.presentArtifactCount,
+    childRuntimeMissingArtifactCount: childRuntimeArtifactSummary.missingArtifactCount,
     retentionRuntimeRequiredArtifactCount: retentionRuntimeProof.summary.requiredArtifactCount,
     retentionRuntimePresentArtifactCount:
       retentionRuntimeProof.summary.requiredArtifactCount - retentionRuntimeProof.summary.missingArtifactCount,
     retentionRuntimeMissingArtifactCount: retentionRuntimeProof.summary.missingArtifactCount,
     retentionRuntimeManualRequiredRowCount: retentionRuntimeProof.summary.manualRequiredRows,
     retentionRuntimeArtifactSetPresentRowCount: retentionRuntimeProof.summary.completeRows,
+    productionWorkerRequiredArtifactCount: productionWorkerArtifactSummary.requiredArtifactCount,
+    productionWorkerPresentArtifactCount: productionWorkerArtifactSummary.presentArtifactCount,
+    productionWorkerMissingArtifactCount: productionWorkerArtifactSummary.missingArtifactCount,
     claimAuditPresentArtifactCount: claimAuditProof.summary.presentArtifactCount,
     claimAuditMissingArtifactCount: claimAuditProof.summary.missingArtifactCount,
     claimAuditManualRequiredRowCount: claimAuditProof.summary.manualRequiredRowCount,
@@ -237,10 +251,16 @@ function sourceSnapshot(proof) {
     '- currentProofTier: P3_LOCAL_DEV_MACHINE',
     '- status: proved',
     '- proves local/CI proof accounting is closed for current tracking continuation scope',
+    `- childRuntimeRequiredArtifactCount: ${proof.aggregateEvidence.childRuntimeRequiredArtifactCount}`,
+    `- childRuntimePresentArtifactCount: ${proof.aggregateEvidence.childRuntimePresentArtifactCount}`,
+    `- childRuntimeMissingArtifactCount: ${proof.aggregateEvidence.childRuntimeMissingArtifactCount}`,
     `- retentionRuntimeRequiredArtifactCount: ${proof.aggregateEvidence.retentionRuntimeRequiredArtifactCount}`,
     `- retentionRuntimePresentArtifactCount: ${proof.aggregateEvidence.retentionRuntimePresentArtifactCount}`,
     `- retentionRuntimeMissingArtifactCount: ${proof.aggregateEvidence.retentionRuntimeMissingArtifactCount}`,
     `- retentionRuntimeManualRequiredRowCount: ${proof.aggregateEvidence.retentionRuntimeManualRequiredRowCount}`,
+    `- productionWorkerRequiredArtifactCount: ${proof.aggregateEvidence.productionWorkerRequiredArtifactCount}`,
+    `- productionWorkerPresentArtifactCount: ${proof.aggregateEvidence.productionWorkerPresentArtifactCount}`,
+    `- productionWorkerMissingArtifactCount: ${proof.aggregateEvidence.productionWorkerMissingArtifactCount}`,
     '- does not prove retention product settings, physical-device, authority, provider-delivery, production, or product-ready tracking behavior',
     '- proof module: packages/parent-domain/src/tracking-product-readiness-closure-proof.ts',
     '- proof tests: packages/parent-domain/tests/tracking-product-readiness-closure-proof.test.ts',
@@ -266,6 +286,21 @@ async function assertSourceProofsExist() {
     source.status = statusFrom(parsed);
     source.proofTier = proofTierFrom(parsed, source.proofTier);
   }
+}
+
+function artifactSummaryFromRows(sourceProof) {
+  const rows = rowsFrom(sourceProof);
+  return {
+    requiredArtifactCount: rows.reduce((total, row) => total + (row.requiredArtifacts?.length ?? 0), 0),
+    presentArtifactCount: rows.reduce((total, row) => total + (row.presentArtifacts?.length ?? 0), 0),
+    missingArtifactCount: rows.reduce((total, row) => total + (row.missingArtifacts?.length ?? 0), 0),
+  };
+}
+
+function rowsFrom(sourceProof) {
+  if (Array.isArray(sourceProof.readModel?.rows)) return sourceProof.readModel.rows;
+  if (Array.isArray(sourceProof.rows)) return sourceProof.rows;
+  throw new Error(`Artifact gate proof has no rows: ${sourceProof.proofMode ?? 'unknown'}`);
 }
 
 function sourceProof(coverageTag, proofRef) {

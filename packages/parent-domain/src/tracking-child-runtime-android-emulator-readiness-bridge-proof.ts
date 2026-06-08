@@ -35,6 +35,10 @@ export const TrackingChildRuntimeAndroidEmulatorBridgeInputSchema = withParser(
     backgroundPermissionGranted: Schema.Boolean,
     localGeofenceTransitionCount: TrackingChildRuntimeAndroidEmulatorBridgeCountSchema,
     androidEvidenceRefs: Schema.Array(TrackingChildRuntimeAndroidEmulatorBridgeRefSchema).pipe(Schema.minItems(1)),
+    childRuntimeRequiredArtifacts: Schema.Array(TrackingChildRuntimeAndroidEmulatorBridgeRefSchema).pipe(
+      Schema.minItems(1)
+    ),
+    childRuntimePresentArtifacts: Schema.Array(TrackingChildRuntimeAndroidEmulatorBridgeRefSchema),
     childRuntimeMissingArtifacts: Schema.Array(TrackingChildRuntimeAndroidEmulatorBridgeRefSchema).pipe(
       Schema.minItems(1)
     ),
@@ -53,6 +57,10 @@ const TrackingChildRuntimeAndroidEmulatorBridgeRowBaseSchema = Schema.Struct({
   childRuntimeArtifactGateProofRef: TrackingChildRuntimeAndroidEmulatorBridgeRefSchema,
   androidProofStatus: TrackingChildRuntimeAndroidEmulatorBridgeRefSchema,
   androidEvidenceRefs: Schema.Array(TrackingChildRuntimeAndroidEmulatorBridgeRefSchema).pipe(Schema.minItems(1)),
+  childRuntimeRequiredArtifacts: Schema.Array(TrackingChildRuntimeAndroidEmulatorBridgeRefSchema).pipe(
+    Schema.minItems(1)
+  ),
+  childRuntimePresentArtifacts: Schema.Array(TrackingChildRuntimeAndroidEmulatorBridgeRefSchema),
   childRuntimeMissingArtifacts: Schema.Array(TrackingChildRuntimeAndroidEmulatorBridgeRefSchema).pipe(
     Schema.minItems(1)
   ),
@@ -190,6 +198,8 @@ function bridgeRow(generatedAt: string, input: TrackingChildRuntimeAndroidEmulat
     childRuntimeArtifactGateProofRef: input.childRuntimeArtifactGateProofRef,
     androidProofStatus: input.androidProofStatus,
     androidEvidenceRefs: input.androidEvidenceRefs,
+    childRuntimeRequiredArtifacts: input.childRuntimeRequiredArtifacts,
+    childRuntimePresentArtifacts: input.childRuntimePresentArtifacts,
     childRuntimeMissingArtifacts: input.childRuntimeMissingArtifacts,
     missingProofReasonRefs: [
       'child-runtime-delivery-envelope-physical-run-required',
@@ -224,6 +234,9 @@ function trackingChildRuntimeAndroidEmulatorBridgeRowIsHonest(
     row.sourceProofRefs.includes(row.androidEmulatorProofRef) &&
     row.sourceProofRefs.includes(row.childRuntimeArtifactGateProofRef) &&
     row.androidEvidenceRefs.length > 0 &&
+    row.childRuntimeRequiredArtifacts.length > 0 &&
+    row.childRuntimeRequiredArtifacts.length ===
+      row.childRuntimePresentArtifacts.length + row.childRuntimeMissingArtifacts.length &&
     row.childRuntimeMissingArtifacts.length > 0 &&
     row.missingProofReasonRefs.length > 0 &&
     row.packageLaunchObserved === true &&

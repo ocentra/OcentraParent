@@ -468,8 +468,9 @@ runtime artifacts, while full product UI runtime, child-device runtime,
 physical-device, authority, provider, production UI, and product-ready claims
 remain false. The tracking product-readiness closure proof now carries those
 aggregate counts with the retention writable execution derivation and
-child-runtime artifact gap counts, so local/CI closure accounting cannot pass
-without preserving the latest UI-local evidence and remaining blockers.
+child-runtime plus production-worker required/present/missing artifact counts,
+so local/CI closure accounting cannot pass without preserving the latest
+UI-local evidence and remaining blockers.
 WP33 now also has production durable workers readiness blocker proof from
 `node scripts/test/tracking-production-durable-workers-readiness-blocker-proof.mjs`,
 written to
@@ -480,9 +481,11 @@ provider-runtime, escalation-runtime, and retention durable-settings proof refs
 while keeping tracking location upload, retention cleanup, notification outbox,
 escalation timeout, provider receipt, child-device delivery, authority status,
 production audit durable storage, production worker execution, and product-ready
-tracking claims false. The tracking product-readiness closure proof now
-consumes this production blocker too, so local/CI closure accounting cannot pass
-without the WP33 production durable workers blocker proof ref.
+tracking claims false. The blocker now carries the production worker runtime
+required/present/missing artifact inventory from the artifact gate. The tracking
+product-readiness closure proof now consumes this production blocker too, so
+local/CI closure accounting cannot pass without the WP33 production durable
+workers blocker proof ref.
 WP33 now also has production worker runtime artifact gate proof from
 `node scripts/test/tracking-production-worker-runtime-artifact-gate-proof.mjs`,
 written to
@@ -498,7 +501,7 @@ production storage, physical-device behavior, authority, provider
 delivery/receipt runtime, and product-ready tracking unclaimed. The tracking
 product-readiness closure proof now consumes this production worker runtime
 artifact gate too, so aggregate closure accounting cannot pass without the WP33
-production worker runtime artifact gate ref.
+production worker runtime required/present/missing artifact counts.
 WP33 `proof-summary.json` records a tracked `minimumSeriousMvpAuditSummary`.
 The runtime proof command also records the full `minimumSeriousMvpAudit` in
 generated `00-run-metadata.json`; both are first-checkpoint P1
@@ -1016,7 +1019,9 @@ Every implementation workpack must update, or explicitly justify not updating:
       artifact set, and keep child-device delivery/execution, rendered child UI
       runtime, parent receipt runtime, runtime observation, physical-device
       proof, authority, provider delivery, production workers, and product-ready
-      tracking false.
+      tracking false. The Android emulator readiness bridge and child-runtime
+      product-readiness blocker now preserve exact required, present, and
+      missing child-runtime artifact refs/counts from this gate.
 - [x] Full product UI runtime artifact gate proof now verifies the exact
       required parent/child product UI runtime artifact refs before full product
       tracking UI can be treated as present. Proof:
@@ -1041,7 +1046,9 @@ Every implementation workpack must update, or explicitly justify not updating:
       Current rows are `manual-required`, missing the real production worker
       artifact set, and keep production worker execution, durable production
       storage, physical-device behavior, authority, provider delivery/receipt
-      runtime, and product-ready tracking false.
+      runtime, and product-ready tracking false. The production durable workers
+      readiness blocker now preserves exact required, present, and missing
+      production worker runtime artifact refs/counts from this gate.
 - [x] Authority enrollment manual-required proof records Android device-owner,
       Android managed-profile, iOS Family Controls entitlement, iOS App Review,
       and desktop managed-policy evidence requirements under WP31/WP33 without
@@ -1073,11 +1080,11 @@ Every implementation workpack must update, or explicitly justify not updating:
       command:
       `node scripts/test/tracking-real-runtime-handoff-proof.mjs`.
       The handoff now carries product-readiness closure accounting, preserves
-      the six local full-product UI artifacts, retention runtime
-      required/present/missing artifact counts, plus claim-audit blocker counts,
-      and classifies the remaining manual follow-up as six physical/runtime
-      rows, one provider-runtime row, two production-runtime rows, and zero
-      CI-runnable rows.
+      the six local full-product UI artifacts, child-runtime, retention-runtime,
+      and production-worker required/present/missing artifact counts, plus
+      claim-audit blocker counts, and classifies the remaining manual follow-up
+      as six physical/runtime rows, one provider-runtime row, two
+      production-runtime rows, and zero CI-runnable rows.
 
 ## Explicit Merge-Blocking Checklist
 

@@ -72,6 +72,11 @@ const TrackingProductionDurableWorkersReadinessBlockerProofBaseSchema = Schema.S
   productionSupportDurableQueueRows: Schema.Number.pipe(Schema.int(), Schema.positive()),
   productionSupportManualClaimCount: Schema.Number.pipe(Schema.int(), Schema.positive()),
   requiredTrackingWorkerArtifactCount: Schema.Number.pipe(Schema.int(), Schema.positive()),
+  presentTrackingWorkerArtifactCount: Schema.Number.pipe(Schema.int(), Schema.nonNegative()),
+  missingTrackingWorkerArtifactCount: Schema.Number.pipe(Schema.int(), Schema.nonNegative()),
+  requiredTrackingWorkerArtifactRefs: Schema.Array(TrackingProductionDurableWorkersReadinessBlockerReferenceSchema),
+  presentTrackingWorkerArtifactRefs: Schema.Array(TrackingProductionDurableWorkersReadinessBlockerReferenceSchema),
+  missingTrackingWorkerArtifactRefs: Schema.Array(TrackingProductionDurableWorkersReadinessBlockerReferenceSchema),
   blockers: Schema.Array(TrackingProductionDurableWorkersReadinessBlockerRowSchema),
   productClaims: Schema.Struct({
     productionSupportBoundaryObserved: Schema.Literal(true),
@@ -112,6 +117,7 @@ export type TrackingProductionDurableWorkersReadinessBlockerProofOptions = {
   readonly proofId: string;
   readonly sourceProofRefs: readonly string[];
   readonly requiredTrackingWorkerArtifactRefs: readonly string[];
+  readonly presentTrackingWorkerArtifactRefs?: readonly string[];
 };
 
 type TrackingProductionDurableWorkersReadinessBlockerProofInput = Infer<
@@ -128,6 +134,12 @@ export function buildTrackingProductionDurableWorkersReadinessBlockerProof(
   const sourceProofRefs = uniqueRefs(options.sourceProofRefs);
   const productionSupportBoundaryRefs = uniqueRefs(parsedProductionSupportProof.sourceContractRefs);
   const requiredTrackingWorkerArtifactRefs = uniqueRefs(options.requiredTrackingWorkerArtifactRefs);
+  const presentTrackingWorkerArtifactRefs = uniqueRefs(options.presentTrackingWorkerArtifactRefs ?? []).filter((ref) =>
+    requiredTrackingWorkerArtifactRefs.includes(ref)
+  );
+  const missingTrackingWorkerArtifactRefs = requiredTrackingWorkerArtifactRefs.filter(
+    (ref) => !presentTrackingWorkerArtifactRefs.includes(ref)
+  );
 
   return TrackingProductionDurableWorkersReadinessBlockerProofSchema.parse({
     schemaVersion: ParentContractSchemaVersion.V0_6,
@@ -138,6 +150,11 @@ export function buildTrackingProductionDurableWorkersReadinessBlockerProof(
     productionSupportDurableQueueRows: parsedProductionSupportProof.rows.length,
     productionSupportManualClaimCount: productionSupportManualClaimCount(parsedProductionSupportProof),
     requiredTrackingWorkerArtifactCount: requiredTrackingWorkerArtifactRefs.length,
+    presentTrackingWorkerArtifactCount: presentTrackingWorkerArtifactRefs.length,
+    missingTrackingWorkerArtifactCount: missingTrackingWorkerArtifactRefs.length,
+    requiredTrackingWorkerArtifactRefs,
+    presentTrackingWorkerArtifactRefs,
+    missingTrackingWorkerArtifactRefs,
     blockers: RequiredTrackingProductionDurableWorkersReadinessBlockers.map((blockerId) =>
       buildBlockerRow(blockerId, sourceProofRefs, productionSupportBoundaryRefs, requiredTrackingWorkerArtifactRefs)
     ),
@@ -206,6 +223,11 @@ function trackingProductionDurableWorkersReadinessProofIsHonest(
     proof.productionSupportDurableQueueRows > 0 &&
     proof.productionSupportManualClaimCount > 0 &&
     proof.requiredTrackingWorkerArtifactCount === RequiredTrackingProductionDurableWorkerArtifactRefs.length &&
+    proof.requiredTrackingWorkerArtifactCount ===
+      proof.presentTrackingWorkerArtifactCount + proof.missingTrackingWorkerArtifactCount &&
+    proof.requiredTrackingWorkerArtifactRefs.length === proof.requiredTrackingWorkerArtifactCount &&
+    proof.presentTrackingWorkerArtifactRefs.length === proof.presentTrackingWorkerArtifactCount &&
+    proof.missingTrackingWorkerArtifactRefs.length === proof.missingTrackingWorkerArtifactCount &&
     proof.blockers.length === RequiredTrackingProductionDurableWorkersReadinessBlockers.length &&
     proof.blockers.every((row) => row.status === 'manual-required') &&
     proof.productClaims.productionSupportBoundaryObserved === true &&

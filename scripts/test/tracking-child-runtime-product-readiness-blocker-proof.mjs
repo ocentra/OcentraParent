@@ -93,6 +93,10 @@ function assertProof(proof) {
       row.parentReceiptRequirementRefCount <= 0 ||
       row.runtimeObservationRequirementRefCount <= 0 ||
       row.androidLocalGeofenceTransitionCount <= 0 ||
+      row.childRuntimeRequiredArtifactCount <= 0 ||
+      row.childRuntimeMissingArtifactCount <= 0 ||
+      row.childRuntimeRequiredArtifactCount !==
+        row.childRuntimePresentArtifactCount + row.childRuntimeMissingArtifactCount ||
       row.androidEmulatorChildRuntimeMissingArtifactCount <= 0
     ) {
       throw new Error(`Child runtime requirement refs are incomplete: ${JSON.stringify(row)}`);
@@ -136,6 +140,9 @@ function sourceSnapshot(proof) {
     '- proves child runtime requirement coverage is still product-readiness blocked even with Android emulator prerequisites observed',
     `- androidEmulatorPrerequisitesObserved: ${proof.androidEmulatorBridgeAccounting.androidEmulatorPrerequisitesObserved}`,
     `- androidLocalGeofenceTransitionCount: ${proof.androidEmulatorBridgeAccounting.localGeofenceTransitionCount}`,
+    `- childRuntimeRequiredArtifactCount: ${proof.childRuntimeRequiredArtifactCount}`,
+    `- childRuntimePresentArtifactCount: ${proof.childRuntimePresentArtifactCount}`,
+    `- childRuntimeMissingArtifactCount: ${proof.childRuntimeMissingArtifactCount}`,
     `- androidBridgeChildRuntimeMissingArtifactCount: ${proof.androidEmulatorBridgeAccounting.childRuntimeMissingArtifactCount}`,
     '- proof module: packages/parent-domain/src/tracking-child-runtime-product-readiness-blocker-proof.ts',
     '- proof tests: packages/parent-domain/tests/tracking-child-runtime-product-readiness-blocker-proof.test.ts',
@@ -170,6 +177,8 @@ function androidEmulatorBridgeAccountingFrom(sourceAndroidEmulatorBridgeProof) {
     foregroundPermissionGranted: row.foregroundPermissionGranted,
     backgroundPermissionGranted: row.backgroundPermissionGranted,
     localGeofenceTransitionCount: row.localGeofenceTransitionCount,
+    childRuntimeRequiredArtifactCount: row.childRuntimeRequiredArtifacts.length,
+    childRuntimePresentArtifactCount: row.childRuntimePresentArtifacts.length,
     childRuntimeMissingArtifactCount: row.childRuntimeMissingArtifacts.length,
   };
 }
