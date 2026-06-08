@@ -252,3 +252,32 @@ This workpack can be assigned independently, implemented against the owning doma
       hard-control runtime, parent-visible authority runtime,
       physical-device behavior, provider delivery, production workers, and
       product-ready tracking remain proof-gated.
+
+- [x] Workpack id and branch:
+      `codex/tracking-plan-full-continuation-a`.
+- [x] Touched files: parent-domain authority runtime artifact gate proof/test,
+      focused proof script, product-readiness closure proof model, closure
+      harness, owning tracking feature doc, implementation checklist, WP31,
+      WP33, generated authority runtime artifact gate proof artifacts, and
+      refreshed closure proof artifacts.
+- [x] Validation commands and results:
+      `node scripts/test/tracking-authority-runtime-artifact-gate-proof.mjs`
+      passed; `node scripts/test/tracking-product-readiness-closure-proof.mjs`
+      passed.
+- [x] Proof artifacts:
+      `output/tracking-plan-proof/31-platform-extension-checklists-and-proof-routing/23-authority-runtime-artifact-gate-proof.json`,
+      `output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-gate/61-authority-runtime-artifact-gate-proof.json`,
+      `output/tracking-plan-proof/tracking-authority-runtime-artifact-gate-proof/proof.json`,
+      `output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-gate/46-product-readiness-closure-proof.json`,
+      `output/tracking-plan-proof/tracking-product-readiness-closure-proof/proof.json`,
+      `test-results/tracking-authority-runtime-artifact-gate-proof/proof.json`,
+      and `test-results/tracking-product-readiness-closure-proof/proof.json`.
+- [x] Product doc/checklist updates: owning feature doc, implementation
+      checklist, WP31, and WP33 updated. Central
+      `docs/product-capability-checklist.md` update is queued through the hub
+      doc delta instead of editing the shared checklist directly.
+- [x] Known gaps/manual-required states: real enrolled-device authority state,
+      hard-control runtime, parent-visible authority runtime,
+      physical-device behavior, provider delivery, production workers, and
+      product-ready tracking remain proof-gated; this gate only classifies the
+      authority runtime artifact inventory.
