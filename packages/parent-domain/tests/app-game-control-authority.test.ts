@@ -68,6 +68,11 @@ const ManualRequiredCapability = {
   degradedReason: 'manual-required',
 } as const;
 
+const DryRunCapability = {
+  ...SupportedCapability,
+  capabilityState: EnforcementCapabilityState.DryRun,
+} as const;
+
 const ApprovedAppRequest = {
   schemaVersion: ParentContractSchemaVersion.V0_6,
   requestId: 'approval-request-1',
@@ -115,6 +120,15 @@ const EnforcedResult = {
   failedReason: null,
   nextCheckAt: null,
   capability: SupportedCapability,
+} as const;
+
+const WouldEnforceResult = {
+  ...EnforcedResult,
+  resultId: 'enforcement-result-dry-run-1',
+  status: EnforcementResultStatus.WouldEnforce,
+  adapterResultCode: EnforcementAdapterResultCode.DryRunNoAction,
+  rollbackState: EnforcementRollbackState.NotRequired,
+  capability: DryRunCapability,
 } as const;
 
 const SuccessfulActionResult = {
@@ -233,10 +247,47 @@ const assertRejectsInvalidActionResults = () => {
   ).toBe(false);
 };
 
+const assertKeepsDryRunAndManualRequiredOutOfAdapterExecution = () => {
+  expect(
+    AppGameControlActionResultSchema.safeParse({
+      ...SuccessfulActionResult,
+      resultId: 'app-game-action-result-dry-run-1',
+      capabilityState: EnforcementCapabilityState.DryRun,
+      capability: DryRunCapability,
+      resultStatus: 'would-enforce',
+      enforcementResult: WouldEnforceResult,
+    }).success
+  ).toBe(true);
+  expect(
+    AppGameControlActionResultSchema.safeParse({
+      ...SuccessfulActionResult,
+      resultId: 'app-game-action-result-dry-run-claims-enforced',
+      capabilityState: EnforcementCapabilityState.DryRun,
+      capability: DryRunCapability,
+      resultStatus: 'enforced',
+      enforcementResult: { ...WouldEnforceResult, status: EnforcementResultStatus.ActuallyEnforced },
+    }).success
+  ).toBe(false);
+  expect(
+    AppGameControlActionResultSchema.safeParse({
+      ...SuccessfulActionResult,
+      resultId: 'app-game-action-result-manual-required-adapter',
+      capabilityState: EnforcementCapabilityState.ManualRequired,
+      capability: ManualRequiredCapability,
+      resultStatus: 'manual-required',
+      enforcementResult: EnforcedResult,
+    }).success
+  ).toBe(false);
+};
+
 describe('app/game control authority contracts', () => {
   it('accepts active parent authority and action result', assertAcceptsValidAuthorityAndActionResult);
   it('rejects observe-only authority with approval grants', assertRejectsObserverAuthorityGrants);
   it('rejects missing evidence and cross-kind settings', assertRejectsMissingEvidenceAndCrossKindSettings);
   it('rejects decisions whose parent action policy version is stale', assertRejectsStaleDecisionPolicyVersion);
   it('rejects invalid action-result claims', assertRejectsInvalidActionResults);
+  it(
+    'keeps dry-run and manual-required action results out of adapter execution',
+    assertKeepsDryRunAndManualRequiredOutOfAdapterExecution
+  );
 });

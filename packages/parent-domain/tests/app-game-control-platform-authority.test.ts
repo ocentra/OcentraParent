@@ -20,6 +20,7 @@ const Proof = {
   linuxMechanism: { proofKind: 'linux-mechanism-proof', artifactRef: 'proof/linux-cgroup.md' },
   linuxDistro: { proofKind: 'linux-distro-proof', artifactRef: 'proof/linux-distro.md' },
   linuxSession: { proofKind: 'linux-session-proof', artifactRef: 'proof/linux-session.md' },
+  mdmProfile: { proofKind: 'mdm-profile-proof', artifactRef: 'proof/macos-mdm-profile.md' },
 } as const;
 
 const SupportedAndroidHideRow = {
@@ -116,6 +117,22 @@ const assertRejectsManualOrNotClaimedExecution = () => {
 };
 
 const assertRequiresAndroidOwnerProof = () => {
+  expectRowAcceptance({
+    ...ManualWindowsBlockRow,
+    rowId: 'android-normal-hide-row',
+    platform: ParentPlatform.Android,
+    action: AppGamePlatformAction.HideApp,
+    parentVisibleLimitation: 'Android normal mode cannot hide packages without Device Owner or Profile Owner proof.',
+    proofNeededToClaim: ['device-owner-proof', 'profile-owner-proof', 'rollback-proof'],
+  });
+  expectRowAcceptance({
+    ...ManualWindowsBlockRow,
+    rowId: 'android-normal-suspend-row',
+    platform: ParentPlatform.Android,
+    action: AppGamePlatformAction.SuspendApp,
+    parentVisibleLimitation: 'Android normal mode cannot suspend packages without Device Owner or Profile Owner proof.',
+    proofNeededToClaim: ['device-owner-proof', 'profile-owner-proof', 'rollback-proof'],
+  });
   expectRowRejection({
     ...SupportedAndroidHideRow,
     proofReferences: [Proof.rollback],
@@ -149,6 +166,34 @@ const assertRequiresIosShieldProof = () => {
   expectRowRejection({ ...iosShieldRow, proofReferences: [Proof.managedSettings, Proof.rollback] });
 };
 
+const assertRejectsIosProcessKillClaims = () => {
+  expectRowAcceptance({
+    ...ManualWindowsBlockRow,
+    rowId: 'ios-process-kill-not-claimed-row',
+    platform: ParentPlatform.Ios,
+    action: AppGamePlatformAction.TerminateProcess,
+    authorityTier: AppGamePlatformAuthorityTier.ManualRequired,
+    setupState: 'manual-required',
+    proofState: 'manual-required',
+    capabilityState: EnforcementCapabilityState.ManualRequired,
+    parentVisibleState: 'not-claimed',
+    parentVisibleLimitation: 'iOS process scanning and process killing are not claimed for native app/game control.',
+    proofNeededToClaim: ['mdm-profile-proof', 'rollback-proof'],
+  });
+  expectRowRejection({
+    ...SupportedAndroidHideRow,
+    rowId: 'ios-process-kill-claimed-row',
+    platform: ParentPlatform.Ios,
+    action: AppGamePlatformAction.TerminateProcess,
+    authorityTier: AppGamePlatformAuthorityTier.SupervisedDevice,
+    setupState: 'supervision-required',
+    parentVisibleState: 'supervised-device-required',
+    parentVisibleLimitation: 'iOS process killing cannot be claimed by generic rollback proof.',
+    proofReferences: [Proof.mdmProfile, Proof.rollback],
+    proofNeededToClaim: ['mdm-profile-proof', 'rollback-proof'],
+  });
+};
+
 const assertRequiresMacosHardBlockProof = () => {
   const macosBlockRow = {
     ...ManualWindowsBlockRow,
@@ -168,6 +213,7 @@ const assertRequiresMacosHardBlockProof = () => {
 
   expectRowAcceptance(macosBlockRow);
   expectRowRejection({ ...macosBlockRow, authorityTier: AppGamePlatformAuthorityTier.UserApprovedHelper });
+  expectRowRejection({ ...macosBlockRow, proofReferences: [Proof.rollback] });
 };
 
 const assertRequiresLinuxBlockProof = () => {
@@ -221,6 +267,7 @@ describe('app/game platform authority matrix contracts', () => {
     assertRequiresAndroidOwnerProof
   );
   it('requires iOS shield rows to carry FamilyControls and ManagedSettings proof', assertRequiresIosShieldProof);
+  it('rejects iOS process scanning and killing claims', assertRejectsIosProcessKillClaims);
   it(
     'requires macOS hard block rows to carry MDM or Endpoint/System Extension proof',
     assertRequiresMacosHardBlockProof

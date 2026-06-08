@@ -208,6 +208,7 @@ Required files:
 | 158 | [Timer parent-surface parent preference setup provider delivery aggregate surface](workpacks/158-timer-parent-preference-setup-provider-delivery-aggregate-surface.md) | [x] | codex-c | codex/app-game-control-product-completion | output/app-game-plan-proof/158-timer-parent-preference-setup-provider-delivery-aggregate-surface | Portal-domain and portal tests now aggregate the existing accepted setup request durable outbox, provider local queue, receipt-required, receipt-pending, and receipt-ingested refs into parent-visible provider delivery aggregate status, next action, proof-state, and no-claim boundary details. This reduces raw low-level receipt noise in the parent command-result surface while still keeping the detailed refs visible and keeping provider delivery execution, external provider receipt ingestion, adapter dispatch, broad blocking, platform enforcement, raw private source rows, raw target values, and private diagnostics unclaimed. New protocol/service command integration is intentionally deferred because E-D currently owns shared protocol/websocket files. Central product checklist intentionally remains untouched. |
 | 159 | [App/game malicious metadata safety gate](workpacks/159-app-game-malicious-metadata-safety-gate.md) | [x] | codex-c | codex/app-game-control-product-completion | output/app-game-plan-proof/159-app-game-malicious-metadata-safety-gate | Portal activity UI tests now prove raw executable path refs stay out of the parent dashboard intent/rendered malicious-label proof, script-like long app/game metadata remains a manual-required/risk dashboard row, React SVG text escaping renders the script markers as escaped text, and the shared dashboard renderer uses bounded `row.label` text/truncation with no dashboard HTML injection sink. This closes the raw path leakage and malicious metadata XSS/layout merge-blocking gates without editing E-A-owned renderer files, without claiming classifier/provider/enforcement behavior, and without touching the central product checklist while E-B owns it. |
 | 160 | [App/game evidence boundary safety gates](workpacks/160-app-game-evidence-boundary-safety-gates.md) | [x] | codex-c | codex/app-game-control-product-completion | output/app-game-plan-proof/160-app-game-evidence-boundary-safety-gates | Portal activity UI tests now add dedicated boundary rows proving inventory-only evidence stays non-usage, running evidence stays non-foreground, foreground evidence does not surface private content strings, launcher rows stay launcher-only without child-game proof, and unknown processes remain review candidates instead of becoming known games. This closes five app/game merge-blocking evidence-boundary gates without changing protocol/service code, without editing E-A-owned renderer files, and without touching the central product checklist while E-B owns it. |
+| 161 | [App/game enforcement platform no-claim safety gates](workpacks/161-app-game-enforcement-platform-no-claim-safety-gates.md) | [x] | codex-c | codex/app-game-control-product-completion | output/app-game-plan-proof/161-app-game-enforcement-platform-no-claim-safety-gates | Parent-domain authority and platform matrix tests now close the remaining no-claim merge gates in one batch: AI classifier output remains evidence-only, dry-run action results can only report `would-enforce`, manual-required action results cannot carry adapter enforcement results, Android normal mode hide/suspend stays manual-required without Device Owner/Profile Owner proof, iOS process kill remains unclaimed, and macOS hard block requires MDM/Endpoint/System Extension proof. This adds one real platform rule hardening for iOS terminate/block-launch/allowlist claims while keeping provider delivery, adapter dispatch, broad blocking, platform enforcement, raw private rows, and product checklist changes unclaimed. |
 
 ## Merge-Blocking Failure Gates
 
@@ -216,12 +217,12 @@ Required files:
 - [x] Foreground evidence is displayed as content knowledge.
 - [x] Launcher evidence is displayed as active game without child-game proof.
 - [x] Unknown process is auto-promoted to known game.
-- [ ] AI output directly enforces.
-- [ ] Dry-run terminates or blocks app/game.
-- [ ] Manual-required action calls an adapter.
-- [ ] Android normal mode claims package suspend/hide.
-- [ ] iOS claims process scanning/killing.
-- [ ] macOS hard block is claimed without MDM/Endpoint/System Extension proof.
+- [x] AI output directly enforces.
+- [x] Dry-run terminates or blocks app/game.
+- [x] Manual-required action calls an adapter.
+- [x] Android normal mode claims package suspend/hide.
+- [x] iOS claims process scanning/killing.
+- [x] macOS hard block is claimed without MDM/Endpoint/System Extension proof.
 - [x] Linux universal block is claimed without mechanism/distro proof.
 - [x] Session duration changes after journal replay.
 - [x] Portal hides stale, permission-limited, manual-required, or not-claimed

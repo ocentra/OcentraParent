@@ -1455,6 +1455,16 @@ diagnostics, or raw private source rows.
       next action, proof-state, and no-claim boundary. This keeps the detailed
       refs available while making the provider-delivery blocker understandable
       without adding a new protocol command during E-D shared protocol locks.
+      The remaining app/game merge-blocking no-claim gates are now closed by a
+      current parent-domain validation batch: classifier output remains
+      evidence-only, dry-run action results stay `would-enforce`,
+      manual-required action results cannot carry adapter enforcement results,
+      Android normal-mode hide/suspend remains manual-required without owner
+      proof, iOS process-kill rows remain unclaimed, and macOS hard block rows
+      require MDM, Endpoint Security, or System Extension proof. This is
+      contract hardening and proof only; provider delivery execution, adapter
+      dispatch, broad blocking, platform enforcement, raw private rows, and the
+      central product checklist remain unclaimed.
 - [ ] Adapter capability status per platform. Cross-platform authority and
       broad-blocking gate contracts now record manual-required, unavailable,
       and not-claimed proof requirements. Platform-extension routing now maps

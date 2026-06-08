@@ -157,6 +157,7 @@ before `DONE` or PR-ready reporting.
 149. WP158 app/game timer parent-surface parent preference setup provider delivery aggregate surface.
 150. WP159 app/game malicious metadata safety gate.
 151. WP160 app/game evidence boundary safety gates.
+152. WP161 app/game enforcement platform no-claim safety gates.
 
 ## Standard AI Worker Checklist
 
