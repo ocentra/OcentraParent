@@ -17,6 +17,7 @@ const output31 = path.join(
 );
 const output33 = path.join(repoRoot, 'output', 'tracking-plan-proof', '33-proof-gates-fixtures-rollout-and-pr-gate');
 const commandResults = [];
+const androidProjectRoot = path.join(repoRoot, 'platforms', 'android', 'agent');
 
 await main();
 
@@ -71,14 +72,12 @@ async function collectProbes() {
         : run('docker-daemon', dockerPath, ['version', '--format', '{{.Server.Version}}']),
     android: run('android-toolchain', 'cmd', ['/c', 'where adb & adb version & where java & java -version']),
     androidHome: process.env.ANDROID_HOME ?? process.env.ANDROID_SDK_ROOT ?? '',
-    androidGradleVersion: run('android-gradle-version', 'cmd', [
-      '/c',
-      'platforms\\android\\agent\\gradlew.bat --version',
-    ]),
-    androidGradleBuild: run('android-gradle-build', 'cmd', [
-      '/c',
-      'platforms\\android\\agent\\gradlew.bat :app:assembleDebug --no-daemon',
-    ]),
+    androidGradleVersion: run('android-gradle-version', 'cmd', ['/c', 'gradlew.bat --version'], {
+      cwd: androidProjectRoot,
+    }),
+    androidGradleBuild: run('android-gradle-build', 'cmd', ['/c', 'gradlew.bat :app:assembleDebug --no-daemon'], {
+      cwd: androidProjectRoot,
+    }),
   };
 }
 
@@ -100,6 +99,7 @@ function rowsFrom(probes, sources) {
   const androidSdkObserved = probes.android.exitCode === 0 && probes.androidHome.length > 0;
   const androidGradleObserved = probes.androidGradleVersion.exitCode === 0 && probes.androidGradleBuild.exitCode === 0;
   const androidArtifacts = sources.androidPhysical?.summary?.presentArtifactCount ?? 0;
+  const androidPhysicalCapabilities = androidPhysicalObservedCapabilities(sources.androidPhysical);
   return [
     {
       area: 'windows-host-toolchain',
@@ -199,9 +199,15 @@ function rowsFrom(probes, sources) {
       currentProofTier: 'P4_PHYSICAL_DEVICE_STATUS_ONLY',
       requiredProofTier: 'P4_PHYSICAL_DEVICE',
       observedTooling: ['Samsung S9 adb package/service/status evidence'],
+      observedCapabilityRefs: androidPhysicalCapabilities,
       passedAssertions:
-        sources.androidPhysical === null ? [] : ['Android physical package/service/status artifacts are present'],
-      remainingBlockers: ['Physical location/geofence behavior and Android system geofence delivery remain unclaimed'],
+        sources.androidPhysical === null
+          ? []
+          : [
+              'Android physical package/service/status artifacts are present',
+              ...androidPhysicalAssertions(sources.androidPhysical),
+            ],
+      remainingBlockers: androidPhysicalRemainingBlockers(sources.androidPhysical),
       artifactCount: androidArtifacts,
       ciRunnable: false,
       localRuntimeClaimed: sources.androidPhysical !== null,
@@ -221,6 +227,51 @@ function rowsFrom(probes, sources) {
       localRuntimeClaimed: false,
     },
   ];
+}
+
+function androidPhysicalObservedCapabilities(androidPhysicalProof) {
+  if (androidPhysicalProof === null) return [];
+  const summary = androidPhysicalProof.summary ?? {};
+  const capabilityRefs = [];
+  if (summary.geofenceRegistrationObserved === true) {
+    capabilityRefs.push('android-physical-geofence-registration');
+  }
+  if (summary.systemProximityRegistrationObserved === true) {
+    capabilityRefs.push('android-physical-system-proximity-registration');
+  }
+  return capabilityRefs;
+}
+
+function androidPhysicalAssertions(androidPhysicalProof) {
+  const summary = androidPhysicalProof.summary ?? {};
+  const assertions = [];
+  if (summary.geofenceRegistrationObserved === true) {
+    assertions.push('Android physical foreground service registered the app-owned geofence proof listener');
+  }
+  if (summary.systemProximityRegistrationObserved === true) {
+    assertions.push('Android physical system proximity registration metadata was observed');
+  }
+  return assertions;
+}
+
+function androidPhysicalRemainingBlockers(androidPhysicalProof) {
+  const blockers = [
+    'Physical location/geofence transition behavior and Android system geofence delivery remain unclaimed',
+  ];
+  if (androidPhysicalProof === null) {
+    return ['Android physical-device proof artifacts are not present on this host'];
+  }
+  const summary = androidPhysicalProof.summary ?? {};
+  if (summary.geofenceRegistrationObserved !== true) {
+    blockers.push('Android physical geofence registration has not been observed');
+  }
+  if ((summary.backgroundLocationSampleCount ?? 0) === 0) {
+    blockers.push('Android physical background location sample count is still zero');
+  }
+  if ((summary.localGeofenceTransitionCount ?? 0) === 0) {
+    blockers.push('Android physical app-owned local geofence transition count is still zero');
+  }
+  return blockers;
 }
 
 function buildProof(readModel, probes, sources) {
@@ -315,7 +366,7 @@ function runRequired(command, args) {
 
 function run(id, command, args, options = {}) {
   const result = spawnSync(command, args, {
-    cwd: repoRoot,
+    cwd: options.cwd ?? repoRoot,
     encoding: 'utf8',
     shell: false,
     stdio: options.inherit ? 'inherit' : 'pipe',

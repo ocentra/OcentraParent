@@ -48,6 +48,7 @@ export const TrackingCrossPlatformRuntimeCapabilityRowSchema = withParser(
     currentProofTier: TextSchema,
     requiredProofTier: TextSchema,
     observedTooling: Schema.Array(TextSchema),
+    observedCapabilityRefs: Schema.Array(TextSchema),
     passedAssertions: Schema.Array(TextSchema),
     remainingBlockers: Schema.Array(TextSchema),
     artifactCount: CountSchema,
@@ -95,6 +96,8 @@ export const TrackingCrossPlatformRuntimeCapabilityProofSchema = withParser(
       androidGradleProjectBuildObserved: Schema.Boolean,
       androidEmulatorRuntimeObserved: Schema.Boolean,
       androidPhysicalStatusObserved: Schema.Boolean,
+      androidPhysicalGeofenceRegistrationObserved: Schema.Boolean,
+      androidPhysicalSystemProximityRegistrationObserved: Schema.Boolean,
       macosIosCiRoutingPresent: Schema.Boolean,
       physicalDeviceBehaviorClaimed: Schema.Literal(false),
       authorityRuntimeClaimed: Schema.Literal(false),
@@ -124,6 +127,7 @@ export type TrackingCrossPlatformRuntimeCapabilityRowInput = {
   readonly currentProofTier: string;
   readonly requiredProofTier: string;
   readonly observedTooling: readonly string[];
+  readonly observedCapabilityRefs?: readonly string[];
   readonly passedAssertions: readonly string[];
   readonly remainingBlockers: readonly string[];
   readonly artifactCount: number;
@@ -156,6 +160,14 @@ export function buildTrackingCrossPlatformRuntimeCapabilityProof(
       androidGradleProjectBuildObserved: hasPassed(rows, 'android-gradle-project-build'),
       androidEmulatorRuntimeObserved: hasPassed(rows, 'android-emulator-runtime'),
       androidPhysicalStatusObserved: hasPassed(rows, 'android-physical-device-status'),
+      androidPhysicalGeofenceRegistrationObserved: hasObservedCapability(
+        rows,
+        'android-physical-geofence-registration'
+      ),
+      androidPhysicalSystemProximityRegistrationObserved: hasObservedCapability(
+        rows,
+        'android-physical-system-proximity-registration'
+      ),
       macosIosCiRoutingPresent: rows.some(
         (candidate) => candidate.area === 'macos-ios-ci-manual-routing' && candidate.status === 'ci-manual-required'
       ),
@@ -181,6 +193,7 @@ function row(
     currentProofTier: input.currentProofTier,
     requiredProofTier: input.requiredProofTier,
     observedTooling: [...input.observedTooling],
+    observedCapabilityRefs: [...new Set(input.observedCapabilityRefs ?? [])],
     passedAssertions: [...input.passedAssertions],
     remainingBlockers: [...input.remainingBlockers],
     artifactCount: input.artifactCount,
@@ -191,6 +204,13 @@ function row(
     productionRuntimeClaimed: false,
     productClaimReady: false,
   });
+}
+
+function hasObservedCapability(
+  rows: readonly TrackingCrossPlatformRuntimeCapabilityRow[],
+  capabilityRef: string
+): boolean {
+  return rows.some((row) => row.observedCapabilityRefs.includes(capabilityRef));
 }
 
 function summaryFrom(rows: readonly TrackingCrossPlatformRuntimeCapabilityRow[]) {

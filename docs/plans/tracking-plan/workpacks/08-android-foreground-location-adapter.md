@@ -133,9 +133,11 @@ This workpack can be assigned independently, implemented against the owning doma
       foreground permission UX dialog, app-reported current `LocationManager`
       sample state, fused current sample state, provider, timestamp, accuracy
       metadata, source, and raw latitude/longitude proof export are now observed
-      on emulator; physical-device proof, authority, provider delivery,
-      notification delivery, background/geofence transitions, and product-ready
-      Android tracking remain unclaimed.
+      on emulator. Samsung S9 physical proof now observes foreground/background
+      permission grants and foreground-service-backed background GPS samples;
+      authority, provider delivery, notification delivery, geofence
+      transition/dwell delivery, Android system geofence delivery, and
+      product-ready Android tracking remain unclaimed.
 - [x] Workpack id and branch:
       `codex/tracking-plan-full-continuation-a`.
 - [x] Touched files: Android foreground proof bundle, Android status UI, Android
@@ -152,7 +154,8 @@ This workpack can be assigned independently, implemented against the owning doma
       checklist, and this workpack doc updated. Central
       `docs/product-capability-checklist.md` update is queued through the hub
       doc delta.
-- [x] Known gaps/manual-required states: this remains emulator P3 local proof.
-      Physical Android device behavior, authority, provider delivery,
-      notification delivery, background/geofence system proof, and product-ready
-      Android tracking remain unclaimed.
+- [x] Known gaps/manual-required states: this remains emulator P3 local proof
+      plus Samsung S9 physical permission/background-sample evidence. Android
+      physical geofence transition/dwell delivery, Android system geofence
+      delivery, authority, provider delivery, notification delivery, and
+      product-ready Android tracking remain unclaimed.

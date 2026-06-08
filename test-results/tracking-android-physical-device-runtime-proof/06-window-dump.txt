@@ -23,7 +23,7 @@ WINDOW MANAGER POLICY STATE (dumpsys window policy)
     mDismissImeOnBackKeyPressed=false mIncallPowerBehavior=sleep
     mIncallBackBehavior=<nothing> mEndcallBehavior=sleep
     mDisplayHomeButtonHandlers=mDisplayId = 0, mHomePressed = false
-    mKeyguardOccluded=false mKeyguardOccludedChanged=false mPendingKeyguardOccluded=false
+    mKeyguardOccluded=false mKeyguardOccludedChanged=false mPendingKeyguardOccluded=true
     mAllowLockscreenWhenOnDisplays=false mLockScreenTimeout=60000 mLockScreenTimerActive=false
     mAodShowing=true
     mKeyMapping.size=0
@@ -56,7 +56,7 @@ WINDOW MANAGER POLICY STATE (dumpsys window policy)
         (Total messages: 0, polling=true, quitting=false)
 
     --- PhoneWindowPolicyExtension ---
-    mTopActivityWindow=Window{f8ba476 u0 com.microsoft.launcher/com.microsoft.launcher.Launcher}
+    mTopActivityWindow=Window{be952d7 u0 com.openai.chatgpt/com.openai.chatgpt.MainActivity}
     PowerKeyTriggered=false PowerKeyConsumed=false
     VolumeDownKeyTriggered=false VolumeDownKeyConsumed=false
     VolumeUpKeyTriggered=false VolumeUpKeyConsumed=false
@@ -88,21 +88,27 @@ WINDOW MANAGER ANIMATOR STATE (dumpsys window animator)
       Window #1: WindowStateAnimator{1e1e64d com.sec.android.app.camera/com.sec.android.app.camera.Camera}
       Window #2: WindowStateAnimator{de8b502 com.sec.android.daemonapp/com.samsung.android.weather.app.locations.activity.WXLocationsActivity}
       Window #3: WindowStateAnimator{4c7de13 com.microsoft.launcher/com.microsoft.launcher.Launcher}
-      Window #4: WindowStateAnimator{8a63f04 com.android.systemui/com.android.systemui.media.MediaProjectionPermissionActivity}
+      Window #4: WindowStateAnimator{29c6955 ca.ocentra.parent.agent/ca.ocentra.parent.agent.MainActivity}
       Window #5: WindowStateAnimator{3739a49 DockedStackDivider}
       Window #6: WindowStateAnimator{eb11f4e AssistPreviewPanel}
-      Window #7: WindowStateAnimator{97a5796 Sys2003:com.android.systemui/com.android.systemui.media.MediaProjectionPermissionActivity}
-      Window #8: WindowStateAnimator{d48486f StatusBar}
-      Window #9: WindowStateAnimator{2b2d97c Bouncer}
-      Window #10: WindowStateAnimator{6529205 NavigationBar0}
+      Window #7: WindowStateAnimator{d48486f StatusBar}
+      Window #8: WindowStateAnimator{2b2d97c Bouncer}
+      Window #9: WindowStateAnimator{6529205 NavigationBar0}
+      Window #10: WindowStateAnimator{3060bc9 InputMethod}
 
 
     mBulkUpdateParams=0x4 ORIENTATION_CHANGE_COMPLETE
 
 WINDOW MANAGER SESSIONS (dumpsys window sessions)
   Session Session{b19297 2052:u0a10052}:
-    mNumWindow=8 mCanAddInternalSystemWindow=true mAppOverlaySurfaces=[] mAlertWindowSurfaces=[] mClientDead=false mSurfaceSession=android.view.SurfaceSession@e83e25a
+    mNumWindow=6 mCanAddInternalSystemWindow=true mAppOverlaySurfaces=[] mAlertWindowSurfaces=[] mClientDead=false mSurfaceSession=android.view.SurfaceSession@e83e25a
     mPackageName=com.android.systemui
+  Session Session{286c57e 15612:u0a10259}:
+    mNumWindow=1 mCanAddInternalSystemWindow=false mAppOverlaySurfaces=[] mAlertWindowSurfaces=[] mClientDead=false mSurfaceSession=android.view.SurfaceSession@16eef6a
+    mPackageName=ca.ocentra.parent.agent
+  Session Session{2d174fd 8179:u0a10105}:
+    mNumWindow=0 mCanAddInternalSystemWindow=false mAppOverlaySurfaces=[] mAlertWindowSurfaces=[] mClientDead=false mSurfaceSession=android.view.SurfaceSession@d8789d6
+    mPackageName=com.android.vending
   Session Session{44b4934 5067:u0a10199}:
     mNumWindow=1 mCanAddInternalSystemWindow=true mAppOverlaySurfaces=[] mAlertWindowSurfaces=[] mClientDead=false mSurfaceSession=android.view.SurfaceSession@8bafc8b
     mPackageName=com.sec.android.daemonapp
@@ -115,6 +121,9 @@ WINDOW MANAGER SESSIONS (dumpsys window sessions)
   Session Session{834c7a1 1975:u0a10298}:
     mNumWindow=1 mCanAddInternalSystemWindow=false mAppOverlaySurfaces=[] mAlertWindowSurfaces=[] mClientDead=false mSurfaceSession=android.view.SurfaceSession@5aadc14
     mPackageName=com.microsoft.launcher
+  Session Session{a51596c 19655:u0a10196}:
+    mNumWindow=1 mCanAddInternalSystemWindow=true mAppOverlaySurfaces=[] mAlertWindowSurfaces=[] mClientDead=false mSurfaceSession=android.view.SurfaceSession@7a072ce
+    mPackageName=com.samsung.android.honeyboard
 
 WINDOW MANAGER DISPLAY CONTENTS (dumpsys window displays)
   Display: mDisplayId=0
@@ -124,10 +133,10 @@ WINDOW MANAGER DISPLAY CONTENTS (dumpsys window displays)
     initCutout=null
     baseCutout=null
 
-  mLayoutSeq=778
+  mLayoutSeq=1521
   mDeferredRotationPauseCount=0
   mCurrentFocus=Window{7c6e11 u0 StatusBar}
-  mFocusedApp=AppWindowToken{3346139 token=Token{5925500 ActivityRecord{3a2f83 u0 com.android.systemui/.media.MediaProjectionPermissionActivity t215}}}
+  mFocusedApp=AppWindowToken{2878d02 token=Token{cd51e4d ActivityRecord{b0249e4 u0 ca.ocentra.parent.agent/.MainActivity t222}}}
   mLastStatusBarVisibility=0x8008
 
   displayId=0
@@ -137,24 +146,25 @@ WINDOW MANAGER DISPLAY CONTENTS (dumpsys window displays)
 mSystemGestureExclusion=<no lstnrs>
 
   Application tokens in top down Z order:
-    mStackId=11
+    mStackId=18
     mDeferRemoval=false
     mBounds=[0,0][1080,2220]
-      taskId=215
+      taskId=222
         mBounds=[0,0][1080,2220]
         mdr=false
-        appTokens=[AppWindowToken{3346139 token=Token{5925500 ActivityRecord{3a2f83 u0 com.android.systemui/.media.MediaProjectionPermissionActivity t215}}}]
+        appTokens=[AppWindowToken{2878d02 token=Token{cd51e4d ActivityRecord{b0249e4 u0 ca.ocentra.parent.agent/.MainActivity t222}}}]
         mDisplayedBounds=[0,0][0,0]
-          Activity #0 AppWindowToken{3346139 token=Token{5925500 ActivityRecord{3a2f83 u0 com.android.systemui/.media.MediaProjectionPermissionActivity t215}}}
-            windows=[Window{7feffe2 u0 com.android.systemui/com.android.systemui.media.MediaProjectionPermissionActivity}]
-            windowType=2 hidden=true hasVisible=false
+          Activity #0 AppWindowToken{2878d02 token=Token{cd51e4d ActivityRecord{b0249e4 u0 ca.ocentra.parent.agent/.MainActivity t222}}}
+            windows=[Window{a6d1871 u0 ca.ocentra.parent.agent/ca.ocentra.parent.agent.MainActivity}]
+            windowType=2 hidden=true hasVisible=true
             app=true mVoiceInteraction=false
-            component=com.android.systemui/.media.MediaProjectionPermissionActivity
-            task={taskId=215 appTokens=[AppWindowToken{3346139 token=Token{5925500 ActivityRecord{3a2f83 u0 com.android.systemui/.media.MediaProjectionPermissionActivity t215}}}] mdr=false}
-             mFillsParent=false mOrientation=-1
+            component=ca.ocentra.parent.agent/.MainActivity
+            task={taskId=222 appTokens=[AppWindowToken{2878d02 token=Token{cd51e4d ActivityRecord{b0249e4 u0 ca.ocentra.parent.agent/.MainActivity t222}}}] mdr=false}
+             mFillsParent=true mOrientation=-1
             hiddenRequested=true mClientHidden=true reportedDrawn=false reportedVisible=false
             mAppStopped=true
-            mNumInterestingWindows=1 mNumDrawnWindows=0 inPendingTransaction=false allDrawn=false lastAllDrawn=false)
+            mNumInterestingWindows=1 mNumDrawnWindows=0 inPendingTransaction=false allDrawn=true lastAllDrawn=true)
+            startingData=null removed=false firstWindowDrawn=true mIsExiting=false
     mStackId=0
     mDeferRemoval=false
     mBounds=[0,0][1080,2220]
@@ -275,6 +285,7 @@ mSystemGestureExclusion=<no lstnrs>
      .getAssets().getApkPaths()=[/system/framework/framework-res.apk, /vendor/overlay/GmsConfigOverlay.apk, /vendor/overlay/GmsGsaConfigOverlay.apk, /vendor/overlay/GoogleExtServicesConfigOverlay.apk, /vendor/overlay/GooglePermissionControllerFrameworkOverlay.apk, /system/framework/framework-res.apk, /vendor/overlay/NavigationBarMode3Button/NavigationBarMode3ButtonOverlay.apk]
      .getDimensionPixelSize(R.dimen.navigation_bar_height)=162
     mFocusedWindow=Window{7c6e11 u0 StatusBar}
+    mTspInputMethod=Window{51f45b1 u0 InputMethod}
     mTopIsFullscreen=false    mForceStatusBar=false mForceStatusBarFromKeyguard=true
  mForceShowSystemBarsFromExternal=false
     mAllowLockscreenWhenOn=false
@@ -323,6 +334,7 @@ mSystemGestureExclusion=<no lstnrs>
 
   WindowInsetsStateController
     InsetsState
+      InsetsSource type=TYPE_UNKNOWN_10 frame=[0,0][0,0] visible=false
       InsetsSource type=TYPE_BOTTOM_TAPPABLE_ELEMENT frame=[0,2058][1080,2220] visible=false
       InsetsSource type=TYPE_TOP_TAPPABLE_ELEMENT frame=[0,0][1080,81] visible=true
       InsetsSource type=TYPE_RIGHT_GESTURES frame=[1080,0][1080,2220] visible=false
@@ -339,29 +351,46 @@ mSystemGestureExclusion=<no lstnrs>
 WINDOW MANAGER TOKENS (dumpsys window tokens)
   All tokens:
   Display #0
+  WindowToken{ac3225d android.os.Binder@7349434}
   AppWindowToken{a584450 token=Token{5d00a13 ActivityRecord{2861102 u0 com.sec.android.app.camera/.Camera t206}}}
   AppWindowToken{7de2eaa token=Token{d01d95 ActivityRecord{68194c u0 com.sec.android.daemonapp/com.samsung.android.weather.app.locations.activity.WXLocationsActivity t209}}}
   WindowToken{cb3e3d2 android.os.BinderProxy@8def034}
-  WindowToken{51046e2 android.os.Binder@24713ad}
   WindowToken{ee1ae38 android.os.BinderProxy@384deaa}
   WindowToken{dadaded android.os.Binder@6ead404}
   AppWindowToken{22baaff token=Token{1f1321e ActivityRecord{54ff659 u0 com.microsoft.launcher/.Launcher t204}}}
-  AppWindowToken{3346139 token=Token{5925500 ActivityRecord{3a2f83 u0 com.android.systemui/.media.MediaProjectionPermissionActivity t215}}}
-  WindowToken{8c75889 android.os.Binder@a645790}
   WindowToken{2545ce3 android.os.BinderProxy@388749d}
   WallpaperWindowToken{858a6a2 token=android.os.Binder@f7a1a6d}
+  AppWindowToken{2878d02 token=Token{cd51e4d ActivityRecord{b0249e4 u0 ca.ocentra.parent.agent/.MainActivity t222}}}
   WindowToken{b784f90 android.os.BinderProxy@c3bda42}
   WindowToken{9dd7577 android.os.BinderProxy@aa3b76}
-  WindowToken{cc3fe71 android.os.BinderProxy@e05c418}
+  WindowToken{f27b566 android.os.Binder@55cd9c1}
 
 WINDOW MANAGER WINDOWS (dumpsys window windows)
-  Window #0 Window{63ad4bc u0 NavigationBar0}:
+  Window #0 Window{51f45b1 u0 InputMethod}:
+    mDisplayId=0 stackId=0 mSession=Session{a51596c 19655:u0a10196} mClient=android.os.BinderProxy@1b0a058
+    mOwnerUid=10196 mShowToOwnerOnly=true package=com.samsung.android.honeyboard appop=SYSTEM_INTERNAL_WINDOW
+    mAttrs={(0,0)(fillxwrap) gr=BOTTOM CENTER_VERTICAL sim={adjust=pan} ty=INPUT_METHOD fmt=TRANSPARENT wanim=0x7f13012f
+      fl=81800108 dimDuration=150 naviIconColor=0}
+    Requested w=1080 h=2139 mLayoutSeq=1366
+    mIsImWindow=true mIsWallpaper=false mIsFloatingLayer=true mWallpaperVisible=false
+    mPolicyVisibility=false mLegacyPolicyVisibilityAfterAnim=false mAppOpVisibility=true parentHidden=false mPermanentlyHidden=false mHiddenWhileSuspended=false mForceHideNonSystemOverlayWindow=false
+    mHasSurface=false isReadyForDisplay()=false mWindowRemovalAllowed=false
+    WindowStateAnimator{3060bc9 InputMethod}:
+    mForceSeamlesslyRotate=false seamlesslyRotate: pending=null finishedFrameNumber=0
+    isOnScreen=false
+    isVisible=false
+    mIsPortraitSystemWindow=false
+    mIsHiddenByAodPolicy=false
+    mPendingPolicyVisibility=false
+    mIsTspNoteMode=false
+    mHiddenWhileProfileLockedState=false
+  Window #1 Window{63ad4bc u0 NavigationBar0}:
     mDisplayId=0 stackId=0 mSession=Session{b19297 2052:u0a10052} mClient=android.os.BinderProxy@3083a53
     mOwnerUid=10052 mShowToOwnerOnly=false package=com.android.systemui appop=SYSTEM_INTERNAL_WINDOW
     mAttrs={(0,0)(fillxfill) sim={adjust=pan} ty=NAVIGATION_BAR fmt=TRANSLUCENT
       fl=21840068
       pfl=1000000 naviIconColor=0}
-    Requested w=1080 h=162 mLayoutSeq=772
+    Requested w=1080 h=162 mLayoutSeq=1519
     mHasSurface=false isReadyForDisplay()=false mWindowRemovalAllowed=false
     WindowStateAnimator{6529205 NavigationBar0}:
        mAnimationIsEntrance=true    mLastFreezeDuration=+18s871ms
@@ -373,14 +402,14 @@ WINDOW MANAGER WINDOWS (dumpsys window windows)
     mPendingPolicyVisibility=false
     mIsTspNoteMode=false
     mHiddenWhileProfileLockedState=false
-  Window #1 Window{e1f75e4 u0 Bouncer}:
+  Window #2 Window{e1f75e4 u0 Bouncer}:
     mDisplayId=0 stackId=0 mSession=Session{b19297 2052:u0a10052} mClient=android.os.BinderProxy@aa3b76
     mOwnerUid=10052 mShowToOwnerOnly=false package=com.android.systemui appop=SYSTEM_INTERNAL_WINDOW
     mAttrs={(0,0)(fillx0) gr=TOP CENTER_VERTICAL sim={adjust=resize} layoutInDisplayCutoutMode=always ty=KEYGUARD_DIALOG fmt=TRANSLUCENT if=DISABLE_USER_ACTIVITY userActivityTimeout=5000
       fl=85000548
       vsysui=500 dimAmount=0.0 screenDimDuration=0 naviIconColor=0
       sfl=40000}
-    Requested w=1080 h=0 mLayoutSeq=778
+    Requested w=1080 h=0 mLayoutSeq=1521
     mPolicyVisibility=false mLegacyPolicyVisibilityAfterAnim=false mAppOpVisibility=true parentHidden=false mPermanentlyHidden=false mHiddenWhileSuspended=false mForceHideNonSystemOverlayWindow=false
     mHasSurface=false isReadyForDisplay()=false mWindowRemovalAllowed=false
     WindowStateAnimator{2b2d97c Bouncer}:
@@ -392,44 +421,22 @@ WINDOW MANAGER WINDOWS (dumpsys window windows)
     mPendingPolicyVisibility=false
     mIsTspNoteMode=false
     mHiddenWhileProfileLockedState=false
-  Window #2 Window{7c6e11 u0 StatusBar}:
+  Window #3 Window{7c6e11 u0 StatusBar}:
     mDisplayId=0 stackId=0 mSession=Session{b19297 2052:u0a10052} mClient=android.os.BinderProxy@ce6ca9b
     mOwnerUid=10052 mShowToOwnerOnly=false package=com.android.systemui appop=SYSTEM_INTERNAL_WINDOW
     mAttrs={(0,0)(fillxfill) gr=TOP CENTER_VERTICAL sim={adjust=resize} layoutInDisplayCutoutMode=always ty=STATUS_BAR fmt=TRANSLUCENT or=SCREEN_ORIENTATION_NOSENSOR if=DISABLE_USER_ACTIVITY userActivityTimeout=5000
       fl=81860040
       pfl=880400 dimAmount=0.0 screenDimDuration=0 naviIconColor=0
       sfl=40000}
-    Requested w=1080 h=2220 mLayoutSeq=778
+    Requested w=1080 h=2220 mLayoutSeq=1521
     mHasSurface=true isReadyForDisplay()=true mWindowRemovalAllowed=false
     WindowStateAnimator{d48486f StatusBar}:
        mAnimationIsEntrance=true      Surface: shown=true layer=0 alpha=1.0 rect=(0.0,0.0) 1080 x 2220 transform=(1.0, 0.0, 1.0, 0.0)
-    mLastFreezeDuration=+56m37s889ms
+    mLastFreezeDuration=+2h21m26s645ms
     mForceSeamlesslyRotate=false seamlesslyRotate: pending=null finishedFrameNumber=0
     mDrawLock=WakeLock{bfc62b2 held=false, refCount=17}
     isOnScreen=true
     isVisible=true
-    mIsPortraitSystemWindow=false
-    mIsHiddenByAodPolicy=false
-    mPendingPolicyVisibility=false
-    mIsTspNoteMode=false
-    mHiddenWhileProfileLockedState=false
-  Window #3 Window{35ff456 u0 Sys2003:com.android.systemui/com.android.systemui.media.MediaProjectionPermissionActivity}:
-    mDisplayId=0 stackId=0 mSession=Session{b19297 2052:u0a10052} mClient=android.os.BinderProxy@e05c418
-    mOwnerUid=10052 mShowToOwnerOnly=true package=com.android.systemui appop=SYSTEM_ALERT_WINDOW
-    mAttrs={(0,0)(wrapxwrap) gr=BOTTOM CENTER_VERTICAL sim={adjust=pan forwardNavigation} ty=SYSTEM_ALERT fmt=TRANSLUCENT wanim=0x10302f5 surfaceInsets=Rect(7, 7 - 7, 7)
-      fl=1820002
-      pfl=10080000
-      vsysui=10 dimAmount=0.65 dimDuration=150 naviIconColor=0}
-    Requested w=1080 h=1446 mLayoutSeq=778
-    mPolicyVisibility=false mLegacyPolicyVisibilityAfterAnim=false mAppOpVisibility=true parentHidden=false mPermanentlyHidden=false mHiddenWhileSuspended=false mForceHideNonSystemOverlayWindow=false
-    mHasSurface=true isReadyForDisplay()=false mWindowRemovalAllowed=false
-    WindowStateAnimator{97a5796 Sys2003:com.android.systemui/com.android.systemui.media.MediaProjectionPermissionActivity}:
-      Surface: shown=false layer=0 alpha=0.0 rect=(0.0,0.0) 1094 x 1460 transform=(1.0, 0.0, 1.0, 0.0)
-      mShownAlpha=1.0 mAlpha=1.0 mLastAlpha=0.0
-    mLastFreezeDuration=+1h14m28s599ms
-    mForceSeamlesslyRotate=false seamlesslyRotate: pending=null finishedFrameNumber=0
-    isOnScreen=false
-    isVisible=false
     mIsPortraitSystemWindow=false
     mIsHiddenByAodPolicy=false
     mPendingPolicyVisibility=false
@@ -461,7 +468,7 @@ WINDOW MANAGER WINDOWS (dumpsys window windows)
       fl=21840028
       pfl=40
       vsysui=700 naviIconColor=0}
-    Requested w=1080 h=169 mLayoutSeq=778
+    Requested w=1080 h=169 mLayoutSeq=1521
     mPolicyVisibility=false mLegacyPolicyVisibilityAfterAnim=false mAppOpVisibility=true parentHidden=false mPermanentlyHidden=false mHiddenWhileSuspended=false mForceHideNonSystemOverlayWindow=false
     mHasSurface=false isReadyForDisplay()=false mWindowRemovalAllowed=false
     WindowStateAnimator{3739a49 DockedStackDivider}:
@@ -474,17 +481,16 @@ WINDOW MANAGER WINDOWS (dumpsys window windows)
     mPendingPolicyVisibility=false
     mIsTspNoteMode=false
     mHiddenWhileProfileLockedState=false
-  Window #6 Window{7feffe2 u0 com.android.systemui/com.android.systemui.media.MediaProjectionPermissionActivity}:
-    mDisplayId=0 stackId=11 mSession=Session{b19297 2052:u0a10052} mClient=android.os.BinderProxy@f4910ad
-    mOwnerUid=10052 mShowToOwnerOnly=true package=com.android.systemui appop=NONE
-    mAttrs={(0,0)(wrapxwrap) sim={adjust=pan forwardNavigation} ty=BASE_APPLICATION fmt=TRANSPARENT wanim=0x10302f1
-      fl=1800002
-      pfl=10000000
-      vsysui=10 dimAmount=0.6 naviIconColor=0}
-    Requested w=0 h=0 mLayoutSeq=706
+  Window #6 Window{a6d1871 u0 ca.ocentra.parent.agent/ca.ocentra.parent.agent.MainActivity}:
+    mDisplayId=0 stackId=18 mSession=Session{286c57e 15612:u0a10259} mClient=android.os.BinderProxy@69b0618
+    mOwnerUid=10259 mShowToOwnerOnly=true package=ca.ocentra.parent.agent appop=NONE
+    mAttrs={(0,0)(fillxfill) sim={adjust=pan forwardNavigation} ty=BASE_APPLICATION wanim=0x1030305
+      fl=81810100
+      pfl=10020000
+      vsysui=10 naviIconColor=0}
+    Requested w=1080 h=2220 mLayoutSeq=1511
     mHasSurface=false isReadyForDisplay()=false mWindowRemovalAllowed=false
-    WindowStateAnimator{8a63f04 com.android.systemui/com.android.systemui.media.MediaProjectionPermissionActivity}:
-      mShownAlpha=0.0 mAlpha=1.0 mLastAlpha=0.0
+    WindowStateAnimator{29c6955 ca.ocentra.parent.agent/ca.ocentra.parent.agent.MainActivity}:
     mForceSeamlesslyRotate=false seamlesslyRotate: pending=null finishedFrameNumber=0
     isOnScreen=false
     isVisible=false
@@ -500,7 +506,7 @@ WINDOW MANAGER WINDOWS (dumpsys window windows)
       fl=81910100
       pfl=20000
       vsysui=700 naviIconColor=0}
-    Requested w=1080 h=2220 mLayoutSeq=651
+    Requested w=1080 h=2220 mLayoutSeq=928
     mHasSurface=false isReadyForDisplay()=false mWindowRemovalAllowed=false
     WindowStateAnimator{4c7de13 com.microsoft.launcher/com.microsoft.launcher.Launcher}:
     mForceSeamlesslyRotate=false seamlesslyRotate: pending=null finishedFrameNumber=0
@@ -554,7 +560,7 @@ WINDOW MANAGER WINDOWS (dumpsys window windows)
       fl=14318
       pfl=4 naviIconColor=0
       sfl=8}
-    Requested w=1080 h=2220 mLayoutSeq=652
+    Requested w=1080 h=2220 mLayoutSeq=931
     mIsImWindow=false mIsWallpaper=true mIsFloatingLayer=true mWallpaperVisible=false
     mHasSurface=true isReadyForDisplay()=false mWindowRemovalAllowed=false
     WindowStateAnimator{ca531e4 com.android.systemui.ImageWallpaper}:
@@ -577,8 +583,8 @@ WINDOW MANAGER WINDOWS (dumpsys window windows)
   mHasPermanentDpad=false
   mTopFocusedDisplayId=0
   mInTouchMode=true
-  mLastDisplayFreezeDuration=0 due to Window{35ff456 u0 Sys2003:com.android.systemui/com.android.systemui.media.MediaProjectionPermissionActivity}
-  mLastWakeLockHoldingWindow=null mLastWakeLockObscuringWindow=Window{c2ad405 u0 com.android.systemui.ImageWallpaper}
+  mLastDisplayFreezeDuration=0 due to Window{7c6e11 u0 StatusBar}
+  mLastWakeLockHoldingWindow=null mLastWakeLockObscuringWindow=Window{9b47ae7 u0 com.samsung.android.incallui/com.android.incallui.call.InCallActivity}
   mFullSnapshotScale=1.0
   SnapshotCache
     Entry taskId=209

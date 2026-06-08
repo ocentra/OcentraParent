@@ -1,716 +1,502 @@
 --------- beginning of system
-06-08 12:14:18.882  1442  3671 I SamsungAlarmManager: setLocked to kernel - T:2 / 20260608T121420, SetElapsed=5012903, nowELAPSED=5010924
-06-08 12:14:18.882  1442  3671 E AlarmManager: Set nextNonWakeup as mNextNonWakeupDeliveryTime=5172043 , orig nextNonWakeup=0
-06-08 12:14:18.883  1442  3671 I SamsungAlarmManager: setLocked to kernel - T:3 / 20260608T121700, SetElapsed=5172043, nowELAPSED=5010925
-06-08 12:14:18.883  1442  3671 D SamsungAlarmManager: setExact Listener (T:3/F:9/AC:false) 20260608T131418 - CU:1000/CP:1442
-06-08 12:14:18.883  1442  3671 I SamsungAlarmManager: setLocked to kernel - T:2 / 20260608T121420, SetElapsed=5012903, nowELAPSED=5010925
-06-08 12:14:18.883  1442  3671 E AlarmManager: Set nextNonWakeup as mNextNonWakeupDeliveryTime=5172043 , orig nextNonWakeup=0
-06-08 12:14:18.883  1442  3671 I SamsungAlarmManager: setLocked to kernel - T:3 / 20260608T121700, SetElapsed=5172043, nowELAPSED=5010925
+06-08 14:57:01.516  1442  1879 D ConnectivityService: Network NetworkAgentInfo [WIFI () - 602] was already satisfying request 14. No change.
+06-08 14:57:01.516  1442  1879 D ConnectivityService: Network NetworkAgentInfo [WIFI () - 602] was already satisfying request 671. No change.
+06-08 14:57:01.516  1442  1879 D ConnectivityService: Network NetworkAgentInfo [WIFI () - 602] was already satisfying request 8. No change.
+06-08 14:57:01.516  1442  1879 D ConnectivityService: Network NetworkAgentInfo [WIFI () - 602] was already satisfying request 43. No change.
+06-08 14:57:01.516  1442  1879 D ConnectivityService: Network NetworkAgentInfo [WIFI () - 602] was already satisfying request 109. No change.
+06-08 14:57:01.516  1442  1879 D ConnectivityService: Network NetworkAgentInfo [WIFI () - 602] was already satisfying request 163. No change.
+06-08 14:57:01.516  1442  1879 D ConnectivityService: Network NetworkAgentInfo [WIFI () - 602] was already satisfying request 690. No change.
+06-08 14:57:01.517  1442  1879 D ConnectivityService: sending notification CALLBACK_AVAILABLE for NetworkRequest [ LISTEN id=693, [ Capabilities: INTERNET&TRUSTED&VALIDATED&FOREGROUND Uid: 10294] ]
 --------- beginning of main
-06-08 12:14:18.883  1442  1442 D SEP_UNION_SemDeviceInfoManagerService: sendIntentAction() action = android.intent.action.PACKAGE_REPLACED, tag =  
-06-08 12:14:18.884 23737 27710 I CameraFilterInstaller: removeFromFS : ca.ocentra.parent.agent, cursor size : 0
-06-08 12:14:18.884  1442  1557 W BroadcastQueue: Background execution not allowed: receiving Intent { act=android.intent.action.PACKAGE_ADDED dat=package:ca.ocentra.parent.agent flg=0x4000010 (has extras) } to com.google.android.gms/.gass.chimera.PackageChangeBroadcastReceiver
-06-08 12:14:18.884  1442  1442 D SEP_UNION_SemDeviceInfoManagerService: sendIntentAction() action = android.intent.action.PACKAGE_REPLACED, tag =  
-06-08 12:14:18.884  1442  3671 I SamsungAlarmManager: setLocked to kernel - T:2 / 20260608T121420, SetElapsed=5012903, nowELAPSED=5010927
-06-08 12:14:18.885  1442  3671 E AlarmManager: Set nextNonWakeup as mNextNonWakeupDeliveryTime=5172043 , orig nextNonWakeup=0
-06-08 12:14:18.885  1442  3671 I SamsungAlarmManager: setLocked to kernel - T:3 / 20260608T121700, SetElapsed=5172043, nowELAPSED=5010927
-06-08 12:14:18.885  1442  3671 D SamsungAlarmManager: setExact Listener (T:3/F:9/AC:false) 20260608T233905 - CU:1000/CP:1442
-06-08 12:14:18.885  1442  3671 I SamsungAlarmManager: setLocked to kernel - T:2 / 20260608T121420, SetElapsed=5012903, nowELAPSED=5010927
-06-08 12:14:18.885  1442  3671 E AlarmManager: Set nextNonWakeup as mNextNonWakeupDeliveryTime=5172043 , orig nextNonWakeup=0
-06-08 12:14:18.885  1442  3671 I SamsungAlarmManager: setLocked to kernel - T:3 / 20260608T121700, SetElapsed=5172043, nowELAPSED=5010927
-06-08 12:14:18.885  1442  1442 D UpdateReceiver: Handler : 0
-06-08 12:14:18.885  1442  1442 D UpdateReceiver: action : android.intent.action.PACKAGE_REPLACED, package:ca.ocentra.parent.agent
-06-08 12:14:18.886 23737 27710 I CameraFilterContentProvider: delete match : 1000
-06-08 12:14:18.886 23737 27710 I CameraFilterInstaller: Delete DB result : ca.ocentra.parent.agent, 0
-06-08 12:14:18.886  1442  1557 W BroadcastQueue: Background execution not allowed: receiving Intent { act=android.intent.action.PACKAGE_ADDED dat=package:ca.ocentra.parent.agent flg=0x4000010 (has extras) } to com.google.android.gms/.chimera.GmsIntentOperationService$PersistentTrustedReceiver
-06-08 12:14:18.890 26806 26806 I AppListCacheReceiver: onReceive START action : action_package_replaced
-06-08 12:14:18.890 26806 26806 I AppListCacheReceiver: onReceive END
-06-08 12:14:18.891 27658 27709 D KnoxHelper: getActivityList callingUserId: 0, target user: 0
-06-08 12:14:18.894  1442  1442 W Looper  : Drained
-06-08 12:14:18.894  1442  1557 W BroadcastQueue: Background execution not allowed: receiving Intent { act=android.intent.action.PACKAGE_ADDED dat=package:ca.ocentra.parent.agent flg=0x4000010 (has extras) } to com.microsoft.office.excel/com.microsoft.android.crosssell.PackageStateReceiver
-06-08 12:14:18.895  1442  1557 W BroadcastQueue: Background execution not allowed: receiving Intent { act=android.intent.action.PACKAGE_ADDED dat=package:ca.ocentra.parent.agent flg=0x4000010 (has extras) } to com.microsoft.office.word/com.microsoft.android.crosssell.PackageStateReceiver
-06-08 12:14:18.902  1442  1557 W BroadcastQueue: Background execution not allowed: receiving Intent { act=android.intent.action.PACKAGE_ADDED dat=package:ca.ocentra.parent.agent flg=0x4000010 (has extras) } to com.samsung.android.app.soundpicker/.HunReceiver
-06-08 12:14:18.903  1442  1830 I InputReader: Reconfiguring input devices.  changes=0x00000010
-06-08 12:14:18.904  2752  4344 E AuthPII : [RequestTokenManager] getToken() -> BAD_AUTHENTICATION. App: com.google.android.gms, Service: oauth2:https://www.googleapis.com/auth/plus.me
-06-08 12:14:18.904  2752  4344 E AuthPII : bhbq: Long live credential not available.
-06-08 12:14:18.904  2752  4344 E AuthPII : 	at agef.a(:com.google.android.gms@262031013@26.20.31 (100400-919905943):1347)
-06-08 12:14:18.904  2752  4344 E AuthPII : 	at agem.b(:com.google.android.gms@262031013@26.20.31 (100400-919905943):26)
-06-08 12:14:18.904  2752  4344 E AuthPII : 	at agek.a(:com.google.android.gms@262031013@26.20.31 (100400-919905943):747)
-06-08 12:14:18.904  2752  4344 E AuthPII : 	at afop.a(:com.google.android.gms@262031013@26.20.31 (100400-919905943):82)
-06-08 12:14:18.904  2752  4344 E AuthPII : 	at zui.d(:com.google.android.gms@262031013@26.20.31 (100400-919905943):313)
-06-08 12:14:18.904  2752  4344 E AuthPII : 	at zui.fo(:com.google.android.gms@262031013@26.20.31 (100400-919905943):153)
-06-08 12:14:18.904  2752  4344 E AuthPII : 	at yyf.onTransact(:com.google.android.gms@262031013@26.20.31 (100400-919905943):88)
-06-08 12:14:18.904  2752  4344 E AuthPII : 	at android.os.Binder.transact(Binder.java:949)
-06-08 12:14:18.904  2752  4344 E AuthPII : 	at cmgq.onTransact(:com.google.android.gms@262031013@26.20.31 (100400-919905943):12)
-06-08 12:14:18.904  2752  4344 E AuthPII : 	at android.os.Binder.transact(Binder.java:949)
-06-08 12:14:18.904  2752  4344 E AuthPII : 	at bzrq.onTransact(:com.google.android.gms@262031013@26.20.31 (100400-919905943):169)
-06-08 12:14:18.904  2752  4344 E AuthPII : 	at android.os.Binder.execTransactInternal(Binder.java:1056)
-06-08 12:14:18.904  2752  4344 E AuthPII : 	at android.os.Binder.execTransact(Binder.java:1029)
-06-08 12:14:18.905  2752  4344 E AuthPII : Message is Long live credential not available.
-06-08 12:14:18.905  2752  4344 E AuthPII : bhbq: Long live credential not available.
-06-08 12:14:18.905  2752  4344 E AuthPII : 	at agef.a(:com.google.android.gms@262031013@26.20.31 (100400-919905943):1347)
-06-08 12:14:18.905  2752  4344 E AuthPII : 	at agem.b(:com.google.android.gms@262031013@26.20.31 (100400-919905943):26)
-06-08 12:14:18.905  2752  4344 E AuthPII : 	at agek.a(:com.google.android.gms@262031013@26.20.31 (100400-919905943):747)
-06-08 12:14:18.905  2752  4344 E AuthPII : 	at afop.a(:com.google.android.gms@262031013@26.20.31 (100400-919905943):82)
-06-08 12:14:18.905  2752  4344 E AuthPII : 	at zui.d(:com.google.android.gms@262031013@26.20.31 (100400-919905943):313)
-06-08 12:14:18.905  2752  4344 E AuthPII : 	at zui.fo(:com.google.android.gms@262031013@26.20.31 (100400-919905943):153)
-06-08 12:14:18.905  2752  4344 E AuthPII : 	at yyf.onTransact(:com.google.android.gms@262031013@26.20.31 (100400-919905943):88)
-06-08 12:14:18.905  2752  4344 E AuthPII : 	at android.os.Binder.transact(Binder.java:949)
-06-08 12:14:18.905  2752  4344 E AuthPII : 	at cmgq.onTransact(:com.google.android.gms@262031013@26.20.31 (100400-919905943):12)
-06-08 12:14:18.905  2752  4344 E AuthPII : 	at android.os.Binder.transact(Binder.java:949)
-06-08 12:14:18.905  2752  4344 E AuthPII : 	at bzrq.onTransact(:com.google.android.gms@262031013@26.20.31 (100400-919905943):169)
-06-08 12:14:18.905  2752  4344 E AuthPII : 	at android.os.Binder.execTransactInternal(Binder.java:1056)
-06-08 12:14:18.905  2752  4344 E AuthPII : 	at android.os.Binder.execTransact(Binder.java:1029)
-06-08 12:14:18.905  2752  4344 I Auth    : (REDACTED) [AccountIdManager] Token response failed with status=%s
-06-08 12:14:18.907  1442  1557 W BroadcastQueue: Background execution not allowed: receiving Intent { act=android.intent.action.PACKAGE_ADDED dat=package:ca.ocentra.parent.agent flg=0x4000010 (has extras) } to com.samsung.android.app.taskedge/.edgepanel.TaskEdgePanelProvider
-06-08 12:14:18.908 26806 26916 D AppListCacheIndexingManager: insertPackage() success
-06-08 12:14:18.909  2752  4344 E AuthPII : [RequestTokenManager] getToken() -> BAD_AUTHENTICATION. App: com.google.android.gms, Service: oauth2:https://www.googleapis.com/auth/userinfo.email https://www.googleapis.com/auth/account.capabilities https://www.googleapis.com/auth/account.service_flags
-06-08 12:14:18.909  2752  4344 E AuthPII : bhbq: Long live credential not available.
-06-08 12:14:18.909  2752  4344 E AuthPII : 	at agef.a(:com.google.android.gms@262031013@26.20.31 (100400-919905943):1347)
-06-08 12:14:18.909  2752  4344 E AuthPII : 	at agem.b(:com.google.android.gms@262031013@26.20.31 (100400-919905943):26)
-06-08 12:14:18.909  2752  4344 E AuthPII : 	at agek.a(:com.google.android.gms@262031013@26.20.31 (100400-919905943):747)
-06-08 12:14:18.909  2752  4344 E AuthPII : 	at afov.a(:com.google.android.gms@262031013@26.20.31 (100400-919905943):55)
-06-08 12:14:18.909  2752  4344 E AuthPII : 	at afov.h(:com.google.android.gms@262031013@26.20.31 (100400-919905943):108)
-06-08 12:14:18.909  2752  4344 E AuthPII : 	at afov.b(:com.google.android.gms@262031013@26.20.31 (100400-919905943):817)
-06-08 12:14:18.909  2752  4344 E AuthPII : 	at afov.c(:com.google.android.gms@262031013@26.20.31 (100400-919905943):5)
-06-08 12:14:18.909  2752  4344 E AuthPII : 	at zui.d(:com.google.android.gms@262031013@26.20.31 (100400-919905943):459)
-06-08 12:14:18.909  2752  4344 E AuthPII : 	at zui.fo(:com.google.android.gms@262031013@26.20.31 (100400-919905943):153)
-06-08 12:14:18.909  2752  4344 E AuthPII : 	at yyf.onTransact(:com.google.android.gms@262031013@26.20.31 (100400-919905943):88)
-06-08 12:14:18.909  2752  4344 E AuthPII : 	at android.os.Binder.transact(Binder.java:949)
-06-08 12:14:18.909  2752  4344 E AuthPII : 	at cmgq.onTransact(:com.google.android.gms@262031013@26.20.31 (100400-919905943):12)
-06-08 12:14:18.909  2752  4344 E AuthPII : 	at android.os.Binder.transact(Binder.java:949)
-06-08 12:14:18.909  2752  4344 E AuthPII : 	at bzrq.onTransact(:com.google.android.gms@262031013@26.20.31 (100400-919905943):169)
-06-08 12:14:18.909  2752  4344 E AuthPII : 	at android.os.Binder.execTransactInternal(Binder.java:1056)
-06-08 12:14:18.909  2752  4344 E AuthPII : 	at android.os.Binder.execTransact(Binder.java:1029)
-06-08 12:14:18.909  2752  4344 E AuthPII : Message is Long live credential not available.
-06-08 12:14:18.909  2752  4344 E AuthPII : bhbq: Long live credential not available.
-06-08 12:14:18.909  2752  4344 E AuthPII : 	at agef.a(:com.google.android.gms@262031013@26.20.31 (100400-919905943):1347)
-06-08 12:14:18.909  2752  4344 E AuthPII : 	at agem.b(:com.google.android.gms@262031013@26.20.31 (100400-919905943):26)
-06-08 12:14:18.909  2752  4344 E AuthPII : 	at agek.a(:com.google.android.gms@262031013@26.20.31 (100400-919905943):747)
-06-08 12:14:18.909  2752  4344 E AuthPII : 	at afov.a(:com.google.android.gms@262031013@26.20.31 (100400-919905943):55)
-06-08 12:14:18.909  2752  4344 E AuthPII : 	at afov.h(:com.google.android.gms@262031013@26.20.31 (100400-919905943):108)
-06-08 12:14:18.909  2752  4344 E AuthPII : 	at afov.b(:com.google.android.gms@262031013@26.20.31 (100400-919905943):817)
-06-08 12:14:18.909  2752  4344 E AuthPII : 	at afov.c(:com.google.android.gms@262031013@26.20.31 (100400-919905943):5)
-06-08 12:14:18.909  2752  4344 E AuthPII : 	at zui.d(:com.google.android.gms@262031013@26.20.31 (100400-919905943):459)
-06-08 12:14:18.909  2752  4344 E AuthPII : 	at zui.fo(:com.google.android.gms@262031013@26.20.31 (100400-919905943):153)
-06-08 12:14:18.909  2752  4344 E AuthPII : 	at yyf.onTransact(:com.google.android.gms@262031013@26.20.31 (100400-919905943):88)
-06-08 12:14:18.909  2752  4344 E AuthPII : 	at android.os.Binder.transact(Binder.java:949)
-06-08 12:14:18.909  2752  4344 E AuthPII : 	at cmgq.onTransact(:com.google.android.gms@262031013@26.20.31 (100400-919905943):12)
-06-08 12:14:18.909  2752  4344 E AuthPII : 	at android.os.Binder.transact(Binder.java:949)
-06-08 12:14:18.909  2752  4344 E AuthPII : 	at bzrq.onTransact(:com.google.android.gms@262031013@26.20.31 (100400-919905943):169)
-06-08 12:14:18.909  2752  4344 E AuthPII : 	at android.os.Binder.execTransactInternal(Binder.java:1056)
-06-08 12:14:18.909  2752  4344 E AuthPII : 	at android.os.Binder.execTransact(Binder.java:1029)
-06-08 12:14:18.910  2752  4344 W Auth    : [AccountStateDownloader] Unable to look up account state from server: couldn't fetch accessToken [CONTEXT service_id=343 ]
-06-08 12:14:18.910  2752  4344 W Auth    : [GaiaIdSync] Empty email. Not updating db. [CONTEXT service_id=153 ]
-06-08 12:14:18.910  1442  1557 W BroadcastQueue: Background execution not allowed: receiving Intent { act=android.intent.action.PACKAGE_ADDED dat=package:ca.ocentra.parent.agent flg=0x4000010 (has extras) } to com.samsung.android.sm.devicesecurity/.PackageReceiver
-06-08 12:14:18.910  1442  1557 W BroadcastQueue: Background execution not allowed: receiving Intent { act=android.intent.action.PACKAGE_ADDED dat=package:ca.ocentra.parent.agent flg=0x4000010 (has extras) } to com.sec.android.app.samsungapps/.receiver.PackageAddedReceiver
-06-08 12:14:18.911  1442  1557 W BroadcastQueue: Background execution not allowed: receiving Intent { act=android.intent.action.PACKAGE_ADDED dat=package:ca.ocentra.parent.agent flg=0x4000010 (has extras) } to com.sec.android.app.soundalive/.SAControlPanelReceiver
-06-08 12:14:18.922  3457 26713 I Icing   : Usage reports ok 0, Failed Usage reports 0, indexed 0, rejected 0
-06-08 12:14:18.932  2752  4344 I Auth    : [ClearToken] IntermediateToken is already deleted. [CONTEXT service_id=343 ]
-06-08 12:14:18.932  1442  3646 W BroadcastQueue: Background execution not allowed: receiving Intent { act=android.intent.action.PACKAGE_ADDED dat=package:ca.ocentra.parent.agent flg=0x4000010 (has extras) } to com.sec.imsservice/com.sec.internal.ims.imsservice.ImsIntentReceiver
-06-08 12:14:18.937  1442  1557 W BroadcastQueue: Background execution not allowed: receiving Intent { act=android.intent.action.PACKAGE_ADDED dat=package:ca.ocentra.parent.agent flg=0x4000010 (has extras) } to com.tongtongsuo.app/com.scaf.android.client.push.MyReceiver
-06-08 12:14:18.940 25747 25747 I EdgeLightingReceiver: com.samsung.android.app.edgelighting.PACKAGE_REMOVED ca.ocentra.parent.agent
-06-08 12:14:18.940 25747 25747 I Utils   : isOwnerUser current = 0
-06-08 12:14:18.940 25747 25747 I EdgeLightingSettingManager: removeSilentInstalledPackage : off, packageName = ca.ocentra.parent.agent
-06-08 12:14:18.944  3457  6344 I Icing   : IndexChimeraService.getServiceInterface callingPackage=com.google.android.gms componentName=null serviceId=30
-06-08 12:14:18.969  8179  8179 I Finsky  : [2] akat - Received: android.intent.action.PACKAGE_ADDED, [DFnCvHT1eP1P6_2dnZFAdYF1T8XI7pSjw7gL_VzLD-k]
-06-08 12:14:18.972  8179  8179 I Finsky  : [2] akat - Deduping intent android.intent.action.PACKAGE_ADDED
-06-08 12:14:18.972  8179  8204 I Finsky  : [2938] RECEIVER_PACKAGE_MONITOR#logWorkEndAndFinishGoAsync: SUCCESS
-06-08 12:14:18.975 25862 25862 I Finsky:background: [2] akaj - Received: android.intent.action.PACKAGE_ADDED, [DFnCvHT1eP1P6_2dnZFAdYF1T8XI7pSjw7gL_VzLD-k]
-06-08 12:14:18.977  2752 12108 E AuthPII : [RequestTokenManager] getToken() -> BAD_AUTHENTICATION. App: com.google.android.gms, Service: oauth2:https://www.googleapis.com/auth/userinfo.email https://www.googleapis.com/auth/account.capabilities https://www.googleapis.com/auth/account.service_flags
-06-08 12:14:18.977  2752 12108 E AuthPII : bhbq: Long live credential not available.
-06-08 12:14:18.977  2752 12108 E AuthPII : 	at agef.a(:com.google.android.gms@262031013@26.20.31 (100400-919905943):1347)
-06-08 12:14:18.977  2752 12108 E AuthPII : 	at agem.b(:com.google.android.gms@262031013@26.20.31 (100400-919905943):26)
-06-08 12:14:18.977  2752 12108 E AuthPII : 	at agek.a(:com.google.android.gms@262031013@26.20.31 (100400-919905943):747)
-06-08 12:14:18.977  2752 12108 E AuthPII : 	at afov.a(:com.google.android.gms@262031013@26.20.31 (100400-919905943):55)
-06-08 12:14:18.977  2752 12108 E AuthPII : 	at afov.h(:com.google.android.gms@262031013@26.20.31 (100400-919905943):108)
-06-08 12:14:18.977  2752 12108 E AuthPII : 	at afov.b(:com.google.android.gms@262031013@26.20.31 (100400-919905943):817)
-06-08 12:14:18.977  2752 12108 E AuthPII : 	at afow.a(:com.google.android.gms@262031013@26.20.31 (100400-919905943):57)
-06-08 12:14:18.977  2752 12108 E AuthPII : 	at afpq.b(:com.google.android.gms@262031013@26.20.31 (100400-919905943):14)
-06-08 12:14:18.977  2752 12108 E AuthPII : 	at afpn.b(:com.google.android.gms@262031013@26.20.31 (100400-919905943):244)
-06-08 12:14:18.977  2752 12108 E AuthPII : 	at zui.a(:com.google.android.gms@262031013@26.20.31 (100400-919905943):30)
-06-08 12:14:18.977  2752 12108 E AuthPII : 	at zui.fo(:com.google.android.gms@262031013@26.20.31 (100400-919905943):54)
-06-08 12:14:18.977  2752 12108 E AuthPII : 	at yyf.onTransact(:com.google.android.gms@262031013@26.20.31 (100400-919905943):88)
-06-08 12:14:18.977  2752 12108 E AuthPII : 	at android.os.Binder.transact(Binder.java:949)
-06-08 12:14:18.977  2752 12108 E AuthPII : 	at cmgq.onTransact(:com.google.android.gms@262031013@26.20.31 (100400-919905943):12)
-06-08 12:14:18.977  2752 12108 E AuthPII : 	at android.os.Binder.transact(Binder.java:949)
-06-08 12:14:18.977  2752 12108 E AuthPII : 	at bzrq.onTransact(:com.google.android.gms@262031013@26.20.31 (100400-919905943):169)
-06-08 12:14:18.977  2752 12108 E AuthPII : 	at android.os.Binder.execTransactInternal(Binder.java:1056)
-06-08 12:14:18.977  2752 12108 E AuthPII : 	at android.os.Binder.execTransact(Binder.java:1029)
-06-08 12:14:18.977  2752 12108 E AuthPII : Message is Long live credential not available.
-06-08 12:14:18.977  2752 12108 E AuthPII : bhbq: Long live credential not available.
-06-08 12:14:18.977  2752 12108 E AuthPII : 	at agef.a(:com.google.android.gms@262031013@26.20.31 (100400-919905943):1347)
-06-08 12:14:18.977  2752 12108 E AuthPII : 	at agem.b(:com.google.android.gms@262031013@26.20.31 (100400-919905943):26)
-06-08 12:14:18.977  2752 12108 E AuthPII : 	at agek.a(:com.google.android.gms@262031013@26.20.31 (100400-919905943):747)
-06-08 12:14:18.977  2752 12108 E AuthPII : 	at afov.a(:com.google.android.gms@262031013@26.20.31 (100400-919905943):55)
-06-08 12:14:18.977  2752 12108 E AuthPII : 	at afov.h(:com.google.android.gms@262031013@26.20.31 (100400-919905943):108)
-06-08 12:14:18.977  2752 12108 E AuthPII : 	at afov.b(:com.google.android.gms@262031013@26.20.31 (100400-919905943):817)
-06-08 12:14:18.977  2752 12108 E AuthPII : 	at afow.a(:com.google.android.gms@262031013@26.20.31 (100400-919905943):57)
-06-08 12:14:18.977  2752 12108 E AuthPII : 	at afpq.b(:com.google.android.gms@262031013@26.20.31 (100400-919905943):14)
-06-08 12:14:18.977  2752 12108 E AuthPII : 	at afpn.b(:com.google.android.gms@262031013@26.20.31 (100400-919905943):244)
-06-08 12:14:18.977  2752 12108 E AuthPII : 	at zui.a(:com.google.android.gms@262031013@26.20.31 (100400-919905943):30)
-06-08 12:14:18.977  2752 12108 E AuthPII : 	at zui.fo(:com.google.android.gms@262031013@26.20.31 (100400-919905943):54)
-06-08 12:14:18.977  2752 12108 E AuthPII : 	at yyf.onTransact(:com.google.android.gms@262031013@26.20.31 (100400-919905943):88)
-06-08 12:14:18.977  2752 12108 E AuthPII : 	at android.os.Binder.transact(Binder.java:949)
-06-08 12:14:18.977  2752 12108 E AuthPII : 	at cmgq.onTransact(:com.google.android.gms@262031013@26.20.31 (100400-919905943):12)
-06-08 12:14:18.977  2752 12108 E AuthPII : 	at android.os.Binder.transact(Binder.java:949)
-06-08 12:14:18.977  2752 12108 E AuthPII : 	at bzrq.onTransact(:com.google.android.gms@262031013@26.20.31 (100400-919905943):169)
-06-08 12:14:18.977  2752 12108 E AuthPII : 	at android.os.Binder.execTransactInternal(Binder.java:1056)
-06-08 12:14:18.977  2752 12108 E AuthPII : 	at android.os.Binder.execTransact(Binder.java:1029)
-06-08 12:14:18.979  2752 12108 W Auth    : [AccountStateSyncher] Unable to look up account state from server: couldn't fetch accessToken [CONTEXT service_id=343 ]
-06-08 12:14:18.979 25862 25862 I Finsky:background: [2] akaj - Deduping intent android.intent.action.PACKAGE_ADDED
-06-08 12:14:18.980 25862 26031 I Finsky:background: [4104] RECEIVER_PACKAGE_MONITOR_BACKGROUND#logWorkEndAndFinishGoAsync: SUCCESS
-06-08 12:14:18.981  3457 26713 I Icing   : Usage reports ok 0, Failed Usage reports 0, indexed 0, rejected 0
-06-08 12:14:18.981  1442  1467 W System  : A resource failed to call close. 
-06-08 12:14:18.987 23737 23737 I CameraFilterIntentReceiver: action : com.samsung.android.provider.filterprovider.INTENT_PACKAGE_ADDED
-06-08 12:14:18.988 23737 23737 I CameraFilterIntentReceiver: pkgName : ca.ocentra.parent.agent
-06-08 12:14:18.988 23737 23737 E CameraFilterIntentReceiver: This package is not a effect filter
-06-08 12:14:18.989  1442  1848 W BroadcastQueue: Background execution not allowed: receiving Intent { act=android.intent.action.PACKAGE_REPLACED dat=package:ca.ocentra.parent.agent flg=0x4000010 (has extras) } to ca.bell.selfserve.mybellmobile/com.netradar.appanalyzer.OnUpgradeOrBootBroadcastReceiver
-06-08 12:14:18.991  1442  1557 W BroadcastQueue: Background execution not allowed: receiving Intent { act=android.intent.action.PACKAGE_REPLACED dat=package:ca.ocentra.parent.agent flg=0x4000010 (has extras) } to com.facebook.appmanager/com.facebook.oxygen.common.packages.event.manifest.ManifestPackageEventReceiver
-06-08 12:14:18.991  1442  1557 W BroadcastQueue: Background execution not allowed: receiving Intent { act=android.intent.action.PACKAGE_REPLACED dat=package:ca.ocentra.parent.agent flg=0x4000010 (has extras) } to com.google.android.gms/.gass.chimera.PackageChangeBroadcastReceiver
-06-08 12:14:18.992  1442  1557 W BroadcastQueue: Background execution not allowed: receiving Intent { act=android.intent.action.PACKAGE_REPLACED dat=package:ca.ocentra.parent.agent flg=0x4000010 (has extras) } to com.google.android.gms/.chimera.GmsIntentOperationService$PersistentTrustedReceiver
-06-08 12:14:18.992  1442  1557 W BroadcastQueue: Background execution not allowed: receiving Intent { act=android.intent.action.PACKAGE_REPLACED dat=package:ca.ocentra.parent.agent flg=0x4000010 (has extras) } to com.samsung.android.app.watchmanagerstub/com.sec.android.applicationmgr.WMStubBroadCastReceiver
-06-08 12:14:18.992  1442  1557 W BroadcastQueue: Background execution not allowed: receiving Intent { act=android.intent.action.PACKAGE_REPLACED dat=package:ca.ocentra.parent.agent flg=0x4000010 (has extras) } to com.samsung.android.beaconmanager/.BeaconBroadcastReceiver
-06-08 12:14:18.992  1442  1557 W BroadcastQueue: Background execution not allowed: receiving Intent { act=android.intent.action.PACKAGE_REPLACED dat=package:ca.ocentra.parent.agent flg=0x4000010 (has extras) } to com.samsung.android.calendar/com.samsung.android.app.calendar.model.settings.receiver.UpdateReceiver
-06-08 12:14:18.993  1442  1557 W BroadcastQueue: Background execution not allowed: receiving Intent { act=android.intent.action.PACKAGE_REPLACED dat=package:ca.ocentra.parent.agent flg=0x4000010 (has extras) } to com.sec.android.app.samsungapps/.receiver.PackageAddedReceiver
-06-08 12:14:18.993  1442  1557 W BroadcastQueue: Background execution not allowed: receiving Intent { act=android.intent.action.PACKAGE_REPLACED dat=package:ca.ocentra.parent.agent flg=0x4000010 (has extras) } to com.sec.android.app.samsungapps/com.samsung.android.iap.receiver.IapReceiver
-06-08 12:14:18.996  2752 12108 E AuthPII : [RequestTokenManager] getToken() -> BAD_AUTHENTICATION. App: com.google.android.gms, Service: oauth2:https://www.googleapis.com/auth/userinfo.email https://www.googleapis.com/auth/account.capabilities https://www.googleapis.com/auth/account.service_flags
-06-08 12:14:18.996  2752 12108 E AuthPII : bhbq: Long live credential not available.
-06-08 12:14:18.996  2752 12108 E AuthPII : 	at agef.a(:com.google.android.gms@262031013@26.20.31 (100400-919905943):1347)
-06-08 12:14:18.996  2752 12108 E AuthPII : 	at agem.b(:com.google.android.gms@262031013@26.20.31 (100400-919905943):26)
-06-08 12:14:18.996  2752 12108 E AuthPII : 	at agek.a(:com.google.android.gms@262031013@26.20.31 (100400-919905943):747)
-06-08 12:14:18.996  2752 12108 E AuthPII : 	at afov.a(:com.google.android.gms@262031013@26.20.31 (100400-919905943):55)
-06-08 12:14:18.996  2752 12108 E AuthPII : 	at afov.h(:com.google.android.gms@262031013@26.20.31 (100400-919905943):108)
-06-08 12:14:18.996  2752 12108 E AuthPII : 	at afov.b(:com.google.android.gms@262031013@26.20.31 (100400-919905943):817)
-06-08 12:14:18.996  2752 12108 E AuthPII : 	at afow.a(:com.google.android.gms@262031013@26.20.31 (100400-919905943):57)
-06-08 12:14:18.996  2752 12108 E AuthPII : 	at afpq.b(:com.google.android.gms@262031013@26.20.31 (100400-919905943):14)
-06-08 12:14:18.996  2752 12108 E AuthPII : 	at afpn.b(:com.google.android.gms@262031013@26.20.31 (100400-919905943):244)
-06-08 12:14:18.996  2752 12108 E AuthPII : 	at zui.a(:com.google.android.gms@262031013@26.20.31 (100400-919905943):30)
-06-08 12:14:18.996  2752 12108 E AuthPII : 	at zui.fo(:com.google.android.gms@262031013@26.20.31 (100400-919905943):54)
-06-08 12:14:18.996  2752 12108 E AuthPII : 	at yyf.onTransact(:com.google.android.gms@262031013@26.20.31 (100400-919905943):88)
-06-08 12:14:18.996  2752 12108 E AuthPII : 	at android.os.Binder.transact(Binder.java:949)
-06-08 12:14:18.996  2752 12108 E AuthPII : 	at cmgq.onTransact(:com.google.android.gms@262031013@26.20.31 (100400-919905943):12)
-06-08 12:14:18.996  2752 12108 E AuthPII : 	at android.os.Binder.transact(Binder.java:949)
-06-08 12:14:18.996  2752 12108 E AuthPII : 	at bzrq.onTransact(:com.google.android.gms@262031013@26.20.31 (100400-919905943):169)
-06-08 12:14:18.996  2752 12108 E AuthPII : 	at android.os.Binder.execTransactInternal(Binder.java:1056)
-06-08 12:14:18.996  2752 12108 E AuthPII : 	at android.os.Binder.execTransact(Binder.java:1029)
-06-08 12:14:18.996  2752 12108 E AuthPII : Message is Long live credential not available.
-06-08 12:14:18.996  2752 12108 E AuthPII : bhbq: Long live credential not available.
-06-08 12:14:18.996  2752 12108 E AuthPII : 	at agef.a(:com.google.android.gms@262031013@26.20.31 (100400-919905943):1347)
-06-08 12:14:18.996  2752 12108 E AuthPII : 	at agem.b(:com.google.android.gms@262031013@26.20.31 (100400-919905943):26)
-06-08 12:14:18.996  2752 12108 E AuthPII : 	at agek.a(:com.google.android.gms@262031013@26.20.31 (100400-919905943):747)
-06-08 12:14:18.996  2752 12108 E AuthPII : 	at afov.a(:com.google.android.gms@262031013@26.20.31 (100400-919905943):55)
-06-08 12:14:18.996  2752 12108 E AuthPII : 	at afov.h(:com.google.android.gms@262031013@26.20.31 (100400-919905943):108)
-06-08 12:14:18.996  2752 12108 E AuthPII : 	at afov.b(:com.google.android.gms@262031013@26.20.31 (100400-919905943):817)
-06-08 12:14:18.996  2752 12108 E AuthPII : 	at afow.a(:com.google.android.gms@262031013@26.20.31 (100400-919905943):57)
-06-08 12:14:18.996  2752 12108 E AuthPII : 	at afpq.b(:com.google.android.gms@262031013@26.20.31 (100400-919905943):14)
-06-08 12:14:18.996  2752 12108 E AuthPII : 	at afpn.b(:com.google.android.gms@262031013@26.20.31 (100400-919905943):244)
-06-08 12:14:18.996  2752 12108 E AuthPII : 	at zui.a(:com.google.android.gms@262031013@26.20.31 (100400-919905943):30)
-06-08 12:14:18.996  2752 12108 E AuthPII : 	at zui.fo(:com.google.android.gms@262031013@26.20.31 (100400-919905943):54)
-06-08 12:14:18.996  2752 12108 E AuthPII : 	at yyf.onTransact(:com.google.android.gms@262031013@26.20.31 (100400-919905943):88)
-06-08 12:14:18.996  2752 12108 E AuthPII : 	at android.os.Binder.transact(Binder.java:949)
-06-08 12:14:18.996  2752 12108 E AuthPII : 	at cmgq.onTransact(:com.google.android.gms@262031013@26.20.31 (100400-919905943):12)
-06-08 12:14:18.996  2752 12108 E AuthPII : 	at android.os.Binder.transact(Binder.java:949)
-06-08 12:14:18.996  2752 12108 E AuthPII : 	at bzrq.onTransact(:com.google.android.gms@262031013@26.20.31 (100400-919905943):169)
-06-08 12:14:18.996  2752 12108 E AuthPII : 	at android.os.Binder.execTransactInternal(Binder.java:1056)
-06-08 12:14:18.996  2752 12108 E AuthPII : 	at android.os.Binder.execTransact(Binder.java:1029)
-06-08 12:14:18.996  1442  6177 W BroadcastQueue: Background execution not allowed: receiving Intent { act=android.intent.action.PACKAGE_REPLACED dat=package:ca.ocentra.parent.agent flg=0x4000010 (has extras) } to com.sec.imsservice/com.sec.internal.tapi.service.receiver.PackageEventReceiver
-06-08 12:14:18.996  2752 12108 W Auth    : [AccountStateSyncher] Unable to look up account state from server: couldn't fetch accessToken [CONTEXT service_id=343 ]
-06-08 12:14:18.998  1442  1557 W BroadcastQueue: Background execution not allowed: receiving Intent { act=android.intent.action.PACKAGE_REPLACED dat=package:ca.ocentra.parent.agent flg=0x4000010 (has extras) } to com.sec.imsservice/com.sec.internal.ims.imsservice.ImsIntentReceiver
-06-08 12:14:19.000 25747 25747 I EdgeLightingReceiver: com.samsung.android.app.edgelighting.PACKAGE_ADDED ca.ocentra.parent.agent
-06-08 12:14:19.000 25747 25747 I Utils   : isOwnerUser current = 0
-06-08 12:14:19.001  1144  1318 D EnterpriseController: netId is 0
-06-08 12:14:19.001  1144  1318 E Netd    : getNetworkForDns: getNetId from enterpriseCtrl is netid 0
-06-08 12:14:19.001  1144  1318 D DnsProxyListener: DNSDBG::dns addrinfo af 2 - 10086
-06-08 12:14:19.003 25747 25747 I EdgeLightingReceiver: com.samsung.android.app.edgelighting.PACKAGE_REPLACED ca.ocentra.parent.agent
-06-08 12:14:19.003 25747 25747 I Utils   : isOwnerUser current = 0
-06-08 12:14:19.003 25747 25747 I EdgeLightingSettingManager: replaceSilentInstalledPackage : false, packageName = ca.ocentra.parent.agent
-06-08 12:14:19.004 25862 27595 I Finsky:background: [4136] Wrote row to frosting DB: 81839
-06-08 12:14:19.009  2752 12108 E AuthPII : [RequestTokenManager] getToken() -> BAD_AUTHENTICATION. App: com.google.android.gms, Service: oauth2:https://www.googleapis.com/auth/userinfo.email https://www.googleapis.com/auth/account.capabilities https://www.googleapis.com/auth/account.service_flags
-06-08 12:14:19.009  2752 12108 E AuthPII : bhbq: Long live credential not available.
-06-08 12:14:19.009  2752 12108 E AuthPII : 	at agef.a(:com.google.android.gms@262031013@26.20.31 (100400-919905943):1347)
-06-08 12:14:19.009  2752 12108 E AuthPII : 	at agem.b(:com.google.android.gms@262031013@26.20.31 (100400-919905943):26)
-06-08 12:14:19.009  2752 12108 E AuthPII : 	at agek.a(:com.google.android.gms@262031013@26.20.31 (100400-919905943):747)
-06-08 12:14:19.009  2752 12108 E AuthPII : 	at afov.a(:com.google.android.gms@262031013@26.20.31 (100400-919905943):55)
-06-08 12:14:19.009  2752 12108 E AuthPII : 	at afov.h(:com.google.android.gms@262031013@26.20.31 (100400-919905943):108)
-06-08 12:14:19.009  2752 12108 E AuthPII : 	at afov.b(:com.google.android.gms@262031013@26.20.31 (100400-919905943):817)
-06-08 12:14:19.009  2752 12108 E AuthPII : 	at afow.a(:com.google.android.gms@262031013@26.20.31 (100400-919905943):57)
-06-08 12:14:19.009  2752 12108 E AuthPII : 	at afpq.b(:com.google.android.gms@262031013@26.20.31 (100400-919905943):14)
-06-08 12:14:19.009  2752 12108 E AuthPII : 	at afpn.b(:com.google.android.gms@262031013@26.20.31 (100400-919905943):244)
-06-08 12:14:19.009  2752 12108 E AuthPII : 	at zui.a(:com.google.android.gms@262031013@26.20.31 (100400-919905943):30)
-06-08 12:14:19.009  2752 12108 E AuthPII : 	at zui.fo(:com.google.android.gms@262031013@26.20.31 (100400-919905943):54)
-06-08 12:14:19.009  2752 12108 E AuthPII : 	at yyf.onTransact(:com.google.android.gms@262031013@26.20.31 (100400-919905943):88)
-06-08 12:14:19.009  2752 12108 E AuthPII : 	at android.os.Binder.transact(Binder.java:949)
-06-08 12:14:19.009  2752 12108 E AuthPII : 	at cmgq.onTransact(:com.google.android.gms@262031013@26.20.31 (100400-919905943):12)
-06-08 12:14:19.009  2752 12108 E AuthPII : 	at android.os.Binder.transact(Binder.java:949)
-06-08 12:14:19.009  2752 12108 E AuthPII : 	at bzrq.onTransact(:com.google.android.gms@262031013@26.20.31 (100400-919905943):169)
-06-08 12:14:19.009  2752 12108 E AuthPII : 	at android.os.Binder.execTransactInternal(Binder.java:1056)
-06-08 12:14:19.009  2752 12108 E AuthPII : 	at android.os.Binder.execTransact(Binder.java:1029)
-06-08 12:14:19.009  2752 12108 E AuthPII : Message is Long live credential not available.
-06-08 12:14:19.009  2752 12108 E AuthPII : bhbq: Long live credential not available.
-06-08 12:14:19.009  2752 12108 E AuthPII : 	at agef.a(:com.google.android.gms@262031013@26.20.31 (100400-919905943):1347)
-06-08 12:14:19.009  2752 12108 E AuthPII : 	at agem.b(:com.google.android.gms@262031013@26.20.31 (100400-919905943):26)
-06-08 12:14:19.009  2752 12108 E AuthPII : 	at agek.a(:com.google.android.gms@262031013@26.20.31 (100400-919905943):747)
-06-08 12:14:19.009  2752 12108 E AuthPII : 	at afov.a(:com.google.android.gms@262031013@26.20.31 (100400-919905943):55)
-06-08 12:14:19.009  2752 12108 E AuthPII : 	at afov.h(:com.google.android.gms@262031013@26.20.31 (100400-919905943):108)
-06-08 12:14:19.009  2752 12108 E AuthPII : 	at afov.b(:com.google.android.gms@262031013@26.20.31 (100400-919905943):817)
-06-08 12:14:19.009  2752 12108 E AuthPII : 	at afow.a(:com.google.android.gms@262031013@26.20.31 (100400-919905943):57)
-06-08 12:14:19.009  2752 12108 E AuthPII : 	at afpq.b(:com.google.android.gms@262031013@26.20.31 (100400-919905943):14)
-06-08 12:14:19.009  2752 12108 E AuthPII : 	at afpn.b(:com.google.android.gms@262031013@26.20.31 (100400-919905943):244)
-06-08 12:14:19.009  2752 12108 E AuthPII : 	at zui.a(:com.google.android.gms@262031013@26.20.31 (100400-919905943):30)
-06-08 12:14:19.009  2752 12108 E AuthPII : 	at zui.fo(:com.google.android.gms@262031013@26.20.31 (100400-919905943):54)
-06-08 12:14:19.009  2752 12108 E AuthPII : 	at yyf.onTransact(:com.google.android.gms@262031013@26.20.31 (100400-919905943):88)
-06-08 12:14:19.009  2752 12108 E AuthPII : 	at android.os.Binder.transact(Binder.java:949)
-06-08 12:14:19.009  2752 12108 E AuthPII : 	at cmgq.onTransact(:com.google.android.gms@262031013@26.20.31 (100400-919905943):12)
-06-08 12:14:19.009  2752 12108 E AuthPII : 	at android.os.Binder.transact(Binder.java:949)
-06-08 12:14:19.009  2752 12108 E AuthPII : 	at bzrq.onTransact(:com.google.android.gms@262031013@26.20.31 (100400-919905943):169)
-06-08 12:14:19.009  2752 12108 E AuthPII : 	at android.os.Binder.execTransactInternal(Binder.java:1056)
-06-08 12:14:19.009  2752 12108 E AuthPII : 	at android.os.Binder.execTransact(Binder.java:1029)
-06-08 12:14:19.010  2752 12108 W Auth    : [AccountStateSyncher] Unable to look up account state from server: couldn't fetch accessToken [CONTEXT service_id=343 ]
-06-08 12:14:19.018  3457 26713 I Icing   : Indexing com.google.android.gms-apps from com.google.android.gms
-06-08 12:14:19.022  2752  4344 E AuthPII : [RequestTokenManager] getToken() -> BAD_AUTHENTICATION. App: com.google.android.gms, Service: oauth2:https://www.googleapis.com/auth/userinfo.email https://www.googleapis.com/auth/account.capabilities https://www.googleapis.com/auth/account.service_flags
-06-08 12:14:19.022  2752  4344 E AuthPII : bhbq: Long live credential not available.
-06-08 12:14:19.022  2752  4344 E AuthPII : 	at agef.a(:com.google.android.gms@262031013@26.20.31 (100400-919905943):1347)
-06-08 12:14:19.022  2752  4344 E AuthPII : 	at agem.b(:com.google.android.gms@262031013@26.20.31 (100400-919905943):26)
-06-08 12:14:19.022  2752  4344 E AuthPII : 	at agek.a(:com.google.android.gms@262031013@26.20.31 (100400-919905943):747)
-06-08 12:14:19.022  2752  4344 E AuthPII : 	at afov.a(:com.google.android.gms@262031013@26.20.31 (100400-919905943):55)
-06-08 12:14:19.022  2752  4344 E AuthPII : 	at afov.h(:com.google.android.gms@262031013@26.20.31 (100400-919905943):108)
-06-08 12:14:19.022  2752  4344 E AuthPII : 	at afov.b(:com.google.android.gms@262031013@26.20.31 (100400-919905943):817)
-06-08 12:14:19.022  2752  4344 E AuthPII : 	at afow.a(:com.google.android.gms@262031013@26.20.31 (100400-919905943):57)
-06-08 12:14:19.022  2752  4344 E AuthPII : 	at afpq.b(:com.google.android.gms@262031013@26.20.31 (100400-919905943):14)
-06-08 12:14:19.022  2752  4344 E AuthPII : 	at afpn.b(:com.google.android.gms@262031013@26.20.31 (100400-919905943):244)
-06-08 12:14:19.022  2752  4344 E AuthPII : 	at zui.a(:com.google.android.gms@262031013@26.20.31 (100400-919905943):30)
-06-08 12:14:19.022  2752  4344 E AuthPII : 	at zui.fo(:com.google.android.gms@262031013@26.20.31 (100400-919905943):54)
-06-08 12:14:19.022  2752  4344 E AuthPII : 	at yyf.onTransact(:com.google.android.gms@262031013@26.20.31 (100400-919905943):88)
-06-08 12:14:19.022  2752  4344 E AuthPII : 	at android.os.Binder.transact(Binder.java:949)
-06-08 12:14:19.022  2752  4344 E AuthPII : 	at cmgq.onTransact(:com.google.android.gms@262031013@26.20.31 (100400-919905943):12)
-06-08 12:14:19.022  2752  4344 E AuthPII : 	at android.os.Binder.transact(Binder.java:949)
-06-08 12:14:19.022  2752  4344 E AuthPII : 	at bzrq.onTransact(:com.google.android.gms@262031013@26.20.31 (100400-919905943):169)
-06-08 12:14:19.022  2752  4344 E AuthPII : 	at android.os.Binder.execTransactInternal(Binder.java:1056)
-06-08 12:14:19.022  2752  4344 E AuthPII : 	at android.os.Binder.execTransact(Binder.java:1029)
-06-08 12:14:19.022  2752  4344 E AuthPII : Message is Long live credential not available.
-06-08 12:14:19.022  2752  4344 E AuthPII : bhbq: Long live credential not available.
-06-08 12:14:19.022  2752  4344 E AuthPII : 	at agef.a(:com.google.android.gms@262031013@26.20.31 (100400-919905943):1347)
-06-08 12:14:19.022  2752  4344 E AuthPII : 	at agem.b(:com.google.android.gms@262031013@26.20.31 (100400-919905943):26)
-06-08 12:14:19.022  2752  4344 E AuthPII : 	at agek.a(:com.google.android.gms@262031013@26.20.31 (100400-919905943):747)
-06-08 12:14:19.022  2752  4344 E AuthPII : 	at afov.a(:com.google.android.gms@262031013@26.20.31 (100400-919905943):55)
-06-08 12:14:19.022  2752  4344 E AuthPII : 	at afov.h(:com.google.android.gms@262031013@26.20.31 (100400-919905943):108)
-06-08 12:14:19.022  2752  4344 E AuthPII : 	at afov.b(:com.google.android.gms@262031013@26.20.31 (100400-919905943):817)
-06-08 12:14:19.022  2752  4344 E AuthPII : 	at afow.a(:com.google.android.gms@262031013@26.20.31 (100400-919905943):57)
-06-08 12:14:19.022  2752  4344 E AuthPII : 	at afpq.b(:com.google.android.gms@262031013@26.20.31 (100400-919905943):14)
-06-08 12:14:19.022  2752  4344 E AuthPII : 	at afpn.b(:com.google.android.gms@262031013@26.20.31 (100400-919905943):244)
-06-08 12:14:19.022  2752  4344 E AuthPII : 	at zui.a(:com.google.android.gms@262031013@26.20.31 (100400-919905943):30)
-06-08 12:14:19.022  2752  4344 E AuthPII : 	at zui.fo(:com.google.android.gms@262031013@26.20.31 (100400-919905943):54)
-06-08 12:14:19.022  2752  4344 E AuthPII : 	at yyf.onTransact(:com.google.android.gms@262031013@26.20.31 (100400-919905943):88)
-06-08 12:14:19.022  2752  4344 E AuthPII : 	at android.os.Binder.transact(Binder.java:949)
-06-08 12:14:19.022  2752  4344 E AuthPII : 	at cmgq.onTransact(:com.google.android.gms@262031013@26.20.31 (100400-919905943):12)
-06-08 12:14:19.022  2752  4344 E AuthPII : 	at android.os.Binder.transact(Binder.java:949)
-06-08 12:14:19.022  2752  4344 E AuthPII : 	at bzrq.onTransact(:com.google.android.gms@262031013@26.20.31 (100400-919905943):169)
-06-08 12:14:19.022  2752  4344 E AuthPII : 	at android.os.Binder.execTransactInternal(Binder.java:1056)
-06-08 12:14:19.022  2752  4344 E AuthPII : 	at android.os.Binder.execTransact(Binder.java:1029)
-06-08 12:14:19.022  2752  4344 W Auth    : [AccountStateSyncher] Unable to look up account state from server: couldn't fetch accessToken [CONTEXT service_id=343 ]
-06-08 12:14:19.025  1131 27722 D keystore: [getKeyCharacteristics::end]
-06-08 12:14:19.027   696   696 W keymaster_tee: [WRN]start nwd_get_key_characteristics
-06-08 12:14:19.030   696   696 D keymaster_swd: keymaster: 1 log strings received
-06-08 12:14:19.030   696   696 D keymaster_swd: keymaster_swd [WRN] (swd_run_cb:228) swd_get_key_characteristics() returns 0
-06-08 12:14:19.030   696   696 W keymaster_tee: [WRN]ret OK PARAMS: A3 P2 D4 NAR1 S256 2025.12.25,20:46:07.023 
-06-08 12:14:19.034   696   696 D keymaster_swd: keymaster: 1 log strings received
-06-08 12:14:19.034   696   696 D keymaster_swd: keymaster_swd [WRN] (swd_run_cb:228) swd_export_key() returns 0
-06-08 12:14:19.038  3457 26713 I Icing   : Indexing done com.google.android.gms-apps
-06-08 12:14:19.038  1131 27724 D keystore: [getKeyCharacteristics::end]
-06-08 12:14:19.039   696   696 W keymaster_tee: [WRN]start nwd_get_key_characteristics
-06-08 12:14:19.044   696   696 D keymaster_swd: keymaster: 1 log strings received
-06-08 12:14:19.044   696   696 D keymaster_swd: keymaster_swd [WRN] (swd_run_cb:228) swd_get_key_characteristics() returns 0
-06-08 12:14:19.044   696   696 W keymaster_tee: [WRN]ret OK PARAMS: A3 P2 D4 NAR1 S256 2025.12.25,20:46:07.023 
-06-08 12:14:19.044   696   696 W keymaster_tee: [WRN]begin req PARAMS: A3 D4 
-06-08 12:14:19.050   696   696 D keymaster_swd: keymaster: 1 log strings received
-06-08 12:14:19.050   696   696 D keymaster_swd: keymaster_swd [WRN] (swd_run_cb:228) swd_begin() returns 0
-06-08 12:14:19.050  1131 27725 D keystore: [BEGIN::end]
-06-08 12:14:19.052   696   696 D keymaster_swd: keymaster: 1 log strings received
-06-08 12:14:19.052   696   696 D keymaster_swd: keymaster_swd [WRN] (swd_run_cb:228) swd_update() returns 0
-06-08 12:14:19.052  1131 27726 D keystore: [UPDATE::end]
-06-08 12:14:19.054   696   696 D keymaster_swd: keymaster: 1 log strings received
-06-08 12:14:19.054   696   696 D keymaster_swd: keymaster_swd [WRN] (swd_run_cb:228) swd_add_rng_entropy() returns 0
-06-08 12:14:19.056   696   696 D keymaster_swd: keymaster: 1 log strings received
-06-08 12:14:19.056   696   696 D keymaster_swd: keymaster_swd [WRN] (swd_run_cb:228) swd_finish() returns 0
-06-08 12:14:19.056  1131 27727 D keystore: [FINISH::end]
-06-08 12:14:19.070  1442  1556 W SearchableInfo: Invalid searchable metadata for com.samsung.android.messaging/.ui.view.recipientspicker.PickerActivity: Search label must be a resource reference.
-06-08 12:14:19.189  1278  1951 I bauth_FPBAuthService: pcf : 0x1012, 0 ,1 ,0 ,0 ,0 ,0, 5.0.0.23
-06-08 12:14:19.189  1278  1951 I bauth_FPBAuthService: thread id : 1, preenroll_flag : 0, nd cnt : 0, cso : 0, et : 0
-06-08 12:14:19.189  1278  1951 I bauth_FPBAuthService: FPBAuthService, 11438
-06-08 12:14:19.195  2752 27933 I Auth    : (REDACTED) [GetTokenResponse] Decryption key=%s success, service=%s
-06-08 12:14:19.260  1442  1556 W SearchableInfo: Invalid searchable metadata for com.samsung.android.messaging/.ui.view.recipientspicker.PickerActivity: Search label must be a resource reference.
-06-08 12:14:19.272  1442  1548 E Watchdog: !@Sync: 148 heap: 76 / 94 [2026-06-08 12:14:19.272] sdogWay: softdog
-06-08 12:14:19.286  1442  1556 I GameManagerService: PkgInstallationReceiver, onPackageUpdateFinished : ca.ocentra.parent.agent uid : 10259 userID : UserHandle{0}
-06-08 12:14:19.286  1442  1963 D GameManagerService:GosNotifyThread: notifyPackageChangedToGos(), before send intent to GOS. type:2, changeType: 8, packageName:ca.ocentra.parent.agent
-06-08 12:14:19.290  1442  1963 D GameManagerService:GosNotifyThread: notifyPackageChangedToGos(), after send intent to GOS. ComponentInfo{com.samsung.android.game.gos/com.samsung.android.game.gos.service.MainIntentService}
-06-08 12:14:19.292 23267 23267 D GOS:GlobalDbHelper: getUUID(), UUID: ae2364021d1b4908bc25791f98ac5762
-06-08 12:14:19.294 23267 23267 D GOS:RequestHeader: mcc : 302
-06-08 12:14:19.294 23267 23267 D GOS:RequestHeader: mnc : 610
-06-08 12:14:19.322  1442  1556 D MetaDataCollector: onReceive: begin action=android.intent.action.PACKAGE_ADDED
-06-08 12:14:19.322  1442  1556 D MetaDataCollector: onReceive: done pkgName=ca.ocentra.parent.agent
-06-08 12:14:19.323  1442  1556 D LauncherAppsService: onReceive: Intent { act=android.intent.action.PACKAGE_ADDED dat=package:ca.ocentra.parent.agent flg=0x4000010 (has extras) }
-06-08 12:14:19.324  3495  3829 D KnoxHelper: getActivityList callingUserId: 0, target user: 0
-06-08 12:14:19.328  1442  6177 D LauncherAppsService: is Package Hidden: false
-06-08 12:14:19.328  1442  6177 D LauncherAppsService: is Package Hidden: false
-06-08 12:14:19.331  1975  4208 D KnoxHelper: getActivityList callingUserId: 0, target user: 0
-06-08 12:14:19.331 23267 23267 D GOS:RequestHeader: installed_sec_game_family : com.sec.android.app.samsungapps=enabled,com.samsung.android.game.gamehome=enabled,com.samsung.android.game.gametools=disabled
-06-08 12:14:19.334 23267 27730 I GOS:MainIntentService: onHandleIntent(). type(PACKAGE_CHANGED) from 2
-06-08 12:14:19.334 23267 27730 I GOS:MainIntentService: onHandleIntent(). changeType(REPLACED), packageName(ca.ocentra.parent.agent), UserHandle(0), Installed(true)
-06-08 12:14:19.334 23267 27730 D GOS:SystemEventReactor: onPackageUpdated(). packageName: ca.ocentra.parent.agent, versionCode: 2
-06-08 12:14:19.336 23267 27730 D GOS:PackageDbHelper: getPkgData(), begin
-06-08 12:14:19.338 23267 27730 D GOS:EventSubscriptionDbHelper: getSubscriberApps(ca.ocentra.parent.agent)
-06-08 12:14:19.353  1975  4208 D KnoxHelper: getActivityList callingUserId: 0, target user: 0
-06-08 12:14:19.357  1442  3671 D LauncherAppsService: is Package Hidden: false
-06-08 12:14:19.367  1442  1556 D MetaDataCollector: onReceive: begin action=android.intent.action.PACKAGE_REPLACED
-06-08 12:14:19.367  1442  1556 D MetaDataCollector: onReceive: done pkgName=ca.ocentra.parent.agent
-06-08 12:14:19.554  1442  1442 D CustomFrequencyManagerService: releaseDVFSLockLocked : Getting Lock type frm List : DVFS_MIN_LIMIT  frequency : 2803200  uid : 1000  pid : 1442  tag : APP_LAUNCH@CPU_MIN@78
-06-08 12:14:19.719   694  5839 I         : !@SystemSuspend: mWakeupCountFd-
-06-08 12:14:19.720   694  5839 I         : !@SystemSuspend: write mem+
-06-08 12:14:19.947   694  5839 I         : !@SystemSuspend: write mem-
-06-08 12:14:19.948  1442  6177 I BatteryStatsService: In wakeup_callback: suspend aborted
-06-08 12:14:20.150   694  5839 I         : !@SystemSuspend: mWakeupCountFd+
-06-08 12:14:20.189  1278  1951 I bauth_FPBAuthService: pcf : 0x1012, 0 ,1 ,0 ,0 ,0 ,0, 5.0.0.23
-06-08 12:14:20.189  1278  1951 I bauth_FPBAuthService: thread id : 1, preenroll_flag : 0, nd cnt : 0, cso : 0, et : 0
-06-08 12:14:20.189  1278  1951 I bauth_FPBAuthService: FPBAuthService, 11438
-06-08 12:14:20.243  2752  2752 D BoundBrokerSvc: onRebind: Intent { act=com.google.android.gms.libs.gmscorelogger.service.START dat=chimera-action: cmp=com.google.android.gms/.chimera.PersistentDirectBootAwareApiService }
-06-08 12:14:20.394  1144  1318 D EnterpriseController: netId is 0
-06-08 12:14:20.394  1144  1318 E Netd    : getNetworkForDns: getNetId from enterpriseCtrl is netid 0
-06-08 12:14:20.394  1144  1318 D DnsProxyListener: DNSDBG::dns addrinfo af 2 - 10599
-06-08 12:14:20.409 20656 20992 E msys    : E[N mns:TigonMNS]_LogError(303)=>Failed to resolve using system DNS resolver, getaddrinfo(): No address associated with hostname
-06-08 12:14:20.413  1442  1556 D PowerManagerService: [api] setDeviceIdleTempWhitelist: appids: [0]1000  (uid: 1000 pid: 1442)
-06-08 12:14:20.414  1144  1318 D EnterpriseController: netId is 0
-06-08 12:14:20.414  1144  1318 E Netd    : getNetworkForDns: getNetId from enterpriseCtrl is netid 0
-06-08 12:14:20.414  1144  1318 D DnsProxyListener: DNSDBG::dns addrinfo af 2 - 10599
-06-08 12:14:20.415  1442  1556 E PackageManager: Failed to find package; permName: android.permission.INTERNET, uid: 9510105, caller: 1000
-06-08 12:14:20.415  1144  1318 D EnterpriseController: netId is 0
-06-08 12:14:20.415  1144  1318 E Netd    : getNetworkForDns: getNetId from enterpriseCtrl is netid 0
-06-08 12:14:20.415  1144  1318 D DnsProxyListener: DNSDBG::dns addrinfo af 2 - 10599
-06-08 12:14:20.416  1144  1318 D EnterpriseController: netId is 0
-06-08 12:14:20.417  1144  1318 E Netd    : getNetworkForDns: getNetId from enterpriseCtrl is netid 0
-06-08 12:14:20.417  1144  1318 D DnsProxyListener: DNSDBG::dns addrinfo af 2 - 10599
-06-08 12:14:20.418 20656 20992 E msys    : E[N mns:TigonMNS]_LogError(303)=>Failed to resolve using system DNS resolver, getaddrinfo(): No address associated with hostname
-06-08 12:14:20.418  1144  1318 D EnterpriseController: netId is 0
-06-08 12:14:20.418  1144  1318 E Netd    : getNetworkForDns: getNetId from enterpriseCtrl is netid 0
-06-08 12:14:20.418  1144  1318 D DnsProxyListener: DNSDBG::dns addrinfo af 2 - 10599
-06-08 12:14:20.421 20656 20992 E msys    : E[N mns:TigonMNS]_LogError(303)=>Failed to resolve using system DNS resolver, getaddrinfo(): No address associated with hostname
-06-08 12:14:20.422  1144  1494 I netd    : firewallSetUidRule(1, 9510105, 2) <6.40ms>
-06-08 12:14:20.422  1442  1556 E PackageManager: Failed to find package; permName: android.permission.INTERNET, uid: 9510105, caller: 1000
-06-08 12:14:20.423 20656 20992 E msys    : E[N mns:TigonMNS]_LogError(303)=>Failed to resolve using system DNS resolver, getaddrinfo(): No address associated with hostname
-06-08 12:14:20.424 20656 20992 E msys    : E[N mns:TigonMNS]_LogError(303)=>Failed to resolve using system DNS resolver, getaddrinfo(): No address associated with hostname
-06-08 12:14:20.744 23376 23376 I SB_Receiver: action : com.samsung.android.sm.security.service.ACTION_SERVICE_STATUS_CHANGED
-06-08 12:14:20.745 23376 23376 V SB_Provider: method : com.samsung.android.sm.security.service.ACTION_SERVICE_STATUS_CHANGED, arg : null
-06-08 12:14:20.747 23376 23376 W ContextImpl: Calling a method in the system process without a qualified user: android.app.ContextImpl.startService:1632 android.content.ContextWrapper.startService:683 com.samsung.android.sm.opt.security.model.trigger.SecurityBridgeProvider.b:4 com.samsung.android.sm.opt.security.model.trigger.SecurityBridgeProvider.call:9 android.content.ContentProvider.call:2173 
-06-08 12:14:20.755 23376 27742 I SB_Processor: action : com.samsung.android.sm.security.service.ACTION_SERVICE_STATUS_CHANGED
-06-08 12:14:20.756 23376 27742 I SB_BgScanServiceCompleted : name : app_verification, status  : completed
-06-08 12:14:20.863  1442  1811 D SamsungAlarmManager: Expired : 4
-06-08 12:14:20.864  1442  1811 V SamsungAlarmManager: Sending to uid : 1000 listener=com.android.server.AlarmManagerService$2@57da2a4 alarm=Alarm{28a8f98 type 3 when 4992043 android}
-06-08 12:14:20.867  1442  1811 D SamsungAlarmManager: setExact Listener (T:3/F:1/AC:false) 20260608T121500 - CU:1000/CP:1442
-06-08 12:14:20.867  1442  1811 I SamsungAlarmManager: setLocked to kernel - T:2 / 20260608T121609, SetElapsed=5121790, nowELAPSED=5012909
-06-08 12:14:20.867  1442  1811 I SamsungAlarmManager: setLocked to kernel - T:3 / 20260608T121424, SetElapsed=5016306, nowELAPSED=5012909
-06-08 12:14:20.872  2052  2052 D KeyguardUpdateMonitor: received broadcast android.intent.action.TIME_TICK
-06-08 12:14:20.872  2052  2052 D KeyguardUpdateMonitor: handleTimeUpdate
-06-08 12:14:20.872  2052  2052 D FaceWidgetPagesController: onTimeChanged()
-06-08 12:14:20.873  2052  2052 D FaceWidgetPagesController: refreshViews() reason = ON_TIME_TICK, force = false
-06-08 12:14:20.877  1442  1811 V SamsungAlarmManager: Sending to uid : 1000 listener=android.os.BinderProxy@21cbbea alarm=Alarm{44fa3f1 type 2 when 5012903 com.samsung.android.mcfserver}
-06-08 12:14:20.879  1442  1811 I SamsungAlarmManager: setLocked to kernel - T:2 / 20260608T121609, SetElapsed=5121790, nowELAPSED=5012921
-06-08 12:14:20.879  1442  1811 I SamsungAlarmManager: setLocked to kernel - T:3 / 20260608T121424, SetElapsed=5016306, nowELAPSED=5012921
-06-08 12:14:20.879  3912  3912 I [MCFServer]_SubscriberManager: onReceive - disconnect all gatt because device stay in screen off during 1 min
-06-08 12:14:20.879  3912  3912 I [MCFServer]_McfSubscriberBleBehavior(32): disconnectAllGatt - 
-06-08 12:14:20.880  1442  1442 V AlarmManager: com.android.server.AlarmManagerServiceExt@4bc188e
-06-08 12:14:20.880  1442  1442 V AlarmManagerEXT: <AppSync3 Whitelist>
-06-08 12:14:20.880  1442  1442 V AlarmManagerEXT: (AppSync) ### 0 added ###
-06-08 12:14:20.881  2052  2052 D FaceWidgetAlarmPage: refreshAlarmStatus() alarm is null
-06-08 12:14:20.883  2052  2052 D QSClockBellTower: He is ready to ring the bell. (((timeText:12:14, skipUpdateForDemo:false, dateText:Mon., June 8, shortenDateText = Mon., Jun. 8)))
-06-08 12:14:20.883  2052  2052 D QSClock : status_bar_clock notifyTimeChanged(currentTime:12:14) mClockVisibleByPolicy:true, mClockVisibleByUser:true, visible?false, parent:android.widget.LinearLayout{5798bf9 V.E...... ........ 0,0-0,81 #7f0a0395 app:id/left_clock_container}
-06-08 12:14:20.885  2052  2052 D QSClockBellTower: Everyone heard the bell. run(currentTime:1780935260882,   getTime():Mon Jun 08 12:14:20 EDT 2026,   getTimeZone():libcore.util.ZoneInfo[id="America/Toronto",mRawOffset=-18000000,mEarliestRawOffset=-18000000,mUseDst=true,mDstSavings=3600000,transitions=232])
-06-08 12:14:20.886  2052 24085 I FaceWidgetCalendarManager: No service bound. Query to current context.
-06-08 12:14:20.904  2052  2052 D QSContainerImpl: getDisplayHeight portrait? true  displayHeight= 2220
-06-08 12:14:20.905  1144  1494 I netd    : bandwidthAddNiceApp(10111) <8.89ms>
-06-08 12:14:20.914  1144  1855 I netd    : firewallSetUidRule(1, 10111, 1) <7.11ms>
-06-08 12:14:20.924 27021 27040 D SamsungCalendar$PreferenceProvider: query uri = content://com.sec.android.calendar.preference/PreferenceBoolean
-06-08 12:14:20.928  2052 24085 I FaceWidgetCalendarManager: No service bound. Query to current context.
-06-08 12:14:20.929  1144  1855 I netd    : bandwidthAddNiceApp(10231) <7.23ms>
-06-08 12:14:20.937  2052  2052 I FaceWidgetCalendarManager: Next end = [id = 1258][start time = 2026 June 8 (Monday) 15:30][end time = 2026 June 8 (Monday) 16:00][is all day = false]
-06-08 12:14:20.938  1442  1848 D SamsungAlarmManager: Cancel Alarm calling from uid:10052 pid :2052 / op:PendingIntent{7426bd6: PendingIntentRecord{7cf32a com.android.systemui broadcastIntent}}
-06-08 12:14:20.938  1144  1855 I netd    : firewallSetUidRule(1, 10231, 1) <5.51ms>
-06-08 12:14:20.941  1442  1848 I SamsungAlarmManager: setLocked to kernel - T:2 / 20260608T121609, SetElapsed=5121790, nowELAPSED=5012983
-06-08 12:14:20.942  1442  1848 I SamsungAlarmManager: setLocked to kernel - T:3 / 20260608T121424, SetElapsed=5016306, nowELAPSED=5012984
-06-08 12:14:20.944  1442  3671 D SamsungAlarmManager: setExact Intent (T:1/F:9/AC:false) 20260608T160000 - CU:10052/CP:2052
-06-08 12:14:20.945  1442  3671 I SamsungAlarmManager: setLocked to kernel - T:2 / 20260608T121609, SetElapsed=5121790, nowELAPSED=5012987
-06-08 12:14:20.945  1442  3671 I SamsungAlarmManager: setLocked to kernel - T:3 / 20260608T121424, SetElapsed=5016306, nowELAPSED=5012987
-06-08 12:14:20.947  2052  2052 D SystemUITextView: onAttachedToWindow mAttrCount = 11
-06-08 12:14:20.947  2052  2052 D WallpaperManager: semGetWallpaperColors, which = 2
-06-08 12:14:20.947  1442  3671 D WALLPAPER_SVCWallpaperManagerService: getWallpaperSafeLocked, userId = 0, which = 2, caller = com.android.server.wallpaper.WallpaperManagerService.getWallpaperSafeLocked:7688 
-06-08 12:14:20.948  2052  2052 D SystemUITextView: updateStyle() flag=41,41 : com.android.systemui.widget.SystemUITextView{c1830af V.ED..... ......ID 0,0-579,91 #7f0a0248 app:id/facewidget_today_event_title}
-06-08 12:14:20.948  2052  2052 D SFText  : clearAllTextEffect
-06-08 12:14:20.948  2052  2052 D WallpaperManager: semGetWallpaperColors, which = 2
-06-08 12:14:20.949  1442  3671 D WALLPAPER_SVCWallpaperManagerService: getWallpaperSafeLocked, userId = 0, which = 2, caller = com.android.server.wallpaper.WallpaperManagerService.getWallpaperSafeLocked:7688 
-06-08 12:14:20.949  2052  2052 D SystemUITextView: onAttachedToWindow mAttrCount = 11
-06-08 12:14:20.949  2052  2052 D WallpaperManager: semGetWallpaperColors, which = 2
-06-08 12:14:20.949  1442  3671 D WALLPAPER_SVCWallpaperManagerService: getWallpaperSafeLocked, userId = 0, which = 2, caller = com.android.server.wallpaper.WallpaperManagerService.getWallpaperSafeLocked:7688 
-06-08 12:14:20.949  2052  2052 D SystemUITextView: updateStyle() flag=41,41 : com.android.systemui.widget.SystemUITextView{b7c3cbc V.ED..... ......ID 650,15-835,76 #7f0a0247 app:id/facewidget_today_event_time}
-06-08 12:14:20.950  2052  2052 D SFText  : clearAllTextEffect
-06-08 12:14:20.950  2052  2052 D FaceWidgetCalendarManager: reset
-06-08 12:14:20.950  2052  2052 I AODFaceWidgetCalendarManager: updateCalendarData: size [1, 1]
-06-08 12:14:20.967  2052  2052 D FaceWidgetViewPager: onMeasure childCount:4 min:381
-06-08 12:14:20.967  2052  2052 D FaceWidgetViewPager: onMeasure index[0] childHeight[381]
-06-08 12:14:20.967  2052  2052 D FaceWidgetViewPager: onMeasure result: 381
-06-08 12:14:21.191  1278  1951 I bauth_FPBAuthService: pcf : 0x1012, 0 ,1 ,0 ,0 ,0 ,0, 5.0.0.23
-06-08 12:14:21.191  1278  1951 I bauth_FPBAuthService: thread id : 1, preenroll_flag : 0, nd cnt : 0, cso : 0, et : 0
-06-08 12:14:21.192  1278  1951 I bauth_FPBAuthService: FPBAuthService, 11438
-06-08 12:14:21.915   694  5839 I         : !@SystemSuspend: mWakeupCountFd-
-06-08 12:14:21.917   694  5839 I         : !@SystemSuspend: write mem+
-06-08 12:14:23.001  1278  1951 I bauth_FPBAuthService: pcf : 0x1012, 0 ,1 ,0 ,0 ,0 ,0, 5.0.0.23
-06-08 12:14:23.001  1278  1951 I bauth_FPBAuthService: thread id : 1, preenroll_flag : 0, nd cnt : 0, cso : 0, et : 0
-06-08 12:14:23.001  1278  1951 I bauth_FPBAuthService: FPBAuthService, 11438
-06-08 12:14:23.002  1442  1811 D SamsungAlarmManager: Expired : 65536
-06-08 12:14:23.003  1442  1811 I SamsungAlarmManager: setLocked to kernel - T:2 / 20260608T121609, SetElapsed=5121790, nowELAPSED=5015045
-06-08 12:14:23.014   694  5839 I         : !@SystemSuspend: write mem-
-06-08 12:14:23.014  1442  1811 I SamsungAlarmManager: setLocked to kernel - T:3 / 20260608T121424, SetElapsed=5016306, nowELAPSED=5015056
-06-08 12:14:23.015  1442  6177 I BatteryStatsService: In wakeup_callback: resumed from suspend
-06-08 12:14:23.034  1144  1855 I netd    : bandwidthRemoveNiceApp(10231) <5.78ms>
-06-08 12:14:23.041  1144  1494 I netd    : firewallSetUidRule(1, 10231, 2) <5.06ms>
-06-08 12:14:23.043  3457  3457 D BoundBrokerSvc: onUnbind: Intent { act=com.google.android.gms.safetynet.service.START pkg=com.google.android.gms }
-06-08 12:14:23.053  1144  1494 I netd    : bandwidthRemoveNiceApp(10111) <6.31ms>
-06-08 12:14:23.061  1144  1494 I netd    : firewallSetUidRule(1, 10111, 2) <6.96ms>
-06-08 12:14:23.115   694  5839 I         : !@SystemSuspend: mWakeupCountFd+
-06-08 12:14:23.643  3227  3227 I io_stats: !@   8,0 r 803009 32632036 w 99020 1514028 d 13361 456100 f 28568 28758 iot 230460 215120 th 102400 0 0 pt 0 inp 0 0 4460.407
-06-08 12:14:23.878  1442  1577 D BatteryExternalStatsWorker: update stats
-06-08 12:14:23.878  1442  1577 D BatteryExternalStatsWorker: WifiActivityEnergyInfo was updated
-06-08 12:14:23.878  1442  1577 D BatteryExternalStatsWorker: BluetoothActivityEnergyInfo was updated
-06-08 12:14:23.878  1442  1577 D BatteryExternalStatsWorker: ModemActivityEnergyInfo was updated
-06-08 12:14:23.904  1442  1848 W ActivityManager: Permission Denial: Accessing service com.samsung.knox.securefolder/.common.provider.DebugService from pid=27759, uid=2000 that is not exported from uid 10130
-06-08 12:14:23.907  1442  1848 D ActivityManager: No process found for: com.samsung.knox.securefolder.common.provider.DebugService
-06-08 12:14:23.910  1442  1577 D BatteryExternalStatsWorker: done updateExternalStatsLocked
-06-08 12:14:24.001  1442  1848 W ActivityManager: Permission Denial: Accessing service com.samsung.knox.securefolder/.common.provider.DebugService from pid=27762, uid=2000 that is not exported from uid 10130
-06-08 12:14:24.002  1278  1951 I bauth_FPBAuthService: pcf : 0x1012, 0 ,1 ,0 ,0 ,0 ,0, 5.0.0.23
-06-08 12:14:24.002  1278  1951 I bauth_FPBAuthService: thread id : 1, preenroll_flag : 0, nd cnt : 0, cso : 0, et : 0
-06-08 12:14:24.002  1278  1951 I bauth_FPBAuthService: FPBAuthService, 11438
-06-08 12:14:24.002  1442  1848 D ActivityManager: No process found for: com.samsung.knox.securefolder.common.provider.DebugService
-06-08 12:14:24.264  1442  1811 D SamsungAlarmManager: Expired : 8
-06-08 12:14:24.265 27658 27686 I nder:appservic: Waiting for a blocking GC ProfileSaver
-06-08 12:14:24.265  1442  1811 I SamsungAlarmManager: setLocked to kernel - T:2 / 20260608T121609, SetElapsed=5121790, nowELAPSED=5016307
-06-08 12:14:24.266  1442  1811 I SamsungAlarmManager: setLocked to kernel - T:3 / 20260608T121500, SetElapsed=5052042, nowELAPSED=5016308
-06-08 12:14:24.276 27658 27686 I nder:appservic: WaitForGcToComplete blocked ProfileSaver on AddRemoveAppImageSpace for 11.366ms
-06-08 12:14:24.380 27191 27267 W TracingHelper: No RequestContext found in the trace or trace not available. [CONTEXT service_id=259 ratelimit_count=1410065408 ]
-06-08 12:14:24.425  1442  3671 D SamsungAlarmManager: setInexact Intent (T:3/F:0/AC:false) 20260610T121424 - CU:10086/CP:2752
-06-08 12:14:24.425  1442  3671 I SamsungAlarmManager: setLocked to kernel - T:2 / 20260608T121609, SetElapsed=5121790, nowELAPSED=5016467
-06-08 12:14:24.425  1442  3671 I SamsungAlarmManager: setLocked to kernel - T:3 / 20260608T121500, SetElapsed=5052042, nowELAPSED=5016467
-06-08 12:14:24.812 27775 27775 D AndroidRuntime: >>>>>> START com.android.internal.os.RuntimeInit uid 2000 <<<<<<
-06-08 12:14:24.817 27775 27775 I AndroidRuntime: Using default boot image
-06-08 12:14:24.817 27775 27775 I AndroidRuntime: Leaving lock profiling enabled
-06-08 12:14:24.817 27775 27775 D SecNativeFeatureCppIf: encoded
-06-08 12:14:24.818 27775 27775 D SecNativeFeatureCppIf: decoding and unzip finish
-06-08 12:14:24.818 27775 27775 D SecNativeFeatureCppIf: use unCompDataBuff. encoded
-06-08 12:14:24.818 27775 27775 D SecNativeFeatureCppIf: Free unCompDataBuff
-06-08 12:14:24.818 27775 27775 D SecNativeFeatureCppIf: encoded
-06-08 12:14:24.818 27775 27775 D SecNativeFeatureCppIf: decoding and unzip finish
-06-08 12:14:24.818 27775 27775 D SecNativeFeatureCppIf: use unCompDataBuff. encoded
-06-08 12:14:24.818 27775 27775 D SecNativeFeatureCppIf: Free unCompDataBuff
-06-08 12:14:24.818 27775 27775 D AndroidRuntime: addProductProperty
-06-08 12:14:24.818 27775 27775 D AndroidRuntime: addProductProperty: pBrand1 != NULL
-06-08 12:14:24.818 27775 27775 D AndroidRuntime: addProductProperty: else
-06-08 12:14:24.927 27775 27775 D ICU     : Time zone APEX file found: /apex/com.android.tzdata/etc/icu/icu_tzdata.dat
-06-08 12:14:24.942 27775 27775 I app_process: The ClassLoaderContext is a special shared library.
-06-08 12:14:24.944 27775 27775 I app_process: The ClassLoaderContext is a special shared library.
-06-08 12:14:24.964 27775 27775 W app_process: JNI RegisterNativeMethods: attempt to register 0 native methods for android.media.AudioAttributes
-06-08 12:14:24.964 27775 27775 E SemAffinityControl: SemAffinityControl: registerfunction enter
-06-08 12:14:24.968 27775 27775 D AndroidRuntime: Calling main entry com.android.commands.uiautomator.Launcher
-06-08 12:14:24.980   925  1610 I SurfaceFlinger: id=448 createSurf (0x0),-1 flag=80004, WindowToken{ca190c android.os.Binder@2dd8c3f}#0
-06-08 12:14:24.989  1442  1848 W WindowManager: removeWindowToken: Attempted to remove non-existing token: android.os.Binder@a645790
-06-08 12:14:24.990  1442  1848 D SettingsProvider: isChangeAllowed() : name = accessibility_enabled
-06-08 12:14:24.990  1442  1848 I AccessibilityManagerService: semIsAccessibilityServiceEnabled()
-06-08 12:14:24.991  1442  1848 I WindowManager: unregisterDesktopModeListener()
-06-08 12:14:24.991  1442  1848 I SemDesktopModeManager: unregisterListener: com.android.server.wm.AccessibilityController$WindowsForAccessibilityObserver$1@cd0a08e
-06-08 12:14:24.994  1442  1546 V WindowManager: performShow on Window{35ff456 u0 Sys2003:com.android.systemui/com.android.systemui.media.MediaProjectionPermissionActivity}: mDrawState=READY_TO_SHOW readyForDisplay=false starting=false during animation: policyVis=false parentHidden=false tok.hiddenRequested=false tok.hidden=false animating=false tok animating=false Callers=com.android.server.wm.WindowState.performShowLocked:4819 com.android.server.wm.DisplayContent.lambda$new$0$DisplayContent:705 com.android.server.wm.-$$Lambda$DisplayContent$0yxrqH9eGY2qTjH1u_BvaVrXCSA.accept:4 com.android.server.wm.WindowContainer$ForAllWindowsConsumerWrapper.apply:1188 
-06-08 12:14:24.996   925   991 I Layer   : id=447 removeFromCurrentState WindowToken{8c75889 android.os.Binder@a645790}#0 (55)
-06-08 12:14:24.996   925   991 I SurfaceFlinger: id=447 Removed WindowToken{8c75889 android.os.Binder@a645790}#0 (55)
-06-08 12:14:25.000  1442  1442 I AccessibilityManagerService: semIsAccessibilityServiceEnabled()
-06-08 12:14:25.000  1442  1442 I AccessibilityManagerService: semIsAccessibilityServiceEnabled()
-06-08 12:14:25.001  2052  2052 V NavBarStoreImpl: ------handleEvent [EventType] ON_UPDATE_REMOTEVIEW [Module] SecNavigationBarView  KEYS_LEFT_REMOTEVIEW_CONTAINER=android.widget.LinearLayout{1a5d9bb I.E...... ......I. 0,0-118,162 #7f0a0398 app:id/left_remoteview}  KEYS_NAVBAR_DARK_INTENSITY=0.0  KEYS_CONTEXTUALBUTTON_VISIBLE=false  KEYS_RIGHT_REMOTEVIEW_CONTAINER=android.widget.LinearLayout{d96ded8 I.E...... ......I. 962,0-1080,162 #7f0a0549 app:id/right_remoteview}
-06-08 12:14:25.001  2052  2052 V NavBarStoreImpl: --------[Band]REMOTE_VIEW_PACK_SET_REMOTEVIEW_CONTAINER
-06-08 12:14:25.001  2052  2052 V NavBarStoreImpl: ----------apply(UPDATE_NAVBAR_REMOTEVIEW_CONTAINER)
-06-08 12:14:25.002  2052  2052 V NavBarStoreImpl: ----------apply(UPDATE_NAVBAR_RIGHT_REMOTEVIEW_VISIBILITY)
-06-08 12:14:25.002  2052  2052 V NavBarStoreImpl: ----------isEnabled(NAVBAR_REMOTEVIEW_DARKINTENSITY_CHANGED)=false
-06-08 12:14:25.002  1278  1951 I bauth_FPBAuthService: pcf : 0x1012, 0 ,1 ,0 ,0 ,0 ,0, 5.0.0.23
-06-08 12:14:25.002  1278  1951 I bauth_FPBAuthService: thread id : 1, preenroll_flag : 0, nd cnt : 0, cso : 0, et : 0
-06-08 12:14:25.002  1442  1442 D AS.AudioService: Accessibility volume enabled = false
-06-08 12:14:25.002  1278  1951 I bauth_FPBAuthService: FPBAuthService, 11438
-06-08 12:14:25.004  1442  1848 D FreecessController: UFZ : com.sec.android.app.camera(10063)
-06-08 12:14:25.005  1442  3671 D SettingsProvider: isChangeAllowed() : name = accessibility_enabled
-06-08 12:14:25.005 10063 10063 V PlugInFilterLoader: PlugInFilterLoader : onChange
-06-08 12:14:25.005  1442  3671 I AccessibilityManagerService: semIsAccessibilityServiceEnabled()
-06-08 12:14:25.005 10063 10063 V PlugInFilterLoader: PlugInFilterLoader : onChange
-06-08 12:14:25.006 10063 10063 D PlugInFilterLoader: handleUninstall
-06-08 12:14:25.006  1442  3225 D FreecessController: apply [LRs:false] to uid[10114]
-06-08 12:14:25.006 10063 10063 D PlugInFilterLoader: load PlugInFilter
-06-08 12:14:25.006 10063 10063 D PlugInFilterStorage: clear PlugInFilterLoader
-06-08 12:14:25.006  1442  3225 W LocationManagerService: onFreezeStateChanged, uid[10114]=false
-06-08 12:14:25.007  1442  3225 V AlarmManager: unblockMARsRestrictedAlarmsForUidPackage: uid = 10114, packageName = null
-06-08 12:14:25.007  1442  1848 D FreecessController: UFZ : com.sec.android.app.camera(0), reason: Binder(1)-android.view.accessibility.IAccessibilityMan
-06-08 12:14:25.007  1442  3225 D FreecessController: send pending alarm to packageName:null, uid:10114
-06-08 12:14:25.007  1442  1442 I AccessibilityManagerService: semIsAccessibilityServiceEnabled()
-06-08 12:14:25.007  2029  2046 W BtGatt.GattService: unfreezeScan() - No AppScanStats found with uid: 10114
-06-08 12:14:25.007  1442  1442 I AccessibilityManagerService: semIsAccessibilityServiceEnabled()
-06-08 12:14:25.008   925   925 I Layer   : id=447[1] Destroyed WindowToken{8c75889 android.os.Binder@a645790}#0
-06-08 12:14:25.015  1144  1494 I netd    : firewallSetUidRule(4, 10114, 1) <6.30ms>
-06-08 12:14:25.016  1442  3225 I PowerManagerService: [PWL] SetWakeLockEnableDisable uid = 10114 , disable= false
-06-08 12:14:25.016  1442  3225 I PowerManagerService: [PWL] can not change uid =  10114
-06-08 12:14:25.017  1442  6177 D FreecessController: UFZ : com.google.android.youtube(10339)
-06-08 12:14:25.018  1442  1442 D AS.AudioService: Accessibility volume enabled = false
-06-08 12:14:25.019  1442  3225 D FreecessController: apply [LRs:false] to uid[10239]
-06-08 12:14:25.019  1442  3225 W LocationManagerService: onFreezeStateChanged, uid[10239]=false
-06-08 12:14:25.019  1442  3225 V AlarmManager: unblockMARsRestrictedAlarmsForUidPackage: uid = 10239, packageName = null
-06-08 12:14:25.019  1442  3225 D FreecessController: send pending alarm to packageName:null, uid:10239
-06-08 12:14:25.020  1442  6177 D FreecessController: UFZ : com.google.android.youtube(0), reason: Binder(1)-android.view.accessibility.IAccessibilityMan
-06-08 12:14:25.020  2029  2046 W BtGatt.GattService: unfreezeScan() - No AppScanStats found with uid: 10239
-06-08 12:14:25.021  2052  2052 V NavBarStoreImpl: handleEvent [EventType] GET_BOOL_NAVBAR_CAN_MOVE_STATE [Module] SecNavigationBarView
-06-08 12:14:25.021  2052  2052 V NavBarStoreImpl: --[Band]GESTURE_PACK_GET_BOOL_NAVBAR_CAN_MOVE_NAVBARVIEW
-06-08 12:14:25.021  2052  2052 V NavBarStoreImpl: ----apply(SET_CURRENT_NAVBAR_CAN_MOVE)
-06-08 12:14:25.021  2052  2052 V NavBarStoreImpl: getResult(GET_BOOL_NAVBAR_CAN_MOVE_STATE)=true
-06-08 12:14:25.025  2052  2052 V NavBarStoreImpl: ------handleEvent [EventType] ON_UPDATE_REMOTEVIEW [Module] SecNavigationBarView  KEYS_LEFT_REMOTEVIEW_CONTAINER=android.widget.LinearLayout{1a5d9bb I.E...... ......I. 0,0-118,162 #7f0a0398 app:id/left_remoteview}  KEYS_NAVBAR_DARK_INTENSITY=0.0  KEYS_CONTEXTUALBUTTON_VISIBLE=false  KEYS_RIGHT_REMOTEVIEW_CONTAINER=android.widget.LinearLayout{d96ded8 I.E...... ......I. 962,0-1080,162 #7f0a0549 app:id/right_remoteview}
-06-08 12:14:25.025  2052  2052 V NavBarStoreImpl: --------[Band]REMOTE_VIEW_PACK_SET_REMOTEVIEW_CONTAINER
-06-08 12:14:25.025  2052  2052 V NavBarStoreImpl: ----------apply(UPDATE_NAVBAR_REMOTEVIEW_CONTAINER)
-06-08 12:14:25.025  2052  2052 V NavBarStoreImpl: ----------apply(UPDATE_NAVBAR_RIGHT_REMOTEVIEW_VISIBILITY)
-06-08 12:14:25.025  2052  2052 V NavBarStoreImpl: ----------isEnabled(NAVBAR_REMOTEVIEW_DARKINTENSITY_CHANGED)=false
-06-08 12:14:25.026  1144  1494 I netd    : firewallSetUidRule(4, 10239, 1) <5.98ms>
-06-08 12:14:25.027  1442  3225 I PowerManagerService: [PWL] SetWakeLockEnableDisable uid = 10239 , disable= false
-06-08 12:14:25.027  1442  3225 I PowerManagerService: [PWL] can not change uid =  10239
-06-08 12:14:25.031  1442  3643 D FreecessController: UFZ : com.google.android.gm(10192)
-06-08 12:14:25.033  1442  3643 D FreecessController: UFZ : com.google.android.gm(0), reason: Binder(1)-android.view.accessibility.IAccessibilityMan
-06-08 12:14:25.033  2029  2046 W BtGatt.GattService: unfreezeScan() - No AppScanStats found with uid: 10228
-06-08 12:14:25.033  1442  3225 D FreecessController: apply [LRs:false] to uid[10228]
-06-08 12:14:25.033  1442  3225 W LocationManagerService: onFreezeStateChanged, uid[10228]=false
-06-08 12:14:25.034  1442  3225 V AlarmManager: unblockMARsRestrictedAlarmsForUidPackage: uid = 10228, packageName = null
-06-08 12:14:25.034  1442  3225 D FreecessController: send pending alarm to packageName:null, uid:10228
-06-08 12:14:25.036 10063 10063 D PlugInFilterLoader: id[1], title[Cream], filterName[Cream], preloadFilter[1], libName[com.samsung.android.provider.filterprovider.libcreamy.so], version[2], filterType[SINGLE], vendor[SAMSUNG_MOBILE]
-06-08 12:14:25.037 10063 10063 D PlugInFilterLoader: id[2], title[Deep], filterName[Deep], preloadFilter[1], libName[com.samsung.android.provider.filterprovider.libdeep.so], version[2], filterType[SINGLE], vendor[SAMSUNG_MOBILE]
-06-08 12:14:25.038 10063 10063 D PlugInFilterLoader: id[3], title[Forest], filterName[Forest], preloadFilter[1], libName[com.samsung.android.provider.filterprovider.libforest.so], version[2], filterType[SINGLE], vendor[SAMSUNG_MOBILE]
-06-08 12:14:25.038 10063 10063 D PlugInFilterLoader: id[4], title[Classic], filterName[Classic], preloadFilter[1], libName[com.samsung.android.provider.filterprovider.libclassic.so], version[2], filterType[SINGLE], vendor[SAMSUNG_MOBILE]
-06-08 12:14:25.039 10063 10063 D PlugInFilterLoader: id[5], title[Cozy], filterName[Cozy], preloadFilter[1], libName[com.samsung.android.provider.filterprovider.libcozy.so], version[2], filterType[SINGLE], vendor[SAMSUNG_MOBILE]
-06-08 12:14:25.039 10063 10063 D PlugInFilterLoader: id[6], title[Memory], filterName[Memory], preloadFilter[1], libName[com.samsung.android.provider.filterprovider.libmemory.so], version[2], filterType[SINGLE], vendor[Camera360]
-06-08 12:14:25.040 10063 10063 D PlugInFilterLoader: id[7], title[Maple], filterName[Maple], preloadFilter[1], libName[com.samsung.android.provider.filterprovider.libmaple.so], version[2], filterType[SINGLE], vendor[UCam]
-06-08 12:14:25.040 10063 10063 D PlugInFilterLoader: id[8], title[Blossom], filterName[Blossom], preloadFilter[1], libName[com.samsung.android.provider.filterprovider.libblossom.so], version[2], filterType[SINGLE], vendor[SAMSUNG_MOBILE]
-06-08 12:14:25.040 10063 10063 D PlugInFilterLoader: id[9], title[Breeze], filterName[Breeze], preloadFilter[1], libName[com.samsung.android.provider.filterprovider.libbreeze.so], version[2], filterType[SINGLE], vendor[SAMSUNG_MOBILE]
-06-08 12:14:25.042  1144  1494 I netd    : firewallSetUidRule(4, 10228, 1) <7.81ms>
-06-08 12:14:25.042  1442  3225 I PowerManagerService: [PWL] SetWakeLockEnableDisable uid = 10228 , disable= false
-06-08 12:14:25.042  1442  3225 I PowerManagerService: [PWL] can not change uid =  10228
-06-08 12:14:25.042  2052  2052 V NavBarStoreImpl: handleEvent [EventType] GET_BOOL_NAVBAR_CAN_MOVE_STATE [Module] SecNavigationBarView
-06-08 12:14:25.043  2052  2052 V NavBarStoreImpl: --[Band]GESTURE_PACK_GET_BOOL_NAVBAR_CAN_MOVE_NAVBARVIEW
-06-08 12:14:25.043  2052  2052 V NavBarStoreImpl: ----apply(SET_CURRENT_NAVBAR_CAN_MOVE)
-06-08 12:14:25.043  2052  2052 V NavBarStoreImpl: getResult(GET_BOOL_NAVBAR_CAN_MOVE_STATE)=true
-06-08 12:14:25.044 10063 10063 D PlugInFilterLoader: id[10], title[Evergreen], filterName[Evergreen], preloadFilter[1], libName[com.samsung.android.provider.filterprovider.libevergreen.so], version[2], filterType[SINGLE], vendor[SAMSUNG_MOBILE]
-06-08 12:14:25.045 10063 10063 D PlugInFilterLoader: id[11], title[Sunshine], filterName[Sunshine], preloadFilter[1], libName[com.samsung.android.provider.filterprovider.libsunshine.so], version[2], filterType[SINGLE], vendor[SAMSUNG_MOBILE]
-06-08 12:14:25.045 10063 10063 D PlugInFilterLoader: id[12], title[Greyscale], filterName[Grayscale], preloadFilter[1], libName[com.samsung.android.provider.filterprovider.libgrayscale.so], version[2], filterType[SINGLE], vendor[SAMSUNG_MOBILE]
-06-08 12:14:25.046 10063 10063 D PlugInFilterLoader: id[13], title[Cookie Cream], filterName[CookiNCream], preloadFilter[1], libName[com.samsung.android.provider.filterprovider.libcookiencream.so], version[2], filterType[SINGLE], vendor[CandyCamera]
-06-08 12:14:25.050  1144  1318 D EnterpriseController: netId is 0
-06-08 12:14:25.050  1144  1318 E Netd    : getNetworkForDns: getNetId from enterpriseCtrl is netid 0
-06-08 12:14:25.050  1144  1318 D DnsProxyListener: DNSDBG::dns addrinfo af 2 - 10239
-06-08 12:14:25.051 10063 10063 D PlugInFilterLoader: id[14], title[Nostalgia], filterName[Nostalgia], preloadFilter[1], libName[com.samsung.android.provider.filterprovider.libnostalgia.so], version[2], filterType[SINGLE], vendor[UCam]
-06-08 12:14:25.052 10063 10063 D PlugInFilterLoader: id[15], title[Riddle], filterName[Riddle], preloadFilter[1], libName[com.samsung.android.provider.filterprovider.libriddle.so], version[2], filterType[SINGLE], vendor[B612]
-06-08 12:14:25.054 10063 10063 D PlugInFilterLoader: load PlugInFilter end
-06-08 12:14:25.055 10063 10063 V PlugInMyFilterLoader: PlugInMyFilterLoader : onChange
-06-08 12:14:25.055 10063 10063 V PlugInMyFilterLoader: PlugInMyFilterLoader : onChange
-06-08 12:14:25.055 10063 10063 D PlugInMyFilterLoader: handleUninstall
-06-08 12:14:25.055 10063 10063 D PlugInMyFilterLoader: load MyFilter
-06-08 12:14:25.055 10063 10063 D PlugInMyFilterStorage: clear PlugInMyFilterStorage
-06-08 12:14:25.061 10063 10063 D PlugInMyFilterLoader: filterId[1], id[1], filterName[Filter 1], fileName[Filter 1.sel]
-06-08 12:14:25.113   694  5839 I         : !@SystemSuspend: mWakeupCountFd-
-06-08 12:14:25.113   694  5839 I         : !@SystemSuspend: write mem+
-06-08 12:14:25.867  1442  1811 D SamsungAlarmManager: Expired : 65536
-06-08 12:14:25.867  1442  1811 I SamsungAlarmManager: setLocked to kernel - T:2 / 20260608T121609, SetElapsed=5121790, nowELAPSED=5017909
-06-08 12:14:25.867  1442  1811 I SamsungAlarmManager: setLocked to kernel - T:3 / 20260608T121500, SetElapsed=5052042, nowELAPSED=5017909
-06-08 12:14:25.872   694  5839 I         : !@SystemSuspend: write mem-
-06-08 12:14:25.872  1442  3646 I BatteryStatsService: In wakeup_callback: resumed from suspend
-06-08 12:14:25.877  1144  1318 D EnterpriseController: netId is 0
-06-08 12:14:25.877  1144  1318 E Netd    : getNetworkForDns: getNetId from enterpriseCtrl is netid 0
-06-08 12:14:25.877  1144  1318 D DnsProxyListener: DNSDBG::dns addrinfo af 2 - 10239
-06-08 12:14:25.975   694  5839 I         : !@SystemSuspend: mWakeupCountFd+
-06-08 12:14:26.090  1278  1951 I bauth_FPBAuthService: pcf : 0x1012, 0 ,1 ,0 ,0 ,0 ,0, 5.0.0.23
-06-08 12:14:26.091  1278  1951 I bauth_FPBAuthService: thread id : 1, preenroll_flag : 0, nd cnt : 0, cso : 0, et : 0
-06-08 12:14:26.091  1278  1951 I bauth_FPBAuthService: FPBAuthService, 11438
-06-08 12:14:26.117  2052  2052 W View    : couldn't find view with id 16908291
-06-08 12:14:26.188 27775 27775 D SemCscFeature: Encoded
-06-08 12:14:26.190 27775 27775 I chatty  : uid=2000(shell) identical 1 line
-06-08 12:14:26.190 27775 27775 D SemCscFeature: Encoded
-06-08 12:14:26.220 27775 27775 I AccessibilityNodeInfoDumper: Skipping invisible child: android.view.accessibility.AccessibilityNodeInfo@36e50; boundsInParent: Rect(0, 0 - 1080, 426); boundsInScreen: Rect(0, 0 - 1080, 0); packageName: com.android.systemui; className: android.widget.FrameLayout; text: null; error: null; maxTextLength: -1; contentDescription: null; tooltipText: null; viewIdResName: com.android.systemui:id/quick_settings_container; checkable: false; checked: false; focusable: false; focused: false; selected: false; clickable: false; longClickable: false; contextClickable: false; enabled: true; password: false; scrollable: false; importantForAccessibility: false; visible: false; actions: [AccessibilityAction: ACTION_SELECT - null, AccessibilityAction: ACTION_CLEAR_SELECTION - null, AccessibilityAction: ACTION_ACCESSIBILITY_FOCUS - null, AccessibilityAction: ACTION_SHOW_ON_SCREEN - null]
-06-08 12:14:26.246 27775 27775 I AccessibilityNodeInfoDumper: Skipping invisible child: android.view.accessibility.AccessibilityNodeInfo@28592; boundsInParent: Rect(0, 0 - 1007, 381); boundsInScreen: Rect(1007, 229 - 1007, 610); packageName: com.android.systemui; className: android.widget.FrameLayout; text: null; error: null; maxTextLength: -1; contentDescription: null; tooltipText: null; viewIdResName: null; checkable: false; checked: false; focusable: true; focused: false; selected: false; clickable: false; longClickable: false; contextClickable: false; enabled: true; password: false; scrollable: false; importantForAccessibility: true; visible: false; actions: [AccessibilityAction: ACTION_FOCUS - null, AccessibilityAction: ACTION_SELECT - null, AccessibilityAction: ACTION_CLEAR_SELECTION - null, AccessibilityAction: ACTION_ACCESSIBILITY_FOCUS - null, AccessibilityAction: ACTION_SHOW_ON_SCREEN - null]
-06-08 12:14:26.247 27775 27775 I AccessibilityNodeInfoDumper: Skipping invisible child: android.view.accessibility.AccessibilityNodeInfo@28d14; boundsInParent: Rect(0, 0 - 1007, 381); boundsInScreen: Rect(1007, 229 - 1080, 610); packageName: com.android.systemui; className: android.widget.FrameLayout; text: null; error: null; maxTextLength: -1; contentDescription: null; tooltipText: null; viewIdResName: null; checkable: false; checked: false; focusable: true; focused: false; selected: false; clickable: false; longClickable: false; contextClickable: false; enabled: true; password: false; scrollable: false; importantForAccessibility: true; visible: false; actions: [AccessibilityAction: ACTION_FOCUS - null, AccessibilityAction: ACTION_SELECT - null, AccessibilityAction: ACTION_CLEAR_SELECTION - null, AccessibilityAction: ACTION_ACCESSIBILITY_FOCUS - null, AccessibilityAction: ACTION_SHOW_ON_SCREEN - null]
-06-08 12:14:26.247 27775 27775 I AccessibilityNodeInfoDumper: Skipping invisible child: android.view.accessibility.AccessibilityNodeInfo@ea60d; boundsInParent: Rect(0, 0 - 1007, 381); boundsInScreen: Rect(1007, 229 - 1080, 610); packageName: com.android.systemui; className: android.widget.FrameLayout; text: null; error: null; maxTextLength: -1; contentDescription: null; tooltipText: null; viewIdResName: null; checkable: false; checked: false; focusable: true; focused: false; selected: false; clickable: false; longClickable: false; contextClickable: false; enabled: true; password: false; scrollable: false; importantForAccessibility: true; visible: false; actions: [AccessibilityAction: ACTION_FOCUS - null, AccessibilityAction: ACTION_SELECT - null, AccessibilityAction: ACTION_CLEAR_SELECTION - null, AccessibilityAction: ACTION_ACCESSIBILITY_FOCUS - null, AccessibilityAction: ACTION_SHOW_ON_SCREEN - null]
-06-08 12:14:26.247 27775 27775 I AccessibilityNodeInfoDumper: Skipping invisible child: android.view.accessibility.AccessibilityNodeInfo@ca9c; boundsInParent: Rect(0, 0 - 1007, 0); boundsInScreen: Rect(0, 610 - 1007, 610); packageName: com.android.systemui; className: android.widget.LinearLayout; text: null; error: null; maxTextLength: -1; contentDescription: null; tooltipText: null; viewIdResName: com.android.systemui:id/keyguard_aod_ui_container; checkable: false; checked: false; focusable: false; focused: false; selected: false; clickable: false; longClickable: false; contextClickable: false; enabled: true; password: false; scrollable: false; importantForAccessibility: false; visible: false; actions: [AccessibilityAction: ACTION_SELECT - null, AccessibilityAction: ACTION_CLEAR_SELECTION - null, AccessibilityAction: ACTION_ACCESSIBILITY_FOCUS - null, AccessibilityAction: ACTION_SHOW_ON_SCREEN - null]
-06-08 12:14:26.248 27775 27775 I AccessibilityNodeInfoDumper: Skipping invisible child: android.view.accessibility.AccessibilityNodeInfo@e8a4; boundsInParent: Rect(0, 0 - 1080, 0); boundsInScreen: Rect(0, 157 - 1080, 157); packageName: com.android.systemui; className: android.widget.LinearLayout; text: null; error: null; maxTextLength: -1; contentDescription: null; tooltipText: null; viewIdResName: null; checkable: false; checked: false; focusable: false; focused: false; selected: false; clickable: false; longClickable: false; contextClickable: false; enabled: true; password: false; scrollable: false; importantForAccessibility: false; visible: false; actions: [AccessibilityAction: ACTION_SELECT - null, AccessibilityAction: ACTION_CLEAR_SELECTION - null, AccessibilityAction: ACTION_ACCESSIBILITY_FOCUS - null, AccessibilityAction: ACTION_SHOW_ON_SCREEN - null]
-06-08 12:14:26.248 27775 27775 I AccessibilityNodeInfoDumper: Skipping invisible child: android.view.accessibility.AccessibilityNodeInfo@cd491; boundsInParent: Rect(0, 0 - 220, 220); boundsInScreen: Rect(540, 1836 - 760, 2056); packageName: com.android.systemui; className: android.widget.LinearLayout; text: null; error: null; maxTextLength: -1; contentDescription: Phone; tooltipText: null; viewIdResName: null; checkable: false; checked: false; focusable: true; focused: false; selected: false; clickable: false; longClickable: false; contextClickable: false; enabled: true; password: false; scrollable: false; importantForAccessibility: true; visible: false; actions: [AccessibilityAction: ACTION_FOCUS - null, AccessibilityAction: ACTION_SELECT - null, AccessibilityAction: ACTION_CLEAR_SELECTION - null, AccessibilityAction: ACTION_ACCESSIBILITY_FOCUS - null, AccessibilityAction: ACTION_NEXT_AT_MOVEMENT_GRANULARITY - null, AccessibilityAction: ACTION_PREVIOUS_AT_MOVEMENT_GRANULARITY - null, AccessibilityAction: ACTION_SET_SELECTION - null, AccessibilityAction: ACTION_SHOW_ON_SCREEN - null]
-06-08 12:14:26.249 27775 27775 I AccessibilityNodeInfoDumper: Skipping invisible child: android.view.accessibility.AccessibilityNodeInfo@cdfd4; boundsInParent: Rect(0, 0 - 220, 220); boundsInScreen: Rect(752, 1836 - 972, 2056); packageName: com.android.systemui; className: android.widget.LinearLayout; text: null; error: null; maxTextLength: -1; contentDescription: Camera; tooltipText: null; viewIdResName: null; checkable: false; checked: false; focusable: true; focused: false; selected: false; clickable: false; longClickable: false; contextClickable: false; enabled: true; password: false; scrollable: false; importantForAccessibility: true; visible: false; actions: [AccessibilityAction: ACTION_FOCUS - null, AccessibilityAction: ACTION_SELECT - null, AccessibilityAction: ACTION_CLEAR_SELECTION - null, AccessibilityAction: ACTION_ACCESSIBILITY_FOCUS - null, AccessibilityAction: ACTION_NEXT_AT_MOVEMENT_GRANULARITY - null, AccessibilityAction: ACTION_PREVIOUS_AT_MOVEMENT_GRANULARITY - null, AccessibilityAction: ACTION_SET_SELECTION - null, AccessibilityAction: ACTION_SHOW_ON_SCREEN - null]
-06-08 12:14:26.250 27775 27775 I AccessibilityNodeInfoDumper: Skipping invisible child: android.view.accessibility.AccessibilityNodeInfo@25886; boundsInParent: Rect(0, 0 - 54, 54); boundsInScreen: Rect(0, 0 - 54, 54); packageName: com.android.systemui; className: android.widget.ImageView; text: null; error: null; maxTextLength: -1; contentDescription: null; tooltipText: null; viewIdResName: null; checkable: false; checked: false; focusable: false; focused: false; selected: false; clickable: false; longClickable: false; contextClickable: false; enabled: true; password: false; scrollable: false; importantForAccessibility: false; visible: false; actions: [AccessibilityAction: ACTION_SELECT - null, AccessibilityAction: ACTION_CLEAR_SELECTION - null, AccessibilityAction: ACTION_CLICK - null, AccessibilityAction: ACTION_ACCESSIBILITY_FOCUS - null, AccessibilityAction: ACTION_SHOW_ON_SCREEN - null]
-06-08 12:14:26.250 27775 27775 I AccessibilityNodeInfoDumper: Skipping invisible child: android.view.accessibility.AccessibilityNodeInfo@26008; boundsInParent: Rect(0, 0 - 229, 229); boundsInScreen: Rect(426, 1934 - 655, 2163); packageName: com.android.systemui; className: android.widget.FrameLayout; text: null; error: null; maxTextLength: -1; contentDescription: null; tooltipText: null; viewIdResName: com.android.systemui:id/floating_app_shortcut_image_container; checkable: false; checked: false; focusable: false; focused: false; selected: false; clickable: false; longClickable: false; contextClickable: false; enabled: true; password: false; scrollable: false; importantForAccessibility: false; visible: false; actions: [AccessibilityAction: ACTION_SELECT - null, AccessibilityAction: ACTION_CLEAR_SELECTION - null, AccessibilityAction: ACTION_ACCESSIBILITY_FOCUS - null, AccessibilityAction: ACTION_SHOW_ON_SCREEN - null]
-06-08 12:14:26.251 27775 27775 I AccessibilityNodeInfoDumper: Skipping invisible child: android.view.accessibility.AccessibilityNodeInfo@2bde1; boundsInParent: Rect(0, 0 - 0, 81); boundsInScreen: Rect(89, 1 - 89, 81); packageName: com.android.systemui; className: android.widget.LinearLayout; text: null; error: null; maxTextLength: -1; contentDescription: null; tooltipText: null; viewIdResName: com.android.systemui:id/home_carrier_information_container_hun; checkable: false; checked: false; focusable: false; focused: false; selected: false; clickable: false; longClickable: false; contextClickable: false; enabled: true; password: false; scrollable: false; importantForAccessibility: false; visible: false; actions: [AccessibilityAction: ACTION_SELECT - null, AccessibilityAction: ACTION_CLEAR_SELECTION - null, AccessibilityAction: ACTION_ACCESSIBILITY_FOCUS - null, AccessibilityAction: ACTION_SHOW_ON_SCREEN - null]
-06-08 12:14:26.252 27775 27775 I AccessibilityNodeInfoDumper: Skipping invisible child: android.view.accessibility.AccessibilityNodeInfo@2c563; boundsInParent: Rect(0, 0 - 0, 81); boundsInScreen: Rect(89, 1 - 89, 81); packageName: com.android.systemui; className: android.widget.LinearLayout; text: null; error: null; maxTextLength: -1; contentDescription: null; tooltipText: null; viewIdResName: com.android.systemui:id/left_clock_container; checkable: false; checked: false; focusable: false; focused: false; selected: false; clickable: false; longClickable: false; contextClickable: false; enabled: true; password: false; scrollable: false; importantForAccessibility: false; visible: false; actions: [AccessibilityAction: ACTION_SELECT - null, AccessibilityAction: ACTION_CLEAR_SELECTION - null, AccessibilityAction: ACTION_ACCESSIBILITY_FOCUS - null, AccessibilityAction: ACTION_SHOW_ON_SCREEN - null]
-06-08 12:14:26.252 27775 27775 I AccessibilityNodeInfoDumper: Skipping invisible child: android.view.accessibility.AccessibilityNodeInfo@2e36b; boundsInParent: Rect(0, 0 - 0, 81); boundsInScreen: Rect(830, 1 - 830, 81); packageName: com.android.systemui; className: android.widget.LinearLayout; text: null; error: null; maxTextLength: -1; contentDescription: null; tooltipText: null; viewIdResName: com.android.systemui:id/divided_statusIcons; checkable: false; checked: false; focusable: false; focused: false; selected: false; clickable: false; longClickable: false; contextClickable: false; enabled: true; password: false; scrollable: false; importantForAccessibility: false; visible: false; actions: [AccessibilityAction: ACTION_SELECT - null, AccessibilityAction: ACTION_CLEAR_SELECTION - null, AccessibilityAction: ACTION_ACCESSIBILITY_FOCUS - null, AccessibilityAction: ACTION_SHOW_ON_SCREEN - null]
-06-08 12:14:26.254 27775 27775 W AccessibilityNodeInfoDumper: Fetch time: 59ms
-06-08 12:14:26.258  1442  3643 W WindowManager: removeWindowToken: Attempted to remove non-existing token: android.os.Binder@2dd8c3f
-06-08 12:14:26.265  1442  3643 D SettingsProvider: isChangeAllowed() : name = accessibility_enabled
-06-08 12:14:26.265  1442  3643 I AccessibilityManagerService: semIsAccessibilityServiceEnabled()
-06-08 12:14:26.266  1442  1546 V WindowManager: performShow on Window{35ff456 u0 Sys2003:com.android.systemui/com.android.systemui.media.MediaProjectionPermissionActivity}: mDrawState=READY_TO_SHOW readyForDisplay=false starting=false during animation: policyVis=false parentHidden=false tok.hiddenRequested=false tok.hidden=false animating=false tok animating=false Callers=com.android.server.wm.WindowState.performShowLocked:4819 com.android.server.wm.DisplayContent.lambda$new$0$DisplayContent:705 com.android.server.wm.-$$Lambda$DisplayContent$0yxrqH9eGY2qTjH1u_BvaVrXCSA.accept:4 com.android.server.wm.WindowContainer$ForAllWindowsConsumerWrapper.apply:1188 
-06-08 12:14:26.268   925  3639 I Layer   : id=448 removeFromCurrentState WindowToken{ca190c android.os.Binder@2dd8c3f}#0 (54)
-06-08 12:14:26.269   925  3639 I SurfaceFlinger: id=448 Removed WindowToken{ca190c android.os.Binder@2dd8c3f}#0 (54)
-06-08 12:14:26.270   925  3639 I SurfaceFlinger: id=449 createSurf (0x0),-1 flag=80004, WindowToken{4aba34b android.os.Binder@e47ec1a}#0
-06-08 12:14:26.271  1442  1442 D SettingsProvider: isChangeAllowed() : name = accessibility_enabled
-06-08 12:14:26.271  1442  1442 I AccessibilityManagerService: semIsAccessibilityServiceEnabled()
-06-08 12:14:26.272  1442  1442 I SemDesktopModeManager: registerListener: com.android.server.wm.AccessibilityController$WindowsForAccessibilityObserver$1@fd79128
-06-08 12:14:26.272  1442  1442 D WindowManager: focusedDisplayId : 0
-06-08 12:14:26.272  1442  1442 D WindowManager: w is invisible : c2ad405 com.android.systemui.ImageWallpaper
-06-08 12:14:26.272  1442  1442 D WindowManager: w is invisible : 4e44a56 com.sec.android.app.camera/com.sec.android.app.camera.Camera
-06-08 12:14:26.272  1442  1442 D WindowManager: w is invisible : 7edc4a0 com.sec.android.daemonapp/com.samsung.android.weather.app.locations.activity.WXLocationsActivity
-06-08 12:14:26.272  1442  1442 D WindowManager: w is invisible : f8ba476 com.microsoft.launcher/com.microsoft.launcher.Launcher
-06-08 12:14:26.273  1442  1442 D WindowManager: w is invisible : 7feffe2 com.android.systemui/com.android.systemui.media.MediaProjectionPermissionActivity
-06-08 12:14:26.273  1442  1442 D WindowManager: w is invisible : ccae6e0 DockedStackDivider
-06-08 12:14:26.273  1442  1442 D WindowManager: w is invisible : b0c7359 AssistPreviewPanel
-06-08 12:14:26.273  1442  1442 D WindowManager: w is invisible : 35ff456 Sys2003:com.android.systemui/com.android.systemui.media.MediaProjectionPermissionActivity
-06-08 12:14:26.273  1442  1442 D WindowManager: w is invisible : e1f75e4 Bouncer
-06-08 12:14:26.273  1442  1442 D WindowManager: w is invisible : 63ad4bc NavigationBar0
-06-08 12:14:26.273  1442  1442 D WindowManager: w is invisible : c2ad405 com.android.systemui.ImageWallpaper
-06-08 12:14:26.273  1442  1442 D WindowManager: w is invisible : 4e44a56 com.sec.android.app.camera/com.sec.android.app.camera.Camera
-06-08 12:14:26.273  1442  1442 D WindowManager: w is invisible : 7edc4a0 com.sec.android.daemonapp/com.samsung.android.weather.app.locations.activity.WXLocationsActivity
-06-08 12:14:26.273  1442  1442 D WindowManager: w is invisible : f8ba476 com.microsoft.launcher/com.microsoft.launcher.Launcher
-06-08 12:14:26.273  1442  1442 D WindowManager: w is invisible : 7feffe2 com.android.systemui/com.android.systemui.media.MediaProjectionPermissionActivity
-06-08 12:14:26.273  1442  1442 D WindowManager: w is invisible : ccae6e0 DockedStackDivider
-06-08 12:14:26.273  1442  1442 D WindowManager: w is invisible : b0c7359 AssistPreviewPanel
-06-08 12:14:26.273  1442  1442 D WindowManager: w is invisible : 35ff456 Sys2003:com.android.systemui/com.android.systemui.media.MediaProjectionPermissionActivity
-06-08 12:14:26.273  1442  1442 D WindowManager: w is invisible : 7c6e11 StatusBar
-06-08 12:14:26.273  1442  1442 D WindowManager: w is invisible : e1f75e4 Bouncer
-06-08 12:14:26.273  1442  1442 D WindowManager: w is invisible : 63ad4bc NavigationBar0
-06-08 12:14:26.273  1442  1442 D WindowManager: windowMattersToAccessibility, check : 7c6e11 StatusBar
-06-08 12:14:26.275  1442  3643 D SettingsProvider: isChangeAllowed() : name = accelerometer_rotation
-06-08 12:14:26.276  1442  3643 D SettingsProvider: isChangeAllowed() : name = user_rotation
-06-08 12:14:26.276  1442  3643 V WindowManager: rotationForOrientation(orient=5, last=0); user=0 
-06-08 12:14:26.277  1442  3643 V WindowManager: Computed rotation=0 for display id=0 based on lastOrientation=5 and oldRotation=0, caller=com.android.server.wm.DisplayContent.updateRotationUnchecked:1578 com.android.server.wm.WindowManagerService.updateRotationUnchecked:4312 com.android.server.wm.WindowManagerService.thawDisplayRotation:4264 com.android.server.wm.WindowManagerService.thawRotation:4227 android.view.IWindowManager$Stub.onTransact:2145 com.android.server.wm.WindowManagerService.onTransact:1392 
-06-08 12:14:26.279  1442  3643 V WindowManager: performShow on Window{35ff456 u0 Sys2003:com.android.systemui/com.android.systemui.media.MediaProjectionPermissionActivity}: mDrawState=READY_TO_SHOW readyForDisplay=false starting=false during animation: policyVis=false parentHidden=false tok.hiddenRequested=false tok.hidden=false animating=false tok animating=false Callers=com.android.server.wm.WindowState.performShowLocked:4819 com.android.server.wm.WindowStateAnimator.commitFinishDrawingLocked:415 com.android.server.wm.DisplayContent.lambda$new$8$DisplayContent:1026 com.android.server.wm.-$$Lambda$DisplayContent$qxt4izS31fb0LF2uo_OF9DMa7gc.accept:4 
-06-08 12:14:26.279  1442  1442 I AccessibilityManagerService: semIsAccessibilityServiceEnabled()
-06-08 12:14:26.279  1442  1442 I AccessibilityManagerService: semIsAccessibilityServiceEnabled()
-06-08 12:14:26.283   925   925 I Layer   : id=448[1] Destroyed WindowToken{ca190c android.os.Binder@2dd8c3f}#0
-06-08 12:14:26.284  1442  1546 V WindowManager: performShow on Window{35ff456 u0 Sys2003:com.android.systemui/com.android.systemui.media.MediaProjectionPermissionActivity}: mDrawState=READY_TO_SHOW readyForDisplay=false starting=false during animation: policyVis=false parentHidden=false tok.hiddenRequested=false tok.hidden=false animating=false tok animating=false Callers=com.android.server.wm.WindowState.performShowLocked:4819 com.android.server.wm.DisplayContent.lambda$new$0$DisplayContent:705 com.android.server.wm.-$$Lambda$DisplayContent$0yxrqH9eGY2qTjH1u_BvaVrXCSA.accept:4 com.android.server.wm.WindowContainer$ForAllWindowsConsumerWrapper.apply:1188 
-06-08 12:14:26.284 27775 27775 D AndroidRuntime: Shutting down VM
-06-08 12:14:26.287  1442  1442 D AS.AudioService: Accessibility volume enabled = false
-06-08 12:14:26.288  2052  2052 V NavBarStoreImpl: ------handleEvent [EventType] ON_UPDATE_REMOTEVIEW [Module] SecNavigationBarView  KEYS_LEFT_REMOTEVIEW_CONTAINER=android.widget.LinearLayout{1a5d9bb I.E...... ......I. 0,0-118,162 #7f0a0398 app:id/left_remoteview}  KEYS_NAVBAR_DARK_INTENSITY=0.0  KEYS_CONTEXTUALBUTTON_VISIBLE=false  KEYS_RIGHT_REMOTEVIEW_CONTAINER=android.widget.LinearLayout{d96ded8 I.E...... ......I. 962,0-1080,162 #7f0a0549 app:id/right_remoteview}
-06-08 12:14:26.288  2052  2052 V NavBarStoreImpl: --------[Band]REMOTE_VIEW_PACK_SET_REMOTEVIEW_CONTAINER
-06-08 12:14:26.288  2052  2052 V NavBarStoreImpl: ----------apply(UPDATE_NAVBAR_REMOTEVIEW_CONTAINER)
-06-08 12:14:26.288  2052  2052 V NavBarStoreImpl: ----------apply(UPDATE_NAVBAR_RIGHT_REMOTEVIEW_VISIBILITY)
-06-08 12:14:26.288  2052  2052 V NavBarStoreImpl: ----------isEnabled(NAVBAR_REMOTEVIEW_DARKINTENSITY_CHANGED)=false
-06-08 12:14:26.306  2052  2052 V NavBarStoreImpl: handleEvent [EventType] GET_BOOL_NAVBAR_CAN_MOVE_STATE [Module] SecNavigationBarView
-06-08 12:14:26.307  2052  2052 V NavBarStoreImpl: --[Band]GESTURE_PACK_GET_BOOL_NAVBAR_CAN_MOVE_NAVBARVIEW
-06-08 12:14:26.307  2052  2052 V NavBarStoreImpl: ----apply(SET_CURRENT_NAVBAR_CAN_MOVE)
-06-08 12:14:26.307  2052  2052 V NavBarStoreImpl: getResult(GET_BOOL_NAVBAR_CAN_MOVE_STATE)=true
-06-08 12:14:26.373  1442  3646 D SamsungAlarmManager: Cancel Alarm calling from uid:10086 pid :2752 / op:PendingIntent{be8afe6: PendingIntentRecord{98f2927 com.google.android.gms startService}}
-06-08 12:14:26.379  1442  3646 I SamsungAlarmManager: setLocked to kernel - T:2 / 20260608T121609, SetElapsed=5121790, nowELAPSED=5018421
-06-08 12:14:26.384  1442  3646 I SamsungAlarmManager: setLocked to kernel - T:3 / 20260608T121500, SetElapsed=5052042, nowELAPSED=5018426
-06-08 12:14:26.443  1442  6177 D SamsungAlarmManager: Cancel Alarm calling from uid:10086 pid :3457 / op:PendingIntent{ba897d4: PendingIntentRecord{7036d7d com.google.android.gms startService}}
-06-08 12:14:26.449  1442  6177 I SamsungAlarmManager: setLocked to kernel - T:2 / 20260608T121609, SetElapsed=5121790, nowELAPSED=5018491
-06-08 12:14:26.449  1442  6177 I SamsungAlarmManager: setLocked to kernel - T:3 / 20260608T121500, SetElapsed=5052042, nowELAPSED=5018491
-06-08 12:14:26.722  1442  3646 I EDMNativeHelperService: isScreenCaptureEnabled
-06-08 12:14:26.723  1442  3646 D RestrictionPolicy: isScreenCaptureEnabled : ret=true userId=0
-06-08 12:14:26.738   600   600 I hwservicemanager: getTransport: Cannot find entry android.hardware.graphics.mapper@3.0::IMapper/default in either framework or device manifest.
-06-08 12:14:26.740 27799 27799 W Gralloc3: mapper 3.x is not supported
-06-08 12:14:27.091  1278  1951 I bauth_FPBAuthService: pcf : 0x1012, 0 ,1 ,0 ,0 ,0 ,0, 5.0.0.23
-06-08 12:14:27.091  1278  1951 I bauth_FPBAuthService: thread id : 1, preenroll_flag : 0, nd cnt : 0, cso : 0, et : 0
-06-08 12:14:27.091  1278  1951 I bauth_FPBAuthService: FPBAuthService, 11438
+06-08 14:57:01.518 16287 16348 D WM-WorkConstraintsTrack: NetworkRequestConstraintController onCapabilitiesChanged callback
+06-08 14:57:01.519 16287 16365 D WM-GreedyScheduler: Constraints met: Scheduling work ID WorkGenerationalId(workSpecId=a9a9929a-6269-471a-b97f-4c857dcdf255, generation=0)
+06-08 14:57:01.520 16287 18478 D ProfileInstaller: Skipping profile installation for com.linkedin.android
+06-08 14:57:01.522  2052  2052 V NavBarStoreImpl: handleEvent [EventType] GET_BOOL_NAVBAR_CAN_MOVE_STATE [Module] SecNavigationBarView
+06-08 14:57:01.523  2052  2052 V NavBarStoreImpl: --[Band]GESTURE_PACK_GET_BOOL_NAVBAR_CAN_MOVE_NAVBARVIEW
+06-08 14:57:01.523  2052  2052 V NavBarStoreImpl: ----apply(SET_CURRENT_NAVBAR_CAN_MOVE)
+06-08 14:57:01.523  2052  2052 V NavBarStoreImpl: getResult(GET_BOOL_NAVBAR_CAN_MOVE_STATE)=true
+06-08 14:57:01.526 16287 16365 D WM-Processor: Processor: processing WorkGenerationalId(workSpecId=a9a9929a-6269-471a-b97f-4c857dcdf255, generation=0)
+06-08 14:57:01.531 16287 16287 D WM-WorkerWrapper: Starting work for com.linkedin.android.litrackinglib.network.SendTrackingEventWorker
+06-08 14:57:01.535 16287 16363 I WM-WorkerWrapper: Worker result FAILURE for Work [ id=a9a9929a-6269-471a-b97f-4c857dcdf255, tags={ com.linkedin.android.litrackinglib.network.SendTrackingEventWorker,period_sync_work } ]
+06-08 14:57:01.539 16287 16287 D WM-Processor: Processor a9a9929a-6269-471a-b97f-4c857dcdf255 executed; reschedule = false
+06-08 14:57:01.539 16287 16287 D WM-GreedyScheduler: Stopping tracking for WorkGenerationalId(workSpecId=a9a9929a-6269-471a-b97f-4c857dcdf255, generation=0)
+06-08 14:57:01.542 16287 16363 D WM-GreedyScheduler: Cancelling work ID a9a9929a-6269-471a-b97f-4c857dcdf255
+06-08 14:57:01.551 16287 16363 D WM-SystemJobScheduler: Scheduling work ID a9a9929a-6269-471a-b97f-4c857dcdf255Job ID -2147483521
+06-08 14:57:01.554 16287 16363 D WM-GreedyScheduler: Ignoring {WorkSpec: 00dc873f-10f0-46ac-a33b-32b8ac5e0f0f}. Requires device idle.
+06-08 14:57:01.555 16287 16363 D WM-WorkConstraintsTrack: NetworkRequestConstraintController unregister callback
+06-08 14:57:01.555 16287 16363 D ConnectivityManager: unregisterNetworkCallback; CallingUid : 10294, CallingPid : 16287
+06-08 14:57:01.556  1442  1879 D ConnectivityService: releasing NetworkRequest [ LISTEN id=693, [ Capabilities: INTERNET&TRUSTED&VALIDATED&FOREGROUND Uid: 10294] ] (release request)
+06-08 14:57:01.576 16287 16321 W inkedin.androi: Profile data size exceeds 500000 bytes
+06-08 14:57:01.702   821  1142 I LocSvc_ApiV02: <--- globalEventCb line 245 QMI_LOC_EVENT_NMEA_IND_V02
+06-08 14:57:01.769   821  1142 I chatty  : uid=1000(system) LocApiMsgTask identical 2 lines
+06-08 14:57:01.770   821  1142 I LocSvc_ApiV02: <--- globalEventCb line 245 QMI_LOC_EVENT_NMEA_IND_V02
+06-08 14:57:01.770   821  1142 I LocSvc_ApiV02: <--- globalEventCb line 245 QMI_LOC_EVENT_GNSS_SV_INFO_IND_V02
+06-08 14:57:01.770   821  1142 I LocSvc_ApiV02: <--- globalEventCb line 245 QMI_LOC_EVENT_NMEA_IND_V02
+06-08 14:57:01.770   821  1142 I LocSvc_ApiV02: <--- globalEventCb line 245 QMI_LOC_EVENT_POSITION_REPORT_IND_V02
+06-08 14:57:01.771   821  1142 I LocSvc_ApiV02: <--- globalEventCb line 245 QMI_LOC_EVENT_NMEA_IND_V02
+06-08 14:57:01.771   821  1142 I chatty  : uid=1000(system) LocApiMsgTask identical 2 lines
+06-08 14:57:01.771   821  1142 I LocSvc_ApiV02: <--- globalEventCb line 245 QMI_LOC_EVENT_NMEA_IND_V02
+06-08 14:57:01.773  1442  2022 I GnssLocationProvider: WakeLock acquired by sendMessage(REPORT_SV_STATUS, 0, com.android.server.location.GnssLocationProvider$SvStatusInfo@32b5b79)
+06-08 14:57:01.774  1442  1887 D GnssLocationProvider_ex: SV Count : 6 / 6      (PRN, Constellation, SNR, Used)
+06-08 14:57:01.774  1442  1887 D GnssLocationProvider_ex: (5, GPS, 32.6, 1) (20, GPS, 24.1, 1) (29, GPS, 30.1, 1) (5, GLONASS, 21.3, 1) (21, GLONASS, 25.0, 1) (7, GLONASS, 27.4, 1) 
+06-08 14:57:01.775  1442  1887 I GnssLocationProvider: WakeLock released by handleMessage(REPORT_SV_STATUS, 0, com.android.server.location.GnssLocationProvider$SvStatusInfo@32b5b79)
+06-08 14:57:01.778  1442  1840 I GnssLocationProvider: WakeLock acquired by sendMessage(REPORT_LOCATION, 1)
+06-08 14:57:01.778  2226  2295 V GnssStatusListener_FLP: updateSatelliteStatus, top4=28, top6=26, visibleSv=6, usedSv=6, usedL5Sv=0
+06-08 14:57:01.781   821   943 E LocSvc_SystemStatus: PQWP7parser - invalid size=404
+06-08 14:57:01.782  1442  1887 I GnssLocationProvider: WakeLock released by handleMessage(REPORT_LOCATION, 1)
+06-08 14:57:01.786  2226  2295 V SpeedState_FLP: Speed is under 10, so tell activity context
+06-08 14:57:01.790  2226  2295 V PassiveListener_FLP: onLocationChanged, provider=gps / isMock=false
+06-08 14:57:01.791  1442  2254 D SLocation: PositionManager - PassiveonLocationChanged gps 1780945022000
+06-08 14:57:01.792  1442  2254 D SLocation: TrackingReceiverFilter - refreshCellInfo
+06-08 14:57:01.792  1442  2254 W Settings: Setting airplane_mode_on has moved from android.provider.Settings.System to android.provider.Settings.Global, returning read-only value.
+06-08 14:57:01.792  1442  2254 D TelephonyManager: getAllCellInfo : Caller (PID / UID / TID): 1442 / 1000 / 2254
+06-08 14:57:01.795  1442  2254 D SLocation: GeofenceLocationFilter - location sent before 4820, need to filter / provider : gps, accuracy : 33.232002
+06-08 14:57:01.795  1442  2254 W Settings: Setting airplane_mode_on has moved from android.provider.Settings.System to android.provider.Settings.Global, returning read-only value.
+06-08 14:57:01.795  1442  2254 D TelephonyManager: getAllCellInfo : Caller (PID / UID / TID): 1442 / 1000 / 2254
+06-08 14:57:01.797  1442  3607 I SamsungAlarmManager: setLocked to kernel - T:2 / 20260608T145701, SetElapsed=14774017, nowELAPSED=14773839
+06-08 14:57:01.797  1442  3607 E AlarmManager: Set nextNonWakeup as mNextNonWakeupDeliveryTime=14952042 , orig nextNonWakeup=0
+06-08 14:57:01.797  1442  3607 I SamsungAlarmManager: setLocked to kernel - T:3 / 20260608T150000, SetElapsed=14952042, nowELAPSED=14773839
+06-08 14:57:01.797  1442  3607 D SamsungAlarmManager: setExact Listener (T:3/F:9/AC:false) 20260608T155701 - CU:1000/CP:1442
+06-08 14:57:01.797  1442  3607 I SamsungAlarmManager: setLocked to kernel - T:2 / 20260608T145701, SetElapsed=14774017, nowELAPSED=14773839
+06-08 14:57:01.797  1442  3607 E AlarmManager: Set nextNonWakeup as mNextNonWakeupDeliveryTime=14952042 , orig nextNonWakeup=0
+06-08 14:57:01.797  1442  3607 I SamsungAlarmManager: setLocked to kernel - T:3 / 20260608T150000, SetElapsed=14952042, nowELAPSED=14773839
+06-08 14:57:01.798  1442  2254 D SLocation: TrackingReceiverFilter - isChangedCellInfo - false
+06-08 14:57:01.798  1442  2254 D SLocation: TrackingReceiverFilter - checkValidForTrackingReceiver - LastGpsTimeThreshold = 120000
+06-08 14:57:01.798  1442  2254 D SLocation: TrackingReceiverFilter - checkValidForTrackingReceiver - gps location is always valid.
+06-08 14:57:01.798  2752  5182 I FusedLocation: (REDACTED) location delivery to %s blocked - too fast
+06-08 14:57:01.798  2752  5182 I FusedLocation: (REDACTED) location delivery to %s blocked - too fast
+06-08 14:57:01.800  2752  5182 I FusedLocation: (REDACTED) location delivery to %s blocked - too close
+06-08 14:57:01.801  2752  5182 I FusedLocation: (REDACTED) location delivery to %s blocked - too close
+06-08 14:57:01.801  1442  1442 D GeofenceManager: updateFences: location=Location[fused 45.451744,-73.773608 hAcc=40 et=+4h6m13s819ms alt=-1.899999976158142 vel=0.003466549 vAcc=2 sAcc=0 bAcc=??? {Bundle[{noGPSLocation=Location[fused 45.451807,-73.773511 hAcc=24 et=+4h5m43s700ms alt=-1.899999976158142 vAcc=2 sAcc=??? bAcc=??? {Bundle[mParcelledData.dataSize=252]}]}]}], mFences.size()=1, mReceivingLocationUpdates=true, mLocationUpdateInterval=7200000, mLastLocationUpdate=Location[fused 45.451744,-73.773608 hAcc=40 et=+4h6m13s819ms alt=-1.899999976158142 vel=0.003466549 vAcc=2 sAcc=0 bAcc=??? {Bundle[{noGPSLocation=Location[fused 45.451807,-73.773511 hAcc=24 et=+4h5m43s700ms alt=-1.899999976158142 vAcc=2 sAcc=??? bAcc=??? {Bundle[mParcelledData.dataSize=252]}]}]}]
+06-08 14:57:01.802  1442  2254 D SLocation: PositionManager - PassiveonLocationChanged fused 1780945021776
+06-08 14:57:01.802  2226  2295 V PassiveListener_FLP: onLocationChanged, provider=fused / isMock=false
+06-08 14:57:01.802  1442  2254 W SLocation: PositionManager - do not refresh last location about fused location
+06-08 14:57:01.804  1442  1848 I SamsungAlarmManager: setLocked to kernel - T:2 / 20260608T145701, SetElapsed=14774017, nowELAPSED=14773846
+06-08 14:57:01.804  1442  1848 E AlarmManager: Set nextNonWakeup as mNextNonWakeupDeliveryTime=14952042 , orig nextNonWakeup=0
+06-08 14:57:01.804  1442  1848 I SamsungAlarmManager: setLocked to kernel - T:3 / 20260608T150000, SetElapsed=14952042, nowELAPSED=14773846
+06-08 14:57:01.804  1442  1848 D SamsungAlarmManager: setExact Listener (T:3/F:9/AC:false) 20260608T233905 - CU:1000/CP:1442
+06-08 14:57:01.804  1442  1848 I SamsungAlarmManager: setLocked to kernel - T:2 / 20260608T145701, SetElapsed=14774017, nowELAPSED=14773846
+06-08 14:57:01.804  1442  1848 E AlarmManager: Set nextNonWakeup as mNextNonWakeupDeliveryTime=14952042 , orig nextNonWakeup=0
+06-08 14:57:01.804  1442  1848 I SamsungAlarmManager: setLocked to kernel - T:3 / 20260608T150000, SetElapsed=14952042, nowELAPSED=14773846
+06-08 14:57:01.805  1442  2254 W Settings: Setting airplane_mode_on has moved from android.provider.Settings.System to android.provider.Settings.Global, returning read-only value.
+06-08 14:57:01.805  1442  2254 D TelephonyManager: getAllCellInfo : Caller (PID / UID / TID): 1442 / 1000 / 2254
+06-08 14:57:01.806  2226  2295 V GmsPassiveListener_FLP: Got the onLocationResult !!!!
+06-08 14:57:01.807  1442  2254 D SLocation: TrackingReceiverFilter - isChangedCellInfo - false
+06-08 14:57:01.807  1442  2254 D SLocation: TrackingReceiverFilter - checkValidForTrackingReceiver - LastGpsTimeThreshold = 120000
+06-08 14:57:01.807  1442  2254 D SLocation: TrackingReceiverFilter - checkValidForTrackingReceiver - blocking diff GPS time 0
+06-08 14:57:01.807  1442  2254 D SLocation: PositionManager - receive fused location
+06-08 14:57:01.809  1442  1848 I SamsungAlarmManager: setLocked to kernel - T:2 / 20260608T145701, SetElapsed=14774017, nowELAPSED=14773851
+06-08 14:57:01.809  1442  1848 E AlarmManager: Set nextNonWakeup as mNextNonWakeupDeliveryTime=14952042 , orig nextNonWakeup=0
+06-08 14:57:01.809  1442  1848 I SamsungAlarmManager: setLocked to kernel - T:3 / 20260608T150000, SetElapsed=14952042, nowELAPSED=14773851
+06-08 14:57:01.810  1442  1848 D SamsungAlarmManager: setExact Listener (T:3/F:9/AC:false) 20260608T155701 - CU:1000/CP:1442
+06-08 14:57:01.810  1442  1848 I SamsungAlarmManager: setLocked to kernel - T:2 / 20260608T145701, SetElapsed=14774017, nowELAPSED=14773852
+06-08 14:57:01.810  1442  1848 E AlarmManager: Set nextNonWakeup as mNextNonWakeupDeliveryTime=14952042 , orig nextNonWakeup=0
+06-08 14:57:01.810  1442  1848 I SamsungAlarmManager: setLocked to kernel - T:3 / 20260608T150000, SetElapsed=14952042, nowELAPSED=14773852
+06-08 14:57:01.812  1442  1848 I SamsungAlarmManager: setLocked to kernel - T:2 / 20260608T145701, SetElapsed=14774017, nowELAPSED=14773854
+06-08 14:57:01.812  1442  1848 E AlarmManager: Set nextNonWakeup as mNextNonWakeupDeliveryTime=14952042 , orig nextNonWakeup=0
+06-08 14:57:01.812  1442  1848 I SamsungAlarmManager: setLocked to kernel - T:3 / 20260608T150000, SetElapsed=14952042, nowELAPSED=14773854
+06-08 14:57:01.812  1442  1848 D SamsungAlarmManager: setExact Listener (T:3/F:9/AC:false) 20260608T233905 - CU:1000/CP:1442
+06-08 14:57:01.812  1442  1848 I SamsungAlarmManager: setLocked to kernel - T:2 / 20260608T145701, SetElapsed=14774017, nowELAPSED=14773854
+06-08 14:57:01.812  1442  1848 E AlarmManager: Set nextNonWakeup as mNextNonWakeupDeliveryTime=14952042 , orig nextNonWakeup=0
+06-08 14:57:01.812  1442  1848 I SamsungAlarmManager: setLocked to kernel - T:3 / 20260608T150000, SetElapsed=14952042, nowELAPSED=14773854
+06-08 14:57:01.858  1442 18194 V LocSvc_HIDL_DebugReportService_jni: DebugReportService_getReport
+06-08 14:57:01.858  1442 18194 D LocSvc_HIDL_DebugReportService_jni: DebugReportService_getReport, Get Latest 1 sec data.
+06-08 14:57:01.858  1442 18194 V LocSvc_HIDL_DebugReportService_jni: [DebugReportService_getReport][942] [HC] =>> [HS]
+06-08 14:57:01.860   821   821 E LocSvc_HIDL_DebugReportService: Invalid count: 0
+06-08 14:57:01.860  1442 18194 V LocSvc_HIDL_DebugReportService_jni: populateEphemerisStatusListObj
+06-08 14:57:01.860  1442 18194 V LocSvc_HIDL_DebugReportService_jni: populateFixStatusListObj
+06-08 14:57:01.860  1442 18194 V LocSvc_HIDL_DebugReportService_jni: populateEpiReportListObj
+06-08 14:57:01.860  1442 18194 V LocSvc_HIDL_DebugReportService_jni: populateBestLocationListObj
+06-08 14:57:01.860  1442 18194 V LocSvc_HIDL_DebugReportService_jni: populateGpsTimeReportListObj
+06-08 14:57:01.860  1442 18194 V LocSvc_HIDL_DebugReportService_jni: populateXoStateReportListObj
+06-08 14:57:01.860  1442 18194 V LocSvc_HIDL_DebugReportService_jni: populateRfStateReportListObjV1_1
+06-08 14:57:01.861  1442 18194 V LocSvc_HIDL_DebugReportService_jni: populateErrorRecoveriesListObj
+06-08 14:57:01.861  1442 18194 V LocSvc_HIDL_DebugReportService_jni: populatePdrReporListObj
+06-08 14:57:01.861  1442 18194 V LocSvc_HIDL_DebugReportService_jni: populateSvHealthReportListObj
+06-08 14:57:01.861  1442 18194 V LocSvc_HIDL_DebugReportService_jni: populateXtraReportListObj
+06-08 14:57:01.909  1278  1951 I bauth_FPBAuthService: pcf : 0x1012, 0 ,1 ,0 ,0 ,0 ,0, 5.0.0.23
+06-08 14:57:01.909  1278  1951 I bauth_FPBAuthService: thread id : 1, preenroll_flag : 0, nd cnt : 0, cso : 0, et : 0
+06-08 14:57:01.909  1278  1951 I bauth_FPBAuthService: FPBAuthService, 11438
+06-08 14:57:01.975  1442  1811 D SamsungAlarmManager: Expired : 4
+06-08 14:57:01.976  1442  1811 V SamsungAlarmManager: Sending to uid : 1000 listener=com.android.server.AlarmManagerService$2@57da2a4 alarm=Alarm{7eb00be type 3 when 14772042 android}
+06-08 14:57:01.978  1442  1811 D SamsungAlarmManager: setExact Listener (T:3/F:1/AC:false) 20260608T145800 - CU:1000/CP:1442
+06-08 14:57:01.978  1442  1811 I SamsungAlarmManager: setLocked to kernel - T:2 / 20260608T145713, SetElapsed=14785972, nowELAPSED=14774020
+06-08 14:57:01.980  2052  2052 D KeyguardUpdateMonitor: received broadcast android.intent.action.TIME_TICK
+06-08 14:57:01.980  1442  1811 V SamsungAlarmManager: Sending to uid : 1000 listener=android.app.AlarmManager$ListenerWrapper@a3d651f alarm=Alarm{5edb06c type 2 when 14774017 android}
+06-08 14:57:01.981  2052  2052 D KeyguardUpdateMonitor: handleTimeUpdate
+06-08 14:57:01.981  2052  2052 D FaceWidgetPagesController: onTimeChanged()
+06-08 14:57:01.981  2052  2052 D FaceWidgetPagesController: refreshViews() reason = ON_TIME_TICK, force = false
+06-08 14:57:01.982  1442  2254 D SLocation: ARDistanceBigData - BIGDATA ARD - receive location
+06-08 14:57:01.982  1442  2254 D SLocation: SGeofenceManager - Location reported : fix method = 3 / 33.232002
+06-08 14:57:01.982  1442  2254 W SLocation: SGeofenceReceiverManager - handleLocation : id 2 with 11121.718
+06-08 14:57:01.982  1442  2254 D SLocation: SGeofenceReceiverManager - entry condition - dist : 11121.718 padding : 0.0, accuracy : 33.232002, provider : gps, dir : EXIT
+06-08 14:57:01.982  1442  2254 D SLocation: SGeofenceReceiverManager - send geopoint result - EXIT
+06-08 14:57:01.982  1442  2254 W SLocation: SGeofenceReceiverManager - handleLocation : id 3 with 11121.718
+06-08 14:57:01.982  1442  2254 D SLocation: SGeofenceReceiverManager - entry condition - dist : 11121.718 padding : 0.0, accuracy : 33.232002, provider : gps, dir : EXIT
+06-08 14:57:01.982  1442  2254 D SLocation: SGeofenceReceiverManager - send geopoint result - EXIT
+06-08 14:57:01.982  1442  2254 W SLocation: SGeofenceReceiverManager - handleLocation : id 32 with 7.98041
+06-08 14:57:01.983  1442  2254 D SLocation: SGeofenceReceiverManager - entry condition - dist : 7.98041 padding : 0.0, accuracy : 33.232002, provider : gps, dir : ENTER
+06-08 14:57:01.983  1442  1811 I SamsungAlarmManager: setLocked to kernel - T:2 / 20260608T145713, SetElapsed=14785972, nowELAPSED=14774025
+06-08 14:57:01.984  1442  2254 D SemContextLocationCoreAttribute: setAttribute() mode : 0 action : 23
+06-08 14:57:01.984  1442  2254 D SemContextService: lock : changeParameters
+06-08 14:57:01.984  1442  2254 D SemContext.CaeProvider.LocationCoreImpl: setAttribute() mode : 0 action : 23
+06-08 14:57:01.985  1442  2254 W CAE     : setCAProperty(ContextAwareService.java:597) - [setProperty 01] Mutex is locked for SLOCATION_RUNNER
+06-08 14:57:01.985  1442  2254 I CAE     : setPropertyValue(SLocationRunner.java:486) - SLOC - put value buffered data
+06-08 14:57:01.986  1442  2254 I CAE     : setPropertyValue(SLocationRunner.java:496) - SLOC - data : 6 / 7 0 0 0 192 5 
+06-08 14:57:01.986  2052  2052 D FaceWidgetAlarmPage: refreshAlarmStatus() alarm is null
+06-08 14:57:01.986  1442  2254 I CAE     : setPropertyValue(SLocationRunner.java:502) - SLOC - packet : 6 / 7 0 0 0 -64 5 
+06-08 14:57:01.986  1442  2254 I CAE     : sendCmdToSensorHub(SensorHubCommManager.java:158) - -63, 23, 55, 16, 7, 0, 0, 0, -64, 5,
+06-08 14:57:01.987  2052  2052 D QSClockBellTower: He is ready to ring the bell. (((timeText:2:57, skipUpdateForDemo:false, dateText:Mon., June 8, shortenDateText = Mon., Jun. 8)))
+06-08 14:57:01.987  1442  1800 D SensorService: setSContextDataLocked ints length 4 , byte length 10
+06-08 14:57:01.987  2052  2052 D QSClock : status_bar_clock notifyTimeChanged(currentTime:2:57) mClockVisibleByPolicy:true, mClockVisibleByUser:true, visible?false, parent:android.widget.LinearLayout{5798bf9 V.E...... ........ 0,0-0,81 #7f0a0395 app:id/left_clock_container}
+06-08 14:57:01.987   831   888 I sensors-hal: inject_sensor_data:346, handle 4 send inject
+06-08 14:57:01.988   831   888 I sensors-hal: sendContextData:255, sensor hal 10, (c1, 23, 55)
+06-08 14:57:01.988   831   888 E sensors-hal: sendContextData:136, slc_geofence h 193 m 23 s 55
+06-08 14:57:01.988   831   888 I sensors-hal: sendUserData:122, slc_geofence sendUserData
+06-08 14:57:01.988   831   888 E sensors-hal: create_send_context_data:63, slc_geofence create_send_context_data
+06-08 14:57:01.988   831   888 I sensors-hal: send_context_data:454, slc_geofence, 4981881762928276498, 1320970896291267344, msgid:700
+06-08 14:57:01.988  2052  2052 D QSClockBellTower: Everyone heard the bell. run(currentTime:1780945021986,   getTime():Mon Jun 08 14:57:01 EDT 2026,   getTimeZone():libcore.util.ZoneInfo[id="America/Toronto",mRawOffset=-18000000,mEarliestRawOffset=-18000000,mUseDst=true,mDstSavings=3600000,transitions=232])
+06-08 14:57:01.989  2052 17696 I FaceWidgetCalendarManager: No service bound. Query to current context.
+06-08 14:57:01.991   831 16356 I sensors-hal: get:130, sucess wakelock get:sensor_ssc_worker/slc_geofence
+06-08 14:57:01.991   831 16356 I sensors-hal: get:118, set count(:2l)is > 1 for sensor_ssc_worker/slc_geofence
+06-08 14:57:01.993   831 16355 E sensors-hal: handle_sns_client_event:78, slc_geofence_event: msgid:1025
+06-08 14:57:01.993   831 16355 I sensors-hal: put:177,  _heldwakelock:1 count:1l for sensor_ssc_worker/slc_geofence
+06-08 14:57:01.993   831 16355 E sensors-hal: handle_sns_client_event:78, slc_geofence_event: msgid:1025
+06-08 14:57:01.993   831 16355 I sensors-hal: put:189, sucess release sensor_ssc_worker/slc_geofence wakelock
+06-08 14:57:01.996  1442  1791 D SensorHubManager: onGetSensorHubDataLocked: library(16) = 1, 1, 55, 6, 0, 1, 5, 5, 0, 0, 0, -65, 4, 16, -32, -40
+06-08 14:57:01.996  1442  1791 D SensorHubManager: onGetSensorHubDataLocked: library(10) = 1, 1, 55, 10, 5, 2, 7, 0, 0, 0
+06-08 14:57:01.998  1442  1792 I CAE     : sendCmdToSensorHub(SensorHubCommManager.java:158) - -63, 14, 18, 57, 1,
+06-08 14:57:02.000  1442  1800 D SensorService: setSContextDataLocked ints length 3 , byte length 5
+06-08 14:57:02.000  1442  2254 I CAE     : setCAProperty(ContextAwareService.java:602) - result : true
+06-08 14:57:02.001  1442  2254 W CAE     : setCAProperty(ContextAwareService.java:603) - [setProperty 02] Mutex is unlocked for SLOCATION_RUNNER
+06-08 14:57:02.001   831   888 I sensors-hal: inject_sensor_data:346, handle 4 send inject
+06-08 14:57:02.001   831   888 I sensors-hal: sendContextData:255, sensor hal 5, (c1, 14, 18)
+06-08 14:57:02.001  1442  2254 D SemContextService: unlock : changeParameters
+06-08 14:57:02.001   831   888 I sensors-hal: sendContextData:218, activities 5 c1
+06-08 14:57:02.001   831   888 I sensors-hal: sendUserData:240, Activities cmd 0xc1 0xe
+06-08 14:57:02.001   831   888 I sensors-hal: sendUserData:253, Activities system time h 18 m 57 s 1
+06-08 14:57:02.001  1442  2254 D SemContextManager:   .changeParameters : listener = com.samsung.android.location.geofence.core.h@c098763, service=SLocation Core
+06-08 14:57:02.001   831   888 I sensors-hal: create_send_context_data:79, sending create_send_context_data
+06-08 14:57:02.001   831   888 I sensors-hal: send_context_data:454, activities, 4914309220830019584, 1320970896291267344, msgid:700
+06-08 14:57:02.003   831   888 I sensors-hal: sendContextData:86, common_info 5
+06-08 14:57:02.003   831   888 I sensors-hal: sendUserData:102, CommonInfo 0xc1 0xe 0x12
+06-08 14:57:02.003   831   888 I sensors-hal: create_send_context_data:62, sending create_send_context_data
+06-08 14:57:02.003   831   888 I sensors-hal: send_context_data:454, common_info, 4914309147815575552, 1320970896291267344, msgid:700
+06-08 14:57:02.005  1144  1855 I netd    : bandwidthAddNiceApp(10111) <7.41ms>
+06-08 14:57:02.006  2052  2052 D QSContainerImpl: getDisplayHeight portrait? true  displayHeight= 2220
+06-08 14:57:02.007  1988  2218 D PhoneInterfaceManager: [PhoneIntfMgr] getCellLocationBySubId: PID: 1988, UID: 1001, TID: 2218 callingPackage: android subId: 4
+06-08 14:57:02.008  1442  1792 D CAE     : onGetSensorHubData(SensorHubParserProvider.java:91) - onGetSensorHubData Event [event buffer len :16], AP_SLEEP
+06-08 14:57:02.008  1442  1792 I CAE     : parse(SensorHubParserProvider.java:192) - buffer size = 16
+06-08 14:57:02.009  1442  1792 I CAE     : parse(SensorHubParserProvider.java:203) - 1, 1, 55, 6, 0, 1, 5, 5, 0, 0, 0, -65, 4, 16, -32, -40,
+06-08 14:57:02.010  1442  1792 I CAE     : sendCmdToSensorHub(SensorHubCommManager.java:158) - -63, 14, 18, 57, 2,
+06-08 14:57:02.010  1144  1494 I netd    : firewallSetUidRule(1, 10111, 1) <4.82ms>
+06-08 14:57:02.011  1442  1803 D SemContextService: Service.updateContext() : service = SLocation Core
+06-08 14:57:02.011  1442  1442 D SemContextManager: onSemContextChanged() : event = SLocation Core
+06-08 14:57:02.012  1442  1800 D SensorService: setSContextDataLocked ints length 3 , byte length 5
+06-08 14:57:02.012   831   888 I sensors-hal: inject_sensor_data:346, handle 4 send inject
+06-08 14:57:02.012   831   888 I sensors-hal: sendContextData:255, sensor hal 5, (c1, 14, 18)
+06-08 14:57:02.012   831   888 I sensors-hal: sendContextData:218, activities 5 c1
+06-08 14:57:02.012   831   888 I sensors-hal: sendUserData:240, Activities cmd 0xc1 0xe
+06-08 14:57:02.012   831   888 I sensors-hal: sendUserData:253, Activities system time h 18 m 57 s 2
+06-08 14:57:02.012   831   888 I sensors-hal: create_send_context_data:79, sending create_send_context_data
+06-08 14:57:02.012   831   888 I sensors-hal: send_context_data:454, activities, 4914309220830019584, 1320970896291267344, msgid:700
+06-08 14:57:02.015  1442  2254 D TelephonyManager: getAllCellInfo : Caller (PID / UID / TID): 1442 / 1000 / 2254
+06-08 14:57:02.016   831   888 I sensors-hal: sendContextData:86, common_info 5
+06-08 14:57:02.016   831   888 I sensors-hal: sendUserData:102, CommonInfo 0xc1 0xe 0x12
+06-08 14:57:02.016   831   888 I sensors-hal: create_send_context_data:62, sending create_send_context_data
+06-08 14:57:02.016   831   888 I sensors-hal: send_context_data:454, common_info, 4914309147815575552, 1320970896291267344, msgid:700
+06-08 14:57:02.016  1442  2254 D SLocation: SGeofenceCellManager - cellList : 6
+06-08 14:57:02.018  1442  2254 W SLocation: SGeofenceReceiverManager - handleEvent EXIT : currentDirection EXIT
+06-08 14:57:02.020  1442  2254 W SLocation: SGeofenceReceiverManager - handleEvent EXIT : currentDirection EXIT
+06-08 14:57:02.021  1442  1792 D CAE     : onGetSensorHubData(SensorHubParserProvider.java:91) - onGetSensorHubData Event [event buffer len :10], AP_SLEEP
+06-08 14:57:02.021  1442  1792 I CAE     : parse(SensorHubParserProvider.java:192) - buffer size = 10
+06-08 14:57:02.021  1442  1792 I CAE     : parse(SensorHubParserProvider.java:203) - 1, 1, 55, 10, 5, 2, 7, 0, 0, 0,
+06-08 14:57:02.021  1442  2254 W SLocation: SGeofenceReceiverManager - handleEvent EXIT : currentDirection EXIT
+06-08 14:57:02.022  1442  1803 D SemContextService: Service.updateContext() : service = SLocation Core
+06-08 14:57:02.022  1442  1442 D SemContextManager: onSemContextChanged() : event = SLocation Core
+06-08 14:57:02.023  1442  2254 W SLocation: SGeofenceReceiverManager - handleEvent EXIT : currentDirection EXIT
+06-08 14:57:02.024  1442  2254 D SLocation: SGeofenceReceiverManager - not enough cell db 
+06-08 14:57:02.024  1442  2254 W SLocation: SGeofenceReceiverManager - handleEvent UNKNOWN : currentDirection UNKNOWN
+06-08 14:57:02.025  1442  2254 W SLocation: SGeofenceReceiverManager - handleEvent EXIT : currentDirection EXIT
+06-08 14:57:02.033  1442  2254 I chatty  : uid=1000(system) SLocationServic identical 5 lines
+06-08 14:57:02.034  1442  2254 W SLocation: SGeofenceReceiverManager - handleEvent EXIT : currentDirection EXIT
+06-08 14:57:02.036 12955 14604 D SamsungCalendar$PreferenceProvider: query uri = content://com.sec.android.calendar.preference/PreferenceBoolean
+06-08 14:57:02.037  1442  2254 W SLocation: SGeofenceReceiverManager - handleEvent EXIT : currentDirection EXIT
+06-08 14:57:02.039  1442  2254 W SLocation: SGeofenceReceiverManager - handleEvent EXIT : currentDirection EXIT
+06-08 14:57:02.040  2052 17696 I FaceWidgetCalendarManager: No service bound. Query to current context.
+06-08 14:57:02.040  1442  2254 W SLocation: SGeofenceReceiverManager - handleEvent EXIT : currentDirection EXIT
+06-08 14:57:02.041  1144  1494 I netd    : bandwidthAddNiceApp(10231) <5.68ms>
+06-08 14:57:02.041  1442  2254 W SLocation: SGeofenceReceiverManager - handleEvent EXIT : currentDirection EXIT
+06-08 14:57:02.044  1442  2254 I chatty  : uid=1000(system) SLocationServic identical 2 lines
+06-08 14:57:02.045  1442  2254 W SLocation: SGeofenceReceiverManager - handleEvent EXIT : currentDirection EXIT
+06-08 14:57:02.047  1144  1494 I netd    : firewallSetUidRule(1, 10231, 1) <4.80ms>
+06-08 14:57:02.048  1442  2254 D SLocation: SGeofenceReceiverManager - not enough cell db 
+06-08 14:57:02.048  1442  2254 W SLocation: SGeofenceReceiverManager - handleEvent UNKNOWN : currentDirection UNKNOWN
+06-08 14:57:02.050  1442  2254 D SLocation: SGeofenceReceiverManager - not enough cell db 
+06-08 14:57:02.050  1442  2254 W SLocation: SGeofenceReceiverManager - handleEvent UNKNOWN : currentDirection UNKNOWN
+06-08 14:57:02.052  1442  2254 D SLocation: SGeofenceReceiverManager - not enough cell db 
+06-08 14:57:02.052  1442  2254 W SLocation: SGeofenceReceiverManager - handleEvent UNKNOWN : currentDirection UNKNOWN
+06-08 14:57:02.052  2052  2052 I FaceWidgetCalendarManager: Next end = [id = 1258][start time = 2026 June 8 (Monday) 15:30][end time = 2026 June 8 (Monday) 16:00][is all day = false]
+06-08 14:57:02.052  1442  3578 D SamsungAlarmManager: Cancel Alarm calling from uid:10052 pid :2052 / op:PendingIntent{a5d343b: PendingIntentRecord{7cf32a com.android.systemui broadcastIntent}}
+06-08 14:57:02.052  1442  2254 D SLocation: SGeofenceReceiverManager - not enough cell db 
+06-08 14:57:02.052  1442  2254 W SLocation: SGeofenceReceiverManager - handleEvent UNKNOWN : currentDirection UNKNOWN
+06-08 14:57:02.053  1442  3578 I SamsungAlarmManager: setLocked to kernel - T:2 / 20260608T145713, SetElapsed=14785972, nowELAPSED=14774095
+06-08 14:57:02.053  1442  2254 D SLocation: SGeofenceReceiverManager - not enough cell db 
+06-08 14:57:02.054  1442  2254 W SLocation: SGeofenceReceiverManager - handleEvent UNKNOWN : currentDirection UNKNOWN
+06-08 14:57:02.054  1442  3578 D SamsungAlarmManager: setExact Intent (T:1/F:9/AC:false) 20260608T160000 - CU:10052/CP:2052
+06-08 14:57:02.054  1442  3578 I SamsungAlarmManager: setLocked to kernel - T:2 / 20260608T145713, SetElapsed=14785972, nowELAPSED=14774096
+06-08 14:57:02.054  1442  2254 D SLocation: SGeofenceReceiverManager - not enough cell db 
+06-08 14:57:02.054  1442  2254 W SLocation: SGeofenceReceiverManager - handleEvent UNKNOWN : currentDirection UNKNOWN
+06-08 14:57:02.055  1442  2254 D SLocation: SGeofenceReceiverManager - not enough cell db 
+06-08 14:57:02.055  1442  2254 W SLocation: SGeofenceReceiverManager - handleEvent UNKNOWN : currentDirection UNKNOWN
+06-08 14:57:02.056  2052  2052 D SystemUITextView: onAttachedToWindow mAttrCount = 11
+06-08 14:57:02.056  2052  2052 D WallpaperManager: semGetWallpaperColors, which = 2
+06-08 14:57:02.056  1442  3578 D WALLPAPER_SVCWallpaperManagerService: getWallpaperSafeLocked, userId = 0, which = 2, caller = com.android.server.wallpaper.WallpaperManagerService.getWallpaperSafeLocked:7688 
+06-08 14:57:02.057  2052  2052 D SystemUITextView: updateStyle() flag=41,41 : com.android.systemui.widget.SystemUITextView{c1830af V.ED..... ......ID 0,0-579,91 #7f0a0248 app:id/facewidget_today_event_title}
+06-08 14:57:02.057  2052  2052 D SFText  : clearAllTextEffect
+06-08 14:57:02.057  1442  2254 D SLocation: SGeofenceReceiverManager - not enough cell db 
+06-08 14:57:02.057  1442  2254 W SLocation: SGeofenceReceiverManager - handleEvent UNKNOWN : currentDirection UNKNOWN
+06-08 14:57:02.057  2052  2052 D WallpaperManager: semGetWallpaperColors, which = 2
+06-08 14:57:02.057  1442  3578 D WALLPAPER_SVCWallpaperManagerService: getWallpaperSafeLocked, userId = 0, which = 2, caller = com.android.server.wallpaper.WallpaperManagerService.getWallpaperSafeLocked:7688 
+06-08 14:57:02.057  2052  2052 D SystemUITextView: onAttachedToWindow mAttrCount = 11
+06-08 14:57:02.058  2052  2052 D WallpaperManager: semGetWallpaperColors, which = 2
+06-08 14:57:02.058  1442  3578 D WALLPAPER_SVCWallpaperManagerService: getWallpaperSafeLocked, userId = 0, which = 2, caller = com.android.server.wallpaper.WallpaperManagerService.getWallpaperSafeLocked:7688 
+06-08 14:57:02.058  2052  2052 D SystemUITextView: updateStyle() flag=41,41 : com.android.systemui.widget.SystemUITextView{b7c3cbc V.ED..... ......ID 650,15-835,76 #7f0a0247 app:id/facewidget_today_event_time}
+06-08 14:57:02.058  2052  2052 D SFText  : clearAllTextEffect
+06-08 14:57:02.058  1442  2254 D SLocation: SGeofenceReceiverManager - not enough cell db 
+06-08 14:57:02.058  1442  2254 W SLocation: SGeofenceReceiverManager - handleEvent UNKNOWN : currentDirection UNKNOWN
+06-08 14:57:02.058  2052  2052 D FaceWidgetCalendarManager: reset
+06-08 14:57:02.058  2052  2052 I AODFaceWidgetCalendarManager: updateCalendarData: size [1, 1]
+06-08 14:57:02.059  1442  2254 D SLocation: SGeofenceReceiverManager - not enough cell db 
+06-08 14:57:02.059  1442  2254 W SLocation: SGeofenceReceiverManager - handleEvent UNKNOWN : currentDirection UNKNOWN
+06-08 14:57:02.060  1442  2254 D SLocation: GeofenceCoreManager - received Extra Data from core, len : 5
+06-08 14:57:02.060  1442  2254 D SLocation: GeofenceCoreManager - handleCommandCallback - GEOFENCE_START_AR SUCCESS
+06-08 14:57:02.074  2052  2052 D FaceWidgetViewPager: onMeasure childCount:4 min:381
+06-08 14:57:02.074  2052  2052 D FaceWidgetViewPager: onMeasure index[0] childHeight[381]
+06-08 14:57:02.074  2052  2052 D FaceWidgetViewPager: onMeasure result: 381
+06-08 14:57:02.706   821  1142 I LocSvc_ApiV02: <--- globalEventCb line 245 QMI_LOC_EVENT_NMEA_IND_V02
+06-08 14:57:02.769   821  1142 I chatty  : uid=1000(system) LocApiMsgTask identical 2 lines
+06-08 14:57:02.770   821  1142 I LocSvc_ApiV02: <--- globalEventCb line 245 QMI_LOC_EVENT_NMEA_IND_V02
+06-08 14:57:02.770   821  1142 I LocSvc_ApiV02: <--- globalEventCb line 245 QMI_LOC_EVENT_GNSS_SV_INFO_IND_V02
+06-08 14:57:02.771   821  1142 I LocSvc_ApiV02: <--- globalEventCb line 245 QMI_LOC_EVENT_NMEA_IND_V02
+06-08 14:57:02.771   821  1142 I LocSvc_ApiV02: <--- globalEventCb line 245 QMI_LOC_EVENT_POSITION_REPORT_IND_V02
+06-08 14:57:02.771   821  1142 I LocSvc_ApiV02: <--- globalEventCb line 245 QMI_LOC_EVENT_NMEA_IND_V02
+06-08 14:57:02.771   821  1142 I chatty  : uid=1000(system) LocApiMsgTask identical 2 lines
+06-08 14:57:02.771   821  1142 I LocSvc_ApiV02: <--- globalEventCb line 245 QMI_LOC_EVENT_NMEA_IND_V02
+06-08 14:57:02.774  1442  2022 I GnssLocationProvider: WakeLock acquired by sendMessage(REPORT_SV_STATUS, 0, com.android.server.location.GnssLocationProvider$SvStatusInfo@3b6758)
+06-08 14:57:02.775  1442  1887 D GnssLocationProvider_ex: SV Count : 6 / 6      (PRN, Constellation, SNR, Used)
+06-08 14:57:02.775  1442  1887 D GnssLocationProvider_ex: (5, GPS, 33.6, 1) (20, GPS, 24.1, 1) (29, GPS, 31.1, 1) (5, GLONASS, 21.3, 1) (21, GLONASS, 25.1, 1) (7, GLONASS, 28.2, 1) 
+06-08 14:57:02.776  1442  1887 I GnssLocationProvider: WakeLock released by handleMessage(REPORT_SV_STATUS, 0, com.android.server.location.GnssLocationProvider$SvStatusInfo@3b6758)
+06-08 14:57:02.780  2226  2295 V GnssStatusListener_FLP: updateSatelliteStatus, top4=29, top6=27, visibleSv=6, usedSv=6, usedL5Sv=0
+06-08 14:57:02.780  1442  1840 I GnssLocationProvider: WakeLock acquired by sendMessage(REPORT_LOCATION, 1)
+06-08 14:57:02.786   821   943 E LocSvc_SystemStatus: PQWP7parser - invalid size=404
+06-08 14:57:02.786  1442  1887 I GnssLocationProvider: WakeLock released by handleMessage(REPORT_LOCATION, 1)
+06-08 14:57:02.798  1442  2254 D SLocation: PositionManager - PassiveonLocationChanged gps 1780945023000
+06-08 14:57:02.798  1442  2254 D SLocation: TrackingReceiverFilter - refreshCellInfo
+06-08 14:57:02.798  1442  2254 W Settings: Setting airplane_mode_on has moved from android.provider.Settings.System to android.provider.Settings.Global, returning read-only value.
+06-08 14:57:02.798  1442  2254 D TelephonyManager: getAllCellInfo : Caller (PID / UID / TID): 1442 / 1000 / 2254
+06-08 14:57:02.798  2226  2295 V PassiveListener_FLP: onLocationChanged, provider=gps / isMock=false
+06-08 14:57:02.803  2752  5182 I FusedLocation: (REDACTED) location delivery to %s blocked - too fast
+06-08 14:57:02.803  2752  5182 I FusedLocation: (REDACTED) location delivery to %s blocked - too fast
+06-08 14:57:02.805  1442  2262 I SamsungAlarmManager: setLocked to kernel - T:2 / 20260608T145713, SetElapsed=14785972, nowELAPSED=14774847
+06-08 14:57:02.806  1442  2262 D SamsungAlarmManager: setExact Listener (T:3/F:9/AC:false) 20260608T155702 - CU:1000/CP:1442
+06-08 14:57:02.806  1442  2262 I SamsungAlarmManager: setLocked to kernel - T:2 / 20260608T145713, SetElapsed=14785972, nowELAPSED=14774848
+06-08 14:57:02.807  2752  5182 I FusedLocation: (REDACTED) location delivery to %s blocked - too close
+06-08 14:57:02.809  1442  1442 D GeofenceManager: updateFences: location=Location[fused 45.451744,-73.773608 hAcc=38 et=+4h6m14s822ms alt=-1.899999976158142 vel=0.002639187 vAcc=2 sAcc=0 bAcc=??? {Bundle[{noGPSLocation=Location[fused 45.451807,-73.773511 hAcc=24 et=+4h5m43s700ms alt=-1.899999976158142 vAcc=2 sAcc=??? bAcc=??? {Bundle[mParcelledData.dataSize=252]}]}]}], mFences.size()=1, mReceivingLocationUpdates=true, mLocationUpdateInterval=7200000, mLastLocationUpdate=Location[fused 45.451744,-73.773608 hAcc=38 et=+4h6m14s822ms alt=-1.899999976158142 vel=0.002639187 vAcc=2 sAcc=0 bAcc=??? {Bundle[{noGPSLocation=Location[fused 45.451807,-73.773511 hAcc=24 et=+4h5m43s700ms alt=-1.899999976158142 vAcc=2 sAcc=??? bAcc=??? {Bundle[mParcelledData.dataSize=252]}]}]}]
+06-08 14:57:02.809  2226  2295 V PassiveListener_FLP: onLocationChanged, provider=fused / isMock=false
+06-08 14:57:02.810  1442  1848 I SamsungAlarmManager: setLocked to kernel - T:2 / 20260608T145713, SetElapsed=14785972, nowELAPSED=14774852
+06-08 14:57:02.811  1442  1848 D SamsungAlarmManager: setExact Listener (T:3/F:9/AC:false) 20260608T233905 - CU:1000/CP:1442
+06-08 14:57:02.811  1442  1848 I SamsungAlarmManager: setLocked to kernel - T:2 / 20260608T145713, SetElapsed=14785972, nowELAPSED=14774853
+06-08 14:57:02.811  1442  2254 D SLocation: GeofenceLocationFilter - location sent before 810, need to filter / provider : gps, accuracy : 32.16
+06-08 14:57:02.812  2752  5182 I FusedLocation: (REDACTED) location delivery to %s blocked - too close
+06-08 14:57:02.813  2226  2295 V GmsPassiveListener_FLP: Got the onLocationResult !!!!
+06-08 14:57:02.814  1442  1848 I SamsungAlarmManager: setLocked to kernel - T:2 / 20260608T145713, SetElapsed=14785972, nowELAPSED=14774856
+06-08 14:57:02.814  1442  1848 D SamsungAlarmManager: setExact Listener (T:3/F:9/AC:false) 20260608T155702 - CU:1000/CP:1442
+06-08 14:57:02.814  1442  1848 I SamsungAlarmManager: setLocked to kernel - T:2 / 20260608T145713, SetElapsed=14785972, nowELAPSED=14774856
+06-08 14:57:02.817  1442  2262 I SamsungAlarmManager: setLocked to kernel - T:2 / 20260608T145713, SetElapsed=14785972, nowELAPSED=14774859
+06-08 14:57:02.817  1442  2262 D SamsungAlarmManager: setExact Listener (T:3/F:9/AC:false) 20260608T233905 - CU:1000/CP:1442
+06-08 14:57:02.817  1442  2262 I SamsungAlarmManager: setLocked to kernel - T:2 / 20260608T145713, SetElapsed=14785972, nowELAPSED=14774859
+06-08 14:57:02.817  1442  2254 D SamsungAlarmManager: setExact Listener (T:2/F:9/AC:false) 20260608T145707 - CU:1000/CP:1442
+06-08 14:57:02.817  1442  2254 I SamsungAlarmManager: setLocked to kernel - T:2 / 20260608T145707, SetElapsed=14779043, nowELAPSED=14774859
+06-08 14:57:02.817  1442  2254 D SLocation: GeofenceLocationFilter - alarm set, next time to send location : 14779043
+06-08 14:57:02.818  1442  2254 W Settings: Setting airplane_mode_on has moved from android.provider.Settings.System to android.provider.Settings.Global, returning read-only value.
+06-08 14:57:02.818  1442  2254 D TelephonyManager: getAllCellInfo : Caller (PID / UID / TID): 1442 / 1000 / 2254
+06-08 14:57:02.820  1442  2254 D SLocation: TrackingReceiverFilter - isChangedCellInfo - false
+06-08 14:57:02.820  1442  2254 D SLocation: TrackingReceiverFilter - checkValidForTrackingReceiver - LastGpsTimeThreshold = 120000
+06-08 14:57:02.820  1442  2254 D SLocation: TrackingReceiverFilter - checkValidForTrackingReceiver - gps location is always valid.
+06-08 14:57:02.820  1442  2254 D SLocation: PositionManager - PassiveonLocationChanged fused 1780945022780
+06-08 14:57:02.821  1442  2254 W SLocation: PositionManager - do not refresh last location about fused location
+06-08 14:57:02.821  1442  2254 W Settings: Setting airplane_mode_on has moved from android.provider.Settings.System to android.provider.Settings.Global, returning read-only value.
+06-08 14:57:02.821  1442  2254 D TelephonyManager: getAllCellInfo : Caller (PID / UID / TID): 1442 / 1000 / 2254
+06-08 14:57:02.823  1442  2254 D SLocation: TrackingReceiverFilter - isChangedCellInfo - false
+06-08 14:57:02.823  1442  2254 D SLocation: TrackingReceiverFilter - checkValidForTrackingReceiver - LastGpsTimeThreshold = 120000
+06-08 14:57:02.823  1442  2254 D SLocation: TrackingReceiverFilter - checkValidForTrackingReceiver - blocking diff GPS time 0
+06-08 14:57:02.823  1442  2254 D SLocation: PositionManager - receive fused location
+06-08 14:57:02.857  1442 18194 V LocSvc_HIDL_DebugReportService_jni: DebugReportService_getReport
+06-08 14:57:02.858  1442 18194 D LocSvc_HIDL_DebugReportService_jni: DebugReportService_getReport, Get Latest 1 sec data.
+06-08 14:57:02.858  1442 18194 V LocSvc_HIDL_DebugReportService_jni: [DebugReportService_getReport][942] [HC] =>> [HS]
+06-08 14:57:02.859   821   821 E LocSvc_HIDL_DebugReportService: Invalid count: 0
+06-08 14:57:02.859  1442 18194 V LocSvc_HIDL_DebugReportService_jni: populateEphemerisStatusListObj
+06-08 14:57:02.859  1442 18194 V LocSvc_HIDL_DebugReportService_jni: populateFixStatusListObj
+06-08 14:57:02.859  1442 18194 V LocSvc_HIDL_DebugReportService_jni: populateEpiReportListObj
+06-08 14:57:02.860  1442 18194 V LocSvc_HIDL_DebugReportService_jni: populateBestLocationListObj
+06-08 14:57:02.860  1442 18194 V LocSvc_HIDL_DebugReportService_jni: populateGpsTimeReportListObj
+06-08 14:57:02.860  1442 18194 V LocSvc_HIDL_DebugReportService_jni: populateXoStateReportListObj
+06-08 14:57:02.860  1442 18194 V LocSvc_HIDL_DebugReportService_jni: populateRfStateReportListObjV1_1
+06-08 14:57:02.860  1442 18194 V LocSvc_HIDL_DebugReportService_jni: populateErrorRecoveriesListObj
+06-08 14:57:02.860  1442 18194 V LocSvc_HIDL_DebugReportService_jni: populatePdrReporListObj
+06-08 14:57:02.860  1442 18194 V LocSvc_HIDL_DebugReportService_jni: populateSvHealthReportListObj
+06-08 14:57:02.860  1442 18194 V LocSvc_HIDL_DebugReportService_jni: populateXtraReportListObj
+06-08 14:57:02.909  1278  1951 I bauth_FPBAuthService: pcf : 0x1012, 0 ,1 ,0 ,0 ,0 ,0, 5.0.0.23
+06-08 14:57:02.909  1278  1951 I bauth_FPBAuthService: thread id : 1, preenroll_flag : 0, nd cnt : 0, cso : 0, et : 0
+06-08 14:57:02.909  1278  1951 I bauth_FPBAuthService: FPBAuthService, 11438
+06-08 14:57:03.065  1144  1494 I netd    : bandwidthRemoveNiceApp(10231) <11.25ms>
+06-08 14:57:03.074  1144  1494 I netd    : firewallSetUidRule(1, 10231, 2) <6.92ms>
+06-08 14:57:03.081  1144  1494 I netd    : bandwidthRemoveNiceApp(10111) <4.75ms>
+06-08 14:57:03.087  1144  1855 I netd    : firewallSetUidRule(1, 10111, 2) <4.46ms>
+06-08 14:57:03.111  2052  2052 W View    : couldn't find view with id 16908291
+06-08 14:57:03.176 18461 18461 D SemCscFeature: Encoded
+06-08 14:57:03.177 18461 18461 I chatty  : uid=2000(shell) identical 1 line
+06-08 14:57:03.178 18461 18461 D SemCscFeature: Encoded
+06-08 14:57:03.220 18461 18461 I AccessibilityNodeInfoDumper: Skipping invisible child: android.view.accessibility.AccessibilityNodeInfo@36e50; boundsInParent: Rect(0, 0 - 1080, 426); boundsInScreen: Rect(0, 0 - 1080, 0); packageName: com.android.systemui; className: android.widget.FrameLayout; text: null; error: null; maxTextLength: -1; contentDescription: null; tooltipText: null; viewIdResName: com.android.systemui:id/quick_settings_container; checkable: false; checked: false; focusable: false; focused: false; selected: false; clickable: false; longClickable: false; contextClickable: false; enabled: true; password: false; scrollable: false; importantForAccessibility: false; visible: false; actions: [AccessibilityAction: ACTION_SELECT - null, AccessibilityAction: ACTION_CLEAR_SELECTION - null, AccessibilityAction: ACTION_ACCESSIBILITY_FOCUS - null, AccessibilityAction: ACTION_SHOW_ON_SCREEN - null]
+06-08 14:57:03.261 18461 18461 I AccessibilityNodeInfoDumper: Skipping invisible child: android.view.accessibility.AccessibilityNodeInfo@28592; boundsInParent: Rect(0, 0 - 1007, 381); boundsInScreen: Rect(1007, 229 - 1007, 610); packageName: com.android.systemui; className: android.widget.FrameLayout; text: null; error: null; maxTextLength: -1; contentDescription: null; tooltipText: null; viewIdResName: null; checkable: false; checked: false; focusable: true; focused: false; selected: false; clickable: false; longClickable: false; contextClickable: false; enabled: true; password: false; scrollable: false; importantForAccessibility: true; visible: false; actions: [AccessibilityAction: ACTION_FOCUS - null, AccessibilityAction: ACTION_SELECT - null, AccessibilityAction: ACTION_CLEAR_SELECTION - null, AccessibilityAction: ACTION_ACCESSIBILITY_FOCUS - null, AccessibilityAction: ACTION_SHOW_ON_SCREEN - null]
+06-08 14:57:03.261 18461 18461 I AccessibilityNodeInfoDumper: Skipping invisible child: android.view.accessibility.AccessibilityNodeInfo@28d14; boundsInParent: Rect(0, 0 - 1007, 381); boundsInScreen: Rect(1007, 229 - 1080, 610); packageName: com.android.systemui; className: android.widget.FrameLayout; text: null; error: null; maxTextLength: -1; contentDescription: null; tooltipText: null; viewIdResName: null; checkable: false; checked: false; focusable: true; focused: false; selected: false; clickable: false; longClickable: false; contextClickable: false; enabled: true; password: false; scrollable: false; importantForAccessibility: true; visible: false; actions: [AccessibilityAction: ACTION_FOCUS - null, AccessibilityAction: ACTION_SELECT - null, AccessibilityAction: ACTION_CLEAR_SELECTION - null, AccessibilityAction: ACTION_ACCESSIBILITY_FOCUS - null, AccessibilityAction: ACTION_SHOW_ON_SCREEN - null]
+06-08 14:57:03.261 18461 18461 I AccessibilityNodeInfoDumper: Skipping invisible child: android.view.accessibility.AccessibilityNodeInfo@ea60d; boundsInParent: Rect(0, 0 - 1007, 381); boundsInScreen: Rect(1007, 229 - 1080, 610); packageName: com.android.systemui; className: android.widget.FrameLayout; text: null; error: null; maxTextLength: -1; contentDescription: null; tooltipText: null; viewIdResName: null; checkable: false; checked: false; focusable: true; focused: false; selected: false; clickable: false; longClickable: false; contextClickable: false; enabled: true; password: false; scrollable: false; importantForAccessibility: true; visible: false; actions: [AccessibilityAction: ACTION_FOCUS - null, AccessibilityAction: ACTION_SELECT - null, AccessibilityAction: ACTION_CLEAR_SELECTION - null, AccessibilityAction: ACTION_ACCESSIBILITY_FOCUS - null, AccessibilityAction: ACTION_SHOW_ON_SCREEN - null]
+06-08 14:57:03.261 18461 18461 I AccessibilityNodeInfoDumper: Skipping invisible child: android.view.accessibility.AccessibilityNodeInfo@ca9c; boundsInParent: Rect(0, 0 - 1007, 0); boundsInScreen: Rect(0, 610 - 1007, 610); packageName: com.android.systemui; className: android.widget.LinearLayout; text: null; error: null; maxTextLength: -1; contentDescription: null; tooltipText: null; viewIdResName: com.android.systemui:id/keyguard_aod_ui_container; checkable: false; checked: false; focusable: false; focused: false; selected: false; clickable: false; longClickable: false; contextClickable: false; enabled: true; password: false; scrollable: false; importantForAccessibility: false; visible: false; actions: [AccessibilityAction: ACTION_SELECT - null, AccessibilityAction: ACTION_CLEAR_SELECTION - null, AccessibilityAction: ACTION_ACCESSIBILITY_FOCUS - null, AccessibilityAction: ACTION_SHOW_ON_SCREEN - null]
+06-08 14:57:03.262 18461 18461 I AccessibilityNodeInfoDumper: Skipping invisible child: android.view.accessibility.AccessibilityNodeInfo@e8a4; boundsInParent: Rect(0, 0 - 1080, 0); boundsInScreen: Rect(0, 157 - 1080, 157); packageName: com.android.systemui; className: android.widget.LinearLayout; text: null; error: null; maxTextLength: -1; contentDescription: null; tooltipText: null; viewIdResName: null; checkable: false; checked: false; focusable: false; focused: false; selected: false; clickable: false; longClickable: false; contextClickable: false; enabled: true; password: false; scrollable: false; importantForAccessibility: false; visible: false; actions: [AccessibilityAction: ACTION_SELECT - null, AccessibilityAction: ACTION_CLEAR_SELECTION - null, AccessibilityAction: ACTION_ACCESSIBILITY_FOCUS - null, AccessibilityAction: ACTION_SHOW_ON_SCREEN - null]
+06-08 14:57:03.262 18461 18461 I AccessibilityNodeInfoDumper: Skipping invisible child: android.view.accessibility.AccessibilityNodeInfo@cd491; boundsInParent: Rect(0, 0 - 220, 220); boundsInScreen: Rect(540, 1836 - 760, 2056); packageName: com.android.systemui; className: android.widget.LinearLayout; text: null; error: null; maxTextLength: -1; contentDescription: Phone; tooltipText: null; viewIdResName: null; checkable: false; checked: false; focusable: true; focused: false; selected: false; clickable: false; longClickable: false; contextClickable: false; enabled: true; password: false; scrollable: false; importantForAccessibility: true; visible: false; actions: [AccessibilityAction: ACTION_FOCUS - null, AccessibilityAction: ACTION_SELECT - null, AccessibilityAction: ACTION_CLEAR_SELECTION - null, AccessibilityAction: ACTION_ACCESSIBILITY_FOCUS - null, AccessibilityAction: ACTION_NEXT_AT_MOVEMENT_GRANULARITY - null, AccessibilityAction: ACTION_PREVIOUS_AT_MOVEMENT_GRANULARITY - null, AccessibilityAction: ACTION_SET_SELECTION - null, AccessibilityAction: ACTION_SHOW_ON_SCREEN - null]
+06-08 14:57:03.263 18461 18461 I AccessibilityNodeInfoDumper: Skipping invisible child: android.view.accessibility.AccessibilityNodeInfo@cdfd4; boundsInParent: Rect(0, 0 - 220, 220); boundsInScreen: Rect(752, 1836 - 972, 2056); packageName: com.android.systemui; className: android.widget.LinearLayout; text: null; error: null; maxTextLength: -1; contentDescription: Camera; tooltipText: null; viewIdResName: null; checkable: false; checked: false; focusable: true; focused: false; selected: false; clickable: false; longClickable: false; contextClickable: false; enabled: true; password: false; scrollable: false; importantForAccessibility: true; visible: false; actions: [AccessibilityAction: ACTION_FOCUS - null, AccessibilityAction: ACTION_SELECT - null, AccessibilityAction: ACTION_CLEAR_SELECTION - null, AccessibilityAction: ACTION_ACCESSIBILITY_FOCUS - null, AccessibilityAction: ACTION_NEXT_AT_MOVEMENT_GRANULARITY - null, AccessibilityAction: ACTION_PREVIOUS_AT_MOVEMENT_GRANULARITY - null, AccessibilityAction: ACTION_SET_SELECTION - null, AccessibilityAction: ACTION_SHOW_ON_SCREEN - null]
+06-08 14:57:03.263 18461 18461 I AccessibilityNodeInfoDumper: Skipping invisible child: android.view.accessibility.AccessibilityNodeInfo@25886; boundsInParent: Rect(0, 0 - 54, 54); boundsInScreen: Rect(0, 0 - 54, 54); packageName: com.android.systemui; className: android.widget.ImageView; text: null; error: null; maxTextLength: -1; contentDescription: null; tooltipText: null; viewIdResName: null; checkable: false; checked: false; focusable: false; focused: false; selected: false; clickable: false; longClickable: false; contextClickable: false; enabled: true; password: false; scrollable: false; importantForAccessibility: false; visible: false; actions: [AccessibilityAction: ACTION_SELECT - null, AccessibilityAction: ACTION_CLEAR_SELECTION - null, AccessibilityAction: ACTION_CLICK - null, AccessibilityAction: ACTION_ACCESSIBILITY_FOCUS - null, AccessibilityAction: ACTION_SHOW_ON_SCREEN - null]
+06-08 14:57:03.263 18461 18461 I AccessibilityNodeInfoDumper: Skipping invisible child: android.view.accessibility.AccessibilityNodeInfo@26008; boundsInParent: Rect(0, 0 - 229, 229); boundsInScreen: Rect(426, 1934 - 655, 2163); packageName: com.android.systemui; className: android.widget.FrameLayout; text: null; error: null; maxTextLength: -1; contentDescription: null; tooltipText: null; viewIdResName: com.android.systemui:id/floating_app_shortcut_image_container; checkable: false; checked: false; focusable: false; focused: false; selected: false; clickable: false; longClickable: false; contextClickable: false; enabled: true; password: false; scrollable: false; importantForAccessibility: false; visible: false; actions: [AccessibilityAction: ACTION_SELECT - null, AccessibilityAction: ACTION_CLEAR_SELECTION - null, AccessibilityAction: ACTION_ACCESSIBILITY_FOCUS - null, AccessibilityAction: ACTION_SHOW_ON_SCREEN - null]
+06-08 14:57:03.264 18461 18461 I AccessibilityNodeInfoDumper: Skipping invisible child: android.view.accessibility.AccessibilityNodeInfo@2bde1; boundsInParent: Rect(0, 0 - 0, 81); boundsInScreen: Rect(74, 0 - 74, 81); packageName: com.android.systemui; className: android.widget.LinearLayout; text: null; error: null; maxTextLength: -1; contentDescription: null; tooltipText: null; viewIdResName: com.android.systemui:id/home_carrier_information_container_hun; checkable: false; checked: false; focusable: false; focused: false; selected: false; clickable: false; longClickable: false; contextClickable: false; enabled: true; password: false; scrollable: false; importantForAccessibility: false; visible: false; actions: [AccessibilityAction: ACTION_SELECT - null, AccessibilityAction: ACTION_CLEAR_SELECTION - null, AccessibilityAction: ACTION_ACCESSIBILITY_FOCUS - null, AccessibilityAction: ACTION_SHOW_ON_SCREEN - null]
+06-08 14:57:03.264 18461 18461 I AccessibilityNodeInfoDumper: Skipping invisible child: android.view.accessibility.AccessibilityNodeInfo@2c563; boundsInParent: Rect(0, 0 - 0, 81); boundsInScreen: Rect(74, 0 - 74, 81); packageName: com.android.systemui; className: android.widget.LinearLayout; text: null; error: null; maxTextLength: -1; contentDescription: null; tooltipText: null; viewIdResName: com.android.systemui:id/left_clock_container; checkable: false; checked: false; focusable: false; focused: false; selected: false; clickable: false; longClickable: false; contextClickable: false; enabled: true; password: false; scrollable: false; importantForAccessibility: false; visible: false; actions: [AccessibilityAction: ACTION_SELECT - null, AccessibilityAction: ACTION_CLEAR_SELECTION - null, AccessibilityAction: ACTION_ACCESSIBILITY_FOCUS - null, AccessibilityAction: ACTION_SHOW_ON_SCREEN - null]
+06-08 14:57:03.265 18461 18461 I AccessibilityNodeInfoDumper: Skipping invisible child: android.view.accessibility.AccessibilityNodeInfo@2e36b; boundsInParent: Rect(0, 0 - 0, 81); boundsInScreen: Rect(792, 0 - 792, 81); packageName: com.android.systemui; className: android.widget.LinearLayout; text: null; error: null; maxTextLength: -1; contentDescription: null; tooltipText: null; viewIdResName: com.android.systemui:id/divided_statusIcons; checkable: false; checked: false; focusable: false; focused: false; selected: false; clickable: false; longClickable: false; contextClickable: false; enabled: true; password: false; scrollable: false; importantForAccessibility: false; visible: false; actions: [AccessibilityAction: ACTION_SELECT - null, AccessibilityAction: ACTION_CLEAR_SELECTION - null, AccessibilityAction: ACTION_ACCESSIBILITY_FOCUS - null, AccessibilityAction: ACTION_SHOW_ON_SCREEN - null]
+06-08 14:57:03.266 18461 18461 W AccessibilityNodeInfoDumper: Fetch time: 83ms
+06-08 14:57:03.269  1442  2262 W WindowManager: removeWindowToken: Attempted to remove non-existing token: android.os.Binder@c696e0d
+06-08 14:57:03.275   925  1610 I Layer   : id=686 removeFromCurrentState WindowToken{37a01c2 android.os.Binder@c696e0d}#0 (52)
+06-08 14:57:03.276   925  1610 I SurfaceFlinger: id=686 Removed WindowToken{37a01c2 android.os.Binder@c696e0d}#0 (52)
+06-08 14:57:03.279  1442  2262 D SettingsProvider: isChangeAllowed() : name = accessibility_enabled
+06-08 14:57:03.279  1442  2262 I AccessibilityManagerService: semIsAccessibilityServiceEnabled()
+06-08 14:57:03.282   925   991 I SurfaceFlinger: id=687 createSurf (0x0),-1 flag=80004, WindowToken{f8fefb3 android.os.Binder@3a58922}#0
+06-08 14:57:03.285  1442  2262 D SettingsProvider: isChangeAllowed() : name = accelerometer_rotation
+06-08 14:57:03.285  1442  2262 D SettingsProvider: isChangeAllowed() : name = user_rotation
+06-08 14:57:03.285  1442  1442 D SettingsProvider: isChangeAllowed() : name = accessibility_enabled
+06-08 14:57:03.286  1442  1442 I AccessibilityManagerService: semIsAccessibilityServiceEnabled()
+06-08 14:57:03.286  1442  2262 V WindowManager: rotationForOrientation(orient=5, last=0); user=0 
+06-08 14:57:03.286  1442  2262 V WindowManager: Computed rotation=0 for display id=0 based on lastOrientation=5 and oldRotation=0, caller=com.android.server.wm.DisplayContent.updateRotationUnchecked:1578 com.android.server.wm.WindowManagerService.updateRotationUnchecked:4312 com.android.server.wm.WindowManagerService.thawDisplayRotation:4264 com.android.server.wm.WindowManagerService.thawRotation:4227 android.view.IWindowManager$Stub.onTransact:2145 com.android.server.wm.WindowManagerService.onTransact:1392 
+06-08 14:57:03.289   925   925 I Layer   : id=686[1] Destroyed WindowToken{37a01c2 android.os.Binder@c696e0d}#0
+06-08 14:57:03.290  1442  1442 I SemDesktopModeManager: registerListener: com.android.server.wm.AccessibilityController$WindowsForAccessibilityObserver$1@2c3c970
+06-08 14:57:03.290  1442  1442 D WindowManager: focusedDisplayId : 0
+06-08 14:57:03.290  1442  1442 D WindowManager: w is invisible : c2ad405 com.android.systemui.ImageWallpaper
+06-08 14:57:03.290  1442  1442 D WindowManager: w is invisible : 4e44a56 com.sec.android.app.camera/com.sec.android.app.camera.Camera
+06-08 14:57:03.290  1442  1442 D WindowManager: w is invisible : 7edc4a0 com.sec.android.daemonapp/com.samsung.android.weather.app.locations.activity.WXLocationsActivity
+06-08 14:57:03.290  1442  1442 D WindowManager: w is invisible : f8ba476 com.microsoft.launcher/com.microsoft.launcher.Launcher
+06-08 14:57:03.290  1442  1442 D WindowManager: w is invisible : a6d1871 ca.ocentra.parent.agent/ca.ocentra.parent.agent.MainActivity
+06-08 14:57:03.290  1442  1442 D WindowManager: w is invisible : ccae6e0 DockedStackDivider
+06-08 14:57:03.290  1442  1442 D WindowManager: w is invisible : b0c7359 AssistPreviewPanel
+06-08 14:57:03.290  1442  1442 D WindowManager: w is invisible : e1f75e4 Bouncer
+06-08 14:57:03.290  1442  1442 D WindowManager: w is invisible : 63ad4bc NavigationBar0
+06-08 14:57:03.290  1442  1442 D WindowManager: w is invisible : 51f45b1 InputMethod
+06-08 14:57:03.291  1442  1442 D WindowManager: w is invisible : c2ad405 com.android.systemui.ImageWallpaper
+06-08 14:57:03.291  1442  1442 D WindowManager: w is invisible : 4e44a56 com.sec.android.app.camera/com.sec.android.app.camera.Camera
+06-08 14:57:03.291  1442  1442 D WindowManager: w is invisible : 7edc4a0 com.sec.android.daemonapp/com.samsung.android.weather.app.locations.activity.WXLocationsActivity
+06-08 14:57:03.291  1442  1442 D WindowManager: w is invisible : f8ba476 com.microsoft.launcher/com.microsoft.launcher.Launcher
+06-08 14:57:03.291  1442  1442 D WindowManager: w is invisible : a6d1871 ca.ocentra.parent.agent/ca.ocentra.parent.agent.MainActivity
+06-08 14:57:03.291  1442  1442 D WindowManager: w is invisible : ccae6e0 DockedStackDivider
+06-08 14:57:03.291  1442  1442 D WindowManager: w is invisible : b0c7359 AssistPreviewPanel
+06-08 14:57:03.291  1442  1442 D WindowManager: w is invisible : 7c6e11 StatusBar
+06-08 14:57:03.291  1442  1442 D WindowManager: w is invisible : e1f75e4 Bouncer
+06-08 14:57:03.291  1442  1442 D WindowManager: w is invisible : 63ad4bc NavigationBar0
+06-08 14:57:03.291  1442  1442 D WindowManager: w is invisible : 51f45b1 InputMethod
+06-08 14:57:03.291  1442  1442 D WindowManager: windowMattersToAccessibility, check : 7c6e11 StatusBar
+06-08 14:57:03.293 18461 18461 D AndroidRuntime: Shutting down VM
+06-08 14:57:03.299  1442  1442 I AccessibilityManagerService: semIsAccessibilityServiceEnabled()
+06-08 14:57:03.300  1442  1442 I AccessibilityManagerService: semIsAccessibilityServiceEnabled()
+06-08 14:57:03.302  1442  1442 D AS.AudioService: Accessibility volume enabled = false
+06-08 14:57:03.302  2052  2052 V NavBarStoreImpl: ------handleEvent [EventType] ON_UPDATE_REMOTEVIEW [Module] SecNavigationBarView  KEYS_LEFT_REMOTEVIEW_CONTAINER=android.widget.LinearLayout{1a5d9bb I.E...... ......I. 0,0-118,162 #7f0a0398 app:id/left_remoteview}  KEYS_NAVBAR_DARK_INTENSITY=0.0  KEYS_CONTEXTUALBUTTON_VISIBLE=false  KEYS_RIGHT_REMOTEVIEW_CONTAINER=android.widget.LinearLayout{d96ded8 I.E...... ......I. 962,0-1080,162 #7f0a0549 app:id/right_remoteview}
+06-08 14:57:03.302  2052  2052 V NavBarStoreImpl: --------[Band]REMOTE_VIEW_PACK_SET_REMOTEVIEW_CONTAINER
+06-08 14:57:03.302  2052  2052 V NavBarStoreImpl: ----------apply(UPDATE_NAVBAR_REMOTEVIEW_CONTAINER)
+06-08 14:57:03.303  2052  2052 V NavBarStoreImpl: ----------apply(UPDATE_NAVBAR_RIGHT_REMOTEVIEW_VISIBILITY)
+06-08 14:57:03.303  2052  2052 V NavBarStoreImpl: ----------isEnabled(NAVBAR_REMOTEVIEW_DARKINTENSITY_CHANGED)=false
+06-08 14:57:03.320  2052  2052 V NavBarStoreImpl: handleEvent [EventType] GET_BOOL_NAVBAR_CAN_MOVE_STATE [Module] SecNavigationBarView
+06-08 14:57:03.321  2052  2052 V NavBarStoreImpl: --[Band]GESTURE_PACK_GET_BOOL_NAVBAR_CAN_MOVE_NAVBARVIEW
+06-08 14:57:03.321  2052  2052 V NavBarStoreImpl: ----apply(SET_CURRENT_NAVBAR_CAN_MOVE)
+06-08 14:57:03.321  2052  2052 V NavBarStoreImpl: getResult(GET_BOOL_NAVBAR_CAN_MOVE_STATE)=true
+06-08 14:57:03.699  1442  2262 I EDMNativeHelperService: isScreenCaptureEnabled
+06-08 14:57:03.702   821  1142 I LocSvc_ApiV02: <--- globalEventCb line 245 QMI_LOC_EVENT_NMEA_IND_V02
+06-08 14:57:03.702   821  1142 I LocSvc_ApiV02: <--- globalEventCb line 245 QMI_LOC_EVENT_NMEA_IND_V02
+06-08 14:57:03.702  1442  2262 D RestrictionPolicy: isScreenCaptureEnabled : ret=true userId=0
+06-08 14:57:03.720   600   600 I hwservicemanager: getTransport: Cannot find entry android.hardware.graphics.mapper@3.0::IMapper/default in either framework or device manifest.
+06-08 14:57:03.722 18486 18486 W Gralloc3: mapper 3.x is not supported
+06-08 14:57:03.764   821  1142 I LocSvc_ApiV02: <--- globalEventCb line 245 QMI_LOC_EVENT_NMEA_IND_V02
+06-08 14:57:03.764   821  1142 I LocSvc_ApiV02: <--- globalEventCb line 245 QMI_LOC_EVENT_NMEA_IND_V02
+06-08 14:57:03.765   821  1142 I LocSvc_ApiV02: <--- globalEventCb line 245 QMI_LOC_EVENT_GNSS_SV_INFO_IND_V02
+06-08 14:57:03.765   821  1142 I LocSvc_ApiV02: <--- globalEventCb line 245 QMI_LOC_EVENT_NMEA_IND_V02
+06-08 14:57:03.765   821  1142 I LocSvc_ApiV02: <--- globalEventCb line 245 QMI_LOC_EVENT_POSITION_REPORT_IND_V02
+06-08 14:57:03.765   821  1142 I LocSvc_ApiV02: <--- globalEventCb line 245 QMI_LOC_EVENT_NMEA_IND_V02
+06-08 14:57:03.765   821  1142 I chatty  : uid=1000(system) LocApiMsgTask identical 2 lines
+06-08 14:57:03.766   821  1142 I LocSvc_ApiV02: <--- globalEventCb line 245 QMI_LOC_EVENT_NMEA_IND_V02
+06-08 14:57:03.766  1442  2022 I GnssLocationProvider: WakeLock acquired by sendMessage(REPORT_SV_STATUS, 0, com.android.server.location.GnssLocationProvider$SvStatusInfo@637156e)
+06-08 14:57:03.767  1442  1887 D GnssLocationProvider_ex: SV Count : 6 / 6      (PRN, Constellation, SNR, Used)
+06-08 14:57:03.767  1442  1887 D GnssLocationProvider_ex: (5, GPS, 33.6, 1) (20, GPS, 24.8, 1) (29, GPS, 30.0, 1) (5, GLONASS, 21.3, 1) (21, GLONASS, 25.1, 1) (7, GLONASS, 30.0, 1) 
+06-08 14:57:03.767  1442  1887 I GnssLocationProvider: WakeLock released by handleMessage(REPORT_SV_STATUS, 0, com.android.server.location.GnssLocationProvider$SvStatusInfo@637156e)
+06-08 14:57:03.769  2226  2295 V GnssStatusListener_FLP: updateSatelliteStatus, top4=29, top6=27, visibleSv=6, usedSv=6, usedL5Sv=0
+06-08 14:57:03.769  1442  1840 I GnssLocationProvider: WakeLock acquired by sendMessage(REPORT_LOCATION, 1)
+06-08 14:57:03.772   821   943 E LocSvc_SystemStatus: PQWP7parser - invalid size=404
+06-08 14:57:03.772  1442  1887 I GnssLocationProvider: WakeLock released by handleMessage(REPORT_LOCATION, 1)
+06-08 14:57:03.782  2226  2295 V PassiveListener_FLP: onLocationChanged, provider=gps / isMock=false
+06-08 14:57:03.782  1442  2254 D SLocation: PositionManager - PassiveonLocationChanged gps 1780945024000
+06-08 14:57:03.782  1442  2254 D SLocation: TrackingReceiverFilter - refreshCellInfo
+06-08 14:57:03.783  1442  2254 W Settings: Setting airplane_mode_on has moved from android.provider.Settings.System to android.provider.Settings.Global, returning read-only value.
+06-08 14:57:03.783  1442  2254 D TelephonyManager: getAllCellInfo : Caller (PID / UID / TID): 1442 / 1000 / 2254
+06-08 14:57:03.787  2752  5182 I FusedLocation: (REDACTED) location delivery to %s blocked - too fast
+06-08 14:57:03.788  1442  2254 D SLocation: GeofenceLocationFilter - location sent before 1787, need to filter / provider : gps, accuracy : 31.088001
+06-08 14:57:03.788  1442  2254 W Settings: Setting airplane_mode_on has moved from android.provider.Settings.System to android.provider.Settings.Global, returning read-only value.
+06-08 14:57:03.788  1442  2254 D TelephonyManager: getAllCellInfo : Caller (PID / UID / TID): 1442 / 1000 / 2254
+06-08 14:57:03.789  2752  5182 I FusedLocation: (REDACTED) location delivery to %s blocked - too fast
+06-08 14:57:03.790  1442  3578 I SamsungAlarmManager: setLocked to kernel - T:2 / 20260608T145707, SetElapsed=14779043, nowELAPSED=14775832
+06-08 14:57:03.790  1442  3578 D SamsungAlarmManager: setExact Listener (T:3/F:9/AC:false) 20260608T155703 - CU:1000/CP:1442
+06-08 14:57:03.790  1442  3578 I SamsungAlarmManager: setLocked to kernel - T:2 / 20260608T145707, SetElapsed=14779043, nowELAPSED=14775832
+06-08 14:57:03.791  2752  5182 I FusedLocation: (REDACTED) location delivery to %s blocked - too close
+06-08 14:57:03.792  2752  5182 I FusedLocation: (REDACTED) location delivery to %s blocked - too close
+06-08 14:57:03.793  1442  2254 D SLocation: TrackingReceiverFilter - isChangedCellInfo - false
+06-08 14:57:03.793  1442  2254 D SLocation: TrackingReceiverFilter - checkValidForTrackingReceiver - LastGpsTimeThreshold = 120000
+06-08 14:57:03.793  1442  2254 D SLocation: TrackingReceiverFilter - checkValidForTrackingReceiver - gps location is always valid.
+06-08 14:57:03.794  2226  2295 V GmsPassiveListener_FLP: Got the onLocationResult !!!!
+06-08 14:57:03.794  2226  2295 V PassiveListener_FLP: onLocationChanged, provider=fused / isMock=false
+06-08 14:57:03.794  1442  2254 D SLocation: PositionManager - PassiveonLocationChanged fused 1780945023769
+06-08 14:57:03.795  1442  2254 W SLocation: PositionManager - do not refresh last location about fused location
+06-08 14:57:03.796  1442  1442 D GeofenceManager: updateFences: location=Location[fused 45.451744,-73.773608 hAcc=36 et=+4h6m15s811ms alt=-1.899999976158142 vel=0.006465779 vAcc=2 sAcc=0 bAcc=??? {Bundle[{noGPSLocation=Location[fused 45.451807,-73.773511 hAcc=24 et=+4h5m43s700ms alt=-1.899999976158142 vAcc=2 sAcc=??? bAcc=??? {Bundle[mParcelledData.dataSize=252]}]}]}], mFences.size()=1, mReceivingLocationUpdates=true, mLocationUpdateInterval=7200000, mLastLocationUpdate=Location[fused 45.451744,-73.773608 hAcc=36 et=+4h6m15s811ms alt=-1.899999976158142 vel=0.006465779 vAcc=2 sAcc=0 bAcc=??? {Bundle[{noGPSLocation=Location[fused 45.451807,-73.773511 hAcc=24 et=+4h5m43s700ms alt=-1.899999976158142 vAcc=2 sAcc=??? bAcc=??? {Bundle[mParcelledData.dataSize=252]}]}]}]
+06-08 14:57:03.798  1442  6177 I SamsungAlarmManager: setLocked to kernel - T:2 / 20260608T145706, SetElapsed=14779043, nowELAPSED=14775840
+06-08 14:57:03.798  1442  6177 D SamsungAlarmManager: setExact Listener (T:3/F:9/AC:false) 20260608T233905 - CU:1000/CP:1442
+06-08 14:57:03.798  1442  6177 I SamsungAlarmManager: setLocked to kernel - T:2 / 20260608T145707, SetElapsed=14779043, nowELAPSED=14775840
+06-08 14:57:03.798  1442  2254 W Settings: Setting airplane_mode_on has moved from android.provider.Settings.System to android.provider.Settings.Global, returning read-only value.
+06-08 14:57:03.798  1442  2254 D TelephonyManager: getAllCellInfo : Caller (PID / UID / TID): 1442 / 1000 / 2254
+06-08 14:57:03.800  1442  6177 I SamsungAlarmManager: setLocked to kernel - T:2 / 20260608T145707, SetElapsed=14779043, nowELAPSED=14775842
+06-08 14:57:03.800  1442  6177 D SamsungAlarmManager: setExact Listener (T:3/F:9/AC:false) 20260608T155703 - CU:1000/CP:1442
+06-08 14:57:03.800  1442  6177 I SamsungAlarmManager: setLocked to kernel - T:2 / 20260608T145707, SetElapsed=14779043, nowELAPSED=14775842
+06-08 14:57:03.800  1442  2254 D SLocation: TrackingReceiverFilter - isChangedCellInfo - false
+06-08 14:57:03.800  1442  2254 D SLocation: TrackingReceiverFilter - checkValidForTrackingReceiver - LastGpsTimeThreshold = 120000
+06-08 14:57:03.800  1442  2254 D SLocation: TrackingReceiverFilter - checkValidForTrackingReceiver - blocking diff GPS time 0
+06-08 14:57:03.800  1442  2254 D SLocation: PositionManager - receive fused location
+06-08 14:57:03.802  1442  6177 I SamsungAlarmManager: setLocked to kernel - T:2 / 20260608T145707, SetElapsed=14779043, nowELAPSED=14775844
+06-08 14:57:03.802  1442  6177 D SamsungAlarmManager: setExact Listener (T:3/F:9/AC:false) 20260608T233905 - CU:1000/CP:1442
+06-08 14:57:03.802  1442  6177 I SamsungAlarmManager: setLocked to kernel - T:2 / 20260608T145707, SetElapsed=14779043, nowELAPSED=14775845
+06-08 14:57:03.858  1442 18194 V LocSvc_HIDL_DebugReportService_jni: DebugReportService_getReport
+06-08 14:57:03.858  1442 18194 D LocSvc_HIDL_DebugReportService_jni: DebugReportService_getReport, Get Latest 1 sec data.
+06-08 14:57:03.858  1442 18194 V LocSvc_HIDL_DebugReportService_jni: [DebugReportService_getReport][942] [HC] =>> [HS]
+06-08 14:57:03.858   821   821 E LocSvc_HIDL_DebugReportService: Invalid count: 0
+06-08 14:57:03.859  1442 18194 V LocSvc_HIDL_DebugReportService_jni: populateEphemerisStatusListObj
+06-08 14:57:03.859  1442 18194 V LocSvc_HIDL_DebugReportService_jni: populateFixStatusListObj
+06-08 14:57:03.859  1442 18194 V LocSvc_HIDL_DebugReportService_jni: populateEpiReportListObj
+06-08 14:57:03.859  1442 18194 V LocSvc_HIDL_DebugReportService_jni: populateBestLocationListObj
+06-08 14:57:03.859  1442 18194 V LocSvc_HIDL_DebugReportService_jni: populateGpsTimeReportListObj
+06-08 14:57:03.859  1442 18194 V LocSvc_HIDL_DebugReportService_jni: populateXoStateReportListObj
+06-08 14:57:03.859  1442 18194 V LocSvc_HIDL_DebugReportService_jni: populateRfStateReportListObjV1_1
+06-08 14:57:03.859  1442 18194 V LocSvc_HIDL_DebugReportService_jni: populateErrorRecoveriesListObj
+06-08 14:57:03.859  1442 18194 V LocSvc_HIDL_DebugReportService_jni: populatePdrReporListObj
+06-08 14:57:03.859  1442 18194 V LocSvc_HIDL_DebugReportService_jni: populateSvHealthReportListObj
+06-08 14:57:03.859  1442 18194 V LocSvc_HIDL_DebugReportService_jni: populateXtraReportListObj
+06-08 14:57:03.909  1278  1951 I bauth_FPBAuthService: pcf : 0x1012, 0 ,1 ,0 ,0 ,0 ,0, 5.0.0.23
+06-08 14:57:03.910  1278  1951 I bauth_FPBAuthService: thread id : 1, preenroll_flag : 0, nd cnt : 0, cso : 0, et : 0
+06-08 14:57:03.910  1278  1951 I bauth_FPBAuthService: FPBAuthService, 11438

@@ -140,6 +140,16 @@ system background delivery, Android system geofencing, dwell transition,
 physical-device, authority, provider delivery, production upload worker, or
 product-ready Android tracking proof.
 
+`node scripts/test/tracking-android-physical-device-runtime-proof.mjs` now
+records Samsung S9 physical-device foreground/background permission grants,
+foreground-service-backed background GPS samples, app-owned geofence
+registration, and Android proximity registration metadata. The physical proof
+also records `shellLocationInjectionAvailable=false`, so route injection cannot
+be driven from this Windows host; physical geofence transition/dwell counters
+and Android system proximity broadcast counters remain zero/unclaimed until a
+real outside/inside/dwell route or authority-backed run produces nonzero
+counters.
+
 `node scripts/test/tracking-android-permission-background-proof.mjs` now records
 WP09 parent-domain manual-required rows for the background permission grant and
 geofence transition gaps. The proof writes `02-platform-permission-proof.md`,
@@ -197,6 +207,8 @@ This workpack can be assigned independently, implemented against the owning doma
       set for system broadcast delivery, dwell delivery, physical-device proof,
       and authority proof. Android system geofencing delivery remains unclaimed
       unless the system counter is nonzero; dwell transition delivery,
-      physical-device proof, authority, provider delivery, notification
-      delivery, production upload workers, and product-ready Android tracking
-      remain unclaimed.
+      physical geofence transition/dwell delivery, authority, provider delivery,
+      notification delivery, production upload workers, and product-ready
+      Android tracking remain unclaimed. Samsung S9 physical proof now observes
+      permission grants, background GPS samples, app-owned geofence
+      registration, and system proximity registration metadata only.
