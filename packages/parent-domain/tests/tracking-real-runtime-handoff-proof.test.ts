@@ -24,6 +24,10 @@ const closureAccounting = {
   claimAuditPresentArtifactCount: 5,
   claimAuditMissingArtifactCount: 61,
   claimAuditManualRequiredRowCount: 10,
+  claimAuditPhysicalDeviceRequiredRowCount: 6,
+  claimAuditApprovedManualRequiredRowCount: 1,
+  claimAuditManualProviderRuntimeRequiredRowCount: 1,
+  claimAuditProductionRuntimeRequiredRowCount: 2,
   claimAuditProductReadyRowCount: 0,
   productClaimReady: false,
 } as const;
@@ -70,6 +74,10 @@ describe('tracking real runtime handoff proof', () => {
     expect(proof.closureAccounting.retentionRuntimeArtifactSetPresentRowCount).toBe(0);
     expect(proof.closureAccounting.productionWorkerMissingArtifactCount).toBe(8);
     expect(proof.closureAccounting.claimAuditMissingArtifactCount).toBe(61);
+    expect(proof.closureAccounting.claimAuditPhysicalDeviceRequiredRowCount).toBe(6);
+    expect(proof.closureAccounting.claimAuditApprovedManualRequiredRowCount).toBe(1);
+    expect(proof.closureAccounting.claimAuditManualProviderRuntimeRequiredRowCount).toBe(1);
+    expect(proof.closureAccounting.claimAuditProductionRuntimeRequiredRowCount).toBe(2);
     expect(Object.values(proof.productClaims).every((claim) => claim === false)).toBe(true);
   });
 

@@ -36,6 +36,10 @@ describe('tracking product readiness closure proof', () => {
     expect(proof.aggregateEvidence.productionWorkerPresentArtifactCount).toBe(0);
     expect(proof.aggregateEvidence.productionWorkerMissingArtifactCount).toBe(8);
     expect(proof.aggregateEvidence.claimAuditPresentArtifactCount).toBe(5);
+    expect(proof.aggregateEvidence.claimAuditPhysicalDeviceRequiredRowCount).toBe(6);
+    expect(proof.aggregateEvidence.claimAuditApprovedManualRequiredRowCount).toBe(1);
+    expect(proof.aggregateEvidence.claimAuditManualProviderRuntimeRequiredRowCount).toBe(1);
+    expect(proof.aggregateEvidence.claimAuditProductionRuntimeRequiredRowCount).toBe(2);
     expect(proof.aggregateEvidence.productClaimReady).toBe(false);
   });
 
@@ -91,6 +95,10 @@ function aggregateEvidence() {
     claimAuditPresentArtifactCount: 5,
     claimAuditMissingArtifactCount: 49,
     claimAuditManualRequiredRowCount: 10,
+    claimAuditPhysicalDeviceRequiredRowCount: 6,
+    claimAuditApprovedManualRequiredRowCount: 1,
+    claimAuditManualProviderRuntimeRequiredRowCount: 1,
+    claimAuditProductionRuntimeRequiredRowCount: 2,
     claimAuditProductReadyRowCount: 0,
     productClaimReady: false,
   };

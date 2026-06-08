@@ -1,13 +1,17 @@
 # WP02 Current Tracking Snapshot And Gap Map
 
 - generatedAt: 2026-06-08T00:35:00.000Z
-- commit: bb61675410303b20a7e37458b1460d8b7119cf3a
+- commit: 82c250a077274559274e2d27d681c475e1d25a18
 - branch: codex/tracking-plan-full-continuation-a
 - requiredProofTier: P1_DOC_SOURCE_RECONCILIATION
 - currentProofTier: P1_DOC_SOURCE_RECONCILIATION
 - status: proved
 - proves source docs, current snapshot, and product-readiness closure blockers are aligned
 - does not prove physical-device, authority, provider delivery, production, or product-ready tracking behavior
+- claimAuditPhysicalDeviceRequiredRowCount: 6
+- claimAuditApprovedManualRequiredRowCount: 1
+- claimAuditManualProviderRuntimeRequiredRowCount: 1
+- claimAuditProductionRuntimeRequiredRowCount: 2
 
 ## Remaining Product Blockers
 

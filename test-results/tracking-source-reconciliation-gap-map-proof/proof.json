@@ -3,7 +3,7 @@
   "proofMode": "tracking-source-reconciliation-gap-map-proof",
   "generatedAt": "2026-06-08T00:35:00.000Z",
   "branch": "codex/tracking-plan-full-continuation-a",
-  "baseCommitAtGeneration": "bb61675410303b20a7e37458b1460d8b7119cf3a",
+  "baseCommitAtGeneration": "82c250a077274559274e2d27d681c475e1d25a18",
   "requiredProofTier": "P1_DOC_SOURCE_RECONCILIATION",
   "currentProofTier": "P1_DOC_SOURCE_RECONCILIATION",
   "currentStatus": "proved",
@@ -11,8 +11,8 @@
     {
       "path": "docs/features/location-geofence-device-status.md",
       "exists": true,
-      "sha256": "e87b273ee885c32435978274807de3db01ebe7b3497c77dad62a07a89f50010e",
-      "lineCount": 1232
+      "sha256": "a918fce4cde0b6edbe87f464a9be9c4512d9ac1004d0a42e1cefb3ff92a20185",
+      "lineCount": 1244
     },
     {
       "path": "docs/expectations/location-geofence.md",
@@ -47,8 +47,8 @@
     {
       "path": "docs/plans/tracking-plan/current-tracking-snapshot.md",
       "exists": true,
-      "sha256": "c168247e766fb3fa4563e61f56b8af8b94dfc1990a59a2db550a4e6b9a405fdb",
-      "lineCount": 233
+      "sha256": "5bd75a35f471d5de219fcc4bea4ce1485fd56b6da67df6bccaee6a77755c3fb2",
+      "lineCount": 235
     },
     {
       "path": "docs/plans/tracking-plan/pasted-content-coverage-audit.md",
@@ -59,8 +59,8 @@
     {
       "path": "docs/plans/tracking-plan/implementation-checklist.md",
       "exists": true,
-      "sha256": "6b119500749c81d43e79eb4ef330d4dc94183b4f4c4479bc9748a573d73e48b9",
-      "lineCount": 1105
+      "sha256": "465db7c6d683be0af875c019c7741983ab415143a85ede12908e63c90e78f5d9",
+      "lineCount": 1114
     }
   ],
   "sourceIndexAssertions": [
@@ -150,6 +150,14 @@
     "provider-delivery-receipt-runtime-required",
     "production-durable-workers-required"
   ],
+  "claimAuditTierBreakdown": {
+    "manualRequiredRowCount": 10,
+    "physicalDeviceRequiredRowCount": 6,
+    "approvedManualRequiredRowCount": 1,
+    "manualProviderRuntimeRequiredRowCount": 1,
+    "productionRuntimeRequiredRowCount": 2,
+    "productReadyRowCount": 0
+  },
   "productClaims": {
     "localCiProofAccountingReady": true,
     "physicalAndroidBackgroundClaimed": false,

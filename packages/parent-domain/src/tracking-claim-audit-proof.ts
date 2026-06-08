@@ -85,6 +85,10 @@ export const TrackingClaimAuditProofSchema = withParser(
       missingArtifactCount: Schema.Number,
       manualRequiredRowCount: Schema.Number,
       artifactSetPresentReviewRequiredRowCount: Schema.Number,
+      physicalDeviceRequiredRowCount: Schema.Number,
+      approvedManualRequiredRowCount: Schema.Number,
+      manualProviderRuntimeRequiredRowCount: Schema.Number,
+      productionRuntimeRequiredRowCount: Schema.Number,
       approvedClaimCount: Schema.Literal(0),
       productReadyRowCount: Schema.Literal(0),
     }),
@@ -355,6 +359,11 @@ function summarizeRows(rows: readonly TrackingClaimAuditRow[]) {
     artifactSetPresentReviewRequiredRowCount: rows.filter(
       (row) => row.status === 'artifact-set-present-review-required'
     ).length,
+    physicalDeviceRequiredRowCount: rows.filter((row) => row.requiredProofTier === 'P4_PHYSICAL_DEVICE').length,
+    approvedManualRequiredRowCount: rows.filter((row) => row.requiredProofTier === 'P4_APPROVED_MANUAL_PROOF').length,
+    manualProviderRuntimeRequiredRowCount: rows.filter((row) => row.requiredProofTier === 'P4_MANUAL_PROVIDER_RUNTIME')
+      .length,
+    productionRuntimeRequiredRowCount: rows.filter((row) => row.requiredProofTier === 'P4_PRODUCTION_RUNTIME').length,
     approvedClaimCount: 0 as const,
     productReadyRowCount: 0 as const,
   };

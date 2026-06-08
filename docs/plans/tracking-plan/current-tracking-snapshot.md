@@ -92,8 +92,10 @@
   observed full-product UI local artifacts, one retention writable execution
   derivation row, two retention runtime artifact requirements with one local
   artifact present and one platform runtime enforcement artifact missing, ten
-  child-runtime artifact gaps, and the claim-audit blocker counts, and keeps
-  product-ready tracking false.
+  child-runtime artifact gaps, and the claim-audit blocker counts. The claim
+  audit tier split is now machine-checked as six physical-device/runtime rows,
+  one approved-manual desktop row, one manual provider-runtime row, and two
+  production-runtime rows, all product-ready false.
 
 ## Runtime/Product Claims Still Missing
 

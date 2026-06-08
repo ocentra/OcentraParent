@@ -150,6 +150,15 @@ function assertProof(proof) {
   if (proof.closureAccounting.productClaimReady || proof.closureAccounting.claimAuditProductReadyRowCount !== 0) {
     throw new Error(`Closure accounting overclaimed product readiness: ${JSON.stringify(proof.closureAccounting)}`);
   }
+  if (
+    proof.closureAccounting.claimAuditManualRequiredRowCount !==
+    proof.closureAccounting.claimAuditPhysicalDeviceRequiredRowCount +
+      proof.closureAccounting.claimAuditApprovedManualRequiredRowCount +
+      proof.closureAccounting.claimAuditManualProviderRuntimeRequiredRowCount +
+      proof.closureAccounting.claimAuditProductionRuntimeRequiredRowCount
+  ) {
+    throw new Error(`Closure accounting lost claim-audit proof tier split: ${JSON.stringify(proof.closureAccounting)}`);
+  }
   if (proof.closureAccounting.fullProductUiLocalArtifactCount !== expectedFullProductUiLocalArtifactCount) {
     throw new Error(`Closure accounting lost local UI artifact evidence: ${JSON.stringify(proof.closureAccounting)}`);
   }
@@ -222,6 +231,10 @@ function sourceSnapshot(proof) {
     `- productionWorkerPresentArtifactCount: ${proof.closureAccounting.productionWorkerPresentArtifactCount}`,
     `- productionWorkerMissingArtifactCount: ${proof.closureAccounting.productionWorkerMissingArtifactCount}`,
     `- claimAuditMissingArtifactCount: ${proof.closureAccounting.claimAuditMissingArtifactCount}`,
+    `- claimAuditPhysicalDeviceRequiredRowCount: ${proof.closureAccounting.claimAuditPhysicalDeviceRequiredRowCount}`,
+    `- claimAuditApprovedManualRequiredRowCount: ${proof.closureAccounting.claimAuditApprovedManualRequiredRowCount}`,
+    `- claimAuditManualProviderRuntimeRequiredRowCount: ${proof.closureAccounting.claimAuditManualProviderRuntimeRequiredRowCount}`,
+    `- claimAuditProductionRuntimeRequiredRowCount: ${proof.closureAccounting.claimAuditProductionRuntimeRequiredRowCount}`,
     `- ciRunnableRowCount: ${proof.summary.ciRunnableRowCount}`,
     '- does not prove physical-device, child-device runtime, authority, provider, retention product runtime, escalation, production, or product-ready tracking behavior',
     '',
@@ -255,6 +268,10 @@ function manualValidationRunbook(proof) {
     `- productionWorkerPresentArtifactCount: ${proof.closureAccounting.productionWorkerPresentArtifactCount}`,
     `- productionWorkerMissingArtifactCount: ${proof.closureAccounting.productionWorkerMissingArtifactCount}`,
     `- claimAuditMissingArtifactCount: ${proof.closureAccounting.claimAuditMissingArtifactCount}`,
+    `- claimAuditPhysicalDeviceRequiredRowCount: ${proof.closureAccounting.claimAuditPhysicalDeviceRequiredRowCount}`,
+    `- claimAuditApprovedManualRequiredRowCount: ${proof.closureAccounting.claimAuditApprovedManualRequiredRowCount}`,
+    `- claimAuditManualProviderRuntimeRequiredRowCount: ${proof.closureAccounting.claimAuditManualProviderRuntimeRequiredRowCount}`,
+    `- claimAuditProductionRuntimeRequiredRowCount: ${proof.closureAccounting.claimAuditProductionRuntimeRequiredRowCount}`,
     '',
     ...proof.handoffRows.flatMap((row) => [
       `## ${row.handoffArea}`,

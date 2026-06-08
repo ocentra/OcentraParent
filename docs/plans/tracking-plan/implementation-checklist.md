@@ -997,8 +997,10 @@ Every implementation workpack must update, or explicitly justify not updating:
       remain `manual-required`, missing real artifacts/approval, and keep all
       product-ready claims false. The full product UI audit row now cites the
       runtime gate and local runtime artifact capture proof refs, records six
-      present local UI artifacts, and keeps the four hard runtime UI gaps as
-      blockers.
+      present local UI artifacts, keeps the four hard runtime UI gaps as
+      blockers, and classifies the ten final manual-required claim rows as six
+      physical-device/runtime rows, one approved-manual desktop row, one manual
+      provider-runtime row, and two production-runtime rows.
 - [x] Physical-device artifact gate proof now verifies the required Android and
       iOS physical evidence roots and required artifact names before any
       physical-device behavior can be claimed. Proof:
@@ -1082,7 +1084,7 @@ Every implementation workpack must update, or explicitly justify not updating:
       The handoff now carries product-readiness closure accounting, preserves
       the six local full-product UI artifacts, child-runtime, retention-runtime,
       and production-worker required/present/missing artifact counts, plus
-      claim-audit blocker counts, and classifies the remaining manual follow-up
+      claim-audit blocker counts and tier split, and classifies the remaining manual follow-up
       as six physical/runtime rows, one provider-runtime row, two
       production-runtime rows, and zero CI-runnable rows.
 

@@ -13,6 +13,10 @@ describe('tracking claim audit proof', () => {
 
     expect(proof.rows).toHaveLength(RequiredTrackingClaimAuditPlans.length);
     expect(proof.summary.manualRequiredRowCount).toBe(RequiredTrackingClaimAuditPlans.length);
+    expect(proof.summary.physicalDeviceRequiredRowCount).toBe(6);
+    expect(proof.summary.approvedManualRequiredRowCount).toBe(1);
+    expect(proof.summary.manualProviderRuntimeRequiredRowCount).toBe(1);
+    expect(proof.summary.productionRuntimeRequiredRowCount).toBe(2);
     expect(proof.summary.approvedClaimCount).toBe(0);
     expect(proof.summary.productReadyRowCount).toBe(0);
     expect(proof.productClaims.physicalDeviceBehaviorClaimed).toBe(false);

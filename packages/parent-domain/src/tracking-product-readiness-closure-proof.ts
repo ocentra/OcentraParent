@@ -128,6 +128,10 @@ export const TrackingProductReadinessClosureAggregateEvidenceSchema = withParser
     claimAuditPresentArtifactCount: Schema.Number.pipe(Schema.int()),
     claimAuditMissingArtifactCount: Schema.Number.pipe(Schema.int(), Schema.positive()),
     claimAuditManualRequiredRowCount: Schema.Number.pipe(Schema.int(), Schema.positive()),
+    claimAuditPhysicalDeviceRequiredRowCount: Schema.Number.pipe(Schema.int(), Schema.positive()),
+    claimAuditApprovedManualRequiredRowCount: Schema.Number.pipe(Schema.int(), Schema.positive()),
+    claimAuditManualProviderRuntimeRequiredRowCount: Schema.Number.pipe(Schema.int(), Schema.positive()),
+    claimAuditProductionRuntimeRequiredRowCount: Schema.Number.pipe(Schema.int(), Schema.positive()),
     claimAuditProductReadyRowCount: Schema.Literal(0),
     productClaimReady: Schema.Literal(false),
   })
@@ -178,6 +182,17 @@ export const TrackingProductReadinessClosureAggregateEvidenceSchema = withParser
           evidence.productionWorkerRequiredArtifactCount ===
             evidence.productionWorkerPresentArtifactCount + evidence.productionWorkerMissingArtifactCount ||
           'Aggregate closure evidence must classify every production worker runtime artifact'
+      )
+    )
+    .pipe(
+      Schema.filter(
+        (evidence) =>
+          evidence.claimAuditManualRequiredRowCount ===
+            evidence.claimAuditPhysicalDeviceRequiredRowCount +
+              evidence.claimAuditApprovedManualRequiredRowCount +
+              evidence.claimAuditManualProviderRuntimeRequiredRowCount +
+              evidence.claimAuditProductionRuntimeRequiredRowCount ||
+          'Aggregate closure evidence must classify every claim-audit manual-required row by proof tier'
       )
     )
 );

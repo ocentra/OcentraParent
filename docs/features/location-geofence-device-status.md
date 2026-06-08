@@ -336,7 +336,10 @@ expose location or device-status features. Parents expect this category.
   one present local writable execution artifact and one missing platform
   retention runtime enforcement artifact, eight required production-worker
   runtime artifacts with zero present and eight missing, and the claim-audit row
-  counts. It keeps Android/iOS physical background, actual child-device runtime,
+  counts. The claim-audit blocker rows are now tier-classified as six
+  physical-device/runtime rows, one approved-manual desktop row, one manual
+  provider-runtime row, and two production-runtime rows. It keeps Android/iOS
+  physical background, actual child-device runtime,
   full product parent/child UI, authority, provider delivery/receipt, production
   workers, and product-ready tracking unclaimed.
 - WP33 tracking claim-audit proof now exists through
@@ -350,7 +353,10 @@ expose location or device-status features. Parents expect this category.
   and local runtime artifact capture supporting proof refs, records six
   observed local UI artifacts including the hosted retention settings local
   write-result screenshot, and keeps the four hard full-product UI runtime gaps
-  still required before that claim can advance, writes
+  still required before that claim can advance. Its summary now classifies the
+  ten final manual-required claim rows into six physical-device/runtime rows,
+  one approved-manual desktop row, one manual provider-runtime row, and two
+  production-runtime rows, writes
   `output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-gate/65-claim-audit-proof.json`
   and keeps every audited claim and product-ready tracking false.
 - WP01/WP02 source reconciliation and current gap-map proof now exists through
@@ -371,8 +377,9 @@ expose location or device-status features. Parents expect this category.
   row-level blocker ids, validation commands, acceptance notes, and missing
   artifacts. It now carries the product-readiness closure accounting totals,
   including child-runtime, retention-runtime, and production-worker
-  required/present/missing artifact counts, classifies six physical/runtime
-  rows, one provider-runtime row, and two production-runtime rows as
+  required/present/missing artifact counts plus the claim-audit tier split,
+  classifies six physical/runtime rows, one provider-runtime row, and two
+  production-runtime rows as
   non-CI-runnable manual follow-up, and keeps physical-device, actual
   child-device runtime, full product UI, authority, provider delivery/receipt,
   retention product runtime, production, escalation, and product-ready tracking

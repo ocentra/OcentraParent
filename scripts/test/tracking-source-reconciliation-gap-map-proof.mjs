@@ -79,6 +79,7 @@ async function buildProof() {
   const sourceIndex = await readText('docs/plans/tracking-plan/source-index.md');
   const snapshot = await readText('docs/plans/tracking-plan/current-tracking-snapshot.md');
   const closure = await readJson('test-results/tracking-product-readiness-closure-proof/proof.json');
+  const claimAudit = await readJson('test-results/tracking-claim-audit-proof/proof.json');
   const [closureRow] = closure.rows ?? [];
   return {
     schemaVersion: 1,
@@ -94,6 +95,14 @@ async function buildProof() {
     currentSnapshotAssertions: phraseAssertions(snapshot, requiredSnapshotPhrases),
     closureCoverageTags: closure.sourceProofs?.map((entry) => entry.coverageTag) ?? [],
     remainingProductBlockers: closureRow?.remainingBlockers ?? [],
+    claimAuditTierBreakdown: {
+      manualRequiredRowCount: claimAudit.summary.manualRequiredRowCount,
+      physicalDeviceRequiredRowCount: claimAudit.summary.physicalDeviceRequiredRowCount,
+      approvedManualRequiredRowCount: claimAudit.summary.approvedManualRequiredRowCount,
+      manualProviderRuntimeRequiredRowCount: claimAudit.summary.manualProviderRuntimeRequiredRowCount,
+      productionRuntimeRequiredRowCount: claimAudit.summary.productionRuntimeRequiredRowCount,
+      productReadyRowCount: claimAudit.summary.productReadyRowCount,
+    },
     productClaims: {
       localCiProofAccountingReady: closureRow?.localCiProofAccountingReady === true,
       physicalAndroidBackgroundClaimed: closureRow?.physicalAndroidBackgroundClaimed === true,
@@ -145,6 +154,27 @@ function assertProof(proof) {
   ) {
     throw new Error(`Tracking source/gap proof overclaimed product readiness: ${JSON.stringify(proof.productClaims)}`);
   }
+  assertClaimAuditTierBreakdown(proof.claimAuditTierBreakdown);
+}
+
+function assertClaimAuditTierBreakdown(breakdown) {
+  const classifiedRowCount =
+    breakdown.physicalDeviceRequiredRowCount +
+    breakdown.approvedManualRequiredRowCount +
+    breakdown.manualProviderRuntimeRequiredRowCount +
+    breakdown.productionRuntimeRequiredRowCount;
+  if (classifiedRowCount !== breakdown.manualRequiredRowCount) {
+    throw new Error(`Claim audit tier breakdown does not classify every row: ${JSON.stringify(breakdown)}`);
+  }
+  if (
+    breakdown.physicalDeviceRequiredRowCount !== 6 ||
+    breakdown.approvedManualRequiredRowCount !== 1 ||
+    breakdown.manualProviderRuntimeRequiredRowCount !== 1 ||
+    breakdown.productionRuntimeRequiredRowCount !== 2 ||
+    breakdown.productReadyRowCount !== 0
+  ) {
+    throw new Error(`Claim audit tier breakdown drifted: ${JSON.stringify(breakdown)}`);
+  }
 }
 
 function assertClosureCoverageTags(coverageTags) {
@@ -190,6 +220,10 @@ function sourceSnapshot(title, proof) {
     '- status: proved',
     '- proves source docs, current snapshot, and product-readiness closure blockers are aligned',
     '- does not prove physical-device, authority, provider delivery, production, or product-ready tracking behavior',
+    `- claimAuditPhysicalDeviceRequiredRowCount: ${proof.claimAuditTierBreakdown.physicalDeviceRequiredRowCount}`,
+    `- claimAuditApprovedManualRequiredRowCount: ${proof.claimAuditTierBreakdown.approvedManualRequiredRowCount}`,
+    `- claimAuditManualProviderRuntimeRequiredRowCount: ${proof.claimAuditTierBreakdown.manualProviderRuntimeRequiredRowCount}`,
+    `- claimAuditProductionRuntimeRequiredRowCount: ${proof.claimAuditTierBreakdown.productionRuntimeRequiredRowCount}`,
     '',
     '## Remaining Product Blockers',
     '',
