@@ -337,6 +337,15 @@ function expectParentPreferenceSetupCommandResultVisibility() {
     value: 'Ready',
   });
   expect(details).toContainEqual({
+    label: 'Child runtime receipt-required refs',
+    value:
+      'app-game-parent-preference-setup-child-runtime-receipt-required::request-1 | app-game-parent-preference-setup-child-runtime-dispatch::request-1',
+  });
+  expect(details).toContainEqual({
+    label: 'Child runtime receipt-required status',
+    value: 'Ready',
+  });
+  expect(details).toContainEqual({
     label: 'Parent preference setup mutation',
     value: 'Not claimed',
   });

@@ -66,7 +66,8 @@ The Playwright check starts the Rust agent and Vite portal on the scaffold smoke
   dispatch, or platform enforcement.
 - Renders parent-safe action-result persistence, mutation receipt,
   child-runtime handoff, service-local child-runtime queue refs/status, and
-  service-local child-runtime dispatch refs/status for accepted app/game parent
+  service-local child-runtime dispatch refs/status, and service-local
+  child-runtime receipt-required refs/status for accepted app/game parent
   preference setup command results while keeping actual child delivery,
   provider delivery, receipt ingestion, durable outbox runtime, adapter
   dispatch, broad blocking,

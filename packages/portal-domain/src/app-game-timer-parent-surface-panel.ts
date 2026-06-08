@@ -76,6 +76,8 @@ const TimerParentSurfaceDetails = {
   ChildRuntimeQueueStatus: decodeDisplayText('Child runtime queue status'),
   ChildRuntimeDispatchRefs: decodeDisplayText('Child runtime dispatch refs'),
   ChildRuntimeDispatchStatus: decodeDisplayText('Child runtime dispatch status'),
+  ChildRuntimeReceiptRequirementRefs: decodeDisplayText('Child runtime receipt-required refs'),
+  ChildRuntimeReceiptRequirementStatus: decodeDisplayText('Child runtime receipt-required status'),
   ParentPreferenceSetupAcceptedAt: decodeDisplayText('Parent preference setup accepted at'),
   ParentPreferenceSetupActionResultRefs: decodeDisplayText('Parent preference setup action-result refs'),
   ParentPreferenceSetupActionResultStatus: decodeDisplayText('Parent preference setup action-result status'),
@@ -533,6 +535,14 @@ export function createAppGameTimerParentPreferenceSetupCommandResultDetails(
       TimerParentSurfaceDetails.ChildRuntimeDispatchStatus,
       parentPreferenceSetupResultStatus(result.value.childRuntimeDeliveryDispatchStatus)
     ),
+    detail(
+      TimerParentSurfaceDetails.ChildRuntimeReceiptRequirementRefs,
+      joinedOrNotReported(result.value.childRuntimeDeliveryReceiptRequirementIds)
+    ),
+    detail(
+      TimerParentSurfaceDetails.ChildRuntimeReceiptRequirementStatus,
+      parentPreferenceSetupResultStatus(result.value.childRuntimeDeliveryReceiptRequirementStatus)
+    ),
     detail(TimerParentSurfaceDetails.ParentPreferenceSetupMutation, Readable.NotClaimed),
     detail(TimerParentSurfaceDetails.ParentPreferenceSetupRuleMutation, Readable.NotClaimed),
     detail(PortalDetails.ChildDelivery, claimedValue(result.value.childRuntimeDeliveryClaimed)),
@@ -582,6 +592,9 @@ function parentPreferenceSetupResultStatus(status: string): DisplayText {
     return Readable.Ready;
   }
   if (status === 'dispatch-ready') {
+    return Readable.Ready;
+  }
+  if (status === 'receipt-required') {
     return Readable.Ready;
   }
   if (status === 'accepted') {
