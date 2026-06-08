@@ -240,6 +240,21 @@ compete on control while staying clear about attribution confidence and privacy.
   enforcement-command publication, raw PCAP, exact URL, decrypted payload, page
   content, video content, private-message content, search-query content, and
   host filtering remain false.
+- E-D added row10n remote delete/export status bridge proof across
+  `agent-protocol`, `agent-service`, and `agent-protocol-domain`: the existing
+  `agent.network.remote-delivery.status.get` /
+  `agent.network.remote-delivery.status.reported` path now carries row10m
+  delete/export propagation readiness refs and record counts alongside the
+  row10k blocked-dispatch status. The proof writes
+  `output/network-plan-proof/10n-remote-delivery-delete-export-status-bridge/proof-summary.json`
+  and
+  `test-results/network-remote-delivery-delete-export-status-bridge-proof/proof.json`.
+  Rust and TypeScript parsers reject stale
+  row10m refs, mismatched readiness counts, live/product-ready delivery, actual
+  remote delete/export propagation, policy authority, side-effect authority,
+  adapter execution, enforcement-command publication, raw PCAP, exact URL,
+  decrypted payload, page content, video content, private-message content,
+  search-query content, and host filtering claims.
 - E-D added policy-preview stored-flow evidence proof across `agent-core`,
   `agent-service`, and `agent-protocol-domain`: stored ActivityStore network
   flow rows now feed the existing policy-preview read model, map

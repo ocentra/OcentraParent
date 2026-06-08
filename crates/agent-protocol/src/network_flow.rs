@@ -106,21 +106,23 @@ pub struct ActivityNetworkFlowDigest {
     pub unusual_indicators: Vec<ActivityNetworkFlowIndicator>,
 }
 
-#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Clone, Debug, Default, PartialEq, Eq, Serialize, Deserialize)]
 pub enum NetworkRemoteDeliveryStatusState {
+    #[default]
     #[serde(rename = "fixture-requirements-recorded-but-not-implemented")]
     FixtureRequirementsRecordedButNotImplemented,
     #[serde(rename = "manual-required")]
     ManualRequired,
 }
 
-#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Clone, Debug, Default, PartialEq, Eq, Serialize, Deserialize)]
 pub enum NetworkRemoteDeliveryTransportDispatchState {
+    #[default]
     #[serde(rename = "manual-required-blocked")]
     ManualRequiredBlocked,
 }
 
-#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+#[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct NetworkRemoteDeliveryStatus {
     pub status_ref: String,
@@ -162,12 +164,19 @@ pub struct NetworkRemoteDeliveryStatus {
     pub transport_dispatch_state_ref: String,
     pub blocked_dispatch_ref: String,
     pub future_transport_seam_ref: String,
+    pub delete_export_propagation_ref: String,
+    pub remote_delete_readiness_ref: String,
+    pub remote_export_readiness_ref: String,
     pub transport_dispatch_state: NetworkRemoteDeliveryTransportDispatchState,
     pub outbox_candidate_count: u64,
     pub source_outbox_candidate_count: u64,
     pub prepared_not_dispatched_count: u64,
     pub blocked_dispatch_record_count: u64,
     pub blocked_dispatch_records_match_outbox_candidates: bool,
+    pub delete_export_readiness_record_count: u64,
+    pub remote_delete_ready_count: u64,
+    pub remote_export_ready_count: u64,
+    pub delete_export_records_match_fixture_acks: bool,
     pub dispatch_ready_candidate_count: u64,
     pub dispatch_attempt_count: u64,
     pub remote_ack_count: u64,

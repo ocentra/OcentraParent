@@ -1,0 +1,116 @@
+{
+  "proof": "network-remote-delivery-delete-export-status-bridge-proof",
+  "proofRevision": "network-remote-delivery-delete-export-status-bridge-proof/v1",
+  "checkedAt": "deterministic:network-remote-delivery-delete-export-status-bridge-proof/v1",
+  "sourceFingerprint": "source-tree:5722cf303fe1d01183d9b518593821679421c15b0791ed7984ffc5a3ba015874",
+  "sourceRefs": [
+    "scripts/test/network-remote-delivery-delete-export-status-bridge-proof.mjs",
+    "crates/agent-protocol/src/constants/network_flow.rs",
+    "crates/agent-protocol/src/network_flow.rs",
+    "crates/agent-protocol/src/network_flow_tests.rs",
+    "crates/agent-service/src/network_remote_delivery_status_payload.rs",
+    "crates/agent-service/src/network_remote_delivery_status_service_tests.rs",
+    "packages/agent-protocol-domain/src/defaults.ts",
+    "packages/agent-protocol-domain/src/network-remote-delivery-status.ts",
+    "packages/agent-protocol-domain/tests/network-remote-delivery-status.test.ts",
+    "crates/agent-protocol/README.md",
+    "crates/agent-service/README.md",
+    "packages/agent-protocol-domain/README.md",
+    "docs/features/network-domain-control.md",
+    "docs/plans/network-plan/implementation-checklist.md",
+    "docs/plans/network-plan/workpacks/README.md"
+  ],
+  "sourceBase": "c3328c891af958153c1b64d92379e653de6ba2d0",
+  "proofRoot": "output\\network-plan-proof\\10n-remote-delivery-delete-export-status-bridge",
+  "testRoot": "test-results\\network-remote-delivery-delete-export-status-bridge-proof",
+  "commands": [
+    {
+      "name": "agent-protocol-remote-delivery-status-test",
+      "command": "cargo test -p ocentra-parent-agent-protocol network_remote_delivery_status",
+      "status": 0,
+      "log": "output\\network-plan-proof\\10n-remote-delivery-delete-export-status-bridge\\agent-protocol-remote-delivery-status-test.log"
+    },
+    {
+      "name": "agent-service-remote-delivery-status-test",
+      "command": "cargo test -p ocentra-parent-agent-service network_remote_delivery_status",
+      "status": 0,
+      "log": "output\\network-plan-proof\\10n-remote-delivery-delete-export-status-bridge\\agent-service-remote-delivery-status-test.log"
+    },
+    {
+      "name": "agent-protocol-domain-dependency-build",
+      "command": "cmd /c npm run build --workspace @ocentra-parent/schema-domain --workspace @ocentra-parent/logging-domain --workspace @ocentra-parent/activity-domain --workspace @ocentra-parent/parent-domain --workspace @ocentra-parent/agent-protocol-domain",
+      "status": 0,
+      "log": "output\\network-plan-proof\\10n-remote-delivery-delete-export-status-bridge\\agent-protocol-domain-dependency-build.log"
+    },
+    {
+      "name": "agent-protocol-domain-remote-delivery-status-test",
+      "command": "cmd /c npm run test --workspace @ocentra-parent/agent-protocol-domain -- network-remote-delivery-status.test.ts",
+      "status": 0,
+      "log": "output\\network-plan-proof\\10n-remote-delivery-delete-export-status-bridge\\agent-protocol-domain-remote-delivery-status-test.log"
+    },
+    {
+      "name": "agent-service-clippy",
+      "command": "cargo clippy -p ocentra-parent-agent-service --all-targets -- -D warnings",
+      "status": 0,
+      "log": "output\\network-plan-proof\\10n-remote-delivery-delete-export-status-bridge\\agent-service-clippy.log"
+    },
+    {
+      "name": "rust-format",
+      "command": "cargo fmt --all --check",
+      "status": 0,
+      "log": "output\\network-plan-proof\\10n-remote-delivery-delete-export-status-bridge\\rust-format.log"
+    },
+    {
+      "name": "source-shape",
+      "command": "node scripts/check-source-shape.mjs",
+      "status": 0,
+      "log": "output\\network-plan-proof\\10n-remote-delivery-delete-export-status-bridge\\source-shape.log"
+    },
+    {
+      "name": "git-diff-check",
+      "command": "git diff --check",
+      "status": 0,
+      "log": "output\\network-plan-proof\\10n-remote-delivery-delete-export-status-bridge\\git-diff-check.log"
+    }
+  ],
+  "artifacts": {
+    "expectedRemoteDeliveryDeleteExportStatusBridge": "output\\network-plan-proof\\10n-remote-delivery-delete-export-status-bridge\\expected-remote-delivery-delete-export-status-bridge.json",
+    "securityNegativeLog": "output\\network-plan-proof\\10n-remote-delivery-delete-export-status-bridge\\09-security-negative-proof.log",
+    "validationCommands": "output\\network-plan-proof\\10n-remote-delivery-delete-export-status-bridge\\12-validation-commands.log",
+    "proofSummary": "output\\network-plan-proof\\10n-remote-delivery-delete-export-status-bridge\\proof-summary.json",
+    "testProof": "test-results\\network-remote-delivery-delete-export-status-bridge-proof\\proof.json"
+  },
+  "coveredRows": [
+    "network-plan supplemental row 10n remote delivery delete export status bridge proof",
+    "network-plan supplemental row 10m remote delivery delete export propagation readiness proof",
+    "network-plan supplemental row 10k remote delivery transport dispatch state",
+    "network-plan supplemental row 10h remote delivery outbox status bridge"
+  ],
+  "provenBoundaries": [
+    "Rust protocol serializes row10m delete/export readiness refs inside the existing remote delivery status shape",
+    "agent-service reports row10m delete/export readiness refs and counts through the existing cached remote delivery status payload",
+    "TypeScript parser rejects stale row10m readiness refs and readiness counts that do not match the source outbox candidate count",
+    "the status bridge keeps remote delete/export propagation implementation false and does not upgrade service payload or product support into live delivery",
+    "the status bridge rejects product-ready remote delivery, policy authority, side-effect authority, adapter execution, enforcement command publication, live broker/family-hub delivery, provider delivery, child-device delivery, exact-content, and host-filter claims"
+  ],
+  "notClaimed": [
+    "actual remote delete/export propagation",
+    "live broker dispatch",
+    "live family-hub relay dispatch",
+    "remote provider delivery",
+    "child-device delivery",
+    "product-ready remote delivery",
+    "policy authority",
+    "side-effect authority",
+    "enforcement command publication",
+    "adapter action execution",
+    "raw PCAP",
+    "exact URL from network-only evidence",
+    "decrypted payload",
+    "page content",
+    "video content",
+    "private-message content",
+    "search-query content",
+    "host filtering"
+  ]
+}

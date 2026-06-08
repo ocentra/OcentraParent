@@ -491,5 +491,8 @@ export const AgentProtocolDefaults = {
     TransportDispatchStateRef: 'network.remote-delivery.transport-dispatch-state.10k',
     BlockedDispatchRef: 'network.remote-delivery.dispatch-blocked-manual-required.10k',
     FutureTransportSeamRef: 'network.remote-delivery.future-transport-seam.10k',
+    DeleteExportPropagationRef: 'network.remote-delivery.delete-export-propagation-readiness.10m',
+    RemoteDeleteReadinessRef: 'network.remote-delivery.remote-delete-readiness.10m',
+    RemoteExportReadinessRef: 'network.remote-delivery.remote-export-readiness.10m',
   },
 } as const;

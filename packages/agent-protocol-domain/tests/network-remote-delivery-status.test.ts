@@ -48,12 +48,19 @@ const RemoteDeliveryStatus = {
   transportDispatchStateRef: RemoteDeliveryStatusRefs.TransportDispatchStateRef,
   blockedDispatchRef: RemoteDeliveryStatusRefs.BlockedDispatchRef,
   futureTransportSeamRef: RemoteDeliveryStatusRefs.FutureTransportSeamRef,
+  deleteExportPropagationRef: RemoteDeliveryStatusRefs.DeleteExportPropagationRef,
+  remoteDeleteReadinessRef: RemoteDeliveryStatusRefs.RemoteDeleteReadinessRef,
+  remoteExportReadinessRef: RemoteDeliveryStatusRefs.RemoteExportReadinessRef,
   transportDispatchState: 'manual-required-blocked',
   outboxCandidateCount: 3,
   sourceOutboxCandidateCount: 3,
   preparedNotDispatchedCount: 3,
   blockedDispatchRecordCount: 3,
   blockedDispatchRecordsMatchOutboxCandidates: true,
+  deleteExportReadinessRecordCount: 3,
+  remoteDeleteReadyCount: 3,
+  remoteExportReadyCount: 3,
+  deleteExportRecordsMatchFixtureAcks: true,
   dispatchReadyCandidateCount: 0,
   dispatchAttemptCount: 0,
   remoteAckCount: 0,
@@ -159,9 +166,21 @@ it('rejects stale row refs', () => {
     ...RemoteDeliveryStatus,
     futureTransportSeamRef: 'network.remote-delivery.future-transport-seam.10j',
   });
+  expectInvalid({
+    ...RemoteDeliveryStatus,
+    deleteExportPropagationRef: 'network.remote-delivery.delete-export-propagation-readiness.10l',
+  });
+  expectInvalid({
+    ...RemoteDeliveryStatus,
+    remoteDeleteReadinessRef: 'network.remote-delivery.remote-delete-readiness.10l',
+  });
+  expectInvalid({
+    ...RemoteDeliveryStatus,
+    remoteExportReadinessRef: 'network.remote-delivery.remote-export-readiness.10l',
+  });
 });
 
-it('rejects row10k dispatch and candidate-count mismatches', () => {
+it('rejects row10k dispatch, row10m readiness, and candidate-count mismatches', () => {
   expectInvalid({
     ...RemoteDeliveryStatus,
     preparedNotDispatchedCount: 2,
@@ -181,6 +200,22 @@ it('rejects row10k dispatch and candidate-count mismatches', () => {
   expectInvalid({
     ...RemoteDeliveryStatus,
     dispatchReadyCandidateCount: 1,
+  });
+  expectInvalid({
+    ...RemoteDeliveryStatus,
+    deleteExportReadinessRecordCount: 2,
+  });
+  expectInvalid({
+    ...RemoteDeliveryStatus,
+    remoteDeleteReadyCount: 2,
+  });
+  expectInvalid({
+    ...RemoteDeliveryStatus,
+    remoteExportReadyCount: 2,
+  });
+  expectInvalid({
+    ...RemoteDeliveryStatus,
+    deleteExportRecordsMatchFixtureAcks: false,
   });
   expectInvalid({
     ...RemoteDeliveryStatus,

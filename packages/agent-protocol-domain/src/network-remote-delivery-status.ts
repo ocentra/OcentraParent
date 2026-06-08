@@ -54,12 +54,19 @@ const AgentNetworkRemoteDeliveryStatusFields = Schema.Struct({
   transportDispatchStateRef: NetworkRemoteDeliveryText,
   blockedDispatchRef: NetworkRemoteDeliveryText,
   futureTransportSeamRef: NetworkRemoteDeliveryText,
+  deleteExportPropagationRef: NetworkRemoteDeliveryText,
+  remoteDeleteReadinessRef: NetworkRemoteDeliveryText,
+  remoteExportReadinessRef: NetworkRemoteDeliveryText,
   transportDispatchState: AgentNetworkRemoteDeliveryTransportDispatchStateSchema,
   outboxCandidateCount: NetworkRemoteDeliveryCount,
   sourceOutboxCandidateCount: NetworkRemoteDeliveryCount,
   preparedNotDispatchedCount: NetworkRemoteDeliveryCount,
   blockedDispatchRecordCount: NetworkRemoteDeliveryCount,
   blockedDispatchRecordsMatchOutboxCandidates: Schema.Boolean,
+  deleteExportReadinessRecordCount: NetworkRemoteDeliveryCount,
+  remoteDeleteReadyCount: NetworkRemoteDeliveryCount,
+  remoteExportReadyCount: NetworkRemoteDeliveryCount,
+  deleteExportRecordsMatchFixtureAcks: Schema.Boolean,
   dispatchReadyCandidateCount: Schema.Literal(0),
   dispatchAttemptCount: Schema.Literal(0),
   remoteAckCount: Schema.Literal(0),
@@ -101,8 +108,9 @@ export const AgentNetworkRemoteDeliveryStatusSchema = withParser(
           durableEnvelopeRefsMatch(status) &&
           outboxHandoffRefsMatch(status) &&
           transportDispatchStateMatches(status) &&
+          deleteExportReadinessMatches(status) &&
           localDeliveryProofMatches(status)) ||
-        'Network remote delivery status must preserve row10g outbox refs and row10k blocked dispatch refs without live delivery or content claims'
+        'Network remote delivery status must preserve row10g outbox refs, row10k blocked dispatch refs, and row10m delete/export readiness refs without live delivery or content claims'
     )
   )
 );
@@ -193,6 +201,18 @@ function transportDispatchStateMatches(status: AgentNetworkRemoteDeliveryStatus)
     status.transportDispatchState === 'manual-required-blocked' &&
     status.blockedDispatchRecordCount === status.outboxCandidateCount &&
     status.blockedDispatchRecordsMatchOutboxCandidates
+  );
+}
+
+function deleteExportReadinessMatches(status: AgentNetworkRemoteDeliveryStatus): boolean {
+  return (
+    status.deleteExportPropagationRef === NetworkRemoteDeliveryRefs.DeleteExportPropagationRef &&
+    status.remoteDeleteReadinessRef === NetworkRemoteDeliveryRefs.RemoteDeleteReadinessRef &&
+    status.remoteExportReadinessRef === NetworkRemoteDeliveryRefs.RemoteExportReadinessRef &&
+    status.deleteExportReadinessRecordCount === status.outboxCandidateCount &&
+    status.remoteDeleteReadyCount === status.outboxCandidateCount &&
+    status.remoteExportReadyCount === status.outboxCandidateCount &&
+    status.deleteExportRecordsMatchFixtureAcks
   );
 }
 

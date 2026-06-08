@@ -6,8 +6,7 @@ use super::{
     NetworkEnforcementCommandIssuedEvent, NetworkEnforcementResultObservedEvent,
     NetworkEnforcementResultStatus, NetworkFlowObservedEvent, NetworkPolicyDecisionCompletedEvent,
     NetworkPolicyEvaluationRequestedEvent, NetworkPortalReadModelUpdatedEvent,
-    NetworkRemoteDeliveryStatus, NetworkRemoteDeliveryStatusState,
-    NetworkRemoteDeliveryTransportDispatchState, NetworkRuntimeEventContract,
+    NetworkRemoteDeliveryStatus, NetworkRuntimeEventContract,
     NETWORK_FLOW_CUSTODY_CHILD_DEVICE_QUERY_STORE, NETWORK_FLOW_SCHEMA_VERSION,
 };
 
@@ -167,6 +166,18 @@ fn network_remote_delivery_status_serializes_row10k_dispatch_state_without_produ
         constants::network_flow::TEST_REMOTE_DELIVERY_FUTURE_TRANSPORT_SEAM_REF
     );
     assert_eq!(
+        serialized["deleteExportPropagationRef"],
+        constants::network_flow::TEST_REMOTE_DELIVERY_DELETE_EXPORT_PROPAGATION_REF
+    );
+    assert_eq!(
+        serialized["remoteDeleteReadinessRef"],
+        constants::network_flow::TEST_REMOTE_DELIVERY_REMOTE_DELETE_REF
+    );
+    assert_eq!(
+        serialized["remoteExportReadinessRef"],
+        constants::network_flow::TEST_REMOTE_DELIVERY_REMOTE_EXPORT_REF
+    );
+    assert_eq!(
         serialized["transportDispatchState"],
         "manual-required-blocked"
     );
@@ -178,6 +189,10 @@ fn network_remote_delivery_status_serializes_row10k_dispatch_state_without_produ
         serialized["blockedDispatchRecordsMatchOutboxCandidates"],
         true
     );
+    assert_eq!(serialized["deleteExportReadinessRecordCount"], 3);
+    assert_eq!(serialized["remoteDeleteReadyCount"], 3);
+    assert_eq!(serialized["remoteExportReadyCount"], 3);
+    assert_eq!(serialized["deleteExportRecordsMatchFixtureAcks"], true);
     assert_eq!(serialized["dispatchReadyCandidateCount"], 0);
     assert_eq!(serialized["dispatchAttemptCount"], 0);
     assert_eq!(serialized["remoteAckCount"], 0);
@@ -193,8 +208,6 @@ fn network_remote_delivery_status_serializes_row10k_dispatch_state_without_produ
 fn remote_delivery_status_fixture() -> NetworkRemoteDeliveryStatus {
     NetworkRemoteDeliveryStatus {
         status_ref: flow::TEST_REMOTE_DELIVERY_TRANSPORT_DISPATCH_STATE_REF.to_string(),
-        broker_status: remote_delivery_fixture_status_state(),
-        family_hub_status: remote_delivery_fixture_status_state(),
         custody_proof_ref: flow::TEST_BROKER_CUSTODY_PROOF_REF.to_string(),
         publisher_auth_ref: flow::TEST_BROKER_PUBLISHER_AUTH_REF.to_string(),
         subscriber_auth_ref: flow::TEST_BROKER_SUBSCRIBER_AUTH_REF.to_string(),
@@ -207,8 +220,6 @@ fn remote_delivery_status_fixture() -> NetworkRemoteDeliveryStatus {
         transport_config_ref: flow::TEST_BROKER_CONFIG_REF.to_string(),
         relay_identity_ref: flow::TEST_FAMILY_HUB_IDENTITY_REF.to_string(),
         relay_policy_ref: flow::TEST_FAMILY_HUB_RELAY_POLICY_REF.to_string(),
-        broker_missing_artifact_count: 0,
-        family_hub_missing_artifact_count: 0,
         accepted_event_type_count: 3,
         local_idempotency_queue_proved: true,
         dropped_event_dead_letter_count: 1,
@@ -223,7 +234,6 @@ fn remote_delivery_status_fixture() -> NetworkRemoteDeliveryStatus {
         durable_delete_export_ref: flow::TEST_REMOTE_DELIVERY_DURABLE_DELETE_EXPORT_REF.to_string(),
         durable_support_status_ref: durable_support_status_ref(),
         durable_envelope_ready: true,
-        durable_envelope_missing_artifact_count: 0,
         outbox_ref: flow::TEST_REMOTE_DELIVERY_OUTBOX_REF.to_string(),
         outbox_handoff_ref: flow::TEST_REMOTE_DELIVERY_OUTBOX_HANDOFF_REF.to_string(),
         outbox_replay_ref: flow::TEST_REMOTE_DELIVERY_OUTBOX_REPLAY_REF.to_string(),
@@ -232,50 +242,24 @@ fn remote_delivery_status_fixture() -> NetworkRemoteDeliveryStatus {
             .to_string(),
         blocked_dispatch_ref: flow::TEST_REMOTE_DELIVERY_DISPATCH_BLOCKED_MANUAL_REF.to_string(),
         future_transport_seam_ref: flow::TEST_REMOTE_DELIVERY_FUTURE_TRANSPORT_SEAM_REF.to_string(),
-        transport_dispatch_state: remote_delivery_fixture_transport_state(),
+        delete_export_propagation_ref: flow::TEST_REMOTE_DELIVERY_DELETE_EXPORT_PROPAGATION_REF
+            .to_string(),
+        remote_delete_readiness_ref: flow::TEST_REMOTE_DELIVERY_REMOTE_DELETE_REF.to_string(),
+        remote_export_readiness_ref: flow::TEST_REMOTE_DELIVERY_REMOTE_EXPORT_REF.to_string(),
         outbox_candidate_count: 3,
         source_outbox_candidate_count: 3,
         prepared_not_dispatched_count: 3,
         blocked_dispatch_record_count: 3,
         blocked_dispatch_records_match_outbox_candidates: true,
-        dispatch_ready_candidate_count: 0,
-        dispatch_attempt_count: 0,
-        remote_ack_count: 0,
+        delete_export_readiness_record_count: 3,
+        remote_delete_ready_count: 3,
+        remote_export_ready_count: 3,
+        delete_export_records_match_fixture_acks: true,
         duplicate_durable_envelope_rejected: true,
         outbox_candidates_match_durable_envelopes: true,
         outbox_candidates_match_receipts: true,
-        sequence_gap_count: 0,
-        event_id_mismatch_count: 0,
-        event_type_mismatch_count: 0,
-        correlation_mismatch_count: 0,
-        broker_delivery_implemented: false,
-        family_hub_delivery_implemented: false,
-        remote_delivery_ack_implemented: false,
-        provider_delivery_implemented: false,
-        child_device_delivery_implemented: false,
-        cross_process_replay_implemented: false,
-        remote_delete_export_propagation_implemented: false,
-        product_ready_remote_delivery: false,
-        policy_authority: false,
-        side_effect_authority: false,
-        enforcement_command_event_count: 0,
-        adapter_action_executed_count: 0,
-        raw_pcap_available_count: 0,
-        exact_url_available_count: 0,
-        decrypted_payload_available_count: 0,
-        page_content_available_count: 0,
-        video_content_available_count: 0,
-        private_message_content_available_count: 0,
-        search_query_available_count: 0,
+        ..NetworkRemoteDeliveryStatus::default()
     }
-}
-
-fn remote_delivery_fixture_status_state() -> NetworkRemoteDeliveryStatusState {
-    NetworkRemoteDeliveryStatusState::FixtureRequirementsRecordedButNotImplemented
-}
-
-fn remote_delivery_fixture_transport_state() -> NetworkRemoteDeliveryTransportDispatchState {
-    NetworkRemoteDeliveryTransportDispatchState::ManualRequiredBlocked
 }
 
 fn durable_support_status_ref() -> String {

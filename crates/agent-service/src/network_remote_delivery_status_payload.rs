@@ -1,5 +1,7 @@
 use ocentra_parent_agent_core::{
+    prove_network_runtime_remote_delivery_delete_export_propagation,
     prove_network_runtime_remote_delivery_transport_dispatch_state,
+    NetworkRuntimeRemoteDeliveryDeleteExportPropagationReport,
     NetworkRuntimeRemoteDeliveryDurableEnvelopeReport,
     NetworkRuntimeRemoteDeliveryOutboxHandoffReport, NetworkRuntimeRemoteDeliveryState,
     NetworkRuntimeRemoteDeliveryStatusReport,
@@ -66,7 +68,11 @@ async fn network_remote_delivery_status() -> Result<NetworkRemoteDeliveryStatus,
             let report = prove_network_runtime_remote_delivery_transport_dispatch_state()
                 .await
                 .map_err(|_| ())?;
-            Ok(status_from_report(&report))
+            let delete_export_report =
+                prove_network_runtime_remote_delivery_delete_export_propagation()
+                    .await
+                    .map_err(|_| ())?;
+            Ok(status_from_report(&report, &delete_export_report))
         })
         .await
         .cloned()
@@ -74,6 +80,7 @@ async fn network_remote_delivery_status() -> Result<NetworkRemoteDeliveryStatus,
 
 fn status_from_report(
     report: &NetworkRuntimeRemoteDeliveryTransportDispatchStateReport,
+    delete_export_report: &NetworkRuntimeRemoteDeliveryDeleteExportPropagationReport,
 ) -> NetworkRemoteDeliveryStatus {
     let outbox_report = &report
         .no_enforcement_invariant
@@ -86,95 +93,13 @@ fn status_from_report(
     apply_durable_status(&mut status, outbox_report, durable_report);
     apply_outbox_status(&mut status, outbox_report);
     apply_transport_dispatch_status(&mut status, report, outbox_report);
+    apply_delete_export_status(&mut status, delete_export_report);
     apply_non_claim_status(&mut status, report, remote_status);
     status
 }
 
 fn empty_status() -> NetworkRemoteDeliveryStatus {
-    NetworkRemoteDeliveryStatus {
-        status_ref: String::new(),
-        broker_status: default_remote_delivery_status_state(),
-        family_hub_status: default_remote_delivery_status_state(),
-        custody_proof_ref: String::new(),
-        publisher_auth_ref: String::new(),
-        subscriber_auth_ref: String::new(),
-        encryption_ref: String::new(),
-        retention_policy_ref: String::new(),
-        replay_plan_ref: String::new(),
-        deletion_plan_ref: String::new(),
-        offset_policy_ref: String::new(),
-        dedupe_policy_ref: String::new(),
-        transport_config_ref: String::new(),
-        relay_identity_ref: String::new(),
-        relay_policy_ref: String::new(),
-        broker_missing_artifact_count: 0,
-        family_hub_missing_artifact_count: 0,
-        accepted_event_type_count: 0,
-        local_idempotency_queue_proved: false,
-        dropped_event_dead_letter_count: 0,
-        queued_duplicate_rejected: false,
-        completed_duplicate_rejected: false,
-        event_chain_journal_ref: String::new(),
-        receipt_ledger_ref: String::new(),
-        local_receipt_ack_ref: String::new(),
-        durable_envelope_ref: String::new(),
-        durable_store_ref: String::new(),
-        durable_replay_ref: String::new(),
-        durable_delete_export_ref: String::new(),
-        durable_support_status_ref: String::new(),
-        durable_envelope_ready: false,
-        durable_envelope_missing_artifact_count: 0,
-        outbox_ref: String::new(),
-        outbox_handoff_ref: String::new(),
-        outbox_replay_ref: String::new(),
-        outbox_support_status_ref: String::new(),
-        transport_dispatch_state_ref: String::new(),
-        blocked_dispatch_ref: String::new(),
-        future_transport_seam_ref: String::new(),
-        transport_dispatch_state: default_transport_dispatch_state(),
-        outbox_candidate_count: 0,
-        source_outbox_candidate_count: 0,
-        prepared_not_dispatched_count: 0,
-        blocked_dispatch_record_count: 0,
-        blocked_dispatch_records_match_outbox_candidates: false,
-        dispatch_ready_candidate_count: 0,
-        dispatch_attempt_count: 0,
-        remote_ack_count: 0,
-        duplicate_durable_envelope_rejected: false,
-        outbox_candidates_match_durable_envelopes: false,
-        outbox_candidates_match_receipts: false,
-        sequence_gap_count: 0,
-        event_id_mismatch_count: 0,
-        event_type_mismatch_count: 0,
-        correlation_mismatch_count: 0,
-        broker_delivery_implemented: false,
-        family_hub_delivery_implemented: false,
-        remote_delivery_ack_implemented: false,
-        provider_delivery_implemented: false,
-        child_device_delivery_implemented: false,
-        cross_process_replay_implemented: false,
-        remote_delete_export_propagation_implemented: false,
-        product_ready_remote_delivery: false,
-        policy_authority: false,
-        side_effect_authority: false,
-        enforcement_command_event_count: 0,
-        adapter_action_executed_count: 0,
-        raw_pcap_available_count: 0,
-        exact_url_available_count: 0,
-        decrypted_payload_available_count: 0,
-        page_content_available_count: 0,
-        video_content_available_count: 0,
-        private_message_content_available_count: 0,
-        search_query_available_count: 0,
-    }
-}
-
-fn default_remote_delivery_status_state() -> NetworkRemoteDeliveryStatusState {
-    NetworkRemoteDeliveryStatusState::FixtureRequirementsRecordedButNotImplemented
-}
-
-fn default_transport_dispatch_state() -> NetworkRemoteDeliveryTransportDispatchState {
-    NetworkRemoteDeliveryTransportDispatchState::ManualRequiredBlocked
+    NetworkRemoteDeliveryStatus::default()
 }
 
 fn apply_remote_status(
@@ -266,6 +191,21 @@ fn apply_transport_dispatch_status(
     status.dispatch_ready_candidate_count = count(report.dispatch_ready_candidate_count);
     status.dispatch_attempt_count = count(report.dispatch_attempt_count);
     status.remote_ack_count = count(report.remote_ack_count);
+}
+
+fn apply_delete_export_status(
+    status: &mut NetworkRemoteDeliveryStatus,
+    report: &NetworkRuntimeRemoteDeliveryDeleteExportPropagationReport,
+) {
+    status.delete_export_propagation_ref =
+        report.delete_export_propagation_ref.as_str().to_string();
+    status.remote_delete_readiness_ref = report.remote_delete_readiness_ref.as_str().to_string();
+    status.remote_export_readiness_ref = report.remote_export_readiness_ref.as_str().to_string();
+    status.delete_export_readiness_record_count = count(report.propagation_readiness_record_count);
+    status.remote_delete_ready_count = count(report.remote_delete_ready_count);
+    status.remote_export_ready_count = count(report.remote_export_ready_count);
+    status.delete_export_records_match_fixture_acks =
+        report.propagation_records_match_fixture_records;
 }
 
 fn apply_non_claim_status(
