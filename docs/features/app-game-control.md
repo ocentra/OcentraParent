@@ -1501,6 +1501,14 @@ diagnostics, or raw private source rows.
       dashboard now renders those platform proof-pack limitations as
       parent-visible UI rows without leaking private diagnostics or claiming
       adapter execution. Runtime adapter execution proof remains.
+      App/game adapter execution readiness now derives an app/game-specific
+      read model from the existing V0.8 supported-adapter runtime proof: only
+      the scoped Windows owned-process time-limit boundary is
+      execution-allowed, while broad app blocking, Linux, macOS, Android, iOS,
+      and degraded permission/dependency rows stay blocked before execution.
+      This narrows the runtime adapter execution truth without claiming broad
+      blocking, child delivery, provider delivery, platform enforcement, or
+      private diagnostics.
 - [ ] Blocking/time-limit proof before done claim. Scoped owned-process
       time-limit proof exists; broad block-launch/hide/suspend/shield and
       allowlist remain manual-required or not-claimed until platform setup,

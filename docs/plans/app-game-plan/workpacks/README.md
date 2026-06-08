@@ -162,6 +162,7 @@ before `DONE` or PR-ready reporting.
 154. WP163 app/game dashboard boundary count visibility.
 155. WP164 app/game dashboard readiness blocker cards.
 156. WP165 app/game dashboard platform capability limitation rows.
+157. WP166 app/game adapter execution readiness.
 
 ## Standard AI Worker Checklist
 
