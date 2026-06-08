@@ -1341,6 +1341,11 @@ tracking-claim-audit-proof tracking-product-readiness-closure-proof`
       categories for six physical/runtime rows, one provider-runtime row, and
       two production-runtime rows, and keeps all manual handoff rows
       `ciRunnable=false` with product-ready false.
+- [x] Provider-runtime artifact inventory refresh: provider runtime readiness
+      blocker proof now preserves the provider delivery artifact gate's exact
+      required, present, and missing runtime artifact refs/counts, with zero
+      provider runtime artifacts present and provider delivery/receipt/product
+      claims still false.
 - [x] Retention runtime closure accounting refresh: product-readiness closure
       and real-runtime handoff now carry two required retention runtime
       artifacts, one present local writable execution artifact, one missing

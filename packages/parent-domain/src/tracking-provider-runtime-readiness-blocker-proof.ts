@@ -76,7 +76,17 @@ const TrackingProviderRuntimeReadinessBlockerProofBaseSchema = Schema.Struct({
   providerNotificationRows: Schema.Number.pipe(Schema.int(), Schema.positive()),
   receiptBoundaryRows: Schema.Number.pipe(Schema.int(), Schema.positive()),
   localOutboxReadinessRows: Schema.Number.pipe(Schema.int(), Schema.positive()),
+  requiredProviderRuntimeArtifactCount: Schema.Number.pipe(Schema.int(), Schema.positive()),
+  presentProviderRuntimeArtifactCount: Schema.Number.pipe(Schema.int(), Schema.nonNegative()),
   missingProviderRuntimeArtifactCount: Schema.Number.pipe(Schema.int(), Schema.nonNegative()),
+  requiredProviderRuntimeArtifactRefs: Schema.Array(TrackingProviderRuntimeReadinessBlockerReferenceSchema).pipe(
+    Schema.minItems(1)
+  ),
+  presentProviderRuntimeArtifactRefs: Schema.Array(TrackingProviderRuntimeReadinessBlockerReferenceSchema),
+  missingProviderRuntimeArtifactRefs: Schema.Array(TrackingProviderRuntimeReadinessBlockerReferenceSchema).pipe(
+    Schema.minItems(1)
+  ),
+  providerRuntimeArtifactSetComplete: Schema.Literal(false),
   blockers: Schema.Array(TrackingProviderRuntimeReadinessBlockerRowSchema),
   productClaims: Schema.Struct({
     providerDeliveryRuntimeClaimed: Schema.Literal(false),
@@ -131,6 +141,8 @@ export function buildTrackingProviderRuntimeReadinessBlockerProof(
   const parsedReceiptProof = TrackingNotificationReceiptBoundaryReadModelSchema.parse(receiptProof);
   const parsedLocalOutboxProof = TrackingNotificationLocalOutboxReadinessReadModelSchema.parse(localOutboxProof);
   const parsedArtifactGate = TrackingProviderDeliveryArtifactGateProofSchema.parse(artifactGateProof);
+  const requiredArtifacts = uniqueRefs(parsedArtifactGate.rows.flatMap((row) => row.requiredArtifacts));
+  const presentArtifacts = uniqueRefs(parsedArtifactGate.rows.flatMap((row) => row.presentArtifacts));
   const missingArtifacts = uniqueRefs(parsedArtifactGate.rows.flatMap((row) => row.missingArtifacts));
   const sourceProofRefs = uniqueRefs(options.sourceProofRefs);
 
@@ -143,7 +155,13 @@ export function buildTrackingProviderRuntimeReadinessBlockerProof(
     providerNotificationRows: parsedProviderProof.rows.length,
     receiptBoundaryRows: parsedReceiptProof.rows.length,
     localOutboxReadinessRows: parsedLocalOutboxProof.rows.length,
+    requiredProviderRuntimeArtifactCount: requiredArtifacts.length,
+    presentProviderRuntimeArtifactCount: presentArtifacts.length,
     missingProviderRuntimeArtifactCount: missingArtifacts.length,
+    requiredProviderRuntimeArtifactRefs: requiredArtifacts,
+    presentProviderRuntimeArtifactRefs: presentArtifacts,
+    missingProviderRuntimeArtifactRefs: missingArtifacts,
+    providerRuntimeArtifactSetComplete: false,
     blockers: RequiredTrackingProviderRuntimeReadinessBlockers.map((blockerId) =>
       buildBlockerRow(blockerId, sourceProofRefs, missingArtifacts)
     ),
@@ -200,6 +218,13 @@ function trackingProviderRuntimeReadinessProofIsHonest(
 ): boolean {
   return (
     proof.sourceProofRefs.length >= 4 &&
+    proof.requiredProviderRuntimeArtifactCount > 0 &&
+    proof.requiredProviderRuntimeArtifactCount ===
+      proof.presentProviderRuntimeArtifactCount + proof.missingProviderRuntimeArtifactCount &&
+    proof.requiredProviderRuntimeArtifactRefs.length === proof.requiredProviderRuntimeArtifactCount &&
+    proof.presentProviderRuntimeArtifactRefs.length === proof.presentProviderRuntimeArtifactCount &&
+    proof.missingProviderRuntimeArtifactRefs.length === proof.missingProviderRuntimeArtifactCount &&
+    proof.providerRuntimeArtifactSetComplete === false &&
     proof.missingProviderRuntimeArtifactCount > 0 &&
     proof.blockers.length === RequiredTrackingProviderRuntimeReadinessBlockers.length &&
     proof.blockers.every((row) => row.status === 'manual-required') &&

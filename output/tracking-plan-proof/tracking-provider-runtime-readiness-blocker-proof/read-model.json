@@ -12,7 +12,37 @@
   "providerNotificationRows": 3,
   "receiptBoundaryRows": 3,
   "localOutboxReadinessRows": 3,
+  "requiredProviderRuntimeArtifactCount": 11,
+  "presentProviderRuntimeArtifactCount": 0,
   "missingProviderRuntimeArtifactCount": 11,
+  "requiredProviderRuntimeArtifactRefs": [
+    "00-run-metadata.json",
+    "01-provider-runtime-config-redacted.json",
+    "02-credential-presence-attestation.json",
+    "03-minimal-payload-snapshot.json",
+    "04-provider-attempt.json",
+    "05-provider-response.json",
+    "06-receipt-webhook-event.json",
+    "07-receipt-ingestion-result.json",
+    "08-retry-quiet-hours-worker-log.txt",
+    "09-parent-notification-ui-screenshot.png",
+    "10-result-summary.md"
+  ],
+  "presentProviderRuntimeArtifactRefs": [],
+  "missingProviderRuntimeArtifactRefs": [
+    "00-run-metadata.json",
+    "01-provider-runtime-config-redacted.json",
+    "02-credential-presence-attestation.json",
+    "03-minimal-payload-snapshot.json",
+    "04-provider-attempt.json",
+    "05-provider-response.json",
+    "06-receipt-webhook-event.json",
+    "07-receipt-ingestion-result.json",
+    "08-retry-quiet-hours-worker-log.txt",
+    "09-parent-notification-ui-screenshot.png",
+    "10-result-summary.md"
+  ],
+  "providerRuntimeArtifactSetComplete": false,
   "blockers": [
     {
       "blockerId": "provider-delivery-runtime",

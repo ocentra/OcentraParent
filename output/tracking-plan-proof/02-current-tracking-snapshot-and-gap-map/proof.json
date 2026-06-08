@@ -3,7 +3,7 @@
   "proofMode": "tracking-source-reconciliation-gap-map-proof",
   "generatedAt": "2026-06-08T00:35:00.000Z",
   "branch": "codex/tracking-plan-full-continuation-a",
-  "baseCommitAtGeneration": "13615298fc1bbb27fe3455587b6e30a1beb81329",
+  "baseCommitAtGeneration": "bb61675410303b20a7e37458b1460d8b7119cf3a",
   "requiredProofTier": "P1_DOC_SOURCE_RECONCILIATION",
   "currentProofTier": "P1_DOC_SOURCE_RECONCILIATION",
   "currentStatus": "proved",
@@ -11,8 +11,8 @@
     {
       "path": "docs/features/location-geofence-device-status.md",
       "exists": true,
-      "sha256": "d9f29a5ec2cae0877941246ff3dd8016858d1a079700ac24d3eaa53a5799fc7d",
-      "lineCount": 1229
+      "sha256": "e87b273ee885c32435978274807de3db01ebe7b3497c77dad62a07a89f50010e",
+      "lineCount": 1232
     },
     {
       "path": "docs/expectations/location-geofence.md",
@@ -59,8 +59,8 @@
     {
       "path": "docs/plans/tracking-plan/implementation-checklist.md",
       "exists": true,
-      "sha256": "cf0ffb4a6cd99e3b6b7d54c958e72c3c4960f7570ee50fa189b6a50fd313d4fc",
-      "lineCount": 1104
+      "sha256": "6b119500749c81d43e79eb4ef330d4dc94183b4f4c4479bc9748a573d73e48b9",
+      "lineCount": 1105
     }
   ],
   "sourceIndexAssertions": [
