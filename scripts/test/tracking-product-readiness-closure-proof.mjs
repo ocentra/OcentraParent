@@ -119,6 +119,10 @@ const sourceProofs = [
     'output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-gate/58-production-worker-runtime-artifact-gate-proof.json'
   ),
   sourceProof(
+    'production-worker-runtime-preflight',
+    'output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-gate/72-production-worker-runtime-preflight-proof.json'
+  ),
+  sourceProof(
     'retention-product-readiness-blocker',
     'output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-gate/43-retention-product-readiness-proof.json'
   ),
@@ -161,6 +165,7 @@ async function main() {
   run('cmd', ['/c', 'node', 'scripts/test/tracking-ios-simulator-artifact-inventory-proof.mjs']);
   run('cmd', ['/c', 'node', 'scripts/test/tracking-retention-runtime-artifact-gate-proof.mjs']);
   run('cmd', ['/c', 'node', 'scripts/test/tracking-retention-platform-enforcement-preflight-proof.mjs']);
+  run('cmd', ['/c', 'node', 'scripts/test/tracking-production-worker-runtime-preflight-proof.mjs']);
   run('cmd', ['/c', 'node', 'scripts/test/tracking-claim-audit-proof.mjs']);
 
   await assertSourceProofsExist();
@@ -216,6 +221,9 @@ async function aggregateEvidence() {
   const productionWorkerRuntimeArtifactGateProof = await readJson(
     'test-results/tracking-production-worker-runtime-artifact-gate-proof/proof.json'
   );
+  const productionWorkerRuntimePreflightProof = await readJson(
+    'test-results/tracking-production-worker-runtime-preflight-proof/proof.json'
+  );
   const claimAuditProof = await readJson('test-results/tracking-claim-audit-proof/proof.json');
   const childRuntimeArtifactSummary = artifactSummaryFromRows(childRuntimeArtifactGateProof);
   const productionWorkerArtifactSummary = artifactSummaryFromRows(productionWorkerRuntimeArtifactGateProof);
@@ -270,6 +278,13 @@ async function aggregateEvidence() {
     productionWorkerRequiredArtifactCount: productionWorkerArtifactSummary.requiredArtifactCount,
     productionWorkerPresentArtifactCount: productionWorkerArtifactSummary.presentArtifactCount,
     productionWorkerMissingArtifactCount: productionWorkerArtifactSummary.missingArtifactCount,
+    productionWorkerPreflightRowCount: productionWorkerRuntimePreflightProof.summary.rowCount,
+    productionWorkerPreflightManualRequiredRowCount:
+      productionWorkerRuntimePreflightProof.summary.manualRequiredRowCount,
+    productionWorkerPreflightRequiredArtifactCount: productionWorkerRuntimePreflightProof.summary.requiredArtifactCount,
+    productionWorkerPreflightPresentArtifactCount: productionWorkerRuntimePreflightProof.summary.presentArtifactCount,
+    productionWorkerPreflightMissingArtifactCount: productionWorkerRuntimePreflightProof.summary.missingArtifactCount,
+    productionWorkerPreflightProductReadyRowCount: productionWorkerRuntimePreflightProof.summary.productReadyRowCount,
     claimAuditPresentArtifactCount: claimAuditProof.summary.presentArtifactCount,
     claimAuditMissingArtifactCount: claimAuditProof.summary.missingArtifactCount,
     claimAuditManualRequiredRowCount: claimAuditProof.summary.manualRequiredRowCount,
@@ -306,6 +321,20 @@ function assertProof(proof) {
   ) {
     throw new Error(
       `Tracking product readiness closure lost full product UI preflight evidence: ${JSON.stringify(
+        proof.aggregateEvidence
+      )}`
+    );
+  }
+  if (
+    proof.aggregateEvidence.productionWorkerPreflightRequiredArtifactCount !==
+      proof.aggregateEvidence.productionWorkerPreflightPresentArtifactCount +
+        proof.aggregateEvidence.productionWorkerPreflightMissingArtifactCount ||
+    proof.aggregateEvidence.productionWorkerPreflightManualRequiredRowCount !==
+      proof.aggregateEvidence.productionWorkerPreflightRowCount ||
+    proof.aggregateEvidence.productionWorkerPreflightProductReadyRowCount !== 0
+  ) {
+    throw new Error(
+      `Tracking product readiness closure lost production worker preflight evidence: ${JSON.stringify(
         proof.aggregateEvidence
       )}`
     );
@@ -364,6 +393,9 @@ function sourceSnapshot(proof) {
     `- productionWorkerRequiredArtifactCount: ${proof.aggregateEvidence.productionWorkerRequiredArtifactCount}`,
     `- productionWorkerPresentArtifactCount: ${proof.aggregateEvidence.productionWorkerPresentArtifactCount}`,
     `- productionWorkerMissingArtifactCount: ${proof.aggregateEvidence.productionWorkerMissingArtifactCount}`,
+    `- productionWorkerPreflightRowCount: ${proof.aggregateEvidence.productionWorkerPreflightRowCount}`,
+    `- productionWorkerPreflightRequiredArtifactCount: ${proof.aggregateEvidence.productionWorkerPreflightRequiredArtifactCount}`,
+    `- productionWorkerPreflightMissingArtifactCount: ${proof.aggregateEvidence.productionWorkerPreflightMissingArtifactCount}`,
     `- claimAuditPhysicalDeviceRequiredRowCount: ${proof.aggregateEvidence.claimAuditPhysicalDeviceRequiredRowCount}`,
     `- claimAuditApprovedManualRequiredRowCount: ${proof.aggregateEvidence.claimAuditApprovedManualRequiredRowCount}`,
     `- claimAuditManualProviderRuntimeRequiredRowCount: ${proof.aggregateEvidence.claimAuditManualProviderRuntimeRequiredRowCount}`,
@@ -384,6 +416,7 @@ function securityNegativeProof() {
     'iOS simulator artifact inventory records simulator package, manual-required Core Location, privacy disclosure, platform proof, and validation-log artifacts while keeping Core Location runtime and physical-device blockers open.',
     'Retention runtime closure accounting records the local writable settings artifact as present and the platform runtime retention enforcement artifact as missing.',
     'Retention platform enforcement preflight closure accounting records Android, iOS, and desktop manual-required acceptance rows while keeping product-ready retention false.',
+    'Production worker runtime preflight closure accounting records eight manual-required production worker acceptance rows while keeping production and product-ready claims false.',
     'Rows do not claim writable retention product settings, platform retention enforcement, Android/iOS physical background behavior, authority enrollment, provider delivery/receipt runtime, production workers, actual child-device runtime, or product readiness.',
     '',
   ].join('\n');

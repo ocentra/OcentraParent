@@ -268,6 +268,18 @@ function assertProof(proof) {
       `Closure accounting lost production worker artifact evidence: ${JSON.stringify(proof.closureAccounting)}`
     );
   }
+  if (
+    proof.closureAccounting.productionWorkerPreflightRequiredArtifactCount !==
+      proof.closureAccounting.productionWorkerPreflightPresentArtifactCount +
+        proof.closureAccounting.productionWorkerPreflightMissingArtifactCount ||
+    proof.closureAccounting.productionWorkerPreflightManualRequiredRowCount !==
+      proof.closureAccounting.productionWorkerPreflightRowCount ||
+    proof.closureAccounting.productionWorkerPreflightProductReadyRowCount !== 0
+  ) {
+    throw new Error(
+      `Closure accounting lost production worker preflight evidence: ${JSON.stringify(proof.closureAccounting)}`
+    );
+  }
   const rowsWithoutAcceptanceNotes = proof.handoffRows.filter((row) => row.artifactAcceptanceNotes.length === 0);
   if (rowsWithoutAcceptanceNotes.length > 0) {
     throw new Error(`Real-runtime handoff rows need acceptance notes: ${JSON.stringify(rowsWithoutAcceptanceNotes)}`);
@@ -339,6 +351,9 @@ function sourceSnapshot(proof) {
     `- productionWorkerRequiredArtifactCount: ${proof.closureAccounting.productionWorkerRequiredArtifactCount}`,
     `- productionWorkerPresentArtifactCount: ${proof.closureAccounting.productionWorkerPresentArtifactCount}`,
     `- productionWorkerMissingArtifactCount: ${proof.closureAccounting.productionWorkerMissingArtifactCount}`,
+    `- productionWorkerPreflightRowCount: ${proof.closureAccounting.productionWorkerPreflightRowCount}`,
+    `- productionWorkerPreflightRequiredArtifactCount: ${proof.closureAccounting.productionWorkerPreflightRequiredArtifactCount}`,
+    `- productionWorkerPreflightMissingArtifactCount: ${proof.closureAccounting.productionWorkerPreflightMissingArtifactCount}`,
     `- claimAuditMissingArtifactCount: ${proof.closureAccounting.claimAuditMissingArtifactCount}`,
     `- claimAuditPhysicalDeviceRequiredRowCount: ${proof.closureAccounting.claimAuditPhysicalDeviceRequiredRowCount}`,
     `- claimAuditApprovedManualRequiredRowCount: ${proof.closureAccounting.claimAuditApprovedManualRequiredRowCount}`,
@@ -401,6 +416,9 @@ function manualValidationRunbook(proof) {
     `- productionWorkerRequiredArtifactCount: ${proof.closureAccounting.productionWorkerRequiredArtifactCount}`,
     `- productionWorkerPresentArtifactCount: ${proof.closureAccounting.productionWorkerPresentArtifactCount}`,
     `- productionWorkerMissingArtifactCount: ${proof.closureAccounting.productionWorkerMissingArtifactCount}`,
+    `- productionWorkerPreflightRowCount: ${proof.closureAccounting.productionWorkerPreflightRowCount}`,
+    `- productionWorkerPreflightRequiredArtifactCount: ${proof.closureAccounting.productionWorkerPreflightRequiredArtifactCount}`,
+    `- productionWorkerPreflightMissingArtifactCount: ${proof.closureAccounting.productionWorkerPreflightMissingArtifactCount}`,
     `- claimAuditMissingArtifactCount: ${proof.closureAccounting.claimAuditMissingArtifactCount}`,
     `- claimAuditPhysicalDeviceRequiredRowCount: ${proof.closureAccounting.claimAuditPhysicalDeviceRequiredRowCount}`,
     `- claimAuditApprovedManualRequiredRowCount: ${proof.closureAccounting.claimAuditApprovedManualRequiredRowCount}`,

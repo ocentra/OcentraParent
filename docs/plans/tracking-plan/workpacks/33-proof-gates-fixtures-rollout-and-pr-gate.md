@@ -86,6 +86,8 @@ Proof root: `output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-g
   `70-retention-platform-enforcement-preflight-proof.json`
 - Full product UI runtime preflight proof:
   `71-full-product-ui-runtime-preflight-proof.json`
+- Production worker runtime preflight proof:
+  `72-production-worker-runtime-preflight-proof.json`
 - Android system geofence blocker proof:
   `44-android-system-geofence-blocker-proof.json`
   - Classifies the local emulator geofence evidence separately from missing
@@ -132,6 +134,9 @@ Proof root: `output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-g
   product UI runtime artifact gate and production worker runtime artifact gate:
   `59-full-product-ui-runtime-artifact-gate-proof.json`,
   `58-production-worker-runtime-artifact-gate-proof.json`
+- Refreshed tracking product-readiness closure proof also consumes the
+  production worker runtime preflight proof:
+  `72-production-worker-runtime-preflight-proof.json`
 - Refreshed tracking product-readiness closure proof also enumerates the
   retention product-readiness blocker proof's writable-settings and platform
   retention enforcement blockers in the aggregate remaining-blocker row.
@@ -179,6 +184,8 @@ Proof root: `output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-g
   `57-production-durable-workers-readiness-blocker-proof.json`
 - Tracking production worker runtime artifact gate proof:
   `58-production-worker-runtime-artifact-gate-proof.json`
+- Tracking production worker runtime preflight proof:
+  `72-production-worker-runtime-preflight-proof.json`
 - Tracking full product UI runtime artifact gate proof:
   `59-full-product-ui-runtime-artifact-gate-proof.json`
 - Tracking retention runtime artifact gate proof:
@@ -201,6 +208,13 @@ Proof root: `output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-g
   manual-required acceptance rows and writes a generated runbook while keeping
   full product UI runtime, child-device runtime, physical-device, authority,
   provider, production, and product-ready claims false.
+- Tracking production worker runtime preflight proof:
+  `72-production-worker-runtime-preflight-proof.json`
+  turns the eight missing production worker runtime artifact refs into
+  manual-required acceptance rows and writes a generated runbook while keeping
+  production worker execution, durable production storage, provider receipt
+  runtime, authority runtime, physical-device proof, and product-ready tracking
+  false.
 - Tracking child-runtime Android emulator readiness bridge proof:
   `67-child-runtime-android-emulator-readiness-bridge-proof.json`
 - Tracking Android emulator artifact inventory proof:
@@ -1388,6 +1402,14 @@ tracking-claim-audit-proof tracking-product-readiness-closure-proof`
       product-readiness closure and real-runtime handoff proofs now carry the
       four-row, four-required-artifact, zero-present accounting forward while
       full product UI runtime and product-ready claims remain false.
+- [x] Production worker runtime preflight refresh: WP33 now carries eight
+      manual-required acceptance rows for the missing production location
+      upload, retention cleanup, notification outbox, escalation timeout,
+      provider receipt, child-device delivery, authority status, and audit
+      durable storage artifacts. The product-readiness closure and real-runtime
+      handoff proofs now carry the eight-row, eight-required-artifact,
+      zero-present accounting forward while production runtime and product-ready
+      claims remain false.
 - [x] Claim-audit tier accounting refresh: claim-audit proof, product-readiness
       closure, real-runtime handoff, and source reconciliation gap-map now
       carry and assert the final manual-required split of six

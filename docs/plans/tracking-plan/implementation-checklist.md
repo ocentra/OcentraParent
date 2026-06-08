@@ -1100,6 +1100,18 @@ Every implementation workpack must update, or explicitly justify not updating:
       runtime, and product-ready tracking false. The production durable workers
       readiness blocker now preserves exact required, present, and missing
       production worker runtime artifact refs/counts from this gate.
+- [x] Production worker runtime preflight proof now turns those eight missing
+      production worker/storage artifact refs into manual-required acceptance
+      rows and a generated runbook before any production runtime claim can move.
+      Proof:
+      `output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-gate/72-production-worker-runtime-preflight-proof.json`;
+      command:
+      `node scripts/test/tracking-production-worker-runtime-preflight-proof.mjs`.
+      The product-readiness closure and real-runtime handoff proofs now carry
+      the eight-row production worker preflight accounting forward while keeping
+      production worker execution, durable production storage, provider receipt
+      runtime, authority runtime, physical-device proof, and product-ready
+      tracking false.
 - [x] Authority enrollment manual-required proof records Android device-owner,
       Android managed-profile, iOS Family Controls entitlement, iOS App Review,
       and desktop managed-policy evidence requirements under WP31/WP33 without

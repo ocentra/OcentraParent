@@ -106,6 +106,14 @@
 - Authority, child-runtime, full-product UI, production worker, retention
   runtime, physical-device, and escalation artifact gates now enumerate required
   real-runtime artifacts while keeping product claims false.
+- Production worker runtime preflight proof now consumes the production worker
+  artifact gate and turns the eight missing worker/storage refs into
+  manual-required acceptance rows for location upload, retention cleanup,
+  notification outbox, escalation timeout, provider receipt, child-device
+  delivery, authority status, and audit durable storage. Product-readiness
+  closure and real-runtime handoff now carry those eight preflight rows/counts
+  forward while production worker execution and product-ready tracking remain
+  false.
 - The real-runtime handoff proof now carries row-level blocker ids, required
   manual validation commands, artifact acceptance notes, and a generated manual
   validation runbook for the P4 handoff rows so the remaining Android, iOS,

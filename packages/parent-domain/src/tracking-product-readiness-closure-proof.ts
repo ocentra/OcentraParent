@@ -40,6 +40,7 @@ export const TrackingProductReadinessClosureCoverageTagSchema = Schema.Literal(
   'full-product-ui-runtime-preflight',
   'production-durable-workers-readiness-blocker',
   'production-worker-runtime-artifact-gate',
+  'production-worker-runtime-preflight',
   'retention-product-readiness-blocker',
   'retention-runtime-artifact-gate',
   'retention-platform-enforcement-preflight',
@@ -77,6 +78,7 @@ export const RequiredTrackingProductReadinessClosureCoverageTags = [
   'full-product-ui-runtime-preflight',
   'production-durable-workers-readiness-blocker',
   'production-worker-runtime-artifact-gate',
+  'production-worker-runtime-preflight',
   'retention-product-readiness-blocker',
   'retention-runtime-artifact-gate',
   'retention-platform-enforcement-preflight',
@@ -159,6 +161,12 @@ export const TrackingProductReadinessClosureAggregateEvidenceSchema = withParser
     productionWorkerRequiredArtifactCount: Schema.Number.pipe(Schema.int(), Schema.positive()),
     productionWorkerPresentArtifactCount: Schema.Number.pipe(Schema.int()),
     productionWorkerMissingArtifactCount: Schema.Number.pipe(Schema.int()),
+    productionWorkerPreflightRowCount: Schema.Number.pipe(Schema.int(), Schema.positive()),
+    productionWorkerPreflightManualRequiredRowCount: Schema.Number.pipe(Schema.int(), Schema.positive()),
+    productionWorkerPreflightRequiredArtifactCount: Schema.Number.pipe(Schema.int(), Schema.positive()),
+    productionWorkerPreflightPresentArtifactCount: Schema.Literal(0),
+    productionWorkerPreflightMissingArtifactCount: Schema.Number.pipe(Schema.int(), Schema.positive()),
+    productionWorkerPreflightProductReadyRowCount: Schema.Literal(0),
     claimAuditPresentArtifactCount: Schema.Number.pipe(Schema.int()),
     claimAuditMissingArtifactCount: Schema.Number.pipe(Schema.int(), Schema.positive()),
     claimAuditManualRequiredRowCount: Schema.Number.pipe(Schema.int(), Schema.positive()),
@@ -265,6 +273,22 @@ export const TrackingProductReadinessClosureAggregateEvidenceSchema = withParser
           evidence.productionWorkerRequiredArtifactCount ===
             evidence.productionWorkerPresentArtifactCount + evidence.productionWorkerMissingArtifactCount ||
           'Aggregate closure evidence must classify every production worker runtime artifact'
+      )
+    )
+    .pipe(
+      Schema.filter(
+        (evidence) =>
+          evidence.productionWorkerPreflightRequiredArtifactCount ===
+            evidence.productionWorkerPreflightPresentArtifactCount +
+              evidence.productionWorkerPreflightMissingArtifactCount ||
+          'Aggregate closure evidence must classify every production worker preflight artifact'
+      )
+    )
+    .pipe(
+      Schema.filter(
+        (evidence) =>
+          evidence.productionWorkerPreflightRowCount === evidence.productionWorkerPreflightManualRequiredRowCount ||
+          'Aggregate closure evidence must keep production worker preflight manual-required'
       )
     )
     .pipe(
