@@ -49,6 +49,10 @@ pub const APP_GAME_ADAPTER_DISPATCH_RESULT_ENFORCEMENT_COMMAND: &str = "agent.en
 pub const APP_GAME_ADAPTER_DISPATCH_RESULT_ENFORCEMENT_EVENT: &str =
     "agent.enforcement.audit.reported";
 pub const APP_GAME_ADAPTER_DISPATCH_RESULT_ENFORCEMENT_ACTION_MODE: &str = "terminate-process";
+pub const APP_GAME_ADAPTER_DISPATCH_RESULT_READBACK_COMMAND: &str =
+    "agent.activity.app-game.adapter-dispatch-result.read-model.get";
+pub const APP_GAME_ADAPTER_DISPATCH_EXECUTE_TEST_COMMAND_ID: &str =
+    "app-game-adapter-dispatch-execute-command";
 pub const APP_GAME_ADAPTER_DISPATCH_RESULT_TEST_COMMAND_ID: &str =
     "app-game-adapter-dispatch-result-command";
 pub const APP_GAME_ADAPTER_DISPATCH_RESULT_TEST_GENERATED_AT: &str = "2026-06-08T10:44:00Z";

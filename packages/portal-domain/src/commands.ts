@@ -206,6 +206,12 @@ export const PortalCommandButtons = [
     payload: {},
   },
   {
+    label: resolvePortalDevText(PortalDevTextToken.ExecuteActivityAppGameAdapterDispatch),
+    command: AgentCommand.ActivityAppGameAdapterDispatchExecute,
+    resultEvent: AgentEvent.ActivityAppGameAdapterDispatchExecuted,
+    payload: {},
+  },
+  {
     label: resolvePortalDevText(PortalDevTextToken.GetActivityNetworkReadModel),
     command: AgentCommand.ActivityNetworkReadModelGet,
     resultEvent: AgentEvent.ActivityNetworkReadModelReported,

@@ -116,6 +116,8 @@ pub enum AgentCommandName {
     AgentActivityAppGameAdapterDispatchPreflightReadModelGet,
     #[serde(rename = "agent.activity.app-game.adapter-dispatch-result.read-model.get")]
     AgentActivityAppGameAdapterDispatchResultReadModelGet,
+    #[serde(rename = "agent.activity.app-game.adapter-dispatch.execute")]
+    AgentActivityAppGameAdapterDispatchExecute,
     #[serde(rename = "agent.activity.app-game.timer-parent-surface.read-model.get")]
     AgentActivityAppGameTimerParentSurfaceReadModelGet,
     #[serde(
@@ -272,6 +274,8 @@ pub enum AgentEventName {
     AgentActivityAppGameAdapterDispatchPreflightReadModelReported,
     #[serde(rename = "agent.activity.app-game.adapter-dispatch-result.read-model.reported")]
     AgentActivityAppGameAdapterDispatchResultReadModelReported,
+    #[serde(rename = "agent.activity.app-game.adapter-dispatch.executed")]
+    AgentActivityAppGameAdapterDispatchExecuted,
     #[serde(rename = "agent.activity.app-game.timer-parent-surface.read-model.reported")]
     AgentActivityAppGameTimerParentSurfaceReadModelReported,
     #[serde(

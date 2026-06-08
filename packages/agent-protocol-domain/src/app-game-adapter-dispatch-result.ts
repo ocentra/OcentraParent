@@ -11,6 +11,7 @@ const DispatchResultText = Schema.String.pipe(Schema.minLength(1));
 const DispatchResultCount = Schema.Number.pipe(Schema.nonNegative(), Schema.int());
 
 export const AgentAppGameAdapterDispatchResultPayloadField = 'appGameAdapterDispatchResultReadModel' as const;
+export const AgentAppGameAdapterDispatchExecuteResultPayloadField = 'appGameAdapterDispatchExecuteResult' as const;
 
 export const AgentAppGameAdapterDispatchCommandResultState = {
   CommandAccepted: 'command-accepted',
@@ -234,8 +235,46 @@ export const AgentAppGameAdapterDispatchResultReadModelSchema = withParser(
   )
 );
 
+const AgentAppGameAdapterDispatchExecuteResultBaseSchema = Schema.Struct({
+  schemaVersion: Schema.Literal(AppGameSchemaVersion),
+  commandId: DispatchResultText,
+  generatedAt: DispatchResultText,
+  sourceReadModelId: Schema.Literal('app-game-adapter-dispatch-result'),
+  sourceDispatchRowId: Schema.Literal('app-game-adapter-dispatch-result-windows-app-game-owned-process-time-limit'),
+  sourceProofEntryId: Schema.Literal('windows-app-game-owned-process-time-limit'),
+  executionCommandName: Schema.Literal('agent.enforcement.execute'),
+  executionEventName: Schema.Literal('agent.enforcement.audit.reported'),
+  executionResultId: DispatchResultText,
+  executionStatus: DispatchResultText,
+  executionAdapterResultCode: DispatchResultText,
+  executionAuditEventId: DispatchResultText,
+  readbackCommandName: Schema.Literal('agent.activity.app-game.adapter-dispatch-result.read-model.get'),
+  adapterDispatchExecutedClaimed: Schema.Boolean,
+  broadInstalledAppBlockingClaimed: Schema.Literal(false),
+  childDeviceDeliveryClaimed: Schema.Literal(false),
+  platformEnforcementClaimed: Schema.Literal(false),
+  providerDeliveryClaimed: Schema.Literal(false),
+  privateDiagnosticsClaimed: Schema.Literal(false),
+});
+
+type AgentAppGameAdapterDispatchExecuteResultCandidate = Infer<
+  typeof AgentAppGameAdapterDispatchExecuteResultBaseSchema
+>;
+
+export const AgentAppGameAdapterDispatchExecuteResultSchema = withParser(
+  AgentAppGameAdapterDispatchExecuteResultBaseSchema.pipe(
+    Schema.filter(
+      (result: AgentAppGameAdapterDispatchExecuteResultCandidate) =>
+        result.executionStatus === 'actually-enforced' ||
+        !result.adapterDispatchExecutedClaimed ||
+        'Expected scoped adapter dispatch execution to claim execution only when enforcement reports actually-enforced'
+    )
+  )
+);
+
 export type AgentAppGameAdapterDispatchResultRow = Infer<typeof AgentAppGameAdapterDispatchResultRowSchema>;
 export type AgentAppGameAdapterDispatchResultReadModel = Infer<typeof AgentAppGameAdapterDispatchResultReadModelSchema>;
+export type AgentAppGameAdapterDispatchExecuteResult = Infer<typeof AgentAppGameAdapterDispatchExecuteResultSchema>;
 
 export type AgentAppGameAdapterDispatchResultFailureReason =
   | 'wrong-event'
@@ -247,6 +286,16 @@ export type AgentAppGameAdapterDispatchResult =
   | {
       readonly ok: true;
       readonly value: AgentAppGameAdapterDispatchResultReadModel;
+    }
+  | {
+      readonly ok: false;
+      readonly reason: AgentAppGameAdapterDispatchResultFailureReason;
+    };
+
+export type AgentAppGameAdapterDispatchExecute =
+  | {
+      readonly ok: true;
+      readonly value: AgentAppGameAdapterDispatchExecuteResult;
     }
   | {
       readonly ok: false;
@@ -275,6 +324,36 @@ export function parseAgentAppGameAdapterDispatchResultEvent(
   const parsed = AgentAppGameAdapterDispatchResultReadModelSchema.safeParse(decoded);
   if (!parsed.success || parsed.data === undefined) {
     return dispatchResultFailure('invalid-payload');
+  }
+
+  return {
+    ok: true,
+    value: parsed.data,
+  };
+}
+
+export function parseAgentAppGameAdapterDispatchExecuteEvent(
+  event: AgentEventEnvelope
+): AgentAppGameAdapterDispatchExecute {
+  if (event.event !== AgentEvent.ActivityAppGameAdapterDispatchExecuted) {
+    return dispatchExecuteFailure('wrong-event');
+  }
+
+  const raw = event.payload[AgentAppGameAdapterDispatchExecuteResultPayloadField];
+  if (!isAgentProtocolLogText(raw)) {
+    return dispatchExecuteFailure('missing-json-field');
+  }
+
+  let decoded: unknown;
+  try {
+    decoded = JSON.parse(raw);
+  } catch {
+    return dispatchExecuteFailure('invalid-json');
+  }
+
+  const parsed = AgentAppGameAdapterDispatchExecuteResultSchema.safeParse(decoded);
+  if (!parsed.success || parsed.data === undefined) {
+    return dispatchExecuteFailure('invalid-payload');
   }
 
   return {
@@ -371,6 +450,15 @@ function acceptedExecutionEvidenceIsHonest(row: AgentAppGameAdapterDispatchResul
 function dispatchResultFailure(
   reason: AgentAppGameAdapterDispatchResultFailureReason
 ): AgentAppGameAdapterDispatchResult {
+  return {
+    ok: false,
+    reason,
+  };
+}
+
+function dispatchExecuteFailure(
+  reason: AgentAppGameAdapterDispatchResultFailureReason
+): AgentAppGameAdapterDispatchExecute {
   return {
     ok: false,
     reason,

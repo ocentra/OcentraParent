@@ -29,6 +29,7 @@ use ocentra_parent_agent_protocol::{
 };
 
 mod activity_memory_graph_report;
+mod app_game_adapter_dispatch_execute_payload;
 mod app_game_adapter_dispatch_preflight_payload;
 #[cfg(test)]
 mod app_game_adapter_dispatch_preflight_payload_tests;
@@ -105,6 +106,7 @@ use self::app_game_policy_readiness_payload::{
 };
 pub use self::app_game_timer_parent_surface_payload::build_activity_app_game_timer_parent_surface_report;
 pub use activity_memory_graph_report::build_activity_memory_graph_report;
+pub use app_game_adapter_dispatch_execute_payload::build_activity_app_game_adapter_dispatch_execute_report;
 pub use app_game_adapter_dispatch_preflight_payload::build_activity_app_game_adapter_dispatch_preflight_report;
 pub use app_game_adapter_dispatch_result_payload::build_activity_app_game_adapter_dispatch_result_report;
 pub use app_game_adapter_execution_readiness_payload::build_activity_app_game_adapter_execution_readiness_report;

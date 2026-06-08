@@ -4,6 +4,7 @@ use ocentra_parent_agent_protocol::{
     constants, policy_constants, AgentCommandEnvelope, AgentCommandName, AgentEventName,
     AgentMessageTarget, AgentPeer, AgentPeerRole, AgentRoute,
     AppGameAdapterDispatchResultReadModel, LogFieldValue, LogFields, AGENT_PROTOCOL_SCHEMA_VERSION,
+    APP_GAME_ADAPTER_DISPATCH_EXECUTE_TEST_COMMAND_ID,
     APP_GAME_ADAPTER_DISPATCH_RESULT_TEST_COMMAND_ID,
     APP_GAME_ADAPTER_DISPATCH_RESULT_TEST_DEVICE_ID,
     APP_GAME_ADAPTER_DISPATCH_RESULT_TEST_PORTAL_PEER,
@@ -12,6 +13,7 @@ use ocentra_parent_agent_protocol::{
 
 use crate::enforcement_api::{build_enforcement_audit_report_with_paths, EnforcementJournalPaths};
 
+use super::app_game_adapter_dispatch_execute_payload::build_activity_app_game_adapter_dispatch_execute_report_with_paths;
 use super::app_game_adapter_dispatch_result_payload::{
     build_activity_app_game_adapter_dispatch_result_report,
     build_activity_app_game_adapter_dispatch_result_report_with_store_path,
@@ -106,6 +108,71 @@ async fn app_game_adapter_dispatch_result_command_reads_latest_store_audit_evide
     );
 }
 
+#[tokio::test]
+async fn app_game_adapter_dispatch_execute_command_runs_scoped_enforcement_and_readback() {
+    let paths = temp_paths(APP_GAME_ADAPTER_DISPATCH_EXECUTE_TEST_COMMAND_ID);
+    cleanup_paths(&paths);
+    let execute_event = build_activity_app_game_adapter_dispatch_execute_report_with_paths(
+        dispatch_execute_command(),
+        paths.clone(),
+    )
+    .await;
+    let readback_event = build_activity_app_game_adapter_dispatch_result_report_with_store_path(
+        dispatch_result_command(),
+        paths.store_path.clone(),
+    )
+    .await;
+    cleanup_paths(&paths);
+
+    assert_eq!(
+        execute_event.event,
+        AgentEventName::AgentActivityAppGameAdapterDispatchExecuted
+    );
+    let execute_result = dispatch_execute_result(&execute_event);
+    assert_eq!(
+        execute_result
+            .get(constants::field::EXECUTION_RESULT_ID)
+            .and_then(|value| value.as_str()),
+        Some(constants::enforcement::TEST_RESULT_ID)
+    );
+    assert_eq!(
+        execute_result
+            .get(constants::field::EXECUTION_AUDIT_EVENT_ID)
+            .and_then(|value| value.as_str()),
+        Some(constants::enforcement::TEST_AUDIT_EVENT_ID)
+    );
+    assert_eq!(
+        execute_result
+            .get(constants::field::BROAD_INSTALLED_APP_BLOCKING_CLAIMED)
+            .and_then(|value| value.as_bool()),
+        Some(false)
+    );
+    let read_model = dispatch_result_read_model(&readback_event);
+    assert_eq!(read_model.adapter_execution_reported_count, 1);
+    assert_eq!(read_model.adapter_execution_evidence_missing_count, 0);
+}
+
+#[tokio::test]
+async fn app_game_adapter_dispatch_execute_rejects_non_windows_targets() {
+    let paths = temp_paths(constants::enforcement::PLATFORM_LINUX);
+    cleanup_paths(&paths);
+    let mut command = dispatch_execute_command();
+    command.target.platform = constants::enforcement::PLATFORM_LINUX.to_string();
+    let event =
+        build_activity_app_game_adapter_dispatch_execute_report_with_paths(command, paths.clone())
+            .await;
+    cleanup_paths(&paths);
+
+    assert_eq!(event.event, AgentEventName::AgentCommandRejected);
+    assert_eq!(
+        event
+            .payload
+            .get(constants::field::REASON)
+            .and_then(string_log_value),
+        Some(constants::enforcement::REJECTION_UNSUPPORTED_CAPABILITY)
+    );
+}
+
 fn dispatch_result_command() -> AgentCommandEnvelope {
     AgentCommandEnvelope {
         schema_version: AGENT_PROTOCOL_SCHEMA_VERSION,
@@ -121,6 +188,25 @@ fn dispatch_result_command() -> AgentCommandEnvelope {
             route: AgentRoute::Localhost,
         },
         command: AgentCommandName::AgentActivityAppGameAdapterDispatchResultReadModelGet,
+        payload: Default::default(),
+    }
+}
+
+fn dispatch_execute_command() -> AgentCommandEnvelope {
+    AgentCommandEnvelope {
+        schema_version: AGENT_PROTOCOL_SCHEMA_VERSION,
+        message_id: APP_GAME_ADAPTER_DISPATCH_EXECUTE_TEST_COMMAND_ID.to_string(),
+        sent_at: APP_GAME_ADAPTER_DISPATCH_RESULT_TEST_SENT_AT.to_string(),
+        source: AgentPeer {
+            peer_id: APP_GAME_ADAPTER_DISPATCH_RESULT_TEST_PORTAL_PEER.to_string(),
+            role: AgentPeerRole::Portal,
+        },
+        target: AgentMessageTarget {
+            device_id: APP_GAME_ADAPTER_DISPATCH_RESULT_TEST_DEVICE_ID.to_string(),
+            platform: APP_GAME_PARENT_PLATFORM_WINDOWS.to_string(),
+            route: AgentRoute::Localhost,
+        },
+        command: AgentCommandName::AgentActivityAppGameAdapterDispatchExecute,
         payload: Default::default(),
     }
 }
@@ -223,6 +309,17 @@ fn dispatch_result_read_model(
     let value = event
         .payload
         .get(constants::field::APP_GAME_ADAPTER_DISPATCH_RESULT_READ_MODEL)
+        .and_then(string_log_value)
+        .expect(constants::error::AGENT_EVENT_SERIALIZES);
+    serde_json::from_str(value).expect(constants::error::AGENT_EVENT_SERIALIZES)
+}
+
+fn dispatch_execute_result(
+    event: &ocentra_parent_agent_protocol::AgentEventEnvelope,
+) -> serde_json::Value {
+    let value = event
+        .payload
+        .get(constants::field::APP_GAME_ADAPTER_DISPATCH_EXECUTE_RESULT)
         .and_then(string_log_value)
         .expect(constants::error::AGENT_EVENT_SERIALIZES);
     serde_json::from_str(value).expect(constants::error::AGENT_EVENT_SERIALIZES)

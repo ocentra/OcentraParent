@@ -1584,6 +1584,16 @@ diagnostics, or raw private source rows.
       enforcement outside the scoped Windows owned-process boundary, provider
       delivery, child-device delivery, raw private source rows, raw target
       values, and private diagnostics remain unclaimed.
+      The dispatch path now also exposes an explicit manual
+      `agent.activity.app-game.adapter-dispatch.execute` command that invokes
+      the existing `agent.enforcement.execute` path only for that scoped
+      Windows owned-process app/game timer row and returns a parent-safe
+      `agent.activity.app-game.adapter-dispatch.executed` result. The read-model
+      command remains side-effect-free, and portal overview polling does not
+      auto-run execution. Broad installed-app blocking, platform enforcement
+      outside the scoped Windows owned-process boundary, provider delivery,
+      child-device delivery, raw private source rows, raw target values, and
+      private diagnostics remain unclaimed.
 - [ ] Blocking/time-limit proof before done claim. Scoped owned-process
       time-limit proof exists; broad block-launch/hide/suspend/shield and
       allowlist remain manual-required or not-claimed until platform setup,

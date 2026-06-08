@@ -123,6 +123,8 @@ pub mod event_id {
         "activity-app-game-adapter-dispatch-preflight-read-model-reported";
     pub const ACTIVITY_APP_GAME_ADAPTER_DISPATCH_RESULT_READ_MODEL_REPORTED: &str =
         "activity-app-game-adapter-dispatch-result-read-model-reported";
+    pub const ACTIVITY_APP_GAME_ADAPTER_DISPATCH_EXECUTED: &str =
+        "activity-app-game-adapter-dispatch-executed";
     pub const ACTIVITY_APP_GAME_TIMER_PARENT_SURFACE_READ_MODEL_REPORTED: &str =
         "activity-app-game-timer-parent-surface-read-model-reported";
     pub const ACTIVITY_APP_GAME_TIMER_PARENT_PREFERENCE_SETUP_REQUESTED: &str =

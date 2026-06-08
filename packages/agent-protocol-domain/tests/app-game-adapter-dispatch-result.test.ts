@@ -10,9 +10,11 @@ import {
   AgentAppGameAdapterDispatchAdapterExecutionState,
   AgentAppGameAdapterDispatchCommandResultDecision,
   AgentAppGameAdapterDispatchCommandResultState,
+  AgentAppGameAdapterDispatchExecuteResultPayloadField,
   AgentAppGameAdapterDispatchExecutionAuditDecision,
   AgentAppGameAdapterDispatchExecutionAuditState,
   AgentAppGameAdapterDispatchResultPayloadField,
+  parseAgentAppGameAdapterDispatchExecuteEvent,
   parseAgentAppGameAdapterDispatchResultEvent,
 } from '../src/app-game-adapter-dispatch-result';
 import { AgentEvent, type AgentEventEnvelope } from '../src/contracts';
@@ -146,6 +148,62 @@ const DispatchResultReadModel = {
   ],
 } as const;
 
+const DispatchExecuteResult = {
+  schemaVersion: AppGameSchemaVersion,
+  commandId: 'app-game-adapter-dispatch-execute-command',
+  generatedAt: '2026-06-08T10:44:02.000Z',
+  sourceReadModelId: 'app-game-adapter-dispatch-result',
+  sourceDispatchRowId: 'app-game-adapter-dispatch-result-windows-app-game-owned-process-time-limit',
+  sourceProofEntryId: 'windows-app-game-owned-process-time-limit',
+  executionCommandName: 'agent.enforcement.execute',
+  executionEventName: 'agent.enforcement.audit.reported',
+  executionResultId: 'enforcement-result-app-game-owned-process',
+  executionStatus: 'actually-enforced',
+  executionAdapterResultCode: 'process-already-exited',
+  executionAuditEventId: 'enforcement-audit-app-game-owned-process',
+  readbackCommandName: 'agent.activity.app-game.adapter-dispatch-result.read-model.get',
+  adapterDispatchExecutedClaimed: true,
+  broadInstalledAppBlockingClaimed: false,
+  childDeviceDeliveryClaimed: false,
+  platformEnforcementClaimed: false,
+  providerDeliveryClaimed: false,
+  privateDiagnosticsClaimed: false,
+} as const;
+
+function unsafeBroadDispatchResultReadModel() {
+  return {
+    ...DispatchResultReadModel,
+    rows: [
+      {
+        ...DispatchResultReadModel.rows[1],
+        dispatchCommandResultState: AgentAppGameAdapterDispatchCommandResultState.CommandAccepted,
+        dispatchCommandResultDecision: AgentAppGameAdapterDispatchCommandResultDecision.CommandAccepted,
+        enforcementCommandName: 'agent.enforcement.execute',
+        enforcementEventName: 'agent.enforcement.audit.reported',
+        enforcementActionMode: 'terminate-process',
+        dispatchCommandResultId: 'unsafe-broad-app-command-result',
+        dispatchCommandAuditRefs: ['unsafe-audit-ref'],
+        dispatchCommandTimerRefs: ['unsafe-timer-ref'],
+        dispatchExecutionAuditState: AgentAppGameAdapterDispatchExecutionAuditState.ServiceLocalAuditRecorded,
+        dispatchExecutionAuditDecision: AgentAppGameAdapterDispatchExecutionAuditDecision.ServiceLocalAuditRecorded,
+        dispatchExecutionAuditId: 'unsafe-broad-app-execution-audit',
+        dispatchExecutionAuditRefs: ['unsafe-execution-audit-ref'],
+        dispatchAdapterExecutionState: AgentAppGameAdapterDispatchAdapterExecutionState.AdapterExecutionReported,
+        dispatchAdapterExecutionDecision: AgentAppGameAdapterDispatchAdapterExecutionDecision.AdapterExecutionReported,
+        dispatchAdapterExecutionResultId: 'unsafe-broad-app-execution-result',
+        dispatchAdapterExecutionStatus: 'actually-enforced',
+        dispatchAdapterExecutionAdapterResultCode: 'process-exited',
+        dispatchAdapterExecutionAuditEventId: 'unsafe-broad-app-audit-event',
+        dispatchAdapterExecutionRefs: ['unsafe-broad-app-adapter-execution-ref'],
+        manualProofRequirements: [],
+        adapterDispatchCommandResultClaimed: true,
+        adapterDispatchExecutedClaimed: true,
+        serviceLocalExecutionAuditClaimed: true,
+      },
+    ],
+  };
+}
+
 describe('agent app-game adapter dispatch result parser', () => {
   it('parses scoped dispatch command-result rows without claiming adapter execution', () => {
     const parsed = parseAgentAppGameAdapterDispatchResultEvent(
@@ -174,40 +232,42 @@ describe('agent app-game adapter dispatch result parser', () => {
     });
     expect(
       parseAgentAppGameAdapterDispatchResultEvent(
-        dispatchResultEvent(
+        dispatchResultEvent(JSON.stringify(unsafeBroadDispatchResultReadModel()))
+      )
+    ).toEqual({
+      ok: false,
+      reason: 'invalid-payload',
+    });
+  });
+
+  it('parses scoped adapter dispatch execute results without broad platform claims', () => {
+    expect(
+      parseAgentAppGameAdapterDispatchExecuteEvent(dispatchExecuteEvent(JSON.stringify(DispatchExecuteResult)))
+    ).toEqual({
+      ok: true,
+      value: DispatchExecuteResult,
+    });
+
+    expect(
+      parseAgentAppGameAdapterDispatchExecuteEvent({
+        ...dispatchExecuteEvent(JSON.stringify(DispatchExecuteResult)),
+        event: AgentEvent.HealthReported,
+      })
+    ).toEqual({
+      ok: false,
+      reason: 'wrong-event',
+    });
+    expect(parseAgentAppGameAdapterDispatchExecuteEvent(dispatchExecuteEvent('{'))).toEqual({
+      ok: false,
+      reason: 'invalid-json',
+    });
+    expect(
+      parseAgentAppGameAdapterDispatchExecuteEvent(
+        dispatchExecuteEvent(
           JSON.stringify({
-            ...DispatchResultReadModel,
-            rows: [
-              {
-                ...DispatchResultReadModel.rows[1],
-                dispatchCommandResultState: AgentAppGameAdapterDispatchCommandResultState.CommandAccepted,
-                dispatchCommandResultDecision: AgentAppGameAdapterDispatchCommandResultDecision.CommandAccepted,
-                enforcementCommandName: 'agent.enforcement.execute',
-                enforcementEventName: 'agent.enforcement.audit.reported',
-                enforcementActionMode: 'terminate-process',
-                dispatchCommandResultId: 'unsafe-broad-app-command-result',
-                dispatchCommandAuditRefs: ['unsafe-audit-ref'],
-                dispatchCommandTimerRefs: ['unsafe-timer-ref'],
-                dispatchExecutionAuditState: AgentAppGameAdapterDispatchExecutionAuditState.ServiceLocalAuditRecorded,
-                dispatchExecutionAuditDecision:
-                  AgentAppGameAdapterDispatchExecutionAuditDecision.ServiceLocalAuditRecorded,
-                dispatchExecutionAuditId: 'unsafe-broad-app-execution-audit',
-                dispatchExecutionAuditRefs: ['unsafe-execution-audit-ref'],
-                dispatchAdapterExecutionState:
-                  AgentAppGameAdapterDispatchAdapterExecutionState.AdapterExecutionReported,
-                dispatchAdapterExecutionDecision:
-                  AgentAppGameAdapterDispatchAdapterExecutionDecision.AdapterExecutionReported,
-                dispatchAdapterExecutionResultId: 'unsafe-broad-app-execution-result',
-                dispatchAdapterExecutionStatus: 'actually-enforced',
-                dispatchAdapterExecutionAdapterResultCode: 'process-exited',
-                dispatchAdapterExecutionAuditEventId: 'unsafe-broad-app-audit-event',
-                dispatchAdapterExecutionRefs: ['unsafe-broad-app-adapter-execution-ref'],
-                manualProofRequirements: [],
-                adapterDispatchCommandResultClaimed: true,
-                adapterDispatchExecutedClaimed: true,
-                serviceLocalExecutionAuditClaimed: true,
-              },
-            ],
+            ...DispatchExecuteResult,
+            sourceProofEntryId: 'windows-broad-installed-app-blocking-manual-gate',
+            broadInstalledAppBlockingClaimed: true,
           })
         )
       )
@@ -230,6 +290,23 @@ function dispatchResultEvent(serializedReadModel: string): AgentEventEnvelope {
     severity: 'info',
     payload: {
       [AgentAppGameAdapterDispatchResultPayloadField]: serializedReadModel,
+    },
+    snapshot: null,
+  };
+}
+
+function dispatchExecuteEvent(serializedResult: string): AgentEventEnvelope {
+  return {
+    schemaVersion: AgentProtocolSchemaVersion,
+    eventId: 'app-game-adapter-dispatch-execute-event',
+    correlationId: 'app-game-adapter-dispatch-execute-command',
+    sentAt: '2026-06-08T10:44:03.000Z',
+    source: Source,
+    target: Target,
+    event: AgentEvent.ActivityAppGameAdapterDispatchExecuted,
+    severity: 'info',
+    payload: {
+      [AgentAppGameAdapterDispatchExecuteResultPayloadField]: serializedResult,
     },
     snapshot: null,
   };

@@ -214,6 +214,7 @@ export const AgentCommandNameSchema = withParser(
     'agent.activity.app-game.adapter-execution-readiness.read-model.get',
     'agent.activity.app-game.adapter-dispatch-preflight.read-model.get',
     'agent.activity.app-game.adapter-dispatch-result.read-model.get',
+    'agent.activity.app-game.adapter-dispatch.execute',
     'agent.activity.app-game.timer-parent-surface.read-model.get',
     'agent.activity.app-game.timer-parent-surface.parent-preference-setup.request',
     'agent.browser.social-dashboard.read-model.get',
@@ -294,6 +295,7 @@ export const AgentEventNameSchema = withParser(
     'agent.activity.app-game.adapter-execution-readiness.read-model.reported',
     'agent.activity.app-game.adapter-dispatch-preflight.read-model.reported',
     'agent.activity.app-game.adapter-dispatch-result.read-model.reported',
+    'agent.activity.app-game.adapter-dispatch.executed',
     'agent.activity.app-game.timer-parent-surface.read-model.reported',
     'agent.activity.app-game.timer-parent-surface.parent-preference-setup.requested',
     'agent.browser.social-dashboard.read-model.reported',
@@ -449,6 +451,9 @@ export const AgentCommand = {
   ActivityAppGameAdapterDispatchResultReadModelGet: AgentCommandNameSchema.parse(
     'agent.activity.app-game.adapter-dispatch-result.read-model.get'
   ),
+  ActivityAppGameAdapterDispatchExecute: AgentCommandNameSchema.parse(
+    'agent.activity.app-game.adapter-dispatch.execute'
+  ),
   ActivityAppGameTimerParentSurfaceReadModelGet: AgentCommandNameSchema.parse(
     'agent.activity.app-game.timer-parent-surface.read-model.get'
   ),
@@ -564,6 +569,9 @@ export const AgentEvent = {
   ),
   ActivityAppGameAdapterDispatchResultReadModelReported: AgentEventNameSchema.parse(
     'agent.activity.app-game.adapter-dispatch-result.read-model.reported'
+  ),
+  ActivityAppGameAdapterDispatchExecuted: AgentEventNameSchema.parse(
+    'agent.activity.app-game.adapter-dispatch.executed'
   ),
   ActivityAppGameTimerParentSurfaceReadModelReported: AgentEventNameSchema.parse(
     'agent.activity.app-game.timer-parent-surface.read-model.reported'

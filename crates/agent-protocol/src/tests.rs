@@ -172,6 +172,18 @@ fn app_game_timer_parent_surface_command_and_event_names_serialize_to_contract_s
 }
 
 #[test]
+fn app_game_adapter_dispatch_execute_command_and_event_names_serialize_to_contract_shape() {
+    let command =
+        serde_json::to_value(AgentCommandName::AgentActivityAppGameAdapterDispatchExecute)
+            .expect("app game adapter dispatch execute command serializes");
+    let event = serde_json::to_value(AgentEventName::AgentActivityAppGameAdapterDispatchExecuted)
+        .expect("app game adapter dispatch execute event serializes");
+
+    assert_eq!(command, "agent.activity.app-game.adapter-dispatch.execute");
+    assert_eq!(event, "agent.activity.app-game.adapter-dispatch.executed");
+}
+
+#[test]
 fn local_network_route_serializes_to_typescript_contract_shape() {
     let serialized = serde_json::to_value(AgentRoute::LocalNetwork).expect("route serializes");
 

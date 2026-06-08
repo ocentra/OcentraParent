@@ -10,6 +10,7 @@ use crate::{
     activity_api::social_dashboard_read_model_payload::build_browser_social_dashboard_read_model_report,
     activity_api::social_source_custody_mutation_payload::build_browser_social_source_custody_mutation_report,
     activity_api::{
+        build_activity_app_game_adapter_dispatch_execute_report,
         build_activity_app_game_adapter_dispatch_preflight_report,
         build_activity_app_game_adapter_dispatch_result_report,
         build_activity_app_game_adapter_execution_readiness_report,
@@ -259,6 +260,7 @@ fn is_activity_command(command: &AgentCommandName) -> bool {
             | AgentCommandName::AgentActivityAppGameAdapterExecutionReadinessReadModelGet
             | AgentCommandName::AgentActivityAppGameAdapterDispatchPreflightReadModelGet
             | AgentCommandName::AgentActivityAppGameAdapterDispatchResultReadModelGet
+            | AgentCommandName::AgentActivityAppGameAdapterDispatchExecute
             | AgentCommandName::AgentActivityAppGameTimerParentSurfaceReadModelGet
             | AgentCommandName::AgentActivityAppGameTimerParentPreferenceSetupRequest
             | AgentCommandName::AgentBrowserSocialDashboardReadModelGet
@@ -346,6 +348,40 @@ async fn build_activity_command_report(command: AgentCommandEnvelope) -> AgentEv
         AgentCommandName::AgentActivityGamesReadModelGet => {
             build_activity_games_read_model(command).await
         }
+        AgentCommandName::AgentActivityAppGameBoundaryReadModelGet
+        | AgentCommandName::AgentActivityAppGamePolicyReadinessReadModelGet
+        | AgentCommandName::AgentActivityAppGameNotificationReadinessReadModelGet
+        | AgentCommandName::AgentActivityAppGameAdapterExecutionReadinessReadModelGet
+        | AgentCommandName::AgentActivityAppGameAdapterDispatchPreflightReadModelGet
+        | AgentCommandName::AgentActivityAppGameAdapterDispatchResultReadModelGet
+        | AgentCommandName::AgentActivityAppGameAdapterDispatchExecute
+        | AgentCommandName::AgentActivityAppGameTimerParentSurfaceReadModelGet
+        | AgentCommandName::AgentActivityAppGameTimerParentPreferenceSetupRequest => {
+            build_activity_app_game_command_report(command).await
+        }
+        AgentCommandName::AgentBrowserSocialDashboardReadModelGet => {
+            build_browser_social_dashboard_read_model_report(command).await
+        }
+        AgentCommandName::AgentBrowserSocialAuditExplanationReadModelGet => {
+            build_browser_social_audit_explanation_read_model_report(command).await
+        }
+        AgentCommandName::AgentBrowserSocialAlertReportReadModelGet => {
+            build_browser_social_alert_report_read_model_report(command).await
+        }
+        AgentCommandName::AgentActivityNetworkReadModelGet => {
+            build_activity_network_read_model(command).await
+        }
+        AgentCommandName::AgentActivityTrackingReadModelGet => {
+            build_activity_tracking_read_model_report(command).await
+        }
+        _ => build_log_snapshot_report(command),
+    }
+}
+
+async fn build_activity_app_game_command_report(
+    command: AgentCommandEnvelope,
+) -> AgentEventEnvelope {
+    match command.command.clone() {
         AgentCommandName::AgentActivityAppGameBoundaryReadModelGet => {
             build_activity_app_game_boundary_read_model_report(command).await
         }
@@ -364,26 +400,14 @@ async fn build_activity_command_report(command: AgentCommandEnvelope) -> AgentEv
         AgentCommandName::AgentActivityAppGameAdapterDispatchResultReadModelGet => {
             build_activity_app_game_adapter_dispatch_result_report(command).await
         }
+        AgentCommandName::AgentActivityAppGameAdapterDispatchExecute => {
+            build_activity_app_game_adapter_dispatch_execute_report(command).await
+        }
         AgentCommandName::AgentActivityAppGameTimerParentSurfaceReadModelGet => {
             build_activity_app_game_timer_parent_surface_report(command).await
         }
         AgentCommandName::AgentActivityAppGameTimerParentPreferenceSetupRequest => {
             build_activity_app_game_timer_parent_preference_setup_request_report(command).await
-        }
-        AgentCommandName::AgentBrowserSocialDashboardReadModelGet => {
-            build_browser_social_dashboard_read_model_report(command).await
-        }
-        AgentCommandName::AgentBrowserSocialAuditExplanationReadModelGet => {
-            build_browser_social_audit_explanation_read_model_report(command).await
-        }
-        AgentCommandName::AgentBrowserSocialAlertReportReadModelGet => {
-            build_browser_social_alert_report_read_model_report(command).await
-        }
-        AgentCommandName::AgentActivityNetworkReadModelGet => {
-            build_activity_network_read_model(command).await
-        }
-        AgentCommandName::AgentActivityTrackingReadModelGet => {
-            build_activity_tracking_read_model_report(command).await
         }
         _ => build_log_snapshot_report(command),
     }
