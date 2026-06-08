@@ -290,6 +290,16 @@ expose location or device-status features. Parents expect this category.
   real-runtime handoff row, and keeps Android physical behavior, iOS runtime,
   child-device runtime, authority, provider-delivery, production, and
   product-ready tracking claims false.
+- WP33 local execution strategy proof now exists through
+  `node scripts/test/tracking-local-execution-strategy-proof.mjs`. It records
+  Windows host validation, WSL2/Ubuntu replay, Docker CLI availability, Android
+  emulator proof routing, Samsung S9 physical status-only routing, macOS/iOS
+  CI/manual routing, remaining physical/manual runtime routing, and the final
+  sync/validation gate in one read model. The current proof has 8 execution
+  strategy rows, 4 local-runnable rows, 4 CI-runnable rows, 2 manual-required
+  rows, and 1 unavailable-here row for Docker on the current Windows PATH while
+  keeping Android physical behavior, iOS runtime, child-device runtime,
+  production runtime, and product-ready tracking claims false.
 - WP08/WP09/WP10/WP11/WP12/WP13/WP31/WP33 cross-platform runtime capability
   proof now exists through
   `node scripts/test/tracking-cross-platform-runtime-capability-proof.mjs`. It

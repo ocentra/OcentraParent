@@ -137,6 +137,8 @@ Proof root: `output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-g
   `46-product-readiness-closure-proof.json`
 - Tracking real-runtime handoff proof:
   `63-real-runtime-handoff-proof.json`
+- Tracking local execution strategy proof:
+  `74-local-execution-strategy-proof.json`
 - Tracking claim-audit proof:
   `65-claim-audit-proof.json`
 - Refreshed tracking product-readiness closure proof now consumes the
@@ -1502,3 +1504,14 @@ tracking-claim-audit-proof tracking-product-readiness-closure-proof`
       real-runtime handoff accounting. This does not upgrade Android physical
       behavior, iOS runtime, child-device runtime, authority, provider,
       production, or product-ready claims.
+- [x] Local execution strategy proof now records the single-branch batch
+      workflow before PR handoff: Windows host validation, WSL replay, Docker
+      CLI availability, Android emulator route, Samsung S9 physical status-only
+      route, macOS/iOS CI/manual route, physical/manual runtime route, and
+      final sync/validation gate. The proof writes
+      `74-local-execution-strategy-proof.json`,
+      `75-local-execution-strategy-validation.log`, and
+      `test-results/tracking-local-execution-strategy-proof/proof.json`,
+      classifies Docker as unavailable on the current Windows PATH, and keeps
+      Android physical behavior, iOS runtime, child-device runtime, production
+      runtime, and product-ready tracking false.
