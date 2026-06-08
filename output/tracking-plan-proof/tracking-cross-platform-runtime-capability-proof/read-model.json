@@ -1,13 +1,13 @@
 {
   "schemaVersion": "v0.5-tracking",
   "proofMode": "tracking-cross-platform-runtime-capability-proof",
-  "generatedAt": "2026-06-08T16:30:41.888Z",
+  "generatedAt": "2026-06-08T16:36:01.953Z",
   "rows": [
     {
       "schemaVersion": "v0.5-tracking",
       "area": "windows-host-toolchain",
       "status": "local-proof-passed",
-      "generatedAt": "2026-06-08T16:30:41.888Z",
+      "generatedAt": "2026-06-08T16:36:01.953Z",
       "proofRef": "test-results/tracking-cross-platform-runtime-capability-proof/windows-host-toolchain.json",
       "sourceRefs": [],
       "currentProofTier": "P3_LOCAL_WINDOWS_HOST",
@@ -43,7 +43,7 @@
       "schemaVersion": "v0.5-tracking",
       "area": "wsl-linux-replay",
       "status": "local-proof-passed",
-      "generatedAt": "2026-06-08T16:30:41.888Z",
+      "generatedAt": "2026-06-08T16:36:01.953Z",
       "proofRef": "test-results/tracking-plan-wsl-local-proof/proof.json",
       "sourceRefs": [
         "output/tracking-plan-proof/wsl-local-replay/proof.json"
@@ -53,7 +53,7 @@
       "observedTooling": [
         "\u0000 \u0000N\u0000A\u0000M\u0000E\u0000 \u0000 \u0000 \u0000 \u0000 \u0000 \u0000 \u0000 \u0000 \u0000 \u0000 \u0000 \u0000 \u0000 \u0000S\u0000T\u0000A\u0000T\u0000E\u0000 \u0000 \u0000 \u0000 \u0000 \u0000 \u0000 \u0000 \u0000 \u0000 \u0000 \u0000V\u0000E\u0000R\u0000S\u0000I\u0000O\u0000N\u0000\r\u0000",
         "\u0000*\u0000 \u0000U\u0000b\u0000u\u0000n\u0000t\u0000u\u0000-\u00002\u00002\u0000.\u00000\u00004\u0000 \u0000 \u0000 \u0000 \u0000 \u0000 \u0000R\u0000u\u0000n\u0000n\u0000i\u0000n\u0000g\u0000 \u0000 \u0000 \u0000 \u0000 \u0000 \u0000 \u0000 \u0000 \u00002\u0000\r\u0000",
-        "\u0000 \u0000 \u0000d\u0000o\u0000c\u0000k\u0000e\u0000r\u0000-\u0000d\u0000e\u0000s\u0000k\u0000t\u0000o\u0000p\u0000 \u0000 \u0000 \u0000 \u0000S\u0000t\u0000o\u0000p\u0000p\u0000e\u0000d\u0000 \u0000 \u0000 \u0000 \u0000 \u0000 \u0000 \u0000 \u0000 \u00002\u0000\r\u0000",
+        "\u0000 \u0000 \u0000d\u0000o\u0000c\u0000k\u0000e\u0000r\u0000-\u0000d\u0000e\u0000s\u0000k\u0000t\u0000o\u0000p\u0000 \u0000 \u0000 \u0000 \u0000R\u0000u\u0000n\u0000n\u0000i\u0000n\u0000g\u0000 \u0000 \u0000 \u0000 \u0000 \u0000 \u0000 \u0000 \u0000 \u00002\u0000\r\u0000",
         "\u0000",
         "Linux GameDev 5.15.167.4-microsoft-standard-WSL2 #1 SMP Tue Nov 5 00:21:55 UTC 2024 x86_64 x86_64 x86_64 GNU/Linux",
         "v22.22.0",
@@ -78,23 +78,25 @@
     {
       "schemaVersion": "v0.5-tracking",
       "area": "docker-container-runtime",
-      "status": "host-tool-unavailable",
-      "generatedAt": "2026-06-08T16:30:41.888Z",
+      "status": "local-proof-passed",
+      "generatedAt": "2026-06-08T16:36:01.953Z",
       "proofRef": "test-results/tracking-cross-platform-runtime-capability-proof/docker-container-runtime.json",
       "sourceRefs": [],
-      "currentProofTier": "P2_HOST_TOOL_DISCOVERED",
+      "currentProofTier": "P3_LOCAL_CONTAINER_RUNTIME",
       "requiredProofTier": "P3_LOCAL_CONTAINER_RUNTIME",
       "observedTooling": [
         "C:\\Program Files\\Docker\\Docker\\resources\\bin\\docker.exe",
         "Docker version 28.2.2, build e6534b4"
       ],
-      "passedAssertions": [],
-      "remainingBlockers": [
-        "Docker CLI or daemon is not currently reachable from this shell"
+      "passedAssertions": [
+        "Docker CLI and daemon are reachable"
       ],
-      "artifactCount": 1,
+      "remainingBlockers": [
+        "Docker smoke is infrastructure proof, not tracking product runtime proof"
+      ],
+      "artifactCount": 2,
       "ciRunnable": true,
-      "localRuntimeClaimed": false,
+      "localRuntimeClaimed": true,
       "physicalDeviceBehaviorClaimed": false,
       "authorityRuntimeClaimed": false,
       "productionRuntimeClaimed": false,
@@ -104,7 +106,7 @@
       "schemaVersion": "v0.5-tracking",
       "area": "android-emulator-runtime",
       "status": "local-proof-passed",
-      "generatedAt": "2026-06-08T16:30:41.888Z",
+      "generatedAt": "2026-06-08T16:36:01.953Z",
       "proofRef": "test-results/tracking-plan-android-emulator-proof/proof.json",
       "sourceRefs": [
         "test-results/tracking-android-emulator-artifact-inventory-proof/proof.json"
@@ -138,7 +140,7 @@
       "schemaVersion": "v0.5-tracking",
       "area": "android-physical-device-status",
       "status": "local-proof-passed",
-      "generatedAt": "2026-06-08T16:30:41.888Z",
+      "generatedAt": "2026-06-08T16:36:01.953Z",
       "proofRef": "test-results/tracking-android-physical-device-runtime-proof/proof.json",
       "sourceRefs": [],
       "currentProofTier": "P4_PHYSICAL_DEVICE_STATUS_ONLY",
@@ -164,7 +166,7 @@
       "schemaVersion": "v0.5-tracking",
       "area": "macos-ios-ci-manual-routing",
       "status": "ci-manual-required",
-      "generatedAt": "2026-06-08T16:30:41.888Z",
+      "generatedAt": "2026-06-08T16:36:01.953Z",
       "proofRef": "test-results/tracking-ios-simulator-artifact-inventory-proof/proof.json",
       "sourceRefs": [
         "test-results/tracking-plan-ios-simulator-proof/proof.json"
@@ -192,11 +194,11 @@
   ],
   "summary": {
     "rowCount": 6,
-    "localProofPassedRows": 4,
+    "localProofPassedRows": 5,
     "ciManualRequiredRows": 1,
-    "hostToolUnavailableRows": 1,
+    "hostToolUnavailableRows": 0,
     "ciRunnableRows": 4,
-    "localRuntimeClaimedRows": 4,
+    "localRuntimeClaimedRows": 5,
     "physicalDeviceBehaviorClaimedRows": 0,
     "authorityRuntimeClaimedRows": 0,
     "productionRuntimeClaimedRows": 0,
@@ -205,7 +207,7 @@
   "productClaims": {
     "windowsHostToolchainObserved": true,
     "wslLinuxReplayObserved": true,
-    "dockerContainerRuntimeObserved": false,
+    "dockerContainerRuntimeObserved": true,
     "androidEmulatorRuntimeObserved": true,
     "androidPhysicalStatusObserved": true,
     "macosIosCiRoutingPresent": true,

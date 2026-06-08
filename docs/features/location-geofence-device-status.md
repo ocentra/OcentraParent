@@ -261,9 +261,8 @@ expose location or device-status features. Parents expect this category.
   aggregates the current Windows host toolchain, WSL/Linux replay, Docker
   container runtime availability, Android emulator runtime, Android physical
   package/service/status evidence, and macOS/iOS CI/manual routing into one
-  parent-domain proof. The current Windows host, WSL/Linux, Android emulator,
-  and Android physical status rows pass locally; Docker remains
-  host-tool-unavailable until the CLI and daemon are reachable from this shell;
+  parent-domain proof. The current Windows host, WSL/Linux, Docker container
+  runtime, Android emulator, and Android physical status rows pass locally;
   macOS/iOS remain CI/manual-required on this Windows host. The proof keeps
   physical device behavior, authority, production, and product-ready tracking
   claims false.
