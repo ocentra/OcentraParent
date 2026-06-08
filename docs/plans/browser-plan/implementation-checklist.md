@@ -1055,6 +1055,27 @@ enforcement. The action-intent status projection lives in `portal-domain`, but
 the Browser route imports that focused source directly because C currently owns
 the shared `contracts.ts`/package export files.
 
+WP13 social parent notification delivery service UI addendum:
+`social-parent-notification-delivery-ui-proof` carries the existing
+parent-domain social parent-notification/report delivery readiness boundary into
+a service-backed agent protocol command/event and the existing Browser route
+social alert/report panel. The proof runs the real Rust agent service plus Vite
+portal E2E harness, requests
+`agent.browser.social-parent-notification-delivery.read-model.get`, asserts
+parent-report-ready, manual-required, and unavailable rows, writes an
+accessibility summary, and captures desktop/mobile screenshots. Evidence:
+`test-results/social-parent-notification-delivery-ui-proof/proof.json`,
+`test-results/social-parent-notification-delivery-ui-proof/accessibility-summary.json`,
+and
+`output/browser-plan-proof/social-parent-notification-delivery-ui-proof/06-ui-snapshots/social-alert-report-browser-route.png`
+plus
+`output/browser-plan-proof/social-parent-notification-delivery-ui-proof/06-ui-snapshots/social-alert-report-browser-route-mobile.png`.
+This improves SOCIAL-23/SOCIAL-24 parent-visible status coverage but keeps those
+items partial/manual-required. It does not claim parent notification UI
+delivery, external runtime report delivery, provider delivery, provider receipt
+ingestion, final policy execution, browser mutation, child intervention
+execution, unmanaged exact URL support, or enforcement.
+
 WP13 runtime stream topology and delivery-decision addendum:
 `browser-runtime-chain-topology-proof` and
 `browser-runtime-delivery-decision-proof` register the service-side

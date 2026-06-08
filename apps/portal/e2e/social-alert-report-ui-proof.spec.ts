@@ -25,6 +25,8 @@ test('browser route renders service-backed social alert and report intent rows',
   await assertSocialAlertReportRoute(page);
   await requestSocialAlertReportReadModel(page);
   await assertServiceBackedSocialAlertReportRows(page);
+  await requestSocialParentNotificationDeliveryReadModel(page);
+  await assertSocialParentNotificationDeliveryRows(page);
   await assertBrowserActionIntentStatusRows(page);
   await assertBrowserReceiptStatusRows(page);
   await captureSocialAlertReportScreenshots(page);
@@ -51,12 +53,40 @@ async function assertSocialAlertReportRoute(page: Page): Promise<void> {
   expect(routeText ?? '').not.toMatch(/(?:final policy execution proved|enforcement active)/iu);
 }
 
+async function requestSocialParentNotificationDeliveryReadModel(page: Page): Promise<void> {
+  const alertRegion = page.getByRole('region', { name: 'Social alerts and reports' });
+  await alertRegion.getByRole('button', { name: 'Social parent notification delivery readiness' }).click();
+  await expect(alertRegion.getByRole('heading', { name: '3 parent notification readiness rows' })).toBeVisible({
+    timeout: portalShellReadyTimeoutMs,
+  });
+}
+
 async function requestSocialAlertReportReadModel(page: Page): Promise<void> {
   const alertRegion = page.getByRole('region', { name: 'Social alerts and reports' });
   await alertRegion.getByRole('button', { name: 'Social alerts and reports' }).click();
   await expect(alertRegion.getByRole('heading', { name: '4 social alert/report rows' })).toBeVisible({
     timeout: portalShellReadyTimeoutMs,
   });
+}
+
+async function assertSocialParentNotificationDeliveryRows(page: Page): Promise<void> {
+  const alertRegion = page.getByRole('region', { name: 'Social alerts and reports' });
+  await expect(
+    alertRegion.getByRole('button', { name: 'Social parent notification delivery readiness' })
+  ).toBeVisible();
+  await expect(alertRegion.getByRole('heading', { name: 'Parent report status ready' })).toBeVisible();
+  await expect(alertRegion.getByRole('heading', { name: 'Parent notification manual proof required' })).toBeVisible();
+  await expect(alertRegion.getByRole('heading', { name: 'Parent notification delivery unavailable' })).toBeVisible();
+  await expect(alertRegion.getByText('parent-report-status-ready').first()).toBeVisible();
+  await expect(alertRegion.getByText('parent-owned-report-ready').first()).toBeVisible();
+  await expect(alertRegion.getByText('external-report-delivery-runtime-unavailable').first()).toBeVisible();
+  await expect(alertRegion.getByText('manual-parent-notification-ui-runtime-proof-required').first()).toBeVisible();
+  await expect(alertRegion.getByText('Parent report readiness projection only').first()).toBeVisible();
+
+  const routeText = await alertRegion.textContent();
+  expect(routeText ?? '').not.toMatch(/(?:parent notification ui delivered|provider delivery complete)/iu);
+  expect(routeText ?? '').not.toMatch(/(?:external runtime report delivered|final policy execution proved)/iu);
+  expect(routeText ?? '').not.toMatch(/(?:enforcement active|provider receipt ingested)/iu);
 }
 
 async function assertServiceBackedSocialAlertReportRows(page: Page): Promise<void> {
@@ -164,6 +194,10 @@ async function writeAccessibilitySummary(
   expect(summary.headings).toContain('High-risk social alert intent');
   expect(summary.headings).toContain('Manual alert/report proof required');
   expect(summary.headings).toContain('Provider status manual required');
+  expect(summary.headings).toContain('3 parent notification readiness rows');
+  expect(summary.headings).toContain('Parent report status ready');
+  expect(summary.headings).toContain('Parent notification manual proof required');
+  expect(summary.headings).toContain('Parent notification delivery unavailable');
   expect(summary.headings).toContain('Browser action-intent stream status');
   expect(summary.headings).toContain('Social provider receipt stream status');
   expect(summary.headings).toContain('Social provider receipt ingestion readiness');
@@ -172,6 +206,9 @@ async function writeAccessibilitySummary(
   expect(summary.labels).toContain('Capability');
   expect(summary.labels).toContain('Product claim');
   expect(summary.values).toContain('4');
+  expect(summary.values).toContain('3');
+  expect(summary.values).toContain('parent-report-status-ready');
+  expect(summary.values).toContain('parent-owned-report-ready');
   expect(summary.values).toContain('0 action candidates');
   expect(summary.values).toContain('0 provider receipts observed');
   expect(summary.values).toContain('local-outbox-only');
@@ -191,6 +228,11 @@ async function writeAccessibilitySummary(
           'high-risk-local-outbox-row-visible',
           'manual-required-row-visible',
           'provider-status-manual-required-row-visible',
+          'parent-notification-delivery-readiness-command-visible',
+          'parent-report-status-ready-row-visible',
+          'parent-notification-manual-required-row-visible',
+          'parent-notification-unavailable-row-visible',
+          'parent-notification-delivery-non-claims-visible',
           'action-intent-stream-status-visible',
           'action-intent-zero-candidates-visible',
           'receipt-stream-status-visible',

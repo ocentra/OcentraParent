@@ -240,6 +240,7 @@ export const AgentCommandNameSchema = withParser(
     'agent.browser.social-dashboard.read-model.get',
     'agent.browser.social-audit-explanation.read-model.get',
     'agent.browser.social-alert-report.read-model.get',
+    'agent.browser.social-parent-notification-delivery.read-model.get',
     'agent.browser.social-source-custody.mutation.apply',
     'agent.activity.network.read-model.get',
     'agent.activity.tracking.read-model.get',
@@ -322,6 +323,7 @@ export const AgentEventNameSchema = withParser(
     'agent.browser.social-dashboard.read-model.reported',
     'agent.browser.social-audit-explanation.read-model.reported',
     'agent.browser.social-alert-report.read-model.reported',
+    'agent.browser.social-parent-notification-delivery.read-model.reported',
     'agent.browser.social-source-custody.mutation.applied',
     'agent.activity.network.read-model.reported',
     'agent.activity.tracking.read-model.reported',
@@ -430,6 +432,15 @@ export {
 } from './social-alert-report-read-model';
 
 export {
+  parseAgentSocialParentNotificationDeliveryReadModelEvent,
+  SocialParentNotificationDeliveryReadModelSnapshotSchema,
+  type AgentSocialParentNotificationDeliveryReadModelFailureReason,
+  type AgentSocialParentNotificationDeliveryReadModelResult,
+  type SocialParentNotificationDeliveryReadModelRow,
+  type SocialParentNotificationDeliveryReadModelSnapshot,
+} from './social-parent-notification-delivery-read-model';
+
+export {
   parseAgentSocialSourceCustodyMutationEvent,
   SocialSourceCustodyMutationSnapshotSchema,
   type AgentSocialSourceCustodyMutationFailureReason,
@@ -468,6 +479,9 @@ export const AgentCommand = {
   ),
   BrowserSocialAlertReportReadModelGet: AgentCommandNameSchema.parse(
     'agent.browser.social-alert-report.read-model.get'
+  ),
+  BrowserSocialParentNotificationDeliveryReadModelGet: AgentCommandNameSchema.parse(
+    'agent.browser.social-parent-notification-delivery.read-model.get'
   ),
   BrowserSocialSourceCustodyMutationApply: AgentCommandNameSchema.parse(
     'agent.browser.social-source-custody.mutation.apply'
@@ -578,6 +592,9 @@ export const AgentEvent = {
   ),
   BrowserSocialAlertReportReadModelReported: AgentEventNameSchema.parse(
     'agent.browser.social-alert-report.read-model.reported'
+  ),
+  BrowserSocialParentNotificationDeliveryReadModelReported: AgentEventNameSchema.parse(
+    'agent.browser.social-parent-notification-delivery.read-model.reported'
   ),
   BrowserSocialSourceCustodyMutationApplied: AgentEventNameSchema.parse(
     'agent.browser.social-source-custody.mutation.applied'

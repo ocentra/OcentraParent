@@ -1,6 +1,12 @@
-import { AgentCommand, AgentEvent, type AgentEventEnvelope } from '@ocentra-parent/agent-protocol-domain/contracts';
+import {
+  AgentCommand,
+  AgentEvent,
+  parseAgentSocialParentNotificationDeliveryReadModelEvent,
+  type AgentEventEnvelope,
+} from '@ocentra-parent/agent-protocol-domain/contracts';
 import { parseAgentSocialAlertReportReadModelEvent } from '@ocentra-parent/agent-protocol-domain/social-alert-report-read-model';
 import {
+  createSocialParentNotificationDeliveryPanelIntent,
   PortalDetails,
   PortalDom,
   isPortalBrowserParentSurfaceRoute,
@@ -9,6 +15,8 @@ import {
   type BrowserSocialProviderReceiptIngestionReadinessStatusIntent,
   type BrowserSocialProviderReceiptStreamStatusDetail,
   type BrowserSocialProviderReceiptStreamStatusIntent,
+  type SocialParentNotificationDeliveryPanelDetail,
+  type SocialParentNotificationDeliveryPanelIntent,
 } from '@ocentra-parent/portal-domain/contracts';
 import { type ReactElement } from 'react';
 import type { PortalLiveActivityState } from './live-activity-state';
@@ -42,6 +50,9 @@ export function SocialAlertReportRoutePanel({
 }): ReactElement {
   const snapshot = latestSocialAlertReportSnapshot(events);
   const intent = createSocialAlertReportPanelIntent(snapshot);
+  const notificationIntent = createSocialParentNotificationDeliveryPanelIntent(
+    latestSocialParentNotificationDeliverySnapshot(events)
+  );
   return (
     <section aria-label={intent.title} className={PortalDom.Classes.TrackingStatusOverlay}>
       <div className={PortalDom.Classes.TrackingStatusOverlayContent}>
@@ -60,6 +71,17 @@ export function SocialAlertReportRoutePanel({
           >
             {intent.title}
           </button>
+          <button
+            className={PortalDom.Classes.CommandResultTab}
+            disabled={!commandEnabled}
+            onClick={() => {
+              actions.selectCommandResult(AgentEvent.BrowserSocialParentNotificationDeliveryReadModelReported);
+              actions.sendCommand(AgentCommand.BrowserSocialParentNotificationDeliveryReadModelGet, {});
+            }}
+            type={PortalDom.ButtonType.Button}
+          >
+            {notificationIntent.title}
+          </button>
         </header>
         <div
           className={[PortalDom.Classes.ProductDashboard, PortalDom.Classes.TrackingStatusOverlayGrid].join(
@@ -72,11 +94,21 @@ export function SocialAlertReportRoutePanel({
           ) : (
             intent.rows.map((row) => <SocialAlertReportRowCard key={row.key} row={row} />)
           )}
+          <SocialParentNotificationDeliveryCards intent={notificationIntent} />
           <BrowserReceiptStatusCards liveActivity={liveActivity} />
         </div>
       </div>
     </section>
   );
+}
+
+function latestSocialParentNotificationDeliverySnapshot(events: readonly AgentEventEnvelope[]): unknown {
+  const event = latestSocialParentNotificationDeliveryEvent(events);
+  if (event === null) {
+    return null;
+  }
+  const parsed = parseAgentSocialParentNotificationDeliveryReadModelEvent(event);
+  return parsed.ok ? parsed.value : null;
 }
 
 function latestSocialAlertReportSnapshot(events: readonly AgentEventEnvelope[]): unknown {
@@ -86,6 +118,23 @@ function latestSocialAlertReportSnapshot(events: readonly AgentEventEnvelope[]):
   }
   const parsed = parseAgentSocialAlertReportReadModelEvent(event);
   return parsed.ok ? parsed.value : null;
+}
+
+function latestSocialParentNotificationDeliveryEvent(events: readonly AgentEventEnvelope[]): AgentEventEnvelope | null {
+  let latest: AgentEventEnvelope | null = null;
+  let latestTime = Number.NEGATIVE_INFINITY;
+  for (let index = 0; index < events.length; index += 1) {
+    const event = events[index];
+    if (event === undefined || event.event !== AgentEvent.BrowserSocialParentNotificationDeliveryReadModelReported) {
+      continue;
+    }
+    const timestamp = Date.parse(event.sentAt);
+    if (Number.isFinite(timestamp) && timestamp >= latestTime) {
+      latest = event;
+      latestTime = timestamp;
+    }
+  }
+  return latest;
 }
 
 function latestSocialAlertReportEvent(events: readonly AgentEventEnvelope[]): AgentEventEnvelope | null {
@@ -137,6 +186,27 @@ function SocialAlertReportRowCard({ row }: { readonly row: SocialAlertReportPane
   );
 }
 
+function SocialParentNotificationDeliveryCards({
+  intent,
+}: {
+  readonly intent: SocialParentNotificationDeliveryPanelIntent;
+}): ReactElement {
+  return (
+    <>
+      <article className={cardClassName()}>
+        <h2>{intent.summary}</h2>
+        <SocialAlertReportDetails details={intent.details} />
+      </article>
+      {intent.rows.map((row) => (
+        <article className={cardClassName()} key={row.key}>
+          <h2>{row.title}</h2>
+          <SocialAlertReportDetails details={row.details} />
+        </article>
+      ))}
+    </>
+  );
+}
+
 function BrowserReceiptStatusCards({ liveActivity }: { readonly liveActivity: PortalLiveActivityState }): ReactElement {
   return (
     <>
@@ -175,7 +245,8 @@ type SocialAlertReportRenderableDetail =
   | SocialAlertReportPanelDetail
   | BrowserActionIntentStreamStatusDetail
   | BrowserSocialProviderReceiptStreamStatusDetail
-  | BrowserSocialProviderReceiptIngestionReadinessStatusDetail;
+  | BrowserSocialProviderReceiptIngestionReadinessStatusDetail
+  | SocialParentNotificationDeliveryPanelDetail;
 
 function SocialAlertReportDetails({
   details,

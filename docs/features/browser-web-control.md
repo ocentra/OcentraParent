@@ -252,6 +252,16 @@ control while being more honest about managed versus unmanaged sources.
   dispatch/receipt ingestion, final policy execution, connector/native runtime,
   browser mutation, child intervention, unmanaged exact URL support, and
   enforcement remain unclaimed.
+- Browser-plan WP13 now also carries that parent-notification/report delivery
+  readiness through a named Rust service-backed WebSocket read model and the
+  existing Browser route social alert/report panel. The portal can request
+  `agent.browser.social-parent-notification-delivery.read-model.get`, parse the
+  schema-backed reported event, and render parent-report-ready,
+  manual-required, and unavailable rows with desktop/mobile E2E screenshots.
+  This still does not claim parent notification UI delivery, external runtime
+  report delivery, provider delivery or receipt ingestion, final policy
+  execution, browser mutation, child intervention, unmanaged exact URL support,
+  or enforcement.
 - Browser-plan WP13 now projects that named subscriber status through the
   service-backed browser runtime event-chain stream payload. Current
   store-backed browser rows still report zero pending candidates because the
@@ -1182,6 +1192,12 @@ intervention states can render through the child-agent page endpoint, and social
 explanation rows can render through the service-backed Browser route read-model
 with proof-bundle fallback. Connector/native runtime, final policy execution,
 enforcement, and product readiness remain unclaimed.
+SOCIAL-23/SOCIAL-24 now also include Browser-route evidence for the
+service-backed parent notification/report delivery readiness projection. This
+improves parent-visible status coverage but keeps the social track
+partial/manual-required because provider delivery, provider receipt ingestion,
+parent notification UI delivery, final policy execution, connector/native
+runtime, and enforcement remain unclaimed.
 WP13 now registers the browser action-intent status request event in the
 reusable Rust eventing topology manifest. The event is covered by the
 browser-runtime-spine publisher and browser-action-intent-status subscriber,

@@ -8,6 +8,7 @@ use crate::{
     activity_api::social_alert_report_read_model_payload::build_browser_social_alert_report_read_model_report,
     activity_api::social_audit_explanation_read_model_payload::build_browser_social_audit_explanation_read_model_report,
     activity_api::social_dashboard_read_model_payload::build_browser_social_dashboard_read_model_report,
+    activity_api::social_parent_notification_delivery_read_model_payload::build_browser_social_parent_notification_delivery_read_model_report,
     activity_api::social_source_custody_mutation_payload::build_browser_social_source_custody_mutation_report,
     activity_api::{
         build_activity_app_game_boundary_read_model_report,
@@ -269,6 +270,7 @@ fn is_activity_command(command: &AgentCommandName) -> bool {
             | AgentCommandName::AgentBrowserSocialDashboardReadModelGet
             | AgentCommandName::AgentBrowserSocialAuditExplanationReadModelGet
             | AgentCommandName::AgentBrowserSocialAlertReportReadModelGet
+            | AgentCommandName::AgentBrowserSocialParentNotificationDeliveryReadModelGet
             | AgentCommandName::AgentActivityNetworkReadModelGet
             | AgentCommandName::AgentActivityTrackingReadModelGet
     )
@@ -379,6 +381,9 @@ async fn build_activity_command_report(command: AgentCommandEnvelope) -> AgentEv
         }
         AgentCommandName::AgentBrowserSocialAlertReportReadModelGet => {
             build_browser_social_alert_report_read_model_report(command).await
+        }
+        AgentCommandName::AgentBrowserSocialParentNotificationDeliveryReadModelGet => {
+            build_browser_social_parent_notification_delivery_read_model_report(command).await
         }
         AgentCommandName::AgentActivityNetworkReadModelGet => {
             build_activity_network_read_model(command).await

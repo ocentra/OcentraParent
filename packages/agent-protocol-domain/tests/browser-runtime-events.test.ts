@@ -659,6 +659,22 @@ function streamActionIntentFields(counters: {
   readonly actionIntentEnforcementExecutions?: number;
 }) {
   return {
+    ...streamActionIntentHandoffFields(counters),
+    ...streamActionIntentExecutionFields(counters),
+  };
+}
+
+function streamActionIntentHandoffFields(counters: {
+  readonly actionIntentCandidates?: number;
+  readonly actionIntentHandoffCandidates?: number;
+  readonly actionIntentHandoffOutboxRefs?: readonly string[];
+  readonly actionIntentHandoffRefs?: readonly string[];
+  readonly actionIntentChildAcceptedRows?: number;
+  readonly actionIntentChildCommandRefs?: readonly string[];
+  readonly actionIntentChildAcceptedEventRefs?: readonly string[];
+  readonly actionIntentParentReadModelRefs?: readonly string[];
+}) {
+  return {
     [AgentProtocolDefaults.Field.BrowserRuntimeActionIntentCandidates]: counters.actionIntentCandidates ?? 0,
     [AgentProtocolDefaults.Field.BrowserRuntimeActionIntentHandoffCandidates]:
       counters.actionIntentHandoffCandidates ?? 0,
@@ -679,6 +695,16 @@ function streamActionIntentFields(counters: {
     [AgentProtocolDefaults.Field.BrowserRuntimeActionIntentParentReadModelRefs]: JSON.stringify(
       counters.actionIntentParentReadModelRefs ?? []
     ),
+  };
+}
+
+function streamActionIntentExecutionFields(counters: {
+  readonly actionIntentDispatchAttempts?: number;
+  readonly actionIntentAdapterExecutions?: number;
+  readonly actionIntentChildInterventionExecutions?: number;
+  readonly actionIntentEnforcementExecutions?: number;
+}) {
+  return {
     [AgentProtocolDefaults.Field.BrowserRuntimeActionIntentDispatchAttempts]:
       counters.actionIntentDispatchAttempts ?? 0,
     [AgentProtocolDefaults.Field.BrowserRuntimeActionIntentAdapterExecutions]:

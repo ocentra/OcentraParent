@@ -62,6 +62,11 @@ pub(crate) mod social_dashboard_read_model_payload;
 mod social_dashboard_read_model_payload_tests;
 #[cfg(test)]
 mod social_dashboard_read_model_service_tests;
+pub(crate) mod social_parent_notification_delivery_read_model_payload;
+#[cfg(test)]
+mod social_parent_notification_delivery_read_model_payload_tests;
+#[cfg(test)]
+mod social_parent_notification_delivery_read_model_service_tests;
 pub(crate) mod social_source_custody_mutation_payload;
 #[cfg(test)]
 mod social_source_custody_mutation_payload_tests;

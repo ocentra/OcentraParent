@@ -116,6 +116,8 @@ pub enum AgentCommandName {
     AgentBrowserSocialAuditExplanationReadModelGet,
     #[serde(rename = "agent.browser.social-alert-report.read-model.get")]
     AgentBrowserSocialAlertReportReadModelGet,
+    #[serde(rename = "agent.browser.social-parent-notification-delivery.read-model.get")]
+    AgentBrowserSocialParentNotificationDeliveryReadModelGet,
     #[serde(rename = "agent.browser.social-source-custody.mutation.apply")]
     AgentBrowserSocialSourceCustodyMutationApply,
     #[serde(rename = "agent.activity.network.read-model.get")]
@@ -274,6 +276,8 @@ pub enum AgentEventName {
     AgentBrowserSocialAuditExplanationReadModelReported,
     #[serde(rename = "agent.browser.social-alert-report.read-model.reported")]
     AgentBrowserSocialAlertReportReadModelReported,
+    #[serde(rename = "agent.browser.social-parent-notification-delivery.read-model.reported")]
+    AgentBrowserSocialParentNotificationDeliveryReadModelReported,
     #[serde(rename = "agent.browser.social-source-custody.mutation.applied")]
     AgentBrowserSocialSourceCustodyMutationApplied,
     #[serde(rename = "agent.activity.network.read-model.reported")]

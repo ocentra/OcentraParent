@@ -16,6 +16,8 @@ pub const BROWSER_SOCIAL_DASHBOARD_READ_MODEL: &str = "browserSocialDashboardRea
 pub const BROWSER_SOCIAL_AUDIT_EXPLANATION_READ_MODEL: &str =
     "browserSocialAuditExplanationReadModel";
 pub const BROWSER_SOCIAL_ALERT_REPORT_READ_MODEL: &str = "browserSocialAlertReportReadModel";
+pub const BROWSER_SOCIAL_PARENT_NOTIFICATION_DELIVERY_READ_MODEL: &str =
+    "browserSocialParentNotificationDeliveryReadModel";
 pub const BROWSER_SOCIAL_SOURCE_CUSTODY_MUTATION: &str = "browserSocialSourceCustodyMutation";
 pub const ACTIVITY_TRACKING_READ_MODEL: &str = "trackingReadModel";
 pub const ACTIVE_TAB_CAPABILITY: &str = "activeTabCapability";

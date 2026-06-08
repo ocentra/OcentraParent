@@ -1226,3 +1226,34 @@ and parent-visible stream status only. It does not claim action adapter dispatch
 provider delivery, provider receipt ingestion runtime, browser mutation, child
 intervention execution, unmanaged exact URL support, final policy execution, or
 enforcement.
+
+## Social Parent Notification Delivery Service UI Addendum - 2026-06-08
+
+`social-parent-notification-delivery-ui-proof` carries the parent-domain social
+parent-notification/report delivery readiness boundary into a service-backed
+agent protocol command/event and the existing Browser route social alert/report
+panel. The route requests
+`agent.browser.social-parent-notification-delivery.read-model.get`, parses the
+reported readiness snapshot, and renders parent-report-ready, manual-required,
+and unavailable rows next to the existing social alert/report, browser
+action-intent, and social provider receipt status cards.
+
+Evidence:
+
+- `packages/agent-protocol-domain/src/social-parent-notification-delivery-read-model.ts`
+- `crates/agent-protocol/src/social_parent_notification_delivery_read_model.rs`
+- `crates/agent-service/src/activity_api/social_parent_notification_delivery_read_model_payload.rs`
+- `packages/portal-domain/src/social-parent-notification-delivery-panel.ts`
+- `apps/portal/src/SocialAlertReportRoutePanel.tsx`
+- `apps/portal/e2e/social-alert-report-ui-proof.spec.ts`
+- `scripts/test/social-parent-notification-delivery-ui-proof.mjs`
+- `test-results/social-parent-notification-delivery-ui-proof/proof.json`
+- `test-results/social-parent-notification-delivery-ui-proof/accessibility-summary.json`
+- `output/browser-plan-proof/social-parent-notification-delivery-ui-proof/06-ui-snapshots/social-alert-report-browser-route.png`
+- `output/browser-plan-proof/social-parent-notification-delivery-ui-proof/06-ui-snapshots/social-alert-report-browser-route-mobile.png`
+
+No-claim boundary: this is a local service read-model and parent-visible status
+projection only. It does not claim parent notification UI delivery, external
+runtime report delivery, provider delivery, provider receipt ingestion, final
+policy execution, browser mutation, child intervention execution, unmanaged
+exact URL support, or enforcement.

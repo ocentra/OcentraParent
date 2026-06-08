@@ -613,3 +613,16 @@ summary sensitivity rows. The proof writes
 It proves ref-only policy/alert candidate settings and rejects raw
 message/video content, screenshots, connector tokens/API calls, runtime
 settings UI, final policy decisions, and enforcement.
+
+The follow-up `social-parent-notification-delivery-ui-proof` projects the
+existing parent notification/report delivery readiness boundary through the
+local Rust service command/event path and the real Browser route. The proof
+writes `test-results/social-parent-notification-delivery-ui-proof/proof.json`,
+`test-results/social-parent-notification-delivery-ui-proof/accessibility-summary.json`,
+and desktop/mobile screenshots under
+`output/browser-plan-proof/social-parent-notification-delivery-ui-proof/06-ui-snapshots/`.
+It renders parent-report-ready, manual-required, and unavailable rows, but still
+does not claim parent notification UI delivery, external runtime report
+delivery, provider delivery/receipt ingestion, final policy execution,
+connector/native runtime, browser mutation, child intervention execution, or
+enforcement.
