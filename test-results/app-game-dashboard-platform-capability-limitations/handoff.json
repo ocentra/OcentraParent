@@ -1,0 +1,60 @@
+{
+  "workpack": "WP165",
+  "name": "app-game-dashboard-platform-capability-limitations",
+  "branch": "codex/app-game-control-product-completion",
+  "status": "validated",
+  "touched": {
+    "source": [
+      "vendor/ocentra-parent-core-ui/AppPages/ParentPortal/activity-ui-intent.ts",
+      "vendor/ocentra-parent-core-ui/AppPages/ParentPortal/app-game-dashboard-intent.ts",
+      "apps/portal/tests/activity-ui-app-game-dashboard-intent.test.ts"
+    ],
+    "docs": [
+      "docs/features/app-game-control.md",
+      "docs/plans/app-game-plan/implementation-checklist.md",
+      "docs/plans/app-game-plan/workpacks/README.md",
+      "docs/plans/app-game-plan/workpacks/165-app-game-dashboard-platform-capability-limitations.md"
+    ],
+    "proof": [
+      "output/app-game-plan-proof/165-app-game-dashboard-platform-capability-limitations/00-source-snapshot.md",
+      "output/app-game-plan-proof/165-app-game-dashboard-platform-capability-limitations/proof.json",
+      "test-results/app-game-dashboard-platform-capability-limitations/handoff.json"
+    ]
+  },
+  "summary": "Parent portal app/game dashboard accepts platform proof-pack readiness rows and exposes platform limitation counts/evidence while keeping adapter execution, broad blocking, child-device delivery, and platform enforcement unclaimed.",
+  "validation": [
+    {
+      "command": "cmd /c npm run test --workspace @ocentra-parent/portal -- --run tests/activity-ui-app-game-dashboard-intent.test.ts",
+      "result": "PASS: 19 files, 81 tests"
+    },
+    {
+      "command": "cmd /c npm run build --workspace @ocentra-parent/portal",
+      "result": "PASS: existing Vite chunk-size warnings"
+    },
+    {
+      "command": "git diff --check",
+      "result": "PASS"
+    },
+    {
+      "command": "node scripts/check-no-test-doubles.mjs",
+      "result": "PASS: 2185 checked source files"
+    },
+    {
+      "command": "node scripts/check-source-shape.mjs",
+      "result": "PASS: existing advisory warnings"
+    },
+    {
+      "command": "cmd /c npm run lanes:guard",
+      "result": "PASS"
+    },
+    {
+      "command": "cmd /c npm run hub:guard",
+      "result": "PASS"
+    }
+  ],
+  "knownGaps": [
+    "Runtime platform adapter execution proof remains open.",
+    "Product checklist update deferred because another lane owns docs/product-capability-checklist.md.",
+    "Package export update deferred because another lane owns packages/parent-domain/package.json."
+  ]
+}

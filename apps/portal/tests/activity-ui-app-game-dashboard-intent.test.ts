@@ -24,6 +24,7 @@ describe('parent portal app/game dashboard intent', () => {
     const intent = createParentPortalActivityUiIntent(
       {
         activityAppUseReadModel: adapterResult(appUseReadModel()),
+        activityAppGamePlatformExtensionReadModel: adapterResult(appGamePlatformExtensionReadModel()),
         activityGamesReadModel: adapterResult(gamesReadModel()),
       },
       3
@@ -141,6 +142,7 @@ function expectPopulatedDashboard(dashboard: ActivityUiIntent['appGameDashboard'
   expect(dashboard.capabilityRows.map((row) => row.label)).toContain('manual-required');
   expect(dashboard.capabilityRows.map((row) => row.label)).toContain('permission-required');
   expectReadinessBlockerCards(dashboard, metricPairs);
+  expectPlatformCapabilityLimitations(dashboard, metricPairs);
   expectSourceStatusRows(dashboard);
   expectSourcePanelSections(dashboard);
   expectNoRawExecutablePathLeak(dashboard);
@@ -189,6 +191,52 @@ function expectReadinessBlockerCards(
     'gold',
   ]);
   expect(evidenceRows.map((row) => row.join(' ')).join(' ')).toContain('approval review');
+}
+
+function expectPlatformCapabilityLimitations(
+  dashboard: ActivityUiIntent['appGameDashboard'],
+  metricPairs: (string | number)[][]
+) {
+  const platformRows = dashboard.platformCapabilityRows.map((row) => [
+    row.platform,
+    row.setupState,
+    row.proofPackState,
+    row.adapterExecutionClaim,
+    row.requiredProofCount,
+    row.broadBlockingClaimed,
+    row.childDeviceDeliveryClaimed,
+  ]);
+  const evidenceRows = dashboard.evidenceRows.map((row) => [row.label, row.value, row.tone]);
+
+  expect(metricPairs).toContainEqual(['Platform gaps', '4']);
+  expect(metricPairs).toContainEqual(['Adapter executed', '0']);
+  expect(platformRows).toContainEqual([
+    'macos',
+    'manual-required',
+    'manual-proof-pack-required',
+    'not-executed',
+    4,
+    false,
+    false,
+  ]);
+  expect(platformRows).toContainEqual([
+    'android',
+    'manual-required',
+    'manual-proof-pack-required',
+    'not-executed',
+    4,
+    false,
+    false,
+  ]);
+  expect(evidenceRows).toContainEqual([
+    'macos platform proof',
+    'manual-required; manual-proof-pack-required; 4 proof refs; adapter not-executed; broad block not claimed; delivery not claimed',
+    'gold',
+  ]);
+  expect(evidenceRows.map((row) => row.join(' ')).join(' ')).toContain('ios platform proof');
+  expect(dashboard.capabilityRows.map((row) => [row.label, row.value])).toContainEqual(['Platform gaps', '4 rows']);
+  expect(JSON.stringify(dashboard)).not.toContain('providerDispatchTarget');
+  expect(JSON.stringify(dashboard)).not.toContain('rawPlatformDiagnostics');
 }
 
 function expectSourceStatusRows(dashboard: ActivityUiIntent['appGameDashboard']) {
@@ -594,6 +642,43 @@ function gamesReadModel() {
     generatedAt: '2026-06-01T15:00:01Z',
     summary: 'Games read model from service projection',
     rows: [gameLauncherRow(), gameCandidateRow()],
+  } as const;
+}
+
+function appGamePlatformExtensionReadModel() {
+  return {
+    schemaVersion: ActivitySurfaceSchemaVersion,
+    state: 'manual-required',
+    generatedAt: '2026-06-01T15:00:01Z',
+    summary: 'App/game platform extension proof-pack readiness from service projection',
+    rows: [
+      platformCapabilityRow('macos', 'desktop-hard-control'),
+      platformCapabilityRow('ios', 'mobile-supervised-shield'),
+      platformCapabilityRow('android', 'device-owner-control'),
+      platformCapabilityRow('linux', 'desktop-hard-control'),
+    ],
+  } as const;
+}
+
+function platformCapabilityRow(platform: string, authorityTier: string) {
+  return {
+    platform,
+    state: 'manual-required',
+    setupState: 'manual-required',
+    proofPackState: 'manual-proof-pack-required',
+    authorityTier,
+    adapterExecutionClaim: 'not-executed',
+    broadBlockingClaimed: false,
+    privilegedMobileClaimed: false,
+    childDeviceDeliveryClaimed: false,
+    requiredProofRefs: [
+      `${platform}-setup-proof`,
+      `${platform}-inventory-proof`,
+      `${platform}-blocking-proof`,
+      `${platform}-rollback-proof`,
+    ],
+    providerDispatchTarget: `${platform}-private-provider-target`,
+    rawPlatformDiagnostics: `${platform}-private-diagnostics`,
   } as const;
 }
 

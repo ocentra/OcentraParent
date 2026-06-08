@@ -1,0 +1,35 @@
+{
+  "workpack": "165-app-game-dashboard-platform-capability-limitations",
+  "branch": "codex/app-game-control-product-completion",
+  "scope": [
+    "activity intent carries optional app/game platform extension readiness read model",
+    "dashboard intent exposes platform capability limitation rows",
+    "focused portal test proves platform rows are parent-visible and private fields do not leak"
+  ],
+  "platformRowsCovered": ["macos", "ios", "android", "linux"],
+  "parentVisibleMetrics": ["Platform gaps", "Adapter executed"],
+  "noClaimBoundaries": {
+    "providerDeliveryExecution": false,
+    "adapterDispatch": false,
+    "adapterExecution": false,
+    "broadBlocking": false,
+    "childDeviceDelivery": false,
+    "platformEnforcement": false,
+    "policyExecution": false,
+    "rawPrivateDiagnostics": false
+  },
+  "validation": {
+    "focusedPortalIntentTest": "PASS: cmd /c npm run test --workspace @ocentra-parent/portal -- --run tests/activity-ui-app-game-dashboard-intent.test.ts",
+    "portalBuild": "PASS: cmd /c npm run build --workspace @ocentra-parent/portal (existing Vite chunk-size warnings)",
+    "diffCheck": "PASS: git diff --check",
+    "noTestDoubles": "PASS: node scripts/check-no-test-doubles.mjs",
+    "sourceShape": "PASS: node scripts/check-source-shape.mjs (existing advisory warnings)",
+    "lanesGuard": "PASS: cmd /c npm run lanes:guard",
+    "hubGuard": "PASS: cmd /c npm run hub:guard"
+  },
+  "knownGaps": [
+    "runtime adapter execution proof remains open",
+    "central product checklist update deferred while another lane owns docs/product-capability-checklist.md",
+    "package export for the existing platform-extension readiness source deferred while another lane owns packages/parent-domain/package.json"
+  ]
+}

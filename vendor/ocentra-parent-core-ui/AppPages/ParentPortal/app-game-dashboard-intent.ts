@@ -62,6 +62,20 @@ export type ParentPortalAppGameSourceStatusRow = {
   readonly tone: ParentPortalAppGameDashboardTone;
 };
 
+export type ParentPortalAppGamePlatformCapabilityRow = {
+  readonly platform: string;
+  readonly state: string;
+  readonly adapterExecutionClaim: string;
+  readonly proofPackState: string;
+  readonly setupState: string;
+  readonly authorityTier: string;
+  readonly requiredProofCount: number;
+  readonly broadBlockingClaimed: boolean;
+  readonly privilegedMobileClaimed: boolean;
+  readonly childDeviceDeliveryClaimed: boolean;
+  readonly tone: ParentPortalAppGameDashboardTone;
+};
+
 export type ParentPortalAppGameDashboardIntent = {
   readonly state: string;
   readonly summary: string;
@@ -69,6 +83,7 @@ export type ParentPortalAppGameDashboardIntent = {
   readonly gameRows: readonly ParentPortalAppGameDashboardRow[];
   readonly rows: readonly ParentPortalAppGameDashboardRow[];
   readonly sourceStatusRows: readonly ParentPortalAppGameSourceStatusRow[];
+  readonly platformCapabilityRows: readonly ParentPortalAppGamePlatformCapabilityRow[];
   readonly sourcePanelSections: readonly ParentPortalAppGameSourcePanelSection[];
   readonly metrics: readonly ParentPortalAppGameDashboardMetric[];
   readonly capabilityRows: readonly ParentPortalAppGameDashboardMetric[];
@@ -78,7 +93,8 @@ export type ParentPortalAppGameDashboardIntent = {
 
 export function createParentPortalAppGameDashboardIntent(
   appUseReadModel: Record<string, unknown> | null,
-  gamesReadModel: Record<string, unknown> | null
+  gamesReadModel: Record<string, unknown> | null,
+  platformExtensionReadModel: Record<string, unknown> | null = null
 ): ParentPortalAppGameDashboardIntent {
   const appRows = appDashboardRows(appUseReadModel);
   const gameRows = gameDashboardRows(gamesReadModel);
@@ -87,8 +103,9 @@ export function createParentPortalAppGameDashboardIntent(
     ...appGameSourceStatusRows(appUseReadModel, 'app-use', 'App use', 'appName'),
     ...appGameSourceStatusRows(gamesReadModel, 'games', 'Game', 'displayName'),
   ].sort(sourceStatusRowSort);
+  const platformCapabilityRows = appGamePlatformCapabilityRows(platformExtensionReadModel);
   const sourcePanelSections = createParentPortalAppGameSourcePanelSections(sourceStatusRows);
-  const metrics = appGameDashboardMetrics(appRows, gameRows, rows, sourceStatusRows);
+  const metrics = appGameDashboardMetrics(appRows, gameRows, rows, sourceStatusRows, platformCapabilityRows);
   const state = dashboardState(appUseReadModel, gamesReadModel, rows);
 
   return {
@@ -98,10 +115,11 @@ export function createParentPortalAppGameDashboardIntent(
     gameRows,
     rows,
     sourceStatusRows,
+    platformCapabilityRows,
     sourcePanelSections,
     metrics,
-    capabilityRows: capabilityRows(rows),
-    evidenceRows: evidenceRows(rows, sourceStatusRows),
+    capabilityRows: capabilityRows(rows, platformCapabilityRows),
+    evidenceRows: evidenceRows(rows, sourceStatusRows, platformCapabilityRows),
     emptyMessage: 'No app/game read model rows reported by the local service.',
   };
 }
@@ -221,7 +239,8 @@ function appGameDashboardMetrics(
   appRows: readonly ParentPortalAppGameDashboardRow[],
   gameRows: readonly ParentPortalAppGameDashboardRow[],
   rows: readonly ParentPortalAppGameDashboardRow[],
-  sourceStatusRows: readonly ParentPortalAppGameSourceStatusRow[]
+  sourceStatusRows: readonly ParentPortalAppGameSourceStatusRow[],
+  platformCapabilityRows: readonly ParentPortalAppGamePlatformCapabilityRow[]
 ): readonly ParentPortalAppGameDashboardMetric[] {
   return [
     { label: 'Inventory', value: String(sumRows(rows, (row) => row.inventoryCount)), tone: 'cyan' },
@@ -232,6 +251,12 @@ function appGameDashboardMetrics(
     { label: 'Boundary rows', value: String(sumRows(rows, (row) => row.boundaryRowCount)), tone: 'cyan' },
     { label: 'AI classifier', value: String(sumRows(rows, (row) => row.aiClassifierResultRowCount)), tone: 'gold' },
     { label: 'Readiness blockers', value: String(readinessBlockerCount(rows)), tone: 'gold' },
+    {
+      label: 'Platform gaps',
+      value: String(platformCapabilityRows.length),
+      tone: platformCapabilityTone(platformCapabilityRows),
+    },
+    { label: 'Adapter executed', value: String(adapterExecutedCount(platformCapabilityRows)), tone: 'gold' },
     {
       label: 'Fresh sources',
       value: String(sourceStatusRows.filter(sourceStatusRowFresh).length),
@@ -275,7 +300,8 @@ function dashboardState(
 }
 
 function capabilityRows(
-  rows: readonly ParentPortalAppGameDashboardRow[]
+  rows: readonly ParentPortalAppGameDashboardRow[],
+  platformCapabilityRows: readonly ParentPortalAppGamePlatformCapabilityRow[]
 ): readonly ParentPortalAppGameDashboardMetric[] {
   const counts = new Map<string, number>();
   for (const row of rows) {
@@ -283,21 +309,28 @@ function capabilityRows(
     counts.set(key, (counts.get(key) ?? 0) + 1);
   }
   if (counts.size === 0) {
-    return [{ label: 'Capability', value: 'No service rows', tone: 'gold' }];
+    return platformCapabilityRows.length > 0
+      ? platformCapabilitySummaryRows(platformCapabilityRows)
+      : [{ label: 'Capability', value: 'No service rows', tone: 'gold' }];
   }
   return Array.from(counts.entries())
     .sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]))
-    .slice(0, 6)
-    .map(([label, value]) => ({
-      label,
-      value: `${value} rows`,
-      tone: appGameManualRequired(label) ? 'gold' : label === 'ready' ? 'cyan' : 'purple',
-    }));
+    .slice(0, 4)
+    .map(
+      ([label, value]): ParentPortalAppGameDashboardMetric => ({
+        label,
+        value: `${value} rows`,
+        tone: appGameManualRequired(label) ? 'gold' : label === 'ready' ? 'cyan' : 'purple',
+      })
+    )
+    .concat(platformCapabilitySummaryRows(platformCapabilityRows))
+    .slice(0, 6);
 }
 
 function evidenceRows(
   rows: readonly ParentPortalAppGameDashboardRow[],
-  sourceStatusRows: readonly ParentPortalAppGameSourceStatusRow[]
+  sourceStatusRows: readonly ParentPortalAppGameSourceStatusRow[],
+  platformCapabilityRows: readonly ParentPortalAppGamePlatformCapabilityRow[]
 ): readonly ParentPortalAppGameDashboardMetric[] {
   const sourceRows = sourceStatusRows.slice(0, 3).map((row) => ({
     label: `${row.sourceLabel} ${row.sourceStatusLabel}`,
@@ -305,6 +338,11 @@ function evidenceRows(
     tone: row.tone,
   }));
   const blockerRows = rows.flatMap((row) => readinessBlockerRows(row));
+  const platformRows = platformCapabilityRows.map((row) => ({
+    label: `${row.platform} platform proof`,
+    value: platformCapabilityEvidenceValue(row),
+    tone: row.tone,
+  }));
   const boundaryRows = rows
     .filter((row) => row.boundaryRowCount > 0)
     .map((row) => ({
@@ -319,10 +357,92 @@ function evidenceRows(
       value: `${row.evidenceCount} refs; ${row.lastObservedLabel}`,
       tone: row.tone,
     }));
-  const visibleRows = [...blockerRows, ...sourceRows, ...boundaryRows, ...serviceRows].slice(0, 14);
+  const visibleRows = [...blockerRows, ...platformRows, ...sourceRows, ...boundaryRows, ...serviceRows].slice(0, 18);
   return visibleRows.length > 0
     ? visibleRows
     : [{ label: 'Evidence drawer', value: 'No evidence refs reported', tone: 'gold' }];
+}
+
+function appGamePlatformCapabilityRows(
+  readModel: Record<string, unknown> | null
+): readonly ParentPortalAppGamePlatformCapabilityRow[] {
+  return readModelRows(readModel).map((row) => {
+    const adapterExecutionClaim = stringValue(row['adapterExecutionClaim']) || 'not-executed';
+    const proofPackState = stringValue(row['proofPackState']) || 'not-reported';
+    const setupState = stringValue(row['setupState']) || 'not-reported';
+    const authorityTier = stringValue(row['authorityTier']) || 'not-reported';
+    const broadBlockingClaimed = booleanValue(row['broadBlockingClaimed']);
+    const privilegedMobileClaimed = booleanValue(row['privilegedMobileClaimed']);
+    const childDeviceDeliveryClaimed = booleanValue(row['childDeviceDeliveryClaimed']);
+
+    return {
+      platform: stringValue(row['platform']) || 'platform',
+      state: stringValue(row['state']) || 'not-reported',
+      adapterExecutionClaim,
+      proofPackState,
+      setupState,
+      authorityTier,
+      requiredProofCount: arrayCount(row['requiredProofRefs']),
+      broadBlockingClaimed,
+      privilegedMobileClaimed,
+      childDeviceDeliveryClaimed,
+      tone: platformCapabilityRowTone({
+        adapterExecutionClaim,
+        proofPackState,
+        setupState,
+        authorityTier,
+        broadBlockingClaimed,
+        privilegedMobileClaimed,
+        childDeviceDeliveryClaimed,
+      }),
+    };
+  });
+}
+
+function platformCapabilitySummaryRows(
+  rows: readonly ParentPortalAppGamePlatformCapabilityRow[]
+): readonly ParentPortalAppGameDashboardMetric[] {
+  if (rows.length === 0) return [];
+  return [
+    { label: 'Platform gaps', value: `${rows.length} rows`, tone: platformCapabilityTone(rows) },
+    { label: 'Adapter executed', value: `${adapterExecutedCount(rows)} rows`, tone: 'gold' },
+  ];
+}
+
+function platformCapabilityEvidenceValue(row: ParentPortalAppGamePlatformCapabilityRow): string {
+  return [
+    row.setupState,
+    row.proofPackState,
+    `${row.requiredProofCount} proof refs`,
+    `adapter ${row.adapterExecutionClaim}`,
+    row.broadBlockingClaimed ? 'broad block claimed' : 'broad block not claimed',
+    row.childDeviceDeliveryClaimed ? 'delivery claimed' : 'delivery not claimed',
+  ].join('; ');
+}
+
+function platformCapabilityTone(
+  rows: readonly ParentPortalAppGamePlatformCapabilityRow[]
+): ParentPortalAppGameDashboardTone {
+  return rows.some((row) => row.tone === 'red') ? 'red' : rows.length > 0 ? 'gold' : 'cyan';
+}
+
+function adapterExecutedCount(rows: readonly ParentPortalAppGamePlatformCapabilityRow[]): number {
+  return rows.filter((row) => row.adapterExecutionClaim !== 'not-executed').length;
+}
+
+function platformCapabilityRowTone(input: {
+  readonly adapterExecutionClaim: string;
+  readonly proofPackState: string;
+  readonly setupState: string;
+  readonly authorityTier: string;
+  readonly broadBlockingClaimed: boolean;
+  readonly privilegedMobileClaimed: boolean;
+  readonly childDeviceDeliveryClaimed: boolean;
+}): ParentPortalAppGameDashboardTone {
+  if (input.broadBlockingClaimed || input.privilegedMobileClaimed || input.childDeviceDeliveryClaimed) return 'red';
+  if (input.adapterExecutionClaim !== 'not-executed') return 'red';
+  if (appGameManualRequired(input.proofPackState, input.setupState, input.authorityTier)) return 'gold';
+  return 'purple';
 }
 
 function readinessBlockerCount(rows: readonly ParentPortalAppGameDashboardRow[]): number {
@@ -573,6 +693,10 @@ function numberValue(value: unknown): number {
 
 function stringValue(value: unknown): string {
   return typeof value === 'string' ? value : '';
+}
+
+function booleanValue(value: unknown): boolean {
+  return value === true;
 }
 
 function arrayCount(value: unknown): number {

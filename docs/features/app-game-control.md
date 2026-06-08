@@ -1484,13 +1484,23 @@ diagnostics, or raw private source rows.
       while keeping policy execution, adapter dispatch, broad blocking,
       platform enforcement, raw private source rows, raw target values, and
       private diagnostics unclaimed.
+      The main App/Game Sessions dashboard also accepts the existing app/game
+      platform-extension proof-pack readiness read model and turns macOS, iOS,
+      Android, and Linux manual-required/not-executed rows into parent-visible
+      `Platform gaps`, `Adapter executed`, capability, and evidence-drawer
+      limitation rows. The UI proof keeps provider dispatch targets and raw
+      platform diagnostics out of the dashboard and keeps broad blocking,
+      child-device delivery, adapter execution, and platform enforcement
+      unclaimed.
 - [ ] Adapter capability status per platform. Cross-platform authority and
       broad-blocking gate contracts now record manual-required, unavailable,
       and not-claimed proof requirements. Platform-extension routing now maps
       every MAC, IOS, ANDROID, and LINUX row to proof packs and handoffs, and
       WP73 proof-pack readiness rows keep macOS, iOS, Android, and Linux
-      native-app/native-game proof requirements visible. Runtime adapter
-      capability/UI proof remains.
+      native-app/native-game proof requirements visible. The App/Game Sessions
+      dashboard now renders those platform proof-pack limitations as
+      parent-visible UI rows without leaking private diagnostics or claiming
+      adapter execution. Runtime adapter execution proof remains.
 - [ ] Blocking/time-limit proof before done claim. Scoped owned-process
       time-limit proof exists; broad block-launch/hide/suspend/shield and
       allowlist remain manual-required or not-claimed until platform setup,
