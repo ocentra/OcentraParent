@@ -163,6 +163,11 @@ export const TrackingRealRuntimeHandoffClosureAccountingSchema = withParser(
     childRuntimeRequiredArtifactCount: Schema.Number.pipe(Schema.int(), Schema.positive()),
     childRuntimePresentArtifactCount: Schema.Number.pipe(Schema.int()),
     childRuntimeMissingArtifactCount: Schema.Number.pipe(Schema.int()),
+    physicalDeviceEvidenceReviewRowCount: Schema.Number.pipe(Schema.int(), Schema.positive()),
+    physicalDeviceEvidenceReviewArtifactMissingRowCount: Schema.Number.pipe(Schema.int()),
+    physicalDeviceEvidenceReviewContentReviewRequiredRowCount: Schema.Number.pipe(Schema.int()),
+    physicalDeviceEvidenceReviewContentAcceptedRowCount: Schema.Literal(0),
+    physicalDeviceEvidenceReviewProductReadyRowCount: Schema.Literal(0),
     retentionRuntimeRequiredArtifactCount: Schema.Number.pipe(Schema.int(), Schema.positive()),
     retentionRuntimePresentArtifactCount: Schema.Number.pipe(Schema.int()),
     retentionRuntimeMissingArtifactCount: Schema.Number.pipe(Schema.int()),
@@ -232,6 +237,17 @@ export const TrackingRealRuntimeHandoffClosureAccountingSchema = withParser(
           accounting.childRuntimeRequiredArtifactCount ===
             accounting.childRuntimePresentArtifactCount + accounting.childRuntimeMissingArtifactCount ||
           'Real-runtime closure accounting must classify every child-runtime artifact'
+      )
+    )
+    .pipe(
+      Schema.filter(
+        (accounting) =>
+          (accounting.physicalDeviceEvidenceReviewRowCount ===
+            accounting.physicalDeviceEvidenceReviewArtifactMissingRowCount +
+              accounting.physicalDeviceEvidenceReviewContentReviewRequiredRowCount &&
+            accounting.physicalDeviceEvidenceReviewContentAcceptedRowCount === 0 &&
+            accounting.physicalDeviceEvidenceReviewProductReadyRowCount === 0) ||
+          'Real-runtime closure accounting must keep physical-device evidence review unaccepted'
       )
     )
     .pipe(
@@ -407,8 +423,8 @@ export const RequiredTrackingRealRuntimeHandoffGates = [
   {
     handoffArea: 'android-physical-background-and-geofence',
     blockerId: 'android-physical-background-proof-required',
-    sourceProofRef: 'test-results/tracking-physical-device-artifact-gate-proof/proof.json',
-    sourceRowIds: ['tracking-physical-device-artifacts-android'],
+    sourceProofRef: 'test-results/tracking-physical-device-evidence-review-proof/proof.json',
+    sourceRowIds: ['tracking-physical-device-evidence-review-android'],
     requiredProofTier: 'P4_PHYSICAL_DEVICE',
     requiredValidationCommands: [
       'Run Android physical-device background location and geofence transition proof on enrolled child hardware',
@@ -422,8 +438,8 @@ export const RequiredTrackingRealRuntimeHandoffGates = [
   {
     handoffArea: 'ios-physical-background-and-region',
     blockerId: 'ios-physical-region-proof-required',
-    sourceProofRef: 'test-results/tracking-physical-device-artifact-gate-proof/proof.json',
-    sourceRowIds: ['tracking-physical-device-artifacts-ios'],
+    sourceProofRef: 'test-results/tracking-physical-device-evidence-review-proof/proof.json',
+    sourceRowIds: ['tracking-physical-device-evidence-review-ios'],
     requiredProofTier: 'P4_PHYSICAL_DEVICE',
     requiredValidationCommands: [
       'Run iOS physical-device Always authorization, region monitoring, background delivery, and relaunch proof',

@@ -1,0 +1,2 @@
+cmd /c npm run build --workspace @ocentra-parent/parent-domain exit=0
+cmd /c npm run test --workspace @ocentra-parent/parent-domain -- tracking-physical-device-evidence-review-proof exit=0

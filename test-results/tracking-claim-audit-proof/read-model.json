@@ -4,9 +4,10 @@
     "rowId": "tracking-claim-audit-android-physical-background-and-geofence",
     "generatedAt": "2026-06-08T04:05:00.000Z",
     "auditArea": "android-physical-background-and-geofence",
-    "sourceProofRef": "test-results/tracking-physical-device-artifact-gate-proof/proof.json",
+    "sourceProofRef": "test-results/tracking-physical-device-evidence-review-proof/proof.json",
     "supportingProofRefs": [
-      "test-results/tracking-physical-device-artifact-gate-proof/proof.json"
+      "test-results/tracking-physical-device-artifact-gate-proof/proof.json",
+      "test-results/tracking-physical-device-evidence-review-proof/proof.json"
     ],
     "proofRoot": "output/tracking-plan-proof/android-background-geofence",
     "requiredProofTier": "P4_PHYSICAL_DEVICE",
@@ -15,7 +16,7 @@
     "acceptanceCriteria": [
       "Collect every required artifact under output/tracking-plan-proof/android-background-geofence before review.",
       "Keep required proof tier P4_PHYSICAL_DEVICE; local P3 artifacts cannot approve the claim.",
-      "Cite source proof test-results/tracking-physical-device-artifact-gate-proof/proof.json and all supporting proof refs in the final handoff.",
+      "Cite source proof test-results/tracking-physical-device-evidence-review-proof/proof.json and all supporting proof refs in the final handoff.",
       "Use real device or enrolled child runtime evidence with metadata, logs, screenshots, and transition or execution rows."
     ],
     "manualValidationCommands": [
@@ -75,9 +76,10 @@
     "rowId": "tracking-claim-audit-ios-physical-background-and-region",
     "generatedAt": "2026-06-08T04:05:00.000Z",
     "auditArea": "ios-physical-background-and-region",
-    "sourceProofRef": "test-results/tracking-physical-device-artifact-gate-proof/proof.json",
+    "sourceProofRef": "test-results/tracking-physical-device-evidence-review-proof/proof.json",
     "supportingProofRefs": [
-      "test-results/tracking-physical-device-artifact-gate-proof/proof.json"
+      "test-results/tracking-physical-device-artifact-gate-proof/proof.json",
+      "test-results/tracking-physical-device-evidence-review-proof/proof.json"
     ],
     "proofRoot": "output/tracking-plan-proof/ios-region-monitoring",
     "requiredProofTier": "P4_PHYSICAL_DEVICE",
@@ -86,7 +88,7 @@
     "acceptanceCriteria": [
       "Collect every required artifact under output/tracking-plan-proof/ios-region-monitoring before review.",
       "Keep required proof tier P4_PHYSICAL_DEVICE; local P3 artifacts cannot approve the claim.",
-      "Cite source proof test-results/tracking-physical-device-artifact-gate-proof/proof.json and all supporting proof refs in the final handoff.",
+      "Cite source proof test-results/tracking-physical-device-evidence-review-proof/proof.json and all supporting proof refs in the final handoff.",
       "Use real device or enrolled child runtime evidence with metadata, logs, screenshots, and transition or execution rows."
     ],
     "manualValidationCommands": [

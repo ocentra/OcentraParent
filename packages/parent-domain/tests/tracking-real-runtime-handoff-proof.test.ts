@@ -33,6 +33,11 @@ const closureAccounting = {
   childRuntimeRequiredArtifactCount: 10,
   childRuntimePresentArtifactCount: 0,
   childRuntimeMissingArtifactCount: 10,
+  physicalDeviceEvidenceReviewRowCount: 2,
+  physicalDeviceEvidenceReviewArtifactMissingRowCount: 2,
+  physicalDeviceEvidenceReviewContentReviewRequiredRowCount: 0,
+  physicalDeviceEvidenceReviewContentAcceptedRowCount: 0,
+  physicalDeviceEvidenceReviewProductReadyRowCount: 0,
   retentionRuntimeRequiredArtifactCount: 2,
   retentionRuntimePresentArtifactCount: 1,
   retentionRuntimeMissingArtifactCount: 1,
@@ -134,6 +139,11 @@ function expectClosureAccounting(proof: TrackingRealRuntimeHandoffProof): void {
   expect(proof.closureAccounting.iosSimulatorManualRequiredRowCount).toBe(7);
   expect(proof.closureAccounting.iosSimulatorMissingRuntimeArtifactCount).toBe(9);
   expect(proof.closureAccounting.childRuntimeMissingArtifactCount).toBe(10);
+  expect(proof.closureAccounting.physicalDeviceEvidenceReviewRowCount).toBe(2);
+  expect(proof.closureAccounting.physicalDeviceEvidenceReviewArtifactMissingRowCount).toBe(2);
+  expect(proof.closureAccounting.physicalDeviceEvidenceReviewContentReviewRequiredRowCount).toBe(0);
+  expect(proof.closureAccounting.physicalDeviceEvidenceReviewContentAcceptedRowCount).toBe(0);
+  expect(proof.closureAccounting.physicalDeviceEvidenceReviewProductReadyRowCount).toBe(0);
   expect(proof.closureAccounting.retentionRuntimeMissingArtifactCount).toBe(1);
   expect(proof.closureAccounting.retentionRuntimeArtifactSetPresentRowCount).toBe(0);
   expect(proof.closureAccounting.retentionPlatformPreflightRowCount).toBe(3);
@@ -219,7 +229,7 @@ describe('tracking real runtime handoff overclaim rejection', () => {
       generatedAt: '2026-06-08T02:20:00.000Z',
       handoffArea: 'android-physical-background-and-geofence',
       blockerId: 'android-physical-background-proof-required',
-      sourceProofRef: 'test-results/tracking-physical-device-artifact-gate-proof/proof.json',
+      sourceProofRef: 'test-results/tracking-physical-device-evidence-review-proof/proof.json',
       proofRoot: 'output/tracking-plan-proof/android-background-geofence',
       requiredProofTier: 'P4_PHYSICAL_DEVICE',
       currentProofTier: 'P3_LOCAL_DEV_MACHINE',

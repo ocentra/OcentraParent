@@ -75,6 +75,10 @@ const sourceProofs = [
     'output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-gate/49-physical-device-artifact-gate-proof.json'
   ),
   sourceProof(
+    'physical-device-evidence-review',
+    'output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-gate/73-physical-device-evidence-review-proof.json'
+  ),
+  sourceProof(
     'provider-delivery-artifact-gate',
     'output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-gate/51-provider-delivery-artifact-gate-proof.json'
   ),
@@ -163,6 +167,8 @@ async function main() {
   run('cmd', ['/c', 'node', 'scripts/test/tracking-full-product-ui-runtime-preflight-proof.mjs']);
   run('cmd', ['/c', 'node', 'scripts/test/tracking-android-emulator-artifact-inventory-proof.mjs']);
   run('cmd', ['/c', 'node', 'scripts/test/tracking-ios-simulator-artifact-inventory-proof.mjs']);
+  run('cmd', ['/c', 'node', 'scripts/test/tracking-physical-device-artifact-gate-proof.mjs']);
+  run('cmd', ['/c', 'node', 'scripts/test/tracking-physical-device-evidence-review-proof.mjs']);
   run('cmd', ['/c', 'node', 'scripts/test/tracking-retention-runtime-artifact-gate-proof.mjs']);
   run('cmd', ['/c', 'node', 'scripts/test/tracking-retention-platform-enforcement-preflight-proof.mjs']);
   run('cmd', ['/c', 'node', 'scripts/test/tracking-production-worker-runtime-preflight-proof.mjs']);
@@ -218,6 +224,9 @@ async function aggregateEvidence() {
   const childRuntimeArtifactGateProof = await readJson(
     'test-results/tracking-child-runtime-artifact-gate-proof/proof.json'
   );
+  const physicalDeviceEvidenceReviewProof = await readJson(
+    'test-results/tracking-physical-device-evidence-review-proof/proof.json'
+  );
   const productionWorkerRuntimeArtifactGateProof = await readJson(
     'test-results/tracking-production-worker-runtime-artifact-gate-proof/proof.json'
   );
@@ -263,6 +272,12 @@ async function aggregateEvidence() {
     childRuntimeRequiredArtifactCount: childRuntimeArtifactSummary.requiredArtifactCount,
     childRuntimePresentArtifactCount: childRuntimeArtifactSummary.presentArtifactCount,
     childRuntimeMissingArtifactCount: childRuntimeArtifactSummary.missingArtifactCount,
+    physicalDeviceEvidenceReviewRowCount: physicalDeviceEvidenceReviewProof.summary.rowCount,
+    physicalDeviceEvidenceReviewArtifactMissingRowCount: physicalDeviceEvidenceReviewProof.summary.artifactMissingRows,
+    physicalDeviceEvidenceReviewContentReviewRequiredRowCount:
+      physicalDeviceEvidenceReviewProof.summary.contentReviewRequiredRows,
+    physicalDeviceEvidenceReviewContentAcceptedRowCount: physicalDeviceEvidenceReviewProof.summary.contentAcceptedRows,
+    physicalDeviceEvidenceReviewProductReadyRowCount: physicalDeviceEvidenceReviewProof.summary.productReadyRows,
     retentionRuntimeRequiredArtifactCount: retentionRuntimeProof.summary.requiredArtifactCount,
     retentionRuntimePresentArtifactCount:
       retentionRuntimeProof.summary.requiredArtifactCount - retentionRuntimeProof.summary.missingArtifactCount,
@@ -339,6 +354,19 @@ function assertProof(proof) {
       )}`
     );
   }
+  if (
+    proof.aggregateEvidence.physicalDeviceEvidenceReviewRowCount !==
+      proof.aggregateEvidence.physicalDeviceEvidenceReviewArtifactMissingRowCount +
+        proof.aggregateEvidence.physicalDeviceEvidenceReviewContentReviewRequiredRowCount ||
+    proof.aggregateEvidence.physicalDeviceEvidenceReviewContentAcceptedRowCount !== 0 ||
+    proof.aggregateEvidence.physicalDeviceEvidenceReviewProductReadyRowCount !== 0
+  ) {
+    throw new Error(
+      `Tracking product readiness closure overclaimed physical evidence review: ${JSON.stringify(
+        proof.aggregateEvidence
+      )}`
+    );
+  }
 }
 
 async function writeProofArtifacts(proof) {
@@ -381,6 +409,10 @@ function sourceSnapshot(proof) {
     `- childRuntimeRequiredArtifactCount: ${proof.aggregateEvidence.childRuntimeRequiredArtifactCount}`,
     `- childRuntimePresentArtifactCount: ${proof.aggregateEvidence.childRuntimePresentArtifactCount}`,
     `- childRuntimeMissingArtifactCount: ${proof.aggregateEvidence.childRuntimeMissingArtifactCount}`,
+    `- physicalDeviceEvidenceReviewRowCount: ${proof.aggregateEvidence.physicalDeviceEvidenceReviewRowCount}`,
+    `- physicalDeviceEvidenceReviewArtifactMissingRowCount: ${proof.aggregateEvidence.physicalDeviceEvidenceReviewArtifactMissingRowCount}`,
+    `- physicalDeviceEvidenceReviewContentReviewRequiredRowCount: ${proof.aggregateEvidence.physicalDeviceEvidenceReviewContentReviewRequiredRowCount}`,
+    `- physicalDeviceEvidenceReviewContentAcceptedRowCount: ${proof.aggregateEvidence.physicalDeviceEvidenceReviewContentAcceptedRowCount}`,
     `- retentionRuntimeRequiredArtifactCount: ${proof.aggregateEvidence.retentionRuntimeRequiredArtifactCount}`,
     `- retentionRuntimePresentArtifactCount: ${proof.aggregateEvidence.retentionRuntimePresentArtifactCount}`,
     `- retentionRuntimeMissingArtifactCount: ${proof.aggregateEvidence.retentionRuntimeMissingArtifactCount}`,

@@ -1,0 +1,327 @@
+{
+  "schemaVersion": 1,
+  "proofMode": "tracking-physical-device-evidence-review-proof",
+  "generatedAt": "2026-06-08T14:25:00.000Z",
+  "branch": "codex/tracking-plan-full-continuation-a",
+  "commit": "de7ac52cd2cea19c09ecdb89282d3dcffe1ca8fd",
+  "gitStatusShort": "M docs/features/location-geofence-device-status.md\n M docs/plans/tracking-plan/implementation-checklist.md\n M docs/plans/tracking-plan/workpacks/33-proof-gates-fixtures-rollout-and-pr-gate.md\n M output/tracking-plan-proof/08-android-foreground-location-adapter/18-android-emulator-artifact-inventory-proof.json\n M output/tracking-plan-proof/09-android-background-location-and-geofence-adapter/18-android-emulator-artifact-inventory-proof.json\n M output/tracking-plan-proof/10-android-battery-connectivity-and-status-adapter/18-android-emulator-artifact-inventory-proof.json\n M output/tracking-plan-proof/11-ios-core-location-foreground-adapter/21-ios-simulator-artifact-inventory-proof.json\n M output/tracking-plan-proof/12-ios-background-region-significant-change-adapter/21-ios-simulator-artifact-inventory-proof.json\n M output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/32-full-product-ui-runtime-artifact-gate-proof.json\n M output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/33-full-product-ui-local-runtime-artifact-capture-proof.json\n M output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/34-full-product-ui-runtime-preflight-proof.json\n M output/tracking-plan-proof/31-platform-extension-checklists-and-proof-routing/21-ios-simulator-artifact-inventory-proof.json\n M output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-gate/46-product-readiness-closure-proof.json\n M output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-gate/49-physical-device-artifact-gate-proof.json\n M output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-gate/59-full-product-ui-runtime-artifact-gate-proof.json\n M output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-gate/63-real-runtime-handoff-proof.json\n M output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-gate/65-claim-audit-proof.json\n M output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-gate/66-full-product-ui-local-runtime-artifact-capture-proof.json\n M output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-gate/68-android-emulator-artifact-inventory-proof.json\n M output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-gate/69-ios-simulator-artifact-inventory-proof.json\n M output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-gate/71-full-product-ui-runtime-preflight-proof.json\n M output/tracking-plan-proof/tracking-android-emulator-artifact-inventory-proof/00-source-snapshot.md\n M output/tracking-plan-proof/tracking-android-emulator-artifact-inventory-proof/proof.json\n M output/tracking-plan-proof/tracking-claim-audit-proof/00-source-snapshot.md\n M output/tracking-plan-proof/tracking-claim-audit-proof/proof.json\n M output/tracking-plan-proof/tracking-full-product-ui-local-runtime-artifact-capture-proof/00-source-snapshot.md\n M output/tracking-plan-proof/tracking-full-product-ui-local-runtime-artifact-capture-proof/proof.json\n M output/tracking-plan-proof/tracking-full-product-ui-runtime-artifact-gate-proof/00-source-snapshot.md\n M output/tracking-plan-proof/tracking-full-product-ui-runtime-artifact-gate-proof/proof.json\n M output/tracking-plan-proof/tracking-full-product-ui-runtime-preflight-proof/00-source-snapshot.md\n M output/tracking-plan-proof/tracking-full-product-ui-runtime-preflight-proof/proof.json\n M output/tracking-plan-proof/tracking-ios-simulator-artifact-inventory-proof/00-source-snapshot.md\n M output/tracking-plan-proof/tracking-ios-simulator-artifact-inventory-proof/proof.json\n M output/tracking-plan-proof/tracking-physical-device-artifact-gate-proof/00-source-snapshot.md\n M output/tracking-plan-proof/tracking-physical-device-artifact-gate-proof/proof.json\n M output/tracking-plan-proof/tracking-product-readiness-closure-proof/00-source-snapshot.md\n M output/tracking-plan-proof/tracking-product-readiness-closure-proof/16-validation-commands.log\n M output/tracking-plan-proof/tracking-product-readiness-closure-proof/proof.json\n M output/tracking-plan-proof/tracking-real-runtime-handoff-proof/00-source-snapshot.md\n M output/tracking-plan-proof/tracking-real-runtime-handoff-proof/manual-validation-runbook.md\n M output/tracking-plan-proof/tracking-real-runtime-handoff-proof/proof.json\n M packages/parent-domain/src/tracking-claim-audit-proof.ts\n M packages/parent-domain/src/tracking-product-readiness-closure-proof.ts\n M packages/parent-domain/src/tracking-real-runtime-handoff-proof.ts\n M packages/parent-domain/tests/tracking-claim-audit-proof.test.ts\n M packages/parent-domain/tests/tracking-product-readiness-closure-proof.test.ts\n M packages/parent-domain/tests/tracking-real-runtime-handoff-proof.test.ts\n M scripts/test/tracking-product-readiness-closure-proof.mjs\n M scripts/test/tracking-real-runtime-handoff-proof.mjs\n M test-results/tracking-android-emulator-artifact-inventory-proof/proof.json\n M test-results/tracking-claim-audit-proof/proof.json\n M test-results/tracking-claim-audit-proof/read-model.json\n M test-results/tracking-full-product-ui-local-runtime-artifact-capture-proof/proof.json\n M test-results/tracking-full-product-ui-runtime-artifact-gate-proof/proof.json\n M test-results/tracking-full-product-ui-runtime-preflight-proof/proof.json\n M test-results/tracking-ios-simulator-artifact-inventory-proof/proof.json\n M test-results/tracking-physical-device-artifact-gate-proof/proof.json\n D test-results/tracking-product-readiness-closure-proof/product-readiness-closure-read-model.json\n D test-results/tracking-product-readiness-closure-proof/proof.json\n M test-results/tracking-real-runtime-handoff-proof/proof.json\n?? packages/parent-domain/src/tracking-physical-device-evidence-review-proof.ts\n?? packages/parent-domain/tests/tracking-physical-device-evidence-review-proof.test.ts\n?? scripts/test/tracking-physical-device-evidence-review-proof.mjs",
+  "workpackId": "33-proof-gates-fixtures-rollout-and-pr-gate",
+  "requiredProofTier": "P4_PHYSICAL_DEVICE_CONTENT_REVIEW",
+  "currentProofTier": "P3_LOCAL_DEV_MACHINE",
+  "currentStatus": "artifact_missing",
+  "sourceGateProofRef": "test-results/tracking-physical-device-artifact-gate-proof/proof.json",
+  "readModel": {
+    "schemaVersion": "v0.5-tracking",
+    "proofMode": "tracking-physical-device-evidence-review-proof",
+    "generatedAt": "2026-06-08T14:25:00.000Z",
+    "rows": [
+      {
+        "schemaVersion": "v0.5-tracking",
+        "rowId": "tracking-physical-device-evidence-review-android",
+        "generatedAt": "2026-06-08T14:25:00.000Z",
+        "platform": "android",
+        "sourceArtifactGateRowId": "tracking-physical-device-artifacts-android",
+        "proofRoot": "output/tracking-plan-proof/android-background-geofence",
+        "status": "artifact-missing",
+        "requiredProofTier": "P4_PHYSICAL_DEVICE_CONTENT_REVIEW",
+        "currentProofTier": "P3_LOCAL_DEV_MACHINE",
+        "requiredArtifacts": [
+          "00-run-metadata.json",
+          "01-device-metadata.json",
+          "02-permission-state.json",
+          "03-geofence-definition.json",
+          "04-location-events.ndjson",
+          "05-geofence-transitions.ndjson",
+          "06-alert-decision.json",
+          "07-parent-ui-screenshot.png",
+          "08-logcat.txt",
+          "09-result-summary.md"
+        ],
+        "presentArtifacts": [],
+        "missingArtifacts": [
+          "00-run-metadata.json",
+          "01-device-metadata.json",
+          "02-permission-state.json",
+          "03-geofence-definition.json",
+          "04-location-events.ndjson",
+          "05-geofence-transitions.ndjson",
+          "06-alert-decision.json",
+          "07-parent-ui-screenshot.png",
+          "08-logcat.txt",
+          "09-result-summary.md"
+        ],
+        "acceptanceCriteria": [
+          "Record a real child Android device run, not an emulator-only run.",
+          "Capture foreground and background permission state before and after the geofence scenario.",
+          "Show system geofence or background delivery evidence with timestamps, not only app-owned local listener rows.",
+          "Keep product-ready false until parent-visible UI, authority, provider, and production rows are separately complete."
+        ],
+        "manualValidationCommands": [
+          "adb devices -l",
+          "adb shell dumpsys package com.ocentra.parent.child | findstr ACCESS_BACKGROUND_LOCATION",
+          "adb logcat -d | findstr OcentraTracking",
+          "node scripts/test/tracking-physical-device-artifact-gate-proof.mjs"
+        ],
+        "artifactAcceptanceNotes": [
+          "Required android physical artifacts: 10.",
+          "Artifact-set-present only means the required files exist in the proof root.",
+          "Physical-device behavior remains unclaimed until a reviewer accepts the artifact contents.",
+          "Product claims stay false for authority, provider delivery, production runtime, and product readiness in this gate."
+        ],
+        "artifactSetComplete": false,
+        "reviewerRequired": true,
+        "contentAccepted": false,
+        "physicalDeviceBehaviorClaimed": false,
+        "authorityEnrollmentClaimed": false,
+        "providerDeliveryClaimed": false,
+        "productionWorkerClaimed": false,
+        "productClaimReady": false
+      },
+      {
+        "schemaVersion": "v0.5-tracking",
+        "rowId": "tracking-physical-device-evidence-review-ios",
+        "generatedAt": "2026-06-08T14:25:00.000Z",
+        "platform": "ios",
+        "sourceArtifactGateRowId": "tracking-physical-device-artifacts-ios",
+        "proofRoot": "output/tracking-plan-proof/ios-region-monitoring",
+        "status": "artifact-missing",
+        "requiredProofTier": "P4_PHYSICAL_DEVICE_CONTENT_REVIEW",
+        "currentProofTier": "P3_LOCAL_DEV_MACHINE",
+        "requiredArtifacts": [
+          "00-run-metadata.json",
+          "01-device-metadata.json",
+          "02-authorization-state.json",
+          "03-region-definition.json",
+          "04-location-events.ndjson",
+          "05-region-transitions.ndjson",
+          "06-alert-decision.json",
+          "07-screenshots",
+          "08-xcode-test-log.txt",
+          "09-result-summary.md"
+        ],
+        "presentArtifacts": [],
+        "missingArtifacts": [
+          "00-run-metadata.json",
+          "01-device-metadata.json",
+          "02-authorization-state.json",
+          "03-region-definition.json",
+          "04-location-events.ndjson",
+          "05-region-transitions.ndjson",
+          "06-alert-decision.json",
+          "07-screenshots",
+          "08-xcode-test-log.txt",
+          "09-result-summary.md"
+        ],
+        "acceptanceCriteria": [
+          "Record a real child iOS device run, not simulator-only proof.",
+          "Capture Core Location authorization, Always/background state, and region monitoring registration evidence.",
+          "Show region/significant-change/visit delivery evidence with timestamps and parent alert decision refs.",
+          "Keep product-ready false until entitlement/review, authority, provider, and production rows are separately complete."
+        ],
+        "manualValidationCommands": [
+          "xcrun xctrace list devices",
+          "xcodebuild test -scheme OcentraParentChildTracking -destination id=<physical-device-udid>",
+          "xcrun simctl is not accepted for this row; attach physical-device logs instead",
+          "node scripts/test/tracking-physical-device-artifact-gate-proof.mjs"
+        ],
+        "artifactAcceptanceNotes": [
+          "Required ios physical artifacts: 10.",
+          "Artifact-set-present only means the required files exist in the proof root.",
+          "Physical-device behavior remains unclaimed until a reviewer accepts the artifact contents.",
+          "Product claims stay false for authority, provider delivery, production runtime, and product readiness in this gate."
+        ],
+        "artifactSetComplete": false,
+        "reviewerRequired": true,
+        "contentAccepted": false,
+        "physicalDeviceBehaviorClaimed": false,
+        "authorityEnrollmentClaimed": false,
+        "providerDeliveryClaimed": false,
+        "productionWorkerClaimed": false,
+        "productClaimReady": false
+      }
+    ],
+    "summary": {
+      "rowCount": 2,
+      "artifactMissingRows": 2,
+      "contentReviewRequiredRows": 0,
+      "contentAcceptedRows": 0,
+      "physicalDeviceBehaviorClaimedRows": 0,
+      "productReadyRows": 0,
+      "acceptanceCriteriaCount": 8,
+      "manualValidationCommandCount": 8,
+      "artifactAcceptanceNoteCount": 8
+    },
+    "productClaims": {
+      "physicalDeviceBehaviorClaimed": false,
+      "authorityEnrollmentClaimed": false,
+      "providerDeliveryClaimed": false,
+      "productionWorkerClaimed": false,
+      "productClaimReady": false
+    }
+  },
+  "rows": [
+    {
+      "schemaVersion": "v0.5-tracking",
+      "rowId": "tracking-physical-device-evidence-review-android",
+      "generatedAt": "2026-06-08T14:25:00.000Z",
+      "platform": "android",
+      "sourceArtifactGateRowId": "tracking-physical-device-artifacts-android",
+      "proofRoot": "output/tracking-plan-proof/android-background-geofence",
+      "status": "artifact-missing",
+      "requiredProofTier": "P4_PHYSICAL_DEVICE_CONTENT_REVIEW",
+      "currentProofTier": "P3_LOCAL_DEV_MACHINE",
+      "requiredArtifacts": [
+        "00-run-metadata.json",
+        "01-device-metadata.json",
+        "02-permission-state.json",
+        "03-geofence-definition.json",
+        "04-location-events.ndjson",
+        "05-geofence-transitions.ndjson",
+        "06-alert-decision.json",
+        "07-parent-ui-screenshot.png",
+        "08-logcat.txt",
+        "09-result-summary.md"
+      ],
+      "presentArtifacts": [],
+      "missingArtifacts": [
+        "00-run-metadata.json",
+        "01-device-metadata.json",
+        "02-permission-state.json",
+        "03-geofence-definition.json",
+        "04-location-events.ndjson",
+        "05-geofence-transitions.ndjson",
+        "06-alert-decision.json",
+        "07-parent-ui-screenshot.png",
+        "08-logcat.txt",
+        "09-result-summary.md"
+      ],
+      "acceptanceCriteria": [
+        "Record a real child Android device run, not an emulator-only run.",
+        "Capture foreground and background permission state before and after the geofence scenario.",
+        "Show system geofence or background delivery evidence with timestamps, not only app-owned local listener rows.",
+        "Keep product-ready false until parent-visible UI, authority, provider, and production rows are separately complete."
+      ],
+      "manualValidationCommands": [
+        "adb devices -l",
+        "adb shell dumpsys package com.ocentra.parent.child | findstr ACCESS_BACKGROUND_LOCATION",
+        "adb logcat -d | findstr OcentraTracking",
+        "node scripts/test/tracking-physical-device-artifact-gate-proof.mjs"
+      ],
+      "artifactAcceptanceNotes": [
+        "Required android physical artifacts: 10.",
+        "Artifact-set-present only means the required files exist in the proof root.",
+        "Physical-device behavior remains unclaimed until a reviewer accepts the artifact contents.",
+        "Product claims stay false for authority, provider delivery, production runtime, and product readiness in this gate."
+      ],
+      "artifactSetComplete": false,
+      "reviewerRequired": true,
+      "contentAccepted": false,
+      "physicalDeviceBehaviorClaimed": false,
+      "authorityEnrollmentClaimed": false,
+      "providerDeliveryClaimed": false,
+      "productionWorkerClaimed": false,
+      "productClaimReady": false
+    },
+    {
+      "schemaVersion": "v0.5-tracking",
+      "rowId": "tracking-physical-device-evidence-review-ios",
+      "generatedAt": "2026-06-08T14:25:00.000Z",
+      "platform": "ios",
+      "sourceArtifactGateRowId": "tracking-physical-device-artifacts-ios",
+      "proofRoot": "output/tracking-plan-proof/ios-region-monitoring",
+      "status": "artifact-missing",
+      "requiredProofTier": "P4_PHYSICAL_DEVICE_CONTENT_REVIEW",
+      "currentProofTier": "P3_LOCAL_DEV_MACHINE",
+      "requiredArtifacts": [
+        "00-run-metadata.json",
+        "01-device-metadata.json",
+        "02-authorization-state.json",
+        "03-region-definition.json",
+        "04-location-events.ndjson",
+        "05-region-transitions.ndjson",
+        "06-alert-decision.json",
+        "07-screenshots",
+        "08-xcode-test-log.txt",
+        "09-result-summary.md"
+      ],
+      "presentArtifacts": [],
+      "missingArtifacts": [
+        "00-run-metadata.json",
+        "01-device-metadata.json",
+        "02-authorization-state.json",
+        "03-region-definition.json",
+        "04-location-events.ndjson",
+        "05-region-transitions.ndjson",
+        "06-alert-decision.json",
+        "07-screenshots",
+        "08-xcode-test-log.txt",
+        "09-result-summary.md"
+      ],
+      "acceptanceCriteria": [
+        "Record a real child iOS device run, not simulator-only proof.",
+        "Capture Core Location authorization, Always/background state, and region monitoring registration evidence.",
+        "Show region/significant-change/visit delivery evidence with timestamps and parent alert decision refs.",
+        "Keep product-ready false until entitlement/review, authority, provider, and production rows are separately complete."
+      ],
+      "manualValidationCommands": [
+        "xcrun xctrace list devices",
+        "xcodebuild test -scheme OcentraParentChildTracking -destination id=<physical-device-udid>",
+        "xcrun simctl is not accepted for this row; attach physical-device logs instead",
+        "node scripts/test/tracking-physical-device-artifact-gate-proof.mjs"
+      ],
+      "artifactAcceptanceNotes": [
+        "Required ios physical artifacts: 10.",
+        "Artifact-set-present only means the required files exist in the proof root.",
+        "Physical-device behavior remains unclaimed until a reviewer accepts the artifact contents.",
+        "Product claims stay false for authority, provider delivery, production runtime, and product readiness in this gate."
+      ],
+      "artifactSetComplete": false,
+      "reviewerRequired": true,
+      "contentAccepted": false,
+      "physicalDeviceBehaviorClaimed": false,
+      "authorityEnrollmentClaimed": false,
+      "providerDeliveryClaimed": false,
+      "productionWorkerClaimed": false,
+      "productClaimReady": false
+    }
+  ],
+  "summary": {
+    "rowCount": 2,
+    "artifactMissingRows": 2,
+    "contentReviewRequiredRows": 0,
+    "contentAcceptedRows": 0,
+    "physicalDeviceBehaviorClaimedRows": 0,
+    "productReadyRows": 0,
+    "acceptanceCriteriaCount": 8,
+    "manualValidationCommandCount": 8,
+    "artifactAcceptanceNoteCount": 8
+  },
+  "productClaims": {
+    "physicalDeviceBehaviorClaimed": false,
+    "authorityEnrollmentClaimed": false,
+    "providerDeliveryClaimed": false,
+    "productionWorkerClaimed": false,
+    "productClaimReady": false
+  },
+  "proofLabels": [
+    "tracking-physical-device.review-android",
+    "tracking-physical-device.review-ios",
+    "tracking-physical-device.file-presence-is-not-content-approval",
+    "tracking-physical-device.product-ready-false"
+  ],
+  "missingProofReason": "Android and iOS physical-device artifact files still require content review before any behavior claim. Missing files keep rows artifact-missing; complete file sets move only to content-review-required. This proof keeps authority, provider, production, and product-ready claims false.",
+  "commands": [
+    {
+      "command": "cmd /c npm run build --workspace @ocentra-parent/parent-domain",
+      "status": 0,
+      "stdout": "> @ocentra-parent/parent-domain@0.1.1 build\n> tsc -p tsconfig.json && node ../../scripts/fix-esm-imports.mjs dist",
+      "stderr": ""
+    },
+    {
+      "command": "cmd /c npm run test --workspace @ocentra-parent/parent-domain -- tracking-physical-device-evidence-review-proof",
+      "status": 0,
+      "stdout": "> @ocentra-parent/parent-domain@0.1.1 test\n> vitest run tracking-physical-device-evidence-review-proof\n\n\n RUN  v4.1.6 C:/Users/sujan/.codex/worktrees/ocentra-parent-codex-a/OcentraParent/packages/parent-domain\n\n\n Test Files  1 passed (1)\n      Tests  4 passed (4)\n   Start at  10:35:20\n   Duration  633ms (transform 80ms, setup 0ms, import 440ms, tests 15ms, environment 0ms)",
+      "stderr": ""
+    }
+  ]
+}

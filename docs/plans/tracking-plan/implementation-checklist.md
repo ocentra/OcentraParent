@@ -144,7 +144,10 @@ Every checked item must cite one or more proof artifacts.
       manual validation runbook at
       `output/tracking-plan-proof/tracking-physical-device-artifact-gate-proof/`
       with Android physical-device acceptance criteria, commands, required
-      artifacts, and no-claim acceptance notes.
+      artifacts, and no-claim acceptance notes. WP33 physical-device evidence
+      review proof now consumes that gate and keeps Android artifact content
+      `artifact-missing` or `content-review-required`, with zero accepted
+      content rows and zero product-ready rows.
 - [ ] iOS background/region claims have real device permission/background
       proof. WP11/WP12 parent-domain manual-required proof rows now keep
       authorization, sample, degraded-state, Always/background, region,
@@ -156,6 +159,9 @@ Every checked item must cite one or more proof artifacts.
       physical-device artifact gate proof now writes the named manual validation
       runbook for the required iOS physical-device region-monitoring artifacts,
       Xcode/device commands, acceptance criteria, and no-claim review notes.
+      WP33 physical-device evidence review proof now consumes that gate and
+      keeps iOS artifact content `artifact-missing` or `content-review-required`,
+      with zero accepted content rows and zero product-ready rows.
 - [x] Desktop LAN/IP/Wi-Fi presence is labelled hint-only unless OS location
       proof exists. Contract proof:
       `output/tracking-plan-proof/13-desktop-location-and-presence-hint-model/`.
@@ -1056,6 +1062,14 @@ Every implementation workpack must update, or explicitly justify not updating:
       Current Android/iOS rows are `manual-required`, missing the real-device
       artifact sets, and keep physical-device behavior, authority, provider
       delivery, production workers, and product-ready tracking false.
+- [x] Physical-device evidence review proof now consumes the physical artifact
+      gate and proves file presence is not content approval. Proof:
+      `output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-gate/73-physical-device-evidence-review-proof.json`;
+      command:
+      `node scripts/test/tracking-physical-device-evidence-review-proof.mjs`.
+      Current Android/iOS rows have zero accepted content rows and zero
+      product-ready rows; product-readiness closure and real-runtime handoff
+      now carry those review counts before any real-device claim can advance.
 - [x] Child-runtime artifact gate proof now verifies the required real
       child-device runtime evidence root and required artifact names before any
       actual child-device delivery/execution, rendered child runtime UI, parent

@@ -47,6 +47,11 @@ describe('tracking product readiness closure proof', () => {
     expect(proof.aggregateEvidence.childRuntimeRequiredArtifactCount).toBe(10);
     expect(proof.aggregateEvidence.childRuntimePresentArtifactCount).toBe(0);
     expect(proof.aggregateEvidence.childRuntimeMissingArtifactCount).toBe(10);
+    expect(proof.aggregateEvidence.physicalDeviceEvidenceReviewRowCount).toBe(2);
+    expect(proof.aggregateEvidence.physicalDeviceEvidenceReviewArtifactMissingRowCount).toBe(2);
+    expect(proof.aggregateEvidence.physicalDeviceEvidenceReviewContentReviewRequiredRowCount).toBe(0);
+    expect(proof.aggregateEvidence.physicalDeviceEvidenceReviewContentAcceptedRowCount).toBe(0);
+    expect(proof.aggregateEvidence.physicalDeviceEvidenceReviewProductReadyRowCount).toBe(0);
     expect(proof.aggregateEvidence.retentionRuntimeRequiredArtifactCount).toBe(2);
     expect(proof.aggregateEvidence.retentionRuntimePresentArtifactCount).toBe(1);
     expect(proof.aggregateEvidence.retentionRuntimeMissingArtifactCount).toBe(1);
@@ -138,6 +143,11 @@ function aggregateEvidence() {
     childRuntimeRequiredArtifactCount: 10,
     childRuntimePresentArtifactCount: 0,
     childRuntimeMissingArtifactCount: 10,
+    physicalDeviceEvidenceReviewRowCount: 2,
+    physicalDeviceEvidenceReviewArtifactMissingRowCount: 2,
+    physicalDeviceEvidenceReviewContentReviewRequiredRowCount: 0,
+    physicalDeviceEvidenceReviewContentAcceptedRowCount: 0,
+    physicalDeviceEvidenceReviewProductReadyRowCount: 0,
     retentionRuntimeRequiredArtifactCount: 2,
     retentionRuntimePresentArtifactCount: 1,
     retentionRuntimeMissingArtifactCount: 1,

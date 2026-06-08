@@ -1,7 +1,7 @@
 # Tracking Real Runtime Handoff Manual Validation Runbook
 
 - generatedAt: 2026-06-08T01:05:00.000Z
-- commit: e2f9943cac45c65f5506953fc5d3517ed5bdcaed
+- commit: de7ac52cd2cea19c09ecdb89282d3dcffe1ca8fd
 - currentProofTier: P3_LOCAL_DEV_MACHINE
 - requiredProofTier: P4_REAL_RUNTIME_HANDOFF
 - productReadyClaimed: false
@@ -27,6 +27,8 @@
 - childRuntimeRequiredArtifactCount: 10
 - childRuntimePresentArtifactCount: 0
 - childRuntimeMissingArtifactCount: 10
+- physicalDeviceEvidenceReviewRowCount: 2
+- physicalDeviceEvidenceReviewContentAcceptedRowCount: 0
 - retentionRuntimeRequiredArtifactCount: 2
 - retentionRuntimePresentArtifactCount: 1
 - retentionRuntimeMissingArtifactCount: 1
@@ -53,7 +55,7 @@
 ## android-physical-background-and-geofence
 
 - blockerId: android-physical-background-proof-required
-- sourceProofRef: test-results/tracking-physical-device-artifact-gate-proof/proof.json
+- sourceProofRef: test-results/tracking-physical-device-evidence-review-proof/proof.json
 - proofRoot: output/tracking-plan-proof/android-background-geofence
 - status: manual-required
 - readinessCategory: physical-device-required
@@ -74,7 +76,7 @@
 
 - Collect every required artifact under output/tracking-plan-proof/android-background-geofence before review.
 - Keep required proof tier P4_PHYSICAL_DEVICE; local P3 artifacts cannot approve the claim.
-- Cite source proof test-results/tracking-physical-device-artifact-gate-proof/proof.json and all supporting proof refs in the final handoff.
+- Cite source proof test-results/tracking-physical-device-evidence-review-proof/proof.json and all supporting proof refs in the final handoff.
 - Use real device or enrolled child runtime evidence with metadata, logs, screenshots, and transition or execution rows.
 
 ### Claim Audit Validation Commands
@@ -106,7 +108,7 @@
 ## ios-physical-background-and-region
 
 - blockerId: ios-physical-region-proof-required
-- sourceProofRef: test-results/tracking-physical-device-artifact-gate-proof/proof.json
+- sourceProofRef: test-results/tracking-physical-device-evidence-review-proof/proof.json
 - proofRoot: output/tracking-plan-proof/ios-region-monitoring
 - status: manual-required
 - readinessCategory: physical-device-required
@@ -127,7 +129,7 @@
 
 - Collect every required artifact under output/tracking-plan-proof/ios-region-monitoring before review.
 - Keep required proof tier P4_PHYSICAL_DEVICE; local P3 artifacts cannot approve the claim.
-- Cite source proof test-results/tracking-physical-device-artifact-gate-proof/proof.json and all supporting proof refs in the final handoff.
+- Cite source proof test-results/tracking-physical-device-evidence-review-proof/proof.json and all supporting proof refs in the final handoff.
 - Use real device or enrolled child runtime evidence with metadata, logs, screenshots, and transition or execution rows.
 
 ### Claim Audit Validation Commands
