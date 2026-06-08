@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "proofMode": "social-platform-account-feed-rollout-gate",
-  "generatedAt": "2026-06-08T22:30:10.210Z",
+  "generatedAt": "2026-06-08T22:52:53.265Z",
   "rows": [
     {
       "rowNumber": 1,
@@ -382,6 +382,14 @@
     },
     {
       "file": "output/browser-plan-proof/social-managed-browser-policy-execution-proof/01-social-managed-browser-policy-execution-proof.md",
+      "present": true
+    },
+    {
+      "file": "test-results/social-alert-report-provider-dispatch-execution-proof/proof.json",
+      "present": true
+    },
+    {
+      "file": "output/browser-plan-proof/social-alert-report-provider-dispatch-execution-proof/01-social-alert-report-provider-dispatch-execution-proof.md",
       "present": true
     }
   ],

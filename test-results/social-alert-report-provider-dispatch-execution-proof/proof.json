@@ -1,0 +1,194 @@
+{
+  "schemaVersion": 1,
+  "proofMode": "social-alert-report-provider-dispatch-execution-proof",
+  "generatedAt": "2026-06-08T22:52:35.109Z",
+  "branch": "codex/d-runtime-ready",
+  "commit": "dda839c10c16bb5b18028590f4ec99aa65c61197",
+  "baseCommit": "624290167ea79fc9c3bf59b1d06f1a7461113292",
+  "commands": [
+    {
+      "command": "cmd /c npm run build --workspace @ocentra-parent/parent-domain",
+      "exitCode": 0
+    },
+    {
+      "command": "cmd /c npm run test --workspace @ocentra-parent/parent-domain -- social-alert-report-provider-dispatch-execution.test.ts",
+      "exitCode": 0
+    }
+  ],
+  "summary": {
+    "rows": 3,
+    "localDispatchPacketReadyCount": 1,
+    "manualRequiredCount": 1,
+    "providerUnavailableCount": 1,
+    "providerDeliveryAttempted": false,
+    "providerDeliveryObserved": false,
+    "providerReceiptIngested": false,
+    "enforcementClaimed": false
+  },
+  "sourceChain": {
+    "localOutboxLinkedRecords": 1,
+    "receiptBoundaryDispatchRequiredRows": 1,
+    "localDispatchPacketReadyRows": 1,
+    "manualRequiredRows": 1,
+    "providerUnavailableRows": 1
+  },
+  "noClaimBoundaries": {
+    "providerDeliveryAttempted": false,
+    "providerDeliveryObserved": false,
+    "providerReceiptIngested": false,
+    "providerWebhookRuntimeClaimed": false,
+    "providerCredentialsClaimed": false,
+    "cloudRoutingClaimed": false,
+    "parentNotificationUiDeliveryClaimed": false,
+    "reportDeliveryExecutionClaimed": false,
+    "finalPolicyExecutionClaimed": false,
+    "connectorNativeRuntimeClaimed": false,
+    "enforcementClaimed": false
+  },
+  "dispatchReadModel": {
+    "schemaVersion": "v0.6",
+    "dispatchExecutionId": "social-alert-report-provider-dispatch-execution-proof",
+    "generatedAt": "2026-06-08T22:47:00Z",
+    "sourceReceiptBoundaryId": "social-alert-report-provider-receipt-boundary-for-dispatch-proof",
+    "sourceReceiptBoundaryNonClaims": [
+      "no-provider-delivery-execution",
+      "no-provider-receipt-ingestion-runtime",
+      "no-provider-webhook-runtime",
+      "no-provider-credentials",
+      "no-cloud-routing",
+      "no-parent-notification-ui-delivery",
+      "no-report-delivery-execution",
+      "no-final-policy-execution",
+      "no-connector-native-runtime",
+      "no-enforcement"
+    ],
+    "rows": [
+      {
+        "dispatchRowId": "social-provider-dispatch-execution-social-provider-receipt-social-provider-status-handoff-social-provider-preflight-social-provider-dispatch-high-risk-proof",
+        "sourceReceiptRowRef": "social-provider-receipt-social-provider-status-handoff-social-provider-preflight-social-provider-dispatch-high-risk-proof",
+        "sourceIntentRef": "social-provider-dispatch-high-risk-proof",
+        "sourceProviderAttemptRef": "social-provider-attempt-not-started-social-provider-preflight-social-provider-dispatch-high-risk-proof",
+        "sourceReceiptBoundaryState": "provider-dispatch-required",
+        "sourceLocalOutboxRecordRef": "local-outbox-social-provider-dispatch-proof",
+        "dispatchExecutionState": "local-dispatch-packet-ready",
+        "dispatchPacket": {
+          "dispatchPacketId": "social-provider-dispatch-packet-local-outbox-social-provider-dispatch-proof",
+          "outboxEntryRef": "local-outbox-social-provider-dispatch-proof",
+          "providerAttemptRef": "social-provider-attempt-not-started-social-provider-preflight-social-provider-dispatch-high-risk-proof",
+          "providerChannel": "in-app",
+          "alertRef": "social-alert-report-notification-social-provider-dispatch-high-risk-proof",
+          "familyScopeRef": "social-provider-dispatch-family-family-social-provider-dispatch-proof",
+          "deviceScopeRef": "social-provider-dispatch-device-device-social-provider-dispatch-proof",
+          "parentActionLinkRef": "parent-action-social-provider-dispatch-proof",
+          "payloadTemplateRef": "social.alert.highRisk.body",
+          "evidenceRefs": [
+            "evidence-social-provider-dispatch-proof"
+          ],
+          "policyRefs": [
+            "policy-ref-social-provider-dispatch-proof"
+          ],
+          "auditRefs": [
+            "audit-ref-social-provider-dispatch-proof"
+          ],
+          "sensitiveDetailMinimized": true,
+          "rawChildEvidenceIncluded": false,
+          "rawUrlOrTitleIncluded": false,
+          "rawMessageTextIncluded": false,
+          "screenshotOrReportIncluded": false
+        },
+        "manualProofRequirements": [],
+        "providerDeliveryAttempted": false,
+        "providerDeliveryObserved": false,
+        "providerReceiptIngested": false,
+        "providerWebhookRuntimeClaimed": false,
+        "providerCredentialsClaimed": false,
+        "cloudRoutingClaimed": false,
+        "parentNotificationUiDeliveryClaimed": false,
+        "reportDeliveryExecutionClaimed": false,
+        "finalPolicyExecutionClaimed": false,
+        "connectorNativeRuntimeClaimed": false,
+        "enforcementClaimed": false
+      },
+      {
+        "dispatchRowId": "social-provider-dispatch-execution-social-provider-receipt-social-provider-status-handoff-social-provider-preflight-social-provider-dispatch-manual-required-proof",
+        "sourceReceiptRowRef": "social-provider-receipt-social-provider-status-handoff-social-provider-preflight-social-provider-dispatch-manual-required-proof",
+        "sourceIntentRef": "social-provider-dispatch-manual-required-proof",
+        "sourceProviderAttemptRef": "social-provider-attempt-not-started-social-provider-preflight-social-provider-dispatch-manual-required-proof",
+        "sourceReceiptBoundaryState": "manual-receipt-required",
+        "sourceLocalOutboxRecordRef": null,
+        "dispatchExecutionState": "manual-required",
+        "dispatchPacket": null,
+        "manualProofRequirements": [
+          "manual-proof-social-provider-dispatch-required"
+        ],
+        "providerDeliveryAttempted": false,
+        "providerDeliveryObserved": false,
+        "providerReceiptIngested": false,
+        "providerWebhookRuntimeClaimed": false,
+        "providerCredentialsClaimed": false,
+        "cloudRoutingClaimed": false,
+        "parentNotificationUiDeliveryClaimed": false,
+        "reportDeliveryExecutionClaimed": false,
+        "finalPolicyExecutionClaimed": false,
+        "connectorNativeRuntimeClaimed": false,
+        "enforcementClaimed": false
+      },
+      {
+        "dispatchRowId": "social-provider-dispatch-execution-social-provider-receipt-social-provider-status-handoff-social-provider-preflight-social-provider-dispatch-unavailable-proof",
+        "sourceReceiptRowRef": "social-provider-receipt-social-provider-status-handoff-social-provider-preflight-social-provider-dispatch-unavailable-proof",
+        "sourceIntentRef": "social-provider-dispatch-unavailable-proof",
+        "sourceProviderAttemptRef": "social-provider-attempt-not-started-social-provider-preflight-social-provider-dispatch-unavailable-proof",
+        "sourceReceiptBoundaryState": "provider-unavailable",
+        "sourceLocalOutboxRecordRef": null,
+        "dispatchExecutionState": "provider-unavailable",
+        "dispatchPacket": null,
+        "manualProofRequirements": [
+          "social-provider-dispatch-provider-unavailable-social-provider-dispatch-unavailable-proof"
+        ],
+        "providerDeliveryAttempted": false,
+        "providerDeliveryObserved": false,
+        "providerReceiptIngested": false,
+        "providerWebhookRuntimeClaimed": false,
+        "providerCredentialsClaimed": false,
+        "cloudRoutingClaimed": false,
+        "parentNotificationUiDeliveryClaimed": false,
+        "reportDeliveryExecutionClaimed": false,
+        "finalPolicyExecutionClaimed": false,
+        "connectorNativeRuntimeClaimed": false,
+        "enforcementClaimed": false
+      }
+    ],
+    "localDispatchPacketReadyCount": 1,
+    "manualRequiredCount": 1,
+    "providerUnavailableCount": 1,
+    "dispatchExecutionNonClaims": [
+      "no-provider-delivery-observed",
+      "no-provider-receipt-ingestion-runtime",
+      "no-provider-webhook-runtime",
+      "no-provider-credentials",
+      "no-cloud-routing",
+      "no-parent-notification-ui-delivery",
+      "no-report-delivery-execution",
+      "no-final-policy-execution",
+      "no-connector-native-runtime",
+      "no-enforcement"
+    ],
+    "providerDeliveryAttempted": false,
+    "providerDeliveryObserved": false,
+    "providerReceiptIngested": false,
+    "providerWebhookRuntimeClaimed": false,
+    "providerCredentialsClaimed": false,
+    "cloudRoutingClaimed": false,
+    "parentNotificationUiDeliveryClaimed": false,
+    "reportDeliveryExecutionClaimed": false,
+    "finalPolicyExecutionClaimed": false,
+    "connectorNativeRuntimeClaimed": false,
+    "enforcementClaimed": false
+  },
+  "evidence": {
+    "source": "packages/parent-domain/src/social-alert-report-provider-dispatch-execution.ts",
+    "test": "packages/parent-domain/tests/social-alert-report-provider-dispatch-execution.test.ts",
+    "proof": "test-results/social-alert-report-provider-dispatch-execution-proof/proof.json",
+    "manifest": "output/browser-plan-proof/social-alert-report-provider-dispatch-execution-proof/01-social-alert-report-provider-dispatch-execution-proof.md"
+  }
+}

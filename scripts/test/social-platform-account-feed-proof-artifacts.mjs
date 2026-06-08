@@ -43,6 +43,8 @@ const requiredSupplementalProofFiles = [
   'output/browser-plan-proof/social-parent-notification-delivery-readiness-proof/01-social-parent-notification-delivery-readiness-proof.md',
   'test-results/social-managed-browser-policy-execution-proof/proof.json',
   'output/browser-plan-proof/social-managed-browser-policy-execution-proof/01-social-managed-browser-policy-execution-proof.md',
+  'test-results/social-alert-report-provider-dispatch-execution-proof/proof.json',
+  'output/browser-plan-proof/social-alert-report-provider-dispatch-execution-proof/01-social-alert-report-provider-dispatch-execution-proof.md',
 ];
 
 if (!existsSync(proofRoot)) {
@@ -231,6 +233,7 @@ function manifestFor(rows, failures) {
       parentNotificationDeliveryReadiness: 'parent-report-status-readiness-proof-present',
       parentLocalDeliveryResult: 'parent-owned-local-delivery-result-proof-present',
       managedBrowserPolicyExecution: 'managed-browser-policy-execution-proof-present',
+      providerDispatchExecution: 'provider-dispatch-packet-execution-proof-present',
       appliedScheduleTimeBudget: 'parent-owned-proof-present',
       scheduleTimeBudgetCompiler: 'proof-present',
       parentSensitivitySettings: 'proof-present',
@@ -296,6 +299,7 @@ function markdownFor(manifest) {
     'Parent notification/report delivery readiness proof is present.',
     'Parent-owned local delivery result proof is present for report-ready rows.',
     'Managed-browser social policy execution proof is present for a real YouTube block intervention.',
+    'Social alert/report provider dispatch execution proof prepares local dispatch packets without claiming provider delivery.',
     'Parent-owned social schedule/time-budget application-readiness proof is present.',
     'Schedule/time-budget compiler contract proof is present.',
     'Parent sensitivity settings contract proof is present.',

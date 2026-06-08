@@ -1245,6 +1245,25 @@ runtime, Apple platform support, raw URL/page custody, and product completion
 remain unclaimed. No product capability checklist update: that checklist is
 owned by another lane and this claim is still scoped below product completion.
 
+SOCIAL-23/SOCIAL-24 provider dispatch execution addendum:
+`social-alert-report-provider-dispatch-execution` adds a parent-domain local
+provider dispatch packet boundary that consumes parsed provider receipt-boundary
+rows and parsed `NotificationLocalOutboxRecord` rows. It prepares redaction-safe
+local dispatch packets only for `provider-dispatch-required` rows with a
+matching local outbox record and leaves manual-required/provider-unavailable
+rows packetless. Evidence:
+`test-results/social-alert-report-provider-dispatch-execution-proof/proof.json`
+and
+`output/browser-plan-proof/social-alert-report-provider-dispatch-execution-proof/01-social-alert-report-provider-dispatch-execution-proof.md`.
+The SOCIAL-23 proof-artifact gate and SOCIAL-24 rollout gate now require those
+artifacts. This advances local provider dispatch packet readiness only; external
+provider delivery, delivered notification receipts, provider webhook runtime,
+provider credentials, cloud routing, parent notification UI delivery,
+connector/native runtime, final policy execution, enforcement, and product
+completion remain unclaimed. No product capability checklist update: that
+checklist is owned by another lane and this claim is still scoped below product
+completion.
+
 ## Worker Report Template
 
 Use this shape in the hub report or PR-ready note:

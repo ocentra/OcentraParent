@@ -333,6 +333,16 @@ UI, child delivery, retry or quiet-hours runtime execution, report delivery
 execution, final policy execution, connector/native runtime, enforcement, or
 product completion.
 
+Social alert/report provider dispatch execution rows may prepare a local
+redaction-safe dispatch packet only when a parsed provider receipt-boundary row
+is `provider-dispatch-required` and a matching parsed
+`NotificationLocalOutboxRecord` exists. Manual-required and provider-unavailable
+rows must remain packetless and visible. This local packet boundary must not
+claim external provider delivery, delivered notification receipts, provider
+webhook runtime, provider credentials, cloud routing, parent notification UI
+delivery, child delivery, report delivery execution, final policy execution,
+connector/native runtime, enforcement, or product completion.
+
 Rollout/manual-required gates may label rows as partial/manual-required only.
 They must preserve product completion as unclaimed until notification delivery,
 connector/native runtime, final policy execution, enforcement, release

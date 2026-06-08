@@ -1,8 +1,8 @@
 # Browser Plan Closure Audit
 
-Generated: 2026-06-08T22:30:26.293Z
+Generated: 2026-06-08T22:52:53.246Z
 Branch: codex/d-runtime-ready
-Source commit at generation: 74ce3b0e558717650a93545921b21a36fe9b04b2
+Source commit at generation: dda839c10c16bb5b18028590f4ec99aa65c61197
 Base: 624290167ea79fc9c3bf59b1d06f1a7461113292
 
 Checklist rows: 97

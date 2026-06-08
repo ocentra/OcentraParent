@@ -509,9 +509,9 @@ intents. The proof writes
 `test-results/social-report-writer-delivery-proof/proof.json` and
 `output/browser-plan-proof/social-report-writer-delivery-proof/01-social-report-writer-delivery-proof.md`.
 It proves parent-owned report artifact and receipt rows for social report
-intents while keeping external runtime report delivery, provider dispatch,
-provider receipt ingestion, raw social content, final policy execution, and
-enforcement unclaimed.
+intents while keeping external runtime report delivery, provider runtime
+delivery, provider receipt ingestion, raw social content, final policy
+execution, and enforcement unclaimed.
 
 The follow-up `social-applied-schedule-time-budget-proof` adds
 `packages/parent-domain/src/social-applied-schedule-time-budget-proof.ts` and
@@ -532,7 +532,7 @@ manual-required provider-status boundary rows, then writes
 `test-results/social-alert-report-intent-ui-proof/proof.json` plus
 desktop/mobile screenshots under
 `output/browser-plan-proof/social-alert-report-intent-ui-proof/06-ui-snapshots/`.
-It does not claim provider dispatch/receipt, parent notification UI delivery,
+It does not claim provider runtime delivery/receipt, parent notification UI delivery,
 report delivery, final policy execution, connector/native runtime, or
 enforcement.
 
@@ -545,9 +545,9 @@ provider-adapter-required preflight rows with adapter, credential, and provider
 smoke proof requirements. The proof writes
 `test-results/social-alert-report-provider-preflight-proof/proof.json` and
 `output/browser-plan-proof/social-alert-report-provider-preflight-proof/01-social-alert-report-provider-preflight-proof.md`.
-It does not claim provider dispatch, receipt ingestion, parent notification UI
-delivery, report delivery execution, final policy execution, connector/native
-runtime, or enforcement.
+It does not claim provider runtime delivery, receipt ingestion, parent
+notification UI delivery, report delivery execution, final policy execution,
+connector/native runtime, or enforcement.
 
 The follow-up `social-alert-report-provider-status-handoff-proof` adds
 `packages/parent-domain/src/social-alert-report-provider-status-handoff-proof.ts`
@@ -558,7 +558,24 @@ V0.8 notification provider status boundary as manual-required or unavailable.
 The proof writes
 `test-results/social-alert-report-provider-status-handoff-proof/proof.json` and
 `output/browser-plan-proof/social-alert-report-provider-status-handoff-proof/01-social-alert-report-provider-status-handoff-proof.md`.
-It does not claim provider dispatch, delivered notification receipts, parent
+It does not claim provider runtime delivery, delivered notification receipts,
+parent notification UI delivery, report delivery execution, final policy
+execution, connector/native runtime, or enforcement.
+
+The follow-up `social-alert-report-provider-dispatch-execution-proof` adds
+`packages/parent-domain/src/social-alert-report-provider-dispatch-execution.ts`
+and
+`packages/parent-domain/tests/social-alert-report-provider-dispatch-execution.test.ts`.
+It consumes parsed provider receipt-boundary rows plus parsed
+`NotificationLocalOutboxRecord` rows and prepares a redaction-safe local
+provider dispatch packet only for `provider-dispatch-required` rows with a
+matching local outbox record. Manual-required and provider-unavailable rows
+remain packetless and visible in the read model. The proof writes
+`test-results/social-alert-report-provider-dispatch-execution-proof/proof.json`
+and
+`output/browser-plan-proof/social-alert-report-provider-dispatch-execution-proof/01-social-alert-report-provider-dispatch-execution-proof.md`.
+It does not claim external provider delivery, delivered notification receipts,
+provider webhook runtime, provider credentials, cloud routing, parent
 notification UI delivery, report delivery execution, final policy execution,
 connector/native runtime, or enforcement.
 

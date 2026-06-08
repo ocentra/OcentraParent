@@ -375,9 +375,19 @@ message, video, and alert coverage. This is one of Ocentra's highest-risk gaps.
 - `social-report-writer-delivery-proof` now adds a parent-owned report writer
   delivery-readiness boundary for social report intents. It proves report-ready
   rows can cite parent-owned report artifacts and receipts while keeping
-  external runtime report delivery, provider dispatch, provider receipt
+  external runtime report delivery, provider runtime delivery, provider receipt
   ingestion, raw social content, final policy execution, and enforcement
   unclaimed.
+- `social-alert-report-provider-dispatch-execution-proof` now adds a
+  parent-domain local provider dispatch packet boundary. It consumes parsed
+  provider receipt-boundary rows and parsed `NotificationLocalOutboxRecord`
+  rows, prepares redaction-safe local dispatch packets only for
+  `provider-dispatch-required` rows with a matching local outbox record, and
+  leaves manual-required/provider-unavailable rows packetless. External provider
+  delivery, delivered notification receipts, provider webhook runtime, provider
+  credentials, cloud routing, parent notification UI delivery, report delivery
+  execution, final policy execution, connector/native runtime, and enforcement
+  remain unclaimed.
 - `social-applied-schedule-time-budget-proof` now adds a parent-owned
   schedule/time-budget application-readiness boundary for SOCIAL-12 compiler
   candidates. It proves schedule and budget refs can be evaluated into a
@@ -472,9 +482,14 @@ settings, delivered alerts, confidence handling, platform proof, or parent UI.
       credential, and smoke proof refs before delivery can be claimed.
       `social-alert-report-provider-status-handoff-proof` maps those rows into
       the V0.8 notification-provider boundary as manual-required/unavailable,
-      without claiming delivered receipts. `social-parent-notification-delivery-readiness-proof`
-      now records a parent-owned local delivery result ref for report-ready
-      rows while keeping manual/unavailable rows blocked;
+      without claiming delivered receipts.
+      `social-alert-report-provider-dispatch-execution-proof` now prepares
+      redaction-safe local provider dispatch packets only from
+      provider-dispatch-required receipt-boundary rows with matching parsed local
+      outbox records, without claiming external provider delivery or receipt
+      ingestion. `social-parent-notification-delivery-readiness-proof` now
+      records a parent-owned local delivery result ref for report-ready rows
+      while keeping manual/unavailable rows blocked;
       provider delivery, rendered notification UI/history delivery,
       quiet-hours timer execution, retry worker execution, report delivery
       execution, final policy, and enforcement remain.
