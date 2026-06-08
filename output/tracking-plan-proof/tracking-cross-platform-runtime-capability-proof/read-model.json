@@ -1,13 +1,13 @@
 {
   "schemaVersion": "v0.5-tracking",
   "proofMode": "tracking-cross-platform-runtime-capability-proof",
-  "generatedAt": "2026-06-08T19:25:13.898Z",
+  "generatedAt": "2026-06-08T20:01:03.393Z",
   "rows": [
     {
       "schemaVersion": "v0.5-tracking",
       "area": "windows-host-toolchain",
       "status": "local-proof-passed",
-      "generatedAt": "2026-06-08T19:25:13.898Z",
+      "generatedAt": "2026-06-08T20:01:03.393Z",
       "proofRef": "test-results/tracking-cross-platform-runtime-capability-proof/windows-host-toolchain.json",
       "sourceRefs": [],
       "currentProofTier": "P3_LOCAL_WINDOWS_HOST",
@@ -44,7 +44,7 @@
       "schemaVersion": "v0.5-tracking",
       "area": "wsl-linux-replay",
       "status": "local-proof-passed",
-      "generatedAt": "2026-06-08T19:25:13.898Z",
+      "generatedAt": "2026-06-08T20:01:03.393Z",
       "proofRef": "test-results/tracking-plan-wsl-local-proof/proof.json",
       "sourceRefs": [
         "output/tracking-plan-proof/wsl-local-replay/proof.json"
@@ -52,10 +52,9 @@
       "currentProofTier": "P3_LOCAL_DEV_MACHINE",
       "requiredProofTier": "P3_LOCAL_DEV_MACHINE",
       "observedTooling": [
-        "\u0000 \u0000N\u0000A\u0000M\u0000E\u0000 \u0000 \u0000 \u0000 \u0000 \u0000 \u0000 \u0000 \u0000 \u0000 \u0000 \u0000 \u0000 \u0000 \u0000S\u0000T\u0000A\u0000T\u0000E\u0000 \u0000 \u0000 \u0000 \u0000 \u0000 \u0000 \u0000 \u0000 \u0000 \u0000 \u0000V\u0000E\u0000R\u0000S\u0000I\u0000O\u0000N\u0000\r\u0000",
-        "\u0000*\u0000 \u0000U\u0000b\u0000u\u0000n\u0000t\u0000u\u0000-\u00002\u00002\u0000.\u00000\u00004\u0000 \u0000 \u0000 \u0000 \u0000 \u0000 \u0000R\u0000u\u0000n\u0000n\u0000i\u0000n\u0000g\u0000 \u0000 \u0000 \u0000 \u0000 \u0000 \u0000 \u0000 \u0000 \u00002\u0000\r\u0000",
-        "\u0000 \u0000 \u0000d\u0000o\u0000c\u0000k\u0000e\u0000r\u0000-\u0000d\u0000e\u0000s\u0000k\u0000t\u0000o\u0000p\u0000 \u0000 \u0000 \u0000 \u0000R\u0000u\u0000n\u0000n\u0000i\u0000n\u0000g\u0000 \u0000 \u0000 \u0000 \u0000 \u0000 \u0000 \u0000 \u0000 \u00002\u0000\r\u0000",
-        "\u0000",
+        "NAME              STATE           VERSION",
+        "* Ubuntu-22.04      Running         2",
+        "docker-desktop    Running         2",
         "Linux GameDev 5.15.167.4-microsoft-standard-WSL2 #1 SMP Tue Nov 5 00:21:55 UTC 2024 x86_64 x86_64 x86_64 GNU/Linux",
         "v22.22.0",
         "10.9.4",
@@ -81,7 +80,7 @@
       "schemaVersion": "v0.5-tracking",
       "area": "docker-container-runtime",
       "status": "local-proof-passed",
-      "generatedAt": "2026-06-08T19:25:13.898Z",
+      "generatedAt": "2026-06-08T20:01:03.393Z",
       "proofRef": "test-results/tracking-cross-platform-runtime-capability-proof/docker-container-runtime.json",
       "sourceRefs": [],
       "currentProofTier": "P3_LOCAL_CONTAINER_RUNTIME",
@@ -109,7 +108,7 @@
       "schemaVersion": "v0.5-tracking",
       "area": "android-sdk-toolchain",
       "status": "local-proof-passed",
-      "generatedAt": "2026-06-08T19:25:13.898Z",
+      "generatedAt": "2026-06-08T20:01:03.393Z",
       "proofRef": "test-results/tracking-cross-platform-runtime-capability-proof/android-sdk-toolchain.json",
       "sourceRefs": [],
       "currentProofTier": "P3_LOCAL_ANDROID_TOOLCHAIN",
@@ -146,7 +145,7 @@
       "schemaVersion": "v0.5-tracking",
       "area": "android-gradle-project-build",
       "status": "local-proof-passed",
-      "generatedAt": "2026-06-08T19:25:13.898Z",
+      "generatedAt": "2026-06-08T20:01:03.393Z",
       "proofRef": "test-results/tracking-cross-platform-runtime-capability-proof/android-gradle-project-build.json",
       "sourceRefs": [
         "platforms/android/agent/build.gradle",
@@ -187,7 +186,7 @@
       "schemaVersion": "v0.5-tracking",
       "area": "android-emulator-runtime",
       "status": "local-proof-passed",
-      "generatedAt": "2026-06-08T19:25:13.898Z",
+      "generatedAt": "2026-06-08T20:01:03.393Z",
       "proofRef": "test-results/tracking-plan-android-emulator-proof/proof.json",
       "sourceRefs": [
         "test-results/tracking-android-emulator-artifact-inventory-proof/proof.json"
@@ -222,7 +221,7 @@
       "schemaVersion": "v0.5-tracking",
       "area": "android-physical-device-status",
       "status": "local-proof-passed",
-      "generatedAt": "2026-06-08T19:25:13.898Z",
+      "generatedAt": "2026-06-08T20:01:03.393Z",
       "proofRef": "test-results/tracking-android-physical-device-runtime-proof/proof.json",
       "sourceRefs": [],
       "currentProofTier": "P4_PHYSICAL_DEVICE_STATUS_ONLY",
@@ -255,7 +254,7 @@
       "schemaVersion": "v0.5-tracking",
       "area": "macos-ios-ci-manual-routing",
       "status": "ci-manual-required",
-      "generatedAt": "2026-06-08T19:25:13.898Z",
+      "generatedAt": "2026-06-08T20:01:03.393Z",
       "proofRef": "test-results/tracking-ios-simulator-artifact-inventory-proof/proof.json",
       "sourceRefs": [
         "test-results/tracking-plan-ios-simulator-proof/proof.json"

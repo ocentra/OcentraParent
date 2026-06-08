@@ -106,6 +106,13 @@ entitlement, iOS App Review approval, and desktop managed-policy evidence rows
 under this workpack root plus the WP33 companion gate. It does not claim
 authority enrollment, hard-control runtime, physical-device behavior, provider
 delivery, production workers, or product-ready tracking.
+Cross-platform runtime capability proof now refreshes Windows host, WSL/Linux,
+Docker, Android SDK/Gradle, Android emulator, Android physical status, and
+macOS/iOS CI/manual routing in one parent-domain proof. The harness normalizes
+WSL probe output before storing artifacts, records Docker runtime only when both
+CLI and daemon are reachable, and keeps macOS/iOS runtime proof CI/manual-routed
+on this Windows host without claiming physical-device behavior, authority,
+production, or product readiness.
 Authority-runtime readiness blocker proof now exists through
 `node scripts/test/tracking-authority-runtime-readiness-blocker-proof.mjs`. It
 consumes the existing authority enrollment manual-required rows, writes
