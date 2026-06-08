@@ -1,7 +1,7 @@
 {
   "status": "blocked-by-physical-android-external-gate-and-external-adapter-dependencies",
   "proofKind": "screen-ai-full-scope-readiness-audit",
-  "generatedAt": "2026-06-08T16:52:51.049Z",
+  "generatedAt": "2026-06-08T17:14:00.248Z",
   "sourceArtifacts": {
     "screenPlanClosure": "output/screen-plan-proof/screen-plan-closure-audit/proof-summary.json",
     "aiPlanClosure": "output/ai-plan-proof/local-ai-plan-closure-audit/proof-summary.json",
@@ -47,7 +47,7 @@
     "linuxWsl2HostExecutionProved": true,
     "linuxWslgExternalGateProved": true,
     "androidPhysicalTargetReadinessRecorded": true,
-    "androidPhysicalTargetLockedBehindKeyguard": false,
+    "androidPhysicalTargetLockedBehindKeyguard": true,
     "androidPhysicalExternalGateProved": false,
     "nativeLinuxDesktopProductReady": false,
     "finalPipelineProductComplete": false,
@@ -56,7 +56,7 @@
     "adapterBlockerRowsMapped": 5,
     "adapterDependencyRowsMapped": 5,
     "physicalAndroidExternalGateRequired": true,
-    "physicalAndroidUnlockRequired": false,
+    "physicalAndroidUnlockRequired": true,
     "externalAdapterDependencyRows": 5,
     "remainingAdapterDependencyOwnersStable": true,
     "remainingAdapterExpectedProofFilesStable": true,

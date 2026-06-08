@@ -1,6 +1,6 @@
 # Screen AI Full Scope Readiness Audit
 
-Generated: 2026-06-08T16:52:51.049Z
+Generated: 2026-06-08T17:14:00.248Z
 
 ## Source Artifacts
 
@@ -51,7 +51,7 @@ Generated: 2026-06-08T16:52:51.049Z
   "linuxWsl2HostExecutionProved": true,
   "linuxWslgExternalGateProved": true,
   "androidPhysicalTargetReadinessRecorded": true,
-  "androidPhysicalTargetLockedBehindKeyguard": false,
+  "androidPhysicalTargetLockedBehindKeyguard": true,
   "androidPhysicalExternalGateProved": false,
   "nativeLinuxDesktopProductReady": false,
   "finalPipelineProductComplete": false,
@@ -60,7 +60,7 @@ Generated: 2026-06-08T16:52:51.049Z
   "adapterBlockerRowsMapped": 5,
   "adapterDependencyRowsMapped": 5,
   "physicalAndroidExternalGateRequired": true,
-  "physicalAndroidUnlockRequired": false,
+  "physicalAndroidUnlockRequired": true,
   "externalAdapterDependencyRows": 5,
   "remainingAdapterDependencyOwnersStable": true,
   "remainingAdapterExpectedProofFilesStable": true,

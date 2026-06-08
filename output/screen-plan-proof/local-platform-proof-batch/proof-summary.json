@@ -1,6 +1,6 @@
 {
   "proof": "screen-local-platform-proof-batch",
-  "generatedAt": "2026-06-08T16:52:50.964Z",
+  "generatedAt": "2026-06-08T17:13:50.832Z",
   "sourceArtifacts": {
     "windowsActiveWindow": "output/screen-plan-proof/real-capture/manual-parent-test-active-window/proof-summary.json",
     "windowsScopeMatrix": "output/screen-plan-proof/real-capture/scope-matrix/proof-summary.json",
@@ -106,14 +106,14 @@
       "rawImageDeleted": false,
       "localVlmAnalyzedCapturedArtifact": false,
       "physicalTargetObservedOnline": true,
-      "physicalTargetLockedBehindKeyguard": false,
-      "physicalTargetRunnableNow": true,
+      "physicalTargetLockedBehindKeyguard": true,
+      "physicalTargetRunnableNow": false,
       "deviceSerial": "emulator-5554",
       "currentHostOnlinePhysicalSerials": [
         "192.168.2.45:5555"
       ],
       "productReadyContribution": "required-for-android-physical-product-claim",
-      "reason": "Current proof is emulator-only or no physical Android is online; connect physical Android and rerun MediaProjection proof before product claim."
+      "reason": "Physical Android target is online but locked behind keyguard/PIN; unlock the target and rerun physical MediaProjection proof before product claim."
     },
     {
       "platformGate": "linux-wslg-x11-selected-window",
