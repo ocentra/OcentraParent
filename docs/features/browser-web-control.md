@@ -258,10 +258,13 @@ control while being more honest about managed versus unmanaged sources.
   `agent.browser.social-parent-notification-delivery.read-model.get`, parse the
   schema-backed reported event, and render parent-report-ready,
   manual-required, and unavailable rows with desktop/mobile E2E screenshots.
-  This still does not claim parent notification UI delivery, external runtime
-  report delivery, provider delivery or receipt ingestion, final policy
-  execution, browser mutation, child intervention, unmanaged exact URL support,
-  or enforcement.
+  The Rust service now publishes the local
+  `browser.social.parent-notification-delivery.status.requested` eventing
+  request and completes it through `ocentra-eventing` before reporting the same
+  portal read model. This still does not claim parent notification UI delivery,
+  external runtime report delivery, provider delivery or receipt ingestion,
+  final policy execution, browser mutation, child intervention, unmanaged exact
+  URL support, or enforcement.
 - Browser-plan WP13 now projects that named subscriber status through the
   service-backed browser runtime event-chain stream payload. Current
   store-backed browser rows still report zero pending candidates because the
@@ -1215,11 +1218,12 @@ WP13 now adds a browser runtime delivery-decision proof using the reusable Rust
 eventing delivery decision API. The browser runtime chain is local-service
 ready, the browser action-intent status subscriber is local-in-process ready,
 the browser action-intent handoff subscriber is local-in-process ready, the
-browser social-provider receipt status subscriber is local-in-process ready, and
-external transport remains manual-required until custody/auth/encryption/
-retention/replay/delete/offset/dedupe/transport artifacts exist. This adds no
-external transport, relay delivery, adapter dispatch, browser mutation, child
-intervention execution, final policy execution, or enforcement.
+browser social-provider receipt status subscriber is local-in-process ready, the
+browser social parent-notification delivery status subscriber is local-in-process
+ready, and external transport remains manual-required until custody/auth/
+encryption/retention/replay/delete/offset/dedupe/transport artifacts exist. This
+adds no external transport, relay delivery, adapter dispatch, browser mutation,
+child intervention execution, final policy execution, or enforcement.
 WP13 now also carries browser action-intent child-status refs through the
 service-backed parent-child event path. A dry-run handoff candidate produces
 parent-child command, child accepted-event, and parent read-model refs in the
@@ -1232,6 +1236,11 @@ WP13 now also registers the service stream request
 and delivery-decision proof. The route stays local in-process from the browser
 runtime spine to the stream report subscriber, and the public portal WebSocket
 command/event names remain unchanged.
+WP13 now also registers the internal service read-model request
+`browser.social.parent-notification-delivery.status.requested` in the reusable
+Rust delivery-decision proof. The route stays local in-process from the browser
+runtime spine to the social parent-notification delivery status subscriber, and
+the public portal WebSocket command/event names remain unchanged.
 WP13 Browser-route proof now renders a parent-visible browser action-intent
 stream status card from the existing parsed runtime stream, next to the social
 provider receipt stream and receipt ingestion readiness cards. The proof uses

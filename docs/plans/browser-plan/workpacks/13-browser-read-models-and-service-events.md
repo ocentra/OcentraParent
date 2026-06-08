@@ -339,8 +339,8 @@ browser state, execute child intervention, or enforce.
 `ocentra-eventing` topology manifest, with `browser-event-runtime-spine` as
 publisher and `browser-runtime-stream-report` as subscriber/target.
 `browser-runtime-delivery-decision-proof` also treats that route as
-`local-in-process`, raising the browser local-ready route count to five while
-leaving external transport manual-required.
+`local-in-process`, adding the stream-report route to the browser local-ready
+delivery set while leaving external transport manual-required.
 
 Evidence:
 
@@ -587,13 +587,15 @@ execution, final policy execution, or enforcement.
 `browser-runtime-delivery-decision-proof` applies the reusable
 `ocentra-eventing` delivery decision API to the browser runtime chain, the
 browser action-intent status subscriber, the browser action-intent handoff
-subscriber, and the browser social-provider receipt status subscriber. The
-current runtime chain is `local-service` ready, the action-intent status
-subscriber is `local-in-process` ready, the action-intent handoff subscriber is
+subscriber, the browser social-provider receipt status subscriber, and the
+browser social parent-notification delivery status subscriber. The current
+runtime chain is `local-service` ready, the action-intent status subscriber is
+`local-in-process` ready, the action-intent handoff subscriber is
 `local-in-process` ready, the social-provider receipt status subscriber is
-`local-in-process` ready, and the external transport
-route stays `manual-required` because the custody/auth/encryption/retention/
-replay/delete/offset/dedupe/transport artifacts are not present.
+`local-in-process` ready, the social parent-notification delivery status
+subscriber is `local-in-process` ready, and the external transport route stays
+`manual-required` because the custody/auth/encryption/retention/replay/delete/
+offset/dedupe/transport artifacts are not present.
 
 Evidence:
 
@@ -607,6 +609,29 @@ Evidence:
 This is delivery-decision proof only. It does not add external transport,
 relay delivery, adapter dispatch, browser mutation, child intervention
 execution, final policy execution, or enforcement.
+
+## Social Parent Notification Delivery Decision Refresh - 2026-06-08
+
+`browser-runtime-delivery-decision-proof` now carries the internal
+`browser.social.parent-notification-delivery.status.requested` route into the
+delivery decision report as a sixth local-ready browser route. The route is
+local in-process from `browser-event-runtime-spine` to
+`browser-social-parent-notification-delivery-status`, matching the
+service-backed read-model request/subscriber boundary used by
+`social-parent-notification-delivery-ui-proof`.
+
+Evidence:
+
+- `crates/agent-protocol/src/constants/browser.rs`
+- `crates/agent-core/src/browser_event_runtime/delivery.rs`
+- `crates/agent-core/src/browser_event_runtime_tests.rs`
+- `scripts/test/browser-runtime-delivery-decision-proof.mjs`
+- `test-results/browser-runtime-delivery-decision-proof/proof.json`
+- `output/browser-plan-proof/browser-runtime-delivery-decision/01-browser-runtime-delivery-decision-proof.md`
+
+This is delivery-decision proof only. It does not add external transport,
+relay delivery, adapter dispatch, browser mutation, parent notification UI
+delivery, child intervention execution, final policy execution, or enforcement.
 
 ## Receipt Delivery Decision Refresh - 2026-06-08
 
@@ -1257,3 +1282,30 @@ projection only. It does not claim parent notification UI delivery, external
 runtime report delivery, provider delivery, provider receipt ingestion, final
 policy execution, browser mutation, child intervention execution, unmanaged
 exact URL support, or enforcement.
+
+## Social Parent Notification Delivery Eventing Addendum - 2026-06-08
+
+`social-parent-notification-delivery-ui-proof` now also proves that the
+service-backed parent-notification/report delivery readiness projection is
+behind a named local Rust eventing request/subscriber boundary. The existing
+portal command remains
+`agent.browser.social-parent-notification-delivery.read-model.get`, but the
+Rust service publishes
+`browser.social.parent-notification-delivery.status.requested` internally and
+completes the readiness response through the reusable `ocentra-eventing`
+request/response path before building the reported WebSocket event.
+
+Evidence:
+
+- `crates/agent-protocol/src/constants/browser.rs`
+- `crates/agent-service/src/activity_api/social_parent_notification_delivery_read_model_payload.rs`
+- `crates/agent-service/src/activity_api/social_parent_notification_delivery_read_model_payload_tests.rs`
+- `scripts/test/social-parent-notification-delivery-ui-proof.mjs`
+- `test-results/social-parent-notification-delivery-ui-proof/proof.json`
+- `output/browser-plan-proof/social-parent-notification-delivery-ui-proof/01-social-parent-notification-delivery-ui-proof.md`
+
+No-claim boundary: this is an internal local service eventing boundary only. It
+does not change the public portal command/event names and does not claim parent
+notification UI delivery, external runtime report delivery, provider delivery,
+provider receipt ingestion, final policy execution, browser mutation, child
+intervention execution, unmanaged exact URL support, or enforcement.

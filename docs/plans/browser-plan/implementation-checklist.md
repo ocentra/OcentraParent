@@ -789,17 +789,19 @@ WP13 delivery-decision addendum:
 `browser-runtime-delivery-decision-proof` applies the reusable `ocentra-eventing`
 delivery decision API to the browser runtime chain, the browser action-intent
 status subscriber, the browser action-intent handoff subscriber, and the browser
-social-provider receipt status subscriber. Evidence:
+social-provider receipt status subscriber, and the browser social
+parent-notification delivery status subscriber. Evidence:
 `test-results/browser-runtime-delivery-decision-proof/proof.json` and
 `output/browser-plan-proof/browser-runtime-delivery-decision/01-browser-runtime-delivery-decision-proof.md`.
 The proof marks the runtime chain `local-service` ready, the action-intent
 status subscriber `local-in-process` ready, the action-intent handoff subscriber
 `local-in-process` ready, the social-provider receipt status subscriber
-`local-in-process` ready, and external transport manual-required until
-custody/auth/encryption/retention/replay/delete/offset/dedupe/transport
+`local-in-process` ready, the social parent-notification delivery status
+subscriber `local-in-process` ready, and external transport manual-required
+until custody/auth/encryption/retention/replay/delete/offset/dedupe/transport
 artifacts exist. It does not add external transport, relay delivery, adapter
-dispatch, browser mutation, child intervention execution, final policy
-execution, or enforcement.
+dispatch, browser mutation, child intervention execution, final policy execution,
+or enforcement.
 
 WP13 receipt delivery-decision refresh:
 `browser-runtime-delivery-decision-proof` now carries the existing named
@@ -1090,6 +1092,33 @@ external transport remains manual-required. Evidence:
 This does not change the public portal WebSocket command/event and does not
 claim external adapter dispatch, browser mutation, child intervention execution,
 final policy execution, or enforcement.
+
+WP13 social parent notification delivery route-decision addendum:
+`browser-runtime-delivery-decision-proof` now carries the internal
+`browser.social.parent-notification-delivery.status.requested` request into the
+reusable browser runtime delivery-decision report as a sixth local-ready browser
+route. The route is local in-process from the browser runtime spine to the
+social parent-notification delivery status subscriber. This keeps the eventing
+boundary covered without changing the public portal command/event and without
+claiming external adapter dispatch, browser mutation, child intervention
+execution, final policy execution, parent notification UI delivery, or
+enforcement.
+
+WP13 social parent notification delivery eventing addendum:
+`social-parent-notification-delivery-ui-proof` now also verifies that the
+service-backed parent-notification/report delivery readiness projection is
+behind the local named
+`browser.social.parent-notification-delivery.status.requested` eventing
+request/subscriber boundary. The public portal command remains
+`agent.browser.social-parent-notification-delivery.read-model.get`, and the
+Rust service completes the readiness response through `ocentra-eventing` before
+building the same reported WebSocket event. Evidence:
+`test-results/social-parent-notification-delivery-ui-proof/proof.json` and
+`output/browser-plan-proof/social-parent-notification-delivery-ui-proof/01-social-parent-notification-delivery-ui-proof.md`.
+This is internal local service eventing only and does not claim parent
+notification UI delivery, external runtime report delivery, provider delivery,
+provider receipt ingestion, final policy execution, browser mutation, child
+intervention execution, unmanaged exact URL support, or enforcement.
 
 ## Worker Report Template
 

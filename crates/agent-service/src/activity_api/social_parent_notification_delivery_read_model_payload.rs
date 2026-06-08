@@ -1,3 +1,11 @@
+use std::time::Duration;
+
+use ocentra_eventing::{
+    AggregateKey, CorrelationId, DomainEvent, EventBus, EventContract, EventMetadata,
+    EventResponseContract, EventSource, EventSubscriber, EventType, EventingError, IdempotencyKey,
+    RecordedAt, RequestEvent, RequestId, RequestOptions, RuntimeInstanceId, SchemaVersion,
+    SourceComponent, SourceService, SubscriberId, TargetHandler,
+};
 use ocentra_parent_agent_protocol::{
     constants, AgentCommandEnvelope, AgentEventEnvelope, AgentEventName, LogFieldValue, LogFields,
     LogLevel, SocialParentNotificationDeliveryReadinessRow,
@@ -32,6 +40,7 @@ use ocentra_parent_agent_protocol::{
     SOCIAL_PARENT_NOTIFICATION_DELIVERY_STATE_REPORT_READY,
     SOCIAL_PARENT_NOTIFICATION_DELIVERY_STATE_UNAVAILABLE,
 };
+use serde::{Deserialize, Serialize};
 
 use crate::{event_builder::build_event, fields::fields_from_pairs, time::timestamp_now};
 
@@ -69,6 +78,53 @@ pub fn social_parent_notification_delivery_read_model_from_service(
     }
 }
 
+pub async fn request_social_parent_notification_delivery_read_model_from_service(
+) -> Result<SocialParentNotificationDeliveryReadinessSnapshot, EventingError> {
+    let bus = EventBus::new();
+    bus.subscribe::<SocialParentNotificationDeliveryReadModelRequest, _, _>(
+        EventSubscriber::new(
+            SubscriberId::parse(
+                constants::browser::SUBSCRIBER_BROWSER_SOCIAL_PARENT_NOTIFICATION_DELIVERY_STATUS,
+            )?,
+            EventType::parse(
+                constants::browser::EVENT_BROWSER_SOCIAL_PARENT_NOTIFICATION_DELIVERY_STATUS_REQUESTED,
+            )?,
+            TargetHandler::parse(
+                constants::browser::TARGET_BROWSER_SOCIAL_PARENT_NOTIFICATION_DELIVERY_STATUS,
+            )?,
+        ),
+        |context| async move {
+            context
+                .complete_request(SocialParentNotificationDeliveryReadModelResponse {
+                    read_model: social_parent_notification_delivery_read_model_from_service(),
+                })
+                .await?;
+            Ok(())
+        },
+    )
+    .await?;
+
+    let requested_at = timestamp_now();
+    let request = SocialParentNotificationDeliveryReadModelRequest {
+        request_id: RequestId::parse(social_parent_notification_delivery_request_id(
+            &requested_at,
+        ))?,
+        requested_at,
+    };
+    let metadata = social_parent_notification_delivery_metadata(&request)?;
+    let report = bus
+        .publish_request(
+            request,
+            metadata,
+            RequestOptions::with_timeout(Duration::from_millis(
+                constants::browser::REQUEST_BROWSER_SOCIAL_PARENT_NOTIFICATION_DELIVERY_STATUS_TIMEOUT_MS,
+            ))?,
+        )
+        .await?;
+
+    Ok(report.response.read_model)
+}
+
 pub fn social_parent_notification_delivery_read_model_payload(
     read_model: &SocialParentNotificationDeliveryReadinessSnapshot,
 ) -> LogFields {
@@ -78,7 +134,9 @@ pub fn social_parent_notification_delivery_read_model_payload(
 pub async fn build_browser_social_parent_notification_delivery_read_model_report(
     command: AgentCommandEnvelope,
 ) -> AgentEventEnvelope {
-    let read_model = social_parent_notification_delivery_read_model_from_service();
+    let read_model = request_social_parent_notification_delivery_read_model_from_service()
+        .await
+        .unwrap_or_else(|_| social_parent_notification_delivery_read_model_from_service());
     build_event(
         constants::event_id::BROWSER_SOCIAL_PARENT_NOTIFICATION_DELIVERY_READ_MODEL_REPORTED,
         &command.message_id,
@@ -88,6 +146,88 @@ pub async fn build_browser_social_parent_notification_delivery_read_model_report
         social_parent_notification_delivery_read_model_payload(&read_model),
         None,
     )
+}
+
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+struct SocialParentNotificationDeliveryReadModelRequest {
+    request_id: RequestId,
+    requested_at: String,
+}
+
+impl DomainEvent for SocialParentNotificationDeliveryReadModelRequest {
+    fn contract(&self) -> Result<EventContract, EventingError> {
+        Ok(EventContract::new(
+            EventType::parse(
+                constants::browser::EVENT_BROWSER_SOCIAL_PARENT_NOTIFICATION_DELIVERY_STATUS_REQUESTED,
+            )?,
+            SchemaVersion::new(constants::browser::EVENT_SCHEMA_VERSION)?,
+        ))
+    }
+
+    fn aggregate_key(&self) -> Result<AggregateKey, EventingError> {
+        AggregateKey::parse(constants::browser::AGGREGATE_BROWSER_RUNTIME_PREFIX)
+    }
+
+    fn idempotency_key(&self) -> Result<IdempotencyKey, EventingError> {
+        let mut value = String::from(
+            constants::browser::IDEMPOTENCY_BROWSER_SOCIAL_PARENT_NOTIFICATION_DELIVERY_STATUS_PREFIX,
+        );
+        value.push_str(self.request_id.as_str());
+        IdempotencyKey::parse(value)
+    }
+}
+
+impl RequestEvent for SocialParentNotificationDeliveryReadModelRequest {
+    type Response = SocialParentNotificationDeliveryReadModelResponse;
+
+    fn request_id(&self) -> Result<RequestId, EventingError> {
+        Ok(self.request_id.clone())
+    }
+}
+
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+struct SocialParentNotificationDeliveryReadModelResponse {
+    read_model: SocialParentNotificationDeliveryReadinessSnapshot,
+}
+
+impl EventResponseContract for SocialParentNotificationDeliveryReadModelResponse {}
+
+fn social_parent_notification_delivery_metadata(
+    request: &SocialParentNotificationDeliveryReadModelRequest,
+) -> Result<EventMetadata, EventingError> {
+    Ok(EventMetadata::from_parts(
+        ocentra_eventing::EventId::generated(),
+        CorrelationId::parse(social_parent_notification_delivery_correlation_id(
+            &request.requested_at,
+        ))?,
+        EventSource::new(
+            ocentra_eventing::EventCustody::parse(
+                constants::eventing_source::CUSTODY_LOCAL_QUERY_STORE,
+            )?,
+            ocentra_eventing::RuntimeRole::parse(constants::eventing_source::ROLE_CONTROLLER)?,
+            SourceService::parse(constants::peer::LOCAL_DEV_AGENT)?,
+            SourceComponent::parse(constants::browser::RUNTIME_COMPONENT_BROWSER_SPINE)?,
+            RuntimeInstanceId::parse(constants::browser::RUNTIME_INSTANCE_LOCAL_BROWSER_RUNTIME)?,
+        ),
+        RecordedAt::parse(&request.requested_at)?,
+        Some(TargetHandler::parse(
+            constants::browser::TARGET_BROWSER_SOCIAL_PARENT_NOTIFICATION_DELIVERY_STATUS,
+        )?),
+    ))
+}
+
+fn social_parent_notification_delivery_request_id(requested_at: &str) -> String {
+    let mut value = String::from(
+        constants::browser::REQUEST_BROWSER_SOCIAL_PARENT_NOTIFICATION_DELIVERY_STATUS_PREFIX,
+    );
+    value.push_str(requested_at);
+    value
+}
+
+fn social_parent_notification_delivery_correlation_id(requested_at: &str) -> String {
+    let mut value = String::from(constants::browser::CORRELATION_BROWSER_RUNTIME_PREFIX);
+    value.push_str(requested_at);
+    value
 }
 
 fn read_model_pairs(

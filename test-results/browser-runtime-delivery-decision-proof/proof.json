@@ -1,6 +1,6 @@
 {
   "proofName": "browser-runtime-delivery-decision-proof",
-  "branchHead": "08e1705c5 Add browser runtime stream status proof",
+  "branchHead": "174e64122 Add social parent notification delivery service proof",
   "sourceChecks": {
     "usesSharedEventingDecisionApi": true,
     "provesLocalServiceRoute": true,
@@ -8,13 +8,15 @@
     "provesActionIntentHandoffRoute": true,
     "provesRuntimeStreamReportRoute": true,
     "provesSocialProviderReceiptStatusRoute": true,
+    "provesSocialParentNotificationDeliveryStatusRoute": true,
     "provesExternalTransportManualRequired": true,
     "rejectsExecutionClaims": true,
     "runtimeExportsProof": true,
     "focusedTestExists": true,
-    "focusedTestAssertsFiveLocalRoutes": true,
+    "focusedTestAssertsSixLocalRoutes": true,
     "focusedTestAssertsHandoffRoute": true,
     "focusedTestAssertsReceiptStatusRoute": true,
+    "focusedTestAssertsParentNotificationDeliveryStatusRoute": true,
     "focusedTestAssertsRuntimeStreamReportRoute": true,
     "testAssertsMissingArtifacts": true,
     "checklistMentionsProof": true,
@@ -55,6 +57,12 @@
       "publisher": "browser-event-runtime-spine",
       "subscriber": "browser-social-provider-receipt-status"
     },
+    "browserSocialParentNotificationDeliveryStatus": {
+      "routeKind": "local-in-process",
+      "decisionState": "local-route-ready",
+      "publisher": "browser-event-runtime-spine",
+      "subscriber": "browser-social-parent-notification-delivery-status"
+    },
     "browserExternalTransport": {
       "routeKind": "external-transport",
       "decisionState": "external-transport-route-manual-required",
@@ -76,11 +84,12 @@
     "reusableEventingDeliveryDecisionUsed": true,
     "localServiceRouteReady": true,
     "localInProcessRouteReady": true,
-    "localReadyRouteCount": 5,
+    "localReadyRouteCount": 6,
     "actionIntentStatusRouteReady": true,
     "actionIntentHandoffRouteReady": true,
     "runtimeStreamReportRouteReady": true,
     "socialProviderReceiptStatusRouteReady": true,
+    "socialParentNotificationDeliveryStatusRouteReady": true,
     "externalTransportManualRequired": true,
     "externalTransportDeliveryImplemented": false,
     "externalRelayDeliveryImplemented": false,

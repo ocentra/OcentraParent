@@ -58,6 +58,11 @@ async function sourceChecks() {
       delivery.includes('constants::browser::EVENT_BROWSER_SOCIAL_PROVIDER_RECEIPT_STATUS_REQUESTED') &&
       delivery.includes('constants::browser::SUBSCRIBER_BROWSER_SOCIAL_PROVIDER_RECEIPT_STATUS') &&
       delivery.includes('constants::browser::TARGET_BROWSER_SOCIAL_PROVIDER_RECEIPT_STATUS'),
+    provesSocialParentNotificationDeliveryStatusRoute:
+      delivery.includes('social_parent_notification_delivery_status_delivery') &&
+      delivery.includes('constants::browser::EVENT_BROWSER_SOCIAL_PARENT_NOTIFICATION_DELIVERY_STATUS_REQUESTED') &&
+      delivery.includes('constants::browser::SUBSCRIBER_BROWSER_SOCIAL_PARENT_NOTIFICATION_DELIVERY_STATUS') &&
+      delivery.includes('constants::browser::TARGET_BROWSER_SOCIAL_PARENT_NOTIFICATION_DELIVERY_STATUS'),
     provesExternalTransportManualRequired: delivery.includes('ExternalTransportRouteManualRequired'),
     rejectsExecutionClaims:
       delivery.includes('adapter_dispatch_claimed: false') &&
@@ -69,17 +74,18 @@ async function sourceChecks() {
       runtime.includes('prove_browser_runtime_delivery_decision') &&
       runtime.includes('BrowserRuntimeDeliveryDecisionReport'),
     focusedTestExists: tests.includes('browser_runtime_delivery_decision_keeps_current_routes_local_only'),
-    focusedTestAssertsFiveLocalRoutes: tests.includes('assert_eq!(report.local_ready_route_count, 5)'),
+    focusedTestAssertsSixLocalRoutes: tests.includes('assert_eq!(report.local_ready_route_count, 6)'),
     focusedTestAssertsHandoffRoute:
-      tests.includes('report.action_intent_handoff_delivery.route_kind') &&
-      tests.includes('report.action_intent_handoff_delivery.decision_state'),
+      tests.includes('report.action_intent_handoff_delivery') &&
+      tests.includes('EventDeliveryDecisionState::LocalRouteReady'),
     focusedTestAssertsReceiptStatusRoute:
-      tests.includes('report.social_provider_receipt_status_delivery.route_kind') &&
-      tests.includes('.social_provider_receipt_status_delivery') &&
+      tests.includes('report.social_provider_receipt_status_delivery') &&
+      tests.includes('EventDeliveryDecisionState::LocalRouteReady'),
+    focusedTestAssertsParentNotificationDeliveryStatusRoute:
+      tests.includes('report.social_parent_notification_delivery_status_delivery') &&
       tests.includes('EventDeliveryDecisionState::LocalRouteReady'),
     focusedTestAssertsRuntimeStreamReportRoute:
-      tests.includes('report.runtime_stream_report_delivery.route_kind') &&
-      tests.includes('.runtime_stream_report_delivery') &&
+      tests.includes('report.runtime_stream_report_delivery') &&
       tests.includes('EventDeliveryDecisionState::LocalRouteReady'),
     testAssertsMissingArtifacts: tests.includes('EventDeliveryRequiredArtifact::TransportConfig'),
     checklistMentionsProof: checklist.includes('browser-runtime-delivery-decision-proof'),
@@ -160,6 +166,12 @@ async function main() {
         publisher: 'browser-event-runtime-spine',
         subscriber: 'browser-social-provider-receipt-status',
       },
+      browserSocialParentNotificationDeliveryStatus: {
+        routeKind: 'local-in-process',
+        decisionState: 'local-route-ready',
+        publisher: 'browser-event-runtime-spine',
+        subscriber: 'browser-social-parent-notification-delivery-status',
+      },
       browserExternalTransport: {
         routeKind: 'external-transport',
         decisionState: 'external-transport-route-manual-required',
@@ -181,11 +193,12 @@ async function main() {
       reusableEventingDeliveryDecisionUsed: true,
       localServiceRouteReady: true,
       localInProcessRouteReady: true,
-      localReadyRouteCount: 5,
+      localReadyRouteCount: 6,
       actionIntentStatusRouteReady: true,
       actionIntentHandoffRouteReady: true,
       runtimeStreamReportRouteReady: true,
       socialProviderReceiptStatusRouteReady: true,
+      socialParentNotificationDeliveryStatusRouteReady: true,
       externalTransportManualRequired: true,
       externalTransportDeliveryImplemented: false,
       externalRelayDeliveryImplemented: false,
@@ -207,6 +220,7 @@ async function main() {
     '| browser action-intent handoff | local-in-process | local-route-ready | browser-action-intent-handoff | covered |',
     '| browser runtime stream report | local-in-process | local-route-ready | browser-runtime-stream-report | covered |',
     '| browser social-provider receipt status | local-in-process | local-route-ready | browser-social-provider-receipt-status | covered |',
+    '| browser social parent-notification delivery status | local-in-process | local-route-ready | browser-social-parent-notification-delivery-status | covered |',
     '| browser external transport | external-transport | external-transport-route-manual-required | browser-intervention-command | manual-required |',
     '',
     'The proof uses the reusable `ocentra-eventing` delivery decision API. External transport and relay delivery remain unimplemented, and the proof does not claim adapter dispatch, browser mutation, child intervention execution, final policy execution, or enforcement.',

@@ -89,6 +89,7 @@ const proof = {
     'no-external-runtime-report-delivery-claim',
     'no-provider-delivery-or-receipt-ingestion-claim',
     'no-final-policy-or-enforcement-claim',
+    'internal-ocentra-eventing-request-response-boundary',
   ],
   sourceProof,
   accessibilitySummary,
@@ -206,6 +207,26 @@ async function sourceAssertions() {
   assertIncludes(routeSource, 'SocialParentNotificationDeliveryCards', 'route renders readiness cards');
   assertIncludes(
     serviceSource,
+    'request_social_parent_notification_delivery_read_model_from_service',
+    'service uses evented readiness request'
+  );
+  assertIncludes(
+    serviceSource,
+    'EVENT_BROWSER_SOCIAL_PARENT_NOTIFICATION_DELIVERY_STATUS_REQUESTED',
+    'service publishes named social parent notification status request'
+  );
+  assertIncludes(
+    serviceSource,
+    'SUBSCRIBER_BROWSER_SOCIAL_PARENT_NOTIFICATION_DELIVERY_STATUS',
+    'service registers social parent notification status subscriber'
+  );
+  assertIncludes(
+    serviceSource,
+    'publish_request',
+    'service completes readiness through reusable eventing request response'
+  );
+  assertIncludes(
+    serviceSource,
     'parent_notification_ui_delivered: false',
     'service keeps parent notification UI delivery unclaimed'
   );
@@ -214,6 +235,7 @@ async function sourceAssertions() {
     routeSendsReadinessCommand: true,
     routeRendersReadinessCards: true,
     servicePreservesNoDeliveryClaims: true,
+    serviceUsesNamedLocalEventingRequest: true,
   };
 }
 
@@ -257,6 +279,7 @@ function markdown(proof) {
     `- Branch: ${proof.branch}`,
     `- Commit: ${proof.commit}`,
     '- Scope: Browser social route requests the service-backed parent notification delivery readiness read model and renders parent-report-ready, manual-required, and unavailable rows.',
+    '- Eventing: the Rust service publishes the local `browser.social.parent-notification-delivery.status.requested` request and completes it through the reusable `ocentra-eventing` request/response path before reporting the portal read model.',
     '- Real runtime proof: portal E2E harness starts the Rust agent service and Vite portal, requests the service-backed Browser route, and captures desktop/mobile screenshots.',
     `- Evidence: ${proof.proofPaths.proof}`,
     `- Accessibility summary: ${proof.proofPaths.accessibilitySummary}`,

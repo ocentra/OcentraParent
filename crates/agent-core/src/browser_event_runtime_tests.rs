@@ -434,55 +434,35 @@ fn browser_runtime_chain_topology_covers_ordered_event_spine() {
 fn browser_runtime_delivery_decision_keeps_current_routes_local_only() {
     let report = prove_browser_runtime_delivery_decision().unwrap();
 
-    assert_eq!(report.local_ready_route_count, 5);
-    assert_eq!(
-        report.chain_delivery.route_kind,
-        EventDeliveryRouteKind::LocalService
-    );
-    assert_eq!(
-        report.chain_delivery.decision_state,
+    macro_rules! assert_ready_route {
+        ($proof:expr, $kind:expr, $state:expr) => {{
+            assert_eq!($proof.route_kind, $kind);
+            assert_eq!($proof.decision_state, $state);
+        }};
+    }
+
+    assert_eq!(report.local_ready_route_count, 6);
+    assert_ready_route!(
+        report.chain_delivery,
+        EventDeliveryRouteKind::LocalService,
         EventDeliveryDecisionState::LocalRouteReady
     );
-    assert_eq!(
-        report.action_intent_status_delivery.route_kind,
-        EventDeliveryRouteKind::LocalInProcess
-    );
-    assert_eq!(
-        report.action_intent_status_delivery.decision_state,
-        EventDeliveryDecisionState::LocalRouteReady
-    );
-    assert_eq!(
-        report.action_intent_handoff_delivery.route_kind,
-        EventDeliveryRouteKind::LocalInProcess
-    );
-    assert_eq!(
-        report.action_intent_handoff_delivery.decision_state,
-        EventDeliveryDecisionState::LocalRouteReady
-    );
-    assert_eq!(
-        report.runtime_stream_report_delivery.route_kind,
-        EventDeliveryRouteKind::LocalInProcess
-    );
-    assert_eq!(
-        report.runtime_stream_report_delivery.decision_state,
-        EventDeliveryDecisionState::LocalRouteReady
-    );
-    assert_eq!(
-        report.social_provider_receipt_status_delivery.route_kind,
-        EventDeliveryRouteKind::LocalInProcess
-    );
-    assert_eq!(
-        report
-            .social_provider_receipt_status_delivery
-            .decision_state,
-        EventDeliveryDecisionState::LocalRouteReady
-    );
-    assert_eq!(
-        report.external_transport_delivery.route_kind,
-        EventDeliveryRouteKind::ExternalTransport
-    );
-    assert_eq!(
-        report.external_transport_delivery.decision_state,
+    for proof in [
+        report.action_intent_status_delivery,
+        report.action_intent_handoff_delivery,
+        report.runtime_stream_report_delivery,
+        report.social_provider_receipt_status_delivery,
+        report.social_parent_notification_delivery_status_delivery,
+    ] {
+        assert_ready_route!(
+            proof,
+            EventDeliveryRouteKind::LocalInProcess,
+            EventDeliveryDecisionState::LocalRouteReady
+        );
+    }
+    assert_ready_route!(
+        report.external_transport_delivery,
+        EventDeliveryRouteKind::ExternalTransport,
         EventDeliveryDecisionState::ExternalTransportRouteManualRequired
     );
     assert_eq!(

@@ -6,6 +6,7 @@ use ocentra_parent_agent_protocol::{
 };
 
 use super::social_parent_notification_delivery_read_model_payload::{
+    request_social_parent_notification_delivery_read_model_from_service,
     social_parent_notification_delivery_read_model_from_service,
     social_parent_notification_delivery_read_model_payload,
 };
@@ -50,6 +51,34 @@ fn social_parent_notification_delivery_payload_reports_honest_service_rows() {
         .rows
         .iter()
         .all(|row| !row.parent_notification_ui_delivered && !row.provider_delivery_attempted));
+}
+
+#[tokio::test]
+async fn social_parent_notification_delivery_event_request_matches_service_projection() {
+    let direct = social_parent_notification_delivery_read_model_from_service();
+    let evented = request_social_parent_notification_delivery_read_model_from_service()
+        .await
+        .expect(constants::error::AGENT_EVENT_SERIALIZES);
+
+    assert_eq!(evented.rows.len(), direct.rows.len());
+    assert_eq!(
+        evented.parent_report_status_ready_count,
+        direct.parent_report_status_ready_count
+    );
+    assert_eq!(evented.manual_required_count, direct.manual_required_count);
+    assert_eq!(evented.unavailable_count, direct.unavailable_count);
+    assert_eq!(evented.non_claims, direct.non_claims);
+    assert!(!evented.parent_notification_ui_delivery_claimed);
+    assert!(!evented.external_runtime_report_delivery_claimed);
+    assert!(!evented.final_policy_execution_claimed);
+    assert!(!evented.enforcement_claimed);
+    assert!(evented.rows.iter().all(|row| {
+        !row.parent_notification_ui_delivered
+            && !row.provider_delivery_attempted
+            && !row.provider_receipt_ingested
+            && !row.final_policy_decision_claimed
+            && !row.enforcement_claimed
+    }));
 }
 
 fn string_payload<T>(payload: &ocentra_parent_agent_protocol::LogFields, field: &str) -> T
