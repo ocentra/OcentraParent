@@ -82,6 +82,8 @@ Proof root: `output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-g
   `60-retention-runtime-artifact-gate-proof.json`
 - Retention product-settings writable execution proof:
   `64-retention-product-settings-writable-execution-proof.json`
+- Retention platform enforcement preflight proof:
+  `70-retention-platform-enforcement-preflight-proof.json`
 - Android system geofence blocker proof:
   `44-android-system-geofence-blocker-proof.json`
   - Classifies the local emulator geofence evidence separately from missing
@@ -181,6 +183,8 @@ Proof root: `output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-g
   `60-retention-runtime-artifact-gate-proof.json`
 - Tracking retention product-settings writable execution proof:
   `64-retention-product-settings-writable-execution-proof.json`
+- Tracking retention platform enforcement preflight proof:
+  `70-retention-platform-enforcement-preflight-proof.json`
 - Tracking full product UI local runtime artifact capture proof:
   `66-full-product-ui-local-runtime-artifact-capture-proof.json`
   now consumes the retention product-settings writable execution derivation
@@ -1363,6 +1367,10 @@ tracking-claim-audit-proof tracking-product-readiness-closure-proof`
       artifacts, one present local writable execution artifact, one missing
       platform retention runtime enforcement artifact, one manual-required
       retention row, and zero artifact-complete retention runtime rows.
+- [x] Retention platform enforcement preflight refresh: WP07/WP33 now carries
+      Android, iOS, and desktop manual-required acceptance rows, manual
+      validation commands, and missing platform runtime artifact refs while
+      keeping platform enforcement and product-ready retention false.
 - [x] Claim-audit tier accounting refresh: claim-audit proof, product-readiness
       closure, real-runtime handoff, and source reconciliation gap-map now
       carry and assert the final manual-required split of six

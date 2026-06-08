@@ -139,6 +139,13 @@ expose location or device-status features. Parents expect this category.
   keeping portal writable UI, platform runtime retention enforcement,
   child-device delivery, provider delivery, notification receipts,
   physical-device proof, authority, production, and product-ready claims false.
+- WP07/WP33 retention platform enforcement preflight proof now exists through
+  `node scripts/test/tracking-retention-platform-enforcement-preflight-proof.mjs`.
+  It consumes the retention runtime artifact gate, writes Android, iOS, and
+  desktop platform-runtime acceptance rows plus a manual validation runbook, and
+  keeps platform runtime retention enforcement, writable product settings,
+  child-device delivery, physical-device proof, authority, production, and
+  product-ready claims false.
 - Hosted parent `policy-tracking` route screenshot and accessibility proof now
   exists through `npm run test:tracking-plan-hosted-ui-proof`. It starts the
   real Rust service against a seeded temporary ActivityStore SQLite database,
@@ -1263,8 +1270,11 @@ Use `docs/plans/tracking-plan/README.md` for implementation sequencing and
 workpack ownership. Keep AI as evidence, not authority, and keep LAN/IP/Wi-Fi
 presence as hints only. The pre-device proof gate is now repeatable, and the
 current WP32 read-model/accounting proof set is closed at the local-dev/hosted
-route tier. The next implementation layers are applied/product-ready retention
-settings execution beyond hosted local service write rendering, the runtime
+route tier. Retention platform enforcement preflight now names the Android,
+iOS, and desktop manual artifact rows required to close the missing platform
+runtime enforcement artifact, but it is not product-ready runtime proof. The
+next implementation layers are applied/product-ready retention settings
+execution beyond hosted local service write rendering, the platform runtime
 artifacts required for retention product readiness, full portal UI
 snapshots/accessibility beyond the hosted route, Android system
 geofencing/dwell proof, iOS Core Location/region proof beyond simulator package

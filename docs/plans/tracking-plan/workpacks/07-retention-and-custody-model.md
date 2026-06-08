@@ -35,6 +35,7 @@ Proof root: `output/tracking-plan-proof/07-retention-and-custody-model/`
 - `24-retention-product-readiness-proof.json`
 - `25-retention-runtime-artifact-gate-proof.json`
 - `26-retention-product-settings-writable-execution-proof.json`
+- `27-retention-platform-enforcement-preflight-proof.json`
 - `16-validation-commands.log`
 
 ## AI Worker Checklist
@@ -97,6 +98,11 @@ keeping those execution claims false. The product-readiness closure and
 real-runtime handoff proofs now carry this retention runtime artifact accounting
 forward: two required artifacts, one present local writable execution artifact,
 and one missing platform retention runtime enforcement artifact.
+Retention platform enforcement preflight proof now consumes that gate through
+`node scripts/test/tracking-retention-platform-enforcement-preflight-proof.mjs`
+and writes Android, iOS, and desktop manual-required acceptance rows plus a
+manual validation runbook for the missing platform runtime artifact. It is not
+platform enforcement or product-ready retention proof.
 The hosted parent route now also sends that typed write command and renders the
 service accepted result with applied local retention values. Writable product
 settings, platform behavior, applied product-ready writable retention execution,
@@ -111,6 +117,7 @@ and product claim readiness are not claimed beyond the proof state recorded in
 `24-retention-product-readiness-proof.json`,
 `25-retention-runtime-artifact-gate-proof.json`,
 `26-retention-product-settings-writable-execution-proof.json`,
+`27-retention-platform-enforcement-preflight-proof.json`,
 the WP30 hosted UI proof artifact, and the implementation checklist.
 
 ## Where We Want To Be
@@ -154,6 +161,11 @@ This workpack can be assigned independently, implemented against the owning doma
   enforcement is proved. Product-readiness closure and real-runtime handoff
   accounting now cite that exact present/missing split; it is not platform
   enforcement, production, or product-ready proof.
+- Retention platform enforcement preflight proof names Android, iOS, and
+  desktop runtime acceptance criteria, manual validation commands, and artifact
+  refs for the missing platform enforcement artifact. It remains
+  manual-required and does not claim platform enforcement, production, or
+  product-ready retention proof.
 - Any unsupported platform or provider failure must surface as degraded/manual-required state, not as a silent success.
 
 ## Fill This Before Reporting DONE Or PR-ready
