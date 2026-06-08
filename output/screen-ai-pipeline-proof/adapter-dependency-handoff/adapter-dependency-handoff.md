@@ -1,12 +1,13 @@
 # Screen AI Adapter Dependency Handoff
 
-Generated: 2026-06-08T06:46:43.310Z
+Generated: 2026-06-08T07:21:20.672Z
 
 ## screen-ai-broad-installed-app-manual-required
 
 - adapter class: broad-installed-app
 - owner: codex-c (app-game/enforcement adapter layer)
 - expected proof: `output/app-game-plan-proof/screen-derived-broad-installed-app-apply-rollback-audit/proof-summary.json`
+- current upstream context: `output/app-game-plan-proof/23-broad-blocking-proof-gates/03-runtime-evidence.json`, `test-results/app-install-purchase-package-source-adapter-execution-proof/proof.json`, `test-results/app-install-purchase-provider-store-api-execution-proof/proof.json`, `test-results/app-install-purchase-external-runtime-writer-transport-execution-proof/proof.json`
 - missing now: broad installed-app apply, rollback, and audit custody proof from a screen-derived block decision
 - unblocks: screen-ai-pipeline-plan: Browser, network, mobile, and broad block adapters proven from screen-derived decisions before product-complete action claims.; product-capability-checklist: Local screen evidence summaries; product-capability-checklist: Child-safety AI decision
 
@@ -19,6 +20,7 @@ Generated: 2026-06-08T06:46:43.310Z
   "auditRef": "durable adapter audit/custody ref",
   "rawImageRetained": false,
   "rawImageDeletedBeforeAdapter": true,
+  "appBlockingClaimed": true,
   "finalAdapterCompletionClaimed": true
 }
 ```
@@ -28,6 +30,7 @@ Generated: 2026-06-08T06:46:43.310Z
 - adapter class: host-network-domain
 - owner: E-D (network/domain enforcement adapter layer)
 - expected proof: `output/network-plan-proof/screen-derived-host-network-domain-apply-rollback-audit/proof-summary.json`
+- current upstream context: none
 - missing now: host DNS/filter apply, rollback, and audit custody proof from a screen-derived network/domain decision
 - unblocks: screen-ai-pipeline-plan: Browser, network, mobile, and broad block adapters proven from screen-derived decisions before product-complete action claims.; product-capability-checklist: Local screen evidence summaries; product-capability-checklist: Child-safety AI decision
 
@@ -49,6 +52,7 @@ Generated: 2026-06-08T06:46:43.310Z
 - adapter class: managed-active-tab-exact-url
 - owner: codex-d (browser managed-control adapter layer)
 - expected proof: `output/browser-plan-proof/screen-derived-managed-active-tab-apply-rollback-audit/proof-summary.json`
+- current upstream context: none
 - missing now: managed active-tab exact URL apply, rollback, and audit custody proof from a screen-derived browser decision
 - unblocks: screen-ai-pipeline-plan: Browser, network, mobile, and broad block adapters proven from screen-derived decisions before product-complete action claims.; product-capability-checklist: Local screen evidence summaries; product-capability-checklist: Child-safety AI decision
 
@@ -70,6 +74,7 @@ Generated: 2026-06-08T06:46:43.310Z
 - adapter class: android-device-owner-or-managed-profile
 - owner: primary/mobile-child-agent-sequencing (Android child-agent Device Owner or managed-profile adapter layer)
 - expected proof: `output/mobile-plan-proof/screen-derived-android-mobile-control-apply-rollback-audit/proof-summary.json`
+- current upstream context: none
 - missing now: Android device-owner/managed-profile control proof from a screen-derived mobile decision
 - unblocks: screen-ai-pipeline-plan: Browser, network, mobile, and broad block adapters proven from screen-derived decisions before product-complete action claims.; product-capability-checklist: Local screen evidence summaries; product-capability-checklist: Child-safety AI decision
 
@@ -91,6 +96,7 @@ Generated: 2026-06-08T06:46:43.310Z
 - adapter class: ios-family-controls-device-activity
 - owner: primary/mobile-child-agent-sequencing (iOS Family Controls and DeviceActivity adapter layer)
 - expected proof: `output/mobile-plan-proof/screen-derived-ios-mobile-control-apply-rollback-audit/proof-summary.json`
+- current upstream context: none
 - missing now: iOS Family Controls/DeviceActivity control proof from a screen-derived mobile decision
 - unblocks: screen-ai-pipeline-plan: Browser, network, mobile, and broad block adapters proven from screen-derived decisions before product-complete action claims.; product-capability-checklist: Local screen evidence summaries; product-capability-checklist: Child-safety AI decision
 

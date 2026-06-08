@@ -1,11 +1,12 @@
 {
   "status": "adapter-dependency-handoff-ready-upstream-execution-required",
   "proofKind": "screen-ai-adapter-dependency-handoff-proof",
-  "generatedAt": "2026-06-08T06:46:43.310Z",
+  "generatedAt": "2026-06-08T07:21:20.672Z",
   "sourceArtifacts": {
     "finalAdapterDependencyAudit": "output/screen-ai-pipeline-proof/final-adapter-dependency-audit/proof-summary.json",
     "adapterBlockerLedger": "output/screen-ai-pipeline-proof/adapter-blocker-ledger/proof-summary.json",
     "finalProductPath": "output/screen-ai-pipeline-proof/final-product-path/proof-summary.json",
+    "upstreamAdapterPrerequisiteBridge": "output/screen-ai-pipeline-proof/upstream-adapter-prerequisite-bridge/proof-summary.json",
     "screenAiPipelineChecklist": "docs/plans/screen-ai-pipeline-plan/implementation-checklist.md"
   },
   "handoff": "output/screen-ai-pipeline-proof/adapter-dependency-handoff/adapter-dependency-handoff.json",
@@ -16,6 +17,7 @@
     "owningLanesMapped": true,
     "expectedProofFilesMapped": true,
     "expectedContractShapesMapped": true,
+    "upstreamAppInstallContextMappedWithoutClaimUpgrade": true,
     "finalScreenAiAdapterRowStillOpen": true,
     "productChecklistEdited": false,
     "productCompleteClaimed": false,

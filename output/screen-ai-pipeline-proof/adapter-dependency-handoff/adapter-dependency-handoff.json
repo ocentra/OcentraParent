@@ -1,10 +1,11 @@
 {
   "schemaVersion": "v0.6",
-  "generatedAt": "2026-06-08T06:46:43.310Z",
+  "generatedAt": "2026-06-08T07:21:20.672Z",
   "sourceArtifacts": {
     "finalAdapterDependencyAudit": "output/screen-ai-pipeline-proof/final-adapter-dependency-audit/proof-summary.json",
     "adapterBlockerLedger": "output/screen-ai-pipeline-proof/adapter-blocker-ledger/proof-summary.json",
     "finalProductPath": "output/screen-ai-pipeline-proof/final-product-path/proof-summary.json",
+    "upstreamAdapterPrerequisiteBridge": "output/screen-ai-pipeline-proof/upstream-adapter-prerequisite-bridge/proof-summary.json",
     "screenAiPipelineChecklist": "docs/plans/screen-ai-pipeline-plan/implementation-checklist.md"
   },
   "rows": [
@@ -16,6 +17,12 @@
       "currentMissingArtifact": "broad installed-app apply, rollback, and audit custody proof from a screen-derived block decision",
       "owningLane": "codex-c",
       "owningDomain": "app-game/enforcement adapter layer",
+      "currentUpstreamContextFiles": [
+        "output/app-game-plan-proof/23-broad-blocking-proof-gates/03-runtime-evidence.json",
+        "test-results/app-install-purchase-package-source-adapter-execution-proof/proof.json",
+        "test-results/app-install-purchase-provider-store-api-execution-proof/proof.json",
+        "test-results/app-install-purchase-external-runtime-writer-transport-execution-proof/proof.json"
+      ],
       "expectedProofFile": "output/app-game-plan-proof/screen-derived-broad-installed-app-apply-rollback-audit/proof-summary.json",
       "expectedContractShape": {
         "sourcePolicyDecisionRef": "screen-derived block/time-limit policy decision id",
@@ -25,6 +32,7 @@
         "auditRef": "durable adapter audit/custody ref",
         "rawImageRetained": false,
         "rawImageDeletedBeforeAdapter": true,
+        "appBlockingClaimed": true,
         "finalAdapterCompletionClaimed": true
       },
       "unblocksFinalRows": [
@@ -42,6 +50,7 @@
       "currentMissingArtifact": "host DNS/filter apply, rollback, and audit custody proof from a screen-derived network/domain decision",
       "owningLane": "E-D",
       "owningDomain": "network/domain enforcement adapter layer",
+      "currentUpstreamContextFiles": [],
       "expectedProofFile": "output/network-plan-proof/screen-derived-host-network-domain-apply-rollback-audit/proof-summary.json",
       "expectedContractShape": {
         "sourcePolicyDecisionRef": "screen-derived network/domain policy decision id",
@@ -68,6 +77,7 @@
       "currentMissingArtifact": "managed active-tab exact URL apply, rollback, and audit custody proof from a screen-derived browser decision",
       "owningLane": "codex-d",
       "owningDomain": "browser managed-control adapter layer",
+      "currentUpstreamContextFiles": [],
       "expectedProofFile": "output/browser-plan-proof/screen-derived-managed-active-tab-apply-rollback-audit/proof-summary.json",
       "expectedContractShape": {
         "sourcePolicyDecisionRef": "screen-derived browser policy decision id",
@@ -94,6 +104,7 @@
       "currentMissingArtifact": "Android device-owner/managed-profile control proof from a screen-derived mobile decision",
       "owningLane": "primary/mobile-child-agent-sequencing",
       "owningDomain": "Android child-agent Device Owner or managed-profile adapter layer",
+      "currentUpstreamContextFiles": [],
       "expectedProofFile": "output/mobile-plan-proof/screen-derived-android-mobile-control-apply-rollback-audit/proof-summary.json",
       "expectedContractShape": {
         "sourcePolicyDecisionRef": "screen-derived mobile policy decision id",
@@ -120,6 +131,7 @@
       "currentMissingArtifact": "iOS Family Controls/DeviceActivity control proof from a screen-derived mobile decision",
       "owningLane": "primary/mobile-child-agent-sequencing",
       "owningDomain": "iOS Family Controls and DeviceActivity adapter layer",
+      "currentUpstreamContextFiles": [],
       "expectedProofFile": "output/mobile-plan-proof/screen-derived-ios-mobile-control-apply-rollback-audit/proof-summary.json",
       "expectedContractShape": {
         "sourcePolicyDecisionRef": "screen-derived mobile policy decision id",

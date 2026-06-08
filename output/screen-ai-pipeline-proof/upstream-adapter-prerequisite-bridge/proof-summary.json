@@ -1,11 +1,14 @@
 {
   "status": "upstream-prerequisites-partial-final-adapters-blocked",
   "proofKind": "screen-ai-upstream-adapter-prerequisite-bridge-proof",
-  "generatedAt": "2026-06-08T06:46:43.239Z",
+  "generatedAt": "2026-06-08T07:21:20.574Z",
   "sourceArtifacts": {
     "blockerLedger": "output/screen-ai-pipeline-proof/adapter-blocker-ledger/proof-summary.json",
     "appGameBroadBlocking": "output/app-game-plan-proof/23-broad-blocking-proof-gates/03-runtime-evidence.json",
     "appGameBroadBlockingRollback": "output/app-game-plan-proof/23-broad-blocking-proof-gates/12-rollback-proof.md",
+    "appInstallPackageSourceExecution": "test-results/app-install-purchase-package-source-adapter-execution-proof/proof.json",
+    "appInstallProviderStoreExecution": "test-results/app-install-purchase-provider-store-api-execution-proof/proof.json",
+    "appInstallExternalWriterTransportExecution": "test-results/app-install-purchase-external-runtime-writer-transport-execution-proof/proof.json",
     "networkActionResultState": "output/network-plan-proof/53-action-result-state-proof/proof-summary.json",
     "managedBrowserCdpCapture": "output/screen-plan-proof/33-managed-browser-cdp-screenshot-capture-path/proof-summary.json",
     "androidMediaProjectionCapability": "output/screen-plan-proof/android/proof-summary.json",
@@ -18,6 +21,10 @@
     "finalAdapterRowStillOpen": true,
     "appGameBroadBlockingReadinessPresent": true,
     "appGameBroadBlockingExecutionMissing": true,
+    "appInstallPackageSourceExecutionPresent": true,
+    "appInstallProviderStoreExecutionContextPresent": true,
+    "appInstallExternalWriterTransportStillBlocked": true,
+    "appInstallAppBlockingClaimed": false,
     "networkActionResultReadinessPresent": true,
     "networkActionExecutionMissing": true,
     "managedBrowserCapturePrerequisitePresent": true,
@@ -33,11 +40,18 @@
       "upstreamPrerequisiteState": "readiness-proof-present-execution-missing",
       "upstreamProofArtifact": "output/app-game-plan-proof/23-broad-blocking-proof-gates/03-runtime-evidence.json",
       "upstreamRollbackArtifact": "output/app-game-plan-proof/23-broad-blocking-proof-gates/12-rollback-proof.md",
+      "upstreamContextArtifacts": [
+        "test-results/app-install-purchase-package-source-adapter-execution-proof/proof.json",
+        "test-results/app-install-purchase-provider-store-api-execution-proof/proof.json",
+        "test-results/app-install-purchase-external-runtime-writer-transport-execution-proof/proof.json"
+      ],
       "upstreamReadinessProved": true,
       "upstreamExecutionProved": false,
+      "upstreamAppInstallContextProved": true,
+      "upstreamAppBlockingClaimed": false,
       "requiredFinalArtifact": "screen-derived broad installed-app apply, rollback, and audit custody proof",
       "finalAdapterCompletionClaimed": false,
-      "nextAction": "Wait for app/game lane to provide a screen-derived broad installed-app apply, rollback, and audit custody execution artifact before closing this row."
+      "nextAction": "Wait for app/game or app-install ownership to provide a screen-derived broad installed-app apply, rollback, and audit custody execution artifact with app blocking explicitly claimed before closing this row."
     },
     {
       "rowId": "screen-ai-host-network-domain-manual-required",
@@ -90,6 +104,7 @@
   ],
   "nonClaims": [
     "This proof does not implement broad installed-app, browser exact URL, host network/domain, Android, iOS, or Linux adapters.",
+    "This proof consumes app-install package-source/provider/transport context from current main but does not treat it as screen-derived broad installed-app blocking because those artifacts explicitly keep appBlockingClaim not-claimed.",
     "This proof does not consume unmerged worker branches; it only records upstream artifacts present in the current rebased branch.",
     "This proof does not close the final product-complete adapter row."
   ]

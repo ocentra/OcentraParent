@@ -1,6 +1,6 @@
 # Screen AI Final Adapter Dependency Audit
 
-Generated: 2026-06-08T06:46:43.086Z
+Generated: 2026-06-08T07:21:20.757Z
 
 ## Source Artifacts
 

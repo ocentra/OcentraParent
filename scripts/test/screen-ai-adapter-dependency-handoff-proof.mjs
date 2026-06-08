@@ -12,6 +12,8 @@ const sourceArtifacts = {
   finalAdapterDependencyAudit: 'output/screen-ai-pipeline-proof/final-adapter-dependency-audit/proof-summary.json',
   adapterBlockerLedger: 'output/screen-ai-pipeline-proof/adapter-blocker-ledger/proof-summary.json',
   finalProductPath: 'output/screen-ai-pipeline-proof/final-product-path/proof-summary.json',
+  upstreamAdapterPrerequisiteBridge:
+    'output/screen-ai-pipeline-proof/upstream-adapter-prerequisite-bridge/proof-summary.json',
   screenAiPipelineChecklist: 'docs/plans/screen-ai-pipeline-plan/implementation-checklist.md',
 };
 
@@ -19,6 +21,12 @@ const expectedHandoff = {
   'screen-ai-broad-installed-app-manual-required': {
     owningLane: 'codex-c',
     owningDomain: 'app-game/enforcement adapter layer',
+    currentUpstreamContextFiles: [
+      'output/app-game-plan-proof/23-broad-blocking-proof-gates/03-runtime-evidence.json',
+      'test-results/app-install-purchase-package-source-adapter-execution-proof/proof.json',
+      'test-results/app-install-purchase-provider-store-api-execution-proof/proof.json',
+      'test-results/app-install-purchase-external-runtime-writer-transport-execution-proof/proof.json',
+    ],
     expectedProofFile:
       'output/app-game-plan-proof/screen-derived-broad-installed-app-apply-rollback-audit/proof-summary.json',
     expectedContractShape: {
@@ -29,6 +37,7 @@ const expectedHandoff = {
       auditRef: 'durable adapter audit/custody ref',
       rawImageRetained: false,
       rawImageDeletedBeforeAdapter: true,
+      appBlockingClaimed: true,
       finalAdapterCompletionClaimed: true,
     },
     unblocksFinalRows: [
@@ -127,6 +136,7 @@ const failures = [];
 const finalAdapterAudit = readJson(sourceArtifacts.finalAdapterDependencyAudit);
 const adapterBlockerLedger = readJson(sourceArtifacts.adapterBlockerLedger);
 const finalProductPath = readJson(sourceArtifacts.finalProductPath);
+const upstreamAdapterPrerequisiteBridge = readJson(sourceArtifacts.upstreamAdapterPrerequisiteBridge);
 const checklist = readText(sourceArtifacts.screenAiPipelineChecklist);
 
 assert(finalAdapterAudit.status === 'blocked-by-upstream-adapter-artifacts', 'final adapter audit is not blocked');
@@ -135,6 +145,18 @@ assert(finalAdapterAudit.closure?.linuxHostExecutionRows === 1, 'final adapter a
 assert(adapterBlockerLedger.status === 'blocked-but-actionable', 'adapter blocker ledger is not actionable');
 assert(adapterBlockerLedger.closure?.blockerRows === 5, 'adapter blocker ledger blocker count changed');
 assert(finalProductPath.closure?.finalPipelineProductComplete === false, 'final product path claims complete');
+assert(
+  upstreamAdapterPrerequisiteBridge.closure?.appInstallPackageSourceExecutionPresent === true,
+  'upstream bridge must consume current app-install package-source execution context'
+);
+assert(
+  upstreamAdapterPrerequisiteBridge.closure?.appInstallExternalWriterTransportStillBlocked === true,
+  'upstream bridge must keep app-install external writer transport blocked'
+);
+assert(
+  upstreamAdapterPrerequisiteBridge.closure?.appInstallAppBlockingClaimed === false,
+  'upstream bridge unexpectedly claims app-install app blocking'
+);
 assert(
   checklist.includes(
     '- [ ] Browser, network, mobile, and broad block adapters proven from screen-derived decisions before product-complete action claims.'
@@ -160,6 +182,7 @@ const handoffRows = finalAdapterAudit.blockedRows.map((blockedRow) => {
     currentMissingArtifact: blockedRow.missingArtifact,
     owningLane: expected.owningLane,
     owningDomain: expected.owningDomain,
+    currentUpstreamContextFiles: expected.currentUpstreamContextFiles ?? [],
     expectedProofFile: expected.expectedProofFile,
     expectedContractShape: expected.expectedContractShape,
     unblocksFinalRows: expected.unblocksFinalRows,
@@ -179,6 +202,16 @@ for (const row of handoffRows) {
     row.expectedContractShape.finalAdapterCompletionClaimed === true,
     `${row.rowId} expected shape does not declare final adapter completion for completed upstream proof`
   );
+  if (row.rowId === 'screen-ai-broad-installed-app-manual-required') {
+    assert(
+      row.expectedContractShape.appBlockingClaimed === true,
+      `${row.rowId} expected shape must require explicit app blocking claim`
+    );
+    assert(
+      row.currentUpstreamContextFiles.length === 4,
+      `${row.rowId} must name the current upstream app/game and app-install context artifacts`
+    );
+  }
 }
 
 if (failures.length > 0) {
@@ -209,6 +242,7 @@ const proof = {
     owningLanesMapped: true,
     expectedProofFilesMapped: true,
     expectedContractShapesMapped: true,
+    upstreamAppInstallContextMappedWithoutClaimUpgrade: true,
     finalScreenAiAdapterRowStillOpen: true,
     productChecklistEdited: false,
     productCompleteClaimed: false,
@@ -236,6 +270,7 @@ function markdown(rows, generatedAt) {
       `- adapter class: ${row.adapterClass}`,
       `- owner: ${row.owningLane} (${row.owningDomain})`,
       `- expected proof: \`${row.expectedProofFile}\``,
+      `- current upstream context: ${row.currentUpstreamContextFiles.map((path) => `\`${path}\``).join(', ') || 'none'}`,
       `- missing now: ${row.currentMissingArtifact}`,
       `- unblocks: ${row.unblocksFinalRows.join('; ')}`,
       '',

@@ -305,6 +305,10 @@ function auditDependencyHandoff() {
     'adapter dependency handoff claims product complete'
   );
   assert(
+    adapterDependencyHandoff.closure?.upstreamAppInstallContextMappedWithoutClaimUpgrade === true,
+    'adapter dependency handoff must map app-install context without upgrading screen adapter claims'
+  );
+  assert(
     adapterDependencyHandoffRows.claimBoundary?.includes('dependency handoff requirements only'),
     'adapter dependency handoff lost claim boundary'
   );
@@ -333,6 +337,16 @@ function auditDependencyHandoff() {
       row.expectedContractShape?.finalAdapterCompletionClaimed === true,
       `${requirement.rowId} handoff expected contract cannot close completion when proof exists`
     );
+    if (requirement.rowId === 'screen-ai-broad-installed-app-manual-required') {
+      assert(
+        row.expectedContractShape?.appBlockingClaimed === true,
+        `${requirement.rowId} handoff must require explicit app blocking claim`
+      );
+      assert(
+        row.currentUpstreamContextFiles?.length === 4,
+        `${requirement.rowId} handoff must map app/game and app-install context artifacts`
+      );
+    }
     assert(
       (row.unblocksFinalRows ?? []).some((value) => value.startsWith('screen-ai-pipeline-plan:')),
       `${requirement.rowId} handoff does not name screen-ai pipeline row`

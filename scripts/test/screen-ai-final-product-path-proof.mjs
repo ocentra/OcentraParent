@@ -562,6 +562,10 @@ function validateAdapterDependencyHandoff() {
     adapterDependencyHandoff.closure?.rawImageRetainedByExpectedContracts === false,
     'adapter dependency handoff allows raw image retention'
   );
+  assert(
+    adapterDependencyHandoff.closure?.upstreamAppInstallContextMappedWithoutClaimUpgrade === true,
+    'adapter dependency handoff must map app-install context without upgrading screen adapter claims'
+  );
   return true;
 }
 

@@ -1,7 +1,7 @@
 {
   "status": "blocked-by-upstream-adapter-artifacts",
   "proofKind": "screen-ai-final-adapter-dependency-audit",
-  "generatedAt": "2026-06-08T06:46:43.086Z",
+  "generatedAt": "2026-06-08T07:21:20.757Z",
   "sourceArtifacts": {
     "adapterReadiness": "output/screen-ai-pipeline-proof/adapter-readiness/proof-summary.json",
     "adapterReadinessReadModel": "output/screen-ai-pipeline-proof/adapter-readiness/read-model.json",
@@ -147,6 +147,7 @@
         "auditRef": "durable adapter audit/custody ref",
         "rawImageRetained": false,
         "rawImageDeletedBeforeAdapter": true,
+        "appBlockingClaimed": true,
         "finalAdapterCompletionClaimed": true
       }
     },

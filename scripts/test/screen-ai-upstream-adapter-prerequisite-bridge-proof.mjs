@@ -12,6 +12,11 @@ const sourceArtifacts = {
   blockerLedger: 'output/screen-ai-pipeline-proof/adapter-blocker-ledger/proof-summary.json',
   appGameBroadBlocking: 'output/app-game-plan-proof/23-broad-blocking-proof-gates/03-runtime-evidence.json',
   appGameBroadBlockingRollback: 'output/app-game-plan-proof/23-broad-blocking-proof-gates/12-rollback-proof.md',
+  appInstallPackageSourceExecution:
+    'test-results/app-install-purchase-package-source-adapter-execution-proof/proof.json',
+  appInstallProviderStoreExecution: 'test-results/app-install-purchase-provider-store-api-execution-proof/proof.json',
+  appInstallExternalWriterTransportExecution:
+    'test-results/app-install-purchase-external-runtime-writer-transport-execution-proof/proof.json',
   networkActionResultState: 'output/network-plan-proof/53-action-result-state-proof/proof-summary.json',
   managedBrowserCdpCapture:
     'output/screen-plan-proof/33-managed-browser-cdp-screenshot-capture-path/proof-summary.json',
@@ -25,6 +30,9 @@ const failures = [];
 const blockerLedger = readJson(sourceArtifacts.blockerLedger);
 const appGameBroadBlocking = readJson(sourceArtifacts.appGameBroadBlocking);
 const appGameBroadBlockingRollback = readText(sourceArtifacts.appGameBroadBlockingRollback);
+const appInstallPackageSourceExecution = readJson(sourceArtifacts.appInstallPackageSourceExecution);
+const appInstallProviderStoreExecution = readJson(sourceArtifacts.appInstallProviderStoreExecution);
+const appInstallExternalWriterTransportExecution = readJson(sourceArtifacts.appInstallExternalWriterTransportExecution);
 const networkActionResultState = readJson(sourceArtifacts.networkActionResultState);
 const managedBrowserCdpCapture = readJson(sourceArtifacts.managedBrowserCdpCapture);
 const androidMediaProjectionCapability = readJson(sourceArtifacts.androidMediaProjectionCapability);
@@ -51,6 +59,50 @@ assert(
 assert(
   appGameBroadBlockingRollback.includes('Rollback execution was not implemented in WP23.'),
   'app/game rollback proof must remain explicit non-execution'
+);
+assert(
+  appInstallPackageSourceExecution.proofMode === 'app-install-purchase-package-source-adapter-execution-proof',
+  'app-install package-source execution proof mode mismatch'
+);
+assert(
+  appInstallPackageSourceExecution.packageSourceAdapterExecutionSummary?.localAdapterExecutedRows === 1,
+  'app-install package-source proof must include one local adapter execution row'
+);
+assert(
+  appInstallPackageSourceExecution.packageSourceAdapterExecutionRows?.every(
+    (row) => row.appBlockingClaim === 'not-claimed'
+  ),
+  'app-install package-source proof must not claim app blocking'
+);
+assert(
+  appInstallProviderStoreExecution.proofMode === 'app-install-purchase-provider-store-api-execution-proof',
+  'app-install provider-store execution proof mode mismatch'
+);
+assert(
+  appInstallProviderStoreExecution.providerStoreApiExecutionSummary?.providerExecutedRows === 0,
+  'app-install provider-store proof unexpectedly executed provider rows'
+);
+assert(
+  appInstallProviderStoreExecution.providerStoreApiExecutionRows?.every(
+    (row) => row.appBlockingClaim === 'not-claimed'
+  ),
+  'app-install provider-store proof must not claim app blocking'
+);
+assert(
+  appInstallExternalWriterTransportExecution.proofMode ===
+    'app-install-purchase-external-runtime-writer-transport-execution-proof',
+  'app-install external writer transport execution proof mode mismatch'
+);
+assert(
+  appInstallExternalWriterTransportExecution.externalRuntimeWriterTransportExecutionSummary
+    ?.externalRuntimeWriterExecutedRows === 0,
+  'app-install external writer transport proof unexpectedly executed writer rows'
+);
+assert(
+  appInstallExternalWriterTransportExecution.externalRuntimeWriterTransportExecutionRows?.every(
+    (row) => row.appBlockingClaim === 'not-claimed'
+  ),
+  'app-install external writer transport proof must not claim app blocking'
 );
 assert(
   networkActionResultState.proof === 'network-action-result-state-proof',
@@ -163,6 +215,10 @@ const proof = {
     finalAdapterRowStillOpen: true,
     appGameBroadBlockingReadinessPresent: true,
     appGameBroadBlockingExecutionMissing: true,
+    appInstallPackageSourceExecutionPresent: true,
+    appInstallProviderStoreExecutionContextPresent: true,
+    appInstallExternalWriterTransportStillBlocked: true,
+    appInstallAppBlockingClaimed: false,
     networkActionResultReadinessPresent: true,
     networkActionExecutionMissing: true,
     managedBrowserCapturePrerequisitePresent: true,
@@ -174,6 +230,7 @@ const proof = {
   rows,
   nonClaims: [
     'This proof does not implement broad installed-app, browser exact URL, host network/domain, Android, iOS, or Linux adapters.',
+    'This proof consumes app-install package-source/provider/transport context from current main but does not treat it as screen-derived broad installed-app blocking because those artifacts explicitly keep appBlockingClaim not-claimed.',
     'This proof does not consume unmerged worker branches; it only records upstream artifacts present in the current rebased branch.',
     'This proof does not close the final product-complete adapter row.',
   ],
@@ -190,12 +247,19 @@ function bridgeRowFor(blockerRow) {
       upstreamPrerequisiteState: 'readiness-proof-present-execution-missing',
       upstreamProofArtifact: sourceArtifacts.appGameBroadBlocking,
       upstreamRollbackArtifact: sourceArtifacts.appGameBroadBlockingRollback,
+      upstreamContextArtifacts: [
+        sourceArtifacts.appInstallPackageSourceExecution,
+        sourceArtifacts.appInstallProviderStoreExecution,
+        sourceArtifacts.appInstallExternalWriterTransportExecution,
+      ],
       upstreamReadinessProved: true,
       upstreamExecutionProved: false,
+      upstreamAppInstallContextProved: true,
+      upstreamAppBlockingClaimed: false,
       requiredFinalArtifact: blockerRow.requiredProofArtifact,
       finalAdapterCompletionClaimed: false,
       nextAction:
-        'Wait for app/game lane to provide a screen-derived broad installed-app apply, rollback, and audit custody execution artifact before closing this row.',
+        'Wait for app/game or app-install ownership to provide a screen-derived broad installed-app apply, rollback, and audit custody execution artifact with app blocking explicitly claimed before closing this row.',
     };
   }
 
@@ -310,7 +374,7 @@ function markdownSnapshot(proof) {
   const rows = proof.rows
     .map(
       (row) =>
-        `- ${row.adapterClass}: ${row.upstreamPrerequisiteState}; final completion claimed: ${row.finalAdapterCompletionClaimed}.`
+        `- ${row.adapterClass}: ${row.upstreamPrerequisiteState}; final completion claimed: ${row.finalAdapterCompletionClaimed}; app blocking claimed: ${row.upstreamAppBlockingClaimed ?? 'n/a'}.`
     )
     .join('\n');
   return `# Screen AI Upstream Adapter Prerequisite Bridge\n\nGenerated: ${proof.generatedAt}\n\nStatus: ${proof.status}\n\n## Rows\n\n${rows}\n\n## Closure\n\n\`\`\`json\n${JSON.stringify(proof.closure, null, 2)}\n\`\`\`\n`;
