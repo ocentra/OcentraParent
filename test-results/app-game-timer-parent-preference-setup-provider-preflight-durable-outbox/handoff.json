@@ -1,0 +1,28 @@
+{
+  "branch": "codex/app-game-control-product-completion",
+  "workpack": "WP154",
+  "scope": "timer parent preference setup provider preflight durable outbox",
+  "status": "done",
+  "runtimeBoundary": [
+    "durable setup outbox serializes provider adapter requirement ID/status",
+    "durable setup outbox serializes provider credential/manual-proof requirement ID/status",
+    "agent-service persistence test asserts JSONL outbox fields match real setup result"
+  ],
+  "validation": [
+    {
+      "command": "cargo test -p ocentra-parent-agent-service app_game_timer_parent_preference_setup_request -- --nocapture",
+      "status": "pass"
+    }
+  ],
+  "noClaims": [
+    "provider delivery execution",
+    "provider receipt ingestion",
+    "adapter dispatch",
+    "broad blocking",
+    "platform enforcement",
+    "raw private source rows",
+    "raw target values",
+    "private diagnostics"
+  ],
+  "productCapabilityChecklist": "intentionally untouched"
+}

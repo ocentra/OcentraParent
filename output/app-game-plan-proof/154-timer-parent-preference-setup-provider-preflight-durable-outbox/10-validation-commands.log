@@ -1,0 +1,23 @@
+$ cargo test -p ocentra-parent-agent-service app_game_timer_parent_preference_setup_request -- --nocapture
+running 2 tests
+test activity_api::app_game_timer_parent_preference_setup_request_tests::app_game_timer_parent_preference_setup_request_command_returns_accepted_boundary_result ... ok
+test activity_api::app_game_timer_parent_preference_setup_request_tests::app_game_timer_parent_preference_setup_request_persists_action_result_row ... ok
+test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 278 filtered out; finished in 0.05s
+
+$ cargo fmt --all --check
+pass
+
+$ git diff --check
+pass
+
+$ node scripts/check-no-test-doubles.mjs
+No test doubles found across 2184 checked source files.
+
+$ node scripts/check-source-shape.mjs
+Source shape guard passed with existing advisory warnings.
+
+$ cmd /c npm run lanes:guard
+lane-guard-ok: lane=codex-c owner=sujan thread=app-game-control-product-completion branch=codex/app-game-control-product-completion
+
+$ cmd /c npm run hub:guard
+hub-guard-ok: lane=codex-c

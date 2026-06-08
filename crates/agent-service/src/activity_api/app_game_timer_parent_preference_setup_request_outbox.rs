@@ -42,7 +42,7 @@ fn setup_outbox_record(result: &AppGameTimerParentPreferenceSetupRequestResult) 
 
 fn setup_outbox_string_fields(
     result: &AppGameTimerParentPreferenceSetupRequestResult,
-) -> [(&'static str, &String); 8] {
+) -> [(&'static str, &String); 12] {
     [
         (
             constants::field::APP_GAME_PARENT_PREFERENCE_SETUP_OUTBOX_SCHEMA_VERSION,
@@ -75,6 +75,22 @@ fn setup_outbox_string_fields(
         (
             constants::field::APP_GAME_PARENT_PREFERENCE_SETUP_OUTBOX_CHILD_RUNTIME_DELIVERY_RECEIPT_INGESTED_ID,
             &result.child_runtime_delivery_receipt_ingested_id,
+        ),
+        (
+            constants::field::APP_GAME_PARENT_PREFERENCE_SETUP_OUTBOX_PROVIDER_DELIVERY_ADAPTER_REQUIREMENT_ID,
+            &result.provider_delivery_adapter_requirement_id,
+        ),
+        (
+            constants::field::APP_GAME_PARENT_PREFERENCE_SETUP_OUTBOX_PROVIDER_DELIVERY_ADAPTER_REQUIREMENT_STATUS,
+            &result.provider_delivery_adapter_requirement_status,
+        ),
+        (
+            constants::field::APP_GAME_PARENT_PREFERENCE_SETUP_OUTBOX_PROVIDER_DELIVERY_CREDENTIAL_REQUIREMENT_ID,
+            &result.provider_delivery_credential_requirement_id,
+        ),
+        (
+            constants::field::APP_GAME_PARENT_PREFERENCE_SETUP_OUTBOX_PROVIDER_DELIVERY_CREDENTIAL_REQUIREMENT_STATUS,
+            &result.provider_delivery_credential_requirement_status,
         ),
     ]
 }

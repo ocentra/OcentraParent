@@ -446,6 +446,31 @@ macro_rules! assert_provider_delivery_requirement_boundary {
     };
 }
 
+macro_rules! assert_outbox_provider_preflight_requirements {
+    ($outbox_record:expr, $result:expr) => {
+        assert_eq!(
+            $outbox_record
+                [constants::field::APP_GAME_PARENT_PREFERENCE_SETUP_OUTBOX_PROVIDER_DELIVERY_ADAPTER_REQUIREMENT_ID],
+            $result.provider_delivery_adapter_requirement_id
+        );
+        assert_eq!(
+            $outbox_record
+                [constants::field::APP_GAME_PARENT_PREFERENCE_SETUP_OUTBOX_PROVIDER_DELIVERY_ADAPTER_REQUIREMENT_STATUS],
+            $result.provider_delivery_adapter_requirement_status
+        );
+        assert_eq!(
+            $outbox_record
+                [constants::field::APP_GAME_PARENT_PREFERENCE_SETUP_OUTBOX_PROVIDER_DELIVERY_CREDENTIAL_REQUIREMENT_ID],
+            $result.provider_delivery_credential_requirement_id
+        );
+        assert_eq!(
+            $outbox_record
+                [constants::field::APP_GAME_PARENT_PREFERENCE_SETUP_OUTBOX_PROVIDER_DELIVERY_CREDENTIAL_REQUIREMENT_STATUS],
+            $result.provider_delivery_credential_requirement_status
+        );
+    };
+}
+
 fn assert_durable_outbox_boundary(result: &AppGameTimerParentPreferenceSetupRequestResult) {
     assert_eq!(
         result.durable_outbox_record_id,
@@ -554,6 +579,7 @@ fn assert_persisted_setup_outbox(
             [constants::field::APP_GAME_PARENT_PREFERENCE_SETUP_OUTBOX_CHILD_RUNTIME_DELIVERY_RECEIPT_INGESTED_ID],
         result.child_runtime_delivery_receipt_ingested_id
     );
+    assert_outbox_provider_preflight_requirements!(outbox_record, result);
     assert_eq!(
         outbox_record
             [constants::field::APP_GAME_PARENT_PREFERENCE_SETUP_OUTBOX_PROVIDER_DELIVERY_CLAIMED],

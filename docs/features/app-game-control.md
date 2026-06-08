@@ -1411,6 +1411,13 @@ diagnostics, or raw private source rows.
       provider delivery execution, provider receipt ingestion, adapter
       dispatch, broad blocking, platform enforcement, raw private source rows,
       raw target values, and private diagnostics remain unclaimed.
+      The durable local setup outbox JSONL record now also carries the provider
+      adapter and provider credential/manual-proof preflight requirement IDs and
+      statuses, so persisted outbox rows retain the explicit manual-required
+      provider blockers. This is durable preflight visibility only: provider
+      delivery execution, provider receipt ingestion, adapter dispatch, broad
+      blocking, platform enforcement, raw private source rows, raw target
+      values, and private diagnostics remain unclaimed.
 - [ ] Adapter capability status per platform. Cross-platform authority and
       broad-blocking gate contracts now record manual-required, unavailable,
       and not-claimed proof requirements. Platform-extension routing now maps
