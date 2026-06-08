@@ -310,6 +310,7 @@ fn assert_remote_delivery_status_no_product_claims(serialized: &serde_json::Valu
     assert_eq!(serialized["duplicateDurableEnvelopeRejected"], true);
     assert_eq!(serialized["remoteDeliveryAckImplemented"], false);
     assert_eq!(serialized["productReadyRemoteDelivery"], false);
+    assert_eq!(serialized["hostFilteringClaimed"], false);
     assert_eq!(serialized["enforcementCommandEventCount"], 0);
     assert_eq!(serialized["adapterActionExecutedCount"], 0);
     assert_eq!(serialized["exactUrlAvailableCount"], 0);

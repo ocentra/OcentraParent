@@ -2,7 +2,7 @@
   "proof": "network-remote-delivery-cross-process-custody-readiness-proof",
   "proofRevision": "network-remote-delivery-cross-process-custody-readiness-proof/v1",
   "checkedAt": "deterministic:network-remote-delivery-cross-process-custody-readiness-proof/v1",
-  "sourceFingerprint": "source-tree:2f4e6fec93113264190a6ff968a4973fd082948839c2f9dd191e34cbb34afa29",
+  "sourceFingerprint": "source-tree:4430353a48f5b44e4a3ebf42b83f1284a74c6298f9845e4f9f29d2aebd952764",
   "sourceRefs": [
     "scripts/test/network-remote-delivery-cross-process-custody-readiness-proof.mjs",
     "crates/agent-protocol/src/constants/network_flow.rs",
@@ -107,7 +107,7 @@
     "Rust core turns row10p provider/child readiness records into row10q cross-process custody/replay readiness records without live remote transport artifacts",
     "Rust protocol serializes row10q cross-process custody refs, manual-required-unavailable state, and zero custody/replay artifact counts in the existing remote delivery status shape",
     "agent-service reports row10q cross-process custody readiness through agent.network.remote-delivery.status.reported",
-    "TypeScript parser rejects stale row10q refs, nonzero custody/replay artifact counts, mismatched readiness counts, live/product-ready delivery, and content claims",
+    "TypeScript parser rejects stale row10q refs, nonzero custody/replay artifact counts, mismatched readiness counts, live/product-ready delivery, explicit host-filter claims, and content claims",
     "row10q readiness remains unavailable/manual-required and cannot authorize policy, adapter, host filtering, or enforcement commands"
   ],
   "notClaimed": [

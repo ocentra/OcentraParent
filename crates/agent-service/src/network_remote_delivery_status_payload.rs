@@ -3,12 +3,14 @@ use ocentra_parent_agent_core::{
     prove_network_runtime_remote_delivery_delete_export_propagation,
     prove_network_runtime_remote_delivery_transport_dispatch_state,
     NetworkRuntimeRemoteDeliveryCrossProcessCustodyReadinessReport,
+    NetworkRuntimeRemoteDeliveryCrossProcessCustodyReadinessState as RuntimeCrossProcessCustodyReadinessState,
     NetworkRuntimeRemoteDeliveryDeleteExportPropagationReport,
     NetworkRuntimeRemoteDeliveryDurableEnvelopeReport,
     NetworkRuntimeRemoteDeliveryFixtureTransportReport,
     NetworkRuntimeRemoteDeliveryOutboxHandoffReport,
-    NetworkRuntimeRemoteDeliveryProviderChildReadinessReport, NetworkRuntimeRemoteDeliveryState,
-    NetworkRuntimeRemoteDeliveryStatusReport,
+    NetworkRuntimeRemoteDeliveryProviderChildReadinessReport,
+    NetworkRuntimeRemoteDeliveryProviderChildReadinessState as RuntimeProviderChildReadinessState,
+    NetworkRuntimeRemoteDeliveryState, NetworkRuntimeRemoteDeliveryStatusReport,
     NetworkRuntimeRemoteDeliveryTransportDispatchState as RuntimeTransportDispatchState,
     NetworkRuntimeRemoteDeliveryTransportDispatchStateReport,
 };
@@ -67,7 +69,7 @@ pub(crate) async fn network_remote_delivery_status_payload() -> Result<LogFields
     )]))
 }
 
-async fn network_remote_delivery_status() -> Result<NetworkRemoteDeliveryStatus, ()> {
+async fn network_remote_delivery_status() -> Result<&'static NetworkRemoteDeliveryStatus, ()> {
     NETWORK_REMOTE_DELIVERY_STATUS
         .get_or_try_init(|| async {
             let report = prove_network_runtime_remote_delivery_transport_dispatch_state()
@@ -81,7 +83,7 @@ async fn network_remote_delivery_status() -> Result<NetworkRemoteDeliveryStatus,
                 prove_network_runtime_remote_delivery_cross_process_custody_readiness()
                     .await
                     .map_err(|_| ())?;
-            Ok(status_from_report(
+            Ok::<NetworkRemoteDeliveryStatus, ()>(status_from_report(
                 &report,
                 &delete_export_report,
                 &cross_process_custody_readiness.provider_child_readiness,
@@ -89,7 +91,6 @@ async fn network_remote_delivery_status() -> Result<NetworkRemoteDeliveryStatus,
             ))
         })
         .await
-        .cloned()
 }
 
 fn status_from_report(
@@ -251,10 +252,16 @@ fn apply_provider_child_readiness_status(
     status.provider_delivery_readiness_ref = report.provider_readiness_ref.as_str().to_string();
     status.child_device_delivery_readiness_ref =
         report.child_device_readiness_ref.as_str().to_string();
-    status.provider_delivery_readiness_state =
-        NetworkRemoteDeliveryProviderChildReadinessState::ManualRequiredUnavailable;
-    status.child_device_delivery_readiness_state =
-        NetworkRemoteDeliveryProviderChildReadinessState::ManualRequiredUnavailable;
+    status.provider_delivery_readiness_state = match report.provider_state {
+        RuntimeProviderChildReadinessState::ManualRequiredUnavailable => {
+            NetworkRemoteDeliveryProviderChildReadinessState::ManualRequiredUnavailable
+        }
+    };
+    status.child_device_delivery_readiness_state = match report.child_device_state {
+        RuntimeProviderChildReadinessState::ManualRequiredUnavailable => {
+            NetworkRemoteDeliveryProviderChildReadinessState::ManualRequiredUnavailable
+        }
+    };
     status.provider_delivery_readiness_record_count =
         count(report.provider_delivery_readiness_record_count);
     status.child_device_delivery_readiness_record_count =
@@ -288,8 +295,11 @@ fn apply_provider_child_readiness_status(
         .remote_export_custody_readiness_ref
         .as_str()
         .to_string();
-    status.cross_process_custody_readiness_state =
-        NetworkRemoteDeliveryCrossProcessCustodyReadinessState::ManualRequiredUnavailable;
+    status.cross_process_custody_readiness_state = match cross_process_report.custody_state {
+        RuntimeCrossProcessCustodyReadinessState::ManualRequiredUnavailable => {
+            NetworkRemoteDeliveryCrossProcessCustodyReadinessState::ManualRequiredUnavailable
+        }
+    };
     status.cross_process_replay_readiness_record_count =
         count(cross_process_report.cross_process_replay_readiness_record_count);
     status.remote_retention_readiness_record_count =
@@ -326,6 +336,7 @@ fn apply_non_claim_status(
     status.product_ready_remote_delivery = report.product_ready_remote_delivery;
     status.policy_authority = report.policy_authority;
     status.side_effect_authority = report.side_effect_authority;
+    status.host_filtering_claimed = false;
     status.enforcement_command_event_count = count(report.enforcement_command_event_count);
     status.adapter_action_executed_count = count(report.adapter_action_executed_count);
     status.raw_pcap_available_count = count(report.raw_pcap_available_count);

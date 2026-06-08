@@ -176,7 +176,7 @@ writeFileSync(
     'asserted=no decrypted payload or raw PCAP claim',
     'asserted=no live broker/family-hub/provider/child-device delivery claim',
     'asserted=no actual remote delete/export propagation claim',
-    'asserted=no policy authority, side-effect authority, adapter action, host filtering, or enforcement command publication',
+    'asserted=no policy authority, side-effect authority, adapter action, explicit host-filter claim, or enforcement command publication',
   ].join('\n') + '\n'
 );
 
@@ -206,7 +206,7 @@ const proof = {
     'Rust core turns row10p provider/child readiness records into row10q cross-process custody/replay readiness records without live remote transport artifacts',
     'Rust protocol serializes row10q cross-process custody refs, manual-required-unavailable state, and zero custody/replay artifact counts in the existing remote delivery status shape',
     'agent-service reports row10q cross-process custody readiness through agent.network.remote-delivery.status.reported',
-    'TypeScript parser rejects stale row10q refs, nonzero custody/replay artifact counts, mismatched readiness counts, live/product-ready delivery, and content claims',
+    'TypeScript parser rejects stale row10q refs, nonzero custody/replay artifact counts, mismatched readiness counts, live/product-ready delivery, explicit host-filter claims, and content claims',
     'row10q readiness remains unavailable/manual-required and cannot authorize policy, adapter, host filtering, or enforcement commands',
   ],
   notClaimed: expectedStatus.noClaims,
@@ -246,16 +246,24 @@ function assertSourceContracts() {
     [protocolConstants, 'TEST_REMOTE_DELIVERY_CROSS_PROCESS_CUSTODY_STATUS_REF'],
     [protocolShape, 'cross_process_custody_status_ref'],
     [protocolShape, 'cross_process_replay_readiness_record_count'],
+    [protocolShape, 'host_filtering_claimed'],
     [protocolTests, 'crossProcessCustodyStatusRef'],
+    [protocolTests, 'hostFilteringClaimed'],
     [coreRuntime, 'prove_network_runtime_remote_delivery_cross_process_custody_readiness'],
     [coreProof, 'cross_process_replay_artifact_count: 0'],
     [coreTypes, 'NetworkRuntimeRemoteDeliveryCrossProcessCustodyReadinessReport'],
     [coreProof, 'preserves_provider_child_readiness_refs_without_cross_process_claims'],
     [servicePayload, 'cross_process_custody_readiness_state'],
+    [servicePayload, 'RuntimeProviderChildReadinessState::ManualRequiredUnavailable'],
+    [servicePayload, 'RuntimeCrossProcessCustodyReadinessState::ManualRequiredUnavailable'],
+    [servicePayload, 'host_filtering_claimed = false'],
     [serviceTests, 'assert_remote_delivery_cross_process_custody_readiness_status'],
+    [serviceTests, 'host_filtering_claimed'],
     [tsDefaults, 'CrossProcessCustodyStatusRef'],
     [tsParser, 'crossProcessCustodyReadinessMatches'],
+    [tsParser, 'hostFilteringClaimed: Schema.Literal(false)'],
     [tsTests, 'crossProcessCustodyStatusRef'],
+    [tsTests, 'hostFilteringClaimed'],
     [coreReadme, 'row10q cross-process custody readiness'],
     [protocolReadme, 'row10q cross-process custody'],
     [serviceReadme, 'row10q cross-process custody'],
@@ -295,7 +303,11 @@ function sourceFingerprint() {
 }
 
 function normalizeCommandLog(commandName, log) {
-  return `${commandName}\n${log.replaceAll(process.cwd(), '<repo>').replaceAll('\r\n', '\n')}`;
+  const normalized = log.replaceAll(process.cwd(), '<repo>').replaceAll('\r\n', '\n').trimEnd();
+  if (normalized.length === 0) {
+    return `${commandName}\n`;
+  }
+  return `${commandName}\n${normalized}\n`;
 }
 
 function writeJson(filePath, value) {

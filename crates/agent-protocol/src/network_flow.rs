@@ -246,6 +246,7 @@ pub struct NetworkRemoteDeliveryStatus {
     pub product_ready_remote_delivery: bool,
     pub policy_authority: bool,
     pub side_effect_authority: bool,
+    pub host_filtering_claimed: bool,
     pub enforcement_command_event_count: u64,
     pub adapter_action_executed_count: u64,
     pub raw_pcap_available_count: u64,

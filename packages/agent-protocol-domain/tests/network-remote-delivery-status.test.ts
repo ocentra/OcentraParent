@@ -115,6 +115,7 @@ const RemoteDeliveryStatus = {
   productReadyRemoteDelivery: false,
   policyAuthority: false,
   sideEffectAuthority: false,
+  hostFilteringClaimed: false,
   enforcementCommandEventCount: 0,
   adapterActionExecutedCount: 0,
   rawPcapAvailableCount: 0,
@@ -126,7 +127,7 @@ const RemoteDeliveryStatus = {
   searchQueryAvailableCount: 0,
 } satisfies AgentNetworkRemoteDeliveryStatus;
 
-it('parses row10n delete export status with row10k blocked dispatch refs from a typed agent event', () => {
+it('parses row10q cross-process custody status with row10k blocked dispatch refs from a typed agent event', () => {
   const parsed = parseAgentNetworkRemoteDeliveryStatusEvent(
     eventWithPayload({
       [AgentProtocolDefaults.Field.NetworkRemoteDeliveryStatus]: JSON.stringify(RemoteDeliveryStatus),
@@ -146,6 +147,7 @@ it('rejects live delivery, product-ready, adapter, and content claims', () => {
   expectInvalid({ ...RemoteDeliveryStatus, remoteAckCount: 1 });
   expectInvalid({ ...RemoteDeliveryStatus, enforcementCommandEventCount: 1 });
   expectInvalid({ ...RemoteDeliveryStatus, adapterActionExecutedCount: 1 });
+  expectInvalid({ ...RemoteDeliveryStatus, hostFilteringClaimed: true });
   expectInvalid({ ...RemoteDeliveryStatus, exactUrlAvailableCount: 1 });
   expectInvalid({ ...RemoteDeliveryStatus, searchQueryAvailableCount: 1 });
 });

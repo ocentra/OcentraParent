@@ -1,10 +1,10 @@
 agent-core-cross-process-custody-readiness-test
 
 running 2 tests
-test network_event_runtime::remote_delivery_cross_process_custody_readiness::tests::rejects_cross_process_replay_claims ... ok
 test network_event_runtime::remote_delivery_cross_process_custody_readiness::tests::preserves_provider_child_readiness_refs_without_cross_process_claims ... ok
+test network_event_runtime::remote_delivery_cross_process_custody_readiness::tests::rejects_cross_process_replay_claims ... ok
 
 test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 289 filtered out; finished in 0.03s
 
-    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.35s
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.31s
      Running unittests src\lib.rs (target\debug\deps\ocentra_parent_agent_core-9cb1b877e0051382.exe)

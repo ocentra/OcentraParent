@@ -250,7 +250,7 @@ function assertSourceContracts() {
     [tsDefaults, 'cross-process-custody-status.10q'],
     [tsParser, 'deleteExportReadinessMatches'],
     [tsParser, 'row10q status identity'],
-    [tsTests, 'parses row10n delete export status with row10k blocked dispatch refs'],
+    [tsTests, 'parses row10q cross-process custody status with row10k blocked dispatch refs'],
     [
       tsTests,
       'rejects row10k dispatch, row10m readiness, row10p readiness, row10q custody, and candidate-count mismatches',

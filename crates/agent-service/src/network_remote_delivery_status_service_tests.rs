@@ -30,7 +30,7 @@ async fn network_remote_delivery_status_payload_serializes_row10q_status_with_ro
 }
 
 #[tokio::test]
-async fn network_remote_delivery_status_payload_reuses_stable_row10n_status_snapshot() {
+async fn network_remote_delivery_status_payload_reuses_stable_row10q_status_snapshot() {
     let first_payload = network_remote_delivery_status_payload()
         .await
         .expect(constants::error::AGENT_EVENT_SERIALIZES);
@@ -68,8 +68,8 @@ async fn websocket_network_remote_delivery_status_command_reports_payload() {
 }
 
 #[tokio::test]
-async fn network_remote_delivery_status_rejects_blocked_dispatch_identity_mismatches() {
-    let mut report = prove_network_runtime_remote_delivery_transport_dispatch_state()
+async fn network_remote_delivery_status_rejects_blocked_dispatch_identity_and_order_mismatches() {
+    let report = prove_network_runtime_remote_delivery_transport_dispatch_state()
         .await
         .expect(constants::network_flow::ERROR_NETWORK_RUNTIME_REMOTE_TRANSPORT_DISPATCH_STATE);
     let outbox_report = report
@@ -83,12 +83,18 @@ async fn network_remote_delivery_status_rejects_blocked_dispatch_identity_mismat
         &outbox_report
     ));
 
-    report.blocked_dispatch_records[0].sequence += 1;
+    let mut sequence_mismatch = report.clone();
+    sequence_mismatch.blocked_dispatch_records[0].sequence += 1;
+    assert_blocked_dispatch_mismatch(&sequence_mismatch, &outbox_report);
 
-    assert!(!blocked_dispatch_records_match_outbox_candidates(
-        &report,
-        &outbox_report
-    ));
+    let mut outbox_ref_mismatch = report.clone();
+    outbox_ref_mismatch.blocked_dispatch_records[0].outbox_ref =
+        report.future_transport_seam_ref.clone();
+    assert_blocked_dispatch_mismatch(&outbox_ref_mismatch, &outbox_report);
+
+    let mut reordered_records = report.clone();
+    reordered_records.blocked_dispatch_records.swap(0, 1);
+    assert_blocked_dispatch_mismatch(&reordered_records, &outbox_report);
 }
 
 fn assert_remote_delivery_status(status: &NetworkRemoteDeliveryStatus) {
@@ -134,6 +140,16 @@ fn assert_remote_delivery_status(status: &NetworkRemoteDeliveryStatus) {
     assert_remote_delivery_cross_process_custody_readiness_status(status);
     assert_remote_delivery_outbox_status(status);
     assert_remote_delivery_non_claims(status);
+}
+
+fn assert_blocked_dispatch_mismatch(
+    report: &ocentra_parent_agent_core::NetworkRuntimeRemoteDeliveryTransportDispatchStateReport,
+    outbox_report: &ocentra_parent_agent_core::NetworkRuntimeRemoteDeliveryOutboxHandoffReport,
+) {
+    assert!(!blocked_dispatch_records_match_outbox_candidates(
+        report,
+        outbox_report
+    ));
 }
 
 fn assert_remote_delivery_transport_dispatch_status(status: &NetworkRemoteDeliveryStatus) {
@@ -354,6 +370,7 @@ fn assert_remote_delivery_non_claims(status: &NetworkRemoteDeliveryStatus) {
     assert!(!status.product_ready_remote_delivery);
     assert!(!status.policy_authority);
     assert!(!status.side_effect_authority);
+    assert!(!status.host_filtering_claimed);
     assert_eq!(status.enforcement_command_event_count, 0);
     assert_eq!(status.adapter_action_executed_count, 0);
     assert_eq!(status.raw_pcap_available_count, 0);

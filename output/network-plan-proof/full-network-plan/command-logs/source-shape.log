@@ -82,7 +82,7 @@ packages/agent-protocol-domain/src/contracts.ts:1 file has 589 lines; crossed 50
 packages/agent-protocol-domain/src/defaults.ts:1 file has 538 lines; crossed 500-line advisory band; maximum is 1000
 packages/agent-protocol-domain/src/lan-pairing-browser-add-device-state.ts:1 file has 378 lines; crossed 250-line advisory band; maximum is 1000
 packages/agent-protocol-domain/src/network-live-capture-status.ts:1 file has 297 lines; crossed 250-line advisory band; maximum is 1000
-packages/agent-protocol-domain/src/network-remote-delivery-status.ts:1 file has 325 lines; crossed 250-line advisory band; maximum is 1000
+packages/agent-protocol-domain/src/network-remote-delivery-status.ts:1 file has 326 lines; crossed 250-line advisory band; maximum is 1000
 packages/agent-protocol-domain/src/network-runtime-events.ts:1 file has 357 lines; crossed 250-line advisory band; maximum is 1000
 packages/agent-protocol-domain/src/parent-assistant-adapter.ts:1 file has 385 lines; crossed 250-line advisory band; maximum is 1000
 packages/agent-protocol-domain/src/security.ts:1 file has 336 lines; crossed 250-line advisory band; maximum is 1000
@@ -98,7 +98,7 @@ packages/agent-protocol-domain/tests/lan-pairing-browser-add-device-state.test.t
 packages/agent-protocol-domain/tests/lan-pairing-multidevice-contracts.test.ts:1 file has 351 lines; crossed 250-line advisory band; maximum is 1000
 packages/agent-protocol-domain/tests/lan-signed-discovery-relay-spine.test.ts:1 file has 332 lines; crossed 250-line advisory band; maximum is 1000
 packages/agent-protocol-domain/tests/network-live-capture-status.test.ts:1 file has 297 lines; crossed 250-line advisory band; maximum is 1000
-packages/agent-protocol-domain/tests/network-remote-delivery-status.test.ts:1 file has 288 lines; crossed 250-line advisory band; maximum is 1000
+packages/agent-protocol-domain/tests/network-remote-delivery-status.test.ts:1 file has 290 lines; crossed 250-line advisory band; maximum is 1000
 packages/agent-protocol-domain/tests/parent-assistant-adapter.test.ts:1 file has 475 lines; crossed 250-line advisory band; maximum is 1000
 packages/agent-protocol-domain/tests/parent-assistant-adapter.test.ts:307 function has 64 lines; warning starts at 64 of 80
 packages/agent-protocol-domain/tests/social-alert-report-read-model.test.ts:141 function has 64 lines; warning starts at 64 of 80
@@ -618,13 +618,13 @@ crates/agent-protocol/src/lan_pairing_tests.rs:1 file has 18 functions; warning 
 crates/agent-protocol/src/lan_pairing_tests.rs:102 function has 73 lines; warning starts at 64 of 80
 crates/agent-protocol/src/lan_pairing_tests.rs:431 function has 68 lines; warning starts at 64 of 80
 crates/agent-protocol/src/lib.rs:1 file has 264 lines; crossed 250-line advisory band; maximum is 1000
-crates/agent-protocol/src/network_flow.rs:1 file has 383 lines; crossed 250-line advisory band; maximum is 1000
+crates/agent-protocol/src/network_flow.rs:1 file has 384 lines; crossed 250-line advisory band; maximum is 1000
 crates/agent-protocol/src/network_flow_events.rs:1 file has 293 lines; crossed 250-line advisory band; maximum is 1000
 crates/agent-protocol/src/network_flow_events.rs:1 file has 21 structs/enums; warning starts at 20 of 24
 crates/agent-protocol/src/network_flow_event_fixtures.rs:1 file has 15 functions; warning starts at 15 of 18
-crates/agent-protocol/src/network_flow_tests.rs:1 file has 618 lines; crossed 500-line advisory band; maximum is 1000
+crates/agent-protocol/src/network_flow_tests.rs:1 file has 619 lines; crossed 500-line advisory band; maximum is 1000
 crates/agent-protocol/src/network_flow_tests.rs:1 file has 18 functions; warning starts at 15 of 18
-crates/agent-protocol/src/network_flow_tests.rs:319 function has 75 lines; warning starts at 64 of 80
+crates/agent-protocol/src/network_flow_tests.rs:320 function has 75 lines; warning starts at 64 of 80
 crates/agent-protocol/src/parent_assistant.rs:1 file has 346 lines; crossed 250-line advisory band; maximum is 1000
 crates/agent-protocol/src/parent_assistant.rs:1 file has 24 structs/enums; warning starts at 20 of 24
 crates/agent-protocol/src/parent_assistant_tests.rs:1 file has 468 lines; crossed 250-line advisory band; maximum is 1000
@@ -808,10 +808,11 @@ crates/agent-service/src/network_live_capture_readiness_bridge.rs:1 file has 410
 crates/agent-service/src/network_live_capture_readiness_bridge.rs:1 file has 18 functions; warning starts at 15 of 18
 crates/agent-service/src/network_product_path_bridge.rs:1 file has 421 lines; crossed 250-line advisory band; maximum is 1000
 crates/agent-service/src/network_product_path_bridge.rs:1 file has 15 functions; warning starts at 15 of 18
-crates/agent-service/src/network_remote_delivery_status_payload.rs:1 file has 425 lines; crossed 250-line advisory band; maximum is 1000
+crates/agent-service/src/network_remote_delivery_status_payload.rs:1 file has 436 lines; crossed 250-line advisory band; maximum is 1000
 crates/agent-service/src/network_remote_delivery_status_payload.rs:1 file has 18 functions; warning starts at 15 of 18
-crates/agent-service/src/network_remote_delivery_status_payload.rs:244 function has 68 lines; warning starts at 64 of 80
-crates/agent-service/src/network_remote_delivery_status_service_tests.rs:1 file has 398 lines; crossed 250-line advisory band; maximum is 1000
+crates/agent-service/src/network_remote_delivery_status_payload.rs:245 function has 77 lines; warning starts at 64 of 80
+crates/agent-service/src/network_remote_delivery_status_service_tests.rs:1 file has 415 lines; crossed 250-line advisory band; maximum is 1000
+crates/agent-service/src/network_remote_delivery_status_service_tests.rs:1 file has 15 functions; warning starts at 15 of 18
 crates/agent-service/src/network_runtime_stream_event_values.rs:1 file has 17 functions; warning starts at 15 of 18
 crates/agent-service/src/network_runtime_stream_tests.rs:1 file has 390 lines; crossed 250-line advisory band; maximum is 1000
 crates/agent-service/src/parent_assistant_api/thread_store.rs:1 file has 17 functions; warning starts at 15 of 18

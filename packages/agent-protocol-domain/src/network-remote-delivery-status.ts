@@ -129,6 +129,7 @@ const AgentNetworkRemoteDeliveryStatusFields = Schema.Struct({
   productReadyRemoteDelivery: Schema.Literal(false),
   policyAuthority: Schema.Literal(false),
   sideEffectAuthority: Schema.Literal(false),
+  hostFilteringClaimed: Schema.Literal(false),
   enforcementCommandEventCount: Schema.Literal(0),
   adapterActionExecutedCount: Schema.Literal(0),
   rawPcapAvailableCount: Schema.Literal(0),

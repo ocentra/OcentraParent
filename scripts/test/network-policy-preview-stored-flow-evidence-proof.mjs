@@ -346,7 +346,7 @@ function assertSourceContracts() {
     [portalParser, 'NetworkEvidenceGrade'],
     [portalDetailView, 'NetworkAdapterAuthorization'],
     [portalPolicyPreviewTest, 'rejects policy-preview payloads that claim network authorization'],
-    [remoteDeliveryTsTest, 'parses row10n delete export status with row10k blocked dispatch refs'],
+    [remoteDeliveryTsTest, 'parses row10q cross-process custody status with row10k blocked dispatch refs'],
     [tsReadme, 'row10k transport-dispatch'],
     [featureDoc, 'Policy preview over stored flow evidence'],
     [featureDoc, 'network-policy-preview-stored-flow-evidence-proof'],

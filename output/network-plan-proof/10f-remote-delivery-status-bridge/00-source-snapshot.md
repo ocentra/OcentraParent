@@ -2,7 +2,7 @@
 
 proofRevision=network-remote-delivery-status-bridge-proof/v1
 branchMarker=codex/network-row10f-remote-delivery-status-bridge-on-row10e
-sourceBase=c3328c891af958153c1b64d92379e653de6ba2d0
+sourceBase=c99e70b85e33090dfa85d6dfe9df41da9d875fb1
 worktreeStatus=expected to contain generated row10f proof artifacts until committed
 
 Inspected paths:

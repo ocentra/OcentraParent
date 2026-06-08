@@ -386,7 +386,7 @@ function assertSourceContracts() {
     [servicePayload, 'status.product_ready_remote_delivery = report.product_ready_remote_delivery'],
     [servicePayload, 'status.adapter_action_executed_count = count(report.adapter_action_executed_count)'],
     [serviceTests, 'network_remote_delivery_status_payload_serializes_row10q_status_with_row10k_dispatch_state'],
-    [serviceTests, 'network_remote_delivery_status_payload_reuses_stable_row10n_status_snapshot'],
+    [serviceTests, 'network_remote_delivery_status_payload_reuses_stable_row10q_status_snapshot'],
     [serviceTests, 'websocket_network_remote_delivery_status_command_reports_payload'],
     [serviceWebSocket, 'AgentCommandName::AgentNetworkRemoteDeliveryStatusGet'],
     [domainContracts, 'NetworkRemoteDeliveryStatusReported'],

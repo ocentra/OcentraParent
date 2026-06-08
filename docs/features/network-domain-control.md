@@ -321,7 +321,7 @@ compete on control while staying clear about attribution confidence and privacy.
 - E-D added an aggregate full-network-plan proof pack that ties together
   contract, reusable eventing, parser/fixture, analyzer alert, AI/policy,
   adapter action, journal/read-model, UI, security-negative, performance,
-  classification, remote-delivery through row10n delete/export readiness/status,
+  classification, remote-delivery through row10q cross-process custody readiness/status,
   and end-to-end product-path proof artifacts
   under `output/network-plan-proof/full-network-plan/proof-summary.json` and
   `test-results/network-full-plan-proof/proof.json`. The proof keeps live
