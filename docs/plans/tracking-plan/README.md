@@ -14,6 +14,7 @@ UI/UX requirements.
 - [V0.5 Location Test Blueprint](v0-5-location-test-blueprint.md)
 - [Tracking UI/UX Requirements Guide](ui-ux-requirements-guide.md)
 - [Tracking Proof Tiers](proof-tiers.md)
+- [Tracking And Eventing Real Test Matrix](event-driven-runtime-test-matrix.md)
 - [Tracking Plan Implementation Checklist](implementation-checklist.md)
 - [Pasted Content Coverage Audit](pasted-content-coverage-audit.md)
 
@@ -43,18 +44,150 @@ Until the required tier exists, product claims remain manual-required,
 authority-required, or not-claimed.
 ```
 
+## Event-Driven Runtime Rule
+
+Tracking is not a polling-only feature and not a portal-owned workflow.
+
+Tracking runtime behavior must consume the reusable Rust eventing plan and crate
+instead of creating a private tracking bus. Parent tracking event contracts must
+live in the protocol/domain boundary before runtime publishers use them, and the
+portal may only send typed parent intents and render service read models.
+
+The required event chain is:
+
+```text
+parent intent/config
+  -> validated Rust command
+  -> tracking config event
+  -> child-agent command event
+  -> tracking evidence event
+  -> detection/cascade event
+  -> AI/nearby-place analysis event when needed
+  -> policy decision event
+  -> live tracking / notification / escalation event
+  -> audit event
+  -> portal read-model event
+```
+
+Parent config chain:
+
+```text
+portal parent changes tracking config
+  -> local API validates request
+  -> parent_controller.parent_action.received
+  -> tracking.config.change_requested
+  -> policy.evaluation.requested
+  -> policy.decision.completed
+  -> tracking.config.change_approved or tracking.config.change_rejected
+  -> child_agent.command.forward_requested
+  -> child_agent.command.received
+  -> tracking.config.applied
+  -> audit.entry.committed
+  -> portal.read_model.updated
+```
+
+Tracking evidence chain:
+
+```text
+location.evidence.observed
+  -> geofence.transition.evaluated
+  -> expected_place.status.evaluated
+  -> nearby_place.analysis.requested if needed
+  -> nearby_place.analysis.completed
+  -> tracking.detection.completed
+  -> ai.analysis.requested if ambiguity/risk requires it
+  -> ai.analysis.completed
+  -> policy.evaluation.requested
+  -> policy.decision.completed
+  -> tracking.live_mode.start_requested or notification.intent.created or escalation.intent.created
+  -> child_agent.command.received if live mode/cadence changes
+  -> notification.dispatch.requested if parent must be informed
+  -> notification.dispatch.result_observed
+  -> audit.entry.committed
+  -> portal.read_model.updated
+```
+
+Tracking event work must coordinate with
+`docs/plans/eventing-plan/03-event-taxonomy-and-parent-integration.md` and
+`docs/plans/eventing-plan/05-implementation-workpacks.md`. It must not hide
+tracking behavior under generic `device.*` events once runtime code starts
+publishing location, geofence, nearby-place, live-tracking, retention,
+notification, or escalation behavior.
+
+Every tracking event chain must carry:
+
+- event id;
+- correlation id;
+- causation id;
+- child/profile/device aggregate key;
+- evidence refs;
+- policy/rule refs where applicable;
+- custody and retention state;
+- capability/provider state;
+- idempotency key for commands;
+- TTL/deadline for live tracking and notification/escalation;
+- audit refs;
+- uncertainty codes where location, nearby-place, or AI can overclaim.
+
+Must-not-shortcut rules:
+
+```text
+location says bad place -> notify/block directly
+AI says danger -> live track directly
+nearby-place says bar/shop/school -> accuse child directly
+portal button -> child-agent command directly
+weak/stale/offline sample -> critical alert directly
+replay event -> resend notification or restart live tracking
+```
+
+## Implementation-First Rule
+
+The continuation branch has useful proof accounting, but proof accounting is not
+implementation progress by itself. Future tracking implementation slices must
+use this order:
+
+```text
+PLAN -> CODE -> TEST -> RUN/FIX -> PROOF -> DOC
+```
+
+Do not add another `tracking-*-proof.ts`, `tracking-*-proof.test.ts`, aggregate
+proof, readiness proof, bridge proof, claim gate, artifact inventory proof, or
+proof JSON refresh unless real source behavior was implemented and tested first.
+The required test matrix is
+`docs/plans/tracking-plan/event-driven-runtime-test-matrix.md`; each future
+event-driven tracking workpack must state which matrix categories apply, which
+commands passed, and which CI/manual tiers remain.
+
+A tracking implementation handoff must name:
+
+```text
+Assigned workpack:
+Real source behavior added:
+Runtime/domain/service/UI files changed:
+Tests added/changed:
+Focused commands run:
+Proof artifact generated after tests:
+What this proves:
+What this does not prove:
+Docs/checklists updated:
+```
+
+If `Real source behavior added` is empty, do not call the work an
+implementation slice.
+
 ## How It Works
 
 ```mermaid
 flowchart TD
   FeatureDocs["Feature docs, expectations, tracking inventory, platform docs"] --> TrackingPlan["docs/plans/tracking-plan"]
   TrackingPlan --> SourceIndex["Source index and coverage audit"]
-  TrackingPlan --> Workpacks["33 base workpacks"]
+  TrackingPlan --> Workpacks["33 base workpacks plus event-driven runtime workpacks"]
   TrackingPlan --> PlatformDeepDive["Android, iOS, desktop, relay, permission proof"]
 
   Workpacks --> Contracts["TypeScript Effect Schema contracts"]
   Contracts --> RustProtocol["Rust protocol/service parity"]
-  RustProtocol --> Runtime["Runtime adapters and service paths"]
+  RustProtocol --> EventContracts["Tracking event constants and payload contracts"]
+  EventContracts --> Runtime["Runtime adapters, event chains, and service paths"]
 
   Runtime --> AndroidLoc["Android fused location/geofence/status"]
   Runtime --> IosLoc["iOS Core Location/region/status"]
@@ -70,7 +203,8 @@ flowchart TD
   LocationHints --> Journal
   StatusEvidence --> Journal
 
-  Journal --> ReadModels["Tracking read models and service events"]
+  Journal --> EventBus["Reusable ocentra-eventing runtime"]
+  EventBus --> ReadModels["Tracking read models and service events"]
   ReadModels --> Portal["Parent map/list/alert UI"]
 
   ReadModels --> GeofenceEngine["Geofence transition engine"]
@@ -119,6 +253,11 @@ flowchart TD
 - Runtime TypeScript contracts now exist for the focused tracking contract
   spine in `packages/activity-domain` and `packages/parent-domain`, with proof
   roots under `output/tracking-plan-proof/`.
+- The reusable Rust `crates/ocentra-eventing` crate now exists with its own
+  runtime proof path, but tracking has not yet consumed it through first-class
+  `tracking.*`, `location.*`, `geofence.*`, `expected_place.*`,
+  `nearby_place.*`, `notification.*`, or `escalation.*` contracts and ordered
+  runtime chains.
 - The proof-tier system in `proof-tiers.md` now separates P0/P1/P2 code
   readiness from P4/P5/P6 product claims. Missing physical-device or
   enrolled-device evidence is a `manual_required` or `authority_required`
@@ -175,6 +314,10 @@ flowchart TD
   actual child-device delivery/runtime execution, production workers, and full
   product parent/child UI remain not product-complete until their higher-tier
   evidence exists.
+- The continuation branch is now classified as checkpoint/proof reconciliation
+  until the next implementation slice adds real event-driven source behavior.
+  Future proof refreshes must be receipts after real code and tests, not the
+  primary deliverable.
 
 ## Where We Want To Be
 
@@ -244,8 +387,9 @@ accessibility, notification/provider delivery, or production pilot readiness.
   `docs/device-location-tracking-schema-proposal.md`, and
   `docs/tracking-control-settings-inventory.md` as source inputs.
 - Build TypeScript domain contracts first, Rust protocol/service parity second,
-  journal/read-model wiring third, portal consumption fourth, and real platform
-  proof only after those surfaces are aligned.
+  tracking event contracts third, journal/read-model/event-chain wiring fourth,
+  portal consumption fifth, and real platform proof only after those surfaces
+  are aligned.
 - Every worker report must name the workpack, touched paths, validation,
   product-doc updates, platform proof state, custody/retention proof, and
   manual-required gaps.
@@ -291,6 +435,12 @@ accessibility, notification/provider delivery, or production pilot readiness.
 | 31   | [Platform extension checklists and proof routing](workpacks/31-platform-extension-checklists-and-proof-routing.md)   | Android, iOS, desktop, managed-device, store/privacy, and manual proof extensions are routed without bloating base contracts.                                           |
 | 32   | [Journal SQLite and read-model proof](workpacks/32-journal-sqlite-and-read-model-proof.md)                           | Location/status/geofence/check-in evidence is journaled, replayed, queryable, deletable, and cited.                                                                     |
 | 33   | [Proof gates fixtures rollout and PR gate](workpacks/33-proof-gates-fixtures-rollout-and-pr-gate.md)                 | Test fixtures, platform manual proof, Playwright, retention proof, source audit, coverage audit, and implementation checklist block false claims.                       |
+| 34   | [Tracking event contracts and protocol constants](workpacks/34-tracking-event-contracts-and-protocol-constants.md)   | Tracking/location/geofence/expected-place/nearby-place/live-mode/notification/escalation event constants and schema-backed payloads exist before runtime publish.       |
+| 35   | [Parent tracking config command event flow](workpacks/35-parent-tracking-config-command-event-flow.md)               | Parent tracking config changes travel through validated Rust service, policy, child-agent command, audit, and portal projection instead of portal-local state.          |
+| 36   | [Tracking detection cascade event flow](workpacks/36-tracking-detection-cascade-event-flow.md)                       | Location evidence becomes ordered geofence/expected-place/nearby-place/AI/policy/live-mode/notification/audit/read-model events without unsafe shortcuts.               |
+| 37   | [Tracking event journal replay and projection](workpacks/37-tracking-event-journal-replay-and-projection.md)         | Tracking events are journaled and replayed into read models without re-executing notifications, live tracking, or child-agent commands.                                 |
+| 38   | [Tracking notification and escalation event flow](workpacks/38-tracking-notification-and-escalation-event-flow.md)   | Notification intent, provider dispatch result, receipt, quiet-hours retry, escalation, and manual-required state are modeled as policy-authorized events.               |
+| 39   | [Tracking portal event read model proof](workpacks/39-tracking-portal-event-read-model-proof.md)                     | Parent and child tracking UI surfaces render from service/event projections, not portal-owned business decisions.                                                       |
 
 ## Platform Extension Checklists
 

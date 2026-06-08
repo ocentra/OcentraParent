@@ -6,21 +6,24 @@ tracking-control truth.
 
 ## Repo Source Inputs
 
-| Source                                              | Why it matters                                                                                                                                                   |
-| --------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `docs/features/location-geofence-device-status.md`  | Feature owner, current status, gap, roadmap anchors, and next AI instructions.                                                                                   |
-| `docs/expectations/location-geofence.md`            | Parent/child outcome, data scope, contract families, validation, and non-goals.                                                                                  |
-| `docs/tracking-control-settings-inventory.md`       | Generated 338-setting inventory, including posture modes, execution modes, capability states, heartbeat, battery, sync, pending upload, and missing-device rows. |
-| `docs/device-location-tracking-capability-guide.md` | Capability terms, location history, live tracking, geofence, check-in, last known, custody, and platform limits.                                                 |
-| `docs/device-location-tracking-schema-proposal.md`  | Authoring manifest, policy value, effective policy, update protocol, and capability registry guidance.                                                           |
-| `docs/expectations/platforms.md`                    | Platform claim rule and proof requirements for Windows, macOS, Linux, Android, iOS, Web, and parent app boundaries.                                              |
-| `docs/expectations/notifications.md`                | Notification intent, provider minimization, retry, quiet hours, escalation, and audit requirements.                                                              |
-| `docs/expectations/policy.md`                       | Parent policy owns action authority; portal authors rules but child-device agents validate/evaluate locally.                                                     |
-| `docs/expectations/ai.md`                           | AI is evidence, not authority; remote AI disabled by default; custody and evidence refs are mandatory.                                                           |
-| `docs/expectations/data-custody.md`                 | Local/LAN-first storage, no default Ocentra-hosted child activity store, and explicit export/delete boundaries.                                                  |
-| `docs/features/reports-notifications-sync.md`       | Broad reports, notifications, and sync ownership. Tracking emits location alert intents but does not own provider delivery globally.                             |
-| `docs/features/local-ai-safety-evaluator.md`        | General local AI runtime/provider status ownership. Tracking owns location-specific AI contracts only.                                                           |
-| `docs/features/parent-assistant-actions.md`         | Assistant can explain or draft tracking policy, but must not bypass typed preview, parent confirmation, or child-agent validation.                               |
+| Source                                                                 | Why it matters                                                                                                                                                   |
+| ---------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `docs/features/location-geofence-device-status.md`                     | Feature owner, current status, gap, roadmap anchors, and next AI instructions.                                                                                   |
+| `docs/expectations/location-geofence.md`                               | Parent/child outcome, data scope, contract families, validation, and non-goals.                                                                                  |
+| `docs/tracking-control-settings-inventory.md`                          | Generated 338-setting inventory, including posture modes, execution modes, capability states, heartbeat, battery, sync, pending upload, and missing-device rows. |
+| `docs/device-location-tracking-capability-guide.md`                    | Capability terms, location history, live tracking, geofence, check-in, last known, custody, and platform limits.                                                 |
+| `docs/device-location-tracking-schema-proposal.md`                     | Authoring manifest, policy value, effective policy, update protocol, and capability registry guidance.                                                           |
+| `docs/expectations/platforms.md`                                       | Platform claim rule and proof requirements for Windows, macOS, Linux, Android, iOS, Web, and parent app boundaries.                                              |
+| `docs/expectations/notifications.md`                                   | Notification intent, provider minimization, retry, quiet hours, escalation, and audit requirements.                                                              |
+| `docs/expectations/policy.md`                                          | Parent policy owns action authority; portal authors rules but child-device agents validate/evaluate locally.                                                     |
+| `docs/expectations/ai.md`                                              | AI is evidence, not authority; remote AI disabled by default; custody and evidence refs are mandatory.                                                           |
+| `docs/expectations/data-custody.md`                                    | Local/LAN-first storage, no default Ocentra-hosted child activity store, and explicit export/delete boundaries.                                                  |
+| `docs/features/reports-notifications-sync.md`                          | Broad reports, notifications, and sync ownership. Tracking emits location alert intents but does not own provider delivery globally.                             |
+| `docs/features/local-ai-safety-evaluator.md`                           | General local AI runtime/provider status ownership. Tracking owns location-specific AI contracts only.                                                           |
+| `docs/features/parent-assistant-actions.md`                            | Assistant can explain or draft tracking policy, but must not bypass typed preview, parent confirmation, or child-agent validation.                               |
+| `docs/plans/eventing-plan/03-event-taxonomy-and-parent-integration.md` | Shared event taxonomy and Parent runtime boundary. Tracking must add first-class consumer event families instead of creating a private bus.                      |
+| `docs/plans/eventing-plan/05-implementation-workpacks.md`              | Reusable `ocentra-eventing` implementation and consumer-proof sequencing. Tracking event work consumes this crate/plan after protocol/domain contracts exist.    |
+| `docs/plans/tracking-plan/event-driven-runtime-test-matrix.md`         | Real test matrix for tracking/eventing implementation. Future proof artifacts must cite real source files, real tests, commands, and observed chains.            |
 
 ## Product Source Docs
 
@@ -43,6 +46,12 @@ tracking-specific parent/child UI. It does not own general notification
 delivery, general AI provider runtime, browser telemetry, app/game telemetry,
 LAN discovery, or the shared evidence-store feature except through explicit
 evidence refs.
+
+Tracking also owns the consumer-layer event contracts for location/geofence
+runtime chains: `tracking.*`, `location.*`, `geofence.*`, `expected_place.*`,
+`nearby_place.*`, `tracking.live_mode.*`, tracking notification intent/status,
+and tracking escalation state. The reusable eventing crate remains generic and
+must not depend on tracking product types.
 
 ## TypeScript Ownership
 

@@ -29,6 +29,84 @@ Every checked item must cite one or more proof artifacts.
 - Do not mark product docs complete unless the feature doc and capability
   checklist status/gap text were updated or explicitly justified as unchanged.
 
+## Event-Driven Tracking Gates
+
+- [ ] `tracking.*`, `location.*`, `geofence.*`, `expected_place.*`,
+      `nearby_place.*`, `notification.*`, and `escalation.*` event families are
+      first-class tracking consumer contracts and are not hidden under generic
+      `device.*` rows.
+- [ ] Tracking event constants live in protocol/domain-owned source before
+      runtime publish.
+- [ ] Every tracking event type has a schema or Rust payload contract.
+- [ ] Tracking event payloads carry event id, correlation id, causation id,
+      aggregate key, evidence refs, policy/rule refs where applicable,
+      custody/retention state, capability/provider state, idempotency key,
+      TTL/deadline where applicable, audit refs, and uncertainty codes where
+      location/nearby-place/AI can overclaim.
+- [ ] Portal tracking config changes enter Rust as typed parent intents only.
+- [ ] Portal cannot publish tracking business events directly.
+- [ ] Parent tracking config changes publish validated parent-controller and
+      tracking config events.
+- [ ] Child-agent tracking config changes are applied through typed child-agent
+      command/event boundaries.
+- [ ] Duplicate config idempotency keys do not apply config twice.
+- [ ] Tracking evidence publishes location/geofence/expected-place events with
+      evidence refs.
+- [ ] Nearby-place analysis is event-driven and ambiguity-aware.
+- [ ] AI analysis is event-driven and evidence-only.
+- [ ] AI cannot publish policy, enforcement, notification, live-mode, or
+      escalation events.
+- [ ] Parent policy is the first authority point for notify, live tracking,
+      escalation, or manual-required decisions.
+- [ ] Temporary live tracking starts only from a policy decision or explicit
+      parent command.
+- [ ] Temporary live tracking events require TTL, stop condition, reason,
+      visibility, and audit ref.
+- [ ] Notification intent is separate from provider dispatch result.
+- [ ] SMS/WhatsApp/email/push/provider delivery is not claimed without provider
+      proof.
+- [ ] Escalation is separate from notification and requires parent policy.
+- [ ] Audit event is committed for every decision/action chain.
+- [ ] Portal read models are projected from service/event state, not
+      portal-local decision logic.
+- [ ] Replay can rebuild tracking read models without re-executing
+      notifications, live tracking, or child-agent commands.
+- [ ] Duplicate events/idempotency keys do not duplicate notifications, live
+      sessions, config application, or audit action rows.
+- [ ] Dead-letter, unavailable, and manual-required states are visible in the
+      parent portal read model.
+- [ ] Each event-driven tracking workpack maps to the real test matrix in
+      `docs/plans/tracking-plan/event-driven-runtime-test-matrix.md`.
+- [ ] Contract tests cover event constants, namespace ownership, schema/version
+      binding, roundtrip, duplicate type rejection, and unknown type rejection.
+- [ ] Unit tests cover tracking policy, retention, live-mode, idempotency,
+      no-AI-authority, weak-signal, ambiguity, stale/offline, and
+      manual-required logic.
+- [ ] Integration tests use real local service, real event bus, real temp
+      SQLite, and real temp NDJSON journal for parent config and evidence
+      cascade flows.
+- [ ] Playwright tests use real service-backed state, not portal-local fake
+      state.
+- [ ] Replay/idempotency tests prove replay rebuilds projections without
+      sending notifications, restarting live tracking, or reapplying
+      child-agent commands.
+- [ ] Security/AuthN/AuthZ tests prove portal, child-agent, AI provider,
+      notification provider, and unknown peers cannot publish unauthorized
+      business events.
+- [ ] Fuzzing/property/differential tests cover schemas, APIs, replay,
+      TS/Rust parity, live-vs-replayed projection, and Android emulator versus
+      physical schema shape where applicable.
+- [ ] Load/spike/soak/resource, migration/rollback/version-skew, chaos,
+      clock/DST/expiry, logging/metrics/tracing, misuse, and rate-limit tests
+      are either run for the assigned tier or explicitly left manual-required
+      with reason.
+- [ ] Platform matrix states are explicit: Windows/Linux/WSL/Docker/Android
+      emulator/iOS simulator/Android physical/iOS physical claims are separated
+      by proof tier.
+- [ ] Proof artifacts are rejected when `sourceFilesChanged` is empty, only
+      proof files changed, commands did not run real code, or product readiness
+      is claimed without platform/provider evidence.
+
 ## Main Execution Gates
 
 - [x] Source index and current gap map are reconciled against the current
