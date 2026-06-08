@@ -39,6 +39,7 @@ describe('social parent notification delivery readiness from report writer rows'
       parentReportStatusReadyCount: 1,
       manualRequiredCount: 1,
       unavailableCount: 0,
+      parentLocalDeliveryResultCount: 1,
       parentNotificationUiDeliveryClaimed: false,
       externalRuntimeReportDeliveryClaimed: false,
       finalPolicyExecutionClaimed: false,
@@ -46,6 +47,10 @@ describe('social parent notification delivery readiness from report writer rows'
     });
     expect(readyRow?.parentVisibleReportStatusRef).toBe('parent-visible-social-weekly-report-status');
     expect(readyRow?.parentNotificationUiRef).toBe(null);
+    expect(readyRow?.parentLocalDeliveryResultRef).toBe(
+      'social-parent-local-delivery-result-social-report-delivery-weekly-summary'
+    );
+    expect(readyRow?.parentLocalDeliveryResultRecorded).toBe(true);
     expect(readyRow?.parentNotificationUiDelivered).toBe(false);
   });
 
@@ -68,15 +73,20 @@ describe('social parent notification delivery readiness from report writer rows'
     );
     const summary = summarizeSocialParentNotificationDeliveryReadiness(readModel);
 
-    expect(summary).toMatchObject({
+    expect(summary).toEqual({
       totalRows: 3,
       parentReportStatusReadyCount: 0,
       manualRequiredCount: 2,
       unavailableCount: 1,
+      parentLocalDeliveryResultCount: 0,
       parentNotificationUiDeliveryClaimed: false,
       externalRuntimeReportDeliveryClaimed: false,
+      finalPolicyExecutionClaimed: false,
+      enforcementClaimed: false,
     });
     expect(readModel.rows.every((row) => row.parentNotificationUiRef === null)).toBe(true);
+    expect(readModel.rows.every((row) => row.parentLocalDeliveryResultRef === null)).toBe(true);
+    expect(readModel.rows.every((row) => row.parentLocalDeliveryResultRecorded === false)).toBe(true);
     expect(readModel.rows.every((row) => row.parentNotificationUiDelivered === false)).toBe(true);
     expect(readModel.rows.every((row) => row.providerReceiptIngested === false)).toBe(true);
   });
@@ -98,6 +108,16 @@ describe('social parent notification delivery readiness dishonest claim rejectio
       { ...row, notificationDeliveryReadinessRowId: 'invalid-ui-delivered', parentNotificationUiDelivered: true },
       {
         ...row,
+        notificationDeliveryReadinessRowId: 'invalid-missing-local-delivery-result',
+        parentLocalDeliveryResultRef: null,
+      },
+      {
+        ...row,
+        notificationDeliveryReadinessRowId: 'invalid-missing-local-delivery-recorded',
+        parentLocalDeliveryResultRecorded: false,
+      },
+      {
+        ...row,
         notificationDeliveryReadinessRowId: 'invalid-external-runtime-report',
         externalRuntimeReportDeliveryClaimed: true,
       },
@@ -108,6 +128,40 @@ describe('social parent notification delivery readiness dishonest claim rejectio
     ]) {
       expect(SocialParentNotificationDeliveryReadinessRowSchema.safeParse(invalidRow).success).toBe(false);
     }
+  });
+
+  it('rejects forged local delivery results on rows that still need manual proof', () => {
+    const manualRow = buildSocialParentNotificationDeliveryReadinessReadModel(
+      {
+        generatedAt: Timestamp,
+        readinessId: 'social-parent-notification-delivery-from-receipt-ingestion-proof',
+        sourceReportWriterProofRef: 'social-report-writer-delivery-from-receipt-ingestion-proof',
+      },
+      buildSocialReportWriterDeliveryProofFromReceiptIngestionReadiness(
+        {
+          generatedAt: Timestamp,
+          proofId: 'social-report-writer-delivery-from-receipt-ingestion-proof',
+          sourceAlertReportIntentProofRef: 'social-provider-receipt-ingestion-readiness-proof',
+        },
+        receiptIngestionReadinessReadModel()
+      )
+    ).rows[0];
+
+    expect(manualRow?.notificationDeliveryReadinessState).toBe(
+      SocialParentNotificationDeliveryReadinessState.ManualRequired
+    );
+    expect(
+      SocialParentNotificationDeliveryReadinessRowSchema.safeParse({
+        ...manualRow,
+        parentLocalDeliveryResultRef: 'forged-local-delivery-result',
+      }).success
+    ).toBe(false);
+    expect(
+      SocialParentNotificationDeliveryReadinessRowSchema.safeParse({
+        ...manualRow,
+        parentLocalDeliveryResultRecorded: true,
+      }).success
+    ).toBe(false);
   });
 });
 

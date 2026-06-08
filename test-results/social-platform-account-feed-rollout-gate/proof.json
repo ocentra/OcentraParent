@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "proofMode": "social-platform-account-feed-rollout-gate",
-  "generatedAt": "2026-06-08T14:45:05.048Z",
+  "generatedAt": "2026-06-08T22:04:58.220Z",
   "rows": [
     {
       "rowNumber": 1,
@@ -232,6 +232,7 @@
     "social-alert-report-provider-status-handoff-proof-present",
     "social-report-writer-delivery-proof-present",
     "social-parent-notification-delivery-readiness-proof-present",
+    "social-parent-local-delivery-result-proof-present",
     "social-applied-schedule-time-budget-proof-present",
     "social-schedule-time-budget-compiler-proof-present",
     "social-parent-sensitivity-settings-proof-present",

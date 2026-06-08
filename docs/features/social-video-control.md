@@ -472,7 +472,9 @@ settings, delivered alerts, confidence handling, platform proof, or parent UI.
       credential, and smoke proof refs before delivery can be claimed.
       `social-alert-report-provider-status-handoff-proof` maps those rows into
       the V0.8 notification-provider boundary as manual-required/unavailable,
-      without claiming delivered receipts;
+      without claiming delivered receipts. `social-parent-notification-delivery-readiness-proof`
+      now records a parent-owned local delivery result ref for report-ready
+      rows while keeping manual/unavailable rows blocked;
       provider delivery, rendered notification UI/history delivery,
       quiet-hours timer execution, retry worker execution, report delivery
       execution, final policy, and enforcement remain.

@@ -54,6 +54,7 @@ const SocialParentNotificationDeliveryReadinessRowBaseSchema = Schema.Struct({
   sourceIntentRef: SocialAlertReportReferenceSchema,
   parentVisibleReportStatusRef: Schema.Union(SocialAlertReportReferenceSchema, Schema.Null),
   parentNotificationUiRef: Schema.Union(SocialAlertReportReferenceSchema, Schema.Null),
+  parentLocalDeliveryResultRef: Schema.Union(SocialAlertReportReferenceSchema, Schema.Null),
   parentReportRef: Schema.Union(SocialAlertReportReferenceSchema, Schema.Null),
   reportArtifactRef: Schema.Union(SocialAlertReportReferenceSchema, Schema.Null),
   reportReceiptRef: Schema.Union(SocialAlertReportReferenceSchema, Schema.Null),
@@ -63,6 +64,7 @@ const SocialParentNotificationDeliveryReadinessRowBaseSchema = Schema.Struct({
   manualProofRequirements: Schema.Array(SocialAlertReportReferenceSchema),
   notificationDeliveryReadinessState: SocialParentNotificationDeliveryReadinessStateSchema,
   reportDeliveryExecutionState: SocialParentNotificationReportDeliveryExecutionStateSchema,
+  parentLocalDeliveryResultRecorded: Schema.Boolean,
   parentOwnedReportArtifactWritten: Schema.Boolean,
   parentOwnedReportReceiptRecorded: Schema.Boolean,
   parentNotificationUiDelivered: Schema.Literal(false),
@@ -96,6 +98,7 @@ const SocialParentNotificationDeliveryReadinessReadModelBaseSchema = Schema.Stru
   parentReportStatusReadyCount: Schema.Number.pipe(Schema.int(), Schema.nonNegative()),
   manualRequiredCount: Schema.Number.pipe(Schema.int(), Schema.nonNegative()),
   unavailableCount: Schema.Number.pipe(Schema.int(), Schema.nonNegative()),
+  parentLocalDeliveryResultCount: Schema.Number.pipe(Schema.int(), Schema.nonNegative()),
   parentNotificationUiDeliveryClaimed: Schema.Literal(false),
   externalRuntimeReportDeliveryClaimed: Schema.Literal(false),
   finalPolicyExecutionClaimed: Schema.Literal(false),
@@ -156,6 +159,7 @@ export function buildSocialParentNotificationDeliveryReadinessReadModel(
     ),
     manualRequiredCount: countRows(rows, SocialParentNotificationDeliveryReadinessState.ManualRequired),
     unavailableCount: countRows(rows, SocialParentNotificationDeliveryReadinessState.Unavailable),
+    parentLocalDeliveryResultCount: rows.filter((row) => row.parentLocalDeliveryResultRecorded).length,
     parentNotificationUiDeliveryClaimed: false,
     externalRuntimeReportDeliveryClaimed: false,
     finalPolicyExecutionClaimed: false,
@@ -171,6 +175,7 @@ export function summarizeSocialParentNotificationDeliveryReadiness(
     parentReportStatusReadyCount: readModel.parentReportStatusReadyCount,
     manualRequiredCount: readModel.manualRequiredCount,
     unavailableCount: readModel.unavailableCount,
+    parentLocalDeliveryResultCount: readModel.parentLocalDeliveryResultCount,
     parentNotificationUiDeliveryClaimed: readModel.parentNotificationUiDeliveryClaimed,
     externalRuntimeReportDeliveryClaimed: readModel.externalRuntimeReportDeliveryClaimed,
     finalPolicyExecutionClaimed: readModel.finalPolicyExecutionClaimed,
@@ -193,6 +198,10 @@ function socialParentNotificationDeliveryReadinessRowFromReportWriter(
     sourceIntentRef: row.sourceIntentRef,
     parentVisibleReportStatusRef: row.parentVisibleReportStatusRef,
     parentNotificationUiRef: null,
+    parentLocalDeliveryResultRef:
+      state === SocialParentNotificationDeliveryReadinessState.ParentReportStatusReady
+        ? `social-parent-local-delivery-result-${row.reportWriterDeliveryRowId}`
+        : null,
     parentReportRef: row.parentReportRef,
     reportArtifactRef: row.reportArtifactRef,
     reportReceiptRef: row.reportReceiptRef,
@@ -202,6 +211,7 @@ function socialParentNotificationDeliveryReadinessRowFromReportWriter(
     manualProofRequirements,
     notificationDeliveryReadinessState: state,
     reportDeliveryExecutionState,
+    parentLocalDeliveryResultRecorded: state === SocialParentNotificationDeliveryReadinessState.ParentReportStatusReady,
     parentOwnedReportArtifactWritten: row.parentOwnedReportArtifactWritten,
     parentOwnedReportReceiptRecorded: row.parentOwnedReportReceiptRecorded,
     parentNotificationUiDelivered: false,
@@ -274,11 +284,13 @@ function reportStatusReadyRowIsHonest(row: SocialParentNotificationDeliveryReadi
   return (
     row.parentVisibleReportStatusRef !== null &&
     row.parentNotificationUiRef === null &&
+    row.parentLocalDeliveryResultRef !== null &&
     row.parentReportRef !== null &&
     row.reportArtifactRef !== null &&
     row.reportReceiptRef !== null &&
     row.parentOwnedReportArtifactWritten &&
     row.parentOwnedReportReceiptRecorded &&
+    row.parentLocalDeliveryResultRecorded &&
     row.reportDeliveryExecutionState === SocialParentNotificationReportDeliveryExecutionState.ParentOwnedReportReady &&
     row.manualProofRequirements.length === 0 &&
     rowClaimsStayFalse(row)
@@ -288,6 +300,8 @@ function reportStatusReadyRowIsHonest(row: SocialParentNotificationDeliveryReadi
 function manualRequiredRowIsHonest(row: SocialParentNotificationDeliveryReadinessRowInput): boolean {
   return (
     row.parentNotificationUiRef === null &&
+    row.parentLocalDeliveryResultRef === null &&
+    !row.parentLocalDeliveryResultRecorded &&
     row.reportDeliveryExecutionState === SocialParentNotificationReportDeliveryExecutionState.ManualRequired &&
     row.manualProofRequirements.length > 0 &&
     rowClaimsStayFalse(row)
@@ -297,6 +311,8 @@ function manualRequiredRowIsHonest(row: SocialParentNotificationDeliveryReadines
 function unavailableRowIsHonest(row: SocialParentNotificationDeliveryReadinessRowInput): boolean {
   return (
     row.parentNotificationUiRef === null &&
+    row.parentLocalDeliveryResultRef === null &&
+    !row.parentLocalDeliveryResultRecorded &&
     row.reportDeliveryExecutionState === SocialParentNotificationReportDeliveryExecutionState.Unavailable &&
     row.parentReportRef === null &&
     row.reportArtifactRef === null &&
@@ -327,6 +343,8 @@ function socialParentNotificationDeliveryReadinessReadModelIsHonest(
       countRows(readModel.rows, SocialParentNotificationDeliveryReadinessState.ManualRequired) &&
     readModel.unavailableCount ===
       countRows(readModel.rows, SocialParentNotificationDeliveryReadinessState.Unavailable) &&
+    readModel.parentLocalDeliveryResultCount ===
+      readModel.rows.filter((row) => row.parentLocalDeliveryResultRecorded).length &&
     RequiredNonClaims.every((claim) => readModel.nonClaims.includes(claim)) &&
     !readModel.parentNotificationUiDeliveryClaimed &&
     !readModel.externalRuntimeReportDeliveryClaimed &&

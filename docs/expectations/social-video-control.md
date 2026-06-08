@@ -213,6 +213,14 @@ control, or enforcement. The current rendered parent portal proof covers the
 service-backed Browser-route social dashboard snapshot only; it does not prove
 connector/native runtime, policy execution, notifications, or enforcement.
 
+Parent-owned social notification/report delivery readiness may record
+local delivery result refs only for report-ready rows that already have
+parent-owned report artifact and receipt refs. Manual-required and unavailable rows must keep
+local delivery result refs empty. This local result proof does not prove
+external provider delivery, parent notification UI delivery, cloud routing,
+final policy execution, connector/native runtime, browser mutation, child
+intervention execution, or enforcement.
+
 Child approval/block UX contracts may represent child-facing states and actions
 for approval pending, blocked route candidates, warning candidates, manual
 review, time-limit candidates, and native-app unavailable states. These

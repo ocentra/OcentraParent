@@ -26,6 +26,9 @@ async function main() {
   const contract = await readText('packages/parent-domain/src/social-parent-notification-delivery-readiness.ts');
   const test = await readText('packages/parent-domain/tests/social-parent-notification-delivery-readiness.test.ts');
   const featureDoc = await readText('docs/features/browser-web-control.md');
+  const socialFeatureDoc = await readText('docs/features/social-video-control.md');
+  const socialExpectationDoc = await readText('docs/expectations/social-video-control.md');
+  const socialWorkpackReadme = await readText('docs/plans/browser-plan/social-platform-account-feed/readme.md');
   const checklist = await readText('docs/plans/browser-plan/implementation-checklist.md');
   const proofModule =
     await import('../../packages/parent-domain/dist/social-parent-notification-delivery-readiness.js');
@@ -73,10 +76,26 @@ async function main() {
     checkIncludes(contract, 'enforcementClaimed: Schema.Literal(false)', 'enforcement guard'),
     checkIncludes(test, 'projects receipt-ingestion report-writer rows', 'receipt backed test'),
     checkIncludes(test, 'rejects forged parent UI delivery', 'dishonest UI delivery rejection test'),
+    checkIncludes(test, 'rejects forged local delivery results', 'dishonest local delivery result rejection test'),
     checkIncludes(
       featureDoc,
       'social-parent-notification-delivery-readiness-proof',
       'feature doc notification delivery readiness note'
+    ),
+    checkIncludes(
+      socialFeatureDoc,
+      'parent-owned local delivery result ref',
+      'social feature doc local delivery result note'
+    ),
+    checkIncludes(
+      socialExpectationDoc,
+      'local delivery result refs only for report-ready rows',
+      'social expectation local delivery result boundary'
+    ),
+    checkIncludes(
+      socialWorkpackReadme,
+      'parent-owned local delivery result ref',
+      'social workpack README local delivery result note'
     ),
     checkIncludes(
       checklist,
@@ -88,6 +107,7 @@ async function main() {
       pass:
         staticSummary.totalRows === 2 &&
         staticSummary.parentReportStatusReadyCount === 1 &&
+        staticSummary.parentLocalDeliveryResultCount === 1 &&
         staticSummary.manualRequiredCount === 1 &&
         staticSummary.parentNotificationUiDeliveryClaimed === false,
     },
@@ -96,8 +116,19 @@ async function main() {
       pass:
         receiptBackedSummary.totalRows === 3 &&
         receiptBackedSummary.parentReportStatusReadyCount === 0 &&
+        receiptBackedSummary.parentLocalDeliveryResultCount === 0 &&
         receiptBackedSummary.manualRequiredCount === 2 &&
         receiptBackedSummary.unavailableCount === 1,
+    },
+    {
+      label: 'parent local delivery result is recorded only for parent report status ready rows',
+      pass: allRows.every(
+        (row) =>
+          (row.notificationDeliveryReadinessState === 'parent-report-status-ready') ===
+            row.parentLocalDeliveryResultRecorded &&
+          (row.notificationDeliveryReadinessState === 'parent-report-status-ready') ===
+            (row.parentLocalDeliveryResultRef !== null)
+      ),
     },
     {
       label: 'no row claims UI delivery external report delivery provider delivery final policy or enforcement',
@@ -130,7 +161,9 @@ async function main() {
       reportDeliveryExecutionState: row.reportDeliveryExecutionState,
       parentVisibleReportStatusRef: row.parentVisibleReportStatusRef,
       parentNotificationUiRef: row.parentNotificationUiRef,
+      parentLocalDeliveryResultRef: row.parentLocalDeliveryResultRef,
       manualProofRequirements: row.manualProofRequirements,
+      parentLocalDeliveryResultRecorded: row.parentLocalDeliveryResultRecorded,
       parentNotificationUiDelivered: row.parentNotificationUiDelivered,
       externalRuntimeReportDeliveryClaimed: row.externalRuntimeReportDeliveryClaimed,
       providerDeliveryAttempted: row.providerDeliveryAttempted,
@@ -259,14 +292,17 @@ function markdownFor(proof) {
     '',
     `Static rows: ${proof.staticSummary.totalRows}`,
     `Static parent report status ready rows: ${proof.staticSummary.parentReportStatusReadyCount}`,
+    `Static local delivery result rows: ${proof.staticSummary.parentLocalDeliveryResultCount}`,
     `Receipt-backed rows: ${proof.receiptBackedSummary.totalRows}`,
     `Receipt-backed manual-required rows: ${proof.receiptBackedSummary.manualRequiredCount}`,
     `Receipt-backed unavailable rows: ${proof.receiptBackedSummary.unavailableCount}`,
+    `Receipt-backed local delivery result rows: ${proof.receiptBackedSummary.parentLocalDeliveryResultCount}`,
     '',
     'This proof carries parent-domain social report writer readiness into a',
     'parent notification/report delivery readiness boundary. A parent-owned',
-    'report artifact can become a parent-visible report status row, but the',
-    'proof still records no parent notification UI delivery, no external',
+    'report artifact, receipt, and local delivery result can become a',
+    'parent-visible report status row, but the proof still records no parent',
+    'notification UI delivery, no external',
     'runtime report delivery, no provider dispatch or receipt ingestion, no',
     'final policy execution, and no enforcement. Receipt-ingestion-backed',
     'rows remain manual-required or unavailable until webhook, credential,',

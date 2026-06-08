@@ -628,3 +628,11 @@ does not claim parent notification UI delivery, external runtime report
 delivery, provider delivery/receipt ingestion, final policy execution,
 connector/native runtime, browser mutation, child intervention execution, or
 enforcement.
+
+The readiness boundary now records a parent-owned local delivery result ref for
+the parent-report-ready social report row. Manual-required and unavailable rows
+must keep local delivery result refs empty. This improves SOCIAL-23/SOCIAL-24
+non-Apple parent-owned delivery proof while keeping external provider delivery,
+parent notification UI delivery, cloud routing, final policy execution,
+connector/native runtime, browser mutation, child intervention execution, and
+enforcement unclaimed.

@@ -1,6 +1,6 @@
 # SOCIAL-24 Rollout Manual-Required Labels
 
-Generated: 2026-06-08T14:45:05.048Z
+Generated: 2026-06-08T22:04:58.220Z
 
 Rows checked: 23
 Proof-present rows: 21
@@ -62,6 +62,7 @@ Social alert/report provider preflight proof is present and requires provider ad
 Social alert/report provider status handoff proof is present and maps preflight rows to manual-required or unavailable provider status boundary rows.
 Parent-owned report writer delivery-readiness proof is present.
 Parent notification/report delivery readiness proof is present.
+Parent-owned local delivery result proof is present for report-ready rows.
 Parent-owned schedule/time-budget application-readiness proof is present.
 Schedule/time-budget compiler proof and parent sensitivity
 settings proof are present. Source custody settings proof is present over

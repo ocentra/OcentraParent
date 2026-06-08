@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "proofMode": "social-platform-account-feed-proof-artifacts",
-  "generatedAt": "2026-06-08T14:45:05.027Z",
+  "generatedAt": "2026-06-08T22:04:58.216Z",
   "proofRoot": "output/browser-plan-proof",
   "rows": [
     {
@@ -433,6 +433,7 @@
     "alertReportProviderStatusHandoff": "provider-status-boundary-proof-present",
     "reportWriterDelivery": "parent-owned-proof-present",
     "parentNotificationDeliveryReadiness": "parent-report-status-readiness-proof-present",
+    "parentLocalDeliveryResult": "parent-owned-local-delivery-result-proof-present",
     "appliedScheduleTimeBudget": "parent-owned-proof-present",
     "scheduleTimeBudgetCompiler": "proof-present",
     "parentSensitivitySettings": "proof-present",

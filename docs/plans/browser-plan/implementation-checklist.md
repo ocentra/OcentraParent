@@ -1095,6 +1095,19 @@ delivery, external runtime report delivery, provider delivery, provider receipt
 ingestion, final policy execution, browser mutation, child intervention
 execution, unmanaged exact URL support, or enforcement.
 
+SOCIAL-23/SOCIAL-24 parent-owned local delivery result addendum:
+`social-parent-notification-delivery-readiness-proof` now records a
+parent-owned local delivery result ref for the parent-report-ready social report
+row, and rejects forged local delivery result refs on manual-required or
+unavailable rows. Evidence:
+`test-results/social-parent-notification-delivery-readiness-proof/proof.json`
+and
+`output/browser-plan-proof/social-parent-notification-delivery-readiness-proof/01-social-parent-notification-delivery-readiness-proof.md`.
+This advances non-Apple parent-owned delivery-result proof while preserving
+manual-required status for external provider delivery, parent notification UI
+delivery, cloud routing, final policy execution, browser mutation, child
+intervention execution, unmanaged exact URL support, and enforcement.
+
 WP13 runtime stream topology and delivery-decision addendum:
 `browser-runtime-chain-topology-proof` and
 `browser-runtime-delivery-decision-proof` register the service-side
