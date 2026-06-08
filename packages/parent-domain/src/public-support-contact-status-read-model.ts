@@ -76,11 +76,13 @@ function supportContact(
     publicRouteState: surface === 'public-support-contact' ? 'publication-required' : 'route-contract-only',
     publicRuntimeState: 'not-implemented',
     contactExecutionState: 'manual-required',
+    contactStatusBoundaryState: surface === 'support-status-page-contact' ? 'manual-required' : 'backend-required',
     supportBackendUploadState: surface === 'backend-upload-support-contact' ? 'manual-required' : 'not-implemented',
     supportSafeDataClasses,
     forbiddenDataClasses: ForbiddenPublicSupportContactStatusDataClasses,
     publicationReference: `public-support-contact-status-${surface}`,
     runtimeReference: `public-support-contact-runtime-${surface}`,
+    statusBoundaryReference: `public-support-contact-status-boundary-${surface}`,
     manualRequirement: `${surface}-requires-public-runtime-legal-review-and-support-execution-proof`,
   } as const;
 }

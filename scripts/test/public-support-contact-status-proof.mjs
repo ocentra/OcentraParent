@@ -104,6 +104,25 @@ async function assertBuiltContract() {
   assert.equal(proof.productionSlaClaim, 'not-implemented');
   assert.equal(proof.legalDisclosureExecutionClaim, 'manual-required');
   assert.equal(proof.childActivityCustodyClaim, 'not-implemented');
+  assert.deepEqual(
+    proof.rows.map((row) => [row.surface, row.contactStatusBoundaryState, row.statusBoundaryReference]),
+    [
+      ['public-support-contact', 'backend-required', 'public-support-contact-status-boundary-public-support-contact'],
+      [
+        'support-status-page-contact',
+        'manual-required',
+        'public-support-contact-status-boundary-support-status-page-contact',
+      ],
+      ['support-runbook-contact', 'backend-required', 'public-support-contact-status-boundary-support-runbook-contact'],
+      ['incident-status-contact', 'backend-required', 'public-support-contact-status-boundary-incident-status-contact'],
+      [
+        'backend-upload-support-contact',
+        'backend-required',
+        'public-support-contact-status-boundary-backend-upload-support-contact',
+      ],
+      ['billing-support-contact', 'backend-required', 'public-support-contact-status-boundary-billing-support-contact'],
+    ]
+  );
   assertContactRowsRemainManual(proof.rows);
 
   return {
@@ -114,7 +133,9 @@ async function assertBuiltContract() {
       publicRouteState: row.publicRouteState,
       publicRuntimeState: row.publicRuntimeState,
       contactExecutionState: row.contactExecutionState,
+      contactStatusBoundaryState: row.contactStatusBoundaryState,
       supportBackendUploadState: row.supportBackendUploadState,
+      statusBoundaryReference: row.statusBoundaryReference,
       supportSafeDataClasses: row.supportSafeDataClasses,
     })),
     nonClaims: proof.nonClaims,
@@ -131,6 +152,12 @@ function assertContactRowsRemainManual(rows) {
     assert.notEqual(row.publicRouteState, 'implemented', `${row.surface} must not claim public route implementation`);
     assert.notEqual(row.publicRuntimeState, 'implemented', `${row.surface} must not claim public runtime`);
     assert.notEqual(row.contactExecutionState, 'executed', `${row.surface} must not claim executed contact`);
+    assert.notEqual(row.contactStatusBoundaryState, 'implemented', `${row.surface} must not claim status backend`);
+    assert.notEqual(
+      row.contactStatusBoundaryState,
+      'executed',
+      `${row.surface} must not claim status backend execution`
+    );
     assert.notEqual(row.supportBackendUploadState, 'executed', `${row.surface} must not claim upload execution`);
     for (const dataClass of row.forbiddenDataClasses) {
       assert(!row.supportSafeDataClasses.includes(dataClass), `${row.surface} unexpectedly allows ${dataClass}`);

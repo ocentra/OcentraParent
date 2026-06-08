@@ -31,7 +31,9 @@
       "publicRouteState": "publication-required",
       "publicRuntimeState": "not-implemented",
       "contactExecutionState": "manual-required",
+      "contactStatusBoundaryState": "backend-required",
       "supportBackendUploadState": "not-implemented",
+      "statusBoundaryReference": "public-support-contact-status-boundary-public-support-contact",
       "supportSafeDataClasses": [
         "contact-channel-status",
         "support-runbook-status",
@@ -46,7 +48,9 @@
       "publicRouteState": "route-contract-only",
       "publicRuntimeState": "not-implemented",
       "contactExecutionState": "manual-required",
+      "contactStatusBoundaryState": "manual-required",
       "supportBackendUploadState": "not-implemented",
+      "statusBoundaryReference": "public-support-contact-status-boundary-support-status-page-contact",
       "supportSafeDataClasses": [
         "contact-channel-status",
         "incident-status",
@@ -60,7 +64,9 @@
       "publicRouteState": "route-contract-only",
       "publicRuntimeState": "not-implemented",
       "contactExecutionState": "manual-required",
+      "contactStatusBoundaryState": "backend-required",
       "supportBackendUploadState": "not-implemented",
+      "statusBoundaryReference": "public-support-contact-status-boundary-support-runbook-contact",
       "supportSafeDataClasses": [
         "support-runbook-status",
         "contact-channel-status",
@@ -74,7 +80,9 @@
       "publicRouteState": "route-contract-only",
       "publicRuntimeState": "not-implemented",
       "contactExecutionState": "manual-required",
+      "contactStatusBoundaryState": "backend-required",
       "supportBackendUploadState": "not-implemented",
+      "statusBoundaryReference": "public-support-contact-status-boundary-incident-status-contact",
       "supportSafeDataClasses": [
         "incident-status",
         "contact-channel-status",
@@ -88,7 +96,9 @@
       "publicRouteState": "route-contract-only",
       "publicRuntimeState": "not-implemented",
       "contactExecutionState": "manual-required",
+      "contactStatusBoundaryState": "backend-required",
       "supportBackendUploadState": "manual-required",
+      "statusBoundaryReference": "public-support-contact-status-boundary-backend-upload-support-contact",
       "supportSafeDataClasses": [
         "support-upload-status-summary",
         "contact-channel-status",
@@ -102,7 +112,9 @@
       "publicRouteState": "route-contract-only",
       "publicRuntimeState": "not-implemented",
       "contactExecutionState": "manual-required",
+      "contactStatusBoundaryState": "backend-required",
       "supportBackendUploadState": "not-implemented",
+      "statusBoundaryReference": "public-support-contact-status-boundary-billing-support-contact",
       "supportSafeDataClasses": [
         "billing-support-status",
         "account-status",
