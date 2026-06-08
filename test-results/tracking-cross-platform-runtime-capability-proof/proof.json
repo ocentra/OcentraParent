@@ -1,0 +1,381 @@
+{
+  "schemaVersion": 1,
+  "proofMode": "tracking-cross-platform-runtime-capability-proof",
+  "generatedAt": "2026-06-08T16:30:41.888Z",
+  "branch": "codex/tracking-plan-full-continuation-a",
+  "commit": "2a549127f4251f4c67feb85150ff671916f8b91e",
+  "workpackIds": [
+    "08-android-foreground-location-adapter",
+    "09-android-background-location-and-geofence-adapter",
+    "10-android-battery-connectivity-and-status-adapter",
+    "11-ios-foreground-location-adapter",
+    "12-ios-background-region-adapter",
+    "13-desktop-presence-signals",
+    "31-platform-extension-checklists-and-proof-routing",
+    "33-proof-gates-fixtures-rollout-and-pr-gate"
+  ],
+  "readModel": {
+    "schemaVersion": "v0.5-tracking",
+    "proofMode": "tracking-cross-platform-runtime-capability-proof",
+    "generatedAt": "2026-06-08T16:30:41.888Z",
+    "rows": [
+      {
+        "schemaVersion": "v0.5-tracking",
+        "area": "windows-host-toolchain",
+        "status": "local-proof-passed",
+        "generatedAt": "2026-06-08T16:30:41.888Z",
+        "proofRef": "test-results/tracking-cross-platform-runtime-capability-proof/windows-host-toolchain.json",
+        "sourceRefs": [],
+        "currentProofTier": "P3_LOCAL_WINDOWS_HOST",
+        "requiredProofTier": "P3_LOCAL_DEV_MACHINE",
+        "observedTooling": [
+          "Microsoft Windows [Version 10.0.26200.8457]",
+          "C:\\Program Files\\nodejs\\node.exe",
+          "C:\\Program Files\\WindowsApps\\OpenAI.Codex_26.602.4764.0_x64__2p2nqsd0c76g0\\app\\resources\\node.exe",
+          "v22.22.2",
+          "C:\\Program Files\\nodejs\\npm",
+          "C:\\Program Files\\nodejs\\npm.cmd",
+          "C:\\Users\\sujan\\AppData\\Roaming\\npm\\npm",
+          "C:\\Users\\sujan\\AppData\\Roaming\\npm\\npm.cmd",
+          "11.7.0",
+          "C:\\Users\\sujan\\.cargo\\bin\\cargo.exe",
+          "cargo 1.90.0 (840b83a10 2025-07-30)"
+        ],
+        "passedAssertions": [
+          "Windows host shell, Node, npm, and Cargo are reachable"
+        ],
+        "remainingBlockers": [
+          "Windows host proof is not approved-manual desktop precise location proof"
+        ],
+        "artifactCount": 11,
+        "ciRunnable": true,
+        "localRuntimeClaimed": true,
+        "physicalDeviceBehaviorClaimed": false,
+        "authorityRuntimeClaimed": false,
+        "productionRuntimeClaimed": false,
+        "productClaimReady": false
+      },
+      {
+        "schemaVersion": "v0.5-tracking",
+        "area": "wsl-linux-replay",
+        "status": "local-proof-passed",
+        "generatedAt": "2026-06-08T16:30:41.888Z",
+        "proofRef": "test-results/tracking-plan-wsl-local-proof/proof.json",
+        "sourceRefs": [
+          "output/tracking-plan-proof/wsl-local-replay/proof.json"
+        ],
+        "currentProofTier": "P3_LOCAL_DEV_MACHINE",
+        "requiredProofTier": "P3_LOCAL_DEV_MACHINE",
+        "observedTooling": [
+          "\u0000 \u0000N\u0000A\u0000M\u0000E\u0000 \u0000 \u0000 \u0000 \u0000 \u0000 \u0000 \u0000 \u0000 \u0000 \u0000 \u0000 \u0000 \u0000 \u0000S\u0000T\u0000A\u0000T\u0000E\u0000 \u0000 \u0000 \u0000 \u0000 \u0000 \u0000 \u0000 \u0000 \u0000 \u0000 \u0000V\u0000E\u0000R\u0000S\u0000I\u0000O\u0000N\u0000\r\u0000",
+          "\u0000*\u0000 \u0000U\u0000b\u0000u\u0000n\u0000t\u0000u\u0000-\u00002\u00002\u0000.\u00000\u00004\u0000 \u0000 \u0000 \u0000 \u0000 \u0000 \u0000R\u0000u\u0000n\u0000n\u0000i\u0000n\u0000g\u0000 \u0000 \u0000 \u0000 \u0000 \u0000 \u0000 \u0000 \u0000 \u00002\u0000\r\u0000",
+          "\u0000 \u0000 \u0000d\u0000o\u0000c\u0000k\u0000e\u0000r\u0000-\u0000d\u0000e\u0000s\u0000k\u0000t\u0000o\u0000p\u0000 \u0000 \u0000 \u0000 \u0000S\u0000t\u0000o\u0000p\u0000p\u0000e\u0000d\u0000 \u0000 \u0000 \u0000 \u0000 \u0000 \u0000 \u0000 \u0000 \u00002\u0000\r\u0000",
+          "\u0000",
+          "Linux GameDev 5.15.167.4-microsoft-standard-WSL2 #1 SMP Tue Nov 5 00:21:55 UTC 2024 x86_64 x86_64 x86_64 GNU/Linux",
+          "v22.22.0",
+          "10.9.4",
+          "cargo 1.90.0 (840b83a10 2025-07-30)",
+          "git version 2.34.1"
+        ],
+        "passedAssertions": [
+          "WSL2 Ubuntu Linux toolchain is reachable"
+        ],
+        "remainingBlockers": [
+          "WSL replay does not prove mobile physical-device or production runtime behavior"
+        ],
+        "artifactCount": 4,
+        "ciRunnable": true,
+        "localRuntimeClaimed": true,
+        "physicalDeviceBehaviorClaimed": false,
+        "authorityRuntimeClaimed": false,
+        "productionRuntimeClaimed": false,
+        "productClaimReady": false
+      },
+      {
+        "schemaVersion": "v0.5-tracking",
+        "area": "docker-container-runtime",
+        "status": "host-tool-unavailable",
+        "generatedAt": "2026-06-08T16:30:41.888Z",
+        "proofRef": "test-results/tracking-cross-platform-runtime-capability-proof/docker-container-runtime.json",
+        "sourceRefs": [],
+        "currentProofTier": "P2_HOST_TOOL_DISCOVERED",
+        "requiredProofTier": "P3_LOCAL_CONTAINER_RUNTIME",
+        "observedTooling": [
+          "C:\\Program Files\\Docker\\Docker\\resources\\bin\\docker.exe",
+          "Docker version 28.2.2, build e6534b4"
+        ],
+        "passedAssertions": [],
+        "remainingBlockers": [
+          "Docker CLI or daemon is not currently reachable from this shell"
+        ],
+        "artifactCount": 1,
+        "ciRunnable": true,
+        "localRuntimeClaimed": false,
+        "physicalDeviceBehaviorClaimed": false,
+        "authorityRuntimeClaimed": false,
+        "productionRuntimeClaimed": false,
+        "productClaimReady": false
+      },
+      {
+        "schemaVersion": "v0.5-tracking",
+        "area": "android-emulator-runtime",
+        "status": "local-proof-passed",
+        "generatedAt": "2026-06-08T16:30:41.888Z",
+        "proofRef": "test-results/tracking-plan-android-emulator-proof/proof.json",
+        "sourceRefs": [
+          "test-results/tracking-android-emulator-artifact-inventory-proof/proof.json"
+        ],
+        "currentProofTier": "P3_LOCAL_DEV_MACHINE",
+        "requiredProofTier": "P3_LOCAL_DEV_MACHINE",
+        "observedTooling": [
+          "C:\\Users\\sujan\\AppData\\Local\\Android\\Sdk\\platform-tools\\adb.exe",
+          "Android Debug Bridge version 1.0.41",
+          "Version 37.0.0-14910828",
+          "Installed as C:\\Users\\sujan\\AppData\\Local\\Android\\Sdk\\platform-tools\\adb.exe",
+          "Running on Windows 10.0.26200",
+          "C:\\Program Files\\Java\\jdk-17\\bin\\java.exe",
+          "C:\\Program Files\\Eclipse Adoptium\\jdk-21.0.10.7-hotspot\\bin\\java.exe"
+        ],
+        "passedAssertions": [
+          "Android emulator tracking proof artifacts are present"
+        ],
+        "remainingBlockers": [
+          "Android system geofence/dwell and physical behavior remain separately gated"
+        ],
+        "artifactCount": 12,
+        "ciRunnable": false,
+        "localRuntimeClaimed": true,
+        "physicalDeviceBehaviorClaimed": false,
+        "authorityRuntimeClaimed": false,
+        "productionRuntimeClaimed": false,
+        "productClaimReady": false
+      },
+      {
+        "schemaVersion": "v0.5-tracking",
+        "area": "android-physical-device-status",
+        "status": "local-proof-passed",
+        "generatedAt": "2026-06-08T16:30:41.888Z",
+        "proofRef": "test-results/tracking-android-physical-device-runtime-proof/proof.json",
+        "sourceRefs": [],
+        "currentProofTier": "P4_PHYSICAL_DEVICE_STATUS_ONLY",
+        "requiredProofTier": "P4_PHYSICAL_DEVICE",
+        "observedTooling": [
+          "Samsung S9 adb package/service/status evidence"
+        ],
+        "passedAssertions": [
+          "Android physical package/service/status artifacts are present"
+        ],
+        "remainingBlockers": [
+          "Physical location/geofence behavior and Android system geofence delivery remain unclaimed"
+        ],
+        "artifactCount": 13,
+        "ciRunnable": false,
+        "localRuntimeClaimed": true,
+        "physicalDeviceBehaviorClaimed": false,
+        "authorityRuntimeClaimed": false,
+        "productionRuntimeClaimed": false,
+        "productClaimReady": false
+      },
+      {
+        "schemaVersion": "v0.5-tracking",
+        "area": "macos-ios-ci-manual-routing",
+        "status": "ci-manual-required",
+        "generatedAt": "2026-06-08T16:30:41.888Z",
+        "proofRef": "test-results/tracking-ios-simulator-artifact-inventory-proof/proof.json",
+        "sourceRefs": [
+          "test-results/tracking-plan-ios-simulator-proof/proof.json"
+        ],
+        "currentProofTier": "P2_CI_OR_MANUAL_REQUIRED",
+        "requiredProofTier": "P4_PHYSICAL_DEVICE",
+        "observedTooling": [
+          "macOS package-preview job routing",
+          "iOS simulator proof routing"
+        ],
+        "passedAssertions": [
+          "macOS/iOS work is routed to CI/manual proof because this host is Windows"
+        ],
+        "remainingBlockers": [
+          "macOS and iOS runtime proof cannot execute on this Windows host"
+        ],
+        "artifactCount": 13,
+        "ciRunnable": true,
+        "localRuntimeClaimed": false,
+        "physicalDeviceBehaviorClaimed": false,
+        "authorityRuntimeClaimed": false,
+        "productionRuntimeClaimed": false,
+        "productClaimReady": false
+      }
+    ],
+    "summary": {
+      "rowCount": 6,
+      "localProofPassedRows": 4,
+      "ciManualRequiredRows": 1,
+      "hostToolUnavailableRows": 1,
+      "ciRunnableRows": 4,
+      "localRuntimeClaimedRows": 4,
+      "physicalDeviceBehaviorClaimedRows": 0,
+      "authorityRuntimeClaimedRows": 0,
+      "productionRuntimeClaimedRows": 0,
+      "productReadyRows": 0
+    },
+    "productClaims": {
+      "windowsHostToolchainObserved": true,
+      "wslLinuxReplayObserved": true,
+      "dockerContainerRuntimeObserved": false,
+      "androidEmulatorRuntimeObserved": true,
+      "androidPhysicalStatusObserved": true,
+      "macosIosCiRoutingPresent": true,
+      "physicalDeviceBehaviorClaimed": false,
+      "authorityRuntimeClaimed": false,
+      "productionRuntimeClaimed": false,
+      "productClaimReady": false
+    }
+  },
+  "summary": {
+    "rowCount": 6,
+    "localProofPassedRows": 4,
+    "ciManualRequiredRows": 1,
+    "hostToolUnavailableRows": 1,
+    "ciRunnableRows": 4,
+    "localRuntimeClaimedRows": 4,
+    "physicalDeviceBehaviorClaimedRows": 0,
+    "authorityRuntimeClaimedRows": 0,
+    "productionRuntimeClaimedRows": 0,
+    "productReadyRows": 0
+  },
+  "productClaims": {
+    "windowsHostToolchainObserved": true,
+    "wslLinuxReplayObserved": true,
+    "dockerContainerRuntimeObserved": false,
+    "androidEmulatorRuntimeObserved": true,
+    "androidPhysicalStatusObserved": true,
+    "macosIosCiRoutingPresent": true,
+    "physicalDeviceBehaviorClaimed": false,
+    "authorityRuntimeClaimed": false,
+    "productionRuntimeClaimed": false,
+    "productClaimReady": false
+  },
+  "probes": {
+    "windows": {
+      "id": "windows-host-toolchain",
+      "command": "cmd /c ver & where node & node --version & where npm & npm --version & where cargo & cargo --version",
+      "exitCode": 0,
+      "stdout": "\r\nMicrosoft Windows [Version 10.0.26200.8457]\r\nC:\\Program Files\\nodejs\\node.exe\r\nC:\\Program Files\\WindowsApps\\OpenAI.Codex_26.602.4764.0_x64__2p2nqsd0c76g0\\app\\resources\\node.exe\r\nv22.22.2\r\nC:\\Program Files\\nodejs\\npm\r\nC:\\Program Files\\nodejs\\npm.cmd\r\nC:\\Users\\sujan\\AppData\\Roaming\\npm\\npm\r\nC:\\Users\\sujan\\AppData\\Roaming\\npm\\npm.cmd\r\n11.7.0\nC:\\Users\\sujan\\.cargo\\bin\\cargo.exe\r\ncargo 1.90.0 (840b83a10 2025-07-30)\n",
+      "stderr": ""
+    },
+    "wsl": {
+      "id": "wsl-linux-toolchain",
+      "command": "wsl.exe sh -lc uname -a && node --version && npm --version && cargo --version && git --version",
+      "exitCode": 0,
+      "stdout": "Linux GameDev 5.15.167.4-microsoft-standard-WSL2 #1 SMP Tue Nov 5 00:21:55 UTC 2024 x86_64 x86_64 x86_64 GNU/Linux\nv22.22.0\n10.9.4\ncargo 1.90.0 (840b83a10 2025-07-30)\ngit version 2.34.1\n",
+      "stderr": ""
+    },
+    "wslDistros": {
+      "id": "wsl-distros",
+      "command": "wsl.exe -l -v",
+      "exitCode": 0,
+      "stdout": " \u0000 \u0000N\u0000A\u0000M\u0000E\u0000 \u0000 \u0000 \u0000 \u0000 \u0000 \u0000 \u0000 \u0000 \u0000 \u0000 \u0000 \u0000 \u0000 \u0000S\u0000T\u0000A\u0000T\u0000E\u0000 \u0000 \u0000 \u0000 \u0000 \u0000 \u0000 \u0000 \u0000 \u0000 \u0000 \u0000V\u0000E\u0000R\u0000S\u0000I\u0000O\u0000N\u0000\r\u0000\n\u0000*\u0000 \u0000U\u0000b\u0000u\u0000n\u0000t\u0000u\u0000-\u00002\u00002\u0000.\u00000\u00004\u0000 \u0000 \u0000 \u0000 \u0000 \u0000 \u0000R\u0000u\u0000n\u0000n\u0000i\u0000n\u0000g\u0000 \u0000 \u0000 \u0000 \u0000 \u0000 \u0000 \u0000 \u0000 \u00002\u0000\r\u0000\n\u0000 \u0000 \u0000d\u0000o\u0000c\u0000k\u0000e\u0000r\u0000-\u0000d\u0000e\u0000s\u0000k\u0000t\u0000o\u0000p\u0000 \u0000 \u0000 \u0000 \u0000S\u0000t\u0000o\u0000p\u0000p\u0000e\u0000d\u0000 \u0000 \u0000 \u0000 \u0000 \u0000 \u0000 \u0000 \u0000 \u00002\u0000\r\u0000\n\u0000",
+      "stderr": ""
+    },
+    "dockerPath": "C:\\Program Files\\Docker\\Docker\\resources\\bin\\docker.exe",
+    "dockerVersion": {
+      "id": "docker-version",
+      "command": "C:\\Program Files\\Docker\\Docker\\resources\\bin\\docker.exe --version",
+      "exitCode": 0,
+      "stdout": "Docker version 28.2.2, build e6534b4\n",
+      "stderr": ""
+    },
+    "dockerDaemon": {
+      "id": "docker-daemon",
+      "command": "C:\\Program Files\\Docker\\Docker\\resources\\bin\\docker.exe version --format {{.Server.Version}}",
+      "exitCode": 1,
+      "stdout": "\n",
+      "stderr": "error during connect: in the default daemon configuration on Windows, the docker client must be run with elevated privileges to connect: Get \"http://%2F%2F.%2Fpipe%2Fdocker_engine/v1.50/version\": open //./pipe/docker_engine: The system cannot find the file specified.\n"
+    },
+    "android": {
+      "id": "android-toolchain",
+      "command": "cmd /c where adb & adb version & where java & java -version",
+      "exitCode": 0,
+      "stdout": "C:\\Users\\sujan\\AppData\\Local\\Android\\Sdk\\platform-tools\\adb.exe\r\nAndroid Debug Bridge version 1.0.41\r\nVersion 37.0.0-14910828\r\nInstalled as C:\\Users\\sujan\\AppData\\Local\\Android\\Sdk\\platform-tools\\adb.exe\r\nRunning on Windows 10.0.26200\r\nC:\\Program Files\\Java\\jdk-17\\bin\\java.exe\r\nC:\\Program Files\\Eclipse Adoptium\\jdk-21.0.10.7-hotspot\\bin\\java.exe\r\n",
+      "stderr": "java version \"17.0.12\" 2024-07-16 LTS\r\nJava(TM) SE Runtime Environment (build 17.0.12+8-LTS-286)\r\nJava HotSpot(TM) 64-Bit Server VM (build 17.0.12+8-LTS-286, mixed mode, sharing)\r\n"
+    }
+  },
+  "sourceProofsPresent": {
+    "android": true,
+    "androidInventory": true,
+    "androidPhysical": true,
+    "wsl": true,
+    "iosSimulator": true,
+    "iosRoute": true
+  },
+  "nonClaims": [
+    "This proof does not claim Android physical location or system geofence behavior.",
+    "This proof does not claim iOS Core Location, macOS precise location, authority enrollment, provider delivery, production workers, or product readiness.",
+    "Docker availability is recorded only when the CLI and daemon are reachable."
+  ],
+  "commands": [
+    {
+      "id": "required-cmd-@ocentra-parent/parent-domain",
+      "command": "cmd /c npm run build --workspace @ocentra-parent/parent-domain",
+      "exitCode": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "id": "required-cmd-tracking-cross-platform-runtime-capability-proof",
+      "command": "cmd /c npm run test --workspace @ocentra-parent/parent-domain -- tracking-cross-platform-runtime-capability-proof",
+      "exitCode": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "id": "docker-path-probe",
+      "command": "cmd /c where docker",
+      "exitCode": 1,
+      "stdout": "",
+      "stderr": "INFO: Could not find files for the given pattern(s).\r\n"
+    },
+    {
+      "id": "windows-host-toolchain",
+      "command": "cmd /c ver & where node & node --version & where npm & npm --version & where cargo & cargo --version",
+      "exitCode": 0,
+      "stdout": "\r\nMicrosoft Windows [Version 10.0.26200.8457]\r\nC:\\Program Files\\nodejs\\node.exe\r\nC:\\Program Files\\WindowsApps\\OpenAI.Codex_26.602.4764.0_x64__2p2nqsd0c76g0\\app\\resources\\node.exe\r\nv22.22.2\r\nC:\\Program Files\\nodejs\\npm\r\nC:\\Program Files\\nodejs\\npm.cmd\r\nC:\\Users\\sujan\\AppData\\Roaming\\npm\\npm\r\nC:\\Users\\sujan\\AppData\\Roaming\\npm\\npm.cmd\r\n11.7.0\nC:\\Users\\sujan\\.cargo\\bin\\cargo.exe\r\ncargo 1.90.0 (840b83a10 2025-07-30)\n",
+      "stderr": ""
+    },
+    {
+      "id": "wsl-linux-toolchain",
+      "command": "wsl.exe sh -lc uname -a && node --version && npm --version && cargo --version && git --version",
+      "exitCode": 0,
+      "stdout": "Linux GameDev 5.15.167.4-microsoft-standard-WSL2 #1 SMP Tue Nov 5 00:21:55 UTC 2024 x86_64 x86_64 x86_64 GNU/Linux\nv22.22.0\n10.9.4\ncargo 1.90.0 (840b83a10 2025-07-30)\ngit version 2.34.1\n",
+      "stderr": ""
+    },
+    {
+      "id": "wsl-distros",
+      "command": "wsl.exe -l -v",
+      "exitCode": 0,
+      "stdout": " \u0000 \u0000N\u0000A\u0000M\u0000E\u0000 \u0000 \u0000 \u0000 \u0000 \u0000 \u0000 \u0000 \u0000 \u0000 \u0000 \u0000 \u0000 \u0000 \u0000S\u0000T\u0000A\u0000T\u0000E\u0000 \u0000 \u0000 \u0000 \u0000 \u0000 \u0000 \u0000 \u0000 \u0000 \u0000 \u0000V\u0000E\u0000R\u0000S\u0000I\u0000O\u0000N\u0000\r\u0000\n\u0000*\u0000 \u0000U\u0000b\u0000u\u0000n\u0000t\u0000u\u0000-\u00002\u00002\u0000.\u00000\u00004\u0000 \u0000 \u0000 \u0000 \u0000 \u0000 \u0000R\u0000u\u0000n\u0000n\u0000i\u0000n\u0000g\u0000 \u0000 \u0000 \u0000 \u0000 \u0000 \u0000 \u0000 \u0000 \u00002\u0000\r\u0000\n\u0000 \u0000 \u0000d\u0000o\u0000c\u0000k\u0000e\u0000r\u0000-\u0000d\u0000e\u0000s\u0000k\u0000t\u0000o\u0000p\u0000 \u0000 \u0000 \u0000 \u0000S\u0000t\u0000o\u0000p\u0000p\u0000e\u0000d\u0000 \u0000 \u0000 \u0000 \u0000 \u0000 \u0000 \u0000 \u0000 \u00002\u0000\r\u0000\n\u0000",
+      "stderr": ""
+    },
+    {
+      "id": "docker-version",
+      "command": "C:\\Program Files\\Docker\\Docker\\resources\\bin\\docker.exe --version",
+      "exitCode": 0,
+      "stdout": "Docker version 28.2.2, build e6534b4\n",
+      "stderr": ""
+    },
+    {
+      "id": "docker-daemon",
+      "command": "C:\\Program Files\\Docker\\Docker\\resources\\bin\\docker.exe version --format {{.Server.Version}}",
+      "exitCode": 1,
+      "stdout": "\n",
+      "stderr": "error during connect: in the default daemon configuration on Windows, the docker client must be run with elevated privileges to connect: Get \"http://%2F%2F.%2Fpipe%2Fdocker_engine/v1.50/version\": open //./pipe/docker_engine: The system cannot find the file specified.\n"
+    },
+    {
+      "id": "android-toolchain",
+      "command": "cmd /c where adb & adb version & where java & java -version",
+      "exitCode": 0,
+      "stdout": "C:\\Users\\sujan\\AppData\\Local\\Android\\Sdk\\platform-tools\\adb.exe\r\nAndroid Debug Bridge version 1.0.41\r\nVersion 37.0.0-14910828\r\nInstalled as C:\\Users\\sujan\\AppData\\Local\\Android\\Sdk\\platform-tools\\adb.exe\r\nRunning on Windows 10.0.26200\r\nC:\\Program Files\\Java\\jdk-17\\bin\\java.exe\r\nC:\\Program Files\\Eclipse Adoptium\\jdk-21.0.10.7-hotspot\\bin\\java.exe\r\n",
+      "stderr": "java version \"17.0.12\" 2024-07-16 LTS\r\nJava(TM) SE Runtime Environment (build 17.0.12+8-LTS-286)\r\nJava HotSpot(TM) 64-Bit Server VM (build 17.0.12+8-LTS-286, mixed mode, sharing)\r\n"
+    }
+  ]
+}
