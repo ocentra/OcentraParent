@@ -308,6 +308,13 @@ are local hosted summary evidence only, and full dashboard UI beyond the hosted
 parent shell, actual child-device delivery/runtime execution, applied
 product-ready retention settings execution, physical-device evidence, authority,
 provider delivery, and production proof remain pending.
+`node scripts/test/tracking-full-product-ui-local-runtime-artifact-capture-proof.mjs`
+now also consumes the retention product-settings writable execution derivation
+proof and child-runtime artifact gate proof as closure evidence for the local
+product UI trace. It records one local retention writable execution
+row/derivation and the ten missing child-runtime artifacts while keeping full
+product UI runtime, child-device runtime, physical-device, authority, provider
+delivery, production UI, and product-ready claims false.
 `node scripts/test/tracking-plan-pre-device-proof.mjs` now records those UI
 gaps in the aggregate pre-device gate so the next pass can run actual
 child-device runtime execution and full parent/child UI proof beyond the hosted

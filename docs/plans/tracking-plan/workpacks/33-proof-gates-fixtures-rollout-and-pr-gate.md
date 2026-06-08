@@ -170,6 +170,10 @@ Proof root: `output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-g
   `64-retention-product-settings-writable-execution-proof.json`
 - Tracking full product UI local runtime artifact capture proof:
   `66-full-product-ui-local-runtime-artifact-capture-proof.json`
+  now consumes the retention product-settings writable execution derivation
+  proof and child-runtime artifact gate proof as closure evidence while keeping
+  full product UI, child runtime, physical-device, authority, provider,
+  production, and product-ready claims false.
 - Tracking child-runtime Android emulator readiness bridge proof:
   `67-child-runtime-android-emulator-readiness-bridge-proof.json`
 

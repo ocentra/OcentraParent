@@ -4,7 +4,12 @@ import {
   ParentContractSchemaVersionSchema,
   ParentTimestampSchema,
 } from './reference-primitives';
+import {
+  TrackingChildRuntimeArtifactGateProofSchema,
+  type TrackingChildRuntimeArtifactGateProof,
+} from './tracking-child-runtime-artifact-gate-proof';
 import { TrackingFullProductUiReadinessBlockerReferenceSchema } from './tracking-full-product-ui-readiness-blocker-proof';
+import { TrackingRetentionProductSettingsWritableExecutionProofSchema } from './tracking-retention-product-settings-writable-execution-proof';
 
 const TrackingFullProductUiLocalRuntimeArtifactCaptureText = Schema.String.pipe(Schema.minLength(1));
 
@@ -60,6 +65,42 @@ export const TrackingFullProductUiLocalRuntimeArtifactCaptureRowSchema = withPar
   )
 );
 
+export const TrackingFullProductUiLocalRuntimeClosureEvidenceSchema = withParser(
+  Schema.Struct({
+    retentionWritableExecutionProofRef: TrackingFullProductUiReadinessBlockerReferenceSchema,
+    retentionWritableExecutionRowCount: Schema.Number.pipe(Schema.int(), Schema.positive()),
+    retentionWritableExecutionDerivationCount: Schema.Number.pipe(Schema.int(), Schema.positive()),
+    retentionWritableExecutionArtifactRefs: Schema.Array(TrackingFullProductUiReadinessBlockerReferenceSchema),
+    retentionLocalProductSettingsWritableExecutionObserved: Schema.Literal(true),
+    retentionPortalWritableUiClaimed: Schema.Literal(false),
+    retentionPlatformRuntimeEnforcementClaimed: Schema.Literal(false),
+    childRuntimeArtifactGateProofRef: TrackingFullProductUiReadinessBlockerReferenceSchema,
+    childRuntimeRequiredArtifactCount: Schema.Number.pipe(Schema.int(), Schema.positive()),
+    childRuntimeMissingArtifactCount: Schema.Number.pipe(Schema.int()),
+    childRuntimeArtifactSetComplete: Schema.Literal(false),
+    childDeviceRuntimeClaimed: Schema.Literal(false),
+    renderedChildDeviceUiRuntimeClaimed: Schema.Literal(false),
+    parentReceiptRuntimeClaimed: Schema.Literal(false),
+    physicalDeviceProofClaimed: Schema.Literal(false),
+    authorityProofClaimed: Schema.Literal(false),
+    providerDeliveryRuntimeClaimed: Schema.Literal(false),
+    productionProductUiClaimed: Schema.Literal(false),
+    productClaimReady: Schema.Literal(false),
+  })
+    .pipe(
+      Schema.filter(
+        (evidence) =>
+          evidence.retentionWritableExecutionRowCount === evidence.retentionWritableExecutionDerivationCount ||
+          'Retention writable execution closure evidence must preserve one derivation per row'
+      )
+    )
+    .pipe(
+      Schema.filter(
+        (evidence) => evidence.childRuntimeMissingArtifactCount >= 0 || 'Child runtime missing count cannot be negative'
+      )
+    )
+);
+
 export const TrackingFullProductUiLocalRuntimeArtifactCaptureProofSchema = withParser(
   Schema.Struct({
     schemaVersion: ParentContractSchemaVersionSchema,
@@ -67,6 +108,7 @@ export const TrackingFullProductUiLocalRuntimeArtifactCaptureProofSchema = withP
     generatedAt: ParentTimestampSchema,
     sourceProofRefs: Schema.Array(TrackingFullProductUiReadinessBlockerReferenceSchema),
     rows: Schema.Array(TrackingFullProductUiLocalRuntimeArtifactCaptureRowSchema),
+    closureEvidence: TrackingFullProductUiLocalRuntimeClosureEvidenceSchema,
     localArtifactCount: Schema.Number.pipe(Schema.int(), Schema.positive()),
     productClaims: Schema.Struct({
       parentOverviewLocalArtifactCaptured: Schema.Literal(true),
@@ -103,6 +145,9 @@ export type TrackingFullProductUiLocalRuntimeArtifactCaptureProof = Infer<
 export type TrackingFullProductUiLocalRuntimeArtifactCaptureRow = Infer<
   typeof TrackingFullProductUiLocalRuntimeArtifactCaptureRowSchema
 >;
+export type TrackingFullProductUiLocalRuntimeClosureEvidence = Infer<
+  typeof TrackingFullProductUiLocalRuntimeClosureEvidenceSchema
+>;
 
 export type TrackingFullProductUiLocalRuntimeArtifactCaptureInput = {
   readonly artifactId: TrackingFullProductUiLocalRuntimeArtifactCaptureId;
@@ -112,6 +157,13 @@ export type TrackingFullProductUiLocalRuntimeArtifactCaptureInput = {
   readonly outputBytes: number;
   readonly width?: number;
   readonly height?: number;
+};
+
+export type TrackingFullProductUiLocalRuntimeClosureEvidenceInput = {
+  readonly retentionWritableExecutionProofRef: string;
+  readonly retentionWritableExecutionProof: unknown;
+  readonly childRuntimeArtifactGateProofRef: string;
+  readonly childRuntimeArtifactGateProof: unknown;
 };
 
 export const RequiredTrackingFullProductUiLocalRuntimeArtifactCaptures = [
@@ -125,13 +177,15 @@ export const RequiredTrackingFullProductUiLocalRuntimeArtifactCaptures = [
 export function buildTrackingFullProductUiLocalRuntimeArtifactCaptureProof(
   generatedAt: string,
   sourceProofRefs: readonly string[],
-  captures: readonly TrackingFullProductUiLocalRuntimeArtifactCaptureInput[]
+  captures: readonly TrackingFullProductUiLocalRuntimeArtifactCaptureInput[],
+  closureEvidenceInput: TrackingFullProductUiLocalRuntimeClosureEvidenceInput
 ): TrackingFullProductUiLocalRuntimeArtifactCaptureProof {
   const rows = RequiredTrackingFullProductUiLocalRuntimeArtifactCaptures.map((artifactId) => {
     const capture = captures.find((candidate) => candidate.artifactId === artifactId);
     if (!capture) throw new Error(`Missing local full product UI artifact capture: ${artifactId}`);
     return captureRow(generatedAt, capture);
   });
+  const closureEvidence = buildClosureEvidence(closureEvidenceInput);
 
   return TrackingFullProductUiLocalRuntimeArtifactCaptureProofSchema.parse({
     schemaVersion: ParentContractSchemaVersion.V0_6,
@@ -139,6 +193,7 @@ export function buildTrackingFullProductUiLocalRuntimeArtifactCaptureProof(
     generatedAt,
     sourceProofRefs: uniqueRefs(sourceProofRefs),
     rows,
+    closureEvidence,
     localArtifactCount: rows.length,
     productClaims: {
       parentOverviewLocalArtifactCaptured: true,
@@ -155,6 +210,47 @@ export function buildTrackingFullProductUiLocalRuntimeArtifactCaptureProof(
       productClaimReady: false,
     },
   });
+}
+
+function buildClosureEvidence(
+  input: TrackingFullProductUiLocalRuntimeClosureEvidenceInput
+): TrackingFullProductUiLocalRuntimeClosureEvidence {
+  const retentionProof = TrackingRetentionProductSettingsWritableExecutionProofSchema.parse(
+    input.retentionWritableExecutionProof
+  );
+  const childRuntimeProof = TrackingChildRuntimeArtifactGateProofSchema.parse(input.childRuntimeArtifactGateProof);
+  const childRuntimeRow = singleChildRuntimeRow(childRuntimeProof);
+
+  return TrackingFullProductUiLocalRuntimeClosureEvidenceSchema.parse({
+    retentionWritableExecutionProofRef: input.retentionWritableExecutionProofRef,
+    retentionWritableExecutionRowCount: retentionProof.rows.length,
+    retentionWritableExecutionDerivationCount: retentionProof.derivationMatrix.length,
+    retentionWritableExecutionArtifactRefs: uniqueRefs(retentionProof.rows.map((row) => row.outputArtifactRef)),
+    retentionLocalProductSettingsWritableExecutionObserved:
+      retentionProof.proofClaims.localProductSettingsWritableExecutionObserved,
+    retentionPortalWritableUiClaimed: retentionProof.productClaims.portalWritableUiClaimed,
+    retentionPlatformRuntimeEnforcementClaimed: retentionProof.productClaims.platformRuntimeRetentionEnforcementClaimed,
+    childRuntimeArtifactGateProofRef: input.childRuntimeArtifactGateProofRef,
+    childRuntimeRequiredArtifactCount: childRuntimeRow.requiredArtifacts.length,
+    childRuntimeMissingArtifactCount: childRuntimeRow.missingArtifacts.length,
+    childRuntimeArtifactSetComplete: childRuntimeRow.childRuntimeArtifactSetComplete,
+    childDeviceRuntimeClaimed: childRuntimeProof.productClaims.childDeviceExecutionRuntimeClaimed,
+    renderedChildDeviceUiRuntimeClaimed: childRuntimeProof.productClaims.renderedChildDeviceUiRuntimeClaimed,
+    parentReceiptRuntimeClaimed: childRuntimeProof.productClaims.parentReceiptRuntimeClaimed,
+    physicalDeviceProofClaimed: childRuntimeProof.productClaims.physicalDeviceProofClaimed,
+    authorityProofClaimed: childRuntimeProof.productClaims.authorityProofClaimed,
+    providerDeliveryRuntimeClaimed: childRuntimeProof.productClaims.providerDeliveryClaimed,
+    productionProductUiClaimed: false,
+    productClaimReady: false,
+  });
+}
+
+function singleChildRuntimeRow(
+  proof: TrackingChildRuntimeArtifactGateProof
+): TrackingChildRuntimeArtifactGateProof['rows'][number] {
+  const [row] = proof.rows;
+  if (!row) throw new Error('Child runtime artifact gate proof has no rows');
+  return row;
 }
 
 function captureRow(

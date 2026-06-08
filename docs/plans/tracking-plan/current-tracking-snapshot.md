@@ -72,6 +72,11 @@
   preserving source refs, service revision, snapshot ref, durable store ref,
   applied values, and no-claim boundaries while keeping platform enforcement
   and product-ready retention false.
+- Full product UI local runtime artifact capture proof now consumes the
+  retention writable execution derivation proof and the child-runtime artifact
+  gate proof as closure evidence while keeping full product UI runtime,
+  child-device runtime, physical-device, authority, provider delivery,
+  production UI, and product-ready claims false.
 - Provider and notification local proof exists for POI/provider mapping,
   provider-notification intent, notification preference preflight/status handoff,
   notification receipt boundary, local outbox readiness, provider-delivery
@@ -94,8 +99,8 @@
 - Real Android physical-device background location and system geofence delivery
   proof.
 - Real iOS Always/region/background physical-device proof.
-- Retention writable product settings execution and platform runtime
-  enforcement proof.
+- Product-ready retention settings execution and platform runtime enforcement
+  proof beyond the local writable execution artifact.
 - Actual child-device delivery/runtime execution and rendered child-device UI
   proof.
 - Full product parent/child UI beyond the hosted parent proof route.

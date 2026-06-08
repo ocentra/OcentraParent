@@ -3,8 +3,8 @@
   "proofMode": "tracking-full-product-ui-local-runtime-artifact-capture-proof",
   "generatedAt": "2026-06-08T04:35:00.000Z",
   "branch": "codex/tracking-plan-full-continuation-a",
-  "commit": "b97df6ed52fc31d3ca187518c04a70fd52de7db1",
-  "gitStatusShort": "M docs/features/location-geofence-device-status.md\n M docs/plans/tracking-plan/implementation-checklist.md\n M docs/plans/tracking-plan/workpacks/33-proof-gates-fixtures-rollout-and-pr-gate.md\n M output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/32-full-product-ui-runtime-artifact-gate-proof.json\n M output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/33-full-product-ui-local-runtime-artifact-capture-proof.json\n M output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-gate/46-product-readiness-closure-proof.json\n M output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-gate/59-full-product-ui-runtime-artifact-gate-proof.json\n M output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-gate/66-full-product-ui-local-runtime-artifact-capture-proof.json\n M output/tracking-plan-proof/tracking-full-product-ui-local-runtime-artifact-capture-proof/00-source-snapshot.md\n M output/tracking-plan-proof/tracking-full-product-ui-local-runtime-artifact-capture-proof/proof.json\n M output/tracking-plan-proof/tracking-full-product-ui-local-runtime-artifact-capture-proof/read-model.json\n M output/tracking-plan-proof/tracking-full-product-ui-runtime-artifact-gate-proof/00-source-snapshot.md\n M output/tracking-plan-proof/tracking-full-product-ui-runtime-artifact-gate-proof/proof.json\n M output/tracking-plan-proof/tracking-full-product-ui-runtime-artifact-gate-proof/read-model.json\n M output/tracking-plan-proof/tracking-product-readiness-closure-proof/00-source-snapshot.md\n M output/tracking-plan-proof/tracking-product-readiness-closure-proof/proof.json\n M packages/parent-domain/src/tracking-full-product-ui-local-runtime-artifact-capture-proof.ts\n M packages/parent-domain/tests/tracking-full-product-ui-local-runtime-artifact-capture-proof.test.ts\n M scripts/test/tracking-full-product-ui-local-runtime-artifact-capture-proof.mjs\n M test-results/tracking-full-product-ui-local-runtime-artifact-capture-proof/proof.json\n M test-results/tracking-full-product-ui-local-runtime-artifact-capture-proof/read-model.json\n M test-results/tracking-full-product-ui-runtime-artifact-gate-proof/proof.json\n M test-results/tracking-full-product-ui-runtime-artifact-gate-proof/read-model.json\n D test-results/tracking-product-readiness-closure-proof/product-readiness-closure-read-model.json\n D test-results/tracking-product-readiness-closure-proof/proof.json",
+  "commit": "6e0225657fb31f4b6cc8dfa3fa57aaf4c1bba19c",
+  "gitStatusShort": "M docs/features/location-geofence-device-status.md\n M docs/plans/tracking-plan/current-tracking-snapshot.md\n M docs/plans/tracking-plan/implementation-checklist.md\n M docs/plans/tracking-plan/workpacks/30-parent-and-child-ui-ux-surfaces.md\n M docs/plans/tracking-plan/workpacks/33-proof-gates-fixtures-rollout-and-pr-gate.md\n M output/tracking-plan-proof/01-source-index-and-repo-reconciliation/00-source-snapshot.md\n M output/tracking-plan-proof/01-source-index-and-repo-reconciliation/proof.json\n M output/tracking-plan-proof/02-current-tracking-snapshot-and-gap-map/00-source-snapshot.md\n M output/tracking-plan-proof/02-current-tracking-snapshot-and-gap-map/proof.json\n M output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/33-full-product-ui-local-runtime-artifact-capture-proof.json\n M output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-gate/66-full-product-ui-local-runtime-artifact-capture-proof.json\n M output/tracking-plan-proof/product-parent-child-ui-runtime/09-product-ui-end-to-end-trace.json\n M output/tracking-plan-proof/tracking-full-product-ui-local-runtime-artifact-capture-proof/00-source-snapshot.md\n M output/tracking-plan-proof/tracking-full-product-ui-local-runtime-artifact-capture-proof/proof.json\n M output/tracking-plan-proof/tracking-full-product-ui-local-runtime-artifact-capture-proof/read-model.json\n M packages/parent-domain/src/tracking-full-product-ui-local-runtime-artifact-capture-proof.ts\n M packages/parent-domain/tests/tracking-full-product-ui-local-runtime-artifact-capture-proof.test.ts\n M scripts/test/tracking-full-product-ui-local-runtime-artifact-capture-proof.mjs\n M test-results/tracking-full-product-ui-local-runtime-artifact-capture-proof/proof.json\n M test-results/tracking-full-product-ui-local-runtime-artifact-capture-proof/read-model.json\n M test-results/tracking-source-reconciliation-gap-map-proof/proof.json",
   "workpackIds": [
     "30-parent-and-child-ui-ux-surfaces",
     "33-proof-gates-fixtures-rollout-and-pr-gate"
@@ -14,7 +14,9 @@
   "status": "partial_local_artifacts_captured",
   "sourceProofRefs": [
     "test-results/tracking-hosted-ui-artifact-inventory-proof/proof.json",
-    "test-results/tracking-plan-hosted-ui-proof/accessibility-summary.json"
+    "test-results/tracking-plan-hosted-ui-proof/accessibility-summary.json",
+    "output/tracking-plan-proof/tracking-retention-product-settings-writable-execution-proof/proof.json",
+    "output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-gate/50-child-runtime-artifact-gate-proof.json"
   ],
   "readModel": {
     "schemaVersion": "v0.6",
@@ -22,7 +24,9 @@
     "generatedAt": "2026-06-08T04:35:00.000Z",
     "sourceProofRefs": [
       "test-results/tracking-hosted-ui-artifact-inventory-proof/proof.json",
-      "test-results/tracking-plan-hosted-ui-proof/accessibility-summary.json"
+      "test-results/tracking-plan-hosted-ui-proof/accessibility-summary.json",
+      "output/tracking-plan-proof/tracking-retention-product-settings-writable-execution-proof/proof.json",
+      "output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-gate/50-child-runtime-artifact-gate-proof.json"
     ],
     "rows": [
       {
@@ -119,7 +123,7 @@
         "sourceArtifactRef": "test-results/tracking-hosted-ui-artifact-inventory-proof/proof.json",
         "outputArtifactRef": "output/tracking-plan-proof/product-parent-child-ui-runtime/09-product-ui-end-to-end-trace.json",
         "sourceBytes": 13456,
-        "outputBytes": 1625,
+        "outputBytes": 2965,
         "currentProofTier": "P2_HOSTED_CI",
         "requiredProofTier": "P4_PHYSICAL_DEVICE",
         "localParentUiArtifactCaptured": true,
@@ -132,6 +136,29 @@
         "productClaimReady": false
       }
     ],
+    "closureEvidence": {
+      "retentionWritableExecutionProofRef": "output/tracking-plan-proof/tracking-retention-product-settings-writable-execution-proof/proof.json",
+      "retentionWritableExecutionRowCount": 1,
+      "retentionWritableExecutionDerivationCount": 1,
+      "retentionWritableExecutionArtifactRefs": [
+        "tracking-retention/product-settings-writable-execution.json"
+      ],
+      "retentionLocalProductSettingsWritableExecutionObserved": true,
+      "retentionPortalWritableUiClaimed": false,
+      "retentionPlatformRuntimeEnforcementClaimed": false,
+      "childRuntimeArtifactGateProofRef": "output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-gate/50-child-runtime-artifact-gate-proof.json",
+      "childRuntimeRequiredArtifactCount": 10,
+      "childRuntimeMissingArtifactCount": 10,
+      "childRuntimeArtifactSetComplete": false,
+      "childDeviceRuntimeClaimed": false,
+      "renderedChildDeviceUiRuntimeClaimed": false,
+      "parentReceiptRuntimeClaimed": false,
+      "physicalDeviceProofClaimed": false,
+      "authorityProofClaimed": false,
+      "providerDeliveryRuntimeClaimed": false,
+      "productionProductUiClaimed": false,
+      "productClaimReady": false
+    },
     "localArtifactCount": 5,
     "productClaims": {
       "parentOverviewLocalArtifactCaptured": true,
@@ -152,6 +179,9 @@
     "localArtifactCount": 5,
     "screenshotArtifactCount": 3,
     "jsonArtifactCount": 2,
+    "retentionWritableExecutionRowCount": 1,
+    "retentionWritableExecutionDerivationCount": 1,
+    "childRuntimeMissingArtifactCount": 10,
     "fullProductUiRuntimeClaimedRows": 0,
     "childDeviceRuntimeClaimedRows": 0,
     "productReadyRows": 0

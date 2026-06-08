@@ -13,10 +13,16 @@ const productRuntimeRoot = path.join(repoRoot, 'output', 'tracking-plan-proof', 
 const output30 = path.join(repoRoot, 'output', 'tracking-plan-proof', '30-parent-and-child-ui-ux-surfaces');
 const output33 = path.join(repoRoot, 'output', 'tracking-plan-proof', '33-proof-gates-fixtures-rollout-and-pr-gate');
 const commands = [];
+const retentionWritableExecutionProofRef =
+  'output/tracking-plan-proof/tracking-retention-product-settings-writable-execution-proof/proof.json';
+const childRuntimeArtifactGateProofRef =
+  'output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-gate/50-child-runtime-artifact-gate-proof.json';
 
 const sourceProofRefs = [
   'test-results/tracking-hosted-ui-artifact-inventory-proof/proof.json',
   'test-results/tracking-plan-hosted-ui-proof/accessibility-summary.json',
+  retentionWritableExecutionProofRef,
+  childRuntimeArtifactGateProofRef,
 ];
 
 const copiedScreenshotCaptures = [
@@ -63,15 +69,17 @@ async function main() {
   ]);
 
   const proofModule = await importDist('tracking-full-product-ui-local-runtime-artifact-capture-proof.js');
+  const closureEvidenceInput = await readClosureEvidenceInput();
   const captures = [
     ...(await Promise.all(copiedScreenshotCaptures.map(copyScreenshotArtifact))),
     await writeAccessibilityArtifact(),
-    await writeEndToEndTraceArtifact(),
+    await writeEndToEndTraceArtifact(closureEvidenceInput),
   ];
   const readModel = proofModule.buildTrackingFullProductUiLocalRuntimeArtifactCaptureProof(
     generatedAt,
     sourceProofRefs,
-    captures
+    captures,
+    closureEvidenceInput
   );
   const proof = buildProof(readModel);
 
@@ -140,13 +148,27 @@ async function writeAccessibilityArtifact() {
   };
 }
 
-async function writeEndToEndTraceArtifact() {
+async function readClosureEvidenceInput() {
+  const childRuntimeProof = await readJson(path.join(repoRoot, childRuntimeArtifactGateProofRef));
+  return {
+    retentionWritableExecutionProofRef,
+    retentionWritableExecutionProof: await readJson(path.join(repoRoot, retentionWritableExecutionProofRef)),
+    childRuntimeArtifactGateProofRef,
+    childRuntimeArtifactGateProof: childRuntimeProof.readModel ?? childRuntimeProof,
+  };
+}
+
+async function writeEndToEndTraceArtifact(closureEvidenceInput) {
   const sourceArtifactRef = 'test-results/tracking-hosted-ui-artifact-inventory-proof/proof.json';
   const outputArtifactRef =
     'output/tracking-plan-proof/product-parent-child-ui-runtime/09-product-ui-end-to-end-trace.json';
   const sourcePath = path.join(repoRoot, sourceArtifactRef);
   const outputPath = path.join(repoRoot, outputArtifactRef);
   const inventoryProof = JSON.parse(await readFile(sourcePath, 'utf8'));
+  const retentionProof = closureEvidenceInput.retentionWritableExecutionProof;
+  const childRuntimeProof = closureEvidenceInput.childRuntimeArtifactGateProof;
+  const [childRuntimeRow] = childRuntimeProof.rows;
+  assert.ok(childRuntimeRow, 'child runtime artifact gate proof needs a row');
   const trace = {
     schemaVersion: 1,
     traceMode: 'tracking-full-product-ui-local-end-to-end-trace',
@@ -159,6 +181,15 @@ async function writeEndToEndTraceArtifact() {
       'output/tracking-plan-proof/product-parent-child-ui-runtime/03-parent-notification-history-preferences-runtime.png',
       'output/tracking-plan-proof/product-parent-child-ui-runtime/08-cross-surface-accessibility-report.json',
     ],
+    localRuntimeClosureEvidence: {
+      retentionWritableExecutionProofRef,
+      retentionWritableExecutionRows: retentionProof.rows.length,
+      retentionWritableExecutionDerivations: retentionProof.derivationMatrix.length,
+      retentionWritableExecutionArtifactRefs: retentionProof.rows.map((row) => row.outputArtifactRef),
+      childRuntimeArtifactGateProofRef,
+      childRuntimeRequiredArtifacts: childRuntimeRow.requiredArtifacts,
+      childRuntimeMissingArtifacts: childRuntimeRow.missingArtifacts,
+    },
     stillMissingRuntimeArtifacts: [
       'output/tracking-plan-proof/product-parent-child-ui-runtime/04-retention-settings-production-write-result.png',
       'output/tracking-plan-proof/product-parent-child-ui-runtime/05-child-device-rendered-check-in-runtime.png',
@@ -210,6 +241,9 @@ function buildProof(readModel) {
       localArtifactCount: readModel.localArtifactCount,
       screenshotArtifactCount: readModel.rows.filter((row) => row.outputArtifactRef.endsWith('.png')).length,
       jsonArtifactCount: readModel.rows.filter((row) => row.outputArtifactRef.endsWith('.json')).length,
+      retentionWritableExecutionRowCount: readModel.closureEvidence.retentionWritableExecutionRowCount,
+      retentionWritableExecutionDerivationCount: readModel.closureEvidence.retentionWritableExecutionDerivationCount,
+      childRuntimeMissingArtifactCount: readModel.closureEvidence.childRuntimeMissingArtifactCount,
       fullProductUiRuntimeClaimedRows: readModel.rows.filter((row) => row.fullProductUiRuntimeClaimed).length,
       childDeviceRuntimeClaimedRows: readModel.rows.filter((row) => row.childDeviceRuntimeClaimed).length,
       productReadyRows: readModel.rows.filter((row) => row.productClaimReady).length,
@@ -233,6 +267,14 @@ function assertProof(proof) {
   assert.equal(proof.summary.localArtifactCount, 5, 'expected five local parent UI artifacts');
   assert.equal(proof.summary.screenshotArtifactCount, 3, 'expected overview, device, and notification screenshots');
   assert.equal(proof.summary.jsonArtifactCount, 2, 'expected accessibility report and local trace artifacts');
+  assert.equal(proof.summary.retentionWritableExecutionRowCount, 1, 'expected retention writable execution row');
+  assert.equal(proof.summary.retentionWritableExecutionDerivationCount, 1, 'expected retention derivation matrix row');
+  assert.equal(proof.summary.childRuntimeMissingArtifactCount, 10, 'expected child runtime hard-gap artifacts');
+  assert.equal(
+    proof.readModel.closureEvidence.retentionLocalProductSettingsWritableExecutionObserved,
+    true,
+    'expected local retention writable execution evidence'
+  );
   assert.equal(proof.summary.fullProductUiRuntimeClaimedRows, 0, 'no full product UI runtime claims');
   assert.equal(proof.summary.childDeviceRuntimeClaimedRows, 0, 'no child runtime UI claims');
   assert.equal(proof.summary.productReadyRows, 0, 'no product-ready rows');
@@ -255,8 +297,11 @@ async function writeArtifacts(proof) {
       `- commit: ${proof.commit}`,
       `- status: ${proof.status}`,
       `- localArtifactCount: ${proof.summary.localArtifactCount}`,
+      `- retentionWritableExecutionRowCount: ${proof.summary.retentionWritableExecutionRowCount}`,
+      `- childRuntimeMissingArtifactCount: ${proof.summary.childRuntimeMissingArtifactCount}`,
       '- source: hosted parent overview/devices shell screenshots, hosted notification parent-surface screenshot, hosted tracking accessibility summary, and hosted artifact inventory proof.',
-      '- boundary: local parent-side artifact capture and trace only; retention production write result, child-device runtime, physical-device, authority, provider, production, and product-ready claims remain false.',
+      '- closure evidence: consumes retention writable execution derivation proof and child runtime artifact gate proof without upgrading runtime claims.',
+      '- boundary: local parent-side artifact capture and trace only; retention production write-result UI, child-device runtime, physical-device, authority, provider, production, and product-ready claims remain false.',
       '',
     ].join('\n'),
     'utf8'
@@ -286,6 +331,10 @@ function gitOutput(args) {
 
 async function writeJson(filePath, value) {
   await writeFile(filePath, `${JSON.stringify(value, null, 2)}\n`, 'utf8');
+}
+
+async function readJson(filePath) {
+  return JSON.parse(await readFile(filePath, 'utf8'));
 }
 
 function pngDimensions(buffer, relativePath) {

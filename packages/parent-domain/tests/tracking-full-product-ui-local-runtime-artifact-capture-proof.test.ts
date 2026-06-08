@@ -24,7 +24,8 @@ describe('tracking full product UI local runtime artifact capture proof', () => 
         ),
         capture('cross-surface-accessibility-report', '08-cross-surface-accessibility-report.json', 1024),
         capture('product-ui-end-to-end-trace', '09-product-ui-end-to-end-trace.json', 1536),
-      ]
+      ],
+      closureEvidenceInput()
     );
 
     expect(proof.rows).toHaveLength(RequiredTrackingFullProductUiLocalRuntimeArtifactCaptures.length);
@@ -44,6 +45,16 @@ describe('tracking full product UI local runtime artifact capture proof', () => 
     expect(proof.productClaims.fullProductUiRuntimeClaimed).toBe(false);
     expect(proof.productClaims.childDeviceRuntimeClaimed).toBe(false);
     expect(proof.productClaims.productClaimReady).toBe(false);
+    expect(proof.closureEvidence.retentionWritableExecutionRowCount).toBe(1);
+    expect(proof.closureEvidence.retentionWritableExecutionDerivationCount).toBe(1);
+    expect(proof.closureEvidence.retentionWritableExecutionArtifactRefs).toEqual([
+      'tracking-retention/product-settings-writable-execution.json',
+    ]);
+    expect(proof.closureEvidence.retentionLocalProductSettingsWritableExecutionObserved).toBe(true);
+    expect(proof.closureEvidence.childRuntimeRequiredArtifactCount).toBe(2);
+    expect(proof.closureEvidence.childRuntimeMissingArtifactCount).toBe(2);
+    expect(proof.closureEvidence.childRuntimeArtifactSetComplete).toBe(false);
+    expect(proof.closureEvidence.productClaimReady).toBe(false);
   });
 
   it('rejects copied screenshot rows when byte sizes drift', () => {
@@ -100,5 +111,165 @@ function capture(
     outputBytes: bytes,
     width,
     height,
+  };
+}
+
+function closureEvidenceInput() {
+  return {
+    retentionWritableExecutionProofRef:
+      'output/tracking-plan-proof/tracking-retention-product-settings-writable-execution-proof/proof.json',
+    retentionWritableExecutionProof: retentionWritableExecutionProof(),
+    childRuntimeArtifactGateProofRef:
+      'output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-gate/50-child-runtime-artifact-gate-proof.json',
+    childRuntimeArtifactGateProof: childRuntimeArtifactGateProof(),
+  };
+}
+
+function retentionWritableExecutionProof() {
+  return {
+    schemaVersion: 'v0.5-tracking',
+    proofMode: 'tracking-retention-product-settings-writable-execution-proof',
+    generatedAt,
+    rows: [retentionWritableExecutionRow()],
+    proofClaims: {
+      writeCommandAccepted: true,
+      serviceMutationExecuted: true,
+      localServiceStateReadbackClaimed: true,
+      durableSettingsPersisted: true,
+      localProductSettingsWritableExecutionObserved: true,
+      noProductReadyClaim: true,
+    },
+    productClaims: {
+      portalWritableUiClaimed: false,
+      platformRuntimeRetentionEnforcementClaimed: false,
+      childDeviceDeliveryClaimed: false,
+      providerDeliveryClaimed: false,
+      notificationReceiptClaimed: false,
+      physicalDeviceProofClaimed: false,
+      authorityProofClaimed: false,
+      productionWorkerClaimed: false,
+      productClaimReady: false,
+    },
+    derivationMatrix: [retentionWritableExecutionDerivation()],
+  };
+}
+
+function retentionWritableExecutionRow() {
+  return {
+    ...retentionWritableExecutionSourceRefs(),
+    schemaVersion: 'v0.5-tracking',
+    rowId: 'retention-row',
+    generatedAt,
+    settingsKind: 'retention-window-setting',
+    outputArtifactRef: 'tracking-retention/product-settings-writable-execution.json',
+    auditRefs: ['retention-row-audit'],
+    localServiceStateRevision: 1,
+    localServiceStateSnapshotRef: 'agent-service-local-retention-settings-state',
+    durableSettingsStoreRef: 'agent-service-local-retention-settings-durable-json',
+    appliedRetentionWindowHours: 168,
+    appliedDeleteAfterAlertResolved: false,
+    parentExportPrepared: false,
+    remoteSyncEnabled: false,
+    remoteAiEnabled: false,
+    writeCommandAccepted: true,
+    serviceMutationExecuted: true,
+    localServiceStateReadbackClaimed: true,
+    durableSettingsPersisted: true,
+    localProductSettingsWritableExecutionObserved: true,
+    portalWritableUiClaimed: false,
+    platformRuntimeRetentionEnforcementClaimed: false,
+    childDeviceDeliveryClaimed: false,
+    providerDeliveryClaimed: false,
+    notificationReceiptClaimed: false,
+    physicalDeviceProofClaimed: false,
+    authorityProofClaimed: false,
+    productionWorkerClaimed: false,
+    productClaimReady: false,
+  };
+}
+
+function retentionWritableExecutionDerivation() {
+  return {
+    ...retentionWritableExecutionSourceRefs(),
+    rowId: 'retention-row',
+    localServiceStateRevision: 1,
+    localServiceStateSnapshotRef: 'agent-service-local-retention-settings-state',
+    durableSettingsStoreRef: 'agent-service-local-retention-settings-durable-json',
+    appliedRetentionWindowHours: 168,
+    appliedDeleteAfterAlertResolved: false,
+    outputArtifactRef: 'tracking-retention/product-settings-writable-execution.json',
+    remoteSyncEnabled: false,
+    remoteAiEnabled: false,
+    portalWritableUiClaimed: false,
+    platformRuntimeRetentionEnforcementClaimed: false,
+    productClaimReady: false,
+  };
+}
+
+function retentionWritableExecutionSourceRefs() {
+  return {
+    sourceLocalServiceStateProofRef: 'output/tracking-plan-proof/07-retention-and-custody-model/22.json',
+    sourceWriteCommandProofRef: 'output/tracking-plan-proof/07-retention-and-custody-model/21.json',
+    sourceReadModelProofRefs: ['output/tracking-plan-proof/07-retention-and-custody-model/18.json'],
+    sourceMutationProofRefs: ['output/tracking-plan-proof/07-retention-and-custody-model/20.json'],
+  };
+}
+
+function childRuntimeArtifactGateProof() {
+  return {
+    schemaVersion: 'v0.5-tracking',
+    proofMode: 'tracking-child-runtime-artifact-gate-proof',
+    generatedAt,
+    rows: [
+      {
+        schemaVersion: 'v0.5-tracking',
+        rowId: 'tracking-child-runtime-artifacts-device-execution',
+        generatedAt,
+        proofRoot: 'output/tracking-plan-proof/child-device-runtime-execution',
+        requiredProofTier: 'P4_PHYSICAL_DEVICE',
+        currentProofTier: 'P3_LOCAL_DEV_MACHINE',
+        status: 'manual-required',
+        requiredArtifacts: ['00-run-metadata.json', '01-child-device-metadata.json'],
+        presentArtifacts: [],
+        missingArtifacts: ['00-run-metadata.json', '01-child-device-metadata.json'],
+        auditRefs: ['tracking-child-runtime-artifacts-device-execution-audit'],
+        childRuntimeArtifactSetComplete: false,
+        childDeviceDeliveryRuntimeClaimed: false,
+        childDeviceExecutionRuntimeClaimed: false,
+        renderedChildDeviceUiRuntimeClaimed: false,
+        parentReceiptRuntimeClaimed: false,
+        runtimeObservationClaimed: false,
+        physicalDeviceProofClaimed: false,
+        authorityProofClaimed: false,
+        providerDeliveryClaimed: false,
+        productionWorkerClaimed: false,
+        productClaimReady: false,
+      },
+    ],
+    proofClaims: {
+      childRuntimeArtifactGateChecked: true,
+      noChildDeviceDeliveryRuntimeClaim: true,
+      noChildDeviceExecutionRuntimeClaim: true,
+      noRenderedChildDeviceUiRuntimeClaim: true,
+      noParentReceiptRuntimeClaim: true,
+      noRuntimeObservationClaim: true,
+      noPhysicalDeviceProofClaim: true,
+      noAuthorityClaim: true,
+      noProviderDeliveryClaim: true,
+      noProductionClaim: true,
+      noProductReadyClaim: true,
+    },
+    productClaims: {
+      childDeviceDeliveryRuntimeClaimed: false,
+      childDeviceExecutionRuntimeClaimed: false,
+      renderedChildDeviceUiRuntimeClaimed: false,
+      parentReceiptRuntimeClaimed: false,
+      runtimeObservationClaimed: false,
+      physicalDeviceProofClaimed: false,
+      authorityProofClaimed: false,
+      providerDeliveryClaimed: false,
+      productionWorkerClaimed: false,
+      productClaimReady: false,
+    },
   };
 }

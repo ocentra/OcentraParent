@@ -1,7 +1,7 @@
 # WP02 Current Tracking Snapshot And Gap Map
 
 - generatedAt: 2026-06-08T00:35:00.000Z
-- commit: a20dbc7be2cc98f93c36dc4911e4876d834f9323
+- commit: 6e0225657fb31f4b6cc8dfa3fa57aaf4c1bba19c
 - branch: codex/tracking-plan-full-continuation-a
 - requiredProofTier: P1_DOC_SOURCE_RECONCILIATION
 - currentProofTier: P1_DOC_SOURCE_RECONCILIATION
