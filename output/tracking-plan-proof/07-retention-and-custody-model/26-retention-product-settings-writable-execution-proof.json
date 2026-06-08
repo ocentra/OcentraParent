@@ -22,6 +22,7 @@
         "tracking-retention-settings-write-command-local-state-readback-product-settings-writable-execution-audit"
       ],
       "localServiceStateRevision": 1,
+      "localServiceStateSnapshotRef": "agent-service-local-retention-settings-state",
       "durableSettingsStoreRef": "agent-service-local-retention-settings-durable-json",
       "appliedRetentionWindowHours": 168,
       "appliedDeleteAfterAlertResolved": false,
@@ -63,9 +64,34 @@
     "productionWorkerClaimed": false,
     "productClaimReady": false
   },
+  "derivationMatrix": [
+    {
+      "rowId": "tracking-retention-settings-write-command-local-state-readback-product-settings-writable-execution",
+      "sourceLocalServiceStateProofRef": "output/tracking-plan-proof/07-retention-and-custody-model/22-retention-local-service-state-proof.json",
+      "sourceWriteCommandProofRef": "output/tracking-plan-proof/07-retention-and-custody-model/21-retention-settings-write-command-proof.json",
+      "sourceReadModelProofRefs": [
+        "output/tracking-plan-proof/07-retention-and-custody-model/18-retention-settings-read-model-proof.json",
+        "output/tracking-plan-proof/32-journal-sqlite-and-read-model-proof/24-retention-settings-read-model-proof.json"
+      ],
+      "sourceMutationProofRefs": [
+        "output/tracking-plan-proof/07-retention-and-custody-model/20-retention-settings-mutation-proof.json"
+      ],
+      "localServiceStateRevision": 1,
+      "localServiceStateSnapshotRef": "agent-service-local-retention-settings-state",
+      "durableSettingsStoreRef": "agent-service-local-retention-settings-durable-json",
+      "appliedRetentionWindowHours": 168,
+      "appliedDeleteAfterAlertResolved": false,
+      "outputArtifactRef": "tracking-retention/product-settings-writable-execution.json",
+      "remoteSyncEnabled": false,
+      "remoteAiEnabled": false,
+      "portalWritableUiClaimed": false,
+      "platformRuntimeRetentionEnforcementClaimed": false,
+      "productClaimReady": false
+    }
+  ],
   "branch": "codex/tracking-plan-full-continuation-a",
-  "baseCommitAtGeneration": "42c8b0e5f414af9c41c38a6fa0ba807ae9b5f77d",
-  "gitStatusShort": "M docs/features/location-geofence-device-status.md\n M docs/plans/tracking-plan/implementation-checklist.md\n M docs/plans/tracking-plan/workpacks/07-retention-and-custody-model.md\n M docs/plans/tracking-plan/workpacks/33-proof-gates-fixtures-rollout-and-pr-gate.md\n M output/tracking-plan-proof/07-retention-and-custody-model/21-retention-settings-write-command-proof.json\n M output/tracking-plan-proof/07-retention-and-custody-model/22-retention-local-service-state-proof.json\n M output/tracking-plan-proof/07-retention-and-custody-model/23-retention-durable-settings-proof.json\n M output/tracking-plan-proof/07-retention-and-custody-model/24-retention-product-readiness-proof.json\n M output/tracking-plan-proof/07-retention-and-custody-model/25-retention-runtime-artifact-gate-proof.json\n M output/tracking-plan-proof/07-retention-and-custody-model/25-retention-runtime-artifact-gate-validation.log\n M output/tracking-plan-proof/32-journal-sqlite-and-read-model-proof/27-retention-settings-write-command-proof.json\n M output/tracking-plan-proof/32-journal-sqlite-and-read-model-proof/33-retention-local-service-state-proof.json\n M output/tracking-plan-proof/32-journal-sqlite-and-read-model-proof/34-retention-durable-settings-proof.json\n M output/tracking-plan-proof/32-journal-sqlite-and-read-model-proof/35-retention-product-readiness-proof.json\n M output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-gate/33-retention-settings-write-command-proof.json\n M output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-gate/40-retention-local-service-state-proof.json\n M output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-gate/41-retention-durable-settings-proof.json\n M output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-gate/43-retention-product-readiness-proof.json\n M output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-gate/46-product-readiness-closure-proof.json\n M output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-gate/60-retention-runtime-artifact-gate-proof.json\n M output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-gate/60-retention-runtime-artifact-gate-validation.log\n M output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-gate/63-real-runtime-handoff-proof.json\n M output/tracking-plan-proof/tracking-product-readiness-closure-proof/00-source-snapshot.md\n M output/tracking-plan-proof/tracking-product-readiness-closure-proof/proof.json\n D output/tracking-plan-proof/tracking-real-runtime-handoff-proof/00-source-snapshot.md\n D output/tracking-plan-proof/tracking-real-runtime-handoff-proof/16-validation-commands.log\n D output/tracking-plan-proof/tracking-real-runtime-handoff-proof/proof.json\n M output/tracking-plan-proof/tracking-retention-runtime-artifact-gate-proof/00-source-snapshot.md\n M output/tracking-plan-proof/tracking-retention-runtime-artifact-gate-proof/proof.json\n M output/tracking-plan-proof/tracking-retention-runtime-artifact-gate-proof/read-model.json\n M scripts/test/tracking-retention-runtime-artifact-gate-proof.mjs\n M test-results/tracking-product-readiness-closure-proof/proof.json\n D test-results/tracking-real-runtime-handoff-proof/proof.json\n M test-results/tracking-retention-durable-settings-proof/proof.json\n M test-results/tracking-retention-local-service-state-proof/proof.json\n M test-results/tracking-retention-product-readiness-proof/proof.json\n M test-results/tracking-retention-runtime-artifact-gate-proof/proof.json\n M test-results/tracking-retention-runtime-artifact-gate-proof/read-model.json\n M test-results/tracking-retention-settings-write-command-proof/proof.json\n?? packages/parent-domain/src/tracking-retention-product-settings-writable-execution-proof.ts\n?? packages/parent-domain/tests/tracking-retention-product-settings-writable-execution-proof.test.ts\n?? scripts/test/tracking-retention-product-settings-writable-execution-proof.mjs",
+  "baseCommitAtGeneration": "a20dbc7be2cc98f93c36dc4911e4876d834f9323",
+  "gitStatusShort": "M docs/features/location-geofence-device-status.md\n M docs/plans/tracking-plan/current-tracking-snapshot.md\n M docs/plans/tracking-plan/implementation-checklist.md\n M docs/plans/tracking-plan/workpacks/07-retention-and-custody-model.md\n M docs/plans/tracking-plan/workpacks/32-journal-sqlite-and-read-model-proof.md\n M output/tracking-plan-proof/01-source-index-and-repo-reconciliation/00-source-snapshot.md\n M output/tracking-plan-proof/01-source-index-and-repo-reconciliation/proof.json\n M output/tracking-plan-proof/02-current-tracking-snapshot-and-gap-map/00-source-snapshot.md\n M output/tracking-plan-proof/02-current-tracking-snapshot-and-gap-map/proof.json\n M output/tracking-plan-proof/07-retention-and-custody-model/21-retention-settings-write-command-proof.json\n M output/tracking-plan-proof/07-retention-and-custody-model/22-retention-local-service-state-proof.json\n M output/tracking-plan-proof/07-retention-and-custody-model/26-retention-product-settings-writable-execution-proof.json\n M output/tracking-plan-proof/32-journal-sqlite-and-read-model-proof/27-retention-settings-write-command-proof.json\n M output/tracking-plan-proof/32-journal-sqlite-and-read-model-proof/33-retention-local-service-state-proof.json\n M output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-gate/33-retention-settings-write-command-proof.json\n M output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-gate/40-retention-local-service-state-proof.json\n M output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-gate/64-retention-product-settings-writable-execution-proof.json\n M output/tracking-plan-proof/tracking-retention-product-settings-writable-execution-proof/00-source-snapshot.md\n M output/tracking-plan-proof/tracking-retention-product-settings-writable-execution-proof/proof.json\n M output/tracking-plan-proof/tracking-retention/product-settings-writable-execution.json\n M packages/parent-domain/src/tracking-retention-product-settings-writable-execution-proof.ts\n M packages/parent-domain/tests/tracking-retention-product-settings-writable-execution-proof.test.ts\n M scripts/test/tracking-retention-product-settings-writable-execution-proof.mjs\n M test-results/tracking-retention-local-service-state-proof/proof.json\n D test-results/tracking-retention-product-settings-writable-execution-proof/proof.json\n M test-results/tracking-retention-settings-write-command-proof/proof.json\n M test-results/tracking-source-reconciliation-gap-map-proof/proof.json",
   "requiredRuntimeArtifactRef": "tracking-retention/product-settings-writable-execution.json",
   "commands": [
     {
@@ -83,7 +109,7 @@
     {
       "command": "cmd /c npm run test --workspace @ocentra-parent/parent-domain -- tracking-retention-product-settings-writable-execution-proof",
       "status": 0,
-      "stdout": "> @ocentra-parent/parent-domain@0.1.1 test\n> vitest run tracking-retention-product-settings-writable-execution-proof\n\n\n RUN  v4.1.6 C:/Users/sujan/.codex/worktrees/ocentra-parent-codex-a/OcentraParent/packages/parent-domain\n\n\n Test Files  1 passed (1)\n      Tests  2 passed (2)\n   Start at  23:47:35\n   Duration  767ms (transform 131ms, setup 0ms, import 547ms, tests 15ms, environment 0ms)",
+      "stdout": "> @ocentra-parent/parent-domain@0.1.1 test\n> vitest run tracking-retention-product-settings-writable-execution-proof\n\n\n RUN  v4.1.6 C:/Users/sujan/.codex/worktrees/ocentra-parent-codex-a/OcentraParent/packages/parent-domain\n\n\n Test Files  1 passed (1)\n      Tests  2 passed (2)\n   Start at  01:58:23\n   Duration  962ms (transform 166ms, setup 0ms, import 678ms, tests 23ms, environment 0ms)",
       "stderr": ""
     }
   ],

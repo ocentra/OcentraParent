@@ -83,8 +83,34 @@ function assertProof(proof) {
     throw new Error(`Expected one writable execution row, got ${proof.rows.length}`);
   }
   const [row] = proof.rows;
+  const [derivation] = proof.derivationMatrix;
+  if (!derivation) {
+    throw new Error('Writable execution proof must include a source derivation matrix.');
+  }
   if (row.outputArtifactRef !== proof.requiredRuntimeArtifactRef) {
     throw new Error(`Writable execution artifact ref mismatch: ${row.outputArtifactRef}`);
+  }
+  if (derivation.rowId !== row.rowId || derivation.outputArtifactRef !== row.outputArtifactRef) {
+    throw new Error('Writable execution derivation matrix must target the generated row and runtime artifact.');
+  }
+  if (
+    derivation.sourceLocalServiceStateProofRef !== row.sourceLocalServiceStateProofRef ||
+    derivation.sourceWriteCommandProofRef !== row.sourceWriteCommandProofRef
+  ) {
+    throw new Error('Writable execution derivation matrix must preserve source proof refs.');
+  }
+  if (
+    derivation.localServiceStateRevision !== row.localServiceStateRevision ||
+    derivation.localServiceStateSnapshotRef !== row.localServiceStateSnapshotRef ||
+    derivation.durableSettingsStoreRef !== row.durableSettingsStoreRef
+  ) {
+    throw new Error('Writable execution derivation matrix must preserve local state and durable store refs.');
+  }
+  if (
+    derivation.appliedRetentionWindowHours !== row.appliedRetentionWindowHours ||
+    derivation.appliedDeleteAfterAlertResolved !== row.appliedDeleteAfterAlertResolved
+  ) {
+    throw new Error('Writable execution derivation matrix must preserve applied retention settings.');
   }
   if (!row.writeCommandAccepted || !row.serviceMutationExecuted || !row.localServiceStateReadbackClaimed) {
     throw new Error('Writable execution artifact must come from accepted local service execution.');
@@ -94,6 +120,15 @@ function assertProof(proof) {
   }
   if (row.remoteSyncEnabled || row.remoteAiEnabled) {
     throw new Error('Writable execution artifact must keep remote sync and remote AI disabled.');
+  }
+  if (
+    derivation.remoteSyncEnabled ||
+    derivation.remoteAiEnabled ||
+    derivation.portalWritableUiClaimed ||
+    derivation.platformRuntimeRetentionEnforcementClaimed ||
+    derivation.productClaimReady
+  ) {
+    throw new Error(`Writable execution derivation matrix overclaimed runtime behavior: ${JSON.stringify(derivation)}`);
   }
   if (Object.values(proof.productClaims).some((claim) => claim !== false)) {
     throw new Error(`Writable execution proof overclaimed product behavior: ${JSON.stringify(proof.productClaims)}`);
@@ -115,6 +150,7 @@ async function writeArtifacts(proof) {
       `- commit: ${proof.baseCommitAtGeneration}`,
       `- outputArtifactRef: ${proof.requiredRuntimeArtifactRef}`,
       '- source local service state proof is required before writing this artifact',
+      '- derivation matrix preserves source proof refs, local state revision, snapshot, durable store, and applied values',
       '- artifact proves local typed service write execution and durable readback only',
       '- platform runtime retention enforcement and product-ready claims remain false',
       '',

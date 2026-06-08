@@ -96,10 +96,13 @@ service state readback proof through
 `node scripts/test/tracking-retention-product-settings-writable-execution-proof.mjs`
 and writes
 `output/tracking-plan-proof/tracking-retention/product-settings-writable-execution.json`
-plus WP07/WP33 companion artifacts for the local writable execution row while
-keeping platform runtime retention enforcement, portal writable UI,
-child-device delivery, provider delivery, notification receipts,
-physical-device proof, authority, production, and product-ready claims false.
+plus WP07/WP33 companion artifacts for the local writable execution row. Its
+derivation matrix preserves source proof refs, local service state revision,
+snapshot ref, durable settings store ref, applied retention values, and
+no-claim boundaries while keeping platform runtime retention enforcement,
+portal writable UI, child-device delivery, provider delivery, notification
+receipts, physical-device proof, authority, production, and product-ready claims
+false.
 Retention runtime artifact gate proof now consumes the product-readiness blocker
 source and checks the required writable product settings and platform retention
 runtime artifact refs through

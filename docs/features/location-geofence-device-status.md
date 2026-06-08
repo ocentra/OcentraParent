@@ -144,7 +144,9 @@ expose location or device-status features. Parents expect this category.
 - WP07/WP33 retention product-settings writable execution artifact proof now
   exists through
   `node scripts/test/tracking-retention-product-settings-writable-execution-proof.mjs`.
-  It consumes the local service state readback proof and writes
+  It consumes the local service state readback proof, records a derivation
+  matrix for source proof refs, local service revision, snapshot ref, durable
+  store ref, applied retention values, and no-claim boundaries, and writes
   `output/tracking-plan-proof/tracking-retention/product-settings-writable-execution.json`
   plus WP07/WP33 companion artifacts for the local writable execution row while
   keeping portal writable UI, platform runtime retention enforcement,

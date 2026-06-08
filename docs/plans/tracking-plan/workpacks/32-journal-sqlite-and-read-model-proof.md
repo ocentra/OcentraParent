@@ -147,6 +147,10 @@ Proof root: `output/tracking-plan-proof/32-journal-sqlite-and-read-model-proof/`
       delivery, provider delivery, notification receipt ingestion,
       physical-device proof, authority enrollment, production workers, and
       product-ready behavior.
+- [x] Derive retention product-settings writable execution proof from the
+      accepted local service state row, including source proof refs, service
+      revision, snapshot ref, durable store ref, applied values, and no-claim
+      boundaries.
 
 ## Where We Are
 
