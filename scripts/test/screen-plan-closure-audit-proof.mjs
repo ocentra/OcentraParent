@@ -17,6 +17,42 @@ const checklist = readText(checklistPath);
 const windowsOcrSelection = readJson(windowsOcrSelectionPath);
 const externalGatesPath = join(repoRoot, 'output', 'screen-plan-proof', 'external-gates', 'proof-summary.json');
 const externalGates = readJson(externalGatesPath);
+const finalProductPathPath = join(
+  repoRoot,
+  'output',
+  'screen-ai-pipeline-proof',
+  'final-product-path',
+  'proof-summary.json'
+);
+const finalProductPath = readJson(finalProductPathPath);
+const finalAdapterAuditPath = join(
+  repoRoot,
+  'output',
+  'screen-ai-pipeline-proof',
+  'final-adapter-dependency-audit',
+  'proof-summary.json'
+);
+const finalAdapterAudit = readJson(finalAdapterAuditPath);
+const adapterCustodyArtifacts = [
+  {
+    label: 'Linux host adapter custody',
+    path: 'output/screen-ai-pipeline-proof/linux-host-adapter-custody/proof-summary.json',
+    expectedStatus: 'linux-host-custody-artifact-written-final-execution-blocked',
+  },
+  {
+    label: 'Android mobile-control custody',
+    path: 'output/screen-ai-pipeline-proof/android-mobile-control-custody/proof-summary.json',
+    expectedStatus: 'android-mobile-control-custody-artifact-written-final-execution-blocked',
+  },
+  {
+    label: 'iOS mobile-control custody',
+    path: 'output/screen-ai-pipeline-proof/ios-mobile-control-custody/proof-summary.json',
+    expectedStatus: 'ios-mobile-control-custody-artifact-written-final-execution-blocked',
+  },
+].map((artifact) => ({
+  ...artifact,
+  summary: readJson(join(repoRoot, artifact.path)),
+}));
 const workpacks = [
   {
     id: '10',
@@ -174,6 +210,35 @@ assert(
   externalGates.counts?.missingGateCount > 0,
   'Closure audit expects remaining external gates to be missing until real artifacts are attached.'
 );
+assert(finalProductPath.closure?.finalAdapterAuditProven === true, 'Final path must prove final adapter audit.');
+assert(
+  finalProductPath.closure?.adapterProductCompleteBlockedByAudit === true,
+  'Final path must keep product-complete adapters blocked by audit.'
+);
+assert(
+  finalProductPath.closure?.broadBrowserNetworkMobileProductComplete === false,
+  'Final path must not claim broad/browser/network/mobile product completion.'
+);
+assert(
+  finalAdapterAudit.closure?.custodyArtifactRows === adapterCustodyArtifacts.length,
+  'Final adapter audit must consume all custody artifacts.'
+);
+assert(finalAdapterAudit.closure?.claimUpgradeRows === 0, 'Final adapter audit must not contain claim upgrades.');
+assert(
+  finalAdapterAudit.custodyRows?.every((row) => row.finalAdapterCompletionClaimed === false) === true,
+  'Final adapter custody rows must not claim final adapter completion.'
+);
+for (const artifact of adapterCustodyArtifacts) {
+  assert(artifact.summary.status === artifact.expectedStatus, `${artifact.label} status changed.`);
+  assert(
+    artifact.summary.closure?.finalAdapterCompletionClaimed === false,
+    `${artifact.label} must not claim final adapter completion.`
+  );
+  assert(
+    artifact.summary.closure?.productCompleteAdapterRowStillOpen === true,
+    `${artifact.label} must keep product-complete adapter row open.`
+  );
+}
 
 const summary = {
   proof: 'screen-plan-closure-audit',
@@ -209,6 +274,10 @@ const summary = {
     'output/screen-ai-pipeline-proof/service-winrt-ocr-redaction/portal-screen-analysis-redaction.png',
     'output/screen-ai-pipeline-proof/service-winrt-ocr-redaction/parent-redaction-policy.json',
     'output/screen-ai-pipeline-proof/final-product-path/proof-summary.json',
+    'output/screen-ai-pipeline-proof/final-adapter-dependency-audit/proof-summary.json',
+    'output/screen-ai-pipeline-proof/linux-host-adapter-custody/proof-summary.json',
+    'output/screen-ai-pipeline-proof/android-mobile-control-custody/proof-summary.json',
+    'output/screen-ai-pipeline-proof/ios-mobile-control-custody/proof-summary.json',
     'output/screen-plan-proof/live-view-session-transport/proof-summary.json',
     'output/screen-plan-proof/live-view-platform-permission/proof-summary.json',
     'output/screen-plan-proof/live-view-parent-ui-persistence/proof-summary.json',
@@ -238,6 +307,15 @@ const summary = {
     platformProductGatesRemainBlocked: productBlockedWorkpacks.length >= 4,
     wp34TesseractBaselineClosed: completeRows.includes('34 OCR Tesseract baseline'),
     externalGatesKeepProductNonClaim: externalGates.assertions.currentBranchMustRemainNonClaim === true,
+    finalProductPathRequiresAdapterAudit: finalProductPath.closure.finalAdapterAuditProven === true,
+    adapterAuditKeepsProductCompletionBlocked:
+      finalProductPath.closure.adapterProductCompleteBlockedByAudit === true &&
+      finalAdapterAudit.closure.broadBrowserNetworkMobileProductComplete === false,
+    custodyArtifactsDoNotUpgradeClaims: adapterCustodyArtifacts.every(
+      (artifact) =>
+        artifact.summary.closure.finalAdapterCompletionClaimed === false &&
+        artifact.summary.closure.productCompleteAdapterRowStillOpen === true
+    ),
     noProductCompleteClaim: true,
   },
   nonClaims: [

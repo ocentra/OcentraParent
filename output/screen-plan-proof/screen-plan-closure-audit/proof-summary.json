@@ -1,6 +1,6 @@
 {
   "proof": "screen-plan-closure-audit",
-  "generatedAt": "2026-06-07T18:22:29.182Z",
+  "generatedAt": "2026-06-08T01:31:52.527Z",
   "branchScope": "codex/screen-ai-full-scope-b",
   "checklist": {
     "path": "docs/plans/screen-plan/implementation-checklist.md",
@@ -198,6 +198,22 @@
       "present": true
     },
     {
+      "artifact": "output/screen-ai-pipeline-proof/final-adapter-dependency-audit/proof-summary.json",
+      "present": true
+    },
+    {
+      "artifact": "output/screen-ai-pipeline-proof/linux-host-adapter-custody/proof-summary.json",
+      "present": true
+    },
+    {
+      "artifact": "output/screen-ai-pipeline-proof/android-mobile-control-custody/proof-summary.json",
+      "present": true
+    },
+    {
+      "artifact": "output/screen-ai-pipeline-proof/ios-mobile-control-custody/proof-summary.json",
+      "present": true
+    },
+    {
       "artifact": "output/screen-plan-proof/live-view-session-transport/proof-summary.json",
       "present": true
     },
@@ -277,6 +293,9 @@
     "platformProductGatesRemainBlocked": true,
     "wp34TesseractBaselineClosed": true,
     "externalGatesKeepProductNonClaim": true,
+    "finalProductPathRequiresAdapterAudit": true,
+    "adapterAuditKeepsProductCompletionBlocked": true,
+    "custodyArtifactsDoNotUpgradeClaims": true,
     "noProductCompleteClaim": true
   },
   "nonClaims": [
