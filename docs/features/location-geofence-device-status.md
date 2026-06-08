@@ -151,10 +151,13 @@ expose location or device-status features. Parents expect this category.
   `node scripts/test/tracking-physical-device-evidence-review-proof.mjs`. It
   consumes the Android/iOS physical-device artifact gate, preserves the
   required artifact names, acceptance criteria, manual commands, and review
-  notes, then keeps artifact content unaccepted and product-ready tracking
-  false until real-device artifacts exist and are reviewed. Product-readiness
-  closure and real-runtime handoff now consume those review counts instead of
-  treating file presence as behavior proof.
+  notes, and now carries the Samsung S9 Android package/service/status proof as
+  13 supporting status artifacts while keeping the Android physical
+  location/geofence behavior artifact set missing. It keeps artifact content
+  unaccepted, physical behavior unclaimed, and product-ready tracking false
+  until real-device behavior artifacts exist and are reviewed.
+  Product-readiness closure and real-runtime handoff now consume those review
+  counts instead of treating file presence as behavior proof.
 - Hosted parent `policy-tracking` route screenshot and accessibility proof now
   exists through `npm run test:tracking-plan-hosted-ui-proof`. It starts the
   real Rust service against a seeded temporary ActivityStore SQLite database,

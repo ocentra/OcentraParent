@@ -15,6 +15,8 @@ describe('tracking physical device artifact gate proof', () => {
     expect(proof.rows.every((row) => row.requiredProofTier === 'P4_PHYSICAL_DEVICE')).toBe(true);
     expect(proof.rows.every((row) => row.currentProofTier === 'P3_LOCAL_DEV_MACHINE')).toBe(true);
     expect(proof.rows.every((row) => row.physicalArtifactSetComplete === false)).toBe(true);
+    expect(proof.rows.every((row) => row.physicalDeviceStatusObserved === false)).toBe(true);
+    expect(proof.rows.every((row) => row.supportingStatusArtifacts.length === 0)).toBe(true);
     expect(proof.rows.every((row) => row.acceptanceCriteria.length >= 4)).toBe(true);
     expect(proof.rows.every((row) => row.manualValidationCommands.length >= 4)).toBe(true);
     expect(proof.rows.every((row) => row.artifactAcceptanceNotes.length >= 4)).toBe(true);
@@ -72,6 +74,8 @@ function invalidPhysicalGateRow(overrides = {}) {
     requiredArtifacts: ['00-run-metadata.json'],
     presentArtifacts: [],
     missingArtifacts: ['00-run-metadata.json'],
+    supportingStatusProofRef: 'output/tracking-plan-proof/android-background-geofence/status-support-not-collected',
+    supportingStatusArtifacts: [],
     auditRefs: ['tracking-physical-device-artifacts-invalid-audit'],
     acceptanceCriteria: [
       'Record a real device run.',
@@ -92,6 +96,7 @@ function invalidPhysicalGateRow(overrides = {}) {
       'Product claims stay false.',
     ],
     physicalArtifactSetComplete: false,
+    physicalDeviceStatusObserved: false,
     physicalDeviceBehaviorClaimed: false,
     authorityEnrollmentClaimed: false,
     providerDeliveryClaimed: false,

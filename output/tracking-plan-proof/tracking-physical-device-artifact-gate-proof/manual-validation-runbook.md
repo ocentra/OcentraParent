@@ -7,6 +7,9 @@ This runbook names the physical-device artifacts required before Android or iOS 
 - proofRoot: output/tracking-plan-proof/android-background-geofence
 - status: manual-required
 - missingArtifacts: 10
+- physicalDeviceStatusObserved: true
+- supportingStatusProofRef: test-results/tracking-android-physical-device-runtime-proof/proof.json
+- supportingStatusArtifacts: 13
 
 Acceptance criteria:
 - Record a real child Android device run, not an emulator-only run.
@@ -38,11 +41,29 @@ Acceptance notes:
 - Physical-device behavior remains unclaimed until a reviewer accepts the artifact contents.
 - Product claims stay false for authority, provider delivery, production runtime, and product readiness in this gate.
 
+Supporting status artifacts:
+- test-results/tracking-android-physical-device-runtime-proof/00-device.json
+- test-results/tracking-android-physical-device-runtime-proof/01-adb-connect.txt
+- test-results/tracking-android-physical-device-runtime-proof/02-adb-install.txt
+- test-results/tracking-android-physical-device-runtime-proof/03-launch-activity.txt
+- test-results/tracking-android-physical-device-runtime-proof/03-start-service.txt
+- test-results/tracking-android-physical-device-runtime-proof/04-service-dump.txt
+- test-results/tracking-android-physical-device-runtime-proof/05-activity-dump.txt
+- test-results/tracking-android-physical-device-runtime-proof/06-window-dump.txt
+- test-results/tracking-android-physical-device-runtime-proof/07-battery.txt
+- test-results/tracking-android-physical-device-runtime-proof/08-connectivity.txt
+- test-results/tracking-android-physical-device-runtime-proof/09-ui.xml
+- test-results/tracking-android-physical-device-runtime-proof/10-screen.png
+- test-results/tracking-android-physical-device-runtime-proof/11-logcat.txt
+
 ## ios
 
 - proofRoot: output/tracking-plan-proof/ios-region-monitoring
 - status: manual-required
 - missingArtifacts: 10
+- physicalDeviceStatusObserved: false
+- supportingStatusProofRef: output/tracking-plan-proof/ios-region-monitoring/status-support-not-collected
+- supportingStatusArtifacts: 0
 
 Acceptance criteria:
 - Record a real child iOS device run, not simulator-only proof.

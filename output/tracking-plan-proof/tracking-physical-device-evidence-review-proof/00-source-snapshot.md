@@ -1,7 +1,7 @@
 # Tracking Physical Device Evidence Review Proof
 
 - generatedAt: 2026-06-08T14:25:00.000Z
-- commit: 915e6d43de5a7288e40711d96392e85b4544bd61
+- commit: fbf3044925516a3d0455754eb05458f0819f59fb
 - requiredProofTier: P4_PHYSICAL_DEVICE_CONTENT_REVIEW
 - currentProofTier: P3_LOCAL_DEV_MACHINE
 - currentStatus: artifact_missing
@@ -10,6 +10,8 @@
 - artifactMissingRows: 2
 - contentReviewRequiredRows: 0
 - contentAcceptedRows: 0
+- physicalDeviceStatusObservedRows: 1
+- supportingStatusArtifactCount: 13
 - physicalDeviceBehaviorClaimedRows: 0
 - productReadyRows: 0
 - proof module: packages/parent-domain/src/tracking-physical-device-evidence-review-proof.ts

@@ -29,11 +29,14 @@ export const TrackingPhysicalDeviceArtifactGateRowSchema = withParser(
     requiredArtifacts: Schema.Array(TrackingPhysicalDeviceArtifactPathSchema),
     presentArtifacts: Schema.Array(TrackingPhysicalDeviceArtifactPathSchema),
     missingArtifacts: Schema.Array(TrackingPhysicalDeviceArtifactPathSchema),
+    supportingStatusProofRef: TrackingPhysicalDeviceArtifactPathSchema,
+    supportingStatusArtifacts: Schema.Array(TrackingPhysicalDeviceArtifactPathSchema),
     auditRefs: Schema.Array(TrackingPolicyAuditRefSchema),
     acceptanceCriteria: Schema.Array(TrackingPhysicalDeviceArtifactTextSchema),
     manualValidationCommands: Schema.Array(TrackingPhysicalDeviceArtifactTextSchema),
     artifactAcceptanceNotes: Schema.Array(TrackingPhysicalDeviceArtifactTextSchema),
     physicalArtifactSetComplete: Schema.Boolean,
+    physicalDeviceStatusObserved: Schema.Boolean,
     physicalDeviceBehaviorClaimed: Schema.Literal(false),
     authorityEnrollmentClaimed: Schema.Literal(false),
     providerDeliveryClaimed: Schema.Literal(false),
@@ -60,6 +63,13 @@ export const TrackingPhysicalDeviceArtifactGateRowSchema = withParser(
         (row) =>
           (row.physicalArtifactSetComplete ? row.missingArtifacts.length === 0 : row.missingArtifacts.length > 0) ||
           'Physical artifact completeness must match missing artifact count'
+      )
+    )
+    .pipe(
+      Schema.filter(
+        (row) =>
+          row.physicalDeviceStatusObserved === row.supportingStatusArtifacts.length > 0 ||
+          'Physical device status observation must match supporting status artifacts'
       )
     )
     .pipe(Schema.filter((row) => row.acceptanceCriteria.length >= 4 || 'Physical proof rows need criteria'))
@@ -110,6 +120,8 @@ export type TrackingPhysicalDeviceArtifactGateRow = Infer<typeof TrackingPhysica
 export interface TrackingPhysicalDeviceArtifactInventory {
   readonly platform: (typeof RequiredTrackingPhysicalDeviceArtifactPlans)[number]['platform'];
   readonly presentArtifacts: readonly string[];
+  readonly supportingStatusProofRef?: string;
+  readonly supportingStatusArtifacts?: readonly string[];
 }
 
 export const RequiredTrackingPhysicalDeviceArtifactPlans = [
@@ -210,6 +222,7 @@ function physicalArtifactRow(
   const presentArtifactSet = new Set(inventory?.presentArtifacts ?? []);
   const presentArtifacts = plan.requiredArtifacts.filter((artifact) => presentArtifactSet.has(artifact));
   const missingArtifacts = plan.requiredArtifacts.filter((artifact) => !presentArtifactSet.has(artifact));
+  const supportingStatusArtifacts = [...(inventory?.supportingStatusArtifacts ?? [])];
   const physicalArtifactSetComplete = missingArtifacts.length === 0;
 
   return TrackingPhysicalDeviceArtifactGateRowSchema.parse({
@@ -224,11 +237,14 @@ function physicalArtifactRow(
     requiredArtifacts: [...plan.requiredArtifacts],
     presentArtifacts,
     missingArtifacts,
+    supportingStatusProofRef: inventory?.supportingStatusProofRef ?? `${plan.proofRoot}/status-support-not-collected`,
+    supportingStatusArtifacts,
     auditRefs: [`tracking-physical-device-artifacts-${plan.platform}-audit`],
     acceptanceCriteria: [...plan.acceptanceCriteria],
     manualValidationCommands: [...plan.manualValidationCommands],
     artifactAcceptanceNotes: artifactAcceptanceNotesFor(plan.platform, plan.requiredArtifacts.length),
     physicalArtifactSetComplete,
+    physicalDeviceStatusObserved: supportingStatusArtifacts.length > 0,
     physicalDeviceBehaviorClaimed: false,
     authorityEnrollmentClaimed: false,
     providerDeliveryClaimed: false,

@@ -37,6 +37,22 @@
         "08-logcat.txt",
         "09-result-summary.md"
       ],
+      "supportingStatusProofRef": "test-results/tracking-android-physical-device-runtime-proof/proof.json",
+      "supportingStatusArtifacts": [
+        "test-results/tracking-android-physical-device-runtime-proof/00-device.json",
+        "test-results/tracking-android-physical-device-runtime-proof/01-adb-connect.txt",
+        "test-results/tracking-android-physical-device-runtime-proof/02-adb-install.txt",
+        "test-results/tracking-android-physical-device-runtime-proof/03-launch-activity.txt",
+        "test-results/tracking-android-physical-device-runtime-proof/03-start-service.txt",
+        "test-results/tracking-android-physical-device-runtime-proof/04-service-dump.txt",
+        "test-results/tracking-android-physical-device-runtime-proof/05-activity-dump.txt",
+        "test-results/tracking-android-physical-device-runtime-proof/06-window-dump.txt",
+        "test-results/tracking-android-physical-device-runtime-proof/07-battery.txt",
+        "test-results/tracking-android-physical-device-runtime-proof/08-connectivity.txt",
+        "test-results/tracking-android-physical-device-runtime-proof/09-ui.xml",
+        "test-results/tracking-android-physical-device-runtime-proof/10-screen.png",
+        "test-results/tracking-android-physical-device-runtime-proof/11-logcat.txt"
+      ],
       "auditRefs": [
         "tracking-physical-device-artifacts-android-audit"
       ],
@@ -59,6 +75,7 @@
         "Product claims stay false for authority, provider delivery, production runtime, and product readiness in this gate."
       ],
       "physicalArtifactSetComplete": false,
+      "physicalDeviceStatusObserved": true,
       "physicalDeviceBehaviorClaimed": false,
       "authorityEnrollmentClaimed": false,
       "providerDeliveryClaimed": false,
@@ -99,6 +116,8 @@
         "08-xcode-test-log.txt",
         "09-result-summary.md"
       ],
+      "supportingStatusProofRef": "output/tracking-plan-proof/ios-region-monitoring/status-support-not-collected",
+      "supportingStatusArtifacts": [],
       "auditRefs": [
         "tracking-physical-device-artifacts-ios-audit"
       ],
@@ -121,6 +140,7 @@
         "Product claims stay false for authority, provider delivery, production runtime, and product readiness in this gate."
       ],
       "physicalArtifactSetComplete": false,
+      "physicalDeviceStatusObserved": false,
       "physicalDeviceBehaviorClaimed": false,
       "authorityEnrollmentClaimed": false,
       "providerDeliveryClaimed": false,

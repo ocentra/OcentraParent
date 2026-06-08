@@ -1,13 +1,15 @@
 # Tracking Physical Device Artifact Gate Proof
 
 - generatedAt: 2026-06-07T18:20:00.000Z
-- commit: 915e6d43de5a7288e40711d96392e85b4544bd61
+- commit: fbf3044925516a3d0455754eb05458f0819f59fb
 - requiredProofTier: P4_PHYSICAL_DEVICE
 - currentProofTier: P3_LOCAL_DEV_MACHINE
 - status: manual_required
 - rowCount: 2
 - manualRequiredRows: 2
 - missingArtifactCount: 20
+- physicalDeviceStatusObservedRows: 1
+- supportingStatusArtifactCount: 13
 - acceptanceCriteriaCount: 8
 - manualValidationCommandCount: 8
 - artifactAcceptanceNoteCount: 8
