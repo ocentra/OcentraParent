@@ -1196,6 +1196,23 @@ execution, connector/native runtime, browser mutation, unmanaged exact URL
 support, or enforcement. Product capability checklist status is unchanged;
 `docs/product-capability-checklist.md` is currently locked by another lane.
 
+WP05 Android physical owned-shell activity-start addendum:
+`browser-platform-android-owned-shell-proof` now accepts
+`ANDROID_SERIAL=192.168.2.45:5555` as an additive physical Android target while
+preserving the disposable emulator as the only Device Owner/browser-role proof
+source. The latest proof installed the owned browser shell APK on the physical
+Samsung Galaxy S9 target, observed the explicit owned-shell activity start, and
+recorded redacted activity/window-state hashes showing the activity behind the
+device keyguard with black screencap output. Evidence:
+`test-results/browser-platform-android-owned-shell-proof/proof.json` and
+`output/browser-plan-proof/05-cross-platform-inventory-matrix/15-android-owned-browser-shell-proof.json`.
+This improves WP05 physical Android custody boundary evidence but keeps WP05
+partial/manual-required. It does not claim visible physical owned-shell page
+proof, physical Device Owner enrollment, physical browser-role routing,
+physical exact URL policy, known-active tab proof, VPN/DNS proof,
+UsageStats/Accessibility proof, Play signing, final policy execution, browser
+blocking, broad content-filter enforcement, or product completion.
+
 ## Worker Report Template
 
 Use this shape in the hub report or PR-ready note:

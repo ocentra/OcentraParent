@@ -64,6 +64,19 @@ Browser Role, exact URL policy, known active tab, VPN/DNS browser proof,
 UsageStats/Accessibility route proof, final policy execution, browser blocking,
 Play signing, release readiness, or broad content-filter enforcement.
 
+2026-06-08 codex-d continuation: `scripts/test/browser-platform-android-owned-shell-proof.mjs`
+now also accepts `ANDROID_SERIAL` as an additive physical Android target while
+preserving the disposable emulator as the only Device Owner/browser-role proof
+source. On the available Samsung Galaxy S9 target it installed the owned browser
+shell APK, started the explicit owned-shell activity, recorded redacted
+activity/window-state hashes, and observed that the activity was behind the
+device keyguard with black screencap output, so no visible physical launch,
+physical Device Owner, physical browser-role routing, physical exact URL policy,
+active-tab proof, VPN/DNS proof, UsageStats/Accessibility route proof,
+enforcement, or release claim is made. The proof writes
+`test-results/browser-platform-android-owned-shell-proof/proof.json` and
+`output/browser-plan-proof/05-cross-platform-inventory-matrix/15-android-owned-browser-shell-proof.json`.
+
 2026-06-07 codex-d continuation: `scripts/test/browser-platform-android-owned-shell-proof.mjs`
 adds the first real owned Android browser shell proof for WP05. The proof builds
 the separate `platforms/android/agent/browser-shell` APK, launches the configured
