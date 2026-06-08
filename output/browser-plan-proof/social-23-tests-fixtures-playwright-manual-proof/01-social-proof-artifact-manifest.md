@@ -1,6 +1,6 @@
 # SOCIAL-23 Social Proof Artifact Manifest
 
-Generated: 2026-06-08T22:04:58.216Z
+Generated: 2026-06-08T22:30:10.205Z
 
 Rows checked: 22
 Proof-present rows: 21
@@ -62,11 +62,12 @@ Social alert/report provider status handoff proof is present and maps preflight 
 Parent-owned social report writer delivery-readiness proof is present.
 Parent notification/report delivery readiness proof is present.
 Parent-owned local delivery result proof is present for report-ready rows.
+Managed-browser social policy execution proof is present for a real YouTube block intervention.
 Parent-owned social schedule/time-budget application-readiness proof is present.
 Schedule/time-budget compiler contract proof is present.
 Parent sensitivity settings contract proof is present.
 Source custody settings contract proof is present over source/privacy refs.
 Service-backed source custody mutation proof is present over redacted refs.
-It does not prove runtime connector behavior, native app control, final
-policy execution, external provider/report runtime delivery, runtime-applied schedules/budgets,
+It does not prove runtime connector behavior, native app control, broad
+or unmanaged policy execution, external provider/report runtime delivery, runtime-applied schedules/budgets,
 parent notification UI delivery, enforcement, or product checklist completion.

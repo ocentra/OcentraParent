@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "proofMode": "social-platform-account-feed-proof-artifacts",
-  "generatedAt": "2026-06-08T22:04:58.216Z",
+  "generatedAt": "2026-06-08T22:30:10.205Z",
   "proofRoot": "output/browser-plan-proof",
   "rows": [
     {
@@ -434,6 +434,7 @@
     "reportWriterDelivery": "parent-owned-proof-present",
     "parentNotificationDeliveryReadiness": "parent-report-status-readiness-proof-present",
     "parentLocalDeliveryResult": "parent-owned-local-delivery-result-proof-present",
+    "managedBrowserPolicyExecution": "managed-browser-policy-execution-proof-present",
     "appliedScheduleTimeBudget": "parent-owned-proof-present",
     "scheduleTimeBudgetCompiler": "proof-present",
     "parentSensitivitySettings": "proof-present",
@@ -574,6 +575,14 @@
     },
     {
       "file": "output/browser-plan-proof/social-parent-notification-delivery-readiness-proof/01-social-parent-notification-delivery-readiness-proof.md",
+      "present": true
+    },
+    {
+      "file": "test-results/social-managed-browser-policy-execution-proof/proof.json",
+      "present": true
+    },
+    {
+      "file": "output/browser-plan-proof/social-managed-browser-policy-execution-proof/01-social-managed-browser-policy-execution-proof.md",
       "present": true
     }
   ]

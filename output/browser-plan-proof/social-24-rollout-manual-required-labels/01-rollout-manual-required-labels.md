@@ -1,6 +1,6 @@
 # SOCIAL-24 Rollout Manual-Required Labels
 
-Generated: 2026-06-08T22:04:58.220Z
+Generated: 2026-06-08T22:30:10.210Z
 
 Rows checked: 23
 Proof-present rows: 21
@@ -63,10 +63,11 @@ Social alert/report provider status handoff proof is present and maps preflight 
 Parent-owned report writer delivery-readiness proof is present.
 Parent notification/report delivery readiness proof is present.
 Parent-owned local delivery result proof is present for report-ready rows.
+Managed-browser social policy execution proof is present for a real YouTube block intervention.
 Parent-owned schedule/time-budget application-readiness proof is present.
 Schedule/time-budget compiler proof and parent sensitivity
 settings proof are present. Source custody settings proof is present over
 source/privacy refs, and service-backed source custody mutation proof is
 present. Connector/native runtime, external provider delivery, parent
-notification UI delivery, runtime-applied schedules/budgets, final policy
-execution, and enforcement remain unclaimed.
+notification UI delivery, runtime-applied schedules/budgets, broad or
+unmanaged policy execution, and enforcement remain unclaimed.

@@ -39,6 +39,8 @@ const requiredRolloutProofFiles = [
   'output/browser-plan-proof/social-alert-report-audit-history-bridge-proof/01-social-alert-report-audit-history-bridge-proof.md',
   'test-results/social-parent-notification-delivery-readiness-proof/proof.json',
   'output/browser-plan-proof/social-parent-notification-delivery-readiness-proof/01-social-parent-notification-delivery-readiness-proof.md',
+  'test-results/social-managed-browser-policy-execution-proof/proof.json',
+  'output/browser-plan-proof/social-managed-browser-policy-execution-proof/01-social-managed-browser-policy-execution-proof.md',
 ];
 
 const rolloutGuards = [
@@ -260,13 +262,14 @@ function markdownFor(manifest) {
     'Parent-owned report writer delivery-readiness proof is present.',
     'Parent notification/report delivery readiness proof is present.',
     'Parent-owned local delivery result proof is present for report-ready rows.',
+    'Managed-browser social policy execution proof is present for a real YouTube block intervention.',
     'Parent-owned schedule/time-budget application-readiness proof is present.',
     'Schedule/time-budget compiler proof and parent sensitivity',
     'settings proof are present. Source custody settings proof is present over',
     'source/privacy refs, and service-backed source custody mutation proof is',
     'present. Connector/native runtime, external provider delivery, parent',
-    'notification UI delivery, runtime-applied schedules/budgets, final policy',
-    'execution, and enforcement remain unclaimed.',
+    'notification UI delivery, runtime-applied schedules/budgets, broad or',
+    'unmanaged policy execution, and enforcement remain unclaimed.',
   ].join('\n');
 }
 

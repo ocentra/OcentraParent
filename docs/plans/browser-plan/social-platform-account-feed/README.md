@@ -636,3 +636,19 @@ non-Apple parent-owned delivery proof while keeping external provider delivery,
 parent notification UI delivery, cloud routing, final policy execution,
 connector/native runtime, browser mutation, child intervention execution, and
 enforcement unclaimed.
+
+The follow-up `social-managed-browser-policy-execution` implementation adds
+`packages/parent-domain/src/social-managed-browser-policy-execution.ts` and
+`packages/parent-domain/tests/social-managed-browser-policy-execution.test.ts`.
+It consumes a non-final social parent policy decision candidate plus managed
+browser intervention evidence refs, and produces a scoped managed-session
+execution result only when the real child-agent intervention endpoint,
+managed browser target ref, live-surface capture, browser mutation, and
+screenshot refs are present. The proof receipt writes
+`test-results/social-managed-browser-policy-execution-proof/proof.json` and
+`output/browser-plan-proof/social-managed-browser-policy-execution-proof/01-social-managed-browser-policy-execution-proof.md`
+from the real managed-browser composited block harness. It proves only the
+managed-browser session path for the captured YouTube intervention. It does not
+claim unmanaged browser support, broad OS enforcement, external provider
+delivery, connector/native runtime, Apple platform support, raw URL custody,
+raw page custody, or product completion.

@@ -338,6 +338,16 @@ They must preserve product completion as unclaimed until notification delivery,
 connector/native runtime, final policy execution, enforcement, release
 readiness, and product checklist upgrade proof exists.
 
+Managed-browser social policy execution may be claimed only for an
+Ocentra-managed browser session when a non-final social policy decision
+candidate is chained to real child-agent intervention endpoint evidence, a
+managed target ref, live-surface capture before mutation, browser mutation,
+child intervention execution, and screenshot refs. It must preserve no-claim
+boundaries for unmanaged browsers, broad OS enforcement, external provider
+delivery, connector/native runtime, Apple platform support, raw URL custody,
+raw page custody, and product completion. Current proof:
+`social-managed-browser-policy-execution-proof`.
+
 Social AI analysis contracts may consume typed social route, metadata, feed,
 account-flow, account-identity, screen-summary, parent-rule, and memory refs to
 produce candidate classifications, confidence, uncertainty, model runtime refs,

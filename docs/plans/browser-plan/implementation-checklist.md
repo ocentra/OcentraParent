@@ -1226,6 +1226,25 @@ physical exact URL policy, known-active tab proof, VPN/DNS proof,
 UsageStats/Accessibility proof, Play signing, final policy execution, browser
 blocking, broad content-filter enforcement, or product completion.
 
+SOCIAL-23/SOCIAL-24 managed-browser policy execution addendum:
+`social-managed-browser-policy-execution` adds a parent-domain managed-session
+execution boundary that consumes a non-final social policy decision candidate
+and accepts a managed execution result only when the real child-agent
+intervention endpoint, managed browser target ref, live-surface capture,
+browser mutation, screenshot refs, and no-raw-custody/no-broad-enforcement
+flags are present. Evidence:
+`test-results/social-managed-browser-policy-execution-proof/proof.json`,
+`output/browser-plan-proof/social-managed-browser-policy-execution-proof/01-social-managed-browser-policy-execution-proof.md`,
+and the underlying
+`test-results/managed-browser-composited-block-proof/*.json`/screenshot from
+the real YouTube composited block harness. This advances managed-session-only
+social policy execution, browser mutation, and child intervention execution.
+SOCIAL-23/SOCIAL-24 remain partial/manual-required because unmanaged browser
+support, broad OS enforcement, external provider delivery, connector/native
+runtime, Apple platform support, raw URL/page custody, and product completion
+remain unclaimed. No product capability checklist update: that checklist is
+owned by another lane and this claim is still scoped below product completion.
+
 ## Worker Report Template
 
 Use this shape in the hub report or PR-ready note:

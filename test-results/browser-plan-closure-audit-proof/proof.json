@@ -1,9 +1,9 @@
 {
   "schemaVersion": 1,
   "proofMode": "browser-plan-closure-audit-proof",
-  "generatedAt": "2026-06-08T22:04:58.213Z",
+  "generatedAt": "2026-06-08T22:30:26.293Z",
   "branch": "codex/d-runtime-ready",
-  "sourceCommitAtGeneration": "3920d3ef9c697938565d6aab7f57d436e9785d34",
+  "sourceCommitAtGeneration": "74ce3b0e558717650a93545921b21a36fe9b04b2",
   "baseCommit": "624290167ea79fc9c3bf59b1d06f1a7461113292",
   "checklist": "docs/plans/browser-plan/implementation-checklist.md",
   "summary": {
@@ -38,7 +38,7 @@
       "title": "Tests, fixtures, Playwright, manual proof",
       "blocker": {
         "reason": "social-proof-artifact-gate-waits-on-social-17",
-        "requiredEvidence": "SOCIAL-17 real iOS proof plus connector/native/runtime proof before product claims"
+        "requiredEvidence": "SOCIAL-17 real iOS proof plus connector/native/provider runtime proof before product claims"
       }
     },
     {
@@ -46,7 +46,7 @@
       "title": "Rollout and manual-required status labels",
       "blocker": {
         "reason": "social-rollout-gate-waits-on-social-17-and-social-23",
-        "requiredEvidence": "SOCIAL-17, SOCIAL-23, provider/report delivery, runtime custody mutation, final policy execution, and enforcement proof"
+        "requiredEvidence": "SOCIAL-17, SOCIAL-23, provider/report delivery, runtime custody mutation, broad/unmanaged policy execution boundaries, and enforcement proof"
       }
     }
   ],

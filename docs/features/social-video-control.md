@@ -481,6 +481,13 @@ settings, delivered alerts, confidence handling, platform proof, or parent UI.
 - [ ] Policy schedule/time-budget integration. Compiler contract proof now
       requires explicit schedule and time-budget refs/states; runtime policy
       execution, applied schedules/budgets, and enforcement remain.
+- [ ] Managed-browser policy execution. `social-managed-browser-policy-execution`
+      now proves the managed-session-only path from a non-final social policy
+      candidate to a real child-agent intervention endpoint and browser
+      mutation over a captured YouTube page. Unmanaged browser support, broad
+      OS enforcement, connector/native runtime, external provider delivery,
+      Apple platform support, raw URL/page custody, and product completion
+      remain unclaimed.
 - [ ] Platform-specific unavailable/manual-required states.
 
 ## Next AI Instructions
