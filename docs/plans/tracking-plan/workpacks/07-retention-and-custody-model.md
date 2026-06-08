@@ -115,8 +115,9 @@ and one missing platform retention runtime enforcement artifact.
 Retention platform enforcement preflight proof now consumes that gate through
 `node scripts/test/tracking-retention-platform-enforcement-preflight-proof.mjs`
 and writes Android, iOS, and desktop manual-required acceptance rows plus a
-manual validation runbook for the missing platform runtime artifact. It is not
-platform enforcement or product-ready retention proof.
+manual validation runbook for the missing platform runtime artifact.
+Product-readiness closure and real-runtime handoff now carry its row/artifact
+counts. It is not platform enforcement or product-ready retention proof.
 The hosted parent route now also sends that typed write command and renders the
 service accepted result with applied local retention values. Writable product
 settings, platform behavior, applied product-ready writable retention execution,

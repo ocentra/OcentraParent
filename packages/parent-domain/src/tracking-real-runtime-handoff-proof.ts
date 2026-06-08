@@ -161,6 +161,12 @@ export const TrackingRealRuntimeHandoffClosureAccountingSchema = withParser(
     retentionRuntimeMissingArtifactCount: Schema.Number.pipe(Schema.int()),
     retentionRuntimeManualRequiredRowCount: Schema.Number.pipe(Schema.int()),
     retentionRuntimeArtifactSetPresentRowCount: Schema.Number.pipe(Schema.int()),
+    retentionPlatformPreflightRowCount: Schema.Number.pipe(Schema.int(), Schema.positive()),
+    retentionPlatformPreflightManualRequiredRowCount: Schema.Number.pipe(Schema.int(), Schema.positive()),
+    retentionPlatformPreflightRequiredArtifactCount: Schema.Number.pipe(Schema.int(), Schema.positive()),
+    retentionPlatformPreflightPresentArtifactCount: Schema.Literal(0),
+    retentionPlatformPreflightMissingArtifactCount: Schema.Number.pipe(Schema.int(), Schema.positive()),
+    retentionPlatformPreflightProductReadyRowCount: Schema.Literal(0),
     productionWorkerRequiredArtifactCount: Schema.Number.pipe(Schema.int(), Schema.positive()),
     productionWorkerPresentArtifactCount: Schema.Number.pipe(Schema.int()),
     productionWorkerMissingArtifactCount: Schema.Number.pipe(Schema.int()),
@@ -214,6 +220,23 @@ export const TrackingRealRuntimeHandoffClosureAccountingSchema = withParser(
             accounting.retentionRuntimeManualRequiredRowCount >= 0 &&
             accounting.retentionRuntimeArtifactSetPresentRowCount >= 0) ||
           'Real-runtime closure accounting cannot record negative retention runtime counts'
+      )
+    )
+    .pipe(
+      Schema.filter(
+        (accounting) =>
+          accounting.retentionPlatformPreflightRequiredArtifactCount ===
+            accounting.retentionPlatformPreflightPresentArtifactCount +
+              accounting.retentionPlatformPreflightMissingArtifactCount ||
+          'Real-runtime closure accounting must classify every retention platform preflight artifact'
+      )
+    )
+    .pipe(
+      Schema.filter(
+        (accounting) =>
+          accounting.retentionPlatformPreflightRowCount ===
+            accounting.retentionPlatformPreflightManualRequiredRowCount ||
+          'Real-runtime closure accounting must keep retention platform preflight manual-required'
       )
     )
     .pipe(

@@ -123,6 +123,10 @@ const sourceProofs = [
     'output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-gate/60-retention-runtime-artifact-gate-proof.json'
   ),
   sourceProof(
+    'retention-platform-enforcement-preflight',
+    'output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-gate/70-retention-platform-enforcement-preflight-proof.json'
+  ),
+  sourceProof(
     'tracking-claim-audit',
     'output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-gate/65-claim-audit-proof.json'
   ),
@@ -151,6 +155,7 @@ async function main() {
   run('cmd', ['/c', 'node', 'scripts/test/tracking-android-emulator-artifact-inventory-proof.mjs']);
   run('cmd', ['/c', 'node', 'scripts/test/tracking-ios-simulator-artifact-inventory-proof.mjs']);
   run('cmd', ['/c', 'node', 'scripts/test/tracking-retention-runtime-artifact-gate-proof.mjs']);
+  run('cmd', ['/c', 'node', 'scripts/test/tracking-retention-platform-enforcement-preflight-proof.mjs']);
   run('cmd', ['/c', 'node', 'scripts/test/tracking-claim-audit-proof.mjs']);
 
   await assertSourceProofsExist();
@@ -193,6 +198,9 @@ async function aggregateEvidence() {
   );
   const retentionRuntimeProof = await readJson(
     'test-results/tracking-retention-runtime-artifact-gate-proof/proof.json'
+  );
+  const retentionPlatformPreflightProof = await readJson(
+    'test-results/tracking-retention-platform-enforcement-preflight-proof/proof.json'
   );
   const childRuntimeArtifactGateProof = await readJson(
     'test-results/tracking-child-runtime-artifact-gate-proof/proof.json'
@@ -237,6 +245,12 @@ async function aggregateEvidence() {
     retentionRuntimeMissingArtifactCount: retentionRuntimeProof.summary.missingArtifactCount,
     retentionRuntimeManualRequiredRowCount: retentionRuntimeProof.summary.manualRequiredRows,
     retentionRuntimeArtifactSetPresentRowCount: retentionRuntimeProof.summary.completeRows,
+    retentionPlatformPreflightRowCount: retentionPlatformPreflightProof.summary.rowCount,
+    retentionPlatformPreflightManualRequiredRowCount: retentionPlatformPreflightProof.summary.manualRequiredRowCount,
+    retentionPlatformPreflightRequiredArtifactCount: retentionPlatformPreflightProof.summary.requiredArtifactCount,
+    retentionPlatformPreflightPresentArtifactCount: retentionPlatformPreflightProof.summary.presentArtifactCount,
+    retentionPlatformPreflightMissingArtifactCount: retentionPlatformPreflightProof.summary.missingArtifactCount,
+    retentionPlatformPreflightProductReadyRowCount: retentionPlatformPreflightProof.summary.productReadyRowCount,
     productionWorkerRequiredArtifactCount: productionWorkerArtifactSummary.requiredArtifactCount,
     productionWorkerPresentArtifactCount: productionWorkerArtifactSummary.presentArtifactCount,
     productionWorkerMissingArtifactCount: productionWorkerArtifactSummary.missingArtifactCount,
@@ -309,6 +323,11 @@ function sourceSnapshot(proof) {
     `- retentionRuntimePresentArtifactCount: ${proof.aggregateEvidence.retentionRuntimePresentArtifactCount}`,
     `- retentionRuntimeMissingArtifactCount: ${proof.aggregateEvidence.retentionRuntimeMissingArtifactCount}`,
     `- retentionRuntimeManualRequiredRowCount: ${proof.aggregateEvidence.retentionRuntimeManualRequiredRowCount}`,
+    `- retentionPlatformPreflightRowCount: ${proof.aggregateEvidence.retentionPlatformPreflightRowCount}`,
+    `- retentionPlatformPreflightManualRequiredRowCount: ${proof.aggregateEvidence.retentionPlatformPreflightManualRequiredRowCount}`,
+    `- retentionPlatformPreflightRequiredArtifactCount: ${proof.aggregateEvidence.retentionPlatformPreflightRequiredArtifactCount}`,
+    `- retentionPlatformPreflightPresentArtifactCount: ${proof.aggregateEvidence.retentionPlatformPreflightPresentArtifactCount}`,
+    `- retentionPlatformPreflightMissingArtifactCount: ${proof.aggregateEvidence.retentionPlatformPreflightMissingArtifactCount}`,
     `- productionWorkerRequiredArtifactCount: ${proof.aggregateEvidence.productionWorkerRequiredArtifactCount}`,
     `- productionWorkerPresentArtifactCount: ${proof.aggregateEvidence.productionWorkerPresentArtifactCount}`,
     `- productionWorkerMissingArtifactCount: ${proof.aggregateEvidence.productionWorkerMissingArtifactCount}`,
@@ -331,6 +350,7 @@ function securityNegativeProof() {
     'Android emulator artifact inventory records local adb, permission UI, location runtime, geofence runtime, device-status, and validation-log artifacts while keeping Android physical-device/system-delivery blockers open.',
     'iOS simulator artifact inventory records simulator package, manual-required Core Location, privacy disclosure, platform proof, and validation-log artifacts while keeping Core Location runtime and physical-device blockers open.',
     'Retention runtime closure accounting records the local writable settings artifact as present and the platform runtime retention enforcement artifact as missing.',
+    'Retention platform enforcement preflight closure accounting records Android, iOS, and desktop manual-required acceptance rows while keeping product-ready retention false.',
     'Rows do not claim writable retention product settings, platform retention enforcement, Android/iOS physical background behavior, authority enrollment, provider delivery/receipt runtime, production workers, actual child-device runtime, or product readiness.',
     '',
   ].join('\n');

@@ -1,7 +1,7 @@
 # Tracking Real Runtime Handoff Manual Validation Runbook
 
 - generatedAt: 2026-06-08T01:05:00.000Z
-- commit: cccd12480776b881be86959c1069601587e2f0c6
+- commit: 901be3cc799a791a3661cad0c9d62d366aa78a67
 - currentProofTier: P3_LOCAL_DEV_MACHINE
 - requiredProofTier: P4_REAL_RUNTIME_HANDOFF
 - productReadyClaimed: false
@@ -27,6 +27,11 @@
 - retentionRuntimeRequiredArtifactCount: 2
 - retentionRuntimePresentArtifactCount: 1
 - retentionRuntimeMissingArtifactCount: 1
+- retentionPlatformPreflightRowCount: 3
+- retentionPlatformPreflightManualRequiredRowCount: 3
+- retentionPlatformPreflightRequiredArtifactCount: 6
+- retentionPlatformPreflightPresentArtifactCount: 0
+- retentionPlatformPreflightMissingArtifactCount: 6
 - productionWorkerRequiredArtifactCount: 8
 - productionWorkerPresentArtifactCount: 0
 - productionWorkerMissingArtifactCount: 8

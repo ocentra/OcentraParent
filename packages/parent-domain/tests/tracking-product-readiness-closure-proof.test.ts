@@ -46,6 +46,12 @@ describe('tracking product readiness closure proof', () => {
     expect(proof.aggregateEvidence.retentionRuntimeMissingArtifactCount).toBe(1);
     expect(proof.aggregateEvidence.retentionRuntimeManualRequiredRowCount).toBe(1);
     expect(proof.aggregateEvidence.retentionRuntimeArtifactSetPresentRowCount).toBe(0);
+    expect(proof.aggregateEvidence.retentionPlatformPreflightRowCount).toBe(3);
+    expect(proof.aggregateEvidence.retentionPlatformPreflightManualRequiredRowCount).toBe(3);
+    expect(proof.aggregateEvidence.retentionPlatformPreflightRequiredArtifactCount).toBe(6);
+    expect(proof.aggregateEvidence.retentionPlatformPreflightPresentArtifactCount).toBe(0);
+    expect(proof.aggregateEvidence.retentionPlatformPreflightMissingArtifactCount).toBe(6);
+    expect(proof.aggregateEvidence.retentionPlatformPreflightProductReadyRowCount).toBe(0);
     expect(proof.aggregateEvidence.productionWorkerRequiredArtifactCount).toBe(8);
     expect(proof.aggregateEvidence.productionWorkerPresentArtifactCount).toBe(0);
     expect(proof.aggregateEvidence.productionWorkerMissingArtifactCount).toBe(8);
@@ -117,6 +123,12 @@ function aggregateEvidence() {
     retentionRuntimeMissingArtifactCount: 1,
     retentionRuntimeManualRequiredRowCount: 1,
     retentionRuntimeArtifactSetPresentRowCount: 0,
+    retentionPlatformPreflightRowCount: 3,
+    retentionPlatformPreflightManualRequiredRowCount: 3,
+    retentionPlatformPreflightRequiredArtifactCount: 6,
+    retentionPlatformPreflightPresentArtifactCount: 0,
+    retentionPlatformPreflightMissingArtifactCount: 6,
+    retentionPlatformPreflightProductReadyRowCount: 0,
     productionWorkerRequiredArtifactCount: 8,
     productionWorkerPresentArtifactCount: 0,
     productionWorkerMissingArtifactCount: 8,
