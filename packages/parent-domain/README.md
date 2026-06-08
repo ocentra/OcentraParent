@@ -484,8 +484,9 @@ flowchart LR
   readiness, external runtime delivery handoff proof, external runtime writer
   transport preflight proof, external runtime writer delivery boundary proof,
   external runtime writer delivery blocker proof, external runtime transport
-  queue proof, external runtime transport dispatch preflight proof, and runtime
-  report writer delivery proof; Windows package-source adapter evidence proof
+  queue proof, external runtime transport dispatch preflight proof, runtime
+  delivery receipt boundary proof, runtime transport delivery execution proof,
+  and runtime report writer delivery proof; Windows package-source adapter evidence proof
   now records sanitized local host command evidence for the Windows row without
   claiming Microsoft Store/provider execution or a
   production platform adapter;
@@ -493,8 +494,9 @@ flowchart LR
   adapters, production child-device package capture, production package-source
   capture adapter execution,
   runtime status reader, child delivery, portal UX, external runtime writer
-  device delivery, external runtime transport dispatch execution, parent action
-  runtime delivery, and external report runtime delivery remain unimplemented.
+  device delivery, external runtime transport dispatch execution, external
+  runtime transport delivery execution, parent action runtime delivery, and
+  external report runtime delivery remain unimplemented.
 - Billing/subscription provider integration, account backend, entitlement
   signing/delivery runtime, provider-contact execution, entitlement admin
   override runtime, refund/credit runtime, portal billing/admin UI, support

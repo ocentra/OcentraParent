@@ -93,6 +93,10 @@
       "import": "./dist/app-install-purchase-external-runtime-transport-dispatch-preflight-proof.js",
       "types": "./dist/app-install-purchase-external-runtime-transport-dispatch-preflight-proof.d.ts"
     },
+    "./app-install-purchase-runtime-transport-delivery-execution-proof": {
+      "import": "./dist/app-install-purchase-runtime-transport-delivery-execution-proof.js",
+      "types": "./dist/app-install-purchase-runtime-transport-delivery-execution-proof.d.ts"
+    },
     "./app-install-purchase-runtime-report-writer-delivery-proof": {
       "import": "./dist/app-install-purchase-runtime-report-writer-delivery-proof.js",
       "types": "./dist/app-install-purchase-runtime-report-writer-delivery-proof.d.ts"
