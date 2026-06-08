@@ -12,6 +12,7 @@ export const TrackingLocalPlatformProofBatchAreaSchema = withParser(
     'android-emulator-runtime',
     'wsl-local-replay',
     'hosted-parent-ui-accessibility',
+    'parent-child-local-runtime-bridge',
     'product-parent-child-ui-local-artifacts',
     'real-runtime-handoff-accounting'
   )
@@ -97,6 +98,7 @@ export const TrackingLocalPlatformProofBatchSchema = withParser(
       androidEmulatorLocalProofPassed: Schema.Literal(true),
       wslLocalReplayPassed: Schema.Literal(true),
       hostedParentUiAccessibilityPassed: Schema.Literal(true),
+      parentChildLocalRuntimeBridgePassed: Schema.Literal(true),
       productUiLocalArtifactsCaptured: Schema.Literal(true),
       realRuntimeHandoffAccountingPresent: Schema.Literal(true),
       androidPhysicalDeviceClaimed: Schema.Literal(false),
@@ -120,7 +122,7 @@ export const TrackingLocalPlatformProofBatchSchema = withParser(
     .pipe(
       Schema.filter(
         (proof) =>
-          (proof.summary.localProofPassedRows >= 4 &&
+          (proof.summary.localProofPassedRows >= 5 &&
             proof.summary.manualRequiredRows >= 1 &&
             proof.summary.productReadyRows === 0) ||
           'Tracking local platform proof batch must pass local layers while keeping manual runtime gaps visible'
@@ -149,6 +151,7 @@ export const RequiredTrackingLocalPlatformProofBatchAreas = [
   'android-emulator-runtime',
   'wsl-local-replay',
   'hosted-parent-ui-accessibility',
+  'parent-child-local-runtime-bridge',
   'product-parent-child-ui-local-artifacts',
   'real-runtime-handoff-accounting',
 ] as const;
@@ -188,6 +191,7 @@ export function buildTrackingLocalPlatformProofBatch(
       androidEmulatorLocalProofPassed: true,
       wslLocalReplayPassed: true,
       hostedParentUiAccessibilityPassed: true,
+      parentChildLocalRuntimeBridgePassed: true,
       productUiLocalArtifactsCaptured: true,
       realRuntimeHandoffAccountingPresent: true,
       androidPhysicalDeviceClaimed: false,

@@ -48,6 +48,21 @@ const baseRows = [
     ciRunnable: true,
   },
   {
+    area: 'parent-child-local-runtime-bridge',
+    status: 'local-proof-passed',
+    proofRef: 'test-results/tracking-parent-child-local-runtime-bridge-proof/proof.json',
+    sourceRefs: ['test-results/eventing-parent-child-runtime-proof/proof.json'],
+    currentProofTier: 'P3_LOCAL_DEV_MACHINE',
+    requiredProofTier: 'P4_PHYSICAL_DEVICE',
+    passedLocalAssertions: ['local parent-child runtime bridge has nine ordered events and zero dead letters'],
+    remainingBlockers: ['physical child-device delivery and rendered child UI runtime required'],
+    metrics: [
+      { name: 'storedEventCount', value: 9 },
+      { name: 'deadLetterCount', value: 0 },
+    ],
+    ciRunnable: true,
+  },
+  {
     area: 'product-parent-child-ui-local-artifacts',
     status: 'local-proof-passed',
     proofRef: 'test-results/tracking-full-product-ui-local-runtime-artifact-capture-proof/proof.json',
@@ -85,6 +100,7 @@ describe('tracking local platform proof batch', () => {
       'android-emulator-runtime',
       'wsl-local-replay',
       'hosted-parent-ui-accessibility',
+      'parent-child-local-runtime-bridge',
       'product-parent-child-ui-local-artifacts',
       'real-runtime-handoff-accounting',
     ]);
@@ -93,12 +109,13 @@ describe('tracking local platform proof batch', () => {
   it('aggregates local proof rows while keeping runtime and product claims false', () => {
     const proof = buildTrackingLocalPlatformProofBatch('2026-06-08T15:30:00.000Z', baseRows);
 
-    expect(proof.rows).toHaveLength(5);
-    expect(proof.summary.localProofPassedRows).toBe(4);
+    expect(proof.rows).toHaveLength(6);
+    expect(proof.summary.localProofPassedRows).toBe(5);
     expect(proof.summary.manualRequiredRows).toBe(1);
-    expect(proof.summary.ciRunnableRows).toBe(3);
+    expect(proof.summary.ciRunnableRows).toBe(4);
     expect(proof.summary.productReadyRows).toBe(0);
     expect(proof.productClaims.androidEmulatorLocalProofPassed).toBe(true);
+    expect(proof.productClaims.parentChildLocalRuntimeBridgePassed).toBe(true);
     expect(proof.productClaims.productClaimReady).toBe(false);
     expect(proof.rows.every((row) => row.physicalDeviceClaimed === false)).toBe(true);
     expect(proof.rows.every((row) => row.iosRuntimeClaimed === false)).toBe(true);
