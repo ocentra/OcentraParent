@@ -8,6 +8,15 @@ import {
 const requiredArtifacts = ['00-runtime-metadata.json', '01-runtime-result.json'];
 
 describe('tracking real runtime handoff proof', () => {
+  it('keeps Android and iOS physical-device handoff rows separate', () => {
+    expect(RequiredTrackingRealRuntimeHandoffGates.map((gate) => gate.handoffArea)).toContain(
+      'android-physical-background-and-geofence'
+    );
+    expect(RequiredTrackingRealRuntimeHandoffGates.map((gate) => gate.handoffArea)).toContain(
+      'ios-physical-background-and-region'
+    );
+  });
+
   it('derives one manual-required handoff row per runtime gate', () => {
     const inventories = RequiredTrackingRealRuntimeHandoffGates.map((gate) => ({
       handoffArea: gate.handoffArea,
@@ -49,7 +58,7 @@ describe('tracking real runtime handoff proof', () => {
       schemaVersion: 'v0.5-tracking',
       rowId: 'tracking-real-runtime-handoff-invalid',
       generatedAt: '2026-06-08T02:20:00.000Z',
-      handoffArea: 'physical-device-background-and-geofence',
+      handoffArea: 'android-physical-background-and-geofence',
       sourceProofRef: 'test-results/tracking-physical-device-artifact-gate-proof/proof.json',
       proofRoot: 'output/tracking-plan-proof/android-background-geofence',
       requiredProofTier: 'P4_PHYSICAL_DEVICE',

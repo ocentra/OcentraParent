@@ -5,7 +5,8 @@ import { TrackingPolicyAuditRefSchema, TrackingPolicySchemaVersion } from './tra
 const TrackingRealRuntimeHandoffTextSchema = Schema.String.pipe(Schema.minLength(1));
 
 export const TrackingRealRuntimeHandoffAreaSchema = Schema.Literal(
-  'physical-device-background-and-geofence',
+  'android-physical-background-and-geofence',
+  'ios-physical-background-and-region',
   'child-device-runtime-execution',
   'full-product-parent-child-ui-runtime',
   'authority-enrolled-hard-control-runtime',
@@ -146,8 +147,15 @@ export interface TrackingRealRuntimeHandoffGateInventory {
 
 export const RequiredTrackingRealRuntimeHandoffGates = [
   {
-    handoffArea: 'physical-device-background-and-geofence',
+    handoffArea: 'android-physical-background-and-geofence',
     sourceProofRef: 'test-results/tracking-physical-device-artifact-gate-proof/proof.json',
+    sourceRowIds: ['tracking-physical-device-artifacts-android'],
+    requiredProofTier: 'P4_PHYSICAL_DEVICE',
+  },
+  {
+    handoffArea: 'ios-physical-background-and-region',
+    sourceProofRef: 'test-results/tracking-physical-device-artifact-gate-proof/proof.json',
+    sourceRowIds: ['tracking-physical-device-artifacts-ios'],
     requiredProofTier: 'P4_PHYSICAL_DEVICE',
   },
   {

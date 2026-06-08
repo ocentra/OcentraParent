@@ -1000,11 +1000,11 @@ Every implementation workpack must update, or explicitly justify not updating:
       `output/tracking-plan-proof/31-platform-extension-checklists-and-proof-routing/20-platform-extension-inventory-proof.json`;
       command:
       `node scripts/test/tracking-platform-extension-inventory-proof.mjs`.
-- [x] Real-runtime handoff proof aggregates the physical-device,
-      child-runtime, full product UI, authority, provider-delivery, retention,
-      production worker, escalation, and product-readiness closure gates into
-      one later real-device/provider/production validation handoff without
-      changing any product-ready claims. Proof:
+- [x] Real-runtime handoff proof aggregates separate Android physical, iOS
+      physical, child-runtime, full product UI, authority, provider-delivery,
+      retention, production worker, escalation, and product-readiness closure
+      gates into one later real-device/provider/production validation handoff
+      without changing any product-ready claims. Proof:
       `output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-gate/63-real-runtime-handoff-proof.json`;
       command:
       `node scripts/test/tracking-real-runtime-handoff-proof.mjs`.

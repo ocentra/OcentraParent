@@ -332,10 +332,11 @@ full product parent/child UI, authority enrollment, provider delivery/receipt
 runtime, production workers, and product-ready tracking unclaimed.
 
 This branch adds `node scripts/test/tracking-real-runtime-handoff-proof.mjs`,
-which derives a single real-runtime handoff from the existing physical-device,
-child-runtime, full-product UI, authority, provider-delivery,
-retention-runtime, production worker, escalation-runtime, and product-readiness
-closure proofs through the parent-domain
+which derives one real-runtime handoff from the existing child-runtime,
+full-product UI, authority, provider-delivery, retention-runtime, production
+worker, escalation-runtime, and product-readiness closure proofs, with separate
+Android and iOS rows from the shared physical-device artifact gate, through the
+parent-domain
 `tracking-real-runtime-handoff-proof` schema/parser and focused test. It writes
 `63-real-runtime-handoff-proof.json`,
 `output/tracking-plan-proof/tracking-real-runtime-handoff-proof/proof.json`,
