@@ -160,6 +160,10 @@ Proof root: `output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-g
   approved-manual desktop row, one manual provider-runtime row, and two
   production-runtime rows. These counts explain what remains without changing
   any physical-device, authority, provider, production, or product-ready claim.
+- Refreshed tracking claim-audit proof now also adds a generated acceptance
+  matrix to each hard claim row: required criteria, manual validation commands,
+  and artifact acceptance notes. This improves P4 handoff readiness while
+  keeping all audited claims and product-ready tracking false.
 - Refreshed tracking product-readiness closure proof also consumes the
   claim-audit proof, which keeps Android/iOS/manual-desktop, child-runtime,
   full-product UI, authority, provider, retention-runtime, production-worker,

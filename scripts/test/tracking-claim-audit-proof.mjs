@@ -92,6 +92,25 @@ function assertProof(proof) {
   assert.equal(proof.summary.approvedClaimCount, 0, 'claim audit must not approve claims');
   assert.equal(proof.summary.productReadyRowCount, 0, 'claim audit must not mark rows product-ready');
   assert.ok(proof.summary.rowCount >= 10, 'claim audit should cover all final claim areas');
+  assert.equal(
+    proof.summary.acceptanceCriteriaCount,
+    proof.summary.rowCount * 4,
+    'each claim audit row should carry four acceptance criteria'
+  );
+  assert.equal(
+    proof.summary.manualValidationCommandCount,
+    proof.summary.rowCount * 3,
+    'each claim audit row should carry the claim/readiness/handoff validation chain'
+  );
+  assert.equal(
+    proof.summary.artifactAcceptanceNoteCount,
+    proof.summary.rowCount * 4,
+    'each claim audit row should carry four artifact acceptance notes'
+  );
+  assert.ok(
+    proof.rows.every((row) => row.artifactAcceptanceNotes.some((note) => note.includes('claimApproved remains false'))),
+    'claim audit acceptance notes must keep claim approval false'
+  );
   assert.ok(fullProductUiRow, 'claim audit needs full product UI runtime row');
   assert.equal(fullProductUiRow.presentArtifacts.length, 5, 'expected five local product UI artifacts');
   assert.equal(fullProductUiRow.missingArtifacts.length, 4, 'expected four hard product UI runtime gaps');
@@ -130,6 +149,9 @@ function sourceSnapshot(proof) {
     `- approvedManualRequiredRowCount: ${proof.summary.approvedManualRequiredRowCount}`,
     `- manualProviderRuntimeRequiredRowCount: ${proof.summary.manualProviderRuntimeRequiredRowCount}`,
     `- productionRuntimeRequiredRowCount: ${proof.summary.productionRuntimeRequiredRowCount}`,
+    `- acceptanceCriteriaCount: ${proof.summary.acceptanceCriteriaCount}`,
+    `- manualValidationCommandCount: ${proof.summary.manualValidationCommandCount}`,
+    `- artifactAcceptanceNoteCount: ${proof.summary.artifactAcceptanceNoteCount}`,
     '- proof module: packages/parent-domain/src/tracking-claim-audit-proof.ts',
     '- proof tests: packages/parent-domain/tests/tracking-claim-audit-proof.test.ts',
     '- proof harness: scripts/test/tracking-claim-audit-proof.mjs',

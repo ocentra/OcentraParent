@@ -391,7 +391,9 @@ expose location or device-status features. Parents expect this category.
   before that claim can advance. Its summary now classifies the
   ten final manual-required claim rows into six physical-device/runtime rows,
   one approved-manual desktop row, one manual provider-runtime row, and two
-  production-runtime rows, writes
+  production-runtime rows. Each row now carries a generated acceptance matrix
+  with required criteria, manual validation commands, and artifact acceptance
+  notes that keep local P3 evidence separate from the required P4 handoff. It writes
   `output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-gate/65-claim-audit-proof.json`
   and keeps every audited claim and product-ready tracking false.
 - WP01/WP02 source reconciliation and current gap-map proof now exists through
