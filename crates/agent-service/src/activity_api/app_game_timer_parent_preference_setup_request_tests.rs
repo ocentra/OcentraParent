@@ -73,6 +73,7 @@ async fn app_game_timer_parent_preference_setup_request_command_returns_accepted
                 == constants::value::APP_GAME_PARENT_PREFERENCE_SETUP_MUTATION_RECEIPT_UNAVAILABLE
     );
     assert_child_runtime_delivery_handoff_boundary(&result);
+    assert_child_runtime_delivery_queue_boundary(&result);
     assert_no_delivery_or_platform_claims(&result);
 }
 
@@ -103,6 +104,12 @@ async fn app_game_timer_parent_preference_setup_request_persists_action_result_r
         .expect(constants::error::ACTIVITY_STORE_QUERIES);
     cleanup_path(&store_path);
 
+    assert_persisted_setup_result(&result);
+    assert_eq!(status.events_stored, 4);
+    assert_persisted_action_result_model(&model);
+}
+
+fn assert_persisted_setup_result(result: &AppGameTimerParentPreferenceSetupRequestResult) {
     assert_eq!(
         result.action_result_persistence_status,
         constants::value::APP_GAME_PARENT_PREFERENCE_SETUP_ACTION_RESULT_PERSISTED
@@ -126,14 +133,21 @@ async fn app_game_timer_parent_preference_setup_request_persists_action_result_r
         constants::value::APP_GAME_PARENT_PREFERENCE_SETUP_CHILD_RUNTIME_DELIVERY_HANDOFF_READY
     );
     assert!(result.child_runtime_delivery_handoff_claimed);
-    assert!(!result.parent_preference_mutation_claimed);
-    assert!(!result.child_runtime_delivery_claimed);
-    assert!(!result.provider_receipt_ingestion_claimed);
-    assert!(!result.broad_blocking_claimed);
-    assert!(!result.raw_private_source_rows_claimed);
-    assert!(!result.raw_target_values_claimed);
-    assert!(!result.private_diagnostics_claimed);
-    assert_eq!(status.events_stored, 3);
+    assert_eq!(
+        result.child_runtime_delivery_queue_id,
+        child_runtime_delivery_queue_id()
+    );
+    assert_eq!(
+        result.child_runtime_delivery_queue_status,
+        constants::value::APP_GAME_PARENT_PREFERENCE_SETUP_CHILD_RUNTIME_DELIVERY_QUEUE_QUEUED
+    );
+    assert!(result.child_runtime_delivery_queue_claimed);
+    assert_no_delivery_or_platform_claims(result);
+}
+
+fn assert_persisted_action_result_model(
+    model: &ocentra_parent_agent_protocol::AppGameServiceReadModel,
+) {
     assert_eq!(model.approval_action_result_returned, 1);
     assert_eq!(
         model.approval_action_result_rows[0].result_id,
@@ -178,6 +192,31 @@ fn assert_child_runtime_delivery_handoff_boundary(
     );
 }
 
+fn assert_child_runtime_delivery_queue_boundary(
+    result: &AppGameTimerParentPreferenceSetupRequestResult,
+) {
+    assert_eq!(
+        result.child_runtime_delivery_queue_id,
+        child_runtime_delivery_queue_id()
+    );
+    assert_eq!(
+        result.child_runtime_delivery_queue_ids,
+        vec![
+            child_runtime_delivery_queue_id(),
+            child_runtime_delivery_handoff_id(),
+            parent_preference_mutation_receipt_id(),
+            constants::value::APP_GAME_CHILD_UX_PARENT_PREFERENCE_SETUP_PREFIX.to_string(),
+            constants::value::APP_GAME_CHILD_UX_PARENT_SURFACE_INTENT_PREFIX.to_string(),
+        ]
+    );
+    assert!(
+        result.child_runtime_delivery_queue_status
+            == constants::value::APP_GAME_PARENT_PREFERENCE_SETUP_CHILD_RUNTIME_DELIVERY_QUEUE_QUEUED
+            || result.child_runtime_delivery_queue_status
+                == constants::value::APP_GAME_PARENT_PREFERENCE_SETUP_CHILD_RUNTIME_DELIVERY_QUEUE_UNAVAILABLE
+    );
+}
+
 fn assert_no_delivery_or_platform_claims(result: &AppGameTimerParentPreferenceSetupRequestResult) {
     assert!(!result.parent_preference_mutation_claimed);
     assert!(!result.notification_rule_mutation_claimed);
@@ -209,6 +248,16 @@ fn child_runtime_delivery_handoff_id() -> String {
         constants::value::APP_GAME_PARENT_PREFERENCE_SETUP_CHILD_RUNTIME_DELIVERY_HANDOFF_SUFFIX,
     );
     handoff_id
+}
+
+fn child_runtime_delivery_queue_id() -> String {
+    let mut queue_id =
+        constants::value::APP_GAME_CHILD_UX_PARENT_PREFERENCE_SETUP_PREFIX.to_string();
+    queue_id.push(constants::delimiter::HYPHEN);
+    queue_id.push_str(
+        constants::value::APP_GAME_PARENT_PREFERENCE_SETUP_CHILD_RUNTIME_DELIVERY_QUEUE_SUFFIX,
+    );
+    queue_id
 }
 
 fn command_envelope() -> AgentCommandEnvelope {

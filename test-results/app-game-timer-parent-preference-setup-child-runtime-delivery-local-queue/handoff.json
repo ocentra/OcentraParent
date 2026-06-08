@@ -1,0 +1,35 @@
+{
+  "workpack": "WP141",
+  "title": "Timer parent preference setup child-runtime delivery local queue",
+  "branch": "codex/app-game-control-product-completion",
+  "status": "validated",
+  "scope": [
+    "accepted parent preference setup request results carry child-runtime delivery queue refs/status",
+    "agent service persists a local queue audit event after action-result, mutation receipt, and handoff rows",
+    "queue status remains service-local and preserves unified app/game evidence/control semantics"
+  ],
+  "noClaimBoundaries": [
+    "no actual child runtime delivery",
+    "no provider delivery",
+    "no provider receipt ingestion",
+    "no durable production outbox storage",
+    "no adapter dispatch",
+    "no broad blocking",
+    "no platform enforcement",
+    "no raw private source rows",
+    "no raw target values",
+    "no private diagnostics"
+  ],
+  "validation": [
+    "cmd /c npm run build --workspace @ocentra-parent/agent-protocol-domain",
+    "cmd /c npm run test --workspace @ocentra-parent/agent-protocol-domain -- --run tests/app-game-timer-parent-preference-setup-request.test.ts",
+    "cargo test -p ocentra-parent-agent-service app_game_timer_parent_preference_setup_request --quiet",
+    "cargo fmt --all --check",
+    "git diff --check",
+    "node scripts/check-no-test-doubles.mjs",
+    "node scripts/check-source-shape.mjs",
+    "cmd /c npm run lanes:guard",
+    "cmd /c npm run hub:guard"
+  ],
+  "centralProductChecklist": "not touched"
+}

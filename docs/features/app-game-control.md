@@ -1309,7 +1309,15 @@ diagnostics, or raw private source rows.
       action-result persistence, mutation receipt, and child-runtime handoff
       refs/status above the raw event payload, without upgrading the no-claim
       delivery, provider, outbox, adapter, broad-blocking, platform, raw-row,
-      raw-target, or private-diagnostics boundaries.
+      raw-target, or private-diagnostics boundaries. The accepted request
+      result now also carries service-local child-runtime delivery queue
+      refs/status, and the service persists a local queue audit event only
+      after the action-result, mutation receipt, and handoff rows are accepted
+      by the ActivityStore. This proves a queued local service handoff seam
+      without claiming actual child runtime delivery, provider delivery,
+      receipt ingestion, durable production outbox storage, adapter dispatch,
+      broad blocking, platform enforcement, raw private source rows, raw target
+      values, or private diagnostics.
 - [ ] Adapter capability status per platform. Cross-platform authority and
       broad-blocking gate contracts now record manual-required, unavailable,
       and not-claimed proof requirements. Platform-extension routing now maps

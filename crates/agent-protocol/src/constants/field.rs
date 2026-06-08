@@ -19,6 +19,8 @@ pub const APP_GAME_TIMER_PARENT_PREFERENCE_SETUP_MUTATION_RECEIPT: &str =
     "appGameTimerParentPreferenceSetupMutationReceipt";
 pub const APP_GAME_TIMER_PARENT_PREFERENCE_SETUP_CHILD_RUNTIME_DELIVERY_HANDOFF: &str =
     "appGameTimerParentPreferenceSetupChildRuntimeDeliveryHandoff";
+pub const APP_GAME_TIMER_PARENT_PREFERENCE_SETUP_CHILD_RUNTIME_DELIVERY_QUEUE: &str =
+    "appGameTimerParentPreferenceSetupChildRuntimeDeliveryQueue";
 pub const BROWSER_SOCIAL_DASHBOARD_READ_MODEL: &str = "browserSocialDashboardReadModel";
 pub const BROWSER_SOCIAL_AUDIT_EXPLANATION_READ_MODEL: &str =
     "browserSocialAuditExplanationReadModel";
