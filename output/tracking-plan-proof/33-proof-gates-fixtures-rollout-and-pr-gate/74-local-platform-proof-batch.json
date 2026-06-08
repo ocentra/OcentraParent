@@ -1,10 +1,10 @@
 {
   "schemaVersion": 1,
   "proofMode": "tracking-local-platform-proof-batch",
-  "generatedAt": "2026-06-08T15:30:00.000Z",
+  "generatedAt": "2026-06-08T21:00:39.415Z",
   "branch": "codex/tracking-plan-full-continuation-a",
-  "commit": "96d355d9bffd553d67f9125d5e83bee8d86b9370",
-  "gitStatusShort": "M docs/features/location-geofence-device-status.md\n M docs/plans/tracking-plan/implementation-checklist.md\n M packages/parent-domain/src/tracking-android-emulator-artifact-inventory-proof.ts\n M packages/parent-domain/src/tracking-child-runtime-android-emulator-readiness-bridge-proof.ts\n M packages/parent-domain/src/tracking-child-runtime-product-readiness-blocker-proof.ts\n M packages/parent-domain/src/tracking-ios-simulator-artifact-inventory-proof.ts\n M packages/parent-domain/tests/tracking-product-readiness-closure-proof.test.ts\n M packages/parent-domain/tests/tracking-real-runtime-handoff-proof.test.ts\n?? packages/parent-domain/src/tracking-local-platform-proof-batch.ts\n?? packages/parent-domain/tests/tracking-local-platform-proof-batch.test.ts\n?? scripts/test/tracking-local-platform-proof-batch.mjs",
+  "commit": "d3644efd34824e95676681d4ad41790fa877ab6a",
+  "gitStatusShort": "M docs/features/location-geofence-device-status.md\n M docs/plans/tracking-plan/implementation-checklist.md\n M docs/plans/tracking-plan/workpacks/31-platform-extension-checklists-and-proof-routing.md\n M docs/plans/tracking-plan/workpacks/33-proof-gates-fixtures-rollout-and-pr-gate.md\n M output/tracking-plan-proof/31-platform-extension-checklists-and-proof-routing/24-cross-platform-runtime-capability-proof.json\n M output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-gate/74-local-platform-proof-batch-validation.log\n M output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-gate/74-local-platform-proof-batch.json\n M output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-gate/75-cross-platform-runtime-capability-proof.json\n M output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-gate/75-cross-platform-runtime-capability-validation.log\n M output/tracking-plan-proof/tracking-cross-platform-runtime-capability-proof/00-source-snapshot.md\n M output/tracking-plan-proof/tracking-cross-platform-runtime-capability-proof/16-validation-commands.log\n M output/tracking-plan-proof/tracking-cross-platform-runtime-capability-proof/proof.json\n M output/tracking-plan-proof/tracking-cross-platform-runtime-capability-proof/read-model.json\n M output/tracking-plan-proof/tracking-local-platform-proof-batch/00-source-snapshot.md\n M output/tracking-plan-proof/tracking-local-platform-proof-batch/proof.json\n M output/tracking-plan-proof/tracking-local-platform-proof-batch/read-model.json\n M packages/parent-domain/src/tracking-local-platform-proof-batch.ts\n M packages/parent-domain/tests/tracking-local-platform-proof-batch.test.ts\n M scripts/test/tracking-local-platform-proof-batch.mjs\n M test-results/tracking-cross-platform-runtime-capability-proof/proof.json\n M test-results/tracking-cross-platform-runtime-capability-proof/read-model.json\n M test-results/tracking-local-platform-proof-batch/proof.json\n M test-results/tracking-local-platform-proof-batch/read-model.json",
   "workpackIds": [
     "08-android-foreground-location-adapter",
     "09-android-background-location-and-geofence-adapter",
@@ -17,9 +17,24 @@
   "sourceProofRefs": [
     "test-results/tracking-plan-android-emulator-proof/proof.json",
     "test-results/tracking-android-emulator-artifact-inventory-proof/proof.json",
+    "test-results/tracking-android-physical-device-runtime-proof/proof.json",
+    "test-results/tracking-physical-device-evidence-review-proof/proof.json",
+    "test-results/tracking-cross-platform-runtime-capability-proof/proof.json",
+    "test-results/tracking-cross-platform-runtime-capability-proof/windows-host-toolchain.json",
     "test-results/tracking-plan-wsl-local-proof/proof.json",
+    "output/tracking-plan-proof/wsl-local-replay/proof.json",
+    "test-results/tracking-cross-platform-runtime-capability-proof/docker-container-runtime.json",
+    "test-results/tracking-cross-platform-runtime-capability-proof/android-sdk-toolchain.json",
+    "test-results/tracking-cross-platform-runtime-capability-proof/android-gradle-project-build.json",
+    "platforms/android/agent/build.gradle",
+    "platforms/android/agent/app/build.gradle",
+    "test-results/tracking-ios-simulator-artifact-inventory-proof/proof.json",
+    "test-results/tracking-plan-ios-simulator-proof/proof.json",
     "test-results/tracking-plan-hosted-ui-proof/accessibility-summary.json",
     "test-results/tracking-hosted-ui-artifact-inventory-proof/proof.json",
+    "test-results/tracking-parent-child-local-runtime-bridge-proof/proof.json",
+    "test-results/eventing-parent-child-runtime-proof/proof.json",
+    "output/eventing-plan-proof/51-54-parent-child-runtime/proof-summary.json",
     "test-results/tracking-full-product-ui-local-runtime-artifact-capture-proof/proof.json",
     "test-results/tracking-full-product-ui-runtime-preflight-proof/proof.json",
     "test-results/tracking-real-runtime-handoff-proof/proof.json",
@@ -28,13 +43,28 @@
   "readModel": {
     "schemaVersion": "v0.6",
     "proofMode": "tracking-local-platform-proof-batch",
-    "generatedAt": "2026-06-08T15:30:00.000Z",
+    "generatedAt": "2026-06-08T21:00:39.415Z",
     "sourceProofRefs": [
       "test-results/tracking-plan-android-emulator-proof/proof.json",
       "test-results/tracking-android-emulator-artifact-inventory-proof/proof.json",
+      "test-results/tracking-android-physical-device-runtime-proof/proof.json",
+      "test-results/tracking-physical-device-evidence-review-proof/proof.json",
+      "test-results/tracking-cross-platform-runtime-capability-proof/proof.json",
+      "test-results/tracking-cross-platform-runtime-capability-proof/windows-host-toolchain.json",
       "test-results/tracking-plan-wsl-local-proof/proof.json",
+      "output/tracking-plan-proof/wsl-local-replay/proof.json",
+      "test-results/tracking-cross-platform-runtime-capability-proof/docker-container-runtime.json",
+      "test-results/tracking-cross-platform-runtime-capability-proof/android-sdk-toolchain.json",
+      "test-results/tracking-cross-platform-runtime-capability-proof/android-gradle-project-build.json",
+      "platforms/android/agent/build.gradle",
+      "platforms/android/agent/app/build.gradle",
+      "test-results/tracking-ios-simulator-artifact-inventory-proof/proof.json",
+      "test-results/tracking-plan-ios-simulator-proof/proof.json",
       "test-results/tracking-plan-hosted-ui-proof/accessibility-summary.json",
       "test-results/tracking-hosted-ui-artifact-inventory-proof/proof.json",
+      "test-results/tracking-parent-child-local-runtime-bridge-proof/proof.json",
+      "test-results/eventing-parent-child-runtime-proof/proof.json",
+      "output/eventing-plan-proof/51-54-parent-child-runtime/proof-summary.json",
       "test-results/tracking-full-product-ui-local-runtime-artifact-capture-proof/proof.json",
       "test-results/tracking-full-product-ui-runtime-preflight-proof/proof.json",
       "test-results/tracking-real-runtime-handoff-proof/proof.json",
@@ -45,7 +75,7 @@
         "schemaVersion": "v0.6",
         "area": "android-emulator-runtime",
         "status": "local-proof-passed",
-        "generatedAt": "2026-06-08T15:30:00.000Z",
+        "generatedAt": "2026-06-08T21:00:39.415Z",
         "proofRef": "test-results/tracking-plan-android-emulator-proof/proof.json",
         "sourceRefs": [
           "test-results/tracking-android-emulator-artifact-inventory-proof/proof.json"
@@ -82,9 +112,114 @@
       },
       {
         "schemaVersion": "v0.6",
+        "area": "android-physical-device-status",
+        "status": "local-proof-passed",
+        "generatedAt": "2026-06-08T21:00:39.415Z",
+        "proofRef": "test-results/tracking-android-physical-device-runtime-proof/proof.json",
+        "sourceRefs": [
+          "test-results/tracking-physical-device-evidence-review-proof/proof.json"
+        ],
+        "currentProofTier": "P4_PHYSICAL_DEVICE_STATUS_ONLY",
+        "requiredProofTier": "P4_PHYSICAL_DEVICE",
+        "passedLocalAssertions": [
+          "Android physical package, foreground service, status, and sample artifacts are present",
+          "Android physical app-owned geofence registration metadata is observed",
+          "Android physical system proximity registration metadata is observed"
+        ],
+        "remainingBlockers": [
+          "Android physical location/geofence transition behavior and Android system geofence delivery remain unclaimed",
+          "Android physical authority enrollment and production runtime proof remain required"
+        ],
+        "metrics": [
+          {
+            "name": "physicalStatusArtifactCount",
+            "value": 20
+          },
+          {
+            "name": "physicalBackgroundSampleCount",
+            "value": 3194
+          },
+          {
+            "name": "physicalLocalGeofenceTransitionCount",
+            "value": 0
+          },
+          {
+            "name": "physicalSystemGeofenceTransitionCount",
+            "value": 0
+          },
+          {
+            "name": "physicalSupportingStatusArtifactCount",
+            "value": 20
+          }
+        ],
+        "ciRunnable": false,
+        "physicalDeviceClaimed": false,
+        "iosRuntimeClaimed": false,
+        "childDeviceRuntimeClaimed": false,
+        "authorityRuntimeClaimed": false,
+        "providerDeliveryRuntimeClaimed": false,
+        "productionRuntimeClaimed": false,
+        "productClaimReady": false
+      },
+      {
+        "schemaVersion": "v0.6",
+        "area": "cross-platform-runtime-capability",
+        "status": "local-proof-passed",
+        "generatedAt": "2026-06-08T21:00:39.415Z",
+        "proofRef": "test-results/tracking-cross-platform-runtime-capability-proof/proof.json",
+        "sourceRefs": [
+          "test-results/tracking-cross-platform-runtime-capability-proof/windows-host-toolchain.json",
+          "test-results/tracking-plan-wsl-local-proof/proof.json",
+          "output/tracking-plan-proof/wsl-local-replay/proof.json",
+          "test-results/tracking-cross-platform-runtime-capability-proof/docker-container-runtime.json",
+          "test-results/tracking-cross-platform-runtime-capability-proof/android-sdk-toolchain.json",
+          "test-results/tracking-cross-platform-runtime-capability-proof/android-gradle-project-build.json",
+          "platforms/android/agent/build.gradle",
+          "platforms/android/agent/app/build.gradle",
+          "test-results/tracking-plan-android-emulator-proof/proof.json",
+          "test-results/tracking-android-emulator-artifact-inventory-proof/proof.json",
+          "test-results/tracking-android-physical-device-runtime-proof/proof.json",
+          "test-results/tracking-ios-simulator-artifact-inventory-proof/proof.json",
+          "test-results/tracking-plan-ios-simulator-proof/proof.json"
+        ],
+        "currentProofTier": "P3_LOCAL_DEV_MACHINE",
+        "requiredProofTier": "P4_PHYSICAL_DEVICE",
+        "passedLocalAssertions": [
+          "cross-platform proof accounts Windows host, WSL/Linux, Docker, Android SDK, Android Gradle, Android emulator, Android physical status, and macOS/iOS CI/manual routing",
+          "Android SDK and Gradle project build capability are separated from Android physical behavior claims"
+        ],
+        "remainingBlockers": [
+          "macOS/iOS runtime execution remains CI/manual-routed from this Windows host",
+          "Android physical location/geofence behavior remains separately gated"
+        ],
+        "metrics": [
+          {
+            "name": "crossPlatformRowCount",
+            "value": 8
+          },
+          {
+            "name": "localProofPassedRows",
+            "value": 7
+          },
+          {
+            "name": "productReadyRows",
+            "value": 0
+          }
+        ],
+        "ciRunnable": true,
+        "physicalDeviceClaimed": false,
+        "iosRuntimeClaimed": false,
+        "childDeviceRuntimeClaimed": false,
+        "authorityRuntimeClaimed": false,
+        "providerDeliveryRuntimeClaimed": false,
+        "productionRuntimeClaimed": false,
+        "productClaimReady": false
+      },
+      {
+        "schemaVersion": "v0.6",
         "area": "wsl-local-replay",
         "status": "local-proof-passed",
-        "generatedAt": "2026-06-08T15:30:00.000Z",
+        "generatedAt": "2026-06-08T21:00:39.415Z",
         "proofRef": "test-results/tracking-plan-wsl-local-proof/proof.json",
         "sourceRefs": [],
         "currentProofTier": "P3_LOCAL_DEV_MACHINE",
@@ -112,7 +247,7 @@
         "schemaVersion": "v0.6",
         "area": "hosted-parent-ui-accessibility",
         "status": "local-proof-passed",
-        "generatedAt": "2026-06-08T15:30:00.000Z",
+        "generatedAt": "2026-06-08T21:00:39.415Z",
         "proofRef": "test-results/tracking-plan-hosted-ui-proof/accessibility-summary.json",
         "sourceRefs": [
           "test-results/tracking-hosted-ui-artifact-inventory-proof/proof.json"
@@ -152,9 +287,51 @@
       },
       {
         "schemaVersion": "v0.6",
+        "area": "parent-child-local-runtime-bridge",
+        "status": "local-proof-passed",
+        "generatedAt": "2026-06-08T21:00:39.415Z",
+        "proofRef": "test-results/tracking-parent-child-local-runtime-bridge-proof/proof.json",
+        "sourceRefs": [
+          "test-results/eventing-parent-child-runtime-proof/proof.json",
+          "output/eventing-plan-proof/51-54-parent-child-runtime/proof-summary.json"
+        ],
+        "currentProofTier": "P3_LOCAL_DEV_MACHINE",
+        "requiredProofTier": "P4_PHYSICAL_DEVICE",
+        "passedLocalAssertions": [
+          "local parent-child runtime bridge observes typed transport handoff and parent read-model projection",
+          "local bridge records ordered parent, transport, child-agent, health, and read-model phases"
+        ],
+        "remainingBlockers": [
+          "physical child-device delivery/execution and rendered child UI runtime artifacts remain required"
+        ],
+        "metrics": [
+          {
+            "name": "storedEventCount",
+            "value": 9
+          },
+          {
+            "name": "deadLetterCount",
+            "value": 0
+          },
+          {
+            "name": "childAgentPhaseCount",
+            "value": 4
+          }
+        ],
+        "ciRunnable": true,
+        "physicalDeviceClaimed": false,
+        "iosRuntimeClaimed": false,
+        "childDeviceRuntimeClaimed": false,
+        "authorityRuntimeClaimed": false,
+        "providerDeliveryRuntimeClaimed": false,
+        "productionRuntimeClaimed": false,
+        "productClaimReady": false
+      },
+      {
+        "schemaVersion": "v0.6",
         "area": "product-parent-child-ui-local-artifacts",
         "status": "local-proof-passed",
-        "generatedAt": "2026-06-08T15:30:00.000Z",
+        "generatedAt": "2026-06-08T21:00:39.415Z",
         "proofRef": "test-results/tracking-full-product-ui-local-runtime-artifact-capture-proof/proof.json",
         "sourceRefs": [
           "test-results/tracking-full-product-ui-runtime-preflight-proof/proof.json"
@@ -191,7 +368,7 @@
         "schemaVersion": "v0.6",
         "area": "real-runtime-handoff-accounting",
         "status": "manual-required",
-        "generatedAt": "2026-06-08T15:30:00.000Z",
+        "generatedAt": "2026-06-08T21:00:39.415Z",
         "proofRef": "test-results/tracking-real-runtime-handoff-proof/proof.json",
         "sourceRefs": [
           "test-results/tracking-product-readiness-closure-proof/proof.json"
@@ -229,10 +406,10 @@
       }
     ],
     "summary": {
-      "rowCount": 5,
-      "localProofPassedRows": 4,
+      "rowCount": 8,
+      "localProofPassedRows": 7,
       "manualRequiredRows": 1,
-      "ciRunnableRows": 3,
+      "ciRunnableRows": 5,
       "physicalDeviceClaimedRows": 0,
       "iosRuntimeClaimedRows": 0,
       "childDeviceRuntimeClaimedRows": 0,
@@ -243,8 +420,11 @@
     },
     "productClaims": {
       "androidEmulatorLocalProofPassed": true,
+      "androidPhysicalStatusObserved": true,
+      "crossPlatformRuntimeCapabilityPassed": true,
       "wslLocalReplayPassed": true,
       "hostedParentUiAccessibilityPassed": true,
+      "parentChildLocalRuntimeBridgePassed": true,
       "productUiLocalArtifactsCaptured": true,
       "realRuntimeHandoffAccountingPresent": true,
       "androidPhysicalDeviceClaimed": false,
@@ -257,10 +437,10 @@
     }
   },
   "summary": {
-    "rowCount": 5,
-    "localProofPassedRows": 4,
+    "rowCount": 8,
+    "localProofPassedRows": 7,
     "manualRequiredRows": 1,
-    "ciRunnableRows": 3,
+    "ciRunnableRows": 5,
     "physicalDeviceClaimedRows": 0,
     "iosRuntimeClaimedRows": 0,
     "childDeviceRuntimeClaimedRows": 0,
@@ -271,8 +451,11 @@
   },
   "productClaims": {
     "androidEmulatorLocalProofPassed": true,
+    "androidPhysicalStatusObserved": true,
+    "crossPlatformRuntimeCapabilityPassed": true,
     "wslLocalReplayPassed": true,
     "hostedParentUiAccessibilityPassed": true,
+    "parentChildLocalRuntimeBridgePassed": true,
     "productUiLocalArtifactsCaptured": true,
     "realRuntimeHandoffAccountingPresent": true,
     "androidPhysicalDeviceClaimed": false,
@@ -295,6 +478,7 @@
   },
   "proofLabels": [
     "tracking.local-platform-batch.android-emulator",
+    "tracking.local-platform-batch.cross-platform-runtime-capability",
     "tracking.local-platform-batch.wsl-local-replay",
     "tracking.local-platform-batch.hosted-ui-accessibility",
     "tracking.local-platform-batch.product-ui-local-artifacts",
@@ -306,6 +490,9 @@
     },
     {
       "command": "cmd /c npm run test --workspace @ocentra-parent/parent-domain -- tracking-local-platform-proof-batch"
+    },
+    {
+      "command": "cmd /c node scripts/test/tracking-cross-platform-runtime-capability-proof.mjs"
     }
   ]
 }

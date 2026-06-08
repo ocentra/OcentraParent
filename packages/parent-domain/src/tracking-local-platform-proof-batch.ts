@@ -10,6 +10,7 @@ const TrackingLocalPlatformProofBatchText = Schema.String.pipe(Schema.minLength(
 export const TrackingLocalPlatformProofBatchAreaSchema = withParser(
   Schema.Literal(
     'android-emulator-runtime',
+    'android-physical-device-status',
     'cross-platform-runtime-capability',
     'wsl-local-replay',
     'hosted-parent-ui-accessibility',
@@ -97,6 +98,7 @@ export const TrackingLocalPlatformProofBatchSchema = withParser(
     }),
     productClaims: Schema.Struct({
       androidEmulatorLocalProofPassed: Schema.Literal(true),
+      androidPhysicalStatusObserved: Schema.Literal(true),
       crossPlatformRuntimeCapabilityPassed: Schema.Literal(true),
       wslLocalReplayPassed: Schema.Literal(true),
       hostedParentUiAccessibilityPassed: Schema.Literal(true),
@@ -151,6 +153,7 @@ export type TrackingLocalPlatformProofBatchRowInput = {
 
 export const RequiredTrackingLocalPlatformProofBatchAreas = [
   'android-emulator-runtime',
+  'android-physical-device-status',
   'cross-platform-runtime-capability',
   'wsl-local-replay',
   'hosted-parent-ui-accessibility',
@@ -192,6 +195,7 @@ export function buildTrackingLocalPlatformProofBatch(
     summary,
     productClaims: {
       androidEmulatorLocalProofPassed: true,
+      androidPhysicalStatusObserved: true,
       crossPlatformRuntimeCapabilityPassed: true,
       wslLocalReplayPassed: true,
       hostedParentUiAccessibilityPassed: true,

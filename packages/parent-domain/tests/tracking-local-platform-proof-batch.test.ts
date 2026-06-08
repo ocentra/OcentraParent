@@ -21,6 +21,22 @@ const baseRows = [
     ciRunnable: false,
   },
   {
+    area: 'android-physical-device-status',
+    status: 'local-proof-passed',
+    proofRef: 'test-results/tracking-android-physical-device-runtime-proof/proof.json',
+    sourceRefs: ['test-results/tracking-physical-device-evidence-review-proof/proof.json'],
+    currentProofTier: 'P4_PHYSICAL_DEVICE_STATUS_ONLY',
+    requiredProofTier: 'P4_PHYSICAL_DEVICE',
+    passedLocalAssertions: ['physical Android package, foreground service, status, and sample artifacts are present'],
+    remainingBlockers: ['physical Android geofence behavior and system delivery remain required'],
+    metrics: [
+      { name: 'physicalStatusArtifactCount', value: 20 },
+      { name: 'physicalBackgroundSampleCount', value: 3194 },
+      { name: 'physicalLocalGeofenceTransitionCount', value: 0 },
+    ],
+    ciRunnable: false,
+  },
+  {
     area: 'cross-platform-runtime-capability',
     status: 'local-proof-passed',
     proofRef: 'test-results/tracking-cross-platform-runtime-capability-proof/proof.json',
@@ -119,6 +135,7 @@ describe('tracking local platform proof batch', () => {
   it('requires every local platform proof area', () => {
     expect(RequiredTrackingLocalPlatformProofBatchAreas).toEqual([
       'android-emulator-runtime',
+      'android-physical-device-status',
       'cross-platform-runtime-capability',
       'wsl-local-replay',
       'hosted-parent-ui-accessibility',
@@ -131,12 +148,13 @@ describe('tracking local platform proof batch', () => {
   it('aggregates local proof rows while keeping runtime and product claims false', () => {
     const proof = buildTrackingLocalPlatformProofBatch('2026-06-08T15:30:00.000Z', baseRows);
 
-    expect(proof.rows).toHaveLength(7);
-    expect(proof.summary.localProofPassedRows).toBe(6);
+    expect(proof.rows).toHaveLength(8);
+    expect(proof.summary.localProofPassedRows).toBe(7);
     expect(proof.summary.manualRequiredRows).toBe(1);
     expect(proof.summary.ciRunnableRows).toBe(5);
     expect(proof.summary.productReadyRows).toBe(0);
     expect(proof.productClaims.androidEmulatorLocalProofPassed).toBe(true);
+    expect(proof.productClaims.androidPhysicalStatusObserved).toBe(true);
     expect(proof.productClaims.crossPlatformRuntimeCapabilityPassed).toBe(true);
     expect(proof.productClaims.parentChildLocalRuntimeBridgePassed).toBe(true);
     expect(proof.productClaims.productClaimReady).toBe(false);

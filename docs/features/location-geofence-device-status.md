@@ -263,13 +263,14 @@ expose location or device-status features. Parents expect this category.
   product-ready Android tracking remain unclaimed.
 - WP08/WP09/WP30/WP33 local platform proof batch now exists through
   `node scripts/test/tracking-local-platform-proof-batch.mjs`. It aggregates
-  Android emulator runtime evidence, WSL/local replay, hosted parent UI
-  accessibility, product parent/child UI local artifacts, product-readiness
-  closure, and real-runtime handoff accounting into one parent-domain proof
-  bundle. The batch records four local proof-passed rows plus one
-  manual-required real-runtime handoff row, and keeps Android physical-device,
-  iOS runtime, child-device runtime, authority, provider-delivery, production,
-  and product-ready tracking claims false.
+  Android emulator runtime evidence, Samsung S9 Android physical package/
+  service/status evidence, WSL/local replay, hosted parent UI accessibility,
+  product parent/child UI local artifacts, product-readiness closure, and
+  real-runtime handoff accounting into one parent-domain proof bundle. The
+  batch now records seven local proof-passed rows plus one manual-required
+  real-runtime handoff row, and keeps Android physical behavior, iOS runtime,
+  child-device runtime, authority, provider-delivery, production, and
+  product-ready tracking claims false.
 - WP08/WP09/WP10/WP11/WP12/WP13/WP31/WP33 cross-platform runtime capability
   proof now exists through
   `node scripts/test/tracking-cross-platform-runtime-capability-proof.mjs`. It
@@ -1359,11 +1360,12 @@ accessibility beyond the hosted parent route are proved.
       alert policy-decision refs, and retention before/after proof. This is not
       live device/provider behavior proof.
 - [x] Local platform proof batch aggregates Android emulator runtime evidence,
-      WSL/local replay, hosted parent UI accessibility, product parent/child UI
-      local artifacts, product-readiness closure, and real-runtime handoff
-      accounting into one proof bundle. This is local/hosted proof only; Android
-      physical-device behavior, iOS Core Location runtime, actual child-device
-      runtime, authority enrollment, provider delivery, production runtime, and
+      Samsung S9 Android physical package/service/status evidence, WSL/local
+      replay, hosted parent UI accessibility, product parent/child UI local
+      artifacts, product-readiness closure, and real-runtime handoff accounting
+      into one proof bundle. This is local/hosted/status proof only; Android
+      physical behavior, iOS Core Location runtime, actual child-device runtime,
+      authority enrollment, provider delivery, production runtime, and
       product-ready tracking remain unclaimed.
 - [ ] Full live parent/child UI screenshots and accessibility proof beyond the
       hosted parent shell. Hosted parent overview/devices shell screenshots now
@@ -1399,10 +1401,11 @@ retention-writable-product-settings-required its own retention product settings
 writable runtime row tied to the production retention write-result artifact,
 instead of leaving that blocker implicit under the broader full-product UI row.
 The local platform proof batch now gives Android emulator runtime evidence,
-WSL/local replay, hosted parent UI accessibility, product UI local artifacts,
+Samsung S9 Android physical package/service/status evidence, WSL/local replay,
+hosted parent UI accessibility, product UI local artifacts,
 product-readiness closure, and real-runtime handoff accounting one repeatable
-local proof bundle without upgrading any physical-device, child-device runtime,
-authority, provider, production, or product-ready claim.
+local proof bundle without upgrading any physical behavior, child-device
+runtime, authority, provider, production, or product-ready claim.
 The next implementation layers are platform runtime artifacts required for
 retention product readiness beyond the local applied-settings bridge, full
 portal UI

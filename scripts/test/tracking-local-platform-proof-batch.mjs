@@ -6,7 +6,7 @@ import { pathToFileURL } from 'node:url';
 
 const repoRoot = process.cwd();
 const proofMode = 'tracking-local-platform-proof-batch';
-const generatedAt = '2026-06-08T15:30:00.000Z';
+const generatedAt = new Date().toISOString();
 const resultDir = path.join(repoRoot, 'test-results', proofMode);
 const focusedProofDir = path.join(repoRoot, 'output', 'tracking-plan-proof', proofMode);
 const output33 = path.join(repoRoot, 'output', 'tracking-plan-proof', '33-proof-gates-fixtures-rollout-and-pr-gate');
@@ -14,7 +14,9 @@ const commands = [];
 const proofRefs = {
   android: 'test-results/tracking-plan-android-emulator-proof/proof.json',
   androidInventory: 'test-results/tracking-android-emulator-artifact-inventory-proof/proof.json',
+  androidPhysical: 'test-results/tracking-android-physical-device-runtime-proof/proof.json',
   crossPlatformRuntimeCapability: 'test-results/tracking-cross-platform-runtime-capability-proof/proof.json',
+  physicalDeviceEvidenceReview: 'test-results/tracking-physical-device-evidence-review-proof/proof.json',
   wsl: 'test-results/tracking-plan-wsl-local-proof/proof.json',
   hostedAccessibility: 'test-results/tracking-plan-hosted-ui-proof/accessibility-summary.json',
   hostedInventory: 'test-results/tracking-hosted-ui-artifact-inventory-proof/proof.json',
@@ -52,7 +54,9 @@ async function readSourceProofs() {
   return {
     android: await readJson(proofRefs.android),
     androidInventory: await readJson(proofRefs.androidInventory),
+    androidPhysical: await readJson(proofRefs.androidPhysical),
     crossPlatformRuntimeCapability: await readJson(proofRefs.crossPlatformRuntimeCapability),
+    physicalDeviceEvidenceReview: await readJson(proofRefs.physicalDeviceEvidenceReview),
     wsl: await readJson(proofRefs.wsl),
     hostedAccessibility: await readJson(proofRefs.hostedAccessibility),
     hostedInventory: await readJson(proofRefs.hostedInventory),
@@ -67,6 +71,7 @@ async function readSourceProofs() {
 function rowsFromSource(source) {
   const androidTransitions = source.android.runtime?.localGeofenceTransitions?.length ?? 0;
   const systemBroadcastCount = source.android.runtime?.systemProximityBroadcastCount ?? 0;
+  const androidPhysicalSummary = source.androidPhysical.summary;
   const hostedHeadingCount = source.hostedAccessibility.summary?.headings?.length ?? 0;
   const unlabeledButtons = source.hostedAccessibility.summary?.unlabeledButtons ?? 0;
   const handoffSummary = source.realRuntimeHandoff.summary;
@@ -91,6 +96,40 @@ function rowsFromSource(source) {
       metrics: [
         { name: 'localGeofenceTransitionCount', value: androidTransitions },
         { name: 'systemProximityBroadcastCount', value: systemBroadcastCount },
+      ],
+      ciRunnable: false,
+    },
+    {
+      area: 'android-physical-device-status',
+      status: 'local-proof-passed',
+      proofRef: proofRefs.androidPhysical,
+      sourceRefs: [proofRefs.physicalDeviceEvidenceReview],
+      currentProofTier: 'P4_PHYSICAL_DEVICE_STATUS_ONLY',
+      requiredProofTier: 'P4_PHYSICAL_DEVICE',
+      passedLocalAssertions: [
+        'Android physical package, foreground service, status, and sample artifacts are present',
+        'Android physical app-owned geofence registration metadata is observed',
+        'Android physical system proximity registration metadata is observed',
+      ],
+      remainingBlockers: [
+        'Android physical location/geofence transition behavior and Android system geofence delivery remain unclaimed',
+        'Android physical authority enrollment and production runtime proof remain required',
+      ],
+      metrics: [
+        { name: 'physicalStatusArtifactCount', value: androidPhysicalSummary.presentArtifactCount ?? 0 },
+        { name: 'physicalBackgroundSampleCount', value: androidPhysicalSummary.backgroundLocationSampleCount ?? 0 },
+        {
+          name: 'physicalLocalGeofenceTransitionCount',
+          value: androidPhysicalSummary.localGeofenceTransitionCount ?? 0,
+        },
+        {
+          name: 'physicalSystemGeofenceTransitionCount',
+          value: androidPhysicalSummary.androidSystemGeofenceTransitionCount ?? 0,
+        },
+        {
+          name: 'physicalSupportingStatusArtifactCount',
+          value: source.physicalDeviceEvidenceReview.summary?.supportingStatusArtifactCount ?? 0,
+        },
       ],
       ciRunnable: false,
     },
@@ -269,8 +308,8 @@ function buildProof(readModel, source) {
 }
 
 function assertProof(proof) {
-  assert.equal(proof.summary.rowCount, 7, 'expected seven local platform batch rows');
-  assert.equal(proof.summary.localProofPassedRows, 6, 'expected six local proof rows');
+  assert.equal(proof.summary.rowCount, 8, 'expected eight local platform batch rows');
+  assert.equal(proof.summary.localProofPassedRows, 7, 'expected seven local proof rows');
   assert.equal(proof.summary.manualRequiredRows, 1, 'expected one handoff/manual row');
   assert.equal(proof.summary.productReadyRows, 0, 'product-ready rows must stay zero');
   assert.equal(proof.remainingProductClaimsFalse.productReadyClaimed, false, 'product-ready claim must stay false');
@@ -298,7 +337,7 @@ function sourceSnapshot(proof) {
     `- status: ${proof.status}`,
     `- localProofPassedRows: ${proof.summary.localProofPassedRows}`,
     `- manualRequiredRows: ${proof.summary.manualRequiredRows}`,
-    '- Android emulator, cross-platform host capability, WSL replay, hosted UI accessibility, and product UI local artifacts are aggregated.',
+    '- Android emulator, Android physical status, cross-platform host capability, WSL replay, hosted UI accessibility, and product UI local artifacts are aggregated.',
     '- Physical Android/iOS, child-device runtime, authority, provider, production, and product-ready claims remain false.',
     '',
   ].join('\n');
