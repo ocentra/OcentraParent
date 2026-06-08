@@ -191,6 +191,16 @@ expose location or device-status features. Parents expect this category.
   physical-device proof, authority, provider delivery, production workers, and
   product-ready tracking unclaimed until those real child-device artifacts
   exist.
+- WP08/WP30/WP33 child-runtime Android emulator readiness bridge proof now
+  exists through
+  `node scripts/test/tracking-child-runtime-android-emulator-readiness-bridge-proof.mjs`.
+  It links the existing Android emulator package/foreground-service/permission
+  and local emulator geofence evidence to the child-runtime artifact gate,
+  records the remaining missing child-device runtime artifacts, writes
+  WP08/WP30/WP33 artifacts, and keeps child-device delivery/execution, rendered
+  child-device UI runtime, parent receipt runtime, physical-device proof,
+  authority, provider delivery, production workers, and product-ready tracking
+  unclaimed.
 - WP30/WP33 full product UI readiness blocker proof now exists through
   `node scripts/test/tracking-full-product-ui-readiness-blocker-proof.mjs`. It
   consumes the hosted UI artifact inventory and child-runtime artifact gate,

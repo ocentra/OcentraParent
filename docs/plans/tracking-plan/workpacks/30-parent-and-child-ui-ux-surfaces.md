@@ -303,6 +303,13 @@ the exact required child-device runtime artifact names under WP30/WP33 and keeps
 the row `manual-required` until real delivery envelope, execution result,
 rendered child UI snapshot, parent receipt, runtime observation, consent state,
 device log, and result summary artifacts exist.
+`node scripts/test/tracking-child-runtime-android-emulator-readiness-bridge-proof.mjs`
+now links Android emulator package/foreground-service/permission and local
+emulator geofence evidence to the child-runtime artifact gate under
+WP08/WP30/WP33. The bridge records emulator prerequisites observed while
+preserving the missing child-device delivery envelope, execution result,
+rendered child UI snapshot, parent receipt, runtime observation, consent state,
+device log, and result summary artifacts as manual-required P4 proof.
 
 ## Where We Want To Be
 

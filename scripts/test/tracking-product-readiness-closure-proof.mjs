@@ -59,6 +59,10 @@ const sourceProofs = [
     'output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-gate/50-child-runtime-artifact-gate-proof.json'
   ),
   sourceProof(
+    'child-runtime-android-emulator-readiness-bridge',
+    'output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-gate/67-child-runtime-android-emulator-readiness-bridge-proof.json'
+  ),
+  sourceProof(
     'physical-device-artifact-gate',
     'output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-gate/49-physical-device-artifact-gate-proof.json'
   ),

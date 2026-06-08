@@ -158,6 +158,10 @@ Every checked item must cite one or more proof artifacts.
       Android system geofencing, dwell transitions, notification delivery,
       physical-device, or authority behavior. Emulator proof:
       `test-results/tracking-plan-android-emulator-proof/proof.json`.
+- [x] Android emulator package/foreground-service/permission and local emulator
+      geofence evidence is bridged into child-runtime readiness accounting
+      without claiming child-device runtime execution. Artifact:
+      `test-results/tracking-child-runtime-android-emulator-readiness-bridge-proof/proof.json`.
 - [x] WSL/local replay proof records WSL2/Ubuntu, linked-worktree Git mapping,
       contract build output, service read-model proof, and Rust core tracking
       read-model tests. Artifact:
