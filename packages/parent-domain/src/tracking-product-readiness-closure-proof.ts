@@ -40,6 +40,7 @@ export const TrackingProductReadinessClosureCoverageTagSchema = Schema.Literal(
   'full-product-ui-local-runtime-artifact-capture',
   'full-product-ui-runtime-artifact-gate',
   'full-product-ui-runtime-preflight',
+  'cross-platform-runtime-capability',
   'production-durable-workers-readiness-blocker',
   'production-worker-runtime-artifact-gate',
   'production-worker-runtime-preflight',
@@ -80,6 +81,7 @@ export const RequiredTrackingProductReadinessClosureCoverageTags = [
   'full-product-ui-local-runtime-artifact-capture',
   'full-product-ui-runtime-artifact-gate',
   'full-product-ui-runtime-preflight',
+  'cross-platform-runtime-capability',
   'production-durable-workers-readiness-blocker',
   'production-worker-runtime-artifact-gate',
   'production-worker-runtime-preflight',
@@ -159,6 +161,14 @@ export const TrackingProductReadinessClosureAggregateEvidenceSchema = withParser
     parentChildLocalRuntimeDeadLetterCount: Schema.Literal(0),
     parentChildLocalRuntimeChildAgentPhaseCount: Schema.Number.pipe(Schema.int(), Schema.positive()),
     parentChildLocalRuntimeProductReadyRowCount: Schema.Literal(0),
+    crossPlatformCapabilityRowCount: Schema.Number.pipe(Schema.int(), Schema.positive()),
+    crossPlatformLocalProofPassedRowCount: Schema.Number.pipe(Schema.int(), Schema.positive()),
+    crossPlatformCiRunnableRowCount: Schema.Number.pipe(Schema.int(), Schema.nonNegative()),
+    crossPlatformCiManualRequiredRowCount: Schema.Number.pipe(Schema.int(), Schema.nonNegative()),
+    crossPlatformHostToolUnavailableRowCount: Schema.Number.pipe(Schema.int(), Schema.nonNegative()),
+    crossPlatformAndroidSdkToolchainObservedRows: Schema.Number.pipe(Schema.int(), Schema.nonNegative()),
+    crossPlatformAndroidGradleBuildObservedRows: Schema.Number.pipe(Schema.int(), Schema.nonNegative()),
+    crossPlatformProductReadyRowCount: Schema.Literal(0),
     physicalDeviceEvidenceReviewRowCount: Schema.Number.pipe(Schema.int(), Schema.positive()),
     physicalDeviceEvidenceReviewArtifactMissingRowCount: Schema.Number.pipe(Schema.int()),
     physicalDeviceEvidenceReviewContentReviewRequiredRowCount: Schema.Number.pipe(Schema.int()),
@@ -282,6 +292,17 @@ export const TrackingProductReadinessClosureAggregateEvidenceSchema = withParser
             evidence.parentChildLocalRuntimeChildAgentPhaseCount >= 4 &&
             evidence.parentChildLocalRuntimeProductReadyRowCount === 0) ||
           'Aggregate closure evidence must preserve local parent-child runtime coverage without product-ready claims'
+      )
+    )
+    .pipe(
+      Schema.filter(
+        (evidence) =>
+          (evidence.crossPlatformCapabilityRowCount >= 8 &&
+            evidence.crossPlatformLocalProofPassedRowCount >= 6 &&
+            evidence.crossPlatformAndroidSdkToolchainObservedRows >= 1 &&
+            evidence.crossPlatformAndroidGradleBuildObservedRows >= 1 &&
+            evidence.crossPlatformProductReadyRowCount === 0) ||
+          'Aggregate closure evidence must preserve cross-platform capability accounting without product-ready claims'
       )
     )
     .pipe(

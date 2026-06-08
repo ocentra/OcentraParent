@@ -37,6 +37,14 @@ const closureAccounting = {
   childRuntimeRequiredArtifactCount: 10,
   childRuntimePresentArtifactCount: 0,
   childRuntimeMissingArtifactCount: 10,
+  crossPlatformCapabilityRowCount: 8,
+  crossPlatformLocalProofPassedRowCount: 6,
+  crossPlatformCiRunnableRowCount: 6,
+  crossPlatformCiManualRequiredRowCount: 1,
+  crossPlatformHostToolUnavailableRowCount: 1,
+  crossPlatformAndroidSdkToolchainObservedRows: 1,
+  crossPlatformAndroidGradleBuildObservedRows: 1,
+  crossPlatformProductReadyRowCount: 0,
   physicalDeviceEvidenceReviewRowCount: 2,
   physicalDeviceEvidenceReviewArtifactMissingRowCount: 2,
   physicalDeviceEvidenceReviewContentReviewRequiredRowCount: 0,
@@ -166,6 +174,14 @@ function expectPlatformClosureAccounting(proof: TrackingRealRuntimeHandoffProof)
   expect(proof.closureAccounting.authorityRuntimePresentArtifactCount).toBe(0);
   expect(proof.closureAccounting.authorityRuntimeMissingArtifactCount).toBe(20);
   expect(proof.closureAccounting.authorityRuntimeBlockerCount).toBe(10);
+  expect(proof.closureAccounting.crossPlatformCapabilityRowCount).toBe(8);
+  expect(proof.closureAccounting.crossPlatformLocalProofPassedRowCount).toBe(6);
+  expect(proof.closureAccounting.crossPlatformCiRunnableRowCount).toBe(6);
+  expect(proof.closureAccounting.crossPlatformCiManualRequiredRowCount).toBe(1);
+  expect(proof.closureAccounting.crossPlatformHostToolUnavailableRowCount).toBe(1);
+  expect(proof.closureAccounting.crossPlatformAndroidSdkToolchainObservedRows).toBe(1);
+  expect(proof.closureAccounting.crossPlatformAndroidGradleBuildObservedRows).toBe(1);
+  expect(proof.closureAccounting.crossPlatformProductReadyRowCount).toBe(0);
 }
 
 function expectRuntimeClosureAccounting(proof: TrackingRealRuntimeHandoffProof): void {

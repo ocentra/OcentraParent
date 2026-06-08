@@ -119,6 +119,10 @@ const sourceProofs = [
     'output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-gate/71-full-product-ui-runtime-preflight-proof.json'
   ),
   sourceProof(
+    'cross-platform-runtime-capability',
+    'output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-gate/75-cross-platform-runtime-capability-proof.json'
+  ),
+  sourceProof(
     'production-durable-workers-readiness-blocker',
     'output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-gate/57-production-durable-workers-readiness-blocker-proof.json'
   ),
@@ -172,6 +176,7 @@ async function main() {
   run('cmd', ['/c', 'node', 'scripts/test/tracking-android-emulator-artifact-inventory-proof.mjs']);
   run('cmd', ['/c', 'node', 'scripts/test/tracking-ios-simulator-artifact-inventory-proof.mjs']);
   run('cmd', ['/c', 'node', 'scripts/test/tracking-parent-child-local-runtime-bridge-proof.mjs']);
+  run('cmd', ['/c', 'node', 'scripts/test/tracking-cross-platform-runtime-capability-proof.mjs']);
   run('cmd', ['/c', 'node', 'scripts/test/tracking-physical-device-artifact-gate-proof.mjs']);
   run('cmd', ['/c', 'node', 'scripts/test/tracking-physical-device-evidence-review-proof.mjs']);
   run('cmd', ['/c', 'node', 'scripts/test/tracking-retention-runtime-artifact-gate-proof.mjs']);
@@ -237,6 +242,9 @@ async function aggregateEvidence() {
   );
   const parentChildLocalRuntimeBridgeProof = await readJson(
     'test-results/tracking-parent-child-local-runtime-bridge-proof/proof.json'
+  );
+  const crossPlatformRuntimeCapabilityProof = await readJson(
+    'test-results/tracking-cross-platform-runtime-capability-proof/proof.json'
   );
   const physicalDeviceEvidenceReviewProof = await readJson(
     'test-results/tracking-physical-device-evidence-review-proof/proof.json'
@@ -305,6 +313,18 @@ async function aggregateEvidence() {
     parentChildLocalRuntimeDeadLetterCount: parentChildLocalRuntimeBridgeProof.summary.deadLetterCount,
     parentChildLocalRuntimeChildAgentPhaseCount: parentChildLocalRuntimeBridgeProof.summary.childAgentPhaseCount,
     parentChildLocalRuntimeProductReadyRowCount: parentChildLocalRuntimeBridgeProof.summary.productReadyRows,
+    crossPlatformCapabilityRowCount: crossPlatformRuntimeCapabilityProof.summary.rowCount,
+    crossPlatformLocalProofPassedRowCount: crossPlatformRuntimeCapabilityProof.summary.localProofPassedRows,
+    crossPlatformCiRunnableRowCount: crossPlatformRuntimeCapabilityProof.summary.ciRunnableRows,
+    crossPlatformCiManualRequiredRowCount: crossPlatformRuntimeCapabilityProof.summary.ciManualRequiredRows,
+    crossPlatformHostToolUnavailableRowCount: crossPlatformRuntimeCapabilityProof.summary.hostToolUnavailableRows,
+    crossPlatformAndroidSdkToolchainObservedRows: Number(
+      crossPlatformRuntimeCapabilityProof.productClaims.androidSdkToolchainObserved
+    ),
+    crossPlatformAndroidGradleBuildObservedRows: Number(
+      crossPlatformRuntimeCapabilityProof.productClaims.androidGradleProjectBuildObserved
+    ),
+    crossPlatformProductReadyRowCount: crossPlatformRuntimeCapabilityProof.summary.productReadyRows,
     physicalDeviceEvidenceReviewRowCount: physicalDeviceEvidenceReviewProof.summary.rowCount,
     physicalDeviceEvidenceReviewArtifactMissingRowCount: physicalDeviceEvidenceReviewProof.summary.artifactMissingRows,
     physicalDeviceEvidenceReviewContentReviewRequiredRowCount:
@@ -427,6 +447,19 @@ function assertProof(proof) {
     );
   }
   if (
+    proof.aggregateEvidence.crossPlatformCapabilityRowCount < 8 ||
+    proof.aggregateEvidence.crossPlatformLocalProofPassedRowCount < 6 ||
+    proof.aggregateEvidence.crossPlatformAndroidSdkToolchainObservedRows < 1 ||
+    proof.aggregateEvidence.crossPlatformAndroidGradleBuildObservedRows < 1 ||
+    proof.aggregateEvidence.crossPlatformProductReadyRowCount !== 0
+  ) {
+    throw new Error(
+      `Tracking product readiness closure lost cross-platform capability accounting: ${JSON.stringify(
+        proof.aggregateEvidence
+      )}`
+    );
+  }
+  if (
     proof.aggregateEvidence.physicalDeviceEvidenceReviewStatusObservedRowCount < 0 ||
     proof.aggregateEvidence.physicalDeviceEvidenceReviewStatusObservedRowCount >
       proof.aggregateEvidence.physicalDeviceEvidenceReviewRowCount ||
@@ -521,6 +554,13 @@ function sourceSnapshot(proof) {
     `- parentChildLocalRuntimeStoredEventCount: ${proof.aggregateEvidence.parentChildLocalRuntimeStoredEventCount}`,
     `- parentChildLocalRuntimeDeadLetterCount: ${proof.aggregateEvidence.parentChildLocalRuntimeDeadLetterCount}`,
     `- parentChildLocalRuntimeChildAgentPhaseCount: ${proof.aggregateEvidence.parentChildLocalRuntimeChildAgentPhaseCount}`,
+    `- crossPlatformCapabilityRowCount: ${proof.aggregateEvidence.crossPlatformCapabilityRowCount}`,
+    `- crossPlatformLocalProofPassedRowCount: ${proof.aggregateEvidence.crossPlatformLocalProofPassedRowCount}`,
+    `- crossPlatformCiRunnableRowCount: ${proof.aggregateEvidence.crossPlatformCiRunnableRowCount}`,
+    `- crossPlatformCiManualRequiredRowCount: ${proof.aggregateEvidence.crossPlatformCiManualRequiredRowCount}`,
+    `- crossPlatformHostToolUnavailableRowCount: ${proof.aggregateEvidence.crossPlatformHostToolUnavailableRowCount}`,
+    `- crossPlatformAndroidSdkToolchainObservedRows: ${proof.aggregateEvidence.crossPlatformAndroidSdkToolchainObservedRows}`,
+    `- crossPlatformAndroidGradleBuildObservedRows: ${proof.aggregateEvidence.crossPlatformAndroidGradleBuildObservedRows}`,
     `- physicalDeviceEvidenceReviewRowCount: ${proof.aggregateEvidence.physicalDeviceEvidenceReviewRowCount}`,
     `- physicalDeviceEvidenceReviewArtifactMissingRowCount: ${proof.aggregateEvidence.physicalDeviceEvidenceReviewArtifactMissingRowCount}`,
     `- physicalDeviceEvidenceReviewContentReviewRequiredRowCount: ${proof.aggregateEvidence.physicalDeviceEvidenceReviewContentReviewRequiredRowCount}`,
