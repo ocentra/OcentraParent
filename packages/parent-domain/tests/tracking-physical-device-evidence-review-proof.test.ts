@@ -18,9 +18,12 @@ describe('tracking physical device evidence review proof', () => {
     expect(proof.rows.every((row) => row.status === 'artifact-missing')).toBe(true);
     expect(proof.rows.every((row) => row.reviewerRequired)).toBe(true);
     expect(proof.rows.every((row) => row.contentAccepted === false)).toBe(true);
+    expect(proof.rows.every((row) => row.physicalDeviceStatusObserved === false)).toBe(true);
     expect(proof.summary.artifactMissingRows).toBe(2);
     expect(proof.summary.contentReviewRequiredRows).toBe(0);
     expect(proof.summary.contentAcceptedRows).toBe(0);
+    expect(proof.summary.physicalDeviceStatusObservedRows).toBe(0);
+    expect(proof.summary.supportingStatusArtifactCount).toBe(0);
     expect(proof.productClaims.productClaimReady).toBe(false);
     expect(proof.productClaims.physicalDeviceBehaviorClaimed).toBe(false);
   });
@@ -71,6 +74,8 @@ describe('tracking physical device evidence review overclaim rejection', () => {
       requiredArtifacts: ['00-run-metadata.json'],
       presentArtifacts: ['00-run-metadata.json'],
       missingArtifacts: [],
+      supportingStatusProofRef: 'test-results/tracking-android-physical-device-runtime-proof/proof.json',
+      supportingStatusArtifacts: ['test-results/tracking-android-physical-device-runtime-proof/00-device.json'],
       acceptanceCriteria: [
         'Record a real child Android device run.',
         'Capture permission state.',
@@ -90,6 +95,7 @@ describe('tracking physical device evidence review overclaim rejection', () => {
         'Product claims stay false.',
       ],
       artifactSetComplete: true,
+      physicalDeviceStatusObserved: true,
       reviewerRequired: true,
       contentAccepted: true,
       physicalDeviceBehaviorClaimed: false,

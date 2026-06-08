@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { spawnSync } from 'node:child_process';
-import { mkdir, stat, writeFile } from 'node:fs/promises';
+import { mkdir, readFile, stat, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 import { pathToFileURL } from 'node:url';
 
@@ -9,6 +9,7 @@ const proofMode = 'tracking-physical-device-artifact-gate-proof';
 const resultDir = path.join(repoRoot, 'test-results', proofMode);
 const namedProofRoot = path.join(repoRoot, 'output', 'tracking-plan-proof', proofMode);
 const output33 = path.join(repoRoot, 'output', 'tracking-plan-proof', '33-proof-gates-fixtures-rollout-and-pr-gate');
+const androidPhysicalStatusProofRef = 'test-results/tracking-android-physical-device-runtime-proof/proof.json';
 const commands = [];
 
 await main();
@@ -44,11 +45,25 @@ async function main() {
 }
 
 async function collectInventories(plans) {
+  const androidPhysicalStatusProof = await readOptionalJson(androidPhysicalStatusProofRef);
+
   return Promise.all(
-    plans.map(async (plan) => ({
-      platform: plan.platform,
-      presentArtifacts: await presentArtifactsForRoot(path.join(repoRoot, plan.proofRoot), plan.requiredArtifacts),
-    }))
+    plans.map(async (plan) => {
+      const inventory = {
+        platform: plan.platform,
+        presentArtifacts: await presentArtifactsForRoot(path.join(repoRoot, plan.proofRoot), plan.requiredArtifacts),
+      };
+
+      if (plan.platform !== 'android' || !androidPhysicalStatusProof) {
+        return inventory;
+      }
+
+      return {
+        ...inventory,
+        supportingStatusProofRef: androidPhysicalStatusProofRef,
+        supportingStatusArtifacts: physicalStatusArtifactsFrom(androidPhysicalStatusProof),
+      };
+    })
   );
 }
 
@@ -73,6 +88,29 @@ async function pathExists(filePath) {
   }
 }
 
+async function readOptionalJson(relativePathValue) {
+  try {
+    return JSON.parse(await readFile(path.join(repoRoot, relativePathValue), 'utf8'));
+  } catch (error) {
+    if (error?.code === 'ENOENT') return null;
+    throw error;
+  }
+}
+
+function physicalStatusArtifactsFrom(proof) {
+  const row = proof.rows?.[0];
+  if (!row || row.physicalDeviceRuntimeObserved !== true) return [];
+  if (
+    row.physicalLocationRuntimeClaimed ||
+    row.physicalGeofenceRuntimeClaimed ||
+    row.androidSystemGeofenceDeliveryClaimed
+  ) {
+    throw new Error('Android physical status proof unexpectedly claims physical behavior');
+  }
+
+  return [...(row.presentArtifacts ?? [])];
+}
+
 function buildProof({ generatedAt, readModel }) {
   return {
     schemaVersion: 1,
@@ -91,6 +129,11 @@ function buildProof({ generatedAt, readModel }) {
       completeRows: readModel.rows.filter((row) => row.physicalArtifactSetComplete).length,
       manualRequiredRows: readModel.rows.filter((row) => !row.physicalArtifactSetComplete).length,
       missingArtifactCount: readModel.rows.reduce((total, row) => total + row.missingArtifacts.length, 0),
+      physicalDeviceStatusObservedRows: readModel.rows.filter((row) => row.physicalDeviceStatusObserved).length,
+      supportingStatusArtifactCount: readModel.rows.reduce(
+        (total, row) => total + row.supportingStatusArtifacts.length,
+        0
+      ),
       physicalDeviceBehaviorClaimedRows: readModel.rows.filter((row) => row.physicalDeviceBehaviorClaimed).length,
       productReadyRows: readModel.rows.filter((row) => row.productClaimReady).length,
       acceptanceCriteriaCount: readModel.rows.reduce((total, row) => total + row.acceptanceCriteria.length, 0),
@@ -118,6 +161,8 @@ function assertProof(proof) {
   assert.equal(proof.summary.rowCount, 2, 'expected Android and iOS physical artifact rows');
   assert.equal(proof.summary.physicalDeviceBehaviorClaimedRows, 0, 'no physical-device behavior claims');
   assert.equal(proof.summary.productReadyRows, 0, 'no product-ready rows');
+  assert.ok(proof.summary.physicalDeviceStatusObservedRows <= 1, 'only Android status support can be local on Windows');
+  assert.ok(proof.summary.supportingStatusArtifactCount >= 0, 'supporting status artifacts are counted separately');
   assert.equal(proof.summary.acceptanceCriteriaCount, proof.summary.rowCount * 4, 'expected acceptance criteria');
   assert.equal(
     proof.summary.manualValidationCommandCount,
@@ -164,6 +209,8 @@ function sourceSnapshot(proof) {
     `- rowCount: ${proof.summary.rowCount}`,
     `- manualRequiredRows: ${proof.summary.manualRequiredRows}`,
     `- missingArtifactCount: ${proof.summary.missingArtifactCount}`,
+    `- physicalDeviceStatusObservedRows: ${proof.summary.physicalDeviceStatusObservedRows}`,
+    `- supportingStatusArtifactCount: ${proof.summary.supportingStatusArtifactCount}`,
     `- acceptanceCriteriaCount: ${proof.summary.acceptanceCriteriaCount}`,
     `- manualValidationCommandCount: ${proof.summary.manualValidationCommandCount}`,
     `- artifactAcceptanceNoteCount: ${proof.summary.artifactAcceptanceNoteCount}`,
@@ -190,6 +237,9 @@ function manualValidationRunbook(proof) {
     lines.push(`- proofRoot: ${row.proofRoot}`);
     lines.push(`- status: ${row.status}`);
     lines.push(`- missingArtifacts: ${row.missingArtifacts.length}`);
+    lines.push(`- physicalDeviceStatusObserved: ${row.physicalDeviceStatusObserved}`);
+    lines.push(`- supportingStatusProofRef: ${row.supportingStatusProofRef}`);
+    lines.push(`- supportingStatusArtifacts: ${row.supportingStatusArtifacts.length}`);
     lines.push('');
     lines.push('Acceptance criteria:');
     for (const criterion of row.acceptanceCriteria) lines.push(`- ${criterion}`);
@@ -202,6 +252,11 @@ function manualValidationRunbook(proof) {
     lines.push('');
     lines.push('Acceptance notes:');
     for (const note of row.artifactAcceptanceNotes) lines.push(`- ${note}`);
+    if (row.supportingStatusArtifacts.length > 0) {
+      lines.push('');
+      lines.push('Supporting status artifacts:');
+      for (const artifact of row.supportingStatusArtifacts) lines.push(`- ${artifact}`);
+    }
     lines.push('');
   }
 

@@ -146,14 +146,17 @@ Every checked item must cite one or more proof artifacts.
       `test-results/tracking-android-physical-device-runtime-proof/` without
       claiming physical location samples, physical geofence transitions,
       authority, production, or product-ready Android tracking. WP33
-      physical-device artifact gate proof now writes a named proof root and
-      manual validation runbook at
+      physical-device artifact gate proof now consumes those 13 physical
+      package/service/status artifacts as Android supporting status evidence,
+      while keeping the separate physical behavior artifact set missing. It
+      writes a named proof root and manual validation runbook at
       `output/tracking-plan-proof/tracking-physical-device-artifact-gate-proof/`
       with Android physical-device acceptance criteria, commands, required
       artifacts, and no-claim acceptance notes. WP33 physical-device evidence
-      review proof now consumes that gate and keeps Android artifact content
-      `artifact-missing` or `content-review-required`, with zero accepted
-      content rows and zero product-ready rows.
+      review proof now consumes that gate, records one
+      `physicalDeviceStatusObserved` Android row with 13 supporting status
+      artifacts, and keeps Android behavior artifact content `artifact-missing`
+      with zero accepted content rows and zero product-ready rows.
 - [ ] iOS background/region claims have real device permission/background
       proof. WP11/WP12 parent-domain manual-required proof rows now keep
       authorization, sample, degraded-state, Always/background, region,
@@ -1095,16 +1098,22 @@ Every implementation workpack must update, or explicitly justify not updating:
       command:
       `node scripts/test/tracking-physical-device-artifact-gate-proof.mjs`.
       Current Android/iOS rows are `manual-required`, missing the real-device
-      artifact sets, and keep physical-device behavior, authority, provider
-      delivery, production workers, and product-ready tracking false.
+      behavior artifact sets, and keep physical-device behavior, authority,
+      provider delivery, production workers, and product-ready tracking false.
+      The Android row separately records the Samsung S9 package/service/status
+      proof as 13 supporting status artifacts without completing the behavior
+      artifact set.
 - [x] Physical-device evidence review proof now consumes the physical artifact
       gate and proves file presence is not content approval. Proof:
       `output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-gate/73-physical-device-evidence-review-proof.json`;
       command:
       `node scripts/test/tracking-physical-device-evidence-review-proof.mjs`.
       Current Android/iOS rows have zero accepted content rows and zero
-      product-ready rows; product-readiness closure and real-runtime handoff
-      now carry those review counts before any real-device claim can advance.
+      product-ready rows; the Android row carries one physical status-observed
+      support chain with 13 artifacts while still reporting `artifact-missing`
+      for physical location/geofence behavior. Product-readiness closure and
+      real-runtime handoff now carry those review counts before any real-device
+      behavior claim can advance.
 - [x] Child-runtime artifact gate proof now verifies the required real
       child-device runtime evidence root and required artifact names before any
       actual child-device delivery/execution, rendered child runtime UI, parent

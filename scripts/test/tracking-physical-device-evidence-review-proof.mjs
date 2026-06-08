@@ -78,6 +78,11 @@ function assertProof(proof) {
   assert.equal(proof.summary.contentAcceptedRows, 0, 'no physical artifact content accepted');
   assert.equal(proof.summary.physicalDeviceBehaviorClaimedRows, 0, 'no physical-device behavior claims');
   assert.equal(proof.summary.productReadyRows, 0, 'no product-ready rows');
+  assert.ok(
+    proof.summary.physicalDeviceStatusObservedRows <= 1,
+    'only Android physical status support can be local on this host'
+  );
+  assert.ok(proof.summary.supportingStatusArtifactCount >= 0, 'supporting status artifacts are counted separately');
   assert.equal(proof.summary.acceptanceCriteriaCount, proof.summary.rowCount * 4, 'expected acceptance criteria');
   assert.equal(
     proof.summary.manualValidationCommandCount,
@@ -120,6 +125,8 @@ function sourceSnapshot(proof) {
     `- artifactMissingRows: ${proof.summary.artifactMissingRows}`,
     `- contentReviewRequiredRows: ${proof.summary.contentReviewRequiredRows}`,
     `- contentAcceptedRows: ${proof.summary.contentAcceptedRows}`,
+    `- physicalDeviceStatusObservedRows: ${proof.summary.physicalDeviceStatusObservedRows}`,
+    `- supportingStatusArtifactCount: ${proof.summary.supportingStatusArtifactCount}`,
     '- physicalDeviceBehaviorClaimedRows: 0',
     '- productReadyRows: 0',
     '- proof module: packages/parent-domain/src/tracking-physical-device-evidence-review-proof.ts',
@@ -143,6 +150,9 @@ function manualReviewRunbook(proof) {
     lines.push(`- proofRoot: ${row.proofRoot}`);
     lines.push(`- status: ${row.status}`);
     lines.push(`- artifactSetComplete: ${row.artifactSetComplete}`);
+    lines.push(`- physicalDeviceStatusObserved: ${row.physicalDeviceStatusObserved}`);
+    lines.push(`- supportingStatusProofRef: ${row.supportingStatusProofRef}`);
+    lines.push(`- supportingStatusArtifacts: ${row.supportingStatusArtifacts.length}`);
     lines.push(`- contentAccepted: ${row.contentAccepted}`);
     lines.push('');
     lines.push('Review criteria:');
@@ -153,6 +163,11 @@ function manualReviewRunbook(proof) {
     lines.push('');
     lines.push('Review notes:');
     for (const note of row.artifactAcceptanceNotes) lines.push(`- ${note}`);
+    if (row.supportingStatusArtifacts.length > 0) {
+      lines.push('');
+      lines.push('Supporting status artifacts:');
+      for (const artifact of row.supportingStatusArtifacts) lines.push(`- ${artifact}`);
+    }
     lines.push('');
   }
 
