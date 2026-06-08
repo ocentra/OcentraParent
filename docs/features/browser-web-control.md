@@ -377,10 +377,17 @@ control while being more honest about managed versus unmanaged sources.
   (`star2qltecs`, `SM_G965W`). That proof filters out emulator evidence and
   captures package/default VIEW handler query evidence plus UI-tree/logcat
   hashes without persisting the raw device serial. This upgrades only physical
-  Android package/default-handler visibility; physical owned-shell custody,
-  Device Owner/Browser Role behavior, exact URL policy, active-tab proof, final
-  policy execution, browser blocking, Play signing, release readiness, and broad
-  enforcement remain unclaimed.
+  Android package/default-handler visibility; Device Owner/Browser Role
+  behavior, exact URL policy, active-tab proof, final policy execution, browser
+  blocking, Play signing, release readiness, and broad enforcement remain
+  unclaimed.
+- Browser-plan WP05 now also has a typed physical Android owned-shell current
+  runtime projection. It consumes the real owned-shell proof artifact and
+  accepts the Samsung Galaxy S9 row only when install, explicit launch, UI-tree,
+  and screenshot evidence are present. The same read model keeps emulator
+  Browser Role routing emulator-scoped and emits a manual-required row for
+  physical Device Owner, physical Browser Role routing, exact URL, active tab,
+  VPN/DNS, UsageStats, Accessibility, final policy execution, and enforcement.
 - Browser-plan WP05 now adds Windows managed-CDP proof for an
   Ocentra-launched temporary managed browser profile. The proof launches real
   Edge/Chrome-family browser infrastructure on Windows, connects through

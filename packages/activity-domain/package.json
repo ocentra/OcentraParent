@@ -25,6 +25,10 @@
       "import": "./dist/browser.js",
       "types": "./dist/browser.d.ts"
     },
+    "./browser-android-owned-shell-runtime": {
+      "import": "./dist/browser-android-owned-shell-runtime.js",
+      "types": "./dist/browser-android-owned-shell-runtime.d.ts"
+    },
     "./browser-managed-profile-store": {
       "import": "./dist/browser-managed-profile-store.js",
       "types": "./dist/browser-managed-profile-store.d.ts"

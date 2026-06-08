@@ -1220,11 +1220,25 @@ device keyguard with black screencap output. Evidence:
 `test-results/browser-platform-android-owned-shell-proof/proof.json` and
 `output/browser-plan-proof/05-cross-platform-inventory-matrix/15-android-owned-browser-shell-proof.json`.
 This improves WP05 physical Android custody boundary evidence but keeps WP05
-partial/manual-required. It does not claim visible physical owned-shell page
-proof, physical Device Owner enrollment, physical browser-role routing,
-physical exact URL policy, known-active tab proof, VPN/DNS proof,
-UsageStats/Accessibility proof, Play signing, final policy execution, browser
-blocking, broad content-filter enforcement, or product completion.
+partial/manual-required. It does not claim physical Device Owner enrollment,
+physical browser-role routing, physical exact URL policy, known-active tab
+proof, VPN/DNS proof, UsageStats/Accessibility proof, Play signing, final policy
+execution, browser blocking, broad content-filter enforcement, or product
+completion.
+
+WP05 Android owned-shell current-runtime addendum:
+`browser-android-owned-shell-runtime` adds an activity-domain projection from
+the real Android owned-shell proof artifact into a typed current-runtime read
+model. The projection accepts the physical Samsung Galaxy S9 owned-shell row
+only when install, explicit launch, UI-tree, and screenshot evidence are all
+present, keeps emulator Browser Role routing emulator-scoped, and emits a
+manual-required row for the remaining physical Device Owner, physical Browser
+Role, exact URL, active-tab, VPN/DNS, UsageStats, Accessibility, final policy,
+and enforcement gaps. Evidence:
+`test-results/browser-platform-android-owned-shell-runtime-proof/proof.json` and
+`output/browser-plan-proof/05-cross-platform-inventory-matrix/16-android-owned-shell-runtime-proof.json`.
+The WP05 aggregate gate now requires that artifact. No product capability
+checklist update is claimed because WP05 remains partial/manual-required.
 
 SOCIAL-23/SOCIAL-24 managed-browser policy execution addendum:
 `social-managed-browser-policy-execution` adds a parent-domain managed-session

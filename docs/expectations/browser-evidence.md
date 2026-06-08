@@ -449,6 +449,11 @@ browser secrets.
    owned shell, but it does not prove exact active-tab custody, final policy
    execution, broad content filtering, or silent default-browser assignment on a
    physical child device.
+   Physical Android owned-shell current-runtime rows may be accepted only when
+   the proof has install, explicit launch, UI-tree, and screenshot evidence from
+   the physical target. Those rows still must not claim physical Device Owner,
+   physical Browser Role routing, exact URL policy, active-tab proof, VPN/DNS,
+   UsageStats, Accessibility, final policy execution, or enforcement.
    evidence and, in enforcement mode, may be blocked or terminated.
 
 8. Hand off stored evidence to portal, policy, and AI consumers.
