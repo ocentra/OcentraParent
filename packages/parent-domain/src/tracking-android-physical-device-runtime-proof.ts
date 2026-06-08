@@ -23,6 +23,10 @@ export const TrackingAndroidPhysicalDeviceRuntimeCategorySchema = Schema.Literal
   'foreground-service',
   'device-status',
   'ui-screenshot',
+  'permission-state',
+  'physical-location-runtime',
+  'physical-geofence-runtime',
+  'physical-route-observation',
   'validation-log'
 );
 
@@ -40,6 +44,12 @@ export const RequiredTrackingAndroidPhysicalDeviceRuntimeArtifactRefs = [
   'test-results/tracking-android-physical-device-runtime-proof/09-ui.xml',
   'test-results/tracking-android-physical-device-runtime-proof/10-screen.png',
   'test-results/tracking-android-physical-device-runtime-proof/11-logcat.txt',
+  'test-results/tracking-android-physical-device-runtime-proof/12-package-dump.txt',
+  'test-results/tracking-android-physical-device-runtime-proof/13-permission-state.json',
+  'test-results/tracking-android-physical-device-runtime-proof/14-background-location-sample-prefs.xml',
+  'test-results/tracking-android-physical-device-runtime-proof/15-geofence-transition-prefs.xml',
+  'test-results/tracking-android-physical-device-runtime-proof/16-physical-route-observation.txt',
+  'test-results/tracking-android-physical-device-runtime-proof/17-location-manager-state.txt',
 ] as const;
 
 const TrackingAndroidPhysicalDeviceRuntimeArtifactRowSchema = Schema.Struct({
@@ -70,6 +80,9 @@ export const TrackingAndroidPhysicalDeviceRuntimeInputSchema = withParser(
     foregroundPermissionGranted: Schema.Boolean,
     backgroundPermissionGranted: Schema.Boolean,
     locationSampleObserved: Schema.Boolean,
+    backgroundLocationSampleCount: TrackingAndroidPhysicalDeviceRuntimeCountSchema,
+    physicalRouteObservationWindowSeconds: TrackingAndroidPhysicalDeviceRuntimeCountSchema,
+    shellLocationInjectionAvailable: Schema.Boolean,
     localGeofenceTransitionCount: TrackingAndroidPhysicalDeviceRuntimeCountSchema,
     localGeofenceDwellCount: TrackingAndroidPhysicalDeviceRuntimeCountSchema,
     androidSystemGeofenceTransitionCount: TrackingAndroidPhysicalDeviceRuntimeCountSchema,
@@ -113,6 +126,9 @@ const TrackingAndroidPhysicalDeviceRuntimeRowBaseSchema = Schema.Struct({
   foregroundPermissionGranted: Schema.Boolean,
   backgroundPermissionGranted: Schema.Boolean,
   locationSampleObserved: Schema.Boolean,
+  backgroundLocationSampleCount: TrackingAndroidPhysicalDeviceRuntimeCountSchema,
+  physicalRouteObservationWindowSeconds: TrackingAndroidPhysicalDeviceRuntimeCountSchema,
+  shellLocationInjectionAvailable: Schema.Boolean,
   localGeofenceTransitionCount: TrackingAndroidPhysicalDeviceRuntimeCountSchema,
   localGeofenceDwellCount: TrackingAndroidPhysicalDeviceRuntimeCountSchema,
   androidSystemGeofenceTransitionCount: TrackingAndroidPhysicalDeviceRuntimeCountSchema,
@@ -147,6 +163,11 @@ export const TrackingAndroidPhysicalDeviceRuntimeProofSchema = withParser(
       missingArtifactCount: TrackingAndroidPhysicalDeviceRuntimeCountSchema,
       packageRuntimeArtifactCount: TrackingAndroidPhysicalDeviceRuntimeCountSchema,
       statusArtifactCount: TrackingAndroidPhysicalDeviceRuntimeCountSchema,
+      physicalLocationArtifactCount: TrackingAndroidPhysicalDeviceRuntimeCountSchema,
+      physicalGeofenceArtifactCount: TrackingAndroidPhysicalDeviceRuntimeCountSchema,
+      backgroundLocationSampleCount: TrackingAndroidPhysicalDeviceRuntimeCountSchema,
+      physicalRouteObservationWindowSeconds: TrackingAndroidPhysicalDeviceRuntimeCountSchema,
+      shellLocationInjectionAvailable: Schema.Boolean,
       localGeofenceTransitionCount: TrackingAndroidPhysicalDeviceRuntimeCountSchema,
       localGeofenceDwellCount: TrackingAndroidPhysicalDeviceRuntimeCountSchema,
       androidSystemGeofenceTransitionCount: TrackingAndroidPhysicalDeviceRuntimeCountSchema,
@@ -265,6 +286,9 @@ function physicalDeviceRuntimeRow(generatedAt: string, input: TrackingAndroidPhy
     foregroundPermissionGranted: input.foregroundPermissionGranted,
     backgroundPermissionGranted: input.backgroundPermissionGranted,
     locationSampleObserved: input.locationSampleObserved,
+    backgroundLocationSampleCount: input.backgroundLocationSampleCount,
+    physicalRouteObservationWindowSeconds: input.physicalRouteObservationWindowSeconds,
+    shellLocationInjectionAvailable: input.shellLocationInjectionAvailable,
     localGeofenceTransitionCount: input.localGeofenceTransitionCount,
     localGeofenceDwellCount: input.localGeofenceDwellCount,
     androidSystemGeofenceTransitionCount: input.androidSystemGeofenceTransitionCount,
@@ -287,6 +311,15 @@ function summaryFrom(row: TrackingAndroidPhysicalDeviceRuntimeRowInput) {
       ['package-runtime', 'foreground-service', 'ui-screenshot'].includes(artifact.category)
     ).length,
     statusArtifactCount: row.artifactRows.filter((artifact) => artifact.category === 'device-status').length,
+    physicalLocationArtifactCount: row.artifactRows.filter(
+      (artifact) => artifact.category === 'physical-location-runtime'
+    ).length,
+    physicalGeofenceArtifactCount: row.artifactRows.filter(
+      (artifact) => artifact.category === 'physical-geofence-runtime'
+    ).length,
+    backgroundLocationSampleCount: row.backgroundLocationSampleCount,
+    physicalRouteObservationWindowSeconds: row.physicalRouteObservationWindowSeconds,
+    shellLocationInjectionAvailable: row.shellLocationInjectionAvailable,
     localGeofenceTransitionCount: row.localGeofenceTransitionCount,
     localGeofenceDwellCount: row.localGeofenceDwellCount,
     androidSystemGeofenceTransitionCount: row.androidSystemGeofenceTransitionCount,
