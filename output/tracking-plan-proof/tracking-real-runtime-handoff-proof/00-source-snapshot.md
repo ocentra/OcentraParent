@@ -1,7 +1,7 @@
 # Tracking Real Runtime Handoff Source Snapshot
 
 - generatedAt: 2026-06-08T01:05:00.000Z
-- commit: 601f1b585ee912699447e64bde5b493994aa2264
+- commit: cccd12480776b881be86959c1069601587e2f0c6
 - requiredProofTier: P4_REAL_RUNTIME_HANDOFF
 - currentProofTier: P3_LOCAL_DEV_MACHINE
 - status: manual_required
@@ -35,6 +35,9 @@
 - claimAuditApprovedManualRequiredRowCount: 1
 - claimAuditManualProviderRuntimeRequiredRowCount: 1
 - claimAuditProductionRuntimeRequiredRowCount: 2
+- claimAuditAcceptanceCriteriaCount: 36
+- claimAuditManualValidationCommandCount: 27
+- claimAuditArtifactAcceptanceNoteCount: 36
 - ciRunnableRowCount: 0
 - does not prove physical-device, child-device runtime, authority, provider, retention product runtime, escalation, production, or product-ready tracking behavior
 

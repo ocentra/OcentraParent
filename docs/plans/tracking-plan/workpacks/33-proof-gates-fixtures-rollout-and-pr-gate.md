@@ -164,6 +164,11 @@ Proof root: `output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-g
   matrix to each hard claim row: required criteria, manual validation commands,
   and artifact acceptance notes. This improves P4 handoff readiness while
   keeping all audited claims and product-ready tracking false.
+- Refreshed real-runtime handoff proof now consumes that claim-audit acceptance
+  matrix for matching hard runtime rows, so the generated manual validation
+  runbook carries source-derived acceptance criteria, claim-audit validation
+  commands, and claim-approval-false artifact notes without introducing a
+  duplicate handoff source of truth.
 - Refreshed tracking product-readiness closure proof also consumes the
   claim-audit proof, which keeps Android/iOS/manual-desktop, child-runtime,
   full-product UI, authority, provider, retention-runtime, production-worker,

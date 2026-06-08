@@ -1109,7 +1109,11 @@ Every implementation workpack must update, or explicitly justify not updating:
       and production-worker required/present/missing artifact counts, plus
       claim-audit blocker counts and tier split, and classifies the remaining manual follow-up
       as six physical/runtime rows, one provider-runtime row, two
-      production-runtime rows, and zero CI-runnable rows.
+      production-runtime rows, and zero CI-runnable rows. It also consumes the
+      matching claim-audit acceptance matrix so the generated handoff runbook
+      carries source-derived criteria, manual validation commands, and
+      `claimApproved remains false` artifact notes without creating a second
+      truth source.
 
 ## Explicit Merge-Blocking Checklist
 

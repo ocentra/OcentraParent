@@ -55,13 +55,19 @@ async function main() {
 async function buildProof() {
   const proofModule = await importDist('tracking-real-runtime-handoff-proof.js');
   const closure = await readJson('test-results/tracking-product-readiness-closure-proof/proof.json');
+  const claimAudit = await readJson('test-results/tracking-claim-audit-proof/proof.json');
   const inventories = [];
   for (const gate of proofModule.RequiredTrackingRealRuntimeHandoffGates) {
     const sourceProof = await readJson(gate.sourceProofRef);
     inventories.push(handoffInventoryFrom(gate, sourceProof));
   }
   const closureAccounting = closure.aggregateEvidence;
-  const readModel = proofModule.buildTrackingRealRuntimeHandoffProof(generatedAt, inventories, closureAccounting);
+  const readModel = proofModule.buildTrackingRealRuntimeHandoffProof(
+    generatedAt,
+    inventories,
+    closureAccounting,
+    claimAuditInventoriesFrom(claimAudit, proofModule.RequiredTrackingRealRuntimeHandoffGates)
+  );
   return {
     schemaVersion: 1,
     proofMode,
@@ -123,6 +129,22 @@ function unique(values) {
   return [...new Set(values)];
 }
 
+function claimAuditInventoriesFrom(claimAudit, gates) {
+  return gates.map((gate) => {
+    const row = claimAudit.rows?.find((candidate) => candidate.auditArea === gate.handoffArea);
+    if (!row) {
+      throw new Error(`Claim audit proof has no acceptance row for ${gate.handoffArea}`);
+    }
+    return {
+      auditArea: row.auditArea,
+      sourceProofRef: row.sourceProofRef,
+      acceptanceCriteria: row.acceptanceCriteria,
+      manualValidationCommands: row.manualValidationCommands,
+      artifactAcceptanceNotes: row.artifactAcceptanceNotes,
+    };
+  });
+}
+
 function assertProof(proof) {
   const blockerSet = new Set(proof.remainingProductBlockers);
   const missingBlockers = requiredClosureBlockers.filter((blocker) => !blockerSet.has(blocker));
@@ -143,6 +165,13 @@ function assertProof(proof) {
   }
   if (proof.summary.requiredValidationCommandCount < proof.handoffRows.length) {
     throw new Error(`Real-runtime handoff is missing manual validation commands: ${JSON.stringify(proof.summary)}`);
+  }
+  if (
+    proof.summary.claimAuditAcceptanceCriteriaCount < proof.handoffRows.length ||
+    proof.summary.claimAuditManualValidationCommandCount < proof.handoffRows.length ||
+    proof.summary.claimAuditArtifactAcceptanceNoteCount < proof.handoffRows.length
+  ) {
+    throw new Error(`Real-runtime handoff lost claim-audit acceptance matrix: ${JSON.stringify(proof.summary)}`);
   }
   if (proof.summary.ciRunnableRowCount !== 0) {
     throw new Error(`Real-runtime handoff cannot mark manual runtime rows as CI-runnable: ${JSON.stringify(proof)}`);
@@ -219,6 +248,17 @@ function assertProof(proof) {
   if (rowsWithoutAcceptanceNotes.length > 0) {
     throw new Error(`Real-runtime handoff rows need acceptance notes: ${JSON.stringify(rowsWithoutAcceptanceNotes)}`);
   }
+  const rowsWithoutClaimAuditAcceptance = proof.handoffRows.filter(
+    (row) =>
+      row.claimAuditAcceptance.acceptanceCriteria.length === 0 ||
+      row.claimAuditAcceptance.manualValidationCommands.length === 0 ||
+      !row.claimAuditAcceptance.artifactAcceptanceNotes.some((note) => note.includes('claimApproved remains false'))
+  );
+  if (rowsWithoutClaimAuditAcceptance.length > 0) {
+    throw new Error(
+      `Real-runtime handoff rows need claim-audit acceptance matrix: ${JSON.stringify(rowsWithoutClaimAuditAcceptance)}`
+    );
+  }
   if (Object.values(proof.productClaims).some(Boolean) || proof.summary.productReadyRowCount > 0) {
     throw new Error(`Real-runtime handoff overclaimed product readiness: ${JSON.stringify(proof.productClaims)}`);
   }
@@ -272,6 +312,9 @@ function sourceSnapshot(proof) {
     `- claimAuditApprovedManualRequiredRowCount: ${proof.closureAccounting.claimAuditApprovedManualRequiredRowCount}`,
     `- claimAuditManualProviderRuntimeRequiredRowCount: ${proof.closureAccounting.claimAuditManualProviderRuntimeRequiredRowCount}`,
     `- claimAuditProductionRuntimeRequiredRowCount: ${proof.closureAccounting.claimAuditProductionRuntimeRequiredRowCount}`,
+    `- claimAuditAcceptanceCriteriaCount: ${proof.summary.claimAuditAcceptanceCriteriaCount}`,
+    `- claimAuditManualValidationCommandCount: ${proof.summary.claimAuditManualValidationCommandCount}`,
+    `- claimAuditArtifactAcceptanceNoteCount: ${proof.summary.claimAuditArtifactAcceptanceNoteCount}`,
     `- ciRunnableRowCount: ${proof.summary.ciRunnableRowCount}`,
     '- does not prove physical-device, child-device runtime, authority, provider, retention product runtime, escalation, production, or product-ready tracking behavior',
     '',
@@ -323,6 +366,9 @@ function manualValidationRunbook(proof) {
     `- claimAuditApprovedManualRequiredRowCount: ${proof.closureAccounting.claimAuditApprovedManualRequiredRowCount}`,
     `- claimAuditManualProviderRuntimeRequiredRowCount: ${proof.closureAccounting.claimAuditManualProviderRuntimeRequiredRowCount}`,
     `- claimAuditProductionRuntimeRequiredRowCount: ${proof.closureAccounting.claimAuditProductionRuntimeRequiredRowCount}`,
+    `- claimAuditAcceptanceCriteriaCount: ${proof.summary.claimAuditAcceptanceCriteriaCount}`,
+    `- claimAuditManualValidationCommandCount: ${proof.summary.claimAuditManualValidationCommandCount}`,
+    `- claimAuditArtifactAcceptanceNoteCount: ${proof.summary.claimAuditArtifactAcceptanceNoteCount}`,
     '',
     ...proof.handoffRows.flatMap((row) => [
       `## ${row.handoffArea}`,
@@ -342,6 +388,18 @@ function manualValidationRunbook(proof) {
       '### Artifact Acceptance Notes',
       '',
       ...row.artifactAcceptanceNotes.map((note) => `- ${note}`),
+      '',
+      '### Claim Audit Acceptance Criteria',
+      '',
+      ...row.claimAuditAcceptance.acceptanceCriteria.map((criterion) => `- ${criterion}`),
+      '',
+      '### Claim Audit Validation Commands',
+      '',
+      ...row.claimAuditAcceptance.manualValidationCommands.map((command) => `- ${command}`),
+      '',
+      '### Claim Audit Artifact Notes',
+      '',
+      ...row.claimAuditAcceptance.artifactAcceptanceNotes.map((note) => `- ${note}`),
       '',
       '### Missing Artifacts',
       '',

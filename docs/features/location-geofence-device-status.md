@@ -420,7 +420,10 @@ expose location or device-status features. Parents expect this category.
   non-CI-runnable manual follow-up, and keeps physical-device, actual
   child-device runtime, full product UI, authority, provider delivery/receipt,
   retention product runtime, production, escalation, and product-ready tracking
-  unclaimed.
+  unclaimed. The handoff rows now also consume the claim-audit acceptance
+  matrix so the generated manual validation runbook carries the same
+  acceptance criteria, manual commands, and claim-approval-false artifact notes
+  as the claim audit.
 - WP31/WP33 authority-runtime readiness blocker proof now exists through
   `node scripts/test/tracking-authority-runtime-readiness-blocker-proof.mjs`.
   It consumes the existing authority-enrollment manual-required proof rows,
