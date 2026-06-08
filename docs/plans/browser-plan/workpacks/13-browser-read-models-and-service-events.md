@@ -841,3 +841,31 @@ receipt ingestion runtime, webhook runtime, credentials, parent notification UI
 delivery, report delivery execution, final policy execution, connector/native
 runtime, browser mutation, child intervention execution, unmanaged exact URL
 support, or enforcement.
+
+## Social Provider Receipt Service Public Fields Addendum - 2026-06-08
+
+`browser-runtime-social-provider-receipt-service-public-fields-proof` adds Rust
+protocol field constants and service payload fields for the existing social
+provider receipt status path. The payload now exposes social provider receipt
+boundary rows, provider-dispatch-required rows, manual-receipt-required rows,
+provider attempt refs, receipt proof refs, durable rows, durable result refs,
+durable store refs, read-model refs, and support-status refs. Manual-required
+receipt rows publish zero durable rows and empty durable refs.
+
+Evidence:
+
+- `crates/agent-protocol/src/constants/field.rs`
+- `crates/agent-service/src/browser_runtime_stream_payload.rs`
+- `crates/agent-service/src/browser_runtime_stream_tests/browser_runtime_social_provider_receipt_service_status_tests.rs`
+- `scripts/test/browser-runtime-social-provider-receipt-service-public-fields-proof.mjs`
+- `test-results/browser-runtime-social-provider-receipt-service-public-fields-proof/proof.json`
+- `output/browser-plan-proof/browser-runtime-social-provider-receipt-service-public-fields/01-browser-runtime-social-provider-receipt-service-public-fields-proof.md`
+- `cargo test -p ocentra-parent-agent-service social_provider_receipt --quiet`
+
+This is Rust protocol/service payload exposure only. It intentionally does not
+update TypeScript defaults, the shared TypeScript parser, or portal state while
+the shared protocol defaults file is owned by another active lane. It does not
+claim provider delivery, provider receipt ingestion runtime, webhook runtime,
+credentials, parent notification UI delivery, report delivery execution, final
+policy execution, connector/native runtime, browser mutation, child intervention
+execution, unmanaged exact URL support, or enforcement.

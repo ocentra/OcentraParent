@@ -331,6 +331,26 @@ pub const BROWSER_RUNTIME_ACTION_INTENT_CHILD_INTERVENTION_EXECUTIONS: &str =
     "browserRuntimeActionIntentChildInterventionExecutions";
 pub const BROWSER_RUNTIME_ACTION_INTENT_ENFORCEMENT_EXECUTIONS: &str =
     "browserRuntimeActionIntentEnforcementExecutions";
+pub const BROWSER_RUNTIME_SOCIAL_PROVIDER_RECEIPT_BOUNDARY_ROWS: &str =
+    "browserRuntimeSocialProviderReceiptBoundaryRows";
+pub const BROWSER_RUNTIME_SOCIAL_PROVIDER_DISPATCH_REQUIRED_ROWS: &str =
+    "browserRuntimeSocialProviderDispatchRequiredRows";
+pub const BROWSER_RUNTIME_SOCIAL_PROVIDER_MANUAL_RECEIPT_REQUIRED_ROWS: &str =
+    "browserRuntimeSocialProviderManualReceiptRequiredRows";
+pub const BROWSER_RUNTIME_SOCIAL_PROVIDER_ATTEMPT_REFS: &str =
+    "browserRuntimeSocialProviderAttemptRefs";
+pub const BROWSER_RUNTIME_SOCIAL_PROVIDER_RECEIPT_PROOF_REFS: &str =
+    "browserRuntimeSocialProviderReceiptProofRefs";
+pub const BROWSER_RUNTIME_SOCIAL_PROVIDER_DURABLE_ROWS: &str =
+    "browserRuntimeSocialProviderDurableRows";
+pub const BROWSER_RUNTIME_SOCIAL_PROVIDER_DURABLE_RESULT_REFS: &str =
+    "browserRuntimeSocialProviderDurableResultRefs";
+pub const BROWSER_RUNTIME_SOCIAL_PROVIDER_DURABLE_STORE_REFS: &str =
+    "browserRuntimeSocialProviderDurableStoreRefs";
+pub const BROWSER_RUNTIME_SOCIAL_PROVIDER_READ_MODEL_REFS: &str =
+    "browserRuntimeSocialProviderReadModelRefs";
+pub const BROWSER_RUNTIME_SOCIAL_PROVIDER_SUPPORT_STATUS_REFS: &str =
+    "browserRuntimeSocialProviderSupportStatusRefs";
 pub const BROWSER_RUNTIME_EXACT_URL_ROWS: &str = "browserRuntimeExactUrlRows";
 pub const BROWSER_RUNTIME_FAILED_ROWS: &str = "browserRuntimeFailedRows";
 pub const BROWSER_RUNTIME_INTERVENTION_COMMAND_EVENTS: &str =

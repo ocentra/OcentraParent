@@ -98,7 +98,7 @@ pub(crate) async fn stream_browser_runtime_event_chain_for_read_model_with_polic
 pub(crate) fn browser_runtime_event_chain_stream_payload(
     report: &BrowserRuntimeServiceStreamReport,
 ) -> LogFields {
-    fields_from_pairs(vec![
+    let mut pairs = vec![
         (
             constants::field::BROWSER_RUNTIME_OBSERVED_ROWS,
             count_value(report.observed_rows),
@@ -166,7 +166,56 @@ pub(crate) fn browser_runtime_event_chain_stream_payload(
                     .expect(constants::error::AGENT_EVENT_SERIALIZES),
             ),
         ),
-    ])
+    ];
+    pairs.extend(social_provider_receipt_payload_fields(report));
+    fields_from_pairs(pairs)
+}
+
+fn social_provider_receipt_payload_fields(
+    report: &BrowserRuntimeServiceStreamReport,
+) -> Vec<(&'static str, LogFieldValue)> {
+    vec![
+        (
+            constants::field::BROWSER_RUNTIME_SOCIAL_PROVIDER_RECEIPT_BOUNDARY_ROWS,
+            count_value(report.social_provider_receipt_boundary_rows),
+        ),
+        (
+            constants::field::BROWSER_RUNTIME_SOCIAL_PROVIDER_DISPATCH_REQUIRED_ROWS,
+            count_value(report.social_provider_dispatch_required_rows),
+        ),
+        (
+            constants::field::BROWSER_RUNTIME_SOCIAL_PROVIDER_MANUAL_RECEIPT_REQUIRED_ROWS,
+            count_value(report.social_provider_manual_receipt_required_rows),
+        ),
+        (
+            constants::field::BROWSER_RUNTIME_SOCIAL_PROVIDER_ATTEMPT_REFS,
+            string_array_value(&report.social_provider_attempt_refs),
+        ),
+        (
+            constants::field::BROWSER_RUNTIME_SOCIAL_PROVIDER_RECEIPT_PROOF_REFS,
+            string_array_value(&report.social_provider_receipt_proof_refs),
+        ),
+        (
+            constants::field::BROWSER_RUNTIME_SOCIAL_PROVIDER_DURABLE_ROWS,
+            count_value(report.social_provider_durable_rows),
+        ),
+        (
+            constants::field::BROWSER_RUNTIME_SOCIAL_PROVIDER_DURABLE_RESULT_REFS,
+            string_array_value(&report.social_provider_durable_result_refs),
+        ),
+        (
+            constants::field::BROWSER_RUNTIME_SOCIAL_PROVIDER_DURABLE_STORE_REFS,
+            string_array_value(&report.social_provider_durable_store_refs),
+        ),
+        (
+            constants::field::BROWSER_RUNTIME_SOCIAL_PROVIDER_READ_MODEL_REFS,
+            string_array_value(&report.social_provider_read_model_refs),
+        ),
+        (
+            constants::field::BROWSER_RUNTIME_SOCIAL_PROVIDER_SUPPORT_STATUS_REFS,
+            string_array_value(&report.social_provider_support_status_refs),
+        ),
+    ]
 }
 
 impl BrowserRuntimeServiceStreamReport {

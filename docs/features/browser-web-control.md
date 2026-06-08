@@ -177,6 +177,16 @@ control while being more honest about managed versus unmanaged sources.
   ingestion, parent notification UI delivery, report delivery, final policy
   execution, browser mutation, child intervention, unmanaged exact URL support,
   or enforcement.
+- Browser-plan WP13 now adds Rust service payload fields for the social provider
+  receipt status path. The service event payload can expose receipt boundary
+  rows, provider-dispatch-required rows, manual-receipt-required rows, provider
+  attempt refs, receipt proof refs, durable result/store refs, read-model refs,
+  and support-status refs while keeping manual-required durable refs empty.
+  TypeScript defaults/parser and portal consumption remain sequenced behind the
+  active protocol-domain lock, so provider delivery, receipt ingestion runtime,
+  parent notification UI delivery, report delivery, final policy execution,
+  browser mutation, child intervention, unmanaged exact URL support, and
+  enforcement remain unclaimed.
 - Browser-plan WP13 now projects that named subscriber status through the
   service-backed browser runtime event-chain stream payload. Current
   store-backed browser rows still report zero pending candidates because the

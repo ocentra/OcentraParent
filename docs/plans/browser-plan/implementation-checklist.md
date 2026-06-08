@@ -858,6 +858,24 @@ provider delivery, receipt ingestion runtime, parent notification UI delivery,
 report delivery execution, final policy execution, browser mutation, child
 intervention execution, unmanaged exact URL support, or enforcement.
 
+WP13 social provider receipt service public fields addendum:
+`browser-runtime-social-provider-receipt-service-public-fields-proof` adds Rust
+protocol field constants and service payload fields for the existing social
+provider receipt status path. The service payload now exposes social provider
+receipt boundary rows, provider-dispatch-required rows,
+manual-receipt-required rows, provider attempt refs, receipt proof refs, durable
+rows, durable result/store refs, read-model refs, and support-status refs; manual
+rows publish zero durable rows and empty durable refs. Evidence:
+`test-results/browser-runtime-social-provider-receipt-service-public-fields-proof/proof.json`
+and
+`output/browser-plan-proof/browser-runtime-social-provider-receipt-service-public-fields/01-browser-runtime-social-provider-receipt-service-public-fields-proof.md`.
+This does not update TypeScript defaults, the shared parser, or portal state
+while the shared protocol defaults file is owned by another active lane, and
+does not claim provider delivery, receipt ingestion runtime, parent notification
+UI delivery, report delivery execution, final policy execution, browser
+mutation, child intervention execution, unmanaged exact URL support, or
+enforcement.
+
 ## Worker Report Template
 
 Use this shape in the hub report or PR-ready note:
