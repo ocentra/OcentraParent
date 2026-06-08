@@ -1,15 +1,18 @@
 {
   "proofName": "browser-runtime-delivery-decision-proof",
-  "branchHead": "af98ed0d4 Register browser runtime chain topology",
+  "branchHead": "2c0ce56cb Refresh browser plan closure audit",
   "sourceChecks": {
     "usesSharedEventingDecisionApi": true,
     "provesLocalServiceRoute": true,
     "provesLocalInProcessRoute": true,
+    "provesActionIntentHandoffRoute": true,
     "provesExternalTransportManualRequired": true,
     "rejectsExecutionClaims": true,
     "runtimeExportsProof": true,
     "libExportsProof": true,
     "focusedTestExists": true,
+    "focusedTestAssertsThreeLocalRoutes": true,
+    "focusedTestAssertsHandoffRoute": true,
     "testAssertsMissingArtifacts": true,
     "checklistMentionsProof": true,
     "featureMentionsProof": true,
@@ -30,6 +33,12 @@
       "decisionState": "local-route-ready",
       "publisher": "browser-event-runtime-spine",
       "subscriber": "browser-action-intent-status"
+    },
+    "browserActionIntentHandoff": {
+      "routeKind": "local-in-process",
+      "decisionState": "local-route-ready",
+      "publisher": "browser-event-runtime-spine",
+      "subscriber": "browser-action-intent-handoff"
     },
     "browserExternalTransport": {
       "routeKind": "external-transport",
@@ -52,6 +61,9 @@
     "reusableEventingDeliveryDecisionUsed": true,
     "localServiceRouteReady": true,
     "localInProcessRouteReady": true,
+    "localReadyRouteCount": 3,
+    "actionIntentStatusRouteReady": true,
+    "actionIntentHandoffRouteReady": true,
     "externalTransportManualRequired": true,
     "externalTransportDeliveryImplemented": false,
     "externalRelayDeliveryImplemented": false,

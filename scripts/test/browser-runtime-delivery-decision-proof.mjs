@@ -45,6 +45,11 @@ async function sourceChecks() {
     usesSharedEventingDecisionApi: delivery.includes('decide_event_delivery_route'),
     provesLocalServiceRoute: delivery.includes('EventDeliveryRouteKind::LocalService'),
     provesLocalInProcessRoute: delivery.includes('EventDeliveryRouteKind::LocalInProcess'),
+    provesActionIntentHandoffRoute:
+      delivery.includes('action_intent_handoff_delivery') &&
+      delivery.includes('constants::browser::EVENT_BROWSER_ACTION_INTENT_HANDOFF_REQUESTED') &&
+      delivery.includes('constants::browser::SUBSCRIBER_BROWSER_ACTION_INTENT_HANDOFF') &&
+      delivery.includes('constants::browser::TARGET_BROWSER_ACTION_INTENT_HANDOFF'),
     provesExternalTransportManualRequired: delivery.includes('ExternalTransportRouteManualRequired'),
     rejectsExecutionClaims:
       delivery.includes('adapter_dispatch_claimed: false') &&
@@ -55,6 +60,10 @@ async function sourceChecks() {
     runtimeExportsProof: runtime.includes('prove_browser_runtime_delivery_decision'),
     libExportsProof: lib.includes('BrowserRuntimeDeliveryDecisionReport'),
     focusedTestExists: tests.includes('browser_runtime_delivery_decision_keeps_current_routes_local_only'),
+    focusedTestAssertsThreeLocalRoutes: tests.includes('assert_eq!(report.local_ready_route_count, 3)'),
+    focusedTestAssertsHandoffRoute:
+      tests.includes('report.action_intent_handoff_delivery.route_kind') &&
+      tests.includes('report.action_intent_handoff_delivery.decision_state'),
     testAssertsMissingArtifacts: tests.includes('EventDeliveryRequiredArtifact::TransportConfig'),
     checklistMentionsProof: checklist.includes('browser-runtime-delivery-decision-proof'),
     featureMentionsProof: feature.includes('browser runtime delivery-decision proof'),
@@ -116,6 +125,12 @@ async function main() {
         publisher: 'browser-event-runtime-spine',
         subscriber: 'browser-action-intent-status',
       },
+      browserActionIntentHandoff: {
+        routeKind: 'local-in-process',
+        decisionState: 'local-route-ready',
+        publisher: 'browser-event-runtime-spine',
+        subscriber: 'browser-action-intent-handoff',
+      },
       browserExternalTransport: {
         routeKind: 'external-transport',
         decisionState: 'external-transport-route-manual-required',
@@ -137,6 +152,9 @@ async function main() {
       reusableEventingDeliveryDecisionUsed: true,
       localServiceRouteReady: true,
       localInProcessRouteReady: true,
+      localReadyRouteCount: 3,
+      actionIntentStatusRouteReady: true,
+      actionIntentHandoffRouteReady: true,
       externalTransportManualRequired: true,
       externalTransportDeliveryImplemented: false,
       externalRelayDeliveryImplemented: false,
@@ -155,6 +173,7 @@ async function main() {
     '| --- | --- | --- | --- | --- |',
     '| browser runtime event chain | local-service | local-route-ready | browser-read-model | covered |',
     '| browser action-intent status | local-in-process | local-route-ready | browser-action-intent-status | covered |',
+    '| browser action-intent handoff | local-in-process | local-route-ready | browser-action-intent-handoff | covered |',
     '| browser external transport | external-transport | external-transport-route-manual-required | browser-intervention-command | manual-required |',
     '',
     'The proof uses the reusable `ocentra-eventing` delivery decision API. External transport and relay delivery remain unimplemented, and the proof does not claim adapter dispatch, browser mutation, child intervention execution, final policy execution, or enforcement.',
