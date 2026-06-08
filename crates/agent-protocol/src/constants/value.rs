@@ -255,6 +255,10 @@ pub const APP_GAME_PARENT_PREFERENCE_SETUP_DURABLE_OUTBOX_RECORDED: &str = "outb
 pub const APP_GAME_PARENT_PREFERENCE_SETUP_DURABLE_OUTBOX_SUFFIX: &str = "durable-local-outbox";
 pub const APP_GAME_PARENT_PREFERENCE_SETUP_DURABLE_OUTBOX_FILE_EXTENSION: &str =
     "setup-outbox.jsonl";
+pub const APP_GAME_PARENT_PREFERENCE_SETUP_PROVIDER_DELIVERY_MANUAL_REQUIRED: &str =
+    "provider-manual-required";
+pub const APP_GAME_PARENT_PREFERENCE_SETUP_PROVIDER_DELIVERY_READINESS_SUFFIX: &str =
+    "provider-delivery-readiness";
 pub const APP_GAME_CHILD_UX_PARENT_PREFERENCE_SETUP_UNAVAILABLE_VISIBLE: &str =
     "unavailable-visible";
 pub const TRANSPORT_WEBSOCKET: &str = "websocket";

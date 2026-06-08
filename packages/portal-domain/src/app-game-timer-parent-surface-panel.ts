@@ -98,6 +98,8 @@ const TimerParentSurfaceDetails = {
   ParentPreferenceSetupRequestUnavailable: decodeDisplayText('Parent preference setup request unavailable'),
   ParentPreferenceSetupRuleMutation: decodeDisplayText('Notification rule mutation'),
   ParentPreferenceSetupUi: decodeDisplayText('Parent preference setup UI'),
+  ProviderDeliveryReadinessRefs: decodeDisplayText('Provider delivery readiness refs'),
+  ProviderDeliveryReadinessStatus: decodeDisplayText('Provider delivery readiness status'),
   ChildUxHandoffBlocked: decodeDisplayText('Child UX handoff blocked'),
   ChildUxHandoffReady: decodeDisplayText('Child UX handoff ready'),
   ChildUxHandoffRefs: decodeDisplayText('Child UX handoff refs'),
@@ -581,6 +583,14 @@ function parentPreferenceSetupChildRuntimeDetails(
       TimerParentSurfaceDetails.DurableOutboxStatus,
       parentPreferenceSetupResultStatus(result.durableOutboxStatus)
     ),
+    detail(
+      TimerParentSurfaceDetails.ProviderDeliveryReadinessRefs,
+      joinedOrNotReported(result.providerDeliveryReadinessIds)
+    ),
+    detail(
+      TimerParentSurfaceDetails.ProviderDeliveryReadinessStatus,
+      parentPreferenceSetupResultStatus(result.providerDeliveryReadinessStatus)
+    ),
   ];
 }
 
@@ -638,6 +648,9 @@ function parentPreferenceSetupResultStatus(status: string): DisplayText {
   }
   if (status === 'outbox-recorded') {
     return Readable.Ready;
+  }
+  if (status === 'provider-manual-required') {
+    return Readable.ManualRequired;
   }
   if (status === 'accepted') {
     return Readable.Ready;

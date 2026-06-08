@@ -114,7 +114,7 @@ async fn app_game_timer_parent_preference_setup_request_persists_action_result_r
     cleanup_path(&store_path);
 
     assert_persisted_setup_result(&result);
-    assert_eq!(status.events_stored, 8);
+    assert_eq!(status.events_stored, 9);
     assert_persisted_action_result_model(&model);
     assert_persisted_setup_outbox(&result, &outbox_jsonl);
 }
@@ -420,6 +420,25 @@ fn assert_durable_outbox_boundary(result: &AppGameTimerParentPreferenceSetupRequ
             || result.durable_outbox_status
                 == constants::value::APP_GAME_PARENT_PREFERENCE_SETUP_ACTION_RESULT_UNAVAILABLE
     );
+    assert_eq!(
+        result.provider_delivery_readiness_id,
+        setup_id(
+            constants::value::APP_GAME_PARENT_PREFERENCE_SETUP_PROVIDER_DELIVERY_READINESS_SUFFIX
+        )
+    );
+    assert_eq!(
+        result.provider_delivery_readiness_ids,
+        vec![
+            setup_id(constants::value::APP_GAME_PARENT_PREFERENCE_SETUP_PROVIDER_DELIVERY_READINESS_SUFFIX),
+            setup_id(constants::value::APP_GAME_PARENT_PREFERENCE_SETUP_DURABLE_OUTBOX_SUFFIX),
+        ]
+    );
+    assert!(
+        result.provider_delivery_readiness_status
+            == constants::value::APP_GAME_PARENT_PREFERENCE_SETUP_PROVIDER_DELIVERY_MANUAL_REQUIRED
+            || result.provider_delivery_readiness_status
+                == constants::value::APP_GAME_PARENT_PREFERENCE_SETUP_ACTION_RESULT_UNAVAILABLE
+    );
 }
 
 fn assert_persisted_setup_outbox(
@@ -435,6 +454,11 @@ fn assert_persisted_setup_outbox(
         constants::value::APP_GAME_PARENT_PREFERENCE_SETUP_DURABLE_OUTBOX_RECORDED
     );
     assert!(result.durable_outbox_claimed);
+    assert_eq!(
+        result.provider_delivery_readiness_status,
+        constants::value::APP_GAME_PARENT_PREFERENCE_SETUP_PROVIDER_DELIVERY_MANUAL_REQUIRED
+    );
+    assert!(result.provider_delivery_readiness_claimed);
     let first_line = outbox_jsonl
         .lines()
         .next()

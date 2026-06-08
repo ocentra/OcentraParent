@@ -1387,6 +1387,14 @@ diagnostics, or raw private source rows.
       ingestion, adapter dispatch, broad blocking, platform enforcement, raw
       private source rows, raw target values, and private diagnostics
       unclaimed.
+      The accepted request result now also carries provider-delivery readiness
+      refs/status. After the durable local outbox record is appended, the
+      service persists a provider-delivery manual-required audit row and the
+      portal command-result panel renders those readiness refs/status beside
+      the setup chain. This is readiness visibility only: provider delivery,
+      provider receipt ingestion, adapter dispatch, broad blocking, platform
+      enforcement, raw private source rows, raw target values, and private
+      diagnostics remain unclaimed.
 - [ ] Adapter capability status per platform. Cross-platform authority and
       broad-blocking gate contracts now record manual-required, unavailable,
       and not-claimed proof requirements. Platform-extension routing now maps

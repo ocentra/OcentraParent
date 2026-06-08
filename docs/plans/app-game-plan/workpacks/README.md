@@ -147,6 +147,7 @@ before `DONE` or PR-ready reporting.
 139. WP148 app/game timer parent-surface parent preference setup child-runtime delivery receipt-pending command-result visibility.
 140. WP149 app/game timer parent-surface parent preference setup child-runtime delivery receipt-ingested boundary.
 141. WP150 app/game timer parent-surface parent preference setup durable local outbox runtime.
+142. WP151 app/game timer parent-surface parent preference setup provider delivery readiness.
 
 ## Standard AI Worker Checklist
 

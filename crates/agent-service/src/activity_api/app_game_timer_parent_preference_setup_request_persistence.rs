@@ -45,6 +45,8 @@ pub(crate) async fn persist_setup_handoff(
         child_runtime_delivery_receipt_pending_activity_event(command, &persisted_result);
     let child_runtime_delivery_receipt_ingested_event =
         child_runtime_delivery_receipt_ingested_activity_event(command, &persisted_result);
+    let provider_delivery_readiness_event =
+        provider_delivery_readiness_activity_event(command, &persisted_result);
     tokio::task::spawn_blocking(move || {
         let store = ActivityStore::open(&store_path).map_err(|_| ())?;
         store
@@ -60,6 +62,9 @@ pub(crate) async fn persist_setup_handoff(
             ])
             .map_err(|_| ())?;
         append_setup_outbox_record(&persisted_result, &store_path)?;
+        store
+            .ingest_events(&[provider_delivery_readiness_event])
+            .map_err(|_| ())?;
         Ok::<(), ()>(())
     })
     .await
@@ -105,7 +110,60 @@ fn persisted_result(
     persisted.durable_outbox_status =
         constants::value::APP_GAME_PARENT_PREFERENCE_SETUP_DURABLE_OUTBOX_RECORDED.to_string();
     persisted.durable_outbox_claimed = true;
+    persisted.provider_delivery_readiness_status =
+        constants::value::APP_GAME_PARENT_PREFERENCE_SETUP_PROVIDER_DELIVERY_MANUAL_REQUIRED
+            .to_string();
+    persisted.provider_delivery_readiness_claimed = true;
     persisted
+}
+
+fn provider_delivery_readiness_activity_event(
+    command: &AgentCommandEnvelope,
+    result: &AppGameTimerParentPreferenceSetupRequestResult,
+) -> ActivityEvent {
+    let mut fields = LogFields::new();
+    fields.insert(
+        constants::field::APP_GAME_TIMER_PARENT_PREFERENCE_SETUP_REQUEST.to_string(),
+        LogFieldValue::String(result.request_id.clone()),
+    );
+    fields.insert(
+        constants::field::CAPABILITY_STATUS.to_string(),
+        LogFieldValue::String(
+            constants::value::APP_GAME_PARENT_PREFERENCE_SETUP_PROVIDER_DELIVERY_MANUAL_REQUIRED
+                .to_string(),
+        ),
+    );
+
+    ActivityEvent {
+        schema_version: ACTIVITY_SCHEMA_VERSION,
+        event_id: result.provider_delivery_readiness_id.clone(),
+        observed_at: result.accepted_at.clone(),
+        source: ActivitySource {
+            device_id: command.target.device_id.clone(),
+            platform: command.target.platform.clone(),
+            observer: ActivityObserver::AgentService,
+            source_id: APP_GAME_JOURNAL_SOURCE_ID.to_string(),
+        },
+        kind: ActivityEventKind::EnforcementAuditRecorded,
+        subject: ActivitySubject {
+            kind: ActivitySubjectKind::Device,
+            subject_id: result.parent_preference_setup_reference_id.clone(),
+            display_name: Some(
+                constants::value::APP_GAME_PARENT_PREFERENCE_SETUP_PROVIDER_DELIVERY_MANUAL_REQUIRED
+                    .to_string(),
+            ),
+        },
+        fields,
+        evidence: evidence_references(result)
+            .into_iter()
+            .map(|reference| ActivityEvidenceRef {
+                evidence_id: reference.evidence_reference_id,
+                kind: ActivityEvidenceKind::LocalDbRow,
+                digest: None,
+                uri: None,
+            })
+            .collect(),
+    }
 }
 
 fn child_runtime_delivery_receipt_ingested_activity_event(

@@ -24,6 +24,7 @@ struct SetupRequestRefs {
     child_runtime_delivery_receipt_pending_id: String,
     child_runtime_delivery_receipt_ingested_id: String,
     durable_outbox_record_id: String,
+    provider_delivery_readiness_id: String,
     action_result_reference_ids: Vec<String>,
     parent_preference_mutation_receipt_ids: Vec<String>,
     child_runtime_delivery_handoff_ids: Vec<String>,
@@ -33,6 +34,7 @@ struct SetupRequestRefs {
     child_runtime_delivery_receipt_pending_ids: Vec<String>,
     child_runtime_delivery_receipt_ingested_ids: Vec<String>,
     durable_outbox_record_ids: Vec<String>,
+    provider_delivery_readiness_ids: Vec<String>,
 }
 
 struct SetupRequestIds {
@@ -44,6 +46,7 @@ struct SetupRequestIds {
     child_runtime_delivery_receipt_pending_id: String,
     child_runtime_delivery_receipt_ingested_id: String,
     durable_outbox_record_id: String,
+    provider_delivery_readiness_id: String,
 }
 
 pub async fn build_activity_app_game_timer_parent_preference_setup_request_report(
@@ -96,6 +99,10 @@ pub(crate) async fn build_activity_app_game_timer_parent_preference_setup_reques
         result.durable_outbox_status =
             constants::value::APP_GAME_PARENT_PREFERENCE_SETUP_DURABLE_OUTBOX_RECORDED.to_string();
         result.durable_outbox_claimed = true;
+        result.provider_delivery_readiness_status =
+            constants::value::APP_GAME_PARENT_PREFERENCE_SETUP_PROVIDER_DELIVERY_MANUAL_REQUIRED
+                .to_string();
+        result.provider_delivery_readiness_claimed = true;
     }
     build_event(
         constants::event_id::ACTIVITY_APP_GAME_TIMER_PARENT_PREFERENCE_SETUP_REQUESTED,
@@ -173,11 +180,15 @@ fn setup_request_result(
         durable_outbox_record_id: refs.durable_outbox_record_id,
         durable_outbox_record_ids: refs.durable_outbox_record_ids,
         durable_outbox_status: setup_value(unavailable),
+        provider_delivery_readiness_id: refs.provider_delivery_readiness_id,
+        provider_delivery_readiness_ids: refs.provider_delivery_readiness_ids,
+        provider_delivery_readiness_status: setup_value(unavailable),
         command_boundary_claimed: true,
         action_result_handoff_claimed: true,
         action_result_persistence_claimed: false,
         parent_preference_mutation_claimed: false,
         notification_rule_mutation_claimed: false,
+        provider_delivery_readiness_claimed: false,
         provider_delivery_claimed: false,
         provider_receipt_ingestion_claimed: false,
         child_runtime_delivery_claimed: false,
@@ -208,7 +219,12 @@ fn setup_request_refs(request: &AppGameTimerParentPreferenceSetupRequest) -> Set
             .child_runtime_delivery_receipt_ingested_id
             .clone(),
         durable_outbox_record_id: ids.durable_outbox_record_id.clone(),
-        action_result_reference_ids: action_result_reference_ids(request),
+        provider_delivery_readiness_id: ids.provider_delivery_readiness_id.clone(),
+        action_result_reference_ids: unique_refs({
+            let mut refs = vec![request.parent_preference_setup_reference_id.clone()];
+            refs.extend(request.request_reference_ids.clone());
+            refs
+        }),
         parent_preference_mutation_receipt_ids: parent_preference_mutation_receipt_ids(
             request,
             &ids.parent_preference_mutation_receipt_id,
@@ -249,25 +265,36 @@ fn setup_request_refs(request: &AppGameTimerParentPreferenceSetupRequest) -> Set
             &ids.child_runtime_delivery_receipt_requirement_id,
             &ids.child_runtime_delivery_receipt_pending_id,
         ),
-        child_runtime_delivery_receipt_ingested_ids: unique_refs({
-            let mut refs = vec![
-                ids.child_runtime_delivery_receipt_ingested_id.clone(),
-                ids.child_runtime_delivery_receipt_pending_id.clone(),
-                ids.child_runtime_delivery_receipt_requirement_id.clone(),
-                ids.child_runtime_delivery_dispatch_id.clone(),
-                ids.child_runtime_delivery_queue_id.clone(),
-                ids.child_runtime_delivery_handoff_id.clone(),
-                ids.parent_preference_mutation_receipt_id.clone(),
-                request.parent_preference_setup_reference_id.clone(),
-            ];
-            refs.extend(request.request_reference_ids.clone());
-            refs
-        }),
+        child_runtime_delivery_receipt_ingested_ids: child_runtime_delivery_receipt_ingested_ids(
+            request, &ids,
+        ),
         durable_outbox_record_ids: unique_refs(vec![
             ids.durable_outbox_record_id.clone(),
             ids.child_runtime_delivery_receipt_ingested_id.clone(),
         ]),
+        provider_delivery_readiness_ids: unique_refs(vec![
+            ids.provider_delivery_readiness_id.clone(),
+            ids.durable_outbox_record_id.clone(),
+        ]),
     }
+}
+
+fn child_runtime_delivery_receipt_ingested_ids(
+    request: &AppGameTimerParentPreferenceSetupRequest,
+    ids: &SetupRequestIds,
+) -> Vec<String> {
+    let mut refs = vec![
+        ids.child_runtime_delivery_receipt_ingested_id.clone(),
+        ids.child_runtime_delivery_receipt_pending_id.clone(),
+        ids.child_runtime_delivery_receipt_requirement_id.clone(),
+        ids.child_runtime_delivery_dispatch_id.clone(),
+        ids.child_runtime_delivery_queue_id.clone(),
+        ids.child_runtime_delivery_handoff_id.clone(),
+        ids.parent_preference_mutation_receipt_id.clone(),
+        request.parent_preference_setup_reference_id.clone(),
+    ];
+    refs.extend(request.request_reference_ids.clone());
+    unique_refs(refs)
 }
 
 fn setup_request_ids(request: &AppGameTimerParentPreferenceSetupRequest) -> SetupRequestIds {
@@ -304,13 +331,11 @@ fn setup_request_ids(request: &AppGameTimerParentPreferenceSetupRequest) -> Setu
             request,
             constants::value::APP_GAME_PARENT_PREFERENCE_SETUP_DURABLE_OUTBOX_SUFFIX,
         ),
+        provider_delivery_readiness_id: parent_preference_setup_suffixed_id(
+            request,
+            constants::value::APP_GAME_PARENT_PREFERENCE_SETUP_PROVIDER_DELIVERY_READINESS_SUFFIX,
+        ),
     }
-}
-
-fn action_result_reference_ids(request: &AppGameTimerParentPreferenceSetupRequest) -> Vec<String> {
-    let mut refs = vec![request.parent_preference_setup_reference_id.clone()];
-    refs.extend(request.request_reference_ids.clone());
-    unique_refs(refs)
 }
 
 fn parent_preference_setup_suffixed_id(

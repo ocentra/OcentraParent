@@ -94,11 +94,19 @@ export const AppGameTimerParentPreferenceSetupRequestResultSchema = withParser(
       Schema.filter((value) => value.length > 0 || 'Expected parent preference setup durable outbox references')
     ),
     durableOutboxStatus: Schema.Literal('outbox-recorded', 'unavailable'),
+    providerDeliveryReadinessId: NonEmptyTextSchema,
+    providerDeliveryReadinessIds: Schema.Array(NonEmptyTextSchema).pipe(
+      Schema.filter(
+        (value) => value.length > 0 || 'Expected parent preference setup provider delivery readiness references'
+      )
+    ),
+    providerDeliveryReadinessStatus: Schema.Literal('provider-manual-required', 'unavailable'),
     commandBoundaryClaimed: Schema.Literal(true),
     actionResultHandoffClaimed: Schema.Literal(true),
     actionResultPersistenceClaimed: Schema.Boolean,
     parentPreferenceMutationClaimed: Schema.Literal(false),
     notificationRuleMutationClaimed: Schema.Literal(false),
+    providerDeliveryReadinessClaimed: Schema.Boolean,
     providerDeliveryClaimed: Schema.Literal(false),
     providerReceiptIngestionClaimed: Schema.Literal(false),
     childRuntimeDeliveryClaimed: Schema.Literal(false),

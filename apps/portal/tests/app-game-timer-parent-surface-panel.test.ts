@@ -385,6 +385,15 @@ function expectParentPreferenceSetupChildRuntimeReadiness(
     label: 'Durable local outbox status',
     value: 'Ready',
   });
+  expect(details).toContainEqual({
+    label: 'Provider delivery readiness refs',
+    value:
+      'app-game-parent-preference-setup-provider-delivery-readiness::request-1 | app-game-parent-preference-setup-durable-local-outbox::request-1',
+  });
+  expect(details).toContainEqual({
+    label: 'Provider delivery readiness status',
+    value: 'Manual required',
+  });
 }
 
 function expectParentPreferenceSetupNoClaimBoundaries(
@@ -726,11 +735,13 @@ function parentPreferenceSetupAcceptedResult() {
       'app-game-parent-preference-setup-child-runtime-receipt-ingested::request-1',
     ],
     durableOutboxStatus: 'outbox-recorded',
+    ...ProviderDeliveryReadinessAcceptedResultFields,
     commandBoundaryClaimed: true,
     actionResultHandoffClaimed: true,
     actionResultPersistenceClaimed: true,
     parentPreferenceMutationClaimed: false,
     notificationRuleMutationClaimed: false,
+    providerDeliveryReadinessClaimed: true,
     providerDeliveryClaimed: false,
     providerReceiptIngestionClaimed: false,
     childRuntimeDeliveryClaimed: false,
@@ -743,6 +754,15 @@ function parentPreferenceSetupAcceptedResult() {
     privateDiagnosticsClaimed: false,
   };
 }
+
+const ProviderDeliveryReadinessAcceptedResultFields = {
+  providerDeliveryReadinessId: 'app-game-parent-preference-setup-provider-delivery-readiness::request-1',
+  providerDeliveryReadinessIds: [
+    'app-game-parent-preference-setup-provider-delivery-readiness::request-1',
+    'app-game-parent-preference-setup-durable-local-outbox::request-1',
+  ],
+  providerDeliveryReadinessStatus: 'provider-manual-required',
+} as const;
 
 function timerParentSurfaceRow(
   rowId: string,
