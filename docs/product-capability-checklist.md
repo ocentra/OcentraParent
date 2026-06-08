@@ -322,6 +322,16 @@ execution, account lookup execution, billing provider contact execution, legal
 disclosure execution, remote support sessions, production SLA, default
 Ocentra-hosted family data, or child activity custody.
 
+Public website/download/account row proof addendum:
+`production-support-public-surface-export-closure-proof` verifies package
+exports for the existing public release status, public status freshness, public
+docs freshness, support-publication runtime readiness, support-publication
+status freshness, and public support contact status modules. It does not claim
+public runtime execution, publication runner execution, status backend
+execution, support backend upload execution, account lookup, billing provider
+contact, legal disclosure execution, remote support sessions, production SLA,
+provider-secret custody, or child activity custody.
+
 ## Checklist Rules
 
 - A row must move from `planned` to `in progress` only when a branch or merged

@@ -238,6 +238,15 @@ dev-only repo when it claims consumer readiness.
   support backend upload execution, account lookup execution, billing provider
   contact, production SLA, legal disclosure execution, remote support sessions,
   and child activity custody.
+- `production-support-public-surface-export-closure-proof` closes the package
+  export and documentation surface for existing public release status,
+  public-status freshness, public-docs freshness, support-publication runtime
+  readiness, support-publication status freshness, and public support contact
+  status contracts. It proves those source-contract modules are importable
+  through `@ocentra-parent/parent-domain` while preserving real public runtime,
+  publication runner, status backend, support backend upload, account lookup,
+  billing provider contact, legal disclosure, remote support, production SLA,
+  provider-secret custody, and child activity custody as non-claims.
 - `production-support-publication-execution-status-proof` adds parent-domain
   status rows for support runbook, incident status, public support contact,
   support backend upload, privacy/legal, and account/billing publication
@@ -759,6 +768,17 @@ package/runtime proof.
       upload execution, account lookup execution, billing provider contact,
       production SLA, legal disclosure execution, remote support sessions, and
       child activity custody unimplemented or unclaimed.
+- [ ] Production support public surface export closure proof. Current
+      `production-support-public-surface-export-closure-proof` verifies package
+      exports for public release status, public status freshness, public docs
+      freshness, support-publication runtime readiness, support-publication
+      status freshness, and public support contact status modules. It remains a
+      package surface/proof closure only: real public runtime execution,
+      publication runner execution, status backend execution, support backend
+      upload execution, account lookup, billing provider contact, legal
+      disclosure execution, remote support sessions, production SLA,
+      provider-secret custody, and child activity custody remain unimplemented
+      or unclaimed.
 - [ ] Production support publication execution status proof. Current
       `production-support-publication-execution-status-proof` covers support
       runbook, incident status, public support contact, support backend upload,
