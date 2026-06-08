@@ -1,6 +1,6 @@
 # Screen AI Upstream Adapter Prerequisite Bridge
 
-Generated: 2026-06-08T00:07:44.969Z
+Generated: 2026-06-08T00:18:55.928Z
 
 Status: upstream-prerequisites-partial-final-adapters-blocked
 
@@ -8,10 +8,10 @@ Status: upstream-prerequisites-partial-final-adapters-blocked
 
 - broad-installed-app: readiness-proof-present-execution-missing; final completion claimed: false.
 - host-network-domain: readiness-proof-present-execution-missing; final completion claimed: false.
-- managed-active-tab-exact-url: upstream-proof-missing-or-owned-elsewhere; final completion claimed: false.
-- android-device-owner-or-managed-profile: upstream-proof-missing-or-owned-elsewhere; final completion claimed: false.
-- ios-family-controls-device-activity: upstream-proof-missing-or-owned-elsewhere; final completion claimed: false.
-- linux-host-control: upstream-proof-missing-or-owned-elsewhere; final completion claimed: false.
+- managed-active-tab-exact-url: capture-prerequisite-present-control-execution-missing; final completion claimed: false.
+- android-device-owner-or-managed-profile: capture-prerequisite-present-control-execution-missing; final completion claimed: false.
+- ios-family-controls-device-activity: source-doc-prerequisite-present-physical-execution-missing; final completion claimed: false.
+- linux-host-control: capture-prerequisite-present-control-execution-missing; final completion claimed: false.
 
 ## Closure
 
@@ -22,7 +22,10 @@ Status: upstream-prerequisites-partial-final-adapters-blocked
   "appGameBroadBlockingExecutionMissing": true,
   "networkActionResultReadinessPresent": true,
   "networkActionExecutionMissing": true,
-  "browserMobileLinuxUpstreamProofMissingInBranch": true,
+  "managedBrowserCapturePrerequisitePresent": true,
+  "androidCapturePrerequisitePresentPhysicalControlMissing": true,
+  "iosSourceDocPrerequisitePresentPhysicalControlMissing": true,
+  "linuxCapturePrerequisitePresentNativeControlMissing": true,
   "finalAdapterCompletionClaimed": false
 }
 ```

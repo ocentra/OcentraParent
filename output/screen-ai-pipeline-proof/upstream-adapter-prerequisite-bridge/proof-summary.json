@@ -1,12 +1,16 @@
 {
   "status": "upstream-prerequisites-partial-final-adapters-blocked",
   "proofKind": "screen-ai-upstream-adapter-prerequisite-bridge-proof",
-  "generatedAt": "2026-06-08T00:07:44.969Z",
+  "generatedAt": "2026-06-08T00:18:55.928Z",
   "sourceArtifacts": {
     "blockerLedger": "output/screen-ai-pipeline-proof/adapter-blocker-ledger/proof-summary.json",
     "appGameBroadBlocking": "output/app-game-plan-proof/23-broad-blocking-proof-gates/03-runtime-evidence.json",
     "appGameBroadBlockingRollback": "output/app-game-plan-proof/23-broad-blocking-proof-gates/12-rollback-proof.md",
     "networkActionResultState": "output/network-plan-proof/53-action-result-state-proof/proof-summary.json",
+    "managedBrowserCdpCapture": "output/screen-plan-proof/33-managed-browser-cdp-screenshot-capture-path/proof-summary.json",
+    "androidMediaProjectionCapability": "output/screen-plan-proof/android/proof-summary.json",
+    "iosReplayKitCapability": "output/screen-plan-proof/ios/proof-summary.json",
+    "linuxCaptureCapability": "output/screen-plan-proof/linux/proof-summary.json",
     "screenAiPipelineChecklist": "docs/plans/screen-ai-pipeline-plan/implementation-checklist.md"
   },
   "bridge": "output/screen-ai-pipeline-proof/upstream-adapter-prerequisite-bridge/upstream-adapter-prerequisite-bridge.json",
@@ -16,7 +20,10 @@
     "appGameBroadBlockingExecutionMissing": true,
     "networkActionResultReadinessPresent": true,
     "networkActionExecutionMissing": true,
-    "browserMobileLinuxUpstreamProofMissingInBranch": true,
+    "managedBrowserCapturePrerequisitePresent": true,
+    "androidCapturePrerequisitePresentPhysicalControlMissing": true,
+    "iosSourceDocPrerequisitePresentPhysicalControlMissing": true,
+    "linuxCapturePrerequisitePresentNativeControlMissing": true,
     "finalAdapterCompletionClaimed": false
   },
   "rows": [
@@ -47,50 +54,50 @@
     {
       "rowId": "screen-ai-managed-active-tab-not-claimed",
       "adapterClass": "managed-active-tab-exact-url",
-      "upstreamPrerequisiteState": "upstream-proof-missing-or-owned-elsewhere",
-      "upstreamProofArtifact": null,
+      "upstreamPrerequisiteState": "capture-prerequisite-present-control-execution-missing",
+      "upstreamProofArtifact": "output/screen-plan-proof/33-managed-browser-cdp-screenshot-capture-path/proof-summary.json",
       "upstreamRollbackArtifact": null,
-      "upstreamReadinessProved": false,
+      "upstreamReadinessProved": true,
       "upstreamExecutionProved": false,
       "requiredFinalArtifact": "screen-derived browser decision to exact active-tab URL action, rollback, and audit custody proof",
       "finalAdapterCompletionClaimed": false,
-      "nextAction": "Wait for the owning browser, network, mobile, or Linux adapter lane to provide readiness and screen-derived execution custody artifacts."
+      "nextAction": "Wait for the browser lane to provide a screen-derived exact active-tab URL apply, rollback, and audit custody execution artifact before closing this row."
     },
     {
       "rowId": "screen-ai-android-mobile-control-manual-required",
       "adapterClass": "android-device-owner-or-managed-profile",
-      "upstreamPrerequisiteState": "upstream-proof-missing-or-owned-elsewhere",
-      "upstreamProofArtifact": null,
+      "upstreamPrerequisiteState": "capture-prerequisite-present-control-execution-missing",
+      "upstreamProofArtifact": "output/screen-plan-proof/android/proof-summary.json",
       "upstreamRollbackArtifact": null,
-      "upstreamReadinessProved": false,
+      "upstreamReadinessProved": true,
       "upstreamExecutionProved": false,
       "requiredFinalArtifact": "screen-derived mobile decision to Android DO/profile action with rollback, audit, and custody proof on real device or managed profile",
       "finalAdapterCompletionClaimed": false,
-      "nextAction": "Wait for the owning browser, network, mobile, or Linux adapter lane to provide readiness and screen-derived execution custody artifacts."
+      "nextAction": "Wait for mobile platform work to provide physical Android Device Owner or managed-profile control execution with rollback, audit, and custody proof before closing this row."
     },
     {
       "rowId": "screen-ai-ios-mobile-control-manual-required",
       "adapterClass": "ios-family-controls-device-activity",
-      "upstreamPrerequisiteState": "upstream-proof-missing-or-owned-elsewhere",
-      "upstreamProofArtifact": null,
+      "upstreamPrerequisiteState": "source-doc-prerequisite-present-physical-execution-missing",
+      "upstreamProofArtifact": "output/screen-plan-proof/ios/proof-summary.json",
       "upstreamRollbackArtifact": null,
-      "upstreamReadinessProved": false,
+      "upstreamReadinessProved": true,
       "upstreamExecutionProved": false,
       "requiredFinalArtifact": "screen-derived mobile decision to iOS Family Controls or DeviceActivity action with rollback, audit, and custody proof",
       "finalAdapterCompletionClaimed": false,
-      "nextAction": "Wait for the owning browser, network, mobile, or Linux adapter lane to provide readiness and screen-derived execution custody artifacts."
+      "nextAction": "Wait for physical iOS Family Controls or DeviceActivity control execution with rollback, audit, and custody proof before closing this row."
     },
     {
       "rowId": "screen-ai-linux-host-adapter-unavailable",
       "adapterClass": "linux-host-control",
-      "upstreamPrerequisiteState": "upstream-proof-missing-or-owned-elsewhere",
-      "upstreamProofArtifact": null,
+      "upstreamPrerequisiteState": "capture-prerequisite-present-control-execution-missing",
+      "upstreamProofArtifact": "output/screen-plan-proof/linux/proof-summary.json",
       "upstreamRollbackArtifact": null,
-      "upstreamReadinessProved": false,
+      "upstreamReadinessProved": true,
       "upstreamExecutionProved": false,
       "requiredFinalArtifact": "screen-derived Linux host decision to host action with rollback, audit, and custody proof",
       "finalAdapterCompletionClaimed": false,
-      "nextAction": "Wait for the owning browser, network, mobile, or Linux adapter lane to provide readiness and screen-derived execution custody artifacts."
+      "nextAction": "Wait for Linux host control execution with native session/platform proof, rollback, audit, and custody before closing this row."
     }
   ],
   "nonClaims": [

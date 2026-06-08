@@ -13,6 +13,11 @@ const sourceArtifacts = {
   appGameBroadBlocking: 'output/app-game-plan-proof/23-broad-blocking-proof-gates/03-runtime-evidence.json',
   appGameBroadBlockingRollback: 'output/app-game-plan-proof/23-broad-blocking-proof-gates/12-rollback-proof.md',
   networkActionResultState: 'output/network-plan-proof/53-action-result-state-proof/proof-summary.json',
+  managedBrowserCdpCapture:
+    'output/screen-plan-proof/33-managed-browser-cdp-screenshot-capture-path/proof-summary.json',
+  androidMediaProjectionCapability: 'output/screen-plan-proof/android/proof-summary.json',
+  iosReplayKitCapability: 'output/screen-plan-proof/ios/proof-summary.json',
+  linuxCaptureCapability: 'output/screen-plan-proof/linux/proof-summary.json',
   screenAiPipelineChecklist: 'docs/plans/screen-ai-pipeline-plan/implementation-checklist.md',
 };
 
@@ -21,6 +26,10 @@ const blockerLedger = readJson(sourceArtifacts.blockerLedger);
 const appGameBroadBlocking = readJson(sourceArtifacts.appGameBroadBlocking);
 const appGameBroadBlockingRollback = readText(sourceArtifacts.appGameBroadBlockingRollback);
 const networkActionResultState = readJson(sourceArtifacts.networkActionResultState);
+const managedBrowserCdpCapture = readJson(sourceArtifacts.managedBrowserCdpCapture);
+const androidMediaProjectionCapability = readJson(sourceArtifacts.androidMediaProjectionCapability);
+const iosReplayKitCapability = readJson(sourceArtifacts.iosReplayKitCapability);
+const linuxCaptureCapability = readJson(sourceArtifacts.linuxCaptureCapability);
 const screenAiPipelineChecklist = readText(sourceArtifacts.screenAiPipelineChecklist);
 
 assert(blockerLedger.status === 'blocked-but-actionable', 'blocker ledger must stay blocked-but-actionable');
@@ -62,6 +71,44 @@ assert(
   'network proof must not claim adapter command invocation'
 );
 assert(
+  managedBrowserCdpCapture.proofTopic === 'screen-managed-browser-cdp-screenshot-capture-path',
+  'managed browser CDP capture proof mode mismatch'
+);
+assert(
+  managedBrowserCdpCapture.captureSummary?.allDeleted === true,
+  'managed browser CDP capture proof must delete captured image bytes'
+);
+assert(
+  managedBrowserCdpCapture.nonClaims?.includes(
+    'this proof does not claim managed-browser production URL-trigger ownership'
+  ),
+  'managed browser CDP proof must not claim production URL-trigger ownership'
+);
+assert(
+  androidMediaProjectionCapability.gapStatus?.emulatorMediaProjectionProofExists === true,
+  'Android MediaProjection emulator proof must be present'
+);
+assert(
+  androidMediaProjectionCapability.gapStatus?.productAndroidCaptureReady === false,
+  'Android capability proof must keep product capture readiness false'
+);
+assert(
+  iosReplayKitCapability.gapStatus?.productIosCaptureReady === false,
+  'iOS ReplayKit capability proof must keep product capture readiness false'
+);
+assert(
+  iosReplayKitCapability.gapStatus?.arbitraryBackgroundOtherAppCaptureClaimed === false,
+  'iOS ReplayKit proof must reject arbitrary background capture'
+);
+assert(
+  linuxCaptureCapability.gapStatus?.wslgX11SelectedWindowProofExists === true,
+  'Linux WSLg selected-window proof must be present'
+);
+assert(
+  linuxCaptureCapability.gapStatus?.productLinuxCaptureReady === false,
+  'Linux capability proof must keep product capture readiness false'
+);
+assert(
   screenAiPipelineChecklist.includes(
     '- [ ] Browser, network, mobile, and broad block adapters proven from screen-derived decisions before product-complete action claims.'
   ),
@@ -76,8 +123,14 @@ assert(
   'expected exactly two blockers with upstream readiness proof present'
 );
 assert(
-  rows.filter((row) => row.upstreamPrerequisiteState === 'upstream-proof-missing-or-owned-elsewhere').length === 4,
-  'expected four blockers still waiting on upstream proof in this branch'
+  rows.filter((row) => row.upstreamPrerequisiteState === 'capture-prerequisite-present-control-execution-missing')
+    .length === 3,
+  'expected exactly three blockers with capture prerequisites present but control execution missing'
+);
+assert(
+  rows.filter((row) => row.upstreamPrerequisiteState === 'source-doc-prerequisite-present-physical-execution-missing')
+    .length === 1,
+  'expected exactly one blocker with source-doc prerequisite present but physical execution missing'
 );
 assert(
   rows.every((row) => row.finalAdapterCompletionClaimed === false),
@@ -112,7 +165,10 @@ const proof = {
     appGameBroadBlockingExecutionMissing: true,
     networkActionResultReadinessPresent: true,
     networkActionExecutionMissing: true,
-    browserMobileLinuxUpstreamProofMissingInBranch: true,
+    managedBrowserCapturePrerequisitePresent: true,
+    androidCapturePrerequisitePresentPhysicalControlMissing: true,
+    iosSourceDocPrerequisitePresentPhysicalControlMissing: true,
+    linuxCapturePrerequisitePresentNativeControlMissing: true,
     finalAdapterCompletionClaimed: false,
   },
   rows,
@@ -159,6 +215,49 @@ function bridgeRowFor(blockerRow) {
     };
   }
 
+  if (blockerRow.rowId === 'screen-ai-managed-active-tab-not-claimed') {
+    return capturePrerequisiteRow({
+      blockerRow,
+      upstreamProofArtifact: sourceArtifacts.managedBrowserCdpCapture,
+      nextAction:
+        'Wait for the browser lane to provide a screen-derived exact active-tab URL apply, rollback, and audit custody execution artifact before closing this row.',
+    });
+  }
+
+  if (blockerRow.rowId === 'screen-ai-android-mobile-control-manual-required') {
+    return capturePrerequisiteRow({
+      blockerRow,
+      upstreamProofArtifact: sourceArtifacts.androidMediaProjectionCapability,
+      nextAction:
+        'Wait for mobile platform work to provide physical Android Device Owner or managed-profile control execution with rollback, audit, and custody proof before closing this row.',
+    });
+  }
+
+  if (blockerRow.rowId === 'screen-ai-ios-mobile-control-manual-required') {
+    return {
+      rowId: blockerRow.rowId,
+      adapterClass: blockerRow.adapterClass,
+      upstreamPrerequisiteState: 'source-doc-prerequisite-present-physical-execution-missing',
+      upstreamProofArtifact: sourceArtifacts.iosReplayKitCapability,
+      upstreamRollbackArtifact: null,
+      upstreamReadinessProved: true,
+      upstreamExecutionProved: false,
+      requiredFinalArtifact: blockerRow.requiredProofArtifact,
+      finalAdapterCompletionClaimed: false,
+      nextAction:
+        'Wait for physical iOS Family Controls or DeviceActivity control execution with rollback, audit, and custody proof before closing this row.',
+    };
+  }
+
+  if (blockerRow.rowId === 'screen-ai-linux-host-adapter-unavailable') {
+    return capturePrerequisiteRow({
+      blockerRow,
+      upstreamProofArtifact: sourceArtifacts.linuxCaptureCapability,
+      nextAction:
+        'Wait for Linux host control execution with native session/platform proof, rollback, audit, and custody before closing this row.',
+    });
+  }
+
   return {
     rowId: blockerRow.rowId,
     adapterClass: blockerRow.adapterClass,
@@ -171,6 +270,21 @@ function bridgeRowFor(blockerRow) {
     finalAdapterCompletionClaimed: false,
     nextAction:
       'Wait for the owning browser, network, mobile, or Linux adapter lane to provide readiness and screen-derived execution custody artifacts.',
+  };
+}
+
+function capturePrerequisiteRow({ blockerRow, upstreamProofArtifact, nextAction }) {
+  return {
+    rowId: blockerRow.rowId,
+    adapterClass: blockerRow.adapterClass,
+    upstreamPrerequisiteState: 'capture-prerequisite-present-control-execution-missing',
+    upstreamProofArtifact,
+    upstreamRollbackArtifact: null,
+    upstreamReadinessProved: true,
+    upstreamExecutionProved: false,
+    requiredFinalArtifact: blockerRow.requiredProofArtifact,
+    finalAdapterCompletionClaimed: false,
+    nextAction,
   };
 }
 
