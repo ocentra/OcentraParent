@@ -43,6 +43,14 @@ assert(
   'screen-plan closure lost adapter blocker'
 );
 assert(
+  screenPlanClosure.assertions?.liveViewEvidenceGatesProved === true,
+  'screen-plan closure lost live-view evidence gates'
+);
+assert(
+  screenPlanClosure.assertions?.liveViewProductReadyClaimed === false,
+  'screen-plan closure overclaims live-view product readiness'
+);
+assert(
   screenPlanClosure.assertions?.serviceCadenceRuntimeProved === true,
   'screen-plan closure lost service cadence runtime proof'
 );
@@ -272,6 +280,8 @@ const proof = {
     serviceForegroundRuntimeCovered: true,
     serviceDeletionCustodyCovered: true,
     serviceWinRtOcrPolicyFreshRerunCovered: true,
+    screenPlanLiveViewEvidenceGatesCovered: true,
+    liveViewProductReadyClaimed: false,
     householdMeshChecklistConsistent: true,
     householdProviderRouteSelectionCovered: true,
     householdProviderAdvertisementHeartbeatCovered: true,

@@ -351,6 +351,10 @@ proofs into physical LAN product execution.
       adapter execution, and now requires the adapter blocker ledger plus
       dependency handoff before the final retained-artifact proof can pass:
       `output/screen-ai-pipeline-proof/final-product-path/proof-summary.json`.
+- [x] Full-scope readiness audit now requires the screen-plan live-view
+      closure guard, proving live-view captured-frame transport/deletion and
+      relay/cache no-retention/no-input evidence are present while product live
+      view remains blocked.
 - [x] Final adapter dependency audit run:
       `node --check scripts/test/screen-ai-final-adapter-dependency-audit.mjs` and
       `node scripts/test/screen-ai-final-adapter-dependency-audit.mjs`.

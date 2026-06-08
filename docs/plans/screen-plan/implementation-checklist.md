@@ -213,9 +213,10 @@ legacy household-provider route or runtime-discovery proofs.
 - [x] External proof-gate intake rejects fixture/static/raw-private artifacts
       and keeps product-complete wording blocked until real device/platform
       artifacts exist.
-- [x] Screen-plan closure audit records the remaining partial/open gates and
-      blocks product-complete screen wording until those gates are completed or
-      explicitly left as non-claims.
+- [x] Screen-plan closure audit records the remaining partial/open gates,
+      consumes live-view transport/platform/parent UI/service-session/runtime/
+      worker/relay-cache proofs, and blocks product-complete screen wording
+      until those gates are completed or explicitly left as non-claims.
 - [x] Delete-failed read-model proof records Rust protocol/read-model parity
       for `deleteFailed` custody rows and failed queue-health status without
       claiming an OS filesystem failure simulation.

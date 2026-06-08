@@ -93,6 +93,98 @@ const adapterCustodyArtifacts = [
   ...artifact,
   summary: readJson(join(repoRoot, artifact.path)),
 }));
+const liveViewArtifacts = [
+  {
+    label: 'live-view loopback transport',
+    path: 'output/screen-plan-proof/live-view-session-transport/proof-summary.json',
+    assert(summary) {
+      return (
+        summary.assertions?.realPixelsCaptured === true &&
+        summary.assertions?.localTransportDeliveredFrame === true &&
+        summary.assertions?.rawFrameDeletedAfterTransport === true &&
+        summary.assertions?.noRawFrameRetention === true &&
+        summary.assertions?.noRemoteInput === true
+      );
+    },
+  },
+  {
+    label: 'live-view platform permission gate',
+    path: 'output/screen-plan-proof/live-view-platform-permission/proof-summary.json',
+    assert(summary) {
+      return (
+        summary.assertions?.productionReadinessRequiresStructuredEvidence === true &&
+        summary.assertions?.productionReadinessRejectsCaptureOnlyPermission === true &&
+        summary.assertions?.productionReadinessRejectsRawFramePromptArtifact === true &&
+        summary.gapStatus?.liveViewProductReady === false
+      );
+    },
+  },
+  {
+    label: 'live-view parent UI persistence',
+    path: 'output/screen-plan-proof/live-view-parent-ui-persistence/proof-summary.json',
+    assert(summary) {
+      return (
+        summary.assertions?.parentSettingsRouteRenderedLiveViewRow === true &&
+        summary.assertions?.explicitParentOptInPersisted === true &&
+        summary.assertions?.productLiveViewStillBlocked === true &&
+        summary.assertions?.noFrameRetentionNoRecordingNoRemoteInput === true
+      );
+    },
+  },
+  {
+    label: 'live-view service session boundary',
+    path: 'output/screen-plan-proof/live-view-service-session/proof-summary.json',
+    assert(summary) {
+      return (
+        summary.assertions?.realLoopbackTransportArtifactConsumed === true &&
+        summary.assertions?.rawFrameDeletionCarriedForward === true &&
+        summary.assertions?.productReadinessOverclaimRejected === true &&
+        summary.gapStatus?.liveViewProductReady === false
+      );
+    },
+  },
+  {
+    label: 'live-view runtime boundary',
+    path: 'output/screen-plan-proof/live-view-runtime/proof-summary.json',
+    assert(summary) {
+      return (
+        summary.assertions?.rustRuntimeValidationPassed === true &&
+        summary.assertions?.productReadinessStillBlocked === true &&
+        summary.gapStatus?.liveViewProductReady === false
+      );
+    },
+  },
+  {
+    label: 'live-view worker startup gate',
+    path: 'output/screen-plan-proof/live-view-worker-startup/proof-summary.json',
+    assert(summary) {
+      return (
+        summary.assertions?.rustWorkerStartupValidationPassed === true &&
+        summary.assertions?.workerRemainsStoppedWithoutExternalGates === true &&
+        summary.assertions?.serviceWorkerExecutionRecordStartsAfterAllGates === true &&
+        summary.gapStatus?.liveViewProductReady === false
+      );
+    },
+  },
+  {
+    label: 'live-view forced relay/cache execution',
+    path: 'output/screen-plan-proof/live-view-relay-cache/proof-summary.json',
+    assert(summary) {
+      return (
+        summary.assertions?.realPixelsCaptured === true &&
+        summary.assertions?.relayEnvelopeEncrypted === true &&
+        summary.assertions?.relayCacheDeletedAfterDelivery === true &&
+        summary.assertions?.rawFrameDeletedAfterRelay === true &&
+        summary.assertions?.noRawFrameCache === true &&
+        summary.assertions?.noSessionRecording === true &&
+        summary.assertions?.noRemoteInput === true
+      );
+    },
+  },
+].map((artifact) => ({
+  ...artifact,
+  summary: readJson(join(repoRoot, artifact.path)),
+}));
 const workpacks = [
   {
     id: '10',
@@ -335,6 +427,15 @@ for (const artifact of adapterCustodyArtifacts) {
     `${artifact.label} must keep product-complete adapter row open.`
   );
 }
+for (const artifact of liveViewArtifacts) {
+  assert(artifact.assert(artifact.summary), `${artifact.label} live-view closure assertion failed.`);
+}
+assert(
+  liveViewArtifacts.every((artifact) =>
+    (artifact.summary.nonClaims ?? []).some((nonClaim) => nonClaim.toLowerCase().includes('product'))
+  ),
+  'Every live-view artifact must preserve a product-readiness non-claim.'
+);
 
 const summary = {
   proof: 'screen-plan-closure-audit',
@@ -379,13 +480,7 @@ const summary = {
     'output/screen-ai-pipeline-proof/linux-host-adapter-custody/proof-summary.json',
     'output/screen-ai-pipeline-proof/android-mobile-control-custody/proof-summary.json',
     'output/screen-ai-pipeline-proof/ios-mobile-control-custody/proof-summary.json',
-    'output/screen-plan-proof/live-view-session-transport/proof-summary.json',
-    'output/screen-plan-proof/live-view-platform-permission/proof-summary.json',
-    'output/screen-plan-proof/live-view-parent-ui-persistence/proof-summary.json',
-    'output/screen-plan-proof/live-view-service-session/proof-summary.json',
-    'output/screen-plan-proof/live-view-runtime/proof-summary.json',
-    'output/screen-plan-proof/live-view-worker-startup/proof-summary.json',
-    'output/screen-plan-proof/live-view-relay-cache/proof-summary.json',
+    ...liveViewArtifacts.map((artifact) => artifact.path),
     'output/screen-plan-proof/external-gates/proof-summary.json',
     'output/screen-plan-proof/macos/proof-summary.json',
     'output/screen-plan-proof/linux/proof-summary.json',
@@ -436,6 +531,8 @@ const summary = {
         artifact.summary.closure.finalAdapterCompletionClaimed === false &&
         artifact.summary.closure.productCompleteAdapterRowStillOpen === true
     ),
+    liveViewEvidenceGatesProved: liveViewArtifacts.every((artifact) => artifact.assert(artifact.summary)),
+    liveViewProductReadyClaimed: false,
     noProductCompleteClaim: true,
   },
   nonClaims: [

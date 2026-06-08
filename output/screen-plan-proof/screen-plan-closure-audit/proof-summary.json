@@ -1,6 +1,6 @@
 {
   "proof": "screen-plan-closure-audit",
-  "generatedAt": "2026-06-08T04:40:19.857Z",
+  "generatedAt": "2026-06-08T05:59:02.295Z",
   "branchScope": "codex/screen-ai-full-scope-b",
   "checklist": {
     "path": "docs/plans/screen-plan/implementation-checklist.md",
@@ -321,6 +321,8 @@
     "serviceCadenceRuntimeProved": true,
     "serviceDisabledSuppressionProved": true,
     "custodyArtifactsDoNotUpgradeClaims": true,
+    "liveViewEvidenceGatesProved": true,
+    "liveViewProductReadyClaimed": false,
     "noProductCompleteClaim": true
   },
   "nonClaims": [

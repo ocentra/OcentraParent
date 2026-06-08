@@ -1,6 +1,6 @@
 # Screen AI Full Scope Readiness Audit
 
-Generated: 2026-06-08T05:48:58.499Z
+Generated: 2026-06-08T05:59:02.367Z
 
 ## Source Artifacts
 
@@ -28,6 +28,8 @@ Generated: 2026-06-08T05:48:58.499Z
   "serviceForegroundRuntimeCovered": true,
   "serviceDeletionCustodyCovered": true,
   "serviceWinRtOcrPolicyFreshRerunCovered": true,
+  "screenPlanLiveViewEvidenceGatesCovered": true,
+  "liveViewProductReadyClaimed": false,
   "householdMeshChecklistConsistent": true,
   "householdProviderRouteSelectionCovered": true,
   "householdProviderAdvertisementHeartbeatCovered": true,
