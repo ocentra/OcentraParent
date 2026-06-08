@@ -95,7 +95,12 @@ async function buildProof() {
 }
 
 function handoffInventoryFrom(gate, sourceProof) {
-  const rows = rowsFrom(sourceProof);
+  const rows = rowsFrom(sourceProof).filter(
+    (row) => gate.sourceRowIds === undefined || gate.sourceRowIds.includes(row.rowId)
+  );
+  if (rows.length === 0) {
+    throw new Error(`Artifact gate proof has no rows for ${gate.handoffArea}: ${sourceProof.proofMode ?? 'unknown'}`);
+  }
   return {
     handoffArea: gate.handoffArea,
     proofRoot: rows[0]?.proofRoot ?? gate.sourceProofRef,

@@ -290,8 +290,8 @@ expose location or device-status features. Parents expect this category.
   product-ready tracking claims false.
 - WP33 real-runtime handoff proof now exists through
   `node scripts/test/tracking-real-runtime-handoff-proof.mjs`. It derives the
-  remaining P4/manual artifact rows from the existing physical-device,
-  child-runtime, full-product UI, authority, provider-delivery,
+  remaining P4/manual artifact rows from the existing Android physical-device,
+  iOS physical-device, child-runtime, full-product UI, authority, provider-delivery,
   retention-runtime, production worker, escalation-runtime, and
   product-readiness closure proofs through the parent-domain
   `tracking-real-runtime-handoff-proof` schema/parser and focused test, writes

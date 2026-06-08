@@ -3,11 +3,12 @@
   "proofMode": "tracking-real-runtime-handoff-proof",
   "generatedAt": "2026-06-08T01:05:00.000Z",
   "branch": "codex/tracking-plan-full-continuation-a",
-  "baseCommitAtGeneration": "0a65666d116fb3a65439674cba21553cccfd69dd",
+  "baseCommitAtGeneration": "548b3ac8b5e7f53c8fb508bc25467a6deeb38c31",
   "requiredProofTier": "P4_REAL_RUNTIME_HANDOFF",
   "currentProofTier": "P3_LOCAL_DEV_MACHINE",
   "currentStatus": "manual_required",
   "sourceGateRefs": [
+    "test-results/tracking-physical-device-artifact-gate-proof/proof.json",
     "test-results/tracking-physical-device-artifact-gate-proof/proof.json",
     "test-results/tracking-child-runtime-artifact-gate-proof/proof.json",
     "test-results/tracking-full-product-ui-runtime-artifact-gate-proof/proof.json",
@@ -27,6 +28,7 @@
     "currentStatus": "manual_required",
     "sourceGateRefs": [
       "test-results/tracking-physical-device-artifact-gate-proof/proof.json",
+      "test-results/tracking-physical-device-artifact-gate-proof/proof.json",
       "test-results/tracking-child-runtime-artifact-gate-proof/proof.json",
       "test-results/tracking-full-product-ui-runtime-artifact-gate-proof/proof.json",
       "test-results/tracking-authority-runtime-artifact-gate-proof/proof.json",
@@ -39,9 +41,9 @@
     "handoffRows": [
       {
         "schemaVersion": "v0.5-tracking",
-        "rowId": "tracking-real-runtime-handoff-physical-device-background-and-geofence",
+        "rowId": "tracking-real-runtime-handoff-android-physical-background-and-geofence",
         "generatedAt": "2026-06-08T01:05:00.000Z",
-        "handoffArea": "physical-device-background-and-geofence",
+        "handoffArea": "android-physical-background-and-geofence",
         "sourceProofRef": "test-results/tracking-physical-device-artifact-gate-proof/proof.json",
         "proofRoot": "output/tracking-plan-proof/android-background-geofence",
         "requiredProofTier": "P4_PHYSICAL_DEVICE",
@@ -57,12 +59,7 @@
           "06-alert-decision.json",
           "07-parent-ui-screenshot.png",
           "08-logcat.txt",
-          "09-result-summary.md",
-          "02-authorization-state.json",
-          "03-region-definition.json",
-          "05-region-transitions.ndjson",
-          "07-screenshots",
-          "08-xcode-test-log.txt"
+          "09-result-summary.md"
         ],
         "presentArtifacts": [],
         "missingArtifacts": [
@@ -75,15 +72,50 @@
           "06-alert-decision.json",
           "07-parent-ui-screenshot.png",
           "08-logcat.txt",
-          "09-result-summary.md",
-          "02-authorization-state.json",
-          "03-region-definition.json",
-          "05-region-transitions.ndjson",
-          "07-screenshots",
-          "08-xcode-test-log.txt"
+          "09-result-summary.md"
         ],
         "auditRefs": [
-          "tracking-physical-device-artifacts-android-audit",
+          "tracking-physical-device-artifacts-android-audit"
+        ],
+        "artifactSetComplete": false,
+        "productClaimReady": false
+      },
+      {
+        "schemaVersion": "v0.5-tracking",
+        "rowId": "tracking-real-runtime-handoff-ios-physical-background-and-region",
+        "generatedAt": "2026-06-08T01:05:00.000Z",
+        "handoffArea": "ios-physical-background-and-region",
+        "sourceProofRef": "test-results/tracking-physical-device-artifact-gate-proof/proof.json",
+        "proofRoot": "output/tracking-plan-proof/ios-region-monitoring",
+        "requiredProofTier": "P4_PHYSICAL_DEVICE",
+        "currentProofTier": "P3_LOCAL_DEV_MACHINE",
+        "status": "manual-required",
+        "requiredArtifacts": [
+          "00-run-metadata.json",
+          "01-device-metadata.json",
+          "02-authorization-state.json",
+          "03-region-definition.json",
+          "04-location-events.ndjson",
+          "05-region-transitions.ndjson",
+          "06-alert-decision.json",
+          "07-screenshots",
+          "08-xcode-test-log.txt",
+          "09-result-summary.md"
+        ],
+        "presentArtifacts": [],
+        "missingArtifacts": [
+          "00-run-metadata.json",
+          "01-device-metadata.json",
+          "02-authorization-state.json",
+          "03-region-definition.json",
+          "04-location-events.ndjson",
+          "05-region-transitions.ndjson",
+          "06-alert-decision.json",
+          "07-screenshots",
+          "08-xcode-test-log.txt",
+          "09-result-summary.md"
+        ],
+        "auditRefs": [
           "tracking-physical-device-artifacts-ios-audit"
         ],
         "artifactSetComplete": false,
@@ -384,11 +416,11 @@
       }
     ],
     "summary": {
-      "handoffRowCount": 8,
-      "requiredArtifactCount": 88,
+      "handoffRowCount": 9,
+      "requiredArtifactCount": 93,
       "presentArtifactCount": 0,
-      "missingArtifactCount": 88,
-      "manualRequiredRowCount": 8,
+      "missingArtifactCount": 93,
+      "manualRequiredRowCount": 9,
       "artifactSetPresentRowCount": 0,
       "productReadyRowCount": 0
     },
@@ -407,9 +439,9 @@
   "handoffRows": [
     {
       "schemaVersion": "v0.5-tracking",
-      "rowId": "tracking-real-runtime-handoff-physical-device-background-and-geofence",
+      "rowId": "tracking-real-runtime-handoff-android-physical-background-and-geofence",
       "generatedAt": "2026-06-08T01:05:00.000Z",
-      "handoffArea": "physical-device-background-and-geofence",
+      "handoffArea": "android-physical-background-and-geofence",
       "sourceProofRef": "test-results/tracking-physical-device-artifact-gate-proof/proof.json",
       "proofRoot": "output/tracking-plan-proof/android-background-geofence",
       "requiredProofTier": "P4_PHYSICAL_DEVICE",
@@ -425,12 +457,7 @@
         "06-alert-decision.json",
         "07-parent-ui-screenshot.png",
         "08-logcat.txt",
-        "09-result-summary.md",
-        "02-authorization-state.json",
-        "03-region-definition.json",
-        "05-region-transitions.ndjson",
-        "07-screenshots",
-        "08-xcode-test-log.txt"
+        "09-result-summary.md"
       ],
       "presentArtifacts": [],
       "missingArtifacts": [
@@ -443,15 +470,50 @@
         "06-alert-decision.json",
         "07-parent-ui-screenshot.png",
         "08-logcat.txt",
-        "09-result-summary.md",
-        "02-authorization-state.json",
-        "03-region-definition.json",
-        "05-region-transitions.ndjson",
-        "07-screenshots",
-        "08-xcode-test-log.txt"
+        "09-result-summary.md"
       ],
       "auditRefs": [
-        "tracking-physical-device-artifacts-android-audit",
+        "tracking-physical-device-artifacts-android-audit"
+      ],
+      "artifactSetComplete": false,
+      "productClaimReady": false
+    },
+    {
+      "schemaVersion": "v0.5-tracking",
+      "rowId": "tracking-real-runtime-handoff-ios-physical-background-and-region",
+      "generatedAt": "2026-06-08T01:05:00.000Z",
+      "handoffArea": "ios-physical-background-and-region",
+      "sourceProofRef": "test-results/tracking-physical-device-artifact-gate-proof/proof.json",
+      "proofRoot": "output/tracking-plan-proof/ios-region-monitoring",
+      "requiredProofTier": "P4_PHYSICAL_DEVICE",
+      "currentProofTier": "P3_LOCAL_DEV_MACHINE",
+      "status": "manual-required",
+      "requiredArtifacts": [
+        "00-run-metadata.json",
+        "01-device-metadata.json",
+        "02-authorization-state.json",
+        "03-region-definition.json",
+        "04-location-events.ndjson",
+        "05-region-transitions.ndjson",
+        "06-alert-decision.json",
+        "07-screenshots",
+        "08-xcode-test-log.txt",
+        "09-result-summary.md"
+      ],
+      "presentArtifacts": [],
+      "missingArtifacts": [
+        "00-run-metadata.json",
+        "01-device-metadata.json",
+        "02-authorization-state.json",
+        "03-region-definition.json",
+        "04-location-events.ndjson",
+        "05-region-transitions.ndjson",
+        "06-alert-decision.json",
+        "07-screenshots",
+        "08-xcode-test-log.txt",
+        "09-result-summary.md"
+      ],
+      "auditRefs": [
         "tracking-physical-device-artifacts-ios-audit"
       ],
       "artifactSetComplete": false,
@@ -752,11 +814,11 @@
     }
   ],
   "summary": {
-    "handoffRowCount": 8,
-    "requiredArtifactCount": 88,
+    "handoffRowCount": 9,
+    "requiredArtifactCount": 93,
     "presentArtifactCount": 0,
-    "missingArtifactCount": 88,
-    "manualRequiredRowCount": 8,
+    "missingArtifactCount": 93,
+    "manualRequiredRowCount": 9,
     "artifactSetPresentRowCount": 0,
     "productReadyRowCount": 0
   },
