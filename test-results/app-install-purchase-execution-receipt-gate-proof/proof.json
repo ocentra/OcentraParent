@@ -1,0 +1,307 @@
+{
+  "schemaVersion": 1,
+  "checkedAt": "2026-06-08T04:24:00.000Z",
+  "commitMetadataState": "omitted-for-deterministic-proof-artifact",
+  "proofMode": "app-install-purchase-execution-receipt-gate-proof",
+  "commands": [
+    {
+      "command": "cmd /c npm run build --workspace @ocentra-parent/schema-domain",
+      "exitCode": 0
+    },
+    {
+      "command": "cmd /c npm run build --workspace @ocentra-parent/parent-domain",
+      "exitCode": 0
+    },
+    {
+      "command": "cmd /c npm run test --workspace @ocentra-parent/parent-domain -- tests/app-install-purchase-execution-receipt-gate-proof.test.ts",
+      "exitCode": 0
+    }
+  ],
+  "packageExportState": "added-app-install-purchase-execution-receipt-gate-proof-export",
+  "checklistState": "updated-docs-product-capability-checklist-install-purchase-row",
+  "evidence": {
+    "executionReceiptGateContract": "packages/parent-domain/src/app-install-purchase-execution-receipt-gate-proof.ts",
+    "sourceExternalRuntimeWriterTransportExecutionContract": "packages/parent-domain/src/app-install-purchase-external-runtime-writer-transport-execution-proof.ts",
+    "contractTest": "packages/parent-domain/tests/app-install-purchase-execution-receipt-gate-proof.test.ts",
+    "featureDoc": "docs/features/app-install-purchase-approval.md",
+    "expectationDoc": "docs/expectations/app-install-purchase-approval.md",
+    "platformExpectationDoc": "docs/expectations/platforms.md",
+    "packageExport": "packages/parent-domain/package.json",
+    "packageReadme": "packages/parent-domain/README.md",
+    "checklistRow": "docs/product-capability-checklist.md#install-purchase-approval",
+    "output": "test-results\\app-install-purchase-execution-receipt-gate-proof\\proof.json"
+  },
+  "executionReceiptGateSummary": {
+    "executionReceiptGateRows": 4,
+    "blockedReceiptGateRows": 3,
+    "manualRequiredRows": 1,
+    "acceptedExecutionReceiptFamilies": 0,
+    "childDeviceDeliveredRows": 0
+  },
+  "executionReceiptGateRows": [
+    {
+      "sourceDecisionAction": "approve",
+      "sourceWriterTransportExecutionRowId": "external-runtime-writer-transport-execution-approve",
+      "sourceWriterTransportExecutionState": "transport-execution-blocked",
+      "sourceWriterTransportAckState": "ack-not-recorded",
+      "sourceExternalWriterTransportPacketRef": "parent-owned-external-writer-transport-packet-approve",
+      "sourceExternalWriterTransportExecutionStatusRef": "parent-owned-external-writer-transport-execution-status-approve",
+      "sourceExternalWriterTransportAckRef": "parent-owned-external-writer-transport-ack-approve",
+      "executionReceiptGateState": "blocked-missing-execution-receipts",
+      "externalWriterDispatchExecutorReceiptState": "receipt-missing",
+      "providerStoreExecutionReceiptState": "receipt-missing",
+      "platformAdapterExecutionReceiptState": "receipt-missing",
+      "childDeviceTransportReceiptState": "receipt-missing",
+      "requiredExecutionReceiptFamilies": [
+        "external-writer-dispatch-executor-receipt",
+        "provider-store-execution-receipt",
+        "platform-adapter-execution-receipt",
+        "child-device-transport-receipt"
+      ],
+      "externalWriterDispatchExecutorReceiptProofRefs": [
+        "external-writer-transport-proof-approve"
+      ],
+      "providerStoreExecutionReceiptProofRefs": [
+        "provider-store-execution-proof-approve"
+      ],
+      "platformAdapterExecutionReceiptProofRefs": [
+        "platform-adapter-proof-approve"
+      ],
+      "childDeviceTransportReceiptProofRefs": [
+        "child-device-delivery-proof-approve"
+      ],
+      "executionReceiptGateBlockedReasonRefs": [
+        "missing-external-writer-dispatch-executor-receipt-approve",
+        "missing-provider-store-execution-receipt-approve",
+        "missing-platform-adapter-execution-receipt-approve",
+        "missing-child-device-transport-receipt-approve"
+      ],
+      "executionReceiptGateAuditEventRefs": [
+        "audit-parent-decision-recorded-1",
+        "package-source-capture-windows-microsoft-store-audit-ref",
+        "package-source-capture-macos-mac-app-store-audit-ref",
+        "package-source-capture-linux-linux-package-manager-audit-ref",
+        "package-source-capture-android-google-play-audit-ref",
+        "package-source-capture-ios-apple-app-store-audit-ref",
+        "external-runtime-writer-delivery-boundary-audit-approve",
+        "external-runtime-writer-delivery-blocker-audit-approve",
+        "external-runtime-transport-queue-guard-audit-approve",
+        "external-runtime-transport-dispatch-preflight-audit-approve",
+        "runtime-delivery-receipt-boundary-audit-approve",
+        "runtime-transport-delivery-execution-audit-approve",
+        "external-runtime-writer-transport-execution-audit-approve",
+        "execution-receipt-gate-audit-approve"
+      ],
+      "externalRuntimeWriterExecutionClaim": "not-executed",
+      "externalRuntimeWriterDeliveryClaim": "not-delivered",
+      "providerApiExecutionClaim": "not-executed",
+      "platformAdapterClaim": "not-implemented",
+      "childDeviceDeliveryClaim": "not-delivered",
+      "appBlockingClaim": "not-claimed",
+      "claimBoundary": "execution receipt gate proof only; rows consume external runtime writer transport execution rows and keep product progress blocked until external writer dispatch executor receipt provider-store execution receipt platform adapter execution receipt and child-device transport receipt artifacts are attached no external runtime writer execution no external runtime writer delivery no parent action runtime delivery no provider API execution no store integration no platform interception no platform adapter implementation no child-device delivery no runtime report delivery no real install or purchase interception no app blocking no child activity data no Ocentra-hosted family data custody"
+    },
+    {
+      "sourceDecisionAction": "deny",
+      "sourceWriterTransportExecutionRowId": "external-runtime-writer-transport-execution-deny",
+      "sourceWriterTransportExecutionState": "transport-execution-blocked",
+      "sourceWriterTransportAckState": "ack-not-recorded",
+      "sourceExternalWriterTransportPacketRef": "parent-owned-external-writer-transport-packet-deny",
+      "sourceExternalWriterTransportExecutionStatusRef": "parent-owned-external-writer-transport-execution-status-deny",
+      "sourceExternalWriterTransportAckRef": "parent-owned-external-writer-transport-ack-deny",
+      "executionReceiptGateState": "blocked-missing-execution-receipts",
+      "externalWriterDispatchExecutorReceiptState": "receipt-missing",
+      "providerStoreExecutionReceiptState": "receipt-missing",
+      "platformAdapterExecutionReceiptState": "receipt-missing",
+      "childDeviceTransportReceiptState": "receipt-missing",
+      "requiredExecutionReceiptFamilies": [
+        "external-writer-dispatch-executor-receipt",
+        "provider-store-execution-receipt",
+        "platform-adapter-execution-receipt",
+        "child-device-transport-receipt"
+      ],
+      "externalWriterDispatchExecutorReceiptProofRefs": [
+        "external-writer-transport-proof-deny"
+      ],
+      "providerStoreExecutionReceiptProofRefs": [
+        "provider-store-execution-proof-deny"
+      ],
+      "platformAdapterExecutionReceiptProofRefs": [
+        "platform-adapter-proof-deny"
+      ],
+      "childDeviceTransportReceiptProofRefs": [
+        "child-device-delivery-proof-deny"
+      ],
+      "executionReceiptGateBlockedReasonRefs": [
+        "missing-external-writer-dispatch-executor-receipt-deny",
+        "missing-provider-store-execution-receipt-deny",
+        "missing-platform-adapter-execution-receipt-deny",
+        "missing-child-device-transport-receipt-deny"
+      ],
+      "executionReceiptGateAuditEventRefs": [
+        "audit-parent-decision-recorded-1",
+        "package-source-capture-windows-microsoft-store-audit-ref",
+        "package-source-capture-macos-mac-app-store-audit-ref",
+        "package-source-capture-linux-linux-package-manager-audit-ref",
+        "package-source-capture-android-google-play-audit-ref",
+        "package-source-capture-ios-apple-app-store-audit-ref",
+        "external-runtime-writer-delivery-boundary-audit-deny",
+        "external-runtime-writer-delivery-blocker-audit-deny",
+        "external-runtime-transport-queue-guard-audit-deny",
+        "external-runtime-transport-dispatch-preflight-audit-deny",
+        "runtime-delivery-receipt-boundary-audit-deny",
+        "runtime-transport-delivery-execution-audit-deny",
+        "external-runtime-writer-transport-execution-audit-deny",
+        "execution-receipt-gate-audit-deny"
+      ],
+      "externalRuntimeWriterExecutionClaim": "not-executed",
+      "externalRuntimeWriterDeliveryClaim": "not-delivered",
+      "providerApiExecutionClaim": "not-executed",
+      "platformAdapterClaim": "not-implemented",
+      "childDeviceDeliveryClaim": "not-delivered",
+      "appBlockingClaim": "not-claimed",
+      "claimBoundary": "execution receipt gate proof only; rows consume external runtime writer transport execution rows and keep product progress blocked until external writer dispatch executor receipt provider-store execution receipt platform adapter execution receipt and child-device transport receipt artifacts are attached no external runtime writer execution no external runtime writer delivery no parent action runtime delivery no provider API execution no store integration no platform interception no platform adapter implementation no child-device delivery no runtime report delivery no real install or purchase interception no app blocking no child activity data no Ocentra-hosted family data custody"
+    },
+    {
+      "sourceDecisionAction": "time-box",
+      "sourceWriterTransportExecutionRowId": "external-runtime-writer-transport-execution-time-box",
+      "sourceWriterTransportExecutionState": "transport-execution-blocked",
+      "sourceWriterTransportAckState": "ack-not-recorded",
+      "sourceExternalWriterTransportPacketRef": "parent-owned-external-writer-transport-packet-time-box",
+      "sourceExternalWriterTransportExecutionStatusRef": "parent-owned-external-writer-transport-execution-status-time-box",
+      "sourceExternalWriterTransportAckRef": "parent-owned-external-writer-transport-ack-time-box",
+      "executionReceiptGateState": "blocked-missing-execution-receipts",
+      "externalWriterDispatchExecutorReceiptState": "receipt-missing",
+      "providerStoreExecutionReceiptState": "receipt-missing",
+      "platformAdapterExecutionReceiptState": "receipt-missing",
+      "childDeviceTransportReceiptState": "receipt-missing",
+      "requiredExecutionReceiptFamilies": [
+        "external-writer-dispatch-executor-receipt",
+        "provider-store-execution-receipt",
+        "platform-adapter-execution-receipt",
+        "child-device-transport-receipt"
+      ],
+      "externalWriterDispatchExecutorReceiptProofRefs": [
+        "external-writer-transport-proof-time-box"
+      ],
+      "providerStoreExecutionReceiptProofRefs": [
+        "provider-store-execution-proof-time-box"
+      ],
+      "platformAdapterExecutionReceiptProofRefs": [
+        "platform-adapter-proof-time-box"
+      ],
+      "childDeviceTransportReceiptProofRefs": [
+        "child-device-delivery-proof-time-box"
+      ],
+      "executionReceiptGateBlockedReasonRefs": [
+        "missing-external-writer-dispatch-executor-receipt-time-box",
+        "missing-provider-store-execution-receipt-time-box",
+        "missing-platform-adapter-execution-receipt-time-box",
+        "missing-child-device-transport-receipt-time-box"
+      ],
+      "executionReceiptGateAuditEventRefs": [
+        "audit-parent-decision-recorded-1",
+        "package-source-capture-windows-microsoft-store-audit-ref",
+        "package-source-capture-macos-mac-app-store-audit-ref",
+        "package-source-capture-linux-linux-package-manager-audit-ref",
+        "package-source-capture-android-google-play-audit-ref",
+        "package-source-capture-ios-apple-app-store-audit-ref",
+        "external-runtime-writer-delivery-boundary-audit-time-box",
+        "external-runtime-writer-delivery-blocker-audit-time-box",
+        "external-runtime-transport-queue-guard-audit-time-box",
+        "external-runtime-transport-dispatch-preflight-audit-time-box",
+        "runtime-delivery-receipt-boundary-audit-time-box",
+        "runtime-transport-delivery-execution-audit-time-box",
+        "external-runtime-writer-transport-execution-audit-time-box",
+        "execution-receipt-gate-audit-time-box"
+      ],
+      "externalRuntimeWriterExecutionClaim": "not-executed",
+      "externalRuntimeWriterDeliveryClaim": "not-delivered",
+      "providerApiExecutionClaim": "not-executed",
+      "platformAdapterClaim": "not-implemented",
+      "childDeviceDeliveryClaim": "not-delivered",
+      "appBlockingClaim": "not-claimed",
+      "claimBoundary": "execution receipt gate proof only; rows consume external runtime writer transport execution rows and keep product progress blocked until external writer dispatch executor receipt provider-store execution receipt platform adapter execution receipt and child-device transport receipt artifacts are attached no external runtime writer execution no external runtime writer delivery no parent action runtime delivery no provider API execution no store integration no platform interception no platform adapter implementation no child-device delivery no runtime report delivery no real install or purchase interception no app blocking no child activity data no Ocentra-hosted family data custody"
+    },
+    {
+      "sourceDecisionAction": "review-needed",
+      "sourceWriterTransportExecutionRowId": "external-runtime-writer-transport-execution-review-needed",
+      "sourceWriterTransportExecutionState": "manual-required",
+      "sourceWriterTransportAckState": "manual-required",
+      "sourceExternalWriterTransportPacketRef": "parent-owned-external-writer-transport-packet-review-needed",
+      "sourceExternalWriterTransportExecutionStatusRef": "parent-owned-external-writer-transport-execution-status-review-needed",
+      "sourceExternalWriterTransportAckRef": "parent-owned-external-writer-transport-ack-review-needed",
+      "executionReceiptGateState": "manual-required",
+      "externalWriterDispatchExecutorReceiptState": "manual-required",
+      "providerStoreExecutionReceiptState": "manual-required",
+      "platformAdapterExecutionReceiptState": "manual-required",
+      "childDeviceTransportReceiptState": "manual-required",
+      "requiredExecutionReceiptFamilies": [
+        "external-writer-dispatch-executor-receipt",
+        "provider-store-execution-receipt",
+        "platform-adapter-execution-receipt",
+        "child-device-transport-receipt"
+      ],
+      "externalWriterDispatchExecutorReceiptProofRefs": [
+        "external-writer-transport-proof-review-needed"
+      ],
+      "providerStoreExecutionReceiptProofRefs": [
+        "provider-store-execution-proof-review-needed"
+      ],
+      "platformAdapterExecutionReceiptProofRefs": [
+        "platform-adapter-proof-review-needed"
+      ],
+      "childDeviceTransportReceiptProofRefs": [
+        "child-device-delivery-proof-review-needed"
+      ],
+      "executionReceiptGateBlockedReasonRefs": [
+        "missing-external-writer-dispatch-executor-receipt-review-needed",
+        "missing-provider-store-execution-receipt-review-needed",
+        "missing-platform-adapter-execution-receipt-review-needed",
+        "missing-child-device-transport-receipt-review-needed"
+      ],
+      "executionReceiptGateAuditEventRefs": [
+        "audit-parent-decision-recorded-1",
+        "package-source-capture-windows-microsoft-store-audit-ref",
+        "package-source-capture-macos-mac-app-store-audit-ref",
+        "package-source-capture-linux-linux-package-manager-audit-ref",
+        "package-source-capture-android-google-play-audit-ref",
+        "package-source-capture-ios-apple-app-store-audit-ref",
+        "external-runtime-writer-delivery-boundary-audit-review-needed",
+        "external-runtime-writer-delivery-blocker-audit-review-needed",
+        "external-runtime-transport-queue-guard-audit-review-needed",
+        "external-runtime-transport-dispatch-preflight-audit-review-needed",
+        "runtime-delivery-receipt-boundary-audit-review-needed",
+        "runtime-transport-delivery-execution-audit-review-needed",
+        "external-runtime-writer-transport-execution-audit-review-needed",
+        "execution-receipt-gate-audit-review-needed"
+      ],
+      "externalRuntimeWriterExecutionClaim": "not-executed",
+      "externalRuntimeWriterDeliveryClaim": "not-delivered",
+      "providerApiExecutionClaim": "not-executed",
+      "platformAdapterClaim": "not-implemented",
+      "childDeviceDeliveryClaim": "not-delivered",
+      "appBlockingClaim": "not-claimed",
+      "claimBoundary": "execution receipt gate proof only; rows consume external runtime writer transport execution rows and keep product progress blocked until external writer dispatch executor receipt provider-store execution receipt platform adapter execution receipt and child-device transport receipt artifacts are attached no external runtime writer execution no external runtime writer delivery no parent action runtime delivery no provider API execution no store integration no platform interception no platform adapter implementation no child-device delivery no runtime report delivery no real install or purchase interception no app blocking no child activity data no Ocentra-hosted family data custody"
+    }
+  ],
+  "nonClaims": [
+    "no-external-runtime-writer-execution",
+    "no-external-runtime-writer-delivery",
+    "no-parent-action-runtime-delivery",
+    "no-provider-api-execution",
+    "no-store-integration",
+    "no-platform-interception",
+    "no-platform-adapter-implementation",
+    "no-child-device-delivery",
+    "no-runtime-report-delivery",
+    "no-real-install-or-purchase-interception",
+    "no-app-blocking",
+    "no-child-activity-data",
+    "no-ocentra-hosted-family-data-custody"
+  ],
+  "knownGaps": [
+    "Execution receipt gate rows are parent-owned contract rows only; no external writer dispatch executor receipt, provider/store execution receipt, platform adapter execution receipt, or child-device transport receipt artifact exists.",
+    "Rows stay blocked or manual-required until all four receipt families are attached as real proof artifacts.",
+    "This proof does not upgrade app-install product claims and keeps portal UI, provider/store execution, platform adapter execution, child-device delivery, runtime report delivery, app blocking, and child activity custody unclaimed."
+  ]
+}
