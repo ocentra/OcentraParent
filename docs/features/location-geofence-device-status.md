@@ -421,6 +421,14 @@ expose location or device-status features. Parents expect this category.
   parent notification history runtime, child-device delivery, durable storage,
   emergency auto-contact, physical-device, authority, and product-ready claims
   false.
+- WP30 child-runtime product-readiness blocker proof now consumes the snapshot
+  requirements proof, Android emulator readiness bridge, and parent-child local
+  runtime bridge. It records package launch, foreground-service, local emulator
+  geofence counts, stored local runtime events, zero dead letters, child-agent
+  phase coverage, and parent read-model projection while keeping actual
+  child-device delivery/execution, rendered child-device UI, parent receipt
+  runtime, physical-device proof, authority, provider delivery, production
+  workers, and product-ready tracking unclaimed.
 - WP33 tracking product-readiness closure proof now exists through
   `node scripts/test/tracking-product-readiness-closure-proof.mjs`. It cites the
   current pre-device, Android emulator, iOS simulator, WSL/local, hosted UI

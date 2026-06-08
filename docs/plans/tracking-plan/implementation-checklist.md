@@ -983,7 +983,9 @@ Every implementation workpack must update, or explicitly justify not updating:
       `output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/29-child-runtime-product-readiness-blocker-proof.json`,
       that blocker proof now also consumes the Android emulator readiness bridge
       and records package launch, foreground-service, local emulator geofence
-      and dwell counts, and missing child-runtime artifact accounting,
+      and dwell counts, missing child-runtime artifact accounting, and the
+      parent-child local runtime bridge stored-event/zero-dead-letter/child-agent
+      phase/read-model projection counts,
       and WP30/WP33 child-runtime artifact gate proof now verifies the exact
       required real child-device artifact names in
       `output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/30-child-runtime-artifact-gate-proof.json`

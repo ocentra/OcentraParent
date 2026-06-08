@@ -13,8 +13,11 @@ const sourceSnapshotRequirementsProofRef =
   'output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/28-child-runtime-snapshot-requirements-proof.json';
 const sourceAndroidEmulatorBridgeProofRef =
   'output/tracking-plan-proof/tracking-child-runtime-android-emulator-readiness-bridge-proof/proof.json';
+const sourceParentChildLocalRuntimeBridgeProofRef =
+  'output/tracking-plan-proof/tracking-parent-child-local-runtime-bridge-proof/proof.json';
 const sourceSnapshotRequirementsProofPath = join(repoRoot, sourceSnapshotRequirementsProofRef);
 const sourceAndroidEmulatorBridgeProofPath = join(repoRoot, sourceAndroidEmulatorBridgeProofRef);
+const sourceParentChildLocalRuntimeBridgeProofPath = join(repoRoot, sourceParentChildLocalRuntimeBridgeProofRef);
 const generatedAt = '2026-06-07T16:05:00.000Z';
 const commands = [];
 const initialGitStatusShort = gitOutput(['status', '--short']);
@@ -42,7 +45,14 @@ async function main() {
 
   const sourceSnapshotRequirementsProof = JSON.parse(await readFile(sourceSnapshotRequirementsProofPath, 'utf8'));
   const sourceAndroidEmulatorBridgeProof = JSON.parse(await readFile(sourceAndroidEmulatorBridgeProofPath, 'utf8'));
-  const proof = await buildProof(sourceSnapshotRequirementsProof, sourceAndroidEmulatorBridgeProof);
+  const sourceParentChildLocalRuntimeBridgeProof = JSON.parse(
+    await readFile(sourceParentChildLocalRuntimeBridgeProofPath, 'utf8')
+  );
+  const proof = await buildProof(
+    sourceSnapshotRequirementsProof,
+    sourceAndroidEmulatorBridgeProof,
+    sourceParentChildLocalRuntimeBridgeProof
+  );
   assertProof(proof);
   await writeProofArtifacts(proof);
 
@@ -50,7 +60,11 @@ async function main() {
   console.log('evidence=test-results/tracking-child-runtime-product-readiness-blocker-proof/proof.json');
 }
 
-async function buildProof(sourceSnapshotRequirementsProof, sourceAndroidEmulatorBridgeProof) {
+async function buildProof(
+  sourceSnapshotRequirementsProof,
+  sourceAndroidEmulatorBridgeProof,
+  sourceParentChildLocalRuntimeBridgeProof
+) {
   const proofModule = await import(
     pathToFileURL(
       join(repoRoot, 'packages', 'parent-domain', 'dist', 'tracking-child-runtime-product-readiness-blocker-proof.js')
@@ -62,9 +76,12 @@ async function buildProof(sourceSnapshotRequirementsProof, sourceAndroidEmulator
       sourceSnapshotRequirementsProofRef,
       sourceSnapshotRequirementsProof,
       sourceAndroidEmulatorBridgeProofRef,
-      sourceAndroidEmulatorBridgeProof
+      sourceAndroidEmulatorBridgeProof,
+      sourceParentChildLocalRuntimeBridgeProofRef,
+      sourceParentChildLocalRuntimeBridgeProof
     ),
     androidEmulatorBridgeAccounting: androidEmulatorBridgeAccountingFrom(sourceAndroidEmulatorBridgeProof),
+    parentChildLocalRuntimeAccounting: parentChildLocalRuntimeAccountingFrom(sourceParentChildLocalRuntimeBridgeProof),
     branch: gitOutput(['rev-parse', '--abbrev-ref', 'HEAD']),
     baseCommitAtGeneration: gitOutput(['rev-parse', 'HEAD']),
     gitStatusShort: initialGitStatusShort,
@@ -75,6 +92,7 @@ async function buildProof(sourceSnapshotRequirementsProof, sourceAndroidEmulator
       evidence: 'test-results/tracking-child-runtime-product-readiness-blocker-proof/proof.json',
       sourceSnapshotRequirementsProof: sourceSnapshotRequirementsProofRef,
       sourceAndroidEmulatorBridgeProof: sourceAndroidEmulatorBridgeProofRef,
+      sourceParentChildLocalRuntimeBridgeProof: sourceParentChildLocalRuntimeBridgeProofRef,
     },
   };
 }
@@ -113,6 +131,20 @@ function assertProof(proof) {
       `Android emulator bridge accounting is incomplete: ${JSON.stringify(proof.androidEmulatorBridgeAccounting)}`
     );
   }
+  if (
+    !proof.parentChildLocalRuntimeAccounting.localParentChildRuntimeObserved ||
+    !proof.parentChildLocalRuntimeAccounting.typedLocalServiceTransportObserved ||
+    !proof.parentChildLocalRuntimeAccounting.parentReadModelProjectionObserved ||
+    proof.parentChildLocalRuntimeAccounting.deadLetterCount !== 0 ||
+    proof.parentChildLocalRuntimeAccounting.storedEventCount < 9 ||
+    proof.parentChildLocalRuntimeAccounting.childAgentPhaseCount < 4
+  ) {
+    throw new Error(
+      `Parent-child local runtime bridge accounting is incomplete: ${JSON.stringify(
+        proof.parentChildLocalRuntimeAccounting
+      )}`
+    );
+  }
 }
 
 async function writeProofArtifacts(proof) {
@@ -137,9 +169,14 @@ function sourceSnapshot(proof) {
     '- status: proved',
     `- consumes: ${sourceSnapshotRequirementsProofRef}`,
     `- consumes: ${sourceAndroidEmulatorBridgeProofRef}`,
-    '- proves child runtime requirement coverage is still product-readiness blocked even with Android emulator prerequisites observed',
+    `- consumes: ${sourceParentChildLocalRuntimeBridgeProofRef}`,
+    '- proves child runtime requirement coverage is still product-readiness blocked even with Android emulator prerequisites and local parent-child runtime observed',
     `- androidEmulatorPrerequisitesObserved: ${proof.androidEmulatorBridgeAccounting.androidEmulatorPrerequisitesObserved}`,
     `- androidLocalGeofenceTransitionCount: ${proof.androidEmulatorBridgeAccounting.localGeofenceTransitionCount}`,
+    `- localParentChildRuntimeObserved: ${proof.parentChildLocalRuntimeAccounting.localParentChildRuntimeObserved}`,
+    `- parentChildLocalRuntimeStoredEventCount: ${proof.parentChildLocalRuntimeAccounting.storedEventCount}`,
+    `- parentChildLocalRuntimeDeadLetterCount: ${proof.parentChildLocalRuntimeAccounting.deadLetterCount}`,
+    `- parentChildLocalRuntimeChildAgentPhaseCount: ${proof.parentChildLocalRuntimeAccounting.childAgentPhaseCount}`,
     `- childRuntimeRequiredArtifactCount: ${proof.childRuntimeRequiredArtifactCount}`,
     `- childRuntimePresentArtifactCount: ${proof.childRuntimePresentArtifactCount}`,
     `- childRuntimeMissingArtifactCount: ${proof.childRuntimeMissingArtifactCount}`,
@@ -156,6 +193,7 @@ function securityNegativeProof() {
     'workpack=30-parent-and-child-ui-ux-surfaces',
     'Child runtime product-readiness blocker rows consume snapshot requirement rows and preserve explicit non-claims.',
     'Rows also consume the Android emulator readiness bridge so package launch, foreground service, permissions, and local emulator geofence evidence are accounted for in the child-runtime blocker.',
+    'Rows consume the parent-child local runtime bridge so typed local transport, stored event, child-agent phase, and parent read-model projection evidence are accounted for before physical runtime handoff.',
     'Rows prove requirement coverage only and do not claim actual child-device delivery, execution, or rendered child UI.',
     'Provider delivery, notification receipt ingestion, live location runtime, physical-device proof, authority proof, production workers, and product-ready behavior are explicit non-claims.',
     '',
@@ -180,6 +218,26 @@ function androidEmulatorBridgeAccountingFrom(sourceAndroidEmulatorBridgeProof) {
     childRuntimeRequiredArtifactCount: row.childRuntimeRequiredArtifacts.length,
     childRuntimePresentArtifactCount: row.childRuntimePresentArtifacts.length,
     childRuntimeMissingArtifactCount: row.childRuntimeMissingArtifacts.length,
+  };
+}
+
+function parentChildLocalRuntimeAccountingFrom(sourceParentChildLocalRuntimeBridgeProof) {
+  const [row] =
+    sourceParentChildLocalRuntimeBridgeProof.readModel?.rows ?? sourceParentChildLocalRuntimeBridgeProof.rows ?? [];
+  if (row === undefined) {
+    throw new Error('Parent-child local runtime bridge proof has no rows');
+  }
+  return {
+    sourceParentChildLocalRuntimeBridgeProofRef,
+    bridgeRowId: row.rowId,
+    bridgeStatus: row.status,
+    localParentChildRuntimeObserved: row.localParentChildRuntimeObserved,
+    typedLocalServiceTransportObserved: row.typedLocalServiceTransportObserved,
+    parentReadModelProjectionObserved: row.parentReadModelProjectionObserved,
+    publishReportCount: row.publishReportCount,
+    storedEventCount: row.storedEventCount,
+    deadLetterCount: row.deadLetterCount,
+    childAgentPhaseCount: row.childAgentPhaseCount,
   };
 }
 

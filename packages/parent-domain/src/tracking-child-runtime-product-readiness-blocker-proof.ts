@@ -5,6 +5,7 @@ import {
   type TrackingChildRuntimeSnapshotRequirementsRow,
 } from './tracking-child-runtime-snapshot-requirements-proof';
 import { TrackingChildRuntimeAndroidEmulatorBridgeProofSchema } from './tracking-child-runtime-android-emulator-readiness-bridge-proof';
+import { TrackingParentChildLocalRuntimeBridgeProofSchema } from './tracking-parent-child-local-runtime-bridge-proof';
 import { TrackingPolicyAuditRefSchema, TrackingPolicySchemaVersion } from './tracking-location-policy-primitives';
 import { TrackingRetentionSettingsProofRefSchema } from './tracking-retention-settings-read-model-proof';
 
@@ -42,9 +43,11 @@ const TrackingChildRuntimeProductReadinessBlockerRowBaseSchema = Schema.Struct({
   generatedAt: ParentTimestampSchema,
   sourceSnapshotRequirementsProofRef: TrackingRetentionSettingsProofRefSchema,
   sourceAndroidEmulatorBridgeProofRef: TrackingRetentionSettingsProofRefSchema,
+  sourceParentChildLocalRuntimeBridgeProofRef: TrackingRetentionSettingsProofRefSchema,
   sourceCheckInId: TrackingChildRuntimeProductReadinessTextSchema,
   sourceSnapshotRequirementRowId: TrackingChildRuntimeProductReadinessTextSchema,
   sourceAndroidEmulatorBridgeRowId: TrackingChildRuntimeProductReadinessTextSchema,
+  sourceParentChildLocalRuntimeBridgeRowId: TrackingChildRuntimeProductReadinessTextSchema,
   auditRefs: Schema.Array(TrackingPolicyAuditRefSchema),
   deliveryEnvelopeRef: TrackingChildRuntimeProductReadinessTextSchema,
   executionResultRequirementRefCount: TrackingChildRuntimeProductReadinessCounterSchema,
@@ -55,6 +58,12 @@ const TrackingChildRuntimeProductReadinessBlockerRowBaseSchema = Schema.Struct({
   androidPackageLaunchObserved: Schema.Literal(true),
   androidForegroundServiceObserved: Schema.Literal(true),
   androidLocalGeofenceTransitionCount: TrackingChildRuntimeProductReadinessCounterSchema,
+  localParentChildRuntimeObserved: Schema.Literal(true),
+  typedLocalServiceTransportObserved: Schema.Literal(true),
+  parentReadModelProjectionObserved: Schema.Literal(true),
+  parentChildLocalRuntimeStoredEventCount: TrackingChildRuntimeProductReadinessCounterSchema,
+  parentChildLocalRuntimeDeadLetterCount: Schema.Literal(0),
+  parentChildLocalRuntimeChildAgentPhaseCount: TrackingChildRuntimeProductReadinessCounterSchema,
   childRuntimeRequiredArtifacts: Schema.Array(TrackingChildRuntimeProductReadinessTextSchema),
   childRuntimePresentArtifacts: Schema.Array(TrackingChildRuntimeProductReadinessTextSchema),
   childRuntimeMissingArtifacts: Schema.Array(TrackingChildRuntimeProductReadinessTextSchema),
@@ -99,11 +108,16 @@ export const TrackingChildRuntimeProductReadinessBlockerProofSchema = withParser
     generatedAt: ParentTimestampSchema,
     sourceSnapshotRequirementsProofRef: TrackingRetentionSettingsProofRefSchema,
     sourceAndroidEmulatorBridgeProofRef: TrackingRetentionSettingsProofRefSchema,
+    sourceParentChildLocalRuntimeBridgeProofRef: TrackingRetentionSettingsProofRefSchema,
     sourceSnapshotRequirementsStatus: TrackingChildRuntimeProductReadinessTextSchema,
     sourceAndroidEmulatorBridgeStatus: TrackingChildRuntimeProductReadinessTextSchema,
+    sourceParentChildLocalRuntimeBridgeStatus: TrackingChildRuntimeProductReadinessTextSchema,
     childRuntimeRequiredArtifactCount: TrackingChildRuntimeProductReadinessCounterSchema,
     childRuntimePresentArtifactCount: TrackingChildRuntimeProductReadinessCounterSchema,
     childRuntimeMissingArtifactCount: TrackingChildRuntimeProductReadinessCounterSchema,
+    parentChildLocalRuntimeStoredEventCount: TrackingChildRuntimeProductReadinessCounterSchema,
+    parentChildLocalRuntimeDeadLetterCount: Schema.Literal(0),
+    parentChildLocalRuntimeChildAgentPhaseCount: TrackingChildRuntimeProductReadinessCounterSchema,
     rows: Schema.Array(TrackingChildRuntimeProductReadinessBlockerRowSchema),
     proofClaims: Schema.Struct({
       snapshotRequirementRowsObserved: Schema.Literal(true),
@@ -113,12 +127,16 @@ export const TrackingChildRuntimeProductReadinessBlockerProofSchema = withParser
       visibleSnapshotRequirementsObserved: Schema.Literal(true),
       parentReceiptRequirementsObserved: Schema.Literal(true),
       runtimeObservationRequirementsObserved: Schema.Literal(true),
+      localParentChildRuntimeObserved: Schema.Literal(true),
+      typedLocalServiceTransportObserved: Schema.Literal(true),
+      parentReadModelProjectionObserved: Schema.Literal(true),
       productReadinessBlocked: Schema.Literal(true),
       noProductReadyClaim: Schema.Literal(true),
     }),
     productClaims: Schema.Struct({
       childRuntimeRequirementCoverageClaimed: Schema.Literal(true),
       androidEmulatorPrerequisitesObserved: Schema.Literal(true),
+      localParentChildRuntimeObserved: Schema.Literal(true),
       childDeviceDeliveryRuntimeClaimed: Schema.Literal(false),
       childDeviceExecutionRuntimeClaimed: Schema.Literal(false),
       renderedChildDeviceUiRuntimeClaimed: Schema.Literal(false),
@@ -137,9 +155,10 @@ export const TrackingChildRuntimeProductReadinessBlockerProofSchema = withParser
           proof.rows.every(
             (row) =>
               row.sourceSnapshotRequirementsProofRef === proof.sourceSnapshotRequirementsProofRef &&
-              row.sourceAndroidEmulatorBridgeProofRef === proof.sourceAndroidEmulatorBridgeProofRef
+              row.sourceAndroidEmulatorBridgeProofRef === proof.sourceAndroidEmulatorBridgeProofRef &&
+              row.sourceParentChildLocalRuntimeBridgeProofRef === proof.sourceParentChildLocalRuntimeBridgeProofRef
           )) ||
-        'Expected child runtime product-readiness blocker proof rows to cite one snapshot-requirements proof and one Android emulator bridge proof'
+        'Expected child runtime product-readiness blocker proof rows to cite snapshot, Android emulator, and parent-child local runtime proofs'
     )
   )
 );
@@ -150,13 +169,21 @@ export type TrackingChildRuntimeProductReadinessBlockerProof = Infer<
 type TrackingChildRuntimeProductReadinessBlockerRowInput = Infer<
   typeof TrackingChildRuntimeProductReadinessBlockerRowBaseSchema
 >;
+type TrackingChildRuntimeAndroidEmulatorBridgeRow = Infer<
+  typeof TrackingChildRuntimeAndroidEmulatorBridgeProofSchema
+>['rows'][number];
+type TrackingParentChildLocalRuntimeBridgeRow = Infer<
+  typeof TrackingParentChildLocalRuntimeBridgeProofSchema
+>['rows'][number];
 
 export function buildTrackingChildRuntimeProductReadinessBlockerProof(
   generatedAt: string,
   sourceSnapshotRequirementsProofRef: string,
   sourceSnapshotRequirementsProof: unknown,
   sourceAndroidEmulatorBridgeProofRef: string,
-  sourceAndroidEmulatorBridgeProof: unknown
+  sourceAndroidEmulatorBridgeProof: unknown,
+  sourceParentChildLocalRuntimeBridgeProofRef: string,
+  sourceParentChildLocalRuntimeBridgeProof: unknown
 ): TrackingChildRuntimeProductReadinessBlockerProof {
   const snapshotRequirements = TrackingChildRuntimeSnapshotRequirementsReadModelSchema.parse(
     snapshotRequirementsReadModelFrom(sourceSnapshotRequirementsProof)
@@ -164,32 +191,70 @@ export function buildTrackingChildRuntimeProductReadinessBlockerProof(
   const androidEmulatorBridge = TrackingChildRuntimeAndroidEmulatorBridgeProofSchema.parse(
     androidEmulatorBridgeReadModelFrom(sourceAndroidEmulatorBridgeProof)
   );
+  const parentChildLocalRuntimeBridge = TrackingParentChildLocalRuntimeBridgeProofSchema.parse(
+    parentChildLocalRuntimeBridgeReadModelFrom(sourceParentChildLocalRuntimeBridgeProof)
+  );
   const [androidEmulatorBridgeRow] = androidEmulatorBridge.rows;
+  const [parentChildLocalRuntimeBridgeRow] = parentChildLocalRuntimeBridge.rows;
 
   if (androidEmulatorBridgeRow === undefined) {
     throw new Error('Child runtime Android emulator bridge proof has no rows');
   }
+  if (parentChildLocalRuntimeBridgeRow === undefined) {
+    throw new Error('Parent-child local runtime bridge proof has no rows');
+  }
 
+  const rows = snapshotRequirements.rows.map((row) =>
+    blockerRow(
+      generatedAt,
+      sourceSnapshotRequirementsProofRef,
+      sourceAndroidEmulatorBridgeProofRef,
+      sourceParentChildLocalRuntimeBridgeProofRef,
+      androidEmulatorBridgeRow,
+      parentChildLocalRuntimeBridgeRow,
+      row
+    )
+  );
+
+  return blockerProof(
+    generatedAt,
+    sourceSnapshotRequirementsProofRef,
+    sourceAndroidEmulatorBridgeProofRef,
+    sourceParentChildLocalRuntimeBridgeProofRef,
+    statusFrom(sourceSnapshotRequirementsProof),
+    androidEmulatorBridgeRow,
+    parentChildLocalRuntimeBridgeRow,
+    rows
+  );
+}
+
+function blockerProof(
+  generatedAt: string,
+  sourceSnapshotRequirementsProofRef: string,
+  sourceAndroidEmulatorBridgeProofRef: string,
+  sourceParentChildLocalRuntimeBridgeProofRef: string,
+  sourceSnapshotRequirementsStatus: string,
+  androidEmulatorBridgeRow: TrackingChildRuntimeAndroidEmulatorBridgeRow,
+  parentChildLocalRuntimeBridgeRow: TrackingParentChildLocalRuntimeBridgeRow,
+  rows: readonly Infer<typeof TrackingChildRuntimeProductReadinessBlockerRowSchema>[]
+): TrackingChildRuntimeProductReadinessBlockerProof {
   return TrackingChildRuntimeProductReadinessBlockerProofSchema.parse({
     schemaVersion: TrackingPolicySchemaVersion,
     proofMode: 'tracking-child-runtime-product-readiness-blocker-proof',
     generatedAt,
     sourceSnapshotRequirementsProofRef,
     sourceAndroidEmulatorBridgeProofRef,
-    sourceSnapshotRequirementsStatus: statusFrom(sourceSnapshotRequirementsProof),
+    sourceParentChildLocalRuntimeBridgeProofRef,
+    sourceSnapshotRequirementsStatus,
     sourceAndroidEmulatorBridgeStatus: androidEmulatorBridgeRow.status,
+    sourceParentChildLocalRuntimeBridgeStatus: parentChildLocalRuntimeBridgeRow.status,
     childRuntimeRequiredArtifactCount: androidEmulatorBridgeRow.childRuntimeRequiredArtifacts.length,
     childRuntimePresentArtifactCount: androidEmulatorBridgeRow.childRuntimePresentArtifacts.length,
     childRuntimeMissingArtifactCount: androidEmulatorBridgeRow.childRuntimeMissingArtifacts.length,
-    rows: snapshotRequirements.rows.map((row) =>
-      blockerRow(
-        generatedAt,
-        sourceSnapshotRequirementsProofRef,
-        sourceAndroidEmulatorBridgeProofRef,
-        androidEmulatorBridgeRow,
-        row
-      )
-    ),
+    parentChildLocalRuntimeStoredEventCount: parentChildLocalRuntimeBridgeRow.storedEventCount,
+    parentChildLocalRuntimeDeadLetterCount: parentChildLocalRuntimeBridgeRow.deadLetterCount,
+    parentChildLocalRuntimeChildAgentPhaseCount: parentChildLocalRuntimeBridgeRow.childAgentPhaseCount,
+    rows,
     proofClaims: {
       snapshotRequirementRowsObserved: true,
       androidEmulatorBridgeObserved: true,
@@ -198,12 +263,16 @@ export function buildTrackingChildRuntimeProductReadinessBlockerProof(
       visibleSnapshotRequirementsObserved: true,
       parentReceiptRequirementsObserved: true,
       runtimeObservationRequirementsObserved: true,
+      localParentChildRuntimeObserved: true,
+      typedLocalServiceTransportObserved: true,
+      parentReadModelProjectionObserved: true,
       productReadinessBlocked: true,
       noProductReadyClaim: true,
     },
     productClaims: {
       childRuntimeRequirementCoverageClaimed: true,
       androidEmulatorPrerequisitesObserved: true,
+      localParentChildRuntimeObserved: true,
       childDeviceDeliveryRuntimeClaimed: false,
       childDeviceExecutionRuntimeClaimed: false,
       renderedChildDeviceUiRuntimeClaimed: false,
@@ -222,7 +291,9 @@ function blockerRow(
   generatedAt: string,
   sourceSnapshotRequirementsProofRef: string,
   sourceAndroidEmulatorBridgeProofRef: string,
-  androidEmulatorBridgeRow: Infer<typeof TrackingChildRuntimeAndroidEmulatorBridgeProofSchema>['rows'][number],
+  sourceParentChildLocalRuntimeBridgeProofRef: string,
+  androidEmulatorBridgeRow: TrackingChildRuntimeAndroidEmulatorBridgeRow,
+  parentChildLocalRuntimeBridgeRow: TrackingParentChildLocalRuntimeBridgeRow,
   sourceRow: TrackingChildRuntimeSnapshotRequirementsRow
 ) {
   return TrackingChildRuntimeProductReadinessBlockerRowSchema.parse({
@@ -231,9 +302,11 @@ function blockerRow(
     generatedAt,
     sourceSnapshotRequirementsProofRef,
     sourceAndroidEmulatorBridgeProofRef,
+    sourceParentChildLocalRuntimeBridgeProofRef,
     sourceCheckInId: sourceRow.sourceCheckInId,
     sourceSnapshotRequirementRowId: sourceRow.rowId,
     sourceAndroidEmulatorBridgeRowId: androidEmulatorBridgeRow.rowId,
+    sourceParentChildLocalRuntimeBridgeRowId: parentChildLocalRuntimeBridgeRow.rowId,
     auditRefs: [`tracking-child-runtime-product-readiness-blocker-audit-${sourceRow.sourceCheckInId}`],
     deliveryEnvelopeRef: sourceRow.deliveryEnvelopeRef,
     executionResultRequirementRefCount: sourceRow.executionResultRequirementRefs.length,
@@ -244,6 +317,12 @@ function blockerRow(
     androidPackageLaunchObserved: androidEmulatorBridgeRow.packageLaunchObserved,
     androidForegroundServiceObserved: androidEmulatorBridgeRow.foregroundServiceObserved,
     androidLocalGeofenceTransitionCount: androidEmulatorBridgeRow.localGeofenceTransitionCount,
+    localParentChildRuntimeObserved: parentChildLocalRuntimeBridgeRow.localParentChildRuntimeObserved,
+    typedLocalServiceTransportObserved: parentChildLocalRuntimeBridgeRow.typedLocalServiceTransportObserved,
+    parentReadModelProjectionObserved: parentChildLocalRuntimeBridgeRow.parentReadModelProjectionObserved,
+    parentChildLocalRuntimeStoredEventCount: parentChildLocalRuntimeBridgeRow.storedEventCount,
+    parentChildLocalRuntimeDeadLetterCount: parentChildLocalRuntimeBridgeRow.deadLetterCount,
+    parentChildLocalRuntimeChildAgentPhaseCount: parentChildLocalRuntimeBridgeRow.childAgentPhaseCount,
     childRuntimeRequiredArtifacts: [...androidEmulatorBridgeRow.childRuntimeRequiredArtifacts],
     childRuntimePresentArtifacts: [...androidEmulatorBridgeRow.childRuntimePresentArtifacts],
     childRuntimeMissingArtifacts: [...androidEmulatorBridgeRow.childRuntimeMissingArtifacts],
@@ -283,6 +362,11 @@ function androidEmulatorBridgeReadModelFrom(sourceAndroidEmulatorBridgeProof: un
   return candidate.readModel ?? sourceAndroidEmulatorBridgeProof;
 }
 
+function parentChildLocalRuntimeBridgeReadModelFrom(sourceParentChildLocalRuntimeBridgeProof: unknown): unknown {
+  const candidate = sourceParentChildLocalRuntimeBridgeProof as { readonly readModel?: unknown };
+  return candidate.readModel ?? sourceParentChildLocalRuntimeBridgeProof;
+}
+
 function statusFrom(sourceSnapshotRequirementsProof: unknown): string {
   const candidate = sourceSnapshotRequirementsProof as { readonly status?: unknown };
   if (typeof candidate.status !== 'string' || candidate.status.length === 0) {
@@ -297,9 +381,23 @@ function trackingChildRuntimeProductReadinessBlockerRowIsHonest(
   return (
     trackingChildRuntimeProductReadinessRequirementCountsAreHonest(row) &&
     trackingChildRuntimeProductReadinessAndroidPrereqsAreHonest(row) &&
+    trackingChildRuntimeProductReadinessLocalRuntimeIsHonest(row) &&
     trackingChildRuntimeProductReadinessArtifactCountsAreHonest(row) &&
     trackingChildRuntimeProductReadinessRequirementClaimsAreHonest(row) &&
     trackingChildRuntimeProductReadinessBlockerRowNonClaimsAreHonest(row)
+  );
+}
+
+function trackingChildRuntimeProductReadinessLocalRuntimeIsHonest(
+  row: TrackingChildRuntimeProductReadinessBlockerRowInput
+): boolean {
+  return (
+    row.localParentChildRuntimeObserved === true &&
+    row.typedLocalServiceTransportObserved === true &&
+    row.parentReadModelProjectionObserved === true &&
+    row.parentChildLocalRuntimeStoredEventCount >= 9 &&
+    row.parentChildLocalRuntimeDeadLetterCount === 0 &&
+    row.parentChildLocalRuntimeChildAgentPhaseCount >= 4
   );
 }
 

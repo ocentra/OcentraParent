@@ -5,9 +5,11 @@
     "generatedAt": "2026-06-07T16:05:00.000Z",
     "sourceSnapshotRequirementsProofRef": "output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/28-child-runtime-snapshot-requirements-proof.json",
     "sourceAndroidEmulatorBridgeProofRef": "output/tracking-plan-proof/tracking-child-runtime-android-emulator-readiness-bridge-proof/proof.json",
+    "sourceParentChildLocalRuntimeBridgeProofRef": "output/tracking-plan-proof/tracking-parent-child-local-runtime-bridge-proof/proof.json",
     "sourceCheckInId": "tracking-check-in-waiting",
     "sourceSnapshotRequirementRowId": "tracking-child-runtime-snapshot-requirements-tracking-check-in-waiting",
     "sourceAndroidEmulatorBridgeRowId": "tracking-child-runtime-android-emulator-readiness-bridge",
+    "sourceParentChildLocalRuntimeBridgeRowId": "tracking-parent-child-local-runtime-bridge",
     "auditRefs": [
       "tracking-child-runtime-product-readiness-blocker-audit-tracking-check-in-waiting"
     ],
@@ -20,6 +22,12 @@
     "androidPackageLaunchObserved": true,
     "androidForegroundServiceObserved": true,
     "androidLocalGeofenceTransitionCount": 3,
+    "localParentChildRuntimeObserved": true,
+    "typedLocalServiceTransportObserved": true,
+    "parentReadModelProjectionObserved": true,
+    "parentChildLocalRuntimeStoredEventCount": 9,
+    "parentChildLocalRuntimeDeadLetterCount": 0,
+    "parentChildLocalRuntimeChildAgentPhaseCount": 4,
     "childRuntimeRequiredArtifacts": [
       "00-run-metadata.json",
       "01-child-device-metadata.json",
@@ -80,9 +88,11 @@
     "generatedAt": "2026-06-07T16:05:00.000Z",
     "sourceSnapshotRequirementsProofRef": "output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/28-child-runtime-snapshot-requirements-proof.json",
     "sourceAndroidEmulatorBridgeProofRef": "output/tracking-plan-proof/tracking-child-runtime-android-emulator-readiness-bridge-proof/proof.json",
+    "sourceParentChildLocalRuntimeBridgeProofRef": "output/tracking-plan-proof/tracking-parent-child-local-runtime-bridge-proof/proof.json",
     "sourceCheckInId": "tracking-check-in-safe",
     "sourceSnapshotRequirementRowId": "tracking-child-runtime-snapshot-requirements-tracking-check-in-safe",
     "sourceAndroidEmulatorBridgeRowId": "tracking-child-runtime-android-emulator-readiness-bridge",
+    "sourceParentChildLocalRuntimeBridgeRowId": "tracking-parent-child-local-runtime-bridge",
     "auditRefs": [
       "tracking-child-runtime-product-readiness-blocker-audit-tracking-check-in-safe"
     ],
@@ -95,6 +105,12 @@
     "androidPackageLaunchObserved": true,
     "androidForegroundServiceObserved": true,
     "androidLocalGeofenceTransitionCount": 3,
+    "localParentChildRuntimeObserved": true,
+    "typedLocalServiceTransportObserved": true,
+    "parentReadModelProjectionObserved": true,
+    "parentChildLocalRuntimeStoredEventCount": 9,
+    "parentChildLocalRuntimeDeadLetterCount": 0,
+    "parentChildLocalRuntimeChildAgentPhaseCount": 4,
     "childRuntimeRequiredArtifacts": [
       "00-run-metadata.json",
       "01-child-device-metadata.json",
@@ -155,9 +171,11 @@
     "generatedAt": "2026-06-07T16:05:00.000Z",
     "sourceSnapshotRequirementsProofRef": "output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/28-child-runtime-snapshot-requirements-proof.json",
     "sourceAndroidEmulatorBridgeProofRef": "output/tracking-plan-proof/tracking-child-runtime-android-emulator-readiness-bridge-proof/proof.json",
+    "sourceParentChildLocalRuntimeBridgeProofRef": "output/tracking-plan-proof/tracking-parent-child-local-runtime-bridge-proof/proof.json",
     "sourceCheckInId": "tracking-check-in-help",
     "sourceSnapshotRequirementRowId": "tracking-child-runtime-snapshot-requirements-tracking-check-in-help",
     "sourceAndroidEmulatorBridgeRowId": "tracking-child-runtime-android-emulator-readiness-bridge",
+    "sourceParentChildLocalRuntimeBridgeRowId": "tracking-parent-child-local-runtime-bridge",
     "auditRefs": [
       "tracking-child-runtime-product-readiness-blocker-audit-tracking-check-in-help"
     ],
@@ -170,6 +188,12 @@
     "androidPackageLaunchObserved": true,
     "androidForegroundServiceObserved": true,
     "androidLocalGeofenceTransitionCount": 3,
+    "localParentChildRuntimeObserved": true,
+    "typedLocalServiceTransportObserved": true,
+    "parentReadModelProjectionObserved": true,
+    "parentChildLocalRuntimeStoredEventCount": 9,
+    "parentChildLocalRuntimeDeadLetterCount": 0,
+    "parentChildLocalRuntimeChildAgentPhaseCount": 4,
     "childRuntimeRequiredArtifacts": [
       "00-run-metadata.json",
       "01-child-device-metadata.json",
@@ -230,9 +254,11 @@
     "generatedAt": "2026-06-07T16:05:00.000Z",
     "sourceSnapshotRequirementsProofRef": "output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/28-child-runtime-snapshot-requirements-proof.json",
     "sourceAndroidEmulatorBridgeProofRef": "output/tracking-plan-proof/tracking-child-runtime-android-emulator-readiness-bridge-proof/proof.json",
+    "sourceParentChildLocalRuntimeBridgeProofRef": "output/tracking-plan-proof/tracking-parent-child-local-runtime-bridge-proof/proof.json",
     "sourceCheckInId": "tracking-check-in-call-parent",
     "sourceSnapshotRequirementRowId": "tracking-child-runtime-snapshot-requirements-tracking-check-in-call-parent",
     "sourceAndroidEmulatorBridgeRowId": "tracking-child-runtime-android-emulator-readiness-bridge",
+    "sourceParentChildLocalRuntimeBridgeRowId": "tracking-parent-child-local-runtime-bridge",
     "auditRefs": [
       "tracking-child-runtime-product-readiness-blocker-audit-tracking-check-in-call-parent"
     ],
@@ -245,6 +271,12 @@
     "androidPackageLaunchObserved": true,
     "androidForegroundServiceObserved": true,
     "androidLocalGeofenceTransitionCount": 3,
+    "localParentChildRuntimeObserved": true,
+    "typedLocalServiceTransportObserved": true,
+    "parentReadModelProjectionObserved": true,
+    "parentChildLocalRuntimeStoredEventCount": 9,
+    "parentChildLocalRuntimeDeadLetterCount": 0,
+    "parentChildLocalRuntimeChildAgentPhaseCount": 4,
     "childRuntimeRequiredArtifacts": [
       "00-run-metadata.json",
       "01-child-device-metadata.json",
@@ -305,9 +337,11 @@
     "generatedAt": "2026-06-07T16:05:00.000Z",
     "sourceSnapshotRequirementsProofRef": "output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/28-child-runtime-snapshot-requirements-proof.json",
     "sourceAndroidEmulatorBridgeProofRef": "output/tracking-plan-proof/tracking-child-runtime-android-emulator-readiness-bridge-proof/proof.json",
+    "sourceParentChildLocalRuntimeBridgeProofRef": "output/tracking-plan-proof/tracking-parent-child-local-runtime-bridge-proof/proof.json",
     "sourceCheckInId": "tracking-check-in-expired",
     "sourceSnapshotRequirementRowId": "tracking-child-runtime-snapshot-requirements-tracking-check-in-expired",
     "sourceAndroidEmulatorBridgeRowId": "tracking-child-runtime-android-emulator-readiness-bridge",
+    "sourceParentChildLocalRuntimeBridgeRowId": "tracking-parent-child-local-runtime-bridge",
     "auditRefs": [
       "tracking-child-runtime-product-readiness-blocker-audit-tracking-check-in-expired"
     ],
@@ -320,6 +354,12 @@
     "androidPackageLaunchObserved": true,
     "androidForegroundServiceObserved": true,
     "androidLocalGeofenceTransitionCount": 3,
+    "localParentChildRuntimeObserved": true,
+    "typedLocalServiceTransportObserved": true,
+    "parentReadModelProjectionObserved": true,
+    "parentChildLocalRuntimeStoredEventCount": 9,
+    "parentChildLocalRuntimeDeadLetterCount": 0,
+    "parentChildLocalRuntimeChildAgentPhaseCount": 4,
     "childRuntimeRequiredArtifacts": [
       "00-run-metadata.json",
       "01-child-device-metadata.json",
