@@ -25,6 +25,7 @@ struct SetupRequestRefs {
     child_runtime_delivery_receipt_ingested_id: String,
     durable_outbox_record_id: String,
     provider_delivery_readiness_id: String,
+    provider_delivery_attempt_id: String,
     action_result_reference_ids: Vec<String>,
     parent_preference_mutation_receipt_ids: Vec<String>,
     child_runtime_delivery_handoff_ids: Vec<String>,
@@ -35,6 +36,7 @@ struct SetupRequestRefs {
     child_runtime_delivery_receipt_ingested_ids: Vec<String>,
     durable_outbox_record_ids: Vec<String>,
     provider_delivery_readiness_ids: Vec<String>,
+    provider_delivery_attempt_ids: Vec<String>,
 }
 
 struct SetupRequestIds {
@@ -47,6 +49,7 @@ struct SetupRequestIds {
     child_runtime_delivery_receipt_ingested_id: String,
     durable_outbox_record_id: String,
     provider_delivery_readiness_id: String,
+    provider_delivery_attempt_id: String,
 }
 
 pub async fn build_activity_app_game_timer_parent_preference_setup_request_report(
@@ -103,6 +106,10 @@ pub(crate) async fn build_activity_app_game_timer_parent_preference_setup_reques
             constants::value::APP_GAME_PARENT_PREFERENCE_SETUP_PROVIDER_DELIVERY_MANUAL_REQUIRED
                 .to_string();
         result.provider_delivery_readiness_claimed = true;
+        result.provider_delivery_attempt_status =
+            constants::value::APP_GAME_PARENT_PREFERENCE_SETUP_PROVIDER_DELIVERY_ATTEMPT_MANUAL_REQUIRED
+                .to_string();
+        result.provider_delivery_attempt_claimed = true;
     }
     build_event(
         constants::event_id::ACTIVITY_APP_GAME_TIMER_PARENT_PREFERENCE_SETUP_REQUESTED,
@@ -121,6 +128,96 @@ pub fn app_game_timer_parent_preference_setup_request_from_command(
     let request = request_from_command(command);
     let refs = setup_request_refs(&request);
     setup_request_result(request, refs)
+}
+
+macro_rules! setup_request_result_defaults {
+    () => {
+        AppGameTimerParentPreferenceSetupRequestResult {
+            schema_version: String::new(),
+            request_id: String::new(),
+            requested_at: String::new(),
+            accepted_at: String::new(),
+            request_status: String::new(),
+            parent_surface_intent_reference_id: String::new(),
+            parent_preference_setup_reference_id: String::new(),
+            request_reference_ids: Vec::new(),
+            action_result_reference_id: String::new(),
+            action_result_reference_ids: Vec::new(),
+            action_result_persistence_status: String::new(),
+            parent_preference_mutation_receipt_id: String::new(),
+            parent_preference_mutation_receipt_ids: Vec::new(),
+            parent_preference_mutation_receipt_status: String::new(),
+            parent_preference_mutation_receipt_claimed: false,
+            child_runtime_delivery_handoff_id: String::new(),
+            child_runtime_delivery_handoff_ids: Vec::new(),
+            child_runtime_delivery_handoff_status: String::new(),
+            child_runtime_delivery_handoff_claimed: false,
+            child_runtime_delivery_queue_id: String::new(),
+            child_runtime_delivery_queue_ids: Vec::new(),
+            child_runtime_delivery_queue_status: String::new(),
+            child_runtime_delivery_queue_claimed: false,
+            child_runtime_delivery_dispatch_id: String::new(),
+            child_runtime_delivery_dispatch_ids: Vec::new(),
+            child_runtime_delivery_dispatch_status: String::new(),
+            child_runtime_delivery_dispatch_claimed: false,
+            child_runtime_delivery_receipt_requirement_id: String::new(),
+            child_runtime_delivery_receipt_requirement_ids: Vec::new(),
+            child_runtime_delivery_receipt_requirement_status: String::new(),
+            child_runtime_delivery_receipt_requirement_claimed: false,
+            child_runtime_delivery_receipt_pending_id: String::new(),
+            child_runtime_delivery_receipt_pending_ids: Vec::new(),
+            child_runtime_delivery_receipt_pending_status: String::new(),
+            child_runtime_delivery_receipt_pending_claimed: false,
+            child_runtime_delivery_receipt_ingested_id: String::new(),
+            child_runtime_delivery_receipt_ingested_ids: Vec::new(),
+            child_runtime_delivery_receipt_ingested_status: String::new(),
+            child_runtime_delivery_receipt_ingested_claimed: false,
+            durable_outbox_record_id: String::new(),
+            durable_outbox_record_ids: Vec::new(),
+            durable_outbox_status: String::new(),
+            provider_delivery_readiness_id: String::new(),
+            provider_delivery_readiness_ids: Vec::new(),
+            provider_delivery_readiness_status: String::new(),
+            provider_delivery_readiness_claimed: false,
+            provider_delivery_attempt_id: String::new(),
+            provider_delivery_attempt_ids: Vec::new(),
+            provider_delivery_attempt_status: String::new(),
+            provider_delivery_attempt_claimed: false,
+            command_boundary_claimed: false,
+            action_result_handoff_claimed: false,
+            action_result_persistence_claimed: false,
+            parent_preference_mutation_claimed: false,
+            notification_rule_mutation_claimed: false,
+            provider_delivery_claimed: false,
+            provider_receipt_ingestion_claimed: false,
+            child_runtime_delivery_claimed: false,
+            durable_outbox_claimed: false,
+            adapter_dispatch_claimed: false,
+            broad_blocking_claimed: false,
+            platform_enforcement_claimed: false,
+            raw_private_source_rows_claimed: false,
+            raw_target_values_claimed: false,
+            private_diagnostics_claimed: false,
+        }
+    };
+}
+
+macro_rules! provider_delivery_readiness_ids {
+    ($ids:expr) => {
+        unique_refs(vec![
+            $ids.provider_delivery_readiness_id.clone(),
+            $ids.durable_outbox_record_id.clone(),
+        ])
+    };
+}
+
+macro_rules! provider_delivery_attempt_ids {
+    ($ids:expr) => {
+        unique_refs(vec![
+            $ids.provider_delivery_attempt_id.clone(),
+            $ids.provider_delivery_readiness_id.clone(),
+        ])
+    };
 }
 
 fn setup_request_result(
@@ -183,22 +280,12 @@ fn setup_request_result(
         provider_delivery_readiness_id: refs.provider_delivery_readiness_id,
         provider_delivery_readiness_ids: refs.provider_delivery_readiness_ids,
         provider_delivery_readiness_status: setup_value(unavailable),
+        provider_delivery_attempt_id: refs.provider_delivery_attempt_id,
+        provider_delivery_attempt_ids: refs.provider_delivery_attempt_ids,
+        provider_delivery_attempt_status: setup_value(unavailable),
         command_boundary_claimed: true,
         action_result_handoff_claimed: true,
-        action_result_persistence_claimed: false,
-        parent_preference_mutation_claimed: false,
-        notification_rule_mutation_claimed: false,
-        provider_delivery_readiness_claimed: false,
-        provider_delivery_claimed: false,
-        provider_receipt_ingestion_claimed: false,
-        child_runtime_delivery_claimed: false,
-        durable_outbox_claimed: false,
-        adapter_dispatch_claimed: false,
-        broad_blocking_claimed: false,
-        platform_enforcement_claimed: false,
-        raw_private_source_rows_claimed: false,
-        raw_target_values_claimed: false,
-        private_diagnostics_claimed: false,
+        ..setup_request_result_defaults!()
     }
 }
 
@@ -220,6 +307,7 @@ fn setup_request_refs(request: &AppGameTimerParentPreferenceSetupRequest) -> Set
             .clone(),
         durable_outbox_record_id: ids.durable_outbox_record_id.clone(),
         provider_delivery_readiness_id: ids.provider_delivery_readiness_id.clone(),
+        provider_delivery_attempt_id: ids.provider_delivery_attempt_id.clone(),
         action_result_reference_ids: unique_refs({
             let mut refs = vec![request.parent_preference_setup_reference_id.clone()];
             refs.extend(request.request_reference_ids.clone());
@@ -272,10 +360,8 @@ fn setup_request_refs(request: &AppGameTimerParentPreferenceSetupRequest) -> Set
             ids.durable_outbox_record_id.clone(),
             ids.child_runtime_delivery_receipt_ingested_id.clone(),
         ]),
-        provider_delivery_readiness_ids: unique_refs(vec![
-            ids.provider_delivery_readiness_id.clone(),
-            ids.durable_outbox_record_id.clone(),
-        ]),
+        provider_delivery_readiness_ids: provider_delivery_readiness_ids!(ids),
+        provider_delivery_attempt_ids: provider_delivery_attempt_ids!(ids),
     }
 }
 
@@ -334,6 +420,10 @@ fn setup_request_ids(request: &AppGameTimerParentPreferenceSetupRequest) -> Setu
         provider_delivery_readiness_id: parent_preference_setup_suffixed_id(
             request,
             constants::value::APP_GAME_PARENT_PREFERENCE_SETUP_PROVIDER_DELIVERY_READINESS_SUFFIX,
+        ),
+        provider_delivery_attempt_id: parent_preference_setup_suffixed_id(
+            request,
+            constants::value::APP_GAME_PARENT_PREFERENCE_SETUP_PROVIDER_DELIVERY_ATTEMPT_SUFFIX,
         ),
     }
 }

@@ -385,6 +385,12 @@ function expectParentPreferenceSetupChildRuntimeReadiness(
     label: 'Durable local outbox status',
     value: 'Ready',
   });
+  expectParentPreferenceSetupProviderReadiness(details);
+}
+
+function expectParentPreferenceSetupProviderReadiness(
+  details: readonly ReturnType<typeof createAppGameTimerParentPreferenceSetupCommandResultDetails>[number][]
+) {
   expect(details).toContainEqual({
     label: 'Provider delivery readiness refs',
     value:
@@ -392,6 +398,15 @@ function expectParentPreferenceSetupChildRuntimeReadiness(
   });
   expect(details).toContainEqual({
     label: 'Provider delivery readiness status',
+    value: 'Manual required',
+  });
+  expect(details).toContainEqual({
+    label: 'Provider delivery attempt refs',
+    value:
+      'app-game-parent-preference-setup-provider-delivery-attempt::request-1 | app-game-parent-preference-setup-provider-delivery-readiness::request-1',
+  });
+  expect(details).toContainEqual({
+    label: 'Provider delivery attempt status',
     value: 'Manual required',
   });
 }
@@ -741,7 +756,6 @@ function parentPreferenceSetupAcceptedResult() {
     actionResultPersistenceClaimed: true,
     parentPreferenceMutationClaimed: false,
     notificationRuleMutationClaimed: false,
-    providerDeliveryReadinessClaimed: true,
     providerDeliveryClaimed: false,
     providerReceiptIngestionClaimed: false,
     childRuntimeDeliveryClaimed: false,
@@ -762,6 +776,14 @@ const ProviderDeliveryReadinessAcceptedResultFields = {
     'app-game-parent-preference-setup-durable-local-outbox::request-1',
   ],
   providerDeliveryReadinessStatus: 'provider-manual-required',
+  providerDeliveryReadinessClaimed: true,
+  providerDeliveryAttemptId: 'app-game-parent-preference-setup-provider-delivery-attempt::request-1',
+  providerDeliveryAttemptIds: [
+    'app-game-parent-preference-setup-provider-delivery-attempt::request-1',
+    'app-game-parent-preference-setup-provider-delivery-readiness::request-1',
+  ],
+  providerDeliveryAttemptStatus: 'provider-delivery-manual-required',
+  providerDeliveryAttemptClaimed: true,
 } as const;
 
 function timerParentSurfaceRow(

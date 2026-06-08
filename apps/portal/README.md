@@ -70,8 +70,9 @@ The Playwright check starts the Rust agent and Vite portal on the scaffold smoke
   child-runtime receipt-required refs/status, and service-local child-runtime
   receipt-pending refs/status, and service-local child-runtime receipt-ingested
   refs/status, service-local durable outbox refs/status, and provider-delivery
-  readiness refs/status for accepted app/game parent preference setup command
-  results while keeping actual child delivery, provider delivery, provider
+  readiness refs/status, and provider-delivery manual-required attempt
+  refs/status for accepted app/game parent preference setup command results
+  while keeping actual child delivery, provider delivery execution, provider
   receipt ingestion, adapter dispatch, broad blocking, platform enforcement,
   raw target values, and private diagnostics unclaimed.
 - Displays an App/Game Sessions route overlay for app/game notification

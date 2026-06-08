@@ -101,12 +101,20 @@ export const AppGameTimerParentPreferenceSetupRequestResultSchema = withParser(
       )
     ),
     providerDeliveryReadinessStatus: Schema.Literal('provider-manual-required', 'unavailable'),
+    providerDeliveryAttemptId: NonEmptyTextSchema,
+    providerDeliveryAttemptIds: Schema.Array(NonEmptyTextSchema).pipe(
+      Schema.filter(
+        (value) => value.length > 0 || 'Expected parent preference setup provider delivery attempt references'
+      )
+    ),
+    providerDeliveryAttemptStatus: Schema.Literal('provider-delivery-manual-required', 'unavailable'),
     commandBoundaryClaimed: Schema.Literal(true),
     actionResultHandoffClaimed: Schema.Literal(true),
     actionResultPersistenceClaimed: Schema.Boolean,
     parentPreferenceMutationClaimed: Schema.Literal(false),
     notificationRuleMutationClaimed: Schema.Literal(false),
     providerDeliveryReadinessClaimed: Schema.Boolean,
+    providerDeliveryAttemptClaimed: Schema.Boolean,
     providerDeliveryClaimed: Schema.Literal(false),
     providerReceiptIngestionClaimed: Schema.Literal(false),
     childRuntimeDeliveryClaimed: Schema.Literal(false),

@@ -98,6 +98,8 @@ const TimerParentSurfaceDetails = {
   ParentPreferenceSetupRequestUnavailable: decodeDisplayText('Parent preference setup request unavailable'),
   ParentPreferenceSetupRuleMutation: decodeDisplayText('Notification rule mutation'),
   ParentPreferenceSetupUi: decodeDisplayText('Parent preference setup UI'),
+  ProviderDeliveryAttemptRefs: decodeDisplayText('Provider delivery attempt refs'),
+  ProviderDeliveryAttemptStatus: decodeDisplayText('Provider delivery attempt status'),
   ProviderDeliveryReadinessRefs: decodeDisplayText('Provider delivery readiness refs'),
   ProviderDeliveryReadinessStatus: decodeDisplayText('Provider delivery readiness status'),
   ChildUxHandoffBlocked: decodeDisplayText('Child UX handoff blocked'),
@@ -591,6 +593,14 @@ function parentPreferenceSetupChildRuntimeDetails(
       TimerParentSurfaceDetails.ProviderDeliveryReadinessStatus,
       parentPreferenceSetupResultStatus(result.providerDeliveryReadinessStatus)
     ),
+    detail(
+      TimerParentSurfaceDetails.ProviderDeliveryAttemptRefs,
+      joinedOrNotReported(result.providerDeliveryAttemptIds)
+    ),
+    detail(
+      TimerParentSurfaceDetails.ProviderDeliveryAttemptStatus,
+      parentPreferenceSetupResultStatus(result.providerDeliveryAttemptStatus)
+    ),
   ];
 }
 
@@ -650,6 +660,9 @@ function parentPreferenceSetupResultStatus(status: string): DisplayText {
     return Readable.Ready;
   }
   if (status === 'provider-manual-required') {
+    return Readable.ManualRequired;
+  }
+  if (status === 'provider-delivery-manual-required') {
     return Readable.ManualRequired;
   }
   if (status === 'accepted') {

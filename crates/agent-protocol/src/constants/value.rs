@@ -259,6 +259,10 @@ pub const APP_GAME_PARENT_PREFERENCE_SETUP_PROVIDER_DELIVERY_MANUAL_REQUIRED: &s
     "provider-manual-required";
 pub const APP_GAME_PARENT_PREFERENCE_SETUP_PROVIDER_DELIVERY_READINESS_SUFFIX: &str =
     "provider-delivery-readiness";
+pub const APP_GAME_PARENT_PREFERENCE_SETUP_PROVIDER_DELIVERY_ATTEMPT_MANUAL_REQUIRED: &str =
+    "provider-delivery-manual-required";
+pub const APP_GAME_PARENT_PREFERENCE_SETUP_PROVIDER_DELIVERY_ATTEMPT_SUFFIX: &str =
+    "provider-delivery-attempt";
 pub const APP_GAME_CHILD_UX_PARENT_PREFERENCE_SETUP_UNAVAILABLE_VISIBLE: &str =
     "unavailable-visible";
 pub const TRANSPORT_WEBSOCKET: &str = "websocket";

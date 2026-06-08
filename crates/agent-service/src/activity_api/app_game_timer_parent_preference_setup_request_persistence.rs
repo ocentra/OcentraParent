@@ -45,8 +45,18 @@ pub(crate) async fn persist_setup_handoff(
         child_runtime_delivery_receipt_pending_activity_event(command, &persisted_result);
     let child_runtime_delivery_receipt_ingested_event =
         child_runtime_delivery_receipt_ingested_activity_event(command, &persisted_result);
-    let provider_delivery_readiness_event =
-        provider_delivery_readiness_activity_event(command, &persisted_result);
+    let provider_delivery_readiness_event = provider_audit_activity_event(
+        command,
+        &persisted_result,
+        &persisted_result.provider_delivery_readiness_id,
+        constants::value::APP_GAME_PARENT_PREFERENCE_SETUP_PROVIDER_DELIVERY_MANUAL_REQUIRED,
+    );
+    let provider_delivery_attempt_event = provider_audit_activity_event(
+        command,
+        &persisted_result,
+        &persisted_result.provider_delivery_attempt_id,
+        constants::value::APP_GAME_PARENT_PREFERENCE_SETUP_PROVIDER_DELIVERY_ATTEMPT_MANUAL_REQUIRED,
+    );
     tokio::task::spawn_blocking(move || {
         let store = ActivityStore::open(&store_path).map_err(|_| ())?;
         store
@@ -64,6 +74,9 @@ pub(crate) async fn persist_setup_handoff(
         append_setup_outbox_record(&persisted_result, &store_path)?;
         store
             .ingest_events(&[provider_delivery_readiness_event])
+            .map_err(|_| ())?;
+        store
+            .ingest_events(&[provider_delivery_attempt_event])
             .map_err(|_| ())?;
         Ok::<(), ()>(())
     })
@@ -114,12 +127,18 @@ fn persisted_result(
         constants::value::APP_GAME_PARENT_PREFERENCE_SETUP_PROVIDER_DELIVERY_MANUAL_REQUIRED
             .to_string();
     persisted.provider_delivery_readiness_claimed = true;
+    persisted.provider_delivery_attempt_status =
+        constants::value::APP_GAME_PARENT_PREFERENCE_SETUP_PROVIDER_DELIVERY_ATTEMPT_MANUAL_REQUIRED
+            .to_string();
+    persisted.provider_delivery_attempt_claimed = true;
     persisted
 }
 
-fn provider_delivery_readiness_activity_event(
+fn provider_audit_activity_event(
     command: &AgentCommandEnvelope,
     result: &AppGameTimerParentPreferenceSetupRequestResult,
+    event_id: &str,
+    capability_status: &str,
 ) -> ActivityEvent {
     let mut fields = LogFields::new();
     fields.insert(
@@ -128,15 +147,12 @@ fn provider_delivery_readiness_activity_event(
     );
     fields.insert(
         constants::field::CAPABILITY_STATUS.to_string(),
-        LogFieldValue::String(
-            constants::value::APP_GAME_PARENT_PREFERENCE_SETUP_PROVIDER_DELIVERY_MANUAL_REQUIRED
-                .to_string(),
-        ),
+        LogFieldValue::String(capability_status.to_string()),
     );
 
     ActivityEvent {
         schema_version: ACTIVITY_SCHEMA_VERSION,
-        event_id: result.provider_delivery_readiness_id.clone(),
+        event_id: event_id.to_string(),
         observed_at: result.accepted_at.clone(),
         source: ActivitySource {
             device_id: command.target.device_id.clone(),
@@ -148,10 +164,7 @@ fn provider_delivery_readiness_activity_event(
         subject: ActivitySubject {
             kind: ActivitySubjectKind::Device,
             subject_id: result.parent_preference_setup_reference_id.clone(),
-            display_name: Some(
-                constants::value::APP_GAME_PARENT_PREFERENCE_SETUP_PROVIDER_DELIVERY_MANUAL_REQUIRED
-                    .to_string(),
-            ),
+            display_name: Some(capability_status.to_string()),
         },
         fields,
         evidence: evidence_references(result)
