@@ -219,7 +219,7 @@ expose location or device-status features. Parents expect this category.
   exists through
   `node scripts/test/tracking-child-runtime-android-emulator-readiness-bridge-proof.mjs`.
   It links the existing Android emulator package/foreground-service/permission
-  and local emulator geofence evidence to the child-runtime artifact gate,
+  and local emulator geofence/dwell evidence to the child-runtime artifact gate,
   records the required, present, and missing child-device runtime artifact
   refs/counts, writes WP08/WP30/WP33 artifacts, and keeps child-device
   delivery/execution, rendered child-device UI runtime, parent receipt runtime,
@@ -232,11 +232,20 @@ expose location or device-status features. Parents expect this category.
   permission UX artifacts, Android 11+ background Settings route attempt
   artifact, including the ATD emulator unavailable-Settings result,
   app-reported foreground location evidence, local emulator geofence transition
-  evidence, device-status proof, and validation log as required local emulator
+  and app-owned dwell evidence, device-status proof, and validation log as required local emulator
   artifacts, carries required/present/missing counts into product-readiness
   closure and real-runtime handoff accounting, and keeps Android system
-  geofence delivery, physical-device proof, authority, production runtime, and
+  geofence delivery, Android system dwell, physical-device proof, authority, production runtime, and
   product-ready tracking unclaimed.
+- WP08/WP09/WP10/WP33 Android physical-device runtime proof now exists through
+  `node scripts/test/tracking-android-physical-device-runtime-proof.mjs`. It
+  verifies the Samsung S9 Wi-Fi ADB target (`192.168.2.45:5555`) with debug APK
+  install, launch attempt, foreground-service `ServiceRecord`, device metadata,
+  battery/connectivity dumps, UI/keyguard screenshot, and logcat artifacts. This
+  is physical package/service/status evidence only; physical location sample
+  delivery, physical geofence/dwell delivery, Android system geofence delivery,
+  authority enrollment, production workers, and product-ready Android tracking
+  remain unclaimed.
 - WP08/WP09/WP30/WP33 local platform proof batch now exists through
   `node scripts/test/tracking-local-platform-proof-batch.mjs`. It aggregates
   Android emulator runtime evidence, WSL/local replay, hosted parent UI
@@ -536,8 +545,8 @@ expose location or device-status features. Parents expect this category.
   ATD emulator image has no resolvable Settings activity, so Settings routing
   remains unclaimed for that run,
   records app-owned background sample proof storage with provider/timestamp/
-  accuracy, drives an outside/inside/outside emulator `geo fix` route, records
-  app-owned `LocationManager` GPS-listener local-geofence transition rows,
+  accuracy, drives an outside/inside/inside-dwell/outside emulator `geo fix` route, records
+  app-owned `LocationManager` GPS-listener local-geofence transition and dwell rows,
   records the active app-owned local geofence count against Android's documented
   100 geofences per app per device user limit, bridges to the WP10
   low-power/app-restart/pending-upload/manual-required status-gap rows, records
@@ -549,7 +558,7 @@ expose location or device-status features. Parents expect this category.
   `output/tracking-plan-proof/09-android-background-location-and-geofence-adapter/05-geofence-transition-proof.json`.
   This is local emulator proof only. Android system geofence delivery remains
   unclaimed unless the separate system-proximity broadcast transition count is
-  nonzero; dwell transitions, physical-device behavior, authority, provider
+  nonzero; Android system dwell transitions, physical-device behavior, authority, provider
   delivery, production upload workers, and product-ready Android tracking
   remain unclaimed.
 - P1 evidence-quality gate proof now exists through
@@ -1290,13 +1299,13 @@ accessibility beyond the hosted parent route are proved.
 - [x] WP09 Android emulator background permission,
       Android 11+ app settings-page route-attempt artifact,
       foreground-service-backed background-activity sample, and local-geofence
-      enter/exit proof plus active geofence-limit representation and WP10
+      enter/exit/dwell proof plus active geofence-limit representation and WP10
       status-gap bridge plus separate proximity-alert registration metadata.
       Android system geofence blocker proof now records zero system proximity
       broadcast counters from that same emulator evidence, local evidence
       artifact refs, and the required Android runtime artifact refs that are
       still missing. This is local emulator evidence only; Android system
-      geofence delivery, dwell transitions, physical-device, authority,
+      geofence delivery, Android system dwell transitions, physical-device, authority,
       provider delivery, production workers, and product-ready Android tracking
       remain unclaimed.
 - [x] WP11/WP12 iOS manual-required proof now records simulator package/manual

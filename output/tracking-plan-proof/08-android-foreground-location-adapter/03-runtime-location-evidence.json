@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
-  "checkedAt": "2026-06-08T14:57:34.866Z",
-  "commit": "915e6d43de5a7288e40711d96392e85b4544bd61",
+  "checkedAt": "2026-06-08T16:14:44.445Z",
+  "commit": "ca748d0c1f68def1d56f4b328bd1872951a81698",
   "requiredProofTier": "P3_LOCAL_DEV_MACHINE",
   "currentProofTier": "P3_LOCAL_DEV_MACHINE",
   "currentStatus": "foreground_permission_ux_current_sample_raw_coordinate_observed",
@@ -46,7 +46,7 @@
   "foregroundLocationPermissionStateText": "foreground-location-permission-granted",
   "foregroundLocationSampleStateText": "current-location-sample-observed-emulator-location-manager",
   "foregroundLocationProvider": "gps",
-  "foregroundLocationObservedAtEpochMillis": 1780930605757,
+  "foregroundLocationObservedAtEpochMillis": 1780935234223,
   "foregroundLocationAccuracyMeters": 5,
   "foregroundLocationSampleSource": "android-location-manager-current-listener-emulator",
   "foregroundLocationLatitude": 37.42699833333333,

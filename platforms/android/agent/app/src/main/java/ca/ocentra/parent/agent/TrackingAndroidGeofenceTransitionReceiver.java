@@ -31,11 +31,18 @@ public final class TrackingAndroidGeofenceTransitionReceiver extends BroadcastRe
     public static final String FIELD_SYSTEM_PROXIMITY_LAST_TRANSITION = "systemProximityLastTransition";
     public static final String FIELD_SYSTEM_PROXIMITY_LAST_TRANSITION_EPOCH_MILLIS =
         "systemProximityLastTransitionEpochMillis";
+    public static final String FIELD_DWELL_COUNT = "dwellCount";
+    public static final String FIELD_DWELL_LAST_OBSERVED_EPOCH_MILLIS = "dwellLastObservedEpochMillis";
+    public static final String FIELD_DWELL_INSIDE_STARTED_EPOCH_MILLIS = "dwellInsideStartedEpochMillis";
+    public static final String FIELD_DWELL_SOURCE = "dwellSource";
     public static final String TRANSITION_ENTER = "enter";
     public static final String TRANSITION_EXIT = "exit";
+    public static final String TRANSITION_DWELL = "dwell";
     public static final String SOURCE_ANDROID_PROXIMITY_ALERT = "android-location-manager-proximity-alert";
     public static final String SOURCE_ANDROID_LOCATION_LISTENER_LOCAL_GEOFENCE =
         "android-location-manager-gps-listener-local-geofence";
+    public static final String SOURCE_ANDROID_LOCATION_LISTENER_LOCAL_DWELL =
+        "android-location-manager-gps-listener-local-dwell";
     private static final String LOG_TAG = "TrackingGeofenceProof";
 
     @Override

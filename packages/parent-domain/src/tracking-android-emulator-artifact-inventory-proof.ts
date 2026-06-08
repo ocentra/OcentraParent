@@ -68,6 +68,7 @@ export const TrackingAndroidEmulatorArtifactInventoryInputSchema = withParser(
     packageLaunchObserved: Schema.Boolean,
     foregroundServiceObserved: Schema.Boolean,
     localGeofenceTransitionCount: TrackingAndroidEmulatorArtifactInventoryCountSchema,
+    localGeofenceDwellCount: TrackingAndroidEmulatorArtifactInventoryCountSchema,
     systemProximityRegistered: Schema.Boolean,
     systemProximityTransitionCount: TrackingAndroidEmulatorArtifactInventoryCountSchema,
     artifactRows: Schema.Array(TrackingAndroidEmulatorArtifactInventoryArtifactRowSchema).pipe(
@@ -109,6 +110,7 @@ const TrackingAndroidEmulatorArtifactInventoryRowBaseSchema = Schema.Struct({
   packageLaunchObserved: Schema.Literal(true),
   foregroundServiceObserved: Schema.Literal(true),
   localGeofenceTransitionCount: TrackingAndroidEmulatorArtifactInventoryCountSchema,
+  localGeofenceDwellCount: TrackingAndroidEmulatorArtifactInventoryCountSchema,
   systemProximityRegistered: Schema.Literal(true),
   systemProximityTransitionCount: TrackingAndroidEmulatorArtifactInventoryCountSchema,
   emulatorArtifactInventoryComplete: Schema.Boolean,
@@ -142,6 +144,7 @@ export const TrackingAndroidEmulatorArtifactInventoryProofSchema = withParser(
       permissionUiArtifactCount: TrackingAndroidEmulatorArtifactInventoryCountSchema,
       runtimeArtifactCount: TrackingAndroidEmulatorArtifactInventoryCountSchema,
       localGeofenceTransitionCount: TrackingAndroidEmulatorArtifactInventoryCountSchema,
+      localGeofenceDwellCount: TrackingAndroidEmulatorArtifactInventoryCountSchema,
       systemProximityTransitionCount: TrackingAndroidEmulatorArtifactInventoryCountSchema,
       emulatorArtifactInventoryComplete: Schema.Boolean,
     }),
@@ -269,6 +272,7 @@ function artifactInventoryRow(generatedAt: string, input: TrackingAndroidEmulato
     packageLaunchObserved: input.packageLaunchObserved,
     foregroundServiceObserved: input.foregroundServiceObserved,
     localGeofenceTransitionCount: input.localGeofenceTransitionCount,
+    localGeofenceDwellCount: input.localGeofenceDwellCount,
     systemProximityRegistered: input.systemProximityRegistered,
     systemProximityTransitionCount: input.systemProximityTransitionCount,
     emulatorArtifactInventoryComplete: missingArtifacts.length === 0,
@@ -290,6 +294,7 @@ function summaryFrom(row: TrackingAndroidEmulatorArtifactInventoryRowInput) {
       ['adb-runtime-output', 'location-runtime', 'geofence-runtime', 'device-status'].includes(artifact.category)
     ).length,
     localGeofenceTransitionCount: row.localGeofenceTransitionCount,
+    localGeofenceDwellCount: row.localGeofenceDwellCount,
     systemProximityTransitionCount: row.systemProximityTransitionCount,
     emulatorArtifactInventoryComplete: row.emulatorArtifactInventoryComplete,
   };
@@ -326,6 +331,7 @@ function androidEmulatorRuntimeRowsAreObserved(row: TrackingAndroidEmulatorArtif
     row.packageLaunchObserved === true &&
     row.foregroundServiceObserved === true &&
     row.localGeofenceTransitionCount > 0 &&
+    row.localGeofenceDwellCount > 0 &&
     row.systemProximityRegistered === true
   );
 }

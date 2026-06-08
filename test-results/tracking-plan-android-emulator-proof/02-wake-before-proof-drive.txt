@@ -56,3 +56,9 @@ PASS non-claiming screen wake keyevent 224
 PASS non-claiming dismiss keyguard
 PASS non-claiming screen wake keyevent 224
 PASS non-claiming dismiss keyguard
+PASS non-claiming screen wake keyevent 224
+PASS non-claiming dismiss keyguard
+PASS non-claiming screen wake keyevent 224
+PASS non-claiming dismiss keyguard
+PASS non-claiming screen wake keyevent 224
+PASS non-claiming dismiss keyguard

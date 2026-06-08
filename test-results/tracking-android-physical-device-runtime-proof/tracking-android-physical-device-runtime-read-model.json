@@ -1,0 +1,165 @@
+[
+  {
+    "schemaVersion": "v0.5-tracking",
+    "rowId": "tracking-android-physical-device-runtime",
+    "generatedAt": "2026-06-08T16:14:26.924Z",
+    "requiredProofTier": "P4_PHYSICAL_DEVICE",
+    "currentProofTier": "P4_PHYSICAL_DEVICE",
+    "status": "android-physical-device-runtime-observed-product-gaps-remain",
+    "physicalDeviceProofRef": "test-results/tracking-android-physical-device-runtime-proof/proof.json",
+    "auditRefs": [
+      "tracking-android-physical-device-runtime-audit"
+    ],
+    "packageName": "ca.ocentra.parent.agent",
+    "activityName": "ca.ocentra.parent.agent/.MainActivity",
+    "deviceSerial": "192.168.2.45:5555",
+    "androidRelease": "10",
+    "androidSdk": "29",
+    "productModel": "SM-G965W",
+    "productName": "star2qltecs",
+    "abi": "arm64-v8a",
+    "requiredArtifacts": [
+      "test-results/tracking-android-physical-device-runtime-proof/00-device.json",
+      "test-results/tracking-android-physical-device-runtime-proof/01-adb-connect.txt",
+      "test-results/tracking-android-physical-device-runtime-proof/02-adb-install.txt",
+      "test-results/tracking-android-physical-device-runtime-proof/03-launch-activity.txt",
+      "test-results/tracking-android-physical-device-runtime-proof/03-start-service.txt",
+      "test-results/tracking-android-physical-device-runtime-proof/04-service-dump.txt",
+      "test-results/tracking-android-physical-device-runtime-proof/05-activity-dump.txt",
+      "test-results/tracking-android-physical-device-runtime-proof/06-window-dump.txt",
+      "test-results/tracking-android-physical-device-runtime-proof/07-battery.txt",
+      "test-results/tracking-android-physical-device-runtime-proof/08-connectivity.txt",
+      "test-results/tracking-android-physical-device-runtime-proof/09-ui.xml",
+      "test-results/tracking-android-physical-device-runtime-proof/10-screen.png",
+      "test-results/tracking-android-physical-device-runtime-proof/11-logcat.txt"
+    ],
+    "presentArtifacts": [
+      "test-results/tracking-android-physical-device-runtime-proof/00-device.json",
+      "test-results/tracking-android-physical-device-runtime-proof/01-adb-connect.txt",
+      "test-results/tracking-android-physical-device-runtime-proof/02-adb-install.txt",
+      "test-results/tracking-android-physical-device-runtime-proof/03-launch-activity.txt",
+      "test-results/tracking-android-physical-device-runtime-proof/03-start-service.txt",
+      "test-results/tracking-android-physical-device-runtime-proof/04-service-dump.txt",
+      "test-results/tracking-android-physical-device-runtime-proof/05-activity-dump.txt",
+      "test-results/tracking-android-physical-device-runtime-proof/06-window-dump.txt",
+      "test-results/tracking-android-physical-device-runtime-proof/07-battery.txt",
+      "test-results/tracking-android-physical-device-runtime-proof/08-connectivity.txt",
+      "test-results/tracking-android-physical-device-runtime-proof/09-ui.xml",
+      "test-results/tracking-android-physical-device-runtime-proof/10-screen.png",
+      "test-results/tracking-android-physical-device-runtime-proof/11-logcat.txt"
+    ],
+    "missingArtifacts": [],
+    "artifactRows": [
+      {
+        "artifactRef": "test-results/tracking-android-physical-device-runtime-proof/00-device.json",
+        "category": "adb-runtime-output",
+        "required": true,
+        "present": true,
+        "byteSize": 10366
+      },
+      {
+        "artifactRef": "test-results/tracking-android-physical-device-runtime-proof/01-adb-connect.txt",
+        "category": "adb-runtime-output",
+        "required": true,
+        "present": true,
+        "byteSize": 40
+      },
+      {
+        "artifactRef": "test-results/tracking-android-physical-device-runtime-proof/02-adb-install.txt",
+        "category": "package-runtime",
+        "required": true,
+        "present": true,
+        "byteSize": 38
+      },
+      {
+        "artifactRef": "test-results/tracking-android-physical-device-runtime-proof/03-launch-activity.txt",
+        "category": "package-runtime",
+        "required": true,
+        "present": true,
+        "byteSize": 162
+      },
+      {
+        "artifactRef": "test-results/tracking-android-physical-device-runtime-proof/03-start-service.txt",
+        "category": "foreground-service",
+        "required": true,
+        "present": true,
+        "byteSize": 141
+      },
+      {
+        "artifactRef": "test-results/tracking-android-physical-device-runtime-proof/04-service-dump.txt",
+        "category": "foreground-service",
+        "required": true,
+        "present": true,
+        "byteSize": 567
+      },
+      {
+        "artifactRef": "test-results/tracking-android-physical-device-runtime-proof/05-activity-dump.txt",
+        "category": "package-runtime",
+        "required": true,
+        "present": true,
+        "byteSize": 24505
+      },
+      {
+        "artifactRef": "test-results/tracking-android-physical-device-runtime-proof/06-window-dump.txt",
+        "category": "adb-runtime-output",
+        "required": true,
+        "present": true,
+        "byteSize": 34633
+      },
+      {
+        "artifactRef": "test-results/tracking-android-physical-device-runtime-proof/07-battery.txt",
+        "category": "device-status",
+        "required": true,
+        "present": true,
+        "byteSize": 1138
+      },
+      {
+        "artifactRef": "test-results/tracking-android-physical-device-runtime-proof/08-connectivity.txt",
+        "category": "device-status",
+        "required": true,
+        "present": true,
+        "byteSize": 88721
+      },
+      {
+        "artifactRef": "test-results/tracking-android-physical-device-runtime-proof/09-ui.xml",
+        "category": "ui-screenshot",
+        "required": true,
+        "present": true,
+        "byteSize": 14192
+      },
+      {
+        "artifactRef": "test-results/tracking-android-physical-device-runtime-proof/10-screen.png",
+        "category": "ui-screenshot",
+        "required": true,
+        "present": true,
+        "byteSize": 9443
+      },
+      {
+        "artifactRef": "test-results/tracking-android-physical-device-runtime-proof/11-logcat.txt",
+        "category": "validation-log",
+        "required": true,
+        "present": true,
+        "byteSize": 101474
+      }
+    ],
+    "packageInstallObserved": true,
+    "packageLaunchObserved": true,
+    "foregroundServiceObserved": true,
+    "uiLaunchTextObserved": false,
+    "batteryDumpObserved": true,
+    "connectivityDumpObserved": true,
+    "foregroundPermissionGranted": false,
+    "backgroundPermissionGranted": false,
+    "locationSampleObserved": false,
+    "localGeofenceTransitionCount": 0,
+    "localGeofenceDwellCount": 0,
+    "androidSystemGeofenceTransitionCount": 0,
+    "physicalDeviceRuntimeObserved": true,
+    "physicalLocationRuntimeClaimed": false,
+    "physicalGeofenceRuntimeClaimed": false,
+    "androidSystemGeofenceDeliveryClaimed": false,
+    "authorityProofClaimed": false,
+    "productionRuntimeClaimed": false,
+    "productClaimReady": false
+  }
+]

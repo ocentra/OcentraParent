@@ -1,0 +1,281 @@
+ACTIVITY MANAGER ACTIVITIES (dumpsys activity activities)
+Display #0 (activities from top to bottom):
+
+  Stack #11: type=standard mode=fullscreen
+  isSleeping=true
+  mBounds=Rect(0, 0 - 0, 0)
+    Task id #215
+    mBounds=Rect(0, 0 - 0, 0)
+    mMinWidth=-1
+    mMinHeight=-1
+    mLastNonFullscreenBounds=null
+    * TaskRecord{71f4c0f #215 A=ca.ocentra.parent.agent U=0 StackId=11 sz=1}
+      userId=0 effectiveUid=u0a259 mCallingUid=u0a259 mUserSetupComplete=true mCallingPackage=ca.ocentra.parent.agent
+       lastReportedWindowingMode=1
+      affinity=ca.ocentra.parent.agent
+      intent={flg=0x10000000 cmp=ca.ocentra.parent.agent/.MainActivity}
+      mActivityComponent=ca.ocentra.parent.agent/.MainActivity
+      autoRemoveRecents=false isPersistable=true numFullscreen=0 activityType=1
+      rootWasReset=false mNeverRelinquishIdentity=true mReuseTask=false mLockTaskAuth=LOCK_TASK_AUTH_PINNABLE
+      Activities=[ActivityRecord{3a2f83 u0 com.android.systemui/.media.MediaProjectionPermissionActivity t215}]
+      askedCompatMode=false inRecents=true isAvailable=true
+      stackId=11
+      hasBeenVisible=false mResizeMode=RESIZE_MODE_RESIZEABLE_VIA_SDK_VERSION mSupportsPictureInPicture=false isResizeable=true lastActiveTime=5010828 lastGainFocusTime=5010615 (inactive for 5s)
+      dexBoundsPolicy:
+       mLastNonFullBoundsDisplayId=-1
+      * Hist #0: ActivityRecord{3a2f83 u0 com.android.systemui/.media.MediaProjectionPermissionActivity t215}
+          packageName=com.android.systemui processName=com.android.systemui
+          launchedFromUid=10259 launchedFromPackage=ca.ocentra.parent.agent userId=0
+          app=ProcessRecord{9734edb 2052:com.android.systemui/u0a52}
+          Intent { flg=0x800000 cmp=com.android.systemui/.media.MediaProjectionPermissionActivity }
+          frontOfTask=false task=TaskRecord{71f4c0f #215 A=ca.ocentra.parent.agent U=0 StackId=11 sz=1}
+          taskAffinity=com.android.systemui
+          mActivityComponent=com.android.systemui/.media.MediaProjectionPermissionActivity
+          baseDir=/system/priv-app/SystemUI/SystemUI.apk
+          dataDir=/data/user_de/0/com.android.systemui
+          appMetaData=Bundle[{com.samsung.android.sdk.bixby2.companionApp=true, SamsungBasicInteraction=SEP10, com.samsung.android.multidisplay.keep_process_alive=true, com.samsung.android.bixby.companionChildPackage=com.samsung.systemui.bixby2, com.samsung.android.icon_container.has_icon_container=true, resource-map=2132148237, com.samsung.android.persistent.downloadable=true}]
+          stateNotNeeded=false componentSpecified=true mActivityType=standard
+          compat={540dpi} labelRes=0x7f120136 icon=0x7f0803e2 theme=0x7f130276
+          mLastReportedConfigurations:
+           mGlobalConfig={1.1 302mcc610mnc [en_CA] ldltr sw320dp w320dp h585dp 540dpi nrml long port night finger -keyb/v/h -nav/h winConfig={ mBounds=Rect(0, 0 - 1080, 2220) mAppBounds=Rect(0, 0 - 1080, 2058) mWindowingMode=fullscreen mDisplayWindowingMode=fullscreen mActivityType=undefined mAlwaysOnTop=undefined mRotation=ROTATION_0} s.20 desktop/d ?dc bts=0 ff=0 bf=0 themeSeq=0}
+           mOverrideConfig={1.1 302mcc610mnc [en_CA] ldltr sw320dp w320dp h585dp 540dpi nrml long port night finger -keyb/v/h -nav/h winConfig={ mBounds=Rect(0, 0 - 1080, 2220) mAppBounds=Rect(0, 0 - 1080, 2058) mWindowingMode=fullscreen mDisplayWindowingMode=fullscreen mActivityType=standard mAlwaysOnTop=undefined mRotation=ROTATION_0} s.1 desktop/d dc/d bts=0 ff=0 bf=0 themeSeq=0}
+          CurrentConfiguration={1.1 302mcc610mnc [en_CA] ldltr sw320dp w320dp h585dp 540dpi nrml long port night finger -keyb/v/h -nav/h winConfig={ mBounds=Rect(0, 0 - 1080, 2220) mAppBounds=Rect(0, 0 - 1080, 2058) mWindowingMode=fullscreen mDisplayWindowingMode=fullscreen mActivityType=standard mAlwaysOnTop=undefined mRotation=ROTATION_0} s.1 desktop/d dc/d bts=0 ff=0 bf=0 themeSeq=0}
+          resultTo=ActivityRecord{5116391 u0 ca.ocentra.parent.agent/.AndroidMediaProjectionCaptureActivity t-1 f} resultWho=null resultCode=8035
+          taskDescription: label="null" icon=null iconResource=0 iconFilename=null primaryColor=ff0381fe
+           backgroundColor=ff303030
+           statusBarColor=ff21272b
+           navigationBarColor=fff2f2f2
+          launchFailed=false launchCount=0 lastLaunchTime=-6m52s83ms
+          haveState=true icicle=Bundle[mParcelledData.dataSize=632]
+          state=STOPPED stopped=true delayedResume=false finishing=false
+          keysPaused=false inHistory=true visible=false sleeping=true idle=true mStartingWindowState=STARTING_WINDOW_NOT_SHOWN
+          fullscreen=false noDisplay=false immersive=false launchMode=1
+          frozenBeforeDestroy=false forceNewConfig=false
+          mActivityType=standard
+          resizeMode=RESIZE_MODE_RESIZEABLE_VIA_SDK_VERSION
+          mLastReportedMultiWindowMode=false mLastReportedPictureInPictureMode=false
+          mUseDeviceDefaultTheme=false
+
+    Running activities (most recent first):
+      TaskRecord{71f4c0f #215 A=ca.ocentra.parent.agent U=0 StackId=11 sz=1}
+        Run #0: ActivityRecord{3a2f83 u0 com.android.systemui/.media.MediaProjectionPermissionActivity t215}
+
+    mLastPausedActivity: ActivityRecord{3a2f83 u0 com.android.systemui/.media.MediaProjectionPermissionActivity t215}
+
+  Stack #0: type=home mode=fullscreen
+  isSleeping=true
+  mBounds=Rect(0, 0 - 0, 0)
+
+    Task id #204
+    mBounds=Rect(0, 0 - 0, 0)
+    mMinWidth=-1
+    mMinHeight=-1
+    mLastNonFullscreenBounds=null
+    * TaskRecord{f303502 #204 I=com.microsoft.launcher/.Launcher U=0 StackId=0 sz=1}
+      userId=0 effectiveUid=u0a298 mCallingUid=0 mUserSetupComplete=true mCallingPackage=null
+       lastReportedWindowingMode=1
+      intent={act=android.intent.action.MAIN cat=[android.intent.category.HOME] flg=0x10800100 cmp=com.microsoft.launcher/.Launcher}
+      origActivity=com.microsoft.launcher/.Launcher
+      mActivityComponent=com.microsoft.launcher/.LauncherActivity
+      autoRemoveRecents=false isPersistable=false numFullscreen=1 activityType=2
+      rootWasReset=false mNeverRelinquishIdentity=true mReuseTask=false mLockTaskAuth=LOCK_TASK_AUTH_PINNABLE
+      Activities=[ActivityRecord{54ff659 u0 com.microsoft.launcher/.Launcher t204}]
+      askedCompatMode=false inRecents=true isAvailable=true
+      stackId=0
+      hasBeenVisible=true mResizeMode=RESIZE_MODE_RESIZEABLE mSupportsPictureInPicture=false isResizeable=true lastActiveTime=4467838 lastGainFocusTime=3898753 (inactive for 548s)
+      dexBoundsPolicy:
+       mLastNonFullBoundsDisplayId=-1
+      * Hist #0: ActivityRecord{54ff659 u0 com.microsoft.launcher/.Launcher t204}
+          packageName=com.microsoft.launcher processName=com.microsoft.launcher
+          launchedFromUid=0 launchedFromPackage=null userId=0
+          app=ProcessRecord{6066e03 1975:com.microsoft.launcher/u0a298}
+          Intent { act=android.intent.action.MAIN cat=[android.intent.category.HOME] flg=0x10800100 cmp=com.microsoft.launcher/.Launcher }
+          frontOfTask=true task=TaskRecord{f303502 #204 I=com.microsoft.launcher/.Launcher U=0 StackId=0 sz=1}
+          taskAffinity=null
+          mActivityComponent=com.microsoft.launcher/.LauncherActivity
+          baseDir=/data/app/com.microsoft.launcher-Sm89kDBliOhGSwHtiaRJOg==/base.apk
+          dataDir=/data/user/0/com.microsoft.launcher
+          appMetaData=Bundle[{token_share_parcelable_version=3, token_share_build_version=1.7.1, android.nfc.disable_beam_default=true, android.content.APP_RESTRICTIONS=2132082689, com.microsoft.intune.mam.MAMMultiIdentity=true, android.allow_multiple_resumed_activities=true, com.microsoft.launcher.notes.appstore.stickynotes.NoteGlideModule=GlideModule, token_share_sdk_version=2, com.google.android.gms.version=12451000, com.microsoft.launcher.wallpaper.asset.WallpaperGlideModule=GlideModule}]
+          stateNotNeeded=true componentSpecified=false mActivityType=home
+          compat={540dpi} labelRes=0x7f12027a icon=0x7f0f0001 theme=0x7f13005e
+          mLastReportedConfigurations:
+           mGlobalConfig={1.1 302mcc610mnc [en_CA] ldltr sw320dp w320dp h585dp 540dpi nrml long port night finger -keyb/v/h -nav/h winConfig={ mBounds=Rect(0, 0 - 1080, 2220) mAppBounds=Rect(0, 0 - 1080, 2058) mWindowingMode=fullscreen mDisplayWindowingMode=fullscreen mActivityType=undefined mAlwaysOnTop=undefined mRotation=ROTATION_0} s.19 desktop/d ?dc bts=0 ff=0 bf=0 themeSeq=0}
+           mOverrideConfig={1.1 302mcc610mnc [en_CA] ldltr sw320dp w320dp h585dp 540dpi nrml long port night finger -keyb/v/h -nav/h winConfig={ mBounds=Rect(0, 0 - 1080, 2220) mAppBounds=Rect(0, 0 - 1080, 2058) mWindowingMode=fullscreen mDisplayWindowingMode=fullscreen mActivityType=home mAlwaysOnTop=undefined mRotation=ROTATION_0} s.2 desktop/d dc/d bts=0 ff=0 bf=0 themeSeq=0}
+          CurrentConfiguration={1.1 302mcc610mnc [en_CA] ldltr sw320dp w320dp h585dp 540dpi nrml long port night finger -keyb/v/h -nav/h winConfig={ mBounds=Rect(0, 0 - 1080, 2220) mAppBounds=Rect(0, 0 - 1080, 2058) mWindowingMode=fullscreen mDisplayWindowingMode=fullscreen mActivityType=home mAlwaysOnTop=undefined mRotation=ROTATION_0} s.2 desktop/d dc/d bts=0 ff=0 bf=0 themeSeq=0}
+          RequestedOverrideConfiguration={0.0 ?mcc?mnc ?localeList ?layoutDir ?swdp ?wdp ?hdp ?density ?lsize ?long ?ldr ?wideColorGamut ?orien ?uimode ?night ?touch ?keyb/?/? ?nav/? winConfig={ mBounds=Rect(0, 0 - 0, 0) mAppBounds=null mWindowingMode=undefined mDisplayWindowingMode=undefined mActivityType=home mAlwaysOnTop=undefined mRotation=undefined} desktop/? ?dc bts=-1 ff=0 bf=-1 themeSeq=0}
+          taskDescription: label="null" icon=null iconResource=0 iconFilename=null primaryColor=ff0078d4
+           backgroundColor=fffafafa
+           statusBarColor=0
+           navigationBarColor=0
+          launchFailed=false launchCount=0 lastLaunchTime=-1h13m57s527ms
+          haveState=false icicle=null
+          state=STOPPED stopped=true delayedResume=false finishing=false
+          keysPaused=false inHistory=true visible=false sleeping=true idle=true mStartingWindowState=STARTING_WINDOW_REMOVED
+          fullscreen=true noDisplay=false immersive=false launchMode=2
+          frozenBeforeDestroy=false forceNewConfig=false
+          mActivityType=home
+           nowVisible=false lastVisibleTime=-20m50s78ms
+          resizeMode=RESIZE_MODE_RESIZEABLE
+          mLastReportedMultiWindowMode=false mLastReportedPictureInPictureMode=false
+          mUseDeviceDefaultTheme=false
+
+    Running activities (most recent first):
+      TaskRecord{f303502 #204 I=com.microsoft.launcher/.Launcher U=0 StackId=0 sz=1}
+        Run #0: ActivityRecord{54ff659 u0 com.microsoft.launcher/.Launcher t204}
+
+    mLastPausedActivity: ActivityRecord{54ff659 u0 com.microsoft.launcher/.Launcher t204}
+
+  Stack #5: type=standard mode=fullscreen
+  isSleeping=true
+  mBounds=Rect(0, 0 - 0, 0)
+
+    Task id #209
+    mBounds=Rect(0, 0 - 0, 0)
+    mMinWidth=-1
+    mMinHeight=-1
+    mLastNonFullscreenBounds=null
+    * TaskRecord{5182d1a #209 A=com.sec.android.daemonapp U=0 StackId=5 sz=1}
+      userId=0 effectiveUid=u0a199 mCallingUid=u0a199 mUserSetupComplete=true mCallingPackage=com.sec.android.daemonapp
+       lastReportedWindowingMode=1
+      affinity=com.sec.android.daemonapp
+      intent={act=com.samsung.android.weather.intent.action.internal.SELECT_LOCATIONS flg=0x34018000 cmp=com.sec.android.daemonapp/com.samsung.android.weather.app.locations.activity.WXLocationsActivity}
+      mActivityComponent=com.sec.android.daemonapp/com.samsung.android.weather.app.locations.activity.WXLocationsActivity
+      autoRemoveRecents=false isPersistable=true numFullscreen=1 activityType=1
+      rootWasReset=false mNeverRelinquishIdentity=true mReuseTask=false mLockTaskAuth=LOCK_TASK_AUTH_PINNABLE
+      Activities=[ActivityRecord{68194c u0 com.sec.android.daemonapp/com.samsung.android.weather.app.locations.activity.WXLocationsActivity t209}]
+      askedCompatMode=false inRecents=true isAvailable=true
+      mRootProcess=ProcessRecord{33666c 5067:com.sec.android.daemonapp:com.samsung.android.weather/u0a199}
+      stackId=5
+      hasBeenVisible=true mResizeMode=RESIZE_MODE_RESIZEABLE mSupportsPictureInPicture=true isResizeable=true lastActiveTime=2423586 lastGainFocusTime=2422063 (inactive for 2592s)
+      dexBoundsPolicy:
+       mLastNonFullBoundsDisplayId=-1
+      * Hist #0: ActivityRecord{68194c u0 com.sec.android.daemonapp/com.samsung.android.weather.app.locations.activity.WXLocationsActivity t209}
+          packageName=com.sec.android.daemonapp processName=com.sec.android.daemonapp:com.samsung.android.weather
+          launchedFromUid=10199 launchedFromPackage=com.sec.android.daemonapp userId=0
+          app=ProcessRecord{33666c 5067:com.sec.android.daemonapp:com.samsung.android.weather/u0a199}
+          Intent { act=com.samsung.android.weather.intent.action.internal.SELECT_LOCATIONS flg=0x34018000 cmp=com.sec.android.daemonapp/com.samsung.android.weather.app.locations.activity.WXLocationsActivity (has extras) }
+          frontOfTask=true task=TaskRecord{5182d1a #209 A=com.sec.android.daemonapp U=0 StackId=5 sz=1}
+          taskAffinity=com.sec.android.daemonapp
+          mActivityComponent=com.sec.android.daemonapp/com.samsung.android.weather.app.locations.activity.WXLocationsActivity
+          baseDir=/system/app/Weather_SEP11.0/Weather_SEP11.0.apk
+          dataDir=/data/user/0/com.sec.android.daemonapp
+          appMetaData=Bundle[{com.samsung.android.weather.gearmode=3, com.samsung.systemui.facewidget.executable=2131820546, SamsungBasicInteraction=SEP11, android.nfc.disable_beam_default=true, SPDE.env.version=3.4.2/L29.3.15/0.9.23, com.samsung.android.notification.blockable=true, com.google.android.gms.ads.AD_MANAGER_APP=true, com.google.android.gms.ads.APPLICATION_ID=ca-app-pub-3940256099942544~3347511713, SPDE.build.signature=2e1b3530ae7912edd4e0cba7038586eac7fa0bdf/79704934/phone-release/Daemon-161100-1.6.24, com.samsung.android.icon_container.has_icon_container=true, backup_content_uri=content://com.sec.android.daemonapp.backup, com.samsung.android.sdk.spage.card.info=2132082689, com.samsung.android.sdk.spage.version_code=130100000, com.samsung.android.sdk.spage.version=1.3.01.0, com.samsung.android.weather.model.DBVersion=960, com.samsung.android.weather.setupwizard.notification=true, backup_name=2132082688, com.google.android.gms.version=12451000, com.samsung.android.bixby.pathRuleAppName=Weather}]
+          stateNotNeeded=false componentSpecified=false mActivityType=standard
+          compat={540dpi} labelRes=0x7f1201bb icon=0x7f0f0000 theme=0x7f130262
+          mLastReportedConfigurations:
+           mGlobalConfig={1.1 302mcc610mnc [en_CA] ldltr sw320dp w320dp h585dp 540dpi nrml long port night finger -keyb/v/h -nav/h winConfig={ mBounds=Rect(0, 0 - 1080, 2220) mAppBounds=Rect(0, 0 - 1080, 2058) mWindowingMode=fullscreen mDisplayWindowingMode=fullscreen mActivityType=undefined mAlwaysOnTop=undefined mRotation=ROTATION_0} s.19 desktop/d ?dc bts=0 ff=0 bf=0 themeSeq=0}
+           mOverrideConfig={1.1 302mcc610mnc [en_CA] ldltr sw320dp w320dp h585dp 540dpi nrml long port night finger -keyb/v/h -nav/h winConfig={ mBounds=Rect(0, 0 - 1080, 2220) mAppBounds=Rect(0, 0 - 1080, 2058) mWindowingMode=fullscreen mDisplayWindowingMode=fullscreen mActivityType=standard mAlwaysOnTop=undefined mRotation=ROTATION_0} s.1 desktop/d dc/d bts=0 ff=0 bf=0 themeSeq=0}
+          CurrentConfiguration={1.1 302mcc610mnc [en_CA] ldltr sw320dp w320dp h585dp 540dpi nrml long port night finger -keyb/v/h -nav/h winConfig={ mBounds=Rect(0, 0 - 1080, 2220) mAppBounds=Rect(0, 0 - 1080, 2058) mWindowingMode=fullscreen mDisplayWindowingMode=fullscreen mActivityType=standard mAlwaysOnTop=undefined mRotation=ROTATION_0} s.1 desktop/d dc/d bts=0 ff=0 bf=0 themeSeq=0}
+          taskDescription: label="null" icon=null iconResource=0 iconFilename=null primaryColor=ff0072de
+           backgroundColor=ff252525
+           statusBarColor=ff010101
+           navigationBarColor=ff010101
+          launchFailed=false launchCount=0 lastLaunchTime=-45m42s955ms
+          haveState=true icicle=Bundle[mParcelledData.dataSize=4872]
+          state=STOPPED stopped=true delayedResume=false finishing=false
+          keysPaused=false inHistory=true visible=false sleeping=true idle=true mStartingWindowState=STARTING_WINDOW_REMOVED
+          fullscreen=true noDisplay=false immersive=false launchMode=0
+          frozenBeforeDestroy=false forceNewConfig=false
+          mActivityType=standard
+           nowVisible=false lastVisibleTime=-33m58s524ms
+          resizeMode=RESIZE_MODE_RESIZEABLE
+          mLastReportedMultiWindowMode=false mLastReportedPictureInPictureMode=false
+          supportsPictureInPicture=true
+          supportsEnterPipOnTaskSwitch: true
+          mUseDeviceDefaultTheme=false
+
+    Running activities (most recent first):
+      TaskRecord{5182d1a #209 A=com.sec.android.daemonapp U=0 StackId=5 sz=1}
+        Run #0: ActivityRecord{68194c u0 com.sec.android.daemonapp/com.samsung.android.weather.app.locations.activity.WXLocationsActivity t209}
+
+    mLastPausedActivity: ActivityRecord{68194c u0 com.sec.android.daemonapp/com.samsung.android.weather.app.locations.activity.WXLocationsActivity t209}
+
+  Stack #2: type=standard mode=fullscreen
+  isSleeping=true
+  mBounds=Rect(0, 0 - 0, 0)
+
+    Task id #206
+    mBounds=Rect(0, 0 - 0, 0)
+    mMinWidth=743
+    mMinHeight=743
+    mLastNonFullscreenBounds=null
+    * TaskRecord{b4ade3c #206 A=android.task.camera U=0 StackId=2 sz=1}
+      userId=0 effectiveUid=u0a114 mCallingUid=u0a298 mUserSetupComplete=true mCallingPackage=com.microsoft.launcher
+       lastReportedWindowingMode=1
+      affinity=android.task.camera
+      intent={act=android.intent.action.MAIN cat=[android.intent.category.LAUNCHER] flg=0x10200000 cmp=com.sec.android.app.camera/.Camera}
+      mActivityComponent=com.sec.android.app.camera/.Camera
+      autoRemoveRecents=false isPersistable=true numFullscreen=1 activityType=1
+      rootWasReset=true mNeverRelinquishIdentity=true mReuseTask=false mLockTaskAuth=LOCK_TASK_AUTH_PINNABLE
+      Activities=[ActivityRecord{2861102 u0 com.sec.android.app.camera/.Camera t206}]
+      askedCompatMode=false inRecents=true isAvailable=true
+      mRootProcess=ProcessRecord{b1f664e 10063:com.sec.android.app.camera/u0a114}
+      stackId=2
+      hasBeenVisible=true mResizeMode=RESIZE_MODE_RESIZEABLE mSupportsPictureInPicture=false isResizeable=true lastActiveTime=1699455 lastGainFocusTime=1697250 (inactive for 3316s)
+      dexBoundsPolicy:
+       mLastNonFullBoundsDisplayId=-1
+      * Hist #0: ActivityRecord{2861102 u0 com.sec.android.app.camera/.Camera t206}
+          packageName=com.sec.android.app.camera processName=com.sec.android.app.camera
+          launchedFromUid=10298 launchedFromPackage=com.microsoft.launcher userId=0
+          app=ProcessRecord{b1f664e 10063:com.sec.android.app.camera/u0a114}
+          Intent { act=android.intent.action.MAIN cat=[android.intent.category.LAUNCHER] flg=0x10200000 cmp=com.sec.android.app.camera/.Camera bnds=[408,371][612,646] }
+          frontOfTask=true task=TaskRecord{b4ade3c #206 A=android.task.camera U=0 StackId=2 sz=1}
+          taskAffinity=android.task.camera
+          mActivityComponent=com.sec.android.app.camera/.Camera
+          baseDir=/system/priv-app/SamsungCamera/SamsungCamera.apk
+          dataDir=/data/user/0/com.sec.android.app.camera
+          appMetaData=Bundle[{com.samsung.android.bixby.service.sdk.version_code=100000000, com.samsung.android.sdk.bixby2.companionApp=true, SamsungBasicInteraction=SEP10, SPDE.env.version=3.4.2/L29.3.15/0.9.16, com.sec.android.sdk.cover.MODE=0, com.samsung.android.bixby.capsuleId=viv.cameraApp, SPDE.build.signature=0b3384dcf9c50d4beb3c12001f64cf9b51b38a77/71629289/hal3-release/SamsungCamera-1018000-10.5.03, com.google.ar.core.min_apk_version=191106000, com.samsung.android.icon_container.has_icon_container=true, android.max_aspect=2.1, com.google.android.gms.version=12451000, com.samsung.android.bixby.pathRuleAppName=Camera, com.samsung.android.disableSnapshot=true, com.samsung.android.bixby.service.sdk.version=1.0.00.0, com.samsung.android.support.executable=2132017155}]
+          stateNotNeeded=false componentSpecified=true mActivityType=standard
+          compat={540dpi} labelRes=0x7f110216 icon=0x7f0e0002 theme=0x7f12000c
+          mLastReportedConfigurations:
+           mGlobalConfig={1.1 302mcc610mnc [en_CA] ldltr sw320dp w320dp h585dp 540dpi nrml long port night finger -keyb/v/h -nav/h winConfig={ mBounds=Rect(0, 0 - 1080, 2220) mAppBounds=Rect(0, 0 - 1080, 2058) mWindowingMode=fullscreen mDisplayWindowingMode=fullscreen mActivityType=undefined mAlwaysOnTop=undefined mRotation=ROTATION_0} s.19 desktop/d ?dc bts=0 ff=0 bf=0 themeSeq=0}
+           mOverrideConfig={1.1 302mcc610mnc [en_CA] ldltr sw320dp w320dp h585dp 540dpi nrml long port night finger -keyb/v/h -nav/h winConfig={ mBounds=Rect(0, 0 - 1080, 2220) mAppBounds=Rect(0, 0 - 1080, 2058) mWindowingMode=fullscreen mDisplayWindowingMode=fullscreen mActivityType=standard mAlwaysOnTop=undefined mRotation=ROTATION_0} s.1 desktop/d dc/d bts=0 ff=0 bf=0 themeSeq=0}
+          CurrentConfiguration={1.1 302mcc610mnc [en_CA] ldltr sw320dp w320dp h585dp 540dpi nrml long port night finger -keyb/v/h -nav/h winConfig={ mBounds=Rect(0, 0 - 1080, 2220) mAppBounds=Rect(0, 0 - 1080, 2058) mWindowingMode=fullscreen mDisplayWindowingMode=fullscreen mActivityType=standard mAlwaysOnTop=undefined mRotation=ROTATION_0} s.1 desktop/d dc/d bts=0 ff=0 bf=0 themeSeq=0}
+          taskDescription: label="null" icon=null iconResource=0 iconFilename=null primaryColor=ff0381fe
+           backgroundColor=ff000000
+           statusBarColor=ff010101
+           navigationBarColor=0
+          launchFailed=false launchCount=0 lastLaunchTime=-46m16s842ms
+          haveState=true icicle=Bundle[mParcelledData.dataSize=1280]
+          state=STOPPED stopped=true delayedResume=false finishing=false
+          keysPaused=false inHistory=true visible=false sleeping=true idle=true mStartingWindowState=STARTING_WINDOW_REMOVED
+          fullscreen=true noDisplay=false immersive=false launchMode=0
+          frozenBeforeDestroy=false forceNewConfig=false
+          mActivityType=standard
+           nowVisible=false lastVisibleTime=-46m3s227ms
+          resizeMode=RESIZE_MODE_RESIZEABLE
+          mLastReportedMultiWindowMode=false mLastReportedPictureInPictureMode=false
+          activityMetaData=Bundle[{com.samsung.android.activity.showWhenLocked=true, android.app.shortcuts=2132017161, com.samsung.android.support.REMOTE_ACTION=2132017154, com.samsung.android.rotation.animation.disable=true, assistant=2132017153}]
+          mUseDeviceDefaultTheme=true
+
+    Running activities (most recent first):
+      TaskRecord{b4ade3c #206 A=android.task.camera U=0 StackId=2 sz=1}
+        Run #0: ActivityRecord{2861102 u0 com.sec.android.app.camera/.Camera t206}
+
+    mLastPausedActivity: ActivityRecord{2861102 u0 com.sec.android.app.camera/.Camera t206}
+
+ ResumedActivity:ActivityRecord{3a2f83 u0 com.android.systemui/.media.MediaProjectionPermissionActivity t215}
+
+  ResumedActivity: ActivityRecord{3a2f83 u0 com.android.systemui/.media.MediaProjectionPermissionActivity t215}
+
+ActivityStackSupervisor state:
+  topDisplayFocusedStack=ActivityStack{428cf33 stackId=11 type=standard mode=fullscreen visible=true translucent=true, 1 tasks}
+  displayId=0 stacks=4
+   mHomeStack=ActivityStack{343aa38 stackId=0 type=home mode=fullscreen visible=true translucent=false, 1 tasks}
+   mPreferredTopFocusableStack=ActivityStack{428cf33 stackId=11 type=standard mode=fullscreen visible=true translucent=true, 1 tasks}
+   mLastFocusedStack=ActivityStack{428cf33 stackId=11 type=standard mode=fullscreen visible=true translucent=true, 1 tasks}
+  mCurTaskIdForUser={0=215}
+  mUserStackInFront={}
+  isHomeRecentsComponent=false  KeyguardController:
+    mKeyguardShowing=true
+    mAodShowing=true
+    mKeyguardGoingAway=false
+    Occluded=false DismissingKeyguardActivity=null at display=0
+    mDismissalRequested=false
+    mVisibilityTransactionDepth=0
+  LockTaskController
+    mLockTaskModeState=NONE
+    mLockTaskModeTasks=
+    mLockTaskPackages (userId:packages)=
+      u0:[]
+      u95:[]

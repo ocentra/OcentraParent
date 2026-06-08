@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
-  "checkedAt": "2026-06-08T14:57:34.866Z",
-  "commit": "915e6d43de5a7288e40711d96392e85b4544bd61",
+  "checkedAt": "2026-06-08T16:14:44.445Z",
+  "commit": "ca748d0c1f68def1d56f4b328bd1872951a81698",
   "requiredProofTier": "P3_LOCAL_DEV_MACHINE",
   "currentProofTier": "P3_LOCAL_DEV_MACHINE",
   "currentStatus": "background_permission_granted_emulator_sample_enter_exit_limit_system_registration_and_degraded_status_observed",
@@ -23,7 +23,7 @@
       "",
       "",
       "",
-      "Ocentra Parent Agent service scaffold is running.\npackage-local-scaffold\npackage-local-scaffold\ndeclared-started-by-package\npackage-local-scaffold\npackage-local-scaffold\nmanual-consent-required\nforeground-location-permission-required\nforeground-location-sample-manual-required\nfused-foreground-location-sample-manual-required\nbackground-location-permission-granted\nbackground-geofence-transition-observed-emulator\nbackgroundGeofenceTransitionCount:4\nbackgroundGeofenceEnterCount:2\nbackgroundGeofenceExitCount:2\nbackgroundGeofenceLastTransition:exit\nbackgroundGeofenceSource:android-location-manager-gps-listener-local-geofence\nbackground-location-sample-observed-emulator-foreground-service\nbackgroundLocationSampleCount:45\nbackgroundLocationSampleProvider:gps\nbackgroundLocationSampleObservedAtEpochMillis:1780930379724\nbackgroundLocationSampleAccuracyMeters:5.0\nbackgroundLocationSampleSource:android-location-manager-gps-listener-foreground-service\nbackgroundLocationSampleActivityBackgrounded:true"
+      "Ocentra Parent Agent service scaffold is running.\npackage-local-scaffold\npackage-local-scaffold\ndeclared-started-by-package\npackage-local-scaffold\npackage-local-scaffold\nmanual-consent-required\nforeground-location-permission-required\nforeground-location-sample-manual-required\nfused-foreground-location-sample-manual-required\nbackground-location-permission-granted\nbackground-geofence-transition-observed-emulator\nbackgroundGeofenceTransitionCount:4\nbackgroundGeofenceEnterCount:2\nbackgroundGeofenceExitCount:2\nbackgroundGeofenceDwellCount:10\nbackgroundGeofenceDwellSource:android-location-manager-gps-listener-local-dwell\nbackgroundGeofenceLastTransition:exit\nbackgroundGeofenceSource:android-location-manager-gps-listener-local-geofence\nbackground-location-sample-observed-emulator-foreground-service\nbackgroundLocationSampleCount:899\nbackgroundLocationSampleProvider:gps\nbackgroundLocationSampleObservedAtEpochMillis:1780935217214\nbackgroundLocationSampleAccuracyMeters:5.0\nbackgroundLocationSampleSource:android-location-manager-gps-listener-foreground-service\nbackgroundLocationSampleActivityBackgrounded:true"
     ],
     "launchArtifact": "test-results/tracking-plan-android-emulator-proof/24-background-location-settings-page-launch.txt",
     "uiArtifact": "test-results/tracking-plan-android-emulator-proof/24-background-location-settings-page.xml",
@@ -31,11 +31,11 @@
     "windowArtifact": "test-results/tracking-plan-android-emulator-proof/24-background-location-settings-page-window.txt"
   },
   "backgroundLocationPermissionStateText": "background-location-permission-granted",
-  "backgroundLocationSampleStateText": "background-location-sample-observed-emulator-foreground-service",
+  "backgroundLocationSampleStateText": "background-location-sample-manual-required",
   "backgroundLocationSampleCaptured": true,
-  "backgroundLocationSampleCount": 57,
+  "backgroundLocationSampleCount": 56,
   "backgroundLocationSampleProvider": "gps",
-  "backgroundLocationSampleObservedAtEpochMillis": 1780930652449,
+  "backgroundLocationSampleObservedAtEpochMillis": 1780935283249,
   "backgroundLocationSampleAccuracyMeters": 5,
   "backgroundLocationSampleSource": "android-location-manager-gps-listener-foreground-service",
   "backgroundLocationSampleActivityBackgrounded": true,
@@ -44,6 +44,10 @@
   "geofenceTransitionCount": 4,
   "geofenceEnterCount": 2,
   "geofenceExitCount": 2,
+  "geofenceDwellCount": 10,
+  "geofenceDwellSource": "android-location-manager-gps-listener-local-dwell",
+  "geofenceDwellLastObservedAtEpochMillis": 1780935265244,
+  "geofenceDwellInsideStartedAtEpochMillis": 0,
   "geofenceLastTransition": "exit",
   "geofenceSource": "android-location-manager-gps-listener-local-geofence",
   "geofenceRegistered": true,
@@ -51,7 +55,7 @@
   "systemProximityRegistration": {
     "observed": true,
     "source": "android-location-manager-proximity-alert",
-    "registeredAtEpochMillis": 1780930601841,
+    "registeredAtEpochMillis": 1780935230677,
     "transitionObserved": false,
     "transitionCount": 0,
     "enterCount": 0,
@@ -95,7 +99,7 @@
     "appRestartClaimState": "degraded",
     "pendingUploadClaimState": "degraded",
     "manualRequiredClaimState": "manual-required",
-    "proofBoundary": "WP10 parent-domain Android status-gap proof covers low-power degradation, app restart auditability, pending-upload auditability, and manual-required platform rows; it does not prove Android system geofence delivery or physical-device background behavior.",
+    "proofBoundary": "WP10 parent-domain Android status-gap proof covers low-power degradation, app restart auditability, pending-upload auditability, and manual-required platform rows; it does not prove Android system geofence delivery, Android system dwell, or physical-device background behavior.",
     "nonClaims": [
       "No Android system geofence delivery is claimed from WP10 status rows.",
       "No dwell transition delivery is claimed from WP10 status rows.",
@@ -103,8 +107,8 @@
       "No provider delivery, authority, production upload worker, or product-ready Android tracking claim is made."
     ]
   },
-  "geofenceTransitionBoundary": "emulator-location-manager-gps-listener-local-geofence-enter-exit-only",
-  "missingProofReason": "Background location permission grant, emulator foreground-service LocationManager GPS-listener background-activity sample storage, emulator LocationManager GPS-listener local-geofence enter/exit transition rows, app-owned active geofence count within the Android documented per-app/per-device-user limit, Android LocationManager addProximityAlert registration, separate Android system proximity broadcast counters, and WP10 low-power/app-restart/pending-upload/manual-required status-gap bridge were observed through app-owned proof storage. This ATD emulator image does not expose an Android Settings activity, so Android app settings page routing remains unclaimed; Android system geofence delivery remains unclaimed unless the separate system counter is nonzero, and dwell, physical-device behavior, authority, provider delivery, production upload workers, and product-ready tracking remain unclaimed.",
+  "geofenceTransitionBoundary": "emulator-location-manager-gps-listener-local-geofence-enter-exit-dwell-only",
+  "missingProofReason": "Background location permission grant, emulator foreground-service LocationManager GPS-listener background-activity sample storage, emulator LocationManager GPS-listener local-geofence enter/exit/dwell rows, app-owned active geofence count within the Android documented per-app/per-device-user limit, Android LocationManager addProximityAlert registration, separate Android system proximity broadcast counters, and WP10 low-power/app-restart/pending-upload/manual-required status-gap bridge were observed through app-owned proof storage. This ATD emulator image does not expose an Android Settings activity, so Android app settings page routing remains unclaimed; Android system geofence delivery remains unclaimed unless the separate system counter is nonzero, and Android system dwell, physical-device behavior, authority, provider delivery, production upload workers, and product-ready tracking remain unclaimed.",
   "device": {
     "serial": "emulator-5554",
     "androidRelease": "13",
