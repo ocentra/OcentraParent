@@ -94,6 +94,15 @@ claim needs proof, not slogans.
   providers are rejected; mobile providers stay dormant while desktop/laptop
   capacity exists; and mobile is eligible only for explicit light fallback when
   battery, thermal, and fallback policy allow it.
+- `HouseholdAiProviderClaimLeaseProofSchema` and
+  `scripts/test/household-ai-provider-claim-lease-proof.mjs` now prove the
+  household AI provider claim/lease lifecycle contract over a screen-derived
+  AI job: one active lease per job, duplicate claim rejection, lease expiry
+  requeue, max-attempt dead-letter, and idempotent duplicate message handling.
+  The proof keeps physical household LAN execution, model execution/quality,
+  provider policy authority, enforcement, raw screenshot transfer, and
+  remote/API AI unclaimed. Package export and parent-domain README updates
+  remain deferred while another lane owns those files.
 - The [Household AI Provider Mesh Plan](../plans/ai-plan/household-ai-provider-mesh-plan.md)
   now defines trusted household AI providers, the Household Mesh Bridge,
   provider advertisement/heartbeat, claim/lease, result validation, no raw
@@ -520,6 +529,11 @@ validation against production external evidence variants.
       degraded/unsupported rejection, and custody mismatch rejection without
       claiming physical LAN routing, production model execution, portal UI,
       policy authority, or enforcement.
+- [x] Household AI provider claim/lease lifecycle proof validates one active
+      lease per job, duplicate claim rejection, lease expiry requeue,
+      max-attempt dead-letter, and idempotent duplicate message handling without
+      physical LAN execution, model execution, model quality, provider policy
+      authority, enforcement, raw screenshot transfer, or remote/API AI claims.
 - [x] Child-agent AI policy authority proof validates provider worker-only
       output, child-agent result validation, child-owned policy/action/read-model
       authority, and provider policy/enforcement rejection without claiming

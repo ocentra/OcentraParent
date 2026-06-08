@@ -1,0 +1,97 @@
+{
+  "status": "ok",
+  "proofKind": "household-ai-provider-claim-lease-proof",
+  "generatedAt": "2026-06-08T04:49:19.837Z",
+  "proof": "output/ai-plan-proof/household-ai-provider-claim-lease-proof/proof-summary.json",
+  "sourceContracts": [
+    "packages/parent-domain/src/household-ai-provider-claim-lease-proof.ts"
+  ],
+  "job": {
+    "jobId": "screen-ai-job-child-pc-claim-lease-1",
+    "workKind": "screen-ai-analysis",
+    "childAgentId": "child-agent-sam-windows-pc",
+    "custodyRef": "screen-ai-custody-deleted-image-query-store-1",
+    "redactedPayloadRef": "redacted-screen-summary-crop-ref-1",
+    "maxAttempts": 3,
+    "leaseTtlMs": 30000
+  },
+  "leaseStates": [
+    {
+      "state": "claimed",
+      "providerId": "household-provider-parent-desktop-1",
+      "acceptedClaim": true,
+      "activeLeaseCountAfterDecision": 1,
+      "rejectionReason": null
+    },
+    {
+      "state": "duplicate-rejected",
+      "providerId": "household-provider-laptop-1",
+      "acceptedClaim": false,
+      "activeLeaseCountAfterDecision": 1,
+      "rejectionReason": "job-already-leased"
+    },
+    {
+      "state": "expired-requeued",
+      "providerId": "household-provider-parent-desktop-1",
+      "acceptedClaim": false,
+      "activeLeaseCountAfterDecision": 0,
+      "rejectionReason": "lease-expired"
+    },
+    {
+      "state": "dead-lettered",
+      "providerId": "household-provider-parent-desktop-1",
+      "acceptedClaim": false,
+      "activeLeaseCountAfterDecision": 0,
+      "rejectionReason": "max-attempts-exhausted"
+    }
+  ],
+  "messageStates": [
+    {
+      "state": "accepted",
+      "messageId": "mesh-message-1",
+      "sideEffectApplied": true
+    },
+    {
+      "state": "duplicate-ignored",
+      "messageId": "mesh-message-1",
+      "sideEffectApplied": false
+    },
+    {
+      "state": "stale-rejected",
+      "messageId": "mesh-message-stale-1",
+      "sideEffectApplied": false
+    }
+  ],
+  "validationSummary": {
+    "acceptedClaimCount": 1,
+    "duplicateClaimRejectedCount": 1,
+    "expiredRequeueCount": 1,
+    "deadLetterCount": 1,
+    "duplicateMessageIgnoredCount": 1,
+    "maxActiveLeaseCount": 1
+  },
+  "assertions": {
+    "oneLeasePerJob": true,
+    "duplicateClaimRejected": true,
+    "leaseExpiryRequeued": true,
+    "maxAttemptDeadLettered": true,
+    "duplicateMessageIdempotent": true,
+    "noRuntimePolicyEnforcementOrRawTransferClaims": true
+  },
+  "claimBoundaries": {
+    "physicalLanExecutionClaimed": false,
+    "modelExecutionClaimed": false,
+    "modelQualityClaimed": false,
+    "policyAuthorityClaimed": false,
+    "enforcementClaimed": false,
+    "rawScreenshotTransferred": false,
+    "remoteApiAiUsed": false
+  },
+  "nonClaims": [
+    "This proof does not execute over a physical household LAN.",
+    "This proof does not execute a model or prove model quality.",
+    "This proof does not grant provider policy authority or dispatch enforcement.",
+    "This proof does not transfer raw screenshots, retain raw screen pixels, or use remote/API AI.",
+    "This proof does not add a package export while packages/parent-domain/package.json is locked by another lane."
+  ]
+}
