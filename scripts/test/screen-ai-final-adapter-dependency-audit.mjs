@@ -14,6 +14,9 @@ const sourcePaths = {
   linuxHostCustody: 'output/screen-ai-pipeline-proof/linux-host-adapter-custody/proof-summary.json',
   androidMobileCustody: 'output/screen-ai-pipeline-proof/android-mobile-control-custody/proof-summary.json',
   iosMobileCustody: 'output/screen-ai-pipeline-proof/ios-mobile-control-custody/proof-summary.json',
+  adapterDependencyHandoff: 'output/screen-ai-pipeline-proof/adapter-dependency-handoff/proof-summary.json',
+  adapterDependencyHandoffRows:
+    'output/screen-ai-pipeline-proof/adapter-dependency-handoff/adapter-dependency-handoff.json',
   checklist: 'docs/plans/screen-ai-pipeline-plan/implementation-checklist.md',
 };
 
@@ -66,6 +69,8 @@ const finalProductPath = readJson(sourcePaths.finalProductPath);
 const linuxHostCustody = readJson(sourcePaths.linuxHostCustody);
 const androidMobileCustody = readJson(sourcePaths.androidMobileCustody);
 const iosMobileCustody = readJson(sourcePaths.iosMobileCustody);
+const adapterDependencyHandoff = readJson(sourcePaths.adapterDependencyHandoff);
+const adapterDependencyHandoffRows = readJson(sourcePaths.adapterDependencyHandoffRows);
 const checklist = readText(sourcePaths.checklist);
 
 const rowById = new Map(adapterReadinessReadModel.rows.map((row) => [row.rowId, row]));
@@ -96,6 +101,7 @@ const custodyRows = [
     artifactPath: sourcePaths.iosMobileCustody,
   }),
 ];
+const handoffRows = auditDependencyHandoff();
 const executedRows = adapterReadinessReadModel.rows.filter((row) => row.actionExecutionState === 'executed');
 const openChecklistRowPresent = checklist.includes(
   '- [ ] Browser, network, mobile, and broad block adapters proven from screen-derived decisions before product-complete action claims.'
@@ -129,6 +135,10 @@ assert(
   checklist.includes('`output/screen-ai-pipeline-proof/ios-mobile-control-custody/proof-summary.json`'),
   'screen-ai checklist must cite iOS custody artifact'
 );
+assert(
+  checklist.includes('`output/screen-ai-pipeline-proof/adapter-dependency-handoff/proof-summary.json`'),
+  'screen-ai checklist must cite adapter dependency handoff artifact'
+);
 
 if (failures.length > 0) {
   throw new Error(
@@ -150,15 +160,19 @@ const proof = {
     executedAdapterRows: executedRows.length,
     blockedAdapterRows: blockedRows.length,
     custodyArtifactRows: custodyRows.length,
+    dependencyHandoffRows: handoffRows.length,
     claimUpgradeRows: adapterReadiness.summary.claimUpgradeRows,
   },
   blockedRows,
   custodyRows,
+  dependencyHandoffRows: handoffRows,
   nextRequiredArtifacts: blockedRows.map((row) => ({
     rowId: row.rowId,
     boundary: row.boundary,
     custodyArtifact: row.custodyArtifact ?? null,
     missingArtifact: row.missingArtifact,
+    handoffOwner: handoffRows.find((handoffRow) => handoffRow.rowId === row.rowId)?.owningLane ?? null,
+    expectedProofFile: handoffRows.find((handoffRow) => handoffRow.rowId === row.rowId)?.expectedProofFile ?? null,
   })),
   nonClaims: [
     'This audit does not implement broad installed-app blocking, host network/domain blocking, managed active-tab enforcement, Android/iOS mobile control, or Linux host control.',
@@ -225,6 +239,72 @@ function auditCustodyArtifact({ rowId, proof, expectedStatus, closureKey, execut
   };
 }
 
+function auditDependencyHandoff() {
+  assert(
+    adapterDependencyHandoff.status === 'adapter-dependency-handoff-ready-upstream-execution-required',
+    'adapter dependency handoff status changed'
+  );
+  assert(
+    adapterDependencyHandoff.closure?.dependencyRowsMapped === requiredBlockedRows.length,
+    'adapter dependency handoff row count changed'
+  );
+  assert(
+    adapterDependencyHandoff.closure?.finalScreenAiAdapterRowStillOpen === true,
+    'adapter dependency handoff closed final adapter row'
+  );
+  assert(
+    adapterDependencyHandoff.closure?.productChecklistEdited === false,
+    'adapter dependency handoff edited product checklist'
+  );
+  assert(
+    adapterDependencyHandoff.closure?.productCompleteClaimed === false,
+    'adapter dependency handoff claims product complete'
+  );
+  assert(
+    adapterDependencyHandoffRows.claimBoundary?.includes('dependency handoff requirements only'),
+    'adapter dependency handoff lost claim boundary'
+  );
+
+  const rows = adapterDependencyHandoffRows.rows ?? [];
+  assert(rows.length === requiredBlockedRows.length, 'adapter dependency handoff rows length mismatch');
+
+  for (const requirement of requiredBlockedRows) {
+    const row = rows.find((candidate) => candidate.rowId === requirement.rowId);
+    assert(Boolean(row), `missing adapter dependency handoff row ${requirement.rowId}`);
+    if (!row) {
+      continue;
+    }
+    assert(Boolean(row.owningLane), `${requirement.rowId} handoff missing owning lane`);
+    assert(Boolean(row.owningDomain), `${requirement.rowId} handoff missing owning domain`);
+    assert(Boolean(row.expectedProofFile), `${requirement.rowId} handoff missing expected proof file`);
+    assert(
+      row.expectedContractShape?.rawImageRetained === false,
+      `${requirement.rowId} handoff expected contract retains raw image`
+    );
+    assert(
+      row.expectedContractShape?.rawImageDeletedBeforeAdapter === true,
+      `${requirement.rowId} handoff expected contract does not require deletion before adapter`
+    );
+    assert(
+      row.expectedContractShape?.finalAdapterCompletionClaimed === true,
+      `${requirement.rowId} handoff expected contract cannot close completion when proof exists`
+    );
+    assert(
+      (row.unblocksFinalRows ?? []).some((value) => value.startsWith('screen-ai-pipeline-plan:')),
+      `${requirement.rowId} handoff does not name screen-ai pipeline row`
+    );
+  }
+
+  return rows.map((row) => ({
+    rowId: row.rowId,
+    adapterClass: row.adapterClass,
+    owningLane: row.owningLane,
+    owningDomain: row.owningDomain,
+    expectedProofFile: row.expectedProofFile,
+    expectedContractShape: row.expectedContractShape,
+  }));
+}
+
 function readJson(path) {
   return JSON.parse(readText(path));
 }
@@ -252,7 +332,10 @@ function snapshot(proof) {
   const custody = proof.custodyRows
     .map((row) => `- ${row.rowId}: ${row.status}, executionClaimed=${row.executionClaimed}`)
     .join('\n');
-  return `# Screen AI Final Adapter Dependency Audit\n\nGenerated: ${proof.generatedAt}\n\n## Source Artifacts\n\n${sources}\n\n## Blocked Adapter Rows\n\n${blockers}\n\n## Custody Artifacts\n\n${custody}\n\n## Closure\n\n\`\`\`json\n${JSON.stringify(proof.closure, null, 2)}\n\`\`\`\n`;
+  const handoff = proof.dependencyHandoffRows
+    .map((row) => `- ${row.rowId}: ${row.owningLane}, ${row.expectedProofFile}`)
+    .join('\n');
+  return `# Screen AI Final Adapter Dependency Audit\n\nGenerated: ${proof.generatedAt}\n\n## Source Artifacts\n\n${sources}\n\n## Blocked Adapter Rows\n\n${blockers}\n\n## Custody Artifacts\n\n${custody}\n\n## Dependency Handoff Rows\n\n${handoff}\n\n## Closure\n\n\`\`\`json\n${JSON.stringify(proof.closure, null, 2)}\n\`\`\`\n`;
 }
 
 function validationCommands() {

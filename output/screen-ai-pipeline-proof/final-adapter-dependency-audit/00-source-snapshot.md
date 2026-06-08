@@ -1,6 +1,6 @@
 # Screen AI Final Adapter Dependency Audit
 
-Generated: 2026-06-08T01:11:12.414Z
+Generated: 2026-06-08T02:30:18.687Z
 
 ## Source Artifacts
 
@@ -10,6 +10,8 @@ Generated: 2026-06-08T01:11:12.414Z
 - linuxHostCustody: `output/screen-ai-pipeline-proof/linux-host-adapter-custody/proof-summary.json`
 - androidMobileCustody: `output/screen-ai-pipeline-proof/android-mobile-control-custody/proof-summary.json`
 - iosMobileCustody: `output/screen-ai-pipeline-proof/ios-mobile-control-custody/proof-summary.json`
+- adapterDependencyHandoff: `output/screen-ai-pipeline-proof/adapter-dependency-handoff/proof-summary.json`
+- adapterDependencyHandoffRows: `output/screen-ai-pipeline-proof/adapter-dependency-handoff/adapter-dependency-handoff.json`
 - checklist: `docs/plans/screen-ai-pipeline-plan/implementation-checklist.md`
 
 ## Blocked Adapter Rows
@@ -27,6 +29,15 @@ Generated: 2026-06-08T01:11:12.414Z
 - screen-ai-android-mobile-control-manual-required: android-mobile-control-custody-artifact-written-final-execution-blocked, executionClaimed=false
 - screen-ai-ios-mobile-control-manual-required: ios-mobile-control-custody-artifact-written-final-execution-blocked, executionClaimed=false
 
+## Dependency Handoff Rows
+
+- screen-ai-broad-installed-app-manual-required: codex-c, output/app-game-plan-proof/screen-derived-broad-installed-app-apply-rollback-audit/proof-summary.json
+- screen-ai-host-network-domain-manual-required: E-D, output/network-plan-proof/screen-derived-host-network-domain-apply-rollback-audit/proof-summary.json
+- screen-ai-managed-active-tab-not-claimed: codex-d, output/browser-plan-proof/screen-derived-managed-active-tab-apply-rollback-audit/proof-summary.json
+- screen-ai-android-mobile-control-manual-required: primary/mobile-child-agent-sequencing, output/mobile-plan-proof/screen-derived-android-mobile-control-apply-rollback-audit/proof-summary.json
+- screen-ai-ios-mobile-control-manual-required: primary/mobile-child-agent-sequencing, output/mobile-plan-proof/screen-derived-ios-mobile-control-apply-rollback-audit/proof-summary.json
+- screen-ai-linux-host-adapter-unavailable: codex-b-after-linux-host-target, output/screen-ai-pipeline-proof/linux-host-adapter-execution/proof-summary.json
+
 ## Closure
 
 ```json
@@ -39,6 +50,7 @@ Generated: 2026-06-08T01:11:12.414Z
   "executedAdapterRows": 2,
   "blockedAdapterRows": 6,
   "custodyArtifactRows": 3,
+  "dependencyHandoffRows": 6,
   "claimUpgradeRows": 0
 }
 ```
