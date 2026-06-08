@@ -46,6 +46,80 @@ const closureAccounting = {
   productClaimReady: false,
 } as const;
 
+const claimAuditInventories = RequiredTrackingRealRuntimeHandoffGates.map((gate) => ({
+  auditArea: gate.handoffArea,
+  sourceProofRef: `test-results/tracking-claim-audit-proof/${gate.handoffArea}.json`,
+  acceptanceCriteria: [
+    `Collect every required artifact for ${gate.handoffArea} before review.`,
+    `Keep required proof tier ${gate.requiredProofTier}; local P3 artifacts cannot approve the claim.`,
+  ],
+  manualValidationCommands: [
+    'node scripts/test/tracking-claim-audit-proof.mjs',
+    'node scripts/test/tracking-real-runtime-handoff-proof.mjs',
+  ],
+  artifactAcceptanceNotes: [
+    'Status can move only to review-required when all required artifacts are present; claimApproved remains false here.',
+  ],
+}));
+
+type TrackingRealRuntimeHandoffProof = ReturnType<typeof buildTrackingRealRuntimeHandoffProof>;
+
+function expectHandoffSummary(proof: TrackingRealRuntimeHandoffProof): void {
+  expect(proof.handoffRows).toHaveLength(RequiredTrackingRealRuntimeHandoffGates.length);
+  expect(proof.sourceGateRefs).toEqual(RequiredTrackingRealRuntimeHandoffGates.map((gate) => gate.sourceProofRef));
+  expect(proof.summary.manualRequiredRowCount).toBe(RequiredTrackingRealRuntimeHandoffGates.length);
+  expect(proof.summary.missingArtifactCount).toBe(RequiredTrackingRealRuntimeHandoffGates.length);
+  expect(proof.summary.requiredValidationCommandCount).toBeGreaterThanOrEqual(
+    RequiredTrackingRealRuntimeHandoffGates.length
+  );
+  expect(proof.summary.productReadyRowCount).toBe(0);
+  expect(proof.summary.ciRunnableRowCount).toBe(0);
+  expect(proof.summary.physicalDeviceRequiredRowCount).toBe(6);
+  expect(proof.summary.manualProviderRuntimeRequiredRowCount).toBe(1);
+  expect(proof.summary.productionRuntimeRequiredRowCount).toBe(2);
+}
+
+function expectClaimAuditAcceptance(proof: TrackingRealRuntimeHandoffProof): void {
+  expect(proof.summary.claimAuditAcceptanceCriteriaCount).toBe(RequiredTrackingRealRuntimeHandoffGates.length * 2);
+  expect(proof.summary.claimAuditManualValidationCommandCount).toBe(RequiredTrackingRealRuntimeHandoffGates.length * 2);
+  expect(proof.summary.claimAuditArtifactAcceptanceNoteCount).toBe(RequiredTrackingRealRuntimeHandoffGates.length);
+  expect(proof.handoffRows.every((row) => row.requiredValidationCommands.length > 0)).toBe(true);
+  expect(proof.handoffRows.every((row) => row.artifactAcceptanceNotes.length > 0)).toBe(true);
+  expect(
+    proof.handoffRows.every((row) =>
+      row.claimAuditAcceptance.artifactAcceptanceNotes.some((note) => note.includes('claimApproved remains false'))
+    )
+  ).toBe(true);
+  expect(proof.handoffRows.every((row) => row.ciRunnable === false)).toBe(true);
+}
+
+function expectClosureAccounting(proof: TrackingRealRuntimeHandoffProof): void {
+  expect(proof.closureAccounting.fullProductUiLocalArtifactCount).toBe(6);
+  expect(proof.closureAccounting.androidEmulatorRequiredArtifactCount).toBe(12);
+  expect(proof.closureAccounting.androidEmulatorPresentArtifactCount).toBe(12);
+  expect(proof.closureAccounting.androidEmulatorMissingArtifactCount).toBe(0);
+  expect(proof.closureAccounting.androidEmulatorPermissionUiArtifactCount).toBe(3);
+  expect(proof.closureAccounting.androidEmulatorRuntimeArtifactCount).toBe(8);
+  expect(proof.closureAccounting.androidEmulatorLocalGeofenceTransitionCount).toBe(3);
+  expect(proof.closureAccounting.iosSimulatorRequiredArtifactCount).toBe(13);
+  expect(proof.closureAccounting.iosSimulatorPresentArtifactCount).toBe(13);
+  expect(proof.closureAccounting.iosSimulatorMissingArtifactCount).toBe(0);
+  expect(proof.closureAccounting.iosSimulatorPackageArtifactCount).toBe(4);
+  expect(proof.closureAccounting.iosSimulatorLocationManualRequiredArtifactCount).toBe(3);
+  expect(proof.closureAccounting.iosSimulatorPrivacyDisclosureArtifactCount).toBe(2);
+  expect(proof.closureAccounting.iosSimulatorManualRequiredRowCount).toBe(7);
+  expect(proof.closureAccounting.iosSimulatorMissingRuntimeArtifactCount).toBe(9);
+  expect(proof.closureAccounting.childRuntimeMissingArtifactCount).toBe(10);
+  expect(proof.closureAccounting.retentionRuntimeMissingArtifactCount).toBe(1);
+  expect(proof.closureAccounting.retentionRuntimeArtifactSetPresentRowCount).toBe(0);
+  expect(proof.closureAccounting.productionWorkerMissingArtifactCount).toBe(8);
+  expect(proof.closureAccounting.claimAuditMissingArtifactCount).toBe(61);
+  expect(proof.closureAccounting.claimAuditPhysicalDeviceRequiredRowCount).toBe(6);
+  expect(proof.closureAccounting.claimAuditApprovedManualRequiredRowCount).toBe(1);
+  expect(proof.closureAccounting.claimAuditManualProviderRuntimeRequiredRowCount).toBe(1);
+  expect(proof.closureAccounting.claimAuditProductionRuntimeRequiredRowCount).toBe(2);
+}
+
 describe('tracking real runtime handoff proof', () => {
   it('keeps Android and iOS physical-device handoff rows separate', () => {
     expect(RequiredTrackingRealRuntimeHandoffGates.map((gate) => gate.handoffArea)).toContain(
@@ -65,47 +139,16 @@ describe('tracking real runtime handoff proof', () => {
       auditRefs: [`${gate.handoffArea}-audit`],
     }));
 
-    const proof = buildTrackingRealRuntimeHandoffProof('2026-06-08T02:20:00.000Z', inventories, closureAccounting);
-
-    expect(proof.handoffRows).toHaveLength(RequiredTrackingRealRuntimeHandoffGates.length);
-    expect(proof.sourceGateRefs).toEqual(RequiredTrackingRealRuntimeHandoffGates.map((gate) => gate.sourceProofRef));
-    expect(proof.summary.manualRequiredRowCount).toBe(RequiredTrackingRealRuntimeHandoffGates.length);
-    expect(proof.summary.missingArtifactCount).toBe(RequiredTrackingRealRuntimeHandoffGates.length);
-    expect(proof.summary.requiredValidationCommandCount).toBeGreaterThanOrEqual(
-      RequiredTrackingRealRuntimeHandoffGates.length
+    const proof = buildTrackingRealRuntimeHandoffProof(
+      '2026-06-08T02:20:00.000Z',
+      inventories,
+      closureAccounting,
+      claimAuditInventories
     );
-    expect(proof.summary.productReadyRowCount).toBe(0);
-    expect(proof.summary.ciRunnableRowCount).toBe(0);
-    expect(proof.summary.physicalDeviceRequiredRowCount).toBe(6);
-    expect(proof.summary.manualProviderRuntimeRequiredRowCount).toBe(1);
-    expect(proof.summary.productionRuntimeRequiredRowCount).toBe(2);
-    expect(proof.handoffRows.every((row) => row.requiredValidationCommands.length > 0)).toBe(true);
-    expect(proof.handoffRows.every((row) => row.artifactAcceptanceNotes.length > 0)).toBe(true);
-    expect(proof.handoffRows.every((row) => row.ciRunnable === false)).toBe(true);
-    expect(proof.closureAccounting.fullProductUiLocalArtifactCount).toBe(6);
-    expect(proof.closureAccounting.androidEmulatorRequiredArtifactCount).toBe(12);
-    expect(proof.closureAccounting.androidEmulatorPresentArtifactCount).toBe(12);
-    expect(proof.closureAccounting.androidEmulatorMissingArtifactCount).toBe(0);
-    expect(proof.closureAccounting.androidEmulatorPermissionUiArtifactCount).toBe(3);
-    expect(proof.closureAccounting.androidEmulatorRuntimeArtifactCount).toBe(8);
-    expect(proof.closureAccounting.androidEmulatorLocalGeofenceTransitionCount).toBe(3);
-    expect(proof.closureAccounting.iosSimulatorRequiredArtifactCount).toBe(13);
-    expect(proof.closureAccounting.iosSimulatorPresentArtifactCount).toBe(13);
-    expect(proof.closureAccounting.iosSimulatorMissingArtifactCount).toBe(0);
-    expect(proof.closureAccounting.iosSimulatorPackageArtifactCount).toBe(4);
-    expect(proof.closureAccounting.iosSimulatorLocationManualRequiredArtifactCount).toBe(3);
-    expect(proof.closureAccounting.iosSimulatorPrivacyDisclosureArtifactCount).toBe(2);
-    expect(proof.closureAccounting.iosSimulatorManualRequiredRowCount).toBe(7);
-    expect(proof.closureAccounting.iosSimulatorMissingRuntimeArtifactCount).toBe(9);
-    expect(proof.closureAccounting.childRuntimeMissingArtifactCount).toBe(10);
-    expect(proof.closureAccounting.retentionRuntimeMissingArtifactCount).toBe(1);
-    expect(proof.closureAccounting.retentionRuntimeArtifactSetPresentRowCount).toBe(0);
-    expect(proof.closureAccounting.productionWorkerMissingArtifactCount).toBe(8);
-    expect(proof.closureAccounting.claimAuditMissingArtifactCount).toBe(61);
-    expect(proof.closureAccounting.claimAuditPhysicalDeviceRequiredRowCount).toBe(6);
-    expect(proof.closureAccounting.claimAuditApprovedManualRequiredRowCount).toBe(1);
-    expect(proof.closureAccounting.claimAuditManualProviderRuntimeRequiredRowCount).toBe(1);
-    expect(proof.closureAccounting.claimAuditProductionRuntimeRequiredRowCount).toBe(2);
+
+    expectHandoffSummary(proof);
+    expectClaimAuditAcceptance(proof);
+    expectClosureAccounting(proof);
     expect(Object.values(proof.productClaims).every((claim) => claim === false)).toBe(true);
   });
 
@@ -118,7 +161,12 @@ describe('tracking real runtime handoff proof', () => {
       auditRefs: [`${gate.handoffArea}-audit`],
     }));
 
-    const proof = buildTrackingRealRuntimeHandoffProof('2026-06-08T02:20:00.000Z', inventories, closureAccounting);
+    const proof = buildTrackingRealRuntimeHandoffProof(
+      '2026-06-08T02:20:00.000Z',
+      inventories,
+      closureAccounting,
+      claimAuditInventories
+    );
 
     expect(proof.handoffRows.every((row) => row.status === 'artifact-set-present')).toBe(true);
     expect(proof.handoffRows.every((row) => row.artifactSetComplete)).toBe(true);
@@ -147,6 +195,12 @@ describe('tracking real runtime handoff overclaim rejection', () => {
       ciRunnable: false,
       requiredValidationCommands: ['Run Android physical-device proof'],
       artifactAcceptanceNotes: ['Require physical-device artifact evidence'],
+      claimAuditAcceptance: {
+        sourceProofRef: 'test-results/tracking-claim-audit-proof/proof.json',
+        acceptanceCriteria: ['Collect real Android artifacts before review.'],
+        manualValidationCommands: ['node scripts/test/tracking-claim-audit-proof.mjs'],
+        artifactAcceptanceNotes: ['claimApproved remains false here.'],
+      },
       auditRefs: ['tracking-real-runtime-handoff-invalid-audit'],
       artifactSetComplete: false,
       productClaimReady: true,

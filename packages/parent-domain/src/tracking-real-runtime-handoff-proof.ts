@@ -54,6 +54,31 @@ export const TrackingRealRuntimeHandoffCommandSchema = TrackingRealRuntimeHandof
   Schema.brand('TrackingRealRuntimeHandoffCommand')
 );
 
+export const TrackingRealRuntimeHandoffClaimAuditAcceptanceSchema = withParser(
+  Schema.Struct({
+    sourceProofRef: TrackingRealRuntimeHandoffArtifactPathSchema,
+    acceptanceCriteria: Schema.Array(TrackingRealRuntimeHandoffTextSchema),
+    manualValidationCommands: Schema.Array(TrackingRealRuntimeHandoffCommandSchema),
+    artifactAcceptanceNotes: Schema.Array(TrackingRealRuntimeHandoffTextSchema),
+  })
+    .pipe(
+      Schema.filter(
+        (acceptance) =>
+          (acceptance.acceptanceCriteria.length > 0 &&
+            acceptance.manualValidationCommands.length > 0 &&
+            acceptance.artifactAcceptanceNotes.length > 0) ||
+          'Claim-audit acceptance needs criteria, validation commands, and artifact notes'
+      )
+    )
+    .pipe(
+      Schema.filter(
+        (acceptance) =>
+          acceptance.artifactAcceptanceNotes.some((note) => note.includes('claimApproved remains false')) ||
+          'Claim-audit acceptance must preserve claim approval false'
+      )
+    )
+);
+
 export const TrackingRealRuntimeHandoffRowSchema = withParser(
   Schema.Struct({
     schemaVersion: Schema.Literal(TrackingPolicySchemaVersion),
@@ -73,6 +98,7 @@ export const TrackingRealRuntimeHandoffRowSchema = withParser(
     ciRunnable: Schema.Literal(false),
     requiredValidationCommands: Schema.Array(TrackingRealRuntimeHandoffCommandSchema),
     artifactAcceptanceNotes: Schema.Array(TrackingRealRuntimeHandoffArtifactPathSchema),
+    claimAuditAcceptance: TrackingRealRuntimeHandoffClaimAuditAcceptanceSchema,
     auditRefs: Schema.Array(TrackingPolicyAuditRefSchema),
     artifactSetComplete: Schema.Boolean,
     productClaimReady: Schema.Literal(false),
@@ -234,6 +260,9 @@ export const TrackingRealRuntimeHandoffProofSchema = withParser(
       physicalDeviceRequiredRowCount: Schema.Number,
       manualProviderRuntimeRequiredRowCount: Schema.Number,
       productionRuntimeRequiredRowCount: Schema.Number,
+      claimAuditAcceptanceCriteriaCount: Schema.Number,
+      claimAuditManualValidationCommandCount: Schema.Number,
+      claimAuditArtifactAcceptanceNoteCount: Schema.Number,
       ciRunnableRowCount: Schema.Literal(0),
       productReadyRowCount: Schema.Literal(0),
     }),
@@ -295,6 +324,14 @@ export interface TrackingRealRuntimeHandoffGateInventory {
   readonly requiredArtifacts: readonly string[];
   readonly presentArtifacts: readonly string[];
   readonly auditRefs: readonly string[];
+}
+
+export interface TrackingRealRuntimeHandoffClaimAuditInventory {
+  readonly auditArea: (typeof RequiredTrackingRealRuntimeHandoffGates)[number]['handoffArea'];
+  readonly sourceProofRef: string;
+  readonly acceptanceCriteria: readonly string[];
+  readonly manualValidationCommands: readonly string[];
+  readonly artifactAcceptanceNotes: readonly string[];
 }
 
 export const RequiredTrackingRealRuntimeHandoffGates = [
@@ -431,10 +468,11 @@ export const RequiredTrackingRealRuntimeHandoffGates = [
 export function buildTrackingRealRuntimeHandoffProof(
   generatedAt: string,
   inventories: readonly TrackingRealRuntimeHandoffGateInventory[],
-  closureAccountingInput: TrackingRealRuntimeHandoffClosureAccounting
+  closureAccountingInput: TrackingRealRuntimeHandoffClosureAccounting,
+  claimAuditInventories: readonly TrackingRealRuntimeHandoffClaimAuditInventory[] = []
 ): TrackingRealRuntimeHandoffProof {
   const handoffRows = RequiredTrackingRealRuntimeHandoffGates.map((gate) =>
-    realRuntimeHandoffRow(generatedAt, gate, inventories)
+    realRuntimeHandoffRow(generatedAt, gate, inventories, claimAuditInventories)
   );
   const closureAccounting = TrackingRealRuntimeHandoffClosureAccountingSchema.parse(closureAccountingInput);
 
@@ -467,9 +505,11 @@ export function buildTrackingRealRuntimeHandoffProof(
 function realRuntimeHandoffRow(
   generatedAt: string,
   gate: (typeof RequiredTrackingRealRuntimeHandoffGates)[number],
-  inventories: readonly TrackingRealRuntimeHandoffGateInventory[]
+  inventories: readonly TrackingRealRuntimeHandoffGateInventory[],
+  claimAuditInventories: readonly TrackingRealRuntimeHandoffClaimAuditInventory[]
 ): TrackingRealRuntimeHandoffRow {
   const inventory = inventories.find((candidate) => candidate.handoffArea === gate.handoffArea);
+  const claimAuditInventory = claimAuditInventories.find((candidate) => candidate.auditArea === gate.handoffArea);
   const requiredArtifacts = inventory?.requiredArtifacts ?? [];
   const presentArtifactSet = new Set(inventory?.presentArtifacts ?? []);
   const presentArtifacts = requiredArtifacts.filter((artifact) => presentArtifactSet.has(artifact));
@@ -494,9 +534,30 @@ function realRuntimeHandoffRow(
     ciRunnable: false,
     requiredValidationCommands: [...gate.requiredValidationCommands],
     artifactAcceptanceNotes: [...gate.artifactAcceptanceNotes],
+    claimAuditAcceptance: claimAuditAcceptanceForGate(gate, claimAuditInventory),
     auditRefs: [...(inventory?.auditRefs ?? [`tracking-real-runtime-handoff-${gate.handoffArea}-audit`])],
     artifactSetComplete,
     productClaimReady: false,
+  });
+}
+
+function claimAuditAcceptanceForGate(
+  gate: (typeof RequiredTrackingRealRuntimeHandoffGates)[number],
+  claimAuditInventory: TrackingRealRuntimeHandoffClaimAuditInventory | undefined
+) {
+  return TrackingRealRuntimeHandoffClaimAuditAcceptanceSchema.parse({
+    sourceProofRef: claimAuditInventory?.sourceProofRef ?? gate.sourceProofRef,
+    acceptanceCriteria: claimAuditInventory?.acceptanceCriteria ?? [
+      `Collect every required artifact for ${gate.handoffArea} before review.`,
+      `Keep required proof tier ${gate.requiredProofTier}; local P3 artifacts cannot approve the claim.`,
+    ],
+    manualValidationCommands: claimAuditInventory?.manualValidationCommands ?? [
+      'node scripts/test/tracking-claim-audit-proof.mjs',
+      'node scripts/test/tracking-real-runtime-handoff-proof.mjs',
+    ],
+    artifactAcceptanceNotes: claimAuditInventory?.artifactAcceptanceNotes ?? [
+      'Status can move only to review-required when all required artifacts are present; claimApproved remains false here.',
+    ],
   });
 }
 
@@ -530,6 +591,18 @@ function summarizeRealRuntimeHandoffRows(
     productionRuntimeRequiredRowCount: handoffRows.filter(
       (row) => row.readinessCategory === 'production-runtime-required'
     ).length,
+    claimAuditAcceptanceCriteriaCount: handoffRows.reduce(
+      (total, row) => total + row.claimAuditAcceptance.acceptanceCriteria.length,
+      0
+    ),
+    claimAuditManualValidationCommandCount: handoffRows.reduce(
+      (total, row) => total + row.claimAuditAcceptance.manualValidationCommands.length,
+      0
+    ),
+    claimAuditArtifactAcceptanceNoteCount: handoffRows.reduce(
+      (total, row) => total + row.claimAuditAcceptance.artifactAcceptanceNotes.length,
+      0
+    ),
     ciRunnableRowCount: 0,
     productReadyRowCount: 0,
   };

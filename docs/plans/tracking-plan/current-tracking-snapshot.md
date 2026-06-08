@@ -102,7 +102,9 @@
   artifact, one missing platform retention runtime enforcement artifact, and
   classifies the remaining handoff rows as six physical/runtime-required rows, one
   provider-runtime-required row, two production-runtime-required rows, and zero
-  CI-runnable rows.
+  CI-runnable rows. Handoff rows now consume the claim-audit acceptance matrix
+  so each generated manual runbook section includes source-derived acceptance
+  criteria, validation commands, and claim-approval-false artifact notes.
 - Product-readiness closure proof exists through
   `node scripts/test/tracking-product-readiness-closure-proof.mjs`; it verifies
   the local/CI proof accounting chain, now carries aggregate evidence for the

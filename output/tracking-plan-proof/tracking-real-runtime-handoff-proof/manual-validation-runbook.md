@@ -1,7 +1,7 @@
 # Tracking Real Runtime Handoff Manual Validation Runbook
 
 - generatedAt: 2026-06-08T01:05:00.000Z
-- commit: 601f1b585ee912699447e64bde5b493994aa2264
+- commit: cccd12480776b881be86959c1069601587e2f0c6
 - currentProofTier: P3_LOCAL_DEV_MACHINE
 - requiredProofTier: P4_REAL_RUNTIME_HANDOFF
 - productReadyClaimed: false
@@ -35,6 +35,9 @@
 - claimAuditApprovedManualRequiredRowCount: 1
 - claimAuditManualProviderRuntimeRequiredRowCount: 1
 - claimAuditProductionRuntimeRequiredRowCount: 2
+- claimAuditAcceptanceCriteriaCount: 36
+- claimAuditManualValidationCommandCount: 27
+- claimAuditArtifactAcceptanceNoteCount: 36
 
 ## android-physical-background-and-geofence
 
@@ -55,6 +58,26 @@
 
 - Android artifacts must come from a physical child device or explicitly approved equivalent hardware run
 - Foreground-only emulator samples do not satisfy this handoff row
+
+### Claim Audit Acceptance Criteria
+
+- Collect every required artifact under output/tracking-plan-proof/android-background-geofence before review.
+- Keep required proof tier P4_PHYSICAL_DEVICE; local P3 artifacts cannot approve the claim.
+- Cite source proof test-results/tracking-physical-device-artifact-gate-proof/proof.json and all supporting proof refs in the final handoff.
+- Use real device or enrolled child runtime evidence with metadata, logs, screenshots, and transition or execution rows.
+
+### Claim Audit Validation Commands
+
+- node scripts/test/tracking-claim-audit-proof.mjs
+- node scripts/test/tracking-product-readiness-closure-proof.mjs
+- node scripts/test/tracking-real-runtime-handoff-proof.mjs
+
+### Claim Audit Artifact Notes
+
+- Required artifacts: 10.
+- Proof root: output/tracking-plan-proof/android-background-geofence.
+- Status can move only to review-required when all required artifacts are present; claimApproved remains false here.
+- Missing artifacts stay blocking until the P4_PHYSICAL_DEVICE evidence is produced outside local CI.
 
 ### Missing Artifacts
 
@@ -89,6 +112,26 @@
 - iOS artifacts must come from an entitled physical device run
 - Simulator privacy disclosure or package-preview proof does not satisfy this handoff row
 
+### Claim Audit Acceptance Criteria
+
+- Collect every required artifact under output/tracking-plan-proof/ios-region-monitoring before review.
+- Keep required proof tier P4_PHYSICAL_DEVICE; local P3 artifacts cannot approve the claim.
+- Cite source proof test-results/tracking-physical-device-artifact-gate-proof/proof.json and all supporting proof refs in the final handoff.
+- Use real device or enrolled child runtime evidence with metadata, logs, screenshots, and transition or execution rows.
+
+### Claim Audit Validation Commands
+
+- node scripts/test/tracking-claim-audit-proof.mjs
+- node scripts/test/tracking-product-readiness-closure-proof.mjs
+- node scripts/test/tracking-real-runtime-handoff-proof.mjs
+
+### Claim Audit Artifact Notes
+
+- Required artifacts: 10.
+- Proof root: output/tracking-plan-proof/ios-region-monitoring.
+- Status can move only to review-required when all required artifacts are present; claimApproved remains false here.
+- Missing artifacts stay blocking until the P4_PHYSICAL_DEVICE evidence is produced outside local CI.
+
 ### Missing Artifacts
 
 - 00-run-metadata.json
@@ -121,6 +164,26 @@
 
 - Hosted disclosure screenshots do not satisfy rendered child-device runtime UI
 - The artifact set must prove delivery and execution, not only copy or readiness
+
+### Claim Audit Acceptance Criteria
+
+- Collect every required artifact under output/tracking-plan-proof/child-runtime-delivery before review.
+- Keep required proof tier P4_PHYSICAL_DEVICE; local P3 artifacts cannot approve the claim.
+- Cite source proof test-results/tracking-child-runtime-artifact-gate-proof/proof.json and all supporting proof refs in the final handoff.
+- Use real device or enrolled child runtime evidence with metadata, logs, screenshots, and transition or execution rows.
+
+### Claim Audit Validation Commands
+
+- node scripts/test/tracking-claim-audit-proof.mjs
+- node scripts/test/tracking-product-readiness-closure-proof.mjs
+- node scripts/test/tracking-real-runtime-handoff-proof.mjs
+
+### Claim Audit Artifact Notes
+
+- Required artifacts: 7.
+- Proof root: output/tracking-plan-proof/child-runtime-delivery.
+- Status can move only to review-required when all required artifacts are present; claimApproved remains false here.
+- Missing artifacts stay blocking until the P4_PHYSICAL_DEVICE evidence is produced outside local CI.
 
 ### Missing Artifacts
 
@@ -155,6 +218,26 @@
 - Hosted-route screenshots only satisfy local/CI UI inventory, not full product runtime UI
 - Child UI artifacts must come from rendered child runtime surfaces
 
+### Claim Audit Acceptance Criteria
+
+- Collect every required artifact under output/tracking-plan-proof/product-parent-child-ui-runtime before review.
+- Keep required proof tier P4_PHYSICAL_DEVICE; local P3 artifacts cannot approve the claim.
+- Cite source proof test-results/tracking-full-product-ui-runtime-artifact-gate-proof/proof.json and all supporting proof refs in the final handoff.
+- Use real device or enrolled child runtime evidence with metadata, logs, screenshots, and transition or execution rows.
+
+### Claim Audit Validation Commands
+
+- node scripts/test/tracking-claim-audit-proof.mjs
+- node scripts/test/tracking-product-readiness-closure-proof.mjs
+- node scripts/test/tracking-real-runtime-handoff-proof.mjs
+
+### Claim Audit Artifact Notes
+
+- Required artifacts: 9.
+- Proof root: output/tracking-plan-proof/product-parent-child-ui-runtime.
+- Status can move only to review-required when all required artifacts are present; claimApproved remains false here.
+- Missing artifacts stay blocking until the P4_PHYSICAL_DEVICE evidence is produced outside local CI.
+
 ### Missing Artifacts
 
 - output/tracking-plan-proof/product-parent-child-ui-runtime/04-retention-settings-production-write-result.png
@@ -181,6 +264,26 @@
 
 - Manual-required authority rows and unsupported-platform states do not satisfy enrolled hard-control runtime proof
 - The artifact set must prove authority status and runtime behavior together
+
+### Claim Audit Acceptance Criteria
+
+- Collect every required artifact under output/tracking-plan-proof/authority-runtime before review.
+- Keep required proof tier P4_PHYSICAL_DEVICE; local P3 artifacts cannot approve the claim.
+- Cite source proof test-results/tracking-authority-runtime-artifact-gate-proof/proof.json and all supporting proof refs in the final handoff.
+- Use real device or enrolled child runtime evidence with metadata, logs, screenshots, and transition or execution rows.
+
+### Claim Audit Validation Commands
+
+- node scripts/test/tracking-claim-audit-proof.mjs
+- node scripts/test/tracking-product-readiness-closure-proof.mjs
+- node scripts/test/tracking-real-runtime-handoff-proof.mjs
+
+### Claim Audit Artifact Notes
+
+- Required artifacts: 6.
+- Proof root: output/tracking-plan-proof/authority-runtime.
+- Status can move only to review-required when all required artifacts are present; claimApproved remains false here.
+- Missing artifacts stay blocking until the P4_PHYSICAL_DEVICE evidence is produced outside local CI.
 
 ### Missing Artifacts
 
@@ -225,6 +328,26 @@
 - Local outbox or preference status proof does not satisfy provider delivery runtime
 - Provider credentials must be attested without leaking secrets
 
+### Claim Audit Acceptance Criteria
+
+- Collect every required artifact under output/tracking-plan-proof/provider-delivery-runtime before review.
+- Keep required proof tier P4_MANUAL_PROVIDER_RUNTIME; local P3 artifacts cannot approve the claim.
+- Cite source proof test-results/tracking-provider-delivery-artifact-gate-proof/proof.json and all supporting proof refs in the final handoff.
+- Use real provider request, response, webhook receipt, parent-visible receipt, and provider audit log artifacts.
+
+### Claim Audit Validation Commands
+
+- node scripts/test/tracking-claim-audit-proof.mjs
+- node scripts/test/tracking-product-readiness-closure-proof.mjs
+- node scripts/test/tracking-real-runtime-handoff-proof.mjs
+
+### Claim Audit Artifact Notes
+
+- Required artifacts: 5.
+- Proof root: output/tracking-plan-proof/provider-delivery-runtime.
+- Status can move only to review-required when all required artifacts are present; claimApproved remains false here.
+- Missing artifacts stay blocking until the P4_MANUAL_PROVIDER_RUNTIME evidence is produced outside local CI.
+
 ### Missing Artifacts
 
 - 00-run-metadata.json
@@ -259,6 +382,26 @@
 - Local writable settings proof does not satisfy platform runtime retention enforcement
 - The artifact set must show enforcement behavior, not only settings persistence
 
+### Claim Audit Acceptance Criteria
+
+- Collect every required artifact under output/tracking-plan-proof/tracking-retention before review.
+- Keep required proof tier P4_PHYSICAL_DEVICE; local P3 artifacts cannot approve the claim.
+- Cite source proof test-results/tracking-retention-runtime-artifact-gate-proof/proof.json and all supporting proof refs in the final handoff.
+- Use real device or enrolled child runtime evidence with metadata, logs, screenshots, and transition or execution rows.
+
+### Claim Audit Validation Commands
+
+- node scripts/test/tracking-claim-audit-proof.mjs
+- node scripts/test/tracking-product-readiness-closure-proof.mjs
+- node scripts/test/tracking-real-runtime-handoff-proof.mjs
+
+### Claim Audit Artifact Notes
+
+- Required artifacts: 1.
+- Proof root: output/tracking-plan-proof/tracking-retention.
+- Status can move only to review-required when all required artifacts are present; claimApproved remains false here.
+- Missing artifacts stay blocking until the P4_PHYSICAL_DEVICE evidence is produced outside local CI.
+
 ### Missing Artifacts
 
 - tracking-retention/platform-runtime-retention-enforcement.json
@@ -282,6 +425,26 @@
 
 - Local durable stores and production-readiness blockers do not satisfy production worker runtime proof
 - Artifacts must come from the approved production-like worker/storage environment
+
+### Claim Audit Acceptance Criteria
+
+- Collect every required artifact under output/tracking-plan-proof/tracking-production before review.
+- Keep required proof tier P4_PRODUCTION_RUNTIME; local P3 artifacts cannot approve the claim.
+- Cite source proof test-results/tracking-production-worker-runtime-artifact-gate-proof/proof.json and all supporting proof refs in the final handoff.
+- Use deployed worker/runtime artifacts plus durable storage evidence from the production environment.
+
+### Claim Audit Validation Commands
+
+- node scripts/test/tracking-claim-audit-proof.mjs
+- node scripts/test/tracking-product-readiness-closure-proof.mjs
+- node scripts/test/tracking-real-runtime-handoff-proof.mjs
+
+### Claim Audit Artifact Notes
+
+- Required artifacts: 8.
+- Proof root: output/tracking-plan-proof/tracking-production.
+- Status can move only to review-required when all required artifacts are present; claimApproved remains false here.
+- Missing artifacts stay blocking until the P4_PRODUCTION_RUNTIME evidence is produced outside local CI.
 
 ### Missing Artifacts
 
@@ -313,6 +476,26 @@
 
 - Escalation contract or local fixture proof does not satisfy production worker/storage runtime
 - Artifacts must prove timeout execution and durable storage behavior together
+
+### Claim Audit Acceptance Criteria
+
+- Collect every required artifact under output/tracking-plan-proof/tracking-escalation-runtime before review.
+- Keep required proof tier P4_PRODUCTION_RUNTIME; local P3 artifacts cannot approve the claim.
+- Cite source proof test-results/tracking-escalation-runtime-artifact-gate-proof/proof.json and all supporting proof refs in the final handoff.
+- Use deployed worker/runtime artifacts plus durable storage evidence from the production environment.
+
+### Claim Audit Validation Commands
+
+- node scripts/test/tracking-claim-audit-proof.mjs
+- node scripts/test/tracking-product-readiness-closure-proof.mjs
+- node scripts/test/tracking-real-runtime-handoff-proof.mjs
+
+### Claim Audit Artifact Notes
+
+- Required artifacts: 5.
+- Proof root: output/tracking-plan-proof/tracking-escalation-runtime.
+- Status can move only to review-required when all required artifacts are present; claimApproved remains false here.
+- Missing artifacts stay blocking until the P4_PRODUCTION_RUNTIME evidence is produced outside local CI.
 
 ### Missing Artifacts
 
