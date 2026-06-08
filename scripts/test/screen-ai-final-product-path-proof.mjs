@@ -26,6 +26,12 @@ const noRawScreenTransferMesh = load(SourcePaths.noRawScreenTransferMesh);
 const retentionSweeper = load(SourcePaths.retentionSweeper);
 const screenPlanClosure = load(SourcePaths.screenPlanClosure);
 const serviceReadModel = load(SourcePaths.serviceReadModel);
+const serviceAnalysisRowReady = load(SourcePaths.serviceAnalysisRowReady);
+const serviceCaptureEventProducer = load(SourcePaths.serviceCaptureEventProducer);
+const serviceDeletionEventProducer = load(SourcePaths.serviceDeletionEventProducer);
+const serviceEventBridge = load(SourcePaths.serviceEventBridge);
+const serviceEventSubscription = load(SourcePaths.serviceEventSubscription);
+const servicePolicyRefProducer = load(SourcePaths.servicePolicyRefProducer);
 
 const liveRows = validateLiveOperator();
 const closure = {
@@ -39,6 +45,7 @@ const closure = {
   portalReadModelProven: validatePortalChain(),
   readModelRows: validateReadModel(),
   serviceBackedReadModelProven: validateServiceReadModel(),
+  serviceEventChainProven: validateServiceEventChain(),
   retentionCustodyProven: validateDeletionCustody(),
   protectedSurfaceSkipProven: validateProtectedSurface(),
   finalAdapterAuditProven: validateFinalAdapterAudit(),
@@ -81,6 +88,7 @@ const proof = {
     finalPipelineProductCompleteBlockedByAdapterGate: true,
     custodyArtifactRows: finalAdapterAudit.closure?.custodyArtifactRows,
     householdMeshConsumesRedactedRefsOnly: closure.householdMeshBoundaryProven,
+    serviceEventProducersAndSubscriberCovered: closure.serviceEventChainProven,
     singleRuntimeSessionRerun: false,
     retainedRealRunArtifactsVerified: true,
     rawScreenshotsRetainedByDefault: false,
@@ -93,6 +101,7 @@ const proof = {
     'The custody-aware final adapter audit is required by this proof and keeps broad/browser/network/mobile/Linux product-complete adapter execution blocked.',
     'The screen-plan and AI-plan closure audits are required by this proof; they stack prerequisites without overriding remaining external adapter and platform gates.',
     'Household mesh provider routing artifacts are required by this proof; provider work may carry redacted/custody refs only and child-agent validation remains local before policy.',
+    'Service event producer/subscriber artifacts are required by this proof; the retained final path still does not rerun one single live service session.',
     'The proof closes the stacked real trigger-to-analysis-to-policy-to-action/read-model-to-deletion evidence path from current artifacts; it does not make raw screenshot retention or live view product claims.',
   ],
 };
@@ -256,6 +265,102 @@ function validateServiceReadModel() {
     (serviceReadModel.row?.deletionReasons ?? []).includes('screen-image-deleted'),
     'service row lacks deleted-image reason'
   );
+  return true;
+}
+
+function validateServiceEventChain() {
+  assert(
+    serviceEventSubscription.proofMode === 'screen-service-event-subscription',
+    'service event subscription proof mode mismatch'
+  );
+  assert(
+    serviceEventSubscription.claimsProved?.some((claim) =>
+      claim.includes('retains the screen event subscription runtime')
+    ),
+    'service startup subscription retention claim missing'
+  );
+  assert(
+    serviceEventSubscription.claimsProved?.some((claim) =>
+      claim.includes('row-ready subscriber and dispatches through the real event bus')
+    ),
+    'service row-ready real-event-bus subscription claim missing'
+  );
+  assert(
+    serviceCaptureEventProducer.proofMode === 'screen-service-capture-event-producer',
+    'service capture event producer proof mode mismatch'
+  );
+  assert(
+    serviceCaptureEventProducer.claimsProved?.some((claim) =>
+      claim.includes('service cadence runtime publishes capture/queue events')
+    ),
+    'service cadence capture event producer claim missing'
+  );
+  assert(
+    serviceCaptureEventProducer.claimsProved?.some((claim) =>
+      claim.includes('service foreground runtime publishes capture/queue events')
+    ),
+    'service foreground capture event producer claim missing'
+  );
+  assert(
+    serviceAnalysisRowReady.proofMode === 'screen-service-analysis-row-ready',
+    'service analysis row-ready proof mode mismatch'
+  );
+  assert(
+    serviceAnalysisRowReady.claimsProved?.some((claim) => claim.includes('publishes screen.service.row.ready')),
+    'service analysis row-ready publication claim missing'
+  );
+  assert(
+    servicePolicyRefProducer.proofMode === 'screen-service-policy-ref-producer',
+    'service policy-ref producer proof mode mismatch'
+  );
+  assert(
+    servicePolicyRefProducer.claimsProved?.some((claim) =>
+      claim.includes('carry policy decision, action, reason, parent rule, explanation, and deletion proof refs')
+    ),
+    'service policy-ref producer refs claim missing'
+  );
+  assert(
+    serviceDeletionEventProducer.proofMode === 'screen-service-deletion-event-producer',
+    'service deletion event producer proof mode mismatch'
+  );
+  assert(
+    serviceDeletionEventProducer.claimsProved?.some((claim) =>
+      claim.includes('retention sweeper runtime publishes deletion events')
+    ),
+    'service deletion event producer claim missing'
+  );
+  assert(serviceEventBridge.proofMode === 'screen-service-event-bridge', 'service event bridge proof mode mismatch');
+  assert(
+    serviceEventBridge.claimsProved?.some((claim) =>
+      claim.includes('rows publish the ordered typed screen event chain')
+    ),
+    'service event bridge ordered chain claim missing'
+  );
+  assert(
+    serviceEventBridge.claimsProved?.some((claim) =>
+      claim.includes(
+        'degraded AI rows publish capture, queue, AI, deletion, and portal events without policy or action refs'
+      )
+    ),
+    'service event bridge degraded chain claim missing'
+  );
+  for (const expectedEvent of [
+    'screen.capture.observed',
+    'screen.queue.encrypted',
+    'screen.ai.analysis.requested',
+    'screen.ai.analysis.completed',
+    'screen.summary.committed',
+    'screen.policy.decision.completed',
+    'screen.action.dry-run.recorded',
+    'screen.deletion.committed',
+    'screen.portal-read-model.updated',
+  ]) {
+    assert(
+      serviceEventSubscription.eventChain?.includes(expectedEvent),
+      `service subscription missing ${expectedEvent}`
+    );
+    assert(serviceEventBridge.eventChain?.includes(expectedEvent), `service bridge missing ${expectedEvent}`);
+  }
   return true;
 }
 

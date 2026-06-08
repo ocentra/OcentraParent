@@ -1,7 +1,7 @@
 {
   "status": "ok",
   "proofKind": "screen-ai-final-product-path-proof",
-  "generatedAt": "2026-06-08T02:43:10.373Z",
+  "generatedAt": "2026-06-08T02:50:12.010Z",
   "sourceArtifacts": {
     "actionDispatch": "output/screen-ai-pipeline-proof/action-dispatch/proof-summary.json",
     "blockActionDispatch": "output/screen-ai-pipeline-proof/block-action-dispatch/proof-summary.json",
@@ -18,7 +18,13 @@
     "readModel": "output/ai-plan-proof/screen-summary-parent-explanation-read-model/proof-summary.json",
     "retentionSweeper": "output/screen-ai-pipeline-proof/service-retention-sweeper/proof-summary.json",
     "screenPlanClosure": "output/screen-plan-proof/screen-plan-closure-audit/proof-summary.json",
-    "serviceReadModel": "output/ai-plan-proof/screen-summary-parent-explanation-service-read-model/proof-summary.json"
+    "serviceReadModel": "output/ai-plan-proof/screen-summary-parent-explanation-service-read-model/proof-summary.json",
+    "serviceAnalysisRowReady": "output/screen-ai-pipeline-proof/screen-service-analysis-row-ready/proof-summary.json",
+    "serviceCaptureEventProducer": "output/screen-ai-pipeline-proof/screen-service-capture-event-producer/proof-summary.json",
+    "serviceDeletionEventProducer": "output/screen-ai-pipeline-proof/screen-service-deletion-event-producer/proof-summary.json",
+    "serviceEventBridge": "output/screen-ai-pipeline-proof/screen-service-event-bridge/proof-summary.json",
+    "serviceEventSubscription": "output/screen-ai-pipeline-proof/screen-service-event-subscription/proof-summary.json",
+    "servicePolicyRefProducer": "output/screen-ai-pipeline-proof/screen-service-policy-ref-producer/proof-summary.json"
   },
   "closure": {
     "realTriggerRows": 9,
@@ -31,6 +37,7 @@
     "portalReadModelProven": true,
     "readModelRows": 2,
     "serviceBackedReadModelProven": true,
+    "serviceEventChainProven": true,
     "retentionCustodyProven": true,
     "protectedSurfaceSkipProven": true,
     "finalAdapterAuditProven": true,
@@ -45,6 +52,7 @@
     "finalPipelineProductCompleteBlockedByAdapterGate": true,
     "custodyArtifactRows": 3,
     "householdMeshConsumesRedactedRefsOnly": true,
+    "serviceEventProducersAndSubscriberCovered": true,
     "singleRuntimeSessionRerun": false,
     "retainedRealRunArtifactsVerified": true,
     "rawScreenshotsRetainedByDefault": false,
@@ -148,6 +156,7 @@
     "The custody-aware final adapter audit is required by this proof and keeps broad/browser/network/mobile/Linux product-complete adapter execution blocked.",
     "The screen-plan and AI-plan closure audits are required by this proof; they stack prerequisites without overriding remaining external adapter and platform gates.",
     "Household mesh provider routing artifacts are required by this proof; provider work may carry redacted/custody refs only and child-agent validation remains local before policy.",
+    "Service event producer/subscriber artifacts are required by this proof; the retained final path still does not rerun one single live service session.",
     "The proof closes the stacked real trigger-to-analysis-to-policy-to-action/read-model-to-deletion evidence path from current artifacts; it does not make raw screenshot retention or live view product claims."
   ]
 }

@@ -1,6 +1,6 @@
 # Screen AI Final Product Path Proof
 
-Generated: 2026-06-08T02:43:10.373Z
+Generated: 2026-06-08T02:50:12.010Z
 
 ## Source Artifacts
 
@@ -20,6 +20,12 @@ Generated: 2026-06-08T02:43:10.373Z
 - retentionSweeper: `output/screen-ai-pipeline-proof/service-retention-sweeper/proof-summary.json`
 - screenPlanClosure: `output/screen-plan-proof/screen-plan-closure-audit/proof-summary.json`
 - serviceReadModel: `output/ai-plan-proof/screen-summary-parent-explanation-service-read-model/proof-summary.json`
+- serviceAnalysisRowReady: `output/screen-ai-pipeline-proof/screen-service-analysis-row-ready/proof-summary.json`
+- serviceCaptureEventProducer: `output/screen-ai-pipeline-proof/screen-service-capture-event-producer/proof-summary.json`
+- serviceDeletionEventProducer: `output/screen-ai-pipeline-proof/screen-service-deletion-event-producer/proof-summary.json`
+- serviceEventBridge: `output/screen-ai-pipeline-proof/screen-service-event-bridge/proof-summary.json`
+- serviceEventSubscription: `output/screen-ai-pipeline-proof/screen-service-event-subscription/proof-summary.json`
+- servicePolicyRefProducer: `output/screen-ai-pipeline-proof/screen-service-policy-ref-producer/proof-summary.json`
 
 ## Closure
 
@@ -35,6 +41,7 @@ Generated: 2026-06-08T02:43:10.373Z
   "portalReadModelProven": true,
   "readModelRows": 2,
   "serviceBackedReadModelProven": true,
+  "serviceEventChainProven": true,
   "retentionCustodyProven": true,
   "protectedSurfaceSkipProven": true,
   "finalAdapterAuditProven": true,
@@ -49,6 +56,7 @@ Generated: 2026-06-08T02:43:10.373Z
   "finalPipelineProductCompleteBlockedByAdapterGate": true,
   "custodyArtifactRows": 3,
   "householdMeshConsumesRedactedRefsOnly": true,
+  "serviceEventProducersAndSubscriberCovered": true,
   "singleRuntimeSessionRerun": false,
   "retainedRealRunArtifactsVerified": true,
   "rawScreenshotsRetainedByDefault": false,
