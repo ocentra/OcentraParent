@@ -32,6 +32,7 @@ const serviceDeletionEventProducer = load(SourcePaths.serviceDeletionEventProduc
 const serviceEventBridge = load(SourcePaths.serviceEventBridge);
 const serviceEventSubscription = load(SourcePaths.serviceEventSubscription);
 const servicePolicyRefProducer = load(SourcePaths.servicePolicyRefProducer);
+const serviceWinRtOcrPolicy = load(SourcePaths.serviceWinRtOcrPolicy);
 
 const liveRows = validateLiveOperator();
 const closure = {
@@ -46,6 +47,7 @@ const closure = {
   readModelRows: validateReadModel(),
   serviceBackedReadModelProven: validateServiceReadModel(),
   serviceEventChainProven: validateServiceEventChain(),
+  serviceWinRtOcrPolicyProven: validateServiceWinRtOcrPolicy(),
   retentionCustodyProven: validateDeletionCustody(),
   protectedSurfaceSkipProven: validateProtectedSurface(),
   finalAdapterAuditProven: validateFinalAdapterAudit(),
@@ -89,6 +91,7 @@ const proof = {
     custodyArtifactRows: finalAdapterAudit.closure?.custodyArtifactRows,
     householdMeshConsumesRedactedRefsOnly: closure.householdMeshBoundaryProven,
     serviceEventProducersAndSubscriberCovered: closure.serviceEventChainProven,
+    serviceWinRtOcrLivePolicyCovered: closure.serviceWinRtOcrPolicyProven,
     singleRuntimeSessionRerun: false,
     retainedRealRunArtifactsVerified: true,
     rawScreenshotsRetainedByDefault: false,
@@ -102,6 +105,7 @@ const proof = {
     'The screen-plan and AI-plan closure audits are required by this proof; they stack prerequisites without overriding remaining external adapter and platform gates.',
     'Household mesh provider routing artifacts are required by this proof; provider work may carry redacted/custody refs only and child-agent validation remains local before policy.',
     'Service event producer/subscriber artifacts are required by this proof; the retained final path still does not rerun one single live service session.',
+    'The real Windows service WinRT OCR policy artifact is required by this proof; it reruns live public browser capture/OCR and consumes the row through typed policy dry-run contracts.',
     'The proof closes the stacked real trigger-to-analysis-to-policy-to-action/read-model-to-deletion evidence path from current artifacts; it does not make raw screenshot retention or live view product claims.',
   ],
 };
@@ -360,6 +364,68 @@ function validateServiceEventChain() {
       `service subscription missing ${expectedEvent}`
     );
     assert(serviceEventBridge.eventChain?.includes(expectedEvent), `service bridge missing ${expectedEvent}`);
+  }
+  return true;
+}
+
+function validateServiceWinRtOcrPolicy() {
+  assert(
+    serviceWinRtOcrPolicy.proof === 'screen-ai-service-winrt-ocr-policy-proof',
+    'service OCR policy proof id mismatch'
+  );
+  assert(
+    serviceWinRtOcrPolicy.proofTier === 'P3_REAL_CAPTURE_LOCAL_OCR_POLICY_CONSUMPTION',
+    'service OCR policy proof tier mismatch'
+  );
+  assert(
+    serviceWinRtOcrPolicy.sourceLiveSurface?.kind === 'live-public-browser-page',
+    'service OCR policy proof is not live public browser source'
+  );
+  assert(
+    serviceWinRtOcrPolicy.sourceLiveSurface?.url === 'https://en.wikipedia.org/wiki/Mathematics',
+    'service OCR policy source URL changed'
+  );
+  assert(
+    serviceWinRtOcrPolicy.sourceAnalysisRow?.providerKind === 'localOcr',
+    'service OCR policy source did not use localOcr'
+  );
+  assert(
+    serviceWinRtOcrPolicy.sourceAnalysisRow?.modelId === 'windows-winrt-ocr',
+    'service OCR policy source did not use Windows WinRT OCR'
+  );
+  assert(
+    serviceWinRtOcrPolicy.sourceAnalysisRow?.policyEligible === true,
+    'service OCR policy source row is not policy eligible'
+  );
+  assert(
+    serviceWinRtOcrPolicy.sourceAnalysisRow?.rawImageRetained === false,
+    'service OCR policy source retained raw image'
+  );
+  assert(
+    serviceWinRtOcrPolicy.sourceAnalysisRow?.imageDeletionState === 'deleted',
+    'service OCR policy source image is not deleted'
+  );
+  assert(serviceWinRtOcrPolicy.policy?.dryRun === true, 'service OCR policy is not dry-run');
+  assert(serviceWinRtOcrPolicy.policy?.action === 'allow', 'service OCR policy action changed');
+  assert(
+    serviceWinRtOcrPolicy.policy?.enforcementHandoffState === 'disabled',
+    'service OCR policy enabled enforcement handoff'
+  );
+  for (const assertion of [
+    'sourceProofRerunByThisGate',
+    'sourceUsedLivePublicBrowserPixels',
+    'sourceRanWindowsWinRtOcr',
+    'sourceReadModelReachedViaWebSocket',
+    'sourceQueueDrained',
+    'sourceTempImageDeleted',
+    'sourceRawImageNotRetained',
+    'policyDecisionParsedByParentDomain',
+    'policyConsumedExactActivityRow',
+    'policyDryRunOnly',
+    'activityReadModelCarriesPolicyRefs',
+    'deletionCustodyPreserved',
+  ]) {
+    assert(serviceWinRtOcrPolicy.assertions?.[assertion] === true, `service OCR policy assertion ${assertion} failed`);
   }
   return true;
 }

@@ -54,6 +54,7 @@ export const SourcePaths = {
   serviceEventBridge: 'output/screen-ai-pipeline-proof/screen-service-event-bridge/proof-summary.json',
   serviceEventSubscription: 'output/screen-ai-pipeline-proof/screen-service-event-subscription/proof-summary.json',
   servicePolicyRefProducer: 'output/screen-ai-pipeline-proof/screen-service-policy-ref-producer/proof-summary.json',
+  serviceWinRtOcrPolicy: 'output/screen-ai-pipeline-proof/service-winrt-ocr-policy/proof-summary.json',
 };
 
 export function readJson(path, assert) {

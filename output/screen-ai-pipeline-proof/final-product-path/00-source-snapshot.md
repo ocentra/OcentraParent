@@ -1,6 +1,6 @@
 # Screen AI Final Product Path Proof
 
-Generated: 2026-06-08T02:50:12.010Z
+Generated: 2026-06-08T02:58:36.467Z
 
 ## Source Artifacts
 
@@ -26,6 +26,7 @@ Generated: 2026-06-08T02:50:12.010Z
 - serviceEventBridge: `output/screen-ai-pipeline-proof/screen-service-event-bridge/proof-summary.json`
 - serviceEventSubscription: `output/screen-ai-pipeline-proof/screen-service-event-subscription/proof-summary.json`
 - servicePolicyRefProducer: `output/screen-ai-pipeline-proof/screen-service-policy-ref-producer/proof-summary.json`
+- serviceWinRtOcrPolicy: `output/screen-ai-pipeline-proof/service-winrt-ocr-policy/proof-summary.json`
 
 ## Closure
 
@@ -42,6 +43,7 @@ Generated: 2026-06-08T02:50:12.010Z
   "readModelRows": 2,
   "serviceBackedReadModelProven": true,
   "serviceEventChainProven": true,
+  "serviceWinRtOcrPolicyProven": true,
   "retentionCustodyProven": true,
   "protectedSurfaceSkipProven": true,
   "finalAdapterAuditProven": true,
@@ -57,6 +59,7 @@ Generated: 2026-06-08T02:50:12.010Z
   "custodyArtifactRows": 3,
   "householdMeshConsumesRedactedRefsOnly": true,
   "serviceEventProducersAndSubscriberCovered": true,
+  "serviceWinRtOcrLivePolicyCovered": true,
   "singleRuntimeSessionRerun": false,
   "retainedRealRunArtifactsVerified": true,
   "rawScreenshotsRetainedByDefault": false,
