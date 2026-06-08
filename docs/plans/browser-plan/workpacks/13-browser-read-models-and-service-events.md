@@ -1334,3 +1334,26 @@ does not change public portal command/event names and does not claim parent
 notification UI delivery, external runtime report delivery, provider delivery,
 provider receipt ingestion, final policy execution, browser mutation, child
 intervention execution, unmanaged exact URL support, or enforcement.
+
+## Social Report Writer Delivery Route Decision Addendum - 2026-06-08
+
+`browser-runtime-delivery-decision-proof` now also registers the internal
+`browser.social.report-writer-delivery.status.requested` request as a
+local-in-process route. The browser runtime delivery-decision report now proves
+seven local-ready routes: runtime chain, action-intent status, action-intent
+handoff, runtime stream report, social provider receipt status, social
+report-writer delivery status, and social parent-notification delivery status.
+
+Evidence:
+
+- `crates/agent-core/src/browser_event_runtime/delivery.rs`
+- `crates/agent-core/src/browser_event_runtime_tests.rs`
+- `scripts/test/browser-runtime-delivery-decision-proof.mjs`
+- `test-results/browser-runtime-delivery-decision-proof/proof.json`
+- `output/browser-plan-proof/browser-runtime-delivery-decision/01-browser-runtime-delivery-decision-proof.md`
+
+No-claim boundary: this is local route-decision proof only. It does not change
+public portal command/event names and does not claim external adapter dispatch,
+external transport, browser mutation, child intervention execution, final policy
+execution, parent notification UI delivery, provider delivery/receipt ingestion,
+or enforcement.

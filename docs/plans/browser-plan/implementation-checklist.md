@@ -1136,6 +1136,19 @@ runtime report delivery, provider delivery, provider receipt ingestion, final
 policy execution, browser mutation, child intervention execution, unmanaged
 exact URL support, or enforcement.
 
+WP13 social report-writer delivery route-decision addendum:
+`browser-runtime-delivery-decision-proof` now registers
+`browser.social.report-writer-delivery.status.requested` as the seventh
+local-ready browser runtime route. The route is local in-process from the
+browser runtime spine to the social report-writer delivery status subscriber,
+which keeps the report-writer handoff covered by the shared eventing route audit
+without changing public portal command/event names. Evidence:
+`test-results/browser-runtime-delivery-decision-proof/proof.json` and
+`output/browser-plan-proof/browser-runtime-delivery-decision/01-browser-runtime-delivery-decision-proof.md`.
+This does not claim external adapter dispatch, external transport, browser
+mutation, child intervention execution, final policy execution, parent
+notification UI delivery, provider delivery/receipt ingestion, or enforcement.
+
 ## Worker Report Template
 
 Use this shape in the hub report or PR-ready note:

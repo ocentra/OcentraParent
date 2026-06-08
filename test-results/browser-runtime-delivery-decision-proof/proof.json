@@ -1,6 +1,6 @@
 {
   "proofName": "browser-runtime-delivery-decision-proof",
-  "branchHead": "174e64122 Add social parent notification delivery service proof",
+  "branchHead": "8763ed871 Event social report writer handoff",
   "sourceChecks": {
     "usesSharedEventingDecisionApi": true,
     "provesLocalServiceRoute": true,
@@ -8,14 +8,16 @@
     "provesActionIntentHandoffRoute": true,
     "provesRuntimeStreamReportRoute": true,
     "provesSocialProviderReceiptStatusRoute": true,
+    "provesSocialReportWriterDeliveryStatusRoute": true,
     "provesSocialParentNotificationDeliveryStatusRoute": true,
     "provesExternalTransportManualRequired": true,
     "rejectsExecutionClaims": true,
     "runtimeExportsProof": true,
     "focusedTestExists": true,
-    "focusedTestAssertsSixLocalRoutes": true,
+    "focusedTestAssertsSevenLocalRoutes": true,
     "focusedTestAssertsHandoffRoute": true,
     "focusedTestAssertsReceiptStatusRoute": true,
+    "focusedTestAssertsReportWriterDeliveryStatusRoute": true,
     "focusedTestAssertsParentNotificationDeliveryStatusRoute": true,
     "focusedTestAssertsRuntimeStreamReportRoute": true,
     "testAssertsMissingArtifacts": true,
@@ -57,6 +59,12 @@
       "publisher": "browser-event-runtime-spine",
       "subscriber": "browser-social-provider-receipt-status"
     },
+    "browserSocialReportWriterDeliveryStatus": {
+      "routeKind": "local-in-process",
+      "decisionState": "local-route-ready",
+      "publisher": "browser-event-runtime-spine",
+      "subscriber": "browser-social-report-writer-delivery-status"
+    },
     "browserSocialParentNotificationDeliveryStatus": {
       "routeKind": "local-in-process",
       "decisionState": "local-route-ready",
@@ -84,11 +92,12 @@
     "reusableEventingDeliveryDecisionUsed": true,
     "localServiceRouteReady": true,
     "localInProcessRouteReady": true,
-    "localReadyRouteCount": 6,
+    "localReadyRouteCount": 7,
     "actionIntentStatusRouteReady": true,
     "actionIntentHandoffRouteReady": true,
     "runtimeStreamReportRouteReady": true,
     "socialProviderReceiptStatusRouteReady": true,
+    "socialReportWriterDeliveryStatusRouteReady": true,
     "socialParentNotificationDeliveryStatusRouteReady": true,
     "externalTransportManualRequired": true,
     "externalTransportDeliveryImplemented": false,

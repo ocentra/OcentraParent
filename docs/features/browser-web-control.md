@@ -1250,6 +1250,9 @@ report-writer truth while keeping the same public portal command/event and
 without claiming parent notification UI delivery, external report delivery,
 provider delivery/receipt ingestion, final policy execution, browser mutation,
 child intervention execution, unmanaged exact URL support, or enforcement.
+The same report-writer status request is now registered in the browser runtime
+delivery-decision proof as a seventh local-ready route, keeping the internal
+event handoff visible to the shared `ocentra-eventing` route audit.
 WP13 Browser-route proof now renders a parent-visible browser action-intent
 stream status card from the existing parsed runtime stream, next to the social
 provider receipt stream and receipt ingestion readiness cards. The proof uses
