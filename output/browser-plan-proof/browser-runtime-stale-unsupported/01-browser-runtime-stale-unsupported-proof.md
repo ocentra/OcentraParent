@@ -1,6 +1,6 @@
 # Browser Runtime Stale Unsupported Proof
 
-- Branch head: 48ed08314 Refresh browser plan closure audit proof
+- Branch head: 260c72092 Project browser action intents from store preview
 - Bridge disconnect reports stale capability: true
 - Managed profile ready still reports bridge missing: true
 - Inventory maps bridge disconnect to manual-required stale: true

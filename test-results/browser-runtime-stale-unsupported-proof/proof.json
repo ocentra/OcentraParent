@@ -1,7 +1,7 @@
 {
   "proofName": "browser-runtime-stale-unsupported-proof",
-  "branchHead": "48ed08314 Refresh browser plan closure audit proof",
-  "gitStatusShort": "M crates/agent-service/src/browser_inventory_read_model_tests.rs\n M crates/agent-service/src/browser_runtime_delivery_tests.rs\n M crates/agent-service/src/browser_runtime_status.rs\n M crates/agent-service/src/browser_runtime_stream_tests.rs\n M crates/agent-service/src/browser_runtime_tests.rs\n M docs/features/browser-web-control.md\n M docs/plans/browser-plan/implementation-checklist.md\n M docs/plans/browser-plan/workpacks/13-browser-read-models-and-service-events.md\n M docs/plans/browser-plan/workpacks/23-e2e-and-manual-proof-artifacts.md\n M packages/agent-protocol-domain/tests/browser-runtime-events.test.ts\n?? scripts/test/browser-runtime-stale-unsupported-proof.mjs",
+  "branchHead": "260c72092 Project browser action intents from store preview",
+  "gitStatusShort": "",
   "sourceChecks": {
     "bridgeDisconnectReportsStale": true,
     "managedProfileReadyStillBridgeMissing": true,
