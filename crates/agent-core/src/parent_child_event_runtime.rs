@@ -43,6 +43,15 @@ impl ParentChildRuntimeInput {
             child_command_kind: ChildCommandKind::ObserveNetwork,
         }
     }
+
+    pub fn browser_action_intent_handoff_fixture() -> Self {
+        Self {
+            parent_intent_ref: constants::browser::TEST_BROWSER_RUNTIME_ACTION_INTENT_ID
+                .to_string(),
+            child_command_kind: ChildCommandKind::BrowserActionIntentHandoff,
+            ..Self::validated_review_fixture()
+        }
+    }
 }
 
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]

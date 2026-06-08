@@ -668,6 +668,22 @@ and
 This does not add external transport, dispatch, adapter execution, browser
 mutation, child intervention execution, final policy execution, or enforcement.
 
+WP13 parent-child action-intent handoff addendum:
+`browser-runtime-parent-child-action-intent-handoff-proof` carries the browser
+action-intent handoff into the existing parent/controller to child-agent event
+sequence with a named `browser-action-intent-handoff` child command kind.
+Evidence:
+`test-results/browser-runtime-parent-child-action-intent-handoff-proof/proof.json`
+and
+`output/browser-plan-proof/browser-runtime-parent-child-action-intent-handoff/01-browser-runtime-parent-child-action-intent-handoff-proof.md`.
+The proof validates parent action receipt, command validation, parent-child
+transport handoff, child command receive/acceptance, and parent read-model
+projection while keeping dispatch, adapter execution, browser mutation, child
+intervention execution, final policy execution, and enforcement at zero. It
+does not add external broker or relay delivery, browser mutation, child
+intervention execution, final policy execution, unmanaged exact URL support, or
+enforcement.
+
 WP13 action-intent topology addendum:
 `browser-runtime-action-intent-topology-proof` registers the named browser
 action-intent status request event in the reusable `ocentra-eventing` contract

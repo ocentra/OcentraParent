@@ -638,3 +638,29 @@ Evidence:
 This is stream/read-model status only. It does not execute final policy,
 dispatch an adapter, mutate browser state, execute child intervention, or
 enforce.
+
+## Parent-Child Action-Intent Handoff Addendum - 2026-06-08
+
+`browser-runtime-parent-child-action-intent-handoff-proof` carries the browser
+action-intent handoff into the existing parent/controller to child-agent event
+sequence with a named `browser-action-intent-handoff` child command kind. The
+proof validates parent action receipt, command validation, parent-child
+transport handoff, child command receive/acceptance, and parent read-model
+projection while keeping dispatch, adapter execution, browser mutation, child
+intervention execution, final policy execution, and enforcement at zero.
+
+Evidence:
+
+- `crates/agent-protocol/src/child_agent_events.rs`
+- `crates/agent-protocol/src/child_agent_event_tests.rs`
+- `crates/agent-core/src/parent_child_event_runtime.rs`
+- `crates/agent-core/src/parent_child_event_runtime_tests.rs`
+- `scripts/test/browser-runtime-parent-child-action-intent-handoff-proof.mjs`
+- `test-results/browser-runtime-parent-child-action-intent-handoff-proof/proof.json`
+- `output/browser-plan-proof/browser-runtime-parent-child-action-intent-handoff/01-browser-runtime-parent-child-action-intent-handoff-proof.md`
+- `cargo test -p ocentra-parent-agent-protocol child_agent_contracts_serialize_browser_action_intent_handoff_kind --quiet`
+- `cargo test -p ocentra-parent-agent-core browser_action_intent_handoff_uses_parent_child_event_sequence_without_execution --quiet`
+
+This is typed parent/child handoff proof only. It does not add external broker
+or relay delivery, adapter dispatch, browser mutation, child intervention
+execution, final policy execution, unmanaged exact URL support, or enforcement.
