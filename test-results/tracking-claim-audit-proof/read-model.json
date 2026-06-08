@@ -204,6 +204,61 @@
   },
   {
     "schemaVersion": "v0.5-tracking",
+    "rowId": "tracking-claim-audit-retention-product-settings-writable-runtime",
+    "generatedAt": "2026-06-08T04:05:00.000Z",
+    "auditArea": "retention-product-settings-writable-runtime",
+    "sourceProofRef": "test-results/tracking-full-product-ui-runtime-preflight-proof/proof.json",
+    "supportingProofRefs": [
+      "test-results/tracking-retention-product-settings-writable-execution-proof/proof.json",
+      "test-results/tracking-full-product-ui-runtime-artifact-gate-proof/proof.json",
+      "test-results/tracking-full-product-ui-runtime-preflight-proof/proof.json"
+    ],
+    "proofRoot": "output/tracking-plan-proof/product-parent-child-ui-runtime",
+    "requiredProofTier": "P4_PHYSICAL_DEVICE",
+    "currentProofTier": "P3_LOCAL_DEV_MACHINE",
+    "status": "manual-required",
+    "acceptanceCriteria": [
+      "Collect every required artifact under output/tracking-plan-proof/product-parent-child-ui-runtime before review.",
+      "Keep required proof tier P4_PHYSICAL_DEVICE; local P3 artifacts cannot approve the claim.",
+      "Cite source proof test-results/tracking-full-product-ui-runtime-preflight-proof/proof.json and all supporting proof refs in the final handoff.",
+      "Use real device or enrolled child runtime evidence with metadata, logs, screenshots, and transition or execution rows."
+    ],
+    "manualValidationCommands": [
+      "node scripts/test/tracking-claim-audit-proof.mjs",
+      "node scripts/test/tracking-product-readiness-closure-proof.mjs",
+      "node scripts/test/tracking-real-runtime-handoff-proof.mjs"
+    ],
+    "artifactAcceptanceNotes": [
+      "Required artifacts: 1.",
+      "Proof root: output/tracking-plan-proof/product-parent-child-ui-runtime.",
+      "Status can move only to review-required when all required artifacts are present; claimApproved remains false here.",
+      "Missing artifacts stay blocking until the P4_PHYSICAL_DEVICE evidence is produced outside local CI."
+    ],
+    "requiredArtifacts": [
+      "04-retention-settings-production-write-result.png"
+    ],
+    "presentArtifacts": [],
+    "missingArtifacts": [
+      "04-retention-settings-production-write-result.png"
+    ],
+    "auditRefs": [
+      "tracking-claim-audit-retention-product-settings-writable-runtime-audit"
+    ],
+    "artifactSetComplete": false,
+    "claimApproved": false,
+    "physicalDeviceBehaviorClaimed": false,
+    "manualDesktopLocationClaimed": false,
+    "childDeviceRuntimeClaimed": false,
+    "fullProductUiClaimed": false,
+    "authorityClaimed": false,
+    "providerDeliveryClaimed": false,
+    "retentionProductRuntimeClaimed": false,
+    "productionWorkerClaimed": false,
+    "escalationRuntimeClaimed": false,
+    "productClaimReady": false
+  },
+  {
+    "schemaVersion": "v0.5-tracking",
     "rowId": "tracking-claim-audit-child-device-runtime-execution",
     "generatedAt": "2026-06-08T04:05:00.000Z",
     "auditArea": "child-device-runtime-execution",

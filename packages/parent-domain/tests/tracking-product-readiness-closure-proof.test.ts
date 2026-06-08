@@ -68,7 +68,7 @@ describe('tracking product readiness closure proof', () => {
     expect(proof.aggregateEvidence.productionWorkerPreflightMissingArtifactCount).toBe(8);
     expect(proof.aggregateEvidence.productionWorkerPreflightProductReadyRowCount).toBe(0);
     expect(proof.aggregateEvidence.claimAuditPresentArtifactCount).toBe(5);
-    expect(proof.aggregateEvidence.claimAuditPhysicalDeviceRequiredRowCount).toBe(6);
+    expect(proof.aggregateEvidence.claimAuditPhysicalDeviceRequiredRowCount).toBe(7);
     expect(proof.aggregateEvidence.claimAuditApprovedManualRequiredRowCount).toBe(1);
     expect(proof.aggregateEvidence.claimAuditManualProviderRuntimeRequiredRowCount).toBe(1);
     expect(proof.aggregateEvidence.claimAuditProductionRuntimeRequiredRowCount).toBe(2);
@@ -159,9 +159,9 @@ function aggregateEvidence() {
     productionWorkerPreflightMissingArtifactCount: 8,
     productionWorkerPreflightProductReadyRowCount: 0,
     claimAuditPresentArtifactCount: 5,
-    claimAuditMissingArtifactCount: 49,
-    claimAuditManualRequiredRowCount: 10,
-    claimAuditPhysicalDeviceRequiredRowCount: 6,
+    claimAuditMissingArtifactCount: 50,
+    claimAuditManualRequiredRowCount: 11,
+    claimAuditPhysicalDeviceRequiredRowCount: 7,
     claimAuditApprovedManualRequiredRowCount: 1,
     claimAuditManualProviderRuntimeRequiredRowCount: 1,
     claimAuditProductionRuntimeRequiredRowCount: 2,

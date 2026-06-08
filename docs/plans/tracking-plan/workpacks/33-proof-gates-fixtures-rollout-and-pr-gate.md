@@ -165,7 +165,7 @@ Proof root: `output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-g
   production-worker runtime artifacts.
 - Refreshed tracking claim-audit, product-readiness closure, real-runtime
   handoff, and source/gap-map proofs now machine-check the final
-  manual-required blocker split: six physical-device/runtime rows, one
+  manual-required blocker split: seven physical-device/runtime rows, one
   approved-manual desktop row, one manual provider-runtime row, and two
   production-runtime rows. These counts explain what remains without changing
   any physical-device, authority, provider, production, or product-ready claim.
@@ -1390,7 +1390,7 @@ tracking-claim-audit-proof tracking-product-readiness-closure-proof`
 - [x] Real-runtime handoff accounting refresh: the handoff proof now consumes
       the product-readiness closure aggregate counts, including child-runtime,
       retention-runtime, and production-worker artifact counts, records
-      readiness categories for six physical/runtime rows, one provider-runtime
+      readiness categories for seven physical/runtime rows, one provider-runtime
       row, and two production-runtime rows, and keeps all manual handoff rows
       `ciRunnable=false` with product-ready false.
 - [x] Provider-runtime artifact inventory refresh: provider runtime readiness
@@ -1426,10 +1426,17 @@ tracking-claim-audit-proof tracking-product-readiness-closure-proof`
       claims remain false.
 - [x] Claim-audit tier accounting refresh: claim-audit proof, product-readiness
       closure, real-runtime handoff, and source reconciliation gap-map now
-      carry and assert the final manual-required split of six
+      carry and assert the final manual-required split of seven
       physical-device/runtime rows, one approved-manual desktop row, one
       manual provider-runtime row, and two production-runtime rows, keeping
       product-ready false.
+- [x] Retention writable product runtime handoff refresh: claim-audit and
+      real-runtime handoff now give
+      `retention-writable-product-settings-required` its own row sourced from
+      the full-product UI runtime preflight retention write-result row and
+      supporting the local retention writable execution proof. This keeps the
+      production retention write-result artifact manual-required without
+      treating hosted local write rendering as product runtime proof.
 - [x] Android emulator artifact inventory refresh: new WP08/WP09/WP10/WP33
       inventory proof verifies the existing adb runtime outputs, foreground and
       background permission UI artifacts, app-reported location evidence, local

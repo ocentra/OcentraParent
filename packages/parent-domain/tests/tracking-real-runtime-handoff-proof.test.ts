@@ -54,9 +54,9 @@ const closureAccounting = {
   productionWorkerPreflightMissingArtifactCount: 8,
   productionWorkerPreflightProductReadyRowCount: 0,
   claimAuditPresentArtifactCount: 5,
-  claimAuditMissingArtifactCount: 61,
-  claimAuditManualRequiredRowCount: 10,
-  claimAuditPhysicalDeviceRequiredRowCount: 6,
+  claimAuditMissingArtifactCount: 62,
+  claimAuditManualRequiredRowCount: 11,
+  claimAuditPhysicalDeviceRequiredRowCount: 7,
   claimAuditApprovedManualRequiredRowCount: 1,
   claimAuditManualProviderRuntimeRequiredRowCount: 1,
   claimAuditProductionRuntimeRequiredRowCount: 2,
@@ -92,7 +92,7 @@ function expectHandoffSummary(proof: TrackingRealRuntimeHandoffProof): void {
   );
   expect(proof.summary.productReadyRowCount).toBe(0);
   expect(proof.summary.ciRunnableRowCount).toBe(0);
-  expect(proof.summary.physicalDeviceRequiredRowCount).toBe(6);
+  expect(proof.summary.physicalDeviceRequiredRowCount).toBe(7);
   expect(proof.summary.manualProviderRuntimeRequiredRowCount).toBe(1);
   expect(proof.summary.productionRuntimeRequiredRowCount).toBe(2);
 }
@@ -149,8 +149,8 @@ function expectClosureAccounting(proof: TrackingRealRuntimeHandoffProof): void {
   expect(proof.closureAccounting.productionWorkerPreflightPresentArtifactCount).toBe(0);
   expect(proof.closureAccounting.productionWorkerPreflightMissingArtifactCount).toBe(8);
   expect(proof.closureAccounting.productionWorkerPreflightProductReadyRowCount).toBe(0);
-  expect(proof.closureAccounting.claimAuditMissingArtifactCount).toBe(61);
-  expect(proof.closureAccounting.claimAuditPhysicalDeviceRequiredRowCount).toBe(6);
+  expect(proof.closureAccounting.claimAuditMissingArtifactCount).toBe(62);
+  expect(proof.closureAccounting.claimAuditPhysicalDeviceRequiredRowCount).toBe(7);
   expect(proof.closureAccounting.claimAuditApprovedManualRequiredRowCount).toBe(1);
   expect(proof.closureAccounting.claimAuditManualProviderRuntimeRequiredRowCount).toBe(1);
   expect(proof.closureAccounting.claimAuditProductionRuntimeRequiredRowCount).toBe(2);

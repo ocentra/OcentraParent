@@ -409,7 +409,7 @@ expose location or device-status features. Parents expect this category.
   eight missing artifacts, four full-product UI
   runtime preflight rows with four required artifacts, zero present artifacts,
   and four missing artifacts, and the claim-audit row
-  counts. The claim-audit blocker rows are now tier-classified as six
+  counts. The claim-audit blocker rows are now tier-classified as seven
   physical-device/runtime rows, one approved-manual desktop row, one manual
   provider-runtime row, and two production-runtime rows. It keeps Android/iOS
   physical background, actual child-device runtime,
@@ -420,14 +420,15 @@ expose location or device-status features. Parents expect this category.
   physical background/geofence, iOS physical background/region,
   approved-manual desktop location, actual child-device runtime, full product
   parent/child UI runtime, authority, provider-delivery receipt runtime,
-  retention product runtime enforcement, production durable workers/storage,
-  and escalation runtime artifacts before any final tracking claim can move
+  retention product settings writable runtime, retention product runtime
+  enforcement, production durable workers/storage, and escalation runtime
+  artifacts before any final tracking claim can move
   beyond `manual-required`; its full product UI row now carries the runtime gate
   and local runtime artifact capture supporting proof refs, records five present
   required runtime-root artifact refs plus the local capture proof's eight hosted
   artifacts, and keeps the four hard full-product UI runtime gaps still required
   before that claim can advance. Its summary now classifies the
-  ten final manual-required claim rows into six physical-device/runtime rows,
+  eleven final manual-required claim rows into seven physical-device/runtime rows,
   one approved-manual desktop row, one manual provider-runtime row, and two
   production-runtime rows. Each row now carries a generated acceptance matrix
   with required criteria, manual validation commands, and artifact acceptance
@@ -454,7 +455,7 @@ expose location or device-status features. Parents expect this category.
   including child-runtime, retention-runtime, production-worker,
   production-worker runtime preflight, and full-product UI runtime preflight
   required/present/missing artifact counts plus the claim-audit tier split,
-  classifies six physical/runtime rows, one provider-runtime row, and two
+  classifies seven physical/runtime rows, one provider-runtime row, and two
   production-runtime rows as
   non-CI-runnable manual follow-up, and keeps physical-device, actual
   child-device runtime, full product UI, authority, provider delivery/receipt,
@@ -1329,9 +1330,13 @@ product UI runtime rows for the missing production write-result, child check-in,
 child consent, and safe/help response artifacts. Production worker runtime
 preflight now carries eight manual-required worker/storage rows for the missing
 production tracking artifacts while keeping production/product-ready claims
-false. The next implementation layers are applied/product-ready retention
-settings execution beyond hosted local service write rendering, the platform
-runtime artifacts required for retention product readiness, full portal UI
+false. Claim-audit and real-runtime handoff now give
+retention-writable-product-settings-required its own retention product settings
+writable runtime row tied to the production retention write-result artifact,
+instead of leaving that blocker implicit under the broader full-product UI row.
+The next implementation layers are applied/product-ready retention settings
+execution beyond hosted local service write rendering, the platform runtime
+artifacts required for retention product readiness, full portal UI
 snapshots/accessibility beyond the hosted route, Android system geofencing/dwell
 proof, iOS Core Location/region proof beyond simulator package launch,
 production worker runtime artifacts, then physical Android/iOS proof and

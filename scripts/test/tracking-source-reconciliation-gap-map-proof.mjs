@@ -169,7 +169,7 @@ function assertClaimAuditTierBreakdown(breakdown) {
     throw new Error(`Claim audit tier breakdown does not classify every row: ${JSON.stringify(breakdown)}`);
   }
   if (
-    breakdown.physicalDeviceRequiredRowCount !== 6 ||
+    breakdown.physicalDeviceRequiredRowCount !== 7 ||
     breakdown.approvedManualRequiredRowCount !== 1 ||
     breakdown.manualProviderRuntimeRequiredRowCount !== 1 ||
     breakdown.productionRuntimeRequiredRowCount !== 2 ||

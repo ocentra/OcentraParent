@@ -1,14 +1,14 @@
 # WP01 Source Index And Repo Reconciliation
 
 - generatedAt: 2026-06-08T00:35:00.000Z
-- commit: 7b1ac68e3fc36351f897d846c872cacc87e4c57f
+- commit: e2f9943cac45c65f5506953fc5d3517ed5bdcaed
 - branch: codex/tracking-plan-full-continuation-a
 - requiredProofTier: P1_DOC_SOURCE_RECONCILIATION
 - currentProofTier: P1_DOC_SOURCE_RECONCILIATION
 - status: proved
 - proves source docs, current snapshot, and product-readiness closure blockers are aligned
 - does not prove physical-device, authority, provider delivery, production, or product-ready tracking behavior
-- claimAuditPhysicalDeviceRequiredRowCount: 6
+- claimAuditPhysicalDeviceRequiredRowCount: 7
 - claimAuditApprovedManualRequiredRowCount: 1
 - claimAuditManualProviderRuntimeRequiredRowCount: 1
 - claimAuditProductionRuntimeRequiredRowCount: 2

@@ -1,7 +1,7 @@
 # Tracking Product Readiness Closure Source Snapshot
 
 - generatedAt: 2026-06-07T16:30:00.000Z
-- commit: 7b1ac68e3fc36351f897d846c872cacc87e4c57f
+- commit: e2f9943cac45c65f5506953fc5d3517ed5bdcaed
 - requiredProofTier: P3_LOCAL_DEV_MACHINE
 - currentProofTier: P3_LOCAL_DEV_MACHINE
 - status: proved
@@ -41,7 +41,7 @@
 - productionWorkerPreflightRowCount: 8
 - productionWorkerPreflightRequiredArtifactCount: 8
 - productionWorkerPreflightMissingArtifactCount: 8
-- claimAuditPhysicalDeviceRequiredRowCount: 6
+- claimAuditPhysicalDeviceRequiredRowCount: 7
 - claimAuditApprovedManualRequiredRowCount: 1
 - claimAuditManualProviderRuntimeRequiredRowCount: 1
 - claimAuditProductionRuntimeRequiredRowCount: 2

@@ -1,7 +1,7 @@
 # Tracking Real Runtime Handoff Manual Validation Runbook
 
 - generatedAt: 2026-06-08T01:05:00.000Z
-- commit: 7b1ac68e3fc36351f897d846c872cacc87e4c57f
+- commit: e2f9943cac45c65f5506953fc5d3517ed5bdcaed
 - currentProofTier: P3_LOCAL_DEV_MACHINE
 - requiredProofTier: P4_REAL_RUNTIME_HANDOFF
 - productReadyClaimed: false
@@ -41,14 +41,14 @@
 - productionWorkerPreflightRowCount: 8
 - productionWorkerPreflightRequiredArtifactCount: 8
 - productionWorkerPreflightMissingArtifactCount: 8
-- claimAuditMissingArtifactCount: 61
-- claimAuditPhysicalDeviceRequiredRowCount: 6
+- claimAuditMissingArtifactCount: 62
+- claimAuditPhysicalDeviceRequiredRowCount: 7
 - claimAuditApprovedManualRequiredRowCount: 1
 - claimAuditManualProviderRuntimeRequiredRowCount: 1
 - claimAuditProductionRuntimeRequiredRowCount: 2
-- claimAuditAcceptanceCriteriaCount: 36
-- claimAuditManualValidationCommandCount: 27
-- claimAuditArtifactAcceptanceNoteCount: 36
+- claimAuditAcceptanceCriteriaCount: 40
+- claimAuditManualValidationCommandCount: 30
+- claimAuditArtifactAcceptanceNoteCount: 40
 
 ## android-physical-background-and-geofence
 
@@ -155,6 +155,50 @@
 - 07-screenshots
 - 08-xcode-test-log.txt
 - 09-result-summary.md
+
+## retention-product-settings-writable-runtime
+
+- blockerId: retention-writable-product-settings-required
+- sourceProofRef: test-results/tracking-full-product-ui-runtime-preflight-proof/proof.json
+- proofRoot: test-results/tracking-full-product-ui-runtime-preflight-proof/proof.json
+- status: manual-required
+- readinessCategory: physical-device-required
+- ciRunnable: false
+- missingArtifacts: 1/1
+
+### Required Validation Commands
+
+- Run product retention settings write-result UI proof on the full parent/child product runtime
+- Record the production retention write-result artifact under output/tracking-plan-proof/product-parent-child-ui-runtime/04-retention-settings-production-write-result.png
+
+### Artifact Acceptance Notes
+
+- Local retention service writable execution proves the typed service path only
+- The artifact must show the production parent/child runtime UI write result, not only the hosted local proof route
+
+### Claim Audit Acceptance Criteria
+
+- Collect every required artifact under output/tracking-plan-proof/product-parent-child-ui-runtime before review.
+- Keep required proof tier P4_PHYSICAL_DEVICE; local P3 artifacts cannot approve the claim.
+- Cite source proof test-results/tracking-full-product-ui-runtime-preflight-proof/proof.json and all supporting proof refs in the final handoff.
+- Use real device or enrolled child runtime evidence with metadata, logs, screenshots, and transition or execution rows.
+
+### Claim Audit Validation Commands
+
+- node scripts/test/tracking-claim-audit-proof.mjs
+- node scripts/test/tracking-product-readiness-closure-proof.mjs
+- node scripts/test/tracking-real-runtime-handoff-proof.mjs
+
+### Claim Audit Artifact Notes
+
+- Required artifacts: 1.
+- Proof root: output/tracking-plan-proof/product-parent-child-ui-runtime.
+- Status can move only to review-required when all required artifacts are present; claimApproved remains false here.
+- Missing artifacts stay blocking until the P4_PHYSICAL_DEVICE evidence is produced outside local CI.
+
+### Missing Artifacts
+
+- output/tracking-plan-proof/product-parent-child-ui-runtime/04-retention-settings-production-write-result.png
 
 ## child-device-runtime-execution
 
