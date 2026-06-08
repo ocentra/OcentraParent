@@ -1,6 +1,6 @@
 {
   "proof": "screen-plan-external-gates",
-  "generatedAt": "2026-06-07T18:22:09.989Z",
+  "generatedAt": "2026-06-08T06:56:29.997Z",
   "manifest": {
     "path": "output/screen-plan-proof/external-gates/manual-evidence-manifest.json",
     "present": false,
@@ -86,16 +86,27 @@
       "status": "missing",
       "artifactPath": null,
       "reason": "No matching manifest entry exists."
+    },
+    {
+      "gateId": "authenticated-account-social-capture",
+      "platform": "authenticated-social",
+      "evidenceKind": "authenticated-account-capture-proof",
+      "workpack": "30 Test suite, Playwright, rollout, PR gate",
+      "requirement": "real logged-in social/feed account capture with operator consent, redacted account identifiers, local OCR/VLM analysis, policy dry-run, and raw image deletion proof",
+      "status": "missing",
+      "artifactPath": null,
+      "reason": "No matching manifest entry exists."
     }
   ],
   "counts": {
-    "requiredGateCount": 8,
+    "requiredGateCount": 9,
     "satisfiedGateCount": 0,
-    "missingGateCount": 8,
+    "missingGateCount": 9,
     "invalidGateCount": 0
   },
   "assertions": {
     "allCurrentExternalGatesEnumerated": true,
+    "authenticatedAccountSocialGateEnumerated": true,
     "productCompleteAllowed": false,
     "currentBranchMustRemainNonClaim": true,
     "rejectsFixtureOrStaticEvidence": true
@@ -107,6 +118,10 @@
     },
     {
       "name": "raw private content is rejected",
+      "rejected": true
+    },
+    {
+      "name": "authenticated account proof without consent and redaction is rejected",
       "rejected": true
     }
   ],

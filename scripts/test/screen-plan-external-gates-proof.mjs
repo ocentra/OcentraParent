@@ -41,6 +41,11 @@ const requiredGates = [
     workpack: '28 Live view optional mode',
     requirement: 'privacy/legal approval record for optional live view',
   }),
+  gate('authenticated-account-social-capture', 'authenticated-social', 'authenticated-account-capture-proof', {
+    workpack: '30 Test suite, Playwright, rollout, PR gate',
+    requirement:
+      'real logged-in social/feed account capture with operator consent, redacted account identifiers, local OCR/VLM analysis, policy dry-run, and raw image deletion proof',
+  }),
 ];
 
 const manifest = readManifestIfPresent();
@@ -71,6 +76,20 @@ const negativeChecks = [
       rawPrivateContentIncluded: true,
     })
   ),
+  rejects('authenticated account proof without consent and redaction is rejected', () =>
+    validateArtifact(requiredGates[8], {
+      gateId: requiredGates[8].gateId,
+      platform: requiredGates[8].platform,
+      evidenceKind: requiredGates[8].evidenceKind,
+      artifactPath: 'output/screen-plan-proof/external-gates/artifacts/authenticated-social-proof.json',
+      artifactSha256: 'sha256-placeholder',
+      capturedFromRealDeviceOrHost: true,
+      capturesLiveSurface: true,
+      rawPrivateContentIncluded: false,
+      operatorConsentRecorded: false,
+      redactedAccountIdentifiers: false,
+    })
+  ),
 ];
 
 if (negativeChecks.some((check) => !check.rejected)) {
@@ -97,7 +116,10 @@ const summary = {
     invalidGateCount,
   },
   assertions: {
-    allCurrentExternalGatesEnumerated: requiredGates.length === 8,
+    allCurrentExternalGatesEnumerated: requiredGates.length === 9,
+    authenticatedAccountSocialGateEnumerated: gateResults.some(
+      (result) => result.gateId === 'authenticated-account-social-capture'
+    ),
     productCompleteAllowed: satisfiedGateCount === requiredGates.length && invalidGateCount === 0,
     currentBranchMustRemainNonClaim: satisfiedGateCount !== requiredGates.length || invalidGateCount > 0,
     rejectsFixtureOrStaticEvidence: negativeChecks.every((check) => check.rejected),
@@ -169,6 +191,19 @@ function validateArtifact(requiredGate, entry) {
     return rejected('artifact must not include raw private content');
   }
 
+  if (
+    requiredGate.evidenceKind === 'authenticated-account-capture-proof' &&
+    (entry.operatorConsentRecorded !== true ||
+      entry.redactedAccountIdentifiers !== true ||
+      typeof entry.localAnalysisProofRef !== 'string' ||
+      typeof entry.policyDryRunProofRef !== 'string' ||
+      typeof entry.rawImageDeletionProofRef !== 'string')
+  ) {
+    return rejected(
+      'authenticated account proof must record operator consent, redacted account identifiers, local analysis proof, policy dry-run proof, and raw image deletion proof'
+    );
+  }
+
   const absoluteArtifactPath = resolve(repoRoot, entry.artifactPath);
   if (!existsSync(absoluteArtifactPath)) {
     return rejected('artifact file is not present in the current checkout');
@@ -200,6 +235,17 @@ function artifactExtensionIsAllowed(evidenceKind, path) {
   const lowerPath = path.toLowerCase();
   if (evidenceKind === 'privacy-legal-approval' || evidenceKind === 'hosted-relay-proof') {
     return lowerPath.endsWith('.json') || lowerPath.endsWith('.md');
+  }
+
+  if (evidenceKind === 'authenticated-account-capture-proof') {
+    return (
+      lowerPath.endsWith('.json') ||
+      lowerPath.endsWith('.md') ||
+      lowerPath.endsWith('.png') ||
+      lowerPath.endsWith('.jpg') ||
+      lowerPath.endsWith('.jpeg') ||
+      lowerPath.endsWith('.webp')
+    );
   }
 
   if (evidenceKind === 'platform-session-recording' || evidenceKind === 'physical-device-capture-recording') {

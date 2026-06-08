@@ -339,6 +339,10 @@ assert(
   'Closure audit expects external gates to keep the screen plan in non-claim state.'
 );
 assert(
+  externalGates.assertions?.authenticatedAccountSocialGateEnumerated === true,
+  'Closure audit expects authenticated-account social proof to be an explicit external gate.'
+);
+assert(
   externalGates.counts?.missingGateCount > 0,
   'Closure audit expects remaining external gates to be missing until real artifacts are attached.'
 );

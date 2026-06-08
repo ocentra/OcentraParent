@@ -284,6 +284,11 @@ proofs into physical LAN product execution.
       `output/screen-ai-pipeline-proof/adapter-readiness/proof-summary.json`.
 - [x] Operator live proof completed before product-complete claim.
 - [x] Live external URL/surface proof completed for real YouTube/Vimeo/public social/shopping/school surfaces; controlled fixture rows are harness proof only, and authenticated-account social proof remains a separate non-claimed artifact gate.
+- [x] Authenticated-account social proof is now an explicit external evidence
+      gate in `output/screen-plan-proof/external-gates/proof-summary.json`;
+      it remains missing until a digest-backed operator-consented logged-in
+      account capture artifact with redacted identifiers, local analysis/policy
+      refs, and deletion custody is attached.
 
 ## Validation
 

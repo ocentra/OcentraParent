@@ -456,7 +456,11 @@ only with explicit parent settings.
   image, AI, or policy claim at
   `output/screen-ai-pipeline-proof/live-operator/proof-summary.json`.
   Authenticated-account social proof remains separate from this public/live
-  surface proof.
+  surface proof. `scripts/test/screen-plan-external-gates-proof.mjs` now
+  enumerates `authenticated-account-social-capture` as a digest-backed external
+  evidence gate that requires operator consent, redacted account identifiers,
+  local analysis/policy/deletion proof, and no raw private content before any
+  authenticated-account claim can close.
 - Android child-agent scaffold now has emulator MediaProjection proof with
   explicit OS consent, foreground service, captured frame digest, and raw temp
   deletion. Physical Android parity and silent background capture are not
