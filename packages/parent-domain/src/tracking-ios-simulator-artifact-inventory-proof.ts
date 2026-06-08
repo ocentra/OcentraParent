@@ -289,18 +289,42 @@ function trackingIosSimulatorArtifactInventoryRowIsHonest(row: TrackingIosSimula
   const requiredArtifactSet = new Set(row.requiredArtifacts.map((artifactRef) => String(artifactRef)));
   const artifactRowSet = new Set(row.artifactRows.map((artifact) => String(artifact.artifactRef)));
   return (
+    trackingIosSimulatorArtifactsCoverRequirements(row, requiredArtifactSet, artifactRowSet) &&
+    trackingIosSimulatorManualRowsAreHonest(row) &&
+    trackingIosSimulatorArtifactInventoryNonClaimsAreHonest(row)
+  );
+}
+
+function trackingIosSimulatorArtifactsCoverRequirements(
+  row: TrackingIosSimulatorArtifactInventoryRowInput,
+  requiredArtifactSet: ReadonlySet<string>,
+  artifactRowSet: ReadonlySet<string>
+): boolean {
+  return (
     RequiredTrackingIosSimulatorArtifactRefs.every(
       (artifactRef) => requiredArtifactSet.has(artifactRef) && artifactRowSet.has(artifactRef)
     ) &&
     row.requiredArtifacts.length === row.presentArtifacts.length + row.missingArtifacts.length &&
+    row.artifactRows.every((artifact) => artifact.required === true) &&
+    row.presentArtifacts.every((artifactRef) => requiredArtifactSet.has(String(artifactRef))) &&
+    row.missingArtifacts.every((artifactRef) => requiredArtifactSet.has(String(artifactRef)))
+  );
+}
+
+function trackingIosSimulatorManualRowsAreHonest(row: TrackingIosSimulatorArtifactInventoryRowInput): boolean {
+  return (
     row.iosRequiredRuntimeArtifactCount === row.iosPresentRuntimeArtifactCount + row.iosMissingRuntimeArtifactCount &&
     row.iosManualRequiredRowCount > 0 &&
     row.iosMissingRuntimeArtifactCount > 0 &&
     row.privacyReleaseGateRowCount > 0 &&
-    row.privacyReleaseBlockedCount > 0 &&
-    row.artifactRows.every((artifact) => artifact.required === true) &&
-    row.presentArtifacts.every((artifactRef) => requiredArtifactSet.has(String(artifactRef))) &&
-    row.missingArtifacts.every((artifactRef) => requiredArtifactSet.has(String(artifactRef))) &&
+    row.privacyReleaseBlockedCount > 0
+  );
+}
+
+function trackingIosSimulatorArtifactInventoryNonClaimsAreHonest(
+  row: TrackingIosSimulatorArtifactInventoryRowInput
+): boolean {
+  return (
     row.coreLocationRuntimeClaimed === false &&
     row.backgroundRegionRuntimeClaimed === false &&
     row.physicalDeviceProofClaimed === false &&

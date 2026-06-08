@@ -295,15 +295,41 @@ function trackingChildRuntimeProductReadinessBlockerRowIsHonest(
   row: TrackingChildRuntimeProductReadinessBlockerRowInput
 ): boolean {
   return (
+    trackingChildRuntimeProductReadinessRequirementCountsAreHonest(row) &&
+    trackingChildRuntimeProductReadinessAndroidPrereqsAreHonest(row) &&
+    trackingChildRuntimeProductReadinessArtifactCountsAreHonest(row) &&
+    trackingChildRuntimeProductReadinessRequirementClaimsAreHonest(row) &&
+    trackingChildRuntimeProductReadinessBlockerRowNonClaimsAreHonest(row)
+  );
+}
+
+function trackingChildRuntimeProductReadinessRequirementCountsAreHonest(
+  row: TrackingChildRuntimeProductReadinessBlockerRowInput
+): boolean {
+  return (
     row.deliveryEnvelopeRef.length > 0 &&
     row.executionResultRequirementRefCount > 0 &&
     row.visibleSnapshotRequirementRefCount > 0 &&
     row.parentReceiptRequirementRefCount > 0 &&
-    row.runtimeObservationRequirementRefCount > 0 &&
+    row.runtimeObservationRequirementRefCount > 0
+  );
+}
+
+function trackingChildRuntimeProductReadinessAndroidPrereqsAreHonest(
+  row: TrackingChildRuntimeProductReadinessBlockerRowInput
+): boolean {
+  return (
     row.androidEmulatorPrerequisitesObserved === true &&
     row.androidPackageLaunchObserved === true &&
     row.androidForegroundServiceObserved === true &&
-    row.androidLocalGeofenceTransitionCount > 0 &&
+    row.androidLocalGeofenceTransitionCount > 0
+  );
+}
+
+function trackingChildRuntimeProductReadinessArtifactCountsAreHonest(
+  row: TrackingChildRuntimeProductReadinessBlockerRowInput
+): boolean {
+  return (
     row.childRuntimeRequiredArtifacts.length > 0 &&
     row.childRuntimeRequiredArtifacts.length === row.childRuntimeRequiredArtifactCount &&
     row.childRuntimePresentArtifacts.length === row.childRuntimePresentArtifactCount &&
@@ -311,13 +337,19 @@ function trackingChildRuntimeProductReadinessBlockerRowIsHonest(
     row.childRuntimeRequiredArtifactCount ===
       row.childRuntimePresentArtifactCount + row.childRuntimeMissingArtifactCount &&
     row.childRuntimeMissingArtifactCount > 0 &&
-    row.androidEmulatorChildRuntimeMissingArtifactCount > 0 &&
+    row.androidEmulatorChildRuntimeMissingArtifactCount > 0
+  );
+}
+
+function trackingChildRuntimeProductReadinessRequirementClaimsAreHonest(
+  row: TrackingChildRuntimeProductReadinessBlockerRowInput
+): boolean {
+  return (
     row.deliveryEnvelopeRequirementClaimed === true &&
     row.executionResultRequirementClaimed === true &&
     row.visibleSnapshotRequirementClaimed === true &&
     row.parentReceiptRequirementClaimed === true &&
-    row.runtimeObservationRequirementClaimed === true &&
-    trackingChildRuntimeProductReadinessBlockerRowNonClaimsAreHonest(row)
+    row.runtimeObservationRequirementClaimed === true
   );
 }
 
