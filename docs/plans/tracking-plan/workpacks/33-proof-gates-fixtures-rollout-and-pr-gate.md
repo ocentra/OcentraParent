@@ -1310,3 +1310,9 @@ tracking-claim-audit-proof tracking-product-readiness-closure-proof`
       retention platform runtime enforcement, production workers, escalation
       runtime workers, and product-ready tracking unclaimed until real artifact
       sets or approval exist.
+- [x] Aggregate closure refresh: claim audit now carries supporting proof refs
+      for the full-product UI runtime gate and local runtime artifact capture,
+      records five observed local UI artifacts and four hard full-product UI
+      runtime gaps, and the product-readiness closure proof now records those
+      counts alongside the retention writable execution derivation and
+      child-runtime artifact gap counts while keeping product-ready false.

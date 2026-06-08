@@ -454,11 +454,16 @@ written to
 and
 `test-results/tracking-full-product-ui-local-runtime-artifact-capture-proof/proof.json`.
 It copies the hosted parent overview and parent devices shell screenshots plus
-the hosted cross-surface accessibility summary into the product UI runtime
-artifact root. The refreshed full-product UI runtime artifact gate now reports
-three present local parent-side artifacts and six missing hard runtime
-artifacts, while full product UI runtime, child-device runtime, physical-device,
-authority, provider, production UI, and product-ready claims remain false.
+the hosted notification history/preferences screenshot, cross-surface
+accessibility summary, and product UI trace into the product UI runtime artifact
+root. The refreshed full-product UI runtime artifact gate and claim-audit row
+now report five present local UI artifacts and four missing hard full-product UI
+runtime artifacts, while full product UI runtime, child-device runtime,
+physical-device, authority, provider, production UI, and product-ready claims
+remain false. The tracking product-readiness closure proof now carries those
+aggregate counts with the retention writable execution derivation and
+child-runtime artifact gap counts, so local/CI closure accounting cannot pass
+without preserving the latest UI-local evidence and remaining blockers.
 WP33 now also has production durable workers readiness blocker proof from
 `node scripts/test/tracking-production-durable-workers-readiness-blocker-proof.mjs`,
 written to
@@ -968,7 +973,10 @@ Every implementation workpack must update, or explicitly justify not updating:
       `output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-gate/65-claim-audit-proof.json`;
       command: `node scripts/test/tracking-claim-audit-proof.mjs`. Current rows
       remain `manual-required`, missing real artifacts/approval, and keep all
-      product-ready claims false.
+      product-ready claims false. The full product UI audit row now cites the
+      runtime gate and local runtime artifact capture proof refs, records five
+      present local UI artifacts, and keeps the four hard runtime UI gaps as
+      blockers.
 - [x] Physical-device artifact gate proof now verifies the required Android and
       iOS physical evidence roots and required artifact names before any
       physical-device behavior can be claimed. Proof:

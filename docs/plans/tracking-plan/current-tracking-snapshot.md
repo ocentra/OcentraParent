@@ -92,7 +92,10 @@
   escalation gaps can be closed without inventing duplicate truth.
 - Product-readiness closure proof exists through
   `node scripts/test/tracking-product-readiness-closure-proof.mjs`; it verifies
-  the local/CI proof accounting chain and keeps product-ready tracking false.
+  the local/CI proof accounting chain, now carries aggregate evidence for five
+  observed full-product UI local artifacts, one retention writable execution
+  derivation row, ten child-runtime artifact gaps, and the claim-audit blocker
+  counts, and keeps product-ready tracking false.
 
 ## Runtime/Product Claims Still Missing
 
