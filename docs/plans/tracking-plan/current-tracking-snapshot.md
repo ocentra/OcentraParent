@@ -113,7 +113,10 @@
   child-runtime artifact gaps, and the claim-audit blocker counts. The claim
   audit tier split is now machine-checked as six physical-device/runtime rows,
   one approved-manual desktop row, one manual provider-runtime row, and two
-  production-runtime rows, all product-ready false.
+  production-runtime rows, all product-ready false. The claim-audit rows now
+  also carry acceptance criteria, manual validation commands, and artifact
+  acceptance notes for each hard claim row so the next handoff has a concrete
+  P4 evidence checklist without changing product-readiness status.
 
 ## Runtime/Product Claims Still Missing
 

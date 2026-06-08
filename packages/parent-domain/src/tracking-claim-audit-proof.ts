@@ -34,6 +34,9 @@ export const TrackingClaimAuditRowSchema = withParser(
     requiredProofTier: TrackingClaimAuditTextSchema,
     currentProofTier: Schema.Literal('P3_LOCAL_DEV_MACHINE'),
     status: TrackingClaimAuditStatusSchema,
+    acceptanceCriteria: Schema.Array(TrackingClaimAuditTextSchema),
+    manualValidationCommands: Schema.Array(TrackingClaimAuditTextSchema),
+    artifactAcceptanceNotes: Schema.Array(TrackingClaimAuditTextSchema),
     requiredArtifacts: Schema.Array(TrackingClaimAuditPathSchema),
     presentArtifacts: Schema.Array(TrackingClaimAuditPathSchema),
     missingArtifacts: Schema.Array(TrackingClaimAuditPathSchema),
@@ -89,6 +92,9 @@ export const TrackingClaimAuditProofSchema = withParser(
       approvedManualRequiredRowCount: Schema.Number,
       manualProviderRuntimeRequiredRowCount: Schema.Number,
       productionRuntimeRequiredRowCount: Schema.Number,
+      acceptanceCriteriaCount: Schema.Number,
+      manualValidationCommandCount: Schema.Number,
+      artifactAcceptanceNoteCount: Schema.Number,
       approvedClaimCount: Schema.Literal(0),
       productReadyRowCount: Schema.Literal(0),
     }),
@@ -326,6 +332,9 @@ function claimAuditRow(
     requiredProofTier: plan.requiredProofTier,
     currentProofTier: 'P3_LOCAL_DEV_MACHINE',
     status: artifactSetComplete ? 'artifact-set-present-review-required' : 'manual-required',
+    acceptanceCriteria: acceptanceCriteriaForPlan(plan),
+    manualValidationCommands: manualValidationCommandsForPlan(),
+    artifactAcceptanceNotes: artifactAcceptanceNotesForPlan(plan),
     requiredArtifacts: [...plan.requiredArtifacts],
     presentArtifacts,
     missingArtifacts,
@@ -349,6 +358,47 @@ function supportingProofRefsForPlan(plan: (typeof RequiredTrackingClaimAuditPlan
   return 'supportingProofRefs' in plan ? plan.supportingProofRefs : [plan.sourceProofRef];
 }
 
+function acceptanceCriteriaForPlan(plan: (typeof RequiredTrackingClaimAuditPlans)[number]): readonly string[] {
+  return [
+    `Collect every required artifact under ${plan.proofRoot} before review.`,
+    `Keep required proof tier ${plan.requiredProofTier}; local P3 artifacts cannot approve the claim.`,
+    `Cite source proof ${plan.sourceProofRef} and all supporting proof refs in the final handoff.`,
+    acceptanceCriterionForProofTier(plan.requiredProofTier),
+  ];
+}
+
+function acceptanceCriterionForProofTier(
+  requiredProofTier: (typeof RequiredTrackingClaimAuditPlans)[number]['requiredProofTier']
+) {
+  if (requiredProofTier === 'P4_PHYSICAL_DEVICE') {
+    return 'Use real device or enrolled child runtime evidence with metadata, logs, screenshots, and transition or execution rows.';
+  }
+  if (requiredProofTier === 'P4_APPROVED_MANUAL_PROOF') {
+    return 'Use an approved manual provider observation record plus parent-visible screenshot and result summary.';
+  }
+  if (requiredProofTier === 'P4_MANUAL_PROVIDER_RUNTIME') {
+    return 'Use real provider request, response, webhook receipt, parent-visible receipt, and provider audit log artifacts.';
+  }
+  return 'Use deployed worker/runtime artifacts plus durable storage evidence from the production environment.';
+}
+
+function manualValidationCommandsForPlan(): readonly string[] {
+  return [
+    'node scripts/test/tracking-claim-audit-proof.mjs',
+    'node scripts/test/tracking-product-readiness-closure-proof.mjs',
+    'node scripts/test/tracking-real-runtime-handoff-proof.mjs',
+  ];
+}
+
+function artifactAcceptanceNotesForPlan(plan: (typeof RequiredTrackingClaimAuditPlans)[number]): readonly string[] {
+  return [
+    `Required artifacts: ${plan.requiredArtifacts.length}.`,
+    `Proof root: ${plan.proofRoot}.`,
+    `Status can move only to review-required when all required artifacts are present; claimApproved remains false here.`,
+    `Missing artifacts stay blocking until the ${plan.requiredProofTier} evidence is produced outside local CI.`,
+  ];
+}
+
 function summarizeRows(rows: readonly TrackingClaimAuditRow[]) {
   return {
     rowCount: rows.length,
@@ -364,6 +414,9 @@ function summarizeRows(rows: readonly TrackingClaimAuditRow[]) {
     manualProviderRuntimeRequiredRowCount: rows.filter((row) => row.requiredProofTier === 'P4_MANUAL_PROVIDER_RUNTIME')
       .length,
     productionRuntimeRequiredRowCount: rows.filter((row) => row.requiredProofTier === 'P4_PRODUCTION_RUNTIME').length,
+    acceptanceCriteriaCount: rows.reduce((count, row) => count + row.acceptanceCriteria.length, 0),
+    manualValidationCommandCount: rows.reduce((count, row) => count + row.manualValidationCommands.length, 0),
+    artifactAcceptanceNoteCount: rows.reduce((count, row) => count + row.artifactAcceptanceNotes.length, 0),
     approvedClaimCount: 0 as const,
     productReadyRowCount: 0 as const,
   };

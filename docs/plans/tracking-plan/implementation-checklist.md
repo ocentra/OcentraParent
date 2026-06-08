@@ -1020,7 +1020,10 @@ Every implementation workpack must update, or explicitly justify not updating:
       present required runtime-root artifact refs, keeps the four hard runtime
       UI gaps as blockers, and classifies the ten final manual-required claim rows as six
       physical-device/runtime rows, one approved-manual desktop row, one manual
-      provider-runtime row, and two production-runtime rows.
+      provider-runtime row, and two production-runtime rows. Each row now also
+      carries generated acceptance criteria, manual validation commands, and
+      artifact acceptance notes so the P4/manual handoff is explicit while all
+      audited claims remain unapproved.
 - [x] Physical-device artifact gate proof now verifies the required Android and
       iOS physical evidence roots and required artifact names before any
       physical-device behavior can be claimed. Proof:

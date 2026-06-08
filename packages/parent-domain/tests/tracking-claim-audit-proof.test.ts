@@ -17,6 +17,9 @@ describe('tracking claim audit proof', () => {
     expect(proof.summary.approvedManualRequiredRowCount).toBe(1);
     expect(proof.summary.manualProviderRuntimeRequiredRowCount).toBe(1);
     expect(proof.summary.productionRuntimeRequiredRowCount).toBe(2);
+    expect(proof.summary.acceptanceCriteriaCount).toBe(RequiredTrackingClaimAuditPlans.length * 4);
+    expect(proof.summary.manualValidationCommandCount).toBe(RequiredTrackingClaimAuditPlans.length * 3);
+    expect(proof.summary.artifactAcceptanceNoteCount).toBe(RequiredTrackingClaimAuditPlans.length * 4);
     expect(proof.summary.approvedClaimCount).toBe(0);
     expect(proof.summary.productReadyRowCount).toBe(0);
     expect(proof.productClaims.physicalDeviceBehaviorClaimed).toBe(false);
@@ -41,6 +44,25 @@ describe('tracking claim audit proof', () => {
     expect(proof.rows[0].productClaimReady).toBe(false);
     expect(proof.summary.artifactSetPresentReviewRequiredRowCount).toBe(1);
   });
+});
+
+describe('tracking claim audit acceptance matrix', () => {
+  it('derives a manual acceptance matrix for every hard claim row', () => {
+    const proof = buildTrackingClaimAuditProof(GeneratedAt, []);
+
+    for (const row of proof.rows) {
+      expect(row.acceptanceCriteria).toHaveLength(4);
+      expect(row.manualValidationCommands).toEqual([
+        'node scripts/test/tracking-claim-audit-proof.mjs',
+        'node scripts/test/tracking-product-readiness-closure-proof.mjs',
+        'node scripts/test/tracking-real-runtime-handoff-proof.mjs',
+      ]);
+      expect(row.artifactAcceptanceNotes).toHaveLength(4);
+      expect(row.acceptanceCriteria.join('\n')).toContain(row.proofRoot);
+      expect(row.acceptanceCriteria.join('\n')).toContain(row.requiredProofTier);
+      expect(row.artifactAcceptanceNotes.join('\n')).toContain('claimApproved remains false');
+    }
+  });
 
   it('carries full-product UI local artifact evidence without approving the claim', () => {
     const fullProductPlan = RequiredTrackingClaimAuditPlans.find(
@@ -61,6 +83,8 @@ describe('tracking claim audit proof', () => {
     expect(row?.supportingProofRefs).toContain(
       'test-results/tracking-full-product-ui-local-runtime-artifact-capture-proof/proof.json'
     );
+    expect(row?.acceptanceCriteria.join('\n')).toContain('local P3 artifacts cannot approve the claim');
+    expect(row?.artifactAcceptanceNotes.join('\n')).toContain('P4_PHYSICAL_DEVICE');
     expect(row?.presentArtifacts).toHaveLength(5);
     expect(row?.missingArtifacts).toEqual([
       '04-retention-settings-production-write-result.png',
