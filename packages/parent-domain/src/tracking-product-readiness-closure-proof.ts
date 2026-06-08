@@ -114,6 +114,11 @@ export const TrackingProductReadinessClosureAggregateEvidenceSchema = withParser
     fullProductUiClosureRetentionWritableExecutionRowCount: Schema.Number.pipe(Schema.int(), Schema.positive()),
     fullProductUiClosureRetentionWritableExecutionDerivationCount: Schema.Number.pipe(Schema.int(), Schema.positive()),
     fullProductUiClosureChildRuntimeMissingArtifactCount: Schema.Number.pipe(Schema.int()),
+    retentionRuntimeRequiredArtifactCount: Schema.Number.pipe(Schema.int(), Schema.positive()),
+    retentionRuntimePresentArtifactCount: Schema.Number.pipe(Schema.int()),
+    retentionRuntimeMissingArtifactCount: Schema.Number.pipe(Schema.int()),
+    retentionRuntimeManualRequiredRowCount: Schema.Number.pipe(Schema.int()),
+    retentionRuntimeArtifactSetPresentRowCount: Schema.Number.pipe(Schema.int()),
     claimAuditPresentArtifactCount: Schema.Number.pipe(Schema.int()),
     claimAuditMissingArtifactCount: Schema.Number.pipe(Schema.int(), Schema.positive()),
     claimAuditManualRequiredRowCount: Schema.Number.pipe(Schema.int(), Schema.positive()),
@@ -133,6 +138,24 @@ export const TrackingProductReadinessClosureAggregateEvidenceSchema = withParser
         (evidence) =>
           evidence.fullProductUiClosureChildRuntimeMissingArtifactCount >= 0 ||
           'Aggregate closure evidence cannot record negative child-runtime missing artifacts'
+      )
+    )
+    .pipe(
+      Schema.filter(
+        (evidence) =>
+          evidence.retentionRuntimeRequiredArtifactCount ===
+            evidence.retentionRuntimePresentArtifactCount + evidence.retentionRuntimeMissingArtifactCount ||
+          'Aggregate closure evidence must classify every retention runtime artifact'
+      )
+    )
+    .pipe(
+      Schema.filter(
+        (evidence) =>
+          (evidence.retentionRuntimePresentArtifactCount >= 0 &&
+            evidence.retentionRuntimeMissingArtifactCount >= 0 &&
+            evidence.retentionRuntimeManualRequiredRowCount >= 0 &&
+            evidence.retentionRuntimeArtifactSetPresentRowCount >= 0) ||
+          'Aggregate closure evidence cannot record negative retention runtime counts'
       )
     )
 );

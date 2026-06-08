@@ -12,6 +12,7 @@ const focusedProofDir = path.join(repoRoot, 'output', 'tracking-plan-proof', pro
 const output07 = path.join(repoRoot, 'output', 'tracking-plan-proof', '07-retention-and-custody-model');
 const output33 = path.join(repoRoot, 'output', 'tracking-plan-proof', '33-proof-gates-fixtures-rollout-and-pr-gate');
 const commands = [];
+const initialGitStatusShort = gitOutput(['status', '--short']);
 
 await main();
 
@@ -87,7 +88,7 @@ function buildProof({ readModel }) {
     generatedAt,
     branch: gitOutput(['rev-parse', '--abbrev-ref', 'HEAD']),
     commit: gitOutput(['rev-parse', 'HEAD']),
-    gitStatusShort: gitOutput(['status', '--short']),
+    gitStatusShort: initialGitStatusShort,
     workpackIds: ['07-retention-and-custody-model', '33-proof-gates-fixtures-rollout-and-pr-gate'],
     requiredProofTier: 'P4_PRODUCTION_RUNTIME',
     currentProofTier: 'P3_LOCAL_DEV_MACHINE',

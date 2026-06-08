@@ -702,8 +702,11 @@ Every implementation workpack must update, or explicitly justify not updating:
       persistence proof now records the Rust service durable store ref and
       persisted state. Retention runtime artifact gate proof now checks the
       writable product settings and platform retention runtime artifact refs
-      without claiming execution. Product-ready writable retention behavior,
-      platform runtime, and production hardening remain pending.
+      without claiming execution. Product-readiness closure and real-runtime
+      handoff accounting now carry two required retention runtime artifacts,
+      one present local writable execution artifact, and one missing platform
+      retention runtime enforcement artifact. Product-ready writable retention
+      behavior, platform runtime, and production hardening remain pending.
 - [x] Tracking service read-model command has P2 proof for SQLite tracking rows,
       citation IDs through `trackingReadModel`, retention-delete tombstone
       replay with deleted evidence citation summaries, and narrow parent portal
@@ -1057,7 +1060,8 @@ Every implementation workpack must update, or explicitly justify not updating:
       command:
       `node scripts/test/tracking-real-runtime-handoff-proof.mjs`.
       The handoff now carries product-readiness closure accounting, preserves
-      the five local full-product UI artifacts plus claim-audit blocker counts,
+      the five local full-product UI artifacts, retention runtime
+      required/present/missing artifact counts, plus claim-audit blocker counts,
       and classifies the remaining manual follow-up as six physical/runtime
       rows, one provider-runtime row, two production-runtime rows, and zero
       CI-runnable rows.

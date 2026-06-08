@@ -1,12 +1,15 @@
 # Tracking Real Runtime Handoff Manual Validation Runbook
 
 - generatedAt: 2026-06-08T01:05:00.000Z
-- commit: b5c43e78df3a3cc719af27543402c9f3df79fad8
+- commit: 18f779c22e7567c18022e84400783f71d86b74be
 - currentProofTier: P3_LOCAL_DEV_MACHINE
 - requiredProofTier: P4_REAL_RUNTIME_HANDOFF
 - productReadyClaimed: false
 - ciRunnableRowCount: 0
 - fullProductUiLocalArtifactCount: 5
+- retentionRuntimeRequiredArtifactCount: 2
+- retentionRuntimePresentArtifactCount: 1
+- retentionRuntimeMissingArtifactCount: 1
 - claimAuditMissingArtifactCount: 61
 
 ## android-physical-background-and-geofence

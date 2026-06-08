@@ -93,7 +93,10 @@ Retention runtime artifact gate proof now consumes the product-readiness blocker
 source and checks the required writable product settings and platform retention
 runtime artifact refs through
 `node scripts/test/tracking-retention-runtime-artifact-gate-proof.mjs` while
-keeping those execution claims false.
+keeping those execution claims false. The product-readiness closure and
+real-runtime handoff proofs now carry this retention runtime artifact accounting
+forward: two required artifacts, one present local writable execution artifact,
+and one missing platform retention runtime enforcement artifact.
 The hosted parent route now also sends that typed write command and renders the
 service accepted result with applied local retention values. Writable product
 settings, platform behavior, applied product-ready writable retention execution,
@@ -148,8 +151,9 @@ This workpack can be assigned independently, implemented against the owning doma
   writable product settings execution and platform runtime retention
   enforcement. The local product-settings writable execution artifact may be
   present, but the gate remains manual-required until platform retention
-  enforcement is proved; it is not platform enforcement, production, or
-  product-ready proof.
+  enforcement is proved. Product-readiness closure and real-runtime handoff
+  accounting now cite that exact present/missing split; it is not platform
+  enforcement, production, or product-ready proof.
 - Any unsupported platform or provider failure must surface as degraded/manual-required state, not as a silent success.
 
 ## Fill This Before Reporting DONE Or PR-ready

@@ -1,3 +1,4 @@
 workpack=33-proof-gates-fixtures-rollout-and-pr-gate
 Closure rows cite existing local/CI proof refs and enumerate remaining product blockers.
+Retention runtime closure accounting records the local writable settings artifact as present and the platform runtime retention enforcement artifact as missing.
 Rows do not claim writable retention product settings, platform retention enforcement, Android/iOS physical background behavior, authority enrollment, provider delivery/receipt runtime, production workers, actual child-device runtime, or product readiness.

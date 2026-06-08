@@ -24,6 +24,11 @@ describe('tracking product readiness closure proof', () => {
     expect(proof.aggregateEvidence.fullProductUiLocalArtifactCount).toBe(5);
     expect(proof.aggregateEvidence.fullProductUiClosureRetentionWritableExecutionRowCount).toBe(1);
     expect(proof.aggregateEvidence.fullProductUiClosureChildRuntimeMissingArtifactCount).toBe(10);
+    expect(proof.aggregateEvidence.retentionRuntimeRequiredArtifactCount).toBe(2);
+    expect(proof.aggregateEvidence.retentionRuntimePresentArtifactCount).toBe(1);
+    expect(proof.aggregateEvidence.retentionRuntimeMissingArtifactCount).toBe(1);
+    expect(proof.aggregateEvidence.retentionRuntimeManualRequiredRowCount).toBe(1);
+    expect(proof.aggregateEvidence.retentionRuntimeArtifactSetPresentRowCount).toBe(0);
     expect(proof.aggregateEvidence.claimAuditPresentArtifactCount).toBe(5);
     expect(proof.aggregateEvidence.productClaimReady).toBe(false);
   });
@@ -66,6 +71,11 @@ function aggregateEvidence() {
     fullProductUiClosureRetentionWritableExecutionRowCount: 1,
     fullProductUiClosureRetentionWritableExecutionDerivationCount: 1,
     fullProductUiClosureChildRuntimeMissingArtifactCount: 10,
+    retentionRuntimeRequiredArtifactCount: 2,
+    retentionRuntimePresentArtifactCount: 1,
+    retentionRuntimeMissingArtifactCount: 1,
+    retentionRuntimeManualRequiredRowCount: 1,
+    retentionRuntimeArtifactSetPresentRowCount: 0,
     claimAuditPresentArtifactCount: 5,
     claimAuditMissingArtifactCount: 49,
     claimAuditManualRequiredRowCount: 10,

@@ -80,16 +80,20 @@
   validation runbook for the P4 handoff rows so the remaining Android, iOS,
   child-runtime, product UI, authority, provider, retention, production, and
   escalation gaps can be closed without inventing duplicate truth. It now also
-  carries the latest product-readiness closure accounting and classifies the
-  remaining handoff rows as six physical/runtime-required rows, one
+  carries the latest product-readiness closure accounting, including two
+  required retention runtime artifacts, one present local writable execution
+  artifact, one missing platform retention runtime enforcement artifact, and
+  classifies the remaining handoff rows as six physical/runtime-required rows, one
   provider-runtime-required row, two production-runtime-required rows, and zero
   CI-runnable rows.
 - Product-readiness closure proof exists through
   `node scripts/test/tracking-product-readiness-closure-proof.mjs`; it verifies
   the local/CI proof accounting chain, now carries aggregate evidence for five
   observed full-product UI local artifacts, one retention writable execution
-  derivation row, ten child-runtime artifact gaps, and the claim-audit blocker
-  counts, and keeps product-ready tracking false.
+  derivation row, two retention runtime artifact requirements with one local
+  artifact present and one platform runtime enforcement artifact missing, ten
+  child-runtime artifact gaps, and the claim-audit blocker counts, and keeps
+  product-ready tracking false.
 
 ## Runtime/Product Claims Still Missing
 

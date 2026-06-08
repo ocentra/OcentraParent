@@ -113,12 +113,35 @@ export const TrackingRealRuntimeHandoffClosureAccountingSchema = withParser(
     fullProductUiLocalArtifactCount: Schema.Number.pipe(Schema.int(), Schema.positive()),
     fullProductUiClosureRetentionWritableExecutionRowCount: Schema.Number.pipe(Schema.int(), Schema.positive()),
     fullProductUiClosureChildRuntimeMissingArtifactCount: Schema.Number.pipe(Schema.int()),
+    retentionRuntimeRequiredArtifactCount: Schema.Number.pipe(Schema.int(), Schema.positive()),
+    retentionRuntimePresentArtifactCount: Schema.Number.pipe(Schema.int()),
+    retentionRuntimeMissingArtifactCount: Schema.Number.pipe(Schema.int()),
+    retentionRuntimeManualRequiredRowCount: Schema.Number.pipe(Schema.int()),
+    retentionRuntimeArtifactSetPresentRowCount: Schema.Number.pipe(Schema.int()),
     claimAuditPresentArtifactCount: Schema.Number.pipe(Schema.int()),
     claimAuditMissingArtifactCount: Schema.Number.pipe(Schema.int(), Schema.positive()),
     claimAuditManualRequiredRowCount: Schema.Number.pipe(Schema.int(), Schema.positive()),
     claimAuditProductReadyRowCount: Schema.Literal(0),
     productClaimReady: Schema.Literal(false),
   })
+    .pipe(
+      Schema.filter(
+        (accounting) =>
+          accounting.retentionRuntimeRequiredArtifactCount ===
+            accounting.retentionRuntimePresentArtifactCount + accounting.retentionRuntimeMissingArtifactCount ||
+          'Real-runtime closure accounting must classify every retention runtime artifact'
+      )
+    )
+    .pipe(
+      Schema.filter(
+        (accounting) =>
+          (accounting.retentionRuntimePresentArtifactCount >= 0 &&
+            accounting.retentionRuntimeMissingArtifactCount >= 0 &&
+            accounting.retentionRuntimeManualRequiredRowCount >= 0 &&
+            accounting.retentionRuntimeArtifactSetPresentRowCount >= 0) ||
+          'Real-runtime closure accounting cannot record negative retention runtime counts'
+      )
+    )
 );
 
 export const TrackingRealRuntimeHandoffProofSchema = withParser(
