@@ -1,7 +1,7 @@
 {
   "status": "blocked-by-upstream-adapter-artifacts",
   "proofKind": "screen-ai-final-adapter-dependency-audit",
-  "generatedAt": "2026-06-08T02:30:18.687Z",
+  "generatedAt": "2026-06-08T03:25:13.510Z",
   "sourceArtifacts": {
     "adapterReadiness": "output/screen-ai-pipeline-proof/adapter-readiness/proof-summary.json",
     "adapterReadinessReadModel": "output/screen-ai-pipeline-proof/adapter-readiness/read-model.json",
@@ -16,6 +16,7 @@
   "closure": {
     "windowsOwnedProcessAdaptersProved": true,
     "finalPathArtifactGateStillValid": true,
+    "finalPathFreshServiceRerunProved": true,
     "portalReadModelAndDeletionStillProved": true,
     "broadBrowserNetworkMobileProductComplete": false,
     "openChecklistRowRetained": true,
@@ -288,6 +289,6 @@
   "nonClaims": [
     "This audit does not implement broad installed-app blocking, host network/domain blocking, managed active-tab enforcement, Android/iOS mobile control, or Linux host control.",
     "This audit does not close the product-complete adapter checklist row; it verifies that the row remains open until upstream execution artifacts exist.",
-    "This audit reuses retained proof artifacts and does not rerun live capture, local AI inference, portal rendering, or adapter execution."
+    "This audit consumes the final product-path proof after its service OCR policy source rerun assertion, but does not rerun live capture, local AI inference, portal rendering, or adapter execution itself."
   ]
 }

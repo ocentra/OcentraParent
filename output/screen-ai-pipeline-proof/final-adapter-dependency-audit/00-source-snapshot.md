@@ -1,6 +1,6 @@
 # Screen AI Final Adapter Dependency Audit
 
-Generated: 2026-06-08T02:30:18.687Z
+Generated: 2026-06-08T03:25:13.510Z
 
 ## Source Artifacts
 
@@ -44,6 +44,7 @@ Generated: 2026-06-08T02:30:18.687Z
 {
   "windowsOwnedProcessAdaptersProved": true,
   "finalPathArtifactGateStillValid": true,
+  "finalPathFreshServiceRerunProved": true,
   "portalReadModelAndDeletionStillProved": true,
   "broadBrowserNetworkMobileProductComplete": false,
   "openChecklistRowRetained": true,

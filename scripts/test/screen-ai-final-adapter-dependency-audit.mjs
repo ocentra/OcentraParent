@@ -112,6 +112,10 @@ assert(finalProductPath.status === 'ok', 'final product path artifact gate is no
 assert(finalProductPath.closure?.actionDispatchProven === true, 'Windows action dispatch is not proved');
 assert(finalProductPath.closure?.portalReadModelProven === true, 'portal/read-model path is not proved');
 assert(finalProductPath.closure?.retentionCustodyProven === true, 'retention/deletion custody is not proved');
+assert(
+  finalProductPath.closure?.singleRuntimeSessionRerun === true,
+  'final product path did not retain the fresh service OCR rerun proof'
+);
 assert(adapterReadiness.summary?.executedRows === 2, 'expected exactly two executed Windows owned-process rows');
 assert(adapterReadiness.summary?.skippedRows === 6, 'expected six non-product-complete adapter rows');
 assert(adapterReadiness.summary?.claimUpgradeRows === 0, 'adapter readiness proof contains claim upgrades');
@@ -154,6 +158,7 @@ const proof = {
   closure: {
     windowsOwnedProcessAdaptersProved: true,
     finalPathArtifactGateStillValid: true,
+    finalPathFreshServiceRerunProved: true,
     portalReadModelAndDeletionStillProved: true,
     broadBrowserNetworkMobileProductComplete: false,
     openChecklistRowRetained: true,
@@ -177,7 +182,7 @@ const proof = {
   nonClaims: [
     'This audit does not implement broad installed-app blocking, host network/domain blocking, managed active-tab enforcement, Android/iOS mobile control, or Linux host control.',
     'This audit does not close the product-complete adapter checklist row; it verifies that the row remains open until upstream execution artifacts exist.',
-    'This audit reuses retained proof artifacts and does not rerun live capture, local AI inference, portal rendering, or adapter execution.',
+    'This audit consumes the final product-path proof after its service OCR policy source rerun assertion, but does not rerun live capture, local AI inference, portal rendering, or adapter execution itself.',
   ],
 };
 
