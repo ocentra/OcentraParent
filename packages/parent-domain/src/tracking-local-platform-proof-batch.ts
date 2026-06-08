@@ -10,6 +10,7 @@ const TrackingLocalPlatformProofBatchText = Schema.String.pipe(Schema.minLength(
 export const TrackingLocalPlatformProofBatchAreaSchema = withParser(
   Schema.Literal(
     'android-emulator-runtime',
+    'cross-platform-runtime-capability',
     'wsl-local-replay',
     'hosted-parent-ui-accessibility',
     'parent-child-local-runtime-bridge',
@@ -96,6 +97,7 @@ export const TrackingLocalPlatformProofBatchSchema = withParser(
     }),
     productClaims: Schema.Struct({
       androidEmulatorLocalProofPassed: Schema.Literal(true),
+      crossPlatformRuntimeCapabilityPassed: Schema.Literal(true),
       wslLocalReplayPassed: Schema.Literal(true),
       hostedParentUiAccessibilityPassed: Schema.Literal(true),
       parentChildLocalRuntimeBridgePassed: Schema.Literal(true),
@@ -122,7 +124,7 @@ export const TrackingLocalPlatformProofBatchSchema = withParser(
     .pipe(
       Schema.filter(
         (proof) =>
-          (proof.summary.localProofPassedRows >= 5 &&
+          (proof.summary.localProofPassedRows >= 6 &&
             proof.summary.manualRequiredRows >= 1 &&
             proof.summary.productReadyRows === 0) ||
           'Tracking local platform proof batch must pass local layers while keeping manual runtime gaps visible'
@@ -149,6 +151,7 @@ export type TrackingLocalPlatformProofBatchRowInput = {
 
 export const RequiredTrackingLocalPlatformProofBatchAreas = [
   'android-emulator-runtime',
+  'cross-platform-runtime-capability',
   'wsl-local-replay',
   'hosted-parent-ui-accessibility',
   'parent-child-local-runtime-bridge',
@@ -189,6 +192,7 @@ export function buildTrackingLocalPlatformProofBatch(
     summary,
     productClaims: {
       androidEmulatorLocalProofPassed: true,
+      crossPlatformRuntimeCapabilityPassed: true,
       wslLocalReplayPassed: true,
       hostedParentUiAccessibilityPassed: true,
       parentChildLocalRuntimeBridgePassed: true,

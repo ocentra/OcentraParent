@@ -70,6 +70,15 @@ async function collectProbes() {
         ? unavailable('docker-daemon', 'Docker CLI not found')
         : run('docker-daemon', dockerPath, ['version', '--format', '{{.Server.Version}}']),
     android: run('android-toolchain', 'cmd', ['/c', 'where adb & adb version & where java & java -version']),
+    androidHome: process.env.ANDROID_HOME ?? process.env.ANDROID_SDK_ROOT ?? '',
+    androidGradleVersion: run('android-gradle-version', 'cmd', [
+      '/c',
+      'platforms\\android\\agent\\gradlew.bat --version',
+    ]),
+    androidGradleBuild: run('android-gradle-build', 'cmd', [
+      '/c',
+      'platforms\\android\\agent\\gradlew.bat :app:assembleDebug --no-daemon',
+    ]),
   };
 }
 
@@ -88,6 +97,8 @@ async function collectSourceProofs() {
 
 function rowsFrom(probes, sources) {
   const dockerObserved = probes.dockerVersion.exitCode === 0 && probes.dockerDaemon.exitCode === 0;
+  const androidSdkObserved = probes.android.exitCode === 0 && probes.androidHome.length > 0;
+  const androidGradleObserved = probes.androidGradleVersion.exitCode === 0 && probes.androidGradleBuild.exitCode === 0;
   const androidArtifacts = sources.androidPhysical?.summary?.presentArtifactCount ?? 0;
   return [
     {
@@ -133,6 +144,38 @@ function rowsFrom(probes, sources) {
       artifactCount: dockerObserved ? 2 : 1,
       ciRunnable: true,
       localRuntimeClaimed: dockerObserved,
+    },
+    {
+      area: 'android-sdk-toolchain',
+      status: androidSdkObserved ? 'local-proof-passed' : 'host-tool-unavailable',
+      proofRef: 'test-results/tracking-cross-platform-runtime-capability-proof/android-sdk-toolchain.json',
+      sourceRefs: [],
+      currentProofTier: androidSdkObserved ? 'P3_LOCAL_ANDROID_TOOLCHAIN' : 'P2_HOST_TOOL_DISCOVERED',
+      requiredProofTier: 'P3_LOCAL_DEV_MACHINE',
+      observedTooling: lines(`${probes.androidHome}\n${probes.android.stdout}\n${probes.android.stderr}`),
+      passedAssertions: androidSdkObserved ? ['Android SDK, adb, and Java toolchain are reachable'] : [],
+      remainingBlockers: [
+        'Android SDK/ADB proof is not physical background location, system geofence, Device Owner, or authority proof',
+      ],
+      artifactCount: lines(`${probes.androidHome}\n${probes.android.stdout}`).length,
+      ciRunnable: true,
+      localRuntimeClaimed: androidSdkObserved,
+    },
+    {
+      area: 'android-gradle-project-build',
+      status: androidGradleObserved ? 'local-proof-passed' : 'host-tool-unavailable',
+      proofRef: 'test-results/tracking-cross-platform-runtime-capability-proof/android-gradle-project-build.json',
+      sourceRefs: ['platforms/android/agent/build.gradle', 'platforms/android/agent/app/build.gradle'],
+      currentProofTier: androidGradleObserved ? 'P3_LOCAL_ANDROID_GRADLE_BUILD' : 'P2_HOST_TOOL_DISCOVERED',
+      requiredProofTier: 'P3_LOCAL_DEV_MACHINE',
+      observedTooling: lines(`${probes.androidGradleVersion.stdout}\n${probes.androidGradleBuild.stdout}`),
+      passedAssertions: androidGradleObserved ? ['Android agent Gradle project builds the debug APK'] : [],
+      remainingBlockers: [
+        'Android Gradle build proof is not install, launch, physical-device, or background geofence behavior proof',
+      ],
+      artifactCount: androidGradleObserved ? 2 : 1,
+      ciRunnable: true,
+      localRuntimeClaimed: androidGradleObserved,
     },
     {
       area: 'android-emulator-runtime',
@@ -212,9 +255,11 @@ function buildProof(readModel, probes, sources) {
 }
 
 function assertProof(proof) {
-  assert.equal(proof.summary.rowCount, 6);
+  assert.equal(proof.summary.rowCount, 8);
   assert.equal(proof.productClaims.windowsHostToolchainObserved, true);
   assert.equal(proof.productClaims.wslLinuxReplayObserved, true);
+  assert.equal(proof.productClaims.androidSdkToolchainObserved, true);
+  assert.equal(proof.productClaims.androidGradleProjectBuildObserved, true);
   assert.equal(proof.productClaims.androidEmulatorRuntimeObserved, true);
   assert.equal(proof.productClaims.androidPhysicalStatusObserved, true);
   assert.equal(proof.productClaims.physicalDeviceBehaviorClaimed, false);
@@ -229,6 +274,14 @@ async function writeArtifacts(proof, probes) {
     path: probes.dockerPath,
     version: probes.dockerVersion,
     daemon: probes.dockerDaemon,
+  });
+  await writeJson(path.join(resultDir, 'android-sdk-toolchain.json'), {
+    androidHome: probes.androidHome,
+    toolchain: probes.android,
+  });
+  await writeJson(path.join(resultDir, 'android-gradle-project-build.json'), {
+    version: probes.androidGradleVersion,
+    build: probes.androidGradleBuild,
   });
   await writeJson(path.join(proofDir, 'proof.json'), proof);
   await writeJson(path.join(proofDir, 'read-model.json'), proof.readModel);
@@ -248,7 +301,7 @@ function sourceSnapshot(proof) {
     `- localProofPassedRows: ${proof.summary.localProofPassedRows}`,
     `- hostToolUnavailableRows: ${proof.summary.hostToolUnavailableRows}`,
     `- ciManualRequiredRows: ${proof.summary.ciManualRequiredRows}`,
-    '- Windows, WSL/Linux, Android emulator, and Android physical status are host-verifiable here.',
+    '- Windows, WSL/Linux, Android SDK/Gradle, Android emulator, and Android physical status are host-verifiable here.',
     '- macOS/iOS remain CI/manual-routed on this Windows host.',
     '- Docker is only claimed when CLI and daemon are both reachable.',
     '',
