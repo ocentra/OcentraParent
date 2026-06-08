@@ -1104,3 +1104,30 @@ notification UI delivery, final policy execution, connector/native runtime,
 browser mutation, child intervention execution, unmanaged exact URL support, or
 enforcement. Protocol stream exposure remains sequenced behind the active
 `packages/agent-protocol-domain/src/defaults.ts` lock.
+
+## Social Parent Notification Delivery Readiness Addendum - 2026-06-08
+
+`social-parent-notification-delivery-readiness-proof` consumes the social report
+writer delivery proof and produces a parent-domain parent notification/report
+delivery readiness boundary. Parent-owned report-writer rows become
+parent-report-status-ready rows with parent-owned report artifact and receipt
+refs, but no parent notification UI delivery ref. Receipt-ingestion-backed rows
+remain manual-required or unavailable until webhook, credential, durable receipt,
+observed provider receipt, and parent notification UI delivery proofs exist.
+
+Evidence:
+
+- `packages/parent-domain/src/social-parent-notification-delivery-readiness.ts`
+- `packages/parent-domain/tests/social-parent-notification-delivery-readiness.test.ts`
+- `scripts/test/social-parent-notification-delivery-readiness-proof.mjs`
+- `test-results/social-parent-notification-delivery-readiness-proof/proof.json`
+- `output/browser-plan-proof/social-parent-notification-delivery-readiness-proof/01-social-parent-notification-delivery-readiness-proof.md`
+- `cmd /c npm run test --workspace @ocentra-parent/parent-domain -- social-parent-notification-delivery-readiness.test.ts`
+- `cmd /c node scripts/test/social-parent-notification-delivery-readiness-proof.mjs`
+
+This is parent-domain readiness/status proof only. It does not claim parent
+notification UI delivery, external runtime report delivery, provider delivery,
+provider receipt ingestion runtime, webhook runtime, credentials, observed
+provider receipts, final policy execution, connector/native runtime, browser
+mutation, child intervention execution, unmanaged exact URL support, or
+enforcement.

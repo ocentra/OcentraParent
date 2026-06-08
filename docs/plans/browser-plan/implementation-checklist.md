@@ -308,6 +308,24 @@ runtime time-budget application, browser gate execution, final policy
 execution, enforcement, product checklist upgrade, release readiness, or
 product completion.
 
+SOCIAL-23/SOCIAL-24 parent notification delivery readiness addendum:
+`social-parent-notification-delivery-readiness-proof` adds
+`packages/parent-domain/src/social-parent-notification-delivery-readiness.ts`,
+`packages/parent-domain/tests/social-parent-notification-delivery-readiness.test.ts`,
+and `scripts/test/social-parent-notification-delivery-readiness-proof.mjs`.
+Evidence is written to
+`test-results/social-parent-notification-delivery-readiness-proof/proof.json`
+and
+`output/browser-plan-proof/social-parent-notification-delivery-readiness-proof/01-social-parent-notification-delivery-readiness-proof.md`.
+The proof consumes social report writer delivery readiness and proves
+parent-owned report rows can become parent-visible report status rows while
+receipt-ingestion-backed rows remain manual-required or unavailable. It does not
+claim parent notification UI delivery, external runtime report delivery,
+provider delivery, provider receipt ingestion runtime, final policy execution,
+connector/native runtime, browser mutation, child intervention, unmanaged exact
+URL support, enforcement, product checklist upgrade, release readiness, or
+product completion.
+
 SOCIAL-23/SOCIAL-24 preference preflight addendum:
 `social-alert-report-preference-preflight-proof` adds
 `packages/parent-domain/src/social-alert-report-preference-preflight.ts`,

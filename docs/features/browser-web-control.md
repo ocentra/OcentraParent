@@ -243,6 +243,15 @@ control while being more honest about managed versus unmanaged sources.
   external runtime report delivery, provider delivery, provider receipt
   ingestion runtime, final policy execution, connector/native runtime, browser
   mutation, child intervention, unmanaged exact URL support, or enforcement.
+- Browser-plan WP13 `social-parent-notification-delivery-readiness-proof` now
+  carries social report writer delivery readiness into a parent-domain parent
+  notification/report delivery readiness boundary. A parent-owned report
+  artifact can become a parent-visible report status row, while
+  receipt-ingestion-backed rows remain manual-required or unavailable. Parent
+  notification UI delivery, external runtime report delivery, provider
+  dispatch/receipt ingestion, final policy execution, connector/native runtime,
+  browser mutation, child intervention, unmanaged exact URL support, and
+  enforcement remain unclaimed.
 - Browser-plan WP13 now projects that named subscriber status through the
   service-backed browser runtime event-chain stream payload. Current
   store-backed browser rows still report zero pending candidates because the

@@ -1,0 +1,206 @@
+{
+  "schemaVersion": 1,
+  "proofMode": "social-parent-notification-delivery-readiness-proof",
+  "generatedAt": "2026-06-08T09:55:50.768Z",
+  "files": [
+    "packages/parent-domain/src/social-parent-notification-delivery-readiness.ts",
+    "packages/parent-domain/tests/social-parent-notification-delivery-readiness.test.ts",
+    "scripts/test/social-parent-notification-delivery-readiness-proof.mjs"
+  ],
+  "outputDirectory": "output/browser-plan-proof/social-parent-notification-delivery-readiness-proof",
+  "staticSummary": {
+    "totalRows": 2,
+    "parentReportStatusReadyCount": 1,
+    "manualRequiredCount": 1,
+    "unavailableCount": 0,
+    "parentNotificationUiDeliveryClaimed": false,
+    "externalRuntimeReportDeliveryClaimed": false,
+    "finalPolicyExecutionClaimed": false,
+    "enforcementClaimed": false
+  },
+  "receiptBackedSummary": {
+    "totalRows": 3,
+    "parentReportStatusReadyCount": 0,
+    "manualRequiredCount": 2,
+    "unavailableCount": 1,
+    "parentNotificationUiDeliveryClaimed": false,
+    "externalRuntimeReportDeliveryClaimed": false,
+    "finalPolicyExecutionClaimed": false,
+    "enforcementClaimed": false
+  },
+  "rows": [
+    {
+      "notificationDeliveryReadinessRowId": "social-parent-notification-delivery-social-report-delivery-weekly-summary",
+      "sourceReportWriterDeliveryRowRef": "social-report-delivery-weekly-summary",
+      "sourceIntentRef": "social-alert-report-weekly-summary",
+      "notificationDeliveryReadinessState": "parent-report-status-ready",
+      "reportDeliveryExecutionState": "parent-owned-report-ready",
+      "parentVisibleReportStatusRef": "parent-visible-social-weekly-report-status",
+      "parentNotificationUiRef": null,
+      "manualProofRequirements": [],
+      "parentNotificationUiDelivered": false,
+      "externalRuntimeReportDeliveryClaimed": false,
+      "providerDeliveryAttempted": false,
+      "providerReceiptIngested": false,
+      "finalPolicyDecisionClaimed": false,
+      "enforcementClaimed": false
+    },
+    {
+      "notificationDeliveryReadinessRowId": "social-parent-notification-delivery-social-report-delivery-manual-required",
+      "sourceReportWriterDeliveryRowRef": "social-report-delivery-manual-required",
+      "sourceIntentRef": "social-alert-report-manual-required",
+      "notificationDeliveryReadinessState": "manual-required",
+      "reportDeliveryExecutionState": "manual-required",
+      "parentVisibleReportStatusRef": "parent-visible-social-report-manual-required",
+      "parentNotificationUiRef": null,
+      "manualProofRequirements": [
+        "manual-proof-social-provider-report-runtime-required",
+        "social-parent-notification-ui-delivery-runtime-required-social-alert-report-manual-required"
+      ],
+      "parentNotificationUiDelivered": false,
+      "externalRuntimeReportDeliveryClaimed": false,
+      "providerDeliveryAttempted": false,
+      "providerReceiptIngested": false,
+      "finalPolicyDecisionClaimed": false,
+      "enforcementClaimed": false
+    },
+    {
+      "notificationDeliveryReadinessRowId": "social-parent-notification-delivery-social-report-writer-social-provider-receipt-ingestion-social-parent-notification-high-risk",
+      "sourceReportWriterDeliveryRowRef": "social-report-writer-social-provider-receipt-ingestion-social-parent-notification-high-risk",
+      "sourceIntentRef": "social-parent-notification-high-risk",
+      "notificationDeliveryReadinessState": "manual-required",
+      "reportDeliveryExecutionState": "manual-required",
+      "parentVisibleReportStatusRef": "parent-visible-social-report-writer-social-provider-receipt-ingestion-social-parent-notification-high-risk",
+      "parentNotificationUiRef": null,
+      "manualProofRequirements": [
+        "social-provider-receipt-proof-required-social-parent-notification-high-risk",
+        "social-provider-receipt-ingestion-proof-required-social-parent-notification-high-risk",
+        "social-report-writer-provider-receipt-runtime-required-social-parent-notification-high-risk",
+        "social-parent-notification-ui-delivery-runtime-required-social-parent-notification-high-risk"
+      ],
+      "parentNotificationUiDelivered": false,
+      "externalRuntimeReportDeliveryClaimed": false,
+      "providerDeliveryAttempted": false,
+      "providerReceiptIngested": false,
+      "finalPolicyDecisionClaimed": false,
+      "enforcementClaimed": false
+    },
+    {
+      "notificationDeliveryReadinessRowId": "social-parent-notification-delivery-social-report-writer-social-provider-receipt-ingestion-social-parent-notification-manual-required",
+      "sourceReportWriterDeliveryRowRef": "social-report-writer-social-provider-receipt-ingestion-social-parent-notification-manual-required",
+      "sourceIntentRef": "social-parent-notification-manual-required",
+      "notificationDeliveryReadinessState": "manual-required",
+      "reportDeliveryExecutionState": "manual-required",
+      "parentVisibleReportStatusRef": "parent-visible-social-report-writer-social-provider-receipt-ingestion-social-parent-notification-manual-required",
+      "parentNotificationUiRef": null,
+      "manualProofRequirements": [
+        "social-provider-receipt-proof-required-social-parent-notification-manual-required",
+        "social-provider-receipt-ingestion-proof-required-social-parent-notification-manual-required",
+        "social-report-writer-provider-receipt-runtime-required-social-parent-notification-manual-required",
+        "social-parent-notification-ui-delivery-runtime-required-social-parent-notification-manual-required"
+      ],
+      "parentNotificationUiDelivered": false,
+      "externalRuntimeReportDeliveryClaimed": false,
+      "providerDeliveryAttempted": false,
+      "providerReceiptIngested": false,
+      "finalPolicyDecisionClaimed": false,
+      "enforcementClaimed": false
+    },
+    {
+      "notificationDeliveryReadinessRowId": "social-parent-notification-delivery-social-report-writer-social-provider-receipt-ingestion-social-parent-notification-unavailable",
+      "sourceReportWriterDeliveryRowRef": "social-report-writer-social-provider-receipt-ingestion-social-parent-notification-unavailable",
+      "sourceIntentRef": "social-parent-notification-unavailable",
+      "notificationDeliveryReadinessState": "unavailable",
+      "reportDeliveryExecutionState": "unavailable",
+      "parentVisibleReportStatusRef": "parent-visible-social-report-writer-social-provider-receipt-ingestion-social-parent-notification-unavailable",
+      "parentNotificationUiRef": null,
+      "manualProofRequirements": [
+        "social-provider-receipt-proof-required-social-parent-notification-unavailable",
+        "social-provider-receipt-ingestion-proof-required-social-parent-notification-unavailable",
+        "social-report-writer-provider-receipt-runtime-required-social-parent-notification-unavailable",
+        "social-parent-notification-ui-delivery-runtime-required-social-parent-notification-unavailable"
+      ],
+      "parentNotificationUiDelivered": false,
+      "externalRuntimeReportDeliveryClaimed": false,
+      "providerDeliveryAttempted": false,
+      "providerReceiptIngested": false,
+      "finalPolicyDecisionClaimed": false,
+      "enforcementClaimed": false
+    }
+  ],
+  "nonClaims": [
+    "no-parent-notification-ui-delivery",
+    "no-external-runtime-report-delivery",
+    "no-provider-delivery",
+    "no-provider-receipt-ingestion",
+    "no-final-policy-execution",
+    "no-enforcement"
+  ],
+  "checks": [
+    {
+      "label": "packages/parent-domain/src/social-parent-notification-delivery-readiness.ts exists",
+      "pass": true
+    },
+    {
+      "label": "packages/parent-domain/tests/social-parent-notification-delivery-readiness.test.ts exists",
+      "pass": true
+    },
+    {
+      "label": "scripts/test/social-parent-notification-delivery-readiness-proof.mjs exists",
+      "pass": true
+    },
+    {
+      "label": "parent notification UI delivery guard",
+      "pass": true
+    },
+    {
+      "label": "external report delivery guard",
+      "pass": true
+    },
+    {
+      "label": "provider delivery guard",
+      "pass": true
+    },
+    {
+      "label": "provider receipt guard",
+      "pass": true
+    },
+    {
+      "label": "final policy guard",
+      "pass": true
+    },
+    {
+      "label": "enforcement guard",
+      "pass": true
+    },
+    {
+      "label": "receipt backed test",
+      "pass": true
+    },
+    {
+      "label": "dishonest UI delivery rejection test",
+      "pass": true
+    },
+    {
+      "label": "feature doc notification delivery readiness note",
+      "pass": true
+    },
+    {
+      "label": "checklist notification delivery readiness proof note",
+      "pass": true
+    },
+    {
+      "label": "static report writer row yields one parent report status ready row",
+      "pass": true
+    },
+    {
+      "label": "receipt ingestion backed rows stay manual or unavailable",
+      "pass": true
+    },
+    {
+      "label": "no row claims UI delivery external report delivery provider delivery final policy or enforcement",
+      "pass": true
+    }
+  ],
+  "failures": []
+}
