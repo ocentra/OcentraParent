@@ -57,6 +57,22 @@ const serviceForegroundPath = join(
   'proof-summary.json'
 );
 const serviceForeground = readJson(serviceForegroundPath);
+const serviceCadencePath = join(
+  repoRoot,
+  'output',
+  'screen-ai-pipeline-proof',
+  'service-cadence',
+  'proof-summary.json'
+);
+const serviceCadence = readJson(serviceCadencePath);
+const serviceDisabledSuppressionPath = join(
+  repoRoot,
+  'output',
+  'screen-ai-pipeline-proof',
+  'service-disabled-suppression',
+  'proof-summary.json'
+);
+const serviceDisabledSuppression = readJson(serviceDisabledSuppressionPath);
 const adapterCustodyArtifacts = [
   {
     label: 'Linux host adapter custody',
@@ -284,6 +300,30 @@ assert(
   serviceForeground.assertions?.activityReadModelReachedViaWebSocket === true,
   'Service foreground proof must reach the Activity Screen read model through WebSocket.'
 );
+assert(
+  serviceCadence.assertions?.threeTimedCadenceFramesCaptured === true,
+  'Service cadence proof must show three timed cadence frames.'
+);
+assert(
+  serviceCadence.assertions?.queueBackpressureHeldAtThreePendingFrames === true,
+  'Service cadence proof must show pending queue backpressure.'
+);
+assert(
+  serviceCadence.assertions?.activityReadModelReachedViaWebSocket === true,
+  'Service cadence proof must reach the Activity Screen read model through WebSocket.'
+);
+assert(
+  serviceDisabledSuppression.assertions?.disabledPhaseCreatedNoNewCaptureRows === true,
+  'Disabled suppression proof must prevent new capture rows.'
+);
+assert(
+  serviceDisabledSuppression.assertions?.disabledPhaseCreatedNoNewQueueRecords === true,
+  'Disabled suppression proof must prevent new queue records.'
+);
+assert(
+  serviceDisabledSuppression.assertions?.disabledPhaseCreatedNoLocalVisionRows === true,
+  'Disabled suppression proof must prevent local vision rows.'
+);
 for (const artifact of adapterCustodyArtifacts) {
   assert(artifact.summary.status === artifact.expectedStatus, `${artifact.label} status changed.`);
   assert(
@@ -334,6 +374,8 @@ const summary = {
     'output/screen-ai-pipeline-proof/service-retention-sweeper/proof-summary.json',
     'output/screen-ai-pipeline-proof/deletion-retention-custody/proof-summary.json',
     'output/screen-ai-pipeline-proof/service-foreground/proof-summary.json',
+    'output/screen-ai-pipeline-proof/service-cadence/proof-summary.json',
+    'output/screen-ai-pipeline-proof/service-disabled-suppression/proof-summary.json',
     'output/screen-ai-pipeline-proof/linux-host-adapter-custody/proof-summary.json',
     'output/screen-ai-pipeline-proof/android-mobile-control-custody/proof-summary.json',
     'output/screen-ai-pipeline-proof/ios-mobile-control-custody/proof-summary.json',
@@ -381,6 +423,14 @@ const summary = {
       serviceForeground.assertions.foregroundWatcherCapturedBeforeSecondFocus === true &&
       serviceForeground.assertions.foregroundWatcherCapturedAfterSecondWindowFocus === true &&
       serviceForeground.assertions.activityReadModelReachedViaWebSocket === true,
+    serviceCadenceRuntimeProved:
+      serviceCadence.assertions.threeTimedCadenceFramesCaptured === true &&
+      serviceCadence.assertions.queueBackpressureHeldAtThreePendingFrames === true &&
+      serviceCadence.assertions.activityReadModelReachedViaWebSocket === true,
+    serviceDisabledSuppressionProved:
+      serviceDisabledSuppression.assertions.disabledPhaseCreatedNoNewCaptureRows === true &&
+      serviceDisabledSuppression.assertions.disabledPhaseCreatedNoNewQueueRecords === true &&
+      serviceDisabledSuppression.assertions.disabledPhaseCreatedNoLocalVisionRows === true,
     custodyArtifactsDoNotUpgradeClaims: adapterCustodyArtifacts.every(
       (artifact) =>
         artifact.summary.closure.finalAdapterCompletionClaimed === false &&

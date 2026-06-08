@@ -39,6 +39,26 @@ assert(
   'screen-plan closure lost adapter blocker'
 );
 assert(
+  screenPlanClosure.assertions?.serviceCadenceRuntimeProved === true,
+  'screen-plan closure lost service cadence runtime proof'
+);
+assert(
+  screenPlanClosure.assertions?.serviceDisabledSuppressionProved === true,
+  'screen-plan closure lost disabled suppression proof'
+);
+assert(
+  screenPlanClosure.assertions?.serviceForegroundWatcherProved === true,
+  'screen-plan closure lost foreground watcher proof'
+);
+assert(
+  screenPlanClosure.assertions?.serviceEncryptedQueueExpiryDeletionProved === true,
+  'screen-plan closure lost encrypted queue expiry deletion proof'
+);
+assert(
+  screenPlanClosure.assertions?.deleteFailedVisibilityProved === true,
+  'screen-plan closure lost delete-failed visibility proof'
+);
+assert(
   aiPlanClosure.closure?.controlledCapturedScreensAnalyzed === true,
   'AI closure lost controlled capture analysis'
 );
@@ -159,6 +179,10 @@ const proof = {
     aiPlanPrerequisitesAudited: true,
     finalPipelineEvidenceComplete: true,
     serviceEventRuntimeCovered: true,
+    serviceCadenceRuntimeCovered: true,
+    serviceDisabledSuppressionCovered: true,
+    serviceForegroundRuntimeCovered: true,
+    serviceDeletionCustodyCovered: true,
     serviceWinRtOcrPolicyFreshRerunCovered: true,
     householdMeshNoRawProviderValidationCovered: true,
     rawScreenshotsRetainedByDefault: false,

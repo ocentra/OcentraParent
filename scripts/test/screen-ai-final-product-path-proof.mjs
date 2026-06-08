@@ -596,6 +596,26 @@ function validateScreenPlanClosure() {
     screenPlanClosure.assertions?.custodyArtifactsDoNotUpgradeClaims === true,
     'screen-plan closure custody artifacts upgrade claims'
   );
+  assert(
+    screenPlanClosure.assertions?.serviceCadenceRuntimeProved === true,
+    'screen-plan closure lost service cadence runtime proof'
+  );
+  assert(
+    screenPlanClosure.assertions?.serviceDisabledSuppressionProved === true,
+    'screen-plan closure lost disabled suppression proof'
+  );
+  assert(
+    screenPlanClosure.assertions?.serviceForegroundWatcherProved === true,
+    'screen-plan closure lost service foreground watcher proof'
+  );
+  assert(
+    screenPlanClosure.assertions?.serviceEncryptedQueueExpiryDeletionProved === true,
+    'screen-plan closure lost encrypted queue expiry deletion proof'
+  );
+  assert(
+    screenPlanClosure.assertions?.deleteFailedVisibilityProved === true,
+    'screen-plan closure lost delete-failed visibility proof'
+  );
   assert(screenPlanClosure.assertions?.noProductCompleteClaim === true, 'screen-plan closure claims product complete');
   assert(
     (screenPlanClosure.remainingProductGates ?? []).length > 0,
