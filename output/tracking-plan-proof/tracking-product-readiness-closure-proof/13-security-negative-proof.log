@@ -2,7 +2,9 @@ workpack=33-proof-gates-fixtures-rollout-and-pr-gate
 Closure rows cite existing local/CI proof refs and enumerate remaining product blockers.
 Android emulator artifact inventory records local adb, permission UI, location runtime, geofence runtime, device-status, and validation-log artifacts while keeping Android physical-device/system-delivery blockers open.
 iOS simulator artifact inventory records simulator package, manual-required Core Location, privacy disclosure, platform proof, and validation-log artifacts while keeping Core Location runtime and physical-device blockers open.
+Parent-child local runtime bridge records typed local transport handoff and child-agent phase coverage while keeping physical child-device runtime and product claims false.
 Retention runtime closure accounting records the local writable settings artifact as present and the platform runtime retention enforcement artifact as missing.
+Applied retention settings bridge closure accounting records local durable applied settings as observed while keeping platform runtime enforcement and product-ready claims false.
 Retention platform enforcement preflight closure accounting records Android, iOS, and desktop manual-required acceptance rows while keeping product-ready retention false.
 Production worker runtime preflight closure accounting records eight manual-required production worker acceptance rows while keeping production and product-ready claims false.
 Rows do not claim writable retention product settings, platform retention enforcement, Android/iOS physical background behavior, authority enrollment, provider delivery/receipt runtime, production workers, actual child-device runtime, or product readiness.

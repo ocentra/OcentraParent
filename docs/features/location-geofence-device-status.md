@@ -139,6 +139,15 @@ expose location or device-status features. Parents expect this category.
   keeping portal writable UI, platform runtime retention enforcement,
   child-device delivery, provider delivery, notification receipts,
   physical-device proof, authority, production, and product-ready claims false.
+- WP07/WP33 applied retention settings runtime bridge proof now exists through
+  `node scripts/test/tracking-retention-applied-settings-runtime-bridge-proof.mjs`.
+  It consumes the writable execution proof, classifies the local
+  `tracking-retention/product-settings-writable-execution.json` artifact as
+  present, keeps
+  `tracking-retention/platform-runtime-retention-enforcement.json` missing, and
+  preserves platform enforcement, production, authority, child-device,
+  provider, physical-device, notification receipt, and product-ready claims as
+  false.
 - WP07/WP33 retention platform enforcement preflight proof now exists through
   `node scripts/test/tracking-retention-platform-enforcement-preflight-proof.mjs`.
   It consumes the retention runtime artifact gate, writes Android, iOS, and
@@ -1383,9 +1392,9 @@ WSL/local replay, hosted parent UI accessibility, product UI local artifacts,
 product-readiness closure, and real-runtime handoff accounting one repeatable
 local proof bundle without upgrading any physical-device, child-device runtime,
 authority, provider, production, or product-ready claim.
-The next implementation layers are applied/product-ready retention settings
-execution beyond hosted local service write rendering, the platform runtime
-artifacts required for retention product readiness, full portal UI
+The next implementation layers are platform runtime artifacts required for
+retention product readiness beyond the local applied-settings bridge, full
+portal UI
 snapshots/accessibility beyond the hosted route, Android system geofencing/dwell
 proof, iOS Core Location/region proof beyond simulator package launch,
 production worker runtime artifacts, then physical Android/iOS proof and

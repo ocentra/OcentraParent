@@ -4,9 +4,12 @@ cmd /c node scripts/test/tracking-full-product-ui-local-runtime-artifact-capture
 cmd /c node scripts/test/tracking-full-product-ui-runtime-preflight-proof.mjs exit=0
 cmd /c node scripts/test/tracking-android-emulator-artifact-inventory-proof.mjs exit=0
 cmd /c node scripts/test/tracking-ios-simulator-artifact-inventory-proof.mjs exit=0
+cmd /c node scripts/test/tracking-parent-child-local-runtime-bridge-proof.mjs exit=0
+cmd /c node scripts/test/tracking-cross-platform-runtime-capability-proof.mjs exit=0
 cmd /c node scripts/test/tracking-physical-device-artifact-gate-proof.mjs exit=0
 cmd /c node scripts/test/tracking-physical-device-evidence-review-proof.mjs exit=0
 cmd /c node scripts/test/tracking-retention-runtime-artifact-gate-proof.mjs exit=0
+cmd /c node scripts/test/tracking-retention-applied-settings-runtime-bridge-proof.mjs exit=0
 cmd /c node scripts/test/tracking-retention-platform-enforcement-preflight-proof.mjs exit=0
 cmd /c node scripts/test/tracking-production-worker-runtime-preflight-proof.mjs exit=0
 cmd /c node scripts/test/tracking-claim-audit-proof.mjs exit=0

@@ -65,6 +65,11 @@ const closureAccounting = {
   retentionRuntimeMissingArtifactCount: 1,
   retentionRuntimeManualRequiredRowCount: 1,
   retentionRuntimeArtifactSetPresentRowCount: 0,
+  retentionAppliedSettingsBridgeRowCount: 1,
+  retentionAppliedSettingsBridgeRequiredArtifactCount: 2,
+  retentionAppliedSettingsBridgePresentArtifactCount: 1,
+  retentionAppliedSettingsBridgeMissingArtifactCount: 1,
+  retentionAppliedSettingsBridgeProductReadyRowCount: 0,
   retentionPlatformPreflightRowCount: 3,
   retentionPlatformPreflightManualRequiredRowCount: 3,
   retentionPlatformPreflightRequiredArtifactCount: 6,
@@ -203,6 +208,10 @@ function expectRuntimeClosureAccounting(proof: TrackingRealRuntimeHandoffProof):
   expect(proof.closureAccounting.escalationRuntimeBlockerCount).toBe(12);
   expect(proof.closureAccounting.retentionRuntimeMissingArtifactCount).toBe(1);
   expect(proof.closureAccounting.retentionRuntimeArtifactSetPresentRowCount).toBe(0);
+  expect(proof.closureAccounting.retentionAppliedSettingsBridgeRowCount).toBe(1);
+  expect(proof.closureAccounting.retentionAppliedSettingsBridgePresentArtifactCount).toBe(1);
+  expect(proof.closureAccounting.retentionAppliedSettingsBridgeMissingArtifactCount).toBe(1);
+  expect(proof.closureAccounting.retentionAppliedSettingsBridgeProductReadyRowCount).toBe(0);
   expect(proof.closureAccounting.retentionPlatformPreflightRowCount).toBe(3);
   expect(proof.closureAccounting.retentionPlatformPreflightManualRequiredRowCount).toBe(3);
   expect(proof.closureAccounting.retentionPlatformPreflightRequiredArtifactCount).toBe(6);

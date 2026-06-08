@@ -929,6 +929,21 @@ Every implementation workpack must update, or explicitly justify not updating:
       behavior, authority, actual child-device delivery/runtime execution, full
       child/parent UI beyond the hosted parent route, provider-delivery runtime,
       and production gaps.
+- [x] Applied retention settings runtime bridge proof consumes the existing
+      writable execution proof and runtime artifact gate plan, marks
+      `tracking-retention/product-settings-writable-execution.json` present,
+      keeps
+      `tracking-retention/platform-runtime-retention-enforcement.json`
+      missing, and preserves platform enforcement, production, authority,
+      provider, physical-device, child-device, notification receipt, and
+      product-ready claims false. Proof:
+      `output/tracking-plan-proof/07-retention-and-custody-model/28-retention-applied-settings-runtime-bridge-proof.json`;
+      WP33 artifact:
+      `output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-gate/76-retention-applied-settings-runtime-bridge-proof.json`;
+      focused proof:
+      `output/tracking-plan-proof/tracking-retention-applied-settings-runtime-bridge-proof/proof.json`;
+      command:
+      `node scripts/test/tracking-retention-applied-settings-runtime-bridge-proof.mjs`.
 
 ## UI Snapshot Gates
 

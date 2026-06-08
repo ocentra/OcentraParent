@@ -1,7 +1,7 @@
 # Tracking Real Runtime Handoff Manual Validation Runbook
 
 - generatedAt: 2026-06-08T01:05:00.000Z
-- commit: 915e6d43de5a7288e40711d96392e85b4544bd61
+- commit: 23430858cbbbaac5ec9b646b0234c30fd9a23ef0
 - currentProofTier: P3_LOCAL_DEV_MACHINE
 - requiredProofTier: P4_REAL_RUNTIME_HANDOFF
 - productReadyClaimed: false
@@ -27,8 +27,29 @@
 - childRuntimeRequiredArtifactCount: 10
 - childRuntimePresentArtifactCount: 0
 - childRuntimeMissingArtifactCount: 10
+- crossPlatformCapabilityRowCount: 8
+- crossPlatformLocalProofPassedRowCount: 7
+- crossPlatformCiRunnableRowCount: 6
+- crossPlatformCiManualRequiredRowCount: 1
+- crossPlatformHostToolUnavailableRowCount: 0
+- crossPlatformAndroidSdkToolchainObservedRows: 1
+- crossPlatformAndroidGradleBuildObservedRows: 1
 - physicalDeviceEvidenceReviewRowCount: 2
 - physicalDeviceEvidenceReviewContentAcceptedRowCount: 0
+- physicalDeviceEvidenceReviewStatusObservedRowCount: 1
+- physicalDeviceEvidenceReviewSupportingStatusArtifactCount: 20
+- authorityRuntimeRequiredArtifactCount: 20
+- authorityRuntimePresentArtifactCount: 0
+- authorityRuntimeMissingArtifactCount: 20
+- authorityRuntimeBlockerCount: 10
+- providerRuntimeRequiredArtifactCount: 11
+- providerRuntimePresentArtifactCount: 0
+- providerRuntimeMissingArtifactCount: 11
+- providerRuntimeBlockerCount: 12
+- escalationRuntimeRequiredArtifactCount: 13
+- escalationRuntimePresentArtifactCount: 0
+- escalationRuntimeMissingArtifactCount: 13
+- escalationRuntimeBlockerCount: 12
 - retentionRuntimeRequiredArtifactCount: 2
 - retentionRuntimePresentArtifactCount: 1
 - retentionRuntimeMissingArtifactCount: 1

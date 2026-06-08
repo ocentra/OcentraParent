@@ -46,6 +46,7 @@ export const TrackingProductReadinessClosureCoverageTagSchema = Schema.Literal(
   'production-worker-runtime-preflight',
   'retention-product-readiness-blocker',
   'retention-runtime-artifact-gate',
+  'retention-applied-settings-runtime-bridge',
   'retention-platform-enforcement-preflight',
   'tracking-claim-audit'
 );
@@ -87,6 +88,7 @@ export const RequiredTrackingProductReadinessClosureCoverageTags = [
   'production-worker-runtime-preflight',
   'retention-product-readiness-blocker',
   'retention-runtime-artifact-gate',
+  'retention-applied-settings-runtime-bridge',
   'retention-platform-enforcement-preflight',
   'tracking-claim-audit',
 ] as const;
@@ -189,6 +191,11 @@ export const TrackingProductReadinessClosureAggregateEvidenceSchema = withParser
     retentionRuntimeMissingArtifactCount: Schema.Number.pipe(Schema.int()),
     retentionRuntimeManualRequiredRowCount: Schema.Number.pipe(Schema.int()),
     retentionRuntimeArtifactSetPresentRowCount: Schema.Number.pipe(Schema.int()),
+    retentionAppliedSettingsBridgeRowCount: Schema.Number.pipe(Schema.int(), Schema.positive()),
+    retentionAppliedSettingsBridgeRequiredArtifactCount: Schema.Number.pipe(Schema.int(), Schema.positive()),
+    retentionAppliedSettingsBridgePresentArtifactCount: Schema.Number.pipe(Schema.int()),
+    retentionAppliedSettingsBridgeMissingArtifactCount: Schema.Number.pipe(Schema.int()),
+    retentionAppliedSettingsBridgeProductReadyRowCount: Schema.Literal(0),
     retentionPlatformPreflightRowCount: Schema.Number.pipe(Schema.int(), Schema.positive()),
     retentionPlatformPreflightManualRequiredRowCount: Schema.Number.pipe(Schema.int(), Schema.positive()),
     retentionPlatformPreflightRequiredArtifactCount: Schema.Number.pipe(Schema.int(), Schema.positive()),
@@ -373,6 +380,25 @@ export const TrackingProductReadinessClosureAggregateEvidenceSchema = withParser
             evidence.retentionRuntimeManualRequiredRowCount >= 0 &&
             evidence.retentionRuntimeArtifactSetPresentRowCount >= 0) ||
           'Aggregate closure evidence cannot record negative retention runtime counts'
+      )
+    )
+    .pipe(
+      Schema.filter(
+        (evidence) =>
+          evidence.retentionAppliedSettingsBridgeRequiredArtifactCount ===
+            evidence.retentionAppliedSettingsBridgePresentArtifactCount +
+              evidence.retentionAppliedSettingsBridgeMissingArtifactCount ||
+          'Aggregate closure evidence must classify every applied retention settings bridge artifact'
+      )
+    )
+    .pipe(
+      Schema.filter(
+        (evidence) =>
+          (evidence.retentionAppliedSettingsBridgeRowCount > 0 &&
+            evidence.retentionAppliedSettingsBridgePresentArtifactCount >= 0 &&
+            evidence.retentionAppliedSettingsBridgeMissingArtifactCount >= 0 &&
+            evidence.retentionAppliedSettingsBridgeProductReadyRowCount === 0) ||
+          'Aggregate closure evidence must keep applied retention settings bridge non-product-ready'
       )
     )
     .pipe(

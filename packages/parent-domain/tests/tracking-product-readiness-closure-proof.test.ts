@@ -135,6 +135,11 @@ function expectRuntimeAndProductionAggregate(proof: TrackingProductReadinessClos
   expect(proof.aggregateEvidence.retentionRuntimeMissingArtifactCount).toBe(1);
   expect(proof.aggregateEvidence.retentionRuntimeManualRequiredRowCount).toBe(1);
   expect(proof.aggregateEvidence.retentionRuntimeArtifactSetPresentRowCount).toBe(0);
+  expect(proof.aggregateEvidence.retentionAppliedSettingsBridgeRowCount).toBe(1);
+  expect(proof.aggregateEvidence.retentionAppliedSettingsBridgeRequiredArtifactCount).toBe(2);
+  expect(proof.aggregateEvidence.retentionAppliedSettingsBridgePresentArtifactCount).toBe(1);
+  expect(proof.aggregateEvidence.retentionAppliedSettingsBridgeMissingArtifactCount).toBe(1);
+  expect(proof.aggregateEvidence.retentionAppliedSettingsBridgeProductReadyRowCount).toBe(0);
   expect(proof.aggregateEvidence.retentionPlatformPreflightRowCount).toBe(3);
   expect(proof.aggregateEvidence.retentionPlatformPreflightManualRequiredRowCount).toBe(3);
   expect(proof.aggregateEvidence.retentionPlatformPreflightRequiredArtifactCount).toBe(6);
@@ -228,6 +233,11 @@ function runtimeArtifactAggregateEvidence() {
     retentionRuntimeMissingArtifactCount: 1,
     retentionRuntimeManualRequiredRowCount: 1,
     retentionRuntimeArtifactSetPresentRowCount: 0,
+    retentionAppliedSettingsBridgeRowCount: 1,
+    retentionAppliedSettingsBridgeRequiredArtifactCount: 2,
+    retentionAppliedSettingsBridgePresentArtifactCount: 1,
+    retentionAppliedSettingsBridgeMissingArtifactCount: 1,
+    retentionAppliedSettingsBridgeProductReadyRowCount: 0,
   };
 }
 
