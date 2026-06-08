@@ -3,7 +3,7 @@
   "proofMode": "tracking-physical-device-artifact-gate-proof",
   "generatedAt": "2026-06-07T18:20:00.000Z",
   "branch": "codex/tracking-plan-full-continuation-a",
-  "commit": "26fde00da617e9ff46f7ce37a33e0b22086c1009",
+  "commit": "14dc1c5ceaccb820d97aae9d1ca514b0c4d4dbfb",
   "gitStatusShort": "",
   "workpackId": "33-proof-gates-fixtures-rollout-and-pr-gate",
   "requiredProofTier": "P4_PHYSICAL_DEVICE",
