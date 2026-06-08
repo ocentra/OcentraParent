@@ -335,7 +335,9 @@ This branch adds `node scripts/test/tracking-real-runtime-handoff-proof.mjs`,
 which derives a single real-runtime handoff from the existing physical-device,
 child-runtime, full-product UI, authority, provider-delivery,
 retention-runtime, production worker, escalation-runtime, and product-readiness
-closure proofs. It writes `63-real-runtime-handoff-proof.json`,
+closure proofs through the parent-domain
+`tracking-real-runtime-handoff-proof` schema/parser and focused test. It writes
+`63-real-runtime-handoff-proof.json`,
 `output/tracking-plan-proof/tracking-real-runtime-handoff-proof/proof.json`,
 and `test-results/tracking-real-runtime-handoff-proof/proof.json`, listing the
 exact remaining P4/manual artifacts for later real-device/provider/production

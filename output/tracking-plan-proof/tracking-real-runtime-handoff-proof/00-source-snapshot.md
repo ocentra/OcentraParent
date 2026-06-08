@@ -1,7 +1,7 @@
 # Tracking Real Runtime Handoff Source Snapshot
 
 - generatedAt: 2026-06-08T01:05:00.000Z
-- commit: 8880dd45e2bdaf1c70693a4c6fcc4ab6943ef4d9
+- commit: 0ea055e9e383fb99b66b3cfd5c1511b34aa1aa42
 - requiredProofTier: P4_REAL_RUNTIME_HANDOFF
 - currentProofTier: P3_LOCAL_DEV_MACHINE
 - status: manual_required
@@ -10,8 +10,7 @@
 
 ## Handoff Areas
 
-- physical-device-background-and-geofence: 10/10 artifacts missing
-- physical-device-background-and-geofence: 10/10 artifacts missing
+- physical-device-background-and-geofence: 15/15 artifacts missing
 - child-device-runtime-execution: 10/10 artifacts missing
 - full-product-parent-child-ui-runtime: 9/9 artifacts missing
 - authority-enrolled-hard-control-runtime: 20/20 artifacts missing

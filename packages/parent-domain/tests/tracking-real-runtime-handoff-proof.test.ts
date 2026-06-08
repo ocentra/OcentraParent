@@ -1,0 +1,68 @@
+import { describe, expect, it } from 'vitest';
+import {
+  RequiredTrackingRealRuntimeHandoffGates,
+  TrackingRealRuntimeHandoffRowSchema,
+  buildTrackingRealRuntimeHandoffProof,
+} from '../src/tracking-real-runtime-handoff-proof';
+
+const requiredArtifacts = ['00-runtime-metadata.json', '01-runtime-result.json'];
+
+describe('tracking real runtime handoff proof', () => {
+  it('derives one manual-required handoff row per runtime gate', () => {
+    const inventories = RequiredTrackingRealRuntimeHandoffGates.map((gate) => ({
+      handoffArea: gate.handoffArea,
+      proofRoot: `output/tracking-plan-proof/${gate.handoffArea}`,
+      requiredArtifacts,
+      presentArtifacts: ['00-runtime-metadata.json'],
+      auditRefs: [`${gate.handoffArea}-audit`],
+    }));
+
+    const proof = buildTrackingRealRuntimeHandoffProof('2026-06-08T02:20:00.000Z', inventories);
+
+    expect(proof.handoffRows).toHaveLength(RequiredTrackingRealRuntimeHandoffGates.length);
+    expect(proof.sourceGateRefs).toEqual(RequiredTrackingRealRuntimeHandoffGates.map((gate) => gate.sourceProofRef));
+    expect(proof.summary.manualRequiredRowCount).toBe(RequiredTrackingRealRuntimeHandoffGates.length);
+    expect(proof.summary.missingArtifactCount).toBe(RequiredTrackingRealRuntimeHandoffGates.length);
+    expect(proof.summary.productReadyRowCount).toBe(0);
+    expect(Object.values(proof.productClaims).every((claim) => claim === false)).toBe(true);
+  });
+
+  it('keeps product-ready false even when runtime artifact sets are complete', () => {
+    const inventories = RequiredTrackingRealRuntimeHandoffGates.map((gate) => ({
+      handoffArea: gate.handoffArea,
+      proofRoot: `output/tracking-plan-proof/${gate.handoffArea}`,
+      requiredArtifacts,
+      presentArtifacts: requiredArtifacts,
+      auditRefs: [`${gate.handoffArea}-audit`],
+    }));
+
+    const proof = buildTrackingRealRuntimeHandoffProof('2026-06-08T02:20:00.000Z', inventories);
+
+    expect(proof.handoffRows.every((row) => row.status === 'artifact-set-present')).toBe(true);
+    expect(proof.handoffRows.every((row) => row.artifactSetComplete)).toBe(true);
+    expect(proof.productClaims.productReadyClaimed).toBe(false);
+    expect(proof.summary.productReadyRowCount).toBe(0);
+  });
+
+  it('rejects handoff rows that claim product readiness', () => {
+    const invalid = TrackingRealRuntimeHandoffRowSchema.safeParse({
+      schemaVersion: 'v0.5-tracking',
+      rowId: 'tracking-real-runtime-handoff-invalid',
+      generatedAt: '2026-06-08T02:20:00.000Z',
+      handoffArea: 'physical-device-background-and-geofence',
+      sourceProofRef: 'test-results/tracking-physical-device-artifact-gate-proof/proof.json',
+      proofRoot: 'output/tracking-plan-proof/android-background-geofence',
+      requiredProofTier: 'P4_PHYSICAL_DEVICE',
+      currentProofTier: 'P3_LOCAL_DEV_MACHINE',
+      status: 'manual-required',
+      requiredArtifacts,
+      presentArtifacts: ['00-runtime-metadata.json'],
+      missingArtifacts: ['01-runtime-result.json'],
+      auditRefs: ['tracking-real-runtime-handoff-invalid-audit'],
+      artifactSetComplete: false,
+      productClaimReady: true,
+    });
+
+    expect(invalid.success).toBe(false);
+  });
+});
