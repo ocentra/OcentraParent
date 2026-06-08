@@ -167,6 +167,14 @@ export const TrackingRealRuntimeHandoffClosureAccountingSchema = withParser(
     childRuntimeRequiredArtifactCount: Schema.Number.pipe(Schema.int(), Schema.positive()),
     childRuntimePresentArtifactCount: Schema.Number.pipe(Schema.int()),
     childRuntimeMissingArtifactCount: Schema.Number.pipe(Schema.int()),
+    crossPlatformCapabilityRowCount: Schema.Number.pipe(Schema.int(), Schema.positive()),
+    crossPlatformLocalProofPassedRowCount: Schema.Number.pipe(Schema.int(), Schema.positive()),
+    crossPlatformCiRunnableRowCount: Schema.Number.pipe(Schema.int(), Schema.nonNegative()),
+    crossPlatformCiManualRequiredRowCount: Schema.Number.pipe(Schema.int(), Schema.nonNegative()),
+    crossPlatformHostToolUnavailableRowCount: Schema.Number.pipe(Schema.int(), Schema.nonNegative()),
+    crossPlatformAndroidSdkToolchainObservedRows: Schema.Number.pipe(Schema.int(), Schema.nonNegative()),
+    crossPlatformAndroidGradleBuildObservedRows: Schema.Number.pipe(Schema.int(), Schema.nonNegative()),
+    crossPlatformProductReadyRowCount: Schema.Literal(0),
     physicalDeviceEvidenceReviewRowCount: Schema.Number.pipe(Schema.int(), Schema.positive()),
     physicalDeviceEvidenceReviewArtifactMissingRowCount: Schema.Number.pipe(Schema.int()),
     physicalDeviceEvidenceReviewContentReviewRequiredRowCount: Schema.Number.pipe(Schema.int()),
@@ -266,6 +274,17 @@ export const TrackingRealRuntimeHandoffClosureAccountingSchema = withParser(
           accounting.childRuntimeRequiredArtifactCount ===
             accounting.childRuntimePresentArtifactCount + accounting.childRuntimeMissingArtifactCount ||
           'Real-runtime closure accounting must classify every child-runtime artifact'
+      )
+    )
+    .pipe(
+      Schema.filter(
+        (accounting) =>
+          (accounting.crossPlatformCapabilityRowCount >= 8 &&
+            accounting.crossPlatformLocalProofPassedRowCount >= 6 &&
+            accounting.crossPlatformAndroidSdkToolchainObservedRows >= 1 &&
+            accounting.crossPlatformAndroidGradleBuildObservedRows >= 1 &&
+            accounting.crossPlatformProductReadyRowCount === 0) ||
+          'Real-runtime closure accounting must preserve cross-platform capability accounting without product-ready claims'
       )
     )
     .pipe(

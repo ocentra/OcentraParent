@@ -237,6 +237,17 @@ function assertProof(proof) {
     );
   }
   if (
+    proof.closureAccounting.crossPlatformCapabilityRowCount < 8 ||
+    proof.closureAccounting.crossPlatformLocalProofPassedRowCount < 6 ||
+    proof.closureAccounting.crossPlatformAndroidSdkToolchainObservedRows < 1 ||
+    proof.closureAccounting.crossPlatformAndroidGradleBuildObservedRows < 1 ||
+    proof.closureAccounting.crossPlatformProductReadyRowCount !== 0
+  ) {
+    throw new Error(
+      `Closure accounting lost cross-platform capability evidence: ${JSON.stringify(proof.closureAccounting)}`
+    );
+  }
+  if (
     proof.closureAccounting.physicalDeviceEvidenceReviewRowCount !==
       proof.closureAccounting.physicalDeviceEvidenceReviewArtifactMissingRowCount +
         proof.closureAccounting.physicalDeviceEvidenceReviewContentReviewRequiredRowCount ||
@@ -393,6 +404,13 @@ function sourceSnapshot(proof) {
     `- childRuntimeRequiredArtifactCount: ${proof.closureAccounting.childRuntimeRequiredArtifactCount}`,
     `- childRuntimePresentArtifactCount: ${proof.closureAccounting.childRuntimePresentArtifactCount}`,
     `- childRuntimeMissingArtifactCount: ${proof.closureAccounting.childRuntimeMissingArtifactCount}`,
+    `- crossPlatformCapabilityRowCount: ${proof.closureAccounting.crossPlatformCapabilityRowCount}`,
+    `- crossPlatformLocalProofPassedRowCount: ${proof.closureAccounting.crossPlatformLocalProofPassedRowCount}`,
+    `- crossPlatformCiRunnableRowCount: ${proof.closureAccounting.crossPlatformCiRunnableRowCount}`,
+    `- crossPlatformCiManualRequiredRowCount: ${proof.closureAccounting.crossPlatformCiManualRequiredRowCount}`,
+    `- crossPlatformHostToolUnavailableRowCount: ${proof.closureAccounting.crossPlatformHostToolUnavailableRowCount}`,
+    `- crossPlatformAndroidSdkToolchainObservedRows: ${proof.closureAccounting.crossPlatformAndroidSdkToolchainObservedRows}`,
+    `- crossPlatformAndroidGradleBuildObservedRows: ${proof.closureAccounting.crossPlatformAndroidGradleBuildObservedRows}`,
     `- physicalDeviceEvidenceReviewRowCount: ${proof.closureAccounting.physicalDeviceEvidenceReviewRowCount}`,
     `- physicalDeviceEvidenceReviewArtifactMissingRowCount: ${proof.closureAccounting.physicalDeviceEvidenceReviewArtifactMissingRowCount}`,
     `- physicalDeviceEvidenceReviewContentReviewRequiredRowCount: ${proof.closureAccounting.physicalDeviceEvidenceReviewContentReviewRequiredRowCount}`,
@@ -472,6 +490,13 @@ function manualValidationRunbook(proof) {
     `- childRuntimeRequiredArtifactCount: ${proof.closureAccounting.childRuntimeRequiredArtifactCount}`,
     `- childRuntimePresentArtifactCount: ${proof.closureAccounting.childRuntimePresentArtifactCount}`,
     `- childRuntimeMissingArtifactCount: ${proof.closureAccounting.childRuntimeMissingArtifactCount}`,
+    `- crossPlatformCapabilityRowCount: ${proof.closureAccounting.crossPlatformCapabilityRowCount}`,
+    `- crossPlatformLocalProofPassedRowCount: ${proof.closureAccounting.crossPlatformLocalProofPassedRowCount}`,
+    `- crossPlatformCiRunnableRowCount: ${proof.closureAccounting.crossPlatformCiRunnableRowCount}`,
+    `- crossPlatformCiManualRequiredRowCount: ${proof.closureAccounting.crossPlatformCiManualRequiredRowCount}`,
+    `- crossPlatformHostToolUnavailableRowCount: ${proof.closureAccounting.crossPlatformHostToolUnavailableRowCount}`,
+    `- crossPlatformAndroidSdkToolchainObservedRows: ${proof.closureAccounting.crossPlatformAndroidSdkToolchainObservedRows}`,
+    `- crossPlatformAndroidGradleBuildObservedRows: ${proof.closureAccounting.crossPlatformAndroidGradleBuildObservedRows}`,
     `- physicalDeviceEvidenceReviewRowCount: ${proof.closureAccounting.physicalDeviceEvidenceReviewRowCount}`,
     `- physicalDeviceEvidenceReviewContentAcceptedRowCount: ${proof.closureAccounting.physicalDeviceEvidenceReviewContentAcceptedRowCount}`,
     `- physicalDeviceEvidenceReviewStatusObservedRowCount: ${proof.closureAccounting.physicalDeviceEvidenceReviewStatusObservedRowCount}`,

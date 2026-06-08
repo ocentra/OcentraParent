@@ -107,6 +107,14 @@ function expectRuntimeAndProductionAggregate(proof: TrackingProductReadinessClos
   expect(proof.aggregateEvidence.parentChildLocalRuntimeDeadLetterCount).toBe(0);
   expect(proof.aggregateEvidence.parentChildLocalRuntimeChildAgentPhaseCount).toBe(4);
   expect(proof.aggregateEvidence.parentChildLocalRuntimeProductReadyRowCount).toBe(0);
+  expect(proof.aggregateEvidence.crossPlatformCapabilityRowCount).toBe(8);
+  expect(proof.aggregateEvidence.crossPlatformLocalProofPassedRowCount).toBe(6);
+  expect(proof.aggregateEvidence.crossPlatformCiRunnableRowCount).toBe(6);
+  expect(proof.aggregateEvidence.crossPlatformCiManualRequiredRowCount).toBe(1);
+  expect(proof.aggregateEvidence.crossPlatformHostToolUnavailableRowCount).toBe(1);
+  expect(proof.aggregateEvidence.crossPlatformAndroidSdkToolchainObservedRows).toBe(1);
+  expect(proof.aggregateEvidence.crossPlatformAndroidGradleBuildObservedRows).toBe(1);
+  expect(proof.aggregateEvidence.crossPlatformProductReadyRowCount).toBe(0);
   expect(proof.aggregateEvidence.physicalDeviceEvidenceReviewRowCount).toBe(2);
   expect(proof.aggregateEvidence.physicalDeviceEvidenceReviewArtifactMissingRowCount).toBe(2);
   expect(proof.aggregateEvidence.physicalDeviceEvidenceReviewContentReviewRequiredRowCount).toBe(0);
@@ -187,6 +195,14 @@ function localPlatformAggregateEvidence() {
     parentChildLocalRuntimeDeadLetterCount: 0,
     parentChildLocalRuntimeChildAgentPhaseCount: 4,
     parentChildLocalRuntimeProductReadyRowCount: 0,
+    crossPlatformCapabilityRowCount: 8,
+    crossPlatformLocalProofPassedRowCount: 6,
+    crossPlatformCiRunnableRowCount: 6,
+    crossPlatformCiManualRequiredRowCount: 1,
+    crossPlatformHostToolUnavailableRowCount: 1,
+    crossPlatformAndroidSdkToolchainObservedRows: 1,
+    crossPlatformAndroidGradleBuildObservedRows: 1,
+    crossPlatformProductReadyRowCount: 0,
   };
 }
 
