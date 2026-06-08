@@ -286,6 +286,15 @@ expose location or device-status features. Parents expect this category.
   product-readiness closure blockers stay aligned while keeping
   physical-device, authority, provider delivery/receipt, production, and
   product-ready tracking claims false.
+- WP33 real-runtime handoff proof now exists through
+  `node scripts/test/tracking-real-runtime-handoff-proof.mjs`. It derives the
+  remaining P4/manual artifact rows from the existing physical-device,
+  child-runtime, full-product UI, authority, provider-delivery,
+  retention-runtime, production worker, escalation-runtime, and
+  product-readiness closure proofs, writes the WP33 handoff artifact, and keeps
+  physical-device, actual child-device runtime, full product UI, authority,
+  provider delivery/receipt, retention product runtime, production,
+  escalation, and product-ready tracking unclaimed.
 - WP31/WP33 authority-runtime readiness blocker proof now exists through
   `node scripts/test/tracking-authority-runtime-readiness-blocker-proof.mjs`.
   It consumes the existing authority-enrollment manual-required proof rows,
