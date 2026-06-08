@@ -23,6 +23,7 @@ struct SetupRequestRefs {
     child_runtime_delivery_receipt_requirement_id: String,
     child_runtime_delivery_receipt_pending_id: String,
     child_runtime_delivery_receipt_ingested_id: String,
+    durable_outbox_record_id: String,
     action_result_reference_ids: Vec<String>,
     parent_preference_mutation_receipt_ids: Vec<String>,
     child_runtime_delivery_handoff_ids: Vec<String>,
@@ -31,6 +32,7 @@ struct SetupRequestRefs {
     child_runtime_delivery_receipt_requirement_ids: Vec<String>,
     child_runtime_delivery_receipt_pending_ids: Vec<String>,
     child_runtime_delivery_receipt_ingested_ids: Vec<String>,
+    durable_outbox_record_ids: Vec<String>,
 }
 
 struct SetupRequestIds {
@@ -41,6 +43,7 @@ struct SetupRequestIds {
     child_runtime_delivery_receipt_requirement_id: String,
     child_runtime_delivery_receipt_pending_id: String,
     child_runtime_delivery_receipt_ingested_id: String,
+    durable_outbox_record_id: String,
 }
 
 pub async fn build_activity_app_game_timer_parent_preference_setup_request_report(
@@ -90,6 +93,9 @@ pub(crate) async fn build_activity_app_game_timer_parent_preference_setup_reques
             constants::value::APP_GAME_PARENT_PREFERENCE_SETUP_CHILD_RUNTIME_DELIVERY_RECEIPT_INGESTED
                 .to_string();
         result.child_runtime_delivery_receipt_ingested_claimed = true;
+        result.durable_outbox_status =
+            constants::value::APP_GAME_PARENT_PREFERENCE_SETUP_DURABLE_OUTBOX_RECORDED.to_string();
+        result.durable_outbox_claimed = true;
     }
     build_event(
         constants::event_id::ACTIVITY_APP_GAME_TIMER_PARENT_PREFERENCE_SETUP_REQUESTED,
@@ -164,6 +170,9 @@ fn setup_request_result(
             .child_runtime_delivery_receipt_ingested_ids,
         child_runtime_delivery_receipt_ingested_status: setup_value(unavailable),
         child_runtime_delivery_receipt_ingested_claimed: false,
+        durable_outbox_record_id: refs.durable_outbox_record_id,
+        durable_outbox_record_ids: refs.durable_outbox_record_ids,
+        durable_outbox_status: setup_value(unavailable),
         command_boundary_claimed: true,
         action_result_handoff_claimed: true,
         action_result_persistence_claimed: false,
@@ -198,6 +207,7 @@ fn setup_request_refs(request: &AppGameTimerParentPreferenceSetupRequest) -> Set
         child_runtime_delivery_receipt_ingested_id: ids
             .child_runtime_delivery_receipt_ingested_id
             .clone(),
+        durable_outbox_record_id: ids.durable_outbox_record_id.clone(),
         action_result_reference_ids: action_result_reference_ids(request),
         parent_preference_mutation_receipt_ids: parent_preference_mutation_receipt_ids(
             request,
@@ -253,6 +263,10 @@ fn setup_request_refs(request: &AppGameTimerParentPreferenceSetupRequest) -> Set
             refs.extend(request.request_reference_ids.clone());
             refs
         }),
+        durable_outbox_record_ids: unique_refs(vec![
+            ids.durable_outbox_record_id.clone(),
+            ids.child_runtime_delivery_receipt_ingested_id.clone(),
+        ]),
     }
 }
 
@@ -285,6 +299,10 @@ fn setup_request_ids(request: &AppGameTimerParentPreferenceSetupRequest) -> Setu
         child_runtime_delivery_receipt_ingested_id: parent_preference_setup_suffixed_id(
             request,
             constants::value::APP_GAME_PARENT_PREFERENCE_SETUP_CHILD_RUNTIME_DELIVERY_RECEIPT_INGESTED_SUFFIX,
+        ),
+        durable_outbox_record_id: parent_preference_setup_suffixed_id(
+            request,
+            constants::value::APP_GAME_PARENT_PREFERENCE_SETUP_DURABLE_OUTBOX_SUFFIX,
         ),
     }
 }

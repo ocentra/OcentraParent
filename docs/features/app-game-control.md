@@ -1379,6 +1379,14 @@ diagnostics, or raw private source rows.
       mutation receipt, handoff, queue, dispatch, receipt-required, and
       receipt-pending details while keeping local receipt ingestion distinct
       from provider delivery/receipt ingestion and platform enforcement.
+      The accepted request result now also carries service-local durable outbox
+      refs/status, and the service appends a parent-safe JSONL outbox record
+      after the ActivityStore setup rows persist. The portal command-result
+      panel renders those durable local outbox refs/status beside the setup
+      receipt chain while keeping provider delivery, provider receipt
+      ingestion, adapter dispatch, broad blocking, platform enforcement, raw
+      private source rows, raw target values, and private diagnostics
+      unclaimed.
 - [ ] Adapter capability status per platform. Cross-platform authority and
       broad-blocking gate contracts now record manual-required, unavailable,
       and not-claimed proof requirements. Platform-extension routing now maps

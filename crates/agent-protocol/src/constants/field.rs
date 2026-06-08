@@ -50,6 +50,32 @@ pub const BROWSER_INTERVENTION_AUDIT_ID: &str = "browserInterventionAuditId";
 pub const BROWSER_POLICY_REQUEST: &str = "browserPolicyRequest";
 pub const BROWSER_POLICY_REQUEST_ID: &str = "requestId";
 pub const BROWSER_POLICY_RESPONSE: &str = "browserPolicyResponse";
+pub const APP_GAME_PARENT_PREFERENCE_SETUP_OUTBOX_SCHEMA_VERSION: &str = "schemaVersion";
+pub const APP_GAME_PARENT_PREFERENCE_SETUP_OUTBOX_RECORD_ID: &str = "recordId";
+pub const APP_GAME_PARENT_PREFERENCE_SETUP_OUTBOX_REQUEST_ID: &str = "requestId";
+pub const APP_GAME_PARENT_PREFERENCE_SETUP_OUTBOX_RECORDED_AT: &str = "recordedAt";
+pub const APP_GAME_PARENT_PREFERENCE_SETUP_OUTBOX_PARENT_SURFACE_INTENT_REFERENCE_ID: &str =
+    "parentSurfaceIntentReferenceId";
+pub const APP_GAME_PARENT_PREFERENCE_SETUP_OUTBOX_PARENT_PREFERENCE_SETUP_REFERENCE_ID: &str =
+    "parentPreferenceSetupReferenceId";
+pub const APP_GAME_PARENT_PREFERENCE_SETUP_OUTBOX_ACTION_RESULT_REFERENCE_ID: &str =
+    "actionResultReferenceId";
+pub const APP_GAME_PARENT_PREFERENCE_SETUP_OUTBOX_CHILD_RUNTIME_DELIVERY_RECEIPT_INGESTED_ID: &str =
+    "childRuntimeDeliveryReceiptIngestedId";
+pub const APP_GAME_PARENT_PREFERENCE_SETUP_OUTBOX_PROVIDER_DELIVERY_CLAIMED: &str =
+    "providerDeliveryClaimed";
+pub const APP_GAME_PARENT_PREFERENCE_SETUP_OUTBOX_PROVIDER_RECEIPT_INGESTION_CLAIMED: &str =
+    "providerReceiptIngestionClaimed";
+pub const APP_GAME_PARENT_PREFERENCE_SETUP_OUTBOX_ADAPTER_DISPATCH_CLAIMED: &str =
+    "adapterDispatchClaimed";
+pub const APP_GAME_PARENT_PREFERENCE_SETUP_OUTBOX_PLATFORM_ENFORCEMENT_CLAIMED: &str =
+    "platformEnforcementClaimed";
+pub const APP_GAME_PARENT_PREFERENCE_SETUP_OUTBOX_RAW_PRIVATE_SOURCE_ROWS_CLAIMED: &str =
+    "rawPrivateSourceRowsClaimed";
+pub const APP_GAME_PARENT_PREFERENCE_SETUP_OUTBOX_RAW_TARGET_VALUES_CLAIMED: &str =
+    "rawTargetValuesClaimed";
+pub const APP_GAME_PARENT_PREFERENCE_SETUP_OUTBOX_PRIVATE_DIAGNOSTICS_CLAIMED: &str =
+    "privateDiagnosticsClaimed";
 pub const BROWSER_POLICY_UPDATE_KIND: &str = "browserPolicyUpdateKind";
 pub const BROWSER_POLICY_REJECTION_REASON: &str = "browserPolicyRejectionReason";
 pub const BROWSER_POLICY_EFFECTIVE_POLICY: &str = "browserPolicyEffectivePolicy";

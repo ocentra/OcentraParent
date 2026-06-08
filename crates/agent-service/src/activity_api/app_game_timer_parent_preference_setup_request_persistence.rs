@@ -1,5 +1,7 @@
 use std::path::PathBuf;
 
+use super::app_game_timer_parent_preference_setup_request_outbox::append_setup_outbox_record;
+
 use ocentra_parent_agent_core::ActivityStore;
 use ocentra_parent_agent_protocol::{
     constants, ActivityEvent, ActivityEventKind, ActivityEvidenceKind, ActivityEvidenceRef,
@@ -44,7 +46,7 @@ pub(crate) async fn persist_setup_handoff(
     let child_runtime_delivery_receipt_ingested_event =
         child_runtime_delivery_receipt_ingested_activity_event(command, &persisted_result);
     tokio::task::spawn_blocking(move || {
-        let store = ActivityStore::open(store_path).map_err(|_| ())?;
+        let store = ActivityStore::open(&store_path).map_err(|_| ())?;
         store
             .ingest_events(&[
                 action_result_event,
@@ -57,6 +59,7 @@ pub(crate) async fn persist_setup_handoff(
                 child_runtime_delivery_receipt_ingested_event,
             ])
             .map_err(|_| ())?;
+        append_setup_outbox_record(&persisted_result, &store_path)?;
         Ok::<(), ()>(())
     })
     .await
@@ -99,6 +102,9 @@ fn persisted_result(
         constants::value::APP_GAME_PARENT_PREFERENCE_SETUP_CHILD_RUNTIME_DELIVERY_RECEIPT_INGESTED
             .to_string();
     persisted.child_runtime_delivery_receipt_ingested_claimed = true;
+    persisted.durable_outbox_status =
+        constants::value::APP_GAME_PARENT_PREFERENCE_SETUP_DURABLE_OUTBOX_RECORDED.to_string();
+    persisted.durable_outbox_claimed = true;
     persisted
 }
 

@@ -1,4 +1,4 @@
-use std::fs::remove_file;
+use std::fs::{read_to_string, remove_file};
 
 use ocentra_parent_agent_core::ActivityStore;
 use ocentra_parent_agent_protocol::{
@@ -78,6 +78,7 @@ async fn app_game_timer_parent_preference_setup_request_command_returns_accepted
     assert_child_runtime_delivery_receipt_requirement_boundary(&result);
     assert_child_runtime_delivery_receipt_pending_boundary(&result);
     assert_child_runtime_delivery_receipt_ingested_boundary(&result);
+    assert_durable_outbox_boundary(&result);
     assert_no_delivery_or_platform_claims(&result);
 }
 
@@ -106,11 +107,16 @@ async fn app_game_timer_parent_preference_setup_request_persists_action_result_r
     let status = store
         .status()
         .expect(constants::error::ACTIVITY_STORE_QUERIES);
+    let outbox_path = store_path.with_extension(
+        constants::value::APP_GAME_PARENT_PREFERENCE_SETUP_DURABLE_OUTBOX_FILE_EXTENSION,
+    );
+    let outbox_jsonl = read_to_string(&outbox_path).expect(constants::error::ACTIVITY_STORE_OPENS);
     cleanup_path(&store_path);
 
     assert_persisted_setup_result(&result);
     assert_eq!(status.events_stored, 8);
     assert_persisted_action_result_model(&model);
+    assert_persisted_setup_outbox(&result, &outbox_jsonl);
 }
 
 fn assert_persisted_setup_result(result: &AppGameTimerParentPreferenceSetupRequestResult) {
@@ -399,13 +405,83 @@ fn assert_child_runtime_delivery_receipt_ingested_boundary(
     );
 }
 
+fn assert_durable_outbox_boundary(result: &AppGameTimerParentPreferenceSetupRequestResult) {
+    assert_eq!(
+        result.durable_outbox_record_id,
+        setup_id(constants::value::APP_GAME_PARENT_PREFERENCE_SETUP_DURABLE_OUTBOX_SUFFIX)
+    );
+    assert_eq!(
+        result.durable_outbox_record_ids[0],
+        setup_id(constants::value::APP_GAME_PARENT_PREFERENCE_SETUP_DURABLE_OUTBOX_SUFFIX)
+    );
+    assert!(
+        result.durable_outbox_status
+            == constants::value::APP_GAME_PARENT_PREFERENCE_SETUP_DURABLE_OUTBOX_RECORDED
+            || result.durable_outbox_status
+                == constants::value::APP_GAME_PARENT_PREFERENCE_SETUP_ACTION_RESULT_UNAVAILABLE
+    );
+}
+
+fn assert_persisted_setup_outbox(
+    result: &AppGameTimerParentPreferenceSetupRequestResult,
+    outbox_jsonl: &str,
+) {
+    assert_eq!(
+        result.durable_outbox_record_id,
+        setup_id(constants::value::APP_GAME_PARENT_PREFERENCE_SETUP_DURABLE_OUTBOX_SUFFIX)
+    );
+    assert_eq!(
+        result.durable_outbox_status,
+        constants::value::APP_GAME_PARENT_PREFERENCE_SETUP_DURABLE_OUTBOX_RECORDED
+    );
+    assert!(result.durable_outbox_claimed);
+    let first_line = outbox_jsonl
+        .lines()
+        .next()
+        .expect(constants::error::ACTIVITY_STORE_OPENS);
+    let outbox_record: serde_json::Value =
+        serde_json::from_str(first_line).expect(constants::error::AGENT_EVENT_SERIALIZES);
+    assert_eq!(
+        outbox_record[constants::field::APP_GAME_PARENT_PREFERENCE_SETUP_OUTBOX_RECORD_ID],
+        result.durable_outbox_record_id
+    );
+    assert_eq!(
+        outbox_record[constants::field::APP_GAME_PARENT_PREFERENCE_SETUP_OUTBOX_REQUEST_ID],
+        result.request_id
+    );
+    assert_eq!(
+        outbox_record
+            [constants::field::APP_GAME_PARENT_PREFERENCE_SETUP_OUTBOX_CHILD_RUNTIME_DELIVERY_RECEIPT_INGESTED_ID],
+        result.child_runtime_delivery_receipt_ingested_id
+    );
+    assert_eq!(
+        outbox_record
+            [constants::field::APP_GAME_PARENT_PREFERENCE_SETUP_OUTBOX_PROVIDER_DELIVERY_CLAIMED],
+        false
+    );
+    assert_eq!(
+        outbox_record
+            [constants::field::APP_GAME_PARENT_PREFERENCE_SETUP_OUTBOX_PROVIDER_RECEIPT_INGESTION_CLAIMED],
+        false
+    );
+    assert_eq!(
+        outbox_record
+            [constants::field::APP_GAME_PARENT_PREFERENCE_SETUP_OUTBOX_ADAPTER_DISPATCH_CLAIMED],
+        false
+    );
+    assert_eq!(
+        outbox_record
+            [constants::field::APP_GAME_PARENT_PREFERENCE_SETUP_OUTBOX_PLATFORM_ENFORCEMENT_CLAIMED],
+        false
+    );
+}
+
 fn assert_no_delivery_or_platform_claims(result: &AppGameTimerParentPreferenceSetupRequestResult) {
     assert!(!result.parent_preference_mutation_claimed);
     assert!(!result.notification_rule_mutation_claimed);
     assert!(!result.provider_delivery_claimed);
     assert!(!result.provider_receipt_ingestion_claimed);
     assert!(!result.child_runtime_delivery_claimed);
-    assert!(!result.durable_outbox_claimed);
     assert!(!result.adapter_dispatch_claimed);
     assert!(!result.broad_blocking_claimed);
     assert!(!result.platform_enforcement_claimed);
@@ -496,4 +572,7 @@ fn cleanup_path(path: &std::path::PathBuf) {
     let mut shm_path = path.clone();
     shm_path.set_extension(constants::activity_store::SHM_FILE_EXTENSION);
     let _ = remove_file(shm_path);
+    let _ = remove_file(path.with_extension(
+        constants::value::APP_GAME_PARENT_PREFERENCE_SETUP_DURABLE_OUTBOX_FILE_EXTENSION,
+    ));
 }

@@ -26,9 +26,10 @@ contracts.
   child-runtime dispatch refs/status, and service-local child-runtime
   receipt-required refs/status, and service-local child-runtime receipt-pending
   refs/status, and service-local child-runtime receipt-ingested refs/status,
-  without claiming child delivery, provider delivery, provider receipt
-  ingestion, durable outbox runtime, adapter dispatch, broad blocking, platform
-  enforcement, raw target values, or private diagnostics.
+  and service-local durable outbox refs/status, without claiming child
+  delivery, provider delivery, provider receipt ingestion, adapter dispatch,
+  broad blocking, platform enforcement, raw target values, or private
+  diagnostics.
 - App/game policy readiness route intents that render service-backed readiness
   summaries and rows without policy execution or adapter dispatch claims.
 - Social dashboard panel intents that adapt parent-domain social dashboard
@@ -80,7 +81,8 @@ flowchart LR
 - Keep accepted parent preference setup command-result details parent-safe; do
   not show child-runtime handoff, service-local queue readiness, or
   service-local dispatch/receipt-required/receipt-pending/receipt-ingested
-  readiness as actual delivery or platform enforcement.
+  readiness, or durable local outbox recording, as actual provider delivery or
+  platform enforcement.
 - Keep social dashboard rows unavailable until a real service-backed social
   snapshot path exists; do not promote connector/native/final-policy/enforcement
   claims from portal-only rendering.

@@ -376,6 +376,15 @@ function expectParentPreferenceSetupChildRuntimeReadiness(
     label: 'Child runtime receipt-ingested status',
     value: 'Ready',
   });
+  expect(details).toContainEqual({
+    label: 'Durable local outbox refs',
+    value:
+      'app-game-parent-preference-setup-durable-local-outbox::request-1 | app-game-parent-preference-setup-child-runtime-receipt-ingested::request-1',
+  });
+  expect(details).toContainEqual({
+    label: 'Durable local outbox status',
+    value: 'Ready',
+  });
 }
 
 function expectParentPreferenceSetupNoClaimBoundaries(
@@ -711,6 +720,12 @@ function parentPreferenceSetupAcceptedResult() {
     ],
     childRuntimeDeliveryReceiptIngestedStatus: 'receipt-ingested',
     childRuntimeDeliveryReceiptIngestedClaimed: true,
+    durableOutboxRecordId: 'app-game-parent-preference-setup-durable-local-outbox::request-1',
+    durableOutboxRecordIds: [
+      'app-game-parent-preference-setup-durable-local-outbox::request-1',
+      'app-game-parent-preference-setup-child-runtime-receipt-ingested::request-1',
+    ],
+    durableOutboxStatus: 'outbox-recorded',
     commandBoundaryClaimed: true,
     actionResultHandoffClaimed: true,
     actionResultPersistenceClaimed: true,
@@ -719,7 +734,7 @@ function parentPreferenceSetupAcceptedResult() {
     providerDeliveryClaimed: false,
     providerReceiptIngestionClaimed: false,
     childRuntimeDeliveryClaimed: false,
-    durableOutboxClaimed: false,
+    durableOutboxClaimed: true,
     adapterDispatchClaimed: false,
     broadBlockingClaimed: false,
     platformEnforcementClaimed: false,

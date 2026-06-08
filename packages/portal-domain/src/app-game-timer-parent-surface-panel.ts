@@ -83,6 +83,8 @@ const TimerParentSurfaceDetails = {
   ChildRuntimeReceiptPendingStatus: decodeDisplayText('Child runtime receipt-pending status'),
   ChildRuntimeReceiptIngestedRefs: decodeDisplayText('Child runtime receipt-ingested refs'),
   ChildRuntimeReceiptIngestedStatus: decodeDisplayText('Child runtime receipt-ingested status'),
+  DurableOutboxRefs: decodeDisplayText('Durable local outbox refs'),
+  DurableOutboxStatus: decodeDisplayText('Durable local outbox status'),
   ParentPreferenceSetupAcceptedAt: decodeDisplayText('Parent preference setup accepted at'),
   ParentPreferenceSetupActionResultRefs: decodeDisplayText('Parent preference setup action-result refs'),
   ParentPreferenceSetupActionResultStatus: decodeDisplayText('Parent preference setup action-result status'),
@@ -574,6 +576,11 @@ function parentPreferenceSetupChildRuntimeDetails(
       TimerParentSurfaceDetails.ChildRuntimeReceiptIngestedStatus,
       parentPreferenceSetupResultStatus(result.childRuntimeDeliveryReceiptIngestedStatus)
     ),
+    detail(TimerParentSurfaceDetails.DurableOutboxRefs, joinedOrNotReported(result.durableOutboxRecordIds)),
+    detail(
+      TimerParentSurfaceDetails.DurableOutboxStatus,
+      parentPreferenceSetupResultStatus(result.durableOutboxStatus)
+    ),
   ];
 }
 
@@ -627,6 +634,9 @@ function parentPreferenceSetupResultStatus(status: string): DisplayText {
     return Readable.Ready;
   }
   if (status === 'receipt-ingested') {
+    return Readable.Ready;
+  }
+  if (status === 'outbox-recorded') {
     return Readable.Ready;
   }
   if (status === 'accepted') {

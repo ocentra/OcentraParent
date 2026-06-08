@@ -89,6 +89,11 @@ export const AppGameTimerParentPreferenceSetupRequestResultSchema = withParser(
     ),
     childRuntimeDeliveryReceiptIngestedStatus: Schema.Literal('receipt-ingested', 'unavailable'),
     childRuntimeDeliveryReceiptIngestedClaimed: Schema.Boolean,
+    durableOutboxRecordId: NonEmptyTextSchema,
+    durableOutboxRecordIds: Schema.Array(NonEmptyTextSchema).pipe(
+      Schema.filter((value) => value.length > 0 || 'Expected parent preference setup durable outbox references')
+    ),
+    durableOutboxStatus: Schema.Literal('outbox-recorded', 'unavailable'),
     commandBoundaryClaimed: Schema.Literal(true),
     actionResultHandoffClaimed: Schema.Literal(true),
     actionResultPersistenceClaimed: Schema.Boolean,
@@ -97,7 +102,7 @@ export const AppGameTimerParentPreferenceSetupRequestResultSchema = withParser(
     providerDeliveryClaimed: Schema.Literal(false),
     providerReceiptIngestionClaimed: Schema.Literal(false),
     childRuntimeDeliveryClaimed: Schema.Literal(false),
-    durableOutboxClaimed: Schema.Literal(false),
+    durableOutboxClaimed: Schema.Boolean,
     adapterDispatchClaimed: Schema.Literal(false),
     broadBlockingClaimed: Schema.Literal(false),
     platformEnforcementClaimed: Schema.Literal(false),
