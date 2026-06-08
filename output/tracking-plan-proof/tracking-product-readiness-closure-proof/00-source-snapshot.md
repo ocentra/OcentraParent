@@ -1,7 +1,7 @@
 # Tracking Product Readiness Closure Source Snapshot
 
 - generatedAt: 2026-06-07T16:30:00.000Z
-- commit: 1b71968d9db652291cb4f6154122c7b13709df8e
+- commit: 82c250a077274559274e2d27d681c475e1d25a18
 - requiredProofTier: P3_LOCAL_DEV_MACHINE
 - currentProofTier: P3_LOCAL_DEV_MACHINE
 - status: proved
@@ -16,6 +16,10 @@
 - productionWorkerRequiredArtifactCount: 8
 - productionWorkerPresentArtifactCount: 0
 - productionWorkerMissingArtifactCount: 8
+- claimAuditPhysicalDeviceRequiredRowCount: 6
+- claimAuditApprovedManualRequiredRowCount: 1
+- claimAuditManualProviderRuntimeRequiredRowCount: 1
+- claimAuditProductionRuntimeRequiredRowCount: 2
 - does not prove retention product settings, physical-device, authority, provider-delivery, production, or product-ready tracking behavior
 - proof module: packages/parent-domain/src/tracking-product-readiness-closure-proof.ts
 - proof tests: packages/parent-domain/tests/tracking-product-readiness-closure-proof.test.ts

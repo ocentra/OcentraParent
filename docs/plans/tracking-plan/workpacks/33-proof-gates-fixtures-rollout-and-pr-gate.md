@@ -154,6 +154,12 @@ Proof root: `output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-g
   now also carry child-runtime and production-worker required/present/missing
   artifact counts, with zero present child-runtime artifacts and zero present
   production-worker runtime artifacts.
+- Refreshed tracking claim-audit, product-readiness closure, real-runtime
+  handoff, and source/gap-map proofs now machine-check the final
+  manual-required blocker split: six physical-device/runtime rows, one
+  approved-manual desktop row, one manual provider-runtime row, and two
+  production-runtime rows. These counts explain what remains without changing
+  any physical-device, authority, provider, production, or product-ready claim.
 - Refreshed tracking product-readiness closure proof also consumes the
   claim-audit proof, which keeps Android/iOS/manual-desktop, child-runtime,
   full-product UI, authority, provider, retention-runtime, production-worker,
@@ -1357,3 +1363,9 @@ tracking-claim-audit-proof tracking-product-readiness-closure-proof`
       artifacts, one present local writable execution artifact, one missing
       platform retention runtime enforcement artifact, one manual-required
       retention row, and zero artifact-complete retention runtime rows.
+- [x] Claim-audit tier accounting refresh: claim-audit proof, product-readiness
+      closure, real-runtime handoff, and source reconciliation gap-map now
+      carry and assert the final manual-required split of six
+      physical-device/runtime rows, one approved-manual desktop row, one
+      manual provider-runtime row, and two production-runtime rows, keeping
+      product-ready false.

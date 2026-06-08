@@ -127,6 +127,10 @@ export const TrackingRealRuntimeHandoffClosureAccountingSchema = withParser(
     claimAuditPresentArtifactCount: Schema.Number.pipe(Schema.int()),
     claimAuditMissingArtifactCount: Schema.Number.pipe(Schema.int(), Schema.positive()),
     claimAuditManualRequiredRowCount: Schema.Number.pipe(Schema.int(), Schema.positive()),
+    claimAuditPhysicalDeviceRequiredRowCount: Schema.Number.pipe(Schema.int(), Schema.positive()),
+    claimAuditApprovedManualRequiredRowCount: Schema.Number.pipe(Schema.int(), Schema.positive()),
+    claimAuditManualProviderRuntimeRequiredRowCount: Schema.Number.pipe(Schema.int(), Schema.positive()),
+    claimAuditProductionRuntimeRequiredRowCount: Schema.Number.pipe(Schema.int(), Schema.positive()),
     claimAuditProductReadyRowCount: Schema.Literal(0),
     productClaimReady: Schema.Literal(false),
   })
@@ -162,6 +166,17 @@ export const TrackingRealRuntimeHandoffClosureAccountingSchema = withParser(
           accounting.productionWorkerRequiredArtifactCount ===
             accounting.productionWorkerPresentArtifactCount + accounting.productionWorkerMissingArtifactCount ||
           'Real-runtime closure accounting must classify every production worker artifact'
+      )
+    )
+    .pipe(
+      Schema.filter(
+        (accounting) =>
+          accounting.claimAuditManualRequiredRowCount ===
+            accounting.claimAuditPhysicalDeviceRequiredRowCount +
+              accounting.claimAuditApprovedManualRequiredRowCount +
+              accounting.claimAuditManualProviderRuntimeRequiredRowCount +
+              accounting.claimAuditProductionRuntimeRequiredRowCount ||
+          'Real-runtime closure accounting must classify every claim-audit manual-required row by proof tier'
       )
     )
 );
