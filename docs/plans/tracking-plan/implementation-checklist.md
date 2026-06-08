@@ -836,7 +836,9 @@ Every implementation workpack must update, or explicitly justify not updating:
       hosted parent action readiness proof, hosted child-safe check-in screenshot
       proof, hosted child-runtime UI proof, hosted child-runtime execution
       readiness proof, hosted read-only evidence drawer proof, hosted UI
-      artifact inventory proof, physical-device artifact gate proof, refreshed
+      artifact inventory proof, full-product UI local artifact capture including
+      the hosted retention settings local write-result screenshot, physical-device
+      artifact gate proof, refreshed
       product-readiness closure proof, child-runtime artifact gate proof,
       provider-delivery artifact gate proof, production durable workers
       readiness blocker proof, and remaining Android/iOS physical-device
@@ -855,8 +857,11 @@ Every implementation workpack must update, or explicitly justify not updating:
       desktop/mobile screenshots plus hosted evidence drawer, child-safe
       check-in, child-runtime UI, notification parent-surface history, parent
       action readiness, report/policy consumer, and retention settings
-      local service write proof screenshots; it also captures parent overview
-      and devices shell screenshots around the tracking route. Hosted artifact
+      local service write proof screenshots; full-product UI local artifact
+      capture now copies that retention local write-result screenshot into the
+      product UI artifact root without filling the missing production
+      write-result runtime artifact. It also captures parent overview and
+      devices shell screenshots around the tracking route. Hosted artifact
       inventory proof verifies the stored PNG files, unsupported/manual
       platform PNG, and full current hosted accessibility assertions; actual
       child-device runtime execution and full product parent/child UI remain

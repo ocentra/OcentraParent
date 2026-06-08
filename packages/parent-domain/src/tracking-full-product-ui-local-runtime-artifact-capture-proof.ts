@@ -18,6 +18,7 @@ export const TrackingFullProductUiLocalRuntimeArtifactCaptureIdSchema = withPars
     'parent-overview-runtime-ui',
     'parent-device-detail-runtime-ui',
     'parent-notification-history-preferences-runtime',
+    'retention-settings-local-write-result',
     'cross-surface-accessibility-report',
     'product-ui-end-to-end-trace'
   )
@@ -114,6 +115,7 @@ export const TrackingFullProductUiLocalRuntimeArtifactCaptureProofSchema = withP
       parentOverviewLocalArtifactCaptured: Schema.Literal(true),
       parentDeviceDetailLocalArtifactCaptured: Schema.Literal(true),
       parentNotificationHistoryPreferencesLocalArtifactCaptured: Schema.Literal(true),
+      retentionSettingsLocalWriteResultCaptured: Schema.Literal(true),
       crossSurfaceAccessibilityLocalArtifactCaptured: Schema.Literal(true),
       productUiEndToEndTraceCaptured: Schema.Literal(true),
       fullProductUiRuntimeClaimed: Schema.Literal(false),
@@ -170,6 +172,7 @@ export const RequiredTrackingFullProductUiLocalRuntimeArtifactCaptures = [
   'parent-overview-runtime-ui',
   'parent-device-detail-runtime-ui',
   'parent-notification-history-preferences-runtime',
+  'retention-settings-local-write-result',
   'cross-surface-accessibility-report',
   'product-ui-end-to-end-trace',
 ] as const;
@@ -199,6 +202,7 @@ export function buildTrackingFullProductUiLocalRuntimeArtifactCaptureProof(
       parentOverviewLocalArtifactCaptured: true,
       parentDeviceDetailLocalArtifactCaptured: true,
       parentNotificationHistoryPreferencesLocalArtifactCaptured: true,
+      retentionSettingsLocalWriteResultCaptured: true,
       crossSurfaceAccessibilityLocalArtifactCaptured: true,
       productUiEndToEndTraceCaptured: true,
       fullProductUiRuntimeClaimed: false,

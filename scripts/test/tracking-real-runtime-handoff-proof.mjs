@@ -9,6 +9,7 @@ const resultRoot = join(repoRoot, 'test-results', proofMode);
 const proofRoot = join(repoRoot, 'output', 'tracking-plan-proof', proofMode);
 const wp33Root = join(repoRoot, 'output', 'tracking-plan-proof', '33-proof-gates-fixtures-rollout-and-pr-gate');
 const generatedAt = '2026-06-08T01:05:00.000Z';
+const expectedFullProductUiLocalArtifactCount = 6;
 
 const requiredClosureBlockers = [
   'android-physical-background-proof-required',
@@ -149,7 +150,7 @@ function assertProof(proof) {
   if (proof.closureAccounting.productClaimReady || proof.closureAccounting.claimAuditProductReadyRowCount !== 0) {
     throw new Error(`Closure accounting overclaimed product readiness: ${JSON.stringify(proof.closureAccounting)}`);
   }
-  if (proof.closureAccounting.fullProductUiLocalArtifactCount !== 5) {
+  if (proof.closureAccounting.fullProductUiLocalArtifactCount !== expectedFullProductUiLocalArtifactCount) {
     throw new Error(`Closure accounting lost local UI artifact evidence: ${JSON.stringify(proof.closureAccounting)}`);
   }
   if (

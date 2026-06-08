@@ -165,9 +165,10 @@ Proof root: `output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-g
 - Tracking full product UI local runtime artifact capture proof:
   `66-full-product-ui-local-runtime-artifact-capture-proof.json`
   now consumes the retention product-settings writable execution derivation
-  proof and child-runtime artifact gate proof as closure evidence while keeping
-  full product UI, child runtime, physical-device, authority, provider,
-  production, and product-ready claims false.
+  proof and child-runtime artifact gate proof as closure evidence, copies the
+  hosted retention settings local write-result screenshot into the local product
+  UI artifact root, and keeps full product UI, child runtime, physical-device,
+  authority, provider, production, and product-ready claims false.
 - Tracking child-runtime Android emulator readiness bridge proof:
   `67-child-runtime-android-emulator-readiness-bridge-proof.json`
 
@@ -1216,14 +1217,15 @@ test:tracking-plan-hosted-ui-proof` passed.
       checklist is not edited by this branch.
 - [x] Known gaps/manual-required states: the local capture proof now supplies
       parent overview, parent device detail, notification history/preferences,
-      cross-surface accessibility, and local product UI trace artifacts from the
-      hosted proof stack, and the refreshed artifact gate reports five present
-      local artifacts. Production retention-settings write result, rendered
-      child-device check-in, rendered child-device location consent, and
-      safe/help response artifacts remain missing; full product UI runtime,
-      child-device delivery runtime, physical-device behavior, authority,
-      provider delivery, production product UI, and product-ready tracking remain
-      proof-gated.
+      retention settings local write result, cross-surface accessibility, and
+      local product UI trace artifacts from the hosted proof stack, and the
+      refreshed artifact gate reports five present runtime-gate artifacts while
+      keeping the separate production retention-settings write result artifact
+      missing. Rendered child-device check-in, rendered child-device location
+      consent, and safe/help response artifacts also remain missing; full product
+      UI runtime, child-device delivery runtime, physical-device behavior,
+      authority, provider delivery, production product UI, and product-ready
+      tracking remain proof-gated.
 
 - [x] Workpack id and branch:
       `codex/tracking-plan-full-continuation-a`.
