@@ -619,6 +619,17 @@ generic app blocking covers this concern.
   `test-results/app-install-purchase-execution-receipt-gate-proof/proof.json`
   when run, validates the public parent-domain package export, updates the
   parent-domain README, and updates the product checklist row/addendum.
+- `packages/parent-domain/src/app-install-purchase-dispatch-executor-receipt-proof.ts`
+  now consumes execution receipt gate rows into external writer dispatch
+  executor receipt artifact requirement rows while preserving no external
+  runtime writer execution/delivery, provider/store execution, platform adapter
+  execution, child-device delivery, report delivery, custody, interception, or
+  app blocking claims.
+- `scripts/test/app-install-purchase-dispatch-executor-receipt-proof.mjs`
+  records that dispatch executor receipt proof under
+  `test-results/app-install-purchase-dispatch-executor-receipt-proof/proof.json`
+  when run, with package export, parent-domain README, and product checklist
+  deltas deferred while E-C owns those paths.
 - `packages/parent-domain/src/app-install-purchase-provider-store-execution-preflight-proof.ts`
   links provider/store execution readiness rows and runtime writer execution
   delivery receipts into parent-owned provider/store execution preflight ready,
@@ -933,6 +944,12 @@ Ocentra-hosted family data custody.
       executor receipt, provider/store execution receipt, platform adapter
       execution receipt, and child-device transport receipt artifacts while
       blocking product progress and preserving no external runtime writer
+      execution/delivery, provider/store execution, platform adapters,
+      child-device delivery, runtime report delivery, app blocking, child
+      activity data, or hosted family data custody claims.
+- [x] Dispatch executor receipt proof consuming execution receipt gate rows into
+      external writer dispatch executor handler, receipt artifact, and audit
+      artifact requirements while preserving no external runtime writer
       execution/delivery, provider/store execution, platform adapters,
       child-device delivery, runtime report delivery, app blocking, child
       activity data, or hosted family data custody claims.
