@@ -20,6 +20,8 @@ const sourceProofRefs = [
   'test-results/tracking-escalation-runtime-readiness-blocker-proof/proof.json',
   'test-results/tracking-retention-durable-settings-proof/proof.json',
 ];
+const productionWorkerRuntimeArtifactGateProofRef =
+  'test-results/tracking-production-worker-runtime-artifact-gate-proof/proof.json';
 
 await main();
 
@@ -34,13 +36,15 @@ async function main() {
   run('cmd', ['/c', 'npm', 'run', 'test', '--workspace', '@ocentra-parent/parent-domain', '--', proofMode]);
 
   await assertSourceProofsExist();
+  const productionWorkerRuntimeArtifactGateProof = await readJson(productionWorkerRuntimeArtifactGateProofRef);
   const trackingProductionModule = await importDist('tracking-production-durable-workers-readiness-blocker-proof.js');
   const productionSupportReadModelModule = await importDist(
     'production-support-status-backend-durable-queue-runtime-read-model.js'
   );
   const proof = buildProof(
     trackingProductionModule,
-    productionSupportReadModelModule.ProductionSupportStatusBackendDurableQueueRuntimeReadModel
+    productionSupportReadModelModule.ProductionSupportStatusBackendDurableQueueRuntimeReadModel,
+    productionWorkerRuntimeArtifactGateProof
   );
 
   assertProof(proof);
@@ -50,13 +54,17 @@ async function main() {
   console.log(`evidence=${relativePath(join(resultDir, 'proof.json'))}`);
 }
 
-function buildProof(trackingProductionModule, productionSupportReadModel) {
+function buildProof(trackingProductionModule, productionSupportReadModel, productionWorkerRuntimeArtifactGateProof) {
+  const presentTrackingWorkerArtifactRefs = unique(
+    rowsFrom(productionWorkerRuntimeArtifactGateProof).flatMap((row) => row.presentArtifacts ?? [])
+  );
   const readModel = trackingProductionModule.buildTrackingProductionDurableWorkersReadinessBlockerProof(
     {
       generatedAt: timestamp,
       proofId: proofMode,
       sourceProofRefs,
       requiredTrackingWorkerArtifactRefs: trackingProductionModule.RequiredTrackingProductionDurableWorkerArtifactRefs,
+      presentTrackingWorkerArtifactRefs,
     },
     productionSupportReadModel
   );
@@ -76,6 +84,8 @@ function buildProof(trackingProductionModule, productionSupportReadModel) {
       productionSupportDurableQueueRows: readModel.productionSupportDurableQueueRows,
       productionSupportManualClaimCount: readModel.productionSupportManualClaimCount,
       requiredTrackingWorkerArtifactCount: readModel.requiredTrackingWorkerArtifactCount,
+      presentTrackingWorkerArtifactCount: readModel.presentTrackingWorkerArtifactCount,
+      missingTrackingWorkerArtifactCount: readModel.missingTrackingWorkerArtifactCount,
       blockerCount: readModel.blockers.length,
       productReadyBlockers: readModel.blockers.filter(
         (row) => row.blockerId === 'tracking-production-product-ready-closure'
@@ -97,6 +107,11 @@ function assertProof(proof) {
   assert.equal(proof.summary.productionSupportDurableQueueRows > 0, true, 'expected production support rows');
   assert.equal(proof.summary.productionSupportManualClaimCount > 0, true, 'expected manual production claims');
   assert.equal(proof.summary.requiredTrackingWorkerArtifactCount, 8, 'expected tracking worker artifact refs');
+  assert.equal(
+    proof.summary.requiredTrackingWorkerArtifactCount,
+    proof.summary.presentTrackingWorkerArtifactCount + proof.summary.missingTrackingWorkerArtifactCount,
+    'expected classified tracking worker artifact refs'
+  );
   assert.equal(proof.summary.blockerCount, 9, 'expected every tracking production blocker');
   assert.equal(proof.summary.productReadyBlockers, 1, 'expected product-ready production blocker row');
   assert.equal(proof.productClaims.productionSupportBoundaryObserved, true, 'expected production support boundary');
@@ -118,6 +133,8 @@ async function writeArtifacts(proof) {
       `- status: ${proof.status}`,
       `- productionSupportDurableQueueRows: ${proof.summary.productionSupportDurableQueueRows}`,
       `- requiredTrackingWorkerArtifactCount: ${proof.summary.requiredTrackingWorkerArtifactCount}`,
+      `- presentTrackingWorkerArtifactCount: ${proof.summary.presentTrackingWorkerArtifactCount}`,
+      `- missingTrackingWorkerArtifactCount: ${proof.summary.missingTrackingWorkerArtifactCount}`,
       '- production support durable queue boundary is observed but does not prove tracking production workers',
       '',
     ].join('\n'),
@@ -138,6 +155,12 @@ async function assertSourceProofsExist() {
   }
 }
 
+function rowsFrom(sourceProof) {
+  if (Array.isArray(sourceProof.readModel?.rows)) return sourceProof.readModel.rows;
+  if (Array.isArray(sourceProof.rows)) return sourceProof.rows;
+  throw new Error(`Production worker runtime artifact gate proof has no rows: ${sourceProof.proofMode ?? 'unknown'}`);
+}
+
 function importDist(name) {
   return import(pathToFileURL(join(repoRoot, 'packages', 'parent-domain', 'dist', name)).href);
 }
@@ -154,6 +177,14 @@ function gitOutput(args) {
 
 async function writeJson(filePath, value) {
   await writeFile(filePath, `${JSON.stringify(value, null, 2)}\n`, 'utf8');
+}
+
+async function readJson(path) {
+  return JSON.parse(await readFile(join(repoRoot, path), 'utf8'));
+}
+
+function unique(values) {
+  return [...new Set(values)];
 }
 
 function commandLog() {

@@ -39,6 +39,12 @@ describe('tracking child runtime product readiness blocker proof', () => {
     expect(proof.rows[0].runtimeObservationRequirementRefCount).toBe(2);
     expect(proof.rows[0].androidEmulatorPrerequisitesObserved).toBe(true);
     expect(proof.rows[0].androidLocalGeofenceTransitionCount).toBe(3);
+    expect(proof.childRuntimeRequiredArtifactCount).toBe(10);
+    expect(proof.childRuntimePresentArtifactCount).toBe(0);
+    expect(proof.childRuntimeMissingArtifactCount).toBe(10);
+    expect(proof.rows[0].childRuntimeRequiredArtifacts).toHaveLength(10);
+    expect(proof.rows[0].childRuntimePresentArtifacts).toHaveLength(0);
+    expect(proof.rows[0].childRuntimeMissingArtifacts).toEqual(childRuntimeMissingArtifacts());
     expect(proof.rows[0].androidEmulatorChildRuntimeMissingArtifactCount).toBe(10);
     expect(proof.productClaims.childRuntimeRequirementCoverageClaimed).toBe(true);
     expect(proof.productClaims.androidEmulatorPrerequisitesObserved).toBe(true);
@@ -176,6 +182,8 @@ function androidEmulatorBridgeProof(): unknown {
           'output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-gate/50-child-runtime-artifact-gate-proof.json',
         androidProofStatus: 'emulator_scaffold_observed_nonvisual_screenshot',
         androidEvidenceRefs: ['test-results/tracking-plan-android-emulator-proof/proof.json'],
+        childRuntimeRequiredArtifacts: childRuntimeMissingArtifacts(),
+        childRuntimePresentArtifacts: [],
         childRuntimeMissingArtifacts: childRuntimeMissingArtifacts(),
         missingProofReasonRefs: ['child-runtime-delivery-envelope-physical-run-required'],
         auditRefs: ['tracking-child-runtime-android-emulator-readiness-bridge-audit'],

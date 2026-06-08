@@ -107,11 +107,12 @@ Proof root: `output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/`
 - [x] Add a child-runtime product-readiness blocker proof that consumes the
       snapshot requirements rows and the Android emulator readiness bridge,
       records package launch, foreground-service, and local emulator geofence
-      prerequisite accounting, and records the remaining actual delivery,
-      execution-result, rendered child UI, parent receipt, runtime observation,
-      physical-device, and authority blockers without claiming child-device
-      delivery, runtime execution, provider delivery, production, or
-      product-ready behavior.
+      prerequisite accounting, preserves exact required/present/missing
+      child-runtime artifact refs/counts from the artifact gate, and records the
+      remaining actual delivery, execution-result, rendered child UI, parent
+      receipt, runtime observation, physical-device, and authority blockers
+      without claiming child-device delivery, runtime execution, provider
+      delivery, production, or product-ready behavior.
 - [x] Add a child-runtime artifact gate proof that verifies the required real
       child-device delivery/execution artifact names and keeps actual delivery,
       execution, rendered child UI runtime, parent receipt runtime, runtime

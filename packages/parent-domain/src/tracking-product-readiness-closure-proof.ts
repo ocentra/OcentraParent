@@ -114,11 +114,17 @@ export const TrackingProductReadinessClosureAggregateEvidenceSchema = withParser
     fullProductUiClosureRetentionWritableExecutionRowCount: Schema.Number.pipe(Schema.int(), Schema.positive()),
     fullProductUiClosureRetentionWritableExecutionDerivationCount: Schema.Number.pipe(Schema.int(), Schema.positive()),
     fullProductUiClosureChildRuntimeMissingArtifactCount: Schema.Number.pipe(Schema.int()),
+    childRuntimeRequiredArtifactCount: Schema.Number.pipe(Schema.int(), Schema.positive()),
+    childRuntimePresentArtifactCount: Schema.Number.pipe(Schema.int()),
+    childRuntimeMissingArtifactCount: Schema.Number.pipe(Schema.int()),
     retentionRuntimeRequiredArtifactCount: Schema.Number.pipe(Schema.int(), Schema.positive()),
     retentionRuntimePresentArtifactCount: Schema.Number.pipe(Schema.int()),
     retentionRuntimeMissingArtifactCount: Schema.Number.pipe(Schema.int()),
     retentionRuntimeManualRequiredRowCount: Schema.Number.pipe(Schema.int()),
     retentionRuntimeArtifactSetPresentRowCount: Schema.Number.pipe(Schema.int()),
+    productionWorkerRequiredArtifactCount: Schema.Number.pipe(Schema.int(), Schema.positive()),
+    productionWorkerPresentArtifactCount: Schema.Number.pipe(Schema.int()),
+    productionWorkerMissingArtifactCount: Schema.Number.pipe(Schema.int()),
     claimAuditPresentArtifactCount: Schema.Number.pipe(Schema.int()),
     claimAuditMissingArtifactCount: Schema.Number.pipe(Schema.int(), Schema.positive()),
     claimAuditManualRequiredRowCount: Schema.Number.pipe(Schema.int(), Schema.positive()),
@@ -143,6 +149,14 @@ export const TrackingProductReadinessClosureAggregateEvidenceSchema = withParser
     .pipe(
       Schema.filter(
         (evidence) =>
+          evidence.childRuntimeRequiredArtifactCount ===
+            evidence.childRuntimePresentArtifactCount + evidence.childRuntimeMissingArtifactCount ||
+          'Aggregate closure evidence must classify every child-runtime artifact'
+      )
+    )
+    .pipe(
+      Schema.filter(
+        (evidence) =>
           evidence.retentionRuntimeRequiredArtifactCount ===
             evidence.retentionRuntimePresentArtifactCount + evidence.retentionRuntimeMissingArtifactCount ||
           'Aggregate closure evidence must classify every retention runtime artifact'
@@ -156,6 +170,14 @@ export const TrackingProductReadinessClosureAggregateEvidenceSchema = withParser
             evidence.retentionRuntimeManualRequiredRowCount >= 0 &&
             evidence.retentionRuntimeArtifactSetPresentRowCount >= 0) ||
           'Aggregate closure evidence cannot record negative retention runtime counts'
+      )
+    )
+    .pipe(
+      Schema.filter(
+        (evidence) =>
+          evidence.productionWorkerRequiredArtifactCount ===
+            evidence.productionWorkerPresentArtifactCount + evidence.productionWorkerMissingArtifactCount ||
+          'Aggregate closure evidence must classify every production worker runtime artifact'
       )
     )
 );

@@ -154,6 +154,16 @@ function assertProof(proof) {
     throw new Error(`Closure accounting lost local UI artifact evidence: ${JSON.stringify(proof.closureAccounting)}`);
   }
   if (
+    proof.closureAccounting.childRuntimeRequiredArtifactCount !==
+      proof.closureAccounting.childRuntimePresentArtifactCount +
+        proof.closureAccounting.childRuntimeMissingArtifactCount ||
+    proof.closureAccounting.childRuntimeMissingArtifactCount < 1
+  ) {
+    throw new Error(
+      `Closure accounting lost child-runtime artifact evidence: ${JSON.stringify(proof.closureAccounting)}`
+    );
+  }
+  if (
     proof.closureAccounting.retentionRuntimeRequiredArtifactCount !==
       proof.closureAccounting.retentionRuntimePresentArtifactCount +
         proof.closureAccounting.retentionRuntimeMissingArtifactCount ||
@@ -161,6 +171,16 @@ function assertProof(proof) {
   ) {
     throw new Error(
       `Closure accounting lost retention runtime artifact evidence: ${JSON.stringify(proof.closureAccounting)}`
+    );
+  }
+  if (
+    proof.closureAccounting.productionWorkerRequiredArtifactCount !==
+      proof.closureAccounting.productionWorkerPresentArtifactCount +
+        proof.closureAccounting.productionWorkerMissingArtifactCount ||
+    proof.closureAccounting.productionWorkerMissingArtifactCount < 1
+  ) {
+    throw new Error(
+      `Closure accounting lost production worker artifact evidence: ${JSON.stringify(proof.closureAccounting)}`
     );
   }
   const rowsWithoutAcceptanceNotes = proof.handoffRows.filter((row) => row.artifactAcceptanceNotes.length === 0);
@@ -192,9 +212,15 @@ function sourceSnapshot(proof) {
     '- status: manual_required',
     '- proves real-runtime handoff artifact requirements are derived from existing gates',
     `- fullProductUiLocalArtifactCount: ${proof.closureAccounting.fullProductUiLocalArtifactCount}`,
+    `- childRuntimeRequiredArtifactCount: ${proof.closureAccounting.childRuntimeRequiredArtifactCount}`,
+    `- childRuntimePresentArtifactCount: ${proof.closureAccounting.childRuntimePresentArtifactCount}`,
+    `- childRuntimeMissingArtifactCount: ${proof.closureAccounting.childRuntimeMissingArtifactCount}`,
     `- retentionRuntimeRequiredArtifactCount: ${proof.closureAccounting.retentionRuntimeRequiredArtifactCount}`,
     `- retentionRuntimePresentArtifactCount: ${proof.closureAccounting.retentionRuntimePresentArtifactCount}`,
     `- retentionRuntimeMissingArtifactCount: ${proof.closureAccounting.retentionRuntimeMissingArtifactCount}`,
+    `- productionWorkerRequiredArtifactCount: ${proof.closureAccounting.productionWorkerRequiredArtifactCount}`,
+    `- productionWorkerPresentArtifactCount: ${proof.closureAccounting.productionWorkerPresentArtifactCount}`,
+    `- productionWorkerMissingArtifactCount: ${proof.closureAccounting.productionWorkerMissingArtifactCount}`,
     `- claimAuditMissingArtifactCount: ${proof.closureAccounting.claimAuditMissingArtifactCount}`,
     `- ciRunnableRowCount: ${proof.summary.ciRunnableRowCount}`,
     '- does not prove physical-device, child-device runtime, authority, provider, retention product runtime, escalation, production, or product-ready tracking behavior',
@@ -219,9 +245,15 @@ function manualValidationRunbook(proof) {
     '- productReadyClaimed: false',
     `- ciRunnableRowCount: ${proof.summary.ciRunnableRowCount}`,
     `- fullProductUiLocalArtifactCount: ${proof.closureAccounting.fullProductUiLocalArtifactCount}`,
+    `- childRuntimeRequiredArtifactCount: ${proof.closureAccounting.childRuntimeRequiredArtifactCount}`,
+    `- childRuntimePresentArtifactCount: ${proof.closureAccounting.childRuntimePresentArtifactCount}`,
+    `- childRuntimeMissingArtifactCount: ${proof.closureAccounting.childRuntimeMissingArtifactCount}`,
     `- retentionRuntimeRequiredArtifactCount: ${proof.closureAccounting.retentionRuntimeRequiredArtifactCount}`,
     `- retentionRuntimePresentArtifactCount: ${proof.closureAccounting.retentionRuntimePresentArtifactCount}`,
     `- retentionRuntimeMissingArtifactCount: ${proof.closureAccounting.retentionRuntimeMissingArtifactCount}`,
+    `- productionWorkerRequiredArtifactCount: ${proof.closureAccounting.productionWorkerRequiredArtifactCount}`,
+    `- productionWorkerPresentArtifactCount: ${proof.closureAccounting.productionWorkerPresentArtifactCount}`,
+    `- productionWorkerMissingArtifactCount: ${proof.closureAccounting.productionWorkerMissingArtifactCount}`,
     `- claimAuditMissingArtifactCount: ${proof.closureAccounting.claimAuditMissingArtifactCount}`,
     '',
     ...proof.handoffRows.flatMap((row) => [

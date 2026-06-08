@@ -13,6 +13,29 @@
   "productionSupportDurableQueueRows": 36,
   "productionSupportManualClaimCount": 15,
   "requiredTrackingWorkerArtifactCount": 8,
+  "presentTrackingWorkerArtifactCount": 0,
+  "missingTrackingWorkerArtifactCount": 8,
+  "requiredTrackingWorkerArtifactRefs": [
+    "tracking-production/location-upload-worker-runtime.json",
+    "tracking-production/retention-cleanup-worker-runtime.json",
+    "tracking-production/notification-outbox-worker-runtime.json",
+    "tracking-production/escalation-timeout-worker-runtime.json",
+    "tracking-production/provider-receipt-worker-runtime.json",
+    "tracking-production/child-device-delivery-worker-runtime.json",
+    "tracking-production/authority-status-worker-runtime.json",
+    "tracking-production/audit-durable-storage-runtime.json"
+  ],
+  "presentTrackingWorkerArtifactRefs": [],
+  "missingTrackingWorkerArtifactRefs": [
+    "tracking-production/location-upload-worker-runtime.json",
+    "tracking-production/retention-cleanup-worker-runtime.json",
+    "tracking-production/notification-outbox-worker-runtime.json",
+    "tracking-production/escalation-timeout-worker-runtime.json",
+    "tracking-production/provider-receipt-worker-runtime.json",
+    "tracking-production/child-device-delivery-worker-runtime.json",
+    "tracking-production/authority-status-worker-runtime.json",
+    "tracking-production/audit-durable-storage-runtime.json"
+  ],
   "blockers": [
     {
       "blockerId": "tracking-location-upload-worker-runtime",

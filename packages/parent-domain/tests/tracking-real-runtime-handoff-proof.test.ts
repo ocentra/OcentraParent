@@ -10,11 +10,17 @@ const closureAccounting = {
   fullProductUiLocalArtifactCount: 6,
   fullProductUiClosureRetentionWritableExecutionRowCount: 1,
   fullProductUiClosureChildRuntimeMissingArtifactCount: 10,
+  childRuntimeRequiredArtifactCount: 10,
+  childRuntimePresentArtifactCount: 0,
+  childRuntimeMissingArtifactCount: 10,
   retentionRuntimeRequiredArtifactCount: 2,
   retentionRuntimePresentArtifactCount: 1,
   retentionRuntimeMissingArtifactCount: 1,
   retentionRuntimeManualRequiredRowCount: 1,
   retentionRuntimeArtifactSetPresentRowCount: 0,
+  productionWorkerRequiredArtifactCount: 8,
+  productionWorkerPresentArtifactCount: 0,
+  productionWorkerMissingArtifactCount: 8,
   claimAuditPresentArtifactCount: 5,
   claimAuditMissingArtifactCount: 61,
   claimAuditManualRequiredRowCount: 10,
@@ -59,8 +65,10 @@ describe('tracking real runtime handoff proof', () => {
     expect(proof.handoffRows.every((row) => row.artifactAcceptanceNotes.length > 0)).toBe(true);
     expect(proof.handoffRows.every((row) => row.ciRunnable === false)).toBe(true);
     expect(proof.closureAccounting.fullProductUiLocalArtifactCount).toBe(6);
+    expect(proof.closureAccounting.childRuntimeMissingArtifactCount).toBe(10);
     expect(proof.closureAccounting.retentionRuntimeMissingArtifactCount).toBe(1);
     expect(proof.closureAccounting.retentionRuntimeArtifactSetPresentRowCount).toBe(0);
+    expect(proof.closureAccounting.productionWorkerMissingArtifactCount).toBe(8);
     expect(proof.closureAccounting.claimAuditMissingArtifactCount).toBe(61);
     expect(Object.values(proof.productClaims).every((claim) => claim === false)).toBe(true);
   });

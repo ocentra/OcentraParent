@@ -1,15 +1,21 @@
 # Tracking Product Readiness Closure Source Snapshot
 
 - generatedAt: 2026-06-07T16:30:00.000Z
-- commit: bb61675410303b20a7e37458b1460d8b7119cf3a
+- commit: 1b71968d9db652291cb4f6154122c7b13709df8e
 - requiredProofTier: P3_LOCAL_DEV_MACHINE
 - currentProofTier: P3_LOCAL_DEV_MACHINE
 - status: proved
 - proves local/CI proof accounting is closed for current tracking continuation scope
+- childRuntimeRequiredArtifactCount: 10
+- childRuntimePresentArtifactCount: 0
+- childRuntimeMissingArtifactCount: 10
 - retentionRuntimeRequiredArtifactCount: 2
 - retentionRuntimePresentArtifactCount: 1
 - retentionRuntimeMissingArtifactCount: 1
 - retentionRuntimeManualRequiredRowCount: 1
+- productionWorkerRequiredArtifactCount: 8
+- productionWorkerPresentArtifactCount: 0
+- productionWorkerMissingArtifactCount: 8
 - does not prove retention product settings, physical-device, authority, provider-delivery, production, or product-ready tracking behavior
 - proof module: packages/parent-domain/src/tracking-product-readiness-closure-proof.ts
 - proof tests: packages/parent-domain/tests/tracking-product-readiness-closure-proof.test.ts

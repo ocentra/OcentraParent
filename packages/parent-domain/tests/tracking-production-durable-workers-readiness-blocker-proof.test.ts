@@ -24,6 +24,11 @@ describe('tracking production durable workers readiness blocker proof', () => {
     expect(proof.productionSupportDurableQueueRows).toBeGreaterThan(0);
     expect(proof.productionSupportManualClaimCount).toBeGreaterThan(0);
     expect(proof.requiredTrackingWorkerArtifactCount).toBe(RequiredTrackingProductionDurableWorkerArtifactRefs.length);
+    expect(proof.presentTrackingWorkerArtifactCount).toBe(0);
+    expect(proof.missingTrackingWorkerArtifactCount).toBe(RequiredTrackingProductionDurableWorkerArtifactRefs.length);
+    expect(proof.requiredTrackingWorkerArtifactRefs).toEqual([...RequiredTrackingProductionDurableWorkerArtifactRefs]);
+    expect(proof.presentTrackingWorkerArtifactRefs).toEqual([]);
+    expect(proof.missingTrackingWorkerArtifactRefs).toEqual([...RequiredTrackingProductionDurableWorkerArtifactRefs]);
     expect(proof.blockers).toHaveLength(RequiredTrackingProductionDurableWorkersReadinessBlockers.length);
     expect(proof.productClaims.productionSupportBoundaryObserved).toBe(true);
     expect(proof.productClaims.productClaimReady).toBe(false);

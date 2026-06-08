@@ -1,7 +1,7 @@
 # Tracking Child Runtime Product Readiness Blocker Source Snapshot
 
 - generatedAt: 2026-06-07T16:05:00.000Z
-- commit: deb6224255acd28d00a24f865cb381202e56c673
+- commit: 1b71968d9db652291cb4f6154122c7b13709df8e
 - requiredProofTier: P2_HOSTED_CI
 - currentProofTier: P2_HOSTED_CI
 - status: proved
@@ -10,6 +10,9 @@
 - proves child runtime requirement coverage is still product-readiness blocked even with Android emulator prerequisites observed
 - androidEmulatorPrerequisitesObserved: true
 - androidLocalGeofenceTransitionCount: 3
+- childRuntimeRequiredArtifactCount: 10
+- childRuntimePresentArtifactCount: 0
+- childRuntimeMissingArtifactCount: 10
 - androidBridgeChildRuntimeMissingArtifactCount: 10
 - proof module: packages/parent-domain/src/tracking-child-runtime-product-readiness-blocker-proof.ts
 - proof tests: packages/parent-domain/tests/tracking-child-runtime-product-readiness-blocker-proof.test.ts

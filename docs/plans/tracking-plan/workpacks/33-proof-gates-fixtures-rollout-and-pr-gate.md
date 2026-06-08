@@ -136,6 +136,10 @@ Proof root: `output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-g
   artifacts, one present local writable execution artifact, one missing
   platform retention runtime enforcement artifact, one manual-required row, and
   zero artifact-complete retention runtime rows.
+- Refreshed tracking product-readiness closure and real-runtime handoff proofs
+  now also carry child-runtime and production-worker required/present/missing
+  artifact counts, with zero present child-runtime artifacts and zero present
+  production-worker runtime artifacts.
 - Refreshed tracking product-readiness closure proof also consumes the
   claim-audit proof, which keeps Android/iOS/manual-desktop, child-runtime,
   full-product UI, authority, provider, retention-runtime, production-worker,
@@ -1321,11 +1325,13 @@ tracking-claim-audit-proof tracking-product-readiness-closure-proof`
       records six observed local UI artifacts and four hard full-product UI
       runtime gaps, and the product-readiness closure proof now records those
       counts alongside the retention writable execution derivation and
-      child-runtime artifact gap counts while keeping product-ready false.
+      child-runtime plus production-worker required/present/missing artifact
+      counts while keeping product-ready false.
 - [x] Real-runtime handoff accounting refresh: the handoff proof now consumes
-      the product-readiness closure aggregate counts, records readiness
-      categories for six physical/runtime rows, one provider-runtime row, and
-      two production-runtime rows, and keeps all manual handoff rows
+      the product-readiness closure aggregate counts, including child-runtime,
+      retention-runtime, and production-worker artifact counts, records
+      readiness categories for six physical/runtime rows, one provider-runtime
+      row, and two production-runtime rows, and keeps all manual handoff rows
       `ciRunnable=false` with product-ready false.
 - [x] Provider-runtime artifact inventory refresh: provider runtime readiness
       blocker proof now preserves the provider delivery artifact gate's exact
