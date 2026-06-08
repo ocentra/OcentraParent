@@ -49,6 +49,14 @@ const deletionRetentionCustodyPath = join(
   'proof-summary.json'
 );
 const deletionRetentionCustody = readJson(deletionRetentionCustodyPath);
+const serviceForegroundPath = join(
+  repoRoot,
+  'output',
+  'screen-ai-pipeline-proof',
+  'service-foreground',
+  'proof-summary.json'
+);
+const serviceForeground = readJson(serviceForegroundPath);
 const adapterCustodyArtifacts = [
   {
     label: 'Linux host adapter custody',
@@ -264,6 +272,18 @@ assert(
   deletionRetentionCustody.assertions?.readModelSurfacesExpiredAndDeleteFailedCounts === true,
   'Deletion custody proof must surface expired and delete-failed counts in the read model.'
 );
+assert(
+  serviceForeground.assertions?.foregroundWatcherCapturedBeforeSecondFocus === true,
+  'Service foreground proof must show capture before the second foreground focus.'
+);
+assert(
+  serviceForeground.assertions?.foregroundWatcherCapturedAfterSecondWindowFocus === true,
+  'Service foreground proof must show capture after the second foreground focus.'
+);
+assert(
+  serviceForeground.assertions?.activityReadModelReachedViaWebSocket === true,
+  'Service foreground proof must reach the Activity Screen read model through WebSocket.'
+);
 for (const artifact of adapterCustodyArtifacts) {
   assert(artifact.summary.status === artifact.expectedStatus, `${artifact.label} status changed.`);
   assert(
@@ -313,6 +333,7 @@ const summary = {
     'output/screen-ai-pipeline-proof/final-adapter-dependency-audit/proof-summary.json',
     'output/screen-ai-pipeline-proof/service-retention-sweeper/proof-summary.json',
     'output/screen-ai-pipeline-proof/deletion-retention-custody/proof-summary.json',
+    'output/screen-ai-pipeline-proof/service-foreground/proof-summary.json',
     'output/screen-ai-pipeline-proof/linux-host-adapter-custody/proof-summary.json',
     'output/screen-ai-pipeline-proof/android-mobile-control-custody/proof-summary.json',
     'output/screen-ai-pipeline-proof/ios-mobile-control-custody/proof-summary.json',
@@ -356,6 +377,10 @@ const summary = {
     deleteFailedVisibilityProved:
       deletionRetentionCustody.assertions.deleteFailureRemainsVisible === true &&
       deletionRetentionCustody.assertions.readModelSurfacesExpiredAndDeleteFailedCounts === true,
+    serviceForegroundWatcherProved:
+      serviceForeground.assertions.foregroundWatcherCapturedBeforeSecondFocus === true &&
+      serviceForeground.assertions.foregroundWatcherCapturedAfterSecondWindowFocus === true &&
+      serviceForeground.assertions.activityReadModelReachedViaWebSocket === true,
     custodyArtifactsDoNotUpgradeClaims: adapterCustodyArtifacts.every(
       (artifact) =>
         artifact.summary.closure.finalAdapterCompletionClaimed === false &&
