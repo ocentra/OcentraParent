@@ -1034,6 +1034,9 @@ Every implementation workpack must update, or explicitly justify not updating:
       `output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-gate/70-retention-platform-enforcement-preflight-proof.json`;
       command:
       `node scripts/test/tracking-retention-platform-enforcement-preflight-proof.mjs`.
+      Product-readiness closure and real-runtime handoff now carry the
+      preflight row/artifact counts so the missing retention platform runtime
+      enforcement layer stays visible in aggregate proof.
 - [x] Physical-device artifact gate proof now verifies the required Android and
       iOS physical evidence roots and required artifact names before any
       physical-device behavior can be claimed. Proof:
@@ -1117,11 +1120,10 @@ Every implementation workpack must update, or explicitly justify not updating:
       The handoff now carries product-readiness closure accounting, preserves
       the eight local full-product UI artifacts, child-runtime, retention-runtime,
       and production-worker required/present/missing artifact counts, plus
-      claim-audit blocker counts and tier split, and classifies the remaining
-      manual follow-up as six physical/runtime rows, one provider-runtime row,
-      two production-runtime rows, and zero CI-runnable rows. The separate
-      retention platform enforcement preflight proof now records the platform
-      artifact acceptance rows for that retention gap. The handoff also consumes
+      retention platform preflight row/artifact counts, claim-audit blocker
+      counts and tier split, and classifies the remaining manual follow-up as
+      six physical/runtime rows, one provider-runtime row, two
+      production-runtime rows, and zero CI-runnable rows. The handoff also consumes
       the matching claim-audit acceptance matrix so the generated handoff
       runbook carries source-derived criteria, manual validation commands, and
       `claimApproved remains false` artifact notes without creating a second

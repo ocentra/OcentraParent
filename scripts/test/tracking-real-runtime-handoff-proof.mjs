@@ -235,6 +235,18 @@ function assertProof(proof) {
     );
   }
   if (
+    proof.closureAccounting.retentionPlatformPreflightRequiredArtifactCount !==
+      proof.closureAccounting.retentionPlatformPreflightPresentArtifactCount +
+        proof.closureAccounting.retentionPlatformPreflightMissingArtifactCount ||
+    proof.closureAccounting.retentionPlatformPreflightManualRequiredRowCount !==
+      proof.closureAccounting.retentionPlatformPreflightRowCount ||
+    proof.closureAccounting.retentionPlatformPreflightProductReadyRowCount !== 0
+  ) {
+    throw new Error(
+      `Closure accounting lost retention platform preflight evidence: ${JSON.stringify(proof.closureAccounting)}`
+    );
+  }
+  if (
     proof.closureAccounting.productionWorkerRequiredArtifactCount !==
       proof.closureAccounting.productionWorkerPresentArtifactCount +
         proof.closureAccounting.productionWorkerMissingArtifactCount ||
@@ -304,6 +316,11 @@ function sourceSnapshot(proof) {
     `- retentionRuntimeRequiredArtifactCount: ${proof.closureAccounting.retentionRuntimeRequiredArtifactCount}`,
     `- retentionRuntimePresentArtifactCount: ${proof.closureAccounting.retentionRuntimePresentArtifactCount}`,
     `- retentionRuntimeMissingArtifactCount: ${proof.closureAccounting.retentionRuntimeMissingArtifactCount}`,
+    `- retentionPlatformPreflightRowCount: ${proof.closureAccounting.retentionPlatformPreflightRowCount}`,
+    `- retentionPlatformPreflightManualRequiredRowCount: ${proof.closureAccounting.retentionPlatformPreflightManualRequiredRowCount}`,
+    `- retentionPlatformPreflightRequiredArtifactCount: ${proof.closureAccounting.retentionPlatformPreflightRequiredArtifactCount}`,
+    `- retentionPlatformPreflightPresentArtifactCount: ${proof.closureAccounting.retentionPlatformPreflightPresentArtifactCount}`,
+    `- retentionPlatformPreflightMissingArtifactCount: ${proof.closureAccounting.retentionPlatformPreflightMissingArtifactCount}`,
     `- productionWorkerRequiredArtifactCount: ${proof.closureAccounting.productionWorkerRequiredArtifactCount}`,
     `- productionWorkerPresentArtifactCount: ${proof.closureAccounting.productionWorkerPresentArtifactCount}`,
     `- productionWorkerMissingArtifactCount: ${proof.closureAccounting.productionWorkerMissingArtifactCount}`,
@@ -358,6 +375,11 @@ function manualValidationRunbook(proof) {
     `- retentionRuntimeRequiredArtifactCount: ${proof.closureAccounting.retentionRuntimeRequiredArtifactCount}`,
     `- retentionRuntimePresentArtifactCount: ${proof.closureAccounting.retentionRuntimePresentArtifactCount}`,
     `- retentionRuntimeMissingArtifactCount: ${proof.closureAccounting.retentionRuntimeMissingArtifactCount}`,
+    `- retentionPlatformPreflightRowCount: ${proof.closureAccounting.retentionPlatformPreflightRowCount}`,
+    `- retentionPlatformPreflightManualRequiredRowCount: ${proof.closureAccounting.retentionPlatformPreflightManualRequiredRowCount}`,
+    `- retentionPlatformPreflightRequiredArtifactCount: ${proof.closureAccounting.retentionPlatformPreflightRequiredArtifactCount}`,
+    `- retentionPlatformPreflightPresentArtifactCount: ${proof.closureAccounting.retentionPlatformPreflightPresentArtifactCount}`,
+    `- retentionPlatformPreflightMissingArtifactCount: ${proof.closureAccounting.retentionPlatformPreflightMissingArtifactCount}`,
     `- productionWorkerRequiredArtifactCount: ${proof.closureAccounting.productionWorkerRequiredArtifactCount}`,
     `- productionWorkerPresentArtifactCount: ${proof.closureAccounting.productionWorkerPresentArtifactCount}`,
     `- productionWorkerMissingArtifactCount: ${proof.closureAccounting.productionWorkerMissingArtifactCount}`,

@@ -35,6 +35,7 @@
       "output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-gate/58-production-worker-runtime-artifact-gate-proof.json",
       "output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-gate/43-retention-product-readiness-proof.json",
       "output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-gate/60-retention-runtime-artifact-gate-proof.json",
+      "output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-gate/70-retention-platform-enforcement-preflight-proof.json",
       "output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-gate/65-claim-audit-proof.json"
     ],
     "auditRefs": [

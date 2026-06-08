@@ -142,10 +142,11 @@ expose location or device-status features. Parents expect this category.
 - WP07/WP33 retention platform enforcement preflight proof now exists through
   `node scripts/test/tracking-retention-platform-enforcement-preflight-proof.mjs`.
   It consumes the retention runtime artifact gate, writes Android, iOS, and
-  desktop platform-runtime acceptance rows plus a manual validation runbook, and
-  keeps platform runtime retention enforcement, writable product settings,
-  child-device delivery, physical-device proof, authority, production, and
-  product-ready claims false.
+  desktop platform-runtime acceptance rows plus a manual validation runbook,
+  and is now consumed by the product-readiness closure and real-runtime handoff
+  accounting. It keeps platform runtime retention enforcement, writable product
+  settings, child-device delivery, physical-device proof, authority,
+  production, and product-ready claims false.
 - Hosted parent `policy-tracking` route screenshot and accessibility proof now
   exists through `npm run test:tracking-plan-hosted-ui-proof`. It starts the
   real Rust service against a seeded temporary ActivityStore SQLite database,
@@ -1273,9 +1274,10 @@ current WP32 read-model/accounting proof set is closed at the local-dev/hosted
 route tier. Retention platform enforcement preflight now names the Android,
 iOS, and desktop manual artifact rows required to close the missing platform
 runtime enforcement artifact, but it is not product-ready runtime proof. The
-next implementation layers are applied/product-ready retention settings
-execution beyond hosted local service write rendering, the platform runtime
-artifacts required for retention product readiness, full portal UI
+product-readiness closure and real-runtime handoff now carry those preflight
+counts. The next implementation layers are applied/product-ready retention
+settings execution beyond hosted local service write rendering, the platform
+runtime artifacts required for retention product readiness, full portal UI
 snapshots/accessibility beyond the hosted route, Android system
 geofencing/dwell proof, iOS Core Location/region proof beyond simulator package
 launch, then physical Android/iOS proof and authority proof only when matching

@@ -1370,7 +1370,9 @@ tracking-claim-audit-proof tracking-product-readiness-closure-proof`
 - [x] Retention platform enforcement preflight refresh: WP07/WP33 now carries
       Android, iOS, and desktop manual-required acceptance rows, manual
       validation commands, and missing platform runtime artifact refs while
-      keeping platform enforcement and product-ready retention false.
+      keeping platform enforcement and product-ready retention false. The
+      product-readiness closure and real-runtime handoff proofs now carry the
+      three-row, six-required-artifact preflight accounting forward.
 - [x] Claim-audit tier accounting refresh: claim-audit proof, product-readiness
       closure, real-runtime handoff, and source reconciliation gap-map now
       carry and assert the final manual-required split of six

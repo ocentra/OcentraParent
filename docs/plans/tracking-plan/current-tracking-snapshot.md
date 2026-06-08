@@ -81,8 +81,10 @@
 - Retention platform enforcement preflight proof now consumes the retention
   runtime artifact gate and emits Android, iOS, and desktop manual-required
   acceptance rows plus a manual validation runbook for the missing platform
-  runtime retention enforcement artifact. It is CI/local preflight only and
-  keeps platform enforcement and product-ready retention false.
+  runtime retention enforcement artifact. Product-readiness closure and
+  real-runtime handoff now carry its row/artifact counts. It is CI/local
+  preflight only and keeps platform enforcement and product-ready retention
+  false.
 - Full product UI local runtime artifact capture proof now consumes the
   retention writable execution derivation proof and the child-runtime artifact
   gate proof as closure evidence, carries hosted child check-in/runtime UI
@@ -104,7 +106,8 @@
   escalation gaps can be closed without inventing duplicate truth. It now also
   carries the latest product-readiness closure accounting, including two
   required retention runtime artifacts, one present local writable execution
-  artifact, one missing platform retention runtime enforcement artifact, and
+  artifact, one missing platform retention runtime enforcement artifact, three
+  retention platform preflight rows, six preflight required artifacts, and
   classifies the remaining handoff rows as six physical/runtime-required rows, one
   provider-runtime-required row, two production-runtime-required rows, and zero
   CI-runnable rows. Handoff rows now consume the claim-audit acceptance matrix
@@ -116,8 +119,10 @@
   Android emulator artifact inventory, iOS simulator artifact inventory, eight
   observed full-product UI local artifacts, one retention writable execution
   derivation row, two retention runtime artifact requirements with one local
-  artifact present and one platform runtime enforcement artifact missing, ten
-  child-runtime artifact gaps, and the claim-audit blocker counts. The claim
+  artifact present and one platform runtime enforcement artifact missing, three
+  manual-required retention platform preflight rows with six missing platform
+  preflight artifacts, ten child-runtime artifact gaps, and the claim-audit
+  blocker counts. The claim
   audit tier split is now machine-checked as six physical-device/runtime rows,
   one approved-manual desktop row, one manual provider-runtime row, and two
   production-runtime rows, all product-ready false. The claim-audit rows now

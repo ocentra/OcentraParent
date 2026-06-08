@@ -41,6 +41,7 @@ export const TrackingProductReadinessClosureCoverageTagSchema = Schema.Literal(
   'production-worker-runtime-artifact-gate',
   'retention-product-readiness-blocker',
   'retention-runtime-artifact-gate',
+  'retention-platform-enforcement-preflight',
   'tracking-claim-audit'
 );
 
@@ -76,6 +77,7 @@ export const RequiredTrackingProductReadinessClosureCoverageTags = [
   'production-worker-runtime-artifact-gate',
   'retention-product-readiness-blocker',
   'retention-runtime-artifact-gate',
+  'retention-platform-enforcement-preflight',
   'tracking-claim-audit',
 ] as const;
 
@@ -140,6 +142,12 @@ export const TrackingProductReadinessClosureAggregateEvidenceSchema = withParser
     retentionRuntimeMissingArtifactCount: Schema.Number.pipe(Schema.int()),
     retentionRuntimeManualRequiredRowCount: Schema.Number.pipe(Schema.int()),
     retentionRuntimeArtifactSetPresentRowCount: Schema.Number.pipe(Schema.int()),
+    retentionPlatformPreflightRowCount: Schema.Number.pipe(Schema.int(), Schema.positive()),
+    retentionPlatformPreflightManualRequiredRowCount: Schema.Number.pipe(Schema.int(), Schema.positive()),
+    retentionPlatformPreflightRequiredArtifactCount: Schema.Number.pipe(Schema.int(), Schema.positive()),
+    retentionPlatformPreflightPresentArtifactCount: Schema.Literal(0),
+    retentionPlatformPreflightMissingArtifactCount: Schema.Number.pipe(Schema.int(), Schema.positive()),
+    retentionPlatformPreflightProductReadyRowCount: Schema.Literal(0),
     productionWorkerRequiredArtifactCount: Schema.Number.pipe(Schema.int(), Schema.positive()),
     productionWorkerPresentArtifactCount: Schema.Number.pipe(Schema.int()),
     productionWorkerMissingArtifactCount: Schema.Number.pipe(Schema.int()),
@@ -208,6 +216,22 @@ export const TrackingProductReadinessClosureAggregateEvidenceSchema = withParser
             evidence.retentionRuntimeManualRequiredRowCount >= 0 &&
             evidence.retentionRuntimeArtifactSetPresentRowCount >= 0) ||
           'Aggregate closure evidence cannot record negative retention runtime counts'
+      )
+    )
+    .pipe(
+      Schema.filter(
+        (evidence) =>
+          evidence.retentionPlatformPreflightRequiredArtifactCount ===
+            evidence.retentionPlatformPreflightPresentArtifactCount +
+              evidence.retentionPlatformPreflightMissingArtifactCount ||
+          'Aggregate closure evidence must classify every retention platform preflight artifact'
+      )
+    )
+    .pipe(
+      Schema.filter(
+        (evidence) =>
+          evidence.retentionPlatformPreflightRowCount === evidence.retentionPlatformPreflightManualRequiredRowCount ||
+          'Aggregate closure evidence must keep retention platform preflight manual-required'
       )
     )
     .pipe(
