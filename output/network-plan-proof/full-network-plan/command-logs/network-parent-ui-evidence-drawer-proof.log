@@ -39,12 +39,12 @@
 
  Test Files  18 passed (18)
       Tests  74 passed (74)
-   Start at  06:32:12
+   Start at  07:47:16
    Duration <duration>
 
-[2m6:32:30 a.m.[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m Forced re-optimization of dependencies
+[2m7:47:31 a.m.[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m Forced re-optimization of dependencies
 
-  [32m[1mVITE[22m v7.3.3[39m  [2mready in [0m[1m743[22m[2m[0m ms[22m
+  [32m[1mVITE[22m v7.3.3[39m  [2mready in [0m[1m742[22m[2m[0m ms[22m
 
   [32m➜[39m  [1mLocal[22m:   [36mhttp://127.0.0.1:[1m4490[22m/[39m
 
@@ -55,8 +55,8 @@ Running 1 test using 1 worker
   1 passed (<duration>s)
 network-parent-ui-evidence-drawer-proof-ok
 evidence=test-results/network-parent-ui-evidence-drawer-proof/proof.json
-[2m6:32:12 a.m.[22m [33m[1m[vite][22m[39m [33mwarning: `esbuild` option was specified by "vite:react-babel" plugin. This option is deprecated, please use `oxc` instead.[39m
-[2m6:32:12 a.m.[22m [33m[1m[vite][22m[39m [33mwarning: `optimizeDeps.esbuildOptions` option was specified by "vite:react-babel" plugin. This option is deprecated, please use `optimizeDeps.rolldownOptions` instead.[39m
+[2m7:47:16 a.m.[22m [33m[1m[vite][22m[39m [33mwarning: `esbuild` option was specified by "vite:react-babel" plugin. This option is deprecated, please use `oxc` instead.[39m
+[2m7:47:16 a.m.[22m [33m[1m[vite][22m[39m [33mwarning: `optimizeDeps.esbuildOptions` option was specified by "vite:react-babel" plugin. This option is deprecated, please use `optimizeDeps.rolldownOptions` instead.[39m
 [33mBoth esbuild and oxc options were set. oxc options will be used and esbuild options will be ignored.[39m The following esbuild options were set: `{ jsx: 'automatic', jsxImportSource: undefined }`
     Finished `dev` profile [unoptimized + debuginfo] target(s) in <duration>
 [33mAssets in public directory cannot be imported from JavaScript.

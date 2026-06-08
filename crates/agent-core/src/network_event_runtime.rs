@@ -25,6 +25,8 @@ mod queue;
 mod refs;
 mod remote_delivery_cross_process_custody_readiness;
 mod remote_delivery_cross_process_custody_readiness_types;
+mod remote_delivery_cross_process_replay;
+mod remote_delivery_cross_process_replay_types;
 mod remote_delivery_delete_export_propagation;
 mod remote_delivery_delete_export_propagation_types;
 mod remote_delivery_dispatch_readiness;
@@ -72,6 +74,15 @@ pub use remote_delivery_cross_process_custody_readiness_types::{
     NetworkRuntimeRemoteDeliveryCrossProcessCustodyReadinessRecord,
     NetworkRuntimeRemoteDeliveryCrossProcessCustodyReadinessReport,
     NetworkRuntimeRemoteDeliveryCrossProcessCustodyReadinessState,
+};
+pub use remote_delivery_cross_process_replay::prove_network_runtime_remote_delivery_cross_process_replay;
+#[cfg(test)]
+pub(crate) use remote_delivery_cross_process_replay::prove_network_runtime_remote_delivery_cross_process_replay_from_custody_readiness;
+pub use remote_delivery_cross_process_replay_types::{
+    NetworkRuntimeRemoteDeliveryCrossProcessReplayError,
+    NetworkRuntimeRemoteDeliveryCrossProcessReplayRecord,
+    NetworkRuntimeRemoteDeliveryCrossProcessReplayReport,
+    NetworkRuntimeRemoteDeliveryCrossProcessReplayState,
 };
 pub use remote_delivery_delete_export_propagation::prove_network_runtime_remote_delivery_delete_export_propagation;
 #[cfg(test)]

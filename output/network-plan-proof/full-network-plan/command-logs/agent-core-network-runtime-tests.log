@@ -30,7 +30,7 @@ test network_event_runtime_tests::network_runtime_chain_carries_exact_refs_witho
 test network_event_runtime_tests::network_runtime_chain_publishes_full_metadata_only_flow ... ok
 test network_event_runtime_tests::network_runtime_review_request_resolves_associated_response ... ok
 
-test result: ok. 30 passed; 0 failed; 0 ignored; 0 measured; 261 filtered out; finished in <duration>
+test result: ok. 30 passed; 0 failed; 0 ignored; 0 measured; 264 filtered out; finished in <duration>
 
     Finished `test` profile [unoptimized + debuginfo] target(s) in <duration>
      Running unittests src/lib.rs (target/debug/deps/<test-binary>)

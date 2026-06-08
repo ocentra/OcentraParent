@@ -321,14 +321,15 @@ compete on control while staying clear about attribution confidence and privacy.
 - E-D added an aggregate full-network-plan proof pack that ties together
   contract, reusable eventing, parser/fixture, analyzer alert, AI/policy,
   adapter action, journal/read-model, UI, security-negative, performance,
-  classification, remote-delivery through row10q cross-process custody readiness/status,
+  classification, remote-delivery through row10r cross-process replay metadata,
   and end-to-end product-path proof artifacts
   under `output/network-plan-proof/full-network-plan/proof-summary.json` and
   `test-results/network-full-plan-proof/proof.json`. The proof keeps live
   capture drivers, live host adapter mutation/filtering, broker/family-hub
-  delivery, provider/child delivery, remote delete/export propagation,
-  production platform support, external audit signoff, exact content claims,
-  and enforcement-command publication unclaimed.
+  delivery, provider/child delivery, external cross-process transport beyond
+  deterministic replay metadata, remote delete/export propagation, production
+  platform support, external audit signoff, exact content claims, and
+  enforcement-command publication unclaimed.
 - E-D added a row10o fixture transport status bridge proof:
   `network-remote-delivery-fixture-transport-status-bridge-proof` carries
   row10l fixture transport refs and fixture dispatch/ack counts through the
@@ -358,6 +359,16 @@ compete on control while staying clear about attribution confidence and privacy.
   propagation, product-ready delivery, policy/side-effect authority, exact
   content, host filtering, adapter action, and enforcement-command publication
   unclaimed.
+- E-D added a row10r cross-process durable replay metadata proof:
+  `network-remote-delivery-cross-process-replay-proof` turns row10e durable
+  envelope records plus row10q custody/readiness records into deterministic
+  replay records with durable-envelope refs, durable-store refs, receipt refs,
+  row10q custody refs, replay-store refs, and replay-cursor refs. This moves
+  cross-process replay from readiness-only evidence to local deterministic
+  replay metadata while keeping live broker/family-hub/provider/child delivery,
+  remote acknowledgement delivery, actual remote delete/export propagation,
+  product-ready delivery, policy/side-effect authority, exact content, host
+  filtering, adapter action, and enforcement-command publication unclaimed.
 - E-D added `ocentra-network-evidence`, a reusable Rust network metadata crate,
   plus the first deterministic PCAP replay proof for classic
   Ethernet/IPv4/UDP DNS query metadata. The proof writes a fixture PCAP,
@@ -603,8 +614,8 @@ compete on control while staying clear about attribution confidence and privacy.
 Real OS/domain blocking adapter execution, broader DNS/VPN/proxy handling,
 attribution quality, live capture driver invocation, live analyzer fixture
 proof, broker/family-hub transport, remote network runtime event-chain
-delivery, raw PCAP/live-capture retention, production risk-budget service/UI
-wiring,
+delivery, external cross-process transport beyond deterministic replay metadata,
+raw PCAP/live-capture retention, production risk-budget service/UI wiring,
 production SLO validation,
 external audit/deployment execution, full support-material authoring, and
 parent-facing rule UX remain.

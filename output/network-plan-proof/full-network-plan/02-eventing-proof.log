@@ -142,6 +142,10 @@ command=node scripts/test/network-remote-delivery-cross-process-custody-readines
 status=0
 log=output/network-plan-proof/full-network-plan/command-logs/network-remote-delivery-cross-process-custody-readiness-proof.log
 
+command=node scripts/test/network-remote-delivery-cross-process-replay-proof.mjs
+status=0
+log=output/network-plan-proof/full-network-plan/command-logs/network-remote-delivery-cross-process-replay-proof.log
+
 command=node scripts/test/network-parent-ui-evidence-drawer-proof.mjs
 status=0
 log=output/network-plan-proof/full-network-plan/command-logs/network-parent-ui-evidence-drawer-proof.log

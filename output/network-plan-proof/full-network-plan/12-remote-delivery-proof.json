@@ -142,6 +142,17 @@
         "kind": "refreshed-by-aggregate-command",
         "command": "network-remote-delivery-cross-process-custody-readiness-proof"
       }
+    },
+    {
+      "id": "remote-cross-process-replay",
+      "group": "10-remote-delivery-proof",
+      "path": "output/network-plan-proof/10r-remote-delivery-cross-process-replay/proof-summary.json",
+      "kind": "json",
+      "parsedProof": "network-remote-delivery-cross-process-replay-proof",
+      "freshness": {
+        "kind": "refreshed-by-aggregate-command",
+        "command": "network-remote-delivery-cross-process-replay-proof"
+      }
     }
   ]
 }

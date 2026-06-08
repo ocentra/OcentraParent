@@ -1,0 +1,96 @@
+{
+  "proof": "network-remote-delivery-cross-process-replay-proof",
+  "proofRevision": "network-remote-delivery-cross-process-replay-proof/v1",
+  "checkedAt": "deterministic:network-remote-delivery-cross-process-replay-proof/v1",
+  "sourceFingerprint": "source-tree:18d05f9d39efe87c13f6f24142670befb056d531db380997acd8a2bdee5873ff",
+  "sourceRefs": [
+    "scripts/test/network-remote-delivery-cross-process-replay-proof.mjs",
+    "crates/agent-protocol/src/constants/network_flow.rs",
+    "crates/agent-core/src/lib.rs",
+    "crates/agent-core/src/network_event_runtime.rs",
+    "crates/agent-core/src/network_event_runtime/remote_delivery_cross_process_replay.rs",
+    "crates/agent-core/src/network_event_runtime/remote_delivery_cross_process_replay_types.rs",
+    "crates/agent-core/src/network_event_runtime_cross_process_replay_tests.rs",
+    "crates/agent-core/src/network_event_runtime/remote_delivery_cross_process_custody_readiness.rs",
+    "crates/agent-core/src/network_event_runtime/remote_delivery_cross_process_custody_readiness_types.rs",
+    "crates/agent-core/src/network_event_runtime/remote_delivery_durable_envelope_types.rs",
+    "docs/features/network-domain-control.md",
+    "docs/plans/network-plan/implementation-checklist.md",
+    "docs/plans/network-plan/workpacks/README.md"
+  ],
+  "runContext": "deterministic-row10r-cross-process-durable-replay",
+  "proofRoot": "output\\network-plan-proof\\10r-remote-delivery-cross-process-replay",
+  "testRoot": "test-results\\network-remote-delivery-cross-process-replay-proof",
+  "commands": [
+    {
+      "name": "agent-core-cross-process-replay-test",
+      "command": "cargo test -p ocentra-parent-agent-core cross_process_replay",
+      "status": 0,
+      "log": "output\\network-plan-proof\\10r-remote-delivery-cross-process-replay\\agent-core-cross-process-replay-test.log"
+    },
+    {
+      "name": "agent-core-clippy",
+      "command": "cargo clippy -p ocentra-parent-agent-core --all-targets -- -D warnings",
+      "status": 0,
+      "log": "output\\network-plan-proof\\10r-remote-delivery-cross-process-replay\\agent-core-clippy.log"
+    },
+    {
+      "name": "rust-format",
+      "command": "cargo fmt --all --check",
+      "status": 0,
+      "log": "output\\network-plan-proof\\10r-remote-delivery-cross-process-replay\\rust-format.log"
+    },
+    {
+      "name": "source-shape",
+      "command": "node scripts/check-source-shape.mjs",
+      "status": 0,
+      "log": "output\\network-plan-proof\\10r-remote-delivery-cross-process-replay\\source-shape.log"
+    },
+    {
+      "name": "git-diff-check",
+      "command": "git diff --check",
+      "status": 0,
+      "log": "output\\network-plan-proof\\10r-remote-delivery-cross-process-replay\\git-diff-check.log"
+    }
+  ],
+  "artifacts": {
+    "expectedCrossProcessReplay": "output\\network-plan-proof\\10r-remote-delivery-cross-process-replay\\expected-cross-process-replay.json",
+    "securityNegativeLog": "output\\network-plan-proof\\10r-remote-delivery-cross-process-replay\\09-security-negative-proof.log",
+    "validationCommands": "output\\network-plan-proof\\10r-remote-delivery-cross-process-replay\\12-validation-commands.log",
+    "proofSummary": "output\\network-plan-proof\\10r-remote-delivery-cross-process-replay\\proof-summary.json",
+    "testProof": "test-results\\network-remote-delivery-cross-process-replay-proof\\proof.json"
+  },
+  "coveredRows": [
+    "network-plan supplemental row 10r remote delivery cross-process durable replay metadata proof",
+    "network-plan supplemental row 10q remote delivery cross-process custody readiness proof",
+    "network-plan supplemental row 10e remote delivery durable envelope proof"
+  ],
+  "provenBoundaries": [
+    "Rust core creates deterministic row10r cross-process replay records from row10e durable envelopes and row10q custody readiness records",
+    "row10r replay records preserve sequence, event id, event type, correlation id, durable envelope/store refs, receipt refs, row10q custody status refs, and replay cursor refs",
+    "source readiness that already claims cross-process replay is rejected before row10r records are built",
+    "mismatched durable envelope and custody readiness inputs are rejected",
+    "row10r keeps live broker/family-hub/provider/child delivery, actual remote delete/export propagation, product-ready delivery, policy authority, side-effect authority, adapter action, host filtering, exact content, raw PCAP, and enforcement-command publication unclaimed"
+  ],
+  "notClaimed": [
+    "live broker dispatch",
+    "live family-hub relay dispatch",
+    "remote acknowledgement delivery",
+    "provider delivery",
+    "child-device delivery",
+    "actual remote delete/export propagation",
+    "product-ready remote delivery",
+    "policy authority",
+    "side-effect authority",
+    "adapter action execution",
+    "enforcement command publication",
+    "raw PCAP",
+    "exact URL from network-only evidence",
+    "decrypted payload",
+    "page content",
+    "video content",
+    "private-message content",
+    "search-query content",
+    "host filtering"
+  ]
+}

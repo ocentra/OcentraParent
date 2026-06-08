@@ -170,6 +170,7 @@ pub use network_capture::{collect_network_snapshot, NetworkObservation};
 pub use network_capture_event::{network_observation_event, network_snapshot_events};
 pub use network_event_runtime::{
     prove_network_runtime_remote_delivery_cross_process_custody_readiness,
+    prove_network_runtime_remote_delivery_cross_process_replay,
     prove_network_runtime_remote_delivery_delete_export_propagation,
     prove_network_runtime_remote_delivery_dispatch_readiness,
     prove_network_runtime_remote_delivery_durable_envelope,
@@ -184,6 +185,10 @@ pub use network_event_runtime::{
     NetworkRuntimeRemoteDeliveryCrossProcessCustodyReadinessRecord,
     NetworkRuntimeRemoteDeliveryCrossProcessCustodyReadinessReport,
     NetworkRuntimeRemoteDeliveryCrossProcessCustodyReadinessState,
+    NetworkRuntimeRemoteDeliveryCrossProcessReplayError,
+    NetworkRuntimeRemoteDeliveryCrossProcessReplayRecord,
+    NetworkRuntimeRemoteDeliveryCrossProcessReplayReport,
+    NetworkRuntimeRemoteDeliveryCrossProcessReplayState,
     NetworkRuntimeRemoteDeliveryDeleteExportPropagationError,
     NetworkRuntimeRemoteDeliveryDeleteExportPropagationRecord,
     NetworkRuntimeRemoteDeliveryDeleteExportPropagationReport,
@@ -312,6 +317,8 @@ mod journal_tests;
 mod network_capture_tests;
 #[cfg(test)]
 mod network_event_runtime_broker_delivery_tests;
+#[cfg(test)]
+mod network_event_runtime_cross_process_replay_tests;
 #[cfg(test)]
 mod network_event_runtime_delete_export_propagation_tests;
 #[cfg(test)]
