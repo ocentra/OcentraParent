@@ -133,6 +133,7 @@ export {
   type AppGamePolicyReadinessPanelRow,
 } from './app-game-policy-readiness-panel';
 export {
+  createAppGameTimerParentPreferenceSetupCommandResultDetails,
   createAppGameTimerParentPreferenceSetupRequestPayload,
   createAppGameTimerParentSurfacePanelIntent,
   type AppGameTimerParentSurfacePreferenceSetupRequestAction,

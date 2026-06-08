@@ -1304,7 +1304,12 @@ diagnostics, or raw private source rows.
       a future child runtime without claiming provider delivery, receipt
       ingestion, actual child runtime delivery, durable outbox storage, adapter
       dispatch, broad blocking, platform enforcement, raw private source rows,
-      raw target values, or private diagnostics.
+      raw target values, or private diagnostics. The portal command-result
+      panel now parses that accepted setup result and renders parent-safe
+      action-result persistence, mutation receipt, and child-runtime handoff
+      refs/status above the raw event payload, without upgrading the no-claim
+      delivery, provider, outbox, adapter, broad-blocking, platform, raw-row,
+      raw-target, or private-diagnostics boundaries.
 - [ ] Adapter capability status per platform. Cross-platform authority and
       broad-blocking gate contracts now record manual-required, unavailable,
       and not-claimed proof requirements. Platform-extension routing now maps

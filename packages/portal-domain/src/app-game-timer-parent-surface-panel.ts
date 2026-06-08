@@ -3,7 +3,9 @@ import {
   AgentEvent,
   AgentProtocolDefaults,
   AppGameTimerParentPreferenceSetupRequestSchema,
+  parseAgentAppGameTimerParentPreferenceSetupRequestEvent,
   type AgentCommandName,
+  type AgentEventEnvelope,
   type AgentEventName,
   type AgentProtocolLogFields,
 } from '@ocentra-parent/agent-protocol-domain/contracts';
@@ -25,10 +27,12 @@ const RequestIdSeparator = '::';
 const ParentPreferenceSetupRequestIdPrefix = 'app-game-parent-preference-setup-request';
 
 const Readable = {
+  HandoffReady: decodeDisplayText('Handoff ready'),
   HistoryRowVisible: decodeDisplayText('History row visible'),
   ManualRequired: requiredReadableValue('manual-required'),
   ManualActionRequired: decodeDisplayText('Manual action required'),
   NotClaimed: requiredReadableValue('not-claimed'),
+  Persisted: decodeDisplayText('Persisted'),
   PreferenceSetupRequired: decodeDisplayText('Preference setup required'),
   Ready: requiredReadableValue('ready'),
   Review: requiredReadableValue('warn'),
@@ -66,9 +70,16 @@ const TimerParentSurfaceDetails = {
   ChildUxParentSurfaceIntentSources: decodeDisplayText('Child UX parent-surface sources'),
   ChildUxParentSurfaceIntentTargets: decodeDisplayText('Child UX parent-surface targets'),
   ChildUxParentSurfaceIntentUnavailable: decodeDisplayText('Child UX parent-surface unavailable'),
+  ChildRuntimeHandoffRefs: decodeDisplayText('Child runtime handoff refs'),
+  ChildRuntimeHandoffStatus: decodeDisplayText('Child runtime handoff status'),
+  ParentPreferenceSetupAcceptedAt: decodeDisplayText('Parent preference setup accepted at'),
+  ParentPreferenceSetupActionResultRefs: decodeDisplayText('Parent preference setup action-result refs'),
+  ParentPreferenceSetupActionResultStatus: decodeDisplayText('Parent preference setup action-result status'),
   ParentPreferenceSetupDraftRefs: decodeDisplayText('Parent preference setup draft refs'),
   ParentPreferenceSetupDraftStatus: decodeDisplayText('Parent preference setup draft status'),
   ParentPreferenceSetupMutation: decodeDisplayText('Parent preference setup mutation'),
+  ParentPreferenceSetupMutationReceiptRefs: decodeDisplayText('Parent preference setup mutation receipt refs'),
+  ParentPreferenceSetupMutationReceiptStatus: decodeDisplayText('Parent preference setup mutation receipt status'),
   ParentPreferenceSetupRequestRefs: decodeDisplayText('Parent preference setup request refs'),
   ParentPreferenceSetupRequestStatus: decodeDisplayText('Parent preference setup request status'),
   ParentPreferenceSetupRequestUnavailable: decodeDisplayText('Parent preference setup request unavailable'),
@@ -461,6 +472,55 @@ export function createAppGameTimerParentPreferenceSetupRequestPayload(
   };
 }
 
+export function createAppGameTimerParentPreferenceSetupCommandResultDetails(
+  event: AgentEventEnvelope
+): readonly AppGameTimerParentSurfacePanelDetail[] {
+  const result = parseAgentAppGameTimerParentPreferenceSetupRequestEvent(event);
+
+  if (!result.ok) {
+    return [detail(PortalDetails.Status, Readable.Review), detail(PortalDetails.Reason, displayText(result.reason))];
+  }
+
+  return [
+    detail(PortalDetails.Status, Readable.Ready),
+    detail(PortalDetails.EventId, displayText(result.value.requestId)),
+    detail(TimerParentSurfaceDetails.ParentPreferenceSetupAcceptedAt, displayText(result.value.acceptedAt)),
+    detail(
+      TimerParentSurfaceDetails.ParentPreferenceSetupRequestRefs,
+      joinedOrNotReported(result.value.requestReferenceIds)
+    ),
+    detail(
+      TimerParentSurfaceDetails.ParentPreferenceSetupActionResultRefs,
+      joinedOrNotReported(result.value.actionResultReferenceIds)
+    ),
+    detail(
+      TimerParentSurfaceDetails.ParentPreferenceSetupActionResultStatus,
+      parentPreferenceSetupResultStatus(result.value.actionResultPersistenceStatus)
+    ),
+    detail(
+      TimerParentSurfaceDetails.ParentPreferenceSetupMutationReceiptRefs,
+      joinedOrNotReported(result.value.parentPreferenceMutationReceiptIds)
+    ),
+    detail(
+      TimerParentSurfaceDetails.ParentPreferenceSetupMutationReceiptStatus,
+      parentPreferenceSetupResultStatus(result.value.parentPreferenceMutationReceiptStatus)
+    ),
+    detail(
+      TimerParentSurfaceDetails.ChildRuntimeHandoffRefs,
+      joinedOrNotReported(result.value.childRuntimeDeliveryHandoffIds)
+    ),
+    detail(
+      TimerParentSurfaceDetails.ChildRuntimeHandoffStatus,
+      parentPreferenceSetupResultStatus(result.value.childRuntimeDeliveryHandoffStatus)
+    ),
+    detail(TimerParentSurfaceDetails.ParentPreferenceSetupMutation, Readable.NotClaimed),
+    detail(TimerParentSurfaceDetails.ParentPreferenceSetupRuleMutation, Readable.NotClaimed),
+    detail(PortalDetails.ChildDelivery, claimedValue(result.value.childRuntimeDeliveryClaimed)),
+    detail(PortalDetails.AdapterDispatch, claimedValue(result.value.adapterDispatchClaimed)),
+    detail(PortalDetails.PlatformState, claimedValue(result.value.platformEnforcementClaimed)),
+  ];
+}
+
 function parentPreferenceSetupRequestAction(
   record: AgentAppGameTimerParentSurfaceChildUxParentPreferenceSetupRecord
 ): AppGameTimerParentSurfacePreferenceSetupRequestAction | null {
@@ -489,6 +549,19 @@ function parentPreferenceSetupRequestUiReadableValue(status: string): DisplayTex
     return Readable.Ready;
   }
   return Readable.NotClaimed;
+}
+
+function parentPreferenceSetupResultStatus(status: string): DisplayText {
+  if (status === 'handoff-ready') {
+    return Readable.HandoffReady;
+  }
+  if (status === 'persisted') {
+    return Readable.Persisted;
+  }
+  if (status === 'accepted') {
+    return Readable.Ready;
+  }
+  return readableValue(status);
 }
 
 function parentPreferenceSetupDraftReadableValue(

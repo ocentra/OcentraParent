@@ -15,6 +15,7 @@ import {
 import { PortalRoute } from '@ocentra-parent/portal-domain/contracts';
 import { shouldRenderAppGameTimerParentSurfaceRoute } from '../src/AppGameTimerParentSurfaceRoutePanel';
 import {
+  createAppGameTimerParentPreferenceSetupCommandResultDetails,
   createAppGameTimerParentPreferenceSetupRequestPayload,
   createAppGameTimerParentSurfacePanelIntent,
 } from '../src/app-game-timer-parent-surface-panel';
@@ -194,6 +195,10 @@ describe('app-game timer parent-surface portal route panel', () => {
     expectActiveStateVisibility
   );
   it('shows replayed control action-result visibility without adapter claims', expectControlActionResultVisibility);
+  it(
+    'shows accepted parent preference setup child-runtime handoff result without delivery claims',
+    expectParentPreferenceSetupCommandResultVisibility
+  );
   it('keeps absent or invalid service input explicit instead of inventing rows', expectAbsentServiceInput);
 });
 
@@ -281,6 +286,59 @@ function expectControlActionResultVisibility() {
     label: 'Product claim',
     value:
       'Control action-result rows are visible from app/game SQLite replay; live scheduling automation, adapter dispatch, child delivery, platform enforcement, and raw private source rows remain unclaimed.',
+  });
+}
+
+function expectParentPreferenceSetupCommandResultVisibility() {
+  const details = createAppGameTimerParentPreferenceSetupCommandResultDetails(parentPreferenceSetupRequestedEvent());
+
+  expect(details).toContainEqual({
+    label: 'Status',
+    value: 'Ready',
+  });
+  expect(details).toContainEqual({
+    label: 'Parent preference setup action-result refs',
+    value: 'app-game-parent-preference-setup-action-result::request-1',
+  });
+  expect(details).toContainEqual({
+    label: 'Parent preference setup action-result status',
+    value: 'Persisted',
+  });
+  expect(details).toContainEqual({
+    label: 'Parent preference setup mutation receipt refs',
+    value: 'app-game-parent-preference-setup-mutation-receipt::request-1',
+  });
+  expect(details).toContainEqual({
+    label: 'Parent preference setup mutation receipt status',
+    value: 'Persisted',
+  });
+  expect(details).toContainEqual({
+    label: 'Child runtime handoff refs',
+    value: 'app-game-parent-preference-setup-child-runtime-handoff::request-1',
+  });
+  expect(details).toContainEqual({
+    label: 'Child runtime handoff status',
+    value: 'Handoff ready',
+  });
+  expect(details).toContainEqual({
+    label: 'Parent preference setup mutation',
+    value: 'Not claimed',
+  });
+  expect(details).toContainEqual({
+    label: 'Notification rule mutation',
+    value: 'Not claimed',
+  });
+  expect(details).toContainEqual({
+    label: 'Child delivery',
+    value: 'Not claimed',
+  });
+  expect(details).toContainEqual({
+    label: 'Adapter dispatch',
+    value: 'Not claimed',
+  });
+  expect(details).toContainEqual({
+    label: 'Platform state',
+    value: 'Not claimed',
   });
 }
 
@@ -507,6 +565,68 @@ function timerParentSurfaceEvent(serializedReadModel: string): AgentEventEnvelop
     severity: 'info',
     payload: {
       [AgentProtocolDefaults.Field.ActivityAppGameTimerParentSurfaceReadModel]: serializedReadModel,
+    },
+    snapshot: null,
+  });
+}
+
+function parentPreferenceSetupRequestedEvent(): AgentEventEnvelope {
+  return AgentEventEnvelopeSchema.parse({
+    schemaVersion: AgentProtocolSchemaVersion,
+    eventId: 'app-game-parent-preference-setup-requested-event',
+    correlationId: 'app-game-parent-preference-setup-request-command',
+    sentAt: '2026-06-08T02:18:01Z',
+    source: {
+      peerId: 'agent-service',
+      role: 'agent-service',
+    },
+    target: {
+      peerId: 'portal-dev',
+      role: 'portal',
+    },
+    event: AgentEvent.ActivityAppGameTimerParentPreferenceSetupRequested,
+    severity: 'info',
+    payload: {
+      [AgentProtocolDefaults.Field.ActivityAppGameTimerParentPreferenceSetupRequest]: JSON.stringify({
+        schemaVersion: 'app-game-timer-parent-preference-setup-request-proof',
+        requestId: 'request-1',
+        requestedAt: '2026-06-08T02:18:00Z',
+        acceptedAt: '2026-06-08T02:18:01Z',
+        requestStatus: 'accepted',
+        parentSurfaceIntentReferenceId: 'app-game-child-ux-parent-surface-action-result-app-game-1',
+        parentPreferenceSetupReferenceId: 'app-game-child-ux-parent-preference-setup-action-result-app-game-1',
+        requestReferenceIds: [
+          'app-game-child-ux-local-handoff-action-result-app-game-1',
+          'parent-approved',
+          'child-status-limit-reached',
+        ],
+        actionResultReferenceId: 'app-game-parent-preference-setup-action-result::request-1',
+        actionResultReferenceIds: ['app-game-parent-preference-setup-action-result::request-1'],
+        actionResultPersistenceStatus: 'persisted',
+        parentPreferenceMutationReceiptId: 'app-game-parent-preference-setup-mutation-receipt::request-1',
+        parentPreferenceMutationReceiptIds: ['app-game-parent-preference-setup-mutation-receipt::request-1'],
+        parentPreferenceMutationReceiptStatus: 'persisted',
+        parentPreferenceMutationReceiptClaimed: false,
+        childRuntimeDeliveryHandoffId: 'app-game-parent-preference-setup-child-runtime-handoff::request-1',
+        childRuntimeDeliveryHandoffIds: ['app-game-parent-preference-setup-child-runtime-handoff::request-1'],
+        childRuntimeDeliveryHandoffStatus: 'handoff-ready',
+        childRuntimeDeliveryHandoffClaimed: false,
+        commandBoundaryClaimed: true,
+        actionResultHandoffClaimed: true,
+        actionResultPersistenceClaimed: true,
+        parentPreferenceMutationClaimed: false,
+        notificationRuleMutationClaimed: false,
+        providerDeliveryClaimed: false,
+        providerReceiptIngestionClaimed: false,
+        childRuntimeDeliveryClaimed: false,
+        durableOutboxClaimed: false,
+        adapterDispatchClaimed: false,
+        broadBlockingClaimed: false,
+        platformEnforcementClaimed: false,
+        rawPrivateSourceRowsClaimed: false,
+        rawTargetValuesClaimed: false,
+        privateDiagnosticsClaimed: false,
+      }),
     },
     snapshot: null,
   });

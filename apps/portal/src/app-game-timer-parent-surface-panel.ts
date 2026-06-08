@@ -1,4 +1,5 @@
 export {
+  createAppGameTimerParentPreferenceSetupCommandResultDetails,
   createAppGameTimerParentPreferenceSetupRequestPayload,
   createAppGameTimerParentSurfacePanelIntent,
   type AppGameTimerParentSurfacePreferenceSetupRequestAction,
