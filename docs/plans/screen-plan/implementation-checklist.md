@@ -168,6 +168,11 @@ legacy household-provider route or runtime-discovery proofs.
       startup gate and rejects raw-frame cache, session recording, and remote
       input without claiming platform prompt, relay/cache, physical parity, or
       product-complete live view.
+- [x] Rust agent-service startup wires an env-gated live-view worker runtime
+      hook that defaults disabled, consumes protocol-owned live-view gate
+      constants, starts only after the existing runtime/startup decisions are
+      ready, and refuses unsafe raw-frame cache, recording, or remote-input
+      settings.
 - [x] Remote/cloud screenshot upload disabled by default.
 - [x] Remote/API path accepts only parent-approved redacted summaries by default.
 - [x] Local AI resource scheduler prevents multiple heavy jobs on normal PCs.

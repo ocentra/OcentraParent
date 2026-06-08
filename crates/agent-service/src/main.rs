@@ -300,6 +300,7 @@ async fn main() {
     screen_ai_foreground_runtime::spawn_screen_ai_foreground_runtime();
     screen_ai_analysis_runtime::spawn_screen_ai_analysis_runtime();
     screen_ai_retention_sweeper_runtime::spawn_screen_ai_retention_sweeper_runtime();
+    screen_ai_service_event_subscription::live_view_service_runtime::spawn_screen_live_view_worker_runtime();
     let _screen_ai_service_event_runtime =
         screen_ai_service_event_subscription::ScreenAiServiceEventRuntime::start()
             .await

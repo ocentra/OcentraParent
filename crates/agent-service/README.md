@@ -26,6 +26,10 @@ development paths and orchestrates runtime commands.
   `agent.screen-settings.get` and `agent.screen-settings.replace`, backed by
   the same local JSON `ScreenSettingsRuntime` and rejecting raw-image retention
   before persistence.
+- Env-gated screen live-view worker startup runtime that defaults disabled,
+  consumes protocol-owned live-view gate constants, and starts the worker only
+  after runtime, startup, deletion, platform prompt, relay/cache, physical
+  parity, privacy/legal, and unsafe-retention/control gates allow it.
 - V0.8 product-control spine runtime reports through
   `agent.enforcement.product-control-spine.get` without upgrading unsupported
   broad adapter claims.
@@ -224,3 +228,6 @@ flowchart LR
   proof only; parent portal form submit wiring, product retention-control UI,
   raw screenshot retention
   enablement, live view, and privacy/legal approval remain separate gaps.
+- Screen live-view worker startup is service-owned and env-gated, but platform
+  prompt screenshots, hosted relay infrastructure, physical-device parity,
+  privacy/legal approval, and product-complete live view remain separate gates.

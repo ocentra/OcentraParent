@@ -609,6 +609,17 @@ only with explicit parent settings.
   screenshot, relay/cache execution, physical-device live-view parity,
   privacy/legal approval, live platform worker session, or product-complete
   live view.
+- The Rust `agent-service` startup now has an explicit env-gated live-view
+  worker runtime hook. It defaults to disabled, reads live-view mode,
+  transport, permission, deletion, parent UI, platform prompt, relay/cache,
+  physical parity, privacy/legal, raw-frame cache, recording, and remote-input
+  gates from protocol-owned constants, and starts the worker only when the
+  existing runtime and startup safety decisions both allow it. Focused service
+  tests prove default-disabled behavior, capture-only permission blocking,
+  deletion-proof blocking, successful all-gates startup, and unsafe remote-input
+  refusal. This is service-owned startup behavior; it still does not prove
+  platform prompt screenshots, hosted relay infrastructure, physical parity,
+  privacy/legal approval, or product-complete live view.
 - `scripts/test/screen-live-view-relay-cache-proof.mjs` now proves the
   relay-backed live-view cache execution item with a real captured frame. The
   proof writes an end-to-end encrypted relay envelope to an ephemeral local
@@ -974,6 +985,10 @@ parity, and UI remain separate proof gates.
       permission from actual worker execution and refuses permission until
       runtime readiness, real platform prompt artifact, relay/cache when needed,
       physical-device parity, and privacy/legal approval exist.
+- [x] Rust agent-service startup owns an env-gated live-view worker runtime hook
+      that defaults disabled and starts only after the existing runtime,
+      startup, deletion, platform prompt, relay/cache, physical parity,
+      privacy/legal, and unsafe-retention/control gates allow it.
 - [x] Live-view relay/cache proof uses a real captured frame, encrypted
       forced-relay cache envelope, parent digest verification, raw temp
       deletion, relay-cache deletion, no raw-frame cache, no recording, and no
