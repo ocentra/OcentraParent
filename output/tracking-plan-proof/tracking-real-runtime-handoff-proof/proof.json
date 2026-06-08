@@ -3,7 +3,7 @@
   "proofMode": "tracking-real-runtime-handoff-proof",
   "generatedAt": "2026-06-08T01:05:00.000Z",
   "branch": "codex/tracking-plan-full-continuation-a",
-  "baseCommitAtGeneration": "0ea055e9e383fb99b66b3cfd5c1511b34aa1aa42",
+  "baseCommitAtGeneration": "0a65666d116fb3a65439674cba21553cccfd69dd",
   "requiredProofTier": "P4_REAL_RUNTIME_HANDOFF",
   "currentProofTier": "P3_LOCAL_DEV_MACHINE",
   "currentStatus": "manual_required",
