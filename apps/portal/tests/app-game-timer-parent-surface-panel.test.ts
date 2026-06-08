@@ -409,6 +409,24 @@ function expectParentPreferenceSetupProviderReadiness(
     label: 'Provider delivery attempt status',
     value: 'Manual required',
   });
+  expect(details).toContainEqual({
+    label: 'Provider delivery adapter requirement refs',
+    value:
+      'app-game-parent-preference-setup-provider-adapter-required::request-1 | app-game-parent-preference-setup-provider-delivery-attempt::request-1',
+  });
+  expect(details).toContainEqual({
+    label: 'Provider delivery adapter requirement status',
+    value: 'Manual required',
+  });
+  expect(details).toContainEqual({
+    label: 'Provider delivery credential requirement refs',
+    value:
+      'app-game-parent-preference-setup-provider-credential-proof-required::request-1 | app-game-parent-preference-setup-provider-adapter-required::request-1',
+  });
+  expect(details).toContainEqual({
+    label: 'Provider delivery credential requirement status',
+    value: 'Manual required',
+  });
 }
 
 function expectParentPreferenceSetupNoClaimBoundaries(
@@ -784,6 +802,21 @@ const ProviderDeliveryReadinessAcceptedResultFields = {
   ],
   providerDeliveryAttemptStatus: 'provider-delivery-manual-required',
   providerDeliveryAttemptClaimed: true,
+  providerDeliveryAdapterRequirementId: 'app-game-parent-preference-setup-provider-adapter-required::request-1',
+  providerDeliveryAdapterRequirementIds: [
+    'app-game-parent-preference-setup-provider-adapter-required::request-1',
+    'app-game-parent-preference-setup-provider-delivery-attempt::request-1',
+  ],
+  providerDeliveryAdapterRequirementStatus: 'provider-adapter-required',
+  providerDeliveryAdapterRequirementClaimed: true,
+  providerDeliveryCredentialRequirementId:
+    'app-game-parent-preference-setup-provider-credential-proof-required::request-1',
+  providerDeliveryCredentialRequirementIds: [
+    'app-game-parent-preference-setup-provider-credential-proof-required::request-1',
+    'app-game-parent-preference-setup-provider-adapter-required::request-1',
+  ],
+  providerDeliveryCredentialRequirementStatus: 'provider-credential-proof-required',
+  providerDeliveryCredentialRequirementClaimed: true,
 } as const;
 
 function timerParentSurfaceRow(

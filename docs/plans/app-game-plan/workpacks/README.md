@@ -149,6 +149,7 @@ before `DONE` or PR-ready reporting.
 141. WP150 app/game timer parent-surface parent preference setup durable local outbox runtime.
 142. WP151 app/game timer parent-surface parent preference setup provider delivery readiness.
 143. WP152 app/game timer parent-surface parent preference setup provider delivery manual-required handoff.
+144. WP153 app/game timer parent-surface parent preference setup provider delivery preflight requirements.
 
 ## Standard AI Worker Checklist
 

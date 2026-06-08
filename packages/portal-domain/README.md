@@ -28,9 +28,10 @@ contracts.
   refs/status, and service-local child-runtime receipt-ingested refs/status,
   service-local durable outbox refs/status, and provider-delivery readiness
   refs/status, and provider-delivery manual-required attempt refs/status,
-  without claiming child delivery, provider delivery execution, provider receipt
-  ingestion, adapter dispatch, broad blocking, platform enforcement, raw target
-  values, or private diagnostics.
+  and provider adapter plus provider credential/manual-proof requirement
+  refs/status, without claiming child delivery, provider delivery execution,
+  provider receipt ingestion, adapter dispatch, broad blocking, platform
+  enforcement, raw target values, or private diagnostics.
 - App/game policy readiness route intents that render service-backed readiness
   summaries and rows without policy execution or adapter dispatch claims.
 - Social dashboard panel intents that adapt parent-domain social dashboard
@@ -83,8 +84,9 @@ flowchart LR
   not show child-runtime handoff, service-local queue readiness, or
   service-local dispatch/receipt-required/receipt-pending/receipt-ingested
   readiness, durable local outbox recording, provider-delivery readiness, or
-  provider-delivery manual-required attempt status, as actual provider delivery
-  or platform enforcement.
+  provider-delivery manual-required attempt status, or provider adapter and
+  credential/manual-proof requirements as actual provider delivery or platform
+  enforcement.
 - Keep social dashboard rows unavailable until a real service-backed social
   snapshot path exists; do not promote connector/native/final-policy/enforcement
   claims from portal-only rendering.

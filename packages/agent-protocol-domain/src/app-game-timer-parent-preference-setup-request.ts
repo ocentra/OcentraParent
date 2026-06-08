@@ -108,6 +108,22 @@ export const AppGameTimerParentPreferenceSetupRequestResultSchema = withParser(
       )
     ),
     providerDeliveryAttemptStatus: Schema.Literal('provider-delivery-manual-required', 'unavailable'),
+    providerDeliveryAdapterRequirementId: NonEmptyTextSchema,
+    providerDeliveryAdapterRequirementIds: Schema.Array(NonEmptyTextSchema).pipe(
+      Schema.filter(
+        (value) =>
+          value.length > 0 || 'Expected parent preference setup provider delivery adapter requirement references'
+      )
+    ),
+    providerDeliveryAdapterRequirementStatus: Schema.Literal('provider-adapter-required', 'unavailable'),
+    providerDeliveryCredentialRequirementId: NonEmptyTextSchema,
+    providerDeliveryCredentialRequirementIds: Schema.Array(NonEmptyTextSchema).pipe(
+      Schema.filter(
+        (value) =>
+          value.length > 0 || 'Expected parent preference setup provider delivery credential requirement references'
+      )
+    ),
+    providerDeliveryCredentialRequirementStatus: Schema.Literal('provider-credential-proof-required', 'unavailable'),
     commandBoundaryClaimed: Schema.Literal(true),
     actionResultHandoffClaimed: Schema.Literal(true),
     actionResultPersistenceClaimed: Schema.Boolean,
@@ -115,6 +131,8 @@ export const AppGameTimerParentPreferenceSetupRequestResultSchema = withParser(
     notificationRuleMutationClaimed: Schema.Literal(false),
     providerDeliveryReadinessClaimed: Schema.Boolean,
     providerDeliveryAttemptClaimed: Schema.Boolean,
+    providerDeliveryAdapterRequirementClaimed: Schema.Boolean,
+    providerDeliveryCredentialRequirementClaimed: Schema.Boolean,
     providerDeliveryClaimed: Schema.Literal(false),
     providerReceiptIngestionClaimed: Schema.Literal(false),
     childRuntimeDeliveryClaimed: Schema.Literal(false),

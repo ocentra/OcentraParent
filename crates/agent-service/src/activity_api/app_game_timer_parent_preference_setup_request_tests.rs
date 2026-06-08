@@ -14,6 +14,8 @@ use crate::{
     lan_pairing::LanPairingRuntime, websocket::handle_command_text_for_test,
 };
 
+const PERSISTED_SETUP_EVENT_COUNT: u64 = 12;
+
 #[tokio::test]
 async fn app_game_timer_parent_preference_setup_request_command_returns_accepted_boundary_result() {
     let body =
@@ -100,7 +102,7 @@ async fn app_game_timer_parent_preference_setup_request_persists_action_result_r
     let store = ActivityStore::open(&store_path).expect(constants::error::ACTIVITY_STORE_OPENS);
     let model = store
         .app_game_service_read_model(
-            constants::activity_store::DEFAULT_RECENT_LIMIT,
+            PERSISTED_SETUP_EVENT_COUNT,
             constants::activity_store::TEST_TRACKING_RETENTION_DELETE_OBSERVED_AT,
         )
         .expect(constants::error::ACTIVITY_STORE_QUERIES);
@@ -114,7 +116,7 @@ async fn app_game_timer_parent_preference_setup_request_persists_action_result_r
     cleanup_path(&store_path);
 
     assert_persisted_setup_result(&result);
-    assert_eq!(status.events_stored, 10);
+    assert_eq!(status.events_stored, PERSISTED_SETUP_EVENT_COUNT);
     assert_persisted_action_result_model(&model);
     assert_persisted_setup_outbox(&result, &outbox_jsonl);
 }
@@ -405,6 +407,45 @@ fn assert_child_runtime_delivery_receipt_ingested_boundary(
     );
 }
 
+macro_rules! assert_provider_delivery_requirement_boundary {
+    ($result:expr) => {
+        assert_eq!(
+            $result.provider_delivery_adapter_requirement_id,
+            setup_id(constants::value::APP_GAME_PARENT_PREFERENCE_SETUP_PROVIDER_DELIVERY_ADAPTER_REQUIREMENT_SUFFIX)
+        );
+        assert_eq!(
+            $result.provider_delivery_adapter_requirement_ids,
+            vec![
+                setup_id(constants::value::APP_GAME_PARENT_PREFERENCE_SETUP_PROVIDER_DELIVERY_ADAPTER_REQUIREMENT_SUFFIX),
+                setup_id(constants::value::APP_GAME_PARENT_PREFERENCE_SETUP_PROVIDER_DELIVERY_ATTEMPT_SUFFIX),
+            ]
+        );
+        assert!(
+            $result.provider_delivery_adapter_requirement_status
+                == constants::value::APP_GAME_PARENT_PREFERENCE_SETUP_PROVIDER_DELIVERY_ADAPTER_REQUIRED
+                || $result.provider_delivery_adapter_requirement_status
+                    == constants::value::APP_GAME_PARENT_PREFERENCE_SETUP_ACTION_RESULT_UNAVAILABLE
+        );
+        assert_eq!(
+            $result.provider_delivery_credential_requirement_id,
+            setup_id(constants::value::APP_GAME_PARENT_PREFERENCE_SETUP_PROVIDER_DELIVERY_CREDENTIAL_REQUIREMENT_SUFFIX)
+        );
+        assert_eq!(
+            $result.provider_delivery_credential_requirement_ids,
+            vec![
+                setup_id(constants::value::APP_GAME_PARENT_PREFERENCE_SETUP_PROVIDER_DELIVERY_CREDENTIAL_REQUIREMENT_SUFFIX),
+                setup_id(constants::value::APP_GAME_PARENT_PREFERENCE_SETUP_PROVIDER_DELIVERY_ADAPTER_REQUIREMENT_SUFFIX),
+            ]
+        );
+        assert!(
+            $result.provider_delivery_credential_requirement_status
+                == constants::value::APP_GAME_PARENT_PREFERENCE_SETUP_PROVIDER_DELIVERY_CREDENTIAL_PROOF_REQUIRED
+                || $result.provider_delivery_credential_requirement_status
+                    == constants::value::APP_GAME_PARENT_PREFERENCE_SETUP_ACTION_RESULT_UNAVAILABLE
+        );
+    };
+}
+
 fn assert_durable_outbox_boundary(result: &AppGameTimerParentPreferenceSetupRequestResult) {
     assert_eq!(
         result.durable_outbox_record_id,
@@ -458,6 +499,7 @@ fn assert_durable_outbox_boundary(result: &AppGameTimerParentPreferenceSetupRequ
             || result.provider_delivery_attempt_status
                 == constants::value::APP_GAME_PARENT_PREFERENCE_SETUP_ACTION_RESULT_UNAVAILABLE
     );
+    assert_provider_delivery_requirement_boundary!(result);
 }
 
 fn assert_persisted_setup_outbox(
@@ -483,6 +525,16 @@ fn assert_persisted_setup_outbox(
         constants::value::APP_GAME_PARENT_PREFERENCE_SETUP_PROVIDER_DELIVERY_ATTEMPT_MANUAL_REQUIRED
     );
     assert!(result.provider_delivery_attempt_claimed);
+    assert_eq!(
+        result.provider_delivery_adapter_requirement_status,
+        constants::value::APP_GAME_PARENT_PREFERENCE_SETUP_PROVIDER_DELIVERY_ADAPTER_REQUIRED
+    );
+    assert!(result.provider_delivery_adapter_requirement_claimed);
+    assert_eq!(
+        result.provider_delivery_credential_requirement_status,
+        constants::value::APP_GAME_PARENT_PREFERENCE_SETUP_PROVIDER_DELIVERY_CREDENTIAL_PROOF_REQUIRED
+    );
+    assert!(result.provider_delivery_credential_requirement_claimed);
     let first_line = outbox_jsonl
         .lines()
         .next()

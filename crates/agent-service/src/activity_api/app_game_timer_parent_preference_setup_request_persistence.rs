@@ -57,6 +57,18 @@ pub(crate) async fn persist_setup_handoff(
         &persisted_result.provider_delivery_attempt_id,
         constants::value::APP_GAME_PARENT_PREFERENCE_SETUP_PROVIDER_DELIVERY_ATTEMPT_MANUAL_REQUIRED,
     );
+    let provider_delivery_adapter_requirement_event = provider_audit_activity_event(
+        command,
+        &persisted_result,
+        &persisted_result.provider_delivery_adapter_requirement_id,
+        constants::value::APP_GAME_PARENT_PREFERENCE_SETUP_PROVIDER_DELIVERY_ADAPTER_REQUIRED,
+    );
+    let provider_delivery_credential_requirement_event = provider_audit_activity_event(
+        command,
+        &persisted_result,
+        &persisted_result.provider_delivery_credential_requirement_id,
+        constants::value::APP_GAME_PARENT_PREFERENCE_SETUP_PROVIDER_DELIVERY_CREDENTIAL_PROOF_REQUIRED,
+    );
     tokio::task::spawn_blocking(move || {
         let store = ActivityStore::open(&store_path).map_err(|_| ())?;
         store
@@ -76,7 +88,11 @@ pub(crate) async fn persist_setup_handoff(
             .ingest_events(&[provider_delivery_readiness_event])
             .map_err(|_| ())?;
         store
-            .ingest_events(&[provider_delivery_attempt_event])
+            .ingest_events(&[
+                provider_delivery_attempt_event,
+                provider_delivery_adapter_requirement_event,
+                provider_delivery_credential_requirement_event,
+            ])
             .map_err(|_| ())?;
         Ok::<(), ()>(())
     })
@@ -131,6 +147,14 @@ fn persisted_result(
         constants::value::APP_GAME_PARENT_PREFERENCE_SETUP_PROVIDER_DELIVERY_ATTEMPT_MANUAL_REQUIRED
             .to_string();
     persisted.provider_delivery_attempt_claimed = true;
+    persisted.provider_delivery_adapter_requirement_status =
+        constants::value::APP_GAME_PARENT_PREFERENCE_SETUP_PROVIDER_DELIVERY_ADAPTER_REQUIRED
+            .to_string();
+    persisted.provider_delivery_adapter_requirement_claimed = true;
+    persisted.provider_delivery_credential_requirement_status =
+        constants::value::APP_GAME_PARENT_PREFERENCE_SETUP_PROVIDER_DELIVERY_CREDENTIAL_PROOF_REQUIRED
+            .to_string();
+    persisted.provider_delivery_credential_requirement_claimed = true;
     persisted
 }
 

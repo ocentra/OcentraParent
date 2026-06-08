@@ -98,8 +98,12 @@ const TimerParentSurfaceDetails = {
   ParentPreferenceSetupRequestUnavailable: decodeDisplayText('Parent preference setup request unavailable'),
   ParentPreferenceSetupRuleMutation: decodeDisplayText('Notification rule mutation'),
   ParentPreferenceSetupUi: decodeDisplayText('Parent preference setup UI'),
+  ProviderDeliveryAdapterRequirementRefs: decodeDisplayText('Provider delivery adapter requirement refs'),
+  ProviderDeliveryAdapterRequirementStatus: decodeDisplayText('Provider delivery adapter requirement status'),
   ProviderDeliveryAttemptRefs: decodeDisplayText('Provider delivery attempt refs'),
   ProviderDeliveryAttemptStatus: decodeDisplayText('Provider delivery attempt status'),
+  ProviderDeliveryCredentialRequirementRefs: decodeDisplayText('Provider delivery credential requirement refs'),
+  ProviderDeliveryCredentialRequirementStatus: decodeDisplayText('Provider delivery credential requirement status'),
   ProviderDeliveryReadinessRefs: decodeDisplayText('Provider delivery readiness refs'),
   ProviderDeliveryReadinessStatus: decodeDisplayText('Provider delivery readiness status'),
   ChildUxHandoffBlocked: decodeDisplayText('Child UX handoff blocked'),
@@ -585,6 +589,14 @@ function parentPreferenceSetupChildRuntimeDetails(
       TimerParentSurfaceDetails.DurableOutboxStatus,
       parentPreferenceSetupResultStatus(result.durableOutboxStatus)
     ),
+    ...parentPreferenceSetupProviderDeliveryDetails(result),
+  ];
+}
+
+function parentPreferenceSetupProviderDeliveryDetails(
+  result: AppGameTimerParentPreferenceSetupRequestResult
+): readonly AppGameTimerParentSurfacePanelDetail[] {
+  return [
     detail(
       TimerParentSurfaceDetails.ProviderDeliveryReadinessRefs,
       joinedOrNotReported(result.providerDeliveryReadinessIds)
@@ -600,6 +612,22 @@ function parentPreferenceSetupChildRuntimeDetails(
     detail(
       TimerParentSurfaceDetails.ProviderDeliveryAttemptStatus,
       parentPreferenceSetupResultStatus(result.providerDeliveryAttemptStatus)
+    ),
+    detail(
+      TimerParentSurfaceDetails.ProviderDeliveryAdapterRequirementRefs,
+      joinedOrNotReported(result.providerDeliveryAdapterRequirementIds)
+    ),
+    detail(
+      TimerParentSurfaceDetails.ProviderDeliveryAdapterRequirementStatus,
+      parentPreferenceSetupResultStatus(result.providerDeliveryAdapterRequirementStatus)
+    ),
+    detail(
+      TimerParentSurfaceDetails.ProviderDeliveryCredentialRequirementRefs,
+      joinedOrNotReported(result.providerDeliveryCredentialRequirementIds)
+    ),
+    detail(
+      TimerParentSurfaceDetails.ProviderDeliveryCredentialRequirementStatus,
+      parentPreferenceSetupResultStatus(result.providerDeliveryCredentialRequirementStatus)
     ),
   ];
 }
@@ -663,6 +691,12 @@ function parentPreferenceSetupResultStatus(status: string): DisplayText {
     return Readable.ManualRequired;
   }
   if (status === 'provider-delivery-manual-required') {
+    return Readable.ManualRequired;
+  }
+  if (status === 'provider-adapter-required') {
+    return Readable.ManualRequired;
+  }
+  if (status === 'provider-credential-proof-required') {
     return Readable.ManualRequired;
   }
   if (status === 'accepted') {

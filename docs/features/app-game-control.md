@@ -1403,6 +1403,14 @@ diagnostics, or raw private source rows.
       provider receipt ingestion, adapter dispatch, broad blocking, platform
       enforcement, raw private source rows, raw target values, and private
       diagnostics remain unclaimed.
+      The accepted request result now also carries provider adapter and
+      provider credential/manual-proof requirement refs/status. After the
+      provider-delivery attempt row persists, the service records local
+      manual-required requirement audit rows and the portal command-result
+      panel renders those refs/status. This is preflight visibility only:
+      provider delivery execution, provider receipt ingestion, adapter
+      dispatch, broad blocking, platform enforcement, raw private source rows,
+      raw target values, and private diagnostics remain unclaimed.
 - [ ] Adapter capability status per platform. Cross-platform authority and
       broad-blocking gate contracts now record manual-required, unavailable,
       and not-claimed proof requirements. Platform-extension routing now maps
