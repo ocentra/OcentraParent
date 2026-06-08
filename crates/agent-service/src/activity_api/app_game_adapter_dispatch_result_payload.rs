@@ -44,13 +44,38 @@ use ocentra_parent_agent_protocol::{
 };
 
 use super::app_game_adapter_dispatch_preflight_payload::app_game_adapter_dispatch_preflight_read_model;
+use crate::activity_store_path::activity_db_path;
 use crate::{event_builder::build_event, fields::fields_from_pairs, time::timestamp_now};
+use ocentra_parent_agent_core::ActivityStore;
+use std::path::PathBuf;
 
 pub async fn build_activity_app_game_adapter_dispatch_result_report(
     command: AgentCommandEnvelope,
 ) -> AgentEventEnvelope {
+    build_activity_app_game_adapter_dispatch_result_report_with_store_path(
+        command,
+        activity_db_path(),
+    )
+    .await
+}
+
+pub(crate) async fn build_activity_app_game_adapter_dispatch_result_report_with_store_path(
+    command: AgentCommandEnvelope,
+    store_path: PathBuf,
+) -> AgentEventEnvelope {
     let generated_at = timestamp_now();
-    let read_model = app_game_adapter_dispatch_result_read_model(&generated_at);
+    let execution_evidence = tokio::task::spawn_blocking(move || {
+        let store = ActivityStore::open(store_path).ok()?;
+        let fields = store.latest_enforcement_audit_fields().ok()??;
+        app_game_adapter_dispatch_execution_evidence_from_payload(&fields).ok()
+    })
+    .await
+    .ok()
+    .flatten();
+    let read_model = app_game_adapter_dispatch_result_read_model_with_execution(
+        &generated_at,
+        execution_evidence.as_ref(),
+    );
     build_event(
         constants::event_id::ACTIVITY_APP_GAME_ADAPTER_DISPATCH_RESULT_READ_MODEL_REPORTED,
         &command.message_id,
@@ -313,7 +338,6 @@ pub struct AppGameAdapterDispatchExecutionEvidence {
     pub audit_event_id: String,
 }
 
-#[cfg(test)]
 pub fn app_game_adapter_dispatch_execution_evidence_from_payload(
     payload: &LogFields,
 ) -> Result<AppGameAdapterDispatchExecutionEvidence, &'static str> {
@@ -429,7 +453,6 @@ fn empty_adapter_execution_fields(state: &str, decision: &str) -> AdapterExecuti
     }
 }
 
-#[cfg(test)]
 fn required_string<'a>(payload: &'a LogFields, field: &str) -> Result<&'a str, &'static str> {
     match payload.get(field) {
         Some(LogFieldValue::String(value)) if !value.trim().is_empty() => Ok(value.trim()),

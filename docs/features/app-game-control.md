@@ -1574,6 +1574,16 @@ diagnostics, or raw private source rows.
       scoped Windows owned-process boundary, provider delivery, child-device
       delivery, raw private rows, raw target values, and private diagnostics
       remain unclaimed.
+      The dispatch result live command now reads the latest persisted
+      `activity.enforcement.audit-recorded` fields from `ActivityStore` and
+      attaches that real store-backed evidence to the same scoped Windows
+      owned-process app/game timer row. The default command no longer needs a
+      hand-attached payload after the real enforcement execute path has written
+      an audit row, while the side-effect-free builder remains available for
+      explicit evidence tests. Broad installed-app blocking, platform
+      enforcement outside the scoped Windows owned-process boundary, provider
+      delivery, child-device delivery, raw private source rows, raw target
+      values, and private diagnostics remain unclaimed.
 - [ ] Blocking/time-limit proof before done claim. Scoped owned-process
       time-limit proof exists; broad block-launch/hide/suspend/shield and
       allowlist remain manual-required or not-claimed until platform setup,
