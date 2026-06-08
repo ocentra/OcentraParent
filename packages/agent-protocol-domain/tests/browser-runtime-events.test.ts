@@ -108,6 +108,9 @@ function specifyStreamParsing() {
   expect(parsed.value.manualRequiredRows).toBe(1);
   expect(parsed.value.interventionCommandEvents).toBe(0);
   expect(parsed.value.actionIntentCandidates).toBe(0);
+  expect(parsed.value.actionIntentHandoffCandidates).toBe(0);
+  expect(parsed.value.actionIntentHandoffOutboxRefs).toEqual([]);
+  expect(parsed.value.actionIntentHandoffRefs).toEqual([]);
   expect(parsed.value.actionIntentDispatchAttempts).toBe(0);
   expect(parsed.value.actionIntentAdapterExecutions).toBe(0);
   expect(parsed.value.actionIntentChildInterventionExecutions).toBe(0);
@@ -131,6 +134,9 @@ function specifyDryRunActionHandoffParsing() {
   const parsed = parseAgentBrowserRuntimeEventChainStreamFields(
     streamFields([entry(AgentBrowserRuntimeEventType.PolicyDecisionCompleted, PolicyDecisionPayload)], {
       actionIntentCandidates: 1,
+      actionIntentHandoffCandidates: 1,
+      actionIntentHandoffOutboxRefs: ['browser-action-intent-outbox-ref-test'],
+      actionIntentHandoffRefs: ['browser-action-intent-handoff-ref-test'],
     })
   );
 
@@ -144,6 +150,9 @@ function specifyDryRunActionHandoffParsing() {
   expect(parsed.value.entries.at(0)?.payload.dryRun).toBe(true);
   expect(parsed.value.entries.at(0)?.payload.adapterDispatchClaimed).toBe(false);
   expect(parsed.value.entries.at(0)?.payload.interventionCommandAllowed).toBe(false);
+  expect(parsed.value.actionIntentHandoffCandidates).toBe(1);
+  expect(parsed.value.actionIntentHandoffOutboxRefs).toEqual(['browser-action-intent-outbox-ref-test']);
+  expect(parsed.value.actionIntentHandoffRefs).toEqual(['browser-action-intent-handoff-ref-test']);
 }
 
 function specifyActionIntentStatus() {
@@ -153,7 +162,12 @@ function specifyActionIntentStatus() {
         entry(AgentBrowserRuntimeEventType.PolicyDecisionCompleted, PolicyDecisionPayload),
         entry(AgentBrowserRuntimeEventType.ReadModelProjected, ReadModelProjectedPayload),
       ],
-      { actionIntentCandidates: 1 }
+      {
+        actionIntentCandidates: 1,
+        actionIntentHandoffCandidates: 1,
+        actionIntentHandoffOutboxRefs: ['browser-action-intent-outbox-ref-test'],
+        actionIntentHandoffRefs: ['browser-action-intent-handoff-ref-test'],
+      }
     )
   );
 
@@ -165,6 +179,9 @@ function specifyActionIntentStatus() {
   const status = deriveAgentBrowserRuntimeActionIntentStatus(parsed.value);
   expect(status).toMatchObject({
     candidateCount: 1,
+    handoffCandidateCount: 1,
+    handoffOutboxRefs: ['browser-action-intent-outbox-ref-test'],
+    handoffRefs: ['browser-action-intent-handoff-ref-test'],
     dispatchAttemptCount: 0,
     adapterExecutionCount: 0,
     childInterventionExecutionCount: 0,
@@ -190,6 +207,9 @@ function specifyActionIntentStatus() {
   }
   const emptyStatus = deriveAgentBrowserRuntimeActionIntentStatus(emptyParsed.value);
   expect(emptyStatus.candidateCount).toBe(0);
+  expect(emptyStatus.handoffCandidateCount).toBe(0);
+  expect(emptyStatus.handoffOutboxRefs).toEqual([]);
+  expect(emptyStatus.handoffRefs).toEqual([]);
 }
 
 function specifyRejections() {
@@ -224,6 +244,15 @@ function specifyStreamEnvelopeRejections() {
     parseAgentBrowserRuntimeEventChainStreamFields({
       ...streamFields(),
       [AgentProtocolDefaults.Field.BrowserRuntimeActionIntentDispatchAttempts]: 1,
+    })
+  ).toEqual({ ok: false, reason: 'invalid-stream' });
+  expect(
+    parseAgentBrowserRuntimeEventChainStreamFields({
+      ...streamFields(),
+      [AgentProtocolDefaults.Field.BrowserRuntimeActionIntentHandoffCandidates]: 0,
+      [AgentProtocolDefaults.Field.BrowserRuntimeActionIntentHandoffOutboxRefs]: JSON.stringify([
+        'browser-action-intent-outbox-ref-test',
+      ]),
     })
   ).toEqual({ ok: false, reason: 'invalid-stream' });
 }
@@ -323,6 +352,9 @@ function streamFields(
   entries = validEntries(),
   counters: {
     readonly actionIntentCandidates?: number;
+    readonly actionIntentHandoffCandidates?: number;
+    readonly actionIntentHandoffOutboxRefs?: readonly string[];
+    readonly actionIntentHandoffRefs?: readonly string[];
     readonly actionIntentDispatchAttempts?: number;
     readonly actionIntentAdapterExecutions?: number;
     readonly actionIntentChildInterventionExecutions?: number;
@@ -338,6 +370,14 @@ function streamFields(
     [AgentProtocolDefaults.Field.BrowserRuntimeInterventionCommandEvents]: 0,
     [AgentProtocolDefaults.Field.BrowserRuntimeReadModelProjectionEvents]: 1,
     [AgentProtocolDefaults.Field.BrowserRuntimeActionIntentCandidates]: counters.actionIntentCandidates ?? 0,
+    [AgentProtocolDefaults.Field.BrowserRuntimeActionIntentHandoffCandidates]:
+      counters.actionIntentHandoffCandidates ?? 0,
+    [AgentProtocolDefaults.Field.BrowserRuntimeActionIntentHandoffOutboxRefs]: JSON.stringify(
+      counters.actionIntentHandoffOutboxRefs ?? []
+    ),
+    [AgentProtocolDefaults.Field.BrowserRuntimeActionIntentHandoffRefs]: JSON.stringify(
+      counters.actionIntentHandoffRefs ?? []
+    ),
     [AgentProtocolDefaults.Field.BrowserRuntimeActionIntentDispatchAttempts]:
       counters.actionIntentDispatchAttempts ?? 0,
     [AgentProtocolDefaults.Field.BrowserRuntimeActionIntentAdapterExecutions]:

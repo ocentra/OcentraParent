@@ -186,6 +186,9 @@ export const AgentBrowserRuntimeEventChainStreamSchema = withParser(
     interventionCommandEvents: Schema.Number,
     readModelProjectionEvents: Schema.Number,
     actionIntentCandidates: Schema.Number,
+    actionIntentHandoffCandidates: Schema.Number,
+    actionIntentHandoffOutboxRefs: Schema.Array(BrowserRuntimeText),
+    actionIntentHandoffRefs: Schema.Array(BrowserRuntimeText),
     actionIntentDispatchAttempts: Schema.Literal(0),
     actionIntentAdapterExecutions: Schema.Literal(0),
     actionIntentChildInterventionExecutions: Schema.Literal(0),
@@ -201,6 +204,13 @@ export const AgentBrowserRuntimeEventChainStreamSchema = withParser(
       (stream) =>
         stream.actionIntentCandidates >= actionIntentCandidatesFromEntries(stream.entries).length ||
         'Expected browser runtime action-intent candidate count to cover stream candidates'
+    ),
+    Schema.filter(
+      (stream) =>
+        (stream.actionIntentHandoffCandidates >= stream.actionIntentHandoffOutboxRefs.length &&
+          stream.actionIntentHandoffCandidates >= stream.actionIntentHandoffRefs.length &&
+          stream.actionIntentHandoffOutboxRefs.length === stream.actionIntentHandoffRefs.length) ||
+        'Expected browser runtime handoff refs to be paired with prepared handoff candidates'
     )
   )
 );
@@ -225,6 +235,9 @@ export type AgentBrowserRuntimeActionIntentCandidate = {
 
 export type AgentBrowserRuntimeActionIntentStatus = {
   readonly candidateCount: number;
+  readonly handoffCandidateCount: number;
+  readonly handoffOutboxRefs: readonly string[];
+  readonly handoffRefs: readonly string[];
   readonly dispatchAttemptCount: 0;
   readonly adapterExecutionCount: 0;
   readonly childInterventionExecutionCount: 0;
@@ -294,6 +307,18 @@ export function parseAgentBrowserRuntimeEventChainStreamFields(
         AgentProtocolDefaults.Field.BrowserRuntimeReadModelProjectionEvents
       ),
       actionIntentCandidates: numberField(fields, AgentProtocolDefaults.Field.BrowserRuntimeActionIntentCandidates),
+      actionIntentHandoffCandidates: numberField(
+        fields,
+        AgentProtocolDefaults.Field.BrowserRuntimeActionIntentHandoffCandidates
+      ),
+      actionIntentHandoffOutboxRefs: stringArrayField(
+        fields,
+        AgentProtocolDefaults.Field.BrowserRuntimeActionIntentHandoffOutboxRefs
+      ),
+      actionIntentHandoffRefs: stringArrayField(
+        fields,
+        AgentProtocolDefaults.Field.BrowserRuntimeActionIntentHandoffRefs
+      ),
       actionIntentDispatchAttempts: numberField(
         fields,
         AgentProtocolDefaults.Field.BrowserRuntimeActionIntentDispatchAttempts
@@ -321,6 +346,9 @@ export function deriveAgentBrowserRuntimeActionIntentStatus(
   const candidates = actionIntentCandidatesFromEntries(stream.entries);
   return {
     candidateCount: stream.actionIntentCandidates,
+    handoffCandidateCount: stream.actionIntentHandoffCandidates,
+    handoffOutboxRefs: stream.actionIntentHandoffOutboxRefs,
+    handoffRefs: stream.actionIntentHandoffRefs,
     dispatchAttemptCount: 0,
     adapterExecutionCount: 0,
     childInterventionExecutionCount: 0,
@@ -361,6 +389,24 @@ function parserFailure(
 function numberField(fields: LogFields, key: string): number | null {
   const value = fields[key];
   return typeof value === 'number' ? value : null;
+}
+
+function stringArrayField(fields: LogFields, key: string): readonly string[] | null {
+  const value = fields[key];
+  if (typeof value !== 'string') {
+    return null;
+  }
+
+  let decoded: unknown;
+  try {
+    decoded = JSON.parse(value);
+  } catch {
+    return null;
+  }
+  if (!Array.isArray(decoded) || decoded.some((entry) => typeof entry !== 'string' || entry.length === 0)) {
+    return null;
+  }
+  return decoded;
 }
 
 function actionIntentCandidateFromEntry(

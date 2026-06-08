@@ -628,6 +628,16 @@ execution, child intervention execution, and enforcement execution must remain
 zero. Evidence:
 `test-results/browser-runtime-action-intent-portal-state-proof/proof.json` and
 `output/browser-plan-proof/browser-runtime-action-intent-portal-state/01-browser-runtime-action-intent-portal-state-proof.md`.
+
+WP13 action-intent durable status addendum:
+`browser-runtime-action-intent-durable-status-proof` carries prepared
+action-intent handoff status through the existing service-backed browser runtime
+event-chain stream. The stream now includes prepared handoff candidate count,
+local outbox refs, and handoff refs, and portal live-activity state parses those
+refs without claiming dispatch, adapter execution, browser mutation, child
+intervention execution, final policy execution, or enforcement. Evidence:
+`test-results/browser-runtime-action-intent-durable-status-proof/proof.json` and
+`output/browser-plan-proof/browser-runtime-action-intent-durable-status/01-browser-runtime-action-intent-durable-status-proof.md`.
 This does not add a visual portal surface, browser mutation, child intervention
 execution, final policy execution, or enforcement.
 

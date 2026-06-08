@@ -28,6 +28,13 @@ use crate::{
     websocket::handle_command_text_for_test,
 };
 
+const BROWSER_ACTION_INTENT_EXECUTION_FIELDS: [&str; 4] = [
+    constants::field::BROWSER_RUNTIME_ACTION_INTENT_DISPATCH_ATTEMPTS,
+    constants::field::BROWSER_RUNTIME_ACTION_INTENT_ADAPTER_EXECUTIONS,
+    constants::field::BROWSER_RUNTIME_ACTION_INTENT_CHILD_INTERVENTION_EXECUTIONS,
+    constants::field::BROWSER_RUNTIME_ACTION_INTENT_ENFORCEMENT_EXECUTIONS,
+];
+
 #[tokio::test]
 async fn service_browser_runtime_streams_protocol_event_chain_entries() {
     let report = stream_browser_runtime_event_chain_for_read_model_with_policy_preview(
@@ -127,22 +134,9 @@ async fn service_browser_runtime_action_intent_status_projects_pending_candidate
         payload.get(constants::field::BROWSER_RUNTIME_ACTION_INTENT_CANDIDATES),
         Some(&LogFieldValue::Number(1.0))
     );
-    assert_eq!(
-        payload.get(constants::field::BROWSER_RUNTIME_ACTION_INTENT_DISPATCH_ATTEMPTS),
-        Some(&LogFieldValue::Number(0.0))
-    );
-    assert_eq!(
-        payload.get(constants::field::BROWSER_RUNTIME_ACTION_INTENT_ADAPTER_EXECUTIONS),
-        Some(&LogFieldValue::Number(0.0))
-    );
-    assert_eq!(
-        payload.get(constants::field::BROWSER_RUNTIME_ACTION_INTENT_CHILD_INTERVENTION_EXECUTIONS),
-        Some(&LogFieldValue::Number(0.0))
-    );
-    assert_eq!(
-        payload.get(constants::field::BROWSER_RUNTIME_ACTION_INTENT_ENFORCEMENT_EXECUTIONS),
-        Some(&LogFieldValue::Number(0.0))
-    );
+    for field in BROWSER_ACTION_INTENT_EXECUTION_FIELDS {
+        assert_eq!(payload.get(field), Some(&LogFieldValue::Number(0.0)));
+    }
 
     let handoff = request_browser_runtime_action_intent_handoff_for_input(
         BrowserRuntimeInput::dry_run_action_handoff_fixture(),
@@ -169,9 +163,30 @@ async fn service_browser_runtime_action_intent_status_projects_pending_candidate
     assert_eq!(report.action_intent_child_intervention_executions, 0);
     assert_eq!(report.action_intent_enforcement_executions, 0);
     assert_eq!(
-        payload.get(constants::field::BROWSER_RUNTIME_ACTION_INTENT_DISPATCH_ATTEMPTS),
-        Some(&LogFieldValue::Number(0.0))
+        payload.get(constants::field::BROWSER_RUNTIME_ACTION_INTENT_HANDOFF_CANDIDATES),
+        Some(&LogFieldValue::Number(1.0))
     );
+    assert_eq!(
+        payload.get(constants::field::BROWSER_RUNTIME_ACTION_INTENT_HANDOFF_OUTBOX_REFS),
+        Some(&LogFieldValue::String(
+            serde_json::to_string(&vec![
+                constants::browser::TEST_BROWSER_RUNTIME_ACTION_INTENT_OUTBOX_REF
+            ])
+            .unwrap()
+        ))
+    );
+    assert_eq!(
+        payload.get(constants::field::BROWSER_RUNTIME_ACTION_INTENT_HANDOFF_REFS),
+        Some(&LogFieldValue::String(
+            serde_json::to_string(&vec![
+                constants::browser::TEST_BROWSER_RUNTIME_ACTION_INTENT_HANDOFF_REF
+            ])
+            .unwrap()
+        ))
+    );
+    for field in BROWSER_ACTION_INTENT_EXECUTION_FIELDS {
+        assert_eq!(payload.get(field), Some(&LogFieldValue::Number(0.0)));
+    }
 }
 
 #[tokio::test]
@@ -211,6 +226,28 @@ async fn service_browser_runtime_stream_projects_store_backed_policy_preview_can
     assert_eq!(
         payload.get(constants::field::BROWSER_RUNTIME_ACTION_INTENT_CANDIDATES),
         Some(&LogFieldValue::Number(1.0))
+    );
+    assert_eq!(
+        payload.get(constants::field::BROWSER_RUNTIME_ACTION_INTENT_HANDOFF_CANDIDATES),
+        Some(&LogFieldValue::Number(1.0))
+    );
+    assert_eq!(
+        payload.get(constants::field::BROWSER_RUNTIME_ACTION_INTENT_HANDOFF_OUTBOX_REFS),
+        Some(&LogFieldValue::String(
+            serde_json::to_string(&vec![
+                constants::browser::TEST_BROWSER_RUNTIME_ACTION_INTENT_OUTBOX_REF
+            ])
+            .unwrap()
+        ))
+    );
+    assert_eq!(
+        payload.get(constants::field::BROWSER_RUNTIME_ACTION_INTENT_HANDOFF_REFS),
+        Some(&LogFieldValue::String(
+            serde_json::to_string(&vec![
+                constants::browser::TEST_BROWSER_RUNTIME_ACTION_INTENT_HANDOFF_REF
+            ])
+            .unwrap()
+        ))
     );
     assert_eq!(
         policy_entry[constants::field::PAYLOAD][constants::field::POLICY_PREVIEW_ID],

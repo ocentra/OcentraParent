@@ -4,8 +4,8 @@ import {
   AgentBrowserRuntimeCustodyLabel,
   AgentBrowserRuntimeEventType,
   AgentBrowserRuntimePhase,
-  AgentEvent,
   AgentBrowserRuntimeQueryVisibility,
+  AgentEvent,
   AgentEventEnvelopeSchema,
   AgentProtocolDefaults,
   type AgentEventEnvelope,
@@ -173,6 +173,46 @@ describe('portal browser runtime event-chain state', () => {
   });
 });
 
+describe('portal browser runtime action-intent handoff state', () => {
+  it('keeps prepared browser action-intent handoff refs visible without execution claims', () => {
+    const state = resolveLiveActivityState([
+      browserRuntimeEventChainStreamEvent({
+        entries: [
+          browserRuntimeStreamEntry(
+            AgentBrowserRuntimeEventType.PolicyDecisionCompleted,
+            'cmd-browser-runtime-stream-browser.policy-decision.completed',
+            {
+              capabilityStatus: AgentBrowserRuntimeCapabilityStatus.TabListOnly,
+              queryVisibility: AgentBrowserRuntimeQueryVisibility.LiveLocal,
+              degradedReason: null,
+              exactUrlClaimed: true,
+              policyPreviewId: 'browser-policy-preview-test',
+              assistantActionIntentId: 'browser-action-intent-test',
+              dryRun: true,
+            }
+          ),
+        ],
+        streamedEvents: 1,
+        actionIntentCandidates: 1,
+        actionIntentHandoffCandidates: 1,
+        actionIntentHandoffOutboxRefs: ['browser-action-intent-outbox-ref-test'],
+        actionIntentHandoffRefs: ['browser-action-intent-handoff-ref-test'],
+      }),
+    ]);
+
+    expect(state.browserRuntimeEventChainStream?.actionIntentHandoffCandidates).toBe(1);
+    expect(state.browserRuntimeEventChainStream?.actionIntentHandoffOutboxRefs).toEqual([
+      'browser-action-intent-outbox-ref-test',
+    ]);
+    expect(state.browserRuntimeEventChainStream?.actionIntentHandoffRefs).toEqual([
+      'browser-action-intent-handoff-ref-test',
+    ]);
+    expect(state.browserRuntimeEventChainStream?.actionIntentDispatchAttempts).toBe(0);
+    expect(state.browserRuntimeEventChainStream?.actionIntentChildInterventionExecutions).toBe(0);
+    expect(state.browserRuntimeEventChainStream?.actionIntentEnforcementExecutions).toBe(0);
+  });
+});
+
 function expectBrowserRuntimeEventEnvelope(state: ResolvedLiveActivityState): void {
   expect(state.browserRuntimeEventChainStreamEvent?.event).toBe('agent.browser.runtime.event-chain.stream.reported');
 }
@@ -186,6 +226,9 @@ function expectBrowserRuntimeStreamCounts(state: ResolvedLiveActivityState): voi
   expect(stream?.interventionCommandEvents).toBe(0);
   expect(stream?.readModelProjectionEvents).toBe(1);
   expect(stream?.actionIntentCandidates).toBe(0);
+  expect(stream?.actionIntentHandoffCandidates).toBe(0);
+  expect(stream?.actionIntentHandoffOutboxRefs).toEqual([]);
+  expect(stream?.actionIntentHandoffRefs).toEqual([]);
   expect(stream?.actionIntentDispatchAttempts).toBe(0);
   expect(stream?.actionIntentAdapterExecutions).toBe(0);
   expect(stream?.actionIntentChildInterventionExecutions).toBe(0);
@@ -221,6 +264,10 @@ function browserRuntimeEventChainStreamEvent(
   input: {
     readonly entries?: readonly ReturnType<typeof browserRuntimeStreamEntry>[];
     readonly streamedEvents?: number;
+    readonly actionIntentCandidates?: number;
+    readonly actionIntentHandoffCandidates?: number;
+    readonly actionIntentHandoffOutboxRefs?: readonly string[];
+    readonly actionIntentHandoffRefs?: readonly string[];
     readonly actionIntentDispatchAttempts?: number;
   } = {}
 ): AgentEventEnvelope {
@@ -251,7 +298,15 @@ function browserRuntimeEventChainStreamEvent(
     [AgentProtocolDefaults.Field.BrowserRuntimeManualRequiredRows]: 1,
     [AgentProtocolDefaults.Field.BrowserRuntimeInterventionCommandEvents]: 0,
     [AgentProtocolDefaults.Field.BrowserRuntimeReadModelProjectionEvents]: 1,
-    [AgentProtocolDefaults.Field.BrowserRuntimeActionIntentCandidates]: 0,
+    [AgentProtocolDefaults.Field.BrowserRuntimeActionIntentCandidates]: input.actionIntentCandidates ?? 0,
+    [AgentProtocolDefaults.Field.BrowserRuntimeActionIntentHandoffCandidates]:
+      input.actionIntentHandoffCandidates ?? 0,
+    [AgentProtocolDefaults.Field.BrowserRuntimeActionIntentHandoffOutboxRefs]: JSON.stringify(
+      input.actionIntentHandoffOutboxRefs ?? []
+    ),
+    [AgentProtocolDefaults.Field.BrowserRuntimeActionIntentHandoffRefs]: JSON.stringify(
+      input.actionIntentHandoffRefs ?? []
+    ),
     [AgentProtocolDefaults.Field.BrowserRuntimeActionIntentDispatchAttempts]: input.actionIntentDispatchAttempts ?? 0,
     [AgentProtocolDefaults.Field.BrowserRuntimeActionIntentAdapterExecutions]: 0,
     [AgentProtocolDefaults.Field.BrowserRuntimeActionIntentChildInterventionExecutions]: 0,
@@ -269,7 +324,11 @@ function browserRuntimeStreamEntry(
     readonly custodyLabel: AgentBrowserRuntimeCustodyLabel;
     readonly queryVisibility: AgentBrowserRuntimeQueryVisibility;
     readonly degradedReason: string | null;
+    readonly exactUrlClaimed: boolean;
     readonly aiAuthority: boolean;
+    readonly policyPreviewId: string | null;
+    readonly assistantActionIntentId: string | null;
+    readonly dryRun: boolean;
   }> = {}
 ): Record<string, unknown> {
   return {
@@ -288,17 +347,17 @@ function browserRuntimeStreamEntry(
       aiAnalysisRef: null,
       policyEvaluationRef: null,
       policyDecisionRef: null,
-      policyPreviewId: null,
-      assistantActionIntentId: null,
+      policyPreviewId: payloadOverrides.policyPreviewId ?? null,
+      assistantActionIntentId: payloadOverrides.assistantActionIntentId ?? null,
       interventionCommandRef: null,
       interventionResultRef: null,
       auditEntryRef: 'browser-runtime-audit-ref',
       readModelRef: 'browser-runtime-read-model-ref',
       previousPhaseRef: 'browser-runtime-previous-phase-ref',
-      exactUrlClaimed: false,
+      exactUrlClaimed: payloadOverrides.exactUrlClaimed ?? false,
       aiAuthority: payloadOverrides.aiAuthority ?? false,
       policyAuthority: true,
-      dryRun: false,
+      dryRun: payloadOverrides.dryRun ?? false,
       adapterDispatchClaimed: false,
       interventionCommandAllowed: false,
       observedAt: '2026-05-21T01:00:00Z',

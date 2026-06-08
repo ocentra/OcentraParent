@@ -583,3 +583,32 @@ This is stale/unsupported runtime proof only. It does not claim real non-Windows
 platform support, exact active-tab enforcement, host blocking, browser mutation,
 child intervention execution, final policy execution, AI authority, or
 enforcement.
+
+## Action-Intent Durable Status Addendum - 2026-06-07
+
+`browser-runtime-action-intent-durable-status-proof` carries the prepared
+browser action-intent handoff status through the existing service-backed browser
+runtime event-chain stream and portal live-activity parser. The stream exposes
+prepared handoff candidate count, local outbox refs, and handoff refs while
+keeping dispatch, adapter execution, browser mutation, child intervention
+execution, final policy execution, and enforcement at zero/unclaimed.
+
+Evidence:
+
+- `crates/agent-protocol/src/constants/field.rs`
+- `packages/agent-protocol-domain/src/defaults.ts`
+- `crates/agent-service/src/browser_runtime_stream_payload.rs`
+- `crates/agent-service/src/browser_runtime_stream_tests.rs`
+- `packages/agent-protocol-domain/src/browser-runtime-events.ts`
+- `packages/agent-protocol-domain/tests/browser-runtime-events.test.ts`
+- `apps/portal/tests/live-activity-state.test.ts`
+- `scripts/test/browser-runtime-action-intent-durable-status-proof.mjs`
+- `test-results/browser-runtime-action-intent-durable-status-proof/proof.json`
+- `output/browser-plan-proof/browser-runtime-action-intent-durable-status/01-browser-runtime-action-intent-durable-status-proof.md`
+- `cargo test -p ocentra-parent-agent-service service_browser_runtime_stream_projects_store_backed_policy_preview_candidate --quiet`
+- `cmd /c npm run test --workspace @ocentra-parent/agent-protocol-domain -- browser-runtime-events.test.ts`
+- `cmd /c npm run test --workspace @ocentra-parent/portal -- live-activity-state.test.ts`
+
+This is stream/read-model status only. It does not execute final policy,
+dispatch an adapter, mutate browser state, execute child intervention, or
+enforce.

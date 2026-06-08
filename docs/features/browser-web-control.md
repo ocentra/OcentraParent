@@ -174,10 +174,12 @@ control while being more honest about managed versus unmanaged sources.
   action-intent path. The service asks the named
   `browser.action-intent.handoff.requested` subscriber and records prepared
   local outbox/handoff refs in report state for store-backed dry-run policy
-  preview rows. The public wire shape is intentionally unchanged while shared
-  protocol field constants/defaults are owned by another active lane; dispatch,
-  adapter execution, browser mutation, child intervention execution, final
-  policy execution, and enforcement remain zero/unclaimed.
+  preview rows. The existing service-backed browser runtime event-chain stream
+  now carries prepared handoff candidate counts plus local outbox/handoff refs
+  through Rust protocol fields, the shared TypeScript parser, and portal
+  live-activity state. Dispatch, adapter execution, browser mutation, child
+  intervention execution, final policy execution, and enforcement remain
+  zero/unclaimed.
 - Browser-plan WP03 now carries publisher-signature and file-hash evidence refs
   through activity-domain inventory contracts, Rust protocol, and service
   payload/read-model proof. Contract tests cover mixed managed, unmanaged, and

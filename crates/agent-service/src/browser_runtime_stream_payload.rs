@@ -116,6 +116,18 @@ pub(crate) fn browser_runtime_event_chain_stream_payload(
             count_value(report.action_intent_candidates),
         ),
         (
+            constants::field::BROWSER_RUNTIME_ACTION_INTENT_HANDOFF_CANDIDATES,
+            count_value(report.action_intent_handoff_candidates),
+        ),
+        (
+            constants::field::BROWSER_RUNTIME_ACTION_INTENT_HANDOFF_OUTBOX_REFS,
+            string_array_value(&report.action_intent_handoff_outbox_refs),
+        ),
+        (
+            constants::field::BROWSER_RUNTIME_ACTION_INTENT_HANDOFF_REFS,
+            string_array_value(&report.action_intent_handoff_refs),
+        ),
+        (
             constants::field::BROWSER_RUNTIME_ACTION_INTENT_DISPATCH_ATTEMPTS,
             count_value(report.action_intent_dispatch_attempts),
         ),
@@ -196,4 +208,10 @@ impl BrowserRuntimeServiceStreamReport {
 
 fn count_value(value: usize) -> LogFieldValue {
     LogFieldValue::Number(value as f64)
+}
+
+fn string_array_value(values: &[String]) -> LogFieldValue {
+    LogFieldValue::String(
+        serde_json::to_string(values).expect(constants::error::AGENT_EVENT_SERIALIZES),
+    )
 }
