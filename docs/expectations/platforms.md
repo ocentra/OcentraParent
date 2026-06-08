@@ -111,6 +111,13 @@ behavior belongs behind platform adapters and must be proved per platform.
   execution/delivery, Microsoft Store execution, provider credentials, platform
   adapter execution, child-device transport receipt execution, child-device
   delivery, app blocking, or product-claim approval.
+- Windows app-install runtime transport delivery execution proof may classify
+  parent-owned transport execution attempt, delivery result receipt, and
+  child-device receipt handoff refs as withheld/manual follow-up rows only. It
+  still does not prove external writer execution/delivery, Microsoft Store
+  execution, provider credentials, platform adapter execution, child-device
+  transport receipt execution, child-device delivery, app blocking, or
+  product-claim approval.
 - Windows app-install package-source adapter evidence proof may attach
   sanitized local host command evidence, such as `Get-AppxPackage`
   availability and Microsoft Store package-source probe metadata, to move the

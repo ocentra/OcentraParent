@@ -303,6 +303,17 @@ Expected contract families:
   interception, platform adapter implementation, child-device delivery, runtime
   report delivery, real interception, app blocking, child activity data custody,
   or Ocentra-hosted family data custody.
+- Runtime transport delivery execution proof rows consume runtime delivery
+  receipt boundary rows and create parent-owned transport execution attempt,
+  delivery result receipt, and child-device receipt handoff refs that stay
+  withheld or manual-required until external writer dispatch execution,
+  provider/store execution receipt, platform adapter execution receipt, and
+  child-device transport receipt proof refs are real. They must not claim
+  external runtime writer execution, external runtime writer delivery, parent
+  action runtime delivery, provider API execution, store integration, platform
+  interception, platform adapter implementation, child-device delivery, runtime
+  report delivery, real interception, app blocking, child activity data custody,
+  or Ocentra-hosted family data custody.
 - Provider/store execution preflight proof rows link provider/store execution
   readiness rows and runtime writer execution delivery receipts into
   parent-owned execution-ready, manual-required, and unavailable preflight states
@@ -792,6 +803,11 @@ Expected contract families:
   platform adapter execution, child-device transport receipt execution,
   child-device delivery, runtime report delivery, real interception, app
   blocking, child activity custody, or Ocentra-hosted family data custody.
+- Do not treat runtime transport delivery execution proof refs as external
+  runtime writer execution, external runtime writer delivery, provider/store
+  execution, platform adapter execution, child-device transport receipt
+  execution, child-device delivery, runtime report delivery, real interception,
+  app blocking, child activity custody, or Ocentra-hosted family data custody.
 - Do not treat provider/store execution preflight proof refs as Google Play,
   Apple App Store, Microsoft Store, billing provider execution/contact,
   provider API execution, store integration, platform interception, platform
