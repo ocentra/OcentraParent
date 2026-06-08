@@ -17,6 +17,8 @@ use ocentra_eventing::{
 };
 use ocentra_parent_agent_protocol::constants;
 
+mod browser_event_runtime_child_status_tests;
+
 #[tokio::test]
 async fn browser_runtime_chain_publishes_ordered_managed_decision_phases() {
     let report =

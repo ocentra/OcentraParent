@@ -664,3 +664,29 @@ Evidence:
 This is typed parent/child handoff proof only. It does not add external broker
 or relay delivery, adapter dispatch, browser mutation, child intervention
 execution, final policy execution, unmanaged exact URL support, or enforcement.
+
+## Action-Intent Child Status Addendum - 2026-06-08
+
+`browser-runtime-action-intent-child-status-proof` composes the durable browser
+action-intent handoff record with the existing parent/controller to child-agent
+event sequence. The proof validates durable result/read-model refs, the
+`browser-action-intent-handoff` child command kind, child receive/acceptance
+event refs, parent read-model projection visibility, and zero execution
+counters.
+
+Evidence:
+
+- `crates/agent-core/src/browser_event_runtime/action_handoff_child_status.rs`
+- `crates/agent-core/src/browser_event_runtime/action_handoff_child_status_types.rs`
+- `crates/agent-core/src/browser_event_runtime_tests.rs`
+- `scripts/test/browser-runtime-action-intent-child-status-proof.mjs`
+- `test-results/browser-runtime-action-intent-child-status-proof/proof.json`
+- `output/browser-plan-proof/browser-runtime-action-intent-child-status/01-browser-runtime-action-intent-child-status-proof.md`
+- `cargo test -p ocentra-parent-agent-core browser_runtime_action_intent_child_status_links_durable_handoff_to_child_acceptance --quiet`
+
+This is agent-core durable/status composition proof only. Public WebSocket
+stream fields for child acceptance refs remain a follow-up because
+`crates/agent-protocol/src/constants/field.rs` is currently owned by another
+lane. It does not add external broker or relay delivery, adapter dispatch,
+browser mutation, child intervention execution, final policy execution,
+unmanaged exact URL support, or enforcement.

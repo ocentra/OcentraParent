@@ -1,0 +1,35 @@
+{
+  "proofName": "browser-runtime-action-intent-child-status-proof",
+  "branchHead": "b54524326 Add browser action-intent parent-child handoff proof",
+  "sourceChecks": {
+    "proofModuleExported": true,
+    "durableHandoffComposed": true,
+    "parentChildSequenceComposed": true,
+    "statusRowCarriesChildAcceptanceRefs": true,
+    "publicStreamFieldRegistryStillBlocked": true,
+    "noExecutionClaims": true,
+    "rustTestProvesRefsAndNoClaims": true,
+    "docsMentionChildStatusProof": true
+  },
+  "commands": [
+    "cargo test -p ocentra-parent-agent-core browser_runtime_action_intent_child_status_links_durable_handoff_to_child_acceptance --quiet"
+  ],
+  "verified": {
+    "durableHandoffResultComposed": true,
+    "parentChildCommandKind": "browser-action-intent-handoff",
+    "childReceivedStatusVisible": true,
+    "childAcceptedStatusVisible": true,
+    "parentReadModelProjectedStatusVisible": true,
+    "publicStreamFieldRegistryReady": false,
+    "dispatchAttemptCount": 0,
+    "adapterExecutionCount": 0,
+    "browserMutationCount": 0,
+    "childInterventionExecutionCount": 0,
+    "finalPolicyExecutionCount": 0,
+    "enforcementExecutionCount": 0
+  },
+  "remainingGap": {
+    "reason": "crates/agent-protocol/src/constants/field.rs is locked by another lane, so this proof does not add public WebSocket stream fields for child acceptance refs.",
+    "requiredFollowUp": "After the shared field registry is available, expose child accepted/read-model refs through the service stream payload and portal parser."
+  }
+}

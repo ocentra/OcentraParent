@@ -9,6 +9,10 @@ use serde::{Deserialize, Serialize};
 
 mod action_handoff;
 #[cfg(test)]
+mod action_handoff_child_status;
+#[cfg(test)]
+mod action_handoff_child_status_types;
+#[cfg(test)]
 mod action_handoff_durable;
 #[cfg(test)]
 mod action_handoff_durable_types;
@@ -23,6 +27,10 @@ pub use action_handoff::{
     request_browser_runtime_action_intent_handoff_for_input,
     BrowserRuntimeActionIntentHandoffReport, BrowserRuntimeActionIntentHandoffResponse,
 };
+#[cfg(test)]
+pub(crate) use action_handoff_child_status::prove_browser_runtime_action_intent_child_status;
+#[cfg(test)]
+pub(crate) use action_handoff_child_status_types::BrowserRuntimeActionIntentChildStatusReadModelState;
 #[cfg(test)]
 pub(crate) use action_handoff_durable::prove_browser_runtime_action_intent_durable_handoff;
 #[cfg(test)]

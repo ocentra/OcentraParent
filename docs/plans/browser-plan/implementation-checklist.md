@@ -736,6 +736,22 @@ enforcement counters. It does not claim real non-Windows browser support, host
 blocking, exact active-tab enforcement, browser mutation, child intervention
 execution, final policy execution, AI authority, or enforcement.
 
+WP13 action-intent child-status addendum:
+`browser-runtime-action-intent-child-status-proof` composes the durable browser
+action-intent handoff record with the existing parent/controller to child-agent
+event sequence. Evidence:
+`test-results/browser-runtime-action-intent-child-status-proof/proof.json` and
+`output/browser-plan-proof/browser-runtime-action-intent-child-status/01-browser-runtime-action-intent-child-status-proof.md`.
+The proof validates durable result/read-model refs, the
+`browser-action-intent-handoff` child command kind, child receive/acceptance
+event refs, parent read-model projection visibility, and zero
+dispatch/adapter/browser-mutation/child-intervention/final-policy/enforcement
+counters. Public WebSocket stream fields for child acceptance refs remain a
+follow-up because `crates/agent-protocol/src/constants/field.rs` is currently
+owned by another lane. No product capability checklist update: this is
+agent-core proof/status composition only and does not upgrade real browser,
+exact URL, intervention, or enforcement capability.
+
 ## Worker Report Template
 
 Use this shape in the hub report or PR-ready note:
