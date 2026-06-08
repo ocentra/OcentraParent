@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "checkedAt": "2026-06-08T01:05:00.000Z",
+  "checkedAt": "2026-06-08T02:05:00.000Z",
   "commitMetadataState": "omitted-for-deterministic-proof-artifact",
   "proofMode": "app-install-purchase-runtime-transport-delivery-execution-proof",
   "commands": [
@@ -18,7 +18,7 @@
     }
   ],
   "packageExportState": "added-app-install-purchase-runtime-transport-delivery-execution-proof-export",
-  "checklistState": "deferred-docs-product-capability-checklist-locked-by-codex-b",
+  "checklistState": "updated-docs-product-capability-checklist-install-purchase-row",
   "evidence": {
     "runtimeTransportDeliveryExecutionContract": "packages/parent-domain/src/app-install-purchase-runtime-transport-delivery-execution-proof.ts",
     "sourceReceiptBoundaryContract": "packages/parent-domain/src/app-install-purchase-runtime-delivery-receipt-boundary-proof.ts",
@@ -28,7 +28,7 @@
     "platformExpectationDoc": "docs/expectations/platforms.md",
     "packageExport": "packages/parent-domain/package.json",
     "packageReadme": "packages/parent-domain/README.md",
-    "checklistRow": "deferred",
+    "checklistRow": "docs/product-capability-checklist.md#install-purchase-approval",
     "output": "test-results\\app-install-purchase-runtime-transport-delivery-execution-proof\\proof.json"
   },
   "runtimeTransportDeliveryExecutionSummary": {
@@ -300,6 +300,6 @@
   "knownGaps": [
     "Runtime transport delivery execution rows are parent-owned proof rows only; no external writer dispatch executor, provider/store execution receipt, platform adapter execution receipt, or child-device transport receipt exists.",
     "Execution attempts remain withheld or manual-required until external writer dispatch execution, provider/store execution receipt, platform adapter execution receipt, and child-device transport receipt proof refs become real artifacts.",
-    "Product capability checklist row update is deferred because docs/product-capability-checklist.md is currently locked by codex-b; pending delta is to mention this transport execution proof as non-claim evidence for the Install/purchase approval row."
+    "Product capability checklist Install/purchase approval row now records this transport execution proof as non-claim evidence while provider/store execution, platform adapter execution, and child-device transport receipt artifacts remain required."
   ]
 }

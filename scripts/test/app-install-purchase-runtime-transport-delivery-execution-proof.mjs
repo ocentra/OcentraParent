@@ -64,7 +64,7 @@ async function main() {
     proofMode: 'app-install-purchase-runtime-transport-delivery-execution-proof',
     commands,
     packageExportState: 'added-app-install-purchase-runtime-transport-delivery-execution-proof-export',
-    checklistState: 'deferred-docs-product-capability-checklist-locked-by-codex-b',
+    checklistState: 'updated-docs-product-capability-checklist-install-purchase-row',
     evidence: {
       runtimeTransportDeliveryExecutionContract:
         'packages/parent-domain/src/app-install-purchase-runtime-transport-delivery-execution-proof.ts',
@@ -77,7 +77,7 @@ async function main() {
       platformExpectationDoc: 'docs/expectations/platforms.md',
       packageExport: 'packages/parent-domain/package.json',
       packageReadme: 'packages/parent-domain/README.md',
-      checklistRow: 'deferred',
+      checklistRow: 'docs/product-capability-checklist.md#install-purchase-approval',
       output: relative(repoRoot, proofPath),
     },
     runtimeTransportDeliveryExecutionSummary: summary,

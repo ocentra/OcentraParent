@@ -4,7 +4,7 @@ import { ParentTimestampSchema } from './reference-primitives';
 
 const RuntimeTransportDeliveryExecutionProofVersion = 'app-install-purchase-runtime-transport-delivery-execution-proof';
 const SourceReceiptBoundaryProofVersion = 'app-install-purchase-runtime-delivery-receipt-boundary-proof';
-const RuntimeTransportDeliveryExecutionTimestamp = '2026-06-08T01:05:00.000Z';
+const RuntimeTransportDeliveryExecutionTimestamp = '2026-06-08T02:05:00.000Z';
 const RuntimeTransportDeliveryExecutionText = Schema.String.pipe(Schema.minLength(1));
 const RuntimeTransportDeliveryExecutionBoundary =
   'runtime transport delivery execution proof only; rows consume runtime delivery receipt boundary rows and keep parent-owned transport execution attempts withheld until external writer dispatch execution provider-store execution receipt platform adapter execution receipt and child-device transport receipt refs are real no external runtime writer execution no external runtime writer delivery no parent action runtime delivery no provider API execution no store integration no platform interception no platform adapter implementation no child-device delivery no runtime report delivery no real install or purchase interception no app blocking no child activity data no Ocentra-hosted family data custody';
@@ -173,7 +173,7 @@ export const AppInstallPurchaseRuntimeTransportDeliveryExecutionProofSchema = wi
 export const AppInstallPurchaseRuntimeTransportDeliveryExecutionKnownGaps = [
   'Runtime transport delivery execution rows are parent-owned proof rows only; no external writer dispatch executor, provider/store execution receipt, platform adapter execution receipt, or child-device transport receipt exists.',
   'Execution attempts remain withheld or manual-required until external writer dispatch execution, provider/store execution receipt, platform adapter execution receipt, and child-device transport receipt proof refs become real artifacts.',
-  'Product capability checklist row update is deferred because docs/product-capability-checklist.md is currently locked by codex-b; pending delta is to mention this transport execution proof as non-claim evidence for the Install/purchase approval row.',
+  'Product capability checklist Install/purchase approval row now records this transport execution proof as non-claim evidence while provider/store execution, platform adapter execution, and child-device transport receipt artifacts remain required.',
 ] as const;
 
 export const AppInstallPurchaseRuntimeTransportDeliveryExecutionProofReadModel =
