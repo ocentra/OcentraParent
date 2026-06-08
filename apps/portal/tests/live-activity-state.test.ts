@@ -76,6 +76,17 @@ describe('portal live activity state', () => {
   });
 });
 
+describe('portal live app-game adapter dispatch state', () => {
+  it('keeps the latest scoped app-game adapter dispatch executed result parent-visible', () => {
+    const state = resolveLiveActivityState([
+      appGameAdapterDispatchExecutedEvent('evt-app-game-dispatch-executed-earlier', 'earlier-execute-command'),
+      appGameAdapterDispatchExecutedEvent('evt-app-game-dispatch-executed-latest', 'latest-execute-command'),
+    ]);
+
+    expectLatestAppGameAdapterDispatchExecutedResult(state);
+  });
+});
+
 function expectIngestStatus(ingestStatus: ResolvedLiveActivityState['ingestStatus']) {
   expect(ingestStatus).not.toBeNull();
   if (ingestStatus === null) {
@@ -112,6 +123,19 @@ function expectBrowserEvidenceRow(latestRow: BrowserEvidenceRow | undefined) {
   expect(latestRow.url).toBe('https://example.test/learn');
   expect(latestRow.activeState).toBe('unknown');
   expect(latestRow.activeProofSource).toBe('target-list-only');
+}
+
+function expectLatestAppGameAdapterDispatchExecutedResult(state: ResolvedLiveActivityState) {
+  expect(state.appGameAdapterDispatchExecutedEvent?.eventId).toBe('evt-app-game-dispatch-executed-latest');
+  expect(state.appGameAdapterDispatchExecutedResult?.ok).toBe(true);
+  if (state.appGameAdapterDispatchExecutedResult?.ok !== true) {
+    return;
+  }
+  expect(state.appGameAdapterDispatchExecutedResult.value.commandId).toBe('latest-execute-command');
+  expect(state.appGameAdapterDispatchExecutedResult.value.executionStatus).toBe('actually-enforced');
+  expect(state.appGameAdapterDispatchExecutedResult.value.adapterDispatchExecutedClaimed).toBe(true);
+  expect(state.appGameAdapterDispatchExecutedResult.value.platformEnforcementClaimed).toBe(false);
+  expect(state.appGameAdapterDispatchExecutedResult.value.childDeviceDeliveryClaimed).toBe(false);
 }
 
 function recentSummaryEvent() {
@@ -329,6 +353,49 @@ function browserInventoryEvent() {
       reason: 'managed-target-list-only',
       publisherSignatureRef: null,
       fileHashRef: null,
+    },
+    snapshot: null,
+  });
+}
+
+function appGameAdapterDispatchExecutedEvent(eventId: string, commandId: string) {
+  return AgentEventEnvelopeSchema.parse({
+    schemaVersion: 1,
+    eventId,
+    correlationId: commandId,
+    sentAt: '2026-06-08T12:45:01Z',
+    source: {
+      peerId: 'local-dev-agent',
+      role: 'agent-service',
+    },
+    target: {
+      peerId: 'portal-dev',
+      role: 'portal',
+    },
+    event: 'agent.activity.app-game.adapter-dispatch.executed',
+    severity: 'info',
+    payload: {
+      appGameAdapterDispatchExecuteResult: JSON.stringify({
+        schemaVersion: 1,
+        commandId,
+        generatedAt: '2026-06-08T12:45:00Z',
+        sourceReadModelId: 'app-game-adapter-dispatch-result',
+        sourceDispatchRowId: 'app-game-adapter-dispatch-result-windows-app-game-owned-process-time-limit',
+        sourceProofEntryId: 'windows-app-game-owned-process-time-limit',
+        executionCommandName: 'agent.enforcement.execute',
+        executionEventName: 'agent.enforcement.audit.reported',
+        executionResultId: 'enforcement-result-app-game-owned-process',
+        executionStatus: 'actually-enforced',
+        executionAdapterResultCode: 'process-already-exited',
+        executionAuditEventId: 'enforcement-audit-app-game-owned-process',
+        readbackCommandName: 'agent.activity.app-game.adapter-dispatch-result.read-model.get',
+        adapterDispatchExecutedClaimed: true,
+        broadInstalledAppBlockingClaimed: false,
+        childDeviceDeliveryClaimed: false,
+        platformEnforcementClaimed: false,
+        providerDeliveryClaimed: false,
+        privateDiagnosticsClaimed: false,
+      }),
     },
     snapshot: null,
   });

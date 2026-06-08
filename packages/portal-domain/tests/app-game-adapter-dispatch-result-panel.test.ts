@@ -6,6 +6,7 @@ import {
   AgentAppGameAdapterDispatchCommandResultState,
   AgentAppGameAdapterDispatchExecutionAuditDecision,
   AgentAppGameAdapterDispatchExecutionAuditState,
+  type AgentAppGameAdapterDispatchExecuteResult,
   type AgentAppGameAdapterDispatchResultReadModel,
 } from '@ocentra-parent/agent-protocol-domain/app-game-adapter-dispatch-result';
 import {
@@ -134,6 +135,28 @@ const ReadModel: AgentAppGameAdapterDispatchResultReadModel = {
   ],
 };
 
+const ExecuteResult: AgentAppGameAdapterDispatchExecuteResult = {
+  schemaVersion: AppGameSchemaVersion,
+  commandId: 'app-game-adapter-dispatch-execute-command',
+  generatedAt: '2026-06-08T12:45:00.000Z',
+  sourceReadModelId: 'app-game-adapter-dispatch-result',
+  sourceDispatchRowId: 'app-game-adapter-dispatch-result-windows-app-game-owned-process-time-limit',
+  sourceProofEntryId: 'windows-app-game-owned-process-time-limit',
+  executionCommandName: 'agent.enforcement.execute',
+  executionEventName: 'agent.enforcement.audit.reported',
+  executionResultId: 'enforcement-result-app-game-owned-process',
+  executionStatus: 'actually-enforced',
+  executionAdapterResultCode: 'process-already-exited',
+  executionAuditEventId: 'enforcement-audit-app-game-owned-process',
+  readbackCommandName: 'agent.activity.app-game.adapter-dispatch-result.read-model.get',
+  adapterDispatchExecutedClaimed: true,
+  broadInstalledAppBlockingClaimed: false,
+  childDeviceDeliveryClaimed: false,
+  platformEnforcementClaimed: false,
+  providerDeliveryClaimed: false,
+  privateDiagnosticsClaimed: false,
+};
+
 describe('app-game adapter dispatch result panel', () => {
   it('renders accepted scoped dispatch command-result with scoped execution evidence', () => {
     const intent = createAppGameAdapterDispatchResultPanelIntent({
@@ -171,6 +194,33 @@ describe('app-game adapter dispatch result panel', () => {
         ['Adapter dispatch', 'Not claimed'],
         ['Execution audit', 'Not claimed'],
         ['Adapter execution', 'Blocked before adapter execution'],
+      ])
+    );
+  });
+
+  it('renders latest manual execute result without platform or child-delivery claim upgrades', () => {
+    const intent = createAppGameAdapterDispatchResultPanelIntent(
+      {
+        ok: true,
+        value: ReadModel,
+      },
+      {
+        ok: true,
+        value: ExecuteResult,
+      }
+    );
+
+    expect(intent.summaryDetails.map((detail) => [detail.label, detail.value])).toEqual(
+      expect.arrayContaining([
+        ['Execute command', 'app-game-adapter-dispatch-execute-command'],
+        ['Execute status', 'actually-enforced'],
+        ['Execute result', 'enforcement-result-app-game-owned-process'],
+        ['Adapter execution status', 'process-already-exited'],
+        ['Execute audit', 'enforcement-audit-app-game-owned-process'],
+        ['Execute readback', 'agent.activity.app-game.adapter-dispatch-result.read-model.get'],
+        ['Adapter dispatch', 'Ready'],
+        ['Platform state', 'Not claimed'],
+        ['Child delivery', 'Not claimed'],
       ])
     );
   });

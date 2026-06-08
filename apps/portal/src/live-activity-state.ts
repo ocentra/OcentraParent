@@ -57,7 +57,9 @@ import {
   type AgentAppGameAdapterDispatchPreflightResult,
 } from '@ocentra-parent/agent-protocol-domain/app-game-adapter-dispatch-preflight';
 import {
+  parseAgentAppGameAdapterDispatchExecuteEvent,
   parseAgentAppGameAdapterDispatchResultEvent,
+  type AgentAppGameAdapterDispatchExecute,
   type AgentAppGameAdapterDispatchResult,
 } from '@ocentra-parent/agent-protocol-domain/app-game-adapter-dispatch-result';
 import {
@@ -123,6 +125,8 @@ export interface PortalLiveActivityState {
   readonly appGameAdapterDispatchPreflightReadModel: AgentAppGameAdapterDispatchPreflightResult | null;
   readonly appGameAdapterDispatchResultEvent: AgentEventEnvelope | null;
   readonly appGameAdapterDispatchResultReadModel: AgentAppGameAdapterDispatchResult | null;
+  readonly appGameAdapterDispatchExecutedEvent: AgentEventEnvelope | null;
+  readonly appGameAdapterDispatchExecutedResult: AgentAppGameAdapterDispatchExecute | null;
   readonly activityNetworkReadModelEvent: AgentEventEnvelope | null;
   readonly activityNetworkReadModel: ActivitySurfaceAdapterResult<ActivitySurfaceReadModel> | null;
   readonly browserInterventionEvent: AgentEventEnvelope | null;
@@ -294,10 +298,15 @@ function resolveAppGameAdapterDispatchPreflightReadModel(events: readonly AgentE
 }
 
 function resolveAppGameAdapterDispatchResultReadModel(events: readonly AgentEventEnvelope[]) {
-  const event = latestEvent(events, AgentEvent.ActivityAppGameAdapterDispatchResultReadModelReported);
+  const readModelEvent = latestEvent(events, AgentEvent.ActivityAppGameAdapterDispatchResultReadModelReported);
+  const executedEvent = latestEvent(events, AgentEvent.ActivityAppGameAdapterDispatchExecuted);
   return {
-    appGameAdapterDispatchResultEvent: event,
-    appGameAdapterDispatchResultReadModel: event === null ? null : parseAgentAppGameAdapterDispatchResultEvent(event),
+    appGameAdapterDispatchResultEvent: readModelEvent,
+    appGameAdapterDispatchResultReadModel:
+      readModelEvent === null ? null : parseAgentAppGameAdapterDispatchResultEvent(readModelEvent),
+    appGameAdapterDispatchExecutedEvent: executedEvent,
+    appGameAdapterDispatchExecutedResult:
+      executedEvent === null ? null : parseAgentAppGameAdapterDispatchExecuteEvent(executedEvent),
   };
 }
 

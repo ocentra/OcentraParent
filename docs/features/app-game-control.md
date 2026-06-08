@@ -1594,6 +1594,14 @@ diagnostics, or raw private source rows.
       outside the scoped Windows owned-process boundary, provider delivery,
       child-device delivery, raw private source rows, raw target values, and
       private diagnostics remain unclaimed.
+      The portal live activity state now also retains the latest manual
+      dispatch executed event separately from the side-effect-free read model,
+      and the dispatch result panel renders parent-safe execute command,
+      result, status, audit, and readback details. This makes the manual
+      executed result visible without turning overview polling into execution
+      and without claiming broad installed-app blocking, non-scoped platform
+      enforcement, provider delivery, child-device delivery, raw private rows,
+      raw targets, or private diagnostics.
 - [ ] Blocking/time-limit proof before done claim. Scoped owned-process
       time-limit proof exists; broad block-launch/hide/suspend/shield and
       allowlist remain manual-required or not-claimed until platform setup,

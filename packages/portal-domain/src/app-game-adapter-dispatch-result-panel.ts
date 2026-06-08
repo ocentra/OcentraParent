@@ -5,6 +5,8 @@ import {
   AgentAppGameAdapterDispatchCommandResultState,
   AgentAppGameAdapterDispatchExecutionAuditDecision,
   AgentAppGameAdapterDispatchExecutionAuditState,
+  type AgentAppGameAdapterDispatchExecute,
+  type AgentAppGameAdapterDispatchExecuteResult,
   type AgentAppGameAdapterDispatchResult,
   type AgentAppGameAdapterDispatchResultReadModel,
   type AgentAppGameAdapterDispatchResultRow,
@@ -47,6 +49,11 @@ const AdapterExecution = decodeDisplayText('Adapter execution');
 const AdapterExecutionResult = decodeDisplayText('Adapter execution result');
 const AdapterExecutionStatus = decodeDisplayText('Adapter execution status');
 const AdapterExecutionRefs = decodeDisplayText('Adapter execution refs');
+const ExecuteCommand = decodeDisplayText('Execute command');
+const ExecuteStatus = decodeDisplayText('Execute status');
+const ExecuteResult = decodeDisplayText('Execute result');
+const ExecuteAudit = decodeDisplayText('Execute audit');
+const ExecuteReadback = decodeDisplayText('Execute readback');
 
 export type AppGameAdapterDispatchResultPanelDetail = {
   readonly label: DisplayText;
@@ -70,7 +77,8 @@ export type AppGameAdapterDispatchResultPanelIntent = {
 };
 
 export function createAppGameAdapterDispatchResultPanelIntent(
-  readModelResult: AgentAppGameAdapterDispatchResult | null
+  readModelResult: AgentAppGameAdapterDispatchResult | null,
+  executeResult: AgentAppGameAdapterDispatchExecute | null = null
 ): AppGameAdapterDispatchResultPanelIntent {
   const base = baseIntent();
 
@@ -80,6 +88,7 @@ export function createAppGameAdapterDispatchResultPanelIntent(
       loadState: Readable.Unavailable,
       summaryDetails: [
         detail(PortalDetails.Status, Readable.Unavailable),
+        ...executeSummary(executeResult),
         detail(PortalDetails.ProductClaim, ProductClaim),
       ],
       rows: [],
@@ -93,6 +102,7 @@ export function createAppGameAdapterDispatchResultPanelIntent(
       summaryDetails: [
         detail(PortalDetails.Status, Readable.Review),
         detail(PortalDetails.Reason, displayText(readModelResult.reason)),
+        ...executeSummary(executeResult),
         detail(PortalDetails.ProductClaim, ProductClaim),
       ],
       rows: [],
@@ -102,7 +112,7 @@ export function createAppGameAdapterDispatchResultPanelIntent(
   return {
     ...base,
     loadState: dispatchResultLoadState(readModelResult.value),
-    summaryDetails: readModelSummary(readModelResult.value),
+    summaryDetails: [...readModelSummary(readModelResult.value), ...executeSummary(executeResult)],
     rows: readModelResult.value.rows.map(dispatchResultRow),
   };
 }
@@ -135,6 +145,34 @@ function readModelSummary(
     detail(PortalDetails.PlatformState, claimedValue(readModel.platformEnforcementClaimed)),
     detail(PortalDetails.ChildDelivery, claimedValue(readModel.childDeviceDeliveryClaimed)),
     detail(PortalDetails.ProductClaim, ProductClaim),
+  ];
+}
+
+function executeSummary(
+  executeResult: AgentAppGameAdapterDispatchExecute | null
+): readonly AppGameAdapterDispatchResultPanelDetail[] {
+  if (executeResult === null) {
+    return [];
+  }
+  if (!executeResult.ok) {
+    return [detail(ExecuteStatus, Readable.Review), detail(PortalDetails.Reason, displayText(executeResult.reason))];
+  }
+  return executeResultSummary(executeResult.value);
+}
+
+function executeResultSummary(
+  executeResult: AgentAppGameAdapterDispatchExecuteResult
+): readonly AppGameAdapterDispatchResultPanelDetail[] {
+  return [
+    detail(ExecuteCommand, displayText(executeResult.commandId)),
+    detail(ExecuteStatus, displayText(executeResult.executionStatus)),
+    detail(ExecuteResult, displayText(executeResult.executionResultId)),
+    detail(AdapterExecutionStatus, displayText(executeResult.executionAdapterResultCode)),
+    detail(ExecuteAudit, displayText(executeResult.executionAuditEventId)),
+    detail(ExecuteReadback, displayText(executeResult.readbackCommandName)),
+    detail(PortalDetails.AdapterDispatch, claimedValue(executeResult.adapterDispatchExecutedClaimed)),
+    detail(PortalDetails.PlatformState, claimedValue(executeResult.platformEnforcementClaimed)),
+    detail(PortalDetails.ChildDelivery, claimedValue(executeResult.childDeviceDeliveryClaimed)),
   ];
 }
 
