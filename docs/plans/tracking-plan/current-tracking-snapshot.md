@@ -51,6 +51,14 @@
 - iOS simulator/manual-required proof exists for package-preview/simulator
   routing and privacy-disclosure release gates. It is not iOS Always/region or
   real-device proof.
+- iOS simulator artifact inventory proof now verifies the existing simulator
+  package routing artifacts, manual-required Core Location proof artifacts,
+  privacy disclosure release-gate artifacts, platform proof notes, and
+  validation logs as required local simulator evidence. Product-readiness
+  closure and real-runtime handoff now carry those iOS simulator
+  required/present/missing counts while keeping Core Location runtime,
+  background region delivery, physical-device, authority, provider, production,
+  and product-ready iOS tracking claims false.
 - Desktop presence proof exists only as hint-only LAN/IP/Wi-Fi state, not
   precise desktop location proof.
 - Rust ActivityStore and service read-model proof exists for local tracking
@@ -97,11 +105,11 @@
 - Product-readiness closure proof exists through
   `node scripts/test/tracking-product-readiness-closure-proof.mjs`; it verifies
   the local/CI proof accounting chain, now carries aggregate evidence for the
-  Android emulator artifact inventory, five observed full-product UI local
-  artifacts, one retention writable execution derivation row, two retention
-  runtime artifact requirements with one local artifact present and one
-  platform runtime enforcement artifact missing, ten child-runtime artifact
-  gaps, and the claim-audit blocker counts. The claim
+  Android emulator artifact inventory, iOS simulator artifact inventory, five
+  observed full-product UI local artifacts, one retention writable execution
+  derivation row, two retention runtime artifact requirements with one local
+  artifact present and one platform runtime enforcement artifact missing, ten
+  child-runtime artifact gaps, and the claim-audit blocker counts. The claim
   audit tier split is now machine-checked as six physical-device/runtime rows,
   one approved-manual desktop row, one manual provider-runtime row, and two
   production-runtime rows, all product-ready false.

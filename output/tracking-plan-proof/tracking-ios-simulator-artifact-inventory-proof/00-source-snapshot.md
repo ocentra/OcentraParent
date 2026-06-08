@@ -1,0 +1,22 @@
+# Tracking iOS Simulator Artifact Inventory Source Snapshot
+
+- generatedAt: 2026-06-08T11:00:00.000Z
+- commit: eeb68208baab8c656f8ed1afe77069f2e9bf948e
+- requiredProofTier: P4_PHYSICAL_DEVICE
+- currentProofTier: P3_LOCAL_DEV_MACHINE
+- status: ios-simulator-local-artifacts-present-physical-device-required
+- sourceIosSimulatorProofRef: test-results/tracking-plan-ios-simulator-proof/proof.json
+- requiredArtifactCount: 13
+- presentArtifactCount: 13
+- missingArtifactCount: 0
+- simulatorPackageArtifactCount: 4
+- locationManualRequiredArtifactCount: 3
+- privacyDisclosureArtifactCount: 2
+- platformProofArtifactCount: 2
+- validationLogArtifactCount: 2
+- iosManualRequiredRowCount: 7
+- iosMissingRuntimeArtifactCount: 9
+- does not prove iOS Core Location runtime, Always authorization, region delivery, physical-device behavior, authority enrollment, provider delivery, production runtime, or product readiness
+- proof module: packages/parent-domain/src/tracking-ios-simulator-artifact-inventory-proof.ts
+- proof tests: packages/parent-domain/tests/tracking-ios-simulator-artifact-inventory-proof.test.ts
+- proof harness: scripts/test/tracking-ios-simulator-artifact-inventory-proof.mjs

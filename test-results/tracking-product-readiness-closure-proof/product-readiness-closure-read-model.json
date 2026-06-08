@@ -11,6 +11,7 @@
       "output/tracking-plan-proof/wsl-local-replay/proof.json",
       "test-results/tracking-hosted-ui-artifact-inventory-proof/proof.json",
       "output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-gate/68-android-emulator-artifact-inventory-proof.json",
+      "output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-gate/69-ios-simulator-artifact-inventory-proof.json",
       "output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-gate/44-android-system-geofence-blocker-proof.json",
       "output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-gate/22-notification-receipt-boundary-proof.json",
       "output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-gate/24-notification-preference-preflight-proof.json",
