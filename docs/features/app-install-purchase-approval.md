@@ -595,9 +595,18 @@ generic app blocking covers this concern.
   records that runtime transport delivery execution proof under
   `test-results/app-install-purchase-runtime-transport-delivery-execution-proof/proof.json`
   when run, validates the public parent-domain package export, updates the
-  parent-domain README, and records the deferred product checklist row delta
-  while `docs/product-capability-checklist.md` remains locked outside this
-  lane.
+  parent-domain README, and updates the product checklist row/addendum.
+- `packages/parent-domain/src/app-install-purchase-external-runtime-writer-transport-execution-proof.ts`
+  consumes runtime transport delivery execution rows into parent-owned
+  external writer transport packet, execution-status, and ack refs that remain
+  blocked or manual-required until an external writer dispatch executor,
+  provider/store execution receipt, platform adapter execution receipt, and
+  child-device transport receipt proof refs are real.
+- `scripts/test/app-install-purchase-external-runtime-writer-transport-execution-proof.mjs`
+  records that external runtime writer transport execution proof under
+  `test-results/app-install-purchase-external-runtime-writer-transport-execution-proof/proof.json`
+  when run, validates the public parent-domain package export, updates the
+  parent-domain README, and updates the product checklist row/addendum.
 - `packages/parent-domain/src/app-install-purchase-provider-store-execution-preflight-proof.ts`
   links provider/store execution readiness rows and runtime writer execution
   delivery receipts into parent-owned provider/store execution preflight ready,
@@ -898,6 +907,15 @@ Ocentra-hosted family data custody.
       or delivery, provider/store execution, platform adapters, child-device
       delivery, runtime report delivery, app blocking, child activity data, or
       hosted family data custody.
+- [x] External runtime writer transport execution proof consuming runtime
+      transport delivery execution rows into parent-owned external writer
+      transport packet, execution-status, and ack refs that remain
+      blocked/manual until an external writer dispatch executor,
+      provider/store execution receipt, platform adapter execution receipt, and
+      child-device transport receipt proof refs are real, without claiming
+      external runtime writer execution/delivery, provider/store execution,
+      platform adapters, child-device delivery, runtime report delivery, app
+      blocking, child activity data, or hosted family data custody.
 - [x] Provider/store execution preflight proof linking provider/store execution
       readiness rows and runtime writer execution delivery receipts into
       parent-owned ready/manual/unavailable preflight rows without provider API
