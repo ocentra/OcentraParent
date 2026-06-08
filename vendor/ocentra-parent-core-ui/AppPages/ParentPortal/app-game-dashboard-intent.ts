@@ -33,6 +33,13 @@ export type ParentPortalAppGameDashboardRow = {
   readonly launcherCount: number;
   readonly dailyRollupCount: number;
   readonly evidenceCount: number;
+  readonly evidenceClaimRowCount: number;
+  readonly identityRowCount: number;
+  readonly approvalAuthorityRowCount: number;
+  readonly approvalActionResultRowCount: number;
+  readonly platformAuthorityRowCount: number;
+  readonly aiClassifierResultRowCount: number;
+  readonly boundaryRowCount: number;
   readonly unknownApproval: boolean;
   readonly riskCandidate: boolean;
   readonly manualRequired: boolean;
@@ -143,6 +150,19 @@ function dashboardRowFromRecord(
   const foregroundCount = numberValue(row['foregroundRowCount']);
   const launcherCount = config.launcherField ? numberValue(row[config.launcherField]) : 0;
   const evidenceCount = arrayCount(row['evidence']);
+  const evidenceClaimRowCount = numberValue(row['evidenceClaimRowCount']);
+  const identityRowCount = numberValue(row['identityRowCount']);
+  const approvalAuthorityRowCount = numberValue(row['approvalAuthorityRowCount']);
+  const approvalActionResultRowCount = numberValue(row['approvalActionResultRowCount']);
+  const platformAuthorityRowCount = numberValue(row['platformAuthorityRowCount']);
+  const aiClassifierResultRowCount = numberValue(row['aiClassifierResultRowCount']);
+  const boundaryRowCount =
+    evidenceClaimRowCount +
+    identityRowCount +
+    approvalAuthorityRowCount +
+    approvalActionResultRowCount +
+    platformAuthorityRowCount +
+    aiClassifierResultRowCount;
   const unknownApproval = appGameUnknownApproval(classificationState, inventoryState, runtimeState);
   const riskCandidate = appGameRiskCandidate(classificationState, productKind, stringValue(row[config.labelField]));
   const manualRequired = appGameManualRequired(capabilityStatus, inventoryState, runtimeState, foregroundState);
@@ -172,6 +192,13 @@ function dashboardRowFromRecord(
     launcherCount,
     dailyRollupCount: numberValue(row['dailyRollupCount']),
     evidenceCount,
+    evidenceClaimRowCount,
+    identityRowCount,
+    approvalAuthorityRowCount,
+    approvalActionResultRowCount,
+    platformAuthorityRowCount,
+    aiClassifierResultRowCount,
+    boundaryRowCount,
     unknownApproval,
     riskCandidate,
     manualRequired,
@@ -202,6 +229,8 @@ function appGameDashboardMetrics(
     { label: 'Foreground', value: String(sumRows(rows, (row) => row.foregroundCount)), tone: 'purple' },
     { label: 'Launcher', value: String(sumRows(rows, (row) => row.launcherCount)), tone: 'purple' },
     { label: 'Source rows', value: String(sumRows(sourceStatusRows, (row) => row.rowCount)), tone: 'cyan' },
+    { label: 'Boundary rows', value: String(sumRows(rows, (row) => row.boundaryRowCount)), tone: 'cyan' },
+    { label: 'AI classifier', value: String(sumRows(rows, (row) => row.aiClassifierResultRowCount)), tone: 'gold' },
     {
       label: 'Fresh sources',
       value: String(sourceStatusRows.filter(sourceStatusRowFresh).length),
@@ -274,6 +303,13 @@ function evidenceRows(
     value: `${row.rowCount} source rows; ${row.capabilityStatus}; ${row.lastObservedLabel}; ${row.evidenceCount} refs`,
     tone: row.tone,
   }));
+  const boundaryRows = rows
+    .filter((row) => row.boundaryRowCount > 0)
+    .map((row) => ({
+      label: `${row.label} boundary`,
+      value: boundaryRowValue(row),
+      tone: row.aiClassifierResultRowCount > 0 || row.approvalActionResultRowCount === 0 ? 'gold' : row.tone,
+    }));
   const serviceRows = rows
     .filter((row) => row.evidenceCount > 0 || row.lastObservedLabel !== 'not observed')
     .map((row) => ({
@@ -281,10 +317,20 @@ function evidenceRows(
       value: `${row.evidenceCount} refs; ${row.lastObservedLabel}`,
       tone: row.tone,
     }));
-  const visibleRows = [...sourceRows, ...serviceRows].slice(0, 6);
+  const visibleRows = [...sourceRows, ...boundaryRows, ...serviceRows].slice(0, 6);
   return visibleRows.length > 0
     ? visibleRows
     : [{ label: 'Evidence drawer', value: 'No evidence refs reported', tone: 'gold' }];
+}
+
+function boundaryRowValue(row: ParentPortalAppGameDashboardRow): string {
+  return [
+    `Evidence ${row.evidenceClaimRowCount}`,
+    `Identity ${row.identityRowCount}`,
+    `Approval ${row.approvalAuthorityRowCount}/${row.approvalActionResultRowCount}`,
+    `Platform ${row.platformAuthorityRowCount}`,
+    `AI ${row.aiClassifierResultRowCount}`,
+  ].join(' / ');
 }
 
 function rowTone(input: {

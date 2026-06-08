@@ -159,6 +159,7 @@ before `DONE` or PR-ready reporting.
 151. WP160 app/game evidence boundary safety gates.
 152. WP161 app/game enforcement platform no-claim safety gates.
 153. WP162 app/game policy readiness parent-surface detail rows.
+154. WP163 app/game dashboard boundary count visibility.
 
 ## Standard AI Worker Checklist
 

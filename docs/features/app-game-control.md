@@ -223,6 +223,11 @@ control with better evidence and local audit.
   action-result, platform authority, and AI classifier row counts, plus
   per-readiness-row ready/manual-required/missing reasons, while preserving
   `adapterDispatchClaimed=false`.
+- The main App/Game Sessions dashboard intent now also consumes those existing
+  service-backed boundary row counts from app-use/game rows, exposing aggregate
+  boundary and AI-classifier metrics plus parent-visible evidence-drawer
+  boundary summaries without changing renderer ownership or claiming policy
+  execution.
 - Parent-domain policy preview handoff contracts now map already-compiled
   app/game dry-run policy decisions into read-only preview rows, separating
   native app versus native game target meaning while keeping evaluator runtime,
@@ -811,8 +816,9 @@ diagnostics, or raw private source rows.
       maps compiled dry-run decisions into read-only native app/game preview
       rows, while the App/Game Sessions portal route renders those readiness
       rows with source row counts and explicit ready/manual-required/missing
-      reasons but no policy execution or adapter dispatch claim. Live evaluator,
-      authoring UI, persistence, timers, and enforcement remain. Rust protocol
+      reasons and the main dashboard exposes aggregate boundary/AI counts but
+      no policy execution or adapter dispatch claim. Live evaluator, authoring
+      UI, persistence, timers, and enforcement remain. Rust protocol
       parity now exists for approval authority/action-result, platform
       authority matrix, and classifier boundary shapes, and staged
       journal/SQLite projection plus service read-model evidence refs/counts

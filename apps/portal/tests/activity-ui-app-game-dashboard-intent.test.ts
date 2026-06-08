@@ -102,6 +102,7 @@ function expectPopulatedDashboard(dashboard: ActivityUiIntent['appGameDashboard'
   expect(metricPairs).toContainEqual(['Launcher', '1']);
   expect(metricPairs).toContainEqual(['Source rows', '6']);
   expect(metricPairs).toContainEqual(['Fresh sources', '4']);
+  expectBoundaryCountVisibility(dashboard, metricPairs);
   expect(dashboard.rows.map((row) => [row.label, row.inventoryCount, row.runningCount])).toContainEqual([
     'Study Timer',
     1,
@@ -145,6 +146,26 @@ function expectPopulatedDashboard(dashboard: ActivityUiIntent['appGameDashboard'
   expectMaliciousMetadataStaysTextOnly(dashboard);
 }
 
+function expectBoundaryCountVisibility(
+  dashboard: ActivityUiIntent['appGameDashboard'],
+  metricPairs: (string | number)[][]
+) {
+  expect(metricPairs).toContainEqual(['Boundary rows', '7']);
+  expect(metricPairs).toContainEqual(['AI classifier', '1']);
+  expect(
+    dashboard.rows.map((row) => [
+      row.label,
+      row.evidenceClaimRowCount,
+      row.identityRowCount,
+      row.approvalAuthorityRowCount,
+      row.approvalActionResultRowCount,
+      row.platformAuthorityRowCount,
+      row.aiClassifierResultRowCount,
+      row.boundaryRowCount,
+    ])
+  ).toContainEqual(['Study Timer', 1, 1, 1, 0, 1, 1, 5]);
+}
+
 function expectSourceStatusRows(dashboard: ActivityUiIntent['appGameDashboard']) {
   expect(
     dashboard.sourceStatusRows.map((row) => [row.parentLabel, row.sourceStatusKind, row.rowCount, row.evidenceCount])
@@ -155,6 +176,9 @@ function expectSourceStatusRows(dashboard: ActivityUiIntent['appGameDashboard'])
   ]);
   expect(dashboard.evidenceRows.map((row) => row.value).join(' ')).toContain('refs');
   expect(dashboard.evidenceRows.map((row) => row.value).join(' ')).toContain('source rows');
+  expect(dashboard.evidenceRows.map((row) => row.label)).toContain('Study Timer boundary');
+  expect(dashboard.evidenceRows.map((row) => row.value).join(' ')).toContain('Approval 1/0');
+  expect(dashboard.evidenceRows.map((row) => row.value).join(' ')).toContain('AI 1');
 }
 
 function expectSourcePanelSections(dashboard: ActivityUiIntent['appGameDashboard']) {
@@ -457,6 +481,12 @@ function studyTimerAppRow() {
     runningRowCount: 1,
     foregroundRowCount: 1,
     dailyRollupCount: 1,
+    evidenceClaimRowCount: 1,
+    identityRowCount: 1,
+    approvalAuthorityRowCount: 1,
+    approvalActionResultRowCount: 0,
+    platformAuthorityRowCount: 1,
+    aiClassifierResultRowCount: 1,
     evidence: [
       { evidenceId: 'app-ev-1', sourceId: 'journal', capturedAt: '2026-06-01T15:00:00Z' },
       { evidenceId: 'app-ev-2', sourceId: 'sqlite', capturedAt: '2026-06-01T15:00:00Z' },
@@ -485,6 +515,12 @@ function manualRequiredAppRow() {
     runningRowCount: 1,
     foregroundRowCount: 0,
     dailyRollupCount: 0,
+    evidenceClaimRowCount: 1,
+    identityRowCount: 1,
+    approvalAuthorityRowCount: 0,
+    approvalActionResultRowCount: 0,
+    platformAuthorityRowCount: 0,
+    aiClassifierResultRowCount: 0,
     evidence: [{ evidenceId: 'app-ev-3', sourceId: 'sqlite', capturedAt: '2026-06-01T14:58:00Z' }],
     sourceStatusRows: [manualRequiredSourceStatusRow()],
   } as const;
@@ -532,61 +568,59 @@ function gamesReadModel() {
     state: 'manual-required',
     generatedAt: '2026-06-01T15:00:01Z',
     summary: 'Games read model from service projection',
-    rows: [
-      {
-        rowId: 'game-row-launcher',
-        displayName: 'Steam Launcher',
-        deviceId: 'child-device-2',
-        state: 'manual-required',
-        productKind: 'launcher',
-        classificationState: 'known-launcher',
-        inventoryState: 'installed',
-        runtimeState: 'running',
-        foregroundState: 'not-foreground',
-        capabilityStatus: 'manual-required',
-        lastObservedAt: '2026-06-01T14:57:00Z',
-        totalMs: 600000,
-        sessionCount: 1,
-        launcherRowCount: 1,
-        runningRowCount: 1,
-        foregroundRowCount: 0,
-        dailyRollupCount: 1,
-        evidence: [{ evidenceId: 'game-ev-1', sourceId: 'journal', capturedAt: '2026-06-01T14:57:00Z' }],
-        sourceStatusRows: [
-          manualRequiredSourceStatusRow('launcherManifest', 'game-source-1', 'launcher', '2026-06-01T14:57:00Z'),
-        ],
-      },
-      {
-        rowId: 'game-row-candidate',
-        displayName: 'Voxel Quest Candidate',
-        deviceId: 'child-device-2',
-        state: 'manual-required',
-        productKind: 'native-game',
-        classificationState: 'possible-game',
-        inventoryState: 'detected',
-        runtimeState: 'running',
-        foregroundState: 'foreground',
-        capabilityStatus: 'permission-required',
-        executablePathRef: 'C:\\Program Files\\VoxelQuest\\VoxelQuest.exe',
-        lastObservedAt: '2026-06-01T14:56:00Z',
-        totalMs: 300000,
-        sessionCount: 1,
-        launcherRowCount: 0,
-        runningRowCount: 1,
-        foregroundRowCount: 1,
-        dailyRollupCount: 0,
-        evidence: [{ evidenceId: 'game-ev-2', sourceId: 'sqlite', capturedAt: '2026-06-01T14:56:00Z' }],
-        sourceStatusRows: [
-          sourceStatusRow(
-            'foregroundWindow',
-            'ready',
-            'available',
-            'game-source-2',
-            'foreground',
-            '2026-06-01T14:56:00Z'
-          ),
-        ],
-      },
+    rows: [gameLauncherRow(), gameCandidateRow()],
+  } as const;
+}
+
+function gameLauncherRow() {
+  return {
+    rowId: 'game-row-launcher',
+    displayName: 'Steam Launcher',
+    deviceId: 'child-device-2',
+    state: 'manual-required',
+    productKind: 'launcher',
+    classificationState: 'known-launcher',
+    inventoryState: 'installed',
+    runtimeState: 'running',
+    foregroundState: 'not-foreground',
+    capabilityStatus: 'manual-required',
+    lastObservedAt: '2026-06-01T14:57:00Z',
+    totalMs: 600000,
+    sessionCount: 1,
+    launcherRowCount: 1,
+    runningRowCount: 1,
+    foregroundRowCount: 0,
+    dailyRollupCount: 1,
+    evidence: [{ evidenceId: 'game-ev-1', sourceId: 'journal', capturedAt: '2026-06-01T14:57:00Z' }],
+    sourceStatusRows: [
+      manualRequiredSourceStatusRow('launcherManifest', 'game-source-1', 'launcher', '2026-06-01T14:57:00Z'),
+    ],
+  } as const;
+}
+
+function gameCandidateRow() {
+  return {
+    rowId: 'game-row-candidate',
+    displayName: 'Voxel Quest Candidate',
+    deviceId: 'child-device-2',
+    state: 'manual-required',
+    productKind: 'native-game',
+    classificationState: 'possible-game',
+    inventoryState: 'detected',
+    runtimeState: 'running',
+    foregroundState: 'foreground',
+    capabilityStatus: 'permission-required',
+    executablePathRef: 'C:\\Program Files\\VoxelQuest\\VoxelQuest.exe',
+    lastObservedAt: '2026-06-01T14:56:00Z',
+    totalMs: 300000,
+    sessionCount: 1,
+    launcherRowCount: 0,
+    runningRowCount: 1,
+    foregroundRowCount: 1,
+    dailyRollupCount: 0,
+    evidence: [{ evidenceId: 'game-ev-2', sourceId: 'sqlite', capturedAt: '2026-06-01T14:56:00Z' }],
+    sourceStatusRows: [
+      sourceStatusRow('foregroundWindow', 'ready', 'available', 'game-source-2', 'foreground', '2026-06-01T14:56:00Z'),
     ],
   } as const;
 }

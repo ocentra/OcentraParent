@@ -1,0 +1,70 @@
+{
+  "branch": "codex/app-game-control-product-completion",
+  "workpack": "WP163",
+  "scope": "app/game dashboard boundary count visibility",
+  "status": "done",
+  "parentSurface": [
+    "dashboard rows carry evidence claim row count",
+    "dashboard rows carry identity row count",
+    "dashboard rows carry approval authority row count",
+    "dashboard rows carry approval action result row count",
+    "dashboard rows carry platform authority row count",
+    "dashboard rows carry AI classifier row count",
+    "dashboard metrics expose aggregate boundary rows",
+    "dashboard metrics expose aggregate AI classifier rows",
+    "evidence drawer rows summarize boundary counts"
+  ],
+  "validation": [
+    {
+      "command": "cmd /c npm run test --workspace @ocentra-parent/portal -- --run tests/activity-ui-app-game-dashboard-intent.test.ts",
+      "status": "pass",
+      "note": "19 test files and 81 tests passed"
+    },
+    {
+      "command": "cmd /c npm run build --workspace @ocentra-parent/portal",
+      "status": "pass",
+      "note": "Vite emitted existing chunk-size warnings for large portal bundles."
+    },
+    {
+      "command": "cmd /c npx prettier --write apps/portal/tests/activity-ui-app-game-dashboard-intent.test.ts",
+      "status": "pass",
+      "note": "File was unchanged."
+    },
+    {
+      "command": "node scripts/check-source-shape.mjs",
+      "status": "pass",
+      "note": "Existing advisory warnings remain; the touched fixture warning was removed by splitting the game read-model rows."
+    },
+    {
+      "command": "git diff --check",
+      "status": "pass"
+    },
+    {
+      "command": "node scripts/check-no-test-doubles.mjs",
+      "status": "pass",
+      "note": "No test doubles found across 2185 checked source files."
+    },
+    {
+      "command": "cmd /c npm run lanes:guard",
+      "status": "pass",
+      "note": "lane-guard-ok for codex-c app-game-control-product-completion"
+    },
+    {
+      "command": "cmd /c npm run hub:guard",
+      "status": "pass",
+      "note": "hub-guard-ok for codex-c"
+    }
+  ],
+  "noClaims": [
+    "policy execution",
+    "policy persistence",
+    "provider delivery",
+    "adapter dispatch",
+    "broad blocking",
+    "platform enforcement",
+    "raw private source rows",
+    "raw target values",
+    "private diagnostics"
+  ],
+  "productCapabilityChecklist": "intentionally untouched while another lane owns the lock"
+}
