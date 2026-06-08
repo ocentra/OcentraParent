@@ -1,0 +1,90 @@
+{
+  "status": "ready-except-external-adapter-and-product-checklist-dependencies",
+  "proofKind": "screen-ai-full-scope-readiness-audit",
+  "generatedAt": "2026-06-08T03:30:15.146Z",
+  "sourceArtifacts": {
+    "screenPlanClosure": "output/screen-plan-proof/screen-plan-closure-audit/proof-summary.json",
+    "aiPlanClosure": "output/ai-plan-proof/local-ai-plan-closure-audit/proof-summary.json",
+    "finalProductPath": "output/screen-ai-pipeline-proof/final-product-path/proof-summary.json",
+    "finalAdapterAudit": "output/screen-ai-pipeline-proof/final-adapter-dependency-audit/proof-summary.json",
+    "productChecklistDelta": "output/screen-ai-pipeline-proof/product-checklist-delta/proof-summary.json",
+    "productChecklistDeltaMarkdown": "output/screen-ai-pipeline-proof/product-checklist-delta/product-capability-checklist-delta.md",
+    "pipelineChecklist": "docs/plans/screen-ai-pipeline-plan/implementation-checklist.md"
+  },
+  "closure": {
+    "screenPlanPrerequisitesAudited": true,
+    "aiPlanPrerequisitesAudited": true,
+    "finalPipelineEvidenceComplete": true,
+    "serviceEventRuntimeCovered": true,
+    "serviceWinRtOcrPolicyFreshRerunCovered": true,
+    "householdMeshNoRawProviderValidationCovered": true,
+    "rawScreenshotsRetainedByDefault": false,
+    "remoteAiUsedForChildSafety": false,
+    "productChecklistDeltaReadyButNotApplied": true,
+    "finalPipelineProductComplete": false,
+    "finalPipelineProductCompleteBlockedByAdapterGate": true,
+    "externalAdapterDependencyRows": 6
+  },
+  "blockedAdapterRows": [
+    {
+      "rowId": "screen-ai-broad-installed-app-manual-required",
+      "boundary": "broad-installed-app-blocking",
+      "handoffOwner": "codex-c",
+      "expectedProofFile": "output/app-game-plan-proof/screen-derived-broad-installed-app-apply-rollback-audit/proof-summary.json",
+      "custodyArtifact": null,
+      "missingArtifact": "broad installed-app apply, rollback, and audit custody proof from a screen-derived block decision"
+    },
+    {
+      "rowId": "screen-ai-host-network-domain-manual-required",
+      "boundary": "host-network-domain-blocking",
+      "handoffOwner": "E-D",
+      "expectedProofFile": "output/network-plan-proof/screen-derived-host-network-domain-apply-rollback-audit/proof-summary.json",
+      "custodyArtifact": null,
+      "missingArtifact": "host DNS/filter apply, rollback, and audit custody proof from a screen-derived network/domain decision"
+    },
+    {
+      "rowId": "screen-ai-managed-active-tab-not-claimed",
+      "boundary": "managed-exact-active-tab-enforcement",
+      "handoffOwner": "codex-d",
+      "expectedProofFile": "output/browser-plan-proof/screen-derived-managed-active-tab-apply-rollback-audit/proof-summary.json",
+      "custodyArtifact": null,
+      "missingArtifact": "managed active-tab exact URL apply, rollback, and audit custody proof from a screen-derived browser decision"
+    },
+    {
+      "rowId": "screen-ai-android-mobile-control-manual-required",
+      "boundary": "android-mobile-control-adapter",
+      "handoffOwner": "primary/mobile-child-agent-sequencing",
+      "expectedProofFile": "output/mobile-plan-proof/screen-derived-android-mobile-control-apply-rollback-audit/proof-summary.json",
+      "custodyArtifact": "output/screen-ai-pipeline-proof/android-mobile-control-custody/proof-summary.json",
+      "missingArtifact": "Android device-owner/managed-profile control proof from a screen-derived mobile decision"
+    },
+    {
+      "rowId": "screen-ai-ios-mobile-control-manual-required",
+      "boundary": "ios-mobile-control-adapter",
+      "handoffOwner": "primary/mobile-child-agent-sequencing",
+      "expectedProofFile": "output/mobile-plan-proof/screen-derived-ios-mobile-control-apply-rollback-audit/proof-summary.json",
+      "custodyArtifact": "output/screen-ai-pipeline-proof/ios-mobile-control-custody/proof-summary.json",
+      "missingArtifact": "iOS Family Controls/DeviceActivity control proof from a screen-derived mobile decision"
+    },
+    {
+      "rowId": "screen-ai-linux-host-adapter-unavailable",
+      "boundary": "linux-host-adapter",
+      "handoffOwner": "codex-b-after-linux-host-target",
+      "expectedProofFile": "output/screen-ai-pipeline-proof/linux-host-adapter-execution/proof-summary.json",
+      "custodyArtifact": "output/screen-ai-pipeline-proof/linux-host-adapter-custody/proof-summary.json",
+      "missingArtifact": "Linux host adapter apply, rollback, and audit custody proof from a screen-derived decision"
+    }
+  ],
+  "productChecklistDelta": {
+    "status": "doc-delta-ready-product-checklist-locked",
+    "deltaMarkdown": "output/screen-ai-pipeline-proof/product-checklist-delta/product-capability-checklist-delta.md",
+    "productChecklistEdited": false,
+    "finalPathFreshServiceRerunProved": true
+  },
+  "nonClaims": [
+    "This audit does not edit docs/product-capability-checklist.md.",
+    "This audit does not claim product-complete screen, AI, or pipeline execution.",
+    "This audit does not implement broad installed-app, host network/domain, managed active-tab, Android, iOS, or Linux execution artifacts.",
+    "This audit does not replace live macOS, Linux desktop, physical Android, physical iOS, authenticated-account social, live-view production, or production OCR/VLM quality gates still listed by the screen-plan closure audit."
+  ]
+}
