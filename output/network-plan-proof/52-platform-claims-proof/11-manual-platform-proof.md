@@ -18,7 +18,7 @@ Manual-required and unavailable labels:
 - Missing WFP administrator permission records manual follow-up label `windows-wfp.administrator-permission`.
 - Unavailable Linux TUN rows remain visible, do not authorize adapter apply, and record follow-up label `linux-adapter.permission` when permission proof is absent.
 - Non-ready platform rows cannot carry adapter authorization, so dry-run, research-only, manual-required, and unavailable states remain non-executable.
-- Local host probe observations are written to `local-platform-observations.json`: Windows read-only command output, Android SDK/emulator availability, WSL/Linux tool availability, and macOS/iOS CI/manual-unavailable boundaries.
+- Local host probe observations are written to `local-platform-observations.json`: Windows read-only command summaries, Android SDK/emulator availability, row40a named physical-target identity summaries, WSL/Linux tool availability, and macOS/iOS CI/manual-unavailable boundaries.
 
 Screenshots/logs:
 

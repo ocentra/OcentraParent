@@ -15,6 +15,7 @@
     "every ready claim names permission, entitlement, capability, or manual follow-up refs",
     "every platform claim names an audit ref",
     "local Windows, Android SDK, Linux WSL, and Apple CI-unavailable probe observations align with adapter status rows",
+    "named Android physical target identity is attached as read-only row40a proof context without VpnService execution",
     "manual-required and unavailable states remain reportable without live execution",
     "adapter authorization is accepted only on ready platform claim rows",
     "UI has no policy authority",
