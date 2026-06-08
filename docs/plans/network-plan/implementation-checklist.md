@@ -93,6 +93,18 @@ The proof pack must contain or explicitly mark N/A for each applicable item:
       metadata-only snapshot separation, manual-required/unavailable/degraded
       states, and no raw-PCAP/content/policy/adapter/host-filter/enforcement
       claim upgrades.
+- [x] `android-physical-target-proof`: read-only physical Android target
+      identity proof. E-D writes
+      `output/network-plan-proof/android-physical-target-proof/proof-summary.json`
+      and `test-results/network-android-physical-target-proof/proof.json` with
+      Rust acceptance/rejection tests and ADB observations for the named Galaxy
+      S9 target. The proof requires explicit ADB connect, `adb devices -l`, and
+      getprop evidence to match expected product/model/device/release/ABI refs,
+      rejects emulator-only or mismatched target substitutions, and keeps live
+      VpnService execution, packet capture, packet blocking, app correlation,
+      Device Owner authority, production Android support, exact content,
+      policy/adapter authority, host filtering, and enforcement commands
+      unclaimed.
 - [x] `04-analyzer-alert-proof.json`: Zeek-style summaries,
       Suricata/Snort-compatible alert fixtures, false-positive guards, and
       no-signature-only-enforcement proof. E-D full-network proof writes
@@ -822,6 +834,20 @@ manual-required/N/A file.
 | 52 | Platform claim manifest proof | [x] | E-D | `codex/eventing-network-runtime-implementation` | `output/network-plan-proof/52-platform-claims-proof/proof-summary.json`, `output/network-plan-proof/52-platform-claims-proof/11-manual-platform-proof.md`, `output/network-plan-proof/52-platform-claims-proof/12-validation-commands.log`, `test-results/network-platform-claims-proof/proof.json`, `platform_claim_manifest_names_fixture_platform_permission_and_device_refs`, `platform_claim_manifest_reports_unavailable_states_without_execution`, `platform_claim_manifest_records_missing_permission_artifacts_as_manual_followup`, `platform_claim_manifest_rejects_broad_or_live_platform_claims`, `platform_claim_manifest_rejects_proof_source_that_publishes_enforcement_command`, `platform_claim_manifest_rejects_non_ready_adapter_authorization` | Deterministic platform-claim manifest proof now composes Windows Firewall, Windows WFP, Android VpnService, Apple Network Extension macOS/iOS, and Linux nftables/eBPF/TUN proof gates into platform rows with fixture platform-scope refs, permission or entitlement refs, adapter capability refs, audit refs, unavailable-state accounting, and missing required artifacts captured as manual follow-ups. Generic platform support, live adapter execution, non-ready adapter authorization, UI policy authority, exact URL, page content, decrypted payload, and enforcement-command claims are rejected. This does not claim production platform support, live host adapter mutation, packet blocking, policy engine execution, or portal platform-state rendering. |
 
 | 53 | Action result state proof | [x] | E-D | `codex/network-action-result-state-proof` | `output/network-plan-proof/53-action-result-state-proof/proof-summary.json`, `test-results/network-action-result-state-proof/proof.json`, `action_result_accepts_blocked_state_from_policy_and_adapter_result_refs`, `action_result_accepts_process_termination_result_without_live_mutation_claims`, `action_result_dry_run_is_non_result_without_adapter_artifacts`, `action_result_routes_weak_policy_or_manual_adapter_state_to_manual_required`, `action_result_reports_unavailable_without_accepting_adapter_result`, `action_result_rejects_content_host_mutation_and_command_claims` | Deterministic action-result proof now records blocked, terminated, dry-run, manual-required, and unavailable result states from policy refs, apply-ready adapter proof refs, adapter result artifacts, and audit refs. Weak evidence, parent-review policy, invalid terminate targets, unavailable capabilities, exact URL/content claims, host mutation claims, and enforcement-command publication are rejected. This does not claim live host adapter mutation, process termination execution, platform command invocation, policy engine execution, broker/family-hub delivery, or production enforcement. |
+
+## Additional Platform Proof Notes
+
+- [x] Row 40a Android physical target identity proof: E-D
+      `codex/network-live-capture-execution-proof` writes
+      `output/network-plan-proof/android-physical-target-proof/proof-summary.json`
+      and `test-results/network-android-physical-target-proof/proof.json` with
+      focused Rust tests and read-only ADB proof for the named Galaxy S9 target.
+      It proves physical target identity only when ADB connect, `adb devices -l`,
+      and getprop evidence match expected product/model/device/release/ABI refs.
+      VpnService execution, packet capture, packet blocking, app package
+      correlation, Device Owner authority, production Android support, adapter
+      authority, host filtering, exact content, and enforcement commands remain
+      unclaimed.
 
 ## Worker Report Template
 

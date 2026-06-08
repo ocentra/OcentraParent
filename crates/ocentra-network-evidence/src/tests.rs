@@ -11,6 +11,7 @@ mod adapter_capability_status;
 mod adapter_capability_status_rejections;
 mod ai_audit;
 mod ai_detection;
+mod android_physical_target;
 mod android_vpn_service_gate;
 mod app_game_session;
 mod apple_network_extension_gate;

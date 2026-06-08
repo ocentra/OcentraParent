@@ -442,6 +442,16 @@ compete on control while staying clear about attribution confidence and privacy.
   cannot substitute for Npcap/libpcap capture. Raw artifact creation, raw PCAP
   without custody, exact content, policy, adapter, host-filter, and enforcement
   claims remain rejected.
+- E-D added an Android physical target identity proof in
+  `ocentra-network-evidence`: the named Galaxy S9 target must be reachable by
+  read-only ADB connect, `adb devices -l`, and getprop probes, and its serial,
+  product, model, device, Android release, ABI, command refs, and evidence refs
+  must match before physical-device identity is proved. Missing ADB,
+  disconnected targets, missing observations, and mismatches stay explicit. The
+  proof rejects emulator-only product support, live VpnService execution,
+  packet capture, packet blocking, app package correlation, Device Owner
+  authority, production Android support, exact URL/content, adapter authority,
+  host filtering, and enforcement-command claims.
 - E-D added fixture-backed visibility parsers for TLS ClientHello SNI, plain
   HTTP Host, QUIC limited-visibility detection, and DoH/DoT resolver-candidate
   detection. These parsers keep exact URL, visited domain, page content, and
@@ -651,6 +661,7 @@ Real OS/domain blocking adapter execution, broader DNS/VPN/proxy handling,
 attribution quality, production live capture driver support, live analyzer
 fixture proof, broker/family-hub transport, remote network runtime event-chain
 delivery, product remote acknowledgements, raw PCAP/live-capture retention,
+Device Owner or other Android authority-enrolled proof,
 production risk-budget service/UI wiring,
 production SLO validation,
 external audit/deployment execution, full support-material authoring, and
@@ -683,9 +694,10 @@ adds a platform-claim manifest that names exact Windows, Android, Apple
 macOS/iOS, and Linux nftables/eBPF/TUN OS/device/permission refs plus manual
 follow-ups for missing artifacts. Row52 also writes a local platform observation
 artifact for this Windows host: Windows Firewall is read-only observed, Windows
-WFP remains manual-required, Android SDK/physical-device/emulator visibility is
-recorded without execution, Linux WSL tool readiness is lab-ready, and macOS/iOS
-stay unavailable or CI/manual-device-required from Windows. Row53 now records
+WFP remains manual-required, Android SDK/emulator visibility is recorded without
+execution, the row40a Android physical target identity proof records the named
+Galaxy S9 as a read-only matching target, Linux WSL tool readiness is lab-ready,
+and macOS/iOS stay unavailable or CI/manual-device-required from Windows. Row53 now records
 block, terminate, dry-run, manual-required, and unavailable action-result states
 from policy refs and adapter proof artifacts without claiming live adapter
 execution or enforcement command publication.
@@ -759,6 +771,13 @@ UI rendering remain open.
       physical-device readiness from VpnService declaration, user consent,
       package identity, virtual-interface, traffic-observation, rollback, and
       audit refs, with Device Owner proof required only when claimed.
+      Row40a Android physical target identity proof now records the named
+      Galaxy S9 target through read-only ADB connect, `adb devices -l`, and
+      getprop probes, requiring expected product/model/device/release/ABI refs
+      to match before physical-device identity is proved. This does not claim
+      live VpnService filtering, packet capture, packet blocking, app package
+      correlation, production Android support, Device Owner authority, adapter
+      authority, or enforcement-command publication.
       Row41 Apple Network Extension proof gate now models entitlement/device
       readiness from developer team, entitlement approval, provisioning,
       signing, device/TestFlight, extension declaration/configuration, rollback,
@@ -908,6 +927,11 @@ UI rendering remain open.
       identity, virtual-interface, traffic-observation, rollback, and audit refs;
       Device Owner proof is required only when claimed, and live tunnel,
       filtering, packet block, or app/package correlation is not claimed.
+      Row40a separately proves the named physical Android target identity
+      through read-only ADB evidence and keeps VpnService execution, packet
+      capture, packet blocking, app package correlation, Device Owner authority,
+      production Android support, adapter authority, host filtering, and
+      enforcement-command publication unclaimed.
 - [x] Apple Network Extension adapter/proof gate.
       The Rust proof gate accepts entitlement/device readiness only with grade-A
       block policy, parent-rule refs, evidence refs, bundle/extension refs,

@@ -2,6 +2,7 @@ pub mod action_result;
 pub mod adapter_capability_status;
 pub mod ai_audit;
 pub mod ai_detection;
+pub mod android_physical_target;
 pub mod android_vpn_service_gate;
 pub mod app_game_session;
 pub mod apple_network_extension_gate;
@@ -74,6 +75,14 @@ pub use ai_detection::{
     NetworkAiDetectionFixtureCase, NetworkAiDetectionInputKind, NetworkAiDetectionLabel,
     NetworkAiDetectionPrecisionState, NetworkAiDetectionRecallState, NetworkAiDetectionResult,
     NetworkAiDetectionRiskLevel, NetworkAiDetectionUncertaintyCode,
+};
+pub use android_physical_target::{
+    prove_network_android_physical_target, NetworkAndroidPhysicalTargetBoundaryReason,
+    NetworkAndroidPhysicalTargetError, NetworkAndroidPhysicalTargetExpected,
+    NetworkAndroidPhysicalTargetField, NetworkAndroidPhysicalTargetInput,
+    NetworkAndroidPhysicalTargetMismatch, NetworkAndroidPhysicalTargetObserved,
+    NetworkAndroidPhysicalTargetProof, NetworkAndroidPhysicalTargetState,
+    NetworkAndroidPhysicalTargetUnsupportedClaims,
 };
 pub use android_vpn_service_gate::{
     plan_network_android_vpn_service_gate, NetworkAndroidVpnServiceCapabilityState,
