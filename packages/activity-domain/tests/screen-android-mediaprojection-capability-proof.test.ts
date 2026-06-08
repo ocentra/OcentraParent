@@ -25,20 +25,23 @@ describe('screen Android MediaProjection capability proof', () => {
   });
 
   it('allows physical Android readiness only with physical and deletion proof', () => {
-    const physical = screenAndroidMediaProjectionCapabilityProof(CheckedAt).rows[1];
-    const ready = ScreenAndroidMediaProjectionCapabilityRowSchema.parse({
-      ...physical,
-      captureState: 'ready',
-      proofState: 'physicalDeviceVerified',
+    const proof = screenAndroidMediaProjectionCapabilityProof(CheckedAt, {
       physicalDeviceProofRef: 'screen-android-physical-mediaprojection-proof',
       deletionProofRef: 'screen-android-physical-mediaprojection-deletion-proof',
-      productAndroidCaptureReady: true,
     });
+    const ready = proof.rows[1];
 
-    expect(ready.productAndroidCaptureReady).toBe(true);
-    expect(ready.requiresUserConsentPerSession).toBe(true);
-    expect(ready.requiresForegroundServiceType).toBe(true);
-    expect(ready.requiresStopCallbackOnUserStop).toBe(true);
+    expect(proof.productAndroidCaptureReady).toBe(false);
+    expect(ready?.mode).toBe('physicalDeviceMediaProjection');
+    expect(ready?.captureState).toBe('ready');
+    expect(ready?.proofState).toBe('physicalDeviceVerified');
+    expect(ready?.physicalDeviceProofRef).toBe('screen-android-physical-mediaprojection-proof');
+    expect(ready?.deletionProofRef).toBe('screen-android-physical-mediaprojection-deletion-proof');
+    expect(ready?.productAndroidCaptureReady).toBe(true);
+    expect(ready?.requiresUserConsentPerSession).toBe(true);
+    expect(ready?.requiresForegroundServiceType).toBe(true);
+    expect(ready?.requiresStopCallbackOnUserStop).toBe(true);
+    expect(proof.rows[2]?.captureState).toBe('manualRequired');
   });
 
   it('rejects silent background, raw upload, missing stop callback, and physical readiness overclaims', () => {

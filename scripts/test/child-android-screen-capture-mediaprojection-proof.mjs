@@ -7,6 +7,7 @@ const packageId = 'ca.ocentra.parent.agent';
 const proofExtra = 'ca.ocentra.parent.agent.START_SCREEN_CAPTURE_PROOF';
 const proofFile = 'files/screen-capture-mediaprojection-proof.json';
 const avdName = process.env.OCENTRA_ANDROID_AVD ?? 'Pixel_9_Pro_XL_API_35';
+const requestedSerial = process.env.OCENTRA_ANDROID_SERIAL ?? process.env.ANDROID_SERIAL ?? null;
 
 rmSync(outputDir, { recursive: true, force: true });
 mkdirSync(outputDir, { recursive: true });
@@ -21,12 +22,14 @@ if (device === null) {
   throw new Error('No Android device/emulator is online; Android MediaProjection proof cannot be claimed.');
 }
 waitForAndroidReady(device);
+ensureDeviceUnlocked(device);
 
 const deviceInfo = {
   serial: device,
   model: adb(['shell', 'getprop', 'ro.product.model']).stdout.trim(),
   api: adb(['shell', 'getprop', 'ro.build.version.sdk']).stdout.trim(),
   release: adb(['shell', 'getprop', 'ro.build.version.release']).stdout.trim(),
+  physicalDevice: !device.startsWith('emulator-'),
 };
 writeJson(join(outputDir, '00-device.json'), deviceInfo);
 
@@ -59,6 +62,7 @@ const summary = {
   height: proof.height ?? null,
   frameByteSize: proof.frameByteSize ?? null,
   rawTempDeleted: proof.rawTempDeleted === true,
+  physicalDevice: deviceInfo.physicalDevice,
   degradedIsCaptureProof: false,
   nonClaims: [
     'This is Android emulator/device MediaProjection proof only.',
@@ -144,6 +148,19 @@ function waitForAndroidReady(device) {
   throw new Error(`Android device/emulator did not become UI-ready for MediaProjection proof: ${device}`);
 }
 
+function ensureDeviceUnlocked(device) {
+  adb(['shell', 'input', 'keyevent', 'KEYCODE_WAKEUP'], { allowFailure: true });
+  adb(['shell', 'wm', 'dismiss-keyguard'], { allowFailure: true });
+  sleep(1000);
+  const dump = dumpUi();
+  writeFileSync(join(outputDir, '00-unlock-state-ui.xml'), dump);
+  if (/keyguard_pin_view|password_entry|Use biometrics or enter PIN|PIN unlock/i.test(dump)) {
+    throw new Error(
+      `Android physical proof target ${device} is locked behind keyguard/PIN; unlock the phone before rerunning physical MediaProjection proof.`
+    );
+  }
+}
+
 function firstOnlineDevice() {
   const result = adb(['devices'], { allowFailure: true });
   const lines = result.stdout.split(/\r?\n/).slice(1);
@@ -151,7 +168,15 @@ function firstOnlineDevice() {
     .map((line) => line.trim())
     .filter((line) => line.endsWith('\tdevice'))
     .map((line) => line.split(/\s+/)[0]);
-  return online[0] ?? null;
+  if (requestedSerial !== null) {
+    if (!online.includes(requestedSerial)) {
+      throw new Error(
+        `Requested Android serial ${requestedSerial} is not online; online devices are ${JSON.stringify(online)}.`
+      );
+    }
+    return requestedSerial;
+  }
+  return online.find((serial) => serial.startsWith('emulator-')) ?? online[0] ?? null;
 }
 
 function approveConsentDialog() {
@@ -332,7 +357,8 @@ function adb(args, options = {}) {
 }
 
 function spawnAdb(args) {
-  return spawnSync('adb', args, {
+  const serialArgs = requestedSerial === null ? [] : ['-s', requestedSerial];
+  return spawnSync('adb', [...serialArgs, ...args], {
     cwd: process.cwd(),
     encoding: 'utf8',
     shell: process.platform === 'win32',

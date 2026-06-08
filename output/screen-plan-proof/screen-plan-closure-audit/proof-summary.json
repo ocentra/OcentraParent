@@ -1,6 +1,6 @@
 {
   "proof": "screen-plan-closure-audit",
-  "generatedAt": "2026-06-08T15:54:09.074Z",
+  "generatedAt": "2026-06-08T16:25:58.429Z",
   "branchScope": "codex/screen-ai-full-scope-b",
   "checklist": {
     "path": "docs/plans/screen-plan/implementation-checklist.md",
@@ -272,6 +272,10 @@
     {
       "artifact": "output/screen-plan-proof/linux-wslg-external-gate-analysis/proof-summary.json",
       "present": true
+    },
+    {
+      "artifact": "output/screen-plan-proof/android-physical-external-gate-analysis/proof-summary.json",
+      "present": false
     },
     {
       "artifact": "output/screen-plan-proof/macos/proof-summary.json",

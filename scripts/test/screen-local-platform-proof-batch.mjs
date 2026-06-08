@@ -12,6 +12,7 @@ const artifacts = {
   windowsScopeMatrix: 'output/screen-plan-proof/real-capture/scope-matrix/proof-summary.json',
   androidMediaProjection: 'output/screen-plan-proof/android-mediaprojection/proof-summary.json',
   androidCapability: 'output/screen-plan-proof/android/proof-summary.json',
+  androidPhysicalExternalGate: 'output/screen-plan-proof/android-physical-external-gate-analysis/proof-summary.json',
   linuxWslg: 'output/screen-plan-proof/linux-wslg/proof-summary.json',
   linuxWslgExternalGate: 'output/screen-plan-proof/linux-wslg-external-gate-analysis/proof-summary.json',
   linuxCapability: 'output/screen-plan-proof/linux/proof-summary.json',
@@ -30,6 +31,9 @@ if (args.has('--run-local')) {
   if (args.has('--run-android')) {
     runAndroidProofs();
   }
+  if (args.has('--run-android-physical')) {
+    runAndroidPhysicalProofs();
+  }
   if (args.has('--run-linux')) {
     runLinuxProofs();
   }
@@ -39,6 +43,7 @@ const windowsActiveWindow = readJson(artifacts.windowsActiveWindow);
 const windowsScopeMatrix = readJson(artifacts.windowsScopeMatrix);
 const androidMediaProjection = readJson(artifacts.androidMediaProjection);
 const androidCapability = readJson(artifacts.androidCapability);
+const androidPhysicalExternalGate = readOptionalJson(artifacts.androidPhysicalExternalGate);
 const linuxWslg = readJson(artifacts.linuxWslg);
 const linuxWslgExternalGate = readJson(artifacts.linuxWslgExternalGate);
 const linuxCapability = readJson(artifacts.linuxCapability);
@@ -49,7 +54,13 @@ const rows = [
   windowsActiveWindowRow(windowsActiveWindow),
   windowsScopeMatrixRow(windowsScopeMatrix),
   androidEmulatorRow(androidMediaProjection, androidCapability, hostInventory),
-  androidPhysicalRow(androidMediaProjection, androidCapability, hostInventory),
+  androidPhysicalRow(
+    androidMediaProjection,
+    androidCapability,
+    androidPhysicalExternalGate,
+    externalGates,
+    hostInventory
+  ),
   ...linuxWslgRows(linuxWslg, linuxWslgExternalGate, linuxCapability, externalGates),
   linuxNativeWaylandRow(linuxCapability),
   appleExternalRow('macos-screencapturekit', 'macOS ScreenCaptureKit live permission and capture proof'),
@@ -157,25 +168,35 @@ function androidEmulatorRow(summary, capability, inventory) {
   };
 }
 
-function androidPhysicalRow(summary, capability, inventory) {
+function androidPhysicalRow(summary, capability, externalGateSummary, externalGateProof, inventory) {
   const serial = String(summary.deviceInfo?.serial ?? '');
   const physicalDevice = serial.length > 0 && !serial.startsWith('emulator-');
   const physicalDeviceOnline = inventory.android.onlinePhysicalSerials.length > 0;
+  const externalGateSatisfied =
+    externalGateSummary?.assertions?.androidExternalGateSatisfied === true &&
+    externalGateProof.gateResults?.some(
+      (gate) => gate.gateId === 'android-physical-mediaprojection-capture' && gate.status === 'satisfied'
+    ) === true;
   return {
     platformGate: 'android-mediaprojection-physical',
     status:
-      physicalDevice && physicalDeviceOnline && capability.gapStatus?.physicalAndroidDeviceProofExists === true
+      physicalDevice &&
+      physicalDeviceOnline &&
+      capability.gapStatus?.physicalAndroidDeviceProofExists === true &&
+      externalGateSatisfied
         ? 'proved'
         : 'external-required',
     artifact: artifacts.androidMediaProjection,
     capabilityArtifact: artifacts.androidCapability,
+    externalGateArtifact: artifacts.androidPhysicalExternalGate,
     capturedPixels: physicalDevice && physicalDeviceOnline && summary.captured === true,
     rawImageDeleted: physicalDevice && physicalDeviceOnline && summary.rawTempDeleted === true,
+    localVlmAnalyzedCapturedArtifact: externalGateSummary?.assertions?.localVlmAnalyzedRetainedArtifact === true,
     deviceSerial: serial || null,
     currentHostOnlinePhysicalSerials: inventory.android.onlinePhysicalSerials,
     productReadyContribution: 'required-for-android-physical-product-claim',
     reason: physicalDevice
-      ? 'Physical Android device proof still requires capability gate to record physical parity.'
+      ? 'Physical Android device proof still requires capability and external gate proof to record physical parity.'
       : 'Current proof is emulator-only or no physical Android is online; connect physical Android and rerun MediaProjection proof before product claim.',
   };
 }
@@ -262,6 +283,10 @@ function runWindowsProofs() {
 function runAndroidProofs() {
   runNode('scripts/test/child-android-screen-capture-mediaprojection-proof.mjs');
   runNode('scripts/test/screen-android-mediaprojection-capability-proof.mjs');
+}
+
+function runAndroidPhysicalProofs() {
+  runNode('scripts/test/screen-android-physical-external-gate-proof.mjs');
 }
 
 function runLinuxProofs() {
@@ -378,6 +403,11 @@ function readJson(path) {
   return JSON.parse(readFileSync(absolute, 'utf8'));
 }
 
+function readOptionalJson(path) {
+  const absolute = resolve(repoRoot, path);
+  return existsSync(absolute) ? JSON.parse(readFileSync(absolute, 'utf8')) : null;
+}
+
 function validationCommands() {
   return [
     'node --check scripts/test/screen-local-platform-proof-batch.mjs',
@@ -386,6 +416,7 @@ function validationCommands() {
     'node scripts/test/screen-local-platform-proof-batch.mjs',
     'node scripts/test/screen-local-platform-proof-batch.mjs --run-windows',
     'node scripts/test/screen-local-platform-proof-batch.mjs --run-android',
+    'OCENTRA_ANDROID_SERIAL=192.168.2.45:5555 node scripts/test/screen-local-platform-proof-batch.mjs --run-android-physical',
     'node scripts/test/screen-local-platform-proof-batch.mjs --run-linux',
     'node scripts/test/screen-local-platform-proof-batch.mjs --run-local',
     '',

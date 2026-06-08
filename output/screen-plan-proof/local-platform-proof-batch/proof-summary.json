@@ -1,11 +1,12 @@
 {
   "proof": "screen-local-platform-proof-batch",
-  "generatedAt": "2026-06-08T15:54:11.498Z",
+  "generatedAt": "2026-06-08T16:25:58.349Z",
   "sourceArtifacts": {
     "windowsActiveWindow": "output/screen-plan-proof/real-capture/manual-parent-test-active-window/proof-summary.json",
     "windowsScopeMatrix": "output/screen-plan-proof/real-capture/scope-matrix/proof-summary.json",
     "androidMediaProjection": "output/screen-plan-proof/android-mediaprojection/proof-summary.json",
     "androidCapability": "output/screen-plan-proof/android/proof-summary.json",
+    "androidPhysicalExternalGate": "output/screen-plan-proof/android-physical-external-gate-analysis/proof-summary.json",
     "linuxWslg": "output/screen-plan-proof/linux-wslg/proof-summary.json",
     "linuxWslgExternalGate": "output/screen-plan-proof/linux-wslg-external-gate-analysis/proof-summary.json",
     "linuxCapability": "output/screen-plan-proof/linux/proof-summary.json",
@@ -26,7 +27,7 @@
         "avdToolAvailable": true,
         "avdError": null,
         "avds": [
-          "OcentraParentDeviceOwnerProof",
+          "OcentraParentDeviceOwnerProofProbe",
           "Ocentra_Screen_ATD_API33"
         ],
         "devices": [
@@ -97,7 +98,7 @@
       "api": "33",
       "currentHostDeviceOnline": true,
       "currentHostAvds": [
-        "OcentraParentDeviceOwnerProof",
+        "OcentraParentDeviceOwnerProofProbe",
         "Ocentra_Screen_ATD_API33"
       ],
       "productReadyContribution": "android-emulator-proof-only"
@@ -107,8 +108,10 @@
       "status": "external-required",
       "artifact": "output/screen-plan-proof/android-mediaprojection/proof-summary.json",
       "capabilityArtifact": "output/screen-plan-proof/android/proof-summary.json",
+      "externalGateArtifact": "output/screen-plan-proof/android-physical-external-gate-analysis/proof-summary.json",
       "capturedPixels": false,
       "rawImageDeleted": false,
+      "localVlmAnalyzedCapturedArtifact": false,
       "deviceSerial": "emulator-5554",
       "currentHostOnlinePhysicalSerials": [
         "192.168.2.45:5555"

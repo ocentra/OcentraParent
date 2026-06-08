@@ -1,6 +1,6 @@
 # Screen AI Full Scope Readiness Audit
 
-Generated: 2026-06-08T15:54:09.136Z
+Generated: 2026-06-08T16:25:58.505Z
 
 ## Source Artifacts
 
@@ -14,6 +14,7 @@ Generated: 2026-06-08T15:54:09.136Z
 - finalAdapterAudit: `output/screen-ai-pipeline-proof/final-adapter-dependency-audit/proof-summary.json`
 - linuxHostExecution: `output/screen-ai-pipeline-proof/linux-host-adapter-execution/proof-summary.json`
 - linuxWslgExternalGate: `output/screen-plan-proof/linux-wslg-external-gate-analysis/proof-summary.json`
+- androidPhysicalExternalGate: `output/screen-plan-proof/android-physical-external-gate-analysis/proof-summary.json`
 - productChecklistDelta: `output/screen-ai-pipeline-proof/product-checklist-delta/proof-summary.json`
 - productChecklistDeltaMarkdown: `output/screen-ai-pipeline-proof/product-checklist-delta/product-capability-checklist-delta.md`
 - pipelineChecklist: `docs/plans/screen-ai-pipeline-plan/implementation-checklist.md`
@@ -48,12 +49,14 @@ Generated: 2026-06-08T15:54:09.136Z
   "productChecklistDeltaReadyButNotApplied": true,
   "linuxWsl2HostExecutionProved": true,
   "linuxWslgExternalGateProved": true,
+  "androidPhysicalExternalGateProved": false,
   "nativeLinuxDesktopProductReady": false,
   "finalPipelineProductComplete": false,
   "finalPipelineProductCompleteBlockedByAdapterGate": true,
   "adapterDependencyHandoffRequired": true,
   "adapterBlockerRowsMapped": 5,
   "adapterDependencyRowsMapped": 5,
+  "physicalAndroidExternalGateRequired": true,
   "externalAdapterDependencyRows": 5,
   "remainingAdapterDependencyOwnersStable": true,
   "remainingAdapterExpectedProofFilesStable": true,

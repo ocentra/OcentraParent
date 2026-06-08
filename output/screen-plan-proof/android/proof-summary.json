@@ -1,6 +1,6 @@
 {
   "proof": "screen-android-mediaprojection-capability-proof",
-  "generatedAt": "2026-06-08T14:42:13.394Z",
+  "generatedAt": "2026-06-08T16:25:54.396Z",
   "claim": "Android MediaProjection emulator proof exists, but physical-device parity and silent background capture remain blocked before product readiness.",
   "androidDocsVerified": [
     {

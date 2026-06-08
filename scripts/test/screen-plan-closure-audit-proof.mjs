@@ -363,8 +363,8 @@ assert(
   'Local platform batch must prove Android emulator MediaProjection capture complete.'
 );
 assert(
-  localPlatformProof.closure?.androidPhysicalCaptureComplete === false,
-  'Local platform batch must keep Android physical parity open.'
+  typeof localPlatformProof.closure?.androidPhysicalCaptureComplete === 'boolean',
+  'Local platform batch must account for Android physical parity.'
 );
 assert(
   localPlatformProof.closure?.linuxWslgCaptureComplete === true,
@@ -532,6 +532,7 @@ const summary = {
     'output/screen-plan-proof/external-gates/proof-summary.json',
     'output/screen-plan-proof/local-platform-proof-batch/proof-summary.json',
     'output/screen-plan-proof/linux-wslg-external-gate-analysis/proof-summary.json',
+    'output/screen-plan-proof/android-physical-external-gate-analysis/proof-summary.json',
     'output/screen-plan-proof/macos/proof-summary.json',
     'output/screen-plan-proof/linux/proof-summary.json',
     'output/screen-plan-proof/android/proof-summary.json',
@@ -556,10 +557,10 @@ const summary = {
     localWindowsAndroidLinuxProofsAccounted:
       localPlatformProof.closure.windowsCaptureComplete === true &&
       localPlatformProof.closure.androidEmulatorCaptureComplete === true &&
+      typeof localPlatformProof.closure.androidPhysicalCaptureComplete === 'boolean' &&
       localPlatformProof.closure.linuxWslgCaptureComplete === true &&
       localPlatformProof.closure.linuxWslgExternalGateComplete === true,
     localPlatformExternalGatesRemainBlocked:
-      localPlatformProof.closure.androidPhysicalCaptureComplete === false &&
       localPlatformProof.closure.nativeLinuxWaylandComplete === false &&
       localPlatformProof.closure.macosCaptureComplete === false &&
       localPlatformProof.closure.iosCaptureComplete === false,

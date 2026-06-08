@@ -19,6 +19,7 @@ const sourceArtifacts = {
   finalAdapterAudit: 'output/screen-ai-pipeline-proof/final-adapter-dependency-audit/proof-summary.json',
   linuxHostExecution: 'output/screen-ai-pipeline-proof/linux-host-adapter-execution/proof-summary.json',
   linuxWslgExternalGate: 'output/screen-plan-proof/linux-wslg-external-gate-analysis/proof-summary.json',
+  androidPhysicalExternalGate: 'output/screen-plan-proof/android-physical-external-gate-analysis/proof-summary.json',
   productChecklistDelta: 'output/screen-ai-pipeline-proof/product-checklist-delta/proof-summary.json',
   productChecklistDeltaMarkdown:
     'output/screen-ai-pipeline-proof/product-checklist-delta/product-capability-checklist-delta.md',
@@ -129,6 +130,7 @@ const liveOperatorEvidenceBundle = readJson(sourceArtifacts.liveOperatorEvidence
 const finalAdapterAudit = readJson(sourceArtifacts.finalAdapterAudit);
 const linuxHostExecution = readJson(sourceArtifacts.linuxHostExecution);
 const linuxWslgExternalGate = readJson(sourceArtifacts.linuxWslgExternalGate);
+const androidPhysicalExternalGate = readOptionalJson(sourceArtifacts.androidPhysicalExternalGate);
 const productChecklistDelta = readJson(sourceArtifacts.productChecklistDelta);
 const productChecklistDeltaMarkdown = readText(sourceArtifacts.productChecklistDeltaMarkdown);
 const pipelineChecklist = readText(sourceArtifacts.pipelineChecklist);
@@ -341,6 +343,10 @@ assert(
   linuxWslgExternalGate.assertions?.linuxExternalGateSatisfied === true,
   'Linux WSLg external gate proof is not satisfied'
 );
+assert(
+  androidPhysicalExternalGate === null || androidPhysicalExternalGate.assertions?.androidExternalGateSatisfied === true,
+  'Android physical external gate proof exists but is not satisfied'
+);
 
 assert(
   productChecklistDelta.status === 'doc-delta-ready-product-checklist-locked',
@@ -388,7 +394,10 @@ if (failures.length > 0) {
 }
 
 const proof = {
-  status: 'ready-except-external-adapter-and-product-checklist-dependencies',
+  status:
+    androidPhysicalExternalGate?.assertions?.androidExternalGateSatisfied === true
+      ? 'ready-except-external-adapter-and-product-checklist-dependencies'
+      : 'blocked-by-physical-android-external-gate-and-external-adapter-dependencies',
   proofKind: 'screen-ai-full-scope-readiness-audit',
   generatedAt: new Date().toISOString(),
   sourceArtifacts,
@@ -419,12 +428,14 @@ const proof = {
     productChecklistDeltaReadyButNotApplied: true,
     linuxWsl2HostExecutionProved: true,
     linuxWslgExternalGateProved: true,
+    androidPhysicalExternalGateProved: androidPhysicalExternalGate?.assertions?.androidExternalGateSatisfied === true,
     nativeLinuxDesktopProductReady: false,
     finalPipelineProductComplete: false,
     finalPipelineProductCompleteBlockedByAdapterGate: true,
     adapterDependencyHandoffRequired: true,
     adapterBlockerRowsMapped: adapterBlockerLedger.closure?.blockerRows,
     adapterDependencyRowsMapped: adapterDependencyHandoff.closure?.dependencyRowsMapped,
+    physicalAndroidExternalGateRequired: androidPhysicalExternalGate?.assertions?.androidExternalGateSatisfied !== true,
     externalAdapterDependencyRows: blockedAdapterRows.length,
     remainingAdapterDependencyOwnersStable: true,
     remainingAdapterExpectedProofFilesStable: true,
@@ -446,6 +457,7 @@ const proof = {
   nonClaims: [
     'This audit does not edit docs/product-capability-checklist.md.',
     'This audit does not claim product-complete screen, AI, or pipeline execution.',
+    'This audit does not fabricate physical Android external proof; when absent, the physical Android gate remains a blocker while other local proofs stay auditable.',
     'This audit does not implement broad installed-app, host network/domain, managed active-tab, Android, iOS, or native Linux desktop product-complete execution artifacts.',
     'This audit does not replace live macOS, native Linux Wayland/PipeWire/root-display, physical Android, physical iOS, authenticated-account social, live-view production, or production OCR/VLM quality gates still listed by the screen-plan closure audit.',
   ],
@@ -459,6 +471,11 @@ console.log(`screen-ai-full-scope-readiness-audit-ok:${relativePath(proofPath)}`
 
 function readJson(path) {
   return JSON.parse(readText(path));
+}
+
+function readOptionalJson(path) {
+  const absolute = resolve(repoRoot, path);
+  return existsSync(absolute) ? JSON.parse(readFileSync(absolute, 'utf8')) : null;
 }
 
 function readText(path) {

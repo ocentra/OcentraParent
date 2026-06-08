@@ -24,8 +24,23 @@ const screenAndroid = await import(
 );
 
 const generatedAt = new Date().toISOString();
-const proof = screenAndroid.screenAndroidMediaProjectionCapabilityProof(generatedAt);
 const emulatorProof = readJson(emulatorProofPath);
+const physicalProofExists =
+  emulatorProof.physicalDevice === true &&
+  typeof emulatorProof.deviceInfo?.serial === 'string' &&
+  !emulatorProof.deviceInfo.serial.startsWith('emulator-') &&
+  emulatorProof.consentApproved === true &&
+  emulatorProof.captured === true &&
+  emulatorProof.rawTempDeleted === true;
+const proof = screenAndroid.screenAndroidMediaProjectionCapabilityProof(
+  generatedAt,
+  physicalProofExists
+    ? {
+        physicalDeviceProofRef: 'output/screen-plan-proof/android-mediaprojection/proof-summary.json',
+        deletionProofRef: 'output/screen-plan-proof/android-mediaprojection/03-android-capture-proof.json',
+      }
+    : undefined
+);
 
 if (!emulatorProof.consentApproved || !emulatorProof.captured || !emulatorProof.rawTempDeleted) {
   throw new Error(`Existing Android MediaProjection proof is not strong enough: ${JSON.stringify(emulatorProof)}`);
@@ -97,7 +112,7 @@ const summary = {
     consentApproved: emulatorProof.consentApproved === true,
     captured: emulatorProof.captured === true,
     rawTempDeleted: emulatorProof.rawTempDeleted === true,
-    physicalDeviceParityClaimed: !String(emulatorProof.deviceInfo?.serial ?? '').startsWith('emulator-'),
+    physicalDeviceParityClaimed: physicalProofExists,
   },
   rows: proof.rows.map((row) => ({
     mode: row.mode,
@@ -121,7 +136,7 @@ const summary = {
     stopCallbackBehaviorDefined: proof.rows.every(
       (row) => row.mode === 'notClaimed' || row.requiresStopCallbackOnUserStop === true
     ),
-    physicalAndroidDeviceProofExists: false,
+    physicalAndroidDeviceProofExists: physicalProofExists,
     android14AppWindowPhysicalProofExists: false,
     silentBackgroundCaptureClaimed: false,
     productAndroidCaptureReady: proof.productAndroidCaptureReady,

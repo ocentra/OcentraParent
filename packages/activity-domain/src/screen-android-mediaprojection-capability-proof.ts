@@ -181,7 +181,19 @@ export function screenAndroidMediaProjectionCapabilityProofIsConsistent(
   return value.productAndroidCaptureReady === physicalRowsReady;
 }
 
-export function screenAndroidMediaProjectionCapabilityProof(generatedAt: string) {
+export type ScreenAndroidMediaProjectionPhysicalProofOptions = {
+  readonly physicalDeviceProofRef: string;
+  readonly deletionProofRef: string;
+};
+
+export function screenAndroidMediaProjectionCapabilityProof(
+  generatedAt: string,
+  physicalProof?: ScreenAndroidMediaProjectionPhysicalProofOptions
+) {
+  const physicalDeviceRow =
+    physicalProof === undefined
+      ? physicalManualRequiredRow(generatedAt, 'physicalDeviceMediaProjection')
+      : physicalVerifiedRow(generatedAt, physicalProof);
   return ScreenAndroidMediaProjectionCapabilityProofSchema.parse({
     schemaVersion: ScreenAndroidMediaProjectionCapabilitySchemaVersion,
     generatedAt,
@@ -191,7 +203,7 @@ export function screenAndroidMediaProjectionCapabilityProof(generatedAt: string)
     productAndroidCaptureReady: false,
     rows: [
       emulatorProofRow(generatedAt),
-      physicalManualRequiredRow(generatedAt, 'physicalDeviceMediaProjection'),
+      physicalDeviceRow,
       physicalManualRequiredRow(generatedAt, 'android14AppWindowSharing', { supportsAppWindowSelection: true }),
       notClaimedSilentBackgroundRow(generatedAt),
     ],
@@ -225,6 +237,20 @@ function physicalManualRequiredRow(
   return ScreenAndroidMediaProjectionCapabilityRowSchema.parse({
     ...baseRow(checkedAt, mode),
     ...overrides,
+  });
+}
+
+function physicalVerifiedRow(checkedAt: string, physicalProof: ScreenAndroidMediaProjectionPhysicalProofOptions) {
+  return ScreenAndroidMediaProjectionCapabilityRowSchema.parse({
+    ...baseRow(checkedAt, 'physicalDeviceMediaProjection'),
+    captureState: 'ready',
+    proofState: 'physicalDeviceVerified',
+    physicalDeviceProofRef: physicalProof.physicalDeviceProofRef,
+    deletionProofRef: physicalProof.deletionProofRef,
+    productAndroidCaptureReady: true,
+    reason: ScreenAndroidMediaProjectionReasonSchema.parse(
+      'Android physical-device MediaProjection proof captured pixels with explicit consent and raw temp deletion.'
+    ),
   });
 }
 
