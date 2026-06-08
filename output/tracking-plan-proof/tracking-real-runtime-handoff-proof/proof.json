@@ -3,7 +3,7 @@
   "proofMode": "tracking-real-runtime-handoff-proof",
   "generatedAt": "2026-06-08T01:05:00.000Z",
   "branch": "codex/tracking-plan-full-continuation-a",
-  "baseCommitAtGeneration": "dc29674c5e842065a642a154793249449dbd9dc9",
+  "baseCommitAtGeneration": "42c8b0e5f414af9c41c38a6fa0ba807ae9b5f77d",
   "requiredProofTier": "P4_REAL_RUNTIME_HANDOFF",
   "currentProofTier": "P3_LOCAL_DEV_MACHINE",
   "currentStatus": "manual_required",
@@ -319,9 +319,10 @@
           "tracking-retention/product-settings-writable-execution.json",
           "tracking-retention/platform-runtime-retention-enforcement.json"
         ],
-        "presentArtifacts": [],
+        "presentArtifacts": [
+          "tracking-retention/product-settings-writable-execution.json"
+        ],
         "missingArtifacts": [
-          "tracking-retention/product-settings-writable-execution.json",
           "tracking-retention/platform-runtime-retention-enforcement.json"
         ],
         "auditRefs": [
@@ -418,8 +419,8 @@
     "summary": {
       "handoffRowCount": 9,
       "requiredArtifactCount": 93,
-      "presentArtifactCount": 0,
-      "missingArtifactCount": 93,
+      "presentArtifactCount": 1,
+      "missingArtifactCount": 92,
       "manualRequiredRowCount": 9,
       "artifactSetPresentRowCount": 0,
       "productReadyRowCount": 0
@@ -717,9 +718,10 @@
         "tracking-retention/product-settings-writable-execution.json",
         "tracking-retention/platform-runtime-retention-enforcement.json"
       ],
-      "presentArtifacts": [],
+      "presentArtifacts": [
+        "tracking-retention/product-settings-writable-execution.json"
+      ],
       "missingArtifacts": [
-        "tracking-retention/product-settings-writable-execution.json",
         "tracking-retention/platform-runtime-retention-enforcement.json"
       ],
       "auditRefs": [
@@ -816,8 +818,8 @@
   "summary": {
     "handoffRowCount": 9,
     "requiredArtifactCount": 93,
-    "presentArtifactCount": 0,
-    "missingArtifactCount": 93,
+    "presentArtifactCount": 1,
+    "missingArtifactCount": 92,
     "manualRequiredRowCount": 9,
     "artifactSetPresentRowCount": 0,
     "productReadyRowCount": 0

@@ -20,9 +20,10 @@
         "tracking-retention/product-settings-writable-execution.json",
         "tracking-retention/platform-runtime-retention-enforcement.json"
       ],
-      "presentArtifacts": [],
+      "presentArtifacts": [
+        "tracking-retention/product-settings-writable-execution.json"
+      ],
       "missingArtifacts": [
-        "tracking-retention/product-settings-writable-execution.json",
         "tracking-retention/platform-runtime-retention-enforcement.json"
       ],
       "auditRefs": [
