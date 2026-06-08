@@ -39,7 +39,10 @@ Proof root: `output/tracking-plan-proof/02-current-tracking-snapshot-and-gap-map
 
 ## Where We Are
 
-This workpack is planning-only until its implementation branch produces the proof root below. Existing source docs describe the intended capability, but runtime/product-complete behavior is not claimed yet.
+This workpack now has current snapshot and gap-map proof from
+`codex/tracking-plan-full-continuation-a` under the proof root below. The proof
+checks source docs, the refreshed current snapshot, and product-readiness
+closure blockers while keeping runtime/product-complete behavior unclaimed.
 
 ## Where We Want To Be
 
@@ -66,9 +69,20 @@ This workpack can be assigned independently, implemented against the owning doma
 
 ## Fill This Before Reporting DONE Or PR-ready
 
-- [ ] Workpack id and branch.
-- [ ] Touched files.
-- [ ] Validation commands and results.
-- [ ] Proof artifacts under `output/tracking-plan-proof/02-current-tracking-snapshot-and-gap-map/`.
-- [ ] Product doc/checklist updates or reason none were needed.
-- [ ] Known gaps/manual-required states.
+- [x] Workpack id and branch:
+      `codex/tracking-plan-full-continuation-a`.
+- [x] Touched files: current snapshot, source index, implementation checklist,
+      WP01/WP02 docs, source reconciliation proof script, generated WP01/WP02 proof
+      roots, and product-checklist delta queue.
+- [x] Validation commands and results:
+      `node scripts/test/tracking-source-reconciliation-gap-map-proof.mjs` passed
+      after regenerating the product-readiness closure proof.
+- [x] Proof artifacts under
+      `output/tracking-plan-proof/02-current-tracking-snapshot-and-gap-map/`.
+- [x] Product doc/checklist updates: current snapshot, source index,
+      implementation checklist, and owning feature doc/checklist delta queue; the
+      shared capability checklist file was not edited by this lane.
+- [x] Known gaps/manual-required states: Android/iOS physical-device proof,
+      actual child-device runtime, full product parent/child UI, authority,
+      provider delivery/receipt runtime, retention product runtime, production
+      workers, and product-ready tracking remain proof-gated.

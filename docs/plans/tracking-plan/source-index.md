@@ -87,9 +87,14 @@ and root-gate only when the workpack is PR-ready:
 
 ## Current Test Files
 
-No runtime tracking test suite exists yet. The intended starting point is the
-folder shape in `v0-5-location-test-blueprint.md`, with proof artifacts under
-`output/tracking-plan-proof/<workpack-id>/`.
+Focused tracking proof scripts now exist under `scripts/test/` and write
+evidence under `output/tracking-plan-proof/<workpack-id>/` plus
+`test-results/<proof-mode>/`. The source/gap-map reconciliation gate is
+`node scripts/test/tracking-source-reconciliation-gap-map-proof.mjs`; the
+product-readiness closure gate is
+`node scripts/test/tracking-product-readiness-closure-proof.mjs`. Runtime,
+platform, hosted UI, provider, authority, production, and manual-required proof
+scripts stay scoped to their owning workpacks and proof tiers.
 
 ## Source Truth Rule
 
@@ -146,7 +151,10 @@ claims. Planning inputs include:
 ## Claim Boundary
 
 This folder does not replace source docs. It turns them into implementation and
-proof workpacks.
+proof workpacks. WP01/WP02 source and gap-map proof must continue to cite the
+current feature doc, expectation docs, product checklist row, tracking settings
+inventory, current snapshot, pasted-content audit, and product-readiness closure
+proof instead of inventing another status ledger.
 
 Do not:
 

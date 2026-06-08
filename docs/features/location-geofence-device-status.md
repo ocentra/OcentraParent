@@ -279,6 +279,13 @@ expose location or device-status features. Parents expect this category.
   physical background, actual child-device runtime, full product parent/child
   UI, authority, provider delivery/receipt, production workers, and
   product-ready tracking unclaimed.
+- WP01/WP02 source reconciliation and current gap-map proof now exists through
+  `node scripts/test/tracking-source-reconciliation-gap-map-proof.mjs`. It
+  verifies the source index, current tracking snapshot, source docs, product
+  checklist row, implementation checklist, pasted-content audit, and
+  product-readiness closure blockers stay aligned while keeping
+  physical-device, authority, provider delivery/receipt, production, and
+  product-ready tracking claims false.
 - WP31/WP33 authority-runtime readiness blocker proof now exists through
   `node scripts/test/tracking-authority-runtime-readiness-blocker-proof.mjs`.
   It consumes the existing authority-enrollment manual-required proof rows,

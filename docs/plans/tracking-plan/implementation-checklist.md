@@ -31,6 +31,13 @@ Every checked item must cite one or more proof artifacts.
 
 ## Main Execution Gates
 
+- [x] Source index and current gap map are reconciled against the current
+      tracking docs and product-readiness closure blockers. Source/gap proof:
+      `output/tracking-plan-proof/01-source-index-and-repo-reconciliation/proof.json`;
+      `output/tracking-plan-proof/02-current-tracking-snapshot-and-gap-map/proof.json`;
+      `test-results/tracking-source-reconciliation-gap-map-proof/proof.json`.
+      This updates source truth and blocker accounting only; product-ready
+      tracking remains false until the real-runtime blockers are satisfied.
 - [x] No precise location is inferred from LAN/IP/pairing. Contract proof:
       `output/tracking-plan-proof/13-desktop-location-and-presence-hint-model/`.
 - [x] Every location sample has source, timestamp, accuracy/hint quality,

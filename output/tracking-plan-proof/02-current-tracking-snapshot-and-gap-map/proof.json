@@ -1,0 +1,171 @@
+{
+  "schemaVersion": 1,
+  "proofMode": "tracking-source-reconciliation-gap-map-proof",
+  "generatedAt": "2026-06-08T00:35:00.000Z",
+  "branch": "codex/tracking-plan-full-continuation-a",
+  "baseCommitAtGeneration": "2cc95de3decb29bda3619000066ecbf9755acc4c",
+  "requiredProofTier": "P1_DOC_SOURCE_RECONCILIATION",
+  "currentProofTier": "P1_DOC_SOURCE_RECONCILIATION",
+  "currentStatus": "proved",
+  "sourceDocs": [
+    {
+      "path": "docs/features/location-geofence-device-status.md",
+      "exists": true,
+      "sha256": "40d223157da3b55557f0528a8bed67693e11c694fbcaec9f79eb66a1a054da6c",
+      "lineCount": 1125
+    },
+    {
+      "path": "docs/expectations/location-geofence.md",
+      "exists": true,
+      "sha256": "5c127e6dec9efc5c3ab0bc5f0b6bd357b530ac7088018f41cb72ed79a4354e9a",
+      "lineCount": 69
+    },
+    {
+      "path": "docs/tracking-control-settings-inventory.md",
+      "exists": true,
+      "sha256": "a36a0b7c40d8d61a5a66afaf015f9d0e9f17b6e849d3ca0eb0d70fffc781a028",
+      "lineCount": 4117
+    },
+    {
+      "path": "docs/device-location-tracking-capability-guide.md",
+      "exists": true,
+      "sha256": "99186d7f9aa65e147f5d586419abe0c209b7d106985dc1b05b200dbd1ed87d6d",
+      "lineCount": 780
+    },
+    {
+      "path": "docs/device-location-tracking-schema-proposal.md",
+      "exists": true,
+      "sha256": "80454333a3ffb117d21d802268bbb433470b8f8288035d2c4ea7665f0f4316e7",
+      "lineCount": 1251
+    },
+    {
+      "path": "docs/plans/tracking-plan/source-index.md",
+      "exists": true,
+      "sha256": "94a440454d353a3062e29f746eaebb527be178640a07cc90b9956c66db8fcae7",
+      "lineCount": 168
+    },
+    {
+      "path": "docs/plans/tracking-plan/current-tracking-snapshot.md",
+      "exists": true,
+      "sha256": "642ae807a3e7b29f80ea9cf23e92048d28cd6f77a91d6427ba67ebc6f82b1d9f",
+      "lineCount": 195
+    },
+    {
+      "path": "docs/plans/tracking-plan/pasted-content-coverage-audit.md",
+      "exists": true,
+      "sha256": "f4c1f7248af56d67f520caeec7c40f2c90eb45893b9d27db2770c1511edb0a4d",
+      "lineCount": 108
+    },
+    {
+      "path": "docs/plans/tracking-plan/implementation-checklist.md",
+      "exists": true,
+      "sha256": "2d281a9e594b5f1f2b1dcaedd81dd3305b653670a01149cb33197010769e3cb3",
+      "lineCount": 1024
+    }
+  ],
+  "sourceIndexAssertions": [
+    {
+      "phrase": "Source Truth Rule",
+      "present": true
+    },
+    {
+      "phrase": "Pasted Draft Coverage",
+      "present": true
+    },
+    {
+      "phrase": "does not replace source docs",
+      "present": true
+    },
+    {
+      "phrase": "make notification providers a child-location data store",
+      "present": true
+    }
+  ],
+  "currentSnapshotAssertions": [
+    {
+      "phrase": "Snapshot Date",
+      "present": true
+    },
+    {
+      "phrase": "Local/CI Proof Now Exists",
+      "present": true
+    },
+    {
+      "phrase": "Runtime/Product Claims Still Missing",
+      "present": true
+    },
+    {
+      "phrase": "Remaining Product-Claim Blockers",
+      "present": true
+    },
+    {
+      "phrase": "product-ready tracking remains false",
+      "present": true
+    }
+  ],
+  "closureCoverageTags": [
+    "pre-device-gate",
+    "android-emulator-proof",
+    "ios-simulator-proof",
+    "ios-privacy-disclosure-release-gate",
+    "wsl-local-replay",
+    "hosted-ui-artifact-inventory",
+    "android-system-geofence-blocker",
+    "notification-receipt-boundary",
+    "notification-preference-preflight",
+    "notification-preference-status-handoff",
+    "notification-local-outbox-readiness",
+    "authority-enrollment-manual-required",
+    "authority-runtime-readiness-blocker",
+    "authority-runtime-artifact-gate",
+    "child-runtime-artifact-gate",
+    "physical-device-artifact-gate",
+    "provider-delivery-artifact-gate",
+    "provider-runtime-readiness-blocker",
+    "escalation-runtime-readiness-blocker",
+    "escalation-runtime-artifact-gate",
+    "child-runtime-product-readiness-blocker",
+    "full-product-ui-readiness-blocker",
+    "full-product-ui-runtime-artifact-gate",
+    "production-durable-workers-readiness-blocker",
+    "production-worker-runtime-artifact-gate",
+    "retention-product-readiness-blocker",
+    "retention-runtime-artifact-gate"
+  ],
+  "remainingProductBlockers": [
+    "android-physical-background-proof-required",
+    "ios-physical-region-proof-required",
+    "retention-writable-product-settings-required",
+    "retention-platform-runtime-enforcement-required",
+    "actual-child-device-runtime-required",
+    "full-product-parent-child-ui-required",
+    "authority-enrollment-proof-required",
+    "provider-delivery-receipt-runtime-required",
+    "production-durable-workers-required"
+  ],
+  "productClaims": {
+    "localCiProofAccountingReady": true,
+    "physicalAndroidBackgroundClaimed": false,
+    "physicalIosBackgroundClaimed": false,
+    "childDeviceRuntimeClaimed": false,
+    "fullProductUiClaimed": false,
+    "authorityClaimed": false,
+    "providerDeliveryReceiptClaimed": false,
+    "productionWorkersClaimed": false,
+    "productReadyClaimed": false
+  },
+  "nonClaims": {
+    "planningDocsAreRuntimeProof": false,
+    "physicalDeviceClaimed": false,
+    "authorityEnrollmentClaimed": false,
+    "providerDeliveryClaimed": false,
+    "productionRuntimeClaimed": false,
+    "productReadyClaimed": false
+  },
+  "proofPaths": {
+    "wp01": "output/tracking-plan-proof/01-source-index-and-repo-reconciliation/proof.json",
+    "wp02": "output/tracking-plan-proof/02-current-tracking-snapshot-and-gap-map/proof.json",
+    "evidence": "test-results/tracking-source-reconciliation-gap-map-proof/proof.json",
+    "closure": "test-results/tracking-product-readiness-closure-proof/proof.json"
+  }
+}
