@@ -1602,6 +1602,16 @@ diagnostics, or raw private source rows.
       and without claiming broad installed-app blocking, non-scoped platform
       enforcement, provider delivery, child-device delivery, raw private rows,
       raw targets, or private diagnostics.
+      The App/Game Sessions route now mounts that adapter dispatch surface as
+      parent-visible route cards with side-effect-free preflight/result refresh
+      controls and a separate explicit manual execute button that is shown only
+      when the scoped Windows owned-process app/game timer row is accepted for
+      command handoff. The button sends
+      `agent.activity.app-game.adapter-dispatch.execute` and selects the
+      `agent.activity.app-game.adapter-dispatch.executed` result event while
+      keeping overview polling, broad installed-app blocking, non-scoped
+      platform enforcement, provider delivery, child-device delivery, raw
+      private rows, raw targets, and private diagnostics unclaimed.
 - [ ] Blocking/time-limit proof before done claim. Scoped owned-process
       time-limit proof exists; broad block-launch/hide/suspend/shield and
       allowlist remain manual-required or not-claimed until platform setup,

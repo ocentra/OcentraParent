@@ -1,4 +1,10 @@
 import {
+  AgentCommand,
+  AgentEvent,
+  type AgentCommandName,
+  type AgentEventName,
+} from '@ocentra-parent/agent-protocol-domain/contracts';
+import {
   AgentAppGameAdapterDispatchAdapterExecutionDecision,
   AgentAppGameAdapterDispatchAdapterExecutionState,
   AgentAppGameAdapterDispatchCommandResultDecision,
@@ -65,6 +71,12 @@ export type AppGameAdapterDispatchResultPanelRow = {
   readonly details: readonly AppGameAdapterDispatchResultPanelDetail[];
 };
 
+export type AppGameAdapterDispatchResultPanelExecuteAction = {
+  readonly label: DisplayText;
+  readonly command: AgentCommandName;
+  readonly resultEvent: AgentEventName;
+};
+
 export type AppGameAdapterDispatchResultPanelIntent = {
   readonly eyebrow: DisplayText;
   readonly title: DisplayText;
@@ -72,6 +84,7 @@ export type AppGameAdapterDispatchResultPanelIntent = {
   readonly loadState: DisplayText;
   readonly summaryDetails: readonly AppGameAdapterDispatchResultPanelDetail[];
   readonly rows: readonly AppGameAdapterDispatchResultPanelRow[];
+  readonly executeAction: AppGameAdapterDispatchResultPanelExecuteAction | null;
   readonly emptyMessage: DisplayText;
   readonly productClaim: DisplayText;
 };
@@ -114,6 +127,7 @@ export function createAppGameAdapterDispatchResultPanelIntent(
     loadState: dispatchResultLoadState(readModelResult.value),
     summaryDetails: [...readModelSummary(readModelResult.value), ...executeSummary(executeResult)],
     rows: readModelResult.value.rows.map(dispatchResultRow),
+    executeAction: dispatchExecuteAction(readModelResult.value),
   };
 }
 
@@ -124,6 +138,24 @@ function baseIntent() {
     body: decodeDisplayText('Service-backed command-result handoff for scoped app/game adapter dispatch.'),
     emptyMessage: decodeDisplayText('No app/game adapter dispatch result read model has been reported yet.'),
     productClaim: ProductClaim,
+    executeAction: null,
+  };
+}
+
+function dispatchExecuteAction(
+  readModel: AgentAppGameAdapterDispatchResultReadModel
+): AppGameAdapterDispatchResultPanelExecuteAction | null {
+  if (
+    !readModel.rows.some(
+      (row) => row.dispatchCommandResultDecision === AgentAppGameAdapterDispatchCommandResultDecision.CommandAccepted
+    )
+  ) {
+    return null;
+  }
+  return {
+    label: decodeDisplayText('Execute scoped adapter dispatch'),
+    command: AgentCommand.ActivityAppGameAdapterDispatchExecute,
+    resultEvent: AgentEvent.ActivityAppGameAdapterDispatchExecuted,
   };
 }
 

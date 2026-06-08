@@ -21,6 +21,10 @@ import { openPortalFrameTunerWindow } from './portal-dev-tool-window';
 import type { PortalRenderActions } from './portal-actions';
 import type { PortalRuntimeState } from './portal-state';
 import {
+  AppGameAdapterDispatchRoutePanel,
+  shouldRenderAppGameAdapterDispatchRoute,
+} from './AppGameAdapterDispatchRoutePanel';
+import {
   AppGameNotificationParentSurfaceRoutePanel,
   shouldRenderAppGameNotificationParentSurfaceRoute,
 } from './AppGameNotificationParentSurfaceRoutePanel';
@@ -124,6 +128,15 @@ export function ParentPortalRoute({
           actions={actions}
           commandEnabled={state.socket?.readyState === WebSocket.OPEN}
           readModelResult={activityState.appGamePolicyReadinessReadModel}
+        />
+      ) : null}
+      {shouldRenderAppGameAdapterDispatchRoute(route) ? (
+        <AppGameAdapterDispatchRoutePanel
+          actions={actions}
+          commandEnabled={state.socket?.readyState === WebSocket.OPEN}
+          executeResult={activityState.appGameAdapterDispatchExecutedResult}
+          preflightResult={activityState.appGameAdapterDispatchPreflightReadModel}
+          resultReadModel={activityState.appGameAdapterDispatchResultReadModel}
         />
       ) : null}
       {shouldRenderAppGameTimerParentSurfaceRoute(route) ? (

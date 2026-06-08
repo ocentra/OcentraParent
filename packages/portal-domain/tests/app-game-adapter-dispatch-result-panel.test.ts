@@ -1,4 +1,5 @@
 import { AppGameSchemaVersion } from '@ocentra-parent/activity-domain/app-game';
+import { AgentCommand, AgentEvent } from '@ocentra-parent/agent-protocol-domain/contracts';
 import {
   AgentAppGameAdapterDispatchAdapterExecutionDecision,
   AgentAppGameAdapterDispatchAdapterExecutionState,
@@ -165,37 +166,9 @@ describe('app-game adapter dispatch result panel', () => {
     });
 
     expect(intent.loadState).toBe('Review');
-    expect(intent.summaryDetails.map((detail) => [detail.label, detail.value])).toContainEqual([
-      'Adapter dispatch',
-      'Ready',
-    ]);
-    expect(intent.summaryDetails.map((detail) => [detail.label, detail.value])).toContainEqual([
-      'Execution state',
-      'Ready',
-    ]);
-    expect(intent.rows[0]?.details.map((detail) => [detail.label, detail.value])).toEqual(
-      expect.arrayContaining([
-        ['Dispatch command', 'agent.enforcement.execute'],
-        ['Dispatch event', 'agent.enforcement.audit.reported'],
-        ['Dispatch action', 'terminate-process'],
-        ['Execution audit', 'Ready'],
-        ['Execution audit refs', 'audit-owned-process-dispatch-service-local-execution-recorded'],
-        ['Adapter execution', 'Adapter execution reported'],
-        ['Adapter execution result', 'enforcement-result-app-game-owned-process'],
-        ['Adapter execution status', 'actually-enforced'],
-        ['Execution state', 'Ready'],
-      ])
-    );
-    expect(intent.rows[1]?.details.map((detail) => [detail.label, detail.value])).toEqual(
-      expect.arrayContaining([
-        ['Dispatch command', 'Not reported'],
-        ['Dispatch event', 'Not reported'],
-        ['Manual review', 'same app identity proof'],
-        ['Adapter dispatch', 'Not claimed'],
-        ['Execution audit', 'Not claimed'],
-        ['Adapter execution', 'Blocked before adapter execution'],
-      ])
-    );
+    expectScopedDispatchSummary(intent.summaryDetails);
+    expectAcceptedScopedDispatchRow(intent.rows[0]);
+    expectBlockedBroadDispatchRow(intent.rows[1]);
   });
 
   it('renders latest manual execute result without platform or child-delivery claim upgrades', () => {
@@ -224,4 +197,75 @@ describe('app-game adapter dispatch result panel', () => {
       ])
     );
   });
+
+  it('exposes the manual execute action only when the scoped command row is accepted', () => {
+    const acceptedIntent = createAppGameAdapterDispatchResultPanelIntent({
+      ok: true,
+      value: ReadModel,
+    });
+    const blockedIntent = createAppGameAdapterDispatchResultPanelIntent({
+      ok: true,
+      value: {
+        ...ReadModel,
+        commandAcceptedCount: 0,
+        blockedBeforeCommandCount: 1,
+        executionAuditRecordedCount: 0,
+        blockedBeforeExecutionAuditCount: 1,
+        adapterExecutionReportedCount: 0,
+        blockedBeforeAdapterExecutionCount: 1,
+        adapterDispatchCommandResultClaimedCount: 0,
+        serviceLocalExecutionAuditClaimedCount: 0,
+        adapterDispatchExecutedClaimedCount: 0,
+        rows: [ReadModel.rows[1]],
+        returned: 1,
+      },
+    });
+
+    expect(acceptedIntent.executeAction).toEqual({
+      label: 'Execute scoped adapter dispatch',
+      command: AgentCommand.ActivityAppGameAdapterDispatchExecute,
+      resultEvent: AgentEvent.ActivityAppGameAdapterDispatchExecuted,
+    });
+    expect(blockedIntent.executeAction).toBeNull();
+  });
 });
+
+function expectScopedDispatchSummary(
+  details: ReturnType<typeof createAppGameAdapterDispatchResultPanelIntent>['summaryDetails']
+) {
+  expect(details.map((detail) => [detail.label, detail.value])).toContainEqual(['Adapter dispatch', 'Ready']);
+  expect(details.map((detail) => [detail.label, detail.value])).toContainEqual(['Execution state', 'Ready']);
+}
+
+function expectAcceptedScopedDispatchRow(
+  row: ReturnType<typeof createAppGameAdapterDispatchResultPanelIntent>['rows'][number] | undefined
+) {
+  expect(row?.details.map((detail) => [detail.label, detail.value])).toEqual(
+    expect.arrayContaining([
+      ['Dispatch command', 'agent.enforcement.execute'],
+      ['Dispatch event', 'agent.enforcement.audit.reported'],
+      ['Dispatch action', 'terminate-process'],
+      ['Execution audit', 'Ready'],
+      ['Execution audit refs', 'audit-owned-process-dispatch-service-local-execution-recorded'],
+      ['Adapter execution', 'Adapter execution reported'],
+      ['Adapter execution result', 'enforcement-result-app-game-owned-process'],
+      ['Adapter execution status', 'actually-enforced'],
+      ['Execution state', 'Ready'],
+    ])
+  );
+}
+
+function expectBlockedBroadDispatchRow(
+  row: ReturnType<typeof createAppGameAdapterDispatchResultPanelIntent>['rows'][number] | undefined
+) {
+  expect(row?.details.map((detail) => [detail.label, detail.value])).toEqual(
+    expect.arrayContaining([
+      ['Dispatch command', 'Not reported'],
+      ['Dispatch event', 'Not reported'],
+      ['Manual review', 'same app identity proof'],
+      ['Adapter dispatch', 'Not claimed'],
+      ['Execution audit', 'Not claimed'],
+      ['Adapter execution', 'Blocked before adapter execution'],
+    ])
+  );
+}

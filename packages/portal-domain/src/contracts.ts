@@ -26,10 +26,17 @@ export {
 } from './app-game-adapter-execution-readiness-panel';
 export {
   createAppGameAdapterDispatchResultPanelIntent,
+  type AppGameAdapterDispatchResultPanelExecuteAction,
   type AppGameAdapterDispatchResultPanelDetail,
   type AppGameAdapterDispatchResultPanelIntent,
   type AppGameAdapterDispatchResultPanelRow,
 } from './app-game-adapter-dispatch-result-panel';
+export {
+  createAppGameAdapterDispatchPreflightPanelIntent,
+  type AppGameAdapterDispatchPreflightPanelDetail,
+  type AppGameAdapterDispatchPreflightPanelIntent,
+  type AppGameAdapterDispatchPreflightPanelRow,
+} from './app-game-adapter-dispatch-preflight-panel';
 export { createAppGameNotificationParentSurfaceReadModelFromReadiness } from './app-game-notification-parent-surface-live-readiness';
 export {
   PortalFrameChromeNumberFields,

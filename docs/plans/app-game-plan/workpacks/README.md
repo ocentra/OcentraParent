@@ -171,6 +171,7 @@ before `DONE` or PR-ready reporting.
 163. WP172 app/game scoped adapter execution store readback.
 164. WP173 app/game scoped adapter dispatch execute command.
 165. WP174 app/game scoped adapter dispatch executed parent surface.
+166. WP175 app/game scoped adapter dispatch parent action surface.
 
 ## Standard AI Worker Checklist
 

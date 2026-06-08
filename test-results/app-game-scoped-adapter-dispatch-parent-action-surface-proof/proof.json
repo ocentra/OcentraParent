@@ -1,0 +1,50 @@
+{
+  "schemaVersion": 1,
+  "proofMode": "app-game-scoped-adapter-dispatch-parent-action-surface-proof",
+  "checkedAt": "2026-06-08T13:30:21.912Z",
+  "commit": "7ef7f660ad7efc8e6388b5a0d07eea6742de6fad",
+  "commands": [
+    "cmd /c npm run build:contracts",
+    "cmd /c npm run test --workspace @ocentra-parent/portal-domain -- app-game-adapter-dispatch-result-panel",
+    "cmd /c npm run test --workspace @ocentra-parent/portal -- app-game-adapter-dispatch-route-panel",
+    "cmd /c npm run build --workspace @ocentra-parent/portal"
+  ],
+  "sourceCommand": "agent.activity.app-game.adapter-dispatch.execute",
+  "sourceEvent": "agent.activity.app-game.adapter-dispatch.executed",
+  "sideEffectFreeCommands": [
+    "agent.activity.app-game.adapter-dispatch-preflight.read-model.get",
+    "agent.activity.app-game.adapter-dispatch-result.read-model.get"
+  ],
+  "evidence": {
+    "routePanel": "apps/portal/src/AppGameAdapterDispatchRoutePanel.tsx",
+    "routeMount": "apps/portal/src/ParentPortalRoute.tsx",
+    "routePanelTest": "apps/portal/tests/app-game-adapter-dispatch-route-panel.test.tsx",
+    "portalPanelIntent": "packages/portal-domain/src/app-game-adapter-dispatch-result-panel.ts",
+    "portalPanelIntentTest": "packages/portal-domain/tests/app-game-adapter-dispatch-result-panel.test.ts"
+  },
+  "summary": {
+    "appGameSessionsRouteMounted": true,
+    "executeButtonRequiresAcceptedScopedRow": true,
+    "executeButtonSendsTypedCommand": true,
+    "executeButtonSelectsExecutedEvent": true,
+    "overviewAutoExecute": false,
+    "broadInstalledAppBlockingClaimed": false,
+    "childDeviceDeliveryClaimed": false,
+    "platformEnforcementClaimed": false,
+    "providerDeliveryClaimed": false,
+    "privateDiagnosticsClaimed": false
+  },
+  "claimsProved": [
+    "the App/Game Sessions product route mounts the adapter dispatch parent surface",
+    "side-effect-free preflight and result read models remain refresh commands",
+    "manual execute is exposed only when the scoped Windows owned-process app/game timer row is accepted",
+    "manual execute sends agent.activity.app-game.adapter-dispatch.execute and selects the executed event"
+  ],
+  "claimsNotProved": [
+    "broad installed-app blocking execution",
+    "platform enforcement outside the scoped Windows owned-process boundary",
+    "provider delivery or provider receipt ingestion",
+    "child-device runtime delivery",
+    "private diagnostics or raw target/source row exposure"
+  ]
+}

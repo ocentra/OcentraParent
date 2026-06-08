@@ -34,6 +34,11 @@ contracts.
   enforcement, raw target values, or private diagnostics.
 - App/game policy readiness route intents that render service-backed readiness
   summaries and rows without policy execution or adapter dispatch claims.
+- App/game adapter dispatch result route intent values and execute-action
+  metadata for the single scoped Windows owned-process app/game timer row,
+  without turning read-model refreshes into execution and without claiming broad
+  blocking, non-scoped platform enforcement, provider delivery, child delivery,
+  raw targets, or private diagnostics.
 - Social dashboard panel intents that adapt parent-domain social dashboard
   snapshots into portal rows, or render an unavailable zero-row state when no
   service-backed social snapshot exists.
@@ -87,6 +92,10 @@ flowchart LR
   provider-delivery manual-required attempt status, or provider adapter and
   credential/manual-proof requirements as actual provider delivery or platform
   enforcement.
+- Keep app/game adapter dispatch execute actions scoped to the accepted Windows
+  owned-process app/game timer row; read-model refreshes must stay
+  side-effect-free and broad/platform/provider/child delivery claims must stay
+  false until separate service proof exists.
 - Keep social dashboard rows unavailable until a real service-backed social
   snapshot path exists; do not promote connector/native/final-policy/enforcement
   claims from portal-only rendering.
