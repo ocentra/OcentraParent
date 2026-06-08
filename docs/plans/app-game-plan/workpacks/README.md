@@ -130,6 +130,7 @@ before `DONE` or PR-ready reporting.
 122. WP131 app/game timer parent-surface child UX parent preference setup draft.
 123. WP132 app/game timer parent-surface child UX parent preference setup read-only surface.
 124. WP133 app/game timer parent-surface child UX parent preference setup service records.
+125. WP134 app/game timer parent-surface child UX parent preference setup request boundary.
 
 ## Standard AI Worker Checklist
 

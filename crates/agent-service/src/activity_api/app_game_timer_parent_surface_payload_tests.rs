@@ -38,12 +38,14 @@ use ocentra_parent_agent_protocol::{
 };
 
 use super::app_game_timer_parent_surface_payload::{
-    app_game_timer_parent_surface_from_service_model, app_game_timer_parent_surface_payload,
+    app_game_timer_parent_surface_from_service_model_with_timer_state,
+    app_game_timer_parent_surface_payload,
 };
 
 #[test]
 fn app_game_timer_parent_surface_payload_reports_game_rows_without_runtime_claims() {
-    let read_model = app_game_timer_parent_surface_from_service_model(service_model());
+    let read_model =
+        app_game_timer_parent_surface_from_service_model_with_timer_state(service_model(), None);
     let payload = app_game_timer_parent_surface_payload(&read_model);
     let read_model_json =
         match payload.get(constants::field::APP_GAME_TIMER_PARENT_SURFACE_READ_MODEL) {

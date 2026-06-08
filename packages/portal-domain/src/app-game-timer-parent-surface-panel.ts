@@ -58,6 +58,9 @@ const TimerParentSurfaceDetails = {
   ParentPreferenceSetupDraftRefs: decodeDisplayText('Parent preference setup draft refs'),
   ParentPreferenceSetupDraftStatus: decodeDisplayText('Parent preference setup draft status'),
   ParentPreferenceSetupMutation: decodeDisplayText('Parent preference setup mutation'),
+  ParentPreferenceSetupRequestRefs: decodeDisplayText('Parent preference setup request refs'),
+  ParentPreferenceSetupRequestStatus: decodeDisplayText('Parent preference setup request status'),
+  ParentPreferenceSetupRequestUnavailable: decodeDisplayText('Parent preference setup request unavailable'),
   ParentPreferenceSetupRuleMutation: decodeDisplayText('Notification rule mutation'),
   ParentPreferenceSetupUi: decodeDisplayText('Parent preference setup UI'),
   ChildUxHandoffBlocked: decodeDisplayText('Child UX handoff blocked'),
@@ -281,6 +284,18 @@ function parentSurfaceIntentDetails(
         readModel.childUxParentSurfaceIntentRecords.flatMap((record) => record.manualProofReferenceIds)
       )
     ),
+    detail(
+      TimerParentSurfaceDetails.ParentPreferenceSetupRequestStatus,
+      countText(readModel.childUxParentPreferenceSetupRequestReadyCount)
+    ),
+    detail(
+      TimerParentSurfaceDetails.ParentPreferenceSetupRequestUnavailable,
+      countText(readModel.childUxParentPreferenceSetupRequestUnavailableVisibleCount)
+    ),
+    detail(
+      TimerParentSurfaceDetails.ParentPreferenceSetupRequestRefs,
+      joinedOrNotReported(readModel.childUxParentPreferenceSetupRequestReferenceIds)
+    ),
   ];
 }
 
@@ -362,6 +377,14 @@ function parentPreferenceSetupRow(
         displayText(record.parentPreferenceSetupReferenceId)
       ),
       detail(
+        TimerParentSurfaceDetails.ParentPreferenceSetupRequestStatus,
+        parentPreferenceSetupRequestReadableValue(record.parentPreferenceSetupRequestStatus)
+      ),
+      detail(
+        TimerParentSurfaceDetails.ParentPreferenceSetupRequestRefs,
+        joinedOrNotReported(record.parentPreferenceSetupRequestReferenceIds)
+      ),
+      detail(
         TimerParentSurfaceDetails.ChildUxParentSurfaceIntentRefs,
         displayText(record.sourceParentSurfaceIntentReferenceId)
       ),
@@ -378,7 +401,10 @@ function parentPreferenceSetupRow(
         TimerParentSurfaceDetails.ChildUxParentSurfaceIntentManualProofRefs,
         joinedOrNotReported(record.manualProofReferenceIds)
       ),
-      detail(TimerParentSurfaceDetails.ParentPreferenceSetupUi, Readable.NotClaimed),
+      detail(
+        TimerParentSurfaceDetails.ParentPreferenceSetupUi,
+        parentPreferenceSetupRequestUiReadableValue(record.parentPreferenceSetupRequestStatus)
+      ),
       detail(TimerParentSurfaceDetails.ParentPreferenceSetupMutation, Readable.NotClaimed),
       detail(TimerParentSurfaceDetails.ParentPreferenceSetupRuleMutation, Readable.NotClaimed),
       detail(PortalDetails.AdapterDispatch, claimedValue(record.adapterDispatchClaimed)),
@@ -387,6 +413,20 @@ function parentPreferenceSetupRow(
       detail(PortalDetails.ProductClaim, productClaim),
     ],
   };
+}
+
+function parentPreferenceSetupRequestReadableValue(status: string): DisplayText {
+  if (status === 'request-ready') {
+    return Readable.Ready;
+  }
+  return Readable.Unavailable;
+}
+
+function parentPreferenceSetupRequestUiReadableValue(status: string): DisplayText {
+  if (status === 'request-ready') {
+    return Readable.Ready;
+  }
+  return Readable.NotClaimed;
 }
 
 function parentPreferenceSetupDraftReadableValue(

@@ -1260,7 +1260,15 @@ diagnostics, or raw private source rows.
       event, and the timer parent-surface service now emits dedicated setup
       records so portal cards consume service read-model records directly
       instead of deriving them from parent-surface intent rows, still without
-      claiming preference controls or mutation.
+      claiming preference controls or mutation. The timer parent-surface read
+      model now also carries parent preference setup request-ready/unavailable
+      status and parent-safe request refs for those service records, and the
+      `agent.activity.app-game.timer-parent-surface.parent-preference-setup.request`
+      command/event returns an accepted command-boundary result for parent-safe
+      setup refs. The App/Game Sessions portal marks request-ready setup records
+      as UI-ready while preference mutation, notification rule writes, provider
+      delivery, durable outbox storage, adapter dispatch, platform enforcement,
+      raw private rows, and raw targets remain unclaimed.
 - [ ] Adapter capability status per platform. Cross-platform authority and
       broad-blocking gate contracts now record manual-required, unavailable,
       and not-claimed proof requirements. Platform-extension routing now maps

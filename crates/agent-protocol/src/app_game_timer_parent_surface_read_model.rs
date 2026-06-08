@@ -79,6 +79,8 @@ pub struct AppGameTimerParentSurfaceChildUxParentPreferenceSetupRecord {
     pub source_artifact_reference_id: String,
     pub target_domain: String,
     pub draft_status: String,
+    pub parent_preference_setup_request_status: String,
+    pub parent_preference_setup_request_reference_ids: Vec<String>,
     pub drill_in_reference_ids: Vec<String>,
     pub manual_proof_reference_ids: Vec<String>,
     pub parent_preference_ui_rendered: bool,
@@ -129,6 +131,9 @@ pub struct AppGameTimerParentSurfaceReadModel {
     pub child_ux_parent_preference_setup_draft_ready_count: u64,
     pub child_ux_parent_preference_setup_unavailable_visible_count: u64,
     pub child_ux_parent_preference_setup_reference_ids: Vec<String>,
+    pub child_ux_parent_preference_setup_request_ready_count: u64,
+    pub child_ux_parent_preference_setup_request_unavailable_visible_count: u64,
+    pub child_ux_parent_preference_setup_request_reference_ids: Vec<String>,
     pub child_ux_parent_preference_setup_records:
         Vec<AppGameTimerParentSurfaceChildUxParentPreferenceSetupRecord>,
     pub timer_runtime_claimed: bool,

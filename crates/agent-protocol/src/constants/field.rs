@@ -13,6 +13,8 @@ pub const APP_GAME_POLICY_READINESS_READ_MODEL: &str = "appGamePolicyReadinessRe
 pub const APP_GAME_NOTIFICATION_READINESS_READ_MODEL: &str =
     "appGameNotificationReadinessReadModel";
 pub const APP_GAME_TIMER_PARENT_SURFACE_READ_MODEL: &str = "appGameTimerParentSurfaceReadModel";
+pub const APP_GAME_TIMER_PARENT_PREFERENCE_SETUP_REQUEST: &str =
+    "appGameTimerParentPreferenceSetupRequest";
 pub const BROWSER_SOCIAL_DASHBOARD_READ_MODEL: &str = "browserSocialDashboardReadModel";
 pub const BROWSER_SOCIAL_AUDIT_EXPLANATION_READ_MODEL: &str =
     "browserSocialAuditExplanationReadModel";

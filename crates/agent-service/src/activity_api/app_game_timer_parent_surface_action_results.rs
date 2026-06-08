@@ -32,6 +32,9 @@ pub(crate) struct TimerParentSurfaceControlActionResults {
     pub(crate) child_ux_parent_preference_setup_draft_ready_count: u64,
     pub(crate) child_ux_parent_preference_setup_unavailable_visible_count: u64,
     pub(crate) child_ux_parent_preference_setup_reference_ids: Vec<String>,
+    pub(crate) child_ux_parent_preference_setup_request_ready_count: u64,
+    pub(crate) child_ux_parent_preference_setup_request_unavailable_visible_count: u64,
+    pub(crate) child_ux_parent_preference_setup_request_reference_ids: Vec<String>,
     pub(crate) child_ux_parent_preference_setup_records:
         Vec<AppGameTimerParentSurfaceChildUxParentPreferenceSetupRecord>,
 }
@@ -100,6 +103,11 @@ pub(crate) fn timer_parent_surface_control_action_results(
         child_ux_parent_preference_setup_draft_ready_count:
             child_ux_parent_preference_setup_reference_ids.len() as u64,
         child_ux_parent_preference_setup_unavailable_visible_count: 0,
+        child_ux_parent_preference_setup_request_ready_count:
+            child_ux_parent_preference_setup_reference_ids.len() as u64,
+        child_ux_parent_preference_setup_request_unavailable_visible_count: 0,
+        child_ux_parent_preference_setup_request_reference_ids:
+            child_ux_parent_preference_setup_reference_ids.clone(),
         child_ux_parent_preference_setup_reference_ids,
         child_ux_parent_preference_setup_records,
     }
@@ -243,6 +251,11 @@ fn child_ux_parent_preference_setup_record(
         draft_status: String::from(
             constants::value::APP_GAME_CHILD_UX_PARENT_PREFERENCE_SETUP_DRAFT_READY,
         ),
+        parent_preference_setup_request_status: String::from(
+            constants::value::APP_GAME_CHILD_UX_PARENT_PREFERENCE_SETUP_REQUEST_READY,
+        ),
+        parent_preference_setup_request_reference_ids:
+            child_ux_parent_preference_setup_request_refs(record),
         drill_in_reference_ids: record.drill_in_reference_ids.clone(),
         manual_proof_reference_ids: record.manual_proof_reference_ids.clone(),
         parent_preference_ui_rendered: false,
@@ -255,6 +268,15 @@ fn child_ux_parent_preference_setup_record(
         platform_enforcement_claimed: false,
         raw_private_source_rows_included: false,
     }
+}
+
+fn child_ux_parent_preference_setup_request_refs(
+    record: &AppGameTimerParentSurfaceChildUxParentSurfaceIntentRecord,
+) -> Vec<String> {
+    let mut refs = vec![record.parent_surface_intent_reference_id.clone()];
+    refs.extend(record.drill_in_reference_ids.clone());
+    refs.extend(record.manual_proof_reference_ids.clone());
+    unique_action_result_values(refs.into_iter())
 }
 
 fn child_ux_parent_surface_drill_in_refs(

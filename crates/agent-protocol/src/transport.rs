@@ -112,6 +112,10 @@ pub enum AgentCommandName {
     AgentActivityAppGameNotificationReadinessReadModelGet,
     #[serde(rename = "agent.activity.app-game.timer-parent-surface.read-model.get")]
     AgentActivityAppGameTimerParentSurfaceReadModelGet,
+    #[serde(
+        rename = "agent.activity.app-game.timer-parent-surface.parent-preference-setup.request"
+    )]
+    AgentActivityAppGameTimerParentPreferenceSetupRequest,
     #[serde(rename = "agent.browser.social-dashboard.read-model.get")]
     AgentBrowserSocialDashboardReadModelGet,
     #[serde(rename = "agent.browser.social-audit-explanation.read-model.get")]
@@ -258,6 +262,10 @@ pub enum AgentEventName {
     AgentActivityAppGameNotificationReadinessReadModelReported,
     #[serde(rename = "agent.activity.app-game.timer-parent-surface.read-model.reported")]
     AgentActivityAppGameTimerParentSurfaceReadModelReported,
+    #[serde(
+        rename = "agent.activity.app-game.timer-parent-surface.parent-preference-setup.requested"
+    )]
+    AgentActivityAppGameTimerParentPreferenceSetupRequested,
     #[serde(rename = "agent.browser.social-dashboard.read-model.reported")]
     AgentBrowserSocialDashboardReadModelReported,
     #[serde(rename = "agent.browser.social-audit-explanation.read-model.reported")]

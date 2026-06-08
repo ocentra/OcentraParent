@@ -51,6 +51,9 @@ const TimerParentSurfaceReadModel = {
   childUxParentPreferenceSetupDraftReadyCount: 0,
   childUxParentPreferenceSetupUnavailableVisibleCount: 0,
   childUxParentPreferenceSetupReferenceIds: [],
+  childUxParentPreferenceSetupRequestReadyCount: 0,
+  childUxParentPreferenceSetupRequestUnavailableVisibleCount: 0,
+  childUxParentPreferenceSetupRequestReferenceIds: [],
   childUxParentPreferenceSetupRecords: [],
   timerRuntimeClaimed: false,
   schedulerPersistenceClaimed: false,
@@ -161,6 +164,11 @@ const ActionResultReadModel = {
   childUxParentPreferenceSetupDraftReadyCount: 1,
   childUxParentPreferenceSetupUnavailableVisibleCount: 0,
   childUxParentPreferenceSetupReferenceIds: ['app-game-child-ux-parent-preference-setup-action-result-app-game-1'],
+  childUxParentPreferenceSetupRequestReadyCount: 1,
+  childUxParentPreferenceSetupRequestUnavailableVisibleCount: 0,
+  childUxParentPreferenceSetupRequestReferenceIds: [
+    'app-game-child-ux-parent-preference-setup-action-result-app-game-1',
+  ],
   childUxParentPreferenceSetupRecords: [
     {
       schemaVersion: AppGameSchemaVersion,
@@ -170,6 +178,12 @@ const ActionResultReadModel = {
       sourceArtifactReferenceId: 'app-game-child-ux-local-handoff-action-result-app-game-1',
       targetDomain: AgentAppGameTimerParentSurfaceTargetDomain.NativeGame,
       draftStatus: 'draft-ready',
+      parentPreferenceSetupRequestStatus: 'request-ready',
+      parentPreferenceSetupRequestReferenceIds: [
+        'app-game-child-ux-local-handoff-action-result-app-game-1',
+        'parent-approved',
+        'child-status-limit-reached',
+      ],
       drillInReferenceIds: [
         'app-game-child-ux-local-handoff-action-result-app-game-1',
         'parent-approved',

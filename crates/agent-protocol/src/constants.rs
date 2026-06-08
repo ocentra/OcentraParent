@@ -119,6 +119,8 @@ pub mod event_id {
         "activity-app-game-notification-readiness-read-model-reported";
     pub const ACTIVITY_APP_GAME_TIMER_PARENT_SURFACE_READ_MODEL_REPORTED: &str =
         "activity-app-game-timer-parent-surface-read-model-reported";
+    pub const ACTIVITY_APP_GAME_TIMER_PARENT_PREFERENCE_SETUP_REQUESTED: &str =
+        "activity-app-game-timer-parent-preference-setup-requested";
     pub const BROWSER_SOCIAL_DASHBOARD_READ_MODEL_REPORTED: &str =
         "browser-social-dashboard-read-model-reported";
     pub const BROWSER_SOCIAL_AUDIT_EXPLANATION_READ_MODEL_REPORTED: &str =

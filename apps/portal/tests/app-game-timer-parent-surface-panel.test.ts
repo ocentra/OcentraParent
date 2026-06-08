@@ -50,6 +50,9 @@ const TimerParentSurfaceReadModel = {
   childUxParentPreferenceSetupDraftReadyCount: 0,
   childUxParentPreferenceSetupUnavailableVisibleCount: 0,
   childUxParentPreferenceSetupReferenceIds: [],
+  childUxParentPreferenceSetupRequestReadyCount: 0,
+  childUxParentPreferenceSetupRequestUnavailableVisibleCount: 0,
+  childUxParentPreferenceSetupRequestReferenceIds: [],
   childUxParentPreferenceSetupRecords: [],
   timerRuntimeClaimed: false,
   schedulerPersistenceClaimed: false,
@@ -138,6 +141,11 @@ const ActionResultReadModel = {
   childUxParentPreferenceSetupDraftReadyCount: 1,
   childUxParentPreferenceSetupUnavailableVisibleCount: 0,
   childUxParentPreferenceSetupReferenceIds: ['app-game-child-ux-parent-preference-setup-action-result-app-game-1'],
+  childUxParentPreferenceSetupRequestReadyCount: 1,
+  childUxParentPreferenceSetupRequestUnavailableVisibleCount: 0,
+  childUxParentPreferenceSetupRequestReferenceIds: [
+    'app-game-child-ux-parent-preference-setup-action-result-app-game-1',
+  ],
   childUxParentPreferenceSetupRecords: [
     {
       schemaVersion: AppGameSchemaVersion,
@@ -147,6 +155,12 @@ const ActionResultReadModel = {
       sourceArtifactReferenceId: 'app-game-child-ux-local-handoff-action-result-app-game-1',
       targetDomain: AgentAppGameTimerParentSurfaceTargetDomain.NativeGame,
       draftStatus: 'draft-ready',
+      parentPreferenceSetupRequestStatus: 'request-ready',
+      parentPreferenceSetupRequestReferenceIds: [
+        'app-game-child-ux-local-handoff-action-result-app-game-1',
+        'parent-approved',
+        'child-status-limit-reached',
+      ],
       drillInReferenceIds: [
         'app-game-child-ux-local-handoff-action-result-app-game-1',
         'parent-approved',
@@ -334,6 +348,9 @@ function expectActionResultSummaryDetails(
       'app-game-child-ux-local-handoff-action-result-app-game-1 | parent-approved | child-status-limit-reached',
     ],
     ['Child UX parent-surface manual proof refs', 'parent-approved | child-status-limit-reached'],
+    ['Parent preference setup request status', '1'],
+    ['Parent preference setup request unavailable', '0'],
+    ['Parent preference setup request refs', 'app-game-child-ux-parent-preference-setup-action-result-app-game-1'],
   ] as const) {
     expect(summaryDetails).toContainEqual({ label: detail[0], value: detail[1] });
   }
@@ -383,11 +400,16 @@ function expectParentPreferenceSetupRows(
     'Parent preference setup draft refs',
     'app-game-child-ux-parent-preference-setup-action-result-app-game-1',
   ]);
+  expect(rowPairs(rows[0])).toContainEqual(['Parent preference setup request status', 'Ready']);
+  expect(rowPairs(rows[0])).toContainEqual([
+    'Parent preference setup request refs',
+    'app-game-child-ux-local-handoff-action-result-app-game-1 | parent-approved | child-status-limit-reached',
+  ]);
   expect(rowPairs(rows[0])).toContainEqual([
     'Child UX parent-surface refs',
     'app-game-child-ux-parent-surface-action-result-app-game-1',
   ]);
-  expect(rowPairs(rows[0])).toContainEqual(['Parent preference setup UI', 'Not claimed']);
+  expect(rowPairs(rows[0])).toContainEqual(['Parent preference setup UI', 'Ready']);
   expect(rowPairs(rows[0])).toContainEqual(['Parent preference setup mutation', 'Not claimed']);
   expect(rowPairs(rows[0])).toContainEqual(['Notification rule mutation', 'Not claimed']);
   expect(rowPairs(rows[0])).toContainEqual(['Adapter dispatch', 'Not claimed']);

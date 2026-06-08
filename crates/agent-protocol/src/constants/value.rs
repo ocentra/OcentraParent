@@ -211,6 +211,10 @@ pub const APP_GAME_CHILD_UX_PARENT_SURFACE_MANUAL_ACTION_REQUIRED: &str = "manua
 pub const APP_GAME_CHILD_UX_PARENT_SURFACE_PREFERENCE_SETUP_REQUIRED: &str =
     "preference-setup-required";
 pub const APP_GAME_CHILD_UX_PARENT_PREFERENCE_SETUP_DRAFT_READY: &str = "draft-ready";
+pub const APP_GAME_CHILD_UX_PARENT_PREFERENCE_SETUP_REQUEST_READY: &str = "request-ready";
+pub const APP_GAME_PARENT_PREFERENCE_SETUP_REQUEST_SCHEMA_VERSION: &str =
+    "app-game-timer-parent-preference-setup-request-proof";
+pub const APP_GAME_PARENT_PREFERENCE_SETUP_REQUEST_ACCEPTED: &str = "accepted";
 pub const APP_GAME_CHILD_UX_PARENT_PREFERENCE_SETUP_UNAVAILABLE_VISIBLE: &str =
     "unavailable-visible";
 pub const TRANSPORT_WEBSOCKET: &str = "websocket";

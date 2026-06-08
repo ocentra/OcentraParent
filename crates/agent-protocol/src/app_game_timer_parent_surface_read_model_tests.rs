@@ -54,6 +54,18 @@ fn app_game_timer_parent_surface_read_model_serializes_no_runtime_claims() {
         0
     );
     assert_eq!(
+        serialized["childUxParentPreferenceSetupRequestReadyCount"],
+        1
+    );
+    assert_eq!(
+        serialized["childUxParentPreferenceSetupRequestUnavailableVisibleCount"],
+        0
+    );
+    assert_eq!(
+        serialized["childUxParentPreferenceSetupRecords"][0]["parentPreferenceSetupRequestStatus"],
+        constants::value::APP_GAME_CHILD_UX_PARENT_PREFERENCE_SETUP_REQUEST_READY
+    );
+    assert_eq!(
         serialized["childUxParentPreferenceSetupRecords"][0]["parentPreferenceUiRendered"],
         false
     );
@@ -110,6 +122,11 @@ fn app_game_timer_parent_surface_read_model() -> AppGameTimerParentSurfaceReadMo
         child_ux_parent_preference_setup_draft_ready_count: 1,
         child_ux_parent_preference_setup_unavailable_visible_count: 0,
         child_ux_parent_preference_setup_reference_ids: vec![
+            child_ux_parent_preference_setup_reference_id(),
+        ],
+        child_ux_parent_preference_setup_request_ready_count: 1,
+        child_ux_parent_preference_setup_request_unavailable_visible_count: 0,
+        child_ux_parent_preference_setup_request_reference_ids: vec![
             child_ux_parent_preference_setup_reference_id(),
         ],
         child_ux_parent_preference_setup_records: vec![child_ux_parent_preference_setup_record()],
@@ -171,6 +188,9 @@ fn child_ux_parent_preference_setup_record(
         target_domain: APP_GAME_TIMER_PARENT_SURFACE_TARGET_NATIVE_GAME.to_string(),
         draft_status: constants::value::APP_GAME_CHILD_UX_PARENT_PREFERENCE_SETUP_DRAFT_READY
             .to_string(),
+        parent_preference_setup_request_status:
+            constants::value::APP_GAME_CHILD_UX_PARENT_PREFERENCE_SETUP_REQUEST_READY.to_string(),
+        parent_preference_setup_request_reference_ids: vec![child_ux_parent_surface_reference_id()],
         drill_in_reference_ids: vec![child_ux_artifact_reference_id()],
         manual_proof_reference_ids: vec![child_ux_artifact_reference_id()],
         parent_preference_ui_rendered: false,

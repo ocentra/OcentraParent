@@ -1,0 +1,35 @@
+{
+  "workpack": "WP134",
+  "branch": "codex/app-game-control-product-completion",
+  "scope": "timer-parent-surface child UX parent preference setup request boundary",
+  "status": "focused-validation-passed",
+  "sourceReadModel": "activity.app-game.timer.parent-surface.read-model",
+  "requestStatusFields": [
+    "childUxParentPreferenceSetupRequestReadyCount",
+    "childUxParentPreferenceSetupRequestUnavailableVisibleCount",
+    "childUxParentPreferenceSetupRequestReferenceIds",
+    "parentPreferenceSetupRequestStatus",
+    "parentPreferenceSetupRequestReferenceIds"
+  ],
+  "portalConsumption": "App/Game Sessions parent preference setup cards render request-ready setup records as parent preference setup UI-ready.",
+  "commandBoundary": {
+    "command": "agent.activity.app-game.timer-parent-surface.parent-preference-setup.request",
+    "event": "agent.activity.app-game.timer-parent-surface.parent-preference-setup.requested",
+    "payloadField": "appGameTimerParentPreferenceSetupRequest",
+    "result": "accepted command-boundary proof without preference mutation or delivery claims"
+  },
+  "noClaims": [
+    "parent-preference-mutation",
+    "notification-rule-mutation",
+    "provider-delivery",
+    "receipt-ingestion",
+    "quiet-hours-runtime",
+    "child-delivery-runtime",
+    "durable-service-outbox-storage",
+    "adapter-dispatch",
+    "platform-enforcement",
+    "raw-private-source-rows",
+    "raw-target-values",
+    "private-diagnostics"
+  ]
+}

@@ -5,6 +5,7 @@ import { AgentEvent, AgentProtocolDefaults, isAgentProtocolLogText, type AgentEv
 
 const TimerParentSurfaceText = Schema.String.pipe(Schema.minLength(1));
 const TimerParentSurfaceCount = Schema.Number.pipe(Schema.nonNegative(), Schema.int());
+const TimerParentSurfaceParentPreferenceSetupRequestStatus = Schema.Literal('request-ready', 'unavailable-visible');
 
 export const AgentAppGameTimerParentSurfaceTargetDomain = {
   NativeApp: 'native-app',
@@ -95,6 +96,8 @@ export const AgentAppGameTimerParentSurfaceChildUxParentPreferenceSetupRecordSch
       AgentAppGameTimerParentSurfaceTargetDomain.NativeGame
     ),
     draftStatus: Schema.Literal('draft-ready', 'unavailable-visible'),
+    parentPreferenceSetupRequestStatus: TimerParentSurfaceParentPreferenceSetupRequestStatus,
+    parentPreferenceSetupRequestReferenceIds: Schema.Array(TimerParentSurfaceText),
     drillInReferenceIds: Schema.Array(TimerParentSurfaceText),
     manualProofReferenceIds: Schema.Array(TimerParentSurfaceText),
     parentPreferenceUiRendered: Schema.Literal(false),
@@ -145,6 +148,9 @@ export const AgentAppGameTimerParentSurfaceReadModelSchema = withParser(
     childUxParentPreferenceSetupDraftReadyCount: TimerParentSurfaceCount,
     childUxParentPreferenceSetupUnavailableVisibleCount: TimerParentSurfaceCount,
     childUxParentPreferenceSetupReferenceIds: Schema.Array(TimerParentSurfaceText),
+    childUxParentPreferenceSetupRequestReadyCount: TimerParentSurfaceCount,
+    childUxParentPreferenceSetupRequestUnavailableVisibleCount: TimerParentSurfaceCount,
+    childUxParentPreferenceSetupRequestReferenceIds: Schema.Array(TimerParentSurfaceText),
     childUxParentPreferenceSetupRecords: Schema.Array(
       AgentAppGameTimerParentSurfaceChildUxParentPreferenceSetupRecordSchema
     ),

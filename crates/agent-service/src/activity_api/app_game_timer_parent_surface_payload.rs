@@ -54,28 +54,13 @@ pub async fn build_activity_app_game_timer_parent_surface_report(
     }
 }
 
-#[cfg_attr(not(test), allow(dead_code))]
-pub fn app_game_timer_parent_surface_from_service_model(
-    model: AppGameServiceReadModel,
-) -> AppGameTimerParentSurfaceReadModel {
-    app_game_timer_parent_surface_from_service_model_with_timer_state(model, None)
-}
-
 pub fn app_game_timer_parent_surface_from_service_model_with_timer_state(
     model: AppGameServiceReadModel,
     active_timer_state: Option<&EnforcementActiveTimerState>,
 ) -> AppGameTimerParentSurfaceReadModel {
     let rows = timer_parent_surface_rows(&model);
     let row_counts = timer_parent_surface_row_counts(&rows);
-    let active_timer_state_exists = active_timer_state.is_some();
-    let audit_runtime_claimed = active_timer_state
-        .and_then(|state| state.audit_event.journal_sequence.as_ref())
-        .is_some();
-    let rollback_runtime_claimed = active_timer_state
-        .and_then(|state| state.action.rollback_token.as_ref())
-        .or_else(|| active_timer_state.and_then(|state| state.result.rollback_token.as_ref()))
-        .or_else(|| active_timer_state.and_then(|state| state.timer_event.rollback_token.as_ref()))
-        .is_some();
+    let runtime_claims = timer_parent_surface_runtime_claims(active_timer_state);
     let control_action_results = timer_parent_surface_control_action_results(&model);
     let control_action_result_count = control_action_results.reference_ids.len() as u64;
 
@@ -125,18 +110,48 @@ pub fn app_game_timer_parent_surface_from_service_model_with_timer_state(
             .child_ux_parent_preference_setup_unavailable_visible_count,
         child_ux_parent_preference_setup_reference_ids: control_action_results
             .child_ux_parent_preference_setup_reference_ids,
+        child_ux_parent_preference_setup_request_ready_count: control_action_results
+            .child_ux_parent_preference_setup_request_ready_count,
+        child_ux_parent_preference_setup_request_unavailable_visible_count: control_action_results
+            .child_ux_parent_preference_setup_request_unavailable_visible_count,
+        child_ux_parent_preference_setup_request_reference_ids: control_action_results
+            .child_ux_parent_preference_setup_request_reference_ids,
         child_ux_parent_preference_setup_records: control_action_results
             .child_ux_parent_preference_setup_records,
-        timer_runtime_claimed: active_timer_state_exists,
-        scheduler_persistence_claimed: active_timer_state_exists,
-        durable_scheduler_storage_claimed: active_timer_state_exists,
-        audit_runtime_claimed,
-        rollback_runtime_claimed,
+        timer_runtime_claimed: runtime_claims.active_timer_state_exists,
+        scheduler_persistence_claimed: runtime_claims.active_timer_state_exists,
+        durable_scheduler_storage_claimed: runtime_claims.active_timer_state_exists,
+        audit_runtime_claimed: runtime_claims.audit_runtime_claimed,
+        rollback_runtime_claimed: runtime_claims.rollback_runtime_claimed,
         adapter_dispatch_claimed: false,
         child_delivery_claimed: false,
         platform_enforcement_claimed: false,
         raw_private_source_rows_included: false,
         rows,
+    }
+}
+
+struct TimerParentSurfaceRuntimeClaims {
+    active_timer_state_exists: bool,
+    audit_runtime_claimed: bool,
+    rollback_runtime_claimed: bool,
+}
+
+fn timer_parent_surface_runtime_claims(
+    active_timer_state: Option<&EnforcementActiveTimerState>,
+) -> TimerParentSurfaceRuntimeClaims {
+    TimerParentSurfaceRuntimeClaims {
+        active_timer_state_exists: active_timer_state.is_some(),
+        audit_runtime_claimed: active_timer_state
+            .and_then(|state| state.audit_event.journal_sequence.as_ref())
+            .is_some(),
+        rollback_runtime_claimed: active_timer_state
+            .and_then(|state| state.action.rollback_token.as_ref())
+            .or_else(|| active_timer_state.and_then(|state| state.result.rollback_token.as_ref()))
+            .or_else(|| {
+                active_timer_state.and_then(|state| state.timer_event.rollback_token.as_ref())
+            })
+            .is_some(),
     }
 }
 
