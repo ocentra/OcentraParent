@@ -1,6 +1,7 @@
 use ocentra_parent_agent_protocol::{
-    constants, ActivityEvent, ActivityEventKind, ActivityObserver, ActivitySource, ActivitySubject,
-    ActivitySubjectKind, ACTIVITY_SCHEMA_VERSION,
+    constants, ActivityEvent, ActivityEventKind, ActivityEvidenceKind, ActivityEvidenceRef,
+    ActivityObserver, ActivitySource, ActivitySubject, ActivitySubjectKind,
+    ACTIVITY_SCHEMA_VERSION,
 };
 
 use crate::network_capture::{collect_network_snapshot, NetworkObservation};
@@ -38,8 +39,53 @@ pub fn network_observation_event(
             display_name: network_display_name(&observation),
         },
         fields: network_fields(&observation),
-        evidence: Vec::new(),
+        evidence: network_evidence_refs(&observation, observed_at, sequence_index),
     }
+}
+
+fn network_evidence_refs(
+    observation: &NetworkObservation,
+    observed_at: &str,
+    sequence_index: usize,
+) -> Vec<ActivityEvidenceRef> {
+    vec![ActivityEvidenceRef {
+        evidence_id: network_evidence_id(observation, observed_at, sequence_index),
+        kind: ActivityEvidenceKind::LocalDbRow,
+        digest: None,
+        uri: Some(network_evidence_uri(
+            observation,
+            observed_at,
+            sequence_index,
+        )),
+    }]
+}
+
+fn network_evidence_id(
+    observation: &NetworkObservation,
+    observed_at: &str,
+    sequence_index: usize,
+) -> String {
+    let mut evidence_id = String::from(constants::activity_capture::NETWORK_EVIDENCE_ID_PREFIX);
+    evidence_id.push_str(observation.status.as_protocol_str());
+    evidence_id.push(constants::delimiter::HYPHEN);
+    evidence_id.push_str(&sequence_index.to_string());
+    evidence_id.push(constants::delimiter::HYPHEN);
+    evidence_id.push_str(observed_at);
+    evidence_id
+}
+
+fn network_evidence_uri(
+    observation: &NetworkObservation,
+    observed_at: &str,
+    sequence_index: usize,
+) -> String {
+    let mut uri = String::from(constants::activity_capture::NETWORK_EVIDENCE_URI_PREFIX);
+    uri.push_str(observation.status.as_protocol_str());
+    uri.push(constants::delimiter::SLASH);
+    uri.push_str(&sequence_index.to_string());
+    uri.push(constants::delimiter::SLASH);
+    uri.push_str(observed_at);
+    uri
 }
 
 fn network_event_id(

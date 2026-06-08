@@ -2,7 +2,8 @@ use std::sync::Arc;
 
 use crate::{
     CorrelationId, DispatchMode, EventBus, EventJournal, EventQueuePolicy, EventingError,
-    JournalPolicy, JournalSelector, NdjsonEventJournal, ReplayCursor, ReplayFilter, ReplayMode,
+    JournalPolicy, JournalSelector, NdjsonEventJournal, NdjsonJournalOptions, ReplayCursor,
+    ReplayFilter, ReplayMode,
 };
 
 use super::{
@@ -10,7 +11,9 @@ use super::{
         metadata, subscriber, test_event, test_event_for_type, test_event_with_idempotency,
         TestEvent, OTHER_EVENT_TYPE, TEST_EVENT_TYPE, TEST_LABEL, TEST_SUBSCRIBER, TEST_TARGET,
     },
-    support::{cleanup, event_type, journal_path, stored_event},
+    support::{
+        cleanup, event_type, journal_path, stored_event, tamper_first_journal_payload_label,
+    },
 };
 
 #[tokio::test]
@@ -58,6 +61,34 @@ async fn replay_corrupt_line_is_reported_explicitly() {
         result,
         Err(EventingError::JournalCorruptLine { line: 1, .. })
     ));
+    cleanup(&path).await;
+}
+
+#[tokio::test]
+async fn replay_rejects_tampered_hash_chain_payload() {
+    let path = journal_path("replay-tampered-hash-chain");
+    let journal = NdjsonEventJournal::with_options(&path, NdjsonJournalOptions::hash_chain());
+    journal
+        .append(&stored_event(test_event(TEST_LABEL)))
+        .await
+        .expect("first append");
+    journal
+        .append(&stored_event(test_event_for_type(
+            "second event",
+            OTHER_EVENT_TYPE,
+        )))
+        .await
+        .expect("second append");
+    tamper_first_journal_payload_label(&path, "tampered event").await;
+
+    let result = journal.replay_projection(ReplayFilter::all()).await;
+
+    match result {
+        Err(EventingError::JournalCorruptLine { line: 1, reason }) => {
+            assert!(reason.contains("current hash mismatch"));
+        }
+        other => panic!("expected corrupt hash-chain replay, received {other:?}"),
+    }
     cleanup(&path).await;
 }
 

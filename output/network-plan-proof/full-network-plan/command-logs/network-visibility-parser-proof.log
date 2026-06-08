@@ -1,0 +1,2 @@
+network-visibility-parser-proof-ok:tls,http,quic,doh-dot,clippy,source-shape
+proof=output/network-plan-proof/19-doh-dot-detector/proof-summary.json

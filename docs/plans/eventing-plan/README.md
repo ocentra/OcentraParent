@@ -149,9 +149,16 @@ Use `scripts/test/eventing-full-plan-proof.mjs` for full event-plan completion.
 It runs the reusable bus proof plus parent/controller, child-agent,
 network-consumer, service runtime delivery, service event-chain streaming,
 TypeScript parity, UI typed-intent boundary, command-boundary, and enforcement
-journal/action eventing proofs. Its network-consumer proof must stay outside
-`crates/ocentra-eventing`: it proves network consumes the generic bus, not that
-the generic bus owns network behavior.
+journal/action eventing proofs. It also runs
+`scripts/test/eventing-household-mesh-consumer-proof.mjs` for the Household Mesh
+consumer bridge boundary: selected local events can become typed authenticated
+LAN messages, incoming messages must validate before local republish, direct
+remote publish into another runtime bus is rejected, unselected or mismatched
+event/message refs are rejected, and child-agent-only AI policy authority is
+preserved. Its network-consumer and Household Mesh consumer proofs must stay
+outside `crates/ocentra-eventing`: they prove consumers use the generic bus
+boundary, not that the generic bus owns network, LAN, AI, policy, or enforcement
+behavior.
 
 ## Quality Bar
 

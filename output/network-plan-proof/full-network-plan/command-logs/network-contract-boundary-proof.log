@@ -1,0 +1,2 @@
+network-contract-boundary-proof-ok:flow-evidence-schema,domain-evidence-schema,classification-schema,evidence-grade-schema,policy-action-schema,network-flow-public-reexport,unsupported-exact-url-negative-test,adapter-authorization-negative-test
+proof=output/network-plan-proof/03-contract-boundary-and-effect-schemas/proof-summary.json

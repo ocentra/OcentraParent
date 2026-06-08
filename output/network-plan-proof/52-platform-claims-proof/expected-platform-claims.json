@@ -11,9 +11,12 @@
     "Linux TUN"
   ],
   "platformClaimInvariants": [
-    "every platform claim names exact OS/device refs",
+    "every platform claim names fixture platform scope, permission/entitlement, capability, and audit refs",
     "every ready claim names permission, entitlement, capability, or manual follow-up refs",
+    "every platform claim names an audit ref",
+    "local Windows, Android SDK, Linux WSL, and Apple CI-unavailable probe observations align with adapter status rows",
     "manual-required and unavailable states remain reportable without live execution",
+    "adapter authorization is accepted only on ready platform claim rows",
     "UI has no policy authority",
     "no proof source publishes enforcement commands"
   ],

@@ -1,0 +1,10 @@
+
+running 3 tests
+test network_event_runtime_fixture_transport_tests::network_runtime_remote_delivery_fixture_transport_records_attempts_and_acks ... ok
+test network_event_runtime_fixture_transport_tests::network_runtime_remote_delivery_fixture_transport_keeps_product_delivery_false ... ok
+test network_event_runtime_fixture_transport_tests::network_runtime_remote_delivery_fixture_transport_rejects_product_claims ... ok
+
+test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 275 filtered out; finished in <duration>
+
+    Finished `test` profile [unoptimized + debuginfo] target(s) in <duration>
+     Running unittests src\lib.rs (target\debug\deps\ocentra_parent_agent_core-9cb1b877e0051382.exe)

@@ -1,0 +1,2 @@
+network-evidence-policy-mapping-proof-ok:policy-tests,clippy,fmt,source-shape,diff-check
+proof=output/network-plan-proof/34-evidence-grade-policy-mapping/proof-summary.json

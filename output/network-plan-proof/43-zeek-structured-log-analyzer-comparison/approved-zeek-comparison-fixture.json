@@ -1,0 +1,40 @@
+{
+  "sourceFixtureRef": "pcap-fixture-network-43",
+  "analyzerRunRef": "zeek-analyzer-run-43",
+  "supportedLogKinds": [
+    "conn",
+    "dns",
+    "http",
+    "tls",
+    "ssl"
+  ],
+  "expectedRows": {
+    "conn": 1,
+    "dns": 1,
+    "http": 1,
+    "tls": 1,
+    "ssl": 1
+  },
+  "preservedStates": [
+    "unknown",
+    "missing",
+    "ambiguous",
+    "encrypted"
+  ],
+  "comparisonArtifacts": [
+    "approved-Conn-comparison-artifact-43",
+    "approved-Dns-comparison-artifact-43",
+    "approved-Http-comparison-artifact-43",
+    "approved-Tls-comparison-artifact-43",
+    "approved-Ssl-comparison-artifact-43"
+  ],
+  "networkOnlyMustNotClaim": [
+    "exact-url",
+    "page-content",
+    "decrypted-payload",
+    "signature-alert-ingestion",
+    "policy-authority",
+    "adapter-authority",
+    "enforcement-command"
+  ]
+}

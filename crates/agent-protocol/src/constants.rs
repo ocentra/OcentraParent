@@ -135,6 +135,7 @@ pub mod event_id {
         "network-runtime-event-chain-stream-reported";
     pub const NETWORK_REMOTE_DELIVERY_STATUS_REPORTED: &str =
         "network-remote-delivery-status-reported";
+    pub const NETWORK_LIVE_CAPTURE_STATUS_REPORTED: &str = "network-live-capture-status-reported";
     pub const LOCAL_AI_RUNTIME_STATUS_REPORTED: &str = "local-ai-runtime-status-reported";
     pub const LOCAL_AI_CHAT_GENERATION_REPORTED: &str = "local-ai-chat-generation-reported";
     pub const PARENT_ASSISTANT_ANSWER_REPORTED: &str = "parent-assistant-answer-reported";
@@ -497,6 +498,8 @@ pub mod browser_policy {
 }
 #[path = "constants/enforcement.rs"]
 pub mod enforcement;
+#[path = "constants/household_mesh.rs"]
+pub mod household_mesh;
 #[path = "constants/lan_pairing.rs"]
 pub mod lan_pairing;
 #[path = "constants/network_flow.rs"]

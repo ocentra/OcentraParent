@@ -32,8 +32,18 @@ Rust protocol parity crate for data that crosses the TypeScript/Rust boundary.
   parity tests for the narrow service-backed
   `agent.activity.tracking.read-model.get` proof path.
 - Network remote delivery status bridge command/event names, constants, status
-  structs, and parity tests for the row10b through row10e proof chain consumed
-  by the Rust service and TypeScript protocol adapter.
+  structs, and parity tests for the row10t external cross-process transport
+  status identity, row10k transport-dispatch refs, row10l fixture transport
+  refs/counts, row10m delete/export readiness refs, row10p provider/child
+  readiness refs, row10q cross-process custody readiness refs, row10r
+  deterministic replay metadata refs/counts, row10s cross-process replay status
+  visibility, and row10t transport envelope/ack refs/counts over the row10b
+  through row10t proof chain consumed by the Rust service and TypeScript
+  protocol adapter.
+- Network live-capture status bridge command/event names, constants, status
+  structs, and parity tests for row13 live-capture proof-gate state plus row03a
+  raw-capture custody readiness refs consumed by the Rust service and
+  TypeScript protocol adapter.
 - App/game boundary read-model structs, command/event names, payload field, and
   parity tests for the service-backed authority/classifier row-count proof
   path.
@@ -116,10 +126,22 @@ flowchart LR
   only; they do not claim mobile background behavior, provider delivery, or
   product-complete tracking UI beyond narrow portal summary consumption.
 - Network remote delivery status bridge structs preserve proof/status refs only;
-  broker/family-hub transport, remote acknowledgement, provider or child-device
-  delivery, cross-process replay, remote delete/export propagation, policy
-  authority, adapter execution, exact content, and host filtering remain
-  unclaimed until separate proof exists.
+  row10k blocked-dispatch state is manual-required, row10l fixture transport is
+  proof-local, row10m delete/export readiness is proof-local, row10p
+  provider/child readiness plus row10q cross-process custody readiness are
+  manual-required unavailable state, row10r cross-process replay is visible only
+  as deterministic replay metadata through the row10s cross-process replay status
+  bridge, and row10t external cross-process transport is visible only as
+  deterministic transport envelope/ack metadata. Broker/family-hub transport,
+  product remote acknowledgement, provider or child-device delivery, actual
+  remote delete/export propagation, policy authority, adapter execution, exact
+  content, and host filtering remain unclaimed until separate proof exists.
+- Network live-capture status bridge structs preserve row13 proof-gate and
+  row03a storage-custody refs only. Live Npcap/libpcap invocation, packet
+  capture, raw artifact creation, raw PCAP without custody, exact URL,
+  decrypted payload, page/private-message/search content, policy authority,
+  adapter execution, enforcement command publication, netstat substitution, and
+  host filtering remain unclaimed until separate proof exists.
 - App/game evidence/identity/authority/classifier parity structs preserve
   serialization proof only; core live process snapshots now exist for runtime
   rows, core live foreground-window source proof exists for foreground rows, and

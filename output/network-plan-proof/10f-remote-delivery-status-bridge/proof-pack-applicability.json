@@ -17,7 +17,7 @@
       "item": "02-eventing-proof.log",
       "state": "present",
       "artifact": "output\\network-plan-proof\\10f-remote-delivery-status-bridge\\agent-protocol-remote-delivery-status-test.log",
-      "reason": "Rust protocol/service tests prove the row10f status bridges row10b through row10e eventing refs without creating a private bus or adapter action."
+      "reason": "Rust protocol/service tests prove the current row10k status bridge still preserves row10b through row10e eventing refs without creating a private bus or adapter action."
     },
     {
       "item": "03-parser-fixture-proof.json",

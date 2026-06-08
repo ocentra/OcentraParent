@@ -202,7 +202,14 @@ refs, permission or entitlement refs, adapter capability refs, audit refs,
 unavailable-state accounting, and manual follow-ups for missing required
 artifacts while rejecting generic platform support, live adapter execution, UI
 policy authority, exact URL, page content, decrypted payload, and
-enforcement-command claims. The action-result state proof records blocked,
+enforcement-command claims. The adapter capability status proof derives
+target-specific supported, lab-ready, physical-device-ready, Apple-device-ready,
+distro-ready, dry-run, research-only, manual-required, and unavailable status
+rows from that platform manifest instead of creating a second platform truth
+table, preserves manual follow-ups, verifies the current Activity drawer
+capability/platform status source, and keeps live adapter execution, broader
+platform capability UX, UI policy authority, and enforcement-command
+publication unclaimed. The action-result state proof records blocked,
 terminated, dry-run, manual-required, and unavailable result states from policy
 refs plus adapter proof refs while rejecting live host mutation, process
 termination execution, exact URL/content claims, and enforcement-command

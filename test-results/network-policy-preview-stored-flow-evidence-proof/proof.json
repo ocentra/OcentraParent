@@ -1,0 +1,162 @@
+{
+  "proof": "network-policy-preview-stored-flow-evidence-proof",
+  "proofRevision": "network-policy-preview-stored-flow-evidence-proof/v2",
+  "checkedAt": "deterministic:network-policy-preview-stored-flow-evidence-proof/v2",
+  "sourceFingerprint": "source-tree:fd665c1b8993f92efac2271a93b61879ebe1ab97e083e76dae097d0d39f15559",
+  "sourceRefs": [
+    "scripts/test/network-policy-preview-stored-flow-evidence-proof.mjs",
+    "crates/agent-core/Cargo.toml",
+    "crates/agent-protocol/src/constants/field.rs",
+    "crates/agent-protocol/src/constants/policy.rs",
+    "crates/agent-protocol/src/constants/sqlite.rs",
+    "crates/agent-core/src/activity_store_policy_preview.rs",
+    "crates/agent-core/src/activity_store_policy_preview_rows.rs",
+    "crates/agent-core/src/activity_store_policy_preview_targets.rs",
+    "crates/agent-core/src/activity_store_policy_preview_parent_rules.rs",
+    "crates/agent-core/src/activity_store_policy_preview_test_fixture.rs",
+    "crates/agent-core/src/activity_store_policy_preview_tests.rs",
+    "crates/agent-core/src/activity_store_policy_preview_parent_rule_tests.rs",
+    "crates/ocentra-network-evidence/src/policy.rs",
+    "crates/ocentra-network-evidence/src/tests/policy.rs",
+    "crates/agent-core/README.md",
+    "crates/agent-service/src/policy_preview_api.rs",
+    "crates/agent-service/src/policy_preview_payload.rs",
+    "crates/agent-service/src/policy_preview_tests.rs",
+    "crates/agent-service/README.md",
+    "crates/agent-protocol/src/policy_preview.rs",
+    "crates/agent-protocol/README.md",
+    "packages/agent-protocol-domain/src/contracts.ts",
+    "packages/agent-protocol-domain/src/defaults.ts",
+    "packages/agent-protocol-domain/tests/policy-preview-contracts.test.ts",
+    "packages/agent-protocol-domain/tests/network-remote-delivery-status.test.ts",
+    "packages/agent-protocol-domain/README.md",
+    "packages/portal-domain/src/details.ts",
+    "apps/portal/src/policy-preview-read-model.ts",
+    "apps/portal/src/policy-preview-details.ts",
+    "apps/portal/tests/policy-preview-live-activity-state.test.ts",
+    "docs/features/network-domain-control.md",
+    "docs/product-capability-checklist.md",
+    "docs/plans/network-plan/implementation-checklist.md",
+    "docs/plans/network-plan/workpacks/README.md"
+  ],
+  "sourceBase": "deterministic:policy-preview-source-set/v2",
+  "proofRoot": "output\\network-plan-proof\\policy-preview-stored-flow-evidence",
+  "testRoot": "test-results\\network-policy-preview-stored-flow-evidence-proof",
+  "commands": [
+    {
+      "name": "agent-core-policy-preview-read-model-tests",
+      "command": "cargo test -p ocentra-parent-agent-core policy_preview_read_model",
+      "status": 0,
+      "log": "output\\network-plan-proof\\policy-preview-stored-flow-evidence\\agent-core-policy-preview-read-model-tests.log"
+    },
+    {
+      "name": "agent-service-policy-preview-payload-test",
+      "command": "cargo test -p ocentra-parent-agent-service policy_preview_payload",
+      "status": 0,
+      "log": "output\\network-plan-proof\\policy-preview-stored-flow-evidence\\agent-service-policy-preview-payload-test.log"
+    },
+    {
+      "name": "schema-domain-build",
+      "command": "cmd /c npm run build --workspace @ocentra-parent/schema-domain",
+      "status": 0,
+      "log": "output\\network-plan-proof\\policy-preview-stored-flow-evidence\\schema-domain-build.log"
+    },
+    {
+      "name": "logging-domain-build",
+      "command": "cmd /c npm run build --workspace @ocentra-parent/logging-domain",
+      "status": 0,
+      "log": "output\\network-plan-proof\\policy-preview-stored-flow-evidence\\logging-domain-build.log"
+    },
+    {
+      "name": "activity-domain-build",
+      "command": "cmd /c npm run build --workspace @ocentra-parent/activity-domain",
+      "status": 0,
+      "log": "output\\network-plan-proof\\policy-preview-stored-flow-evidence\\activity-domain-build.log"
+    },
+    {
+      "name": "agent-protocol-domain-build",
+      "command": "cmd /c npm run build --workspace @ocentra-parent/agent-protocol-domain",
+      "status": 0,
+      "log": "output\\network-plan-proof\\policy-preview-stored-flow-evidence\\agent-protocol-domain-build.log"
+    },
+    {
+      "name": "portal-domain-build",
+      "command": "cmd /c npm run build --workspace @ocentra-parent/portal-domain",
+      "status": 0,
+      "log": "output\\network-plan-proof\\policy-preview-stored-flow-evidence\\portal-domain-build.log"
+    },
+    {
+      "name": "agent-protocol-domain-policy-preview-contract-test",
+      "command": "cmd /c npm exec --workspace @ocentra-parent/agent-protocol-domain -- vitest run tests/policy-preview-contracts.test.ts",
+      "status": 0,
+      "log": "output\\network-plan-proof\\policy-preview-stored-flow-evidence\\agent-protocol-domain-policy-preview-contract-test.log"
+    },
+    {
+      "name": "portal-policy-preview-live-activity-state-test",
+      "command": "cmd /c npm exec --workspace @ocentra-parent/portal -- vitest run tests/policy-preview-live-activity-state.test.ts",
+      "status": 0,
+      "log": "output\\network-plan-proof\\policy-preview-stored-flow-evidence\\portal-policy-preview-live-activity-state-test.log"
+    },
+    {
+      "name": "rust-format",
+      "command": "cargo fmt --all --check",
+      "status": 0,
+      "log": "output\\network-plan-proof\\policy-preview-stored-flow-evidence\\rust-format.log"
+    },
+    {
+      "name": "source-shape",
+      "command": "node scripts/check-source-shape.mjs",
+      "status": 0,
+      "log": "output\\network-plan-proof\\policy-preview-stored-flow-evidence\\source-shape.log"
+    },
+    {
+      "name": "git-diff-check",
+      "command": "git diff --check",
+      "status": 0,
+      "log": "output\\network-plan-proof\\policy-preview-stored-flow-evidence\\git-diff-check.log"
+    }
+  ],
+  "artifacts": {
+    "expectedPolicyPreviewStoredFlowEvidence": "output\\network-plan-proof\\policy-preview-stored-flow-evidence\\expected-policy-preview-stored-flow-evidence.json",
+    "securityNegativeLog": "output\\network-plan-proof\\policy-preview-stored-flow-evidence\\09-security-negative-proof.log",
+    "validationCommands": "output\\network-plan-proof\\policy-preview-stored-flow-evidence\\12-validation-commands.log",
+    "proofSummary": "output\\network-plan-proof\\policy-preview-stored-flow-evidence\\proof-summary.json",
+    "testProof": "test-results\\network-policy-preview-stored-flow-evidence-proof\\proof.json"
+  },
+  "coveredRows": [
+    "network feature item Policy preview over stored flow evidence",
+    "network-plan workpack 34 evidence-grade policy mapping remains the grade mapper dependency",
+    "network-plan workpack 36 parent UI drawer remains outside this proof; this proof preserves read-model-only policy-preview payload boundaries"
+  ],
+  "provenBoundaries": [
+    "agent-core policy preview consumes a stored ActivityStore network flow row and maps destinationDomain into a domain policy target",
+    "agent-core policy preview resolves a local parent-rule context only when the parent rule cites the stored network activity event ref",
+    "agent-core policy preview suppresses retention-deleted network flow evidence before preview limits, parent-rule matching, or dry-run decisions",
+    "agent-core policy preview excludes parent-rule contexts whose device or child scope does not match the stored event source",
+    "agent-core policy preview excludes future, expired, and scheduled-without-proof parent rules from preview rows",
+    "agent-core policy preview applies the shared row34 evidence-grade mapper so grade-B network block requests become parent-review ask-parent decisions",
+    "agent-core policy preview emits a dry-run policy decision with disabled enforcement handoff",
+    "agent-service policy-preview payload exposes the latest dry-run decision with network evidence grade, requested action, mapped action, mapping mode, and false adapter/enforcement authorization flags",
+    "agent-protocol-domain accepts the policy preview read-model command and reported event payload through the shared contracts",
+    "portal live-activity parser retains policy-preview network provenance fields and rejects authorized adapter/enforcement payloads",
+    "the proof keeps row34 evidence-grade policy mapping as the grade-specific dependency instead of duplicating grade logic in the preview path"
+  ],
+  "notClaimed": [
+    "exact URL from network-only evidence",
+    "page content",
+    "video content",
+    "private-message content",
+    "search-query content",
+    "decrypted payload",
+    "raw PCAP",
+    "AI model execution",
+    "full policy engine execution",
+    "adapter authorization",
+    "adapter action execution",
+    "enforcement command publication",
+    "host filtering",
+    "live broker delivery",
+    "family-hub delivery",
+    "product-ready remote delivery"
+  ]
+}

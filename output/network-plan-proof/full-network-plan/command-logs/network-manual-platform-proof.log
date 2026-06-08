@@ -1,0 +1,2 @@
+network-manual-platform-proof-ok:platform-gate-tests,clippy,source-shape
+proof=output/network-plan-proof/11-manual-platform-proof/proof-summary.json

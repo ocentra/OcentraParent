@@ -2,7 +2,7 @@
   "proof": "network-remote-delivery-receipt-ledger-proof",
   "proofRevision": "network-remote-delivery-receipt-ledger-proof/v1",
   "checkedAt": "deterministic:network-remote-delivery-receipt-ledger-proof/v1",
-  "sourceFingerprint": "source-tree:43e894201f459e986fed37b5baf237809f816fcbdb935fbe9b94da01647ab9fe",
+  "sourceFingerprint": "source-tree:43132269f2e5ab87e517cb4ecfc469d75bc6c5d09f7834a32e66580b36c53109",
   "sourceRefs": [
     "scripts/test/network-remote-delivery-receipt-ledger-proof.mjs",
     "crates/agent-protocol/src/constants/network_flow.rs",
@@ -15,7 +15,7 @@
     "crates/agent-core/src/network_event_runtime/remote_delivery_event_chain_journal_types.rs",
     "crates/agent-core/src/network_event_runtime_remote_delivery_tests.rs"
   ],
-  "mergeBase": "f957c4aa90ed42ea266d423236f89361d1d2241a",
+  "mergeBase": "466978a9b8f6ac946977169fd2e16e01b4cf6d92",
   "proofRoot": "output\\network-plan-proof\\10d-remote-delivery-receipt-ledger-status",
   "testRoot": "test-results\\network-remote-delivery-receipt-ledger-proof",
   "commands": [

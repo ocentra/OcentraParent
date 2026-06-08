@@ -250,7 +250,39 @@ pub const MOST_RECENT_SUBJECT_ID: &str = "mostRecentSubjectId";
 pub const MOST_RECENT_SUBJECT_KIND: &str = "mostRecentSubjectKind";
 pub const MOST_RECENT_SUBJECT_NAME: &str = "mostRecentSubjectName";
 pub const NETWORK_MODE: &str = "networkMode";
+pub const NETWORK_ADAPTER_ACTION_AUTHORIZED: &str = "networkAdapterActionAuthorized";
+pub const NETWORK_ENFORCEMENT_COMMAND_AUTHORIZED: &str = "networkEnforcementCommandAuthorized";
+pub const NETWORK_EVIDENCE_GRADE: &str = "networkEvidenceGrade";
+pub const NETWORK_MAPPED_POLICY_ACTION: &str = "networkMappedPolicyAction";
+pub const NETWORK_POLICY_MAPPING_MODE: &str = "networkPolicyMappingMode";
+pub const NETWORK_REQUESTED_POLICY_ACTION: &str = "networkRequestedPolicyAction";
 pub const NETWORK_PROTOCOL: &str = "networkProtocol";
+pub const NETWORK_PRODUCT_PATH_ACTION_RESULT_REFS: &str = "networkProductPathActionResultRefs";
+pub const NETWORK_PRODUCT_PATH_ACTION_RESULTS: &str = "networkProductPathActionResults";
+pub const NETWORK_PRODUCT_PATH_ADAPTER_ACTION_EXECUTED: &str =
+    "networkProductPathAdapterActionExecuted";
+pub const NETWORK_PRODUCT_PATH_AI_ADVISORY_ROWS: &str = "networkProductPathAiAdvisoryRows";
+pub const NETWORK_PRODUCT_PATH_DELETION_REFS: &str = "networkProductPathDeletionRefs";
+pub const NETWORK_PRODUCT_PATH_DELETE_RECORDS: &str = "networkProductPathDeleteRecords";
+pub const NETWORK_PRODUCT_PATH_ENFORCEMENT_COMMAND_EVENTS: &str =
+    "networkProductPathEnforcementCommandEvents";
+pub const NETWORK_PRODUCT_PATH_EXPORT_REFS: &str = "networkProductPathExportRefs";
+pub const NETWORK_PRODUCT_PATH_EXPORT_RECORDS: &str = "networkProductPathExportRecords";
+pub const NETWORK_PRODUCT_PATH_FAILED_ROWS: &str = "networkProductPathFailedRows";
+pub const NETWORK_PRODUCT_PATH_MANUAL_REQUIRED_ROWS: &str = "networkProductPathManualRequiredRows";
+pub const NETWORK_PRODUCT_PATH_OBSERVED_ROWS: &str = "networkProductPathObservedRows";
+pub const NETWORK_PRODUCT_PATH_POLICY_DECISION_REFS: &str = "networkProductPathPolicyDecisionRefs";
+pub const NETWORK_PRODUCT_PATH_POLICY_DECISIONS: &str = "networkProductPathPolicyDecisions";
+pub const NETWORK_PRODUCT_PATH_PORTAL_READ_MODEL_REFS: &str =
+    "networkProductPathPortalReadModelRefs";
+pub const NETWORK_PRODUCT_PATH_PORTAL_READ_MODELS: &str = "networkProductPathPortalReadModels";
+pub const NETWORK_PRODUCT_PATH_PROVED_ROWS: &str = "networkProductPathProvedRows";
+pub const NETWORK_PRODUCT_PATH_RETENTION_RECORDS: &str = "networkProductPathRetentionRecords";
+pub const NETWORK_PRODUCT_PATH_RETENTION_REFS: &str = "networkProductPathRetentionRefs";
+pub const NETWORK_PRODUCT_PATH_SKIPPED_ROWS: &str = "networkProductPathSkippedRows";
+pub const NETWORK_PRODUCT_PATH_UNAVAILABLE_ROWS: &str = "networkProductPathUnavailableRows";
+pub const NETWORK_PRODUCT_PATH_WEAK_OR_UNAVAILABLE_BLOCKED_ROWS: &str =
+    "networkProductPathWeakOrUnavailableBlockedRows";
 pub const NETWORK_RUNTIME_EVENT_CHAIN_STREAM: &str = "networkRuntimeEventChainStream";
 pub const NETWORK_RUNTIME_DEAD_LETTERS: &str = "networkRuntimeDeadLetters";
 pub const NETWORK_RUNTIME_DELIVERED_ROWS: &str = "networkRuntimeDeliveredRows";

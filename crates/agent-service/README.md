@@ -46,13 +46,35 @@ development paths and orchestrates runtime commands.
 - Network flow read-model reports through
   `agent.network.flow.read-model.get`, backed by ActivityStore SQLite rows and
   local `ocentra-eventing` runtime delivery counts for stored network rows
-  without broker, family-hub, adapter, or host-filter claims.
+  without broker, family-hub, adapter, or host-filter claims. The same service
+  payload includes row51 stored-flow product-path proof counts and refs: stored
+  rows with a domain target derive row-scoped trigger, capture, ingest,
+  typed-event, policy-decision, action-result, retention, delete, export, and
+  portal read-model refs through `ocentra-network-evidence`, while tombstoned
+  rows and rows without a domain target do not invent policy/action refs.
 - Network remote delivery status reports through
-  `agent.network.remote-delivery.status.get`, derived from the local row10e
-  durable envelope proof and serialized as a typed status bridge for row10b
-  through row10e refs without broker/family-hub transport, remote
-  acknowledgement, provider or child-device delivery, policy, adapter, exact
-  content, or host-filter claims.
+  `agent.network.remote-delivery.status.get`, derived from the row10t external
+  cross-process transport status identity over the local row10k
+  transport-dispatch state, row10l fixture transport proof, row10m delete/export
+  readiness proof, row10p provider/child readiness, row10q cross-process custody
+  readiness, row10r deterministic replay metadata through the row10s
+  cross-process replay status bridge, and row10t transport envelope/ack
+  metadata. The cached deterministic protocol snapshot carries row10b through
+  row10t refs, prepared candidate counts, blocked-dispatch refs, row10l fixture
+  dispatch/ack counts, delete/export readiness refs, provider/child readiness
+  refs, cross-process custody refs, replay/store/cursor refs, replay counts,
+  transport envelope/ack counts, duplicate rejection, and zero live dispatch/ack
+  counters without broker/family-hub transport, product
+  remote acknowledgement, provider or child-device delivery, actual remote
+  delete/export propagation, policy, adapter, exact content, or host-filter
+  claims.
+- Network live-capture status reports through
+  `agent.network.live-capture.status.get`, derived from row13 live-capture
+  proof-gate state and row03a raw-capture custody readiness refs. The
+  deterministic service snapshot exposes proof-ready, manual-required,
+  unavailable, and degraded platform rows plus zero driver, packet capture,
+  raw-PCAP-without-custody, content, policy, adapter, enforcement, netstat
+  substitution, remote upload, and host-filter claims.
 - App/game live process capture bridge rows through the existing activity
   capture journal/store path, exposing runtime-only app/game rows to the
   existing app-use/games read models without foreground, policy, or adapter
@@ -154,11 +176,24 @@ flowchart LR
 - Network runtime delivery output is service-local and read-model-count only;
   broker/family-hub delivery, cross-process durable replay/retention, policy
   execution, adapter execution, and host filtering remain separate gaps.
-- Network remote delivery status output is a read-only proof/status bridge; real
-  broker or family-hub transport, remote acknowledgement, provider/child-device
-  delivery, cross-process replay, remote delete/export propagation, product
-  readiness, policy execution, adapter execution, and host filtering remain
-  separate gaps.
+- Network product-path bridge output is service-backed proof metadata only;
+  live capture drivers, local-AI model execution, full policy engine execution,
+  adapter mutation, exact URL/content claims, broker/family-hub delivery, and
+  host filtering remain separate gaps.
+- Network remote delivery status output is a read-only proof/status bridge;
+  row10l fixture transport, row10m delete/export readiness, row10p
+  provider/child readiness, row10q cross-process custody readiness, row10r
+  deterministic replay metadata through the row10s cross-process replay status
+  bridge, and row10t deterministic external cross-process transport envelope/ack
+  metadata are visible through the status bridge, but real broker or family-hub
+  transport, product remote acknowledgement, provider/child-device delivery,
+  actual remote delete/export propagation, product readiness, policy execution,
+  adapter execution, and host filtering remain separate gaps.
+- Network live-capture status output is a read-only proof/status bridge. Real
+  Npcap/libpcap invocation, packet capture, raw artifact creation, raw PCAP
+  without custody, exact URL/content/decrypted-payload visibility, netstat
+  substitution, policy execution, adapter execution, enforcement command
+  publication, and host filtering remain separate gaps.
 - App/game live process, optional foreground, Windows shortcut inventory,
   Windows packaged-app manifest capture, and Windows registry inventory capture
   have bounded service proof; subscribed foreground transitions, policy

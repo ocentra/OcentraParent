@@ -1,0 +1,45 @@
+{
+  "acceptedInputs": [
+    "row10g prepared outbox candidates",
+    "row10e durable envelope refs",
+    "row10d receipt-ledger refs",
+    "row10b through row10f remote delivery metadata refs"
+  ],
+  "fixtureTransportRefs": [
+    "network.remote-delivery.fixture-transport.10l",
+    "network.remote-delivery.fixture-dispatch-attempt.10l",
+    "network.remote-delivery.fixture-ack.10l"
+  ],
+  "provenStates": [
+    "fixtureDispatchAttemptCount equals sourceOutboxCandidateCount",
+    "fixtureRemoteAckCount equals sourceOutboxCandidateCount",
+    "fixtureRecordsMatchOutboxCandidates=true",
+    "fixtureState=FixtureAckRecorded"
+  ],
+  "parserInvariants": [
+    "fixture records preserve event id, event type, correlation id, outbox ref, and handoff ref",
+    "fixture dispatch attempts and fixture acknowledgements are proof-local records only",
+    "fixture acknowledgements do not upgrade broker/family-hub/provider/child-device delivery",
+    "unsupported product-ready, policy, adapter, enforcement, exact-content, or host-filter claims are rejected"
+  ],
+  "noClaims": [
+    "live broker dispatch",
+    "live family-hub relay dispatch",
+    "remote provider delivery",
+    "child-device delivery",
+    "remote delete/export propagation implementation",
+    "product-ready remote delivery",
+    "policy authority",
+    "side-effect authority",
+    "enforcement command publication",
+    "adapter action execution",
+    "raw PCAP",
+    "exact URL from network-only evidence",
+    "decrypted payload",
+    "page content",
+    "video content",
+    "private-message content",
+    "search-query content",
+    "host filtering"
+  ]
+}

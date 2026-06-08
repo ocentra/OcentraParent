@@ -7,6 +7,7 @@ use ocentra_parent_agent_protocol::{
     LogFieldValue,
 };
 
+mod physical_lan_scan;
 mod production_household_proof;
 mod signed_discovery_relay_spine;
 mod source_matrix;
@@ -18,6 +19,7 @@ use crate::lan_pairing_browser_add_device_scan::{
 use crate::lan_pairing_household_device_spine;
 use crate::{lan_pairing::LanPairingRuntime, time::timestamp_now};
 
+use self::physical_lan_scan::network_devices_for_command;
 use self::production_household_proof::production_household_proof_summary;
 use self::signed_discovery_relay_spine::signed_discovery_relay_spine_summary;
 use self::source_matrix::lan_discovery_source_matrix;
@@ -104,7 +106,7 @@ fn browser_add_device_read_model(
     let selected = runtime.selected_target();
     let trusted_device_registry = trusted_device_registry(runtime);
     let household_device_decisions = household_device_decisions(runtime);
-    let network_devices = lan_network_inventory::discover_lan_network_devices();
+    let network_devices = network_devices_for_command(command);
     let has_network_devices = !network_devices.is_empty();
     let discovery_source = if has_network_devices {
         LanPairingDiscoverySource::PhysicalHouseholdLan

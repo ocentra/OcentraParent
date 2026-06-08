@@ -1,0 +1,129 @@
+{
+  "proof": "network-remote-delivery-external-cross-process-transport-proof",
+  "proofRevision": "network-remote-delivery-external-cross-process-transport-proof/v1",
+  "checkedAt": "deterministic:network-remote-delivery-external-cross-process-transport-proof/v1",
+  "sourceFingerprint": "source-tree:c6d2bebb1071c008692208e805fcf491c0f27f1bb60d856e7d6f9f88df041376",
+  "sourceRefs": [
+    "scripts/test/network-remote-delivery-external-cross-process-transport-proof.mjs",
+    "crates/agent-protocol/src/constants/network_flow.rs",
+    "crates/agent-protocol/src/network_flow.rs",
+    "crates/agent-protocol/src/network_flow_tests.rs",
+    "crates/agent-core/src/lib.rs",
+    "crates/agent-core/src/network_event_runtime.rs",
+    "crates/agent-core/src/network_event_runtime/remote_delivery_external_cross_process_transport.rs",
+    "crates/agent-core/src/network_event_runtime/remote_delivery_external_cross_process_transport_types.rs",
+    "crates/agent-core/src/network_event_runtime/remote_delivery_cross_process_replay.rs",
+    "crates/agent-core/src/network_event_runtime/remote_delivery_cross_process_replay_types.rs",
+    "crates/agent-service/src/network_remote_delivery_status_cross_process.rs",
+    "crates/agent-service/src/network_remote_delivery_status_payload.rs",
+    "crates/agent-service/src/network_remote_delivery_status_service_tests.rs",
+    "packages/agent-protocol-domain/src/defaults.ts",
+    "packages/agent-protocol-domain/src/network-remote-delivery-status.ts",
+    "packages/agent-protocol-domain/tests/network-remote-delivery-status.test.ts",
+    "crates/agent-protocol/README.md",
+    "crates/agent-service/README.md",
+    "packages/agent-protocol-domain/README.md",
+    "docs/features/network-domain-control.md",
+    "docs/plans/network-plan/implementation-checklist.md",
+    "docs/plans/network-plan/workpacks/README.md"
+  ],
+  "runContext": "deterministic-row10t-external-cross-process-transport-envelope-ack",
+  "proofRoot": "output\\network-plan-proof\\10t-remote-delivery-external-cross-process-transport",
+  "testRoot": "test-results\\network-remote-delivery-external-cross-process-transport-proof",
+  "commands": [
+    {
+      "name": "agent-core-external-cross-process-transport-test",
+      "command": "cargo test -p ocentra-parent-agent-core external_cross_process_transport",
+      "status": 0,
+      "log": "output\\network-plan-proof\\10t-remote-delivery-external-cross-process-transport\\agent-core-external-cross-process-transport-test.log"
+    },
+    {
+      "name": "agent-protocol-remote-delivery-status-test",
+      "command": "cargo test -p ocentra-parent-agent-protocol network_remote_delivery_status",
+      "status": 0,
+      "log": "output\\network-plan-proof\\10t-remote-delivery-external-cross-process-transport\\agent-protocol-remote-delivery-status-test.log"
+    },
+    {
+      "name": "agent-service-remote-delivery-status-test",
+      "command": "cargo test -p ocentra-parent-agent-service network_remote_delivery_status",
+      "status": 0,
+      "log": "output\\network-plan-proof\\10t-remote-delivery-external-cross-process-transport\\agent-service-remote-delivery-status-test.log"
+    },
+    {
+      "name": "agent-protocol-domain-build",
+      "command": "cmd /c npm run build --workspace @ocentra-parent/agent-protocol-domain",
+      "status": 0,
+      "log": "output\\network-plan-proof\\10t-remote-delivery-external-cross-process-transport\\agent-protocol-domain-build.log"
+    },
+    {
+      "name": "agent-protocol-domain-remote-delivery-status-test",
+      "command": "cmd /c npm run test --workspace @ocentra-parent/agent-protocol-domain -- network-remote-delivery-status.test.ts",
+      "status": 0,
+      "log": "output\\network-plan-proof\\10t-remote-delivery-external-cross-process-transport\\agent-protocol-domain-remote-delivery-status-test.log"
+    },
+    {
+      "name": "agent-service-clippy",
+      "command": "cargo clippy -p ocentra-parent-agent-service --all-targets -- -D warnings",
+      "status": 0,
+      "log": "output\\network-plan-proof\\10t-remote-delivery-external-cross-process-transport\\agent-service-clippy.log"
+    },
+    {
+      "name": "rust-format",
+      "command": "cargo fmt --all --check",
+      "status": 0,
+      "log": "output\\network-plan-proof\\10t-remote-delivery-external-cross-process-transport\\rust-format.log"
+    },
+    {
+      "name": "source-shape",
+      "command": "node scripts/check-source-shape.mjs",
+      "status": 0,
+      "log": "output\\network-plan-proof\\10t-remote-delivery-external-cross-process-transport\\source-shape.log"
+    },
+    {
+      "name": "git-diff-check",
+      "command": "git diff --check",
+      "status": 0,
+      "log": "output\\network-plan-proof\\10t-remote-delivery-external-cross-process-transport\\git-diff-check.log"
+    }
+  ],
+  "artifacts": {
+    "expectedExternalCrossProcessTransport": "output\\network-plan-proof\\10t-remote-delivery-external-cross-process-transport\\expected-external-cross-process-transport.json",
+    "securityNegativeLog": "output\\network-plan-proof\\10t-remote-delivery-external-cross-process-transport\\09-security-negative-proof.log",
+    "validationCommands": "output\\network-plan-proof\\10t-remote-delivery-external-cross-process-transport\\12-validation-commands.log",
+    "proofSummary": "output\\network-plan-proof\\10t-remote-delivery-external-cross-process-transport\\proof-summary.json",
+    "testProof": "test-results\\network-remote-delivery-external-cross-process-transport-proof\\proof.json"
+  },
+  "coveredRows": [
+    "network-plan supplemental row 10t remote delivery external cross-process transport proof",
+    "network-plan supplemental row 10s remote delivery cross-process replay status bridge proof",
+    "network-plan supplemental row 10r remote delivery cross-process durable replay metadata proof"
+  ],
+  "provenBoundaries": [
+    "Rust core consumes row10r replay records and creates deterministic row10t transport envelope and ack records",
+    "row10t transport records preserve sequence, event id, event type, correlation id, durable envelope/store refs, row10r replay refs, and transport refs",
+    "Rust protocol, service WebSocket payload, and TypeScript parser expose row10t status identity and transport envelope/ack counts in the existing remote-delivery status shape",
+    "TypeScript parser rejects stale row10t refs, mismatched row10t transport counts, disabled row10t implementation, live remote ack counters, product delivery, policy authority, adapter execution, host filtering, and exact-content claims",
+    "row10t keeps live broker/family-hub/provider/child delivery, product remote acknowledgement delivery, actual remote delete/export propagation, product-ready delivery, policy authority, side-effect authority, adapter action, host filtering, exact content, raw PCAP, and enforcement-command publication unclaimed"
+  ],
+  "notClaimed": [
+    "live broker dispatch",
+    "live family-hub relay dispatch",
+    "product remote acknowledgement delivery",
+    "remote provider delivery",
+    "child-device delivery",
+    "actual remote delete/export propagation",
+    "product-ready remote delivery",
+    "policy authority",
+    "side-effect authority",
+    "enforcement command publication",
+    "adapter action execution",
+    "raw PCAP",
+    "exact URL from network-only evidence",
+    "decrypted payload",
+    "page content",
+    "video content",
+    "private-message content",
+    "search-query content",
+    "host filtering"
+  ]
+}

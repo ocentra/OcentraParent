@@ -1,0 +1,2 @@
+eventing-full-plan-proof-ok:all-eventing-harnesses
+proof=output/eventing-plan-proof/full-eventing-plan/proof-summary.json

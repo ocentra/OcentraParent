@@ -1,0 +1,15 @@
+{
+  "artifacts": [
+    {
+      "id": "end-to-end-pipeline",
+      "group": "product-path-proof",
+      "path": "output/network-plan-proof/51-end-to-end-pipeline-proof/proof-summary.json",
+      "kind": "json",
+      "parsedProof": "network-end-to-end-pipeline",
+      "freshness": {
+        "kind": "refreshed-by-aggregate-command",
+        "command": "network-end-to-end-pipeline-proof"
+      }
+    }
+  ]
+}

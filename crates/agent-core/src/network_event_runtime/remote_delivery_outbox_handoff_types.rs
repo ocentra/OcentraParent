@@ -8,6 +8,7 @@ use super::{
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum NetworkRuntimeRemoteDeliveryOutboxState {
     PreparedNotDispatched,
+    DispatchBlockedManualRequired,
 }
 
 #[derive(Clone, Debug, PartialEq, Eq)]

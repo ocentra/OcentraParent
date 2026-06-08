@@ -1,0 +1,35 @@
+{
+  "sourceOfTruth": "Row52 platform claim manifest proof entries plus locked target-to-status projection",
+  "targetStatusMapping": {
+    "WindowsFirewall": "supported",
+    "WindowsWfp": "lab-ready",
+    "AndroidVpnService": "physical-device-ready",
+    "AppleNetworkExtensionMacOs": "apple-device-ready",
+    "AppleNetworkExtensionIos": "apple-device-ready",
+    "LinuxNftables": "distro-ready",
+    "LinuxEbpf": "distro-ready",
+    "LinuxTun": "distro-ready"
+  },
+  "reportableNonReadyStates": [
+    "dry-run",
+    "research-only",
+    "manual-required",
+    "unavailable"
+  ],
+  "authorizationInvariant": "adapter_authorized_by_proof is accepted only for Row52 ready claim rows",
+  "requiredRefs": [
+    "platform manifest ref",
+    "adapter capability refs or missing-artifact follow-ups",
+    "OS/device refs",
+    "permission or entitlement refs when available",
+    "audit refs",
+    "portal service-backed status proof ref"
+  ],
+  "notClaimed": [
+    "generic platform support",
+    "live adapter execution",
+    "enforcement command publication",
+    "UI policy authority",
+    "broader platform capability UX"
+  ]
+}

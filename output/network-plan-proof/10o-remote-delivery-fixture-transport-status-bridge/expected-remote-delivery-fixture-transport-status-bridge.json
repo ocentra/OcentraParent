@@ -1,0 +1,41 @@
+{
+  "statusCommandAndEvent": {
+    "command": "agent.network.remote-delivery.status.get",
+    "event": "agent.network.remote-delivery.status.reported",
+    "payloadField": "networkRemoteDeliveryStatus"
+  },
+  "statusBridgeRef": "network.remote-delivery.delete-export-status-bridge.10n",
+  "fixtureTransportRefs": [
+    "network.remote-delivery.fixture-transport.10l",
+    "network.remote-delivery.fixture-dispatch-attempt.10l",
+    "network.remote-delivery.fixture-ack.10l"
+  ],
+  "provenStates": [
+    "fixtureSourceOutboxCandidateCount equals outboxCandidateCount",
+    "fixtureDispatchAttemptCount equals outboxCandidateCount",
+    "fixtureRemoteAckCount equals outboxCandidateCount",
+    "fixtureRecordsMatchOutboxCandidates=true",
+    "dispatchAttemptCount remains zero for live transport",
+    "remoteAckCount remains zero for live transport"
+  ],
+  "noClaims": [
+    "live broker dispatch",
+    "live family-hub relay dispatch",
+    "remote provider delivery",
+    "child-device delivery",
+    "actual remote delete/export propagation",
+    "product-ready remote delivery",
+    "policy authority",
+    "side-effect authority",
+    "enforcement command publication",
+    "adapter action execution",
+    "raw PCAP",
+    "exact URL from network-only evidence",
+    "decrypted payload",
+    "page content",
+    "video content",
+    "private-message content",
+    "search-query content",
+    "host filtering"
+  ]
+}

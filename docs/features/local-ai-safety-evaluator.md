@@ -62,6 +62,14 @@ claim needs proof, not slogans.
   screenshot transfer by default, mobile dormant/fallback rules, and
   child-agent-only policy authority. These are planned gaps, not completed
   product claims.
+- `scripts/test/eventing-household-mesh-consumer-proof.mjs` now proves the
+  Household Mesh Bridge eventing consumer boundary in `agent-core`: selected
+  local events export as typed authenticated LAN messages, incoming messages
+  validate before local republish, unselected or mismatched event/message refs
+  are rejected, direct remote publish into another runtime bus is rejected, raw
+  payload transfer is rejected, and child-agent-only AI policy authority is
+  preserved. This is bridge-boundary proof, not production provider execution or
+  model-quality proof.
 - `LocalAiRuntimeStatusSurfaceReadModelSchema` and
   `scripts/test/local-ai-runtime-status-read-model-proof.mjs` now project the
   existing provider proof rows into parent-facing runtime status rows. The proof

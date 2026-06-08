@@ -52,16 +52,26 @@ fn activity_store_reports_network_flow_read_model_from_ingested_events() {
     assert_eq!(row.counters.connection_count, 1);
     assert_eq!(row.counters.bytes_sent, None);
     assert_eq!(row.counters.bytes_received, None);
+    assert_eq!(row.evidence.len(), 1);
+    assert_eq!(row.evidence[0].kind, ActivityEvidenceKind::LocalDbRow);
+    assert!(row.evidence[0]
+        .evidence_id
+        .starts_with(constants::activity_capture::NETWORK_EVIDENCE_ID_PREFIX));
+    assert!(row.evidence[0]
+        .uri
+        .as_deref()
+        .unwrap_or_default()
+        .starts_with(constants::activity_capture::NETWORK_EVIDENCE_URI_PREFIX));
 }
 
 #[test]
 fn activity_store_filters_network_retention_tombstones_from_read_model() {
     let store = ActivityStore::open_in_memory().expect(constants::error::ACTIVITY_STORE_OPENS);
     let event = network_event();
-    let deleted_event_id = event.event_id.clone();
+    let deleted_evidence_id = event.evidence[0].evidence_id.clone();
 
     store
-        .ingest_events(&[event, network_retention_deleted_event(&deleted_event_id)])
+        .ingest_events(&[event, network_retention_deleted_event(&deleted_evidence_id)])
         .expect(constants::error::ACTIVITY_STORE_INGESTS);
     let read_model = store
         .network_flow_read_model(
@@ -81,7 +91,7 @@ fn activity_store_filters_network_retention_tombstones_from_read_model() {
     );
     assert_eq!(
         read_model.deleted_evidence_reference_ids,
-        vec![deleted_event_id]
+        vec![deleted_evidence_id]
     );
 }
 

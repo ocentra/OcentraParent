@@ -5,6 +5,7 @@ const NullableTextSchema = Schema.Union(Schema.String, Schema.Null);
 const NullableSchemaVersionSchema = Schema.Union(Schema.String, Schema.Number, Schema.Null);
 const NullableNumberSchema = Schema.Union(Schema.Number, Schema.Null);
 const NullableBooleanSchema = Schema.Union(Schema.Boolean, Schema.Null);
+const FalseOrNullSchema = Schema.Union(Schema.Literal(false), Schema.Null);
 
 const PortalPolicyPreviewReadModelSchema = withParser(
   Schema.Struct({
@@ -30,6 +31,12 @@ const PortalPolicyPreviewReadModelSchema = withParser(
     localAiResultId: NullableTextSchema,
     dryRun: NullableBooleanSchema,
     enforcementHandoffState: NullableTextSchema,
+    networkEvidenceGrade: NullableTextSchema,
+    networkRequestedPolicyAction: NullableTextSchema,
+    networkMappedPolicyAction: NullableTextSchema,
+    networkPolicyMappingMode: NullableTextSchema,
+    networkAdapterActionAuthorized: FalseOrNullSchema,
+    networkEnforcementCommandAuthorized: FalseOrNullSchema,
   })
 );
 
@@ -61,6 +68,14 @@ export function parsePolicyPreviewReadModel(payload: AgentProtocolLogFields): Po
     localAiResultId: valueOrNull(payload[AgentProtocolDefaults.Field.LocalAiResultId]),
     dryRun: valueOrNull(payload[AgentProtocolDefaults.Field.PolicyDryRun]),
     enforcementHandoffState: valueOrNull(payload[AgentProtocolDefaults.Field.PolicyHandoffState]),
+    networkEvidenceGrade: valueOrNull(payload[AgentProtocolDefaults.Field.NetworkEvidenceGrade]),
+    networkRequestedPolicyAction: valueOrNull(payload[AgentProtocolDefaults.Field.NetworkRequestedPolicyAction]),
+    networkMappedPolicyAction: valueOrNull(payload[AgentProtocolDefaults.Field.NetworkMappedPolicyAction]),
+    networkPolicyMappingMode: valueOrNull(payload[AgentProtocolDefaults.Field.NetworkPolicyMappingMode]),
+    networkAdapterActionAuthorized: valueOrNull(payload[AgentProtocolDefaults.Field.NetworkAdapterActionAuthorized]),
+    networkEnforcementCommandAuthorized: valueOrNull(
+      payload[AgentProtocolDefaults.Field.NetworkEnforcementCommandAuthorized]
+    ),
   });
 
   if (!parsed.success) {

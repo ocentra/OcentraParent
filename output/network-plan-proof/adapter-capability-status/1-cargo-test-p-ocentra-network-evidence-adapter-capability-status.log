@@ -1,0 +1,13 @@
+running 7 tests
+test tests::adapter_capability_status::adapter_capability_status_derives_specific_states_from_platform_manifest ... ok
+test tests::adapter_capability_status::adapter_capability_status_preserves_manual_followups_and_unavailable_rows ... ok
+test tests::adapter_capability_status_rejections::adapter_capability_status_rejects_adapter_authorization_on_non_ready_rows ... ok
+test tests::adapter_capability_status_rejections::adapter_capability_status_rejects_mismatched_manual_followups ... ok
+test tests::adapter_capability_status_rejections::adapter_capability_status_rejects_parallel_or_live_authority_claims ... ok
+test tests::adapter_capability_status_rejections::adapter_capability_status_rejects_stale_platform_manifest_summary ... ok
+test tests::adapter_capability_status_rejections::adapter_capability_status_rejects_unsafe_platform_manifest_entries ... ok
+
+test result: ok. 7 passed; 0 failed; 0 ignored; 0 measured; 216 filtered out; finished in <duration>
+
+    Finished `test` profile [unoptimized + debuginfo] target(s) in <duration>
+     Running unittests src/lib.rs (target/debug/deps/<test-binary>)

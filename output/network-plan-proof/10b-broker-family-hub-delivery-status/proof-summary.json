@@ -2,8 +2,8 @@
   "proof": "network-broker-family-hub-delivery-status",
   "proofRevision": "network-broker-family-hub-delivery-status-proof/v1",
   "checkedAt": "deterministic:network-broker-family-hub-delivery-status-proof/v1",
-  "sourceFingerprint": "source-tree:65ae397cbe01bf44a0ed1dc3328a9468a02c75f611a4a873e0b7b3164c0aac07",
-  "mergeBase": "f957c4aa90ed42ea266d423236f89361d1d2241a",
+  "sourceFingerprint": "source-tree:ef3ab33772e05aedca578ee3bf9b73b531efdf1fbc6e7b946b9c337a5fce4260",
+  "mergeBase": "466978a9b8f6ac946977169fd2e16e01b4cf6d92",
   "proofRoot": "output\\network-plan-proof\\10b-broker-family-hub-delivery-status",
   "testRoot": "test-results\\network-broker-family-hub-delivery-status-proof",
   "commands": [

@@ -1,5 +1,5 @@
 import { spawnSync } from 'node:child_process';
-import { mkdirSync, writeFileSync } from 'node:fs';
+import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 
 const proofRoot = join('output', 'eventing-plan-proof', 'full-eventing-plan');
@@ -19,6 +19,7 @@ const proofScripts = [
   'eventing-enforcement-journal-action-proof.mjs',
   'eventing-family-variant-proof.mjs',
   'eventing-handler-policy-proof.mjs',
+  'eventing-household-mesh-consumer-proof.mjs',
   'eventing-journal-replay-proof.mjs',
   'eventing-lifecycle-clear-proof.mjs',
   'eventing-lock-await-proof.mjs',
@@ -67,13 +68,19 @@ const directCommands = [
   },
 ];
 
-const scriptResults = proofScripts.map((scriptName) =>
-  runCommand({
-    name: scriptName.replace(/\.mjs$/, ''),
-    command: 'node',
-    args: [join('scripts', 'test', scriptName)],
-  })
-);
+const sideEffectSnapshot = snapshotTrackedProofSideEffects();
+let scriptResults = [];
+try {
+  scriptResults = proofScripts.map((scriptName) =>
+    runCommand({
+      name: scriptName.replace(/\.mjs$/, ''),
+      command: 'node',
+      args: [join('scripts', 'test', scriptName)],
+    })
+  );
+} finally {
+  restoreTrackedProofSideEffects(sideEffectSnapshot);
+}
 const directResults = directCommands.map(runCommand);
 const commands = [...scriptResults, ...directResults];
 
@@ -162,17 +169,15 @@ writeGroupedLog('11-network-consumer-proof.log', commands, [
   'eventing-network-service-event-chain-stream-proof',
   'eventing-network-delivery-decision-proof',
 ]);
+writeGroupedLog('12-household-mesh-consumer-proof.log', commands, ['eventing-household-mesh-consumer-proof']);
 
 const proof = {
+  schemaVersion: 1,
   proof: 'eventing-full-plan',
-  checkedAt: new Date().toISOString(),
-  branch: runText('git', ['branch', '--show-current']).trim(),
-  commit: runText('git', ['rev-parse', 'HEAD']).trim(),
-  originMain: runText('git', ['rev-parse', 'origin/main']).trim(),
-  mergeBase: runText('git', ['merge-base', 'HEAD', 'origin/main']).trim(),
-  statusShort: runText('git', ['status', '--short']),
   proofRoot,
   testRoot,
+  runContext:
+    'This committed proof artifact is deterministic; branch, commit, pushed state, and validation command output are reported in the worker handoff.',
   commands,
   requiredProofPack: [
     '00-source-snapshot.md',
@@ -187,20 +192,32 @@ const proof = {
     '09-manual-platform-proof.md',
     '10-validation-commands.log',
     '11-network-consumer-proof.log',
+    '12-household-mesh-consumer-proof.log',
   ].map((name) => join(proofRoot, name)),
   provenRows: [
     '05-41 reusable eventing crate runtime rows',
     '42-62 parent/controller, child-agent, network, UI, enforcement, and command-boundary consumer rows',
     '63-78 reusable eventing type-safety, compatibility, lifecycle, topology, delivery, and source-safety rows',
+    '12-household-mesh-consumer proof-pack row for Household Mesh consumer bridge boundary',
   ],
   networkConsumerProof: {
     proofLog: join(proofRoot, '11-network-consumer-proof.log'),
     proves:
       'network consumes ocentra-eventing for typed publish/routing, queue/drain, request-response, service read-model delivery, service event-chain streaming, TypeScript parity, and broker/relay-hub manual-required delivery decisions without adding network business logic to crates/ocentra-eventing',
   },
+  householdMeshConsumerProof: {
+    proofLog: join(proofRoot, '12-household-mesh-consumer-proof.log'),
+    proves:
+      'Household Mesh consumer bridge exports only selected local events into typed authenticated LAN messages, validates incoming messages before local republish, rejects direct remote publish into another runtime bus, rejects raw payload transfer and provider/parent policy-authority escalation, and preserves child-agent-only AI policy authority without adding LAN, AI, policy, or enforcement behavior to crates/ocentra-eventing',
+  },
   notClaimed: [
     'broker-backed delivery',
     'relay-hub delivery',
+    'shared LAN-wide event bus',
+    'remote direct publish into another runtime local bus',
+    'provider-owned policy authority',
+    'raw screenshot or capture payload transfer by default',
+    'physical household provider execution',
     'platform adapter execution',
     'host DNS/filter enforcement',
     'portal-owned business event publishing',
@@ -216,7 +233,7 @@ function runCommand(entry) {
   const result = spawnSync(entry.command, entry.args, { encoding: 'utf8', shell: false });
   const safeName = entry.name.replace(/[^a-zA-Z0-9_.-]/g, '-');
   const log = join(logRoot, `${safeName}.log`);
-  writeFileSync(log, `${result.stdout ?? ''}${result.stderr ?? ''}`);
+  writeFileSync(log, normalizeCommandOutput(`${result.stdout ?? ''}${result.stderr ?? ''}`));
   if (result.status !== 0) {
     throw new Error(`${entry.name} failed with exit ${result.status}; log=${log}`);
   }
@@ -226,6 +243,63 @@ function runCommand(entry) {
     status: result.status,
     log,
   };
+}
+
+function snapshotTrackedProofSideEffects() {
+  const result = spawnSync(
+    'git',
+    ['ls-files', 'output/eventing-plan-proof', 'output/network-plan-proof', 'test-results'],
+    {
+      encoding: 'utf8',
+      shell: false,
+    }
+  );
+  if (result.status !== 0) {
+    throw new Error(`git ls-files failed with exit ${result.status}`);
+  }
+  return result.stdout
+    .split(/\r?\n/u)
+    .filter(Boolean)
+    .filter((path) => !isAggregateProofPath(path))
+    .map((path) => [path, readFileSync(path)]);
+}
+
+function restoreTrackedProofSideEffects(snapshot) {
+  for (const [path, contents] of snapshot) {
+    writeFileWithRetry(path, contents);
+  }
+}
+
+function writeFileWithRetry(path, contents) {
+  let lastError = null;
+  for (let attempt = 0; attempt < 8; attempt += 1) {
+    try {
+      writeFileSync(path, contents);
+      return;
+    } catch (error) {
+      lastError = error;
+      if (!isTransientWriteError(error)) {
+        throw error;
+      }
+      sleepSync(75 * (attempt + 1));
+    }
+  }
+  throw lastError;
+}
+
+function isTransientWriteError(error) {
+  return ['UNKNOWN', 'EBUSY', 'EPERM', 'EACCES'].includes(error?.code);
+}
+
+function sleepSync(milliseconds) {
+  Atomics.wait(new Int32Array(new SharedArrayBuffer(4)), 0, 0, milliseconds);
+}
+
+function isAggregateProofPath(path) {
+  const normalized = path.replace(/\\/gu, '/');
+  const normalizedProofRoot = proofRoot.replace(/\\/gu, '/');
+  const normalizedTestRoot = testRoot.replace(/\\/gu, '/');
+  return normalized.startsWith(`${normalizedProofRoot}/`) || normalized.startsWith(`${normalizedTestRoot}/`);
 }
 
 function writeGroupedLog(filename, commands, names) {
@@ -240,16 +314,9 @@ function sourceSnapshot() {
   return [
     '# Eventing Full Plan Source Snapshot',
     '',
-    `branch: ${runText('git', ['branch', '--show-current']).trim()}`,
-    `head: ${runText('git', ['rev-parse', 'HEAD']).trim()}`,
-    `origin/main: ${runText('git', ['rev-parse', 'origin/main']).trim()}`,
-    `merge-base: ${runText('git', ['merge-base', 'HEAD', 'origin/main']).trim()}`,
+    'Deterministic full-eventing-plan proof for reusable eventing and approved consumer-boundary evidence.',
     '',
-    '## Status',
-    '',
-    '```text',
-    runText('git', ['status', '--short']).trimEnd(),
-    '```',
+    'Run-specific branch, commit, pushed state, and validation command output are reported in the worker handoff; this committed artifact is kept deterministic so rerunning the proof does not dirty the checkout.',
     '',
     '## Inspected Paths',
     '',
@@ -274,4 +341,54 @@ function runText(command, args) {
     throw new Error(`${command} ${args.join(' ')} failed with exit ${result.status}`);
   }
   return `${result.stdout ?? ''}${result.stderr ?? ''}`;
+}
+
+function normalizeCommandOutput(value) {
+  const lines = value
+    .replace(/\r\n/gu, '\n')
+    .replace(/\\/gu, '/')
+    .replace(/target\/debug\/deps\/[^\s)]+/gu, 'target/debug/deps/<test-binary>')
+    .replace(/\b\d+\.\d+s\b/gu, '<duration>s')
+    .replace(/\b\d+\.\d{2}ms\b/gu, '<duration>ms')
+    .replace(/target\(s\) in [^\n]+/gu, 'target(s) in <duration>')
+    .replace(/finished in [^\n]+/giu, 'finished in <duration>')
+    .replace(/Duration [^\n]+/gu, 'Duration <duration>')
+    .replace(/Start at\s+[0-9:]+/gu, 'Start at <time>')
+    .replace(
+      /file has \d+ lines; crossed \d+-line advisory band; maximum is \d+/gu,
+      'file has <lines> lines; crossed <band>-line advisory band; maximum is <max>'
+    )
+    .replace(
+      /function has \d+ lines; warning starts at \d+ of \d+/gu,
+      'function has <lines> lines; warning starts at <warn> of <max>'
+    )
+    .replace(
+      /file has \d+ functions; warning starts at \d+ of \d+/gu,
+      'file has <functions> functions; warning starts at <warn> of <max>'
+    )
+    .replace(
+      /file has \d+ structs\/enums; warning starts at \d+ of \d+/gu,
+      'file has <structs-enums> structs/enums; warning starts at <warn> of <max>'
+    )
+    .split('\n')
+    .filter((line) => !/^\s+Compiling /u.test(line))
+    .filter((line) => !/^\s+Blocking waiting for file lock on build directory$/u.test(line));
+  return `${stableRustTestLines(lines).join('\n').trim()}\n`;
+}
+
+function stableRustTestLines(lines) {
+  const sortedTestLines = lines.filter(isRustTestLine).sort();
+  let nextTestLine = 0;
+  return lines.map((line) => {
+    if (!isRustTestLine(line)) {
+      return line;
+    }
+    const sortedLine = sortedTestLines[nextTestLine];
+    nextTestLine += 1;
+    return sortedLine;
+  });
+}
+
+function isRustTestLine(line) {
+  return /^test .+ \.\.\. ok$/u.test(line);
 }

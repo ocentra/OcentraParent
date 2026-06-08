@@ -37,7 +37,7 @@
     "TypeScript parser rejects missing broker or family-hub requirement artifacts",
     "Rust service serializes the status into the protocol-owned payload field",
     "WebSocket routing returns the status event from the browser/network command group",
-    "WebSocket routing returns a command-rejected warning instead of panicking if proof-derived status cannot be built",
+    "WebSocket routing keeps a command-rejected warning branch for proof-derived status build failures; runtime tests cover the deterministic success path",
     "bridge status cannot claim provider delivery, child-device delivery, policy authority, side-effect authority, adapter action, enforcement commands, exact content, or host filtering"
   ],
   "noClaims": [

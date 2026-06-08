@@ -1,0 +1,129 @@
+{
+  "proof": "network-remote-delivery-transport-dispatch-state-proof",
+  "proofRevision": "network-remote-delivery-transport-dispatch-state-proof/v1",
+  "checkedAt": "deterministic:network-remote-delivery-transport-dispatch-state-proof/v1",
+  "sourceFingerprint": "source-tree:93aaac9ebcc6fd8a33fa59ce47b6d8275518d5b3c2e0a26b37abb59b00ae14db",
+  "sourceRefs": [
+    "scripts/test/network-remote-delivery-transport-dispatch-state-proof.mjs",
+    "crates/agent-protocol/src/constants/network_flow.rs",
+    "crates/agent-protocol/src/network_flow.rs",
+    "crates/agent-protocol/src/network_flow_tests.rs",
+    "crates/agent-core/src/lib.rs",
+    "crates/agent-core/src/network_event_runtime.rs",
+    "crates/agent-core/src/network_event_runtime/remote_delivery_transport_dispatch_state.rs",
+    "crates/agent-core/src/network_event_runtime/remote_delivery_transport_dispatch_state_types.rs",
+    "crates/agent-core/src/network_event_runtime/remote_delivery_no_enforcement_invariant.rs",
+    "crates/agent-core/src/network_event_runtime/remote_delivery_no_enforcement_invariant_types.rs",
+    "crates/agent-core/src/network_event_runtime/remote_delivery_dispatch_readiness.rs",
+    "crates/agent-core/src/network_event_runtime/remote_delivery_dispatch_readiness_types.rs",
+    "crates/agent-core/src/network_event_runtime/remote_delivery_outbox_handoff_types.rs",
+    "crates/agent-service/src/network_remote_delivery_status_payload.rs",
+    "crates/agent-service/src/network_remote_delivery_status_service_tests.rs",
+    "packages/agent-protocol-domain/src/defaults.ts",
+    "packages/agent-protocol-domain/src/network-remote-delivery-status.ts",
+    "packages/agent-protocol-domain/tests/network-remote-delivery-status.test.ts",
+    "docs/features/network-domain-control.md",
+    "docs/plans/network-plan/implementation-checklist.md",
+    "docs/plans/network-plan/workpacks/README.md"
+  ],
+  "sourceBase": "c99e70b85e33090dfa85d6dfe9df41da9d875fb1",
+  "proofRoot": "output\\network-plan-proof\\10k-remote-delivery-transport-dispatch-state",
+  "testRoot": "test-results\\network-remote-delivery-transport-dispatch-state-proof",
+  "commands": [
+    {
+      "name": "agent-core-remote-delivery-transport-dispatch-state-test",
+      "command": "cargo test -p ocentra-parent-agent-core network_runtime_remote_delivery_transport_dispatch_state",
+      "status": 0,
+      "log": "output\\network-plan-proof\\10k-remote-delivery-transport-dispatch-state\\agent-core-remote-delivery-transport-dispatch-state-test.log"
+    },
+    {
+      "name": "agent-protocol-remote-delivery-status-test",
+      "command": "cargo test -p ocentra-parent-agent-protocol network_remote_delivery_status",
+      "status": 0,
+      "log": "output\\network-plan-proof\\10k-remote-delivery-transport-dispatch-state\\agent-protocol-remote-delivery-status-test.log"
+    },
+    {
+      "name": "agent-service-remote-delivery-status-test",
+      "command": "cargo test -p ocentra-parent-agent-service network_remote_delivery_status",
+      "status": 0,
+      "log": "output\\network-plan-proof\\10k-remote-delivery-transport-dispatch-state\\agent-service-remote-delivery-status-test.log"
+    },
+    {
+      "name": "agent-protocol-domain-dependency-build",
+      "command": "cmd /c npm run build --workspace @ocentra-parent/schema-domain --workspace @ocentra-parent/logging-domain --workspace @ocentra-parent/activity-domain --workspace @ocentra-parent/parent-domain --workspace @ocentra-parent/agent-protocol-domain",
+      "status": 0,
+      "log": "output\\network-plan-proof\\10k-remote-delivery-transport-dispatch-state\\agent-protocol-domain-dependency-build.log"
+    },
+    {
+      "name": "agent-protocol-domain-remote-delivery-status-test",
+      "command": "cmd /c npm run test --workspace @ocentra-parent/agent-protocol-domain -- network-remote-delivery-status.test.ts",
+      "status": 0,
+      "log": "output\\network-plan-proof\\10k-remote-delivery-transport-dispatch-state\\agent-protocol-domain-remote-delivery-status-test.log"
+    },
+    {
+      "name": "agent-core-clippy",
+      "command": "cargo clippy -p ocentra-parent-agent-core --all-targets -- -D warnings",
+      "status": 0,
+      "log": "output\\network-plan-proof\\10k-remote-delivery-transport-dispatch-state\\agent-core-clippy.log"
+    },
+    {
+      "name": "rust-format",
+      "command": "cargo fmt --all --check",
+      "status": 0,
+      "log": "output\\network-plan-proof\\10k-remote-delivery-transport-dispatch-state\\rust-format.log"
+    },
+    {
+      "name": "source-shape",
+      "command": "node scripts/check-source-shape.mjs",
+      "status": 0,
+      "log": "output\\network-plan-proof\\10k-remote-delivery-transport-dispatch-state\\source-shape.log"
+    },
+    {
+      "name": "git-diff-check",
+      "command": "git diff --check",
+      "status": 0,
+      "log": "output\\network-plan-proof\\10k-remote-delivery-transport-dispatch-state\\git-diff-check.log"
+    }
+  ],
+  "artifacts": {
+    "expectedRemoteDeliveryTransportDispatchState": "output\\network-plan-proof\\10k-remote-delivery-transport-dispatch-state\\expected-remote-delivery-transport-dispatch-state.json",
+    "securityNegativeLog": "output\\network-plan-proof\\10k-remote-delivery-transport-dispatch-state\\09-security-negative-proof.log",
+    "validationCommands": "output\\network-plan-proof\\10k-remote-delivery-transport-dispatch-state\\12-validation-commands.log",
+    "proofSummary": "output\\network-plan-proof\\10k-remote-delivery-transport-dispatch-state\\proof-summary.json",
+    "testProof": "test-results\\network-remote-delivery-transport-dispatch-state-proof\\proof.json"
+  },
+  "coveredRows": [
+    "network-plan supplemental row 10k remote delivery transport dispatch state",
+    "network-plan supplemental row 10j remote delivery no-enforcement invariant",
+    "network-plan supplemental row 10i remote delivery dispatch readiness",
+    "network-plan supplemental row 10g remote delivery outbox handoff",
+    "network-plan supplemental rows 10b through 10f remote delivery refs"
+  ],
+  "provenBoundaries": [
+    "agent-core consumes the row10j available-metadata invariant and renders row10g prepared outbox candidates as manual-required blocked dispatch records",
+    "blocked dispatch records preserve event id, event type, correlation id, source outbox state, outbox refs, handoff refs, dispatch-state refs, blocked-dispatch refs, and future transport seam refs",
+    "blocked dispatch records equal the source outbox candidate count and row10j manual-required candidate count",
+    "the service status command serializes row10k blocked dispatch refs while preserving row10g outbox refs, durable refs, and receipt refs",
+    "the service status command uses an async OnceCell cache so repeated reads reuse the stable row10k protocol snapshot without spawn_blocking or block_on",
+    "the TypeScript status parser rejects stale row10h status refs, wrong row10k dispatch refs, nonzero dispatch-ready/dispatch/ack counters, and mismatched blocked-dispatch candidate counts",
+    "dispatch-ready candidates, dispatch attempts, and remote acknowledgements stay zero",
+    "the proof rejects policy authority, side-effect authority, adapter execution, enforcement command publication, live broker/family-hub delivery, remote acknowledgement, provider delivery, child-device delivery, remote delete/export propagation, and product-ready remote delivery claims",
+    "the proof rejects raw PCAP, exact URL, decrypted payload, page content, video content, private-message content, and search-query content claims from network-only evidence"
+  ],
+  "notClaimed": [
+    "live broker dispatch",
+    "live family-hub relay dispatch",
+    "transport dispatch attempt",
+    "remote acknowledgement",
+    "remote provider delivery",
+    "child-device delivery",
+    "remote delete/export propagation implementation",
+    "product-ready remote delivery",
+    "cross-process transport implementation",
+    "policy authority",
+    "side-effect authority",
+    "adapter execution",
+    "host filtering",
+    "full network-plan completion"
+  ]
+}

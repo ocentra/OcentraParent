@@ -15,6 +15,5 @@
 | payload-republish-override | Payload-carried republish or force override | Explicit idempotency rejection; constrained override remains unclaimed | intentional-deviation | output/eventing-plan-proof/73-duplicate-subscriber/proof-summary.json | Future override must be a typed policy with reason and report |
 | payload-disposal-callbacks | Event payload disposal callbacks or resource handles | Immutable payload facts; local handles stay in registries | intentional-deviation | output/eventing-plan-proof/66-76-source-safety/proof-summary.json | Payloads cannot carry deferred, cancellation, or cleanup handles |
 | broker-backed-delivery | Cross-process or broker-backed event delivery | Stored envelope transport boundary is not yet broker-backed | manual-required | docs/plans/network-plan/workpacks/README.md#workpack-45 | Broker delivery is P6 and cannot redefine local dispatch semantics |
-   Compiling ocentra-eventing v0.1.1 (E:\OcentraParentWorktrees\E-D\OcentraParent\crates\ocentra-eventing)
-    Finished `dev` profile [unoptimized + debuginfo] target(s) in 2.04s
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.29s
      Running `target\debug\examples\compatibility_matrix.exe`

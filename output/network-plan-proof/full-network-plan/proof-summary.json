@@ -1,0 +1,1059 @@
+{
+  "schemaVersion": 1,
+  "proof": "network-full-plan",
+  "proofRoot": "output/network-plan-proof/full-network-plan",
+  "testRoot": "test-results/network-full-plan-proof",
+  "commands": [
+    {
+      "name": "network-contract-boundary-proof",
+      "command": "node scripts/test/network-contract-boundary-proof.mjs",
+      "status": 0,
+      "log": "output/network-plan-proof/full-network-plan/command-logs/network-contract-boundary-proof.log"
+    },
+    {
+      "name": "eventing-full-plan-proof",
+      "command": "node scripts/test/eventing-full-plan-proof.mjs",
+      "status": 0,
+      "log": "output/network-plan-proof/full-network-plan/command-logs/eventing-full-plan-proof.log"
+    },
+    {
+      "name": "network-pcap-replay-proof",
+      "command": "node scripts/test/network-pcap-replay-proof.mjs",
+      "status": 0,
+      "log": "output/network-plan-proof/full-network-plan/command-logs/network-pcap-replay-proof.log"
+    },
+    {
+      "name": "network-packet-dns-parser-proof",
+      "command": "node scripts/test/network-packet-dns-parser-proof.mjs",
+      "status": 0,
+      "log": "output/network-plan-proof/full-network-plan/command-logs/network-packet-dns-parser-proof.log"
+    },
+    {
+      "name": "network-visibility-parser-proof",
+      "command": "node scripts/test/network-visibility-parser-proof.mjs",
+      "status": 0,
+      "log": "output/network-plan-proof/full-network-plan/command-logs/network-visibility-parser-proof.log"
+    },
+    {
+      "name": "network-live-capture-proof-gate",
+      "command": "node scripts/test/network-live-capture-proof-gate.mjs",
+      "status": 0,
+      "log": "output/network-plan-proof/full-network-plan/command-logs/network-live-capture-proof-gate.log"
+    },
+    {
+      "name": "network-live-capture-storage-proof",
+      "command": "node scripts/test/network-live-capture-storage-proof.mjs",
+      "status": 0,
+      "log": "output/network-plan-proof/full-network-plan/command-logs/network-live-capture-storage-proof.log"
+    },
+    {
+      "name": "network-live-capture-service-readiness-proof",
+      "command": "node scripts/test/network-live-capture-service-readiness-proof.mjs",
+      "status": 0,
+      "log": "output/network-plan-proof/full-network-plan/command-logs/network-live-capture-service-readiness-proof.log"
+    },
+    {
+      "name": "network-zeek-analyzer-comparison-proof",
+      "command": "node scripts/test/network-zeek-analyzer-comparison-proof.mjs",
+      "status": 0,
+      "log": "output/network-plan-proof/full-network-plan/command-logs/network-zeek-analyzer-comparison-proof.log"
+    },
+    {
+      "name": "network-signature-alert-ingestion-proof",
+      "command": "node scripts/test/network-signature-alert-ingestion-proof.mjs",
+      "status": 0,
+      "log": "output/network-plan-proof/full-network-plan/command-logs/network-signature-alert-ingestion-proof.log"
+    },
+    {
+      "name": "network-ai-detection-fixture-proof",
+      "command": "node scripts/test/network-ai-detection-fixture-proof.mjs",
+      "status": 0,
+      "log": "output/network-plan-proof/full-network-plan/command-logs/network-ai-detection-fixture-proof.log"
+    },
+    {
+      "name": "network-ai-audit-narrative-proof",
+      "command": "node scripts/test/network-ai-audit-narrative-proof.mjs",
+      "status": 0,
+      "log": "output/network-plan-proof/full-network-plan/command-logs/network-ai-audit-narrative-proof.log"
+    },
+    {
+      "name": "network-risk-budget-threshold-proof",
+      "command": "node scripts/test/network-risk-budget-threshold-proof.mjs",
+      "status": 0,
+      "log": "output/network-plan-proof/full-network-plan/command-logs/network-risk-budget-threshold-proof.log"
+    },
+    {
+      "name": "network-evidence-policy-mapping-proof",
+      "command": "node scripts/test/network-evidence-policy-mapping-proof.mjs",
+      "status": 0,
+      "log": "output/network-plan-proof/full-network-plan/command-logs/network-evidence-policy-mapping-proof.log"
+    },
+    {
+      "name": "network-policy-preview-stored-flow-evidence-proof",
+      "command": "node scripts/test/network-policy-preview-stored-flow-evidence-proof.mjs",
+      "status": 0,
+      "log": "output/network-plan-proof/full-network-plan/command-logs/network-policy-preview-stored-flow-evidence-proof.log"
+    },
+    {
+      "name": "network-dns-adapter-proof",
+      "command": "node scripts/test/network-dns-adapter-proof.mjs",
+      "status": 0,
+      "log": "output/network-plan-proof/full-network-plan/command-logs/network-dns-adapter-proof.log"
+    },
+    {
+      "name": "network-windows-firewall-adapter-proof",
+      "command": "node scripts/test/network-windows-firewall-adapter-proof.mjs",
+      "status": 0,
+      "log": "output/network-plan-proof/full-network-plan/command-logs/network-windows-firewall-adapter-proof.log"
+    },
+    {
+      "name": "network-manual-platform-proof",
+      "command": "node scripts/test/network-manual-platform-proof.mjs",
+      "status": 0,
+      "log": "output/network-plan-proof/full-network-plan/command-logs/network-manual-platform-proof.log"
+    },
+    {
+      "name": "network-platform-claims-proof",
+      "command": "node scripts/test/network-platform-claims-proof.mjs",
+      "status": 0,
+      "log": "output/network-plan-proof/full-network-plan/command-logs/network-platform-claims-proof.log"
+    },
+    {
+      "name": "network-adapter-capability-status-proof",
+      "command": "node scripts/test/network-adapter-capability-status-proof.mjs",
+      "status": 0,
+      "log": "output/network-plan-proof/full-network-plan/command-logs/network-adapter-capability-status-proof.log"
+    },
+    {
+      "name": "network-action-result-state-proof",
+      "command": "node scripts/test/network-action-result-state-proof.mjs",
+      "status": 0,
+      "log": "output/network-plan-proof/full-network-plan/command-logs/network-action-result-state-proof.log"
+    },
+    {
+      "name": "network-remote-delivery-event-chain-journal-proof",
+      "command": "node scripts/test/network-remote-delivery-event-chain-journal-proof.mjs",
+      "status": 0,
+      "log": "output/network-plan-proof/full-network-plan/command-logs/network-remote-delivery-event-chain-journal-proof.log"
+    },
+    {
+      "name": "network-remote-delivery-receipt-ledger-proof",
+      "command": "node scripts/test/network-remote-delivery-receipt-ledger-proof.mjs",
+      "status": 0,
+      "log": "output/network-plan-proof/full-network-plan/command-logs/network-remote-delivery-receipt-ledger-proof.log"
+    },
+    {
+      "name": "network-remote-delivery-durable-envelope-proof",
+      "command": "node scripts/test/network-remote-delivery-durable-envelope-proof.mjs",
+      "status": 0,
+      "log": "output/network-plan-proof/full-network-plan/command-logs/network-remote-delivery-durable-envelope-proof.log"
+    },
+    {
+      "name": "network-remote-delivery-outbox-handoff-proof",
+      "command": "node scripts/test/network-remote-delivery-outbox-handoff-proof.mjs",
+      "status": 0,
+      "log": "output/network-plan-proof/full-network-plan/command-logs/network-remote-delivery-outbox-handoff-proof.log"
+    },
+    {
+      "name": "network-remote-delivery-outbox-status-bridge-proof",
+      "command": "node scripts/test/network-remote-delivery-outbox-status-bridge-proof.mjs",
+      "status": 0,
+      "log": "output/network-plan-proof/full-network-plan/command-logs/network-remote-delivery-outbox-status-bridge-proof.log"
+    },
+    {
+      "name": "network-remote-delivery-dispatch-readiness-proof",
+      "command": "node scripts/test/network-remote-delivery-dispatch-readiness-proof.mjs",
+      "status": 0,
+      "log": "output/network-plan-proof/full-network-plan/command-logs/network-remote-delivery-dispatch-readiness-proof.log"
+    },
+    {
+      "name": "network-remote-delivery-no-enforcement-invariant-proof",
+      "command": "node scripts/test/network-remote-delivery-no-enforcement-invariant-proof.mjs",
+      "status": 0,
+      "log": "output/network-plan-proof/full-network-plan/command-logs/network-remote-delivery-no-enforcement-invariant-proof.log"
+    },
+    {
+      "name": "network-remote-delivery-transport-dispatch-state-proof",
+      "command": "node scripts/test/network-remote-delivery-transport-dispatch-state-proof.mjs",
+      "status": 0,
+      "log": "output/network-plan-proof/full-network-plan/command-logs/network-remote-delivery-transport-dispatch-state-proof.log"
+    },
+    {
+      "name": "network-remote-delivery-fixture-transport-proof",
+      "command": "node scripts/test/network-remote-delivery-fixture-transport-proof.mjs",
+      "status": 0,
+      "log": "output/network-plan-proof/full-network-plan/command-logs/network-remote-delivery-fixture-transport-proof.log"
+    },
+    {
+      "name": "network-remote-delivery-delete-export-propagation-proof",
+      "command": "node scripts/test/network-remote-delivery-delete-export-propagation-proof.mjs",
+      "status": 0,
+      "log": "output/network-plan-proof/full-network-plan/command-logs/network-remote-delivery-delete-export-propagation-proof.log"
+    },
+    {
+      "name": "network-remote-delivery-delete-export-status-bridge-proof",
+      "command": "node scripts/test/network-remote-delivery-delete-export-status-bridge-proof.mjs",
+      "status": 0,
+      "log": "output/network-plan-proof/full-network-plan/command-logs/network-remote-delivery-delete-export-status-bridge-proof.log"
+    },
+    {
+      "name": "network-remote-delivery-fixture-transport-status-bridge-proof",
+      "command": "node scripts/test/network-remote-delivery-fixture-transport-status-bridge-proof.mjs",
+      "status": 0,
+      "log": "output/network-plan-proof/full-network-plan/command-logs/network-remote-delivery-fixture-transport-status-bridge-proof.log"
+    },
+    {
+      "name": "network-remote-delivery-provider-child-readiness-proof",
+      "command": "node scripts/test/network-remote-delivery-provider-child-readiness-proof.mjs",
+      "status": 0,
+      "log": "output/network-plan-proof/full-network-plan/command-logs/network-remote-delivery-provider-child-readiness-proof.log"
+    },
+    {
+      "name": "network-remote-delivery-cross-process-custody-readiness-proof",
+      "command": "node scripts/test/network-remote-delivery-cross-process-custody-readiness-proof.mjs",
+      "status": 0,
+      "log": "output/network-plan-proof/full-network-plan/command-logs/network-remote-delivery-cross-process-custody-readiness-proof.log"
+    },
+    {
+      "name": "network-remote-delivery-cross-process-replay-proof",
+      "command": "node scripts/test/network-remote-delivery-cross-process-replay-proof.mjs",
+      "status": 0,
+      "log": "output/network-plan-proof/full-network-plan/command-logs/network-remote-delivery-cross-process-replay-proof.log"
+    },
+    {
+      "name": "network-remote-delivery-cross-process-replay-status-bridge-proof",
+      "command": "node scripts/test/network-remote-delivery-cross-process-replay-status-bridge-proof.mjs",
+      "status": 0,
+      "log": "output/network-plan-proof/full-network-plan/command-logs/network-remote-delivery-cross-process-replay-status-bridge-proof.log"
+    },
+    {
+      "name": "network-remote-delivery-external-cross-process-transport-proof",
+      "command": "node scripts/test/network-remote-delivery-external-cross-process-transport-proof.mjs",
+      "status": 0,
+      "log": "output/network-plan-proof/full-network-plan/command-logs/network-remote-delivery-external-cross-process-transport-proof.log"
+    },
+    {
+      "name": "network-parent-ui-evidence-drawer-proof",
+      "command": "node scripts/test/network-parent-ui-evidence-drawer-proof.mjs",
+      "status": 0,
+      "log": "output/network-plan-proof/full-network-plan/command-logs/network-parent-ui-evidence-drawer-proof.log"
+    },
+    {
+      "name": "network-portal-risk-performance-platform-proof",
+      "command": "node scripts/test/network-portal-risk-performance-platform-proof.mjs",
+      "status": 0,
+      "log": "output/network-plan-proof/full-network-plan/command-logs/network-portal-risk-performance-platform-proof.log"
+    },
+    {
+      "name": "network-security-readiness-proof",
+      "command": "node scripts/test/network-security-readiness-proof.mjs",
+      "status": 0,
+      "log": "output/network-plan-proof/full-network-plan/command-logs/network-security-readiness-proof.log"
+    },
+    {
+      "name": "network-performance-benchmark-proof",
+      "command": "node scripts/test/network-performance-benchmark-proof.mjs",
+      "status": 0,
+      "log": "output/network-plan-proof/full-network-plan/command-logs/network-performance-benchmark-proof.log"
+    },
+    {
+      "name": "network-broker-delivery-proof",
+      "command": "node scripts/test/network-broker-delivery-proof.mjs",
+      "status": 0,
+      "log": "output/network-plan-proof/full-network-plan/command-logs/network-broker-delivery-proof.log"
+    },
+    {
+      "name": "network-broker-family-hub-delivery-status-proof",
+      "command": "node scripts/test/network-broker-family-hub-delivery-status-proof.mjs",
+      "status": 0,
+      "log": "output/network-plan-proof/full-network-plan/command-logs/network-broker-family-hub-delivery-status-proof.log"
+    },
+    {
+      "name": "network-vpn-proxy-tunnel-classifier-proof",
+      "command": "node scripts/test/network-vpn-proxy-tunnel-classifier-proof.mjs",
+      "status": 0,
+      "log": "output/network-plan-proof/full-network-plan/command-logs/network-vpn-proxy-tunnel-classifier-proof.log"
+    },
+    {
+      "name": "network-remote-torrent-download-classifier-proof",
+      "command": "node scripts/test/network-remote-torrent-download-classifier-proof.mjs",
+      "status": 0,
+      "log": "output/network-plan-proof/full-network-plan/command-logs/network-remote-torrent-download-classifier-proof.log"
+    },
+    {
+      "name": "network-end-to-end-pipeline-proof",
+      "command": "node scripts/test/network-end-to-end-pipeline-proof.mjs",
+      "status": 0,
+      "log": "output/network-plan-proof/full-network-plan/command-logs/network-end-to-end-pipeline-proof.log"
+    },
+    {
+      "name": "agent-service-clippy",
+      "command": "cargo clippy -p ocentra-parent-agent-service --all-targets -- -D warnings",
+      "status": 0,
+      "log": "output/network-plan-proof/full-network-plan/command-logs/agent-service-clippy.log"
+    },
+    {
+      "name": "network-evidence-tests",
+      "command": "cargo test -p ocentra-network-evidence",
+      "status": 0,
+      "log": "output/network-plan-proof/full-network-plan/command-logs/network-evidence-tests.log"
+    },
+    {
+      "name": "agent-core-network-runtime-tests",
+      "command": "cargo test -p ocentra-parent-agent-core network_runtime",
+      "status": 0,
+      "log": "output/network-plan-proof/full-network-plan/command-logs/agent-core-network-runtime-tests.log"
+    },
+    {
+      "name": "adapter-proof-script-check",
+      "command": "node --check scripts/test/network-adapter-capability-status-proof.mjs",
+      "status": 0,
+      "log": "output/network-plan-proof/full-network-plan/command-logs/adapter-proof-script-check.log"
+    },
+    {
+      "name": "no-test-doubles",
+      "command": "node scripts/check-no-test-doubles.mjs",
+      "status": 0,
+      "log": "output/network-plan-proof/full-network-plan/command-logs/no-test-doubles.log"
+    },
+    {
+      "name": "source-shape",
+      "command": "node scripts/check-source-shape.mjs",
+      "status": 0,
+      "log": "output/network-plan-proof/full-network-plan/command-logs/source-shape.log"
+    },
+    {
+      "name": "git-diff-check",
+      "command": "git diff --check",
+      "status": 0,
+      "log": "output/network-plan-proof/full-network-plan/command-logs/git-diff-check.log"
+    }
+  ],
+  "freshnessAudit": {
+    "policy": "Aggregate proof reruns current critical proof scripts, verifies source-tree fingerprints where artifacts provide sourceRefs, and labels legacy row artifacts instead of silently treating old branch metadata as fresh.",
+    "counts": {
+      "refreshed-by-aggregate-command": 56
+    },
+    "refreshedArtifacts": [
+      "contract-boundary",
+      "eventing-full-plan",
+      "pcap-replay",
+      "packet-parser",
+      "dns-parser",
+      "tls-sni-parser",
+      "http-host-parser",
+      "quic-visibility",
+      "encrypted-dns",
+      "live-capture-gate",
+      "live-capture-storage",
+      "live-capture-service-readiness",
+      "zeek-analyzer",
+      "signature-alerts",
+      "ai-detection",
+      "ai-audit",
+      "risk-budget",
+      "policy-mapping",
+      "policy-preview",
+      "dns-adapter",
+      "windows-firewall-adapter",
+      "windows-wfp-gate",
+      "android-vpnservice-gate",
+      "apple-network-extension-gate",
+      "linux-adapter-gate",
+      "platform-claims",
+      "adapter-capability-status",
+      "action-result-state",
+      "event-chain-journal",
+      "receipt-ledger",
+      "durable-envelope",
+      "stored-flow-policy-preview",
+      "portal-drawer",
+      "portal-drawer-screenshot",
+      "portal-risk-platform-status",
+      "security-readiness",
+      "performance-benchmark",
+      "broker-delivery",
+      "remote-delivery-status",
+      "remote-outbox-handoff",
+      "remote-outbox-status-bridge",
+      "remote-dispatch-readiness",
+      "remote-no-enforcement",
+      "remote-transport-state",
+      "remote-fixture-transport",
+      "remote-delete-export-readiness",
+      "remote-delete-export-status-bridge",
+      "remote-fixture-transport-status-bridge",
+      "remote-provider-child-readiness",
+      "remote-cross-process-custody-readiness",
+      "remote-cross-process-replay",
+      "remote-cross-process-replay-status",
+      "remote-external-cross-process-transport",
+      "vpn-proxy-tunnel",
+      "remote-torrent-download",
+      "end-to-end-pipeline"
+    ],
+    "fingerprintCheckedArtifacts": [],
+    "legacyMetadataArtifacts": []
+  },
+  "artifactCount": 56,
+  "artifacts": [
+    {
+      "id": "contract-boundary",
+      "group": "01-contract-proof",
+      "path": "output/network-plan-proof/03-contract-boundary-and-effect-schemas/proof-summary.json",
+      "kind": "json",
+      "parsedProof": "network-contract-boundary",
+      "freshness": {
+        "kind": "refreshed-by-aggregate-command",
+        "command": "network-contract-boundary-proof"
+      }
+    },
+    {
+      "id": "eventing-full-plan",
+      "group": "02-eventing-proof",
+      "path": "output/eventing-plan-proof/full-eventing-plan/proof-summary.json",
+      "kind": "json",
+      "parsedProof": "eventing-full-plan",
+      "freshness": {
+        "kind": "refreshed-by-aggregate-command",
+        "command": "eventing-full-plan-proof"
+      }
+    },
+    {
+      "id": "pcap-replay",
+      "group": "03-parser-fixture-proof",
+      "path": "output/network-plan-proof/12-pcap-file-replay-harness/proof-summary.json",
+      "kind": "json",
+      "parsedProof": "network-pcap-replay",
+      "freshness": {
+        "kind": "refreshed-by-aggregate-command",
+        "command": "network-pcap-replay-proof"
+      }
+    },
+    {
+      "id": "packet-parser",
+      "group": "03-parser-fixture-proof",
+      "path": "output/network-plan-proof/14-packet-parser/expected-packet-fixtures.json",
+      "kind": "json",
+      "parsedProof": null,
+      "freshness": {
+        "kind": "refreshed-by-aggregate-command",
+        "command": "network-packet-dns-parser-proof"
+      }
+    },
+    {
+      "id": "dns-parser",
+      "group": "03-parser-fixture-proof",
+      "path": "output/network-plan-proof/15-dns-query-response-parser/proof-summary.json",
+      "kind": "json",
+      "parsedProof": "network-packet-dns-parser",
+      "freshness": {
+        "kind": "refreshed-by-aggregate-command",
+        "command": "network-packet-dns-parser-proof"
+      }
+    },
+    {
+      "id": "tls-sni-parser",
+      "group": "03-parser-fixture-proof",
+      "path": "output/network-plan-proof/16-tls-clienthello-sni-parser/expected-sni-visibility.json",
+      "kind": "json",
+      "parsedProof": null,
+      "freshness": {
+        "kind": "refreshed-by-aggregate-command",
+        "command": "network-visibility-parser-proof"
+      }
+    },
+    {
+      "id": "http-host-parser",
+      "group": "03-parser-fixture-proof",
+      "path": "output/network-plan-proof/17-http-host-parser/expected-http-host.json",
+      "kind": "json",
+      "parsedProof": null,
+      "freshness": {
+        "kind": "refreshed-by-aggregate-command",
+        "command": "network-visibility-parser-proof"
+      }
+    },
+    {
+      "id": "quic-visibility",
+      "group": "03-parser-fixture-proof",
+      "path": "output/network-plan-proof/18-quic-http3-limitation-detector/expected-quic-limitation.json",
+      "kind": "json",
+      "parsedProof": null,
+      "freshness": {
+        "kind": "refreshed-by-aggregate-command",
+        "command": "network-visibility-parser-proof"
+      }
+    },
+    {
+      "id": "encrypted-dns",
+      "group": "03-parser-fixture-proof",
+      "path": "output/network-plan-proof/19-doh-dot-detector/proof-summary.json",
+      "kind": "json",
+      "parsedProof": "network-visibility-parser",
+      "freshness": {
+        "kind": "refreshed-by-aggregate-command",
+        "command": "network-visibility-parser-proof"
+      }
+    },
+    {
+      "id": "live-capture-gate",
+      "group": "03-parser-fixture-proof",
+      "path": "output/network-plan-proof/13-live-capture-proof-gate/proof-summary.json",
+      "kind": "json",
+      "parsedProof": "network-live-capture-proof-gate",
+      "freshness": {
+        "kind": "refreshed-by-aggregate-command",
+        "command": "network-live-capture-proof-gate"
+      }
+    },
+    {
+      "id": "live-capture-storage",
+      "group": "03-parser-fixture-proof",
+      "path": "output/network-plan-proof/03a-live-capture-storage-proof/proof-summary.json",
+      "kind": "json",
+      "parsedProof": "network-live-capture-storage",
+      "freshness": {
+        "kind": "refreshed-by-aggregate-command",
+        "command": "network-live-capture-storage-proof"
+      }
+    },
+    {
+      "id": "live-capture-service-readiness",
+      "group": "03-parser-fixture-proof",
+      "path": "output/network-plan-proof/13a-live-capture-service-readiness/proof-summary.json",
+      "kind": "json",
+      "parsedProof": "network-live-capture-service-readiness",
+      "freshness": {
+        "kind": "refreshed-by-aggregate-command",
+        "command": "network-live-capture-service-readiness-proof"
+      }
+    },
+    {
+      "id": "zeek-analyzer",
+      "group": "04-analyzer-alert-proof",
+      "path": "output/network-plan-proof/43-zeek-structured-log-analyzer-comparison/proof-summary.json",
+      "kind": "json",
+      "parsedProof": "network-zeek-analyzer-comparison",
+      "freshness": {
+        "kind": "refreshed-by-aggregate-command",
+        "command": "network-zeek-analyzer-comparison-proof"
+      }
+    },
+    {
+      "id": "signature-alerts",
+      "group": "04-analyzer-alert-proof",
+      "path": "output/network-plan-proof/44-signature-alert-ingestion-proof/proof-summary.json",
+      "kind": "json",
+      "parsedProof": "network-signature-alert-ingestion",
+      "freshness": {
+        "kind": "refreshed-by-aggregate-command",
+        "command": "network-signature-alert-ingestion-proof"
+      }
+    },
+    {
+      "id": "ai-detection",
+      "group": "05-ai-policy-proof",
+      "path": "output/network-plan-proof/46-ai-detection-fixture-proof/proof-summary.json",
+      "kind": "json",
+      "parsedProof": "network-ai-detection-fixture-proof",
+      "freshness": {
+        "kind": "refreshed-by-aggregate-command",
+        "command": "network-ai-detection-fixture-proof"
+      }
+    },
+    {
+      "id": "ai-audit",
+      "group": "05-ai-policy-proof",
+      "path": "output/network-plan-proof/47-ai-audit-narrative-proof/proof-summary.json",
+      "kind": "json",
+      "parsedProof": "network-ai-audit-narrative-proof",
+      "freshness": {
+        "kind": "refreshed-by-aggregate-command",
+        "command": "network-ai-audit-narrative-proof"
+      }
+    },
+    {
+      "id": "risk-budget",
+      "group": "05-ai-policy-proof",
+      "path": "output/network-plan-proof/48-risk-budget-threshold-proof/proof-summary.json",
+      "kind": "json",
+      "parsedProof": "network-risk-budget-threshold-proof",
+      "freshness": {
+        "kind": "refreshed-by-aggregate-command",
+        "command": "network-risk-budget-threshold-proof"
+      }
+    },
+    {
+      "id": "policy-mapping",
+      "group": "05-ai-policy-proof",
+      "path": "output/network-plan-proof/34-evidence-grade-policy-mapping/proof-summary.json",
+      "kind": "json",
+      "parsedProof": "network-evidence-policy-mapping",
+      "freshness": {
+        "kind": "refreshed-by-aggregate-command",
+        "command": "network-evidence-policy-mapping-proof"
+      }
+    },
+    {
+      "id": "policy-preview",
+      "group": "05-ai-policy-proof",
+      "path": "output/network-plan-proof/policy-preview-stored-flow-evidence/proof-summary.json",
+      "kind": "json",
+      "parsedProof": "network-policy-preview-stored-flow-evidence-proof",
+      "freshness": {
+        "kind": "refreshed-by-aggregate-command",
+        "command": "network-policy-preview-stored-flow-evidence-proof"
+      }
+    },
+    {
+      "id": "dns-adapter",
+      "group": "06-adapter-action-proof",
+      "path": "output/network-plan-proof/37-dns-proxy-block-redirect-adapter/proof-summary.json",
+      "kind": "json",
+      "parsedProof": "network-dns-adapter",
+      "freshness": {
+        "kind": "refreshed-by-aggregate-command",
+        "command": "network-dns-adapter-proof"
+      }
+    },
+    {
+      "id": "windows-firewall-adapter",
+      "group": "06-adapter-action-proof",
+      "path": "output/network-plan-proof/38-windows-firewall-adapter/proof-summary.json",
+      "kind": "json",
+      "parsedProof": "network-windows-firewall-adapter",
+      "freshness": {
+        "kind": "refreshed-by-aggregate-command",
+        "command": "network-windows-firewall-adapter-proof"
+      }
+    },
+    {
+      "id": "windows-wfp-gate",
+      "group": "06-adapter-action-proof",
+      "path": "output/network-plan-proof/39-windows-wfp-proof-gate/proof-summary.json",
+      "kind": "json",
+      "parsedProof": "network-windows-wfp-proof-gate",
+      "freshness": {
+        "kind": "refreshed-by-aggregate-command",
+        "command": "network-manual-platform-proof"
+      }
+    },
+    {
+      "id": "android-vpnservice-gate",
+      "group": "06-adapter-action-proof",
+      "path": "output/network-plan-proof/40-android-vpnservice-proof-gate/proof-summary.json",
+      "kind": "json",
+      "parsedProof": "network-android-vpnservice-proof-gate",
+      "freshness": {
+        "kind": "refreshed-by-aggregate-command",
+        "command": "network-manual-platform-proof"
+      }
+    },
+    {
+      "id": "apple-network-extension-gate",
+      "group": "06-adapter-action-proof",
+      "path": "output/network-plan-proof/41-apple-network-extension-proof-gate/proof-summary.json",
+      "kind": "json",
+      "parsedProof": "network-apple-network-extension-proof-gate",
+      "freshness": {
+        "kind": "refreshed-by-aggregate-command",
+        "command": "network-manual-platform-proof"
+      }
+    },
+    {
+      "id": "linux-adapter-gate",
+      "group": "06-adapter-action-proof",
+      "path": "output/network-plan-proof/42-linux-adapter-proof-gate/proof-summary.json",
+      "kind": "json",
+      "parsedProof": "network-linux-adapter-proof-gate",
+      "freshness": {
+        "kind": "refreshed-by-aggregate-command",
+        "command": "network-manual-platform-proof"
+      }
+    },
+    {
+      "id": "platform-claims",
+      "group": "06-adapter-action-proof",
+      "path": "output/network-plan-proof/52-platform-claims-proof/proof-summary.json",
+      "kind": "json",
+      "parsedProof": "network-platform-claims",
+      "freshness": {
+        "kind": "refreshed-by-aggregate-command",
+        "command": "network-platform-claims-proof"
+      }
+    },
+    {
+      "id": "adapter-capability-status",
+      "group": "06-adapter-action-proof",
+      "path": "output/network-plan-proof/adapter-capability-status/proof-summary.json",
+      "kind": "json",
+      "parsedProof": "network-adapter-capability-status",
+      "freshness": {
+        "kind": "refreshed-by-aggregate-command",
+        "command": "network-adapter-capability-status-proof"
+      }
+    },
+    {
+      "id": "action-result-state",
+      "group": "06-adapter-action-proof",
+      "path": "output/network-plan-proof/53-action-result-state-proof/proof-summary.json",
+      "kind": "json",
+      "parsedProof": "network-action-result-state-proof",
+      "freshness": {
+        "kind": "refreshed-by-aggregate-command",
+        "command": "network-action-result-state-proof"
+      }
+    },
+    {
+      "id": "event-chain-journal",
+      "group": "07-journal-sqlite-proof",
+      "path": "output/network-plan-proof/10c-remote-delivery-event-chain-journal-status/proof-summary.json",
+      "kind": "json",
+      "parsedProof": "network-remote-delivery-event-chain-journal-proof",
+      "freshness": {
+        "kind": "refreshed-by-aggregate-command",
+        "command": "network-remote-delivery-event-chain-journal-proof"
+      }
+    },
+    {
+      "id": "receipt-ledger",
+      "group": "07-journal-sqlite-proof",
+      "path": "output/network-plan-proof/10d-remote-delivery-receipt-ledger-status/proof-summary.json",
+      "kind": "json",
+      "parsedProof": "network-remote-delivery-receipt-ledger-proof",
+      "freshness": {
+        "kind": "refreshed-by-aggregate-command",
+        "command": "network-remote-delivery-receipt-ledger-proof"
+      }
+    },
+    {
+      "id": "durable-envelope",
+      "group": "07-journal-sqlite-proof",
+      "path": "output/network-plan-proof/10e-remote-delivery-durable-envelope-status/proof-summary.json",
+      "kind": "json",
+      "parsedProof": "network-remote-delivery-durable-envelope-proof",
+      "freshness": {
+        "kind": "refreshed-by-aggregate-command",
+        "command": "network-remote-delivery-durable-envelope-proof"
+      }
+    },
+    {
+      "id": "stored-flow-policy-preview",
+      "group": "07-journal-sqlite-proof",
+      "path": "output/network-plan-proof/policy-preview-stored-flow-evidence/proof-summary.json",
+      "kind": "json",
+      "parsedProof": "network-policy-preview-stored-flow-evidence-proof",
+      "freshness": {
+        "kind": "refreshed-by-aggregate-command",
+        "command": "network-policy-preview-stored-flow-evidence-proof"
+      }
+    },
+    {
+      "id": "portal-drawer",
+      "group": "08-ui-snapshots",
+      "path": "output/network-plan-proof/36-parent-ui-network-evidence-drawer/proof-summary.json",
+      "kind": "json",
+      "parsedProof": null,
+      "freshness": {
+        "kind": "refreshed-by-aggregate-command",
+        "command": "network-parent-ui-evidence-drawer-proof"
+      }
+    },
+    {
+      "id": "portal-drawer-screenshot",
+      "group": "08-ui-snapshots",
+      "path": "output/network-plan-proof/36-parent-ui-network-evidence-drawer/08-ui-snapshots/network-evidence-drawer.png",
+      "kind": "png",
+      "parsedProof": null,
+      "freshness": {
+        "kind": "refreshed-by-aggregate-command",
+        "command": "network-parent-ui-evidence-drawer-proof"
+      }
+    },
+    {
+      "id": "portal-risk-platform-status",
+      "group": "08-ui-snapshots",
+      "path": "output/network-plan-proof/portal-risk-performance-platform-status/proof-summary.json",
+      "kind": "json",
+      "parsedProof": "network-portal-risk-performance-platform-proof",
+      "freshness": {
+        "kind": "refreshed-by-aggregate-command",
+        "command": "network-portal-risk-performance-platform-proof"
+      }
+    },
+    {
+      "id": "security-readiness",
+      "group": "09-security-negative-proof",
+      "path": "output/network-plan-proof/50-security-readiness-proof/proof-summary.json",
+      "kind": "json",
+      "parsedProof": "network-security-readiness-proof",
+      "freshness": {
+        "kind": "refreshed-by-aggregate-command",
+        "command": "network-security-readiness-proof"
+      }
+    },
+    {
+      "id": "performance-benchmark",
+      "group": "10-performance-proof",
+      "path": "output/network-plan-proof/49-performance-benchmark-proof/proof-summary.json",
+      "kind": "json",
+      "parsedProof": "network-performance-benchmark-proof",
+      "freshness": {
+        "kind": "refreshed-by-aggregate-command",
+        "command": "network-performance-benchmark-proof"
+      }
+    },
+    {
+      "id": "broker-delivery",
+      "group": "10-remote-delivery-proof",
+      "path": "output/network-plan-proof/10a-broker-delivery-proof/10a-broker-delivery-proof.log",
+      "kind": "log",
+      "parsedProof": null,
+      "freshness": {
+        "kind": "refreshed-by-aggregate-command",
+        "command": "network-broker-delivery-proof"
+      }
+    },
+    {
+      "id": "remote-delivery-status",
+      "group": "10-remote-delivery-proof",
+      "path": "output/network-plan-proof/10b-broker-family-hub-delivery-status/10b-remote-delivery-status.log",
+      "kind": "log",
+      "parsedProof": null,
+      "freshness": {
+        "kind": "refreshed-by-aggregate-command",
+        "command": "network-broker-family-hub-delivery-status-proof"
+      }
+    },
+    {
+      "id": "remote-outbox-handoff",
+      "group": "10-remote-delivery-proof",
+      "path": "output/network-plan-proof/10g-remote-delivery-outbox-handoff/proof-summary.json",
+      "kind": "json",
+      "parsedProof": "network-remote-delivery-outbox-handoff-proof",
+      "freshness": {
+        "kind": "refreshed-by-aggregate-command",
+        "command": "network-remote-delivery-outbox-handoff-proof"
+      }
+    },
+    {
+      "id": "remote-outbox-status-bridge",
+      "group": "10-remote-delivery-proof",
+      "path": "output/network-plan-proof/10h-remote-delivery-outbox-status-bridge/proof-summary.json",
+      "kind": "json",
+      "parsedProof": "network-remote-delivery-outbox-status-bridge-proof",
+      "freshness": {
+        "kind": "refreshed-by-aggregate-command",
+        "command": "network-remote-delivery-outbox-status-bridge-proof"
+      }
+    },
+    {
+      "id": "remote-dispatch-readiness",
+      "group": "10-remote-delivery-proof",
+      "path": "output/network-plan-proof/10i-remote-delivery-dispatch-readiness/proof-summary.json",
+      "kind": "json",
+      "parsedProof": "network-remote-delivery-dispatch-readiness-proof",
+      "freshness": {
+        "kind": "refreshed-by-aggregate-command",
+        "command": "network-remote-delivery-dispatch-readiness-proof"
+      }
+    },
+    {
+      "id": "remote-no-enforcement",
+      "group": "10-remote-delivery-proof",
+      "path": "output/network-plan-proof/10j-remote-delivery-no-enforcement-invariant/proof-summary.json",
+      "kind": "json",
+      "parsedProof": "network-remote-delivery-no-enforcement-invariant-proof",
+      "freshness": {
+        "kind": "refreshed-by-aggregate-command",
+        "command": "network-remote-delivery-no-enforcement-invariant-proof"
+      }
+    },
+    {
+      "id": "remote-transport-state",
+      "group": "10-remote-delivery-proof",
+      "path": "output/network-plan-proof/10k-remote-delivery-transport-dispatch-state/proof-summary.json",
+      "kind": "json",
+      "parsedProof": "network-remote-delivery-transport-dispatch-state-proof",
+      "freshness": {
+        "kind": "refreshed-by-aggregate-command",
+        "command": "network-remote-delivery-transport-dispatch-state-proof"
+      }
+    },
+    {
+      "id": "remote-fixture-transport",
+      "group": "10-remote-delivery-proof",
+      "path": "output/network-plan-proof/10l-remote-delivery-fixture-transport/proof-summary.json",
+      "kind": "json",
+      "parsedProof": "network-remote-delivery-fixture-transport-proof",
+      "freshness": {
+        "kind": "refreshed-by-aggregate-command",
+        "command": "network-remote-delivery-fixture-transport-proof"
+      }
+    },
+    {
+      "id": "remote-delete-export-readiness",
+      "group": "10-remote-delivery-proof",
+      "path": "output/network-plan-proof/10m-remote-delivery-delete-export-propagation/proof-summary.json",
+      "kind": "json",
+      "parsedProof": "network-remote-delivery-delete-export-propagation-proof",
+      "freshness": {
+        "kind": "refreshed-by-aggregate-command",
+        "command": "network-remote-delivery-delete-export-propagation-proof"
+      }
+    },
+    {
+      "id": "remote-delete-export-status-bridge",
+      "group": "10-remote-delivery-proof",
+      "path": "output/network-plan-proof/10n-remote-delivery-delete-export-status-bridge/proof-summary.json",
+      "kind": "json",
+      "parsedProof": "network-remote-delivery-delete-export-status-bridge-proof",
+      "freshness": {
+        "kind": "refreshed-by-aggregate-command",
+        "command": "network-remote-delivery-delete-export-status-bridge-proof"
+      }
+    },
+    {
+      "id": "remote-fixture-transport-status-bridge",
+      "group": "10-remote-delivery-proof",
+      "path": "output/network-plan-proof/10o-remote-delivery-fixture-transport-status-bridge/proof-summary.json",
+      "kind": "json",
+      "parsedProof": "network-remote-delivery-fixture-transport-status-bridge-proof",
+      "freshness": {
+        "kind": "refreshed-by-aggregate-command",
+        "command": "network-remote-delivery-fixture-transport-status-bridge-proof"
+      }
+    },
+    {
+      "id": "remote-provider-child-readiness",
+      "group": "10-remote-delivery-proof",
+      "path": "output/network-plan-proof/10p-remote-delivery-provider-child-readiness/proof-summary.json",
+      "kind": "json",
+      "parsedProof": "network-remote-delivery-provider-child-readiness-proof",
+      "freshness": {
+        "kind": "refreshed-by-aggregate-command",
+        "command": "network-remote-delivery-provider-child-readiness-proof"
+      }
+    },
+    {
+      "id": "remote-cross-process-custody-readiness",
+      "group": "10-remote-delivery-proof",
+      "path": "output/network-plan-proof/10q-remote-delivery-cross-process-custody-readiness/proof-summary.json",
+      "kind": "json",
+      "parsedProof": "network-remote-delivery-cross-process-custody-readiness-proof",
+      "freshness": {
+        "kind": "refreshed-by-aggregate-command",
+        "command": "network-remote-delivery-cross-process-custody-readiness-proof"
+      }
+    },
+    {
+      "id": "remote-cross-process-replay",
+      "group": "10-remote-delivery-proof",
+      "path": "output/network-plan-proof/10r-remote-delivery-cross-process-replay/proof-summary.json",
+      "kind": "json",
+      "parsedProof": "network-remote-delivery-cross-process-replay-proof",
+      "freshness": {
+        "kind": "refreshed-by-aggregate-command",
+        "command": "network-remote-delivery-cross-process-replay-proof"
+      }
+    },
+    {
+      "id": "remote-cross-process-replay-status",
+      "group": "10-remote-delivery-proof",
+      "path": "output/network-plan-proof/10s-remote-delivery-cross-process-replay-status-bridge/proof-summary.json",
+      "kind": "json",
+      "parsedProof": "network-remote-delivery-cross-process-replay-status-bridge-proof",
+      "freshness": {
+        "kind": "refreshed-by-aggregate-command",
+        "command": "network-remote-delivery-cross-process-replay-status-bridge-proof"
+      }
+    },
+    {
+      "id": "remote-external-cross-process-transport",
+      "group": "10-remote-delivery-proof",
+      "path": "output/network-plan-proof/10t-remote-delivery-external-cross-process-transport/proof-summary.json",
+      "kind": "json",
+      "parsedProof": "network-remote-delivery-external-cross-process-transport-proof",
+      "freshness": {
+        "kind": "refreshed-by-aggregate-command",
+        "command": "network-remote-delivery-external-cross-process-transport-proof"
+      }
+    },
+    {
+      "id": "vpn-proxy-tunnel",
+      "group": "classification-proof",
+      "path": "output/network-plan-proof/24-vpn-proxy-tor-tunnel-classifier/proof-summary.json",
+      "kind": "json",
+      "parsedProof": "network-vpn-proxy-tor-tunnel-classifier",
+      "freshness": {
+        "kind": "refreshed-by-aggregate-command",
+        "command": "network-vpn-proxy-tunnel-classifier-proof"
+      }
+    },
+    {
+      "id": "remote-torrent-download",
+      "group": "classification-proof",
+      "path": "output/network-plan-proof/25-remote-torrent-download-classifier/proof-summary.json",
+      "kind": "json",
+      "parsedProof": "network-remote-torrent-download-classifier",
+      "freshness": {
+        "kind": "refreshed-by-aggregate-command",
+        "command": "network-remote-torrent-download-classifier-proof"
+      }
+    },
+    {
+      "id": "end-to-end-pipeline",
+      "group": "product-path-proof",
+      "path": "output/network-plan-proof/51-end-to-end-pipeline-proof/proof-summary.json",
+      "kind": "json",
+      "parsedProof": "network-end-to-end-pipeline",
+      "freshness": {
+        "kind": "refreshed-by-aggregate-command",
+        "command": "network-end-to-end-pipeline-proof"
+      }
+    }
+  ],
+  "requiredProofPack": [
+    "output/network-plan-proof/full-network-plan/00-source-snapshot.md",
+    "output/network-plan-proof/full-network-plan/01-contract-proof.log",
+    "output/network-plan-proof/full-network-plan/02-eventing-proof.log",
+    "output/network-plan-proof/full-network-plan/03-parser-fixture-proof.json",
+    "output/network-plan-proof/full-network-plan/04-analyzer-alert-proof.json",
+    "output/network-plan-proof/full-network-plan/05-ai-policy-proof.json",
+    "output/network-plan-proof/full-network-plan/06-adapter-action-proof.json",
+    "output/network-plan-proof/full-network-plan/07-journal-sqlite-proof.json",
+    "output/network-plan-proof/full-network-plan/08-ui-snapshots.md",
+    "output/network-plan-proof/full-network-plan/09-security-negative-proof.log",
+    "output/network-plan-proof/full-network-plan/10-performance-proof.log",
+    "output/network-plan-proof/full-network-plan/11-classification-proof.json",
+    "output/network-plan-proof/full-network-plan/12-remote-delivery-proof.json",
+    "output/network-plan-proof/full-network-plan/13-product-path-proof.json"
+  ],
+  "provenPlanGates": [
+    "metadata-only network evidence and no exact URL/content from network-only evidence",
+    "reusable Rust eventing dependency for network runtime routing without a network-only bus",
+    "PCAP/parser/analyzer/classifier fixture proof with service-visible live-capture status and unsupported-claim records",
+    "AI detection/audit and risk-budget outputs remain advisory until typed policy handoff",
+    "adapter action is gated by policy, capability proof, result state, rollback/unavailable refs, and audit refs",
+    "journal, replay, receipt-ledger, durable envelope, outbox, and local read-model proof are present",
+    "remote fixture transport, fixture transport status bridge, provider/child readiness, cross-process custody readiness, cross-process replay metadata, cross-process replay status visibility, delete/export readiness, and delete/export status bridge proof are present without live propagation",
+    "portal evidence drawer, risk/performance/platform status, and row51 stored-flow product-path bridge are service/read-model backed and non-authoritative",
+    "security readiness and performance benchmark proof roots are present"
+  ],
+  "manualRequiredBoundaries": [
+    "live packet capture driver invocation remains proof-gated/manual-required",
+    "broker/family-hub remote delivery, provider delivery, and child-device delivery remain manual-required",
+    "row10t deterministic transport envelope/ack records are proof-local; live dispatch, product remote acknowledgements, and remote retention/delete/export propagation remain future transport work",
+    "production platform support and external audit/penetration-test signoff remain unclaimed"
+  ],
+  "notClaimed": [
+    "decrypted payload capture",
+    "exact URL, page content, video content, private message content, or search query from network-only evidence",
+    "raw PCAP upload to AI or cloud by default",
+    "AI direct policy authority",
+    "portal/UI policy or adapter authority",
+    "live adapter execution, host DNS/firewall/VPN/WFP/NetworkExtension/Linux mutation, or host filtering",
+    "enforcement command publication from network proof paths"
+  ]
+}

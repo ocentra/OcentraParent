@@ -2,7 +2,7 @@
   "proof": "network-remote-delivery-outbox-handoff-proof",
   "proofRevision": "network-remote-delivery-outbox-handoff-proof/v1",
   "checkedAt": "deterministic:network-remote-delivery-outbox-handoff-proof/v1",
-  "sourceFingerprint": "source-tree:611191becad3b62f1519fbeff877b828359eb4ba49b2d99956e7060446d1c2b8",
+  "sourceFingerprint": "source-tree:e4774c913d588987b34142d54483fb6338509525db9529e39676155b1a4d51be",
   "sourceRefs": [
     "scripts/test/network-remote-delivery-outbox-handoff-proof.mjs",
     "crates/agent-protocol/src/constants/network_flow.rs",
@@ -17,7 +17,7 @@
     "docs/plans/network-plan/implementation-checklist.md",
     "docs/plans/network-plan/workpacks/README.md"
   ],
-  "mergeBase": "07f541f7987c759011c77f3a28559523b64c70ce",
+  "mergeBase": "466978a9b8f6ac946977169fd2e16e01b4cf6d92",
   "proofRoot": "output\\network-plan-proof\\10g-remote-delivery-outbox-handoff",
   "testRoot": "test-results\\network-remote-delivery-outbox-handoff-proof",
   "commands": [

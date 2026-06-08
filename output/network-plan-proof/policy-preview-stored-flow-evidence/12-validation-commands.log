@@ -1,0 +1,12 @@
+cargo test -p ocentra-parent-agent-core policy_preview_read_model -> 0
+cargo test -p ocentra-parent-agent-service policy_preview_payload -> 0
+cmd /c npm run build --workspace @ocentra-parent/schema-domain -> 0
+cmd /c npm run build --workspace @ocentra-parent/logging-domain -> 0
+cmd /c npm run build --workspace @ocentra-parent/activity-domain -> 0
+cmd /c npm run build --workspace @ocentra-parent/agent-protocol-domain -> 0
+cmd /c npm run build --workspace @ocentra-parent/portal-domain -> 0
+cmd /c npm exec --workspace @ocentra-parent/agent-protocol-domain -- vitest run tests/policy-preview-contracts.test.ts -> 0
+cmd /c npm exec --workspace @ocentra-parent/portal -- vitest run tests/policy-preview-live-activity-state.test.ts -> 0
+cargo fmt --all --check -> 0
+node scripts/check-source-shape.mjs -> 0
+git diff --check -> 0

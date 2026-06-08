@@ -1,13 +1,9 @@
 {
+  "schemaVersion": 1,
   "proof": "eventing-full-plan",
-  "checkedAt": "2026-06-05T19:10:34.748Z",
-  "branch": "codex/eventing-runtime-completion",
-  "commit": "628fcbe10f9a13f0a09d9c7617e1900aa591ad61",
-  "originMain": "6059f53673ca8e7c95180a1fe7f92bce9d3fbb05",
-  "mergeBase": "6059f53673ca8e7c95180a1fe7f92bce9d3fbb05",
-  "statusShort": " M output/eventing-plan-proof/14-24-runtime-lifecycle/eventing-clippy.log\n M output/eventing-plan-proof/14-24-runtime-lifecycle/eventing-tests.log\n M output/eventing-plan-proof/14-24-runtime-lifecycle/proof-summary.json\n M output/eventing-plan-proof/18-24-handler-policy/eventing-clippy.log\n M output/eventing-plan-proof/18-24-handler-policy/eventing-tests.log\n M output/eventing-plan-proof/18-24-handler-policy/proof-summary.json\n M output/eventing-plan-proof/18-24-handler-policy/source-shape.log\n M output/eventing-plan-proof/20-24-metrics-testkit/eventing-clippy.log\n M output/eventing-plan-proof/20-24-metrics-testkit/eventing-handler-policy-tests.log\n M output/eventing-plan-proof/20-24-metrics-testkit/eventing-metrics-tests.log\n M output/eventing-plan-proof/20-24-metrics-testkit/proof-summary.json\n M output/eventing-plan-proof/20-24-metrics-testkit/source-shape.log\n M output/eventing-plan-proof/25-30-queue-policy/eventing-clippy.log\n M output/eventing-plan-proof/25-30-queue-policy/eventing-tests.log\n M output/eventing-plan-proof/25-30-queue-policy/proof-summary.json\n M output/eventing-plan-proof/25-30-queue-policy/source-shape.log\n M output/eventing-plan-proof/31-35-request-response/eventing-clippy.log\n M output/eventing-plan-proof/31-35-request-response/eventing-tests.log\n M output/eventing-plan-proof/31-35-request-response/proof-summary.json\n M output/eventing-plan-proof/31-35-request-response/source-shape.log\n M output/eventing-plan-proof/36-41-journal-replay/eventing-clippy.log\n M output/eventing-plan-proof/36-41-journal-replay/eventing-tests.log\n M output/eventing-plan-proof/36-41-journal-replay/proof-summary.json\n M output/eventing-plan-proof/36-41-journal-replay/source-shape.log\n M output/eventing-plan-proof/42-44-parent-child-protocol-contracts/proof-summary.json\n M output/eventing-plan-proof/45-50-network-protocol-contracts/proof-summary.json\n M output/eventing-plan-proof/51-54-parent-child-runtime/proof-summary.json\n M output/eventing-plan-proof/52-ui-typed-intent-boundary/proof-summary.json\n M output/eventing-plan-proof/55-56-enforcement-journal-action/proof-summary.json\n M output/eventing-plan-proof/57-network-workpack-10-reusable-crate/proof-summary.json\n M output/eventing-plan-proof/58-network-event-chain-exact-refs/proof-summary.json\n M output/eventing-plan-proof/59-weak-network-evidence-command-routing/proof-summary.json\n M output/eventing-plan-proof/60-61-command-boundary/proof-summary.json\n M output/eventing-plan-proof/62-network-proof-links/proof-summary.json\n M output/eventing-plan-proof/63-delivery-decision-proof/proof-summary.json\n M output/eventing-plan-proof/63-type-safety-source-gate/eventing-clippy.log\n M output/eventing-plan-proof/63-type-safety-source-gate/eventing-tests.log\n M output/eventing-plan-proof/63-type-safety-source-gate/proof-summary.json\n M output/eventing-plan-proof/63-type-safety-source-gate/source-shape.log\n M output/eventing-plan-proof/66-76-source-safety/eventing-clippy.log\n M output/eventing-plan-proof/66-76-source-safety/eventing-tests.log\n M output/eventing-plan-proof/66-76-source-safety/proof-summary.json\n M output/eventing-plan-proof/66-76-source-safety/source-shape.log\n M output/eventing-plan-proof/67-lock-await/eventing-clippy.log\n M output/eventing-plan-proof/67-lock-await/eventing-tests.log\n M output/eventing-plan-proof/67-lock-await/proof-summary.json\n M output/eventing-plan-proof/67-lock-await/source-shape.log\n M output/eventing-plan-proof/68-fixture-parity/proof-summary.json\n M output/eventing-plan-proof/68-fixture-parity/rust-fixture-parity-tests.log\n M output/eventing-plan-proof/68-fixture-parity/source-shape.log\n M output/eventing-plan-proof/69-compatibility-matrix/compatibility-matrix-example.log\n M output/eventing-plan-proof/69-compatibility-matrix/compatibility-matrix-tests.log\n M output/eventing-plan-proof/69-compatibility-matrix/eventing-clippy.log\n M output/eventing-plan-proof/69-compatibility-matrix/proof-summary.json\n M output/eventing-plan-proof/69-compatibility-matrix/source-shape.log\n M output/eventing-plan-proof/70-topology-manifest/proof-summary.json\n M output/eventing-plan-proof/70-topology-manifest/source-shape.log\n M output/eventing-plan-proof/70-topology-manifest/topology-manifest-tests.log\n M output/eventing-plan-proof/71-manual-clock/eventing-clippy.log\n M output/eventing-plan-proof/71-manual-clock/eventing-tests.log\n M output/eventing-plan-proof/71-manual-clock/proof-summary.json\n M output/eventing-plan-proof/71-manual-clock/source-shape.log\n M output/eventing-plan-proof/72-contract-registry/contract-registry-docs-example.log\n M output/eventing-plan-proof/72-contract-registry/eventing-clippy.log\n M output/eventing-plan-proof/72-contract-registry/proof-summary.json\n M output/eventing-plan-proof/72-contract-registry/source-shape.log\n M output/eventing-plan-proof/73-duplicate-subscriber/duplicate-subscriber-test.log\n M output/eventing-plan-proof/73-duplicate-subscriber/eventing-clippy.log\n M output/eventing-plan-proof/73-duplicate-subscriber/proof-summary.json\n M output/eventing-plan-proof/73-duplicate-subscriber/source-shape.log\n M output/eventing-plan-proof/74-lifecycle-clear/eventing-clippy.log\n M output/eventing-plan-proof/74-lifecycle-clear/lifecycle-clear-tests.log\n M output/eventing-plan-proof/74-lifecycle-clear/proof-summary.json\n M output/eventing-plan-proof/74-lifecycle-clear/source-shape.log\n M output/eventing-plan-proof/74-production-shutdown/eventing-clippy.log\n M output/eventing-plan-proof/74-production-shutdown/production-shutdown-tests.log\n M output/eventing-plan-proof/74-production-shutdown/proof-summary.json\n M output/eventing-plan-proof/74-production-shutdown/source-shape.log\n M output/eventing-plan-proof/75-family-variants/eventing-clippy.log\n M output/eventing-plan-proof/75-family-variants/family-variant-tests.log\n M output/eventing-plan-proof/75-family-variants/proof-summary.json\n M output/eventing-plan-proof/75-family-variants/source-shape.log\n M output/eventing-plan-proof/delivery-semantics/eventing-clippy.log\n M output/eventing-plan-proof/delivery-semantics/eventing-delivery-tests.log\n M output/eventing-plan-proof/delivery-semantics/proof-summary.json\n M output/eventing-plan-proof/delivery-semantics/source-shape.log\n M output/eventing-plan-proof/full-eventing-plan/00-source-snapshot.md\n M output/eventing-plan-proof/full-eventing-plan/command-logs/eventing-command-boundary-proof.log\n M output/eventing-plan-proof/full-eventing-plan/command-logs/eventing-enforcement-journal-action-proof.log\n M output/eventing-plan-proof/full-eventing-plan/command-logs/eventing-network-protocol-contract-proof.log\n M output/eventing-plan-proof/full-eventing-plan/command-logs/eventing-network-runtime-proof.log\n M output/eventing-plan-proof/full-eventing-plan/command-logs/eventing-parent-child-protocol-contract-proof.log\n M output/eventing-plan-proof/full-eventing-plan/command-logs/eventing-parent-child-runtime-proof.log\n M output/eventing-plan-proof/full-eventing-plan/command-logs/eventing-ui-typed-intent-boundary-proof.log\n M output/eventing-plan-proof/full-eventing-plan/command-logs/ocentra-eventing-clippy.log\n M output/eventing-plan-proof/full-eventing-plan/command-logs/ocentra-eventing-tests.log\n M output/eventing-plan-proof/full-eventing-plan/command-logs/source-shape.log\n M output/eventing-plan-proof/reusable-eventing-runtime/00-source-snapshot.md\n M output/eventing-plan-proof/reusable-eventing-runtime/command-logs/ocentra-eventing-clippy.log\n M output/eventing-plan-proof/reusable-eventing-runtime/command-logs/ocentra-eventing-tests.log\n M output/eventing-plan-proof/reusable-eventing-runtime/command-logs/source-shape.log\n M output/eventing-plan-proof/reusable-eventing-runtime/proof-summary.json\n M test-results/eventing-network-runtime-proof/proof.json\n M test-results/eventing-runtime-proof/proof.json\n",
   "proofRoot": "output\\eventing-plan-proof\\full-eventing-plan",
   "testRoot": "test-results\\eventing-full-plan-proof",
+  "runContext": "This committed proof artifact is deterministic; branch, commit, pushed state, and validation command output are reported in the worker handoff.",
   "commands": [
     {
       "name": "eventing-branded-fixture-parity-proof",
@@ -62,6 +58,12 @@
       "command": "node scripts\\test\\eventing-handler-policy-proof.mjs",
       "status": 0,
       "log": "output\\eventing-plan-proof\\full-eventing-plan\\command-logs\\eventing-handler-policy-proof.log"
+    },
+    {
+      "name": "eventing-household-mesh-consumer-proof",
+      "command": "node scripts\\test\\eventing-household-mesh-consumer-proof.mjs",
+      "status": 0,
+      "log": "output\\eventing-plan-proof\\full-eventing-plan\\command-logs\\eventing-household-mesh-consumer-proof.log"
     },
     {
       "name": "eventing-journal-replay-proof",
@@ -238,20 +240,31 @@
     "output\\eventing-plan-proof\\full-eventing-plan\\08-security-negative-proof.log",
     "output\\eventing-plan-proof\\full-eventing-plan\\09-manual-platform-proof.md",
     "output\\eventing-plan-proof\\full-eventing-plan\\10-validation-commands.log",
-    "output\\eventing-plan-proof\\full-eventing-plan\\11-network-consumer-proof.log"
+    "output\\eventing-plan-proof\\full-eventing-plan\\11-network-consumer-proof.log",
+    "output\\eventing-plan-proof\\full-eventing-plan\\12-household-mesh-consumer-proof.log"
   ],
   "provenRows": [
     "05-41 reusable eventing crate runtime rows",
     "42-62 parent/controller, child-agent, network, UI, enforcement, and command-boundary consumer rows",
-    "63-78 reusable eventing type-safety, compatibility, lifecycle, topology, delivery, and source-safety rows"
+    "63-78 reusable eventing type-safety, compatibility, lifecycle, topology, delivery, and source-safety rows",
+    "12-household-mesh-consumer proof-pack row for Household Mesh consumer bridge boundary"
   ],
   "networkConsumerProof": {
     "proofLog": "output\\eventing-plan-proof\\full-eventing-plan\\11-network-consumer-proof.log",
     "proves": "network consumes ocentra-eventing for typed publish/routing, queue/drain, request-response, service read-model delivery, service event-chain streaming, TypeScript parity, and broker/relay-hub manual-required delivery decisions without adding network business logic to crates/ocentra-eventing"
   },
+  "householdMeshConsumerProof": {
+    "proofLog": "output\\eventing-plan-proof\\full-eventing-plan\\12-household-mesh-consumer-proof.log",
+    "proves": "Household Mesh consumer bridge exports only selected local events into typed authenticated LAN messages, validates incoming messages before local republish, rejects direct remote publish into another runtime bus, rejects raw payload transfer and provider/parent policy-authority escalation, and preserves child-agent-only AI policy authority without adding LAN, AI, policy, or enforcement behavior to crates/ocentra-eventing"
+  },
   "notClaimed": [
     "broker-backed delivery",
     "relay-hub delivery",
+    "shared LAN-wide event bus",
+    "remote direct publish into another runtime local bus",
+    "provider-owned policy authority",
+    "raw screenshot or capture payload transfer by default",
+    "physical household provider execution",
     "platform adapter execution",
     "host DNS/filter enforcement",
     "portal-owned business event publishing"

@@ -2,8 +2,8 @@
   "proof": "network-remote-delivery-event-chain-journal-proof",
   "proofRevision": "network-remote-delivery-event-chain-journal-proof/v1",
   "checkedAt": "deterministic:network-remote-delivery-event-chain-journal-proof/v1",
-  "sourceFingerprint": "source-tree:029aaf77792412043a9407eb66600382253a6a3705a080ebeb763b9cbc544aee",
-  "mergeBase": "7e8071c37aadf8f0bb24aeb2f45504888a37beec",
+  "sourceFingerprint": "source-tree:07d8159d66970db01f0b171b1439bd1d44e29d35be393c3a144f219163c38130",
+  "mergeBase": "466978a9b8f6ac946977169fd2e16e01b4cf6d92",
   "proofRoot": "output\\network-plan-proof\\10c-remote-delivery-event-chain-journal-status",
   "testRoot": "test-results\\network-remote-delivery-event-chain-journal-proof",
   "commands": [

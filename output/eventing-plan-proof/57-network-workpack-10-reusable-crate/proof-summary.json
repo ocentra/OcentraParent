@@ -1,7 +1,7 @@
 {
   "proof": "eventing-row-57-network-workpack-10-reusable-crate",
-  "checkedAt": "2026-06-05T19:08:00.341Z",
-  "commit": "628fcbe10f9a13f0a09d9c7617e1900aa591ad61",
+  "checkedAt": "2026-06-07T21:08:32.836Z",
+  "commit": "987da398c1c98c68bcaeb69862d899657e24de91",
   "commands": [
     "cargo test -p ocentra-eventing",
     "cargo test -p ocentra-parent-agent-core network_event_runtime",

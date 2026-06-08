@@ -1,0 +1,49 @@
+{
+  "proof": "network-linux-adapter-proof-gate",
+  "checkedAt": "2026-06-07T16:58:37.287Z",
+  "branch": "codex/network-policy-preview-stored-flow-evidence-on-row10k",
+  "commit": "e92734a430c7f1bcf632267930a51440c89711ca",
+  "statusShort": " M crates/ocentra-network-evidence/README.md\n M crates/ocentra-network-evidence/src/lib.rs\n M crates/ocentra-network-evidence/src/tests.rs\n M docs/features/network-domain-control.md\n M docs/plans/network-plan/implementation-checklist.md\n M docs/plans/network-plan/workpacks/README.md\n?? crates/ocentra-network-evidence/src/adapter_capability_status.rs\n?? crates/ocentra-network-evidence/src/adapter_capability_status_values.rs\n?? crates/ocentra-network-evidence/src/tests/adapter_capability_status.rs\n?? crates/ocentra-network-evidence/src/tests/adapter_capability_status_rejections.rs\n?? scripts/test/network-adapter-capability-status-proof.mjs\n?? scripts/test/network-full-plan-proof.mjs\n",
+  "proofRoot": "output\\network-plan-proof\\42-linux-adapter-proof-gate",
+  "testRoot": "test-results\\network-linux-adapter-proof-gate",
+  "commands": [
+    {
+      "name": "network-linux-adapter-gate-tests",
+      "command": "cargo test -p ocentra-network-evidence linux_adapter_gate",
+      "status": 0,
+      "log": "output\\network-plan-proof\\42-linux-adapter-proof-gate\\linux-adapter-gate-tests.log"
+    },
+    {
+      "name": "network-evidence-clippy",
+      "command": "cargo clippy -p ocentra-network-evidence --all-targets -- -D warnings",
+      "status": 0,
+      "log": "output\\network-plan-proof\\42-linux-adapter-proof-gate\\clippy.log"
+    },
+    {
+      "name": "source-shape",
+      "command": "node scripts/check-source-shape.mjs",
+      "status": 0,
+      "log": "output\\network-plan-proof\\42-linux-adapter-proof-gate\\source-shape.log"
+    }
+  ],
+  "artifacts": {
+    "expectedLinuxAdapterProofGate": "output\\network-plan-proof\\42-linux-adapter-proof-gate\\expected-linux-adapter-proof-gate.json",
+    "proofSummary": "output\\network-plan-proof\\42-linux-adapter-proof-gate\\proof-summary.json",
+    "testProof": "test-results\\network-linux-adapter-proof-gate\\proof.json"
+  },
+  "provenRows": [
+    "42 Linux nftables/eBPF/TUN adapter/proof gate"
+  ],
+  "notClaimed": [
+    "generic Linux support",
+    "live nftables/eBPF/TUN install",
+    "packet filtering",
+    "kernel hook loading",
+    "TUN interface mutation",
+    "service-manager install",
+    "adapter action authorization",
+    "enforcement command publication",
+    "decrypted payload or page content inspection",
+    "exact URL claim from network-only evidence"
+  ]
+}

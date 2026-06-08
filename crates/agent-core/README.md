@@ -66,6 +66,35 @@ service shell.
   event type, correlation id, durable refs, receipt refs, and local receipt-ack
   refs and rejecting duplicate durable envelopes without dispatching transport
   or claiming remote acknowledgements.
+- Network remote fixture transport proof that records one proof-local dispatch
+  attempt and one fixture acknowledgement for each prepared outbox candidate
+  while preserving event/outbox/handoff refs and keeping live broker/family-hub
+  delivery, provider or child-device delivery, product-ready support, policy
+  authority, adapter execution, and host filtering unclaimed.
+- Network remote delete/export propagation readiness proof that records
+  proof-local remote delete and export readiness refs for each fixture
+  acknowledgement while preserving event/outbox/handoff/ack refs and keeping
+  actual remote propagation, product-ready support, policy authority, adapter
+  execution, and host filtering unclaimed.
+- Network row10p provider/child readiness proof that maps row10l fixture
+  acknowledgements into provider-route and child-device-route readiness records
+  with manual-required unavailable state, zero delivery artifacts, and no live
+  provider/child delivery claim.
+- Network row10q cross-process custody readiness proof that maps row10p
+  provider/child readiness records into cross-process replay, remote retention,
+  remote delete custody, and remote export custody readiness records with zero
+  custody/replay artifacts and no actual cross-process replay or remote
+  delete/export propagation claim.
+- Network policy-preview proof that reads stored ActivityStore network flow
+  rows, maps destination-domain metadata into a domain policy target, resolves
+  parent-rule contexts only when they cite stored network activity event refs,
+  and keeps the resulting decision dry-run with enforcement handoff disabled.
+- Household Mesh Bridge consumer proof that exports only selected local event
+  refs into typed authenticated LAN message refs, validates incoming LAN
+  messages before local republish, rejects direct remote publish into another
+  runtime bus, rejects unselected or mismatched event/message refs, rejects
+  provider/parent policy-authority escalation, rejects raw payload transfer, and
+  preserves child-agent-only AI policy authority.
 
 ## Must Not Own
 
@@ -128,3 +157,27 @@ flowchart LR
   broker/family-hub dispatch, remote acknowledgements, provider/child-device
   delivery, retry execution, remote delete/export propagation, and product-ready
   remote delivery remain separate gaps.
+- Network remote fixture transport is a proof-only receipt loop over local
+  prepared outbox candidates; live broker/family-hub transport, provider or
+  child-device delivery, production acknowledgement semantics, retry execution,
+  remote delete/export propagation, and product-ready remote delivery remain
+  separate gaps.
+- Network remote delete/export propagation readiness is local proof state only;
+  live broker/family-hub propagation, provider or child-device delete/export
+  delivery, remote acknowledgement semantics, retries, and product-ready remote
+  delivery remain separate gaps.
+- Network row10p provider/child readiness is a typed unavailable-state gate
+  only; live provider transport, child-device delivery, remote acknowledgement
+  semantics, retries, and product-ready remote delivery remain separate gaps.
+- Network row10q cross-process custody readiness is a typed unavailable-state
+  gate only; cross-process durable replay, remote retention, actual remote
+  delete/export propagation, live transport, retries, and product-ready remote
+  delivery remain separate gaps.
+- Network policy preview is stored-row dry-run proof only; AI model execution,
+  full policy-engine execution, adapter authorization, adapter action,
+  enforcement-command publication, exact URL/content inference, raw PCAP, and
+  host filtering remain separate proof-gated gaps.
+- Household Mesh Bridge is a consumer-boundary proof only; live physical
+  household provider discovery/execution, cross-device claim/lease/idempotency,
+  production model quality, raw screenshot/capture transfer, portal UI,
+  enforcement commands, and adapter execution remain separate proof-gated gaps.
