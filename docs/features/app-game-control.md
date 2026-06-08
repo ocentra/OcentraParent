@@ -1297,7 +1297,14 @@ diagnostics, or raw private source rows.
       the request was captured for the future preference mutation path while
       keeping durable preference mutation, notification rule writes, provider
       delivery, child runtime delivery, adapter dispatch, platform enforcement,
-      raw private rows, and raw targets unclaimed.
+      raw private rows, and raw targets unclaimed. The accepted request result
+      now also carries child-runtime delivery handoff refs/status, and the
+      service persists a local handoff-ready audit event only after the local
+      ActivityStore write succeeds. This proves the setup path can be handed to
+      a future child runtime without claiming provider delivery, receipt
+      ingestion, actual child runtime delivery, durable outbox storage, adapter
+      dispatch, broad blocking, platform enforcement, raw private source rows,
+      raw target values, or private diagnostics.
 - [ ] Adapter capability status per platform. Cross-platform authority and
       broad-blocking gate contracts now record manual-required, unavailable,
       and not-claimed proof requirements. Platform-extension routing now maps

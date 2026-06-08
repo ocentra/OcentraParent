@@ -31,10 +31,16 @@ pub(crate) async fn persist_setup_handoff(
     let persisted_result = persisted_result(result);
     let action_result_event = action_result_activity_event(command, &persisted_result);
     let mutation_receipt_event = mutation_receipt_activity_event(command, &persisted_result);
+    let child_runtime_delivery_handoff_event =
+        child_runtime_delivery_handoff_activity_event(command, &persisted_result);
     tokio::task::spawn_blocking(move || {
         let store = ActivityStore::open(store_path).map_err(|_| ())?;
         store
-            .ingest_events(&[action_result_event, mutation_receipt_event])
+            .ingest_events(&[
+                action_result_event,
+                mutation_receipt_event,
+                child_runtime_delivery_handoff_event,
+            ])
             .map_err(|_| ())?;
         Ok::<(), ()>(())
     })
@@ -54,7 +60,74 @@ fn persisted_result(
     persisted.parent_preference_mutation_receipt_status =
         constants::value::APP_GAME_PARENT_PREFERENCE_SETUP_MUTATION_RECEIPT_PERSISTED.to_string();
     persisted.parent_preference_mutation_receipt_claimed = true;
+    persisted.child_runtime_delivery_handoff_status =
+        constants::value::APP_GAME_PARENT_PREFERENCE_SETUP_CHILD_RUNTIME_DELIVERY_HANDOFF_READY
+            .to_string();
+    persisted.child_runtime_delivery_handoff_claimed = true;
     persisted
+}
+
+fn child_runtime_delivery_handoff_activity_event(
+    command: &AgentCommandEnvelope,
+    result: &AppGameTimerParentPreferenceSetupRequestResult,
+) -> ActivityEvent {
+    let mut fields = LogFields::new();
+    fields.insert(
+        constants::field::APP_GAME_TIMER_PARENT_PREFERENCE_SETUP_CHILD_RUNTIME_DELIVERY_HANDOFF
+            .to_string(),
+        LogFieldValue::String(
+            serde_json::to_string(result).expect(constants::error::AGENT_EVENT_SERIALIZES),
+        ),
+    );
+    fields.insert(
+        constants::field::APP_GAME_TIMER_PARENT_PREFERENCE_SETUP_REQUEST.to_string(),
+        LogFieldValue::String(result.request_id.clone()),
+    );
+    fields.insert(
+        constants::field::CAPABILITY_STATUS.to_string(),
+        LogFieldValue::String(
+            constants::value::APP_GAME_PARENT_PREFERENCE_SETUP_CHILD_RUNTIME_DELIVERY_HANDOFF_READY
+                .to_string(),
+        ),
+    );
+    fields.insert(
+        constants::field::CHILD_DELIVERY_STATE.to_string(),
+        LogFieldValue::String(
+            constants::value::APP_GAME_PARENT_PREFERENCE_SETUP_CHILD_RUNTIME_DELIVERY_HANDOFF_READY
+                .to_string(),
+        ),
+    );
+
+    ActivityEvent {
+        schema_version: ACTIVITY_SCHEMA_VERSION,
+        event_id: result.child_runtime_delivery_handoff_id.clone(),
+        observed_at: result.accepted_at.clone(),
+        source: ActivitySource {
+            device_id: command.target.device_id.clone(),
+            platform: command.target.platform.clone(),
+            observer: ActivityObserver::AgentService,
+            source_id: APP_GAME_JOURNAL_SOURCE_ID.to_string(),
+        },
+        kind: ActivityEventKind::EnforcementAuditRecorded,
+        subject: ActivitySubject {
+            kind: ActivitySubjectKind::Device,
+            subject_id: result.parent_preference_setup_reference_id.clone(),
+            display_name: Some(
+                constants::value::APP_GAME_PARENT_PREFERENCE_SETUP_CHILD_RUNTIME_DELIVERY_HANDOFF_READY
+                    .to_string(),
+            ),
+        },
+        fields,
+        evidence: evidence_references(result)
+            .into_iter()
+            .map(|reference| ActivityEvidenceRef {
+                evidence_id: reference.evidence_reference_id,
+                kind: ActivityEvidenceKind::LocalDbRow,
+                digest: None,
+                uri: None,
+            })
+            .collect(),
+    }
 }
 
 fn mutation_receipt_activity_event(

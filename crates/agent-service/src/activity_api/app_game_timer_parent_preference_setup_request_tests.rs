@@ -72,12 +72,8 @@ async fn app_game_timer_parent_preference_setup_request_command_returns_accepted
             || result.parent_preference_mutation_receipt_status
                 == constants::value::APP_GAME_PARENT_PREFERENCE_SETUP_MUTATION_RECEIPT_UNAVAILABLE
     );
-    assert!(!result.parent_preference_mutation_claimed);
-    assert!(!result.notification_rule_mutation_claimed);
-    assert!(!result.provider_delivery_claimed);
-    assert!(!result.durable_outbox_claimed);
-    assert!(!result.adapter_dispatch_claimed);
-    assert!(!result.platform_enforcement_claimed);
+    assert_child_runtime_delivery_handoff_boundary(&result);
+    assert_no_delivery_or_platform_claims(&result);
 }
 
 #[tokio::test]
@@ -121,12 +117,23 @@ async fn app_game_timer_parent_preference_setup_request_persists_action_result_r
         constants::value::APP_GAME_PARENT_PREFERENCE_SETUP_MUTATION_RECEIPT_PERSISTED
     );
     assert!(result.parent_preference_mutation_receipt_claimed);
-    assert!(!result.parent_preference_mutation_claimed);
-    assert_eq!(status.events_stored, 2);
     assert_eq!(
-        status.last_event_id,
-        Some(parent_preference_mutation_receipt_id())
+        result.child_runtime_delivery_handoff_id,
+        child_runtime_delivery_handoff_id()
     );
+    assert_eq!(
+        result.child_runtime_delivery_handoff_status,
+        constants::value::APP_GAME_PARENT_PREFERENCE_SETUP_CHILD_RUNTIME_DELIVERY_HANDOFF_READY
+    );
+    assert!(result.child_runtime_delivery_handoff_claimed);
+    assert!(!result.parent_preference_mutation_claimed);
+    assert!(!result.child_runtime_delivery_claimed);
+    assert!(!result.provider_receipt_ingestion_claimed);
+    assert!(!result.broad_blocking_claimed);
+    assert!(!result.raw_private_source_rows_claimed);
+    assert!(!result.raw_target_values_claimed);
+    assert!(!result.private_diagnostics_claimed);
+    assert_eq!(status.events_stored, 3);
     assert_eq!(model.approval_action_result_returned, 1);
     assert_eq!(
         model.approval_action_result_rows[0].result_id,
@@ -147,12 +154,61 @@ async fn app_game_timer_parent_preference_setup_request_persists_action_result_r
         .is_none());
 }
 
+fn assert_child_runtime_delivery_handoff_boundary(
+    result: &AppGameTimerParentPreferenceSetupRequestResult,
+) {
+    assert_eq!(
+        result.child_runtime_delivery_handoff_id,
+        child_runtime_delivery_handoff_id()
+    );
+    assert_eq!(
+        result.child_runtime_delivery_handoff_ids,
+        vec![
+            child_runtime_delivery_handoff_id(),
+            parent_preference_mutation_receipt_id(),
+            constants::value::APP_GAME_CHILD_UX_PARENT_PREFERENCE_SETUP_PREFIX.to_string(),
+            constants::value::APP_GAME_CHILD_UX_PARENT_SURFACE_INTENT_PREFIX.to_string(),
+        ]
+    );
+    assert!(
+        result.child_runtime_delivery_handoff_status
+            == constants::value::APP_GAME_PARENT_PREFERENCE_SETUP_CHILD_RUNTIME_DELIVERY_HANDOFF_READY
+            || result.child_runtime_delivery_handoff_status
+                == constants::value::APP_GAME_PARENT_PREFERENCE_SETUP_CHILD_RUNTIME_DELIVERY_HANDOFF_UNAVAILABLE
+    );
+}
+
+fn assert_no_delivery_or_platform_claims(result: &AppGameTimerParentPreferenceSetupRequestResult) {
+    assert!(!result.parent_preference_mutation_claimed);
+    assert!(!result.notification_rule_mutation_claimed);
+    assert!(!result.provider_delivery_claimed);
+    assert!(!result.provider_receipt_ingestion_claimed);
+    assert!(!result.child_runtime_delivery_claimed);
+    assert!(!result.durable_outbox_claimed);
+    assert!(!result.adapter_dispatch_claimed);
+    assert!(!result.broad_blocking_claimed);
+    assert!(!result.platform_enforcement_claimed);
+    assert!(!result.raw_private_source_rows_claimed);
+    assert!(!result.raw_target_values_claimed);
+    assert!(!result.private_diagnostics_claimed);
+}
+
 fn parent_preference_mutation_receipt_id() -> String {
     let mut receipt_id =
         constants::value::APP_GAME_CHILD_UX_PARENT_PREFERENCE_SETUP_PREFIX.to_string();
     receipt_id.push(constants::delimiter::HYPHEN);
     receipt_id.push_str(constants::value::APP_GAME_PARENT_PREFERENCE_SETUP_MUTATION_RECEIPT_SUFFIX);
     receipt_id
+}
+
+fn child_runtime_delivery_handoff_id() -> String {
+    let mut handoff_id =
+        constants::value::APP_GAME_CHILD_UX_PARENT_PREFERENCE_SETUP_PREFIX.to_string();
+    handoff_id.push(constants::delimiter::HYPHEN);
+    handoff_id.push_str(
+        constants::value::APP_GAME_PARENT_PREFERENCE_SETUP_CHILD_RUNTIME_DELIVERY_HANDOFF_SUFFIX,
+    );
+    handoff_id
 }
 
 fn command_envelope() -> AgentCommandEnvelope {

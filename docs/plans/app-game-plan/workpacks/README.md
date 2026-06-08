@@ -135,6 +135,7 @@ before `DONE` or PR-ready reporting.
 127. WP136 app/game timer parent-surface parent preference setup action-result handoff.
 128. WP137 app/game timer parent-surface parent preference setup action-result persistence.
 129. WP138 app/game timer parent-surface parent preference setup mutation receipt handoff.
+130. WP139 app/game timer parent-surface parent preference setup child-runtime delivery handoff readiness.
 
 ## Standard AI Worker Checklist
 

@@ -38,15 +38,29 @@ export const AppGameTimerParentPreferenceSetupRequestResultSchema = withParser(
     ),
     parentPreferenceMutationReceiptStatus: Schema.Literal('persisted', 'unavailable'),
     parentPreferenceMutationReceiptClaimed: Schema.Boolean,
+    childRuntimeDeliveryHandoffId: NonEmptyTextSchema,
+    childRuntimeDeliveryHandoffIds: Schema.Array(NonEmptyTextSchema).pipe(
+      Schema.filter(
+        (value) => value.length > 0 || 'Expected parent preference setup child runtime delivery handoff references'
+      )
+    ),
+    childRuntimeDeliveryHandoffStatus: Schema.Literal('handoff-ready', 'unavailable'),
+    childRuntimeDeliveryHandoffClaimed: Schema.Boolean,
     commandBoundaryClaimed: Schema.Literal(true),
     actionResultHandoffClaimed: Schema.Literal(true),
     actionResultPersistenceClaimed: Schema.Boolean,
     parentPreferenceMutationClaimed: Schema.Literal(false),
     notificationRuleMutationClaimed: Schema.Literal(false),
     providerDeliveryClaimed: Schema.Literal(false),
+    providerReceiptIngestionClaimed: Schema.Literal(false),
+    childRuntimeDeliveryClaimed: Schema.Literal(false),
     durableOutboxClaimed: Schema.Literal(false),
     adapterDispatchClaimed: Schema.Literal(false),
+    broadBlockingClaimed: Schema.Literal(false),
     platformEnforcementClaimed: Schema.Literal(false),
+    rawPrivateSourceRowsClaimed: Schema.Literal(false),
+    rawTargetValuesClaimed: Schema.Literal(false),
+    privateDiagnosticsClaimed: Schema.Literal(false),
   })
 );
 
