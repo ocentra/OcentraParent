@@ -76,6 +76,7 @@ async function main() {
   await resetPhysicalRuntimeProofState(tools, serial);
   await grantDeclaredLocationPermissions(tools, serial);
   runCapture(tools.adbPath, ['-s', serial, 'logcat', '-c']);
+  await preparePhysicalDeviceForLaunch(tools, serial);
   await writeCommandArtifact('03-launch-activity.txt', tools.adbPath, [
     '-s',
     serial,
@@ -95,7 +96,7 @@ async function main() {
     'ca.ocentra.parent.agent/.OcentraParentAgentService',
   ]);
   const observationWindowSeconds = physicalObservationWindowSeconds();
-  await writePhysicalRouteObservation(tools, serial, observationWindowSeconds);
+  const physicalRouteObservation = await writePhysicalRouteObservation(tools, serial, observationWindowSeconds);
   await delay(observationWindowSeconds * 1_000);
 
   const device = collectDeviceMetadata(tools, serial);
@@ -177,6 +178,7 @@ async function main() {
     geofenceTransitionPrefs,
     locationManagerState,
     observationWindowSeconds,
+    physicalRouteObservation,
   });
   assertProof(proof);
   await writeProofArtifacts(proof);
@@ -222,13 +224,17 @@ async function buildProof(runtime) {
         runtime.device.packageDump,
         'android.permission.ACCESS_BACKGROUND_LOCATION'
       ),
+      geofenceRegistrationObserved: parseXmlBoolean(runtime.geofenceTransitionPrefs, 'registered'),
+      systemProximityRegistrationObserved: parseXmlBoolean(
+        runtime.geofenceTransitionPrefs,
+        'systemProximityRegistered'
+      ),
       locationSampleObserved:
         parseXmlInt(runtime.backgroundSamplePrefs, 'backgroundLocationSampleCount') > 0 ||
         runtime.uiDump.includes('current-location-sample-observed'),
       backgroundLocationSampleCount: parseXmlInt(runtime.backgroundSamplePrefs, 'backgroundLocationSampleCount'),
       physicalRouteObservationWindowSeconds: runtime.observationWindowSeconds,
-      shellLocationInjectionAvailable:
-        runtime.locationManagerState.includes('No shell command implementation.') === false,
+      shellLocationInjectionAvailable: runtime.physicalRouteObservation.shellLocationInjectionAvailable,
       localGeofenceTransitionCount: parseXmlInt(runtime.geofenceTransitionPrefs, 'transitionCount'),
       localGeofenceDwellCount: parseXmlInt(runtime.geofenceTransitionPrefs, 'dwellCount'),
       androidSystemGeofenceTransitionCount: parseXmlInt(
@@ -255,6 +261,11 @@ async function buildProof(runtime) {
       connectivityDumpObserved: /Network|Active|Connectivity/u.test(runtime.connectivityDump),
       foregroundPermissionGranted: runtime.permissionState.foregroundPermissionGranted,
       backgroundPermissionGranted: runtime.permissionState.backgroundPermissionGranted,
+      geofenceRegistrationObserved: parseXmlBoolean(runtime.geofenceTransitionPrefs, 'registered'),
+      systemProximityRegistrationObserved: parseXmlBoolean(
+        runtime.geofenceTransitionPrefs,
+        'systemProximityRegistered'
+      ),
       locationSampleObserved:
         parseXmlInt(runtime.backgroundSamplePrefs, 'backgroundLocationSampleCount') > 0 ||
         runtime.uiDump.includes('current-location-sample-observed'),
@@ -265,8 +276,7 @@ async function buildProof(runtime) {
         runtime.geofenceTransitionPrefs,
         'systemProximityTransitionCount'
       ),
-      shellLocationInjectionAvailable:
-        runtime.locationManagerState.includes('No shell command implementation.') === false,
+      shellLocationInjectionAvailable: runtime.physicalRouteObservation.shellLocationInjectionAvailable,
       physicalRouteObservationWindowSeconds: runtime.observationWindowSeconds,
     },
     artifactPaths: {
@@ -283,6 +293,9 @@ function assertProof(proof) {
   const [row] = proof.rows;
   if (!row.physicalDeviceRuntimeObserved || !row.packageLaunchObserved || !row.foregroundServiceObserved) {
     throw new Error(`Physical Android runtime proof did not observe package launch/service: ${JSON.stringify(row)}`);
+  }
+  if (row.backgroundPermissionGranted && !row.geofenceRegistrationObserved) {
+    throw new Error(`Physical Android runtime proof did not observe geofence registration: ${JSON.stringify(row)}`);
   }
   if (
     proof.productClaims.physicalLocationRuntimeClaimed ||
@@ -427,6 +440,12 @@ function parseXmlInt(xml, name) {
   return longMatch?.groups?.value === undefined ? 0 : Number.parseInt(longMatch.groups.value, 10);
 }
 
+function parseXmlBoolean(xml, name) {
+  const escaped = escapeRegExp(name);
+  const match = new RegExp(`<boolean\\s+name="${escaped}"\\s+value="(?<value>true|false)"\\s*/>`, 'u').exec(xml);
+  return match?.groups?.value === 'true';
+}
+
 async function resetPhysicalRuntimeProofState(tools, serial) {
   await writeCommandArtifactAllowFailure('00-reset-runtime-proof-state.txt', tools.adbPath, [
     '-s',
@@ -464,6 +483,28 @@ async function grantDeclaredLocationPermissions(tools, serial) {
   await writeText('13-grant-location-permissions.txt', `${lines.join('\n')}\n`);
 }
 
+async function preparePhysicalDeviceForLaunch(tools, serial) {
+  const commandsToRun = [
+    ['shell', 'input', 'keyevent', 'KEYCODE_WAKEUP'],
+    ['shell', 'wm', 'dismiss-keyguard'],
+    ['shell', 'input', 'keyevent', '82'],
+  ];
+  const lines = [];
+  for (const args of commandsToRun) {
+    const result = spawnSync(tools.adbPath, ['-s', serial, ...args], {
+      cwd: repoRoot,
+      encoding: 'utf8',
+      shell: false,
+      timeout: androidCommandTimeoutMs,
+    });
+    const output = `${result.stdout ?? ''}${result.stderr ?? ''}`.trim();
+    const command = `${tools.adbPath} -s ${serial} ${args.join(' ')}`;
+    commands.push({ command, status: result.status ?? 1, output });
+    lines.push(`${command} exit=${String(result.status ?? 1)} ${output}`);
+  }
+  await writeText('03-prepare-device-for-launch.txt', `${lines.join('\n')}\n`);
+}
+
 function physicalPermissionState(packageDump) {
   return {
     foregroundPermissionGranted:
@@ -496,6 +537,10 @@ async function writePhysicalRouteObservation(tools, serial, observationWindowSec
     `shellLocationCommandOutput=${output.length === 0 ? 'NO_OUTPUT' : output}`,
   ];
   await writeText('16-physical-route-observation.txt', `${notes.join('\n')}\n`);
+  return {
+    shellLocationInjectionAvailable: !output.includes('No shell command implementation.'),
+    output,
+  };
 }
 
 function physicalObservationWindowSeconds() {

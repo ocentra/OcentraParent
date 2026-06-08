@@ -257,11 +257,13 @@ expose location or device-status features. Parents expect this category.
   `node scripts/test/tracking-android-physical-device-runtime-proof.mjs`. It
   verifies the Samsung S9 Wi-Fi ADB target (`192.168.2.45:5555`) with debug APK
   install, launch attempt, foreground-service `ServiceRecord`, device metadata,
-  battery/connectivity dumps, UI/keyguard screenshot, and logcat artifacts. This
-  is physical package/service/status evidence only; physical location sample
-  delivery, physical geofence/dwell delivery, Android system geofence delivery,
-  authority enrollment, production workers, and product-ready Android tracking
-  remain unclaimed.
+  foreground/background location permissions, foreground-service-backed
+  background GPS samples, app-owned geofence registration, Android proximity
+  registration metadata, battery/connectivity dumps, UI/keyguard screenshot, and
+  logcat artifacts. Physical location sampling is observed, but physical
+  geofence transition/dwell counters and Android system geofence delivery remain
+  zero/unclaimed; authority enrollment, production workers, and product-ready
+  Android tracking remain unclaimed.
 - WP08/WP09/WP30/WP33 local platform proof batch now exists through
   `node scripts/test/tracking-local-platform-proof-batch.mjs`. It aggregates
   Android emulator runtime evidence, WSL/local replay, hosted parent UI
@@ -276,10 +278,12 @@ expose location or device-status features. Parents expect this category.
   `node scripts/test/tracking-cross-platform-runtime-capability-proof.mjs`. It
   aggregates the current Windows host toolchain, WSL/Linux replay, Docker
   container runtime availability, Android emulator runtime, Android physical
-  package/service/status evidence, and macOS/iOS CI/manual routing into one
-  parent-domain proof. The current Windows host, WSL/Linux, Docker container
-  runtime, Android emulator, and Android physical status rows pass locally;
-  macOS/iOS remain CI/manual-required on this Windows host. The proof keeps
+  package/service/status and geofence registration evidence, and macOS/iOS
+  CI/manual routing into one parent-domain proof. The current Windows host,
+  WSL/Linux, Docker container runtime, Android emulator, Android physical
+  status, Android physical app-owned geofence registration, and Android physical
+  system proximity registration rows pass locally; macOS/iOS remain
+  CI/manual-required on this Windows host. The proof keeps
   physical device behavior, authority, production, and product-ready tracking
   claims false.
 - WP11/WP12/WP31/WP33 iOS simulator artifact inventory proof now exists

@@ -97,6 +97,10 @@ const baseRows = [
     currentProofTier: 'P4_PHYSICAL_DEVICE_STATUS_ONLY',
     requiredProofTier: 'P4_PHYSICAL_DEVICE',
     observedTooling: ['Samsung S9 adb over Wi-Fi'],
+    observedCapabilityRefs: [
+      'android-physical-geofence-registration',
+      'android-physical-system-proximity-registration',
+    ],
     passedAssertions: ['Physical package, service, battery, and connectivity artifacts are present'],
     remainingBlockers: ['Physical location/geofence behavior remains unclaimed'],
     artifactCount: 13,
@@ -145,6 +149,8 @@ describe('tracking cross-platform runtime capability proof', () => {
     expect(proof.productClaims.dockerContainerRuntimeObserved).toBe(false);
     expect(proof.productClaims.androidSdkToolchainObserved).toBe(true);
     expect(proof.productClaims.androidGradleProjectBuildObserved).toBe(true);
+    expect(proof.productClaims.androidPhysicalGeofenceRegistrationObserved).toBe(true);
+    expect(proof.productClaims.androidPhysicalSystemProximityRegistrationObserved).toBe(true);
     expect(proof.productClaims.productClaimReady).toBe(false);
     expect(proof.rows.every((row) => row.physicalDeviceBehaviorClaimed === false)).toBe(true);
   });

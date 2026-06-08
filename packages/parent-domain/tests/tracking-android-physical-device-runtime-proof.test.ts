@@ -19,8 +19,12 @@ describe('tracking Android physical-device runtime proof', () => {
     expect(proof.summary.physicalLocationArtifactCount).toBe(1);
     expect(proof.summary.physicalGeofenceArtifactCount).toBe(1);
     expect(proof.summary.backgroundLocationSampleCount).toBe(1);
+    expect(proof.summary.geofenceRegistrationObserved).toBe(true);
+    expect(proof.summary.systemProximityRegistrationObserved).toBe(true);
     expect(proof.summary.localGeofenceTransitionCount).toBe(2);
     expect(proof.summary.localGeofenceDwellCount).toBe(1);
+    expect(proof.proofClaims.geofenceRegistrationObserved).toBe(true);
+    expect(proof.proofClaims.systemProximityRegistrationObserved).toBe(true);
     expect(proof.productClaims.physicalDeviceRuntimeObserved).toBe(true);
     expect(proof.productClaims.physicalLocationRuntimeClaimed).toBe(false);
     expect(proof.productClaims.physicalGeofenceRuntimeClaimed).toBe(false);
@@ -81,6 +85,8 @@ function input() {
     connectivityDumpObserved: true,
     foregroundPermissionGranted: false,
     backgroundPermissionGranted: false,
+    geofenceRegistrationObserved: true,
+    systemProximityRegistrationObserved: true,
     locationSampleObserved: true,
     backgroundLocationSampleCount: 1,
     physicalRouteObservationWindowSeconds: 60,
