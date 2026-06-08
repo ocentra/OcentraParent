@@ -57,6 +57,11 @@
 - Authority, child-runtime, full-product UI, production worker, retention
   runtime, physical-device, and escalation artifact gates now enumerate required
   real-runtime artifacts while keeping product claims false.
+- The real-runtime handoff proof now carries row-level blocker ids, required
+  manual validation commands, artifact acceptance notes, and a generated manual
+  validation runbook for the P4 handoff rows so the remaining Android, iOS,
+  child-runtime, product UI, authority, provider, retention, production, and
+  escalation gaps can be closed without inventing duplicate truth.
 - Product-readiness closure proof exists through
   `node scripts/test/tracking-product-readiness-closure-proof.mjs`; it verifies
   the local/CI proof accounting chain and keeps product-ready tracking false.

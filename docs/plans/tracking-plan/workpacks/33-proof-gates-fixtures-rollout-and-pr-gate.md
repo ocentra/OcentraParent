@@ -344,7 +344,11 @@ parent-domain
 `output/tracking-plan-proof/tracking-real-runtime-handoff-proof/proof.json`,
 and `test-results/tracking-real-runtime-handoff-proof/proof.json`, listing the
 exact remaining P4/manual artifacts for later real-device/provider/production
-validation while keeping product-ready tracking false.
+validation while keeping product-ready tracking false. The refreshed proof also
+writes
+`output/tracking-plan-proof/tracking-real-runtime-handoff-proof/manual-validation-runbook.md`
+with one row per runtime handoff area, including blocker ids, validation
+commands, artifact acceptance notes, and missing artifact names.
 
 This branch adds `node scripts/test/tracking-child-runtime-artifact-gate-proof.mjs`,
 which writes WP30/WP33 child-runtime artifact gate proof artifacts for the
