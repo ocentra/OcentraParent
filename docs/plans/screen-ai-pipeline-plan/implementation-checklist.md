@@ -244,11 +244,14 @@ proofs into physical LAN product execution.
       service OCR policy proof to rerun the source live service OCR proof in
       the same validation flow.
 - [x] Household mesh screen AI proof, when mesh route is used, records provider
-      discovery, provider selection, advertisement/heartbeat eligibility,
-      claim/lease lifecycle, provider result, child-agent validation, policy
-      authority, and custody artifacts.
-- [x] Final product path requires household mesh no-raw-transfer and provider
-      result validation artifacts before its retained pipeline proof can pass.
+      discovery, provider route selection, advertisement/heartbeat eligibility,
+      claim/lease lifecycle, no-raw-transfer, provider result validation, mesh
+      bridge mediation, child-agent-only policy authority, mobile dormant/
+      fallback behavior, and custody artifacts.
+- [x] Final product path requires household route selection, mesh bridge,
+      no-raw-transfer, provider result validation, child-agent authority, mobile
+      dormant/fallback, and provider advertisement/claim/lease artifacts before
+      its retained pipeline proof can pass.
 - [x] Final product path requires service event capture producer, analysis
       row-ready, policy-ref producer, deletion producer, bridge, and subscriber
       artifacts before its retained pipeline proof can pass.

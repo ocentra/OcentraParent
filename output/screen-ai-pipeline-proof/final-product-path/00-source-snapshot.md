@@ -1,6 +1,6 @@
 # Screen AI Final Product Path Proof
 
-Generated: 2026-06-08T05:17:48.058Z
+Generated: 2026-06-08T05:28:15.066Z
 
 ## Source Artifacts
 
@@ -9,10 +9,14 @@ Generated: 2026-06-08T05:17:48.058Z
 - deletionRetentionCustody: `output/screen-ai-pipeline-proof/deletion-retention-custody/proof-summary.json`
 - aiPlanClosure: `output/ai-plan-proof/local-ai-plan-closure-audit/proof-summary.json`
 - finalAdapterAudit: `output/screen-ai-pipeline-proof/final-adapter-dependency-audit/proof-summary.json`
+- childAgentPolicyAuthority: `output/ai-plan-proof/child-agent-ai-policy-authority-proof/proof-summary.json`
+- householdMeshEventBridge: `output/ai-plan-proof/household-mesh-event-bridge-proof/proof-summary.json`
 - householdMeshScreenAi: `output/screen-ai-pipeline-proof/household-mesh-screen-ai/proof-summary.json`
+- householdProviderRouteSelection: `output/ai-plan-proof/household-ai-provider-route-selection-proof/proof-summary.json`
 - householdProviderResultValidation: `output/ai-plan-proof/household-ai-provider-result-validation/proof-summary.json`
 - liveOperator: `output/screen-ai-pipeline-proof/live-operator/proof-summary.json`
 - liveOperatorAi: `output/ai-plan-proof/live-operator/proof-summary.json`
+- mobileDormantProvider: `output/ai-plan-proof/mobile-dormant-ai-provider-proof/proof-summary.json`
 - noRawScreenTransferMesh: `output/ai-plan-proof/no-raw-screen-transfer-mesh/proof-summary.json`
 - portalChain: `output/screen-ai-pipeline-proof/portal-chain/proof-summary.json`
 - protectedSurface: `output/screen-ai-pipeline-proof/protected-surface/proof-summary.json`
@@ -58,6 +62,10 @@ Generated: 2026-06-08T05:17:48.058Z
   "finalPipelineProductCompleteBlockedByAdapterGate": true,
   "custodyArtifactRows": 3,
   "householdMeshConsumesRedactedRefsOnly": true,
+  "householdRouteSelectionCovered": true,
+  "householdMeshBridgeMediated": true,
+  "childAgentPolicyAuthorityCovered": true,
+  "mobileDormantProviderFallbackCovered": true,
   "serviceEventProducersAndSubscriberCovered": true,
   "serviceWinRtOcrLivePolicyCovered": true,
   "singleRuntimeSessionRerun": true,

@@ -1,6 +1,6 @@
 # Screen AI Full Scope Readiness Audit
 
-Generated: 2026-06-08T05:17:48.196Z
+Generated: 2026-06-08T05:28:15.199Z
 
 ## Source Artifacts
 
@@ -27,9 +27,13 @@ Generated: 2026-06-08T05:17:48.196Z
   "serviceDeletionCustodyCovered": true,
   "serviceWinRtOcrPolicyFreshRerunCovered": true,
   "householdMeshChecklistConsistent": true,
+  "householdProviderRouteSelectionCovered": true,
   "householdProviderAdvertisementHeartbeatCovered": true,
   "householdProviderClaimLeaseCovered": true,
   "householdMeshNoRawProviderValidationCovered": true,
+  "householdMeshEventBridgeCovered": true,
+  "childAgentPolicyAuthorityCovered": true,
+  "mobileDormantProviderFallbackCovered": true,
   "rawScreenshotsRetainedByDefault": false,
   "remoteAiUsedForChildSafety": false,
   "productChecklistDeltaReadyButNotApplied": true,

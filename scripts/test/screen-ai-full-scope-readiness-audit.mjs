@@ -72,12 +72,33 @@ assert(
   'AI closure lost household mesh checklist consistency guard'
 );
 assert(
+  aiPlanClosure.closure?.householdProviderRouteSelectionCovered === true,
+  'AI closure lost household provider route selection proof'
+);
+assert(
   aiPlanClosure.closure?.householdProviderAdvertisementHeartbeatCovered === true,
   'AI closure lost household provider advertisement/heartbeat proof'
 );
 assert(
   aiPlanClosure.closure?.householdProviderClaimLeaseCovered === true,
   'AI closure lost household provider claim/lease proof'
+);
+assert(aiPlanClosure.closure?.householdNoRawTransferCovered === true, 'AI closure lost no-raw-transfer proof');
+assert(
+  aiPlanClosure.closure?.householdProviderResultValidationCovered === true,
+  'AI closure lost provider result validation proof'
+);
+assert(
+  aiPlanClosure.closure?.householdMeshEventBridgeCovered === true,
+  'AI closure lost household mesh event bridge proof'
+);
+assert(
+  aiPlanClosure.closure?.childAgentPolicyAuthorityCovered === true,
+  'AI closure lost child-agent policy authority proof'
+);
+assert(
+  aiPlanClosure.closure?.mobileDormantProviderFallbackCovered === true,
+  'AI closure lost mobile dormant provider fallback proof'
 );
 assert(aiPlanClosure.closure?.remoteApiAiClaimed === false, 'AI closure claims remote/API AI');
 assert(aiPlanClosure.closure?.rawImageRetainedByDefault === false, 'AI closure permits raw image retention');
@@ -103,6 +124,22 @@ assert(
 assert(
   finalProductPath.closure?.singleRuntimeSessionRerun === true,
   'final path lost fresh service OCR source rerun proof'
+);
+assert(
+  finalProductPath.closure?.householdRouteSelectionCovered === true,
+  'final path lost household route selection coverage'
+);
+assert(
+  finalProductPath.closure?.householdMeshBridgeMediated === true,
+  'final path lost household mesh bridge mediation coverage'
+);
+assert(
+  finalProductPath.closure?.childAgentPolicyAuthorityCovered === true,
+  'final path lost child-agent policy authority coverage'
+);
+assert(
+  finalProductPath.closure?.mobileDormantProviderFallbackCovered === true,
+  'final path lost mobile dormant provider fallback coverage'
 );
 assert(finalProductPath.closure?.rawScreenshotsRetainedByDefault === false, 'final path retains raw screenshots');
 assert(finalProductPath.closure?.remoteAiUsedForChildSafety === false, 'final path uses remote AI for child safety');
@@ -197,9 +234,13 @@ const proof = {
     serviceDeletionCustodyCovered: true,
     serviceWinRtOcrPolicyFreshRerunCovered: true,
     householdMeshChecklistConsistent: true,
+    householdProviderRouteSelectionCovered: true,
     householdProviderAdvertisementHeartbeatCovered: true,
     householdProviderClaimLeaseCovered: true,
     householdMeshNoRawProviderValidationCovered: true,
+    householdMeshEventBridgeCovered: true,
+    childAgentPolicyAuthorityCovered: true,
+    mobileDormantProviderFallbackCovered: true,
     rawScreenshotsRetainedByDefault: false,
     remoteAiUsedForChildSafety: false,
     productChecklistDeltaReadyButNotApplied: true,

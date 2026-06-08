@@ -1,6 +1,6 @@
 {
   "proof": "local-ai-plan-closure-audit-proof",
-  "generatedAt": "2026-06-08T05:17:47.976Z",
+  "generatedAt": "2026-06-08T05:28:14.989Z",
   "checklist": {
     "path": "docs/plans/ai-plan/implementation-checklist.md",
     "featureDocPath": "docs/features/local-ai-safety-evaluator.md",
@@ -27,8 +27,14 @@
     "parentRuleContext": "output/ai-plan-proof/local-ai-parent-rule-context-builder-proof/proof-summary.json",
     "providerScheduler": "output/ai-plan-proof/local-ai-provider-scheduler-proof/proof.json",
     "runtimeProvider": "output/ai-plan-proof/local-ai-runtime-provider-proof/proof.json",
+    "householdRouteSelection": "output/ai-plan-proof/household-ai-provider-route-selection-proof/proof-summary.json",
     "householdAdvertisementHeartbeat": "output/ai-plan-proof/household-ai-provider-advertisement-heartbeat-proof/proof-summary.json",
     "householdClaimLease": "output/ai-plan-proof/household-ai-provider-claim-lease-proof/proof-summary.json",
+    "noRawScreenTransferMesh": "output/ai-plan-proof/no-raw-screen-transfer-mesh/proof-summary.json",
+    "householdProviderResultValidation": "output/ai-plan-proof/household-ai-provider-result-validation/proof-summary.json",
+    "householdMeshEventBridge": "output/ai-plan-proof/household-mesh-event-bridge-proof/proof-summary.json",
+    "childAgentPolicyAuthority": "output/ai-plan-proof/child-agent-ai-policy-authority-proof/proof-summary.json",
+    "mobileDormantProvider": "output/ai-plan-proof/mobile-dormant-ai-provider-proof/proof-summary.json",
     "policyConsumption": "output/ai-plan-proof/local-ai-policy-enforcement-consumption-proof/proof-summary.json"
   },
   "closure": {
@@ -40,8 +46,14 @@
     "memoryAndGraphRefsCovered": true,
     "providerRuntimeAndSchedulerCovered": true,
     "meshChecklistStatusConsistent": true,
+    "householdProviderRouteSelectionCovered": true,
     "householdProviderAdvertisementHeartbeatCovered": true,
     "householdProviderClaimLeaseCovered": true,
+    "householdNoRawTransferCovered": true,
+    "householdProviderResultValidationCovered": true,
+    "householdMeshEventBridgeCovered": true,
+    "childAgentPolicyAuthorityCovered": true,
+    "mobileDormantProviderFallbackCovered": true,
     "policyOnlyConsumptionCovered": true,
     "remoteApiAiClaimed": false,
     "rawPromptRetained": false,

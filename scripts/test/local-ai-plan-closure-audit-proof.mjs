@@ -29,12 +29,24 @@ const parentRuleContext = readProof(
 );
 const providerScheduler = readProof('output/ai-plan-proof/local-ai-provider-scheduler-proof/proof.json');
 const runtimeProvider = readProof('output/ai-plan-proof/local-ai-runtime-provider-proof/proof.json');
+const householdRouteSelection = readProof(
+  'output/ai-plan-proof/household-ai-provider-route-selection-proof/proof-summary.json'
+);
 const householdAdvertisementHeartbeat = readProof(
   'output/ai-plan-proof/household-ai-provider-advertisement-heartbeat-proof/proof-summary.json'
 );
 const householdClaimLease = readProof(
   'output/ai-plan-proof/household-ai-provider-claim-lease-proof/proof-summary.json'
 );
+const noRawScreenTransferMesh = readProof('output/ai-plan-proof/no-raw-screen-transfer-mesh/proof-summary.json');
+const householdProviderResultValidation = readProof(
+  'output/ai-plan-proof/household-ai-provider-result-validation/proof-summary.json'
+);
+const householdMeshEventBridge = readProof('output/ai-plan-proof/household-mesh-event-bridge-proof/proof-summary.json');
+const childAgentPolicyAuthority = readProof(
+  'output/ai-plan-proof/child-agent-ai-policy-authority-proof/proof-summary.json'
+);
+const mobileDormantProvider = readProof('output/ai-plan-proof/mobile-dormant-ai-provider-proof/proof-summary.json');
 const policyConsumption = readProof(
   'output/ai-plan-proof/local-ai-policy-enforcement-consumption-proof/proof-summary.json'
 );
@@ -146,6 +158,22 @@ assert(
   householdAdvertisementHeartbeat.assertions?.noRuntimePolicyEnforcementOrRawTransferClaims === true,
   'household provider advertisement proof must not overclaim runtime/policy/enforcement/raw transfer.'
 );
+assert(
+  householdRouteSelection.routePriority?.includes('desktop-preferred') === true,
+  'household route selection must prefer trusted desktop providers.'
+);
+assert(
+  householdRouteSelection.routePriority?.includes('mobile-dormant') === true,
+  'household route selection must preserve mobile dormant fallback order.'
+);
+assert(
+  householdRouteSelection.rejectionCases?.includes('custody-mismatch') === true,
+  'household route selection must reject custody mismatch.'
+);
+assert(
+  householdRouteSelection.rejectionCases?.includes('unsupported-capability') === true,
+  'household route selection must reject unsupported capabilities.'
+);
 assert(householdClaimLease.assertions?.oneLeasePerJob === true, 'household claim lease proof must keep one lease.');
 assert(
   householdClaimLease.assertions?.duplicateClaimRejected === true,
@@ -166,6 +194,49 @@ assert(
 assert(
   householdClaimLease.assertions?.noRuntimePolicyEnforcementOrRawTransferClaims === true,
   'household claim lease proof must not overclaim runtime/policy/enforcement/raw transfer.'
+);
+assert(
+  noRawScreenTransferMesh.claimsProved?.some((claim) => claim.includes('not raw screenshot transfer')) === true,
+  'no-raw-transfer mesh proof must reject raw screenshot transfer.'
+);
+assert(
+  noRawScreenTransferMesh.claimsNotProved?.includes('physical household LAN execution on a second installed device') ===
+    true,
+  'no-raw-transfer mesh proof must not claim physical household LAN execution.'
+);
+assert(
+  householdProviderResultValidation.rejectionCases?.includes('raw-image-transfer') === true,
+  'provider result validation must reject raw-image transfer.'
+);
+assert(
+  householdProviderResultValidation.rejectionCases?.includes('provider-authority-violation') === true,
+  'provider result validation must reject provider authority violation.'
+);
+assert(
+  householdMeshEventBridge.rejectionCases?.includes('raw-screen-payload') === true,
+  'household mesh event bridge must reject raw screen payloads.'
+);
+assert(
+  householdMeshEventBridge.rejectionCases?.includes('direct-remote-publish') === true,
+  'household mesh event bridge must reject direct remote local-bus publishing.'
+);
+assert(
+  childAgentPolicyAuthority.assertions?.childAgentOwnsPolicyDecision === true,
+  'child agent must own AI policy decisions.'
+);
+assert(
+  childAgentPolicyAuthority.assertions?.providerCannotPublishPolicyOrEnforcement === true,
+  'provider must not publish policy or enforcement.'
+);
+assert(
+  mobileDormantProvider.mobileClaimsProved?.some((claim) => claim.includes('mobile providers stay dormant')) === true,
+  'mobile provider proof must keep mobile dormant while desktop/laptop capacity exists.'
+);
+assert(
+  mobileDormantProvider.mobileClaimsProved?.some((claim) =>
+    claim.includes('eligible only for explicit light fallback')
+  ) === true,
+  'mobile provider proof must allow only explicit light fallback jobs.'
 );
 
 assert(partialRows.length === 0, 'AI plan should not have partial table rows at closure audit time.');
@@ -216,9 +287,16 @@ const summary = {
     parentRuleContext: 'output/ai-plan-proof/local-ai-parent-rule-context-builder-proof/proof-summary.json',
     providerScheduler: 'output/ai-plan-proof/local-ai-provider-scheduler-proof/proof.json',
     runtimeProvider: 'output/ai-plan-proof/local-ai-runtime-provider-proof/proof.json',
+    householdRouteSelection: 'output/ai-plan-proof/household-ai-provider-route-selection-proof/proof-summary.json',
     householdAdvertisementHeartbeat:
       'output/ai-plan-proof/household-ai-provider-advertisement-heartbeat-proof/proof-summary.json',
     householdClaimLease: 'output/ai-plan-proof/household-ai-provider-claim-lease-proof/proof-summary.json',
+    noRawScreenTransferMesh: 'output/ai-plan-proof/no-raw-screen-transfer-mesh/proof-summary.json',
+    householdProviderResultValidation:
+      'output/ai-plan-proof/household-ai-provider-result-validation/proof-summary.json',
+    householdMeshEventBridge: 'output/ai-plan-proof/household-mesh-event-bridge-proof/proof-summary.json',
+    childAgentPolicyAuthority: 'output/ai-plan-proof/child-agent-ai-policy-authority-proof/proof-summary.json',
+    mobileDormantProvider: 'output/ai-plan-proof/mobile-dormant-ai-provider-proof/proof-summary.json',
     policyConsumption: 'output/ai-plan-proof/local-ai-policy-enforcement-consumption-proof/proof-summary.json',
   },
   closure: {
@@ -230,8 +308,14 @@ const summary = {
     memoryAndGraphRefsCovered: true,
     providerRuntimeAndSchedulerCovered: true,
     meshChecklistStatusConsistent: true,
+    householdProviderRouteSelectionCovered: true,
     householdProviderAdvertisementHeartbeatCovered: true,
     householdProviderClaimLeaseCovered: true,
+    householdNoRawTransferCovered: true,
+    householdProviderResultValidationCovered: true,
+    householdMeshEventBridgeCovered: true,
+    childAgentPolicyAuthorityCovered: true,
+    mobileDormantProviderFallbackCovered: true,
     policyOnlyConsumptionCovered: true,
     remoteApiAiClaimed: false,
     rawPromptRetained: false,

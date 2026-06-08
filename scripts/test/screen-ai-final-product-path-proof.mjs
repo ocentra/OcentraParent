@@ -17,12 +17,16 @@ const aiPlanClosure = load(SourcePaths.aiPlanClosure);
 const blockActionDispatch = load(SourcePaths.blockActionDispatch);
 const deletionRetentionCustody = load(SourcePaths.deletionRetentionCustody);
 const finalAdapterAudit = load(SourcePaths.finalAdapterAudit);
+const childAgentPolicyAuthority = load(SourcePaths.childAgentPolicyAuthority);
+const householdMeshEventBridge = load(SourcePaths.householdMeshEventBridge);
 const householdMeshScreenAi = load(SourcePaths.householdMeshScreenAi);
+const householdProviderRouteSelection = load(SourcePaths.householdProviderRouteSelection);
 const householdProviderResultValidation = load(SourcePaths.householdProviderResultValidation);
 const portalChain = load(SourcePaths.portalChain);
 const protectedSurface = load(SourcePaths.protectedSurface);
 const readModel = load(SourcePaths.readModel);
 const noRawScreenTransferMesh = load(SourcePaths.noRawScreenTransferMesh);
+const mobileDormantProvider = load(SourcePaths.mobileDormantProvider);
 const retentionSweeper = load(SourcePaths.retentionSweeper);
 const screenPlanClosure = load(SourcePaths.screenPlanClosure);
 const serviceReadModel = load(SourcePaths.serviceReadModel);
@@ -90,6 +94,10 @@ const proof = {
     finalPipelineProductCompleteBlockedByAdapterGate: true,
     custodyArtifactRows: finalAdapterAudit.closure?.custodyArtifactRows,
     householdMeshConsumesRedactedRefsOnly: closure.householdMeshBoundaryProven,
+    householdRouteSelectionCovered: true,
+    householdMeshBridgeMediated: true,
+    childAgentPolicyAuthorityCovered: true,
+    mobileDormantProviderFallbackCovered: true,
     serviceEventProducersAndSubscriberCovered: closure.serviceEventChainProven,
     serviceWinRtOcrLivePolicyCovered: closure.serviceWinRtOcrPolicyProven,
     singleRuntimeSessionRerun: serviceWinRtOcrPolicy.assertions?.sourceProofRerunByThisGate === true,
@@ -536,6 +544,22 @@ function validateHouseholdMeshBoundary() {
     'household mesh proof lacks no-raw-screenshot-transfer claim'
   );
   assert(
+    householdProviderRouteSelection.proofMode === 'household-ai-provider-route-selection-proof',
+    'household provider route selection proof mode mismatch'
+  );
+  assert(
+    householdProviderRouteSelection.routePriority?.includes('desktop-preferred'),
+    'household route selection lost desktop provider preference'
+  );
+  assert(
+    householdProviderRouteSelection.routePriority?.includes('mobile-dormant'),
+    'household route selection lost mobile dormant ordering'
+  );
+  assert(
+    householdProviderRouteSelection.rejectionCases?.includes('custody-mismatch'),
+    'household route selection lost custody mismatch rejection'
+  );
+  assert(
     noRawScreenTransferMesh.proofMode === 'no-raw-screen-transfer-mesh',
     'no-raw screen transfer proof mode mismatch'
   );
@@ -573,6 +597,30 @@ function validateHouseholdMeshBoundary() {
       claim.includes('validates provider result before policy')
     ),
     'provider result validation proof lacks child-agent validation claim'
+  );
+  assert(
+    householdMeshEventBridge.proofMode === 'household-mesh-event-bridge-proof',
+    'household mesh event bridge proof mode mismatch'
+  );
+  assert(
+    householdMeshEventBridge.rejectionCases?.includes('raw-screen-payload'),
+    'household mesh event bridge lost raw screen payload rejection'
+  );
+  assert(
+    householdMeshEventBridge.rejectionCases?.includes('direct-remote-publish'),
+    'household mesh event bridge lost direct remote publish rejection'
+  );
+  assert(
+    childAgentPolicyAuthority.assertions?.providerCannotPublishPolicyOrEnforcement === true,
+    'child-agent authority proof allows provider policy/enforcement events'
+  );
+  assert(
+    childAgentPolicyAuthority.assertions?.policyConsumesOnlyAcceptedChildResult === true,
+    'child-agent authority proof no longer requires accepted child result before policy'
+  );
+  assert(
+    mobileDormantProvider.mobileClaimsProved?.some((claim) => claim.includes('mobile providers stay dormant')),
+    'mobile dormant provider proof lost dormant-mobile claim'
   );
   return true;
 }
@@ -652,12 +700,36 @@ function validateAiPlanClosure() {
     'AI-plan closure lost household mesh checklist consistency guard'
   );
   assert(
+    aiPlanClosure.closure?.householdProviderRouteSelectionCovered === true,
+    'AI-plan closure lost household provider route selection coverage'
+  );
+  assert(
     aiPlanClosure.closure?.householdProviderAdvertisementHeartbeatCovered === true,
     'AI-plan closure lost household provider advertisement/heartbeat coverage'
   );
   assert(
     aiPlanClosure.closure?.householdProviderClaimLeaseCovered === true,
     'AI-plan closure lost household provider claim/lease lifecycle coverage'
+  );
+  assert(
+    aiPlanClosure.closure?.householdNoRawTransferCovered === true,
+    'AI-plan closure lost household no-raw-transfer coverage'
+  );
+  assert(
+    aiPlanClosure.closure?.householdProviderResultValidationCovered === true,
+    'AI-plan closure lost household provider result validation coverage'
+  );
+  assert(
+    aiPlanClosure.closure?.householdMeshEventBridgeCovered === true,
+    'AI-plan closure lost household mesh event bridge coverage'
+  );
+  assert(
+    aiPlanClosure.closure?.childAgentPolicyAuthorityCovered === true,
+    'AI-plan closure lost child-agent policy authority coverage'
+  );
+  assert(
+    aiPlanClosure.closure?.mobileDormantProviderFallbackCovered === true,
+    'AI-plan closure lost mobile dormant provider fallback coverage'
   );
   assert(
     aiPlanClosure.closure?.policyOnlyConsumptionCovered === true,
