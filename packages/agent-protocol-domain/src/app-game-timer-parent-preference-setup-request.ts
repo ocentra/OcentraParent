@@ -146,6 +146,13 @@ export const AppGameTimerParentPreferenceSetupRequestResultSchema = withParser(
       )
     ),
     providerDeliveryReceiptPendingStatus: Schema.Literal('provider-delivery-receipt-pending', 'unavailable'),
+    providerDeliveryReceiptIngestedId: NonEmptyTextSchema,
+    providerDeliveryReceiptIngestedIds: Schema.Array(NonEmptyTextSchema).pipe(
+      Schema.filter(
+        (value) => value.length > 0 || 'Expected parent preference setup provider delivery receipt ingested references'
+      )
+    ),
+    providerDeliveryReceiptIngestedStatus: Schema.Literal('provider-delivery-receipt-ingested', 'unavailable'),
     commandBoundaryClaimed: Schema.Literal(true),
     actionResultHandoffClaimed: Schema.Literal(true),
     actionResultPersistenceClaimed: Schema.Boolean,
@@ -158,6 +165,7 @@ export const AppGameTimerParentPreferenceSetupRequestResultSchema = withParser(
     providerDeliveryQueueClaimed: Schema.Boolean,
     providerDeliveryReceiptRequirementClaimed: Schema.Boolean,
     providerDeliveryReceiptPendingClaimed: Schema.Boolean,
+    providerDeliveryReceiptIngestedClaimed: Schema.Boolean,
     providerDeliveryClaimed: Schema.Literal(false),
     providerReceiptIngestionClaimed: Schema.Literal(false),
     childRuntimeDeliveryClaimed: Schema.Literal(false),

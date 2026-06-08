@@ -1436,6 +1436,14 @@ diagnostics, or raw private source rows.
       external provider receipt ingestion, adapter dispatch, broad blocking,
       platform enforcement, raw private source rows, raw target values, and
       private diagnostics remain unclaimed.
+      The provider receipt tracking seam now also carries a local
+      receipt-ingested boundary. The setup path persists a provider
+      receipt-ingested audit row after receipt-pending tracking, serializes the
+      receipt-ingested fields into the durable setup outbox, and renders those
+      refs/status in parent command-result details while still keeping provider
+      delivery execution, external provider receipt ingestion, adapter
+      dispatch, broad blocking, platform enforcement, raw private source rows,
+      raw target values, and private diagnostics unclaimed.
 - [ ] Adapter capability status per platform. Cross-platform authority and
       broad-blocking gate contracts now record manual-required, unavailable,
       and not-claimed proof requirements. Platform-extension routing now maps

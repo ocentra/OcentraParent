@@ -42,7 +42,15 @@ fn setup_outbox_record(result: &AppGameTimerParentPreferenceSetupRequestResult) 
 
 fn setup_outbox_string_fields(
     result: &AppGameTimerParentPreferenceSetupRequestResult,
-) -> [(&'static str, &String); 18] {
+) -> Vec<(&'static str, &String)> {
+    let mut fields = setup_outbox_base_string_fields(result).to_vec();
+    fields.extend(setup_outbox_provider_string_fields(result));
+    fields
+}
+
+fn setup_outbox_base_string_fields(
+    result: &AppGameTimerParentPreferenceSetupRequestResult,
+) -> [(&'static str, &String); 8] {
     [
         (
             constants::field::APP_GAME_PARENT_PREFERENCE_SETUP_OUTBOX_SCHEMA_VERSION,
@@ -76,6 +84,13 @@ fn setup_outbox_string_fields(
             constants::field::APP_GAME_PARENT_PREFERENCE_SETUP_OUTBOX_CHILD_RUNTIME_DELIVERY_RECEIPT_INGESTED_ID,
             &result.child_runtime_delivery_receipt_ingested_id,
         ),
+    ]
+}
+
+fn setup_outbox_provider_string_fields(
+    result: &AppGameTimerParentPreferenceSetupRequestResult,
+) -> [(&'static str, &String); 12] {
+    [
         (
             constants::field::APP_GAME_PARENT_PREFERENCE_SETUP_OUTBOX_PROVIDER_DELIVERY_ADAPTER_REQUIREMENT_ID,
             &result.provider_delivery_adapter_requirement_id,
@@ -115,6 +130,14 @@ fn setup_outbox_string_fields(
         (
             constants::field::APP_GAME_PARENT_PREFERENCE_SETUP_OUTBOX_PROVIDER_DELIVERY_RECEIPT_PENDING_STATUS,
             &result.provider_delivery_receipt_pending_status,
+        ),
+        (
+            constants::field::APP_GAME_PARENT_PREFERENCE_SETUP_OUTBOX_PROVIDER_DELIVERY_RECEIPT_INGESTED_ID,
+            &result.provider_delivery_receipt_ingested_id,
+        ),
+        (
+            constants::field::APP_GAME_PARENT_PREFERENCE_SETUP_OUTBOX_PROVIDER_DELIVERY_RECEIPT_INGESTED_STATUS,
+            &result.provider_delivery_receipt_ingested_status,
         ),
     ]
 }

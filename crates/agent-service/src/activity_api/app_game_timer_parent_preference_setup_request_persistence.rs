@@ -76,6 +76,12 @@ macro_rules! provider_delivery_events {
             provider_delivery_receipt_pending_id,
             constants::value::APP_GAME_PARENT_PREFERENCE_SETUP_PROVIDER_DELIVERY_RECEIPT_PENDING
         ),
+        provider_setup_audit_event!(
+            $command,
+            $result,
+            provider_delivery_receipt_ingested_id,
+            constants::value::APP_GAME_PARENT_PREFERENCE_SETUP_PROVIDER_DELIVERY_RECEIPT_INGESTED
+        ),
     ]
     };
 }
@@ -192,6 +198,10 @@ fn persisted_result(
         constants::value::APP_GAME_PARENT_PREFERENCE_SETUP_PROVIDER_DELIVERY_RECEIPT_PENDING
             .to_string();
     persisted.provider_delivery_receipt_pending_claimed = true;
+    persisted.provider_delivery_receipt_ingested_status =
+        constants::value::APP_GAME_PARENT_PREFERENCE_SETUP_PROVIDER_DELIVERY_RECEIPT_INGESTED
+            .to_string();
+    persisted.provider_delivery_receipt_ingested_claimed = true;
     persisted
 }
 

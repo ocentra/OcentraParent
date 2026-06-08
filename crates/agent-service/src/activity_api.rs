@@ -47,6 +47,7 @@ mod app_game_policy_readiness_service_tests;
 pub(crate) mod app_game_timer_parent_preference_setup_request;
 mod app_game_timer_parent_preference_setup_request_outbox;
 mod app_game_timer_parent_preference_setup_request_persistence;
+mod app_game_timer_parent_preference_setup_request_status;
 #[cfg(test)]
 mod app_game_timer_parent_preference_setup_request_tests;
 mod app_game_timer_parent_surface_action_results;

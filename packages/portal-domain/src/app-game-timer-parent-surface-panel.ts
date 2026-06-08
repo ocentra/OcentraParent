@@ -112,6 +112,8 @@ const TimerParentSurfaceDetails = {
   ProviderDeliveryReceiptRequirementStatus: decodeDisplayText('Provider delivery receipt requirement status'),
   ProviderDeliveryReceiptPendingRefs: decodeDisplayText('Provider delivery receipt pending refs'),
   ProviderDeliveryReceiptPendingStatus: decodeDisplayText('Provider delivery receipt pending status'),
+  ProviderDeliveryReceiptIngestedRefs: decodeDisplayText('Provider delivery receipt ingested refs'),
+  ProviderDeliveryReceiptIngestedStatus: decodeDisplayText('Provider delivery receipt ingested status'),
   ProviderDeliveryReadinessRefs: decodeDisplayText('Provider delivery readiness refs'),
   ProviderDeliveryReadinessStatus: decodeDisplayText('Provider delivery readiness status'),
   ChildUxHandoffBlocked: decodeDisplayText('Child UX handoff blocked'),
@@ -658,6 +660,14 @@ function parentPreferenceSetupProviderDeliveryDetails(
       TimerParentSurfaceDetails.ProviderDeliveryReceiptPendingStatus,
       parentPreferenceSetupResultStatus(result.providerDeliveryReceiptPendingStatus)
     ),
+    detail(
+      TimerParentSurfaceDetails.ProviderDeliveryReceiptIngestedRefs,
+      joinedOrNotReported(result.providerDeliveryReceiptIngestedIds)
+    ),
+    detail(
+      TimerParentSurfaceDetails.ProviderDeliveryReceiptIngestedStatus,
+      parentPreferenceSetupResultStatus(result.providerDeliveryReceiptIngestedStatus)
+    ),
   ];
 }
 
@@ -736,6 +746,9 @@ function parentPreferenceSetupResultStatus(status: string): DisplayText {
   }
   if (status === 'provider-delivery-receipt-pending') {
     return Readable.Pending;
+  }
+  if (status === 'provider-delivery-receipt-ingested') {
+    return Readable.Ready;
   }
   if (status === 'accepted') {
     return Readable.Ready;

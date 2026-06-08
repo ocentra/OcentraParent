@@ -14,7 +14,7 @@ use crate::{
     lan_pairing::LanPairingRuntime, websocket::handle_command_text_for_test,
 };
 
-const PERSISTED_SETUP_EVENT_COUNT: u64 = 15;
+const PERSISTED_SETUP_EVENT_COUNT: u64 = 16;
 
 #[tokio::test]
 async fn app_game_timer_parent_preference_setup_request_command_returns_accepted_boundary_result() {
@@ -494,6 +494,23 @@ macro_rules! assert_provider_delivery_requirement_boundary {
                 || $result.provider_delivery_receipt_pending_status
                     == constants::value::APP_GAME_PARENT_PREFERENCE_SETUP_ACTION_RESULT_UNAVAILABLE
         );
+        assert_eq!(
+            $result.provider_delivery_receipt_ingested_id,
+            setup_id(constants::value::APP_GAME_PARENT_PREFERENCE_SETUP_PROVIDER_DELIVERY_RECEIPT_INGESTED_SUFFIX)
+        );
+        assert_eq!(
+            $result.provider_delivery_receipt_ingested_ids,
+            vec![
+                setup_id(constants::value::APP_GAME_PARENT_PREFERENCE_SETUP_PROVIDER_DELIVERY_RECEIPT_INGESTED_SUFFIX),
+                setup_id(constants::value::APP_GAME_PARENT_PREFERENCE_SETUP_PROVIDER_DELIVERY_RECEIPT_PENDING_SUFFIX),
+            ]
+        );
+        assert!(
+            $result.provider_delivery_receipt_ingested_status
+                == constants::value::APP_GAME_PARENT_PREFERENCE_SETUP_PROVIDER_DELIVERY_RECEIPT_INGESTED
+                || $result.provider_delivery_receipt_ingested_status
+                    == constants::value::APP_GAME_PARENT_PREFERENCE_SETUP_ACTION_RESULT_UNAVAILABLE
+        );
     };
 }
 
@@ -549,6 +566,16 @@ macro_rules! assert_outbox_provider_preflight_requirements {
                 [constants::field::APP_GAME_PARENT_PREFERENCE_SETUP_OUTBOX_PROVIDER_DELIVERY_RECEIPT_PENDING_STATUS],
             $result.provider_delivery_receipt_pending_status
         );
+        assert_eq!(
+            $outbox_record
+                [constants::field::APP_GAME_PARENT_PREFERENCE_SETUP_OUTBOX_PROVIDER_DELIVERY_RECEIPT_INGESTED_ID],
+            $result.provider_delivery_receipt_ingested_id
+        );
+        assert_eq!(
+            $outbox_record
+                [constants::field::APP_GAME_PARENT_PREFERENCE_SETUP_OUTBOX_PROVIDER_DELIVERY_RECEIPT_INGESTED_STATUS],
+            $result.provider_delivery_receipt_ingested_status
+        );
     };
 }
 
@@ -589,6 +616,11 @@ macro_rules! assert_provider_delivery_persisted_statuses {
             constants::value::APP_GAME_PARENT_PREFERENCE_SETUP_PROVIDER_DELIVERY_RECEIPT_PENDING
         );
         assert!($result.provider_delivery_receipt_pending_claimed);
+        assert_eq!(
+            $result.provider_delivery_receipt_ingested_status,
+            constants::value::APP_GAME_PARENT_PREFERENCE_SETUP_PROVIDER_DELIVERY_RECEIPT_INGESTED
+        );
+        assert!($result.provider_delivery_receipt_ingested_claimed);
     };
 }
 

@@ -454,6 +454,15 @@ function expectParentPreferenceSetupProviderReadiness(
     label: 'Provider delivery receipt pending status',
     value: 'Pending',
   });
+  expect(details).toContainEqual({
+    label: 'Provider delivery receipt ingested refs',
+    value:
+      'app-game-parent-preference-setup-provider-delivery-receipt-ingested::request-1 | app-game-parent-preference-setup-provider-delivery-receipt-pending::request-1',
+  });
+  expect(details).toContainEqual({
+    label: 'Provider delivery receipt ingested status',
+    value: 'Ready',
+  });
 }
 
 function expectParentPreferenceSetupNoClaimBoundaries(
@@ -866,6 +875,13 @@ const ProviderDeliveryReadinessAcceptedResultFields = {
   ],
   providerDeliveryReceiptPendingStatus: 'provider-delivery-receipt-pending',
   providerDeliveryReceiptPendingClaimed: true,
+  providerDeliveryReceiptIngestedId: 'app-game-parent-preference-setup-provider-delivery-receipt-ingested::request-1',
+  providerDeliveryReceiptIngestedIds: [
+    'app-game-parent-preference-setup-provider-delivery-receipt-ingested::request-1',
+    'app-game-parent-preference-setup-provider-delivery-receipt-pending::request-1',
+  ],
+  providerDeliveryReceiptIngestedStatus: 'provider-delivery-receipt-ingested',
+  providerDeliveryReceiptIngestedClaimed: true,
 } as const;
 
 function timerParentSurfaceRow(
