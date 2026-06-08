@@ -433,7 +433,7 @@ fn browser_runtime_chain_topology_covers_ordered_event_spine() {
 fn browser_runtime_delivery_decision_keeps_current_routes_local_only() {
     let report = prove_browser_runtime_delivery_decision().unwrap();
 
-    assert_eq!(report.local_ready_route_count, 3);
+    assert_eq!(report.local_ready_route_count, 4);
     assert_eq!(
         report.chain_delivery.route_kind,
         EventDeliveryRouteKind::LocalService
@@ -456,6 +456,16 @@ fn browser_runtime_delivery_decision_keeps_current_routes_local_only() {
     );
     assert_eq!(
         report.action_intent_handoff_delivery.decision_state,
+        EventDeliveryDecisionState::LocalRouteReady
+    );
+    assert_eq!(
+        report.social_provider_receipt_status_delivery.route_kind,
+        EventDeliveryRouteKind::LocalInProcess
+    );
+    assert_eq!(
+        report
+            .social_provider_receipt_status_delivery
+            .decision_state,
         EventDeliveryDecisionState::LocalRouteReady
     );
     assert_eq!(

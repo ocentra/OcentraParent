@@ -1,18 +1,20 @@
 {
   "proofName": "browser-runtime-delivery-decision-proof",
-  "branchHead": "2c0ce56cb Refresh browser plan closure audit",
+  "branchHead": "108f49bc4 Render browser receipt status in portal route",
   "sourceChecks": {
     "usesSharedEventingDecisionApi": true,
     "provesLocalServiceRoute": true,
     "provesLocalInProcessRoute": true,
     "provesActionIntentHandoffRoute": true,
+    "provesSocialProviderReceiptStatusRoute": true,
     "provesExternalTransportManualRequired": true,
     "rejectsExecutionClaims": true,
     "runtimeExportsProof": true,
     "libExportsProof": true,
     "focusedTestExists": true,
-    "focusedTestAssertsThreeLocalRoutes": true,
+    "focusedTestAssertsFourLocalRoutes": true,
     "focusedTestAssertsHandoffRoute": true,
+    "focusedTestAssertsReceiptStatusRoute": true,
     "testAssertsMissingArtifacts": true,
     "checklistMentionsProof": true,
     "featureMentionsProof": true,
@@ -40,6 +42,12 @@
       "publisher": "browser-event-runtime-spine",
       "subscriber": "browser-action-intent-handoff"
     },
+    "browserSocialProviderReceiptStatus": {
+      "routeKind": "local-in-process",
+      "decisionState": "local-route-ready",
+      "publisher": "browser-event-runtime-spine",
+      "subscriber": "browser-social-provider-receipt-status"
+    },
     "browserExternalTransport": {
       "routeKind": "external-transport",
       "decisionState": "external-transport-route-manual-required",
@@ -61,9 +69,10 @@
     "reusableEventingDeliveryDecisionUsed": true,
     "localServiceRouteReady": true,
     "localInProcessRouteReady": true,
-    "localReadyRouteCount": 3,
+    "localReadyRouteCount": 4,
     "actionIntentStatusRouteReady": true,
     "actionIntentHandoffRouteReady": true,
+    "socialProviderReceiptStatusRouteReady": true,
     "externalTransportManualRequired": true,
     "externalTransportDeliveryImplemented": false,
     "externalRelayDeliveryImplemented": false,

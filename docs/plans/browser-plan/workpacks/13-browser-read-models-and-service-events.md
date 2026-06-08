@@ -560,10 +560,12 @@ execution, final policy execution, or enforcement.
 
 `browser-runtime-delivery-decision-proof` applies the reusable
 `ocentra-eventing` delivery decision API to the browser runtime chain, the
-browser action-intent status subscriber, and the browser action-intent handoff
-subscriber. The current runtime chain is `local-service` ready, the
-action-intent status subscriber is `local-in-process` ready, the action-intent
-handoff subscriber is `local-in-process` ready, and the external transport
+browser action-intent status subscriber, the browser action-intent handoff
+subscriber, and the browser social-provider receipt status subscriber. The
+current runtime chain is `local-service` ready, the action-intent status
+subscriber is `local-in-process` ready, the action-intent handoff subscriber is
+`local-in-process` ready, the social-provider receipt status subscriber is
+`local-in-process` ready, and the external transport
 route stays `manual-required` because the custody/auth/encryption/retention/
 replay/delete/offset/dedupe/transport artifacts are not present.
 
@@ -579,6 +581,17 @@ Evidence:
 This is delivery-decision proof only. It does not add external transport,
 relay delivery, adapter dispatch, browser mutation, child intervention
 execution, final policy execution, or enforcement.
+
+## Receipt Delivery Decision Refresh - 2026-06-08
+
+The delivery decision proof now includes the existing named
+`browser.social.provider-receipt.status.requested` route as a local-in-process
+eventing route from the browser runtime spine to the
+browser-social-provider-receipt-status subscriber. This aligns the receipt
+status service/UI proof path with the shared Rust eventing route-decision model
+without adding provider dispatch, provider receipt ingestion, webhook runtime,
+parent notification delivery, report delivery, browser mutation, final policy
+execution, child intervention execution, or enforcement.
 
 ## Stale Unsupported Runtime Addendum - 2026-06-07
 

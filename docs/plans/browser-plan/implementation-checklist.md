@@ -741,16 +741,27 @@ intervention execution, final policy execution, or enforcement.
 WP13 delivery-decision addendum:
 `browser-runtime-delivery-decision-proof` applies the reusable `ocentra-eventing`
 delivery decision API to the browser runtime chain, the browser action-intent
-status subscriber, and the browser action-intent handoff subscriber. Evidence:
+status subscriber, the browser action-intent handoff subscriber, and the browser
+social-provider receipt status subscriber. Evidence:
 `test-results/browser-runtime-delivery-decision-proof/proof.json` and
 `output/browser-plan-proof/browser-runtime-delivery-decision/01-browser-runtime-delivery-decision-proof.md`.
 The proof marks the runtime chain `local-service` ready, the action-intent
 status subscriber `local-in-process` ready, the action-intent handoff subscriber
+`local-in-process` ready, the social-provider receipt status subscriber
 `local-in-process` ready, and external transport manual-required until
 custody/auth/encryption/retention/replay/delete/offset/dedupe/transport
 artifacts exist. It does not add external transport, relay delivery, adapter
 dispatch, browser mutation, child intervention execution, final policy
 execution, or enforcement.
+
+WP13 receipt delivery-decision refresh:
+`browser-runtime-delivery-decision-proof` now carries the existing named
+`browser.social.provider-receipt.status.requested` route into the delivery
+decision report as the fourth local-ready browser route. This is eventing route
+proof only: it still does not claim provider dispatch, provider receipt
+ingestion, webhook runtime, parent notification delivery, report delivery,
+browser mutation, final policy execution, child intervention execution, or
+enforcement.
 
 WP13 stale/unsupported runtime addendum:
 `browser-runtime-stale-unsupported-proof` proves bridge-disconnected rows as
