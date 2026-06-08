@@ -810,6 +810,22 @@ ingestion, webhook runtime, parent notification delivery, report delivery,
 browser mutation, final policy execution, child intervention execution, or
 enforcement.
 
+WP13 runtime stream delivery-decision refresh:
+`browser-runtime-chain-topology-proof` and
+`browser-runtime-delivery-decision-proof` now carry the named
+`browser.runtime.stream.report.requested` route into the reusable event topology
+and delivery-decision reports as a covered local in-process route. This keeps
+the service stream request registered with the same browser eventing route map
+as action-intent and social receipt status while preserving the existing portal
+command and all no-claim boundaries. Evidence:
+`test-results/browser-runtime-chain-topology-proof/proof.json`,
+`output/browser-plan-proof/browser-runtime-chain-topology/01-browser-runtime-chain-topology-proof.md`,
+`test-results/browser-runtime-delivery-decision-proof/proof.json`, and
+`output/browser-plan-proof/browser-runtime-delivery-decision/01-browser-runtime-delivery-decision-proof.md`.
+This does not add external transport, adapter dispatch, provider delivery,
+browser mutation, child intervention execution, final policy execution, or
+enforcement.
+
 WP13 stale/unsupported runtime addendum:
 `browser-runtime-stale-unsupported-proof` proves bridge-disconnected rows as
 explicit stale browser runtime/read-model state and unsupported later-adapter
@@ -1020,21 +1036,39 @@ intervention execution, unmanaged exact URL support, or enforcement.
 
 WP13 social provider receipt route status UI addendum:
 `browser-runtime-social-provider-receipt-route-status-ui-proof` renders the
-live-activity social provider receipt stream status and receipt ingestion
-readiness status in the existing Browser route social alert/report panel. The
-proof runs the real portal E2E harness with Rust agent service plus Vite portal,
-asserts the parent-visible receipt/readiness cards, and captures desktop/mobile
-screenshots. Evidence:
+live-activity browser action-intent stream status, social provider receipt
+stream status, and receipt ingestion readiness status in the existing Browser
+route social alert/report panel. The proof runs the real portal E2E harness with
+Rust agent service plus Vite portal, asserts the parent-visible action-intent,
+receipt, and readiness cards, and captures desktop/mobile screenshots. Evidence:
 `test-results/browser-runtime-social-provider-receipt-route-status-ui-proof/proof.json`,
 `test-results/browser-runtime-social-provider-receipt-route-status-ui-proof/accessibility-summary.json`,
 and
 `output/browser-plan-proof/browser-runtime-social-provider-receipt-route-status-ui/06-ui-snapshots/social-alert-report-browser-route.png`
 plus
 `output/browser-plan-proof/browser-runtime-social-provider-receipt-route-status-ui/06-ui-snapshots/social-alert-report-browser-route-mobile.png`.
-This does not claim provider delivery, provider receipt ingestion runtime,
-provider webhook runtime, provider credentials, observed provider receipts,
-report delivery execution, final policy execution, browser mutation, child
-intervention execution, unmanaged exact URL support, or enforcement.
+This does not claim action adapter dispatch, provider delivery, provider receipt
+ingestion runtime, provider webhook runtime, provider credentials, observed
+provider receipts, report delivery execution, final policy execution, browser
+mutation, child intervention execution, unmanaged exact URL support, or
+enforcement. The action-intent status projection lives in `portal-domain`, but
+the Browser route imports that focused source directly because C currently owns
+the shared `contracts.ts`/package export files.
+
+WP13 runtime stream topology and delivery-decision addendum:
+`browser-runtime-chain-topology-proof` and
+`browser-runtime-delivery-decision-proof` register the service-side
+`browser.runtime.stream.report.requested` request in the reusable browser runtime
+event topology and delivery-decision reports. The route is local in-process from
+the browser runtime spine to the browser runtime stream report subscriber, and
+external transport remains manual-required. Evidence:
+`test-results/browser-runtime-chain-topology-proof/proof.json`,
+`output/browser-plan-proof/browser-runtime-chain-topology/01-browser-runtime-chain-topology-proof.md`,
+`test-results/browser-runtime-delivery-decision-proof/proof.json`, and
+`output/browser-plan-proof/browser-runtime-delivery-decision/01-browser-runtime-delivery-decision-proof.md`.
+This does not change the public portal WebSocket command/event and does not
+claim external adapter dispatch, browser mutation, child intervention execution,
+final policy execution, or enforcement.
 
 ## Worker Report Template
 

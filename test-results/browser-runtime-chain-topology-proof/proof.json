@@ -1,6 +1,6 @@
 {
   "proofName": "browser-runtime-chain-topology-proof",
-  "branchHead": "a565b689f Register browser action intent event topology",
+  "branchHead": "08e1705c5 Add browser runtime stream status proof",
   "sourceChecks": {
     "registersRuntimeContracts": true,
     "buildsTopologyManifest": true,
@@ -8,12 +8,15 @@
     "declaresRuntimeSubscribers": true,
     "iteratesOrderedChain": true,
     "runtimeModuleExportsTopology": true,
+    "runtimeModuleExportsStreamReportTopology": true,
     "exportsTopologyHelper": true,
     "focusedTopologyTestExists": true,
+    "focusedStreamReportTopologyTestExists": true,
     "testAssertsCoveredStatus": true,
     "docsMentionTopologyProof": true,
     "workpackMentionsTopologyProof": true,
-    "allExpectedEventsMentioned": true
+    "allExpectedEventsMentioned": true,
+    "streamReportRouteMentioned": true
   },
   "commands": [
     "cargo test -p ocentra-parent-agent-core browser_runtime_chain_topology_covers_ordered_event_spine --quiet"
@@ -88,11 +91,19 @@
       "subscriber": "browser-read-model",
       "target": "browser-read-model",
       "status": "covered"
+    },
+    {
+      "eventType": "browser.runtime.stream.report.requested",
+      "publisher": "browser-event-runtime-spine",
+      "subscriber": "browser-runtime-stream-report",
+      "target": "browser-runtime-stream-report",
+      "status": "covered"
     }
   ],
   "verified": {
     "reusableEventingTopologyManifestUsed": true,
     "orderedBrowserRuntimeChainRegistered": true,
+    "browserRuntimeStreamReportRequestRegistered": true,
     "namedPublishersDeclared": true,
     "namedSubscribersDeclared": true,
     "noUnreadyTopologyEntries": true,

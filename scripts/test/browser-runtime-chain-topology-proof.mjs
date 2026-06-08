@@ -11,6 +11,14 @@ const files = {
   runtime: path.join(root, 'crates', 'agent-core', 'src', 'browser_event_runtime.rs'),
   lib: path.join(root, 'crates', 'agent-core', 'src', 'lib.rs'),
   tests: path.join(root, 'crates', 'agent-core', 'src', 'browser_event_runtime_tests.rs'),
+  streamReportTests: path.join(
+    root,
+    'crates',
+    'agent-core',
+    'src',
+    'browser_event_runtime_tests',
+    'browser_event_runtime_stream_report_tests.rs'
+  ),
   checklist: path.join(root, 'docs', 'plans', 'browser-plan', 'implementation-checklist.md'),
   workpack: path.join(
     root,
@@ -35,6 +43,15 @@ const expectedPhases = [
   ['browser.read-model.projected', 'browser-read-model', 'browser-read-model'],
 ];
 
+const expectedRequestRoutes = [
+  [
+    'browser.runtime.stream.report.requested',
+    'browser-event-runtime-spine',
+    'browser-runtime-stream-report',
+    'browser-runtime-stream-report',
+  ],
+];
+
 function run(command, args) {
   execFileSync(command, args, {
     cwd: root,
@@ -44,29 +61,40 @@ function run(command, args) {
 }
 
 async function sourceChecks() {
-  const [topology, runtime, lib, tests, checklist, workpack] = await Promise.all([
+  const [topology, runtime, lib, tests, streamReportTests, checklist, workpack] = await Promise.all([
     readFile(files.topology, 'utf8'),
     readFile(files.runtime, 'utf8'),
     readFile(files.lib, 'utf8'),
     readFile(files.tests, 'utf8'),
+    readFile(files.streamReportTests, 'utf8'),
     readFile(files.checklist, 'utf8'),
     readFile(files.workpack, 'utf8'),
   ]);
+  const topologyTests = `${tests}\n${streamReportTests}`;
   return {
     registersRuntimeContracts: topology.includes('EventContractRegistry::new()'),
     buildsTopologyManifest: topology.includes('EventTopologyManifest::from_registry'),
     declaresRuntimePublishers: topology.includes('EventTopologyPublisher'),
     declaresRuntimeSubscribers: topology.includes('EventTopologySubscriber'),
     iteratesOrderedChain: topology.includes('BrowserRuntimePhase::ordered_chain()'),
-    runtimeModuleExportsTopology: runtime.includes('pub use topology::browser_runtime_chain_topology_manifest'),
+    runtimeModuleExportsTopology: runtime.includes('browser_runtime_chain_topology_manifest'),
+    runtimeModuleExportsStreamReportTopology: runtime.includes('browser_runtime_stream_report_topology_manifest'),
     exportsTopologyHelper: lib.includes('browser_runtime_chain_topology_manifest'),
-    focusedTopologyTestExists: tests.includes('browser_runtime_chain_topology_covers_ordered_event_spine'),
-    testAssertsCoveredStatus: tests.includes('EventTopologyStatus::Covered'),
+    focusedTopologyTestExists: topologyTests.includes('browser_runtime_chain_topology_covers_ordered_event_spine'),
+    focusedStreamReportTopologyTestExists: topologyTests.includes(
+      'browser_runtime_stream_report_topology_covers_named_event_and_subscriber'
+    ),
+    testAssertsCoveredStatus: topologyTests.includes('EventTopologyStatus::Covered'),
     docsMentionTopologyProof: checklist.includes('browser-runtime-chain-topology-proof'),
     workpackMentionsTopologyProof: workpack.includes('Runtime Chain Topology Addendum'),
     allExpectedEventsMentioned: expectedPhases.every(
-      ([eventType]) => runtime.includes('phase.event_type()') || tests.includes(eventType)
+      ([eventType]) => runtime.includes('phase.event_type()') || topologyTests.includes(eventType)
     ),
+    streamReportRouteMentioned:
+      topology.includes('BrowserRuntimeStreamReportTopologyRequest') &&
+      topology.includes('EVENT_BROWSER_RUNTIME_STREAM_REPORT_REQUESTED') &&
+      topology.includes('SUBSCRIBER_BROWSER_RUNTIME_STREAM_REPORT') &&
+      topology.includes('TARGET_BROWSER_RUNTIME_STREAM_REPORT'),
   };
 }
 
@@ -107,14 +135,19 @@ async function main() {
     ([eventType, subscriber, target]) =>
       `| ${eventType} | browser-event-runtime-spine | ${subscriber} | ${target} | covered |`
   );
+  const requestRows = expectedRequestRoutes.map(
+    ([eventType, publisher, subscriber, target]) =>
+      `| ${eventType} | ${publisher} | ${subscriber} | ${target} | covered |`
+  );
   const manifestMarkdown = [
     '# Browser Runtime Chain Topology Proof',
     '',
     '| Event Type | Publisher | Subscriber | Target | Status |',
     '| --- | --- | --- | --- | --- |',
     ...rows,
+    ...requestRows,
     '',
-    'This is topology proof for the existing local browser runtime event chain. It does not add external transport, adapter dispatch, browser mutation, child intervention execution, final policy execution, or enforcement.',
+    'This is topology proof for the existing local browser runtime event chain and the local browser runtime stream report request boundary. It does not add external transport, adapter dispatch, browser mutation, child intervention execution, final policy execution, or enforcement.',
     '',
   ].join('\n');
 
@@ -123,16 +156,26 @@ async function main() {
     branchHead: execFileSync('git', ['log', '-1', '--oneline'], { cwd: root, encoding: 'utf8' }).trim(),
     sourceChecks: checks,
     commands: commands.map((item) => `${item.command} ${item.args.join(' ')}`),
-    topology: expectedPhases.map(([eventType, subscriber, target]) => ({
-      eventType,
-      publisher: 'browser-event-runtime-spine',
-      subscriber,
-      target,
-      status: 'covered',
-    })),
+    topology: [
+      ...expectedPhases.map(([eventType, subscriber, target]) => ({
+        eventType,
+        publisher: 'browser-event-runtime-spine',
+        subscriber,
+        target,
+        status: 'covered',
+      })),
+      ...expectedRequestRoutes.map(([eventType, publisher, subscriber, target]) => ({
+        eventType,
+        publisher,
+        subscriber,
+        target,
+        status: 'covered',
+      })),
+    ],
     verified: {
       reusableEventingTopologyManifestUsed: true,
       orderedBrowserRuntimeChainRegistered: true,
+      browserRuntimeStreamReportRequestRegistered: true,
       namedPublishersDeclared: true,
       namedSubscribersDeclared: true,
       noUnreadyTopologyEntries: true,

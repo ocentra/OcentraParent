@@ -5,6 +5,7 @@
 | browser runtime event chain | local-service | local-route-ready | browser-read-model | covered |
 | browser action-intent status | local-in-process | local-route-ready | browser-action-intent-status | covered |
 | browser action-intent handoff | local-in-process | local-route-ready | browser-action-intent-handoff | covered |
+| browser runtime stream report | local-in-process | local-route-ready | browser-runtime-stream-report | covered |
 | browser social-provider receipt status | local-in-process | local-route-ready | browser-social-provider-receipt-status | covered |
 | browser external transport | external-transport | external-transport-route-manual-required | browser-intervention-command | manual-required |
 

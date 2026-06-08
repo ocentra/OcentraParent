@@ -332,6 +332,32 @@ child intervention execution, and enforcement at zero. It does not create a new
 generic event bus, implement external transport, execute final policy, mutate
 browser state, execute child intervention, or enforce.
 
+## Runtime Stream Topology And Delivery Refresh - 2026-06-08
+
+`browser-runtime-chain-topology-proof` now registers the local
+`browser.runtime.stream.report.requested` request boundary in the reusable
+`ocentra-eventing` topology manifest, with `browser-event-runtime-spine` as
+publisher and `browser-runtime-stream-report` as subscriber/target.
+`browser-runtime-delivery-decision-proof` also treats that route as
+`local-in-process`, raising the browser local-ready route count to five while
+leaving external transport manual-required.
+
+Evidence:
+
+- `crates/agent-core/src/browser_event_runtime/topology.rs`
+- `crates/agent-core/src/browser_event_runtime/delivery.rs`
+- `crates/agent-core/src/browser_event_runtime_tests.rs`
+- `scripts/test/browser-runtime-chain-topology-proof.mjs`
+- `scripts/test/browser-runtime-delivery-decision-proof.mjs`
+- `test-results/browser-runtime-chain-topology-proof/proof.json`
+- `test-results/browser-runtime-delivery-decision-proof/proof.json`
+- `output/browser-plan-proof/browser-runtime-chain-topology/01-browser-runtime-chain-topology-proof.md`
+- `output/browser-plan-proof/browser-runtime-delivery-decision/01-browser-runtime-delivery-decision-proof.md`
+
+This refresh registers the service stream request route only. It does not change
+the portal WebSocket command, add external transport, dispatch adapters, mutate
+browser state, execute child intervention, execute final policy, or enforce.
+
 ## Action-Intent Event Subscriber Addendum - 2026-06-07
 
 `browser-runtime-action-intent-event-subscriber-proof` adds a named Rust
@@ -1158,3 +1184,45 @@ Evidence:
 This is an internal service eventing boundary only. It does not change the
 portal wire command/event names and does not claim adapter dispatch, browser
 mutation, child intervention execution, final policy execution, or enforcement.
+
+## Runtime Stream Topology, Delivery, And Route Status Addendum - 2026-06-08
+
+`browser-runtime-chain-topology-proof` and
+`browser-runtime-delivery-decision-proof` now register the service stream request
+event `browser.runtime.stream.report.requested` in the reusable browser runtime
+topology and delivery-decision reports. The route stays local in-process from the
+browser runtime spine to the stream report subscriber; external transport remains
+manual-required and the existing portal command remains unchanged.
+
+`browser-runtime-social-provider-receipt-route-status-ui-proof` now also renders
+the browser action-intent stream status in the real Browser route social
+alert/report panel, next to the receipt stream and receipt ingestion readiness
+cards. The proof uses the real Rust agent service and Vite portal, writes an
+accessibility summary, and captures desktop/mobile screenshots. The
+action-intent status projection lives in `portal-domain`, but the route imports
+the focused source directly while C owns the shared barrel/package export files.
+
+Evidence:
+
+- `crates/agent-core/src/browser_event_runtime/topology.rs`
+- `crates/agent-core/src/browser_event_runtime/delivery.rs`
+- `crates/agent-core/src/browser_event_runtime_tests.rs`
+- `packages/portal-domain/src/browser-action-intent-stream-status.ts`
+- `packages/portal-domain/tests/browser-action-intent-stream-status.test.ts`
+- `apps/portal/src/SocialAlertReportRoutePanel.tsx`
+- `apps/portal/e2e/social-alert-report-ui-proof.spec.ts`
+- `scripts/test/browser-runtime-chain-topology-proof.mjs`
+- `scripts/test/browser-runtime-delivery-decision-proof.mjs`
+- `scripts/test/browser-runtime-social-provider-receipt-route-status-ui-proof.mjs`
+- `test-results/browser-runtime-chain-topology-proof/proof.json`
+- `test-results/browser-runtime-delivery-decision-proof/proof.json`
+- `test-results/browser-runtime-social-provider-receipt-route-status-ui-proof/proof.json`
+- `test-results/browser-runtime-social-provider-receipt-route-status-ui-proof/accessibility-summary.json`
+- `output/browser-plan-proof/browser-runtime-social-provider-receipt-route-status-ui/06-ui-snapshots/social-alert-report-browser-route.png`
+- `output/browser-plan-proof/browser-runtime-social-provider-receipt-route-status-ui/06-ui-snapshots/social-alert-report-browser-route-mobile.png`
+
+No-claim boundary: this proves local event topology, local delivery readiness,
+and parent-visible stream status only. It does not claim action adapter dispatch,
+provider delivery, provider receipt ingestion runtime, browser mutation, child
+intervention execution, unmanaged exact URL support, final policy execution, or
+enforcement.

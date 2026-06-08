@@ -267,6 +267,12 @@ control while being more honest about managed versus unmanaged sources.
   state exposes the stream. This is parser/state proof only; it adds no visual
   portal surface, browser mutation, child intervention execution, final policy
   execution, or enforcement.
+- Browser-plan WP13 now also registers the service-side
+  `browser.runtime.stream.report.requested` request route in the reusable
+  eventing topology and delivery-decision reports. The route is local
+  in-process and keeps the existing portal WebSocket command; external
+  transport, adapter dispatch, browser mutation, child intervention execution,
+  final policy execution, and enforcement remain unclaimed.
 - Browser-plan WP13 now also has service-side handoff ref proof for the same
   action-intent path. The service asks the named
   `browser.action-intent.handoff.requested` subscriber and records prepared
@@ -1205,6 +1211,20 @@ public browser runtime stream, while non-candidate rows remain zero/empty and
 the service does not call the fixture-backed child-status proof. This adds no
 adapter dispatch, browser mutation, child intervention execution, final policy
 execution, unmanaged exact URL support, or enforcement.
+WP13 now also registers the service stream request
+`browser.runtime.stream.report.requested` in the reusable Rust event topology
+and delivery-decision proof. The route stays local in-process from the browser
+runtime spine to the stream report subscriber, and the public portal WebSocket
+command/event names remain unchanged.
+WP13 Browser-route proof now renders a parent-visible browser action-intent
+stream status card from the existing parsed runtime stream, next to the social
+provider receipt stream and receipt ingestion readiness cards. The proof uses
+the real Rust agent service plus Vite portal E2E, captures desktop/mobile
+screenshots, and keeps action adapter dispatch, browser mutation, child
+intervention execution, final policy execution, unmanaged exact URL support,
+and enforcement unclaimed. The focused action-intent projection lives in
+`portal-domain`; the route imports that focused source directly while C owns the
+shared barrel/package export files.
 
 ## Checklist
 

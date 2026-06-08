@@ -19,6 +19,7 @@ use ocentra_parent_agent_protocol::constants;
 
 mod browser_event_runtime_child_status_tests;
 mod browser_event_runtime_social_provider_receipt_tests;
+mod browser_event_runtime_stream_report_tests;
 
 #[tokio::test]
 async fn browser_runtime_chain_publishes_ordered_managed_decision_phases() {
@@ -433,7 +434,7 @@ fn browser_runtime_chain_topology_covers_ordered_event_spine() {
 fn browser_runtime_delivery_decision_keeps_current_routes_local_only() {
     let report = prove_browser_runtime_delivery_decision().unwrap();
 
-    assert_eq!(report.local_ready_route_count, 4);
+    assert_eq!(report.local_ready_route_count, 5);
     assert_eq!(
         report.chain_delivery.route_kind,
         EventDeliveryRouteKind::LocalService
@@ -456,6 +457,14 @@ fn browser_runtime_delivery_decision_keeps_current_routes_local_only() {
     );
     assert_eq!(
         report.action_intent_handoff_delivery.decision_state,
+        EventDeliveryDecisionState::LocalRouteReady
+    );
+    assert_eq!(
+        report.runtime_stream_report_delivery.route_kind,
+        EventDeliveryRouteKind::LocalInProcess
+    );
+    assert_eq!(
+        report.runtime_stream_report_delivery.decision_state,
         EventDeliveryDecisionState::LocalRouteReady
     );
     assert_eq!(

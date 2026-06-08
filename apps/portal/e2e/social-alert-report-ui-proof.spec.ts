@@ -25,6 +25,7 @@ test('browser route renders service-backed social alert and report intent rows',
   await assertSocialAlertReportRoute(page);
   await requestSocialAlertReportReadModel(page);
   await assertServiceBackedSocialAlertReportRows(page);
+  await assertBrowserActionIntentStatusRows(page);
   await assertBrowserReceiptStatusRows(page);
   await captureSocialAlertReportScreenshots(page);
   await writeAccessibilitySummary(await collectAccessibilitySummary(page));
@@ -84,6 +85,21 @@ async function assertServiceBackedSocialAlertReportRows(page: Page): Promise<voi
   const routeText = await alertRegion.textContent();
   expect(routeText ?? '').not.toMatch(/(?:provider delivery complete|provider observed|receipt ingested)/iu);
   expect(routeText ?? '').not.toMatch(/(?:report delivered|notification ui delivered|enforcement active)/iu);
+}
+
+async function assertBrowserActionIntentStatusRows(page: Page): Promise<void> {
+  const alertRegion = page.getByRole('region', { name: 'Social alerts and reports' });
+  await expect(alertRegion.getByRole('heading', { name: 'Browser action-intent stream status' })).toBeVisible({
+    timeout: portalShellReadyTimeoutMs,
+  });
+  await expect(alertRegion.getByText('0 action candidates').first()).toBeVisible();
+  await expect(alertRegion.getByText('not-claimed').first()).toBeVisible();
+  await expect(alertRegion.getByText('not-observed').first()).toBeVisible();
+
+  const routeText = await alertRegion.textContent();
+  expect(routeText ?? '').not.toMatch(/(?:adapter dispatch complete|browser mutation complete)/iu);
+  expect(routeText ?? '').not.toMatch(/(?:child intervention executed|final policy execution proved)/iu);
+  expect(routeText ?? '').not.toMatch(/(?:unmanaged exact url supported|enforcement active)/iu);
 }
 
 async function assertBrowserReceiptStatusRows(page: Page): Promise<void> {
@@ -148,6 +164,7 @@ async function writeAccessibilitySummary(
   expect(summary.headings).toContain('High-risk social alert intent');
   expect(summary.headings).toContain('Manual alert/report proof required');
   expect(summary.headings).toContain('Provider status manual required');
+  expect(summary.headings).toContain('Browser action-intent stream status');
   expect(summary.headings).toContain('Social provider receipt stream status');
   expect(summary.headings).toContain('Social provider receipt ingestion readiness');
   expect(summary.labels).toContain('Rows returned');
@@ -155,6 +172,7 @@ async function writeAccessibilitySummary(
   expect(summary.labels).toContain('Capability');
   expect(summary.labels).toContain('Product claim');
   expect(summary.values).toContain('4');
+  expect(summary.values).toContain('0 action candidates');
   expect(summary.values).toContain('0 provider receipts observed');
   expect(summary.values).toContain('local-outbox-only');
   expect(summary.values).toContain('manual-required');
@@ -173,11 +191,14 @@ async function writeAccessibilitySummary(
           'high-risk-local-outbox-row-visible',
           'manual-required-row-visible',
           'provider-status-manual-required-row-visible',
+          'action-intent-stream-status-visible',
+          'action-intent-zero-candidates-visible',
           'receipt-stream-status-visible',
           'receipt-ingestion-readiness-visible',
           'receipt-zero-provider-receipts-visible',
           'non-claim-copy-visible',
           'provider-report-notification-final-policy-enforcement-claims-not-visible',
+          'action-intent-adapter-child-intervention-browser-mutation-enforcement-claims-not-visible',
           'receipt-ingestion-runtime-provider-delivery-enforcement-claims-not-visible',
           'no-unlabeled-buttons',
           'desktop-screenshot',

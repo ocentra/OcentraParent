@@ -9,7 +9,6 @@ const outputDir = path.join(root, 'output', 'browser-plan-proof', 'browser-runti
 const files = {
   delivery: path.join(root, 'crates', 'agent-core', 'src', 'browser_event_runtime', 'delivery.rs'),
   runtime: path.join(root, 'crates', 'agent-core', 'src', 'browser_event_runtime.rs'),
-  lib: path.join(root, 'crates', 'agent-core', 'src', 'lib.rs'),
   tests: path.join(root, 'crates', 'agent-core', 'src', 'browser_event_runtime_tests.rs'),
   checklist: path.join(root, 'docs', 'plans', 'browser-plan', 'implementation-checklist.md'),
   feature: path.join(root, 'docs', 'features', 'browser-web-control.md'),
@@ -32,10 +31,9 @@ function run(command, args) {
 }
 
 async function sourceChecks() {
-  const [delivery, runtime, lib, tests, checklist, feature, workpack] = await Promise.all([
+  const [delivery, runtime, tests, checklist, feature, workpack] = await Promise.all([
     readFile(files.delivery, 'utf8'),
     readFile(files.runtime, 'utf8'),
-    readFile(files.lib, 'utf8'),
     readFile(files.tests, 'utf8'),
     readFile(files.checklist, 'utf8'),
     readFile(files.feature, 'utf8'),
@@ -50,6 +48,11 @@ async function sourceChecks() {
       delivery.includes('constants::browser::EVENT_BROWSER_ACTION_INTENT_HANDOFF_REQUESTED') &&
       delivery.includes('constants::browser::SUBSCRIBER_BROWSER_ACTION_INTENT_HANDOFF') &&
       delivery.includes('constants::browser::TARGET_BROWSER_ACTION_INTENT_HANDOFF'),
+    provesRuntimeStreamReportRoute:
+      delivery.includes('runtime_stream_report_delivery') &&
+      delivery.includes('constants::browser::EVENT_BROWSER_RUNTIME_STREAM_REPORT_REQUESTED') &&
+      delivery.includes('constants::browser::SUBSCRIBER_BROWSER_RUNTIME_STREAM_REPORT') &&
+      delivery.includes('constants::browser::TARGET_BROWSER_RUNTIME_STREAM_REPORT'),
     provesSocialProviderReceiptStatusRoute:
       delivery.includes('social_provider_receipt_status_delivery') &&
       delivery.includes('constants::browser::EVENT_BROWSER_SOCIAL_PROVIDER_RECEIPT_STATUS_REQUESTED') &&
@@ -62,16 +65,21 @@ async function sourceChecks() {
       delivery.includes('child_intervention_execution_claimed: false') &&
       delivery.includes('final_policy_execution_claimed: false') &&
       delivery.includes('enforcement_claimed: false'),
-    runtimeExportsProof: runtime.includes('prove_browser_runtime_delivery_decision'),
-    libExportsProof: lib.includes('BrowserRuntimeDeliveryDecisionReport'),
+    runtimeExportsProof:
+      runtime.includes('prove_browser_runtime_delivery_decision') &&
+      runtime.includes('BrowserRuntimeDeliveryDecisionReport'),
     focusedTestExists: tests.includes('browser_runtime_delivery_decision_keeps_current_routes_local_only'),
-    focusedTestAssertsFourLocalRoutes: tests.includes('assert_eq!(report.local_ready_route_count, 4)'),
+    focusedTestAssertsFiveLocalRoutes: tests.includes('assert_eq!(report.local_ready_route_count, 5)'),
     focusedTestAssertsHandoffRoute:
       tests.includes('report.action_intent_handoff_delivery.route_kind') &&
       tests.includes('report.action_intent_handoff_delivery.decision_state'),
     focusedTestAssertsReceiptStatusRoute:
       tests.includes('report.social_provider_receipt_status_delivery.route_kind') &&
       tests.includes('.social_provider_receipt_status_delivery') &&
+      tests.includes('EventDeliveryDecisionState::LocalRouteReady'),
+    focusedTestAssertsRuntimeStreamReportRoute:
+      tests.includes('report.runtime_stream_report_delivery.route_kind') &&
+      tests.includes('.runtime_stream_report_delivery') &&
       tests.includes('EventDeliveryDecisionState::LocalRouteReady'),
     testAssertsMissingArtifacts: tests.includes('EventDeliveryRequiredArtifact::TransportConfig'),
     checklistMentionsProof: checklist.includes('browser-runtime-delivery-decision-proof'),
@@ -140,6 +148,12 @@ async function main() {
         publisher: 'browser-event-runtime-spine',
         subscriber: 'browser-action-intent-handoff',
       },
+      browserRuntimeStreamReport: {
+        routeKind: 'local-in-process',
+        decisionState: 'local-route-ready',
+        publisher: 'browser-event-runtime-spine',
+        subscriber: 'browser-runtime-stream-report',
+      },
       browserSocialProviderReceiptStatus: {
         routeKind: 'local-in-process',
         decisionState: 'local-route-ready',
@@ -167,9 +181,10 @@ async function main() {
       reusableEventingDeliveryDecisionUsed: true,
       localServiceRouteReady: true,
       localInProcessRouteReady: true,
-      localReadyRouteCount: 4,
+      localReadyRouteCount: 5,
       actionIntentStatusRouteReady: true,
       actionIntentHandoffRouteReady: true,
+      runtimeStreamReportRouteReady: true,
       socialProviderReceiptStatusRouteReady: true,
       externalTransportManualRequired: true,
       externalTransportDeliveryImplemented: false,
@@ -190,6 +205,7 @@ async function main() {
     '| browser runtime event chain | local-service | local-route-ready | browser-read-model | covered |',
     '| browser action-intent status | local-in-process | local-route-ready | browser-action-intent-status | covered |',
     '| browser action-intent handoff | local-in-process | local-route-ready | browser-action-intent-handoff | covered |',
+    '| browser runtime stream report | local-in-process | local-route-ready | browser-runtime-stream-report | covered |',
     '| browser social-provider receipt status | local-in-process | local-route-ready | browser-social-provider-receipt-status | covered |',
     '| browser external transport | external-transport | external-transport-route-manual-required | browser-intervention-command | manual-required |',
     '',

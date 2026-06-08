@@ -14,6 +14,11 @@ import { type ReactElement } from 'react';
 import type { PortalLiveActivityState } from './live-activity-state';
 import type { PortalRenderActions } from './portal-actions';
 import {
+  createBrowserActionIntentStreamStatusIntent,
+  type BrowserActionIntentStreamStatusDetail,
+  type BrowserActionIntentStreamStatusIntent,
+} from '../../../packages/portal-domain/src/browser-action-intent-stream-status';
+import {
   createSocialAlertReportPanelIntent,
   type SocialAlertReportPanelDetail,
   type SocialAlertReportPanelIntent,
@@ -153,17 +158,22 @@ function BrowserReceiptStatusCard({ intent }: { readonly intent: BrowserReceiptS
 
 function browserReceiptStatusIntents(liveActivity: PortalLiveActivityState): readonly BrowserReceiptStatusIntent[] {
   return [
+    liveActivity.browserRuntimeEventChainStream === null
+      ? null
+      : createBrowserActionIntentStreamStatusIntent(liveActivity.browserRuntimeEventChainStream),
     liveActivity.browserSocialProviderReceiptStreamStatusIntent,
     liveActivity.browserSocialProviderReceiptIngestionReadinessStatusIntent,
   ].filter((intent): intent is BrowserReceiptStatusIntent => intent !== null);
 }
 
 type BrowserReceiptStatusIntent =
+  | BrowserActionIntentStreamStatusIntent
   | BrowserSocialProviderReceiptStreamStatusIntent
   | BrowserSocialProviderReceiptIngestionReadinessStatusIntent;
 
 type SocialAlertReportRenderableDetail =
   | SocialAlertReportPanelDetail
+  | BrowserActionIntentStreamStatusDetail
   | BrowserSocialProviderReceiptStreamStatusDetail
   | BrowserSocialProviderReceiptIngestionReadinessStatusDetail;
 
