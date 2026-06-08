@@ -66,6 +66,7 @@ mod network_capture_netstat;
 mod network_event_runtime;
 mod network_event_runtime_phase;
 mod network_event_runtime_state;
+mod network_raw_artifact_store;
 mod parent_child_event_runtime;
 mod parent_child_event_runtime_phase;
 mod policy_dry_run_evaluator;
@@ -229,6 +230,11 @@ pub use network_event_runtime_state::{
     NetworkAiAuditState, NetworkEvidenceGrade, NetworkEvidenceScope, NetworkInterventionState,
     NetworkRiskBudgetState, NetworkRuntimeClaimBoundary,
 };
+pub use network_raw_artifact_store::{
+    NetworkRawArtifactStore, NetworkRawArtifactStoreConfig, NetworkRawArtifactStoreError,
+    NetworkRawCaptureArtifactExport, NetworkRawCaptureArtifactInput,
+    NetworkRawCaptureArtifactRecord,
+};
 pub use parent_child_event_runtime::{
     publish_parent_child_runtime_for_validated_intent, ParentChildRuntimeEventPayload,
     ParentChildRuntimeInput, ParentChildRuntimeReport,
@@ -334,6 +340,8 @@ mod network_event_runtime_queue_tests;
 mod network_event_runtime_remote_delivery_tests;
 #[cfg(test)]
 mod network_event_runtime_tests;
+#[cfg(test)]
+mod network_raw_artifact_store_tests;
 #[cfg(test)]
 mod parent_child_event_runtime_tests;
 #[cfg(test)]
