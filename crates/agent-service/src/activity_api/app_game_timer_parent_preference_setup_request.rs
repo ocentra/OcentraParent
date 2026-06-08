@@ -27,6 +27,7 @@ pub fn app_game_timer_parent_preference_setup_request_from_command(
     command: &AgentCommandEnvelope,
 ) -> AppGameTimerParentPreferenceSetupRequestResult {
     let request = request_from_command(command);
+    let action_result_reference_ids = action_result_reference_ids(&request);
     AppGameTimerParentPreferenceSetupRequestResult {
         schema_version: constants::value::APP_GAME_PARENT_PREFERENCE_SETUP_REQUEST_SCHEMA_VERSION
             .to_string(),
@@ -36,9 +37,13 @@ pub fn app_game_timer_parent_preference_setup_request_from_command(
         request_status: constants::value::APP_GAME_PARENT_PREFERENCE_SETUP_REQUEST_ACCEPTED
             .to_string(),
         parent_surface_intent_reference_id: request.parent_surface_intent_reference_id,
-        parent_preference_setup_reference_id: request.parent_preference_setup_reference_id,
+        parent_preference_setup_reference_id: request.parent_preference_setup_reference_id.clone(),
         request_reference_ids: request.request_reference_ids,
+        action_result_reference_id: request.parent_preference_setup_reference_id.clone(),
+        action_result_reference_ids,
         command_boundary_claimed: true,
+        action_result_handoff_claimed: true,
+        action_result_persistence_claimed: false,
         parent_preference_mutation_claimed: false,
         notification_rule_mutation_claimed: false,
         provider_delivery_claimed: false,
@@ -46,6 +51,23 @@ pub fn app_game_timer_parent_preference_setup_request_from_command(
         adapter_dispatch_claimed: false,
         platform_enforcement_claimed: false,
     }
+}
+
+fn action_result_reference_ids(request: &AppGameTimerParentPreferenceSetupRequest) -> Vec<String> {
+    let mut refs = vec![request.parent_preference_setup_reference_id.clone()];
+    refs.extend(request.request_reference_ids.clone());
+    unique_refs(refs)
+}
+
+fn unique_refs(reference_ids: Vec<String>) -> Vec<String> {
+    let mut unique = Vec::new();
+    for reference_id in reference_ids {
+        if reference_id.is_empty() || unique.iter().any(|existing| existing == &reference_id) {
+            continue;
+        }
+        unique.push(reference_id);
+    }
+    unique
 }
 
 pub fn app_game_timer_parent_preference_setup_request_payload(

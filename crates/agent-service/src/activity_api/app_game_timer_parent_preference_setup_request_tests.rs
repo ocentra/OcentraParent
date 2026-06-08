@@ -28,7 +28,20 @@ async fn app_game_timer_parent_preference_setup_request_command_returns_accepted
         result.request_status,
         constants::value::APP_GAME_PARENT_PREFERENCE_SETUP_REQUEST_ACCEPTED
     );
+    assert_eq!(
+        result.action_result_reference_id,
+        constants::value::APP_GAME_CHILD_UX_PARENT_PREFERENCE_SETUP_PREFIX
+    );
+    assert_eq!(
+        result.action_result_reference_ids,
+        vec![
+            constants::value::APP_GAME_CHILD_UX_PARENT_PREFERENCE_SETUP_PREFIX.to_string(),
+            constants::value::APP_GAME_CHILD_UX_PARENT_SURFACE_INTENT_PREFIX.to_string()
+        ]
+    );
     assert!(result.command_boundary_claimed);
+    assert!(result.action_result_handoff_claimed);
+    assert!(!result.action_result_persistence_claimed);
     assert!(!result.parent_preference_mutation_claimed);
     assert!(!result.notification_rule_mutation_claimed);
     assert!(!result.provider_delivery_claimed);

@@ -1280,7 +1280,12 @@ diagnostics, or raw private source rows.
       displays the accepted result through the existing command-result panel,
       still without claiming durable preference mutation, notification rule
       writes, delivery, adapter dispatch, platform enforcement, raw private
-      rows, or raw targets.
+      rows, or raw targets. The accepted request result now also includes
+      parent-safe action-result handoff refs and explicit action-result
+      persistence status, so the command boundary can feed the existing
+      app/game action-result read-model path without claiming durable
+      preference mutation, notification rule writes, delivery, adapter
+      dispatch, platform enforcement, raw private rows, or raw targets.
 - [ ] Adapter capability status per platform. Cross-platform authority and
       broad-blocking gate contracts now record manual-required, unavailable,
       and not-claimed proof requirements. Platform-extension routing now maps
