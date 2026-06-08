@@ -32,7 +32,12 @@ describe('tracking real runtime handoff proof', () => {
     expect(proof.sourceGateRefs).toEqual(RequiredTrackingRealRuntimeHandoffGates.map((gate) => gate.sourceProofRef));
     expect(proof.summary.manualRequiredRowCount).toBe(RequiredTrackingRealRuntimeHandoffGates.length);
     expect(proof.summary.missingArtifactCount).toBe(RequiredTrackingRealRuntimeHandoffGates.length);
+    expect(proof.summary.requiredValidationCommandCount).toBeGreaterThanOrEqual(
+      RequiredTrackingRealRuntimeHandoffGates.length
+    );
     expect(proof.summary.productReadyRowCount).toBe(0);
+    expect(proof.handoffRows.every((row) => row.requiredValidationCommands.length > 0)).toBe(true);
+    expect(proof.handoffRows.every((row) => row.artifactAcceptanceNotes.length > 0)).toBe(true);
     expect(Object.values(proof.productClaims).every((claim) => claim === false)).toBe(true);
   });
 
@@ -59,6 +64,7 @@ describe('tracking real runtime handoff proof', () => {
       rowId: 'tracking-real-runtime-handoff-invalid',
       generatedAt: '2026-06-08T02:20:00.000Z',
       handoffArea: 'android-physical-background-and-geofence',
+      blockerId: 'android-physical-background-proof-required',
       sourceProofRef: 'test-results/tracking-physical-device-artifact-gate-proof/proof.json',
       proofRoot: 'output/tracking-plan-proof/android-background-geofence',
       requiredProofTier: 'P4_PHYSICAL_DEVICE',
@@ -67,6 +73,8 @@ describe('tracking real runtime handoff proof', () => {
       requiredArtifacts,
       presentArtifacts: ['00-runtime-metadata.json'],
       missingArtifacts: ['01-runtime-result.json'],
+      requiredValidationCommands: ['Run Android physical-device proof'],
+      artifactAcceptanceNotes: ['Require physical-device artifact evidence'],
       auditRefs: ['tracking-real-runtime-handoff-invalid-audit'],
       artifactSetComplete: false,
       productClaimReady: true,

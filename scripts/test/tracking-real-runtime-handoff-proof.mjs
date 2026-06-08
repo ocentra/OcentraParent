@@ -138,6 +138,13 @@ function assertProof(proof) {
       `Real-runtime handoff unexpectedly has no missing/manual artifacts: ${JSON.stringify(proof.summary)}`
     );
   }
+  if (proof.summary.requiredValidationCommandCount < proof.handoffRows.length) {
+    throw new Error(`Real-runtime handoff is missing manual validation commands: ${JSON.stringify(proof.summary)}`);
+  }
+  const rowsWithoutAcceptanceNotes = proof.handoffRows.filter((row) => row.artifactAcceptanceNotes.length === 0);
+  if (rowsWithoutAcceptanceNotes.length > 0) {
+    throw new Error(`Real-runtime handoff rows need acceptance notes: ${JSON.stringify(rowsWithoutAcceptanceNotes)}`);
+  }
   if (Object.values(proof.productClaims).some(Boolean) || proof.summary.productReadyRowCount > 0) {
     throw new Error(`Real-runtime handoff overclaimed product readiness: ${JSON.stringify(proof.productClaims)}`);
   }
@@ -148,6 +155,7 @@ async function writeArtifacts(proof) {
   await writeJson(join(proofRoot, 'proof.json'), proof);
   await writeJson(join(wp33Root, '63-real-runtime-handoff-proof.json'), proof);
   await writeFile(join(proofRoot, '00-source-snapshot.md'), sourceSnapshot(proof));
+  await writeFile(join(proofRoot, 'manual-validation-runbook.md'), manualValidationRunbook(proof));
   await writeFile(join(proofRoot, '16-validation-commands.log'), validationLog());
 }
 
@@ -169,6 +177,41 @@ function sourceSnapshot(proof) {
       (row) => `- ${row.handoffArea}: ${row.missingArtifacts.length}/${row.requiredArtifacts.length} artifacts missing`
     ),
     '',
+  ].join('\n');
+}
+
+function manualValidationRunbook(proof) {
+  return [
+    '# Tracking Real Runtime Handoff Manual Validation Runbook',
+    '',
+    `- generatedAt: ${proof.generatedAt}`,
+    `- commit: ${proof.baseCommitAtGeneration}`,
+    '- currentProofTier: P3_LOCAL_DEV_MACHINE',
+    '- requiredProofTier: P4_REAL_RUNTIME_HANDOFF',
+    '- productReadyClaimed: false',
+    '',
+    ...proof.handoffRows.flatMap((row) => [
+      `## ${row.handoffArea}`,
+      '',
+      `- blockerId: ${row.blockerId}`,
+      `- sourceProofRef: ${row.sourceProofRef}`,
+      `- proofRoot: ${row.proofRoot}`,
+      `- status: ${row.status}`,
+      `- missingArtifacts: ${row.missingArtifacts.length}/${row.requiredArtifacts.length}`,
+      '',
+      '### Required Validation Commands',
+      '',
+      ...row.requiredValidationCommands.map((command) => `- ${command}`),
+      '',
+      '### Artifact Acceptance Notes',
+      '',
+      ...row.artifactAcceptanceNotes.map((note) => `- ${note}`),
+      '',
+      '### Missing Artifacts',
+      '',
+      ...row.missingArtifacts.map((artifact) => `- ${artifact}`),
+      '',
+    ]),
   ].join('\n');
 }
 
