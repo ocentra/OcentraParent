@@ -1131,3 +1131,30 @@ provider receipt ingestion runtime, webhook runtime, credentials, observed
 provider receipts, final policy execution, connector/native runtime, browser
 mutation, child intervention execution, unmanaged exact URL support, or
 enforcement.
+
+## Service Stream Eventing Addendum - 2026-06-08
+
+`browser-runtime-service-stream-eventing-proof` moves the service-side browser
+runtime stream projection behind a named local eventing request/subscriber
+boundary. The existing portal command stays
+`agent.browser.runtime.event-chain.stream.get`, but the service now publishes
+`browser.runtime.stream.report.requested` internally and completes the response
+through the reusable `ocentra-eventing` request/response path before building
+the same public event payload.
+
+Evidence:
+
+- `crates/agent-protocol/src/constants/browser.rs`
+- `crates/agent-service/Cargo.toml`
+- `crates/agent-service/src/browser_runtime_stream_api.rs`
+- `crates/agent-service/src/browser_runtime_stream_request.rs`
+- `crates/agent-service/src/browser_runtime_stream_payload.rs`
+- `crates/agent-service/src/browser_runtime_stream_events.rs`
+- `crates/agent-service/src/browser_runtime_stream_tests.rs`
+- `scripts/test/browser-runtime-service-stream-eventing-proof.mjs`
+- `test-results/browser-runtime-service-stream-eventing-proof/proof.json`
+- `output/browser-plan-proof/browser-runtime-service-stream-eventing/01-browser-runtime-service-stream-eventing-proof.md`
+
+This is an internal service eventing boundary only. It does not change the
+portal wire command/event names and does not claim adapter dispatch, browser
+mutation, child intervention execution, final policy execution, or enforcement.

@@ -32,6 +32,8 @@ const requiredRolloutProofFiles = [
   'test-results/social-alert-report-audit-history-bridge-proof/proof.json',
   'test-results/social-alert-report-audit-history-bridge-proof/audit-history-handoff.json',
   'output/browser-plan-proof/social-alert-report-audit-history-bridge-proof/01-social-alert-report-audit-history-bridge-proof.md',
+  'test-results/social-parent-notification-delivery-readiness-proof/proof.json',
+  'output/browser-plan-proof/social-parent-notification-delivery-readiness-proof/01-social-parent-notification-delivery-readiness-proof.md',
 ];
 
 const rolloutGuards = [
@@ -182,12 +184,14 @@ function manifestFor(rows, failures) {
       'social-alert-report-provider-preflight-proof-present',
       'social-alert-report-provider-status-handoff-proof-present',
       'social-report-writer-delivery-proof-present',
+      'social-parent-notification-delivery-readiness-proof-present',
       'social-applied-schedule-time-budget-proof-present',
       'social-schedule-time-budget-compiler-proof-present',
       'social-parent-sensitivity-settings-proof-present',
       'social-source-custody-settings-proof-present',
       'social-source-custody-mutation-proof-present',
       'external-runtime-report-delivery-not-claimed',
+      'parent-notification-ui-delivery-not-claimed',
       'provider-delivery-not-claimed',
       'runtime-applied-schedule-time-budget-not-claimed',
       'connector-native-runtime-not-claimed',
@@ -246,13 +250,14 @@ function markdownFor(manifest) {
     'Social alert/report provider preflight proof is present and requires provider adapter setup before delivery.',
     'Social alert/report provider status handoff proof is present and maps preflight rows to manual-required or unavailable provider status boundary rows.',
     'Parent-owned report writer delivery-readiness proof is present.',
+    'Parent notification/report delivery readiness proof is present.',
     'Parent-owned schedule/time-budget application-readiness proof is present.',
     'Schedule/time-budget compiler proof and parent sensitivity',
     'settings proof are present. Source custody settings proof is present over',
     'source/privacy refs, and service-backed source custody mutation proof is',
-    'present. Connector/native runtime, external provider delivery, runtime-applied',
-    'schedules/budgets, final policy execution, and enforcement remain',
-    'unclaimed.',
+    'present. Connector/native runtime, external provider delivery, parent',
+    'notification UI delivery, runtime-applied schedules/budgets, final policy',
+    'execution, and enforcement remain unclaimed.',
   ].join('\n');
 }
 

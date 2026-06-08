@@ -1,4 +1,8 @@
-use serde::{ser::SerializeStruct, Serialize, Serializer};
+use serde::{
+    de::{self, Deserializer},
+    ser::SerializeStruct,
+    Deserialize, Serialize, Serializer,
+};
 use serde_json::{Map, Value};
 
 use ocentra_parent_agent_core::{BrowserRuntimeEventPayload, BrowserRuntimeReport};
@@ -9,6 +13,46 @@ pub(crate) struct BrowserRuntimeServiceStreamEntry {
     pub(crate) event_type: String,
     pub(crate) event_ref: String,
     pub(crate) payload: Value,
+}
+
+impl<'de> Deserialize<'de> for BrowserRuntimeServiceStreamEntry {
+    fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
+    where
+        D: Deserializer<'de>,
+    {
+        let mut entry = Value::deserialize(deserializer)
+            .and_then(|value| match value {
+                Value::Object(fields) => Ok(fields),
+                _ => Err(de::Error::custom(constants::error::AGENT_EVENT_SERIALIZES)),
+            })
+            .map_err(de::Error::custom)?;
+        let event_type = take_string_field(&mut entry, constants::field::EVENT_TYPE)?;
+        let event_ref = take_string_field(&mut entry, constants::field::EVENT_REF)?;
+        let payload = entry
+            .remove(constants::field::PAYLOAD)
+            .ok_or_else(|| de::Error::missing_field(constants::field::PAYLOAD))?;
+        Ok(Self {
+            event_type,
+            event_ref,
+            payload,
+        })
+    }
+}
+
+fn take_string_field<E>(
+    fields: &mut serde_json::Map<String, Value>,
+    key: &'static str,
+) -> Result<String, E>
+where
+    E: de::Error,
+{
+    fields
+        .remove(key)
+        .ok_or_else(|| E::missing_field(key))
+        .and_then(|value| match value {
+            Value::String(text) => Ok(text),
+            _ => Err(E::invalid_type(de::Unexpected::Other(key), &key)),
+        })
 }
 
 impl Serialize for BrowserRuntimeServiceStreamEntry {

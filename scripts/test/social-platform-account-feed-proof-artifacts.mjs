@@ -34,6 +34,8 @@ const requiredSupplementalProofFiles = [
   'test-results/social-alert-report-audit-history-bridge-proof/proof.json',
   'test-results/social-alert-report-audit-history-bridge-proof/audit-history-handoff.json',
   'output/browser-plan-proof/social-alert-report-audit-history-bridge-proof/01-social-alert-report-audit-history-bridge-proof.md',
+  'test-results/social-parent-notification-delivery-readiness-proof/proof.json',
+  'output/browser-plan-proof/social-parent-notification-delivery-readiness-proof/01-social-parent-notification-delivery-readiness-proof.md',
 ];
 
 if (!existsSync(proofRoot)) {
@@ -218,6 +220,7 @@ function manifestFor(rows, failures) {
       alertReportProviderPreflight: 'provider-adapter-required-proof-present',
       alertReportProviderStatusHandoff: 'provider-status-boundary-proof-present',
       reportWriterDelivery: 'parent-owned-proof-present',
+      parentNotificationDeliveryReadiness: 'parent-report-status-readiness-proof-present',
       appliedScheduleTimeBudget: 'parent-owned-proof-present',
       scheduleTimeBudgetCompiler: 'proof-present',
       parentSensitivitySettings: 'proof-present',
@@ -279,6 +282,7 @@ function markdownFor(manifest) {
     'Social alert/report provider preflight proof is present and requires provider adapter setup before delivery.',
     'Social alert/report provider status handoff proof is present and maps preflight rows to manual-required or unavailable provider status boundary rows.',
     'Parent-owned social report writer delivery-readiness proof is present.',
+    'Parent notification/report delivery readiness proof is present.',
     'Parent-owned social schedule/time-budget application-readiness proof is present.',
     'Schedule/time-budget compiler contract proof is present.',
     'Parent sensitivity settings contract proof is present.',
@@ -286,7 +290,7 @@ function markdownFor(manifest) {
     'Service-backed source custody mutation proof is present over redacted refs.',
     'It does not prove runtime connector behavior, native app control, final',
     'policy execution, external provider/report runtime delivery, runtime-applied schedules/budgets,',
-    'enforcement, or product checklist completion.',
+    'parent notification UI delivery, enforcement, or product checklist completion.',
   ].join('\n');
 }
 

@@ -67,6 +67,7 @@ mod browser_runtime_status;
 mod browser_runtime_stream_api;
 mod browser_runtime_stream_events;
 mod browser_runtime_stream_payload;
+mod browser_runtime_stream_request;
 #[cfg(test)]
 mod browser_runtime_stream_tests;
 #[cfg(test)]

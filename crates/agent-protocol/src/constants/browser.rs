@@ -48,6 +48,8 @@ pub const EVENT_BROWSER_ACTION_INTENT_STATUS_REQUESTED: &str =
     "browser.action-intent.status.requested";
 pub const EVENT_BROWSER_ACTION_INTENT_HANDOFF_REQUESTED: &str =
     "browser.action-intent.handoff.requested";
+pub const EVENT_BROWSER_RUNTIME_STREAM_REPORT_REQUESTED: &str =
+    "browser.runtime.stream.report.requested";
 pub const EVENT_BROWSER_SOCIAL_PROVIDER_RECEIPT_STATUS_REQUESTED: &str =
     "browser.social.provider-receipt.status.requested";
 pub const EVENT_BROWSER_INTERVENTION_COMMAND_ISSUED: &str = "browser.intervention.command.issued";
@@ -62,6 +64,7 @@ pub const SUBSCRIBER_BROWSER_POLICY_REQUEST: &str = "browser-policy-request";
 pub const SUBSCRIBER_BROWSER_POLICY_DECISION: &str = "browser-policy-decision";
 pub const SUBSCRIBER_BROWSER_ACTION_INTENT_STATUS: &str = "browser-action-intent-status";
 pub const SUBSCRIBER_BROWSER_ACTION_INTENT_HANDOFF: &str = "browser-action-intent-handoff";
+pub const SUBSCRIBER_BROWSER_RUNTIME_STREAM_REPORT: &str = "browser-runtime-stream-report";
 pub const SUBSCRIBER_BROWSER_SOCIAL_PROVIDER_RECEIPT_STATUS: &str =
     "browser-social-provider-receipt-status";
 pub const SUBSCRIBER_BROWSER_INTERVENTION_COMMAND: &str = "browser-intervention-command";
@@ -74,6 +77,7 @@ pub const TARGET_BROWSER_AI_ANALYZER: &str = "browser-ai-analyzer";
 pub const TARGET_BROWSER_POLICY_ENGINE: &str = "browser-policy-engine";
 pub const TARGET_BROWSER_ACTION_INTENT_STATUS: &str = "browser-action-intent-status";
 pub const TARGET_BROWSER_ACTION_INTENT_HANDOFF: &str = "browser-action-intent-handoff";
+pub const TARGET_BROWSER_RUNTIME_STREAM_REPORT: &str = "browser-runtime-stream-report";
 pub const TARGET_BROWSER_SOCIAL_PROVIDER_RECEIPT_STATUS: &str =
     "browser-social-provider-receipt-status";
 pub const TARGET_BROWSER_INTERVENTION_ADAPTER: &str = "browser-intervention-adapter";
@@ -88,16 +92,21 @@ pub const IDEMPOTENCY_BROWSER_ACTION_INTENT_STATUS_PREFIX: &str =
     "browser-action-intent-status-idempotency-";
 pub const IDEMPOTENCY_BROWSER_ACTION_INTENT_HANDOFF_PREFIX: &str =
     "browser-action-intent-handoff-idempotency-";
+pub const IDEMPOTENCY_BROWSER_RUNTIME_STREAM_REPORT_PREFIX: &str =
+    "browser-runtime-stream-report-idempotency-";
 pub const IDEMPOTENCY_BROWSER_SOCIAL_PROVIDER_RECEIPT_STATUS_PREFIX: &str =
     "browser-social-provider-receipt-status-idempotency-";
 pub const REQUEST_BROWSER_ACTION_INTENT_STATUS_PREFIX: &str =
     "browser-action-intent-status-request-";
 pub const REQUEST_BROWSER_ACTION_INTENT_HANDOFF_PREFIX: &str =
     "browser-action-intent-handoff-request-";
+pub const REQUEST_BROWSER_RUNTIME_STREAM_REPORT_PREFIX: &str =
+    "browser-runtime-stream-report-request-";
 pub const REQUEST_BROWSER_SOCIAL_PROVIDER_RECEIPT_STATUS_PREFIX: &str =
     "browser-social-provider-receipt-status-request-";
 pub const REQUEST_BROWSER_ACTION_INTENT_STATUS_TIMEOUT_MS: u64 = 50;
 pub const REQUEST_BROWSER_ACTION_INTENT_HANDOFF_TIMEOUT_MS: u64 = 50;
+pub const REQUEST_BROWSER_RUNTIME_STREAM_REPORT_TIMEOUT_MS: u64 = 250;
 pub const REQUEST_BROWSER_SOCIAL_PROVIDER_RECEIPT_STATUS_TIMEOUT_MS: u64 = 50;
 pub const TEST_BROWSER_RUNTIME_EVIDENCE_REF: &str = "browser-evidence-ref-test";
 pub const TEST_BROWSER_RUNTIME_JOURNAL_REF: &str = "browser-journal-ref-test";

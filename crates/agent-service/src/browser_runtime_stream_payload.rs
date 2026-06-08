@@ -11,6 +11,7 @@ use ocentra_parent_agent_protocol::{
     constants, BrowserEvidenceReadModel, ChildCommandKind, LogFieldValue, LogFields,
     ParentControllerActionKind, ParentControllerSource, PolicyPreviewReadModel,
 };
+use serde::{Deserialize, Serialize};
 
 use crate::{
     browser_runtime_delivery::{
@@ -20,7 +21,7 @@ use crate::{
     fields::fields_from_pairs,
 };
 
-#[derive(Clone, Debug, Default, PartialEq)]
+#[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
 pub(crate) struct BrowserRuntimeServiceStreamReport {
     pub(crate) observed_rows: usize,
     pub(crate) streamed_events: usize,

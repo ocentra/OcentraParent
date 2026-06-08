@@ -1,6 +1,6 @@
 # SOCIAL-23 Social Proof Artifact Manifest
 
-Generated: 2026-06-08T03:35:56.192Z
+Generated: 2026-06-08T10:22:24.055Z
 
 Rows checked: 22
 Proof-present rows: 21
@@ -59,6 +59,7 @@ Service-backed social alert/report intent UI proof is present for the real Brows
 Social alert/report provider preflight proof is present and requires provider adapter setup before delivery.
 Social alert/report provider status handoff proof is present and maps preflight rows to manual-required or unavailable provider status boundary rows.
 Parent-owned social report writer delivery-readiness proof is present.
+Parent notification/report delivery readiness proof is present.
 Parent-owned social schedule/time-budget application-readiness proof is present.
 Schedule/time-budget compiler contract proof is present.
 Parent sensitivity settings contract proof is present.
@@ -66,4 +67,4 @@ Source custody settings contract proof is present over source/privacy refs.
 Service-backed source custody mutation proof is present over redacted refs.
 It does not prove runtime connector behavior, native app control, final
 policy execution, external provider/report runtime delivery, runtime-applied schedules/budgets,
-enforcement, or product checklist completion.
+parent notification UI delivery, enforcement, or product checklist completion.

@@ -4,10 +4,8 @@ use ocentra_parent_agent_protocol::{
 
 use crate::{
     activity_api::{activity_store_error_event, load_browser_evidence_read_model},
-    browser_runtime_stream_payload::{
-        browser_runtime_event_chain_stream_payload,
-        stream_browser_runtime_event_chain_for_read_model_with_policy_preview,
-    },
+    browser_runtime_stream_payload::browser_runtime_event_chain_stream_payload,
+    browser_runtime_stream_request::request_browser_runtime_service_stream_report,
     event_builder::build_event,
     policy_preview_api::load_policy_preview_read_model,
 };
@@ -18,11 +16,9 @@ pub async fn build_browser_runtime_event_chain_stream_report(
     match load_browser_evidence_read_model().await {
         Some(read_model) => {
             let policy_preview = load_policy_preview_read_model().await;
-            let stream = stream_browser_runtime_event_chain_for_read_model_with_policy_preview(
-                &read_model,
-                policy_preview.as_ref(),
-            )
-            .await;
+            let stream = request_browser_runtime_service_stream_report(read_model, policy_preview)
+                .await
+                .unwrap_or_default();
             build_event(
                 constants::event_id::BROWSER_RUNTIME_EVENT_CHAIN_STREAM_REPORTED,
                 &command.message_id,

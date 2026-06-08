@@ -1,6 +1,6 @@
 # SOCIAL-24 Rollout Manual-Required Labels
 
-Generated: 2026-06-08T03:35:56.241Z
+Generated: 2026-06-08T10:22:24.057Z
 
 Rows checked: 23
 Proof-present rows: 21
@@ -60,10 +60,11 @@ Service-backed social alert/report intent UI proof is present for the real Brows
 Social alert/report provider preflight proof is present and requires provider adapter setup before delivery.
 Social alert/report provider status handoff proof is present and maps preflight rows to manual-required or unavailable provider status boundary rows.
 Parent-owned report writer delivery-readiness proof is present.
+Parent notification/report delivery readiness proof is present.
 Parent-owned schedule/time-budget application-readiness proof is present.
 Schedule/time-budget compiler proof and parent sensitivity
 settings proof are present. Source custody settings proof is present over
 source/privacy refs, and service-backed source custody mutation proof is
-present. Connector/native runtime, external provider delivery, runtime-applied
-schedules/budgets, final policy execution, and enforcement remain
-unclaimed.
+present. Connector/native runtime, external provider delivery, parent
+notification UI delivery, runtime-applied schedules/budgets, final policy
+execution, and enforcement remain unclaimed.

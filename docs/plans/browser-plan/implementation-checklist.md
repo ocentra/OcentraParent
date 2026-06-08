@@ -325,6 +325,23 @@ provider delivery, provider receipt ingestion runtime, final policy execution,
 connector/native runtime, browser mutation, child intervention, unmanaged exact
 URL support, enforcement, product checklist upgrade, release readiness, or
 product completion.
+`social-platform-account-feed-proof-artifacts` and
+`social-platform-account-feed-rollout-gate` now require the
+`social-parent-notification-delivery-readiness-proof` JSON and markdown
+artifacts before SOCIAL-23/SOCIAL-24 proof and rollout labels pass. The rollout
+state remains partial/manual-required.
+
+WP13 service stream eventing addendum:
+`browser-runtime-service-stream-eventing-proof` adds a named local
+`browser.runtime.stream.report.requested` eventing request/subscriber boundary
+inside the Rust service. The existing portal command remains
+`agent.browser.runtime.event-chain.stream.get`, but service projection now
+round-trips through the reusable `ocentra-eventing` request/response path before
+building the same public payload. Evidence is written to
+`test-results/browser-runtime-service-stream-eventing-proof/proof.json` and
+`output/browser-plan-proof/browser-runtime-service-stream-eventing/01-browser-runtime-service-stream-eventing-proof.md`.
+The proof does not claim portal wire changes, adapter dispatch, browser
+mutation, child intervention execution, final policy execution, or enforcement.
 
 SOCIAL-23/SOCIAL-24 preference preflight addendum:
 `social-alert-report-preference-preflight-proof` adds

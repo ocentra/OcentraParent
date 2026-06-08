@@ -28,6 +28,7 @@ use crate::{
     websocket::handle_command_text_for_test,
 };
 
+mod browser_runtime_service_stream_eventing_tests;
 mod browser_runtime_social_provider_receipt_service_status_tests;
 mod browser_runtime_stream_test_assertions;
 
