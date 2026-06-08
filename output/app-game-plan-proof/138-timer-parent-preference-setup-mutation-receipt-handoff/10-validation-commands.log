@@ -1,0 +1,26 @@
+cmd /c npm run build --workspace @ocentra-parent/agent-protocol-domain
+PASS
+
+cmd /c npm run test --workspace @ocentra-parent/agent-protocol-domain -- --run tests/app-game-timer-parent-preference-setup-request.test.ts
+PASS
+
+cargo test -p ocentra-parent-agent-service app_game_timer_parent_preference_setup_request --quiet
+PASS
+
+cargo fmt --all --check
+PASS
+
+git diff --check
+PASS
+
+node scripts/check-no-test-doubles.mjs
+PASS
+
+node scripts/check-source-shape.mjs
+PASS (existing advisories only)
+
+cmd /c npm run lanes:guard
+PASS
+
+cmd /c npm run hub:guard
+PENDING

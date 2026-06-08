@@ -1291,7 +1291,13 @@ diagnostics, or raw private source rows.
       into the local ActivityStore, keeping the parent setup command on the
       shared app/game journal spine while still not mutating parent
       preferences, notification rules, adapters, platforms, delivery paths,
-      raw private rows, or raw targets.
+      raw private rows, or raw targets. The accepted request result also
+      carries parent-safe mutation receipt refs/status, and the service stores
+      a local receipt event beside the action-result row. That receipt proves
+      the request was captured for the future preference mutation path while
+      keeping durable preference mutation, notification rule writes, provider
+      delivery, child runtime delivery, adapter dispatch, platform enforcement,
+      raw private rows, and raw targets unclaimed.
 - [ ] Adapter capability status per platform. Cross-platform authority and
       broad-blocking gate contracts now record manual-required, unavailable,
       and not-claimed proof requirements. Platform-extension routing now maps

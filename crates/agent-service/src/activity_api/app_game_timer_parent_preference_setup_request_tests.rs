@@ -54,6 +54,24 @@ async fn app_game_timer_parent_preference_setup_request_command_returns_accepted
             || result.action_result_persistence_status
                 == constants::value::APP_GAME_PARENT_PREFERENCE_SETUP_ACTION_RESULT_UNAVAILABLE
     );
+    assert_eq!(
+        result.parent_preference_mutation_receipt_id,
+        parent_preference_mutation_receipt_id()
+    );
+    assert_eq!(
+        result.parent_preference_mutation_receipt_ids,
+        vec![
+            parent_preference_mutation_receipt_id(),
+            constants::value::APP_GAME_CHILD_UX_PARENT_PREFERENCE_SETUP_PREFIX.to_string(),
+            constants::value::APP_GAME_CHILD_UX_PARENT_SURFACE_INTENT_PREFIX.to_string()
+        ]
+    );
+    assert!(
+        result.parent_preference_mutation_receipt_status
+            == constants::value::APP_GAME_PARENT_PREFERENCE_SETUP_MUTATION_RECEIPT_PERSISTED
+            || result.parent_preference_mutation_receipt_status
+                == constants::value::APP_GAME_PARENT_PREFERENCE_SETUP_MUTATION_RECEIPT_UNAVAILABLE
+    );
     assert!(!result.parent_preference_mutation_claimed);
     assert!(!result.notification_rule_mutation_claimed);
     assert!(!result.provider_delivery_claimed);
@@ -84,6 +102,9 @@ async fn app_game_timer_parent_preference_setup_request_persists_action_result_r
             constants::activity_store::TEST_TRACKING_RETENTION_DELETE_OBSERVED_AT,
         )
         .expect(constants::error::ACTIVITY_STORE_QUERIES);
+    let status = store
+        .status()
+        .expect(constants::error::ACTIVITY_STORE_QUERIES);
     cleanup_path(&store_path);
 
     assert_eq!(
@@ -91,6 +112,21 @@ async fn app_game_timer_parent_preference_setup_request_persists_action_result_r
         constants::value::APP_GAME_PARENT_PREFERENCE_SETUP_ACTION_RESULT_PERSISTED
     );
     assert!(result.action_result_persistence_claimed);
+    assert_eq!(
+        result.parent_preference_mutation_receipt_id,
+        parent_preference_mutation_receipt_id()
+    );
+    assert_eq!(
+        result.parent_preference_mutation_receipt_status,
+        constants::value::APP_GAME_PARENT_PREFERENCE_SETUP_MUTATION_RECEIPT_PERSISTED
+    );
+    assert!(result.parent_preference_mutation_receipt_claimed);
+    assert!(!result.parent_preference_mutation_claimed);
+    assert_eq!(status.events_stored, 2);
+    assert_eq!(
+        status.last_event_id,
+        Some(parent_preference_mutation_receipt_id())
+    );
     assert_eq!(model.approval_action_result_returned, 1);
     assert_eq!(
         model.approval_action_result_rows[0].result_id,
@@ -109,6 +145,14 @@ async fn app_game_timer_parent_preference_setup_request_persists_action_result_r
     assert!(model.approval_action_result_rows[0]
         .enforcement_result
         .is_none());
+}
+
+fn parent_preference_mutation_receipt_id() -> String {
+    let mut receipt_id =
+        constants::value::APP_GAME_CHILD_UX_PARENT_PREFERENCE_SETUP_PREFIX.to_string();
+    receipt_id.push(constants::delimiter::HYPHEN);
+    receipt_id.push_str(constants::value::APP_GAME_PARENT_PREFERENCE_SETUP_MUTATION_RECEIPT_SUFFIX);
+    receipt_id
 }
 
 fn command_envelope() -> AgentCommandEnvelope {
