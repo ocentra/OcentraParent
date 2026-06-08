@@ -18,6 +18,9 @@ export const TrackingIosLocationManualRequiredProofIdSchema = TrackingIosLocatio
 export const TrackingIosLocationManualRequiredProofReferenceSchema = TrackingIosLocationManualRequiredTextSchema.pipe(
   Schema.brand('TrackingIosLocationManualRequiredProofReference')
 );
+export const TrackingIosLocationRuntimeArtifactRefSchema = TrackingIosLocationManualRequiredTextSchema.pipe(
+  Schema.brand('TrackingIosLocationRuntimeArtifactRef')
+);
 
 export const TrackingIosLocationManualRequiredCaseSchema = withParser(
   Schema.Literal(
@@ -146,6 +149,11 @@ const TrackingIosLocationManualRequiredProofReadModelBaseSchema = Schema.Struct(
   family: FamilyReferenceSchema,
   device: ParentDeviceReferenceSchema,
   sourceProofRefs: Schema.Array(TrackingIosLocationManualRequiredProofReferenceSchema).pipe(Schema.minItems(1)),
+  localEvidenceArtifactRefs: Schema.Array(TrackingIosLocationRuntimeArtifactRefSchema).pipe(Schema.minItems(1)),
+  requiredRuntimeArtifactRefs: Schema.Array(TrackingIosLocationRuntimeArtifactRefSchema).pipe(Schema.minItems(1)),
+  presentRuntimeArtifactRefs: Schema.Array(TrackingIosLocationRuntimeArtifactRefSchema),
+  missingRuntimeArtifactRefs: Schema.Array(TrackingIosLocationRuntimeArtifactRefSchema).pipe(Schema.minItems(1)),
+  runtimeArtifactSetComplete: Schema.Literal(false),
   runtimeEvidenceRefs: Schema.Array(ParentEvidenceReferenceSchema),
   rows: Schema.Array(TrackingIosLocationManualRequiredProofRowSchema).pipe(Schema.minItems(1)),
   whenInUseAuthorizationManualRequiredCount: TrackingIosLocationManualRequiredNonNegativeIntegerSchema,
@@ -207,6 +215,23 @@ export type TrackingIosLocationManualRequiredProofOptions = {
   readonly sourceProofRefs: readonly string[];
 };
 
+export const LocalTrackingIosLocationEvidenceArtifactRefs = [
+  'output/tracking-plan-proof/11-ios-core-location-foreground-adapter/18-ios-simulator-proof.json',
+  'output/tracking-plan-proof/12-ios-background-region-significant-change-adapter/18-ios-simulator-proof.json',
+] as const;
+
+export const RequiredTrackingIosLocationRuntimeArtifactRefs = [
+  'output/tracking-plan-proof/ios-core-location/when-in-use-authorization-state.json',
+  'output/tracking-plan-proof/ios-core-location/foreground-location-events.ndjson',
+  'output/tracking-plan-proof/ios-core-location/degraded-location-state.json',
+  'output/tracking-plan-proof/ios-region-monitoring/02-authorization-state.json',
+  'output/tracking-plan-proof/ios-region-monitoring/05-region-transitions.ndjson',
+  'output/tracking-plan-proof/ios-region-monitoring/significant-change-events.ndjson',
+  'output/tracking-plan-proof/ios-region-monitoring/visit-events.ndjson',
+  'output/tracking-plan-proof/ios-region-monitoring/background-terminated-relaunch-result.json',
+  'output/tracking-plan-proof/ios-region-monitoring/authority-entitlement-approval.json',
+] as const;
+
 export function buildTrackingIosLocationManualRequiredProofReadModel(
   options: TrackingIosLocationManualRequiredProofOptions,
   inputRows: readonly TrackingIosLocationManualRequiredInputRow[]
@@ -225,6 +250,11 @@ export function buildTrackingIosLocationManualRequiredProofReadModel(
       platform: 'ios',
     },
     sourceProofRefs: options.sourceProofRefs,
+    localEvidenceArtifactRefs: [...LocalTrackingIosLocationEvidenceArtifactRefs],
+    requiredRuntimeArtifactRefs: [...RequiredTrackingIosLocationRuntimeArtifactRefs],
+    presentRuntimeArtifactRefs: [],
+    missingRuntimeArtifactRefs: [...RequiredTrackingIosLocationRuntimeArtifactRefs],
+    runtimeArtifactSetComplete: false,
     runtimeEvidenceRefs: rows.flatMap(runtimeEvidenceRefsForRow),
     rows,
     whenInUseAuthorizationManualRequiredCount: countRows(
@@ -357,6 +387,7 @@ function trackingIosLocationManualRequiredProofReadModelIsHonest(
 ): boolean {
   return (
     readModelCountsAreHonest(readModel) &&
+    readModelArtifactRefsAreHonest(readModel) &&
     readModelNonClaimsAreHonest(readModel) &&
     readModel.rows.every(
       (row) => row.claimState === 'simulator-package-observed' || row.claimState === 'manual-required'
@@ -394,6 +425,17 @@ function readModelCountsAreHonest(readModel: TrackingIosLocationManualRequiredPr
     readModel.backgroundTerminatedRelaunchManualRequiredCount ===
       countRows(readModel.rows, (row) => row.caseKind === 'background-terminated-relaunch-manual-required') &&
     readModel.runtimeEvidenceRefs.length === runtimeEvidenceRefCount
+  );
+}
+
+function readModelArtifactRefsAreHonest(readModel: TrackingIosLocationManualRequiredProofReadModelCandidate): boolean {
+  return (
+    readModel.localEvidenceArtifactRefs.length > 0 &&
+    readModel.requiredRuntimeArtifactRefs.length ===
+      readModel.presentRuntimeArtifactRefs.length + readModel.missingRuntimeArtifactRefs.length &&
+    readModel.presentRuntimeArtifactRefs.length === 0 &&
+    readModel.missingRuntimeArtifactRefs.length === RequiredTrackingIosLocationRuntimeArtifactRefs.length &&
+    readModel.runtimeArtifactSetComplete === false
   );
 }
 

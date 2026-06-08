@@ -63,7 +63,9 @@ authorization or foreground sample proof.
 `node scripts/test/tracking-ios-location-manual-required-proof.mjs` now writes
 parent-domain read-model proof rows for When In Use authorization, foreground
 sample, and denied/restricted/services-disabled gaps under this workpack root.
-Those rows attach simulator package/manual proof refs and keep authorization,
+Those rows attach simulator package/manual proof refs plus an explicit runtime
+artifact inventory for the missing When In Use authorization state, foreground
+location events, and degraded location state artifacts, and keep authorization,
 sample capture, physical-device, notification, provider, authority, and
 product-ready claims false.
 `node scripts/test/tracking-ios-location-wp33-gate-proof.mjs` now wraps the same

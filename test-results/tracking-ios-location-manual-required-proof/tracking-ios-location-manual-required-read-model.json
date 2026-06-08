@@ -17,6 +17,34 @@
     "docs/plans/tracking-plan/workpacks/11-ios-core-location-foreground-adapter.md",
     "docs/plans/tracking-plan/workpacks/12-ios-background-region-significant-change-adapter.md"
   ],
+  "localEvidenceArtifactRefs": [
+    "output/tracking-plan-proof/11-ios-core-location-foreground-adapter/18-ios-simulator-proof.json",
+    "output/tracking-plan-proof/12-ios-background-region-significant-change-adapter/18-ios-simulator-proof.json"
+  ],
+  "requiredRuntimeArtifactRefs": [
+    "output/tracking-plan-proof/ios-core-location/when-in-use-authorization-state.json",
+    "output/tracking-plan-proof/ios-core-location/foreground-location-events.ndjson",
+    "output/tracking-plan-proof/ios-core-location/degraded-location-state.json",
+    "output/tracking-plan-proof/ios-region-monitoring/02-authorization-state.json",
+    "output/tracking-plan-proof/ios-region-monitoring/05-region-transitions.ndjson",
+    "output/tracking-plan-proof/ios-region-monitoring/significant-change-events.ndjson",
+    "output/tracking-plan-proof/ios-region-monitoring/visit-events.ndjson",
+    "output/tracking-plan-proof/ios-region-monitoring/background-terminated-relaunch-result.json",
+    "output/tracking-plan-proof/ios-region-monitoring/authority-entitlement-approval.json"
+  ],
+  "presentRuntimeArtifactRefs": [],
+  "missingRuntimeArtifactRefs": [
+    "output/tracking-plan-proof/ios-core-location/when-in-use-authorization-state.json",
+    "output/tracking-plan-proof/ios-core-location/foreground-location-events.ndjson",
+    "output/tracking-plan-proof/ios-core-location/degraded-location-state.json",
+    "output/tracking-plan-proof/ios-region-monitoring/02-authorization-state.json",
+    "output/tracking-plan-proof/ios-region-monitoring/05-region-transitions.ndjson",
+    "output/tracking-plan-proof/ios-region-monitoring/significant-change-events.ndjson",
+    "output/tracking-plan-proof/ios-region-monitoring/visit-events.ndjson",
+    "output/tracking-plan-proof/ios-region-monitoring/background-terminated-relaunch-result.json",
+    "output/tracking-plan-proof/ios-region-monitoring/authority-entitlement-approval.json"
+  ],
+  "runtimeArtifactSetComplete": false,
   "runtimeEvidenceRefs": [
     {
       "evidenceReferenceId": "wp11-when-in-use-authorization-manual-required",

@@ -66,7 +66,9 @@ terminated/relaunch, notification, entitlement, or physical-device proof.
 parent-domain read-model proof rows for Always authorization, region
 transitions, significant-change/visit events, and background
 terminated/relaunch gaps under this workpack root. Those rows attach simulator
-package/manual proof refs and keep Core Location background runtime,
+package/manual proof refs plus an explicit runtime artifact inventory for the
+missing Always authorization, region transition, significant-change, visit,
+background relaunch, and entitlement approval artifacts, and keep Core Location background runtime,
 entitlement, notification delivery, physical-device, authority, and
 product-ready claims false.
 `node scripts/test/tracking-ios-location-wp33-gate-proof.mjs` now wraps the same

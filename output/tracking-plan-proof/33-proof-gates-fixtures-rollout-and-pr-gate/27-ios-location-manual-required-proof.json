@@ -1,8 +1,8 @@
 {
   "proofMode": "tracking-ios-location-wp33-gate-proof",
   "generatedAt": "2026-06-06T14:25:00.000Z",
-  "branch": "codex/tracking-ios-location-wp33-gate-proof",
-  "baseCommitAtGeneration": "0a00b9ec5445ca86eb60d3c1c2ca460b30d419f7",
+  "branch": "codex/tracking-plan-full-continuation-a",
+  "baseCommitAtGeneration": "13615298fc1bbb27fe3455587b6e30a1beb81329",
   "commands": [
     {
       "command": "node scripts/test/tracking-ios-location-manual-required-proof.mjs",
@@ -22,6 +22,11 @@
     "significantChangeVisitManualRequiredCount": 1,
     "backgroundTerminatedRelaunchManualRequiredCount": 1,
     "runtimeEvidenceRefs": 7,
+    "localEvidenceArtifactRefs": 2,
+    "requiredRuntimeArtifactRefs": 9,
+    "presentRuntimeArtifactRefs": 0,
+    "missingRuntimeArtifactRefs": 9,
+    "runtimeArtifactSetComplete": false,
     "claimStates": {
       "simulator-package-observed": 7
     },

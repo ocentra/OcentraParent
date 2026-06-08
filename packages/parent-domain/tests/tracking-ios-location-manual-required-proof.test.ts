@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import {
+  RequiredTrackingIosLocationRuntimeArtifactRefs,
   TrackingIosLocationManualRequiredProofReadModelSchema,
   TrackingIosLocationManualRequiredProofRowSchema,
   buildTrackingIosLocationManualRequiredProofReadModel,
@@ -44,6 +45,14 @@ describe('tracking iOS location manual-required proof', () => {
     expect(readModel.significantChangeVisitManualRequiredCount).toBe(1);
     expect(readModel.backgroundTerminatedRelaunchManualRequiredCount).toBe(1);
     expect(readModel.runtimeEvidenceRefs).toEqual(expectedRuntimeEvidenceRefs());
+    expect(readModel.localEvidenceArtifactRefs).toEqual([
+      'output/tracking-plan-proof/11-ios-core-location-foreground-adapter/18-ios-simulator-proof.json',
+      'output/tracking-plan-proof/12-ios-background-region-significant-change-adapter/18-ios-simulator-proof.json',
+    ]);
+    expect(readModel.requiredRuntimeArtifactRefs).toEqual([...RequiredTrackingIosLocationRuntimeArtifactRefs]);
+    expect(readModel.presentRuntimeArtifactRefs).toEqual([]);
+    expect(readModel.missingRuntimeArtifactRefs).toEqual([...RequiredTrackingIosLocationRuntimeArtifactRefs]);
+    expect(readModel.runtimeArtifactSetComplete).toBe(false);
   });
 
   it('keeps parent-visible status tokens and manual proof refs attached to each WP11/WP12 gap', () => {

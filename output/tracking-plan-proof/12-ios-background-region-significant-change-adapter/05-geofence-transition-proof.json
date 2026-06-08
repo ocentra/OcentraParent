@@ -180,6 +180,27 @@
   "regionTransitionCount": 0,
   "significantChangeEventCount": 0,
   "visitEventCount": 0,
+  "localEvidenceArtifactRefs": [
+    "output/tracking-plan-proof/11-ios-core-location-foreground-adapter/18-ios-simulator-proof.json",
+    "output/tracking-plan-proof/12-ios-background-region-significant-change-adapter/18-ios-simulator-proof.json"
+  ],
+  "requiredRuntimeArtifactRefs": [
+    "output/tracking-plan-proof/ios-region-monitoring/02-authorization-state.json",
+    "output/tracking-plan-proof/ios-region-monitoring/05-region-transitions.ndjson",
+    "output/tracking-plan-proof/ios-region-monitoring/significant-change-events.ndjson",
+    "output/tracking-plan-proof/ios-region-monitoring/visit-events.ndjson",
+    "output/tracking-plan-proof/ios-region-monitoring/background-terminated-relaunch-result.json",
+    "output/tracking-plan-proof/ios-region-monitoring/authority-entitlement-approval.json"
+  ],
+  "presentRuntimeArtifactRefs": [],
+  "missingRuntimeArtifactRefs": [
+    "output/tracking-plan-proof/ios-region-monitoring/02-authorization-state.json",
+    "output/tracking-plan-proof/ios-region-monitoring/05-region-transitions.ndjson",
+    "output/tracking-plan-proof/ios-region-monitoring/significant-change-events.ndjson",
+    "output/tracking-plan-proof/ios-region-monitoring/visit-events.ndjson",
+    "output/tracking-plan-proof/ios-region-monitoring/background-terminated-relaunch-result.json",
+    "output/tracking-plan-proof/ios-region-monitoring/authority-entitlement-approval.json"
+  ],
   "nonClaims": {
     "whenInUseAuthorizationClaimed": false,
     "foregroundLocationSampleClaimed": false,
