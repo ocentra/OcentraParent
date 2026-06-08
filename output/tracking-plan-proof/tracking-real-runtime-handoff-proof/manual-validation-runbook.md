@@ -1,12 +1,18 @@
 # Tracking Real Runtime Handoff Manual Validation Runbook
 
 - generatedAt: 2026-06-08T01:05:00.000Z
-- commit: 82c250a077274559274e2d27d681c475e1d25a18
+- commit: 86d47767e940a109de9ece7a8737e835a54568e2
 - currentProofTier: P3_LOCAL_DEV_MACHINE
 - requiredProofTier: P4_REAL_RUNTIME_HANDOFF
 - productReadyClaimed: false
 - ciRunnableRowCount: 0
 - fullProductUiLocalArtifactCount: 6
+- androidEmulatorRequiredArtifactCount: 12
+- androidEmulatorPresentArtifactCount: 12
+- androidEmulatorMissingArtifactCount: 0
+- androidEmulatorPermissionUiArtifactCount: 3
+- androidEmulatorRuntimeArtifactCount: 8
+- androidEmulatorLocalGeofenceTransitionCount: 3
 - childRuntimeRequiredArtifactCount: 10
 - childRuntimePresentArtifactCount: 0
 - childRuntimeMissingArtifactCount: 10

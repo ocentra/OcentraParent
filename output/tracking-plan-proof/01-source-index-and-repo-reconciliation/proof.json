@@ -3,7 +3,7 @@
   "proofMode": "tracking-source-reconciliation-gap-map-proof",
   "generatedAt": "2026-06-08T00:35:00.000Z",
   "branch": "codex/tracking-plan-full-continuation-a",
-  "baseCommitAtGeneration": "82c250a077274559274e2d27d681c475e1d25a18",
+  "baseCommitAtGeneration": "86d47767e940a109de9ece7a8737e835a54568e2",
   "requiredProofTier": "P1_DOC_SOURCE_RECONCILIATION",
   "currentProofTier": "P1_DOC_SOURCE_RECONCILIATION",
   "currentStatus": "proved",
@@ -11,8 +11,8 @@
     {
       "path": "docs/features/location-geofence-device-status.md",
       "exists": true,
-      "sha256": "a918fce4cde0b6edbe87f464a9be9c4512d9ac1004d0a42e1cefb3ff92a20185",
-      "lineCount": 1244
+      "sha256": "8c335048c5a7eb7ba125a48df99e9a706d45de1e32843a33950be45497b87247",
+      "lineCount": 1255
     },
     {
       "path": "docs/expectations/location-geofence.md",
@@ -47,8 +47,8 @@
     {
       "path": "docs/plans/tracking-plan/current-tracking-snapshot.md",
       "exists": true,
-      "sha256": "5bd75a35f471d5de219fcc4bea4ce1485fd56b6da67df6bccaee6a77755c3fb2",
-      "lineCount": 235
+      "sha256": "11f454bb2a87e367389cb25254afcb66d6597fcd7f8ade0aa0fcd803fb89174d",
+      "lineCount": 244
     },
     {
       "path": "docs/plans/tracking-plan/pasted-content-coverage-audit.md",
@@ -59,8 +59,8 @@
     {
       "path": "docs/plans/tracking-plan/implementation-checklist.md",
       "exists": true,
-      "sha256": "465db7c6d683be0af875c019c7741983ab415143a85ede12908e63c90e78f5d9",
-      "lineCount": 1114
+      "sha256": "30d87efe396b73927d813aa7b10f762297eaab1254fbb539de5d1918a7ff8bec",
+      "lineCount": 1122
     }
   ],
   "sourceIndexAssertions": [
@@ -114,6 +114,7 @@
     "ios-privacy-disclosure-release-gate",
     "wsl-local-replay",
     "hosted-ui-artifact-inventory",
+    "android-emulator-artifact-inventory",
     "android-system-geofence-blocker",
     "notification-receipt-boundary",
     "notification-preference-preflight",
