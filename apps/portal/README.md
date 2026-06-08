@@ -64,10 +64,11 @@ The Playwright check starts the Rust agent and Vite portal on the scaffold smoke
   through the command-result lane, without claiming durable preference
   mutation, notification rule writes, delivery, outbox runtime, adapter
   dispatch, or platform enforcement.
-- Renders parent-safe action-result persistence, mutation receipt, and
-  child-runtime handoff refs/status for accepted app/game parent preference
-  setup command results while keeping actual child delivery, provider delivery,
-  receipt ingestion, durable outbox runtime, adapter dispatch, broad blocking,
+- Renders parent-safe action-result persistence, mutation receipt,
+  child-runtime handoff, and service-local child-runtime queue refs/status for
+  accepted app/game parent preference setup command results while keeping
+  actual child delivery, provider delivery, receipt ingestion, durable outbox
+  runtime, adapter dispatch, broad blocking,
   platform enforcement, raw target values, and private diagnostics unclaimed.
 - Displays an App/Game Sessions route overlay for app/game notification
   parent-surface rows by projecting the live service notification-readiness

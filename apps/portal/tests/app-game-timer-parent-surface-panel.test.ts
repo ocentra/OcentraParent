@@ -321,6 +321,14 @@ function expectParentPreferenceSetupCommandResultVisibility() {
     value: 'Handoff ready',
   });
   expect(details).toContainEqual({
+    label: 'Child runtime queue refs',
+    value: 'app-game-parent-preference-setup-child-runtime-queue::request-1',
+  });
+  expect(details).toContainEqual({
+    label: 'Child runtime queue status',
+    value: 'Ready',
+  });
+  expect(details).toContainEqual({
     label: 'Parent preference setup mutation',
     value: 'Not claimed',
   });
@@ -611,6 +619,10 @@ function parentPreferenceSetupRequestedEvent(): AgentEventEnvelope {
         childRuntimeDeliveryHandoffIds: ['app-game-parent-preference-setup-child-runtime-handoff::request-1'],
         childRuntimeDeliveryHandoffStatus: 'handoff-ready',
         childRuntimeDeliveryHandoffClaimed: false,
+        childRuntimeDeliveryQueueId: 'app-game-parent-preference-setup-child-runtime-queue::request-1',
+        childRuntimeDeliveryQueueIds: ['app-game-parent-preference-setup-child-runtime-queue::request-1'],
+        childRuntimeDeliveryQueueStatus: 'queued',
+        childRuntimeDeliveryQueueClaimed: true,
         commandBoundaryClaimed: true,
         actionResultHandoffClaimed: true,
         actionResultPersistenceClaimed: true,

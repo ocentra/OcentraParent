@@ -1,0 +1,23 @@
+cmd /c npm run build --workspace @ocentra-parent/portal-domain
+PASS - tsc -p tsconfig.json && fix-esm-imports completed.
+
+cmd /c npm run type-check --workspace @ocentra-parent/portal
+PASS - tsc -p tsconfig.json --noEmit completed.
+
+cmd /c npm run test --workspace @ocentra-parent/portal -- --run tests/app-game-timer-parent-surface-panel.test.ts
+PASS - 19 test files passed; 79 tests passed. Vite printed existing esbuild/oxc deprecation warnings.
+
+git diff --check
+PASS - no whitespace errors.
+
+node scripts/check-no-test-doubles.mjs
+PASS - No test doubles found across 2179 checked source files.
+
+node scripts/check-source-shape.mjs
+PASS - Source shape guard passed with existing advisory warnings only.
+
+cmd /c npm run lanes:guard
+PASS - lane-guard-ok for codex-c on codex/app-game-control-product-completion.
+
+cmd /c npm run hub:guard
+PASS - hub-guard-ok for codex-c after WP142 edits.

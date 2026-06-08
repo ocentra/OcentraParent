@@ -1317,7 +1317,13 @@ diagnostics, or raw private source rows.
       without claiming actual child runtime delivery, provider delivery,
       receipt ingestion, durable production outbox storage, adapter dispatch,
       broad blocking, platform enforcement, raw private source rows, raw target
-      values, or private diagnostics.
+      values, or private diagnostics. The portal command-result panel now
+      renders those queue refs/status as parent-safe service-local readiness
+      beside the action-result, mutation receipt, and child-runtime handoff
+      rows, still without upgrading queue readiness into child delivery,
+      provider delivery, receipt ingestion, durable outbox runtime, adapter
+      dispatch, broad blocking, platform enforcement, raw private source rows,
+      raw target values, or private diagnostics.
 - [ ] Adapter capability status per platform. Cross-platform authority and
       broad-blocking gate contracts now record manual-required, unavailable,
       and not-claimed proof requirements. Platform-extension routing now maps

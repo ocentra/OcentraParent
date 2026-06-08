@@ -72,6 +72,8 @@ const TimerParentSurfaceDetails = {
   ChildUxParentSurfaceIntentUnavailable: decodeDisplayText('Child UX parent-surface unavailable'),
   ChildRuntimeHandoffRefs: decodeDisplayText('Child runtime handoff refs'),
   ChildRuntimeHandoffStatus: decodeDisplayText('Child runtime handoff status'),
+  ChildRuntimeQueueRefs: decodeDisplayText('Child runtime queue refs'),
+  ChildRuntimeQueueStatus: decodeDisplayText('Child runtime queue status'),
   ParentPreferenceSetupAcceptedAt: decodeDisplayText('Parent preference setup accepted at'),
   ParentPreferenceSetupActionResultRefs: decodeDisplayText('Parent preference setup action-result refs'),
   ParentPreferenceSetupActionResultStatus: decodeDisplayText('Parent preference setup action-result status'),
@@ -513,6 +515,14 @@ export function createAppGameTimerParentPreferenceSetupCommandResultDetails(
       TimerParentSurfaceDetails.ChildRuntimeHandoffStatus,
       parentPreferenceSetupResultStatus(result.value.childRuntimeDeliveryHandoffStatus)
     ),
+    detail(
+      TimerParentSurfaceDetails.ChildRuntimeQueueRefs,
+      joinedOrNotReported(result.value.childRuntimeDeliveryQueueIds)
+    ),
+    detail(
+      TimerParentSurfaceDetails.ChildRuntimeQueueStatus,
+      parentPreferenceSetupResultStatus(result.value.childRuntimeDeliveryQueueStatus)
+    ),
     detail(TimerParentSurfaceDetails.ParentPreferenceSetupMutation, Readable.NotClaimed),
     detail(TimerParentSurfaceDetails.ParentPreferenceSetupRuleMutation, Readable.NotClaimed),
     detail(PortalDetails.ChildDelivery, claimedValue(result.value.childRuntimeDeliveryClaimed)),
@@ -557,6 +567,9 @@ function parentPreferenceSetupResultStatus(status: string): DisplayText {
   }
   if (status === 'persisted') {
     return Readable.Persisted;
+  }
+  if (status === 'queued') {
+    return Readable.Ready;
   }
   if (status === 'accepted') {
     return Readable.Ready;
