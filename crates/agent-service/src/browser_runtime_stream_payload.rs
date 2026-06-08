@@ -1,13 +1,15 @@
 use ocentra_parent_agent_core::{
-    publish_browser_runtime_chain_for_input,
+    publish_browser_runtime_chain_for_input, publish_parent_child_runtime_for_validated_intent,
     request_browser_runtime_action_intent_handoff_for_input,
     request_browser_runtime_action_intent_status_for_input,
     request_browser_runtime_social_provider_receipt_status_for_input,
     BrowserRuntimeActionIntentHandoffResponse, BrowserRuntimeActionIntentStatusResponse,
     BrowserRuntimeReport, BrowserRuntimeSocialProviderReceiptStatusResponse,
+    ParentChildRuntimeEventPayload, ParentChildRuntimeInput,
 };
 use ocentra_parent_agent_protocol::{
-    constants, BrowserEvidenceReadModel, LogFieldValue, LogFields, PolicyPreviewReadModel,
+    constants, BrowserEvidenceReadModel, ChildCommandKind, LogFieldValue, LogFields,
+    ParentControllerActionKind, ParentControllerSource, PolicyPreviewReadModel,
 };
 
 use crate::{
@@ -83,7 +85,11 @@ pub(crate) async fn stream_browser_runtime_event_chain_for_read_model_with_polic
         if let Ok(report) =
             request_browser_runtime_action_intent_handoff_for_input(input.clone()).await
         {
-            stream.record_action_intent_handoff(&report.request_report.response);
+            let handoff = report.request_report.response;
+            stream.record_action_intent_handoff(&handoff);
+            if let Some(response) = action_intent_child_status_from_handoff(&handoff).await {
+                stream.record_action_intent_child_status(&response);
+            }
         }
         if let Ok(report) =
             request_browser_runtime_social_provider_receipt_status_for_input(input.clone()).await
@@ -142,6 +148,113 @@ pub(crate) fn browser_runtime_event_chain_stream_payload(
     pairs.extend(action_intent_payload_fields(report));
     pairs.extend(social_provider_receipt_payload_fields(report));
     fields_from_pairs(pairs)
+}
+
+#[derive(Clone, Debug, Default, PartialEq, Eq)]
+pub(crate) struct BrowserRuntimeActionIntentChildStatusResponse {
+    pub(crate) accepted_row_count: usize,
+    pub(crate) child_command_ref: Option<String>,
+    pub(crate) child_accepted_event_ref: Option<String>,
+    pub(crate) parent_read_model_ref: Option<String>,
+    pub(crate) dispatch_attempt_count: u8,
+    pub(crate) adapter_execution_count: u8,
+    pub(crate) child_intervention_execution_count: u8,
+    pub(crate) enforcement_execution_count: u8,
+}
+
+pub(crate) async fn action_intent_child_status_from_handoff(
+    handoff: &BrowserRuntimeActionIntentHandoffResponse,
+) -> Option<BrowserRuntimeActionIntentChildStatusResponse> {
+    if !handoff_is_child_status_candidate(handoff) {
+        return Some(BrowserRuntimeActionIntentChildStatusResponse::default());
+    }
+    let report = publish_parent_child_runtime_for_validated_intent(
+        parent_child_input_from_handoff(handoff)?,
+    )
+    .await
+    .ok()?;
+    let payloads = report
+        .stored_events
+        .iter()
+        .filter_map(|event| {
+            event
+                .decode::<ParentChildRuntimeEventPayload>()
+                .ok()
+                .map(|envelope| envelope.payload)
+        })
+        .collect::<Vec<_>>();
+    child_status_response_from_payloads(handoff, &payloads)
+}
+
+fn handoff_is_child_status_candidate(handoff: &BrowserRuntimeActionIntentHandoffResponse) -> bool {
+    handoff.candidate_count > 0
+        && handoff.dispatch_attempt_count == 0
+        && handoff.adapter_execution_count == 0
+        && handoff.browser_mutation_count == 0
+        && handoff.child_intervention_execution_count == 0
+        && handoff.enforcement_execution_count == 0
+}
+
+fn parent_child_input_from_handoff(
+    handoff: &BrowserRuntimeActionIntentHandoffResponse,
+) -> Option<ParentChildRuntimeInput> {
+    Some(ParentChildRuntimeInput {
+        parent_intent_ref: handoff.action_intent_id.clone()?,
+        parent_profile_ref: constants::parent_controller::TEST_PARENT_PROFILE_REF.to_string(),
+        device_ref: constants::parent_controller::TEST_DEVICE_REF.to_string(),
+        observed_at: constants::activity_store::TEST_FIRST_OBSERVED_AT.to_string(),
+        action_kind: ParentControllerActionKind::Review,
+        source: ParentControllerSource::PortalTypedIntent,
+        child_command_kind: ChildCommandKind::BrowserActionIntentHandoff,
+    })
+}
+
+fn child_status_response_from_payloads(
+    handoff: &BrowserRuntimeActionIntentHandoffResponse,
+    payloads: &[ParentChildRuntimeEventPayload],
+) -> Option<BrowserRuntimeActionIntentChildStatusResponse> {
+    let child_command_ref = child_command_ref(payloads)?;
+    if !child_command_ref.contains(handoff.action_intent_id.as_deref()?) {
+        return None;
+    }
+    Some(BrowserRuntimeActionIntentChildStatusResponse {
+        accepted_row_count: 1,
+        child_command_ref: Some(child_command_ref),
+        child_accepted_event_ref: child_accepted_event_ref(payloads),
+        parent_read_model_ref: parent_read_model_ref(payloads),
+        ..BrowserRuntimeActionIntentChildStatusResponse::default()
+    })
+}
+
+fn child_command_ref(payloads: &[ParentChildRuntimeEventPayload]) -> Option<String> {
+    payloads.iter().find_map(|payload| match payload {
+        ParentChildRuntimeEventPayload::ChildCommandReceived(event)
+            if event.command_kind == ChildCommandKind::BrowserActionIntentHandoff =>
+        {
+            Some(event.child_command_ref.clone())
+        }
+        _ => None,
+    })
+}
+
+fn child_accepted_event_ref(payloads: &[ParentChildRuntimeEventPayload]) -> Option<String> {
+    payloads.iter().find_map(|payload| match payload {
+        ParentChildRuntimeEventPayload::ChildCommandAccepted(event) => {
+            Some(event.command_accepted_event_ref.clone())
+        }
+        _ => None,
+    })
+}
+
+fn parent_read_model_ref(payloads: &[ParentChildRuntimeEventPayload]) -> Option<String> {
+    payloads.iter().find_map(|payload| match payload {
+        ParentChildRuntimeEventPayload::ParentReadModelProjected(event)
+            if event.visible_to_portal =>
+        {
+            Some(event.read_model_ref.clone())
+        }
+        _ => None,
+    })
 }
 
 fn action_intent_payload_fields(
@@ -296,6 +409,31 @@ impl BrowserRuntimeServiceStreamReport {
             usize::from(handoff.child_intervention_execution_count);
         self.action_intent_enforcement_executions +=
             usize::from(handoff.enforcement_execution_count);
+    }
+
+    pub(crate) fn record_action_intent_child_status(
+        &mut self,
+        status: &BrowserRuntimeActionIntentChildStatusResponse,
+    ) {
+        self.action_intent_child_accepted_rows += status.accepted_row_count;
+        if let Some(child_command_ref) = &status.child_command_ref {
+            self.action_intent_child_command_refs
+                .push(child_command_ref.clone());
+        }
+        if let Some(child_accepted_event_ref) = &status.child_accepted_event_ref {
+            self.action_intent_child_accepted_event_refs
+                .push(child_accepted_event_ref.clone());
+        }
+        if let Some(parent_read_model_ref) = &status.parent_read_model_ref {
+            self.action_intent_parent_read_model_refs
+                .push(parent_read_model_ref.clone());
+        }
+        self.action_intent_dispatch_attempts += usize::from(status.dispatch_attempt_count);
+        self.action_intent_adapter_executions += usize::from(status.adapter_execution_count);
+        self.action_intent_child_intervention_executions +=
+            usize::from(status.child_intervention_execution_count);
+        self.action_intent_enforcement_executions +=
+            usize::from(status.enforcement_execution_count);
     }
 
     pub(crate) fn record_social_provider_receipt(

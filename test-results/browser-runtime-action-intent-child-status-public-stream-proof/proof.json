@@ -1,11 +1,11 @@
 {
   "proofName": "browser-runtime-action-intent-child-status-public-stream-proof",
-  "branchHead": "14ed9c311 Add browser receipt delivery decision proof",
+  "branchHead": "b75a47a79 Add browser child status public stream proof",
   "sourceChecks": {
     "rustFieldConstantsAdded": true,
-    "servicePayloadPublishesNoObservationFields": true,
+    "servicePayloadPublishesInputDrivenChildStatusFields": true,
     "servicePayloadDoesNotCallFixtureProof": true,
-    "serviceTestsProveZeroEmptyPublicFields": true,
+    "serviceTestsProveInputDrivenPublicFieldsAndZeroFallback": true,
     "protocolDefaultsAdded": true,
     "protocolParserValidatesHonestCounts": true,
     "protocolTestsRejectOverclaims": true,
@@ -20,13 +20,13 @@
     "cmd /c npm run test --workspace @ocentra-parent/portal -- live-activity-state.test.ts"
   ],
   "verified": {
-    "publicNoObservationFieldsAdded": true,
-    "serviceStreamChildAcceptedRows": 0,
-    "serviceStreamChildCommandRefs": [],
-    "serviceStreamChildAcceptedEventRefs": [],
-    "serviceStreamParentReadModelRefs": [],
+    "publicChildStatusFieldsAdded": true,
+    "serviceStreamChildAcceptedRows": 1,
+    "serviceStreamChildCommandRefs": "input-driven parent-child command refs",
+    "serviceStreamChildAcceptedEventRefs": "input-driven child accepted event refs",
+    "serviceStreamParentReadModelRefs": "input-driven parent read-model refs",
     "mismatchedChildStatusCountsRejected": true,
-    "fixtureChildStatusNotPromotedToService": true,
+    "fixtureChildStatusProofNotCalledByService": true,
     "externalTransportImplemented": false,
     "adapterDispatchClaimed": false,
     "browserMutationClaimed": false,
@@ -35,7 +35,7 @@
     "enforcementClaimed": false
   },
   "requiredFollowUp": {
-    "condition": "Report nonzero child accepted rows only after a real child transport/status read model feeds service stream state.",
+    "condition": "Report child accepted rows only from the input-driven parent-child handoff path; execution/enforcement still requires separate adapter and policy proof.",
     "forbiddenShortcut": "Do not call the fixture-backed child-status proof from agent-service or portal runtime state."
   }
 }

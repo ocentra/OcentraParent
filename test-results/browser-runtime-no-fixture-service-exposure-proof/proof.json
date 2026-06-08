@@ -1,13 +1,13 @@
 {
   "proofName": "browser-runtime-no-fixture-service-exposure-proof",
-  "branchHead": "14ed9c311 Add browser receipt delivery decision proof",
+  "branchHead": "b75a47a79 Add browser child status public stream proof",
   "sourceChecks": {
-    "childStatusModuleIsTestOnly": true,
-    "childStatusTypesAreTestOnly": true,
-    "childStatusComposesParentChildFixtureOnly": true,
+    "childStatusModuleKeepsFixtureProofTestOnly": true,
+    "childStatusTypesStayTestOnly": true,
+    "childStatusFixtureProofStaysTestOnly": true,
     "serviceStreamDoesNotCallChildStatusFixture": true,
-    "serviceTestsAssertOnlyNoObservationChildStatusPayload": true,
-    "protocolParserHasOnlyNoObservationChildStatusFields": true,
+    "serviceTestsAssertInputDrivenChildStatusAndNoObservationFallback": true,
+    "protocolParserHasHonestChildStatusFields": true,
     "portalStateDoesNotPromoteFixtureChildStatus": true,
     "childStatusProofDeclaresRemainingGap": true,
     "docsRecordNoFixtureExposureProof": true
@@ -17,8 +17,8 @@
   ],
   "verified": {
     "childStatusProofRemainsTestOnly": true,
-    "serviceStreamDoesNotExposeFixtureChildStatusRefs": true,
-    "serviceStreamExposesOnlyNoObservationChildStatus": true,
+    "serviceStreamDoesNotCallFixtureChildStatusProof": true,
+    "serviceStreamUsesInputDrivenChildStatusComposition": true,
     "portalParserDoesNotInventFixtureChildStatusRefs": true,
     "publicStreamFieldRegistryReady": true,
     "externalTransportImplemented": false,
@@ -29,7 +29,7 @@
     "enforcementClaimed": false
   },
   "requiredFollowUp": {
-    "condition": "Only expose nonzero child accepted/read-model refs through the service stream after a real runtime child transport/status read model exists.",
+    "condition": "Only expose child accepted/read-model refs through the service stream from the input-driven parent-child handoff path, never by calling the fixture proof.",
     "forbiddenShortcut": "Do not call the fixture-backed child-status proof from agent-service or portal state parsing."
   }
 }

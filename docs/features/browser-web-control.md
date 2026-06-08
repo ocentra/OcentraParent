@@ -1181,6 +1181,13 @@ external transport remains manual-required until custody/auth/encryption/
 retention/replay/delete/offset/dedupe/transport artifacts exist. This adds no
 external transport, relay delivery, adapter dispatch, browser mutation, child
 intervention execution, final policy execution, or enforcement.
+WP13 now also carries browser action-intent child-status refs through the
+service-backed parent-child event path. A dry-run handoff candidate produces
+parent-child command, child accepted-event, and parent read-model refs in the
+public browser runtime stream, while non-candidate rows remain zero/empty and
+the service does not call the fixture-backed child-status proof. This adds no
+adapter dispatch, browser mutation, child intervention execution, final policy
+execution, unmanaged exact URL support, or enforcement.
 
 ## Checklist
 

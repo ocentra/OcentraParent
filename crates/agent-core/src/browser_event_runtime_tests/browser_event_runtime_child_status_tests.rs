@@ -14,7 +14,7 @@ async fn browser_runtime_action_intent_child_status_links_durable_handoff_to_chi
         .first()
         .expect(constants::browser::ERROR_BROWSER_RUNTIME_ACTION_INTENT_DURABLE_HANDOFF);
 
-    assert_eq!(report.durable_record_count, 1);
+    assert_eq!(report.handoff_candidate_count, 1);
     assert_eq!(report.child_command_received_count, 1);
     assert_eq!(report.child_command_accepted_count, 1);
     assert_eq!(report.parent_read_model_row_count, 1);
@@ -68,7 +68,7 @@ async fn browser_runtime_action_intent_child_status_links_durable_handoff_to_chi
     assert_eq!(report.child_intervention_execution_count, 0);
     assert_eq!(report.final_policy_execution_count, 0);
     assert_eq!(report.enforcement_execution_count, 0);
-    assert!(!report.public_stream_field_registry_ready);
+    assert!(report.public_stream_field_registry_ready);
     assert!(!report.external_transport_implemented);
     assert!(!report.adapter_dispatch_claimed);
     assert!(!report.browser_mutation_claimed);

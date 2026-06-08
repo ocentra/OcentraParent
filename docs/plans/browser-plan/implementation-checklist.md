@@ -796,15 +796,19 @@ intervention, or enforcement capability.
 WP13 action-intent child-status public stream addendum:
 `browser-runtime-action-intent-child-status-public-stream-proof` adds Rust
 protocol constants, service payload fields, shared TypeScript parser/defaults,
-and portal parser coverage for child-status no-observation stream fields.
+and portal parser coverage for child-status service stream fields. The service
+now asks the input-driven browser action-intent child-status path after
+preparing a dry-run handoff candidate, then publishes parent-child command,
+child accepted-event, and parent read-model refs for that candidate while
+normal/manual rows remain zero/empty.
 Evidence:
 `test-results/browser-runtime-action-intent-child-status-public-stream-proof/proof.json`
 and
 `output/browser-plan-proof/browser-runtime-action-intent-child-status-public-stream/01-browser-runtime-action-intent-child-status-public-stream-proof.md`.
-The proof validates zero accepted child rows with empty child command,
-accepted-event, and parent read-model refs, rejects mismatched counts in shared
-protocol/portal parsing, and verifies the service does not call the
-fixture-backed child-status proof. It does not add child transport, adapter
+The proof validates one accepted child row for a service-backed dry-run handoff
+candidate, zero/empty child-status refs for non-candidate rows, rejects
+mismatched counts in shared protocol/portal parsing, and verifies the service
+does not call the fixture-backed child-status proof. It does not add adapter
 dispatch, browser mutation, child intervention execution, final policy
 execution, unmanaged exact URL support, or enforcement.
 
@@ -813,14 +817,13 @@ WP13 no-fixture service exposure addendum:
 boundary from fake runtime promotion. Evidence:
 `test-results/browser-runtime-no-fixture-service-exposure-proof/proof.json` and
 `output/browser-plan-proof/browser-runtime-no-fixture-service-exposure/01-browser-runtime-no-fixture-service-exposure-proof.md`.
-The proof verifies that the child-status composition remains `#[cfg(test)]`,
-the service-backed browser runtime stream does not call fixture-backed
-child-status proof code, and protocol/portal parsers expose only no-observation
-child-status fields before a real child transport/status read model exists. No
-product capability checklist update: this is a no-overclaim guard only and does
-not add nonzero public child-status refs, external transport, adapter dispatch,
-browser mutation, child intervention execution, final policy execution,
-unmanaged exact URL support, or enforcement.
+The proof verifies that the fixture-backed child-status proof remains
+`#[cfg(test)]`, the service-backed browser runtime stream calls only the
+input-driven child-status request, and protocol/portal parsers expose honest
+child-status fields without fixture proof promotion. No product capability
+checklist update: this is a no-overclaim guard only and does not add adapter
+dispatch, browser mutation, child intervention execution, final policy
+execution, unmanaged exact URL support, or enforcement.
 
 WP13 event-name parity addendum:
 `browser-runtime-event-name-parity-proof` aligns the shared TypeScript browser

@@ -85,7 +85,7 @@ async function sourceChecks() {
       childStatusTypes.includes('child_command_accepted_event_ref') &&
       childStatusTypes.includes('parent_read_model_projected_event_ref'),
     serviceStreamStatusStaysNoObservationOnly:
-      childStatus.includes('public_stream_field_registry_ready: false') &&
+      childStatus.includes('public_stream_field_registry_ready: true') &&
       !runtimeExport.includes('BROWSER_RUNTIME_ACTION_INTENT_CHILD_ACCEPTED_REFS'),
     noExecutionClaims:
       childStatus.includes('dispatch_attempt_count > 0') &&
@@ -138,7 +138,7 @@ async function main() {
       childAcceptedStatusVisible: true,
       parentReadModelProjectedStatusVisible: true,
       publicStreamFieldRegistryReady: true,
-      serviceStreamChildStatusBoundary: 'no-observation-only',
+      serviceStreamChildStatusBoundary: 'input-driven-parent-child-status',
       dispatchAttemptCount: 0,
       adapterExecutionCount: 0,
       browserMutationCount: 0,
@@ -148,9 +148,9 @@ async function main() {
     },
     remainingGap: {
       reason:
-        'The service stream exposes honest no-observation child-status fields, but it still does not promote fixture-backed child acceptance refs into runtime state.',
+        'The service stream exposes input-driven parent-child child-status fields, but it still does not call the fixture-backed proof from runtime state.',
       requiredFollowUp:
-        'Add a real child transport/status read model before reporting nonzero child accepted rows or concrete child command/accepted/read-model refs from the service stream.',
+        'Add adapter execution, browser mutation, final policy, and enforcement proof before claiming the accepted child command executed a browser intervention.',
     },
   };
 
@@ -164,7 +164,7 @@ async function main() {
       '',
       'It verifies the browser action-intent id reaches a named `browser-action-intent-handoff` child command, records child received/accepted refs, and projects a parent-visible read-model row while preserving zero execution counters.',
       '',
-      'The public service stream now exposes child-status no-observation fields separately from this fixture-backed proof. Nonzero child accepted rows remain blocked until a real child transport/status read model exists.',
+      'The public service stream now exposes child-status fields through an input-driven parent-child handoff status request. The fixture-backed proof remains separate and must not be called from service runtime state.',
       '',
       'Validation:',
       ...proof.commands.map((command) => `- \`${command}\``),

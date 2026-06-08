@@ -1,8 +1,8 @@
 # Browser Runtime Action Intent Child Status Public Stream Proof
 
-This proof adds public service stream fields for the browser action-intent child-status boundary without promoting fixture-backed child acceptance refs into runtime state.
+This proof carries the browser action-intent child-status boundary into public service stream fields through the input-driven parent-child handoff path.
 
-The current real service stream reports no observed child acceptance: zero accepted rows and empty child command, accepted-event, and parent read-model refs. The shared protocol parser and portal state tests reject mismatched nonzero/empty combinations.
+The service stream reports child accepted rows and child command, accepted-event, and parent read-model refs only for a dry-run action handoff candidate. Normal/manual rows remain zero/empty. The shared protocol parser and portal state tests reject mismatched nonzero/empty combinations.
 
 Validation:
 - `cargo test -p ocentra-parent-agent-service service_browser_runtime_action_intent_status_projects_pending_candidate --quiet`
@@ -12,7 +12,7 @@ Validation:
 - `cmd /c npm run test --workspace @ocentra-parent/portal -- live-activity-state.test.ts`
 
 No-claim boundary:
-- No fixture-backed child-status refs in service or portal runtime state.
+- No fixture-backed child-status proof call in service or portal runtime state.
 - No external child transport implementation.
 - No adapter dispatch.
 - No browser mutation.

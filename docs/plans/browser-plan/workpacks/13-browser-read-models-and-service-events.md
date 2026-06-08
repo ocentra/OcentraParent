@@ -942,6 +942,32 @@ export remains deferred while another active lane owns
 
 ## Social Provider Receipt Stream Parser Addendum - 2026-06-08
 
+## Action-Intent Child Status Service Stream Addendum - 2026-06-08
+
+`browser-runtime-action-intent-child-status-public-stream-proof` now carries
+the browser action-intent child-status boundary through the service-backed
+parent-child event path. After preparing a dry-run handoff candidate, the
+service asks the input-driven child-status request and publishes child command,
+child accepted-event, and parent read-model refs in the browser runtime stream.
+Normal/manual rows remain zero/empty, and the service does not call the
+fixture-backed child-status proof.
+
+Evidence:
+
+- `crates/agent-core/src/browser_event_runtime/action_handoff_child_status.rs`
+- `crates/agent-core/src/browser_event_runtime/action_handoff_child_status_types.rs`
+- `crates/agent-service/src/browser_runtime_stream_payload.rs`
+- `crates/agent-service/src/browser_runtime_stream_tests.rs`
+- `scripts/test/browser-runtime-action-intent-child-status-public-stream-proof.mjs`
+- `scripts/test/browser-runtime-no-fixture-service-exposure-proof.mjs`
+- `test-results/browser-runtime-action-intent-child-status-public-stream-proof/proof.json`
+- `output/browser-plan-proof/browser-runtime-action-intent-child-status-public-stream/01-browser-runtime-action-intent-child-status-public-stream-proof.md`
+- `cmd /c node scripts/test/browser-runtime-action-intent-child-status-public-stream-proof.mjs`
+
+This is service stream status proof only. It does not claim adapter dispatch,
+browser mutation, child intervention execution, final policy execution,
+unmanaged exact URL support, or enforcement.
+
 `browser-runtime-social-provider-receipt-stream-parser-proof` carries the
 service-published social provider receipt fields into the shared TypeScript
 protocol parser and a portal-domain status projection. The parser now reads

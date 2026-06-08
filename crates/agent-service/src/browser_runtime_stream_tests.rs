@@ -7,20 +7,20 @@ use ocentra_parent_agent_core::{
 };
 use ocentra_parent_agent_protocol::{
     constants, policy_constants, ActivityEvent, AgentCommandEnvelope, AgentCommandName,
-    AgentEventName, AgentMessageTarget, AgentPeer, AgentPeerRole, AgentRoute,
-    BrowserActiveProofSource, BrowserActiveTabState, BrowserCapabilityStatus, BrowserChannel,
-    BrowserCustodyLabel, BrowserEvidenceReadModel, BrowserFamily, BrowserQueryVisibilityLabel,
-    BrowserTabEvidence, LogFieldValue, LogFields, ParentEvidenceReference,
-    ParentEvidenceReferenceKind, PolicyAction, PolicyDecision, PolicyDecisionHandoffState,
-    PolicyPreviewReadModel, PolicyPreviewReadModelRow, PolicyTarget, PolicyTargetType,
-    AGENT_PROTOCOL_SCHEMA_VERSION, BROWSER_EVIDENCE_SCHEMA_VERSION, POLICY_DRY_RUN_SCHEMA_VERSION,
+    AgentMessageTarget, AgentPeer, AgentPeerRole, AgentRoute, BrowserActiveProofSource,
+    BrowserActiveTabState, BrowserCapabilityStatus, BrowserChannel, BrowserCustodyLabel,
+    BrowserEvidenceReadModel, BrowserFamily, BrowserQueryVisibilityLabel, BrowserTabEvidence,
+    LogFieldValue, LogFields, ParentEvidenceReference, ParentEvidenceReferenceKind, PolicyAction,
+    PolicyDecision, PolicyDecisionHandoffState, PolicyPreviewReadModel, PolicyPreviewReadModelRow,
+    PolicyTarget, PolicyTargetType, AGENT_PROTOCOL_SCHEMA_VERSION, BROWSER_EVIDENCE_SCHEMA_VERSION,
+    POLICY_DRY_RUN_SCHEMA_VERSION,
 };
 use serde_json::Value;
 
 use crate::{
     activity_report_env_lock::REPORT_ENV_LOCK,
     browser_runtime_stream_payload::{
-        browser_runtime_event_chain_stream_payload,
+        action_intent_child_status_from_handoff, browser_runtime_event_chain_stream_payload,
         stream_browser_runtime_event_chain_for_read_model_with_policy_preview,
         BrowserRuntimeServiceStreamReport,
     },
@@ -29,13 +29,15 @@ use crate::{
 };
 
 mod browser_runtime_social_provider_receipt_service_status_tests;
+mod browser_runtime_stream_test_assertions;
 
-const BROWSER_ACTION_INTENT_EXECUTION_FIELDS: [&str; 4] = [
-    constants::field::BROWSER_RUNTIME_ACTION_INTENT_DISPATCH_ATTEMPTS,
-    constants::field::BROWSER_RUNTIME_ACTION_INTENT_ADAPTER_EXECUTIONS,
-    constants::field::BROWSER_RUNTIME_ACTION_INTENT_CHILD_INTERVENTION_EXECUTIONS,
-    constants::field::BROWSER_RUNTIME_ACTION_INTENT_ENFORCEMENT_EXECUTIONS,
-];
+use browser_runtime_stream_test_assertions::{
+    assert_action_intent_execution_payload_zero, assert_action_intent_handoff_payload_refs,
+    assert_action_intent_handoff_report_ready, assert_child_status_report_refs,
+    assert_payload_child_command_refs_include,
+    assert_store_backed_stream_child_status_and_no_execution,
+    assert_store_backed_stream_first_entry, assert_store_backed_stream_payload_header,
+};
 
 const BROWSER_ACTION_INTENT_CHILD_STATUS_REF_FIELDS: [&str; 3] = [
     constants::field::BROWSER_RUNTIME_ACTION_INTENT_CHILD_COMMAND_REFS,
@@ -156,9 +158,7 @@ async fn service_browser_runtime_action_intent_status_projects_pending_candidate
         payload.get(constants::field::BROWSER_RUNTIME_ACTION_INTENT_CANDIDATES),
         Some(&LogFieldValue::Number(1.0))
     );
-    for field in BROWSER_ACTION_INTENT_EXECUTION_FIELDS {
-        assert_eq!(payload.get(field), Some(&LogFieldValue::Number(0.0)));
-    }
+    assert_action_intent_execution_payload_zero(&payload);
 
     let handoff = request_browser_runtime_action_intent_handoff_for_input(
         BrowserRuntimeInput::dry_run_action_handoff_fixture(),
@@ -171,45 +171,37 @@ async fn service_browser_runtime_action_intent_status_projects_pending_candidate
     report.record_action_intent_handoff(&handoff);
     let payload = browser_runtime_event_chain_stream_payload(&report);
 
-    assert_eq!(report.action_intent_handoff_candidates, 1);
-    assert_eq!(
-        report.action_intent_handoff_outbox_refs,
-        vec![constants::browser::TEST_BROWSER_RUNTIME_ACTION_INTENT_OUTBOX_REF.to_string()]
-    );
-    assert_eq!(
-        report.action_intent_handoff_refs,
-        vec![constants::browser::TEST_BROWSER_RUNTIME_ACTION_INTENT_HANDOFF_REF.to_string()]
-    );
     assert_eq!(report.action_intent_dispatch_attempts, 0);
     assert_eq!(report.action_intent_adapter_executions, 0);
     assert_eq!(report.action_intent_child_intervention_executions, 0);
     assert_eq!(report.action_intent_enforcement_executions, 0);
-    assert_eq!(
-        payload.get(constants::field::BROWSER_RUNTIME_ACTION_INTENT_HANDOFF_CANDIDATES),
-        Some(&LogFieldValue::Number(1.0))
-    );
-    assert_eq!(
-        payload.get(constants::field::BROWSER_RUNTIME_ACTION_INTENT_HANDOFF_OUTBOX_REFS),
-        Some(&LogFieldValue::String(
-            serde_json::to_string(&vec![
-                constants::browser::TEST_BROWSER_RUNTIME_ACTION_INTENT_OUTBOX_REF
-            ])
-            .unwrap()
-        ))
-    );
-    assert_eq!(
-        payload.get(constants::field::BROWSER_RUNTIME_ACTION_INTENT_HANDOFF_REFS),
-        Some(&LogFieldValue::String(
-            serde_json::to_string(&vec![
-                constants::browser::TEST_BROWSER_RUNTIME_ACTION_INTENT_HANDOFF_REF
-            ])
-            .unwrap()
-        ))
-    );
-    for field in BROWSER_ACTION_INTENT_EXECUTION_FIELDS {
-        assert_eq!(payload.get(field), Some(&LogFieldValue::Number(0.0)));
-    }
+    assert_action_intent_handoff_report_ready(&report, &payload);
+    assert_action_intent_handoff_payload_refs(&payload);
+    assert_action_intent_execution_payload_zero(&payload);
     assert_child_status_payload_empty!(payload);
+
+    let handoff = request_browser_runtime_action_intent_handoff_for_input(
+        BrowserRuntimeInput::dry_run_action_handoff_fixture(),
+    )
+    .await
+    .unwrap();
+    let mut report = BrowserRuntimeServiceStreamReport::default();
+    let child_status_response =
+        action_intent_child_status_from_handoff(&handoff.request_report.response)
+            .await
+            .unwrap();
+    report.record_action_intent_child_status(&child_status_response);
+    let payload = browser_runtime_event_chain_stream_payload(&report);
+
+    assert_child_status_report_refs(
+        &report,
+        &payload,
+        constants::browser::TEST_BROWSER_RUNTIME_ACTION_INTENT_ID,
+    );
+    assert_payload_child_command_refs_include(
+        &payload,
+        constants::browser::TEST_BROWSER_RUNTIME_ACTION_INTENT_ID,
+    );
 }
 
 #[tokio::test]
@@ -232,15 +224,6 @@ async fn service_browser_runtime_stream_projects_store_backed_policy_preview_can
         .expect(constants::error::AGENT_EVENT_SERIALIZES);
 
     assert_eq!(report.action_intent_candidates, 1);
-    assert_eq!(report.action_intent_handoff_candidates, 1);
-    assert_eq!(
-        report.action_intent_handoff_outbox_refs,
-        vec![constants::browser::TEST_BROWSER_RUNTIME_ACTION_INTENT_OUTBOX_REF.to_string()]
-    );
-    assert_eq!(
-        report.action_intent_handoff_refs,
-        vec![constants::browser::TEST_BROWSER_RUNTIME_ACTION_INTENT_HANDOFF_REF.to_string()]
-    );
     assert_eq!(report.action_intent_dispatch_attempts, 0);
     assert_eq!(report.action_intent_adapter_executions, 0);
     assert_eq!(report.action_intent_child_intervention_executions, 0);
@@ -249,29 +232,9 @@ async fn service_browser_runtime_stream_projects_store_backed_policy_preview_can
         payload.get(constants::field::BROWSER_RUNTIME_ACTION_INTENT_CANDIDATES),
         Some(&LogFieldValue::Number(1.0))
     );
-    assert_eq!(
-        payload.get(constants::field::BROWSER_RUNTIME_ACTION_INTENT_HANDOFF_CANDIDATES),
-        Some(&LogFieldValue::Number(1.0))
-    );
-    assert_eq!(
-        payload.get(constants::field::BROWSER_RUNTIME_ACTION_INTENT_HANDOFF_OUTBOX_REFS),
-        Some(&LogFieldValue::String(
-            serde_json::to_string(&vec![
-                constants::browser::TEST_BROWSER_RUNTIME_ACTION_INTENT_OUTBOX_REF
-            ])
-            .unwrap()
-        ))
-    );
-    assert_eq!(
-        payload.get(constants::field::BROWSER_RUNTIME_ACTION_INTENT_HANDOFF_REFS),
-        Some(&LogFieldValue::String(
-            serde_json::to_string(&vec![
-                constants::browser::TEST_BROWSER_RUNTIME_ACTION_INTENT_HANDOFF_REF
-            ])
-            .unwrap()
-        ))
-    );
-    assert_child_status_payload_empty!(payload);
+    assert_action_intent_handoff_report_ready(&report, &payload);
+    assert_action_intent_handoff_payload_refs(&payload);
+    assert_child_status_report_refs(&report, &payload, policy_constants::TEST_DECISION_ID);
     assert_eq!(
         policy_entry[constants::field::PAYLOAD][constants::field::POLICY_PREVIEW_ID],
         policy_constants::TEST_PREVIEW_ID
@@ -419,62 +382,12 @@ async fn websocket_browser_runtime_stream_command_reports_store_backed_chain() {
     cleanup_path(&store_path);
 
     assert_eq!(
-        event.event,
-        AgentEventName::AgentBrowserRuntimeEventChainStreamReported
-    );
-    assert_eq!(
         entries.len(),
         BrowserRuntimePhase::ordered_chain().len() - 4
     );
-    assert_eq!(
-        event
-            .payload
-            .get(constants::field::BROWSER_RUNTIME_STREAMED_EVENTS),
-        Some(&LogFieldValue::Number(
-            (BrowserRuntimePhase::ordered_chain().len() - 4) as f64
-        ))
-    );
-    assert_eq!(
-        entries.last().unwrap()[constants::field::EVENT_TYPE],
-        constants::browser::EVENT_BROWSER_READ_MODEL_PROJECTED
-    );
-    assert_eq!(
-        entries[0][constants::field::PAYLOAD][constants::field::CAPABILITY_STATUS],
-        constants::browser::CAPABILITY_STATUS_TAB_LIST_ONLY
-    );
-    assert_eq!(
-        entries[0][constants::field::PAYLOAD][constants::field::QUERY_VISIBILITY],
-        constants::browser::QUERY_VISIBILITY_LIVE_LOCAL
-    );
-    assert_eq!(
-        entries[0][constants::field::PAYLOAD][constants::field::DEGRADED_REASON],
-        constants::value::BROWSER_BRIDGE_NO_PAGE_TARGETS
-    );
-    assert_eq!(
-        event
-            .payload
-            .get(constants::field::BROWSER_RUNTIME_ACTION_INTENT_CANDIDATES),
-        Some(&LogFieldValue::Number(1.0))
-    );
-    assert_child_status_payload_empty!(event.payload);
-    assert_eq!(
-        event
-            .payload
-            .get(constants::field::BROWSER_RUNTIME_ACTION_INTENT_DISPATCH_ATTEMPTS),
-        Some(&LogFieldValue::Number(0.0))
-    );
-    assert_eq!(
-        event
-            .payload
-            .get(constants::field::BROWSER_RUNTIME_ACTION_INTENT_CHILD_INTERVENTION_EXECUTIONS),
-        Some(&LogFieldValue::Number(0.0))
-    );
-    assert_eq!(
-        event
-            .payload
-            .get(constants::field::BROWSER_RUNTIME_ACTION_INTENT_ENFORCEMENT_EXECUTIONS),
-        Some(&LogFieldValue::Number(0.0))
-    );
+    assert_store_backed_stream_payload_header(&event);
+    assert_store_backed_stream_first_entry(&entries);
+    assert_store_backed_stream_child_status_and_no_execution(&event.payload);
 }
 
 fn read_model(rows: Vec<BrowserTabEvidence>) -> BrowserEvidenceReadModel {

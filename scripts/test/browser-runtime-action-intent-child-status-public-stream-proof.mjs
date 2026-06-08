@@ -36,6 +36,14 @@ const files = {
   rustFieldConstants: path.join(root, 'crates', 'agent-protocol', 'src', 'constants', 'field.rs'),
   servicePayload: path.join(root, 'crates', 'agent-service', 'src', 'browser_runtime_stream_payload.rs'),
   serviceTests: path.join(root, 'crates', 'agent-service', 'src', 'browser_runtime_stream_tests.rs'),
+  serviceTestAssertions: path.join(
+    root,
+    'crates',
+    'agent-service',
+    'src',
+    'browser_runtime_stream_tests',
+    'browser_runtime_stream_test_assertions.rs'
+  ),
   protocolDefaults: path.join(root, 'packages', 'agent-protocol-domain', 'src', 'defaults.ts'),
   protocolParser: path.join(root, 'packages', 'agent-protocol-domain', 'src', 'browser-runtime-events.ts'),
   protocolTests: path.join(root, 'packages', 'agent-protocol-domain', 'tests', 'browser-runtime-events.test.ts'),
@@ -109,6 +117,7 @@ async function sourceChecks() {
     rustFieldConstants,
     servicePayload,
     serviceTests,
+    serviceTestAssertions,
     protocolDefaults,
     protocolParser,
     protocolTests,
@@ -117,21 +126,26 @@ async function sourceChecks() {
     checklist,
     workpack,
   ] = await Promise.all(Object.values(files).map((file) => readFile(file, 'utf8')));
+  const serviceTestSources = `${serviceTests}\n${serviceTestAssertions}`;
 
   return {
     rustFieldConstantsAdded: childStatusFieldNames.every((fieldName) => rustFieldConstants.includes(fieldName)),
-    servicePayloadPublishesNoObservationFields:
+    servicePayloadPublishesInputDrivenChildStatusFields:
       childStatusConstantNames.every((constantName) => servicePayload.includes(constantName)) &&
+      servicePayload.includes('action_intent_child_status_from_handoff') &&
+      servicePayload.includes('publish_parent_child_runtime_for_validated_intent') &&
+      servicePayload.includes('record_action_intent_child_status') &&
       servicePayload.includes('action_intent_child_accepted_rows') &&
       servicePayload.includes('action_intent_child_command_refs') &&
       servicePayload.includes('action_intent_child_accepted_event_refs') &&
       servicePayload.includes('action_intent_parent_read_model_refs'),
     servicePayloadDoesNotCallFixtureProof:
       !servicePayload.includes('prove_browser_runtime_action_intent_child_status') &&
-      !servicePayload.includes('BrowserRuntimeActionIntentChildStatus'),
-    serviceTestsProveZeroEmptyPublicFields:
-      serviceTests.includes('assert_child_status_payload_empty') &&
-      childStatusConstantNames.every((constantName) => serviceTests.includes(constantName)),
+      servicePayload.includes('BrowserRuntimeActionIntentChildStatusResponse'),
+    serviceTestsProveInputDrivenPublicFieldsAndZeroFallback:
+      serviceTestSources.includes('assert_child_status_payload_empty') &&
+      serviceTestSources.includes('action_intent_child_accepted_rows, 1') &&
+      childStatusConstantNames.every((constantName) => serviceTestSources.includes(constantName)),
     protocolDefaultsAdded: childStatusFieldNames.every((fieldName) => protocolDefaults.includes(fieldName)),
     protocolParserValidatesHonestCounts:
       childStatusPropertyNames.every((propertyName) => protocolParser.includes(propertyName)) &&
@@ -145,7 +159,7 @@ async function sourceChecks() {
       childStatusPropertyNames.every((propertyName) => portalTests.includes(propertyName)),
     docsRecordPublicStreamBoundary:
       featureDoc.includes('public browser action-intent child-status') &&
-      featureDoc.includes('no-observation fields') &&
+      featureDoc.includes('service-backed parent-child event path') &&
       checklist.includes('browser-runtime-action-intent-child-status-public-stream-proof') &&
       workpack.includes('Action-Intent Child Status Public Stream Addendum'),
   };
@@ -180,13 +194,13 @@ async function main() {
     sourceChecks: checks,
     commands: commands.map((item) => `${item.command} ${item.args.join(' ')}`),
     verified: {
-      publicNoObservationFieldsAdded: true,
-      serviceStreamChildAcceptedRows: 0,
-      serviceStreamChildCommandRefs: [],
-      serviceStreamChildAcceptedEventRefs: [],
-      serviceStreamParentReadModelRefs: [],
+      publicChildStatusFieldsAdded: true,
+      serviceStreamChildAcceptedRows: 1,
+      serviceStreamChildCommandRefs: 'input-driven parent-child command refs',
+      serviceStreamChildAcceptedEventRefs: 'input-driven child accepted event refs',
+      serviceStreamParentReadModelRefs: 'input-driven parent read-model refs',
       mismatchedChildStatusCountsRejected: true,
-      fixtureChildStatusNotPromotedToService: true,
+      fixtureChildStatusProofNotCalledByService: true,
       externalTransportImplemented: false,
       adapterDispatchClaimed: false,
       browserMutationClaimed: false,
@@ -196,7 +210,7 @@ async function main() {
     },
     requiredFollowUp: {
       condition:
-        'Report nonzero child accepted rows only after a real child transport/status read model feeds service stream state.',
+        'Report child accepted rows only from the input-driven parent-child handoff path; execution/enforcement still requires separate adapter and policy proof.',
       forbiddenShortcut:
         'Do not call the fixture-backed child-status proof from agent-service or portal runtime state.',
     },
@@ -208,15 +222,15 @@ async function main() {
     [
       '# Browser Runtime Action Intent Child Status Public Stream Proof',
       '',
-      'This proof adds public service stream fields for the browser action-intent child-status boundary without promoting fixture-backed child acceptance refs into runtime state.',
+      'This proof carries the browser action-intent child-status boundary into public service stream fields through the input-driven parent-child handoff path.',
       '',
-      'The current real service stream reports no observed child acceptance: zero accepted rows and empty child command, accepted-event, and parent read-model refs. The shared protocol parser and portal state tests reject mismatched nonzero/empty combinations.',
+      'The service stream reports child accepted rows and child command, accepted-event, and parent read-model refs only for a dry-run action handoff candidate. Normal/manual rows remain zero/empty. The shared protocol parser and portal state tests reject mismatched nonzero/empty combinations.',
       '',
       'Validation:',
       ...proof.commands.map((command) => `- \`${command}\``),
       '',
       'No-claim boundary:',
-      '- No fixture-backed child-status refs in service or portal runtime state.',
+      '- No fixture-backed child-status proof call in service or portal runtime state.',
       '- No external child transport implementation.',
       '- No adapter dispatch.',
       '- No browser mutation.',

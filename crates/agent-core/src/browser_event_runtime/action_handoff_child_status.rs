@@ -8,18 +8,29 @@ use super::action_handoff_child_status_types::{
     BrowserRuntimeActionIntentChildStatusReadModelState,
     BrowserRuntimeActionIntentChildStatusRecord, BrowserRuntimeActionIntentChildStatusReport,
 };
-use super::action_handoff_durable::prove_browser_runtime_action_intent_durable_handoff;
 use crate::{
     publish_parent_child_runtime_for_validated_intent, ParentChildRuntimeEventPayload,
     ParentChildRuntimeInput,
 };
 
+#[derive(Clone, Copy, Debug, Default, PartialEq, Eq)]
+struct BrowserRuntimeActionIntentExecutionCounts {
+    dispatch_attempt_count: usize,
+    adapter_execution_count: usize,
+    browser_mutation_count: usize,
+    child_intervention_execution_count: usize,
+    final_policy_execution_count: usize,
+    enforcement_execution_count: usize,
+}
+
+#[cfg(test)]
 pub async fn prove_browser_runtime_action_intent_child_status(
 ) -> Result<BrowserRuntimeActionIntentChildStatusReport, BrowserRuntimeActionIntentChildStatusError>
 {
-    let durable = prove_browser_runtime_action_intent_durable_handoff()
-        .await
-        .map_err(|_| BrowserRuntimeActionIntentChildStatusError::DurableHandoff)?;
+    let durable =
+        super::action_handoff_durable::prove_browser_runtime_action_intent_durable_handoff()
+            .await
+            .map_err(|_| BrowserRuntimeActionIntentChildStatusError::Handoff)?;
     if durable.rows.len() != 1 || has_unsupported_claims(&durable) {
         return Err(BrowserRuntimeActionIntentChildStatusError::UnsupportedClaim);
     }
@@ -50,8 +61,53 @@ pub async fn prove_browser_runtime_action_intent_child_status(
         return Err(BrowserRuntimeActionIntentChildStatusError::HandoffMismatch);
     }
 
-    Ok(BrowserRuntimeActionIntentChildStatusReport {
-        durable_record_count: durable.durable_record_count,
+    let report = child_status_report_from_events(
+        durable.durable_record_count,
+        BrowserRuntimeActionIntentExecutionCounts {
+            dispatch_attempt_count: durable.dispatch_attempt_count,
+            adapter_execution_count: durable.adapter_execution_count,
+            browser_mutation_count: durable.browser_mutation_count,
+            child_intervention_execution_count: durable.child_intervention_execution_count,
+            final_policy_execution_count: durable.final_policy_execution_count,
+            enforcement_execution_count: durable.enforcement_execution_count,
+        },
+        received,
+        accepted,
+        parent_read_model,
+        BrowserRuntimeActionIntentChildStatusRecord {
+            policy_preview_id: durable_row.policy_preview_id.clone(),
+            action_intent_id: durable_row.action_intent_id.clone(),
+            durable_result_ref: durable_row.durable_result_ref.as_str().to_string(),
+            durable_read_model_ref: durable_row.read_model_ref.as_str().to_string(),
+            outbox_ref: durable_row.outbox_ref.as_str().to_string(),
+            handoff_ref: durable_row.handoff_ref.as_str().to_string(),
+            child_command_ref: durable_row.handoff_ref.as_str().to_string(),
+            child_command_received_event_ref: String::new(),
+            child_command_accepted_event_ref: String::new(),
+            parent_read_model_ref: String::new(),
+            parent_read_model_projected_event_ref: String::new(),
+            state: BrowserRuntimeActionIntentChildStatusReadModelState::ChildAcceptedNotExecuted,
+        },
+    );
+    Ok(report)
+}
+
+fn child_status_report_from_events(
+    handoff_candidate_count: usize,
+    execution_counts: BrowserRuntimeActionIntentExecutionCounts,
+    received: ChildCommandReceivedEvent,
+    accepted: ChildCommandAcceptedEvent,
+    parent_read_model: ParentReadModelProjectedEvent,
+    mut row: BrowserRuntimeActionIntentChildStatusRecord,
+) -> BrowserRuntimeActionIntentChildStatusReport {
+    row.child_command_ref = received.child_command_ref.clone();
+    row.child_command_received_event_ref = received.command_received_event_ref.clone();
+    row.child_command_accepted_event_ref = accepted.command_accepted_event_ref.clone();
+    row.parent_read_model_ref = parent_read_model.read_model_ref.clone();
+    row.parent_read_model_projected_event_ref =
+        parent_read_model.read_model_projected_event_ref.clone();
+    BrowserRuntimeActionIntentChildStatusReport {
+        handoff_candidate_count,
         child_command_received_count: usize::from(
             received.command_kind == ChildCommandKind::BrowserActionIntentHandoff,
         ),
@@ -61,36 +117,21 @@ pub async fn prove_browser_runtime_action_intent_child_status(
         handoff_refs_match_durable_record: true,
         child_command_matches_handoff: true,
         parent_read_model_visible: parent_read_model.visible_to_portal,
-        dispatch_attempt_count: durable.dispatch_attempt_count,
-        adapter_execution_count: durable.adapter_execution_count,
-        browser_mutation_count: durable.browser_mutation_count,
-        child_intervention_execution_count: durable.child_intervention_execution_count,
-        final_policy_execution_count: durable.final_policy_execution_count,
-        enforcement_execution_count: durable.enforcement_execution_count,
-        public_stream_field_registry_ready: false,
-        external_transport_implemented: durable.external_transport_implemented,
-        adapter_dispatch_claimed: durable.adapter_dispatch_claimed,
-        browser_mutation_claimed: durable.browser_mutation_claimed,
-        child_intervention_execution_claimed: durable.child_intervention_execution_claimed,
-        final_policy_execution_claimed: durable.final_policy_execution_claimed,
-        enforcement_claimed: durable.enforcement_claimed,
-        rows: vec![BrowserRuntimeActionIntentChildStatusRecord {
-            policy_preview_id: durable_row.policy_preview_id.clone(),
-            action_intent_id: durable_row.action_intent_id.clone(),
-            durable_result_ref: durable_row.durable_result_ref.as_str().to_string(),
-            durable_read_model_ref: durable_row.read_model_ref.as_str().to_string(),
-            outbox_ref: durable_row.outbox_ref.as_str().to_string(),
-            handoff_ref: durable_row.handoff_ref.as_str().to_string(),
-            child_command_ref: received.child_command_ref.clone(),
-            child_command_received_event_ref: received.command_received_event_ref.clone(),
-            child_command_accepted_event_ref: accepted.command_accepted_event_ref.clone(),
-            parent_read_model_ref: parent_read_model.read_model_ref.clone(),
-            parent_read_model_projected_event_ref: parent_read_model
-                .read_model_projected_event_ref
-                .clone(),
-            state: BrowserRuntimeActionIntentChildStatusReadModelState::ChildAcceptedNotExecuted,
-        }],
-    })
+        dispatch_attempt_count: execution_counts.dispatch_attempt_count,
+        adapter_execution_count: execution_counts.adapter_execution_count,
+        browser_mutation_count: execution_counts.browser_mutation_count,
+        child_intervention_execution_count: execution_counts.child_intervention_execution_count,
+        final_policy_execution_count: execution_counts.final_policy_execution_count,
+        enforcement_execution_count: execution_counts.enforcement_execution_count,
+        public_stream_field_registry_ready: true,
+        external_transport_implemented: false,
+        adapter_dispatch_claimed: false,
+        browser_mutation_claimed: false,
+        child_intervention_execution_claimed: false,
+        final_policy_execution_claimed: false,
+        enforcement_claimed: false,
+        rows: vec![row],
+    }
 }
 
 fn child_command_received(
@@ -129,6 +170,7 @@ fn parent_read_model_projected(
         .ok_or(BrowserRuntimeActionIntentChildStatusError::MissingPayload)
 }
 
+#[cfg(test)]
 fn handoff_matches_child_status(
     durable_row: &super::action_handoff_durable_types::BrowserRuntimeActionIntentDurableHandoffRecord,
     received: &ChildCommandReceivedEvent,
@@ -144,6 +186,7 @@ fn handoff_matches_child_status(
         && parent_read_model.visible_to_portal
 }
 
+#[cfg(test)]
 fn has_unsupported_claims(
     durable: &super::action_handoff_durable_types::BrowserRuntimeActionIntentDurableHandoffReport,
 ) -> bool {

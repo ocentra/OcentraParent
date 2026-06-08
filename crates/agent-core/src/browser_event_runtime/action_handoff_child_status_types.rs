@@ -21,7 +21,7 @@ pub struct BrowserRuntimeActionIntentChildStatusRecord {
 
 #[derive(Clone, Debug)]
 pub struct BrowserRuntimeActionIntentChildStatusReport {
-    pub durable_record_count: usize,
+    pub handoff_candidate_count: usize,
     pub child_command_received_count: usize,
     pub child_command_accepted_count: usize,
     pub parent_read_model_row_count: usize,
@@ -47,7 +47,7 @@ pub struct BrowserRuntimeActionIntentChildStatusReport {
 
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub enum BrowserRuntimeActionIntentChildStatusError {
-    DurableHandoff,
+    Handoff,
     ParentChildRuntime,
     MissingPayload,
     HandoffMismatch,
