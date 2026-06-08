@@ -124,6 +124,13 @@ apply/result, rollback, and audit refs are all present. Dry-run, weak evidence,
 non-block policy actions, manual-required, and unavailable states are
 non-executable, and exact URL, decrypted payload, page content, live firewall
 mutation, netsh or PowerShell invocation, and enforcement-command claims are
+rejected. The bounded Windows Firewall lab execution proof is separate from that
+adapter boundary: it accepts executed-and-rolled-back only when an apply-ready
+row38 adapter proof is paired with an Ocentra lab rule name, an RFC 5737
+TEST-NET target, administrator permission, and apply/verify-present/rollback/
+verify-removed command evidence. Missing host/admin/command evidence stays
+manual-required or unavailable, and production enforcement, persistent firewall
+rules, policy execution, enforcement commands, and exact-content claims remain
 rejected. The Windows WFP proof gate models lab-proof readiness only when
 grade-A block policy, parent rule, evidence, target/provider/layer, lab-ready
 capability, administrator permission, driver signing/package,
@@ -240,7 +247,8 @@ upload, live network adapter enforcement, file/content inspection, local-AI
 model execution/worker runtime, production model-quality monitoring, production
 SLO validation, full policy engine execution, notification provider delivery,
 portal AI audit UI, risk-budget, or performance rendering, live WFP
-driver/callout proof, live adapter execution, Android physical-device behavior,
+driver/callout proof, production Windows Firewall enforcement, live adapter
+execution, Android physical-device behavior,
 Apple entitlement/device behavior, Linux distro/kernel adapter behavior, live
 Zeek/TShark/Wireshark/Suricata/Snort execution, full support-material authoring,
 external audit execution, production deployment, and portal rendering remain

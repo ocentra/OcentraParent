@@ -105,6 +105,17 @@ The proof pack must contain or explicitly mark N/A for each applicable item:
       Device Owner authority, production Android support, exact content,
       policy/adapter authority, host filtering, and enforcement commands
       unclaimed.
+- [x] `38a-windows-firewall-lab-execution-proof`: bounded reversible Windows
+      Firewall lab execution proof. E-D writes
+      `output/network-plan-proof/38a-windows-firewall-lab-execution-proof/proof-summary.json`
+      and
+      `test-results/network-windows-firewall-lab-execution-proof/proof.json`
+      with Rust acceptance/rejection tests for apply-ready adapter proof input,
+      Ocentra lab rule naming, RFC 5737 TEST-NET targets, administrator
+      permission state, apply/verify-present/rollback/verify-removed command
+      evidence, manual-required/unavailable fallbacks, and no production
+      enforcement, persistent rule, policy execution, enforcement command, or
+      exact-content claim upgrades.
 - [x] `04-analyzer-alert-proof.json`: Zeek-style summaries,
       Suricata/Snort-compatible alert fixtures, false-positive guards, and
       no-signature-only-enforcement proof. E-D full-network proof writes
@@ -848,6 +859,18 @@ manual-required/N/A file.
       correlation, Device Owner authority, production Android support, adapter
       authority, host filtering, exact content, and enforcement commands remain
       unclaimed.
+- [x] Row 38a Windows Firewall bounded lab execution proof: E-D
+      `codex/network-live-capture-execution-proof` writes
+      `output/network-plan-proof/38a-windows-firewall-lab-execution-proof/proof-summary.json`
+      and
+      `test-results/network-windows-firewall-lab-execution-proof/proof.json`.
+      The Rust proof accepts only Ocentra lab rule names and RFC 5737 TEST-NET
+      targets, requires apply-ready row38 adapter proof plus
+      apply/verify-present/rollback/verify-removed command evidence, and records
+      manual-required or unavailable state when host/admin/command evidence is
+      absent. Production enforcement, persistent firewall rules, policy engine
+      execution, enforcement commands, exact URL, decrypted payload, page
+      content, and broader host filtering remain unclaimed.
 
 ## Worker Report Template
 

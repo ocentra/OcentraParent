@@ -1,0 +1,23 @@
+{
+  "row": "38a Windows Firewall lab execution proof",
+  "ruleName": "OcentraParentNetworkLab-row38a",
+  "targetRemoteAddress": "203.0.113.254",
+  "safeTargetClass": "RFC 5737 TEST-NET",
+  "commandSequence": [
+    "apply lab rule",
+    "verify lab rule present",
+    "rollback lab rule",
+    "verify lab rule removed"
+  ],
+  "executionOptIn": "NETWORK_WINDOWS_FIREWALL_LAB_EXECUTE=1",
+  "requiredRustState": "ExecutedAndRolledBack only when apply-ready adapter proof, admin permission, safe rule name, TEST-NET target, successful apply/verify/rollback/verify-removed evidence exist",
+  "fallbackState": "ManualRequired or Unavailable without host/admin/command evidence",
+  "notClaimed": [
+    "production enforcement",
+    "persistent firewall rule",
+    "policy engine execution",
+    "enforcement command publication",
+    "exact URL from network-only evidence",
+    "decrypted payload or page content"
+  ]
+}

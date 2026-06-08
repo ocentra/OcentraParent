@@ -452,6 +452,19 @@ compete on control while staying clear about attribution confidence and privacy.
   packet capture, packet blocking, app package correlation, Device Owner
   authority, production Android support, exact URL/content, adapter authority,
   host filtering, and enforcement-command claims.
+- E-D added a bounded Windows Firewall lab execution proof in
+  `ocentra-network-evidence`: an apply-ready row38 Windows Firewall adapter
+  proof can be paired with an Ocentra-specific lab rule name, an RFC 5737
+  TEST-NET remote address, administrator permission, and apply/verify-present/
+  rollback/verify-removed command evidence before the lab proof can report
+  executed-and-rolled-back. Without Windows host/admin/command evidence it stays
+  manual-required or unavailable. The proof writes
+  `output/network-plan-proof/38a-windows-firewall-lab-execution-proof/proof-summary.json`
+  and
+  `test-results/network-windows-firewall-lab-execution-proof/proof.json`, and
+  rejects production enforcement, persistent firewall rules, policy execution,
+  enforcement-command publication, exact URL, decrypted payload, and page
+  content claims.
 - E-D added fixture-backed visibility parsers for TLS ClientHello SNI, plain
   HTTP Host, QUIC limited-visibility detection, and DoH/DoT resolver-candidate
   detection. These parsers keep exact URL, visited domain, page content, and
@@ -666,6 +679,9 @@ production risk-budget service/UI wiring,
 production SLO validation,
 external audit/deployment execution, full support-material authoring, and
 parent-facing rule UX remain.
+The Windows Firewall lab execution proof narrows the Windows host proof gap to a
+bounded, reversible TEST-NET lab rule only; product enforcement, persistent
+rules, and parent-policy host filtering still require a production adapter path.
 Policy dispatch does not upgrade
 network/domain blocking beyond
 manual-required, and the broad-adapter proof and supported-adapter runtime proof
@@ -912,6 +928,14 @@ UI rendering remain open.
       adapter authorization, apply/result/rollback artifacts, and audit refs;
       dry-run/manual/unavailable states remain non-executable and live
       firewall mutation or command invocation is not claimed.
+- [x] Windows Firewall bounded lab execution proof.
+      The Rust proof accepts executed-and-rolled-back only with an apply-ready
+      row38 adapter proof, an Ocentra lab rule name, an RFC 5737 TEST-NET target,
+      administrator permission, and apply/verify-present/rollback/verify-removed
+      command evidence. It records manual-required or unavailable state when the
+      host/admin/command evidence is absent and rejects production enforcement,
+      persistent firewall rules, policy execution, enforcement commands, and
+      exact-content claims.
 - [x] Windows WFP research/proof gate.
       The Rust proof gate accepts lab-proof readiness only with grade-A block
       policy, parent-rule refs, evidence refs, target/provider/layer refs,

@@ -1,0 +1,14 @@
+
+running 7 tests
+test tests::windows_firewall_lab_execution::acceptance::windows_firewall_lab_is_manual_required_without_admin_or_commands ... ok
+test tests::windows_firewall_lab_execution::acceptance::windows_firewall_lab_reports_unavailable_without_windows_host ... ok
+test tests::windows_firewall_lab_execution::rejections::windows_firewall_lab_rejects_unsupported_claims ... ok
+test tests::windows_firewall_lab_execution::acceptance::windows_firewall_lab_accepts_bounded_apply_verify_rollback_evidence ... ok
+test tests::windows_firewall_lab_execution::rejections::windows_firewall_lab_rejects_failed_or_persistent_command_evidence ... ok
+test tests::windows_firewall_lab_execution::rejections::windows_firewall_lab_requires_apply_ready_remote_address_adapter_proof ... ok
+test tests::windows_firewall_lab_execution::rejections::windows_firewall_lab_requires_safe_rule_name_and_test_net_target ... ok
+
+test result: ok. 7 passed; 0 failed; 0 ignored; 0 measured; 241 filtered out; finished in 0.00s
+
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.27s
+     Running unittests src\lib.rs (target\debug\deps\ocentra_network_evidence-36610952c1128119.exe)
