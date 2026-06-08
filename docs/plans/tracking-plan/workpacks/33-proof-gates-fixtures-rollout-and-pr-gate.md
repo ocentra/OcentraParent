@@ -935,20 +935,25 @@ test:tracking-plan-hosted-ui-proof` passed.
       `codex/tracking-plan-full-continuation-a`.
 - [x] Touched files: parent-domain physical-device artifact gate proof/test,
       focused proof script, owning tracking feature doc, implementation
-      checklist, WP33, generated WP33 proof artifacts, and hub doc delta queue.
+      checklist, WP33, generated WP33 proof artifacts, generated named proof
+      root, and generated physical-device manual validation runbook.
 - [x] Validation commands and results:
       `node scripts/test/tracking-physical-device-artifact-gate-proof.mjs`
       passed.
 - [x] Proof artifacts:
       `output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-gate/49-physical-device-artifact-gate-proof.json`,
       `output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-gate/49-physical-device-artifact-gate-validation-commands.log`,
+      `output/tracking-plan-proof/tracking-physical-device-artifact-gate-proof/proof.json`,
+      `output/tracking-plan-proof/tracking-physical-device-artifact-gate-proof/00-source-snapshot.md`,
+      `output/tracking-plan-proof/tracking-physical-device-artifact-gate-proof/manual-validation-runbook.md`,
       `test-results/tracking-physical-device-artifact-gate-proof/proof.json`,
       and
       `test-results/tracking-physical-device-artifact-gate-proof/read-model.json`.
 - [x] Product doc/checklist updates: owning feature doc, implementation
       checklist, and WP33 updated. Central
-      `docs/product-capability-checklist.md` update is queued through the hub
-      doc delta instead of editing the shared checklist directly.
+      `docs/product-capability-checklist.md` was not edited in this batch because
+      the product checklist row already keeps physical-device proof manual-required
+      and another lane currently owns shared checklist edits.
 - [x] Known gaps/manual-required states: Android physical-device background
       geofence artifacts and iOS physical-device region-monitoring artifacts are
       missing, so physical-device behavior, authority enrollment, provider

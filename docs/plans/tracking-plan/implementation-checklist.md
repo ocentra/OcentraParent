@@ -139,7 +139,12 @@ Every checked item must cite one or more proof artifacts.
       `output/tracking-plan-proof/09-android-background-location-and-geofence-adapter/`;
       Android system geofence delivery remains unclaimed unless the system
       proximity broadcast counter is nonzero; dwell transition delivery and
-      physical-device proof remain required before this can be checked.
+      physical-device proof remain required before this can be checked. WP33
+      physical-device artifact gate proof now writes a named proof root and
+      manual validation runbook at
+      `output/tracking-plan-proof/tracking-physical-device-artifact-gate-proof/`
+      with Android physical-device acceptance criteria, commands, required
+      artifacts, and no-claim acceptance notes.
 - [ ] iOS background/region claims have real device permission/background
       proof. WP11/WP12 parent-domain manual-required proof rows now keep
       authorization, sample, degraded-state, Always/background, region,
@@ -147,7 +152,10 @@ Every checked item must cite one or more proof artifacts.
       product-ready claims false until matching artifacts exist. The same proof
       now records local simulator evidence refs plus required, present, and
       missing iOS Core Location/region runtime artifact refs, with zero runtime
-      artifacts present and the runtime artifact set incomplete.
+      artifacts present and the runtime artifact set incomplete. WP33
+      physical-device artifact gate proof now writes the named manual validation
+      runbook for the required iOS physical-device region-monitoring artifacts,
+      Xcode/device commands, acceptance criteria, and no-claim review notes.
 - [x] Desktop LAN/IP/Wi-Fi presence is labelled hint-only unless OS location
       proof exists. Contract proof:
       `output/tracking-plan-proof/13-desktop-location-and-presence-hint-model/`.

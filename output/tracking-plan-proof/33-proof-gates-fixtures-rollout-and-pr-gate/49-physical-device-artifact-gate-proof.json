@@ -3,8 +3,8 @@
   "proofMode": "tracking-physical-device-artifact-gate-proof",
   "generatedAt": "2026-06-07T18:20:00.000Z",
   "branch": "codex/tracking-plan-full-continuation-a",
-  "commit": "13615298fc1bbb27fe3455587b6e30a1beb81329",
-  "gitStatusShort": "M docs/features/location-geofence-device-status.md\n M docs/plans/tracking-plan/implementation-checklist.md\n M docs/plans/tracking-plan/workpacks/11-ios-core-location-foreground-adapter.md\n M docs/plans/tracking-plan/workpacks/12-ios-background-region-significant-change-adapter.md\n M docs/plans/tracking-plan/workpacks/33-proof-gates-fixtures-rollout-and-pr-gate.md\n M output/tracking-plan-proof/01-source-index-and-repo-reconciliation/00-source-snapshot.md\n M output/tracking-plan-proof/01-source-index-and-repo-reconciliation/proof.json\n M output/tracking-plan-proof/02-current-tracking-snapshot-and-gap-map/00-source-snapshot.md\n M output/tracking-plan-proof/02-current-tracking-snapshot-and-gap-map/proof.json\n M output/tracking-plan-proof/07-retention-and-custody-model/21-retention-settings-write-command-proof.json\n M output/tracking-plan-proof/07-retention-and-custody-model/22-retention-local-service-state-proof.json\n M output/tracking-plan-proof/07-retention-and-custody-model/23-retention-durable-settings-proof.json\n M output/tracking-plan-proof/07-retention-and-custody-model/24-retention-product-readiness-proof.json\n M output/tracking-plan-proof/07-retention-and-custody-model/25-retention-runtime-artifact-gate-proof.json\n M output/tracking-plan-proof/07-retention-and-custody-model/26-retention-product-settings-writable-execution-proof.json\n M output/tracking-plan-proof/11-ios-core-location-foreground-adapter/00-source-snapshot.md\n M output/tracking-plan-proof/11-ios-core-location-foreground-adapter/03-runtime-location-evidence.json\n M output/tracking-plan-proof/11-ios-core-location-foreground-adapter/16-validation-commands.log\n M output/tracking-plan-proof/11-ios-core-location-foreground-adapter/19-ios-location-manual-required-proof.json\n M output/tracking-plan-proof/12-ios-background-region-significant-change-adapter/00-source-snapshot.md\n M output/tracking-plan-proof/12-ios-background-region-significant-change-adapter/05-geofence-transition-proof.json\n M output/tracking-plan-proof/12-ios-background-region-significant-change-adapter/16-validation-commands.log\n M output/tracking-plan-proof/12-ios-background-region-significant-change-adapter/19-ios-location-manual-required-proof.json\n M output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/33-full-product-ui-local-runtime-artifact-capture-proof.json\n M output/tracking-plan-proof/32-journal-sqlite-and-read-model-proof/27-retention-settings-write-command-proof.json\n M output/tracking-plan-proof/32-journal-sqlite-and-read-model-proof/33-retention-local-service-state-proof.json\n M output/tracking-plan-proof/32-journal-sqlite-and-read-model-proof/34-retention-durable-settings-proof.json\n M output/tracking-plan-proof/32-journal-sqlite-and-read-model-proof/35-retention-product-readiness-proof.json\n M output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-gate/27-ios-location-manual-required-proof.json\n M output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-gate/33-retention-settings-write-command-proof.json\n M output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-gate/40-retention-local-service-state-proof.json\n M output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-gate/41-retention-durable-settings-proof.json\n M output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-gate/43-retention-product-readiness-proof.json\n M output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-gate/46-product-readiness-closure-proof.json\n M output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-gate/49-physical-device-artifact-gate-proof.json\n M output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-gate/60-retention-runtime-artifact-gate-proof.json\n M output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-gate/63-real-runtime-handoff-proof.json\n M output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-gate/64-retention-product-settings-writable-execution-proof.json\n M output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-gate/65-claim-audit-proof.json\n M output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-gate/66-full-product-ui-local-runtime-artifact-capture-proof.json\n M output/tracking-plan-proof/tracking-claim-audit-proof/00-source-snapshot.md\n M output/tracking-plan-proof/tracking-claim-audit-proof/proof.json\n M output/tracking-plan-proof/tracking-full-product-ui-local-runtime-artifact-capture-proof/00-source-snapshot.md\n M output/tracking-plan-proof/tracking-full-product-ui-local-runtime-artifact-capture-proof/proof.json\n M output/tracking-plan-proof/tracking-ios-location-wp33-gate-proof/00-source-snapshot.md\n M output/tracking-plan-proof/tracking-ios-location-wp33-gate-proof/proof.json\n M output/tracking-plan-proof/tracking-product-readiness-closure-proof/00-source-snapshot.md\n M output/tracking-plan-proof/tracking-product-readiness-closure-proof/proof.json\n M output/tracking-plan-proof/tracking-real-runtime-handoff-proof/00-source-snapshot.md\n M output/tracking-plan-proof/tracking-real-runtime-handoff-proof/manual-validation-runbook.md\n M output/tracking-plan-proof/tracking-real-runtime-handoff-proof/proof.json\n M output/tracking-plan-proof/tracking-retention-product-settings-writable-execution-proof/00-source-snapshot.md\n M output/tracking-plan-proof/tracking-retention-product-settings-writable-execution-proof/proof.json\n M output/tracking-plan-proof/tracking-retention-runtime-artifact-gate-proof/00-source-snapshot.md\n M output/tracking-plan-proof/tracking-retention-runtime-artifact-gate-proof/proof.json\n M output/tracking-plan-proof/tracking-retention/product-settings-writable-execution.json\n M packages/parent-domain/src/tracking-ios-location-manual-required-proof.ts\n M packages/parent-domain/tests/tracking-ios-location-manual-required-proof.test.ts\n M scripts/test/tracking-ios-location-manual-required-proof.mjs\n M test-results/tracking-claim-audit-proof/proof.json\n M test-results/tracking-full-product-ui-local-runtime-artifact-capture-proof/proof.json\n M test-results/tracking-ios-location-manual-required-proof/proof.json\n M test-results/tracking-ios-location-manual-required-proof/tracking-ios-location-manual-required-read-model.json\n M test-results/tracking-ios-location-wp33-gate-proof/proof.json\n M test-results/tracking-physical-device-artifact-gate-proof/proof.json\n M test-results/tracking-product-readiness-closure-proof/proof.json\n M test-results/tracking-real-runtime-handoff-proof/proof.json\n M test-results/tracking-retention-durable-settings-proof/proof.json\n M test-results/tracking-retention-local-service-state-proof/proof.json\n M test-results/tracking-retention-product-readiness-proof/proof.json\n M test-results/tracking-retention-product-settings-writable-execution-proof/proof.json\n M test-results/tracking-retention-runtime-artifact-gate-proof/proof.json\n M test-results/tracking-retention-settings-write-command-proof/proof.json\n M test-results/tracking-source-reconciliation-gap-map-proof/proof.json",
+  "commit": "e189dc74fb25fd65c292688df611908328e3d033",
+  "gitStatusShort": "M docs/features/location-geofence-device-status.md\n M docs/plans/tracking-plan/implementation-checklist.md\n M docs/plans/tracking-plan/workpacks/33-proof-gates-fixtures-rollout-and-pr-gate.md\n M output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-gate/49-physical-device-artifact-gate-proof.json\n M packages/parent-domain/src/tracking-physical-device-artifact-gate-proof.ts\n M packages/parent-domain/tests/tracking-physical-device-artifact-gate-proof.test.ts\n M scripts/test/tracking-physical-device-artifact-gate-proof.mjs\n M test-results/tracking-physical-device-artifact-gate-proof/proof.json\n M test-results/tracking-physical-device-artifact-gate-proof/read-model.json",
   "workpackId": "33-proof-gates-fixtures-rollout-and-pr-gate",
   "requiredProofTier": "P4_PHYSICAL_DEVICE",
   "currentProofTier": "P3_LOCAL_DEV_MACHINE",
@@ -51,6 +51,24 @@
         "auditRefs": [
           "tracking-physical-device-artifacts-android-audit"
         ],
+        "acceptanceCriteria": [
+          "Record a real child Android device run, not an emulator-only run.",
+          "Capture foreground and background permission state before and after the geofence scenario.",
+          "Show system geofence or background delivery evidence with timestamps, not only app-owned local listener rows.",
+          "Keep product-ready false until parent-visible UI, authority, provider, and production rows are separately complete."
+        ],
+        "manualValidationCommands": [
+          "adb devices -l",
+          "adb shell dumpsys package com.ocentra.parent.child | findstr ACCESS_BACKGROUND_LOCATION",
+          "adb logcat -d | findstr OcentraTracking",
+          "node scripts/test/tracking-physical-device-artifact-gate-proof.mjs"
+        ],
+        "artifactAcceptanceNotes": [
+          "Required android physical artifacts: 10.",
+          "Artifact-set-present only means the required files exist in the proof root.",
+          "Physical-device behavior remains unclaimed until a reviewer accepts the artifact contents.",
+          "Product claims stay false for authority, provider delivery, production runtime, and product readiness in this gate."
+        ],
         "physicalArtifactSetComplete": false,
         "physicalDeviceBehaviorClaimed": false,
         "authorityEnrollmentClaimed": false,
@@ -95,6 +113,24 @@
         "auditRefs": [
           "tracking-physical-device-artifacts-ios-audit"
         ],
+        "acceptanceCriteria": [
+          "Record a real child iOS device run, not simulator-only proof.",
+          "Capture Core Location authorization, Always/background state, and region monitoring registration evidence.",
+          "Show region/significant-change/visit delivery evidence with timestamps and parent alert decision refs.",
+          "Keep product-ready false until entitlement/review, authority, provider, and production rows are separately complete."
+        ],
+        "manualValidationCommands": [
+          "xcrun xctrace list devices",
+          "xcodebuild test -scheme OcentraParentChildTracking -destination id=<physical-device-udid>",
+          "xcrun simctl is not accepted for this row; attach physical-device logs instead",
+          "node scripts/test/tracking-physical-device-artifact-gate-proof.mjs"
+        ],
+        "artifactAcceptanceNotes": [
+          "Required ios physical artifacts: 10.",
+          "Artifact-set-present only means the required files exist in the proof root.",
+          "Physical-device behavior remains unclaimed until a reviewer accepts the artifact contents.",
+          "Product claims stay false for authority, provider delivery, production runtime, and product readiness in this gate."
+        ],
         "physicalArtifactSetComplete": false,
         "physicalDeviceBehaviorClaimed": false,
         "authorityEnrollmentClaimed": false,
@@ -126,13 +162,17 @@
     "manualRequiredRows": 2,
     "missingArtifactCount": 20,
     "physicalDeviceBehaviorClaimedRows": 0,
-    "productReadyRows": 0
+    "productReadyRows": 0,
+    "acceptanceCriteriaCount": 8,
+    "manualValidationCommandCount": 8,
+    "artifactAcceptanceNoteCount": 8
   },
   "proofLabels": [
     "tracking-physical-device.android-artifact-gate",
     "tracking-physical-device.ios-artifact-gate",
     "tracking-physical-device.no-behavior-claim-from-file-presence",
-    "tracking-physical-device.product-ready-false"
+    "tracking-physical-device.product-ready-false",
+    "tracking-physical-device.manual-runbook-ready"
   ],
   "productClaims": {
     "physicalDeviceBehaviorClaimed": false,
