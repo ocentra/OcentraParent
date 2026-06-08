@@ -697,20 +697,51 @@ Evidence:
 - `output/browser-plan-proof/browser-runtime-action-intent-child-status/01-browser-runtime-action-intent-child-status-proof.md`
 - `cargo test -p ocentra-parent-agent-core browser_runtime_action_intent_child_status_links_durable_handoff_to_child_acceptance --quiet`
 
-This is agent-core durable/status composition proof only. Public WebSocket
-stream fields for child acceptance refs remain a follow-up because
-`crates/agent-protocol/src/constants/field.rs` is currently owned by another
-lane. It does not add external broker or relay delivery, adapter dispatch,
-browser mutation, child intervention execution, final policy execution,
-unmanaged exact URL support, or enforcement.
+This is agent-core durable/status composition proof only. Nonzero public stream
+fields for child acceptance refs remain a follow-up until a real child
+transport/status read model exists. It does not add external broker or relay
+delivery, adapter dispatch, browser mutation, child intervention execution,
+final policy execution, unmanaged exact URL support, or enforcement.
+
+## Action-Intent Child Status Public Stream Addendum - 2026-06-08
+
+`browser-runtime-action-intent-child-status-public-stream-proof` exposes the
+browser action-intent child-status boundary through the service-backed public
+stream without promoting fixture-backed child acceptance refs into runtime
+state. The stream now carries accepted child row count plus child command, child
+accepted-event, and parent read-model ref arrays. The current service-backed
+runtime reports zero accepted child rows and empty ref arrays, and the shared
+protocol parser rejects mismatched child-status counts before portal state
+accepts the stream.
+
+Evidence:
+
+- `crates/agent-protocol/src/constants/field.rs`
+- `crates/agent-service/src/browser_runtime_stream_payload.rs`
+- `crates/agent-service/src/browser_runtime_stream_tests.rs`
+- `packages/agent-protocol-domain/src/defaults.ts`
+- `packages/agent-protocol-domain/src/browser-runtime-events.ts`
+- `packages/agent-protocol-domain/tests/browser-runtime-events.test.ts`
+- `apps/portal/tests/live-activity-state.test.ts`
+- `scripts/test/browser-runtime-action-intent-child-status-public-stream-proof.mjs`
+- `test-results/browser-runtime-action-intent-child-status-public-stream-proof/proof.json`
+- `output/browser-plan-proof/browser-runtime-action-intent-child-status-public-stream/01-browser-runtime-action-intent-child-status-public-stream-proof.md`
+- `cargo test -p ocentra-parent-agent-service service_browser_runtime_action_intent_status_projects_pending_candidate --quiet`
+- `cargo test -p ocentra-parent-agent-service websocket_browser_runtime_stream_command_reports_store_backed_chain --quiet`
+- `cmd /c npm run test --workspace @ocentra-parent/agent-protocol-domain -- browser-runtime-events.test.ts`
+- `cmd /c npm run test --workspace @ocentra-parent/portal -- live-activity-state.test.ts`
+
+This is no-observation stream status only. It does not add external child
+transport, adapter dispatch, browser mutation, child intervention execution,
+final policy execution, unmanaged exact URL support, or enforcement.
 
 ## No Fixture Service Exposure Addendum - 2026-06-08
 
 `browser-runtime-no-fixture-service-exposure-proof` guards the child-status
 boundary from becoming a fake runtime claim. The child-status composition stays
 `#[cfg(test)]`, the service-backed browser runtime stream does not call the
-fixture-backed proof, and the shared protocol parser plus portal state do not
-invent child accepted/read-model fields until a real child transport/status
+fixture-backed proof, and the shared protocol parser plus portal state expose
+only no-observation child-status fields until a real child transport/status
 read model exists.
 
 Evidence:
@@ -720,10 +751,9 @@ Evidence:
 - `output/browser-plan-proof/browser-runtime-no-fixture-service-exposure/01-browser-runtime-no-fixture-service-exposure-proof.md`
 - `cmd /c node scripts/test/browser-runtime-no-fixture-service-exposure-proof.mjs`
 
-This is a no-overclaim guard only. It does not add public child-status stream
-fields, external transport, adapter dispatch, browser mutation, child
-intervention execution, final policy execution, unmanaged exact URL support, or
-enforcement.
+This is a no-overclaim guard only. It does not add nonzero public child-status
+refs, external transport, adapter dispatch, browser mutation, child intervention
+execution, final policy execution, unmanaged exact URL support, or enforcement.
 
 ## Event Name Parity Addendum - 2026-06-08
 

@@ -37,6 +37,26 @@ const BROWSER_ACTION_INTENT_EXECUTION_FIELDS: [&str; 4] = [
     constants::field::BROWSER_RUNTIME_ACTION_INTENT_ENFORCEMENT_EXECUTIONS,
 ];
 
+const BROWSER_ACTION_INTENT_CHILD_STATUS_REF_FIELDS: [&str; 3] = [
+    constants::field::BROWSER_RUNTIME_ACTION_INTENT_CHILD_COMMAND_REFS,
+    constants::field::BROWSER_RUNTIME_ACTION_INTENT_CHILD_ACCEPTED_EVENT_REFS,
+    constants::field::BROWSER_RUNTIME_ACTION_INTENT_PARENT_READ_MODEL_REFS,
+];
+
+macro_rules! assert_child_status_payload_empty {
+    ($payload:expr) => {{
+        assert_eq!(
+            $payload.get(constants::field::BROWSER_RUNTIME_ACTION_INTENT_CHILD_ACCEPTED_ROWS),
+            Some(&LogFieldValue::Number(0.0))
+        );
+        let empty_array =
+            LogFieldValue::String(serde_json::to_string(&Vec::<String>::new()).unwrap());
+        for field in BROWSER_ACTION_INTENT_CHILD_STATUS_REF_FIELDS {
+            assert_eq!($payload.get(field), Some(&empty_array));
+        }
+    }};
+}
+
 #[tokio::test]
 async fn service_browser_runtime_streams_protocol_event_chain_entries() {
     let report = stream_browser_runtime_event_chain_for_read_model_with_policy_preview(
@@ -58,7 +78,6 @@ async fn service_browser_runtime_streams_protocol_event_chain_entries() {
     assert_eq!(report.intervention_command_events, 0);
     assert_eq!(report.read_model_projection_events, 1);
     assert_eq!(report.action_intent_candidates, 0);
-    assert_eq!(report.action_intent_handoff_candidates, 0);
     assert!(report.action_intent_handoff_outbox_refs.is_empty());
     assert!(report.action_intent_handoff_refs.is_empty());
     assert_eq!(report.action_intent_dispatch_attempts, 0);
@@ -69,6 +88,7 @@ async fn service_browser_runtime_streams_protocol_event_chain_entries() {
         payload.get(constants::field::BROWSER_RUNTIME_ACTION_INTENT_CANDIDATES),
         Some(&LogFieldValue::Number(0.0))
     );
+    assert_child_status_payload_empty!(payload);
     assert_eq!(
         entries[0][constants::field::EVENT_TYPE],
         constants::browser::EVENT_BROWSER_EVIDENCE_OBSERVED
@@ -189,6 +209,7 @@ async fn service_browser_runtime_action_intent_status_projects_pending_candidate
     for field in BROWSER_ACTION_INTENT_EXECUTION_FIELDS {
         assert_eq!(payload.get(field), Some(&LogFieldValue::Number(0.0)));
     }
+    assert_child_status_payload_empty!(payload);
 }
 
 #[tokio::test]
@@ -223,7 +244,6 @@ async fn service_browser_runtime_stream_projects_store_backed_policy_preview_can
     assert_eq!(report.action_intent_dispatch_attempts, 0);
     assert_eq!(report.action_intent_adapter_executions, 0);
     assert_eq!(report.action_intent_child_intervention_executions, 0);
-    assert_eq!(report.action_intent_enforcement_executions, 0);
     assert_eq!(report.intervention_command_events, 0);
     assert_eq!(
         payload.get(constants::field::BROWSER_RUNTIME_ACTION_INTENT_CANDIDATES),
@@ -251,6 +271,7 @@ async fn service_browser_runtime_stream_projects_store_backed_policy_preview_can
             .unwrap()
         ))
     );
+    assert_child_status_payload_empty!(payload);
     assert_eq!(
         policy_entry[constants::field::PAYLOAD][constants::field::POLICY_PREVIEW_ID],
         policy_constants::TEST_PREVIEW_ID
@@ -435,6 +456,7 @@ async fn websocket_browser_runtime_stream_command_reports_store_backed_chain() {
             .get(constants::field::BROWSER_RUNTIME_ACTION_INTENT_CANDIDATES),
         Some(&LogFieldValue::Number(1.0))
     );
+    assert_child_status_payload_empty!(event.payload);
     assert_eq!(
         event
             .payload

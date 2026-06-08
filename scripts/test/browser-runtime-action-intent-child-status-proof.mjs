@@ -84,7 +84,7 @@ async function sourceChecks() {
       childStatusTypes.includes('child_command_received_event_ref') &&
       childStatusTypes.includes('child_command_accepted_event_ref') &&
       childStatusTypes.includes('parent_read_model_projected_event_ref'),
-    publicStreamFieldRegistryStillBlocked:
+    serviceStreamStatusStaysNoObservationOnly:
       childStatus.includes('public_stream_field_registry_ready: false') &&
       !runtimeExport.includes('BROWSER_RUNTIME_ACTION_INTENT_CHILD_ACCEPTED_REFS'),
     noExecutionClaims:
@@ -101,6 +101,7 @@ async function sourceChecks() {
       runtimeTests.includes('public_stream_field_registry_ready'),
     docsMentionChildStatusProof:
       workpack.includes('Action-Intent Child Status Addendum') &&
+      workpack.includes('Action-Intent Child Status Public Stream Addendum') &&
       checklist.includes('browser-runtime-action-intent-child-status-proof'),
   };
 }
@@ -136,7 +137,8 @@ async function main() {
       childReceivedStatusVisible: true,
       childAcceptedStatusVisible: true,
       parentReadModelProjectedStatusVisible: true,
-      publicStreamFieldRegistryReady: false,
+      publicStreamFieldRegistryReady: true,
+      serviceStreamChildStatusBoundary: 'no-observation-only',
       dispatchAttemptCount: 0,
       adapterExecutionCount: 0,
       browserMutationCount: 0,
@@ -146,9 +148,9 @@ async function main() {
     },
     remainingGap: {
       reason:
-        'crates/agent-protocol/src/constants/field.rs is locked by another lane, so this proof does not add public WebSocket stream fields for child acceptance refs.',
+        'The service stream exposes honest no-observation child-status fields, but it still does not promote fixture-backed child acceptance refs into runtime state.',
       requiredFollowUp:
-        'After the shared field registry is available, expose child accepted/read-model refs through the service stream payload and portal parser.',
+        'Add a real child transport/status read model before reporting nonzero child accepted rows or concrete child command/accepted/read-model refs from the service stream.',
     },
   };
 
@@ -162,7 +164,7 @@ async function main() {
       '',
       'It verifies the browser action-intent id reaches a named `browser-action-intent-handoff` child command, records child received/accepted refs, and projects a parent-visible read-model row while preserving zero execution counters.',
       '',
-      'The public WebSocket stream field registry is not changed in this slice because `crates/agent-protocol/src/constants/field.rs` is currently owned by another lane.',
+      'The public service stream now exposes child-status no-observation fields separately from this fixture-backed proof. Nonzero child accepted rows remain blocked until a real child transport/status read model exists.',
       '',
       'Validation:',
       ...proof.commands.map((command) => `- \`${command}\``),

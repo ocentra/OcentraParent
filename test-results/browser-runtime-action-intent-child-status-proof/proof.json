@@ -1,12 +1,12 @@
 {
   "proofName": "browser-runtime-action-intent-child-status-proof",
-  "branchHead": "8a40052cc Harden browser runtime delivery decision proof",
+  "branchHead": "14ed9c311 Add browser receipt delivery decision proof",
   "sourceChecks": {
     "proofModuleExported": true,
     "durableHandoffComposed": true,
     "parentChildSequenceComposed": true,
     "statusRowCarriesChildAcceptanceRefs": true,
-    "publicStreamFieldRegistryStillBlocked": true,
+    "serviceStreamStatusStaysNoObservationOnly": true,
     "noExecutionClaims": true,
     "rustTestProvesRefsAndNoClaims": true,
     "docsMentionChildStatusProof": true
@@ -20,7 +20,8 @@
     "childReceivedStatusVisible": true,
     "childAcceptedStatusVisible": true,
     "parentReadModelProjectedStatusVisible": true,
-    "publicStreamFieldRegistryReady": false,
+    "publicStreamFieldRegistryReady": true,
+    "serviceStreamChildStatusBoundary": "no-observation-only",
     "dispatchAttemptCount": 0,
     "adapterExecutionCount": 0,
     "browserMutationCount": 0,
@@ -29,7 +30,7 @@
     "enforcementExecutionCount": 0
   },
   "remainingGap": {
-    "reason": "crates/agent-protocol/src/constants/field.rs is locked by another lane, so this proof does not add public WebSocket stream fields for child acceptance refs.",
-    "requiredFollowUp": "After the shared field registry is available, expose child accepted/read-model refs through the service stream payload and portal parser."
+    "reason": "The service stream exposes honest no-observation child-status fields, but it still does not promote fixture-backed child acceptance refs into runtime state.",
+    "requiredFollowUp": "Add a real child transport/status read model before reporting nonzero child accepted rows or concrete child command/accepted/read-model refs from the service stream."
   }
 }

@@ -30,6 +30,10 @@ type BrowserRuntimeEventChainStreamEventInput = {
   readonly actionIntentHandoffCandidates?: number;
   readonly actionIntentHandoffOutboxRefs?: readonly string[];
   readonly actionIntentHandoffRefs?: readonly string[];
+  readonly actionIntentChildAcceptedRows?: number;
+  readonly actionIntentChildCommandRefs?: readonly string[];
+  readonly actionIntentChildAcceptedEventRefs?: readonly string[];
+  readonly actionIntentParentReadModelRefs?: readonly string[];
   readonly actionIntentDispatchAttempts?: number;
   readonly socialProviderReceiptBoundaryRows?: number;
   readonly socialProviderDispatchRequiredRows?: number;
@@ -261,6 +265,19 @@ describe('portal browser runtime event-chain state', () => {
 
     expect(state.browserRuntimeEventChainStream).toBeNull();
   });
+
+  it('rejects browser runtime child status refs when accepted row counts drift', () => {
+    const state = resolveLiveActivityState([
+      browserRuntimeEventChainStreamEvent({
+        actionIntentChildAcceptedRows: 1,
+        actionIntentChildCommandRefs: ['browser-child-command-ref-test'],
+        actionIntentChildAcceptedEventRefs: [],
+        actionIntentParentReadModelRefs: ['browser-parent-read-model-ref-test'],
+      }),
+    ]);
+
+    expect(state.browserRuntimeEventChainStream).toBeNull();
+  });
 });
 
 describe('portal browser runtime social provider receipt state', () => {
@@ -334,6 +351,10 @@ describe('portal browser runtime action-intent handoff state', () => {
         actionIntentHandoffCandidates: 1,
         actionIntentHandoffOutboxRefs: ['browser-action-intent-outbox-ref-test'],
         actionIntentHandoffRefs: ['browser-action-intent-handoff-ref-test'],
+        actionIntentChildAcceptedRows: 0,
+        actionIntentChildCommandRefs: [],
+        actionIntentChildAcceptedEventRefs: [],
+        actionIntentParentReadModelRefs: [],
       }),
     ]);
 
@@ -344,6 +365,10 @@ describe('portal browser runtime action-intent handoff state', () => {
     expect(state.browserRuntimeEventChainStream?.actionIntentHandoffRefs).toEqual([
       'browser-action-intent-handoff-ref-test',
     ]);
+    expect(state.browserRuntimeEventChainStream?.actionIntentChildAcceptedRows).toBe(0);
+    expect(state.browserRuntimeEventChainStream?.actionIntentChildCommandRefs).toEqual([]);
+    expect(state.browserRuntimeEventChainStream?.actionIntentChildAcceptedEventRefs).toEqual([]);
+    expect(state.browserRuntimeEventChainStream?.actionIntentParentReadModelRefs).toEqual([]);
     expect(state.browserRuntimeEventChainStream?.actionIntentDispatchAttempts).toBe(0);
     expect(state.browserRuntimeEventChainStream?.actionIntentChildInterventionExecutions).toBe(0);
     expect(state.browserRuntimeEventChainStream?.actionIntentEnforcementExecutions).toBe(0);
@@ -404,6 +429,10 @@ function expectBrowserRuntimeStreamCounts(state: ResolvedLiveActivityState) {
   expect(stream.actionIntentHandoffCandidates).toBe(0);
   expect(stream.actionIntentHandoffOutboxRefs).toEqual([]);
   expect(stream.actionIntentHandoffRefs).toEqual([]);
+  expect(stream.actionIntentChildAcceptedRows).toBe(0);
+  expect(stream.actionIntentChildCommandRefs).toEqual([]);
+  expect(stream.actionIntentChildAcceptedEventRefs).toEqual([]);
+  expect(stream.actionIntentParentReadModelRefs).toEqual([]);
   expect(stream.actionIntentDispatchAttempts).toBe(0);
   expect(stream.actionIntentAdapterExecutions).toBe(0);
   expect(stream.actionIntentChildInterventionExecutions).toBe(0);
@@ -735,6 +764,16 @@ function browserRuntimeActionIntentPayload(input: BrowserRuntimeEventChainStream
     ),
     [AgentProtocolDefaults.Field.BrowserRuntimeActionIntentHandoffRefs]: JSON.stringify(
       input.actionIntentHandoffRefs ?? []
+    ),
+    [AgentProtocolDefaults.Field.BrowserRuntimeActionIntentChildAcceptedRows]: input.actionIntentChildAcceptedRows ?? 0,
+    [AgentProtocolDefaults.Field.BrowserRuntimeActionIntentChildCommandRefs]: JSON.stringify(
+      input.actionIntentChildCommandRefs ?? []
+    ),
+    [AgentProtocolDefaults.Field.BrowserRuntimeActionIntentChildAcceptedEventRefs]: JSON.stringify(
+      input.actionIntentChildAcceptedEventRefs ?? []
+    ),
+    [AgentProtocolDefaults.Field.BrowserRuntimeActionIntentParentReadModelRefs]: JSON.stringify(
+      input.actionIntentParentReadModelRefs ?? []
     ),
     [AgentProtocolDefaults.Field.BrowserRuntimeActionIntentDispatchAttempts]: input.actionIntentDispatchAttempts ?? 0,
     [AgentProtocolDefaults.Field.BrowserRuntimeActionIntentAdapterExecutions]: 0,

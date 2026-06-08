@@ -35,6 +35,10 @@ pub(crate) struct BrowserRuntimeServiceStreamReport {
     pub(crate) action_intent_handoff_candidates: usize,
     pub(crate) action_intent_handoff_outbox_refs: Vec<String>,
     pub(crate) action_intent_handoff_refs: Vec<String>,
+    pub(crate) action_intent_child_accepted_rows: usize,
+    pub(crate) action_intent_child_command_refs: Vec<String>,
+    pub(crate) action_intent_child_accepted_event_refs: Vec<String>,
+    pub(crate) action_intent_parent_read_model_refs: Vec<String>,
     pub(crate) social_provider_receipt_boundary_rows: usize,
     pub(crate) social_provider_dispatch_required_rows: usize,
     pub(crate) social_provider_manual_receipt_required_rows: usize,
@@ -128,6 +132,23 @@ pub(crate) fn browser_runtime_event_chain_stream_payload(
             count_value(report.read_model_projection_events),
         ),
         (
+            constants::field::BROWSER_RUNTIME_EVENT_CHAIN_STREAM,
+            LogFieldValue::String(
+                serde_json::to_string(&report.entries)
+                    .expect(constants::error::AGENT_EVENT_SERIALIZES),
+            ),
+        ),
+    ];
+    pairs.extend(action_intent_payload_fields(report));
+    pairs.extend(social_provider_receipt_payload_fields(report));
+    fields_from_pairs(pairs)
+}
+
+fn action_intent_payload_fields(
+    report: &BrowserRuntimeServiceStreamReport,
+) -> Vec<(&'static str, LogFieldValue)> {
+    vec![
+        (
             constants::field::BROWSER_RUNTIME_ACTION_INTENT_CANDIDATES,
             count_value(report.action_intent_candidates),
         ),
@@ -142,6 +163,22 @@ pub(crate) fn browser_runtime_event_chain_stream_payload(
         (
             constants::field::BROWSER_RUNTIME_ACTION_INTENT_HANDOFF_REFS,
             string_array_value(&report.action_intent_handoff_refs),
+        ),
+        (
+            constants::field::BROWSER_RUNTIME_ACTION_INTENT_CHILD_ACCEPTED_ROWS,
+            count_value(report.action_intent_child_accepted_rows),
+        ),
+        (
+            constants::field::BROWSER_RUNTIME_ACTION_INTENT_CHILD_COMMAND_REFS,
+            string_array_value(&report.action_intent_child_command_refs),
+        ),
+        (
+            constants::field::BROWSER_RUNTIME_ACTION_INTENT_CHILD_ACCEPTED_EVENT_REFS,
+            string_array_value(&report.action_intent_child_accepted_event_refs),
+        ),
+        (
+            constants::field::BROWSER_RUNTIME_ACTION_INTENT_PARENT_READ_MODEL_REFS,
+            string_array_value(&report.action_intent_parent_read_model_refs),
         ),
         (
             constants::field::BROWSER_RUNTIME_ACTION_INTENT_DISPATCH_ATTEMPTS,
@@ -159,16 +196,7 @@ pub(crate) fn browser_runtime_event_chain_stream_payload(
             constants::field::BROWSER_RUNTIME_ACTION_INTENT_ENFORCEMENT_EXECUTIONS,
             count_value(report.action_intent_enforcement_executions),
         ),
-        (
-            constants::field::BROWSER_RUNTIME_EVENT_CHAIN_STREAM,
-            LogFieldValue::String(
-                serde_json::to_string(&report.entries)
-                    .expect(constants::error::AGENT_EVENT_SERIALIZES),
-            ),
-        ),
-    ];
-    pairs.extend(social_provider_receipt_payload_fields(report));
-    fields_from_pairs(pairs)
+    ]
 }
 
 fn social_provider_receipt_payload_fields(

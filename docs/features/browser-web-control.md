@@ -267,6 +267,12 @@ control while being more honest about managed versus unmanaged sources.
   rejects duplicate request event ids, and keeps external transport, dispatch,
   browser mutation, child intervention execution, final policy execution, and
   enforcement unclaimed.
+- Browser-plan WP13 now also exposes public browser action-intent child-status
+  no-observation fields through the service stream: accepted row count plus child
+  command, child accepted-event, and parent read-model refs. The current runtime
+  reports zero/empty values, the shared parser rejects mismatched child-status
+  counts, and fixture-backed child acceptance refs remain test-only until a real
+  child transport/status read model exists.
 - Browser-plan WP03 now carries publisher-signature and file-hash evidence refs
   through activity-domain inventory contracts, Rust protocol, and service
   payload/read-model proof. Contract tests cover mixed managed, unmanaged, and

@@ -323,6 +323,14 @@ pub const BROWSER_RUNTIME_ACTION_INTENT_HANDOFF_OUTBOX_REFS: &str =
     "browserRuntimeActionIntentHandoffOutboxRefs";
 pub const BROWSER_RUNTIME_ACTION_INTENT_HANDOFF_REFS: &str =
     "browserRuntimeActionIntentHandoffRefs";
+pub const BROWSER_RUNTIME_ACTION_INTENT_CHILD_ACCEPTED_ROWS: &str =
+    "browserRuntimeActionIntentChildAcceptedRows";
+pub const BROWSER_RUNTIME_ACTION_INTENT_CHILD_COMMAND_REFS: &str =
+    "browserRuntimeActionIntentChildCommandRefs";
+pub const BROWSER_RUNTIME_ACTION_INTENT_CHILD_ACCEPTED_EVENT_REFS: &str =
+    "browserRuntimeActionIntentChildAcceptedEventRefs";
+pub const BROWSER_RUNTIME_ACTION_INTENT_PARENT_READ_MODEL_REFS: &str =
+    "browserRuntimeActionIntentParentReadModelRefs";
 pub const BROWSER_RUNTIME_ACTION_INTENT_DISPATCH_ATTEMPTS: &str =
     "browserRuntimeActionIntentDispatchAttempts";
 pub const BROWSER_RUNTIME_ACTION_INTENT_ADAPTER_EXECUTIONS: &str =

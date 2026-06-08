@@ -788,10 +788,25 @@ The proof validates durable result/read-model refs, the
 event refs, parent read-model projection visibility, and zero
 dispatch/adapter/browser-mutation/child-intervention/final-policy/enforcement
 counters. Public WebSocket stream fields for child acceptance refs remain a
-follow-up because `crates/agent-protocol/src/constants/field.rs` is currently
-owned by another lane. No product capability checklist update: this is
-agent-core proof/status composition only and does not upgrade real browser,
-exact URL, intervention, or enforcement capability.
+follow-up for nonzero child acceptance refs until a real child transport/status
+read model exists. No product capability checklist update: this is agent-core
+proof/status composition only and does not upgrade real browser, exact URL,
+intervention, or enforcement capability.
+
+WP13 action-intent child-status public stream addendum:
+`browser-runtime-action-intent-child-status-public-stream-proof` adds Rust
+protocol constants, service payload fields, shared TypeScript parser/defaults,
+and portal parser coverage for child-status no-observation stream fields.
+Evidence:
+`test-results/browser-runtime-action-intent-child-status-public-stream-proof/proof.json`
+and
+`output/browser-plan-proof/browser-runtime-action-intent-child-status-public-stream/01-browser-runtime-action-intent-child-status-public-stream-proof.md`.
+The proof validates zero accepted child rows with empty child command,
+accepted-event, and parent read-model refs, rejects mismatched counts in shared
+protocol/portal parsing, and verifies the service does not call the
+fixture-backed child-status proof. It does not add child transport, adapter
+dispatch, browser mutation, child intervention execution, final policy
+execution, unmanaged exact URL support, or enforcement.
 
 WP13 no-fixture service exposure addendum:
 `browser-runtime-no-fixture-service-exposure-proof` guards the child-status
@@ -800,12 +815,12 @@ boundary from fake runtime promotion. Evidence:
 `output/browser-plan-proof/browser-runtime-no-fixture-service-exposure/01-browser-runtime-no-fixture-service-exposure-proof.md`.
 The proof verifies that the child-status composition remains `#[cfg(test)]`,
 the service-backed browser runtime stream does not call fixture-backed
-child-status proof code, and protocol/portal parsers do not invent public child
-accepted/read-model fields before a real child transport/status read model
-exists. No product capability checklist update: this is a no-overclaim guard
-only and does not add public child-status stream fields, external transport,
-adapter dispatch, browser mutation, child intervention execution, final policy
-execution, unmanaged exact URL support, or enforcement.
+child-status proof code, and protocol/portal parsers expose only no-observation
+child-status fields before a real child transport/status read model exists. No
+product capability checklist update: this is a no-overclaim guard only and does
+not add nonzero public child-status refs, external transport, adapter dispatch,
+browser mutation, child intervention execution, final policy execution,
+unmanaged exact URL support, or enforcement.
 
 WP13 event-name parity addendum:
 `browser-runtime-event-name-parity-proof` aligns the shared TypeScript browser

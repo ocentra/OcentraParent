@@ -1,0 +1,41 @@
+{
+  "proofName": "browser-runtime-action-intent-child-status-public-stream-proof",
+  "branchHead": "14ed9c311 Add browser receipt delivery decision proof",
+  "sourceChecks": {
+    "rustFieldConstantsAdded": true,
+    "servicePayloadPublishesNoObservationFields": true,
+    "servicePayloadDoesNotCallFixtureProof": true,
+    "serviceTestsProveZeroEmptyPublicFields": true,
+    "protocolDefaultsAdded": true,
+    "protocolParserValidatesHonestCounts": true,
+    "protocolTestsRejectOverclaims": true,
+    "portalTestsRejectOverclaims": true,
+    "docsRecordPublicStreamBoundary": true
+  },
+  "commands": [
+    "cargo test -p ocentra-parent-agent-service service_browser_runtime_action_intent_status_projects_pending_candidate --quiet",
+    "cargo test -p ocentra-parent-agent-service websocket_browser_runtime_stream_command_reports_store_backed_chain --quiet",
+    "cmd /c npm run build --workspace @ocentra-parent/agent-protocol-domain",
+    "cmd /c npm run test --workspace @ocentra-parent/agent-protocol-domain -- browser-runtime-events.test.ts",
+    "cmd /c npm run test --workspace @ocentra-parent/portal -- live-activity-state.test.ts"
+  ],
+  "verified": {
+    "publicNoObservationFieldsAdded": true,
+    "serviceStreamChildAcceptedRows": 0,
+    "serviceStreamChildCommandRefs": [],
+    "serviceStreamChildAcceptedEventRefs": [],
+    "serviceStreamParentReadModelRefs": [],
+    "mismatchedChildStatusCountsRejected": true,
+    "fixtureChildStatusNotPromotedToService": true,
+    "externalTransportImplemented": false,
+    "adapterDispatchClaimed": false,
+    "browserMutationClaimed": false,
+    "childInterventionExecutionClaimed": false,
+    "finalPolicyExecutionClaimed": false,
+    "enforcementClaimed": false
+  },
+  "requiredFollowUp": {
+    "condition": "Report nonzero child accepted rows only after a real child transport/status read model feeds service stream state.",
+    "forbiddenShortcut": "Do not call the fixture-backed child-status proof from agent-service or portal runtime state."
+  }
+}

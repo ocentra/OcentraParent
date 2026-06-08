@@ -161,6 +161,10 @@ function specifyStreamParsing() {
   expect(parsed.value.actionIntentHandoffCandidates).toBe(0);
   expect(parsed.value.actionIntentHandoffOutboxRefs).toEqual([]);
   expect(parsed.value.actionIntentHandoffRefs).toEqual([]);
+  expect(parsed.value.actionIntentChildAcceptedRows).toBe(0);
+  expect(parsed.value.actionIntentChildCommandRefs).toEqual([]);
+  expect(parsed.value.actionIntentChildAcceptedEventRefs).toEqual([]);
+  expect(parsed.value.actionIntentParentReadModelRefs).toEqual([]);
   expect(parsed.value.actionIntentDispatchAttempts).toBe(0);
   expect(parsed.value.actionIntentAdapterExecutions).toBe(0);
   expect(parsed.value.actionIntentChildInterventionExecutions).toBe(0);
@@ -234,6 +238,10 @@ function specifyDryRunActionHandoffParsing() {
       actionIntentHandoffCandidates: 1,
       actionIntentHandoffOutboxRefs: ['browser-action-intent-outbox-ref-test'],
       actionIntentHandoffRefs: ['browser-action-intent-handoff-ref-test'],
+      actionIntentChildAcceptedRows: 0,
+      actionIntentChildCommandRefs: [],
+      actionIntentChildAcceptedEventRefs: [],
+      actionIntentParentReadModelRefs: [],
     })
   );
 
@@ -250,6 +258,10 @@ function specifyDryRunActionHandoffParsing() {
   expect(parsed.value.actionIntentHandoffCandidates).toBe(1);
   expect(parsed.value.actionIntentHandoffOutboxRefs).toEqual(['browser-action-intent-outbox-ref-test']);
   expect(parsed.value.actionIntentHandoffRefs).toEqual(['browser-action-intent-handoff-ref-test']);
+  expect(parsed.value.actionIntentChildAcceptedRows).toBe(0);
+  expect(parsed.value.actionIntentChildCommandRefs).toEqual([]);
+  expect(parsed.value.actionIntentChildAcceptedEventRefs).toEqual([]);
+  expect(parsed.value.actionIntentParentReadModelRefs).toEqual([]);
 }
 
 function specifyActionIntentStatus() {
@@ -264,6 +276,10 @@ function specifyActionIntentStatus() {
         actionIntentHandoffCandidates: 1,
         actionIntentHandoffOutboxRefs: ['browser-action-intent-outbox-ref-test'],
         actionIntentHandoffRefs: ['browser-action-intent-handoff-ref-test'],
+        actionIntentChildAcceptedRows: 0,
+        actionIntentChildCommandRefs: [],
+        actionIntentChildAcceptedEventRefs: [],
+        actionIntentParentReadModelRefs: [],
       }
     )
   );
@@ -279,6 +295,10 @@ function specifyActionIntentStatus() {
     handoffCandidateCount: 1,
     handoffOutboxRefs: ['browser-action-intent-outbox-ref-test'],
     handoffRefs: ['browser-action-intent-handoff-ref-test'],
+    childAcceptedRows: 0,
+    childCommandRefs: [],
+    childAcceptedEventRefs: [],
+    parentReadModelRefs: [],
     dispatchAttemptCount: 0,
     adapterExecutionCount: 0,
     childInterventionExecutionCount: 0,
@@ -307,6 +327,10 @@ function specifyActionIntentStatus() {
   expect(emptyStatus.handoffCandidateCount).toBe(0);
   expect(emptyStatus.handoffOutboxRefs).toEqual([]);
   expect(emptyStatus.handoffRefs).toEqual([]);
+  expect(emptyStatus.childAcceptedRows).toBe(0);
+  expect(emptyStatus.childCommandRefs).toEqual([]);
+  expect(emptyStatus.childAcceptedEventRefs).toEqual([]);
+  expect(emptyStatus.parentReadModelRefs).toEqual([]);
 }
 
 function specifySocialProviderReceiptStatus() {
@@ -316,6 +340,10 @@ function specifySocialProviderReceiptStatus() {
       actionIntentHandoffCandidates: 1,
       actionIntentHandoffOutboxRefs: ['browser-action-intent-outbox-ref-test'],
       actionIntentHandoffRefs: ['browser-action-intent-handoff-ref-test'],
+      actionIntentChildAcceptedRows: 0,
+      actionIntentChildCommandRefs: [],
+      actionIntentChildAcceptedEventRefs: [],
+      actionIntentParentReadModelRefs: [],
       socialProviderReceiptBoundaryRows: 1,
       socialProviderDispatchRequiredRows: 1,
       socialProviderAttemptRefs: ['browser-social-provider-attempt-ref-test'],
@@ -377,6 +405,7 @@ function specifyRejections() {
   specifyStreamEnvelopeRejections();
   specifyRuntimePayloadRejections();
   specifyActionIntentOverclaimRejections();
+  specifyActionIntentChildStatusOverclaimRejections();
   specifySocialProviderReceiptOverclaimRejections();
 }
 
@@ -510,6 +539,29 @@ function specifyActionIntentOverclaimRejections() {
   ).toEqual({ ok: false, reason: 'invalid-entry' });
 }
 
+function specifyActionIntentChildStatusOverclaimRejections() {
+  expect(
+    parseAgentBrowserRuntimeEventChainStreamFields(
+      streamFields(undefined, {
+        actionIntentChildAcceptedRows: 1,
+        actionIntentChildCommandRefs: ['browser-child-command-ref-test'],
+        actionIntentChildAcceptedEventRefs: [],
+        actionIntentParentReadModelRefs: ['browser-parent-read-model-ref-test'],
+      })
+    )
+  ).toEqual({ ok: false, reason: 'invalid-stream' });
+  expect(
+    parseAgentBrowserRuntimeEventChainStreamFields(
+      streamFields(undefined, {
+        actionIntentChildAcceptedRows: 0,
+        actionIntentChildCommandRefs: ['browser-child-command-ref-test'],
+        actionIntentChildAcceptedEventRefs: ['browser-child-accepted-event-ref-test'],
+        actionIntentParentReadModelRefs: ['browser-parent-read-model-ref-test'],
+      })
+    )
+  ).toEqual({ ok: false, reason: 'invalid-stream' });
+}
+
 function specifySocialProviderReceiptOverclaimRejections() {
   expect(
     parseAgentBrowserRuntimeEventChainStreamFields(
@@ -552,6 +604,10 @@ function streamFields(
     readonly actionIntentHandoffCandidates?: number;
     readonly actionIntentHandoffOutboxRefs?: readonly string[];
     readonly actionIntentHandoffRefs?: readonly string[];
+    readonly actionIntentChildAcceptedRows?: number;
+    readonly actionIntentChildCommandRefs?: readonly string[];
+    readonly actionIntentChildAcceptedEventRefs?: readonly string[];
+    readonly actionIntentParentReadModelRefs?: readonly string[];
     readonly actionIntentDispatchAttempts?: number;
     readonly actionIntentAdapterExecutions?: number;
     readonly actionIntentChildInterventionExecutions?: number;
@@ -593,6 +649,10 @@ function streamActionIntentFields(counters: {
   readonly actionIntentHandoffCandidates?: number;
   readonly actionIntentHandoffOutboxRefs?: readonly string[];
   readonly actionIntentHandoffRefs?: readonly string[];
+  readonly actionIntentChildAcceptedRows?: number;
+  readonly actionIntentChildCommandRefs?: readonly string[];
+  readonly actionIntentChildAcceptedEventRefs?: readonly string[];
+  readonly actionIntentParentReadModelRefs?: readonly string[];
   readonly actionIntentDispatchAttempts?: number;
   readonly actionIntentAdapterExecutions?: number;
   readonly actionIntentChildInterventionExecutions?: number;
@@ -607,6 +667,17 @@ function streamActionIntentFields(counters: {
     ),
     [AgentProtocolDefaults.Field.BrowserRuntimeActionIntentHandoffRefs]: JSON.stringify(
       counters.actionIntentHandoffRefs ?? []
+    ),
+    [AgentProtocolDefaults.Field.BrowserRuntimeActionIntentChildAcceptedRows]:
+      counters.actionIntentChildAcceptedRows ?? 0,
+    [AgentProtocolDefaults.Field.BrowserRuntimeActionIntentChildCommandRefs]: JSON.stringify(
+      counters.actionIntentChildCommandRefs ?? []
+    ),
+    [AgentProtocolDefaults.Field.BrowserRuntimeActionIntentChildAcceptedEventRefs]: JSON.stringify(
+      counters.actionIntentChildAcceptedEventRefs ?? []
+    ),
+    [AgentProtocolDefaults.Field.BrowserRuntimeActionIntentParentReadModelRefs]: JSON.stringify(
+      counters.actionIntentParentReadModelRefs ?? []
     ),
     [AgentProtocolDefaults.Field.BrowserRuntimeActionIntentDispatchAttempts]:
       counters.actionIntentDispatchAttempts ?? 0,

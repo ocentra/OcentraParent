@@ -70,19 +70,24 @@ async function sourceChecks() {
     serviceStreamDoesNotCallChildStatusFixture:
       !servicePayload.includes('prove_browser_runtime_action_intent_child_status') &&
       !servicePayload.includes('BrowserRuntimeActionIntentChildStatus'),
-    serviceTestsDoNotAssertChildStatusAsRuntimePayload:
+    serviceTestsAssertOnlyNoObservationChildStatusPayload:
       !serviceTests.includes('child_command_accepted_event_ref') &&
-      !serviceTests.includes('public_stream_field_registry_ready'),
-    protocolParserHasNoChildStatusFields:
+      !serviceTests.includes('public_stream_field_registry_ready') &&
+      serviceTests.includes('assert_child_status_payload_empty'),
+    protocolParserHasOnlyNoObservationChildStatusFields:
       !protocolParser.includes('childCommandAcceptedEventRef') &&
-      !protocolParser.includes('publicStreamFieldRegistryReady'),
-    portalStateHasNoChildStatusRuntimeField:
+      !protocolParser.includes('publicStreamFieldRegistryReady') &&
+      protocolParser.includes('actionIntentChildAcceptedRows') &&
+      protocolParser.includes('browserRuntimeActionIntentChildStatusIsHonest'),
+    portalStateDoesNotPromoteFixtureChildStatus:
       !portalState.includes('childCommandAcceptedEventRef') && !portalState.includes('publicStreamFieldRegistryReady'),
     childStatusProofDeclaresRemainingGap:
-      childStatusProof.includes('publicStreamFieldRegistryReady: false') &&
-      childStatusProof.includes('does not add public WebSocket stream fields'),
+      childStatusProof.includes('publicStreamFieldRegistryReady: true') &&
+      childStatusProof.includes('serviceStreamChildStatusBoundary') &&
+      childStatusProof.includes('real child transport/status read model'),
     docsRecordNoFixtureExposureProof:
       workpack.includes('No Fixture Service Exposure Addendum') &&
+      workpack.includes('no-observation') &&
       checklist.includes('browser-runtime-no-fixture-service-exposure-proof'),
   };
 }
@@ -124,9 +129,10 @@ async function main() {
     commands: commands.map((item) => `${item.command} ${item.args.join(' ')}`),
     verified: {
       childStatusProofRemainsTestOnly: true,
-      serviceStreamDoesNotExposeFixtureChildStatus: true,
-      portalParserDoesNotInventChildStatusFields: true,
-      publicStreamFieldRegistryReady: false,
+      serviceStreamDoesNotExposeFixtureChildStatusRefs: true,
+      serviceStreamExposesOnlyNoObservationChildStatus: true,
+      portalParserDoesNotInventFixtureChildStatusRefs: true,
+      publicStreamFieldRegistryReady: true,
       externalTransportImplemented: false,
       adapterDispatchClaimed: false,
       browserMutationClaimed: false,
@@ -136,7 +142,7 @@ async function main() {
     },
     requiredFollowUp: {
       condition:
-        'Only expose child accepted/read-model refs through the service stream after a real runtime child transport/status read model exists and shared protocol fields are sequenced.',
+        'Only expose nonzero child accepted/read-model refs through the service stream after a real runtime child transport/status read model exists.',
       forbiddenShortcut:
         'Do not call the fixture-backed child-status proof from agent-service or portal state parsing.',
     },
@@ -150,13 +156,14 @@ async function main() {
       '',
       'This proof guards the WP13 child-status boundary from being promoted into runtime service state before a real child transport/status read model exists.',
       '',
-      'It verifies that the child-status composition remains `#[cfg(test)]`, service stream payloads do not call the fixture-backed proof, and portal/protocol parsing does not invent public child-status fields.',
+      'It verifies that the child-status composition remains `#[cfg(test)]`, service stream payloads do not call the fixture-backed proof, and portal/protocol parsing only exposes honest no-observation child-status fields.',
       '',
       'Validation:',
       ...proof.commands.map((command) => `- \`${command}\``),
       '',
       'No-claim boundary:',
-      '- No public child-status stream fields yet.',
+      '- No fixture-backed child-status refs in service or portal runtime state.',
+      '- Public child-status stream fields are no-observation only.',
       '- No external transport implementation.',
       '- No adapter dispatch.',
       '- No browser mutation.',

@@ -189,6 +189,10 @@ export const AgentBrowserRuntimeEventChainStreamSchema = withParser(
     actionIntentHandoffCandidates: Schema.Number,
     actionIntentHandoffOutboxRefs: Schema.Array(BrowserRuntimeText),
     actionIntentHandoffRefs: Schema.Array(BrowserRuntimeText),
+    actionIntentChildAcceptedRows: Schema.Number,
+    actionIntentChildCommandRefs: Schema.Array(BrowserRuntimeText),
+    actionIntentChildAcceptedEventRefs: Schema.Array(BrowserRuntimeText),
+    actionIntentParentReadModelRefs: Schema.Array(BrowserRuntimeText),
     actionIntentDispatchAttempts: Schema.Literal(0),
     actionIntentAdapterExecutions: Schema.Literal(0),
     actionIntentChildInterventionExecutions: Schema.Literal(0),
@@ -224,6 +228,11 @@ export const AgentBrowserRuntimeEventChainStreamSchema = withParser(
     ),
     Schema.filter(
       (stream) =>
+        browserRuntimeActionIntentChildStatusIsHonest(stream) ||
+        'Expected browser runtime child status refs to match observed child accepted rows'
+    ),
+    Schema.filter(
+      (stream) =>
         browserRuntimeSocialProviderReceiptStateIsHonest(stream) ||
         'Expected browser runtime social provider receipt refs to remain receipt-boundary proof only'
     )
@@ -253,6 +262,10 @@ export type AgentBrowserRuntimeActionIntentStatus = {
   readonly handoffCandidateCount: number;
   readonly handoffOutboxRefs: readonly string[];
   readonly handoffRefs: readonly string[];
+  readonly childAcceptedRows: number;
+  readonly childCommandRefs: readonly string[];
+  readonly childAcceptedEventRefs: readonly string[];
+  readonly parentReadModelRefs: readonly string[];
   readonly dispatchAttemptCount: 0;
   readonly adapterExecutionCount: 0;
   readonly childInterventionExecutionCount: 0;
@@ -338,6 +351,10 @@ export function deriveAgentBrowserRuntimeActionIntentStatus(
     handoffCandidateCount: stream.actionIntentHandoffCandidates,
     handoffOutboxRefs: stream.actionIntentHandoffOutboxRefs,
     handoffRefs: stream.actionIntentHandoffRefs,
+    childAcceptedRows: stream.actionIntentChildAcceptedRows,
+    childCommandRefs: stream.actionIntentChildCommandRefs,
+    childAcceptedEventRefs: stream.actionIntentChildAcceptedEventRefs,
+    parentReadModelRefs: stream.actionIntentParentReadModelRefs,
     dispatchAttemptCount: 0,
     adapterExecutionCount: 0,
     childInterventionExecutionCount: 0,
@@ -434,6 +451,22 @@ function streamActionIntentFields(fields: LogFields) {
     actionIntentHandoffRefs: stringArrayField(
       fields,
       AgentProtocolDefaults.Field.BrowserRuntimeActionIntentHandoffRefs
+    ),
+    actionIntentChildAcceptedRows: numberField(
+      fields,
+      AgentProtocolDefaults.Field.BrowserRuntimeActionIntentChildAcceptedRows
+    ),
+    actionIntentChildCommandRefs: stringArrayField(
+      fields,
+      AgentProtocolDefaults.Field.BrowserRuntimeActionIntentChildCommandRefs
+    ),
+    actionIntentChildAcceptedEventRefs: stringArrayField(
+      fields,
+      AgentProtocolDefaults.Field.BrowserRuntimeActionIntentChildAcceptedEventRefs
+    ),
+    actionIntentParentReadModelRefs: stringArrayField(
+      fields,
+      AgentProtocolDefaults.Field.BrowserRuntimeActionIntentParentReadModelRefs
     ),
     actionIntentDispatchAttempts: numberField(
       fields,
@@ -593,6 +626,19 @@ function socialProviderReceiptRefsAreEmpty(stream: {
     stream.socialProviderDurableStoreRefs.length === 0 &&
     stream.socialProviderReadModelRefs.length === 0 &&
     stream.socialProviderSupportStatusRefs.length === 0
+  );
+}
+
+function browserRuntimeActionIntentChildStatusIsHonest(stream: {
+  readonly actionIntentChildAcceptedRows: number;
+  readonly actionIntentChildCommandRefs: readonly string[];
+  readonly actionIntentChildAcceptedEventRefs: readonly string[];
+  readonly actionIntentParentReadModelRefs: readonly string[];
+}): boolean {
+  return (
+    stream.actionIntentChildCommandRefs.length === stream.actionIntentChildAcceptedRows &&
+    stream.actionIntentChildAcceptedEventRefs.length === stream.actionIntentChildAcceptedRows &&
+    stream.actionIntentParentReadModelRefs.length === stream.actionIntentChildAcceptedRows
   );
 }
 
