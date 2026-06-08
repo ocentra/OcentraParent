@@ -84,6 +84,8 @@ Proof root: `output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-g
   `64-retention-product-settings-writable-execution-proof.json`
 - Retention platform enforcement preflight proof:
   `70-retention-platform-enforcement-preflight-proof.json`
+- Full product UI runtime preflight proof:
+  `71-full-product-ui-runtime-preflight-proof.json`
 - Android system geofence blocker proof:
   `44-android-system-geofence-blocker-proof.json`
   - Classifies the local emulator geofence evidence separately from missing
@@ -193,6 +195,12 @@ Proof root: `output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-g
   readiness screenshots into the local product UI artifact root, and keeps full
   product UI, child runtime, physical-device, authority, provider, production,
   and product-ready claims false.
+- Tracking full product UI runtime preflight proof:
+  `71-full-product-ui-runtime-preflight-proof.json`
+  turns the four still-missing product UI runtime artifact refs into
+  manual-required acceptance rows and writes a generated runbook while keeping
+  full product UI runtime, child-device runtime, physical-device, authority,
+  provider, production, and product-ready claims false.
 - Tracking child-runtime Android emulator readiness bridge proof:
   `67-child-runtime-android-emulator-readiness-bridge-proof.json`
 - Tracking Android emulator artifact inventory proof:
@@ -1373,6 +1381,13 @@ tracking-claim-audit-proof tracking-product-readiness-closure-proof`
       keeping platform enforcement and product-ready retention false. The
       product-readiness closure and real-runtime handoff proofs now carry the
       three-row, six-required-artifact preflight accounting forward.
+- [x] Full product UI runtime preflight refresh: WP30/WP33 now carries four
+      manual-required acceptance rows for the missing retention production
+      write-result UI, rendered child-device check-in, rendered child-device
+      location consent, and child-device safe/help response artifacts. The
+      product-readiness closure and real-runtime handoff proofs now carry the
+      four-row, four-required-artifact, zero-present accounting forward while
+      full product UI runtime and product-ready claims remain false.
 - [x] Claim-audit tier accounting refresh: claim-audit proof, product-readiness
       closure, real-runtime handoff, and source reconciliation gap-map now
       carry and assert the final manual-required split of six

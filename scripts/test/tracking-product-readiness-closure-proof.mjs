@@ -107,6 +107,10 @@ const sourceProofs = [
     'output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-gate/59-full-product-ui-runtime-artifact-gate-proof.json'
   ),
   sourceProof(
+    'full-product-ui-runtime-preflight',
+    'output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-gate/71-full-product-ui-runtime-preflight-proof.json'
+  ),
+  sourceProof(
     'production-durable-workers-readiness-blocker',
     'output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-gate/57-production-durable-workers-readiness-blocker-proof.json'
   ),
@@ -152,6 +156,7 @@ async function main() {
     'tracking-product-readiness-closure-proof',
   ]);
   run('cmd', ['/c', 'node', 'scripts/test/tracking-full-product-ui-local-runtime-artifact-capture-proof.mjs']);
+  run('cmd', ['/c', 'node', 'scripts/test/tracking-full-product-ui-runtime-preflight-proof.mjs']);
   run('cmd', ['/c', 'node', 'scripts/test/tracking-android-emulator-artifact-inventory-proof.mjs']);
   run('cmd', ['/c', 'node', 'scripts/test/tracking-ios-simulator-artifact-inventory-proof.mjs']);
   run('cmd', ['/c', 'node', 'scripts/test/tracking-retention-runtime-artifact-gate-proof.mjs']);
@@ -190,6 +195,9 @@ async function aggregateEvidence() {
   const fullProductUiProof = await readJson(
     'test-results/tracking-full-product-ui-local-runtime-artifact-capture-proof/proof.json'
   );
+  const fullProductUiRuntimePreflightProof = await readJson(
+    'test-results/tracking-full-product-ui-runtime-preflight-proof/proof.json'
+  );
   const androidEmulatorArtifactInventoryProof = await readJson(
     'test-results/tracking-android-emulator-artifact-inventory-proof/proof.json'
   );
@@ -219,6 +227,14 @@ async function aggregateEvidence() {
       fullProductUiProof.readModel.closureEvidence.retentionWritableExecutionDerivationCount,
     fullProductUiClosureChildRuntimeMissingArtifactCount:
       fullProductUiProof.readModel.closureEvidence.childRuntimeMissingArtifactCount,
+    fullProductUiRuntimePreflightRowCount: fullProductUiRuntimePreflightProof.summary.rowCount,
+    fullProductUiRuntimePreflightManualRequiredRowCount:
+      fullProductUiRuntimePreflightProof.summary.manualRequiredRowCount,
+    fullProductUiRuntimePreflightRequiredArtifactCount:
+      fullProductUiRuntimePreflightProof.summary.requiredArtifactCount,
+    fullProductUiRuntimePreflightPresentArtifactCount: fullProductUiRuntimePreflightProof.summary.presentArtifactCount,
+    fullProductUiRuntimePreflightMissingArtifactCount: fullProductUiRuntimePreflightProof.summary.missingArtifactCount,
+    fullProductUiRuntimePreflightProductReadyRowCount: fullProductUiRuntimePreflightProof.summary.productReadyRowCount,
     androidEmulatorRequiredArtifactCount: androidEmulatorArtifactInventoryProof.summary.requiredArtifactCount,
     androidEmulatorPresentArtifactCount: androidEmulatorArtifactInventoryProof.summary.presentArtifactCount,
     androidEmulatorMissingArtifactCount: androidEmulatorArtifactInventoryProof.summary.missingArtifactCount,
@@ -280,6 +296,20 @@ function assertProof(proof) {
   ) {
     throw new Error(`Tracking product readiness closure overclaimed product readiness: ${JSON.stringify(row)}`);
   }
+  if (
+    proof.aggregateEvidence.fullProductUiRuntimePreflightRequiredArtifactCount !==
+      proof.aggregateEvidence.fullProductUiRuntimePreflightPresentArtifactCount +
+        proof.aggregateEvidence.fullProductUiRuntimePreflightMissingArtifactCount ||
+    proof.aggregateEvidence.fullProductUiRuntimePreflightManualRequiredRowCount !==
+      proof.aggregateEvidence.fullProductUiRuntimePreflightRowCount ||
+    proof.aggregateEvidence.fullProductUiRuntimePreflightProductReadyRowCount !== 0
+  ) {
+    throw new Error(
+      `Tracking product readiness closure lost full product UI preflight evidence: ${JSON.stringify(
+        proof.aggregateEvidence
+      )}`
+    );
+  }
 }
 
 async function writeProofArtifacts(proof) {
@@ -302,6 +332,9 @@ function sourceSnapshot(proof) {
     '- currentProofTier: P3_LOCAL_DEV_MACHINE',
     '- status: proved',
     '- proves local/CI proof accounting is closed for current tracking continuation scope',
+    `- fullProductUiRuntimePreflightRowCount: ${proof.aggregateEvidence.fullProductUiRuntimePreflightRowCount}`,
+    `- fullProductUiRuntimePreflightRequiredArtifactCount: ${proof.aggregateEvidence.fullProductUiRuntimePreflightRequiredArtifactCount}`,
+    `- fullProductUiRuntimePreflightMissingArtifactCount: ${proof.aggregateEvidence.fullProductUiRuntimePreflightMissingArtifactCount}`,
     `- androidEmulatorRequiredArtifactCount: ${proof.aggregateEvidence.androidEmulatorRequiredArtifactCount}`,
     `- androidEmulatorPresentArtifactCount: ${proof.aggregateEvidence.androidEmulatorPresentArtifactCount}`,
     `- androidEmulatorMissingArtifactCount: ${proof.aggregateEvidence.androidEmulatorMissingArtifactCount}`,

@@ -262,6 +262,17 @@ expose location or device-status features. Parents expect this category.
   UI runtime, child-device delivery runtime, physical-device behavior,
   authority, provider delivery, production product UI, and product-ready
   tracking unclaimed until those runtime artifacts exist.
+- WP30/WP33 full product UI runtime preflight proof now exists through
+  `node scripts/test/tracking-full-product-ui-runtime-preflight-proof.mjs`.
+  It consumes the runtime artifact gate and turns the four still-missing hard
+  product UI runtime refs into manual-required acceptance rows: retention
+  settings production write-result UI, rendered child-device check-in,
+  rendered child-device location consent, and child-device safe/help response.
+  The proof writes WP30/WP33 artifacts plus a manual validation runbook and is
+  now consumed by product-readiness closure and real-runtime handoff accounting.
+  Full product UI runtime, actual child-device runtime, physical-device,
+  authority, provider-delivery, production UI, and product-ready claims remain
+  false.
 - WP30/WP33 full product UI local runtime artifact capture proof now exists
   through
   `node scripts/test/tracking-full-product-ui-local-runtime-artifact-capture-proof.mjs`.
@@ -280,7 +291,9 @@ expose location or device-status features. Parents expect this category.
   The hard runtime UI artifacts still missing from the product UI artifact root
   are the retention settings production write-result UI, rendered child-device
   check-in, rendered child-device location consent, and child-device safe/help
-  response.
+  response; the full product UI runtime preflight now carries those four refs as
+  manual-required rows in closure/handoff proof instead of treating local hosted
+  screenshots as product runtime proof.
 - WP33 production durable workers readiness blocker proof now exists through
   `node scripts/test/tracking-production-durable-workers-readiness-blocker-proof.mjs`.
   It consumes the production-support durable queue runtime boundary plus the
@@ -351,7 +364,8 @@ expose location or device-status features. Parents expect this category.
   preflight, notification local outbox readiness, authority-enrollment
   manual-required, child-runtime blocker, child-runtime artifact gate, full
   product UI readiness blocker, full product UI local runtime artifact capture,
-  full product UI runtime artifact gate, production durable workers readiness
+  full product UI runtime artifact gate, full product UI runtime preflight,
+  production durable workers readiness
   blocker, production worker runtime artifact gate, physical-device artifact gate,
   provider-delivery artifact gate,
   provider-runtime readiness blocker, escalation-runtime readiness blocker, and
@@ -365,7 +379,9 @@ expose location or device-status features. Parents expect this category.
   zero present and ten missing, two required retention runtime artifacts with
   one present local writable execution artifact and one missing platform
   retention runtime enforcement artifact, eight required production-worker
-  runtime artifacts with zero present and eight missing, and the claim-audit row
+  runtime artifacts with zero present and eight missing, four full-product UI
+  runtime preflight rows with four required artifacts, zero present artifacts,
+  and four missing artifacts, and the claim-audit row
   counts. The claim-audit blocker rows are now tier-classified as six
   physical-device/runtime rows, one approved-manual desktop row, one manual
   provider-runtime row, and two production-runtime rows. It keeps Android/iOS
@@ -408,8 +424,9 @@ expose location or device-status features. Parents expect this category.
   the WP33 handoff artifact plus a generated manual validation runbook with
   row-level blocker ids, validation commands, acceptance notes, and missing
   artifacts. It now carries the product-readiness closure accounting totals,
-  including child-runtime, retention-runtime, and production-worker
-  required/present/missing artifact counts plus the claim-audit tier split,
+  including child-runtime, retention-runtime, production-worker, and
+  full-product UI runtime preflight required/present/missing artifact counts
+  plus the claim-audit tier split,
   classifies six physical/runtime rows, one provider-runtime row, and two
   production-runtime rows as
   non-CI-runnable manual follow-up, and keeps physical-device, actual
@@ -1039,7 +1056,10 @@ accessibility beyond the hosted parent route are proved.
       detail, notification, retention local write-result, hosted child
       check-in/readiness, hosted child-runtime/readiness, cross-surface
       accessibility, and local trace artifacts from the hosted proof stack
-      without satisfying the P4 runtime refs. Rows remain manual-required and keep full product
+      without satisfying the P4 runtime refs. The full product UI runtime
+      preflight proof now turns the four remaining hard runtime refs into
+      manual-required rows carried by closure/handoff accounting. Rows remain
+      manual-required and keep full product
       UI runtime, child-device delivery runtime, physical-device behavior,
       authority, provider delivery, production product UI, and product-ready
       tracking unclaimed.
@@ -1260,8 +1280,10 @@ accessibility beyond the hosted parent route are proved.
       copies the hosted retention settings local write-result plus hosted child
       check-in/runtime readiness screenshots into the product UI artifact root
       without filling the production write-result or child-device runtime
-      artifact refs; actual child-device delivery/runtime execution and full
-      product parent/child UI remain pending.
+      artifact refs. The full product UI runtime preflight now records those
+      four remaining refs as manual-required acceptance rows and runbook entries;
+      actual child-device delivery/runtime execution and full product
+      parent/child UI remain pending.
 
 ## Next AI Instructions
 
@@ -1275,10 +1297,12 @@ route tier. Retention platform enforcement preflight now names the Android,
 iOS, and desktop manual artifact rows required to close the missing platform
 runtime enforcement artifact, but it is not product-ready runtime proof. The
 product-readiness closure and real-runtime handoff now carry those preflight
-counts. The next implementation layers are applied/product-ready retention
-settings execution beyond hosted local service write rendering, the platform
-runtime artifacts required for retention product readiness, full portal UI
-snapshots/accessibility beyond the hosted route, Android system
+counts. Full product UI runtime preflight also now carries four manual-required
+product UI runtime rows for the missing production write-result, child check-in,
+child consent, and safe/help response artifacts. The next implementation layers
+are applied/product-ready retention settings execution beyond hosted local
+service write rendering, the platform runtime artifacts required for retention
+product readiness, full portal UI snapshots/accessibility beyond the hosted route, Android system
 geofencing/dwell proof, iOS Core Location/region proof beyond simulator package
 launch, then physical Android/iOS proof and authority proof only when matching
 devices are enrolled.

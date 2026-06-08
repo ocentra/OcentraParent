@@ -37,6 +37,7 @@ export const TrackingProductReadinessClosureCoverageTagSchema = Schema.Literal(
   'full-product-ui-readiness-blocker',
   'full-product-ui-local-runtime-artifact-capture',
   'full-product-ui-runtime-artifact-gate',
+  'full-product-ui-runtime-preflight',
   'production-durable-workers-readiness-blocker',
   'production-worker-runtime-artifact-gate',
   'retention-product-readiness-blocker',
@@ -73,6 +74,7 @@ export const RequiredTrackingProductReadinessClosureCoverageTags = [
   'full-product-ui-readiness-blocker',
   'full-product-ui-local-runtime-artifact-capture',
   'full-product-ui-runtime-artifact-gate',
+  'full-product-ui-runtime-preflight',
   'production-durable-workers-readiness-blocker',
   'production-worker-runtime-artifact-gate',
   'retention-product-readiness-blocker',
@@ -120,6 +122,12 @@ export const TrackingProductReadinessClosureAggregateEvidenceSchema = withParser
     fullProductUiClosureRetentionWritableExecutionRowCount: Schema.Number.pipe(Schema.int(), Schema.positive()),
     fullProductUiClosureRetentionWritableExecutionDerivationCount: Schema.Number.pipe(Schema.int(), Schema.positive()),
     fullProductUiClosureChildRuntimeMissingArtifactCount: Schema.Number.pipe(Schema.int()),
+    fullProductUiRuntimePreflightRowCount: Schema.Number.pipe(Schema.int(), Schema.positive()),
+    fullProductUiRuntimePreflightManualRequiredRowCount: Schema.Number.pipe(Schema.int(), Schema.positive()),
+    fullProductUiRuntimePreflightRequiredArtifactCount: Schema.Number.pipe(Schema.int(), Schema.positive()),
+    fullProductUiRuntimePreflightPresentArtifactCount: Schema.Literal(0),
+    fullProductUiRuntimePreflightMissingArtifactCount: Schema.Number.pipe(Schema.int(), Schema.positive()),
+    fullProductUiRuntimePreflightProductReadyRowCount: Schema.Literal(0),
     androidEmulatorRequiredArtifactCount: Schema.Number.pipe(Schema.int(), Schema.positive()),
     androidEmulatorPresentArtifactCount: Schema.Number.pipe(Schema.int()),
     androidEmulatorMissingArtifactCount: Schema.Number.pipe(Schema.int()),
@@ -174,6 +182,23 @@ export const TrackingProductReadinessClosureAggregateEvidenceSchema = withParser
         (evidence) =>
           evidence.fullProductUiClosureChildRuntimeMissingArtifactCount >= 0 ||
           'Aggregate closure evidence cannot record negative child-runtime missing artifacts'
+      )
+    )
+    .pipe(
+      Schema.filter(
+        (evidence) =>
+          evidence.fullProductUiRuntimePreflightRequiredArtifactCount ===
+            evidence.fullProductUiRuntimePreflightPresentArtifactCount +
+              evidence.fullProductUiRuntimePreflightMissingArtifactCount ||
+          'Aggregate closure evidence must classify every full product UI runtime preflight artifact'
+      )
+    )
+    .pipe(
+      Schema.filter(
+        (evidence) =>
+          evidence.fullProductUiRuntimePreflightRowCount ===
+            evidence.fullProductUiRuntimePreflightManualRequiredRowCount ||
+          'Aggregate closure evidence must keep full product UI runtime preflight manual-required'
       )
     )
     .pipe(
