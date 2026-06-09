@@ -18,6 +18,7 @@ pub(super) fn adapter_process_command(command: &Path) -> Command {
     Command::new(command)
 }
 
+#[cfg(any(windows, test))]
 pub(super) fn is_windows_batch_adapter(command: &Path) -> bool {
     command
         .extension()
