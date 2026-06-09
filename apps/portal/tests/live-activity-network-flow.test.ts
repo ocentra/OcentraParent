@@ -109,6 +109,18 @@ function registerNetworkFlowNormalizationTests(): void {
       `${NetworkEvidenceDrawerProof.evidenceId} | ${NetworkEvidenceDrawerProof.journalEvidenceId}`
     );
   });
+
+  it('projects the latest service row when Windows returns aggregate row counts', () => {
+    const state = resolveLiveActivityState([aggregateWindowsNetworkFlowEvent()]);
+    const readModel = requireNetworkFlowReadModel(state.networkFlowReadModel);
+    const summary = networkEvidenceDrawerSummary(readModel);
+
+    expectNetworkReadModelCounts(readModel, 1);
+    expect(readModel.latestEventId).toBe(NetworkEvidenceDrawerProof.eventId);
+    expect(summary.evidenceReferences).toBe(
+      `${NetworkEvidenceDrawerProof.evidenceId} | ${NetworkEvidenceDrawerProof.journalEvidenceId}`
+    );
+  });
 }
 
 function registerNetworkFlowRejectionTests(): void {
@@ -127,29 +139,19 @@ function registerNetworkFlowRejectionTests(): void {
     expect(state.networkFlowReadModel).toBeNull();
   });
 
-  it('rejects network flow read models with mismatched returned and active counts', () => {
+  it('rejects network flow read models with inconsistent tombstone/export counts', () => {
     const event = networkFlowEvent();
-    const returnedMismatch = resolveLiveActivityState([
+    const tombstoneMismatch = resolveLiveActivityState([
       {
         ...event,
         payload: {
           ...event.payload,
-          returned: 2,
-        },
-      },
-    ]);
-    const activeMismatch = resolveLiveActivityState([
-      {
-        ...event,
-        payload: {
-          ...event.payload,
-          activeRows: 2,
+          tombstoneRows: 1,
         },
       },
     ]);
 
-    expect(returnedMismatch.networkFlowReadModel).toBeNull();
-    expect(activeMismatch.networkFlowReadModel).toBeNull();
+    expect(tombstoneMismatch.networkFlowReadModel).toBeNull();
   });
 }
 
@@ -317,6 +319,20 @@ function stringifiedWindowsNetworkFlowEvent() {
       destinationPort: String(NetworkEvidenceDrawerProof.fields.destinationPort),
       processId: String(NetworkEvidenceDrawerProof.fields.pid),
       connectionCount: '1',
+    },
+  });
+}
+
+function aggregateWindowsNetworkFlowEvent() {
+  return AgentEventEnvelopeSchema.parse({
+    ...networkFlowEvent(),
+    eventId: 'evt-network-aggregate-windows-fields',
+    correlationId: 'cmd-network-aggregate-windows-fields',
+    payload: {
+      ...networkFlowEvent().payload,
+      returned: 10,
+      activeRows: 10,
+      exportableRows: 10,
     },
   });
 }

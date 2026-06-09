@@ -15,17 +15,18 @@ import {
 
 export function parseNetworkFlowReadModel(payload: AgentProtocolLogFields): ActivityNetworkFlowReadModel | null {
   const returned = requiredNumber(payload[AgentProtocolDefaults.Field.Returned]);
+  const visibleRows = returned === 0 ? 0 : 1;
   const digest = networkFlowDigest(payload);
-  const row = returned === 0 ? [] : [networkFlowObservation(payload, digest)];
+  const row = visibleRows === 0 ? [] : [networkFlowObservation(payload, digest)];
   const parsed = ActivityNetworkFlowReadModelSchema.safeParse({
     schemaVersion: ActivityQuerySchemaVersion,
     generatedAt: payload[AgentProtocolDefaults.Field.GeneratedAt],
     custody: payload[AgentProtocolDefaults.Field.Custody],
     limit: requiredNumber(payload[AgentProtocolDefaults.Field.Limit]),
-    returned,
-    activeRows: requiredNumber(payload[AgentProtocolDefaults.Field.ActiveRows]),
+    returned: visibleRows,
+    activeRows: visibleRows,
     tombstoneRows: requiredNumber(payload[AgentProtocolDefaults.Field.TombstoneRows]),
-    exportableRows: requiredNumber(payload[AgentProtocolDefaults.Field.ExportableRows]),
+    exportableRows: visibleRows,
     capabilityStatus: payload[AgentProtocolDefaults.Field.CapabilityStatus],
     latestEventId: nullIfMissing(payload[AgentProtocolDefaults.Field.LatestEventId]),
     latestObservedAt: nullIfMissing(payload[AgentProtocolDefaults.Field.LatestObservedAt]),
