@@ -335,6 +335,15 @@ Expected contract families:
   implementation, child-device delivery, runtime report delivery, real
   interception, app blocking, child activity data custody, or Ocentra-hosted
   family data custody.
+- Dispatch executor receipt proof rows consume execution receipt gate rows and
+  create parent-owned external writer dispatch executor handler, receipt
+  artifact, and audit artifact requirements while staying blocked or
+  manual-required. They must not claim external runtime writer execution,
+  external runtime writer delivery, parent action runtime delivery, provider
+  API execution, store integration, platform interception, platform adapter
+  implementation, child-device delivery, runtime report delivery, real
+  interception, app blocking, child activity data custody, or Ocentra-hosted
+  family data custody.
 - Provider/store execution preflight proof rows link provider/store execution
   readiness rows and runtime writer execution delivery receipts into
   parent-owned execution-ready, manual-required, and unavailable preflight states
@@ -837,6 +846,12 @@ Expected contract families:
   data custody.
 - Do not treat execution receipt gate proof refs as accepted execution
   receipts, external runtime writer execution, external runtime writer
+  delivery, provider/store execution, platform adapter execution, child-device
+  transport receipt execution, child-device delivery, runtime report delivery,
+  real interception, app blocking, child activity custody, or Ocentra-hosted
+  family data custody.
+- Do not treat dispatch executor receipt proof refs as an executed external
+  writer dispatch, external runtime writer execution, external runtime writer
   delivery, provider/store execution, platform adapter execution, child-device
   transport receipt execution, child-device delivery, runtime report delivery,
   real interception, app blocking, child activity custody, or Ocentra-hosted
