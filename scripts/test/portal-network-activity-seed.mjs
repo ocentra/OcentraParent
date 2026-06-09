@@ -78,6 +78,39 @@ INSERT OR REPLACE INTO activity_events (
   }
 }
 
+export function describePortalNetworkActivitySeedState(activityDbPath) {
+  const database = new DatabaseSync(activityDbPath);
+  try {
+    const row = database
+      .prepare(
+        `
+SELECT event_id, observed_at, device_id, kind, subject_kind, subject_id, fields_json, evidence_json
+FROM activity_events
+WHERE event_id = ?;
+`
+      )
+      .get(PortalNetworkActivitySeed.EventId);
+    if (row === undefined) {
+      return { seeded: false, expectedEventId: PortalNetworkActivitySeed.EventId };
+    }
+    return {
+      seeded: true,
+      expectedEventId: PortalNetworkActivitySeed.EventId,
+      expectedEvidenceId: PortalNetworkActivitySeed.EvidenceId,
+      eventId: row.event_id,
+      observedAt: row.observed_at,
+      deviceId: row.device_id,
+      kind: row.kind,
+      subjectKind: row.subject_kind,
+      subjectId: row.subject_id,
+      fields: parseSeedJson(row.fields_json),
+      evidenceIds: seedEvidenceIds(row.evidence_json),
+    };
+  } finally {
+    database.close();
+  }
+}
+
 function assertSeededEvidence(database) {
   const row = database
     .prepare(
@@ -94,4 +127,23 @@ WHERE event_id = ?;
   if (!row.evidence_json.includes(PortalNetworkActivitySeed.EvidenceId)) {
     throw new Error('Network drawer E2E ActivityStore seed missed the expected evidence ref.');
   }
+}
+
+function parseSeedJson(value) {
+  if (typeof value !== 'string') {
+    return null;
+  }
+  try {
+    return JSON.parse(value);
+  } catch {
+    return null;
+  }
+}
+
+function seedEvidenceIds(value) {
+  const parsed = parseSeedJson(value);
+  if (!Array.isArray(parsed)) {
+    return [];
+  }
+  return parsed.map((entry) => entry?.evidenceId).filter((evidenceId) => typeof evidenceId === 'string');
 }

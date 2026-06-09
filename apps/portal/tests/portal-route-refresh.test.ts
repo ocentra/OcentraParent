@@ -3,7 +3,7 @@ import { PortalConnectionState, PortalRoute } from '@ocentra-parent/portal-domai
 import { shouldRequestNetworkFlowReadModelForRoute } from '../src/portal-route-refresh';
 
 describe('portal route refresh', () => {
-  it('requests network flow read model once when Activity route is connected', () => {
+  it('requests network flow read model once when a network drawer route is connected', () => {
     expect(
       shouldRequestNetworkFlowReadModelForRoute({
         connectionState: PortalConnectionState.Connected,
@@ -21,9 +21,18 @@ describe('portal route refresh', () => {
         route: PortalRoute.Activity,
       })
     ).toBe(false);
+
+    expect(
+      shouldRequestNetworkFlowReadModelForRoute({
+        connectionState: PortalConnectionState.Connected,
+        hasNetworkFlowReadModelEvent: false,
+        requestedForRoute: false,
+        route: PortalRoute.NetworkActivity,
+      })
+    ).toBe(true);
   });
 
-  it('does not request network flow while disconnected or outside Activity route', () => {
+  it('does not request network flow while disconnected or outside network drawer routes', () => {
     expect(
       shouldRequestNetworkFlowReadModelForRoute({
         connectionState: PortalConnectionState.Connecting,

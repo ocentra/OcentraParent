@@ -18,13 +18,23 @@ import {
   PortalOverviewCommands,
   PortalRouteDescriptors,
   PortalRouteGroup,
+  PortalAppGameParentSurfaceRoutes,
+  PortalBrowserParentSurfaceRoutes,
+  PortalNetworkEvidenceDrawerRoutes,
   PortalRoute,
   PortalRouteSchema,
   PortalRoutes,
+  PortalScreenSettingsRoutes,
   PortalSidebarRouteDescriptors,
   PortalTiming,
+  PortalTrackingStatusRoutes,
   PortalUnifiedChrome,
   decodePortalClipboardText,
+  isPortalAppGameParentSurfaceRoute,
+  isPortalBrowserParentSurfaceRoute,
+  isPortalNetworkEvidenceDrawerRoute,
+  isPortalScreenSettingsRoute,
+  isPortalTrackingStatusRoute,
   parentPortalRouteContext,
   type ParentPortalHashRoutePath,
   type ParentPortalNavItem,
@@ -383,6 +393,31 @@ describe('portal collapsed manage route contracts', () => {
       navLabel: PARENT_PORTAL_NAV_LABELS.Enforce,
       selectedControlId: 'enforcement-readiness',
     });
+  });
+});
+
+describe('portal product route panel contracts', () => {
+  it('keeps network evidence drawer routes canonical and product-route scoped', () => {
+    expect(PortalNetworkEvidenceDrawerRoutes).toEqual([PortalRoute.Activity, PortalRoute.NetworkActivity]);
+    expect(isPortalNetworkEvidenceDrawerRoute(PortalRoute.Activity)).toBe(true);
+    expect(isPortalNetworkEvidenceDrawerRoute(PortalRoute.NetworkActivity)).toBe(true);
+    expect(isPortalNetworkEvidenceDrawerRoute(PortalRoute.Commands)).toBe(false);
+    expect(isPortalNetworkEvidenceDrawerRoute(PortalRoute.Overview)).toBe(false);
+  });
+
+  it('keeps product route panel bindings owned by portal-domain', () => {
+    expect(PortalAppGameParentSurfaceRoutes).toEqual([PortalRoute.AppGameSessions]);
+    expect(PortalBrowserParentSurfaceRoutes).toEqual([PortalRoute.Browser]);
+    expect(PortalScreenSettingsRoutes).toEqual([PortalRoute.SettingsRules]);
+    expect(PortalTrackingStatusRoutes).toEqual([PortalRoute.PolicyTracking]);
+    expect(isPortalAppGameParentSurfaceRoute(PortalRoute.AppGameSessions)).toBe(true);
+    expect(isPortalBrowserParentSurfaceRoute(PortalRoute.Browser)).toBe(true);
+    expect(isPortalScreenSettingsRoute(PortalRoute.SettingsRules)).toBe(true);
+    expect(isPortalTrackingStatusRoute(PortalRoute.PolicyTracking)).toBe(true);
+    expect(isPortalAppGameParentSurfaceRoute(PortalRoute.Browser)).toBe(false);
+    expect(isPortalBrowserParentSurfaceRoute(PortalRoute.NetworkActivity)).toBe(false);
+    expect(isPortalScreenSettingsRoute(PortalRoute.PolicyTracking)).toBe(false);
+    expect(isPortalTrackingStatusRoute(PortalRoute.Activity)).toBe(false);
   });
 });
 

@@ -25,7 +25,7 @@ export async function assertAgentNetworkActivityReadModel(webSocketUrl, activity
     try {
       const event = await requestNetworkFlowReadModel(webSocketUrl);
       const evidenceIds = networkFlowEvidenceIds(event);
-      if (evidenceIds.includes(PortalNetworkActivitySeed.EvidenceId)) {
+      if (isSeededNetworkFlowUiPayload(event, evidenceIds)) {
         return event;
       }
       lastSummary = describeNetworkFlowEvent(event, evidenceIds);
@@ -42,6 +42,12 @@ export async function assertAgentNetworkActivityReadModel(webSocketUrl, activity
       `lastResponse=${lastSummary}`,
     ].join('\n')
   );
+}
+
+export async function describeAgentNetworkActivityReadModel(webSocketUrl) {
+  const event = await requestNetworkFlowReadModel(webSocketUrl);
+  const evidenceIds = networkFlowEvidenceIds(event);
+  return describeNetworkFlowEvent(event, evidenceIds);
 }
 
 function requestNetworkFlowReadModel(webSocketUrl) {
@@ -146,6 +152,18 @@ function describeNetworkFlowEvent(event, evidenceIds) {
     returned: event.payload[AgentProtocolDefaults.Field.Returned],
     activeRows: event.payload[AgentProtocolDefaults.Field.ActiveRows],
     latestEventId: event.payload[AgentProtocolDefaults.Field.LatestEventId],
+    latestObservedAt: event.payload[AgentProtocolDefaults.Field.LatestObservedAt],
+    destinationDomain: event.payload[AgentProtocolDefaults.Field.DestinationDomain],
+    processName: event.payload[AgentProtocolDefaults.Field.ProcessName],
     evidenceIds,
+    seededEvidencePresent: evidenceIds.includes(PortalNetworkActivitySeed.EvidenceId),
+    seededRowIsLatest: event.payload[AgentProtocolDefaults.Field.LatestEventId] === PortalNetworkActivitySeed.EventId,
   });
+}
+
+function isSeededNetworkFlowUiPayload(event, evidenceIds) {
+  return (
+    evidenceIds.includes(PortalNetworkActivitySeed.EvidenceId) &&
+    event.payload[AgentProtocolDefaults.Field.LatestEventId] === PortalNetworkActivitySeed.EventId
+  );
 }

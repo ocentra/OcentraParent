@@ -179,8 +179,10 @@ function registerNetworkEvidenceDrawerTests(): void {
     expect(summary.degradedState).toBe('available | domain-observed | process-attributed');
   });
 
-  it('mounts the network evidence drawer on the activity product route only', () => {
+  it('mounts the network evidence drawer on canonical network product routes only', () => {
     expect(shouldRenderNetworkEvidenceDrawerRoute(PortalRoute.Activity)).toBe(true);
+    expect(shouldRenderNetworkEvidenceDrawerRoute(PortalRoute.NetworkActivity)).toBe(true);
+    expect(shouldRenderNetworkEvidenceDrawerRoute(PortalRoute.Commands)).toBe(false);
     expect(shouldRenderNetworkEvidenceDrawerRoute(PortalRoute.Overview)).toBe(false);
   });
 }

@@ -1,6 +1,6 @@
 import {
   PortalConnectionState,
-  PortalRoute,
+  isPortalNetworkEvidenceDrawerRoute,
   type PortalConnectionState as PortalConnectionStateValue,
   type PortalRoute as PortalRouteValue,
 } from '@ocentra-parent/portal-domain/contracts';
@@ -19,7 +19,7 @@ export function shouldRequestNetworkFlowReadModelForRoute({
   route,
 }: PortalRouteNetworkRefreshState): boolean {
   return (
-    route === PortalRoute.Activity &&
+    isPortalNetworkEvidenceDrawerRoute(route) &&
     connectionState === PortalConnectionState.Connected &&
     !requestedForRoute &&
     !hasNetworkFlowReadModelEvent

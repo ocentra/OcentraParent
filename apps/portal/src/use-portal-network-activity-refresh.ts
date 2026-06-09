@@ -1,7 +1,7 @@
 import { useEffect, type MutableRefObject } from 'react';
 import { AgentCommand } from '@ocentra-parent/agent-protocol-domain/contracts';
 import {
-  PortalRoute,
+  isPortalNetworkEvidenceDrawerRoute,
   type PortalConnectionState as PortalConnectionStateValue,
   type PortalRoute as PortalRouteValue,
 } from '@ocentra-parent/portal-domain/contracts';
@@ -24,7 +24,7 @@ export function usePortalNetworkActivityRefresh({
   route,
 }: PortalNetworkActivityRefreshHook): void {
   useEffect(() => {
-    if (route !== PortalRoute.Activity) {
+    if (!isPortalNetworkEvidenceDrawerRoute(route)) {
       networkActivityRefreshRequestedForRouteRef.current = false;
       return;
     }
