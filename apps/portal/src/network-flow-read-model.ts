@@ -7,7 +7,11 @@ import {
 import type { ActivityEvidenceRef } from '@ocentra-parent/activity-domain/contracts';
 import { decodeActivityEvidenceId, type ActivityEvidenceId } from '@ocentra-parent/activity-domain/primitives';
 import { ActivityQuerySchemaVersion } from '@ocentra-parent/activity-domain/query';
-import { AgentProtocolDefaults, type AgentProtocolLogFields } from '@ocentra-parent/agent-protocol-domain/contracts';
+import {
+  AgentProtocolDefaults,
+  isAgentProtocolLogText,
+  type AgentProtocolLogFields,
+} from '@ocentra-parent/agent-protocol-domain/contracts';
 
 export function parseNetworkFlowReadModel(payload: AgentProtocolLogFields): ActivityNetworkFlowReadModel | null {
   const returned = payload[AgentProtocolDefaults.Field.Returned];
@@ -73,10 +77,10 @@ function networkFlowObservation(payload: AgentProtocolLogFields, digest: Activit
 }
 
 function nullIfMissing(value: AgentProtocolLogFields[keyof AgentProtocolLogFields] | undefined) {
-  if (value === undefined) {
+  if (value === undefined || value === null) {
     return null;
   }
-  if (typeof value === AgentProtocolDefaults.Primitive.String && value.trim().length === 0) {
+  if (isAgentProtocolLogText(value) && value.trim().length === 0) {
     return null;
   }
   return value;
