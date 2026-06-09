@@ -1,10 +1,13 @@
 import { DatabaseSync } from 'node:sqlite';
+import {
+  NetworkEvidenceDrawerProofFixture,
+  PortalNetworkActivitySeed,
+  networkActivityEvidence,
+  networkActivityFields,
+  networkActivityObservedAt,
+} from './network-evidence-drawer-proof-fixture.mjs';
 
-export const PortalNetworkActivitySeed = Object.freeze({
-  EventId: 'network-ui-flow-1',
-  EvidenceId: 'network-ui-evidence-1',
-  JournalEvidenceId: 'network-ui-journal-1',
-});
+export { PortalNetworkActivitySeed };
 
 export function seedPortalNetworkActivityStore(activityDbPath) {
   const database = new DatabaseSync(activityDbPath);
@@ -51,13 +54,13 @@ INSERT OR REPLACE INTO activity_events (
       .run(
         PortalNetworkActivitySeed.EventId,
         networkActivityObservedAt(),
-        'child-device-network-ui',
-        'windows',
-        'windows-network',
-        'activity.domain.observed',
-        'domain',
-        'example-network.test',
-        'example-network.test',
+        NetworkEvidenceDrawerProofFixture.deviceId,
+        NetworkEvidenceDrawerProofFixture.platform,
+        NetworkEvidenceDrawerProofFixture.observer,
+        NetworkEvidenceDrawerProofFixture.kind,
+        NetworkEvidenceDrawerProofFixture.subjectKind,
+        NetworkEvidenceDrawerProofFixture.subjectId,
+        NetworkEvidenceDrawerProofFixture.subjectDisplayName,
         JSON.stringify(networkActivityFields()),
         JSON.stringify(networkActivityEvidence())
       );
@@ -91,43 +94,4 @@ WHERE event_id = ?;
   if (!row.evidence_json.includes(PortalNetworkActivitySeed.EvidenceId)) {
     throw new Error('Network drawer E2E ActivityStore seed missed the expected evidence ref.');
   }
-}
-
-function networkActivityObservedAt() {
-  return new Date(Date.now() + 5 * 60 * 1000).toISOString();
-}
-
-function networkActivityFields() {
-  return {
-    capabilityStatus: 'available',
-    adapterId: 'windows-network-snapshot',
-    networkProtocol: 'tcp',
-    tcpState: 'established',
-    localIp: '127.0.0.1',
-    localPort: 4242,
-    destinationIp: '203.0.113.10',
-    destinationPort: 443,
-    destinationDomain: 'example-network.test',
-    domainAttributionStatus: 'domain-observed',
-    processAttributionStatus: 'process-attributed',
-    pid: 4242,
-    processName: 'notepad.exe',
-  };
-}
-
-function networkActivityEvidence() {
-  return [
-    {
-      evidenceId: PortalNetworkActivitySeed.EvidenceId,
-      kind: 'local-db-row',
-      digest: `sha256:${PortalNetworkActivitySeed.EvidenceId}`,
-      uri: null,
-    },
-    {
-      evidenceId: PortalNetworkActivitySeed.JournalEvidenceId,
-      kind: 'journal-entry',
-      digest: `sha256:${PortalNetworkActivitySeed.JournalEvidenceId}`,
-      uri: null,
-    },
-  ];
 }

@@ -91,7 +91,7 @@
     "test:parent-mobile-shell-runtime": "node scripts/test/parent-mobile-shell-runtime-proof.mjs",
     "test:v0-9-mobile-controller-observer-runtime": "node scripts/test/v0-9-mobile-controller-observer-runtime-proof.mjs",
     "test:pre-ai-proof": "node scripts/check-pre-ai-proof.mjs",
-    "lint:schema-boundaries": "node scripts/check-no-zod-source.mjs && node scripts/check-no-naked-domain-strings.mjs && node scripts/check-no-app-string-literals.mjs && node scripts/check-vendor-portal-asset-imports.mjs && node scripts/check-rust-string-boundaries.mjs && node scripts/check-required-tests.mjs && node scripts/check-no-test-doubles.mjs && node scripts/check-source-shape.mjs && node scripts/check-ai-rule-index.mjs",
+    "lint:schema-boundaries": "node scripts/check-no-zod-source.mjs && node scripts/check-no-naked-domain-strings.mjs && node scripts/check-no-app-string-literals.mjs && node scripts/check-vendor-portal-asset-imports.mjs && node scripts/check-rust-string-boundaries.mjs && node scripts/check-required-tests.mjs && node scripts/check-single-source-contracts.mjs && node scripts/check-no-test-doubles.mjs && node scripts/check-source-shape.mjs && node scripts/check-ai-rule-index.mjs",
     "lint": "npm run lint:schema-boundaries && turbo run lint:exec type-check",
     "type-check": "turbo run type-check",
     "test": "npm run test:tooling && npm run test:unit && npm run test:contract",

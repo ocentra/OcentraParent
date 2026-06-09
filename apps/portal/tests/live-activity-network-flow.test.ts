@@ -5,6 +5,7 @@ import { AgentEventEnvelopeSchema } from '@ocentra-parent/agent-protocol-domain/
 import { shouldRenderNetworkEvidenceDrawerRoute } from '../src/NetworkEvidenceDrawerRoutePanel';
 import { resolveLiveActivityState } from '../src/live-activity-state';
 import { networkEvidenceDrawerSummary } from '../src/network-evidence-drawer';
+import { NetworkEvidenceDrawerProof } from './network-evidence-drawer-proof-fixture';
 
 describe('portal live activity network flow state', () => {
   registerNetworkFlowReadModelTests();
@@ -19,6 +20,27 @@ function registerNetworkFlowReadModelTests(): void {
 
     expectNetworkReadModelCounts(readModel, 1);
     expectNetworkFlowRow(readModel);
+  });
+
+  it('normalizes blank optional Windows network fields before branded parsing', () => {
+    const state = resolveLiveActivityState([blankOptionalWindowsNetworkFlowEvent()]);
+    const readModel = requireNetworkFlowReadModel(state.networkFlowReadModel);
+    const row = readModel.rows[0];
+    const summary = networkEvidenceDrawerSummary(readModel);
+
+    expectNetworkReadModelCounts(readModel, 1);
+    expect(row).toBeDefined();
+    expect(row?.destinationDomain).toBeNull();
+    expect(row?.processName).toBeNull();
+    expect(row?.evidence.map((evidence) => evidence.evidenceId)).toEqual([
+      NetworkEvidenceDrawerProof.evidenceId,
+      NetworkEvidenceDrawerProof.journalEvidenceId,
+    ]);
+    expect(summary.domainEvidenceRef).toBe(NetworkEvidenceDrawerProof.fields.domainAttributionStatus);
+    expect(summary.processRef).toBe(NetworkEvidenceDrawerProof.fields.processAttributionStatus);
+    expect(summary.evidenceReferences).toBe(
+      `${NetworkEvidenceDrawerProof.evidenceId} | ${NetworkEvidenceDrawerProof.journalEvidenceId}`
+    );
   });
 
   it('keeps newest buffered network flow read models when sentAt ties', () => {
@@ -117,16 +139,18 @@ function registerNetworkEvidenceDrawerTests(): void {
     const state = resolveLiveActivityState([networkFlowEvent()]);
     const summary = networkEvidenceDrawerSummary(state.networkFlowReadModel);
 
-    expect(summary.evidenceId).toBe('activity-network-flow-1');
+    expect(summary.evidenceId).toBe(NetworkEvidenceDrawerProof.eventId);
     expect(summary.sourceAdapter).toBe('windows-network-snapshot');
     expect(summary.sourceQuality).toBe('available');
     expect(summary.platformState).toBe('child-device-query-store | available');
     expect(summary.readModelRows).toBe('1 | 1 | 0 | 1');
     expect(summary.localEndpoint).toBe('127.0.0.1 | 4242');
     expect(summary.remoteEndpoint).toBe('203.0.113.10 | 443');
-    expect(summary.domainEvidenceRef).toBe('example-network.test | domain-observed');
-    expect(summary.processRef).toBe('notepad.exe | 4242 | process-attributed');
-    expect(summary.evidenceReferences).toBe('network-evidence-1 | network-journal-1');
+    expect(summary.domainEvidenceRef).toBe(NetworkEvidenceDrawerProof.expected.domainEvidenceRef);
+    expect(summary.processRef).toBe(NetworkEvidenceDrawerProof.expected.processRef);
+    expect(summary.evidenceReferences).toBe(
+      `${NetworkEvidenceDrawerProof.evidenceId} | ${NetworkEvidenceDrawerProof.journalEvidenceId}`
+    );
     expect(summary.exactUrlClaim).toBe('Not reported');
     expect(summary.aiAuditRef).toBe('Not reported');
     expect(summary.policyDecisionRef).toBe('Not reported');
@@ -170,10 +194,13 @@ function expectNetworkFlowRow(readModel: ActivityNetworkFlowReadModel): void {
   if (row === undefined) {
     throw new Error('network flow row missing');
   }
-  expect(row.destinationDomain).toBe('example-network.test');
-  expect(row.destinationEndpoint.port).toBe(443);
-  expect(row.processName).toBe('notepad.exe');
-  expect(row.evidence.map((evidence) => evidence.evidenceId)).toEqual(['network-evidence-1', 'network-journal-1']);
+  expect(row.destinationDomain).toBe(NetworkEvidenceDrawerProof.fields.destinationDomain);
+  expect(row.destinationEndpoint.port).toBe(NetworkEvidenceDrawerProof.fields.destinationPort);
+  expect(row.processName).toBe(NetworkEvidenceDrawerProof.fields.processName);
+  expect(row.evidence.map((evidence) => evidence.evidenceId)).toEqual([
+    NetworkEvidenceDrawerProof.evidenceId,
+    NetworkEvidenceDrawerProof.journalEvidenceId,
+  ]);
 }
 
 function networkFlowEvent() {
@@ -201,24 +228,24 @@ function networkFlowEvent() {
       tombstoneRows: 0,
       exportableRows: 1,
       capabilityStatus: 'available',
-      latestEventId: 'activity-network-flow-1',
+      latestEventId: NetworkEvidenceDrawerProof.eventId,
       latestObservedAt: '2026-05-21T02:00:00Z',
       latestTombstoneEventId: null,
       latestTombstoneObservedAt: null,
       deletedEvidenceReferenceIds: '',
-      observer: 'windows-network',
-      adapterId: 'windows-network-snapshot',
-      networkProtocol: 'tcp',
-      tcpState: 'established',
-      localIp: '127.0.0.1',
-      localPort: 4242,
-      destinationIp: '203.0.113.10',
-      destinationPort: 443,
-      destinationDomain: 'example-network.test',
-      domainAttributionStatus: 'domain-observed',
-      processAttributionStatus: 'process-attributed',
-      processId: 4242,
-      processName: 'notepad.exe',
+      observer: NetworkEvidenceDrawerProof.observer,
+      adapterId: NetworkEvidenceDrawerProof.fields.adapterId,
+      networkProtocol: NetworkEvidenceDrawerProof.fields.networkProtocol,
+      tcpState: NetworkEvidenceDrawerProof.fields.tcpState,
+      localIp: NetworkEvidenceDrawerProof.fields.localIp,
+      localPort: NetworkEvidenceDrawerProof.fields.localPort,
+      destinationIp: NetworkEvidenceDrawerProof.fields.destinationIp,
+      destinationPort: NetworkEvidenceDrawerProof.fields.destinationPort,
+      destinationDomain: NetworkEvidenceDrawerProof.fields.destinationDomain,
+      domainAttributionStatus: NetworkEvidenceDrawerProof.fields.domainAttributionStatus,
+      processAttributionStatus: NetworkEvidenceDrawerProof.fields.processAttributionStatus,
+      processId: NetworkEvidenceDrawerProof.fields.pid,
+      processName: NetworkEvidenceDrawerProof.fields.processName,
       connectionCount: 1,
       bytesSent: null,
       bytesReceived: null,
@@ -230,6 +257,29 @@ function networkFlowEvent() {
   });
 }
 
+function blankOptionalWindowsNetworkFlowEvent() {
+  return AgentEventEnvelopeSchema.parse({
+    ...networkFlowEvent(),
+    eventId: 'evt-network-blank-windows-fields',
+    correlationId: 'cmd-network-blank-windows-fields',
+    payload: {
+      ...networkFlowEvent().payload,
+      networkProtocol: '',
+      tcpState: '',
+      localIp: '',
+      destinationIp: '',
+      destinationPort: '',
+      destinationDomain: '',
+      processId: '',
+      processName: '',
+      bytesSent: '',
+      bytesReceived: '',
+      firstSeenAt: '',
+      lastSeenAt: '',
+    },
+  });
+}
+
 function networkFlowDigest() {
   return {
     schemaVersion: 1,
@@ -237,15 +287,15 @@ function networkFlowDigest() {
     custody: 'child-device-query-store',
     evidence: [
       {
-        evidenceId: 'network-evidence-1',
+        evidenceId: NetworkEvidenceDrawerProof.evidenceId,
         kind: 'local-db-row',
-        digest: null,
+        digest: NetworkEvidenceDrawerProof.evidenceDigest,
         uri: null,
       },
       {
-        evidenceId: 'network-journal-1',
+        evidenceId: NetworkEvidenceDrawerProof.journalEvidenceId,
         kind: 'journal-entry',
-        digest: null,
+        digest: NetworkEvidenceDrawerProof.journalEvidenceDigest,
         uri: null,
       },
     ],

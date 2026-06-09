@@ -6,6 +6,7 @@ import path from 'node:path';
 import { DatabaseSync } from 'node:sqlite';
 import { test } from 'node:test';
 
+import { NetworkEvidenceDrawerProofFixture } from './network-evidence-drawer-proof-fixture.mjs';
 import { PortalNetworkActivitySeed, seedPortalNetworkActivityStore } from './portal-network-activity-seed.mjs';
 
 test('portal e2e owns agent and portal cleanup outside Playwright webServer', () => {
@@ -50,7 +51,7 @@ FROM activity_events
 WHERE event_id = ?;
 `
         )
-        .get('network-ui-flow-1');
+        .get(PortalNetworkActivitySeed.EventId);
 
       assert.equal(String(Object.values(journalMode)[0]), 'delete');
       assert.equal(typeof row.evidence_json, 'string');
@@ -71,4 +72,23 @@ test('portal network activity service preflight uses shared protocol command and
   assert.equal(preflightSource.includes('AgentEvent.NetworkFlowReadModelReported'), true);
   assert.equal(preflightSource.includes('AgentEventEnvelopeSchema.parse'), true);
   assert.equal(preflightSource.includes('PortalNetworkActivitySeed.EvidenceId'), true);
+});
+
+test('network drawer proof ids stay single-sourced across scripts and portal tests', () => {
+  const e2eSource = readFileSync('apps/portal/e2e/network-evidence-drawer-proof.spec.ts', 'utf8');
+  const unitSource = readFileSync('apps/portal/tests/live-activity-network-flow.test.ts', 'utf8');
+  const seedSource = readFileSync('scripts/test/portal-network-activity-seed.mjs', 'utf8');
+  const proofSource = readFileSync('scripts/test/network-parent-ui-evidence-drawer-proof.mjs', 'utf8');
+
+  assert.equal(NetworkEvidenceDrawerProofFixture.eventId, PortalNetworkActivitySeed.EventId);
+  assert.equal(NetworkEvidenceDrawerProofFixture.evidenceId, PortalNetworkActivitySeed.EvidenceId);
+  assert.equal(NetworkEvidenceDrawerProofFixture.journalEvidenceId, PortalNetworkActivitySeed.JournalEvidenceId);
+  assert.equal(e2eSource.includes(NetworkEvidenceDrawerProofFixture.eventId), false);
+  assert.equal(e2eSource.includes(NetworkEvidenceDrawerProofFixture.evidenceId), false);
+  assert.equal(unitSource.includes(NetworkEvidenceDrawerProofFixture.eventId), false);
+  assert.equal(unitSource.includes(NetworkEvidenceDrawerProofFixture.evidenceId), false);
+  assert.equal(seedSource.includes(NetworkEvidenceDrawerProofFixture.eventId), false);
+  assert.equal(seedSource.includes(NetworkEvidenceDrawerProofFixture.evidenceId), false);
+  assert.equal(proofSource.includes(NetworkEvidenceDrawerProofFixture.eventId), false);
+  assert.equal(proofSource.includes(NetworkEvidenceDrawerProofFixture.evidenceId), false);
 });

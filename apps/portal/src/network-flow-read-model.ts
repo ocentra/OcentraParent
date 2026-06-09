@@ -73,7 +73,13 @@ function networkFlowObservation(payload: AgentProtocolLogFields, digest: Activit
 }
 
 function nullIfMissing(value: AgentProtocolLogFields[keyof AgentProtocolLogFields] | undefined) {
-  return value === undefined ? null : value;
+  if (value === undefined) {
+    return null;
+  }
+  if (typeof value === AgentProtocolDefaults.Primitive.String && value.trim().length === 0) {
+    return null;
+  }
+  return value;
 }
 
 function networkFlowDigest(payload: AgentProtocolLogFields): ActivityNetworkFlowDigest | null {
