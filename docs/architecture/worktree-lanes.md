@@ -2,21 +2,49 @@
 
 Ocentra Parent uses milestone branches for finished product slices. A feature branch may be pushed for backup, but PR CI is the integration gate when the milestone is ready to merge to `main`.
 
-The lane hub keeps local parallel work explicit. It stores machine-local lane state in:
+The repo-owned lane ledger is the portable authority for lane state:
 
 ```text
-C:\Users\<you>\.codex\ocentra-parent-worktrees.json
+.hub/lane-ledger.json
+docs/hub/lane-ledger.md
 ```
 
-This file is not committed because it records local paths, active tasks, owner/thread hints, and temporary branch ownership.
+These committed files record lane ids, branches, remote branches, PRs, status, validation, merge state, next action, and cleanup safety. No Codex lane work is complete unless these files are updated, or the report explicitly says why no ledger update was needed.
+
+The lane hub keeps local parallel work explicit. Operational lane state now defaults to repo-local files:
+
+```text
+.hub/state/worktree-lanes.json
+.hub/state/ocentra-parent-hub
+```
+
+These files are committed repo state unless a lane explicitly uses a temporary recovery override. They record local paths, active tasks, owner/thread hints, temporary branch ownership, hub messages, reports, heartbeats, sessions, and locks. Actual worktree folders may still live outside the repo.
 
 Cross-chat hub messages, lane reports, and file ownership locks are stored in:
 
 ```text
-C:\Users\<you>\.codex\ocentra-parent-hub
+.hub/state/ocentra-parent-hub
 ```
 
-That hub folder is also machine-local. It is the coordination layer between Codex chats opened in different worktree folders.
+That hub folder is the coordination layer between Codex chats opened in different worktree folders. The higher-level portable lane truth still belongs in `.hub/lane-ledger.json` and `docs/hub/lane-ledger.md`.
+
+Audit local checkouts before cleanup or cross-PC handoff:
+
+```powershell
+npm run hub:lane-ledger:audit -- -SearchRoots "E:\","D:\","C:\Users\$env:USERNAME"
+```
+
+Sync repo-owned Codex state before working from another PC:
+
+```powershell
+npm run hub:state:sync
+```
+
+After semantic hub changes, commit only the hub state:
+
+```powershell
+npm run hub:state:sync -- -Commit
+```
 
 ## Lanes
 
@@ -83,11 +111,11 @@ The primary coordinator can inspect worker liveness without losing report state:
 npm run hub:heartbeats
 ```
 
-The underlying local-only files are:
+The heartbeat files are disposable liveness telemetry and may be blanked or truncated during repo migration. They are not semantic lane state. The underlying repo-local heartbeat files are:
 
 ```text
-C:\Users\<you>\.codex\ocentra-parent-hub\worker-heartbeats.ndjson
-C:\Users\<you>\.codex\ocentra-parent-hub\lanes\<lane>\heartbeat.ndjson
+.hub/state/ocentra-parent-hub/worker-heartbeats.ndjson
+.hub/state/ocentra-parent-hub/lanes/<lane>/heartbeat.ndjson
 ```
 
 Watch worker reports from the primary hub checkout:

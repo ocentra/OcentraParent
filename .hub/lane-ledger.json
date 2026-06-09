@@ -1,0 +1,183 @@
+{
+  "schema": "https://ocentra.ca/schemas/ocentra-parent-hub-lane-ledger.v1.json",
+  "version": 1,
+  "updatedAt": "2026-06-09T14:07:08.154Z",
+  "repo": "ocentra/OcentraParent",
+  "sourceOfTruth": "repo-owned ledger; .codex is machine-local cache and mailbox only",
+  "statusEnum": [
+    "main-merged",
+    "open-pr",
+    "remote-branch-no-pr",
+    "local-unpushed",
+    "dirty-local",
+    "stale-preserve",
+    "blocked",
+    "safe-delete"
+  ],
+  "lanes": [
+    {
+      "laneId": "primary",
+      "name": "Primary coordination lane",
+      "localWorktreePath": "E:/OcentraParent",
+      "branch": "codex/repo-owned-codex-hub-sync",
+      "remoteBranch": "origin/codex/repo-owned-codex-hub-sync",
+      "pr": null,
+      "base": "origin/main",
+      "status": "main-merged",
+      "lastCommit": "e7ea7baf7599ba8491102a2400e2a918f7326aa4",
+      "mergedToMain": true,
+      "dirtyLocalFiles": [],
+      "lastValidation": [
+        "cmd /c npm run hub:status",
+        "cmd /c npm run lanes:status",
+        "gh pr list --state open --json number,title,headRefName,baseRefName,mergeStateStatus,statusCheckRollup,url,updatedAt --limit 20"
+      ],
+      "nextAction": "Finish repo-owned hub state sync migration PR, then return primary to main for one-at-a-time PR integration.",
+      "safeToDeleteWorktree": false
+    },
+    {
+      "laneId": "codex-a",
+      "name": "Tracking plan full continuation",
+      "localWorktreePath": null,
+      "branch": "codex/tracking-plan-full-continuation-a",
+      "remoteBranch": "origin/codex/tracking-plan-full-continuation-a",
+      "pr": null,
+      "base": "origin/main",
+      "status": "blocked",
+      "lastCommit": null,
+      "mergedToMain": false,
+      "dirtyLocalFiles": [],
+      "lastValidation": ["hub report: BLOCKED waiting for merge wave locks"],
+      "nextAction": "Wait while PR sequencing is paused; resume only when selected or explicitly unblocked.",
+      "safeToDeleteWorktree": false
+    },
+    {
+      "laneId": "codex-b",
+      "name": "Preserve screen AI full-scope branch",
+      "localWorktreePath": null,
+      "branch": "codex/screen-ai-full-scope-b",
+      "remoteBranch": "origin/codex/screen-ai-full-scope-b",
+      "pr": 545,
+      "base": "origin/main",
+      "status": "open-pr",
+      "lastCommit": null,
+      "mergedToMain": false,
+      "dirtyLocalFiles": [],
+      "lastValidation": ["PR #545 CI was green before PR #548 advanced main", "Current PR merge state: BEHIND"],
+      "nextAction": "When selected, rebase against latest main, rerun validation, and integrate one-at-a-time.",
+      "safeToDeleteWorktree": false
+    },
+    {
+      "laneId": "codex-c",
+      "name": "Unified native app/game product completion",
+      "localWorktreePath": null,
+      "branch": "codex/app-game-control-product-completion",
+      "remoteBranch": "origin/codex/app-game-control-product-completion",
+      "pr": null,
+      "base": "origin/main",
+      "status": "dirty-local",
+      "lastCommit": null,
+      "mergedToMain": false,
+      "dirtyLocalFiles": [
+        "crates/agent-service/src/activity_api/app_game_child_runtime_transport_receipt_payload.rs",
+        "crates/agent-service/src/activity_api/app_game_child_runtime_transport_receipt_payload_tests.rs",
+        "crates/agent-service/src/activity_api/app_game_child_runtime_transport_receipt_service_tests.rs",
+        "crates/agent-service/src/activity_api/app_game_timer_parent_preference_setup_request_outbox.rs",
+        "many additional modified and untracked app-game files; run scripts/hub/audit-lanes.ps1 on the owning PC for the full list"
+      ],
+      "lastValidation": ["hub report: BLOCKED full app-game preservation PR by shared locks"],
+      "nextAction": "Do not force a micro PR. Preserve full app/game scope and unblock only through the selected one-at-a-time sequence.",
+      "safeToDeleteWorktree": false
+    },
+    {
+      "laneId": "codex-d",
+      "name": "Complete D browser runtime proof batch",
+      "localWorktreePath": null,
+      "branch": "codex/d-runtime-ready",
+      "remoteBranch": "origin/codex/d-runtime-ready",
+      "pr": 544,
+      "base": "origin/main",
+      "status": "blocked",
+      "lastCommit": null,
+      "mergedToMain": false,
+      "dirtyLocalFiles": [],
+      "lastValidation": [
+        "PR #544 fail-fast / Format, Lint, Types, Rust Check failed on 2026-06-08",
+        "Current PR merge state: BEHIND"
+      ],
+      "nextAction": "Keep paused until selected; route fail-fast fix to D when this PR is next in the sequence.",
+      "safeToDeleteWorktree": false
+    },
+    {
+      "laneId": "E-A",
+      "name": "User/live UI lane",
+      "localWorktreePath": null,
+      "branch": "codex/portal-theme-toggle-ui-polish",
+      "remoteBranch": "origin/codex/portal-theme-toggle-ui-polish",
+      "pr": 291,
+      "base": "origin/main",
+      "status": "stale-preserve",
+      "lastCommit": null,
+      "mergedToMain": true,
+      "dirtyLocalFiles": [],
+      "lastValidation": ["hub report: DONE PR291 merged to main"],
+      "nextAction": "User-owned live UI lane. Primary only sends sync/FYI or acts for PR/CI/main-safety issues.",
+      "safeToDeleteWorktree": false
+    },
+    {
+      "laneId": "E-B",
+      "name": "App-install dispatch executor receipt proof",
+      "localWorktreePath": null,
+      "branch": "codex/e-b-app-install-dispatch-executor-receipt",
+      "remoteBranch": "origin/codex/e-b-app-install-dispatch-executor-receipt",
+      "pr": 548,
+      "base": "origin/main",
+      "status": "main-merged",
+      "lastCommit": "e7ea7baf7599ba8491102a2400e2a918f7326aa4",
+      "mergedToMain": true,
+      "dirtyLocalFiles": [],
+      "lastValidation": ["PR #548 merged to main", "Primary pulled main after merge"],
+      "nextAction": "Free or retarget the lane only after a local audit confirms no dirty/unpushed work remains.",
+      "safeToDeleteWorktree": false
+    },
+    {
+      "laneId": "E-C",
+      "name": "Production support public surface export closure",
+      "localWorktreePath": null,
+      "branch": "codex/e-c-production-support-public-surface-export-closure",
+      "remoteBranch": "origin/codex/e-c-production-support-public-surface-export-closure",
+      "pr": 547,
+      "base": "origin/main",
+      "status": "main-merged",
+      "lastCommit": null,
+      "mergedToMain": true,
+      "dirtyLocalFiles": [],
+      "lastValidation": ["Prior coordinator state: PR #547 merged to main"],
+      "nextAction": "Free or retarget the lane only after a local audit confirms no dirty/unpushed work remains.",
+      "safeToDeleteWorktree": false
+    },
+    {
+      "laneId": "E-D",
+      "name": "Network live capture execution proof",
+      "localWorktreePath": null,
+      "branch": "codex/network-live-capture-execution-proof",
+      "remoteBranch": "origin/codex/network-live-capture-execution-proof",
+      "pr": 546,
+      "base": "origin/main",
+      "status": "blocked",
+      "lastCommit": null,
+      "mergedToMain": false,
+      "dirtyLocalFiles": [
+        "apps/portal/src/live-activity-state.ts",
+        "apps/portal/tests/live-activity-network-flow.test.ts"
+      ],
+      "lastValidation": [
+        "PR #546 fail-fast, secret scan, pre-AI proof, full validation, build, dependency policy, macOS E2E, and Ubuntu E2E passed",
+        "PR #546 Windows Real Portal To Rust E2E failed on 2026-06-09",
+        "Package preview skipped because a required check failed"
+      ],
+      "nextAction": "When selected, route the Windows E2E failure to E-D, then rerun CI before merge.",
+      "safeToDeleteWorktree": false
+    }
+  ]
+}

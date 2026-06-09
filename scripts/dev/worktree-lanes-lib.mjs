@@ -1,6 +1,6 @@
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { homedir } from 'node:os';
-import { dirname, join, normalize } from 'node:path';
+import { dirname, join, normalize, parse } from 'node:path';
 
 export const LaneStatus = Object.freeze({
   Blocked: 'blocked',
@@ -26,7 +26,7 @@ export const LaneCommand = Object.freeze({
 const ledgerFileName = 'ocentra-parent-worktrees.json';
 
 export function defaultLedgerPath(env = process.env) {
-  return env.OCENTRA_PARENT_LANE_LEDGER ?? join(homedir(), '.codex', ledgerFileName);
+  return env.OCENTRA_PARENT_LANE_LEDGER ?? join(repoStateRoot(), 'worktree-lanes.json');
 }
 
 export function createDefaultLedger({ repoRoot, repoBranch = 'main', now = new Date() }) {
@@ -53,6 +53,27 @@ export function createDefaultLedger({ repoRoot, repoBranch = 'main', now = new D
       createReusableLane('codex-c', join(laneRoot, 'ocentra-parent-codex-c', 'OcentraParent')),
     ],
   };
+}
+
+function repoStateRoot(cwd = process.cwd()) {
+  return join(findRepoRoot(cwd), '.hub', 'state');
+}
+
+function findRepoRoot(cwd) {
+  let current = normalize(cwd);
+  const root = parse(current).root;
+
+  while (current.length > 0) {
+    if (existsSync(join(current, '.git')) && existsSync(join(current, 'package.json'))) {
+      return current;
+    }
+    if (current === root) {
+      break;
+    }
+    current = dirname(current);
+  }
+
+  return cwd;
 }
 
 export function createReusableLane(id, path) {

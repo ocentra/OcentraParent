@@ -1,6 +1,5 @@
 import { existsSync, mkdirSync, readFileSync, renameSync, writeFileSync } from 'node:fs';
-import { homedir } from 'node:os';
-import { dirname, join, normalize, relative } from 'node:path';
+import { dirname, join, normalize, parse, relative } from 'node:path';
 
 import { findLaneByPath } from './worktree-lanes-lib.mjs';
 
@@ -22,7 +21,28 @@ const hubDirectoryName = 'ocentra-parent-hub';
 const schema = 'https://ocentra.ca/schemas/ocentra-parent-hub-mailbox.v1.json';
 
 export function defaultHubRoot(env = process.env) {
-  return env.OCENTRA_PARENT_HUB_ROOT ?? join(homedir(), '.codex', hubDirectoryName);
+  return env.OCENTRA_PARENT_HUB_ROOT ?? join(repoStateRoot(), hubDirectoryName);
+}
+
+function repoStateRoot(cwd = process.cwd()) {
+  return join(findRepoRoot(cwd), '.hub', 'state');
+}
+
+function findRepoRoot(cwd) {
+  let current = normalize(cwd);
+  const root = parse(current).root;
+
+  while (current.length > 0) {
+    if (existsSync(join(current, '.git')) && existsSync(join(current, 'package.json'))) {
+      return current;
+    }
+    if (current === root) {
+      break;
+    }
+    current = dirname(current);
+  }
+
+  return cwd;
 }
 
 export function parseHubArgs(argv) {

@@ -1,9 +1,11 @@
-import { appendFileSync, existsSync, mkdirSync, readFileSync } from 'node:fs';
+import { appendFileSync, existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 
 import { laneHubPaths, readOrCreateMailbox, unreadMessages } from './hub-mailbox-lib.mjs';
 
 const aggregateHeartbeatFileName = 'worker-heartbeats.ndjson';
+const maxHeartbeatBytes = 1024 * 1024;
+const retainedHeartbeatLines = 1000;
 
 export function aggregateHeartbeatPath(hubRoot) {
   return join(hubRoot, aggregateHeartbeatFileName);
@@ -74,7 +76,24 @@ function buildHeartbeatEntry({ event, lane, mailbox, note, now, state }) {
 
 function appendNdjson(path, entry) {
   mkdirSync(dirname(path), { recursive: true });
+  rotateNdjsonIfNeeded(path);
   appendFileSync(path, `${JSON.stringify(entry)}\n`, 'utf8');
+}
+
+function rotateNdjsonIfNeeded(path) {
+  if (!existsSync(path)) {
+    return;
+  }
+  const content = readFileSync(path, 'utf8');
+  if (Buffer.byteLength(content, 'utf8') <= maxHeartbeatBytes) {
+    return;
+  }
+  const tail = content
+    .split(/\r?\n/u)
+    .filter((line) => line.trim().length > 0)
+    .slice(-retainedHeartbeatLines)
+    .join('\n');
+  writeFileSync(path, tail.length === 0 ? '' : `${tail}\n`, 'utf8');
 }
 
 function readLatestNdjson(path) {
