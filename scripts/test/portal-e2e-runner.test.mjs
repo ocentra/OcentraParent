@@ -10,6 +10,7 @@ test('portal e2e owns agent and portal cleanup outside Playwright webServer', ()
   assert.equal(portalManifest.scripts['test:e2e'], 'node ../../scripts/test/portal-playwright-runner.mjs');
   assert.equal(configSource.includes('webServer'), false);
   assert.equal(configSource.includes('OCENTRA_PARENT_PORTAL_PORT'), true);
+  assert.equal(configSource.includes('serviceBackedAssertionTimeoutMs = 90000'), true);
   assert.equal(runnerSource.includes('stopProcessTree'), true);
   assert.equal(runnerSource.includes('SIGKILL'), true);
   assert.equal(runnerSource.includes('resolveParentDevPort'), true);
