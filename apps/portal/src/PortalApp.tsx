@@ -80,6 +80,8 @@ export function PortalApp(props: PortalAppProps): ReactElement {
   );
   const latestLanPairingScanEventId =
     latestPortalEvent(props.state.events, AgentEvent.LanPairingBrowserDiscoveryReported)?.eventId ?? null;
+  const hasNetworkFlowReadModelEvent =
+    latestPortalEvent(props.state.events, AgentEvent.NetworkFlowReadModelReported) !== null;
   const openAuthDialog = (): void => setAuthOpen(true);
   const closeAuthDialog = (): void => setAuthOpen(false);
   usePortalProductReady(isProductRoute, props.onProductSurfaceReady);
@@ -109,6 +111,7 @@ export function PortalApp(props: PortalAppProps): ReactElement {
   usePortalNetworkActivityRefresh({
     actions: props.actions,
     connectionState: props.state.connectionState,
+    hasNetworkFlowReadModelEvent,
     networkActivityRefreshRequestedForRouteRef,
     route: props.route,
   });
@@ -305,6 +308,7 @@ type PortalDeviceScanCompletionHook = {
 type PortalNetworkActivityRefreshHook = {
   readonly actions: PortalRenderActions;
   readonly connectionState: PortalConnectionStateValue;
+  readonly hasNetworkFlowReadModelEvent: boolean;
   readonly networkActivityRefreshRequestedForRouteRef: MutableRefObject<boolean>;
   readonly route: PortalRouteValue;
 };
@@ -407,6 +411,7 @@ function usePortalDeviceScanCompletion({
 function usePortalNetworkActivityRefresh({
   actions,
   connectionState,
+  hasNetworkFlowReadModelEvent,
   networkActivityRefreshRequestedForRouteRef,
   route,
 }: PortalNetworkActivityRefreshHook): void {
@@ -418,6 +423,7 @@ function usePortalNetworkActivityRefresh({
     if (
       !shouldRequestNetworkFlowReadModelForRoute({
         connectionState,
+        hasNetworkFlowReadModelEvent,
         requestedForRoute: networkActivityRefreshRequestedForRouteRef.current,
         route,
       })
@@ -426,7 +432,7 @@ function usePortalNetworkActivityRefresh({
     }
     networkActivityRefreshRequestedForRouteRef.current = true;
     actions.sendCommand(AgentCommand.NetworkFlowReadModelGet, {});
-  }, [actions, connectionState, networkActivityRefreshRequestedForRouteRef, route]);
+  }, [actions, connectionState, hasNetworkFlowReadModelEvent, networkActivityRefreshRequestedForRouteRef, route]);
 }
 
 function frameLayoutVisibleForProtocolRoute(layout: PortalFrameLayout, isDevProtocolRoute: boolean): PortalFrameLayout {

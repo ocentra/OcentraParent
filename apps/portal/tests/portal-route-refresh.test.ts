@@ -7,6 +7,7 @@ describe('portal route refresh', () => {
     expect(
       shouldRequestNetworkFlowReadModelForRoute({
         connectionState: PortalConnectionState.Connected,
+        hasNetworkFlowReadModelEvent: false,
         requestedForRoute: false,
         route: PortalRoute.Activity,
       })
@@ -15,6 +16,7 @@ describe('portal route refresh', () => {
     expect(
       shouldRequestNetworkFlowReadModelForRoute({
         connectionState: PortalConnectionState.Connected,
+        hasNetworkFlowReadModelEvent: false,
         requestedForRoute: true,
         route: PortalRoute.Activity,
       })
@@ -25,6 +27,7 @@ describe('portal route refresh', () => {
     expect(
       shouldRequestNetworkFlowReadModelForRoute({
         connectionState: PortalConnectionState.Connecting,
+        hasNetworkFlowReadModelEvent: false,
         requestedForRoute: false,
         route: PortalRoute.Activity,
       })
@@ -32,8 +35,20 @@ describe('portal route refresh', () => {
     expect(
       shouldRequestNetworkFlowReadModelForRoute({
         connectionState: PortalConnectionState.Connected,
+        hasNetworkFlowReadModelEvent: false,
         requestedForRoute: false,
         route: PortalRoute.Overview,
+      })
+    ).toBe(false);
+  });
+
+  it('does not overwrite an existing network flow read model event on route entry', () => {
+    expect(
+      shouldRequestNetworkFlowReadModelForRoute({
+        connectionState: PortalConnectionState.Connected,
+        hasNetworkFlowReadModelEvent: true,
+        requestedForRoute: false,
+        route: PortalRoute.Activity,
       })
     ).toBe(false);
   });

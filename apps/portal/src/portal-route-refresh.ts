@@ -7,14 +7,21 @@ import {
 
 export type PortalRouteNetworkRefreshState = {
   readonly connectionState: PortalConnectionStateValue;
+  readonly hasNetworkFlowReadModelEvent: boolean;
   readonly requestedForRoute: boolean;
   readonly route: PortalRouteValue;
 };
 
 export function shouldRequestNetworkFlowReadModelForRoute({
   connectionState,
+  hasNetworkFlowReadModelEvent,
   requestedForRoute,
   route,
 }: PortalRouteNetworkRefreshState): boolean {
-  return route === PortalRoute.Activity && connectionState === PortalConnectionState.Connected && !requestedForRoute;
+  return (
+    route === PortalRoute.Activity &&
+    connectionState === PortalConnectionState.Connected &&
+    !requestedForRoute &&
+    !hasNetworkFlowReadModelEvent
+  );
 }
