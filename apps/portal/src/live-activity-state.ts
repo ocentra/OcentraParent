@@ -97,6 +97,11 @@ type ActivitySurfaceReadModel =
   | ActivityGamesReadModel
   | ActivityNetworkReadModel;
 
+type NetworkFlowReadModelState = {
+  readonly event: AgentEventEnvelope | null;
+  readonly readModel: ActivityNetworkFlowReadModel | null;
+};
+
 export interface PortalNetworkRuntimeEventChainStream {
   readonly streamedEventCount: number | null;
   readonly events: readonly AgentNetworkRuntimeEventResult[];
@@ -252,7 +257,7 @@ function resolveAppGameNotificationState(events: readonly AgentEventEnvelope[]) 
 
 function resolveNetworkState(events: readonly AgentEventEnvelope[]) {
   const browserInterventionEvent = latestEvent(events, AgentEvent.BrowserInterventionReadModelReported);
-  const networkFlowEvent = latestEvent(events, AgentEvent.NetworkFlowReadModelReported);
+  const networkFlowState = resolveNetworkFlowReadModelState(events);
   const networkRuntimeEventChainEvent = latestEvent(events, AgentEvent.NetworkRuntimeEventChainStreamReported);
   const networkRemoteDeliveryStatusEvent = latestEvent(events, AgentEvent.NetworkRemoteDeliveryStatusReported);
   const networkLiveCaptureStatusEvent = latestEvent(events, AgentEvent.NetworkLiveCaptureStatusReported);
@@ -264,8 +269,8 @@ function resolveNetworkState(events: readonly AgentEventEnvelope[]) {
     browserInterventionEvent,
     browserInterventionReadModel:
       browserInterventionEvent === null ? null : parseBrowserInterventionReadModel(browserInterventionEvent.payload),
-    networkFlowEvent,
-    networkFlowReadModel: networkFlowEvent === null ? null : parseNetworkFlowReadModel(networkFlowEvent.payload),
+    networkFlowEvent: networkFlowState.event,
+    networkFlowReadModel: networkFlowState.readModel,
     networkRuntimeEventChainEvent,
     networkRuntimeEventChainStream: parseNullableNetworkRuntimeEventChainStream(networkRuntimeEventChainEvent),
     networkRemoteDeliveryStatusEvent,
@@ -294,6 +299,43 @@ function resolveNetworkState(events: readonly AgentEventEnvelope[]) {
         ? null
         : parseAgentNetworkWindowsWfpGateStatusEvent(networkWindowsWfpGateStatusEvent),
   };
+}
+
+function resolveNetworkFlowReadModelState(events: readonly AgentEventEnvelope[]): NetworkFlowReadModelState {
+  const latestNetworkFlow = latestParsedNetworkFlowEvent(events, false);
+  const latestDurableNetworkFlow = latestParsedNetworkFlowEvent(events, true);
+  return latestDurableNetworkFlow ?? latestNetworkFlow ?? { event: null, readModel: null };
+}
+
+function latestParsedNetworkFlowEvent(
+  events: readonly AgentEventEnvelope[],
+  requireDurableEvidence: boolean
+): NetworkFlowReadModelState | null {
+  let latest: NetworkFlowReadModelState | null = null;
+  let latestTime = Number.NEGATIVE_INFINITY;
+  let latestIndex = Number.POSITIVE_INFINITY;
+  for (let index = 0; index < events.length; index += 1) {
+    const event = events[index];
+    if (event === undefined || event.event !== AgentEvent.NetworkFlowReadModelReported) {
+      continue;
+    }
+    const readModel = parseNetworkFlowReadModel(event.payload);
+    if (readModel === null || (requireDurableEvidence && !isDurableNetworkFlowReadModel(readModel))) {
+      continue;
+    }
+    const sentAt = Date.parse(event.sentAt);
+    const eventTime = Number.isFinite(sentAt) ? sentAt : events.length - index;
+    if (eventTime > latestTime || (eventTime === latestTime && index < latestIndex)) {
+      latest = { event, readModel };
+      latestTime = eventTime;
+      latestIndex = index;
+    }
+  }
+  return latest;
+}
+
+function isDurableNetworkFlowReadModel(readModel: ActivityNetworkFlowReadModel): boolean {
+  return readModel.rows.length > 0 || readModel.tombstoneRows > 0 || readModel.deletedEvidenceReferenceIds.length > 0;
 }
 
 function resolveLanPairingState(events: readonly AgentEventEnvelope[]) {

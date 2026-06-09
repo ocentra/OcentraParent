@@ -29,6 +29,14 @@ function registerNetworkFlowReadModelTests(): void {
     expectNetworkFlowRow(readModel);
   });
 
+  it('keeps evidence-backed network flow read models when a later empty refresh arrives', () => {
+    const state = resolveLiveActivityState([latestEmptyNetworkFlowEvent(), networkFlowEvent()]);
+    const readModel = requireNetworkFlowReadModel(state.networkFlowReadModel);
+
+    expectNetworkReadModelCounts(readModel, 1);
+    expectNetworkFlowRow(readModel);
+  });
+
   it('keeps empty network flow read models visible without inventing destinations', () => {
     const state = resolveLiveActivityState([emptyNetworkFlowEvent()]);
     const readModel = requireNetworkFlowReadModel(state.networkFlowReadModel);
@@ -305,6 +313,15 @@ function tiedOlderEmptyNetworkFlowEvent() {
     ...emptyNetworkFlowEvent(),
     eventId: 'evt-network-empty-tie',
     correlationId: 'cmd-network-empty-tie',
+  });
+}
+
+function latestEmptyNetworkFlowEvent() {
+  return AgentEventEnvelopeSchema.parse({
+    ...emptyNetworkFlowEvent(),
+    eventId: 'evt-network-empty-later',
+    correlationId: 'cmd-network-empty-later',
+    sentAt: '2026-05-21T02:00:02Z',
   });
 }
 
