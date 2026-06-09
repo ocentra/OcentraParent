@@ -23,14 +23,12 @@ import {
   PortalFrameTuner,
   PortalLanPairingScan,
   PortalRoute,
-  type PortalConnectionState as PortalConnectionStateValue,
   type PortalRoute as PortalRouteValue,
   type PortalThemeValue,
 } from '@ocentra-parent/portal-domain/contracts';
 import type { PortalRenderActions } from './portal-actions';
 import { routeDescriptor } from './portal-route-descriptor';
 import { renderRouteContent } from './portal-route-content';
-import { shouldRequestNetworkFlowReadModelForRoute } from './portal-route-refresh';
 import type { PortalRuntimeState } from './portal-state';
 import { ParentPortalRoute } from './ParentPortalRoute';
 import { PortalAuthDialog } from './PortalAuthDialog';
@@ -46,6 +44,7 @@ import {
   goldenCardStyle,
 } from './portal-frame-layout';
 import type { PortalFrameContentTargetLayout, PortalFrameLayout } from './portal-frame-layout';
+import { usePortalNetworkActivityRefresh } from './use-portal-network-activity-refresh';
 import { usePortalFrameLayout } from './use-portal-frame-layout';
 
 type PortalAppProps = {
@@ -70,8 +69,7 @@ export function PortalApp(props: PortalAppProps): ReactElement {
   const autoLanScanStartedAfterEventIdRef = useRef<AgentEventId | null>(null);
   const networkActivityRefreshRequestedForRouteRef = useRef(false);
   const isFrameTuner = props.route === PortalRoute.FrameTuner;
-  const isDevProtocolRoute =
-    props.route === PortalRoute.Commands || props.route === PortalRoute.Events || props.route === PortalRoute.Logs;
+  const isDevProtocolRoute = isPortalDevProtocolRoute(props.route);
   const isProductRoute = !isFrameTuner && !isDevProtocolRoute;
   const [frameLayout, setFrameLayout] = usePortalFrameLayout(!isFrameTuner && import.meta.env.DEV);
   const routeFrameLayout = useMemo(
@@ -305,20 +303,16 @@ type PortalDeviceScanCompletionHook = {
   readonly setHeaderRouteTransitionActive: Dispatch<SetStateAction<boolean>>;
 };
 
-type PortalNetworkActivityRefreshHook = {
-  readonly actions: PortalRenderActions;
-  readonly connectionState: PortalConnectionStateValue;
-  readonly hasNetworkFlowReadModelEvent: boolean;
-  readonly networkActivityRefreshRequestedForRouteRef: MutableRefObject<boolean>;
-  readonly route: PortalRouteValue;
-};
-
 function usePortalProductReady(isProductRoute: boolean, onProductSurfaceReady: () => void): void {
   useLayoutEffect(() => {
     if (!isProductRoute) {
       onProductSurfaceReady();
     }
   }, [isProductRoute, onProductSurfaceReady]);
+}
+
+function isPortalDevProtocolRoute(route: PortalRouteValue): boolean {
+  return route === PortalRoute.Commands || route === PortalRoute.Events || route === PortalRoute.Logs;
 }
 
 function usePortalRouteTransition({
@@ -406,33 +400,6 @@ function usePortalDeviceScanCompletion({
     }
     setHeaderRouteTransitionActive(false);
   }, [autoLanScanStartedAfterEventIdRef, latestLanPairingScanEventId, route, setHeaderRouteTransitionActive]);
-}
-
-function usePortalNetworkActivityRefresh({
-  actions,
-  connectionState,
-  hasNetworkFlowReadModelEvent,
-  networkActivityRefreshRequestedForRouteRef,
-  route,
-}: PortalNetworkActivityRefreshHook): void {
-  useEffect(() => {
-    if (route !== PortalRoute.Activity) {
-      networkActivityRefreshRequestedForRouteRef.current = false;
-      return;
-    }
-    if (
-      !shouldRequestNetworkFlowReadModelForRoute({
-        connectionState,
-        hasNetworkFlowReadModelEvent,
-        requestedForRoute: networkActivityRefreshRequestedForRouteRef.current,
-        route,
-      })
-    ) {
-      return;
-    }
-    networkActivityRefreshRequestedForRouteRef.current = true;
-    actions.sendCommand(AgentCommand.NetworkFlowReadModelGet, {});
-  }, [actions, connectionState, hasNetworkFlowReadModelEvent, networkActivityRefreshRequestedForRouteRef, route]);
 }
 
 function frameLayoutVisibleForProtocolRoute(layout: PortalFrameLayout, isDevProtocolRoute: boolean): PortalFrameLayout {
