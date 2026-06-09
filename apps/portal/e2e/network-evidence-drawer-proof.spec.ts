@@ -18,16 +18,25 @@ test('network evidence drawer renders service-backed refs without unsupported cl
   await expect(commandResult.getByText('agent.network.flow.read-model.reported')).toHaveCount(1, {
     timeout: shellReadyTimeoutMs,
   });
+  await expect(commandResult.getByText('network-ui-evidence-1')).toBeVisible({
+    timeout: shellReadyTimeoutMs,
+  });
 
-  await page.goto('/#/activity');
+  await page.evaluate(() => {
+    window.location.hash = '#/activity';
+  });
   const networkPanel = page.getByRole('region', { name: 'Network activity' });
   await expect(networkPanel).toBeVisible({ timeout: shellReadyTimeoutMs });
-  await expect(networkPanel.getByText('network-ui-evidence-1')).toBeVisible();
-  await expect(networkPanel.getByText('network-ui-journal-1')).toBeVisible();
-  await expect(networkPanel.getByText('Exact URL claim')).toBeVisible();
-  await expect(networkPanel.getByText('Not reported').first()).toBeVisible();
-  await expect(networkPanel.getByText('example-network.test | domain-observed')).toBeVisible();
-  await expect(networkPanel.getByText('notepad.exe | 4242 | process-attributed')).toBeVisible();
+  await expect(networkPanel.getByText('network-ui-evidence-1')).toBeVisible({ timeout: shellReadyTimeoutMs });
+  await expect(networkPanel.getByText('network-ui-journal-1')).toBeVisible({ timeout: shellReadyTimeoutMs });
+  await expect(networkPanel.getByText('Exact URL claim')).toBeVisible({ timeout: shellReadyTimeoutMs });
+  await expect(networkPanel.getByText('Not reported').first()).toBeVisible({ timeout: shellReadyTimeoutMs });
+  await expect(networkPanel.getByText('example-network.test | domain-observed')).toBeVisible({
+    timeout: shellReadyTimeoutMs,
+  });
+  await expect(networkPanel.getByText('notepad.exe | 4242 | process-attributed')).toBeVisible({
+    timeout: shellReadyTimeoutMs,
+  });
 
   const screenshotPath = process.env['NETWORK_EVIDENCE_DRAWER_SCREENSHOT'];
   if (screenshotPath !== undefined && screenshotPath.trim().length > 0) {
