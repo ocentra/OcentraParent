@@ -14,18 +14,18 @@ import {
 } from '@ocentra-parent/agent-protocol-domain/contracts';
 
 export function parseNetworkFlowReadModel(payload: AgentProtocolLogFields): ActivityNetworkFlowReadModel | null {
-  const returned = payload[AgentProtocolDefaults.Field.Returned];
+  const returned = requiredNumber(payload[AgentProtocolDefaults.Field.Returned]);
   const digest = networkFlowDigest(payload);
   const row = returned === 0 ? [] : [networkFlowObservation(payload, digest)];
   const parsed = ActivityNetworkFlowReadModelSchema.safeParse({
     schemaVersion: ActivityQuerySchemaVersion,
     generatedAt: payload[AgentProtocolDefaults.Field.GeneratedAt],
     custody: payload[AgentProtocolDefaults.Field.Custody],
-    limit: payload[AgentProtocolDefaults.Field.Limit],
+    limit: requiredNumber(payload[AgentProtocolDefaults.Field.Limit]),
     returned,
-    activeRows: payload[AgentProtocolDefaults.Field.ActiveRows],
-    tombstoneRows: payload[AgentProtocolDefaults.Field.TombstoneRows],
-    exportableRows: payload[AgentProtocolDefaults.Field.ExportableRows],
+    activeRows: requiredNumber(payload[AgentProtocolDefaults.Field.ActiveRows]),
+    tombstoneRows: requiredNumber(payload[AgentProtocolDefaults.Field.TombstoneRows]),
+    exportableRows: requiredNumber(payload[AgentProtocolDefaults.Field.ExportableRows]),
     capabilityStatus: payload[AgentProtocolDefaults.Field.CapabilityStatus],
     latestEventId: nullIfMissing(payload[AgentProtocolDefaults.Field.LatestEventId]),
     latestObservedAt: nullIfMissing(payload[AgentProtocolDefaults.Field.LatestObservedAt]),
@@ -54,21 +54,21 @@ function networkFlowObservation(payload: AgentProtocolLogFields, digest: Activit
     tcpState: nullIfMissing(payload[AgentProtocolDefaults.Field.TcpState]),
     localEndpoint: {
       ip: nullIfMissing(payload[AgentProtocolDefaults.Field.LocalIp]),
-      port: nullIfMissing(payload[AgentProtocolDefaults.Field.LocalPort]),
+      port: optionalNumber(payload[AgentProtocolDefaults.Field.LocalPort]),
     },
     destinationEndpoint: {
       ip: nullIfMissing(payload[AgentProtocolDefaults.Field.DestinationIp]),
-      port: nullIfMissing(payload[AgentProtocolDefaults.Field.DestinationPort]),
+      port: optionalNumber(payload[AgentProtocolDefaults.Field.DestinationPort]),
     },
     destinationDomain: nullIfMissing(payload[AgentProtocolDefaults.Field.DestinationDomain]),
     domainAttributionStatus: payload[AgentProtocolDefaults.Field.DomainAttributionStatus],
     processAttributionStatus: payload[AgentProtocolDefaults.Field.ProcessAttributionStatus],
-    processId: nullIfMissing(payload[AgentProtocolDefaults.Field.ProcessId]),
+    processId: optionalNumber(payload[AgentProtocolDefaults.Field.ProcessId]),
     processName: nullIfMissing(payload[AgentProtocolDefaults.Field.ProcessName]),
     counters: {
-      connectionCount: payload[AgentProtocolDefaults.Field.ConnectionCount],
-      bytesSent: nullIfMissing(payload[AgentProtocolDefaults.Field.BytesSent]),
-      bytesReceived: nullIfMissing(payload[AgentProtocolDefaults.Field.BytesReceived]),
+      connectionCount: requiredNumber(payload[AgentProtocolDefaults.Field.ConnectionCount]),
+      bytesSent: optionalNumber(payload[AgentProtocolDefaults.Field.BytesSent]),
+      bytesReceived: optionalNumber(payload[AgentProtocolDefaults.Field.BytesReceived]),
       firstSeenAt: nullIfMissing(payload[AgentProtocolDefaults.Field.FirstSeenAt]),
       lastSeenAt: nullIfMissing(payload[AgentProtocolDefaults.Field.LastSeenAt]),
     },
@@ -84,6 +84,38 @@ function nullIfMissing(value: AgentProtocolLogFields[keyof AgentProtocolLogField
     return null;
   }
   return value;
+}
+
+function requiredNumber(value: AgentProtocolLogFields[keyof AgentProtocolLogFields] | undefined) {
+  return numberFromLogField(value) ?? value;
+}
+
+function optionalNumber(value: AgentProtocolLogFields[keyof AgentProtocolLogFields] | undefined) {
+  if (value === undefined || value === null) {
+    return null;
+  }
+  if (isAgentProtocolLogText(value) && value.trim().length === 0) {
+    return null;
+  }
+  return numberFromLogField(value) ?? value;
+}
+
+function numberFromLogField(value: AgentProtocolLogFields[keyof AgentProtocolLogFields] | undefined): number | null {
+  if (typeof value === AgentProtocolDefaults.Primitive.Number && Number.isFinite(Number(value))) {
+    return Number(value);
+  }
+  if (!isAgentProtocolLogText(value)) {
+    return null;
+  }
+  const trimmed = value.trim();
+  if (trimmed.length === 0) {
+    return null;
+  }
+  const numeric = Number(trimmed);
+  if (!Number.isFinite(numeric)) {
+    return null;
+  }
+  return numeric;
 }
 
 function networkFlowDigest(payload: AgentProtocolLogFields): ActivityNetworkFlowDigest | null {

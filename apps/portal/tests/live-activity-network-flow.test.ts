@@ -9,6 +9,7 @@ import { NetworkEvidenceDrawerProof } from './network-evidence-drawer-proof-fixt
 
 describe('portal live activity network flow state', () => {
   registerNetworkFlowReadModelTests();
+  registerNetworkFlowNormalizationTests();
   registerNetworkFlowRejectionTests();
   registerNetworkEvidenceDrawerTests();
 });
@@ -20,27 +21,6 @@ function registerNetworkFlowReadModelTests(): void {
 
     expectNetworkReadModelCounts(readModel, 1);
     expectNetworkFlowRow(readModel);
-  });
-
-  it('normalizes blank optional Windows network fields before branded parsing', () => {
-    const state = resolveLiveActivityState([blankOptionalWindowsNetworkFlowEvent()]);
-    const readModel = requireNetworkFlowReadModel(state.networkFlowReadModel);
-    const row = readModel.rows[0];
-    const summary = networkEvidenceDrawerSummary(readModel);
-
-    expectNetworkReadModelCounts(readModel, 1);
-    expect(row).toBeDefined();
-    expect(row?.destinationDomain).toBeNull();
-    expect(row?.processName).toBeNull();
-    expect(row?.evidence.map((evidence) => evidence.evidenceId)).toEqual([
-      NetworkEvidenceDrawerProof.evidenceId,
-      NetworkEvidenceDrawerProof.journalEvidenceId,
-    ]);
-    expect(summary.domainEvidenceRef).toBe(NetworkEvidenceDrawerProof.fields.domainAttributionStatus);
-    expect(summary.processRef).toBe(NetworkEvidenceDrawerProof.fields.processAttributionStatus);
-    expect(summary.evidenceReferences).toBe(
-      `${NetworkEvidenceDrawerProof.evidenceId} | ${NetworkEvidenceDrawerProof.journalEvidenceId}`
-    );
   });
 
   it('keeps newest buffered network flow read models when sentAt ties', () => {
@@ -89,6 +69,45 @@ function registerNetworkFlowReadModelTests(): void {
     expect(summary.degradedState).toBe('adapter-error');
     expect(summary.policyDecisionRef).toBe('Not reported');
     expect(summary.interventionResultRef).toBe('Not reported');
+  });
+}
+
+function registerNetworkFlowNormalizationTests(): void {
+  it('normalizes blank optional Windows network fields before branded parsing', () => {
+    const state = resolveLiveActivityState([blankOptionalWindowsNetworkFlowEvent()]);
+    const readModel = requireNetworkFlowReadModel(state.networkFlowReadModel);
+    const row = readModel.rows[0];
+    const summary = networkEvidenceDrawerSummary(readModel);
+
+    expectNetworkReadModelCounts(readModel, 1);
+    expect(row).toBeDefined();
+    expect(row?.destinationDomain).toBeNull();
+    expect(row?.processName).toBeNull();
+    expect(row?.evidence.map((evidence) => evidence.evidenceId)).toEqual([
+      NetworkEvidenceDrawerProof.evidenceId,
+      NetworkEvidenceDrawerProof.journalEvidenceId,
+    ]);
+    expect(summary.domainEvidenceRef).toBe(NetworkEvidenceDrawerProof.fields.domainAttributionStatus);
+    expect(summary.processRef).toBe(NetworkEvidenceDrawerProof.fields.processAttributionStatus);
+    expect(summary.evidenceReferences).toBe(
+      `${NetworkEvidenceDrawerProof.evidenceId} | ${NetworkEvidenceDrawerProof.journalEvidenceId}`
+    );
+  });
+
+  it('normalizes stringified Windows network counters before drawer parsing', () => {
+    const state = resolveLiveActivityState([stringifiedWindowsNetworkFlowEvent()]);
+    const readModel = requireNetworkFlowReadModel(state.networkFlowReadModel);
+    const row = readModel.rows[0];
+    const summary = networkEvidenceDrawerSummary(readModel);
+
+    expectNetworkReadModelCounts(readModel, 1);
+    expect(row?.localEndpoint.port).toBe(NetworkEvidenceDrawerProof.fields.localPort);
+    expect(row?.destinationEndpoint.port).toBe(NetworkEvidenceDrawerProof.fields.destinationPort);
+    expect(row?.processId).toBe(NetworkEvidenceDrawerProof.fields.pid);
+    expect(row?.counters.connectionCount).toBe(1);
+    expect(summary.evidenceReferences).toBe(
+      `${NetworkEvidenceDrawerProof.evidenceId} | ${NetworkEvidenceDrawerProof.journalEvidenceId}`
+    );
   });
 }
 
@@ -276,6 +295,26 @@ function blankOptionalWindowsNetworkFlowEvent() {
       bytesReceived: '',
       firstSeenAt: '',
       lastSeenAt: '',
+    },
+  });
+}
+
+function stringifiedWindowsNetworkFlowEvent() {
+  return AgentEventEnvelopeSchema.parse({
+    ...networkFlowEvent(),
+    eventId: 'evt-network-stringified-windows-fields',
+    correlationId: 'cmd-network-stringified-windows-fields',
+    payload: {
+      ...networkFlowEvent().payload,
+      limit: '10',
+      returned: '1',
+      activeRows: '1',
+      tombstoneRows: '0',
+      exportableRows: '1',
+      localPort: String(NetworkEvidenceDrawerProof.fields.localPort),
+      destinationPort: String(NetworkEvidenceDrawerProof.fields.destinationPort),
+      processId: String(NetworkEvidenceDrawerProof.fields.pid),
+      connectionCount: '1',
     },
   });
 }
