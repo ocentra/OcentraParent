@@ -1,6 +1,12 @@
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
+import { mkdtemp, rm } from 'node:fs/promises';
+import { tmpdir } from 'node:os';
+import path from 'node:path';
+import { DatabaseSync } from 'node:sqlite';
 import { test } from 'node:test';
+
+import { seedPortalNetworkActivityStore } from './portal-network-activity-seed.mjs';
 
 test('portal e2e owns agent and portal cleanup outside Playwright webServer', () => {
   const portalManifest = JSON.parse(readFileSync('apps/portal/package.json', 'utf8'));
@@ -10,7 +16,6 @@ test('portal e2e owns agent and portal cleanup outside Playwright webServer', ()
   assert.equal(portalManifest.scripts['test:e2e'], 'node ../../scripts/test/portal-playwright-runner.mjs');
   assert.equal(configSource.includes('webServer'), false);
   assert.equal(configSource.includes('OCENTRA_PARENT_PORTAL_PORT'), true);
-  assert.equal(configSource.includes('serviceBackedAssertionTimeoutMs = 90000'), true);
   assert.equal(runnerSource.includes('stopProcessTree'), true);
   assert.equal(runnerSource.includes('SIGKILL'), true);
   assert.equal(runnerSource.includes('resolveParentDevPort'), true);
@@ -26,4 +31,34 @@ test('portal local smoke waits for process shutdown before temp cleanup', () => 
   assert.equal(stopIndex < removeIndex, true);
   assert.equal(smokeSource.includes('stopProcessTreeAndWait'), true);
   assert.equal(smokeSource.includes('resolveParentDevPort'), true);
+});
+
+test('portal network activity seed persists evidence before Rust service startup', async () => {
+  const runRoot = await mkdtemp(path.join(tmpdir(), 'ocentra-parent-network-seed-'));
+  const activityDbPath = path.join(runRoot, 'activity.sqlite');
+  try {
+    seedPortalNetworkActivityStore(activityDbPath);
+    const database = new DatabaseSync(activityDbPath);
+    try {
+      const journalMode = database.prepare('PRAGMA journal_mode;').get();
+      const row = database
+        .prepare(
+          `
+SELECT evidence_json
+FROM activity_events
+WHERE event_id = ?;
+`
+        )
+        .get('network-ui-flow-1');
+
+      assert.equal(String(Object.values(journalMode)[0]), 'delete');
+      assert.equal(typeof row.evidence_json, 'string');
+      assert.equal(row.evidence_json.includes('network-ui-evidence-1'), true);
+      assert.equal(row.evidence_json.includes('network-ui-journal-1'), true);
+    } finally {
+      database.close();
+    }
+  } finally {
+    await rm(runRoot, { recursive: true, force: true });
+  }
 });

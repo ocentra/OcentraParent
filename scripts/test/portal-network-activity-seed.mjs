@@ -5,7 +5,7 @@ export function seedPortalNetworkActivityStore(activityDbPath) {
   try {
     database.exec(`
 PRAGMA foreign_keys = ON;
-PRAGMA journal_mode = WAL;
+PRAGMA journal_mode = DELETE;
 CREATE TABLE IF NOT EXISTS activity_events (
   event_id TEXT PRIMARY KEY,
   observed_at TEXT NOT NULL,
@@ -23,6 +23,7 @@ CREATE INDEX IF NOT EXISTS activity_events_recent_idx
   ON activity_events (observed_at DESC, event_id DESC);
 `);
 
+    database.exec('BEGIN IMMEDIATE;');
     database
       .prepare(
         `
@@ -54,8 +55,15 @@ INSERT OR REPLACE INTO activity_events (
         JSON.stringify(networkActivityFields()),
         JSON.stringify(networkActivityEvidence())
       );
-    database.exec('PRAGMA wal_checkpoint(TRUNCATE);');
+    database.exec('COMMIT;');
     assertSeededEvidence(database);
+  } catch (error) {
+    try {
+      database.exec('ROLLBACK;');
+    } catch {
+      // Ignore rollback errors when SQLite already ended the transaction.
+    }
+    throw error;
   } finally {
     database.close();
   }

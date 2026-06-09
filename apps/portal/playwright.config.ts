@@ -1,11 +1,10 @@
 import { defineConfig, devices } from '@playwright/test';
 
 const portalPort = resolvePortalPort(process.env['OCENTRA_PARENT_PORTAL_PORT']);
-const serviceBackedAssertionTimeoutMs = 90000;
 
 export default defineConfig({
   expect: {
-    timeout: serviceBackedAssertionTimeoutMs,
+    timeout: 10000,
   },
   fullyParallel: false,
   outputDir: '../../test-results/portal-playwright',
