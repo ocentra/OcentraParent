@@ -4,7 +4,7 @@ use ocentra_parent_agent_protocol::{
     TRACKING_READ_MODEL_STATUS_NO_TRACKING_EVENTS,
 };
 
-use super::{tracking_read_model_for_store, ActivityStore};
+use ocentra_parent_agent_core::{tracking_read_model_for_store, ActivityStore};
 
 #[test]
 fn activity_store_reports_tracking_read_model_from_ingested_events() {

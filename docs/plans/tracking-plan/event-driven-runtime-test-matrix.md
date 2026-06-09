@@ -136,6 +136,21 @@ Required coverage:
 - live dispatch rejects `serde_json::Value` payload shortcuts;
 - stored envelope and live envelope boundaries are explicit.
 
+## Rust Crate And Test Organization
+
+- `crates/agent-protocol/tests`: public Rust-crossing tracking constants,
+  payload structs, serde/roundtrip, unknown/duplicate event rejection, and
+  TypeScript/Rust protocol parity where applicable.
+- `crates/agent-core/tests`: public tracking runtime APIs, local durable state,
+  ActivityStore projections, journal/replay/idempotency, retention/custody, and
+  policy/evidence boundary behavior.
+- `crates/agent-service/tests`: real local API/WebSocket transport,
+  authorization, publisher role checks, service read-model responses, and
+  transport error/manual-required states after service seams are importable.
+- Private `#[cfg(test)]` module tests are allowed only for internal helper
+  invariants, private binary-service transport seams, or behavior that is not
+  exposed through a public crate API.
+
 ## Eventing Crate Unit Tests
 
 Target:

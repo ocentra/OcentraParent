@@ -62,6 +62,19 @@ Scenarios:
 - Geofence transition event cites location evidence and geofence rule refs.
 - Expected-place event cites schedule/rule refs.
 - Nearby-place ambiguity prevents accusation copy.
+
+## Matrix Categories / Target Test Locations
+
+Matrix categories: contract, Rust unit/integration, replay/idempotency,
+security/AuthZ, service transport, and Playwright/service-backed UI where this
+workpack touches portal rendering.
+
+Target Rust tests must follow the crate boundary: `crates/agent-protocol/tests`
+for protocol constants/payloads, `crates/agent-core/tests` for runtime and
+projection behavior, and `crates/agent-service/tests` for real transport after
+service seams are importable. Private module tests are only for internal helper
+invariants.
+
 - AI receives summaries/evidence refs only.
 - AI cannot publish policy, enforcement, live-mode, notification, or escalation
   events.

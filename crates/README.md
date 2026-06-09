@@ -37,7 +37,9 @@ Tracking runtime and decision behavior belongs in Rust first. The current
 minimal boundary is:
 
 - `agent-core` owns tracking state helpers, local durable runtime state, and
-  query/projection helpers that should not live in WebSocket transport.
+  query/projection helpers that should not live in WebSocket transport. Tracking
+  core code is grouped under `agent-core/src/tracking/` instead of new root-level
+  `tracking_*` files.
 - `agent-protocol` owns Rust serde structs, constants, command names, event
   names, field names, and state labels for tracking.
 - `agent-service` owns transport, orchestration, WebSocket handlers, and
@@ -47,8 +49,9 @@ minimal boundary is:
 
 New Rust tracking tests should be placed in crate-level `tests/` directories
 when the behavior can be tested through public crate APIs. Keep source-adjacent
-test modules only for existing private implementation seams or when a focused
-private helper cannot be specified through the public boundary.
+test modules only for existing private implementation seams, binary-service
+transport wiring, or when a focused private helper cannot be specified through
+the public boundary.
 
 ## Connected Docs
 
