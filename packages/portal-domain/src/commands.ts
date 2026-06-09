@@ -11,6 +11,10 @@ export const PortalOverviewCommands = [
     payload: {},
   },
   {
+    command: AgentCommand.NetworkFlowReadModelGet,
+    payload: {},
+  },
+  {
     command: AgentCommand.LanPairingStatusGet,
     payload: {},
   },
@@ -68,10 +72,6 @@ export const PortalOverviewCommands = [
   },
   {
     command: AgentCommand.BrowserInterventionReadModelGet,
-    payload: {},
-  },
-  {
-    command: AgentCommand.NetworkFlowReadModelGet,
     payload: {},
   },
   {

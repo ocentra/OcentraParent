@@ -462,6 +462,7 @@ const EXPECTED_PORTAL_COMMAND_BUTTONS = [
 const EXPECTED_PORTAL_OVERVIEW_COMMANDS = [
   'agent.health.check',
   'agent.log.snapshot.get',
+  'agent.network.flow.read-model.get',
   'agent.lan-pairing.status.get',
   'agent.activity.ingest.status.get',
   'agent.activity.recent.summary.get',
@@ -477,7 +478,6 @@ const EXPECTED_PORTAL_OVERVIEW_COMMANDS = [
   'agent.activity.app-game.notification-readiness.read-model.get',
   'agent.activity.network.read-model.get',
   'agent.browser.intervention.read-model.get',
-  'agent.network.flow.read-model.get',
   'agent.network.runtime.event-chain.stream.get',
   'agent.network.remote-delivery.status.get',
   'agent.network.live-capture.status.get',
