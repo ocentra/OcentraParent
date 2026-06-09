@@ -460,6 +460,14 @@ describe('portal command contracts', () => {
         'agent.activity.app-game.adapter-execution-readiness.read-model.reported',
       ],
       [
+        'agent.activity.app-game.platform-proof-status.read-model.get',
+        'agent.activity.app-game.platform-proof-status.read-model.reported',
+      ],
+      [
+        'agent.activity.app-game.child-runtime-transport-receipt.read-model.get',
+        'agent.activity.app-game.child-runtime-transport-receipt.read-model.reported',
+      ],
+      [
         'agent.activity.app-game.adapter-dispatch-preflight.read-model.get',
         'agent.activity.app-game.adapter-dispatch-preflight.read-model.reported',
       ],
@@ -488,6 +496,8 @@ describe('portal command contracts', () => {
       'agent.activity.games.read-model.get',
       'agent.activity.app-game.notification-readiness.read-model.get',
       'agent.activity.app-game.adapter-execution-readiness.read-model.get',
+      'agent.activity.app-game.platform-proof-status.read-model.get',
+      'agent.activity.app-game.child-runtime-transport-receipt.read-model.get',
       'agent.activity.app-game.adapter-dispatch-preflight.read-model.get',
       'agent.activity.app-game.adapter-dispatch-result.read-model.get',
       'agent.activity.network.read-model.get',

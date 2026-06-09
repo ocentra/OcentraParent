@@ -54,6 +54,7 @@ async function main() {
       'Android UsageStats, accessibility, VPN/DNS, device-owner, managed-profile, and package lifecycle gates remain mobile-artifact-required.',
       'iOS Family Controls, DeviceActivity, Screen Time, Network Extension, background execution, signing, and TestFlight gates remain mobile-artifact-required.',
       'Linux adapter artifact gates are unavailable in this proof and cannot inherit Windows artifacts.',
+      'Windows, Linux, and Android manual gate rows carry opaque host capability probe refs without exposing raw paths, device serials, distro names, or private diagnostics.',
     ],
     claimsNotProved: [
       'product-ready broad app blocking',
@@ -96,6 +97,7 @@ function summarizeReadModel(readModel) {
     ).length,
     unsupportedPlatformClaimed: readModel.entries.filter((entry) => entry.unsupportedPlatformClaimed).length,
     mobilePrivilegeClaimed: readModel.entries.filter((entry) => entry.mobilePrivilegeClaimed).length,
+    hostCapabilityProbeRefRows: readModel.entries.filter((entry) => entry.hostCapabilityProbeRefs.length > 0).length,
   };
 }
 
@@ -121,6 +123,7 @@ function assertReadModel(readModel, summary) {
   assertEqual(summary.unmanagedBrowserExactEvidenceClaimed, 0, 'unmanaged exact evidence claim count');
   assertEqual(summary.unsupportedPlatformClaimed, 0, 'unsupported platform claim count');
   assertEqual(summary.mobilePrivilegeClaimed, 0, 'mobile privilege claim count');
+  assertEqual(summary.hostCapabilityProbeRefRows, 18, 'host capability probe ref row count');
 
   const surfaces = new Set(readModel.entries.map((entry) => entry.surface));
   for (const expectedSurface of [
@@ -147,6 +150,7 @@ function assertReadModel(readModel, summary) {
   proofLabels.push('v0.8.os-adapter-manual-artifact-gates.read-model');
   proofLabels.push('v0.8.os-adapter-manual-artifact-gates.no-product-ready-upgrade');
   proofLabels.push('v0.8.os-adapter-manual-artifact-gates.mobile-privilege-gates');
+  proofLabels.push('v0.8.os-adapter-manual-artifact-gates.host-capability-probe-refs');
 }
 
 function assertProofMatrix(matrix) {

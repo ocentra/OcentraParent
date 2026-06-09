@@ -109,6 +109,7 @@ fn app_game_adapter_dispatch_result_attaches_scoped_execution_evidence_only() {
     assert_eq!(read_model.adapter_execution_evidence_missing_count, 0);
     assert_eq!(read_model.blocked_before_adapter_execution_count, 7);
     assert_eq!(read_model.adapter_dispatch_executed_claimed_count, 1);
+    assert!(read_model.platform_enforcement_claimed);
 
     let accepted = scoped_accepted_row(&read_model.rows);
     assert_eq!(
@@ -136,6 +137,7 @@ fn app_game_adapter_dispatch_result_attaches_scoped_execution_evidence_only() {
         Some(constants::enforcement::TEST_AUDIT_EVENT_ID)
     );
     assert!(accepted.adapter_dispatch_executed_claimed);
+    assert!(accepted.platform_enforcement_claimed);
     assert_blocked_rows(&read_model.rows);
 }
 

@@ -17,6 +17,9 @@ pub const APP_GAME_ADAPTER_EXECUTION_STATE_DEGRADED: &str = "degraded";
 pub const APP_GAME_ADAPTER_EXECUTION_STATE_NOT_CLAIMED: &str = "not-claimed";
 pub const APP_GAME_ADAPTER_EXECUTION_DECISION_ALLOWED: &str = "execution-allowed";
 pub const APP_GAME_ADAPTER_EXECUTION_DECISION_BLOCKED: &str = "blocked-before-execution";
+pub const APP_GAME_ADAPTER_HOST_CAPABILITY_AVAILABLE: &str = "available";
+pub const APP_GAME_ADAPTER_HOST_CAPABILITY_NOT_DETECTED: &str = "not-detected";
+pub const APP_GAME_ADAPTER_HOST_CAPABILITY_NOT_APPLICABLE: &str = "not-applicable";
 pub const APP_GAME_PARENT_PLATFORM_MACOS: &str = "macos";
 pub const APP_GAME_PARENT_PLATFORM_IOS: &str = "ios";
 
@@ -36,6 +39,9 @@ pub struct AppGameAdapterExecutionReadinessRow {
     pub rollback_reference_state: String,
     pub audit_reference_state: String,
     pub evidence_refs: Vec<String>,
+    pub host_capability_state: String,
+    pub host_capability_evidence_refs: Vec<String>,
+    pub host_capability_probe_refs: Vec<String>,
     pub linked_proof_artifacts: Vec<String>,
     pub manual_proof_requirements: Vec<String>,
     pub claim_boundary: String,
@@ -62,6 +68,10 @@ pub struct AppGameAdapterExecutionReadinessReadModel {
     pub execution_allowed_count: u64,
     pub blocked_before_execution_count: u64,
     pub adapter_execution_claimed_count: u64,
+    pub host_capability_available_count: u64,
+    pub host_capability_not_detected_count: u64,
+    pub host_capability_not_applicable_count: u64,
+    pub host_capability_probe_ref_count: u64,
     pub broad_installed_app_blocking_claimed: bool,
     pub child_device_delivery_claimed: bool,
     pub platform_enforcement_claimed: bool,

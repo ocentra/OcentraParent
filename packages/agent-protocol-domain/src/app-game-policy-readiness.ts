@@ -12,6 +12,8 @@ export const AgentAppGamePolicyReadinessKind = {
   ApprovalActionResult: 'approvalActionResult',
   PlatformAuthority: 'platformAuthority',
   AiClassifierContext: 'aiClassifierContext',
+  CategoryCandidate: 'categoryCandidate',
+  UnknownReview: 'unknownReview',
 } as const;
 
 export const AgentAppGamePolicyReadinessState = {
@@ -29,7 +31,9 @@ export const AgentAppGamePolicyReadinessRowSchema = withParser(
       AgentAppGamePolicyReadinessKind.ApprovalAuthority,
       AgentAppGamePolicyReadinessKind.ApprovalActionResult,
       AgentAppGamePolicyReadinessKind.PlatformAuthority,
-      AgentAppGamePolicyReadinessKind.AiClassifierContext
+      AgentAppGamePolicyReadinessKind.AiClassifierContext,
+      AgentAppGamePolicyReadinessKind.CategoryCandidate,
+      AgentAppGamePolicyReadinessKind.UnknownReview
     ),
     readinessState: Schema.Literal(
       AgentAppGamePolicyReadinessState.Ready,
@@ -50,6 +54,8 @@ export const AgentAppGamePolicyReadinessReadModelSchema = withParser(
     capabilityStatus: PolicyReadinessText,
     returned: PolicyReadinessCount,
     policyEvaluationReady: Schema.Boolean,
+    categoryRoutingReady: Schema.Boolean,
+    unknownReviewRequired: Schema.Boolean,
     manualReviewRequired: Schema.Boolean,
     adapterDispatchClaimed: Schema.Literal(false),
     evidenceClaimRowCount: PolicyReadinessCount,
@@ -58,6 +64,8 @@ export const AgentAppGamePolicyReadinessReadModelSchema = withParser(
     approvalActionResultRowCount: PolicyReadinessCount,
     platformAuthorityRowCount: PolicyReadinessCount,
     aiClassifierResultRowCount: PolicyReadinessCount,
+    categoryCandidateRowCount: PolicyReadinessCount,
+    unknownReviewRowCount: PolicyReadinessCount,
     rows: Schema.Array(AgentAppGamePolicyReadinessRowSchema),
   })
 );

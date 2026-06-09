@@ -26,7 +26,9 @@ use ocentra_parent_agent_protocol::{
     APP_GAME_ADAPTER_DISPATCH_TIMER_OWNED_PROCESS, APP_GAME_ADAPTER_EXECUTION_DECISION_ALLOWED,
     APP_GAME_ADAPTER_EXECUTION_READINESS_READ_MODEL_ID, APP_GAME_ADAPTER_EXECUTION_STATE_DEGRADED,
     APP_GAME_ADAPTER_EXECUTION_STATE_MANUAL_REQUIRED, APP_GAME_ADAPTER_EXECUTION_STATE_UNAVAILABLE,
-    APP_GAME_ADAPTER_EXECUTION_STATE_UNSUPPORTED, APP_GAME_SCHEMA_VERSION,
+    APP_GAME_ADAPTER_EXECUTION_STATE_UNSUPPORTED, APP_GAME_ADAPTER_HOST_CAPABILITY_AVAILABLE,
+    APP_GAME_ADAPTER_HOST_CAPABILITY_NOT_APPLICABLE, APP_GAME_ADAPTER_HOST_CAPABILITY_NOT_DETECTED,
+    APP_GAME_SCHEMA_VERSION,
 };
 
 use super::app_game_adapter_execution_readiness_payload::app_game_adapter_execution_readiness_read_model;
@@ -87,6 +89,22 @@ pub fn app_game_adapter_dispatch_preflight_read_model(
         blocked_before_dispatch_count,
         adapter_dispatch_eligible_count,
         adapter_dispatch_executed_claimed_count: 0,
+        host_capability_available_count: count_host_capability_state(
+            &rows,
+            APP_GAME_ADAPTER_HOST_CAPABILITY_AVAILABLE,
+        ),
+        host_capability_not_detected_count: count_host_capability_state(
+            &rows,
+            APP_GAME_ADAPTER_HOST_CAPABILITY_NOT_DETECTED,
+        ),
+        host_capability_not_applicable_count: count_host_capability_state(
+            &rows,
+            APP_GAME_ADAPTER_HOST_CAPABILITY_NOT_APPLICABLE,
+        ),
+        host_capability_probe_ref_count: rows
+            .iter()
+            .map(|row| row.host_capability_probe_refs.len() as u64)
+            .sum(),
         broad_installed_app_blocking_claimed: false,
         child_device_delivery_claimed: false,
         platform_enforcement_claimed: false,
@@ -162,6 +180,9 @@ fn dispatch_preflight_row(
         } else {
             Vec::new()
         },
+        host_capability_state: row.host_capability_state.clone(),
+        host_capability_evidence_refs: row.host_capability_evidence_refs.clone(),
+        host_capability_probe_refs: row.host_capability_probe_refs.clone(),
         dispatch_audit_refs: if eligible {
             vec![APP_GAME_ADAPTER_DISPATCH_AUDIT_OWNED_PROCESS.to_string()]
         } else {
@@ -241,4 +262,10 @@ fn dispatch_outcome_state(
         }
         _ => APP_GAME_ADAPTER_DISPATCH_OUTCOME_MANUAL_REQUIRED,
     }
+}
+
+fn count_host_capability_state(rows: &[AppGameAdapterDispatchPreflightRow], state: &str) -> u64 {
+    rows.iter()
+        .filter(|row| row.host_capability_state == state)
+        .count() as u64
 }

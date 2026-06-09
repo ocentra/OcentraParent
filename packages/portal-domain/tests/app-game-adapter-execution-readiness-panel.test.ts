@@ -18,6 +18,10 @@ const ReadModel: AgentAppGameAdapterExecutionReadinessReadModel = {
   executionAllowedCount: 1,
   blockedBeforeExecutionCount: 1,
   adapterExecutionClaimedCount: 1,
+  hostCapabilityAvailableCount: 1,
+  hostCapabilityNotDetectedCount: 1,
+  hostCapabilityNotApplicableCount: 0,
+  hostCapabilityProbeRefCount: 2,
   broadInstalledAppBlockingClaimed: false,
   childDeviceDeliveryClaimed: false,
   platformEnforcementClaimed: false,
@@ -38,6 +42,9 @@ const ReadModel: AgentAppGameAdapterExecutionReadinessReadModel = {
       rollbackReferenceState: 'timer-recovery-backed',
       auditReferenceState: 'audit-reference-backed',
       evidenceRefs: ['app-game-session-evidence-ref'],
+      hostCapabilityState: 'available',
+      hostCapabilityEvidenceRefs: ['adapter-capability-state-ref'],
+      hostCapabilityProbeRefs: ['windows-host-local-probe-ref'],
       linkedProofArtifacts: ['test-results/v0-8-windows-app-time-limit-adapter-mvp/proof.json'],
       manualProofRequirements: [],
       claimBoundary: 'Scoped Windows owned-process app/game timer execution only.',
@@ -64,6 +71,9 @@ const ReadModel: AgentAppGameAdapterExecutionReadinessReadModel = {
       rollbackReferenceState: 'manual-required',
       auditReferenceState: 'manual-required',
       evidenceRefs: [],
+      hostCapabilityState: 'not-detected',
+      hostCapabilityEvidenceRefs: [],
+      hostCapabilityProbeRefs: ['windows-host-local-probe-ref'],
       linkedProofArtifacts: [],
       manualProofRequirements: ['same app identity proof'],
       claimBoundary: 'Broad installed-app blocking remains manual-required.',
@@ -94,12 +104,18 @@ describe('app-game adapter execution readiness panel intent', () => {
         expect.objectContaining({ label: 'Manual review', value: '1' }),
         expect.objectContaining({ label: 'Platform state', value: 'Not claimed' }),
         expect.objectContaining({ label: 'Child delivery', value: 'Not claimed' }),
+        expect.objectContaining({ label: 'Host available rows', value: '1' }),
+        expect.objectContaining({ label: 'Host not-detected rows', value: '1' }),
+        expect.objectContaining({ label: 'Host probe refs', value: '2' }),
       ])
     );
     expect(intent.rows).toHaveLength(2);
     expect(intent.rows[0].details).toEqual(
       expect.arrayContaining([
         expect.objectContaining({ label: 'Decision status', value: 'Execution allowed' }),
+        expect.objectContaining({ label: 'Host capability state', value: 'available' }),
+        expect.objectContaining({ label: 'Host capability evidence', value: 'adapter-capability-state-ref' }),
+        expect.objectContaining({ label: 'Host capability probe', value: 'windows-host-local-probe-ref' }),
         expect.objectContaining({ label: 'Adapter dispatch', value: 'Ready' }),
       ])
     );

@@ -146,6 +146,17 @@ control with better evidence and local audit.
   dispatch, and still does not claim adapter execution, broad blocking,
   platform enforcement, provider delivery, child-device delivery, raw private
   rows/targets, or private diagnostics.
+- The app/game adapter execution readiness and dispatch preflight rows now
+  carry explicit `hostCapabilityState`, host evidence refs, and parent-safe
+  `hostCapabilityProbeRefs`. Windows scoped/manual/artifact rows report local
+  host capability as `available` with a Windows host probe ref; Android reports
+  ADB host visibility when `adb`, `ANDROID_HOME`, or `ANDROID_SDK_ROOT` exposes
+  platform-tools, with separate path/SDK probe refs; Linux reports WSL/Docker
+  host visibility when present, with separate WSL/Docker probe refs. macOS and
+  iOS stay `not-applicable` on the Windows-local service host. Probe refs are
+  opaque parent-safe refs only, not raw paths, device serials, distro names, or
+  private diagnostics. Android and Linux host capability signals remain
+  visibility-only and do not make rows dispatch eligible.
 - The app/game scoped adapter dispatch command-result handoff now turns the
   single dispatch-eligible scoped Windows owned-process app/game time-limit row
   into a parent-visible result handoff to `agent.enforcement.execute` /
@@ -252,6 +263,16 @@ control with better evidence and local audit.
   action history, platform authority, and AI classifier readiness rows from the
   existing app/game service model, keeps missing inputs visible as
   missing/manual-required, and fixes `adapterDispatchClaimed=false`.
+- The policy readiness service read model now also consumes existing inventory
+  category candidates and unknown/possible-game/launcher-game service rows,
+  exposing `categoryCandidate` and `unknownReview` readiness rows plus
+  `categoryRoutingReady`, `unknownReviewRequired`, `categoryCandidateRowCount`,
+  and `unknownReviewRowCount` without dispatching adapters or upgrading unknown
+  evidence into known app/game claims.
+- The App/Game Sessions policy-readiness parent intent now renders those
+  category candidate and unknown-review readiness rows plus category/unknown
+  counts, keeping unknown app/game-like evidence in review state instead of
+  hiding it behind generic policy readiness.
 - The App/Game Sessions policy-readiness parent route now renders the
   service-backed evidence-claim, identity, approval authority, approval
   action-result, platform authority, and AI classifier row counts, plus
@@ -327,9 +348,9 @@ control with better evidence and local audit.
 - Parent-domain source-gated policy preview timer service-readiness protocol
   read-model contracts now consume those protocol handoff rows, keep the same
   future protocol proof refs visible for eligible native app/native game rows,
-  and keep source or compiler blockers blocked without claiming protocol
-  implementation, service event/read-model emission, read API implementation,
-  portal UI, durable audit logs, rollback execution, adapter dispatch, or
+      and keep source or compiler blockers blocked without claiming protocol
+      implementation, service event/read-model emission, read API implementation,
+      portal UI, durable audit logs, rollback execution, adapter dispatch, or
   enforcement.
 - Parent-domain source-gated policy preview timer service-readiness read-API
   response consumer handoff contracts now consume response handoff rows, add
@@ -834,9 +855,15 @@ diagnostics, or raw private source rows.
       weak app/game evidence in review/report-only/manual-required states with
       evidence refs, child status refs, expiry, and audit-backed persistence
       fields. Category/risk routing contracts now keep category, risk, and
-      game-context candidates as evidence-backed soft/manual policy inputs; live
-      candidate production, runtime service consumption, portal category UI, and
-      parent/child UX remain.
+      game-context candidates as evidence-backed soft/manual policy inputs.
+      Runtime service consumption now exposes existing inventory category
+      candidates and unknown/possible-game/launcher-game service rows through
+      `categoryCandidate` and `unknownReview` policy-readiness rows plus
+      category/unknown counts, and the parent policy-readiness intent now
+      renders those rows/counts as review-ready details. Live candidate
+      production, finished parent/child approval UX, live classifier quality,
+      runtime policy evaluator persistence, notification delivery,
+      cross-platform adapter proof, and product reports remain.
 - [ ] App/category schedule and time-budget rules. Native game budget dry-run
       contracts now exist for known-game counts, launcher-only exclusion,
       parent-approved candidate inclusion, and advisory signal boundaries.
@@ -1543,6 +1570,14 @@ diagnostics, or raw private source rows.
       This narrows the runtime adapter execution truth without claiming broad
       blocking, child delivery, provider delivery, platform enforcement, or
       private diagnostics.
+      Adapter readiness and dispatch preflight rows now also expose
+      `hostCapabilityState`, host evidence refs, and parent-safe
+      `hostCapabilityProbeRefs`: Windows scoped/manual/artifact rows are
+      `available` with a Windows host probe ref, Android and Linux can show
+      local ADB/WSL/Docker host visibility with separate opaque probe refs when
+      detected, and macOS/iOS remain `not-applicable` from this Windows-local
+      host path. These host states and probe refs do not upgrade Android/Linux
+      into dispatch eligibility or platform enforcement.
       App/game adapter dispatch preflight now connects the live execution
       readiness read model to the existing V0.8 policy dispatch spine:
       exactly one scoped Windows owned-process app/game time-limit row is
@@ -1612,6 +1647,370 @@ diagnostics, or raw private source rows.
       keeping overview polling, broad installed-app blocking, non-scoped
       platform enforcement, provider delivery, child-device delivery, raw
       private rows, raw targets, and private diagnostics unclaimed.
+- [x] Platform manual artifact gates carry host probe refs without support
+      upgrades. Windows manual rows now carry a Windows host-local probe ref,
+      Android manual rows carry separate ADB path and SDK probe refs, and the
+      Linux unavailable row carries separate WSL and Docker probe refs through
+      the V0.8 OS adapter manual artifact gate read model and proof. macOS and
+      iOS rows keep empty probe-ref lists because Windows-local execution
+      cannot prove those platforms. Android/Linux support, macOS/iOS local
+      execution, broad installed-app blocking, non-scoped platform enforcement,
+      provider delivery, child-device delivery, raw private rows/targets, and
+      private diagnostics remain unclaimed.
+- [x] Host capability summary counts are parent-visible. The service-backed
+      app/game adapter execution readiness and dispatch preflight read models
+      now include aggregate available, not-detected, not-applicable, and
+      probe-ref counts derived from the same rows that carry Windows,
+      Android, Linux, macOS, and iOS host capability states. TypeScript
+      protocol parsers reject count mismatches, and portal-domain summary
+      intents render those counts so Android ADB and Linux WSL/Docker host
+      visibility is visible without exposing raw paths, device serials, distro
+      names, or private diagnostics. Android/Linux dispatch eligibility,
+      macOS/iOS local execution, broad installed-app blocking, non-scoped
+      platform enforcement, provider delivery, and child-device delivery remain
+      unclaimed.
+- [x] Android physical-device proof is redacted and non-promoting. The
+      app/game Android proof boundary now accepts only a physical-device ADB
+      target with parent-safe build/package/policy-state evidence, stores only
+      package counts rather than package names, redacts raw device serials, and
+      keeps normal-mode hide/suspend, adapter dispatch, platform enforcement,
+      broad blocking, provider delivery, and child-device delivery unclaimed
+      unless Device Owner or Profile Owner proof is attached.
+- [x] Linux WSL runtime proof is redacted and non-promoting. The app/game Linux
+      proof boundary now records WSL2 Ubuntu kernel, distro, package-manager,
+      process, session, and Docker CLI visibility as parent-safe counts/states
+      while redacting raw package names, process names, distro names, and host
+      paths. Linux broad blocking, adapter dispatch, platform enforcement,
+      rollback, audit, provider delivery, and child-device delivery remain
+      unclaimed until the named Linux mechanism/distro/session/rollback/audit
+      proof set is complete.
+- [x] Android/Linux platform proof status is parent-visible and non-promoting.
+      The parent-domain status read model now aggregates the Android physical
+      device proof and Linux WSL runtime proof into review-only platform rows,
+      and portal-domain renders package/runtime visibility counts, proof refs,
+      and open gaps without leaking raw package names, raw process names, raw
+      distro names, raw device serials, or host paths. Android/Linux adapter
+      dispatch, broad blocking, platform enforcement, provider delivery,
+      child-device delivery, rollback, audit, and private diagnostics remain
+      unclaimed; macOS/iOS stay outside local runtime proof on this Windows
+      host.
+- [x] App/game platform proof status is service-backed and portal-rendered.
+      The Rust protocol/service and TypeScript protocol now expose
+      `agent.activity.app-game.platform-proof-status.read-model.get` /
+      `.reported`, and the App/Game Sessions route renders Windows scoped
+      execution, Android host visibility, Linux host visibility, and macOS/iOS
+      not-locally-provable rows. The surface remains parent-safe and does not
+      claim adapter dispatch, broad installed-app blocking, platform
+      enforcement, provider delivery, child-device delivery, raw private
+      rows/targets, or private diagnostics.
+- [x] Android UsageEvents foreground proof is redacted and non-promoting. The
+      physical Android proof harness now records redacted `dumpsys usagestats`
+      event sample counts and foreground activity event counts from the Samsung
+      Galaxy S9 target without storing package names, class names, raw device
+      serials, or raw app activity rows. Android platform proof status treats
+      this as foreground visibility only; durable child-runtime replay, Device
+      Owner/Profile Owner authority, hide/suspend, broad blocking, platform
+      enforcement, provider delivery, and child-device delivery remain
+      unclaimed.
+- [x] Linux WSLg display readiness proof is redacted and non-promoting. The
+      Linux WSL runtime harness now records WSLg display readiness plus X11 and
+      Wayland socket states from the local WSL2 Ubuntu host without storing raw
+      process rows, package rows, distro names, host paths, or foreground window
+      titles. Linux platform proof status keeps active foreground capture open
+      until a real foreground source exists; AppArmor/SELinux/package
+      restrictions, launch blocking, rollback, audit, broad blocking, platform
+      enforcement, provider delivery, and child-device delivery remain
+      unclaimed.
+- [x] Platform proof status carries Android/Linux detail refs. The live service
+      row now exposes Android physical-device and UsageEvents foreground refs
+      plus Linux WSLg display, X11 socket, and Wayland socket refs through the
+      same parent-safe platform proof status surface. Android durable replay and
+      Linux active foreground capture remain open gaps, and the row still does
+      not claim platform enforcement, adapter dispatch, provider delivery,
+      child-device delivery, raw private source rows, raw target values, or
+      private diagnostics.
+- [x] Android UsageEvents replay readiness is parent-safe and count-only. The
+      parent-domain replay read model turns the redacted physical-device
+      UsageEvents foreground sample counts into a durable-replay-ready runtime
+      visibility row and feeds that ref into parent-domain platform proof
+      status. It still does not store raw UsageEvents rows, package names, raw
+      activity data, child runtime delivery, Device Owner/Profile Owner
+      authority, hide/suspend, adapter dispatch, or platform enforcement.
+- [x] Linux foreground capture readiness is explicit and non-promoting. The
+      parent-domain readiness row now turns WSLg display plus X11/Wayland socket
+      proof into a parent-safe `display-ready-capture-tool-missing` state. It
+      makes the missing active-window source visible without storing raw window
+      titles or claiming foreground capture, adapter dispatch, Linux policy
+      enforcement, provider delivery, or child-device delivery.
+- [x] Android UsageEvents child-runtime replay is count-only and non-promoting.
+      The parent-domain child-runtime replay row now consumes the redacted
+      UsageEvents replay readiness row and attaches a child-runtime replay
+      consumer boundary without storing raw UsageEvents rows, package names, or
+      raw activity data. Android child-device delivery, Device Owner/Profile
+      Owner authority, hide/suspend, adapter dispatch, broad blocking, provider
+      delivery, and platform enforcement remain unclaimed.
+- [x] Linux foreground source preflight is explicit and non-promoting. The
+      parent-domain preflight row now consumes the WSLg display/X11/Wayland
+      readiness row and reports this host as `foreground-tool-install-required`
+      before active foreground capture can be claimed. Raw window title custody,
+      AppArmor/SELinux/package-manager enforcement, rollback, audit, adapter
+      dispatch, provider delivery, and child-device delivery remain unclaimed.
+- [x] Android authority preflight is explicit and non-promoting. The
+      parent-domain preflight row now maps the physical Android policy-state
+      proof into hide, suspend, uninstall-block, lock-task, and managed
+      configuration rows. On the current Samsung Galaxy S9 target every row is
+      blocked before adapter dispatch because Device Owner/Profile Owner proof
+      is absent, and `not-proved` states are not treated as owner proof.
+      Android action execution, platform enforcement, provider delivery,
+      child-device delivery, raw package names, and raw device serial custody
+      remain unclaimed.
+- [x] Android Accessibility overlay preflight is explicit and non-promoting.
+      The parent-domain preflight row now maps redacted physical Android
+      Accessibility settings into warning, block, request, and usage-context
+      overlay rows. The proof stores enabled-state and enabled-service count
+      only, keeps service/component names redacted, and keeps overlay actions
+      blocked before adapter dispatch until service enablement, overlay runtime
+      proof, and child-device delivery proof exist. Overlay execution, platform
+      enforcement, provider delivery, raw overlay content, and raw service-name
+      custody remain unclaimed.
+- [x] Windows broad-blocking authority preflight is explicit and non-promoting.
+      The parent-domain preflight row now maps the AppLocker/App Control
+      broad-blocking manual gates into block-launch, system-app allowlist,
+      rollback, and audit-custody rows. Windows host visibility is attached
+      through an opaque probe ref, but AppLocker/App Control enforce proof,
+      system-app allowlist proof, rollback proof, and audit custody proof
+      remain required before broad installed-app launch blocking can dispatch.
+      Raw executable paths, raw policy XML, adapter dispatch, platform
+      enforcement, provider delivery, and child-device delivery remain
+      unclaimed.
+- [x] Windows local policy evidence is sampled without a broad-blocking claim.
+      The parent-domain proof runner now samples AppIDSvc, AppLocker local
+      policy readability, and Device Guard/App Control state as parent-safe
+      counts and booleans. Raw policy XML, raw executable paths, raw publisher
+      rules, broad blocking, adapter dispatch, platform enforcement, and
+      child-device delivery remain unclaimed. AppLocker/App Control enforcement,
+      system-app allowlist proof, rollback proof, audit custody proof, adapter
+      dispatch, and child-device delivery remain open.
+- [x] Platform proof status consumes platform preflight detail refs. The
+      parent-domain status model now carries Windows broad-blocking authority,
+      Android owner-authority, and Android Accessibility overlay preflight refs
+      alongside the existing Android physical-device/UsageEvents and Linux WSL
+      refs. Windows broad blocking, Android owner authority, Android overlay
+      runtime, Linux foreground/policy mechanisms, adapter dispatch, platform
+      enforcement, provider delivery, child-device delivery, raw private
+      rows/targets, and private diagnostics remain unclaimed.
+- [x] Apple platform proof is CI-required and non-promoting. The parent-domain
+      Apple CI preflight maps existing macOS and iOS manual artifact gates into
+      CI-required rows and feeds them into the shared platform proof status
+      when supplied. Windows-local execution is not counted as macOS or iOS
+      proof; macOS MDM/Endpoint/System Extension/rollback/audit, iOS
+      FamilyControls/DeviceActivity/ManagedSettings/TestFlight/device proof,
+      adapter dispatch, platform enforcement, provider delivery, and
+      child-device delivery remain unclaimed.
+- [x] Linux Docker host preflight is explicit and non-promoting. The
+      parent-domain preflight row now records Docker CLI, daemon, context,
+      image, and container inventory visibility as parent-safe booleans and
+      counts. Docker context names, image names, container ids, raw paths, and
+      private daemon diagnostics are not stored. Container policy, adapter
+      dispatch, platform enforcement, provider delivery, and child-device
+      delivery remain unclaimed.
+- [x] Android UsageEvents capability bridge is package-local and non-promoting.
+      Android package source now includes an app/game UsageEvents capability
+      bridge and MainActivity surfaces its bridge state. Parent-domain keeps
+      UsageStats as settings-grant-required and rejects raw UsageEvents storage,
+      package-name custody, adapter dispatch, platform enforcement, and
+      child-device delivery claims. The Android manifest still does not declare
+      `PACKAGE_USAGE_STATS`; runtime collection, settings grant, Device
+      Owner/Profile Owner authority, provider delivery, and Play policy proof
+      remain open.
+- [x] Android UsageEvents runtime preflight is package-local and non-promoting.
+      Android package source now checks UsageStats AppOps state and UsageStats
+      service visibility, and MainActivity surfaces only the permission
+      preflight state. Parent-domain keeps runtime sample collection blocked
+      until proof exists and rejects raw UsageEvents storage, package-name
+      custody, adapter dispatch, platform enforcement, and child-device delivery
+      claims. Settings grant, runtime sample proof, Device Owner/Profile Owner
+      authority, provider delivery, and Play policy proof remain open.
+- [x] Android UsageEvents package sampling is count-only. The Android package
+      preflight can query UsageEvents and reduce the result to total event count
+      and foreground event count when UsageStats is granted. Parent-domain
+      accepts only count summaries and rejects raw UsageEvents storage,
+      package-name custody, raw activity rows, adapter dispatch, platform
+      enforcement, and child-device delivery claims. Physical-device settings
+      grant and live package sample observation remain separate proof work.
+- [x] Android UsageEvents package runtime is physically launched. The Android
+      debug package is installed and MainActivity is launched on the physical
+      Samsung Galaxy S9 proof target, with AppOps and package UI state reduced
+      to parent-safe UsageEvents permission/sample states. Raw device serials,
+      raw UI XML, package lists, UsageEvents rows, package names, activity rows,
+      adapter dispatch, platform enforcement, provider delivery, and
+      child-device delivery remain unclaimed.
+- [x] Android Accessibility runtime is package-declared and non-promoting. The
+      Android package now declares an Ocentra AccessibilityService with
+      `BIND_ACCESSIBILITY_SERVICE`, includes a service config that listens for
+      window-state changes without requesting window-content retrieval, and
+      exposes parent-safe declaration/runtime/event-sample states through
+      MainActivity. Parent-domain proof rejects raw Accessibility event rows,
+      raw service/component names, raw overlay content, overlay execution,
+      adapter dispatch, platform enforcement, and child-device delivery claims.
+      Service enablement, event sample observation, overlay runtime execution,
+      Device Owner/Profile Owner authority, provider delivery, and Play policy
+      proof remain open.
+- [x] Linux active-window tool proof is opaque and non-promoting. The WSL proof
+      now detects available active-window tooling and reduces
+      `_NET_ACTIVE_WINDOW` to an opaque observed/not-observed state only. Raw
+      window titles, raw process names, foreground capture, adapter dispatch,
+      platform enforcement, provider delivery, and child-device delivery remain
+      unclaimed; active foreground capture and Linux policy enforcement remain
+      open.
+- [x] Platform proof status carries runtime detail refs. The shared
+      parent-domain platform status model now accepts Android Accessibility
+      runtime, Windows local policy evidence, and Linux active-window tool proof
+      refs beside the existing physical-device, authority, foreground,
+      Docker/WSL, Windows broad-blocking, and Apple CI/manual rows. The rows
+      remain visibility-only and keep adapter dispatch, broad blocking,
+      platform enforcement, provider delivery, child-device delivery, raw
+      policy XML, raw executable paths, raw service names, raw event rows, raw
+      window titles, and private diagnostics unclaimed.
+- [x] Child-device delivery readiness is explicit and non-promoting. The
+      parent-domain read model now maps the existing child UX provider-status
+      handoff into child-transport-required, manual-required, and unavailable
+      rows for native app and native game child-facing surfaces. It carries only
+      parent-safe transport refs and keeps runtime child transport, receipt
+      ingestion, provider delivery execution, platform delivery channel
+      execution, adapter dispatch, platform enforcement, and raw private source
+      rows unclaimed.
+- [x] Child-device runtime writer envelopes are explicit and non-executing. The
+      parent-domain writer read model converts transport-required child-device
+      delivery readiness rows into writer-envelope-ready rows while keeping
+      manual-required and unavailable rows blocked. Runtime writer execution,
+      child runtime transport, receipt ingestion, provider delivery execution,
+      platform delivery channel execution, adapter dispatch, platform
+      enforcement, and raw private source rows remain unclaimed.
+- [x] Child runtime transport and receipt boundary is explicit and
+      non-executing. The parent-domain boundary read model converts
+      writer-envelope-ready rows into child-runtime-transport-required rows with
+      required receipt contract refs, while manual-required and unavailable rows
+      remain blocked. Runtime transport execution, receipt ingestion, provider
+      delivery execution, platform delivery channel execution, adapter
+      dispatch, platform enforcement, and raw private source rows remain
+      unclaimed.
+- [x] Child runtime transport and receipt boundary is service-visible. The
+      TypeScript and Rust agent protocols now register
+      `agent.activity.app-game.child-runtime-transport-receipt.read-model.get`
+      / `.reported`, and the Rust service returns a parent-safe read model
+      through the WebSocket command handler. Runtime transport execution,
+      receipt ingestion, provider delivery execution, platform delivery channel
+      execution, adapter dispatch, platform enforcement, and raw private source
+      rows remain unclaimed.
+- [x] Child runtime transport and receipt boundary is parent-visible. The
+      App/Game Sessions parent portal route now requests and renders the
+      service-backed child runtime transport receipt read model with
+      transport-required, manual-required, and unavailable rows plus parent-safe
+      transport refs, receipt refs, and open gaps. Runtime transport execution,
+      receipt ingestion, provider delivery execution, platform delivery channel
+      execution, adapter dispatch, platform enforcement, and raw private source
+      rows remain unclaimed.
+- [x] Android child runtime transport receipt readiness is child-app visible.
+      The Android child agent package now exposes a parent-safe transport
+      channel, internal receipt-store, and receipt-ack status bundle in the
+      activity UI, and parent-domain proof requires those states before the row
+      can be counted as ready. Physical child runtime transport execution,
+      receipt ingestion, provider delivery execution, platform delivery channel
+      execution, adapter dispatch, platform enforcement, and raw private source
+      rows remain unclaimed.
+- [x] Android child runtime local receipt append/readback is child-app visible.
+      The Android child agent package now writes a deterministic parent-safe
+      receipt marker to its internal app files, reads it back, and renders local
+      receipt append/readback states in the activity UI. Parent-domain proof
+      accepts only package-local receipt write/readback evidence. Physical child
+      runtime transport execution, service receipt ingestion, provider delivery
+      execution, platform delivery channel execution, adapter dispatch,
+      platform enforcement, and raw private source rows remain unclaimed.
+- [x] Android child runtime local receipt append/readback is physically proved.
+      The Android debug package installs and launches on the physical Samsung
+      Galaxy S9 proof target, and debug `run-as` reads the deterministic
+      internal receipt marker. UIAutomator receipt text capture is attempted but
+      remains non-guaranteed on this phone; service receipt ingestion, provider
+      delivery, platform delivery channel execution, adapter dispatch, platform
+      enforcement, and raw private source rows remain unclaimed.
+- [x] Android child runtime local receipt acknowledgement is package-local and
+      physically proved. The Android child agent now writes and reads both a
+      local receipt marker and a local receipt-ack marker, surfaces ack/readback
+      states in `MainActivity`, and the physical Samsung Galaxy S9 proof target
+      exposes both marker files through debug `run-as`. Runtime transport,
+      service receipt ingestion, provider delivery, platform delivery channel
+      execution, adapter dispatch, platform enforcement, and raw private source
+      rows remain unclaimed.
+- [x] Android child runtime package-local receipt channel is physically proved.
+      The Android child agent now declares a non-exported in-package receipt
+      receiver, `MainActivity` can trigger it for proof mode, and the physical
+      Samsung Galaxy S9 proof target exposes channel, receipt, and receipt-ack
+      marker files through debug `run-as`. Service receipt ingestion, provider
+      delivery, platform delivery outside the package, adapter dispatch,
+      platform enforcement, and raw private source rows remain unclaimed.
+- [x] Android child runtime package-local delivery intake is physically
+      proved. The Android child agent now declares a non-exported in-package
+      delivery receiver, `MainActivity` can trigger it for proof mode, and the
+      physical Samsung Galaxy S9 proof target exposes delivery, channel,
+      receipt, and receipt-ack marker files through debug `run-as`. Service
+      delivery or receipt ingestion, provider delivery, platform delivery
+      outside the package, adapter dispatch, platform enforcement, and raw
+      private source rows remain unclaimed.
+- [x] Android child runtime package-local delivery queue and drain are
+      physically proved. The Android child agent now records delivery intake,
+      queue, and drain markers while preserving package-local channel, receipt,
+      and receipt-ack custody. The physical Samsung Galaxy S9 proof target
+      exposes all six marker files through debug `run-as`; service delivery or
+      receipt ingestion, provider delivery, platform delivery outside the
+      package, adapter dispatch, platform enforcement, and raw private source
+      rows remain unclaimed.
+- [x] Android UsageEvents granted sample observation is physically proved. The
+      Android child agent now renders UsageEvents sample and foreground-event
+      counts from its package-local preflight, and the physical Samsung Galaxy
+      S9 proof target grants `GET_USAGE_STATS` through AppOps before launching
+      the debug package and observing a count-only live sample. Parent-domain
+      accepts only granted AppOps, activity-visible count evidence, and opaque
+      proof refs; raw UsageEvents rows, package names, activity rows, raw UI
+      XML, raw device serials, Device/Profile Owner authority, Play policy
+      proof, child-device delivery, adapter dispatch, provider delivery, broad
+      blocking, and platform enforcement remain unclaimed.
+- [x] Android Accessibility enabled-sample boundary is physically checked. The
+      Android child agent now renders a count-only Accessibility window-state
+      event field, and parent-domain has a success contract for settings-enabled
+      bound services with observed event counts. The physical Samsung Galaxy S9
+      proof runner emits that success read model only if Android binds the
+      package service; otherwise it records a manual-required blocker proof for
+      the target. Raw Accessibility event rows, service names, overlay content,
+      raw UI XML, raw device serials, Device/Profile Owner authority, Play
+      policy proof, child-device delivery, adapter dispatch, provider delivery,
+      broad blocking, and platform enforcement remain unclaimed.
+- [x] Android child runtime local app/game notification is physically proved.
+      The Android child agent package creates a dedicated app/game local
+      notification channel, posts a package-local child notice through Android
+      `NotificationManager`, and writes a package-local marker for debug
+      readback. Parent-domain accepts only channel, post, marker, and opaque
+      proof refs; provider delivery, platform delivery outside the package,
+      child request approval round trip, adapter dispatch, broad blocking,
+      platform enforcement, and raw private source-row custody remain
+      unclaimed.
+- [x] Android child runtime local app/game notification request action is
+      package-local. The Android child agent package attaches an ask-parent
+      action to the local app/game notification, routes the action to a
+      non-exported in-package receiver, and writes a package-local request
+      marker for debug readback. Parent-domain accepts only channel, post,
+      action, marker, and opaque proof refs; service request ingestion, parent
+      approval round trip, provider delivery, platform delivery outside the
+      package, adapter dispatch, broad blocking, platform enforcement, and raw
+      private source-row custody remain unclaimed.
+- [x] Android child runtime local app/game request queue is package-local. The
+      Android child agent package records request queue, readback, and drain
+      markers after the local notification request action. Parent-domain
+      accepts only action, queue, readback, drain, and opaque proof refs;
+      service request ingestion, parent approval round trip, provider delivery,
+      platform delivery outside the package, adapter dispatch, broad blocking,
+      platform enforcement, and raw private source-row custody remain
+      unclaimed.
 - [x] Blocking/time-limit proof before done claim. Scoped owned-process
       time-limit proof exists; broad block-launch/hide/suspend/shield and
       allowlist remain manual-required or not-claimed until platform setup,

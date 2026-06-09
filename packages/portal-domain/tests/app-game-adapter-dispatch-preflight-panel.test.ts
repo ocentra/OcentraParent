@@ -24,6 +24,10 @@ const ReadModel: AgentAppGameAdapterDispatchPreflightReadModel = {
   blockedBeforeDispatchCount: 1,
   adapterDispatchEligibleCount: 1,
   adapterDispatchExecutedClaimedCount: 0,
+  hostCapabilityAvailableCount: 1,
+  hostCapabilityNotDetectedCount: 1,
+  hostCapabilityNotApplicableCount: 0,
+  hostCapabilityProbeRefCount: 2,
   broadInstalledAppBlockingClaimed: false,
   childDeviceDeliveryClaimed: false,
   platformEnforcementClaimed: false,
@@ -45,6 +49,9 @@ const ReadModel: AgentAppGameAdapterDispatchPreflightReadModel = {
       dispatchIntentId: 'dispatch-owned-process-time-limit',
       dispatchOutcomeState: AgentAppGameAdapterDispatchOutcomeState.DispatchReady,
       dispatchEvidenceRefs: ['evidence-app-session-owned-process'],
+      hostCapabilityState: 'available',
+      hostCapabilityEvidenceRefs: ['adapter-capability-state-ref'],
+      hostCapabilityProbeRefs: ['windows-host-local-probe-ref'],
       dispatchAuditRefs: ['audit-owned-process-dispatch-accepted'],
       dispatchTimerRefs: ['timer-owned-process-active'],
       manualProofRequirements: [],
@@ -74,6 +81,9 @@ const ReadModel: AgentAppGameAdapterDispatchPreflightReadModel = {
       dispatchIntentId: null,
       dispatchOutcomeState: AgentAppGameAdapterDispatchOutcomeState.ManualRequired,
       dispatchEvidenceRefs: [],
+      hostCapabilityState: 'not-detected',
+      hostCapabilityEvidenceRefs: [],
+      hostCapabilityProbeRefs: ['windows-host-local-probe-ref'],
       dispatchAuditRefs: [],
       dispatchTimerRefs: [],
       manualProofRequirements: ['same app identity proof'],
@@ -107,6 +117,9 @@ describe('app-game adapter dispatch preflight panel intent', () => {
         expect.objectContaining({ label: 'Adapter dispatch', value: 'Ready' }),
         expect.objectContaining({ label: 'Execution state', value: 'Not claimed' }),
         expect.objectContaining({ label: 'Platform state', value: 'Not claimed' }),
+        expect.objectContaining({ label: 'Host available rows', value: '1' }),
+        expect.objectContaining({ label: 'Host not-detected rows', value: '1' }),
+        expect.objectContaining({ label: 'Host probe refs', value: '2' }),
       ])
     );
     expect(intent.rows).toHaveLength(2);
@@ -115,6 +128,9 @@ describe('app-game adapter dispatch preflight panel intent', () => {
         expect.objectContaining({ label: 'Decision status', value: 'Dispatch eligible' }),
         expect.objectContaining({ label: 'Dispatch intent', value: 'dispatch-owned-process-time-limit' }),
         expect.objectContaining({ label: 'Dispatch outcome', value: 'Dispatch ready' }),
+        expect.objectContaining({ label: 'Host capability state', value: 'available' }),
+        expect.objectContaining({ label: 'Host capability evidence', value: 'adapter-capability-state-ref' }),
+        expect.objectContaining({ label: 'Host capability probe', value: 'windows-host-local-probe-ref' }),
         expect.objectContaining({ label: 'Execution state', value: 'Not claimed' }),
       ])
     );

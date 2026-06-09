@@ -3,18 +3,22 @@ use std::fs::{read_to_string, remove_file};
 use ocentra_parent_agent_core::ActivityStore;
 use ocentra_parent_agent_protocol::{
     constants, AgentCommandEnvelope, AgentCommandName, AgentEventName, AgentMessageTarget,
-    AgentPeer, AgentPeerRole, AgentRoute, AppGameTimerParentPreferenceSetupRequest,
-    AppGameTimerParentPreferenceSetupRequestResult, LogFieldValue, LogFields,
-    AGENT_PROTOCOL_SCHEMA_VERSION, APP_GAME_CONTROL_ACTION_STATUS_MANUAL_REQUIRED,
-    APP_GAME_CONTROL_PERSISTENCE_REPLAYABLE,
+    AgentPeer, AgentPeerRole, AgentRoute, AppGameServiceReadModel,
+    AppGameTimerParentPreferenceSetupRequest, AppGameTimerParentPreferenceSetupRequestResult,
+    LogFieldValue, LogFields, AGENT_PROTOCOL_SCHEMA_VERSION,
+    APP_GAME_CONTROL_ACTION_STATUS_MANUAL_REQUIRED, APP_GAME_CONTROL_PERSISTENCE_REPLAYABLE,
 };
 
 use crate::{
-    activity_api::app_game_timer_parent_preference_setup_request::build_activity_app_game_timer_parent_preference_setup_request_report_for_store_path,
-    lan_pairing::LanPairingRuntime, websocket::handle_command_text_for_test,
+    activity_api::{
+        app_game_child_runtime_transport_receipt_payload::app_game_child_runtime_transport_receipt_read_model_from_service_model,
+        app_game_timer_parent_preference_setup_request::build_activity_app_game_timer_parent_preference_setup_request_report_for_store_path,
+    },
+    lan_pairing::LanPairingRuntime,
+    websocket::handle_command_text_for_test,
 };
 
-const PERSISTED_SETUP_EVENT_COUNT: u64 = 16;
+const PERSISTED_SETUP_EVENT_COUNT: u64 = 14;
 
 #[tokio::test]
 async fn app_game_timer_parent_preference_setup_request_command_returns_accepted_boundary_result() {
@@ -189,15 +193,13 @@ fn assert_persisted_setup_result(result: &AppGameTimerParentPreferenceSetupReque
     );
     assert_eq!(
         result.child_runtime_delivery_receipt_ingested_status,
-        constants::value::APP_GAME_PARENT_PREFERENCE_SETUP_CHILD_RUNTIME_DELIVERY_RECEIPT_INGESTED
+        constants::value::APP_GAME_PARENT_PREFERENCE_SETUP_CHILD_RUNTIME_DELIVERY_RECEIPT_PENDING
     );
-    assert!(result.child_runtime_delivery_receipt_ingested_claimed);
+    assert!(!result.child_runtime_delivery_receipt_ingested_claimed);
     assert_no_delivery_or_platform_claims(result);
 }
 
-fn assert_persisted_action_result_model(
-    model: &ocentra_parent_agent_protocol::AppGameServiceReadModel,
-) {
+fn assert_persisted_action_result_model(model: &AppGameServiceReadModel) {
     assert_eq!(model.approval_action_result_returned, 1);
     assert_eq!(
         model.approval_action_result_rows[0].result_id,
@@ -216,6 +218,26 @@ fn assert_persisted_action_result_model(
     assert!(model.approval_action_result_rows[0]
         .enforcement_result
         .is_none());
+
+    let receipt_model =
+        app_game_child_runtime_transport_receipt_read_model_from_service_model(model.clone());
+
+    assert_eq!(receipt_model.returned, 1);
+    assert_eq!(receipt_model.manual_required_count, 1);
+    assert_eq!(
+        receipt_model.rows[0].source_runtime_writer_row_id,
+        constants::value::APP_GAME_CHILD_UX_PARENT_PREFERENCE_SETUP_PREFIX
+    );
+    assert_eq!(
+        receipt_model.rows[0].required_transport_refs,
+        vec![
+            constants::value::APP_GAME_CHILD_UX_PARENT_SURFACE_INTENT_PREFIX.to_string(),
+            constants::value::APP_GAME_CHILD_UX_PARENT_PREFERENCE_SETUP_PREFIX.to_string(),
+            ocentra_parent_agent_protocol::APP_GAME_CHILD_RUNTIME_TRANSPORT_RECEIPT_GAP_TRANSPORT_NOT_EXECUTED.to_string()
+        ]
+    );
+    assert!(!receipt_model.runtime_transport_executed);
+    assert!(!receipt_model.runtime_receipt_ingested);
 }
 
 fn assert_child_runtime_delivery_handoff_boundary(
@@ -401,10 +423,11 @@ fn assert_child_runtime_delivery_receipt_ingested_boundary(
     );
     assert!(
         result.child_runtime_delivery_receipt_ingested_status
-            == constants::value::APP_GAME_PARENT_PREFERENCE_SETUP_CHILD_RUNTIME_DELIVERY_RECEIPT_INGESTED
+            == constants::value::APP_GAME_PARENT_PREFERENCE_SETUP_CHILD_RUNTIME_DELIVERY_RECEIPT_PENDING
             || result.child_runtime_delivery_receipt_ingested_status
                 == constants::value::APP_GAME_PARENT_PREFERENCE_SETUP_CHILD_RUNTIME_DELIVERY_RECEIPT_UNAVAILABLE
     );
+    assert!(!result.child_runtime_delivery_receipt_ingested_claimed);
 }
 
 macro_rules! assert_provider_delivery_requirement_boundary {
@@ -507,10 +530,11 @@ macro_rules! assert_provider_delivery_requirement_boundary {
         );
         assert!(
             $result.provider_delivery_receipt_ingested_status
-                == constants::value::APP_GAME_PARENT_PREFERENCE_SETUP_PROVIDER_DELIVERY_RECEIPT_INGESTED
+                == constants::value::APP_GAME_PARENT_PREFERENCE_SETUP_PROVIDER_DELIVERY_RECEIPT_PENDING
                 || $result.provider_delivery_receipt_ingested_status
                     == constants::value::APP_GAME_PARENT_PREFERENCE_SETUP_ACTION_RESULT_UNAVAILABLE
         );
+        assert!(!$result.provider_delivery_receipt_ingested_claimed);
     };
 }
 
@@ -618,9 +642,9 @@ macro_rules! assert_provider_delivery_persisted_statuses {
         assert!($result.provider_delivery_receipt_pending_claimed);
         assert_eq!(
             $result.provider_delivery_receipt_ingested_status,
-            constants::value::APP_GAME_PARENT_PREFERENCE_SETUP_PROVIDER_DELIVERY_RECEIPT_INGESTED
+            constants::value::APP_GAME_PARENT_PREFERENCE_SETUP_PROVIDER_DELIVERY_RECEIPT_PENDING
         );
-        assert!($result.provider_delivery_receipt_ingested_claimed);
+        assert!(!$result.provider_delivery_receipt_ingested_claimed);
     };
 }
 

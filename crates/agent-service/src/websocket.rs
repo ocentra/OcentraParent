@@ -15,7 +15,9 @@ use crate::{
         build_activity_app_game_adapter_dispatch_result_report,
         build_activity_app_game_adapter_execution_readiness_report,
         build_activity_app_game_boundary_read_model_report,
+        build_activity_app_game_child_runtime_transport_receipt_report,
         build_activity_app_game_notification_readiness_report,
+        build_activity_app_game_platform_proof_status_report,
         build_activity_app_game_policy_readiness_report,
         build_activity_app_game_timer_parent_preference_setup_request_report,
         build_activity_app_game_timer_parent_surface_report, build_activity_ingest_status_report,
@@ -258,6 +260,8 @@ fn is_activity_command(command: &AgentCommandName) -> bool {
             | AgentCommandName::AgentActivityAppGamePolicyReadinessReadModelGet
             | AgentCommandName::AgentActivityAppGameNotificationReadinessReadModelGet
             | AgentCommandName::AgentActivityAppGameAdapterExecutionReadinessReadModelGet
+            | AgentCommandName::AgentActivityAppGamePlatformProofStatusReadModelGet
+            | AgentCommandName::AgentActivityAppGameChildRuntimeTransportReceiptReadModelGet
             | AgentCommandName::AgentActivityAppGameAdapterDispatchPreflightReadModelGet
             | AgentCommandName::AgentActivityAppGameAdapterDispatchResultReadModelGet
             | AgentCommandName::AgentActivityAppGameAdapterDispatchExecute
@@ -352,6 +356,8 @@ async fn build_activity_command_report(command: AgentCommandEnvelope) -> AgentEv
         | AgentCommandName::AgentActivityAppGamePolicyReadinessReadModelGet
         | AgentCommandName::AgentActivityAppGameNotificationReadinessReadModelGet
         | AgentCommandName::AgentActivityAppGameAdapterExecutionReadinessReadModelGet
+        | AgentCommandName::AgentActivityAppGamePlatformProofStatusReadModelGet
+        | AgentCommandName::AgentActivityAppGameChildRuntimeTransportReceiptReadModelGet
         | AgentCommandName::AgentActivityAppGameAdapterDispatchPreflightReadModelGet
         | AgentCommandName::AgentActivityAppGameAdapterDispatchResultReadModelGet
         | AgentCommandName::AgentActivityAppGameAdapterDispatchExecute
@@ -393,6 +399,12 @@ async fn build_activity_app_game_command_report(
         }
         AgentCommandName::AgentActivityAppGameAdapterExecutionReadinessReadModelGet => {
             build_activity_app_game_adapter_execution_readiness_report(command).await
+        }
+        AgentCommandName::AgentActivityAppGamePlatformProofStatusReadModelGet => {
+            build_activity_app_game_platform_proof_status_report(command).await
+        }
+        AgentCommandName::AgentActivityAppGameChildRuntimeTransportReceiptReadModelGet => {
+            build_activity_app_game_child_runtime_transport_receipt_report(command).await
         }
         AgentCommandName::AgentActivityAppGameAdapterDispatchPreflightReadModelGet => {
             build_activity_app_game_adapter_dispatch_preflight_report(command).await

@@ -13,6 +13,8 @@ mod app_game_adapter_execution_readiness;
 mod app_game_authority_classifier;
 mod app_game_boundary_read_model;
 mod app_game_notification_readiness;
+mod app_game_child_runtime_transport_receipt;
+mod app_game_platform_proof_status;
 mod app_game_policy_readiness;
 mod app_game_timer_parent_preference_setup_request;
 mod app_game_timer_parent_surface_read_model;
@@ -82,6 +84,8 @@ pub use app_game_adapter_execution_readiness::*;
 pub use app_game_authority_classifier::*;
 pub use app_game_boundary_read_model::*;
 pub use app_game_notification_readiness::*;
+pub use app_game_child_runtime_transport_receipt::*;
+pub use app_game_platform_proof_status::*;
 pub use app_game_policy_readiness::*;
 pub use app_game_timer_parent_preference_setup_request::*;
 pub use app_game_timer_parent_surface_read_model::*;
@@ -177,6 +181,10 @@ mod app_game_boundary_read_model_tests;
 mod app_game_evidence_identity_tests;
 #[cfg(test)]
 mod app_game_notification_readiness_tests;
+#[cfg(test)]
+mod app_game_child_runtime_transport_receipt_tests;
+#[cfg(test)]
+mod app_game_platform_proof_status_tests;
 #[cfg(test)]
 mod app_game_policy_readiness_tests;
 #[cfg(test)]

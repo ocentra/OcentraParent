@@ -14,6 +14,9 @@ pub const APP_GAME_NOTIFICATION_READINESS_READ_MODEL: &str =
     "appGameNotificationReadinessReadModel";
 pub const APP_GAME_ADAPTER_EXECUTION_READINESS_READ_MODEL: &str =
     "appGameAdapterExecutionReadinessReadModel";
+pub const APP_GAME_PLATFORM_PROOF_STATUS_READ_MODEL: &str = "appGamePlatformProofStatusReadModel";
+pub const APP_GAME_CHILD_RUNTIME_TRANSPORT_RECEIPT_READ_MODEL: &str =
+    "appGameChildRuntimeTransportReceiptReadModel";
 pub const APP_GAME_ADAPTER_DISPATCH_PREFLIGHT_READ_MODEL: &str =
     "appGameAdapterDispatchPreflightReadModel";
 pub const APP_GAME_TIMER_PARENT_SURFACE_READ_MODEL: &str = "appGameTimerParentSurfaceReadModel";

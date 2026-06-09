@@ -33,6 +33,14 @@ import {
   shouldRenderAppGamePolicyReadinessRoute,
 } from './AppGamePolicyReadinessRoutePanel';
 import {
+  AppGamePlatformProofStatusRoutePanel,
+  shouldRenderAppGamePlatformProofStatusRoute,
+} from './AppGamePlatformProofStatusRoutePanel';
+import {
+  AppGameChildRuntimeTransportReceiptRoutePanel,
+  shouldRenderAppGameChildRuntimeTransportReceiptRoute,
+} from './AppGameChildRuntimeTransportReceiptRoutePanel';
+import {
   AppGameTimerParentSurfaceRoutePanel,
   shouldRenderAppGameTimerParentSurfaceRoute,
 } from './AppGameTimerParentSurfaceRoutePanel';
@@ -128,6 +136,20 @@ export function ParentPortalRoute({
           actions={actions}
           commandEnabled={state.socket?.readyState === WebSocket.OPEN}
           readModelResult={activityState.appGamePolicyReadinessReadModel}
+        />
+      ) : null}
+      {shouldRenderAppGamePlatformProofStatusRoute(route) ? (
+        <AppGamePlatformProofStatusRoutePanel
+          actions={actions}
+          commandEnabled={state.socket?.readyState === WebSocket.OPEN}
+          readModelResult={activityState.appGamePlatformProofStatusReadModel}
+        />
+      ) : null}
+      {shouldRenderAppGameChildRuntimeTransportReceiptRoute(route) ? (
+        <AppGameChildRuntimeTransportReceiptRoutePanel
+          actions={actions}
+          commandEnabled={state.socket?.readyState === WebSocket.OPEN}
+          readModelResult={activityState.appGameChildRuntimeTransportReceiptReadModel}
         />
       ) : null}
       {shouldRenderAppGameAdapterDispatchRoute(route) ? (

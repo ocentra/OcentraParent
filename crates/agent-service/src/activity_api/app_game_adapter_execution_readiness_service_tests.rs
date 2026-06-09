@@ -23,6 +23,14 @@ async fn app_game_adapter_execution_readiness_command_reports_service_backed_rea
     assert_eq!(read_model.execution_allowed_count, 1);
     assert_eq!(read_model.blocked_before_execution_count, 7);
     assert_eq!(read_model.adapter_execution_claimed_count, 1);
+    assert_eq!(
+        read_model.host_capability_available_count
+            + read_model.host_capability_not_detected_count
+            + read_model.host_capability_not_applicable_count,
+        read_model.returned
+    );
+    assert!(read_model.host_capability_available_count >= 4);
+    assert!(read_model.host_capability_probe_ref_count >= 4);
     assert!(!read_model.broad_installed_app_blocking_claimed);
     assert!(!read_model.child_device_delivery_claimed);
     assert!(!read_model.platform_enforcement_claimed);

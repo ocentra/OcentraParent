@@ -2,8 +2,9 @@ use crate::{
     AgentCommandName, AgentEventName, AppGameAdapterExecutionReadinessReadModel,
     AppGameAdapterExecutionReadinessRow, APP_GAME_ADAPTER_EXECUTION_DECISION_ALLOWED,
     APP_GAME_ADAPTER_EXECUTION_READINESS_READ_MODEL_ID,
-    APP_GAME_ADAPTER_EXECUTION_STATE_PROVED_SCOPED, APP_GAME_ADAPTER_PRODUCT_NATIVE_APP,
-    APP_GAME_ADAPTER_PRODUCT_NATIVE_GAME, APP_GAME_SCHEMA_VERSION,
+    APP_GAME_ADAPTER_EXECUTION_STATE_PROVED_SCOPED, APP_GAME_ADAPTER_HOST_CAPABILITY_AVAILABLE,
+    APP_GAME_ADAPTER_PRODUCT_NATIVE_APP, APP_GAME_ADAPTER_PRODUCT_NATIVE_GAME,
+    APP_GAME_SCHEMA_VERSION,
 };
 
 #[test]
@@ -37,6 +38,10 @@ fn app_game_adapter_execution_readiness_serializes_no_claim_upgrades() {
         execution_allowed_count: 1,
         blocked_before_execution_count: 0,
         adapter_execution_claimed_count: 1,
+        host_capability_available_count: 1,
+        host_capability_not_detected_count: 0,
+        host_capability_not_applicable_count: 0,
+        host_capability_probe_ref_count: 1,
         broad_installed_app_blocking_claimed: false,
         child_device_delivery_claimed: false,
         platform_enforcement_claimed: false,
@@ -60,6 +65,9 @@ fn app_game_adapter_execution_readiness_serializes_no_claim_upgrades() {
             rollback_reference_state: "timer-recovery-backed".to_string(),
             audit_reference_state: "audit-reference-backed".to_string(),
             evidence_refs: vec!["app-game-session-evidence-ref".to_string()],
+            host_capability_state: APP_GAME_ADAPTER_HOST_CAPABILITY_AVAILABLE.to_string(),
+            host_capability_evidence_refs: vec!["adapter-capability-state-ref".to_string()],
+            host_capability_probe_refs: vec!["windows-host-local-probe-ref".to_string()],
             linked_proof_artifacts: vec![
                 "test-results/v0-8-windows-app-time-limit-adapter-mvp/proof.json".to_string(),
             ],
@@ -89,6 +97,8 @@ fn app_game_adapter_execution_readiness_serializes_no_claim_upgrades() {
     );
     assert_eq!(reparsed.execution_allowed_count, 1);
     assert_eq!(reparsed.adapter_execution_claimed_count, 1);
+    assert_eq!(reparsed.host_capability_available_count, 1);
+    assert_eq!(reparsed.host_capability_probe_ref_count, 1);
     assert!(!reparsed.broad_installed_app_blocking_claimed);
     assert!(!reparsed.child_device_delivery_claimed);
     assert!(!reparsed.platform_enforcement_claimed);

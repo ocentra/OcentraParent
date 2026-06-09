@@ -1,4 +1,5 @@
 use std::{
+    fs::read_to_string,
     fs::{create_dir_all, OpenOptions},
     io::Write,
     path::Path,
@@ -11,9 +12,7 @@ pub(crate) fn append_setup_outbox_record(
     result: &AppGameTimerParentPreferenceSetupRequestResult,
     store_path: &Path,
 ) -> Result<(), ()> {
-    let outbox_path = store_path.with_extension(
-        constants::value::APP_GAME_PARENT_PREFERENCE_SETUP_DURABLE_OUTBOX_FILE_EXTENSION,
-    );
+    let outbox_path = setup_outbox_path(store_path);
     if let Some(parent) = outbox_path.parent() {
         create_dir_all(parent).map_err(|_| ())?;
     }
@@ -27,6 +26,18 @@ pub(crate) fn append_setup_outbox_record(
     file.write_all(line.as_bytes()).map_err(|_| ())?;
     file.write_all(constants::delimiter::NEWLINE.to_string().as_bytes())
         .map_err(|_| ())
+}
+
+pub(crate) fn setup_outbox_has_records(store_path: &Path) -> bool {
+    read_to_string(setup_outbox_path(store_path))
+        .map(|contents| contents.lines().any(|line| !line.trim().is_empty()))
+        .unwrap_or(false)
+}
+
+fn setup_outbox_path(store_path: &Path) -> std::path::PathBuf {
+    store_path.with_extension(
+        constants::value::APP_GAME_PARENT_PREFERENCE_SETUP_DURABLE_OUTBOX_FILE_EXTENSION,
+    )
 }
 
 fn setup_outbox_record(result: &AppGameTimerParentPreferenceSetupRequestResult) -> Value {

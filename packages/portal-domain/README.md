@@ -33,12 +33,18 @@ contracts.
   provider receipt ingestion, adapter dispatch, broad blocking, platform
   enforcement, raw target values, or private diagnostics.
 - App/game policy readiness route intents that render service-backed readiness
-  summaries and rows without policy execution or adapter dispatch claims.
+  summaries, category candidate rows, unknown-review rows, and row counts
+  without policy execution or adapter dispatch claims.
 - App/game adapter dispatch result route intent values and execute-action
   metadata for the single scoped Windows owned-process app/game timer row,
   without turning read-model refreshes into execution and without claiming broad
   blocking, non-scoped platform enforcement, provider delivery, child delivery,
   raw targets, or private diagnostics.
+- App/game platform proof status intent values that render the live service
+  read model for Windows scoped execution, Android/Linux host visibility, and
+  macOS/iOS not-locally-provable rows, without claiming adapter dispatch, broad
+  blocking, platform enforcement, provider delivery, child delivery, raw
+  platform diagnostics, or private host details.
 - Social dashboard panel intents that adapt parent-domain social dashboard
   snapshots into portal rows, or render an unavailable zero-row state when no
   service-backed social snapshot exists.

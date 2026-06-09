@@ -45,21 +45,33 @@ mod app_game_adapter_execution_readiness_payload;
 mod app_game_adapter_execution_readiness_payload_tests;
 #[cfg(test)]
 mod app_game_adapter_execution_readiness_service_tests;
+mod app_game_adapter_host_capabilities;
 mod app_game_boundary_read_model_payload;
 #[cfg(test)]
 mod app_game_boundary_read_model_payload_tests;
 #[cfg(test)]
 mod app_game_boundary_read_model_service_tests;
+mod app_game_child_runtime_transport_receipt_payload;
+#[cfg(test)]
+mod app_game_child_runtime_transport_receipt_payload_tests;
+#[cfg(test)]
+mod app_game_child_runtime_transport_receipt_service_tests;
 mod app_game_notification_readiness_payload;
 #[cfg(test)]
 mod app_game_notification_readiness_payload_tests;
 #[cfg(test)]
 mod app_game_notification_readiness_service_tests;
+mod app_game_platform_proof_status_payload;
+#[cfg(test)]
+mod app_game_platform_proof_status_payload_tests;
+#[cfg(test)]
+mod app_game_platform_proof_status_service_tests;
 mod app_game_policy_readiness_payload;
 #[cfg(test)]
 mod app_game_policy_readiness_payload_tests;
 #[cfg(test)]
 mod app_game_policy_readiness_service_tests;
+mod app_game_policy_readiness_sources;
 pub(crate) mod app_game_timer_parent_preference_setup_request;
 mod app_game_timer_parent_preference_setup_request_outbox;
 mod app_game_timer_parent_preference_setup_request_persistence;
@@ -104,12 +116,15 @@ use self::app_game_notification_readiness_payload::{
 use self::app_game_policy_readiness_payload::{
     app_game_policy_readiness_from_service_model, app_game_policy_readiness_payload,
 };
+use self::app_game_timer_parent_preference_setup_request_outbox::setup_outbox_has_records;
 pub use self::app_game_timer_parent_surface_payload::build_activity_app_game_timer_parent_surface_report;
 pub use activity_memory_graph_report::build_activity_memory_graph_report;
 pub use app_game_adapter_dispatch_execute_payload::build_activity_app_game_adapter_dispatch_execute_report;
 pub use app_game_adapter_dispatch_preflight_payload::build_activity_app_game_adapter_dispatch_preflight_report;
 pub use app_game_adapter_dispatch_result_payload::build_activity_app_game_adapter_dispatch_result_report;
 pub use app_game_adapter_execution_readiness_payload::build_activity_app_game_adapter_execution_readiness_report;
+pub use app_game_child_runtime_transport_receipt_payload::build_activity_app_game_child_runtime_transport_receipt_report;
+pub use app_game_platform_proof_status_payload::build_activity_app_game_platform_proof_status_report;
 pub use app_game_timer_parent_preference_setup_request::build_activity_app_game_timer_parent_preference_setup_request_report;
 pub use browser_intervention_report::build_browser_intervention_read_model_report;
 
@@ -313,7 +328,11 @@ pub async fn build_activity_app_game_notification_readiness_report(
 ) -> AgentEventEnvelope {
     match load_app_game_model().await {
         Some(model) => {
-            let read_model = app_game_notification_readiness_from_service_model(model);
+            let local_outbox_runtime_claimed = setup_outbox_has_records(&activity_db_path());
+            let read_model = app_game_notification_readiness_from_service_model(
+                model,
+                local_outbox_runtime_claimed,
+            );
             build_event(
                 constants::event_id::ACTIVITY_APP_GAME_NOTIFICATION_READINESS_READ_MODEL_REPORTED,
                 &command.message_id,

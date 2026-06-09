@@ -128,7 +128,7 @@ pub fn app_game_adapter_dispatch_result_read_model_with_execution(
         adapter_dispatch_executed_claimed_count: counts.adapter_dispatch_executed_claimed,
         broad_installed_app_blocking_claimed: false,
         child_device_delivery_claimed: false,
-        platform_enforcement_claimed: false,
+        platform_enforcement_claimed: rows.iter().any(|row| row.platform_enforcement_claimed),
         provider_delivery_claimed: false,
         private_diagnostics_claimed: false,
         rows,
@@ -296,7 +296,7 @@ fn dispatch_result_row(
         service_local_execution_audit_claimed: accepted,
         broad_installed_app_blocking_claimed: false,
         child_device_delivery_claimed: false,
-        platform_enforcement_claimed: false,
+        platform_enforcement_claimed: adapter_execution.platform_enforcement_claimed,
         provider_delivery_claimed: false,
         private_diagnostics_claimed: false,
         last_checked_at: generated_at.to_string(),
@@ -328,6 +328,7 @@ struct AdapterExecutionFields {
     audit_event_id: Option<String>,
     refs: Vec<String>,
     executed_claimed: bool,
+    platform_enforcement_claimed: bool,
 }
 
 #[derive(Clone, Debug, PartialEq, Eq)]
@@ -437,6 +438,8 @@ fn adapter_execution_fields(
         audit_event_id: Some(evidence.audit_event_id.clone()),
         refs: vec![execution_ref],
         executed_claimed: evidence.status == constants::enforcement::RESULT_ACTUALLY_ENFORCED,
+        platform_enforcement_claimed: evidence.status
+            == constants::enforcement::RESULT_ACTUALLY_ENFORCED,
     }
 }
 
@@ -450,6 +453,7 @@ fn empty_adapter_execution_fields(state: &str, decision: &str) -> AdapterExecuti
         audit_event_id: None,
         refs: Vec::new(),
         executed_claimed: false,
+        platform_enforcement_claimed: false,
     }
 }
 

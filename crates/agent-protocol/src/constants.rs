@@ -119,6 +119,10 @@ pub mod event_id {
         "activity-app-game-notification-readiness-read-model-reported";
     pub const ACTIVITY_APP_GAME_ADAPTER_EXECUTION_READINESS_READ_MODEL_REPORTED: &str =
         "activity-app-game-adapter-execution-readiness-read-model-reported";
+    pub const ACTIVITY_APP_GAME_PLATFORM_PROOF_STATUS_READ_MODEL_REPORTED: &str =
+        "activity-app-game-platform-proof-status-read-model-reported";
+    pub const ACTIVITY_APP_GAME_CHILD_RUNTIME_TRANSPORT_RECEIPT_READ_MODEL_REPORTED: &str =
+        "activity-app-game-child-runtime-transport-receipt-read-model-reported";
     pub const ACTIVITY_APP_GAME_ADAPTER_DISPATCH_PREFLIGHT_READ_MODEL_REPORTED: &str =
         "activity-app-game-adapter-dispatch-preflight-read-model-reported";
     pub const ACTIVITY_APP_GAME_ADAPTER_DISPATCH_RESULT_READ_MODEL_REPORTED: &str =

@@ -21,6 +21,28 @@
             android:name=".AndroidMediaProjectionCaptureActivity"
             android:exported="false" />
 
+        <receiver
+            android:name=".AppGameAndroidChildRuntimeReceiptReceiver"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="ca.ocentra.parent.agent.APP_GAME_CHILD_RUNTIME_RECEIPT_CHANNEL_PROOF" />
+            </intent-filter>
+        </receiver>
+        <receiver
+            android:name=".AppGameAndroidChildRuntimeDeliveryReceiver"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="ca.ocentra.parent.agent.APP_GAME_CHILD_RUNTIME_DELIVERY_INTAKE_PROOF" />
+            </intent-filter>
+        </receiver>
+        <receiver
+            android:name=".AppGameAndroidChildRuntimeNotificationActionReceiver"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="ca.ocentra.parent.agent.APP_GAME_CHILD_RUNTIME_NOTIFICATION_REQUEST_ACTION_PROOF" />
+            </intent-filter>
+        </receiver>
+
         <service
             android:name=".OcentraParentAgentService"
             android:exported="false"
@@ -29,5 +51,16 @@
             android:name=".AndroidMediaProjectionCaptureService"
             android:exported="false"
             android:foregroundServiceType="mediaProjection" />
+        <service
+            android:name=".AppGameAndroidAccessibilityRuntimeService"
+            android:exported="false"
+            android:permission="android.permission.BIND_ACCESSIBILITY_SERVICE">
+            <intent-filter>
+                <action android:name="android.accessibilityservice.AccessibilityService" />
+            </intent-filter>
+            <meta-data
+                android:name="android.accessibilityservice"
+                android:resource="@xml/app_game_accessibility_service" />
+        </service>
     </application>
 </manifest>

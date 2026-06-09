@@ -26,6 +26,12 @@ export const AgentAppGameAdapterExecutionDecision = {
   BlockedBeforeExecution: 'blocked-before-execution',
 } as const;
 
+export const AgentAppGameAdapterHostCapabilityState = {
+  Available: 'available',
+  NotDetected: 'not-detected',
+  NotApplicable: 'not-applicable',
+} as const;
+
 const AgentAppGameAdapterExecutionReadinessRowBaseSchema = Schema.Struct({
   schemaVersion: Schema.Literal(AppGameSchemaVersion),
   rowId: AdapterReadinessText,
@@ -52,6 +58,13 @@ const AgentAppGameAdapterExecutionReadinessRowBaseSchema = Schema.Struct({
   rollbackReferenceState: AdapterReadinessText,
   auditReferenceState: AdapterReadinessText,
   evidenceRefs: Schema.Array(AdapterReadinessText),
+  hostCapabilityState: Schema.Literal(
+    AgentAppGameAdapterHostCapabilityState.Available,
+    AgentAppGameAdapterHostCapabilityState.NotDetected,
+    AgentAppGameAdapterHostCapabilityState.NotApplicable
+  ),
+  hostCapabilityEvidenceRefs: Schema.Array(AdapterReadinessText),
+  hostCapabilityProbeRefs: Schema.Array(AdapterReadinessText),
   linkedProofArtifacts: Schema.Array(AdapterReadinessText),
   manualProofRequirements: Schema.Array(AdapterReadinessText),
   claimBoundary: AdapterReadinessText,
@@ -90,6 +103,10 @@ const AgentAppGameAdapterExecutionReadinessReadModelBaseSchema = Schema.Struct({
   executionAllowedCount: AdapterReadinessCount,
   blockedBeforeExecutionCount: AdapterReadinessCount,
   adapterExecutionClaimedCount: AdapterReadinessCount,
+  hostCapabilityAvailableCount: AdapterReadinessCount,
+  hostCapabilityNotDetectedCount: AdapterReadinessCount,
+  hostCapabilityNotApplicableCount: AdapterReadinessCount,
+  hostCapabilityProbeRefCount: AdapterReadinessCount,
   broadInstalledAppBlockingClaimed: Schema.Literal(false),
   childDeviceDeliveryClaimed: Schema.Literal(false),
   platformEnforcementClaimed: Schema.Literal(false),
@@ -117,6 +134,19 @@ export const AgentAppGameAdapterExecutionReadinessReadModelSchema = withParser(
             ).length &&
           readModel.adapterExecutionClaimedCount ===
             readModel.rows.filter((row) => row.adapterExecutionClaimed).length &&
+          readModel.hostCapabilityAvailableCount ===
+            readModel.rows.filter((row) => row.hostCapabilityState === AgentAppGameAdapterHostCapabilityState.Available)
+              .length &&
+          readModel.hostCapabilityNotDetectedCount ===
+            readModel.rows.filter(
+              (row) => row.hostCapabilityState === AgentAppGameAdapterHostCapabilityState.NotDetected
+            ).length &&
+          readModel.hostCapabilityNotApplicableCount ===
+            readModel.rows.filter(
+              (row) => row.hostCapabilityState === AgentAppGameAdapterHostCapabilityState.NotApplicable
+            ).length &&
+          readModel.hostCapabilityProbeRefCount ===
+            readModel.rows.reduce((count, row) => count + row.hostCapabilityProbeRefs.length, 0) &&
           new Set(readModel.rows.map((row) => row.rowId)).size === readModel.rows.length) ||
         'Expected app/game adapter execution readiness counts and row ids to match the rows'
     )
@@ -183,15 +213,37 @@ function adapterExecutionRowIsHonest(row: AgentAppGameAdapterExecutionReadinessR
       row.adapterExecutionClaimed &&
       row.manualProofRequirements.length === 0 &&
       row.evidenceRefs.length > 0 &&
-      row.linkedProofArtifacts.length > 0
+    row.hostCapabilityState === AgentAppGameAdapterHostCapabilityState.Available &&
+    row.hostCapabilityEvidenceRefs.length > 0 &&
+    row.hostCapabilityProbeRefs.length > 0 &&
+    row.linkedProofArtifacts.length > 0
     );
   }
 
   return (
     row.executionDecision === AgentAppGameAdapterExecutionDecision.BlockedBeforeExecution &&
     !row.adapterExecutionClaimed &&
+    hostCapabilityStateMatchesEvidence(row) &&
+    hostCapabilityProbeRefsAreParentSafe(row) &&
     row.manualProofRequirements.length > 0
   );
+}
+
+function hostCapabilityStateMatchesEvidence(row: AgentAppGameAdapterExecutionReadinessRowCandidate): boolean {
+  if (row.hostCapabilityState === AgentAppGameAdapterHostCapabilityState.Available) {
+    return row.hostCapabilityEvidenceRefs.length > 0;
+  }
+  if (row.hostCapabilityState === AgentAppGameAdapterHostCapabilityState.NotApplicable) {
+    return row.hostCapabilityEvidenceRefs.length === 0;
+  }
+  return true;
+}
+
+function hostCapabilityProbeRefsAreParentSafe(row: AgentAppGameAdapterExecutionReadinessRowCandidate): boolean {
+  if (row.hostCapabilityState === AgentAppGameAdapterHostCapabilityState.NotApplicable) {
+    return row.hostCapabilityProbeRefs.length === 0;
+  }
+  return row.hostCapabilityProbeRefs.every((ref) => ref.endsWith('-probe-ref'));
 }
 
 function adapterFailure(

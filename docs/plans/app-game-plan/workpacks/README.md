@@ -173,6 +173,52 @@ before `DONE` or PR-ready reporting.
 165. WP174 app/game scoped adapter dispatch executed parent surface.
 166. WP175 app/game scoped adapter dispatch parent action surface.
 167. WP176 app/game blocking time-limit done gate.
+168. WP177 app/game category unknown policy readiness service consumption.
+169. WP178 app/game adapter host capability state.
+170. WP179 app/game platform manual artifact host probe refs.
+171. WP180 app/game host capability summary counts.
+172. WP181 app/game Android physical device proof.
+173. WP182 app/game Linux WSL runtime proof.
+174. WP183 app/game platform proof status surface.
+175. WP184 app/game platform proof status service surface.
+176. WP185 app/game Android UsageEvents foreground proof.
+177. WP186 app/game Linux WSLg display readiness proof.
+178. WP187 app/game platform proof status Android/Linux detail refs.
+179. WP188 app/game Android UsageEvents replay readiness.
+180. WP189 app/game Linux foreground capture readiness.
+181. WP190 app/game Android UsageEvents child-runtime replay.
+182. WP191 app/game Linux foreground source preflight.
+183. WP192 app/game Android authority preflight.
+184. WP193 app/game Windows broad blocking authority preflight.
+185. WP194 app/game Android Accessibility overlay preflight.
+186. WP195 app/game platform proof status preflight detail refs.
+187. WP196 app/game Apple CI platform proof preflight.
+188. WP197 app/game Linux Docker host preflight.
+189. WP198 app/game Android UsageEvents capability proof.
+190. WP199 app/game Android UsageEvents runtime preflight.
+191. WP200 app/game Android UsageEvents count sample.
+192. WP201 app/game Android UsageEvents package runtime proof.
+193. WP202 app/game Android Accessibility runtime proof.
+194. WP203 app/game Windows local policy evidence proof.
+195. WP204 app/game Linux active-window tool proof.
+196. WP205 app/game platform proof status runtime detail refs.
+197. WP206 app/game child-device delivery readiness.
+198. WP207 app/game child-device runtime writer.
+199. WP208 app/game child runtime transport receipt boundary.
+200. WP209 app/game child runtime transport receipt service.
+201. WP210 app/game child runtime transport receipt parent surface.
+202. WP211 app/game Android child runtime transport receipt proof.
+203. WP212 app/game Android child runtime local receipt proof.
+204. WP213 app/game Android child runtime local receipt physical proof.
+205. WP214 app/game Android child runtime local receipt ack proof.
+206. WP215 app/game Android child runtime local receipt channel proof.
+207. WP216 app/game Android child runtime local delivery intake proof.
+208. WP217 app/game Android child runtime local delivery queue proof.
+209. WP218 app/game Android UsageEvents granted sample proof.
+210. WP219 app/game Android Accessibility enabled sample proof.
+211. WP220 app/game Android child runtime local notification proof.
+212. WP221 app/game Android child runtime local notification action proof.
+213. WP222 app/game Android child runtime local notification request queue proof.
 
 ## Standard AI Worker Checklist
 

@@ -2,6 +2,7 @@ import { AppGameSchemaVersion } from '@ocentra-parent/activity-domain/app-game';
 import { describe, expect, it } from 'vitest';
 import {
   AgentAppGameAdapterExecutionDecision,
+  AgentAppGameAdapterHostCapabilityState,
   AgentAppGameAdapterExecutionState,
 } from '../src/app-game-adapter-execution-readiness';
 import { AgentEvent, type AgentEventEnvelope } from '../src/contracts';
@@ -36,6 +37,10 @@ const DispatchPreflightReadModel = {
   blockedBeforeDispatchCount: 1,
   adapterDispatchEligibleCount: 1,
   adapterDispatchExecutedClaimedCount: 0,
+  hostCapabilityAvailableCount: 1,
+  hostCapabilityNotDetectedCount: 1,
+  hostCapabilityNotApplicableCount: 0,
+  hostCapabilityProbeRefCount: 2,
   broadInstalledAppBlockingClaimed: false,
   childDeviceDeliveryClaimed: false,
   platformEnforcementClaimed: false,
@@ -57,6 +62,9 @@ const DispatchPreflightReadModel = {
       dispatchIntentId: 'dispatch-owned-process-time-limit',
       dispatchOutcomeState: AgentAppGameAdapterDispatchOutcomeState.DispatchReady,
       dispatchEvidenceRefs: ['evidence-app-session-owned-process'],
+      hostCapabilityState: AgentAppGameAdapterHostCapabilityState.Available,
+      hostCapabilityEvidenceRefs: ['adapter-capability-state-ref'],
+      hostCapabilityProbeRefs: ['windows-host-local-probe-ref'],
       dispatchAuditRefs: ['audit-owned-process-dispatch-accepted'],
       dispatchTimerRefs: ['timer-owned-process-active'],
       manualProofRequirements: [],
@@ -86,6 +94,9 @@ const DispatchPreflightReadModel = {
       dispatchIntentId: null,
       dispatchOutcomeState: AgentAppGameAdapterDispatchOutcomeState.ManualRequired,
       dispatchEvidenceRefs: [],
+      hostCapabilityState: AgentAppGameAdapterHostCapabilityState.NotDetected,
+      hostCapabilityEvidenceRefs: [],
+      hostCapabilityProbeRefs: ['windows-host-local-probe-ref'],
       dispatchAuditRefs: [],
       dispatchTimerRefs: [],
       manualProofRequirements: ['same app identity proof'],
@@ -140,6 +151,19 @@ describe('agent app-game adapter dispatch preflight parser', () => {
                 adapterDispatchExecutedClaimed: true,
               },
             ],
+          })
+        )
+      )
+    ).toEqual({
+      ok: false,
+      reason: 'invalid-payload',
+    });
+    expect(
+      parseAgentAppGameAdapterDispatchPreflightEvent(
+        dispatchPreflightEvent(
+          JSON.stringify({
+            ...DispatchPreflightReadModel,
+            hostCapabilityProbeRefCount: 0,
           })
         )
       )

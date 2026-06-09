@@ -4,6 +4,7 @@ import { AgentEvent, type AgentEventEnvelope } from '../src/contracts';
 import { AgentProtocolSchemaVersion } from '../src/primitives';
 import {
   AgentAppGameAdapterExecutionDecision,
+  AgentAppGameAdapterHostCapabilityState,
   AgentAppGameAdapterExecutionReadinessPayloadField,
   AgentAppGameAdapterExecutionState,
   parseAgentAppGameAdapterExecutionReadinessEvent,
@@ -30,6 +31,10 @@ const AdapterExecutionReadinessReadModel = {
   executionAllowedCount: 1,
   blockedBeforeExecutionCount: 1,
   adapterExecutionClaimedCount: 1,
+  hostCapabilityAvailableCount: 1,
+  hostCapabilityNotDetectedCount: 1,
+  hostCapabilityNotApplicableCount: 0,
+  hostCapabilityProbeRefCount: 2,
   broadInstalledAppBlockingClaimed: false,
   childDeviceDeliveryClaimed: false,
   platformEnforcementClaimed: false,
@@ -50,6 +55,9 @@ const AdapterExecutionReadinessReadModel = {
       rollbackReferenceState: 'timer-recovery-backed',
       auditReferenceState: 'audit-reference-backed',
       evidenceRefs: ['app-game-session-evidence-ref'],
+      hostCapabilityState: AgentAppGameAdapterHostCapabilityState.Available,
+      hostCapabilityEvidenceRefs: ['adapter-capability-state-ref'],
+      hostCapabilityProbeRefs: ['windows-host-local-probe-ref'],
       linkedProofArtifacts: ['test-results/v0-8-windows-app-time-limit-adapter-mvp/proof.json'],
       manualProofRequirements: [],
       claimBoundary: 'Scoped Windows owned-process app/game timer execution only.',
@@ -76,6 +84,9 @@ const AdapterExecutionReadinessReadModel = {
       rollbackReferenceState: 'manual-required',
       auditReferenceState: 'manual-required',
       evidenceRefs: [],
+      hostCapabilityState: AgentAppGameAdapterHostCapabilityState.NotDetected,
+      hostCapabilityEvidenceRefs: [],
+      hostCapabilityProbeRefs: ['windows-host-local-probe-ref'],
       linkedProofArtifacts: [],
       manualProofRequirements: ['same app identity proof'],
       claimBoundary: 'Broad installed-app blocking remains manual-required.',
@@ -128,6 +139,19 @@ describe('agent app-game adapter execution readiness parser', () => {
                 broadInstalledAppBlockingClaimed: true,
               },
             ],
+          })
+        )
+      )
+    ).toEqual({
+      ok: false,
+      reason: 'invalid-payload',
+    });
+    expect(
+      parseAgentAppGameAdapterExecutionReadinessEvent(
+        adapterExecutionReadinessEvent(
+          JSON.stringify({
+            ...AdapterExecutionReadinessReadModel,
+            hostCapabilityAvailableCount: 0,
           })
         )
       )

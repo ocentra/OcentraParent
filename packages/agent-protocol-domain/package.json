@@ -61,6 +61,14 @@
       "import": "./dist/app-game-adapter-execution-readiness.js",
       "types": "./dist/app-game-adapter-execution-readiness.d.ts"
     },
+    "./app-game-platform-proof-status": {
+      "import": "./dist/app-game-platform-proof-status.js",
+      "types": "./dist/app-game-platform-proof-status.d.ts"
+    },
+    "./app-game-child-runtime-transport-receipt": {
+      "import": "./dist/app-game-child-runtime-transport-receipt.js",
+      "types": "./dist/app-game-child-runtime-transport-receipt.d.ts"
+    },
     "./app-game-adapter-dispatch-preflight": {
       "import": "./dist/app-game-adapter-dispatch-preflight.js",
       "types": "./dist/app-game-adapter-dispatch-preflight.d.ts"

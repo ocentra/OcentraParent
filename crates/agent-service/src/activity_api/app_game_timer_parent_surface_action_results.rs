@@ -2,8 +2,10 @@ use ocentra_parent_agent_protocol::{
     constants, AppGameControlActionResult, AppGameServiceReadModel,
     AppGameTimerParentSurfaceChildUxLocalArtifactRecord,
     AppGameTimerParentSurfaceChildUxParentPreferenceSetupRecord,
-    AppGameTimerParentSurfaceChildUxParentSurfaceIntentRecord, APP_GAME_CONTROL_POLICY_KIND_GAME,
-    APP_GAME_SCHEMA_VERSION, APP_GAME_TIMER_PARENT_SURFACE_TARGET_NATIVE_APP,
+    AppGameTimerParentSurfaceChildUxParentSurfaceIntentRecord,
+    APP_GAME_CONTROL_ACTION_STATUS_ENFORCED, APP_GAME_CONTROL_POLICY_KIND_GAME,
+    APP_GAME_ENFORCEMENT_RESULT_ACTUALLY_ENFORCED, APP_GAME_SCHEMA_VERSION,
+    APP_GAME_TIMER_PARENT_SURFACE_TARGET_NATIVE_APP,
     APP_GAME_TIMER_PARENT_SURFACE_TARGET_NATIVE_GAME,
 };
 
@@ -37,6 +39,8 @@ pub(crate) struct TimerParentSurfaceControlActionResults {
     pub(crate) child_ux_parent_preference_setup_request_reference_ids: Vec<String>,
     pub(crate) child_ux_parent_preference_setup_records:
         Vec<AppGameTimerParentSurfaceChildUxParentPreferenceSetupRecord>,
+    pub(crate) adapter_dispatch_claimed: bool,
+    pub(crate) platform_enforcement_claimed: bool,
 }
 
 struct ActionResultValues {
@@ -46,6 +50,8 @@ struct ActionResultValues {
     enforcement_statuses: Vec<String>,
     child_reason_reference_ids: Vec<String>,
     child_status_reference_ids: Vec<String>,
+    adapter_dispatch_claimed: bool,
+    platform_enforcement_claimed: bool,
 }
 
 pub(crate) fn timer_parent_surface_control_action_results(
@@ -110,6 +116,8 @@ pub(crate) fn timer_parent_surface_control_action_results(
             child_ux_parent_preference_setup_reference_ids.clone(),
         child_ux_parent_preference_setup_reference_ids,
         child_ux_parent_preference_setup_records,
+        adapter_dispatch_claimed: action_result_values.adapter_dispatch_claimed,
+        platform_enforcement_claimed: action_result_values.platform_enforcement_claimed,
     }
 }
 
@@ -151,6 +159,15 @@ fn action_result_values(model: &AppGameServiceReadModel) -> ActionResultValues {
                 .iter()
                 .flat_map(|row| row.request.child_status_references.iter().cloned()),
         ),
+        adapter_dispatch_claimed: model
+            .approval_action_result_rows
+            .iter()
+            .any(|row| row.result_status == APP_GAME_CONTROL_ACTION_STATUS_ENFORCED),
+        platform_enforcement_claimed: model.approval_action_result_rows.iter().any(|row| {
+            row.enforcement_result.as_ref().is_some_and(|result| {
+                result.status == APP_GAME_ENFORCEMENT_RESULT_ACTUALLY_ENFORCED
+            })
+        }),
     }
 }
 
@@ -218,8 +235,8 @@ fn child_ux_parent_surface_intent_record(
         parent_preference_mutation_claimed: false,
         provider_delivery_claimed: false,
         child_delivery_claimed: false,
-        adapter_dispatch_claimed: false,
-        platform_enforcement_claimed: false,
+        adapter_dispatch_claimed: record.adapter_dispatch_claimed,
+        platform_enforcement_claimed: record.platform_enforcement_claimed,
         raw_private_source_rows_included: false,
     }
 }
@@ -264,8 +281,8 @@ fn child_ux_parent_preference_setup_record(
         notification_rule_mutation_claimed: false,
         provider_delivery_claimed: false,
         child_delivery_claimed: false,
-        adapter_dispatch_claimed: false,
-        platform_enforcement_claimed: false,
+        adapter_dispatch_claimed: record.adapter_dispatch_claimed,
+        platform_enforcement_claimed: record.platform_enforcement_claimed,
         raw_private_source_rows_included: false,
     }
 }
@@ -310,6 +327,12 @@ fn child_ux_local_artifact_row_is_ready(row: &AppGameControlActionResult) -> boo
 fn child_ux_local_artifact_record(
     row: &AppGameControlActionResult,
 ) -> AppGameTimerParentSurfaceChildUxLocalArtifactRecord {
+    let adapter_dispatch_claimed = row.result_status == APP_GAME_CONTROL_ACTION_STATUS_ENFORCED;
+    let platform_enforcement_claimed = row
+        .enforcement_result
+        .as_ref()
+        .is_some_and(|result| result.status == APP_GAME_ENFORCEMENT_RESULT_ACTUALLY_ENFORCED);
+
     AppGameTimerParentSurfaceChildUxLocalArtifactRecord {
         schema_version: APP_GAME_SCHEMA_VERSION,
         artifact_reference_id: child_ux_local_artifact_reference_id(&row.result_id),
@@ -319,8 +342,8 @@ fn child_ux_local_artifact_record(
         child_status_reference_ids: row.request.child_status_references.clone(),
         child_delivery_claimed: false,
         notification_delivery_claimed: false,
-        adapter_dispatch_claimed: false,
-        platform_enforcement_claimed: false,
+        adapter_dispatch_claimed,
+        platform_enforcement_claimed,
         raw_private_source_rows_included: false,
     }
 }

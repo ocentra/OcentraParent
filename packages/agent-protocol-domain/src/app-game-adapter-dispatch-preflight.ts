@@ -3,6 +3,7 @@ import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/ef
 import {
   AgentAppGameAdapterExecutionDecision,
   AgentAppGameAdapterExecutionState,
+  AgentAppGameAdapterHostCapabilityState,
 } from './app-game-adapter-execution-readiness';
 import { AgentEvent, isAgentProtocolLogText, type AgentEventEnvelope } from './contracts';
 
@@ -76,6 +77,13 @@ const AgentAppGameAdapterDispatchPreflightRowBaseSchema = Schema.Struct({
     AgentAppGameAdapterDispatchOutcomeState.NotDispatched
   ),
   dispatchEvidenceRefs: Schema.Array(DispatchPreflightText),
+  hostCapabilityState: Schema.Literal(
+    AgentAppGameAdapterHostCapabilityState.Available,
+    AgentAppGameAdapterHostCapabilityState.NotDetected,
+    AgentAppGameAdapterHostCapabilityState.NotApplicable
+  ),
+  hostCapabilityEvidenceRefs: Schema.Array(DispatchPreflightText),
+  hostCapabilityProbeRefs: Schema.Array(DispatchPreflightText),
   dispatchAuditRefs: Schema.Array(DispatchPreflightText),
   dispatchTimerRefs: Schema.Array(DispatchPreflightText),
   manualProofRequirements: Schema.Array(DispatchPreflightText),
@@ -115,6 +123,10 @@ const AgentAppGameAdapterDispatchPreflightReadModelBaseSchema = Schema.Struct({
   blockedBeforeDispatchCount: DispatchPreflightCount,
   adapterDispatchEligibleCount: DispatchPreflightCount,
   adapterDispatchExecutedClaimedCount: Schema.Literal(0),
+  hostCapabilityAvailableCount: DispatchPreflightCount,
+  hostCapabilityNotDetectedCount: DispatchPreflightCount,
+  hostCapabilityNotApplicableCount: DispatchPreflightCount,
+  hostCapabilityProbeRefCount: DispatchPreflightCount,
   broadInstalledAppBlockingClaimed: Schema.Literal(false),
   childDeviceDeliveryClaimed: Schema.Literal(false),
   platformEnforcementClaimed: Schema.Literal(false),
@@ -142,6 +154,19 @@ export const AgentAppGameAdapterDispatchPreflightReadModelSchema = withParser(
             ).length &&
           readModel.adapterDispatchEligibleCount ===
             readModel.rows.filter((row) => row.adapterDispatchEligible).length &&
+          readModel.hostCapabilityAvailableCount ===
+            readModel.rows.filter((row) => row.hostCapabilityState === AgentAppGameAdapterHostCapabilityState.Available)
+              .length &&
+          readModel.hostCapabilityNotDetectedCount ===
+            readModel.rows.filter(
+              (row) => row.hostCapabilityState === AgentAppGameAdapterHostCapabilityState.NotDetected
+            ).length &&
+          readModel.hostCapabilityNotApplicableCount ===
+            readModel.rows.filter(
+              (row) => row.hostCapabilityState === AgentAppGameAdapterHostCapabilityState.NotApplicable
+            ).length &&
+          readModel.hostCapabilityProbeRefCount ===
+            readModel.rows.reduce((count, row) => count + row.hostCapabilityProbeRefs.length, 0) &&
           new Set(readModel.rows.map((row) => row.rowId)).size === readModel.rows.length) ||
         'Expected app/game adapter dispatch preflight counts and row ids to match the rows'
     )
@@ -209,7 +234,10 @@ function dispatchPreflightRowIsHonest(row: AgentAppGameAdapterDispatchPreflightR
       row.dispatchOutcomeState === AgentAppGameAdapterDispatchOutcomeState.DispatchReady &&
       row.dispatchIntentId !== null &&
       row.dispatchEvidenceRefs.length > 0 &&
-      row.dispatchAuditRefs.length > 0 &&
+    row.hostCapabilityState === AgentAppGameAdapterHostCapabilityState.Available &&
+    row.hostCapabilityEvidenceRefs.length > 0 &&
+    row.hostCapabilityProbeRefs.length > 0 &&
+    row.dispatchAuditRefs.length > 0 &&
       row.dispatchTimerRefs.length > 0 &&
       row.manualProofRequirements.length === 0 &&
       row.adapterDispatchEligible &&
@@ -221,10 +249,29 @@ function dispatchPreflightRowIsHonest(row: AgentAppGameAdapterDispatchPreflightR
     row.dispatchDecision === AgentAppGameAdapterDispatchDecision.BlockedBeforeDispatch &&
     row.dispatchIntentId === null &&
     row.dispatchOutcomeState !== AgentAppGameAdapterDispatchOutcomeState.DispatchReady &&
+    hostCapabilityStateMatchesEvidence(row) &&
+    hostCapabilityProbeRefsAreParentSafe(row) &&
     row.manualProofRequirements.length > 0 &&
     !row.adapterDispatchEligible &&
     !row.adapterDispatchExecutedClaimed
   );
+}
+
+function hostCapabilityStateMatchesEvidence(row: AgentAppGameAdapterDispatchPreflightRowCandidate): boolean {
+  if (row.hostCapabilityState === AgentAppGameAdapterHostCapabilityState.Available) {
+    return row.hostCapabilityEvidenceRefs.length > 0;
+  }
+  if (row.hostCapabilityState === AgentAppGameAdapterHostCapabilityState.NotApplicable) {
+    return row.hostCapabilityEvidenceRefs.length === 0;
+  }
+  return true;
+}
+
+function hostCapabilityProbeRefsAreParentSafe(row: AgentAppGameAdapterDispatchPreflightRowCandidate): boolean {
+  if (row.hostCapabilityState === AgentAppGameAdapterHostCapabilityState.NotApplicable) {
+    return row.hostCapabilityProbeRefs.length === 0;
+  }
+  return row.hostCapabilityProbeRefs.every((ref) => ref.endsWith('-probe-ref'));
 }
 
 function dispatchPreflightFailure(

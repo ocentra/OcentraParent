@@ -185,6 +185,12 @@ export const PortalDevTextToken = {
   GetActivityAppGameAdapterExecutionReadinessReadModel: decodeTextTokenId(
     'portal.dev.command.getActivityAppGameAdapterExecutionReadinessReadModel'
   ),
+  GetActivityAppGamePlatformProofStatusReadModel: decodeTextTokenId(
+    'portal.dev.command.getActivityAppGamePlatformProofStatusReadModel'
+  ),
+  GetActivityAppGameChildRuntimeTransportReceiptReadModel: decodeTextTokenId(
+    'portal.dev.command.getActivityAppGameChildRuntimeTransportReceiptReadModel'
+  ),
   GetActivityAppGameAdapterDispatchPreflightReadModel: decodeTextTokenId(
     'portal.dev.command.getActivityAppGameAdapterDispatchPreflightReadModel'
   ),
@@ -437,6 +443,12 @@ export const PortalDevText: Record<PortalDevTextTokenValue, DisplayText> = {
   [PortalDevTextToken.GetActivityAppGamePolicyReadinessReadModel]: decodeDisplayText('Refresh policy readiness'),
   [PortalDevTextToken.GetActivityAppGameAdapterExecutionReadinessReadModel]:
     decodeDisplayText('Refresh adapter readiness'),
+  [PortalDevTextToken.GetActivityAppGamePlatformProofStatusReadModel]: decodeDisplayText(
+    'Refresh platform proof status'
+  ),
+  [PortalDevTextToken.GetActivityAppGameChildRuntimeTransportReceiptReadModel]: decodeDisplayText(
+    'Refresh child runtime receipts'
+  ),
   [PortalDevTextToken.GetActivityAppGameAdapterDispatchPreflightReadModel]: decodeDisplayText(
     'Refresh adapter dispatch preflight'
   ),

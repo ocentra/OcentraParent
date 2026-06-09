@@ -9,9 +9,12 @@ use crate::{
     APP_GAME_ADAPTER_DISPATCH_PREFLIGHT_STATE_ELIGIBLE,
     APP_GAME_ADAPTER_DISPATCH_TIMER_OWNED_PROCESS, APP_GAME_ADAPTER_EXECUTION_DECISION_ALLOWED,
     APP_GAME_ADAPTER_EXECUTION_ROW_ID_PREFIX, APP_GAME_ADAPTER_EXECUTION_STATE_PROVED_SCOPED,
-    APP_GAME_ADAPTER_PRODUCT_NATIVE_APP, APP_GAME_ADAPTER_PRODUCT_NATIVE_GAME,
-    APP_GAME_PARENT_PLATFORM_WINDOWS, APP_GAME_SCHEMA_VERSION,
+    APP_GAME_ADAPTER_HOST_CAPABILITY_AVAILABLE, APP_GAME_ADAPTER_PRODUCT_NATIVE_APP,
+    APP_GAME_ADAPTER_PRODUCT_NATIVE_GAME, APP_GAME_PARENT_PLATFORM_WINDOWS,
+    APP_GAME_SCHEMA_VERSION,
 };
+
+use crate::constants::v08_supported_adapter_runtime_proof::REF_ADAPTER_CAPABILITY_STATE;
 
 const GENERATED_AT: &str = "2026-06-08T10:16:00Z";
 const SOURCE_PROOF_ENTRY_ID: &str = "windows-app-game-owned-process-time-limit";
@@ -45,6 +48,9 @@ fn app_game_adapter_dispatch_preflight_serializes_parent_safe_rows() {
         ),
         dispatch_outcome_state: APP_GAME_ADAPTER_DISPATCH_OUTCOME_READY.to_string(),
         dispatch_evidence_refs: vec![APP_GAME_ADAPTER_DISPATCH_EVIDENCE_OWNED_PROCESS.to_string()],
+        host_capability_state: APP_GAME_ADAPTER_HOST_CAPABILITY_AVAILABLE.to_string(),
+        host_capability_evidence_refs: vec![REF_ADAPTER_CAPABILITY_STATE.to_string()],
+        host_capability_probe_refs: vec!["windows-host-local-probe-ref".to_string()],
         dispatch_audit_refs: vec![APP_GAME_ADAPTER_DISPATCH_AUDIT_OWNED_PROCESS.to_string()],
         dispatch_timer_refs: vec![APP_GAME_ADAPTER_DISPATCH_TIMER_OWNED_PROCESS.to_string()],
         manual_proof_requirements: vec![],
@@ -71,6 +77,10 @@ fn app_game_adapter_dispatch_preflight_serializes_parent_safe_rows() {
         blocked_before_dispatch_count: 0,
         adapter_dispatch_eligible_count: 1,
         adapter_dispatch_executed_claimed_count: 0,
+        host_capability_available_count: 1,
+        host_capability_not_detected_count: 0,
+        host_capability_not_applicable_count: 0,
+        host_capability_probe_ref_count: 1,
         broad_installed_app_blocking_claimed: false,
         child_device_delivery_claimed: false,
         platform_enforcement_claimed: false,
@@ -83,5 +93,12 @@ fn app_game_adapter_dispatch_preflight_serializes_parent_safe_rows() {
 
     assert!(serialized.contains(APP_GAME_ADAPTER_DISPATCH_PREFLIGHT_READ_MODEL_ID));
     assert!(serialized.contains(APP_GAME_ADAPTER_DISPATCH_INTENT_OWNED_PROCESS_TIME_LIMIT));
+    assert!(
+        serialized.contains("\"hostCapabilityEvidenceRefs\":[\"adapter-capability-state-ref\"]")
+    );
+    assert!(serialized.contains("\"hostCapabilityProbeRefs\":[\"windows-host-local-probe-ref\"]"));
+    assert!(serialized.contains("\"hostCapabilityState\":\"available\""));
+    assert!(serialized.contains("\"hostCapabilityAvailableCount\":1"));
+    assert!(serialized.contains("\"hostCapabilityProbeRefCount\":1"));
     assert!(serialized.contains("\"adapterDispatchExecutedClaimed\":false"));
 }

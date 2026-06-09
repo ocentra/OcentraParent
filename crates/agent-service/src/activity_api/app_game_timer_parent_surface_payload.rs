@@ -123,9 +123,9 @@ pub fn app_game_timer_parent_surface_from_service_model_with_timer_state(
         durable_scheduler_storage_claimed: runtime_claims.active_timer_state_exists,
         audit_runtime_claimed: runtime_claims.audit_runtime_claimed,
         rollback_runtime_claimed: runtime_claims.rollback_runtime_claimed,
-        adapter_dispatch_claimed: false,
+        adapter_dispatch_claimed: control_action_results.adapter_dispatch_claimed,
         child_delivery_claimed: false,
-        platform_enforcement_claimed: false,
+        platform_enforcement_claimed: control_action_results.platform_enforcement_claimed,
         raw_private_source_rows_included: false,
         rows,
     }

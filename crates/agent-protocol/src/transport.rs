@@ -112,6 +112,10 @@ pub enum AgentCommandName {
     AgentActivityAppGameNotificationReadinessReadModelGet,
     #[serde(rename = "agent.activity.app-game.adapter-execution-readiness.read-model.get")]
     AgentActivityAppGameAdapterExecutionReadinessReadModelGet,
+    #[serde(rename = "agent.activity.app-game.platform-proof-status.read-model.get")]
+    AgentActivityAppGamePlatformProofStatusReadModelGet,
+    #[serde(rename = "agent.activity.app-game.child-runtime-transport-receipt.read-model.get")]
+    AgentActivityAppGameChildRuntimeTransportReceiptReadModelGet,
     #[serde(rename = "agent.activity.app-game.adapter-dispatch-preflight.read-model.get")]
     AgentActivityAppGameAdapterDispatchPreflightReadModelGet,
     #[serde(rename = "agent.activity.app-game.adapter-dispatch-result.read-model.get")]
@@ -270,6 +274,10 @@ pub enum AgentEventName {
     AgentActivityAppGameNotificationReadinessReadModelReported,
     #[serde(rename = "agent.activity.app-game.adapter-execution-readiness.read-model.reported")]
     AgentActivityAppGameAdapterExecutionReadinessReadModelReported,
+    #[serde(rename = "agent.activity.app-game.platform-proof-status.read-model.reported")]
+    AgentActivityAppGamePlatformProofStatusReadModelReported,
+    #[serde(rename = "agent.activity.app-game.child-runtime-transport-receipt.read-model.reported")]
+    AgentActivityAppGameChildRuntimeTransportReceiptReadModelReported,
     #[serde(rename = "agent.activity.app-game.adapter-dispatch-preflight.read-model.reported")]
     AgentActivityAppGameAdapterDispatchPreflightReadModelReported,
     #[serde(rename = "agent.activity.app-game.adapter-dispatch-result.read-model.reported")]

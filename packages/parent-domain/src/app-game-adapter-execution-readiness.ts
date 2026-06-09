@@ -36,6 +36,10 @@ export const AppGameAdapterExecutionDecisionSchema = withParser(
   Schema.Literal('execution-allowed', 'blocked-before-execution')
 );
 
+export const AppGameAdapterHostCapabilityStateSchema = withParser(
+  Schema.Literal('available', 'not-detected', 'not-applicable')
+);
+
 const AppGameAdapterExecutionReadinessRowBaseSchema = Schema.Struct({
   schemaVersion: ParentContractSchemaVersionSchema,
   rowId: AppGameAdapterExecutionReadinessRowIdSchema,
@@ -50,6 +54,9 @@ const AppGameAdapterExecutionReadinessRowBaseSchema = Schema.Struct({
   rollbackReferenceState: AppGameAdapterExecutionReadinessReferenceSchema,
   auditReferenceState: AppGameAdapterExecutionReadinessReferenceSchema,
   evidenceRefs: Schema.Array(AppGameAdapterExecutionReadinessReferenceSchema),
+  hostCapabilityState: AppGameAdapterHostCapabilityStateSchema,
+  hostCapabilityEvidenceRefs: Schema.Array(AppGameAdapterExecutionReadinessReferenceSchema),
+  hostCapabilityProbeRefs: Schema.Array(AppGameAdapterExecutionReadinessReferenceSchema),
   linkedProofArtifacts: Schema.Array(AppGameAdapterExecutionReadinessReferenceSchema),
   manualProofRequirements: Schema.Array(AppGameAdapterExecutionReadinessReferenceSchema),
   claimBoundary: AppGameAdapterExecutionReadinessBoundarySchema,
@@ -104,6 +111,9 @@ function appGameAdapterExecutionReadinessRowIsHonest(row: AppGameAdapterExecutio
       row.auditReferenceState === 'audit-reference-backed' &&
       row.adapterExecutionClaimed &&
       row.evidenceRefs.length > 0 &&
+      row.hostCapabilityState === 'available' &&
+      row.hostCapabilityEvidenceRefs.length > 0 &&
+      row.hostCapabilityProbeRefs.length > 0 &&
       row.linkedProofArtifacts.length > 0 &&
       row.manualProofRequirements.length === 0
     );
@@ -112,8 +122,27 @@ function appGameAdapterExecutionReadinessRowIsHonest(row: AppGameAdapterExecutio
   return (
     row.executionDecision === 'blocked-before-execution' &&
     !row.adapterExecutionClaimed &&
+    appGameHostCapabilityStateMatchesEvidence(row) &&
+    appGameHostCapabilityProbeRefsAreParentSafe(row) &&
     row.manualProofRequirements.length > 0
   );
+}
+
+function appGameHostCapabilityStateMatchesEvidence(row: AppGameAdapterExecutionReadinessRowCandidate): boolean {
+  if (row.hostCapabilityState === 'available') {
+    return row.hostCapabilityEvidenceRefs.length > 0;
+  }
+  if (row.hostCapabilityState === 'not-applicable') {
+    return row.hostCapabilityEvidenceRefs.length === 0;
+  }
+  return true;
+}
+
+function appGameHostCapabilityProbeRefsAreParentSafe(row: AppGameAdapterExecutionReadinessRowCandidate): boolean {
+  if (row.hostCapabilityState === 'not-applicable') {
+    return row.hostCapabilityProbeRefs.length === 0;
+  }
+  return row.hostCapabilityProbeRefs.every((ref) => String(ref).endsWith('-probe-ref'));
 }
 
 function appGameAdapterExecutionReadinessRowHasClaimUpgrade(
@@ -135,6 +164,7 @@ export type AppGameAdapterExecutionReadinessBoundary = typeof AppGameAdapterExec
 export type AppGameAdapterProductMeaning = Infer<typeof AppGameAdapterProductMeaningSchema>;
 export type AppGameAdapterExecutionState = Infer<typeof AppGameAdapterExecutionStateSchema>;
 export type AppGameAdapterExecutionDecision = Infer<typeof AppGameAdapterExecutionDecisionSchema>;
+export type AppGameAdapterHostCapabilityState = Infer<typeof AppGameAdapterHostCapabilityStateSchema>;
 export type AppGameAdapterExecutionReadinessRow = Infer<typeof AppGameAdapterExecutionReadinessRowSchema>;
 export type AppGameAdapterExecutionReadinessReadModel = Infer<typeof AppGameAdapterExecutionReadinessReadModelSchema>;
 
@@ -191,6 +221,9 @@ function appGameAdapterExecutionReadinessRowFromEntry(
     rollbackReferenceState: entry.rollbackReferenceState,
     auditReferenceState: entry.auditReferenceState,
     evidenceRefs: entry.evidenceRefs,
+    hostCapabilityState: appGameHostCapabilityState(entry),
+    hostCapabilityEvidenceRefs: appGameHostCapabilityEvidenceRefs(entry),
+    hostCapabilityProbeRefs: appGameHostCapabilityProbeRefs(entry),
     linkedProofArtifacts: entry.linkedProofArtifacts,
     manualProofRequirements: executionAllowed ? [] : appGameManualProofRequirements(entry),
     claimBoundary: appGameClaimBoundary(entry),
@@ -203,6 +236,37 @@ function appGameAdapterExecutionReadinessRowFromEntry(
     privateDiagnosticsClaimed: false,
     lastCheckedAt: generatedAt,
   });
+}
+
+function appGameHostCapabilityProbeRefs(
+  entry: V08SupportedAdapterRuntimeProofEntry
+): readonly AppGameAdapterExecutionReadinessReference[] {
+  if (entry.platform === 'macos' || entry.platform === 'ios') {
+    return appGameReadinessReferences([]);
+  }
+  if (entry.platform === 'windows') {
+    return appGameReadinessReferences(['windows-host-local-probe-ref']);
+  }
+  return appGameReadinessReferences([]);
+}
+
+function appGameHostCapabilityState(entry: V08SupportedAdapterRuntimeProofEntry): AppGameAdapterHostCapabilityState {
+  if (entry.platform === 'windows') {
+    return 'available';
+  }
+  if (entry.platform === 'macos' || entry.platform === 'ios') {
+    return 'not-applicable';
+  }
+  return 'not-detected';
+}
+
+function appGameHostCapabilityEvidenceRefs(
+  entry: V08SupportedAdapterRuntimeProofEntry
+): readonly AppGameAdapterExecutionReadinessReference[] {
+  if (entry.platform === 'windows') {
+    return appGameReadinessReferences(['adapter-capability-state-ref']);
+  }
+  return appGameReadinessReferences([]);
 }
 
 function appGameAdapterExecutionState(entry: V08SupportedAdapterRuntimeProofEntry): AppGameAdapterExecutionState {

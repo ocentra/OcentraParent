@@ -55,7 +55,7 @@ fn app_game_timer_parent_surface_payload_reports_game_rows_without_runtime_claim
     let decoded: AppGameTimerParentSurfaceReadModel =
         serde_json::from_str(read_model_json).expect(constants::error::AGENT_EVENT_SERIALIZES);
 
-    assert_parent_surface_counts_and_no_overclaims(&decoded);
+    assert_parent_surface_counts_and_claim_boundaries(&decoded);
     assert_control_action_result_visibility(&decoded);
     assert_child_ux_local_artifact_visibility(&decoded);
     assert_eq!(
@@ -78,7 +78,7 @@ fn app_game_timer_parent_surface_payload_reports_game_rows_without_runtime_claim
     );
 }
 
-fn assert_parent_surface_counts_and_no_overclaims(decoded: &AppGameTimerParentSurfaceReadModel) {
+fn assert_parent_surface_counts_and_claim_boundaries(decoded: &AppGameTimerParentSurfaceReadModel) {
     assert_eq!(decoded.returned, 1);
     assert_eq!(
         decoded.capability_status,
@@ -93,9 +93,9 @@ fn assert_parent_surface_counts_and_no_overclaims(decoded: &AppGameTimerParentSu
     assert!(!decoded.durable_scheduler_storage_claimed);
     assert!(!decoded.audit_runtime_claimed);
     assert!(!decoded.rollback_runtime_claimed);
-    assert!(!decoded.adapter_dispatch_claimed);
+    assert!(decoded.adapter_dispatch_claimed);
     assert!(!decoded.child_delivery_claimed);
-    assert!(!decoded.platform_enforcement_claimed);
+    assert!(decoded.platform_enforcement_claimed);
     assert!(!decoded.raw_private_source_rows_included);
 }
 
@@ -197,8 +197,8 @@ fn assert_child_ux_parent_surface_intent_visibility(decoded: &AppGameTimerParent
     assert!(!parent_surface_record.parent_preference_mutation_claimed);
     assert!(!parent_surface_record.provider_delivery_claimed);
     assert!(!parent_surface_record.child_delivery_claimed);
-    assert!(!parent_surface_record.adapter_dispatch_claimed);
-    assert!(!parent_surface_record.platform_enforcement_claimed);
+    assert!(parent_surface_record.adapter_dispatch_claimed);
+    assert!(parent_surface_record.platform_enforcement_claimed);
     assert!(!parent_surface_record.raw_private_source_rows_included);
 }
 
@@ -249,8 +249,8 @@ fn assert_child_ux_parent_preference_setup_visibility(
     assert!(!setup_record.notification_rule_mutation_claimed);
     assert!(!setup_record.provider_delivery_claimed);
     assert!(!setup_record.child_delivery_claimed);
-    assert!(!setup_record.adapter_dispatch_claimed);
-    assert!(!setup_record.platform_enforcement_claimed);
+    assert!(setup_record.adapter_dispatch_claimed);
+    assert!(setup_record.platform_enforcement_claimed);
     assert!(!setup_record.raw_private_source_rows_included);
 }
 
@@ -274,8 +274,8 @@ fn assert_child_ux_local_artifact_record_visibility(decoded: &AppGameTimerParent
     );
     assert!(!artifact_record.child_delivery_claimed);
     assert!(!artifact_record.notification_delivery_claimed);
-    assert!(!artifact_record.adapter_dispatch_claimed);
-    assert!(!artifact_record.platform_enforcement_claimed);
+    assert!(artifact_record.adapter_dispatch_claimed);
+    assert!(artifact_record.platform_enforcement_claimed);
     assert!(!artifact_record.raw_private_source_rows_included);
 }
 

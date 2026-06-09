@@ -212,6 +212,8 @@ export const AgentCommandNameSchema = withParser(
     'agent.activity.app-game.policy-readiness.read-model.get',
     'agent.activity.app-game.notification-readiness.read-model.get',
     'agent.activity.app-game.adapter-execution-readiness.read-model.get',
+    'agent.activity.app-game.platform-proof-status.read-model.get',
+    'agent.activity.app-game.child-runtime-transport-receipt.read-model.get',
     'agent.activity.app-game.adapter-dispatch-preflight.read-model.get',
     'agent.activity.app-game.adapter-dispatch-result.read-model.get',
     'agent.activity.app-game.adapter-dispatch.execute',
@@ -293,6 +295,8 @@ export const AgentEventNameSchema = withParser(
     'agent.activity.app-game.policy-readiness.read-model.reported',
     'agent.activity.app-game.notification-readiness.read-model.reported',
     'agent.activity.app-game.adapter-execution-readiness.read-model.reported',
+    'agent.activity.app-game.platform-proof-status.read-model.reported',
+    'agent.activity.app-game.child-runtime-transport-receipt.read-model.reported',
     'agent.activity.app-game.adapter-dispatch-preflight.read-model.reported',
     'agent.activity.app-game.adapter-dispatch-result.read-model.reported',
     'agent.activity.app-game.adapter-dispatch.executed',
@@ -445,6 +449,12 @@ export const AgentCommand = {
   ActivityAppGameAdapterExecutionReadinessReadModelGet: AgentCommandNameSchema.parse(
     'agent.activity.app-game.adapter-execution-readiness.read-model.get'
   ),
+  ActivityAppGamePlatformProofStatusReadModelGet: AgentCommandNameSchema.parse(
+    'agent.activity.app-game.platform-proof-status.read-model.get'
+  ),
+  ActivityAppGameChildRuntimeTransportReceiptReadModelGet: AgentCommandNameSchema.parse(
+    'agent.activity.app-game.child-runtime-transport-receipt.read-model.get'
+  ),
   ActivityAppGameAdapterDispatchPreflightReadModelGet: AgentCommandNameSchema.parse(
     'agent.activity.app-game.adapter-dispatch-preflight.read-model.get'
   ),
@@ -563,6 +573,12 @@ export const AgentEvent = {
   ),
   ActivityAppGameAdapterExecutionReadinessReadModelReported: AgentEventNameSchema.parse(
     'agent.activity.app-game.adapter-execution-readiness.read-model.reported'
+  ),
+  ActivityAppGamePlatformProofStatusReadModelReported: AgentEventNameSchema.parse(
+    'agent.activity.app-game.platform-proof-status.read-model.reported'
+  ),
+  ActivityAppGameChildRuntimeTransportReceiptReadModelReported: AgentEventNameSchema.parse(
+    'agent.activity.app-game.child-runtime-transport-receipt.read-model.reported'
   ),
   ActivityAppGameAdapterDispatchPreflightReadModelReported: AgentEventNameSchema.parse(
     'agent.activity.app-game.adapter-dispatch-preflight.read-model.reported'

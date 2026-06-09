@@ -26,6 +26,8 @@ const PolicyReadinessKindLabels = {
   [AgentAppGamePolicyReadinessKind.ApprovalActionResult]: decodeDisplayText('Approval action result'),
   [AgentAppGamePolicyReadinessKind.PlatformAuthority]: decodeDisplayText('Platform authority'),
   [AgentAppGamePolicyReadinessKind.AiClassifierContext]: decodeDisplayText('AI classifier context'),
+  [AgentAppGamePolicyReadinessKind.CategoryCandidate]: decodeDisplayText('Category candidate'),
+  [AgentAppGamePolicyReadinessKind.UnknownReview]: decodeDisplayText('Unknown review'),
 } satisfies Readonly<Record<AgentAppGamePolicyReadinessKind, DisplayText>>;
 
 const PolicyReadinessManualReasons = {
@@ -38,6 +40,8 @@ const PolicyReadinessManualReasons = {
   [AgentAppGamePolicyReadinessKind.AiClassifierContext]: decodeDisplayText(
     'AI classifier context requires manual review'
   ),
+  [AgentAppGamePolicyReadinessKind.CategoryCandidate]: decodeDisplayText('Category candidate requires manual review'),
+  [AgentAppGamePolicyReadinessKind.UnknownReview]: decodeDisplayText('Unknown evidence requires manual review'),
 } satisfies Readonly<Record<AgentAppGamePolicyReadinessKind, DisplayText>>;
 
 const PolicyReadinessMissingReasons = {
@@ -46,6 +50,8 @@ const PolicyReadinessMissingReasons = {
   [AgentAppGamePolicyReadinessKind.ApprovalActionResult]: decodeDisplayText('Approval action result is missing'),
   [AgentAppGamePolicyReadinessKind.PlatformAuthority]: decodeDisplayText('Platform authority is missing'),
   [AgentAppGamePolicyReadinessKind.AiClassifierContext]: decodeDisplayText('AI classifier context is missing'),
+  [AgentAppGamePolicyReadinessKind.CategoryCandidate]: decodeDisplayText('Category candidate evidence is missing'),
+  [AgentAppGamePolicyReadinessKind.UnknownReview]: decodeDisplayText('Unknown review evidence is missing'),
 } satisfies Readonly<Record<AgentAppGamePolicyReadinessKind, DisplayText>>;
 
 export type AppGamePolicyReadinessPanelDetail = {
@@ -133,8 +139,12 @@ function readModelSummary(
     detail(PortalDetails.ApprovalActionResultRows, countText(readModel.approvalActionResultRowCount)),
     detail(PortalDetails.PlatformAuthorityRows, countText(readModel.platformAuthorityRowCount)),
     detail(PortalDetails.AiClassifierRows, countText(readModel.aiClassifierResultRowCount)),
+    detail(PortalDetails.CategoryCandidateRows, countText(readModel.categoryCandidateRowCount)),
+    detail(PortalDetails.UnknownReviewRows, countText(readModel.unknownReviewRowCount)),
     detail(PortalDetails.PolicyEvaluation, readinessBoolean(readModel.policyEvaluationReady)),
+    detail(PortalDetails.CategoryRouting, readinessBoolean(readModel.categoryRoutingReady)),
     detail(PortalDetails.ManualReview, manualReviewValue(readModel.manualReviewRequired)),
+    detail(PortalDetails.UnknownReview, manualReviewValue(readModel.unknownReviewRequired)),
     detail(PortalDetails.AdapterDispatch, Readable.NotClaimed),
     detail(PortalDetails.ProductClaim, productClaim),
   ];

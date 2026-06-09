@@ -30,11 +30,15 @@ const DispatchPreflightLabels = {
 } as const;
 
 const ProductClaim = decodeDisplayText(
-  'Adapter dispatch preflight only marks the scoped Windows owned-process app/game timer row as dispatch eligible. Adapter execution, broad installed-app blocking, platform enforcement, provider delivery, child delivery, and private diagnostics remain unclaimed.'
+  'Adapter dispatch preflight only marks the scoped Windows owned-process app/game timer row as dispatch eligible. Android and Linux host capability refs remain visibility-only and do not make dispatch eligible. Adapter execution, broad installed-app blocking, platform enforcement, provider delivery, child delivery, and private diagnostics remain unclaimed.'
 );
 const AuditReferences = decodeDisplayText('Audit references');
 const DispatchOutcome = decodeDisplayText('Dispatch outcome');
 const DispatchIntent = decodeDisplayText('Dispatch intent');
+const HostAvailableRows = decodeDisplayText('Host available rows');
+const HostNotDetectedRows = decodeDisplayText('Host not-detected rows');
+const HostNotApplicableRows = decodeDisplayText('Host not-applicable rows');
+const HostProbeRefs = decodeDisplayText('Host probe refs');
 const TimerReferences = decodeDisplayText('Timer references');
 
 export type AppGameAdapterDispatchPreflightPanelDetail = {
@@ -121,6 +125,10 @@ function readModelSummary(
     detail(PortalDetails.ManualReview, countText(readModel.blockedBeforeDispatchCount)),
     detail(PortalDetails.AdapterDispatch, claimedValue(readModel.adapterDispatchEligibleCount > 0)),
     detail(PortalDetails.ExecutionState, claimedValue(readModel.adapterDispatchExecutedClaimedCount > 0)),
+    detail(HostAvailableRows, countText(readModel.hostCapabilityAvailableCount)),
+    detail(HostNotDetectedRows, countText(readModel.hostCapabilityNotDetectedCount)),
+    detail(HostNotApplicableRows, countText(readModel.hostCapabilityNotApplicableCount)),
+    detail(HostProbeRefs, countText(readModel.hostCapabilityProbeRefCount)),
     detail(PortalDetails.PlatformState, claimedValue(readModel.platformEnforcementClaimed)),
     detail(PortalDetails.ChildDelivery, claimedValue(readModel.childDeviceDeliveryClaimed)),
     detail(PortalDetails.ProductClaim, ProductClaim),
@@ -139,6 +147,9 @@ function dispatchPreflightRow(row: AgentAppGameAdapterDispatchPreflightRow): App
       detail(DispatchIntent, optionalText(row.dispatchIntentId)),
       detail(DispatchOutcome, outcomeLabel(row.dispatchOutcomeState)),
       detail(PortalDetails.EvidenceReferences, joinedOrNotReported(row.dispatchEvidenceRefs)),
+      detail(PortalDetails.HostCapabilityState, displayText(row.hostCapabilityState)),
+      detail(PortalDetails.HostCapabilityEvidence, joinedOrNotReported(row.hostCapabilityEvidenceRefs)),
+      detail(PortalDetails.HostCapabilityProbe, joinedOrNotReported(row.hostCapabilityProbeRefs)),
       detail(AuditReferences, joinedOrNotReported(row.dispatchAuditRefs)),
       detail(TimerReferences, joinedOrNotReported(row.dispatchTimerRefs)),
       detail(PortalDetails.ManualReview, joinedOrNotReported(row.manualProofRequirements)),

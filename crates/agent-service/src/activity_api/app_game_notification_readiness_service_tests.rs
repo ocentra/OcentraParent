@@ -1,4 +1,4 @@
-use std::fs::remove_file;
+use std::fs::{remove_file, write};
 
 use ocentra_parent_agent_core::ActivityStore;
 use ocentra_parent_agent_protocol::{
@@ -90,6 +90,35 @@ async fn app_game_notification_readiness_command_reports_service_backed_intent_r
         read_model.rows[1].readiness_state,
         APP_GAME_NOTIFICATION_READINESS_STATE_MANUAL_REQUIRED
     );
+}
+
+#[tokio::test]
+async fn app_game_notification_readiness_command_reports_persisted_local_outbox_runtime() {
+    let _guard = REPORT_ENV_LOCK.lock().await;
+    let store_path = temp_path("app-game-notification-readiness-outbox");
+    cleanup_path(&store_path);
+    std::env::set_var(constants::env_var::ACTIVITY_DB_PATH, &store_path);
+
+    let store = ActivityStore::open(&store_path).expect(constants::error::ACTIVITY_STORE_OPENS);
+    store
+        .ingest_events(&[evidence_claim_activity_event()])
+        .expect(constants::error::ACTIVITY_STORE_INGESTS);
+    write_setup_outbox_record(&store_path);
+
+    let body =
+        serde_json::to_string(&command_envelope()).expect(constants::error::AGENT_EVENT_SERIALIZES);
+    let event = handle_command_text_for_test(&body, LanPairingRuntime::empty(), None).await;
+    let read_model = notification_readiness_payload(
+        &event.payload[constants::field::APP_GAME_NOTIFICATION_READINESS_READ_MODEL],
+    );
+
+    std::env::remove_var(constants::env_var::ACTIVITY_DB_PATH);
+    cleanup_path(&store_path);
+
+    assert!(read_model.local_outbox_runtime_claimed);
+    assert!(!read_model.provider_delivery_claimed);
+    assert!(!read_model.provider_receipt_ingestion_claimed);
+    assert!(!read_model.child_delivery_claimed);
 }
 
 fn command_envelope() -> AgentCommandEnvelope {
@@ -219,10 +248,24 @@ fn temp_path(suffix: &str) -> std::path::PathBuf {
 
 fn cleanup_path(path: &std::path::PathBuf) {
     let _ = remove_file(path);
+    let _ = remove_file(path.with_extension(
+        constants::value::APP_GAME_PARENT_PREFERENCE_SETUP_DURABLE_OUTBOX_FILE_EXTENSION,
+    ));
     let mut wal_path = path.clone();
     wal_path.set_extension(constants::activity_store::WAL_FILE_EXTENSION);
     let _ = remove_file(wal_path);
     let mut shm_path = path.clone();
     shm_path.set_extension(constants::activity_store::SHM_FILE_EXTENSION);
     let _ = remove_file(shm_path);
+}
+
+fn write_setup_outbox_record(path: &std::path::PathBuf) {
+    let outbox_path = path.with_extension(
+        constants::value::APP_GAME_PARENT_PREFERENCE_SETUP_DURABLE_OUTBOX_FILE_EXTENSION,
+    );
+    write(
+        outbox_path,
+        "{\"recordId\":\"app-game-test-local-outbox-record\"}\n",
+    )
+    .expect(constants::error::ACTIVITY_STORE_OPENS);
 }

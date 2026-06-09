@@ -29,8 +29,12 @@ const AdapterReadinessLabels = {
 } as const;
 
 const ProductClaim = decodeDisplayText(
-  'Adapter execution is surfaced only for the scoped Windows owned-process app/game timer boundary. Broad installed-app blocking, platform enforcement, provider delivery, child delivery, and private diagnostics remain unclaimed.'
+  'Adapter execution is surfaced only for the scoped Windows owned-process app/game timer boundary. Android and Linux host capability refs show local toolchain visibility only. Broad installed-app blocking, platform enforcement, provider delivery, child delivery, and private diagnostics remain unclaimed.'
 );
+const HostAvailableRows = decodeDisplayText('Host available rows');
+const HostNotDetectedRows = decodeDisplayText('Host not-detected rows');
+const HostNotApplicableRows = decodeDisplayText('Host not-applicable rows');
+const HostProbeRefs = decodeDisplayText('Host probe refs');
 const ProofReferences = decodeDisplayText('Proof references');
 
 export type AppGameAdapterExecutionReadinessPanelDetail = {
@@ -116,6 +120,10 @@ function readModelSummary(
     detail(PortalDetails.ReadModelRows, countText(readModel.executionAllowedCount)),
     detail(PortalDetails.ManualReview, countText(readModel.blockedBeforeExecutionCount)),
     detail(PortalDetails.AdapterDispatch, claimedValue(readModel.adapterExecutionClaimedCount > 0)),
+    detail(HostAvailableRows, countText(readModel.hostCapabilityAvailableCount)),
+    detail(HostNotDetectedRows, countText(readModel.hostCapabilityNotDetectedCount)),
+    detail(HostNotApplicableRows, countText(readModel.hostCapabilityNotApplicableCount)),
+    detail(HostProbeRefs, countText(readModel.hostCapabilityProbeRefCount)),
     detail(PortalDetails.PlatformState, claimedValue(readModel.platformEnforcementClaimed)),
     detail(PortalDetails.ChildDelivery, claimedValue(readModel.childDeviceDeliveryClaimed)),
     detail(PortalDetails.ProductClaim, ProductClaim),
@@ -132,6 +140,9 @@ function adapterReadinessRow(row: AgentAppGameAdapterExecutionReadinessRow): App
       detail(PortalDetails.AdapterBoundary, displayText(row.runtimeBoundary)),
       detail(PortalDetails.PreviewStatus, decisionLabel(row.executionDecision)),
       detail(PortalDetails.EvidenceReferences, joinedOrNotReported(row.evidenceRefs)),
+      detail(PortalDetails.HostCapabilityState, displayText(row.hostCapabilityState)),
+      detail(PortalDetails.HostCapabilityEvidence, joinedOrNotReported(row.hostCapabilityEvidenceRefs)),
+      detail(PortalDetails.HostCapabilityProbe, joinedOrNotReported(row.hostCapabilityProbeRefs)),
       detail(ProofReferences, joinedOrNotReported(row.linkedProofArtifacts)),
       detail(PortalDetails.ManualReview, joinedOrNotReported(row.manualProofRequirements)),
       detail(PortalDetails.AdapterDispatch, claimedValue(row.adapterExecutionClaimed)),

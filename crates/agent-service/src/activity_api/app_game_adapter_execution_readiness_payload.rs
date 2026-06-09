@@ -9,12 +9,14 @@ use ocentra_parent_agent_protocol::{
     APP_GAME_ADAPTER_EXECUTION_READINESS_STATUS_PARTIAL, APP_GAME_ADAPTER_EXECUTION_ROW_ID_PREFIX,
     APP_GAME_ADAPTER_EXECUTION_STATE_DEGRADED, APP_GAME_ADAPTER_EXECUTION_STATE_MANUAL_REQUIRED,
     APP_GAME_ADAPTER_EXECUTION_STATE_PROVED_SCOPED, APP_GAME_ADAPTER_EXECUTION_STATE_UNAVAILABLE,
-    APP_GAME_ADAPTER_EXECUTION_STATE_UNSUPPORTED, APP_GAME_ADAPTER_PRODUCT_NATIVE_APP,
-    APP_GAME_ADAPTER_PRODUCT_NATIVE_GAME, APP_GAME_PARENT_PLATFORM_ANDROID,
-    APP_GAME_PARENT_PLATFORM_IOS, APP_GAME_PARENT_PLATFORM_LINUX, APP_GAME_PARENT_PLATFORM_MACOS,
-    APP_GAME_PARENT_PLATFORM_WINDOWS, APP_GAME_SCHEMA_VERSION,
+    APP_GAME_ADAPTER_EXECUTION_STATE_UNSUPPORTED, APP_GAME_ADAPTER_HOST_CAPABILITY_AVAILABLE,
+    APP_GAME_ADAPTER_HOST_CAPABILITY_NOT_APPLICABLE, APP_GAME_ADAPTER_HOST_CAPABILITY_NOT_DETECTED,
+    APP_GAME_ADAPTER_PRODUCT_NATIVE_APP, APP_GAME_ADAPTER_PRODUCT_NATIVE_GAME,
+    APP_GAME_PARENT_PLATFORM_ANDROID, APP_GAME_PARENT_PLATFORM_IOS, APP_GAME_PARENT_PLATFORM_LINUX,
+    APP_GAME_PARENT_PLATFORM_MACOS, APP_GAME_PARENT_PLATFORM_WINDOWS, APP_GAME_SCHEMA_VERSION,
 };
 
+use super::app_game_adapter_host_capabilities::HostCapabilitySignals;
 use crate::{event_builder::build_event, fields::fields_from_pairs, time::timestamp_now};
 
 pub async fn build_activity_app_game_adapter_execution_readiness_report(
@@ -36,16 +38,16 @@ pub async fn build_activity_app_game_adapter_execution_readiness_report(
 pub fn app_game_adapter_execution_readiness_read_model(
     generated_at: &str,
 ) -> AppGameAdapterExecutionReadinessReadModel {
-    let rows = adapter_execution_rows(generated_at);
+    let host_capabilities = HostCapabilitySignals::detect();
+    let rows = adapter_execution_rows(generated_at, &host_capabilities);
     let returned = rows.len() as u64;
-    let execution_allowed_count =
-        count_decision(&rows, APP_GAME_ADAPTER_EXECUTION_DECISION_ALLOWED);
-    let blocked_before_execution_count =
-        count_decision(&rows, APP_GAME_ADAPTER_EXECUTION_DECISION_BLOCKED);
-    let adapter_execution_claimed_count = rows
-        .iter()
-        .filter(|row| row.adapter_execution_claimed)
-        .count() as u64;
+    let execution_allowed_count = count_rows(&rows, |row| {
+        row.execution_decision == APP_GAME_ADAPTER_EXECUTION_DECISION_ALLOWED
+    });
+    let blocked_before_execution_count = count_rows(&rows, |row| {
+        row.execution_decision == APP_GAME_ADAPTER_EXECUTION_DECISION_BLOCKED
+    });
+    let adapter_execution_claimed_count = count_rows(&rows, |row| row.adapter_execution_claimed);
 
     AppGameAdapterExecutionReadinessReadModel {
         schema_version: APP_GAME_SCHEMA_VERSION,
@@ -59,6 +61,19 @@ pub fn app_game_adapter_execution_readiness_read_model(
         execution_allowed_count,
         blocked_before_execution_count,
         adapter_execution_claimed_count,
+        host_capability_available_count: count_rows(&rows, |row| {
+            row.host_capability_state == APP_GAME_ADAPTER_HOST_CAPABILITY_AVAILABLE
+        }),
+        host_capability_not_detected_count: count_rows(&rows, |row| {
+            row.host_capability_state == APP_GAME_ADAPTER_HOST_CAPABILITY_NOT_DETECTED
+        }),
+        host_capability_not_applicable_count: count_rows(&rows, |row| {
+            row.host_capability_state == APP_GAME_ADAPTER_HOST_CAPABILITY_NOT_APPLICABLE
+        }),
+        host_capability_probe_ref_count: rows
+            .iter()
+            .map(|row| row.host_capability_probe_refs.len() as u64)
+            .sum(),
         broad_installed_app_blocking_claimed: false,
         child_device_delivery_claimed: false,
         platform_enforcement_claimed: false,
@@ -108,24 +123,30 @@ struct AdapterReadinessSpec {
     rollback_reference_state: &'static str,
     audit_reference_state: &'static str,
     evidence_refs: &'static [&'static str],
+    host_capability_state: &'static str,
+    host_capability_evidence_refs: Vec<&'static str>,
+    host_capability_probe_refs: Vec<&'static str>,
     linked_proof_artifacts: &'static [&'static str],
     manual_proof_requirements: &'static [&'static str],
     claim_boundary: &'static str,
     fallback_behavior: &'static str,
 }
 
-fn adapter_execution_rows(generated_at: &str) -> Vec<AppGameAdapterExecutionReadinessRow> {
-    adapter_readiness_specs()
+fn adapter_execution_rows(
+    generated_at: &str,
+    host_capabilities: &HostCapabilitySignals,
+) -> Vec<AppGameAdapterExecutionReadinessRow> {
+    adapter_readiness_specs(host_capabilities)
         .iter()
         .map(|spec| row_from_spec(spec, generated_at))
         .collect()
 }
 
-fn adapter_readiness_specs() -> Vec<AdapterReadinessSpec> {
+fn adapter_readiness_specs(host_capabilities: &HostCapabilitySignals) -> Vec<AdapterReadinessSpec> {
     let mut specs = vec![scoped_timer_spec()];
     specs.extend(windows_blocked_specs());
-    specs.extend(desktop_blocked_specs());
-    specs.extend(mobile_blocked_specs());
+    specs.extend(desktop_blocked_specs(host_capabilities));
+    specs.extend(mobile_blocked_specs(host_capabilities));
     specs
 }
 
@@ -145,6 +166,9 @@ fn scoped_timer_spec() -> AdapterReadinessSpec {
             proof::REF_OWNED_PROCESS_IDENTITY,
             proof::REF_TIMER_STATE,
         ],
+        host_capability_state: APP_GAME_ADAPTER_HOST_CAPABILITY_AVAILABLE,
+        host_capability_evidence_refs: vec![proof::REF_ADAPTER_CAPABILITY_STATE],
+        host_capability_probe_refs: vec![proof::REF_WINDOWS_HOST_LOCAL_PROBE],
         linked_proof_artifacts: &[
             proof::ARTIFACT_APP_TIME_LIMIT_PROOF,
             proof::ARTIFACT_ENFORCEMENT_TIMER_STATE,
@@ -167,27 +191,55 @@ fn windows_blocked_specs() -> [AdapterReadinessSpec; 3] {
             proof::CLAIM_BROAD_APP_MANUAL,
             proof::FALLBACK_BROAD_APP_MANUAL,
         ),
-        blocked_spec(
-            proof::ENTRY_ID_BROAD_APP_ARTIFACT_STATUS,
-            proof::CAPABILITY_BROAD_APP_ARTIFACT_STATUS,
-            &[
-                proof::REQUIREMENT_SAME_IDENTITY_APP_PACKAGE_EVIDENCE,
-                proof::REQUIREMENT_ADAPTER_APPLY_RESULT,
-                proof::REQUIREMENT_MANUAL_REVIEW_AFTER_ARTIFACT_GATE,
-            ],
-            proof::CLAIM_BROAD_APP_ARTIFACT_STATUS,
-            proof::FALLBACK_BROAD_APP_ARTIFACT_STATUS,
-        ),
+        broad_app_artifact_status_spec(),
         permission_degraded_spec(),
     ]
 }
 
-fn desktop_blocked_specs() -> [AdapterReadinessSpec; 2] {
+fn broad_app_artifact_status_spec() -> AdapterReadinessSpec {
+    AdapterReadinessSpec {
+        proof_entry_id: proof::ENTRY_ID_BROAD_APP_ARTIFACT_STATUS,
+        platform: APP_GAME_PARENT_PLATFORM_WINDOWS,
+        adapter_capability: proof::CAPABILITY_BROAD_APP_ARTIFACT_STATUS,
+        adapter_execution_state: APP_GAME_ADAPTER_EXECUTION_STATE_MANUAL_REQUIRED,
+        execution_decision: APP_GAME_ADAPTER_EXECUTION_DECISION_BLOCKED,
+        runtime_boundary: proof::ENTRY_ID_BROAD_APP_ARTIFACT_STATUS,
+        target_identity_state: proof::TARGET_INSUFFICIENT_BROAD,
+        rollback_reference_state: proof::ROLLBACK_MANUAL_REQUIRED,
+        audit_reference_state: proof::AUDIT_MANUAL_REQUIRED,
+        evidence_refs: &[
+            proof::REF_WINDOWS_ADAPTER_ARTIFACT_GATE,
+            proof::REF_WINDOWS_ADAPTER_ARTIFACT_INGESTION,
+        ],
+        host_capability_state: APP_GAME_ADAPTER_HOST_CAPABILITY_AVAILABLE,
+        host_capability_evidence_refs: vec![proof::REF_ADAPTER_CAPABILITY_STATE],
+        host_capability_probe_refs: vec![proof::REF_WINDOWS_HOST_LOCAL_PROBE],
+        linked_proof_artifacts: &[
+            proof::ARTIFACT_WINDOWS_ADAPTER_CAPABILITY_PROOF,
+            proof::ARTIFACT_WINDOWS_ADAPTER_ARTIFACT_GATE,
+            proof::ARTIFACT_WINDOWS_ADAPTER_ARTIFACT_INGESTION_PROOF,
+        ],
+        manual_proof_requirements: &[
+            proof::REQUIREMENT_SAME_IDENTITY_APP_PACKAGE_EVIDENCE,
+            proof::REQUIREMENT_ADAPTER_APPLY_RESULT,
+            proof::REQUIREMENT_ADAPTER_ROLLBACK_RESULT,
+            proof::REQUIREMENT_AUDIT_CUSTODY_EVENT,
+            proof::REQUIREMENT_MANUAL_REVIEW_AFTER_ARTIFACT_GATE,
+        ],
+        claim_boundary: proof::CLAIM_BROAD_APP_ARTIFACT_STATUS,
+        fallback_behavior: proof::FALLBACK_BROAD_APP_ARTIFACT_STATUS,
+    }
+}
+
+fn desktop_blocked_specs(host_capabilities: &HostCapabilitySignals) -> [AdapterReadinessSpec; 2] {
     [
         platform_unavailable_spec(
             proof::ENTRY_ID_LINUX_UNAVAILABLE,
             APP_GAME_PARENT_PLATFORM_LINUX,
             APP_GAME_ADAPTER_EXECUTION_STATE_UNAVAILABLE,
+            host_capabilities.linux_state(),
+            host_capabilities.linux_evidence_refs(),
+            host_capabilities.linux_probe_refs(),
             &[
                 proof::REQUIREMENT_LINUX_SERVICE,
                 proof::REQUIREMENT_LINUX_PERMISSION,
@@ -199,6 +251,9 @@ fn desktop_blocked_specs() -> [AdapterReadinessSpec; 2] {
             proof::ENTRY_ID_MACOS_UNSUPPORTED,
             APP_GAME_PARENT_PLATFORM_MACOS,
             APP_GAME_ADAPTER_EXECUTION_STATE_UNSUPPORTED,
+            APP_GAME_ADAPTER_HOST_CAPABILITY_NOT_APPLICABLE,
+            Vec::new(),
+            Vec::new(),
             &[
                 proof::REQUIREMENT_MACOS_PERMISSION,
                 proof::REQUIREMENT_MACOS_PACKAGE_IDENTITY,
@@ -209,11 +264,14 @@ fn desktop_blocked_specs() -> [AdapterReadinessSpec; 2] {
     ]
 }
 
-fn mobile_blocked_specs() -> [AdapterReadinessSpec; 2] {
+fn mobile_blocked_specs(host_capabilities: &HostCapabilitySignals) -> [AdapterReadinessSpec; 2] {
     [
         mobile_manual_spec(
             proof::ENTRY_ID_ANDROID_MANUAL,
             APP_GAME_PARENT_PLATFORM_ANDROID,
+            host_capabilities.android_state(),
+            host_capabilities.android_evidence_refs(),
+            host_capabilities.android_probe_refs(),
             &[
                 proof::REQUIREMENT_ANDROID_DEVICE_OWNER,
                 proof::REQUIREMENT_ANDROID_USAGE_STATS,
@@ -222,6 +280,9 @@ fn mobile_blocked_specs() -> [AdapterReadinessSpec; 2] {
         mobile_manual_spec(
             proof::ENTRY_ID_IOS_MANUAL,
             APP_GAME_PARENT_PLATFORM_IOS,
+            APP_GAME_ADAPTER_HOST_CAPABILITY_NOT_APPLICABLE,
+            Vec::new(),
+            Vec::new(),
             &[
                 proof::REQUIREMENT_IOS_FAMILY_CONTROLS,
                 proof::REQUIREMENT_IOS_DEVICE_ACTIVITY,
@@ -248,6 +309,9 @@ fn blocked_spec(
         rollback_reference_state: proof::ROLLBACK_MANUAL_REQUIRED,
         audit_reference_state: proof::AUDIT_MANUAL_REQUIRED,
         evidence_refs: &[],
+        host_capability_state: "",
+        host_capability_evidence_refs: vec![proof::REF_ADAPTER_CAPABILITY_STATE],
+        host_capability_probe_refs: vec![proof::REF_WINDOWS_HOST_LOCAL_PROBE],
         linked_proof_artifacts: &[],
         manual_proof_requirements,
         claim_boundary,
@@ -267,6 +331,9 @@ fn permission_degraded_spec() -> AdapterReadinessSpec {
         rollback_reference_state: proof::ROLLBACK_UNAVAILABLE,
         audit_reference_state: proof::AUDIT_UNAVAILABLE,
         evidence_refs: &[proof::REF_ADAPTER_CAPABILITY_STATE],
+        host_capability_state: APP_GAME_ADAPTER_HOST_CAPABILITY_AVAILABLE,
+        host_capability_evidence_refs: vec![proof::REF_ADAPTER_CAPABILITY_STATE],
+        host_capability_probe_refs: vec![proof::REF_WINDOWS_HOST_LOCAL_PROBE],
         linked_proof_artifacts: &[proof::ARTIFACT_WINDOWS_ADAPTER_CAPABILITY_PROOF],
         manual_proof_requirements: &[proof::REQUIREMENT_PERMISSION_RESTORE],
         claim_boundary: proof::CLAIM_PERMISSION_DEGRADED,
@@ -278,6 +345,9 @@ fn platform_unavailable_spec(
     proof_entry_id: &'static str,
     platform: &'static str,
     adapter_execution_state: &'static str,
+    host_capability_state: &'static str,
+    host_capability_evidence_refs: Vec<&'static str>,
+    host_capability_probe_refs: Vec<&'static str>,
     manual_proof_requirements: &'static [&'static str],
     claim_boundary: &'static str,
     fallback_behavior: &'static str,
@@ -293,6 +363,9 @@ fn platform_unavailable_spec(
         rollback_reference_state: proof::ROLLBACK_UNAVAILABLE,
         audit_reference_state: proof::AUDIT_UNAVAILABLE,
         evidence_refs: &[],
+        host_capability_state,
+        host_capability_evidence_refs,
+        host_capability_probe_refs,
         linked_proof_artifacts: &[],
         manual_proof_requirements,
         claim_boundary,
@@ -303,6 +376,9 @@ fn platform_unavailable_spec(
 fn mobile_manual_spec(
     proof_entry_id: &'static str,
     platform: &'static str,
+    host_capability_state: &'static str,
+    host_capability_evidence_refs: Vec<&'static str>,
+    host_capability_probe_refs: Vec<&'static str>,
     manual_proof_requirements: &'static [&'static str],
 ) -> AdapterReadinessSpec {
     AdapterReadinessSpec {
@@ -316,6 +392,9 @@ fn mobile_manual_spec(
         rollback_reference_state: proof::ROLLBACK_MANUAL_REQUIRED,
         audit_reference_state: proof::AUDIT_MANUAL_REQUIRED,
         evidence_refs: &[],
+        host_capability_state,
+        host_capability_evidence_refs,
+        host_capability_probe_refs,
         linked_proof_artifacts: &[],
         manual_proof_requirements,
         claim_boundary: proof::CLAIM_MOBILE_MANUAL,
@@ -347,6 +426,9 @@ fn row_from_spec(
         rollback_reference_state: spec.rollback_reference_state.to_string(),
         audit_reference_state: spec.audit_reference_state.to_string(),
         evidence_refs: strings(spec.evidence_refs),
+        host_capability_state: host_capability_state(spec).to_string(),
+        host_capability_evidence_refs: strings(&spec.host_capability_evidence_refs),
+        host_capability_probe_refs: strings(&spec.host_capability_probe_refs),
         linked_proof_artifacts: strings(spec.linked_proof_artifacts),
         manual_proof_requirements: strings(spec.manual_proof_requirements),
         claim_boundary: spec.claim_boundary.to_string(),
@@ -362,10 +444,18 @@ fn row_from_spec(
     }
 }
 
-fn count_decision(rows: &[AppGameAdapterExecutionReadinessRow], decision: &str) -> u64 {
-    rows.iter()
-        .filter(|row| row.execution_decision == decision)
-        .count() as u64
+fn host_capability_state(spec: &AdapterReadinessSpec) -> &'static str {
+    if spec.host_capability_state.is_empty() && spec.platform == APP_GAME_PARENT_PLATFORM_WINDOWS {
+        return APP_GAME_ADAPTER_HOST_CAPABILITY_AVAILABLE;
+    }
+    spec.host_capability_state
+}
+
+fn count_rows(
+    rows: &[AppGameAdapterExecutionReadinessRow],
+    predicate: impl Fn(&AppGameAdapterExecutionReadinessRow) -> bool,
+) -> u64 {
+    rows.iter().filter(|row| predicate(row)).count() as u64
 }
 
 fn strings(values: &[&str]) -> Vec<String> {

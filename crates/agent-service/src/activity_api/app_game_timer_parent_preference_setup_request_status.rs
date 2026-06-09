@@ -50,9 +50,9 @@ fn apply_persisted_child_runtime_receipt_statuses(
             .to_string();
     result.child_runtime_delivery_receipt_pending_claimed = true;
     result.child_runtime_delivery_receipt_ingested_status =
-        constants::value::APP_GAME_PARENT_PREFERENCE_SETUP_CHILD_RUNTIME_DELIVERY_RECEIPT_INGESTED
+        constants::value::APP_GAME_PARENT_PREFERENCE_SETUP_CHILD_RUNTIME_DELIVERY_RECEIPT_PENDING
             .to_string();
-    result.child_runtime_delivery_receipt_ingested_claimed = true;
+    result.child_runtime_delivery_receipt_ingested_claimed = false;
 }
 
 fn apply_persisted_provider_statuses(result: &mut AppGameTimerParentPreferenceSetupRequestResult) {
@@ -91,7 +91,7 @@ fn apply_persisted_provider_delivery_statuses(
             .to_string();
     result.provider_delivery_receipt_pending_claimed = true;
     result.provider_delivery_receipt_ingested_status =
-        constants::value::APP_GAME_PARENT_PREFERENCE_SETUP_PROVIDER_DELIVERY_RECEIPT_INGESTED
+        constants::value::APP_GAME_PARENT_PREFERENCE_SETUP_PROVIDER_DELIVERY_RECEIPT_PENDING
             .to_string();
-    result.provider_delivery_receipt_ingested_claimed = true;
+    result.provider_delivery_receipt_ingested_claimed = false;
 }

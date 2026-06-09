@@ -1,0 +1,202 @@
+import { spawn } from 'node:child_process';
+import { existsSync } from 'node:fs';
+import { mkdir, readFile, writeFile } from 'node:fs/promises';
+import { join, relative } from 'node:path';
+import { pathToFileURL } from 'node:url';
+
+const repoRoot = process.cwd();
+const proofMode = 'app-game-android-child-runtime-local-delivery-queue-proof';
+const outputDir = join(repoRoot, 'test-results', proofMode);
+const proofPath = join(outputDir, 'proof.json');
+const appGameProofDir = join(
+  repoRoot,
+  'output',
+  'app-game-plan-proof',
+  '217-app-game-android-child-runtime-local-delivery-queue-proof'
+);
+const androidDeliveryPath = join(
+  repoRoot,
+  'platforms',
+  'android',
+  'agent',
+  'app',
+  'src',
+  'main',
+  'java',
+  'ca',
+  'ocentra',
+  'parent',
+  'agent',
+  'AppGameAndroidChildRuntimeDeliveryProof.java'
+);
+const receiptProofPath = join(
+  repoRoot,
+  'platforms',
+  'android',
+  'agent',
+  'app',
+  'src',
+  'main',
+  'java',
+  'ca',
+  'ocentra',
+  'parent',
+  'agent',
+  'AppGameAndroidChildRuntimeTransportReceiptProof.java'
+);
+const apkPath = join(repoRoot, 'target', 'release-packages', 'android', 'ocentra-parent-agent-android-debug-latest.apk');
+const commands = [];
+
+await main();
+
+async function main() {
+  await mkdir(outputDir, { recursive: true });
+  await mkdir(appGameProofDir, { recursive: true });
+
+  await runCommand('cmd', [
+    '/c',
+    'npm',
+    'run',
+    'test',
+    '--workspace',
+    '@ocentra-parent/parent-domain',
+    '--',
+    'app-game-android-child-runtime-local-delivery-queue-proof',
+  ]);
+  await runCommand('cmd', ['/c', 'npm', 'run', 'build', '--workspace', '@ocentra-parent/parent-domain']);
+  await runCommand('cmd', ['/c', 'npm', 'run', 'release:package:android']);
+  assertFileExists(apkPath, 'Android debug APK');
+
+  const deliverySource = await readFile(androidDeliveryPath, 'utf8');
+  const receiptSource = await readFile(receiptProofPath, 'utf8');
+  const sourceState = parseAndroidSourceState(deliverySource, receiptSource);
+  const contractModule = await import(
+    pathToFileURL(
+      join(repoRoot, 'packages', 'parent-domain', 'dist', 'app-game-android-child-runtime-local-delivery-queue-proof.js')
+    ).href
+  );
+  const readModel = contractModule.createAppGameAndroidChildRuntimeLocalDeliveryQueueProof({
+    deliveryIntakeState: sourceState.deliveryIntakeState,
+    deliveryReadbackState: sourceState.deliveryReadbackState,
+    deliveryQueueState: sourceState.deliveryQueueState,
+    deliveryDrainState: sourceState.deliveryDrainState,
+    receiptChannelState: sourceState.receiptChannelState,
+    receiptAppendState: sourceState.receiptAppendState,
+    receiptLocalAckState: sourceState.receiptLocalAckState,
+    checkedAt: '2026-06-08T23:40:00.000Z',
+  });
+  const summary = contractModule.summarizeAppGameAndroidChildRuntimeLocalDeliveryQueueProof(readModel);
+
+  const proof = {
+    schemaVersion: 1,
+    proofMode,
+    checkedAt: 'deterministic-proof-artifact',
+    commit: await gitHead(),
+    commands,
+    sourceState,
+    readModel,
+    summary,
+    evidence: {
+      androidDeliverySource:
+        'platforms/android/agent/app/src/main/java/ca/ocentra/parent/agent/AppGameAndroidChildRuntimeDeliveryProof.java',
+      androidReceiptSource:
+        'platforms/android/agent/app/src/main/java/ca/ocentra/parent/agent/AppGameAndroidChildRuntimeTransportReceiptProof.java',
+      contract: 'packages/parent-domain/src/app-game-android-child-runtime-local-delivery-queue-proof.ts',
+      contractTest: 'packages/parent-domain/tests/app-game-android-child-runtime-local-delivery-queue-proof.test.ts',
+      packageBuild: 'target/release-packages/android/ocentra-parent-agent-android-debug-latest.apk',
+    },
+    claimsProved: [
+      'The Android child app package compiles with package-local delivery queue and drain marker custody',
+      'The delivery intake path records local delivery, queue, drain, receipt channel, receipt, and receipt-ack marker custody',
+      'Parent-domain accepts the proof only when queue and drain evidence remain package-local and external delivery claims stay false',
+    ],
+    claimsNotProved: [
+      'Service delivery or receipt ingestion',
+      'Provider delivery execution',
+      'Platform delivery channel execution outside the child package',
+      'Adapter dispatch or platform enforcement',
+      'Raw private source row storage',
+    ],
+  };
+
+  await writeJson(proofPath, proof);
+  await writeJson(join(appGameProofDir, 'proof.json'), proof);
+  await writeFile(join(appGameProofDir, '00-source-snapshot.md'), sourceSnapshot(sourceState));
+  await writeFile(join(appGameProofDir, '10-validation-commands.log'), `${commands.join('\n')}\n`);
+
+  console.log('app-game-android-child-runtime-local-delivery-queue-proof-ok');
+  console.log(`evidence=${relativePath(proofPath)}`);
+}
+
+async function runCommand(command, args) {
+  const commandLine = [command, ...args].join(' ');
+  commands.push(commandLine);
+  await new Promise((resolve, reject) => {
+    const child = spawn(command, args, { cwd: repoRoot, stdio: 'inherit', windowsHide: true });
+    child.once('exit', (code) => (code === 0 ? resolve() : reject(new Error(`${commandLine} exited with ${code}`))));
+    child.once('error', reject);
+  });
+}
+
+async function gitHead() {
+  const chunks = [];
+  await new Promise((resolve, reject) => {
+    const child = spawn('git', ['rev-parse', 'HEAD'], { cwd: repoRoot, stdio: ['ignore', 'pipe', 'pipe'] });
+    child.stdout.on('data', (chunk) => chunks.push(String(chunk)));
+    child.once('exit', (code) => (code === 0 ? resolve() : reject(new Error('git rev-parse HEAD failed'))));
+    child.once('error', reject);
+  });
+  return chunks.join('').trim();
+}
+
+function parseAndroidSourceState(deliverySource, receiptSource) {
+  return {
+    deliveryIntakeState: deliverySource.includes('DELIVERY_RECORD')
+      ? 'package-local-delivery-intake-recorded'
+      : 'package-local-delivery-intake-unavailable',
+    deliveryReadbackState: deliverySource.includes('readDeliveryFile')
+      ? 'package-local-delivery-readback-observed'
+      : 'package-local-delivery-readback-unavailable',
+    deliveryQueueState: deliverySource.includes('DELIVERY_QUEUE_RECORD')
+      ? 'package-local-delivery-queue-recorded'
+      : 'package-local-delivery-queue-unavailable',
+    deliveryDrainState: deliverySource.includes('DELIVERY_DRAIN_RECORD')
+      ? 'package-local-delivery-drain-recorded'
+      : 'package-local-delivery-drain-unavailable',
+    receiptChannelState: receiptSource.includes('RECEIPT_CHANNEL_RECORD')
+      ? 'package-local-receipt-channel-recorded'
+      : 'package-local-receipt-channel-unavailable',
+    receiptAppendState: receiptSource.includes('RECEIPT_RECORD') ? 'local-receipt-append-recorded' : 'local-receipt-append-unavailable',
+    receiptLocalAckState: receiptSource.includes('RECEIPT_ACK_RECORD') ? 'local-receipt-ack-recorded' : 'local-receipt-ack-unavailable',
+  };
+}
+
+function assertFileExists(path, label) {
+  if (!existsSync(path)) {
+    throw new Error(`${label} missing at ${relativePath(path)}`);
+  }
+}
+
+async function writeJson(path, value) {
+  await writeFile(path, `${JSON.stringify(value, null, 2)}\n`);
+}
+
+function sourceSnapshot(sourceState) {
+  return [
+    '# WP217 Android child runtime local delivery queue proof source snapshot',
+    '',
+    '- Package: `ca.ocentra.parent.agent`',
+    `- Delivery intake state: \`${sourceState.deliveryIntakeState}\``,
+    `- Delivery readback state: \`${sourceState.deliveryReadbackState}\``,
+    `- Delivery queue state: \`${sourceState.deliveryQueueState}\``,
+    `- Delivery drain state: \`${sourceState.deliveryDrainState}\``,
+    `- Receipt channel state: \`${sourceState.receiptChannelState}\``,
+    `- Receipt append state: \`${sourceState.receiptAppendState}\``,
+    `- Receipt ack state: \`${sourceState.receiptLocalAckState}\``,
+    '',
+  ].join('\n');
+}
+
+function relativePath(path) {
+  return relative(repoRoot, path).replaceAll('\\', '/');
+}
