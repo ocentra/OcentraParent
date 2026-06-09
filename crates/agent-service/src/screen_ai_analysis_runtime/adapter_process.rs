@@ -1,5 +1,6 @@
 use std::path::Path;
 
+#[cfg(any(windows, test))]
 use ocentra_parent_agent_protocol::constants;
 use tokio::process::Command;
 
