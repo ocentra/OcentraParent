@@ -33,6 +33,8 @@
     "hub:ack": "node scripts/dev/hub-mailbox.mjs ack",
     "hub:heartbeat": "node scripts/dev/hub-mailbox.mjs heartbeat",
     "hub:heartbeats": "node scripts/dev/hub-mailbox.mjs heartbeats",
+    "hub:lane-ledger:audit": "powershell -ExecutionPolicy Bypass -File scripts/hub/audit-lanes.ps1",
+    "hub:state:sync": "powershell -ExecutionPolicy Bypass -File scripts/hub/sync-codex-state.ps1",
     "hub:report": "node scripts/dev/hub-mailbox.mjs report",
     "hub:lock": "node scripts/dev/hub-mailbox.mjs lock",
     "hub:unlock": "node scripts/dev/hub-mailbox.mjs unlock",

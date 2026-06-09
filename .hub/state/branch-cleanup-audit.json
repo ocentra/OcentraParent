@@ -1,0 +1,108 @@
+{
+  "updatedAt": "2026-06-09T15:19:40.351Z",
+  "purpose": "Repo-owned final audit for Codex branch cleanup and two-PC lane portability.",
+  "safetyRule": "Archive every deleted ref before deletion; keep active lane and open PR branches; do not change main.",
+  "cleanupPerformed": {
+    "remoteExactMergedBranchArchiveTagsPushed": 281,
+    "remoteExactMergedBranchesDeleted": 281,
+    "localExactMergedBranchArchiveTagsPushed": 271,
+    "localExactMergedBranchesDeleted": 270,
+    "localOnlyArchiveTagsPushed": 57,
+    "localOnlyBranchesDeleted": 56,
+    "remoteManualReviewArchiveTagsPushed": 176,
+    "remoteManualReviewBranchesDeleted": 176,
+    "localManualReviewArchiveTagsPushed": 176,
+    "localManualReviewBranchesDeleted": 176,
+    "skippedCheckedOutLocalBranches": [
+      "codex/browser-child-intervention-page-ui"
+    ]
+  },
+  "archiveTagFamilies": {
+    "remoteExactMergedBranches": "archive/codex-branches/*",
+    "localExactMergedBranches": "archive/local-codex-branches/*",
+    "localOnlyBranches": "archive/local-only-branches/*",
+    "remoteManualReviewBranches": "archive/manual-review-branches/*",
+    "localManualReviewBranches": "archive/local-manual-review-branches/*"
+  },
+  "remaining": {
+    "remoteCodexBranchCount": 9,
+    "remoteCodexBranches": [
+      "origin/codex/app-game-control-product-completion",
+      "origin/codex/d-runtime-ready",
+      "origin/codex/e-b-app-install-dispatch-executor-receipt",
+      "origin/codex/e-c-production-support-public-surface-export-closure",
+      "origin/codex/network-live-capture-execution-proof",
+      "origin/codex/portal-theme-toggle-ui-polish",
+      "origin/codex/repo-owned-codex-hub-sync",
+      "origin/codex/screen-ai-full-scope-b",
+      "origin/codex/tracking-plan-full-continuation-a"
+    ],
+    "localCodexBranchCount": 10,
+    "localCodexBranches": [
+      "codex/app-game-control-product-completion",
+      "codex/browser-child-intervention-page-ui",
+      "codex/d-runtime-ready",
+      "codex/e-b-app-install-dispatch-executor-receipt",
+      "codex/e-c-production-support-public-surface-export-closure",
+      "codex/network-live-capture-execution-proof",
+      "codex/portal-theme-toggle-ui-polish",
+      "codex/repo-owned-codex-hub-sync",
+      "codex/screen-ai-full-scope-b",
+      "codex/tracking-plan-full-continuation-a"
+    ],
+    "localOnlyBranches": [
+      "codex/browser-child-intervention-page-ui"
+    ],
+    "openPullRequests": [
+      {
+        "headRefName": "codex/repo-owned-codex-hub-sync",
+        "isDraft": true,
+        "mergeStateStatus": "BLOCKED",
+        "number": 549,
+        "title": "Move Codex coordination state into repo",
+        "url": "https://github.com/ocentra/OcentraParent/pull/549"
+      },
+      {
+        "headRefName": "codex/network-live-capture-execution-proof",
+        "isDraft": false,
+        "mergeStateStatus": "BLOCKED",
+        "number": 546,
+        "title": "Network live capture execution proof",
+        "url": "https://github.com/ocentra/OcentraParent/pull/546"
+      },
+      {
+        "headRefName": "codex/screen-ai-full-scope-b",
+        "isDraft": false,
+        "mergeStateStatus": "BEHIND",
+        "number": 545,
+        "title": "Preserve screen AI full-scope branch",
+        "url": "https://github.com/ocentra/OcentraParent/pull/545"
+      },
+      {
+        "headRefName": "codex/d-runtime-ready",
+        "isDraft": false,
+        "mergeStateStatus": "BEHIND",
+        "number": 544,
+        "title": "Complete D browser runtime proof batch",
+        "url": "https://github.com/ocentra/OcentraParent/pull/544"
+      }
+    ]
+  },
+  "activeBranches": [
+    "codex/repo-owned-codex-hub-sync",
+    "codex/tracking-plan-full-continuation-a",
+    "codex/screen-ai-full-scope-b",
+    "codex/app-game-control-product-completion",
+    "codex/d-runtime-ready",
+    "codex/portal-theme-toggle-ui-polish",
+    "codex/e-b-app-install-dispatch-executor-receipt",
+    "codex/e-c-production-support-public-surface-export-closure",
+    "codex/network-live-capture-execution-proof"
+  ],
+  "notes": [
+    "Remote origin/codex branch surface was reduced from 466 to the 9 active/open branch refs.",
+    "The 176 manual-review remote branch refs were archived and deleted to remove branch/PR ambiguity while keeping recovery tags on GitHub.",
+    "codex/browser-child-intervention-page-ui remains as a local checked-out branch in an old review worktree; its head is preserved by archive/local-only-branches/codex/browser-child-intervention-page-ui.",
+    "Open PR sequencing remains paused except for this repo-owned hub migration work."
+  ]
+}
