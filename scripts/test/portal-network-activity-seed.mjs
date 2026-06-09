@@ -1,5 +1,11 @@
 import { DatabaseSync } from 'node:sqlite';
 
+export const PortalNetworkActivitySeed = Object.freeze({
+  EventId: 'network-ui-flow-1',
+  EvidenceId: 'network-ui-evidence-1',
+  JournalEvidenceId: 'network-ui-journal-1',
+});
+
 export function seedPortalNetworkActivityStore(activityDbPath) {
   const database = new DatabaseSync(activityDbPath);
   try {
@@ -43,7 +49,7 @@ INSERT OR REPLACE INTO activity_events (
 `
       )
       .run(
-        'network-ui-flow-1',
+        PortalNetworkActivitySeed.EventId,
         networkActivityObservedAt(),
         'child-device-network-ui',
         'windows',
@@ -78,11 +84,11 @@ FROM activity_events
 WHERE event_id = ?;
 `
     )
-    .get('network-ui-flow-1');
+    .get(PortalNetworkActivitySeed.EventId);
   if (row === undefined || typeof row.evidence_json !== 'string') {
     throw new Error('Network drawer E2E ActivityStore seed did not persist.');
   }
-  if (!row.evidence_json.includes('network-ui-evidence-1')) {
+  if (!row.evidence_json.includes(PortalNetworkActivitySeed.EvidenceId)) {
     throw new Error('Network drawer E2E ActivityStore seed missed the expected evidence ref.');
   }
 }
@@ -112,15 +118,15 @@ function networkActivityFields() {
 function networkActivityEvidence() {
   return [
     {
-      evidenceId: 'network-ui-evidence-1',
+      evidenceId: PortalNetworkActivitySeed.EvidenceId,
       kind: 'local-db-row',
-      digest: 'sha256:network-ui-evidence-1',
+      digest: `sha256:${PortalNetworkActivitySeed.EvidenceId}`,
       uri: null,
     },
     {
-      evidenceId: 'network-ui-journal-1',
+      evidenceId: PortalNetworkActivitySeed.JournalEvidenceId,
       kind: 'journal-entry',
-      digest: 'sha256:network-ui-journal-1',
+      digest: `sha256:${PortalNetworkActivitySeed.JournalEvidenceId}`,
       uri: null,
     },
   ];

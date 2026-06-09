@@ -21,6 +21,7 @@ import {
 } from '../dev/local-dev-config.mjs';
 import { ensurePortFree } from '../dev/port-utils.mjs';
 import { resolveDebugAgentServicePath, spawnVitePortal, stopProcessTree } from './agent-service-process.mjs';
+import { assertAgentNetworkActivityReadModel } from './portal-network-activity-service-preflight.mjs';
 import { seedPortalNetworkActivityStore } from './portal-network-activity-seed.mjs';
 
 const repoRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..', '..');
@@ -50,6 +51,7 @@ try {
   const agent = spawnAgent();
   trackChild(agent, 'agent');
   await waitForHttp(createAgentHealthUrl(agentPort));
+  await assertAgentNetworkActivityReadModel(createAgentWebSocketUrl(agentPort), activityDbPath);
 
   const portal = spawnVitePortal(
     portalPort,

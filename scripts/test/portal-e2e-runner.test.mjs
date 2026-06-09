@@ -6,7 +6,7 @@ import path from 'node:path';
 import { DatabaseSync } from 'node:sqlite';
 import { test } from 'node:test';
 
-import { seedPortalNetworkActivityStore } from './portal-network-activity-seed.mjs';
+import { PortalNetworkActivitySeed, seedPortalNetworkActivityStore } from './portal-network-activity-seed.mjs';
 
 test('portal e2e owns agent and portal cleanup outside Playwright webServer', () => {
   const portalManifest = JSON.parse(readFileSync('apps/portal/package.json', 'utf8'));
@@ -19,6 +19,7 @@ test('portal e2e owns agent and portal cleanup outside Playwright webServer', ()
   assert.equal(runnerSource.includes('stopProcessTree'), true);
   assert.equal(runnerSource.includes('SIGKILL'), true);
   assert.equal(runnerSource.includes('resolveParentDevPort'), true);
+  assert.equal(runnerSource.includes('assertAgentNetworkActivityReadModel'), true);
 });
 
 test('portal local smoke waits for process shutdown before temp cleanup', () => {
@@ -53,12 +54,21 @@ WHERE event_id = ?;
 
       assert.equal(String(Object.values(journalMode)[0]), 'delete');
       assert.equal(typeof row.evidence_json, 'string');
-      assert.equal(row.evidence_json.includes('network-ui-evidence-1'), true);
-      assert.equal(row.evidence_json.includes('network-ui-journal-1'), true);
+      assert.equal(row.evidence_json.includes(PortalNetworkActivitySeed.EvidenceId), true);
+      assert.equal(row.evidence_json.includes(PortalNetworkActivitySeed.JournalEvidenceId), true);
     } finally {
       database.close();
     }
   } finally {
     await rm(runRoot, { recursive: true, force: true });
   }
+});
+
+test('portal network activity service preflight uses shared protocol command and seed refs', () => {
+  const preflightSource = readFileSync('scripts/test/portal-network-activity-service-preflight.mjs', 'utf8');
+
+  assert.equal(preflightSource.includes('AgentCommand.NetworkFlowReadModelGet'), true);
+  assert.equal(preflightSource.includes('AgentEvent.NetworkFlowReadModelReported'), true);
+  assert.equal(preflightSource.includes('AgentEventEnvelopeSchema.parse'), true);
+  assert.equal(preflightSource.includes('PortalNetworkActivitySeed.EvidenceId'), true);
 });
