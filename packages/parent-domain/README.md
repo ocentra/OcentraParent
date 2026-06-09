@@ -136,6 +136,11 @@ mobile readiness, and control catalogs.
   public runtime execution, support backend upload execution, account lookup,
   billing provider contact, remote support sessions, production SLA, legal
   disclosure execution, provider secrets, and child custody unclaimed.
+- `production-support-public-surface-export-closure-proof` verifies package
+  exports for existing public release status, public freshness, support
+  publication freshness/readiness, and public support contact status contracts
+  so downstream consumers can import the source-contract surfaces without
+  claiming public runtime or provider execution.
 - `production-support-status-backend-runtime-execution-proof` contracts for
   support runbook, incident, public support contact, support upload,
   privacy/legal, and account/billing status backend runtime execution labels
@@ -530,6 +535,12 @@ flowchart LR
   execution, billing provider contact, legal disclosure execution, remote
   support sessions, production SLA, provider secrets, and child activity custody
   remain unclaimed.
+- `production-support-public-surface-export-closure-proof` remains package
+  surface/proof closure only; it exposes existing public/status/publication
+  contracts and does not implement public runtime execution, status backend
+  execution, support backend upload execution, account lookup, billing provider
+  contact, legal disclosure execution, remote support sessions, production SLA,
+  provider-secret custody, or child activity custody.
 - `production-support-status-backend-runtime-execution-proof` remains
   contract/status proof only; real status backend execution, durable queue
   storage, retry-worker execution, audit persistence, dead-letter payload
