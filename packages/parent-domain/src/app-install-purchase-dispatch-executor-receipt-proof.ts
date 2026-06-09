@@ -152,7 +152,6 @@ export const AppInstallPurchaseDispatchExecutorReceiptProofSchema = withParser(
 export const AppInstallPurchaseDispatchExecutorReceiptKnownGaps = [
   'Dispatch executor receipt rows are parent-owned artifact requirement rows only; no external writer dispatch executor has executed.',
   'Rows stay blocked or manual-required until handler proof, receipt artifact proof, and audit artifact proof exist for the external writer dispatch executor.',
-  'Package export, parent-domain README, and product capability checklist updates are deferred because E-C currently owns those paths.',
 ] as const;
 
 export const AppInstallPurchaseDispatchExecutorReceiptProofReadModel =

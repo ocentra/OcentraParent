@@ -27,8 +27,15 @@ async function main() {
   ]);
 
   const proofModule = await loadDispatchExecutorReceiptProofModule();
+  const exportedProofModule =
+    await import('@ocentra-parent/parent-domain/app-install-purchase-dispatch-executor-receipt-proof');
   const parsedReadModel = proofModule.AppInstallPurchaseDispatchExecutorReceiptProofReadModel;
   const summary = proofModule.summarizeAppInstallPurchaseDispatchExecutorReceiptProof(parsedReadModel);
+
+  assert.equal(
+    exportedProofModule.AppInstallPurchaseDispatchExecutorReceiptProofReadModel.schemaVersion,
+    parsedReadModel.schemaVersion
+  );
 
   assert.deepEqual(summary, {
     dispatchExecutorReceiptRows: 4,
@@ -63,9 +70,9 @@ async function main() {
     commitMetadataState: 'omitted-for-deterministic-proof-artifact',
     proofMode: 'app-install-purchase-dispatch-executor-receipt-proof',
     commands,
-    packageExportState: 'deferred-e-c-currently-locks-packages-parent-domain-package-json',
-    checklistState: 'deferred-e-c-currently-locks-docs-product-capability-checklist',
-    packageReadmeState: 'deferred-e-c-currently-locks-packages-parent-domain-readme',
+    packageExportState: 'public-export-added-packages-parent-domain-package-json',
+    checklistState: 'product-capability-checklist-addendum-added',
+    packageReadmeState: 'parent-domain-readme-note-added',
     evidence: {
       dispatchExecutorReceiptContract:
         'packages/parent-domain/src/app-install-purchase-dispatch-executor-receipt-proof.ts',
@@ -75,9 +82,9 @@ async function main() {
       featureDoc: 'docs/features/app-install-purchase-approval.md',
       expectationDoc: 'docs/expectations/app-install-purchase-approval.md',
       platformExpectationDoc: 'docs/expectations/platforms.md',
-      deferredPackageExport: 'packages/parent-domain/package.json',
-      deferredPackageReadme: 'packages/parent-domain/README.md',
-      deferredChecklistRow: 'docs/product-capability-checklist.md#install-purchase-approval',
+      packageExport: 'packages/parent-domain/package.json',
+      packageReadme: 'packages/parent-domain/README.md',
+      checklistRow: 'docs/product-capability-checklist.md#install-purchase-approval',
       output: relative(repoRoot, proofPath),
     },
     dispatchExecutorReceiptSummary: summary,

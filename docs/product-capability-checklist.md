@@ -207,6 +207,16 @@ execution/delivery, provider/store execution, platform adapter execution,
 child-device delivery, runtime report delivery, app blocking, child activity
 data, and hosted custody remain unclaimed.
 
+Dispatch executor receipt proof now consumes execution receipt gate rows into
+parent-owned external writer dispatch executor handler, receipt artifact, and
+audit artifact requirements. Dispatch executor receipt rows stay blocked or
+manual-required until real handler, receipt, and audit proof refs exist; the
+proof is publicly exported from `@ocentra-parent/parent-domain` while external
+runtime writer execution/delivery, parent action runtime delivery,
+provider/store execution, platform adapter execution, child-device delivery,
+runtime report delivery, app blocking, child activity data, and hosted custody
+remain unclaimed.
+
 Windows package-source adapter evidence proof now links platform adapter
 evidence gap rows and package-source adapter execution rows to a local Windows
 host command probe artifact for package-source inspection readiness. The proof
