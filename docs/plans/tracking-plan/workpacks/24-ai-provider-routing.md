@@ -53,6 +53,15 @@ Proof root: `output/tracking-plan-proof/24-ai-provider-routing/`
 - [x] Require stored journal/read-model refs before AI report/policy consumer
       use.
 
+## AI Boundary Ownership
+
+Tracking owns only location-specific AI request/result contracts and evidence
+handoff tests. Provider selection, provider mesh, work lease/claim internals,
+model quality, prompt tuning, prompt-injection model behavior, temperature
+behavior, and summarizer accuracy belong to the AI lane. Tracking tests must
+prove accepted AI output is evidence-only and cannot publish policy,
+enforcement, notification, live-mode, or escalation events.
+
 ## Where We Are
 
 This workpack has focused contract proof from `codex/tracking-plan-full-scope`

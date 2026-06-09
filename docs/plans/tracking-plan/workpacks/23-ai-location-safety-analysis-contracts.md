@@ -44,6 +44,16 @@ Proof root: `output/tracking-plan-proof/23-ai-location-safety-analysis-contracts
 - [ ] Reject missing evidence/source refs.
 - [ ] Enforce confidence `0..1`.
 - [ ] Reject final action fields in AI output.
+
+## AI Boundary Ownership
+
+Tracking owns only location-specific AI request/result contracts and evidence
+handoff tests. Provider selection, provider mesh, work lease/claim internals,
+model quality, prompt tuning, prompt-injection model behavior, temperature
+behavior, and summarizer accuracy belong to the AI lane. Tracking tests must
+prove accepted AI output is evidence-only and cannot publish policy,
+enforcement, notification, live-mode, or escalation events.
+
 - [ ] Reject accusation/emergency-confirmed copy.
 - [ ] Keep remote AI disabled by default.
 

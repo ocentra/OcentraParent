@@ -37,13 +37,29 @@ Every checked item must cite one or more proof artifacts.
       custody/retention, provider status, LAN/network/browser/app-game evidence
       refs, notification, and AI boundary infrastructure instead of duplicating
       common runtime mechanics.
-- [ ] Tracking state helpers and local durable runtime state live in
-      `crates/agent-core`, not WebSocket transport modules.
+- [x] Current tracking state helpers, read-model projection helpers, and local
+      durable retention state live in `crates/agent-core/src/tracking/`, not
+      WebSocket transport modules. Broader runtime state machines still need to
+      follow this boundary as they are implemented.
+- [ ] Tracking service transport helpers are grouped under a service tracking
+      module once `crates/agent-service/src/main.rs` and
+      `crates/agent-service/src/websocket.rs` are not locked by another lane.
+      Until then, service tests remain source-adjacent/private and must not grow
+      runtime decision ownership.
 - [ ] TypeScript tracking code is limited to portal UI, protocol/read-model
       mirrors, schema-facing contracts, and proof harnesses; it does not own
       runtime decisions.
-- [ ] New Rust tracking tests are organized under crate-level `tests/` folders
-      when testing public crate APIs.
+- [x] Public agent-core tracking behavior tests are organized under
+      crate-level `tests/` folders. Existing private service transport tests
+      remain source-adjacent until the service exposes a public crate boundary.
+- [ ] Rust tracking tests are split by boundary: `crates/agent-protocol/tests`
+      for public protocol constants/payload roundtrips, `crates/agent-core/tests`
+      for public runtime/state/journal/projection APIs, `crates/agent-service/tests`
+      for real local transport behavior, and private `#[cfg(test)]` module tests
+      only for non-public helper invariants or binary-service seams.
+- [ ] Each event-driven workpack names its matrix categories, target test files,
+      focused commands, proof artifacts, and any manual-required tier before it
+      can report `DONE` or PR-ready.
 - [ ] `tracking.*`, `location.*`, `geofence.*`, `expected_place.*`,
       `nearby_place.*`, `notification.*`, and `escalation.*` event families are
       first-class tracking consumer contracts and are not hidden under generic

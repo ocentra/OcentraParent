@@ -36,6 +36,19 @@ execute child-agent commands.
 - Replay rebuilds notification/live-mode/audit read models.
 - Replay does not dispatch notification provider calls.
 - Replay does not publish child-agent live tracking commands.
+
+## Matrix Categories / Target Test Locations
+
+Matrix categories: contract, Rust unit/integration, replay/idempotency,
+security/AuthZ, service transport, and Playwright/service-backed UI where this
+workpack touches portal rendering.
+
+Target Rust tests must follow the crate boundary: `crates/agent-protocol/tests`
+for protocol constants/payloads, `crates/agent-core/tests` for runtime and
+projection behavior, and `crates/agent-service/tests` for real transport after
+service seams are importable. Private module tests are only for internal helper
+invariants.
+
 - Replay does not reapply tracking config commands.
 - Corrupt or missing event produces degraded/manual-required state.
 - Tombstoned/deleted retention rows stay hidden after replay.

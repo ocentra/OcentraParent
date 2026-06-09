@@ -8,10 +8,9 @@ use ocentra_parent_agent_protocol::{
 use rusqlite::Connection;
 use std::collections::BTreeMap;
 
-use crate::{
-    activity_store_tracking_rows::{tracking_rows, TrackingStoreRow},
-    ActivityStore, ActivityStoreError,
-};
+use crate::{ActivityStore, ActivityStoreError};
+
+use super::read_model_rows::{tracking_rows, TrackingStoreRow};
 
 pub fn tracking_read_model_for_store(
     store: &ActivityStore,

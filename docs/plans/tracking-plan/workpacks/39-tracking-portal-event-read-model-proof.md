@@ -40,6 +40,19 @@ manual-required gaps.
 - Live tracking status renders TTL/stop reason/audit.
 - Suspicious place alert renders uncertainty and safe copy.
 - Nearby-place ambiguity is visible.
+
+## Matrix Categories / Target Test Locations
+
+Matrix categories: contract, Rust unit/integration, replay/idempotency,
+security/AuthZ, service transport, and Playwright/service-backed UI where this
+workpack touches portal rendering.
+
+Target Rust tests must follow the crate boundary: `crates/agent-protocol/tests`
+for protocol constants/payloads, `crates/agent-core/tests` for runtime and
+projection behavior, and `crates/agent-service/tests` for real transport after
+service seams are importable. Private module tests are only for internal helper
+invariants.
+
 - Manual-required provider state is visible.
 - Notification dispatch state is visible.
 - Dead-letter/error state is visible.

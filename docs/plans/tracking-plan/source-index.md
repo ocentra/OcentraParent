@@ -104,11 +104,17 @@ belongs in Rust before portal proof or TypeScript helper expansion.
 
 - `crates/agent-core` owns tracking state helpers, local durable state,
   ActivityStore tracking projections, and platform-neutral tracking behavior
-  that should not live in the service shell.
+  that should not live in the service shell. Current tracking core modules live
+  under `crates/agent-core/src/tracking/`.
 - `crates/agent-protocol` owns Rust tracking structs, constants, command names,
   event names, field names, and state labels.
 - `crates/agent-service` owns WebSocket/API transport and event response
-  construction only.
+  construction only. Source-adjacent service tracking tests are allowed only for
+  private binary-service transport seams until those seams move behind an
+  importable public crate boundary.
+- Pending service organization: once active `agent-service` locks clear, group
+  service tracking transport helpers under `crates/agent-service/src/tracking/`
+  and leave WebSocket modules as thin dispatchers.
 - `crates/ocentra-eventing` stays generic; tracking consumes it after
   tracking-specific protocol payloads exist.
 - Shared event/journal/replay/provider/status code must stay shared across
@@ -134,6 +140,8 @@ and root-gate only when the workpack is PR-ready:
 
 - TypeScript contract/parser tests for domain packages;
 - Rust protocol conversion tests after protocol mirroring;
+- crate-level Rust integration tests for tracking behavior exposed through
+  public crate APIs;
 - service/WebSocket smoke for real local transport;
 - Playwright screenshots for parent/child UI states;
 - manual Android/iOS/desktop proof scripts for platform claims;

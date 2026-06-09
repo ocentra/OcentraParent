@@ -40,6 +40,19 @@ Provider unavailability is visible as manual-required/degraded state.
 - SMS unavailable creates manual-required state.
 - WhatsApp unavailable creates manual-required state.
 - Push unavailable creates manual-required state.
+
+## Matrix Categories / Target Test Locations
+
+Matrix categories: contract, Rust unit/integration, replay/idempotency,
+security/AuthZ, service transport, and Playwright/service-backed UI where this
+workpack touches portal rendering.
+
+Target Rust tests must follow the crate boundary: `crates/agent-protocol/tests`
+for protocol constants/payloads, `crates/agent-core/tests` for runtime and
+projection behavior, and `crates/agent-service/tests` for real transport after
+service seams are importable. Private module tests are only for internal helper
+invariants.
+
 - Provider result observed updates audit/read model.
 - Duplicate notification id does not send twice.
 - Notification text minimizes sensitive details.

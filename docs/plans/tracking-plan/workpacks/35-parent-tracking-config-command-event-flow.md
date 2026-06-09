@@ -58,6 +58,19 @@ Config examples:
 - Duplicate idempotency key does not apply config twice.
 - Portal cannot directly publish tracking config events.
 - Portal cannot directly command child-agent tracking runtime.
+
+## Matrix Categories / Target Test Locations
+
+Matrix categories: contract, Rust unit/integration, replay/idempotency,
+security/AuthZ, service transport, and Playwright/service-backed UI where this
+workpack touches portal rendering.
+
+Target Rust tests must follow the crate boundary: `crates/agent-protocol/tests`
+for protocol constants/payloads, `crates/agent-core/tests` for runtime and
+projection behavior, and `crates/agent-service/tests` for real transport after
+service seams are importable. Private module tests are only for internal helper
+invariants.
+
 - Config update is journaled before runtime behavior changes.
 - Child-agent unavailable produces manual-required/unavailable read-model state.
 - Retention config updates durable local state.

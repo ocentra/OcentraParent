@@ -24,8 +24,6 @@ mod activity_store_policy_preview_rows;
 mod activity_store_policy_preview_targets;
 mod activity_store_rows;
 mod activity_store_screen_evidence;
-mod activity_store_tracking;
-mod activity_store_tracking_rows;
 mod browser_bridge_event;
 mod browser_bridge_fields;
 mod browser_bridge_http;
@@ -68,7 +66,7 @@ mod parent_child_event_runtime_phase;
 mod policy_dry_run_evaluator;
 mod process_capture;
 mod screen_evidence_queue;
-mod tracking_retention_settings;
+mod tracking;
 mod trusted_device_registry;
 mod trusted_device_registry_selection;
 mod window_capture;
@@ -87,7 +85,6 @@ pub use activity_store_app_game::{
     AppGameLiveRegistryInventorySourceError, AppGameLiveStorePackageSourceError,
 };
 pub use activity_store_error::ActivityStoreError;
-pub use activity_store_tracking::tracking_read_model_for_store;
 pub use browser_bridge_event::{
     browser_tab_observation_event, BrowserBridgeEventError, BrowserBridgeTargetObservation,
 };
@@ -191,9 +188,9 @@ pub use process_capture::{
 pub use screen_evidence_queue::{
     ScreenEvidenceExpiredQueueEntry, ScreenEvidenceQueue, ScreenEvidenceQueueSweep,
 };
-pub use tracking_retention_settings::{
-    apply_tracking_retention_settings_write, tracking_retention_settings_durable_store_path,
-    TrackingRetentionSettingsWriteAppliedState,
+pub use tracking::{
+    apply_tracking_retention_settings_write, tracking_read_model_for_store,
+    tracking_retention_settings_durable_store_path, TrackingRetentionSettingsWriteAppliedState,
 };
 pub use trusted_device_registry::TrustedDeviceRegistry;
 pub use window_capture::{collect_foreground_window_observation, ForegroundWindowObservation};
@@ -227,8 +224,6 @@ mod activity_store_policy_preview_tests;
 mod activity_store_screen_evidence_tests;
 #[cfg(test)]
 mod activity_store_tests;
-#[cfg(test)]
-mod activity_store_tracking_tests;
 #[cfg(test)]
 mod browser_bridge_cdp_adapter_tests;
 #[cfg(test)]

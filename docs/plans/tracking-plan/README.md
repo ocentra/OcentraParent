@@ -59,12 +59,15 @@ the tracking runtime brain. For current Rust organization:
 
 - `crates/agent-core` owns tracking state helpers, local durable state,
   projection/query helpers, and platform-neutral tracking runtime behavior that
-  should not live in WebSocket transport.
+  should not live in WebSocket transport. Current tracking core code is grouped
+  under `crates/agent-core/src/tracking/` instead of root-level tracking files.
 - `crates/agent-protocol` owns Rust-crossing tracking structs, constants,
   command names, event names, field names, and state labels.
 - `crates/agent-service` owns transport/orchestration only.
 - New Rust tracking tests should live under crate-level `tests/` folders when
-  the behavior is exposed through a public crate API.
+  the behavior is exposed through a public crate API. Existing private transport
+  seams may stay source-adjacent only until they are replaced with a real public
+  crate boundary.
 
 Tracking must also stay DRY with adjacent lanes. Do not duplicate generic
 eventing, journal, replay, evidence-ref, custody/retention, provider-status,
