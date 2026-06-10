@@ -1,9 +1,0 @@
-PASS: Security boundary preserved.
-
-- No direct classifier action field is added to policy/runtime consumers.
-- Classifier serialization proof keeps direct action, raw scan, and content
-  claim booleans false.
-- Platform authority rows preserve manual-required and proof-needed fields.
-- No broad blocking, MDM, AppLocker/App Control, Endpoint Security,
-  Device Owner/Profile Owner, FamilyControls/ManagedSettings, cgroup/systemd,
-  kiosk, or single-app runtime support is claimed.

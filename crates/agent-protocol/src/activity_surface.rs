@@ -314,6 +314,10 @@ pub struct ActivityScreenReadModelRow {
     pub explanation_reasons: Vec<String>,
     #[serde(default)]
     pub deletion_reasons: Vec<String>,
+    #[serde(default)]
+    pub ocr_text_snippets: Vec<String>,
+    #[serde(default)]
+    pub redaction_notes: Vec<String>,
 }
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]

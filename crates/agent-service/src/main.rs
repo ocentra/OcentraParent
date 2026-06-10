@@ -58,8 +58,18 @@ mod browser_policy_runtime;
 mod browser_policy_runtime_support;
 mod browser_policy_store;
 mod browser_runtime;
+#[cfg_attr(not(test), allow(dead_code))]
+mod browser_runtime_delivery;
+#[cfg(test)]
+mod browser_runtime_delivery_tests;
 mod browser_runtime_paths;
 mod browser_runtime_status;
+mod browser_runtime_stream_api;
+mod browser_runtime_stream_events;
+mod browser_runtime_stream_payload;
+mod browser_runtime_stream_request;
+#[cfg(test)]
+mod browser_runtime_stream_tests;
 #[cfg(test)]
 mod browser_runtime_tests;
 mod dev_log;
@@ -193,6 +203,19 @@ mod network_flow_digest_rollups;
 mod network_flow_digest_tests;
 #[cfg(test)]
 mod network_flow_payload_tests;
+mod network_linux_nftables_lab_status_bridge;
+#[cfg(test)]
+mod network_linux_nftables_lab_status_bridge_tests;
+mod network_live_capture_execution_bridge;
+mod network_live_capture_readiness_bridge;
+#[cfg(test)]
+mod network_live_capture_readiness_bridge_tests;
+mod network_product_path_bridge;
+#[cfg(test)]
+mod network_product_path_bridge_tests;
+#[cfg(test)]
+mod network_product_path_integration_tests;
+mod network_remote_delivery_status_cross_process;
 mod network_remote_delivery_status_payload;
 #[cfg(test)]
 mod network_remote_delivery_status_service_tests;
@@ -205,6 +228,12 @@ mod network_runtime_stream_events;
 mod network_runtime_stream_payload;
 #[cfg(test)]
 mod network_runtime_stream_tests;
+mod network_windows_firewall_lab_status_bridge;
+#[cfg(test)]
+mod network_windows_firewall_lab_status_bridge_tests;
+mod network_windows_wfp_gate_status_bridge;
+#[cfg(test)]
+mod network_windows_wfp_gate_status_bridge_tests;
 mod parent_assistant_api;
 #[cfg(test)]
 mod parent_assistant_api_tests;
@@ -229,10 +258,28 @@ mod screen_ai_foreground_runtime;
 mod screen_ai_foreground_runtime_config;
 #[cfg(test)]
 mod screen_ai_foreground_runtime_tests;
+mod screen_ai_retention_sweeper_deletion_events;
+#[cfg(test)]
+mod screen_ai_retention_sweeper_deletion_events_tests;
 mod screen_ai_retention_sweeper_runtime;
 #[cfg(test)]
 mod screen_ai_retention_sweeper_runtime_tests;
 mod screen_ai_service_capture_event_builder;
+mod screen_ai_service_event_bridge;
+#[cfg(test)]
+mod screen_ai_service_event_bridge_tests;
+mod screen_ai_service_event_subscription;
+#[cfg(test)]
+mod screen_ai_service_event_subscription_tests;
+mod screen_settings_api;
+#[cfg(test)]
+mod screen_settings_api_tests;
+mod screen_settings_payload;
+mod screen_settings_request;
+mod screen_settings_runtime;
+#[cfg(test)]
+mod screen_settings_runtime_tests;
+mod screen_settings_store;
 mod snapshot;
 mod time;
 mod tracking_read_model_payload;
@@ -273,6 +320,11 @@ async fn main() {
     screen_ai_foreground_runtime::spawn_screen_ai_foreground_runtime();
     screen_ai_analysis_runtime::spawn_screen_ai_analysis_runtime();
     screen_ai_retention_sweeper_runtime::spawn_screen_ai_retention_sweeper_runtime();
+    screen_ai_service_event_subscription::live_view_service_runtime::spawn_screen_live_view_worker_runtime();
+    let _screen_ai_service_event_runtime =
+        screen_ai_service_event_subscription::ScreenAiServiceEventRuntime::start()
+            .await
+            .expect(constants::screen_flow::ERROR_SCREEN_SERVICE_EVENT_SUBSCRIBES);
 
     axum::serve(listener, app::router(network))
         .await

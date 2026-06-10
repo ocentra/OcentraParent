@@ -9,7 +9,7 @@ export {
   type PortalClipboardText,
   type PortalDetailValue,
 } from './detail-values';
-export { PortalCommandButtons, PortalOverviewCommands } from './commands';
+export { PortalActivitySurfaceDefaultRequestPayload, PortalCommandButtons, PortalOverviewCommands } from './commands';
 export { PortalBrowserInventoryFields, PortalDetails, PortalReadableValues } from './details';
 export { PortalDiagnostics } from './diagnostics';
 export {
@@ -18,6 +18,12 @@ export {
   type AppGameNotificationParentSurfacePanelIntent,
   type AppGameNotificationParentSurfacePanelRow,
 } from './app-game-notification-parent-surface-panel';
+export {
+  createLocalAiRuntimePanelIntent,
+  type LocalAiRuntimePanelCard,
+  type LocalAiRuntimePanelDetail,
+  type LocalAiRuntimePanelIntent,
+} from './local-ai-runtime-panel';
 export { createAppGameNotificationParentSurfaceReadModelFromReadiness } from './app-game-notification-parent-surface-live-readiness';
 export {
   PortalFrameChromeNumberFields,
@@ -158,14 +164,50 @@ export {
   type SocialAlertReportPanelRow,
 } from './social-alert-report-panel';
 export {
+  createSocialParentNotificationDeliveryPanelIntent,
+  type SocialParentNotificationDeliveryPanelDetail,
+  type SocialParentNotificationDeliveryPanelIntent,
+  type SocialParentNotificationDeliveryPanelRow,
+} from './social-parent-notification-delivery-panel';
+export {
+  createSocialAlertReportParentSurfacePanelIntent,
+  type SocialAlertReportParentSurfacePanelDetail,
+  type SocialAlertReportParentSurfacePanelIntent,
+  type SocialAlertReportParentSurfacePanelRow,
+} from './social-alert-report-parent-surface-panel';
+export {
+  createBrowserSocialProviderReceiptStreamStatusIntent,
+  type BrowserSocialProviderReceiptStreamStatusDetail,
+  type BrowserSocialProviderReceiptStreamStatusIntent,
+} from './browser-social-provider-receipt-stream-status';
+export {
+  createBrowserSocialProviderReceiptIngestionReadinessStatusIntent,
+  type BrowserSocialProviderReceiptIngestionReadinessStatusDetail,
+  type BrowserSocialProviderReceiptIngestionReadinessStatusIntent,
+} from './browser-social-provider-receipt-ingestion-readiness-status';
+export {
   PortalRoute,
   PortalDevToolWindow,
+  PortalAiRuntimeRoutes,
   PortalRouteDescriptors,
+  PortalAppGameParentSurfaceRoutes,
+  PortalBrowserParentSurfaceRoutes,
+  PortalNetworkEvidenceDrawerRoutes,
   PortalRouteGroup,
   PortalRoutes,
   PortalRouteSchema,
+  PortalScreenSettingsRoutes,
+  PortalScreenSummaryRoutes,
   PortalSidebarRouteDescriptors,
+  PortalTrackingStatusRoutes,
   PortalDevToolUrlSchema,
+  isPortalAiRuntimeRoute,
+  isPortalAppGameParentSurfaceRoute,
+  isPortalBrowserParentSurfaceRoute,
+  isPortalNetworkEvidenceDrawerRoute,
+  isPortalScreenSettingsRoute,
+  isPortalScreenSummaryRoute,
+  isPortalTrackingStatusRoute,
   portalDevToolUrl,
   type PortalDevToolUrl,
   type PortalRouteDescriptor,
@@ -459,7 +501,9 @@ export const PortalEnvironment = {
   SocialAuditExplanationProofBundle: 'VITE_SOCIAL_AUDIT_EXPLANATION_PROOF_BUNDLE',
 } as const;
 
-export const PortalText = {
+const PortalText = {
   Resolve: resolvePortalDevText,
 } as const;
-export const PortalTextToken = PortalDevTextToken;
+const PortalTextToken = PortalDevTextToken;
+
+export { PortalText, PortalTextToken };

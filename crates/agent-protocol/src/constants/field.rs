@@ -16,6 +16,10 @@ pub const BROWSER_SOCIAL_DASHBOARD_READ_MODEL: &str = "browserSocialDashboardRea
 pub const BROWSER_SOCIAL_AUDIT_EXPLANATION_READ_MODEL: &str =
     "browserSocialAuditExplanationReadModel";
 pub const BROWSER_SOCIAL_ALERT_REPORT_READ_MODEL: &str = "browserSocialAlertReportReadModel";
+pub const BROWSER_SOCIAL_ALERT_REPORT_PARENT_SURFACE_READ_MODEL: &str =
+    "browserSocialAlertReportParentSurfaceReadModel";
+pub const BROWSER_SOCIAL_PARENT_NOTIFICATION_DELIVERY_READ_MODEL: &str =
+    "browserSocialParentNotificationDeliveryReadModel";
 pub const BROWSER_SOCIAL_SOURCE_CUSTODY_MUTATION: &str = "browserSocialSourceCustodyMutation";
 pub const ACTIVITY_TRACKING_READ_MODEL: &str = "trackingReadModel";
 pub const ACTIVITY_TRACKING_RETENTION_SETTINGS_WRITE_REQUEST: &str =
@@ -105,6 +109,27 @@ pub const EVENT_REF: &str = "eventRef";
 pub const EVENT_TYPE: &str = "eventType";
 pub const EXACT_URL_AVAILABLE: &str = "exactUrlAvailable";
 pub const EXACT_URL_CAPABILITY: &str = "exactUrlCapability";
+pub const EXACT_URL_CLAIMED: &str = "exactUrlClaimed";
+pub const AI_ANALYSIS_REF: &str = "aiAnalysisRef";
+pub const AI_AUTHORITY: &str = "aiAuthority";
+pub const AI_REQUEST_REF: &str = "aiRequestRef";
+pub const AUDIT_ENTRY_REF: &str = "auditEntryRef";
+pub const EVIDENCE_REF: &str = "evidenceRef";
+pub const INTERVENTION_COMMAND_ALLOWED: &str = "interventionCommandAllowed";
+pub const INTERVENTION_COMMAND_REF: &str = "interventionCommandRef";
+pub const INTERVENTION_RESULT_REF: &str = "interventionResultRef";
+pub const JOURNAL_REF: &str = "journalRef";
+pub const OBSERVED_AT: &str = "observedAt";
+pub const PHASE: &str = "phase";
+pub const POLICY_AUTHORITY: &str = "policyAuthority";
+pub const POLICY_DECISION_REF: &str = "policyDecisionRef";
+pub const POLICY_EVALUATION_REF: &str = "policyEvaluationRef";
+pub const POLICY_PREVIEW_ID: &str = "policyPreviewId";
+pub const ACTION_INTENT_ID: &str = "assistantActionIntentId";
+pub const ADAPTER_DISPATCH_CLAIMED: &str = "adapterDispatchClaimed";
+pub const PREVIOUS_PHASE_REF: &str = "previousPhaseRef";
+pub const READ_MODEL_REF: &str = "readModelRef";
+pub const SOURCE_REF: &str = "sourceRef";
 pub const EXECUTABLE_PATH_REF: &str = "executablePathRef";
 pub const EXPIRES_AT: &str = "expiresAt";
 pub const FILE_HASH_REF: &str = "fileHashRef";
@@ -137,6 +162,17 @@ pub const LAN_PARENT_AUTHORITY: &str = "parentAuthority";
 pub const LAN_AI_PROVIDER_STATUS: &str = "lanAiProviderStatus";
 pub const LAN_AI_PROVIDER_CUSTODY_LABEL: &str = "lanAiProviderCustodyLabel";
 pub const LAN_AI_PROVIDER_ROUTING_STATE: &str = "lanAiProviderRoutingState";
+pub const LAN_AI_SELECTED_PROVIDER_PEER_ID: &str = "lanAiSelectedProviderPeerId";
+pub const LAN_AI_SELECTED_ROUTE_REASON: &str = "lanAiSelectedRouteReason";
+pub const LAN_AI_PROVIDER_POLICY_AUTHORITY: &str = "lanAiProviderPolicyAuthority";
+pub const LAN_AI_PROVIDER_CAN_PUBLISH_POLICY: &str = "lanAiProviderCanPublishPolicy";
+pub const LAN_AI_RAW_SCREEN_TRANSFERRED: &str = "lanAiRawScreenTransferred";
+pub const LAN_AI_CHILD_VALIDATES_PROVIDER_RESULT: &str = "lanAiChildValidatesProviderResult";
+pub const LAN_AI_CLAIM_ID: &str = "lanAiClaimId";
+pub const LAN_AI_LEASE_ID: &str = "lanAiLeaseId";
+pub const LAN_AI_LEASE_STATE: &str = "lanAiLeaseState";
+pub const LAN_AI_LEASE_ATTEMPT_COUNT: &str = "lanAiLeaseAttemptCount";
+pub const LAN_AI_DEAD_LETTER_REASON: &str = "lanAiDeadLetterReason";
 pub const LAN_AI_JOB_ID: &str = "lanAiJobId";
 pub const LAN_AI_JOB_STATUS: &str = "lanAiJobStatus";
 pub const LAN_AI_JOB_STATE: &str = "lanAiJobState";
@@ -254,7 +290,92 @@ pub const MOST_RECENT_SUBJECT_ID: &str = "mostRecentSubjectId";
 pub const MOST_RECENT_SUBJECT_KIND: &str = "mostRecentSubjectKind";
 pub const MOST_RECENT_SUBJECT_NAME: &str = "mostRecentSubjectName";
 pub const NETWORK_MODE: &str = "networkMode";
+pub const NETWORK_ADAPTER_ACTION_AUTHORIZED: &str = "networkAdapterActionAuthorized";
+pub const NETWORK_ENFORCEMENT_COMMAND_AUTHORIZED: &str = "networkEnforcementCommandAuthorized";
+pub const NETWORK_EVIDENCE_GRADE: &str = "networkEvidenceGrade";
+pub const NETWORK_MAPPED_POLICY_ACTION: &str = "networkMappedPolicyAction";
+pub const NETWORK_POLICY_MAPPING_MODE: &str = "networkPolicyMappingMode";
+pub const NETWORK_REQUESTED_POLICY_ACTION: &str = "networkRequestedPolicyAction";
 pub const NETWORK_PROTOCOL: &str = "networkProtocol";
+pub const NETWORK_PRODUCT_PATH_ACTION_RESULT_REFS: &str = "networkProductPathActionResultRefs";
+pub const NETWORK_PRODUCT_PATH_ACTION_RESULTS: &str = "networkProductPathActionResults";
+pub const NETWORK_PRODUCT_PATH_ADAPTER_ACTION_EXECUTED: &str =
+    "networkProductPathAdapterActionExecuted";
+pub const NETWORK_PRODUCT_PATH_AI_ADVISORY_ROWS: &str = "networkProductPathAiAdvisoryRows";
+pub const NETWORK_PRODUCT_PATH_DELETION_REFS: &str = "networkProductPathDeletionRefs";
+pub const NETWORK_PRODUCT_PATH_DELETE_RECORDS: &str = "networkProductPathDeleteRecords";
+pub const NETWORK_PRODUCT_PATH_ENFORCEMENT_COMMAND_EVENTS: &str =
+    "networkProductPathEnforcementCommandEvents";
+pub const NETWORK_PRODUCT_PATH_EXPORT_REFS: &str = "networkProductPathExportRefs";
+pub const NETWORK_PRODUCT_PATH_EXPORT_RECORDS: &str = "networkProductPathExportRecords";
+pub const NETWORK_PRODUCT_PATH_FAILED_ROWS: &str = "networkProductPathFailedRows";
+pub const NETWORK_PRODUCT_PATH_MANUAL_REQUIRED_ROWS: &str = "networkProductPathManualRequiredRows";
+pub const NETWORK_PRODUCT_PATH_OBSERVED_ROWS: &str = "networkProductPathObservedRows";
+pub const NETWORK_PRODUCT_PATH_POLICY_DECISION_REFS: &str = "networkProductPathPolicyDecisionRefs";
+pub const NETWORK_PRODUCT_PATH_POLICY_DECISIONS: &str = "networkProductPathPolicyDecisions";
+pub const NETWORK_PRODUCT_PATH_PORTAL_READ_MODEL_REFS: &str =
+    "networkProductPathPortalReadModelRefs";
+pub const NETWORK_PRODUCT_PATH_PORTAL_READ_MODELS: &str = "networkProductPathPortalReadModels";
+pub const NETWORK_PRODUCT_PATH_PROVED_ROWS: &str = "networkProductPathProvedRows";
+pub const NETWORK_PRODUCT_PATH_RETENTION_RECORDS: &str = "networkProductPathRetentionRecords";
+pub const NETWORK_PRODUCT_PATH_RETENTION_REFS: &str = "networkProductPathRetentionRefs";
+pub const NETWORK_PRODUCT_PATH_SKIPPED_ROWS: &str = "networkProductPathSkippedRows";
+pub const NETWORK_PRODUCT_PATH_UNAVAILABLE_ROWS: &str = "networkProductPathUnavailableRows";
+pub const NETWORK_PRODUCT_PATH_WEAK_OR_UNAVAILABLE_BLOCKED_ROWS: &str =
+    "networkProductPathWeakOrUnavailableBlockedRows";
+pub const BROWSER_RUNTIME_EVENT_CHAIN_STREAM: &str = "browserRuntimeEventChainStream";
+pub const BROWSER_RUNTIME_ACTION_INTENT_CANDIDATES: &str = "browserRuntimeActionIntentCandidates";
+pub const BROWSER_RUNTIME_ACTION_INTENT_HANDOFF_CANDIDATES: &str =
+    "browserRuntimeActionIntentHandoffCandidates";
+pub const BROWSER_RUNTIME_ACTION_INTENT_HANDOFF_OUTBOX_REFS: &str =
+    "browserRuntimeActionIntentHandoffOutboxRefs";
+pub const BROWSER_RUNTIME_ACTION_INTENT_HANDOFF_REFS: &str =
+    "browserRuntimeActionIntentHandoffRefs";
+pub const BROWSER_RUNTIME_ACTION_INTENT_CHILD_ACCEPTED_ROWS: &str =
+    "browserRuntimeActionIntentChildAcceptedRows";
+pub const BROWSER_RUNTIME_ACTION_INTENT_CHILD_COMMAND_REFS: &str =
+    "browserRuntimeActionIntentChildCommandRefs";
+pub const BROWSER_RUNTIME_ACTION_INTENT_CHILD_ACCEPTED_EVENT_REFS: &str =
+    "browserRuntimeActionIntentChildAcceptedEventRefs";
+pub const BROWSER_RUNTIME_ACTION_INTENT_PARENT_READ_MODEL_REFS: &str =
+    "browserRuntimeActionIntentParentReadModelRefs";
+pub const BROWSER_RUNTIME_ACTION_INTENT_DISPATCH_ATTEMPTS: &str =
+    "browserRuntimeActionIntentDispatchAttempts";
+pub const BROWSER_RUNTIME_ACTION_INTENT_ADAPTER_EXECUTIONS: &str =
+    "browserRuntimeActionIntentAdapterExecutions";
+pub const BROWSER_RUNTIME_ACTION_INTENT_CHILD_INTERVENTION_EXECUTIONS: &str =
+    "browserRuntimeActionIntentChildInterventionExecutions";
+pub const BROWSER_RUNTIME_ACTION_INTENT_ENFORCEMENT_EXECUTIONS: &str =
+    "browserRuntimeActionIntentEnforcementExecutions";
+pub const BROWSER_RUNTIME_SOCIAL_PROVIDER_RECEIPT_BOUNDARY_ROWS: &str =
+    "browserRuntimeSocialProviderReceiptBoundaryRows";
+pub const BROWSER_RUNTIME_SOCIAL_PROVIDER_DISPATCH_REQUIRED_ROWS: &str =
+    "browserRuntimeSocialProviderDispatchRequiredRows";
+pub const BROWSER_RUNTIME_SOCIAL_PROVIDER_MANUAL_RECEIPT_REQUIRED_ROWS: &str =
+    "browserRuntimeSocialProviderManualReceiptRequiredRows";
+pub const BROWSER_RUNTIME_SOCIAL_PROVIDER_ATTEMPT_REFS: &str =
+    "browserRuntimeSocialProviderAttemptRefs";
+pub const BROWSER_RUNTIME_SOCIAL_PROVIDER_RECEIPT_PROOF_REFS: &str =
+    "browserRuntimeSocialProviderReceiptProofRefs";
+pub const BROWSER_RUNTIME_SOCIAL_PROVIDER_DURABLE_ROWS: &str =
+    "browserRuntimeSocialProviderDurableRows";
+pub const BROWSER_RUNTIME_SOCIAL_PROVIDER_DURABLE_RESULT_REFS: &str =
+    "browserRuntimeSocialProviderDurableResultRefs";
+pub const BROWSER_RUNTIME_SOCIAL_PROVIDER_DURABLE_STORE_REFS: &str =
+    "browserRuntimeSocialProviderDurableStoreRefs";
+pub const BROWSER_RUNTIME_SOCIAL_PROVIDER_READ_MODEL_REFS: &str =
+    "browserRuntimeSocialProviderReadModelRefs";
+pub const BROWSER_RUNTIME_SOCIAL_PROVIDER_SUPPORT_STATUS_REFS: &str =
+    "browserRuntimeSocialProviderSupportStatusRefs";
+pub const BROWSER_RUNTIME_EXACT_URL_ROWS: &str = "browserRuntimeExactUrlRows";
+pub const BROWSER_RUNTIME_FAILED_ROWS: &str = "browserRuntimeFailedRows";
+pub const BROWSER_RUNTIME_INTERVENTION_COMMAND_EVENTS: &str =
+    "browserRuntimeInterventionCommandEvents";
+pub const BROWSER_RUNTIME_MANUAL_REQUIRED_ROWS: &str = "browserRuntimeManualRequiredRows";
+pub const BROWSER_RUNTIME_OBSERVED_ROWS: &str = "browserRuntimeObservedRows";
+pub const BROWSER_RUNTIME_READ_MODEL_PROJECTION_EVENTS: &str =
+    "browserRuntimeReadModelProjectionEvents";
+pub const BROWSER_RUNTIME_STREAMED_EVENTS: &str = "browserRuntimeStreamedEvents";
 pub const NETWORK_RUNTIME_EVENT_CHAIN_STREAM: &str = "networkRuntimeEventChainStream";
 pub const NETWORK_RUNTIME_DEAD_LETTERS: &str = "networkRuntimeDeadLetters";
 pub const NETWORK_RUNTIME_DELIVERED_ROWS: &str = "networkRuntimeDeliveredRows";
@@ -309,7 +430,6 @@ pub const POLICY_ACTION: &str = "policyAction";
 pub const POLICY_DECISION_ID: &str = "policyDecisionId";
 pub const POLICY_DRY_RUN: &str = "dryRun";
 pub const POLICY_EVIDENCE_REFERENCE_COUNT: &str = "evidenceReferenceCount";
-pub const POLICY_PREVIEW_ID: &str = "policyPreviewId";
 pub const POLICY_REASON_CODES: &str = "reasonCodes";
 pub const POLICY_RULE_IDS: &str = "ruleIds";
 pub const POLICY_TARGET_TYPE: &str = "targetType";
@@ -395,5 +515,20 @@ pub const SCREEN_PROVIDER_KIND: &str = "providerKind";
 pub const SCREEN_TEMPLATE_VERSION: &str = "promptOrTemplateVersion";
 pub const SCREEN_CUSTODY_STATE: &str = "custodyState";
 pub const SCREEN_PARENT_EXPLANATION_REFS: &str = "parentExplanationRefs";
+pub const SCREEN_OCR_TEXT_SNIPPETS: &str = "ocrTextSnippets";
+pub const SCREEN_REDACTION_NOTES: &str = "redactionNotes";
+pub const SCREEN_OCR_TEXT_ENABLED: &str = "ocrTextEnabled";
+pub const SCREEN_OCR_TEXT_RETENTION_MODE: &str = "textRetentionMode";
+pub const SCREEN_OCR_SNIPPET_LIMIT: &str = "snippetLimit";
+pub const SCREEN_OCR_REDACTION_MODE: &str = "redactionMode";
+pub const SCREEN_OCR_PII_REDACTION_ENABLED: &str = "piiRedactionEnabled";
+pub const SCREEN_OCR_CREDENTIAL_SUPPRESSION_ENABLED: &str = "credentialSuppressionEnabled";
+pub const SCREEN_PARENT_SETTING_REF: &str = "parentSettingRef";
+pub const SCREEN_SETTING_VERSION: &str = "settingVersion";
 pub const SCREEN_EXPLANATION_REASONS: &str = "explanationReasons";
 pub const SCREEN_DELETION_REASONS: &str = "deletionReasons";
+pub const SCREEN_SETTINGS_REQUEST: &str = "screenSettingsRequest";
+pub const SCREEN_SETTINGS_REQUEST_ID: &str = "requestId";
+pub const SCREEN_SETTINGS_RESPONSE: &str = "screenSettingsResponse";
+pub const SCREEN_SETTINGS_UPDATE_KIND: &str = "screenSettingsUpdateKind";
+pub const SCREEN_SETTINGS_REJECTION_REASON: &str = "screenSettingsRejectionReason";

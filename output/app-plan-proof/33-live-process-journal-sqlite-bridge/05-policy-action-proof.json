@@ -1,6 +1,0 @@
-{
-  "workpack": "33-live-process-journal-sqlite-bridge",
-  "policyStatus": "not-applicable",
-  "actionStatus": "not-applicable",
-  "reason": "No native app policy or adapter execution is added by this local journal bridge slice."
-}

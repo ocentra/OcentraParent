@@ -1,0 +1,32 @@
+name: CI Package macOS
+
+on:
+  workflow_call:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  package-macos:
+    name: 'Preview: macOS PKG Smoke'
+    runs-on: macos-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: ./.github/actions/setup-ci
+
+      - name: Build macOS PKG package
+        run: bash scripts/release/macos/build-agent-package.sh
+
+      - name: Smoke macOS PKG payload
+        run: bash scripts/smoke/macos-pkg-smoke.sh target/release-packages/macos/ocentra-parent-agent-macos-latest.pkg
+
+      - name: Upload macOS package preview
+        uses: actions/upload-artifact@v6
+        with:
+          name: ocentra-parent-macos-preview
+          path: |
+            target/release-packages/macos/*.pkg
+            target/release-packages/macos/*.sha256

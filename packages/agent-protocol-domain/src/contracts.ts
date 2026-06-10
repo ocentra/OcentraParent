@@ -51,6 +51,32 @@ export {
   type SerializedAgentMessage,
 } from './primitives';
 export {
+  AgentBrowserRuntimeCapabilityStatus,
+  AgentBrowserRuntimeCapabilityStatusSchema,
+  AgentBrowserRuntimeCustodyLabel,
+  AgentBrowserRuntimeCustodyLabelSchema,
+  AgentBrowserRuntimeEventChainEntrySchema,
+  AgentBrowserRuntimeEventChainStreamSchema,
+  AgentBrowserRuntimeEventPayloadSchema,
+  AgentBrowserRuntimeEventType,
+  AgentBrowserRuntimeEventTypeSchema,
+  AgentBrowserRuntimePhase,
+  AgentBrowserRuntimePhaseSchema,
+  AgentBrowserRuntimeQueryVisibility,
+  AgentBrowserRuntimeQueryVisibilitySchema,
+  deriveAgentBrowserRuntimeActionIntentStatus,
+  deriveAgentBrowserRuntimeSocialProviderReceiptStatus,
+  parseAgentBrowserRuntimeEventChainStreamFields,
+  type AgentBrowserRuntimeActionIntentCandidate,
+  type AgentBrowserRuntimeActionIntentStatus,
+  type AgentBrowserRuntimeEventChainEntry,
+  type AgentBrowserRuntimeEventChainStream,
+  type AgentBrowserRuntimeEventChainStreamFailureReason,
+  type AgentBrowserRuntimeEventChainStreamResult,
+  type AgentBrowserRuntimeEventPayload,
+  type AgentBrowserRuntimeSocialProviderReceiptStatus,
+} from './browser-runtime-events';
+export {
   AgentLanBrowserAddDeviceDiscoveryDeviceSchema,
   AgentLanBrowserAddDevicePairingRequestSchema,
   AgentLanBrowserAddDeviceReadModelSchema,
@@ -214,6 +240,8 @@ export const AgentCommandNameSchema = withParser(
     'agent.browser.social-dashboard.read-model.get',
     'agent.browser.social-audit-explanation.read-model.get',
     'agent.browser.social-alert-report.read-model.get',
+    'agent.browser.social-alert-report.parent-surface.read-model.get',
+    'agent.browser.social-parent-notification-delivery.read-model.get',
     'agent.browser.social-source-custody.mutation.apply',
     'agent.activity.network.read-model.get',
     'agent.activity.tracking.read-model.get',
@@ -222,9 +250,14 @@ export const AgentCommandNameSchema = withParser(
     'agent.browser.evidence.recent.get',
     'agent.browser.managed.bridge.poll',
     'agent.browser.intervention.read-model.get',
+    'agent.browser.runtime.event-chain.stream.get',
     'agent.network.flow.read-model.get',
     'agent.network.runtime.event-chain.stream.get',
     'agent.network.remote-delivery.status.get',
+    'agent.network.live-capture.status.get',
+    'agent.network.linux-nftables-lab.status.get',
+    'agent.network.windows-firewall-lab.status.get',
+    'agent.network.windows-wfp-gate.status.get',
     'agent.local-ai.runtime.status.get',
     'agent.local-ai.chat.generate',
     'agent.parent-assistant.answer.generate',
@@ -234,6 +267,8 @@ export const AgentCommandNameSchema = withParser(
     'agent.browser-policy.patch',
     'agent.browser-policy.replace',
     'agent.browser-policy.rollback',
+    'agent.screen-settings.get',
+    'agent.screen-settings.replace',
     'agent.enforcement.execute',
     'agent.enforcement.timer.recover',
     'agent.enforcement.timer.expire',
@@ -290,6 +325,8 @@ export const AgentEventNameSchema = withParser(
     'agent.browser.social-dashboard.read-model.reported',
     'agent.browser.social-audit-explanation.read-model.reported',
     'agent.browser.social-alert-report.read-model.reported',
+    'agent.browser.social-alert-report.parent-surface.read-model.reported',
+    'agent.browser.social-parent-notification-delivery.read-model.reported',
     'agent.browser.social-source-custody.mutation.applied',
     'agent.activity.network.read-model.reported',
     'agent.activity.tracking.read-model.reported',
@@ -298,9 +335,14 @@ export const AgentEventNameSchema = withParser(
     'agent.browser.evidence.recent.reported',
     'agent.browser.managed.status.reported',
     'agent.browser.intervention.read-model.reported',
+    'agent.browser.runtime.event-chain.stream.reported',
     'agent.network.flow.read-model.reported',
     'agent.network.runtime.event-chain.stream.reported',
     'agent.network.remote-delivery.status.reported',
+    'agent.network.live-capture.status.reported',
+    'agent.network.linux-nftables-lab.status.reported',
+    'agent.network.windows-firewall-lab.status.reported',
+    'agent.network.windows-wfp-gate.status.reported',
     'agent.local-ai.runtime.status.reported',
     'agent.local-ai.chat.generation.reported',
     'agent.parent-assistant.answer.reported',
@@ -313,6 +355,9 @@ export const AgentEventNameSchema = withParser(
     'agent.browser-policy.replace.rejected',
     'agent.browser-policy.rollback.accepted',
     'agent.browser-policy.rollback.rejected',
+    'agent.screen-settings.reported',
+    'agent.screen-settings.replace.accepted',
+    'agent.screen-settings.replace.rejected',
     'agent.enforcement.audit.reported',
     'agent.enforcement.timer.reported',
     'agent.enforcement.product-control-spine.reported',
@@ -391,6 +436,23 @@ export {
 } from './social-alert-report-read-model';
 
 export {
+  parseAgentSocialParentNotificationDeliveryReadModelEvent,
+  SocialParentNotificationDeliveryReadModelSnapshotSchema,
+  type AgentSocialParentNotificationDeliveryReadModelFailureReason,
+  type AgentSocialParentNotificationDeliveryReadModelResult,
+  type SocialParentNotificationDeliveryReadModelRow,
+  type SocialParentNotificationDeliveryReadModelSnapshot,
+} from './social-parent-notification-delivery-read-model';
+export {
+  parseAgentSocialAlertReportParentSurfaceReadModelEvent,
+  SocialAlertReportParentSurfaceReadModelSnapshotSchema,
+  type AgentSocialAlertReportParentSurfaceReadModelFailureReason,
+  type AgentSocialAlertReportParentSurfaceReadModelResult,
+  type SocialAlertReportParentSurfaceReadModelRow,
+  type SocialAlertReportParentSurfaceReadModelSnapshot,
+} from './social-alert-report-parent-surface-read-model';
+
+export {
   parseAgentSocialSourceCustodyMutationEvent,
   SocialSourceCustodyMutationSnapshotSchema,
   type AgentSocialSourceCustodyMutationFailureReason,
@@ -430,6 +492,12 @@ export const AgentCommand = {
   BrowserSocialAlertReportReadModelGet: AgentCommandNameSchema.parse(
     'agent.browser.social-alert-report.read-model.get'
   ),
+  BrowserSocialParentNotificationDeliveryReadModelGet: AgentCommandNameSchema.parse(
+    'agent.browser.social-parent-notification-delivery.read-model.get'
+  ),
+  BrowserSocialAlertReportParentSurfaceReadModelGet: AgentCommandNameSchema.parse(
+    'agent.browser.social-alert-report.parent-surface.read-model.get'
+  ),
   BrowserSocialSourceCustodyMutationApply: AgentCommandNameSchema.parse(
     'agent.browser.social-source-custody.mutation.apply'
   ),
@@ -442,9 +510,14 @@ export const AgentCommand = {
   BrowserEvidenceRecentGet: AgentCommandNameSchema.parse('agent.browser.evidence.recent.get'),
   BrowserManagedBridgePoll: AgentCommandNameSchema.parse('agent.browser.managed.bridge.poll'),
   BrowserInterventionReadModelGet: AgentCommandNameSchema.parse('agent.browser.intervention.read-model.get'),
+  BrowserRuntimeEventChainStreamGet: AgentCommandNameSchema.parse('agent.browser.runtime.event-chain.stream.get'),
   NetworkFlowReadModelGet: AgentCommandNameSchema.parse('agent.network.flow.read-model.get'),
   NetworkRuntimeEventChainStreamGet: AgentCommandNameSchema.parse('agent.network.runtime.event-chain.stream.get'),
   NetworkRemoteDeliveryStatusGet: AgentCommandNameSchema.parse('agent.network.remote-delivery.status.get'),
+  NetworkLiveCaptureStatusGet: AgentCommandNameSchema.parse('agent.network.live-capture.status.get'),
+  NetworkLinuxNftablesLabStatusGet: AgentCommandNameSchema.parse('agent.network.linux-nftables-lab.status.get'),
+  NetworkWindowsFirewallLabStatusGet: AgentCommandNameSchema.parse('agent.network.windows-firewall-lab.status.get'),
+  NetworkWindowsWfpGateStatusGet: AgentCommandNameSchema.parse('agent.network.windows-wfp-gate.status.get'),
   LocalAiRuntimeStatusGet: AgentCommandNameSchema.parse('agent.local-ai.runtime.status.get'),
   LocalAiChatGenerate: AgentCommandNameSchema.parse('agent.local-ai.chat.generate'),
   ParentAssistantAnswerGenerate: AgentCommandNameSchema.parse('agent.parent-assistant.answer.generate'),
@@ -454,6 +527,8 @@ export const AgentCommand = {
   BrowserPolicyPatch: AgentCommandNameSchema.parse('agent.browser-policy.patch'),
   BrowserPolicyReplace: AgentCommandNameSchema.parse('agent.browser-policy.replace'),
   BrowserPolicyRollback: AgentCommandNameSchema.parse('agent.browser-policy.rollback'),
+  ScreenSettingsGet: AgentCommandNameSchema.parse('agent.screen-settings.get'),
+  ScreenSettingsReplace: AgentCommandNameSchema.parse('agent.screen-settings.replace'),
   EnforcementExecute: AgentCommandNameSchema.parse('agent.enforcement.execute'),
   EnforcementTimerRecover: AgentCommandNameSchema.parse('agent.enforcement.timer.recover'),
   EnforcementTimerExpire: AgentCommandNameSchema.parse('agent.enforcement.timer.expire'),
@@ -536,6 +611,12 @@ export const AgentEvent = {
   BrowserSocialAlertReportReadModelReported: AgentEventNameSchema.parse(
     'agent.browser.social-alert-report.read-model.reported'
   ),
+  BrowserSocialParentNotificationDeliveryReadModelReported: AgentEventNameSchema.parse(
+    'agent.browser.social-parent-notification-delivery.read-model.reported'
+  ),
+  BrowserSocialAlertReportParentSurfaceReadModelReported: AgentEventNameSchema.parse(
+    'agent.browser.social-alert-report.parent-surface.read-model.reported'
+  ),
   BrowserSocialSourceCustodyMutationApplied: AgentEventNameSchema.parse(
     'agent.browser.social-source-custody.mutation.applied'
   ),
@@ -548,11 +629,20 @@ export const AgentEvent = {
   BrowserEvidenceRecentReported: AgentEventNameSchema.parse('agent.browser.evidence.recent.reported'),
   BrowserManagedStatusReported: AgentEventNameSchema.parse('agent.browser.managed.status.reported'),
   BrowserInterventionReadModelReported: AgentEventNameSchema.parse('agent.browser.intervention.read-model.reported'),
+  BrowserRuntimeEventChainStreamReported: AgentEventNameSchema.parse(
+    'agent.browser.runtime.event-chain.stream.reported'
+  ),
   NetworkFlowReadModelReported: AgentEventNameSchema.parse('agent.network.flow.read-model.reported'),
   NetworkRuntimeEventChainStreamReported: AgentEventNameSchema.parse(
     'agent.network.runtime.event-chain.stream.reported'
   ),
   NetworkRemoteDeliveryStatusReported: AgentEventNameSchema.parse('agent.network.remote-delivery.status.reported'),
+  NetworkLiveCaptureStatusReported: AgentEventNameSchema.parse('agent.network.live-capture.status.reported'),
+  NetworkLinuxNftablesLabStatusReported: AgentEventNameSchema.parse('agent.network.linux-nftables-lab.status.reported'),
+  NetworkWindowsFirewallLabStatusReported: AgentEventNameSchema.parse(
+    'agent.network.windows-firewall-lab.status.reported'
+  ),
+  NetworkWindowsWfpGateStatusReported: AgentEventNameSchema.parse('agent.network.windows-wfp-gate.status.reported'),
   LocalAiRuntimeStatusReported: AgentEventNameSchema.parse('agent.local-ai.runtime.status.reported'),
   LocalAiChatGenerationReported: AgentEventNameSchema.parse('agent.local-ai.chat.generation.reported'),
   ParentAssistantAnswerReported: AgentEventNameSchema.parse('agent.parent-assistant.answer.reported'),
@@ -565,6 +655,9 @@ export const AgentEvent = {
   BrowserPolicyReplaceRejected: AgentEventNameSchema.parse('agent.browser-policy.replace.rejected'),
   BrowserPolicyRollbackAccepted: AgentEventNameSchema.parse('agent.browser-policy.rollback.accepted'),
   BrowserPolicyRollbackRejected: AgentEventNameSchema.parse('agent.browser-policy.rollback.rejected'),
+  ScreenSettingsReported: AgentEventNameSchema.parse('agent.screen-settings.reported'),
+  ScreenSettingsReplaceAccepted: AgentEventNameSchema.parse('agent.screen-settings.replace.accepted'),
+  ScreenSettingsReplaceRejected: AgentEventNameSchema.parse('agent.screen-settings.replace.rejected'),
   EnforcementAuditReported: AgentEventNameSchema.parse('agent.enforcement.audit.reported'),
   EnforcementTimerReported: AgentEventNameSchema.parse('agent.enforcement.timer.reported'),
   EnforcementProductControlSpineReported: AgentEventNameSchema.parse(

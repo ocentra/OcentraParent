@@ -1,4 +1,0 @@
-{
-  "applicable": false,
-  "reason": "No policy compiler, policy decision, action dispatch, runtime gate, or enforcement behavior changed."
-}

@@ -1,9 +1,0 @@
-Playwright/UI proof for WP10:
-
-Result: not applicable.
-
-Reason:
-- no portal route, component, visual state, child UX, policy authoring, or
-  dashboard code changed;
-- no service-backed launcher read model exists in this workpack;
-- UI proof is deferred to the app/game dashboard and read-model workpacks.

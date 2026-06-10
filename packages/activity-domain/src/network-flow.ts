@@ -97,7 +97,12 @@ export const ActivityNetworkFlowObservationSchema = withParser(
     processName: Schema.Union(ActivityNetworkProcessNameSchema, Schema.Null),
     counters: ActivityNetworkFlowCountersSchema,
     evidence: Schema.Array(ActivityEvidenceRefSchema),
-  })
+  }).pipe(
+    Schema.filter(
+      (observation) =>
+        observation.evidence.length > 0 || 'Network flow observations must include at least one evidence reference'
+    )
+  )
 );
 
 export const ActivityNetworkFlowReadModelSchema = withParser(
@@ -117,7 +122,13 @@ export const ActivityNetworkFlowReadModelSchema = withParser(
     latestTombstoneObservedAt: Schema.Union(ActivityTimestampSchema, Schema.Null),
     deletedEvidenceReferenceIds: Schema.Array(ActivityEvidenceIdSchema),
     rows: Schema.Array(ActivityNetworkFlowObservationSchema),
-  })
+  }).pipe(
+    Schema.filter(
+      (readModel) =>
+        (networkFlowCountsMatch(readModel) && networkFlowDeletionStateMatches(readModel)) ||
+        'Network flow read-model counts must match visible rows and deletion/export state'
+    )
+  )
 );
 
 export const ActivityNetworkFlowRollupSchema = withParser(
@@ -166,3 +177,34 @@ export type ActivityNetworkFlowReadModel = Infer<typeof ActivityNetworkFlowReadM
 export type ActivityNetworkFlowRollup = Infer<typeof ActivityNetworkFlowRollupSchema>;
 export type ActivityNetworkFlowIndicator = Infer<typeof ActivityNetworkFlowIndicatorSchema>;
 export type ActivityNetworkFlowDigest = Infer<typeof ActivityNetworkFlowDigestSchema>;
+
+interface ActivityNetworkFlowReadModelCounts {
+  readonly returned: number;
+  readonly activeRows: number;
+  readonly tombstoneRows: number;
+  readonly exportableRows: number;
+  readonly latestTombstoneEventId: string | null;
+  readonly latestTombstoneObservedAt: string | null;
+  readonly deletedEvidenceReferenceIds: readonly string[];
+  readonly rows: readonly unknown[];
+}
+
+function networkFlowCountsMatch(readModel: ActivityNetworkFlowReadModelCounts): boolean {
+  return (
+    readModel.returned === readModel.rows.length &&
+    readModel.activeRows === readModel.rows.length &&
+    readModel.exportableRows <= readModel.activeRows
+  );
+}
+
+function networkFlowDeletionStateMatches(readModel: ActivityNetworkFlowReadModelCounts): boolean {
+  return (
+    (readModel.tombstoneRows === 0 && readModel.deletedEvidenceReferenceIds.length === 0) ||
+    (readModel.tombstoneRows > 0 &&
+      readModel.rows.length === 0 &&
+      readModel.exportableRows === 0 &&
+      readModel.latestTombstoneEventId !== null &&
+      readModel.latestTombstoneObservedAt !== null &&
+      readModel.deletedEvidenceReferenceIds.length > 0)
+  );
+}

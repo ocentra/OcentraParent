@@ -1,6 +1,14 @@
 import { AgentCommand, AgentEvent, AgentProtocolDefaults } from '@ocentra-parent/agent-protocol-domain/contracts';
 import { PortalDevTextToken, resolvePortalDevText } from '@ocentra-parent/text-domain/portal-dev';
 
+export const PortalActivitySurfaceDefaultRequestPayload = {
+  [AgentProtocolDefaults.Field.ScopeKind]: 'family',
+  [AgentProtocolDefaults.Field.FamilyId]: 'family-local',
+  [AgentProtocolDefaults.Field.RequestedAt]: '2026-06-06T00:00:00.000Z',
+  [AgentProtocolDefaults.Field.RangeStart]: '2026-06-06T00:00:00.000Z',
+  [AgentProtocolDefaults.Field.RangeEnd]: '2026-06-06T23:59:59.999Z',
+} as const;
+
 export const PortalOverviewCommands = [
   {
     command: AgentCommand.HealthCheck,
@@ -8,6 +16,10 @@ export const PortalOverviewCommands = [
   },
   {
     command: AgentCommand.LogSnapshotGet,
+    payload: {},
+  },
+  {
+    command: AgentCommand.NetworkFlowReadModelGet,
     payload: {},
   },
   {
@@ -44,7 +56,7 @@ export const PortalOverviewCommands = [
   },
   {
     command: AgentCommand.ActivityScreenReadModelGet,
-    payload: {},
+    payload: PortalActivitySurfaceDefaultRequestPayload,
   },
   {
     command: AgentCommand.ActivityAppUseReadModelGet,
@@ -71,7 +83,31 @@ export const PortalOverviewCommands = [
     payload: {},
   },
   {
-    command: AgentCommand.NetworkFlowReadModelGet,
+    command: AgentCommand.BrowserRuntimeEventChainStreamGet,
+    payload: {},
+  },
+  {
+    command: AgentCommand.NetworkRuntimeEventChainStreamGet,
+    payload: {},
+  },
+  {
+    command: AgentCommand.NetworkRemoteDeliveryStatusGet,
+    payload: {},
+  },
+  {
+    command: AgentCommand.NetworkLiveCaptureStatusGet,
+    payload: {},
+  },
+  {
+    command: AgentCommand.NetworkLinuxNftablesLabStatusGet,
+    payload: {},
+  },
+  {
+    command: AgentCommand.NetworkWindowsFirewallLabStatusGet,
+    payload: {},
+  },
+  {
+    command: AgentCommand.NetworkWindowsWfpGateStatusGet,
     payload: {},
   },
   {
@@ -155,7 +191,7 @@ export const PortalCommandButtons = [
     label: resolvePortalDevText(PortalDevTextToken.GetActivityScreenReadModel),
     command: AgentCommand.ActivityScreenReadModelGet,
     resultEvent: AgentEvent.ActivityScreenReadModelReported,
-    payload: {},
+    payload: PortalActivitySurfaceDefaultRequestPayload,
   },
   {
     label: resolvePortalDevText(PortalDevTextToken.GetActivityAppUseReadModel),
@@ -194,9 +230,51 @@ export const PortalCommandButtons = [
     payload: {},
   },
   {
+    label: resolvePortalDevText(PortalDevTextToken.GetBrowserRuntimeEventChainStream),
+    command: AgentCommand.BrowserRuntimeEventChainStreamGet,
+    resultEvent: AgentEvent.BrowserRuntimeEventChainStreamReported,
+    payload: {},
+  },
+  {
     label: resolvePortalDevText(PortalDevTextToken.GetNetworkFlowReadModel),
     command: AgentCommand.NetworkFlowReadModelGet,
     resultEvent: AgentEvent.NetworkFlowReadModelReported,
+    payload: {},
+  },
+  {
+    label: resolvePortalDevText(PortalDevTextToken.GetNetworkRuntimeEventChainStream),
+    command: AgentCommand.NetworkRuntimeEventChainStreamGet,
+    resultEvent: AgentEvent.NetworkRuntimeEventChainStreamReported,
+    payload: {},
+  },
+  {
+    label: resolvePortalDevText(PortalDevTextToken.GetNetworkRemoteDeliveryStatus),
+    command: AgentCommand.NetworkRemoteDeliveryStatusGet,
+    resultEvent: AgentEvent.NetworkRemoteDeliveryStatusReported,
+    payload: {},
+  },
+  {
+    label: resolvePortalDevText(PortalDevTextToken.GetNetworkLiveCaptureStatus),
+    command: AgentCommand.NetworkLiveCaptureStatusGet,
+    resultEvent: AgentEvent.NetworkLiveCaptureStatusReported,
+    payload: {},
+  },
+  {
+    label: resolvePortalDevText(PortalDevTextToken.GetNetworkLinuxNftablesLabStatus),
+    command: AgentCommand.NetworkLinuxNftablesLabStatusGet,
+    resultEvent: AgentEvent.NetworkLinuxNftablesLabStatusReported,
+    payload: {},
+  },
+  {
+    label: resolvePortalDevText(PortalDevTextToken.GetNetworkWindowsFirewallLabStatus),
+    command: AgentCommand.NetworkWindowsFirewallLabStatusGet,
+    resultEvent: AgentEvent.NetworkWindowsFirewallLabStatusReported,
+    payload: {},
+  },
+  {
+    label: resolvePortalDevText(PortalDevTextToken.GetNetworkWindowsWfpGateStatus),
+    command: AgentCommand.NetworkWindowsWfpGateStatusGet,
+    resultEvent: AgentEvent.NetworkWindowsWfpGateStatusReported,
     payload: {},
   },
   {

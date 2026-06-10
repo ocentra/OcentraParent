@@ -55,13 +55,13 @@ Workers must verify current official docs before claiming platform-specific impl
 
 ## Screen Intelligence Research References
 
-| Area                       | Source To Verify                                                                             |
-| -------------------------- | -------------------------------------------------------------------------------------------- |
-| Managed browser screenshot | Chrome DevTools Protocol `Page.captureScreenshot` and `Page.startScreencast`.                |
-| OCR baseline               | Tesseract project/docs and packaging proof.                                                  |
-| OCR preferred path         | PaddleOCR 3.0 / PP-OCR evaluation and packaging proof.                                       |
-| Small/family-hub VLM       | Candidate model papers/docs, including Qwen2.5-VL or current Gemma multimodal runtime proof. |
-| Remote/API boundary        | Product privacy docs and parent-approved redacted-summary-only contract.                     |
+| Area                         | Source To Verify                                                                                                                                                   |
+| ---------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Managed browser screenshot   | Chrome DevTools Protocol `Page.captureScreenshot` and `Page.startScreencast`.                                                                                      |
+| OCR baseline                 | Tesseract project/docs, Apache-2.0 license, Windows installer state, and packaging proof.                                                                          |
+| OCR preferred path           | PaddleOCR 3.0 / PP-OCR evaluation and packaging proof at `output/screen-plan-proof/35-ocr-paddleocr-ppocr-evaluation/proof-summary.json`.                          |
+| Small/household-provider VLM | Guided local VLM readiness proof at `output/screen-plan-proof/36-small-vlm-guided-classifier-evaluation/proof-summary.json`; candidate model quality remains open. |
+| Remote/API boundary          | Product privacy docs and parent-approved redacted-summary-only contract.                                                                                           |
 
 Do not claim a model is selected until packaging, runtime, privacy, and quality proof exist.
 

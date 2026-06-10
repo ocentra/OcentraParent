@@ -108,7 +108,9 @@ playwright/
 - Browser URL/title/DOM answers policy question and no screenshot is captured.
 - Native game process starts and screen summary links to game/session evidence.
 - Launcher-only state does not count as active game proof.
-- Family AI hub route is selected before remote route for hard local cases.
+- Household provider route is selected before remote route for hard local cases,
+  and provider output is not policy-authoritative until the child agent accepts
+  it.
 - Browser-use trigger proof runs against controlled local social/video, education/video, social-feed, browser-game, shopping, and productivity fixtures.
 - App-use trigger proof runs against at least one real foreground app and one controlled unknown/game fixture.
 - Timed cadence proof uses a short test interval, records actual timestamps, and proves queue debounce/backpressure.

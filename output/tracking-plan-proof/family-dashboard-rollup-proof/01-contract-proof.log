@@ -1,5 +1,0 @@
-Contract proof:
-
-- cmd /c npm run build --workspace @ocentra-parent/parent-domain: PASS
-- cmd /c npm run test --workspace @ocentra-parent/parent-domain -- tracking-family-dashboard-rollup-proof tracking-location-policy: PASS
-- Family active, child attention, and retention audit rollup rows parse through parent-domain schemas.

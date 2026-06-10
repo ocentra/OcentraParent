@@ -1,7 +1,0 @@
-Validation run:
-
-- cmd /c npm run build --workspace @ocentra-parent/agent-protocol-domain: PASS
-- cmd /c npm run test --workspace @ocentra-parent/agent-protocol-domain -- app-game-policy-readiness: PASS
-- cargo test -p ocentra-parent-agent-protocol app_game_policy_readiness: PASS
-- cargo test -p ocentra-parent-agent-service app_game_policy_readiness: PASS
-- node scripts/test/app-game-policy-readiness-service-proof.mjs: PASS

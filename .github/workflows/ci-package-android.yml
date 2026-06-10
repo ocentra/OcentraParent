@@ -1,0 +1,57 @@
+name: CI Package Android
+
+on:
+  workflow_call:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  package-android:
+    name: 'Preview: Child Android APK Smoke'
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: ./.github/actions/setup-ci
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - uses: android-actions/setup-android@v3
+
+      - name: Setup Gradle cache
+        uses: gradle/actions/setup-gradle@v4
+
+      - name: Install Android SDK packages
+        run: sdkmanager 'platforms;android-35' 'build-tools;35.0.0'
+
+      - name: Build Android APK
+        run: node scripts/release/android/build-agent-package.mjs
+
+      - name: Enable KVM for Android emulator
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
+
+      - name: Smoke Android APK in emulator
+        uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: 29
+          target: default
+          arch: x86_64
+          emulator-boot-timeout: 900
+          script: bash scripts/smoke/android-apk-smoke.sh target/release-packages/android/ocentra-parent-agent-android-debug-latest.apk
+
+      - name: Upload Android package preview
+        uses: actions/upload-artifact@v6
+        with:
+          name: ocentra-parent-android-preview
+          path: |
+            target/release-packages/android/*.apk
+            target/release-packages/android/*.sha256

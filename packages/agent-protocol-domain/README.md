@@ -9,6 +9,9 @@ transports.
 - Agent event names and payload schemas.
 - Security envelope fields and validation.
 - Protocol defaults that must match Rust.
+- Screen settings get/replace command adapter for persisted parent screen
+  settings, reusing `activity-domain`'s `ScreenAnalysisParentSettingSchema`
+  rather than duplicating the product setting contract.
 - Adapter-specific command/event contracts for activity, browser policy,
   parent assistant, LAN, enforcement product-control runtime state, and related
   paths.
@@ -39,10 +42,21 @@ transports.
 - Network runtime event contracts for the local eventing spine, including
   flow/domain/classification, AI advisory, policy, enforcement dry-run/result,
   audit, and portal read-model update shapes mirrored from `crates/agent-protocol`.
-- Network remote delivery status event parsing for the row10b through row10e
-  service bridge, including stale-ref rejection and no-claim booleans for live
-  delivery, product readiness, policy authority, adapter execution, and exact
-  content.
+- Network remote delivery status event parsing for the row10t external
+  cross-process transport status bridge identity, row10k transport-dispatch
+  service refs, row10l fixture transport refs/counts, row10m delete/export
+  readiness refs, row10p provider/child readiness refs, row10q cross-process
+  custody readiness refs, row10r deterministic replay refs/counts exposed by the
+  row10s cross-process replay status bridge, and row10t transport envelope/ack
+  refs/counts over row10b through row10t refs, including stale-ref rejection,
+  blocked-dispatch/fixture/readiness/replay/transport count validation, and
+  no-claim booleans for live delivery, product readiness, policy authority,
+  adapter execution, and exact content.
+- Network live-capture status event parsing for row13 live-capture proof-gate
+  and row03a raw-capture custody bridge refs, including stale-ref rejection,
+  proof/manual/unavailable/degraded count validation, required artifact refs,
+  and no-claim booleans for driver execution, raw PCAP, content, policy,
+  adapter, enforcement, netstat substitution, and host filtering.
 
 ## Must Not Own
 
@@ -123,7 +137,25 @@ flowchart LR
   streaming of the event chain, host filtering, adapter execution, and portal UI
   rendering remain separate proof-gated work.
 - Network remote delivery status parsing proves the service payload shape only.
-  Broker/family-hub transport, remote acknowledgement, provider/child-device
-  delivery, cross-process replay, remote delete/export propagation, product
-  readiness, policy authority, adapter execution, exact content, and host
-  filtering remain separate proof-gated work.
+  Row10l fixture transport refs/counts and row10m delete/export readiness refs
+  plus Row10p provider/child readiness refs are accepted only as proof-local or
+  manual-required unavailable status. Row10q cross-process custody refs are also
+  accepted only as proof-local unavailable status, row10r cross-process replay
+  is accepted only as deterministic replay metadata through the row10s
+  cross-process replay status bridge, and row10t external cross-process
+  transport is accepted only as deterministic transport envelope/ack metadata.
+  Broker/family-hub transport, product remote acknowledgement,
+  provider/child-device delivery, actual remote delete/export propagation,
+  product readiness, policy authority, adapter execution, exact content, and
+  host filtering remain separate proof-gated work.
+- Network live-capture status parsing proves the service payload shape only.
+  The parser accepts proof-ready/manual-required/unavailable/degraded row13
+  status and row03a custody readiness refs, but live Npcap/libpcap invocation,
+  packet capture, raw artifact creation, raw PCAP without custody, exact URL,
+  decrypted payload, page/private-message/search content, policy authority,
+  adapter execution, enforcement command publication, netstat substitution, and
+  host filtering remain separate proof-gated work.
+- Screen settings command parsing proves TypeScript transport parity only.
+  Parent portal form submission, product-complete retention UI, raw screenshot
+  retention enablement, live view, and privacy/legal approval remain separate
+  proof-gated work.

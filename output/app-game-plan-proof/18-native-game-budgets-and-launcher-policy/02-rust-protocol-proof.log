@@ -1,7 +1,0 @@
-N/A for WP18.
-
-This slice adds a parent-domain TypeScript contract for budget policy preview
-and dry-run inclusion logic. No Rust-facing payload crosses the service boundary
-yet, so Rust protocol parity is intentionally deferred to the policy compiler,
-time-budget integration, or service/read-model workpack that first needs this
-shape at runtime.

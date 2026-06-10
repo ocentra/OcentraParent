@@ -1,4 +1,0 @@
-Not applicable.
-
-WP31 does not touch portal or child UI code. No Playwright/browser validation is
-required for this storage-only proof slice.

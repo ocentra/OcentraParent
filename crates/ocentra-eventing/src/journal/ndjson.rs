@@ -1,6 +1,4 @@
 use std::{
-    collections::hash_map::DefaultHasher,
-    hash::{Hash, Hasher},
     path::{Path, PathBuf},
     sync::{Arc, Mutex},
 };
@@ -14,9 +12,9 @@ use tokio::{
 
 use crate::{EventingError, JournalDispatchPhase, JournalHash, StoredEventEnvelope};
 
-use super::{EventJournal, JournalAppend, JournalAppendFuture, SharedEventJournal};
-
-const JOURNAL_HASH_PREFIX: &str = "journal-hash:";
+use super::{
+    hash_chain::hash_entry, EventJournal, JournalAppend, JournalAppendFuture, SharedEventJournal,
+};
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum JournalHashChain {
@@ -158,6 +156,12 @@ impl NdjsonEventJournal {
                     line: line_number,
                     reason: error.to_string(),
                 })?;
+            super::verify_hash_chain_entry(&entry, &state.previous_hash).map_err(|reason| {
+                EventingError::JournalCorruptLine {
+                    line: line_number,
+                    reason,
+                }
+            })?;
             state.next_sequence = entry.append.sequence;
             state.previous_hash = entry.append.current_hash;
         }
@@ -241,14 +245,6 @@ pub struct NdjsonJournalEntry {
     pub envelope: StoredEventEnvelope,
 }
 
-#[derive(Serialize)]
-struct JournalHashInput<'a> {
-    sequence: u64,
-    previous_hash: Option<&'a JournalHash>,
-    phase: JournalDispatchPhase,
-    envelope: &'a StoredEventEnvelope,
-}
-
 fn previous_hash(
     options: &NdjsonJournalOptions,
     state: &NdjsonJournalState,
@@ -272,24 +268,6 @@ fn current_hash(
             hash_entry(sequence, previous_hash.as_ref(), envelope, phase).map(Some)
         }
     }
-}
-
-fn hash_entry(
-    sequence: u64,
-    previous_hash: Option<&JournalHash>,
-    envelope: &StoredEventEnvelope,
-    phase: JournalDispatchPhase,
-) -> Result<JournalHash, EventingError> {
-    let input = JournalHashInput {
-        sequence,
-        previous_hash,
-        phase,
-        envelope,
-    };
-    let bytes = serde_json::to_vec(&input).map_err(EventingError::journal_encode)?;
-    let mut hasher = DefaultHasher::new();
-    bytes.hash(&mut hasher);
-    JournalHash::parse(format!("{JOURNAL_HASH_PREFIX}{:016x}", hasher.finish()))
 }
 
 fn default_journal_phase() -> JournalDispatchPhase {

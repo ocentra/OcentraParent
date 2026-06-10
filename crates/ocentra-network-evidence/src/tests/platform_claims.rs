@@ -16,7 +16,7 @@ use crate::{
 };
 
 #[test]
-fn platform_claim_manifest_names_exact_platform_permission_and_device_refs() {
+fn platform_claim_manifest_names_fixture_platform_permission_and_device_refs() {
     let proof = build_network_platform_claim_manifest(NetworkPlatformClaimManifestInput {
         manifest_ref: " network-platform-manifest-52 ".to_owned(),
         proof_sources: complete_platform_sources(),
@@ -35,6 +35,23 @@ fn platform_claim_manifest_names_exact_platform_permission_and_device_refs() {
     assert!(proof.no_enforcement_commands_published);
     assert!(proof.no_live_adapter_execution_claimed);
     assert!(proof.ui_has_no_policy_authority);
+    assert!(proof.every_claim_names_audit_ref);
+
+    let windows_firewall = proof
+        .entries
+        .iter()
+        .find(|entry| entry.target == NetworkPlatformClaimTarget::WindowsFirewall)
+        .expect("Windows Firewall row should exist");
+    assert_eq!(
+        windows_firewall.device_or_os_refs,
+        vec!["windows-os-scope-ref-52".to_owned()]
+    );
+    assert!(windows_firewall
+        .adapter_capability_refs
+        .contains(&"windows-firewall-domain-target-ref-52".to_owned()));
+    assert!(windows_firewall
+        .adapter_capability_refs
+        .contains(&"windows-firewall-rule-ref-52".to_owned()));
 
     let targets: Vec<NetworkPlatformClaimTarget> =
         proof.entries.iter().map(|entry| entry.target).collect();
@@ -175,6 +192,27 @@ fn platform_claim_manifest_rejects_proof_source_that_publishes_enforcement_comma
     );
 }
 
+#[test]
+fn platform_claim_manifest_rejects_non_ready_adapter_authorization() {
+    let mut proof = plan_network_windows_firewall_adapter_proof(windows_firewall_input())
+        .expect("complete Windows Firewall input should build proof");
+    proof.proof_state = crate::NetworkWindowsFirewallProofState::DryRun;
+    proof.adapter_apply_authorized = true;
+
+    assert_eq!(
+        build_network_platform_claim_manifest(NetworkPlatformClaimManifestInput {
+            manifest_ref: "network-platform-manifest-52".to_owned(),
+            proof_sources: vec![NetworkPlatformClaimProofSource::WindowsFirewall(proof)],
+            unsupported_claims: no_unsupported_claims(),
+        }),
+        Err(
+            NetworkPlatformClaimManifestError::ProofSourceAuthorizesNonReadyAdapter(
+                NetworkPlatformClaimTarget::WindowsFirewall
+            )
+        )
+    );
+}
+
 fn complete_platform_sources() -> Vec<NetworkPlatformClaimProofSource> {
     vec![
         NetworkPlatformClaimProofSource::WindowsFirewall(
@@ -251,6 +289,7 @@ fn windows_firewall_input() -> NetworkWindowsFirewallAdapterProofInput {
         firewall_adapter_plan_ref: "windows-firewall-plan-ref-52".to_owned(),
         policy_mapping: policy_mapping(),
         requested_action: NetworkWindowsFirewallAdapterAction::BlockOutbound,
+        windows_os_scope_ref: "windows-os-scope-ref-52".to_owned(),
         target_kind: NetworkWindowsFirewallTargetKind::RemoteAddress,
         target_ref: "windows-firewall-domain-target-ref-52".to_owned(),
         firewall_rule_ref: "windows-firewall-rule-ref-52".to_owned(),

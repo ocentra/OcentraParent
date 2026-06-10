@@ -31,6 +31,11 @@ mod browser_bridge_ids;
 #[cfg(test)]
 mod browser_bridge_native_host;
 mod browser_bridge_poll;
+mod browser_event_runtime;
+mod browser_event_runtime_phase;
+mod browser_event_runtime_refs;
+#[cfg(test)]
+mod browser_event_runtime_tests;
 mod browser_intervention_event;
 mod browser_managed_discovery;
 mod browser_managed_session;
@@ -48,6 +53,17 @@ mod enforcement_boundary;
 mod enforcement_policy_dispatch;
 mod enforcement_readiness;
 mod enforcement_timer_state;
+mod household_ai_provider_route;
+mod household_ai_provider_route_labels;
+mod household_ai_provider_route_state;
+mod household_mesh_bridge_runtime;
+mod household_mesh_bridge_runtime_phase;
+mod household_mesh_bridge_runtime_refs;
+mod household_mesh_bridge_runtime_source;
+mod household_mesh_bridge_runtime_state;
+mod household_mesh_event_bridge;
+#[cfg(test)]
+mod household_mesh_event_bridge_tests;
 mod journal;
 mod journal_crypto;
 mod journal_error;
@@ -65,7 +81,17 @@ mod parent_child_event_runtime;
 mod parent_child_event_runtime_phase;
 mod policy_dry_run_evaluator;
 mod process_capture;
+mod screen_event_runtime;
+mod screen_event_runtime_input;
+mod screen_event_runtime_metadata;
+mod screen_event_runtime_phase;
+mod screen_event_runtime_refs;
+mod screen_event_runtime_state;
 mod screen_evidence_queue;
+mod screen_household_mesh_runtime;
+mod screen_household_mesh_runtime_phase;
+mod screen_household_mesh_runtime_refs;
+mod screen_household_mesh_runtime_state;
 mod tracking;
 mod trusted_device_registry;
 mod trusted_device_registry_selection;
@@ -92,6 +118,23 @@ pub use browser_bridge_poll::{
     poll_chromium_bridge, BrowserBridgeExpectedCustody, BrowserBridgePollConfig,
     BrowserBridgePollError, BrowserBridgePollSnapshot,
 };
+pub use browser_event_runtime::{
+    browser_runtime_action_intent_handoff_topology_manifest,
+    browser_runtime_action_intent_status_topology_manifest,
+    browser_runtime_chain_topology_manifest,
+    browser_runtime_social_provider_receipt_status_topology_manifest,
+    prove_browser_runtime_delivery_decision, publish_browser_runtime_chain_for_input,
+    request_browser_runtime_action_intent_handoff_for_input,
+    request_browser_runtime_action_intent_status_for_input,
+    request_browser_runtime_social_provider_receipt_status_for_input,
+    BrowserRuntimeActionIntentHandoffReport, BrowserRuntimeActionIntentHandoffResponse,
+    BrowserRuntimeActionIntentStatusReport, BrowserRuntimeActionIntentStatusResponse,
+    BrowserRuntimeDeliveryDecisionError, BrowserRuntimeDeliveryDecisionReport,
+    BrowserRuntimeEventPayload, BrowserRuntimeInput, BrowserRuntimeReport,
+    BrowserRuntimeSocialProviderReceiptStatusReport,
+    BrowserRuntimeSocialProviderReceiptStatusResponse,
+};
+pub use browser_event_runtime_phase::BrowserRuntimePhase;
 pub use browser_intervention_event::{
     browser_intervention_applied_event, BrowserInterventionObservation,
 };
@@ -152,22 +195,91 @@ pub use enforcement_timer_state::{
     active_timer_state_from_outcome, cancelled_timer_outcome, expired_timer_outcome,
     restart_recovered_timer_outcome, EnforcementTimerTransitionIds,
 };
+pub use household_ai_provider_route::{
+    select_household_ai_provider_route, HouseholdAiProviderCandidate,
+    HouseholdAiRouteCandidateDecision, HouseholdAiRouteRequest, HouseholdAiRouteSelection,
+};
+pub use household_ai_provider_route_state::{
+    HouseholdAiProviderClass, HouseholdAiProviderResourcePolicy, HouseholdAiProviderResourceState,
+    HouseholdAiProviderTrustState, HouseholdAiRouteDecisionState, HouseholdAiRouteRejectionReason,
+    HouseholdAiWorkClass,
+};
+pub use household_mesh_bridge_runtime::{
+    publish_household_mesh_bridge_chain_for_input, validate_household_mesh_bridge_export,
+    validate_household_mesh_bridge_import, HouseholdMeshBridgeEventPayload,
+    HouseholdMeshBridgeExportCandidate, HouseholdMeshBridgeInboundEnvelope,
+    HouseholdMeshBridgeInput, HouseholdMeshBridgeReport, HouseholdMeshBridgeValidation,
+};
+pub use household_mesh_bridge_runtime_phase::HouseholdMeshBridgePhase;
+pub use household_mesh_bridge_runtime_state::{
+    HouseholdMeshBridgeCustody, HouseholdMeshBridgeDirection, HouseholdMeshBridgeEnvelopeState,
+    HouseholdMeshBridgeRejectionReason, HouseholdMeshBridgeValidationState,
+};
+pub use household_mesh_event_bridge::{
+    export_selected_local_event, validate_incoming_lan_message, HouseholdMeshAuthenticationState,
+    HouseholdMeshBridgeRejection, HouseholdMeshExportDecision, HouseholdMeshImportDecision,
+    HouseholdMeshLanMessage, HouseholdMeshLocalEventKind, HouseholdMeshLocalRepublish,
+    HouseholdMeshPolicyAuthority,
+};
 pub use journal::ActivityJournal;
 pub use journal_crypto::{JournalKey, JOURNAL_KEY_BYTES};
 pub use journal_error::JournalError;
 pub use network_capture::{collect_network_snapshot, NetworkObservation};
 pub use network_capture_event::{network_observation_event, network_snapshot_events};
 pub use network_event_runtime::{
+    prove_network_runtime_remote_delivery_cross_process_custody_readiness,
+    prove_network_runtime_remote_delivery_cross_process_replay,
+    prove_network_runtime_remote_delivery_delete_export_propagation,
+    prove_network_runtime_remote_delivery_dispatch_readiness,
     prove_network_runtime_remote_delivery_durable_envelope,
+    prove_network_runtime_remote_delivery_external_cross_process_transport,
+    prove_network_runtime_remote_delivery_fixture_transport,
+    prove_network_runtime_remote_delivery_no_enforcement_invariant,
     prove_network_runtime_remote_delivery_outbox_handoff,
+    prove_network_runtime_remote_delivery_provider_child_readiness,
+    prove_network_runtime_remote_delivery_transport_dispatch_state,
     publish_network_runtime_chain_for_observation, NetworkRuntimeEventPayload,
+    NetworkRuntimeRemoteDeliveryBlockedDispatchRecord,
+    NetworkRuntimeRemoteDeliveryCrossProcessCustodyReadinessError,
+    NetworkRuntimeRemoteDeliveryCrossProcessCustodyReadinessRecord,
+    NetworkRuntimeRemoteDeliveryCrossProcessCustodyReadinessReport,
+    NetworkRuntimeRemoteDeliveryCrossProcessCustodyReadinessState,
+    NetworkRuntimeRemoteDeliveryCrossProcessReplayError,
+    NetworkRuntimeRemoteDeliveryCrossProcessReplayRecord,
+    NetworkRuntimeRemoteDeliveryCrossProcessReplayReport,
+    NetworkRuntimeRemoteDeliveryCrossProcessReplayState,
+    NetworkRuntimeRemoteDeliveryDeleteExportPropagationError,
+    NetworkRuntimeRemoteDeliveryDeleteExportPropagationRecord,
+    NetworkRuntimeRemoteDeliveryDeleteExportPropagationReport,
+    NetworkRuntimeRemoteDeliveryDeleteExportPropagationState,
+    NetworkRuntimeRemoteDeliveryDispatchReadinessError,
+    NetworkRuntimeRemoteDeliveryDispatchReadinessReport,
+    NetworkRuntimeRemoteDeliveryDispatchReadinessState,
     NetworkRuntimeRemoteDeliveryDurableEnvelopeError,
     NetworkRuntimeRemoteDeliveryDurableEnvelopeReport,
-    NetworkRuntimeRemoteDeliveryOutboxHandoffError,
+    NetworkRuntimeRemoteDeliveryExternalCrossProcessTransportError,
+    NetworkRuntimeRemoteDeliveryExternalCrossProcessTransportRecord,
+    NetworkRuntimeRemoteDeliveryExternalCrossProcessTransportReport,
+    NetworkRuntimeRemoteDeliveryExternalCrossProcessTransportState,
+    NetworkRuntimeRemoteDeliveryFixtureTransportError,
+    NetworkRuntimeRemoteDeliveryFixtureTransportRecord,
+    NetworkRuntimeRemoteDeliveryFixtureTransportReport,
+    NetworkRuntimeRemoteDeliveryFixtureTransportState,
+    NetworkRuntimeRemoteDeliveryNoEnforcementInvariantError,
+    NetworkRuntimeRemoteDeliveryNoEnforcementInvariantReport,
+    NetworkRuntimeRemoteDeliveryNoEnforcementInvariantState,
+    NetworkRuntimeRemoteDeliveryNoEnforcementStage, NetworkRuntimeRemoteDeliveryOutboxHandoffError,
     NetworkRuntimeRemoteDeliveryOutboxHandoffReport, NetworkRuntimeRemoteDeliveryOutboxState,
+    NetworkRuntimeRemoteDeliveryProviderChildReadinessError,
+    NetworkRuntimeRemoteDeliveryProviderChildReadinessRecord,
+    NetworkRuntimeRemoteDeliveryProviderChildReadinessReport,
+    NetworkRuntimeRemoteDeliveryProviderChildReadinessState,
     NetworkRuntimeRemoteDeliveryReceiptLedgerError,
     NetworkRuntimeRemoteDeliveryReceiptLedgerReport, NetworkRuntimeRemoteDeliveryState,
     NetworkRuntimeRemoteDeliveryStatusError, NetworkRuntimeRemoteDeliveryStatusReport,
+    NetworkRuntimeRemoteDeliveryTransportDispatchState,
+    NetworkRuntimeRemoteDeliveryTransportDispatchStateError,
+    NetworkRuntimeRemoteDeliveryTransportDispatchStateReport,
     NetworkRuntimeRemoteEventChainJournalError, NetworkRuntimeReport,
 };
 pub use network_event_runtime_phase::NetworkRuntimePhase;
@@ -185,8 +297,33 @@ pub use process_capture::{
     collect_process_snapshot, process_observation_event, process_snapshot_events,
     ProcessObservation,
 };
+pub use screen_event_runtime::{
+    publish_screen_capture_queue_events_for_input, publish_screen_degraded_event_chain_for_input,
+    publish_screen_deletion_event_for_input, publish_screen_runtime_chain_for_input,
+    ScreenRuntimeEventPayload, ScreenRuntimeReport,
+};
+pub use screen_event_runtime_input::{
+    ScreenRuntimeCaptureInput, ScreenRuntimeDegradedInput, ScreenRuntimeDeletionInput,
+    ScreenRuntimeInput,
+};
+pub use screen_event_runtime_phase::ScreenRuntimePhase;
+pub use screen_event_runtime_state::{
+    ScreenActionState, ScreenAiAuditState, ScreenDeletionState, ScreenEvidenceScope,
+    ScreenPolicyState, ScreenRuntimeClaimBoundary,
+};
 pub use screen_evidence_queue::{
     ScreenEvidenceExpiredQueueEntry, ScreenEvidenceQueue, ScreenEvidenceQueueSweep,
+};
+pub use screen_household_mesh_runtime::{
+    publish_screen_household_mesh_chain_for_input, validate_screen_household_mesh_result,
+    ScreenHouseholdMeshEventPayload, ScreenHouseholdMeshInput, ScreenHouseholdMeshReport,
+    ScreenHouseholdMeshResultSubmission, ScreenHouseholdMeshResultValidation,
+};
+pub use screen_household_mesh_runtime_phase::ScreenHouseholdMeshPhase;
+pub use screen_household_mesh_runtime_state::{
+    ScreenMeshChildValidationState, ScreenMeshClaimState, ScreenMeshCustodyBoundary,
+    ScreenMeshLeaseState, ScreenMeshPayloadMode, ScreenMeshPolicyState,
+    ScreenMeshProviderResultState, ScreenMeshResultRejectionReason,
 };
 pub use tracking::{
     apply_tracking_retention_settings_write, tracking_read_model_for_store,
@@ -265,11 +402,21 @@ mod enforcement_timer_tests;
 #[cfg(test)]
 mod enforcement_unavailable_adapter_tests;
 #[cfg(test)]
+mod household_ai_provider_route_tests;
+#[cfg(test)]
+mod household_mesh_bridge_runtime_tests;
+#[cfg(test)]
 mod journal_tests;
 #[cfg(test)]
 mod network_capture_tests;
 #[cfg(test)]
 mod network_event_runtime_broker_delivery_tests;
+#[cfg(test)]
+mod network_event_runtime_cross_process_replay_tests;
+#[cfg(test)]
+mod network_event_runtime_delete_export_propagation_tests;
+#[cfg(test)]
+mod network_event_runtime_fixture_transport_tests;
 #[cfg(test)]
 mod network_event_runtime_queue_tests;
 #[cfg(test)]
@@ -287,7 +434,11 @@ mod policy_dry_run_evaluator_rule_tests;
 #[cfg(test)]
 mod process_capture_tests;
 #[cfg(test)]
+mod screen_event_runtime_tests;
+#[cfg(test)]
 mod screen_evidence_queue_tests;
+#[cfg(test)]
+mod screen_household_mesh_runtime_tests;
 #[cfg(test)]
 mod trusted_device_registry_test_fixtures;
 #[cfg(test)]

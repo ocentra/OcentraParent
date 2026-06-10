@@ -1,0 +1,31 @@
+name: CI Docs Hub
+
+on:
+  workflow_call:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  docs-hub:
+    name: Docs and Hub State
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          submodules: recursive
+
+      - uses: ./.github/actions/setup-ci
+        with:
+          install-rust: 'false'
+
+      - name: Format docs and Ledger docs
+        run: npx prettier --check docs *.md .gitmodules
+
+      - name: Ledger root check
+        run: npm run ledger:root
+
+      - name: Ledger doctor check
+        run: npm run ledger:doctor

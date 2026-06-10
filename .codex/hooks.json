@@ -8,7 +8,7 @@
             "type": "command",
             "command": "npm run --silent hub:hook",
             "timeout": 10,
-            "statusMessage": "Loading Ocentra hub context"
+            "statusMessage": "Loading Ocentra Ledger context"
           }
         ]
       }
@@ -20,7 +20,7 @@
             "type": "command",
             "command": "npm run --silent hub:hook",
             "timeout": 10,
-            "statusMessage": "Refreshing Ocentra hub context"
+            "statusMessage": "Refreshing Ocentra Ledger context"
           }
         ]
       }
@@ -33,7 +33,7 @@
             "type": "command",
             "command": "npm run --silent hub:hook",
             "timeout": 10,
-            "statusMessage": "Checking Ocentra hub lane state"
+            "statusMessage": "Checking Ocentra Ledger lane state"
           }
         ]
       }
@@ -45,7 +45,7 @@
             "type": "command",
             "command": "npm run --silent hub:hook",
             "timeout": 10,
-            "statusMessage": "Checking Ocentra hub handoff"
+            "statusMessage": "Checking Ocentra Ledger handoff"
           }
         ]
       }

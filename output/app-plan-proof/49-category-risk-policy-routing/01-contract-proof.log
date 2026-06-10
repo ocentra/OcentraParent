@@ -1,6 +1,0 @@
-Contract proof:
-
-- cmd /c npm run build --workspace @ocentra-parent/parent-domain: PASS
-- cmd /c npm run test --workspace @ocentra-parent/parent-domain -- app-game-category-risk-policy-routing: PASS
-- Valid route families: nativeApp, riskCandidate, nativeGame/gameContext as applicable.
-- Invalid route rejection covers stale proof, hard risk action, missing AI digest, and wrong family target.

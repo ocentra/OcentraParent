@@ -1,8 +1,12 @@
-use crate::{EventJournal, NdjsonEventJournal, NdjsonJournalEntry, NdjsonJournalOptions};
+use crate::{
+    EventJournal, EventingError, NdjsonEventJournal, NdjsonJournalEntry, NdjsonJournalOptions,
+};
 
 use super::{
     super::fixtures::{test_event, test_event_for_type, OTHER_EVENT_TYPE, TEST_LABEL},
-    support::{cleanup, journal_path, read_lines, stored_event},
+    support::{
+        cleanup, journal_path, read_lines, stored_event, tamper_first_journal_payload_label,
+    },
 };
 
 #[tokio::test]
@@ -57,6 +61,41 @@ async fn ndjson_journal_reopen_continues_sequence_and_hash_chain() {
     assert_eq!(second_append.previous_hash, first_append.current_hash);
     assert_eq!(second_entry.append.previous_hash, first_append.current_hash);
     assert_eq!(second_entry.append.current_hash, second_append.current_hash);
+    cleanup(&path).await;
+}
+
+#[tokio::test]
+async fn ndjson_journal_reopen_rejects_tampered_hash_chain_payload() {
+    let path = journal_path("reopen-tampered-hash-chain");
+    let first_journal = NdjsonEventJournal::with_options(&path, NdjsonJournalOptions::hash_chain());
+    first_journal
+        .append(&stored_event(test_event(TEST_LABEL)))
+        .await
+        .expect("first append");
+    first_journal
+        .append(&stored_event(test_event_for_type(
+            "second event",
+            OTHER_EVENT_TYPE,
+        )))
+        .await
+        .expect("second append");
+    drop(first_journal);
+    tamper_first_journal_payload_label(&path, "tampered event").await;
+    let reopened = NdjsonEventJournal::with_options(&path, NdjsonJournalOptions::hash_chain());
+
+    let result = reopened
+        .append(&stored_event(test_event_for_type(
+            "third event",
+            OTHER_EVENT_TYPE,
+        )))
+        .await;
+
+    match result {
+        Err(EventingError::JournalCorruptLine { line: 1, reason }) => {
+            assert!(reason.contains("current hash mismatch"));
+        }
+        other => panic!("expected corrupt hash-chain line, received {other:?}"),
+    }
     cleanup(&path).await;
 }
 

@@ -1,6 +1,0 @@
-Security/no-claim proof:
-
-- Manual-required source freshness rows produce no preview row and accept no compiled decision.
-- Policy-ready source freshness rows must match compiled decision native app/native game domain.
-- Preview rows remain dry-run-only through the existing WP70 handoff contract.
-- Policy evaluator runtime, timers, child delivery, adapter dispatch, and platform enforcement remain false.

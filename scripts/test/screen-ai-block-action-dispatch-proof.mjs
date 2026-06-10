@@ -1,3 +1,4 @@
+import { createHash } from 'node:crypto';
 import { spawn } from 'node:child_process';
 import { existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { mkdtemp, readFile, writeFile } from 'node:fs/promises';
@@ -13,6 +14,7 @@ const timeoutMs = envNumber('OCENTRA_SCREEN_AI_BLOCK_ACTION_TIMEOUT_MS', 20_000)
 const pipelineRoot = join(repoRoot, 'output', 'screen-ai-pipeline-proof');
 const scenarioDir = join(pipelineRoot, scenarioId);
 const outputDir = join(pipelineRoot, 'block-action-dispatch');
+const safeScenarioId = proofToken(scenarioId, 'scenario id');
 
 rmSync(outputDir, { recursive: true, force: true });
 mkdirSync(outputDir, { recursive: true });
@@ -58,9 +60,12 @@ async function main() {
       },
       assertion,
       event: {
-        event: event.event,
-        severity: event.severity,
-        payload: event.payload,
+        event: proofToken(event.event, 'adapter event name'),
+        severity: event.severity === undefined ? null : proofToken(event.severity, 'adapter event severity'),
+        payloadSha256: sha256(JSON.stringify(event.payload ?? null)),
+        payloadFieldNames: Object.keys(event.payload ?? {}).map((fieldName) =>
+          proofToken(fieldName, 'adapter payload field')
+        ),
       },
       artifacts: {
         activityJournal: relative(repoRoot, join(runRoot, 'activity.ndjson')),
@@ -104,7 +109,7 @@ function assertScreenBlockPolicyInput() {
 function screenBlockSource() {
   return {
     schemaVersion: 1,
-    scenarioId,
+    scenarioId: safeScenarioId,
     sourceScreenCategory: screenResult.primaryCategory,
     screenAnalysisResultId: screenResult.screenAnalysisResultId,
     localAiResultId: localAiSafetyResult.resultId,
@@ -140,6 +145,7 @@ function spawnAgentService(runRoot, agentPort) {
       ...process.env,
       OCENTRA_PARENT_AGENT_ADDR: `127.0.0.1:${agentPort}`,
       OCENTRA_PARENT_ACTIVITY_DB_PATH: join(runRoot, 'activity.sqlite'),
+      OCENTRA_PARENT_ACTIVITY_CAPTURE_STARTUP_DISABLED: 'true',
       OCENTRA_PARENT_ACTIVITY_JOURNAL_PATH: join(runRoot, 'activity.ndjson'),
       OCENTRA_PARENT_ACTIVITY_JOURNAL_KEY_PATH: join(runRoot, 'activity.key'),
       OCENTRA_PARENT_DEV_LOG_DIR: join(runRoot, 'logs'),
@@ -239,22 +245,26 @@ async function assertBlockResult(event, ownedChild) {
     sourceScreenPolicyDryRun: policyDecision.dryRun,
     localAiResultId: localAiSafetyResult.resultId,
     expectedProcessName,
-    status: event.payload.enforcementStatus,
-    adapterResultCode: event.payload.enforcementAdapterResultCode,
-    rollbackState: event.payload.enforcementRollbackState,
-    journalEventId: event.payload.enforcementJournalEventId,
+    status: proofToken(event.payload.enforcementStatus, 'enforcement status'),
+    adapterResultCode: proofToken(event.payload.enforcementAdapterResultCode, 'enforcement adapter result code'),
+    rollbackState: proofToken(event.payload.enforcementRollbackState, 'enforcement rollback state'),
+    journalEventId: proofToken(event.payload.enforcementJournalEventId, 'enforcement journal event id'),
     databaseReady: event.payload.databaseReady,
     eventsStored: event.payload.eventsStored,
-    adapterPolicyDecisionId: enforcementAction.policyDecisionId,
-    adapterLocalAiResultId: enforcementAction.localAiResultId,
-    adapterPolicyAction: enforcementAction.policyAction,
+    adapterPolicyDecisionId: proofToken(enforcementAction.policyDecisionId, 'adapter policy decision id'),
+    adapterLocalAiResultId: proofToken(enforcementAction.localAiResultId, 'adapter local AI result id'),
+    adapterPolicyAction: proofToken(enforcementAction.policyAction, 'adapter policy action'),
     adapterDryRun: enforcementAction.dryRun,
-    adapterTargetType: enforcementAction.target.targetType,
-    adapterTargetValue: enforcementAction.target.targetValue,
-    adapterEvidenceRefs,
-    expectedEvidenceRefs,
-    resultStatus: enforcementResult.status,
-    resultAdapterCode: enforcementResult.adapterResultCode,
+    adapterTargetType: proofToken(enforcementAction.target.targetType, 'adapter target type'),
+    adapterTargetValue: proofToken(enforcementAction.target.targetValue, 'adapter target value'),
+    adapterEvidenceRefs: adapterEvidenceRefs.map((referenceId) =>
+      proofToken(referenceId, 'adapter evidence reference id')
+    ),
+    expectedEvidenceRefs: expectedEvidenceRefs.map((referenceId) =>
+      proofToken(referenceId, 'expected evidence reference id')
+    ),
+    resultStatus: proofToken(enforcementResult.status, 'enforcement result status'),
+    resultAdapterCode: proofToken(enforcementResult.adapterResultCode, 'enforcement result adapter code'),
   };
 }
 
@@ -266,30 +276,33 @@ function commandEnvelope(ownedChild) {
 
   return {
     schemaVersion: 1,
-    messageId: `cmd-screen-ai-block-${scenarioId}`,
+    messageId: `cmd-screen-ai-block-${safeScenarioId}`,
     sentAt: now.toISOString(),
     source: { peerId: 'portal-dev', role: 'portal' },
     target: { deviceId: 'local-dev-agent', platform: platformLabel(), route: 'localhost' },
     command: 'agent.enforcement.execute',
     payload: {
-      policyDecisionId: policyDecision.decisionId,
-      policyVersion: `policy-screen-ai-block-${scenarioId}`,
+      policyDecisionId: proofToken(policyDecision.decisionId, 'policy decision id'),
+      policyVersion: `policy-screen-ai-block-${safeScenarioId}`,
       policyAction: 'block',
       targetType: 'process',
-      targetId: `target-screen-ai-block-owned-process-${scenarioId}`,
+      targetId: `target-screen-ai-block-owned-process-${safeScenarioId}`,
       targetValue: basename(process.execPath),
       dryRun: false,
-      reasonCodes: policyDecision.reasonCodes.join(','),
-      ruleIds: policyDecision.ruleIds.join(','),
-      evidenceReferenceIds,
-      localAiResultId: localAiSafetyResult.resultId,
+      reasonCodes: policyDecision.reasonCodes.map((reasonCode) => proofToken(reasonCode, 'reason code')).join(','),
+      ruleIds: policyDecision.ruleIds.map((ruleId) => proofToken(ruleId, 'rule id')).join(','),
+      evidenceReferenceIds: evidenceReferenceIds
+        .split(',')
+        .map((referenceId) => proofToken(referenceId, 'evidence reference id'))
+        .join(','),
+      localAiResultId: proofToken(localAiSafetyResult.resultId, 'local AI result id'),
       requestedAt: now.toISOString(),
-      enforcementActionId: `action-screen-ai-block-${scenarioId}`,
-      enforcementResultId: `result-screen-ai-block-${scenarioId}`,
-      enforcementAuditEventId: `audit-screen-ai-block-${scenarioId}`,
-      enforcementTimerEventId: `timer-screen-ai-block-${scenarioId}`,
-      enforcementIntentId: `intent-screen-ai-block-${scenarioId}`,
-      rollbackToken: `rollback-screen-ai-block-${scenarioId}`,
+      enforcementActionId: `action-screen-ai-block-${safeScenarioId}`,
+      enforcementResultId: `result-screen-ai-block-${safeScenarioId}`,
+      enforcementAuditEventId: `audit-screen-ai-block-${safeScenarioId}`,
+      enforcementTimerEventId: `timer-screen-ai-block-${safeScenarioId}`,
+      enforcementIntentId: `intent-screen-ai-block-${safeScenarioId}`,
+      rollbackToken: `rollback-screen-ai-block-${safeScenarioId}`,
       processId: ownedChild.pid,
     },
   };
@@ -299,7 +312,7 @@ function proofSummary(assertion) {
   return {
     proof: 'screen-ai-block-action-dispatch-proof',
     proofTier: 'P3_LOCAL_DEV_MACHINE',
-    scenarioId,
+    scenarioId: safeScenarioId,
     platform: process.platform,
     sourceScreenCategory: screenResult.primaryCategory,
     screenPolicyDecisionId: policyDecision.decisionId,
@@ -388,6 +401,18 @@ function parseEmbeddedJson(value, label) {
   return JSON.parse(value);
 }
 
+function proofToken(value, label) {
+  const text = String(value ?? '');
+  if (!/^[A-Za-z0-9._:-]+$/u.test(text)) {
+    throw new Error(`Unexpected ${label} token shape.`);
+  }
+  return text;
+}
+
+function sha256(value) {
+  return createHash('sha256').update(value).digest('hex');
+}
+
 function platformLabel() {
   if (process.platform === 'win32') {
     return 'windows';
@@ -424,7 +449,7 @@ function runCommand(command, args) {
 
 function printSummary(assertion) {
   console.log(
-    `screen-ai-block-action-dispatch-proof-ok:${scenarioId}:${policyDecision.action}:${assertion.status}:${assertion.adapterResultCode}`
+    `screen-ai-block-action-dispatch-proof-ok:${safeScenarioId}:${proofToken(policyDecision.action, 'policy action')}:${proofToken(assertion.status, 'adapter status')}:${proofToken(assertion.adapterResultCode, 'adapter result code')}`
   );
   console.log(`evidence=${relative(repoRoot, join(outputDir, 'proof-summary.json'))}`);
 }

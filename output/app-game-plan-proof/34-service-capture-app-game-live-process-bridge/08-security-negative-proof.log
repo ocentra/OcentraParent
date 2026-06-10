@@ -1,9 +1,0 @@
-Security negative proof:
-
-- Runtime evidence is not foreground evidence.
-- Foreground state remains `notClaimed` in the service-captured app/game row.
-- Raw executable paths are stored as opaque refs, not plaintext paths.
-- Activity capture does not call policy evaluators.
-- Activity capture does not call enforcement adapters.
-- Manual-required and broad blocking states are not changed.
-- The portal still receives read-model rows only; it does not scan the OS.

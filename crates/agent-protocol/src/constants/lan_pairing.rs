@@ -359,6 +359,7 @@ pub const POWERSHELL_LOCAL_NETWORK_IDENTITY_COMMAND: &str = "[Console]::OutputEn
 pub const POWERSHELL_CPU_COMMAND: &str = "[Console]::OutputEncoding=[Text.UTF8Encoding]::UTF8; Get-CimInstance Win32_Processor | Select-Object -First 1 Name,NumberOfCores,NumberOfLogicalProcessors | ConvertTo-Json -Compress";
 pub const POWERSHELL_GPU_COMMAND: &str = "[Console]::OutputEncoding=[Text.UTF8Encoding]::UTF8; Get-CimInstance Win32_VideoController | Select-Object Name,DriverVersion,AdapterRAM | ConvertTo-Json -Compress";
 pub const POWERSHELL_COMPUTER_SYSTEM_COMMAND: &str = "[Console]::OutputEncoding=[Text.UTF8Encoding]::UTF8; Get-CimInstance Win32_ComputerSystem | Select-Object TotalPhysicalMemory,Manufacturer,Model,Name | ConvertTo-Json -Compress";
+pub const LAN_NETWORK_INVENTORY_COMMAND_TIMEOUT_MS: u64 = 3000;
 pub const NBTSTAT_EXE: &str = "nbtstat";
 pub const NBTSTAT_CACHE_ARG: &str = "-c";
 pub const NBTSTAT_ADAPTER_STATUS_ARG: &str = "-A";
@@ -430,6 +431,9 @@ pub const OBSERVER_RULE_QUERY_INTENT_ID: &str = "intent-observer-rule-query";
 pub const OBSERVER_RULE_UPDATE_INTENT_ID: &str = "intent-observer-rule-update";
 pub const OLD_CONTROLLER_AFTER_TAKEOVER_INTENT_ID: &str = "intent-old-controller-after-takeover";
 pub const LAN_AI_JOB_ID: &str = "lan-ai-job-1";
+pub const LAN_AI_CLAIM_ID_PREFIX: &str = "lan-ai-claim-";
+pub const LAN_AI_LEASE_ID_PREFIX: &str = "lan-ai-lease-";
+pub const LAN_AI_MAX_LEASE_ATTEMPTS: usize = 3;
 pub const SELECT_INTENT_ID: &str = "intent-select-1";
 pub const SECOND_SELECT_INTENT_ID: &str = "intent-select-2";
 pub const SELECT_BACK_INTENT_ID: &str = "intent-select-back";

@@ -20,6 +20,13 @@ import {
 } from '../dev/local-dev-config.mjs';
 import { ensurePortFree } from '../dev/port-utils.mjs';
 import { resolveDebugAgentServicePath, spawnVitePortal, stopProcessTreeAndWait } from './agent-service-process.mjs';
+import {
+  NetworkEvidenceDrawerProofFixture,
+  networkActivityEvidence,
+  networkActivityFields,
+  networkActivityObservedAt,
+  networkEvidenceReferenceIds,
+} from './network-evidence-drawer-proof-fixture.mjs';
 
 const repoRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..', '..');
 const portalRoot = path.join(repoRoot, 'apps', 'portal');
@@ -134,35 +141,8 @@ async function runPlaywright() {
 }
 
 async function seedActivityStore() {
-  const fields = {
-    capabilityStatus: 'available',
-    adapterId: 'windows-network-snapshot',
-    networkProtocol: 'tcp',
-    tcpState: 'established',
-    localIp: '127.0.0.1',
-    localPort: 4242,
-    destinationIp: '203.0.113.10',
-    destinationPort: 443,
-    destinationDomain: 'example-network.test',
-    domainAttributionStatus: 'domain-observed',
-    processAttributionStatus: 'process-attributed',
-    pid: 4242,
-    processName: 'notepad.exe',
-  };
-  const evidence = [
-    {
-      evidenceId: 'network-ui-evidence-1',
-      kind: 'local-db-row',
-      digest: 'sha256:network-ui-evidence-1',
-      uri: null,
-    },
-    {
-      evidenceId: 'network-ui-journal-1',
-      kind: 'journal-entry',
-      digest: 'sha256:network-ui-journal-1',
-      uri: null,
-    },
-  ];
+  const fields = networkActivityFields();
+  const evidence = networkActivityEvidence();
   const sql = `
 PRAGMA foreign_keys = ON;
 PRAGMA journal_mode = WAL;
@@ -194,15 +174,15 @@ INSERT INTO activity_events (
   fields_json,
   evidence_json
 ) VALUES (
-  'network-ui-flow-1',
-  '2026-06-05T00:34:00Z',
-  'child-device-network-ui',
-  'windows',
-  'windows-network',
-  'activity.domain.observed',
-  'domain',
-  'example-network.test',
-  'example-network.test',
+  '${sqlString(NetworkEvidenceDrawerProofFixture.eventId)}',
+  '${sqlString(networkActivityObservedAt())}',
+  '${sqlString(NetworkEvidenceDrawerProofFixture.deviceId)}',
+  '${sqlString(NetworkEvidenceDrawerProofFixture.platform)}',
+  '${sqlString(NetworkEvidenceDrawerProofFixture.observer)}',
+  '${sqlString(NetworkEvidenceDrawerProofFixture.kind)}',
+  '${sqlString(NetworkEvidenceDrawerProofFixture.subjectKind)}',
+  '${sqlString(NetworkEvidenceDrawerProofFixture.subjectId)}',
+  '${sqlString(NetworkEvidenceDrawerProofFixture.subjectDisplayName)}',
   '${sqlString(JSON.stringify(fields))}',
   '${sqlString(JSON.stringify(evidence))}'
 );
@@ -298,7 +278,7 @@ async function writeProof(playwright) {
       event: 'agent.network.flow.read-model.reported',
       sourceStore: 'temporary ActivityStore SQLite activity_events',
       route: '#/activity',
-      evidenceReferenceIds: ['network-ui-evidence-1', 'network-ui-journal-1'],
+      evidenceReferenceIds: networkEvidenceReferenceIds(),
     },
     assertions: [
       'Portal renders the network evidence drawer from the real Rust service read model.',

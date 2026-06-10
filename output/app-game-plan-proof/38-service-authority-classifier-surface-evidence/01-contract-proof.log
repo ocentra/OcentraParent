@@ -1,5 +1,0 @@
-WP38 contract proof:
-- Reused existing `AppGameServiceReadModel` boundary rows and `ActivityEvidenceRef`.
-- Added no new public DTO shape.
-- `cargo test -p ocentra-parent-agent-service app_game_boundary_evidence` passed before proof packaging.
-- Tests prove app-use and games read-model rows include staged evidence-claim, identity, approval authority/action-result, platform authority matrix, platform authority row, classifier run, and classifier source evidence refs.

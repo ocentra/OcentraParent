@@ -1,8 +1,0 @@
-Rust protocol proof is shared with app/game WP36.
-
-The foreground source consumes protocol-owned prefixes so Rust core code does
-not invent foreground evidence, window ref, or title ref strings.
-
-Focused validation:
-
-- cargo test -p ocentra-parent-agent-protocol app_game: passed, 20 tests

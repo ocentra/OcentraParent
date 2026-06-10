@@ -1,4 +1,0 @@
-NOT RUN: no UI files, routes, or browser-rendered states changed in WP47.
-
-The portal can consume `sourceStatusRows` in a later UI-owned slice, but this
-workpack intentionally avoids E-A portal ownership.

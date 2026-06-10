@@ -1,5 +1,0 @@
-{
-  "appPlanWorkpack": "29-rust-protocol-evidence-identity-parity",
-  "runtimeEvidenceChanged": false,
-  "reason": "Native app runtime source readers, identity merge behavior, and portal identity rows were not changed."
-}

@@ -1,9 +1,0 @@
-PASS cargo test -p ocentra-parent-agent-protocol activity_surface -- --nocapture
-
-Proof:
-- `ActivityAppGameSourceStatusRow` serializes with camelCase fields.
-- App-use read-model rows serialize `sourceStatusRows`.
-
-No-claim:
-- Rust protocol carries transport shape only; it does not execute policy,
-  adapters, or portal UI.

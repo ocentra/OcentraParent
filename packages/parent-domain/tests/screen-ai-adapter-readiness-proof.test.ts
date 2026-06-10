@@ -1,5 +1,8 @@
 import { describe, expect, it } from 'vitest';
 import {
+  screenAiFinalAdapterCompletionGate,
+  screenAiFinalAdapterCompletionGateIsSatisfied,
+  ScreenAiAdapterCompletionArtifactSchema,
   screenAiAdapterReadinessCoversRequiredBoundaries,
   ScreenAiAdapterReadinessReadModelSchema,
   ScreenAiAdapterReadinessRowSchema,
@@ -8,60 +11,138 @@ import {
 
 describe('screen AI adapter readiness proof', () => {
   it('covers real owned-process actions plus manual unavailable and not-claimed adapter states', () => {
-    const parsed = parseRequiredReadModel();
-
-    expect(parsed.rows).toHaveLength(8);
-    expect(screenAiAdapterReadinessCoversRequiredBoundaries(parsed)).toBe(true);
-    expect(summarizeScreenAiAdapterReadiness(parsed)).toEqual(expectedReadinessSummary());
+    expectRequiredReadinessCoverage();
   });
 
   it('rejects rows that try to convert broad app network exact tab or mobile gaps into claims', () => {
-    const row = requiredRows()[2];
-
-    expect(() =>
-      ScreenAiAdapterReadinessRowSchema.parse({
-        ...row,
-        rowId: 'invalid-broad-app-claim',
-        claimFlags: {
-          ...row.claimFlags,
-          broadInstalledAppBlockingClaimed: true,
-        },
-      })
-    ).toThrow(/claim upgrades/u);
+    expectBroadClaimUpgradeRejected();
   });
 
   it('rejects real adapter rows without deleted screen custody and adapter proof', () => {
-    const row = requiredRows()[0];
-
-    expect(() =>
-      ScreenAiAdapterReadinessRowSchema.parse({
-        ...row,
-        rowId: 'invalid-retained-image-real-adapter',
-        rawImageRetained: true,
-      })
-    ).toThrow(/deleted-image custody/u);
-
-    expect(() =>
-      ScreenAiAdapterReadinessRowSchema.parse({
-        ...row,
-        rowId: 'invalid-real-adapter-without-proof',
-        adapterExecutionProofArtifact: null,
-      })
-    ).toThrow(/adapter claim boundaries/u);
+    expectRealAdapterCustodyRequired();
   });
 
   it('rejects manual required rows that claim an adapter executed', () => {
-    const row = requiredRows()[3];
+    expectManualRowExecutionRejected();
+  });
 
-    expect(() =>
-      ScreenAiAdapterReadinessRowSchema.parse({
-        ...row,
-        rowId: 'invalid-manual-row-executed',
-        actionExecutionState: 'executed',
-      })
-    ).toThrow(/adapter claim boundaries/u);
+  it('keeps final adapter completion closed until every broad browser network and mobile artifact is present', () => {
+    expectPartialCompletionGateClosed();
+  });
+
+  it('opens final adapter completion only when every required artifact preserves apply rollback audit and custody', () => {
+    expectCompleteGateOpen();
+  });
+
+  it('rejects final adapter artifacts that retain raw screen images or omit rollback custody', () => {
+    expectInvalidCompletionArtifactRejected();
   });
 });
+
+function expectRequiredReadinessCoverage() {
+  const parsed = parseRequiredReadModel();
+
+  expect(parsed.rows).toHaveLength(8);
+  expect(screenAiAdapterReadinessCoversRequiredBoundaries(parsed)).toBe(true);
+  expect(summarizeScreenAiAdapterReadiness(parsed)).toEqual(expectedReadinessSummary());
+}
+
+function expectBroadClaimUpgradeRejected() {
+  const row = requiredRows()[2];
+
+  expect(() =>
+    ScreenAiAdapterReadinessRowSchema.parse({
+      ...row,
+      rowId: 'invalid-broad-app-claim',
+      claimFlags: {
+        ...row.claimFlags,
+        broadInstalledAppBlockingClaimed: true,
+      },
+    })
+  ).toThrow(/claim upgrades/u);
+}
+
+function expectRealAdapterCustodyRequired() {
+  const row = requiredRows()[0];
+
+  expect(() =>
+    ScreenAiAdapterReadinessRowSchema.parse({
+      ...row,
+      rowId: 'invalid-retained-image-real-adapter',
+      rawImageRetained: true,
+    })
+  ).toThrow(/deleted-image custody/u);
+
+  expect(() =>
+    ScreenAiAdapterReadinessRowSchema.parse({
+      ...row,
+      rowId: 'invalid-real-adapter-without-proof',
+      adapterExecutionProofArtifact: null,
+    })
+  ).toThrow(/adapter claim boundaries/u);
+}
+
+function expectManualRowExecutionRejected() {
+  const row = requiredRows()[3];
+
+  expect(() =>
+    ScreenAiAdapterReadinessRowSchema.parse({
+      ...row,
+      rowId: 'invalid-manual-row-executed',
+      actionExecutionState: 'executed',
+    })
+  ).toThrow(/adapter claim boundaries/u);
+}
+
+function expectPartialCompletionGateClosed() {
+  const parsed = parseRequiredReadModel();
+  const artifacts = completionArtifacts()
+    .slice(0, 3)
+    .map((artifact) => ScreenAiAdapterCompletionArtifactSchema.parse(artifact));
+
+  expect(screenAiFinalAdapterCompletionGate(parsed, artifacts)).toEqual({
+    completed: false,
+    requiredRows: 5,
+    completedRows: 3,
+    missingRows: ['screen-ai-android-mobile-control-manual-required', 'screen-ai-ios-mobile-control-manual-required'],
+    invalidRows: [],
+    rawImageRetainedRows: 0,
+  });
+  expect(screenAiFinalAdapterCompletionGateIsSatisfied(parsed, artifacts)).toBe(false);
+}
+
+function expectCompleteGateOpen() {
+  const parsed = parseRequiredReadModel();
+  const artifacts = completionArtifacts().map((artifact) => ScreenAiAdapterCompletionArtifactSchema.parse(artifact));
+
+  expect(screenAiFinalAdapterCompletionGate(parsed, artifacts)).toEqual({
+    completed: true,
+    requiredRows: 5,
+    completedRows: 5,
+    missingRows: [],
+    invalidRows: [],
+    rawImageRetainedRows: 0,
+  });
+  expect(screenAiFinalAdapterCompletionGateIsSatisfied(parsed, artifacts)).toBe(true);
+}
+
+function expectInvalidCompletionArtifactRejected() {
+  const artifact = completionArtifacts()[0];
+
+  expect(() =>
+    ScreenAiAdapterCompletionArtifactSchema.parse({
+      ...artifact,
+      rawImageRetained: true,
+    })
+  ).toThrow(/screen-derived custody/u);
+
+  expect(() =>
+    ScreenAiAdapterCompletionArtifactSchema.parse({
+      ...artifact,
+      rollbackOrExpiryRef: '',
+    })
+  ).toThrow();
+}
 
 function parseRequiredReadModel() {
   return ScreenAiAdapterReadinessReadModelSchema.parse({
@@ -100,6 +181,38 @@ function expectedReadinessSummary() {
 
 function requiredRows() {
   return [...implementedRows(), ...manualAndUnavailableRows()];
+}
+
+function completionArtifacts() {
+  return [
+    completionArtifact('screen-ai-broad-installed-app-manual-required'),
+    completionArtifact('screen-ai-host-network-domain-manual-required'),
+    completionArtifact('screen-ai-managed-active-tab-not-claimed'),
+    completionArtifact('screen-ai-android-mobile-control-manual-required'),
+    completionArtifact('screen-ai-ios-mobile-control-manual-required'),
+  ];
+}
+
+function completionArtifact(rowId: string) {
+  return {
+    schemaVersion: 'v0.6',
+    rowId,
+    sourcePolicyDecisionRef: 'policy-decision-screen-analysis-bypass-tool',
+    sourceEvidenceRefs: [
+      {
+        evidenceReferenceId: `screen-analysis-evidence-${rowId}`,
+        kind: 'activity-event',
+        observedAt: '2026-06-04T08:53:32.027Z',
+      },
+    ],
+    applyResultRef: `${rowId}-apply-result`,
+    rollbackOrExpiryRef: `${rowId}-rollback-result`,
+    auditRef: `${rowId}-audit-ref`,
+    rawImageRetained: false,
+    rawImageDeletedBeforeAdapter: true,
+    screenDerivedPolicyDecision: true,
+    finalAdapterCompletionClaimed: true,
+  };
 }
 
 function implementedRows() {

@@ -1,3 +1,0 @@
-cmd /c npm run build --workspace @ocentra-parent/parent-domain
-cmd /c npm run test --workspace @ocentra-parent/parent-domain -- app-game-policy-preview-handoff app-game-policy-target-compiler
-node import @ocentra-parent/parent-domain/app-game-policy-preview-handoff

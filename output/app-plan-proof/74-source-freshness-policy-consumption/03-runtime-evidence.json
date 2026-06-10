@@ -1,5 +1,0 @@
-{
-  "schemaVersion": 1,
-  "runtimeEvidenceClaim": "not-applicable",
-  "reason": "WP74 consumes already-projected sourceStatusRows and does not add runtime capture or service polling."
-}

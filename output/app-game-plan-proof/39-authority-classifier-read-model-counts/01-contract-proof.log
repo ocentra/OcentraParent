@@ -1,8 +1,0 @@
-Contract proof:
-
-- `ActivityAppUseReadModelSchema` requires staged boundary count fields.
-- `ActivityGamesReadModelSchema` requires the same staged boundary count fields.
-- Domain tests prove app-use and games rows accept and preserve the new counts.
-- Adapter tests prove the service event parser accepts app-use rows with the new counts after rebuilding `@ocentra-parent/activity-domain`.
-
-No new command or event name was added.

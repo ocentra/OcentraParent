@@ -48,6 +48,13 @@ PC while preserving local-first custody.
   custody, and mobile dormant/fallback rules. Existing degraded/unavailable LAN
   AI provider rows and screen family-hub runtime discovery do not yet prove
   full decentralized provider execution across physical household devices.
+- `scripts/test/eventing-household-mesh-consumer-proof.mjs` now proves the
+  Household Mesh Bridge consumer boundary: selected local events can export as
+  typed authenticated LAN messages, incoming messages validate before local
+  republish, unselected or mismatched event/message refs are rejected, direct
+  remote publish into another runtime bus is rejected, and child-agent-only AI
+  policy authority is preserved. This remains bridge evidence, not physical
+  household provider execution.
 - The parent service now emits a typed LAN scan summary, merges the local
   child-agent device with matching passive LAN evidence, and keeps passive
   neighbors/router rows separate from controllable child-agent targets.
@@ -109,6 +116,8 @@ PC while preserving local-first custody.
 - Parent desktop release-support proof separates parent mobile bridge state from
   child Android/iOS agent claims and keeps signing, stores, TestFlight, Play,
   relay, and mobile child-agent parity manual-required or not implemented.
+- Parent mobile Android/iOS scaffold package previews now build and smoke
+  separately from child-agent Android/iOS package previews.
 - Parent-owned sync/export endpoint contract proof now defines versioned
   endpoint-domain paths, headers, query params, and contract-version labels for
   parent-owned export status/sync cursor/import preview/delete status and remote
@@ -130,10 +139,13 @@ agent hello/heartbeat artifacts, and stronger name discovery such as
 mDNS/SSDP/router DHCP integration. Browser screenshot proof now exists for the
 current B-lane Devices/LAN, Activity/Network source-matrix diagnostics, and
 Network policy surfaces, but that is not two-physical-child household proof.
-Household AI provider mesh additionally needs provider advertisement/heartbeat,
-claim/lease, duplicate prevention, child-agent result validation, no raw
-screenshot transfer, mobile dormant/fallback, and provider-cannot-publish-policy
-proof.
+Household AI provider mesh now has eventing bridge-boundary proof for selected
+event export, validated republish, unselected or mismatched ref rejection, no
+direct remote publish, no raw payload transfer, and
+provider-cannot-publish-policy authority. It still needs physical provider
+advertisement/heartbeat, claim/lease, duplicate prevention, child-agent result
+validation over real provider output, mobile dormant/fallback, and production
+runtime proof.
 Optional remote relay, cache route, parent-owned sync/export transfer runtime,
 connector OAuth/revocation, mobile permissions, Android Device
 Owner/Accessibility/VPN/DNS/UsageStats proof, iOS Family
@@ -201,8 +213,9 @@ distribution remain.
       Current release-support and V0.9 parent-mobile observer proofs model this
       split for handoff/reporting, route status, controller lease, LAN AI
       provider state, package lifecycle, and explicit no-child-agent-parity
-      claims, but real parent mobile UX, store signing, controller authority,
-      and child mobile agent proof remain.
+      claims. CI now has separate parent mobile Android/iOS package-preview
+      targets; real parent mobile UX beyond scaffold status, store signing,
+      controller authority, and child mobile agent proof remain.
 
 ## Next AI Instructions
 

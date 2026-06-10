@@ -51,13 +51,19 @@ mod local_ai_runtime_boundary;
 mod local_ai_runtime_provider_proof;
 mod logging;
 mod network_flow;
+mod network_linux_nftables_lab_status;
+mod network_windows_firewall_lab_status;
+mod network_windows_wfp_gate_status;
 mod notification_provider_status_boundary;
 mod parent_assistant;
 mod parent_controller;
 mod screen_evidence;
+mod screen_settings;
+mod social_alert_report_parent_surface_read_model;
 mod social_alert_report_read_model;
 mod social_audit_explanation_read_model;
 mod social_dashboard_read_model;
+mod social_parent_notification_delivery_read_model;
 mod social_source_custody_mutation;
 mod tracking_read_model;
 mod tracking_retention_settings_write_command;
@@ -113,13 +119,19 @@ pub use local_ai_runtime_boundary::*;
 pub use local_ai_runtime_provider_proof::*;
 pub use logging::*;
 pub use network_flow::*;
+pub use network_linux_nftables_lab_status::*;
+pub use network_windows_firewall_lab_status::*;
+pub use network_windows_wfp_gate_status::*;
 pub use notification_provider_status_boundary::*;
 pub use parent_assistant::*;
 pub use parent_controller::*;
 pub use screen_evidence::*;
+pub use screen_settings::*;
+pub use social_alert_report_parent_surface_read_model::*;
 pub use social_alert_report_read_model::*;
 pub use social_audit_explanation_read_model::*;
 pub use social_dashboard_read_model::*;
+pub use social_parent_notification_delivery_read_model::*;
 pub use social_source_custody_mutation::*;
 pub use tracking_read_model::*;
 pub use tracking_retention_settings_write_command::*;
@@ -234,6 +246,14 @@ mod local_provider_adapter_readiness_tests;
 #[cfg(test)]
 mod network_flow_tests;
 #[cfg(test)]
+mod network_linux_nftables_lab_status_tests;
+#[cfg(test)]
+mod network_live_capture_status_tests;
+#[cfg(test)]
+mod network_windows_firewall_lab_status_tests;
+#[cfg(test)]
+mod network_windows_wfp_gate_status_tests;
+#[cfg(test)]
 mod notification_provider_status_boundary_tests;
 #[cfg(test)]
 mod parent_assistant_tests;
@@ -244,11 +264,15 @@ mod policy_preview_tests;
 #[cfg(test)]
 mod screen_evidence_tests;
 #[cfg(test)]
+mod screen_settings_tests;
+#[cfg(test)]
 mod social_alert_report_read_model_tests;
 #[cfg(test)]
 mod social_audit_explanation_read_model_tests;
 #[cfg(test)]
 mod social_dashboard_read_model_tests;
+#[cfg(test)]
+mod social_parent_notification_delivery_read_model_tests;
 #[cfg(test)]
 mod social_source_custody_mutation_tests;
 #[cfg(test)]

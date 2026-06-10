@@ -5,6 +5,7 @@ import { createServer } from 'node:http';
 import { dirname, join } from 'node:path';
 import { setTimeout as delay } from 'node:timers/promises';
 import { fileURLToPath } from 'node:url';
+import { inflateSync } from 'node:zlib';
 
 const scriptDir = dirname(fileURLToPath(import.meta.url));
 const repoRoot = join(scriptDir, '..', '..');
@@ -40,6 +41,8 @@ const browserViewIntentArgs = [
 const proofAvdName = 'OcentraParentDeviceOwnerProof';
 const proofAvdPackage = 'system-images;android-33;aosp_atd;x86_64';
 const proofAvdDevice = 'pixel_6';
+const proofEmulatorPort = process.env.OCENTRA_PARENT_ANDROID_PROOF_EMULATOR_PORT?.trim() ?? '5570';
+const requestedAndroidSerial = process.env.ANDROID_SERIAL?.trim() ?? '';
 
 mkdirSync(proofRoot, { recursive: true });
 
@@ -66,21 +69,19 @@ try {
     throw new Error('Android avdmanager executable is required for disposable Device Owner proof AVD');
   }
 
+  connectRequestedAndroidSerial(adb.path);
   const existingSerials = listDevices(adb.path).map((device) => device.serial);
   createProofAvd(avdManager.path);
   proofAvdCreated = true;
   launchedEmulatorSerial = await launchEmulatorIfAvailable(adb.path, emulator.path, existingSerials);
   launchedEmulator = launchedEmulatorSerial !== null;
 
-  const devices = listDevices(adb.path).filter(
-    (device) => device.state === 'device' && device.serial === launchedEmulatorSerial
-  );
+  const devices = selectProofDevices(adb.path, launchedEmulatorSerial);
   if (devices.length === 0) {
     throw new Error('No proof-launched Android emulator was available for owned browser shell proof');
   }
 
   server = await startProofServer();
-  const proofUrl = `http://10.0.2.2:${server.port}/owned-browser-shell-proof`;
   const deviceProofs = [];
 
   for (const device of devices) {
@@ -91,6 +92,7 @@ try {
     if (bootCompleted !== '1') {
       continue;
     }
+    const proofUrl = configureProofUrlForDevice(adb.path, device.serial, server.port);
     deviceProofs.push(
       await proveDevice(adb.path, device.serial, proofUrl, launchedEmulator && device.serial === launchedEmulatorSerial)
     );
@@ -152,9 +154,40 @@ try {
       proofAvdNameSha256: sha256(proofAvdName),
       proofAvdPackagePersisted: false,
       proofAvdPackageSha256: sha256(proofAvdPackage),
+      proofEmulatorPortPersisted: false,
+      proofEmulatorPortSha256: sha256(proofEmulatorPort),
       emulatorCleanupAttempted: launchedEmulator,
+      androidSerialFilterUsed: requestedAndroidSerial.length > 0,
+      requestedAndroidSerialPersisted: false,
+      requestedAndroidSerialRef:
+        requestedAndroidSerial.length > 0
+          ? `redacted-android-device-ref-${sha256(requestedAndroidSerial).slice(0, 16)}`
+          : null,
       attachedDeviceCount: devices.length,
       bootedDeviceCount: deviceProofs.length,
+      physicalDeviceProofRequested: requestedAndroidSerial.length > 0,
+      physicalDeviceProofObserved: deviceProofs.some(
+        (device) => device.serialKind === 'physical-or-network-adb-device'
+      ),
+      physicalDeviceInstallObserved: deviceProofs.some(
+        (device) => device.serialKind === 'physical-or-network-adb-device' && device.packageInstalled
+      ),
+      physicalDeviceActivityStartObserved: deviceProofs.some(
+        (device) => device.serialKind === 'physical-or-network-adb-device' && device.explicitActivityStartObserved
+      ),
+      physicalDeviceActivityBehindKeyguardObserved: deviceProofs.some(
+        (device) =>
+          device.serialKind === 'physical-or-network-adb-device' && device.explicitActivityBehindKeyguardObserved
+      ),
+      physicalDeviceExplicitLaunchObserved: deviceProofs.some(
+        (device) => device.serialKind === 'physical-or-network-adb-device' && device.explicitLaunchObserved
+      ),
+      physicalDeviceScreenshotCaptured: deviceProofs.some(
+        (device) => device.serialKind === 'physical-or-network-adb-device' && device.screenshotCaptured
+      ),
+      physicalDeviceUiTreeCaptured: deviceProofs.some(
+        (device) => device.serialKind === 'physical-or-network-adb-device' && device.uiTreeCaptured
+      ),
       ownedBrowserShellPackageInstalled: deviceProofs.some((device) => device.packageInstalled),
       ownedBrowserShellSourceDeclared: sourceBoundary.ownedBrowserShellSourceDeclared,
       webViewDeclared: sourceBoundary.webViewDeclared,
@@ -191,7 +224,9 @@ try {
           !device.browserRoleAssignmentAttempted ||
           (device.proofLaunchedEmulator === true && device.serialKind === 'emulator')
       ),
-      androidBrowserRoleRoutingObserved: deviceProofs.some((device) => device.browserRoleRoutingObserved),
+      androidBrowserRoleRoutingObserved: deviceProofs.some(
+        (device) => device.proofLaunchedEmulator === true && device.browserRoleRoutingObserved
+      ),
       screenshotsCaptured: deviceProofs.some((device) => device.screenshotCaptured),
       screenshotsPersisted: deviceProofs.some((device) => device.screenshotPersisted),
       uiTreeCaptured: deviceProofs.some((device) => device.uiTreeCaptured),
@@ -206,18 +241,25 @@ try {
       deviceOwnerEnrollmentClaimed: true,
       deviceOwnerPolicyMutationClaimed: true,
       androidOwnedBrowserRoutingEnforcementClaimed: deviceProofs.some(
-        (device) => device.implicitViewIntentLaunchObserved
+        (device) => device.proofLaunchedEmulator === true && device.implicitViewIntentLaunchObserved
       ),
       browserRoleAssignmentClaimed: deviceProofs.some((device) => device.browserRoleAssignmentObserved),
       vpnDnsBrowserProofClaimed: false,
       usageStatsRouteProofClaimed: false,
       accessibilityRouteProofClaimed: false,
       enforcementClaimed: false,
-      resultState: deviceProofs.some((device) => device.implicitViewIntentLaunchObserved)
+      physicalDeviceClaimBoundary:
+        'physical-owned-shell-install-and-explicit-launch-only-no-device-owner-no-browser-role-no-enforcement',
+      resultState: deviceProofs.some(
+        (device) => device.proofLaunchedEmulator === true && device.implicitViewIntentLaunchObserved
+      )
         ? 'android-owned-browser-shell-browser-role-routing-proof'
         : 'android-owned-browser-shell-device-owner-policy-mutation-proof',
     },
-    proofUrlRef: `redacted-android-owned-browser-proof-url-${sha256(proofUrl).slice(0, 16)}`,
+    proofUrlRef: `redacted-android-owned-browser-proof-url-${sha256(`/owned-browser-shell-proof:${server.port}`).slice(
+      0,
+      16
+    )}`,
     proofUrlPersisted: false,
     apk: {
       path: 'platforms/android/agent/browser-shell/build/outputs/apk/debug/browser-shell-debug.apk',
@@ -238,6 +280,7 @@ try {
   console.log(`attachedDeviceCount=${proof.hostProofSummary.attachedDeviceCount}`);
   console.log(`bootedDeviceCount=${proof.hostProofSummary.bootedDeviceCount}`);
   console.log(`launchObserved=${proof.hostProofSummary.launchObserved}`);
+  console.log(`physicalDeviceProofObserved=${proof.hostProofSummary.physicalDeviceProofObserved}`);
   console.log(`resultState=${proof.hostProofSummary.resultState}`);
 } finally {
   if (server) {
@@ -263,10 +306,50 @@ function buildOwnedBrowserShell() {
   });
 }
 
+function connectRequestedAndroidSerial(adbPath) {
+  if (!requestedAndroidSerial.includes(':')) {
+    return;
+  }
+  command(['connect', requestedAndroidSerial], { adbPath, allowFailure: true });
+}
+
+function selectProofDevices(adbPath, launchedSerial) {
+  const devices = listDevices(adbPath);
+  const selected = devices.filter((device) => device.state === 'device' && device.serial === launchedSerial);
+  if (requestedAndroidSerial.length > 0) {
+    const requested = devices.find((device) => device.serial === requestedAndroidSerial);
+    if (!requested) {
+      throw new Error(`Requested ANDROID_SERIAL was not attached: ${requestedAndroidSerial}`);
+    }
+    if (requested.state !== 'device') {
+      throw new Error(`Requested ANDROID_SERIAL was not ready: ${requestedAndroidSerial} state=${requested.state}`);
+    }
+    if (!selected.some((device) => device.serial === requested.serial)) {
+      selected.push(requested);
+    }
+  }
+  return selected;
+}
+
+function configureProofUrlForDevice(adbPath, serial, port) {
+  if (serial.startsWith('emulator-')) {
+    return `http://10.0.2.2:${port}/owned-browser-shell-proof`;
+  }
+  command(['-s', serial, 'reverse', `tcp:${port}`, `tcp:${port}`], { adbPath, allowFailure: false });
+  return `http://127.0.0.1:${port}/owned-browser-shell-proof`;
+}
+
+function wakeDeviceForProof(adbPath, serial) {
+  command(['-s', serial, 'shell', 'input', 'keyevent', 'KEYCODE_WAKEUP'], { adbPath, allowFailure: true });
+  command(['-s', serial, 'shell', 'wm', 'dismiss-keyguard'], { adbPath, allowFailure: true });
+}
+
 async function proveDevice(adbPath, serial, proofUrl, proofLaunchedEmulator) {
   const serialRef = `redacted-android-device-ref-${sha256(serial).slice(0, 16)}`;
-  const serialKind = serial.startsWith('emulator-') ? 'emulator' : 'attached-device';
+  const serialKind = serial.startsWith('emulator-') ? 'emulator' : 'physical-or-network-adb-device';
+  const allowImplicitRoutingProof = proofLaunchedEmulator === true && serialKind === 'emulator';
 
+  wakeDeviceForProof(adbPath, serial);
   command(['-s', serial, 'install', '-r', apkPath], { adbPath, allowFailure: false });
   const deviceOwnerProof = proveDeviceOwnerEnrollment(adbPath, serial, proofLaunchedEmulator);
   const packageQuery = command(['-s', serial, 'shell', 'pm', 'path', packageName], {
@@ -294,6 +377,7 @@ async function proveDevice(adbPath, serial, proofUrl, proofLaunchedEmulator) {
   );
 
   const explicitUiTree = await waitForOwnedBrowserUi(adbPath, serial);
+  const explicitActivityVisibility = captureActivityVisibility(adbPath, serial);
   const afterPolicyResolveOutput = command(
     ['-s', serial, 'shell', 'cmd', 'package', 'resolve-activity', '--brief', ...browserViewIntentArgs, proofUrl],
     { adbPath, allowFailure: true }
@@ -303,13 +387,9 @@ async function proveDevice(adbPath, serial, proofUrl, proofLaunchedEmulator) {
     ['-s', serial, 'shell', 'cmd', 'package', 'resolve-activity', '--brief', ...browserViewIntentArgs, proofUrl],
     { adbPath, allowFailure: true }
   );
-  command(['-s', serial, 'shell', 'am', 'force-stop', packageName], { adbPath, allowFailure: true });
-  command(['-s', serial, 'shell', 'am', 'start', '-W', ...browserViewIntentArgs, proofUrl], {
-    adbPath,
-    allowFailure: false,
-  });
-
-  const implicitUiTree = await waitForOwnedBrowserUi(adbPath, serial);
+  const implicitUiTree = allowImplicitRoutingProof
+    ? await proveImplicitOwnedBrowserLaunch(adbPath, serial, proofUrl)
+    : '';
   const uiTree = `${explicitUiTree}\n${implicitUiTree}`;
   const screenshot = proofLaunchedEmulator
     ? Buffer.alloc(0)
@@ -317,7 +397,7 @@ async function proveDevice(adbPath, serial, proofUrl, proofLaunchedEmulator) {
         adbPath,
         allowFailure: true,
       });
-  const screenshotUsable = screenshot.length > 8;
+  const screenshotUsable = screenshot.length > 8 && pngHasVisibleNonBlackPixel(screenshot);
   if (screenshotUsable) {
     writeFileSync(screenshotProofPath, screenshot);
   } else if (existsSync(screenshotProofPath)) {
@@ -371,6 +451,12 @@ async function proveDevice(adbPath, serial, proofUrl, proofLaunchedEmulator) {
     rawUrlPersisted: false,
     rawPageContentPersisted: false,
     launchObserved,
+    explicitActivityStartObserved: explicitActivityVisibility.activityTaskObserved,
+    explicitActivityResumedObserved: explicitActivityVisibility.activityResumedObserved,
+    explicitActivityFocusedObserved: explicitActivityVisibility.focusedAppObserved,
+    explicitActivityBehindKeyguardObserved:
+      explicitActivityVisibility.activityTaskObserved && explicitActivityVisibility.keyguardObserved,
+    explicitLaunchObserved: explicitUiTree.includes('Ocentra owned browser proof page loaded'),
     localProofPageObserved: explicitUiTree.includes('Ocentra owned browser proof page loaded'),
     implicitViewIntentLaunchObserved: implicitUiTree.includes('Ocentra owned browser proof page loaded'),
     uiTreeCaptured: uiTree.includes('<hierarchy'),
@@ -379,8 +465,17 @@ async function proveDevice(adbPath, serial, proofUrl, proofLaunchedEmulator) {
     beforePolicyResolveSha256: sha256(beforePolicyResolveOutput),
     afterPolicyResolveSha256: sha256(afterPolicyResolveOutput),
     afterRoleResolveSha256: sha256(afterRoleResolveOutput),
+    activityStateSha256: explicitActivityVisibility.activityStateSha256,
+    windowStateSha256: explicitActivityVisibility.windowStateSha256,
+    rawActivityStatePersisted: false,
+    rawWindowStatePersisted: false,
     screenshotCaptured: screenshotUsable,
     screenshotPersisted: screenshotUsable,
+    screenshotCaptureState: screenshotUsable
+      ? 'captured'
+      : screenshot.length > 8 || proofLaunchedEmulator
+        ? 'not-used-screencap-was-black'
+        : 'not-captured',
     screenshotPath: screenshotUsable
       ? 'output/browser-plan-proof/05-cross-platform-inventory-matrix/15-android-owned-browser-shell-screenshot.png'
       : null,
@@ -390,8 +485,41 @@ async function proveDevice(adbPath, serial, proofUrl, proofLaunchedEmulator) {
     deviceOwnerEnrollmentClaimed: deviceOwnerProof.observed,
     deviceOwnerPolicyMutationClaimed: deviceOwnerProof.observed,
     browserRoleAssignmentClaimed: browserRoleProof.observed,
-    androidOwnedBrowserRoutingEnforcementClaimed: implicitUiTree.includes('Ocentra owned browser proof page loaded'),
+    androidOwnedBrowserRoutingEnforcementClaimed:
+      allowImplicitRoutingProof && implicitUiTree.includes('Ocentra owned browser proof page loaded'),
     enforcementClaimed: false,
+  };
+}
+
+async function proveImplicitOwnedBrowserLaunch(adbPath, serial, proofUrl) {
+  command(['-s', serial, 'shell', 'am', 'force-stop', packageName], { adbPath, allowFailure: true });
+  command(['-s', serial, 'shell', 'am', 'start', '-W', ...browserViewIntentArgs, proofUrl], {
+    adbPath,
+    allowFailure: false,
+  });
+  return waitForOwnedBrowserUi(adbPath, serial);
+}
+
+function captureActivityVisibility(adbPath, serial) {
+  const activityOutput = command(['-s', serial, 'shell', 'dumpsys', 'activity', 'activities'], {
+    adbPath,
+    allowFailure: true,
+  });
+  const windowOutput = command(['-s', serial, 'shell', 'dumpsys', 'window'], {
+    adbPath,
+    allowFailure: true,
+  });
+  const component = `${packageName}/${activityName}`;
+  return {
+    activityTaskObserved: activityOutput.includes(component),
+    activityResumedObserved: activityOutput.includes('ResumedActivity') && activityOutput.includes(component),
+    focusedAppObserved: windowOutput.includes(component),
+    keyguardObserved:
+      windowOutput.includes('isStatusBarKeyguard=true') ||
+      windowOutput.includes('mDreamingLockscreen=true') ||
+      windowOutput.includes('mShowingLockscreen=true'),
+    activityStateSha256: sha256(activityOutput),
+    windowStateSha256: sha256(windowOutput),
   };
 }
 
@@ -409,6 +537,126 @@ async function waitForOwnedBrowserUi(adbPath, serial) {
     await delay(1_000);
   }
   return latestUiTree;
+}
+
+function pngHasVisibleNonBlackPixel(buffer) {
+  try {
+    const png = decodePng(buffer);
+    return png.pixels.some((value, index) => {
+      if (png.channels === 4 && index % 4 === 3) {
+        return false;
+      }
+      return value > 12;
+    });
+  } catch {
+    return false;
+  }
+}
+
+function decodePng(buffer) {
+  const signature = buffer.subarray(0, 8).toString('hex');
+  if (signature !== '89504e470d0a1a0a') {
+    throw new Error('Expected PNG signature');
+  }
+  let offset = 8;
+  let width = 0;
+  let height = 0;
+  let bitDepth = 0;
+  let colorType = 0;
+  const chunks = [];
+  while (offset + 8 <= buffer.length) {
+    const length = buffer.readUInt32BE(offset);
+    const type = buffer.subarray(offset + 4, offset + 8).toString('ascii');
+    const data = buffer.subarray(offset + 8, offset + 8 + length);
+    offset += 12 + length;
+    if (type === 'IHDR') {
+      width = data.readUInt32BE(0);
+      height = data.readUInt32BE(4);
+      bitDepth = data[8];
+      colorType = data[9];
+    }
+    if (type === 'IDAT') {
+      chunks.push(data);
+    }
+    if (type === 'IEND') {
+      break;
+    }
+  }
+  if (bitDepth !== 8 || width <= 0 || height <= 0 || chunks.length === 0) {
+    throw new Error('Expected 8-bit PNG with image data');
+  }
+  const channels = pngChannels(colorType);
+  const stride = width * channels;
+  const inflated = inflateSync(Buffer.concat(chunks));
+  const pixels = Buffer.alloc(stride * height);
+  for (let y = 0; y < height; y += 1) {
+    const sourceOffset = y * (stride + 1);
+    const filter = inflated[sourceOffset];
+    const source = inflated.subarray(sourceOffset + 1, sourceOffset + 1 + stride);
+    const targetOffset = y * stride;
+    unfilterPngScanline(filter, source, pixels, targetOffset, stride, channels);
+  }
+  return { channels, pixels };
+}
+
+function pngChannels(colorType) {
+  if (colorType === 0) {
+    return 1;
+  }
+  if (colorType === 2) {
+    return 3;
+  }
+  if (colorType === 4) {
+    return 2;
+  }
+  if (colorType === 6) {
+    return 4;
+  }
+  throw new Error(`Unsupported PNG color type ${colorType}`);
+}
+
+function unfilterPngScanline(filter, source, target, targetOffset, stride, bytesPerPixel) {
+  for (let x = 0; x < stride; x += 1) {
+    const raw = source[x];
+    const left = x >= bytesPerPixel ? target[targetOffset + x - bytesPerPixel] : 0;
+    const up = targetOffset >= stride ? target[targetOffset + x - stride] : 0;
+    const upperLeft =
+      x >= bytesPerPixel && targetOffset >= stride ? target[targetOffset + x - stride - bytesPerPixel] : 0;
+    target[targetOffset + x] = (raw + pngFilterValue(filter, left, up, upperLeft)) & 0xff;
+  }
+}
+
+function pngFilterValue(filter, left, up, upperLeft) {
+  if (filter === 0) {
+    return 0;
+  }
+  if (filter === 1) {
+    return left;
+  }
+  if (filter === 2) {
+    return up;
+  }
+  if (filter === 3) {
+    return Math.floor((left + up) / 2);
+  }
+  if (filter === 4) {
+    return paeth(left, up, upperLeft);
+  }
+  throw new Error(`Unsupported PNG filter ${filter}`);
+}
+
+function paeth(left, up, upperLeft) {
+  const estimate = left + up - upperLeft;
+  const leftDistance = Math.abs(estimate - left);
+  const upDistance = Math.abs(estimate - up);
+  const upperLeftDistance = Math.abs(estimate - upperLeft);
+  if (leftDistance <= upDistance && leftDistance <= upperLeftDistance) {
+    return left;
+  }
+  if (upDistance <= upperLeftDistance) {
+    return up;
+  }
+  return upperLeft;
 }
 
 function proveDeviceOwnerEnrollment(adbPath, serial, proofLaunchedEmulator) {
@@ -665,6 +913,8 @@ async function launchEmulatorIfAvailable(adbPath, emulatorPath, existingSerials)
       '-no-boot-anim',
       '-gpu',
       'swiftshader_indirect',
+      '-port',
+      proofEmulatorPort,
     ],
     {
       cwd: repoRoot,
@@ -675,22 +925,42 @@ async function launchEmulatorIfAvailable(adbPath, emulatorPath, existingSerials)
   );
   child.unref();
 
-  const serial = await waitForReadyEmulator(adbPath, existingSerials);
+  const serial = await waitForReadyEmulator(adbPath, existingSerials, child);
   await waitForBoot(adbPath, serial);
   return serial;
 }
 
-async function waitForReadyEmulator(adbPath, existingSerials) {
+async function waitForReadyEmulator(adbPath, existingSerials, child) {
   const deadline = Date.now() + 8 * 60_000;
+  const expectedSerial = `emulator-${proofEmulatorPort}`;
+  let childExit = null;
+  child.once('exit', (code, signal) => {
+    childExit = { code, signal };
+  });
   while (Date.now() < deadline) {
-    const ready = listDevices(adbPath).find(
+    const devices = listDevices(adbPath);
+    const expected = devices.find((device) => device.serial === expectedSerial);
+    if (expected && !existingSerials.includes(expected.serial)) {
+      return expected.serial;
+    }
+    const ready = devices.find(
       (device) =>
         device.state === 'device' && device.serial.startsWith('emulator-') && !existingSerials.includes(device.serial)
     );
     if (ready) {
       return ready.serial;
     }
+    if (childExit) {
+      throw new Error(
+        `Timed out waiting for Android emulator device after emulator process exited: ${JSON.stringify(childExit)}`
+      );
+    }
     await delay(2_000);
+  }
+  if (childExit) {
+    throw new Error(
+      `Timed out waiting for Android emulator device after emulator process exited: ${JSON.stringify(childExit)}`
+    );
   }
   throw new Error('Timed out waiting for Android emulator device');
 }

@@ -130,6 +130,17 @@ fn network_runtime_stream_command_and_event_names_serialize_to_contract_shape() 
 }
 
 #[test]
+fn browser_runtime_stream_command_and_event_names_serialize_to_contract_shape() {
+    let command = serde_json::to_value(AgentCommandName::AgentBrowserRuntimeEventChainStreamGet)
+        .expect("command serializes");
+    let event = serde_json::to_value(AgentEventName::AgentBrowserRuntimeEventChainStreamReported)
+        .expect("event serializes");
+
+    assert_eq!(command, "agent.browser.runtime.event-chain.stream.get");
+    assert_eq!(event, "agent.browser.runtime.event-chain.stream.reported");
+}
+
+#[test]
 fn network_remote_delivery_status_command_and_event_names_serialize_to_contract_shape() {
     let command = serde_json::to_value(AgentCommandName::AgentNetworkRemoteDeliveryStatusGet)
         .expect("command serializes");
@@ -138,6 +149,39 @@ fn network_remote_delivery_status_command_and_event_names_serialize_to_contract_
 
     assert_eq!(command, "agent.network.remote-delivery.status.get");
     assert_eq!(event, "agent.network.remote-delivery.status.reported");
+}
+
+#[test]
+fn network_linux_nftables_lab_status_command_and_event_names_serialize_to_contract_shape() {
+    let command = serde_json::to_value(AgentCommandName::AgentNetworkLinuxNftablesLabStatusGet)
+        .expect("command serializes");
+    let event = serde_json::to_value(AgentEventName::AgentNetworkLinuxNftablesLabStatusReported)
+        .expect("event serializes");
+
+    assert_eq!(command, "agent.network.linux-nftables-lab.status.get");
+    assert_eq!(event, "agent.network.linux-nftables-lab.status.reported");
+}
+
+#[test]
+fn network_windows_firewall_lab_status_command_and_event_names_serialize_to_contract_shape() {
+    let command = serde_json::to_value(AgentCommandName::AgentNetworkWindowsFirewallLabStatusGet)
+        .expect("command serializes");
+    let event = serde_json::to_value(AgentEventName::AgentNetworkWindowsFirewallLabStatusReported)
+        .expect("event serializes");
+
+    assert_eq!(command, "agent.network.windows-firewall-lab.status.get");
+    assert_eq!(event, "agent.network.windows-firewall-lab.status.reported");
+}
+
+#[test]
+fn network_windows_wfp_gate_status_command_and_event_names_serialize_to_contract_shape() {
+    let command = serde_json::to_value(AgentCommandName::AgentNetworkWindowsWfpGateStatusGet)
+        .expect("command serializes");
+    let event = serde_json::to_value(AgentEventName::AgentNetworkWindowsWfpGateStatusReported)
+        .expect("event serializes");
+
+    assert_eq!(command, "agent.network.windows-wfp-gate.status.get");
+    assert_eq!(event, "agent.network.windows-wfp-gate.status.reported");
 }
 
 #[test]

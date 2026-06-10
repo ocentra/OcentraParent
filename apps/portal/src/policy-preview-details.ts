@@ -42,6 +42,15 @@ const PolicyPreviewValueResolvers = new Map<AgentPayloadField, PolicyPreviewValu
   [AgentProtocolDefaults.Field.LocalAiResultId, (readModel) => readModel.localAiResultId],
   [AgentProtocolDefaults.Field.PolicyDryRun, (readModel) => policyMode(readModel.dryRun)],
   [AgentProtocolDefaults.Field.PolicyHandoffState, (readModel) => policyMode(readModel.dryRun)],
+  [AgentProtocolDefaults.Field.NetworkEvidenceGrade, (readModel) => readModel.networkEvidenceGrade],
+  [AgentProtocolDefaults.Field.NetworkRequestedPolicyAction, (readModel) => readModel.networkRequestedPolicyAction],
+  [AgentProtocolDefaults.Field.NetworkMappedPolicyAction, (readModel) => readModel.networkMappedPolicyAction],
+  [AgentProtocolDefaults.Field.NetworkPolicyMappingMode, (readModel) => readModel.networkPolicyMappingMode],
+  [AgentProtocolDefaults.Field.NetworkAdapterActionAuthorized, (readModel) => readModel.networkAdapterActionAuthorized],
+  [
+    AgentProtocolDefaults.Field.NetworkEnforcementCommandAuthorized,
+    (readModel) => readModel.networkEnforcementCommandAuthorized,
+  ],
 ]);
 
 export function appendReadModelDetails(
@@ -134,6 +143,36 @@ export function appendDecisionPreviewDetails(
     metadata,
     PortalDetails.EnforcementHandoff,
     readModelDetail(readModel, AgentProtocolDefaults.Field.PolicyHandoffState)
+  );
+  appendDetail(
+    metadata,
+    PortalDetails.NetworkEvidenceGrade,
+    readModelDetail(readModel, AgentProtocolDefaults.Field.NetworkEvidenceGrade)
+  );
+  appendDetail(
+    metadata,
+    PortalDetails.NetworkRequestedPolicyAction,
+    readModelDetail(readModel, AgentProtocolDefaults.Field.NetworkRequestedPolicyAction)
+  );
+  appendDetail(
+    metadata,
+    PortalDetails.NetworkMappedPolicyAction,
+    readModelDetail(readModel, AgentProtocolDefaults.Field.NetworkMappedPolicyAction)
+  );
+  appendDetail(
+    metadata,
+    PortalDetails.NetworkPolicyMappingMode,
+    readModelDetail(readModel, AgentProtocolDefaults.Field.NetworkPolicyMappingMode)
+  );
+  appendDetail(
+    metadata,
+    PortalDetails.NetworkAdapterAuthorization,
+    readModelDetail(readModel, AgentProtocolDefaults.Field.NetworkAdapterActionAuthorized)
+  );
+  appendDetail(
+    metadata,
+    PortalDetails.NetworkEnforcementAuthorization,
+    readModelDetail(readModel, AgentProtocolDefaults.Field.NetworkEnforcementCommandAuthorized)
   );
   appendDetail(metadata, PortalDetails.UnknownState, notReported());
 }

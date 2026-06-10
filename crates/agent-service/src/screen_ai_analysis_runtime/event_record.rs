@@ -3,22 +3,25 @@ use ocentra_parent_agent_protocol::{
     ActivityEvidenceKind, ActivityEvidenceRef, ActivityObserver, ActivitySource, ActivitySubject,
     ActivitySubjectKind, LocalAiChatGenerationResult, LocalAiGenerationState, LogFieldValue,
     ScreenAnalysisResult, ACTIVITY_SCHEMA_VERSION, SCREEN_CAPTURE_SCOPE_ACTIVE_WINDOW,
-    SCREEN_CATEGORY_UNKNOWN, SCREEN_CUSTODY_JOURNAL, SCREEN_DELETION_DELETED,
-    SCREEN_PROVIDER_LOCAL_OCR, SCREEN_PROVIDER_LOCAL_VISION,
-    SCREEN_PROVIDER_LOCAL_VISION_UNAVAILABLE, SCREEN_SERVICE_ANALYSIS_EVENT_ID_PREFIX,
-    SCREEN_SERVICE_ANALYSIS_EVIDENCE_ID_PREFIX, SCREEN_SERVICE_ANALYSIS_MODEL_ID,
-    SCREEN_SERVICE_ANALYSIS_RESULT_ID_PREFIX, SCREEN_SERVICE_ANALYSIS_RUNTIME_REF,
-    SCREEN_SERVICE_ANALYSIS_SOURCE_ID, SCREEN_SERVICE_ANALYSIS_SUMMARY_INVALID,
-    SCREEN_SERVICE_ANALYSIS_SUMMARY_UNAVAILABLE, SCREEN_SERVICE_ANALYSIS_TEMPLATE_VERSION,
-    SCREEN_SERVICE_UNAVAILABLE_CONFIDENCE,
+    SCREEN_CUSTODY_JOURNAL, SCREEN_DELETION_DELETED, SCREEN_PROVIDER_LOCAL_OCR,
+    SCREEN_PROVIDER_LOCAL_VISION, SCREEN_SERVICE_ANALYSIS_EVENT_ID_PREFIX,
+    SCREEN_SERVICE_ANALYSIS_EVIDENCE_ID_PREFIX, SCREEN_SERVICE_ANALYSIS_RESULT_ID_PREFIX,
+    SCREEN_SERVICE_ANALYSIS_SOURCE_ID,
 };
 
 use crate::fields::fields_from_pairs;
 
 use super::{
-    adapter::parsed_generation_output, queue::QueuedScreenImage, ScreenAiAnalysisCycleClock,
+    config::ScreenOcrRedactionPolicy, queue::QueuedScreenImage, ScreenAiAnalysisCycleClock,
     ScreenAiAnalysisCycleOutcome,
 };
+
+mod parsed_fields;
+mod policy_refs;
+mod redaction_fields;
+
+use parsed_fields::parsed_fields_from_generation;
+use redaction_fields::screen_analysis_redaction_fields;
 
 #[derive(Clone, Debug)]
 pub(super) struct ScreenAiAnalysisEventRecord {
@@ -36,6 +39,15 @@ pub(super) struct ScreenAiAnalysisEventRecord {
     capture_reason: String,
     capture_scope: String,
     capability_status: String,
+    policy_decision_ref: Option<String>,
+    policy_action: Option<String>,
+    policy_reason_codes: Vec<String>,
+    parent_rule_refs: Vec<String>,
+    parent_explanation_refs: Vec<String>,
+    explanation_reasons: Vec<String>,
+    deletion_reasons: Vec<String>,
+    ocr_text_snippets: Vec<String>,
+    redaction_notes: Vec<String>,
 }
 
 pub(super) fn analysis_event_record(
@@ -43,72 +55,34 @@ pub(super) fn analysis_event_record(
     metadata: Option<&ScreenAnalysisResult>,
     clock: &ScreenAiAnalysisCycleClock,
     generation: &LocalAiChatGenerationResult,
+    redaction_policy: &ScreenOcrRedactionPolicy,
 ) -> ScreenAiAnalysisEventRecord {
-    let parsed = parsed_generation_output(generation);
-    let (
-        summary,
-        category,
-        confidence,
-        policy_eligible,
-        provider_kind,
-        model_runtime_ref,
-        model_id,
-        template_version,
-    ) = match parsed {
-        Some(output) => {
-            let policy_eligible = output.policy_eligible
-                && output.confidence
-                    >= ocentra_parent_agent_protocol::SCREEN_POLICY_CONFIDENCE_READY;
-            (
-                output.summary,
-                output.primary_category,
-                output.confidence,
-                policy_eligible,
-                output.provider_kind,
-                output.model_runtime_ref,
-                output.model_id,
-                output.prompt_or_template_version,
-            )
-        }
-        None if generation.generation_state == LocalAiGenerationState::Complete => (
-            SCREEN_SERVICE_ANALYSIS_SUMMARY_INVALID.to_string(),
-            SCREEN_CATEGORY_UNKNOWN.to_string(),
-            SCREEN_SERVICE_UNAVAILABLE_CONFIDENCE,
-            false,
-            SCREEN_PROVIDER_LOCAL_VISION_UNAVAILABLE.to_string(),
-            SCREEN_SERVICE_ANALYSIS_RUNTIME_REF.to_string(),
-            SCREEN_SERVICE_ANALYSIS_MODEL_ID.to_string(),
-            SCREEN_SERVICE_ANALYSIS_TEMPLATE_VERSION.to_string(),
-        ),
-        None => (
-            SCREEN_SERVICE_ANALYSIS_SUMMARY_UNAVAILABLE.to_string(),
-            SCREEN_CATEGORY_UNKNOWN.to_string(),
-            SCREEN_SERVICE_UNAVAILABLE_CONFIDENCE,
-            false,
-            SCREEN_PROVIDER_LOCAL_VISION_UNAVAILABLE.to_string(),
-            SCREEN_SERVICE_ANALYSIS_RUNTIME_REF.to_string(),
-            SCREEN_SERVICE_ANALYSIS_MODEL_ID.to_string(),
-            SCREEN_SERVICE_ANALYSIS_TEMPLATE_VERSION.to_string(),
-        ),
-    };
+    let parsed = parsed_fields_from_generation(generation, redaction_policy);
+    let policy = policy_refs::service_policy_refs(&image.queue_job_id, parsed.policy_eligible);
     ScreenAiAnalysisEventRecord {
         queue_job_id: image.queue_job_id.clone(),
         image_digest: image.image_digest.clone(),
         timestamp: clock.timestamp.clone(),
-        summary,
-        primary_category: category,
-        confidence,
-        policy_eligible,
-        provider_kind,
-        model_runtime_ref,
-        model_id,
-        prompt_or_template_version: template_version,
+        summary: parsed.summary,
+        primary_category: parsed.category,
+        confidence: parsed.confidence,
+        policy_eligible: parsed.policy_eligible,
+        provider_kind: parsed.provider_kind,
+        model_runtime_ref: parsed.model_runtime_ref,
+        model_id: parsed.model_id,
+        prompt_or_template_version: parsed.template_version,
         capture_reason: capture_reason(metadata).to_string(),
         capture_scope: capture_scope(metadata).to_string(),
-        capability_status: metadata
-            .map(|result| result.capability_status.as_str())
-            .unwrap_or(ActivityCaptureCapabilityStatus::Available.as_protocol_str())
-            .to_string(),
+        capability_status: capability_status(metadata).to_string(),
+        policy_decision_ref: policy.policy_decision_ref,
+        policy_action: policy.policy_action,
+        policy_reason_codes: policy.policy_reason_codes,
+        parent_rule_refs: policy.parent_rule_refs,
+        parent_explanation_refs: policy.parent_explanation_refs,
+        explanation_reasons: policy.explanation_reasons,
+        deletion_reasons: policy.deletion_reasons,
+        ocr_text_snippets: parsed.ocr_text_snippets,
+        redaction_notes: parsed.redaction_notes,
     }
 }
 
@@ -173,7 +147,7 @@ pub(super) fn screen_analysis_event(record: &ScreenAiAnalysisEventRecord) -> Act
 fn screen_analysis_fields(
     record: &ScreenAiAnalysisEventRecord,
 ) -> Vec<(&'static str, LogFieldValue)> {
-    vec![
+    let mut fields = vec![
         string_field(
             constants::field::SCREEN_ANALYSIS_RESULT_ID,
             prefixed_id(
@@ -232,7 +206,10 @@ fn screen_analysis_fields(
             constants::field::SCREEN_CUSTODY_STATE,
             SCREEN_CUSTODY_JOURNAL,
         ),
-    ]
+    ];
+    fields.extend(policy_refs::screen_analysis_policy_fields(record));
+    fields.extend(screen_analysis_redaction_fields(record));
+    fields
 }
 
 fn capture_reason(metadata: Option<&ScreenAnalysisResult>) -> &str {
@@ -245,6 +222,12 @@ fn capture_scope(metadata: Option<&ScreenAnalysisResult>) -> &str {
     metadata
         .map(|result| result.capture_scope.as_str())
         .unwrap_or(SCREEN_CAPTURE_SCOPE_ACTIVE_WINDOW)
+}
+
+fn capability_status(metadata: Option<&ScreenAnalysisResult>) -> &str {
+    metadata
+        .map(|result| result.capability_status.as_str())
+        .unwrap_or(ActivityCaptureCapabilityStatus::Available.as_protocol_str())
 }
 
 fn prefixed_id(prefix: &str, value: &str) -> String {
@@ -271,9 +254,10 @@ mod tests {
 
     use ocentra_parent_agent_protocol::{
         SCREEN_CATEGORY_SCHOOL, SCREEN_POLICY_CONFIDENCE_READY, SCREEN_PROVIDER_LOCAL_OCR,
-        SCREEN_SERVICE_ANALYSIS_DEFAULT_ADAPTER_TIMEOUT_MS,
+        SCREEN_SERVICE_ANALYSIS_DEFAULT_ADAPTER_TIMEOUT_MS, SCREEN_SERVICE_ANALYSIS_MODEL_ID,
         SCREEN_SERVICE_ANALYSIS_MODEL_REFERENCE, SCREEN_SERVICE_ANALYSIS_PROVIDER_ID,
-        SCREEN_WINRT_OCR_MODEL_ID, SCREEN_WINRT_OCR_RUNTIME_REF, SCREEN_WINRT_OCR_TEMPLATE_VERSION,
+        SCREEN_SERVICE_ANALYSIS_RUNTIME_REF, SCREEN_WINRT_OCR_MODEL_ID,
+        SCREEN_WINRT_OCR_RUNTIME_REF, SCREEN_WINRT_OCR_TEMPLATE_VERSION,
     };
 
     use super::*;
@@ -287,7 +271,13 @@ mod tests {
             constants::activity_store::TEST_SECOND_OBSERVED_AT.to_string(),
         );
 
-        let record = analysis_event_record(&image, None, &clock, &generation);
+        let record = analysis_event_record(
+            &image,
+            None,
+            &clock,
+            &generation,
+            &ScreenOcrRedactionPolicy::default(),
+        );
         let outcome = outcome_for_generation(&image.queue_job_id, &generation, &record);
         let event = screen_analysis_event(&record);
 
@@ -313,6 +303,14 @@ mod tests {
         assert_eq!(
             string_value(&event, constants::field::SCREEN_TEMPLATE_VERSION),
             SCREEN_WINRT_OCR_TEMPLATE_VERSION
+        );
+        assert_eq!(
+            string_value(&event, constants::field::SCREEN_OCR_TEXT_SNIPPETS),
+            constants::activity_store::TEST_SCREEN_OCR_SNIPPET_WIKIPEDIA
+        );
+        assert_eq!(
+            string_value(&event, constants::field::SCREEN_REDACTION_NOTES),
+            constants::activity_store::TEST_SCREEN_REDACTION_NOTE_PII
         );
     }
 
@@ -360,6 +358,18 @@ mod tests {
         output.insert(
             constants::field::SCREEN_TEMPLATE_VERSION.to_string(),
             Value::from(SCREEN_WINRT_OCR_TEMPLATE_VERSION),
+        );
+        output.insert(
+            constants::field::SCREEN_OCR_TEXT_SNIPPETS.to_string(),
+            Value::from(vec![
+                constants::activity_store::TEST_SCREEN_OCR_SNIPPET_WIKIPEDIA,
+            ]),
+        );
+        output.insert(
+            constants::field::SCREEN_REDACTION_NOTES.to_string(),
+            Value::from(vec![
+                constants::activity_store::TEST_SCREEN_REDACTION_NOTE_PII,
+            ]),
         );
         Value::Object(output).to_string()
     }

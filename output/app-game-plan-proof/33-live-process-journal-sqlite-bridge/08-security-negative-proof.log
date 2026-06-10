@@ -1,8 +1,0 @@
-Security/no-claim proof:
-
-- Live process evidence remains runtime-only after journal replay.
-- Replayed read model returns zero foreground rows for the live process event.
-- Unknown process classification remains `unknownProcess`.
-- No inventory, launcher, or catalog ref is invented.
-- Executable path refs remain opaque.
-- No policy action or platform adapter execution is called.

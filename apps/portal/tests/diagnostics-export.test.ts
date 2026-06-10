@@ -26,6 +26,9 @@ describe('portal diagnostics export', () => {
     expect(copied.activity.recentSummary.mostRecentSubjectName).toBe('notepad.exe');
     expect(copied.activity.activityMemoryGraphReadModel).toBeNull();
     expect(copied.activity.networkFlowReadModel.rows[0].destinationDomain).toBe('example-network.test');
+    expect(copied.activity.networkLinuxNftablesLabStatus).toBeNull();
+    expect(copied.activity.networkWindowsFirewallLabStatus).toBeNull();
+    expect(copied.activity.networkWindowsWfpGateStatus).toBeNull();
   });
 });
 
@@ -134,7 +137,27 @@ function networkFlowEvent() {
       bytesReceived: null,
       firstSeenAt: '2026-05-20T20:45:01Z',
       lastSeenAt: '2026-05-20T20:45:01Z',
+      activityDigest: JSON.stringify(networkFlowDigest()),
     },
     snapshot: null,
   });
+}
+
+function networkFlowDigest() {
+  return {
+    schemaVersion: 1,
+    generatedAt: '2026-05-20T20:45:02Z',
+    custody: 'child-device-query-store',
+    evidence: [
+      {
+        evidenceId: 'network-evidence-1',
+        kind: 'local-db-row',
+        digest: null,
+        uri: null,
+      },
+    ],
+    topProcesses: [],
+    topDestinations: [],
+    unusualIndicators: [],
+  };
 }

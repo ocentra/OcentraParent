@@ -4,9 +4,9 @@ import { defaultAgentTrackingRetentionSettingsWriteRequest } from '@ocentra-pare
 import {
   PortalDetails,
   PortalDom,
-  PortalRoute,
   PortalText,
   PortalTextToken,
+  isPortalTrackingStatusRoute,
   type PortalDetailValue,
   type PortalDisplayText,
   type PortalRoute as PortalRouteValue,
@@ -67,7 +67,7 @@ import {
 } from './tracking-status-panel';
 
 export function shouldRenderTrackingStatusRoute(route: PortalRouteValue): boolean {
-  return route === PortalRoute.PolicyTracking;
+  return isPortalTrackingStatusRoute(route);
 }
 
 export function TrackingStatusRoutePanel({

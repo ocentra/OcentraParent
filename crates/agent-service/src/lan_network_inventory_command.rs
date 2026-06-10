@@ -1,4 +1,8 @@
-use std::process::Command;
+use std::{
+    process::{Command, Output, Stdio},
+    thread::sleep,
+    time::{Duration, Instant},
+};
 
 use ocentra_parent_agent_protocol::constants;
 
@@ -20,11 +24,35 @@ pub(crate) fn command_json_single(program: &str, args: &[&str]) -> Option<serde_
 }
 
 pub(crate) fn command_stdout(program: &str, args: &[&str]) -> Option<String> {
-    let output = Command::new(program).args(args).output().ok()?;
+    let output = command_output(program, args)?;
     if !output.status.success() {
         return None;
     }
     clean_string(Some(String::from_utf8_lossy(&output.stdout).to_string()))
+}
+
+fn command_output(program: &str, args: &[&str]) -> Option<Output> {
+    let mut child = Command::new(program)
+        .args(args)
+        .stdout(Stdio::piped())
+        .stderr(Stdio::piped())
+        .spawn()
+        .ok()?;
+    let started_at = Instant::now();
+    let timeout =
+        Duration::from_millis(constants::lan_pairing::LAN_NETWORK_INVENTORY_COMMAND_TIMEOUT_MS);
+
+    loop {
+        if child.try_wait().ok().flatten().is_some() {
+            return child.wait_with_output().ok();
+        }
+        if started_at.elapsed() >= timeout {
+            let _ = child.kill();
+            let _ = child.wait();
+            return None;
+        }
+        sleep(Duration::from_millis(25));
+    }
 }
 
 pub(crate) fn record_text(record: &serde_json::Value, key: &str) -> Option<String> {

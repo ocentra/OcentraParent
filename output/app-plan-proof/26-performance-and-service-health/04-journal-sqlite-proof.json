@@ -1,7 +1,0 @@
-{
-  "schemaVersion": 1,
-  "journalSqliteChanged": false,
-  "generatedJournalRecords": 10000,
-  "generatedReplayObservations": 100000,
-  "reason": "Generated scale smoke only; encrypted journal and SQLite runtime code did not change."
-}

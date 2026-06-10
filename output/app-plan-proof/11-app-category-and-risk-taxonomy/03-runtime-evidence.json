@@ -1,6 +1,0 @@
-{
-  "workpack": "app-plan-wp11-category-risk-taxonomy",
-  "runtimeEvidenceChanged": false,
-  "reason": "No live classifier, inventory adapter, runtime adapter, foreground adapter, session engine, service read model, or portal runtime path changed.",
-  "sharedProofRoot": "output/app-game-plan-proof/12-app-game-category-and-risk-taxonomy"
-}

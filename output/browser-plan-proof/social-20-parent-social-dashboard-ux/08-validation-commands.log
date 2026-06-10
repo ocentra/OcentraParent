@@ -1,6 +1,0 @@
-cmd /c npm run build:contracts # exit 0
-cmd /c npm --workspace @ocentra-parent/portal-domain run test -- social-dashboard-panel.test.ts # exit 0
-cmd /c npm --workspace @ocentra-parent/portal run test -- social-dashboard-panel.test.ts # exit 0
-cargo build -p ocentra-parent-agent-service # exit 0
-C:\Program Files\nodejs\node.exe C:\Users\sujan\.codex\worktrees\ocentra-parent-codex-d\OcentraParent\node_modules\@playwright\test\cli.js test --config C:\Users\sujan\.codex\worktrees\ocentra-parent-codex-d\OcentraParent\apps\portal\playwright.config.ts social-dashboard-ui-proof.spec.ts --workers=1 # exit 0
-git rev-parse HEAD # exit 0

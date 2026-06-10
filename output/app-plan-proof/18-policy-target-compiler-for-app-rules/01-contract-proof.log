@@ -1,9 +1,0 @@
-See shared proof:
-output/app-game-plan-proof/19-policy-target-compiler-for-app-game-rules/01-contract-proof.log
-
-App-side coverage in the shared compiler proof:
-- specific app targets require identity proof;
-- unknown app targets require unknown-state proof;
-- block-launch without authority/capability proof degrades to manual-required;
-- wrong device, wrong local user, and stale evidence are rejected;
-- compiled output carries evidence and capability refs.

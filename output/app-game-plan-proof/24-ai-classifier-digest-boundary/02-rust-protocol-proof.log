@@ -1,6 +1,0 @@
-Rust protocol proof is not applicable for this slice.
-
-This work adds a TypeScript parent-domain policy-facing boundary only. It does
-not introduce a Rust service payload, WebSocket event, journal row, or protocol
-shape. Rust parity remains required before runtime service code sends or stores
-this classifier result shape.

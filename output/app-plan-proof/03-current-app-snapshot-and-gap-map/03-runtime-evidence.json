@@ -1,7 +1,0 @@
-{
-    "runtimeBehaviorChanged":  false,
-    "sharedAppGameProof":  "output/app-game-plan-proof/03-current-app-game-snapshot-and-gap-map",
-    "workpack":  "03-current-app-snapshot-and-gap-map",
-    "reason":  "Native app plan mirrors shared app/game proof; this slice does not add new live runtime capture.",
-    "reconciliationStatus":  "covered-by-shared-proof-or-not-applicable"
-}

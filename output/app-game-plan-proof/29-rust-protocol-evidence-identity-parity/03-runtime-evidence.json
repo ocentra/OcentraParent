@@ -1,6 +1,0 @@
-{
-  "appGameWorkpack": "29-rust-protocol-evidence-identity-parity",
-  "runtimeEvidenceChanged": false,
-  "reason": "This slice mirrors existing TypeScript evidence and identity shapes into Rust protocol structs only.",
-  "runtimeClaimsAdded": []
-}

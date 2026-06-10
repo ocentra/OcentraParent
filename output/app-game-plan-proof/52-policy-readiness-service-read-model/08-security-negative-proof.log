@@ -1,6 +1,0 @@
-Security/no-claim proof:
-
-- Readiness rows are derived from existing service read-model counts and citations.
-- Missing rows remain missing/manual-required instead of being invented.
-- adapterDispatchClaimed is fixed false in TypeScript schema, Rust DTO construction, and service payload tests.
-- The WebSocket command reports readiness only; it does not execute policy, call adapters, send notifications, or claim platform support.

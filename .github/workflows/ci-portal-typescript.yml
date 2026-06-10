@@ -1,0 +1,77 @@
+name: CI Portal TypeScript
+
+on:
+  workflow_call:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  portal-contract-build:
+    name: 'Contract: Portal Shared Contract Build'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: ./.github/actions/setup-ci
+        with:
+          install-rust: 'false'
+
+      - name: Build shared contracts
+        run: npm run build:contracts
+
+  portal-lint:
+    name: 'Lint: Portal TypeScript'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    needs: [portal-contract-build]
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: ./.github/actions/setup-ci
+        with:
+          install-rust: 'false'
+
+      - name: Build shared contracts
+        run: npm run build:contracts
+
+      - name: Portal lint
+        run: npm run lint --workspace @ocentra-parent/portal
+
+  portal-type-check:
+    name: 'Type Check: Portal TypeScript'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    needs: [portal-contract-build]
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: ./.github/actions/setup-ci
+        with:
+          install-rust: 'false'
+
+      - name: Build shared contracts
+        run: npm run build:contracts
+
+      - name: Portal type check
+        run: npm run type-check --workspace @ocentra-parent/portal
+
+  portal-unit-tests:
+    name: 'Unit: Portal Tests'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    needs: [portal-contract-build]
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: ./.github/actions/setup-ci
+        with:
+          install-rust: 'false'
+
+      - name: Build shared contracts
+        run: npm run build:contracts
+
+      - name: Portal tests
+        run: npm run test --workspace @ocentra-parent/portal

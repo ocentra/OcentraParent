@@ -48,7 +48,6 @@ import type {
   BrowserInventoryPlatformProofRequirement as BrowserInventoryPlatformProofRequirementType,
   BrowserInventoryPlatformProofState as BrowserInventoryPlatformProofStateType,
 } from './browser-platform-inventory-matrix';
-
 export * from './browser-values';
 export { BrowserActiveProofSource, BrowserCustodyLabel, BrowserQueryVisibilityLabel } from './browser-values';
 

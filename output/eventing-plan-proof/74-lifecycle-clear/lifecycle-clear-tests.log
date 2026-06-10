@@ -1,9 +1,0 @@
-
-running 2 tests
-test tests::lifecycle_clear::clear_for_test_cancels_pending_request_completion ... ok
-test tests::lifecycle_clear::clear_for_test_reports_and_resets_local_bus_state ... ok
-
-test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 76 filtered out; finished in 0.00s
-
-    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.25s
-     Running unittests src\lib.rs (target\debug\deps\ocentra_eventing-927d6221c7fa57e1.exe)

@@ -4,7 +4,7 @@ import { join, relative } from 'node:path';
 const repoRoot = process.cwd();
 const sourceRoots = ['apps', 'packages', 'scripts'];
 const standaloneFiles = ['package.json', 'eslint.config.js'];
-const ignoredPathParts = new Set(['.git', '.turbo', 'coverage', 'dist', 'node_modules', 'target']);
+const ignoredPathParts = new Set(['.git', '.turbo', 'coverage', 'dist', 'node_modules', 'ocentra-ledger', 'target']);
 const textExtensions = new Set(['.cjs', '.js', '.json', '.jsx', '.mjs', '.ts', '.tsx']);
 const forbiddenSourcePatterns = [
   { label: 'direct zod import', pattern: /from\s+['"]zod['"]|require\(\s*['"]zod['"]\s*\)/u },

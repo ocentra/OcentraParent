@@ -1,5 +1,0 @@
-Security/no-claim proof:
-
-- Writer rows claim local validation and writer-boundary preflight only.
-- Writer rows do not claim executed service mutation, portal UI completion, platform runtime, child-device delivery, provider delivery, notification receipts, authority enrollment, physical-device behavior, or product completion.
-- Remote sync and remote AI remain disabled in every requested writer row.

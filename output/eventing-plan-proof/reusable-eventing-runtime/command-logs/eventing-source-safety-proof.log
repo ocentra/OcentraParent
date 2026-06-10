@@ -1,2 +1,0 @@
-eventing-source-safety-proof-ok:context-envelope-private,context-publisher-private,context-envelope-accessor,context-payload-accessor,context-publisher-accessor,context-complete-uses-payload-accessor,testkit-clones-envelope-through-accessor,no-handler-mut-payload-api,no-payload-mut-accessor,no-payload-carried-sender,no-payload-carried-receiver,no-payload-carried-join-handle,no-payload-carried-callback,no-payload-carried-resource-handle,request-registry-retains-local-sender
-proof=output\eventing-plan-proof\66-76-source-safety\proof-summary.json

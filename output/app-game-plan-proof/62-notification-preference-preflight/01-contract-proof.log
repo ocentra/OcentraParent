@@ -1,6 +1,0 @@
-Contract proof:
-
-- cmd /c npm run build --workspace @ocentra-parent/parent-domain: PASS
-- cmd /c npm run test --workspace @ocentra-parent/parent-domain -- app-game-notification-preference-preflight app-game-notification-scheduler-bridge app-game-notification-local-outbox-bridge: PASS
-- Scheduled rows become parent-preference-required preflight rows.
-- Manual-required and unavailable rows remain blocked before preference preflight.

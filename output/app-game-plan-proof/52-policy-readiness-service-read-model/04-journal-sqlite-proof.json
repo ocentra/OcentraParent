@@ -1,6 +1,0 @@
-{
-  "schemaVersion": 1,
-  "journalSqliteChanged": false,
-  "serviceModelSource": "ActivityStore::app_game_service_read_model",
-  "readModelRows": "policy readiness is derived from existing evidence claim, identity, approval, platform authority, and classifier service rows"
-}

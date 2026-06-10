@@ -8,11 +8,11 @@ use ocentra_parent_agent_core::ActivityStore;
 use ocentra_parent_agent_protocol::{
     constants, ActivityCaptureCapabilityStatus, SCREEN_PROVIDER_LOCAL_VISION_UNAVAILABLE,
     SCREEN_PROVIDER_SERVICE_METADATA, SCREEN_SERVICE_ANALYSIS_DEFAULT_ADAPTER_TIMEOUT_MS,
-    SCREEN_SERVICE_ANALYSIS_DEFAULT_MAX_QUEUE_SCAN, SCREEN_SERVICE_ANALYSIS_RUNTIME_ENABLED_ENV,
-    SCREEN_SERVICE_ANALYSIS_SUMMARY_UNAVAILABLE, SCREEN_SERVICE_EVENT_ID_PREFIX,
-    SCREEN_SERVICE_EVIDENCE_ID_PREFIX, SCREEN_SERVICE_MODEL_ID, SCREEN_SERVICE_QUEUE_JOB_ID_PREFIX,
-    SCREEN_SERVICE_RESULT_ID_PREFIX, SCREEN_SERVICE_SOURCE_ID, SCREEN_SERVICE_SUMMARY_CAPTURED,
-    SCREEN_SERVICE_TEMPLATE_VERSION,
+    SCREEN_SERVICE_ANALYSIS_DEFAULT_MAX_QUEUE_SCAN, SCREEN_SERVICE_ANALYSIS_RESULT_ID_PREFIX,
+    SCREEN_SERVICE_ANALYSIS_RUNTIME_ENABLED_ENV, SCREEN_SERVICE_ANALYSIS_SUMMARY_UNAVAILABLE,
+    SCREEN_SERVICE_EVENT_ID_PREFIX, SCREEN_SERVICE_EVIDENCE_ID_PREFIX, SCREEN_SERVICE_MODEL_ID,
+    SCREEN_SERVICE_QUEUE_JOB_ID_PREFIX, SCREEN_SERVICE_RESULT_ID_PREFIX, SCREEN_SERVICE_SOURCE_ID,
+    SCREEN_SERVICE_SUMMARY_CAPTURED, SCREEN_SERVICE_TEMPLATE_VERSION,
 };
 use ocentra_parent_screen_capture_adapter::{
     CapturedScreenImage, ScreenCaptureMetadata, ScreenCaptureScope,
@@ -20,12 +20,16 @@ use ocentra_parent_screen_capture_adapter::{
 
 use super::{
     screen_ai_analysis_runtime::{
-        record_screen_ai_analysis_cycle, ScreenAiAnalysisCycleClock, ScreenAiAnalysisCycleOutcome,
-        ScreenAiAnalysisRuntimeConfig,
+        record_screen_ai_analysis_cycle, record_screen_ai_analysis_cycle_with_events,
+        ScreenAiAnalysisCycleClock, ScreenAiAnalysisCycleOutcome, ScreenAiAnalysisRuntimeConfig,
     },
     screen_ai_cadence_runtime_event::{
         record_captured_screen_image_to_paths, ScreenAiServiceCaptureClock,
         ScreenAiServiceCapturePaths, ScreenAiServiceCaptureRecord,
+    },
+    screen_ai_service_event_bridge::ScreenAiServiceEventBridgeError,
+    screen_ai_service_event_subscription::{
+        ScreenAiServiceEventRuntime, ScreenAiServiceEventSubscriptionDispatch,
     },
 };
 
@@ -86,6 +90,49 @@ async fn screen_analysis_cycle_records_unavailable_result_and_removes_queue_entr
     assert_unavailable_analysis_summary(&config, &queue_job_id);
 }
 
+#[tokio::test]
+async fn screen_analysis_cycle_publishes_row_ready_event_and_gates_missing_policy_refs() {
+    let config = test_analysis_config();
+    let queue_job_id = record_test_capture(&config);
+    let runtime = ScreenAiServiceEventRuntime::start()
+        .await
+        .expect(constants::screen_flow::ERROR_SCREEN_SERVICE_EVENT_SUBSCRIBES);
+
+    let outcome = record_screen_ai_analysis_cycle_with_events(
+        &config,
+        ScreenAiAnalysisCycleClock::from_parts(
+            3,
+            constants::activity_store::TEST_THIRD_OBSERVED_AT.to_string(),
+        ),
+        Some(&runtime),
+    )
+    .await
+    .expect(constants::error::ACTIVITY_STORE_INGESTS);
+
+    assert_eq!(
+        outcome,
+        ScreenAiAnalysisCycleOutcome::ProviderUnavailable {
+            queue_job_id: queue_job_id.clone(),
+        }
+    );
+    assert_queue_drained(&config);
+    assert_unavailable_analysis_summary(&config, &queue_job_id);
+    assert_eq!(
+        runtime.dispatches(),
+        vec![ScreenAiServiceEventSubscriptionDispatch::Rejected {
+            screen_analysis_result_id: service_analysis_result_id(&queue_job_id),
+            queue_job_id,
+            reason: ScreenAiServiceEventBridgeError::MissingPolicyDecision,
+        }]
+    );
+}
+
+fn service_analysis_result_id(queue_job_id: &str) -> String {
+    let mut id = String::from(SCREEN_SERVICE_ANALYSIS_RESULT_ID_PREFIX);
+    id.push_str(queue_job_id);
+    id
+}
+
 fn test_analysis_config() -> ScreenAiAnalysisRuntimeConfig {
     let root = test_path(constants::activity_store::TEST_SCREEN_QUEUE_SUFFIX);
     reset_test_path(&root);
@@ -97,6 +144,7 @@ fn test_analysis_config() -> ScreenAiAnalysisRuntimeConfig {
         max_queue_scan: SCREEN_SERVICE_ANALYSIS_DEFAULT_MAX_QUEUE_SCAN,
         adapter_timeout_ms: SCREEN_SERVICE_ANALYSIS_DEFAULT_ADAPTER_TIMEOUT_MS,
         adapter_command: None,
+        ocr_redaction_policy: Default::default(),
         queue_dir: root.join(constants::activity_store::TEST_SCREEN_QUEUE_SUFFIX),
         journal_path: root.join(constants::activity_store::TEST_CAPTURE_JOURNAL_SUFFIX),
         journal_key_path: root.join(constants::activity_store::TEST_CAPTURE_KEY_SUFFIX),

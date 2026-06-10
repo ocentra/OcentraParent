@@ -13,8 +13,8 @@ use ocentra_parent_agent_protocol::{
 use crate::{
     browser_payload::browser_managed_status_payload,
     browser_runtime_status::{
-        launch_pending_status, managed_profile_ready_status, missing_browser_status,
-        running_managed_status, unmanaged_browser_status,
+        bridge_disconnected_status, launch_pending_status, managed_profile_ready_status,
+        missing_browser_status, running_managed_status, unmanaged_browser_status,
     },
 };
 
@@ -189,6 +189,33 @@ fn running_managed_status_tracks_process_without_claiming_bridge_connected() {
     assert_eq!(
         payload[constants::field::STARTED_AT],
         LogFieldValue::String(constants::activity_store::TEST_FIRST_OBSERVED_AT.to_string())
+    );
+}
+
+#[test]
+fn bridge_disconnected_status_reports_stale_bridge_state() {
+    let status = bridge_disconnected_status(
+        constants::activity_store::TEST_SECOND_OBSERVED_AT.to_string(),
+        constants::value::BROWSER_BRIDGE_STALE_SESSION,
+    );
+    let payload = browser_managed_status_payload(&status);
+
+    assert_eq!(
+        status.managed_state,
+        BrowserManagedState::BridgeDisconnected
+    );
+    assert_eq!(status.capability_status, BrowserCapabilityStatus::Stale);
+    assert_eq!(
+        status.degraded_reason,
+        Some(constants::value::BROWSER_BRIDGE_STALE_SESSION.to_string())
+    );
+    assert_eq!(
+        payload[constants::field::CAPABILITY_STATUS],
+        LogFieldValue::String(constants::browser::CAPABILITY_STATUS_STALE.to_string())
+    );
+    assert_eq!(
+        payload[constants::field::QUERY_VISIBILITY],
+        LogFieldValue::String(constants::browser::QUERY_VISIBILITY_LIVE_LOCAL.to_string())
     );
 }
 

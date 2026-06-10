@@ -1,2 +1,0 @@
-eventing-request-response-proof-ok:request-id-newtype,event-response-contract,request-event-associated-response,publish-request-associated-return,context-complete-request,local-request-registry,timeout-state,duplicate-completion-outcome,late-completion-outcome,typed-response-test,validation-before-settle-test,timeout-late-test,double-completion-test,durable-result-event-test,no-payload-sender
-proof=output\eventing-plan-proof\31-35-request-response\proof-summary.json

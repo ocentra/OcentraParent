@@ -1,5 +1,0 @@
-Security/no-claim proof:
-
-- App/game rows are linked to provider-status boundary states without sending provider payloads.
-- Delivered status remains covered only by the existing V0.8 boundary and still requires real provider receipts before any delivery claim.
-- Provider delivery, receipt ingestion, credentials, cloud routing, retry workers, quiet-hours timers, parent UI, child delivery, durable outbox storage, and adapter dispatch remain false.

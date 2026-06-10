@@ -1,5 +1,0 @@
-Security/no-claim proof:
-
-- Retention settings rows do not claim portal UI completion, service mutation, platform runtime, child-device delivery, provider delivery, notification receipts, authority enrollment, physical-device behavior, or product completion.
-- Remote sync and remote AI stay disabled in every row.
-- Parent export readiness is parent-owned and does not claim Ocentra-hosted custody.

@@ -18,7 +18,7 @@ fn network_flow_digest_rolls_up_processes_destinations_and_evidence_refs() {
             connection_count: 2,
             bytes_sent: Some(120),
             bytes_received: None,
-            evidence_id: constants::activity_store::TEST_NETWORK_EVENT_ID,
+            evidence_id: test_network_evidence_id(constants::activity_store::TEST_NETWORK_EVENT_ID),
             tcp_state: Some(constants::activity_capture::TCP_STATE_ESTABLISHED),
         }),
         observation(NetworkObservationInput {
@@ -30,7 +30,7 @@ fn network_flow_digest_rolls_up_processes_destinations_and_evidence_refs() {
             connection_count: 1,
             bytes_sent: Some(20),
             bytes_received: Some(40),
-            evidence_id: constants::test_network::SUBJECT_ID,
+            evidence_id: test_network_evidence_id(constants::test_network::SUBJECT_ID),
             tcp_state: Some(constants::activity_capture::TCP_STATE_ESTABLISHED),
         }),
     ]);
@@ -68,7 +68,7 @@ fn network_flow_digest_reports_direct_indicators_without_new_destination_guessin
         connection_count: 1,
         bytes_sent: None,
         bytes_received: None,
-        evidence_id: constants::activity_store::TEST_NETWORK_EVENT_ID,
+        evidence_id: test_network_evidence_id(constants::activity_store::TEST_NETWORK_EVENT_ID),
         tcp_state: Some(constants::activity_capture::TCP_STATE_CLOSE_WAIT),
     })]);
 
@@ -150,8 +150,8 @@ fn observation(input: NetworkObservationInput) -> ActivityNetworkFlowObservation
             last_seen_at: Some(constants::activity_store::TEST_FIRST_OBSERVED_AT.to_string()),
         },
         evidence: vec![ActivityEvidenceRef {
-            evidence_id: input.evidence_id.to_string(),
-            kind: ActivityEvidenceKind::JournalEntry,
+            evidence_id: input.evidence_id,
+            kind: ActivityEvidenceKind::LocalDbRow,
             digest: None,
             uri: None,
         }],
@@ -167,6 +167,12 @@ struct NetworkObservationInput {
     connection_count: u64,
     bytes_sent: Option<u64>,
     bytes_received: Option<u64>,
-    evidence_id: &'static str,
+    evidence_id: String,
     tcp_state: Option<&'static str>,
+}
+
+fn test_network_evidence_id(suffix: &str) -> String {
+    let mut evidence_id = String::from(constants::activity_capture::NETWORK_EVIDENCE_ID_PREFIX);
+    evidence_id.push_str(suffix);
+    evidence_id
 }

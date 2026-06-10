@@ -1,7 +1,0 @@
-Final gate contract/proof routing:
-
-- App-game proof roots present: 27/27
-- App proof roots present: 26/26
-- E2E/manual route rows: 9
-- No-claim gate rows: 14
-- This workpack adds no new schema contract; it verifies proof route completeness and PR-ready reporting constraints.

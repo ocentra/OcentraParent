@@ -10,16 +10,88 @@ This is AI-pass work. Capture MVP should define the route/result contracts and d
 
 ## Checklist
 
-- [ ] Verify configured local Gemma-family image capability if it is the parent/device default.
-- [ ] Evaluate Qwen2.5-VL or other candidates only if default runtime is insufficient.
-- [ ] Use detector-specific JSON prompts.
-- [ ] Limit image pixels and crop regions.
-- [ ] Reject open-ended descriptions.
-- [ ] Measure runtime and quality.
-- [ ] Record uncertainty/manual-required behavior.
+- [x] Verify configured local image capability for the current Windows proof route.
+- [x] Evaluate Qwen2.5-VL/Qwen2-VL candidates when the default runtime is insufficient.
+- [x] Use detector-specific JSON prompts.
+- [x] Limit image pixels and crop regions.
+- [x] Reject open-ended descriptions.
+- [x] Measure runtime and public-live crop quality.
+- [x] Record uncertainty/manual-required and fallback behavior.
 
 ## Proof
 
 - Guided detector test set.
 - Model capability proof.
 - Resource proof.
+
+Current readiness proof:
+
+```powershell
+node scripts/test/screen-vlm-guided-classifier-readiness-proof.mjs
+```
+
+Artifact:
+
+```text
+output/screen-plan-proof/36-small-vlm-guided-classifier-evaluation/proof-summary.json
+```
+
+This proof reuses the existing local VLM execution-readiness contract proof to
+show the guided worker template/version, local-only custody, bounded image-pixel
+budget, deleted query-store requirement before completed status, and
+manual-required behavior when the runtime is unavailable. The focused worker
+contract now rejects open-ended prompts such as `Describe the screen in detail.`
+before local worker handoff.
+
+The retained Windows-lane local VLM matrix and live crop quality proofs now go
+beyond readiness:
+
+```powershell
+node scripts/test/screen-ai-local-vlm-proof.mjs
+node scripts/test/screen-vlm-live-crop-quality-proof.mjs
+node scripts/test/screen-vlm-runtime-resource-measurement-proof.mjs
+node scripts/test/screen-vlm-resource-crop-readiness-proof.mjs
+node scripts/test/screen-vlm-model-selection-proof.mjs
+node scripts/test/screen-vlm-rollout-fallback-gate-proof.mjs
+```
+
+Artifacts:
+
+```text
+output/screen-ai-pipeline-proof/proof-summary.json
+output/screen-plan-proof/36-vlm-live-crop-quality/proof-summary.json
+output/screen-plan-proof/36-vlm-runtime-resource-measurement/proof-summary.json
+output/screen-plan-proof/36-vlm-resource-crop-readiness/proof-summary.json
+output/screen-plan-proof/36-vlm-model-selection/proof-summary.json
+output/screen-plan-proof/36-vlm-rollout-fallback-gate/proof-summary.json
+```
+
+The retained local matrix runs Qwen2-VL over real captured Windows/browser
+proof images and schema-validates the guided classifier output. The retained
+live crop proof loads public live pages for video, school/productivity, browser
+game, shopping, and public social/feed categories, captures managed-browser
+crops, runs local Qwen2-VL, records expected visible term/category matches, and
+deletes raw crop files after analysis. The retained resource proof records
+per-sample wall time, CPU time, peak working set, model/mmproj paths, bounded
+crop dimensions, and no-raw-retention custody. These are local Windows proof
+artifacts, not broad production rollout claims.
+
+This closes WP36 as an evaluation workpack for the current Windows proof route:
+the selected local llama.cpp/Qwen2-VL path has capability, bounded input,
+detector JSON prompt, public-live crop quality, resource measurement, model
+selection, and fallback proof. It does not close product-quality rollout across
+additional hardware profiles, authenticated-account social/feed quality,
+cross-platform model/runtime parity, portal runtime rendering, enforcement, or
+the full screen-AI pipeline.
+
+## Current Decision
+
+- Keep the guided local VLM route as the Windows proof-leading VLM path when
+  OCR/structured evidence is insufficient.
+- Keep open-ended descriptions rejected; detector-specific JSON prompts and
+  bounded crops remain required.
+- Do not claim authenticated-account social coverage from the public-feed
+  proof.
+- Do not claim cross-platform VLM parity, hardware rollout thresholds, or
+  production model-quality completion until separate device/profile proof
+  artifacts exist.

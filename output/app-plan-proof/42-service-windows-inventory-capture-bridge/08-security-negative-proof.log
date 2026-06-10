@@ -1,5 +1,0 @@
-Security negative proof:
-
-- Shortcut paths remain hashed before service read-model exposure.
-- Native app inventory rows remain not-claimed for runtime and foreground.
-- No policy decision, adapter action, or portal UI was added.

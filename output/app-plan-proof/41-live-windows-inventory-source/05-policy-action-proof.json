@@ -1,7 +1,0 @@
-{
-  "workpack": "41-live-windows-inventory-source",
-  "policyAction": {
-    "status": "not-applicable",
-    "reason": "Native app cross-record only; no policy action or adapter execution."
-  }
-}

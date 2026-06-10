@@ -1,9 +1,0 @@
-Security boundary checks:
-- Shared app/game evidence remains evidence, not action authority.
-- AI digest/classification digest refs do not enforce.
-- Broad native app blocking remains manual-required outside scoped owned-process
-  proof.
-- No portal path/raw executable rendering was added.
-
-Result:
-PASS by scope and focused serialization tests.

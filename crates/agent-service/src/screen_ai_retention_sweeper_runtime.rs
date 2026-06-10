@@ -28,6 +28,7 @@ use crate::{
     activity_capture::{record_activity_events_to_paths, ActivityCaptureError},
     activity_store_path::{activity_db_path, activity_journal_key_path, activity_journal_path},
     fields::fields_from_pairs,
+    screen_ai_retention_sweeper_deletion_events::publish_screen_retention_deletion_events,
     time::timestamp_now,
 };
 
@@ -76,9 +77,19 @@ async fn run_screen_ai_retention_sweeper_runtime(config: ScreenAiRetentionSweepe
     loop {
         interval.tick().await;
         tick_count += 1;
-        let outcome =
-            record_screen_ai_retention_sweeper_tick(&config, ScreenAiRetentionSweeperClock::now());
-        if matches!(outcome, Ok(ScreenAiRetentionSweeperOutcome::Swept { .. })) {
+        let clock = ScreenAiRetentionSweeperClock::now();
+        let observed_at = clock.timestamp.clone();
+        let outcome = record_screen_ai_retention_sweeper_tick(&config, clock);
+        if let Ok(ScreenAiRetentionSweeperOutcome::Swept {
+            expired_entries, ..
+        }) = outcome
+        {
+            let _ = publish_screen_retention_deletion_events(
+                &config.store_path,
+                &expired_entries,
+                &observed_at,
+            )
+            .await;
             sweep_count += 1;
         }
         if config.max_sweeps.is_some_and(|max| sweep_count >= max) {
@@ -274,6 +285,10 @@ fn expired_entry_fields(
         string_field(
             constants::field::SCREEN_IMAGE_DELETION_STATE,
             SCREEN_DELETION_EXPIRED_DELETED,
+        ),
+        string_field(
+            constants::field::SCREEN_DELETION_REASONS,
+            entry.deletion_proof_ref.clone(),
         ),
         bool_field(constants::field::SCREEN_POLICY_ELIGIBLE, false),
         string_field(

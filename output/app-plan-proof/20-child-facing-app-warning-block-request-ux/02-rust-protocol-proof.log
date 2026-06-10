@@ -1,5 +1,0 @@
-N/A for app-plan WP20.
-
-The shared proof is TypeScript parent-domain/text-domain contract proof only.
-No native app Rust protocol, service, WebSocket, child app, or adapter files
-changed.

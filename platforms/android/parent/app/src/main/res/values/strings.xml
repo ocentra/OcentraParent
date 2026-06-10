@@ -1,0 +1,8 @@
+<resources>
+    <string name="app_name">Ocentra Parent Mobile</string>
+    <string name="parent_mobile_status_title">Ocentra Parent Mobile Android scaffold</string>
+    <string name="parent_mobile_observer_state">observer=read-only</string>
+    <string name="parent_mobile_controller_state">controller-authority=manual-required</string>
+    <string name="parent_mobile_child_agent_boundary">child-agent-parity=not-claimed</string>
+    <string name="parent_mobile_store_boundary">play-signing=manual-required</string>
+</resources>

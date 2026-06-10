@@ -28,15 +28,29 @@ const adb = findAdb();
 const emulator = findEmulator();
 const adbVersion = adb ? command(['version'], { allowFailure: true, adbPath: adb.path }) : null;
 const emulatorAvds = emulator ? listAvds(emulator.path) : [];
+const requestedAndroidSerial = process.env.ANDROID_SERIAL?.trim() ?? '';
 let launchedEmulator = false;
 let launchedEmulatorSerial = null;
 
-if (adb && emulator && listDevices(adb.path).filter((device) => device.state === 'device').length === 0) {
+if (
+  adb &&
+  emulator &&
+  requestedAndroidSerial.length === 0 &&
+  listDevices(adb.path).filter((device) => device.state === 'device').length === 0
+) {
   launchedEmulatorSerial = await launchEmulatorIfAvailable(adb.path, emulator.path, emulatorAvds);
   launchedEmulator = launchedEmulatorSerial !== null;
 }
 
-const devices = adb ? listDevices(adb.path) : [];
+const discoveredDevices = adb ? listDevices(adb.path) : [];
+const requestedDevice =
+  requestedAndroidSerial.length > 0
+    ? discoveredDevices.find((device) => device.serial === requestedAndroidSerial)
+    : null;
+if (requestedAndroidSerial.length > 0 && !requestedDevice) {
+  throw new Error(`Requested ANDROID_SERIAL was not attached: ${requestedAndroidSerial}`);
+}
+const devices = requestedDevice ? [requestedDevice] : discoveredDevices;
 const attachedDevices = devices.filter((device) => device.state === 'device');
 const packageVisibility = [];
 const defaultViewHandlers = [];
@@ -105,9 +119,27 @@ const proof = {
     emulatorAvdCount: emulatorAvds.length,
     emulatorLaunchedByProof: launchedEmulator,
     emulatorCleanupAttempted: launchedEmulator,
+    androidSerialFilterUsed: requestedAndroidSerial.length > 0,
+    requestedAndroidSerialPersisted: false,
+    requestedAndroidSerialRef:
+      requestedAndroidSerial.length > 0
+        ? `redacted-android-device-ref-${sha256(requestedAndroidSerial).slice(0, 16)}`
+        : null,
+    allAttachedDeviceCountBeforeSerialFilter: discoveredDevices.filter((device) => device.state === 'device').length,
     attachedDeviceCount: attachedDevices.length,
     bootedDeviceCount,
     realDeviceOrEmulatorInspected: bootedDeviceCount > 0,
+    physicalAndroidTargetRequired: requestedAndroidSerial.length > 0,
+    physicalAndroidTargetObserved:
+      requestedAndroidSerial.length > 0 &&
+      attachedDevices.some(
+        (device) => device.serial === requestedAndroidSerial && !device.serial.startsWith('emulator-')
+      ),
+    requestedPhysicalProductObserved: requestedDevice?.product ?? null,
+    requestedPhysicalModelObserved: requestedDevice?.model ?? null,
+    requestedPhysicalDeviceNameObserved: requestedDevice?.deviceName ?? null,
+    emulatorEvidenceExcludedBySerialFilter:
+      requestedAndroidSerial.length > 0 && discoveredDevices.some((device) => device.serial.startsWith('emulator-')),
     knownBrowserPackageIdsQueriedOnly: true,
     browserPackageVisible,
     ownedBrowserShellVisible: ownedShellVisible,
@@ -139,9 +171,14 @@ const proof = {
   },
   devices: attachedDevices.map((device) => ({
     serialRef: `redacted-android-device-ref-${sha256(device.serial).slice(0, 16)}`,
+    serialKind: device.serial.startsWith('emulator-') ? 'emulator' : 'physical-or-network-adb-device',
     state: device.state,
+    product: device.product,
+    model: device.model,
+    deviceName: device.deviceName,
     bootCompleted: device.bootCompleted,
     rawSerialPersisted: false,
+    rawAdbDeviceLinePersisted: false,
   })),
   packageVisibility,
   defaultViewHandlers,
@@ -160,6 +197,8 @@ console.log(`adbInstalled=${adb !== null}`);
 console.log(`attachedDeviceCount=${attachedDevices.length}`);
 console.log(`bootedDeviceCount=${bootedDeviceCount}`);
 console.log(`resultState=${proof.hostProofSummary.resultState}`);
+console.log(`androidSerialFilterUsed=${proof.hostProofSummary.androidSerialFilterUsed}`);
+console.log(`physicalAndroidTargetObserved=${proof.hostProofSummary.physicalAndroidTargetObserved}`);
 
 if (adb && launchedEmulatorSerial !== null) {
   command(['-s', launchedEmulatorSerial, 'emu', 'kill'], { adbPath: adb.path, allowFailure: true });
@@ -253,16 +292,35 @@ async function waitForBoot(adbPath, serial) {
 }
 
 function listDevices(adbPath) {
-  const output = command(['devices'], { adbPath, allowFailure: true });
+  const output = command(['devices', '-l'], { adbPath, allowFailure: true });
   return output
     .split(/\r?\n/)
     .slice(1)
     .map((line) => line.trim())
     .filter((line) => line.length > 0)
     .map((line) => {
-      const [serial, state] = line.split(/\s+/);
-      return { serial, state: state ?? 'unknown' };
+      const [serial, state, ...details] = line.split(/\s+/);
+      const detailMap = parseDeviceDetails(details);
+      return {
+        serial,
+        state: state ?? 'unknown',
+        product: detailMap.product ?? null,
+        model: detailMap.model ?? null,
+        deviceName: detailMap.device ?? null,
+        rawDetailsSha256: details.length > 0 ? sha256(details.join(' ')) : null,
+      };
     });
+}
+
+function parseDeviceDetails(details) {
+  return Object.fromEntries(
+    details
+      .map((detail) => {
+        const separatorIndex = detail.indexOf(':');
+        return separatorIndex > 0 ? [detail.slice(0, separatorIndex), detail.slice(separatorIndex + 1)] : null;
+      })
+      .filter((entry) => entry !== null)
+  );
 }
 
 function captureDeviceSurfaceEvidence(adbPath, serial, headlessEmulator) {

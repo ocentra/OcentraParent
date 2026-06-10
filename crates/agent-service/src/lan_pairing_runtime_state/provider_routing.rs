@@ -1,4 +1,6 @@
-use ocentra_parent_agent_protocol::{constants, DeviceRuntimeAiProviderState};
+use ocentra_parent_agent_protocol::{
+    constants, DeviceRuntimeAiProviderState, LanPairingDeviceReachability,
+};
 
 use crate::lan_pairing::LanPairingRuntime;
 
@@ -12,6 +14,16 @@ impl LanPairingRuntime {
     }
 
     pub(crate) fn lan_ai_provider_status_value(&self) -> &'static str {
+        match self.lan_ai_provider_heartbeat_reachability() {
+            Some(LanPairingDeviceReachability::Offline) => {
+                return constants::value::LAN_AI_PROVIDER_STATUS_UNAVAILABLE;
+            }
+            Some(LanPairingDeviceReachability::Stale) => {
+                return constants::value::LAN_AI_PROVIDER_STATUS_DEGRADED;
+            }
+            Some(LanPairingDeviceReachability::Online) | None => {}
+        }
+
         if self.lan_ai_provider_busy()
             && self.device_role_read_model().lan_ai_provider_state
                 == DeviceRuntimeAiProviderState::Available

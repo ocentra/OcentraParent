@@ -28,6 +28,7 @@ import {
   AppGamePolicyReadinessRoutePanel,
   shouldRenderAppGamePolicyReadinessRoute,
 } from './AppGamePolicyReadinessRoutePanel';
+import { AiRuntimeRoutePanel, shouldRenderAiRuntimeRoute } from './AiRuntimeRoutePanel';
 import {
   BrowserParentExplanationRoutePanel,
   shouldRenderBrowserParentExplanationRoute,
@@ -43,6 +44,7 @@ import {
   shouldRenderTrackingParentPortalSummary,
   TrackingParentPortalSummaryCard,
 } from './TrackingParentPortalSummaryCard';
+import { ScreenSummaryRoutePanel, shouldRenderScreenSummaryRoute } from './ScreenSummaryRoutePanel';
 import { shouldRenderTrackingStatusRoute, TrackingStatusRoutePanel } from './TrackingStatusRoutePanel';
 
 type ParentPortalRouteProps = {
@@ -129,6 +131,13 @@ export function ParentPortalRoute({
           readModelResult={activityState.appGamePolicyReadinessReadModel}
         />
       ) : null}
+      {shouldRenderAiRuntimeRoute(route) ? (
+        <AiRuntimeRoutePanel
+          actions={actions}
+          commandEnabled={state.socket?.readyState === WebSocket.OPEN}
+          liveActivity={activityState}
+        />
+      ) : null}
       {shouldRenderBrowserParentExplanationRoute(route) ? <BrowserParentExplanationRoutePanel /> : null}
       {shouldRenderSocialAuditExplanationRoute(route) &&
       browserPanelEvent === AgentEvent.BrowserSocialAuditExplanationReadModelReported ? (
@@ -144,6 +153,7 @@ export function ParentPortalRoute({
           actions={actions}
           commandEnabled={state.socket?.readyState === WebSocket.OPEN}
           events={state.events}
+          liveActivity={activityState}
         />
       ) : null}
       {shouldRenderSocialDashboardRoute(route) &&
@@ -154,7 +164,14 @@ export function ParentPortalRoute({
           events={state.events}
         />
       ) : null}
-      {shouldRenderScreenSettingsRoute(route) ? <ScreenSettingsRoutePanel /> : null}
+      {shouldRenderScreenSettingsRoute(route) ? (
+        <ScreenSettingsRoutePanel
+          actions={actions}
+          commandEnabled={state.socket?.readyState === WebSocket.OPEN}
+          events={state.events}
+        />
+      ) : null}
+      {shouldRenderScreenSummaryRoute(route) ? <ScreenSummaryRoutePanel liveActivity={activityState} /> : null}
     </div>
   );
 }

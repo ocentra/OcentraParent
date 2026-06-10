@@ -1,8 +1,0 @@
-{
-  "workpack": "app-game WP14 journal and SQLite ingest",
-  "policyChanged": false,
-  "enforcementChanged": false,
-  "actionResult": "not-applicable",
-  "manualRequiredState": "broad app/game blocking and package-wide controls remain manual-required until later policy, authority-tier, and platform adapter proof exists",
-  "reason": "This slice stores and replays evidence only. It does not compile policies, dispatch actions, terminate processes, shield apps, suspend packages, or update child UX."
-}

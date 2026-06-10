@@ -30,7 +30,7 @@ const expectedPartialRows = new Map([
     'SOCIAL-23',
     {
       reason: 'social-proof-artifact-gate-waits-on-social-17',
-      requiredEvidence: 'SOCIAL-17 real iOS proof plus connector/native/runtime proof before product claims',
+      requiredEvidence: 'SOCIAL-17 real iOS proof plus connector/native/provider runtime proof before product claims',
     },
   ],
   [
@@ -38,7 +38,7 @@ const expectedPartialRows = new Map([
     {
       reason: 'social-rollout-gate-waits-on-social-17-and-social-23',
       requiredEvidence:
-        'SOCIAL-17, SOCIAL-23, provider/report delivery, runtime custody mutation, final policy execution, and enforcement proof',
+        'SOCIAL-17, SOCIAL-23, provider/report delivery, runtime custody mutation, broad/unmanaged policy execution boundaries, and enforcement proof',
     },
   ],
 ]);
