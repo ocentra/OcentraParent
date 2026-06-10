@@ -14,16 +14,18 @@ jobs:
     timeout-minutes: 10
     steps:
       - uses: actions/checkout@v6
+        with:
+          submodules: recursive
 
       - uses: ./.github/actions/setup-ci
         with:
           install-rust: 'false'
 
-      - name: Format docs and hub state
-        run: npx prettier --check docs .hub *.md
+      - name: Format docs and Ledger docs
+        run: npx prettier --check docs *.md .gitmodules
 
-      - name: Lane state parse check
-        run: npm run lanes:status
+      - name: Ledger root check
+        run: npm run ledger:root
 
-      - name: Hub state parse check
-        run: npm run hub:status
+      - name: Ledger doctor check
+        run: npm run ledger:doctor

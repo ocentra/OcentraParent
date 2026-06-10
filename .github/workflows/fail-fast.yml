@@ -20,6 +20,12 @@ jobs:
     timeout-minutes: 15
     steps:
       - uses: actions/checkout@v6
+        if: ${{ !inputs.docs_hub_only }}
+
+      - uses: actions/checkout@v6
+        if: ${{ inputs.docs_hub_only }}
+        with:
+          submodules: recursive
 
       - uses: ./.github/actions/setup-ci
         if: ${{ !inputs.docs_hub_only }}
@@ -29,17 +35,17 @@ jobs:
         with:
           install-rust: 'false'
 
-      - name: Docs/hub-only format check
+      - name: Docs/Ledger-only format check
         if: ${{ inputs.docs_hub_only }}
-        run: npx prettier --check docs .hub *.md
+        run: npx prettier --check docs *.md .gitmodules
 
-      - name: Docs/hub-only lane guard
+      - name: Docs/Ledger-only root check
         if: ${{ inputs.docs_hub_only }}
-        run: npm run lanes:guard
+        run: npm run ledger:root
 
-      - name: Docs/hub-only hub guard
+      - name: Docs/Ledger-only doctor
         if: ${{ inputs.docs_hub_only }}
-        run: npm run hub:guard
+        run: npm run ledger:doctor
 
       - name: Format check
         if: ${{ !inputs.docs_hub_only }}

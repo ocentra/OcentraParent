@@ -3,7 +3,7 @@ import { join, relative, sep } from 'node:path';
 
 const repoRoot = process.cwd();
 const sourceRoots = ['apps', 'packages'];
-const ignoredSegments = new Set(['.git', '.turbo', 'coverage', 'dist', 'node_modules', 'target']);
+const ignoredSegments = new Set(['.git', '.turbo', 'coverage', 'dist', 'node_modules', 'ocentra-ledger', 'target']);
 const sourceExtension = /\.(?:ts|tsx)$/u;
 const manualBrandPattern = /\b(?:export\s+)?type\s+\w+\s*=\s*string\s*&\s*\{\s*readonly\s+__brand\b/u;
 const nakedDomainTypeAliasPattern =

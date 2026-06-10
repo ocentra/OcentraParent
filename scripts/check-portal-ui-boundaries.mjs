@@ -3,7 +3,15 @@ import { join, relative, sep } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import ts from 'typescript';
 
-const ignoredPathParts = new Set(['.git', '.turbo', 'coverage', 'dist', 'node_modules', 'temp-scratchpad-proof']);
+const ignoredPathParts = new Set([
+  '.git',
+  '.turbo',
+  'coverage',
+  'dist',
+  'node_modules',
+  'ocentra-ledger',
+  'temp-scratchpad-proof',
+]);
 const sourceExtension = /\.(?:ts|tsx)$/u;
 const cssExtension = /\.css$/u;
 const globalCssEntryFiles = new Set(['apps/portal/src/main.ts']);

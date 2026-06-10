@@ -116,7 +116,7 @@ jobs:
 
           for path in "${changed_files[@]}"; do
             case "$path" in
-              docs/*|.hub/*)
+              docs/*)
                 ;;
               *.md)
                 if [[ "$path" == */* ]]; then
@@ -132,7 +132,7 @@ jobs:
               .github/workflows/*|.github/actions/*)
                 workflow_changed=true
                 ;;
-              apps/*|packages/*|crates/*|platforms/*|scripts/*|eslint-rules/*|vendor/*|package.json|package-lock.json|turbo.json|tsconfig*.json|eslint.config.js|Cargo.toml|Cargo.lock|rust-toolchain.toml)
+              apps/*|packages/*|crates/*|platforms/*|scripts/*|eslint-rules/*|vendor/*|tools/*|.gitmodules|package.json|package-lock.json|turbo.json|tsconfig*.json|eslint.config.js|Cargo.toml|Cargo.lock|rust-toolchain.toml)
                 source_changed=true
                 ;;
             esac
@@ -144,7 +144,7 @@ jobs:
               packages/*)
                 domain_changed=true
                 ;;
-              scripts/*|eslint-rules/*|package.json|package-lock.json|turbo.json|tsconfig*.json|eslint.config.js)
+              scripts/*|eslint-rules/*|tools/*|.gitmodules|package.json|package-lock.json|turbo.json|tsconfig*.json|eslint.config.js)
                 tooling_changed=true
                 ;;
               crates/agent-protocol/*|Cargo.toml|Cargo.lock|rust-toolchain.toml)

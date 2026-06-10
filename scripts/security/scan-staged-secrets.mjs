@@ -4,7 +4,7 @@ import { join, relative } from 'node:path';
 
 const repoRoot = process.cwd();
 const scanRepo = process.argv.includes('--repo');
-const ignoredSegments = new Set(['.git', '.turbo', 'coverage', 'dist', 'node_modules', 'target']);
+const ignoredSegments = new Set(['.git', '.turbo', 'coverage', 'dist', 'node_modules', 'ocentra-ledger', 'target']);
 const allowedPathPatterns = [/(^|\/)\.env\.example$/iu, /(^|\/)\.env\.sample$/iu, /(^|\/)\.env\.template$/iu];
 const forbiddenPathPatterns = [
   /(^|\/)\.env(\..+)?$/iu,
