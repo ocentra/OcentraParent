@@ -22,8 +22,8 @@ jobs:
       - name: Format docs and hub state
         run: npx prettier --check docs .hub *.md
 
-      - name: Lane guard
-        run: npm run lanes:guard
+      - name: Lane state parse check
+        run: npm run lanes:status
 
       - name: Hub guard
         run: npm run hub:guard
