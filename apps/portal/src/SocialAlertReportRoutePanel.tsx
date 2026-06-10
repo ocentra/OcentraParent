@@ -3,7 +3,7 @@ import { parseAgentSocialAlertReportReadModelEvent } from '@ocentra-parent/agent
 import {
   PortalDetails,
   PortalDom,
-  PortalRoute,
+  isPortalBrowserParentSurfaceRoute,
   type PortalRoute as PortalRouteValue,
 } from '@ocentra-parent/portal-domain/contracts';
 import { type ReactElement } from 'react';
@@ -16,7 +16,7 @@ import {
 } from './social-alert-report-panel';
 
 export function shouldRenderSocialAlertReportRoute(route: PortalRouteValue): boolean {
-  return route === PortalRoute.Browser;
+  return isPortalBrowserParentSurfaceRoute(route);
 }
 
 export function SocialAlertReportRoutePanel({

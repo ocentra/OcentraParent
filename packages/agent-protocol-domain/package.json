@@ -49,6 +49,18 @@
       "import": "./dist/network-live-capture-status.js",
       "types": "./dist/network-live-capture-status.d.ts"
     },
+    "./network-linux-nftables-lab-status": {
+      "import": "./dist/network-linux-nftables-lab-status.js",
+      "types": "./dist/network-linux-nftables-lab-status.d.ts"
+    },
+    "./network-windows-firewall-lab-status": {
+      "import": "./dist/network-windows-firewall-lab-status.js",
+      "types": "./dist/network-windows-firewall-lab-status.d.ts"
+    },
+    "./network-windows-wfp-gate-status": {
+      "import": "./dist/network-windows-wfp-gate-status.js",
+      "types": "./dist/network-windows-wfp-gate-status.d.ts"
+    },
     "./app-game-boundary-read-model": {
       "import": "./dist/app-game-boundary-read-model.js",
       "types": "./dist/app-game-boundary-read-model.d.ts"

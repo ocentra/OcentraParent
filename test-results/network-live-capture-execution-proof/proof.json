@@ -1,0 +1,82 @@
+{
+  "schemaVersion": 1,
+  "proof": "network-live-capture-execution",
+  "checkedAt": "2026-06-08T21:04:54.953Z",
+  "branch": "codex/network-live-capture-execution-proof",
+  "commit": "c40e934751bf5927a4d1f19e4538fa49cd44d47c",
+  "statusShort": "M  crates/ocentra-network-evidence/README.md\nA  crates/ocentra-network-evidence/src/android_physical_target/mod.rs\nA  crates/ocentra-network-evidence/src/android_physical_target/types.rs\nA  crates/ocentra-network-evidence/src/android_physical_target/validation.rs\nM  crates/ocentra-network-evidence/src/lib.rs\nM  crates/ocentra-network-evidence/src/tests.rs\nA  crates/ocentra-network-evidence/src/tests/android_physical_target.rs\nM  docs/features/network-domain-control.md\nM  docs/plans/network-plan/current-network-snapshot.md\nM  docs/plans/network-plan/implementation-checklist.md\nM  output/network-plan-proof/13b-live-capture-execution-proof/command-logs/network-evidence-clippy.log\nMM output/network-plan-proof/13b-live-capture-execution-proof/command-logs/network-live-capture-execution-tests.log\nM  output/network-plan-proof/13b-live-capture-execution-proof/command-logs/source-shape.log\nMM output/network-plan-proof/13b-live-capture-execution-proof/local-host-observations.json\nM  output/network-plan-proof/13b-live-capture-execution-proof/proof-summary.json\nA  output/network-plan-proof/android-physical-target-proof/android-physical-target-boundary.json\nAM output/network-plan-proof/android-physical-target-proof/android-physical-target-observation.json\nA  output/network-plan-proof/android-physical-target-proof/command-logs/diff-check.log\nAM output/network-plan-proof/android-physical-target-proof/command-logs/network-android-physical-target-tests.log\nAM output/network-plan-proof/android-physical-target-proof/command-logs/network-evidence-clippy.log\nA  output/network-plan-proof/android-physical-target-proof/command-logs/source-shape.log\nA  output/network-plan-proof/android-physical-target-proof/proof-summary.json\nA  output/network-plan-proof/android-physical-target-proof/validation-commands.log\nAM scripts/test/network-android-physical-target-proof.mjs\nA  test-results/network-android-physical-target-proof/proof.json\nM  test-results/network-live-capture-execution-proof/proof.json\n",
+  "sourceRefs": [
+    "crates/ocentra-network-evidence/src/live_capture.rs",
+    "crates/ocentra-network-evidence/src/live_capture_execution.rs",
+    "crates/ocentra-network-evidence/src/live_capture_execution/types.rs",
+    "crates/ocentra-network-evidence/src/live_capture_execution/validation.rs",
+    "crates/ocentra-network-evidence/src/lib.rs",
+    "crates/ocentra-network-evidence/src/tests.rs",
+    "crates/ocentra-network-evidence/src/tests/live_capture.rs",
+    "crates/ocentra-network-evidence/src/tests/live_capture_execution.rs",
+    "crates/ocentra-network-evidence/src/tests/live_capture_execution_fixtures.rs",
+    "crates/ocentra-network-evidence/README.md",
+    "docs/features/network-domain-control.md",
+    "docs/plans/network-plan/implementation-checklist.md",
+    "docs/plans/network-plan/current-network-snapshot.md",
+    "scripts/test/network-live-capture-execution-proof.mjs"
+  ],
+  "sourceFingerprint": "source-tree:cc12281f550a494fae3c928cef115807c8a760103278e7e0e5e832cc15d4c9bd",
+  "proofRoot": "output\\network-plan-proof\\13b-live-capture-execution-proof",
+  "testRoot": "test-results\\network-live-capture-execution-proof",
+  "commands": [
+    {
+      "name": "network-live-capture-execution-tests",
+      "command": "cargo test -p ocentra-network-evidence live_capture_execution",
+      "status": 0,
+      "log": "output\\network-plan-proof\\13b-live-capture-execution-proof\\command-logs\\network-live-capture-execution-tests.log"
+    },
+    {
+      "name": "network-evidence-clippy",
+      "command": "cargo clippy -p ocentra-network-evidence --all-targets -- -D warnings",
+      "status": 0,
+      "log": "output\\network-plan-proof\\13b-live-capture-execution-proof\\command-logs\\network-evidence-clippy.log"
+    },
+    {
+      "name": "source-shape",
+      "command": "node scripts/check-source-shape.mjs",
+      "status": 0,
+      "log": "output\\network-plan-proof\\13b-live-capture-execution-proof\\command-logs\\source-shape.log"
+    },
+    {
+      "name": "diff-check",
+      "command": "git diff --check",
+      "status": 0,
+      "log": "output\\network-plan-proof\\13b-live-capture-execution-proof\\command-logs\\diff-check.log"
+    }
+  ],
+  "artifacts": {
+    "boundary": "output\\network-plan-proof\\13b-live-capture-execution-proof\\live-capture-execution-boundary.json",
+    "localHostObservations": "output\\network-plan-proof\\13b-live-capture-execution-proof\\local-host-observations.json",
+    "commandLog": "output\\network-plan-proof\\13b-live-capture-execution-proof\\validation-commands.log",
+    "proofSummary": "output\\network-plan-proof\\13b-live-capture-execution-proof\\proof-summary.json",
+    "testProof": "test-results\\network-live-capture-execution-proof\\proof.json"
+  },
+  "provenRows": [
+    "13b Live-capture bounded execution/status proof"
+  ],
+  "provenBoundaries": [
+    "bounded driver execution is accepted only with proof-ready row13 capture refs and all row13b execution/custody refs",
+    "metadata-only Windows snapshots remain observable but cannot substitute for Npcap/libpcap capture",
+    "manual-required, unavailable, and degraded states stay visible without packet capture claims",
+    "raw artifact creation, raw PCAP without custody, content, policy, adapter, host-filter, and enforcement claims are rejected",
+    "Windows, Android SDK/emulator, WSL/Linux, and Apple CI/manual-unavailable host observations are recorded as proof context without product support claims"
+  ],
+  "notClaimed": [
+    "production live capture support",
+    "raw artifact creation",
+    "remote upload",
+    "raw PCAP without custody",
+    "exact URL, decrypted payload, page content, private message, or search query visibility",
+    "policy authority",
+    "adapter execution or authority",
+    "host filtering",
+    "enforcement command publication",
+    "macOS or iOS local device proof from this Windows host"
+  ]
+}

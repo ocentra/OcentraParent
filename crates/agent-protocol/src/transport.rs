@@ -138,6 +138,12 @@ pub enum AgentCommandName {
     AgentNetworkRemoteDeliveryStatusGet,
     #[serde(rename = "agent.network.live-capture.status.get")]
     AgentNetworkLiveCaptureStatusGet,
+    #[serde(rename = "agent.network.linux-nftables-lab.status.get")]
+    AgentNetworkLinuxNftablesLabStatusGet,
+    #[serde(rename = "agent.network.windows-firewall-lab.status.get")]
+    AgentNetworkWindowsFirewallLabStatusGet,
+    #[serde(rename = "agent.network.windows-wfp-gate.status.get")]
+    AgentNetworkWindowsWfpGateStatusGet,
     #[serde(rename = "agent.local-ai.runtime.status.get")]
     AgentLocalAiRuntimeStatusGet,
     #[serde(rename = "agent.local-ai.chat.generate")]
@@ -284,6 +290,12 @@ pub enum AgentEventName {
     AgentNetworkRemoteDeliveryStatusReported,
     #[serde(rename = "agent.network.live-capture.status.reported")]
     AgentNetworkLiveCaptureStatusReported,
+    #[serde(rename = "agent.network.linux-nftables-lab.status.reported")]
+    AgentNetworkLinuxNftablesLabStatusReported,
+    #[serde(rename = "agent.network.windows-firewall-lab.status.reported")]
+    AgentNetworkWindowsFirewallLabStatusReported,
+    #[serde(rename = "agent.network.windows-wfp-gate.status.reported")]
+    AgentNetworkWindowsWfpGateStatusReported,
     #[serde(rename = "agent.local-ai.runtime.status.reported")]
     AgentLocalAiRuntimeStatusReported,
     #[serde(rename = "agent.local-ai.chat.generation.reported")]

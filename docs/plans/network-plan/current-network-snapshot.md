@@ -14,6 +14,24 @@ Current Ocentra truth is:
   policy-preview, retention/read-model, platform/manual-required, adapter
   capability/status, action-result, performance, and security proof artifacts
   exist under `output/network-plan-proof/` and `test-results/network-*-proof/`;
+- bounded live-capture execution is modeled as a separate row13b proof: driver
+  execution needs proof-ready row13 refs plus invocation, interface, permission,
+  bounded-window, clean-stop, custody, retention/delete/export, metadata-only
+  sanitization, and private-traffic-exclusion refs; metadata snapshots do not
+  substitute for Npcap/libpcap capture;
+- Android physical target identity is now a separate read-only proof for the
+  named Galaxy S9 target: ADB connect, `adb devices -l`, and getprop
+  observations must match expected product/model/device/release/ABI refs before
+  the target can satisfy physical-device evidence. This does not execute
+  VpnService, packet capture, packet blocking, app correlation, or adapter
+  authority;
+- Windows Firewall bounded lab execution is now a separate row38a proof: an
+  apply-ready row38 adapter proof can be paired with an Ocentra lab rule name,
+  an RFC 5737 TEST-NET target, administrator permission, and
+  apply/verify-present/rollback/verify-removed command evidence before it can
+  report executed-and-rolled-back. Without host/admin/command evidence it stays
+  manual-required or unavailable. This is not production enforcement and does
+  not claim persistent host filtering;
 - portal visibility exists for service-backed network read models, including
   network evidence drawer status for activity rows and adapter/platform
   capability state;
@@ -40,15 +58,19 @@ Current Ocentra truth is:
 
 ## Known Gaps
 
-- Live packet capture driver invocation and live raw artifact creation.
+- Production live packet capture driver support and live raw artifact creation.
 - Router/log import implementation proof.
 - Live broker/family-hub transport, provider delivery, child-device delivery,
   remote acknowledgement handling, and remote delete/export propagation.
 - Local AI model execution or remote provider execution.
 - Full policy engine execution and notification provider delivery.
-- Live host DNS/firewall/WFP/VPN/NetworkExtension/Linux adapter mutation,
-  packet blocking, process termination execution, and host filtering.
-- Physical device and authority-enrolled proof where a platform claim needs it.
+- Live host DNS/WFP/VPN/NetworkExtension/Linux adapter mutation, packet
+  blocking, process termination execution, and host filtering. Windows Firewall
+  has only a bounded reversible TEST-NET lab execution proof; production
+  enforcement and persistent policy-driven firewall rules remain open.
+- Physical-device proof beyond the named Android target, Device Owner or other
+  authority-enrolled proof, and any platform adapter execution proof where a
+  platform claim needs it.
 - Parent-facing rule UX and broader risk-budget/performance/platform UI beyond
   the current service-backed network drawer.
 - Production SLO validation, external audit or penetration-test execution,

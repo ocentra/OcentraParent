@@ -21,7 +21,14 @@ import {
 } from '../dev/local-dev-config.mjs';
 import { ensurePortFree } from '../dev/port-utils.mjs';
 import { resolveDebugAgentServicePath, spawnVitePortal, stopProcessTree } from './agent-service-process.mjs';
-import { seedPortalNetworkActivityStore } from './portal-network-activity-seed.mjs';
+import {
+  assertAgentNetworkActivityReadModel,
+  describeAgentNetworkActivityReadModel,
+} from './portal-network-activity-service-preflight.mjs';
+import {
+  describePortalNetworkActivitySeedState,
+  seedPortalNetworkActivityStore,
+} from './portal-network-activity-seed.mjs';
 
 const repoRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..', '..');
 const portalRoot = path.join(repoRoot, 'apps', 'portal');
@@ -50,6 +57,7 @@ try {
   const agent = spawnAgent();
   trackChild(agent, 'agent');
   await waitForHttp(createAgentHealthUrl(agentPort));
+  await assertAgentNetworkActivityReadModel(createAgentWebSocketUrl(agentPort), activityDbPath);
 
   const portal = spawnVitePortal(
     portalPort,
@@ -67,11 +75,39 @@ try {
   exitCode = await runPlaywright();
   if (exitCode === 0) {
     await assertPortalDevLogWritten();
+  } else {
+    await printPlaywrightFailureDiagnostics();
   }
 } finally {
   stopping = true;
   await stopChildren();
   await rm(devLogDir, { recursive: true, force: true });
+}
+
+async function printPlaywrightFailureDiagnostics() {
+  console.error('Network evidence drawer E2E failed; dumping service-visible seed diagnostics before cleanup.');
+  console.error(`activityDbPath=${activityDbPath}`);
+  console.error(`seedState=${JSON.stringify(describePortalNetworkActivitySeedState(activityDbPath))}`);
+  try {
+    const serviceState = await describeAgentNetworkActivityReadModel(createAgentWebSocketUrl(agentPort));
+    console.error(`serviceReadModel=${serviceState}`);
+  } catch (error) {
+    console.error(`serviceReadModelError=${error instanceof Error ? error.message : String(error)}`);
+  }
+  await printDevLogs();
+}
+
+async function printDevLogs() {
+  try {
+    const files = await readdir(devLogDir);
+    for (const file of files.filter((entry) => entry.endsWith('.ndjson')).sort()) {
+      const content = await readFile(path.join(devLogDir, file), 'utf8');
+      console.error(`devLog=${file}`);
+      console.error(content);
+    }
+  } catch (error) {
+    console.error(`devLogError=${error instanceof Error ? error.message : String(error)}`);
+  }
 }
 
 process.exit(exitCode);

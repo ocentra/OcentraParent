@@ -6,6 +6,54 @@ const NullableSchemaVersionSchema = Schema.Union(Schema.String, Schema.Number, S
 const NullableNumberSchema = Schema.Union(Schema.Number, Schema.Null);
 const NullableBooleanSchema = Schema.Union(Schema.Boolean, Schema.Null);
 const FalseOrNullSchema = Schema.Union(Schema.Literal(false), Schema.Null);
+const PolicyPreviewDefaults = AgentProtocolDefaults.PolicyPreview;
+const NullablePolicyTargetTypeSchema = Schema.Union(
+  Schema.Literal(
+    PolicyPreviewDefaults.TargetType.Url,
+    PolicyPreviewDefaults.TargetType.Domain,
+    PolicyPreviewDefaults.TargetType.Site,
+    PolicyPreviewDefaults.TargetType.Category,
+    PolicyPreviewDefaults.TargetType.NetworkDomain,
+    PolicyPreviewDefaults.TargetType.Unknown
+  ),
+  Schema.Null
+);
+const NullablePolicyActionSchema = Schema.Union(
+  Schema.Literal(
+    PolicyPreviewDefaults.Action.Allow,
+    PolicyPreviewDefaults.Action.None,
+    PolicyPreviewDefaults.Action.AskParent,
+    PolicyPreviewDefaults.Action.WarnChild,
+    PolicyPreviewDefaults.Action.Monitor,
+    PolicyPreviewDefaults.Action.Limit,
+    PolicyPreviewDefaults.Action.Block,
+    PolicyPreviewDefaults.Action.ManualReview
+  ),
+  Schema.Null
+);
+const NullableNetworkEvidenceGradeSchema = Schema.Union(
+  Schema.Literal(
+    PolicyPreviewDefaults.EvidenceGrade.A,
+    PolicyPreviewDefaults.EvidenceGrade.B,
+    PolicyPreviewDefaults.EvidenceGrade.C,
+    PolicyPreviewDefaults.EvidenceGrade.D
+  ),
+  Schema.Null
+);
+const NullableNetworkPolicyMappingModeSchema = Schema.Union(
+  Schema.Literal(
+    PolicyPreviewDefaults.MappingMode.ParentReview,
+    PolicyPreviewDefaults.MappingMode.ObserveOnly,
+    PolicyPreviewDefaults.MappingMode.DryRun,
+    PolicyPreviewDefaults.MappingMode.ManualRequired,
+    PolicyPreviewDefaults.MappingMode.AdapterUnavailable
+  ),
+  Schema.Null
+);
+const NullablePolicyHandoffStateSchema = Schema.Union(
+  Schema.Literal(PolicyPreviewDefaults.HandoffState.DisabledPreviewOnly),
+  Schema.Null
+);
 
 const PortalPolicyPreviewReadModelSchema = withParser(
   Schema.Struct({
@@ -19,25 +67,33 @@ const PortalPolicyPreviewReadModelSchema = withParser(
     latestEventId: NullableTextSchema,
     latestObservedAt: NullableTextSchema,
     targetId: NullableTextSchema,
-    targetType: NullableTextSchema,
+    targetType: NullablePolicyTargetTypeSchema,
     targetValue: NullableTextSchema,
     evidenceReferenceCount: NullableNumberSchema,
     parentRuleContextReferenceCount: NullableNumberSchema,
     parentRuleContextRefIds: NullableTextSchema,
     decisionId: NullableTextSchema,
-    decisionAction: NullableTextSchema,
+    decisionAction: NullablePolicyActionSchema,
     reasonCodes: NullableTextSchema,
     ruleIds: NullableTextSchema,
     localAiResultId: NullableTextSchema,
     dryRun: NullableBooleanSchema,
-    enforcementHandoffState: NullableTextSchema,
-    networkEvidenceGrade: NullableTextSchema,
-    networkRequestedPolicyAction: NullableTextSchema,
-    networkMappedPolicyAction: NullableTextSchema,
-    networkPolicyMappingMode: NullableTextSchema,
+    enforcementHandoffState: NullablePolicyHandoffStateSchema,
+    networkEvidenceGrade: NullableNetworkEvidenceGradeSchema,
+    networkRequestedPolicyAction: NullablePolicyActionSchema,
+    networkMappedPolicyAction: NullablePolicyActionSchema,
+    networkPolicyMappingMode: NullableNetworkPolicyMappingModeSchema,
     networkAdapterActionAuthorized: FalseOrNullSchema,
     networkEnforcementCommandAuthorized: FalseOrNullSchema,
-  })
+  }).pipe(
+    Schema.filter(
+      (readModel) =>
+        !hasNetworkPolicyFields(readModel) ||
+        (readModel.dryRun === true &&
+          readModel.enforcementHandoffState === PolicyPreviewDefaults.HandoffState.DisabledPreviewOnly) ||
+        PolicyPreviewDefaults.ValidationMessage.DryRunPreviewOnlyHandoffRequired
+    )
+  )
 );
 
 export type PortalPolicyPreviewReadModel = Infer<typeof PortalPolicyPreviewReadModelSchema>;
@@ -86,4 +142,20 @@ export function parsePolicyPreviewReadModel(payload: AgentProtocolLogFields): Po
 
 function valueOrNull(value: unknown): unknown {
   return value === undefined ? null : value;
+}
+
+interface PortalPolicyPreviewNetworkFields {
+  readonly networkEvidenceGrade: unknown | null;
+  readonly networkRequestedPolicyAction: unknown | null;
+  readonly networkMappedPolicyAction: unknown | null;
+  readonly networkPolicyMappingMode: unknown | null;
+}
+
+function hasNetworkPolicyFields(readModel: PortalPolicyPreviewNetworkFields): boolean {
+  return (
+    readModel.networkEvidenceGrade !== null ||
+    readModel.networkRequestedPolicyAction !== null ||
+    readModel.networkMappedPolicyAction !== null ||
+    readModel.networkPolicyMappingMode !== null
+  );
 }

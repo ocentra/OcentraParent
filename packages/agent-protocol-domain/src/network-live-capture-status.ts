@@ -19,6 +19,10 @@ export const AgentNetworkRawCaptureStorageStateSchema = withParser(
   Schema.Literal('custody-ready', 'manual-required', 'unavailable', 'degraded')
 );
 
+export const AgentNetworkLiveCaptureExecutionStateSchema = withParser(
+  Schema.Literal('bounded-executed', 'manual-required', 'unavailable', 'degraded')
+);
+
 const AgentNetworkLiveCaptureStatusRowSchema = Schema.Struct({
   platform: AgentNetworkLiveCapturePlatformSchema,
   captureProofRef: NetworkLiveCaptureText,
@@ -42,12 +46,27 @@ const AgentNetworkLiveCaptureStatusRowSchema = Schema.Struct({
   storageDeleteExportRef: NullableNetworkLiveCaptureText,
   custodyChainRef: NullableNetworkLiveCaptureText,
   storagePrivateTrafficExclusionRef: NullableNetworkLiveCaptureText,
+  executionRef: NullableNetworkLiveCaptureText,
+  executionState: AgentNetworkLiveCaptureExecutionStateSchema,
+  executionMissingArtifactCount: NetworkLiveCaptureCount,
+  driverInvocationRef: NullableNetworkLiveCaptureText,
+  interfaceObservationRef: NullableNetworkLiveCaptureText,
+  executionPermissionRef: NullableNetworkLiveCaptureText,
+  boundedWindowRef: NullableNetworkLiveCaptureText,
+  executionCleanStopRef: NullableNetworkLiveCaptureText,
+  executionCustodyRef: NullableNetworkLiveCaptureText,
+  executionRetentionDeleteExportRef: NullableNetworkLiveCaptureText,
+  metadataOnlySanitizationRef: NullableNetworkLiveCaptureText,
+  executionPrivateTrafficExclusionRef: NullableNetworkLiveCaptureText,
+  metadataSnapshotExecuted: Schema.Boolean,
+  capturedPacketCount: NetworkLiveCaptureCount,
+  rawArtifactCreated: Schema.Literal(false),
   missingArtifactCount: NetworkLiveCaptureCount,
   storageMissingArtifactCount: NetworkLiveCaptureCount,
   captureReady: Schema.Boolean,
   rawArtifactStorageAuthorized: Schema.Boolean,
-  driverInvoked: Schema.Literal(false),
-  liveCaptureExecuted: Schema.Literal(false),
+  driverInvoked: Schema.Boolean,
+  liveCaptureExecuted: Schema.Boolean,
   remoteUploadEnabled: Schema.Literal(false),
   rawPcapWithoutCustodyAvailable: Schema.Literal(false),
   exactUrlAvailable: Schema.Literal(false),
@@ -65,6 +84,7 @@ const AgentNetworkLiveCaptureStatusRowSchema = Schema.Struct({
 const AgentNetworkLiveCaptureStatusFields = Schema.Struct({
   statusRef: NetworkLiveCaptureText,
   row13StatusRef: NetworkLiveCaptureText,
+  executionStatusRef: NetworkLiveCaptureText,
   rawStorageStatusRef: NetworkLiveCaptureText,
   platformRowCount: NetworkLiveCaptureCount,
   proofReadyCount: NetworkLiveCaptureCount,
@@ -78,10 +98,18 @@ const AgentNetworkLiveCaptureStatusFields = Schema.Struct({
   storageUnavailableCount: NetworkLiveCaptureCount,
   storageDegradedCount: NetworkLiveCaptureCount,
   storageMissingArtifactCount: NetworkLiveCaptureCount,
+  boundedExecutedCount: NetworkLiveCaptureCount,
+  executionManualRequiredCount: NetworkLiveCaptureCount,
+  executionUnavailableCount: NetworkLiveCaptureCount,
+  executionDegradedCount: NetworkLiveCaptureCount,
+  executionMissingArtifactCount: NetworkLiveCaptureCount,
+  metadataSnapshotExecutedCount: NetworkLiveCaptureCount,
+  capturedPacketCount: NetworkLiveCaptureCount,
+  rawArtifactCreatedCount: Schema.Literal(0),
   captureReadyCount: NetworkLiveCaptureCount,
   rawArtifactStorageAuthorizedCount: NetworkLiveCaptureCount,
-  driverInvokedCount: Schema.Literal(0),
-  liveCaptureExecutedCount: Schema.Literal(0),
+  driverInvokedCount: NetworkLiveCaptureCount,
+  liveCaptureExecutedCount: NetworkLiveCaptureCount,
   remoteUploadEnabledCount: Schema.Literal(0),
   rawPcapWithoutCustodyAvailableCount: Schema.Literal(0),
   exactUrlAvailableCount: Schema.Literal(0),
@@ -159,6 +187,7 @@ function statusRefsMatch(status: AgentNetworkLiveCaptureStatus): boolean {
   return (
     status.statusRef === NetworkLiveCaptureRefs.StatusRef &&
     status.row13StatusRef === NetworkLiveCaptureRefs.Row13StatusRef &&
+    status.executionStatusRef === NetworkLiveCaptureRefs.ExecutionStatusRef &&
     status.rawStorageStatusRef === NetworkLiveCaptureRefs.RawStorageStatusRef
   );
 }
@@ -167,14 +196,10 @@ function rowCountsMatch(status: AgentNetworkLiveCaptureStatus): boolean {
   return (
     status.rows.length === status.platformRowCount &&
     status.platformRowCount === 4 &&
-    status.proofReadyCount === rowCount(status, 'proof-ready') &&
-    status.manualRequiredCount === rowCount(status, 'manual-required') &&
-    status.unavailableCount === rowCount(status, 'unavailable') &&
-    status.degradedCount === rowCount(status, 'degraded') &&
-    status.storageCustodyReadyCount === storageCount(status, 'custody-ready') &&
-    status.storageManualRequiredCount === storageCount(status, 'manual-required') &&
-    status.storageUnavailableCount === storageCount(status, 'unavailable') &&
-    status.storageDegradedCount === storageCount(status, 'degraded') &&
+    proofStateCountsMatch(status) &&
+    storageStateCountsMatch(status) &&
+    executionStateCountsMatch(status) &&
+    executionObservationCountsMatch(status) &&
     status.requiredArtifactCount === status.platformRowCount * 9
   );
 }
@@ -187,6 +212,7 @@ function rowRefsMatch(status: AgentNetworkLiveCaptureStatus): boolean {
     rowIdentityMatches(refs.get(NetworkLiveCaptureRefs.LinuxProofRef), 'linux-libpcap', 'unavailable') &&
     rowIdentityMatches(refs.get(NetworkLiveCaptureRefs.MacosProofRef), 'macos-bpf-libpcap', 'degraded') &&
     status.rows.every((row) => row.storageProofRef === NetworkLiveCaptureRefs.RawStorageStatusRef) &&
+    status.rows.every(rowExecutionIdentityMatches) &&
     status.rows.every(rowRequiredRefsMatch)
   );
 }
@@ -201,12 +227,12 @@ function rowIdentityMatches(
 
 function rowRequiredRefsMatch(row: AgentNetworkLiveCaptureStatusRow): boolean {
   if (row.proofState === 'proof-ready') {
-    return liveCaptureRefsMatch(row) && rawStorageRefsMatch(row);
+    return liveCaptureRefsMatch(row) && rawStorageRefsMatch(row) && boundedExecutionRefsMatch(row);
   }
   if (row.proofState === 'degraded') {
-    return liveCaptureRefsMatch(row) && rawStorageRefsEmpty(row);
+    return liveCaptureRefsMatch(row) && rawStorageRefsEmpty(row) && executionRefsEmpty(row);
   }
-  return liveCaptureRefsEmpty(row) && rawStorageRefsEmpty(row);
+  return liveCaptureRefsEmpty(row) && rawStorageRefsEmpty(row) && executionRefsEmpty(row);
 }
 
 function liveCaptureRefsMatch(row: AgentNetworkLiveCaptureStatusRow): boolean {
@@ -263,6 +289,67 @@ function rawStorageRefsEmpty(row: AgentNetworkLiveCaptureStatusRow): boolean {
   );
 }
 
+function rowExecutionIdentityMatches(row: AgentNetworkLiveCaptureStatusRow): boolean {
+  if (row.captureProofRef === NetworkLiveCaptureRefs.WindowsProofRef) {
+    return row.executionRef === NetworkLiveCaptureRefs.WindowsExecutionRef && row.executionState === 'bounded-executed';
+  }
+  if (row.captureProofRef === NetworkLiveCaptureRefs.ManualProofRef) {
+    return row.executionRef === NetworkLiveCaptureRefs.ManualExecutionRef && row.executionState === 'manual-required';
+  }
+  if (row.captureProofRef === NetworkLiveCaptureRefs.LinuxProofRef) {
+    return row.executionRef === NetworkLiveCaptureRefs.LinuxExecutionRef && row.executionState === 'unavailable';
+  }
+  return (
+    row.captureProofRef === NetworkLiveCaptureRefs.MacosProofRef &&
+    row.executionRef === NetworkLiveCaptureRefs.MacosExecutionRef &&
+    row.executionState === 'degraded'
+  );
+}
+
+function boundedExecutionRefsMatch(row: AgentNetworkLiveCaptureStatusRow): boolean {
+  return boundedExecutionArtifactRefsMatch(row) && boundedExecutionCountersMatch(row);
+}
+
+function boundedExecutionArtifactRefsMatch(row: AgentNetworkLiveCaptureStatusRow): boolean {
+  return (
+    row.driverInvocationRef === NetworkLiveCaptureRefs.DriverInvocationRef &&
+    row.interfaceObservationRef === NetworkLiveCaptureRefs.InterfaceObservationRef &&
+    row.executionPermissionRef === NetworkLiveCaptureRefs.ExecutionPermissionRef &&
+    row.boundedWindowRef === NetworkLiveCaptureRefs.BoundedWindowRef &&
+    row.executionCleanStopRef === NetworkLiveCaptureRefs.ExecutionCleanStopRef &&
+    row.executionCustodyRef === NetworkLiveCaptureRefs.ExecutionCustodyRef &&
+    row.executionRetentionDeleteExportRef === NetworkLiveCaptureRefs.ExecutionRetentionRef &&
+    row.metadataOnlySanitizationRef === NetworkLiveCaptureRefs.MetadataSanitizationRef &&
+    row.executionPrivateTrafficExclusionRef === NetworkLiveCaptureRefs.ExecutionPrivateTrafficExclusionRef
+  );
+}
+
+function boundedExecutionCountersMatch(row: AgentNetworkLiveCaptureStatusRow): boolean {
+  return (
+    row.driverInvoked &&
+    row.liveCaptureExecuted &&
+    row.capturedPacketCount > 0 &&
+    row.executionMissingArtifactCount === 0
+  );
+}
+
+function executionRefsEmpty(row: AgentNetworkLiveCaptureStatusRow): boolean {
+  return (
+    row.driverInvocationRef === null &&
+    row.interfaceObservationRef === null &&
+    row.executionPermissionRef === null &&
+    row.boundedWindowRef === null &&
+    row.executionCleanStopRef === null &&
+    row.executionCustodyRef === null &&
+    row.executionRetentionDeleteExportRef === null &&
+    row.metadataOnlySanitizationRef === null &&
+    row.executionPrivateTrafficExclusionRef === null &&
+    !row.driverInvoked &&
+    !row.liveCaptureExecuted &&
+    row.capturedPacketCount === 0
+  );
+}
+
 function readinessMatches(status: AgentNetworkLiveCaptureStatus): boolean {
   const readyRows = status.rows.filter((row) => row.captureReady);
   const storageReadyRows = status.rows.filter((row) => row.rawArtifactStorageAuthorized);
@@ -277,7 +364,47 @@ function readinessMatches(status: AgentNetworkLiveCaptureStatus): boolean {
 function missingArtifactCountsMatch(status: AgentNetworkLiveCaptureStatus): boolean {
   return (
     status.missingArtifactCount === status.rows.reduce((sum, row) => sum + row.missingArtifactCount, 0) &&
-    status.storageMissingArtifactCount === status.rows.reduce((sum, row) => sum + row.storageMissingArtifactCount, 0)
+    status.storageMissingArtifactCount === status.rows.reduce((sum, row) => sum + row.storageMissingArtifactCount, 0) &&
+    status.executionMissingArtifactCount ===
+      status.rows.reduce((sum, row) => sum + row.executionMissingArtifactCount, 0)
+  );
+}
+
+function proofStateCountsMatch(status: AgentNetworkLiveCaptureStatus): boolean {
+  return (
+    status.proofReadyCount === rowCount(status, 'proof-ready') &&
+    status.manualRequiredCount === rowCount(status, 'manual-required') &&
+    status.unavailableCount === rowCount(status, 'unavailable') &&
+    status.degradedCount === rowCount(status, 'degraded')
+  );
+}
+
+function storageStateCountsMatch(status: AgentNetworkLiveCaptureStatus): boolean {
+  return (
+    status.storageCustodyReadyCount === storageCount(status, 'custody-ready') &&
+    status.storageManualRequiredCount === storageCount(status, 'manual-required') &&
+    status.storageUnavailableCount === storageCount(status, 'unavailable') &&
+    status.storageDegradedCount === storageCount(status, 'degraded')
+  );
+}
+
+function executionStateCountsMatch(status: AgentNetworkLiveCaptureStatus): boolean {
+  return (
+    status.boundedExecutedCount === executionCount(status, 'bounded-executed') &&
+    status.executionManualRequiredCount === executionCount(status, 'manual-required') &&
+    status.executionUnavailableCount === executionCount(status, 'unavailable') &&
+    status.executionDegradedCount === executionCount(status, 'degraded')
+  );
+}
+
+function executionObservationCountsMatch(status: AgentNetworkLiveCaptureStatus): boolean {
+  return (
+    status.driverInvokedCount === booleanCount(status, (row) => row.driverInvoked) &&
+    status.liveCaptureExecutedCount === booleanCount(status, (row) => row.liveCaptureExecuted) &&
+    status.metadataSnapshotExecutedCount === booleanCount(status, (row) => row.metadataSnapshotExecuted) &&
+    status.capturedPacketCount === status.rows.reduce((sum, row) => sum + row.capturedPacketCount, 0) &&
+    status.rawArtifactCreatedCount === 0 &&
+    status.rows.every((row) => !row.rawArtifactCreated)
   );
 }
 
@@ -293,4 +420,18 @@ function storageCount(
   storageState: AgentNetworkLiveCaptureStatusRow['storageState']
 ): number {
   return status.rows.filter((row) => row.storageState === storageState).length;
+}
+
+function executionCount(
+  status: AgentNetworkLiveCaptureStatus,
+  executionState: AgentNetworkLiveCaptureStatusRow['executionState']
+): number {
+  return status.rows.filter((row) => row.executionState === executionState).length;
+}
+
+function booleanCount(
+  status: AgentNetworkLiveCaptureStatus,
+  predicate: (row: AgentNetworkLiveCaptureStatusRow) => boolean
+): number {
+  return status.rows.filter(predicate).length;
 }

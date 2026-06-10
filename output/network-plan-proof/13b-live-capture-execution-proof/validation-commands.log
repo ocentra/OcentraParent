@@ -1,0 +1,4 @@
+network-live-capture-execution-tests: cargo test -p ocentra-network-evidence live_capture_execution -> exit 0; log=output\network-plan-proof\13b-live-capture-execution-proof\command-logs\network-live-capture-execution-tests.log
+network-evidence-clippy: cargo clippy -p ocentra-network-evidence --all-targets -- -D warnings -> exit 0; log=output\network-plan-proof\13b-live-capture-execution-proof\command-logs\network-evidence-clippy.log
+source-shape: node scripts/check-source-shape.mjs -> exit 0; log=output\network-plan-proof\13b-live-capture-execution-proof\command-logs\source-shape.log
+diff-check: git diff --check -> exit 0; log=output\network-plan-proof\13b-live-capture-execution-proof\command-logs\diff-check.log

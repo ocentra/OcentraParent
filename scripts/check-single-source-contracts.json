@@ -1,0 +1,21 @@
+{
+  "contracts": [
+    {
+      "name": "network-evidence-drawer-proof",
+      "ownerPath": "scripts/test/fixtures/network-evidence-drawer-proof.json",
+      "scanRoots": ["apps", "packages", "scripts", "crates", "docs", ".github"],
+      "allowedPaths": [
+        "scripts/test/fixtures/network-evidence-drawer-proof.json",
+        "output/network-plan-proof/36-parent-ui-network-evidence-drawer/proof-summary.json",
+        "test-results/network-parent-ui-evidence-drawer-proof/proof.json"
+      ],
+      "values": [
+        { "name": "eventId", "jsonPath": "eventId" },
+        { "name": "evidenceId", "jsonPath": "evidenceId" },
+        { "name": "journalEvidenceId", "jsonPath": "journalEvidenceId" },
+        { "name": "evidenceDigest", "jsonPath": "evidenceDigest" },
+        { "name": "journalEvidenceDigest", "jsonPath": "journalEvidenceDigest" }
+      ]
+    }
+  ]
+}
