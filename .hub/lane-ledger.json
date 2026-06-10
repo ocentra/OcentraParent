@@ -1,7 +1,7 @@
 {
   "schema": "https://ocentra.ca/schemas/ocentra-parent-hub-lane-ledger.v1.json",
   "version": 1,
-  "updatedAt": "2026-06-09T20:52:00.0000000-04:00",
+  "updatedAt": "2026-06-10T03:12:00.000Z",
   "repo": "ocentra/OcentraParent",
   "sourceOfTruth": "repo-owned ledger; .codex is machine-local cache and mailbox only",
   "statusEnum": [
@@ -17,38 +17,22 @@
   "lanes": [
     {
       "laneId": "primary",
-      "name": "Docs/hub-only fast CI required-check preservation",
+      "name": "Primary coordination lane",
       "localWorktreePath": "E:/OcentraParent",
-      "branch": "codex/docs-hub-fast-ci",
-      "remoteBranch": "origin/codex/docs-hub-fast-ci",
+      "branch": "main",
+      "remoteBranch": "origin/main",
       "pr": null,
       "base": "origin/main",
-      "status": "dirty-local",
-      "lastCommit": "18d0e15a558b4c43afa250ed9953c9a30648b3e7",
-      "mergedToMain": false,
-      "dirtyLocalFiles": [
-        ".github/workflows/build.yml",
-        ".github/workflows/ci.yml",
-        ".github/workflows/dependency-policy.yml",
-        ".github/workflows/fail-fast.yml",
-        ".github/workflows/package-preview.yml",
-        ".github/workflows/secret-scan.yml",
-        ".github/workflows/validate.yml",
-        ".hub/lane-ledger.json",
-        ".hub/state/worktree-lanes.json",
-        "docs/architecture/repo-domain-organization-cleanup-plan.md",
-        "docs/hub/lane-ledger.md",
-        "docs/plans/tracking-plan/README.md",
-        "docs/plans/tracking-plan/implementation-checklist.md",
-        "scripts/test/workflow-ci-trigger.test.mjs"
-      ],
+      "status": "main-merged",
+      "lastCommit": "04de28169b2006e9f95c910b8629f2104c4a7de6",
+      "mergedToMain": true,
+      "dirtyLocalFiles": [],
       "lastValidation": [
-        "cmd /c npx prettier --check .github/workflows/ci.yml .github/workflows/fail-fast.yml .github/workflows/secret-scan.yml .github/workflows/build.yml .github/workflows/dependency-policy.yml .github/workflows/validate.yml .github/workflows/package-preview.yml",
-        "npm run hub:guard",
-        "npm run lanes:status",
-        "cmd /c npx prettier --check docs .hub *.md"
+        "PR #552 CI green and merged to main as 3c80877347c0d96d6628972f04e6a7ddc639e4ce",
+        "PR #553 CI green and merged to main as 04de28169b2006e9f95c910b8629f2104c4a7de6",
+        "Primary local checkout fast-forwarded to origin/main"
       ],
-      "nextAction": "Commit and push docs/hub-only fast CI workflow changes plus the repo-domain organization TODO. This CI-infrastructure PR must run the full required matrix once before future docs/.hub/root-md-only PRs can fast-pass the same required contexts.",
+      "nextAction": "Continue one-at-a-time PR integration from latest main.",
       "safeToDeleteWorktree": false
     },
     {
@@ -180,19 +164,16 @@
       "remoteBranch": "origin/codex/network-live-capture-execution-proof",
       "pr": 546,
       "base": "origin/main",
-      "status": "blocked",
-      "lastCommit": null,
-      "mergedToMain": false,
-      "dirtyLocalFiles": [
-        "apps/portal/src/live-activity-state.ts",
-        "apps/portal/tests/live-activity-network-flow.test.ts"
-      ],
+      "status": "main-merged",
+      "lastCommit": "18d0e15a558b4c43afa250ed9953c9a30648b3e7",
+      "mergedToMain": true,
+      "dirtyLocalFiles": [],
       "lastValidation": [
-        "PR #546 fail-fast, secret scan, pre-AI proof, full validation, build, dependency policy, macOS E2E, and Ubuntu E2E passed",
-        "PR #546 Windows Real Portal To Rust E2E failed on 2026-06-09",
-        "Package preview skipped because a required check failed"
+        "PR #546 merged to main as 18d0e15a558b4c43afa250ed9953c9a30648b3e7",
+        "CI green on head cc16053b49ee43b9e7c1aac71ffab26065ee0ff7",
+        "build, dependency-policy, fail-fast, secret-scan, Pre-AI, Full Validation, macOS/Ubuntu/Windows E2E, and all package-preview jobs passed"
       ],
-      "nextAction": "When selected, route the Windows E2E failure to E-D, then rerun CI before merge.",
+      "nextAction": "Switch or retarget the E-D worktree only after local audit; PR #546 branch was merged and the remote branch was deleted.",
       "safeToDeleteWorktree": false
     }
   ]

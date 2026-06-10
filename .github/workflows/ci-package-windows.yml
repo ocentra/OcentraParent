@@ -9,7 +9,7 @@ permissions:
 
 jobs:
   package-windows:
-    name: Windows MSI Preview
+    name: 'Preview: Windows MSI Smoke'
     runs-on: windows-latest
     timeout-minutes: 25
     steps:

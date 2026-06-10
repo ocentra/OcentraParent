@@ -9,25 +9,65 @@ again just to check the Android fix.
 
 ```mermaid
 graph LR
-  D["Detect CI targets"] --> DOCS["Docs/hub gate"]
-  D --> TS["Portal TypeScript"]
-  D --> DOM["Domain packages"]
-  D --> TOOL["Repo tooling"]
-  D --> RP["Rust protocol"]
-  D --> RC["Rust core"]
-  D --> RS["Rust service"]
-  D --> RA["Rust adapters"]
-  D --> DESK["Parent desktop/Tauri"]
-  D --> PM["Parent mobile"]
-  D --> AND["Child Android"]
-  D --> IOS["Child iOS"]
-  TS --> E2E["Portal E2E"]
-  RS --> LT["Local transport"]
-  DESK --> PW["Windows/Linux/macOS packages"]
-  PM --> PMA["Parent Android package"]
-  PM --> PMI["Parent iOS package"]
-  AND --> PA["Android package"]
-  IOS --> PI["iOS package"]
+  D["Detect CI targets"] --> DOCS["Docs/hub fast gate"]
+  D --> FMT["Format and release policy"]
+  D --> TS["Portal contract, lint, type, unit"]
+  D --> DOM["Domain boundary, contract build, contract tests"]
+  D --> TOOL["Repo tooling tests"]
+  D --> RP["Rust protocol check and tests"]
+  D --> RC["Rust core clippy and tests"]
+  D --> RS["Rust service clippy and tests"]
+  D --> RA["Rust adapter clippy and tests"]
+  D --> DESK["Parent desktop/Tauri smoke"]
+  D --> PM["Parent mobile runtime/proof"]
+  D --> AND["Child Android proofs"]
+  D --> IOS["Child iOS proofs"]
+
+  FMT --> PREF["Preflight workflow topology and shared contracts"]
+  PREF --> SEC["Secrets and sensitive files"]
+  SEC --> DEP["Dependency policy and SBOM"]
+  SEC --> SAST["CodeQL Actions, JS/TS, Rust"]
+
+  PREF --> TS
+  PREF --> DOM
+  PREF --> TOOL
+  PREF --> RP
+  PREF --> RC
+  PREF --> RS
+  PREF --> RA
+  PREF --> DESK
+  PREF --> PM
+  PREF --> AND
+  PREF --> IOS
+
+  TS --> BUILD["Production build"]
+  DOM --> BUILD
+  RP --> LT["Local transport smoke"]
+  RC --> LT
+  RS --> LT
+  RA --> LT
+  TS --> E2E["Portal-to-Rust E2E"]
+  RS --> E2E
+  LT --> E2E
+
+  DEP --> VALIDATE["Full Validation Gate"]
+  SAST --> VALIDATE
+  BUILD --> VALIDATE
+  LT --> VALIDATE
+  E2E --> VALIDATE
+  DESK --> VALIDATE
+  PM --> VALIDATE
+  AND --> VALIDATE
+  IOS --> VALIDATE
+
+  VALIDATE --> PW["Windows MSI preview"]
+  VALIDATE --> PL["Linux DEB preview"]
+  VALIDATE --> PKG["macOS PKG preview"]
+  VALIDATE --> PMA["Parent Android APK preview"]
+  VALIDATE --> PMI["Parent iOS simulator preview"]
+  VALIDATE --> PA["Child Android APK preview"]
+  VALIDATE --> PI["Child iOS simulator preview"]
+  D --> MAIN["Main PR proof reuse"]
 ```
 
 ## Orchestration
@@ -38,8 +78,12 @@ graph LR
 - `ci-docs-hub.yml`: docs, `.hub`, and root Markdown fast gate.
 - `ci-format.yml`: repository format check.
 - `ci-release-version.yml`: release version alignment.
+- `ci-preflight.yml`: workflow topology test, CI verifier syntax check, and
+  shared contract build before broad fanout.
 - `secret-scan.yml`: custom repo scanner plus Gitleaks.
 - `dependency-policy.yml`: dependency policy and SBOM.
+- `ci-codeql.yml`: CodeQL static analysis for GitHub Actions,
+  JavaScript/TypeScript, and Rust with security-and-quality queries.
 - `build.yml`: production build when source package work needs it.
 
 ## Target Workflows
@@ -96,6 +140,9 @@ engineers rerun focused target jobs.
 
 - Workflow file changes force all targets on purpose. CI changes should prove
   the full graph once.
+- Preflight sits between early policy checks and broad fanout. If workflow
+  topology, CI helper syntax, or shared contract generation is broken, expensive
+  package, E2E, dependency, and static-analysis work should not start.
 - Docs/hub-only changes are limited to `docs/**`, `.hub/**`, and root-level
   `*.md`; they run only the docs/hub gate.
 - Portal-only work should not run Android/iOS package previews.
@@ -108,6 +155,27 @@ engineers rerun focused target jobs.
   iOS can be retried independently.
 - Child mobile package previews do not prove parent mobile packaging. Parent
   mobile Android/iOS targets have separate package, smoke, and proof rows.
+- Static analysis is a first-class validation lane. It runs after the secret
+  scan for source changes and blocks the full validation aggregate when CodeQL
+  reports a failing Actions, JavaScript/TypeScript, or Rust analysis job.
+- Package previews run after `Full Validation Gate`, not alongside it. If E2E,
+  dependency policy, static analysis, or source validation fails, preview
+  installer jobs should not spend runner time.
+
+## Main Push Reuse
+
+Normal PRs run the full relevant CI graph before merge. On `push` to `main`,
+`ci.yml` checks whether the pushed merge commit came from a merged pull request
+whose head commit already had the required aggregate checks green:
+
+- `Format, Lint, Types, Rust Check`
+- `Full Validation Gate`
+- `Package Preview Gate`
+
+When that proof is valid, the main push takes the lightweight
+`Main PR Proof Reuse and Post-Merge Integrity` path instead of running the
+whole graph again. If the proof is missing, stale, or unverifiable, the main
+push falls back to full CI.
 
 ## Release Boundary
 

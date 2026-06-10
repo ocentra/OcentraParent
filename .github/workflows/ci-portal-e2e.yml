@@ -9,11 +9,11 @@ permissions:
 
 jobs:
   portal-e2e:
-    name: Portal To Rust E2E (${{ matrix.os }})
+    name: 'Test: Portal To Rust E2E (${{ matrix.os }})'
     runs-on: ${{ matrix.os }}
     timeout-minutes: 25
     strategy:
-      fail-fast: false
+      fail-fast: true
       matrix:
         os: [windows-latest, ubuntu-latest, macos-latest]
     steps:

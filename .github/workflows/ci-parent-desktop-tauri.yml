@@ -9,7 +9,7 @@ permissions:
 
 jobs:
   parent-desktop-tauri:
-    name: Parent Desktop Tauri Build
+    name: 'Smoke: Parent Desktop Tauri'
     runs-on: windows-latest
     timeout-minutes: 25
     steps:

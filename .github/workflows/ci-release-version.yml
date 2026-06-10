@@ -9,7 +9,7 @@ permissions:
 
 jobs:
   release-version:
-    name: Release Version Policy
+    name: 'Policy: Release Version'
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:

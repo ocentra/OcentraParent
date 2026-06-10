@@ -11,7 +11,10 @@ on:
   workflow_dispatch:
 
 permissions:
+  checks: read
   contents: read
+  pull-requests: read
+  security-events: write
 
 concurrency:
   group: ocentra-parent-ci-${{ github.ref }}
@@ -24,6 +27,8 @@ jobs:
     timeout-minutes: 5
     outputs:
       docs_hub_only: ${{ steps.detect.outputs.docs_hub_only }}
+      full_ci_required: ${{ steps.detect.outputs.full_ci_required }}
+      main_pr_proof_valid: ${{ steps.detect.outputs.main_pr_proof_valid }}
       source_changed: ${{ steps.detect.outputs.source_changed }}
       portal_changed: ${{ steps.detect.outputs.portal_changed }}
       domain_changed: ${{ steps.detect.outputs.domain_changed }}
@@ -50,6 +55,8 @@ jobs:
 
       - name: Detect changed paths
         id: detect
+        env:
+          GH_TOKEN: ${{ github.token }}
         shell: bash
         run: |
           set -euo pipefail
@@ -67,6 +74,22 @@ jobs:
           mapfile -t changed_files < <(git diff --name-only "$base" "$head")
           if [[ "${#changed_files[@]}" -eq 0 ]]; then
             changed_files=(".github/workflows/ci.yml")
+          fi
+
+          full_ci_required=true
+          main_pr_proof_valid=false
+          main_pr_proof_reason=not-main-push
+          if [[ "${{ github.event_name }}" == "push" && "${{ github.ref }}" == "refs/heads/main" ]]; then
+            proof_output="$(mktemp)"
+            if GITHUB_OUTPUT="$proof_output" node scripts/ci/verify-main-pr-proof.mjs; then
+              full_ci_required="$(grep '^full_ci_required=' "$proof_output" | tail -1 | cut -d= -f2-)"
+              main_pr_proof_valid="$(grep '^proof_valid=' "$proof_output" | tail -1 | cut -d= -f2-)"
+              main_pr_proof_reason="$(grep '^reason=' "$proof_output" | tail -1 | cut -d= -f2-)"
+            else
+              full_ci_required=true
+              main_pr_proof_valid=false
+              main_pr_proof_reason=proof-verifier-failed-full-ci-required
+            fi
           fi
 
           docs_hub_only=true
@@ -199,104 +222,131 @@ jobs:
             package_ios_changed=true
           fi
 
-          for name in docs_hub_only source_changed portal_changed domain_changed tooling_changed rust_protocol_changed rust_core_changed rust_service_changed rust_adapter_changed parent_desktop_changed parent_mobile_changed child_android_changed child_ios_changed package_windows_changed package_linux_changed package_macos_changed package_parent_android_changed package_parent_ios_changed package_android_changed package_ios_changed; do
+          for name in docs_hub_only full_ci_required main_pr_proof_valid source_changed portal_changed domain_changed tooling_changed rust_protocol_changed rust_core_changed rust_service_changed rust_adapter_changed parent_desktop_changed parent_mobile_changed child_android_changed child_ios_changed package_windows_changed package_linux_changed package_macos_changed package_parent_android_changed package_parent_ios_changed package_android_changed package_ios_changed; do
             value="${!name}"
             echo "$name=$value" >> "$GITHUB_OUTPUT"
             printf '%s=%s\n' "$name" "$value"
           done
 
+          printf 'main PR proof reason: %s\n' "$main_pr_proof_reason"
           printf 'changed files:\n'
           printf '%s\n' "${changed_files[@]}"
 
   docs-hub:
     needs: [detect-targets]
-    if: ${{ needs.detect-targets.outputs.docs_hub_only == 'true' }}
+    if: ${{ needs.detect-targets.outputs.full_ci_required == 'true' && needs.detect-targets.outputs.docs_hub_only == 'true' }}
     uses: ./.github/workflows/ci-docs-hub.yml
 
   format:
     needs: [detect-targets]
-    if: ${{ needs.detect-targets.outputs.docs_hub_only != 'true' }}
+    if: ${{ needs.detect-targets.outputs.full_ci_required == 'true' && needs.detect-targets.outputs.docs_hub_only != 'true' }}
     uses: ./.github/workflows/ci-format.yml
 
   release-version:
     needs: [detect-targets]
-    if: ${{ needs.detect-targets.outputs.docs_hub_only != 'true' }}
+    if: ${{ needs.detect-targets.outputs.full_ci_required == 'true' && needs.detect-targets.outputs.docs_hub_only != 'true' }}
     uses: ./.github/workflows/ci-release-version.yml
 
+  preflight:
+    needs: [detect-targets, format, release-version]
+    if: ${{ always() && needs.detect-targets.outputs.full_ci_required == 'true' && needs.detect-targets.outputs.docs_hub_only != 'true' && needs.format.result == 'success' && needs.release-version.result == 'success' }}
+    uses: ./.github/workflows/ci-preflight.yml
+
   portal-typescript:
-    needs: [detect-targets]
-    if: ${{ needs.detect-targets.outputs.portal_changed == 'true' }}
+    needs: [detect-targets, preflight]
+    if: ${{ always() && needs.detect-targets.outputs.full_ci_required == 'true' && needs.preflight.result == 'success' && needs.detect-targets.outputs.portal_changed == 'true' }}
     uses: ./.github/workflows/ci-portal-typescript.yml
 
   domain-packages:
-    needs: [detect-targets]
-    if: ${{ needs.detect-targets.outputs.domain_changed == 'true' }}
+    needs: [detect-targets, preflight]
+    if: ${{ always() && needs.detect-targets.outputs.full_ci_required == 'true' && needs.preflight.result == 'success' && needs.detect-targets.outputs.domain_changed == 'true' }}
     uses: ./.github/workflows/ci-domain-packages.yml
 
   tooling:
-    needs: [detect-targets]
-    if: ${{ needs.detect-targets.outputs.tooling_changed == 'true' }}
+    needs: [detect-targets, preflight]
+    if: ${{ always() && needs.detect-targets.outputs.full_ci_required == 'true' && needs.preflight.result == 'success' && needs.detect-targets.outputs.tooling_changed == 'true' }}
     uses: ./.github/workflows/ci-tooling.yml
 
   rust-agent-protocol:
-    needs: [detect-targets]
-    if: ${{ needs.detect-targets.outputs.rust_protocol_changed == 'true' }}
+    needs: [detect-targets, preflight]
+    if: ${{ always() && needs.detect-targets.outputs.full_ci_required == 'true' && needs.preflight.result == 'success' && needs.detect-targets.outputs.rust_protocol_changed == 'true' }}
     uses: ./.github/workflows/ci-rust-agent-protocol.yml
 
   rust-agent-core:
-    needs: [detect-targets]
-    if: ${{ needs.detect-targets.outputs.rust_core_changed == 'true' }}
+    needs: [detect-targets, preflight]
+    if: ${{ always() && needs.detect-targets.outputs.full_ci_required == 'true' && needs.preflight.result == 'success' && needs.detect-targets.outputs.rust_core_changed == 'true' }}
     uses: ./.github/workflows/ci-rust-agent-core.yml
 
   rust-agent-service:
-    needs: [detect-targets]
-    if: ${{ needs.detect-targets.outputs.rust_service_changed == 'true' }}
+    needs: [detect-targets, preflight]
+    if: ${{ always() && needs.detect-targets.outputs.full_ci_required == 'true' && needs.preflight.result == 'success' && needs.detect-targets.outputs.rust_service_changed == 'true' }}
     uses: ./.github/workflows/ci-rust-agent-service.yml
 
   rust-adapters:
-    needs: [detect-targets]
-    if: ${{ needs.detect-targets.outputs.rust_adapter_changed == 'true' }}
+    needs: [detect-targets, preflight]
+    if: ${{ always() && needs.detect-targets.outputs.full_ci_required == 'true' && needs.preflight.result == 'success' && needs.detect-targets.outputs.rust_adapter_changed == 'true' }}
     uses: ./.github/workflows/ci-rust-adapters.yml
 
   parent-desktop-tauri:
-    needs: [detect-targets]
-    if: ${{ needs.detect-targets.outputs.parent_desktop_changed == 'true' }}
+    needs: [detect-targets, fail-fast, secret-scan]
+    if: ${{ always() && needs.detect-targets.outputs.full_ci_required == 'true' && needs.fail-fast.result == 'success' && needs.secret-scan.result == 'success' && needs.detect-targets.outputs.parent_desktop_changed == 'true' }}
     uses: ./.github/workflows/ci-parent-desktop-tauri.yml
 
   parent-mobile:
-    needs: [detect-targets]
-    if: ${{ needs.detect-targets.outputs.parent_mobile_changed == 'true' }}
+    needs: [detect-targets, preflight]
+    if: ${{ always() && needs.detect-targets.outputs.full_ci_required == 'true' && needs.preflight.result == 'success' && needs.detect-targets.outputs.parent_mobile_changed == 'true' }}
     uses: ./.github/workflows/ci-parent-mobile.yml
 
   child-android:
-    needs: [detect-targets]
-    if: ${{ needs.detect-targets.outputs.child_android_changed == 'true' }}
+    needs: [detect-targets, fail-fast, secret-scan]
+    if: ${{ always() && needs.detect-targets.outputs.full_ci_required == 'true' && needs.fail-fast.result == 'success' && needs.secret-scan.result == 'success' && needs.detect-targets.outputs.child_android_changed == 'true' }}
     uses: ./.github/workflows/ci-child-android.yml
 
   child-ios:
-    needs: [detect-targets]
-    if: ${{ needs.detect-targets.outputs.child_ios_changed == 'true' }}
+    needs: [detect-targets, fail-fast, secret-scan]
+    if: ${{ always() && needs.detect-targets.outputs.full_ci_required == 'true' && needs.fail-fast.result == 'success' && needs.secret-scan.result == 'success' && needs.detect-targets.outputs.child_ios_changed == 'true' }}
     uses: ./.github/workflows/ci-child-ios.yml
+
+  main-post-merge-integrity:
+    name: Main PR Proof Reuse and Post-Merge Integrity
+    runs-on: ubuntu-latest
+    needs: [detect-targets]
+    if: ${{ needs.detect-targets.outputs.full_ci_required != 'true' && needs.detect-targets.outputs.main_pr_proof_valid == 'true' }}
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Confirm reused PR validation proof
+        run: |
+          echo "This main push reuses previously green PR aggregate checks."
+          echo "Full CI was already required and completed before merge."
+          echo "Post-merge integrity path is intentionally lightweight."
 
   secret-scan:
     needs: [detect-targets, docs-hub, format, release-version]
-    if: ${{ always() && needs.detect-targets.outputs.docs_hub_only != 'true' }}
+    if: ${{ always() && needs.detect-targets.outputs.full_ci_required == 'true' && needs.detect-targets.outputs.docs_hub_only != 'true' }}
     uses: ./.github/workflows/secret-scan.yml
     with:
       docs_hub_only: false
 
   dependency-policy:
-    needs: [secret-scan]
-    if: ${{ always() && needs.secret-scan.result == 'success' }}
+    needs: [detect-targets, fail-fast, secret-scan]
+    if: ${{ always() && needs.detect-targets.outputs.full_ci_required == 'true' && needs.fail-fast.result == 'success' && needs.secret-scan.result == 'success' }}
     uses: ./.github/workflows/dependency-policy.yml
     with:
       docs_hub_only: false
 
+  static-analysis:
+    needs: [detect-targets, fail-fast, secret-scan]
+    if: ${{ always() && needs.detect-targets.outputs.full_ci_required == 'true' && needs.fail-fast.result == 'success' && needs.secret-scan.result == 'success' && needs.detect-targets.outputs.source_changed == 'true' }}
+    uses: ./.github/workflows/ci-codeql.yml
+
   build:
-    needs: [detect-targets, secret-scan, portal-typescript, domain-packages]
+    needs: [detect-targets, fail-fast, secret-scan, portal-typescript, domain-packages]
     if: >-
       ${{
         always() &&
+        needs.detect-targets.outputs.full_ci_required == 'true' &&
+        needs.fail-fast.result == 'success' &&
         needs.secret-scan.result == 'success' &&
         !contains(fromJSON('["failure","cancelled"]'), needs.portal-typescript.result) &&
         !contains(fromJSON('["failure","cancelled"]'), needs.domain-packages.result) &&
@@ -307,10 +357,13 @@ jobs:
       docs_hub_only: false
 
   local-transport:
-    needs: [detect-targets, secret-scan, rust-agent-protocol, rust-agent-core, rust-agent-service, rust-adapters]
+    needs:
+      [detect-targets, fail-fast, secret-scan, rust-agent-protocol, rust-agent-core, rust-agent-service, rust-adapters]
     if: >-
       ${{
         always() &&
+        needs.detect-targets.outputs.full_ci_required == 'true' &&
+        needs.fail-fast.result == 'success' &&
         needs.secret-scan.result == 'success' &&
         !contains(fromJSON('["failure","cancelled"]'), needs.rust-agent-protocol.result) &&
         !contains(fromJSON('["failure","cancelled"]'), needs.rust-agent-core.result) &&
@@ -326,10 +379,12 @@ jobs:
     uses: ./.github/workflows/ci-local-transport.yml
 
   portal-e2e:
-    needs: [detect-targets, secret-scan, portal-typescript, rust-agent-service, local-transport]
+    needs: [detect-targets, fail-fast, secret-scan, portal-typescript, rust-agent-service, local-transport]
     if: >-
       ${{
         always() &&
+        needs.detect-targets.outputs.full_ci_required == 'true' &&
+        needs.fail-fast.result == 'success' &&
         needs.secret-scan.result == 'success' &&
         !contains(fromJSON('["failure","cancelled"]'), needs.portal-typescript.result) &&
         !contains(fromJSON('["failure","cancelled"]'), needs.rust-agent-service.result) &&
@@ -339,84 +394,78 @@ jobs:
     uses: ./.github/workflows/ci-portal-e2e.yml
 
   package-windows:
-    needs: [detect-targets, dependency-policy, parent-desktop-tauri, rust-agent-service, rust-adapters]
+    needs: [detect-targets, validate]
     if: >-
       ${{
         always() &&
-        needs.dependency-policy.result == 'success' &&
-        !contains(fromJSON('["failure","cancelled"]'), needs.parent-desktop-tauri.result) &&
-        !contains(fromJSON('["failure","cancelled"]'), needs.rust-agent-service.result) &&
-        !contains(fromJSON('["failure","cancelled"]'), needs.rust-adapters.result) &&
+        needs.detect-targets.outputs.full_ci_required == 'true' &&
+        needs.validate.result == 'success' &&
         needs.detect-targets.outputs.package_windows_changed == 'true'
       }}
     uses: ./.github/workflows/ci-package-windows.yml
 
   package-linux:
-    needs: [detect-targets, dependency-policy, parent-desktop-tauri, rust-agent-service, rust-adapters]
+    needs: [detect-targets, validate]
     if: >-
       ${{
         always() &&
-        needs.dependency-policy.result == 'success' &&
-        !contains(fromJSON('["failure","cancelled"]'), needs.parent-desktop-tauri.result) &&
-        !contains(fromJSON('["failure","cancelled"]'), needs.rust-agent-service.result) &&
-        !contains(fromJSON('["failure","cancelled"]'), needs.rust-adapters.result) &&
+        needs.detect-targets.outputs.full_ci_required == 'true' &&
+        needs.validate.result == 'success' &&
         needs.detect-targets.outputs.package_linux_changed == 'true'
       }}
     uses: ./.github/workflows/ci-package-linux.yml
 
   package-macos:
-    needs: [detect-targets, dependency-policy, parent-desktop-tauri, rust-agent-service, rust-adapters]
+    needs: [detect-targets, validate]
     if: >-
       ${{
         always() &&
-        needs.dependency-policy.result == 'success' &&
-        !contains(fromJSON('["failure","cancelled"]'), needs.parent-desktop-tauri.result) &&
-        !contains(fromJSON('["failure","cancelled"]'), needs.rust-agent-service.result) &&
-        !contains(fromJSON('["failure","cancelled"]'), needs.rust-adapters.result) &&
+        needs.detect-targets.outputs.full_ci_required == 'true' &&
+        needs.validate.result == 'success' &&
         needs.detect-targets.outputs.package_macos_changed == 'true'
       }}
     uses: ./.github/workflows/ci-package-macos.yml
 
   package-parent-android:
-    needs: [detect-targets, dependency-policy, parent-mobile]
+    needs: [detect-targets, validate]
     if: >-
       ${{
         always() &&
-        needs.dependency-policy.result == 'success' &&
-        !contains(fromJSON('["failure","cancelled"]'), needs.parent-mobile.result) &&
+        needs.detect-targets.outputs.full_ci_required == 'true' &&
+        needs.validate.result == 'success' &&
         needs.detect-targets.outputs.package_parent_android_changed == 'true'
       }}
     uses: ./.github/workflows/ci-package-parent-android.yml
 
   package-parent-ios:
-    needs: [detect-targets, dependency-policy, parent-mobile]
+    needs: [detect-targets, validate]
     if: >-
       ${{
         always() &&
-        needs.dependency-policy.result == 'success' &&
-        !contains(fromJSON('["failure","cancelled"]'), needs.parent-mobile.result) &&
+        needs.detect-targets.outputs.full_ci_required == 'true' &&
+        needs.validate.result == 'success' &&
         needs.detect-targets.outputs.package_parent_ios_changed == 'true'
       }}
     uses: ./.github/workflows/ci-package-parent-ios.yml
 
   package-android:
-    needs: [detect-targets, dependency-policy, child-android]
+    needs: [detect-targets, validate]
     if: >-
       ${{
         always() &&
-        needs.dependency-policy.result == 'success' &&
-        !contains(fromJSON('["failure","cancelled"]'), needs.child-android.result) &&
+        needs.detect-targets.outputs.full_ci_required == 'true' &&
+        needs.validate.result == 'success' &&
         needs.detect-targets.outputs.package_android_changed == 'true'
       }}
     uses: ./.github/workflows/ci-package-android.yml
 
   package-ios:
-    needs: [detect-targets, dependency-policy, child-ios]
+    needs: [detect-targets, validate]
     if: >-
       ${{
         always() &&
-        needs.dependency-policy.result == 'success' &&
-        !contains(fromJSON('["failure","cancelled"]'), needs.child-ios.result) &&
+        needs.detect-targets.outputs.full_ci_required == 'true' &&
+        needs.validate.result == 'success' &&
         needs.detect-targets.outputs.package_ios_changed == 'true'
       }}
     uses: ./.github/workflows/ci-package-ios.yml
@@ -430,6 +479,7 @@ jobs:
       - docs-hub
       - format
       - release-version
+      - preflight
       - portal-typescript
       - domain-packages
       - tooling
@@ -438,6 +488,7 @@ jobs:
       - rust-agent-service
       - rust-adapters
       - parent-mobile
+      - main-post-merge-integrity
     steps:
       - name: Aggregate early checks
         shell: bash
@@ -447,9 +498,18 @@ jobs:
         run: |
           set -euo pipefail
           echo "$RESULTS"
-          if grep -q '"result":"failure"\|"result":"cancelled"' <<< "$RESULTS"; then
-            exit 1
-          fi
+          node <<'NODE'
+          const needs = JSON.parse(process.env.RESULTS);
+          const failed = Object.entries(needs).filter(([, value]) =>
+            ['failure', 'cancelled'].includes(value.result),
+          );
+          if (failed.length > 0) {
+            for (const [name, value] of failed) {
+              console.error(`${name}: ${value.result}`);
+            }
+            process.exit(1);
+          }
+          NODE
 
   validate:
     name: Full Validation Gate
@@ -459,6 +519,7 @@ jobs:
       - fail-fast
       - secret-scan
       - dependency-policy
+      - static-analysis
       - build
       - local-transport
       - portal-e2e
@@ -475,14 +536,23 @@ jobs:
         run: |
           set -euo pipefail
           echo "$RESULTS"
-          if grep -q '"result":"failure"\|"result":"cancelled"' <<< "$RESULTS"; then
-            exit 1
-          fi
+          node <<'NODE'
+          const needs = JSON.parse(process.env.RESULTS);
+          const failed = Object.entries(needs).filter(([, value]) =>
+            ['failure', 'cancelled'].includes(value.result),
+          );
+          if (failed.length > 0) {
+            for (const [name, value] of failed) {
+              console.error(`${name}: ${value.result}`);
+            }
+            process.exit(1);
+          }
+          NODE
 
   package-preview:
     name: Package Preview Gate
     runs-on: ubuntu-latest
-    if: ${{ always() }}
+    if: ${{ needs.validate.result == 'success' }}
     needs:
       - validate
       - package-windows
@@ -501,6 +571,15 @@ jobs:
         run: |
           set -euo pipefail
           echo "$RESULTS"
-          if grep -q '"result":"failure"\|"result":"cancelled"' <<< "$RESULTS"; then
-            exit 1
-          fi
+          node <<'NODE'
+          const needs = JSON.parse(process.env.RESULTS);
+          const failed = Object.entries(needs).filter(([, value]) =>
+            ['failure', 'cancelled'].includes(value.result),
+          );
+          if (failed.length > 0) {
+            for (const [name, value] of failed) {
+              console.error(`${name}: ${value.result}`);
+            }
+            process.exit(1);
+          }
+          NODE

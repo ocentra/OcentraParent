@@ -9,7 +9,7 @@ permissions:
 
 jobs:
   package-android:
-    name: Android APK Preview
+    name: 'Preview: Child Android APK Smoke'
     runs-on: ubuntu-latest
     timeout-minutes: 25
     steps:

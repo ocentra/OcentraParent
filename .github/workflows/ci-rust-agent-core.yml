@@ -8,10 +8,10 @@ permissions:
   contents: read
 
 jobs:
-  rust-agent-core:
-    name: Rust Agent Core
+  rust-format:
+    name: 'Format: Rust Workspace'
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 10
     steps:
       - uses: actions/checkout@v6
 
@@ -20,8 +20,28 @@ jobs:
       - name: Rust format
         run: cargo fmt --all --check
 
+  core-clippy:
+    name: 'Lint: Rust Agent Core Clippy'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    needs: [rust-format]
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: ./.github/actions/setup-ci
+
       - name: Core clippy
         run: cargo clippy -p ocentra-parent-agent-core --all-targets -- -D warnings
+
+  core-tests:
+    name: 'Unit: Rust Agent Core Tests'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    needs: [core-clippy]
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: ./.github/actions/setup-ci
 
       - name: Core tests
         run: cargo test -p ocentra-parent-agent-core --all-targets

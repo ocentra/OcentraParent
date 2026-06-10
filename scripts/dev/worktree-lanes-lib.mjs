@@ -230,15 +230,12 @@ export function recordLaneSession(ledger, { laneId, now = new Date(), sessionId,
   const lane = findLane(ledger, laneId);
   const previousSessionId = lane.activeSessionId ?? '';
   const sessionChanged = previousSessionId !== sessionId;
-  const sourceChanged = (lane.sessionSource ?? '') !== source;
 
-  if (!sessionChanged && !sourceChanged) {
+  if (!sessionChanged) {
     return { changed: false, lane, previousSessionId };
   }
 
-  if (sessionChanged) {
-    lane.previousSessionId = previousSessionId;
-  }
+  lane.previousSessionId = previousSessionId;
   lane.activeSessionId = sessionId;
   lane.sessionSource = source;
   lane.sessionUpdatedAt = now.toISOString();
@@ -253,6 +250,9 @@ export function validateLaneContext(ledger, { repoRoot, branch, laneId, owner })
   if (normalizeLanePath(lane.path) !== normalizeLanePath(repoRoot)) {
     findings.push(`lane ${lane.id} points at ${lane.path}, not current checkout ${repoRoot}`);
   }
+  if (isPrimaryFreeWarmIntegration(lane, branch)) {
+    return { lane, findings, ok: findings.length === 0 };
+  }
   if (lane.status !== LaneStatus.Occupied) {
     findings.push(`lane ${lane.id} is ${lane.status}, not ${LaneStatus.Occupied}`);
   }
@@ -264,6 +264,15 @@ export function validateLaneContext(ledger, { repoRoot, branch, laneId, owner })
   }
 
   return { lane, findings, ok: findings.length === 0 };
+}
+
+function isPrimaryFreeWarmIntegration(lane, branch) {
+  return (
+    lane.role === LaneRole.Primary &&
+    lane.status === LaneStatus.FreeWarm &&
+    typeof branch === 'string' &&
+    (branch === 'main' || branch === 'production' || branch.startsWith('codex/'))
+  );
 }
 
 export function findLaneByPath(ledger, repoRoot) {

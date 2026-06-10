@@ -9,7 +9,7 @@ permissions:
 
 jobs:
   tooling:
-    name: Repo Tooling and Script Tests
+    name: 'Test: Repo Tooling Scripts'
     runs-on: ubuntu-latest
     timeout-minutes: 20
     steps:

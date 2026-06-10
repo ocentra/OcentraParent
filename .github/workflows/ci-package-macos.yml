@@ -9,7 +9,7 @@ permissions:
 
 jobs:
   package-macos:
-    name: macOS PKG Preview
+    name: 'Preview: macOS PKG Smoke'
     runs-on: macos-latest
     timeout-minutes: 25
     steps:

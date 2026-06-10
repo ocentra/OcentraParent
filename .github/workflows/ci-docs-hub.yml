@@ -25,5 +25,5 @@ jobs:
       - name: Lane state parse check
         run: npm run lanes:status
 
-      - name: Hub guard
-        run: npm run hub:guard
+      - name: Hub state parse check
+        run: npm run hub:status

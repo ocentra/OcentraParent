@@ -144,6 +144,40 @@ test('worktree lane session registration preserves lane label and tracks replace
   assert.equal(second.lane.previousSessionId, '019e-worker-old');
 });
 
+test('worktree lane session registration ignores hook source churn for the same session', () => {
+  const ledger = createDefaultLedger({ repoRoot: 'E:\\OcentraParent', now: fixedDate });
+  claimLane(ledger, {
+    laneId: 'codex-a',
+    branchInput: 'V0.3 Windows Process And Window Activity Capture',
+    task: 'capture',
+    now: fixedDate,
+    thread: 'v0.3-capture',
+  });
+
+  const first = recordLaneSession(ledger, {
+    laneId: 'codex-a',
+    now: fixedDate,
+    sessionId: '019e-worker-same',
+    source: 'UserPromptSubmit:unknown',
+  });
+  assert.equal(first.changed, true);
+  assert.equal(first.lane.sessionSource, 'UserPromptSubmit:unknown');
+  assert.equal(first.lane.sessionUpdatedAt, fixedDate.toISOString());
+
+  const updatedAt = ledger.updatedAt;
+  const second = recordLaneSession(ledger, {
+    laneId: 'codex-a',
+    now: new Date('2026-05-20T14:05:00.000Z'),
+    sessionId: '019e-worker-same',
+    source: 'PostToolUse:unknown',
+  });
+
+  assert.equal(second.changed, false);
+  assert.equal(second.lane.sessionSource, 'UserPromptSubmit:unknown');
+  assert.equal(second.lane.sessionUpdatedAt, fixedDate.toISOString());
+  assert.equal(ledger.updatedAt, updatedAt);
+});
+
 test('worktree lane args parse boolean and value options', () => {
   assert.deepEqual(
     parseLaneArgs(['claim', '--lane', 'codex-a', '--create-worktree', '--branch', 'V0.3', '--task', 'capture']),
@@ -182,6 +216,34 @@ test('worktree lane guard accepts matching occupied checkout', () => {
   assert.equal(result.ok, true);
   assert.equal(result.lane.id, 'primary');
   assert.deepEqual(result.findings, []);
+});
+
+test('worktree lane guard accepts primary free-warm integration branches', () => {
+  const ledger = createDefaultLedger({ repoRoot: 'E:\\OcentraParent', repoBranch: 'main', now: fixedDate });
+  const primary = ledger.lanes[0];
+  freeLane(ledger, { laneId: 'primary', now: fixedDate });
+  primary.path = 'E:\\OcentraParent';
+
+  const result = validateLaneContext(ledger, {
+    branch: 'codex/record-pr546-merge-hub-ledger',
+    repoRoot: 'E:\\OcentraParent',
+  });
+
+  assert.equal(result.ok, true);
+  assert.equal(result.lane.id, 'primary');
+  assert.deepEqual(result.findings, []);
+});
+
+test('worktree lane guard still rejects free-warm worker branches', () => {
+  const ledger = createDefaultLedger({ repoRoot: 'E:\\OcentraParent', now: fixedDate });
+  const result = validateLaneContext(ledger, {
+    branch: 'codex/v0.3-worker',
+    laneId: 'codex-a',
+    repoRoot: join('C:\\Users\\sujan\\.codex\\worktrees\\ocentra-parent-codex-a\\OcentraParent'),
+  });
+
+  assert.equal(result.ok, false);
+  assert.match(result.findings.join('\n'), /lane codex-a is free-warm/u);
 });
 
 test('worktree lane guard reports branch and owner drift', () => {
