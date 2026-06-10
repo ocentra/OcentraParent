@@ -273,44 +273,109 @@ jobs:
 
   build:
     needs: [detect-targets, secret-scan, portal-typescript, domain-packages]
-    if: ${{ always() && needs.secret-scan.result == 'success' && (needs.detect-targets.outputs.portal_changed == 'true' || needs.detect-targets.outputs.domain_changed == 'true') }}
+    if: >-
+      ${{
+        always() &&
+        needs.secret-scan.result == 'success' &&
+        !contains(fromJSON('["failure","cancelled"]'), needs.portal-typescript.result) &&
+        !contains(fromJSON('["failure","cancelled"]'), needs.domain-packages.result) &&
+        (needs.detect-targets.outputs.portal_changed == 'true' || needs.detect-targets.outputs.domain_changed == 'true')
+      }}
     uses: ./.github/workflows/build.yml
     with:
       docs_hub_only: false
 
   local-transport:
     needs: [detect-targets, secret-scan, rust-agent-protocol, rust-agent-core, rust-agent-service, rust-adapters]
-    if: ${{ always() && needs.secret-scan.result == 'success' && (needs.detect-targets.outputs.rust_protocol_changed == 'true' || needs.detect-targets.outputs.rust_core_changed == 'true' || needs.detect-targets.outputs.rust_service_changed == 'true' || needs.detect-targets.outputs.rust_adapter_changed == 'true') }}
+    if: >-
+      ${{
+        always() &&
+        needs.secret-scan.result == 'success' &&
+        !contains(fromJSON('["failure","cancelled"]'), needs.rust-agent-protocol.result) &&
+        !contains(fromJSON('["failure","cancelled"]'), needs.rust-agent-core.result) &&
+        !contains(fromJSON('["failure","cancelled"]'), needs.rust-agent-service.result) &&
+        !contains(fromJSON('["failure","cancelled"]'), needs.rust-adapters.result) &&
+        (
+          needs.detect-targets.outputs.rust_protocol_changed == 'true' ||
+          needs.detect-targets.outputs.rust_core_changed == 'true' ||
+          needs.detect-targets.outputs.rust_service_changed == 'true' ||
+          needs.detect-targets.outputs.rust_adapter_changed == 'true'
+        )
+      }}
     uses: ./.github/workflows/ci-local-transport.yml
 
   portal-e2e:
     needs: [detect-targets, secret-scan, portal-typescript, rust-agent-service, local-transport]
-    if: ${{ always() && needs.secret-scan.result == 'success' && (needs.detect-targets.outputs.portal_changed == 'true' || needs.detect-targets.outputs.rust_service_changed == 'true') }}
+    if: >-
+      ${{
+        always() &&
+        needs.secret-scan.result == 'success' &&
+        !contains(fromJSON('["failure","cancelled"]'), needs.portal-typescript.result) &&
+        !contains(fromJSON('["failure","cancelled"]'), needs.rust-agent-service.result) &&
+        !contains(fromJSON('["failure","cancelled"]'), needs.local-transport.result) &&
+        (needs.detect-targets.outputs.portal_changed == 'true' || needs.detect-targets.outputs.rust_service_changed == 'true')
+      }}
     uses: ./.github/workflows/ci-portal-e2e.yml
 
   package-windows:
     needs: [detect-targets, dependency-policy, parent-desktop-tauri, rust-agent-service, rust-adapters]
-    if: ${{ always() && needs.dependency-policy.result == 'success' && needs.detect-targets.outputs.package_windows_changed == 'true' }}
+    if: >-
+      ${{
+        always() &&
+        needs.dependency-policy.result == 'success' &&
+        !contains(fromJSON('["failure","cancelled"]'), needs.parent-desktop-tauri.result) &&
+        !contains(fromJSON('["failure","cancelled"]'), needs.rust-agent-service.result) &&
+        !contains(fromJSON('["failure","cancelled"]'), needs.rust-adapters.result) &&
+        needs.detect-targets.outputs.package_windows_changed == 'true'
+      }}
     uses: ./.github/workflows/ci-package-windows.yml
 
   package-linux:
     needs: [detect-targets, dependency-policy, parent-desktop-tauri, rust-agent-service, rust-adapters]
-    if: ${{ always() && needs.dependency-policy.result == 'success' && needs.detect-targets.outputs.package_linux_changed == 'true' }}
+    if: >-
+      ${{
+        always() &&
+        needs.dependency-policy.result == 'success' &&
+        !contains(fromJSON('["failure","cancelled"]'), needs.parent-desktop-tauri.result) &&
+        !contains(fromJSON('["failure","cancelled"]'), needs.rust-agent-service.result) &&
+        !contains(fromJSON('["failure","cancelled"]'), needs.rust-adapters.result) &&
+        needs.detect-targets.outputs.package_linux_changed == 'true'
+      }}
     uses: ./.github/workflows/ci-package-linux.yml
 
   package-macos:
     needs: [detect-targets, dependency-policy, parent-desktop-tauri, rust-agent-service, rust-adapters]
-    if: ${{ always() && needs.dependency-policy.result == 'success' && needs.detect-targets.outputs.package_macos_changed == 'true' }}
+    if: >-
+      ${{
+        always() &&
+        needs.dependency-policy.result == 'success' &&
+        !contains(fromJSON('["failure","cancelled"]'), needs.parent-desktop-tauri.result) &&
+        !contains(fromJSON('["failure","cancelled"]'), needs.rust-agent-service.result) &&
+        !contains(fromJSON('["failure","cancelled"]'), needs.rust-adapters.result) &&
+        needs.detect-targets.outputs.package_macos_changed == 'true'
+      }}
     uses: ./.github/workflows/ci-package-macos.yml
 
   package-android:
     needs: [detect-targets, dependency-policy, child-android]
-    if: ${{ always() && needs.dependency-policy.result == 'success' && needs.detect-targets.outputs.package_android_changed == 'true' }}
+    if: >-
+      ${{
+        always() &&
+        needs.dependency-policy.result == 'success' &&
+        !contains(fromJSON('["failure","cancelled"]'), needs.child-android.result) &&
+        needs.detect-targets.outputs.package_android_changed == 'true'
+      }}
     uses: ./.github/workflows/ci-package-android.yml
 
   package-ios:
     needs: [detect-targets, dependency-policy, child-ios]
-    if: ${{ always() && needs.dependency-policy.result == 'success' && needs.detect-targets.outputs.package_ios_changed == 'true' }}
+    if: >-
+      ${{
+        always() &&
+        needs.dependency-policy.result == 'success' &&
+        !contains(fromJSON('["failure","cancelled"]'), needs.child-ios.result) &&
+        needs.detect-targets.outputs.package_ios_changed == 'true'
+      }}
     uses: ./.github/workflows/ci-package-ios.yml
 
   fail-fast:
