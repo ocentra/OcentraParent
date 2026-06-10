@@ -19,7 +19,8 @@ jobs:
 
       - uses: ./.github/actions/setup-ci
         with:
+          install-mode: skip
           install-rust: 'false'
 
-      - name: Format docs and Ledger docs
-        run: npx prettier --check docs *.md .gitmodules
+      - name: Scan docs and hub state for secrets
+        run: node scripts/security/scan-staged-secrets.mjs --repo
