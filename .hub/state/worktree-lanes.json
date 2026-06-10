@@ -2,7 +2,7 @@
   "schema": "https://ocentra.ca/schemas/ocentra-parent-worktree-lanes.v1.json",
   "version": 1,
   "repo": "ocentra/OcentraParent",
-  "updatedAt": "2026-06-10T00:31:28.287Z",
+  "updatedAt": "2026-06-10T00:49:51.418Z",
   "lanes": [
     {
       "id": "primary",
@@ -20,7 +20,7 @@
       "previousSessionId": "",
       "activeSessionId": "019e8e21-d8f3-75d2-979d-e9cf002ad2a8",
       "sessionSource": "PostToolUse:unknown",
-      "sessionUpdatedAt": "2026-06-10T00:31:28.287Z"
+      "sessionUpdatedAt": "2026-06-10T00:49:51.418Z"
     },
     {
       "id": "codex-a",
