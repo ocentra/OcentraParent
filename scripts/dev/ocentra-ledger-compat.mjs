@@ -122,10 +122,12 @@ async function watchLedger() {
 function hookContext() {
   const input = readStdinJson();
   const eventName = typeof input.hook_event_name === 'string' ? input.hook_event_name : 'hook';
+  const session = claimHookSession(input, eventName);
   const context = [
     'Ocentra Ledger coordination context:',
     `- Hook event: ${eventName}.`,
     `- Current lane: ${lane}. Set LEDGER_LANE to override lane identity for this checkout.`,
+    ...session.context,
     '- State root is external to the product repo. Use npm run ledger:root to inspect it.',
     '- Check work with npm run ledger:doctor, npm run hub:inbox, npm run hub:heartbeats, npm run ledger:workers, and npm run ledger:tasks.',
     '- Send work with npm run hub:message -- --lane codex-b --subject "..." --body "..."; acknowledge with npm run hub:ack.',
@@ -141,6 +143,42 @@ function hookContext() {
       },
     })
   );
+}
+
+function claimHookSession(input, eventName) {
+  const rawSessionId = input.session_id ?? input.sessionId ?? process.env.CODEX_SESSION_ID;
+  const sessionId =
+    typeof rawSessionId === 'string' && rawSessionId.length > 0
+      ? rawSessionId.replace(/[^A-Za-z0-9._-]/gu, '_')
+      : undefined;
+  if (lane === 'primary' || sessionId === undefined) {
+    return { context: [] };
+  }
+
+  const result = tryRunLedgerJson([
+    'session',
+    'claim',
+    lane,
+    sessionId,
+    '--ttl-seconds',
+    '7200',
+    '--summary',
+    `${eventName} hook active`,
+  ]);
+  if (result.ok) {
+    return {
+      context: [
+        `- Active Codex session lease: ${sessionId}. This thread owns ${lane} until another explicit session takes over or the lease expires.`,
+      ],
+    };
+  }
+  const active = result.value?.activeSession;
+  const activeSessionId = typeof active?.sessionId === 'string' ? active.sessionId : 'another session';
+  return {
+    context: [
+      `- READ-ONLY: ${lane} is already owned by active Codex session ${activeSessionId}. You may answer questions and inspect status, but do not ack mail, edit files, claim paths, heartbeat, or report work from this thread unless the user explicitly retargets this lane.`,
+    ],
+  };
 }
 
 function messageBody() {
@@ -198,6 +236,27 @@ function runLedgerJson(args) {
     process.exit(result.status ?? 1);
   }
   return JSON.parse(result.stdout);
+}
+
+function tryRunLedgerJson(args) {
+  const result = spawnSync(process.execPath, [ledgerWrapper, ...args], {
+    cwd: repoRoot,
+    encoding: 'utf8',
+    env: process.env,
+    stdio: ['ignore', 'pipe', 'pipe'],
+    windowsHide: true,
+  });
+  let value;
+  try {
+    value = result.stdout.trim().length === 0 ? undefined : JSON.parse(result.stdout);
+  } catch {
+    value = undefined;
+  }
+  return {
+    ok: (result.status ?? 1) === 0,
+    value,
+    stderr: result.stderr,
+  };
 }
 
 function runNode(scriptPath, args) {

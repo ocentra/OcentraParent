@@ -107,6 +107,19 @@ npm run hub:heartbeat -- --state alive --note "minute wake"
 The old `hub:*` and `lanes:*` names are compatibility aliases that call Ledger.
 They do not write `.hub` files.
 
+## Session Leases
+
+Ledger also tracks one active Codex session lease per worker lane. Repo hooks use
+the Codex hook `session_id` to claim or refresh the lease. If two chats are open
+for the same lane, the first active session keeps the lane and the second hook
+marks that chat read-only. The read-only duplicate may answer questions and
+inspect status, but it must not ack mail, edit files, claim paths, heartbeat, or
+report work unless the user explicitly retargets that lane.
+
+Idle liveness should stay outside Codex chat. A watcher or daemon may write
+Ledger heartbeat events, but idle workers should not spend chat turns reporting
+that nothing changed.
+
 ## Guard
 
 The pre-commit hook calls:
