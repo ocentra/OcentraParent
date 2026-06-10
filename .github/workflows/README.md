@@ -1,59 +1,110 @@
 # Ocentra Parent CI
 
-The pipeline uses the same modular shape as other Ocentra repositories, scaled to the current scaffold.
+The CI gate is intentionally target-split. `ci.yml` detects changed paths,
+fans out to focused reusable workflows, then reports a few aggregate gates for
+branch protection compatibility. The goal is fast feedback and cheap retries:
+if Android package smoke fails, rerun the Android package target; do not make
+portal lint, Rust protocol tests, Windows MSI, and macOS package smoke run
+again just to check the Android fix.
 
 ```mermaid
 graph LR
-  FF["Fail Fast<br/>format, lint, types, Rust check"] --> SS["Secret Scan<br/>custom scanner + Gitleaks"]
-  SS --> DP["Dependency Policy<br/>npm audit, cargo audit, SBOM"]
-  SS --> V["Validate<br/>proof matrix, tests, Rust, local smoke, LAN smoke"]
-  V --> E2E["Desktop E2E<br/>real portal to Rust on Windows, Linux, macOS"]
-  SS --> B["Build<br/>portal and packages"]
-  DP --> P["Package Preview<br/>install and launch smoke"]
-  E2E --> P
-  B --> P
-  P --> RD["Release Decision<br/>missing version tag only"]
-  RD --> R["Production Release<br/>production branch only"]
+  D["Detect CI targets"] --> DOCS["Docs/hub gate"]
+  D --> TS["Portal TypeScript"]
+  D --> DOM["Domain packages"]
+  D --> TOOL["Repo tooling"]
+  D --> RP["Rust protocol"]
+  D --> RC["Rust core"]
+  D --> RS["Rust service"]
+  D --> RA["Rust adapters"]
+  D --> DESK["Parent desktop/Tauri"]
+  D --> AND["Child Android"]
+  D --> IOS["Child iOS"]
+  TS --> E2E["Portal E2E"]
+  RS --> LT["Local transport"]
+  DESK --> PW["Windows/Linux/macOS packages"]
+  AND --> PA["Android package"]
+  IOS --> PI["iOS package"]
 ```
 
-## Files
+## Orchestration
 
-- `ci.yml`: orchestrates the gate.
-- `fail-fast.yml`: catches broken formatting, lint, TypeScript, and Rust check failures early.
-- `secret-scan.yml`: runs the repo scanner plus Gitleaks.
-- `dependency-policy.yml`: runs npm audit, cargo audit, npm license policy, and SBOM metadata generation.
-- `validate.yml`: runs `npm run test:pre-ai-proof`, `npm run validate`, and real portal-to-Rust E2E on Windows, Linux, and macOS runners.
-- `build.yml`: runs `npm run build`.
-- `package-preview.yml`: builds installable preview artifacts for Windows, Linux, macOS, Android, and iOS simulator, then smoke-checks installation or launch.
-- `release.yml`: publishes production GitHub Releases from the `production` branch only when the version tag is missing.
-- `.github/actions/setup-ci`: shared Node/Rust/npm setup.
+- `ci.yml`: small orchestrator. It classifies path changes into docs/hub,
+  portal TypeScript, domain packages, Rust protocol/core/service/adapters,
+  parent desktop/Tauri, child Android, child iOS, and package targets.
+- `ci-docs-hub.yml`: docs, `.hub`, and root Markdown fast gate.
+- `ci-format.yml`: repository format check.
+- `ci-release-version.yml`: release version alignment.
+- `secret-scan.yml`: custom repo scanner plus Gitleaks.
+- `dependency-policy.yml`: dependency policy and SBOM.
+- `build.yml`: production build when source package work needs it.
 
-Pushes to `main` run validation and package previews, but they do not create GitHub Releases and do not publish trusted update manifests. This keeps normal development from creating dozens of real installer releases.
+## Target Workflows
 
-Pushes to `production` run the production release workflow. That workflow runs the same gates, builds package previews, then checks whether the aligned version tag already exists. If the tag is missing, it publishes the signed Windows x64 MSI, checksum, signed update manifest, and bootstrap installer. If the tag exists, the publish job is skipped.
+- `ci-portal-typescript.yml`: portal build-contracts, lint, type-check, and
+  portal unit tests.
+- `ci-domain-packages.yml`: schema/source boundary lint, shared contract build,
+  and domain contract tests.
+- `ci-tooling.yml`: repository script/tooling tests.
+- `ci-rust-agent-protocol.yml`: protocol crate format/check/tests.
+- `ci-rust-agent-core.yml`: core crate format/clippy/tests.
+- `ci-rust-agent-service.yml`: service crate format/clippy/tests.
+- `ci-rust-adapters.yml`: updater, eventing, network evidence, and screen
+  adapter crate checks/tests.
+- `ci-local-transport.yml`: real local WebSocket and LAN transport smoke.
+- `ci-portal-e2e.yml`: portal-to-Rust E2E on Windows, Linux, and macOS.
+- `ci-parent-desktop-tauri.yml`: parent desktop/Tauri type-check and build.
+- `ci-child-android.yml`: child Android runtime/protocol/capability proofs.
+- `ci-child-ios.yml`: child iOS runtime/protocol/capability proofs.
+- `ci-package-windows.yml`: Windows MSI preview and smoke.
+- `ci-package-linux.yml`: Linux DEB preview and smoke.
+- `ci-package-macos.yml`: macOS PKG preview and smoke.
+- `ci-package-android.yml`: Android APK preview and emulator smoke.
+- `ci-package-ios.yml`: iOS simulator package preview and smoke.
 
-Documentation and expectation changes run the CI workflow because the pre-AI proof matrix is part of the release-quality gate. Use `[skip ci]` only for an intentional bypass that should not refresh validation or package previews.
+## Required Aggregates
 
-For emergency or intentional bypasses on a code-touching commit, GitHub's native skip marker is also available. Include `[skip ci]` in the commit message only when you are deliberately bypassing the gate and do not want a release from that push.
+The orchestrator keeps small aggregate jobs named like the historical required
+gates:
 
-The production release job requires `OCENTRA_PARENT_UPDATE_SIGNING_KEY_BASE64` as a repository secret. The updater binary is built with the matching public key and rejects unsigned or incorrectly signed manifests. Package preview builds use an explicit ephemeral update key so the MSI can be tested without publishing a trusted update channel. Future Windows Authenticode, macOS, Android store, and Apple store signing secrets are documented by `scripts/release/check-production-secrets.mjs` but are not required until those release paths exist.
+- `Format, Lint, Types, Rust Check`
+- `Full Validation Gate`
+- `Package Preview Gate`
+
+Those aggregate jobs fail if any relevant target fails or is cancelled, and
+ignore skipped targets. This keeps branch protection stable while letting
+engineers rerun focused target jobs.
+
+## Rules
+
+- Workflow file changes force all targets on purpose. CI changes should prove
+  the full graph once.
+- Docs/hub-only changes are limited to `docs/**`, `.hub/**`, and root-level
+  `*.md`; they run only the docs/hub gate.
+- Portal-only work should not run Android/iOS package previews.
+- Android-only work should not run portal lint or Windows/macOS packages unless
+  shared contracts or service code also changed.
+- Rust is not one bucket. Protocol, core, service, and adapter crates are
+  separate targets.
+- Repo scripts and workflow topology are their own tooling target.
+- Package previews are platform targets. Windows, Linux, macOS, Android, and
+  iOS can be retried independently.
+
+## Release Boundary
+
+Pushes to `main` run validation and package previews, but they do not create
+GitHub Releases and do not publish trusted update manifests. Production release
+publishing belongs to `release.yml` on the `production` branch only.
 
 ## Local Parity
 
-Before pushing, run:
+Before pushing a CI change, run at minimum:
 
 ```powershell
-cmd /c npm run ci:local
+cmd /c npx prettier --check .github/workflows/*.yml .github/workflows/README.md
+node --test scripts/test/workflow-ci-trigger.test.mjs
 ```
 
-The pre-commit hook runs the commit-time subset:
-
-```powershell
-cmd /c npm run hooks:install
-```
-
-Check release version alignment directly:
-
-```powershell
-cmd /c npm run release:version
-```
+Before declaring product implementation PR-ready, run the smallest relevant
+target locally while working, then the broader gate requested by the hub or PR
+review.

@@ -18,12 +18,28 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  detect-docs-hub-only:
-    name: Detect docs/hub-only change
+  detect-targets:
+    name: Detect CI targets
     runs-on: ubuntu-latest
     timeout-minutes: 5
     outputs:
       docs_hub_only: ${{ steps.detect.outputs.docs_hub_only }}
+      source_changed: ${{ steps.detect.outputs.source_changed }}
+      portal_changed: ${{ steps.detect.outputs.portal_changed }}
+      domain_changed: ${{ steps.detect.outputs.domain_changed }}
+      tooling_changed: ${{ steps.detect.outputs.tooling_changed }}
+      rust_protocol_changed: ${{ steps.detect.outputs.rust_protocol_changed }}
+      rust_core_changed: ${{ steps.detect.outputs.rust_core_changed }}
+      rust_service_changed: ${{ steps.detect.outputs.rust_service_changed }}
+      rust_adapter_changed: ${{ steps.detect.outputs.rust_adapter_changed }}
+      parent_desktop_changed: ${{ steps.detect.outputs.parent_desktop_changed }}
+      child_android_changed: ${{ steps.detect.outputs.child_android_changed }}
+      child_ios_changed: ${{ steps.detect.outputs.child_ios_changed }}
+      package_windows_changed: ${{ steps.detect.outputs.package_windows_changed }}
+      package_linux_changed: ${{ steps.detect.outputs.package_linux_changed }}
+      package_macos_changed: ${{ steps.detect.outputs.package_macos_changed }}
+      package_android_changed: ${{ steps.detect.outputs.package_android_changed }}
+      package_ios_changed: ${{ steps.detect.outputs.package_ios_changed }}
     steps:
       - uses: actions/checkout@v6
         with:
@@ -41,17 +57,34 @@ jobs:
             base="${{ github.event.before }}"
             head="${{ github.sha }}"
           else
-            echo "docs_hub_only=false" >> "$GITHUB_OUTPUT"
-            exit 0
+            base="$(git rev-parse HEAD^)"
+            head="${{ github.sha }}"
           fi
 
           mapfile -t changed_files < <(git diff --name-only "$base" "$head")
           if [[ "${#changed_files[@]}" -eq 0 ]]; then
-            echo "docs_hub_only=false" >> "$GITHUB_OUTPUT"
-            exit 0
+            changed_files=(".github/workflows/ci.yml")
           fi
 
           docs_hub_only=true
+          workflow_changed=false
+          source_changed=false
+          portal_changed=false
+          domain_changed=false
+          tooling_changed=false
+          rust_protocol_changed=false
+          rust_core_changed=false
+          rust_service_changed=false
+          rust_adapter_changed=false
+          parent_desktop_changed=false
+          child_android_changed=false
+          child_ios_changed=false
+          package_windows_changed=false
+          package_linux_changed=false
+          package_macos_changed=false
+          package_android_changed=false
+          package_ios_changed=false
+
           for path in "${changed_files[@]}"; do
             case "$path" in
               docs/*|.hub/*)
@@ -65,45 +98,297 @@ jobs:
                 docs_hub_only=false
                 ;;
             esac
+
+            case "$path" in
+              .github/workflows/*|.github/actions/*)
+                workflow_changed=true
+                ;;
+              apps/*|packages/*|crates/*|platforms/*|scripts/*|eslint-rules/*|vendor/*|package.json|package-lock.json|turbo.json|tsconfig*.json|eslint.config.js|Cargo.toml|Cargo.lock|rust-toolchain.toml)
+                source_changed=true
+                ;;
+            esac
+
+            case "$path" in
+              apps/portal/*|packages/portal-domain/*|packages/text-domain/*|packages/endpoint-domain/*|packages/schema-domain/*|vendor/ocentra-parent-core-ui/*)
+                portal_changed=true
+                ;;
+              packages/*)
+                domain_changed=true
+                ;;
+              scripts/*|eslint-rules/*|package.json|package-lock.json|turbo.json|tsconfig*.json|eslint.config.js)
+                tooling_changed=true
+                ;;
+              crates/agent-protocol/*|Cargo.toml|Cargo.lock|rust-toolchain.toml)
+                rust_protocol_changed=true
+                ;;
+              crates/agent-core/*|Cargo.toml|Cargo.lock|rust-toolchain.toml)
+                rust_core_changed=true
+                ;;
+              crates/agent-service/*|Cargo.toml|Cargo.lock|rust-toolchain.toml)
+                rust_service_changed=true
+                ;;
+              crates/agent-updater/*|crates/ocentra-eventing/*|crates/ocentra-network-evidence/*|crates/screen-capture-adapter/*|Cargo.toml|Cargo.lock|rust-toolchain.toml)
+                rust_adapter_changed=true
+                ;;
+              apps/parent-desktop/*)
+                parent_desktop_changed=true
+                ;;
+              platforms/android/*|scripts/release/android/*|scripts/smoke/android-*|scripts/test/*android*|packages/parent-domain/src/*android*)
+                child_android_changed=true
+                ;;
+              platforms/ios/*|scripts/release/ios/*|scripts/smoke/ios-*|scripts/test/*ios*|packages/parent-domain/src/*ios*)
+                child_ios_changed=true
+                ;;
+              scripts/release/windows/*|scripts/smoke/windows-*|.wix/*)
+                package_windows_changed=true
+                ;;
+              scripts/release/linux/*|scripts/smoke/linux-*)
+                package_linux_changed=true
+                ;;
+              scripts/release/macos/*|scripts/smoke/macos-*)
+                package_macos_changed=true
+                ;;
+            esac
           done
 
-          echo "docs_hub_only=$docs_hub_only" >> "$GITHUB_OUTPUT"
-          printf 'docs/hub-only=%s\n' "$docs_hub_only"
+          if [[ "$workflow_changed" == "true" ]]; then
+            docs_hub_only=false
+            source_changed=true
+            portal_changed=true
+            domain_changed=true
+            tooling_changed=true
+            rust_protocol_changed=true
+            rust_core_changed=true
+            rust_service_changed=true
+            rust_adapter_changed=true
+            parent_desktop_changed=true
+            child_android_changed=true
+            child_ios_changed=true
+            package_windows_changed=true
+            package_linux_changed=true
+            package_macos_changed=true
+            package_android_changed=true
+            package_ios_changed=true
+          fi
+
+          if [[ "$parent_desktop_changed" == "true" || "$rust_service_changed" == "true" || "$rust_adapter_changed" == "true" ]]; then
+            package_windows_changed=true
+            package_linux_changed=true
+            package_macos_changed=true
+          fi
+          if [[ "$child_android_changed" == "true" ]]; then
+            package_android_changed=true
+          fi
+          if [[ "$child_ios_changed" == "true" ]]; then
+            package_ios_changed=true
+          fi
+
+          for name in docs_hub_only source_changed portal_changed domain_changed tooling_changed rust_protocol_changed rust_core_changed rust_service_changed rust_adapter_changed parent_desktop_changed child_android_changed child_ios_changed package_windows_changed package_linux_changed package_macos_changed package_android_changed package_ios_changed; do
+            value="${!name}"
+            echo "$name=$value" >> "$GITHUB_OUTPUT"
+            printf '%s=%s\n' "$name" "$value"
+          done
+
           printf 'changed files:\n'
           printf '%s\n' "${changed_files[@]}"
 
-  fail-fast:
-    needs: [detect-docs-hub-only]
-    uses: ./.github/workflows/fail-fast.yml
-    with:
-      docs_hub_only: ${{ needs.detect-docs-hub-only.outputs.docs_hub_only == 'true' }}
+  docs-hub:
+    needs: [detect-targets]
+    if: ${{ needs.detect-targets.outputs.docs_hub_only == 'true' }}
+    uses: ./.github/workflows/ci-docs-hub.yml
+
+  format:
+    needs: [detect-targets]
+    if: ${{ needs.detect-targets.outputs.docs_hub_only != 'true' }}
+    uses: ./.github/workflows/ci-format.yml
+
+  release-version:
+    needs: [detect-targets]
+    if: ${{ needs.detect-targets.outputs.docs_hub_only != 'true' }}
+    uses: ./.github/workflows/ci-release-version.yml
+
+  portal-typescript:
+    needs: [detect-targets]
+    if: ${{ needs.detect-targets.outputs.portal_changed == 'true' }}
+    uses: ./.github/workflows/ci-portal-typescript.yml
+
+  domain-packages:
+    needs: [detect-targets]
+    if: ${{ needs.detect-targets.outputs.domain_changed == 'true' }}
+    uses: ./.github/workflows/ci-domain-packages.yml
+
+  tooling:
+    needs: [detect-targets]
+    if: ${{ needs.detect-targets.outputs.tooling_changed == 'true' }}
+    uses: ./.github/workflows/ci-tooling.yml
+
+  rust-agent-protocol:
+    needs: [detect-targets]
+    if: ${{ needs.detect-targets.outputs.rust_protocol_changed == 'true' }}
+    uses: ./.github/workflows/ci-rust-agent-protocol.yml
+
+  rust-agent-core:
+    needs: [detect-targets]
+    if: ${{ needs.detect-targets.outputs.rust_core_changed == 'true' }}
+    uses: ./.github/workflows/ci-rust-agent-core.yml
+
+  rust-agent-service:
+    needs: [detect-targets]
+    if: ${{ needs.detect-targets.outputs.rust_service_changed == 'true' }}
+    uses: ./.github/workflows/ci-rust-agent-service.yml
+
+  rust-adapters:
+    needs: [detect-targets]
+    if: ${{ needs.detect-targets.outputs.rust_adapter_changed == 'true' }}
+    uses: ./.github/workflows/ci-rust-adapters.yml
+
+  parent-desktop-tauri:
+    needs: [detect-targets]
+    if: ${{ needs.detect-targets.outputs.parent_desktop_changed == 'true' }}
+    uses: ./.github/workflows/ci-parent-desktop-tauri.yml
+
+  child-android:
+    needs: [detect-targets]
+    if: ${{ needs.detect-targets.outputs.child_android_changed == 'true' }}
+    uses: ./.github/workflows/ci-child-android.yml
+
+  child-ios:
+    needs: [detect-targets]
+    if: ${{ needs.detect-targets.outputs.child_ios_changed == 'true' }}
+    uses: ./.github/workflows/ci-child-ios.yml
 
   secret-scan:
-    needs: [detect-docs-hub-only, fail-fast]
+    needs: [detect-targets, docs-hub, format, release-version]
+    if: ${{ always() && needs.detect-targets.outputs.docs_hub_only != 'true' }}
     uses: ./.github/workflows/secret-scan.yml
     with:
-      docs_hub_only: ${{ needs.detect-docs-hub-only.outputs.docs_hub_only == 'true' }}
-
-  validate:
-    needs: [detect-docs-hub-only, secret-scan]
-    uses: ./.github/workflows/validate.yml
-    with:
-      docs_hub_only: ${{ needs.detect-docs-hub-only.outputs.docs_hub_only == 'true' }}
-
-  build:
-    needs: [detect-docs-hub-only, secret-scan]
-    uses: ./.github/workflows/build.yml
-    with:
-      docs_hub_only: ${{ needs.detect-docs-hub-only.outputs.docs_hub_only == 'true' }}
+      docs_hub_only: false
 
   dependency-policy:
-    needs: [detect-docs-hub-only, secret-scan]
+    needs: [secret-scan]
+    if: ${{ always() && needs.secret-scan.result == 'success' }}
     uses: ./.github/workflows/dependency-policy.yml
     with:
-      docs_hub_only: ${{ needs.detect-docs-hub-only.outputs.docs_hub_only == 'true' }}
+      docs_hub_only: false
+
+  build:
+    needs: [detect-targets, secret-scan, portal-typescript, domain-packages]
+    if: ${{ always() && needs.secret-scan.result == 'success' && (needs.detect-targets.outputs.portal_changed == 'true' || needs.detect-targets.outputs.domain_changed == 'true') }}
+    uses: ./.github/workflows/build.yml
+    with:
+      docs_hub_only: false
+
+  local-transport:
+    needs: [detect-targets, secret-scan, rust-agent-protocol, rust-agent-core, rust-agent-service, rust-adapters]
+    if: ${{ always() && needs.secret-scan.result == 'success' && (needs.detect-targets.outputs.rust_protocol_changed == 'true' || needs.detect-targets.outputs.rust_core_changed == 'true' || needs.detect-targets.outputs.rust_service_changed == 'true' || needs.detect-targets.outputs.rust_adapter_changed == 'true') }}
+    uses: ./.github/workflows/ci-local-transport.yml
+
+  portal-e2e:
+    needs: [detect-targets, secret-scan, portal-typescript, rust-agent-service, local-transport]
+    if: ${{ always() && needs.secret-scan.result == 'success' && (needs.detect-targets.outputs.portal_changed == 'true' || needs.detect-targets.outputs.rust_service_changed == 'true') }}
+    uses: ./.github/workflows/ci-portal-e2e.yml
+
+  package-windows:
+    needs: [detect-targets, dependency-policy, parent-desktop-tauri, rust-agent-service, rust-adapters]
+    if: ${{ always() && needs.dependency-policy.result == 'success' && needs.detect-targets.outputs.package_windows_changed == 'true' }}
+    uses: ./.github/workflows/ci-package-windows.yml
+
+  package-linux:
+    needs: [detect-targets, dependency-policy, parent-desktop-tauri, rust-agent-service, rust-adapters]
+    if: ${{ always() && needs.dependency-policy.result == 'success' && needs.detect-targets.outputs.package_linux_changed == 'true' }}
+    uses: ./.github/workflows/ci-package-linux.yml
+
+  package-macos:
+    needs: [detect-targets, dependency-policy, parent-desktop-tauri, rust-agent-service, rust-adapters]
+    if: ${{ always() && needs.dependency-policy.result == 'success' && needs.detect-targets.outputs.package_macos_changed == 'true' }}
+    uses: ./.github/workflows/ci-package-macos.yml
+
+  package-android:
+    needs: [detect-targets, dependency-policy, child-android]
+    if: ${{ always() && needs.dependency-policy.result == 'success' && needs.detect-targets.outputs.package_android_changed == 'true' }}
+    uses: ./.github/workflows/ci-package-android.yml
+
+  package-ios:
+    needs: [detect-targets, dependency-policy, child-ios]
+    if: ${{ always() && needs.dependency-policy.result == 'success' && needs.detect-targets.outputs.package_ios_changed == 'true' }}
+    uses: ./.github/workflows/ci-package-ios.yml
+
+  fail-fast:
+    name: Format, Lint, Types, Rust Check
+    runs-on: ubuntu-latest
+    if: ${{ always() }}
+    needs:
+      - detect-targets
+      - docs-hub
+      - format
+      - release-version
+      - portal-typescript
+      - domain-packages
+      - tooling
+      - rust-agent-protocol
+      - rust-agent-core
+      - rust-agent-service
+      - rust-adapters
+    steps:
+      - name: Aggregate early checks
+        shell: bash
+        env:
+          RESULTS: >-
+            ${{ toJSON(needs) }}
+        run: |
+          set -euo pipefail
+          echo "$RESULTS"
+          if grep -q '"result":"failure"\|"result":"cancelled"' <<< "$RESULTS"; then
+            exit 1
+          fi
+
+  validate:
+    name: Full Validation Gate
+    runs-on: ubuntu-latest
+    if: ${{ always() }}
+    needs:
+      - fail-fast
+      - secret-scan
+      - dependency-policy
+      - build
+      - local-transport
+      - portal-e2e
+      - parent-desktop-tauri
+      - child-android
+      - child-ios
+    steps:
+      - name: Aggregate validation checks
+        shell: bash
+        env:
+          RESULTS: >-
+            ${{ toJSON(needs) }}
+        run: |
+          set -euo pipefail
+          echo "$RESULTS"
+          if grep -q '"result":"failure"\|"result":"cancelled"' <<< "$RESULTS"; then
+            exit 1
+          fi
 
   package-preview:
-    needs: [detect-docs-hub-only, validate, build, dependency-policy]
-    uses: ./.github/workflows/package-preview.yml
-    with:
-      docs_hub_only: ${{ needs.detect-docs-hub-only.outputs.docs_hub_only == 'true' }}
+    name: Package Preview Gate
+    runs-on: ubuntu-latest
+    if: ${{ always() }}
+    needs:
+      - validate
+      - package-windows
+      - package-linux
+      - package-macos
+      - package-android
+      - package-ios
+    steps:
+      - name: Aggregate package previews
+        shell: bash
+        env:
+          RESULTS: >-
+            ${{ toJSON(needs) }}
+        run: |
+          set -euo pipefail
+          echo "$RESULTS"
+          if grep -q '"result":"failure"\|"result":"cancelled"' <<< "$RESULTS"; then
+            exit 1
+          fi

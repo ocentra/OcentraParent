@@ -1,0 +1,36 @@
+name: CI Child Android
+
+on:
+  workflow_call:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  child-android:
+    name: Child Android Runtime and Proofs
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: ./.github/actions/setup-ci
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - uses: android-actions/setup-android@v3
+
+      - name: Setup Gradle cache
+        uses: gradle/actions/setup-gradle@v4
+
+      - name: Android protocol and capability proofs
+        run: |
+          npm run test:child-android-protocol-package-lifecycle-proof
+          npm run test:child-android-permission-capability-proof
+          npm run test:child-android-privileged-capability-proof
+          npm run test:child-android-storage-protocol-capability-proof
+          npm run test:child-android-service-protocol-capability-proof

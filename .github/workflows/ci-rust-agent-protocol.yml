@@ -1,0 +1,27 @@
+name: CI Rust Agent Protocol
+
+on:
+  workflow_call:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  rust-agent-protocol:
+    name: Rust Agent Protocol
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: ./.github/actions/setup-ci
+
+      - name: Rust format
+        run: cargo fmt --all --check
+
+      - name: Protocol check
+        run: cargo check -p ocentra-parent-agent-protocol --all-targets
+
+      - name: Protocol tests
+        run: cargo test -p ocentra-parent-agent-protocol --all-targets

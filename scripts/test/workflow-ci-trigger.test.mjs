@@ -1,10 +1,11 @@
 import assert from 'node:assert/strict';
-import { readFileSync } from 'node:fs';
+import { existsSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { test } from 'node:test';
 
 const repoRoot = process.cwd();
 const ciWorkflowPath = join(repoRoot, '.github', 'workflows', 'ci.yml');
+const workflowsRoot = join(repoRoot, '.github', 'workflows');
 
 function readCiWorkflow() {
   return readFileSync(ciWorkflowPath, 'utf8');
@@ -21,14 +22,42 @@ test('CI gate runs for documentation and expectation changes', () => {
 test('CI gate builds package previews but does not publish releases from main', () => {
   const workflow = readCiWorkflow();
 
-  assert.match(workflow, /detect-docs-hub-only:\s+name: Detect docs\/hub-only change/u);
-  assert.match(
-    workflow,
-    /package-preview:\s+needs: \[detect-docs-hub-only, validate, build, dependency-policy\]\s+uses: \.\/\.github\/workflows\/package-preview\.yml/u
-  );
-  assert.match(
-    workflow,
-    /dependency-policy:\s+needs: \[detect-docs-hub-only, secret-scan\]\s+uses: \.\/\.github\/workflows\/dependency-policy\.yml/u
-  );
+  assert.match(workflow, /detect-targets:\s+name: Detect CI targets/u);
+  assert.match(workflow, /portal-typescript:[\s\S]+uses: \.\/\.github\/workflows\/ci-portal-typescript\.yml/u);
+  assert.match(workflow, /rust-agent-service:[\s\S]+uses: \.\/\.github\/workflows\/ci-rust-agent-service\.yml/u);
+  assert.match(workflow, /child-android:[\s\S]+uses: \.\/\.github\/workflows\/ci-child-android\.yml/u);
+  assert.match(workflow, /child-ios:[\s\S]+uses: \.\/\.github\/workflows\/ci-child-ios\.yml/u);
+  assert.match(workflow, /package-windows:[\s\S]+uses: \.\/\.github\/workflows\/ci-package-windows\.yml/u);
+  assert.match(workflow, /package-android:[\s\S]+uses: \.\/\.github\/workflows\/ci-package-android\.yml/u);
+  assert.match(workflow, /package-preview:\s+name: Package Preview Gate/u);
   assert.equal(workflow.includes('Create GitHub release'), false);
+});
+
+test('CI target workflows are split by runnable area', () => {
+  const expectedWorkflows = [
+    'ci-child-android.yml',
+    'ci-child-ios.yml',
+    'ci-docs-hub.yml',
+    'ci-domain-packages.yml',
+    'ci-format.yml',
+    'ci-local-transport.yml',
+    'ci-package-android.yml',
+    'ci-package-ios.yml',
+    'ci-package-linux.yml',
+    'ci-package-macos.yml',
+    'ci-package-windows.yml',
+    'ci-parent-desktop-tauri.yml',
+    'ci-portal-e2e.yml',
+    'ci-portal-typescript.yml',
+    'ci-release-version.yml',
+    'ci-rust-adapters.yml',
+    'ci-rust-agent-core.yml',
+    'ci-rust-agent-protocol.yml',
+    'ci-rust-agent-service.yml',
+    'ci-tooling.yml',
+  ];
+
+  for (const workflowName of expectedWorkflows) {
+    assert.equal(existsSync(join(workflowsRoot, workflowName)), true, `${workflowName} should exist`);
+  }
 });
