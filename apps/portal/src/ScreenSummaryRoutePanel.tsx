@@ -1,8 +1,8 @@
 import type { ReactElement } from 'react';
 import {
+  isPortalScreenSummaryRoute,
   PortalDetails,
   PortalDom,
-  PortalRoute,
   PortalText,
   PortalTextToken,
   type PortalDisplayText,
@@ -16,7 +16,7 @@ import {
 import type { PortalLiveActivityState } from './live-activity-state';
 
 export function shouldRenderScreenSummaryRoute(route: PortalRouteValue): boolean {
-  return route === PortalRoute.ScreenAnalysis;
+  return isPortalScreenSummaryRoute(route);
 }
 
 export function ScreenSummaryRoutePanel({

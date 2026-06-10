@@ -2,9 +2,9 @@ import type { ReactElement } from 'react';
 import { AgentCommand, AgentEvent } from '@ocentra-parent/agent-protocol-domain/contracts';
 import {
   createLocalAiRuntimePanelIntent,
+  isPortalAiRuntimeRoute,
   PortalDetails,
   PortalDom,
-  PortalRoute,
   PortalText,
   PortalTextToken,
   type LocalAiRuntimePanelDetail,
@@ -16,7 +16,7 @@ import type { PortalRenderActions } from './portal-actions';
 import type { PortalLiveActivityState } from './live-activity-state';
 
 export function shouldRenderAiRuntimeRoute(route: PortalRouteValue): boolean {
-  return route === PortalRoute.AiRuntime;
+  return isPortalAiRuntimeRoute(route);
 }
 
 export function AiRuntimeRoutePanel({
