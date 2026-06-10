@@ -106,6 +106,21 @@ The root gate runs release version alignment, schema-boundary checks, Turbo lint
 
 The pre-commit hook is intentionally lighter than the root gate. It runs lane/hub guards plus fast local source validation, but it does not run package lint/type-check tasks, TypeScript/Rust unit suites, real-service smoke tests, portal Playwright E2E, production build, or package previews on every local commit. Use `npm run test:local`, `npm run precommit:full`, `npm run validate`, `npm run ci:local`, or focused scripts such as `npm run test:e2e` when those heavier checks are needed before PR-ready handoff or integration.
 
+IMPORTANT: Pre-commit passing is not enough for `DONE`, `PR_READY`, PR refreshes, or any hub handoff that tells another lane or the primary coordinator to expect CI to pass. During normal development, fast commits may rely on pre-commit plus focused checks for the changed files. Before reporting `DONE`, `PR_READY`, refreshing an existing PR branch, asking for a PR, or claiming CI readiness, run the heavier gate for every touched workspace/package/crate:
+
+- run lane/hub guards;
+- run schema/source boundary checks;
+- run focused tests for the touched behavior;
+- run `lint`, `type-check`, and `build` for every touched TypeScript workspace;
+- run `cargo check` and focused Rust tests for every touched Rust crate;
+- run the relevant E2E/proof command when the change touches portal, protocol, runtime, or proof behavior.
+
+Every `DONE` or PR-ready hub report must list the exact heavier commands that were run. If a heavier command is skipped, the report must say why and mark the remaining risk explicitly instead of implying CI readiness.
+
+If CI fails in a platform-specific or service-backed path, do not keep pushing guesses. First extract the exact CI payload, log shape, trace, or service diagnostic that differs from local behavior, then add or update a local regression using that exact shape. Only push another fix after the local regression proves the boundary that failed in CI. If local reproduction is genuinely impossible, add durable diagnostics that prove where the data is present and where it disappears before changing product code.
+
+When a failure exposes duplicate naming, routing, ids, fields, events, or UI surface truth, fix the contract boundary instead of patching one caller. Examples include route splits such as `activity` versus `network-activity`, or paired feature ids such as eventing runtime versus eventing UI. The owning `packages/*-domain` contract must define the canonical constants, branded values, schemas, route predicates, or field mappings; app/runtime code should consume those exports; and a guard or test should prevent reintroducing local ad hoc literals or comparisons.
+
 `main` is a CI and package-preview branch. It must not publish GitHub Releases. Production installer publishing belongs to the `production` branch workflow and only runs when the aligned version tag is missing. Package-preview jobs should stay honest about platform scope: build and smoke-check real Windows/Linux/macOS/mobile artifacts, but do not claim signing, stores, device-owner policy, or iOS Family Controls until those credentials and entitlements are actually wired.
 
 ESLint includes local Ocentra Parent rules. Editors with ESLint enabled should report app string literals, raw app `string` annotations, manual brands, and naked domain string aliases before validation runs.
