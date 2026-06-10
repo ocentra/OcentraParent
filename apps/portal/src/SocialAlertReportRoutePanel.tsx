@@ -29,7 +29,7 @@ import {
   createBrowserActionIntentStreamStatusIntent,
   type BrowserActionIntentStreamStatusDetail,
   type BrowserActionIntentStreamStatusIntent,
-} from '../../../packages/portal-domain/src/browser-action-intent-stream-status';
+} from '@ocentra-parent/portal-domain/browser-action-intent-stream-status';
 import {
   createSocialAlertReportPanelIntent,
   type SocialAlertReportPanelDetail,
