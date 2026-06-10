@@ -77,14 +77,33 @@ pub const SELECT_POLICY_PREVIEW_ACTIVITY: &str = "
 SELECT
   event_id,
   observed_at,
+  device_id,
+  platform,
+  kind,
   subject_kind,
   subject_id,
   subject_display_name,
   fields_json,
   evidence_json
 FROM activity_events
+WHERE kind <> ?1
+ORDER BY observed_at DESC, event_id DESC
+;";
+
+pub const SELECT_APP_GAME_JOURNAL_ACTIVITY: &str = "
+SELECT
+  fields_json
+FROM activity_events
 ORDER BY observed_at DESC, event_id DESC
 LIMIT ?1;";
+
+pub const SELECT_NETWORK_RETENTION_DELETED_ACTIVITY: &str = "
+SELECT
+  fields_json,
+  evidence_json
+FROM activity_events
+WHERE kind = ?1
+ORDER BY observed_at DESC, event_id DESC;";
 
 pub const SELECT_LATEST_BROWSER_ACTIVITY: &str = "
 SELECT

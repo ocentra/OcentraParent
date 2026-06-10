@@ -11,6 +11,11 @@ import {
   SocialAlertReportIntentStatusSchema,
   SocialAlertReportReferenceSchema,
 } from './social-alert-report-intent-values';
+import {
+  SocialAlertReportProviderReceiptIngestionReadinessReadModelSchema,
+  type SocialAlertReportProviderReceiptIngestionReadinessReadModel,
+  type SocialAlertReportProviderReceiptIngestionReadinessRow,
+} from './social-alert-report-provider-receipt-ingestion-readiness';
 
 const SocialReportWriterRowsSchema = Schema.Array(SocialAlertReportReferenceSchema).pipe(
   Schema.filter((value) => value.length > 0 || 'Expected social report writer row refs')
@@ -100,6 +105,11 @@ export const SocialReportWriterDeliveryProofReadModelSchema = withParser(
 
 export type SocialReportWriterDeliveryRow = Infer<typeof SocialReportWriterDeliveryRowSchema>;
 export type SocialReportWriterDeliveryProofReadModel = Infer<typeof SocialReportWriterDeliveryProofReadModelSchema>;
+export type SocialReportWriterDeliveryProofFromReceiptIngestionOptions = {
+  readonly generatedAt: string;
+  readonly proofId: string;
+  readonly sourceAlertReportIntentProofRef: string;
+};
 type SocialReportWriterReference = Infer<typeof SocialAlertReportReferenceSchema>;
 type SocialReportWriterDeliveryCandidate = {
   readonly sourceIntentStatus: Infer<typeof SocialAlertReportIntentStatusSchema>;
@@ -199,12 +209,87 @@ export function summarizeSocialReportWriterDeliveryProof(readModel: SocialReport
     manualRequiredRows: readModel.reportWriterDeliveryRows.filter(
       (row) => row.reportWriterDeliveryState === SocialReportWriterDeliveryState.ManualRequired
     ).length,
+    unavailableRows: readModel.reportWriterDeliveryRows.filter(
+      (row) => row.reportWriterDeliveryState === SocialReportWriterDeliveryState.Unavailable
+    ).length,
     externalRuntimeReportDeliveryClaimed: readModel.reportWriterDeliveryRows.some(
       (row) => row.externalRuntimeReportDeliveryClaimed
     ),
     providerDeliveryAttempted: readModel.reportWriterDeliveryRows.some((row) => row.providerDeliveryAttempted),
     enforcementClaimed: readModel.reportWriterDeliveryRows.some((row) => row.enforcementClaimed),
   };
+}
+
+export function buildSocialReportWriterDeliveryProofFromReceiptIngestionReadiness(
+  options: SocialReportWriterDeliveryProofFromReceiptIngestionOptions,
+  sourceReadModel: SocialAlertReportProviderReceiptIngestionReadinessReadModel
+): SocialReportWriterDeliveryProofReadModel {
+  const parsedSource = SocialAlertReportProviderReceiptIngestionReadinessReadModelSchema.parse(sourceReadModel);
+  const rows = parsedSource.rows.map((row) => socialReportWriterDeliveryRowFromReceiptIngestion(row, options));
+
+  return SocialReportWriterDeliveryProofReadModelSchema.parse({
+    schemaVersion: ParentContractSchemaVersion.V0_6,
+    proofId: options.proofId,
+    sourceAlertReportIntentProofRef: options.sourceAlertReportIntentProofRef,
+    reportWriterDeliveryRows: rows,
+    nonClaims: [
+      'no-external-runtime-report-delivery',
+      'no-provider-delivery',
+      'no-provider-receipt-ingestion',
+      'no-raw-social-content',
+      'no-final-policy-execution',
+      'no-enforcement',
+    ],
+    generatedAt: options.generatedAt,
+  });
+}
+
+function socialReportWriterDeliveryRowFromReceiptIngestion(
+  row: SocialAlertReportProviderReceiptIngestionReadinessRow,
+  options: SocialReportWriterDeliveryProofFromReceiptIngestionOptions
+): SocialReportWriterDeliveryRow {
+  const unavailable = row.ingestionReadinessState === 'provider-unavailable';
+  const manualProofRequirements = [
+    ...row.receiptProofRequirements,
+    ...row.ingestionProofRequirements,
+    `social-report-writer-provider-receipt-runtime-required-${row.sourceIntentRef}`,
+  ];
+
+  return SocialReportWriterDeliveryRowSchema.parse({
+    schemaVersion: ParentContractSchemaVersion.V0_6,
+    reportWriterDeliveryRowId: `social-report-writer-${row.ingestionRowId}`,
+    sourceIntentRef: row.sourceIntentRef,
+    sourceIntentStatus: unavailable
+      ? SocialAlertReportIntentStatus.Unavailable
+      : SocialAlertReportIntentStatus.ManualRequired,
+    sourceDeliveryClaimState: SocialAlertReportDeliveryClaimState.ManualRequired,
+    parentReportRef: null,
+    reportArtifactRef: null,
+    reportReceiptRef: null,
+    parentVisibleReportStatusRef: `parent-visible-social-report-writer-${row.ingestionRowId}`,
+    sourceEvidenceRefs: [row.sourceReceiptRowRef],
+    sourcePolicyRefs: [`social-report-writer-source-policy-${row.sourceIntentRef}`],
+    sourceAuditRefs: [row.ingestionRowId],
+    manualProofRequirements,
+    reportWriterDeliveryState: unavailable
+      ? SocialReportWriterDeliveryState.Unavailable
+      : SocialReportWriterDeliveryState.ManualRequired,
+    reportWriterReceiptState: unavailable
+      ? SocialReportWriterReceiptState.NotRecorded
+      : SocialReportWriterReceiptState.ManualRequired,
+    parentOwnedReportArtifactWritten: false,
+    parentOwnedReportReceiptRecorded: false,
+    externalRuntimeReportDeliveryClaimed: false,
+    providerDeliveryAttempted: false,
+    providerReceiptIngested: false,
+    rawAccountDataIncluded: false,
+    rawVideoContentIncluded: false,
+    rawMessageContentIncluded: false,
+    screenshotIncluded: false,
+    finalPolicyDecisionClaimed: false,
+    enforcementClaimed: false,
+    createdAt: options.generatedAt,
+  });
 }
 
 function socialReportWriterDeliveryStateIsCoherent(row: SocialReportWriterDeliveryCandidate): boolean {

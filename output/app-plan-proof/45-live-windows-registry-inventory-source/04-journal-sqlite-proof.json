@@ -1,8 +1,0 @@
-{
-  "journalEvent": "app-game inventory",
-  "sqliteProjection": "inventory_rows",
-  "focusedTest": "registry_inventory_journal_event_replays_into_sqlite_read_model",
-  "inventoryReturned": 1,
-  "runningNowReturned": 0,
-  "foregroundNowReturned": 0
-}

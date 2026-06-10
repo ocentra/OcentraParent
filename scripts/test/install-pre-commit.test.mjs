@@ -27,7 +27,7 @@ test('pre-commit installer uses git hook path for linked worktrees', () => {
   assert.equal(normalize(resolvedHookPath), normalize(expectedHookPath));
   assert.equal(normalize(installedHookPath), normalize(expectedHookPath));
   assert.equal(existsSync(installedHookPath), true);
-  assert.match(readFileSync(installedHookPath, 'utf8'), /hub-mailbox\.mjs guard/u);
+  assert.match(readFileSync(installedHookPath, 'utf8'), /ocentra-ledger-guard\.mjs/u);
   assert.equal(existsSync(join(worktreeRoot, '.git', 'hooks')), false);
 });
 

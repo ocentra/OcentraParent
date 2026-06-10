@@ -1,6 +1,0 @@
-Shared protocol proof:
-
-- `cargo test -p ocentra-parent-agent-protocol app_game`
-- Result: PASS, 20 tests passed.
-
-Native app uses the shared `AppGame*` protocol rows.

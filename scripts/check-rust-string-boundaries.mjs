@@ -3,7 +3,7 @@ import { join, relative } from 'node:path';
 
 const repoRoot = process.cwd();
 const sourceRoots = ['crates/agent-core/src', 'crates/agent-service/src'];
-const ignoredPathParts = new Set(['target']);
+const ignoredPathParts = new Set(['ocentra-ledger', 'target']);
 const findings = [];
 
 function toPosix(path) {

@@ -8,7 +8,12 @@ import { ScreenEvidenceSchemaVersion } from './screen-evidence-primitives';
 const ScreenSettingsUiTextSchema = Schema.String.pipe(Schema.minLength(1));
 
 export const ScreenEvidenceSettingsUiIntentKeySchema = withParser(
-  Schema.Literal('disabledLocalSummary', 'observeOnlyLocalSummary', 'strictDryRunLocalSummary')
+  Schema.Literal(
+    'disabledLocalSummary',
+    'observeOnlyLocalSummary',
+    'strictDryRunLocalSummary',
+    'approvedRawRetentionLocalTtl'
+  )
 );
 
 export const ScreenEvidenceSettingsUiIntentSchema = withParser(
@@ -29,11 +34,19 @@ export const ScreenEvidenceSettingsUiProofSchema = withParser(
     draftHeading: ScreenSettingsUiTextSchema,
     draftTriggerHeading: ScreenSettingsUiTextSchema,
     retentionHeading: ScreenSettingsUiTextSchema,
+    serviceCommandHeading: ScreenSettingsUiTextSchema,
+    serviceApplyActionLabel: ScreenSettingsUiTextSchema,
+    serviceRefreshActionLabel: ScreenSettingsUiTextSchema,
+    servicePendingStatus: ScreenSettingsUiTextSchema,
+    serviceAcceptedStatus: ScreenSettingsUiTextSchema,
+    serviceRejectedStatus: ScreenSettingsUiTextSchema,
+    serviceDisconnectedStatus: ScreenSettingsUiTextSchema,
+    serviceNoResponseStatus: ScreenSettingsUiTextSchema,
     validationStatusLabel: ScreenSettingsUiTextSchema,
     validationStatusValue: ScreenSettingsUiTextSchema,
     defaultIntentKey: ScreenEvidenceSettingsUiIntentKeySchema,
     intents: Schema.Array(ScreenEvidenceSettingsUiIntentSchema).pipe(
-      Schema.filter((value) => value.length === 3 || 'Expected three parent Screen settings UI intents')
+      Schema.filter((value) => value.length === 4 || 'Expected four parent Screen settings UI intents')
     ),
   })
 );
@@ -44,11 +57,19 @@ export type ScreenEvidenceSettingsUiProof = Infer<typeof ScreenEvidenceSettingsU
 
 const ScreenSettingsUiCopy = {
   title: 'Writable screen settings proof',
-  note: 'Parent Settings can build a schema-valid local screen-summary intent. This proof does not persist the intent to the child service.',
+  note: 'Parent Settings can build a schema-valid local screen-summary intent and submit it to the child service command path.',
   intentLegend: 'Intent',
   draftHeading: 'Draft mode',
   draftTriggerHeading: 'Triggers and custody',
   retentionHeading: 'Remote boundary',
+  serviceCommandHeading: 'Service command',
+  serviceApplyActionLabel: 'Save selected screen setting',
+  serviceRefreshActionLabel: 'Refresh persisted screen setting',
+  servicePendingStatus: 'waiting for service response',
+  serviceAcceptedStatus: 'service accepted persisted setting',
+  serviceRejectedStatus: 'service rejected setting',
+  serviceDisconnectedStatus: 'service command unavailable while disconnected',
+  serviceNoResponseStatus: 'no service settings response yet',
   validationStatusLabel: 'Parser status',
   validationStatusValue: 'schema-valid local parent intent',
   disabledLabel: 'Keep screen analysis disabled',
@@ -58,6 +79,9 @@ const ScreenSettingsUiCopy = {
   strictLabel: 'Enable strict dry-run review',
   strictDetail:
     'One-minute cadence, selected triggers, local OCR, redaction, and policy dry-run become explicit parent intent.',
+  rawRetentionLabel: 'Approve local short-TTL retention',
+  rawRetentionDetail:
+    'Parent-approved local raw screenshot retention uses a short TTL and keeps delete-after-success and delete-after-expiry required.',
 } as const;
 
 const DisabledSetting = ScreenAnalysisParentSettingSchema.parse({
@@ -73,6 +97,9 @@ const DisabledSetting = ScreenAnalysisParentSettingSchema.parse({
   ocrTextEnabled: false,
   ocrTextSnippetLimit: 0,
   redactionMode: 'disabled',
+  ocrTextRetentionMode: 'disabled',
+  credentialSuppressionEnabled: true,
+  piiRedactionEnabled: false,
   temporaryImageTtlSeconds: 300,
   maxRetryCount: 0,
   deleteAfterSuccess: true,
@@ -96,6 +123,8 @@ const ObserveOnlySetting = ScreenAnalysisParentSettingSchema.parse({
   ocrTextEnabled: true,
   ocrTextSnippetLimit: 3,
   redactionMode: 'localSensitiveText',
+  ocrTextRetentionMode: 'redactedSnippets',
+  piiRedactionEnabled: true,
   maxRetryCount: 2,
   changedByParentRef: 'screen-settings-ui-parent-observe',
   settingVersion: 2,
@@ -113,6 +142,15 @@ const StrictDryRunSetting = ScreenAnalysisParentSettingSchema.parse({
   changedByParentRef: 'screen-settings-ui-parent-strict',
   settingVersion: 3,
   reason: 'parent enabled strict local screen summary dry run',
+});
+
+const ApprovedRawRetentionSetting = ScreenAnalysisParentSettingSchema.parse({
+  ...StrictDryRunSetting,
+  temporaryImageTtlSeconds: 120,
+  retainRawImage: true,
+  changedByParentRef: 'screen-settings-ui-parent-raw-retention-local-ttl',
+  settingVersion: 4,
+  reason: 'parent approved local short TTL raw screenshot retention',
 });
 
 const DisabledRemoteBoundarySetting = ScreenEvidenceRemoteBoundarySettingSchema.parse({
@@ -140,6 +178,14 @@ export function screenEvidenceSettingsWritableUiProof(): ScreenEvidenceSettingsU
     draftHeading: ScreenSettingsUiCopy.draftHeading,
     draftTriggerHeading: ScreenSettingsUiCopy.draftTriggerHeading,
     retentionHeading: ScreenSettingsUiCopy.retentionHeading,
+    serviceCommandHeading: ScreenSettingsUiCopy.serviceCommandHeading,
+    serviceApplyActionLabel: ScreenSettingsUiCopy.serviceApplyActionLabel,
+    serviceRefreshActionLabel: ScreenSettingsUiCopy.serviceRefreshActionLabel,
+    servicePendingStatus: ScreenSettingsUiCopy.servicePendingStatus,
+    serviceAcceptedStatus: ScreenSettingsUiCopy.serviceAcceptedStatus,
+    serviceRejectedStatus: ScreenSettingsUiCopy.serviceRejectedStatus,
+    serviceDisconnectedStatus: ScreenSettingsUiCopy.serviceDisconnectedStatus,
+    serviceNoResponseStatus: ScreenSettingsUiCopy.serviceNoResponseStatus,
     validationStatusLabel: ScreenSettingsUiCopy.validationStatusLabel,
     validationStatusValue: ScreenSettingsUiCopy.validationStatusValue,
     defaultIntentKey: 'disabledLocalSummary',
@@ -162,6 +208,12 @@ export function screenEvidenceSettingsWritableUiProof(): ScreenEvidenceSettingsU
         ScreenSettingsUiCopy.strictDetail,
         StrictDryRunSetting
       ),
+      intent(
+        'approvedRawRetentionLocalTtl',
+        ScreenSettingsUiCopy.rawRetentionLabel,
+        ScreenSettingsUiCopy.rawRetentionDetail,
+        ApprovedRawRetentionSetting
+      ),
     ],
   });
 }
@@ -178,11 +230,22 @@ function intent(
     detail,
     setting,
     remoteBoundarySetting: {
-      ...DisabledRemoteBoundarySetting,
+      ...remoteBoundaryForSetting(setting),
       parentSettingRef: setting.changedByParentRef,
       settingVersion: setting.settingVersion,
       changedByParentRef: setting.changedByParentRef,
       changedAt: setting.changedAt,
     },
   };
+}
+
+function remoteBoundaryForSetting(setting: typeof DisabledSetting) {
+  if (setting.retainRawImage) {
+    return ScreenEvidenceRemoteBoundarySettingSchema.parse({
+      ...DisabledRemoteBoundarySetting,
+      rawScreenshotRetentionMode: 'parentApprovedLocalShortTtl',
+      reason: 'parent approved local short TTL raw screenshot retention without raw remote upload',
+    });
+  }
+  return DisabledRemoteBoundarySetting;
 }

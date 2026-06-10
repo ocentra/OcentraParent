@@ -1,5 +1,0 @@
-Contract proof:
-
-- cmd /c npm run build --workspace @ocentra-parent/parent-domain: PASS
-- cmd /c npm run test --workspace @ocentra-parent/parent-domain -- tracking-retention-settings-read-model-proof tracking-location-policy: PASS
-- Retention window, delete-after-alert, parent export, remote sync disabled, and remote AI disabled rows parse through parent-domain schemas.

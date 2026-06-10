@@ -1,5 +1,0 @@
-node --check scripts/test/screen-ai-final-product-path-proof.mjs
-node scripts/test/screen-ai-final-product-path-proof.mjs
-git diff --check
-npm run lanes:guard
-npm run hub:guard

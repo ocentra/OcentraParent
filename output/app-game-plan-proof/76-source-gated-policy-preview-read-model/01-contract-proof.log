@@ -1,7 +1,0 @@
-Contract proof:
-
-- cmd /c npm run build --workspace @ocentra-parent/parent-domain: PASS
-- cmd /c npm run test --workspace @ocentra-parent/parent-domain -- app-game-source-gated-policy-preview-read-model app-game-source-freshness-preview-gate app-game-source-freshness-policy-consumption app-game-policy-preview-handoff: PASS
-- Read-model rows derive from the WP75 source freshness preview gate.
-- Source-manual rows keep previewDecisionRef null before compiler output.
-- Compiler-manual rows remain distinct from source-manual rows.

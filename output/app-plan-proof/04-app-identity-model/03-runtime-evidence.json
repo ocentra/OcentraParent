@@ -1,7 +1,0 @@
-{
-    "runtimeBehaviorChanged":  false,
-    "sharedAppGameProof":  "output/app-game-plan-proof/04-app-game-identity-model",
-    "workpack":  "04-app-identity-model",
-    "reason":  "Native app plan mirrors shared app/game proof; this slice does not add new live runtime capture.",
-    "reconciliationStatus":  "covered-by-shared-proof-or-not-applicable"
-}

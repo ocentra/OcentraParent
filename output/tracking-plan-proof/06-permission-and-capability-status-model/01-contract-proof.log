@@ -1,6 +1,0 @@
-workpack=06-permission-and-capability-status-model
-proofState=contract-proof-complete
-activity-domain tracking tests passed
-parent-domain tracking-location-policy tests passed
-schema-boundary guard passed
-Permission and platform capability matrix carries manual-required/unavailable/proved states.

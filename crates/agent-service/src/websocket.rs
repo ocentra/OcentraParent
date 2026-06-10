@@ -5,9 +5,11 @@ use ocentra_parent_agent_protocol::{
 };
 
 use crate::{
+    activity_api::social_alert_report_parent_surface_read_model_payload::build_browser_social_alert_report_parent_surface_read_model_report,
     activity_api::social_alert_report_read_model_payload::build_browser_social_alert_report_read_model_report,
     activity_api::social_audit_explanation_read_model_payload::build_browser_social_audit_explanation_read_model_report,
     activity_api::social_dashboard_read_model_payload::build_browser_social_dashboard_read_model_report,
+    activity_api::social_parent_notification_delivery_read_model_payload::build_browser_social_parent_notification_delivery_read_model_report,
     activity_api::social_source_custody_mutation_payload::build_browser_social_source_custody_mutation_report,
     activity_api::{
         build_activity_app_game_adapter_dispatch_execute_report,
@@ -36,6 +38,7 @@ use crate::{
     browser_policy_api::build_browser_policy_event,
     browser_policy_runtime::BrowserPolicyRuntime,
     browser_runtime::build_browser_managed_status_report,
+    browser_runtime_stream_api::build_browser_runtime_event_chain_stream_report,
     enforcement_api::{
         build_enforcement_audit_report, build_enforcement_broad_adapter_proof_report,
         build_enforcement_policy_dispatch_report, build_enforcement_product_control_spine_report,
@@ -49,17 +52,32 @@ use crate::{
     },
     local_ai_chat_generation::build_local_ai_chat_generation_report,
     local_ai_runtime_status::build_local_ai_runtime_status_report,
+    network_linux_nftables_lab_status_bridge::build_network_linux_nftables_lab_status_report,
+    network_live_capture_readiness_bridge::build_network_live_capture_status_report,
     network_remote_delivery_status_payload::build_network_remote_delivery_status_report,
+    network_windows_firewall_lab_status_bridge::build_network_windows_firewall_lab_status_report,
+    network_windows_wfp_gate_status_bridge::build_network_windows_wfp_gate_status_report,
     parent_assistant_api::build_parent_assistant_scaffold_event,
     parent_assistant_runtime::build_parent_assistant_answer_report,
     policy_preview_api::build_policy_preview_read_model_report,
+    screen_settings_api::build_screen_settings_event,
+    screen_settings_runtime::ScreenSettingsRuntime,
     snapshot::build_dev_log_snapshot,
+};
+
+#[cfg(test)]
+mod test_helpers;
+#[cfg(test)]
+pub(crate) use test_helpers::{
+    handle_command_text_for_test, handle_command_text_with_browser_policy_for_test,
+    handle_command_text_with_screen_settings_for_test,
 };
 
 pub async fn handle_socket(
     mut socket: WebSocket,
     lan_pairing: LanPairingRuntime,
     browser_policy: BrowserPolicyRuntime,
+    screen_settings: ScreenSettingsRuntime,
     origin: Option<String>,
 ) {
     let ready_event = build_event(
@@ -91,6 +109,7 @@ pub async fn handle_socket(
                     text.as_str(),
                     lan_pairing.clone(),
                     browser_policy.clone(),
+                    screen_settings.clone(),
                     origin.clone(),
                 )
                 .await;
@@ -113,10 +132,20 @@ async fn handle_command_text(
     text: &str,
     lan_pairing: LanPairingRuntime,
     browser_policy: BrowserPolicyRuntime,
+    screen_settings: ScreenSettingsRuntime,
     origin: Option<String>,
 ) -> AgentEventEnvelope {
     match serde_json::from_str::<AgentCommandEnvelope>(text) {
-        Ok(command) => handle_command(command, lan_pairing, browser_policy, origin).await,
+        Ok(command) => {
+            handle_command(
+                command,
+                lan_pairing,
+                browser_policy,
+                screen_settings,
+                origin,
+            )
+            .await
+        }
         Err(error) => build_event(
             constants::event_id::COMMAND_REJECTED,
             constants::event_id::UNKNOWN_COMMAND,
@@ -132,29 +161,11 @@ async fn handle_command_text(
     }
 }
 
-#[cfg(test)]
-pub(crate) async fn handle_command_text_for_test(
-    text: &str,
-    lan_pairing: LanPairingRuntime,
-    origin: Option<String>,
-) -> AgentEventEnvelope {
-    handle_command_text(text, lan_pairing, BrowserPolicyRuntime::in_memory(), origin).await
-}
-
-#[cfg(test)]
-pub(crate) async fn handle_command_text_with_browser_policy_for_test(
-    text: &str,
-    lan_pairing: LanPairingRuntime,
-    browser_policy: BrowserPolicyRuntime,
-    origin: Option<String>,
-) -> AgentEventEnvelope {
-    handle_command_text(text, lan_pairing, browser_policy, origin).await
-}
-
 async fn handle_command(
     command: AgentCommandEnvelope,
     lan_pairing: LanPairingRuntime,
     browser_policy: BrowserPolicyRuntime,
+    screen_settings: ScreenSettingsRuntime,
     origin: Option<String>,
 ) -> AgentEventEnvelope {
     let (command, audit_fields) =
@@ -166,7 +177,8 @@ async fn handle_command(
             LanCommandDecision::Respond(event) => return event,
         };
 
-    let mut event = build_command_event(command, lan_pairing, browser_policy).await;
+    let mut event =
+        build_command_event(command, lan_pairing, browser_policy, screen_settings).await;
 
     if let Some(audit_fields) = audit_fields {
         event.payload.extend(audit_fields);
@@ -178,6 +190,7 @@ async fn build_command_event(
     command: AgentCommandEnvelope,
     lan_pairing: LanPairingRuntime,
     browser_policy: BrowserPolicyRuntime,
+    screen_settings: ScreenSettingsRuntime,
 ) -> AgentEventEnvelope {
     match command.command.clone() {
         AgentCommandName::AgentHealthCheck => build_health_report(command),
@@ -194,9 +207,14 @@ async fn build_command_event(
         | AgentCommandName::AgentBrowserEvidenceRecentGet
         | AgentCommandName::AgentBrowserManagedBridgePoll
         | AgentCommandName::AgentBrowserInterventionReadModelGet
+        | AgentCommandName::AgentBrowserRuntimeEventChainStreamGet
         | AgentCommandName::AgentNetworkFlowReadModelGet
         | AgentCommandName::AgentNetworkRuntimeEventChainStreamGet
-        | AgentCommandName::AgentNetworkRemoteDeliveryStatusGet => {
+        | AgentCommandName::AgentNetworkRemoteDeliveryStatusGet
+        | AgentCommandName::AgentNetworkLiveCaptureStatusGet
+        | AgentCommandName::AgentNetworkLinuxNftablesLabStatusGet
+        | AgentCommandName::AgentNetworkWindowsFirewallLabStatusGet
+        | AgentCommandName::AgentNetworkWindowsWfpGateStatusGet => {
             build_browser_network_command_report(command).await
         }
         AgentCommandName::AgentLocalAiRuntimeStatusGet
@@ -207,12 +225,11 @@ async fn build_command_event(
         | AgentCommandName::AgentPolicyPreviewReadModelGet => {
             build_ai_command_report(command).await
         }
-        AgentCommandName::AgentBrowserPolicyGet
-        | AgentCommandName::AgentBrowserPolicyPreview
-        | AgentCommandName::AgentBrowserPolicyPatch
-        | AgentCommandName::AgentBrowserPolicyReplace
-        | AgentCommandName::AgentBrowserPolicyRollback => {
+        command_name if is_browser_policy_command(&command_name) => {
             build_browser_policy_event(browser_policy, command).await
+        }
+        AgentCommandName::AgentScreenSettingsGet | AgentCommandName::AgentScreenSettingsReplace => {
+            build_screen_settings_event(screen_settings, command).await
         }
         AgentCommandName::AgentParentAssistantThreadList
         | AgentCommandName::AgentParentAssistantThreadCreate
@@ -270,6 +287,8 @@ fn is_activity_command(command: &AgentCommandName) -> bool {
             | AgentCommandName::AgentBrowserSocialDashboardReadModelGet
             | AgentCommandName::AgentBrowserSocialAuditExplanationReadModelGet
             | AgentCommandName::AgentBrowserSocialAlertReportReadModelGet
+            | AgentCommandName::AgentBrowserSocialAlertReportParentSurfaceReadModelGet
+            | AgentCommandName::AgentBrowserSocialParentNotificationDeliveryReadModelGet
             | AgentCommandName::AgentActivityNetworkReadModelGet
             | AgentCommandName::AgentActivityTrackingReadModelGet
     )
@@ -289,6 +308,17 @@ fn is_lan_runtime_command(command: &AgentCommandName) -> bool {
             | AgentCommandName::AgentLanPairingControllerLeaseTakeover
             | AgentCommandName::AgentLanAiProviderStatusGet
             | AgentCommandName::AgentLanAiJobSubmit
+    )
+}
+
+fn is_browser_policy_command(command: &AgentCommandName) -> bool {
+    matches!(
+        command,
+        AgentCommandName::AgentBrowserPolicyGet
+            | AgentCommandName::AgentBrowserPolicyPreview
+            | AgentCommandName::AgentBrowserPolicyPatch
+            | AgentCommandName::AgentBrowserPolicyReplace
+            | AgentCommandName::AgentBrowserPolicyRollback
     )
 }
 
@@ -374,6 +404,12 @@ async fn build_activity_command_report(command: AgentCommandEnvelope) -> AgentEv
         AgentCommandName::AgentBrowserSocialAlertReportReadModelGet => {
             build_browser_social_alert_report_read_model_report(command).await
         }
+        AgentCommandName::AgentBrowserSocialAlertReportParentSurfaceReadModelGet => {
+            build_browser_social_alert_report_parent_surface_read_model_report(command).await
+        }
+        AgentCommandName::AgentBrowserSocialParentNotificationDeliveryReadModelGet => {
+            build_browser_social_parent_notification_delivery_read_model_report(command).await
+        }
         AgentCommandName::AgentActivityNetworkReadModelGet => {
             build_activity_network_read_model(command).await
         }
@@ -439,6 +475,9 @@ async fn build_browser_network_command_report(command: AgentCommandEnvelope) -> 
         AgentCommandName::AgentBrowserInterventionReadModelGet => {
             build_browser_intervention_read_model_report(command).await
         }
+        AgentCommandName::AgentBrowserRuntimeEventChainStreamGet => {
+            build_browser_runtime_event_chain_stream_report(command).await
+        }
         AgentCommandName::AgentNetworkFlowReadModelGet => {
             build_network_flow_read_model_report(command).await
         }
@@ -447,6 +486,18 @@ async fn build_browser_network_command_report(command: AgentCommandEnvelope) -> 
         }
         AgentCommandName::AgentNetworkRemoteDeliveryStatusGet => {
             build_network_remote_delivery_status_report(command).await
+        }
+        AgentCommandName::AgentNetworkLiveCaptureStatusGet => {
+            build_network_live_capture_status_report(command)
+        }
+        AgentCommandName::AgentNetworkLinuxNftablesLabStatusGet => {
+            build_network_linux_nftables_lab_status_report(command)
+        }
+        AgentCommandName::AgentNetworkWindowsFirewallLabStatusGet => {
+            build_network_windows_firewall_lab_status_report(command)
+        }
+        AgentCommandName::AgentNetworkWindowsWfpGateStatusGet => {
+            build_network_windows_wfp_gate_status_report(command)
         }
         _ => build_log_snapshot_report(command),
     }

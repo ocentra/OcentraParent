@@ -105,6 +105,14 @@
       "import": "./dist/app-install-purchase-external-runtime-writer-transport-execution-proof.js",
       "types": "./dist/app-install-purchase-external-runtime-writer-transport-execution-proof.d.ts"
     },
+    "./app-install-purchase-execution-receipt-gate-proof": {
+      "import": "./dist/app-install-purchase-execution-receipt-gate-proof.js",
+      "types": "./dist/app-install-purchase-execution-receipt-gate-proof.d.ts"
+    },
+    "./app-install-purchase-dispatch-executor-receipt-proof": {
+      "import": "./dist/app-install-purchase-dispatch-executor-receipt-proof.js",
+      "types": "./dist/app-install-purchase-dispatch-executor-receipt-proof.d.ts"
+    },
     "./app-install-purchase-runtime-report-writer-delivery-proof": {
       "import": "./dist/app-install-purchase-runtime-report-writer-delivery-proof.js",
       "types": "./dist/app-install-purchase-runtime-report-writer-delivery-proof.d.ts"
@@ -705,6 +713,30 @@
       "import": "./dist/production-release-public-docs-status-values.js",
       "types": "./dist/production-release-public-docs-status-values.d.ts"
     },
+    "./production-release-public-status": {
+      "import": "./dist/production-release-public-status-proof.js",
+      "types": "./dist/production-release-public-status-proof.d.ts"
+    },
+    "./production-release-public-status-values": {
+      "import": "./dist/production-release-public-status-proof-values.js",
+      "types": "./dist/production-release-public-status-proof-values.d.ts"
+    },
+    "./production-release-public-status-freshness": {
+      "import": "./dist/production-release-public-status-freshness-proof.js",
+      "types": "./dist/production-release-public-status-freshness-proof.d.ts"
+    },
+    "./production-release-public-status-freshness-values": {
+      "import": "./dist/production-release-public-status-freshness-values.js",
+      "types": "./dist/production-release-public-status-freshness-values.d.ts"
+    },
+    "./production-release-public-docs-freshness": {
+      "import": "./dist/production-release-public-docs-freshness-proof.js",
+      "types": "./dist/production-release-public-docs-freshness-proof.d.ts"
+    },
+    "./production-release-public-docs-freshness-values": {
+      "import": "./dist/production-release-public-docs-freshness-values.js",
+      "types": "./dist/production-release-public-docs-freshness-values.d.ts"
+    },
     "./production-support-publication-workflow": {
       "import": "./dist/production-support-publication-workflow.js",
       "types": "./dist/production-support-publication-workflow.d.ts"
@@ -716,6 +748,42 @@
     "./production-support-publication-workflow-values": {
       "import": "./dist/production-support-publication-workflow-values.js",
       "types": "./dist/production-support-publication-workflow-values.d.ts"
+    },
+    "./production-support-publication-runtime-readiness": {
+      "import": "./dist/production-support-publication-runtime-readiness-proof.js",
+      "types": "./dist/production-support-publication-runtime-readiness-proof.d.ts"
+    },
+    "./production-support-publication-runtime-readiness-read-model": {
+      "import": "./dist/production-support-publication-runtime-readiness-read-model.js",
+      "types": "./dist/production-support-publication-runtime-readiness-read-model.d.ts"
+    },
+    "./production-support-publication-runtime-readiness-values": {
+      "import": "./dist/production-support-publication-runtime-readiness-values.js",
+      "types": "./dist/production-support-publication-runtime-readiness-values.d.ts"
+    },
+    "./production-support-publication-status-freshness": {
+      "import": "./dist/production-support-publication-status-freshness-proof.js",
+      "types": "./dist/production-support-publication-status-freshness-proof.d.ts"
+    },
+    "./production-support-publication-status-freshness-read-model": {
+      "import": "./dist/production-support-publication-status-freshness-read-model.js",
+      "types": "./dist/production-support-publication-status-freshness-read-model.d.ts"
+    },
+    "./production-support-publication-status-freshness-values": {
+      "import": "./dist/production-support-publication-status-freshness-values.js",
+      "types": "./dist/production-support-publication-status-freshness-values.d.ts"
+    },
+    "./public-support-contact-status": {
+      "import": "./dist/public-support-contact-status-proof.js",
+      "types": "./dist/public-support-contact-status-proof.d.ts"
+    },
+    "./public-support-contact-status-read-model": {
+      "import": "./dist/public-support-contact-status-read-model.js",
+      "types": "./dist/public-support-contact-status-read-model.d.ts"
+    },
+    "./public-support-contact-status-values": {
+      "import": "./dist/public-support-contact-status-values.js",
+      "types": "./dist/public-support-contact-status-values.d.ts"
     },
     "./production-support-publication-execution-status": {
       "import": "./dist/production-support-publication-execution-status-proof.js",

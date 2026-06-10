@@ -11,21 +11,29 @@ describe('screen evidence settings UI proof', () => {
   specifyDisabledIntent();
   specifyObserveOnlyIntent();
   specifyStrictDryRunIntent();
+  specifyApprovedRawRetentionIntent();
 });
 
 function specifyWritableIntentProof() {
-  it('builds disabled, observe-only, and strict dry-run parent setting intents from real schemas', () => {
+  it('builds disabled, observe-only, strict dry-run, and approved raw-retention intents from real schemas', () => {
     const proof = screenEvidenceSettingsWritableUiProof();
 
     expect(ScreenEvidenceSettingsUiProofSchema.safeParse(proof).success).toBe(true);
     expect(proof.title).toBe('Writable screen settings proof');
+    expect(proof.note).toContain('submit it to the child service command path');
+    expect(proof.serviceCommandHeading).toBe('Service command');
+    expect(proof.serviceApplyActionLabel).toBe('Save selected screen setting');
+    expect(proof.serviceRefreshActionLabel).toBe('Refresh persisted screen setting');
+    expect(proof.serviceAcceptedStatus).toBe('service accepted persisted setting');
     expect(proof.defaultIntentKey).toBe('disabledLocalSummary');
     expect(proof.intents.map((intent) => intent.intentKey)).toEqual([
       'disabledLocalSummary',
       'observeOnlyLocalSummary',
       'strictDryRunLocalSummary',
+      'approvedRawRetentionLocalTtl',
     ]);
     expect(proof.intents.map((intent) => ScreenAnalysisParentSettingSchema.safeParse(intent.setting).success)).toEqual([
+      true,
       true,
       true,
       true,
@@ -34,7 +42,7 @@ function specifyWritableIntentProof() {
       proof.intents.map(
         (intent) => ScreenEvidenceRemoteBoundarySettingSchema.safeParse(intent.remoteBoundarySetting).success
       )
-    ).toEqual([true, true, true]);
+    ).toEqual([true, true, true, true]);
   });
 }
 
@@ -83,5 +91,20 @@ function specifyStrictDryRunIntent() {
     expect(remoteBoundary?.rawScreenshotRetentionMode).toBe('disabled');
     expect(remoteBoundary?.liveViewMode).toBe('disabled');
     expect(remoteBoundary?.rawScreenshotRemoteUploadEnabled).toBe(false);
+  });
+}
+
+function specifyApprovedRawRetentionIntent() {
+  it('requires approved local short TTL retention to stay local and deletion-bound', () => {
+    const rawRetention = screenEvidenceSettingsWritableUiProof().intents[3]?.setting;
+    const remoteBoundary = screenEvidenceSettingsWritableUiProof().intents[3]?.remoteBoundarySetting;
+
+    expect(rawRetention?.retainRawImage).toBe(true);
+    expect(rawRetention?.temporaryImageTtlSeconds).toBe(120);
+    expect(rawRetention?.deleteAfterSuccess).toBe(true);
+    expect(rawRetention?.deleteAfterExpiry).toBe(true);
+    expect(remoteBoundary?.rawScreenshotRetentionMode).toBe('parentApprovedLocalShortTtl');
+    expect(remoteBoundary?.rawScreenshotRemoteUploadEnabled).toBe(false);
+    expect(remoteBoundary?.liveViewMode).toBe('disabled');
   });
 }

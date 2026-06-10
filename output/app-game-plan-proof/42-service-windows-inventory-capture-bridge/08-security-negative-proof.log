@@ -1,7 +1,0 @@
-Security negative proof:
-
-- Raw shortcut paths are not exposed as inventory entry ids or desktop-entry ids.
-- Service capture uses bounded inventory events.
-- Inventory rows remain not-claimed for runtime and foreground use.
-- No policy decision or adapter action can be triggered by WP42.
-- No portal UI was added, so no new XSS/layout surface is introduced here.

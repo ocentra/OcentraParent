@@ -1,3 +1,0 @@
-WP08 security/no-claim proof reconciliation
-Shared proof: output/app-game-plan-proof/08-windows-process-runtime-evidence-adapter
-Result: no new behavior added. Reconciliation preserves the existing no-claim boundaries: inventory is not usage, running is not foreground, foreground is not content, launcher evidence is not active game, AI cannot enforce, manual-required cannot call adapters, and raw private paths must not be shown in parent UI.

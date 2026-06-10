@@ -143,6 +143,11 @@ mobile readiness, and control catalogs.
   public runtime execution, support backend upload execution, account lookup,
   billing provider contact, remote support sessions, production SLA, legal
   disclosure execution, provider secrets, and child custody unclaimed.
+- `production-support-public-surface-export-closure-proof` verifies package
+  exports for existing public release status, public freshness, support
+  publication freshness/readiness, and public support contact status contracts
+  so downstream consumers can import the source-contract surfaces without
+  claiming public runtime or provider execution.
 - `production-support-status-backend-runtime-execution-proof` contracts for
   support runbook, incident, public support contact, support upload,
   privacy/legal, and account/billing status backend runtime execution labels
@@ -266,6 +271,23 @@ mobile readiness, and control catalogs.
   execution, platform adapter execution, child-device delivery, runtime report
   delivery, install/purchase interception, app blocking, child activity data,
   and Ocentra-hosted family data custody unclaimed.
+- App install/purchase execution receipt gate proof contracts that consume
+  external runtime writer transport execution rows and keep product progress
+  blocked until external writer dispatch executor, provider/store execution,
+  platform adapter execution, and child-device transport receipt artifacts are
+  attached while keeping runtime writer execution/delivery, provider/store
+  execution, platform adapter execution, child delivery, report delivery, app
+  blocking, child activity data, and Ocentra-hosted family data custody
+  unclaimed.
+- App install/purchase dispatch executor receipt proof contracts that consume
+  execution receipt gate rows into parent-owned external writer dispatch
+  executor handler, receipt artifact, and audit artifact requirements while
+  keeping dispatch execution blocked/manual-required until real executor
+  evidence is attached. The proof remains public through the package export and
+  keeps external runtime writer execution/delivery, provider/store execution,
+  platform adapter execution, child-device delivery, runtime report delivery,
+  app blocking, child activity data, and Ocentra-hosted family data custody
+  unclaimed.
 - App install/purchase external runtime device delivery evidence proof
   contracts that link runtime writer execution delivery receipts and
   child-device delivery runtime-writer envelope refs into external runtime
@@ -500,8 +522,8 @@ flowchart LR
   external runtime writer delivery blocker proof, external runtime transport
   queue proof, external runtime transport dispatch preflight proof, runtime
   delivery receipt boundary proof, runtime transport delivery execution proof,
-  external runtime writer transport execution proof, and runtime report writer
-  delivery proof; Windows package-source adapter evidence proof
+  external runtime writer transport execution proof, execution receipt gate
+  proof, dispatch executor receipt proof, and runtime report writer delivery proof; Windows package-source adapter evidence proof
   now records sanitized local host command evidence for the Windows row without
   claiming Microsoft Store/provider execution or a
   production platform adapter;
@@ -529,6 +551,12 @@ flowchart LR
   execution, billing provider contact, legal disclosure execution, remote
   support sessions, production SLA, provider secrets, and child activity custody
   remain unclaimed.
+- `production-support-public-surface-export-closure-proof` remains package
+  surface/proof closure only; it exposes existing public/status/publication
+  contracts and does not implement public runtime execution, status backend
+  execution, support backend upload execution, account lookup, billing provider
+  contact, legal disclosure execution, remote support sessions, production SLA,
+  provider-secret custody, or child activity custody.
 - `production-support-status-backend-runtime-execution-proof` remains
   contract/status proof only; real status backend execution, durable queue
   storage, retry-worker execution, audit persistence, dead-letter payload

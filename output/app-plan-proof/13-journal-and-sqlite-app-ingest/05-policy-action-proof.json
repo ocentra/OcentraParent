@@ -1,7 +1,0 @@
-{
-  "workpack": "app-plan WP13 journal and SQLite app ingest",
-  "policyChanged": false,
-  "enforcementChanged": false,
-  "actionResult": "not-applicable",
-  "reason": "Storage replay only. Native app policy compiler, approval, warning/block UX, broad blocking, and platform adapter action proof remain later workpacks."
-}

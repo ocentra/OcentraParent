@@ -15,16 +15,31 @@ import {
   PortalAssets,
   PortalExternalLinks,
   PortalFrameTuner,
+  PortalActivitySurfaceDefaultRequestPayload,
   PortalOverviewCommands,
+  PortalAiRuntimeRoutes,
   PortalRouteDescriptors,
   PortalRouteGroup,
+  PortalAppGameParentSurfaceRoutes,
+  PortalBrowserParentSurfaceRoutes,
+  PortalNetworkEvidenceDrawerRoutes,
   PortalRoute,
   PortalRouteSchema,
   PortalRoutes,
+  PortalScreenSettingsRoutes,
+  PortalScreenSummaryRoutes,
   PortalSidebarRouteDescriptors,
   PortalTiming,
+  PortalTrackingStatusRoutes,
   PortalUnifiedChrome,
   decodePortalClipboardText,
+  isPortalAiRuntimeRoute,
+  isPortalAppGameParentSurfaceRoute,
+  isPortalBrowserParentSurfaceRoute,
+  isPortalNetworkEvidenceDrawerRoute,
+  isPortalScreenSettingsRoute,
+  isPortalScreenSummaryRoute,
+  isPortalTrackingStatusRoute,
   parentPortalRouteContext,
   type ParentPortalHashRoutePath,
   type ParentPortalNavItem,
@@ -386,6 +401,37 @@ describe('portal collapsed manage route contracts', () => {
   });
 });
 
+describe('portal product route panel contracts', () => {
+  it('keeps network evidence drawer routes canonical and product-route scoped', () => {
+    expect(PortalNetworkEvidenceDrawerRoutes).toEqual([PortalRoute.Activity, PortalRoute.NetworkActivity]);
+    expect(isPortalNetworkEvidenceDrawerRoute(PortalRoute.Activity)).toBe(true);
+    expect(isPortalNetworkEvidenceDrawerRoute(PortalRoute.NetworkActivity)).toBe(true);
+    expect(isPortalNetworkEvidenceDrawerRoute(PortalRoute.Commands)).toBe(false);
+    expect(isPortalNetworkEvidenceDrawerRoute(PortalRoute.Overview)).toBe(false);
+  });
+
+  it('keeps product route panel bindings owned by portal-domain', () => {
+    expect(PortalAppGameParentSurfaceRoutes).toEqual([PortalRoute.AppGameSessions]);
+    expect(PortalAiRuntimeRoutes).toEqual([PortalRoute.AiRuntime]);
+    expect(PortalBrowserParentSurfaceRoutes).toEqual([PortalRoute.Browser]);
+    expect(PortalScreenSettingsRoutes).toEqual([PortalRoute.SettingsRules]);
+    expect(PortalScreenSummaryRoutes).toEqual([PortalRoute.ScreenAnalysis]);
+    expect(PortalTrackingStatusRoutes).toEqual([PortalRoute.PolicyTracking]);
+    expect(isPortalAiRuntimeRoute(PortalRoute.AiRuntime)).toBe(true);
+    expect(isPortalAppGameParentSurfaceRoute(PortalRoute.AppGameSessions)).toBe(true);
+    expect(isPortalBrowserParentSurfaceRoute(PortalRoute.Browser)).toBe(true);
+    expect(isPortalScreenSettingsRoute(PortalRoute.SettingsRules)).toBe(true);
+    expect(isPortalScreenSummaryRoute(PortalRoute.ScreenAnalysis)).toBe(true);
+    expect(isPortalTrackingStatusRoute(PortalRoute.PolicyTracking)).toBe(true);
+    expect(isPortalAiRuntimeRoute(PortalRoute.Browser)).toBe(false);
+    expect(isPortalAppGameParentSurfaceRoute(PortalRoute.Browser)).toBe(false);
+    expect(isPortalBrowserParentSurfaceRoute(PortalRoute.NetworkActivity)).toBe(false);
+    expect(isPortalScreenSettingsRoute(PortalRoute.PolicyTracking)).toBe(false);
+    expect(isPortalScreenSummaryRoute(PortalRoute.Activity)).toBe(false);
+    expect(isPortalTrackingStatusRoute(PortalRoute.Activity)).toBe(false);
+  });
+});
+
 describe('portal nav matrix contracts', () => {
   it('parent portal nav matrix: route labels, guide actions, and selected controls stay route-addressed', () => {
     const selectableTargetIds = selectableParentPortalTargetIds();
@@ -440,73 +486,111 @@ describe('portal parent assistant contracts', () => {
   });
 });
 
+const EXPECTED_PORTAL_COMMAND_BUTTONS = [
+  ['agent.health.check', 'agent.health.reported'],
+  ['agent.activity.ingest.status.get', 'agent.activity.recent.summary.reported'],
+  ['agent.browser.evidence.recent.get', 'agent.browser.evidence.recent.reported'],
+  ['agent.activity.memory-graph.get', 'agent.activity.memory-graph.reported'],
+  [
+    'agent.activity.app-game.adapter-execution-readiness.read-model.get',
+    'agent.activity.app-game.adapter-execution-readiness.read-model.reported',
+  ],
+  [
+    'agent.activity.app-game.platform-proof-status.read-model.get',
+    'agent.activity.app-game.platform-proof-status.read-model.reported',
+  ],
+  [
+    'agent.activity.app-game.child-runtime-transport-receipt.read-model.get',
+    'agent.activity.app-game.child-runtime-transport-receipt.read-model.reported',
+  ],
+  [
+    'agent.activity.app-game.adapter-dispatch-preflight.read-model.get',
+    'agent.activity.app-game.adapter-dispatch-preflight.read-model.reported',
+  ],
+  [
+    'agent.activity.app-game.adapter-dispatch-result.read-model.get',
+    'agent.activity.app-game.adapter-dispatch-result.read-model.reported',
+  ],
+  ['agent.activity.app-game.adapter-dispatch.execute', 'agent.activity.app-game.adapter-dispatch.executed'],
+  ['agent.browser.intervention.read-model.get', 'agent.browser.intervention.read-model.reported'],
+  ['agent.browser.managed.bridge.poll', 'agent.browser.managed.status.reported'],
+  ['agent.browser.runtime.event-chain.stream.get', 'agent.browser.runtime.event-chain.stream.reported'],
+  ['agent.network.flow.read-model.get', 'agent.network.flow.read-model.reported'],
+  ['agent.network.runtime.event-chain.stream.get', 'agent.network.runtime.event-chain.stream.reported'],
+  ['agent.network.remote-delivery.status.get', 'agent.network.remote-delivery.status.reported'],
+  ['agent.network.live-capture.status.get', 'agent.network.live-capture.status.reported'],
+  ['agent.network.linux-nftables-lab.status.get', 'agent.network.linux-nftables-lab.status.reported'],
+  ['agent.network.windows-firewall-lab.status.get', 'agent.network.windows-firewall-lab.status.reported'],
+  ['agent.network.windows-wfp-gate.status.get', 'agent.network.windows-wfp-gate.status.reported'],
+  ['agent.activity.tracking.read-model.get', 'agent.activity.tracking.read-model.reported'],
+  ['agent.local-ai.runtime.status.get', 'agent.local-ai.runtime.status.reported'],
+  ['agent.policy.preview.read-model.get', 'agent.policy.preview.read-model.reported'],
+] as const;
+
+const EXPECTED_PORTAL_OVERVIEW_COMMANDS = [
+  'agent.health.check',
+  'agent.log.snapshot.get',
+  'agent.network.flow.read-model.get',
+  'agent.lan-pairing.status.get',
+  'agent.activity.ingest.status.get',
+  'agent.activity.recent.summary.get',
+  'agent.browser.evidence.recent.get',
+  'agent.browser.managed.bridge.poll',
+  'agent.browser.inventory.read-model.get',
+  'agent.activity.memory-graph.get',
+  'agent.activity.report.history.list',
+  'agent.activity.screen.read-model.get',
+  'agent.activity.app-use.read-model.get',
+  'agent.activity.browser.read-model.get',
+  'agent.activity.games.read-model.get',
+  'agent.activity.app-game.notification-readiness.read-model.get',
+  'agent.activity.app-game.adapter-execution-readiness.read-model.get',
+  'agent.activity.app-game.platform-proof-status.read-model.get',
+  'agent.activity.app-game.child-runtime-transport-receipt.read-model.get',
+  'agent.activity.app-game.adapter-dispatch-preflight.read-model.get',
+  'agent.activity.app-game.adapter-dispatch-result.read-model.get',
+  'agent.activity.network.read-model.get',
+  'agent.browser.intervention.read-model.get',
+  'agent.browser.runtime.event-chain.stream.get',
+  'agent.network.runtime.event-chain.stream.get',
+  'agent.network.remote-delivery.status.get',
+  'agent.network.live-capture.status.get',
+  'agent.network.linux-nftables-lab.status.get',
+  'agent.network.windows-firewall-lab.status.get',
+  'agent.network.windows-wfp-gate.status.get',
+  'agent.activity.tracking.read-model.get',
+  'agent.local-ai.runtime.status.get',
+  'agent.policy.preview.read-model.get',
+] as const;
+
 describe('portal command contracts', () => {
   it('PortalCommandButtons: maps each button to a typed command', () => {
     const commands = PortalCommandButtons.map((button) => button.command);
-    const events = PortalCommandButtons.map((button) => button.resultEvent);
-    [
-      ['agent.health.check', 'agent.health.reported'],
-      ['agent.activity.ingest.status.get', 'agent.activity.recent.summary.reported'],
-      ['agent.browser.evidence.recent.get', 'agent.browser.evidence.recent.reported'],
-      ['agent.activity.memory-graph.get', 'agent.activity.memory-graph.reported'],
-      ['agent.browser.intervention.read-model.get', 'agent.browser.intervention.read-model.reported'],
-      ['agent.browser.managed.bridge.poll', 'agent.browser.managed.status.reported'],
-      ['agent.network.flow.read-model.get', 'agent.network.flow.read-model.reported'],
-      ['agent.activity.tracking.read-model.get', 'agent.activity.tracking.read-model.reported'],
-      ['agent.local-ai.runtime.status.get', 'agent.local-ai.runtime.status.reported'],
-      ['agent.policy.preview.read-model.get', 'agent.policy.preview.read-model.reported'],
-      [
-        'agent.activity.app-game.adapter-execution-readiness.read-model.get',
-        'agent.activity.app-game.adapter-execution-readiness.read-model.reported',
-      ],
-      [
-        'agent.activity.app-game.platform-proof-status.read-model.get',
-        'agent.activity.app-game.platform-proof-status.read-model.reported',
-      ],
-      [
-        'agent.activity.app-game.child-runtime-transport-receipt.read-model.get',
-        'agent.activity.app-game.child-runtime-transport-receipt.read-model.reported',
-      ],
-      [
-        'agent.activity.app-game.adapter-dispatch-preflight.read-model.get',
-        'agent.activity.app-game.adapter-dispatch-preflight.read-model.reported',
-      ],
-      [
-        'agent.activity.app-game.adapter-dispatch-result.read-model.get',
-        'agent.activity.app-game.adapter-dispatch-result.read-model.reported',
-      ],
-    ].forEach(([command, resultEvent]) => {
+    const resultEvents = PortalCommandButtons.map((button) => button.resultEvent);
+    for (const [command, resultEvent] of EXPECTED_PORTAL_COMMAND_BUTTONS) {
       expect(commands).toContain(command);
-      expect(events).toContain(resultEvent);
+      expect(resultEvents).toContain(resultEvent);
+    }
+  });
+
+  it('PortalOverviewCommands: keeps overview commands in expected order', () => {
+    expect(PortalOverviewCommands.map((button) => button.command)).toEqual(EXPECTED_PORTAL_OVERVIEW_COMMANDS);
+  });
+
+  it('PortalActivitySurfaceDefaultRequestPayload: wires screen read-model commands to default request payload', () => {
+    expect(
+      PortalOverviewCommands.find((button) => button.command === 'agent.activity.screen.read-model.get')?.payload
+    ).toEqual(PortalActivitySurfaceDefaultRequestPayload);
+    expect(
+      PortalCommandButtons.find((button) => button.command === 'agent.activity.screen.read-model.get')?.payload
+    ).toEqual(PortalActivitySurfaceDefaultRequestPayload);
+    expect(PortalActivitySurfaceDefaultRequestPayload).toMatchObject({
+      scopeKind: 'family',
+      familyId: 'family-local',
+      rangeStart: expect.stringMatching(/^\d{4}-\d{2}-\d{2}T/u),
+      rangeEnd: expect.stringMatching(/^\d{4}-\d{2}-\d{2}T/u),
+      requestedAt: expect.stringMatching(/^\d{4}-\d{2}-\d{2}T/u),
     });
-    expect(PortalOverviewCommands.map((button) => button.command)).toEqual([
-      'agent.health.check',
-      'agent.log.snapshot.get',
-      'agent.lan-pairing.status.get',
-      'agent.activity.ingest.status.get',
-      'agent.activity.recent.summary.get',
-      'agent.browser.evidence.recent.get',
-      'agent.browser.managed.bridge.poll',
-      'agent.browser.inventory.read-model.get',
-      'agent.activity.memory-graph.get',
-      'agent.activity.report.history.list',
-      'agent.activity.screen.read-model.get',
-      'agent.activity.app-use.read-model.get',
-      'agent.activity.browser.read-model.get',
-      'agent.activity.games.read-model.get',
-      'agent.activity.app-game.notification-readiness.read-model.get',
-      'agent.activity.app-game.adapter-execution-readiness.read-model.get',
-      'agent.activity.app-game.platform-proof-status.read-model.get',
-      'agent.activity.app-game.child-runtime-transport-receipt.read-model.get',
-      'agent.activity.app-game.adapter-dispatch-preflight.read-model.get',
-      'agent.activity.app-game.adapter-dispatch-result.read-model.get',
-      'agent.activity.network.read-model.get',
-      'agent.browser.intervention.read-model.get',
-      'agent.network.flow.read-model.get',
-      'agent.activity.tracking.read-model.get',
-      'agent.local-ai.runtime.status.get',
-      'agent.policy.preview.read-model.get',
-    ]);
   });
 });
 

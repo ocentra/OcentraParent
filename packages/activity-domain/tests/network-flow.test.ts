@@ -38,10 +38,10 @@ const NetworkFlowObservationSample = {
   },
   evidence: [
     {
-      evidenceId: 'journal-entry-network-1',
-      kind: ActivityEvidenceKind.JournalEntry,
+      evidenceId: 'network-metadata-evidence-activity-event-network-1',
+      kind: ActivityEvidenceKind.LocalDbRow,
       digest: 'sha256:network-flow-digest',
-      uri: null,
+      uri: 'activity://network/available/0/2026-05-21T02:40:00Z',
     },
   ],
 } as const;
@@ -74,7 +74,7 @@ const NetworkFlowDeletedReadModelSample = {
   latestObservedAt: '2026-05-21T02:41:00Z',
   latestTombstoneEventId: 'activity-event-network-retention-delete-1',
   latestTombstoneObservedAt: '2026-05-21T02:41:00Z',
-  deletedEvidenceReferenceIds: ['activity-event-network-1'],
+  deletedEvidenceReferenceIds: ['network-metadata-evidence-activity-event-network-1'],
   rows: [],
 } as const;
 
@@ -90,7 +90,7 @@ const NetworkFlowDigestSample = {
       connectionCount: 1,
       bytesSent: null,
       bytesReceived: null,
-      evidenceIds: ['journal-entry-network-1'],
+      evidenceIds: ['network-metadata-evidence-activity-event-network-1'],
     },
   ],
   topDestinations: [
@@ -100,7 +100,7 @@ const NetworkFlowDigestSample = {
       connectionCount: 1,
       bytesSent: null,
       bytesReceived: null,
-      evidenceIds: ['journal-entry-network-1'],
+      evidenceIds: ['network-metadata-evidence-activity-event-network-1'],
     },
   ],
   unusualIndicators: [
@@ -108,7 +108,7 @@ const NetworkFlowDigestSample = {
       kind: 'encrypted-content-unavailable',
       label: 'HTTPS payload was not decrypted or inspected.',
       observedAt: '2026-05-21T02:40:02Z',
-      evidenceIds: ['journal-entry-network-1'],
+      evidenceIds: ['network-metadata-evidence-activity-event-network-1'],
     },
   ],
 } as const;
@@ -129,7 +129,7 @@ describe('network flow query contracts', () => {
 
     expect(readModel.rows).toHaveLength(0);
     expect(readModel.tombstoneRows).toBe(1);
-    expect(readModel.deletedEvidenceReferenceIds).toEqual(['activity-event-network-1']);
+    expect(readModel.deletedEvidenceReferenceIds).toEqual(['network-metadata-evidence-activity-event-network-1']);
   });
 
   it('parses local AI digest references without packet or URL claims', () => {
@@ -146,6 +146,49 @@ describe('network flow query contracts', () => {
     });
 
     expect(result.success).toBe(false);
+  });
+
+  it('rejects active network rows without evidence references', () => {
+    const observation = ActivityNetworkFlowObservationSchema.safeParse({
+      ...NetworkFlowObservationSample,
+      evidence: [],
+    });
+    const readModel = ActivityNetworkFlowReadModelSchema.safeParse({
+      ...NetworkFlowReadModelSample,
+      rows: [
+        {
+          ...NetworkFlowObservationSample,
+          evidence: [],
+        },
+      ],
+    });
+
+    expect(observation.success).toBe(false);
+    expect(readModel.success).toBe(false);
+  });
+
+  it('rejects network read-model count and retention mismatches', () => {
+    const returnedMismatch = ActivityNetworkFlowReadModelSchema.safeParse({
+      ...NetworkFlowReadModelSample,
+      returned: 2,
+    });
+    const activeMismatch = ActivityNetworkFlowReadModelSchema.safeParse({
+      ...NetworkFlowReadModelSample,
+      activeRows: 2,
+    });
+    const exportableMismatch = ActivityNetworkFlowReadModelSchema.safeParse({
+      ...NetworkFlowReadModelSample,
+      exportableRows: 2,
+    });
+    const tombstoneWithoutDeletedEvidence = ActivityNetworkFlowReadModelSchema.safeParse({
+      ...NetworkFlowDeletedReadModelSample,
+      deletedEvidenceReferenceIds: [],
+    });
+
+    expect(returnedMismatch.success).toBe(false);
+    expect(activeMismatch.success).toBe(false);
+    expect(exportableMismatch.success).toBe(false);
+    expect(tombstoneWithoutDeletedEvidence.success).toBe(false);
   });
 });
 

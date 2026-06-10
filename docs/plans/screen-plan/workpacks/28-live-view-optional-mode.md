@@ -20,6 +20,50 @@ session recording, and no remote input control. This is contract/preflight
 proof only; real live transport, relay/cache execution, platform permission
 prompts, service persistence, parent UI, and privacy/legal approval remain
 separate gates.
+Android MediaProjection proof records explicit OS capture consent for the
+Android child-agent capture adapter, but it is not live-view permission-prompt
+proof and does not close this workpack's live-view runtime gate.
+`ScreenLiveViewPlatformPermissionGateSchema` and
+`scripts/test/screen-live-view-platform-permission-proof.mjs` now add a
+fail-closed platform-permission gate. The proof consumes the existing real
+Android MediaProjection capture-consent artifact and records it as
+`screen-capture-only`, proving it cannot mark live view product-ready without a
+live-view permission prompt proof, viewer audit, live transport proof, no frame
+retention, and no remote input. This closes the missing gate-artifact slot but
+does not implement or claim real live transport, relay/cache execution, service
+live-view sessions, platform screenshots, or privacy/legal approval.
+`ScreenLiveViewParentUiPersistenceProofSchema` and
+`scripts/test/screen-live-view-parent-ui-persistence-proof.mjs` now prove parent
+Settings command/readiness evidence can be carried as persisted live-view
+opt-in state into the service-session and Rust runtime decision proofs while
+product live view stays false. This closes parent UI persistence as a proof
+input only; production worker startup, real live-view prompt screenshots,
+relay/cache execution, physical-device parity, and privacy/legal approval remain
+open.
+`scripts/test/screen-live-view-worker-startup-proof.mjs` now proves the Rust
+service worker startup gate exists behind the runtime decision boundary and
+stays stopped unless runtime readiness, a real live-view prompt artifact,
+relay/cache execution when needed, physical-device parity, and privacy/legal
+approval are all proved. This closes the worker-startup gate artifact only;
+actual production worker start, real platform prompt screenshots, relay/cache
+execution, physical-device parity, and privacy/legal approval remain open.
+`scripts/test/screen-live-view-session-transport-proof.mjs`,
+`scripts/test/screen-live-view-service-session-proof.mjs`, and
+`scripts/test/screen-live-view-runtime-proof.mjs` also prove the local loopback
+transport/session/runtime boundaries: a real local capture artifact is queued,
+transported through a LAN mutual-auth loopback proof with viewer audit, raw
+frame cache/session recording/remote input stay false, and the raw temp frame is
+deleted. These proofs close the local transport/runtime evidence bundle, but
+they do not satisfy platform live-view permission-prompt screenshots,
+relay/cache execution, physical-device parity, or privacy/legal approval.
+`scripts/test/screen-live-view-relay-cache-proof.mjs` now proves the
+relay-backed transport/cache item with a real captured frame: it writes an
+end-to-end encrypted relay envelope to an ephemeral local relay cache, verifies
+the frame digest after parent-side decryption, then deletes both the relay cache
+and raw temp frame. This closes relay/cache execution proof as a local forced
+relay/cache harness only; real platform prompt screenshots, physical-device
+parity, privacy/legal approval, hosted relay infrastructure, and product live
+view remain open.
 
 ## Checklist
 
@@ -30,7 +74,13 @@ separate gates.
 - [x] Define retention/no-retention behavior.
 - [x] Define viewer audit.
 - [x] Add separate contract/preflight proof.
-- [ ] Add real platform permission proof.
+- [x] Add fail-closed platform permission gate proof.
+- [x] Add parent UI persistence carry-forward proof.
+- [x] Add fail-closed Rust service worker startup gate proof.
+- [x] Add local loopback live-view transport/session/runtime proof.
+- [ ] Add real live-view platform prompt proof.
+- [x] Add relay/cache execution proof for relay-backed mode.
+- [ ] Add physical-device parity and privacy/legal approval proof.
 
 ## Proof
 
@@ -38,3 +88,12 @@ separate gates.
 - Tests proving local-summary opt-in does not enable live view.
 - `output/screen-plan-proof/remote-retention-boundary/proof-summary.json`.
 - `output/screen-plan-proof/27-28-optional-retention-live-preflight/proof-summary.json`.
+- `output/screen-plan-proof/live-view-platform-permission/proof-summary.json`.
+- `output/screen-plan-proof/live-view-session-transport/proof-summary.json`.
+- `output/screen-plan-proof/live-view-service-session/proof-summary.json`.
+- `output/screen-plan-proof/live-view-runtime/proof-summary.json`.
+- `output/screen-plan-proof/live-view-parent-ui-persistence/proof-summary.json`.
+- `output/screen-plan-proof/live-view-worker-startup/proof-summary.json`.
+- `output/screen-plan-proof/live-view-relay-cache/proof-summary.json`.
+- Capture-adapter platform consent reference:
+  `output/screen-plan-proof/android-mediaprojection/proof-summary.json`.

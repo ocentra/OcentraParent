@@ -1,7 +1,0 @@
-command=node scripts\test\eventing-command-boundary-proof.mjs
-status=0
-log=output\eventing-plan-proof\full-eventing-plan\command-logs\eventing-command-boundary-proof.log
-
-command=node scripts\test\eventing-ui-typed-intent-boundary-proof.mjs
-status=0
-log=output\eventing-plan-proof\full-eventing-plan\command-logs\eventing-ui-typed-intent-boundary-proof.log

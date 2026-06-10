@@ -1,5 +1,0 @@
-Playwright/browser proof: N/A.
-
-Reason:
-- No UI code, route, rendered state, or browser-visible surface changed.
-- The required UI marker is recorded in 06-ui-snapshots/ui-not-applicable.md.

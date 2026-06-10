@@ -1,5 +1,0 @@
-Not applicable.
-
-This package export closure changes TypeScript package metadata and docs only.
-No Rust protocol, service serialization, WebSocket command, event, or field
-shape changed.

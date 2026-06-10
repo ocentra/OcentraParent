@@ -24,8 +24,12 @@ async function main() {
   const contract = await readText('packages/parent-domain/src/social-report-writer-delivery-proof.ts');
   const test = await readText('packages/parent-domain/tests/social-report-writer-delivery-proof.test.ts');
   const proofModule = await import('../../packages/parent-domain/dist/social-report-writer-delivery-proof.js');
+  const receiptBoundaryModule =
+    await import('../../packages/parent-domain/dist/social-alert-report-provider-receipt-boundary-proof.js');
+  const receiptIngestionModule =
+    await import('../../packages/parent-domain/dist/social-alert-report-provider-receipt-ingestion-readiness.js');
 
-  const readModel = proofModule.SocialReportWriterDeliveryProofReadModel;
+  const readModel = buildReceiptIngestionBackedReadModel(proofModule, receiptBoundaryModule, receiptIngestionModule);
   const summary = proofModule.summarizeSocialReportWriterDeliveryProof(readModel);
   const checks = [
     checkFilesExist(),
@@ -40,8 +44,22 @@ async function main() {
     checkIncludes(contract, 'providerDeliveryAttempted: Schema.Literal(false)', 'provider delivery guard'),
     checkIncludes(contract, 'finalPolicyDecisionClaimed: Schema.Literal(false)', 'final policy guard'),
     checkIncludes(contract, 'enforcementClaimed: Schema.Literal(false)', 'enforcement guard'),
+    checkIncludes(
+      contract,
+      'buildSocialReportWriterDeliveryProofFromReceiptIngestionReadiness',
+      'receipt ingestion readiness builder'
+    ),
     checkIncludes(test, 'externalRuntimeReportDeliveryClaimed: true', 'external delivery rejection test'),
     checkIncludes(test, 'reportArtifactRef: null', 'missing report artifact rejection test'),
+    checkIncludes(
+      test,
+      'projects receipt ingestion readiness into manual or unavailable report-writer rows',
+      'receipt ingestion projection test'
+    ),
+    {
+      label: 'receipt ingestion backed rows stay manual or unavailable',
+      pass: summary.reportDeliveryReadyRows === 0 && summary.manualRequiredRows === 2 && summary.unavailableRows === 1,
+    },
   ].flat();
 
   const failures = checks.filter((check) => !check.pass).map((check) => check.label);
@@ -58,10 +76,12 @@ async function main() {
       sourceIntentRef: row.sourceIntentRef,
       reportWriterDeliveryState: row.reportWriterDeliveryState,
       reportWriterReceiptState: row.reportWriterReceiptState,
+      manualProofRequirements: row.manualProofRequirements,
       parentOwnedReportArtifactWritten: row.parentOwnedReportArtifactWritten,
       parentOwnedReportReceiptRecorded: row.parentOwnedReportReceiptRecorded,
       externalRuntimeReportDeliveryClaimed: row.externalRuntimeReportDeliveryClaimed,
       providerDeliveryAttempted: row.providerDeliveryAttempted,
+      providerReceiptIngested: row.providerReceiptIngested,
       finalPolicyDecisionClaimed: row.finalPolicyDecisionClaimed,
       enforcementClaimed: row.enforcementClaimed,
     })),
@@ -106,16 +126,116 @@ function markdownFor(proof) {
     `Rows: ${proof.summary.totalRows}`,
     `Report delivery ready rows: ${proof.summary.reportDeliveryReadyRows}`,
     `Manual-required rows: ${proof.summary.manualRequiredRows}`,
+    `Unavailable rows: ${proof.summary.unavailableRows}`,
     `External runtime report delivery claimed: ${proof.summary.externalRuntimeReportDeliveryClaimed}`,
     `Provider delivery attempted: ${proof.summary.providerDeliveryAttempted}`,
     `Enforcement claimed: ${proof.summary.enforcementClaimed}`,
     '',
     'This proof adds a parent-owned social report writer delivery-readiness',
-    'boundary. It proves report-ready rows can cite parent-owned report artifacts',
-    'and receipts from social alert/report intents while preserving explicit',
-    'non-claims for external runtime report delivery, provider dispatch, provider',
-    'receipt ingestion, raw social content, final policy execution, and enforcement.',
+    'boundary from receipt ingestion readiness. It proves provider-dispatch,',
+    'manual-receipt, and provider-unavailable rows stay manual or unavailable',
+    'until webhook, credential, durable receipt, and observed receipt proofs',
+    'exist. It preserves explicit non-claims for external runtime report',
+    'delivery, provider dispatch, provider receipt ingestion, raw social',
+    'content, final policy execution, and enforcement.',
   ].join('\n');
+}
+
+function buildReceiptIngestionBackedReadModel(proofModule, receiptBoundaryModule, receiptIngestionModule) {
+  const sourceReadModel =
+    receiptIngestionModule.SocialAlertReportProviderReceiptIngestionReadinessReadModelSchema.parse({
+      schemaVersion: proofModule.SocialReportWriterDeliveryProofReadModel.schemaVersion,
+      readinessId: 'social-report-writer-provider-receipt-ingestion-readiness',
+      generatedAt: '2026-06-08T06:20:00Z',
+      sourceReceiptBoundaryId: 'social-report-writer-provider-receipt-boundary',
+      sourceContractRefs: [
+        'social-alert-report-provider-receipt-boundary-proof',
+        'provider-receipt-webhook-contract',
+        'provider-receipt-durable-store-contract',
+      ],
+      sourceReceiptBoundaryNonClaims: receiptBoundaryModule.RequiredSocialAlertReportProviderReceiptBoundaryNonClaims,
+      rows: [
+        receiptIngestionRow(
+          'social-report-writer-high-risk',
+          'provider-dispatch-required',
+          'ingestion-contract-required'
+        ),
+        receiptIngestionRow(
+          'social-report-writer-manual-required',
+          'manual-receipt-required',
+          'manual-receipt-required'
+        ),
+        receiptIngestionRow('social-report-writer-unavailable', 'provider-unavailable', 'provider-unavailable'),
+      ],
+      ingestionContractRequiredCount: 1,
+      manualReceiptRequiredCount: 1,
+      providerUnavailableCount: 1,
+      providerReceiptObservedCount: 0,
+      receiptIngestionReadinessNonClaims:
+        receiptIngestionModule.RequiredSocialAlertReportProviderReceiptIngestionReadinessNonClaims,
+      providerDeliveryRuntimeClaimed: false,
+      providerReceiptIngestionRuntimeClaimed: false,
+      providerWebhookRuntimeClaimed: false,
+      providerCredentialsClaimed: false,
+      providerReceiptObservedClaimed: false,
+      cloudRoutingClaimed: false,
+      parentNotificationUiDeliveryClaimed: false,
+      reportDeliveryExecutionClaimed: false,
+      finalPolicyExecutionClaimed: false,
+      connectorNativeRuntimeClaimed: false,
+      enforcementClaimed: false,
+    });
+
+  return proofModule.buildSocialReportWriterDeliveryProofFromReceiptIngestionReadiness(
+    {
+      generatedAt: '2026-06-08T06:20:00Z',
+      proofId: 'social-report-writer-delivery-from-receipt-ingestion-proof',
+      sourceAlertReportIntentProofRef: 'social-alert-report-provider-receipt-ingestion-readiness-proof',
+    },
+    sourceReadModel
+  );
+}
+
+function receiptIngestionRow(sourceIntentRef, sourceReceiptBoundaryState, ingestionReadinessState) {
+  return {
+    ingestionRowId: `social-provider-receipt-ingestion-${sourceIntentRef}`,
+    sourceReceiptRowRef: `social-provider-receipt-row-${sourceIntentRef}`,
+    sourceIntentRef,
+    sourceProviderAttemptRef: `social-provider-attempt-${sourceIntentRef}`,
+    sourceReceiptBoundaryState,
+    ingestionReadinessState,
+    webhookEndpointRef: null,
+    providerCredentialRef: null,
+    durableReceiptResultRef: null,
+    providerReceiptObservedRefs: [],
+    receiptProofRequirements: [`social-provider-receipt-proof-required-${sourceIntentRef}`],
+    ingestionProofRequirements: ingestionProofRequirements(sourceIntentRef, ingestionReadinessState),
+    providerDeliveryExecutionClaimed: false,
+    providerReceiptIngestionRuntimeClaimed: false,
+    providerWebhookRuntimeClaimed: false,
+    providerCredentialsClaimed: false,
+    providerReceiptObservedClaimed: false,
+    cloudRoutingClaimed: false,
+    parentNotificationUiDeliveryClaimed: false,
+    reportDeliveryExecutionClaimed: false,
+    finalPolicyExecutionClaimed: false,
+    connectorNativeRuntimeClaimed: false,
+    enforcementClaimed: false,
+  };
+}
+
+function ingestionProofRequirements(sourceIntentRef, ingestionReadinessState) {
+  if (ingestionReadinessState === 'provider-unavailable') {
+    return [`social-provider-receipt-ingestion-provider-unavailable-${sourceIntentRef}`];
+  }
+  if (ingestionReadinessState === 'manual-receipt-required') {
+    return [`social-provider-receipt-ingestion-manual-provider-setup-${sourceIntentRef}`];
+  }
+  return [
+    `social-provider-receipt-webhook-contract-required-${sourceIntentRef}`,
+    `social-provider-receipt-credential-proof-required-${sourceIntentRef}`,
+    `social-provider-receipt-durable-store-required-${sourceIntentRef}`,
+  ];
 }
 
 async function readText(path) {

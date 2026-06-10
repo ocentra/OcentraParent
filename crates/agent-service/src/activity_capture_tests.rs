@@ -9,10 +9,20 @@ use ocentra_parent_agent_protocol::{
     APP_GAME_WINDOW_REF_PREFIX, APP_GAME_WINDOW_TITLE_REF_PREFIX,
 };
 
-use crate::activity_capture::{record_activity_capture_to_paths, ActivityCaptureError};
+use crate::activity_capture::{
+    record_activity_capture_to_paths, startup_activity_capture_enabled_for_value,
+    ActivityCaptureError,
+};
 
 mod freshness;
 mod inventory;
+
+#[test]
+fn startup_activity_capture_can_be_suppressed_for_isolated_service_proofs() {
+    assert!(!startup_activity_capture_enabled_for_value(Some(
+        constants::value::TRUE
+    )));
+}
 
 #[test]
 fn record_process_snapshot_writes_encrypted_journal_and_sqlite_rows() {

@@ -40,6 +40,7 @@ fn windows_firewall_adapter_allows_apply_ready_with_policy_capability_artifacts_
         proof.adapter_capability_proof_ref,
         Some("windows-firewall-capability-proof-ref-38".to_owned())
     );
+    assert_eq!(proof.windows_os_scope_ref, "windows-os-scope-ref-38");
     assert_eq!(
         proof.apply_artifact_ref,
         Some("windows-firewall-apply-artifact-ref-38".to_owned())
@@ -315,6 +316,7 @@ fn apply_ready_input() -> NetworkWindowsFirewallAdapterProofInput {
         firewall_adapter_plan_ref: " windows-firewall-adapter-plan-38 ".to_owned(),
         policy_mapping: policy_mapping(NetworkEvidenceGrade::A, NetworkEvidencePolicyAction::Block),
         requested_action: NetworkWindowsFirewallAdapterAction::BlockOutbound,
+        windows_os_scope_ref: " windows-os-scope-ref-38 ".to_owned(),
         target_kind: NetworkWindowsFirewallTargetKind::RemoteAddress,
         target_ref: " remote-endpoint-ref-38 ".to_owned(),
         firewall_rule_ref: " windows-firewall-rule-ref-38 ".to_owned(),

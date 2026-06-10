@@ -1,2 +1,0 @@
-eventing-duplicate-subscriber-proof-ok:subscriber-policy-checks-id-per-event-type,subscriber-policy-returns-explicit-error,subscriber-policy-does-not-replace-existing-handler,duplicate-policy-test-exists,duplicate-policy-test-asserts-error
-proof=output\eventing-plan-proof\73-duplicate-subscriber\proof-summary.json

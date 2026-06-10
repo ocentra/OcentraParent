@@ -134,6 +134,10 @@ pub enum AgentCommandName {
     AgentBrowserSocialAuditExplanationReadModelGet,
     #[serde(rename = "agent.browser.social-alert-report.read-model.get")]
     AgentBrowserSocialAlertReportReadModelGet,
+    #[serde(rename = "agent.browser.social-alert-report.parent-surface.read-model.get")]
+    AgentBrowserSocialAlertReportParentSurfaceReadModelGet,
+    #[serde(rename = "agent.browser.social-parent-notification-delivery.read-model.get")]
+    AgentBrowserSocialParentNotificationDeliveryReadModelGet,
     #[serde(rename = "agent.browser.social-source-custody.mutation.apply")]
     AgentBrowserSocialSourceCustodyMutationApply,
     #[serde(rename = "agent.activity.network.read-model.get")]
@@ -148,12 +152,22 @@ pub enum AgentCommandName {
     AgentBrowserManagedBridgePoll,
     #[serde(rename = "agent.browser.intervention.read-model.get")]
     AgentBrowserInterventionReadModelGet,
+    #[serde(rename = "agent.browser.runtime.event-chain.stream.get")]
+    AgentBrowserRuntimeEventChainStreamGet,
     #[serde(rename = "agent.network.flow.read-model.get")]
     AgentNetworkFlowReadModelGet,
     #[serde(rename = "agent.network.runtime.event-chain.stream.get")]
     AgentNetworkRuntimeEventChainStreamGet,
     #[serde(rename = "agent.network.remote-delivery.status.get")]
     AgentNetworkRemoteDeliveryStatusGet,
+    #[serde(rename = "agent.network.live-capture.status.get")]
+    AgentNetworkLiveCaptureStatusGet,
+    #[serde(rename = "agent.network.linux-nftables-lab.status.get")]
+    AgentNetworkLinuxNftablesLabStatusGet,
+    #[serde(rename = "agent.network.windows-firewall-lab.status.get")]
+    AgentNetworkWindowsFirewallLabStatusGet,
+    #[serde(rename = "agent.network.windows-wfp-gate.status.get")]
+    AgentNetworkWindowsWfpGateStatusGet,
     #[serde(rename = "agent.local-ai.runtime.status.get")]
     AgentLocalAiRuntimeStatusGet,
     #[serde(rename = "agent.local-ai.chat.generate")]
@@ -172,6 +186,10 @@ pub enum AgentCommandName {
     AgentBrowserPolicyReplace,
     #[serde(rename = "agent.browser-policy.rollback")]
     AgentBrowserPolicyRollback,
+    #[serde(rename = "agent.screen-settings.get")]
+    AgentScreenSettingsGet,
+    #[serde(rename = "agent.screen-settings.replace")]
+    AgentScreenSettingsReplace,
     #[serde(rename = "agent.enforcement.execute")]
     AgentEnforcementExecute,
     #[serde(rename = "agent.enforcement.timer.recover")]
@@ -296,6 +314,10 @@ pub enum AgentEventName {
     AgentBrowserSocialAuditExplanationReadModelReported,
     #[serde(rename = "agent.browser.social-alert-report.read-model.reported")]
     AgentBrowserSocialAlertReportReadModelReported,
+    #[serde(rename = "agent.browser.social-alert-report.parent-surface.read-model.reported")]
+    AgentBrowserSocialAlertReportParentSurfaceReadModelReported,
+    #[serde(rename = "agent.browser.social-parent-notification-delivery.read-model.reported")]
+    AgentBrowserSocialParentNotificationDeliveryReadModelReported,
     #[serde(rename = "agent.browser.social-source-custody.mutation.applied")]
     AgentBrowserSocialSourceCustodyMutationApplied,
     #[serde(rename = "agent.activity.network.read-model.reported")]
@@ -310,12 +332,22 @@ pub enum AgentEventName {
     AgentBrowserManagedStatusReported,
     #[serde(rename = "agent.browser.intervention.read-model.reported")]
     AgentBrowserInterventionReadModelReported,
+    #[serde(rename = "agent.browser.runtime.event-chain.stream.reported")]
+    AgentBrowserRuntimeEventChainStreamReported,
     #[serde(rename = "agent.network.flow.read-model.reported")]
     AgentNetworkFlowReadModelReported,
     #[serde(rename = "agent.network.runtime.event-chain.stream.reported")]
     AgentNetworkRuntimeEventChainStreamReported,
     #[serde(rename = "agent.network.remote-delivery.status.reported")]
     AgentNetworkRemoteDeliveryStatusReported,
+    #[serde(rename = "agent.network.live-capture.status.reported")]
+    AgentNetworkLiveCaptureStatusReported,
+    #[serde(rename = "agent.network.linux-nftables-lab.status.reported")]
+    AgentNetworkLinuxNftablesLabStatusReported,
+    #[serde(rename = "agent.network.windows-firewall-lab.status.reported")]
+    AgentNetworkWindowsFirewallLabStatusReported,
+    #[serde(rename = "agent.network.windows-wfp-gate.status.reported")]
+    AgentNetworkWindowsWfpGateStatusReported,
     #[serde(rename = "agent.local-ai.runtime.status.reported")]
     AgentLocalAiRuntimeStatusReported,
     #[serde(rename = "agent.local-ai.chat.generation.reported")]
@@ -340,6 +372,12 @@ pub enum AgentEventName {
     AgentBrowserPolicyRollbackAccepted,
     #[serde(rename = "agent.browser-policy.rollback.rejected")]
     AgentBrowserPolicyRollbackRejected,
+    #[serde(rename = "agent.screen-settings.reported")]
+    AgentScreenSettingsReported,
+    #[serde(rename = "agent.screen-settings.replace.accepted")]
+    AgentScreenSettingsReplaceAccepted,
+    #[serde(rename = "agent.screen-settings.replace.rejected")]
+    AgentScreenSettingsReplaceRejected,
     #[serde(rename = "agent.enforcement.audit.reported")]
     AgentEnforcementAuditReported,
     #[serde(rename = "agent.enforcement.timer.reported")]

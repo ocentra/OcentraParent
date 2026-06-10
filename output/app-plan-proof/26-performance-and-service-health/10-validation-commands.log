@@ -1,6 +1,0 @@
-Validation run:
-
-- cmd /c npm run build --workspace @ocentra-parent/parent-domain: PASS
-- cmd /c npm run test --workspace @ocentra-parent/parent-domain -- app-game-performance-health: PASS
-- cmd /c npm exec tsx -- test-results/app-game-performance-health-proof/portal-scale-smoke.ts: PASS
-- node scripts/test/app-game-performance-health-proof.mjs: PASS

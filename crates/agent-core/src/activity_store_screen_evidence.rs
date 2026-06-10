@@ -1,7 +1,9 @@
 use ocentra_parent_agent_protocol::{
     constants, ActivityEvidenceRef, LogFieldValue, LogFields, ScreenAnalysisResult,
     ScreenCategoryCandidate, ScreenEvidenceQueueHealth, ScreenEvidenceRecentSummary,
-    SCREEN_CUSTODY_QUERY_STORE, SCREEN_EVIDENCE_SCHEMA_VERSION, SCREEN_QUEUE_STATUS_DELETED,
+    SCREEN_CUSTODY_QUERY_STORE, SCREEN_DELETION_DELETED, SCREEN_DELETION_DELETE_FAILED,
+    SCREEN_DELETION_EXPIRED_DELETED, SCREEN_EVIDENCE_SCHEMA_VERSION, SCREEN_QUEUE_STATUS_DELETED,
+    SCREEN_QUEUE_STATUS_EXPIRED, SCREEN_QUEUE_STATUS_FAILED,
 };
 use rusqlite::{params, Connection};
 
@@ -53,7 +55,7 @@ fn summary_from_results(
         custody_state: SCREEN_CUSTODY_QUERY_STORE.to_string(),
         limit,
         returned: results.len() as u64,
-        queue_health: queue_health(generated_at, latest),
+        queue_health: queue_health(generated_at, latest, &results),
         latest_result_id: latest.map(|result| result.screen_analysis_result_id.clone()),
         latest_summary: latest.map(|result| result.summary.clone()),
         latest_primary_category: latest.and_then(|result| result.primary_category.clone()),
@@ -70,18 +72,35 @@ fn summary_from_results(
 fn queue_health(
     generated_at: &str,
     latest: Option<&ScreenAnalysisResult>,
+    results: &[ScreenAnalysisResult],
 ) -> ScreenEvidenceQueueHealth {
     ScreenEvidenceQueueHealth {
         schema_version: SCREEN_EVIDENCE_SCHEMA_VERSION,
         generated_at: generated_at.to_string(),
         custody_state: SCREEN_CUSTODY_QUERY_STORE.to_string(),
         pending_count: 0,
-        expired_count: 0,
+        expired_count: deletion_state_count(results, SCREEN_DELETION_EXPIRED_DELETED),
         delete_pending_count: 0,
-        delete_failed_count: 0,
+        delete_failed_count: deletion_state_count(results, SCREEN_DELETION_DELETE_FAILED),
         latest_queue_job_id: latest.map(|result| result.queue_job_id.clone()),
-        latest_status: latest.map(|_| SCREEN_QUEUE_STATUS_DELETED.to_string()),
+        latest_status: latest.map(queue_status_from_result),
         last_successful_analysis_at: latest.map(|result| result.analyzed_at.clone()),
+    }
+}
+
+fn deletion_state_count(results: &[ScreenAnalysisResult], state: &str) -> u64 {
+    results
+        .iter()
+        .filter(|result| result.image_deletion_state == state)
+        .count() as u64
+}
+
+fn queue_status_from_result(result: &ScreenAnalysisResult) -> String {
+    match result.image_deletion_state.as_str() {
+        SCREEN_DELETION_DELETE_FAILED => SCREEN_QUEUE_STATUS_FAILED.to_string(),
+        SCREEN_DELETION_EXPIRED_DELETED => SCREEN_QUEUE_STATUS_EXPIRED.to_string(),
+        SCREEN_DELETION_DELETED => SCREEN_QUEUE_STATUS_DELETED.to_string(),
+        _ => SCREEN_QUEUE_STATUS_DELETED.to_string(),
     }
 }
 
@@ -122,8 +141,8 @@ fn result_from_fields(
         }],
         primary_category: Some(primary_category),
         risk_signals: Vec::new(),
-        ocr_text_snippets: Vec::new(),
-        redaction_notes: Vec::new(),
+        ocr_text_snippets: string_list_field(fields, constants::field::SCREEN_OCR_TEXT_SNIPPETS),
+        redaction_notes: string_list_field(fields, constants::field::SCREEN_REDACTION_NOTES),
         confidence,
         uncertainty_reason: None,
         source_evidence_refs: evidence,

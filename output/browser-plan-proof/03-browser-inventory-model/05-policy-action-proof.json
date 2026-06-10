@@ -1,6 +1,0 @@
-{
-  "schemaVersion": 1,
-  "workpack": "03-browser-inventory-model",
-  "status": "not-applicable",
-  "reason": "This slice does not change browser policy compilation, decisions, intervention, or actions."
-}

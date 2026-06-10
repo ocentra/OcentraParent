@@ -1,7 +1,0 @@
-# Rust Protocol Proof
-
-Not applicable for this slice.
-
-WP11 adds a parent-domain platform authority matrix contract and no payload that
-crosses the Rust service or protocol boundary. Rust parity must be added only
-when a service read model or adapter payload consumes this matrix.

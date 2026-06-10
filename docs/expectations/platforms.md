@@ -124,6 +124,20 @@ behavior belongs behind platform adapters and must be proved per platform.
   prove external writer execution/delivery, Microsoft Store execution, provider
   credentials, platform adapter execution, child-device transport receipt
   execution, child-device delivery, app blocking, or product-claim approval.
+- Windows app-install execution receipt gate proof may classify external writer
+  dispatch executor, provider/store execution, platform adapter execution, and
+  child-device transport receipt families as missing/manual follow-up rows
+  only. It still does not prove external writer execution/delivery, Microsoft
+  Store execution, provider credentials, production platform adapter execution,
+  child-device transport receipt execution, child-device delivery, app
+  blocking, or product-claim approval.
+- Windows app-install dispatch executor receipt proof may classify parent-owned
+  external writer dispatch executor handler, receipt artifact, and audit
+  artifact requirements as blocked/manual follow-up rows only. It still does
+  not prove external writer execution/delivery, Microsoft Store execution,
+  provider credentials, production platform adapter execution, child-device
+  transport receipt execution, child-device delivery, app blocking, or
+  product-claim approval.
 - Windows app-install package-source adapter evidence proof may attach
   sanitized local host command evidence, such as `Get-AppxPackage`
   availability and Microsoft Store package-source probe metadata, to move the

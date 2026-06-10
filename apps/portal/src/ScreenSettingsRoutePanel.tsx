@@ -1,4 +1,5 @@
 import type { ReactElement } from 'react';
+import type { AgentEventEnvelope } from '@ocentra-parent/agent-protocol-domain/contracts';
 import {
   screenControlSettingsPortalProof,
   type ScreenControlSettingsPortalGate,
@@ -7,10 +8,12 @@ import {
 import {
   PortalDetails,
   PortalDom,
-  PortalRoute,
+  isPortalScreenSettingsRoute,
   type PortalDisplayText,
   type PortalRoute as PortalRouteValue,
 } from '@ocentra-parent/portal-domain/contracts';
+import type { PortalRenderActions } from './portal-actions';
+import { ScreenOptionalVisibilityCapabilityStatusCard } from './ScreenOptionalVisibilityCapabilityStatusCard';
 import { ScreenSettingsWritableControls } from './ScreenSettingsWritableControls';
 
 type ScreenSettingsDetailValue =
@@ -18,10 +21,18 @@ type ScreenSettingsDetailValue =
   | ScreenControlSettingsPortalGate[keyof ScreenControlSettingsPortalGate];
 
 export function shouldRenderScreenSettingsRoute(route: PortalRouteValue): boolean {
-  return route === PortalRoute.SettingsRules || currentHash() === screenSettingsRouteHash();
+  return isPortalScreenSettingsRoute(route);
 }
 
-export function ScreenSettingsRoutePanel(): ReactElement {
+export function ScreenSettingsRoutePanel({
+  actions,
+  commandEnabled,
+  events,
+}: {
+  readonly actions: PortalRenderActions;
+  readonly commandEnabled: boolean;
+  readonly events: readonly AgentEventEnvelope[];
+}): ReactElement {
   const proof = screenControlSettingsPortalProof();
   return (
     <section aria-label={proof.title} className={PortalDom.Classes.TrackingStatusOverlay}>
@@ -36,7 +47,8 @@ export function ScreenSettingsRoutePanel(): ReactElement {
             PortalDom.Classes.ClassNameSeparator
           )}
         >
-          <ScreenSettingsWritableControls />
+          <ScreenSettingsWritableControls actions={actions} commandEnabled={commandEnabled} events={events} />
+          <ScreenOptionalVisibilityCapabilityStatusCard />
           {proof.metrics.map((metric) => (
             <ScreenSettingsMetricCard key={metric.label} metric={metric} />
           ))}
@@ -93,15 +105,4 @@ function ScreenSettingsDetail({
 
 function screenSettingsCardClassName() {
   return [PortalDom.Classes.Summary, PortalDom.Classes.ProductStatusCard].join(PortalDom.Classes.ClassNameSeparator);
-}
-
-function screenSettingsRouteHash() {
-  return [PortalDom.HashPrefix, PortalRoute.SettingsRules].join(PortalDom.EmptyHashRoute);
-}
-
-function currentHash() {
-  if (typeof window === PortalDom.Runtime.Undefined) {
-    return PortalDom.EmptyHashRoute;
-  }
-  return window.location.hash;
 }

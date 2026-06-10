@@ -1,4 +1,0 @@
-workpack=22-local-parent-defined-place-database
-Local parent-defined place data remains parent-device-local by default.
-The proof rejects Ocentra-hosted default storage and does not enable remote sync.
-Nearby-place evidence is labelled providerKind=parent-defined and does not claim provider delivery.

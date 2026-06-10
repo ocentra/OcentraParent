@@ -1,6 +1,0 @@
-{
-  "policyActionClaimed": false,
-  "adapterExecutionClaimed": false,
-  "broadBlockingClaimed": false,
-  "manualRequiredBoundary": "policy and adapter consumers remain separate proof work"
-}

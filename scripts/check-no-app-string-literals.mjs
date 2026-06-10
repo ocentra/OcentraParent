@@ -6,7 +6,15 @@ import { runPortalUiBoundaryCheck } from './check-portal-ui-boundaries.mjs';
 
 const repoRoot = process.cwd();
 const sourceRoots = ['apps/portal/src'];
-const ignoredPathParts = new Set(['.git', '.turbo', 'coverage', 'dist', 'node_modules', 'temp-scratchpad-proof']);
+const ignoredPathParts = new Set([
+  '.git',
+  '.turbo',
+  'coverage',
+  'dist',
+  'node_modules',
+  'ocentra-ledger',
+  'temp-scratchpad-proof',
+]);
 const sourceExtension = /\.(?:ts|tsx)$/u;
 const findings = [];
 const typeGuardLiteralValues = new Set([

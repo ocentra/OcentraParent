@@ -4,9 +4,9 @@ use super::{
     ScreenEvidenceRecentSummary, SCREEN_CAPABILITY_READY, SCREEN_CAPTURE_REASON_MANUAL_PARENT_TEST,
     SCREEN_CAPTURE_SCOPE_ACTIVE_WINDOW, SCREEN_CATEGORY_SCHOOL, SCREEN_CUSTODY_JOURNAL,
     SCREEN_CUSTODY_QUERY_STORE, SCREEN_CUSTODY_TEMP_QUEUE, SCREEN_DELETION_DELETED,
-    SCREEN_DELETION_REQUIRED, SCREEN_EVIDENCE_SCHEMA_VERSION, SCREEN_IMAGE_FORMAT_PNG,
-    SCREEN_POLICY_CONFIDENCE_READY, SCREEN_PROVIDER_LOCAL_VISION, SCREEN_QUEUE_STATUS_DELETED,
-    SCREEN_QUEUE_STATUS_QUEUED,
+    SCREEN_DELETION_DELETE_FAILED, SCREEN_DELETION_REQUIRED, SCREEN_EVIDENCE_SCHEMA_VERSION,
+    SCREEN_IMAGE_FORMAT_PNG, SCREEN_POLICY_CONFIDENCE_READY, SCREEN_PROVIDER_LOCAL_VISION,
+    SCREEN_QUEUE_STATUS_DELETED, SCREEN_QUEUE_STATUS_FAILED, SCREEN_QUEUE_STATUS_QUEUED,
 };
 
 #[test]
@@ -21,6 +21,20 @@ fn screen_analysis_queue_job_serializes_temp_encrypted_queue_shape() {
     assert_eq!(serialized["deletionRequired"], true);
     assert_eq!(serialized["custodyState"], SCREEN_CUSTODY_TEMP_QUEUE);
     assert_eq!(serialized["status"], SCREEN_QUEUE_STATUS_QUEUED);
+}
+
+#[test]
+fn screen_analysis_queue_job_serializes_delete_failed_custody_state() {
+    let mut job = queue_job();
+    job.status = SCREEN_QUEUE_STATUS_FAILED.to_string();
+    job.deletion_status = SCREEN_DELETION_DELETE_FAILED.to_string();
+    job.failure_reason = Some(constants::activity_store::TEST_SCREEN_DELETION_REASONS.to_string());
+    let serialized = serde_json::to_value(job).expect(constants::error::AGENT_EVENT_SERIALIZES);
+
+    assert_eq!(serialized["status"], SCREEN_QUEUE_STATUS_FAILED);
+    assert_eq!(serialized["deletionStatus"], SCREEN_DELETION_DELETE_FAILED);
+    assert_eq!(serialized["deletedAt"], serde_json::Value::Null);
+    assert_eq!(serialized["deletionProofRef"], serde_json::Value::Null);
 }
 
 #[test]

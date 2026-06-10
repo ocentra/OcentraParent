@@ -1,7 +1,0 @@
-Security negative proof:
-
-- Running process evidence is not foreground evidence.
-- No raw executable path is exposed.
-- No policy decision is produced.
-- No adapter action executes.
-- No broad installed-app blocking support is claimed.

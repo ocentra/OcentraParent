@@ -3,26 +3,31 @@ use serde::{Deserialize, Serialize};
 use crate::{
     build_network_ai_audit_report, build_network_cross_slice_evidence_bundle,
     evaluate_network_ai_detection_fixtures, evaluate_network_risk_budget_threshold,
-    map_network_evidence_grade_to_policy, plan_network_dns_adapter_proof,
-    plan_network_local_ai_queue, NetworkAiAuditReport, NetworkAiAuditReportError,
-    NetworkAiAuditReportInput, NetworkAiDetectionEvaluationError,
+    map_network_evidence_grade_to_policy, plan_network_action_result_state,
+    plan_network_dns_adapter_proof, plan_network_local_ai_queue,
+    NetworkActionResultAdapterProofState, NetworkActionResultCapabilityState,
+    NetworkActionResultError, NetworkActionResultInput, NetworkActionResultProof,
+    NetworkActionResultRequestedAction, NetworkActionResultTargetKind, NetworkAiAuditReport,
+    NetworkAiAuditReportError, NetworkAiAuditReportInput, NetworkAiDetectionEvaluationError,
     NetworkAiDetectionEvaluationInput, NetworkAiDetectionEvaluationProof,
     NetworkAiDetectionFixtureCase, NetworkAiDetectionInputKind, NetworkAiDetectionLabel,
     NetworkAiDetectionRiskLevel, NetworkCrossSliceEvidenceBundle,
     NetworkCrossSliceEvidenceBundleError, NetworkCrossSliceEvidenceBundleInput,
     NetworkCrossSliceEvidenceSource, NetworkDnsAdapterAction, NetworkDnsAdapterCapabilityState,
     NetworkDnsAdapterProof, NetworkDnsAdapterProofError, NetworkDnsAdapterProofInput,
-    NetworkEvidencePolicyAction, NetworkEvidencePolicyMapping, NetworkEvidencePolicyMappingError,
-    NetworkEvidencePolicyMappingInput, NetworkLocalAiQueueError, NetworkLocalAiQueueInput,
-    NetworkLocalAiQueuePlan, NetworkRiskBudgetAdapterProofState, NetworkRiskBudgetAgeBand,
-    NetworkRiskBudgetEvaluation, NetworkRiskBudgetEvidenceTier, NetworkRiskBudgetHouseholdPolicy,
-    NetworkRiskBudgetPriorEvent, NetworkRiskBudgetSignal, NetworkRiskBudgetThresholdError,
-    NetworkRiskBudgetThresholdInput, NetworkRiskBudgetThresholds,
+    NetworkDnsAdapterProofState, NetworkEvidencePolicyAction, NetworkEvidencePolicyMapping,
+    NetworkEvidencePolicyMappingError, NetworkEvidencePolicyMappingInput, NetworkLocalAiQueueError,
+    NetworkLocalAiQueueInput, NetworkLocalAiQueuePlan, NetworkRiskBudgetAdapterProofState,
+    NetworkRiskBudgetAgeBand, NetworkRiskBudgetEvaluation, NetworkRiskBudgetEvidenceTier,
+    NetworkRiskBudgetHouseholdPolicy, NetworkRiskBudgetPriorEvent, NetworkRiskBudgetSignal,
+    NetworkRiskBudgetThresholdError, NetworkRiskBudgetThresholdInput, NetworkRiskBudgetThresholds,
 };
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct NetworkEndToEndPipelineRefs {
     pub trigger_ref: String,
+    pub capture_ref: String,
+    pub ingest_ref: String,
     pub typed_event_ref: String,
     pub summary_refs: Vec<String>,
     pub analyzer_alert_refs: Vec<String>,
@@ -47,6 +52,7 @@ pub struct NetworkEndToEndPipelineRefs {
     pub cascade_ref: String,
     pub household_policy_ref: String,
     pub dns_adapter_plan_ref: String,
+    pub action_result_ref: String,
     pub target_domain: String,
     pub adapter_authorization_ref: Option<String>,
     pub adapter_capability_proof_ref: Option<String>,
@@ -99,9 +105,24 @@ pub struct NetworkRetentionDeleteExportProof {
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub struct NetworkCaptureIngestProof {
+    pub trigger_ref: String,
+    pub capture_ref: String,
+    pub ingest_ref: String,
+    pub typed_event_ref: String,
+    pub summary_refs: Vec<String>,
+    pub evidence_refs: Vec<String>,
+    pub audit_event_ref: String,
+    pub same_product_path: bool,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct NetworkEndToEndPipelineProof {
     pub trigger_ref: String,
+    pub capture_ref: String,
+    pub ingest_ref: String,
     pub typed_event_ref: String,
+    pub capture_ingest: NetworkCaptureIngestProof,
     pub evidence_bundle: NetworkCrossSliceEvidenceBundle,
     pub local_ai_queue: NetworkLocalAiQueuePlan,
     pub ai_detection: NetworkAiDetectionEvaluationProof,
@@ -109,6 +130,7 @@ pub struct NetworkEndToEndPipelineProof {
     pub risk_budget: NetworkRiskBudgetEvaluation,
     pub policy_mapping: NetworkEvidencePolicyMapping,
     pub adapter_proof: NetworkDnsAdapterProof,
+    pub action_result: NetworkActionResultProof,
     pub retention_delete_export: NetworkRetentionDeleteExportProof,
     pub ai_advisory_only: bool,
     pub policy_is_action_authority: bool,
@@ -122,7 +144,10 @@ pub struct NetworkEndToEndPipelineProof {
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum NetworkEndToEndPipelineError {
     EmptyTriggerRef,
+    EmptyCaptureRef,
+    EmptyIngestRef,
     EmptyTypedEventRef,
+    EmptyActionResultRef,
     EmptySummaryRef,
     EmptyAnalyzerAlertRef,
     EmptyAuditEventRef,
@@ -146,6 +171,20 @@ pub enum NetworkEndToEndPipelineError {
     RiskBudget(NetworkRiskBudgetThresholdError),
     Policy(NetworkEvidencePolicyMappingError),
     DnsAdapter(NetworkDnsAdapterProofError),
+    ActionResult(NetworkActionResultError),
+}
+
+struct NetworkEndToEndPipelineParts {
+    capture_ingest: NetworkCaptureIngestProof,
+    evidence_bundle: NetworkCrossSliceEvidenceBundle,
+    local_ai_queue: NetworkLocalAiQueuePlan,
+    ai_detection: NetworkAiDetectionEvaluationProof,
+    ai_audit: NetworkAiAuditReport,
+    risk_budget: NetworkRiskBudgetEvaluation,
+    policy_mapping: NetworkEvidencePolicyMapping,
+    adapter_proof: NetworkDnsAdapterProof,
+    action_result: NetworkActionResultProof,
+    retention_delete_export: NetworkRetentionDeleteExportProof,
 }
 
 pub fn prove_network_end_to_end_pipeline(
@@ -153,16 +192,48 @@ pub fn prove_network_end_to_end_pipeline(
 ) -> Result<NetworkEndToEndPipelineProof, NetworkEndToEndPipelineError> {
     validate_refs(&input.refs)?;
     reject_unsupported_claims(input.unsupported_claims)?;
+    let parts = build_pipeline_parts(&input)?;
 
+    Ok(NetworkEndToEndPipelineProof {
+        trigger_ref: input.refs.trigger_ref.clone(),
+        capture_ref: input.refs.capture_ref.clone(),
+        ingest_ref: input.refs.ingest_ref.clone(),
+        typed_event_ref: input.refs.typed_event_ref.clone(),
+        capture_ingest: parts.capture_ingest,
+        evidence_bundle: parts.evidence_bundle,
+        local_ai_queue: parts.local_ai_queue,
+        ai_detection: parts.ai_detection,
+        ai_audit: parts.ai_audit,
+        risk_budget: parts.risk_budget,
+        policy_mapping: parts.policy_mapping,
+        adapter_proof: parts.adapter_proof.clone(),
+        action_result: parts.action_result,
+        retention_delete_export: parts.retention_delete_export,
+        ai_advisory_only: true,
+        policy_is_action_authority: true,
+        ui_policy_authority: false,
+        network_adapter_authority: false,
+        adapter_action_executed: false,
+        enforcement_commands_published: parts.adapter_proof.enforcement_command_published as usize,
+        weak_or_unavailable_evidence_enforcement_blocked: !parts
+            .adapter_proof
+            .adapter_apply_authorized,
+    })
+}
+
+fn build_pipeline_parts(
+    input: &NetworkEndToEndPipelineInput,
+) -> Result<NetworkEndToEndPipelineParts, NetworkEndToEndPipelineError> {
+    let summary_refs = normalized_refs(
+        &input.refs.summary_refs,
+        NetworkEndToEndPipelineError::EmptySummaryRef,
+    )?;
     let bundle = build_network_cross_slice_evidence_bundle(NetworkCrossSliceEvidenceBundleInput {
         trigger_ref: input.refs.trigger_ref.clone(),
         sources: input.sources.clone(),
     })
     .map_err(NetworkEndToEndPipelineError::Bundle)?;
-    let summary_refs = normalized_refs(
-        &input.refs.summary_refs,
-        NetworkEndToEndPipelineError::EmptySummaryRef,
-    )?;
+    let capture_ingest = capture_ingest_proof(&input.refs, &summary_refs, &bundle.evidence_refs)?;
     let local_ai_queue = plan_network_local_ai_queue(NetworkLocalAiQueueInput {
         queue_job_ref: input.refs.queue_job_ref.clone(),
         queue_ref: input.refs.queue_ref.clone(),
@@ -197,13 +268,18 @@ pub fn prove_network_end_to_end_pipeline(
     })
     .map_err(NetworkEndToEndPipelineError::Policy)?;
     let adapter_proof =
-        plan_network_dns_adapter_proof(dns_adapter_input(&input, policy_mapping.clone()))
+        plan_network_dns_adapter_proof(dns_adapter_input(input, policy_mapping.clone()))
             .map_err(NetworkEndToEndPipelineError::DnsAdapter)?;
+    let action_result = plan_network_action_result_state(action_result_input(
+        input,
+        policy_mapping.clone(),
+        &adapter_proof,
+    ))
+    .map_err(NetworkEndToEndPipelineError::ActionResult)?;
     let retention_delete_export = retention_delete_export(&input.refs, &bundle.evidence_refs)?;
 
-    Ok(NetworkEndToEndPipelineProof {
-        trigger_ref: input.refs.trigger_ref,
-        typed_event_ref: input.refs.typed_event_ref,
+    Ok(NetworkEndToEndPipelineParts {
+        capture_ingest,
         evidence_bundle: bundle,
         local_ai_queue,
         ai_detection,
@@ -211,14 +287,40 @@ pub fn prove_network_end_to_end_pipeline(
         risk_budget,
         policy_mapping,
         adapter_proof: adapter_proof.clone(),
+        action_result,
         retention_delete_export,
-        ai_advisory_only: true,
-        policy_is_action_authority: true,
-        ui_policy_authority: false,
-        network_adapter_authority: false,
-        adapter_action_executed: false,
-        enforcement_commands_published: adapter_proof.enforcement_command_published as usize,
-        weak_or_unavailable_evidence_enforcement_blocked: !adapter_proof.adapter_apply_authorized,
+    })
+}
+
+fn capture_ingest_proof(
+    refs: &NetworkEndToEndPipelineRefs,
+    summary_refs: &[String],
+    evidence_refs: &[String],
+) -> Result<NetworkCaptureIngestProof, NetworkEndToEndPipelineError> {
+    Ok(NetworkCaptureIngestProof {
+        trigger_ref: required_ref(
+            &refs.trigger_ref,
+            NetworkEndToEndPipelineError::EmptyTriggerRef,
+        )?,
+        capture_ref: required_ref(
+            &refs.capture_ref,
+            NetworkEndToEndPipelineError::EmptyCaptureRef,
+        )?,
+        ingest_ref: required_ref(
+            &refs.ingest_ref,
+            NetworkEndToEndPipelineError::EmptyIngestRef,
+        )?,
+        typed_event_ref: required_ref(
+            &refs.typed_event_ref,
+            NetworkEndToEndPipelineError::EmptyTypedEventRef,
+        )?,
+        summary_refs: summary_refs.to_vec(),
+        evidence_refs: evidence_refs.to_vec(),
+        audit_event_ref: required_ref(
+            &refs.audit_event_ref,
+            NetworkEndToEndPipelineError::EmptyAuditEventRef,
+        )?,
+        same_product_path: true,
     })
 }
 
@@ -388,6 +490,63 @@ fn dns_adapter_input(
     }
 }
 
+fn action_result_input(
+    input: &NetworkEndToEndPipelineInput,
+    policy_mapping: NetworkEvidencePolicyMapping,
+    adapter_proof: &NetworkDnsAdapterProof,
+) -> NetworkActionResultInput {
+    NetworkActionResultInput {
+        action_result_ref: input.refs.action_result_ref.clone(),
+        policy_mapping,
+        requested_action: NetworkActionResultRequestedAction::Block,
+        target_kind: NetworkActionResultTargetKind::Domain,
+        target_ref: input.refs.target_domain.clone(),
+        capability_state: action_capability_state(input.adapter_capability_state),
+        adapter_proof_state: action_adapter_proof_state(adapter_proof.proof_state),
+        adapter_proof_ref: input.refs.adapter_capability_proof_ref.clone(),
+        apply_artifact_ref: input.refs.apply_artifact_ref.clone(),
+        result_artifact_ref: input.refs.result_artifact_ref.clone(),
+        audit_event_ref: Some(input.refs.audit_event_ref.clone()),
+        dry_run: input.adapter_dry_run,
+        exact_url_claimed: false,
+        decrypted_payload_claimed: false,
+        page_content_claimed: false,
+        host_mutation_claimed: false,
+        enforcement_command_published: false,
+    }
+}
+
+fn action_capability_state(
+    state: NetworkDnsAdapterCapabilityState,
+) -> NetworkActionResultCapabilityState {
+    match state {
+        NetworkDnsAdapterCapabilityState::Supported => {
+            NetworkActionResultCapabilityState::Supported
+        }
+        NetworkDnsAdapterCapabilityState::ManualRequired => {
+            NetworkActionResultCapabilityState::ManualRequired
+        }
+        NetworkDnsAdapterCapabilityState::Unavailable => {
+            NetworkActionResultCapabilityState::Unavailable
+        }
+    }
+}
+
+fn action_adapter_proof_state(
+    state: NetworkDnsAdapterProofState,
+) -> NetworkActionResultAdapterProofState {
+    match state {
+        NetworkDnsAdapterProofState::ApplyReady => NetworkActionResultAdapterProofState::ApplyReady,
+        NetworkDnsAdapterProofState::DryRun => NetworkActionResultAdapterProofState::DryRun,
+        NetworkDnsAdapterProofState::ManualRequired => {
+            NetworkActionResultAdapterProofState::ManualRequired
+        }
+        NetworkDnsAdapterProofState::Unavailable => {
+            NetworkActionResultAdapterProofState::Unavailable
+        }
+    }
+}
+
 fn retention_delete_export(
     refs: &NetworkEndToEndPipelineRefs,
     evidence_refs: &[String],
@@ -428,8 +587,20 @@ fn validate_refs(refs: &NetworkEndToEndPipelineRefs) -> Result<(), NetworkEndToE
         NetworkEndToEndPipelineError::EmptyTriggerRef,
     )?;
     required_ref(
+        &refs.capture_ref,
+        NetworkEndToEndPipelineError::EmptyCaptureRef,
+    )?;
+    required_ref(
+        &refs.ingest_ref,
+        NetworkEndToEndPipelineError::EmptyIngestRef,
+    )?;
+    required_ref(
         &refs.typed_event_ref,
         NetworkEndToEndPipelineError::EmptyTypedEventRef,
+    )?;
+    required_ref(
+        &refs.action_result_ref,
+        NetworkEndToEndPipelineError::EmptyActionResultRef,
     )?;
     normalized_refs(
         &refs.summary_refs,

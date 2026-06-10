@@ -1,4 +1,6 @@
 import { expect, test } from '@playwright/test';
+import { PortalDom, PortalRoute } from '@ocentra-parent/portal-domain/contracts';
+import { NetworkEvidenceDrawerProof } from '../tests/network-evidence-drawer-proof-fixture';
 
 test.setTimeout(120_000);
 
@@ -18,16 +20,32 @@ test('network evidence drawer renders service-backed refs without unsupported cl
   await expect(commandResult.getByText('agent.network.flow.read-model.reported')).toHaveCount(1, {
     timeout: shellReadyTimeoutMs,
   });
+  await expect(commandResult.getByText(NetworkEvidenceDrawerProof.evidenceId)).toBeVisible({
+    timeout: shellReadyTimeoutMs,
+  });
 
-  await page.goto('/#/activity');
+  await page.evaluate(
+    ([hashPrefix, route]) => {
+      window.location.hash = `${hashPrefix}${route}`;
+    },
+    [PortalDom.HashPrefix, PortalRoute.NetworkActivity] as const
+  );
   const networkPanel = page.getByRole('region', { name: 'Network activity' });
   await expect(networkPanel).toBeVisible({ timeout: shellReadyTimeoutMs });
-  await expect(networkPanel.getByText('network-ui-evidence-1')).toBeVisible();
-  await expect(networkPanel.getByText('network-ui-journal-1')).toBeVisible();
-  await expect(networkPanel.getByText('Exact URL claim')).toBeVisible();
-  await expect(networkPanel.getByText('Not reported').first()).toBeVisible();
-  await expect(networkPanel.getByText('example-network.test | domain-observed')).toBeVisible();
-  await expect(networkPanel.getByText('notepad.exe | 4242 | process-attributed')).toBeVisible();
+  await expect(networkPanel.getByText(NetworkEvidenceDrawerProof.evidenceId)).toBeVisible({
+    timeout: shellReadyTimeoutMs,
+  });
+  await expect(networkPanel.getByText(NetworkEvidenceDrawerProof.journalEvidenceId)).toBeVisible({
+    timeout: shellReadyTimeoutMs,
+  });
+  await expect(networkPanel.getByText('Exact URL claim')).toBeVisible({ timeout: shellReadyTimeoutMs });
+  await expect(networkPanel.getByText('Not reported').first()).toBeVisible({ timeout: shellReadyTimeoutMs });
+  await expect(networkPanel.getByText(NetworkEvidenceDrawerProof.expected.domainEvidenceRef)).toBeVisible({
+    timeout: shellReadyTimeoutMs,
+  });
+  await expect(networkPanel.getByText(NetworkEvidenceDrawerProof.expected.processRef)).toBeVisible({
+    timeout: shellReadyTimeoutMs,
+  });
 
   const screenshotPath = process.env['NETWORK_EVIDENCE_DRAWER_SCREENSHOT'];
   if (screenshotPath !== undefined && screenshotPath.trim().length > 0) {

@@ -16,9 +16,13 @@ use ocentra_parent_agent_protocol::{
     SCREEN_SERVICE_ANALYSIS_RUNTIME_REF, SCREEN_SERVICE_ANALYSIS_TEMPLATE_VERSION,
 };
 use serde_json::{Map, Value};
-use tokio::{io::AsyncWriteExt, process::Command, time::timeout};
+use tokio::{io::AsyncWriteExt, time::timeout};
 
-use super::{queue::QueuedScreenImage, ScreenAiAnalysisRuntimeConfig};
+use super::{
+    adapter_output_fields::optional_string_array, adapter_process::adapter_process_command,
+    adapter_redaction::apply_service_ocr_redaction, config::ScreenOcrRedactionPolicy,
+    queue::QueuedScreenImage, ScreenAiAnalysisRuntimeConfig,
+};
 
 #[derive(Clone, Debug, PartialEq)]
 pub(super) struct ScreenAiAnalysisAdapterOutput {
@@ -30,6 +34,8 @@ pub(super) struct ScreenAiAnalysisAdapterOutput {
     pub(super) model_runtime_ref: String,
     pub(super) model_id: String,
     pub(super) prompt_or_template_version: String,
+    pub(super) ocr_text_snippets: Vec<String>,
+    pub(super) redaction_notes: Vec<String>,
 }
 
 pub(super) async fn run_adapter(
@@ -47,7 +53,8 @@ pub(super) async fn run_adapter(
     let request_bytes =
         serde_json::to_vec(&request).expect(constants::error::AGENT_EVENT_SERIALIZES);
     let started = Instant::now();
-    let mut child = match Command::new(command)
+    let mut process = adapter_process_command(command);
+    let mut child = match process
         .stdin(Stdio::piped())
         .stdout(Stdio::piped())
         .stderr(Stdio::piped())
@@ -142,8 +149,9 @@ pub(super) fn runtime_status(command: Option<&Path>, timestamp: &str) -> LocalMo
     }
 }
 
-pub(super) fn parsed_generation_output(
+pub(super) fn parsed_generation_output_with_policy(
     generation: &LocalAiChatGenerationResult,
+    policy: &ScreenOcrRedactionPolicy,
 ) -> Option<ScreenAiAnalysisAdapterOutput> {
     if generation.generation_state != LocalAiGenerationState::Complete {
         return None;
@@ -157,22 +165,33 @@ pub(super) fn parsed_generation_output(
         return None;
     }
     let provider_kind = output_provider_kind(&parsed)?;
-    Some(ScreenAiAnalysisAdapterOutput {
-        summary,
-        primary_category,
-        confidence,
-        policy_eligible: required_bool(&parsed, constants::field::SCREEN_POLICY_ELIGIBLE)?,
-        provider_kind,
-        model_runtime_ref: optional_string(&parsed, constants::field::SCREEN_MODEL_RUNTIME_REF)
-            .unwrap_or_else(|| SCREEN_SERVICE_ANALYSIS_RUNTIME_REF.to_string()),
-        model_id: optional_string(&parsed, constants::field::SCREEN_MODEL_ID)
-            .unwrap_or_else(|| SCREEN_SERVICE_ANALYSIS_MODEL_ID.to_string()),
-        prompt_or_template_version: optional_string(
-            &parsed,
-            constants::field::SCREEN_TEMPLATE_VERSION,
-        )
-        .unwrap_or_else(|| SCREEN_SERVICE_ANALYSIS_TEMPLATE_VERSION.to_string()),
-    })
+    Some(apply_service_ocr_redaction(
+        ScreenAiAnalysisAdapterOutput {
+            summary,
+            primary_category,
+            confidence,
+            policy_eligible: required_bool(&parsed, constants::field::SCREEN_POLICY_ELIGIBLE)?,
+            provider_kind,
+            model_runtime_ref: optional_string(&parsed, constants::field::SCREEN_MODEL_RUNTIME_REF)
+                .unwrap_or_else(|| SCREEN_SERVICE_ANALYSIS_RUNTIME_REF.to_string()),
+            model_id: optional_string(&parsed, constants::field::SCREEN_MODEL_ID)
+                .unwrap_or_else(|| SCREEN_SERVICE_ANALYSIS_MODEL_ID.to_string()),
+            prompt_or_template_version: optional_string(
+                &parsed,
+                constants::field::SCREEN_TEMPLATE_VERSION,
+            )
+            .unwrap_or_else(|| SCREEN_SERVICE_ANALYSIS_TEMPLATE_VERSION.to_string()),
+            ocr_text_snippets: optional_string_array(
+                &parsed,
+                constants::field::SCREEN_OCR_TEXT_SNIPPETS,
+            ),
+            redaction_notes: optional_string_array(
+                &parsed,
+                constants::field::SCREEN_REDACTION_NOTES,
+            ),
+        },
+        policy,
+    ))
 }
 
 fn output_provider_kind(value: &Value) -> Option<String> {

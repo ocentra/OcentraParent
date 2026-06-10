@@ -1,6 +1,0 @@
-Contract proof:
-
-- cmd /c npm run build --workspace @ocentra-parent/parent-domain: PASS
-- cmd /c npm run test --workspace @ocentra-parent/parent-domain -- app-game-notification-provider-status-handoff app-game-notification-provider-preflight v0-8-notification-provider-status-boundary: PASS
-- Provider-preflight rows become manual-required or unavailable provider-status boundary rows.
-- The existing V0.8 boundary coverage is referenced, but no provider adapter delivery is claimed.

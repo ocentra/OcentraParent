@@ -213,6 +213,14 @@ control, or enforcement. The current rendered parent portal proof covers the
 service-backed Browser-route social dashboard snapshot only; it does not prove
 connector/native runtime, policy execution, notifications, or enforcement.
 
+Parent-owned social notification/report delivery readiness may record
+local delivery result refs only for report-ready rows that already have
+parent-owned report artifact and receipt refs. Manual-required and unavailable rows must keep
+local delivery result refs empty. This local result proof does not prove
+external provider delivery, parent notification UI delivery, cloud routing,
+final policy execution, connector/native runtime, browser mutation, child
+intervention execution, or enforcement.
+
 Child approval/block UX contracts may represent child-facing states and actions
 for approval pending, blocked route candidates, warning candidates, manual
 review, time-limit candidates, and native-app unavailable states. These
@@ -256,12 +264,28 @@ notification UI delivery, report delivery execution, final policy execution,
 connector/native runtime, or enforcement.
 
 Social alert/report parent-surface intent contracts may project provider-status
-handoff rows into parent-visible manual-action-required and unavailable-visible
-surface intent rows with notification status refs, readiness refs, audit refs,
+and preference/quiet-hours status handoff rows into parent-visible
+manual-action-required and unavailable-visible surface intent rows with
+notification status refs, preference status refs, quiet-hours state, audit refs,
 and manual proof requirements. They may prepare data for a future authenticated
-parent notification surface, but must not claim rendered parent notification UI,
-provider dispatch, provider receipt, report delivery execution, final policy
-execution, connector/native runtime, or enforcement.
+parent notification surface, but must not claim rendered parent notification,
+preference, frequency-control, or notification-history UI, provider dispatch,
+provider receipt, child delivery, quiet-hours timer execution, report delivery
+execution, final policy execution, connector/native runtime, or enforcement.
+
+Service-backed social alert/report parent-surface read models may expose those
+manual-action-required and unavailable-visible rows through the Rust WebSocket
+command/event path and the existing Browser route only as status projection.
+The service path must use the shared local eventing request/subscriber pattern
+and must derive the parent-surface projection from provider-status and
+preference-status handoff subscribers rather than a narrower duplicate row
+source. It must preserve no-claim fields for parent notification UI delivery,
+preference UI delivery, notification history UI, provider delivery, provider
+receipt ingestion, provider credentials, cloud routing, child delivery,
+quiet-hours timer runtime, retry-worker runtime, production durable outbox
+storage, adapter dispatch, report delivery execution, final policy execution,
+connector/native runtime, browser mutation, unmanaged exact URL support, and
+enforcement.
 
 Social proof artifact gates may verify checklist ownership, proof folders,
 required source/security/validation/UI-marker files, README references, and
@@ -309,10 +333,30 @@ UI, child delivery, retry or quiet-hours runtime execution, report delivery
 execution, final policy execution, connector/native runtime, enforcement, or
 product completion.
 
+Social alert/report provider dispatch execution rows may prepare a local
+redaction-safe dispatch packet only when a parsed provider receipt-boundary row
+is `provider-dispatch-required` and a matching parsed
+`NotificationLocalOutboxRecord` exists. Manual-required and provider-unavailable
+rows must remain packetless and visible. This local packet boundary must not
+claim external provider delivery, delivered notification receipts, provider
+webhook runtime, provider credentials, cloud routing, parent notification UI
+delivery, child delivery, report delivery execution, final policy execution,
+connector/native runtime, enforcement, or product completion.
+
 Rollout/manual-required gates may label rows as partial/manual-required only.
 They must preserve product completion as unclaimed until notification delivery,
 connector/native runtime, final policy execution, enforcement, release
 readiness, and product checklist upgrade proof exists.
+
+Managed-browser social policy execution may be claimed only for an
+Ocentra-managed browser session when a non-final social policy decision
+candidate is chained to real child-agent intervention endpoint evidence, a
+managed target ref, live-surface capture before mutation, browser mutation,
+child intervention execution, and screenshot refs. It must preserve no-claim
+boundaries for unmanaged browsers, broad OS enforcement, external provider
+delivery, connector/native runtime, Apple platform support, raw URL custody,
+raw page custody, and product completion. Current proof:
+`social-managed-browser-policy-execution-proof`.
 
 Social AI analysis contracts may consume typed social route, metadata, feed,
 account-flow, account-identity, screen-summary, parent-rule, and memory refs to

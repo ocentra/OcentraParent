@@ -8,6 +8,8 @@ Sources: [20-step plan](../parent-desktop-runtime-package-20-step-plan.md),
 ## Where We Are
 
 Package preview states exist but can be confused with platform runtime support.
+Current CI separates parent desktop package previews, parent Android/iOS mobile
+scaffold previews, and child Android/iOS agent previews.
 
 ## Where We Want To Be
 
@@ -18,6 +20,8 @@ states are separated by proof level.
 
 - [ ] Add or update platform matrix output.
 - [ ] Split package, parent shell, child agent, signing, store, and relay rows.
+- [x] Add separate parent Android and parent iOS package-preview targets; do
+      not reuse child-agent package previews as parent mobile proof.
 - [ ] Mark scaffold/manual-required honestly.
 - [ ] Test row stability.
 - [ ] Reference matrix in PR reports.

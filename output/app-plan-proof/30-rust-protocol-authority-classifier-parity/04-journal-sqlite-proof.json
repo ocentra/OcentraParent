@@ -1,5 +1,0 @@
-{
-  "status": "not-applicable",
-  "reason": "No native app journal or SQLite storage was added for authority or classifier shapes.",
-  "storageClaimMoved": false
-}

@@ -1,4 +1,0 @@
-Playwright UI proof not run for native app WP39.
-
-Reason: this cross-recorded slice changes backend/domain read-model payload
-metadata only and does not touch portal UI.

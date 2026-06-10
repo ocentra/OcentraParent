@@ -13,6 +13,10 @@
       "import": "./dist/browser-policy-adapter.js",
       "types": "./dist/browser-policy-adapter.d.ts"
     },
+    "./screen-settings-adapter": {
+      "import": "./dist/screen-settings-adapter.js",
+      "types": "./dist/screen-settings-adapter.d.ts"
+    },
     "./enforcement-product-control-adapter": {
       "import": "./dist/enforcement-product-control-adapter.js",
       "types": "./dist/enforcement-product-control-adapter.d.ts"
@@ -44,6 +48,22 @@
     "./network-remote-delivery-status": {
       "import": "./dist/network-remote-delivery-status.js",
       "types": "./dist/network-remote-delivery-status.d.ts"
+    },
+    "./network-live-capture-status": {
+      "import": "./dist/network-live-capture-status.js",
+      "types": "./dist/network-live-capture-status.d.ts"
+    },
+    "./network-linux-nftables-lab-status": {
+      "import": "./dist/network-linux-nftables-lab-status.js",
+      "types": "./dist/network-linux-nftables-lab-status.d.ts"
+    },
+    "./network-windows-firewall-lab-status": {
+      "import": "./dist/network-windows-firewall-lab-status.js",
+      "types": "./dist/network-windows-firewall-lab-status.d.ts"
+    },
+    "./network-windows-wfp-gate-status": {
+      "import": "./dist/network-windows-wfp-gate-status.js",
+      "types": "./dist/network-windows-wfp-gate-status.d.ts"
     },
     "./app-game-boundary-read-model": {
       "import": "./dist/app-game-boundary-read-model.js",
@@ -88,6 +108,14 @@
     "./social-alert-report-read-model": {
       "import": "./dist/social-alert-report-read-model.js",
       "types": "./dist/social-alert-report-read-model.d.ts"
+    },
+    "./social-parent-notification-delivery-read-model": {
+      "import": "./dist/social-parent-notification-delivery-read-model.js",
+      "types": "./dist/social-parent-notification-delivery-read-model.d.ts"
+    },
+    "./social-alert-report-parent-surface-read-model": {
+      "import": "./dist/social-alert-report-parent-surface-read-model.js",
+      "types": "./dist/social-alert-report-parent-surface-read-model.d.ts"
     },
     "./social-source-custody-mutation": {
       "import": "./dist/social-source-custody-mutation.js",

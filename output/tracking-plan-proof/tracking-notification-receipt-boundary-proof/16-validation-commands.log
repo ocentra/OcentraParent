@@ -1,2 +1,0 @@
-cmd /c npm run build --workspace @ocentra-parent/parent-domain
-cmd /c npm run test --workspace @ocentra-parent/parent-domain -- tracking-notification-receipt-boundary-proof tracking-provider-notification-proof v0-8-notification-provider-status-boundary

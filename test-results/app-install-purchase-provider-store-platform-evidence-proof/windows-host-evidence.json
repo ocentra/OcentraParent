@@ -1,9 +1,0 @@
-{
-  "artifactRef": "windows-package-source-host-evidence-get-appxpackage",
-  "hostPlatform": "win32",
-  "commandName": "Get-AppxPackage",
-  "commandAvailable": true,
-  "commandExitCode": 0,
-  "evidenceSummary": "Get-AppxPackage available; sanitized Microsoft Store package-source probe returned {\"Name\":\"Microsoft.WindowsStore\",\"Publisher\":\"CN=Microsoft Corporation, O=Microsoft Corporation, L=Redmond, S=Washington, C=US\",\"SignatureKind\":3}",
-  "collectedAt": "2026-06-07T13:45:00.000Z"
-}

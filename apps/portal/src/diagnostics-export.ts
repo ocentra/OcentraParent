@@ -28,6 +28,12 @@ export function buildDiagnosticsExport(state: PortalRuntimeState): PortalClipboa
       [PortalDiagnostics.Field.RecentSummary]: liveActivity.recentSummary,
       [PortalDiagnostics.Field.ActivityMemoryGraphReadModel]: liveActivity.activityMemoryGraphReadModel,
       [PortalDiagnostics.Field.NetworkFlowReadModel]: liveActivity.networkFlowReadModel,
+      [PortalDiagnostics.Field.NetworkRuntimeEventChainStream]: liveActivity.networkRuntimeEventChainStream,
+      [PortalDiagnostics.Field.NetworkRemoteDeliveryStatus]: liveActivity.networkRemoteDeliveryStatusResult,
+      [PortalDiagnostics.Field.NetworkLiveCaptureStatus]: liveActivity.networkLiveCaptureStatusResult,
+      [PortalDiagnostics.Field.NetworkLinuxNftablesLabStatus]: liveActivity.networkLinuxNftablesLabStatusResult,
+      [PortalDiagnostics.Field.NetworkWindowsFirewallLabStatus]: liveActivity.networkWindowsFirewallLabStatusResult,
+      [PortalDiagnostics.Field.NetworkWindowsWfpGateStatus]: liveActivity.networkWindowsWfpGateStatusResult,
     },
     [PortalDiagnostics.Field.Events]: state.events
       .slice(0, PortalDiagnostics.TimelineLimit)

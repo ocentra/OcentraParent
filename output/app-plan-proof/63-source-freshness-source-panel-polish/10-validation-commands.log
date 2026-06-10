@@ -1,2 +1,0 @@
-cmd /c npm exec --workspace @ocentra-parent/portal -- vitest run tests/activity-ui-app-game-dashboard-intent.test.ts: exit 0
-node scripts/test/app-game-source-panel-polish-proof.mjs: PASS

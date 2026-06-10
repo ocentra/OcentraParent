@@ -23,6 +23,7 @@ import {
   ScreenEvidenceImageDigestSchema,
   ScreenEvidenceModelIdSchema,
   ScreenEvidenceModelRuntimeRefSchema,
+  ScreenEvidenceOcrSnippetTextSchema,
   ScreenEvidenceQueueJobIdSchema,
   ScreenEvidenceTemplateVersionSchema,
 } from './screen-evidence-primitives';
@@ -33,6 +34,7 @@ import {
   ScreenDeletionStateSchema,
   ScreenEvidenceCustodyStateSchema,
   ScreenLocalModelProviderKindSchema,
+  ScreenRedactionNoteSchema,
   ScreenVisibleCategorySchema,
 } from './screen-evidence-states';
 
@@ -48,6 +50,8 @@ const ActivityScreenProviderKindSchema = Schema.Union(
   ScreenLocalModelProviderKindSchema,
   Schema.Literal('serviceCaptureMetadata')
 );
+const ActivityScreenOcrSnippetListSchema = Schema.Array(ScreenEvidenceOcrSnippetTextSchema);
+const ActivityScreenRedactionNoteListSchema = Schema.Array(ScreenRedactionNoteSchema);
 
 export const ActivitySurfaceSchemaVersion = 1;
 
@@ -286,6 +290,8 @@ export const ActivityScreenReadModelSchema = withParser(
         parentExplanationRefs: Schema.optionalWith(ActivitySurfaceReferenceListSchema, { default: () => [] }),
         explanationReasons: Schema.optionalWith(ActivitySurfaceReferenceListSchema, { default: () => [] }),
         deletionReasons: Schema.optionalWith(ActivitySurfaceReferenceListSchema, { default: () => [] }),
+        ocrTextSnippets: Schema.optionalWith(ActivityScreenOcrSnippetListSchema, { default: () => [] }),
+        redactionNotes: Schema.optionalWith(ActivityScreenRedactionNoteListSchema, { default: () => [] }),
       })
     ),
   })

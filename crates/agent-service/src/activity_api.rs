@@ -10,6 +10,7 @@ use crate::{
     browser_payload::browser_inventory_read_model_payload,
     browser_runtime_paths::system_browser_candidate_paths,
     event_builder::build_event,
+    network_product_path_bridge::prove_network_product_path_for_read_model,
     network_runtime_delivery::deliver_network_runtime_for_read_model,
     network_runtime_stream_payload::{
         network_runtime_event_chain_stream_payload,
@@ -86,6 +87,9 @@ mod app_game_timer_parent_surface_payload_tests;
 mod app_game_timer_parent_surface_service_tests;
 mod browser_intervention_payload;
 mod browser_intervention_report;
+pub(crate) mod social_alert_report_parent_surface_read_model_payload;
+#[cfg(test)]
+mod social_alert_report_parent_surface_read_model_payload_tests;
 pub(crate) mod social_alert_report_read_model_payload;
 #[cfg(test)]
 mod social_alert_report_read_model_payload_tests;
@@ -101,6 +105,11 @@ pub(crate) mod social_dashboard_read_model_payload;
 mod social_dashboard_read_model_payload_tests;
 #[cfg(test)]
 mod social_dashboard_read_model_service_tests;
+pub(crate) mod social_parent_notification_delivery_read_model_payload;
+#[cfg(test)]
+mod social_parent_notification_delivery_read_model_payload_tests;
+#[cfg(test)]
+mod social_parent_notification_delivery_read_model_service_tests;
 pub(crate) mod social_source_custody_mutation_payload;
 #[cfg(test)]
 mod social_source_custody_mutation_payload_tests;
@@ -212,13 +221,18 @@ pub async fn build_network_flow_read_model_report(
     match load_network_flow_read_model().await {
         Some(read_model) => {
             let delivery = deliver_network_runtime_for_read_model(&read_model).await;
+            let product_path = prove_network_product_path_for_read_model(&read_model);
             build_event(
                 constants::event_id::NETWORK_FLOW_READ_MODEL_REPORTED,
                 &command.message_id,
                 command.source,
                 AgentEventName::AgentNetworkFlowReadModelReported,
                 LogLevel::Info,
-                network_flow_read_model_payload_with_runtime_delivery(&read_model, Some(&delivery)),
+                network_flow_read_model_payload_with_runtime_delivery(
+                    &read_model,
+                    Some(&delivery),
+                    Some(&product_path),
+                ),
                 None,
             )
         }
@@ -404,7 +418,7 @@ async fn load_activity_recent_summary() -> Option<ActivityRecentSummary> {
     .flatten()
 }
 
-async fn load_browser_evidence_read_model(
+pub(crate) async fn load_browser_evidence_read_model(
 ) -> Option<ocentra_parent_agent_protocol::BrowserEvidenceReadModel> {
     let path = activity_db_path();
     tokio::task::spawn_blocking(move || {
@@ -455,7 +469,7 @@ async fn load_activity_tracking_read_model(
     .flatten()
 }
 
-pub(super) fn activity_store_error_event(
+pub(crate) fn activity_store_error_event(
     command: AgentCommandEnvelope,
     event_id_suffix: &str,
     event: AgentEventName,

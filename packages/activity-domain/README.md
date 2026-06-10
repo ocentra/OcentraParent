@@ -28,17 +28,35 @@ Shared activity and evidence contracts for child-device observations.
   explicit parent approval, audit refs, custody labels, TTL/delete or
   no-retention behavior, platform-proof refs for live view, and no remote input
   control before those non-default modes can be represented.
+- Screen live-view platform-permission gate contracts that keep ordinary
+  screen-capture permission proof from satisfying live view readiness unless
+  live-view permission evidence, viewer audit, live transport proof,
+  no-frame-retention custody, and no-remote-input boundaries are present.
+- Screen live-view service-session contracts that accept a deleted real-frame
+  loopback transport proof as non-product-ready readiness evidence while
+  rejecting product readiness until service runtime, platform live-view prompt
+  proof, parent UI persistence, no frame cache, no recording, and no remote
+  input are all present.
+- Screen optional visibility capability status contracts that expose disabled,
+  manual-required, blocked, and ready rows for optional raw screenshot retention
+  and live view while rejecting readiness without runtime/deletion proof or
+  live-view permission/transport proof.
 - Screen evidence settings UI proof contracts that build disabled, observe-only,
   and strict dry-run parent intent drafts from the real settings schemas without
   claiming child-agent persistence.
+- Screen child disclosure contracts that define disabled, paused, active
+  capture, protected-surface, and deleted-summary states with calm tokenized
+  child-visible status copy while rejecting hidden capture, raw screenshot
+  display, remote viewer, and policy-authority claims.
 - Screen local AI resource scheduler proof contracts that type OCR/VLM jobs,
   prioritize policy-blocking work, enforce one heavy local screen AI lane per
   child device, and keep pixel/snippet caps plus no-remote-AI/no-raw-retention
   custody explicit.
-- Screen evidence family AI hub routing contracts that require child-local
-  analysis first, keep selected hard-visual routing inside local household LAN
-  custody, and reject raw retention, remote/API fallback, and Ocentra-hosted
-  processing claims.
+- Screen evidence legacy household-provider routing contracts that require
+  child-local analysis first, keep selected hard-visual routing inside local
+  household LAN custody, and reject raw retention, remote/API fallback, and
+  Ocentra-hosted processing claims. Full household mesh execution requires the
+  AI plan claim/lease/result-validation and child-agent authority proofs.
 - Screen intelligence router and managed-browser structured extraction
   contracts that check typed evidence before screenshot capture, skip screenshots
   when structured evidence is enough, and fail closed for protected or
@@ -51,6 +69,10 @@ Shared activity and evidence contracts for child-device observations.
   queue jobs, bounded retained OCR snippets, conversion to screen-analysis
   evidence, child-device query-store custody, policy eligibility only after raw
   image deletion, and no raw retention or remote AI.
+- Screen OCR sensitive text redaction contracts that require parent-controlled
+  OCR text retention, bounded snippets, disabled OCR text state,
+  credential-like suppression, PII-like redaction, no raw text retention, no raw
+  image retention, and no remote AI.
 - Screen guided VLM worker contracts that require source-cited encrypted temp
   queue jobs, bounded local image inputs, schema-bound model output,
   conversion to screen-analysis evidence, child-device query-store custody,
@@ -128,9 +150,10 @@ flowchart LR
 - Screen detector prompts now have `screen-detector-prompt-pack-proof`;
   production model quality, live inference, policy action, and enforcement proof
   remain open.
-- Screen family AI hub routing now has
-  `screen-family-ai-hub-routing-proof`; real LAN hub runtime/discovery,
-  production model quality, UI, policy, and enforcement proof remain open.
+- Legacy household-provider routing now has
+  `screen-family-ai-hub-routing-proof`; household mesh claim/lease/result
+  validation, physical LAN runtime/discovery, production model quality, UI,
+  policy, and enforcement proof remain open.
 - Screen intelligence routing now has
   `screen-router-structured-extraction-proof`; real managed-browser
   DOM/accessibility producer integration, portal rendering, final policy, and
@@ -139,6 +162,24 @@ flowchart LR
   `screen-optional-retention-live-preflight-proof`; runtime retention
   enablement, live transport/relay/cache, platform permission prompts, parent
   UI persistence, privacy/legal approval, and production adapters remain open.
+- Screen live-view platform permission now has
+  `screen-live-view-platform-permission-proof`; it proves capture-only platform
+  consent cannot be reused as live-view readiness. Real live transport,
+  service live-view session runtime, platform prompt screenshots, parent UI
+  persistence, relay/cache execution, privacy/legal approval, and production
+  adapters remain open.
+- Screen live-view service session now has
+  `screen-live-view-service-session-proof`; it consumes the real loopback
+  transport/deletion artifact as a non-product-ready session row and keeps
+  service runtime, platform prompt screenshots, parent UI persistence,
+  relay/cache execution, privacy/legal approval, and production adapters open.
+- Screen optional visibility capability status now has
+  `screen-optional-visibility-capability-status-proof`; runtime raw retention
+  enablement, live transport/relay/cache, parent UI persistence, platform prompt
+  screenshots, and privacy/legal approval remain open.
+- Screen child disclosure now has `screen-child-disclosure-proof`; rendered
+  child-agent delivery, platform-specific screenshots, and product-complete
+  child UX remain separate proof gates.
 - Screen managed-browser CDP screenshot capture now has
   `screen-managed-browser-cdp-capture-proof`; production URL-trigger ownership,
   OCR/VLM quality, policy action, enforcement, live view, and raw retention
@@ -150,6 +191,9 @@ flowchart LR
   policy authority. Production OCR quality, unavailable/permission-required
   state proof, broader trigger OCR, cross-platform OCR parity, and enforcement
   remain separate proof gates.
+- Screen OCR sensitive text redaction now has `screen-ocr-redaction-proof`;
+  service persistence and portal screenshot rendering remain separate proof
+  gates.
 - Screen guided VLM worker now has `screen-ai-vlm-worker-contract-proof`;
   production VLM inference quality, live model execution, portal rendering,
   final policy authority, and enforcement remain separate proof gates.

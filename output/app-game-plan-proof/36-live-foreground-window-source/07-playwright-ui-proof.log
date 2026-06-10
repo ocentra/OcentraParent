@@ -1,6 +1,0 @@
-Playwright UI proof is not applicable.
-
-WP36 does not touch `apps/portal`, UI routes, CSS, browser rendering, or child
-UX. The App/Game Sessions portal can already label foreground rows separately,
-but service foreground capture and dedicated portal source freshness are not
-wired by this workpack.

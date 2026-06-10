@@ -2,9 +2,9 @@ import type { ReactElement } from 'react';
 import {
   PortalDetails,
   PortalDom,
-  PortalRoute,
   PortalText,
   PortalTextToken,
+  isPortalNetworkEvidenceDrawerRoute,
   type PortalDetailValue,
   type PortalDisplayText,
   type PortalRoute as PortalRouteValue,
@@ -13,7 +13,7 @@ import type { PortalLiveActivityState } from './live-activity-state';
 import { networkEvidenceDrawerSummary, type NetworkEvidenceDrawerSummary } from './network-evidence-drawer';
 
 export function shouldRenderNetworkEvidenceDrawerRoute(route: PortalRouteValue): boolean {
-  return route === PortalRoute.Activity;
+  return isPortalNetworkEvidenceDrawerRoute(route);
 }
 
 export function NetworkEvidenceDrawerRoutePanel({

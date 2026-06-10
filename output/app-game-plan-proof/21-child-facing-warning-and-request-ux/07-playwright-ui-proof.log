@@ -1,5 +1,0 @@
-N/A for WP21.
-
-No portal route, child UI, Playwright selector, or rendered browser surface
-changed in this workpack. UI proof is deferred to the workpack that wires
-child-facing UX contracts into visible screens.

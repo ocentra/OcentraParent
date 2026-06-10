@@ -4,8 +4,9 @@ use tokio::{
     io::{AsyncBufReadExt, BufReader},
 };
 
+use crate::journal::verify_hash_chain_entry;
 use crate::{
-    CorrelationId, EventType, EventingError, JournalDispatchPhase, NdjsonEventJournal,
+    CorrelationId, EventType, EventingError, JournalDispatchPhase, JournalHash, NdjsonEventJournal,
     NdjsonJournalEntry, StoredEventEnvelope,
 };
 
@@ -124,6 +125,7 @@ impl NdjsonEventJournal {
         let mut records = Vec::new();
         let mut skipped_count = 0_usize;
         let mut last_sequence = filter.cursor.next_sequence.saturating_sub(1);
+        let mut expected_previous_hash: Option<JournalHash> = None;
 
         while let Some(line) = lines
             .next_line()
@@ -140,6 +142,13 @@ impl NdjsonEventJournal {
                     line: line_number,
                     reason: error.to_string(),
                 })?;
+            verify_hash_chain_entry(&entry, &expected_previous_hash).map_err(|reason| {
+                EventingError::JournalCorruptLine {
+                    line: line_number,
+                    reason,
+                }
+            })?;
+            expected_previous_hash = entry.append.current_hash.clone();
             last_sequence = last_sequence.max(entry.append.sequence);
             if mode == ReplayMode::ActionHandlersAllowed
                 && entry.phase != JournalDispatchPhase::AfterDispatch

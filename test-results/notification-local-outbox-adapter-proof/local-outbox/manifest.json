@@ -1,8 +1,0 @@
-{
-  "proofMode": "notification-local-outbox-adapter-proof",
-  "outboxFile": "test-results/notification-local-outbox-adapter-proof/local-outbox/outbox.jsonl",
-  "recordCount": 6,
-  "outboxFileRef": "local-notification-outbox-jsonl-ref",
-  "localDataPathRef": "parent-owned-local-notification-outbox-data-path-ref",
-  "generatedAt": "2026-06-04T01:54:15.712Z"
-}

@@ -10,7 +10,8 @@ use ocentra_parent_agent_protocol::{constants, AgentLogSnapshot, LogFields};
 use crate::{
     browser_intervention_page::serve_browser_intervention_page,
     browser_policy_runtime::BrowserPolicyRuntime, dev_log::write_agent_info,
-    lan_pairing::LanPairingRuntime, network::NetworkPolicy, snapshot::build_dev_log_snapshot,
+    lan_pairing::LanPairingRuntime, network::NetworkPolicy,
+    screen_settings_runtime::ScreenSettingsRuntime, snapshot::build_dev_log_snapshot,
     websocket::handle_socket,
 };
 
@@ -19,6 +20,7 @@ pub struct AppState {
     network: NetworkPolicy,
     lan_pairing: LanPairingRuntime,
     browser_policy: BrowserPolicyRuntime,
+    screen_settings: ScreenSettingsRuntime,
 }
 
 pub fn router(network: NetworkPolicy) -> Router {
@@ -27,6 +29,7 @@ pub fn router(network: NetworkPolicy) -> Router {
         network,
         lan_pairing: LanPairingRuntime::from_env(),
         browser_policy: BrowserPolicyRuntime::from_env(),
+        screen_settings: ScreenSettingsRuntime::from_env(),
     };
     Router::new()
         .route(constants::endpoint::HEALTH, get(health))
@@ -65,6 +68,12 @@ async fn websocket(
         .and_then(|value| value.to_str().ok())
         .map(ToOwned::to_owned);
     ws.on_upgrade(move |socket| {
-        handle_socket(socket, state.lan_pairing, state.browser_policy, origin)
+        handle_socket(
+            socket,
+            state.lan_pairing,
+            state.browser_policy,
+            state.screen_settings,
+            origin,
+        )
     })
 }

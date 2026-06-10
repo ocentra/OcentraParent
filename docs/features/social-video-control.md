@@ -313,12 +313,30 @@ message, video, and alert coverage. This is one of Ocentra's highest-risk gaps.
   report delivery execution, final policy execution, connector/native runtime,
   and enforcement remain unclaimed.
 - `social-alert-report-parent-surface-intent-proof` now adds a parent-domain
-  social alert/report parent-surface intent read model for provider-status
-  handoff rows. It exposes manual-action-required and unavailable-visible rows
-  with notification status refs, readiness refs, audit refs, and manual proof
+  social alert/report parent-surface intent read model for provider-status plus
+  preference/quiet-hours status handoff rows. It exposes
+  manual-action-required and unavailable-visible rows with notification status
+  refs, preference status refs, quiet-hours state, audit refs, and manual proof
   requirements for future authenticated drill-in. It does not render parent
-  notification UI and does not claim provider delivery, receipts, report
-  delivery execution, final policy execution, connector/native runtime, or
+  notification, preference, frequency-control, or notification-history UI and
+  does not claim provider delivery, receipts, child delivery, quiet-hours timer
+  runtime, report delivery execution, final policy execution,
+  connector/native runtime, or enforcement.
+- `social-alert-report-parent-surface-service-ui-proof` now carries that
+  parent-surface status projection through a service-backed Rust WebSocket
+  command/event and the existing Browser route social alert/report panel. The
+  service publishes a named local
+  `browser.social-alert-report.parent-surface.status.requested` eventing
+  request, asks local provider-status and preference-status handoff
+  subscribers, and completes it through `ocentra-eventing`; the portal renders
+  provider/preference-derived manual-action-required and unavailable-visible
+  parent-surface rows with real Rust-service/Vite-portal desktop and mobile
+  screenshots. This does not claim parent notification UI delivery, preference
+  UI delivery, notification history UI, provider delivery, provider receipt
+  ingestion, provider credentials, cloud routing, child delivery, quiet-hours
+  timer runtime, retry-worker runtime, production durable outbox storage,
+  adapter dispatch, report delivery execution, final policy execution,
+  connector/native runtime, browser mutation, unmanaged exact URL support, or
   enforcement.
 - `social-alert-report-scheduler-bridge-proof` now adds a parent-domain social
   alert/report scheduler bridge. It consumes the local outbox bridge, writes
@@ -357,9 +375,19 @@ message, video, and alert coverage. This is one of Ocentra's highest-risk gaps.
 - `social-report-writer-delivery-proof` now adds a parent-owned report writer
   delivery-readiness boundary for social report intents. It proves report-ready
   rows can cite parent-owned report artifacts and receipts while keeping
-  external runtime report delivery, provider dispatch, provider receipt
+  external runtime report delivery, provider runtime delivery, provider receipt
   ingestion, raw social content, final policy execution, and enforcement
   unclaimed.
+- `social-alert-report-provider-dispatch-execution-proof` now adds a
+  parent-domain local provider dispatch packet boundary. It consumes parsed
+  provider receipt-boundary rows and parsed `NotificationLocalOutboxRecord`
+  rows, prepares redaction-safe local dispatch packets only for
+  `provider-dispatch-required` rows with a matching local outbox record, and
+  leaves manual-required/provider-unavailable rows packetless. External provider
+  delivery, delivered notification receipts, provider webhook runtime, provider
+  credentials, cloud routing, parent notification UI delivery, report delivery
+  execution, final policy execution, connector/native runtime, and enforcement
+  remain unclaimed.
 - `social-applied-schedule-time-budget-proof` now adds a parent-owned
   schedule/time-budget application-readiness boundary for SOCIAL-12 compiler
   candidates. It proves schedule and budget refs can be evaluated into a
@@ -454,13 +482,27 @@ settings, delivered alerts, confidence handling, platform proof, or parent UI.
       credential, and smoke proof refs before delivery can be claimed.
       `social-alert-report-provider-status-handoff-proof` maps those rows into
       the V0.8 notification-provider boundary as manual-required/unavailable,
-      without claiming delivered receipts;
+      without claiming delivered receipts.
+      `social-alert-report-provider-dispatch-execution-proof` now prepares
+      redaction-safe local provider dispatch packets only from
+      provider-dispatch-required receipt-boundary rows with matching parsed local
+      outbox records, without claiming external provider delivery or receipt
+      ingestion. `social-parent-notification-delivery-readiness-proof` now
+      records a parent-owned local delivery result ref for report-ready rows
+      while keeping manual/unavailable rows blocked;
       provider delivery, rendered notification UI/history delivery,
       quiet-hours timer execution, retry worker execution, report delivery
       execution, final policy, and enforcement remain.
 - [ ] Policy schedule/time-budget integration. Compiler contract proof now
       requires explicit schedule and time-budget refs/states; runtime policy
       execution, applied schedules/budgets, and enforcement remain.
+- [ ] Managed-browser policy execution. `social-managed-browser-policy-execution`
+      now proves the managed-session-only path from a non-final social policy
+      candidate to a real child-agent intervention endpoint and browser
+      mutation over a captured YouTube page. Unmanaged browser support, broad
+      OS enforcement, connector/native runtime, external provider delivery,
+      Apple platform support, raw URL/page custody, and product completion
+      remain unclaimed.
 - [ ] Platform-specific unavailable/manual-required states.
 
 ## Next AI Instructions

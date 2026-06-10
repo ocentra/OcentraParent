@@ -1,7 +1,0 @@
-{
-    "runtimeBehaviorChanged":  false,
-    "sharedAppGameProof":  "output/app-game-plan-proof/01-contract-boundary-and-effect-schemas",
-    "workpack":  "01-contract-boundary-and-effect-schemas",
-    "reason":  "Native app plan mirrors shared app/game proof; this slice does not add new live runtime capture.",
-    "reconciliationStatus":  "covered-by-shared-proof-or-not-applicable"
-}

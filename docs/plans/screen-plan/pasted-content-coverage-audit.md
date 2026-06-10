@@ -24,7 +24,7 @@
 - [x] Tiered screen-intelligence router.
 - [x] Managed browser structured extraction before screenshot.
 - [x] OCR before VLM.
-- [x] Family AI hub before remote/API.
+- [x] Household provider route before remote/API.
 - [x] Detector prompt packs.
 - [x] Cross-slice browser/app/game/social/video/bypass/unknown ownership.
 - [x] Native game and unknown-process trigger coverage.

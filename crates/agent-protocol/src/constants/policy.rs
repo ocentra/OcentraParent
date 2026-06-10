@@ -51,6 +51,19 @@ pub const REASON_LOCAL_AI_RESULT_MISSING: &str = "local-ai-result-missing";
 pub const REASON_MISSING_EVIDENCE: &str = "missing-evidence";
 pub const REASON_NO_MATCHING_PARENT_RULE: &str = "no-matching-parent-rule";
 pub const REASON_POLICY_CONFLICT: &str = "policy-conflict";
+pub const REASON_NETWORK_EVIDENCE_GRADE_PARENT_REVIEW: &str =
+    "network-evidence-grade-parent-review";
+pub const REASON_NETWORK_EVIDENCE_GRADE_OBSERVE_ONLY: &str = "network-evidence-grade-observe-only";
+
+pub const NETWORK_EVIDENCE_GRADE_A: &str = "A";
+pub const NETWORK_EVIDENCE_GRADE_B: &str = "B";
+pub const NETWORK_EVIDENCE_GRADE_C: &str = "C";
+pub const NETWORK_EVIDENCE_GRADE_D: &str = "D";
+pub const NETWORK_POLICY_ACTION_NONE: &str = "none";
+pub const NETWORK_POLICY_ACTION_MONITOR: &str = "monitor";
+pub const NETWORK_POLICY_MAPPING_MODE_DRY_RUN: &str = "dry-run";
+pub const NETWORK_POLICY_MAPPING_MODE_OBSERVE_ONLY: &str = "observe-only";
+pub const NETWORK_POLICY_MAPPING_MODE_PARENT_REVIEW: &str = "parent-review";
 
 pub const PREVIEW_CUSTODY_ACTIVITY_STORE: &str = "child-device-activity-store";
 pub const PREVIEW_CAPABILITY_READY: &str = "ready";

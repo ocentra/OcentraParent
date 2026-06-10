@@ -1,2 +1,0 @@
-eventing-lifecycle-clear-proof-ok:event-bus-clear-report-exists,event-bus-clear-method-exists,clear-reports-subscriptions,clear-reports-journal-and-dead-letters,clear-reports-aggregate-gates,queue-clear-method-exists,queue-clear-removes-queued-events,queue-clear-removes-idempotency-state,request-clear-method-exists,request-clear-counts-pending,request-clear-drops-senders,lifecycle-test-resets-state,lifecycle-test-cancels-request
-proof=output\eventing-plan-proof\74-lifecycle-clear\proof-summary.json

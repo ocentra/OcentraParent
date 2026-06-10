@@ -27,6 +27,9 @@ const requiredOperatorScenarioIds = [
   'protected-unsupported-state',
 ];
 
+const optionalOperatorScenarioIds = ['facebook-authenticated-social-surface'];
+const allowedOperatorScenarioIds = new Set([...requiredOperatorScenarioIds, ...optionalOperatorScenarioIds]);
+
 const operatorTemplate = {
   proof: 'screen-ai-live-operator-proof',
   note: 'Fill real URLs/apps before running; raw screenshots are deleted and URLs are redacted in artifacts.',
@@ -64,6 +67,18 @@ const operatorTemplate = {
       expectedCapabilityStatus: 'accessDenied',
     },
   ],
+  optionalScenarios: [
+    browserScenario('facebook-authenticated-social-surface', 'https://www.facebook.com/', 'chat', 'warn', {
+      authenticatedAccountProof: true,
+      operatorConsentForAccountCapture: true,
+      redactedAccountIdentifier: '<redacted-account>',
+      browserUserDataDir: 'REPLACE_WITH_DEDICATED_OPERATOR_BROWSER_PROFILE_DIR',
+      accountReadinessTextContains: 'REPLACE_WITH_VISIBLE_LOGGED_IN_ONLY_TEXT',
+      operatorReadyPrompt: true,
+      promptHint:
+        'Return primary_category chat when a logged-in social/feed surface is visibly present. Do not transcribe private account content.',
+    }),
+  ],
 };
 
 const args = process.argv.slice(2);
@@ -77,15 +92,16 @@ if (args.includes('--verify-harness')) {
 }
 
 const manifest = readManifest(args);
+const manifestScenarios = manifestScenarioRows(manifest);
 const selectedScenarioIds = new Set(
   (process.env.OCENTRA_SCREEN_AI_OPERATOR_SCENARIOS ?? '')
     .split(',')
     .map((entry) => entry.trim())
     .filter((entry) => entry.length > 0)
 );
-const scenarios = manifest.scenarios.filter(
-  (scenario) => selectedScenarioIds.size === 0 || selectedScenarioIds.has(scenario.id)
-);
+const scenarios = manifestScenarios
+  .filter((scenario) => selectedScenarioIds.size === 0 || selectedScenarioIds.has(scenario.id))
+  .map(normalizeScenario);
 
 if (scenarios.length === 0) {
   throw new Error('Live operator proof manifest selected no scenarios.');
@@ -119,7 +135,7 @@ const { FamilyPolicySetSchema, PolicyDecisionSchema, selectStricterPolicyAction 
 
 const scenarioResults = [];
 for (const scenario of scenarios) {
-  scenarioResults.push(await runOperatorScenario(normalizeScenario(scenario)));
+  scenarioResults.push(await runOperatorScenario(scenario));
 }
 
 const completedScenarioIds = scenarioResults
@@ -139,6 +155,8 @@ const summary = {
   requiredScenarioStatus,
   rawImagesDeletedAfterAnalysis: scenarioResults.every((entry) => entry.rawImagesDeletedAfterAnalysis !== false),
   liveExternalUrlProof: scenarioResults.some((entry) => entry.liveExternalUrlProof === true),
+  publicSocialSurfaceProof: scenarioResults.some((entry) => entry.publicSocialSurfaceProof === true),
+  authenticatedAccountSocialProof: scenarioResults.some((entry) => entry.authenticatedAccountProof === true),
   localVlmAnalysisProof: scenarioResults.some((entry) => entry.analyzedByRealLocalVlm === true),
   policyDryRunProof: scenarioResults.some((entry) => entry.policyDecisionValidated === true),
   controlledFixtureProof: false,
@@ -147,6 +165,7 @@ const summary = {
   nonClaims: [
     'This harness opens operator-supplied live URLs/apps and captures the focused local window; it does not own managed-browser URL trigger integration.',
     'A product-complete live proof claim requires every required scenario id to pass with real operator-supplied URLs/apps.',
+    'The default social row proves a public live social/feed surface only; authenticated-account social proof requires an explicit operator-supplied logged-in account row.',
     'Raw screenshots are temporary inputs and are deleted after local analysis; artifacts store redacted source evidence and summaries only.',
   ],
   scenarios: scenarioResults,
@@ -220,6 +239,8 @@ async function runOperatorScenario(scenario) {
       captureReason: scenario.captureReason,
       captureScope: scenario.captureScope,
       liveExternalUrlProof: source.sourceEvidence.liveExternalUrl === true,
+      publicSocialSurfaceProof: source.sourceEvidence.publicSocialSurfaceProof === true,
+      authenticatedAccountProof: source.sourceEvidence.authenticatedAccountProof === true,
       analyzedByRealLocalVlm: true,
       schemaValidated: true,
       policyDecisionValidated: true,
@@ -305,11 +326,8 @@ async function openOperatorSurface(scenario) {
 }
 
 async function openBrowserSurface(scenario) {
-  const browser = await chromium.launch({
-    headless: false,
-    args: ['--window-size=1280,800', '--window-position=80,80'],
-  });
-  const page = await browser.newPage({ viewport: { width: 1280, height: 800 } });
+  const browserSession = await openBrowserSession(scenario);
+  const page = browserSession.page;
   const sourceEvidence = redactedUrlEvidence(scenario);
   return {
     sourceEvidence,
@@ -319,6 +337,39 @@ async function openBrowserSurface(scenario) {
       await page.waitForTimeout(scenario.waitMs);
       sourceEvidence.pageReadiness = await collectBrowserReadinessEvidence(page, scenario);
     },
+    close: async () => {
+      await browserSession.close();
+    },
+  };
+}
+
+async function openBrowserSession(scenario) {
+  const launchArgs = ['--window-size=1280,800', '--window-position=80,80'];
+  if (typeof scenario.browserUserDataDir === 'string' && scenario.browserUserDataDir.trim().length > 0) {
+    const context = await chromium.launchPersistentContext(resolve(scenario.browserUserDataDir), {
+      headless: false,
+      args: launchArgs,
+      viewport: { width: 1280, height: 800 },
+    });
+    return {
+      page: context.pages()[0] ?? (await context.newPage()),
+      close: async () => {
+        await context.close();
+      },
+    };
+  }
+
+  const browser = await chromium.launch({
+    headless: false,
+    args: launchArgs,
+  });
+  const contextOptions = { viewport: { width: 1280, height: 800 } };
+  if (typeof scenario.browserStorageStatePath === 'string' && scenario.browserStorageStatePath.trim().length > 0) {
+    contextOptions.storageState = resolve(scenario.browserStorageStatePath);
+  }
+  const context = await browser.newContext(contextOptions);
+  return {
+    page: await context.newPage(),
     close: async () => {
       await browser.close();
     },
@@ -341,6 +392,9 @@ async function collectBrowserReadinessEvidence(page, scenario) {
   const textMatches =
     scenario.expectedVisibleTextContains === undefined ||
     trimmedText.toLowerCase().includes(String(scenario.expectedVisibleTextContains).toLowerCase());
+  const accountTextMatches =
+    scenario.accountReadinessTextContains === undefined ||
+    trimmedText.toLowerCase().includes(String(scenario.accountReadinessTextContains).toLowerCase());
   const hostnameMatches = final.hostname === expected.hostname;
   const loaded = final.protocol !== 'about:' && (title.trim().length > 0 || trimmedText.length > 0);
   if (!loaded) {
@@ -360,14 +414,16 @@ async function collectBrowserReadinessEvidence(page, scenario) {
       })}`
     );
   }
-  if (!titleMatches || !textMatches) {
+  if (!titleMatches || !textMatches || !accountTextMatches) {
     throw new Error(
       `Live operator browser surface did not satisfy manifest readiness assertions for ${scenario.id}: ${JSON.stringify(
         {
           expectedTitleContains: scenario.expectedTitleContains ?? null,
           expectedVisibleTextContains: scenario.expectedVisibleTextContains ?? null,
+          accountReadinessTextRequired: scenario.accountReadinessTextContains !== undefined,
           titleMatches,
           textMatches,
+          accountTextMatches,
           titleLength: title.length,
           visibleTextLength: trimmedText.length,
         }
@@ -387,6 +443,7 @@ async function collectBrowserReadinessEvidence(page, scenario) {
       hostnameMatches,
       titleMatches,
       textMatches,
+      accountTextMatches,
     },
   };
 }
@@ -881,11 +938,14 @@ function normalizeScenario(scenario) {
       scenario.promptHint ??
       `Return primary_category ${scenario.expectedPrimaryCategory} when that activity is visibly present.`,
   };
-  if (!requiredOperatorScenarioIds.includes(normalized.id)) {
+  if (!allowedOperatorScenarioIds.has(normalized.id)) {
     throw new Error(`Unknown live operator scenario id: ${normalized.id}`);
   }
   if (normalized.surface === 'browser' && typeof normalized.url !== 'string') {
     throw new Error(`Browser scenario ${normalized.id} requires url.`);
+  }
+  if (normalized.authenticatedAccountProof === true) {
+    validateAuthenticatedAccountScenario(normalized);
   }
   if (normalized.surface === 'nativeApp' && typeof normalized.launchCommand !== 'string') {
     throw new Error(`Native app scenario ${normalized.id} requires launchCommand.`);
@@ -899,6 +959,38 @@ function normalizeScenario(scenario) {
     }
   }
   return normalized;
+}
+
+function validateAuthenticatedAccountScenario(scenario) {
+  if (scenario.surface !== 'browser') {
+    throw new Error(`Authenticated-account proof scenario ${scenario.id} must use a browser surface.`);
+  }
+  if (scenario.operatorConsentForAccountCapture !== true) {
+    throw new Error(`Authenticated-account proof scenario ${scenario.id} requires operatorConsentForAccountCapture.`);
+  }
+  const hasSessionSource =
+    typeof scenario.browserUserDataDir === 'string' ||
+    typeof scenario.browserStorageStatePath === 'string' ||
+    scenario.operatorReadyPrompt === true ||
+    process.env.OCENTRA_SCREEN_AI_OPERATOR_INTERACTIVE === '1';
+  if (!hasSessionSource) {
+    throw new Error(
+      `Authenticated-account proof scenario ${scenario.id} requires browserUserDataDir, browserStorageStatePath, or an interactive operator prompt.`
+    );
+  }
+  if (typeof scenario.accountReadinessTextContains !== 'string') {
+    throw new Error(`Authenticated-account proof scenario ${scenario.id} requires accountReadinessTextContains.`);
+  }
+  const hasRedactedAccountIdentifier =
+    typeof scenario.redactedAccountIdentifier === 'string' &&
+    scenario.redactedAccountIdentifier.toLowerCase().includes('redacted');
+  const hasAccountIdentifierHash =
+    typeof scenario.accountIdentifierHash === 'string' && scenario.accountIdentifierHash.length >= 32;
+  if (!hasRedactedAccountIdentifier && !hasAccountIdentifierHash) {
+    throw new Error(
+      `Authenticated-account proof scenario ${scenario.id} requires redactedAccountIdentifier or accountIdentifierHash.`
+    );
+  }
 }
 
 function readManifest(args) {
@@ -916,6 +1008,17 @@ function readManifest(args) {
   );
 }
 
+function manifestScenarioRows(manifest) {
+  const rows = [
+    ...(Array.isArray(manifest.scenarios) ? manifest.scenarios : []),
+    ...(Array.isArray(manifest.optionalScenarios) ? manifest.optionalScenarios : []),
+  ];
+  if (rows.length === 0) {
+    throw new Error('Live operator proof manifest must contain scenarios or optionalScenarios.');
+  }
+  return rows;
+}
+
 function browserScenario(id, url, expectedPrimaryCategory, expectedPolicyAction, overrides = {}) {
   return {
     id,
@@ -930,14 +1033,20 @@ function browserScenario(id, url, expectedPrimaryCategory, expectedPolicyAction,
     promptHint:
       overrides.promptHint ??
       `Return primary_category ${expectedPrimaryCategory} when the live browser surface visibly matches this scenario.`,
+    ...overrides,
   };
 }
 
 function writeHarnessReadinessArtifact() {
   const templateIds = operatorTemplate.scenarios.map((scenario) => scenario.id);
+  const optionalTemplateIds = operatorTemplate.optionalScenarios.map((scenario) => scenario.id);
   const missingIds = requiredOperatorScenarioIds.filter((id) => !templateIds.includes(id));
+  const missingOptionalIds = optionalOperatorScenarioIds.filter((id) => !optionalTemplateIds.includes(id));
   if (missingIds.length > 0) {
     throw new Error(`Live operator template is missing required ids: ${missingIds.join(',')}`);
+  }
+  if (missingOptionalIds.length > 0) {
+    throw new Error(`Live operator template is missing optional ids: ${missingOptionalIds.join(',')}`);
   }
   const readinessDir = join(proofRoot, 'harness-readiness');
   mkdirSync(readinessDir, { recursive: true });
@@ -945,8 +1054,12 @@ function writeHarnessReadinessArtifact() {
     proof: 'screen-ai-live-operator-harness-readiness',
     generatedAt: new Date().toISOString(),
     templateCoversRequiredScenarioIds: true,
+    templateCoversOptionalAuthenticatedAccountScenarioIds: true,
     requiredOperatorScenarioIds,
+    optionalOperatorScenarioIds,
     manifestRequiredForLiveProof: true,
+    optionalAuthenticatedAccountScenarioManifestSupported: true,
+    optionalAuthenticatedAccountScenarioRequiresSessionCustody: true,
     liveUrlOrAccountProofClaimed: false,
     localVlmInvocationClaimed: false,
     rawScreenshotCaptureClaimed: false,
@@ -959,16 +1072,49 @@ function writeHarnessReadinessArtifact() {
 
 function redactedUrlEvidence(scenario) {
   const parsed = new URL(scenario.url);
+  const publicSocialSurfaceProof =
+    scenario.id === 'facebook-social-surface' && scenario.authenticatedAccountProof !== true;
+  const authenticatedAccountProof = scenario.authenticatedAccountProof === true;
   return {
     scenarioId: scenario.id,
     sourceKind: 'operator-live-url',
     liveExternalUrl: parsed.protocol === 'https:' || parsed.protocol === 'http:',
+    publicSocialSurfaceProof,
+    authenticatedAccountProof,
+    authenticatedAccountEvidence:
+      authenticatedAccountProof === true
+        ? {
+            operatorConsentForAccountCapture: scenario.operatorConsentForAccountCapture === true,
+            redactedAccountIdentifier: scenario.redactedAccountIdentifier ?? null,
+            accountIdentifierHash:
+              scenario.accountIdentifierHash ??
+              (typeof scenario.redactedAccountIdentifier === 'string'
+                ? sha256(scenario.redactedAccountIdentifier)
+                : null),
+            accountReadinessTextHash: sha256(scenario.accountReadinessTextContains),
+            browserSessionSource: browserSessionSourceKind(scenario),
+            browserSessionSourceHash: browserSessionSourceHash(scenario),
+            rawAccountIdentifierRetained: false,
+          }
+        : null,
     protocol: parsed.protocol.replace(':', ''),
     hostname: parsed.hostname,
     redactedUrl: `${parsed.protocol}//${parsed.hostname}/<redacted>`,
     urlHash: sha256(scenario.url),
     pathAndQueryHash: sha256(`${parsed.pathname}${parsed.search}`),
   };
+}
+
+function browserSessionSourceKind(scenario) {
+  if (typeof scenario.browserUserDataDir === 'string') return 'persistent-profile';
+  if (typeof scenario.browserStorageStatePath === 'string') return 'storage-state';
+  return 'interactive-existing-session';
+}
+
+function browserSessionSourceHash(scenario) {
+  if (typeof scenario.browserUserDataDir === 'string') return sha256(resolve(scenario.browserUserDataDir));
+  if (typeof scenario.browserStorageStatePath === 'string') return sha256(resolve(scenario.browserStorageStatePath));
+  return null;
 }
 
 function requireRawTempPath(captureMetadata, scenarioId) {
@@ -1037,7 +1183,7 @@ function normalizeRiskSignals(scenario, value) {
 }
 
 function assertNoManifestSecretsLeaked(manifest, root) {
-  const sensitiveUrlNeedles = manifest.scenarios
+  const sensitiveUrlNeedles = manifestScenarioRows(manifest)
     .map((scenario) => scenario.url)
     .filter((value) => typeof value === 'string')
     .flatMap((rawUrl) => {

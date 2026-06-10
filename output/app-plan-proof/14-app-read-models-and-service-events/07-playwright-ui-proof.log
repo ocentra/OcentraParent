@@ -1,9 +1,0 @@
-# Playwright UI Proof
-
-No Playwright UI command was run for this workpack.
-
-Reason:
-
-- No portal or child-facing UI changed.
-- `06-ui-snapshots/ui-not-applicable.md` records the N/A decision.
-- App-plan WP15 owns the parent portal app inventory/running/session surfaces.

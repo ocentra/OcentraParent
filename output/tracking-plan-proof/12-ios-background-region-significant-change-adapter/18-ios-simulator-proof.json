@@ -1,8 +1,0 @@
-{
-  "workpackId": "12-ios-background-region-significant-change-adapter",
-  "requiredProofTier": "P4_PHYSICAL_DEVICE",
-  "currentProofTier": "P2_HOSTED_CI",
-  "currentStatus": "manual_required",
-  "artifactPath": "test-results/tracking-plan-ios-simulator-proof/proof.json",
-  "manualRequiredReason": "simulator package launch does not prove Always authorization, region monitoring, background delivery, significant-change, visits, low-power, or app-terminated behavior"
-}

@@ -1,2 +1,0 @@
-PASS cmd /c npm run build --workspace @ocentra-parent/parent-domain
-PASS cmd /c npm run test --workspace @ocentra-parent/parent-domain -- social-alert-report-local-outbox-bridge social-alert-report-intent notification-local-outbox-adapter-proof

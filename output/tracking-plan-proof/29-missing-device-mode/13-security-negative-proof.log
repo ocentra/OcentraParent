@@ -1,5 +1,0 @@
-Security/no-claim proof:
-
-- Current location, live tracking runtime, powered-off device tracking, remote sync runtime, provider delivery, physical-device proof, portal runtime UI, and OS lost-mode API integrations remain false.
-- Powered-off/offline rows show last-known and device-contact evidence instead of claiming live location.
-- Parent actions are explicit audit/action references and do not dispatch child-device commands in this proof.

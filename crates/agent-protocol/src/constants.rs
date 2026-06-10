@@ -19,6 +19,9 @@ pub mod env_var {
     pub const AGENT_ENFORCEMENT_TIMER_STATE_PATH: &str =
         "OCENTRA_PARENT_AGENT_ENFORCEMENT_TIMER_STATE_PATH";
     pub const AGENT_BROWSER_POLICY_STORE_PATH: &str = "OCENTRA_PARENT_BROWSER_POLICY_STORE_PATH";
+    pub const AGENT_SCREEN_SETTINGS_STORE_PATH: &str = "OCENTRA_PARENT_SCREEN_SETTINGS_STORE_PATH";
+    pub const ACTIVITY_CAPTURE_STARTUP_DISABLED: &str =
+        "OCENTRA_PARENT_ACTIVITY_CAPTURE_STARTUP_DISABLED";
     pub const ACTIVITY_DB_PATH: &str = "OCENTRA_PARENT_ACTIVITY_DB_PATH";
     pub const ACTIVITY_JOURNAL_KEY_PATH: &str = "OCENTRA_PARENT_ACTIVITY_JOURNAL_KEY_PATH";
     pub const ACTIVITY_JOURNAL_PATH: &str = "OCENTRA_PARENT_ACTIVITY_JOURNAL_PATH";
@@ -139,6 +142,10 @@ pub mod event_id {
         "browser-social-audit-explanation-read-model-reported";
     pub const BROWSER_SOCIAL_ALERT_REPORT_READ_MODEL_REPORTED: &str =
         "browser-social-alert-report-read-model-reported";
+    pub const BROWSER_SOCIAL_ALERT_REPORT_PARENT_SURFACE_READ_MODEL_REPORTED: &str =
+        "browser-social-alert-report-parent-surface-read-model-reported";
+    pub const BROWSER_SOCIAL_PARENT_NOTIFICATION_DELIVERY_READ_MODEL_REPORTED: &str =
+        "browser-social-parent-notification-delivery-read-model-reported";
     pub const BROWSER_SOCIAL_SOURCE_CUSTODY_MUTATION_APPLIED: &str =
         "browser-social-source-custody-mutation-applied";
     pub const ACTIVITY_NETWORK_READ_MODEL_REPORTED: &str = "activity-network-read-model-reported";
@@ -146,11 +153,20 @@ pub mod event_id {
     pub const BROWSER_INVENTORY_READ_MODEL_REPORTED: &str = "browser-inventory-read-model-reported";
     pub const BROWSER_EVIDENCE_RECENT_REPORTED: &str = "browser-evidence-recent-reported";
     pub const BROWSER_MANAGED_STATUS_REPORTED: &str = "browser-managed-status-reported";
+    pub const BROWSER_RUNTIME_EVENT_CHAIN_STREAM_REPORTED: &str =
+        "browser-runtime-event-chain-stream-reported";
     pub const NETWORK_FLOW_READ_MODEL_REPORTED: &str = "network-flow-read-model-reported";
     pub const NETWORK_RUNTIME_EVENT_CHAIN_STREAM_REPORTED: &str =
         "network-runtime-event-chain-stream-reported";
     pub const NETWORK_REMOTE_DELIVERY_STATUS_REPORTED: &str =
         "network-remote-delivery-status-reported";
+    pub const NETWORK_LIVE_CAPTURE_STATUS_REPORTED: &str = "network-live-capture-status-reported";
+    pub const NETWORK_LINUX_NFTABLES_LAB_STATUS_REPORTED: &str =
+        "network-linux-nftables-lab-status-reported";
+    pub const NETWORK_WINDOWS_FIREWALL_LAB_STATUS_REPORTED: &str =
+        "network-windows-firewall-lab-status-reported";
+    pub const NETWORK_WINDOWS_WFP_GATE_STATUS_REPORTED: &str =
+        "network-windows-wfp-gate-status-reported";
     pub const LOCAL_AI_RUNTIME_STATUS_REPORTED: &str = "local-ai-runtime-status-reported";
     pub const LOCAL_AI_CHAT_GENERATION_REPORTED: &str = "local-ai-chat-generation-reported";
     pub const PARENT_ASSISTANT_ANSWER_REPORTED: &str = "parent-assistant-answer-reported";
@@ -163,6 +179,9 @@ pub mod event_id {
     pub const BROWSER_POLICY_REPLACE_REJECTED: &str = "browser-policy-replace-rejected";
     pub const BROWSER_POLICY_ROLLBACK_ACCEPTED: &str = "browser-policy-rollback-accepted";
     pub const BROWSER_POLICY_ROLLBACK_REJECTED: &str = "browser-policy-rollback-rejected";
+    pub const SCREEN_SETTINGS_REPORTED: &str = "screen-settings-reported";
+    pub const SCREEN_SETTINGS_REPLACE_ACCEPTED: &str = "screen-settings-replace-accepted";
+    pub const SCREEN_SETTINGS_REPLACE_REJECTED: &str = "screen-settings-replace-rejected";
     pub const ENFORCEMENT_AUDIT_REPORTED: &str = "enforcement-audit-reported";
     pub const ENFORCEMENT_TIMER_REPORTED: &str = "enforcement-timer-reported";
     pub const ENFORCEMENT_PRODUCT_CONTROL_SPINE_REPORTED: &str =
@@ -218,6 +237,26 @@ pub mod journal {
     pub const TEST_TAMPER_SUFFIX: &str = "tamper";
     pub const TEST_ROTATION_BYTES: u64 = 1;
     pub const XCHACHA20_NONCE_BYTES: usize = 24;
+}
+
+pub mod network_raw_artifact {
+    pub const ARTIFACT_FILE_PREFIX: &str = "network-raw-artifact-";
+    pub const EXPORT_FILE_PREFIX: &str = "network-raw-export-";
+    pub const FILE_EXTENSION: &str = "pcap";
+    pub const HASH_ALGORITHM_SHA256: &str = "sha256";
+    pub const STATE_ACTIVE: &str = "active";
+    pub const STATE_DELETED: &str = "deleted";
+    pub const TEST_ARTIFACT_ID: &str = "network-capture-artifact-1";
+    pub const TEST_CAPTURED_AT: &str = "2026-06-08T22:20:00Z";
+    pub const TEST_CUSTODY_LABEL: &str = "local-raw-capture-custody";
+    pub const TEST_DIR_PREFIX: &str = "ocentra-parent-network-raw-artifact-test-";
+    pub const TEST_EMPTY_PAYLOAD_SUFFIX: &str = "empty-payload";
+    pub const TEST_EXPORT_DIR_SUFFIX: &str = "export";
+    pub const TEST_OVERSIZED_ARTIFACT_ID: &str = "network-capture-artifact-oversized";
+    pub const TEST_QUOTA_SUFFIX: &str = "quota";
+    pub const TEST_REJECT_IDS_SUFFIX: &str = "reject-ids";
+    pub const TEST_SOURCE_EVENT_ID: &str = "network-live-capture-event-1";
+    pub const TEST_WRITE_READ_SUFFIX: &str = "write-read";
 }
 
 #[path = "constants/activity_capture.rs"]
@@ -511,12 +550,84 @@ pub mod browser_policy {
     pub const MESSAGE_REVISION_NOT_FOUND: &str = "Browser policy revision was not found.";
     pub const MESSAGE_INVALID_POLICY: &str = "Browser policy value is inconsistent.";
 }
+
+pub mod screen_settings {
+    pub const UPDATE_KIND_GET: &str = "get";
+    pub const UPDATE_KIND_REPLACE: &str = "replace";
+    pub const UPDATE_STATUS_ACCEPTED: &str = "accepted";
+    pub const UPDATE_STATUS_REJECTED: &str = "rejected";
+    pub const REJECTION_STORAGE_UNAVAILABLE: &str = "storage-unavailable";
+    pub const REJECTION_INVALID_SETTING: &str = "invalid-setting";
+    pub const REJECTION_STALE_REVISION: &str = "stale-revision";
+    pub const REJECTION_RAW_RETENTION_FORBIDDEN: &str = "raw-retention-forbidden";
+    pub const REJECTION_DISABLED_SETTING_INCONSISTENT: &str = "disabled-setting-inconsistent";
+    pub const REJECTION_POLICY_MODE_INCONSISTENT: &str = "policy-mode-inconsistent";
+    pub const REJECTION_STRICT_MODE_INCONSISTENT: &str = "strict-mode-inconsistent";
+    pub const REJECTION_TRIGGER_MODE_INCONSISTENT: &str = "trigger-mode-inconsistent";
+    pub const REJECTION_OCR_MODE_INCONSISTENT: &str = "ocr-mode-inconsistent";
+    pub const STORE_FILE_NAME: &str = "ocentra-parent-screen-settings-state.json";
+    pub const TEST_STORE_FILE_PREFIX: &str = "ocentra-parent-screen-settings-test";
+    pub const REQUEST_ID_GET: &str = "screen-settings-request-get";
+    pub const REQUEST_ID_REPLACE: &str = "screen-settings-request-replace";
+    pub const DEFAULT_PARENT_SETTING_REF: &str = "screen-parent-setting-default";
+    pub const DEFAULT_CHANGED_BY_PARENT_REF: &str = "screen-parent-local-settings";
+    pub const DEFAULT_CHANGED_AT: &str = "2026-06-07T04:20:00Z";
+    pub const DEFAULT_REASON: &str = "screen-settings-service-default-disabled";
+    pub const STRICT_REASON: &str = "parent-enabled-strict-dry-run";
+    pub const RAW_RETENTION_LOCAL_TTL_REASON: &str = "parent-approved-local-ttl-raw-retention";
+    pub const REVISION_PREFIX: &str = "screen-setting-revision-";
+    pub const AUDIT_PREFIX: &str = "screen-setting-audit-";
+    pub const TEST_AUDIT_EVENT_ID_1: &str = "screen-setting-audit-1";
+    pub const TEST_PATH_SUFFIX_PERSISTENCE: &str = "persists-parent-opt-in";
+    pub const TEST_PATH_SUFFIX_COMMAND: &str = "service-command-path";
+    pub const TEST_JSON_EXTENSION: &str = "json";
+    pub const COMMAND_NAME_GET: &str = "agent.screen-settings.get";
+    pub const COMMAND_NAME_REPLACE: &str = "agent.screen-settings.replace";
+    pub const EVENT_NAME_REPORTED: &str = "agent.screen-settings.reported";
+    pub const EVENT_NAME_REPLACE_ACCEPTED: &str = "agent.screen-settings.replace.accepted";
+    pub const EVENT_NAME_REPLACE_REJECTED: &str = "agent.screen-settings.replace.rejected";
+    pub const COMMAND_MESSAGE_ID: &str = "screen-settings-command-message";
+    pub const TEST_SENT_AT: &str = "2026-06-07T04:55:00Z";
+    pub const TEST_SETTING_RETURNED: &str = "screen setting returned";
+    pub const TEST_PERSISTED_SETTING_RETURNED: &str = "persisted screen setting returned";
+    pub const TEST_STORE_READABLE: &str = "screen settings store is readable";
+    pub const MESSAGE_REPORTED: &str = "Screen settings state reported.";
+    pub const MESSAGE_ACCEPTED: &str = "Screen settings update accepted.";
+    pub const MESSAGE_STORAGE_UNAVAILABLE: &str = "Screen settings storage is unavailable.";
+    pub const MESSAGE_STALE_REVISION: &str = "Screen settings base revision is stale.";
+    pub const MESSAGE_INVALID_SETTING: &str = "Screen settings value is inconsistent.";
+    pub const ANALYSIS_MODE_OBSERVE_ONLY: &str = "observeOnly";
+    pub const ANALYSIS_MODE_POLICY_DRY_RUN: &str = "policyDryRun";
+    pub const ANALYSIS_MODE_ENFORCEMENT_ELIGIBLE: &str = "enforcementEligible";
+    pub const CAPTURE_SCOPE_ACTIVE_WINDOW: &str = "activeWindow";
+    pub const CAPTURE_TRIGGER_TIMED_CADENCE: &str = "timedCadence";
+    pub const CAPTURE_TRIGGER_NATIVE_APP_FOREGROUND: &str = "nativeAppForegroundStart";
+    pub const REDACTION_MODE_DISABLED: &str = "disabled";
+    pub const REDACTION_MODE_LOCAL_SENSITIVE_TEXT: &str = "localSensitiveText";
+    pub const OCR_TEXT_RETENTION_DISABLED: &str = "disabled";
+    pub const OCR_TEXT_RETENTION_REDACTED_SNIPPETS: &str = "redactedSnippets";
+    pub const MIN_CADENCE_SECONDS: u64 = 60;
+    pub const MAX_CADENCE_SECONDS: u64 = 3600;
+    pub const DEFAULT_DISABLED_CADENCE_SECONDS: u64 = 300;
+    pub const STRICT_CADENCE_SECONDS: u64 = 60;
+    pub const MIN_TTL_SECONDS: u64 = 60;
+    pub const MAX_TTL_SECONDS: u64 = 1800;
+    pub const DEFAULT_TTL_SECONDS: u64 = 300;
+    pub const RAW_RETENTION_MAX_TTL_SECONDS: u64 = 120;
+    pub const MAX_RETRY_COUNT: u64 = 5;
+    pub const DEFAULT_RETRY_COUNT: u64 = 2;
+    pub const MAX_OCR_SNIPPET_LIMIT: u64 = 20;
+}
 #[path = "constants/enforcement.rs"]
 pub mod enforcement;
+#[path = "constants/household_mesh.rs"]
+pub mod household_mesh;
 #[path = "constants/lan_pairing.rs"]
 pub mod lan_pairing;
 #[path = "constants/network_flow.rs"]
 pub mod network_flow;
+#[path = "constants/screen_flow.rs"]
+pub mod screen_flow;
 
 #[path = "constants/sqlite.rs"]
 pub mod sqlite;
@@ -545,6 +656,11 @@ pub mod error {
         "activity capture rejects invalid journal key";
     pub const NETWORK_CAPTURE_OBSERVES_SOCKET: &str =
         "network capture observes the current process socket";
+    pub const NETWORK_RAW_ARTIFACT_DELETES: &str = "network raw artifact deletes";
+    pub const NETWORK_RAW_ARTIFACT_EXPORTS: &str = "network raw artifact exports";
+    pub const NETWORK_RAW_ARTIFACT_OPENS: &str = "network raw artifact store opens";
+    pub const NETWORK_RAW_ARTIFACT_READS: &str = "network raw artifact reads";
+    pub const NETWORK_RAW_ARTIFACT_WRITES: &str = "network raw artifact writes";
     pub const BROWSER_BRIDGE_MAPS_TARGET: &str = "browser bridge maps target";
     pub const BROWSER_BRIDGE_REJECTS_INVALID_URL: &str = "browser bridge rejects invalid URL";
     pub const LOCAL_AI_RUNTIME_SPAWNS: &str = "local AI runtime process spawns";

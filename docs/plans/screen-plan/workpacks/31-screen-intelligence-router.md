@@ -2,7 +2,7 @@
 
 ## Target State
 
-Router chooses the cheapest safe route before capture, OCR, VLM, family hub, or remote redacted-only fallback.
+Router chooses the cheapest safe route before capture, OCR, VLM, trusted household mesh provider, or remote redacted-only fallback.
 
 ## MVP Boundary
 

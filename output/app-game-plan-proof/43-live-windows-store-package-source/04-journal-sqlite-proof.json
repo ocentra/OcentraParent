@@ -1,8 +1,0 @@
-{
-  "command": "cargo test -p ocentra-parent-agent-core store_package",
-  "result": "pass",
-  "journalProjection": "store package manifest event replays into SQLite inventory read model",
-  "inventoryReturned": 1,
-  "runningNowReturned": 0,
-  "foregroundNowReturned": 0
-}

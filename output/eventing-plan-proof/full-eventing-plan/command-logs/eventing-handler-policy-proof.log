@@ -1,2 +1,0 @@
-eventing-handler-policy-proof-ok:handler-execution-policy,handler-timeout-wrapper,handler-timeout-outcome,event-trace-fields,event-recorder-testkit,retry-policy-test,timeout-policy-test,event-recorder-test
-proof=output\eventing-plan-proof\18-24-handler-policy\proof-summary.json

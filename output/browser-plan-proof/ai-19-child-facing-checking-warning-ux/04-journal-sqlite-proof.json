@@ -1,6 +1,0 @@
-{
-  "schemaVersion": 1,
-  "workpack": "ai-19-child-facing-checking-warning-ux",
-  "status": "not-applicable",
-  "reason": "This slice adds rendered child UX endpoint proof only. It does not add or change journal persistence, SQLite rows, replay behavior, or read-model storage."
-}

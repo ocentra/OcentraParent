@@ -1,9 +1,0 @@
-See shared proof:
-- output/app-game-plan-proof/23-broad-blocking-proof-gates/08-security-negative-proof.log
-
-Native app negative proof:
-- Scoped owned-process time-limit proof remains separate from broad app/package blocking.
-- Manual-required block-launch cannot call adapters.
-- Unavailable block-launch cannot call adapters.
-- iOS terminate-process remains not-claimed.
-- No product-ready broad app blocking is claimed.

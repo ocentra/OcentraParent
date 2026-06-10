@@ -1,4 +1,7 @@
 mod adapter;
+mod adapter_output_fields;
+mod adapter_process;
+mod adapter_redaction;
 #[cfg(test)]
 mod adapter_tests;
 mod config;
@@ -7,13 +10,17 @@ mod queue;
 
 use std::time::Duration;
 
+use ocentra_parent_agent_core::ActivityStore;
 use ocentra_parent_agent_protocol::{
-    LocalAiProviderSchedulerJobClass, SCREEN_PROVIDER_SERVICE_METADATA,
+    constants, ActivityScreenReadModelRow, LocalAiProviderSchedulerJobClass,
+    SCREEN_PROVIDER_SERVICE_METADATA,
 };
 
 use crate::{
     activity_capture::{record_activity_events_to_paths, ActivityCaptureError},
+    activity_surface_read_models::activity_screen_row_from_result,
     local_ai_provider_scheduler::local_ai_provider_scheduler,
+    screen_ai_service_event_subscription::ScreenAiServiceEventRuntime,
 };
 
 pub(crate) use config::{
@@ -32,14 +39,16 @@ pub(crate) fn spawn_screen_ai_analysis_runtime() {
 
 async fn run_screen_ai_analysis_runtime(config: ScreenAiAnalysisRuntimeConfig) {
     let mut interval = tokio::time::interval(Duration::from_secs(config.poll_seconds));
+    let event_runtime = ScreenAiServiceEventRuntime::start().await.ok();
     let mut job_count = 0;
     let mut tick_count = 0;
     loop {
         interval.tick().await;
         tick_count += 1;
-        let outcome = record_screen_ai_analysis_cycle(
+        let outcome = record_screen_ai_analysis_cycle_with_events(
             &config,
             ScreenAiAnalysisCycleClock::from_system_time(),
+            event_runtime.as_ref(),
         )
         .await;
         if is_counted_cycle(&outcome) {
@@ -54,9 +63,18 @@ async fn run_screen_ai_analysis_runtime(config: ScreenAiAnalysisRuntimeConfig) {
     }
 }
 
+#[cfg(test)]
 pub(crate) async fn record_screen_ai_analysis_cycle(
     config: &ScreenAiAnalysisRuntimeConfig,
     clock: ScreenAiAnalysisCycleClock,
+) -> Result<ScreenAiAnalysisCycleOutcome, ActivityCaptureError> {
+    record_screen_ai_analysis_cycle_with_events(config, clock, None).await
+}
+
+pub(crate) async fn record_screen_ai_analysis_cycle_with_events(
+    config: &ScreenAiAnalysisRuntimeConfig,
+    clock: ScreenAiAnalysisCycleClock,
+    event_runtime: Option<&ScreenAiServiceEventRuntime>,
 ) -> Result<ScreenAiAnalysisCycleOutcome, ActivityCaptureError> {
     if !config.screen_analysis_enabled {
         return Ok(ScreenAiAnalysisCycleOutcome::Suppressed);
@@ -87,7 +105,13 @@ pub(crate) async fn record_screen_ai_analysis_cycle(
             || adapter::run_adapter(config, &image, metadata.as_ref()),
         )
         .await;
-    let event_record = analysis_event_record(&image, metadata.as_ref(), &clock, &generation);
+    let event_record = analysis_event_record(
+        &image,
+        metadata.as_ref(),
+        &clock,
+        &generation,
+        &config.ocr_redaction_policy,
+    );
     let outcome = outcome_for_generation(&image.queue_job_id, &generation, &event_record);
     record_activity_events_to_paths(
         &config.journal_path,
@@ -95,8 +119,40 @@ pub(crate) async fn record_screen_ai_analysis_cycle(
         &config.store_path,
         &[screen_analysis_event(&event_record)],
     )?;
+    if let (Some(runtime), Some(row)) = (
+        event_runtime,
+        latest_analysis_row_for_queue_job(config, &image.queue_job_id, &clock.timestamp)?,
+    ) {
+        let _ = runtime
+            .publish_row_ready(
+                row,
+                constants::screen_flow::SCREEN_ACTION_EVENT_REF,
+                &clock.timestamp,
+            )
+            .await;
+    }
     queue.remove_entries(std::slice::from_ref(&image.queue_job_id))?;
     Ok(outcome)
+}
+
+fn latest_analysis_row_for_queue_job(
+    config: &ScreenAiAnalysisRuntimeConfig,
+    queue_job_id: &str,
+    generated_at: &str,
+) -> Result<Option<ActivityScreenReadModelRow>, ActivityCaptureError> {
+    let store = ActivityStore::open(&config.store_path)?;
+    let summary = store.screen_evidence_recent_summary(
+        constants::activity_store::DEFAULT_RECENT_LIMIT,
+        generated_at,
+    )?;
+    Ok(summary
+        .results
+        .into_iter()
+        .find(|result| {
+            result.queue_job_id == queue_job_id
+                && result.provider_kind != SCREEN_PROVIDER_SERVICE_METADATA
+        })
+        .map(activity_screen_row_from_result))
 }
 
 fn is_counted_cycle(outcome: &Result<ScreenAiAnalysisCycleOutcome, ActivityCaptureError>) -> bool {

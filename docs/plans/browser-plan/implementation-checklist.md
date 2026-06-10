@@ -240,6 +240,21 @@ WebView, VIEW handler, AccessibilityService, VpnService, DeviceAdminReceiver,
 UsageStats permission, or privileged browser enforcement adapter is currently
 declared. WP05 remains partial/manual-required.
 
+WP05 physical Android addendum: `scripts/test/browser-platform-android-host-proof.mjs`
+now accepts `ANDROID_SERIAL` to target one attached physical device and exclude
+emulator evidence from that run. The 2026-06-08 proof observed the available
+Samsung Galaxy S9 target as product `star2qltecs`, model `SM_G965W`, with boot
+completion, known browser package visibility, default VIEW handler query
+evidence, UI-tree hash evidence, and logcat hash evidence in
+`test-results/browser-platform-android-host-proof/proof.json` and
+`output/browser-plan-proof/05-cross-platform-inventory-matrix/11-android-host-device-proof.json`.
+The raw serial is not persisted. This upgrades physical Android host
+package/default-handler visibility only; physical owned-shell custody, Device
+Owner/Browser Role behavior, exact URL policy, known active tab, VPN/DNS,
+UsageStats, Accessibility, final policy execution, browser blocking,
+enforcement, Play signing, release readiness, macOS, and iOS proof remain
+unclaimed.
+
 WP05 Android owned-shell addendum:
 `scripts/test/browser-platform-android-owned-shell-proof.mjs` builds the separate
 `platforms/android/agent/browser-shell` APK, creates a disposable AOSP ATD proof
@@ -261,8 +276,9 @@ resolves the same `ACTION_VIEW`/`DEFAULT`/`BROWSABLE` HTTP proof URL to
 launch. The matrix gate consumes this artifact and still leaves WP05 partial
 because exact URL policy, known active tab, silent Device Owner default-browser
 assignment, VPN/DNS, UsageStats, Accessibility, final policy execution, browser
-blocking, enforcement, physical-device behavior, macOS desktop, and iOS proof
-remain unclaimed. No product capability checklist upgrade is claimed.
+blocking, enforcement, physical owned-shell/Device Owner behavior, macOS
+desktop, and iOS proof remain unclaimed. No product capability checklist
+upgrade is claimed.
 
 WP05 Windows managed CDP addendum:
 `scripts/test/browser-platform-windows-managed-cdp-proof.mjs` launches a real
@@ -277,10 +293,10 @@ and
 artifact and rejects raw executable path, raw profile path, raw CDP payload, raw
 page content, active-tab enforcement, final policy execution, and enforcement
 claims. WP05 remains partial/manual-required because macOS desktop proof, iOS
-managed browser proof, browser blocking, physical-device behavior, silent
-Device Owner default-browser assignment, final policy execution, broad
-enforcement, and exact active-tab enforcement are still unproved. No product
-capability checklist upgrade is claimed.
+managed browser proof, browser blocking, physical owned-shell/Device Owner
+behavior, silent Device Owner default-browser assignment, final policy
+execution, broad enforcement, and exact active-tab enforcement are still
+unproved. No product capability checklist upgrade is claimed.
 
 SOCIAL-23/SOCIAL-24 addendum: `test:social-alert-report-intent-ui-proof`
 now covers the service-backed Browser-route alert/report intent panel plus
@@ -307,6 +323,41 @@ refs and a runtime handoff ref. It does not claim runtime-applied schedules,
 runtime time-budget application, browser gate execution, final policy
 execution, enforcement, product checklist upgrade, release readiness, or
 product completion.
+
+SOCIAL-23/SOCIAL-24 parent notification delivery readiness addendum:
+`social-parent-notification-delivery-readiness-proof` adds
+`packages/parent-domain/src/social-parent-notification-delivery-readiness.ts`,
+`packages/parent-domain/tests/social-parent-notification-delivery-readiness.test.ts`,
+and `scripts/test/social-parent-notification-delivery-readiness-proof.mjs`.
+Evidence is written to
+`test-results/social-parent-notification-delivery-readiness-proof/proof.json`
+and
+`output/browser-plan-proof/social-parent-notification-delivery-readiness-proof/01-social-parent-notification-delivery-readiness-proof.md`.
+The proof consumes social report writer delivery readiness and proves
+parent-owned report rows can become parent-visible report status rows while
+receipt-ingestion-backed rows remain manual-required or unavailable. It does not
+claim parent notification UI delivery, external runtime report delivery,
+provider delivery, provider receipt ingestion runtime, final policy execution,
+connector/native runtime, browser mutation, child intervention, unmanaged exact
+URL support, enforcement, product checklist upgrade, release readiness, or
+product completion.
+`social-platform-account-feed-proof-artifacts` and
+`social-platform-account-feed-rollout-gate` now require the
+`social-parent-notification-delivery-readiness-proof` JSON and markdown
+artifacts before SOCIAL-23/SOCIAL-24 proof and rollout labels pass. The rollout
+state remains partial/manual-required.
+
+WP13 service stream eventing addendum:
+`browser-runtime-service-stream-eventing-proof` adds a named local
+`browser.runtime.stream.report.requested` eventing request/subscriber boundary
+inside the Rust service. The existing portal command remains
+`agent.browser.runtime.event-chain.stream.get`, but service projection now
+round-trips through the reusable `ocentra-eventing` request/response path before
+building the same public payload. Evidence is written to
+`test-results/browser-runtime-service-stream-eventing-proof/proof.json` and
+`output/browser-plan-proof/browser-runtime-service-stream-eventing/01-browser-runtime-service-stream-eventing-proof.md`.
+The proof does not claim portal wire changes, adapter dispatch, browser
+mutation, child intervention execution, final policy execution, or enforcement.
 
 SOCIAL-23/SOCIAL-24 preference preflight addendum:
 `social-alert-report-preference-preflight-proof` adds
@@ -393,9 +444,10 @@ records. Evidence:
 `test-results/social-alert-report-local-outbox-bridge-proof/local-outbox-records.jsonl`,
 and
 `output/browser-plan-proof/social-alert-report-local-outbox-bridge-proof/01-social-alert-report-local-outbox-bridge-proof.md`.
-`social-alert-report-parent-surface-intent-proof` projects provider-status
-handoff rows into parent-visible manual/unavailable surface intent rows with
-status, readiness, audit, and manual-proof refs. Evidence:
+`social-alert-report-parent-surface-intent-proof` projects provider-status and
+preference/quiet-hours status handoff rows into parent-visible
+manual/unavailable surface intent rows with notification status, preference
+status, quiet-hours, audit, and manual-proof refs. Evidence:
 `test-results/social-alert-report-parent-surface-intent-proof/proof.json` and
 `output/browser-plan-proof/social-alert-report-parent-surface-intent-proof/01-social-alert-report-parent-surface-intent-proof.md`.
 `test-results/social-alert-report-provider-preflight-proof/proof.json` and
@@ -408,6 +460,36 @@ manual-required/unavailable rows. Evidence:
 This advances provider-readiness/status proof without claiming provider
 dispatch, receipt ingestion, parent notification UI delivery, report delivery
 execution, final policy execution, connector/native runtime, or enforcement.
+`social-alert-report-provider-receipt-boundary-proof` now consumes
+provider-status handoff rows into provider-dispatch-required,
+manual-receipt-required, and provider-unavailable receipt boundary rows.
+Evidence:
+`test-results/social-alert-report-provider-receipt-boundary-proof/proof.json`,
+`test-results/social-alert-report-provider-receipt-boundary-proof/provider-receipt-boundary-read-model.json`,
+and
+`output/browser-plan-proof/social-alert-report-provider-receipt-boundary-proof/01-social-alert-report-provider-receipt-boundary-proof.md`.
+This advances receipt-boundary proof while keeping provider delivery execution,
+provider receipt ingestion runtime, provider webhook runtime, provider
+credentials, cloud routing, parent notification UI delivery, report delivery
+execution, final policy execution, connector/native runtime, and enforcement
+unclaimed. Parent-domain package subpath export/readme updates are deferred
+because another lane owns `packages/parent-domain/package.json` and
+`packages/parent-domain/readme.md`.
+`browser-runtime-social-provider-receipt-event-subscriber-proof` now carries
+that receipt boundary through a named Rust event-bus request/response
+subscriber. Evidence:
+`test-results/browser-runtime-social-provider-receipt-event-subscriber-proof/proof.json`
+and
+`output/browser-plan-proof/browser-runtime-social-provider-receipt-event-subscriber/01-browser-runtime-social-provider-receipt-event-subscriber-proof.md`.
+The named event is `browser.social.provider-receipt.status.requested`, the
+subscriber is `browser-social-provider-receipt-status`, dry-run action-intent
+rows return provider-dispatch-required receipt boundary status, and
+manual-required rows remain manual-receipt-required. Provider delivery
+execution, provider receipt ingestion runtime, provider webhook runtime,
+provider credentials, parent notification UI delivery, report delivery
+execution, final policy execution, connector/native runtime, browser mutation,
+child intervention execution, unmanaged exact URL support, and enforcement
+remain unclaimed.
 `social-alert-report-scheduler-bridge-proof` now consumes the social
 alert/report local outbox bridge and writes only linked rows into the existing
 notification local outbox scheduler JSONL schema. Evidence:
@@ -428,10 +510,793 @@ and
 `output/browser-plan-proof/social-alert-report-audit-history-bridge-proof/01-social-alert-report-audit-history-bridge-proof.md`.
 This advances redaction-safe audit/history handoff without claiming provider
 delivery, receipt ingestion, notification history UI, child delivery, runtime
-quiet-hours/retry execution, report delivery execution, final policy execution,
-connector/native runtime, or enforcement.
+execution, quiet-hours/retry execution, report delivery execution, final policy
+execution, connector/native runtime, or enforcement.
+`social-report-writer-delivery-proof` now consumes social provider receipt
+ingestion readiness rows and projects provider-dispatch, manual-receipt, and
+provider-unavailable rows into report-writer manual-required or unavailable
+status without report artifact or receipt claims. Evidence:
+`test-results/social-report-writer-delivery-proof/proof.json` and
+`output/browser-plan-proof/social-report-writer-delivery-proof/01-social-report-writer-delivery-proof.md`.
+This advances report-writer readiness from receipt ingestion proof while keeping
+external runtime report delivery, provider delivery, provider receipt ingestion
+runtime, parent notification UI delivery, final policy execution,
+connector/native runtime, browser mutation, child intervention, unmanaged exact
+URL support, and enforcement unclaimed. Protocol stream exposure is deferred
+while E-D owns `packages/agent-protocol-domain/src/defaults.ts`.
+
+WP13 event-runtime spine addendum: `browser-event-runtime-spine-proof` adds a
+browser-specific `ocentra-eventing` consumer in `crates/agent-core` with ordered
+evidence, journal, AI, policy, intervention, audit, and read-model phases.
+Evidence:
+`test-results/browser-event-runtime-spine-proof/proof.json` and
+`output/browser-plan-proof/browser-event-runtime-spine/01-browser-event-runtime-spine-proof.md`.
+The proof validates that manual-required rows skip intervention command/result
+phases while keeping audit/read-model visibility. It does not claim service
+WebSocket delivery, portal UI, AI execution, policy execution, browser mutation,
+or enforcement.
+
+WP13 service delivery addendum: `browser-runtime-service-delivery-proof` maps
+service-owned `BrowserEvidenceReadModel` rows into the reusable browser
+event-runtime chain without creating a parallel bus or changing WebSocket/UI
+routes. Evidence:
+`test-results/browser-runtime-service-delivery-proof/proof.json` and
+`output/browser-plan-proof/browser-runtime-service-delivery/01-browser-runtime-service-delivery-proof.md`.
+The proof validates managed exact-URL rows remain evidence-only, unavailable
+rows remain manual-required, and intervention command events stay at zero during
+read-model delivery. It does not claim portal UI, AI execution, policy
+execution, browser mutation, or enforcement.
 Package subpath exports are deferred while `packages/parent-domain/package.json`
 is locked by E-B.
+
+WP13 event-chain stream addendum: `browser-runtime-event-chain-stream-proof`
+adds typed browser runtime stream command/event parity and a service WebSocket
+route that reads the activity-store browser evidence read model, streams it
+through the reusable browser event runtime, and returns camelCase event-chain
+payloads. Evidence:
+`test-results/browser-runtime-event-chain-stream-proof/proof.json` and
+`output/browser-plan-proof/browser-runtime-event-chain-stream/01-browser-runtime-event-chain-stream-proof.md`.
+The proof validates store-backed WebSocket delivery, manual-required handling
+for unavailable rows, zero intervention command events, and protocol parity.
+It does not claim portal UI consumption, AI execution, policy execution,
+browser mutation, child intervention execution, or enforcement.
+
+WP13 portal-consumer addendum: `browser-runtime-portal-stream-consumer-proof`
+adds non-visual parent portal consumption for the browser runtime stream. The
+portal overview command list now requests
+`agent.browser.runtime.event-chain.stream.get`, command-result routing accepts
+`agent.browser.runtime.event-chain.stream.reported`, and
+`PortalLiveActivityState` parses event-chain stream counts and entries.
+Evidence:
+`test-results/browser-runtime-portal-stream-consumer-proof/proof.json` and
+`output/browser-plan-proof/browser-runtime-portal-stream-consumer/01-browser-runtime-portal-stream-consumer-proof.md`.
+The proof validates manual-required stream rows stay visible and intervention
+command events remain zero. It does not claim a new portal visual surface, AI
+execution, policy execution, browser mutation, child intervention execution, or
+enforcement.
+
+WP13 event-chain ref addendum: `browser-runtime-event-chain-ref-proof` tightens
+the browser runtime event chain so each payload `previousPhaseRef` points at the
+previous published browser event ref, and skipped intervention phases do not
+become hidden refs for manual-required rows. Evidence:
+`test-results/browser-runtime-event-chain-ref-proof/proof.json` and
+`output/browser-plan-proof/browser-runtime-event-chain-ref-proof/01-browser-runtime-event-chain-ref-proof.md`.
+The proof validates exact previous-event refs for managed and manual-required
+chains while preserving event names and payload shape. It does not claim portal
+UI, AI execution, policy execution, browser mutation, child intervention
+execution, or enforcement.
+
+WP13 typed stream contract addendum:
+`browser-runtime-typed-stream-contract-proof` adds a protocol-domain parser for
+the browser runtime event-chain stream. It validates known event types,
+Rust-serialized phase names, event type/phase consistency, stream counts,
+no-AI-authority, and no hidden intervention execution. Evidence:
+`test-results/browser-runtime-typed-stream-contract-proof/proof.json` and
+`output/browser-plan-proof/browser-runtime-typed-stream-contract/01-browser-runtime-typed-stream-contract-proof.md`.
+
+WP13 portal typed stream consumer addendum:
+`browser-runtime-portal-typed-stream-consumer-proof` updates
+`PortalLiveActivityState` to consume the shared protocol-domain typed parser
+instead of a local loose JSON entry parser. Portal tests now reject event
+type/phase drift, AI-authority overclaim, and stream count drift before exposing
+the browser runtime event-chain stream as state. Evidence:
+`test-results/browser-runtime-portal-typed-stream-consumer-proof/proof.json` and
+`output/browser-plan-proof/browser-runtime-portal-typed-stream-consumer/01-browser-runtime-portal-typed-stream-consumer-proof.md`.
+This claims portal state consumption only; it does not claim a new portal visual
+surface, AI execution, policy execution, browser mutation, child intervention
+execution, or enforcement.
+
+WP13 context stream addendum: `browser-runtime-context-stream-proof` carries
+browser read-model context through the browser runtime event chain. Event
+payloads now include capability status, custody label, query visibility, and
+degraded reason so subscribers can distinguish exact/live rows from
+manual-required, unavailable, or degraded rows without a side channel. Evidence:
+`test-results/browser-runtime-context-stream-proof/proof.json` and
+`output/browser-plan-proof/browser-runtime-context-stream/01-browser-runtime-context-stream-proof.md`.
+The proof validates unsupported exact URL context rejection, unavailable context
+requiring a degraded reason, service stream serialization, protocol parsing, and
+portal state visibility. It does not create a new event bus, execute AI, execute
+policy, mutate the browser, execute child intervention, or enforce.
+
+WP13 dry-run action handoff addendum:
+`browser-runtime-dry-run-action-handoff-proof` carries policy preview and
+parent action-intent refs through the existing browser runtime event chain with
+explicit `dryRun` and `adapterDispatchClaimed` flags. Evidence:
+`test-results/browser-runtime-dry-run-action-handoff-proof/proof.json` and
+`output/browser-plan-proof/browser-runtime-dry-run-action-handoff/01-browser-runtime-dry-run-action-handoff-proof.md`.
+The proof validates that dry-run policy/action rows can publish policy phases
+without publishing intervention command/result phases, rejects forged dry-run
+adapter dispatch or intervention refs in the protocol parser, and keeps
+store-backed read-model stream rows non-dispatching. It does not create a new
+event bus, publish portal business events, execute AI, execute final policy
+actions, mutate the browser, execute child intervention, or enforce.
+
+WP13 action-intent outbox handoff addendum:
+`browser-runtime-action-intent-outbox-handoff-proof` derives prepared local
+action-intent candidates from dry-run browser policy decision events while
+preserving policy preview, action intent, source event, outbox, and handoff
+refs. Evidence:
+`test-results/browser-runtime-action-intent-outbox-handoff-proof/proof.json`
+and
+`output/browser-plan-proof/browser-runtime-action-intent-outbox-handoff/01-browser-runtime-action-intent-outbox-handoff-proof.md`.
+The proof validates that candidate rows remain `PreparedNotDispatched` with
+zero dispatch attempts, adapter execution, child intervention execution, browser
+mutation, or enforcement execution. It does not create a generic event bus,
+external transport, final policy execution, browser mutation, child
+intervention, or enforcement path.
+
+WP13 action-intent status bridge addendum:
+`browser-runtime-action-intent-status-bridge-proof` derives pending
+action-intent subscriber status from the existing browser runtime event-chain
+stream. The typed protocol-domain projection accepts only dry-run policy
+decision events with policy preview and parent action-intent refs, preserves the
+source event/evidence refs, and pins dispatch, adapter execution, child
+intervention execution, and enforcement counts to zero. Evidence:
+`test-results/browser-runtime-action-intent-status-bridge-proof/proof.json` and
+`output/browser-plan-proof/browser-runtime-action-intent-status-bridge/01-browser-runtime-action-intent-status-bridge-proof.md`.
+This does not create a new command family, generic event bus, external
+transport, browser mutation path, child intervention execution path, or
+enforcement path.
+
+WP13 action-intent event subscriber addendum:
+`browser-runtime-action-intent-event-subscriber-proof` adds a named Rust
+event-bus request/response subscriber for browser action-intent status. The
+runtime publishes `browser.action-intent.status.requested`, the
+`browser-action-intent-status` subscriber completes a typed response, dry-run
+policy decision rows produce one pending candidate, and manual-required rows
+produce none. Evidence:
+`test-results/browser-runtime-action-intent-event-subscriber-proof/proof.json`
+and
+`output/browser-plan-proof/browser-runtime-action-intent-event-subscriber/01-browser-runtime-action-intent-event-subscriber-proof.md`.
+This uses the reusable `ocentra-eventing` request path and does not execute
+adapter dispatch, browser mutation, child intervention, final policy, or
+enforcement.
+
+WP13 action-intent handoff event subscriber addendum:
+`browser-runtime-action-intent-handoff-event-subscriber-proof` adds a named
+Rust event-bus request/response subscriber for browser action-intent handoff
+preparation. The runtime publishes `browser.action-intent.handoff.requested`,
+the `browser-action-intent-handoff` subscriber completes a typed response,
+dry-run policy decision rows produce one prepared local outbox/handoff
+candidate, and manual-required rows produce none. Evidence:
+`test-results/browser-runtime-action-intent-handoff-event-subscriber-proof/proof.json`
+and
+`output/browser-plan-proof/browser-runtime-action-intent-handoff-event-subscriber/01-browser-runtime-action-intent-handoff-event-subscriber-proof.md`.
+This uses the reusable `ocentra-eventing` request path and does not execute
+adapter dispatch, browser mutation, child intervention, final policy, or
+enforcement.
+
+WP13 action-intent service status addendum:
+`browser-runtime-action-intent-service-status-proof` projects the named
+event-bus subscriber status through the existing service-backed browser runtime
+event-chain stream payload. Current store-backed browser rows report zero
+pending action-intent candidates because policy preview and parent action-intent
+refs are not persisted in the browser evidence read model yet; a dry-run
+action-intent input projects one pending candidate through the service payload.
+Evidence:
+`test-results/browser-runtime-action-intent-service-status-proof/proof.json`
+and
+`output/browser-plan-proof/browser-runtime-action-intent-service-status/01-browser-runtime-action-intent-service-status-proof.md`.
+This keeps dispatch attempts, adapter execution, browser mutation, child
+intervention execution, final policy execution, and enforcement at zero.
+
+WP13 action-intent store-backed policy preview addendum:
+`browser-runtime-action-intent-store-backed-proof` closes the previous
+store-backed zero-candidate limitation for browser evidence rows that have a
+matching stored policy preview evidence reference. The service stream loads the
+existing browser evidence read model and policy preview read model from the
+`ActivityStore`, enriches the browser runtime input with policy preview,
+decision, stable browser action-intent, dry-run, and policy-authority refs, and
+projects one pending action-intent candidate. Evidence:
+`test-results/browser-runtime-action-intent-store-backed-proof/proof.json` and
+`output/browser-plan-proof/browser-runtime-action-intent-store-backed/01-browser-runtime-action-intent-store-backed-proof.md`.
+Dispatch attempts, adapter execution, browser mutation, child intervention
+execution, final policy execution, and enforcement stay zero.
+
+WP13 action-intent portal state addendum:
+`browser-runtime-action-intent-portal-state-proof` verifies that the shared
+TypeScript protocol parser and portal live-activity state consume those service
+action-intent counters from the existing browser runtime stream payload. Pending
+candidate counts can be represented, while dispatch attempts, adapter
+execution, child intervention execution, and enforcement execution must remain
+zero. Evidence:
+`test-results/browser-runtime-action-intent-portal-state-proof/proof.json` and
+`output/browser-plan-proof/browser-runtime-action-intent-portal-state/01-browser-runtime-action-intent-portal-state-proof.md`.
+
+WP13 action-intent durable status addendum:
+`browser-runtime-action-intent-durable-status-proof` carries prepared
+action-intent handoff status through the existing service-backed browser runtime
+event-chain stream. The stream now includes prepared handoff candidate count,
+local outbox refs, and handoff refs, and portal live-activity state parses those
+refs without claiming dispatch, adapter execution, browser mutation, child
+intervention execution, final policy execution, or enforcement. Evidence:
+`test-results/browser-runtime-action-intent-durable-status-proof/proof.json` and
+`output/browser-plan-proof/browser-runtime-action-intent-durable-status/01-browser-runtime-action-intent-durable-status-proof.md`.
+This does not add a visual portal surface, browser mutation, child intervention
+execution, final policy execution, or enforcement.
+
+WP13 action-intent service handoff addendum:
+`browser-runtime-action-intent-service-handoff-proof` extends the
+service-backed browser runtime path so the service asks the named
+`browser.action-intent.handoff.requested` subscriber and records prepared local
+outbox/handoff refs in report state for store-backed dry-run policy preview
+rows. Evidence:
+`test-results/browser-runtime-action-intent-service-handoff-proof/proof.json`
+and
+`output/browser-plan-proof/browser-runtime-action-intent-service-handoff/01-browser-runtime-action-intent-service-handoff-proof.md`.
+The public wire shape is intentionally unchanged while shared protocol field
+constants/defaults are owned by another active lane. Dispatch attempts, adapter
+execution, browser mutation, child intervention execution, final policy
+execution, and enforcement stay zero.
+
+WP13 action-intent durable handoff result addendum:
+`browser-runtime-action-intent-durable-handoff-proof` carries the named browser
+action-intent handoff subscriber result into a durable result/read-model row.
+The row preserves request event, policy preview, parent action-intent, source
+event, local outbox, local handoff, durable result, durable store, read-model,
+and support-status refs, and rejects duplicate request event ids before
+projection. Evidence:
+`test-results/browser-runtime-action-intent-durable-handoff-proof/proof.json`
+and
+`output/browser-plan-proof/browser-runtime-action-intent-durable-handoff/01-browser-runtime-action-intent-durable-handoff-proof.md`.
+This does not add external transport, dispatch, adapter execution, browser
+mutation, child intervention execution, final policy execution, or enforcement.
+
+WP13 parent-child action-intent handoff addendum:
+`browser-runtime-parent-child-action-intent-handoff-proof` carries the browser
+action-intent handoff into the existing parent/controller to child-agent event
+sequence with a named `browser-action-intent-handoff` child command kind.
+Evidence:
+`test-results/browser-runtime-parent-child-action-intent-handoff-proof/proof.json`
+and
+`output/browser-plan-proof/browser-runtime-parent-child-action-intent-handoff/01-browser-runtime-parent-child-action-intent-handoff-proof.md`.
+The proof validates parent action receipt, command validation, parent-child
+transport handoff, child command receive/acceptance, and parent read-model
+projection while keeping dispatch, adapter execution, browser mutation, child
+intervention execution, final policy execution, and enforcement at zero. It
+does not add external broker or relay delivery, browser mutation, child
+intervention execution, final policy execution, unmanaged exact URL support, or
+enforcement.
+
+WP13 action-intent topology addendum:
+`browser-runtime-action-intent-topology-proof` registers the named browser
+action-intent status request event in the reusable `ocentra-eventing` contract
+registry/topology manifest. The topology marks
+`browser.action-intent.status.requested` covered by the
+`browser-event-runtime-spine` publisher and `browser-action-intent-status`
+subscriber/target. Evidence:
+`test-results/browser-runtime-action-intent-topology-proof/proof.json` and
+`output/browser-plan-proof/browser-runtime-action-intent-topology/01-browser-runtime-action-intent-topology-proof.md`.
+This does not add another browser bus, external transport, browser mutation,
+child intervention execution, final policy execution, or enforcement.
+
+WP13 runtime-chain topology addendum:
+`browser-runtime-chain-topology-proof` registers the existing ordered browser
+runtime event chain in the reusable `ocentra-eventing` contract registry and
+topology manifest. The topology marks all ten browser runtime phases from
+`browser.evidence.observed` through `browser.read-model.projected` covered by
+the `browser-event-runtime-spine` publisher and their named subscribers/targets.
+Evidence:
+`test-results/browser-runtime-chain-topology-proof/proof.json` and
+`output/browser-plan-proof/browser-runtime-chain-topology/01-browser-runtime-chain-topology-proof.md`.
+This does not add external transport, adapter dispatch, browser mutation, child
+intervention execution, final policy execution, or enforcement.
+
+WP13 delivery-decision addendum:
+`browser-runtime-delivery-decision-proof` applies the reusable `ocentra-eventing`
+delivery decision API to the browser runtime chain, the browser action-intent
+status subscriber, the browser action-intent handoff subscriber, and the browser
+social-provider receipt status subscriber, and the browser social
+parent-notification delivery status subscriber. Evidence:
+`test-results/browser-runtime-delivery-decision-proof/proof.json` and
+`output/browser-plan-proof/browser-runtime-delivery-decision/01-browser-runtime-delivery-decision-proof.md`.
+The proof marks the runtime chain `local-service` ready, the action-intent
+status subscriber `local-in-process` ready, the action-intent handoff subscriber
+`local-in-process` ready, the social-provider receipt status subscriber
+`local-in-process` ready, the social parent-notification delivery status
+subscriber `local-in-process` ready, and external transport manual-required
+until custody/auth/encryption/retention/replay/delete/offset/dedupe/transport
+artifacts exist. It does not add external transport, relay delivery, adapter
+dispatch, browser mutation, child intervention execution, final policy execution,
+or enforcement.
+
+WP13 receipt delivery-decision refresh:
+`browser-runtime-delivery-decision-proof` now carries the existing named
+`browser.social.provider-receipt.status.requested` route into the delivery
+decision report as the fourth local-ready browser route. This is eventing route
+proof only: it still does not claim provider dispatch, provider receipt
+ingestion, webhook runtime, parent notification delivery, report delivery,
+browser mutation, final policy execution, child intervention execution, or
+enforcement.
+
+WP13 runtime stream delivery-decision refresh:
+`browser-runtime-chain-topology-proof` and
+`browser-runtime-delivery-decision-proof` now carry the named
+`browser.runtime.stream.report.requested` route into the reusable event topology
+and delivery-decision reports as a covered local in-process route. This keeps
+the service stream request registered with the same browser eventing route map
+as action-intent and social receipt status while preserving the existing portal
+command and all no-claim boundaries. Evidence:
+`test-results/browser-runtime-chain-topology-proof/proof.json`,
+`output/browser-plan-proof/browser-runtime-chain-topology/01-browser-runtime-chain-topology-proof.md`,
+`test-results/browser-runtime-delivery-decision-proof/proof.json`, and
+`output/browser-plan-proof/browser-runtime-delivery-decision/01-browser-runtime-delivery-decision-proof.md`.
+This does not add external transport, adapter dispatch, provider delivery,
+browser mutation, child intervention execution, final policy execution, or
+enforcement.
+
+WP13 stale/unsupported runtime addendum:
+`browser-runtime-stale-unsupported-proof` proves bridge-disconnected rows as
+explicit stale browser runtime/read-model state and unsupported later-adapter
+rows as unsupported/manual-required rows through the existing service stream and
+protocol parser. Evidence:
+`test-results/browser-runtime-stale-unsupported-proof/proof.json` and
+`output/browser-plan-proof/browser-runtime-stale-unsupported/01-browser-runtime-stale-unsupported-proof.md`.
+The proof validates stale inventory/manual-required mapping, unsupported
+later-adapter unsupported/not-claimed mapping, zero exact URL rows, zero
+intervention command events, and zero dispatch/adapter/child-intervention/
+enforcement counters. It does not claim real non-Windows browser support, host
+blocking, exact active-tab enforcement, browser mutation, child intervention
+execution, final policy execution, AI authority, or enforcement.
+
+WP13 action-intent child-status addendum:
+`browser-runtime-action-intent-child-status-proof` composes the durable browser
+action-intent handoff record with the existing parent/controller to child-agent
+event sequence. Evidence:
+`test-results/browser-runtime-action-intent-child-status-proof/proof.json` and
+`output/browser-plan-proof/browser-runtime-action-intent-child-status/01-browser-runtime-action-intent-child-status-proof.md`.
+The proof validates durable result/read-model refs, the
+`browser-action-intent-handoff` child command kind, child receive/acceptance
+event refs, parent read-model projection visibility, and zero
+dispatch/adapter/browser-mutation/child-intervention/final-policy/enforcement
+counters. Public WebSocket stream fields for child acceptance refs remain a
+follow-up for nonzero child acceptance refs until a real child transport/status
+read model exists. No product capability checklist update: this is agent-core
+proof/status composition only and does not upgrade real browser, exact URL,
+intervention, or enforcement capability.
+
+WP13 action-intent child-status public stream addendum:
+`browser-runtime-action-intent-child-status-public-stream-proof` adds Rust
+protocol constants, service payload fields, shared TypeScript parser/defaults,
+and portal parser coverage for child-status service stream fields. The service
+now asks the input-driven browser action-intent child-status path after
+preparing a dry-run handoff candidate, then publishes parent-child command,
+child accepted-event, and parent read-model refs for that candidate while
+normal/manual rows remain zero/empty.
+Evidence:
+`test-results/browser-runtime-action-intent-child-status-public-stream-proof/proof.json`
+and
+`output/browser-plan-proof/browser-runtime-action-intent-child-status-public-stream/01-browser-runtime-action-intent-child-status-public-stream-proof.md`.
+The proof validates one accepted child row for a service-backed dry-run handoff
+candidate, zero/empty child-status refs for non-candidate rows, rejects
+mismatched counts in shared protocol/portal parsing, and verifies the service
+does not call the fixture-backed child-status proof. It does not add adapter
+dispatch, browser mutation, child intervention execution, final policy
+execution, unmanaged exact URL support, or enforcement.
+
+WP13 no-fixture service exposure addendum:
+`browser-runtime-no-fixture-service-exposure-proof` guards the child-status
+boundary from fake runtime promotion. Evidence:
+`test-results/browser-runtime-no-fixture-service-exposure-proof/proof.json` and
+`output/browser-plan-proof/browser-runtime-no-fixture-service-exposure/01-browser-runtime-no-fixture-service-exposure-proof.md`.
+The proof verifies that the fixture-backed child-status proof remains
+`#[cfg(test)]`, the service-backed browser runtime stream calls only the
+input-driven child-status request, and protocol/portal parsers expose honest
+child-status fields without fixture proof promotion. No product capability
+checklist update: this is a no-overclaim guard only and does not add adapter
+dispatch, browser mutation, child intervention execution, final policy
+execution, unmanaged exact URL support, or enforcement.
+
+WP13 event-name parity addendum:
+`browser-runtime-event-name-parity-proof` aligns the shared TypeScript browser
+runtime stream parser with the Rust browser runtime event type constants. The
+proof covers all ten browser runtime phases and prevents AI, policy,
+intervention, audit, evidence, and read-model event names from drifting across
+the Rust event bus to TypeScript protocol boundary. Evidence:
+`test-results/browser-runtime-event-name-parity-proof/proof.json` and
+`output/browser-plan-proof/browser-runtime-event-name-parity/01-browser-runtime-event-name-parity-proof.md`.
+No product capability checklist update: this is protocol parser parity proof
+only and does not add a generic event bus, portal UI, external transport,
+adapter dispatch, browser mutation, child intervention execution, final policy
+execution, unmanaged exact URL support, AI execution, or enforcement.
+
+WP13 social provider receipt service status addendum:
+`browser-runtime-social-provider-receipt-service-status-proof` carries the named
+social provider receipt status subscriber into the existing service-side browser
+runtime stream report. Store-backed dry-run policy preview rows record one
+provider-dispatch-required receipt boundary row with provider attempt/receipt
+proof refs, manual-required browser evidence records one
+manual-receipt-required row, and all provider dispatch/native/notification/
+enforcement execution counters remain zero. Evidence:
+`test-results/browser-runtime-social-provider-receipt-service-status-proof/proof.json`
+and
+`output/browser-plan-proof/browser-runtime-social-provider-receipt-service-status/01-browser-runtime-social-provider-receipt-service-status-proof.md`.
+This does not add public stream fields while protocol field constants are owned
+by another active lane, and does not claim provider delivery, receipt ingestion
+runtime, parent notification UI delivery, final policy execution, browser
+mutation, child intervention execution, unmanaged exact URL support, or
+enforcement.
+
+WP13 social provider receipt durable addendum:
+`browser-runtime-social-provider-receipt-durable-proof` projects the named
+`browser.social.provider-receipt.status.requested` subscriber result into a
+durable receipt read-model row. Evidence:
+`test-results/browser-runtime-social-provider-receipt-durable-proof/proof.json`
+and
+`output/browser-plan-proof/browser-runtime-social-provider-receipt-durable/01-browser-runtime-social-provider-receipt-durable-proof.md`.
+The proof validates request event/correlation refs, parent action-intent refs,
+provider attempt/receipt proof refs, durable result/store refs, read-model and
+support-status refs, duplicate request event rejection, and zero provider
+receipt/provider dispatch/connector-native/parent notification/report delivery/
+final policy/enforcement counters. It does not claim provider delivery, receipt
+ingestion runtime, parent notification UI delivery, final policy execution,
+browser mutation, child intervention execution, unmanaged exact URL support, or
+enforcement.
+
+WP13 social provider receipt service durable status addendum:
+`browser-runtime-social-provider-receipt-service-durable-status-proof` carries
+those durable social provider receipt result/read-model refs into the
+service-side browser runtime report. Provider-dispatch-required rows now expose
+durable result, durable store, read-model, and support-status refs in service
+report state, while manual-required rows keep durable rows and durable refs
+empty. Evidence:
+`test-results/browser-runtime-social-provider-receipt-service-durable-status-proof/proof.json`
+and
+`output/browser-plan-proof/browser-runtime-social-provider-receipt-service-durable-status/01-browser-runtime-social-provider-receipt-service-durable-status-proof.md`.
+This does not add public protocol or portal stream fields while the shared
+protocol defaults file is owned by another active lane, and does not claim
+provider delivery, receipt ingestion runtime, parent notification UI delivery,
+report delivery execution, final policy execution, browser mutation, child
+intervention execution, unmanaged exact URL support, or enforcement.
+
+WP13 social provider receipt service public fields addendum:
+`browser-runtime-social-provider-receipt-service-public-fields-proof` adds Rust
+protocol field constants and service payload fields for the existing social
+provider receipt status path. The service payload now exposes social provider
+receipt boundary rows, provider-dispatch-required rows,
+manual-receipt-required rows, provider attempt refs, receipt proof refs, durable
+rows, durable result/store refs, read-model refs, and support-status refs; manual
+rows publish zero durable rows and empty durable refs. Evidence:
+`test-results/browser-runtime-social-provider-receipt-service-public-fields-proof/proof.json`
+and
+`output/browser-plan-proof/browser-runtime-social-provider-receipt-service-public-fields/01-browser-runtime-social-provider-receipt-service-public-fields-proof.md`.
+This does not update TypeScript defaults, the shared parser, or portal state
+while the shared protocol defaults file is owned by another active lane, and
+does not claim provider delivery, receipt ingestion runtime, parent notification
+UI delivery, report delivery execution, final policy execution, browser
+mutation, child intervention execution, unmanaged exact URL support, or
+enforcement.
+
+WP13 social provider receipt ingestion readiness addendum:
+`social-alert-report-provider-receipt-ingestion-readiness-proof` adds a
+parent-domain readiness boundary after the social provider receipt boundary.
+The proof projects provider-dispatch-required receipt rows into
+ingestion-contract-required rows, keeps manual-required and unavailable rows
+explicit, and requires webhook contract, provider credential, and durable
+receipt store proof before provider receipt ingestion can be claimed. Evidence:
+`test-results/social-alert-report-provider-receipt-ingestion-readiness-proof/proof.json`
+and
+`output/browser-plan-proof/social-alert-report-provider-receipt-ingestion-readiness-proof/01-social-alert-report-provider-receipt-ingestion-readiness-proof.md`.
+This does not claim provider delivery, provider receipt ingestion runtime,
+provider webhook runtime, provider credentials, observed provider receipts,
+cloud routing, parent notification UI delivery, report delivery execution,
+final policy execution, connector/native runtime, browser mutation, child
+intervention execution, unmanaged exact URL support, or enforcement.
+
+WP13 social provider receipt stream parser addendum:
+`browser-runtime-social-provider-receipt-stream-parser-proof` carries those
+service-published social provider receipt fields into the shared TypeScript
+protocol parser and portal-domain state projection. The parser accepts
+provider-dispatch-required receipt refs and manual-receipt-required rows,
+rejects manual rows that carry durable/provider refs, rejects dispatch rows
+missing provider attempt/durable refs, and keeps execution counters at zero.
+Portal-domain projects the parsed status without reading raw log fields.
+Evidence:
+`test-results/browser-runtime-social-provider-receipt-stream-parser-proof/proof.json`
+and
+`output/browser-plan-proof/browser-runtime-social-provider-receipt-stream-parser/01-browser-runtime-social-provider-receipt-stream-parser-proof.md`.
+This does not claim provider delivery, provider receipt ingestion runtime,
+provider webhook runtime, provider credentials, observed provider receipts,
+cloud routing, parent notification UI delivery, report delivery execution,
+final policy execution, connector/native runtime, browser mutation, child
+intervention execution, unmanaged exact URL support, or enforcement.
+
+WP13 social provider receipt ingestion readiness stream status addendum:
+`browser-runtime-social-provider-receipt-ingestion-readiness-status-proof`
+projects the parsed social provider receipt stream into a portal-domain receipt
+ingestion readiness status without importing locked parent-domain package
+metadata. Provider-dispatch-required receipt rows become
+ingestion-contract-required status because webhook contract, provider
+credential proof, durable receipt store proof, and observed provider receipt
+ingestion remain unavailable; manual receipt rows stay manual-required. Evidence:
+`test-results/browser-runtime-social-provider-receipt-ingestion-readiness-status-proof/proof.json`
+and
+`output/browser-plan-proof/browser-runtime-social-provider-receipt-ingestion-readiness-status/01-browser-runtime-social-provider-receipt-ingestion-readiness-status-proof.md`.
+This does not claim provider delivery, provider receipt ingestion runtime,
+provider webhook runtime, provider credentials, observed provider receipts,
+cloud routing, parent notification UI delivery, report delivery execution,
+final policy execution, connector/native runtime, browser mutation, child
+intervention execution, unmanaged exact URL support, or enforcement.
+
+WP13 social provider receipt live activity state addendum:
+`browser-runtime-social-provider-receipt-live-activity-state-proof` carries the
+parsed social provider receipt stream status and receipt ingestion readiness
+status into `PortalLiveActivityState`. The app state derives both intents from
+the existing shared protocol parser and portal-domain projections, rejects
+dishonest receipt rows before projection, and does not add a visual surface or
+direct raw receipt-field parser. Evidence:
+`test-results/browser-runtime-social-provider-receipt-live-activity-state-proof/proof.json`
+and
+`output/browser-plan-proof/browser-runtime-social-provider-receipt-live-activity-state/01-browser-runtime-social-provider-receipt-live-activity-state-proof.md`.
+This does not claim provider delivery, provider receipt ingestion runtime,
+provider webhook runtime, provider credentials, observed provider receipts,
+report delivery execution, final policy execution, browser mutation, child
+intervention execution, unmanaged exact URL support, or enforcement.
+
+WP13 social provider receipt route status UI addendum:
+`browser-runtime-social-provider-receipt-route-status-ui-proof` renders the
+live-activity browser action-intent stream status, social provider receipt
+stream status, and receipt ingestion readiness status in the existing Browser
+route social alert/report panel. The proof runs the real portal E2E harness with
+Rust agent service plus Vite portal, asserts the parent-visible action-intent,
+receipt, and readiness cards, and captures desktop/mobile screenshots. Evidence:
+`test-results/browser-runtime-social-provider-receipt-route-status-ui-proof/proof.json`,
+`test-results/browser-runtime-social-provider-receipt-route-status-ui-proof/accessibility-summary.json`,
+and
+`output/browser-plan-proof/browser-runtime-social-provider-receipt-route-status-ui/06-ui-snapshots/social-alert-report-browser-route.png`
+plus
+`output/browser-plan-proof/browser-runtime-social-provider-receipt-route-status-ui/06-ui-snapshots/social-alert-report-browser-route-mobile.png`.
+This does not claim action adapter dispatch, provider delivery, provider receipt
+ingestion runtime, provider webhook runtime, provider credentials, observed
+provider receipts, report delivery execution, final policy execution, browser
+mutation, child intervention execution, unmanaged exact URL support, or
+enforcement. The action-intent status projection lives in `portal-domain`, but
+the Browser route imports that focused source directly because C currently owns
+the shared `contracts.ts`/package export files.
+
+WP13 social parent notification delivery service UI addendum:
+`social-parent-notification-delivery-ui-proof` carries the existing
+parent-domain social parent-notification/report delivery readiness boundary into
+a service-backed agent protocol command/event and the existing Browser route
+social alert/report panel. The proof runs the real Rust agent service plus Vite
+portal E2E harness, requests
+`agent.browser.social-parent-notification-delivery.read-model.get`, asserts
+parent-report-ready, manual-required, and unavailable rows, writes an
+accessibility summary, and captures desktop/mobile screenshots. Evidence:
+`test-results/social-parent-notification-delivery-ui-proof/proof.json`,
+`test-results/social-parent-notification-delivery-ui-proof/accessibility-summary.json`,
+and
+`output/browser-plan-proof/social-parent-notification-delivery-ui-proof/06-ui-snapshots/social-alert-report-browser-route.png`
+plus
+`output/browser-plan-proof/social-parent-notification-delivery-ui-proof/06-ui-snapshots/social-alert-report-browser-route-mobile.png`.
+This improves SOCIAL-23/SOCIAL-24 parent-visible status coverage but keeps those
+items partial/manual-required. It does not claim parent notification UI
+delivery, external runtime report delivery, provider delivery, provider receipt
+ingestion, final policy execution, browser mutation, child intervention
+execution, unmanaged exact URL support, or enforcement.
+
+SOCIAL-23/SOCIAL-24 parent-owned local delivery result addendum:
+`social-parent-notification-delivery-readiness-proof` now records a
+parent-owned local delivery result ref for the parent-report-ready social report
+row, and rejects forged local delivery result refs on manual-required or
+unavailable rows. Evidence:
+`test-results/social-parent-notification-delivery-readiness-proof/proof.json`
+and
+`output/browser-plan-proof/social-parent-notification-delivery-readiness-proof/01-social-parent-notification-delivery-readiness-proof.md`.
+This advances non-Apple parent-owned delivery-result proof while preserving
+manual-required status for external provider delivery, parent notification UI
+delivery, cloud routing, final policy execution, browser mutation, child
+intervention execution, unmanaged exact URL support, and enforcement.
+
+WP13 runtime stream topology and delivery-decision addendum:
+`browser-runtime-chain-topology-proof` and
+`browser-runtime-delivery-decision-proof` register the service-side
+`browser.runtime.stream.report.requested` request in the reusable browser runtime
+event topology and delivery-decision reports. The route is local in-process from
+the browser runtime spine to the browser runtime stream report subscriber, and
+external transport remains manual-required. Evidence:
+`test-results/browser-runtime-chain-topology-proof/proof.json`,
+`output/browser-plan-proof/browser-runtime-chain-topology/01-browser-runtime-chain-topology-proof.md`,
+`test-results/browser-runtime-delivery-decision-proof/proof.json`, and
+`output/browser-plan-proof/browser-runtime-delivery-decision/01-browser-runtime-delivery-decision-proof.md`.
+This does not change the public portal WebSocket command/event and does not
+claim external adapter dispatch, browser mutation, child intervention execution,
+final policy execution, or enforcement.
+
+WP13 social parent notification delivery route-decision addendum:
+`browser-runtime-delivery-decision-proof` now carries the internal
+`browser.social.parent-notification-delivery.status.requested` request into the
+reusable browser runtime delivery-decision report as a sixth local-ready browser
+route. The route is local in-process from the browser runtime spine to the
+social parent-notification delivery status subscriber. This keeps the eventing
+boundary covered without changing the public portal command/event and without
+claiming external adapter dispatch, browser mutation, child intervention
+execution, final policy execution, parent notification UI delivery, or
+enforcement.
+
+WP13 social parent notification delivery eventing addendum:
+`social-parent-notification-delivery-ui-proof` now also verifies that the
+service-backed parent-notification/report delivery readiness projection is
+behind the local named
+`browser.social.parent-notification-delivery.status.requested` eventing
+request/subscriber boundary. The public portal command remains
+`agent.browser.social-parent-notification-delivery.read-model.get`, and the
+Rust service completes the readiness response through `ocentra-eventing` before
+building the same reported WebSocket event. Evidence:
+`test-results/social-parent-notification-delivery-ui-proof/proof.json` and
+`output/browser-plan-proof/social-parent-notification-delivery-ui-proof/01-social-parent-notification-delivery-ui-proof.md`.
+This is internal local service eventing only and does not claim parent
+notification UI delivery, external runtime report delivery, provider delivery,
+provider receipt ingestion, final policy execution, browser mutation, child
+intervention execution, unmanaged exact URL support, or enforcement.
+
+WP13 social report-writer delivery event handoff addendum:
+`social-parent-notification-delivery-ui-proof` now also verifies that the
+parent-notification delivery subscriber asks the local
+`browser.social.report-writer-delivery.status.requested` eventing request before
+projecting parent-visible notification rows. The service projection preserves
+the returned report-writer delivery row refs as
+`sourceReportWriterDeliveryRowRef`, so report-writer readiness is no longer
+duplicated inside the parent-notification projection. Evidence:
+`test-results/social-parent-notification-delivery-ui-proof/proof.json` and
+`output/browser-plan-proof/social-parent-notification-delivery-ui-proof/01-social-parent-notification-delivery-ui-proof.md`.
+This is internal local service eventing only and does not change the public
+portal command/event names or claim parent notification UI delivery, external
+runtime report delivery, provider delivery, provider receipt ingestion, final
+policy execution, browser mutation, child intervention execution, unmanaged
+exact URL support, or enforcement.
+
+WP13 social report-writer delivery route-decision addendum:
+`browser-runtime-delivery-decision-proof` now registers
+`browser.social.report-writer-delivery.status.requested` and
+`browser.social-alert-report.parent-surface.status.requested` as the seventh
+and eighth local-ready browser runtime routes. These routes are local
+in-process from the browser runtime spine to the social report-writer delivery
+and social alert/report parent-surface status subscribers, which keeps both
+handoffs covered by the shared eventing route audit without changing public
+portal command/event names. Evidence:
+`test-results/browser-runtime-delivery-decision-proof/proof.json` and
+`output/browser-plan-proof/browser-runtime-delivery-decision/01-browser-runtime-delivery-decision-proof.md`.
+This does not claim external adapter dispatch, external transport, browser
+mutation, child intervention execution, final policy execution, parent
+notification UI delivery, provider delivery/receipt ingestion, or enforcement.
+
+WP13 social parent-surface service eventing UI addendum:
+`social-alert-report-parent-surface-service-ui-proof` carries the social
+alert/report parent-surface status projection through a service-backed
+agent-protocol command/event and the existing Browser route social alert/report
+panel. The public route requests
+`agent.browser.social-alert-report.parent-surface.read-model.get`, the service
+publishes the local
+`browser.social-alert-report.parent-surface.status.requested` eventing request,
+asks the local provider-status and preference-status handoff subscribers, and
+the portal renders provider/preference-derived manual-action-required plus
+unavailable-visible parent-surface rows with desktop/mobile screenshots.
+Evidence:
+`test-results/social-alert-report-parent-surface-service-ui-proof/proof.json`,
+`test-results/social-alert-report-parent-surface-service-ui-proof/accessibility-summary.json`,
+`output/browser-plan-proof/social-alert-report-parent-surface-service-ui-proof/01-social-alert-report-parent-surface-service-ui-proof.md`,
+`output/browser-plan-proof/social-alert-report-parent-surface-service-ui-proof/06-ui-snapshots/social-alert-report-browser-route.png`,
+and
+`output/browser-plan-proof/social-alert-report-parent-surface-service-ui-proof/06-ui-snapshots/social-alert-report-browser-route-mobile.png`.
+This improves SOCIAL-23/SOCIAL-24 parent-visible status coverage but keeps those
+items partial/manual-required. It does not claim parent notification UI
+delivery, preference UI delivery, notification history UI, provider delivery,
+provider receipt ingestion, provider credentials, cloud routing, child
+delivery, quiet-hours timer runtime, retry-worker runtime, production durable
+outbox storage, adapter dispatch, report delivery execution, final policy
+execution, connector/native runtime, browser mutation, unmanaged exact URL
+support, or enforcement. Product capability checklist status is unchanged;
+`docs/product-capability-checklist.md` is currently locked by another lane.
+
+WP05 Android physical owned-shell activity-start addendum:
+`browser-platform-android-owned-shell-proof` now accepts
+`ANDROID_SERIAL=192.168.2.45:5555` as an additive physical Android target while
+preserving the disposable emulator as the only Device Owner/browser-role proof
+source. The latest proof installed the owned browser shell APK on the physical
+Samsung Galaxy S9 target, observed the explicit owned-shell activity start, and
+recorded redacted activity/window-state hashes showing the activity behind the
+device keyguard with black screencap output. Evidence:
+`test-results/browser-platform-android-owned-shell-proof/proof.json` and
+`output/browser-plan-proof/05-cross-platform-inventory-matrix/15-android-owned-browser-shell-proof.json`.
+This improves WP05 physical Android custody boundary evidence but keeps WP05
+partial/manual-required. It does not claim physical Device Owner enrollment,
+physical browser-role routing, physical exact URL policy, known-active tab
+proof, VPN/DNS proof, UsageStats/Accessibility proof, Play signing, final policy
+execution, browser blocking, broad content-filter enforcement, or product
+completion.
+
+WP05 Android owned-shell current-runtime addendum:
+`browser-android-owned-shell-runtime` adds an activity-domain projection from
+the real Android owned-shell proof artifact into a typed current-runtime read
+model. The projection accepts the physical Samsung Galaxy S9 owned-shell row
+only when install, explicit launch, UI-tree, and screenshot evidence are all
+present, keeps emulator Browser Role routing emulator-scoped, and emits a
+manual-required row for the remaining physical Device Owner, physical Browser
+Role, exact URL, active-tab, VPN/DNS, UsageStats, Accessibility, final policy,
+and enforcement gaps. Evidence:
+`test-results/browser-platform-android-owned-shell-runtime-proof/proof.json` and
+`output/browser-plan-proof/05-cross-platform-inventory-matrix/16-android-owned-shell-runtime-proof.json`.
+The WP05 aggregate gate now requires that artifact. No product capability
+checklist update is claimed because WP05 remains partial/manual-required.
+
+WP05 Android owned-shell requested-URL custody addendum:
+`browser-android-owned-shell-url-custody` adds an activity-domain projection
+from the same real Android owned-shell proof artifact into a typed requested-URL
+custody read model. The projection accepts one physical Samsung Galaxy S9
+requested-URL ref row only when physical install, explicit launch, UI-tree,
+screenshot, WebView/BROWSABLE declaration, and local proof-page evidence are all
+present, and emits a manual-required row for the remaining physical Device
+Owner, physical Browser Role, exact URL policy, active-tab, final policy,
+blocking, and enforcement gaps. Evidence:
+`test-results/browser-platform-android-owned-shell-url-custody-proof/proof.json`
+and
+`output/browser-plan-proof/05-cross-platform-inventory-matrix/17-android-owned-shell-url-custody-proof.json`.
+The WP05 aggregate gate now requires that artifact. This proves requested-URL
+ref custody only; it does not persist raw URLs or claim exact URL policy,
+known-active tab custody, physical Device Owner/Browser Role routing, final
+policy execution, browser blocking, broad content-filter enforcement, release
+readiness, or product completion. No product capability checklist update is
+claimed because WP05 remains partial/manual-required and that checklist is owned
+by another active lane.
+
+SOCIAL-23/SOCIAL-24 managed-browser policy execution addendum:
+`social-managed-browser-policy-execution` adds a parent-domain managed-session
+execution boundary that consumes a non-final social policy decision candidate
+and accepts a managed execution result only when the real child-agent
+intervention endpoint, managed browser target ref, live-surface capture,
+browser mutation, screenshot refs, and no-raw-custody/no-broad-enforcement
+flags are present. Evidence:
+`test-results/social-managed-browser-policy-execution-proof/proof.json`,
+`output/browser-plan-proof/social-managed-browser-policy-execution-proof/01-social-managed-browser-policy-execution-proof.md`,
+and the underlying
+`test-results/managed-browser-composited-block-proof/*.json`/screenshot from
+the real YouTube composited block harness. This advances managed-session-only
+social policy execution, browser mutation, and child intervention execution.
+SOCIAL-23/SOCIAL-24 remain partial/manual-required because unmanaged browser
+support, broad OS enforcement, external provider delivery, connector/native
+runtime, Apple platform support, raw URL/page custody, and product completion
+remain unclaimed. No product capability checklist update: that checklist is
+owned by another lane and this claim is still scoped below product completion.
+
+SOCIAL-23/SOCIAL-24 provider dispatch execution addendum:
+`social-alert-report-provider-dispatch-execution` adds a parent-domain local
+provider dispatch packet boundary that consumes parsed provider receipt-boundary
+rows and parsed `NotificationLocalOutboxRecord` rows. It prepares redaction-safe
+local dispatch packets only for `provider-dispatch-required` rows with a
+matching local outbox record and leaves manual-required/provider-unavailable
+rows packetless. Evidence:
+`test-results/social-alert-report-provider-dispatch-execution-proof/proof.json`
+and
+`output/browser-plan-proof/social-alert-report-provider-dispatch-execution-proof/01-social-alert-report-provider-dispatch-execution-proof.md`.
+The SOCIAL-23 proof-artifact gate and SOCIAL-24 rollout gate now require those
+artifacts. This advances local provider dispatch packet readiness only; external
+provider delivery, delivered notification receipts, provider webhook runtime,
+provider credentials, cloud routing, parent notification UI delivery,
+connector/native runtime, final policy execution, enforcement, and product
+completion remain unclaimed. No product capability checklist update: that
+checklist is owned by another lane and this claim is still scoped below product
+completion.
 
 ## Worker Report Template
 

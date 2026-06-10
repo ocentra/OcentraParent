@@ -1,3 +1,0 @@
-PASS: raw manifest paths are hashed before becoming source refs.
-PASS: invalid XML does not create an inventory claim.
-PASS: packaged-app inventory rows do not claim runtime use, foreground use, content knowledge, policy decisions, adapter execution, or broad blocking.

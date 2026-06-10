@@ -1,6 +1,8 @@
 pub mod action_result;
+pub mod adapter_capability_status;
 pub mod ai_audit;
 pub mod ai_detection;
+pub mod android_physical_target;
 pub mod android_vpn_service_gate;
 pub mod app_game_session;
 pub mod apple_network_extension_gate;
@@ -16,8 +18,11 @@ pub mod fixtures;
 pub mod flow;
 pub mod http;
 pub mod linux_adapter_gate;
+pub mod linux_nftables_lab_execution;
 pub mod live_capture;
+pub mod live_capture_execution;
 pub mod local_ai_queue;
+pub mod local_platform_probe;
 pub mod managed_browser;
 pub mod notification;
 pub mod packet;
@@ -37,9 +42,11 @@ pub mod transfer;
 pub mod tunnel;
 pub mod unmanaged_browser;
 pub mod windows_firewall_adapter;
+pub mod windows_firewall_lab_execution;
 pub mod windows_wfp_gate;
 pub mod zeek;
 
+mod adapter_capability_status_values;
 mod platform_claim_values;
 mod process_support;
 
@@ -53,6 +60,11 @@ pub use action_result::{
     NetworkActionResultRequestedAction, NetworkActionResultRequiredArtifact,
     NetworkActionResultState, NetworkActionResultTargetKind,
 };
+pub use adapter_capability_status::{
+    build_network_adapter_capability_status, NetworkAdapterCapabilityStatusEntry,
+    NetworkAdapterCapabilityStatusError, NetworkAdapterCapabilityStatusInput,
+    NetworkAdapterCapabilityStatusProof, NetworkAdapterCapabilityStatusState,
+};
 pub use ai_audit::{
     build_network_ai_audit_report, NetworkAiAuditNarrativeState, NetworkAiAuditRecommendation,
     NetworkAiAuditRecommendationKind, NetworkAiAuditReport, NetworkAiAuditReportError,
@@ -65,6 +77,14 @@ pub use ai_detection::{
     NetworkAiDetectionFixtureCase, NetworkAiDetectionInputKind, NetworkAiDetectionLabel,
     NetworkAiDetectionPrecisionState, NetworkAiDetectionRecallState, NetworkAiDetectionResult,
     NetworkAiDetectionRiskLevel, NetworkAiDetectionUncertaintyCode,
+};
+pub use android_physical_target::{
+    prove_network_android_physical_target, NetworkAndroidPhysicalTargetBoundaryReason,
+    NetworkAndroidPhysicalTargetError, NetworkAndroidPhysicalTargetExpected,
+    NetworkAndroidPhysicalTargetField, NetworkAndroidPhysicalTargetInput,
+    NetworkAndroidPhysicalTargetMismatch, NetworkAndroidPhysicalTargetObserved,
+    NetworkAndroidPhysicalTargetProof, NetworkAndroidPhysicalTargetState,
+    NetworkAndroidPhysicalTargetUnsupportedClaims,
 };
 pub use android_vpn_service_gate::{
     plan_network_android_vpn_service_gate, NetworkAndroidVpnServiceCapabilityState,
@@ -142,15 +162,33 @@ pub use linux_adapter_gate::{
     NetworkLinuxAdapterGateInput, NetworkLinuxAdapterGateProof, NetworkLinuxAdapterGateState,
     NetworkLinuxAdapterKind, NetworkLinuxAdapterRequiredArtifact,
 };
+pub use linux_nftables_lab_execution::{
+    prove_network_linux_nftables_lab_execution, NetworkLinuxNftablesLabCommandEvidence,
+    NetworkLinuxNftablesLabCommandKind, NetworkLinuxNftablesLabExecutionError,
+    NetworkLinuxNftablesLabExecutionInput, NetworkLinuxNftablesLabExecutionProof,
+    NetworkLinuxNftablesLabExecutionState, NetworkLinuxNftablesLabUnsupportedClaims,
+};
 pub use live_capture::{
     plan_network_live_capture_proof, NetworkLiveCapturePlatform, NetworkLiveCaptureProof,
     NetworkLiveCaptureProofError, NetworkLiveCaptureProofInput, NetworkLiveCaptureProofState,
     NetworkLiveCaptureRequiredArtifact,
 };
+pub use live_capture_execution::{
+    prove_network_live_capture_execution, NetworkLiveCaptureExecutionError,
+    NetworkLiveCaptureExecutionInput, NetworkLiveCaptureExecutionProof,
+    NetworkLiveCaptureExecutionRequiredArtifact, NetworkLiveCaptureExecutionSource,
+    NetworkLiveCaptureExecutionState,
+};
 pub use local_ai_queue::{
     plan_network_local_ai_queue, NetworkLocalAiQueueError, NetworkLocalAiQueueInput,
     NetworkLocalAiQueueInputKind, NetworkLocalAiQueueJob, NetworkLocalAiQueuePlan,
     NetworkLocalAiQueueStatus,
+};
+pub use local_platform_probe::{
+    build_network_local_platform_probe_proof, NetworkLocalPlatformProbeError,
+    NetworkLocalPlatformProbeHost, NetworkLocalPlatformProbeInput,
+    NetworkLocalPlatformProbeObservation, NetworkLocalPlatformProbeProof,
+    NetworkLocalPlatformProbeState, NetworkLocalPlatformProbeUnsupportedClaims,
 };
 pub use managed_browser::{
     correlate_managed_browser_activity, ManagedBrowserCorrelation, ManagedBrowserCorrelationBasis,
@@ -251,6 +289,12 @@ pub use windows_firewall_adapter::{
     NetworkWindowsFirewallAdapterProofInput, NetworkWindowsFirewallBoundaryReason,
     NetworkWindowsFirewallCapabilityState, NetworkWindowsFirewallProofState,
     NetworkWindowsFirewallRequiredArtifact, NetworkWindowsFirewallTargetKind,
+};
+pub use windows_firewall_lab_execution::{
+    prove_network_windows_firewall_lab_execution, NetworkWindowsFirewallLabCommandEvidence,
+    NetworkWindowsFirewallLabCommandKind, NetworkWindowsFirewallLabExecutionError,
+    NetworkWindowsFirewallLabExecutionInput, NetworkWindowsFirewallLabExecutionProof,
+    NetworkWindowsFirewallLabExecutionState, NetworkWindowsFirewallLabUnsupportedClaims,
 };
 pub use windows_wfp_gate::{
     plan_network_windows_wfp_gate, NetworkWindowsWfpGateBoundaryReason,

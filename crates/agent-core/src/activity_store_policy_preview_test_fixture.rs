@@ -1,14 +1,17 @@
 use ocentra_parent_agent_protocol::{
-    constants, policy_constants as policy, ActivityEvent, BrowserActiveProofSource,
-    BrowserActiveTabState, BrowserCapabilityStatus, BrowserChannel, BrowserCustodyLabel,
-    BrowserFamily, BrowserQueryVisibilityLabel, ChildProfileReference, FamilyReference,
-    LocalAiParentRuleContextRef, ParentActorReference, ParentActorRole, ParentDeviceReference,
-    PolicyAction, PolicyRule, PolicyTarget, PolicyTargetType,
+    constants, policy_constants as policy, ActivityCaptureCapabilityStatus, ActivityEvent,
+    ActivityEventKind, ActivityEvidenceKind, ActivityEvidenceRef, ActivityNetworkProtocol,
+    ActivityNetworkTcpState, ActivityObserver, ActivitySource, ActivitySubject,
+    ActivitySubjectKind, BrowserActiveProofSource, BrowserActiveTabState, BrowserCapabilityStatus,
+    BrowserChannel, BrowserCustodyLabel, BrowserFamily, BrowserQueryVisibilityLabel,
+    ChildProfileReference, FamilyReference, LocalAiParentRuleContextRef, LogFieldValue, LogFields,
+    ParentActorReference, ParentActorRole, ParentDeviceReference, PolicyAction, PolicyRule,
+    PolicyTarget, PolicyTargetType, ACTIVITY_SCHEMA_VERSION,
 };
 
 use super::{
-    browser_tab_observation_event, foreground_window_observation_event,
-    BrowserBridgeTargetObservation, ForegroundWindowObservation,
+    browser_tab_observation_event, foreground_window_observation_event, network_observation_event,
+    BrowserBridgeTargetObservation, ForegroundWindowObservation, NetworkObservation,
 };
 
 pub(crate) fn browser_event() -> ActivityEvent {
@@ -51,6 +54,79 @@ pub(crate) fn active_window_event() -> ActivityEvent {
     )
 }
 
+pub(crate) fn network_flow_event() -> ActivityEvent {
+    network_flow_event_at(constants::activity_store::TEST_FIRST_OBSERVED_AT, 0)
+}
+
+pub(crate) fn network_flow_event_at(observed_at: &str, sequence_index: usize) -> ActivityEvent {
+    network_observation_event(
+        NetworkObservation {
+            status: ActivityCaptureCapabilityStatus::Available,
+            protocol: Some(ActivityNetworkProtocol::Tcp),
+            local_ip: Some(constants::test_network::LOOPBACK_IP.to_string()),
+            local_port: Some(constants::activity_store::TEST_NETWORK_LOCAL_PORT),
+            destination_ip: Some(
+                constants::activity_store::TEST_NETWORK_DESTINATION_IP.to_string(),
+            ),
+            destination_port: Some(constants::activity_store::TEST_NETWORK_DESTINATION_PORT),
+            destination_domain: Some(constants::activity_store::TEST_NETWORK_DOMAIN.to_string()),
+            tcp_state: Some(ActivityNetworkTcpState::Established),
+            pid: Some(constants::activity_store::TEST_BROWSER_PROCESS_ID),
+            process_name: Some(constants::activity_store::TEST_PROCESS_SUBJECT_NAME.to_string()),
+            associated_pid_count: 1,
+        },
+        observed_at,
+        sequence_index,
+    )
+}
+
+pub(crate) fn network_retention_deleted_event(deleted_event_id: &str) -> ActivityEvent {
+    network_retention_deleted_event_at(
+        deleted_event_id,
+        constants::activity_store::TEST_NETWORK_RETENTION_DELETE_OBSERVED_AT,
+    )
+}
+
+pub(crate) fn network_retention_deleted_event_at(
+    deleted_event_id: &str,
+    observed_at: &str,
+) -> ActivityEvent {
+    let mut fields = LogFields::new();
+    fields.insert(
+        constants::field::EVIDENCE_REFERENCE_IDS.to_string(),
+        LogFieldValue::String(deleted_event_id.to_string()),
+    );
+    fields.insert(
+        constants::field::DELETED_AT.to_string(),
+        LogFieldValue::String(observed_at.to_string()),
+    );
+
+    ActivityEvent {
+        schema_version: ACTIVITY_SCHEMA_VERSION,
+        event_id: constants::activity_store::TEST_NETWORK_RETENTION_DELETE_EVENT_ID.to_string(),
+        observed_at: observed_at.to_string(),
+        source: ActivitySource {
+            device_id: constants::peer::LOCAL_DEV_AGENT.to_string(),
+            platform: std::env::consts::OS.to_string(),
+            observer: ActivityObserver::AgentService,
+            source_id: constants::peer::LOCAL_DEV_AGENT.to_string(),
+        },
+        kind: ActivityEventKind::NetworkRetentionDeleted,
+        subject: ActivitySubject {
+            kind: ActivitySubjectKind::Retention,
+            subject_id: deleted_event_id.to_string(),
+            display_name: None,
+        },
+        fields,
+        evidence: vec![ActivityEvidenceRef {
+            evidence_id: deleted_event_id.to_string(),
+            kind: ActivityEvidenceKind::JournalEntry,
+            digest: None,
+            uri: None,
+        }],
+    }
+}
+
 pub(crate) fn parent_rule_context_for_event(event: &ActivityEvent) -> LocalAiParentRuleContextRef {
     parent_rule_context(
         PolicyTarget {
@@ -83,10 +159,10 @@ pub(crate) fn parent_rule_context(
             display_name: policy::TEST_CHILD_PROFILE_DISPLAY_NAME.to_string(),
         },
         device: ParentDeviceReference {
-            device_id: policy::TEST_PARENT_DEVICE_ID.to_string(),
+            device_id: constants::peer::LOCAL_DEV_AGENT.to_string(),
             child_profile_id: Some(policy::TEST_CHILD_PROFILE_ID.to_string()),
             label: policy::TEST_PARENT_DEVICE_LABEL.to_string(),
-            platform: policy::TEST_PARENT_DEVICE_PLATFORM_WINDOWS.to_string(),
+            platform: std::env::consts::OS.to_string(),
         },
         rule: PolicyRule {
             rule_id: rule_id.to_string(),

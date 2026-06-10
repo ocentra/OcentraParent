@@ -1,6 +1,0 @@
-# Playwright UI Proof
-
-Not run for WP11 because no portal, route, component, or visual state changed.
-
-The UI proof requirement is deferred to the later parent portal app/game
-dashboard workpack that consumes authority rows.

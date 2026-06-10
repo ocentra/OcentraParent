@@ -1,6 +1,0 @@
-WP38 security negative proof:
-- Does not expose raw titles, paths, scan payloads, prompt bodies, or model output text.
-- Adds local-db-row refs and preserves existing evidence refs only.
-- Does not execute classifier output.
-- Does not dispatch policy or adapter actions.
-- Does not upgrade manual-required or provider-unavailable rows.

@@ -44,6 +44,7 @@ import {
   goldenCardStyle,
 } from './portal-frame-layout';
 import type { PortalFrameContentTargetLayout, PortalFrameLayout } from './portal-frame-layout';
+import { usePortalNetworkActivityRefresh } from './use-portal-network-activity-refresh';
 import { usePortalFrameLayout } from './use-portal-frame-layout';
 
 type PortalAppProps = {
@@ -66,9 +67,9 @@ export function PortalApp(props: PortalAppProps): ReactElement {
   const previousRouteRef = useRef<PortalRouteValue>(props.route);
   const autoLanScanRequestedForRouteRef = useRef(false);
   const autoLanScanStartedAfterEventIdRef = useRef<AgentEventId | null>(null);
+  const networkActivityRefreshRequestedForRouteRef = useRef(false);
   const isFrameTuner = props.route === PortalRoute.FrameTuner;
-  const isDevProtocolRoute =
-    props.route === PortalRoute.Commands || props.route === PortalRoute.Events || props.route === PortalRoute.Logs;
+  const isDevProtocolRoute = isPortalDevProtocolRoute(props.route);
   const isProductRoute = !isFrameTuner && !isDevProtocolRoute;
   const [frameLayout, setFrameLayout] = usePortalFrameLayout(!isFrameTuner && import.meta.env.DEV);
   const routeFrameLayout = useMemo(
@@ -77,6 +78,8 @@ export function PortalApp(props: PortalAppProps): ReactElement {
   );
   const latestLanPairingScanEventId =
     latestPortalEvent(props.state.events, AgentEvent.LanPairingBrowserDiscoveryReported)?.eventId ?? null;
+  const hasNetworkFlowReadModelEvent =
+    latestPortalEvent(props.state.events, AgentEvent.NetworkFlowReadModelReported) !== null;
   const openAuthDialog = (): void => setAuthOpen(true);
   const closeAuthDialog = (): void => setAuthOpen(false);
   usePortalProductReady(isProductRoute, props.onProductSurfaceReady);
@@ -102,6 +105,13 @@ export function PortalApp(props: PortalAppProps): ReactElement {
     latestLanPairingScanEventId,
     route: props.route,
     setHeaderRouteTransitionActive,
+  });
+  usePortalNetworkActivityRefresh({
+    actions: props.actions,
+    connectionState: props.state.connectionState,
+    hasNetworkFlowReadModelEvent,
+    networkActivityRefreshRequestedForRouteRef,
+    route: props.route,
   });
   if (isFrameTuner) {
     return <PortalFrameTunerRoute layout={frameLayout} onLayoutChange={setFrameLayout} />;
@@ -299,6 +309,10 @@ function usePortalProductReady(isProductRoute: boolean, onProductSurfaceReady: (
       onProductSurfaceReady();
     }
   }, [isProductRoute, onProductSurfaceReady]);
+}
+
+function isPortalDevProtocolRoute(route: PortalRouteValue): boolean {
+  return route === PortalRoute.Commands || route === PortalRoute.Events || route === PortalRoute.Logs;
 }
 
 function usePortalRouteTransition({
