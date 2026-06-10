@@ -1,7 +1,7 @@
 import { spawnSync } from 'node:child_process';
 import { createHash } from 'node:crypto';
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
-import { dirname, join, relative, resolve } from 'node:path';
+import { dirname, join, resolve } from 'node:path';
 
 const repoRoot = process.cwd();
 const requestedSerial = process.env.OCENTRA_ANDROID_SERIAL ?? process.env.ANDROID_SERIAL ?? '192.168.2.45:5555';

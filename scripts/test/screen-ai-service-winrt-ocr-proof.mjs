@@ -399,45 +399,6 @@ function activateBrowserWindow(title, launchedAfterIso, processId) {
   }
 }
 
-function activateNativeWindow(processId, title) {
-  const script = [
-    'Add-Type -AssemblyName Microsoft.VisualBasic',
-    "Add-Type -TypeDefinition @'",
-    'using System;',
-    'using System.Runtime.InteropServices;',
-    'using System.Text;',
-    'public static class OcentraNativeWin32 {',
-    '  [DllImport("user32.dll")] public static extern bool SetForegroundWindow(IntPtr hWnd);',
-    '  [DllImport("user32.dll")] public static extern bool ShowWindowAsync(IntPtr hWnd, int nCmdShow);',
-    '  [DllImport("user32.dll")] public static extern IntPtr GetForegroundWindow();',
-    '  [DllImport("user32.dll", CharSet = CharSet.Unicode)] public static extern int GetWindowText(IntPtr hWnd, StringBuilder text, int count);',
-    '}',
-    "'@",
-    `$target = Get-Process -Id ${processId} -ErrorAction SilentlyContinue`,
-    "if ($null -eq $target -or $target.MainWindowHandle -eq 0) { throw 'No visible native window found for proof activation.' }",
-    '$foregroundTitle = $null',
-    'for ($attempt = 0; $attempt -lt 6; $attempt++) {',
-    '  [OcentraNativeWin32]::ShowWindowAsync($target.MainWindowHandle, 9) | Out-Null',
-    '  [Microsoft.VisualBasic.Interaction]::AppActivate($target.Id) | Out-Null',
-    '  [OcentraNativeWin32]::SetForegroundWindow($target.MainWindowHandle) | Out-Null',
-    '  Start-Sleep -Milliseconds 700',
-    '  $buffer = New-Object System.Text.StringBuilder 512',
-    '  [OcentraNativeWin32]::GetWindowText([OcentraNativeWin32]::GetForegroundWindow(), $buffer, $buffer.Capacity) | Out-Null',
-    '  $foregroundTitle = $buffer.ToString()',
-    `  if ($foregroundTitle -like '*${escapePowerShell(title)}*') { break }`,
-    '}',
-    `if ($foregroundTitle -notlike '*${escapePowerShell(title)}*') { throw ('Native foreground window after activation was ' + $foregroundTitle + '; target was ${escapePowerShell(title)}') }`,
-  ].join('\n');
-  const result = spawnSync('powershell', ['-NoProfile', '-ExecutionPolicy', 'Bypass', '-Command', script], {
-    cwd: repoRoot,
-    encoding: 'utf8',
-    windowsHide: true,
-  });
-  if (result.status !== 0) {
-    throw new Error(`Could not activate native OCR window ${title}\n${result.stdout}\n${result.stderr}`);
-  }
-}
-
 function writeAdapterCommand() {
   writeFileSync(adapterScriptPath, adapterPowerShell(), 'utf8');
   writeFileSync(
@@ -789,10 +750,16 @@ async function capturePortalScreenshot() {
   const page = await portalBrowser.newPage({ viewport: { width: 1600, height: 1200 } });
   await page.goto(`${portalUrl()}#/screen-analysis`, { waitUntil: 'domcontentloaded' });
   await page.getByText('Screen analysis').waitFor({ timeout: 20000 });
-  await page.waitForFunction(() => document.body.innerText.includes('[redacted-email]'), null, { timeout: 20000 });
-  await page.waitForFunction(() => document.body.innerText.includes('[redacted-phone]'), null, { timeout: 20000 });
-  await page.waitForFunction(() => document.body.innerText.includes('piiLikeTextRedacted'), null, { timeout: 20000 });
-  await page.waitForFunction(() => document.body.innerText.includes('credentialLikeTextRedacted'), null, {
+  await page.waitForFunction(() => globalThis.document.body.innerText.includes('[redacted-email]'), null, {
+    timeout: 20000,
+  });
+  await page.waitForFunction(() => globalThis.document.body.innerText.includes('[redacted-phone]'), null, {
+    timeout: 20000,
+  });
+  await page.waitForFunction(() => globalThis.document.body.innerText.includes('piiLikeTextRedacted'), null, {
+    timeout: 20000,
+  });
+  await page.waitForFunction(() => globalThis.document.body.innerText.includes('credentialLikeTextRedacted'), null, {
     timeout: 20000,
   });
   const rendered = await page.locator('body').innerText();

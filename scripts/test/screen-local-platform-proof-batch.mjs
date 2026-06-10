@@ -315,14 +315,6 @@ function runNode(script) {
   execFileSync(process.execPath, [script], { cwd: repoRoot, stdio: 'inherit' });
 }
 
-function runWsl(command) {
-  const wslPath = windowsPathToWsl(repoRoot);
-  execFileSync('wsl.exe', ['bash', '-lc', `cd ${shellQuote(wslPath)} && ${command}`], {
-    cwd: repoRoot,
-    stdio: 'inherit',
-  });
-}
-
 function collectHostInventory() {
   const adbDevices = tryExec('adb', ['devices', '-l']);
   const avds = tryExec(resolveAndroidTool('emulator'), ['-list-avds']);
@@ -404,16 +396,6 @@ function tryExec(command, args) {
   }
 }
 
-function windowsPathToWsl(path) {
-  const match = path.match(/^([A-Za-z]):\\(.*)$/u);
-  if (match === null) {
-    return path.replaceAll('\\', '/');
-  }
-  const drive = match[1].toLowerCase();
-  const rest = match[2].replaceAll('\\', '/');
-  return `/mnt/${drive}/${rest}`;
-}
-
 function readJson(path) {
   const absolute = resolve(repoRoot, path);
   assert(existsSync(absolute), `missing proof artifact ${path}`);
@@ -443,10 +425,6 @@ function validationCommands() {
 
 function relativePath(path) {
   return relative(repoRoot, path).replace(/\\/gu, '/');
-}
-
-function shellQuote(value) {
-  return `'${value.replaceAll("'", "'\\''")}'`;
 }
 
 function assert(condition, message) {

@@ -89,7 +89,6 @@ const decisions = [
 ];
 
 const currentRoute = decisions[0];
-const fallbackDecisions = decisions.slice(1);
 
 const proof = {
   proof: 'screen-vlm-rollout-fallback-gate-proof',

@@ -1,5 +1,6 @@
+import { createHash } from 'node:crypto';
 import { spawn, spawnSync } from 'node:child_process';
-import { mkdir, mkdtemp, readFile, rm, writeFile } from 'node:fs/promises';
+import { mkdir, mkdtemp, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join, resolve } from 'node:path';
 import { setTimeout as delay } from 'node:timers/promises';
@@ -484,9 +485,25 @@ async function writeFailureLog(error) {
     message: error instanceof Error ? error.message : String(error),
     screenshot: failureScreenshotPath,
     pageText: pageText.slice(0, 8000),
-    portalFrames,
+    portalFrames: portalFrames.map(summarizePortalFrame),
     agentOutput: agentOutput.join('').slice(-8000),
     portalOutput: portalOutput.join('').slice(-8000),
   };
   await writeFile(failureSummaryPath, `${JSON.stringify(failure, null, 2)}\n`);
+}
+
+function summarizePortalFrame(frame) {
+  return {
+    direction: sanitizeProofToken(frame.direction, 'portal frame direction'),
+    payloadSha256: createHash('sha256').update(frame.payload).digest('hex'),
+    payloadBytes: Buffer.byteLength(frame.payload),
+  };
+}
+
+function sanitizeProofToken(value, label) {
+  const text = String(value ?? '');
+  if (!/^[A-Za-z0-9._:-]+$/u.test(text)) {
+    throw new Error(`Unexpected ${label} token shape.`);
+  }
+  return text;
 }

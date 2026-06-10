@@ -92,7 +92,6 @@ writeFileSync(indexPath, evidenceIndex(proof));
 console.log(`screen-ai-live-operator-evidence-bundle-ok:${relativePath(proofPath)}`);
 
 function bundleScenario(scenarioId) {
-  const pipelineScenarioRoot = join(pipelineRoot, scenarioId);
   const aiScenarioRoot = join(aiRoot, scenarioId);
   const bundleScenarioRoot = join(bundleRoot, scenarioId);
   mkdirSync(bundleScenarioRoot, { recursive: true });

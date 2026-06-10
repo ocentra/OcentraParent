@@ -1,6 +1,6 @@
 import { createHash } from 'node:crypto';
-import { existsSync, mkdirSync, readFileSync, statSync, writeFileSync } from 'node:fs';
-import { basename, dirname, join, relative, resolve } from 'node:path';
+import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
+import { basename, join, relative, resolve } from 'node:path';
 
 const repoRoot = process.cwd();
 const outputDir = join(repoRoot, 'output', 'screen-plan-proof', 'external-gates');
@@ -363,15 +363,18 @@ function validateArtifact(requiredGate, entry) {
   }
 
   const absoluteArtifactPath = resolve(repoRoot, entry.artifactPath);
-  if (!existsSync(absoluteArtifactPath)) {
+  let artifactBytes;
+  try {
+    artifactBytes = readFileSync(absoluteArtifactPath);
+  } catch {
     return rejected('artifact file is not present in the current checkout');
   }
 
-  if (statSync(absoluteArtifactPath).size === 0) {
+  if (artifactBytes.byteLength === 0) {
     return rejected('artifact file is empty');
   }
 
-  const digest = createHash('sha256').update(readFileSync(absoluteArtifactPath)).digest('hex');
+  const digest = createHash('sha256').update(artifactBytes).digest('hex');
   if (entry.artifactSha256 !== digest) {
     return rejected('artifact digest does not match the current file bytes');
   }

@@ -1,5 +1,5 @@
 import { spawn, spawnSync } from 'node:child_process';
-import { mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { mkdirSync, rmSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 
 const outputDir = join('output', 'screen-plan-proof', 'android-mediaprojection');
