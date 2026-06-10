@@ -1,0 +1,37 @@
+name: CI Parent Mobile
+
+on:
+  workflow_call:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  parent-mobile:
+    name: Parent Mobile Runtime and Package Source
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: ./.github/actions/setup-ci
+
+      - name: Build shared contracts
+        run: npm run build:contracts
+
+      - name: Parent mobile runtime contracts
+        run: npm run test --workspace @ocentra-parent/parent-domain -- tests/parent-mobile-runtime.test.ts tests/parent-mobile-service-bridge-runtime.test.ts tests/parent-mobile-controller-observer-handoff-runtime.test.ts tests/v0-9-mobile-controller-observer-runtime.test.ts
+
+      - name: Parent mobile package source artifact proof
+        run: npm run test:parent-mobile-package-source-artifact-proof
+
+      - name: Parent mobile shell runtime proof
+        run: node scripts/test/parent-mobile-shell-runtime-proof.mjs
+
+      - name: Upload parent mobile proof artifacts
+        uses: actions/upload-artifact@v6
+        with:
+          name: ocentra-parent-mobile-proof
+          path: |
+            test-results/parent-mobile-shell-runtime-proof/**

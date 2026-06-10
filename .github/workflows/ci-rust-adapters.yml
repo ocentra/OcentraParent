@@ -1,0 +1,27 @@
+name: CI Rust Adapters
+
+on:
+  workflow_call:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  rust-adapters:
+    name: Rust Updater, Eventing, Network, Screen Adapters
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: ./.github/actions/setup-ci
+
+      - name: Rust format
+        run: cargo fmt --all --check
+
+      - name: Adapter clippy
+        run: cargo clippy -p ocentra-parent-agent-maintenance -p ocentra-eventing -p ocentra-network-evidence -p ocentra-parent-screen-capture-adapter --all-targets -- -D warnings
+
+      - name: Adapter tests
+        run: cargo test -p ocentra-parent-agent-maintenance -p ocentra-eventing -p ocentra-network-evidence -p ocentra-parent-screen-capture-adapter --all-targets

@@ -1,7 +1,7 @@
 {
   "schema": "https://ocentra.ca/schemas/ocentra-parent-hub-lane-ledger.v1.json",
   "version": 1,
-  "updatedAt": "2026-06-09T14:07:08.154Z",
+  "updatedAt": "2026-06-09T20:52:00.0000000-04:00",
   "repo": "ocentra/OcentraParent",
   "sourceOfTruth": "repo-owned ledger; .codex is machine-local cache and mailbox only",
   "statusEnum": [
@@ -17,22 +17,38 @@
   "lanes": [
     {
       "laneId": "primary",
-      "name": "Primary coordination lane",
+      "name": "Docs/hub-only fast CI required-check preservation",
       "localWorktreePath": "E:/OcentraParent",
-      "branch": "codex/repo-owned-codex-hub-sync",
-      "remoteBranch": "origin/codex/repo-owned-codex-hub-sync",
+      "branch": "codex/docs-hub-fast-ci",
+      "remoteBranch": "origin/codex/docs-hub-fast-ci",
       "pr": null,
       "base": "origin/main",
-      "status": "main-merged",
-      "lastCommit": "e7ea7baf7599ba8491102a2400e2a918f7326aa4",
-      "mergedToMain": true,
-      "dirtyLocalFiles": [],
-      "lastValidation": [
-        "cmd /c npm run hub:status",
-        "cmd /c npm run lanes:status",
-        "gh pr list --state open --json number,title,headRefName,baseRefName,mergeStateStatus,statusCheckRollup,url,updatedAt --limit 20"
+      "status": "dirty-local",
+      "lastCommit": "18d0e15a558b4c43afa250ed9953c9a30648b3e7",
+      "mergedToMain": false,
+      "dirtyLocalFiles": [
+        ".github/workflows/build.yml",
+        ".github/workflows/ci.yml",
+        ".github/workflows/dependency-policy.yml",
+        ".github/workflows/fail-fast.yml",
+        ".github/workflows/package-preview.yml",
+        ".github/workflows/secret-scan.yml",
+        ".github/workflows/validate.yml",
+        ".hub/lane-ledger.json",
+        ".hub/state/worktree-lanes.json",
+        "docs/architecture/repo-domain-organization-cleanup-plan.md",
+        "docs/hub/lane-ledger.md",
+        "docs/plans/tracking-plan/README.md",
+        "docs/plans/tracking-plan/implementation-checklist.md",
+        "scripts/test/workflow-ci-trigger.test.mjs"
       ],
-      "nextAction": "Finish repo-owned hub state sync migration PR, then return primary to main for one-at-a-time PR integration.",
+      "lastValidation": [
+        "cmd /c npx prettier --check .github/workflows/ci.yml .github/workflows/fail-fast.yml .github/workflows/secret-scan.yml .github/workflows/build.yml .github/workflows/dependency-policy.yml .github/workflows/validate.yml .github/workflows/package-preview.yml",
+        "npm run hub:guard",
+        "npm run lanes:status",
+        "cmd /c npx prettier --check docs .hub *.md"
+      ],
+      "nextAction": "Commit and push docs/hub-only fast CI workflow changes plus the repo-domain organization TODO. This CI-infrastructure PR must run the full required matrix once before future docs/.hub/root-md-only PRs can fast-pass the same required contexts.",
       "safeToDeleteWorktree": false
     },
     {

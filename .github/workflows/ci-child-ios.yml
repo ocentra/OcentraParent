@@ -1,0 +1,24 @@
+name: CI Child iOS
+
+on:
+  workflow_call:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  child-ios:
+    name: Child iOS Contracts
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: ./.github/actions/setup-ci
+
+      - name: Build shared contracts
+        run: npm run build:contracts
+
+      - name: iOS entitlement capability contracts
+        run: npm run test --workspace @ocentra-parent/parent-domain -- tests/child-ios-entitlement-capability-proof.test.ts

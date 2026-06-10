@@ -1,0 +1,29 @@
+name: CI Child Android
+
+on:
+  workflow_call:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  child-android:
+    name: Child Android Contracts
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: ./.github/actions/setup-ci
+
+      - name: Build shared contracts
+        run: npm run build:contracts
+
+      - name: Android protocol and capability contracts
+        run: |
+          npm run test --workspace @ocentra-parent/parent-domain -- tests/child-android-lifecycle-proof.test.ts
+          npm run test --workspace @ocentra-parent/parent-domain -- tests/child-android-permission-capability-proof.test.ts
+          npm run test --workspace @ocentra-parent/parent-domain -- tests/child-android-privileged-capability-proof.test.ts
+          npm run test --workspace @ocentra-parent/parent-domain -- tests/child-android-storage-protocol-proof.test.ts
+          npm run test --workspace @ocentra-parent/parent-domain -- tests/child-android-service-protocol-proof.test.ts

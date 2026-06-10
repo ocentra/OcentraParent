@@ -31,6 +31,18 @@ Every checked item must cite one or more proof artifacts.
 
 ## Main Execution Gates
 
+- [ ] Tracking domain/protocol/runtime/UI organization pass is complete enough
+      for PR-ready handoff. Required proof before checking: repo scan and
+      cleanup notes in
+      `docs/architecture/repo-domain-organization-cleanup-plan.md`, canonical
+      TypeScript owners for tracking evidence/policy/protocol/portal ids,
+      Rust boundary ownership across `agent-core`, `agent-protocol`, and
+      `agent-service`, duplicate-shape classification, a movement map before
+      code edits, feature/package/crate-owned test placement, feature-owned
+      proof roots, updated workpack/checklist proof paths when files move, and
+      validation from A's `codex/tracking-plan-full-continuation-a` branch.
+      This is the first slice of the repo-wide organization cleanup and must
+      not become micro-PR churn.
 - [x] No precise location is inferred from LAN/IP/pairing. Contract proof:
       `output/tracking-plan-proof/13-desktop-location-and-presence-hint-model/`.
 - [x] Every location sample has source, timestamp, accuracy/hint quality,

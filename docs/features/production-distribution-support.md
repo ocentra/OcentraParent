@@ -37,6 +37,10 @@ dev-only repo when it claims consumer readiness.
 
 - Windows MSI/updater scaffolding exists.
 - Cross-platform package previews exist as CI mechanics.
+- Parent mobile Android/iOS scaffold package previews now exist separately from
+  child-agent Android/iOS previews. They remain CI/mechanical proof, not
+  signing, store, real-device, controller-authority, or child-agent parity
+  proof.
 - Parent desktop Tauri package proof exposes built-portal frontend state,
   Rust-service backend kind, package service-manager launch ownership, service
   health endpoint, runtime readiness, fixed port/process ownership,

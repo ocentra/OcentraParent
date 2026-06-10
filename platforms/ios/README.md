@@ -9,6 +9,7 @@ area.
 - Simulator launch proof.
 - Future iOS entitlement, signing, TestFlight, and approved API proof records.
 - Future iOS parent-mobile and child-agent wrappers where Apple APIs allow them.
+- iOS parent mobile scaffold app under `platforms/ios/OcentraParentMobile`.
 
 ## Must Not Own
 
@@ -50,9 +51,15 @@ area.
   cloud-relay not-implemented, parent-cache stale, parent-owned-storage offline,
   local model execution disabled, and signing/TestFlight/device proof
   unclaimed.
+- `release:package:parent-ios` builds the separate
+  `ca.ocentra.parent.mobile` parent mobile simulator app. Its package preview is
+  real build/install/launch evidence for the parent app scaffold only; it is not
+  controller authority, background execution, signing, TestFlight, App Store, or
+  child-agent parity proof.
 
 ## Gaps To Fill
 
 - Current support is scaffold/simulator proof, not child-agent parity.
 - Entitlement and real-device proof are manual-required.
-- Parent iOS app and child iOS agent must remain separate claims.
+- Parent iOS app and child iOS agent must remain separate source, package, and
+  product claims.
