@@ -15,11 +15,11 @@ Workers and primary reports must say which ledger files were updated, or explici
 
 ## Current Snapshot
 
-Updated: `2026-06-10T00:17:30.000Z`
+Updated: `2026-06-10T03:12:00.000Z`
 
 | Lane      | Work                                             | Branch                                                       |  PR | Status           | Current Meaning                                                                                           | Next Action                                                               |
 | --------- | ------------------------------------------------ | ------------------------------------------------------------ | --: | ---------------- | --------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------- |
-| `primary` | Primary coordination lane                        | `main`                                                       |   - | `main-merged`    | Primary is on latest main after PR546 merge commit `18d0e15a558b4c43afa250ed9953c9a30648b3e7`.            | Continue one-at-a-time PR integration from latest main.                   |
+| `primary` | Primary coordination lane                        | `main`                                                       |   - | `main-merged`    | Primary is on latest main after PR552 and PR553 merge commit `04de28169b2006e9f95c910b8629f2104c4a7de6`.  | Continue one-at-a-time PR integration from latest main.                   |
 | `codex-a` | Tracking plan full continuation                  | `codex/tracking-plan-full-continuation-a`                    |   - | `blocked`        | Worker reports waiting for merge wave locks.                                                              | Resume only when selected or explicitly unblocked.                        |
 | `codex-b` | Preserve screen AI full-scope branch             | `codex/screen-ai-full-scope-b`                               | 545 | `open-pr`        | PR was green before PR548 advanced main; now behind.                                                      | When selected, rebase, validate, and integrate one-at-a-time.             |
 | `codex-c` | Unified native app/game product completion       | `codex/app-game-control-product-completion`                  |   - | `dirty-local`    | Large dirty full-scope app/game work remains local and blocked by shared locks.                           | Do not force micro PRs; preserve full scope until selected/unblocked.     |

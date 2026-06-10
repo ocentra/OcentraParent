@@ -1,18 +1,18 @@
 # Lane Status: primary
 
-Owner: codex
-Thread: primary
+Owner: -
+Thread: -
 Active session: 019e8e21-d8f3-75d2-979d-e9cf002ad2a8
-Previous session: 019ea7bd-eaf0-7372-b15b-b5d937cfe171
+Previous session: -
 Session source: PostToolUse:unknown
-Branch: main
+Branch: -
 Locks: -
 Lock reason: -
 
 ## Latest Report
 
-- id: primary-report-20260610T001549609Z-1452
-- created: 2026-06-10T00:15:49.609Z
-- summary: MERGED PR546 E-D network live-capture execution proof
+- id: primary-report-20260610T024639042Z-1452
+- created: 2026-06-10T02:46:39.042Z
+- summary: MERGED PR552 parent mobile native package targets
 
-PR #546 merged to main as 18d0e15a5 after full green CI. Scope: bounded network live-capture execution proof/status plumbing; Android physical target identity proof; Windows Firewall bounded lab execution proof; platform claim proof updates; Rust protocol/service bridges; TypeScript protocol parsers/defaults; portal live-activity network read model, route refresh, diagnostics, and service-backed network evidence drawer rendering; proof artifacts and network docs/checklist updates. Validation: build, dependency-policy, fail-fast, secret-scan, Pre-AI, Full Validation, macOS/Ubuntu/Windows real portal E2E, and package-preview for Windows MSI/Linux DEB/macOS PKG/Android APK/iOS simulator all passed on head cc16053b. Known gaps: no production live packet capture, exact URL/content/decrypted payload, host filtering, policy/enforcement authority, platform mutation, or raw artifact-store merge; raw artifact-store remains parked due codex-a overlap.
+Merged PR #552 to main at 3c8087734. Scope: actual parent Android native scaffold under platforms/android/parent, actual parent iOS native scaffold under platforms/ios/OcentraParentMobile, parent Android/iOS package scripts, parent mobile CI target, parent Android/iOS package-preview targets, split CI fan-out, docs/checklist/workpack updates. Validation: PR #552 CI green including Format/Lint/Types/Rust Check, secret scan, Full Validation Gate, Package Preview Gate, parent-mobile runtime/package source, package-parent-android APK preview, package-parent-ios simulator app preview, portal E2E on Windows/Ubuntu/macOS, Rust/domain/tooling/package targets. Known gaps: scaffold/package target only; store signing, device-owner enrollment, iOS Family Controls/MDM entitlements, and final parent mobile UX remain future scope. Branch protection required checks updated to new aggregate gates: Format/Lint/Types/Rust Check, secret-scan, Full Validation Gate, Package Preview Gate.
