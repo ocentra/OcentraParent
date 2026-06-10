@@ -126,7 +126,7 @@ function hookContext() {
   const context = [
     'Ocentra Ledger coordination context:',
     `- Hook event: ${eventName}.`,
-    `- Current lane: ${lane}. Set LEDGER_LANE to override lane identity for this checkout.`,
+    '- Current lane is configured for this checkout. Set LEDGER_LANE to override lane identity when needed.',
     ...session.context,
     '- State root is external to the product repo. Use npm run ledger:root to inspect it.',
     '- Check work with npm run ledger:doctor, npm run hub:inbox, npm run hub:heartbeats, npm run ledger:workers, and npm run ledger:tasks.',
@@ -146,7 +146,7 @@ function hookContext() {
 }
 
 function claimHookSession(input, eventName) {
-  const rawSessionId = input.session_id ?? input.sessionId ?? process.env.CODEX_SESSION_ID;
+  const rawSessionId = input.session_id ?? input.sessionId;
   const sessionId =
     typeof rawSessionId === 'string' && rawSessionId.length > 0
       ? rawSessionId.replace(/[^A-Za-z0-9._-]/gu, '_')
@@ -168,15 +168,13 @@ function claimHookSession(input, eventName) {
   if (result.ok) {
     return {
       context: [
-        `- Active Codex session lease: ${sessionId}. This thread owns ${lane} until another explicit session takes over or the lease expires.`,
+        '- Active Codex session lease is held by this thread until another explicit session takes over or the lease expires.',
       ],
     };
   }
-  const active = result.value?.activeSession;
-  const activeSessionId = typeof active?.sessionId === 'string' ? active.sessionId : 'another session';
   return {
     context: [
-      `- READ-ONLY: ${lane} is already owned by active Codex session ${activeSessionId}. You may answer questions and inspect status, but do not ack mail, edit files, claim paths, heartbeat, or report work from this thread unless the user explicitly retargets this lane.`,
+      '- READ-ONLY: this lane is already owned by another active Codex session. You may answer questions and inspect status, but do not ack mail, edit files, claim paths, heartbeat, or report work from this thread unless the user explicitly retargets this lane.',
     ],
   };
 }

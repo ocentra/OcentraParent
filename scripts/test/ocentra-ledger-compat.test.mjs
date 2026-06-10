@@ -15,8 +15,8 @@ test('ledger hook claims one active Codex session per lane', () => {
 
   assert.equal(first.status, 0);
   assert.equal(second.status, 0);
-  assert.match(first.context, /Active Codex session lease: session-one/u);
-  assert.match(second.context, /READ-ONLY: codex-d is already owned by active Codex session session-one/u);
+  assert.match(first.context, /Active Codex session lease is held by this thread/u);
+  assert.match(second.context, /READ-ONLY: this lane is already owned by another active Codex session/u);
 });
 
 function writeFakeLedger(root) {
