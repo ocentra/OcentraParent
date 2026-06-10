@@ -8,10 +8,10 @@ permissions:
   contents: read
 
 jobs:
-  rust-agent-service:
-    name: Rust Agent Service
+  rust-format:
+    name: 'Format: Rust Workspace'
     runs-on: ubuntu-latest
-    timeout-minutes: 25
+    timeout-minutes: 10
     steps:
       - uses: actions/checkout@v6
 
@@ -20,8 +20,28 @@ jobs:
       - name: Rust format
         run: cargo fmt --all --check
 
+  service-clippy:
+    name: 'Lint: Rust Agent Service Clippy'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    needs: [rust-format]
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: ./.github/actions/setup-ci
+
       - name: Service clippy
         run: cargo clippy -p ocentra-parent-agent-service --all-targets -- -D warnings
+
+  service-tests:
+    name: 'Unit: Rust Agent Service Tests'
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    needs: [service-clippy]
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: ./.github/actions/setup-ci
 
       - name: Service tests
         run: cargo test -p ocentra-parent-agent-service --all-targets -- --test-threads=1

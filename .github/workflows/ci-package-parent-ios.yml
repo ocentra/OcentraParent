@@ -9,7 +9,7 @@ permissions:
 
 jobs:
   package-parent-ios:
-    name: Parent iOS Simulator App Preview
+    name: 'Preview: Parent iOS Simulator Smoke'
     runs-on: macos-latest
     timeout-minutes: 25
     steps:

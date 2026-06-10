@@ -8,10 +8,10 @@ permissions:
   contents: read
 
 jobs:
-  child-android:
-    name: Child Android Contracts
+  child-android-contract-build:
+    name: 'Contract: Child Android Shared Contract Build'
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 10
     steps:
       - uses: actions/checkout@v6
 
@@ -20,10 +20,29 @@ jobs:
       - name: Build shared contracts
         run: npm run build:contracts
 
-      - name: Android protocol and capability contracts
-        run: |
-          npm run test --workspace @ocentra-parent/parent-domain -- tests/child-android-lifecycle-proof.test.ts
-          npm run test --workspace @ocentra-parent/parent-domain -- tests/child-android-permission-capability-proof.test.ts
-          npm run test --workspace @ocentra-parent/parent-domain -- tests/child-android-privileged-capability-proof.test.ts
-          npm run test --workspace @ocentra-parent/parent-domain -- tests/child-android-storage-protocol-proof.test.ts
-          npm run test --workspace @ocentra-parent/parent-domain -- tests/child-android-service-protocol-proof.test.ts
+  child-android-proofs:
+    name: 'Proof: Child Android ${{ matrix.proof_name }}'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    needs: [child-android-contract-build]
+    strategy:
+      fail-fast: true
+      matrix:
+        include:
+          - proof_name: Lifecycle
+            test_file: tests/child-android-lifecycle-proof.test.ts
+          - proof_name: Permission Capability
+            test_file: tests/child-android-permission-capability-proof.test.ts
+          - proof_name: Privileged Capability
+            test_file: tests/child-android-privileged-capability-proof.test.ts
+          - proof_name: Storage Protocol
+            test_file: tests/child-android-storage-protocol-proof.test.ts
+          - proof_name: Service Protocol
+            test_file: tests/child-android-service-protocol-proof.test.ts
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: ./.github/actions/setup-ci
+
+      - name: Android protocol and capability contract proof
+        run: npm run test --workspace @ocentra-parent/parent-domain -- ${{ matrix.test_file }}

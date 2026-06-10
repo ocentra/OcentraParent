@@ -9,7 +9,7 @@ permissions:
 
 jobs:
   package-parent-android:
-    name: Parent Android APK Preview
+    name: 'Preview: Parent Android APK Smoke'
     runs-on: ubuntu-latest
     timeout-minutes: 25
     steps:

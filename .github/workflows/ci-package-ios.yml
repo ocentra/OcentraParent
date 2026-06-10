@@ -9,7 +9,7 @@ permissions:
 
 jobs:
   package-ios:
-    name: iOS Simulator App Preview
+    name: 'Preview: Child iOS Simulator Smoke'
     runs-on: macos-latest
     timeout-minutes: 25
     steps:

@@ -8,10 +8,10 @@ permissions:
   contents: read
 
 jobs:
-  domain-packages:
-    name: Domain Packages Contracts
+  schema-boundary-lint:
+    name: 'Lint: Schema and Source Boundaries'
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 10
     steps:
       - uses: actions/checkout@v6
 
@@ -22,8 +22,32 @@ jobs:
       - name: Schema and source boundary lint
         run: npm run lint:schema-boundaries
 
+  contract-build:
+    name: 'Contract: Shared Contract Build'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    needs: [schema-boundary-lint]
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: ./.github/actions/setup-ci
+        with:
+          install-rust: 'false'
+
       - name: Build shared contracts
         run: npm run build:contracts
+
+  contract-tests:
+    name: 'Contract: Domain Package Tests'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    needs: [contract-build]
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: ./.github/actions/setup-ci
+        with:
+          install-rust: 'false'
 
       - name: Contract tests
         run: npm run test:contract

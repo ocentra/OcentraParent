@@ -8,10 +8,10 @@ permissions:
   contents: read
 
 jobs:
-  parent-mobile:
-    name: Parent Mobile Runtime and Package Source
+  parent-mobile-contract-build:
+    name: 'Contract: Parent Mobile Shared Contract Build'
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 10
     steps:
       - uses: actions/checkout@v6
 
@@ -20,11 +20,41 @@ jobs:
       - name: Build shared contracts
         run: npm run build:contracts
 
+  parent-mobile-runtime-tests:
+    name: 'Unit: Parent Mobile Runtime Contracts'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    needs: [parent-mobile-contract-build]
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: ./.github/actions/setup-ci
+
       - name: Parent mobile runtime contracts
         run: npm run test --workspace @ocentra-parent/parent-domain -- tests/parent-mobile-runtime.test.ts tests/parent-mobile-service-bridge-runtime.test.ts tests/parent-mobile-controller-observer-handoff-runtime.test.ts tests/v0-9-mobile-controller-observer-runtime.test.ts
 
+  parent-mobile-package-source-proof:
+    name: 'Proof: Parent Mobile Package Source Artifact'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    needs: [parent-mobile-contract-build]
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: ./.github/actions/setup-ci
+
       - name: Parent mobile package source artifact proof
         run: npm run test:parent-mobile-package-source-artifact-proof
+
+  parent-mobile-shell-proof:
+    name: 'Proof: Parent Mobile Shell Runtime'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    needs: [parent-mobile-contract-build]
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: ./.github/actions/setup-ci
 
       - name: Parent mobile shell runtime proof
         run: node scripts/test/parent-mobile-shell-runtime-proof.mjs

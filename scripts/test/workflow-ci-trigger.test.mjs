@@ -23,20 +23,32 @@ test('CI gate builds package previews but does not publish releases from main', 
   const workflow = readCiWorkflow();
 
   assert.match(workflow, /detect-targets:\s+name: Detect CI targets/u);
+  assert.match(workflow, /preflight:[\s\S]+uses: \.\/\.github\/workflows\/ci-preflight\.yml/u);
   assert.match(workflow, /portal-typescript:[\s\S]+uses: \.\/\.github\/workflows\/ci-portal-typescript\.yml/u);
   assert.match(workflow, /rust-agent-service:[\s\S]+uses: \.\/\.github\/workflows\/ci-rust-agent-service\.yml/u);
   assert.match(workflow, /child-android:[\s\S]+uses: \.\/\.github\/workflows\/ci-child-android\.yml/u);
   assert.match(workflow, /child-ios:[\s\S]+uses: \.\/\.github\/workflows\/ci-child-ios\.yml/u);
+  assert.match(workflow, /static-analysis:[\s\S]+uses: \.\/\.github\/workflows\/ci-codeql\.yml/u);
   assert.match(workflow, /package-windows:[\s\S]+uses: \.\/\.github\/workflows\/ci-package-windows\.yml/u);
   assert.match(workflow, /package-android:[\s\S]+uses: \.\/\.github\/workflows\/ci-package-android\.yml/u);
   assert.match(workflow, /package-preview:\s+name: Package Preview Gate/u);
   assert.equal(workflow.includes('Create GitHub release'), false);
 });
 
+test('static analysis covers workflow, TypeScript, and Rust surfaces', () => {
+  const staticAnalysisWorkflow = readFileSync(join(workflowsRoot, 'ci-codeql.yml'), 'utf8');
+
+  assert.match(staticAnalysisWorkflow, /language:\s+actions/u);
+  assert.match(staticAnalysisWorkflow, /language:\s+javascript-typescript/u);
+  assert.match(staticAnalysisWorkflow, /language:\s+rust/u);
+  assert.match(staticAnalysisWorkflow, /queries:\s+security-and-quality/u);
+});
+
 test('CI target workflows are split by runnable area', () => {
   const expectedWorkflows = [
     'ci-child-android.yml',
     'ci-child-ios.yml',
+    'ci-codeql.yml',
     'ci-docs-hub.yml',
     'ci-domain-packages.yml',
     'ci-format.yml',
@@ -51,6 +63,7 @@ test('CI target workflows are split by runnable area', () => {
     'ci-parent-desktop-tauri.yml',
     'ci-parent-mobile.yml',
     'ci-portal-e2e.yml',
+    'ci-preflight.yml',
     'ci-portal-typescript.yml',
     'ci-release-version.yml',
     'ci-rust-adapters.yml',
