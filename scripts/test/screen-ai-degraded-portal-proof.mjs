@@ -482,12 +482,12 @@ async function writeFailureLog(error) {
   }
   const failure = {
     status: 'failed',
-    message: error instanceof Error ? error.message : String(error),
+    error: summarizeTextEvidence(error instanceof Error ? error.message : String(error)),
     screenshot: failureScreenshotPath,
-    pageText: pageText.slice(0, 8000),
+    pageText: summarizeTextEvidence(pageText),
     portalFrames: portalFrames.map(summarizePortalFrame),
-    agentOutput: agentOutput.join('').slice(-8000),
-    portalOutput: portalOutput.join('').slice(-8000),
+    agentOutput: summarizeTextEvidence(agentOutput.join('')),
+    portalOutput: summarizeTextEvidence(portalOutput.join('')),
   };
   await writeFile(failureSummaryPath, `${JSON.stringify(failure, null, 2)}\n`);
 }
@@ -506,4 +506,12 @@ function sanitizeProofToken(value, label) {
     throw new Error(`Unexpected ${label} token shape.`);
   }
   return text;
+}
+
+function summarizeTextEvidence(value) {
+  const text = String(value ?? '');
+  return {
+    sha256: createHash('sha256').update(text).digest('hex'),
+    bytes: Buffer.byteLength(text),
+  };
 }
