@@ -42,7 +42,7 @@ test('non-doc product pull requests force the full merge proof graph', () => {
   assert.match(workflow, /product_pr_full_merge_proof=false/u);
   assert.match(
     workflow,
-    /if \[\[ "\$\{\{ github\.event_name \}\}" == "pull_request" && "\$docs_hub_only" != "true" && "\$ci_only" != "true" \]\]/u
+    /if \[\[ "\$\{\{ github\.event_name \}\}" == "pull_request" && "\$docs_hub_only" != "true" && "\$ci_only" != "true" && "\$repo_support_only" != "true" \]\]/u
   );
   assert.match(workflow, /product_pr_full_merge_proof=true/u);
   assert.match(workflow, /parent_mobile_changed=true/u);
@@ -52,6 +52,28 @@ test('non-doc product pull requests force the full merge proof graph', () => {
   assert.match(workflow, /package_parent_ios_changed=true/u);
   assert.match(workflow, /package_android_changed=true/u);
   assert.match(workflow, /package_ios_changed=true/u);
+});
+
+test('coordination-only pull requests stay off product proof lanes', () => {
+  const workflow = readCiWorkflow();
+
+  assert.match(workflow, /repo_support_only: \$\{\{ steps\.detect\.outputs\.repo_support_only \}\}/u);
+  assert.match(workflow, /repo_support_only=true/u);
+  assert.match(
+    workflow,
+    /AGENTS\.md\|docs\/architecture\/worktree-lanes\.md\|tools\/ocentra-ledger\|scripts\/dev\/ocentra-ledger\*\.mjs\|scripts\/test\/ocentra-ledger\*\.test\.mjs/u
+  );
+  assert.match(workflow, /package_json_changed=true/u);
+  assert.equal(workflow.includes('^[+-][[:space:]]*\\"(hub|ledger):[^\\"]+\\"[[:space:]]*:'), true);
+  assert.match(workflow, /repo_support_only=false/u);
+  assert.match(
+    workflow,
+    /dependency-policy:[\s\S]+needs\.detect-targets\.outputs\.repo_support_only != 'true'[\s\S]+uses: \.\/\.github\/workflows\/dependency-policy\.yml/u
+  );
+  assert.match(
+    workflow,
+    /static-analysis:[\s\S]+needs\.detect-targets\.outputs\.repo_support_only != 'true'[\s\S]+uses: \.\/\.github\/workflows\/ci-codeql\.yml/u
+  );
 });
 
 test('CI-only pull requests stay on CI tooling validation instead of product proof', () => {
