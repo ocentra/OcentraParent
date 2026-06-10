@@ -77,3 +77,11 @@ test('CI target workflows are split by runnable area', () => {
     assert.equal(existsSync(join(workflowsRoot, workflowName)), true, `${workflowName} should exist`);
   }
 });
+
+test('CI aggregate gates parse needs results as JSON', () => {
+  const workflow = readCiWorkflow();
+
+  assert.equal(workflow.includes('grep -q \'"result":"failure"'), false);
+  assert.match(workflow, /const needs = JSON\.parse\(process\.env\.RESULTS\);/u);
+  assert.match(workflow, /\['failure', 'cancelled'\]\.includes\(value\.result\)/u);
+});

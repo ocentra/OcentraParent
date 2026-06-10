@@ -288,8 +288,8 @@ jobs:
     uses: ./.github/workflows/ci-rust-adapters.yml
 
   parent-desktop-tauri:
-    needs: [detect-targets, preflight]
-    if: ${{ always() && needs.detect-targets.outputs.full_ci_required == 'true' && needs.preflight.result == 'success' && needs.detect-targets.outputs.parent_desktop_changed == 'true' }}
+    needs: [detect-targets, fail-fast, secret-scan]
+    if: ${{ always() && needs.detect-targets.outputs.full_ci_required == 'true' && needs.fail-fast.result == 'success' && needs.secret-scan.result == 'success' && needs.detect-targets.outputs.parent_desktop_changed == 'true' }}
     uses: ./.github/workflows/ci-parent-desktop-tauri.yml
 
   parent-mobile:
@@ -298,13 +298,13 @@ jobs:
     uses: ./.github/workflows/ci-parent-mobile.yml
 
   child-android:
-    needs: [detect-targets, preflight]
-    if: ${{ always() && needs.detect-targets.outputs.full_ci_required == 'true' && needs.preflight.result == 'success' && needs.detect-targets.outputs.child_android_changed == 'true' }}
+    needs: [detect-targets, fail-fast, secret-scan]
+    if: ${{ always() && needs.detect-targets.outputs.full_ci_required == 'true' && needs.fail-fast.result == 'success' && needs.secret-scan.result == 'success' && needs.detect-targets.outputs.child_android_changed == 'true' }}
     uses: ./.github/workflows/ci-child-android.yml
 
   child-ios:
-    needs: [detect-targets, preflight]
-    if: ${{ always() && needs.detect-targets.outputs.full_ci_required == 'true' && needs.preflight.result == 'success' && needs.detect-targets.outputs.child_ios_changed == 'true' }}
+    needs: [detect-targets, fail-fast, secret-scan]
+    if: ${{ always() && needs.detect-targets.outputs.full_ci_required == 'true' && needs.fail-fast.result == 'success' && needs.secret-scan.result == 'success' && needs.detect-targets.outputs.child_ios_changed == 'true' }}
     uses: ./.github/workflows/ci-child-ios.yml
 
   main-post-merge-integrity:
@@ -329,24 +329,24 @@ jobs:
       docs_hub_only: false
 
   dependency-policy:
-    needs: [detect-targets, preflight, secret-scan]
-    if: ${{ always() && needs.detect-targets.outputs.full_ci_required == 'true' && needs.preflight.result == 'success' && needs.secret-scan.result == 'success' }}
+    needs: [detect-targets, fail-fast, secret-scan]
+    if: ${{ always() && needs.detect-targets.outputs.full_ci_required == 'true' && needs.fail-fast.result == 'success' && needs.secret-scan.result == 'success' }}
     uses: ./.github/workflows/dependency-policy.yml
     with:
       docs_hub_only: false
 
   static-analysis:
-    needs: [detect-targets, preflight, secret-scan]
-    if: ${{ always() && needs.detect-targets.outputs.full_ci_required == 'true' && needs.preflight.result == 'success' && needs.secret-scan.result == 'success' && needs.detect-targets.outputs.source_changed == 'true' }}
+    needs: [detect-targets, fail-fast, secret-scan]
+    if: ${{ always() && needs.detect-targets.outputs.full_ci_required == 'true' && needs.fail-fast.result == 'success' && needs.secret-scan.result == 'success' && needs.detect-targets.outputs.source_changed == 'true' }}
     uses: ./.github/workflows/ci-codeql.yml
 
   build:
-    needs: [detect-targets, preflight, secret-scan, portal-typescript, domain-packages]
+    needs: [detect-targets, fail-fast, secret-scan, portal-typescript, domain-packages]
     if: >-
       ${{
         always() &&
         needs.detect-targets.outputs.full_ci_required == 'true' &&
-        needs.preflight.result == 'success' &&
+        needs.fail-fast.result == 'success' &&
         needs.secret-scan.result == 'success' &&
         !contains(fromJSON('["failure","cancelled"]'), needs.portal-typescript.result) &&
         !contains(fromJSON('["failure","cancelled"]'), needs.domain-packages.result) &&
@@ -358,12 +358,12 @@ jobs:
 
   local-transport:
     needs:
-      [detect-targets, preflight, secret-scan, rust-agent-protocol, rust-agent-core, rust-agent-service, rust-adapters]
+      [detect-targets, fail-fast, secret-scan, rust-agent-protocol, rust-agent-core, rust-agent-service, rust-adapters]
     if: >-
       ${{
         always() &&
         needs.detect-targets.outputs.full_ci_required == 'true' &&
-        needs.preflight.result == 'success' &&
+        needs.fail-fast.result == 'success' &&
         needs.secret-scan.result == 'success' &&
         !contains(fromJSON('["failure","cancelled"]'), needs.rust-agent-protocol.result) &&
         !contains(fromJSON('["failure","cancelled"]'), needs.rust-agent-core.result) &&
@@ -379,12 +379,12 @@ jobs:
     uses: ./.github/workflows/ci-local-transport.yml
 
   portal-e2e:
-    needs: [detect-targets, preflight, secret-scan, portal-typescript, rust-agent-service, local-transport]
+    needs: [detect-targets, fail-fast, secret-scan, portal-typescript, rust-agent-service, local-transport]
     if: >-
       ${{
         always() &&
         needs.detect-targets.outputs.full_ci_required == 'true' &&
-        needs.preflight.result == 'success' &&
+        needs.fail-fast.result == 'success' &&
         needs.secret-scan.result == 'success' &&
         !contains(fromJSON('["failure","cancelled"]'), needs.portal-typescript.result) &&
         !contains(fromJSON('["failure","cancelled"]'), needs.rust-agent-service.result) &&
@@ -498,9 +498,18 @@ jobs:
         run: |
           set -euo pipefail
           echo "$RESULTS"
-          if grep -q '"result":"failure"\|"result":"cancelled"' <<< "$RESULTS"; then
-            exit 1
-          fi
+          node <<'NODE'
+          const needs = JSON.parse(process.env.RESULTS);
+          const failed = Object.entries(needs).filter(([, value]) =>
+            ['failure', 'cancelled'].includes(value.result),
+          );
+          if (failed.length > 0) {
+            for (const [name, value] of failed) {
+              console.error(`${name}: ${value.result}`);
+            }
+            process.exit(1);
+          }
+          NODE
 
   validate:
     name: Full Validation Gate
@@ -527,14 +536,23 @@ jobs:
         run: |
           set -euo pipefail
           echo "$RESULTS"
-          if grep -q '"result":"failure"\|"result":"cancelled"' <<< "$RESULTS"; then
-            exit 1
-          fi
+          node <<'NODE'
+          const needs = JSON.parse(process.env.RESULTS);
+          const failed = Object.entries(needs).filter(([, value]) =>
+            ['failure', 'cancelled'].includes(value.result),
+          );
+          if (failed.length > 0) {
+            for (const [name, value] of failed) {
+              console.error(`${name}: ${value.result}`);
+            }
+            process.exit(1);
+          }
+          NODE
 
   package-preview:
     name: Package Preview Gate
     runs-on: ubuntu-latest
-    if: ${{ always() }}
+    if: ${{ needs.validate.result == 'success' }}
     needs:
       - validate
       - package-windows
@@ -553,6 +571,15 @@ jobs:
         run: |
           set -euo pipefail
           echo "$RESULTS"
-          if grep -q '"result":"failure"\|"result":"cancelled"' <<< "$RESULTS"; then
-            exit 1
-          fi
+          node <<'NODE'
+          const needs = JSON.parse(process.env.RESULTS);
+          const failed = Object.entries(needs).filter(([, value]) =>
+            ['failure', 'cancelled'].includes(value.result),
+          );
+          if (failed.length > 0) {
+            for (const [name, value] of failed) {
+              console.error(`${name}: ${value.result}`);
+            }
+            process.exit(1);
+          }
+          NODE
