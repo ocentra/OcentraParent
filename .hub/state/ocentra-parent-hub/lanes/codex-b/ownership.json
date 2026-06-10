@@ -5710,6 +5710,13 @@
       "body": "Main advanced to 624290167ea79fc9c3bf59b1d06f1a7461113292 after PR543 E-B app-install execution receipt gate merge. When safe before your next validation/commit, fetch/rebase or merge latest main, then continue the screen-AI full-scope validation/implementation goal. Do not park; report blockers or validation progress.",
       "createdAt": "2026-06-08T22:00:13.788Z",
       "acknowledgedAt": "2026-06-08T22:22:31.918Z"
+    },
+    {
+      "id": "codex-b-msg-20260610T140610670Z-816",
+      "subject": "PR545 CI repair: route panel boundary lint",
+      "body": "B, PR #545 is no longer dirty, but CI is blocked by the domain boundary lint on your pushed SHA `982961b07467549f749307e221475cb578b24742`.",
+      "createdAt": "2026-06-10T14:06:10.670Z",
+      "acknowledgedAt": "2026-06-10T14:09:21.724Z"
     }
   ],
   "reports": [
@@ -13560,15 +13567,56 @@
       "summary": "PR545_SYNC_PUSHED",
       "details": "PR #545 branch codex/screen-ai-full-scope-b head 057056f17 pushed after merging latest origin/main 923f0dd5 from PR547. Validation: git diff --check origin/main...HEAD PASS; cargo check -p ocentra-parent-agent-service PASS; lanes:guard PASS; hub:guard PASS. Watching CI; no new feature work started.",
       "createdAt": "2026-06-09T00:59:39.430Z"
+    },
+    {
+      "id": "codex-b-report-20260610T140935126Z-1309",
+      "summary": "STARTED PR545 route panel boundary lint repair",
+      "details": "Acked codex-b-msg-20260610T140610670Z-816; checking route panel domain-boundary lint for PR545 SHA 982961b07467549f749307e221475cb578b24742.",
+      "createdAt": "2026-06-10T14:09:35.126Z"
+    },
+    {
+      "id": "codex-b-report-20260610T141448082Z-1310",
+      "summary": "DONE PR545 route panel lint repair pushed",
+      "details": "Branch codex/screen-ai-full-scope-b pushed at 34f222da62538858c59298ce4429b8f0f2daad42. Changed route predicates into portal-domain for AiRuntime and ScreenSummary panels; touched apps/portal/src/AiRuntimeRoutePanel.tsx, apps/portal/src/ScreenSummaryRoutePanel.tsx, packages/portal-domain/src/routes.ts, packages/portal-domain/src/contracts.ts, packages/portal-domain/tests/contracts.test.ts. Validation: node scripts/check-portal-route-panel-contracts.mjs pass; portal-domain contracts vitest 16 pass; portal-domain build/type-check pass; portal live-activity tests 13 pass; portal-route-refresh vitest 3 pass; lanes:guard pass; pre-commit fast gate pass. gh PR545 mergeable MERGEABLE; CI queued. Known gap: hub:guard only failed on local hub heartbeat/inbox/status state churn after ack/report, not source files.",
+      "createdAt": "2026-06-10T14:14:48.082Z"
+    },
+    {
+      "id": "codex-b-report-20260610T160141349Z-1311",
+      "summary": "STARTED PR545 CodeQL proof-script repair",
+      "details": "Fixing GitHub Advanced Security annotations on codex/screen-ai-full-scope-b head 34f222d; scope limited to named screen proof/test scripts.",
+      "createdAt": "2026-06-10T16:01:41.349Z"
+    },
+    {
+      "id": "codex-b-report-20260610T161335163Z-1312",
+      "summary": "PR_READY PR545 CodeQL fix pushed",
+      "details": "branch codex/screen-ai-full-scope-b head 94567a734282a2398e16cc1f2b150f740029a94e; fixed CodeQL proof-script race/data/log/unused alerts in scripts/test only; validation: node --check 11 scripts PASS, targeted npx eslint 11 scripts PASS, screen-plan-external-gates-proof PASS, screen-ai-block-action-dispatch-proof PASS, screen-ai-degraded-portal-proof PASS, lanes:guard PASS, hub:guard PASS, pre-commit PASS; screen-android-physical-target-readiness-proof blocked by configured device 192.168.2.45:5555 offline; docs/ledger unchanged; PR checks rerunning with Detect CI targets pending.",
+      "createdAt": "2026-06-10T16:13:35.163Z"
     }
   ],
-  "lastAcknowledgedMessageId": "codex-b-msg-20260608T220013788Z-815",
-  "lockedPaths": [],
-  "lockReason": "",
-  "updatedAt": "2026-06-09T01:28:37.838Z",
+  "lastAcknowledgedMessageId": "codex-b-msg-20260610T140610670Z-816",
+  "lockedPaths": [
+    "scripts/test/screen-plan-external-gates-proof.mjs",
+    "scripts/test/screen-ai-block-action-dispatch-proof.mjs",
+    "scripts/test/screen-ai-degraded-portal-proof.mjs",
+    "scripts/test/screen-android-physical-target-readiness-proof.mjs",
+    "scripts/test/screen-vlm-rollout-fallback-gate-proof.mjs",
+    "scripts/test/screen-parent-portal-summary-ui-proof.mjs",
+    "scripts/test/screen-local-platform-proof-batch.mjs",
+    "scripts/test/screen-android-physical-external-gate-proof.mjs",
+    "scripts/test/screen-ai-service-winrt-ocr-proof.mjs",
+    "scripts/test/screen-ai-live-operator-evidence-bundle.mjs",
+    "scripts/test/child-android-screen-capture-mediaprojection-proof.mjs",
+    ".hub/state/ocentra-parent-hub/lanes/codex-b/heartbeat.ndjson",
+    ".hub/state/ocentra-parent-hub/lanes/codex-b/inbox.md",
+    ".hub/state/ocentra-parent-hub/lanes/codex-b/ownership.json",
+    ".hub/state/ocentra-parent-hub/lanes/codex-b/status.md",
+    ".hub/state/ocentra-parent-hub/worker-heartbeats.ndjson"
+  ],
+  "lockReason": "PR545 CodeQL proof-script repair and hub bookkeeping",
+  "updatedAt": "2026-06-10T16:13:35.163Z",
   "activeSessionId": "019e863f-d3dd-7232-89a6-93e25e807312",
   "previousSessionId": "",
-  "sessionSource": "PostToolUse:unknown",
-  "sessionUpdatedAt": "2026-06-09T00:15:31.668Z",
-  "lockedAt": ""
+  "sessionSource": "Stop:unknown",
+  "sessionUpdatedAt": "2026-06-09T14:05:40.383Z",
+  "lockedAt": "2026-06-10T16:09:34.835Z"
 }
