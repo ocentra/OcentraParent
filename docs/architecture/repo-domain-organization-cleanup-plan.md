@@ -201,8 +201,9 @@ test paths, or ownership boundaries.
 
 This cleanup depends on coordination staying repo-owned:
 
-- lane state remains in `.hub/lane-ledger.json`,
-  `.hub/state/worktree-lanes.json`, and `docs/hub/lane-ledger.md`;
+- lane state is externalized through Ocentra Ledger under `LEDGER_ROOT`; the
+  product repo tracks only the `tools/ocentra-ledger` submodule pointer and
+  Ledger wrapper scripts;
 - future docs/hub-only updates should use the fast required-check path added by
   PR #551 once it lands;
 - no lane should keep important cleanup state only in `.codex`;

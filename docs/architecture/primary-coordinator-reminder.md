@@ -13,7 +13,7 @@ code unless the user explicitly redirects.
 The primary coordinator owns:
 
 - worker assignment and retargeting;
-- hub and lane health checks;
+- Ledger and lane health checks;
 - review of worker `DONE` reports;
 - PR creation and CI watching when a branch is ready;
 - merge timing after green CI;
@@ -40,33 +40,13 @@ npm run hub:guard
 ```
 
 Also check relevant worker worktree `git status --short --branch` when a worker
-is stale, blocked, done, or on a branch that does not match the lane ledger.
+is stale, blocked, done, or on a branch that does not match Ledger lane state.
 
 ## Coordinator Timeline Log
 
-Keep a compact local NDJSON timeline for primary coordination memory:
-
-```text
-C:\Users\sujan\.codex\ocentra-parent-hub\primary-coordinator-timeline.ndjson
-```
-
-This file is machine-local hub state, not product source. Append one JSON object
-after meaningful coordinator events and at least every 15-20 minutes while this
-monitor is actively coordinating.
-
-Each line should stay compact and include:
-
-- `ts`: UTC timestamp;
-- `kind`: `snapshot`, `assignment`, `blocker`, `review`, `pr`, `merge`, or
-  `handoff`;
-- `summary`: one short sentence;
-- `main`: branch, dirty state, PR/CI state when relevant;
-- `workers`: A/B/C assignment, branch, report state, locks/blockers;
-- `next`: short list of next coordinator actions;
-- `risks`: short list of current risks or expected conflicts.
-
-When waking after a long gap, read the tail of this file before doing a full
-coordination pass. Do not paste the whole log into user-facing responses.
+Coordinator timeline entries belong in Ocentra Ledger as `note`, `report`,
+`worker.update`, or `task.update` events. Generated views are disposable; the
+append-only event streams under `LEDGER_ROOT` are the source of truth.
 
 ## Worker Heartbeat Log
 
@@ -85,12 +65,8 @@ The primary coordinator can inspect the latest heartbeat for each worker:
 npm run hub:heartbeats
 ```
 
-Local-only heartbeat files:
-
-```text
-C:\Users\sujan\.codex\ocentra-parent-hub\worker-heartbeats.ndjson
-C:\Users\sujan\.codex\ocentra-parent-hub\lanes\<lane>\heartbeat.ndjson
-```
+Heartbeat state is materialized from Ledger heartbeat events with TTL
+semantics.
 
 Use `hub:status` for work state and `hub:heartbeats` for liveness. If a worker
 has a fresh heartbeat but its report is `BLOCKED`, it is alive and blocked. If a
@@ -168,7 +144,7 @@ and parent-rule preview quality batches are merged. Current lane ownership
 should stay parked unless validation finds a bug or the user explicitly resumes
 implementation.
 
-If the lane ledger and live branch disagree, send one targeted hub message and
+If Ledger lane state and the live branch disagree, send one targeted hub message and
 state which worker chat/worktree needs attention. Do not spam duplicate
 messages when unread mail already exists.
 
@@ -216,7 +192,7 @@ Treat these as action signals:
 - unread hub mail persists after a worker wake;
 - latest report is `waiting for instruction` despite active assignment;
 - latest heartbeat is stale for two or more minute cycles;
-- live branch does not match lane ledger;
+- live branch does not match Ledger lane state;
 - worker reports `BLOCKED`;
 - locks overlap or block another active lane.
 

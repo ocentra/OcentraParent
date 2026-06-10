@@ -5,7 +5,7 @@ import { pathToFileURL } from 'node:url';
 const repoRoot = process.cwd();
 const sourceRoots = ['apps', 'packages', 'crates'];
 const sourceExtensions = new Set(['.ts', '.tsx', '.rs']);
-const ignoredSegments = new Set(['.git', '.turbo', 'coverage', 'dist', 'node_modules', 'target']);
+const ignoredSegments = new Set(['.git', '.turbo', 'coverage', 'dist', 'node_modules', 'ocentra-ledger', 'target']);
 const forbiddenPatterns = [
   { label: 'module mock API', pattern: /\b(?:vi|jest)\.mock\b/iu },
   { label: 'mock function API', pattern: /\b(?:vi|jest)\.fn\b/iu },

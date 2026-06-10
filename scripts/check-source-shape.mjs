@@ -4,7 +4,7 @@ import { pathToFileURL } from 'node:url';
 import ts from 'typescript';
 
 const repoRoot = process.cwd();
-const ignoredSegments = new Set(['.git', '.turbo', 'coverage', 'dist', 'node_modules', 'target']);
+const ignoredSegments = new Set(['.git', '.turbo', 'coverage', 'dist', 'node_modules', 'ocentra-ledger', 'target']);
 const warningRatio = 0.8;
 const fileLineWarningStep = 250;
 const policies = [

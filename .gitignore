@@ -21,6 +21,7 @@ apps/*/src-tauri/target-*-dev/
 output/
 test-results/
 playwright-report/
+.hub/
 
 # Native platform build outputs
 platforms/android/**/.gradle/
