@@ -1,0 +1,14 @@
+{
+  "schema": "https://ocentra.ca/schemas/ocentra-hub-project-config.v1.json",
+  "version": 1,
+  "hubId": "ocentra-parent",
+  "hubHome": "E:/OcentraHub/data/hubs/ocentra-parent",
+  "defaultLane": "primary",
+  "liveStatePolicy": "external-append-only-event-ledger",
+  "legacyHubRoot": "C:/Users/sujan/.codex/ocentra-parent-hub",
+  "legacyLaneLedger": "C:/Users/sujan/.codex/ocentra-parent-hub/worktree-lanes.json",
+  "transports": {
+    "preferred": ["file", "http", "git"],
+    "peers": []
+  }
+}
