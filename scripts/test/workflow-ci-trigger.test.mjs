@@ -32,6 +32,7 @@ test('CI gate builds package previews but does not publish releases from main', 
   assert.match(workflow, /package-windows:[\s\S]+uses: \.\/\.github\/workflows\/ci-package-windows\.yml/u);
   assert.match(workflow, /package-android:[\s\S]+uses: \.\/\.github\/workflows\/ci-package-android\.yml/u);
   assert.match(workflow, /package-preview:\s+name: Package Preview Gate/u);
+  assert.match(workflow, /package-preview:[\s\S]+if: \$\{\{ always\(\) && needs\.validate\.result == 'success' \}\}/u);
   assert.equal(workflow.includes('Create GitHub release'), false);
 });
 
