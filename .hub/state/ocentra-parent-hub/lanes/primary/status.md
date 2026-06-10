@@ -11,8 +11,8 @@ Lock reason: -
 
 ## Latest Report
 
-- id: primary-report-20260610T024639042Z-1452
-- created: 2026-06-10T02:46:39.042Z
-- summary: MERGED PR552 parent mobile native package targets
+- id: primary-report-20260610T121833928Z-1453
+- created: 2026-06-10T12:18:33.928Z
+- summary: MERGED PR550 CI gate repair and PR546 hub ledger
 
-Merged PR #552 to main at 3c8087734. Scope: actual parent Android native scaffold under platforms/android/parent, actual parent iOS native scaffold under platforms/ios/OcentraParentMobile, parent Android/iOS package scripts, parent mobile CI target, parent Android/iOS package-preview targets, split CI fan-out, docs/checklist/workpack updates. Validation: PR #552 CI green including Format/Lint/Types/Rust Check, secret scan, Full Validation Gate, Package Preview Gate, parent-mobile runtime/package source, package-parent-android APK preview, package-parent-ios simulator app preview, portal E2E on Windows/Ubuntu/macOS, Rust/domain/tooling/package targets. Known gaps: scaffold/package target only; store signing, device-owner enrollment, iOS Family Controls/MDM entitlements, and final parent mobile UX remain future scope. Branch protection required checks updated to new aggregate gates: Format/Lint/Types/Rust Check, secret-scan, Full Validation Gate, Package Preview Gate.
+PR #550 merged to main at 6d5382eb3fcbc5997e842fee15591597a5ff4518. Scope: PR546 hub ledger/state record, split CI workflows, preflight/docs-hub path, main-push PR proof reuse, aggregate JSON gate parsing, package-preview gating after full validation, isolated contract rebuilds, CodeQL workflow, production release gating, and stable primary lane guard/session recording. Validation: PR CI run 27253819516 green including full validation, CodeQL/static analysis, portal E2E on Windows/macOS/Ubuntu, and all desktop/mobile parent/child package previews; post-merge main run 27254996160 green. Known gaps: infrastructure/coordination only; production publishing remains separate; E-D local worktree still needs local audit before cleanup.
