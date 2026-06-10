@@ -1,0 +1,25 @@
+{
+  "captureDir": "output\\screen-ai-pipeline-proof\\live-operator\\native-app\\capture",
+  "captureMetadata": {
+    "actualScope": "activeWindow",
+    "analysisTempPath": "output\\screen-ai-pipeline-proof\\live-operator\\native-app\\capture\\capture.png.tmp",
+    "appNameDigest": "d5617aed48f7b30c110d7e3ce3ec3954acb6db0decd9765fd43fd1bf635770aa",
+    "appNamePresent": true,
+    "captured": true,
+    "height": 748,
+    "imageByteSize": 92517,
+    "imageDigest": "a9688e53638aed35084c2b6cf04d4655e42c81d7722f7c1bbb7cf5442dd64664",
+    "monitorId": 65639,
+    "monitorNameDigest": "fc2b61e60bd49f1e7549634104eeb412b74b89cdbc3e2b6eebf6ca7ec8ac1a98",
+    "monitorNamePresent": true,
+    "pid": 40456,
+    "rawImagePersistedInProof": false,
+    "requestedScope": "activeWindow",
+    "status": "available",
+    "titleDigest": "1d8113faf8ad9cb0531a5f60263785ad23a4d222a066cb87c0ffbaab8d9f0cce",
+    "titlePresent": true,
+    "width": 1430,
+    "windowId": 116787810
+  },
+  "rawImagePathNotRetained": true
+}

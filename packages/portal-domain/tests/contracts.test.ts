@@ -15,7 +15,9 @@ import {
   PortalAssets,
   PortalExternalLinks,
   PortalFrameTuner,
+  PortalActivitySurfaceDefaultRequestPayload,
   PortalOverviewCommands,
+  PortalAiRuntimeRoutes,
   PortalRouteDescriptors,
   PortalRouteGroup,
   PortalAppGameParentSurfaceRoutes,
@@ -25,15 +27,18 @@ import {
   PortalRouteSchema,
   PortalRoutes,
   PortalScreenSettingsRoutes,
+  PortalScreenSummaryRoutes,
   PortalSidebarRouteDescriptors,
   PortalTiming,
   PortalTrackingStatusRoutes,
   PortalUnifiedChrome,
   decodePortalClipboardText,
+  isPortalAiRuntimeRoute,
   isPortalAppGameParentSurfaceRoute,
   isPortalBrowserParentSurfaceRoute,
   isPortalNetworkEvidenceDrawerRoute,
   isPortalScreenSettingsRoute,
+  isPortalScreenSummaryRoute,
   isPortalTrackingStatusRoute,
   parentPortalRouteContext,
   type ParentPortalHashRoutePath,
@@ -407,16 +412,22 @@ describe('portal product route panel contracts', () => {
 
   it('keeps product route panel bindings owned by portal-domain', () => {
     expect(PortalAppGameParentSurfaceRoutes).toEqual([PortalRoute.AppGameSessions]);
+    expect(PortalAiRuntimeRoutes).toEqual([PortalRoute.AiRuntime]);
     expect(PortalBrowserParentSurfaceRoutes).toEqual([PortalRoute.Browser]);
     expect(PortalScreenSettingsRoutes).toEqual([PortalRoute.SettingsRules]);
+    expect(PortalScreenSummaryRoutes).toEqual([PortalRoute.ScreenAnalysis]);
     expect(PortalTrackingStatusRoutes).toEqual([PortalRoute.PolicyTracking]);
+    expect(isPortalAiRuntimeRoute(PortalRoute.AiRuntime)).toBe(true);
     expect(isPortalAppGameParentSurfaceRoute(PortalRoute.AppGameSessions)).toBe(true);
     expect(isPortalBrowserParentSurfaceRoute(PortalRoute.Browser)).toBe(true);
     expect(isPortalScreenSettingsRoute(PortalRoute.SettingsRules)).toBe(true);
+    expect(isPortalScreenSummaryRoute(PortalRoute.ScreenAnalysis)).toBe(true);
     expect(isPortalTrackingStatusRoute(PortalRoute.PolicyTracking)).toBe(true);
+    expect(isPortalAiRuntimeRoute(PortalRoute.Browser)).toBe(false);
     expect(isPortalAppGameParentSurfaceRoute(PortalRoute.Browser)).toBe(false);
     expect(isPortalBrowserParentSurfaceRoute(PortalRoute.NetworkActivity)).toBe(false);
     expect(isPortalScreenSettingsRoute(PortalRoute.PolicyTracking)).toBe(false);
+    expect(isPortalScreenSummaryRoute(PortalRoute.Activity)).toBe(false);
     expect(isPortalTrackingStatusRoute(PortalRoute.Activity)).toBe(false);
   });
 });
@@ -536,6 +547,22 @@ describe('portal command contracts', () => {
 
   it('PortalOverviewCommands: keeps overview commands in expected order', () => {
     expect(PortalOverviewCommands.map((button) => button.command)).toEqual(EXPECTED_PORTAL_OVERVIEW_COMMANDS);
+  });
+
+  it('PortalActivitySurfaceDefaultRequestPayload: wires screen read-model commands to default request payload', () => {
+    expect(
+      PortalOverviewCommands.find((button) => button.command === 'agent.activity.screen.read-model.get')?.payload
+    ).toEqual(PortalActivitySurfaceDefaultRequestPayload);
+    expect(
+      PortalCommandButtons.find((button) => button.command === 'agent.activity.screen.read-model.get')?.payload
+    ).toEqual(PortalActivitySurfaceDefaultRequestPayload);
+    expect(PortalActivitySurfaceDefaultRequestPayload).toMatchObject({
+      scopeKind: 'family',
+      familyId: 'family-local',
+      rangeStart: expect.stringMatching(/^\d{4}-\d{2}-\d{2}T/u),
+      rangeEnd: expect.stringMatching(/^\d{4}-\d{2}-\d{2}T/u),
+      requestedAt: expect.stringMatching(/^\d{4}-\d{2}-\d{2}T/u),
+    });
   });
 });
 

@@ -248,10 +248,28 @@ mod screen_ai_foreground_runtime;
 mod screen_ai_foreground_runtime_config;
 #[cfg(test)]
 mod screen_ai_foreground_runtime_tests;
+mod screen_ai_retention_sweeper_deletion_events;
+#[cfg(test)]
+mod screen_ai_retention_sweeper_deletion_events_tests;
 mod screen_ai_retention_sweeper_runtime;
 #[cfg(test)]
 mod screen_ai_retention_sweeper_runtime_tests;
 mod screen_ai_service_capture_event_builder;
+mod screen_ai_service_event_bridge;
+#[cfg(test)]
+mod screen_ai_service_event_bridge_tests;
+mod screen_ai_service_event_subscription;
+#[cfg(test)]
+mod screen_ai_service_event_subscription_tests;
+mod screen_settings_api;
+#[cfg(test)]
+mod screen_settings_api_tests;
+mod screen_settings_payload;
+mod screen_settings_request;
+mod screen_settings_runtime;
+#[cfg(test)]
+mod screen_settings_runtime_tests;
+mod screen_settings_store;
 mod snapshot;
 mod time;
 mod tracking_read_model_payload;
@@ -292,6 +310,11 @@ async fn main() {
     screen_ai_foreground_runtime::spawn_screen_ai_foreground_runtime();
     screen_ai_analysis_runtime::spawn_screen_ai_analysis_runtime();
     screen_ai_retention_sweeper_runtime::spawn_screen_ai_retention_sweeper_runtime();
+    screen_ai_service_event_subscription::live_view_service_runtime::spawn_screen_live_view_worker_runtime();
+    let _screen_ai_service_event_runtime =
+        screen_ai_service_event_subscription::ScreenAiServiceEventRuntime::start()
+            .await
+            .expect(constants::screen_flow::ERROR_SCREEN_SERVICE_EVENT_SUBSCRIBES);
 
     axum::serve(listener, app::router(network))
         .await

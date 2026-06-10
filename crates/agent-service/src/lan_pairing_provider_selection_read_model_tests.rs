@@ -97,6 +97,21 @@ async fn provider_selection_read_model_marks_stale_selected_provider_route_block
             && candidate.rejection_reason.is_some()));
 }
 
+#[tokio::test]
+async fn provider_selection_read_model_degrades_stale_provider_heartbeat() {
+    let runtime = lan_ai_provider_runtime().await;
+    runtime.mark_lan_ai_provider_heartbeat_stale_for_test(constants::lan_pairing::EXPIRED_AT);
+    let read_model = provider_selection_read_model(&runtime);
+
+    assert_eq!(read_model.selected_provider_route_id, None);
+    assert!(read_model.candidates.iter().any(|candidate| {
+        candidate.lifecycle_state == LanProviderSelectionLifecycleState::CandidateDegraded
+            && candidate.routing_state == LanAiProviderRoutingState::Degraded
+            && candidate.policy_decision
+                == LanProviderSelectionPolicyDecision::DegradeProviderUnavailable
+    }));
+}
+
 async fn lan_ai_provider_runtime() -> LanPairingRuntime {
     let mut runtime = paired_runtime().await;
     runtime.device_roles = DeviceRoleRuntimeReadModel {

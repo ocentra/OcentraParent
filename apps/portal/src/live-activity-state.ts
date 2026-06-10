@@ -120,6 +120,9 @@ export interface PortalLiveActivityState {
   readonly browserInventoryReadModel: BrowserInventoryReadModel | null;
   readonly browserManagedEvent: AgentEventEnvelope | null;
   readonly browserManagedStatus: BrowserManagedSessionStatus | null;
+  readonly localAiRuntimeStatusEvent: AgentEventEnvelope | null;
+  readonly lanAiJobEvent: AgentEventEnvelope | null;
+  readonly parentAssistantBoundaryEvent: AgentEventEnvelope | null;
   readonly activityMemoryGraphEvent: AgentEventEnvelope | null;
   readonly activityMemoryGraphReadModel: PortalActivityMemoryGraphReadModel | null;
   readonly activityReportEvent: AgentEventEnvelope | null;
@@ -206,6 +209,7 @@ function resolveBrowserState(events: readonly AgentEventEnvelope[]) {
       browserInventoryEvent === null ? null : parseBrowserInventoryReadModel(browserInventoryEvent.payload),
     browserManagedEvent,
     browserManagedStatus: browserManagedEvent === null ? null : parseBrowserManagedStatus(browserManagedEvent.payload),
+    ...resolveLocalAiActivityEvents(events),
   };
 }
 
@@ -365,6 +369,18 @@ function resolvePolicyState(events: readonly AgentEventEnvelope[]) {
     appGamePolicyReadinessEvent,
     appGamePolicyReadinessReadModel:
       appGamePolicyReadinessEvent === null ? null : parseAgentAppGamePolicyReadinessEvent(appGamePolicyReadinessEvent),
+  };
+}
+
+function resolveLocalAiActivityEvents(events: readonly AgentEventEnvelope[]) {
+  return {
+    localAiRuntimeStatusEvent: latestEvent(events, AgentEvent.LocalAiRuntimeStatusReported),
+    lanAiJobEvent: latestEvent(events, AgentEvent.LanAiJobReported),
+    parentAssistantBoundaryEvent: latestEventOf(events, [
+      AgentEvent.ParentAssistantAnswerReported,
+      AgentEvent.ParentAssistantProviderDegraded,
+      AgentEvent.ParentAssistantErrorReported,
+    ]),
   };
 }
 

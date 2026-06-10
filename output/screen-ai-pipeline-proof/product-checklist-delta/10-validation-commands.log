@@ -1,0 +1,5 @@
+node --check scripts/test/screen-ai-product-checklist-delta-proof.mjs
+node scripts/test/screen-ai-product-checklist-delta-proof.mjs
+git diff --check
+npm run lanes:guard
+npm run hub:guard

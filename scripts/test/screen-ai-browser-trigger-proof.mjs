@@ -5,6 +5,8 @@ import { join, relative } from 'node:path';
 const root = process.cwd();
 const resultDirectory = join(root, 'test-results', 'screen-ai-browser-trigger-proof');
 const proofPath = join(resultDirectory, 'proof.json');
+const pipelineProofDirectory = join(root, 'output', 'screen-ai-pipeline-proof', 'browser-trigger');
+const pipelineProofPath = join(pipelineProofDirectory, 'proof-summary.json');
 
 await main();
 
@@ -51,11 +53,13 @@ async function main() {
     throw new Error(`Screen-AI browser trigger proof failed:\n${failures.join('\n')}`);
   }
 
-  await mkdir(resultDirectory, { recursive: true });
-  await writeFile(proofPath, `${JSON.stringify(proof, null, 2)}\n`);
+  await Promise.all([mkdir(resultDirectory, { recursive: true }), mkdir(pipelineProofDirectory, { recursive: true })]);
+  const proofJson = `${JSON.stringify(proof, null, 2)}\n`;
+  await Promise.all([writeFile(proofPath, proofJson), writeFile(pipelineProofPath, proofJson)]);
 
   console.log('screen-ai-browser-trigger-proof-ok=true');
   console.log(`proof=${relativePath(proofPath)}`);
+  console.log(`pipelineProof=${relativePath(pipelineProofPath)}`);
   console.log(`rows=${proof.summary.totalRows} localAiRows=${proof.summary.localAiContextRows}`);
 }
 

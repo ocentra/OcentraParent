@@ -420,6 +420,8 @@ pub const DEVTOOLS_TEST_EDGE_STORE_PACKAGE_MANIFEST_XML: &str = r#"<Package xmln
 pub const DEVTOOLS_TEST_INVALID_JSON_BODY: &str = "{";
 pub const DEVTOOLS_TEST_INVALID_LIST_BODY: &str = r#"{"id":"not-array"}"#;
 pub const DEVTOOLS_TEST_WINDOWS_BROWSER_INVENTORY_DIR: &str = "windows-browser-inventory-test";
+pub const DEVTOOLS_TEST_WINDOWS_BROWSER_INVENTORY_SOURCE_DIR: &str =
+    "windows-browser-inventory-source-test";
 pub const DEVTOOLS_TEST_INSTALLED_BROWSER_DIR: &str = "managed-browser-discovery-test";
 pub const DEVTOOLS_TEST_UNMANAGED_PROCESS_ID: u32 = 5150;
 pub const DEVTOOLS_TEST_LIST_BODY: &str = r#"[{"id":"target-1","type":"page","url":"https://example.test/learn","title":"Example learning page"}]"#;

@@ -15,8 +15,8 @@
       "actualScope": "activeWindow",
       "captured": true,
       "status": "available",
-      "imageDigest": "1232f12698c3325775ecc1dfdee6ce201fa075073d0aa5ee326851cadc12a969",
-      "imageByteSize": 64817,
+      "imageDigest": "6b3f870f4d79280dfca4765490130bebaa4702b90b7a7684758cca050535044f",
+      "imageByteSize": 69419,
       "rawImageDeleted": true,
       "encryptedQueueOmitsRawDigest": true
     },
@@ -27,8 +27,8 @@
       "actualScope": "selectedWindow",
       "captured": true,
       "status": "available",
-      "imageDigest": "1232f12698c3325775ecc1dfdee6ce201fa075073d0aa5ee326851cadc12a969",
-      "imageByteSize": 64817,
+      "imageDigest": "8d44032fbcab0ba3c775254d2c192c043eb05ec2cc83fa87e8c7cfd3a1a20d63",
+      "imageByteSize": 38865,
       "rawImageDeleted": true,
       "encryptedQueueOmitsRawDigest": true
     },
@@ -39,8 +39,8 @@
       "actualScope": "primaryDisplay",
       "captured": true,
       "status": "available",
-      "imageDigest": "392a31ab6059df97fef081ce77881b96ef0d9317e97d514088851644c4c2b57a",
-      "imageByteSize": 385780,
+      "imageDigest": "7f98436375a0d93f30b9b0b83a2c69ff04d099c98469da4e9d2b97b42938f2b4",
+      "imageByteSize": 857418,
       "rawImageDeleted": true,
       "encryptedQueueOmitsRawDigest": true
     }

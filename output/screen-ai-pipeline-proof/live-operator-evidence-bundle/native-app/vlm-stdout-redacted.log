@@ -1,0 +1,9 @@
+
+```json
+{
+  "primary_category": "productivity",
+  "visible_text": "This is a real Notepad window opened by the live operator harness. Visible category: productivity. The parent is checking that native app capture runs locally, deletes raw image material, and stays policy dry-run only.",
+  "risk_signals": [],
+  "confidence": 0.95
+}
+```

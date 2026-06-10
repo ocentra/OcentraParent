@@ -1,0 +1,120 @@
+{
+  "screenResult": {
+    "schemaVersion": 1,
+    "screenAnalysisResultId": "live-operator-screen-analysis-youtube-education-video",
+    "queueJobId": "live-operator-screen-capture-youtube-education-video",
+    "analyzedAt": "2026-06-04T10:53:21.511Z",
+    "modelRuntimeRef": "local-qwen2-vl-2b-llama-mtmd",
+    "modelId": "Qwen2-VL-2B-Instruct-Q4_K_M",
+    "providerKind": "localVision",
+    "promptOrTemplateVersion": "screen-ai-live-operator-proof-v1",
+    "captureReason": "managedBrowserUrlChange",
+    "captureScope": "selectedWindow",
+    "capabilityStatus": "ready",
+    "summary": "Algebra Basics: What Is Algebra?",
+    "visibleCategoryCandidates": [
+      {
+        "category": "school",
+        "confidence": 1,
+        "evidenceRefs": [
+          {
+            "evidenceId": "live-operator-screen-evidence-youtube-education-video",
+            "kind": "screenshot",
+            "digest": "d65e865af9bd7a12ab1320b161269eadf6b9631c15278cf52ecfe6a6596c28ac",
+            "uri": null
+          }
+        ]
+      }
+    ],
+    "primaryCategory": "school",
+    "riskSignals": [],
+    "ocrTextSnippets": [
+      {
+        "text": "Algebra Basics: What Is Algebra?",
+        "confidence": 1,
+        "evidenceRefs": [
+          {
+            "evidenceId": "live-operator-screen-evidence-youtube-education-video",
+            "kind": "screenshot",
+            "digest": "d65e865af9bd7a12ab1320b161269eadf6b9631c15278cf52ecfe6a6596c28ac",
+            "uri": null
+          }
+        ]
+      }
+    ],
+    "redactionNotes": [],
+    "confidence": 1,
+    "uncertaintyReason": null,
+    "sourceEvidenceRefs": [
+      {
+        "evidenceId": "live-operator-screen-evidence-youtube-education-video",
+        "kind": "screenshot",
+        "digest": "d65e865af9bd7a12ab1320b161269eadf6b9631c15278cf52ecfe6a6596c28ac",
+        "uri": null
+      }
+    ],
+    "imageDigest": "d65e865af9bd7a12ab1320b161269eadf6b9631c15278cf52ecfe6a6596c28ac",
+    "rawImageRetained": false,
+    "imageDeletionState": "deleted",
+    "custodyState": "child-device-query-store",
+    "policyEligible": true
+  },
+  "localAiSafetyResult": {
+    "schemaVersion": "v0.6",
+    "resultId": "live-operator-local-ai-result-youtube-education-video",
+    "requestId": "live-operator-local-ai-request-youtube-education-video",
+    "action": "allow",
+    "confidence": 1,
+    "unknownState": "none",
+    "degradedState": "none",
+    "reasonCodes": [
+      "screen-category-school"
+    ],
+    "explanationReference": "screen-analysis-result:live-operator-screen-analysis-youtube-education-video",
+    "evidenceReferences": [
+      {
+        "evidenceReferenceId": "live-operator-screen-analysis-evidence-youtube-education-video",
+        "kind": "activity-event",
+        "observedAt": "2026-06-04T10:53:21.511Z"
+      }
+    ],
+    "parentRuleReferences": [
+      "live-operator-screen-policy-youtube-education-video"
+    ],
+    "memoryReferences": [],
+    "graphReferences": [],
+    "modelRuntime": {
+      "runtimeReferenceId": "runtime-local-qwen2-vl-2b-llama-mtmd",
+      "providerId": "local-qwen2-vl",
+      "modelId": "Qwen2-VL-2B-Instruct-Q4_K_M",
+      "modelReference": "local-model-cache/Qwen2-VL-2B-Instruct-Q4_K_M.gguf",
+      "privacyMode": "local-only",
+      "adapterBoundary": "local-adapter-ready",
+      "executionState": "dry-run-ready",
+      "providerSource": "local-model-cache",
+      "loadState": "loaded",
+      "capabilityFlags": [
+        "classification",
+        "safety-decision"
+      ],
+      "resourceClass": "cpu",
+      "degradedState": "none",
+      "lastCheckedAt": "2026-06-04T10:53:21.511Z",
+      "unavailableReason": null
+    },
+    "promptVersion": "screen-ai-live-operator-proof-v1",
+    "expiresAt": null
+  },
+  "parsedModel": {
+    "primary_category": "school",
+    "visible_text": "Algebra Basics: What Is Algebra?",
+    "risk_signals": [],
+    "confidence": 1
+  },
+  "normalized": {
+    "primaryCategory": "school",
+    "visibleText": "Algebra Basics: What Is Algebra?",
+    "confidence": 1,
+    "riskSignals": []
+  }
+}

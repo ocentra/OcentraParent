@@ -1,0 +1,67 @@
+{
+  "familyPolicySet": {
+    "schemaVersion": "v0.6",
+    "family": {
+      "familyId": "live-operator-proof-family"
+    },
+    "childProfiles": [
+      {
+        "childProfileId": "live-operator-proof-child",
+        "displayName": "Proof child"
+      }
+    ],
+    "devices": [
+      {
+        "deviceId": "live-operator-proof-device",
+        "childProfileId": "live-operator-proof-child",
+        "label": "Operator proof desktop",
+        "platform": "windows"
+      }
+    ],
+    "policyVersion": "live-operator-proof-policy-v1",
+    "rules": [
+      {
+        "ruleId": "live-operator-screen-policy-youtube-education-video",
+        "target": {
+          "targetId": "live-operator-screen-category-target-youtube-education-video",
+          "targetType": "category",
+          "targetValue": "school"
+        },
+        "action": "allow",
+        "scheduleId": null,
+        "priority": 100,
+        "reasonCode": "screen-category-school",
+        "createdBy": {
+          "actorId": "live-operator-proof-parent",
+          "role": "parent"
+        },
+        "enabled": true,
+        "effectiveFrom": null,
+        "effectiveUntil": null
+      }
+    ],
+    "schedules": []
+  },
+  "policyDecision": {
+    "schemaVersion": "v0.6",
+    "decisionId": "live-operator-policy-decision-live-operator-screen-analysis-youtube-education-video",
+    "action": "allow",
+    "reasonCodes": [
+      "screen-category-school"
+    ],
+    "evidenceReferences": [
+      {
+        "evidenceReferenceId": "live-operator-screen-analysis-evidence-youtube-education-video",
+        "kind": "activity-event",
+        "observedAt": "2026-06-04T10:53:21.511Z"
+      }
+    ],
+    "ruleIds": [
+      "live-operator-screen-policy-youtube-education-video"
+    ],
+    "localAiResultId": "live-operator-local-ai-result-youtube-education-video",
+    "dryRun": true,
+    "enforcementHandoffState": "disabled",
+    "expiresAt": null
+  }
+}

@@ -19,11 +19,14 @@ import {
   ScreenEvidenceSnippetLimitSchema,
   ScreenEvidenceTtlSecondsSchema,
 } from './screen-evidence-primitives';
+import { ScreenOcrTextRetentionModeSchema } from './screen-ocr-redaction';
 
 const RequiredFalse = Schema.Literal(false);
 const RequiredTrue = Schema.Literal(true);
 const ScreenDisabledMode = Schema.Literal('disabled');
+const ScreenRawScreenshotRetentionModeSchema = withParser(Schema.Literal('disabled', 'parentApprovedLocalShortTtl'));
 const ScreenRemoteSummaryModeSchema = withParser(Schema.Literal('disabled', 'parentApprovedRedactedSummary'));
+const ApprovedRawRetentionMaxTtlSeconds = 120;
 
 export const ScreenAnalysisParentSettingSchema = withParser(
   Schema.Struct({
@@ -39,11 +42,14 @@ export const ScreenAnalysisParentSettingSchema = withParser(
     ocrTextEnabled: Schema.Boolean,
     ocrTextSnippetLimit: ScreenEvidenceSnippetLimitSchema,
     redactionMode: ScreenRedactionModeSchema,
+    ocrTextRetentionMode: ScreenOcrTextRetentionModeSchema,
+    credentialSuppressionEnabled: RequiredTrue,
+    piiRedactionEnabled: Schema.Boolean,
     temporaryImageTtlSeconds: ScreenEvidenceTtlSecondsSchema,
     maxRetryCount: ScreenEvidenceRetryCountSchema,
     deleteAfterSuccess: RequiredTrue,
     deleteAfterExpiry: RequiredTrue,
-    retainRawImage: RequiredFalse,
+    retainRawImage: Schema.Boolean,
     policyUseEnabled: Schema.Boolean,
     changedByParentRef: ScreenEvidenceParentSettingRefSchema,
     changedAt: ActivityTimestampSchema,
@@ -76,6 +82,32 @@ export const ScreenAnalysisParentSettingSchema = withParser(
         !value.triggerCaptureEnabled ||
         (value.screenAnalysisEnabled && value.enabledTriggers.length > 0) ||
         'Expected trigger capture to require parent opt-in and at least one trigger'
+    ),
+    Schema.filter(
+      (value) =>
+        value.ocrTextEnabled ||
+        (value.ocrTextSnippetLimit === 0 &&
+          value.redactionMode === 'disabled' &&
+          value.ocrTextRetentionMode === 'disabled' &&
+          !value.piiRedactionEnabled) ||
+        'Expected disabled OCR text settings to retain no snippets or PII redaction mode'
+    ),
+    Schema.filter(
+      (value) =>
+        !value.ocrTextEnabled ||
+        (value.ocrTextSnippetLimit > 0 &&
+          value.redactionMode !== 'disabled' &&
+          value.ocrTextRetentionMode !== 'disabled') ||
+        'Expected enabled OCR text settings to select explicit snippet retention and redaction behavior'
+    ),
+    Schema.filter(
+      (value) =>
+        !value.retainRawImage ||
+        (value.screenAnalysisEnabled &&
+          value.temporaryImageTtlSeconds <= ApprovedRawRetentionMaxTtlSeconds &&
+          value.deleteAfterSuccess &&
+          value.deleteAfterExpiry) ||
+        'Expected raw screenshot retention to require parent-enabled local short TTL custody with deletion after success and expiry'
     )
   )
 );
@@ -98,7 +130,7 @@ export const ScreenEvidenceRemoteBoundarySettingSchema = withParser(
     schemaVersion: Schema.Literal(ScreenEvidenceSchemaVersion),
     parentSettingRef: ScreenEvidenceParentSettingRefSchema,
     settingVersion: ScreenEvidenceSettingVersionSchema,
-    rawScreenshotRetentionMode: ScreenDisabledMode,
+    rawScreenshotRetentionMode: ScreenRawScreenshotRetentionModeSchema,
     liveViewMode: ScreenDisabledMode,
     rawScreenshotRemoteUploadEnabled: RequiredFalse,
     remoteSummaryMode: ScreenRemoteSummaryModeSchema,
@@ -125,6 +157,12 @@ export const ScreenEvidenceRemoteBoundarySettingSchema = withParser(
           value.remoteSummaryApprovalRef === null &&
           value.remoteSummaryDestinationCustodyState === 'unavailable') ||
         'Expected disabled remote screen summaries to have no approval ref or destination custody'
+    ),
+    Schema.filter(
+      (value) =>
+        value.rawScreenshotRetentionMode !== 'parentApprovedLocalShortTtl' ||
+        (!value.rawScreenshotRemoteUploadEnabled && value.liveViewMode === 'disabled') ||
+        'Expected local raw screenshot retention mode to keep raw remote upload and live view disabled'
     )
   )
 );

@@ -1,0 +1,67 @@
+{
+  "familyPolicySet": {
+    "schemaVersion": "v0.6",
+    "family": {
+      "familyId": "live-operator-proof-family"
+    },
+    "childProfiles": [
+      {
+        "childProfileId": "live-operator-proof-child",
+        "displayName": "Proof child"
+      }
+    ],
+    "devices": [
+      {
+        "deviceId": "live-operator-proof-device",
+        "childProfileId": "live-operator-proof-child",
+        "label": "Operator proof desktop",
+        "platform": "windows"
+      }
+    ],
+    "policyVersion": "live-operator-proof-policy-v1",
+    "rules": [
+      {
+        "ruleId": "live-operator-screen-policy-facebook-social-surface",
+        "target": {
+          "targetId": "live-operator-screen-category-target-facebook-social-surface",
+          "targetType": "category",
+          "targetValue": "chat"
+        },
+        "action": "warn",
+        "scheduleId": null,
+        "priority": 100,
+        "reasonCode": "screen-category-chat",
+        "createdBy": {
+          "actorId": "live-operator-proof-parent",
+          "role": "parent"
+        },
+        "enabled": true,
+        "effectiveFrom": null,
+        "effectiveUntil": null
+      }
+    ],
+    "schedules": []
+  },
+  "policyDecision": {
+    "schemaVersion": "v0.6",
+    "decisionId": "live-operator-policy-decision-live-operator-screen-analysis-facebook-social-surface",
+    "action": "warn",
+    "reasonCodes": [
+      "screen-category-chat"
+    ],
+    "evidenceReferences": [
+      {
+        "evidenceReferenceId": "live-operator-screen-analysis-evidence-facebook-social-surface",
+        "kind": "activity-event",
+        "observedAt": "2026-06-04T10:55:47.086Z"
+      }
+    ],
+    "ruleIds": [
+      "live-operator-screen-policy-facebook-social-surface"
+    ],
+    "localAiResultId": "live-operator-local-ai-result-facebook-social-surface",
+    "dryRun": true,
+    "enforcementHandoffState": "disabled",
+    "expiresAt": null
+  }
+}

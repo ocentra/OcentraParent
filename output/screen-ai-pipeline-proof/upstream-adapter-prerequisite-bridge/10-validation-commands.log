@@ -1,0 +1,5 @@
+node --check scripts/test/screen-ai-upstream-adapter-prerequisite-bridge-proof.mjs
+node scripts/test/screen-ai-upstream-adapter-prerequisite-bridge-proof.mjs
+git diff --check
+npm run lanes:guard
+npm run hub:guard

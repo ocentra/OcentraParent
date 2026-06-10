@@ -157,9 +157,15 @@ export const PortalRoutes = [
 
 export const PortalNetworkEvidenceDrawerRoutes = [PortalRoute.Activity, PortalRoute.NetworkActivity] as const;
 export const PortalAppGameParentSurfaceRoutes = [PortalRoute.AppGameSessions] as const;
+export const PortalAiRuntimeRoutes = [PortalRoute.AiRuntime] as const;
 export const PortalBrowserParentSurfaceRoutes = [PortalRoute.Browser] as const;
 export const PortalScreenSettingsRoutes = [PortalRoute.SettingsRules] as const;
+export const PortalScreenSummaryRoutes = [PortalRoute.ScreenAnalysis] as const;
 export const PortalTrackingStatusRoutes = [PortalRoute.PolicyTracking] as const;
+
+export function isPortalAiRuntimeRoute(route: PortalRoute): boolean {
+  return routeMatches(route, PortalAiRuntimeRoutes);
+}
 
 export function isPortalAppGameParentSurfaceRoute(route: PortalRoute): boolean {
   return routeMatches(route, PortalAppGameParentSurfaceRoutes);
@@ -175,6 +181,10 @@ export function isPortalNetworkEvidenceDrawerRoute(route: PortalRoute): boolean 
 
 export function isPortalScreenSettingsRoute(route: PortalRoute): boolean {
   return routeMatches(route, PortalScreenSettingsRoutes);
+}
+
+export function isPortalScreenSummaryRoute(route: PortalRoute): boolean {
+  return routeMatches(route, PortalScreenSummaryRoutes);
 }
 
 export function isPortalTrackingStatusRoute(route: PortalRoute): boolean {

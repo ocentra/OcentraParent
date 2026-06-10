@@ -1,7 +1,7 @@
 {
   "proof": "screen-ai-adapter-readiness-proof",
   "proofTier": "P3_RETAINED_SCREEN_ACTION_AND_ADAPTER_READINESS",
-  "generatedAt": "2026-06-05T17:54:17.384Z",
+  "generatedAt": "2026-06-08T14:50:40.020Z",
   "readModel": "output/screen-ai-pipeline-proof/adapter-readiness/read-model.json",
   "validationCommands": "output/screen-ai-pipeline-proof/adapter-readiness/10-validation-commands.log",
   "sourceArtifacts": [

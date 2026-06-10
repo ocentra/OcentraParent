@@ -2244,6 +2244,7 @@ dependencies = [
  "axum",
  "base64",
  "chrono",
+ "ocentra-eventing",
  "ocentra-network-evidence",
  "ocentra-parent-agent-core",
  "ocentra-parent-agent-protocol",

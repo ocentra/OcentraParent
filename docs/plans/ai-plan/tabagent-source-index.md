@@ -61,11 +61,22 @@ define Ocentra Parent contracts, policy, custody, storage, or UI behavior.
 
 ## Audit Checklist
 
-- [ ] Confirm each candidate file is still present before extracting logic.
-- [ ] Map every reused idea to an Ocentra TypeScript contract first.
-- [ ] Add Rust parity before Rust runtime consumes the contract.
-- [ ] Prove local route status, unavailable, timeout, and invalid payload cases.
+- [x] Confirm each candidate file is still present before extracting logic.
+- [x] Map every reused idea to an Ocentra TypeScript contract first.
+- [ ] Add Rust parity before Rust runtime consumes extracted TabAgent contract
+      logic.
+- [ ] Prove local route status, unavailable, timeout, and invalid payload cases
+      for any extracted TabAgent route logic.
 - [ ] Prove model cache corruption never deletes or corrupts evidence.
-- [ ] Prove memory/graph refs without source evidence are rejected.
+- [x] Prove memory/graph refs without source evidence are rejected.
 - [ ] Document every copied/extracted module with source, license, changed
       ownership, and deleted unused behavior.
+
+Current reconciliation note: the candidate file list was rechecked against
+`E:\Desktop\TabAgent` on the unified screen-AI branch and all indexed files are
+present. Ocentra has translated the reference ideas into local AI runtime,
+provider scheduler, model artifact manifest, memory/graph, context-builder,
+remote boundary, and screen mesh proof contracts. No TabAgent code has been
+copied or extracted in this branch, so copied-module license/ownership notes
+plus extraction-specific Rust parity and route proofs remain open until an
+actual extraction happens.

@@ -13,7 +13,7 @@
   },
   "agentPort": 4691,
   "analysisRow": {
-    "rowId": "screen-service-adapter-analysis-result-screen-service-queue-job-1780675160-1",
+    "rowId": "screen-service-adapter-analysis-result-screen-service-queue-job-1780793467-1",
     "label": "Windows WinRT OCR read the live Wikipedia mathematics page from the service queued capture.",
     "deviceId": "local-dev-agent",
     "state": "ready",
@@ -23,7 +23,7 @@
     "captureReason": "timedCadence",
     "captureScope": "activeWindow",
     "capabilityStatus": "available",
-    "queueJobId": "screen-service-queue-job-1780675160-1",
+    "queueJobId": "screen-service-queue-job-1780793467-1",
     "modelRuntimeRef": "windows-winrt-ocr-local-runtime",
     "modelId": "windows-winrt-ocr",
     "providerKind": "localOcr",
@@ -33,26 +33,45 @@
     "imageDeletionState": "deleted",
     "rawImageRetained": false,
     "policyEligible": true,
-    "imageDigest": "FEpy0os_b5vD0hNYS3E0OQmvPIRoczSOyNDExPDFD-I",
+    "imageDigest": "34Yj7EyGLSHp6Wq8txZJwQV9z_iUZBd6rjNAm-yZFsk",
     "custodyState": "child-device-journal",
     "evidence": [
       {
-        "evidenceId": "screen-service-adapter-evidence-screen-service-queue-job-1780675160-1",
+        "evidenceId": "screen-service-adapter-evidence-screen-service-queue-job-1780793467-1",
         "kind": "screenshot",
-        "digest": "FEpy0os_b5vD0hNYS3E0OQmvPIRoczSOyNDExPDFD-I",
+        "digest": "34Yj7EyGLSHp6Wq8txZJwQV9z_iUZBd6rjNAm-yZFsk",
         "uri": null
       }
     ],
-    "policyDecisionRef": null,
-    "policyAction": null,
-    "policyReasonCodes": [],
-    "parentRuleRefs": [],
+    "policyDecisionRef": "screen-service-policy-dry-run-screen-service-queue-job-1780793467-1",
+    "policyAction": "allow",
+    "policyReasonCodes": [
+      "screen-service-analysis-policy-dry-run"
+    ],
+    "parentRuleRefs": [
+      "screen-service-parent-rule-local-summary"
+    ],
     "localModelRuntimeRefs": [
       "windows-winrt-ocr-local-runtime"
     ],
-    "parentExplanationRefs": [],
-    "explanationReasons": [],
-    "deletionReasons": [],
+    "parentExplanationRefs": [
+      "screen-service-parent-explanation-screen-service-queue-job-1780793467-1"
+    ],
+    "explanationReasons": [
+      "screen-service-policy-dry-run"
+    ],
+    "deletionReasons": [
+      "screen-image-deleted-after-analysis"
+    ],
+    "ocrTextSnippets": [
+      "Ask about page? x",
+      "en.wikipedia.org/wiki/...",
+      "Bookmarks Adobe cc 2019 pre-...",
+      "WIKIPEDIA*",
+      "25 yeus of the",
+      "Mathematics"
+    ],
+    "redactionNotes": [],
     "sourceEvidenceRefs": []
   },
   "winRtOcrObservation": {
@@ -62,31 +81,31 @@
       "wikipedia",
       "mathematics"
     ],
-    "lineCount": 31,
-    "textDigest": "sha256:49c385679e911e9dddac7fbb91cac1e2ee68cab733a2fef1ae110613bde18fe1",
+    "lineCount": 22,
+    "textDigest": "sha256:dc5c6d9171c8b6649105bb4a1b791fa9c0b13cd9f6160c34be31113e233110c5",
     "snippets": [
       {
-        "text": "Mathe",
+        "text": "Ask about page? x",
         "boundingBoxRef": "line-1"
       },
       {
-        "text": "Ask Gemini",
+        "text": "en.wikipedia.org/wiki/...",
         "boundingBoxRef": "line-2"
       },
       {
-        "text": "en.wikipedia.org/wiki/...",
+        "text": "Bookmarks Adobe cc 2019 pre-...",
         "boundingBoxRef": "line-3"
       },
       {
-        "text": "Bookmarks Adobe cc 2019 pre-...",
+        "text": "WIKIPEDIA*",
         "boundingBoxRef": "line-4"
       },
       {
-        "text": "All Bookmarks",
+        "text": "25 yeus of the",
         "boundingBoxRef": "line-5"
       },
       {
-        "text": "e 7 age ra, an cacu USL",
+        "text": "Mathematics",
         "boundingBoxRef": "line-6"
       }
     ],
@@ -112,7 +131,9 @@
     "policyConsumedOcrResult": true,
     "encryptedQueueDrainedAfterAnalysis": true,
     "adapterTemporaryImageDeleted": true,
-    "rawImageNotRetainedInReadModel": true
+    "rawImageNotRetainedInReadModel": true,
+    "ocrSnippetsPreservedInReadModel": true,
+    "redactionNotesShapePreservedInReadModel": true
   },
   "nonClaims": [
     "This proves the Windows service path from timed cadence capture through encrypted queue, WinRT OCR adapter output, Activity Screen read model, and queue/raw temp deletion.",

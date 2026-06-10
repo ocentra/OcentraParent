@@ -1,0 +1,10 @@
+{
+  "keepRawUntilAnalysis": true,
+  "platform": "windows",
+  "proofClaim": "real-active-window-capture-custody",
+  "proofTier": "P3_LOCAL_DEV_MACHINE",
+  "requestedScope": "activeWindow",
+  "runId": "wJYYiEW8thgAAAAAAAAAAA",
+  "status": "available",
+  "targetWindowTitleContains": null
+}

@@ -49,13 +49,24 @@ use crate::{
     parent_assistant_api::build_parent_assistant_scaffold_event,
     parent_assistant_runtime::build_parent_assistant_answer_report,
     policy_preview_api::build_policy_preview_read_model_report,
+    screen_settings_api::build_screen_settings_event,
+    screen_settings_runtime::ScreenSettingsRuntime,
     snapshot::build_dev_log_snapshot,
+};
+
+#[cfg(test)]
+mod test_helpers;
+#[cfg(test)]
+pub(crate) use test_helpers::{
+    handle_command_text_for_test, handle_command_text_with_browser_policy_for_test,
+    handle_command_text_with_screen_settings_for_test,
 };
 
 pub async fn handle_socket(
     mut socket: WebSocket,
     lan_pairing: LanPairingRuntime,
     browser_policy: BrowserPolicyRuntime,
+    screen_settings: ScreenSettingsRuntime,
     origin: Option<String>,
 ) {
     let ready_event = build_event(
@@ -87,6 +98,7 @@ pub async fn handle_socket(
                     text.as_str(),
                     lan_pairing.clone(),
                     browser_policy.clone(),
+                    screen_settings.clone(),
                     origin.clone(),
                 )
                 .await;
@@ -109,10 +121,20 @@ async fn handle_command_text(
     text: &str,
     lan_pairing: LanPairingRuntime,
     browser_policy: BrowserPolicyRuntime,
+    screen_settings: ScreenSettingsRuntime,
     origin: Option<String>,
 ) -> AgentEventEnvelope {
     match serde_json::from_str::<AgentCommandEnvelope>(text) {
-        Ok(command) => handle_command(command, lan_pairing, browser_policy, origin).await,
+        Ok(command) => {
+            handle_command(
+                command,
+                lan_pairing,
+                browser_policy,
+                screen_settings,
+                origin,
+            )
+            .await
+        }
         Err(error) => build_event(
             constants::event_id::COMMAND_REJECTED,
             constants::event_id::UNKNOWN_COMMAND,
@@ -128,29 +150,11 @@ async fn handle_command_text(
     }
 }
 
-#[cfg(test)]
-pub(crate) async fn handle_command_text_for_test(
-    text: &str,
-    lan_pairing: LanPairingRuntime,
-    origin: Option<String>,
-) -> AgentEventEnvelope {
-    handle_command_text(text, lan_pairing, BrowserPolicyRuntime::in_memory(), origin).await
-}
-
-#[cfg(test)]
-pub(crate) async fn handle_command_text_with_browser_policy_for_test(
-    text: &str,
-    lan_pairing: LanPairingRuntime,
-    browser_policy: BrowserPolicyRuntime,
-    origin: Option<String>,
-) -> AgentEventEnvelope {
-    handle_command_text(text, lan_pairing, browser_policy, origin).await
-}
-
 async fn handle_command(
     command: AgentCommandEnvelope,
     lan_pairing: LanPairingRuntime,
     browser_policy: BrowserPolicyRuntime,
+    screen_settings: ScreenSettingsRuntime,
     origin: Option<String>,
 ) -> AgentEventEnvelope {
     let (command, audit_fields) =
@@ -162,7 +166,8 @@ async fn handle_command(
             LanCommandDecision::Respond(event) => return event,
         };
 
-    let mut event = build_command_event(command, lan_pairing, browser_policy).await;
+    let mut event =
+        build_command_event(command, lan_pairing, browser_policy, screen_settings).await;
 
     if let Some(audit_fields) = audit_fields {
         event.payload.extend(audit_fields);
@@ -174,6 +179,7 @@ async fn build_command_event(
     command: AgentCommandEnvelope,
     lan_pairing: LanPairingRuntime,
     browser_policy: BrowserPolicyRuntime,
+    screen_settings: ScreenSettingsRuntime,
 ) -> AgentEventEnvelope {
     match command.command.clone() {
         AgentCommandName::AgentHealthCheck => build_health_report(command),
@@ -207,12 +213,11 @@ async fn build_command_event(
         | AgentCommandName::AgentPolicyPreviewReadModelGet => {
             build_ai_command_report(command).await
         }
-        AgentCommandName::AgentBrowserPolicyGet
-        | AgentCommandName::AgentBrowserPolicyPreview
-        | AgentCommandName::AgentBrowserPolicyPatch
-        | AgentCommandName::AgentBrowserPolicyReplace
-        | AgentCommandName::AgentBrowserPolicyRollback => {
+        command_name if is_browser_policy_command(&command_name) => {
             build_browser_policy_event(browser_policy, command).await
+        }
+        AgentCommandName::AgentScreenSettingsGet | AgentCommandName::AgentScreenSettingsReplace => {
+            build_screen_settings_event(screen_settings, command).await
         }
         AgentCommandName::AgentParentAssistantThreadList
         | AgentCommandName::AgentParentAssistantThreadCreate
@@ -281,6 +286,17 @@ fn is_lan_runtime_command(command: &AgentCommandName) -> bool {
             | AgentCommandName::AgentLanPairingControllerLeaseTakeover
             | AgentCommandName::AgentLanAiProviderStatusGet
             | AgentCommandName::AgentLanAiJobSubmit
+    )
+}
+
+fn is_browser_policy_command(command: &AgentCommandName) -> bool {
+    matches!(
+        command,
+        AgentCommandName::AgentBrowserPolicyGet
+            | AgentCommandName::AgentBrowserPolicyPreview
+            | AgentCommandName::AgentBrowserPolicyPatch
+            | AgentCommandName::AgentBrowserPolicyReplace
+            | AgentCommandName::AgentBrowserPolicyRollback
     )
 }
 

@@ -6,18 +6,50 @@ OCR snippet limits, password/credential suppression, PII redaction, and parent-c
 
 ## Current State
 
-Expectation docs prohibit sensitive capture/leakage. Product proof is open.
+Expectation docs prohibit sensitive capture/leakage. The activity-domain
+contract now defines parent-controlled OCR text retention, a hard snippet cap,
+credential-like suppression, PII-like redaction, disabled OCR text state, and
+no raw text/raw image/remote AI retention. Activity Screen read-model rows now
+carry redacted OCR snippets and redaction notes, and the Screen Analysis portal
+intent renders those redacted fields while proving raw email, phone, credential,
+raw image retention, and remote AI are absent. The Windows service WinRT OCR
+proof now persists bounded OCR snippets and the structured `redactionNotes`
+array from adapter output into the Activity Screen read model while draining the
+encrypted queue and deleting the adapter temp image. The service also applies a
+local OCR redaction pass before event persistence: a real local Chrome text
+surface is captured as pixels, WinRT OCR reads sensitive text markers, the
+service row stores `[redacted-email]`/`[redacted-phone]` snippets plus
+redaction notes, and the real `#/screen-analysis` portal route screenshot shows
+the redacted service row without raw email or phone text. The proof now writes a
+persisted parent-selected redaction policy file and passes it into the service
+analysis runtime so the service consumes explicit OCR text retention,
+credential suppression, PII redaction, and snippet limit settings.
 
 ## Checklist
 
-- [ ] Define OCR snippet limit.
-- [ ] Define OCR disabled state.
-- [ ] Define password/credential suppression.
-- [ ] Define PII redaction mode.
-- [ ] Define parent-controlled text retention.
-- [ ] Add security tests.
+- [x] Define OCR snippet limit.
+- [x] Define OCR disabled state.
+- [x] Define password/credential suppression.
+- [x] Define PII redaction mode.
+- [x] Define parent-controlled text retention.
+- [x] Add security tests.
+- [x] Add portal read-model/intent proof for redacted snippets.
+- [x] Persist service-emitted OCR snippets and redaction-note shape into the Activity Screen read model.
+- [x] Add real portal screenshot from a service-emitted redaction row.
+- [x] Apply local redaction in the live service path from a persisted parent-selected OCR redaction policy.
 
 ## Proof
 
 - Redaction tests.
-- Portal screenshot showing redacted/disabled snippets.
+- `output/screen-plan-proof/19-sensitive-text-and-redaction-model/proof-summary.json`.
+- `output/screen-plan-proof/19-sensitive-text-and-redaction-model/portal-intent-proof-summary.json`.
+- `output/screen-ai-pipeline-proof/service-winrt-ocr/proof-summary.json` proves
+  real service capture/OCR/read-model persistence of bounded OCR snippets and an
+  explicit redaction-note array shape without raw image retention.
+- `output/screen-ai-pipeline-proof/service-winrt-ocr-redaction/proof-summary.json`
+  and `portal-screen-analysis-redaction.png` prove service-emitted redacted OCR
+  snippets render on the real Screen Analysis portal route without raw sensitive
+  text.
+- `output/screen-ai-pipeline-proof/service-winrt-ocr-redaction/parent-redaction-policy.json`
+  is the parent-selected OCR text retention/redaction policy consumed by the
+  service proof.

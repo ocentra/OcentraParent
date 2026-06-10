@@ -1,11 +1,14 @@
 {
   "proof": "screen-ai-live-operator-artifact-gate",
-  "generatedAt": "2026-06-05T05:48:54.639Z",
+  "generatedAt": "2026-06-08T17:35:37.622Z",
   "validatedPipelineSummary": "output/screen-ai-pipeline-proof/live-operator/proof-summary.json",
   "validatedAiSummary": "output/ai-plan-proof/live-operator/proof-summary.json",
   "requiredScenarioCount": 9,
   "validatedScenarioCount": 9,
+  "optionalAuthenticatedAccountScenarioCount": 0,
   "realLiveUrlRows": 7,
+  "publicSocialSurfaceRows": 1,
+  "authenticatedAccountSocialProof": false,
   "localVlmRows": 8,
   "policyDryRunRows": 8,
   "rawImagesDeletedAfterAnalysis": true,
@@ -18,6 +21,8 @@
       "category": "video",
       "policyAction": "warn",
       "liveExternalUrlProof": true,
+      "publicSocialSurfaceProof": false,
+      "authenticatedAccountProof": false,
       "localVlmAnalysisProof": true,
       "policyDryRunProof": true
     },
@@ -27,6 +32,8 @@
       "category": "school",
       "policyAction": "allow",
       "liveExternalUrlProof": true,
+      "publicSocialSurfaceProof": false,
+      "authenticatedAccountProof": false,
       "localVlmAnalysisProof": true,
       "policyDryRunProof": true
     },
@@ -36,6 +43,8 @@
       "category": "video",
       "policyAction": "warn",
       "liveExternalUrlProof": true,
+      "publicSocialSurfaceProof": false,
+      "authenticatedAccountProof": false,
       "localVlmAnalysisProof": true,
       "policyDryRunProof": true
     },
@@ -45,6 +54,8 @@
       "category": "chat",
       "policyAction": "warn",
       "liveExternalUrlProof": true,
+      "publicSocialSurfaceProof": true,
+      "authenticatedAccountProof": false,
       "localVlmAnalysisProof": true,
       "policyDryRunProof": true
     },
@@ -54,6 +65,8 @@
       "category": "game",
       "policyAction": "time-limit",
       "liveExternalUrlProof": true,
+      "publicSocialSurfaceProof": false,
+      "authenticatedAccountProof": false,
       "localVlmAnalysisProof": true,
       "policyDryRunProof": true
     },
@@ -63,6 +76,8 @@
       "category": "shopping",
       "policyAction": "ask-parent",
       "liveExternalUrlProof": true,
+      "publicSocialSurfaceProof": false,
+      "authenticatedAccountProof": false,
       "localVlmAnalysisProof": true,
       "policyDryRunProof": true
     },
@@ -72,6 +87,8 @@
       "category": "school",
       "policyAction": "allow",
       "liveExternalUrlProof": true,
+      "publicSocialSurfaceProof": false,
+      "authenticatedAccountProof": false,
       "localVlmAnalysisProof": true,
       "policyDryRunProof": true
     },
@@ -81,6 +98,8 @@
       "category": "productivity",
       "policyAction": "allow",
       "liveExternalUrlProof": false,
+      "publicSocialSurfaceProof": false,
+      "authenticatedAccountProof": false,
       "localVlmAnalysisProof": true,
       "policyDryRunProof": true
     },
@@ -90,12 +109,16 @@
       "category": null,
       "policyAction": null,
       "liveExternalUrlProof": false,
+      "publicSocialSurfaceProof": false,
+      "authenticatedAccountProof": false,
       "localVlmAnalysisProof": false,
       "policyDryRunProof": false
     }
   ],
+  "optionalAuthenticatedAccountScenarios": [],
   "nonClaims": [
     "This gate verifies existing operator-run live artifacts; it does not rerun browser capture or model inference.",
+    "The retained Facebook/social row proves a public live social/feed surface only and does not claim authenticated-account social coverage.",
     "Managed-browser trigger integration and broad browser/network/mobile adapters remain separate gates.",
     "The verified artifacts keep raw screenshots local and deleted after analysis."
   ]

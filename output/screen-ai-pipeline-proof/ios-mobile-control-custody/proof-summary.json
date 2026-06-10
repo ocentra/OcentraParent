@@ -1,0 +1,30 @@
+{
+  "status": "ios-mobile-control-custody-artifact-written-final-execution-blocked",
+  "proofKind": "screen-ai-ios-mobile-control-custody-proof",
+  "generatedAt": "2026-06-08T00:52:32.781Z",
+  "sourceArtifacts": {
+    "blockPolicySource": "output/screen-ai-pipeline-proof/block-action-dispatch/00-screen-block-source.json",
+    "adapterReadinessReadModel": "output/screen-ai-pipeline-proof/adapter-readiness/read-model.json",
+    "iosCaptureCapability": "output/screen-plan-proof/ios/proof-summary.json",
+    "adapterBlockerLedger": "output/screen-ai-pipeline-proof/adapter-blocker-ledger/proof-summary.json",
+    "screenAiPipelineChecklist": "docs/plans/screen-ai-pipeline-plan/implementation-checklist.md"
+  },
+  "screenDerivedPolicySource": "output/screen-ai-pipeline-proof/ios-mobile-control-custody/01-screen-derived-policy-source.json",
+  "custodyArtifact": "output/screen-ai-pipeline-proof/ios-mobile-control-custody/02-ios-mobile-control-custody.json",
+  "closure": {
+    "screenDerivedBlockDecisionPreserved": true,
+    "iosReplayKitSourceDocPrerequisitePresent": true,
+    "iosRawImageRetentionBlocked": true,
+    "iosMobileApplyCustodyRecorded": true,
+    "iosMobileApplyExecuted": false,
+    "iosRollbackExecutionRecorded": false,
+    "iosAuditCustodyRecorded": true,
+    "finalAdapterCompletionClaimed": false,
+    "productCompleteAdapterRowStillOpen": true
+  },
+  "nonClaims": [
+    "This proof does not execute iOS Family Controls or DeviceActivity control.",
+    "This proof does not execute iOS rollback.",
+    "This proof does not claim physical iOS ReplayKit capture, live iOS pixels, iOS deletion proof, Network Extension enforcement, or mobile-control product readiness."
+  ]
+}

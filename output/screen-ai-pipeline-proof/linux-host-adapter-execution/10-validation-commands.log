@@ -1,0 +1,22 @@
+node --check scripts/test/screen-ai-linux-host-adapter-execution-proof.mjs
+node scripts/test/screen-ai-linux-host-adapter-execution-proof.mjs
+git diff --check
+npm run lanes:guard
+npm run hub:guard
+
+Executed WSL commands:
+wsl.exe -e sh -lc "iptables -S OUTPUT; iptables -S OCSAIPROOF 2>/dev/null || true"
+wsl.exe -e sh -lc "uname -a; id; command -v iptables; iptables --version"
+wsl.exe -e sh -lc "iptables -D OCSAIPROOF -d 203.0.113.42 -j REJECT 2>/dev/null || true"
+wsl.exe -e sh -lc "iptables -D OUTPUT -j OCSAIPROOF 2>/dev/null || true"
+wsl.exe -e sh -lc "iptables -F OCSAIPROOF 2>/dev/null || true"
+wsl.exe -e sh -lc "iptables -X OCSAIPROOF 2>/dev/null || true"
+wsl.exe -e sh -lc "iptables -N OCSAIPROOF"
+wsl.exe -e sh -lc "iptables -I OUTPUT 1 -j OCSAIPROOF"
+wsl.exe -e sh -lc "iptables -A OCSAIPROOF -d 203.0.113.42 -j REJECT"
+wsl.exe -e sh -lc "iptables -C OCSAIPROOF -d 203.0.113.42 -j REJECT; iptables -S OCSAIPROOF"
+wsl.exe -e sh -lc "iptables -D OCSAIPROOF -d 203.0.113.42 -j REJECT"
+wsl.exe -e sh -lc "iptables -D OUTPUT -j OCSAIPROOF"
+wsl.exe -e sh -lc "iptables -F OCSAIPROOF"
+wsl.exe -e sh -lc "iptables -X OCSAIPROOF"
+wsl.exe -e sh -lc "iptables -S OUTPUT; iptables -S OCSAIPROOF 2>/dev/null || true"

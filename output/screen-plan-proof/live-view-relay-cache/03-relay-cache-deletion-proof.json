@@ -1,0 +1,12 @@
+{
+  "rawTempPath": "output/screen-plan-proof/live-view-relay-cache/capture/capture.png.tmp",
+  "relayCacheDir": "output/screen-plan-proof/live-view-relay-cache/relay-cache",
+  "rawFrameExistedBeforeRelay": true,
+  "relayCacheExistedBeforeCleanup": true,
+  "rawFrameDeletedAfterRelay": true,
+  "relayCacheDeletedAfterDelivery": true,
+  "cacheRawFrames": false,
+  "encryptedRelayEnvelopeOnly": true,
+  "sessionRecorded": false,
+  "remoteInputAllowed": false
+}

@@ -1,0 +1,120 @@
+{
+  "screenResult": {
+    "schemaVersion": 1,
+    "screenAnalysisResultId": "live-operator-screen-analysis-youtube-ordinary-video",
+    "queueJobId": "live-operator-screen-capture-youtube-ordinary-video",
+    "analyzedAt": "2026-06-04T10:52:13.051Z",
+    "modelRuntimeRef": "local-qwen2-vl-2b-llama-mtmd",
+    "modelId": "Qwen2-VL-2B-Instruct-Q4_K_M",
+    "providerKind": "localVision",
+    "promptOrTemplateVersion": "screen-ai-live-operator-proof-v1",
+    "captureReason": "managedBrowserUrlChange",
+    "captureScope": "selectedWindow",
+    "capabilityStatus": "ready",
+    "summary": "Me at the zoo",
+    "visibleCategoryCandidates": [
+      {
+        "category": "video",
+        "confidence": 1,
+        "evidenceRefs": [
+          {
+            "evidenceId": "live-operator-screen-evidence-youtube-ordinary-video",
+            "kind": "screenshot",
+            "digest": "e36880cf242c7c0319a5ea74252c970f3ddf41b7e8aeeedf73b485de37e6b79f",
+            "uri": null
+          }
+        ]
+      }
+    ],
+    "primaryCategory": "video",
+    "riskSignals": [],
+    "ocrTextSnippets": [
+      {
+        "text": "Me at the zoo",
+        "confidence": 1,
+        "evidenceRefs": [
+          {
+            "evidenceId": "live-operator-screen-evidence-youtube-ordinary-video",
+            "kind": "screenshot",
+            "digest": "e36880cf242c7c0319a5ea74252c970f3ddf41b7e8aeeedf73b485de37e6b79f",
+            "uri": null
+          }
+        ]
+      }
+    ],
+    "redactionNotes": [],
+    "confidence": 1,
+    "uncertaintyReason": null,
+    "sourceEvidenceRefs": [
+      {
+        "evidenceId": "live-operator-screen-evidence-youtube-ordinary-video",
+        "kind": "screenshot",
+        "digest": "e36880cf242c7c0319a5ea74252c970f3ddf41b7e8aeeedf73b485de37e6b79f",
+        "uri": null
+      }
+    ],
+    "imageDigest": "e36880cf242c7c0319a5ea74252c970f3ddf41b7e8aeeedf73b485de37e6b79f",
+    "rawImageRetained": false,
+    "imageDeletionState": "deleted",
+    "custodyState": "child-device-query-store",
+    "policyEligible": true
+  },
+  "localAiSafetyResult": {
+    "schemaVersion": "v0.6",
+    "resultId": "live-operator-local-ai-result-youtube-ordinary-video",
+    "requestId": "live-operator-local-ai-request-youtube-ordinary-video",
+    "action": "warn",
+    "confidence": 1,
+    "unknownState": "none",
+    "degradedState": "none",
+    "reasonCodes": [
+      "screen-category-video"
+    ],
+    "explanationReference": "screen-analysis-result:live-operator-screen-analysis-youtube-ordinary-video",
+    "evidenceReferences": [
+      {
+        "evidenceReferenceId": "live-operator-screen-analysis-evidence-youtube-ordinary-video",
+        "kind": "activity-event",
+        "observedAt": "2026-06-04T10:52:13.051Z"
+      }
+    ],
+    "parentRuleReferences": [
+      "live-operator-screen-policy-youtube-ordinary-video"
+    ],
+    "memoryReferences": [],
+    "graphReferences": [],
+    "modelRuntime": {
+      "runtimeReferenceId": "runtime-local-qwen2-vl-2b-llama-mtmd",
+      "providerId": "local-qwen2-vl",
+      "modelId": "Qwen2-VL-2B-Instruct-Q4_K_M",
+      "modelReference": "local-model-cache/Qwen2-VL-2B-Instruct-Q4_K_M.gguf",
+      "privacyMode": "local-only",
+      "adapterBoundary": "local-adapter-ready",
+      "executionState": "dry-run-ready",
+      "providerSource": "local-model-cache",
+      "loadState": "loaded",
+      "capabilityFlags": [
+        "classification",
+        "safety-decision"
+      ],
+      "resourceClass": "cpu",
+      "degradedState": "none",
+      "lastCheckedAt": "2026-06-04T10:52:13.051Z",
+      "unavailableReason": null
+    },
+    "promptVersion": "screen-ai-live-operator-proof-v1",
+    "expiresAt": null
+  },
+  "parsedModel": {
+    "primary_category": "video",
+    "visible_text": "Me at the zoo",
+    "risk_signals": [],
+    "confidence": 1
+  },
+  "normalized": {
+    "primaryCategory": "video",
+    "visibleText": "Me at the zoo",
+    "confidence": 1,
+    "riskSignals": []
+  }
+}

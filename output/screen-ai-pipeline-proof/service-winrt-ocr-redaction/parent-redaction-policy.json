@@ -1,0 +1,13 @@
+{
+  "schemaVersion": 1,
+  "parentSettingRef": "parent-setting-screen-service-redaction-proof",
+  "settingVersion": 1,
+  "ocrTextEnabled": true,
+  "snippetLimit": 5,
+  "redactionMode": "localSensitiveText",
+  "textRetentionMode": "redactedSnippets",
+  "credentialSuppressionEnabled": true,
+  "piiRedactionEnabled": true,
+  "parentControlled": true,
+  "rawTextRetentionAllowed": false
+}

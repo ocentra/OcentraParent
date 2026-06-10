@@ -11,6 +11,9 @@ use ocentra_parent_agent_protocol::{
     constants, ScreenAnalysisQueueJob, ScreenEvidenceRecentSummary,
 };
 
+use crate::screen_ai_retention_sweeper_deletion_events::{
+    publish_screen_retention_deletion_events, ScreenAiRetentionSweeperDeletionEventOutcome,
+};
 use crate::screen_ai_retention_sweeper_runtime::{
     record_screen_ai_retention_sweeper_tick, ScreenAiRetentionSweeperClock,
     ScreenAiRetentionSweeperOutcome, ScreenAiRetentionSweeperRuntimeConfig,
@@ -26,8 +29,8 @@ fn screen_retention_sweeper_runtime_is_disabled_by_default() {
     );
 }
 
-#[test]
-fn screen_retention_sweeper_tick_deletes_expired_queue_records_only() {
+#[tokio::test]
+async fn screen_retention_sweeper_tick_deletes_expired_queue_records_only() {
     let root = test_path(constants::activity_store::TEST_SCREEN_QUEUE_SUFFIX);
     let _ = remove_dir_all(&root);
     let queue_dir = root.join(constants::activity_store::TEST_SCREEN_QUEUE_SUFFIX);
@@ -75,6 +78,7 @@ fn screen_retention_sweeper_tick_deletes_expired_queue_records_only() {
         ),
     )
     .expect(constants::error::ACTIVITY_STORE_OPENS);
+    let deletion_events = publish_swept_deletion_events(&store_path, &outcome).await;
     let entries = queue
         .read_decrypted_entries(4)
         .expect(constants::error::JOURNAL_READS);
@@ -88,12 +92,42 @@ fn screen_retention_sweeper_tick_deletes_expired_queue_records_only() {
     let _ = remove_dir_all(&root);
 
     assert_sweep_outcome(outcome, &expired_job);
+    assert_sweep_deletion_events(deletion_events, &expired_job);
     assert_sweep_store(
         entries.len(),
         entries[0].queue_job_id.as_str(),
         &fresh_job,
         screen_summary,
     );
+}
+
+async fn publish_swept_deletion_events(
+    store_path: &std::path::Path,
+    outcome: &ScreenAiRetentionSweeperOutcome,
+) -> Vec<ScreenAiRetentionSweeperDeletionEventOutcome> {
+    match outcome {
+        ScreenAiRetentionSweeperOutcome::Swept {
+            expired_entries, ..
+        } => {
+            publish_screen_retention_deletion_events(
+                store_path,
+                expired_entries,
+                constants::activity_store::TEST_SECOND_OBSERVED_AT,
+            )
+            .await
+        }
+        _ => Vec::new(),
+    }
+}
+
+fn assert_sweep_deletion_events(
+    deletion_events: Vec<ScreenAiRetentionSweeperDeletionEventOutcome>,
+    expired_job: &ScreenAnalysisQueueJob,
+) {
+    assert_eq!(deletion_events.len(), 1);
+    assert_eq!(deletion_events[0].queue_job_id, expired_job.queue_job_id);
+    assert_eq!(deletion_events[0].downstream_event_count, 1);
+    assert!(!deletion_events[0].raw_image_escaped);
 }
 
 #[test]

@@ -1,0 +1,10 @@
+node --check scripts/test/screen-local-platform-proof-batch.mjs
+node --check scripts/test/screen-linux-wslg-external-gate-proof.mjs
+node scripts/test/screen-linux-wslg-external-gate-proof.mjs
+node scripts/test/screen-local-platform-proof-batch.mjs
+node scripts/test/screen-local-platform-proof-batch.mjs --run-windows
+node scripts/test/screen-local-platform-proof-batch.mjs --run-android
+OCENTRA_ANDROID_SERIAL=192.168.2.45:5555 node scripts/test/screen-local-platform-proof-batch.mjs --run-android-target-readiness
+OCENTRA_ANDROID_SERIAL=192.168.2.45:5555 node scripts/test/screen-local-platform-proof-batch.mjs --run-android-physical
+node scripts/test/screen-local-platform-proof-batch.mjs --run-linux
+node scripts/test/screen-local-platform-proof-batch.mjs --run-local

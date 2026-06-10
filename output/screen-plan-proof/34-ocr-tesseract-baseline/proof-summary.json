@@ -1,0 +1,183 @@
+{
+  "proof": "screen-ocr-tesseract-baseline",
+  "generatedAt": "2026-06-07T12:34:13.477Z",
+  "officialSourceSnapshot": {
+    "project": "https://github.com/tesseract-ocr/tesseract",
+    "documentation": "https://tesseract-ocr.github.io/tessdoc/",
+    "windowsInstallation": "https://tesseract-ocr.github.io/tessdoc/Installation.html",
+    "windowsDownloads": "https://tesseract-ocr.github.io/tessdoc/Downloads.html",
+    "verifiedClaims": [
+      "Tesseract is the upstream open-source OCR engine candidate for the simple baseline.",
+      "The upstream project is Apache-2.0 licensed.",
+      "The upstream tessdoc installation page points Windows users to UB Mannheim builds for Tesseract 3.05, 4, and 5.",
+      "The upstream tessdoc downloads page says there is no official Windows installer for newer versions."
+    ]
+  },
+  "localEnvironment": {
+    "platform": "win32",
+    "whereTesseractStatus": 1,
+    "whereTesseractOutput": "INFO: Could not find files for the given pattern(s).",
+    "resolvedTesseractCommand": "C:\\Program Files\\Tesseract-OCR\\tesseract.exe",
+    "tesseractVersionStatus": 0,
+    "tesseractVersionOutput": "tesseract v5.5.0.20241111 leptonica-1.85.0 libgif 5.2.2 : libjpeg 8d (libjpeg-turbo 3.0.4) : libpng 1.6.44 : libtiff 4.7.0 : zlib 1.3.1 : libwebp 1.4.0 : libopenjp2 2.5.2 Found AVX2 Found AVX Found FMA Found SSE4.1 Found libarchive 3.7.7 zlib/1.3.1 liblzma/5.6.3 bz2lib/1.0.8 liblz4/1.10.0 libzstd/1.5.6 Found libcurl/8.11.0 Schannel zlib/1.3.1 brotli/1.1.0 zstd/1.5.6 libidn2/2.3.7 libpsl/0.21.5 libssh2/1.11.0",
+    "tesseractInstalled": true
+  },
+  "extractionProof": {
+    "sourceImage": "output/browser-plan-proof/social-14-managed-browser-feed-short-video-gate/06-live-screenshots/vimeo-public-video.png",
+    "sourceImageKind": "retained real managed-browser public Vimeo screenshot artifact",
+    "sourceImageExists": true,
+    "commandStatus": 0,
+    "durationMs": 965,
+    "cpuTimeMs": 453,
+    "peakWorkingSetBytes": 46854144,
+    "peakWorkingSetMiB": 44.7,
+    "outputArtifact": "output/screen-plan-proof/34-ocr-tesseract-baseline/vimeo-public-video-tesseract-output.txt",
+    "outputCharacterCount": 469,
+    "matchedTerms": [
+      "vimeo",
+      "video",
+      "player"
+    ],
+    "expectedTerms": [
+      "vimeo",
+      "video",
+      "player"
+    ],
+    "localExtractionProofComplete": true
+  },
+  "failureModeProof": {
+    "outputArtifact": "output/screen-plan-proof/34-ocr-tesseract-baseline/vimeo-public-video-tesseract-failure-modes.txt",
+    "failureModesRecorded": true,
+    "scenarios": [
+      {
+        "id": "alternate-page-segmentation",
+        "description": "Same retained real screenshot with sparse-text OCR segmentation.",
+        "sourceImage": "output/browser-plan-proof/social-14-managed-browser-feed-short-video-gate/06-live-screenshots/vimeo-public-video.png",
+        "commandStatus": 0,
+        "durationMs": 888,
+        "cpuTimeMs": 391,
+        "peakWorkingSetBytes": 46055424,
+        "peakWorkingSetMiB": 43.9,
+        "outputCharacterCount": 494,
+        "matchedTerms": [
+          "vimeo",
+          "video",
+          "player"
+        ],
+        "extractedPreview": "vimeo & Search all of Vimeo ® Pricing Login ie + This video is processing... You'll be able to view it as soon as it's done. The New Vimeo Player (You Know, For Videos) ‘12 years ago It may look (mostly) the same on the surface, but under t"
+      },
+      {
+        "id": "downscaled-small-text",
+        "description": "Same retained real screenshot downscaled before OCR to simulate small text sensitivity.",
+        "sourceImage": "output/screen-plan-proof/34-ocr-tesseract-baseline/vimeo-public-video-downscaled.png",
+        "commandStatus": 0,
+        "durationMs": 719,
+        "cpuTimeMs": 281,
+        "peakWorkingSetBytes": 32292864,
+        "peakWorkingSetMiB": 30.8,
+        "outputCharacterCount": 106,
+        "matchedTerms": [
+          "vimeo",
+          "video",
+          "player"
+        ],
+        "extractedPreview": "vimmen Soochow © coo tan EO v This video is processing... The New Vimeo Player (You Know, For Videos)"
+      },
+      {
+        "id": "cropped-player-ui",
+        "description": "Same retained real screenshot cropped to the lower player/control region before OCR.",
+        "sourceImage": "output/screen-plan-proof/34-ocr-tesseract-baseline/vimeo-public-video-player-crop.png",
+        "commandStatus": 0,
+        "durationMs": 757,
+        "cpuTimeMs": 297,
+        "peakWorkingSetBytes": 39849984,
+        "peakWorkingSetMiB": 38,
+        "outputCharacterCount": 350,
+        "matchedTerms": [
+          "vimeo",
+          "video",
+          "player"
+        ],
+        "extractedPreview": "The New Vimeo Player (You Know, For Videos) 12 years ago It may look (mostly) the same on the surface, but under the hood we totally rebuilt our player. Here’s a quick rundown of some of the coolest new features: + Lightning fast playback +"
+      }
+    ],
+    "note": "Failure-mode scenarios reuse the retained real Vimeo screenshot and alter OCR invocation/image scale/crop to record sensitivity; they are not product-quality claims."
+  },
+  "baselineReadiness": {
+    "status": "runtime-extraction-proved",
+    "windowsPackagingProofComplete": true,
+    "localExtractionProofComplete": true,
+    "runtimeMeasured": true,
+    "cpuMemoryRuntimeMeasured": true,
+    "failureModesRecorded": true,
+    "comparedAgainstPaddleOcr": true,
+    "paddleOcrComparison": {
+      "evaluationPath": "output/screen-plan-proof/35-ocr-paddleocr-ppocr-evaluation/proof-summary.json",
+      "evaluationPresent": true,
+      "sameSourceImage": true,
+      "expectedTerms": [
+        "vimeo",
+        "video",
+        "player"
+      ],
+      "tesseractMatchedTerms": [
+        "vimeo",
+        "video",
+        "player"
+      ],
+      "currentPpOcrV5Status": 0,
+      "currentPpOcrV5ExtractedTextCount": 0,
+      "currentPpOcrV5ServerDetectorStatus": 0,
+      "currentPpOcrV5ServerDetectorExtractedTextCount": 0,
+      "currentPpOcrV5PreprocessMaxTextCount": 0,
+      "legacyFallbackStatus": 0,
+      "legacyFallbackExtractedTextCount": 15,
+      "legacyFallbackMatchedTerms": [
+        "vimeo",
+        "video",
+        "player"
+      ],
+      "legacyFallbackMatchedExpectedTerms": true,
+      "conclusion": "Tesseract and the isolated local PaddleOCR 2.x fallback both matched the expected Vimeo proof terms; current PP-OCRv5 mobile detector, server detector, and preprocessing variants still extract zero text, so Windows service OCR selection remains WinRT and PaddleOCR remains unselected."
+    },
+    "reason": "Tesseract is installed and extracted expected text from a retained real public Vimeo screenshot artifact; the isolated local PaddleOCR 2.x fallback extracted the same expected terms, while current PP-OCRv5 remains unselected because it still extracts zero text."
+  },
+  "assertions": {
+    "sourceImageExists": true,
+    "tesseractInstalled": true,
+    "extractionSucceeded": true,
+    "expectedTextMatched": true,
+    "localExtractionProofComplete": true,
+    "noProductionQualityClaim": true,
+    "cpuMemoryRuntimeMeasured": true,
+    "failureModesRecorded": true
+  },
+  "packageInstallEvidence": {
+    "installCommand": "winget install --id tesseract-ocr.tesseract --exact --source winget --accept-package-agreements --accept-source-agreements --disable-interactivity",
+    "packageId": "tesseract-ocr.tesseract",
+    "packageVersionObserved": "5.5.0.20241111",
+    "installedPathObserved": "C:\\Program Files\\Tesseract-OCR\\tesseract.exe",
+    "pathRefreshRequired": true
+  },
+  "openMeasurements": {
+    "cpuMemoryRuntimeMeasured": true,
+    "smallFontFailureModesRecorded": true,
+    "messyUiFailureModesRecorded": true,
+    "paddleOcrComparisonComplete": true,
+    "currentPpOcrV5StillBlocked": true,
+    "reason": "This proof measures Tesseract process duration, CPU time, peak working set, and derived failure-mode OCR sensitivity, then compares the matched terms against the existing isolated local PaddleOCR 2.x fallback. Current PP-OCRv5 remains blocked for production selection because it executes locally but extracts zero text from the same retained proof image."
+  },
+  "nonClaims": [
+    "This proof installed and invoked Tesseract locally, but it does not select Tesseract as the production OCR runtime.",
+    "This proof runs OCR over a retained real public browser screenshot artifact; it does not create a new screen capture.",
+    "This proof records extraction duration, CPU time, peak working set, matched terms, and derived failure modes, but it does not claim production OCR quality or latency suitability.",
+    "This proof does not select PaddleOCR/PP-OCR for production. The comparison only records that the already-isolated local PaddleOCR 2.x fallback matched terms while current PP-OCRv5 did not extract text."
+  ],
+  "validationCommands": [
+    "node --check scripts/test/screen-ocr-tesseract-baseline-proof.mjs",
+    "node scripts/test/screen-ocr-tesseract-baseline-proof.mjs",
+    "where.exe tesseract",
+    "\"C:\\Program Files\\Tesseract-OCR\\tesseract.exe\" --version",
+    "tesseract --version"
+  ]
+}

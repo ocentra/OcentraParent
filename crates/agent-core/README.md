@@ -66,6 +66,9 @@ service shell.
   event type, correlation id, durable refs, receipt refs, and local receipt-ack
   refs and rejecting duplicate durable envelopes without dispatching transport
   or claiming remote acknowledgements.
+- Screen event runtime helpers for successful, capture/queue-only,
+  deletion-only, and degraded AI paths through `ocentra-eventing`, preserving
+  no-raw-image custody and keeping degraded paths out of policy/action refs.
 - Network remote fixture transport proof that records one proof-local dispatch
   attempt and one fixture acknowledgement for each prepared outbox candidate
   while preserving event/outbox/handoff refs and keeping live broker/family-hub
@@ -157,6 +160,8 @@ flowchart LR
   broker/family-hub dispatch, remote acknowledgements, provider/child-device
   delivery, retry execution, remote delete/export propagation, and product-ready
   remote delivery remain separate gaps.
+- Screen event runtime helpers are local in-process proof paths; live
+  cross-process/LAN transport and broad adapter execution remain separate gaps.
 - Network remote fixture transport is a proof-only receipt loop over local
   prepared outbox candidates; live broker/family-hub transport, provider or
   child-device delivery, production acknowledgement semantics, retry execution,

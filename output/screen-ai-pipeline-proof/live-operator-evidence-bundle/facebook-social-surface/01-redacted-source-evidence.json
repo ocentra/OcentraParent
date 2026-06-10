@@ -1,0 +1,25 @@
+{
+  "scenarioId": "facebook-social-surface",
+  "sourceKind": "operator-live-url",
+  "liveExternalUrl": true,
+  "protocol": "https",
+  "hostname": "www.facebook.com",
+  "redactedUrl": "https://www.facebook.com/<redacted>",
+  "urlHash": "a25278b3fad1211521d7729f2d5fb2b8c5de8d6f1420fcc568ac2968b0fe22a0",
+  "pathAndQueryHash": "fba49ed6b5d4494d945f84b1f4e66c85fc456cbdf24986b26493e5b5a6a00ae5",
+  "pageReadiness": {
+    "loaded": true,
+    "finalHostname": "www.facebook.com",
+    "finalProtocol": "https",
+    "redactedFinalUrl": "https://www.facebook.com/<redacted>",
+    "titleHash": "f2a91d75e945027a4a7a482cfae1224ee56e044cd9206f6028c3b65db0a1437f",
+    "titleLength": 15,
+    "visibleTextHash": "06c0f729f45c01cddd5bdb04318edb25e8cb2e15e46eb3fd27c625781b5842e8",
+    "visibleTextLength": 728,
+    "readinessAssertions": {
+      "hostnameMatches": true,
+      "titleMatches": true,
+      "textMatches": true
+    }
+  }
+}

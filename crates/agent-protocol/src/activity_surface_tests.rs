@@ -1,8 +1,8 @@
 use super::{
-    ActivityAppUseReadModel, ActivityBrowserReadModel, ActivityEvidenceKind, ActivityEvidenceRef,
-    ActivityGamesReadModel, ActivityHistoricalReportList, ActivityNetworkReadModel,
-    ActivityReadModelState, ActivityReportCustodyLabel, ActivityReportDocument,
-    ActivityReportFrequency, ActivityReportRequest, ActivityReportSection,
+    constants, ActivityAppUseReadModel, ActivityBrowserReadModel, ActivityEvidenceKind,
+    ActivityEvidenceRef, ActivityGamesReadModel, ActivityHistoricalReportList,
+    ActivityNetworkReadModel, ActivityReadModelState, ActivityReportCustodyLabel,
+    ActivityReportDocument, ActivityReportFrequency, ActivityReportRequest, ActivityReportSection,
     ActivityReportSectionKind, ActivityReportSourceLabel, ActivityReportSourceReachabilityState,
     ActivityReportSourceState, ActivityReportSourceStateSummary, ActivitySavedReportMetadata,
     ActivitySavedReportState, ActivityScreenReadModel, ActivityScreenReadModelRow,
@@ -104,6 +104,8 @@ fn activity_history_list_carries_saved_report_metadata_and_parsed_document() {
 
 #[test]
 fn activity_screen_read_model_serializes_foreground_and_background_ms() {
+    let redacted_snippet = constants::activity_store::TEST_SCREEN_OCR_SNIPPET_REDACTED;
+    let pii_note = constants::activity_store::TEST_SCREEN_REDACTION_NOTE_PII;
     let screen = ActivityScreenReadModel {
         schema_version: ACTIVITY_SURFACE_SCHEMA_VERSION,
         request: sample_surface_request(),
@@ -148,6 +150,8 @@ fn activity_screen_read_model_serializes_foreground_and_background_ms() {
                 "policy-decision-cited".to_string(),
             ],
             deletion_reasons: vec!["screen-image-deleted".to_string()],
+            ocr_text_snippets: vec![redacted_snippet.to_string()],
+            redaction_notes: vec![pii_note.to_string()],
         }],
     };
 
@@ -171,6 +175,11 @@ fn activity_screen_read_model_serializes_foreground_and_background_ms() {
         screen_json["rows"][0]["parentRuleRefs"][0],
         "screen-parent-rule-school"
     );
+    assert_eq!(
+        screen_json["rows"][0]["ocrTextSnippets"][0],
+        redacted_snippet
+    );
+    assert_eq!(screen_json["rows"][0]["redactionNotes"][0], pii_note);
 }
 
 #[test]

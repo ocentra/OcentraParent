@@ -1,0 +1,347 @@
+{
+  "proof": "screen-plan-closure-audit",
+  "generatedAt": "2026-06-08T16:25:58.429Z",
+  "branchScope": "codex/screen-ai-full-scope-b",
+  "checklist": {
+    "path": "docs/plans/screen-plan/implementation-checklist.md",
+    "completeCount": 35,
+    "partialCount": 5,
+    "openCount": 0,
+    "completeRows": [
+      "01 Source index and doc reconciliation",
+      "02 Current screen snapshot and gap map",
+      "03 Contract boundary and Effect schemas",
+      "04 Parent opt-in settings contract",
+      "05 Capability/status contract",
+      "06 Capture scope model",
+      "07 Capture trigger model",
+      "08 Platform adapter abstraction",
+      "09 Windows capture adapter plan/proof",
+      "11 Linux capture adapter plan/proof",
+      "14 Protected surface detector",
+      "15 Encrypted temporary image queue",
+      "16 Queue scheduler and debouncer",
+      "17 Local OCR/vision runtime model",
+      "18 Screen analysis result schema",
+      "19 Sensitive text and redaction model",
+      "20 Result validator and invalid-output handling",
+      "21 Journal and SQLite ingest",
+      "22 Deletion and retention proof",
+      "23 Policy compiler for screen-derived evidence",
+      "24 Enforcement handoff guard",
+      "25 Parent portal summary UI",
+      "26 Child disclosure UX",
+      "27 Screenshot retention optional mode",
+      "29 Proof tiers and proof packs",
+      "31 Screen intelligence router",
+      "32 Browser structured extraction before screenshot",
+      "33 Managed browser CDP screenshot capture path",
+      "34 OCR Tesseract baseline",
+      "35 OCR PaddleOCR/PP-OCR evaluation",
+      "36 Small VLM guided classifier evaluation",
+      "37 Household mesh screen-analysis queue",
+      "38 Local AI resource scheduler/priority queue",
+      "39 Redacted summary-only remote boundary",
+      "40 Detector prompt packs and schema tests"
+    ],
+    "partialRows": [
+      "10 macOS capture adapter plan/proof",
+      "12 Android MediaProjection adapter plan/proof",
+      "13 iOS ReplayKit adapter plan/proof",
+      "28 Live view optional mode",
+      "30 Test suite, Playwright, rollout, PR gate"
+    ],
+    "openRows": []
+  },
+  "auditedProofGates": [
+    {
+      "id": "10",
+      "label": "macOS capture adapter plan/proof",
+      "status": "~",
+      "readinessProof": "output/screen-plan-proof/macos/proof-summary.json",
+      "readinessProofPresent": true,
+      "productReady": false,
+      "gate": "Requires real macOS ScreenCaptureKit/permission proof on macOS hardware."
+    },
+    {
+      "id": "11",
+      "label": "Linux capture adapter plan/proof",
+      "status": "x",
+      "readinessProof": "output/screen-plan-proof/linux/proof-summary.json",
+      "readinessProofPresent": true,
+      "productReady": false,
+      "gate": "WSLg/X11 selected-window plus local VLM external-gate proof exists; native Linux root-display and Wayland/PipeWire portal parity still require real Linux desktop session proof."
+    },
+    {
+      "id": "12",
+      "label": "Android MediaProjection adapter plan/proof",
+      "status": "~",
+      "readinessProof": "output/screen-plan-proof/android/proof-summary.json",
+      "readinessProofPresent": true,
+      "productReady": false,
+      "gate": "Emulator consent/capture/deletion and stop-callback behavior are proved; physical-device capture/deletion and local OCR on physical Android capture remain required before broad Android product claim."
+    },
+    {
+      "id": "13",
+      "label": "iOS ReplayKit adapter plan/proof",
+      "status": "~",
+      "readinessProof": "output/screen-plan-proof/ios/proof-summary.json",
+      "readinessProofPresent": true,
+      "productReady": false,
+      "gate": "Requires real iOS ReplayKit entitlement/device proof."
+    },
+    {
+      "id": "28",
+      "label": "Live view optional mode",
+      "status": "~",
+      "readinessProof": "output/screen-plan-proof/live-view-worker-startup/proof-summary.json",
+      "readinessProofPresent": true,
+      "productReady": null,
+      "gate": "Fail-closed platform permission gate, structured production-readiness evidence bundle, local loopback live-frame transport proof, parent UI persistence proof, service-session readiness boundary proof, Rust service runtime decision proof, worker startup gate proof, and local forced-relay/cache execution proof exist; real platform live-view prompt screenshots, actual production worker start, physical-device parity, hosted relay infrastructure, and privacy/legal approval remain."
+    },
+    {
+      "id": "30",
+      "label": "Test suite, Playwright, rollout, PR gate",
+      "status": "~",
+      "readinessProof": null,
+      "readinessProofPresent": null,
+      "productReady": null,
+      "gate": "Final closure waits for partial platform/model gates or explicit product non-claim handoff."
+    },
+    {
+      "id": "34",
+      "label": "OCR Tesseract baseline",
+      "status": "x",
+      "readinessProof": "output/screen-plan-proof/34-ocr-tesseract-baseline/proof-summary.json",
+      "readinessProofPresent": true,
+      "productReady": null,
+      "gate": "Local Tesseract extraction, CPU/memory measurement, derived failure-mode capture, and same-image comparison against the isolated local PaddleOCR 2.x fallback are proved; Tesseract is retained as a measured fallback while the current Windows service OCR route is WinRT and current PP-OCRv5 still extracts zero text. Cross-platform OCR parity, broad language coverage, and final production quality remain open."
+    },
+    {
+      "id": "35",
+      "label": "OCR PaddleOCR/PP-OCR evaluation",
+      "status": "x",
+      "readinessProof": "output/screen-plan-proof/35-ocr-paddleocr-ppocr-evaluation/proof-summary.json",
+      "readinessProofPresent": true,
+      "productReady": null,
+      "gate": "Current PP-OCRv5 mobile-detector inference and cached server-detector inference now run locally with oneDNN/MKLDNN disabled but extract zero text from the real proof image, and deleted preprocessing variants also extract zero text; an isolated pinned PaddleOCR 2.x fallback extracts comparable text locally. PaddleOCR is not selected; current Windows service OCR route selection is WinRT, while PP-OCRv5 quality/resource resolution and broad quality remain open."
+    },
+    {
+      "id": "36",
+      "label": "Small VLM guided classifier evaluation",
+      "status": "x",
+      "readinessProof": "output/screen-plan-proof/36-small-vlm-guided-classifier-evaluation/proof-summary.json",
+      "readinessProofPresent": true,
+      "productReady": null,
+      "gate": "Evaluation complete for the current Windows proof route: local llama.cpp/Qwen2-VL runtime detection, retained controlled local VLM matrix, retained nine-scenario live operator matrix, bounded retained VLM inputs, managed-browser CDP crop capture path, retained proof-image VLM wall/CPU/RSS measurement, public-live video/school/game/shopping/social-feed CDP crop quality, current Windows local VLM route selection, and measured rollout/fallback gate are proved. Authenticated-account social proof, production model quality, cross-platform parity, and broader hardware rollout thresholds remain non-claims."
+    }
+  ],
+  "remainingProductGates": [
+    {
+      "id": "10",
+      "label": "macOS capture adapter plan/proof",
+      "status": "~",
+      "productReady": false,
+      "gate": "Requires real macOS ScreenCaptureKit/permission proof on macOS hardware."
+    },
+    {
+      "id": "11",
+      "label": "Linux capture adapter plan/proof",
+      "status": "x",
+      "productReady": false,
+      "gate": "WSLg/X11 selected-window plus local VLM external-gate proof exists; native Linux root-display and Wayland/PipeWire portal parity still require real Linux desktop session proof."
+    },
+    {
+      "id": "12",
+      "label": "Android MediaProjection adapter plan/proof",
+      "status": "~",
+      "productReady": false,
+      "gate": "Emulator consent/capture/deletion and stop-callback behavior are proved; physical-device capture/deletion and local OCR on physical Android capture remain required before broad Android product claim."
+    },
+    {
+      "id": "13",
+      "label": "iOS ReplayKit adapter plan/proof",
+      "status": "~",
+      "productReady": false,
+      "gate": "Requires real iOS ReplayKit entitlement/device proof."
+    },
+    {
+      "id": "28",
+      "label": "Live view optional mode",
+      "status": "~",
+      "productReady": null,
+      "gate": "Fail-closed platform permission gate, structured production-readiness evidence bundle, local loopback live-frame transport proof, parent UI persistence proof, service-session readiness boundary proof, Rust service runtime decision proof, worker startup gate proof, and local forced-relay/cache execution proof exist; real platform live-view prompt screenshots, actual production worker start, physical-device parity, hosted relay infrastructure, and privacy/legal approval remain."
+    },
+    {
+      "id": "30",
+      "label": "Test suite, Playwright, rollout, PR gate",
+      "status": "~",
+      "productReady": null,
+      "gate": "Final closure waits for partial platform/model gates or explicit product non-claim handoff."
+    }
+  ],
+  "currentWindowsEvidence": [
+    {
+      "artifact": "output/screen-ai-pipeline-proof/service-winrt-ocr-redaction/proof-summary.json",
+      "present": true
+    },
+    {
+      "artifact": "output/screen-ai-pipeline-proof/service-winrt-ocr-redaction/portal-screen-analysis-redaction.png",
+      "present": true
+    },
+    {
+      "artifact": "output/screen-ai-pipeline-proof/service-winrt-ocr-redaction/parent-redaction-policy.json",
+      "present": true
+    },
+    {
+      "artifact": "output/screen-ai-pipeline-proof/final-product-path/proof-summary.json",
+      "present": true
+    },
+    {
+      "artifact": "output/screen-ai-pipeline-proof/final-adapter-dependency-audit/proof-summary.json",
+      "present": true
+    },
+    {
+      "artifact": "output/screen-ai-pipeline-proof/service-retention-sweeper/proof-summary.json",
+      "present": true
+    },
+    {
+      "artifact": "output/screen-ai-pipeline-proof/deletion-retention-custody/proof-summary.json",
+      "present": true
+    },
+    {
+      "artifact": "output/screen-ai-pipeline-proof/service-foreground/proof-summary.json",
+      "present": true
+    },
+    {
+      "artifact": "output/screen-ai-pipeline-proof/service-cadence/proof-summary.json",
+      "present": true
+    },
+    {
+      "artifact": "output/screen-ai-pipeline-proof/service-disabled-suppression/proof-summary.json",
+      "present": true
+    },
+    {
+      "artifact": "output/screen-ai-pipeline-proof/linux-host-adapter-custody/proof-summary.json",
+      "present": true
+    },
+    {
+      "artifact": "output/screen-ai-pipeline-proof/android-mobile-control-custody/proof-summary.json",
+      "present": true
+    },
+    {
+      "artifact": "output/screen-ai-pipeline-proof/ios-mobile-control-custody/proof-summary.json",
+      "present": true
+    },
+    {
+      "artifact": "output/screen-plan-proof/live-view-session-transport/proof-summary.json",
+      "present": true
+    },
+    {
+      "artifact": "output/screen-plan-proof/live-view-platform-permission/proof-summary.json",
+      "present": true
+    },
+    {
+      "artifact": "output/screen-plan-proof/live-view-parent-ui-persistence/proof-summary.json",
+      "present": true
+    },
+    {
+      "artifact": "output/screen-plan-proof/live-view-service-session/proof-summary.json",
+      "present": true
+    },
+    {
+      "artifact": "output/screen-plan-proof/live-view-runtime/proof-summary.json",
+      "present": true
+    },
+    {
+      "artifact": "output/screen-plan-proof/live-view-worker-startup/proof-summary.json",
+      "present": true
+    },
+    {
+      "artifact": "output/screen-plan-proof/live-view-relay-cache/proof-summary.json",
+      "present": true
+    },
+    {
+      "artifact": "output/screen-plan-proof/external-gates/proof-summary.json",
+      "present": true
+    },
+    {
+      "artifact": "output/screen-plan-proof/local-platform-proof-batch/proof-summary.json",
+      "present": true
+    },
+    {
+      "artifact": "output/screen-plan-proof/linux-wslg-external-gate-analysis/proof-summary.json",
+      "present": true
+    },
+    {
+      "artifact": "output/screen-plan-proof/android-physical-external-gate-analysis/proof-summary.json",
+      "present": false
+    },
+    {
+      "artifact": "output/screen-plan-proof/macos/proof-summary.json",
+      "present": true
+    },
+    {
+      "artifact": "output/screen-plan-proof/linux/proof-summary.json",
+      "present": true
+    },
+    {
+      "artifact": "output/screen-plan-proof/android/proof-summary.json",
+      "present": true
+    },
+    {
+      "artifact": "output/screen-plan-proof/ios/proof-summary.json",
+      "present": true
+    },
+    {
+      "artifact": "output/screen-plan-proof/windows-ocr-candidate-selection/proof-summary.json",
+      "present": true
+    },
+    {
+      "artifact": "output/screen-plan-proof/36-vlm-resource-crop-readiness/proof-summary.json",
+      "present": true
+    },
+    {
+      "artifact": "output/screen-plan-proof/36-vlm-runtime-resource-measurement/proof-summary.json",
+      "present": true
+    },
+    {
+      "artifact": "output/screen-plan-proof/36-vlm-live-crop-quality/proof-summary.json",
+      "present": true
+    },
+    {
+      "artifact": "output/screen-plan-proof/36-vlm-model-selection/proof-summary.json",
+      "present": true
+    },
+    {
+      "artifact": "output/screen-plan-proof/36-vlm-rollout-fallback-gate/proof-summary.json",
+      "present": true
+    }
+  ],
+  "assertions": {
+    "wp19Closed": true,
+    "remainingGatesExplicit": true,
+    "readinessProofsPresent": true,
+    "platformProductGatesRemainBlocked": true,
+    "wp34TesseractBaselineClosed": true,
+    "externalGatesKeepProductNonClaim": true,
+    "localWindowsAndroidLinuxProofsAccounted": true,
+    "localPlatformExternalGatesRemainBlocked": true,
+    "finalProductPathRequiresAdapterAudit": true,
+    "adapterAuditKeepsProductCompletionBlocked": true,
+    "serviceEncryptedQueueExpiryDeletionProved": true,
+    "deleteFailedVisibilityProved": true,
+    "serviceForegroundWatcherProved": true,
+    "serviceCadenceRuntimeProved": true,
+    "serviceDisabledSuppressionProved": true,
+    "custodyArtifactsDoNotUpgradeClaims": true,
+    "liveViewEvidenceGatesProved": true,
+    "liveViewProductReadyClaimed": false,
+    "noProductCompleteClaim": true
+  },
+  "nonClaims": [
+    "This audit does not complete macOS, native Linux Wayland/PipeWire/root-display parity, Android physical parity, iOS, live-view platform prompt screenshots/actual production worker start/physical-device parity/hosted relay infrastructure/privacy-legal approval, current PP-OCRv5 quality resolution, cross-platform OCR parity, authenticated-account social proof, or broader VLM hardware rollout-threshold gates.",
+    "This audit does not replace real device/runtime proof for remaining partial rows.",
+    "This audit exists to prevent product-complete wording before the remaining external proof gates are satisfied."
+  ]
+}

@@ -1,0 +1,12 @@
+
+```json
+{
+  "primary_category": "game",
+  "visible_text": "Consent to Cookies & Data processing",
+  "risk_signals": [
+    "The cookie banner is prominently displayed on the screen.",
+    "The cookie banner contains a detailed explanation of the data processing and third-party partners involved."
+  ],
+  "confidence": 0.95
+}
+```

@@ -1,0 +1,147 @@
+{
+  "proof": "screen-live-view-platform-permission",
+  "generatedAt": "2026-06-07T11:24:39.771Z",
+  "claim": "Live view remains a separate optional mode and cannot become product-ready from ordinary screenshot/capture permission proof alone.",
+  "sourceEvidence": {
+    "androidCaptureProof": "output/screen-plan-proof/android-mediaprojection/proof-summary.json",
+    "androidCaptureProofPresent": true,
+    "androidCaptureProofMode": "child-android-screen-capture-mediaprojection-proof",
+    "androidCaptureExplicitConsent": true
+  },
+  "currentRows": [
+    {
+      "platform": "windows",
+      "liveViewMode": "disabled",
+      "transportMode": "none",
+      "permissionEvidenceKind": "missing",
+      "platformProofState": "notRequired",
+      "platformProofRef": null,
+      "liveTransportProofRef": null,
+      "custodyState": "unavailable",
+      "productLiveViewReady": false
+    },
+    {
+      "platform": "android-mediaprojection",
+      "liveViewMode": "lanOnlyView",
+      "transportMode": "lanMutualAuth",
+      "permissionEvidenceKind": "screen-capture-only",
+      "platformProofState": "operatorVerified",
+      "platformProofRef": "screen-plan-android-mediaprojection-capture-proof",
+      "liveTransportProofRef": "screen-live-view-lan-transport-proof",
+      "custodyState": "live-lan-child-agent",
+      "productLiveViewReady": false
+    }
+  ],
+  "futureReferenceRows": [
+    {
+      "referenceOnly": true,
+      "platform": "android-mediaprojection",
+      "liveViewMode": "lanOnlyView",
+      "transportMode": "lanMutualAuth",
+      "permissionEvidenceKind": "live-view-permission",
+      "requiredPlatformProofRef": "screen-live-view-android-mediaprojection-permission-proof",
+      "requiredLiveTransportProofRef": "screen-live-view-lan-transport-proof",
+      "readyOnlyAfterEvidenceExists": true
+    },
+    {
+      "referenceOnly": true,
+      "platform": "android-mediaprojection",
+      "liveViewMode": "relayBackedView",
+      "transportMode": "relayEndToEndEncrypted",
+      "permissionEvidenceKind": "live-view-permission",
+      "requiredPlatformProofRef": "screen-live-view-android-mediaprojection-permission-proof",
+      "requiredLiveTransportProofRef": "screen-live-view-relay-transport-proof",
+      "readyOnlyAfterEvidenceExists": true
+    }
+  ],
+  "futureReferenceProductionBundles": [
+    {
+      "referenceOnly": true,
+      "platform": "android-mediaprojection",
+      "liveViewMode": "lanOnlyView",
+      "promptArtifactKind": "platform-permission-prompt-screenshot",
+      "promptArtifactRef": "screen-live-view-android-mediaprojection-permission-proof",
+      "promptArtifactDigestRequired": true,
+      "liveTransportProofRef": "screen-live-view-lan-transport-proof",
+      "physicalDeviceParityProofRef": "screen-live-view-android-physical-parity-proof",
+      "privacyLegalApprovalRef": "screen-live-view-privacy-legal-approval",
+      "productionWorkerStartProofRef": "screen-live-view-production-worker-start-proof",
+      "relayCacheExecutionProofRef": null,
+      "readyOnlyAfterEvidenceExists": true
+    },
+    {
+      "referenceOnly": true,
+      "platform": "android-mediaprojection",
+      "liveViewMode": "relayBackedView",
+      "promptArtifactKind": "platform-permission-prompt-screenshot",
+      "promptArtifactRef": "screen-live-view-android-mediaprojection-permission-proof",
+      "promptArtifactDigestRequired": true,
+      "liveTransportProofRef": "screen-live-view-relay-transport-proof",
+      "physicalDeviceParityProofRef": "screen-live-view-android-physical-parity-proof",
+      "privacyLegalApprovalRef": "screen-live-view-privacy-legal-approval",
+      "productionWorkerStartProofRef": "screen-live-view-production-worker-start-proof",
+      "relayCacheExecutionProofRef": "screen-live-view-relay-cache-execution-proof",
+      "readyOnlyAfterEvidenceExists": true
+    }
+  ],
+  "negativeChecks": [
+    {
+      "name": "capture-only proof cannot mark live view product-ready",
+      "rejected": true
+    },
+    {
+      "name": "ready live view requires viewer audit",
+      "rejected": true
+    },
+    {
+      "name": "ready live view requires transport proof ref",
+      "rejected": true
+    },
+    {
+      "name": "ready live view cannot cache raw frames",
+      "rejected": true
+    },
+    {
+      "name": "ready live view cannot allow remote input control",
+      "rejected": true
+    },
+    {
+      "name": "production readiness rejects capture-only permission gate",
+      "rejected": true
+    },
+    {
+      "name": "production readiness rejects mismatched prompt artifact ref",
+      "rejected": true
+    },
+    {
+      "name": "production readiness rejects relay mode without relay/cache proof",
+      "rejected": true
+    },
+    {
+      "name": "production readiness rejects prompt artifact carrying raw frame content",
+      "rejected": true
+    }
+  ],
+  "gapStatus": {
+    "capturePermissionProofExists": true,
+    "liveViewPermissionPromptProofExists": false,
+    "liveTransportProofExists": false,
+    "physicalDeviceParityProofExists": false,
+    "privacyLegalApprovalExists": false,
+    "productionWorkerStartProofExists": false,
+    "relayCacheExecutionProofExists": false,
+    "productionReadinessEvidenceSchemaExists": true,
+    "liveViewProductReady": false
+  },
+  "assertions": {
+    "productionReadinessRequiresStructuredEvidence": true,
+    "productionReadinessRejectsCaptureOnlyPermission": true,
+    "productionReadinessRejectsMismatchedPromptRef": true,
+    "productionReadinessRejectsRawFramePromptArtifact": true
+  },
+  "nonClaims": [
+    "This proof does not implement live screen transport, relay/cache execution, or a service live-view session worker.",
+    "This proof does not claim Android MediaProjection capture consent is enough for live view.",
+    "This proof does not claim parent UI persistence, privacy/legal approval, platform screenshots, or product-complete live view."
+  ]
+}

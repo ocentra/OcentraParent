@@ -552,7 +552,7 @@ jobs:
   package-preview:
     name: Package Preview Gate
     runs-on: ubuntu-latest
-    if: ${{ needs.validate.result == 'success' }}
+    if: ${{ always() && needs.validate.result == 'success' }}
     needs:
       - validate
       - package-windows

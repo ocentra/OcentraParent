@@ -1,0 +1,23 @@
+{
+  "scenarioId": "youtube-education-video",
+  "title": "Live YouTube education video smoke",
+  "parentVisibleSummary": "Local AI saw school evidence and policy selected allow.",
+  "category": "school",
+  "confidence": 1,
+  "action": "allow",
+  "evidenceReferences": [
+    {
+      "evidenceReferenceId": "live-operator-screen-analysis-evidence-youtube-education-video",
+      "kind": "activity-event",
+      "observedAt": "2026-06-04T10:53:21.511Z"
+    }
+  ],
+  "parentRuleReferences": [
+    "live-operator-screen-policy-youtube-education-video"
+  ],
+  "rawImageRetained": false,
+  "imageDeletionState": "deleted",
+  "aiDoesNotEnforceDirectly": true,
+  "dryRun": true,
+  "nonClaim": "Operator proof screenshot is an artifact preview, not the production portal runtime."
+}

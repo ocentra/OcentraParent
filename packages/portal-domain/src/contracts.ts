@@ -9,7 +9,7 @@ export {
   type PortalClipboardText,
   type PortalDetailValue,
 } from './detail-values';
-export { PortalCommandButtons, PortalOverviewCommands } from './commands';
+export { PortalActivitySurfaceDefaultRequestPayload, PortalCommandButtons, PortalOverviewCommands } from './commands';
 export { PortalBrowserInventoryFields, PortalDetails, PortalReadableValues } from './details';
 export { PortalDiagnostics } from './diagnostics';
 export {
@@ -18,6 +18,12 @@ export {
   type AppGameNotificationParentSurfacePanelIntent,
   type AppGameNotificationParentSurfacePanelRow,
 } from './app-game-notification-parent-surface-panel';
+export {
+  createLocalAiRuntimePanelIntent,
+  type LocalAiRuntimePanelCard,
+  type LocalAiRuntimePanelDetail,
+  type LocalAiRuntimePanelIntent,
+} from './local-ai-runtime-panel';
 export { createAppGameNotificationParentSurfaceReadModelFromReadiness } from './app-game-notification-parent-surface-live-readiness';
 export {
   PortalFrameChromeNumberFields,
@@ -160,6 +166,7 @@ export {
 export {
   PortalRoute,
   PortalDevToolWindow,
+  PortalAiRuntimeRoutes,
   PortalRouteDescriptors,
   PortalAppGameParentSurfaceRoutes,
   PortalBrowserParentSurfaceRoutes,
@@ -168,13 +175,16 @@ export {
   PortalRoutes,
   PortalRouteSchema,
   PortalScreenSettingsRoutes,
+  PortalScreenSummaryRoutes,
   PortalSidebarRouteDescriptors,
   PortalTrackingStatusRoutes,
   PortalDevToolUrlSchema,
+  isPortalAiRuntimeRoute,
   isPortalAppGameParentSurfaceRoute,
   isPortalBrowserParentSurfaceRoute,
   isPortalNetworkEvidenceDrawerRoute,
   isPortalScreenSettingsRoute,
+  isPortalScreenSummaryRoute,
   isPortalTrackingStatusRoute,
   portalDevToolUrl,
   type PortalDevToolUrl,

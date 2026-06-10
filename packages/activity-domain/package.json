@@ -209,6 +209,10 @@
       "import": "./dist/screen-evidence.js",
       "types": "./dist/screen-evidence.d.ts"
     },
+    "./screen-evidence-settings": {
+      "import": "./dist/screen-evidence-settings.js",
+      "types": "./dist/screen-evidence-settings.d.ts"
+    },
     "./screen-ocr-worker": {
       "import": "./dist/screen-ocr-worker.js",
       "types": "./dist/screen-ocr-worker.d.ts"
@@ -228,6 +232,14 @@
     "./screen-ai-browser-trigger-proof": {
       "import": "./dist/screen-ai-browser-trigger-proof.js",
       "types": "./dist/screen-ai-browser-trigger-proof.d.ts"
+    },
+    "./screen-live-view-service-session": {
+      "import": "./dist/screen-live-view-service-session.js",
+      "types": "./dist/screen-live-view-service-session.d.ts"
+    },
+    "./screen-live-view-parent-ui-persistence": {
+      "import": "./dist/screen-live-view-parent-ui-persistence.js",
+      "types": "./dist/screen-live-view-parent-ui-persistence.d.ts"
     },
     "./tracking": {
       "import": "./dist/tracking.js",

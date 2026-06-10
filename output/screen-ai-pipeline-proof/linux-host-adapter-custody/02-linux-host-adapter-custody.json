@@ -1,0 +1,59 @@
+{
+  "schemaVersion": "v0.6",
+  "custodyArtifactId": "screen-ai-linux-host-adapter-custody",
+  "generatedAt": "2026-06-08T00:27:46.915Z",
+  "sourceArtifacts": {
+    "blockPolicySource": "output/screen-ai-pipeline-proof/block-action-dispatch/00-screen-block-source.json",
+    "adapterReadinessReadModel": "output/screen-ai-pipeline-proof/adapter-readiness/read-model.json",
+    "linuxCaptureCapability": "output/screen-plan-proof/linux/proof-summary.json",
+    "linuxWslgCapture": "output/screen-plan-proof/linux-wslg/proof-summary.json",
+    "adapterBlockerLedger": "output/screen-ai-pipeline-proof/adapter-blocker-ledger/proof-summary.json",
+    "screenAiPipelineChecklist": "docs/plans/screen-ai-pipeline-plan/implementation-checklist.md"
+  },
+  "sourcePolicyDecisionId": "policy-decision-screen-analysis-bypass-tool",
+  "adapterClass": "linux-host-control",
+  "adapterRuntimeBoundary": "linux-host-adapter-unavailable",
+  "platform": "linux",
+  "apply": {
+    "state": "not-executed-target-unavailable",
+    "requestedAction": "block",
+    "screenDerived": true,
+    "hostMutationAttempted": false,
+    "liveLinuxHostMutationProved": false,
+    "nativeSessionProofRef": null,
+    "refusalReason": "target-unavailable",
+    "requiredBeforeExecution": [
+      "Linux service manager artifact",
+      "Linux permission artifact",
+      "Linux rollback artifact"
+    ]
+  },
+  "rollback": {
+    "state": "not-executed-no-host-apply",
+    "rollbackAttempted": false,
+    "rollbackRequiredBeforeProductComplete": true,
+    "rollbackReferenceState": "unavailable"
+  },
+  "audit": {
+    "state": "custody-recorded-not-executed",
+    "auditReferenceState": "unavailable",
+    "auditRef": "screen-ai-linux-host-adapter-custody-audit",
+    "sourceEvidenceReferences": [
+      {
+        "evidenceReferenceId": "screen-analysis-evidence-bypass-tool",
+        "kind": "activity-event",
+        "observedAt": "2026-06-04T08:53:32.027Z"
+      }
+    ],
+    "custodyRefs": [
+      "output/screen-ai-pipeline-proof/block-action-dispatch/00-screen-block-source.json",
+      "output/screen-ai-pipeline-proof/adapter-readiness/read-model.json",
+      "output/screen-plan-proof/linux/proof-summary.json",
+      "output/screen-plan-proof/linux-wslg/proof-summary.json"
+    ],
+    "rawImageRetained": false,
+    "rawImageDeletedBeforeAdapter": true
+  },
+  "claimBoundary": "This artifact records screen-derived Linux host adapter custody only; it does not claim native Linux host apply, rollback execution, root-display capture, or Wayland/PipeWire product readiness.",
+  "finalAdapterCompletionClaimed": false
+}

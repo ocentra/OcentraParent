@@ -1,0 +1,120 @@
+{
+  "screenResult": {
+    "schemaVersion": 1,
+    "screenAnalysisResultId": "live-operator-screen-analysis-native-app",
+    "queueJobId": "live-operator-screen-capture-native-app",
+    "analyzedAt": "2026-06-04T11:00:25.966Z",
+    "modelRuntimeRef": "local-qwen2-vl-2b-llama-mtmd",
+    "modelId": "Qwen2-VL-2B-Instruct-Q4_K_M",
+    "providerKind": "localVision",
+    "promptOrTemplateVersion": "screen-ai-live-operator-proof-v1",
+    "captureReason": "nativeAppForegroundStart",
+    "captureScope": "activeWindow",
+    "capabilityStatus": "ready",
+    "summary": "This is a real Notepad window opened by the live operator harness. Visible category: productivity. The parent is checking that native app capture runs locally, deletes raw image material, and stays policy dry-run only.",
+    "visibleCategoryCandidates": [
+      {
+        "category": "productivity",
+        "confidence": 0.95,
+        "evidenceRefs": [
+          {
+            "evidenceId": "live-operator-screen-evidence-native-app",
+            "kind": "screenshot",
+            "digest": "a9688e53638aed35084c2b6cf04d4655e42c81d7722f7c1bbb7cf5442dd64664",
+            "uri": null
+          }
+        ]
+      }
+    ],
+    "primaryCategory": "productivity",
+    "riskSignals": [],
+    "ocrTextSnippets": [
+      {
+        "text": "This is a real Notepad window opened by the live operator harness. Visible category: productivity. The parent is checking that native app capture runs locally, deletes raw image material, and stays policy dry-run only.",
+        "confidence": 0.95,
+        "evidenceRefs": [
+          {
+            "evidenceId": "live-operator-screen-evidence-native-app",
+            "kind": "screenshot",
+            "digest": "a9688e53638aed35084c2b6cf04d4655e42c81d7722f7c1bbb7cf5442dd64664",
+            "uri": null
+          }
+        ]
+      }
+    ],
+    "redactionNotes": [],
+    "confidence": 0.95,
+    "uncertaintyReason": null,
+    "sourceEvidenceRefs": [
+      {
+        "evidenceId": "live-operator-screen-evidence-native-app",
+        "kind": "screenshot",
+        "digest": "a9688e53638aed35084c2b6cf04d4655e42c81d7722f7c1bbb7cf5442dd64664",
+        "uri": null
+      }
+    ],
+    "imageDigest": "a9688e53638aed35084c2b6cf04d4655e42c81d7722f7c1bbb7cf5442dd64664",
+    "rawImageRetained": false,
+    "imageDeletionState": "deleted",
+    "custodyState": "child-device-query-store",
+    "policyEligible": true
+  },
+  "localAiSafetyResult": {
+    "schemaVersion": "v0.6",
+    "resultId": "live-operator-local-ai-result-native-app",
+    "requestId": "live-operator-local-ai-request-native-app",
+    "action": "allow",
+    "confidence": 0.95,
+    "unknownState": "none",
+    "degradedState": "none",
+    "reasonCodes": [
+      "screen-category-productivity"
+    ],
+    "explanationReference": "screen-analysis-result:live-operator-screen-analysis-native-app",
+    "evidenceReferences": [
+      {
+        "evidenceReferenceId": "live-operator-screen-analysis-evidence-native-app",
+        "kind": "activity-event",
+        "observedAt": "2026-06-04T11:00:25.966Z"
+      }
+    ],
+    "parentRuleReferences": [
+      "live-operator-screen-policy-native-app"
+    ],
+    "memoryReferences": [],
+    "graphReferences": [],
+    "modelRuntime": {
+      "runtimeReferenceId": "runtime-local-qwen2-vl-2b-llama-mtmd",
+      "providerId": "local-qwen2-vl",
+      "modelId": "Qwen2-VL-2B-Instruct-Q4_K_M",
+      "modelReference": "local-model-cache/Qwen2-VL-2B-Instruct-Q4_K_M.gguf",
+      "privacyMode": "local-only",
+      "adapterBoundary": "local-adapter-ready",
+      "executionState": "dry-run-ready",
+      "providerSource": "local-model-cache",
+      "loadState": "loaded",
+      "capabilityFlags": [
+        "classification",
+        "safety-decision"
+      ],
+      "resourceClass": "cpu",
+      "degradedState": "none",
+      "lastCheckedAt": "2026-06-04T11:00:25.966Z",
+      "unavailableReason": null
+    },
+    "promptVersion": "screen-ai-live-operator-proof-v1",
+    "expiresAt": null
+  },
+  "parsedModel": {
+    "primary_category": "productivity",
+    "visible_text": "This is a real Notepad window opened by the live operator harness. Visible category: productivity. The parent is checking that native app capture runs locally, deletes raw image material, and stays policy dry-run only.",
+    "risk_signals": [],
+    "confidence": 0.95
+  },
+  "normalized": {
+    "primaryCategory": "productivity",
+    "visibleText": "This is a real Notepad window opened by the live operator harness. Visible category: productivity. The parent is checking that native app capture runs locally, deletes raw image material, and stays policy dry-run only.",
+    "confidence": 0.95,
+    "riskSignals": []
+  }
+}

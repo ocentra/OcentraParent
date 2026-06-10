@@ -1,0 +1,14 @@
+{
+  "scenarioId": "youtube-ordinary-video",
+  "sourceEvidenceRefs": [
+    {
+      "evidenceId": "live-operator-screen-evidence-youtube-ordinary-video",
+      "kind": "screenshot",
+      "digest": "e36880cf242c7c0319a5ea74252c970f3ddf41b7e8aeeedf73b485de37e6b79f",
+      "uri": null
+    }
+  ],
+  "promptVersion": "screen-ai-live-operator-proof-v1",
+  "contextBuiltFromTypedCaptureMetadata": true,
+  "directOsOrBrowserScanByModel": false
+}

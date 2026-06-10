@@ -1,0 +1,27 @@
+{
+  "proof": "screen-raw-retention-runtime-proof",
+  "generatedAt": "2026-06-07T15:27:40.936Z",
+  "claim": "Optional raw screenshot retention can execute only as a parent-approved local short-TTL mode with deletion after success and expiry still required.",
+  "contract": {
+    "retainRawImageAccepted": true,
+    "maxTtlSeconds": 120,
+    "deleteAfterSuccessRequired": true,
+    "deleteAfterExpiryRequired": true,
+    "parentSettingRef": "parent-setting-screen-retention-local-ttl-approval"
+  },
+  "rustValidation": {
+    "protocolSerializationTest": "screen_parent_setting_serializes_parent_approved_raw_retention_ttl",
+    "serviceRuntimeTestFilter": "screen_settings_runtime_",
+    "unsafeRawRetentionRejected": true
+  },
+  "negativeChecks": {
+    "longTtlRejected": true,
+    "disabledAnalysisRejected": true,
+    "deleteAfterExpiryFalseRejected": true
+  },
+  "nonClaims": [
+    "This proof does not retain raw screenshots by default.",
+    "This proof does not allow raw screenshot remote upload or long-term storage.",
+    "This proof does not complete live view, relay/cache execution, or privacy/legal approval."
+  ]
+}

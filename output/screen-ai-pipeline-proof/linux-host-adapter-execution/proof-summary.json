@@ -1,0 +1,26 @@
+{
+  "status": "linux-host-adapter-execution-proved-wsl2",
+  "proofKind": "screen-ai-linux-host-adapter-execution-proof",
+  "generatedAt": "2026-06-08T03:48:45.713Z",
+  "sourceArtifacts": {
+    "blockPolicySource": "output/screen-ai-pipeline-proof/block-action-dispatch/00-screen-block-source.json",
+    "linuxHostCustody": "output/screen-ai-pipeline-proof/linux-host-adapter-custody/proof-summary.json",
+    "finalAdapterAudit": "output/screen-ai-pipeline-proof/final-adapter-dependency-audit/proof-summary.json"
+  },
+  "execution": "output/screen-ai-pipeline-proof/linux-host-adapter-execution/linux-host-adapter-execution.json",
+  "closure": {
+    "screenDerivedBlockDecisionPreserved": true,
+    "rawImageDeletedBeforeAdapter": true,
+    "rawImageRetained": false,
+    "linuxWsl2HostMutationExecuted": true,
+    "linuxWsl2RollbackExecuted": true,
+    "linuxExecutionAuditRecorded": true,
+    "finalAdapterCompletionClaimed": false,
+    "nativeLinuxDesktopProductReady": false
+  },
+  "nonClaims": [
+    "This proof does not claim native Linux desktop Wayland/PipeWire capture or control parity.",
+    "This proof does not claim production Linux rollout readiness beyond the local WSL2 iptables target.",
+    "This proof does not edit product checklist rows or mark the final adapter row product-complete."
+  ]
+}

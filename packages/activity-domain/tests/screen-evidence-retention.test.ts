@@ -28,6 +28,9 @@ const StrictPolicyParentSetting = {
   ocrTextEnabled: true,
   ocrTextSnippetLimit: 4,
   redactionMode: 'localSensitiveText',
+  ocrTextRetentionMode: 'redactedSnippets',
+  credentialSuppressionEnabled: true,
+  piiRedactionEnabled: true,
   temporaryImageTtlSeconds: 300,
   maxRetryCount: 2,
   deleteAfterSuccess: true,
@@ -38,6 +41,15 @@ const StrictPolicyParentSetting = {
   changedAt: '2026-05-21T06:50:00Z',
   settingVersion: 2,
   reason: 'parent enabled strict screen analysis dry run',
+} as const;
+
+const ParentApprovedRawRetentionSetting = {
+  ...StrictPolicyParentSetting,
+  temporaryImageTtlSeconds: 120,
+  retainRawImage: true,
+  changedByParentRef: 'parent-setting-screen-retention-local-ttl-approval',
+  settingVersion: 3,
+  reason: 'parent approved local short TTL raw screenshot retention',
 } as const;
 
 const QueueJob = {
@@ -167,6 +179,14 @@ const ParentApprovedSummaryBoundarySetting = {
   reason: 'parent approved redacted screen summary export',
 } as const;
 
+const ParentApprovedLocalRawRetentionBoundarySetting = {
+  ...DisabledRemoteBoundarySetting,
+  settingVersion: 4,
+  rawScreenshotRetentionMode: 'parentApprovedLocalShortTtl',
+  changedByParentRef: 'parent-setting-screen-retention-local-ttl-approval',
+  reason: 'parent approved local short TTL raw screenshot retention',
+} as const;
+
 describe('screen evidence retention contracts', () => {
   specifyParentOptInSettings();
   specifyQueueDeletionStates();
@@ -186,6 +206,16 @@ function specifyParentOptInSettings() {
     expect(setting.enabledTriggers).toEqual(['foregroundAppChange', 'policyAmbiguity']);
     expect(setting.policyUseEnabled).toBe(true);
     expect(setting.retainRawImage).toBe(false);
+  });
+
+  it('parses parent-approved local short TTL raw retention without relaxing deletion requirements', () => {
+    const setting = ScreenAnalysisParentSettingSchema.parse(ParentApprovedRawRetentionSetting);
+
+    expect(setting.retainRawImage).toBe(true);
+    expect(setting.temporaryImageTtlSeconds).toBe(120);
+    expect(setting.deleteAfterSuccess).toBe(true);
+    expect(setting.deleteAfterExpiry).toBe(true);
+    expect(setting.changedByParentRef).toBe('parent-setting-screen-retention-local-ttl-approval');
   });
 }
 
@@ -246,6 +276,24 @@ function specifyUnsafeRetentionRejections() {
       }).success
     ).toBe(false);
     expect(ScreenAnalysisResultSchema.safeParse({ ...AnalysisResult, rawImageRetained: true }).success).toBe(false);
+    expect(
+      ScreenAnalysisParentSettingSchema.safeParse({
+        ...ParentApprovedRawRetentionSetting,
+        temporaryImageTtlSeconds: 300,
+      }).success
+    ).toBe(false);
+    expect(
+      ScreenAnalysisParentSettingSchema.safeParse({
+        ...ParentApprovedRawRetentionSetting,
+        screenAnalysisEnabled: false,
+      }).success
+    ).toBe(false);
+    expect(
+      ScreenAnalysisParentSettingSchema.safeParse({
+        ...ParentApprovedRawRetentionSetting,
+        deleteAfterExpiry: false,
+      }).success
+    ).toBe(false);
     expect(ScreenAnalysisResultSchema.safeParse({ ...UnknownAnalysisResult, policyEligible: true }).success).toBe(
       false
     );
@@ -264,6 +312,10 @@ function specifyRemoteBoundaryDefaults() {
     expect(approvedSummary.remoteSummaryMode).toBe('parentApprovedRedactedSummary');
     expect(approvedSummary.remoteSummaryDestinationCustodyState).toBe('parent-owned-export');
     expect(approvedSummary.remoteSummaryRedactedOnly).toBe(true);
+    expect(
+      ScreenEvidenceRemoteBoundarySettingSchema.parse(ParentApprovedLocalRawRetentionBoundarySetting)
+        .rawScreenshotRetentionMode
+    ).toBe('parentApprovedLocalShortTtl');
   });
 }
 
@@ -304,6 +356,12 @@ function specifyRemoteBoundaryRejections() {
         ...DisabledRemoteBoundarySetting,
         remoteSummaryMode: 'disabled',
         parentApprovedRemoteSummary: true,
+      }).success
+    ).toBe(false);
+    expect(
+      ScreenEvidenceRemoteBoundarySettingSchema.safeParse({
+        ...ParentApprovedLocalRawRetentionBoundarySetting,
+        rawScreenshotRemoteUploadEnabled: true,
       }).success
     ).toBe(false);
   });

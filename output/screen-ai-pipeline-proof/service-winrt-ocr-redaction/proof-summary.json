@@ -1,0 +1,153 @@
+{
+  "proof": "screen-ai-service-winrt-ocr-redaction-proof",
+  "proofTier": "P3_REAL_CAPTURE_LOCAL_OCR_SERVICE_PATH",
+  "platform": "win32",
+  "liveSource": {
+    "kind": "live-local-browser-text-surface",
+    "url": "data:text/plain;charset=utf-8,School%20portal%20account%20jane%40example.com%0AParent%20phone%20555-010-1234%0Apassword%20reset%20token%20visible",
+    "title": "data:text/plain;charset=utf-8,School portal account jane%40example.com%0AParent phone 555-010-1234%0Apassword reset token visible - Google Chrome",
+    "expectedTerms": [
+      "jane",
+      "555",
+      "password"
+    ]
+  },
+  "agentPort": 4691,
+  "analysisRow": {
+    "rowId": "screen-service-adapter-analysis-result-screen-service-queue-job-1780796881-1",
+    "label": "Windows WinRT OCR read a live local browser sensitive-text page from the service queued capture and service redaction removed sensitive snippets.",
+    "deviceId": "local-dev-agent",
+    "state": "ready",
+    "totalMs": 0,
+    "foregroundMs": 0,
+    "backgroundMs": 0,
+    "captureReason": "timedCadence",
+    "captureScope": "activeWindow",
+    "capabilityStatus": "available",
+    "queueJobId": "screen-service-queue-job-1780796881-1",
+    "modelRuntimeRef": "windows-winrt-ocr-local-runtime",
+    "modelId": "windows-winrt-ocr",
+    "providerKind": "localOcr",
+    "promptOrTemplateVersion": "screen-ocr-worker-winrt-v1",
+    "primaryCategory": "school",
+    "confidence": 0.91,
+    "imageDeletionState": "deleted",
+    "rawImageRetained": false,
+    "policyEligible": true,
+    "imageDigest": "NuZh9fPFThw2AR9OlUm_D8DJDrvHTjA30AQwZ0RIiuU",
+    "custodyState": "child-device-journal",
+    "evidence": [
+      {
+        "evidenceId": "screen-service-adapter-evidence-screen-service-queue-job-1780796881-1",
+        "kind": "screenshot",
+        "digest": "NuZh9fPFThw2AR9OlUm_D8DJDrvHTjA30AQwZ0RIiuU",
+        "uri": null
+      }
+    ],
+    "policyDecisionRef": "screen-service-policy-dry-run-screen-service-queue-job-1780796881-1",
+    "policyAction": "allow",
+    "policyReasonCodes": [
+      "screen-service-analysis-policy-dry-run"
+    ],
+    "parentRuleRefs": [
+      "screen-service-parent-rule-local-summary"
+    ],
+    "localModelRuntimeRefs": [
+      "windows-winrt-ocr-local-runtime"
+    ],
+    "parentExplanationRefs": [
+      "screen-service-parent-explanation-screen-service-queue-job-1780796881-1"
+    ],
+    "explanationReasons": [
+      "screen-service-policy-dry-run"
+    ],
+    "deletionReasons": [
+      "screen-image-deleted-after-analysis"
+    ],
+    "ocrTextSnippets": [
+      "School portal account [redacted-email]",
+      "Parent phone [redacted-phone]",
+      "C",
+      "Ask Gemini",
+      "A Not secure data:text/pla..."
+    ],
+    "redactionNotes": [
+      "piiLikeTextRedacted",
+      "credentialLikeTextRedacted"
+    ],
+    "sourceEvidenceRefs": []
+  },
+  "winRtOcrObservation": {
+    "runtime": "Windows.Media.Ocr.OcrEngine",
+    "providerKind": "localOcr",
+    "expectedTermsFound": [
+      "jane",
+      "555",
+      "password"
+    ],
+    "lineCount": 8,
+    "textDigest": "sha256:d984456aa0f317dc50f3498e38c2a055be51b842c99dd535dc40054a771cce5a",
+    "snippets": [
+      {
+        "text": "School portal account jane@exarple.com",
+        "boundingBoxRef": "line-5"
+      },
+      {
+        "text": "Parent phone 555-ø1ø-1234",
+        "boundingBoxRef": "line-6"
+      },
+      {
+        "text": "password reset token visible",
+        "boundingBoxRef": "line-7"
+      },
+      {
+        "text": "C",
+        "boundingBoxRef": "line-1"
+      },
+      {
+        "text": "Ask Gemini",
+        "boundingBoxRef": "line-2"
+      },
+      {
+        "text": "A Not secure data:text/pla...",
+        "boundingBoxRef": "line-3"
+      }
+    ],
+    "tempImageExistsAfterDelete": false
+  },
+  "queueRecordsAfterAnalysis": 0,
+  "artifacts": {
+    "sourceSnapshot": "output\\screen-ai-pipeline-proof\\service-winrt-ocr-redaction\\00-source-snapshot.md",
+    "proofSummary": "output\\screen-ai-pipeline-proof\\service-winrt-ocr-redaction\\proof-summary.json",
+    "screenReadModel": "output\\screen-ai-pipeline-proof\\service-winrt-ocr-redaction\\screen-read-model.json",
+    "winRtOcrObservation": "output\\screen-ai-pipeline-proof\\service-winrt-ocr-redaction\\winrt-ocr-observation.json",
+    "queueRecordMetadataAfterAnalysis": "output\\screen-ai-pipeline-proof\\service-winrt-ocr-redaction\\queue-records-after-analysis.json",
+    "validationCommands": "output\\screen-ai-pipeline-proof\\service-winrt-ocr-redaction\\14-validation-commands.log",
+    "portalScreenshot": "output\\screen-ai-pipeline-proof\\service-winrt-ocr-redaction\\portal-screen-analysis-redaction.png",
+    "parentSelectedRedactionPolicy": "output\\screen-ai-pipeline-proof\\service-winrt-ocr-redaction\\parent-redaction-policy.json"
+  },
+  "assertions": {
+    "realWindowsServiceCaptureRequired": true,
+    "liveExternalBrowserSurfaceUsed": false,
+    "liveLocalBrowserTextSurfaceUsed": true,
+    "serviceAdapterRanWindowsWinRtOcr": true,
+    "ocrSawExpectedLivePageTerms": true,
+    "activityReadModelReachedViaWebSocket": true,
+    "providerKindPreservedFromAdapter": true,
+    "runtimeMetadataPreservedFromAdapter": true,
+    "policyConsumedOcrResult": true,
+    "encryptedQueueDrainedAfterAnalysis": true,
+    "adapterTemporaryImageDeleted": true,
+    "rawImageNotRetainedInReadModel": true,
+    "ocrSnippetsPreservedInReadModel": true,
+    "redactionNotesShapePreservedInReadModel": true,
+    "serviceRedactedSensitiveOcrSnippets": true,
+    "serviceConsumedParentSelectedRedactionPolicy": true,
+    "realPortalScreenshotCaptured": true
+  },
+  "nonClaims": [
+    "This proves the Windows service path from timed cadence capture through encrypted queue, WinRT OCR adapter output, Activity Screen read model, and queue/raw temp deletion.",
+    "It does not claim production OCR quality tuning, authenticated social coverage, cross-platform OCR parity, portal UI polish, or enforcement handoff.",
+    "The proof intentionally does not retain the raw captured screenshot as an artifact; the OCR observation keeps bounded text snippets and a text digest only."
+  ]
+}

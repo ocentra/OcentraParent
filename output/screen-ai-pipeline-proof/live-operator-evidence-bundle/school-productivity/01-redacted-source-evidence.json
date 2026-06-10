@@ -1,0 +1,25 @@
+{
+  "scenarioId": "school-productivity",
+  "sourceKind": "operator-live-url",
+  "liveExternalUrl": true,
+  "protocol": "https",
+  "hostname": "www.khanacademy.org",
+  "redactedUrl": "https://www.khanacademy.org/<redacted>",
+  "urlHash": "ca8b90d9d9aaff0af096373c0074e41ba89c7ecc2f2cff3fcc38bbfeb0053eb9",
+  "pathAndQueryHash": "e9723fc54a41913609546a940a5b80bfbd89cf8fe2f30700997341d97b34438f",
+  "pageReadiness": {
+    "loaded": true,
+    "finalHostname": "www.khanacademy.org",
+    "finalProtocol": "https",
+    "redactedFinalUrl": "https://www.khanacademy.org/<redacted>",
+    "titleHash": "78cdb0502b12e231ad35b72160cc56a9a7ed30ee2517a6e338dbe44c557fd1ca",
+    "titleLength": 19,
+    "visibleTextHash": "ce28ee7f005b82c5990d3a591eef8cfe7cfd8753e69483762cc019b24f437671",
+    "visibleTextLength": 36435,
+    "readinessAssertions": {
+      "hostnameMatches": true,
+      "titleMatches": true,
+      "textMatches": true
+    }
+  }
+}

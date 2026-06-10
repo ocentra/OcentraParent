@@ -1,0 +1,290 @@
+{
+  "status": "blocked-by-upstream-adapter-artifacts",
+  "proofKind": "screen-ai-final-adapter-dependency-audit",
+  "generatedAt": "2026-06-08T17:08:33.172Z",
+  "sourceArtifacts": {
+    "adapterReadiness": "output/screen-ai-pipeline-proof/adapter-readiness/proof-summary.json",
+    "adapterReadinessReadModel": "output/screen-ai-pipeline-proof/adapter-readiness/read-model.json",
+    "finalProductPath": "output/screen-ai-pipeline-proof/final-product-path/proof-summary.json",
+    "linuxHostCustody": "output/screen-ai-pipeline-proof/linux-host-adapter-custody/proof-summary.json",
+    "linuxHostExecution": "output/screen-ai-pipeline-proof/linux-host-adapter-execution/proof-summary.json",
+    "androidMobileCustody": "output/screen-ai-pipeline-proof/android-mobile-control-custody/proof-summary.json",
+    "iosMobileCustody": "output/screen-ai-pipeline-proof/ios-mobile-control-custody/proof-summary.json",
+    "adapterDependencyHandoff": "output/screen-ai-pipeline-proof/adapter-dependency-handoff/proof-summary.json",
+    "adapterDependencyHandoffRows": "output/screen-ai-pipeline-proof/adapter-dependency-handoff/adapter-dependency-handoff.json",
+    "screenAiAdapterReadinessContract": "packages/parent-domain/dist/screen-ai-adapter-readiness-proof.js",
+    "screenAiAdapterReadinessContractSource": "packages/parent-domain/src/screen-ai-adapter-readiness-proof.ts",
+    "checklist": "docs/plans/screen-ai-pipeline-plan/implementation-checklist.md"
+  },
+  "closure": {
+    "windowsOwnedProcessAdaptersProved": true,
+    "finalPathArtifactGateStillValid": true,
+    "finalPathFreshServiceRerunProved": true,
+    "portalReadModelAndDeletionStillProved": true,
+    "broadBrowserNetworkMobileProductComplete": false,
+    "openChecklistRowRetained": true,
+    "executedAdapterRows": 2,
+    "linuxHostExecutionRows": 1,
+    "blockedAdapterRows": 5,
+    "custodyArtifactRows": 3,
+    "dependencyHandoffRows": 5,
+    "finalAdapterCompletionGateSatisfied": false,
+    "finalAdapterCompletionGateCompletedRows": 0,
+    "finalAdapterCompletionGateMissingRows": 5,
+    "finalAdapterCompletionGateInvalidRows": 0,
+    "claimUpgradeRows": 0
+  },
+  "blockedRows": [
+    {
+      "rowId": "screen-ai-broad-installed-app-manual-required",
+      "boundary": "broad-installed-app-blocking",
+      "readinessState": "manual-required",
+      "actionExecutionState": "skipped",
+      "adapterExecutionProofArtifact": null,
+      "rawImageRetained": false,
+      "rawImageDeletedBeforeAdapter": true,
+      "claimFlagsAllFalse": true,
+      "missingArtifact": "broad installed-app apply, rollback, and audit custody proof from a screen-derived block decision"
+    },
+    {
+      "rowId": "screen-ai-host-network-domain-manual-required",
+      "boundary": "host-network-domain-blocking",
+      "readinessState": "manual-required",
+      "actionExecutionState": "skipped",
+      "adapterExecutionProofArtifact": null,
+      "rawImageRetained": false,
+      "rawImageDeletedBeforeAdapter": true,
+      "claimFlagsAllFalse": true,
+      "missingArtifact": "host DNS/filter apply, rollback, and audit custody proof from a screen-derived network/domain decision"
+    },
+    {
+      "rowId": "screen-ai-managed-active-tab-not-claimed",
+      "boundary": "managed-exact-active-tab-enforcement",
+      "readinessState": "not-claimed",
+      "actionExecutionState": "skipped",
+      "adapterExecutionProofArtifact": null,
+      "rawImageRetained": false,
+      "rawImageDeletedBeforeAdapter": true,
+      "claimFlagsAllFalse": true,
+      "missingArtifact": "managed active-tab exact URL apply, rollback, and audit custody proof from a screen-derived browser decision"
+    },
+    {
+      "rowId": "screen-ai-android-mobile-control-manual-required",
+      "boundary": "android-mobile-control-adapter",
+      "readinessState": "manual-required",
+      "actionExecutionState": "skipped",
+      "adapterExecutionProofArtifact": null,
+      "rawImageRetained": false,
+      "rawImageDeletedBeforeAdapter": true,
+      "claimFlagsAllFalse": true,
+      "missingArtifact": "Android device-owner/managed-profile control proof from a screen-derived mobile decision",
+      "custodyArtifact": "output/screen-ai-pipeline-proof/android-mobile-control-custody/proof-summary.json",
+      "custodyRecorded": true
+    },
+    {
+      "rowId": "screen-ai-ios-mobile-control-manual-required",
+      "boundary": "ios-mobile-control-adapter",
+      "readinessState": "manual-required",
+      "actionExecutionState": "skipped",
+      "adapterExecutionProofArtifact": null,
+      "rawImageRetained": false,
+      "rawImageDeletedBeforeAdapter": true,
+      "claimFlagsAllFalse": true,
+      "missingArtifact": "iOS Family Controls/DeviceActivity control proof from a screen-derived mobile decision",
+      "custodyArtifact": "output/screen-ai-pipeline-proof/ios-mobile-control-custody/proof-summary.json",
+      "custodyRecorded": true
+    }
+  ],
+  "linuxExecutionRow": {
+    "rowId": "screen-ai-linux-host-adapter-unavailable",
+    "artifactPath": "output/screen-ai-pipeline-proof/linux-host-adapter-execution/proof-summary.json",
+    "status": "linux-host-adapter-execution-proved-wsl2",
+    "screenDerivedBlockDecisionPreserved": true,
+    "rawImageDeletedBeforeAdapter": true,
+    "executionClaimed": true,
+    "rollbackExecuted": true,
+    "finalAdapterCompletionClaimed": false,
+    "nativeLinuxDesktopProductReady": false
+  },
+  "custodyRows": [
+    {
+      "rowId": "screen-ai-linux-host-adapter-unavailable",
+      "artifactPath": "output/screen-ai-pipeline-proof/linux-host-adapter-custody/proof-summary.json",
+      "status": "linux-host-custody-artifact-written-final-execution-blocked",
+      "screenDerivedBlockDecisionPreserved": true,
+      "applyCustodyRecorded": true,
+      "executionClaimed": false,
+      "finalAdapterCompletionClaimed": false,
+      "productCompleteAdapterRowStillOpen": true
+    },
+    {
+      "rowId": "screen-ai-android-mobile-control-manual-required",
+      "artifactPath": "output/screen-ai-pipeline-proof/android-mobile-control-custody/proof-summary.json",
+      "status": "android-mobile-control-custody-artifact-written-final-execution-blocked",
+      "screenDerivedBlockDecisionPreserved": true,
+      "applyCustodyRecorded": true,
+      "executionClaimed": false,
+      "finalAdapterCompletionClaimed": false,
+      "productCompleteAdapterRowStillOpen": true
+    },
+    {
+      "rowId": "screen-ai-ios-mobile-control-manual-required",
+      "artifactPath": "output/screen-ai-pipeline-proof/ios-mobile-control-custody/proof-summary.json",
+      "status": "ios-mobile-control-custody-artifact-written-final-execution-blocked",
+      "screenDerivedBlockDecisionPreserved": true,
+      "applyCustodyRecorded": true,
+      "executionClaimed": false,
+      "finalAdapterCompletionClaimed": false,
+      "productCompleteAdapterRowStillOpen": true
+    }
+  ],
+  "dependencyHandoffRows": [
+    {
+      "rowId": "screen-ai-broad-installed-app-manual-required",
+      "adapterClass": "broad-installed-app",
+      "owningLane": "codex-c",
+      "owningDomain": "app-game/enforcement adapter layer",
+      "expectedProofFile": "output/app-game-plan-proof/screen-derived-broad-installed-app-apply-rollback-audit/proof-summary.json",
+      "expectedContractShape": {
+        "sourcePolicyDecisionRef": "screen-derived block/time-limit policy decision id",
+        "sourceActivityEvidenceRef": "screen analysis/activity evidence ref",
+        "applyResultRef": "real broad installed-app adapter apply result",
+        "rollbackOrExpiryRef": "rollback or expiry result for the same target",
+        "auditRef": "durable adapter audit/custody ref",
+        "rawImageRetained": false,
+        "rawImageDeletedBeforeAdapter": true,
+        "appBlockingClaimed": true,
+        "finalAdapterCompletionClaimed": true
+      }
+    },
+    {
+      "rowId": "screen-ai-host-network-domain-manual-required",
+      "adapterClass": "host-network-domain",
+      "owningLane": "E-D",
+      "owningDomain": "network/domain enforcement adapter layer",
+      "expectedProofFile": "output/network-plan-proof/screen-derived-host-network-domain-apply-rollback-audit/proof-summary.json",
+      "expectedContractShape": {
+        "sourcePolicyDecisionRef": "screen-derived network/domain policy decision id",
+        "sourceNetworkEvidenceRef": "host/domain/IP evidence ref",
+        "applyResultRef": "real DNS/filter/firewall apply result",
+        "rollbackOrExpiryRef": "rollback or expiry result for the same rule",
+        "auditRef": "durable network adapter audit/custody ref",
+        "rawImageRetained": false,
+        "rawImageDeletedBeforeAdapter": true,
+        "finalAdapterCompletionClaimed": true
+      }
+    },
+    {
+      "rowId": "screen-ai-managed-active-tab-not-claimed",
+      "adapterClass": "managed-active-tab-exact-url",
+      "owningLane": "codex-d",
+      "owningDomain": "browser managed-control adapter layer",
+      "expectedProofFile": "output/browser-plan-proof/screen-derived-managed-active-tab-apply-rollback-audit/proof-summary.json",
+      "expectedContractShape": {
+        "sourcePolicyDecisionRef": "screen-derived browser policy decision id",
+        "sourceBrowserEvidenceRef": "managed active-tab URL/evidence ref",
+        "applyResultRef": "real exact active-tab adapter apply result",
+        "rollbackOrExpiryRef": "tab/action rollback or expiry result",
+        "auditRef": "durable browser adapter audit/custody ref",
+        "rawImageRetained": false,
+        "rawImageDeletedBeforeAdapter": true,
+        "finalAdapterCompletionClaimed": true
+      }
+    },
+    {
+      "rowId": "screen-ai-android-mobile-control-manual-required",
+      "adapterClass": "android-device-owner-or-managed-profile",
+      "owningLane": "primary/mobile-child-agent-sequencing",
+      "owningDomain": "Android child-agent Device Owner or managed-profile adapter layer",
+      "expectedProofFile": "output/mobile-plan-proof/screen-derived-android-mobile-control-apply-rollback-audit/proof-summary.json",
+      "expectedContractShape": {
+        "sourcePolicyDecisionRef": "screen-derived mobile policy decision id",
+        "sourceMobileEvidenceRef": "Android child-agent/device evidence ref",
+        "applyResultRef": "real Device Owner, managed-profile, UsageStats, Accessibility, or VPN/DNS apply result",
+        "rollbackOrExpiryRef": "rollback or expiry result for the same mobile control",
+        "auditRef": "durable Android adapter audit/custody ref",
+        "rawImageRetained": false,
+        "rawImageDeletedBeforeAdapter": true,
+        "finalAdapterCompletionClaimed": true
+      }
+    },
+    {
+      "rowId": "screen-ai-ios-mobile-control-manual-required",
+      "adapterClass": "ios-family-controls-device-activity",
+      "owningLane": "primary/mobile-child-agent-sequencing",
+      "owningDomain": "iOS Family Controls and DeviceActivity adapter layer",
+      "expectedProofFile": "output/mobile-plan-proof/screen-derived-ios-mobile-control-apply-rollback-audit/proof-summary.json",
+      "expectedContractShape": {
+        "sourcePolicyDecisionRef": "screen-derived mobile policy decision id",
+        "sourceMobileEvidenceRef": "iOS child-agent/device evidence ref",
+        "applyResultRef": "real Family Controls, DeviceActivity, or Network Extension apply result",
+        "rollbackOrExpiryRef": "rollback or expiry result for the same mobile control",
+        "auditRef": "durable iOS adapter audit/custody ref",
+        "rawImageRetained": false,
+        "rawImageDeletedBeforeAdapter": true,
+        "finalAdapterCompletionClaimed": true
+      }
+    }
+  ],
+  "finalAdapterCompletionGate": {
+    "completed": false,
+    "requiredRows": 5,
+    "completedRows": 0,
+    "missingRows": [
+      "screen-ai-broad-installed-app-manual-required",
+      "screen-ai-host-network-domain-manual-required",
+      "screen-ai-managed-active-tab-not-claimed",
+      "screen-ai-android-mobile-control-manual-required",
+      "screen-ai-ios-mobile-control-manual-required"
+    ],
+    "invalidRows": [],
+    "rawImageRetainedRows": 0
+  },
+  "nextRequiredArtifacts": [
+    {
+      "rowId": "screen-ai-broad-installed-app-manual-required",
+      "boundary": "broad-installed-app-blocking",
+      "custodyArtifact": null,
+      "missingArtifact": "broad installed-app apply, rollback, and audit custody proof from a screen-derived block decision",
+      "handoffOwner": "codex-c",
+      "expectedProofFile": "output/app-game-plan-proof/screen-derived-broad-installed-app-apply-rollback-audit/proof-summary.json"
+    },
+    {
+      "rowId": "screen-ai-host-network-domain-manual-required",
+      "boundary": "host-network-domain-blocking",
+      "custodyArtifact": null,
+      "missingArtifact": "host DNS/filter apply, rollback, and audit custody proof from a screen-derived network/domain decision",
+      "handoffOwner": "E-D",
+      "expectedProofFile": "output/network-plan-proof/screen-derived-host-network-domain-apply-rollback-audit/proof-summary.json"
+    },
+    {
+      "rowId": "screen-ai-managed-active-tab-not-claimed",
+      "boundary": "managed-exact-active-tab-enforcement",
+      "custodyArtifact": null,
+      "missingArtifact": "managed active-tab exact URL apply, rollback, and audit custody proof from a screen-derived browser decision",
+      "handoffOwner": "codex-d",
+      "expectedProofFile": "output/browser-plan-proof/screen-derived-managed-active-tab-apply-rollback-audit/proof-summary.json"
+    },
+    {
+      "rowId": "screen-ai-android-mobile-control-manual-required",
+      "boundary": "android-mobile-control-adapter",
+      "custodyArtifact": "output/screen-ai-pipeline-proof/android-mobile-control-custody/proof-summary.json",
+      "missingArtifact": "Android device-owner/managed-profile control proof from a screen-derived mobile decision",
+      "handoffOwner": "primary/mobile-child-agent-sequencing",
+      "expectedProofFile": "output/mobile-plan-proof/screen-derived-android-mobile-control-apply-rollback-audit/proof-summary.json"
+    },
+    {
+      "rowId": "screen-ai-ios-mobile-control-manual-required",
+      "boundary": "ios-mobile-control-adapter",
+      "custodyArtifact": "output/screen-ai-pipeline-proof/ios-mobile-control-custody/proof-summary.json",
+      "missingArtifact": "iOS Family Controls/DeviceActivity control proof from a screen-derived mobile decision",
+      "handoffOwner": "primary/mobile-child-agent-sequencing",
+      "expectedProofFile": "output/mobile-plan-proof/screen-derived-ios-mobile-control-apply-rollback-audit/proof-summary.json"
+    }
+  ],
+  "nonClaims": [
+    "This audit does not implement broad installed-app blocking, host network/domain blocking, managed active-tab enforcement, or Android/iOS mobile control.",
+    "This audit consumes the WSL2 Linux host execution artifact but does not close the product-complete adapter checklist row; it verifies that the row remains open until the remaining upstream execution artifacts exist.",
+    "This audit consumes the final product-path proof after its service OCR policy source rerun assertion, but does not rerun live capture, local AI inference, portal rendering, or adapter execution itself."
+  ]
+}
