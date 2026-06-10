@@ -11,23 +11,23 @@ if [ $? -ne 0 ]; then
 fi
 
 if [ "$OCENTRA_PARENT_SKIP_LANE_GUARD" != "1" ]; then
-  echo "[lanes] Checking Ocentra Parent worktree lane ownership..."
-  node scripts/dev/worktree-lanes.mjs guard
+  echo "[ledger] Checking Ocentra Parent Ledger lane ownership..."
+  node scripts/dev/ocentra-ledger-guard.mjs
   if [ $? -ne 0 ]; then
     echo ""
-    echo "[lanes] Pre-commit hook rejected this commit because the checkout is not claimed correctly."
-    echo "[lanes] Run npm run lanes:status and npm run lanes:claim for this branch, or set OCENTRA_PARENT_SKIP_LANE_GUARD=1 only for deliberate emergency bypass."
+    echo "[ledger] Pre-commit hook rejected this commit because the checkout is not claimed correctly."
+    echo "[ledger] Run npm run ledger:doctor, npm run hub:inbox, and npm run hub:lock for this branch, or set OCENTRA_PARENT_SKIP_LANE_GUARD=1 only for deliberate emergency bypass."
     exit 1
   fi
 fi
 
 if [ "$OCENTRA_PARENT_SKIP_HUB_GUARD" != "1" ]; then
-  echo "[hub] Checking Ocentra Parent hub mailbox and file locks..."
-  node scripts/dev/hub-mailbox.mjs guard
+  echo "[ledger] Checking Ocentra Parent Ledger inbox and file claims..."
+  node scripts/dev/ocentra-ledger-guard.mjs
   if [ $? -ne 0 ]; then
     echo ""
-    echo "[hub] Pre-commit hook rejected this commit because the lane has unread hub messages or files outside its hub lock."
-    echo "[hub] Run npm run hub:inbox, npm run hub:ack, and npm run hub:lock, or set OCENTRA_PARENT_SKIP_HUB_GUARD=1 only for deliberate emergency bypass."
+    echo "[ledger] Pre-commit hook rejected this commit because the lane has unread Ledger messages or files outside its Ledger claim."
+    echo "[ledger] Run npm run hub:inbox, npm run hub:ack, and npm run hub:lock, or set OCENTRA_PARENT_SKIP_HUB_GUARD=1 only for deliberate emergency bypass."
     exit 1
   fi
 fi

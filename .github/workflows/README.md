@@ -72,10 +72,10 @@ graph LR
 
 ## Orchestration
 
-- `ci.yml`: small orchestrator. It classifies path changes into docs/hub,
+- `ci.yml`: small orchestrator. It classifies path changes into docs/Ledger,
   portal TypeScript, domain packages, Rust protocol/core/service/adapters,
   parent desktop/Tauri, child Android, child iOS, and package targets.
-- `ci-docs-hub.yml`: docs, `.hub`, and root Markdown fast gate.
+- `ci-docs-hub.yml`: docs, Ledger integration docs, and root Markdown fast gate.
 - `ci-format.yml`: repository format check.
 - `ci-release-version.yml`: release version alignment.
 - `ci-preflight.yml`: workflow topology test, CI verifier syntax check, and
@@ -143,8 +143,8 @@ engineers rerun focused target jobs.
 - Preflight sits between early policy checks and broad fanout. If workflow
   topology, CI helper syntax, or shared contract generation is broken, expensive
   package, E2E, dependency, and static-analysis work should not start.
-- Docs/hub-only changes are limited to `docs/**`, `.hub/**`, and root-level
-  `*.md`; they run only the docs/hub gate.
+- Docs/Ledger-only changes are limited to `docs/**`, root-level `*.md`, and
+  Ledger integration metadata; they run only the docs/Ledger gate.
 - Portal-only work should not run Android/iOS package previews.
 - Android-only work should not run portal lint or Windows/macOS packages unless
   shared contracts or service code also changed.

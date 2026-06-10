@@ -11,6 +11,7 @@ const ignoredSegments = new Set([
   'coverage',
   'dist',
   'node_modules',
+  'ocentra-ledger',
   'output',
   'target',
   'test-results',
