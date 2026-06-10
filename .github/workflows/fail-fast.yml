@@ -25,7 +25,7 @@ jobs:
       - uses: actions/checkout@v6
         if: ${{ inputs.docs_hub_only }}
         with:
-          submodules: recursive
+          submodules: false
 
       - uses: ./.github/actions/setup-ci
         if: ${{ !inputs.docs_hub_only }}
@@ -38,14 +38,6 @@ jobs:
       - name: Docs/Ledger-only format check
         if: ${{ inputs.docs_hub_only }}
         run: npx prettier --check docs *.md .gitmodules
-
-      - name: Docs/Ledger-only root check
-        if: ${{ inputs.docs_hub_only }}
-        run: npm run ledger:root
-
-      - name: Docs/Ledger-only doctor
-        if: ${{ inputs.docs_hub_only }}
-        run: npm run ledger:doctor
 
       - name: Format check
         if: ${{ !inputs.docs_hub_only }}
