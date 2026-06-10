@@ -1,7 +1,7 @@
 {
   "schema": "https://ocentra.ca/schemas/ocentra-parent-hub-lane-ledger.v1.json",
   "version": 1,
-  "updatedAt": "2026-06-09T14:07:08.154Z",
+  "updatedAt": "2026-06-10T00:17:30.000Z",
   "repo": "ocentra/OcentraParent",
   "sourceOfTruth": "repo-owned ledger; .codex is machine-local cache and mailbox only",
   "statusEnum": [
@@ -19,12 +19,12 @@
       "laneId": "primary",
       "name": "Primary coordination lane",
       "localWorktreePath": "E:/OcentraParent",
-      "branch": "codex/repo-owned-codex-hub-sync",
-      "remoteBranch": "origin/codex/repo-owned-codex-hub-sync",
+      "branch": "main",
+      "remoteBranch": "origin/main",
       "pr": null,
       "base": "origin/main",
       "status": "main-merged",
-      "lastCommit": "e7ea7baf7599ba8491102a2400e2a918f7326aa4",
+      "lastCommit": "18d0e15a558b4c43afa250ed9953c9a30648b3e7",
       "mergedToMain": true,
       "dirtyLocalFiles": [],
       "lastValidation": [
@@ -32,7 +32,7 @@
         "cmd /c npm run lanes:status",
         "gh pr list --state open --json number,title,headRefName,baseRefName,mergeStateStatus,statusCheckRollup,url,updatedAt --limit 20"
       ],
-      "nextAction": "Finish repo-owned hub state sync migration PR, then return primary to main for one-at-a-time PR integration.",
+      "nextAction": "Continue one-at-a-time PR integration from latest main.",
       "safeToDeleteWorktree": false
     },
     {
@@ -164,19 +164,16 @@
       "remoteBranch": "origin/codex/network-live-capture-execution-proof",
       "pr": 546,
       "base": "origin/main",
-      "status": "blocked",
-      "lastCommit": null,
-      "mergedToMain": false,
-      "dirtyLocalFiles": [
-        "apps/portal/src/live-activity-state.ts",
-        "apps/portal/tests/live-activity-network-flow.test.ts"
-      ],
+      "status": "main-merged",
+      "lastCommit": "18d0e15a558b4c43afa250ed9953c9a30648b3e7",
+      "mergedToMain": true,
+      "dirtyLocalFiles": [],
       "lastValidation": [
-        "PR #546 fail-fast, secret scan, pre-AI proof, full validation, build, dependency policy, macOS E2E, and Ubuntu E2E passed",
-        "PR #546 Windows Real Portal To Rust E2E failed on 2026-06-09",
-        "Package preview skipped because a required check failed"
+        "PR #546 merged to main as 18d0e15a558b4c43afa250ed9953c9a30648b3e7",
+        "CI green on head cc16053b49ee43b9e7c1aac71ffab26065ee0ff7",
+        "build, dependency-policy, fail-fast, secret-scan, Pre-AI, Full Validation, macOS/Ubuntu/Windows E2E, and all package-preview jobs passed"
       ],
-      "nextAction": "When selected, route the Windows E2E failure to E-D, then rerun CI before merge.",
+      "nextAction": "Switch or retarget the E-D worktree only after local audit; PR #546 branch was merged and the remote branch was deleted.",
       "safeToDeleteWorktree": false
     }
   ]
