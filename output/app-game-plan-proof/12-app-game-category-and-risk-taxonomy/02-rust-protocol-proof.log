@@ -1,6 +1,0 @@
-Rust protocol proof: N/A for this slice.
-
-Reason:
-- WP12 adds TypeScript activity-domain taxonomy contracts only.
-- No Rust service, `crates/agent-protocol`, `agent-core`, SQLite, or WebSocket payload shape was changed.
-- Rust parity remains a later work item when taxonomy rows cross the service/read-model boundary.

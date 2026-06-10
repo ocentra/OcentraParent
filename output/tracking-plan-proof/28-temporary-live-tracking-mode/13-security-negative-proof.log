@@ -1,6 +1,0 @@
-workpack=28-temporary-live-tracking-mode
-Temporary live rows require parent authorization and child disclosure for active state.
-Duration and cadence are bounded and explicit in proof rows.
-Battery and permission degradation states carry manual proof requirements.
-Expired sessions carry auto-stop reasons; retention-delete-ready rows carry retention refs.
-Live location runtime, current/background location adapters, provider delivery, relay runtime, portal live map runtime, child-device delivery, physical-device proof, and production workers are all non-claims.

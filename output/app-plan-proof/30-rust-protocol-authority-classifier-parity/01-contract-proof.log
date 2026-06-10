@@ -1,4 +1,0 @@
-PASS: Native app plan reuses the shared app/game authority and classifier
-contracts.
-
-No duplicate app-only contract or protocol truth was added.

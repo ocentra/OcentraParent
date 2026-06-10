@@ -1,2 +1,0 @@
-network-windows-firewall-adapter-proof-ok:adapter-tests,clippy,source-shape
-proof=output/network-plan-proof/38-windows-firewall-adapter/proof-summary.json

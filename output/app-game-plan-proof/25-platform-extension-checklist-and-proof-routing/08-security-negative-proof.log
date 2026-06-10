@@ -1,6 +1,0 @@
-Security/no-claim proof:
-
-- Promotion-ready rows without attached required proof are rejected.
-- Bare Unsupported / Not supported labels are rejected.
-- All current extension rows have canPromote=false and proofReferences=[].
-- Android VPN/DNS row is not-claimed in app/game scope and routes to network/browser proof before product claims.

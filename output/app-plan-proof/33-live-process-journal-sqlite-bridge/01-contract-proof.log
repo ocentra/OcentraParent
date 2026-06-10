@@ -1,4 +1,0 @@
-N/A for TypeScript native app contract changes.
-
-The native app side reuses the shared app/game runtime evidence and local
-journal/query-store contracts.

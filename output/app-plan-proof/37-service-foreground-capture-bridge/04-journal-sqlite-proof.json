@@ -1,9 +1,0 @@
-{
-  "workpack": "Native app WP37 service foreground capture bridge",
-  "serviceCapturePath": "record_activity_capture_to_paths",
-  "sqliteProjection": "foreground_now_rows",
-  "proofCommand": "cargo test -p ocentra-parent-agent-service activity_capture",
-  "serviceTestResult": "passed",
-  "serviceTestsPassed": 5,
-  "nativeAppPlan": "cross-recorded from shared app/game proof"
-}

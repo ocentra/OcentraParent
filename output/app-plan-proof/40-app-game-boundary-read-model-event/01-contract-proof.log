@@ -1,6 +1,0 @@
-Contract proof is inherited from shared app/game WP40:
-
-- agent.activity.app-game.boundary.read-model.get
-- agent.activity.app-game.boundary.read-model.reported
-- appGameBoundaryReadModel
-- parseAgentAppGameBoundaryReadModelEvent

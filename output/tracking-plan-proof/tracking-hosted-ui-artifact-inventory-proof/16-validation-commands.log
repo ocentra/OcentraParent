@@ -1,3 +1,0 @@
-$ node scripts/test/tracking-hosted-ui-artifact-inventory-proof.mjs
-tracking-hosted-ui-artifact-inventory-proof-ok
-evidence=test-results/tracking-hosted-ui-artifact-inventory-proof/proof.json

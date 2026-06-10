@@ -1,5 +1,0 @@
-{
-  "workpack": "32-live-process-snapshot-source",
-  "journalSqliteStatus": "not-applicable",
-  "reason": "Native app WP32 is source-boundary proof only. Journal subscription and SQLite replay remain follow-up work."
-}

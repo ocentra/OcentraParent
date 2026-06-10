@@ -1,3 +1,0 @@
-PASS: source panel rows consume service-backed sourceStatusRows only.
-PASS: no raw evidence vectors are parsed for new product meaning.
-PASS: source panel proof does not claim policy evaluation, adapter execution, or broad blocking.

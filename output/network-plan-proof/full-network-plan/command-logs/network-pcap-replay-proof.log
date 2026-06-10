@@ -1,2 +1,0 @@
-network-pcap-replay-proof-ok:crate-tests,clippy,source-shape,dns-fixture
-proof=output/network-plan-proof/12-pcap-file-replay-harness/proof-summary.json

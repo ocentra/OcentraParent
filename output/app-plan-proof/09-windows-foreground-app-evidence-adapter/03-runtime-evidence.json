@@ -1,6 +1,0 @@
-{
-  "mirrors": "output/app-game-plan-proof/09-windows-foreground-evidence-adapter/03-runtime-evidence.json",
-  "appPlanWorkpack": "09-windows-foreground-app-evidence-adapter",
-  "status": "shared_app_game_foreground_parser_proof",
-  "appSpecificDecision": "no duplicate app-only foreground contract was created"
-}

@@ -1,8 +1,0 @@
-{
-  "scenarioId": "manual-browser-education-vlm",
-  "supersededBy": "school-productivity",
-  "sourceArtifact": "output\\ai-plan-proof\\real-analysis\\school-productivity",
-  "policyAction": "allow",
-  "primaryCategory": "school",
-  "rawImageDeletedAfterAnalysis": true
-}

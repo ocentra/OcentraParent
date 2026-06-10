@@ -1,5 +1,0 @@
-   Compiling ocentra-parent-agent-protocol v0.1.1 (C:\Users\sujan\.codex\worktrees\ocentra-parent-codex-b\OcentraParent\crates\agent-protocol)
-   Compiling ocentra-parent-agent-core v0.1.1 (C:\Users\sujan\.codex\worktrees\ocentra-parent-codex-b\OcentraParent\crates\agent-core)
-   Compiling ocentra-parent-screen-capture-adapter v0.1.1 (C:\Users\sujan\.codex\worktrees\ocentra-parent-codex-b\OcentraParent\crates\screen-capture-adapter)
-    Finished `dev` profile [unoptimized + debuginfo] target(s) in 9.89s
-     Running `target\debug\examples\screen_capture_real_proof.exe output\screen-plan-proof\live-view-session-transport\capture`

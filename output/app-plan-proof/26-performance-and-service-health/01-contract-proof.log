@@ -1,8 +1,0 @@
-Contract proof:
-
-- cmd /c npm run build --workspace @ocentra-parent/parent-domain: PASS
-- cmd /c npm run test --workspace @ocentra-parent/parent-domain -- app-game-performance-health: PASS
-- Matrix rows: 8
-- Required surfaces: inventory, runtime, foreground, journal, replay, policy, portal intent, degraded health
-- Adapter execution claims: 0
-- Live platform claims: 0

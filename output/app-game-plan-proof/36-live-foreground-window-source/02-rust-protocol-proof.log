@@ -1,9 +1,0 @@
-Rust protocol proof target:
-
-- `crates/agent-protocol/src/app_game.rs` owns app/game foreground ref prefixes.
-- `crates/agent-protocol/src/constants.rs` owns the test journal suffix.
-- Core source code consumes protocol constants instead of inventing runtime strings.
-
-Focused validation:
-
-- cargo test -p ocentra-parent-agent-protocol app_game: passed, 20 tests

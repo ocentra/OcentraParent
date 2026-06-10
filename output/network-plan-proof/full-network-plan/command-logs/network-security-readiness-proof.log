@@ -1,2 +1,0 @@
-network-security-readiness-proof-ok:readiness-tests,clippy,source-shape
-proof=output/network-plan-proof/50-security-readiness-proof/proof-summary.json

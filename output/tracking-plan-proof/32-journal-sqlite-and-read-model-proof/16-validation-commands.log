@@ -1,8 +1,0 @@
-cmd /c npm --workspace @ocentra-parent/text-domain run build # exit 0
-cmd /c npm --workspace @ocentra-parent/agent-protocol-domain run build # exit 0
-cmd /c npm --workspace @ocentra-parent/agent-protocol-domain run test -- tracking-read-model contracts # exit 0
-cmd /c npm --workspace @ocentra-parent/portal-domain run test -- contracts # exit 0
-cmd /c npm --workspace @ocentra-parent/portal run test -- tracking-status-panel # exit 0
-cargo test -p ocentra-parent-agent-protocol tracking_read_model # exit 0
-cargo test -p ocentra-parent-agent-core tracking_read_model # exit 0
-cargo test -p ocentra-parent-agent-service tracking_read_model # exit 0

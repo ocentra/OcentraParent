@@ -1,4 +1,0 @@
-WP45 Rust protocol proof:
-- protocol constants own Windows registry hive labels, Uninstall paths, value names, export header, dword prefix, and confidence
-- runtime code consumes protocol constants instead of inventing registry strings
-- no new WebSocket command or event is introduced by this workpack

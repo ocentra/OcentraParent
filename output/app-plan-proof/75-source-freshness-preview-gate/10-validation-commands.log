@@ -1,2 +1,0 @@
-cmd /c npm run build --workspace @ocentra-parent/parent-domain
-cmd /c npm run test --workspace @ocentra-parent/parent-domain -- app-game-source-freshness-preview-gate app-game-source-freshness-policy-consumption app-game-policy-preview-handoff

@@ -1,8 +1,0 @@
-{
-  "workpack": "WP38",
-  "policyDecisionAdded": false,
-  "policyEvaluatorConsumptionAdded": false,
-  "adapterExecutionAdded": false,
-  "directActionPossibleFromClassifierRef": false,
-  "manualRequiredBoundary": "Boundary refs remain evidence transport only and cannot dispatch adapters."
-}

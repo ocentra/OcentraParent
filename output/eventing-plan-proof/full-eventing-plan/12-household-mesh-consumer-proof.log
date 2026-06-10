@@ -1,3 +1,0 @@
-command=node scripts\test\eventing-household-mesh-consumer-proof.mjs
-status=0
-log=output\eventing-plan-proof\full-eventing-plan\command-logs\eventing-household-mesh-consumer-proof.log

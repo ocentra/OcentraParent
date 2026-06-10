@@ -1,2 +1,0 @@
-network-live-capture-service-readiness-proof-ok:protocol,service,typescript,guards
-proof=output/network-plan-proof/13a-live-capture-service-readiness/proof-summary.json

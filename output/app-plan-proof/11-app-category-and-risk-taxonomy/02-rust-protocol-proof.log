@@ -1,6 +1,0 @@
-Rust protocol proof: N/A for native app WP11.
-
-Reason:
-- This slice updates TypeScript activity-domain contracts only.
-- No Rust protocol, agent-core, agent-service, WebSocket, journal, or SQLite
-  payload shape changed.

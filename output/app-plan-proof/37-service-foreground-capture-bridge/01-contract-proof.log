@@ -1,9 +1,0 @@
-Native app WP37 cross-records the shared app/game service foreground capture
-bridge.
-
-No app-only TypeScript contract was added. The shared app/game foreground row is
-the owning contract.
-
-Focused validation:
-
-- cargo test -p ocentra-parent-agent-service activity_capture: passed, 5 tests

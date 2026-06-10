@@ -1,6 +1,0 @@
-Security/no-claim proof:
-
-- Notification payload fields are minimal refs only.
-- Raw child evidence, URLs/titles, message text, screenshots, and reports are rejected.
-- Provider delivery, provider receipts, cloud routing, parent notification UI, and adapter dispatch remain false.
-- Manual-required and unavailable rows cannot claim local outbox or provider delivery.

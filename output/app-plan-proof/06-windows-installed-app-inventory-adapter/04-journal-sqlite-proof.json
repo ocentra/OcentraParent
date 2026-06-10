@@ -1,7 +1,0 @@
-{
-    "sharedAppGameProof":  "output/app-game-plan-proof/06-windows-installed-inventory-adapter",
-    "workpack":  "06-windows-installed-app-inventory-adapter",
-    "journalSqliteChanged":  false,
-    "status":  "not-applicable-for-reconciliation",
-    "reason":  "No new journal, SQLite, replay, or read-model persistence behavior was added by this reconciliation."
-}

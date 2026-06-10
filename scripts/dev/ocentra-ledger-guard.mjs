@@ -6,7 +6,7 @@ import { join, resolve } from 'node:path';
 const repoRoot = git(['rev-parse', '--show-toplevel']);
 const wrapperPath = join(repoRoot, 'scripts', 'dev', 'ocentra-ledger.mjs');
 const lane = process.env.LEDGER_LANE ?? process.env.OCENTRA_PARENT_LEDGER_LANE ?? inferLane(repoRoot);
-const changedPaths = gitLines(['diff', '--name-only', 'HEAD']);
+const changedPaths = gitLines(['diff', '--name-only', 'HEAD']).filter((path) => !isGeneratedArtifactPath(path));
 
 ensureIdentity(lane);
 
@@ -70,4 +70,15 @@ function git(args) {
 function gitLines(args) {
   const output = git(args);
   return output.length === 0 ? [] : output.split(/\r?\n/u);
+}
+
+function isGeneratedArtifactPath(path) {
+  return (
+    path === 'output' ||
+    path.startsWith('output/') ||
+    path === 'test-results' ||
+    path.startsWith('test-results/') ||
+    path === 'playwright-report' ||
+    path.startsWith('playwright-report/')
+  );
 }

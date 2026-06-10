@@ -1,7 +1,0 @@
-{
-  "workpack": "10-cross-platform-authority-matrix",
-  "sharedWorkpack": "app-game-plan/11-cross-platform-authority-matrix",
-  "runtimeChanged": false,
-  "runtimeEvidenceRows": [],
-  "reason": "Authority rows are contract proof only; no live app inventory, process, foreground, session, journal, SQLite, or adapter evidence changed."
-}

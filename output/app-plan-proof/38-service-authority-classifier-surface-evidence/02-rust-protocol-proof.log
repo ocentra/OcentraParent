@@ -1,4 +1,0 @@
-WP38 native app Rust protocol proof:
-- No additional Rust protocol shape was required.
-- Existing app/game protocol boundary rows remain reused by the native app plan.
-- Boundary refs are transported as `ActivityEvidenceRef` values only.

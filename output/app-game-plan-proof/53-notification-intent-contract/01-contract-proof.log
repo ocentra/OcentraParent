@@ -1,6 +1,0 @@
-Contract proof:
-
-- cmd /c npm run build --workspace @ocentra-parent/parent-domain: PASS
-- cmd /c npm run test --workspace @ocentra-parent/parent-domain -- app-game-notification-intent: PASS
-- Valid intents cover time-limit, approval request, suspicious unknown, manual-required, and unavailable states.
-- Invalid intents reject raw child detail, provider delivery/receipt claims, wrong copy/reason, missing refs, and false local-outbox claims.

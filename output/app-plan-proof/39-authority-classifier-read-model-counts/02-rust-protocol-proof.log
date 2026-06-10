@@ -1,5 +1,0 @@
-Rust protocol proof:
-
-- Shared app/game Rust activity-surface rows serialize the staged boundary counts.
-- Native app consumers use the same app-use activity-surface read-model row.
-- No native-app-only protocol fork was introduced.

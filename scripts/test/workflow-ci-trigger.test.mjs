@@ -36,6 +36,24 @@ test('CI gate builds package previews but does not publish releases from main', 
   assert.equal(workflow.includes('Create GitHub release'), false);
 });
 
+test('non-doc product pull requests force the full merge proof graph', () => {
+  const workflow = readCiWorkflow();
+
+  assert.match(workflow, /product_pr_full_merge_proof=false/u);
+  assert.match(
+    workflow,
+    /if \[\[ "\$\{\{ github\.event_name \}\}" == "pull_request" && "\$docs_hub_only" != "true" \]\]/u
+  );
+  assert.match(workflow, /product_pr_full_merge_proof=true/u);
+  assert.match(workflow, /parent_mobile_changed=true/u);
+  assert.match(workflow, /child_android_changed=true/u);
+  assert.match(workflow, /child_ios_changed=true/u);
+  assert.match(workflow, /package_parent_android_changed=true/u);
+  assert.match(workflow, /package_parent_ios_changed=true/u);
+  assert.match(workflow, /package_android_changed=true/u);
+  assert.match(workflow, /package_ios_changed=true/u);
+});
+
 test('static analysis covers workflow, TypeScript, and Rust surfaces', () => {
   const staticAnalysisWorkflow = readFileSync(join(workflowsRoot, 'ci-codeql.yml'), 'utf8');
 

@@ -1,9 +1,0 @@
-cargo test -p ocentra-parent-agent-core network_runtime_remote_delivery_transport_dispatch_state -> 0
-cargo test -p ocentra-parent-agent-protocol network_remote_delivery_status -> 0
-cargo test -p ocentra-parent-agent-service network_remote_delivery_status -> 0
-cmd /c npm run build --workspace @ocentra-parent/schema-domain --workspace @ocentra-parent/logging-domain --workspace @ocentra-parent/activity-domain --workspace @ocentra-parent/parent-domain --workspace @ocentra-parent/agent-protocol-domain -> 0
-cmd /c npm run test --workspace @ocentra-parent/agent-protocol-domain -- network-remote-delivery-status.test.ts -> 0
-cargo clippy -p ocentra-parent-agent-core --all-targets -- -D warnings -> 0
-cargo fmt --all --check -> 0
-node scripts/check-source-shape.mjs -> 0
-git diff --check -> 0

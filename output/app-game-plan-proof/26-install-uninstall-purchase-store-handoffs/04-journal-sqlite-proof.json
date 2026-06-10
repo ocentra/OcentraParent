@@ -1,5 +1,0 @@
-{
-  "schemaVersion": 1,
-  "journalSqliteChanged": false,
-  "reason": "Handoff contract proof only; no journal or SQLite behavior changed."
-}

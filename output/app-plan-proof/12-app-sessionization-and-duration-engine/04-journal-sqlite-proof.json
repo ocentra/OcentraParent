@@ -1,7 +1,0 @@
-{
-  "workpack": "app-plan WP12 app sessionization and duration engine",
-  "sqliteRowReplay": "proved through shared app/game WP13 tests",
-  "journalFileReplay": "not claimed",
-  "encryptedJournalIngest": "not claimed",
-  "nextWorkpack": "app-plan WP13 journal and SQLite app ingest"
-}

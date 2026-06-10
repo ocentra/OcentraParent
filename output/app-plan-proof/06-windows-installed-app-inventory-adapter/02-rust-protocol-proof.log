@@ -1,3 +1,0 @@
-WP06 Rust protocol proof reconciliation
-Shared proof: output/app-game-plan-proof/06-windows-installed-inventory-adapter
-Result: covered where the shared workpack changed Rust protocol or parser parity. N/A for docs-only or TypeScript-only shared workpacks.

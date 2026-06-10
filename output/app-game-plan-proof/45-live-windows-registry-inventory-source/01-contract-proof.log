@@ -1,6 +1,0 @@
-WP45 contract proof:
-- source kind remains osInstalledRecord
-- registry source rows use inventory-only app/game evidence
-- registry keys and executable/install/uninstall values become hashed source/path refs
-- hidden system-component entries are filtered before row projection
-- no runtime, foreground, content, policy, or adapter claim is emitted

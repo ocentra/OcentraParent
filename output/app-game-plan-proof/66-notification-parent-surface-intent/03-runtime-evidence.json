@@ -1,8 +1,0 @@
-{
-  "runtimeClaimed": false,
-  "uiRendered": false,
-  "providerDeliveryClaimed": false,
-  "providerReceiptClaimed": false,
-  "childDeliveryClaimed": false,
-  "reason": "WP66 produces parent-surface intent rows only; a future portal/runtime slice must render and execute them."
-}

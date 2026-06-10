@@ -1,5 +1,0 @@
-{
-  "workpack": "34-service-capture-app-game-live-process-bridge",
-  "policyActionStatus": "not_applicable",
-  "reason": "Native app WP34 captures runtime evidence only and does not evaluate policy or execute adapters."
-}

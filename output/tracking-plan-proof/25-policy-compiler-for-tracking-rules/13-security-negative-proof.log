@@ -1,5 +1,0 @@
-Security/no-claim proof:
-
-- AI critical candidates do not become final alert authority without a parent policy rule.
-- Manual-required rows do not create notification delivery, runtime enforcement, platform adapter, production worker, or physical-device claims.
-- Provider delivery, provider receipt ingestion, child-device delivery, platform runtime execution, and production persistence remain false.

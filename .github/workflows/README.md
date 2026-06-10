@@ -1,11 +1,15 @@
 # Ocentra Parent CI
 
-The CI gate is intentionally target-split. `ci.yml` detects changed paths,
-fans out to focused reusable workflows, then reports a few aggregate gates for
-branch protection compatibility. The goal is fast feedback and cheap retries:
-if Android package smoke fails, rerun the Android package target; do not make
-portal lint, Rust protocol tests, Windows MSI, and macOS package smoke run
-again just to check the Android fix.
+The CI gate is intentionally target-split, but final product PR validation is
+comprehensive. `ci.yml` detects changed paths, preserves a fast docs/Ledger
+gate, fans out to focused reusable workflows, then reports a few aggregate
+gates for branch protection compatibility. Non-doc pull requests targeting
+`main` or `production` force every product, Rust, portal, mobile, and package
+target so a change in one surface cannot hide a regression in another. The
+split still gives fast feedback and cheap retries: if Android package smoke
+fails, rerun the Android package target; do not make portal lint, Rust protocol
+tests, Windows MSI, and macOS package smoke run again just to check the Android
+fix.
 
 ```mermaid
 graph LR
@@ -74,7 +78,8 @@ graph LR
 
 - `ci.yml`: small orchestrator. It classifies path changes into docs/Ledger,
   portal TypeScript, domain packages, Rust protocol/core/service/adapters,
-  parent desktop/Tauri, child Android, child iOS, and package targets.
+  parent desktop/Tauri, child Android, child iOS, and package targets. Docs-only
+  PRs stay fast; product PRs force the full target graph for merge proof.
 - `ci-docs-hub.yml`: docs, Ledger integration docs, and root Markdown fast gate.
 - `ci-format.yml`: repository format check.
 - `ci-release-version.yml`: release version alignment.
@@ -133,8 +138,9 @@ gates:
 - `Package Preview Gate`
 
 Those aggregate jobs fail if any relevant target fails or is cancelled, and
-ignore skipped targets. This keeps branch protection stable while letting
-engineers rerun focused target jobs.
+ignore skipped targets. For non-doc product PRs, the orchestrator marks every
+product target relevant before those aggregates run. This keeps branch
+protection stable while letting engineers rerun focused target jobs.
 
 ## Rules
 
@@ -145,9 +151,10 @@ engineers rerun focused target jobs.
   package, E2E, dependency, and static-analysis work should not start.
 - Docs/Ledger-only changes are limited to `docs/**`, root-level `*.md`, and
   Ledger integration metadata; they run only the docs/Ledger gate.
-- Portal-only work should not run Android/iOS package previews.
-- Android-only work should not run portal lint or Windows/macOS packages unless
-  shared contracts or service code also changed.
+- Product pull requests are final merge proof and run every product, Rust,
+  portal, mobile, E2E, and package target unless they are docs/Ledger-only.
+- Path targeting remains useful for docs/Ledger fast-paths, workflow dispatch,
+  and focused reruns, but it must not suppress product PR merge proof.
 - Rust is not one bucket. Protocol, core, service, and adapter crates are
   separate targets.
 - Repo scripts and workflow topology are their own tooling target.

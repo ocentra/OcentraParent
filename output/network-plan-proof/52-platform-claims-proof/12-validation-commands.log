@@ -1,7 +1,0 @@
-network-platform-claims validation commands
-
-network-platform-claim-manifest-tests: cargo test -p ocentra-network-evidence platform_claims -> exit 0; log=output\network-plan-proof\52-platform-claims-proof\platform-claims-tests.log
-network-local-platform-probe-tests: cargo test -p ocentra-network-evidence local_platform_probe -> exit 0; log=output\network-plan-proof\52-platform-claims-proof\local-platform-probe-tests.log
-network-evidence-clippy: cargo clippy -p ocentra-network-evidence --all-targets -- -D warnings -> exit 0; log=output\network-plan-proof\52-platform-claims-proof\clippy.log
-source-shape: node scripts/check-source-shape.mjs -> exit 0; log=output\network-plan-proof\52-platform-claims-proof\source-shape.log
-diff-check: git diff --check -> exit 0; log=output\network-plan-proof\52-platform-claims-proof\diff-check.log

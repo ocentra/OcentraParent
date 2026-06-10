@@ -1,6 +1,0 @@
-{
-  "workpack": "39-authority-classifier-read-model-counts",
-  "nativeAppPolicyDecisionAdded": false,
-  "nativeAppAdapterDispatchAdded": false,
-  "scope": "shared read-model payload count exposure only"
-}

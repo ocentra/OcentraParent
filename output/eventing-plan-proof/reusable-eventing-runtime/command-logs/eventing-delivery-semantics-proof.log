@@ -1,2 +1,0 @@
-eventing-delivery-semantics-proof-ok:delivery-proof-struct,local-route-ready-state,external-transport-manual-required-state,external-relay-manual-required-state,live-external-transport-claim-rejected,live-external-relay-claim-rejected,decision-authority-claim-rejected,side-effect-authority-claim-rejected,local-route-test,external-transport-manual-required-test,external-relay-manual-required-test,claim-rejection-test
-proof=output\eventing-plan-proof\delivery-semantics\proof-summary.json

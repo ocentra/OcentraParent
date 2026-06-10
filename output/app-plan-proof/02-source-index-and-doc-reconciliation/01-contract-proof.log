@@ -1,4 +1,0 @@
-WP02 contract proof reconciliation
-Shared proof: output/app-game-plan-proof/02-source-index-and-doc-reconciliation
-Result: covered where the shared workpack changed TypeScript Effect Schema contracts. This reconciliation adds no new contract code.
-Validation command for this reconciliation is recorded in 10-validation-commands.log.
