@@ -34,6 +34,9 @@ jobs:
         with:
           install-rust: 'false'
 
+      - name: Build shared contracts
+        run: npm run build:contracts
+
       - name: Portal lint
         run: npm run lint --workspace @ocentra-parent/portal
 
@@ -49,6 +52,9 @@ jobs:
         with:
           install-rust: 'false'
 
+      - name: Build shared contracts
+        run: npm run build:contracts
+
       - name: Portal type check
         run: npm run type-check --workspace @ocentra-parent/portal
 
@@ -63,6 +69,9 @@ jobs:
       - uses: ./.github/actions/setup-ci
         with:
           install-rust: 'false'
+
+      - name: Build shared contracts
+        run: npm run build:contracts
 
       - name: Portal tests
         run: npm run test --workspace @ocentra-parent/portal

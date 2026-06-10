@@ -44,5 +44,8 @@ jobs:
 
       - uses: ./.github/actions/setup-ci
 
+      - name: Build shared contracts
+        run: npm run build:contracts
+
       - name: Android protocol and capability contract proof
         run: npm run test --workspace @ocentra-parent/parent-domain -- ${{ matrix.test_file }}

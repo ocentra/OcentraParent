@@ -49,5 +49,8 @@ jobs:
         with:
           install-rust: 'false'
 
+      - name: Build shared contracts
+        run: npm run build:contracts
+
       - name: Contract tests
         run: npm run test:contract
