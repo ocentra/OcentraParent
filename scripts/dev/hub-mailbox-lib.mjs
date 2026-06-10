@@ -21,11 +21,24 @@ const hubDirectoryName = 'ocentra-parent-hub';
 const schema = 'https://ocentra.ca/schemas/ocentra-parent-hub-mailbox.v1.json';
 
 export function defaultHubRoot(env = process.env) {
-  return env.OCENTRA_PARENT_HUB_ROOT ?? join(repoStateRoot(), hubDirectoryName);
+  return env.OCENTRA_PARENT_HUB_ROOT ?? readProjectHubConfig().legacyHubRoot ?? join(repoStateRoot(), hubDirectoryName);
 }
 
 function repoStateRoot(cwd = process.cwd()) {
   return join(findRepoRoot(cwd), '.hub', 'state');
+}
+
+function readProjectHubConfig(cwd = process.cwd()) {
+  const configPath = join(findRepoRoot(cwd), '.hub', 'hub.config.json');
+  if (!existsSync(configPath)) {
+    return {};
+  }
+
+  try {
+    return JSON.parse(readFileSync(configPath, 'utf8'));
+  } catch {
+    return {};
+  }
 }
 
 function findRepoRoot(cwd) {

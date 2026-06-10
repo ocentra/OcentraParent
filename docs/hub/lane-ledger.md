@@ -2,7 +2,7 @@
 
 This page is the human-readable companion to `.hub/lane-ledger.json`. The JSON ledger is the machine-readable repo-owned source of truth. This Markdown file is the review surface for humans moving between PCs.
 
-Operational Codex coordination state defaults to `.hub/state/worktree-lanes.json` and `.hub/state/ocentra-parent-hub`. Actual worktree checkouts may live outside the repo. User-global `.codex` is only a temporary recovery/override location, not normal Ocentra Parent state.
+Live Codex coordination state does not belong in the product repo. Durable lane declarations stay in `.hub/lane-ledger.json` and this file. Live mailbox, report, heartbeat, ack, and ownership traffic moves through OcentraHub, or through the configured legacy external hub root during migration.
 
 ## Mandatory Rule
 
@@ -54,16 +54,17 @@ Then update `.hub/lane-ledger.json` and this file with the audited state before 
 
 ## Two-PC Sync
 
-When using DOWN PC and UP PC at the same time, Git is the sync transport. Before touching coordination state on either PC:
+When using DOWN PC and UP PC at the same time, do not use product-repo commits as the live mailbox transport. Before touching coordination state on either PC, sync the external OcentraHub event ledger. Until OcentraHub lands, make sure the configured legacy external hub root is current, then inspect:
 
 ```powershell
-npm run hub:state:sync
+npm run hub:status
+npm run lanes:status
 ```
 
-After semantic hub changes:
+After semantic hub changes, publish them through OcentraHub. Do not commit `.hub/state/**` to `OcentraParent`.
 
 ```powershell
-npm run hub:state:sync -- -Commit
+ocentra-hub sync --hub ocentra-parent
 ```
 
 Only one PC may actively own a lane at a time. Another PC may coordinate or work a different lane only after syncing.
@@ -79,11 +80,9 @@ Only one PC may actively own a lane at a time. Another PC may coordinate or work
 
 ## Heartbeat Rule
 
-Heartbeat files are liveness telemetry, not semantic state. They can be blanked or truncated during repo migration. The semantic coordination state is in:
+Heartbeat events are liveness telemetry, not durable product state. They can expire or be compacted during migration. The semantic coordination state is in:
 
-- `.hub/state/worktree-lanes.json`
-- `.hub/state/ocentra-parent-hub/lanes/*/ownership.json`
-- `.hub/state/ocentra-parent-hub/lanes/*/inbox.md`
-- `.hub/state/ocentra-parent-hub/lanes/*/status.md`
+- OcentraHub append-only events and materialized lane views;
+- the configured legacy external hub root during migration;
 - `.hub/lane-ledger.json`
 - `docs/hub/lane-ledger.md`

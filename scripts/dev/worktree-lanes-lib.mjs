@@ -26,7 +26,7 @@ export const LaneCommand = Object.freeze({
 const ledgerFileName = 'ocentra-parent-worktrees.json';
 
 export function defaultLedgerPath(env = process.env) {
-  return env.OCENTRA_PARENT_LANE_LEDGER ?? join(repoStateRoot(), 'worktree-lanes.json');
+  return env.OCENTRA_PARENT_LANE_LEDGER ?? readProjectHubConfig().legacyLaneLedger ?? join(repoStateRoot(), 'worktree-lanes.json');
 }
 
 export function createDefaultLedger({ repoRoot, repoBranch = 'main', now = new Date() }) {
@@ -57,6 +57,19 @@ export function createDefaultLedger({ repoRoot, repoBranch = 'main', now = new D
 
 function repoStateRoot(cwd = process.cwd()) {
   return join(findRepoRoot(cwd), '.hub', 'state');
+}
+
+function readProjectHubConfig(cwd = process.cwd()) {
+  const configPath = join(findRepoRoot(cwd), '.hub', 'hub.config.json');
+  if (!existsSync(configPath)) {
+    return {};
+  }
+
+  try {
+    return JSON.parse(readFileSync(configPath, 'utf8'));
+  } catch {
+    return {};
+  }
 }
 
 function findRepoRoot(cwd) {

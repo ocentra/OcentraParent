@@ -1,6 +1,7 @@
 import { spawnSync } from 'node:child_process';
 
 const preCommitValidations = [
+  ['npm', ['run', 'hub:live-state:guard']],
   ['npm', ['run', 'format:check']],
   ['npm', ['run', 'lint:schema-boundaries']],
   ['npm', ['run', 'test:tooling']],

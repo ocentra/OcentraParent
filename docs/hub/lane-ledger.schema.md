@@ -1,6 +1,6 @@
 # Lane Ledger Schema
 
-`.hub/lane-ledger.json` is the repo-owned source of truth for portable Ocentra Parent lane state. Operational Codex state defaults to `.hub/state/worktree-lanes.json` and `.hub/state/ocentra-parent-hub`. Actual worktree checkouts may live outside the repo. User-global `.codex` should only be used through explicit temporary recovery overrides.
+`.hub/lane-ledger.json` is the repo-owned source of truth for portable Ocentra Parent lane declarations, PR state, validation, merge state, and cleanup safety. Live Codex mailbox, report, heartbeat, ack, and ownership transport does not belong in the product repo. It moves through OcentraHub, or through the configured legacy external hub root during migration. Actual worktree checkouts may live outside the repo.
 
 ## Required Top-Level Fields
 

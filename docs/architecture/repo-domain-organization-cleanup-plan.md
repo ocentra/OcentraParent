@@ -197,15 +197,17 @@ updates `docs/plans/browser-plan`, app/game updates
 The move is not complete if old plan docs still point at obsolete proof paths,
 test paths, or ownership boundaries.
 
-## Repo-Owned Coordination TODO
+## Coordination TODO
 
-This cleanup depends on coordination staying repo-owned:
+This cleanup depends on durable coordination being portable without turning hot mailbox state into product-repo churn:
 
 - lane state remains in `.hub/lane-ledger.json`,
-  `.hub/state/worktree-lanes.json`, and `docs/hub/lane-ledger.md`;
+  `docs/hub/lane-ledger.md`, and the external OcentraHub event ledger;
 - future docs/hub-only updates should use the fast required-check path added by
   PR #551 once it lands;
-- no lane should keep important cleanup state only in `.codex`;
+- no lane should keep important cleanup state only in machine-local Codex memory;
+- live mailbox, heartbeat, report, ack, and ownership traffic must move through
+  OcentraHub, with the legacy external hub root used only as a migration bridge;
 - no branch should be considered safe to delete until the hub ledger and remote
   branch/PR state prove it.
 
