@@ -42,7 +42,7 @@ test('non-doc product pull requests force the full merge proof graph', () => {
   assert.match(workflow, /product_pr_full_merge_proof=false/u);
   assert.match(
     workflow,
-    /if \[\[ "\$\{\{ github\.event_name \}\}" == "pull_request" && "\$docs_hub_only" != "true" \]\]/u
+    /if \[\[ "\$\{\{ github\.event_name \}\}" == "pull_request" && "\$docs_hub_only" != "true" && "\$ci_only" != "true" \]\]/u
   );
   assert.match(workflow, /product_pr_full_merge_proof=true/u);
   assert.match(workflow, /parent_mobile_changed=true/u);
@@ -52,6 +52,39 @@ test('non-doc product pull requests force the full merge proof graph', () => {
   assert.match(workflow, /package_parent_ios_changed=true/u);
   assert.match(workflow, /package_android_changed=true/u);
   assert.match(workflow, /package_ios_changed=true/u);
+});
+
+test('CI-only pull requests stay on CI tooling validation instead of product proof', () => {
+  const workflow = readCiWorkflow();
+
+  assert.match(workflow, /ci_only: \$\{\{ steps\.detect\.outputs\.ci_only \}\}/u);
+  assert.match(workflow, /ci_only=true/u);
+  assert.match(
+    workflow,
+    /\.github\/workflows\/\*\|\.github\/actions\/\*\|scripts\/ci\/\*\|scripts\/test\/workflow-ci-trigger\.test\.mjs\)/u
+  );
+  assert.match(workflow, /ci_only=false/u);
+  assert.match(
+    workflow,
+    /if \[\[ "\$workflow_changed" == "true" \]\]; then\s+docs_hub_only=false\s+tooling_changed=true\s+fi/u
+  );
+  assert.match(workflow, /ci-topology:\s+name: CI Workflow Topology/u);
+  assert.match(
+    workflow,
+    /format:[\s\S]+needs\.detect-targets\.outputs\.ci_only != 'true'[\s\S]+uses: \.\/\.github\/workflows\/ci-format\.yml/u
+  );
+  assert.match(
+    workflow,
+    /release-version:[\s\S]+needs\.detect-targets\.outputs\.ci_only != 'true'[\s\S]+uses: \.\/\.github\/workflows\/ci-release-version\.yml/u
+  );
+  assert.match(
+    workflow,
+    /dependency-policy:[\s\S]+needs\.detect-targets\.outputs\.ci_only != 'true'[\s\S]+uses: \.\/\.github\/workflows\/dependency-policy\.yml/u
+  );
+  assert.match(
+    workflow,
+    /static-analysis:[\s\S]+needs\.detect-targets\.outputs\.ci_only != 'true'[\s\S]+uses: \.\/\.github\/workflows\/ci-codeql\.yml/u
+  );
 });
 
 test('static analysis covers workflow, TypeScript, and Rust surfaces', () => {

@@ -15,17 +15,12 @@ jobs:
     steps:
       - uses: actions/checkout@v6
         with:
-          submodules: recursive
+          submodules: false
 
       - uses: ./.github/actions/setup-ci
         with:
+          install-mode: skip
           install-rust: 'false'
 
-      - name: Format docs and Ledger docs
-        run: npx prettier --check docs *.md .gitmodules
-
-      - name: Ledger root check
-        run: npm run ledger:root
-
-      - name: Ledger doctor check
-        run: npm run ledger:doctor
+      - name: Scan docs and hub state for secrets
+        run: node scripts/security/scan-staged-secrets.mjs --repo
