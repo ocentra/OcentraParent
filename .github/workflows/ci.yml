@@ -33,11 +33,14 @@ jobs:
       rust_service_changed: ${{ steps.detect.outputs.rust_service_changed }}
       rust_adapter_changed: ${{ steps.detect.outputs.rust_adapter_changed }}
       parent_desktop_changed: ${{ steps.detect.outputs.parent_desktop_changed }}
+      parent_mobile_changed: ${{ steps.detect.outputs.parent_mobile_changed }}
       child_android_changed: ${{ steps.detect.outputs.child_android_changed }}
       child_ios_changed: ${{ steps.detect.outputs.child_ios_changed }}
       package_windows_changed: ${{ steps.detect.outputs.package_windows_changed }}
       package_linux_changed: ${{ steps.detect.outputs.package_linux_changed }}
       package_macos_changed: ${{ steps.detect.outputs.package_macos_changed }}
+      package_parent_android_changed: ${{ steps.detect.outputs.package_parent_android_changed }}
+      package_parent_ios_changed: ${{ steps.detect.outputs.package_parent_ios_changed }}
       package_android_changed: ${{ steps.detect.outputs.package_android_changed }}
       package_ios_changed: ${{ steps.detect.outputs.package_ios_changed }}
     steps:
@@ -77,11 +80,14 @@ jobs:
           rust_service_changed=false
           rust_adapter_changed=false
           parent_desktop_changed=false
+          parent_mobile_changed=false
           child_android_changed=false
           child_ios_changed=false
           package_windows_changed=false
           package_linux_changed=false
           package_macos_changed=false
+          package_parent_android_changed=false
+          package_parent_ios_changed=false
           package_android_changed=false
           package_ios_changed=false
 
@@ -133,6 +139,9 @@ jobs:
               apps/parent-desktop/*)
                 parent_desktop_changed=true
                 ;;
+              platforms/android/parent/*|platforms/ios/OcentraParentMobile*|scripts/release/parent-android/*|scripts/release/parent-ios/*|scripts/test/*parent-mobile*|packages/parent-domain/src/*parent-mobile*|packages/parent-domain/tests/*parent-mobile*)
+                parent_mobile_changed=true
+                ;;
               platforms/android/*|scripts/release/android/*|scripts/smoke/android-*|scripts/test/*android*|packages/parent-domain/src/*android*)
                 child_android_changed=true
                 ;;
@@ -162,11 +171,14 @@ jobs:
             rust_service_changed=true
             rust_adapter_changed=true
             parent_desktop_changed=true
+            parent_mobile_changed=true
             child_android_changed=true
             child_ios_changed=true
             package_windows_changed=true
             package_linux_changed=true
             package_macos_changed=true
+            package_parent_android_changed=true
+            package_parent_ios_changed=true
             package_android_changed=true
             package_ios_changed=true
           fi
@@ -176,6 +188,10 @@ jobs:
             package_linux_changed=true
             package_macos_changed=true
           fi
+          if [[ "$parent_mobile_changed" == "true" ]]; then
+            package_parent_android_changed=true
+            package_parent_ios_changed=true
+          fi
           if [[ "$child_android_changed" == "true" ]]; then
             package_android_changed=true
           fi
@@ -183,7 +199,7 @@ jobs:
             package_ios_changed=true
           fi
 
-          for name in docs_hub_only source_changed portal_changed domain_changed tooling_changed rust_protocol_changed rust_core_changed rust_service_changed rust_adapter_changed parent_desktop_changed child_android_changed child_ios_changed package_windows_changed package_linux_changed package_macos_changed package_android_changed package_ios_changed; do
+          for name in docs_hub_only source_changed portal_changed domain_changed tooling_changed rust_protocol_changed rust_core_changed rust_service_changed rust_adapter_changed parent_desktop_changed parent_mobile_changed child_android_changed child_ios_changed package_windows_changed package_linux_changed package_macos_changed package_parent_android_changed package_parent_ios_changed package_android_changed package_ios_changed; do
             value="${!name}"
             echo "$name=$value" >> "$GITHUB_OUTPUT"
             printf '%s=%s\n' "$name" "$value"
@@ -246,6 +262,11 @@ jobs:
     needs: [detect-targets]
     if: ${{ needs.detect-targets.outputs.parent_desktop_changed == 'true' }}
     uses: ./.github/workflows/ci-parent-desktop-tauri.yml
+
+  parent-mobile:
+    needs: [detect-targets]
+    if: ${{ needs.detect-targets.outputs.parent_mobile_changed == 'true' }}
+    uses: ./.github/workflows/ci-parent-mobile.yml
 
   child-android:
     needs: [detect-targets]
@@ -356,6 +377,28 @@ jobs:
       }}
     uses: ./.github/workflows/ci-package-macos.yml
 
+  package-parent-android:
+    needs: [detect-targets, dependency-policy, parent-mobile]
+    if: >-
+      ${{
+        always() &&
+        needs.dependency-policy.result == 'success' &&
+        !contains(fromJSON('["failure","cancelled"]'), needs.parent-mobile.result) &&
+        needs.detect-targets.outputs.package_parent_android_changed == 'true'
+      }}
+    uses: ./.github/workflows/ci-package-parent-android.yml
+
+  package-parent-ios:
+    needs: [detect-targets, dependency-policy, parent-mobile]
+    if: >-
+      ${{
+        always() &&
+        needs.dependency-policy.result == 'success' &&
+        !contains(fromJSON('["failure","cancelled"]'), needs.parent-mobile.result) &&
+        needs.detect-targets.outputs.package_parent_ios_changed == 'true'
+      }}
+    uses: ./.github/workflows/ci-package-parent-ios.yml
+
   package-android:
     needs: [detect-targets, dependency-policy, child-android]
     if: >-
@@ -394,6 +437,7 @@ jobs:
       - rust-agent-core
       - rust-agent-service
       - rust-adapters
+      - parent-mobile
     steps:
       - name: Aggregate early checks
         shell: bash
@@ -419,6 +463,7 @@ jobs:
       - local-transport
       - portal-e2e
       - parent-desktop-tauri
+      - parent-mobile
       - child-android
       - child-ios
     steps:
@@ -443,6 +488,8 @@ jobs:
       - package-windows
       - package-linux
       - package-macos
+      - package-parent-android
+      - package-parent-ios
       - package-android
       - package-ios
     steps:

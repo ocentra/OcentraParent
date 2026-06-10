@@ -18,11 +18,14 @@ graph LR
   D --> RS["Rust service"]
   D --> RA["Rust adapters"]
   D --> DESK["Parent desktop/Tauri"]
+  D --> PM["Parent mobile"]
   D --> AND["Child Android"]
   D --> IOS["Child iOS"]
   TS --> E2E["Portal E2E"]
   RS --> LT["Local transport"]
   DESK --> PW["Windows/Linux/macOS packages"]
+  PM --> PMA["Parent Android package"]
+  PM --> PMI["Parent iOS package"]
   AND --> PA["Android package"]
   IOS --> PI["iOS package"]
 ```
@@ -54,6 +57,8 @@ graph LR
 - `ci-local-transport.yml`: real local WebSocket and LAN transport smoke.
 - `ci-portal-e2e.yml`: portal-to-Rust E2E on Windows, Linux, and macOS.
 - `ci-parent-desktop-tauri.yml`: parent desktop/Tauri type-check and build.
+- `ci-parent-mobile.yml`: parent mobile runtime contracts and source artifact
+  proof for the separate Android/iOS parent mobile app scaffolds.
 - `ci-child-android.yml`: child Android source contract checks for runtime,
   protocol, and capability boundaries. APK build and emulator smoke stay in
   the Android package target.
@@ -63,8 +68,16 @@ graph LR
 - `ci-package-windows.yml`: Windows MSI preview and smoke.
 - `ci-package-linux.yml`: Linux DEB preview and smoke.
 - `ci-package-macos.yml`: macOS PKG preview and smoke.
+- `ci-package-parent-android.yml`: parent mobile Android APK preview and
+  emulator smoke for `ca.ocentra.parent.mobile`.
+- `ci-package-parent-ios.yml`: parent mobile iOS simulator package preview and
+  smoke for `ca.ocentra.parent.mobile`.
 - `ci-package-android.yml`: Android APK preview and emulator smoke.
 - `ci-package-ios.yml`: iOS simulator package preview and smoke.
+
+Android/iOS package targets are split by product role. Parent mobile package
+targets build `ca.ocentra.parent.mobile`; child-agent package targets build
+`ca.ocentra.parent.agent`.
 
 ## Required Aggregates
 
@@ -93,6 +106,8 @@ engineers rerun focused target jobs.
 - Repo scripts and workflow topology are their own tooling target.
 - Package previews are platform targets. Windows, Linux, macOS, Android, and
   iOS can be retried independently.
+- Child mobile package previews do not prove parent mobile packaging. Parent
+  mobile Android/iOS targets have separate package, smoke, and proof rows.
 
 ## Release Boundary
 
