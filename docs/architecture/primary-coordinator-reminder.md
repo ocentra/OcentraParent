@@ -40,7 +40,7 @@ npm run hub:guard
 ```
 
 Also check relevant worker worktree `git status --short --branch` when a worker
-is stale, blocked, done, or on a branch that does not match the lane ledger.
+is stale, blocked, done, or on a branch that does not match Ledger lane state.
 
 ## Coordinator Timeline Log
 
@@ -144,7 +144,7 @@ and parent-rule preview quality batches are merged. Current lane ownership
 should stay parked unless validation finds a bug or the user explicitly resumes
 implementation.
 
-If the lane ledger and live branch disagree, send one targeted hub message and
+If Ledger lane state and the live branch disagree, send one targeted hub message and
 state which worker chat/worktree needs attention. Do not spam duplicate
 messages when unread mail already exists.
 
@@ -192,7 +192,7 @@ Treat these as action signals:
 - unread hub mail persists after a worker wake;
 - latest report is `waiting for instruction` despite active assignment;
 - latest heartbeat is stale for two or more minute cycles;
-- live branch does not match lane ledger;
+- live branch does not match Ledger lane state;
 - worker reports `BLOCKED`;
 - locks overlap or block another active lane.
 
