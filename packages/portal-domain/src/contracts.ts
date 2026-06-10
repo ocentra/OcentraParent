@@ -496,7 +496,9 @@ export const PortalEnvironment = {
   SocialAuditExplanationProofBundle: 'VITE_SOCIAL_AUDIT_EXPLANATION_PROOF_BUNDLE',
 } as const;
 
-export const PortalText = {
+const PortalText = {
   Resolve: resolvePortalDevText,
 } as const;
-export const PortalTextToken = PortalDevTextToken;
+const PortalTextToken = PortalDevTextToken;
+
+export { PortalText, PortalTextToken };

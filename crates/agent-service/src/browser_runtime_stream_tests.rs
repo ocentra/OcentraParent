@@ -447,6 +447,7 @@ fn policy_preview_read_model_for_browser(
                 enforcement_handoff_state: PolicyDecisionHandoffState::Disabled,
                 expires_at: None,
             },
+            network_evidence_mapping: None,
         }],
     }
 }

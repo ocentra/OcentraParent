@@ -110,17 +110,19 @@ describe('portal live activity state', () => {
 
   it('uses the latest matching events for portal live activity state', () => {
     const state = resolveLiveActivityState([
-      browserEvidenceEvent('evt-browser-earlier', 'https://earlier.example/learn'),
+      browserEvidenceEvent('evt-browser-earlier', 'https://earlier.example/learn', '2026-05-21T01:00:01Z'),
       activityReportEvent({
         eventId: 'evt-report-earlier',
         event: 'agent.activity.report.generated',
         reportId: 'activity-report-earlier',
+        sentAt: '2026-05-21T01:00:01Z',
       }),
-      browserEvidenceEvent('evt-browser-latest', 'https://latest.example/learn'),
+      browserEvidenceEvent('evt-browser-latest', 'https://latest.example/learn', '2026-05-21T01:00:02Z'),
       activityReportEvent({
         eventId: 'evt-report-latest',
         event: 'agent.activity.report.saved',
         reportId: 'activity-report-latest',
+        sentAt: '2026-05-21T01:00:02Z',
       }),
     ]);
 
@@ -527,7 +529,11 @@ function ingestStatusEvent() {
   });
 }
 
-function browserEvidenceEvent(eventId = 'evt-browser', url = 'https://example.test/learn') {
+function browserEvidenceEvent(
+  eventId = 'evt-browser',
+  url = 'https://example.test/learn',
+  sentAt = '2026-05-21T01:00:01Z'
+) {
   const origin = new URL(url).origin;
   const domain = new URL(url).hostname;
 
@@ -535,7 +541,7 @@ function browserEvidenceEvent(eventId = 'evt-browser', url = 'https://example.te
     schemaVersion: 1,
     eventId,
     correlationId: 'cmd-browser',
-    sentAt: '2026-05-21T01:00:01Z',
+    sentAt,
     source: {
       peerId: 'local-dev-agent',
       role: 'agent-service',
@@ -583,12 +589,13 @@ function activityReportEvent(input: {
   readonly eventId: unknown;
   readonly event: AgentEventName;
   readonly reportId: unknown;
+  readonly sentAt?: string;
 }) {
   return AgentEventEnvelopeSchema.parse({
     schemaVersion: 1,
     eventId: input.eventId,
     correlationId: 'cmd-report',
-    sentAt: '2026-05-21T01:00:01Z',
+    sentAt: input.sentAt ?? '2026-05-21T01:00:01Z',
     source: {
       peerId: 'local-dev-agent',
       role: 'agent-service',

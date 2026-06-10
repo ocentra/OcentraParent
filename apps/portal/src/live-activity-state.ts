@@ -109,6 +109,13 @@ type NetworkFlowReadModelState = {
   readonly readModel: ActivityNetworkFlowReadModel | null;
 };
 
+type BrowserRuntimeLiveActivityState = {
+  readonly browserRuntimeEventChainStreamEvent: AgentEventEnvelope | null;
+  readonly browserRuntimeEventChainStream: PortalBrowserRuntimeEventChainStream | null;
+  readonly browserSocialProviderReceiptStreamStatusIntent: BrowserSocialProviderReceiptStreamStatusIntent | null;
+  readonly browserSocialProviderReceiptIngestionReadinessStatusIntent: BrowserSocialProviderReceiptIngestionReadinessStatusIntent | null;
+};
+
 export type PortalBrowserRuntimeEventChainEntry = AgentBrowserRuntimeEventChainEntry;
 
 export type PortalBrowserRuntimeEventChainStream = AgentBrowserRuntimeEventChainStream;
@@ -134,8 +141,7 @@ export interface PortalLiveActivityState {
   readonly browserRuntimeEventChainStreamEvent: AgentEventEnvelope | null;
   readonly browserRuntimeEventChainStream: PortalBrowserRuntimeEventChainStream | null;
   readonly browserSocialProviderReceiptStreamStatusIntent: BrowserSocialProviderReceiptStreamStatusIntent | null;
-  readonly browserSocialProviderReceiptIngestionReadinessStatusIntent:
-    BrowserSocialProviderReceiptIngestionReadinessStatusIntent | null;
+  readonly browserSocialProviderReceiptIngestionReadinessStatusIntent: BrowserSocialProviderReceiptIngestionReadinessStatusIntent | null;
   readonly localAiRuntimeStatusEvent: AgentEventEnvelope | null;
   readonly lanAiJobEvent: AgentEventEnvelope | null;
   readonly parentAssistantBoundaryEvent: AgentEventEnvelope | null;
@@ -231,15 +237,7 @@ function resolveBrowserState(events: readonly AgentEventEnvelope[]) {
   };
 }
 
-function resolveBrowserRuntimeLiveActivityState(
-  event: AgentEventEnvelope | null
-): Pick<
-  PortalLiveActivityState,
-  | 'browserRuntimeEventChainStreamEvent'
-  | 'browserRuntimeEventChainStream'
-  | 'browserSocialProviderReceiptStreamStatusIntent'
-  | 'browserSocialProviderReceiptIngestionReadinessStatusIntent'
-> {
+function resolveBrowserRuntimeLiveActivityState(event: AgentEventEnvelope | null): BrowserRuntimeLiveActivityState {
   const stream = parseNullableBrowserRuntimeEventChainStream(event);
 
   return {

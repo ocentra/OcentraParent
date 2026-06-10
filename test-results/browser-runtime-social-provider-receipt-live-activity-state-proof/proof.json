@@ -1,7 +1,7 @@
 {
   "proofName": "browser-runtime-social-provider-receipt-live-activity-state-proof",
   "branch": "codex/d-runtime-ready",
-  "commit": "1213487d0",
+  "commit": "e69393456",
   "commandResults": [
     {
       "command": "cmd /c npm run build --workspace @ocentra-parent/agent-protocol-domain",
