@@ -54,8 +54,12 @@ graph LR
 - `ci-local-transport.yml`: real local WebSocket and LAN transport smoke.
 - `ci-portal-e2e.yml`: portal-to-Rust E2E on Windows, Linux, and macOS.
 - `ci-parent-desktop-tauri.yml`: parent desktop/Tauri type-check and build.
-- `ci-child-android.yml`: child Android runtime/protocol/capability proofs.
-- `ci-child-ios.yml`: child iOS runtime/protocol/capability proofs.
+- `ci-child-android.yml`: child Android source contract checks for runtime,
+  protocol, and capability boundaries. APK build and emulator smoke stay in
+  the Android package target.
+- `ci-child-ios.yml`: child iOS source contract checks for runtime, protocol,
+  and capability boundaries. Simulator build, install, launch, and proof output
+  stay in the iOS package target.
 - `ci-package-windows.yml`: Windows MSI preview and smoke.
 - `ci-package-linux.yml`: Linux DEB preview and smoke.
 - `ci-package-macos.yml`: macOS PKG preview and smoke.

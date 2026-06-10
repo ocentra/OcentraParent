@@ -9,16 +9,16 @@ permissions:
 
 jobs:
   child-ios:
-    name: Child iOS Runtime and Proofs
-    runs-on: macos-latest
-    timeout-minutes: 25
+    name: Child iOS Contracts
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
     steps:
       - uses: actions/checkout@v6
 
       - uses: ./.github/actions/setup-ci
 
-      - name: iOS entitlement capability proof
-        run: npm run test:child-ios-entitlement-capability-proof
+      - name: Build shared contracts
+        run: npm run build:contracts
 
-      - name: Tracking iOS simulator proof
-        run: npm run test:tracking-plan-ios-simulator-proof
+      - name: iOS entitlement capability contracts
+        run: npm run test --workspace @ocentra-parent/parent-domain -- tests/child-ios-entitlement-capability-proof.test.ts

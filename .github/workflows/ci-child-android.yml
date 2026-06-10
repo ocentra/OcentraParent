@@ -9,28 +9,21 @@ permissions:
 
 jobs:
   child-android:
-    name: Child Android Runtime and Proofs
+    name: Child Android Contracts
     runs-on: ubuntu-latest
-    timeout-minutes: 25
+    timeout-minutes: 15
     steps:
       - uses: actions/checkout@v6
 
       - uses: ./.github/actions/setup-ci
 
-      - uses: actions/setup-java@v4
-        with:
-          distribution: temurin
-          java-version: '17'
+      - name: Build shared contracts
+        run: npm run build:contracts
 
-      - uses: android-actions/setup-android@v3
-
-      - name: Setup Gradle cache
-        uses: gradle/actions/setup-gradle@v4
-
-      - name: Android protocol and capability proofs
+      - name: Android protocol and capability contracts
         run: |
-          npm run test:child-android-protocol-package-lifecycle-proof
-          npm run test:child-android-permission-capability-proof
-          npm run test:child-android-privileged-capability-proof
-          npm run test:child-android-storage-protocol-capability-proof
-          npm run test:child-android-service-protocol-capability-proof
+          npm run test --workspace @ocentra-parent/parent-domain -- tests/child-android-lifecycle-proof.test.ts
+          npm run test --workspace @ocentra-parent/parent-domain -- tests/child-android-permission-capability-proof.test.ts
+          npm run test --workspace @ocentra-parent/parent-domain -- tests/child-android-privileged-capability-proof.test.ts
+          npm run test --workspace @ocentra-parent/parent-domain -- tests/child-android-storage-protocol-proof.test.ts
+          npm run test --workspace @ocentra-parent/parent-domain -- tests/child-android-service-protocol-proof.test.ts
