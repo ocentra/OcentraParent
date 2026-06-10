@@ -1,5 +1,0 @@
-{
-  "policyDecisionClaimed": false,
-  "adapterExecutionClaimed": false,
-  "reason": "WP43 supplies inventory evidence only; policy consumption and adapter execution remain separate proof-gated gaps."
-}

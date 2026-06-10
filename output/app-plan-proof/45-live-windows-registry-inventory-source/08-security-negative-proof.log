@@ -1,5 +1,0 @@
-WP45 native app negative proof:
-- registry keys are hashed before source refs are emitted
-- install, display-icon, uninstall, and quiet-uninstall path values are hashed before path refs are emitted
-- hidden system-component registry entries are filtered
-- registry inventory rows emit no runtime, foreground, content, policy, or adapter authority

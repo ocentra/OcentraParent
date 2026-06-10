@@ -1,8 +1,0 @@
-UI proof not applicable for WP46.
-
-WP46 changes the backend service capture path only. It does not add portal rows, source freshness UI, policy UI, child UX, or browser-visible behavior.
-
-Full validation still ran portal smoke and Playwright:
-- portal-local-smoke-ok
-- assistant-chat-ui-proof.spec.ts passed
-- portal-ui.spec.ts passed

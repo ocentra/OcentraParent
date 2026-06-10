@@ -1,9 +1,0 @@
-{
-  "serial": "emulator-5554",
-  "androidRelease": "15",
-  "androidSdk": "35",
-  "buildFingerprint": "google/sdk_gphone64_x86_64/emu64xa:15/AE3A.240806.036/12592187:user/release-keys",
-  "productModel": "sdk_gphone64_x86_64",
-  "productManufacturer": "Google",
-  "abi": "x86_64"
-}

@@ -1,7 +1,0 @@
-Security/no-claim proof:
-
-- Stored sessions are counted only when they match the policy target.
-- Cross-device sessions are rejected by the schema boundary.
-- Ask-parent/manual-required decisions do not create adapter dispatch proof.
-- Dry-run timer state is represented without executing a platform adapter.
-- Service persistence, notification delivery, portal authoring, and platform support remain unclaimed.

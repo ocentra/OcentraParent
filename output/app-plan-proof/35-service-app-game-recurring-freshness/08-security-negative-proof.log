@@ -1,8 +1,0 @@
-Security negative proof:
-
-- Native app running evidence remains distinct from foreground evidence.
-- No content capture was added.
-- No AI direct enforcement was added.
-- No policy consumer was added.
-- No broad app blocking or adapter execution was added.
-- No raw private executable path UI rendering was added.

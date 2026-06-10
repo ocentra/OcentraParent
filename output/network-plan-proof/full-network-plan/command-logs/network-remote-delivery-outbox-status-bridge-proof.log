@@ -1,2 +1,0 @@
-network-remote-delivery-outbox-status-bridge-proof-ok:protocol,service,ts,source-shape,diff-check
-proof=output/network-plan-proof/10h-remote-delivery-outbox-status-bridge/proof-summary.json

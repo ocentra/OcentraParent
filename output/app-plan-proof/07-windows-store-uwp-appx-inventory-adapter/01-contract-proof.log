@@ -1,4 +1,0 @@
-WP07 contract proof reconciliation
-Shared proof: output/app-game-plan-proof/07-windows-store-uwp-appx-inventory-adapter
-Result: covered where the shared workpack changed TypeScript Effect Schema contracts. This reconciliation adds no new contract code.
-Validation command for this reconciliation is recorded in 10-validation-commands.log.

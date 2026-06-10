@@ -1,7 +1,0 @@
-{
-  "workpack": "44-service-windows-store-package-capture-bridge",
-  "policyDecision": "not-in-scope",
-  "adapterAction": "not-in-scope",
-  "manualRequired": true,
-  "reason": "WP44 adds service-captured inventory evidence only; policy consumption and adapter execution remain separate gaps."
-}

@@ -1,4 +1,0 @@
-network-android-physical-target-tests: cargo test -p ocentra-network-evidence android_physical_target -> exit 0; log=output\network-plan-proof\android-physical-target-proof\command-logs\network-android-physical-target-tests.log
-network-evidence-clippy: cargo clippy -p ocentra-network-evidence --all-targets -- -D warnings -> exit 0; log=output\network-plan-proof\android-physical-target-proof\command-logs\network-evidence-clippy.log
-source-shape: node scripts/check-source-shape.mjs -> exit 0; log=output\network-plan-proof\android-physical-target-proof\command-logs\source-shape.log
-diff-check: git diff --check -> exit 0; log=output\network-plan-proof\android-physical-target-proof\command-logs\diff-check.log

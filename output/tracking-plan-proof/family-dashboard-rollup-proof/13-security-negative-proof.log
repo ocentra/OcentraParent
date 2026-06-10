@@ -1,4 +1,0 @@
-Security/no-claim proof:
-
-- Rollup rows do not claim portal UI completion, child-device delivery, provider delivery, notification receipts, authority enrollment, physical-device behavior, or product completion.
-- The child attention row must expose a non-zero attention count instead of hiding attention behind a calm summary.

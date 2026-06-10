@@ -1,6 +1,0 @@
-{
-  "workpack": "11-cross-platform-authority-matrix",
-  "journalChanged": false,
-  "sqliteChanged": false,
-  "proof": "No journal or SQLite ingest changed. Authority matrix rows are parent-domain contract proof only."
-}

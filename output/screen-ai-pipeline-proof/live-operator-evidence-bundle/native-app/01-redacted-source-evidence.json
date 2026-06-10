@@ -1,7 +1,0 @@
-{
-  "scenarioId": "native-app",
-  "sourceKind": "operator-native-app",
-  "commandName": "notepad.exe",
-  "launchArgsCount": 1,
-  "liveExternalUrl": false
-}

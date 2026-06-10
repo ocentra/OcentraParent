@@ -1,8 +1,0 @@
-{
-  "workpack": "Native app WP36 live foreground window source",
-  "policyDecisionAdded": false,
-  "policyRuntimeConsumerAdded": false,
-  "adapterActionAdded": false,
-  "broadBlockingClaimAdded": false,
-  "reason": "The native app plan only cross-records shared core foreground evidence proof."
-}

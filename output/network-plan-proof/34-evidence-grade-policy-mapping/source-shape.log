@@ -1,3 +1,0 @@
-Source shape warnings scoped to row34 source refs:
-crates/ocentra-network-evidence/src/lib.rs:1 file has 274 lines; crossed 250-line advisory band; maximum is 1000
-Source shape guard passed.

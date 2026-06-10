@@ -1,6 +1,0 @@
-cmd /c npm --workspace @ocentra-parent/activity-domain run build # exit 0
-cmd /c npm --workspace @ocentra-parent/parent-domain run build # exit 0
-cmd /c npm --workspace @ocentra-parent/portal-domain run build # exit 0
-cmd /c npm --workspace @ocentra-parent/activity-domain run test -- tracking-evidence-quality-gate # exit 0
-cmd /c npm --workspace @ocentra-parent/parent-domain run test -- tracking-location-policy # exit 0
-cmd /c npm --workspace @ocentra-parent/portal run test -- tracking-status-panel # exit 0

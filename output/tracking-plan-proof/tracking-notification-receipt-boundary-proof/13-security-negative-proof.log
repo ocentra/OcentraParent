@@ -1,5 +1,0 @@
-Security/no-claim proof:
-
-- Provider delivery, webhook receipt ingestion, credentials, adapter dispatch, retry worker runtime, quiet-hours runtime, parent notification UI, child-device delivery, mobile physical-device proof, authority proof, and durable outbox storage remain false.
-- Receipt boundary rows keep provider receipt refs empty because no real provider receipt has been ingested.
-- Tracking evidence remains behind source evidence refs instead of provider payload metadata.

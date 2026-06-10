@@ -1,6 +1,0 @@
-Contract proof:
-
-- cmd /c npm run build --workspace @ocentra-parent/parent-domain: PASS
-- cmd /c npm run test --workspace @ocentra-parent/parent-domain -- tracking-provider-notification-proof tracking-location-policy v0-8-notification-provider-status-boundary: PASS
-- Tracking alert rows preserve evidence refs, policy decision refs, notification status refs, reason refs, and sensitive-detail modes.
-- Tracking rows map into existing V0.8 provider-status boundary rows while provider delivery remains unclaimed.

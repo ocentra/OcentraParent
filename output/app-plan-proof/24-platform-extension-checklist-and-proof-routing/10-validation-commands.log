@@ -1,5 +1,0 @@
-Validation run:
-
-- cmd /c npm run build --workspace @ocentra-parent/parent-domain: PASS
-- cmd /c npm run test --workspace @ocentra-parent/parent-domain -- app-game-platform-extension-routing: PASS
-- node scripts/test/app-game-platform-extension-routing-proof.mjs: PASS

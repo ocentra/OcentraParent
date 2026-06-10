@@ -1,8 +1,0 @@
-cargo test -p ocentra-network-evidence raw_capture_storage
-log=output\network-plan-proof\03a-live-capture-storage-proof\raw-capture-storage-tests.log
-
-cargo clippy -p ocentra-network-evidence --all-targets -- -D warnings
-log=output\network-plan-proof\03a-live-capture-storage-proof\clippy.log
-
-node scripts/check-source-shape.mjs
-log=output\network-plan-proof\03a-live-capture-storage-proof\source-shape.log

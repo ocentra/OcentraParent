@@ -1,6 +1,0 @@
-{
-  "workpack": "20-child-facing-app-warning-block-request-ux",
-  "journalOrSqliteChanged": false,
-  "claim": "Native app child UX cards require refs but do not add journal or SQLite persistence.",
-  "sharedProofRoot": "output/app-game-plan-proof/21-child-facing-warning-and-request-ux"
-}

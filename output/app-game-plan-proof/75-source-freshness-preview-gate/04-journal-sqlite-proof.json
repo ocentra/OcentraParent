@@ -1,6 +1,0 @@
-{
-  "schemaVersion": 1,
-  "journalSqliteChanged": false,
-  "sourceFreshnessRowsFromActivityReadModel": true,
-  "previewGateArtifact": "test-results/app-game-source-freshness-preview-gate-proof/source-freshness-preview-gate-read-model.json"
-}

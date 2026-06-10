@@ -1,2 +1,0 @@
-eventing-compatibility-matrix-proof-ok:compatibility-matrix-type-exists,compatibility-status-type-exists,matrix-records-intentional-deviation,matrix-records-manual-required,tests-cover-lineage-semantics,tests-cover-deviation-and-manual-required,generated-markdown-matrix-exists
-proof=output\eventing-plan-proof\69-compatibility-matrix\proof-summary.json

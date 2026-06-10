@@ -1,5 +1,0 @@
-Contract proof:
-
-- cmd /c npm run build --workspace @ocentra-parent/agent-protocol-domain: PASS
-- cmd /c npm run test --workspace @ocentra-parent/agent-protocol-domain -- app-game-policy-readiness: PASS
-- Parser accepts only the dedicated policy readiness event and rejects adapterDispatchClaimed=true.

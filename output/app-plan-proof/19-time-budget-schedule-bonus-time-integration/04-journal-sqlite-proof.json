@@ -1,6 +1,0 @@
-{
-  "workpack": "19-time-budget-schedule-bonus-time-integration",
-  "journalOrSqliteChanged": false,
-  "claim": "Native app budget decisions require stored session refs but do not add journal or SQLite budget persistence.",
-  "sharedProofRoot": "output/app-game-plan-proof/20-time-budget-schedule-bonus-time-integration"
-}

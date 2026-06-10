@@ -1,5 +1,0 @@
-Rust protocol proof:
-
-- Reuses shared app/game WP35 cadence constant:
-  `constants::activity_capture::RECURRING_CAPTURE_INTERVAL_MS`.
-- No new native-app-only Rust protocol payload shape was introduced.

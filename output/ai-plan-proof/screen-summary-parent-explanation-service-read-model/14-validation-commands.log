@@ -1,2 +1,0 @@
-node --check scripts/test/screen-summary-parent-explanation-service-read-model-proof.mjs
-node scripts/test/screen-summary-parent-explanation-service-read-model-proof.mjs

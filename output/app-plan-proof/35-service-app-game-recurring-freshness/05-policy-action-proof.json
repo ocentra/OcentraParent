@@ -1,7 +1,0 @@
-{
-  "workpack": "35-service-app-game-recurring-freshness",
-  "policyChanged": false,
-  "adapterExecutionAdded": false,
-  "nativeAppBlockingClaimed": false,
-  "claim": "recurring native app runtime evidence freshness only"
-}

@@ -1,3 +1,0 @@
-Playwright UI proof not run for native app WP38.
-
-Reason: no portal UI or browser-facing route changed. The authoritative proof is the shared app/game service test.

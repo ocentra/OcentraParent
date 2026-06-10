@@ -1,5 +1,0 @@
-node --check scripts/test/screen-ai-ios-mobile-control-custody-proof.mjs
-node scripts/test/screen-ai-ios-mobile-control-custody-proof.mjs
-git diff --check
-npm run lanes:guard
-npm run hub:guard

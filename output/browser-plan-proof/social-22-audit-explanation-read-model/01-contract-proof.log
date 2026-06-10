@@ -1,5 +1,0 @@
-SOCIAL-22 contract proof commands:
-cmd /c npm --workspace @ocentra-parent/parent-domain run test -- social-audit-explanation-read-model.test.ts # exit 0
-cmd /c npm --workspace @ocentra-parent/portal-domain run test -- social-audit-explanation-panel.test.ts # exit 0
-cmd /c npm --workspace @ocentra-parent/portal run test -- social-audit-explanation-panel.test.ts # exit 0
-C:\Program Files\nodejs\node.exe C:\Users\sujan\.codex\worktrees\ocentra-parent-codex-d\OcentraParent\node_modules\@playwright\test\cli.js test --config C:\Users\sujan\.codex\worktrees\ocentra-parent-codex-d\OcentraParent\apps\portal\playwright.config.ts social-audit-explanation-ui-proof.spec.ts --workers=1 # exit 0

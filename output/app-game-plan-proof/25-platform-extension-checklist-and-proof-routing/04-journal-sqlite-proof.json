@@ -1,5 +1,0 @@
-{
-  "schemaVersion": 1,
-  "journalSqliteChanged": false,
-  "reason": "Extension routing contract only; no journal or SQLite behavior changed."
-}

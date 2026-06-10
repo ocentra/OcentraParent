@@ -206,6 +206,30 @@ jobs:
             package_ios_changed=true
           fi
 
+          product_pr_full_merge_proof=false
+          if [[ "${{ github.event_name }}" == "pull_request" && "$docs_hub_only" != "true" ]]; then
+            product_pr_full_merge_proof=true
+            source_changed=true
+            portal_changed=true
+            domain_changed=true
+            tooling_changed=true
+            rust_protocol_changed=true
+            rust_core_changed=true
+            rust_service_changed=true
+            rust_adapter_changed=true
+            parent_desktop_changed=true
+            parent_mobile_changed=true
+            child_android_changed=true
+            child_ios_changed=true
+            package_windows_changed=true
+            package_linux_changed=true
+            package_macos_changed=true
+            package_parent_android_changed=true
+            package_parent_ios_changed=true
+            package_android_changed=true
+            package_ios_changed=true
+          fi
+
           if [[ "$parent_desktop_changed" == "true" || "$rust_service_changed" == "true" || "$rust_adapter_changed" == "true" ]]; then
             package_windows_changed=true
             package_linux_changed=true
@@ -229,6 +253,7 @@ jobs:
           done
 
           printf 'main PR proof reason: %s\n' "$main_pr_proof_reason"
+          printf 'product PR full merge proof: %s\n' "$product_pr_full_merge_proof"
           printf 'changed files:\n'
           printf '%s\n' "${changed_files[@]}"
 

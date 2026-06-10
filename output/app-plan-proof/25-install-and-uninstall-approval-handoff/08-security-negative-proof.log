@@ -1,7 +1,0 @@
-Security/no-claim proof:
-
-- Store and purchase signals are context-only, not safety decisions.
-- Approval handoffs require evidence refs.
-- Uninstall/tamper rows route to tamper docs without anti-tamper claims.
-- Adapter execution and policy decision claims remain not-claimed.
-- Billing entitlement logic remains out of child safety decisions.

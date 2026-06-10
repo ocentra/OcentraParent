@@ -1,5 +1,0 @@
-WP38 native app contract proof:
-- Cross-records shared app/game service read-model evidence refs.
-- Reuses existing app-use/games DTO evidence vectors.
-- Adds no native-app-only public contract.
-- Focused service tests prove both app-use and games rows preserve staged boundary refs.

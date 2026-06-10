@@ -1,4 +1,0 @@
-Rust protocol proof:
-
-- cargo test -p ocentra-parent-agent-protocol app_game_policy_readiness: PASS
-- DTO serialization preserves policyEvaluationReady, manualReviewRequired, and adapterDispatchClaimed=false.

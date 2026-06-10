@@ -1,6 +1,0 @@
-{
-  "appGameWorkpack": "29-rust-protocol-evidence-identity-parity",
-  "journalOrSqliteChanged": false,
-  "reason": "Evidence claim, digest, identity, and identity-merge rows are not yet stored by journal or SQLite in this slice.",
-  "remainingGap": "Add service/journal storage before portal or policy consumers depend on these protocol shapes."
-}

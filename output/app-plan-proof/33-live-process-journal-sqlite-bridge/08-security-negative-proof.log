@@ -1,7 +1,0 @@
-Security/no-claim proof:
-
-- Native app runtime evidence remains separate from foreground evidence.
-- Replayed read model returns zero foreground rows for the live process event.
-- Unknown process rows do not become known apps without deterministic refs.
-- Executable paths remain opaque refs.
-- No policy action or platform adapter execution is called.

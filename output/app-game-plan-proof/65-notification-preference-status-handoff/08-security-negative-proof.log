@@ -1,5 +1,0 @@
-Security/no-claim proof:
-
-- App/game rows are linked to preference and quiet-hours status entries without sending provider payloads.
-- Parent preference setup, frequency controls, and quiet-hours policy remain manual proof requirements until real parent-visible controls exist.
-- Parent preference UI, parent notification UI, provider delivery, receipt ingestion, credentials, cloud routing, retry workers, quiet-hours timers, child delivery, durable outbox storage, and adapter dispatch remain false.
