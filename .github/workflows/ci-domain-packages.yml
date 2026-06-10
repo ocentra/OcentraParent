@@ -1,0 +1,29 @@
+name: CI Domain Packages
+
+on:
+  workflow_call:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  domain-packages:
+    name: Domain Packages Contracts
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: ./.github/actions/setup-ci
+        with:
+          install-rust: 'false'
+
+      - name: Schema and source boundary lint
+        run: npm run lint:schema-boundaries
+
+      - name: Build shared contracts
+        run: npm run build:contracts
+
+      - name: Contract tests
+        run: npm run test:contract

@@ -36,10 +36,8 @@ process.exit(0);
 async function main() {
   await mkdir(outputDir, { recursive: true });
 
-  await runCommand('cmd', ['/c', 'npm', 'run', 'build:contracts']);
-  await runCommand('cmd', [
-    '/c',
-    'npm',
+  await runNpm(['run', 'build:contracts']);
+  await runNpm([
     'run',
     'test',
     '--workspace',
@@ -49,15 +47,11 @@ async function main() {
   ]);
   await ensureParentMobileProofArtifact();
   await ensureProofArtifact(productionMobileProofPath, 'v0-9-production-lan-mobile-controller-proof', [
-    'cmd',
-    '/c',
-    'node',
+    process.execPath,
     'scripts/test/v0-9-production-lan-mobile-controller-proof.mjs',
   ]);
   await ensureProofArtifact(discoveryRuntimeProofPath, 'v0-9-mobile-controller-discovery-runtime-proof', [
-    'cmd',
-    '/c',
-    'node',
+    process.execPath,
     'scripts/test/v0-9-mobile-controller-discovery-runtime-proof.mjs',
   ]);
 
@@ -507,6 +501,14 @@ async function runCommand(commandName, args) {
   });
 }
 
+async function runNpm(args) {
+  if (process.platform === 'win32') {
+    await runCommand('cmd', ['/c', 'npm', ...args]);
+    return;
+  }
+  await runCommand('npm', args);
+}
+
 async function readJson(path) {
   return JSON.parse(await readFile(path, 'utf8'));
 }
@@ -525,7 +527,7 @@ async function ensureParentMobileProofArtifact() {
     commands.push(`reuse-proof ${relative(repoRoot, parentMobileProofPath).replaceAll('\\', '/')}`);
     return;
   }
-  await runCommand('cmd', ['/c', 'node', 'scripts/test/parent-mobile-shell-runtime-proof.mjs']);
+  await runCommand(process.execPath, ['scripts/test/parent-mobile-shell-runtime-proof.mjs']);
 }
 
 async function proofArtifactMatches(path, expectedMode) {

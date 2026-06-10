@@ -1,0 +1,21 @@
+name: CI Local Transport
+
+on:
+  workflow_call:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  local-transport:
+    name: Local WebSocket and LAN Transport
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: ./.github/actions/setup-ci
+
+      - name: Local and LAN smoke tests
+        run: npm run test:integration

@@ -9,6 +9,7 @@ area.
 - Android foreground/service scaffold.
 - Android proof artifacts for install, launch, permissions, and lifecycle.
 - Future Android-specific child-agent and parent-mobile wrappers.
+- Android parent mobile scaffold app under `platforms/android/parent`.
 
 ## Must Not Own
 
@@ -50,6 +51,11 @@ area.
   parent-cache stale, parent-owned-storage offline, observer read-only, and
   controller-takeover manual-required states without claiming Device Owner,
   foreground child-agent runtime, Play signing, store release, or phone-local AI.
+- `release:package:parent-android` builds the separate
+  `ca.ocentra.parent.mobile` parent mobile scaffold APK. Its package preview is
+  real build/install/launch evidence for the parent app scaffold only; it is not
+  child-agent runtime, controller authority, foreground-service, Play signing,
+  or store proof.
 - `test:tracking-plan-android-emulator-proof` covers tracking-plan Android
   emulator package mechanics: debug APK build, install, launch, foreground
   service observation, UI tree, screenshot, logcat, battery dump, and
@@ -73,4 +79,5 @@ area.
 
 - Child-agent runtime parity is manual-required.
 - Store/signing and policy proof are incomplete.
-- Android parent app and Android child agent must stay separate in docs and UI.
+- Android parent app and Android child agent must stay separate in source,
+  package artifacts, docs, and UI.

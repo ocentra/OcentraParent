@@ -1,0 +1,27 @@
+name: CI Rust Agent Service
+
+on:
+  workflow_call:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  rust-agent-service:
+    name: Rust Agent Service
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: ./.github/actions/setup-ci
+
+      - name: Rust format
+        run: cargo fmt --all --check
+
+      - name: Service clippy
+        run: cargo clippy -p ocentra-parent-agent-service --all-targets -- -D warnings
+
+      - name: Service tests
+        run: cargo test -p ocentra-parent-agent-service --all-targets -- --test-threads=1

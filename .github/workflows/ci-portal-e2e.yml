@@ -1,0 +1,32 @@
+name: CI Portal E2E
+
+on:
+  workflow_call:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  portal-e2e:
+    name: Portal To Rust E2E (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 25
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [windows-latest, ubuntu-latest, macos-latest]
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: ./.github/actions/setup-ci
+
+      - name: Install Playwright Chromium
+        run: npx playwright install chromium
+
+      - name: Install Playwright Linux dependencies
+        if: ${{ runner.os == 'Linux' }}
+        run: npx playwright install-deps chromium
+
+      - name: Run real portal-to-Rust E2E
+        run: npm run test:e2e

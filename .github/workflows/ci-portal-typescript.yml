@@ -1,0 +1,32 @@
+name: CI Portal TypeScript
+
+on:
+  workflow_call:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  portal-typescript:
+    name: Portal TypeScript, Lint, Unit Tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: ./.github/actions/setup-ci
+        with:
+          install-rust: 'false'
+
+      - name: Build shared contracts
+        run: npm run build:contracts
+
+      - name: Portal lint
+        run: npm run lint --workspace @ocentra-parent/portal
+
+      - name: Portal type check
+        run: npm run type-check --workspace @ocentra-parent/portal
+
+      - name: Portal tests
+        run: npm run test --workspace @ocentra-parent/portal
