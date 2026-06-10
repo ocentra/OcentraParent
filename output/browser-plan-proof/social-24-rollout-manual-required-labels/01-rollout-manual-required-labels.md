@@ -1,6 +1,6 @@
 # SOCIAL-24 Rollout Manual-Required Labels
 
-Generated: 2026-06-07T13:14:03.484Z
+Generated: 2026-06-08T22:52:53.265Z
 
 Rows checked: 23
 Proof-present rows: 21
@@ -54,16 +54,21 @@ Live SOCIAL-19 evidence-bound decision memory proof is present.
 Ref-only social alert/report intent proof is present.
 Parent-owned social alert/report local outbox JSONL bridge proof is present.
 Social alert/report parent-surface intent proof is present for manual/unavailable status rows.
+Service-backed social alert/report parent-surface UI proof is present for the real Browser route.
 Parent-owned social alert/report scheduler JSONL bridge proof is present.
 Social alert/report audit-history bridge proof is present through the logging-domain handoff.
 Service-backed social alert/report intent UI proof is present for the real Browser route.
 Social alert/report provider preflight proof is present and requires provider adapter setup before delivery.
 Social alert/report provider status handoff proof is present and maps preflight rows to manual-required or unavailable provider status boundary rows.
 Parent-owned report writer delivery-readiness proof is present.
+Parent notification/report delivery readiness proof is present.
+Parent-owned local delivery result proof is present for report-ready rows.
+Managed-browser social policy execution proof is present for a real YouTube block intervention.
+Social alert/report provider dispatch execution proof prepares local dispatch packets without claiming provider delivery.
 Parent-owned schedule/time-budget application-readiness proof is present.
 Schedule/time-budget compiler proof and parent sensitivity
 settings proof are present. Source custody settings proof is present over
 source/privacy refs, and service-backed source custody mutation proof is
-present. Connector/native runtime, external provider delivery, runtime-applied
-schedules/budgets, final policy execution, and enforcement remain
-unclaimed.
+present. Connector/native runtime, external provider delivery, parent
+notification UI delivery, runtime-applied schedules/budgets, broad or
+unmanaged policy execution, and enforcement remain unclaimed.

@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "proofMode": "social-platform-account-feed-rollout-gate",
-  "generatedAt": "2026-06-07T13:14:03.484Z",
+  "generatedAt": "2026-06-08T22:52:53.265Z",
   "rows": [
     {
       "rowNumber": 1,
@@ -222,6 +222,7 @@
     "social-alert-report-intent-proof-present",
     "social-alert-report-local-outbox-bridge-proof-present",
     "social-alert-report-parent-surface-intent-proof-present",
+    "social-alert-report-parent-surface-service-ui-proof-present",
     "social-alert-report-scheduler-bridge-proof-present",
     "social-alert-report-preference-preflight-proof-present",
     "social-alert-report-preference-status-handoff-proof-present",
@@ -230,12 +231,15 @@
     "social-alert-report-provider-preflight-proof-present",
     "social-alert-report-provider-status-handoff-proof-present",
     "social-report-writer-delivery-proof-present",
+    "social-parent-notification-delivery-readiness-proof-present",
+    "social-parent-local-delivery-result-proof-present",
     "social-applied-schedule-time-budget-proof-present",
     "social-schedule-time-budget-compiler-proof-present",
     "social-parent-sensitivity-settings-proof-present",
     "social-source-custody-settings-proof-present",
     "social-source-custody-mutation-proof-present",
     "external-runtime-report-delivery-not-claimed",
+    "parent-notification-ui-delivery-not-claimed",
     "provider-delivery-not-claimed",
     "runtime-applied-schedule-time-budget-not-claimed",
     "connector-native-runtime-not-claimed",
@@ -297,6 +301,26 @@
       "present": true
     },
     {
+      "file": "test-results/social-alert-report-parent-surface-service-ui-proof/proof.json",
+      "present": true
+    },
+    {
+      "file": "test-results/social-alert-report-parent-surface-service-ui-proof/accessibility-summary.json",
+      "present": true
+    },
+    {
+      "file": "output/browser-plan-proof/social-alert-report-parent-surface-service-ui-proof/01-social-alert-report-parent-surface-service-ui-proof.md",
+      "present": true
+    },
+    {
+      "file": "output/browser-plan-proof/social-alert-report-parent-surface-service-ui-proof/06-ui-snapshots/social-alert-report-browser-route.png",
+      "present": true
+    },
+    {
+      "file": "output/browser-plan-proof/social-alert-report-parent-surface-service-ui-proof/06-ui-snapshots/social-alert-report-browser-route-mobile.png",
+      "present": true
+    },
+    {
       "file": "test-results/social-alert-report-scheduler-bridge-proof/proof.json",
       "present": true
     },
@@ -342,6 +366,30 @@
     },
     {
       "file": "output/browser-plan-proof/social-alert-report-audit-history-bridge-proof/01-social-alert-report-audit-history-bridge-proof.md",
+      "present": true
+    },
+    {
+      "file": "test-results/social-parent-notification-delivery-readiness-proof/proof.json",
+      "present": true
+    },
+    {
+      "file": "output/browser-plan-proof/social-parent-notification-delivery-readiness-proof/01-social-parent-notification-delivery-readiness-proof.md",
+      "present": true
+    },
+    {
+      "file": "test-results/social-managed-browser-policy-execution-proof/proof.json",
+      "present": true
+    },
+    {
+      "file": "output/browser-plan-proof/social-managed-browser-policy-execution-proof/01-social-managed-browser-policy-execution-proof.md",
+      "present": true
+    },
+    {
+      "file": "test-results/social-alert-report-provider-dispatch-execution-proof/proof.json",
+      "present": true
+    },
+    {
+      "file": "output/browser-plan-proof/social-alert-report-provider-dispatch-execution-proof/01-social-alert-report-provider-dispatch-execution-proof.md",
       "present": true
     }
   ],

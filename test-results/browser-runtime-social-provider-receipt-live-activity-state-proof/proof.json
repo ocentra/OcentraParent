@@ -1,0 +1,53 @@
+{
+  "proofName": "browser-runtime-social-provider-receipt-live-activity-state-proof",
+  "branch": "codex/d-runtime-ready",
+  "commit": "e69393456",
+  "commandResults": [
+    {
+      "command": "cmd /c npm run build --workspace @ocentra-parent/agent-protocol-domain",
+      "status": "passed"
+    },
+    {
+      "command": "cmd /c npm run build --workspace @ocentra-parent/portal-domain",
+      "status": "passed"
+    },
+    {
+      "command": "cmd /c npm run test --workspace @ocentra-parent/portal -- live-activity-state.test.ts",
+      "status": "passed"
+    },
+    {
+      "command": "cmd /c npm run type-check --workspace @ocentra-parent/portal",
+      "status": "passed"
+    }
+  ],
+  "sourceChecks": {
+    "liveActivityUsesSharedParser": true,
+    "liveActivityDerivesReceiptStatus": true,
+    "liveActivityDerivesReadinessStatus": true,
+    "liveActivityDoesNotParseReceiptFieldsDirectly": true,
+    "testCoversReceiptStreamProjection": true,
+    "testCoversReadinessProjection": true,
+    "testRejectsDishonestReceiptRows": true,
+    "workpackMentionsProof": true,
+    "checklistMentionsProof": true,
+    "featureDocMentionsLiveActivityState": true
+  },
+  "verified": {
+    "liveActivityStateDerivesReceiptStreamStatus": true,
+    "liveActivityStateDerivesReceiptIngestionReadinessStatus": true,
+    "liveActivityStateRejectsDishonestReceiptRowsBeforeProjection": true,
+    "sharedParserStillOwnsRawStreamParsing": true,
+    "portalVisualSurfaceChanged": false,
+    "providerDeliveryClaimed": false,
+    "receiptIngestionRuntimeClaimed": false,
+    "webhookRuntimeClaimed": false,
+    "providerCredentialsClaimed": false,
+    "observedProviderReceiptsClaimed": false,
+    "reportDeliveryClaimed": false,
+    "finalPolicyExecutionClaimed": false,
+    "browserMutationClaimed": false,
+    "childInterventionClaimed": false,
+    "unmanagedExactUrlClaimed": false,
+    "enforcementClaimed": false
+  }
+}

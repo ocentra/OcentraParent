@@ -32,6 +32,7 @@ const EXPECTED_AGENT_COMMAND_ENTRIES = [
   ['BrowserEvidenceRecentGet', 'agent.browser.evidence.recent.get'],
   ['BrowserManagedBridgePoll', 'agent.browser.managed.bridge.poll'],
   ['BrowserInterventionReadModelGet', 'agent.browser.intervention.read-model.get'],
+  ['BrowserRuntimeEventChainStreamGet', 'agent.browser.runtime.event-chain.stream.get'],
   ['NetworkFlowReadModelGet', 'agent.network.flow.read-model.get'],
   ['NetworkRuntimeEventChainStreamGet', 'agent.network.runtime.event-chain.stream.get'],
   ['NetworkRemoteDeliveryStatusGet', 'agent.network.remote-delivery.status.get'],
@@ -104,6 +105,7 @@ const EXPECTED_AGENT_EVENT_ENTRIES = [
   ['BrowserEvidenceRecentReported', 'agent.browser.evidence.recent.reported'],
   ['BrowserManagedStatusReported', 'agent.browser.managed.status.reported'],
   ['BrowserInterventionReadModelReported', 'agent.browser.intervention.read-model.reported'],
+  ['BrowserRuntimeEventChainStreamReported', 'agent.browser.runtime.event-chain.stream.reported'],
   ['NetworkFlowReadModelReported', 'agent.network.flow.read-model.reported'],
   ['NetworkRuntimeEventChainStreamReported', 'agent.network.runtime.event-chain.stream.reported'],
   ['NetworkRemoteDeliveryStatusReported', 'agent.network.remote-delivery.status.reported'],
@@ -420,6 +422,7 @@ function expectReadModelEnforcementAndUnmanagedFields() {
   expect(AgentProtocolDefaults.Field.EventType).toBe('eventType');
   expect(AgentProtocolDefaults.Field.EvidenceReferenceIds).toBe('evidenceReferenceIds');
   expect(AgentProtocolDefaults.Field.MostRecentSubjectName).toBe('mostRecentSubjectName');
+  expectReadModelBrowserRuntimeStreamFields();
   expectReadModelNetworkStatusFields();
   expect(AgentProtocolDefaults.Field.Payload).toBe('payload');
   expect(AgentProtocolDefaults.Field.VisibleManualRequired).toBe('visibleManualRequired');
@@ -433,6 +436,21 @@ function expectReadModelEnforcementAndUnmanagedFields() {
   expect(AgentProtocolDefaults.Field.UnmanagedProcessKind).toBe('unmanagedProcessKind');
   expect(AgentProtocolDefaults.Field.UnmanagedProcessName).toBe('unmanagedProcessName');
   expect(AgentProtocolDefaults.Field.UnmanagedSignatureRef).toBe('unmanagedSignatureRef');
+}
+
+function expectReadModelBrowserRuntimeStreamFields() {
+  expect(AgentProtocolDefaults.Field.BrowserRuntimeEventChainStream).toBe('browserRuntimeEventChainStream');
+  expect(AgentProtocolDefaults.Field.BrowserRuntimeObservedRows).toBe('browserRuntimeObservedRows');
+  expect(AgentProtocolDefaults.Field.BrowserRuntimeStreamedEvents).toBe('browserRuntimeStreamedEvents');
+  expect(AgentProtocolDefaults.Field.BrowserRuntimeFailedRows).toBe('browserRuntimeFailedRows');
+  expect(AgentProtocolDefaults.Field.BrowserRuntimeExactUrlRows).toBe('browserRuntimeExactUrlRows');
+  expect(AgentProtocolDefaults.Field.BrowserRuntimeManualRequiredRows).toBe('browserRuntimeManualRequiredRows');
+  expect(AgentProtocolDefaults.Field.BrowserRuntimeInterventionCommandEvents).toBe(
+    'browserRuntimeInterventionCommandEvents'
+  );
+  expect(AgentProtocolDefaults.Field.BrowserRuntimeReadModelProjectionEvents).toBe(
+    'browserRuntimeReadModelProjectionEvents'
+  );
 }
 
 function expectReadModelNetworkStatusFields() {

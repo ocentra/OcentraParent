@@ -47,6 +47,9 @@ mod app_game_policy_readiness_payload_tests;
 mod app_game_policy_readiness_service_tests;
 mod browser_intervention_payload;
 mod browser_intervention_report;
+pub(crate) mod social_alert_report_parent_surface_read_model_payload;
+#[cfg(test)]
+mod social_alert_report_parent_surface_read_model_payload_tests;
 pub(crate) mod social_alert_report_read_model_payload;
 #[cfg(test)]
 mod social_alert_report_read_model_payload_tests;
@@ -62,6 +65,11 @@ pub(crate) mod social_dashboard_read_model_payload;
 mod social_dashboard_read_model_payload_tests;
 #[cfg(test)]
 mod social_dashboard_read_model_service_tests;
+pub(crate) mod social_parent_notification_delivery_read_model_payload;
+#[cfg(test)]
+mod social_parent_notification_delivery_read_model_payload_tests;
+#[cfg(test)]
+mod social_parent_notification_delivery_read_model_service_tests;
 pub(crate) mod social_source_custody_mutation_payload;
 #[cfg(test)]
 mod social_source_custody_mutation_payload_tests;
@@ -357,7 +365,7 @@ async fn load_activity_recent_summary() -> Option<ActivityRecentSummary> {
     .flatten()
 }
 
-async fn load_browser_evidence_read_model(
+pub(crate) async fn load_browser_evidence_read_model(
 ) -> Option<ocentra_parent_agent_protocol::BrowserEvidenceReadModel> {
     let path = activity_db_path();
     tokio::task::spawn_blocking(move || {
@@ -408,7 +416,7 @@ async fn load_activity_tracking_read_model(
     .flatten()
 }
 
-pub(super) fn activity_store_error_event(
+pub(crate) fn activity_store_error_event(
     command: AgentCommandEnvelope,
     event_id_suffix: &str,
     event: AgentEventName,

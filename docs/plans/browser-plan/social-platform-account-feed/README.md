@@ -489,15 +489,17 @@ The follow-up `social-alert-report-parent-surface-intent-proof` adds
 and
 `packages/parent-domain/tests/social-alert-report-parent-surface-intent-proof.test.ts`,
 a parent-domain parent-surface intent read model for social alert/report
-provider-status handoff rows. The proof writes
+provider-status plus preference/quiet-hours status handoff rows. The proof writes
 `test-results/social-alert-report-parent-surface-intent-proof/proof.json`,
 `test-results/social-alert-report-parent-surface-intent-proof/parent-surface-intent-read-model.json`,
 and
 `output/browser-plan-proof/social-alert-report-parent-surface-intent-proof/01-social-alert-report-parent-surface-intent-proof.md`.
-It projects provider-status handoff rows into parent-visible manual/unavailable
-surface intent rows with status/readiness/audit refs, but it does not render
-parent notification UI or claim provider delivery, receipts, report delivery
-execution, final policy execution, connector/native runtime, or enforcement.
+It projects provider-status and preference-status handoff rows into
+parent-visible manual/unavailable surface intent rows with notification status,
+preference status, quiet-hours, audit, and manual-proof refs, but it does not
+render parent notification/preference/history UI or claim provider delivery,
+receipts, child delivery, quiet-hours timer runtime, report delivery execution,
+final policy execution, connector/native runtime, or enforcement.
 
 The follow-up `social-report-writer-delivery-proof` adds
 `packages/parent-domain/src/social-report-writer-delivery-proof.ts` and
@@ -507,9 +509,9 @@ intents. The proof writes
 `test-results/social-report-writer-delivery-proof/proof.json` and
 `output/browser-plan-proof/social-report-writer-delivery-proof/01-social-report-writer-delivery-proof.md`.
 It proves parent-owned report artifact and receipt rows for social report
-intents while keeping external runtime report delivery, provider dispatch,
-provider receipt ingestion, raw social content, final policy execution, and
-enforcement unclaimed.
+intents while keeping external runtime report delivery, provider runtime
+delivery, provider receipt ingestion, raw social content, final policy
+execution, and enforcement unclaimed.
 
 The follow-up `social-applied-schedule-time-budget-proof` adds
 `packages/parent-domain/src/social-applied-schedule-time-budget-proof.ts` and
@@ -530,7 +532,7 @@ manual-required provider-status boundary rows, then writes
 `test-results/social-alert-report-intent-ui-proof/proof.json` plus
 desktop/mobile screenshots under
 `output/browser-plan-proof/social-alert-report-intent-ui-proof/06-ui-snapshots/`.
-It does not claim provider dispatch/receipt, parent notification UI delivery,
+It does not claim provider runtime delivery/receipt, parent notification UI delivery,
 report delivery, final policy execution, connector/native runtime, or
 enforcement.
 
@@ -543,9 +545,9 @@ provider-adapter-required preflight rows with adapter, credential, and provider
 smoke proof requirements. The proof writes
 `test-results/social-alert-report-provider-preflight-proof/proof.json` and
 `output/browser-plan-proof/social-alert-report-provider-preflight-proof/01-social-alert-report-provider-preflight-proof.md`.
-It does not claim provider dispatch, receipt ingestion, parent notification UI
-delivery, report delivery execution, final policy execution, connector/native
-runtime, or enforcement.
+It does not claim provider runtime delivery, receipt ingestion, parent
+notification UI delivery, report delivery execution, final policy execution,
+connector/native runtime, or enforcement.
 
 The follow-up `social-alert-report-provider-status-handoff-proof` adds
 `packages/parent-domain/src/social-alert-report-provider-status-handoff-proof.ts`
@@ -556,9 +558,67 @@ V0.8 notification provider status boundary as manual-required or unavailable.
 The proof writes
 `test-results/social-alert-report-provider-status-handoff-proof/proof.json` and
 `output/browser-plan-proof/social-alert-report-provider-status-handoff-proof/01-social-alert-report-provider-status-handoff-proof.md`.
-It does not claim provider dispatch, delivered notification receipts, parent
+It does not claim provider runtime delivery, delivered notification receipts,
+parent notification UI delivery, report delivery execution, final policy
+execution, connector/native runtime, or enforcement.
+
+The follow-up `social-alert-report-provider-dispatch-execution-proof` adds
+`packages/parent-domain/src/social-alert-report-provider-dispatch-execution.ts`
+and
+`packages/parent-domain/tests/social-alert-report-provider-dispatch-execution.test.ts`.
+It consumes parsed provider receipt-boundary rows plus parsed
+`NotificationLocalOutboxRecord` rows and prepares a redaction-safe local
+provider dispatch packet only for `provider-dispatch-required` rows with a
+matching local outbox record. Manual-required and provider-unavailable rows
+remain packetless and visible in the read model. The proof writes
+`test-results/social-alert-report-provider-dispatch-execution-proof/proof.json`
+and
+`output/browser-plan-proof/social-alert-report-provider-dispatch-execution-proof/01-social-alert-report-provider-dispatch-execution-proof.md`.
+It does not claim external provider delivery, delivered notification receipts,
+provider webhook runtime, provider credentials, cloud routing, parent
 notification UI delivery, report delivery execution, final policy execution,
 connector/native runtime, or enforcement.
+
+The follow-up `social-alert-report-provider-receipt-boundary-proof` adds
+`packages/parent-domain/src/social-alert-report-provider-receipt-boundary-proof.ts`
+and
+`packages/parent-domain/tests/social-alert-report-provider-receipt-boundary-proof.test.ts`.
+It consumes provider-status handoff rows and projects them into
+provider-dispatch-required, manual-receipt-required, and provider-unavailable
+receipt boundary rows with source refs, provider attempt refs, readiness refs,
+audit refs, and receipt proof requirements. The proof writes
+`test-results/social-alert-report-provider-receipt-boundary-proof/proof.json`,
+`test-results/social-alert-report-provider-receipt-boundary-proof/provider-receipt-boundary-read-model.json`,
+and
+`output/browser-plan-proof/social-alert-report-provider-receipt-boundary-proof/01-social-alert-report-provider-receipt-boundary-proof.md`.
+It does not claim provider delivery execution, provider receipt ingestion
+runtime, provider webhook runtime, provider credentials, cloud routing, parent
+notification UI delivery, report delivery execution, final policy execution,
+connector/native runtime, or enforcement. Parent-domain package subpath export
+and README update are deferred because another lane currently owns
+`packages/parent-domain/package.json` and `packages/parent-domain/readme.md`.
+
+The follow-up `social-alert-report-provider-receipt-ingestion-readiness-proof`
+adds
+`packages/parent-domain/src/social-alert-report-provider-receipt-ingestion-readiness.ts`
+and
+`packages/parent-domain/tests/social-alert-report-provider-receipt-ingestion-readiness.test.ts`.
+It consumes provider receipt boundary rows and projects them into ingestion
+contract-required, manual-receipt-required, and provider-unavailable readiness
+rows. The proof writes
+`test-results/social-alert-report-provider-receipt-ingestion-readiness-proof/proof.json`,
+`test-results/social-alert-report-provider-receipt-ingestion-readiness-proof/provider-receipt-ingestion-readiness-read-model.json`,
+and
+`output/browser-plan-proof/social-alert-report-provider-receipt-ingestion-readiness-proof/01-social-alert-report-provider-receipt-ingestion-readiness-proof.md`.
+It requires webhook contract, provider credential, and durable receipt store
+proof before provider receipt ingestion can be claimed, and it rejects forged
+webhook refs or provider receipt refs. It does not claim provider delivery
+execution, provider receipt ingestion runtime, provider webhook runtime,
+provider credentials, observed provider receipts, cloud routing, parent
+notification UI delivery, report delivery execution, final policy execution,
+connector/native runtime, or enforcement. Parent-domain package subpath export
+and README update are deferred because another lane currently owns
+`packages/parent-domain/package.json` and `packages/parent-domain/readme.md`.
 
 The follow-up `social-parent-sensitivity-settings-proof` adds
 `packages/parent-domain/src/social-parent-sensitivity-settings-values.ts`,
@@ -572,3 +632,40 @@ summary sensitivity rows. The proof writes
 It proves ref-only policy/alert candidate settings and rejects raw
 message/video content, screenshots, connector tokens/API calls, runtime
 settings UI, final policy decisions, and enforcement.
+
+The follow-up `social-parent-notification-delivery-ui-proof` projects the
+existing parent notification/report delivery readiness boundary through the
+local Rust service command/event path and the real Browser route. The proof
+writes `test-results/social-parent-notification-delivery-ui-proof/proof.json`,
+`test-results/social-parent-notification-delivery-ui-proof/accessibility-summary.json`,
+and desktop/mobile screenshots under
+`output/browser-plan-proof/social-parent-notification-delivery-ui-proof/06-ui-snapshots/`.
+It renders parent-report-ready, manual-required, and unavailable rows, but still
+does not claim parent notification UI delivery, external runtime report
+delivery, provider delivery/receipt ingestion, final policy execution,
+connector/native runtime, browser mutation, child intervention execution, or
+enforcement.
+
+The readiness boundary now records a parent-owned local delivery result ref for
+the parent-report-ready social report row. Manual-required and unavailable rows
+must keep local delivery result refs empty. This improves SOCIAL-23/SOCIAL-24
+non-Apple parent-owned delivery proof while keeping external provider delivery,
+parent notification UI delivery, cloud routing, final policy execution,
+connector/native runtime, browser mutation, child intervention execution, and
+enforcement unclaimed.
+
+The follow-up `social-managed-browser-policy-execution` implementation adds
+`packages/parent-domain/src/social-managed-browser-policy-execution.ts` and
+`packages/parent-domain/tests/social-managed-browser-policy-execution.test.ts`.
+It consumes a non-final social parent policy decision candidate plus managed
+browser intervention evidence refs, and produces a scoped managed-session
+execution result only when the real child-agent intervention endpoint,
+managed browser target ref, live-surface capture, browser mutation, and
+screenshot refs are present. The proof receipt writes
+`test-results/social-managed-browser-policy-execution-proof/proof.json` and
+`output/browser-plan-proof/social-managed-browser-policy-execution-proof/01-social-managed-browser-policy-execution-proof.md`
+from the real managed-browser composited block harness. It proves only the
+managed-browser session path for the captured YouTube intervention. It does not
+claim unmanaged browser support, broad OS enforcement, external provider
+delivery, connector/native runtime, Apple platform support, raw URL custody,
+raw page custody, or product completion.

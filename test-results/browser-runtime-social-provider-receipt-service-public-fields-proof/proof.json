@@ -1,0 +1,34 @@
+{
+  "proofName": "browser-runtime-social-provider-receipt-service-public-fields-proof",
+  "branch": "codex/d-runtime-ready",
+  "commit": "c4f7135b1",
+  "commands": [
+    "cargo test -p ocentra-parent-agent-service social_provider_receipt --quiet"
+  ],
+  "sourceChecks": {
+    "fieldConstantsIncludeReceiptBoundaryRows": true,
+    "fieldConstantsIncludeDurableRefs": true,
+    "servicePayloadIncludesReceiptBoundaryRows": true,
+    "servicePayloadIncludesAttemptRefs": true,
+    "servicePayloadIncludesDurableRefs": true,
+    "serviceTestAssertsPublicPayloadFields": true,
+    "serviceTestAssertsManualPayloadFields": true,
+    "docsMentionPublicRustFields": true,
+    "checklistMentionsProof": true,
+    "featureDocMentionsRustServicePayloadFields": true
+  },
+  "verified": {
+    "rustProtocolFieldConstantsAdded": true,
+    "servicePayloadPublishesSocialProviderReceiptRows": true,
+    "servicePayloadPublishesProviderAttemptAndReceiptProofRefs": true,
+    "servicePayloadPublishesDurableResultStoreReadModelAndSupportRefs": true,
+    "manualRowsPublishZeroDurableRows": true,
+    "providerDispatchCount": 0,
+    "connectorNativeRuntimeCount": 0,
+    "parentNotificationUiDeliveryCount": 0,
+    "reportDeliveryExecutionCount": 0,
+    "finalPolicyExecutionCount": 0,
+    "enforcementExecutionCount": 0,
+    "typescriptDefaultsParserPortalUpdated": false
+  }
+}

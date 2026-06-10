@@ -42,6 +42,9 @@ import {
   AgentEvent,
   AgentLanBrowserAddDeviceReadModelSchema,
   AgentProtocolDefaults,
+  parseAgentBrowserRuntimeEventChainStreamFields,
+  type AgentBrowserRuntimeEventChainEntry,
+  type AgentBrowserRuntimeEventChainStream,
   type AgentEventEnvelope,
   type AgentEventName,
   type AgentLanBrowserAddDeviceReadModel,
@@ -81,9 +84,13 @@ import {
   type AgentAppGamePolicyReadinessResult,
 } from '@ocentra-parent/agent-protocol-domain/app-game-policy-readiness';
 import {
+  createBrowserSocialProviderReceiptIngestionReadinessStatusIntent,
+  createBrowserSocialProviderReceiptStreamStatusIntent,
   createAppGameNotificationParentSurfaceReadModelFromReadiness,
   parseActivityMemoryGraphReadModel,
   PortalBrowserInventoryFields,
+  type BrowserSocialProviderReceiptIngestionReadinessStatusIntent,
+  type BrowserSocialProviderReceiptStreamStatusIntent,
   type PortalActivityMemoryGraphReadModel,
 } from '@ocentra-parent/portal-domain/contracts';
 import { parseBrowserInterventionReadModel } from './browser-intervention-read-model';
@@ -101,6 +108,17 @@ type NetworkFlowReadModelState = {
   readonly event: AgentEventEnvelope | null;
   readonly readModel: ActivityNetworkFlowReadModel | null;
 };
+
+type BrowserRuntimeLiveActivityState = {
+  readonly browserRuntimeEventChainStreamEvent: AgentEventEnvelope | null;
+  readonly browserRuntimeEventChainStream: PortalBrowserRuntimeEventChainStream | null;
+  readonly browserSocialProviderReceiptStreamStatusIntent: BrowserSocialProviderReceiptStreamStatusIntent | null;
+  readonly browserSocialProviderReceiptIngestionReadinessStatusIntent: BrowserSocialProviderReceiptIngestionReadinessStatusIntent | null;
+};
+
+export type PortalBrowserRuntimeEventChainEntry = AgentBrowserRuntimeEventChainEntry;
+
+export type PortalBrowserRuntimeEventChainStream = AgentBrowserRuntimeEventChainStream;
 
 export interface PortalNetworkRuntimeEventChainStream {
   readonly streamedEventCount: number | null;
@@ -120,6 +138,10 @@ export interface PortalLiveActivityState {
   readonly browserInventoryReadModel: BrowserInventoryReadModel | null;
   readonly browserManagedEvent: AgentEventEnvelope | null;
   readonly browserManagedStatus: BrowserManagedSessionStatus | null;
+  readonly browserRuntimeEventChainStreamEvent: AgentEventEnvelope | null;
+  readonly browserRuntimeEventChainStream: PortalBrowserRuntimeEventChainStream | null;
+  readonly browserSocialProviderReceiptStreamStatusIntent: BrowserSocialProviderReceiptStreamStatusIntent | null;
+  readonly browserSocialProviderReceiptIngestionReadinessStatusIntent: BrowserSocialProviderReceiptIngestionReadinessStatusIntent | null;
   readonly localAiRuntimeStatusEvent: AgentEventEnvelope | null;
   readonly lanAiJobEvent: AgentEventEnvelope | null;
   readonly parentAssistantBoundaryEvent: AgentEventEnvelope | null;
@@ -199,6 +221,7 @@ function resolveBrowserState(events: readonly AgentEventEnvelope[]) {
   const browserEvidenceEvent = latestEvent(events, AgentEvent.BrowserEvidenceRecentReported);
   const browserInventoryEvent = latestEvent(events, AgentEvent.BrowserInventoryReadModelReported);
   const browserManagedEvent = latestEvent(events, AgentEvent.BrowserManagedStatusReported);
+  const browserRuntimeEventChainStreamEvent = latestEvent(events, AgentEvent.BrowserRuntimeEventChainStreamReported);
 
   return {
     browserEvidenceEvent,
@@ -209,7 +232,21 @@ function resolveBrowserState(events: readonly AgentEventEnvelope[]) {
       browserInventoryEvent === null ? null : parseBrowserInventoryReadModel(browserInventoryEvent.payload),
     browserManagedEvent,
     browserManagedStatus: browserManagedEvent === null ? null : parseBrowserManagedStatus(browserManagedEvent.payload),
+    ...resolveBrowserRuntimeLiveActivityState(browserRuntimeEventChainStreamEvent),
     ...resolveLocalAiActivityEvents(events),
+  };
+}
+
+function resolveBrowserRuntimeLiveActivityState(event: AgentEventEnvelope | null): BrowserRuntimeLiveActivityState {
+  const stream = parseNullableBrowserRuntimeEventChainStream(event);
+
+  return {
+    browserRuntimeEventChainStreamEvent: event,
+    browserRuntimeEventChainStream: stream,
+    browserSocialProviderReceiptStreamStatusIntent:
+      stream === null ? null : createBrowserSocialProviderReceiptStreamStatusIntent(stream),
+    browserSocialProviderReceiptIngestionReadinessStatusIntent:
+      stream === null ? null : createBrowserSocialProviderReceiptIngestionReadinessStatusIntent(stream),
   };
 }
 
@@ -508,6 +545,16 @@ function parseNullableNetworkRuntimeEventChainStream(
     events: parsedEvents,
     invalidEventCount: parsedEvents.filter((result) => !result.ok).length,
   };
+}
+
+function parseNullableBrowserRuntimeEventChainStream(
+  event: AgentEventEnvelope | null
+): PortalBrowserRuntimeEventChainStream | null {
+  if (event === null) {
+    return null;
+  }
+  const parsed = parseAgentBrowserRuntimeEventChainStreamFields(event.payload);
+  return parsed.ok ? parsed.value : null;
 }
 
 function networkRuntimeEventInputs(event: AgentEventEnvelope): readonly unknown[] {

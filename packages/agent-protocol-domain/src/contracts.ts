@@ -51,6 +51,32 @@ export {
   type SerializedAgentMessage,
 } from './primitives';
 export {
+  AgentBrowserRuntimeCapabilityStatus,
+  AgentBrowserRuntimeCapabilityStatusSchema,
+  AgentBrowserRuntimeCustodyLabel,
+  AgentBrowserRuntimeCustodyLabelSchema,
+  AgentBrowserRuntimeEventChainEntrySchema,
+  AgentBrowserRuntimeEventChainStreamSchema,
+  AgentBrowserRuntimeEventPayloadSchema,
+  AgentBrowserRuntimeEventType,
+  AgentBrowserRuntimeEventTypeSchema,
+  AgentBrowserRuntimePhase,
+  AgentBrowserRuntimePhaseSchema,
+  AgentBrowserRuntimeQueryVisibility,
+  AgentBrowserRuntimeQueryVisibilitySchema,
+  deriveAgentBrowserRuntimeActionIntentStatus,
+  deriveAgentBrowserRuntimeSocialProviderReceiptStatus,
+  parseAgentBrowserRuntimeEventChainStreamFields,
+  type AgentBrowserRuntimeActionIntentCandidate,
+  type AgentBrowserRuntimeActionIntentStatus,
+  type AgentBrowserRuntimeEventChainEntry,
+  type AgentBrowserRuntimeEventChainStream,
+  type AgentBrowserRuntimeEventChainStreamFailureReason,
+  type AgentBrowserRuntimeEventChainStreamResult,
+  type AgentBrowserRuntimeEventPayload,
+  type AgentBrowserRuntimeSocialProviderReceiptStatus,
+} from './browser-runtime-events';
+export {
   AgentLanBrowserAddDeviceDiscoveryDeviceSchema,
   AgentLanBrowserAddDevicePairingRequestSchema,
   AgentLanBrowserAddDeviceReadModelSchema,
@@ -214,6 +240,8 @@ export const AgentCommandNameSchema = withParser(
     'agent.browser.social-dashboard.read-model.get',
     'agent.browser.social-audit-explanation.read-model.get',
     'agent.browser.social-alert-report.read-model.get',
+    'agent.browser.social-alert-report.parent-surface.read-model.get',
+    'agent.browser.social-parent-notification-delivery.read-model.get',
     'agent.browser.social-source-custody.mutation.apply',
     'agent.activity.network.read-model.get',
     'agent.activity.tracking.read-model.get',
@@ -221,6 +249,7 @@ export const AgentCommandNameSchema = withParser(
     'agent.browser.evidence.recent.get',
     'agent.browser.managed.bridge.poll',
     'agent.browser.intervention.read-model.get',
+    'agent.browser.runtime.event-chain.stream.get',
     'agent.network.flow.read-model.get',
     'agent.network.runtime.event-chain.stream.get',
     'agent.network.remote-delivery.status.get',
@@ -295,6 +324,8 @@ export const AgentEventNameSchema = withParser(
     'agent.browser.social-dashboard.read-model.reported',
     'agent.browser.social-audit-explanation.read-model.reported',
     'agent.browser.social-alert-report.read-model.reported',
+    'agent.browser.social-alert-report.parent-surface.read-model.reported',
+    'agent.browser.social-parent-notification-delivery.read-model.reported',
     'agent.browser.social-source-custody.mutation.applied',
     'agent.activity.network.read-model.reported',
     'agent.activity.tracking.read-model.reported',
@@ -302,6 +333,7 @@ export const AgentEventNameSchema = withParser(
     'agent.browser.evidence.recent.reported',
     'agent.browser.managed.status.reported',
     'agent.browser.intervention.read-model.reported',
+    'agent.browser.runtime.event-chain.stream.reported',
     'agent.network.flow.read-model.reported',
     'agent.network.runtime.event-chain.stream.reported',
     'agent.network.remote-delivery.status.reported',
@@ -402,6 +434,23 @@ export {
 } from './social-alert-report-read-model';
 
 export {
+  parseAgentSocialParentNotificationDeliveryReadModelEvent,
+  SocialParentNotificationDeliveryReadModelSnapshotSchema,
+  type AgentSocialParentNotificationDeliveryReadModelFailureReason,
+  type AgentSocialParentNotificationDeliveryReadModelResult,
+  type SocialParentNotificationDeliveryReadModelRow,
+  type SocialParentNotificationDeliveryReadModelSnapshot,
+} from './social-parent-notification-delivery-read-model';
+export {
+  parseAgentSocialAlertReportParentSurfaceReadModelEvent,
+  SocialAlertReportParentSurfaceReadModelSnapshotSchema,
+  type AgentSocialAlertReportParentSurfaceReadModelFailureReason,
+  type AgentSocialAlertReportParentSurfaceReadModelResult,
+  type SocialAlertReportParentSurfaceReadModelRow,
+  type SocialAlertReportParentSurfaceReadModelSnapshot,
+} from './social-alert-report-parent-surface-read-model';
+
+export {
   parseAgentSocialSourceCustodyMutationEvent,
   SocialSourceCustodyMutationSnapshotSchema,
   type AgentSocialSourceCustodyMutationFailureReason,
@@ -441,6 +490,12 @@ export const AgentCommand = {
   BrowserSocialAlertReportReadModelGet: AgentCommandNameSchema.parse(
     'agent.browser.social-alert-report.read-model.get'
   ),
+  BrowserSocialParentNotificationDeliveryReadModelGet: AgentCommandNameSchema.parse(
+    'agent.browser.social-parent-notification-delivery.read-model.get'
+  ),
+  BrowserSocialAlertReportParentSurfaceReadModelGet: AgentCommandNameSchema.parse(
+    'agent.browser.social-alert-report.parent-surface.read-model.get'
+  ),
   BrowserSocialSourceCustodyMutationApply: AgentCommandNameSchema.parse(
     'agent.browser.social-source-custody.mutation.apply'
   ),
@@ -450,6 +505,7 @@ export const AgentCommand = {
   BrowserEvidenceRecentGet: AgentCommandNameSchema.parse('agent.browser.evidence.recent.get'),
   BrowserManagedBridgePoll: AgentCommandNameSchema.parse('agent.browser.managed.bridge.poll'),
   BrowserInterventionReadModelGet: AgentCommandNameSchema.parse('agent.browser.intervention.read-model.get'),
+  BrowserRuntimeEventChainStreamGet: AgentCommandNameSchema.parse('agent.browser.runtime.event-chain.stream.get'),
   NetworkFlowReadModelGet: AgentCommandNameSchema.parse('agent.network.flow.read-model.get'),
   NetworkRuntimeEventChainStreamGet: AgentCommandNameSchema.parse('agent.network.runtime.event-chain.stream.get'),
   NetworkRemoteDeliveryStatusGet: AgentCommandNameSchema.parse('agent.network.remote-delivery.status.get'),
@@ -550,6 +606,12 @@ export const AgentEvent = {
   BrowserSocialAlertReportReadModelReported: AgentEventNameSchema.parse(
     'agent.browser.social-alert-report.read-model.reported'
   ),
+  BrowserSocialParentNotificationDeliveryReadModelReported: AgentEventNameSchema.parse(
+    'agent.browser.social-parent-notification-delivery.read-model.reported'
+  ),
+  BrowserSocialAlertReportParentSurfaceReadModelReported: AgentEventNameSchema.parse(
+    'agent.browser.social-alert-report.parent-surface.read-model.reported'
+  ),
   BrowserSocialSourceCustodyMutationApplied: AgentEventNameSchema.parse(
     'agent.browser.social-source-custody.mutation.applied'
   ),
@@ -559,6 +621,9 @@ export const AgentEvent = {
   BrowserEvidenceRecentReported: AgentEventNameSchema.parse('agent.browser.evidence.recent.reported'),
   BrowserManagedStatusReported: AgentEventNameSchema.parse('agent.browser.managed.status.reported'),
   BrowserInterventionReadModelReported: AgentEventNameSchema.parse('agent.browser.intervention.read-model.reported'),
+  BrowserRuntimeEventChainStreamReported: AgentEventNameSchema.parse(
+    'agent.browser.runtime.event-chain.stream.reported'
+  ),
   NetworkFlowReadModelReported: AgentEventNameSchema.parse('agent.network.flow.read-model.reported'),
   NetworkRuntimeEventChainStreamReported: AgentEventNameSchema.parse(
     'agent.network.runtime.event-chain.stream.reported'

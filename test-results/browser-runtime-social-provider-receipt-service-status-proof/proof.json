@@ -1,0 +1,38 @@
+{
+  "proofName": "browser-runtime-social-provider-receipt-service-status-proof",
+  "branch": "codex/d-runtime-ready",
+  "commands": [
+    "cargo test -p ocentra-parent-agent-service social_provider_receipt --quiet"
+  ],
+  "sourceChecks": {
+    "serviceImportsNamedReceiptSubscriber": true,
+    "serviceRecordsReceiptStatus": true,
+    "serviceTracksProviderDispatchRows": true,
+    "serviceTracksManualReceiptRows": true,
+    "serviceTracksProviderAttemptRefs": true,
+    "serviceTracksReceiptProofRefs": true,
+    "serviceKeepsProviderDispatchZero": true,
+    "serviceKeepsNativeRuntimeZero": true,
+    "serviceKeepsParentNotificationUiZero": true,
+    "noPublicStreamFieldAdded": true,
+    "focusedProviderBoundaryTestExists": true,
+    "focusedStoreBackedTestExists": true,
+    "focusedManualRequiredTestExists": true,
+    "workpackMentionsServiceProof": true,
+    "checklistMentionsServiceProof": true,
+    "featureDocMentionsServiceProof": true
+  },
+  "verified": {
+    "serviceCallsNamedReceiptSubscriber": true,
+    "providerDispatchRequiredRows": 1,
+    "manualReceiptRequiredRows": 1,
+    "providerAttemptRefsPreserved": true,
+    "providerReceiptProofRefsPreserved": true,
+    "publicStreamFieldAdded": false,
+    "providerReceiptCount": 0,
+    "providerDispatchCount": 0,
+    "connectorNativeRuntimeCount": 0,
+    "parentNotificationUiDeliveryCount": 0,
+    "enforcementExecutionCount": 0
+  }
+}

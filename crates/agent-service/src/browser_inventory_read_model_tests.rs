@@ -19,7 +19,10 @@ use crate::{
         browser_inventory_read_model_from_windows_inventory,
     },
     browser_payload::browser_inventory_read_model_payload,
-    browser_runtime_status::{connected_status, missing_browser_status, unmanaged_browser_status},
+    browser_runtime_status::{
+        bridge_disconnected_status, connected_status, missing_browser_status,
+        unmanaged_browser_status,
+    },
     lan_pairing::LanPairingRuntime,
     websocket::handle_command_text_for_test,
 };
@@ -125,6 +128,70 @@ fn browser_inventory_read_model_marks_missing_browser_unavailable() {
     assert_eq!(
         payload[constants::field::REASON],
         LogFieldValue::String(constants::value::MANAGED_BROWSER_EXECUTABLE_MISSING.to_string())
+    );
+}
+
+#[test]
+fn browser_inventory_read_model_maps_bridge_disconnect_to_stale_manual_required() {
+    let status = bridge_disconnected_status(
+        constants::activity_store::TEST_SECOND_OBSERVED_AT.to_string(),
+        constants::value::BROWSER_BRIDGE_STALE_SESSION,
+    );
+    let read_model = browser_inventory_read_model_from_status(&status);
+    let payload = browser_inventory_read_model_payload(&read_model);
+    let row = &read_model.rows[0];
+
+    assert!(row.claim_boundary_is_honest());
+    assert_eq!(row.management_tier, BrowserManagementTier::ManualRequired);
+    assert_eq!(row.support_tier, BrowserSupportTier::ManualRequired);
+    assert_eq!(
+        row.exact_url_capability,
+        BrowserExactUrlCapability::ManualRequired
+    );
+    assert_eq!(
+        payload[constants::field::CAPABILITY_STATUS],
+        LogFieldValue::String(constants::browser::CAPABILITY_STATUS_STALE.to_string())
+    );
+    assert_eq!(
+        payload[constants::field::REASON],
+        LogFieldValue::String(constants::value::BROWSER_BRIDGE_STALE_SESSION.to_string())
+    );
+}
+
+#[test]
+fn browser_inventory_read_model_keeps_unsupported_later_adapter_not_claimed() {
+    let status = connected_status(
+        constants::activity_store::TEST_SECOND_OBSERVED_AT.to_string(),
+        None,
+        BrowserCapabilityStatus::UnsupportedBrowser,
+        Some(constants::browser::INVENTORY_REASON_WINDOWS_UNSUPPORTED_LATER_ADAPTER.to_string()),
+    );
+    let read_model = browser_inventory_read_model_from_status(&status);
+    let payload = browser_inventory_read_model_payload(&read_model);
+    let row = &read_model.rows[0];
+
+    assert!(row.claim_boundary_is_honest());
+    assert_eq!(row.management_tier, BrowserManagementTier::Unsupported);
+    assert_eq!(row.support_tier, BrowserSupportTier::Unsupported);
+    assert_eq!(
+        row.exact_url_capability,
+        BrowserExactUrlCapability::Unsupported
+    );
+    assert_eq!(
+        payload[constants::field::CAPABILITY_STATUS],
+        LogFieldValue::String(
+            constants::browser::CAPABILITY_STATUS_UNSUPPORTED_BROWSER.to_string()
+        )
+    );
+    assert_eq!(
+        payload[constants::field::EXACT_URL_CAPABILITY],
+        LogFieldValue::String(constants::browser::EXACT_URL_CAPABILITY_UNSUPPORTED.to_string())
+    );
+    assert_eq!(
+        payload[constants::field::REASON],
+        LogFieldValue::String(
+            constants::browser::INVENTORY_REASON_WINDOWS_UNSUPPORTED_LATER_ADAPTER.to_string()
+        )
     );
 }
 
@@ -364,6 +431,9 @@ fn create_executable_fixture(path: &std::path::PathBuf) {
 }
 
 fn write_manifest(root: &Path, manifest: &str) {
+    if let Some(parent) = root.parent() {
+        std::fs::create_dir_all(parent).expect(constants::error::ACTIVITY_CAPTURE_RECORDS);
+    }
     std::fs::create_dir_all(root).expect(constants::error::ACTIVITY_CAPTURE_RECORDS);
     std::fs::write(
         root.join(ocentra_parent_agent_protocol::APP_GAME_WINDOWS_APPX_MANIFEST_FILE_NAME),

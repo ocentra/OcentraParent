@@ -35,6 +35,8 @@ async function main() {
   ]);
 
   const parentSurface = await importDist('social-alert-report-parent-surface-intent-proof.js');
+  const preferenceStatus = await importDist('social-alert-report-preference-status-handoff.js');
+  const preferencePreflight = await importDist('social-alert-report-preference-preflight.js');
   const providerStatus = await importDist('social-alert-report-provider-status-handoff-proof.js');
   const providerPreflight = await importDist('social-alert-report-provider-preflight-proof.js');
   const refs = await importDist('reference-primitives.js');
@@ -44,12 +46,16 @@ async function main() {
       intentId: 'social-alert-report-parent-surface-intent-proof',
       sourceContractRefs: [
         'social-alert-report-provider-status-handoff-proof',
+        'social-alert-report-preference-status-handoff-proof',
         'social-alert-report-local-outbox-bridge-proof',
         'notifications-expectation-parent-surface-boundary',
       ],
     },
     providerStatus.SocialAlertReportProviderStatusHandoffReadModelSchema.parse(
       providerStatusReadModel(providerPreflight, refs)
+    ),
+    preferenceStatus.SocialAlertReportPreferenceStatusHandoffReadModelSchema.parse(
+      preferenceStatusReadModel(preferencePreflight, refs)
     )
   );
   const source = await readText('packages/parent-domain/src/social-alert-report-parent-surface-intent-proof.ts');
@@ -63,9 +69,17 @@ async function main() {
     checkFile('packages/parent-domain/tests/social-alert-report-parent-surface-intent-proof.test.ts'),
     checkFile('scripts/test/social-alert-report-parent-surface-intent-proof.mjs'),
     checkIncludes(source, 'parentNotificationUiRendered: Schema.Literal(false)', 'parent UI rendered non-claim guard'),
+    checkIncludes(
+      source,
+      'parentNotificationPreferenceUiRendered: Schema.Literal(false)',
+      'parent preference UI rendered non-claim guard'
+    ),
+    checkIncludes(source, 'preferenceVisibility', 'parent preference visibility field'),
+    checkIncludes(source, 'quietHoursDecision', 'quiet-hours status field'),
     checkIncludes(source, 'providerDeliveryRuntimeClaimed: Schema.Literal(false)', 'provider delivery non-claim guard'),
     checkIncludes(source, 'finalPolicyExecutionClaimed: Schema.Literal(false)', 'final policy non-claim guard'),
     checkIncludes(test, 'parentNotificationUiRendered: true', 'parent UI rejection test'),
+    checkIncludes(test, 'twoRowPreferenceStatusReadModel', 'mismatched preference/provider row count rejection test'),
     checkIncludes(test, 'finalPolicyExecutionClaimed: true', 'final policy rejection test'),
     checkIncludes(socialFeature, 'social alert/report parent-surface intent', 'social feature parent surface note'),
     checkIncludes(
@@ -93,9 +107,16 @@ async function main() {
       manualActionRequiredCount: readModel.manualActionRequiredCount,
       unavailableVisibleCount: readModel.unavailableVisibleCount,
       historyVisibleCount: readModel.historyVisibleCount,
+      preferenceSetupRequiredCount: readModel.preferenceSetupRequiredCount,
       parentNotificationUiRendered: readModel.parentNotificationUiRendered,
+      parentNotificationPreferenceUiRendered: readModel.parentNotificationPreferenceUiRendered,
+      parentFrequencyControlUiRendered: readModel.parentFrequencyControlUiRendered,
+      parentNotificationHistoryUiRendered: readModel.parentNotificationHistoryUiRendered,
       providerDeliveryRuntimeClaimed: readModel.providerDeliveryRuntimeClaimed,
       providerReceiptIngestionClaimed: readModel.providerReceiptIngestionClaimed,
+      childDeliveryClaimed: readModel.childDeliveryClaimed,
+      quietHoursTimerRuntimeClaimed: readModel.quietHoursTimerRuntimeClaimed,
+      adapterDispatchClaimed: readModel.adapterDispatchClaimed,
       reportDeliveryExecutionClaimed: readModel.reportDeliveryExecutionClaimed,
       finalPolicyExecutionClaimed: readModel.finalPolicyExecutionClaimed,
       connectorNativeRuntimeClaimed: readModel.connectorNativeRuntimeClaimed,
@@ -103,7 +124,7 @@ async function main() {
     },
     claimsProved: [
       'Social alert/report provider-status handoff rows can be projected into parent-visible manual/unavailable surface intent rows',
-      'Rows keep notification status refs, readiness refs, audit refs, and manual proof requirements for future parent UI drill-in',
+      'Rows combine provider status with preference status, quiet-hours state, notification status refs, audit refs, and manual proof requirements for future parent UI drill-in',
       'The read model rejects parent notification UI rendering, provider delivery, provider receipts, report delivery execution, final policy execution, connector/native runtime, and enforcement claims',
     ],
     claimsNotProved: [
@@ -119,6 +140,7 @@ async function main() {
       source: 'packages/parent-domain/src/social-alert-report-parent-surface-intent-proof.ts',
       test: 'packages/parent-domain/tests/social-alert-report-parent-surface-intent-proof.test.ts',
       providerStatusSource: 'packages/parent-domain/src/social-alert-report-provider-status-handoff-proof.ts',
+      preferenceStatusSource: 'packages/parent-domain/src/social-alert-report-preference-status-handoff.ts',
       harness: 'scripts/test/social-alert-report-parent-surface-intent-proof.mjs',
       proof: 'test-results/social-alert-report-parent-surface-intent-proof/proof.json',
       readModel: 'test-results/social-alert-report-parent-surface-intent-proof/parent-surface-intent-read-model.json',
@@ -255,6 +277,170 @@ function providerStatusRow(providerPreflight, refs, label, status) {
   };
 }
 
+function preferenceStatusReadModel(preferencePreflight, refs) {
+  return {
+    schemaVersion: refs.ParentContractSchemaVersion.V0_6,
+    handoffId: 'social-preference-status-handoff-parent-surface',
+    generatedAt,
+    family: { familyId: 'family-social-parent-surface' },
+    sourcePreferencePreflightId: 'social-preference-preflight-parent-surface',
+    sourceContractRefs: ['social-alert-report-preference-preflight'],
+    notificationRuleProviderRetryReadModelRef: 'v3-notification-rule-provider-retry-contract',
+    notificationRuleProviderRetryCoverageRefs: [
+      'notification-rule-provider-retry-policy-violation',
+      'notification-rule-provider-retry-parent-request',
+      'notification-rule-provider-retry-suspicious-unknown',
+      'notification-rule-provider-retry-device-offline',
+      'notification-rule-provider-retry-sync-failure',
+      'notification-rule-provider-retry-provider-failure',
+    ],
+    rows: [
+      preferenceStatusRow(
+        preferencePreflight,
+        refs,
+        'high-risk',
+        preferencePreflight.SocialAlertReportPreferencePreflightStatus.ParentPreferenceRequired
+      ),
+      preferenceStatusRow(
+        preferencePreflight,
+        refs,
+        'manual-required',
+        preferencePreflight.SocialAlertReportPreferencePreflightStatus.ManualRequired
+      ),
+      preferenceStatusRow(
+        preferencePreflight,
+        refs,
+        'unavailable',
+        preferencePreflight.SocialAlertReportPreferencePreflightStatus.Unavailable
+      ),
+    ],
+    parentPreferenceManualSetupRequiredCount: 2,
+    quietHoursManualRequiredCount: 2,
+    preferenceStatusUnavailableCount: 1,
+    handoffNonClaims: [
+      'no-parent-notification-preference-ui',
+      'no-parent-notification-history-ui',
+      'no-parent-frequency-control-ui',
+      'no-parent-notification-ui',
+      'no-quiet-hours-timer-runtime',
+      'no-provider-delivery-execution',
+      'no-provider-receipt-ingestion',
+      'no-provider-credentials',
+      'no-cloud-routing',
+      'no-child-delivery',
+      'no-retry-worker-runtime',
+      'no-production-durable-outbox-storage',
+      'no-adapter-dispatch',
+      'no-report-delivery-execution',
+      'no-final-policy-execution',
+      'no-enforcement',
+    ],
+    parentNotificationPreferenceUiClaimed: false,
+    parentNotificationHistoryUiClaimed: false,
+    parentFrequencyControlUiClaimed: false,
+    parentNotificationUiClaimed: false,
+    quietHoursTimerRuntimeClaimed: false,
+    providerDeliveryRuntimeClaimed: false,
+    providerReceiptIngestionClaimed: false,
+    providerCredentialsClaimed: false,
+    cloudRoutingClaimed: false,
+    childDeliveryClaimed: false,
+    retryExecutionRuntimeClaimed: false,
+    productionDurableOutboxStorageClaimed: false,
+    adapterDispatchClaimed: false,
+    reportDeliveryExecutionClaimed: false,
+    finalPolicyExecutionClaimed: false,
+    enforcementClaimed: false,
+  };
+}
+
+function preferenceStatusRow(preferencePreflight, refs, label, status) {
+  const state = preferenceStatusEntryState(preferencePreflight, status);
+  const manualRef = `manual-proof-preference-${label}`;
+  return {
+    handoffRowId: `preference-status-handoff-${label}`,
+    sourcePreferenceRowId: `preference-preflight-${label}`,
+    sourcePreferenceStatus: status,
+    sourceSchedulerEntryRef: sourceRefOrNull(state.sourceRefEnabled, `scheduler-entry-social-parent-surface-${label}`),
+    sourceOutboxRecordRef: sourceRefOrNull(state.sourceRefEnabled, `local-outbox-social-parent-surface-${label}`),
+    sourceProviderChannelRef: sourceRefOrNull(state.sourceRefEnabled, 'social-provider-channel-in-app'),
+    sourceReasonCodeRef: sourceRefOrNull(state.sourceRefEnabled, state.reasonCode),
+    sourceSchedulerDecisionRef: sourceRefOrNull(
+      state.sourceRefEnabled,
+      `scheduler-decision-social-parent-surface-${label}`
+    ),
+    sourceParentPreferenceState: sourceRefOrNull(state.sourceRefEnabled, 'manual-setup-required'),
+    sourceQuietHoursDecision: sourceRefOrNull(state.sourceRefEnabled, 'manual-required'),
+    sourceParentPreferenceRequirementRefs: [manualRef],
+    sourceQuietHoursRequirementRefs: [manualRef],
+    notificationPreferenceStatusEntry: {
+      schemaVersion: refs.ParentContractSchemaVersion.V0_6,
+      contractEntryId: `social-preference-status-${label}`,
+      reasonCode: state.reasonCode,
+      providerChannel: 'in-app',
+      deliveryAttemptState: state.deliveryAttemptState,
+      deliveryResultState: state.deliveryResultState,
+      retryPolicyState: state.retryPolicyState,
+      quietHoursDecision: state.quietHoursDecision,
+      escalationDecision: state.escalationDecision,
+      parentPreferenceState: state.parentPreferenceState,
+      notificationRuleRef: `social-preference-status-rule-${label}`,
+      notificationIntentRef: `social-preference-status-intent-${label}`,
+      deliveryAttemptRef: `social-preference-status-attempt-${label}`,
+      deliveryResultRef: `social-preference-status-result-${label}`,
+      retryPolicyRef: `social-preference-status-retry-${label}`,
+      quietHoursPolicyRef: `social-preference-status-quiet-hours-${label}`,
+      escalationPolicyRef: `social-preference-status-escalation-${label}`,
+      parentPreferenceRef: `social-preference-status-parent-preference-${label}`,
+      auditRefs: [`social-preference-status-audit-${label}`],
+      evidenceRefs: [manualRef],
+      providerReceiptRefs: [],
+      manualProofRequirements: [manualRef],
+      minimalProviderPayloadBoundary: 'Preference status remains setup-only without provider delivery.',
+      providerAdapterImplemented: false,
+      deliveryAttemptExecuted: false,
+      providerReceiptObserved: false,
+      rawEvidenceInProviderPayload: false,
+      providerStoresChildEvidenceClaimed: false,
+      lastCheckedAt: generatedAt,
+    },
+    manualProofRequirements: [manualRef],
+  };
+}
+
+function preferenceStatusEntryState(preferencePreflight, status) {
+  if (status === preferencePreflight.SocialAlertReportPreferencePreflightStatus.Unavailable) {
+    return {
+      sourceRefEnabled: false,
+      reasonCode: 'provider-failure',
+      parentPreferenceState: 'channel-disabled',
+      quietHoursDecision: 'allow',
+      deliveryAttemptState: 'provider-disabled',
+      deliveryResultState: 'not-sent',
+      retryPolicyState: 'provider-disabled',
+      escalationDecision: 'none',
+    };
+  }
+
+  return {
+    sourceRefEnabled: true,
+    reasonCode:
+      status === preferencePreflight.SocialAlertReportPreferencePreflightStatus.ParentPreferenceRequired
+        ? 'policy-violation'
+        : 'parent-request',
+    parentPreferenceState: 'manual-setup-required',
+    quietHoursDecision: 'manual-required',
+    deliveryAttemptState: 'eligible',
+    deliveryResultState: 'manual-required',
+    retryPolicyState: 'manual-review',
+    escalationDecision: 'manual-review',
+  };
+}
+
+function sourceRefOrNull(enabled, ref) {
+  return enabled ? ref : null;
+}
+
 function importDist(name) {
   return import(pathToFileURL(join(repoRoot, 'packages', 'parent-domain', 'dist', name)).href);
 }
@@ -287,10 +473,11 @@ function markdownFor(proof) {
     `Rows: ${proof.summary.rowCount}`,
     `Manual action required: ${proof.summary.manualActionRequiredCount}`,
     `Unavailable visible: ${proof.summary.unavailableVisibleCount}`,
+    `Preference setup required: ${proof.summary.preferenceSetupRequiredCount}`,
     '',
-    'This proof projects social alert/report provider-status handoff rows into parent-visible manual/unavailable surface intent rows.',
-    'It carries notification status refs, readiness refs, audit refs, and manual proof requirements for future authenticated drill-in.',
-    'It does not render parent notification UI and does not claim provider delivery, receipts, report delivery execution, final policy execution, connector/native runtime, enforcement, or product completion.',
+    'This proof projects social alert/report provider-status and preference-status handoff rows into parent-visible manual/unavailable surface intent rows.',
+    'It carries notification status refs, preference/quiet-hours status refs, audit refs, and manual proof requirements for future authenticated drill-in.',
+    'It does not render parent notification/preference/history UI and does not claim provider delivery, receipts, child delivery, report delivery execution, final policy execution, connector/native runtime, enforcement, or product completion.',
   ].join('\n');
 }
 
@@ -299,8 +486,14 @@ function securityProofFor(proof) {
     '# Security Negative Proof',
     '',
     `Parent notification UI rendered: ${proof.summary.parentNotificationUiRendered}`,
+    `Parent notification preference UI rendered: ${proof.summary.parentNotificationPreferenceUiRendered}`,
+    `Parent frequency control UI rendered: ${proof.summary.parentFrequencyControlUiRendered}`,
+    `Parent notification history UI rendered: ${proof.summary.parentNotificationHistoryUiRendered}`,
     `Provider delivery runtime claimed: ${proof.summary.providerDeliveryRuntimeClaimed}`,
     `Provider receipt ingestion claimed: ${proof.summary.providerReceiptIngestionClaimed}`,
+    `Child delivery claimed: ${proof.summary.childDeliveryClaimed}`,
+    `Quiet-hours timer runtime claimed: ${proof.summary.quietHoursTimerRuntimeClaimed}`,
+    `Adapter dispatch claimed: ${proof.summary.adapterDispatchClaimed}`,
     `Report delivery execution claimed: ${proof.summary.reportDeliveryExecutionClaimed}`,
     `Final policy execution claimed: ${proof.summary.finalPolicyExecutionClaimed}`,
     `Enforcement claimed: ${proof.summary.enforcementClaimed}`,

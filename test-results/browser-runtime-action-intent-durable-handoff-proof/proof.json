@@ -1,0 +1,36 @@
+{
+  "proofName": "browser-runtime-action-intent-durable-handoff-proof",
+  "branchHead": "df6b6a71f Expose browser action intent handoff status",
+  "sourceChecks": {
+    "runtimeExportsDurableHandoff": true,
+    "durableModuleUsesNamedHandoffSubscriber": true,
+    "durableTypesKeepPreparedState": true,
+    "protocolConstantsNameDurableRefs": true,
+    "testsProveRefsAndNoExecution": true,
+    "docsMentionProof": true
+  },
+  "commands": [
+    "cargo test -p ocentra-parent-agent-core browser_runtime_action_intent_durable_handoff --quiet"
+  ],
+  "verified": {
+    "handoffEvent": "browser.action-intent.handoff.requested",
+    "durableResultRefProjected": true,
+    "durableStoreRefProjected": true,
+    "readModelRefProjected": true,
+    "supportStatusRefProjected": true,
+    "duplicateRequestEventRejected": true,
+    "rowMatchesHandoffResponse": true,
+    "rowMatchesRequestEvent": true,
+    "dispatchAttemptCount": 0,
+    "adapterExecutionCount": 0,
+    "browserMutationCount": 0,
+    "childInterventionExecutionCount": 0,
+    "finalPolicyExecutionCount": 0,
+    "enforcementExecutionCount": 0,
+    "externalTransportImplemented": false,
+    "finalPolicyExecutionClaimed": false,
+    "browserMutationClaimed": false,
+    "childInterventionClaimed": false,
+    "enforcementClaimed": false
+  }
+}

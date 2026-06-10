@@ -1,7 +1,7 @@
 use super::{
     constants, ChildAgentEventContract, ChildCapabilityStateUpdatedEvent,
-    ChildCommandAcceptedEvent, ChildCommandReceivedEvent, ChildCommandRejectedEvent,
-    ChildRuntimeHealthUpdatedEvent,
+    ChildCommandAcceptedEvent, ChildCommandKind, ChildCommandReceivedEvent,
+    ChildCommandRejectedEvent, ChildRuntimeHealthUpdatedEvent,
 };
 
 #[path = "child_agent_event_fixtures.rs"]
@@ -69,6 +69,17 @@ fn child_agent_contracts_serialize_command_and_runtime_refs() {
     assert_eq!(
         serialized_field(&child_runtime_health_updated_event(), "healthState", ""),
         serde_json::json!("degraded")
+    );
+}
+
+#[test]
+fn child_agent_contracts_serialize_browser_action_intent_handoff_kind() {
+    let mut event = child_command_received_event();
+    event.command_kind = ChildCommandKind::BrowserActionIntentHandoff;
+
+    assert_eq!(
+        serialized_field(&event, "commandKind", ""),
+        serde_json::json!("browser-action-intent-handoff")
     );
 }
 

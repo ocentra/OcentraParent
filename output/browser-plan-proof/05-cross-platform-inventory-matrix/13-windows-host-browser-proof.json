@@ -1,10 +1,10 @@
 {
   "schemaVersion": 1,
   "proofId": "browser-platform-windows-host-proof",
-  "generatedAt": "2026-06-07T07:45:39.529Z",
-  "branch": "codex/browser-child-intervention-endpoint-flow",
-  "commit": "e70100843281a0045a8e1d94599e50a81e4ff043",
-  "baseCommit": "f957c4aa90ed42ea266d423236f89361d1d2241a",
+  "generatedAt": "2026-06-08T16:04:34.955Z",
+  "branch": "codex/d-runtime-ready",
+  "commit": "a58610ef930aff35fc8309cc83e36a17f2457d8c",
+  "baseCommit": "c99e70b85e33090dfa85d6dfe9df41da9d875fb1",
   "hostProofSummary": {
     "platform": "win32",
     "windowsHost": true,

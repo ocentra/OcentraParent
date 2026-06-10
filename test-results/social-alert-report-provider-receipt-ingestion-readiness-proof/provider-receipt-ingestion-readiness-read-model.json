@@ -1,0 +1,143 @@
+{
+  "schemaVersion": "v0.6",
+  "readinessId": "social-alert-report-provider-receipt-ingestion-readiness-proof",
+  "generatedAt": "2026-06-08T05:55:00Z",
+  "sourceReceiptBoundaryId": "social-alert-report-provider-receipt-boundary-for-ingestion",
+  "sourceContractRefs": [
+    "social-alert-report-provider-receipt-boundary-proof",
+    "provider-receipt-webhook-contract",
+    "provider-receipt-durable-store-contract"
+  ],
+  "sourceReceiptBoundaryNonClaims": [
+    "no-provider-delivery-execution",
+    "no-provider-receipt-ingestion-runtime",
+    "no-provider-webhook-runtime",
+    "no-provider-credentials",
+    "no-cloud-routing",
+    "no-parent-notification-ui-delivery",
+    "no-report-delivery-execution",
+    "no-final-policy-execution",
+    "no-connector-native-runtime",
+    "no-enforcement"
+  ],
+  "rows": [
+    {
+      "ingestionRowId": "social-provider-receipt-ingestion-social-provider-receipt-social-provider-status-handoff-social-provider-preflight-social-provider-ingestion-high-risk",
+      "sourceReceiptRowRef": "social-provider-receipt-social-provider-status-handoff-social-provider-preflight-social-provider-ingestion-high-risk",
+      "sourceIntentRef": "social-provider-ingestion-high-risk",
+      "sourceProviderAttemptRef": "social-provider-attempt-not-started-social-provider-preflight-social-provider-ingestion-high-risk",
+      "sourceReceiptBoundaryState": "provider-dispatch-required",
+      "ingestionReadinessState": "ingestion-contract-required",
+      "webhookEndpointRef": null,
+      "providerCredentialRef": null,
+      "durableReceiptResultRef": null,
+      "providerReceiptObservedRefs": [],
+      "receiptProofRequirements": [
+        "social-provider-dispatch-runtime-required-social-provider-ingestion-high-risk",
+        "social-provider-receipt-ingestion-contract-required-social-provider-ingestion-high-risk"
+      ],
+      "ingestionProofRequirements": [
+        "social-provider-receipt-webhook-contract-required-social-provider-ingestion-high-risk",
+        "social-provider-receipt-credential-proof-required-social-provider-ingestion-high-risk",
+        "social-provider-receipt-durable-store-required-social-provider-ingestion-high-risk"
+      ],
+      "providerDeliveryExecutionClaimed": false,
+      "providerReceiptIngestionRuntimeClaimed": false,
+      "providerWebhookRuntimeClaimed": false,
+      "providerCredentialsClaimed": false,
+      "providerReceiptObservedClaimed": false,
+      "cloudRoutingClaimed": false,
+      "parentNotificationUiDeliveryClaimed": false,
+      "reportDeliveryExecutionClaimed": false,
+      "finalPolicyExecutionClaimed": false,
+      "connectorNativeRuntimeClaimed": false,
+      "enforcementClaimed": false
+    },
+    {
+      "ingestionRowId": "social-provider-receipt-ingestion-social-provider-receipt-social-provider-status-handoff-social-provider-preflight-social-provider-ingestion-manual-required",
+      "sourceReceiptRowRef": "social-provider-receipt-social-provider-status-handoff-social-provider-preflight-social-provider-ingestion-manual-required",
+      "sourceIntentRef": "social-provider-ingestion-manual-required",
+      "sourceProviderAttemptRef": "social-provider-attempt-not-started-social-provider-preflight-social-provider-ingestion-manual-required",
+      "sourceReceiptBoundaryState": "manual-receipt-required",
+      "ingestionReadinessState": "manual-receipt-required",
+      "webhookEndpointRef": null,
+      "providerCredentialRef": null,
+      "durableReceiptResultRef": null,
+      "providerReceiptObservedRefs": [],
+      "receiptProofRequirements": [
+        "social-provider-receipt-manual-provider-setup-social-provider-ingestion-manual-required"
+      ],
+      "ingestionProofRequirements": [
+        "social-provider-receipt-ingestion-manual-provider-setup-social-provider-ingestion-manual-required"
+      ],
+      "providerDeliveryExecutionClaimed": false,
+      "providerReceiptIngestionRuntimeClaimed": false,
+      "providerWebhookRuntimeClaimed": false,
+      "providerCredentialsClaimed": false,
+      "providerReceiptObservedClaimed": false,
+      "cloudRoutingClaimed": false,
+      "parentNotificationUiDeliveryClaimed": false,
+      "reportDeliveryExecutionClaimed": false,
+      "finalPolicyExecutionClaimed": false,
+      "connectorNativeRuntimeClaimed": false,
+      "enforcementClaimed": false
+    },
+    {
+      "ingestionRowId": "social-provider-receipt-ingestion-social-provider-receipt-social-provider-status-handoff-social-provider-preflight-social-provider-ingestion-unavailable",
+      "sourceReceiptRowRef": "social-provider-receipt-social-provider-status-handoff-social-provider-preflight-social-provider-ingestion-unavailable",
+      "sourceIntentRef": "social-provider-ingestion-unavailable",
+      "sourceProviderAttemptRef": "social-provider-attempt-not-started-social-provider-preflight-social-provider-ingestion-unavailable",
+      "sourceReceiptBoundaryState": "provider-unavailable",
+      "ingestionReadinessState": "provider-unavailable",
+      "webhookEndpointRef": null,
+      "providerCredentialRef": null,
+      "durableReceiptResultRef": null,
+      "providerReceiptObservedRefs": [],
+      "receiptProofRequirements": [
+        "social-provider-receipt-provider-unavailable-social-provider-ingestion-unavailable"
+      ],
+      "ingestionProofRequirements": [
+        "social-provider-receipt-ingestion-provider-unavailable-social-provider-ingestion-unavailable"
+      ],
+      "providerDeliveryExecutionClaimed": false,
+      "providerReceiptIngestionRuntimeClaimed": false,
+      "providerWebhookRuntimeClaimed": false,
+      "providerCredentialsClaimed": false,
+      "providerReceiptObservedClaimed": false,
+      "cloudRoutingClaimed": false,
+      "parentNotificationUiDeliveryClaimed": false,
+      "reportDeliveryExecutionClaimed": false,
+      "finalPolicyExecutionClaimed": false,
+      "connectorNativeRuntimeClaimed": false,
+      "enforcementClaimed": false
+    }
+  ],
+  "ingestionContractRequiredCount": 1,
+  "manualReceiptRequiredCount": 1,
+  "providerUnavailableCount": 1,
+  "providerReceiptObservedCount": 0,
+  "receiptIngestionReadinessNonClaims": [
+    "no-provider-delivery-execution",
+    "no-provider-receipt-ingestion-runtime",
+    "no-provider-webhook-runtime",
+    "no-provider-credentials",
+    "no-provider-receipt-observed",
+    "no-cloud-routing",
+    "no-parent-notification-ui-delivery",
+    "no-report-delivery-execution",
+    "no-final-policy-execution",
+    "no-connector-native-runtime",
+    "no-enforcement"
+  ],
+  "providerDeliveryRuntimeClaimed": false,
+  "providerReceiptIngestionRuntimeClaimed": false,
+  "providerWebhookRuntimeClaimed": false,
+  "providerCredentialsClaimed": false,
+  "providerReceiptObservedClaimed": false,
+  "cloudRoutingClaimed": false,
+  "parentNotificationUiDeliveryClaimed": false,
+  "reportDeliveryExecutionClaimed": false,
+  "finalPolicyExecutionClaimed": false,
+  "connectorNativeRuntimeClaimed": false,
+  "enforcementClaimed": false
+}

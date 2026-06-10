@@ -164,6 +164,28 @@ export {
   type SocialAlertReportPanelRow,
 } from './social-alert-report-panel';
 export {
+  createSocialParentNotificationDeliveryPanelIntent,
+  type SocialParentNotificationDeliveryPanelDetail,
+  type SocialParentNotificationDeliveryPanelIntent,
+  type SocialParentNotificationDeliveryPanelRow,
+} from './social-parent-notification-delivery-panel';
+export {
+  createSocialAlertReportParentSurfacePanelIntent,
+  type SocialAlertReportParentSurfacePanelDetail,
+  type SocialAlertReportParentSurfacePanelIntent,
+  type SocialAlertReportParentSurfacePanelRow,
+} from './social-alert-report-parent-surface-panel';
+export {
+  createBrowserSocialProviderReceiptStreamStatusIntent,
+  type BrowserSocialProviderReceiptStreamStatusDetail,
+  type BrowserSocialProviderReceiptStreamStatusIntent,
+} from './browser-social-provider-receipt-stream-status';
+export {
+  createBrowserSocialProviderReceiptIngestionReadinessStatusIntent,
+  type BrowserSocialProviderReceiptIngestionReadinessStatusDetail,
+  type BrowserSocialProviderReceiptIngestionReadinessStatusIntent,
+} from './browser-social-provider-receipt-ingestion-readiness-status';
+export {
   PortalRoute,
   PortalDevToolWindow,
   PortalAiRuntimeRoutes,
@@ -474,7 +496,9 @@ export const PortalEnvironment = {
   SocialAuditExplanationProofBundle: 'VITE_SOCIAL_AUDIT_EXPLANATION_PROOF_BUNDLE',
 } as const;
 
-export const PortalText = {
+const PortalText = {
   Resolve: resolvePortalDevText,
 } as const;
-export const PortalTextToken = PortalDevTextToken;
+const PortalTextToken = PortalDevTextToken;
+
+export { PortalText, PortalTextToken };

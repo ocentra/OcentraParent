@@ -45,6 +45,7 @@ const portalPort = resolveParentDevPort(
 const devLogDir = await mkdtemp(path.join(tmpdir(), 'ocentra-parent-e2e-log-'));
 const activityDbPath = path.join(devLogDir, 'activity.sqlite');
 const children = [];
+const playwrightArgs = process.argv.slice(2);
 
 let exitCode = 1;
 let stopping = false;
@@ -144,7 +145,15 @@ function runPlaywright() {
   const specArgs = spec === undefined || spec.trim().length === 0 ? [] : [spec.trim()];
   const child = spawn(
     process.execPath,
-    [cliPath, 'test', ...specArgs, '--config', path.join(portalRoot, 'playwright.config.ts'), '--workers=1'],
+    [
+      cliPath,
+      'test',
+      ...specArgs,
+      '--config',
+      path.join(portalRoot, 'playwright.config.ts'),
+      '--workers=1',
+      ...playwrightArgs,
+    ],
     {
       cwd: portalRoot,
       env: {

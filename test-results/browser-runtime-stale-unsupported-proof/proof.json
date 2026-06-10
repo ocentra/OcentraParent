@@ -1,0 +1,38 @@
+{
+  "proofName": "browser-runtime-stale-unsupported-proof",
+  "branchHead": "260c72092 Project browser action intents from store preview",
+  "gitStatusShort": "",
+  "sourceChecks": {
+    "bridgeDisconnectReportsStale": true,
+    "managedProfileReadyStillBridgeMissing": true,
+    "runtimePayloadChecksStale": true,
+    "inventoryChecksStaleManualRequired": true,
+    "inventoryChecksUnsupportedLaterAdapter": true,
+    "deliveryKeepsManualRequired": true,
+    "streamKeepsParentVisible": true,
+    "protocolRejectsStaleExactUrlClaim": true,
+    "protocolRejectsUnsupportedExactUrlClaim": true
+  },
+  "commands": [
+    "cargo test -p ocentra-parent-agent-service bridge_disconnected_status_reports_stale_bridge_state --quiet",
+    "cargo test -p ocentra-parent-agent-service browser_inventory_read_model --quiet",
+    "cargo test -p ocentra-parent-agent-service service_browser_read_model_keeps_stale_and_unsupported_rows_manual_required --quiet",
+    "cargo test -p ocentra-parent-agent-service service_browser_runtime_stream_keeps_stale_and_unsupported_rows_parent_visible --quiet",
+    "cmd /c npm run test --workspace @ocentra-parent/agent-protocol-domain -- browser-runtime-events.test.ts"
+  ],
+  "verified": {
+    "bridgeDisconnectCapabilityIsStale": true,
+    "bridgeDisconnectParentVisibleManualRequired": true,
+    "unsupportedLaterAdapterParentVisibleUnsupported": true,
+    "staleAndUnsupportedRuntimeRowsStayManualRequired": true,
+    "exactUrlRowsForStaleUnsupported": 0,
+    "interventionCommandEventsForStaleUnsupported": 0,
+    "actionDispatchAttemptsForStaleUnsupported": 0,
+    "adapterExecutionsForStaleUnsupported": 0,
+    "childInterventionExecutionsForStaleUnsupported": 0,
+    "enforcementExecutionsForStaleUnsupported": 0,
+    "managedExactUrlBoundaryUnchanged": true,
+    "nonWindowsPlatformClaimsUnchanged": true,
+    "hostBlockingClaimsUnchanged": true
+  }
+}

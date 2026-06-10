@@ -1,6 +1,6 @@
 # SOCIAL-23 Social Proof Artifact Manifest
 
-Generated: 2026-06-07T13:13:42.618Z
+Generated: 2026-06-08T22:52:53.266Z
 
 Rows checked: 22
 Proof-present rows: 21
@@ -53,17 +53,22 @@ Live-evidence decision memory proof is present for SOCIAL-19 ref-only cache snap
 Ref-only social alert/report intent proof is present.
 Parent-owned social alert/report local outbox JSONL bridge proof is present.
 Social alert/report parent-surface intent proof is present for manual/unavailable status rows.
+Service-backed social alert/report parent-surface UI proof is present for the real Browser route.
 Parent-owned social alert/report scheduler JSONL bridge proof is present.
 Social alert/report audit-history bridge proof is present through the logging-domain handoff.
 Service-backed social alert/report intent UI proof is present for the real Browser route.
 Social alert/report provider preflight proof is present and requires provider adapter setup before delivery.
 Social alert/report provider status handoff proof is present and maps preflight rows to manual-required or unavailable provider status boundary rows.
 Parent-owned social report writer delivery-readiness proof is present.
+Parent notification/report delivery readiness proof is present.
+Parent-owned local delivery result proof is present for report-ready rows.
+Managed-browser social policy execution proof is present for a real YouTube block intervention.
+Social alert/report provider dispatch execution proof prepares local dispatch packets without claiming provider delivery.
 Parent-owned social schedule/time-budget application-readiness proof is present.
 Schedule/time-budget compiler contract proof is present.
 Parent sensitivity settings contract proof is present.
 Source custody settings contract proof is present over source/privacy refs.
 Service-backed source custody mutation proof is present over redacted refs.
-It does not prove runtime connector behavior, native app control, final
-policy execution, external provider/report runtime delivery, runtime-applied schedules/budgets,
-enforcement, or product checklist completion.
+It does not prove runtime connector behavior, native app control, broad
+or unmanaged policy execution, external provider/report runtime delivery, runtime-applied schedules/budgets,
+parent notification UI delivery, enforcement, or product checklist completion.

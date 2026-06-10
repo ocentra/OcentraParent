@@ -33,6 +33,11 @@ mod browser_bridge_ids;
 #[cfg(test)]
 mod browser_bridge_native_host;
 mod browser_bridge_poll;
+mod browser_event_runtime;
+mod browser_event_runtime_phase;
+mod browser_event_runtime_refs;
+#[cfg(test)]
+mod browser_event_runtime_tests;
 mod browser_intervention_event;
 mod browser_managed_discovery;
 mod browser_managed_session;
@@ -115,6 +120,23 @@ pub use browser_bridge_poll::{
     poll_chromium_bridge, BrowserBridgeExpectedCustody, BrowserBridgePollConfig,
     BrowserBridgePollError, BrowserBridgePollSnapshot,
 };
+pub use browser_event_runtime::{
+    browser_runtime_action_intent_handoff_topology_manifest,
+    browser_runtime_action_intent_status_topology_manifest,
+    browser_runtime_chain_topology_manifest,
+    browser_runtime_social_provider_receipt_status_topology_manifest,
+    prove_browser_runtime_delivery_decision, publish_browser_runtime_chain_for_input,
+    request_browser_runtime_action_intent_handoff_for_input,
+    request_browser_runtime_action_intent_status_for_input,
+    request_browser_runtime_social_provider_receipt_status_for_input,
+    BrowserRuntimeActionIntentHandoffReport, BrowserRuntimeActionIntentHandoffResponse,
+    BrowserRuntimeActionIntentStatusReport, BrowserRuntimeActionIntentStatusResponse,
+    BrowserRuntimeDeliveryDecisionError, BrowserRuntimeDeliveryDecisionReport,
+    BrowserRuntimeEventPayload, BrowserRuntimeInput, BrowserRuntimeReport,
+    BrowserRuntimeSocialProviderReceiptStatusReport,
+    BrowserRuntimeSocialProviderReceiptStatusResponse,
+};
+pub use browser_event_runtime_phase::BrowserRuntimePhase;
 pub use browser_intervention_event::{
     browser_intervention_applied_event, BrowserInterventionObservation,
 };

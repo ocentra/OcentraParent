@@ -116,6 +116,10 @@ pub enum AgentCommandName {
     AgentBrowserSocialAuditExplanationReadModelGet,
     #[serde(rename = "agent.browser.social-alert-report.read-model.get")]
     AgentBrowserSocialAlertReportReadModelGet,
+    #[serde(rename = "agent.browser.social-alert-report.parent-surface.read-model.get")]
+    AgentBrowserSocialAlertReportParentSurfaceReadModelGet,
+    #[serde(rename = "agent.browser.social-parent-notification-delivery.read-model.get")]
+    AgentBrowserSocialParentNotificationDeliveryReadModelGet,
     #[serde(rename = "agent.browser.social-source-custody.mutation.apply")]
     AgentBrowserSocialSourceCustodyMutationApply,
     #[serde(rename = "agent.activity.network.read-model.get")]
@@ -130,6 +134,8 @@ pub enum AgentCommandName {
     AgentBrowserManagedBridgePoll,
     #[serde(rename = "agent.browser.intervention.read-model.get")]
     AgentBrowserInterventionReadModelGet,
+    #[serde(rename = "agent.browser.runtime.event-chain.stream.get")]
+    AgentBrowserRuntimeEventChainStreamGet,
     #[serde(rename = "agent.network.flow.read-model.get")]
     AgentNetworkFlowReadModelGet,
     #[serde(rename = "agent.network.runtime.event-chain.stream.get")]
@@ -272,6 +278,10 @@ pub enum AgentEventName {
     AgentBrowserSocialAuditExplanationReadModelReported,
     #[serde(rename = "agent.browser.social-alert-report.read-model.reported")]
     AgentBrowserSocialAlertReportReadModelReported,
+    #[serde(rename = "agent.browser.social-alert-report.parent-surface.read-model.reported")]
+    AgentBrowserSocialAlertReportParentSurfaceReadModelReported,
+    #[serde(rename = "agent.browser.social-parent-notification-delivery.read-model.reported")]
+    AgentBrowserSocialParentNotificationDeliveryReadModelReported,
     #[serde(rename = "agent.browser.social-source-custody.mutation.applied")]
     AgentBrowserSocialSourceCustodyMutationApplied,
     #[serde(rename = "agent.activity.network.read-model.reported")]
@@ -286,6 +296,8 @@ pub enum AgentEventName {
     AgentBrowserManagedStatusReported,
     #[serde(rename = "agent.browser.intervention.read-model.reported")]
     AgentBrowserInterventionReadModelReported,
+    #[serde(rename = "agent.browser.runtime.event-chain.stream.reported")]
+    AgentBrowserRuntimeEventChainStreamReported,
     #[serde(rename = "agent.network.flow.read-model.reported")]
     AgentNetworkFlowReadModelReported,
     #[serde(rename = "agent.network.runtime.event-chain.stream.reported")]

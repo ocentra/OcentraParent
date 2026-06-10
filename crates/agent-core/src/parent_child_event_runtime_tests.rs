@@ -120,6 +120,46 @@ async fn child_agent_receive_publishes_local_events_and_parent_read_model() {
     );
 }
 
+#[tokio::test]
+async fn browser_action_intent_handoff_uses_parent_child_event_sequence_without_execution() {
+    let report = publish_parent_child_runtime_for_validated_intent(
+        ParentChildRuntimeInput::browser_action_intent_handoff_fixture(),
+    )
+    .await
+    .expect(constants::parent_controller::ERROR_PARENT_CHILD_RUNTIME_PUBLISHES);
+    let payloads = decode_payloads(&report);
+    let parent_action = parent_action(&payloads);
+    let validated = parent_validated(&payloads);
+    let forwarded = parent_forwarded(&payloads);
+    let received = child_received(&payloads);
+    let accepted = child_accepted(&payloads);
+    let read_model = parent_read_model(&payloads);
+
+    assert_eq!(
+        parent_action.parent_intent_ref,
+        constants::browser::TEST_BROWSER_RUNTIME_ACTION_INTENT_ID
+    );
+    assert_eq!(
+        received.command_kind,
+        ChildCommandKind::BrowserActionIntentHandoff
+    );
+    assert_eq!(
+        validated.child_command_ref.as_deref(),
+        Some(received.child_command_ref.as_str())
+    );
+    assert_eq!(
+        received.parent_controller_event_ref,
+        forwarded.forwarded_event_ref
+    );
+    assert_eq!(accepted.decision, ChildCommandDecision::Accepted);
+    assert!(read_model.visible_to_portal);
+    assert_eq!(
+        report.stored_events.len(),
+        ParentChildRuntimePhase::ordered_chain().len()
+    );
+    assert!(report.dead_letters.is_empty());
+}
+
 fn decode_payloads(report: &ParentChildRuntimeReport) -> Vec<ParentChildRuntimeEventPayload> {
     report
         .stored_events
@@ -131,6 +171,18 @@ fn decode_payloads(report: &ParentChildRuntimeReport) -> Vec<ParentChildRuntimeE
             envelope.payload
         })
         .collect()
+}
+
+fn parent_action(
+    payloads: &[ParentChildRuntimeEventPayload],
+) -> ocentra_parent_agent_protocol::ParentActionReceivedEvent {
+    payloads
+        .iter()
+        .find_map(|payload| match payload {
+            ParentChildRuntimeEventPayload::ParentActionReceived(event) => Some(event.clone()),
+            _ => None,
+        })
+        .expect(constants::parent_controller::ERROR_PARENT_CHILD_RUNTIME_PAYLOAD_DECODES)
 }
 
 fn parent_validated(

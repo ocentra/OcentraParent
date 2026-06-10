@@ -5,9 +5,11 @@ use ocentra_parent_agent_protocol::{
 };
 
 use crate::{
+    activity_api::social_alert_report_parent_surface_read_model_payload::build_browser_social_alert_report_parent_surface_read_model_report,
     activity_api::social_alert_report_read_model_payload::build_browser_social_alert_report_read_model_report,
     activity_api::social_audit_explanation_read_model_payload::build_browser_social_audit_explanation_read_model_report,
     activity_api::social_dashboard_read_model_payload::build_browser_social_dashboard_read_model_report,
+    activity_api::social_parent_notification_delivery_read_model_payload::build_browser_social_parent_notification_delivery_read_model_report,
     activity_api::social_source_custody_mutation_payload::build_browser_social_source_custody_mutation_report,
     activity_api::{
         build_activity_app_game_boundary_read_model_report,
@@ -28,6 +30,7 @@ use crate::{
     browser_policy_api::build_browser_policy_event,
     browser_policy_runtime::BrowserPolicyRuntime,
     browser_runtime::build_browser_managed_status_report,
+    browser_runtime_stream_api::build_browser_runtime_event_chain_stream_report,
     enforcement_api::{
         build_enforcement_audit_report, build_enforcement_broad_adapter_proof_report,
         build_enforcement_policy_dispatch_report, build_enforcement_product_control_spine_report,
@@ -196,6 +199,7 @@ async fn build_command_event(
         | AgentCommandName::AgentBrowserEvidenceRecentGet
         | AgentCommandName::AgentBrowserManagedBridgePoll
         | AgentCommandName::AgentBrowserInterventionReadModelGet
+        | AgentCommandName::AgentBrowserRuntimeEventChainStreamGet
         | AgentCommandName::AgentNetworkFlowReadModelGet
         | AgentCommandName::AgentNetworkRuntimeEventChainStreamGet
         | AgentCommandName::AgentNetworkRemoteDeliveryStatusGet
@@ -267,6 +271,8 @@ fn is_activity_command(command: &AgentCommandName) -> bool {
             | AgentCommandName::AgentBrowserSocialDashboardReadModelGet
             | AgentCommandName::AgentBrowserSocialAuditExplanationReadModelGet
             | AgentCommandName::AgentBrowserSocialAlertReportReadModelGet
+            | AgentCommandName::AgentBrowserSocialAlertReportParentSurfaceReadModelGet
+            | AgentCommandName::AgentBrowserSocialParentNotificationDeliveryReadModelGet
             | AgentCommandName::AgentActivityNetworkReadModelGet
             | AgentCommandName::AgentActivityTrackingReadModelGet
     )
@@ -378,6 +384,12 @@ async fn build_activity_command_report(command: AgentCommandEnvelope) -> AgentEv
         AgentCommandName::AgentBrowserSocialAlertReportReadModelGet => {
             build_browser_social_alert_report_read_model_report(command).await
         }
+        AgentCommandName::AgentBrowserSocialAlertReportParentSurfaceReadModelGet => {
+            build_browser_social_alert_report_parent_surface_read_model_report(command).await
+        }
+        AgentCommandName::AgentBrowserSocialParentNotificationDeliveryReadModelGet => {
+            build_browser_social_parent_notification_delivery_read_model_report(command).await
+        }
         AgentCommandName::AgentActivityNetworkReadModelGet => {
             build_activity_network_read_model(command).await
         }
@@ -401,6 +413,9 @@ async fn build_browser_network_command_report(command: AgentCommandEnvelope) -> 
         }
         AgentCommandName::AgentBrowserInterventionReadModelGet => {
             build_browser_intervention_read_model_report(command).await
+        }
+        AgentCommandName::AgentBrowserRuntimeEventChainStreamGet => {
+            build_browser_runtime_event_chain_stream_report(command).await
         }
         AgentCommandName::AgentNetworkFlowReadModelGet => {
             build_network_flow_read_model_report(command).await

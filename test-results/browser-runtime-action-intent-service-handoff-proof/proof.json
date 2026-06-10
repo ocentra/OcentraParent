@@ -1,0 +1,35 @@
+{
+  "proofName": "browser-runtime-action-intent-service-handoff-proof",
+  "branchHead": "5b1601c6f Add browser action intent handoff event subscriber",
+  "sourceChecks": {
+    "serviceRequestsNamedHandoffSubscriber": true,
+    "serviceRecordsPreparedOutboxRefs": true,
+    "serviceRecordsPreparedHandoffRefs": true,
+    "serviceKeepsExecutionCountersZero": true,
+    "storeBackedPolicyPreviewPreparesHandoff": true,
+    "subscriberStillNoExecutionClaim": true,
+    "docsMentionServiceHandoffProof": true,
+    "workpackMentionsServiceHandoffProof": true
+  },
+  "commands": [
+    "cargo test -p ocentra-parent-agent-service service_browser_runtime_action_intent_status --quiet",
+    "cargo test -p ocentra-parent-agent-service service_browser_runtime_stream_projects_store_backed_policy_preview_candidate --quiet"
+  ],
+  "verified": {
+    "existingStreamCommand": "agent.browser.runtime.event-chain.stream.get",
+    "handoffEvent": "browser.action-intent.handoff.requested",
+    "preparedOutboxRefRecordedInServiceReport": true,
+    "preparedHandoffRefRecordedInServiceReport": true,
+    "publicWireShapeChanged": false,
+    "dispatchAttemptCount": 0,
+    "adapterExecutionCount": 0,
+    "browserMutationCount": 0,
+    "childInterventionExecutionCount": 0,
+    "enforcementExecutionCount": 0,
+    "finalPolicyExecutionClaimed": false,
+    "browserMutationClaimed": false,
+    "childInterventionClaimed": false,
+    "enforcementClaimed": false
+  },
+  "lockConstraint": "Shared protocol field constants/defaults are currently owned by codex-c, so this slice keeps prepared handoff refs in browser service report state and does not add new wire keys."
+}
