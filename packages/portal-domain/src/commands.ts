@@ -19,6 +19,10 @@ export const PortalOverviewCommands = [
     payload: {},
   },
   {
+    command: AgentCommand.NetworkFlowReadModelGet,
+    payload: {},
+  },
+  {
     command: AgentCommand.LanPairingStatusGet,
     payload: {},
   },
@@ -79,7 +83,27 @@ export const PortalOverviewCommands = [
     payload: {},
   },
   {
-    command: AgentCommand.NetworkFlowReadModelGet,
+    command: AgentCommand.NetworkRuntimeEventChainStreamGet,
+    payload: {},
+  },
+  {
+    command: AgentCommand.NetworkRemoteDeliveryStatusGet,
+    payload: {},
+  },
+  {
+    command: AgentCommand.NetworkLiveCaptureStatusGet,
+    payload: {},
+  },
+  {
+    command: AgentCommand.NetworkLinuxNftablesLabStatusGet,
+    payload: {},
+  },
+  {
+    command: AgentCommand.NetworkWindowsFirewallLabStatusGet,
+    payload: {},
+  },
+  {
+    command: AgentCommand.NetworkWindowsWfpGateStatusGet,
     payload: {},
   },
   {
@@ -205,6 +229,42 @@ export const PortalCommandButtons = [
     label: resolvePortalDevText(PortalDevTextToken.GetNetworkFlowReadModel),
     command: AgentCommand.NetworkFlowReadModelGet,
     resultEvent: AgentEvent.NetworkFlowReadModelReported,
+    payload: {},
+  },
+  {
+    label: resolvePortalDevText(PortalDevTextToken.GetNetworkRuntimeEventChainStream),
+    command: AgentCommand.NetworkRuntimeEventChainStreamGet,
+    resultEvent: AgentEvent.NetworkRuntimeEventChainStreamReported,
+    payload: {},
+  },
+  {
+    label: resolvePortalDevText(PortalDevTextToken.GetNetworkRemoteDeliveryStatus),
+    command: AgentCommand.NetworkRemoteDeliveryStatusGet,
+    resultEvent: AgentEvent.NetworkRemoteDeliveryStatusReported,
+    payload: {},
+  },
+  {
+    label: resolvePortalDevText(PortalDevTextToken.GetNetworkLiveCaptureStatus),
+    command: AgentCommand.NetworkLiveCaptureStatusGet,
+    resultEvent: AgentEvent.NetworkLiveCaptureStatusReported,
+    payload: {},
+  },
+  {
+    label: resolvePortalDevText(PortalDevTextToken.GetNetworkLinuxNftablesLabStatus),
+    command: AgentCommand.NetworkLinuxNftablesLabStatusGet,
+    resultEvent: AgentEvent.NetworkLinuxNftablesLabStatusReported,
+    payload: {},
+  },
+  {
+    label: resolvePortalDevText(PortalDevTextToken.GetNetworkWindowsFirewallLabStatus),
+    command: AgentCommand.NetworkWindowsFirewallLabStatusGet,
+    resultEvent: AgentEvent.NetworkWindowsFirewallLabStatusReported,
+    payload: {},
+  },
+  {
+    label: resolvePortalDevText(PortalDevTextToken.GetNetworkWindowsWfpGateStatus),
+    command: AgentCommand.NetworkWindowsWfpGateStatusGet,
+    resultEvent: AgentEvent.NetworkWindowsWfpGateStatusReported,
     payload: {},
   },
   {

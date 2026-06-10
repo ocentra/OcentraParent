@@ -1,0 +1,29 @@
+name: CI Docs Hub
+
+on:
+  workflow_call:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  docs-hub:
+    name: Docs and Hub State
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: ./.github/actions/setup-ci
+        with:
+          install-rust: 'false'
+
+      - name: Format docs and hub state
+        run: npx prettier --check docs .hub *.md
+
+      - name: Lane state parse check
+        run: npm run lanes:status
+
+      - name: Hub state parse check
+        run: npm run hub:status

@@ -186,7 +186,33 @@ describe('network policy action contracts', () => {
     expect(provedBlock.success).toBe(true);
   });
 
+  it('blocks apply-ready adapter authorization for weak or unavailable evidence grades', () => {
+    expect(authorizedApplyReadyAction('B').success).toBe(false);
+    expect(authorizedApplyReadyAction('C').success).toBe(false);
+    expect(authorizedApplyReadyAction('D').success).toBe(false);
+  });
+
   it('rejects evidence grades outside the A/B/C/D model', () => {
     expect(ActivityNetworkEvidenceGradeSchema.safeParse('E').success).toBe(false);
   });
 });
+
+function authorizedApplyReadyAction(evidenceGrade: 'B' | 'C' | 'D') {
+  return ActivityNetworkPolicyActionSchema.safeParse({
+    schemaVersion: ActivityNetworkContractSchemaVersion,
+    actionId: 'network-policy-action-weak-evidence',
+    decidedAt: '2026-06-04T03:25:06Z',
+    mode: 'apply-ready',
+    action: 'block',
+    evidenceGrade,
+    policyDecisionRef: 'policy-decision-network-apply-weak-evidence',
+    adapterCapability: {
+      capabilityId: 'host-network-domain-filter',
+      state: 'proved-available',
+      proofRefs: [EvidenceRef],
+      manualRequiredReason: null,
+    },
+    adapterCallAuthorized: true,
+    evidence: [EvidenceRef],
+  });
+}

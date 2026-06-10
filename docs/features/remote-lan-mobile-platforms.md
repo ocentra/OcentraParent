@@ -116,6 +116,8 @@ PC while preserving local-first custody.
 - Parent desktop release-support proof separates parent mobile bridge state from
   child Android/iOS agent claims and keeps signing, stores, TestFlight, Play,
   relay, and mobile child-agent parity manual-required or not implemented.
+- Parent mobile Android/iOS scaffold package previews now build and smoke
+  separately from child-agent Android/iOS package previews.
 - Parent-owned sync/export endpoint contract proof now defines versioned
   endpoint-domain paths, headers, query params, and contract-version labels for
   parent-owned export status/sync cursor/import preview/delete status and remote
@@ -211,8 +213,9 @@ distribution remain.
       Current release-support and V0.9 parent-mobile observer proofs model this
       split for handoff/reporting, route status, controller lease, LAN AI
       provider state, package lifecycle, and explicit no-child-agent-parity
-      claims, but real parent mobile UX, store signing, controller authority,
-      and child mobile agent proof remain.
+      claims. CI now has separate parent mobile Android/iOS package-preview
+      targets; real parent mobile UX beyond scaffold status, store signing,
+      controller authority, and child mobile agent proof remain.
 
 ## Next AI Instructions
 

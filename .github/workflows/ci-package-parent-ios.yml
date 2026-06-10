@@ -1,0 +1,32 @@
+name: CI Package Parent iOS
+
+on:
+  workflow_call:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  package-parent-ios:
+    name: 'Preview: Parent iOS Simulator Smoke'
+    runs-on: macos-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: ./.github/actions/setup-ci
+
+      - name: Build parent iOS simulator app
+        run: npm run release:package:parent-ios
+
+      - name: Smoke parent iOS simulator app install and launch
+        run: bash scripts/smoke/ios-simulator-smoke.sh target/parent-ios-derived-data/Build/Products/Debug-iphonesimulator/OcentraParentMobile.app ca.ocentra.parent.mobile
+
+      - name: Upload parent iOS simulator preview
+        uses: actions/upload-artifact@v6
+        with:
+          name: ocentra-parent-mobile-ios-simulator-preview
+          path: |
+            target/release-packages/parent-ios/*.zip
+            target/release-packages/parent-ios/*.sha256

@@ -321,6 +321,19 @@ pub enum NetworkRawCaptureStorageStatusState {
     Degraded,
 }
 
+#[derive(Clone, Debug, Default, PartialEq, Eq, Serialize, Deserialize)]
+pub enum NetworkLiveCaptureExecutionStatusState {
+    #[default]
+    #[serde(rename = "manual-required")]
+    ManualRequired,
+    #[serde(rename = "bounded-executed")]
+    BoundedExecuted,
+    #[serde(rename = "unavailable")]
+    Unavailable,
+    #[serde(rename = "degraded")]
+    Degraded,
+}
+
 #[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct NetworkLiveCaptureStatusRow {
@@ -346,6 +359,21 @@ pub struct NetworkLiveCaptureStatusRow {
     pub storage_delete_export_ref: Option<String>,
     pub custody_chain_ref: Option<String>,
     pub storage_private_traffic_exclusion_ref: Option<String>,
+    pub execution_ref: Option<String>,
+    pub execution_state: NetworkLiveCaptureExecutionStatusState,
+    pub execution_missing_artifact_count: u64,
+    pub driver_invocation_ref: Option<String>,
+    pub interface_observation_ref: Option<String>,
+    pub execution_permission_ref: Option<String>,
+    pub bounded_window_ref: Option<String>,
+    pub execution_clean_stop_ref: Option<String>,
+    pub execution_custody_ref: Option<String>,
+    pub execution_retention_delete_export_ref: Option<String>,
+    pub metadata_only_sanitization_ref: Option<String>,
+    pub execution_private_traffic_exclusion_ref: Option<String>,
+    pub metadata_snapshot_executed: bool,
+    pub captured_packet_count: u64,
+    pub raw_artifact_created: bool,
     pub missing_artifact_count: u64,
     pub storage_missing_artifact_count: u64,
     pub capture_ready: bool,
@@ -371,6 +399,7 @@ pub struct NetworkLiveCaptureStatusRow {
 pub struct NetworkLiveCaptureStatus {
     pub status_ref: String,
     pub row13_status_ref: String,
+    pub execution_status_ref: String,
     pub raw_storage_status_ref: String,
     pub platform_row_count: u64,
     pub proof_ready_count: u64,
@@ -384,6 +413,14 @@ pub struct NetworkLiveCaptureStatus {
     pub storage_unavailable_count: u64,
     pub storage_degraded_count: u64,
     pub storage_missing_artifact_count: u64,
+    pub bounded_executed_count: u64,
+    pub execution_manual_required_count: u64,
+    pub execution_unavailable_count: u64,
+    pub execution_degraded_count: u64,
+    pub execution_missing_artifact_count: u64,
+    pub metadata_snapshot_executed_count: u64,
+    pub captured_packet_count: u64,
+    pub raw_artifact_created_count: u64,
     pub capture_ready_count: u64,
     pub raw_artifact_storage_authorized_count: u64,
     pub driver_invoked_count: u64,

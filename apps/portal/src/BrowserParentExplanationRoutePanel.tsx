@@ -3,7 +3,7 @@ import {
   createBrowserParentExplanationPanelIntent,
   PortalDom,
   PortalEnvironment,
-  PortalRoute,
+  isPortalBrowserParentSurfaceRoute,
   type BrowserParentExplanationPanelDetail,
   type BrowserParentExplanationPanelIntent,
   type BrowserParentExplanationPanelRow,
@@ -11,7 +11,7 @@ import {
 } from '@ocentra-parent/portal-domain/contracts';
 
 export function shouldRenderBrowserParentExplanationRoute(route: PortalRouteValue): boolean {
-  return route === PortalRoute.Browser;
+  return isPortalBrowserParentSurfaceRoute(route);
 }
 
 export function BrowserParentExplanationRoutePanel(): ReactElement {

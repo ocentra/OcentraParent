@@ -139,6 +139,12 @@ pub mod event_id {
     pub const NETWORK_REMOTE_DELIVERY_STATUS_REPORTED: &str =
         "network-remote-delivery-status-reported";
     pub const NETWORK_LIVE_CAPTURE_STATUS_REPORTED: &str = "network-live-capture-status-reported";
+    pub const NETWORK_LINUX_NFTABLES_LAB_STATUS_REPORTED: &str =
+        "network-linux-nftables-lab-status-reported";
+    pub const NETWORK_WINDOWS_FIREWALL_LAB_STATUS_REPORTED: &str =
+        "network-windows-firewall-lab-status-reported";
+    pub const NETWORK_WINDOWS_WFP_GATE_STATUS_REPORTED: &str =
+        "network-windows-wfp-gate-status-reported";
     pub const LOCAL_AI_RUNTIME_STATUS_REPORTED: &str = "local-ai-runtime-status-reported";
     pub const LOCAL_AI_CHAT_GENERATION_REPORTED: &str = "local-ai-chat-generation-reported";
     pub const PARENT_ASSISTANT_ANSWER_REPORTED: &str = "parent-assistant-answer-reported";
@@ -209,6 +215,26 @@ pub mod journal {
     pub const TEST_TAMPER_SUFFIX: &str = "tamper";
     pub const TEST_ROTATION_BYTES: u64 = 1;
     pub const XCHACHA20_NONCE_BYTES: usize = 24;
+}
+
+pub mod network_raw_artifact {
+    pub const ARTIFACT_FILE_PREFIX: &str = "network-raw-artifact-";
+    pub const EXPORT_FILE_PREFIX: &str = "network-raw-export-";
+    pub const FILE_EXTENSION: &str = "pcap";
+    pub const HASH_ALGORITHM_SHA256: &str = "sha256";
+    pub const STATE_ACTIVE: &str = "active";
+    pub const STATE_DELETED: &str = "deleted";
+    pub const TEST_ARTIFACT_ID: &str = "network-capture-artifact-1";
+    pub const TEST_CAPTURED_AT: &str = "2026-06-08T22:20:00Z";
+    pub const TEST_CUSTODY_LABEL: &str = "local-raw-capture-custody";
+    pub const TEST_DIR_PREFIX: &str = "ocentra-parent-network-raw-artifact-test-";
+    pub const TEST_EMPTY_PAYLOAD_SUFFIX: &str = "empty-payload";
+    pub const TEST_EXPORT_DIR_SUFFIX: &str = "export";
+    pub const TEST_OVERSIZED_ARTIFACT_ID: &str = "network-capture-artifact-oversized";
+    pub const TEST_QUOTA_SUFFIX: &str = "quota";
+    pub const TEST_REJECT_IDS_SUFFIX: &str = "reject-ids";
+    pub const TEST_SOURCE_EVENT_ID: &str = "network-live-capture-event-1";
+    pub const TEST_WRITE_READ_SUFFIX: &str = "write-read";
 }
 
 #[path = "constants/activity_capture.rs"]
@@ -608,6 +634,11 @@ pub mod error {
         "activity capture rejects invalid journal key";
     pub const NETWORK_CAPTURE_OBSERVES_SOCKET: &str =
         "network capture observes the current process socket";
+    pub const NETWORK_RAW_ARTIFACT_DELETES: &str = "network raw artifact deletes";
+    pub const NETWORK_RAW_ARTIFACT_EXPORTS: &str = "network raw artifact exports";
+    pub const NETWORK_RAW_ARTIFACT_OPENS: &str = "network raw artifact store opens";
+    pub const NETWORK_RAW_ARTIFACT_READS: &str = "network raw artifact reads";
+    pub const NETWORK_RAW_ARTIFACT_WRITES: &str = "network raw artifact writes";
     pub const BROWSER_BRIDGE_MAPS_TARGET: &str = "browser bridge maps target";
     pub const BROWSER_BRIDGE_REJECTS_INVALID_URL: &str = "browser bridge rejects invalid URL";
     pub const LOCAL_AI_RUNTIME_SPAWNS: &str = "local AI runtime process spawns";

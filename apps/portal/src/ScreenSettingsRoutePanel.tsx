@@ -8,7 +8,7 @@ import {
 import {
   PortalDetails,
   PortalDom,
-  PortalRoute,
+  isPortalScreenSettingsRoute,
   type PortalDisplayText,
   type PortalRoute as PortalRouteValue,
 } from '@ocentra-parent/portal-domain/contracts';
@@ -21,7 +21,7 @@ type ScreenSettingsDetailValue =
   | ScreenControlSettingsPortalGate[keyof ScreenControlSettingsPortalGate];
 
 export function shouldRenderScreenSettingsRoute(route: PortalRouteValue): boolean {
-  return route === PortalRoute.SettingsRules || currentHash() === screenSettingsRouteHash();
+  return isPortalScreenSettingsRoute(route);
 }
 
 export function ScreenSettingsRoutePanel({
@@ -105,15 +105,4 @@ function ScreenSettingsDetail({
 
 function screenSettingsCardClassName() {
   return [PortalDom.Classes.Summary, PortalDom.Classes.ProductStatusCard].join(PortalDom.Classes.ClassNameSeparator);
-}
-
-function screenSettingsRouteHash() {
-  return [PortalDom.HashPrefix, PortalRoute.SettingsRules].join(PortalDom.EmptyHashRoute);
-}
-
-function currentHash() {
-  if (typeof window === PortalDom.Runtime.Undefined) {
-    return PortalDom.EmptyHashRoute;
-  }
-  return window.location.hash;
 }

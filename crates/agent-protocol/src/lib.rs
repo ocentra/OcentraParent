@@ -51,6 +51,9 @@ mod local_ai_runtime_boundary;
 mod local_ai_runtime_provider_proof;
 mod logging;
 mod network_flow;
+mod network_linux_nftables_lab_status;
+mod network_windows_firewall_lab_status;
+mod network_windows_wfp_gate_status;
 mod notification_provider_status_boundary;
 mod parent_assistant;
 mod parent_controller;
@@ -113,6 +116,9 @@ pub use local_ai_runtime_boundary::*;
 pub use local_ai_runtime_provider_proof::*;
 pub use logging::*;
 pub use network_flow::*;
+pub use network_linux_nftables_lab_status::*;
+pub use network_windows_firewall_lab_status::*;
+pub use network_windows_wfp_gate_status::*;
 pub use notification_provider_status_boundary::*;
 pub use parent_assistant::*;
 pub use parent_controller::*;
@@ -234,7 +240,13 @@ mod local_provider_adapter_readiness_tests;
 #[cfg(test)]
 mod network_flow_tests;
 #[cfg(test)]
+mod network_linux_nftables_lab_status_tests;
+#[cfg(test)]
 mod network_live_capture_status_tests;
+#[cfg(test)]
+mod network_windows_firewall_lab_status_tests;
+#[cfg(test)]
+mod network_windows_wfp_gate_status_tests;
 #[cfg(test)]
 mod notification_provider_status_boundary_tests;
 #[cfg(test)]

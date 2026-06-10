@@ -1,8 +1,8 @@
 use ocentra_parent_agent_protocol::{
     constants, policy_constants, AgentCommandEnvelope, AgentCommandName, AgentEventName,
     AgentMessageTarget, AgentPeer, AgentPeerRole, AgentRoute, LogFieldValue,
-    NetworkLiveCaptureProofStatusState, NetworkLiveCaptureStatus,
-    NetworkRawCaptureStorageStatusState, AGENT_PROTOCOL_SCHEMA_VERSION,
+    NetworkLiveCaptureExecutionStatusState, NetworkLiveCaptureProofStatusState,
+    NetworkLiveCaptureStatus, NetworkRawCaptureStorageStatusState, AGENT_PROTOCOL_SCHEMA_VERSION,
 };
 use serde::de::DeserializeOwned;
 
@@ -54,6 +54,10 @@ fn assert_live_capture_status(status: &NetworkLiveCaptureStatus) {
         status.raw_storage_status_ref,
         constants::network_flow::TEST_LIVE_CAPTURE_STORAGE_STATUS_REF
     );
+    assert_eq!(
+        status.execution_status_ref,
+        constants::network_flow::TEST_LIVE_CAPTURE_EXECUTION_STATUS_REF
+    );
     assert_eq!(status.platform_row_count, 4);
     assert_eq!(status.proof_ready_count, 1);
     assert_eq!(status.manual_required_count, 1);
@@ -65,6 +69,12 @@ fn assert_live_capture_status(status: &NetworkLiveCaptureStatus) {
     assert_eq!(status.storage_degraded_count, 1);
     assert_eq!(status.capture_ready_count, 1);
     assert_eq!(status.raw_artifact_storage_authorized_count, 1);
+    assert_eq!(status.bounded_executed_count, 1);
+    assert_eq!(status.execution_manual_required_count, 1);
+    assert_eq!(status.execution_unavailable_count, 1);
+    assert_eq!(status.execution_degraded_count, 1);
+    assert_eq!(status.execution_missing_artifact_count, 30);
+    assert_eq!(status.captured_packet_count, 3);
     assert!(status.missing_artifact_count > 0);
     assert!(status.storage_missing_artifact_count > 0);
     assert_live_capture_rows(status);
@@ -85,29 +95,55 @@ fn assert_live_capture_rows(status: &NetworkLiveCaptureStatus) {
         proof_ready.storage_state,
         NetworkRawCaptureStorageStatusState::CustodyReady
     );
+    assert_eq!(
+        proof_ready.execution_ref.as_deref(),
+        Some(constants::network_flow::TEST_LIVE_CAPTURE_WINDOWS_EXECUTION_REF)
+    );
+    assert_eq!(
+        proof_ready.execution_state,
+        NetworkLiveCaptureExecutionStatusState::BoundedExecuted
+    );
     assert_eq!(proof_ready.missing_artifact_count, 0);
     assert_eq!(proof_ready.storage_missing_artifact_count, 0);
+    assert_eq!(proof_ready.execution_missing_artifact_count, 0);
     assert!(proof_ready.capture_ready);
     assert!(proof_ready.raw_artifact_storage_authorized);
+    assert!(proof_ready.driver_invoked);
+    assert!(proof_ready.live_capture_executed);
+    assert_eq!(proof_ready.captured_packet_count, 3);
+    assert!(!proof_ready.raw_artifact_created);
 
     assert_eq!(
         status.rows[1].proof_state,
         NetworkLiveCaptureProofStatusState::ManualRequired
     );
     assert_eq!(
+        status.rows[1].execution_state,
+        NetworkLiveCaptureExecutionStatusState::ManualRequired
+    );
+    assert_eq!(
         status.rows[2].proof_state,
         NetworkLiveCaptureProofStatusState::Unavailable
+    );
+    assert_eq!(
+        status.rows[2].execution_state,
+        NetworkLiveCaptureExecutionStatusState::Unavailable
     );
     assert_eq!(
         status.rows[3].proof_state,
         NetworkLiveCaptureProofStatusState::Degraded
     );
+    assert_eq!(
+        status.rows[3].execution_state,
+        NetworkLiveCaptureExecutionStatusState::Degraded
+    );
 }
 
 fn assert_live_capture_non_claims(status: &NetworkLiveCaptureStatus) {
-    assert_eq!(status.driver_invoked_count, 0);
-    assert_eq!(status.live_capture_executed_count, 0);
+    assert_eq!(status.driver_invoked_count, 1);
+    assert_eq!(status.live_capture_executed_count, 1);
     assert_eq!(status.remote_upload_enabled_count, 0);
+    assert_eq!(status.raw_artifact_created_count, 0);
     assert_eq!(status.raw_pcap_without_custody_available_count, 0);
     assert_eq!(status.exact_url_available_count, 0);
     assert_eq!(status.decrypted_payload_available_count, 0);
@@ -121,8 +157,7 @@ fn assert_live_capture_non_claims(status: &NetworkLiveCaptureStatus) {
     assert_eq!(status.host_filtering_claim_count, 0);
 
     for row in &status.rows {
-        assert!(!row.driver_invoked);
-        assert!(!row.live_capture_executed);
+        assert!(!row.raw_artifact_created);
         assert!(!row.remote_upload_enabled);
         assert!(!row.raw_pcap_without_custody_available);
         assert!(!row.exact_url_available);

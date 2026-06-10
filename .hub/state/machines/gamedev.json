@@ -1,0 +1,21 @@
+﻿{
+    "schema":  "https://ocentra.ca/schemas/ocentra-parent-hub-machine-state.v1.json",
+    "version":  1,
+    "machineId":  "gamedev",
+    "updatedAt":  "2026-06-09T14:26:49.5310802Z",
+    "repoRoot":  "E:/OcentraParent",
+    "branch":  "main",
+    "head":  "e7ea7baf7599ba8491102a2400e2a918f7326aa4",
+    "user":  "sujan",
+    "dirtySummary":  [
+                         " M AGENTS.md",
+                         " M docs/architecture/worktree-lanes.md",
+                         " M package.json",
+                         " M scripts/dev/hub-heartbeat-lib.mjs",
+                         " M scripts/dev/hub-mailbox-lib.mjs",
+                         " M scripts/dev/worktree-lanes-lib.mjs",
+                         "?? .hub/",
+                         "?? docs/hub/",
+                         "?? scripts/hub/"
+                     ]
+}

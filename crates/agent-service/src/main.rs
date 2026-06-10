@@ -193,6 +193,10 @@ mod network_flow_digest_rollups;
 mod network_flow_digest_tests;
 #[cfg(test)]
 mod network_flow_payload_tests;
+mod network_linux_nftables_lab_status_bridge;
+#[cfg(test)]
+mod network_linux_nftables_lab_status_bridge_tests;
+mod network_live_capture_execution_bridge;
 mod network_live_capture_readiness_bridge;
 #[cfg(test)]
 mod network_live_capture_readiness_bridge_tests;
@@ -214,6 +218,12 @@ mod network_runtime_stream_events;
 mod network_runtime_stream_payload;
 #[cfg(test)]
 mod network_runtime_stream_tests;
+mod network_windows_firewall_lab_status_bridge;
+#[cfg(test)]
+mod network_windows_firewall_lab_status_bridge_tests;
+mod network_windows_wfp_gate_status_bridge;
+#[cfg(test)]
+mod network_windows_wfp_gate_status_bridge_tests;
 mod parent_assistant_api;
 #[cfg(test)]
 mod parent_assistant_api_tests;

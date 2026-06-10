@@ -1,0 +1,5 @@
+network-windows-firewall-lab-execution-tests: cargo test -p ocentra-network-evidence windows_firewall_lab_execution: exit 0
+network-windows-firewall-adapter-tests: cargo test -p ocentra-network-evidence windows_firewall_adapter: exit 0
+network-evidence-clippy: cargo clippy -p ocentra-network-evidence --all-targets -- -D warnings: exit 0
+source-shape: node scripts/check-source-shape.mjs: exit 0
+diff-check: git diff --check: exit 0

@@ -1,15 +1,18 @@
 use ocentra_network_evidence::{
-    plan_network_live_capture_proof, plan_network_raw_capture_storage, NetworkLiveCapturePlatform,
-    NetworkLiveCaptureProof, NetworkLiveCaptureProofInput, NetworkLiveCaptureProofState,
-    NetworkRawCaptureStorageInput, NetworkRawCaptureStorageProof, NetworkRawCaptureStorageState,
+    plan_network_live_capture_proof, plan_network_raw_capture_storage,
+    prove_network_live_capture_execution, NetworkLiveCaptureExecutionProof,
+    NetworkLiveCapturePlatform, NetworkLiveCaptureProof, NetworkLiveCaptureProofInput,
+    NetworkLiveCaptureProofState, NetworkRawCaptureStorageInput, NetworkRawCaptureStorageProof,
+    NetworkRawCaptureStorageState,
 };
 use ocentra_parent_agent_protocol::{
     constants, AgentCommandEnvelope, AgentEventEnvelope, AgentEventName, LogFieldValue, LogFields,
-    LogLevel, NetworkLiveCaptureProofStatusState, NetworkLiveCaptureStatus,
-    NetworkLiveCaptureStatusPlatform, NetworkLiveCaptureStatusRow,
+    LogLevel, NetworkLiveCaptureExecutionStatusState, NetworkLiveCaptureProofStatusState,
+    NetworkLiveCaptureStatus, NetworkLiveCaptureStatusPlatform, NetworkLiveCaptureStatusRow,
     NetworkRawCaptureStorageStatusState,
 };
 
+use crate::network_live_capture_execution_bridge::{execution_input, protocol_execution_state};
 use crate::{event_builder::build_event, fields::fields_from_pairs};
 
 const LIVE_CAPTURE_REQUIRED_ARTIFACTS_PER_ROW: u64 = 9;
@@ -73,7 +76,9 @@ fn live_capture_rows() -> Result<Vec<NetworkLiveCaptureStatusRow>, ()> {
             let proof = plan_network_live_capture_proof(input).map_err(|_| ())?;
             let storage =
                 plan_network_raw_capture_storage(storage_input(&proof)).map_err(|_| ())?;
-            Ok(status_row(&proof, &storage))
+            let execution =
+                prove_network_live_capture_execution(execution_input(&proof)).map_err(|_| ())?;
+            Ok(status_row(&proof, &storage, &execution))
         })
         .collect()
 }
@@ -82,6 +87,8 @@ fn status_from_rows(rows: Vec<NetworkLiveCaptureStatusRow>) -> NetworkLiveCaptur
     let mut status = NetworkLiveCaptureStatus {
         status_ref: constants::network_flow::TEST_LIVE_CAPTURE_STATUS_REF.to_string(),
         row13_status_ref: constants::network_flow::TEST_LIVE_CAPTURE_ROW13_STATUS_REF.to_string(),
+        execution_status_ref: constants::network_flow::TEST_LIVE_CAPTURE_EXECUTION_STATUS_REF
+            .to_string(),
         raw_storage_status_ref: constants::network_flow::TEST_LIVE_CAPTURE_STORAGE_STATUS_REF
             .to_string(),
         platform_row_count: count(rows.len()),
@@ -124,6 +131,22 @@ fn apply_row_counts(status: &mut NetworkLiveCaptureStatus, row: &NetworkLiveCapt
     }
     status.missing_artifact_count += row.missing_artifact_count;
     status.storage_missing_artifact_count += row.storage_missing_artifact_count;
+    status.execution_missing_artifact_count += row.execution_missing_artifact_count;
+    status.metadata_snapshot_executed_count += count_bool(row.metadata_snapshot_executed);
+    status.captured_packet_count += row.captured_packet_count;
+    status.raw_artifact_created_count += count_bool(row.raw_artifact_created);
+    match row.execution_state {
+        NetworkLiveCaptureExecutionStatusState::BoundedExecuted => {
+            status.bounded_executed_count += 1
+        }
+        NetworkLiveCaptureExecutionStatusState::ManualRequired => {
+            status.execution_manual_required_count += 1
+        }
+        NetworkLiveCaptureExecutionStatusState::Unavailable => {
+            status.execution_unavailable_count += 1
+        }
+        NetworkLiveCaptureExecutionStatusState::Degraded => status.execution_degraded_count += 1,
+    }
     status.capture_ready_count += count_bool(row.capture_ready);
     status.raw_artifact_storage_authorized_count += count_bool(row.raw_artifact_storage_authorized);
     status.driver_invoked_count += count_bool(row.driver_invoked);
@@ -147,6 +170,7 @@ fn apply_row_counts(status: &mut NetworkLiveCaptureStatus, row: &NetworkLiveCapt
 fn status_row(
     proof: &NetworkLiveCaptureProof,
     storage: &NetworkRawCaptureStorageProof,
+    execution: &NetworkLiveCaptureExecutionProof,
 ) -> NetworkLiveCaptureStatusRow {
     NetworkLiveCaptureStatusRow {
         platform: protocol_platform(proof.platform),
@@ -171,12 +195,29 @@ fn status_row(
         storage_delete_export_ref: storage.delete_export_ref.clone(),
         custody_chain_ref: storage.custody_chain_ref.clone(),
         storage_private_traffic_exclusion_ref: storage.private_traffic_exclusion_ref.clone(),
+        execution_ref: Some(execution.execution_ref.clone()),
+        execution_state: protocol_execution_state(execution.execution_state),
+        execution_missing_artifact_count: count(execution.missing_artifacts.len()),
+        driver_invocation_ref: execution.driver_invocation_ref.clone(),
+        interface_observation_ref: execution.interface_observation_ref.clone(),
+        execution_permission_ref: execution.permission_ref.clone(),
+        bounded_window_ref: execution.bounded_window_ref.clone(),
+        execution_clean_stop_ref: execution.clean_stop_ref.clone(),
+        execution_custody_ref: execution.custody_ref.clone(),
+        execution_retention_delete_export_ref: execution.retention_delete_export_ref.clone(),
+        metadata_only_sanitization_ref: execution.metadata_only_sanitization_ref.clone(),
+        execution_private_traffic_exclusion_ref: execution.private_traffic_exclusion_ref.clone(),
+        metadata_snapshot_executed: execution.metadata_snapshot_executed,
+        captured_packet_count: count(execution.captured_packet_count),
+        raw_artifact_created: execution.raw_artifact_created,
         missing_artifact_count: count(proof.missing_artifacts.len()),
         storage_missing_artifact_count: count(storage.missing_artifacts.len()),
         capture_ready: proof.capture_ready,
         raw_artifact_storage_authorized: storage.raw_artifact_storage_authorized,
-        driver_invoked: proof.driver_invoked,
-        live_capture_executed: proof.live_capture_executed || storage.live_capture_executed,
+        driver_invoked: proof.driver_invoked || execution.driver_invoked,
+        live_capture_executed: proof.live_capture_executed
+            || storage.live_capture_executed
+            || execution.live_capture_executed,
         remote_upload_enabled: storage.remote_upload_enabled,
         raw_pcap_without_custody_available: proof.raw_pcap_without_custody_available
             || storage.raw_pcap_without_custody_available,
@@ -192,8 +233,9 @@ fn status_row(
         enforcement_commands_published: count(
             proof.enforcement_commands_published + storage.enforcement_commands_published,
         ),
-        netstat_metadata_substituted_for_live_capture: false,
-        host_filtering_claimed: false,
+        netstat_metadata_substituted_for_live_capture: execution
+            .netstat_metadata_substituted_for_live_capture,
+        host_filtering_claimed: execution.host_filtering_claimed,
     }
 }
 

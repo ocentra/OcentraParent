@@ -5,6 +5,12 @@ on:
     branches:
       - production
   workflow_dispatch:
+    inputs:
+      publish:
+        description: Publish release artifacts when the version tag is missing. Manual runs default to validation/package rehearsal only.
+        required: false
+        type: boolean
+        default: false
 
 permissions:
   contents: read
@@ -26,15 +32,15 @@ jobs:
     uses: ./.github/workflows/validate.yml
 
   build:
-    needs: [secret-scan]
+    needs: [validate]
     uses: ./.github/workflows/build.yml
 
   dependency-policy:
-    needs: [secret-scan]
+    needs: [validate]
     uses: ./.github/workflows/dependency-policy.yml
 
   package-preview:
-    needs: [validate, build, dependency-policy]
+    needs: [build, dependency-policy]
     uses: ./.github/workflows/package-preview.yml
 
   release-decision:
@@ -42,6 +48,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 10
     outputs:
+      publish-allowed: ${{ steps.publish.outputs.publish_allowed }}
       release-required: ${{ steps.decision.outputs.release_required }}
       version: ${{ steps.decision.outputs.version }}
       tag: ${{ steps.decision.outputs.tag }}
@@ -53,6 +60,21 @@ jobs:
 
       - uses: ./.github/actions/setup-ci
 
+      - name: Decide whether this run may publish
+        id: publish
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [[ "${{ github.event_name }}" == "push" && "${{ github.ref }}" == "refs/heads/production" ]]; then
+            publish_allowed=true
+          elif [[ "${{ github.event_name }}" == "workflow_dispatch" && "${{ inputs.publish }}" == "true" ]]; then
+            publish_allowed=true
+          else
+            publish_allowed=false
+          fi
+          echo "publish_allowed=$publish_allowed" >> "$GITHUB_OUTPUT"
+          echo "production-publish-allowed=$publish_allowed"
+
       - name: Decide whether production should publish
         id: decision
         env:
@@ -60,7 +82,7 @@ jobs:
         run: node scripts/release/decide-production-release.mjs
 
   release-windows:
-    if: needs.release-decision.outputs.release-required == 'true'
+    if: needs.release-decision.outputs.release-required == 'true' && needs.release-decision.outputs.publish-allowed == 'true'
     needs: [release-decision]
     runs-on: windows-latest
     timeout-minutes: 25

@@ -3,6 +3,11 @@ import { AgentEvent, AgentEventEnvelopeSchema } from '@ocentra-parent/agent-prot
 import { resolveLiveActivityState } from '../src/live-activity-state';
 
 describe('portal policy-preview live activity state', () => {
+  registerPolicyPreviewParsingTests();
+  registerPolicyPreviewRejectionTests();
+});
+
+function registerPolicyPreviewParsingTests(): void {
   it('parses real service policy-preview read-model payload fields', () => {
     const state = resolveLiveActivityState([policyPreviewEvent()]);
 
@@ -48,7 +53,9 @@ describe('portal policy-preview live activity state', () => {
     expect(state.policyPreviewEvent?.severity).toBe('error');
     expect(state.policyPreviewEvent?.payload['reason']).toBe('Policy preview store is unavailable.');
   });
+}
 
+function registerPolicyPreviewRejectionTests(): void {
   it('rejects flattened policy-preview payloads with untyped numeric and boolean fields', () => {
     const returnedAsText = resolveLiveActivityState([policyPreviewEventWith({ returned: '1' })]);
     const countAsText = resolveLiveActivityState([policyPreviewEventWith({ evidenceReferenceCount: '1' })]);
@@ -70,7 +77,27 @@ describe('portal policy-preview live activity state', () => {
     expect(adapterAuthorized.policyPreviewReadModel).toBeNull();
     expect(enforcementAuthorized.policyPreviewReadModel).toBeNull();
   });
-});
+
+  it('rejects invalid policy-preview enums and non-preview network handoff', () => {
+    const invalidTarget = resolveLiveActivityState([policyPreviewEventWith({ targetType: 'packet-payload' })]);
+    const invalidDecisionAction = resolveLiveActivityState([policyPreviewEventWith({ policyAction: 'kill-process' })]);
+    const invalidGrade = resolveLiveActivityState([policyPreviewEventWith({ networkEvidenceGrade: 'AA' })]);
+    const invalidMapping = resolveLiveActivityState([
+      policyPreviewEventWith({ networkPolicyMappingMode: 'direct-enforcement' }),
+    ]);
+    const nonPreviewNetworkFields = resolveLiveActivityState([policyPreviewEventWith({ dryRun: false })]);
+    const nonAdvisoryHandoff = resolveLiveActivityState([
+      policyPreviewEventWith({ enforcementHandoffState: 'adapter-dispatch-ready' }),
+    ]);
+
+    expect(invalidTarget.policyPreviewReadModel).toBeNull();
+    expect(invalidDecisionAction.policyPreviewReadModel).toBeNull();
+    expect(invalidGrade.policyPreviewReadModel).toBeNull();
+    expect(invalidMapping.policyPreviewReadModel).toBeNull();
+    expect(nonPreviewNetworkFields.policyPreviewReadModel).toBeNull();
+    expect(nonAdvisoryHandoff.policyPreviewReadModel).toBeNull();
+  });
+}
 
 function policyPreviewEvent() {
   return policyPreviewEventWith({});

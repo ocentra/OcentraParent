@@ -3,9 +3,9 @@ import { AgentCommand, AgentEvent } from '@ocentra-parent/agent-protocol-domain/
 import {
   PortalDetails,
   PortalDom,
-  PortalRoute,
   PortalText,
   PortalTextToken,
+  isPortalAppGameParentSurfaceRoute,
   type PortalDisplayText,
   type PortalRoute as PortalRouteValue,
 } from '@ocentra-parent/portal-domain/contracts';
@@ -19,7 +19,7 @@ import {
 } from './app-game-policy-readiness-panel';
 
 export function shouldRenderAppGamePolicyReadinessRoute(route: PortalRouteValue): boolean {
-  return route === PortalRoute.AppGameSessions;
+  return isPortalAppGameParentSurfaceRoute(route);
 }
 
 export function AppGamePolicyReadinessRoutePanel({

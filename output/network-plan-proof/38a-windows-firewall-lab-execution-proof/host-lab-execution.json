@@ -1,0 +1,29 @@
+{
+  "state": "manual_required",
+  "executeLab": true,
+  "windowsHostObserved": true,
+  "administratorPermissionObserved": false,
+  "ruleName": "OcentraParentNetworkLab-row38a",
+  "targetRemoteAddress": "203.0.113.254",
+  "readOnlyState": {
+    "command": "netsh advfirewall show allprofiles state",
+    "status": 0,
+    "stdoutSha256": "de4316ade06a92c7160a7bf04e88e5f864a4b98744d518f2bb8fa41ab77976c2",
+    "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "stdoutLineCount": 12,
+    "stderrLineCount": 0
+  },
+  "adminProbe": {
+    "command": "net session",
+    "status": 2,
+    "stdoutSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "stderrSha256": "b207a455350469b3a9b71fb460f22b9a54b7536054fb7b8505962a32cf41168b",
+    "stdoutLineCount": 0,
+    "stderrLineCount": 3
+  },
+  "commandEvidence": [],
+  "cleanupEvidence": [],
+  "notes": [
+    "Administrator permission is required before firewall add/delete can be proved."
+  ]
+}

@@ -27,7 +27,7 @@
     "docs/plans/network-plan/implementation-checklist.md",
     "scripts/test/network-live-capture-service-readiness-proof.mjs"
   ],
-  "sourceFingerprint": "source-tree:b691edfa24189175f07db15d4dabcb25e0b5f47494b4eb5ee91866da0eb2fde8",
+  "sourceFingerprint": "source-tree:dc9631b998f740f99343bfc39ee41e8a44da39793845e8f019fee9ecc163d6a4",
   "proofRoot": "output\\network-plan-proof\\13a-live-capture-service-readiness",
   "testRoot": "test-results\\network-live-capture-service-readiness-proof",
   "commands": [
