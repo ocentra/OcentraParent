@@ -1,18 +1,18 @@
 # Lane Status: primary
 
-Owner: codex
-Thread: primary
+Owner: -
+Thread: -
 Active session: 019e8e21-d8f3-75d2-979d-e9cf002ad2a8
-Previous session: 019ea7bd-eaf0-7372-b15b-b5d937cfe171
+Previous session: -
 Session source: PostToolUse:unknown
-Branch: main
+Branch: -
 Locks: -
 Lock reason: -
 
 ## Latest Report
 
-- id: primary-report-20260609T133901373Z-1451
-- created: 2026-06-09T13:39:01.373Z
-- summary: MERGED PR548 E-B dispatch executor receipt proof
+- id: primary-report-20260610T024639042Z-1452
+- created: 2026-06-10T02:46:39.042Z
+- summary: MERGED PR552 parent mobile native package targets
 
-Merged https://github.com/ocentra/OcentraParent/pull/548 into main at e7ea7baf7599ba8491102a2400e2a918f7326aa4 and fast-forwarded primary main. Scope: app-install/purchase dispatch executor receipt proof, public parent-domain export, README note, product capability checklist addendum, feature/expectation docs, proof harness and deterministic proof artifact. Touched packages/parent-domain, docs/features/app-install-purchase-approval.md, docs/expectations/app-install-purchase-approval.md, docs/expectations/platforms.md, docs/product-capability-checklist.md, scripts/test/app-install-purchase-dispatch-executor-receipt-proof.mjs, test-results/app-install-purchase-dispatch-executor-receipt-proof/proof.json. Primary validation before PR: proof harness, targeted parent-domain test, parent-domain lint/type-check, git diff --check, merge-tree, lanes guard, hub guard. PR CI green: fail-fast, secret scan, Pre-AI proof matrix, full validation, Windows/Ubuntu/macOS portal-to-Rust E2E, production build, dependency/SBOM, Windows/Linux/macOS/Android/iOS package previews. Known nonclaims remain: no real dispatch executor handler/receipt/audit runtime, external writer delivery, provider/store execution, platform adapter, child delivery, portal UX, custody, or app blocking. Local branch deletion failed only because E-B worktree has it checked out. Next: choose the next single PR target; no broad sync wave.
+Merged PR #552 to main at 3c8087734. Scope: actual parent Android native scaffold under platforms/android/parent, actual parent iOS native scaffold under platforms/ios/OcentraParentMobile, parent Android/iOS package scripts, parent mobile CI target, parent Android/iOS package-preview targets, split CI fan-out, docs/checklist/workpack updates. Validation: PR #552 CI green including Format/Lint/Types/Rust Check, secret scan, Full Validation Gate, Package Preview Gate, parent-mobile runtime/package source, package-parent-android APK preview, package-parent-ios simulator app preview, portal E2E on Windows/Ubuntu/macOS, Rust/domain/tooling/package targets. Known gaps: scaffold/package target only; store signing, device-owner enrollment, iOS Family Controls/MDM entitlements, and final parent mobile UX remain future scope. Branch protection required checks updated to new aggregate gates: Format/Lint/Types/Rust Check, secret-scan, Full Validation Gate, Package Preview Gate.

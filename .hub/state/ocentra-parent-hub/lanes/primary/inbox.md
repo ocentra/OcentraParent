@@ -1,7 +1,7 @@
 # Lane Inbox: primary
 
-Owner: codex
-Thread: primary
+Owner: -
+Thread: -
 Active session: 019e8e21-d8f3-75d2-979d-e9cf002ad2a8
 
 ## B LAN commit blocked by C surface lock
