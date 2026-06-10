@@ -21,13 +21,14 @@ test('CI gate runs for documentation and expectation changes', () => {
 test('CI gate builds package previews but does not publish releases from main', () => {
   const workflow = readCiWorkflow();
 
+  assert.match(workflow, /detect-docs-hub-only:\s+name: Detect docs\/hub-only change/u);
   assert.match(
     workflow,
-    /package-preview:\s+needs: \[validate, build, dependency-policy\]\s+uses: \.\/\.github\/workflows\/package-preview\.yml/u
+    /package-preview:\s+needs: \[detect-docs-hub-only, validate, build, dependency-policy\]\s+uses: \.\/\.github\/workflows\/package-preview\.yml/u
   );
   assert.match(
     workflow,
-    /dependency-policy:\s+needs: \[secret-scan\]\s+uses: \.\/\.github\/workflows\/dependency-policy\.yml/u
+    /dependency-policy:\s+needs: \[detect-docs-hub-only, secret-scan\]\s+uses: \.\/\.github\/workflows\/dependency-policy\.yml/u
   );
   assert.equal(workflow.includes('Create GitHub release'), false);
 });

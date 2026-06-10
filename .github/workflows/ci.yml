@@ -18,25 +18,92 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  detect-docs-hub-only:
+    name: Detect docs/hub-only change
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    outputs:
+      docs_hub_only: ${{ steps.detect.outputs.docs_hub_only }}
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      - name: Detect changed paths
+        id: detect
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [[ "${{ github.event_name }}" == "pull_request" ]]; then
+            base="${{ github.event.pull_request.base.sha }}"
+            head="${{ github.event.pull_request.head.sha }}"
+          elif [[ "${{ github.event_name }}" == "push" ]]; then
+            base="${{ github.event.before }}"
+            head="${{ github.sha }}"
+          else
+            echo "docs_hub_only=false" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          mapfile -t changed_files < <(git diff --name-only "$base" "$head")
+          if [[ "${#changed_files[@]}" -eq 0 ]]; then
+            echo "docs_hub_only=false" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          docs_hub_only=true
+          for path in "${changed_files[@]}"; do
+            case "$path" in
+              docs/*|.hub/*)
+                ;;
+              *.md)
+                if [[ "$path" == */* ]]; then
+                  docs_hub_only=false
+                fi
+                ;;
+              *)
+                docs_hub_only=false
+                ;;
+            esac
+          done
+
+          echo "docs_hub_only=$docs_hub_only" >> "$GITHUB_OUTPUT"
+          printf 'docs/hub-only=%s\n' "$docs_hub_only"
+          printf 'changed files:\n'
+          printf '%s\n' "${changed_files[@]}"
+
   fail-fast:
+    needs: [detect-docs-hub-only]
     uses: ./.github/workflows/fail-fast.yml
+    with:
+      docs_hub_only: ${{ needs.detect-docs-hub-only.outputs.docs_hub_only == 'true' }}
 
   secret-scan:
-    needs: [fail-fast]
+    needs: [detect-docs-hub-only, fail-fast]
     uses: ./.github/workflows/secret-scan.yml
+    with:
+      docs_hub_only: ${{ needs.detect-docs-hub-only.outputs.docs_hub_only == 'true' }}
 
   validate:
-    needs: [secret-scan]
+    needs: [detect-docs-hub-only, secret-scan]
     uses: ./.github/workflows/validate.yml
+    with:
+      docs_hub_only: ${{ needs.detect-docs-hub-only.outputs.docs_hub_only == 'true' }}
 
   build:
-    needs: [secret-scan]
+    needs: [detect-docs-hub-only, secret-scan]
     uses: ./.github/workflows/build.yml
+    with:
+      docs_hub_only: ${{ needs.detect-docs-hub-only.outputs.docs_hub_only == 'true' }}
 
   dependency-policy:
-    needs: [secret-scan]
+    needs: [detect-docs-hub-only, secret-scan]
     uses: ./.github/workflows/dependency-policy.yml
+    with:
+      docs_hub_only: ${{ needs.detect-docs-hub-only.outputs.docs_hub_only == 'true' }}
 
   package-preview:
-    needs: [validate, build, dependency-policy]
+    needs: [detect-docs-hub-only, validate, build, dependency-policy]
     uses: ./.github/workflows/package-preview.yml
+    with:
+      docs_hub_only: ${{ needs.detect-docs-hub-only.outputs.docs_hub_only == 'true' }}
