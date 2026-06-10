@@ -4,7 +4,7 @@ import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 
 const repoRoot = git(['rev-parse', '--show-toplevel']);
-const ledgerWrapper = join(repoRoot, 'scripts', 'dev', 'ocentra-ledger.mjs');
+const ledgerWrapper = process.env.OCENTRA_LEDGER_WRAPPER ?? join(repoRoot, 'scripts', 'dev', 'ocentra-ledger.mjs');
 const guardWrapper = join(repoRoot, 'scripts', 'dev', 'ocentra-ledger-guard.mjs');
 const [command, ...rawArgs] = process.argv.slice(2);
 const options = parseOptions(rawArgs);
