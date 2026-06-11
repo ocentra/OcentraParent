@@ -82,8 +82,16 @@ async fn app_game_adapter_dispatch_result_command_reads_latest_store_audit_evide
     let accepted = read_model
         .rows
         .iter()
-        .find(|row| row.adapter_dispatch_executed_claimed)
+        .find(|row| {
+            row.dispatch_adapter_execution_result_id.as_deref()
+                == Some(constants::enforcement::TEST_RESULT_ID)
+        })
         .expect(constants::error::AGENT_EVENT_SERIALIZES);
+    #[cfg(windows)]
+    assert!(accepted.adapter_dispatch_executed_claimed);
+
+    #[cfg(not(windows))]
+    assert!(!accepted.adapter_dispatch_executed_claimed);
     assert_eq!(
         accepted.dispatch_adapter_execution_result_id.as_deref(),
         Some(constants::enforcement::TEST_RESULT_ID)
