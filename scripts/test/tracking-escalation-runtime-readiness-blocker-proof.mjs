@@ -3,6 +3,7 @@ import { spawnSync } from 'node:child_process';
 import { mkdir, readFile, rm, writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import { pathToFileURL } from 'node:url';
+import { runNpmCommand } from './run-npm-command.mjs';
 
 const repoRoot = process.cwd();
 const proofMode = 'tracking-escalation-runtime-readiness-blocker-proof';
@@ -24,8 +25,8 @@ async function main() {
   await mkdir(wp27ProofDir, { recursive: true });
   await mkdir(wp33ProofDir, { recursive: true });
 
-  run('cmd', ['/c', 'npm', 'run', 'build', '--workspace', '@ocentra-parent/parent-domain']);
-  run('cmd', ['/c', 'npm', 'run', 'test', '--workspace', '@ocentra-parent/parent-domain', '--', proofMode]);
+  runNpmCommand(run, ['run', 'build', '--workspace', '@ocentra-parent/parent-domain']);
+  runNpmCommand(run, ['run', 'test', '--workspace', '@ocentra-parent/parent-domain', '--', proofMode]);
   run('node', ['scripts/test/tracking-escalation-readiness-proof.mjs']);
   run('node', ['scripts/test/tracking-provider-runtime-readiness-blocker-proof.mjs']);
 

@@ -13,6 +13,9 @@ const defaultPhysicalSerial = '192.168.2.45:5555';
 const defaultPhysicalObservationWindowSeconds = 30;
 const androidCommandTimeoutMs = 240_000;
 const buildCommandTimeoutMs = 300_000;
+const ADB_COMMAND = process.platform === 'win32' ? 'adb.exe' : 'adb';
+const NODE_COMMAND = 'node';
+const npmCliPath = path.join(path.dirname(process.execPath), 'node_modules', 'npm', 'bin', 'npm-cli.js');
 const apkPath = path.join(
   repoRoot,
   'target',
@@ -48,11 +51,9 @@ async function main() {
   await mkdir(output10, { recursive: true });
   await mkdir(output33, { recursive: true });
 
-  run('cmd', ['/c', 'npm', 'run', 'release:package:android']);
-  run('cmd', ['/c', 'npm', 'run', 'build', '--workspace', '@ocentra-parent/parent-domain']);
-  run('cmd', [
-    '/c',
-    'npm',
+  runNpm(['run', 'release:package:android']);
+  runNpm(['run', 'build', '--workspace', '@ocentra-parent/parent-domain']);
+  runNpm([
     'run',
     'test',
     '--workspace',
@@ -63,8 +64,8 @@ async function main() {
 
   const tools = resolveAndroidTools();
   const serial = process.env.OCENTRA_PARENT_ANDROID_SERIAL ?? defaultPhysicalSerial;
-  await writeCommandArtifact('01-adb-connect.txt', tools.adbPath, ['connect', serial]);
-  const devices = runCapture(tools.adbPath, ['devices', '-l']);
+  await writeCommandArtifact('01-adb-connect.txt', ADB_COMMAND, ['connect', serial]);
+  const devices = runCapture(ADB_COMMAND, ['devices', '-l']);
   await writeText('01-adb-devices.txt', devices);
   if (!new RegExp(`${escapeRegExp(serial)}\\s+device`, 'u').test(devices)) {
     throw new Error(`Physical Android device ${serial} is not connected:\n${devices}`);
@@ -76,9 +77,9 @@ async function main() {
   await installPhysicalApk(tools, serial);
   await resetPhysicalRuntimeProofState(tools, serial);
   await grantDeclaredLocationPermissions(tools, serial);
-  runCapture(tools.adbPath, ['-s', serial, 'logcat', '-c']);
+  runCapture(ADB_COMMAND, ['-s', serial, 'logcat', '-c']);
   await preparePhysicalDeviceForLaunch(tools, serial);
-  await writeCommandArtifact('03-launch-activity.txt', tools.adbPath, [
+  await writeCommandArtifact('03-launch-activity.txt', ADB_COMMAND, [
     '-s',
     serial,
     'shell',
@@ -87,7 +88,7 @@ async function main() {
     '-n',
     expectedActivity,
   ]);
-  await writeCommandArtifactAllowFailure('03-start-service.txt', tools.adbPath, [
+  await writeCommandArtifactAllowFailure('03-start-service.txt', ADB_COMMAND, [
     '-s',
     serial,
     'shell',
@@ -105,7 +106,7 @@ async function main() {
   await writeText('12-package-dump.txt', device.packageDump);
   const permissionState = physicalPermissionState(device.packageDump);
   await writeJson('13-permission-state.json', permissionState);
-  const serviceDump = await collectTextArtifact('04-service-dump.txt', tools.adbPath, [
+  const serviceDump = await collectTextArtifact('04-service-dump.txt', ADB_COMMAND, [
     '-s',
     serial,
     'shell',
@@ -114,7 +115,7 @@ async function main() {
     'services',
     packageName,
   ]);
-  const activityDump = await collectTextArtifact('05-activity-dump.txt', tools.adbPath, [
+  const activityDump = await collectTextArtifact('05-activity-dump.txt', ADB_COMMAND, [
     '-s',
     serial,
     'shell',
@@ -122,21 +123,21 @@ async function main() {
     'activity',
     'activities',
   ]);
-  const windowDump = await collectTextArtifact('06-window-dump.txt', tools.adbPath, [
+  const windowDump = await collectTextArtifact('06-window-dump.txt', ADB_COMMAND, [
     '-s',
     serial,
     'shell',
     'dumpsys',
     'window',
   ]);
-  const batteryDump = await collectTextArtifact('07-battery.txt', tools.adbPath, [
+  const batteryDump = await collectTextArtifact('07-battery.txt', ADB_COMMAND, [
     '-s',
     serial,
     'shell',
     'dumpsys',
     'battery',
   ]);
-  const connectivityDump = await collectTextArtifact('08-connectivity.txt', tools.adbPath, [
+  const connectivityDump = await collectTextArtifact('08-connectivity.txt', ADB_COMMAND, [
     '-s',
     serial,
     'shell',
@@ -145,7 +146,7 @@ async function main() {
   ]);
   const uiDump = await collectUiDump(tools, serial);
   await collectScreenshot(tools, serial);
-  const logcat = await collectTextArtifact('11-logcat.txt', tools.adbPath, ['-s', serial, 'logcat', '-d', '-t', '500']);
+  const logcat = await collectTextArtifact('11-logcat.txt', ADB_COMMAND, ['-s', serial, 'logcat', '-d', '-t', '500']);
   const backgroundSamplePrefs = await collectRunAsTextArtifact(
     '14-background-location-sample-prefs.xml',
     tools,
@@ -156,7 +157,7 @@ async function main() {
     'cat',
     `shared_prefs/tracking_geofence_transition_proof.xml`,
   ]);
-  const locationManagerState = await collectTextArtifact('17-location-manager-state.txt', tools.adbPath, [
+  const locationManagerState = await collectTextArtifact('17-location-manager-state.txt', ADB_COMMAND, [
     '-s',
     serial,
     'shell',
@@ -326,29 +327,29 @@ function collectDeviceMetadata(tools, serial) {
     productName: getProp(tools, serial, 'ro.product.name'),
     deviceName: getProp(tools, serial, 'ro.product.device'),
     abi: getProp(tools, serial, 'ro.product.cpu.abi'),
-    packageDump: runCapture(tools.adbPath, ['-s', serial, 'shell', 'dumpsys', 'package', packageName]),
+    packageDump: runCapture(ADB_COMMAND, ['-s', serial, 'shell', 'dumpsys', 'package', packageName]),
   };
 }
 
 function getProp(tools, serial, name) {
-  return runCapture(tools.adbPath, ['-s', serial, 'shell', 'getprop', name]).trim() || 'unknown';
+  return runCapture(ADB_COMMAND, ['-s', serial, 'shell', 'getprop', name]).trim() || 'unknown';
 }
 
 async function collectUiDump(tools, serial) {
-  runCapture(tools.adbPath, ['-s', serial, 'shell', 'uiautomator', 'dump', '/sdcard/ocentra-tracking-ui.xml']);
-  const uiDump = runCapture(tools.adbPath, ['-s', serial, 'shell', 'cat', '/sdcard/ocentra-tracking-ui.xml']);
+  runCapture(ADB_COMMAND, ['-s', serial, 'shell', 'uiautomator', 'dump', '/sdcard/ocentra-tracking-ui.xml']);
+  const uiDump = runCapture(ADB_COMMAND, ['-s', serial, 'shell', 'cat', '/sdcard/ocentra-tracking-ui.xml']);
   await writeText('09-ui.xml', uiDump);
   return uiDump;
 }
 
 async function collectScreenshot(tools, serial) {
-  const result = spawnSync(tools.adbPath, ['-s', serial, 'exec-out', 'screencap', '-p'], {
+  const result = spawnSync(ADB_COMMAND, ['-s', serial, 'exec-out', 'screencap', '-p'], {
     cwd: repoRoot,
     encoding: null,
     shell: false,
     timeout: androidCommandTimeoutMs,
   });
-  commands.push({ command: `${tools.adbPath} -s ${serial} exec-out screencap -p`, status: result.status ?? 1 });
+  commands.push({ command: `${ADB_COMMAND} -s ${serial} exec-out screencap -p`, status: result.status ?? 1 });
   if ((result.status ?? 1) !== 0) {
     throw new Error(`screencap failed: ${String(result.stderr)}`);
   }
@@ -363,8 +364,8 @@ async function collectTextArtifact(name, command, args) {
 
 async function installPhysicalApk(tools, serial) {
   const remoteApkPath = '/data/local/tmp/ocentra-parent-agent-debug.apk';
-  const pushOutput = runCapture(tools.adbPath, ['-s', serial, 'push', apkPath, remoteApkPath]);
-  const installOutput = runCapture(tools.adbPath, [
+  const pushOutput = runCapture(ADB_COMMAND, ['-s', serial, 'push', apkPath, remoteApkPath]);
+  const installOutput = runCapture(ADB_COMMAND, [
     '-s',
     serial,
     'shell',
@@ -379,7 +380,7 @@ async function installPhysicalApk(tools, serial) {
 }
 
 async function collectRunAsTextArtifact(name, tools, serial, args) {
-  const result = spawnSync(tools.adbPath, ['-s', serial, 'shell', 'run-as', packageName, ...args], {
+  const result = spawnSync(ADB_COMMAND, ['-s', serial, 'shell', 'run-as', packageName, ...args], {
     cwd: repoRoot,
     encoding: 'utf8',
     shell: false,
@@ -387,7 +388,7 @@ async function collectRunAsTextArtifact(name, tools, serial, args) {
   });
   const output = `${result.stdout ?? ''}${result.stderr ?? ''}`;
   commands.push({
-    command: `${tools.adbPath} -s ${serial} shell run-as ${packageName} ${args.join(' ')}`,
+    command: `${ADB_COMMAND} -s ${serial} shell run-as ${packageName} ${args.join(' ')}`,
     status: result.status ?? 1,
     output: output.trim(),
   });
@@ -441,11 +442,6 @@ function permissionGranted(packageDump, permissionName) {
   return new RegExp(`${escaped}: granted=true`, 'u').test(packageDump);
 }
 
-function parseUiNumber(uiDump, label) {
-  const match = new RegExp(`${escapeRegExp(label)}[^0-9]*(?<value>[0-9]+)`, 'u').exec(uiDump);
-  return match?.groups?.value === undefined ? 0 : Number.parseInt(match.groups.value, 10);
-}
-
 function parseXmlInt(xml, name) {
   const escaped = escapeRegExp(name);
   const intMatch = new RegExp(`<int\\s+name="${escaped}"\\s+value="(?<value>[0-9]+)"\\s*/>`, 'u').exec(xml);
@@ -461,7 +457,7 @@ function parseXmlBoolean(xml, name) {
 }
 
 async function resetPhysicalRuntimeProofState(tools, serial) {
-  await writeCommandArtifactAllowFailure('00-reset-runtime-proof-state.txt', tools.adbPath, [
+  await writeCommandArtifactAllowFailure('00-reset-runtime-proof-state.txt', ADB_COMMAND, [
     '-s',
     serial,
     'shell',
@@ -480,7 +476,7 @@ async function grantDeclaredLocationPermissions(tools, serial) {
     'android.permission.ACCESS_FINE_LOCATION',
     'android.permission.ACCESS_BACKGROUND_LOCATION',
   ]) {
-    const result = spawnSync(tools.adbPath, ['-s', serial, 'shell', 'pm', 'grant', packageName, permission], {
+    const result = spawnSync(ADB_COMMAND, ['-s', serial, 'shell', 'pm', 'grant', packageName, permission], {
       cwd: repoRoot,
       encoding: 'utf8',
       shell: false,
@@ -488,7 +484,7 @@ async function grantDeclaredLocationPermissions(tools, serial) {
     });
     const output = `${result.stdout ?? ''}${result.stderr ?? ''}`.trim();
     commands.push({
-      command: `${tools.adbPath} -s ${serial} shell pm grant ${packageName} ${permission}`,
+      command: `${ADB_COMMAND} -s ${serial} shell pm grant ${packageName} ${permission}`,
       status: result.status ?? 1,
       output,
     });
@@ -505,14 +501,14 @@ async function preparePhysicalDeviceForLaunch(tools, serial) {
   ];
   const lines = [];
   for (const args of commandsToRun) {
-    const result = spawnSync(tools.adbPath, ['-s', serial, ...args], {
+    const result = spawnSync(ADB_COMMAND, ['-s', serial, ...args], {
       cwd: repoRoot,
       encoding: 'utf8',
       shell: false,
       timeout: androidCommandTimeoutMs,
     });
     const output = `${result.stdout ?? ''}${result.stderr ?? ''}`.trim();
-    const command = `${tools.adbPath} -s ${serial} ${args.join(' ')}`;
+    const command = `${ADB_COMMAND} -s ${serial} ${args.join(' ')}`;
     commands.push({ command, status: result.status ?? 1, output });
     lines.push(`${command} exit=${String(result.status ?? 1)} ${output}`);
   }
@@ -531,7 +527,7 @@ function physicalPermissionState(packageDump) {
 }
 
 async function writePhysicalRouteObservation(tools, serial, observationWindowSeconds) {
-  const locationCommand = spawnSync(tools.adbPath, ['-s', serial, 'shell', 'cmd', 'location', 'help'], {
+  const locationCommand = spawnSync(ADB_COMMAND, ['-s', serial, 'shell', 'cmd', 'location', 'help'], {
     cwd: repoRoot,
     encoding: 'utf8',
     shell: false,
@@ -539,7 +535,7 @@ async function writePhysicalRouteObservation(tools, serial, observationWindowSec
   });
   const output = `${locationCommand.stdout ?? ''}${locationCommand.stderr ?? ''}`.trim();
   commands.push({
-    command: `${tools.adbPath} -s ${serial} shell cmd location help`,
+    command: `${ADB_COMMAND} -s ${serial} shell cmd location help`,
     status: locationCommand.status ?? 1,
     output,
   });
@@ -600,21 +596,19 @@ function resolveAndroidTools() {
   if (sdkRoot === undefined || sdkRoot.length === 0) {
     throw new Error('ANDROID_SDK_ROOT or ANDROID_HOME is required for Android physical-device proof.');
   }
-  const adbPath = path.join(sdkRoot, 'platform-tools', process.platform === 'win32' ? 'adb.exe' : 'adb');
-  return { adbPath };
+  return {};
 }
 
 function run(command, args) {
   runCapture(command, args);
 }
 
+function runNpm(args) {
+  run(NODE_COMMAND, [npmCliPath, ...args]);
+}
+
 function runCapture(command, args) {
-  const result = spawnSync(command, args, {
-    cwd: repoRoot,
-    encoding: 'utf8',
-    shell: false,
-    timeout: commandTimeoutMs(command),
-  });
+  const result = spawnKnownCommand(command, args);
   const output = `${result.stdout ?? ''}${result.stderr ?? ''}`;
   const errorText = result.error === undefined ? '' : `\n${String(result.error.message)}`;
   commands.push({
@@ -626,6 +620,22 @@ function runCapture(command, args) {
     throw new Error(`${command} ${args.join(' ')} failed\n${output}${errorText}`);
   }
   return output;
+}
+
+function spawnKnownCommand(command, args) {
+  const options = {
+    cwd: repoRoot,
+    encoding: 'utf8',
+    shell: false,
+    timeout: commandTimeoutMs(command),
+  };
+  if (command === ADB_COMMAND) {
+    return spawnSync(ADB_COMMAND, args, options);
+  }
+  if (command === NODE_COMMAND) {
+    return spawnSync(NODE_COMMAND, args, options);
+  }
+  throw new Error(`Unsupported physical-device proof command: ${command}`);
 }
 
 function commandTimeoutMs(command) {

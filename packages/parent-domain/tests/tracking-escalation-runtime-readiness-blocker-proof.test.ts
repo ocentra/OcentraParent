@@ -142,6 +142,9 @@ function providerRuntimeBlockerFixture() {
     'test-results/tracking-notification-local-outbox-readiness-proof/proof.json',
     'test-results/tracking-provider-delivery-artifact-gate-proof/proof.json',
   ];
+  const requiredProviderRuntimeArtifactRefs = ['provider-credentials'];
+  const presentProviderRuntimeArtifactRefs: string[] = [];
+  const missingProviderRuntimeArtifactRefs = ['provider-credentials'];
 
   return {
     schemaVersion: 'v0.6',
@@ -152,12 +155,18 @@ function providerRuntimeBlockerFixture() {
     providerNotificationRows: 1,
     receiptBoundaryRows: 1,
     localOutboxReadinessRows: 1,
+    requiredProviderRuntimeArtifactCount: requiredProviderRuntimeArtifactRefs.length,
+    presentProviderRuntimeArtifactCount: presentProviderRuntimeArtifactRefs.length,
     missingProviderRuntimeArtifactCount: 1,
+    requiredProviderRuntimeArtifactRefs,
+    presentProviderRuntimeArtifactRefs,
+    missingProviderRuntimeArtifactRefs,
+    providerRuntimeArtifactSetComplete: false,
     blockers: RequiredTrackingProviderRuntimeReadinessBlockers.map((blockerId) => ({
       blockerId,
       status: 'manual-required',
       sourceProofRefs,
-      blockingArtifactRefs: ['provider-credentials'],
+      blockingArtifactRefs: missingProviderRuntimeArtifactRefs,
       requiredProofTier: 'P4_MANUAL_PROVIDER_RUNTIME',
       currentProofTier: 'P3_LOCAL_DEV_MACHINE',
       productClaimReady: false,

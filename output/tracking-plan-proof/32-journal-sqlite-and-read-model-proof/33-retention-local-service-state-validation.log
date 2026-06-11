@@ -1,3 +1,0 @@
-node scripts/test/tracking-retention-settings-write-command-proof.mjs exit=0
-cmd /c npm run build --workspace @ocentra-parent/parent-domain exit=0
-cmd /c npm run test --workspace @ocentra-parent/parent-domain -- tracking-retention-local-service-state-proof exit=0

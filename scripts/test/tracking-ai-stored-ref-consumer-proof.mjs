@@ -2,6 +2,7 @@ import { spawnSync } from 'node:child_process';
 import { mkdir, rm, writeFile } from 'node:fs/promises';
 import { dirname, join } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
+import { runNpmCommand } from './run-npm-command.mjs';
 
 const repoRoot = dirname(dirname(dirname(fileURLToPath(import.meta.url))));
 const timestamp = '2026-06-07T05:44:00.000Z';
@@ -18,7 +19,7 @@ await mkdir(wp24Dir, { recursive: true });
 await mkdir(wp32Dir, { recursive: true });
 await mkdir(wp33Dir, { recursive: true });
 
-run('cmd', ['/c', 'npm', 'run', 'build', '--workspace', '@ocentra-parent/parent-domain']);
+runNpmCommand(run, ['run', 'build', '--workspace', '@ocentra-parent/parent-domain']);
 run('cmd', [
   '/c',
   'npm',

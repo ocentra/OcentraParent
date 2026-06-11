@@ -1,2 +1,0 @@
-npm --workspace @ocentra-parent/parent-domain run build
-npm exec --workspace @ocentra-parent/parent-domain -- vitest run tests/tracking-child-runtime-snapshot-requirements-proof.test.ts tests/tracking-child-runtime-execution-readiness-proof.test.ts

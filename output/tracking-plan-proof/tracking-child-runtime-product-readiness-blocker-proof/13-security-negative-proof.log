@@ -1,6 +1,0 @@
-workpack=30-parent-and-child-ui-ux-surfaces
-Child runtime product-readiness blocker rows consume snapshot requirement rows and preserve explicit non-claims.
-Rows also consume the Android emulator readiness bridge so package launch, foreground service, permissions, and local emulator geofence evidence are accounted for in the child-runtime blocker.
-Rows consume the parent-child local runtime bridge so typed local transport, stored event, child-agent phase, and parent read-model projection evidence are accounted for before physical runtime handoff.
-Rows prove requirement coverage only and do not claim actual child-device delivery, execution, or rendered child UI.
-Provider delivery, notification receipt ingestion, live location runtime, physical-device proof, authority proof, production workers, and product-ready behavior are explicit non-claims.

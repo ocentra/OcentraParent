@@ -1,1 +1,0 @@
-SKIP force-stop before refresh; preserve foreground-service proof state after Settings-page capture.

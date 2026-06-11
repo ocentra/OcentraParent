@@ -3,6 +3,7 @@ import { spawnSync } from 'node:child_process';
 import { mkdir, readFile, stat, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 import { pathToFileURL } from 'node:url';
+import { runNpmCommand } from './run-npm-command.mjs';
 
 const repoRoot = process.cwd();
 const proofMode = 'tracking-retention-runtime-artifact-gate-proof';
@@ -24,7 +25,7 @@ async function main() {
 
   run('node', ['scripts/test/tracking-retention-product-readiness-proof.mjs']);
   run('node', ['scripts/test/tracking-retention-product-settings-writable-execution-proof.mjs']);
-  run('cmd', ['/c', 'npm', 'run', 'build', '--workspace', '@ocentra-parent/parent-domain']);
+  runNpmCommand(run, ['run', 'build', '--workspace', '@ocentra-parent/parent-domain']);
   run('cmd', [
     '/c',
     'npm',

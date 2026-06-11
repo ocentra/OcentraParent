@@ -1,4 +1,0 @@
-Security/no-claim proof:
-
-- Report/export packets expose evidence references only; they do not claim raw location payload export.
-- Packets keep remote sync and remote AI disabled and do not claim portal UI, service mutation, platform runtime, child-device delivery, provider delivery, notification receipt ingestion, physical-device behavior, authority, or product completion.

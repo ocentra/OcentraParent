@@ -1,2 +1,0 @@
-Starting: Intent { act=android.settings.APPLICATION_DETAILS_SETTINGS dat=package: }
-Error: Activity not started, unable to resolve Intent { act=android.settings.APPLICATION_DETAILS_SETTINGS dat=package: flg=0x10000000 }

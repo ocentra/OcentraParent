@@ -343,6 +343,14 @@ function summaryFrom(row: TrackingAndroidPhysicalDeviceRuntimeRowInput) {
 }
 
 function androidPhysicalDeviceRuntimeRowIsHonest(row: TrackingAndroidPhysicalDeviceRuntimeRowInput): boolean {
+  return (
+    requiredArtifactCoverageIsHonest(row) &&
+    artifactPresenceIsHonest(row) &&
+    androidPhysicalDeviceRuntimeClaimsAreHonest(row)
+  );
+}
+
+function requiredArtifactCoverageIsHonest(row: TrackingAndroidPhysicalDeviceRuntimeRowInput): boolean {
   const requiredArtifactSet = new Set(row.requiredArtifacts.map((artifactRef) => String(artifactRef)));
   const artifactRowSet = new Set(row.artifactRows.map((artifact) => String(artifact.artifactRef)));
   return (
@@ -350,9 +358,20 @@ function androidPhysicalDeviceRuntimeRowIsHonest(row: TrackingAndroidPhysicalDev
       (artifactRef) => requiredArtifactSet.has(artifactRef) && artifactRowSet.has(artifactRef)
     ) &&
     row.requiredArtifacts.length === row.presentArtifacts.length + row.missingArtifacts.length &&
-    row.artifactRows.every((artifact) => artifact.required === true) &&
+    row.artifactRows.every((artifact) => artifact.required === true)
+  );
+}
+
+function artifactPresenceIsHonest(row: TrackingAndroidPhysicalDeviceRuntimeRowInput): boolean {
+  const requiredArtifactSet = new Set(row.requiredArtifacts.map((artifactRef) => String(artifactRef)));
+  return (
     row.presentArtifacts.every((artifactRef) => requiredArtifactSet.has(String(artifactRef))) &&
-    row.missingArtifacts.every((artifactRef) => requiredArtifactSet.has(String(artifactRef))) &&
+    row.missingArtifacts.every((artifactRef) => requiredArtifactSet.has(String(artifactRef)))
+  );
+}
+
+function androidPhysicalDeviceRuntimeClaimsAreHonest(row: TrackingAndroidPhysicalDeviceRuntimeRowInput): boolean {
+  return (
     row.packageInstallObserved === true &&
     row.packageLaunchObserved === true &&
     row.foregroundServiceObserved === true &&

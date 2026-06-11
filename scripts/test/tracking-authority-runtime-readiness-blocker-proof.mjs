@@ -3,6 +3,7 @@ import { spawnSync } from 'node:child_process';
 import { mkdir, readFile, rm, writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import { pathToFileURL } from 'node:url';
+import { runNpmCommand } from './run-npm-command.mjs';
 
 const repoRoot = process.cwd();
 const proofMode = 'tracking-authority-runtime-readiness-blocker-proof';
@@ -30,8 +31,8 @@ async function main() {
   await mkdir(wp33ProofDir, { recursive: true });
 
   run('node', ['scripts/test/tracking-authority-enrollment-manual-required-proof.mjs']);
-  run('cmd', ['/c', 'npm', 'run', 'build', '--workspace', '@ocentra-parent/parent-domain']);
-  run('cmd', ['/c', 'npm', 'run', 'test', '--workspace', '@ocentra-parent/parent-domain', '--', proofMode]);
+  runNpmCommand(run, ['run', 'build', '--workspace', '@ocentra-parent/parent-domain']);
+  runNpmCommand(run, ['run', 'test', '--workspace', '@ocentra-parent/parent-domain', '--', proofMode]);
 
   const authorityRuntimeModule = await importDist('tracking-authority-runtime-readiness-blocker-proof.js');
   const authorityProof = await readProofJson(

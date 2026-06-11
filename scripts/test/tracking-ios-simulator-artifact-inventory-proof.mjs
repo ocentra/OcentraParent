@@ -2,6 +2,7 @@ import { spawnSync } from 'node:child_process';
 import { mkdir, readFile, rm, stat, writeFile } from 'node:fs/promises';
 import { dirname, join } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
+import { runNpmCommand } from './run-npm-command.mjs';
 
 const repoRoot = dirname(dirname(dirname(fileURLToPath(import.meta.url))));
 const proofMode = 'tracking-ios-simulator-artifact-inventory-proof';
@@ -30,7 +31,7 @@ async function main() {
   await mkdir(wp31Root, { recursive: true });
   await mkdir(wp33Root, { recursive: true });
 
-  run('cmd', ['/c', 'npm', 'run', 'build', '--workspace', '@ocentra-parent/parent-domain']);
+  runNpmCommand(run, ['run', 'build', '--workspace', '@ocentra-parent/parent-domain']);
   run('cmd', [
     '/c',
     'npm',

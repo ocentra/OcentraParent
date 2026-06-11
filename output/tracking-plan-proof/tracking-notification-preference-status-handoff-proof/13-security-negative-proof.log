@@ -1,4 +1,0 @@
-workpack=26-alert-severity-and-notification-model
-workpack=33-proof-gates-fixtures-rollout-and-pr-gate
-Preference status handoff rows map parent preference and quiet-hours requirements into V3 notification status entries.
-Rows do not send provider payloads, observe receipts, claim provider credentials, mutate parent preferences, run quiet-hours timers, or claim production durable outbox storage.

@@ -1,2 +1,0 @@
-Starting service: Intent { cmp=ca.ocentra.parent.agent/.OcentraParentAgentService }
-Error: Requires permission not exported from uid 10259

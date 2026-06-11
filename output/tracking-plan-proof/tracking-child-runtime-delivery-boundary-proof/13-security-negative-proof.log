@@ -1,4 +1,0 @@
-workpack=30-parent-and-child-ui-ux-surfaces
-Child runtime delivery boundary rows preserve hosted UI proof refs, source evidence refs, source audit refs, and required runtime proof refs.
-Rows are hosted-copy disclosure rows only and do not claim actual child-device delivery or child-device execution.
-Rendered child-device runtime UI, provider delivery, notification receipt ingestion, live location runtime, physical-device proof, authority proof, production workers, and product-ready behavior are explicit non-claims.

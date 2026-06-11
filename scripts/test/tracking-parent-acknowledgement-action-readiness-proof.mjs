@@ -3,6 +3,7 @@ import { spawn } from 'node:child_process';
 import { mkdir, writeFile } from 'node:fs/promises';
 import { join, relative } from 'node:path';
 import { pathToFileURL } from 'node:url';
+import { runNpmCommand } from './run-npm-command.mjs';
 
 const repoRoot = process.cwd();
 const proofRoot = join(repoRoot, 'output', 'tracking-plan-proof', '17-parent-acknowledgement-and-exception-model');
@@ -295,7 +296,7 @@ async function gitHead() {
 
 async function runNpm(args) {
   if (process.platform === 'win32') {
-    return runCommand('cmd', ['/c', 'npm', ...args]);
+    return runNpmCommand(runCommand, args);
   }
   return runCommand('npm', args);
 }
