@@ -58,7 +58,7 @@ async function main() {
       runLedger(['workers']);
       return;
     case 'hub:report':
-      runLedger(['report', '--lane', lane, reportBody()]);
+      reportWithPrimaryNotification();
       return;
     case 'hub:lock':
       runLedger(['claim', lane, required('paths'), '--reason', options.reason ?? 'claimed from product repo']);
@@ -189,6 +189,27 @@ function reportBody() {
   const summary = options.summary ?? positionalText();
   const details = options.details;
   return details === undefined ? summary : `${summary}\n\n${details}`;
+}
+
+function reportWithPrimaryNotification() {
+  const body = reportBody();
+  runLedger(['report', '--lane', lane, body]);
+  if (shouldNotifyPrimary(body)) {
+    runLedger(['msg', 'primary', primaryNotificationBody(body)]);
+  }
+}
+
+function shouldNotifyPrimary(body) {
+  if (lane === 'primary' || options['no-primary-notify'] === true) {
+    return false;
+  }
+  const firstLine = body.split(/\r?\n/u)[0]?.trim() ?? '';
+  return /^(?:PR[-_ ]?READY|DONE|BLOCKED)\b/iu.test(firstLine);
+}
+
+function primaryNotificationBody(body) {
+  const firstLine = body.split(/\r?\n/u)[0]?.trim() || 'Worker report';
+  return `Worker report from ${lane}: ${firstLine}\n\n${body}`;
 }
 
 function positionalText() {

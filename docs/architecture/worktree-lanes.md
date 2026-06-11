@@ -120,6 +120,68 @@ Idle liveness should stay outside Codex chat. A watcher or daemon may write
 Ledger heartbeat events, but idle workers should not spend chat turns reporting
 that nothing changed.
 
+## Targeted Codex Wakeups
+
+Codex hooks are not timers; they only run when a Codex thread is already active.
+Codex automations are timers; they can wake a thread, but an always-on
+five-minute loop spends tokens even when no Ledger work exists. The coordination
+default is therefore event-shaped:
+
+1. The sender writes Ledger mail or a semantic handoff report.
+2. The sender creates or resumes one targeted Codex automation for the intended
+   recipient thread.
+3. The recipient automation runs the lane notifier prefilter first.
+4. If there is no wake-worthy Ledger work, the automation deletes or pauses
+   itself without doing product or coordination work.
+5. If work exists, the recipient reads and acks the Ledger mail, does the
+   assignment or review, reports `DONE`, `BLOCKED`, or `PR_READY`, then creates
+   or resumes a targeted primary wakeup.
+6. Primary wakes, acts on the worker report, and deletes or pauses the primary
+   wakeup after the report is handled.
+
+Keep paused per-lane automations available as templates, but do not leave worker
+minute automations running while lanes are parked. A slow primary safety-net
+automation may remain active only until targeted wakeups are proven reliable on
+every active PC.
+
+```mermaid
+sequenceDiagram
+  participant P as Primary lane
+  participant L as Ocentra Ledger
+  participant A as Codex automation
+  participant W as Worker lane
+
+  P->>L: Send Ledger mail to worker
+  P->>A: Create or resume one worker wakeup
+  A->>W: Wake worker thread
+  W->>L: Run hub:notify for own lane
+  alt No unread mail
+    W->>A: Delete or pause worker wakeup
+  else Mail exists
+    W->>L: Read and ack mail
+    W->>L: Report STARTED / progress
+    W->>L: Report DONE / BLOCKED / PR_READY
+    W->>A: Delete or pause worker wakeup
+    W->>A: Create or resume primary wakeup
+    A->>P: Wake primary thread
+    P->>L: Run hub:notify for primary
+    P->>L: Review worker report and act
+    P->>A: Delete or pause primary wakeup
+  end
+```
+
+The cheap prefilter command is:
+
+```powershell
+npm run hub:notify -- --lane primary --exit-code
+npm run hub:notify -- --lane codex-b --exit-code
+```
+
+For workers, the notifier wakes only for unread inbox mail. For `primary`, it
+also wakes for worker report summaries beginning with `PR_READY`, `DONE`, or
+`BLOCKED`. Routine `STARTED`, progress, and heartbeat events should not wake a
+Codex thread.
+
 ## Guard
 
 The pre-commit hook calls:
