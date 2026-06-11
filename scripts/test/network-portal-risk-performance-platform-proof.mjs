@@ -41,32 +41,32 @@ mkdirSync(testRoot, { recursive: true });
 await main();
 
 async function main() {
-  runCommand('cmd', ['/c', 'npm', 'run', 'build', '--workspace', '@ocentra-parent/portal-domain']);
-  runCommand('cmd', ['/c', 'npm', 'run', 'build', '--workspace', '@ocentra-parent/portal']);
-  runCommand('cmd', [
-    '/c',
-    'npm',
-    'exec',
-    '--workspace',
-    '@ocentra-parent/portal',
-    '--',
-    'vitest',
-    'run',
-    'tests/live-activity-network-flow.test.ts',
-  ]);
-  runCommand('cmd', [
-    '/c',
-    'npm',
-    'exec',
-    '--workspace',
-    '@ocentra-parent/portal',
-    '--',
-    'eslint',
-    'src/network-evidence-drawer.ts',
-    'src/NetworkEvidenceDrawerRoutePanel.tsx',
-    'tests/live-activity-network-flow.test.ts',
-    '../../packages/portal-domain/src/details.ts',
-  ]);
+  runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/portal-domain']));
+  runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/portal']));
+  runCommand(
+    ...npmCommand([
+      'exec',
+      '--workspace',
+      '@ocentra-parent/portal',
+      '--',
+      'vitest',
+      'run',
+      'tests/live-activity-network-flow.test.ts',
+    ])
+  );
+  runCommand(
+    ...npmCommand([
+      'exec',
+      '--workspace',
+      '@ocentra-parent/portal',
+      '--',
+      'eslint',
+      'src/network-evidence-drawer.ts',
+      'src/NetworkEvidenceDrawerRoutePanel.tsx',
+      'tests/live-activity-network-flow.test.ts',
+      '../../packages/portal-domain/src/details.ts',
+    ])
+  );
   runCommand('node', ['scripts/check-source-shape.mjs']);
   runCommand('git', ['diff', '--check']);
 
@@ -239,4 +239,10 @@ function assertPatternAbsent(text, pattern, label) {
 function trimForProof(value) {
   const text = String(value ?? '').trimEnd();
   return text.length <= 2000 ? text : `${text.slice(0, 2000)}\n...[truncated]`;
+}
+
+function npmCommand(args) {
+  const command = process.platform === 'win32' ? 'cmd' : 'npm';
+  const commandArgs = process.platform === 'win32' ? ['/c', 'npm', ...args] : args;
+  return [command, commandArgs];
 }

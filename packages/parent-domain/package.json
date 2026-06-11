@@ -25,6 +25,10 @@
       "import": "./dist/app-game-notification-parent-surface-intent.js",
       "types": "./dist/app-game-notification-parent-surface-intent.d.ts"
     },
+    "./app-game-child-facing-ux-parent-preference-setup-draft": {
+      "import": "./dist/app-game-child-facing-ux-parent-preference-setup-draft.js",
+      "types": "./dist/app-game-child-facing-ux-parent-preference-setup-draft.d.ts"
+    },
     "./app-game-policy-preview-handoff": {
       "import": "./dist/app-game-policy-preview-handoff.js",
       "types": "./dist/app-game-policy-preview-handoff.d.ts"
@@ -999,7 +1003,7 @@
     "type-check": "tsc -p tsconfig.json --noEmit",
     "lint": "npx turbo run lint:exec --filter=@ocentra-parent/parent-domain",
     "lint:exec": "eslint --cache src tests && tsc -p tsconfig.json --noEmit",
-    "test": "vitest run"
+    "test": "node ../../scripts/test/parent-domain-test.mjs"
   },
   "dependencies": {
     "@ocentra-parent/schema-domain": "file:../schema-domain"

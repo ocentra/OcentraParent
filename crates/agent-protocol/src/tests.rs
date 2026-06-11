@@ -1,8 +1,8 @@
 use super::{
     crate_name, AgentCommandEnvelope, AgentCommandName, AgentEventEnvelope, AgentEventName,
     AgentIdentity, AgentLogEntry, AgentLogSnapshot, AgentMessageTarget, AgentPairingProof,
-    AgentPeer, AgentPeerRole, AgentRoute, AgentRouteSecurityPolicy, DevLogEntry, LogFieldValue,
-    LogFields, LogLevel, LogSource, AGENT_PROTOCOL_SCHEMA_VERSION, LOG_SCHEMA_VERSION,
+    AgentPeer, AgentPeerRole, AgentRoute, DevLogEntry, LogFieldValue, LogFields, LogLevel,
+    LogSource, AGENT_PROTOCOL_SCHEMA_VERSION, LOG_SCHEMA_VERSION,
 };
 
 #[test]
@@ -196,25 +196,35 @@ fn browser_inventory_command_and_event_names_serialize_to_contract_shape() {
 }
 
 #[test]
-fn local_network_route_serializes_to_typescript_contract_shape() {
-    let serialized = serde_json::to_value(AgentRoute::LocalNetwork).expect("route serializes");
+fn app_game_timer_parent_surface_command_and_event_names_serialize_to_contract_shape() {
+    let command =
+        serde_json::to_value(AgentCommandName::AgentActivityAppGameTimerParentSurfaceReadModelGet)
+            .expect("command serializes");
+    let event = serde_json::to_value(
+        AgentEventName::AgentActivityAppGameTimerParentSurfaceReadModelReported,
+    )
+    .expect("event serializes");
 
-    assert_eq!(serialized, "local-network");
+    assert_eq!(
+        command,
+        "agent.activity.app-game.timer-parent-surface.read-model.get"
+    );
+    assert_eq!(
+        event,
+        "agent.activity.app-game.timer-parent-surface.read-model.reported"
+    );
 }
 
 #[test]
-fn local_network_route_security_rejects_anonymous_control() {
-    let policy = AgentRouteSecurityPolicy {
-        route: AgentRoute::LocalNetwork,
-        requires_pairing: true,
-        allows_anonymous_control: false,
-    };
+fn app_game_adapter_dispatch_execute_command_and_event_names_serialize_to_contract_shape() {
+    let command =
+        serde_json::to_value(AgentCommandName::AgentActivityAppGameAdapterDispatchExecute)
+            .expect("app game adapter dispatch execute command serializes");
+    let event = serde_json::to_value(AgentEventName::AgentActivityAppGameAdapterDispatchExecuted)
+        .expect("app game adapter dispatch execute event serializes");
 
-    let serialized = serde_json::to_value(policy).expect("route security serializes");
-
-    assert_eq!(serialized["route"], "local-network");
-    assert_eq!(serialized["requiresPairing"], true);
-    assert_eq!(serialized["allowsAnonymousControl"], false);
+    assert_eq!(command, "agent.activity.app-game.adapter-dispatch.execute");
+    assert_eq!(event, "agent.activity.app-game.adapter-dispatch.executed");
 }
 
 #[test]

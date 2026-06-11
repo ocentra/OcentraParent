@@ -120,6 +120,22 @@ pub mod event_id {
         "activity-app-game-policy-readiness-read-model-reported";
     pub const ACTIVITY_APP_GAME_NOTIFICATION_READINESS_READ_MODEL_REPORTED: &str =
         "activity-app-game-notification-readiness-read-model-reported";
+    pub const ACTIVITY_APP_GAME_ADAPTER_EXECUTION_READINESS_READ_MODEL_REPORTED: &str =
+        "activity-app-game-adapter-execution-readiness-read-model-reported";
+    pub const ACTIVITY_APP_GAME_PLATFORM_PROOF_STATUS_READ_MODEL_REPORTED: &str =
+        "activity-app-game-platform-proof-status-read-model-reported";
+    pub const ACTIVITY_APP_GAME_CHILD_RUNTIME_TRANSPORT_RECEIPT_READ_MODEL_REPORTED: &str =
+        "activity-app-game-child-runtime-transport-receipt-read-model-reported";
+    pub const ACTIVITY_APP_GAME_ADAPTER_DISPATCH_PREFLIGHT_READ_MODEL_REPORTED: &str =
+        "activity-app-game-adapter-dispatch-preflight-read-model-reported";
+    pub const ACTIVITY_APP_GAME_ADAPTER_DISPATCH_RESULT_READ_MODEL_REPORTED: &str =
+        "activity-app-game-adapter-dispatch-result-read-model-reported";
+    pub const ACTIVITY_APP_GAME_ADAPTER_DISPATCH_EXECUTED: &str =
+        "activity-app-game-adapter-dispatch-executed";
+    pub const ACTIVITY_APP_GAME_TIMER_PARENT_SURFACE_READ_MODEL_REPORTED: &str =
+        "activity-app-game-timer-parent-surface-read-model-reported";
+    pub const ACTIVITY_APP_GAME_TIMER_PARENT_PREFERENCE_SETUP_REQUESTED: &str =
+        "activity-app-game-timer-parent-preference-setup-requested";
     pub const BROWSER_SOCIAL_DASHBOARD_READ_MODEL_REPORTED: &str =
         "browser-social-dashboard-read-model-reported";
     pub const BROWSER_SOCIAL_AUDIT_EXPLANATION_READ_MODEL_REPORTED: &str =

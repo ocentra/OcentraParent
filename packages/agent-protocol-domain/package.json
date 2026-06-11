@@ -77,6 +77,30 @@
       "import": "./dist/app-game-notification-readiness.js",
       "types": "./dist/app-game-notification-readiness.d.ts"
     },
+    "./app-game-adapter-execution-readiness": {
+      "import": "./dist/app-game-adapter-execution-readiness.js",
+      "types": "./dist/app-game-adapter-execution-readiness.d.ts"
+    },
+    "./app-game-platform-proof-status": {
+      "import": "./dist/app-game-platform-proof-status.js",
+      "types": "./dist/app-game-platform-proof-status.d.ts"
+    },
+    "./app-game-child-runtime-transport-receipt": {
+      "import": "./dist/app-game-child-runtime-transport-receipt.js",
+      "types": "./dist/app-game-child-runtime-transport-receipt.d.ts"
+    },
+    "./app-game-adapter-dispatch-preflight": {
+      "import": "./dist/app-game-adapter-dispatch-preflight.js",
+      "types": "./dist/app-game-adapter-dispatch-preflight.d.ts"
+    },
+    "./app-game-adapter-dispatch-result": {
+      "import": "./dist/app-game-adapter-dispatch-result.js",
+      "types": "./dist/app-game-adapter-dispatch-result.d.ts"
+    },
+    "./app-game-timer-parent-surface-read-model": {
+      "import": "./dist/app-game-timer-parent-surface-read-model.js",
+      "types": "./dist/app-game-timer-parent-surface-read-model.d.ts"
+    },
     "./social-dashboard-read-model": {
       "import": "./dist/social-dashboard-read-model.js",
       "types": "./dist/social-dashboard-read-model.d.ts"

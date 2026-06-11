@@ -124,8 +124,8 @@ rmSync(aiProofRoot, { recursive: true, force: true });
 mkdirSync(proofRoot, { recursive: true });
 mkdirSync(aiProofRoot, { recursive: true });
 
-await runCommand('cmd', ['/c', 'npm', 'run', 'build', '--workspace', '@ocentra-parent/activity-domain']);
-await runCommand('cmd', ['/c', 'npm', 'run', 'build', '--workspace', '@ocentra-parent/parent-domain']);
+await runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/activity-domain']));
+await runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/parent-domain']));
 
 const { ScreenAnalysisResultSchema, ScreenLocalModelOutputSchema } =
   await import('../../packages/activity-domain/dist/screen-evidence.js');
@@ -1317,4 +1317,10 @@ function resolveUserCachePath(...segments) {
     throw new Error('Set USERPROFILE or HOME so the local VLM proof can resolve the Ocentra cache path.');
   }
   return join(root, '.cache', 'ocentra-parent', ...segments);
+}
+
+function npmCommand(args) {
+  const command = process.platform === 'win32' ? 'cmd' : 'npm';
+  const commandArgs = process.platform === 'win32' ? ['/c', 'npm', ...args] : args;
+  return [command, commandArgs];
 }

@@ -13,30 +13,30 @@ await main();
 async function main() {
   await mkdir(outputDir, { recursive: true });
 
-  await runCommand('cmd', ['/c', 'npm', 'run', 'build:contracts']);
-  await runCommand('cmd', [
-    '/c',
-    'npm',
-    'run',
-    'test',
-    '--workspace',
-    '@ocentra-parent/parent-domain',
-    '--',
-    'v0-8-enforcement-product-control-spine',
-  ]);
+  await runCommand(...npmCommand(['run', 'build:contracts']));
+  await runCommand(
+    ...npmCommand([
+      'run',
+      'test',
+      '--workspace',
+      '@ocentra-parent/parent-domain',
+      '--',
+      'v0-8-enforcement-product-control-spine',
+    ])
+  );
   await runCommand('cargo', ['test', '-p', 'ocentra-parent-agent-protocol', 'enforcement_product_control_spine']);
   await runCommand('cargo', ['test', '-p', 'ocentra-parent-agent-service', 'product_control']);
-  await runCommand('cmd', [
-    '/c',
-    'npm',
-    'run',
-    'test',
-    '--workspace',
-    '@ocentra-parent/agent-protocol-domain',
-    '--',
-    'contracts',
-    'enforcement-product-control-adapter',
-  ]);
+  await runCommand(
+    ...npmCommand([
+      'run',
+      'test',
+      '--workspace',
+      '@ocentra-parent/agent-protocol-domain',
+      '--',
+      'contracts',
+      'enforcement-product-control-adapter',
+    ])
+  );
 
   const { V08EnforcementProductControlSpineReadModel } =
     await import('../../packages/parent-domain/dist/v0-8-enforcement-product-control-spine.js');
@@ -221,4 +221,10 @@ async function gitHead() {
     });
   });
   return Buffer.concat(chunks).toString('utf8').trim();
+}
+
+function npmCommand(args) {
+  const command = process.platform === 'win32' ? 'cmd' : 'npm';
+  const commandArgs = process.platform === 'win32' ? ['/c', 'npm', ...args] : args;
+  return [command, commandArgs];
 }

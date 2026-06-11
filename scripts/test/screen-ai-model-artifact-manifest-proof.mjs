@@ -10,7 +10,7 @@ const ProofPath = join(OutputRoot, 'proof-summary.json');
 const TestResultPath = join(TestResultRoot, 'proof.json');
 const generatedAt = new Date().toISOString();
 
-runCommand('cmd', ['/c', 'npm', 'run', 'build', '--workspace', '@ocentra-parent/parent-domain']);
+runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/parent-domain']));
 
 const { buildScreenAiModelArtifactManifestProof } = await importDist('screen-ai-model-artifact-manifest-proof.js');
 
@@ -116,4 +116,10 @@ function relativePath(filePath) {
 
 function runCommand(command, args) {
   execFileSync(command, args, { cwd: RepoRoot, stdio: 'inherit' });
+}
+
+function npmCommand(args) {
+  const command = process.platform === 'win32' ? 'cmd' : 'npm';
+  const commandArgs = process.platform === 'win32' ? ['/c', 'npm', ...args] : args;
+  return [command, commandArgs];
 }

@@ -5,6 +5,26 @@
   "type": "module",
   "description": "Portal route, DOM, and development UI contracts.",
   "exports": {
+    "./app-game-adapter-execution-readiness-panel": {
+      "import": "./dist/app-game-adapter-execution-readiness-panel.js",
+      "types": "./dist/app-game-adapter-execution-readiness-panel.d.ts"
+    },
+    "./app-game-adapter-dispatch-preflight-panel": {
+      "import": "./dist/app-game-adapter-dispatch-preflight-panel.js",
+      "types": "./dist/app-game-adapter-dispatch-preflight-panel.d.ts"
+    },
+    "./app-game-adapter-dispatch-result-panel": {
+      "import": "./dist/app-game-adapter-dispatch-result-panel.js",
+      "types": "./dist/app-game-adapter-dispatch-result-panel.d.ts"
+    },
+    "./app-game-child-runtime-transport-receipt-panel": {
+      "import": "./dist/app-game-child-runtime-transport-receipt-panel.js",
+      "types": "./dist/app-game-child-runtime-transport-receipt-panel.d.ts"
+    },
+    "./app-game-platform-proof-status-panel": {
+      "import": "./dist/app-game-platform-proof-status-panel.js",
+      "types": "./dist/app-game-platform-proof-status-panel.d.ts"
+    },
     "./contracts": {
       "import": "./dist/contracts.js",
       "types": "./dist/contracts.d.ts"

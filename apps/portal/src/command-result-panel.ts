@@ -1,11 +1,13 @@
-import type { AgentEventEnvelope } from '@ocentra-parent/agent-protocol-domain/contracts';
+import { AgentEvent, type AgentEventEnvelope } from '@ocentra-parent/agent-protocol-domain/contracts';
 import {
   PortalDom,
   PortalFormatting,
   PortalText,
   PortalTextToken,
   PortalTiming,
+  createAppGameTimerParentPreferenceSetupCommandResultDetails,
   decodePortalClipboardText,
+  type AppGameTimerParentSurfacePanelDetail,
 } from '@ocentra-parent/portal-domain/contracts';
 import { writeClipboardText } from './clipboard';
 import { DevLogField, DevLogMessage, writePortalDevLog } from './dev-logger';
@@ -70,8 +72,36 @@ function renderResultEvent(event: AgentEventEnvelope): HTMLElement {
   fields.textContent = JSON.stringify(event.payload, null, 2);
 
   header.append(message, copyButton);
-  card.append(header, detail, fields);
+  const resultSummary = renderAppGameTimerParentPreferenceSetupCommandResult(event);
+
+  card.append(header, detail);
+  if (resultSummary !== null) {
+    card.append(resultSummary);
+  }
+  card.append(fields);
   return card;
+}
+
+function renderAppGameTimerParentPreferenceSetupCommandResult(event: AgentEventEnvelope): HTMLElement | null {
+  if (event.event !== AgentEvent.ActivityAppGameTimerParentPreferenceSetupRequested) {
+    return null;
+  }
+
+  return renderDetailList(createAppGameTimerParentPreferenceSetupCommandResultDetails(event));
+}
+
+function renderDetailList(details: readonly AppGameTimerParentSurfacePanelDetail[]): HTMLElement {
+  const list = document.createElement(PortalDom.Tags.DefinitionList);
+  for (const item of details) {
+    const term = document.createElement(PortalDom.Tags.DefinitionTerm);
+    term.textContent = item.label;
+
+    const description = document.createElement(PortalDom.Tags.DefinitionDescription);
+    description.textContent = item.value;
+
+    list.append(term, description);
+  }
+  return list;
 }
 
 async function copyResultEvent(button: HTMLButtonElement, event: AgentEventEnvelope): Promise<void> {

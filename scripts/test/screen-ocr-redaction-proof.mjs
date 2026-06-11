@@ -8,17 +8,10 @@ const testResultRoot = resolve(repoRoot, 'test-results', 'screen-ocr-redaction-p
 
 await Promise.all([mkdir(outputRoot, { recursive: true }), mkdir(testResultRoot, { recursive: true })]);
 
-runCommand('cmd', ['/c', 'npm', 'run', 'build', '--workspace', '@ocentra-parent/activity-domain']);
-runCommand('cmd', [
-  '/c',
-  'npm',
-  'run',
-  'test',
-  '--workspace',
-  '@ocentra-parent/activity-domain',
-  '--',
-  'screen-ocr-redaction',
-]);
+runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/activity-domain']));
+runCommand(
+  ...npmCommand(['run', 'test', '--workspace', '@ocentra-parent/activity-domain', '--', 'screen-ocr-redaction'])
+);
 
 const {
   ScreenOcrRedactionPolicySchema,
@@ -151,4 +144,10 @@ function runCommand(command, args) {
   if (result.status !== 0) {
     throw new Error(`Command failed: ${command} ${args.join(' ')}`);
   }
+}
+
+function npmCommand(args) {
+  const command = process.platform === 'win32' ? 'cmd' : 'npm';
+  const commandArgs = process.platform === 'win32' ? ['/c', 'npm', ...args] : args;
+  return [command, commandArgs];
 }

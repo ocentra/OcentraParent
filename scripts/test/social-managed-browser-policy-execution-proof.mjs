@@ -115,7 +115,7 @@ async function main() {
 }
 
 function runManagedBrowserCompositedBlockProof() {
-  execFileSync('cmd', ['/c', 'npm', 'run', 'test:managed-browser-composited-block'], {
+  execFileSync(...npmCommand(['run', 'test:managed-browser-composited-block']), {
     cwd: repoRoot,
     stdio: 'inherit',
   });
@@ -249,4 +249,10 @@ function resolveEvidencePath(path) {
 
 function sha256(value) {
   return createHash('sha256').update(value).digest('hex');
+}
+
+function npmCommand(args) {
+  const command = process.platform === 'win32' ? 'cmd' : 'npm';
+  const commandArgs = process.platform === 'win32' ? ['/c', 'npm', ...args] : args;
+  return [command, commandArgs];
 }

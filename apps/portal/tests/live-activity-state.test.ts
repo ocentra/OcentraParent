@@ -17,6 +17,7 @@ import {
   AgentNetworkRuntimeEventType,
 } from '@ocentra-parent/agent-protocol-domain/network-runtime-events';
 import { resolveLiveActivityState } from '../src/live-activity-state';
+import { emptyBrowserEvidenceEvent, unavailableRecentSummaryEvent } from './live-activity-state-event-fixtures';
 
 type ResolvedLiveActivityState = ReturnType<typeof resolveLiveActivityState>;
 type BrowserEvidenceReadModel = NonNullable<ResolvedLiveActivityState['browserEvidenceReadModel']>;
@@ -130,6 +131,17 @@ describe('portal live activity state', () => {
     expect(state.browserEvidenceReadModel?.rows.at(0)?.url).toBe('https://latest.example/learn');
     expect(state.activityReportEvent?.eventId).toBe('evt-report-latest');
     expect(state.activityReport?.ok ? state.activityReport.value.reportId : null).toBe('activity-report-latest');
+  });
+});
+
+describe('portal live app-game adapter dispatch state', () => {
+  it('keeps the latest scoped app-game adapter dispatch executed result parent-visible', () => {
+    const state = resolveLiveActivityState([
+      appGameAdapterDispatchExecutedEvent('evt-app-game-dispatch-executed-earlier', 'earlier-execute-command'),
+      appGameAdapterDispatchExecutedEvent('evt-app-game-dispatch-executed-latest', 'latest-execute-command'),
+    ]);
+
+    expectLatestAppGameAdapterDispatchExecutedResult(state);
   });
 });
 
@@ -415,6 +427,19 @@ function expectBrowserEvidenceRow(latestRow: BrowserEvidenceRow | undefined) {
   expect(latestRow.activeProofSource).toBe('target-list-only');
 }
 
+function expectLatestAppGameAdapterDispatchExecutedResult(state: ResolvedLiveActivityState) {
+  expect(state.appGameAdapterDispatchExecutedEvent?.eventId).toBe('evt-app-game-dispatch-executed-latest');
+  expect(state.appGameAdapterDispatchExecutedResult?.ok).toBe(true);
+  if (state.appGameAdapterDispatchExecutedResult?.ok !== true) {
+    return;
+  }
+  expect(state.appGameAdapterDispatchExecutedResult.value.commandId).toBe('latest-execute-command');
+  expect(state.appGameAdapterDispatchExecutedResult.value.executionStatus).toBe('actually-enforced');
+  expect(state.appGameAdapterDispatchExecutedResult.value.adapterDispatchExecutedClaimed).toBe(true);
+  expect(state.appGameAdapterDispatchExecutedResult.value.platformEnforcementClaimed).toBe(false);
+  expect(state.appGameAdapterDispatchExecutedResult.value.childDeviceDeliveryClaimed).toBe(false);
+}
+
 function expectBrowserRuntimeEventEnvelope(state: ResolvedLiveActivityState) {
   expect(state.browserRuntimeEventChainStreamEvent?.event).toBe('agent.browser.runtime.event-chain.stream.reported');
 }
@@ -580,6 +605,49 @@ function browserEvidenceEvent(
       capabilityStatus: 'tab-list-only',
       custodyLabel: 'child-device-local',
       queryVisibility: 'live-local',
+    },
+    snapshot: null,
+  });
+}
+
+function appGameAdapterDispatchExecutedEvent(eventId: string, commandId: string) {
+  return AgentEventEnvelopeSchema.parse({
+    schemaVersion: 1,
+    eventId,
+    correlationId: commandId,
+    sentAt: commandId === 'latest-execute-command' ? '2026-06-08T12:45:02Z' : '2026-06-08T12:45:01Z',
+    source: {
+      peerId: 'local-dev-agent',
+      role: 'agent-service',
+    },
+    target: {
+      peerId: 'portal-dev',
+      role: 'portal',
+    },
+    event: 'agent.activity.app-game.adapter-dispatch.executed',
+    severity: 'info',
+    payload: {
+      appGameAdapterDispatchExecuteResult: JSON.stringify({
+        schemaVersion: 1,
+        commandId,
+        generatedAt: '2026-06-08T12:45:00Z',
+        sourceReadModelId: 'app-game-adapter-dispatch-result',
+        sourceDispatchRowId: 'app-game-adapter-dispatch-result-windows-app-game-owned-process-time-limit',
+        sourceProofEntryId: 'windows-app-game-owned-process-time-limit',
+        executionCommandName: 'agent.enforcement.execute',
+        executionEventName: 'agent.enforcement.audit.reported',
+        executionResultId: 'enforcement-result-app-game-owned-process',
+        executionStatus: 'actually-enforced',
+        executionAdapterResultCode: 'process-already-exited',
+        executionAuditEventId: 'enforcement-audit-app-game-owned-process',
+        readbackCommandName: 'agent.activity.app-game.adapter-dispatch-result.read-model.get',
+        adapterDispatchExecutedClaimed: true,
+        broadInstalledAppBlockingClaimed: false,
+        childDeviceDeliveryClaimed: false,
+        platformEnforcementClaimed: false,
+        providerDeliveryClaimed: false,
+        privateDiagnosticsClaimed: false,
+      }),
     },
     snapshot: null,
   });
@@ -911,70 +979,6 @@ function eventWithPayload(
     event,
     severity: 'info',
     payload,
-    snapshot: null,
-  });
-}
-
-function emptyBrowserEvidenceEvent() {
-  return AgentEventEnvelopeSchema.parse({
-    schemaVersion: 1,
-    eventId: 'evt-browser',
-    correlationId: 'cmd-browser',
-    sentAt: '2026-05-21T01:00:01Z',
-    source: {
-      peerId: 'local-dev-agent',
-      role: 'agent-service',
-    },
-    target: {
-      peerId: 'portal-dev',
-      role: 'portal',
-    },
-    event: 'agent.browser.evidence.recent.reported',
-    severity: 'info',
-    payload: {
-      generatedAt: '2026-05-21T01:00:01Z',
-      limit: 10,
-      returned: 0,
-      latestEventId: null,
-      latestObservedAt: null,
-      browserEvidenceId: null,
-      sourceId: null,
-      adapterId: null,
-      managedBrowserSessionId: null,
-      browserFamily: null,
-      activeState: null,
-      activeProofSource: null,
-      url: null,
-      origin: null,
-      domain: null,
-      title: null,
-      capabilityStatus: null,
-      custodyLabel: null,
-      queryVisibility: null,
-    },
-    snapshot: null,
-  });
-}
-
-function unavailableRecentSummaryEvent() {
-  return AgentEventEnvelopeSchema.parse({
-    schemaVersion: 1,
-    eventId: 'evt-recent',
-    correlationId: 'cmd-recent',
-    sentAt: '2026-05-20T18:45:01Z',
-    source: {
-      peerId: 'local-dev-agent',
-      role: 'agent-service',
-    },
-    target: {
-      peerId: 'portal-dev',
-      role: 'portal',
-    },
-    event: 'agent.activity.recent.summary.reported',
-    severity: 'error',
-    payload: {
-      reason: 'Activity store is unavailable.',
-    },
     snapshot: null,
   });
 }

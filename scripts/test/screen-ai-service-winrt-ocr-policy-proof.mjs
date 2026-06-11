@@ -32,8 +32,8 @@ mkdirSync(OutputRoot, { recursive: true });
 const executedCommands = [];
 
 try {
-  runCommand('cmd', ['/c', 'npm', 'run', 'build', '--workspace', '@ocentra-parent/activity-domain']);
-  runCommand('cmd', ['/c', 'npm', 'run', 'build', '--workspace', '@ocentra-parent/parent-domain']);
+  runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/activity-domain']));
+  runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/parent-domain']));
   runCommand('node', [ServiceOcrProofScript]);
 
   const { ActivityScreenReadModelSchema } = await import('@ocentra-parent/activity-domain/activity-surface');
@@ -322,4 +322,10 @@ function writeFailureArtifact(error) {
     message: error instanceof Error ? error.message : String(error),
     executedCommands,
   });
+}
+
+function npmCommand(args) {
+  const command = process.platform === 'win32' ? 'cmd' : 'npm';
+  const commandArgs = process.platform === 'win32' ? ['/c', 'npm', ...args] : args;
+  return [command, commandArgs];
 }

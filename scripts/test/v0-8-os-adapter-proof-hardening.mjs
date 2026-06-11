@@ -15,7 +15,7 @@ await main();
 async function main() {
   await mkdir(outputDir, { recursive: true });
 
-  await runCommand('cmd', ['/c', 'npm', 'run', 'build:contracts']);
+  await runCommand(...npmCommand(['run', 'build:contracts']));
   await runCommand('cmd', ['/c', 'node', 'scripts/test/v0-8-windows-app-time-limit-adapter-mvp.mjs']);
   const appTimeLimit = await latestJson(join(repoRoot, 'test-results', 'v0-8-windows-app-time-limit-adapter-mvp'));
   assertAppTimeLimit(appTimeLimit.data);
@@ -242,4 +242,10 @@ function assertOneOf(actual, expectedValues, label) {
   if (!expectedValues.includes(actual)) {
     throw new Error(`${label}: expected one of ${expectedValues.join(', ')}, received ${actual}`);
   }
+}
+
+function npmCommand(args) {
+  const command = process.platform === 'win32' ? 'cmd' : 'npm';
+  const commandArgs = process.platform === 'win32' ? ['/c', 'npm', ...args] : args;
+  return [command, commandArgs];
 }

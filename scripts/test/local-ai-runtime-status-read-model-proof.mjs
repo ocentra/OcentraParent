@@ -10,17 +10,17 @@ const ValidationLogPath = join(OutputRoot, 'validation-commands.log');
 const TestResultPath = join(TestResultRoot, 'proof.json');
 const generatedAt = new Date().toISOString();
 
-runCommand('cmd', ['/c', 'npm', 'run', 'build', '--workspace', '@ocentra-parent/parent-domain']);
-runCommand('cmd', [
-  '/c',
-  'npm',
-  'run',
-  'test',
-  '--workspace',
-  '@ocentra-parent/parent-domain',
-  '--',
-  'local-ai-runtime-status-read-model-proof',
-]);
+runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/parent-domain']));
+runCommand(
+  ...npmCommand([
+    'run',
+    'test',
+    '--workspace',
+    '@ocentra-parent/parent-domain',
+    '--',
+    'local-ai-runtime-status-read-model-proof',
+  ])
+);
 
 const {
   LocalAiRuntimeStatusSurfaceReadModel,
@@ -131,4 +131,10 @@ function relativePath(filePath) {
 
 function runCommand(command, args) {
   execFileSync(command, args, { cwd: RepoRoot, stdio: 'inherit' });
+}
+
+function npmCommand(args) {
+  const command = process.platform === 'win32' ? 'cmd' : 'npm';
+  const commandArgs = process.platform === 'win32' ? ['/c', 'npm', ...args] : args;
+  return [command, commandArgs];
 }

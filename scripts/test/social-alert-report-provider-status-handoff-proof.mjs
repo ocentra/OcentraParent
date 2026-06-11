@@ -16,10 +16,8 @@ async function main() {
   await mkdir(outputDirectory, { recursive: true });
   await mkdir(resultDirectory, { recursive: true });
 
-  run('cmd', ['/c', 'npm', 'run', 'build', '--workspace', '@ocentra-parent/parent-domain']);
-  run('cmd', [
-    '/c',
-    'npm',
+  runNpm(['run', 'build', '--workspace', '@ocentra-parent/parent-domain']);
+  runNpm([
     'run',
     'test',
     '--workspace',
@@ -309,4 +307,10 @@ async function readText(path) {
 
 function relativePath(path) {
   return relative(root, path).replaceAll('\\', '/');
+}
+
+function runNpm(args, ...rest) {
+  const command = process.platform === 'win32' ? 'cmd' : 'npm';
+  const commandArgs = process.platform === 'win32' ? ['/c', 'npm', ...args] : args;
+  return run(command, commandArgs, ...rest);
 }

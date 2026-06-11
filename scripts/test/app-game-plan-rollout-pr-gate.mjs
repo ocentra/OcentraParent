@@ -168,8 +168,8 @@ async function main() {
   await mkdir(join(appPrGateDir, '06-ui-snapshots'), { recursive: true });
 
   await runCommand('git', ['diff', '--check']);
-  await runCommand('cmd', ['/c', 'npm', 'run', 'lanes:guard']);
-  await runCommand('cmd', ['/c', 'npm', 'run', 'hub:guard']);
+  await runCommand(...npmCommand(['run', 'lanes:guard']));
+  await runCommand(...npmCommand(['run', 'hub:guard']));
 
   const previousProof = {
     appGame: await collectProofRoots('output/app-game-plan-proof', expectedAppGameProofRoots),
@@ -534,4 +534,10 @@ function assertEqual(actual, expected, label) {
   if (actual !== expected) {
     throw new Error(`${label}: expected ${expected}, got ${actual}`);
   }
+}
+
+function npmCommand(args) {
+  const command = process.platform === 'win32' ? 'cmd' : 'npm';
+  const commandArgs = process.platform === 'win32' ? ['/c', 'npm', ...args] : args;
+  return [command, commandArgs];
 }

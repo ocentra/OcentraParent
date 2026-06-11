@@ -33,6 +33,9 @@ test('CI gate builds package previews but does not publish releases from main', 
   assert.match(workflow, /package-android:[\s\S]+uses: \.\/\.github\/workflows\/ci-package-android\.yml/u);
   assert.match(workflow, /package-preview:\s+name: Package Preview Gate/u);
   assert.match(workflow, /package-preview:[\s\S]+if: \$\{\{ always\(\) && needs\.validate\.result == 'success' \}\}/u);
+  assert.match(workflow, /pr-mergeability:\s+name: PR Mergeability Gate/u);
+  assert.match(workflow, /node scripts\/ci\/check-pr-review-threads\.mjs/u);
+  assert.match(workflow, /validate:[\s\S]+- pr-mergeability/u);
   assert.equal(workflow.includes('Create GitHub release'), false);
 });
 
@@ -115,7 +118,10 @@ test('static analysis covers workflow, TypeScript, and Rust surfaces', () => {
   assert.match(staticAnalysisWorkflow, /language:\s+actions/u);
   assert.match(staticAnalysisWorkflow, /language:\s+javascript-typescript/u);
   assert.match(staticAnalysisWorkflow, /language:\s+rust/u);
+  assert.match(staticAnalysisWorkflow, /config-file:\s+\.\/\.github\/codeql\/codeql-config\.yml/u);
   assert.match(staticAnalysisWorkflow, /queries:\s+security-and-quality/u);
+  assert.match(staticAnalysisWorkflow, /upload:\s+never/u);
+  assert.equal(staticAnalysisWorkflow.includes('security-events: write'), false);
 });
 
 test('CI target workflows are split by runnable area', () => {

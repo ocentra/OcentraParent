@@ -15,7 +15,7 @@ const Device = {
   platform: 'windows',
 };
 
-runCommand('cmd', ['/c', 'npm', 'run', 'build', '--workspace', '@ocentra-parent/parent-domain']);
+runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/parent-domain']));
 
 const { buildLocalAiEvidenceContext } = await import('@ocentra-parent/parent-domain/local-ai-context-builder');
 const ocrProof = JSON.parse(readFileSync(OcrProofPath, 'utf8'));
@@ -229,4 +229,10 @@ function runCommand(command, args) {
 
 function relativePath(path) {
   return relative(RepoRoot, path).replaceAll('\\', '/');
+}
+
+function npmCommand(args) {
+  const command = process.platform === 'win32' ? 'cmd' : 'npm';
+  const commandArgs = process.platform === 'win32' ? ['/c', 'npm', ...args] : args;
+  return [command, commandArgs];
 }

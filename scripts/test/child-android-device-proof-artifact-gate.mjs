@@ -456,7 +456,7 @@ async function readRepoFile(path) {
 }
 
 async function runNpm(args) {
-  await runCommand('cmd', ['/c', 'npm', ...args]);
+  await runCommand(...npmCommand([...args]));
 }
 
 async function runCommand(commandName, args) {
@@ -495,4 +495,10 @@ function assertArrayIncludes(values, expected, label) {
   if (!Array.isArray(values) || !values.includes(expected)) {
     throw new Error(`${label}: missing ${expected}`);
   }
+}
+
+function npmCommand(args) {
+  const command = process.platform === 'win32' ? 'cmd' : 'npm';
+  const commandArgs = process.platform === 'win32' ? ['/c', 'npm', ...args] : args;
+  return [command, commandArgs];
 }

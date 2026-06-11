@@ -24,12 +24,10 @@ const commands = [];
 await mkdir(resultDir, { recursive: true });
 await mkdir(proofDir, { recursive: true });
 
-run('cmd', ['/c', 'npm', 'run', 'build:contracts']);
+runNpm(['run', 'build:contracts']);
 run('cargo', ['build', '-p', 'ocentra-parent-agent-service']);
 run('cargo', ['test', '-p', 'ocentra-parent-agent-service', 'social_alert_report_parent_surface', '--quiet']);
-run('cmd', [
-  '/c',
-  'npm',
+runNpm([
   '--workspace',
   '@ocentra-parent/agent-protocol-domain',
   'run',
@@ -37,9 +35,7 @@ run('cmd', [
   '--',
   'social-alert-report-parent-surface-read-model.test.ts',
 ]);
-run('cmd', [
-  '/c',
-  'npm',
+runNpm([
   '--workspace',
   '@ocentra-parent/portal-domain',
   'run',
@@ -47,22 +43,9 @@ run('cmd', [
   '--',
   'social-alert-report-parent-surface-panel.test.ts',
 ]);
-run(
-  'cmd',
-  [
-    '/c',
-    'npm',
-    'run',
-    'test:e2e',
-    '--workspace',
-    '@ocentra-parent/portal',
-    '--',
-    'social-alert-report-ui-proof.spec.ts',
-  ],
-  {
-    SOCIAL_ALERT_REPORT_UI_PROOF: '1',
-  }
-);
+runNpm(['run', 'test:e2e', '--workspace', '@ocentra-parent/portal', '--', 'social-alert-report-ui-proof.spec.ts'], {
+  SOCIAL_ALERT_REPORT_UI_PROOF: '1',
+});
 
 await copyProofArtifacts();
 const accessibilitySummary = await readJson(accessibilitySummaryPath);
@@ -322,4 +305,10 @@ function markdown(proof) {
     '- No-claim boundary: parent notification UI delivery, preference UI delivery, history UI delivery, provider delivery, provider receipt ingestion, child delivery, quiet-hours timer runtime, report delivery execution, final policy execution, and enforcement remain unclaimed.',
     '',
   ].join('\n');
+}
+
+function runNpm(args, ...rest) {
+  const command = process.platform === 'win32' ? 'cmd' : 'npm';
+  const commandArgs = process.platform === 'win32' ? ['/c', 'npm', ...args] : args;
+  return run(command, commandArgs, ...rest);
 }

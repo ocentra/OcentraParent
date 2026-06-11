@@ -157,6 +157,10 @@ function androidProofIsPresent(row: AppGamePlatformAuthorityRowRuleInput): boole
 }
 
 function iosShieldProofIsPresent(row: AppGamePlatformAuthorityRowRuleInput): boolean {
+  if (row.action === 'terminate-process' || row.action === 'block-launch' || row.action === 'enforce-allowlist') {
+    return false;
+  }
+
   if (row.action !== 'shield-app') {
     return true;
   }

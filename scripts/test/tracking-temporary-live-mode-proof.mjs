@@ -323,10 +323,16 @@ function context(
 async function runNpm(args) {
   const command = `cmd /c npm ${args.join(' ')}`;
   const startedAt = new Date().toISOString();
-  execFileSync('cmd', ['/c', 'npm', ...args], { cwd: repoRoot, stdio: 'inherit' });
+  execFileSync(...npmCommand([...args]), { cwd: repoRoot, stdio: 'inherit' });
   commands.push({ command, startedAt, status: 'PASS' });
 }
 
 function gitOutput(args) {
   return execFileSync('git', args, { cwd: repoRoot, encoding: 'utf8' }).trim();
+}
+
+function npmCommand(args) {
+  const command = process.platform === 'win32' ? 'cmd' : 'npm';
+  const commandArgs = process.platform === 'win32' ? ['/c', 'npm', ...args] : args;
+  return [command, commandArgs];
 }

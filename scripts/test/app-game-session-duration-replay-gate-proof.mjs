@@ -16,8 +16,8 @@ async function main() {
   await mkdir(testOutputDir, { recursive: true });
   await mkdir(proofDir, { recursive: true });
 
-  run('cmd', ['/c', 'npm', 'run', 'build', '--workspace', '@ocentra-parent/schema-domain']);
-  run('cmd', ['/c', 'npm', 'run', 'test', '--workspace', '@ocentra-parent/activity-domain', '--', 'app-game.test.ts']);
+  runNpm(['run', 'build', '--workspace', '@ocentra-parent/schema-domain']);
+  runNpm(['run', 'test', '--workspace', '@ocentra-parent/activity-domain', '--', 'app-game.test.ts']);
   run('cargo', ['test', '-p', 'ocentra-parent-agent-core', 'app_game_sessionization', '--no-default-features']);
   run('cargo', ['test', '-p', 'ocentra-parent-agent-core', 'app_game_journal_sqlite_ingest', '--no-default-features']);
 
@@ -250,4 +250,10 @@ function normalizeCargoTestLineOrder(output) {
       return line;
     })
     .join('\n');
+}
+
+function runNpm(args, ...rest) {
+  const command = process.platform === 'win32' ? 'cmd' : 'npm';
+  const commandArgs = process.platform === 'win32' ? ['/c', 'npm', ...args] : args;
+  return run(command, commandArgs, ...rest);
 }

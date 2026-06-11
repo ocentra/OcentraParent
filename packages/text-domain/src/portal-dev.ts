@@ -29,6 +29,10 @@ export const PortalDevTextToken = {
   AppGamePolicyReadinessNoData: decodeTextTokenId('portal.dev.appGamePolicyReadinessNoData'),
   AppGamePolicyReadinessNoProductClaim: decodeTextTokenId('portal.dev.appGamePolicyReadinessNoProductClaim'),
   AppGamePolicyReadinessParserRejected: decodeTextTokenId('portal.dev.appGamePolicyReadinessParserRejected'),
+  AppGameTimerParentSurface: decodeTextTokenId('portal.dev.appGameTimerParentSurface'),
+  AppGameTimerParentSurfaceBody: decodeTextTokenId('portal.dev.appGameTimerParentSurfaceBody'),
+  AppGameTimerParentSurfaceNoData: decodeTextTokenId('portal.dev.appGameTimerParentSurfaceNoData'),
+  AppGameTimerParentSurfaceNoRuntimeClaim: decodeTextTokenId('portal.dev.appGameTimerParentSurfaceNoRuntimeClaim'),
   TrackingStatusSurface: decodeTextTokenId('portal.dev.trackingStatusSurface'),
   TrackingStatusSurfaceBody: decodeTextTokenId('portal.dev.trackingStatusSurfaceBody'),
   TrackingServiceReadModel: decodeTextTokenId('portal.dev.trackingServiceReadModel'),
@@ -185,6 +189,25 @@ export const PortalDevTextToken = {
   GetActivityAppGamePolicyReadinessReadModel: decodeTextTokenId(
     'portal.dev.command.getActivityAppGamePolicyReadinessReadModel'
   ),
+  GetActivityAppGameAdapterExecutionReadinessReadModel: decodeTextTokenId(
+    'portal.dev.command.getActivityAppGameAdapterExecutionReadinessReadModel'
+  ),
+  GetActivityAppGamePlatformProofStatusReadModel: decodeTextTokenId(
+    'portal.dev.command.getActivityAppGamePlatformProofStatusReadModel'
+  ),
+  GetActivityAppGameChildRuntimeTransportReceiptReadModel: decodeTextTokenId(
+    'portal.dev.command.getActivityAppGameChildRuntimeTransportReceiptReadModel'
+  ),
+  GetActivityAppGameAdapterDispatchPreflightReadModel: decodeTextTokenId(
+    'portal.dev.command.getActivityAppGameAdapterDispatchPreflightReadModel'
+  ),
+  GetActivityAppGameAdapterDispatchResultReadModel: decodeTextTokenId(
+    'portal.dev.command.getActivityAppGameAdapterDispatchResultReadModel'
+  ),
+  ExecuteActivityAppGameAdapterDispatch: decodeTextTokenId('portal.dev.command.executeActivityAppGameAdapterDispatch'),
+  GetActivityAppGameTimerParentSurfaceReadModel: decodeTextTokenId(
+    'portal.dev.command.getActivityAppGameTimerParentSurfaceReadModel'
+  ),
   GetLocalAiRuntimeStatus: decodeTextTokenId('portal.dev.command.getLocalAiRuntimeStatus'),
   GetPolicyPreviewReadModel: decodeTextTokenId('portal.dev.command.getPolicyPreviewReadModel'),
   RootMissing: decodeTextTokenId('portal.dev.rootMissing'),
@@ -231,6 +254,16 @@ export const PortalDevText: Record<PortalDevTextTokenValue, DisplayText> = {
   ),
   [PortalDevTextToken.AppGamePolicyReadinessParserRejected]: decodeDisplayText(
     'Latest policy readiness event did not match the shared parser.'
+  ),
+  [PortalDevTextToken.AppGameTimerParentSurface]: decodeDisplayText('App/game timer parent surface'),
+  [PortalDevTextToken.AppGameTimerParentSurfaceBody]: decodeDisplayText(
+    'Service-backed parent-surface timer rows only; no runtime scheduling or enforcement is claimed.'
+  ),
+  [PortalDevTextToken.AppGameTimerParentSurfaceNoData]: decodeDisplayText(
+    'No app/game timer parent-surface read model has been reported yet.'
+  ),
+  [PortalDevTextToken.AppGameTimerParentSurfaceNoRuntimeClaim]: decodeDisplayText(
+    'Parent-surface rendering only; active timer state-store is shown only when reported by the service. Live scheduling execution, durable audit logs, rollback execution, adapter dispatch, child delivery, platform enforcement, and raw private source rows remain unclaimed.'
   ),
   [PortalDevTextToken.TrackingStatusSurface]: decodeDisplayText('Tracking status proof'),
   [PortalDevTextToken.TrackingStatusSurfaceBody]: decodeDisplayText('Location states are fixture proof only.'),
@@ -422,6 +455,22 @@ export const PortalDevText: Record<PortalDevTextTokenValue, DisplayText> = {
   [PortalDevTextToken.GetNetworkWindowsWfpGateStatus]: decodeDisplayText('Refresh Windows WFP gate'),
   [PortalDevTextToken.GetActivityTrackingReadModel]: decodeDisplayText('Refresh tracking status'),
   [PortalDevTextToken.GetActivityAppGamePolicyReadinessReadModel]: decodeDisplayText('Refresh policy readiness'),
+  [PortalDevTextToken.GetActivityAppGameAdapterExecutionReadinessReadModel]:
+    decodeDisplayText('Refresh adapter readiness'),
+  [PortalDevTextToken.GetActivityAppGamePlatformProofStatusReadModel]: decodeDisplayText(
+    'Refresh platform proof status'
+  ),
+  [PortalDevTextToken.GetActivityAppGameChildRuntimeTransportReceiptReadModel]: decodeDisplayText(
+    'Refresh child runtime receipts'
+  ),
+  [PortalDevTextToken.GetActivityAppGameAdapterDispatchPreflightReadModel]: decodeDisplayText(
+    'Refresh adapter dispatch preflight'
+  ),
+  [PortalDevTextToken.GetActivityAppGameAdapterDispatchResultReadModel]: decodeDisplayText(
+    'Refresh adapter dispatch result'
+  ),
+  [PortalDevTextToken.ExecuteActivityAppGameAdapterDispatch]: decodeDisplayText('Execute scoped adapter dispatch'),
+  [PortalDevTextToken.GetActivityAppGameTimerParentSurfaceReadModel]: decodeDisplayText('Refresh timer parent surface'),
   [PortalDevTextToken.GetLocalAiRuntimeStatus]: decodeDisplayText('Refresh local AI'),
   [PortalDevTextToken.GetPolicyPreviewReadModel]: decodeDisplayText('Refresh policy decision'),
   [PortalDevTextToken.RootMissing]: decodeDisplayText('Portal root element is missing.'),

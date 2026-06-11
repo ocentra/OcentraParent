@@ -14,7 +14,6 @@ permissions:
   checks: read
   contents: read
   pull-requests: read
-  security-events: write
 
 concurrency:
   group: ocentra-parent-ci-${{ github.ref }}
@@ -574,12 +573,29 @@ jobs:
           }
           NODE
 
+  pr-mergeability:
+    name: PR Mergeability Gate
+    runs-on: ubuntu-latest
+    if: ${{ always() && github.event_name == 'pull_request' }}
+    needs:
+      - static-analysis
+    steps:
+      - uses: actions/checkout@v6
+      - name: Check unresolved PR review threads
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+          GITHUB_EVENT_NAME: ${{ github.event_name }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+        run: node scripts/ci/check-pr-review-threads.mjs
+
   validate:
     name: Full Validation Gate
     runs-on: ubuntu-latest
     if: ${{ always() }}
     needs:
       - fail-fast
+      - pr-mergeability
       - secret-scan
       - dependency-policy
       - static-analysis

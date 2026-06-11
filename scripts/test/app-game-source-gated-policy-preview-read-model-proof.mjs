@@ -20,10 +20,8 @@ for (const path of [join(appGameProofDir, '06-ui-snapshots'), join(appProofDir, 
   await mkdir(path, { recursive: true });
 }
 
-run('cmd', ['/c', 'npm', 'run', 'build', '--workspace', '@ocentra-parent/parent-domain']);
-run('cmd', [
-  '/c',
-  'npm',
+runNpm(['run', 'build', '--workspace', '@ocentra-parent/parent-domain']);
+runNpm([
   'run',
   'test',
   '--workspace',
@@ -440,10 +438,20 @@ async function writeProofPack(proofDir, proof, label) {
 function run(command, args) {
   const result = spawnSync(command, args, { cwd: repoRoot, encoding: 'utf8', shell: false });
   const rendered = `${command} ${args.join(' ')}`;
-  commands.push(`${rendered}\nexit=${result.status}\n${result.stdout}${result.stderr}`.trim());
+  const error = result.error ? `\nerror=${result.error.message}` : '';
+  commands.push(`${rendered}\nexit=${result.status}${error}\n${result.stdout}${result.stderr}`.trim());
+  if (result.error) {
+    throw new Error(`${rendered} failed to start: ${result.error.message}`);
+  }
   if (result.status !== 0) {
     throw new Error(`${rendered} failed with exit ${result.status}\n${result.stdout}\n${result.stderr}`);
   }
+}
+
+function runNpm(args, ...rest) {
+  const command = process.platform === 'win32' ? 'cmd' : 'npm';
+  const commandArgs = process.platform === 'win32' ? ['/c', 'npm', ...args] : args;
+  run(command, commandArgs, ...rest);
 }
 
 function gitOutput(args) {

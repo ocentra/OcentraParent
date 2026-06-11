@@ -14,17 +14,10 @@ await main();
 async function main() {
   await mkdir(outputDir, { recursive: true });
 
-  await runCommand('cmd', ['/c', 'npm', 'run', 'build:contracts']);
-  await runCommand('cmd', [
-    '/c',
-    'npm',
-    'run',
-    'test',
-    '--workspace',
-    '@ocentra-parent/parent-domain',
-    '--',
-    'enforcement-readiness',
-  ]);
+  await runCommand(...npmCommand(['run', 'build:contracts']));
+  await runCommand(
+    ...npmCommand(['run', 'test', '--workspace', '@ocentra-parent/parent-domain', '--', 'enforcement-readiness'])
+  );
   await runCommand('cargo', ['test', '-p', 'ocentra-parent-agent-protocol', 'enforcement_readiness']);
   await runCommand('cargo', ['test', '-p', 'ocentra-parent-agent-core', 'enforcement_readiness']);
   await runCommand('cargo', [
@@ -178,4 +171,10 @@ function assertSetHas(set, value, label) {
   if (!set.has(value)) {
     throw new Error(`${label}: missing ${value}`);
   }
+}
+
+function npmCommand(args) {
+  const command = process.platform === 'win32' ? 'cmd' : 'npm';
+  const commandArgs = process.platform === 'win32' ? ['/c', 'npm', ...args] : args;
+  return [command, commandArgs];
 }

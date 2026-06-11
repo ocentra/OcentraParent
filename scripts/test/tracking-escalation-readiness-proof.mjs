@@ -304,7 +304,7 @@ async function gitHead() {
 
 async function runNpm(args) {
   if (process.platform === 'win32') {
-    return runCommand('cmd', ['/c', 'npm', ...args]);
+    return runCommand(...npmCommand([...args]));
   }
   return runCommand('npm', args);
 }
@@ -340,4 +340,10 @@ function runCommand(command, args) {
       reject(new Error(`${rendered} failed with exit ${code}\n${stderr}`));
     });
   });
+}
+
+function npmCommand(args) {
+  const command = process.platform === 'win32' ? 'cmd' : 'npm';
+  const commandArgs = process.platform === 'win32' ? ['/c', 'npm', ...args] : args;
+  return [command, commandArgs];
 }

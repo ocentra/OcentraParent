@@ -34,7 +34,7 @@ process.exit(0);
 
 async function main() {
   await mkdir(outputDir, { recursive: true });
-  await runCommand('cmd', ['/c', 'npm', 'run', 'build:contracts']);
+  await runCommand(...npmCommand(['run', 'build:contracts']));
   await runCommand('cmd', ['/c', 'node', 'scripts/test/v0-9-production-discovery-household-proof.mjs']);
   await runCommand('cmd', ['/c', 'node', 'scripts/test/v0-9-production-lan-mobile-controller-proof.mjs']);
   await runCommand('cmd', ['/c', 'node', 'scripts/test/v0-9-mobile-controller-discovery-runtime-proof.mjs']);
@@ -430,4 +430,10 @@ function assertArrayLengthAtLeast(values, expected, label) {
   if (!Array.isArray(values) || values.length < expected) {
     throw new Error(`${label}: expected at least ${expected}, received ${values?.length ?? 0}`);
   }
+}
+
+function npmCommand(args) {
+  const command = process.platform === 'win32' ? 'cmd' : 'npm';
+  const commandArgs = process.platform === 'win32' ? ['/c', 'npm', ...args] : args;
+  return [command, commandArgs];
 }

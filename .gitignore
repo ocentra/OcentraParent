@@ -4,6 +4,7 @@ coverage/
 .turbo/
 .wix/
 .codex-temp/
+.codeql-local/
 .eslintcache
 *.tsbuildinfo
 *.log

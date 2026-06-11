@@ -37,17 +37,17 @@ const Runtime = {
   unavailableReason: null,
 };
 
-runCommand('cmd', ['/c', 'npm', 'run', 'build', '--workspace', '@ocentra-parent/parent-domain']);
-runCommand('cmd', [
-  '/c',
-  'npm',
-  'run',
-  'test',
-  '--workspace',
-  '@ocentra-parent/parent-domain',
-  '--',
-  'local-ai-deterministic-classifier-proof',
-]);
+runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/parent-domain']));
+runCommand(
+  ...npmCommand([
+    'run',
+    'test',
+    '--workspace',
+    '@ocentra-parent/parent-domain',
+    '--',
+    'local-ai-deterministic-classifier-proof',
+  ])
+);
 
 const { runLocalAiDeterministicClassifier } = await import(
   pathToFileURL(resolve(RepoRoot, 'packages', 'parent-domain', 'dist', 'local-ai-deterministic-classifier-proof.js'))
@@ -246,4 +246,10 @@ function runCommand(command, args) {
 
 function relativePath(filePath) {
   return relative(RepoRoot, filePath).replaceAll('\\', '/');
+}
+
+function npmCommand(args) {
+  const command = process.platform === 'win32' ? 'cmd' : 'npm';
+  const commandArgs = process.platform === 'win32' ? ['/c', 'npm', ...args] : args;
+  return [command, commandArgs];
 }

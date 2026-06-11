@@ -18,17 +18,17 @@ async function main() {
   await mkdir(appGameOutputDir, { recursive: true });
   await mkdir(appOutputDir, { recursive: true });
 
-  await runCommand('cmd', ['/c', 'npm', 'run', 'build', '--workspace', '@ocentra-parent/parent-domain']);
-  await runCommand('cmd', [
-    '/c',
-    'npm',
-    'run',
-    'test',
-    '--workspace',
-    '@ocentra-parent/parent-domain',
-    '--',
-    'tests/app-game-platform-extension-proof-pack-readiness.test.ts',
-  ]);
+  await runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/parent-domain']));
+  await runCommand(
+    ...npmCommand([
+      'run',
+      'test',
+      '--workspace',
+      '@ocentra-parent/parent-domain',
+      '--',
+      'tests/app-game-platform-extension-proof-pack-readiness.test.ts',
+    ])
+  );
 
   const proofModule = await loadProofModule();
   const readModel = proofModule.AppGamePlatformExtensionProofPackReadinessReadModel;
@@ -151,4 +151,10 @@ async function commandOutput(command, args) {
 async function runCommand(command, args) {
   commands.push(`${command} ${args.join(' ')}`);
   await commandOutput(command, args);
+}
+
+function npmCommand(args) {
+  const command = process.platform === 'win32' ? 'cmd' : 'npm';
+  const commandArgs = process.platform === 'win32' ? ['/c', 'npm', ...args] : args;
+  return [command, commandArgs];
 }

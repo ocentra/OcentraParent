@@ -103,6 +103,13 @@ mobile readiness, and control catalogs.
   provider, preference, quiet-hours, and manual-proof refs without rendered UI,
   parent preference mutation, provider delivery, receipt ingestion, durable
   storage, child delivery, policy execution, or adapter dispatch claims.
+- App/game child UX parent preference setup draft contracts that consume child
+  UX parent-surface intent rows and expose parent-safe setup draft rows with
+  scheduler/outbox, provider channel, parent-preference, quiet-hours, drill-in,
+  and manual-proof refs without rendered parent preference UI, frequency
+  controls, parent preference mutation, notification rule mutation, provider
+  delivery, child delivery, adapter dispatch, platform enforcement, or raw
+  private source rows.
 - Local AI runtime, provider, scheduler, context, and reference contracts,
   including screen summary context-builder replay proof from deleted local OCR
   evidence refs.

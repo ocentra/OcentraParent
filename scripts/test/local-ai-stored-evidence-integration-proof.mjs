@@ -14,7 +14,7 @@ const OutputRoot = resolve(RepoRoot, 'output', 'ai-plan-proof', 'local-ai-stored
 const ProofPath = join(OutputRoot, 'proof-summary.json');
 const generatedAt = new Date().toISOString();
 
-runCommand('cmd', ['/c', 'npm', 'run', 'build', '--workspace', '@ocentra-parent/parent-domain']);
+runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/parent-domain']));
 
 const { LocalAiEvaluationInputSchema } = await import('@ocentra-parent/parent-domain/local-ai');
 const { runLocalAiTextInferenceDryRun } =
@@ -157,4 +157,10 @@ function relativePath(filePath) {
 
 function runCommand(command, args) {
   execFileSync(command, args, { cwd: RepoRoot, stdio: 'inherit' });
+}
+
+function npmCommand(args) {
+  const command = process.platform === 'win32' ? 'cmd' : 'npm';
+  const commandArgs = process.platform === 'win32' ? ['/c', 'npm', ...args] : args;
+  return [command, commandArgs];
 }

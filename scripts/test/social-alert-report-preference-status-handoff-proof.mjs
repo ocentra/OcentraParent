@@ -15,10 +15,8 @@ await rm(proofDir, { recursive: true, force: true });
 await mkdir(testOutputDir, { recursive: true });
 await mkdir(proofDir, { recursive: true });
 
-run('cmd', ['/c', 'npm', 'run', 'build', '--workspace', '@ocentra-parent/parent-domain']);
-run('cmd', [
-  '/c',
-  'npm',
+runNpm(['run', 'build', '--workspace', '@ocentra-parent/parent-domain']);
+runNpm([
   'run',
   'test',
   '--workspace',
@@ -377,4 +375,10 @@ function relativePath(path) {
 
 async function writeJson(path, value) {
   await writeFile(path, `${JSON.stringify(value, null, 2)}\n`, 'utf8');
+}
+
+function runNpm(args, ...rest) {
+  const command = process.platform === 'win32' ? 'cmd' : 'npm';
+  const commandArgs = process.platform === 'win32' ? ['/c', 'npm', ...args] : args;
+  return run(command, commandArgs, ...rest);
 }

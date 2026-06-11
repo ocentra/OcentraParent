@@ -20,6 +20,8 @@ const CommandResultEvents = new Set<AgentEventName>([
   AgentEvent.ActivityBrowserReadModelReported,
   AgentEvent.ActivityGamesReadModelReported,
   AgentEvent.ActivityAppGameNotificationReadinessReadModelReported,
+  AgentEvent.ActivityAppGameTimerParentSurfaceReadModelReported,
+  AgentEvent.ActivityAppGameTimerParentPreferenceSetupRequested,
   AgentEvent.ActivityNetworkReadModelReported,
   AgentEvent.BrowserEvidenceRecentReported,
   AgentEvent.BrowserManagedStatusReported,
@@ -35,6 +37,7 @@ const CommandResultEvents = new Set<AgentEventName>([
   AgentEvent.ActivityTrackingReadModelReported,
   AgentEvent.LocalAiRuntimeStatusReported,
   AgentEvent.PolicyPreviewReadModelReported,
+  AgentEvent.ActivityAppGamePolicyReadinessReadModelReported,
 ]);
 
 export function latestCommandResult(

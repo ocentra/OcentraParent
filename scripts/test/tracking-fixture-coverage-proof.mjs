@@ -14,17 +14,8 @@ await rm(resultDir, { recursive: true, force: true });
 await mkdir(resultDir, { recursive: true });
 await mkdir(proofDir, { recursive: true });
 
-run('cmd', ['/c', 'npm', 'run', 'build', '--workspace', '@ocentra-parent/parent-domain']);
-run('cmd', [
-  '/c',
-  'npm',
-  'run',
-  'test',
-  '--workspace',
-  '@ocentra-parent/parent-domain',
-  '--',
-  'tracking-fixture-coverage-proof',
-]);
+runNpm(['run', 'build', '--workspace', '@ocentra-parent/parent-domain']);
+runNpm(['run', 'test', '--workspace', '@ocentra-parent/parent-domain', '--', 'tracking-fixture-coverage-proof']);
 
 const fixture = await importDist('tracking-fixture-coverage-proof.js');
 const readModel = fixture.buildTrackingFixtureCoverageReadModel(timestamp);
@@ -161,4 +152,10 @@ function gitOutput(args) {
 async function writeJson(path, value) {
   await mkdir(dirname(path), { recursive: true });
   await writeFile(path, `${JSON.stringify(value, null, 2)}\n`, 'utf8');
+}
+
+function runNpm(args, ...rest) {
+  const command = process.platform === 'win32' ? 'cmd' : 'npm';
+  const commandArgs = process.platform === 'win32' ? ['/c', 'npm', ...args] : args;
+  return run(command, commandArgs, ...rest);
 }

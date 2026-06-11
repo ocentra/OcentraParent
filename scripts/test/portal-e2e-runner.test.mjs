@@ -35,6 +35,18 @@ test('portal local smoke waits for process shutdown before temp cleanup', () => 
   assert.equal(smokeSource.includes('resolveParentDevPort'), true);
 });
 
+test('portal local smoke typed activity timeout is configurable and diagnostic', () => {
+  const smokeSource = readFileSync('scripts/test/portal-local-smoke.mjs', 'utf8');
+
+  assert.equal(smokeSource.includes('OCENTRA_PARENT_PORTAL_ACTIVITY_SMOKE_TIMEOUT_MS'), true);
+  assert.equal(smokeSource.includes('typedActivityAdapterSmokeTimeoutMs'), true);
+  assert.equal(smokeSource.includes('describeTypedActivityTimeout(steps, stepIndex)'), true);
+  assert.equal(smokeSource.includes('while waiting for ${step.event}'), true);
+  assert.equal(smokeSource.includes('from ${step.command}'), true);
+  assert.equal(smokeSource.includes("new Error('Typed Activity adapter smoke timed out')"), false);
+  assert.equal(smokeSource.includes('), 10000);'), false);
+});
+
 test('portal network activity seed persists evidence before Rust service startup', async () => {
   const runRoot = await mkdtemp(path.join(tmpdir(), 'ocentra-parent-network-seed-'));
   const activityDbPath = path.join(runRoot, 'activity.sqlite');

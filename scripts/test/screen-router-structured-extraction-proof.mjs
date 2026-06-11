@@ -200,7 +200,7 @@ function summarize(decisions) {
 
 function runPackageCommand(args) {
   if (process.platform === 'win32') {
-    return runCommand('cmd', ['/c', 'npm', ...args]);
+    return runCommand(...npmCommand([...args]));
   }
 
   return runCommand('npm', args);
@@ -231,4 +231,10 @@ function collectOutput(child) {
   child.stdout.on('data', (chunk) => chunks.push(String(chunk)));
   child.stderr.on('data', (chunk) => chunks.push(String(chunk)));
   return () => chunks.join('');
+}
+
+function npmCommand(args) {
+  const command = process.platform === 'win32' ? 'cmd' : 'npm';
+  const commandArgs = process.platform === 'win32' ? ['/c', 'npm', ...args] : args;
+  return [command, commandArgs];
 }

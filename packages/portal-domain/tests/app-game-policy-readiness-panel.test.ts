@@ -13,8 +13,10 @@ const PolicyReadinessReadModel = {
   generatedAt: '2026-06-05T11:45:00Z',
   custodyLabel: 'child-device-query-store',
   capabilityStatus: 'notClaimed',
-  returned: 2,
+  returned: 4,
   policyEvaluationReady: true,
+  categoryRoutingReady: true,
+  unknownReviewRequired: true,
   manualReviewRequired: true,
   adapterDispatchClaimed: false,
   evidenceClaimRowCount: 1,
@@ -23,6 +25,8 @@ const PolicyReadinessReadModel = {
   approvalActionResultRowCount: 0,
   platformAuthorityRowCount: 1,
   aiClassifierResultRowCount: 0,
+  categoryCandidateRowCount: 1,
+  unknownReviewRowCount: 1,
   rows: [
     {
       schemaVersion: AppGameSchemaVersion,
@@ -49,6 +53,24 @@ const PolicyReadinessReadModel = {
       evidenceReferenceIds: [],
       evidence: [],
     },
+    {
+      schemaVersion: AppGameSchemaVersion,
+      rowId: AgentAppGamePolicyReadinessKind.CategoryCandidate,
+      readinessKind: AgentAppGamePolicyReadinessKind.CategoryCandidate,
+      readinessState: AgentAppGamePolicyReadinessState.Ready,
+      rowCount: 1,
+      evidenceReferenceIds: ['category-candidate-1'],
+      evidence: [],
+    },
+    {
+      schemaVersion: AppGameSchemaVersion,
+      rowId: AgentAppGamePolicyReadinessKind.UnknownReview,
+      readinessKind: AgentAppGamePolicyReadinessKind.UnknownReview,
+      readinessState: AgentAppGamePolicyReadinessState.ManualRequired,
+      rowCount: 1,
+      evidenceReferenceIds: ['unknown-review-1'],
+      evidence: [],
+    },
   ],
 } as const;
 
@@ -66,10 +88,23 @@ describe('app-game policy readiness panel intent', () => {
       value: 'Not claimed',
     });
     expect(intent.summaryDetails).toContainEqual({
+      label: PortalDetails.CategoryCandidateRows,
+      value: '1',
+    });
+    expect(intent.summaryDetails).toContainEqual({
+      label: PortalDetails.UnknownReview,
+      value: 'Manual required',
+    });
+    expect(intent.summaryDetails).toContainEqual({
       label: PortalDetails.ProductClaim,
       value: 'Readiness rendering only; policy execution and adapter dispatch are not proved.',
     });
-    expect(intent.rows.map((row) => row.title)).toEqual(['Policy evidence', 'AI classifier context']);
+    expect(intent.rows.map((row) => row.title)).toEqual([
+      'Policy evidence',
+      'AI classifier context',
+      'Category candidate',
+      'Unknown review',
+    ]);
     expect(intent.rows[0]?.details).toContainEqual({
       label: PortalDetails.EvidenceReferences,
       value: 'claim-1 | identity-1',
@@ -77,6 +112,14 @@ describe('app-game policy readiness panel intent', () => {
     expect(intent.rows[1]?.details).toContainEqual({
       label: PortalDetails.Status,
       value: 'Manual required',
+    });
+    expect(intent.rows[2]?.details).toContainEqual({
+      label: PortalDetails.EvidenceReferences,
+      value: 'category-candidate-1',
+    });
+    expect(intent.rows[3]?.details).toContainEqual({
+      label: PortalDetails.Reason,
+      value: 'Unknown evidence requires manual review',
     });
   });
 

@@ -29,6 +29,7 @@ export type ParentPortalActivityStateLike = {
   readonly activityReportHistory?: ActivityAdapterResultLike | null;
   readonly activityScreenReadModel?: ActivityAdapterResultLike | null;
   readonly activityAppUseReadModel?: ActivityAdapterResultLike | null;
+  readonly activityAppGamePlatformExtensionReadModel?: ActivityAdapterResultLike | null;
   readonly activityBrowserReadModel?: ActivityAdapterResultLike | null;
   readonly activityGamesReadModel?: ActivityAdapterResultLike | null;
   readonly activityNetworkReadModel?: ActivityAdapterResultLike | null;
@@ -67,6 +68,7 @@ export type ParentPortalActivityUiIntent = {
   readonly reportHistory: Record<string, unknown> | null;
   readonly screenReadModel: Record<string, unknown> | null;
   readonly appUseReadModel: Record<string, unknown> | null;
+  readonly appGamePlatformExtensionReadModel: Record<string, unknown> | null;
   readonly browserReadModel: Record<string, unknown> | null;
   readonly gamesReadModel: Record<string, unknown> | null;
   readonly networkReadModel: Record<string, unknown> | null;
@@ -81,6 +83,9 @@ export function createParentPortalActivityUiIntent(
   const reportHistory = parentPortalActivityAdapterRecord(activityState?.activityReportHistory);
   const screenReadModel = parentPortalActivityAdapterRecord(activityState?.activityScreenReadModel);
   const appUseReadModel = parentPortalActivityAdapterRecord(activityState?.activityAppUseReadModel);
+  const appGamePlatformExtensionReadModel = parentPortalActivityAdapterRecord(
+    activityState?.activityAppGamePlatformExtensionReadModel
+  );
   const browserReadModel = parentPortalActivityAdapterRecord(activityState?.activityBrowserReadModel);
   const gamesReadModel = parentPortalActivityAdapterRecord(activityState?.activityGamesReadModel);
   const networkReadModel = parentPortalActivityAdapterRecord(activityState?.activityNetworkReadModel);
@@ -89,6 +94,7 @@ export function createParentPortalActivityUiIntent(
     reportHistory,
     screenReadModel,
     appUseReadModel,
+    appGamePlatformExtensionReadModel,
     browserReadModel,
     gamesReadModel,
     networkReadModel,
@@ -104,10 +110,15 @@ export function createParentPortalActivityUiIntent(
     reportHistory,
     screenReadModel,
     appUseReadModel,
+    appGamePlatformExtensionReadModel,
     browserReadModel,
     gamesReadModel,
     networkReadModel,
-    appGameDashboard: createParentPortalAppGameDashboardIntent(appUseReadModel, gamesReadModel),
+    appGameDashboard: createParentPortalAppGameDashboardIntent(
+      appUseReadModel,
+      gamesReadModel,
+      appGamePlatformExtensionReadModel
+    ),
   };
 }
 
