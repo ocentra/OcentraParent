@@ -7,7 +7,6 @@ import { setTimeout as delay } from 'node:timers/promises';
 
 const repoRoot = process.cwd();
 const adbTarget = process.env.OCENTRA_ANDROID_PHYSICAL_SERIAL ?? '192.168.2.45:5555';
-const packageId = 'ca.ocentra.parent.agent';
 const activityId = 'ca.ocentra.parent.agent/.MainActivity';
 const accessibilityComponent = 'ca.ocentra.parent.agent/.AppGameAndroidAccessibilityRuntimeService';
 const proofMode = 'app-game-android-accessibility-enabled-sample-proof';

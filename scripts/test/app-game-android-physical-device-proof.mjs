@@ -5,7 +5,7 @@ import { pathToFileURL } from 'node:url';
 
 const repoRoot = process.cwd();
 const proofMode = 'app-game-android-physical-device-proof';
-const adbTarget = process.env.OCENTRA_ANDROID_PHYSICAL_SERIAL ?? '192.168.2.45:5555';
+const adbTarget = safeAdbTarget(process.env.OCENTRA_ANDROID_PHYSICAL_SERIAL ?? '192.168.2.45:5555');
 const testOutputDir = join(repoRoot, 'test-results', proofMode);
 const proofDir = join(repoRoot, 'output', 'app-game-plan-proof', '181-app-game-android-physical-device-proof');
 const commands = [];
@@ -320,6 +320,13 @@ function run(command, args, options = {}) {
     throw new Error(`${rendered} failed with exit ${result.status}`);
   }
   return record;
+}
+
+function safeAdbTarget(value) {
+  if (!/^[A-Za-z0-9._:-]+$/.test(value)) {
+    throw new Error(`Unsupported ADB target: ${value}`);
+  }
+  return value;
 }
 
 function normalizeCommandOutput(output) {

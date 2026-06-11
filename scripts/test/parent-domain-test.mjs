@@ -4,7 +4,7 @@ import { fileURLToPath } from 'node:url';
 
 const repoRoot = dirname(dirname(dirname(fileURLToPath(import.meta.url))));
 const parentDomainRoot = join(repoRoot, 'packages', 'parent-domain');
-const forwardedArgs = process.argv.slice(2);
+const forwardedArgs = sanitizeForwardedVitestArgs(process.argv.slice(2));
 
 if (process.env.OCENTRA_PARENT_DOMAIN_TEST_SKIP_PROOF_CHAIN === '1') {
   runNpmBin('vitest', ['run', ...forwardedArgs]);
@@ -18,11 +18,21 @@ runNodeScript(join(repoRoot, 'scripts', 'test', 'app-game-timer-proof-chain.mjs'
 runNpmBin('vitest', ['run', ...forwardedArgs]);
 
 function runNpm(args) {
-  runCommand(process.platform === 'win32' ? ['npm', ...args] : ['npm', ...args], parentDomainRoot);
+  const npmCliPath = process.env.npm_execpath;
+  if (npmCliPath) {
+    run(process.execPath, [npmCliPath, ...args], parentDomainRoot);
+    return;
+  }
+
+  if (process.platform === 'win32') {
+    throw new Error('npm_execpath is required to run parent-domain tests on Windows without shell dispatch.');
+  }
+
+  runCommand(['npm', ...args], parentDomainRoot);
 }
 
 function runNpmBin(binary, args) {
-  runCommand(process.platform === 'win32' ? [binary, ...args] : [binary, ...args], parentDomainRoot);
+  runNpm(['exec', '--', binary, ...args]);
 }
 
 function runNodeScript(scriptPath, env = {}) {
@@ -48,11 +58,15 @@ function run(command, args, cwd, env = {}) {
 }
 
 function runCommand(commandParts, cwd) {
-  if (process.platform === 'win32') {
-    run('cmd', ['/c', ...commandParts], cwd);
-    return;
-  }
-
   const [command, ...args] = commandParts;
   run(command, args, cwd);
+}
+
+function sanitizeForwardedVitestArgs(args) {
+  return args.map((arg) => {
+    if (!/^[A-Za-z0-9._/@:=,+-]+$/.test(arg)) {
+      throw new Error(`Unsupported parent-domain test argument: ${arg}`);
+    }
+    return arg;
+  });
 }

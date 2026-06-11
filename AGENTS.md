@@ -104,7 +104,9 @@ Run:
 npm run validate
 ```
 
-The root gate runs release version alignment, schema-boundary checks, Turbo lint/type-check/test tasks, Rust format, Rust clippy, Rust workspace checks/tests, integration smoke, local portal smoke, and Playwright UI coverage against the real Rust service. CI also runs dependency policy, SBOM generation, and package install/launch smoke checks.
+The root gate runs release version alignment, local CodeQL checks for changed files, schema-boundary checks, Turbo lint/type-check/test tasks, Rust format, Rust clippy, Rust workspace checks/tests, integration smoke, local portal smoke, and Playwright UI coverage against the real Rust service. CI also runs dependency policy, SBOM generation, and package install/launch smoke checks.
+
+Local CodeQL is part of `npm run validate` so new security/query findings are caught before they reach GitHub code scanning. Use `npm run codeql:local:changed` for the normal changed-file gate, `npm run codeql:local` to inspect all current JavaScript/TypeScript and workflow findings locally, and `npm run codeql:local:all` only when Rust CodeQL is specifically needed. The local runner uses all available cores by default through `CODEQL_THREADS=0`; set `CODEQL_RAM_MB` when a machine needs a memory cap.
 
 The pre-commit hook is intentionally lighter than the root gate. It runs lane/hub guards plus fast local source validation, but it does not run package lint/type-check tasks, TypeScript/Rust unit suites, real-service smoke tests, portal Playwright E2E, production build, or package previews on every local commit. Use `npm run test:local`, `npm run precommit:full`, `npm run validate`, `npm run ci:local`, or focused scripts such as `npm run test:e2e` when those heavier checks are needed before PR-ready handoff or integration.
 

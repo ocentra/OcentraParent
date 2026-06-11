@@ -6,7 +6,6 @@ on:
 
 permissions:
   contents: read
-  security-events: write
 
 jobs:
   codeql:
@@ -41,9 +40,11 @@ jobs:
         with:
           languages: ${{ matrix.language }}
           build-mode: ${{ matrix.build_mode }}
+          config-file: ./.github/codeql/codeql-config.yml
           queries: security-and-quality
 
       - name: Analyze CodeQL
         uses: github/codeql-action/analyze@v3
         with:
           category: /language:${{ matrix.language }}
+          upload: never

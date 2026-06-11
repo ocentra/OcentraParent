@@ -5,7 +5,7 @@ import { pathToFileURL } from 'node:url';
 
 const repoRoot = process.cwd();
 const proofMode = 'app-game-linux-wsl-runtime-proof';
-const wslDistro = process.env.OCENTRA_LINUX_WSL_DISTRO ?? 'Ubuntu-22.04';
+const wslDistro = safeWslDistroName(process.env.OCENTRA_LINUX_WSL_DISTRO ?? 'Ubuntu-22.04');
 const testOutputDir = join(repoRoot, 'test-results', proofMode);
 const proofDir = join(repoRoot, 'output', 'app-game-plan-proof', '182-app-game-linux-wsl-runtime-proof');
 const commands = [];
@@ -288,6 +288,13 @@ function run(command, args) {
     throw new Error(`${rendered} failed with exit ${result.status}`);
   }
   return record;
+}
+
+function safeWslDistroName(value) {
+  if (!/^[A-Za-z0-9._-]+$/.test(value)) {
+    throw new Error(`Unsupported WSL distro name: ${value}`);
+  }
+  return value;
 }
 
 function normalizeCommandOutput(output) {
