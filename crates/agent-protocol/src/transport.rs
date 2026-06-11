@@ -110,6 +110,24 @@ pub enum AgentCommandName {
     AgentActivityAppGamePolicyReadinessReadModelGet,
     #[serde(rename = "agent.activity.app-game.notification-readiness.read-model.get")]
     AgentActivityAppGameNotificationReadinessReadModelGet,
+    #[serde(rename = "agent.activity.app-game.adapter-execution-readiness.read-model.get")]
+    AgentActivityAppGameAdapterExecutionReadinessReadModelGet,
+    #[serde(rename = "agent.activity.app-game.platform-proof-status.read-model.get")]
+    AgentActivityAppGamePlatformProofStatusReadModelGet,
+    #[serde(rename = "agent.activity.app-game.child-runtime-transport-receipt.read-model.get")]
+    AgentActivityAppGameChildRuntimeTransportReceiptReadModelGet,
+    #[serde(rename = "agent.activity.app-game.adapter-dispatch-preflight.read-model.get")]
+    AgentActivityAppGameAdapterDispatchPreflightReadModelGet,
+    #[serde(rename = "agent.activity.app-game.adapter-dispatch-result.read-model.get")]
+    AgentActivityAppGameAdapterDispatchResultReadModelGet,
+    #[serde(rename = "agent.activity.app-game.adapter-dispatch.execute")]
+    AgentActivityAppGameAdapterDispatchExecute,
+    #[serde(rename = "agent.activity.app-game.timer-parent-surface.read-model.get")]
+    AgentActivityAppGameTimerParentSurfaceReadModelGet,
+    #[serde(
+        rename = "agent.activity.app-game.timer-parent-surface.parent-preference-setup.request"
+    )]
+    AgentActivityAppGameTimerParentPreferenceSetupRequest,
     #[serde(rename = "agent.browser.social-dashboard.read-model.get")]
     AgentBrowserSocialDashboardReadModelGet,
     #[serde(rename = "agent.browser.social-audit-explanation.read-model.get")]
@@ -274,6 +292,26 @@ pub enum AgentEventName {
     AgentActivityAppGamePolicyReadinessReadModelReported,
     #[serde(rename = "agent.activity.app-game.notification-readiness.read-model.reported")]
     AgentActivityAppGameNotificationReadinessReadModelReported,
+    #[serde(rename = "agent.activity.app-game.adapter-execution-readiness.read-model.reported")]
+    AgentActivityAppGameAdapterExecutionReadinessReadModelReported,
+    #[serde(rename = "agent.activity.app-game.platform-proof-status.read-model.reported")]
+    AgentActivityAppGamePlatformProofStatusReadModelReported,
+    #[serde(
+        rename = "agent.activity.app-game.child-runtime-transport-receipt.read-model.reported"
+    )]
+    AgentActivityAppGameChildRuntimeTransportReceiptReadModelReported,
+    #[serde(rename = "agent.activity.app-game.adapter-dispatch-preflight.read-model.reported")]
+    AgentActivityAppGameAdapterDispatchPreflightReadModelReported,
+    #[serde(rename = "agent.activity.app-game.adapter-dispatch-result.read-model.reported")]
+    AgentActivityAppGameAdapterDispatchResultReadModelReported,
+    #[serde(rename = "agent.activity.app-game.adapter-dispatch.executed")]
+    AgentActivityAppGameAdapterDispatchExecuted,
+    #[serde(rename = "agent.activity.app-game.timer-parent-surface.read-model.reported")]
+    AgentActivityAppGameTimerParentSurfaceReadModelReported,
+    #[serde(
+        rename = "agent.activity.app-game.timer-parent-surface.parent-preference-setup.requested"
+    )]
+    AgentActivityAppGameTimerParentPreferenceSetupRequested,
     #[serde(rename = "agent.browser.social-dashboard.read-model.reported")]
     AgentBrowserSocialDashboardReadModelReported,
     #[serde(rename = "agent.browser.social-audit-explanation.read-model.reported")]

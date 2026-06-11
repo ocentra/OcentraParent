@@ -46,9 +46,7 @@ const typescriptRuntimeEventNames = [
 const commandResults = [
   {
     command: 'cmd /c npm run test --workspace @ocentra-parent/agent-protocol-domain -- browser-runtime-events.test.ts',
-    output: run('cmd', [
-      '/c',
-      'npm',
+    output: runNpm([
       'run',
       'test',
       '--workspace',
@@ -59,7 +57,7 @@ const commandResults = [
   },
   {
     command: 'cmd /c npm run type-check --workspace @ocentra-parent/agent-protocol-domain',
-    output: run('cmd', ['/c', 'npm', 'run', 'type-check', '--workspace', '@ocentra-parent/agent-protocol-domain']),
+    output: runNpm(['run', 'type-check', '--workspace', '@ocentra-parent/agent-protocol-domain']),
   },
   {
     command: 'cargo test -p ocentra-parent-agent-core browser_runtime_chain_topology --quiet',
@@ -175,4 +173,10 @@ function run(command, args) {
     encoding: 'utf8',
     stdio: ['ignore', 'pipe', 'pipe'],
   }).trim();
+}
+
+function runNpm(args, ...rest) {
+  const command = process.platform === 'win32' ? 'cmd' : 'npm';
+  const commandArgs = process.platform === 'win32' ? ['/c', 'npm', ...args] : args;
+  return run(command, commandArgs, ...rest);
 }

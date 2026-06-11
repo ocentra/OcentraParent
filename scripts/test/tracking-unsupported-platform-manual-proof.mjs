@@ -15,10 +15,8 @@ await rm(resultRoot, { recursive: true, force: true });
 await mkdir(proofRoot, { recursive: true });
 await mkdir(resultRoot, { recursive: true });
 
-run('cmd', ['/c', 'npm', 'run', 'build', '--workspace', '@ocentra-parent/parent-domain']);
-run('cmd', [
-  '/c',
-  'npm',
+runNpm(['run', 'build', '--workspace', '@ocentra-parent/parent-domain']);
+runNpm([
   'run',
   'test',
   '--workspace',
@@ -148,4 +146,10 @@ function countBy(values) {
 async function writeJson(path, value) {
   await mkdir(dirname(path), { recursive: true });
   await writeFile(path, `${JSON.stringify(value, null, 2)}\n`);
+}
+
+function runNpm(args, ...rest) {
+  const command = process.platform === 'win32' ? 'cmd' : 'npm';
+  const commandArgs = process.platform === 'win32' ? ['/c', 'npm', ...args] : args;
+  return run(command, commandArgs, ...rest);
 }

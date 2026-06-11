@@ -57,17 +57,17 @@ const vlmRolloutFallbackGateProofPath = resolve(
   'proof-summary.json'
 );
 
-runCommand('cmd', ['/c', 'npm', 'run', 'build', '--workspace', '@ocentra-parent/activity-domain']);
-runCommand('cmd', [
-  '/c',
-  'npm',
-  'run',
-  'test',
-  '--workspace',
-  '@ocentra-parent/activity-domain',
-  '--',
-  'screen-vlm-execution-readiness',
-]);
+runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/activity-domain']));
+runCommand(
+  ...npmCommand([
+    'run',
+    'test',
+    '--workspace',
+    '@ocentra-parent/activity-domain',
+    '--',
+    'screen-vlm-execution-readiness',
+  ])
+);
 
 const {
   ScreenVlmWorkerJobSchema,
@@ -542,4 +542,10 @@ function resolveUserCachePath(...segments) {
     throw new Error('Set USERPROFILE or HOME so the local VLM readiness proof can resolve the Ocentra cache path.');
   }
   return resolve(userHome, '.cache', 'ocentra-parent', ...segments);
+}
+
+function npmCommand(args) {
+  const command = process.platform === 'win32' ? 'cmd' : 'npm';
+  const commandArgs = process.platform === 'win32' ? ['/c', 'npm', ...args] : args;
+  return [command, commandArgs];
 }

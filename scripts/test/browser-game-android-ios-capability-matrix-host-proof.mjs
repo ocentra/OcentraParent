@@ -51,7 +51,7 @@ async function main() {
     throw new Error('Expected at least one Android AVD for GAME-23 host proof');
   }
 
-  const packageBuild = command('cmd', ['/c', 'npm', 'run', 'release:package:android'], {
+  const packageBuild = command(...npmCommand(['run', 'release:package:android']), {
     timeoutMs: 180_000,
   });
   if (packageBuild.exitCode !== 0) {
@@ -548,4 +548,10 @@ function writeJson(path, value) {
 
 function relativePath(path) {
   return relative(repoRoot, path).replaceAll('\\', '/');
+}
+
+function npmCommand(args) {
+  const command = process.platform === 'win32' ? 'cmd' : 'npm';
+  const commandArgs = process.platform === 'win32' ? ['/c', 'npm', ...args] : args;
+  return [command, commandArgs];
 }

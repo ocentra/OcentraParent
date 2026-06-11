@@ -17,7 +17,7 @@ async function main() {
   await runCommand('cargo', ['test', '-p', 'ocentra-parent-agent-service', 'windows_adapter_capability_read_model']);
   await runCommand('node', ['scripts/test/v0-8-broad-os-adapter-proof-readiness.mjs']);
   await runCommand('node', ['scripts/test/v0-8-host-identity-read-model-proof.mjs']);
-  await runCommand('cmd', ['/c', 'npm', 'run', 'test:pre-ai-proof']);
+  await runCommand(...npmCommand(['run', 'test:pre-ai-proof']));
 
   const proofMatrix = JSON.parse(await readFile(join(repoRoot, 'docs', 'expectations', 'pre-ai-proof-matrix.json')));
   assertProofMatrix(proofMatrix);
@@ -126,4 +126,10 @@ function assertSetHas(set, value, label) {
   if (!set.has(value)) {
     throw new Error(`${label}: missing ${value}`);
   }
+}
+
+function npmCommand(args) {
+  const command = process.platform === 'win32' ? 'cmd' : 'npm';
+  const commandArgs = process.platform === 'win32' ? ['/c', 'npm', ...args] : args;
+  return [command, commandArgs];
 }

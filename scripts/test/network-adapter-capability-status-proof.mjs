@@ -16,30 +16,30 @@ mkdirSync(testRoot, { recursive: true });
 
 runCommand('cargo', ['test', '-p', 'ocentra-network-evidence', 'adapter_capability_status']);
 runCommand('cargo', ['test', '-p', 'ocentra-network-evidence', 'platform_claims']);
-runCommand('cmd', [
-  '/c',
-  'npm',
-  'exec',
-  '--workspace',
-  '@ocentra-parent/portal',
-  '--',
-  'vitest',
-  'run',
-  'tests/live-activity-network-flow.test.ts',
-]);
-runCommand('cmd', [
-  '/c',
-  'npm',
-  'exec',
-  '--workspace',
-  '@ocentra-parent/portal',
-  '--',
-  'eslint',
-  'src/network-evidence-drawer.ts',
-  'src/NetworkEvidenceDrawerRoutePanel.tsx',
-  'tests/live-activity-network-flow.test.ts',
-  '../../packages/portal-domain/src/details.ts',
-]);
+runCommand(
+  ...npmCommand([
+    'exec',
+    '--workspace',
+    '@ocentra-parent/portal',
+    '--',
+    'vitest',
+    'run',
+    'tests/live-activity-network-flow.test.ts',
+  ])
+);
+runCommand(
+  ...npmCommand([
+    'exec',
+    '--workspace',
+    '@ocentra-parent/portal',
+    '--',
+    'eslint',
+    'src/network-evidence-drawer.ts',
+    'src/NetworkEvidenceDrawerRoutePanel.tsx',
+    'tests/live-activity-network-flow.test.ts',
+    '../../packages/portal-domain/src/details.ts',
+  ])
+);
 runCommand('node', ['scripts/check-source-shape.mjs']);
 runCommand('git', ['diff', '--check']);
 
@@ -276,4 +276,10 @@ function runText(command, args) {
     throw new Error(`${command} ${args.join(' ')} failed with exit ${result.status}`);
   }
   return `${result.stdout ?? ''}${result.stderr ?? ''}`;
+}
+
+function npmCommand(args) {
+  const command = process.platform === 'win32' ? 'cmd' : 'npm';
+  const commandArgs = process.platform === 'win32' ? ['/c', 'npm', ...args] : args;
+  return [command, commandArgs];
 }

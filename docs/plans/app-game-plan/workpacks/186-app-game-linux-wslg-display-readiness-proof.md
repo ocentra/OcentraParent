@@ -1,0 +1,58 @@
+# WP186 App/Game Linux WSLg Display Readiness Proof
+
+## Scope
+
+Extend the Linux WSL runtime proof with parent-safe WSLg display readiness.
+
+This proves the Windows host can observe WSLg display infrastructure for Linux
+app/game runtime work: the WSLg runtime directory, X11 socket, and Wayland
+socket. It does not claim active-window foreground capture, Linux broad
+blocking, platform enforcement, rollback, audit, or adapter dispatch.
+
+## Implementation
+
+- Extended `packages/parent-domain/src/app-game-linux-wsl-runtime-proof.ts`
+  with display state, X11 socket state, Wayland socket state, active-window
+  probe state, and explicit foreground-capture non-claim.
+- Updated `packages/parent-domain/src/app-game-platform-proof-status.ts` so
+  Linux rows keep a `linux-foreground-capture-not-proved` gap until a real
+  active-window foreground capture source is attached.
+- Updated `scripts/test/app-game-linux-wsl-runtime-proof.mjs` to collect WSLg,
+  X11, and Wayland socket evidence from WSL without storing raw process/package
+  rows or host paths.
+
+## Validation
+
+Focused validation for this workpack:
+
+```powershell
+cmd /c npm run test --workspace @ocentra-parent/parent-domain -- app-game-linux-wsl-runtime-proof app-game-platform-proof-status
+cmd /c node --check scripts/test/app-game-linux-wsl-runtime-proof.mjs
+node scripts/test/app-game-linux-wsl-runtime-proof.mjs
+```
+
+## Proof
+
+- `test-results/app-game-linux-wsl-runtime-proof/proof.json`
+- `output/app-game-plan-proof/182-app-game-linux-wsl-runtime-proof/proof.json`
+- `output/app-game-plan-proof/182-app-game-linux-wsl-runtime-proof/09-manual-platform-proof.md`
+
+## Boundaries
+
+Proved:
+
+- WSL2 Ubuntu runtime remains reachable from the Windows host.
+- WSLg display infrastructure is present.
+- X11 socket `/tmp/.X11-unix/X0` is present.
+- Wayland socket `/mnt/wslg/runtime-dir/wayland-0` is present.
+- The proof stores parent-safe states and counts only.
+
+Not proved:
+
+- Active Linux foreground-window capture.
+- X11 or Wayland app/game title/process mapping.
+- AppArmor, SELinux, package-manager, Flatpak, or Snap restriction behavior.
+- Launch blocking, rollback, or audit behavior.
+- Adapter dispatch, broad installed-app blocking, platform enforcement,
+  provider delivery, child-device delivery, raw private rows/targets, or
+  private diagnostics.

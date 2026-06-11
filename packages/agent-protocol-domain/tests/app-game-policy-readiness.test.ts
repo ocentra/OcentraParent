@@ -23,8 +23,10 @@ const PolicyReadinessReadModel = {
   generatedAt: '2026-06-04T16:45:00Z',
   custodyLabel: 'child-device-query-store',
   capabilityStatus: 'notClaimed',
-  returned: 5,
+  returned: 7,
   policyEvaluationReady: true,
+  categoryRoutingReady: true,
+  unknownReviewRequired: true,
   manualReviewRequired: true,
   adapterDispatchClaimed: false,
   evidenceClaimRowCount: 1,
@@ -33,6 +35,8 @@ const PolicyReadinessReadModel = {
   approvalActionResultRowCount: 0,
   platformAuthorityRowCount: 1,
   aiClassifierResultRowCount: 0,
+  categoryCandidateRowCount: 1,
+  unknownReviewRowCount: 1,
   rows: [
     {
       schemaVersion: AppGameSchemaVersion,
@@ -58,6 +62,38 @@ const PolicyReadinessReadModel = {
       rowCount: 0,
       evidenceReferenceIds: [],
       evidence: [],
+    },
+    {
+      schemaVersion: AppGameSchemaVersion,
+      rowId: AgentAppGamePolicyReadinessKind.CategoryCandidate,
+      readinessKind: AgentAppGamePolicyReadinessKind.CategoryCandidate,
+      readinessState: AgentAppGamePolicyReadinessState.Ready,
+      rowCount: 1,
+      evidenceReferenceIds: ['evidence-category-native-game', 'catalog-ref-ocentra-game'],
+      evidence: [
+        {
+          evidenceId: 'evidence-category-native-game',
+          kind: 'local-db-row',
+          digest: null,
+          uri: null,
+        },
+      ],
+    },
+    {
+      schemaVersion: AppGameSchemaVersion,
+      rowId: AgentAppGamePolicyReadinessKind.UnknownReview,
+      readinessKind: AgentAppGamePolicyReadinessKind.UnknownReview,
+      readinessState: AgentAppGamePolicyReadinessState.ManualRequired,
+      rowCount: 1,
+      evidenceReferenceIds: ['evidence-unknown-executable-review'],
+      evidence: [
+        {
+          evidenceId: 'evidence-unknown-executable-review',
+          kind: 'local-db-row',
+          digest: null,
+          uri: null,
+        },
+      ],
     },
   ],
 } as const;

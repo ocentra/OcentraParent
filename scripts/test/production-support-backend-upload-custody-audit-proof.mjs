@@ -16,17 +16,17 @@ await main();
 async function main() {
   await mkdir(resultDir, { recursive: true });
   await mkdir(outputDir, { recursive: true });
-  await runCommand('cmd', ['/c', 'npm', 'run', 'build', '--workspace', '@ocentra-parent/logging-domain']);
-  await runCommand('cmd', [
-    '/c',
-    'npm',
-    'run',
-    'test',
-    '--workspace',
-    '@ocentra-parent/logging-domain',
-    '--',
-    'tests/support-backend-upload-custody-audit.test.ts',
-  ]);
+  await runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/logging-domain']));
+  await runCommand(
+    ...npmCommand([
+      'run',
+      'test',
+      '--workspace',
+      '@ocentra-parent/logging-domain',
+      '--',
+      'tests/support-backend-upload-custody-audit.test.ts',
+    ])
+  );
 
   const commit = await gitHead();
   const readModel = await parseReadModel();
@@ -158,4 +158,10 @@ async function gitHead() {
     child.once('error', reject);
   });
   return chunks.join('').trim();
+}
+
+function npmCommand(args) {
+  const command = process.platform === 'win32' ? 'cmd' : 'npm';
+  const commandArgs = process.platform === 'win32' ? ['/c', 'npm', ...args] : args;
+  return [command, commandArgs];
 }

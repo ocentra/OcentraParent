@@ -63,7 +63,9 @@ export function AppGamePolicyReadinessRoutePanel({
           {intent.rows.length === 0 ? (
             <AppGamePolicyReadinessEmptyCard intent={intent} />
           ) : (
-            intent.rows.map((row) => <AppGamePolicyReadinessRowCard key={String(row.title)} row={row} />)
+            intent.rows.map((row, index) => (
+              <AppGamePolicyReadinessRowCard key={`${String(row.title)}:${index}`} row={row} />
+            ))
           )}
         </div>
       </div>
@@ -130,8 +132,12 @@ function AppGamePolicyReadinessDetails({
 }): ReactElement {
   return (
     <dl className={PortalDom.Classes.TrackingStatusOverlayMeta}>
-      {details.map((detail) => (
-        <AppGamePolicyReadinessDetail key={String(detail.label)} label={detail.label} value={detail.value} />
+      {details.map((detail, index) => (
+        <AppGamePolicyReadinessDetail
+          key={`${String(detail.label)}:${index}`}
+          label={detail.label}
+          value={detail.value}
+        />
       ))}
     </dl>
   );

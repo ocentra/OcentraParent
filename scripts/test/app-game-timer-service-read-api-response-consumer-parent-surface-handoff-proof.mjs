@@ -33,9 +33,7 @@ for (const path of [testOutputDir, appGameProofDir, appProofDir]) {
 }
 
 await buildRequiredWorkspaces();
-run('cmd', [
-  '/c',
-  'npm',
+runNpm([
   'run',
   'test',
   '--workspace',
@@ -187,7 +185,7 @@ async function writeJson(path, value) {
 async function buildRequiredWorkspaces() {
   for (const [workspace, packageDir] of buildWorkspaces) {
     await rm(join(repoRoot, 'packages', packageDir, 'tsconfig.tsbuildinfo'), { force: true });
-    run('cmd', ['/c', 'npm', 'run', 'build', '--workspace', workspace]);
+    runNpm(['run', 'build', '--workspace', workspace]);
   }
 }
 
@@ -233,4 +231,10 @@ function filteredGitStatusShort() {
       return !proofStatusPaths.some((proofPath) => path === proofPath || path.startsWith(`${proofPath}/`));
     })
     .join('\n');
+}
+
+function runNpm(args, ...rest) {
+  const command = process.platform === 'win32' ? 'cmd' : 'npm';
+  const commandArgs = process.platform === 'win32' ? ['/c', 'npm', ...args] : args;
+  return run(command, commandArgs, ...rest);
 }

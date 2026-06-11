@@ -13,27 +13,20 @@ await main();
 async function main() {
   await mkdir(outputDir, { recursive: true });
 
-  await runCommand('cmd', ['/c', 'npm', 'run', 'build:contracts']);
-  await runCommand('cmd', [
-    '/c',
-    'npm',
-    'run',
-    'test',
-    '--workspace',
-    '@ocentra-parent/parent-domain',
-    '--',
-    'enforcement-policy-dispatch',
-  ]);
-  await runCommand('cmd', [
-    '/c',
-    'npm',
-    'run',
-    'test',
-    '--workspace',
-    '@ocentra-parent/agent-protocol-domain',
-    '--',
-    'enforcement-policy-dispatch-adapter',
-  ]);
+  await runCommand(...npmCommand(['run', 'build:contracts']));
+  await runCommand(
+    ...npmCommand(['run', 'test', '--workspace', '@ocentra-parent/parent-domain', '--', 'enforcement-policy-dispatch'])
+  );
+  await runCommand(
+    ...npmCommand([
+      'run',
+      'test',
+      '--workspace',
+      '@ocentra-parent/agent-protocol-domain',
+      '--',
+      'enforcement-policy-dispatch-adapter',
+    ])
+  );
   await runCommand('cargo', ['test', '-p', 'ocentra-parent-agent-protocol', 'enforcement_policy_dispatch']);
   await runCommand('cargo', ['test', '-p', 'ocentra-parent-agent-core', 'enforcement_policy_dispatch']);
   await runCommand('cargo', ['test', '-p', 'ocentra-parent-agent-service', 'enforcement_policy_dispatch']);
@@ -217,4 +210,10 @@ async function gitHead() {
     });
   });
   return Buffer.concat(chunks).toString('utf8').trim();
+}
+
+function npmCommand(args) {
+  const command = process.platform === 'win32' ? 'cmd' : 'npm';
+  const commandArgs = process.platform === 'win32' ? ['/c', 'npm', ...args] : args;
+  return [command, commandArgs];
 }

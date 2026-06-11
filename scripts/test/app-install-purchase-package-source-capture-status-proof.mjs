@@ -13,17 +13,17 @@ await main();
 
 async function main() {
   await mkdir(outputDir, { recursive: true });
-  await runCommand('cmd', ['/c', 'npm', 'run', 'build', '--workspace', '@ocentra-parent/parent-domain']);
-  await runCommand('cmd', [
-    '/c',
-    'npm',
-    'run',
-    'test',
-    '--workspace',
-    '@ocentra-parent/parent-domain',
-    '--',
-    'tests/app-install-purchase-package-source-capture-status-proof.test.ts',
-  ]);
+  await runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/parent-domain']));
+  await runCommand(
+    ...npmCommand([
+      'run',
+      'test',
+      '--workspace',
+      '@ocentra-parent/parent-domain',
+      '--',
+      'tests/app-install-purchase-package-source-capture-status-proof.test.ts',
+    ])
+  );
 
   const proofModule = await loadPackageSourceCaptureStatusProofModule();
   const parsedReadModel = proofModule.AppInstallPurchasePackageSourceCaptureStatusProofReadModel;
@@ -173,4 +173,10 @@ async function runCommand(command, args) {
   if (exitCode !== 0) {
     throw new Error(`${command} ${args.join(' ')} failed with ${exitCode}`);
   }
+}
+
+function npmCommand(args) {
+  const command = process.platform === 'win32' ? 'cmd' : 'npm';
+  const commandArgs = process.platform === 'win32' ? ['/c', 'npm', ...args] : args;
+  return [command, commandArgs];
 }

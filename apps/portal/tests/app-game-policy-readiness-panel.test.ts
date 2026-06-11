@@ -24,6 +24,8 @@ const PolicyReadinessReadModel = {
   capabilityStatus: 'notClaimed',
   returned: 2,
   policyEvaluationReady: true,
+  categoryRoutingReady: true,
+  unknownReviewRequired: true,
   manualReviewRequired: true,
   adapterDispatchClaimed: false,
   evidenceClaimRowCount: 1,
@@ -32,6 +34,8 @@ const PolicyReadinessReadModel = {
   approvalActionResultRowCount: 0,
   platformAuthorityRowCount: 1,
   aiClassifierResultRowCount: 0,
+  categoryCandidateRowCount: 0,
+  unknownReviewRowCount: 1,
   rows: [
     {
       schemaVersion: AppGameSchemaVersion,
@@ -91,7 +95,47 @@ describe('app-game policy readiness portal route panel', () => {
       label: 'Manual review',
       value: 'Manual required',
     });
+    expect(intent.summaryDetails).toContainEqual({
+      label: 'Evidence claim rows',
+      value: '1',
+    });
+    expect(intent.summaryDetails).toContainEqual({
+      label: 'Approval action result rows',
+      value: '0',
+    });
+    expect(intent.summaryDetails).toContainEqual({
+      label: 'AI classifier rows',
+      value: '0',
+    });
+    expect(intent.summaryDetails).toContainEqual({
+      label: 'Category candidate rows',
+      value: '0',
+    });
+    expect(intent.summaryDetails).toContainEqual({
+      label: 'Unknown review rows',
+      value: '1',
+    });
+    expect(intent.summaryDetails).toContainEqual({
+      label: 'Category routing',
+      value: 'Ready',
+    });
+    expect(intent.summaryDetails).toContainEqual({
+      label: 'Unknown review',
+      value: 'Manual required',
+    });
     expect(intent.rows.map((row) => row.title)).toEqual(['Policy evidence', 'AI classifier context']);
+    expect(intent.rows[0]?.details).toContainEqual({
+      label: 'Reason',
+      value: 'Ready',
+    });
+    expect(intent.rows[1]?.details).toContainEqual({
+      label: 'Reason',
+      value: 'AI classifier context requires manual review',
+    });
+    expect(intent.rows[1]?.details).toContainEqual({
+      label: 'Evidence references',
+      value: 'Not reported',
+    });
   });
 });
 

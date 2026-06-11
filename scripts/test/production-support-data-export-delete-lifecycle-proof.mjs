@@ -17,28 +17,28 @@ await main();
 async function main() {
   await mkdir(resultDir, { recursive: true });
   await mkdir(outputDir, { recursive: true });
-  await runCommand('cmd', ['/c', 'npm', 'run', 'build', '--workspace', '@ocentra-parent/logging-domain']);
-  await runCommand('cmd', ['/c', 'npm', 'run', 'build', '--workspace', '@ocentra-parent/parent-domain']);
-  await runCommand('cmd', [
-    '/c',
-    'npm',
-    'run',
-    'test',
-    '--workspace',
-    '@ocentra-parent/logging-domain',
-    '--',
-    'tests/data-export-delete-lifecycle.test.ts',
-  ]);
-  await runCommand('cmd', [
-    '/c',
-    'npm',
-    'run',
-    'test',
-    '--workspace',
-    '@ocentra-parent/parent-domain',
-    '--',
-    'tests/production-support-data-export-delete-lifecycle-proof.test.ts',
-  ]);
+  await runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/logging-domain']));
+  await runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/parent-domain']));
+  await runCommand(
+    ...npmCommand([
+      'run',
+      'test',
+      '--workspace',
+      '@ocentra-parent/logging-domain',
+      '--',
+      'tests/data-export-delete-lifecycle.test.ts',
+    ])
+  );
+  await runCommand(
+    ...npmCommand([
+      'run',
+      'test',
+      '--workspace',
+      '@ocentra-parent/parent-domain',
+      '--',
+      'tests/production-support-data-export-delete-lifecycle-proof.test.ts',
+    ])
+  );
 
   const logging = await assertBuiltLoggingContract();
   const parent = await assertBuiltParentContract();
@@ -207,4 +207,10 @@ function countBy(values) {
 
 function relativePath(path) {
   return relative(repoRoot, path).replaceAll('\\', '/');
+}
+
+function npmCommand(args) {
+  const command = process.platform === 'win32' ? 'cmd' : 'npm';
+  const commandArgs = process.platform === 'win32' ? ['/c', 'npm', ...args] : args;
+  return [command, commandArgs];
 }

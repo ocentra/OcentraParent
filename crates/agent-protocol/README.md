@@ -164,6 +164,11 @@ flowchart LR
   scheduler runtime, parent notification UI, child delivery, policy evaluator
   execution, adapter dispatch, broad blocking, and platform support remain
   unclaimed.
+- App/game timer parent preference setup request structs preserve
+  service-local action-result persistence, mutation receipt, child-runtime
+  handoff, queue, and dispatch readiness refs/status only. Actual child
+  receipt, provider delivery, durable outbox runtime, adapter dispatch, and
+  platform enforcement remain unclaimed.
 - Screen parent settings structs and command names preserve serialization,
   transport, and service-persistence boundaries only. Parent portal form submit
   wiring, product retention-control UI,

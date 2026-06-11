@@ -14,17 +14,8 @@ await rm(testOutputDir, { recursive: true, force: true });
 await mkdir(testOutputDir, { recursive: true });
 await mkdir(proofDir, { recursive: true });
 
-run('cmd', ['/c', 'npm', 'run', 'build', '--workspace', '@ocentra-parent/parent-domain']);
-run('cmd', [
-  '/c',
-  'npm',
-  'run',
-  'test',
-  '--workspace',
-  '@ocentra-parent/parent-domain',
-  '--',
-  'tracking-android-status-proof',
-]);
+runNpm(['run', 'build', '--workspace', '@ocentra-parent/parent-domain']);
+runNpm(['run', 'test', '--workspace', '@ocentra-parent/parent-domain', '--', 'tracking-android-status-proof']);
 
 const proofModule = await importDist('tracking-android-status-proof.js');
 const readModel = proofModule.buildTrackingAndroidStatusProofReadModel(
@@ -296,4 +287,10 @@ function countBy(values) {
     counts[value] = (counts[value] ?? 0) + 1;
     return counts;
   }, {});
+}
+
+function runNpm(args, ...rest) {
+  const command = process.platform === 'win32' ? 'cmd' : 'npm';
+  const commandArgs = process.platform === 'win32' ? ['/c', 'npm', ...args] : args;
+  return run(command, commandArgs, ...rest);
 }

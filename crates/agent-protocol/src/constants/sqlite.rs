@@ -66,6 +66,13 @@ FROM activity_events
 ORDER BY observed_at DESC, event_id DESC
 LIMIT ?1;";
 
+pub const SELECT_LATEST_ENFORCEMENT_AUDIT_ACTIVITY: &str = "
+SELECT fields_json
+FROM activity_events
+WHERE kind = ?1
+ORDER BY observed_at DESC, event_id DESC
+LIMIT 1;";
+
 pub const SELECT_POLICY_PREVIEW_ACTIVITY: &str = "
 SELECT
   event_id,

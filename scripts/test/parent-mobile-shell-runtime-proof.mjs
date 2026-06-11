@@ -556,12 +556,10 @@ async function readRepoFile(path) {
   return readFile(join(repoRoot, path), 'utf8');
 }
 
-async function runNpm(args) {
-  if (process.platform === 'win32') {
-    await runCommand('cmd', ['/c', 'npm', ...args]);
-    return;
-  }
-  await runCommand('npm', args);
+async function runNpm(args, ...rest) {
+  const command = process.platform === 'win32' ? 'cmd' : 'npm';
+  const commandArgs = process.platform === 'win32' ? ['/c', 'npm', ...args] : args;
+  await runCommand(command, commandArgs, ...rest);
 }
 
 async function runCommand(command, args) {

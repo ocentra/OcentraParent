@@ -11,17 +11,17 @@ const validationLogPath = join(outputRoot, 'validation-commands.log');
 const testResultPath = join(testResultRoot, 'proof.json');
 const generatedAt = new Date().toISOString();
 
-runCommand('cmd', ['/c', 'npm', 'run', 'build', '--workspace', '@ocentra-parent/parent-domain']);
-runCommand('cmd', [
-  '/c',
-  'npm',
-  'run',
-  'test',
-  '--workspace',
-  '@ocentra-parent/parent-domain',
-  '--',
-  'household-ai-provider-advertisement-heartbeat-proof',
-]);
+runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/parent-domain']));
+runCommand(
+  ...npmCommand([
+    'run',
+    'test',
+    '--workspace',
+    '@ocentra-parent/parent-domain',
+    '--',
+    'household-ai-provider-advertisement-heartbeat-proof',
+  ])
+);
 
 const proofModule = await import(
   pathToFileURL(
@@ -92,4 +92,10 @@ function relativePath(filePath) {
 
 function runCommand(command, args) {
   execFileSync(command, args, { cwd: repoRoot, stdio: 'inherit' });
+}
+
+function npmCommand(args) {
+  const command = process.platform === 'win32' ? 'cmd' : 'npm';
+  const commandArgs = process.platform === 'win32' ? ['/c', 'npm', ...args] : args;
+  return [command, commandArgs];
 }

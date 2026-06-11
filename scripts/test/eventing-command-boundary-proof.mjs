@@ -23,28 +23,28 @@ async function main() {
   await mkdir(testOutputDir, { recursive: true });
   await mkdir(planOutputDir, { recursive: true });
 
-  await runCommand('cmd', [
-    '/c',
-    'npm',
-    'exec',
-    '--workspace',
-    '@ocentra-parent/portal',
-    '--',
-    'vitest',
-    'run',
-    'tests/transport-lan-target.test.ts',
-  ]);
-  await runCommand('cmd', [
-    '/c',
-    'npm',
-    'exec',
-    '--workspace',
-    '@ocentra-parent/portal',
-    '--',
-    'eslint',
-    'src/transport.ts',
-    'tests/transport-lan-target.test.ts',
-  ]);
+  await runCommand(
+    ...npmCommand([
+      'exec',
+      '--workspace',
+      '@ocentra-parent/portal',
+      '--',
+      'vitest',
+      'run',
+      'tests/transport-lan-target.test.ts',
+    ])
+  );
+  await runCommand(
+    ...npmCommand([
+      'exec',
+      '--workspace',
+      '@ocentra-parent/portal',
+      '--',
+      'eslint',
+      'src/transport.ts',
+      'tests/transport-lan-target.test.ts',
+    ])
+  );
   await runCommand('node', ['scripts/check-source-shape.mjs']);
 
   await assertSourceContracts();
@@ -179,4 +179,10 @@ function assertDoesNotInclude(text, unexpected, label) {
   if (text.includes(unexpected)) {
     throw new Error(`${label}: found ${unexpected}`);
   }
+}
+
+function npmCommand(args) {
+  const command = process.platform === 'win32' ? 'cmd' : 'npm';
+  const commandArgs = process.platform === 'win32' ? ['/c', 'npm', ...args] : args;
+  return [command, commandArgs];
 }

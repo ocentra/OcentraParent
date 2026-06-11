@@ -13,17 +13,17 @@ await main();
 async function main() {
   await mkdir(outputDir, { recursive: true });
 
-  await runCommand('cmd', ['/c', 'npm', 'run', 'build:contracts']);
-  await runCommand('cmd', [
-    '/c',
-    'npm',
-    'run',
-    'test',
-    '--workspace',
-    '@ocentra-parent/parent-domain',
-    '--',
-    'local-ai-parent-assistant-runtime-proof',
-  ]);
+  await runCommand(...npmCommand(['run', 'build:contracts']));
+  await runCommand(
+    ...npmCommand([
+      'run',
+      'test',
+      '--workspace',
+      '@ocentra-parent/parent-domain',
+      '--',
+      'local-ai-parent-assistant-runtime-proof',
+    ])
+  );
   await runCommand('node', ['scripts/test/activity-parent-assistant-runtime-proof.mjs']);
 
   const proofContractModule = await import('@ocentra-parent/parent-domain/local-ai-parent-assistant-runtime-proof');
@@ -190,4 +190,10 @@ function assertModuleExport(module, exportName, label) {
   if (!(exportName in module)) {
     throw new Error(`${label}: missing ${exportName}`);
   }
+}
+
+function npmCommand(args) {
+  const command = process.platform === 'win32' ? 'cmd' : 'npm';
+  const commandArgs = process.platform === 'win32' ? ['/c', 'npm', ...args] : args;
+  return [command, commandArgs];
 }

@@ -7,7 +7,7 @@ const outputRoot = resolve(repoRoot, 'output', 'screen-ai-pipeline-proof', 'stri
 const artifactSummaryPath = join(outputRoot, 'proof-summary.json');
 
 await mkdir(outputRoot, { recursive: true });
-runCommand('cmd', ['/c', 'npm', 'run', 'build', '--workspace', '@ocentra-parent/parent-domain']);
+runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/parent-domain']));
 
 const { PolicyAction, PolicyDecisionHandoffState, PolicyDecisionSchema, selectStricterPolicyAction } =
   await import('../../packages/parent-domain/dist/policy.js');
@@ -84,4 +84,10 @@ function runCommand(command, args) {
   if (result.status !== 0) {
     throw new Error(`${command} ${args.join(' ')} failed\n${result.stdout}\n${result.stderr}`);
   }
+}
+
+function npmCommand(args) {
+  const command = process.platform === 'win32' ? 'cmd' : 'npm';
+  const commandArgs = process.platform === 'win32' ? ['/c', 'npm', ...args] : args;
+  return [command, commandArgs];
 }

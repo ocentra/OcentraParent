@@ -75,6 +75,26 @@ export const PortalOverviewCommands = [
     payload: {},
   },
   {
+    command: AgentCommand.ActivityAppGameAdapterExecutionReadinessReadModelGet,
+    payload: {},
+  },
+  {
+    command: AgentCommand.ActivityAppGamePlatformProofStatusReadModelGet,
+    payload: {},
+  },
+  {
+    command: AgentCommand.ActivityAppGameChildRuntimeTransportReceiptReadModelGet,
+    payload: {},
+  },
+  {
+    command: AgentCommand.ActivityAppGameAdapterDispatchPreflightReadModelGet,
+    payload: {},
+  },
+  {
+    command: AgentCommand.ActivityAppGameAdapterDispatchResultReadModelGet,
+    payload: {},
+  },
+  {
     command: AgentCommand.ActivityNetworkReadModelGet,
     payload: {},
   },
@@ -209,6 +229,42 @@ export const PortalCommandButtons = [
     label: resolvePortalDevText(PortalDevTextToken.GetActivityGamesReadModel),
     command: AgentCommand.ActivityGamesReadModelGet,
     resultEvent: AgentEvent.ActivityGamesReadModelReported,
+    payload: {},
+  },
+  {
+    label: resolvePortalDevText(PortalDevTextToken.GetActivityAppGameAdapterExecutionReadinessReadModel),
+    command: AgentCommand.ActivityAppGameAdapterExecutionReadinessReadModelGet,
+    resultEvent: AgentEvent.ActivityAppGameAdapterExecutionReadinessReadModelReported,
+    payload: {},
+  },
+  {
+    label: resolvePortalDevText(PortalDevTextToken.GetActivityAppGamePlatformProofStatusReadModel),
+    command: AgentCommand.ActivityAppGamePlatformProofStatusReadModelGet,
+    resultEvent: AgentEvent.ActivityAppGamePlatformProofStatusReadModelReported,
+    payload: {},
+  },
+  {
+    label: resolvePortalDevText(PortalDevTextToken.GetActivityAppGameChildRuntimeTransportReceiptReadModel),
+    command: AgentCommand.ActivityAppGameChildRuntimeTransportReceiptReadModelGet,
+    resultEvent: AgentEvent.ActivityAppGameChildRuntimeTransportReceiptReadModelReported,
+    payload: {},
+  },
+  {
+    label: resolvePortalDevText(PortalDevTextToken.GetActivityAppGameAdapterDispatchPreflightReadModel),
+    command: AgentCommand.ActivityAppGameAdapterDispatchPreflightReadModelGet,
+    resultEvent: AgentEvent.ActivityAppGameAdapterDispatchPreflightReadModelReported,
+    payload: {},
+  },
+  {
+    label: resolvePortalDevText(PortalDevTextToken.GetActivityAppGameAdapterDispatchResultReadModel),
+    command: AgentCommand.ActivityAppGameAdapterDispatchResultReadModelGet,
+    resultEvent: AgentEvent.ActivityAppGameAdapterDispatchResultReadModelReported,
+    payload: {},
+  },
+  {
+    label: resolvePortalDevText(PortalDevTextToken.ExecuteActivityAppGameAdapterDispatch),
+    command: AgentCommand.ActivityAppGameAdapterDispatchExecute,
+    resultEvent: AgentEvent.ActivityAppGameAdapterDispatchExecuted,
     payload: {},
   },
   {

@@ -14,17 +14,17 @@ await main();
 async function main() {
   await mkdir(outputDir, { recursive: true });
 
-  await runCommand('cmd', ['/c', 'npm', 'run', 'build:contracts']);
-  await runCommand('cmd', [
-    '/c',
-    'npm',
-    'run',
-    'test',
-    '--workspace',
-    '@ocentra-parent/parent-domain',
-    '--',
-    'enforcement-host-adapter-preflight',
-  ]);
+  await runCommand(...npmCommand(['run', 'build:contracts']));
+  await runCommand(
+    ...npmCommand([
+      'run',
+      'test',
+      '--workspace',
+      '@ocentra-parent/parent-domain',
+      '--',
+      'enforcement-host-adapter-preflight',
+    ])
+  );
 
   const { EnforcementBroadAdapterCapability, V08BroadOsAdapterReadinessMatrix } =
     await import('../../packages/parent-domain/dist/enforcement-readiness.js');
@@ -188,4 +188,10 @@ function assertAtLeast(actual, expected, label) {
   if (actual < expected) {
     throw new Error(`${label}: expected at least ${expected}, received ${actual}`);
   }
+}
+
+function npmCommand(args) {
+  const command = process.platform === 'win32' ? 'cmd' : 'npm';
+  const commandArgs = process.platform === 'win32' ? ['/c', 'npm', ...args] : args;
+  return [command, commandArgs];
 }

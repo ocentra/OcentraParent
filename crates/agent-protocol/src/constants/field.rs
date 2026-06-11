@@ -12,6 +12,30 @@ pub const APP_GAME_BOUNDARY_READ_MODEL: &str = "appGameBoundaryReadModel";
 pub const APP_GAME_POLICY_READINESS_READ_MODEL: &str = "appGamePolicyReadinessReadModel";
 pub const APP_GAME_NOTIFICATION_READINESS_READ_MODEL: &str =
     "appGameNotificationReadinessReadModel";
+pub const APP_GAME_ADAPTER_EXECUTION_READINESS_READ_MODEL: &str =
+    "appGameAdapterExecutionReadinessReadModel";
+pub const APP_GAME_PLATFORM_PROOF_STATUS_READ_MODEL: &str = "appGamePlatformProofStatusReadModel";
+pub const APP_GAME_CHILD_RUNTIME_TRANSPORT_RECEIPT_READ_MODEL: &str =
+    "appGameChildRuntimeTransportReceiptReadModel";
+pub const APP_GAME_ADAPTER_DISPATCH_PREFLIGHT_READ_MODEL: &str =
+    "appGameAdapterDispatchPreflightReadModel";
+pub const APP_GAME_TIMER_PARENT_SURFACE_READ_MODEL: &str = "appGameTimerParentSurfaceReadModel";
+pub const APP_GAME_TIMER_PARENT_PREFERENCE_SETUP_REQUEST: &str =
+    "appGameTimerParentPreferenceSetupRequest";
+pub const APP_GAME_TIMER_PARENT_PREFERENCE_SETUP_MUTATION_RECEIPT: &str =
+    "appGameTimerParentPreferenceSetupMutationReceipt";
+pub const APP_GAME_TIMER_PARENT_PREFERENCE_SETUP_CHILD_RUNTIME_DELIVERY_HANDOFF: &str =
+    "appGameTimerParentPreferenceSetupChildRuntimeDeliveryHandoff";
+pub const APP_GAME_TIMER_PARENT_PREFERENCE_SETUP_CHILD_RUNTIME_DELIVERY_QUEUE: &str =
+    "appGameTimerParentPreferenceSetupChildRuntimeDeliveryQueue";
+pub const APP_GAME_TIMER_PARENT_PREFERENCE_SETUP_CHILD_RUNTIME_DELIVERY_DISPATCH: &str =
+    "appGameTimerParentPreferenceSetupChildRuntimeDeliveryDispatch";
+pub const APP_GAME_TIMER_PARENT_PREFERENCE_SETUP_CHILD_RUNTIME_DELIVERY_RECEIPT_REQUIREMENT: &str =
+    "appGameTimerParentPreferenceSetupChildRuntimeDeliveryReceiptRequirement";
+pub const APP_GAME_TIMER_PARENT_PREFERENCE_SETUP_CHILD_RUNTIME_DELIVERY_RECEIPT_PENDING: &str =
+    "appGameTimerParentPreferenceSetupChildRuntimeDeliveryReceiptPending";
+pub const APP_GAME_TIMER_PARENT_PREFERENCE_SETUP_PROVIDER_DELIVERY_QUEUE: &str =
+    "appGameTimerParentPreferenceSetupProviderDeliveryQueue";
 pub const BROWSER_SOCIAL_DASHBOARD_READ_MODEL: &str = "browserSocialDashboardReadModel";
 pub const BROWSER_SOCIAL_AUDIT_EXPLANATION_READ_MODEL: &str =
     "browserSocialAuditExplanationReadModel";
@@ -43,6 +67,56 @@ pub const BROWSER_INTERVENTION_AUDIT_ID: &str = "browserInterventionAuditId";
 pub const BROWSER_POLICY_REQUEST: &str = "browserPolicyRequest";
 pub const BROWSER_POLICY_REQUEST_ID: &str = "requestId";
 pub const BROWSER_POLICY_RESPONSE: &str = "browserPolicyResponse";
+pub const APP_GAME_PARENT_PREFERENCE_SETUP_OUTBOX_SCHEMA_VERSION: &str = "schemaVersion";
+pub const APP_GAME_PARENT_PREFERENCE_SETUP_OUTBOX_RECORD_ID: &str = "recordId";
+pub const APP_GAME_PARENT_PREFERENCE_SETUP_OUTBOX_REQUEST_ID: &str = "requestId";
+pub const APP_GAME_PARENT_PREFERENCE_SETUP_OUTBOX_RECORDED_AT: &str = "recordedAt";
+pub const APP_GAME_PARENT_PREFERENCE_SETUP_OUTBOX_PARENT_SURFACE_INTENT_REFERENCE_ID: &str =
+    "parentSurfaceIntentReferenceId";
+pub const APP_GAME_PARENT_PREFERENCE_SETUP_OUTBOX_PARENT_PREFERENCE_SETUP_REFERENCE_ID: &str =
+    "parentPreferenceSetupReferenceId";
+pub const APP_GAME_PARENT_PREFERENCE_SETUP_OUTBOX_ACTION_RESULT_REFERENCE_ID: &str =
+    "actionResultReferenceId";
+pub const APP_GAME_PARENT_PREFERENCE_SETUP_OUTBOX_CHILD_RUNTIME_DELIVERY_RECEIPT_INGESTED_ID: &str =
+    "childRuntimeDeliveryReceiptIngestedId";
+pub const APP_GAME_PARENT_PREFERENCE_SETUP_OUTBOX_PROVIDER_DELIVERY_ADAPTER_REQUIREMENT_ID: &str =
+    "providerDeliveryAdapterRequirementId";
+pub const APP_GAME_PARENT_PREFERENCE_SETUP_OUTBOX_PROVIDER_DELIVERY_ADAPTER_REQUIREMENT_STATUS:
+    &str = "providerDeliveryAdapterRequirementStatus";
+pub const APP_GAME_PARENT_PREFERENCE_SETUP_OUTBOX_PROVIDER_DELIVERY_CREDENTIAL_REQUIREMENT_ID:
+    &str = "providerDeliveryCredentialRequirementId";
+pub const APP_GAME_PARENT_PREFERENCE_SETUP_OUTBOX_PROVIDER_DELIVERY_CREDENTIAL_REQUIREMENT_STATUS: &str =
+    "providerDeliveryCredentialRequirementStatus";
+pub const APP_GAME_PARENT_PREFERENCE_SETUP_OUTBOX_PROVIDER_DELIVERY_QUEUE_ID: &str =
+    "providerDeliveryQueueId";
+pub const APP_GAME_PARENT_PREFERENCE_SETUP_OUTBOX_PROVIDER_DELIVERY_QUEUE_STATUS: &str =
+    "providerDeliveryQueueStatus";
+pub const APP_GAME_PARENT_PREFERENCE_SETUP_OUTBOX_PROVIDER_DELIVERY_RECEIPT_REQUIREMENT_ID: &str =
+    "providerDeliveryReceiptRequirementId";
+pub const APP_GAME_PARENT_PREFERENCE_SETUP_OUTBOX_PROVIDER_DELIVERY_RECEIPT_REQUIREMENT_STATUS:
+    &str = "providerDeliveryReceiptRequirementStatus";
+pub const APP_GAME_PARENT_PREFERENCE_SETUP_OUTBOX_PROVIDER_DELIVERY_RECEIPT_PENDING_ID: &str =
+    "providerDeliveryReceiptPendingId";
+pub const APP_GAME_PARENT_PREFERENCE_SETUP_OUTBOX_PROVIDER_DELIVERY_RECEIPT_PENDING_STATUS: &str =
+    "providerDeliveryReceiptPendingStatus";
+pub const APP_GAME_PARENT_PREFERENCE_SETUP_OUTBOX_PROVIDER_DELIVERY_RECEIPT_INGESTED_ID: &str =
+    "providerDeliveryReceiptIngestedId";
+pub const APP_GAME_PARENT_PREFERENCE_SETUP_OUTBOX_PROVIDER_DELIVERY_RECEIPT_INGESTED_STATUS: &str =
+    "providerDeliveryReceiptIngestedStatus";
+pub const APP_GAME_PARENT_PREFERENCE_SETUP_OUTBOX_PROVIDER_DELIVERY_CLAIMED: &str =
+    "providerDeliveryClaimed";
+pub const APP_GAME_PARENT_PREFERENCE_SETUP_OUTBOX_PROVIDER_RECEIPT_INGESTION_CLAIMED: &str =
+    "providerReceiptIngestionClaimed";
+pub const APP_GAME_PARENT_PREFERENCE_SETUP_OUTBOX_ADAPTER_DISPATCH_CLAIMED: &str =
+    "adapterDispatchClaimed";
+pub const APP_GAME_PARENT_PREFERENCE_SETUP_OUTBOX_PLATFORM_ENFORCEMENT_CLAIMED: &str =
+    "platformEnforcementClaimed";
+pub const APP_GAME_PARENT_PREFERENCE_SETUP_OUTBOX_RAW_PRIVATE_SOURCE_ROWS_CLAIMED: &str =
+    "rawPrivateSourceRowsClaimed";
+pub const APP_GAME_PARENT_PREFERENCE_SETUP_OUTBOX_RAW_TARGET_VALUES_CLAIMED: &str =
+    "rawTargetValuesClaimed";
+pub const APP_GAME_PARENT_PREFERENCE_SETUP_OUTBOX_PRIVATE_DIAGNOSTICS_CLAIMED: &str =
+    "privateDiagnosticsClaimed";
 pub const BROWSER_POLICY_UPDATE_KIND: &str = "browserPolicyUpdateKind";
 pub const BROWSER_POLICY_REJECTION_REASON: &str = "browserPolicyRejectionReason";
 pub const BROWSER_POLICY_EFFECTIVE_POLICY: &str = "browserPolicyEffectivePolicy";
@@ -56,6 +130,7 @@ pub const CHECKED_AT: &str = "checkedAt";
 pub const CIPHER: &str = "cipher";
 pub const CIPHERTEXT: &str = "ciphertext";
 pub const COMMAND: &str = "command";
+pub const COMMAND_ID: &str = "commandId";
 pub const CREATED_AT: &str = "createdAt";
 pub const CUSTODY_LABEL: &str = "custodyLabel";
 pub const CUSTODY: &str = "custody";
@@ -467,6 +542,25 @@ pub const RANGE_START: &str = "rangeStart";
 pub const REMOTE_SYNC: &str = "remoteSync";
 pub const ROLLBACK_TOKEN: &str = "rollbackToken";
 pub const RETURNED: &str = "returned";
+pub const APP_GAME_ADAPTER_DISPATCH_RESULT_READ_MODEL: &str =
+    "appGameAdapterDispatchResultReadModel";
+pub const APP_GAME_ADAPTER_DISPATCH_EXECUTE_RESULT: &str = "appGameAdapterDispatchExecuteResult";
+pub const SOURCE_DISPATCH_ROW_ID: &str = "sourceDispatchRowId";
+pub const SOURCE_PROOF_ENTRY_ID: &str = "sourceProofEntryId";
+pub const SOURCE_READ_MODEL_ID: &str = "sourceReadModelId";
+pub const EXECUTION_COMMAND_NAME: &str = "executionCommandName";
+pub const EXECUTION_EVENT_NAME: &str = "executionEventName";
+pub const EXECUTION_RESULT_ID: &str = "executionResultId";
+pub const EXECUTION_STATUS: &str = "executionStatus";
+pub const EXECUTION_ADAPTER_RESULT_CODE: &str = "executionAdapterResultCode";
+pub const EXECUTION_AUDIT_EVENT_ID: &str = "executionAuditEventId";
+pub const READBACK_COMMAND_NAME: &str = "readbackCommandName";
+pub const ADAPTER_DISPATCH_EXECUTED_CLAIMED: &str = "adapterDispatchExecutedClaimed";
+pub const BROAD_INSTALLED_APP_BLOCKING_CLAIMED: &str = "broadInstalledAppBlockingClaimed";
+pub const CHILD_DEVICE_DELIVERY_CLAIMED: &str = "childDeviceDeliveryClaimed";
+pub const PLATFORM_ENFORCEMENT_CLAIMED: &str = "platformEnforcementClaimed";
+pub const PROVIDER_DELIVERY_CLAIMED: &str = "providerDeliveryClaimed";
+pub const PRIVATE_DIAGNOSTICS_CLAIMED: &str = "privateDiagnosticsClaimed";
 pub const SOURCE_ID: &str = "sourceId";
 pub const SOURCE_LABELS: &str = "sourceLabels";
 pub const SCHEMA_VERSION: &str = "schemaVersion";

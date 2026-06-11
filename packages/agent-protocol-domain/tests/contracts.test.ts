@@ -25,6 +25,11 @@ const EXPECTED_AGENT_COMMAND_ENTRIES = [
   ['ActivityAppGameBoundaryReadModelGet', 'agent.activity.app-game.boundary.read-model.get'],
   ['ActivityAppGamePolicyReadinessReadModelGet', 'agent.activity.app-game.policy-readiness.read-model.get'],
   ['ActivityAppGameNotificationReadinessReadModelGet', 'agent.activity.app-game.notification-readiness.read-model.get'],
+  ['ActivityAppGameTimerParentSurfaceReadModelGet', 'agent.activity.app-game.timer-parent-surface.read-model.get'],
+  [
+    'ActivityAppGameTimerParentPreferenceSetupRequest',
+    'agent.activity.app-game.timer-parent-surface.parent-preference-setup.request',
+  ],
   ['BrowserSocialDashboardReadModelGet', 'agent.browser.social-dashboard.read-model.get'],
   ['BrowserSocialAuditExplanationReadModelGet', 'agent.browser.social-audit-explanation.read-model.get'],
   ['ActivityNetworkReadModelGet', 'agent.activity.network.read-model.get'],
@@ -97,6 +102,14 @@ const EXPECTED_AGENT_EVENT_ENTRIES = [
   [
     'ActivityAppGameNotificationReadinessReadModelReported',
     'agent.activity.app-game.notification-readiness.read-model.reported',
+  ],
+  [
+    'ActivityAppGameTimerParentSurfaceReadModelReported',
+    'agent.activity.app-game.timer-parent-surface.read-model.reported',
+  ],
+  [
+    'ActivityAppGameTimerParentPreferenceSetupRequested',
+    'agent.activity.app-game.timer-parent-surface.parent-preference-setup.requested',
   ],
   ['BrowserSocialDashboardReadModelReported', 'agent.browser.social-dashboard.read-model.reported'],
   ['BrowserSocialAuditExplanationReadModelReported', 'agent.browser.social-audit-explanation.read-model.reported'],
@@ -374,6 +387,9 @@ function expectReadModelBridgeAndActivityFields() {
   );
   expect(AgentProtocolDefaults.Field.ActivityAppGameNotificationReadinessReadModel).toBe(
     'appGameNotificationReadinessReadModel'
+  );
+  expect(AgentProtocolDefaults.Field.ActivityAppGameTimerParentPreferenceSetupRequest).toBe(
+    'appGameTimerParentPreferenceSetupRequest'
   );
   expect(AgentProtocolDefaults.Field.DatabaseReady).toBe('databaseReady');
   expect(AgentProtocolDefaults.Field.BrowserEvidenceId).toBe('browserEvidenceId');

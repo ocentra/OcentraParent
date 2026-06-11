@@ -114,7 +114,7 @@ function validateReadModel(readModel) {
 }
 
 function buildWorkspace(workspace) {
-  execFileSync('cmd', ['/c', 'npm', 'run', 'build', '--workspace', workspace], {
+  execFileSync(...npmCommand(['run', 'build', '--workspace', workspace]), {
     cwd: root,
     stdio: 'inherit',
   });
@@ -122,17 +122,14 @@ function buildWorkspace(workspace) {
 
 function runFocusedTest() {
   execFileSync(
-    'cmd',
-    [
-      '/c',
-      'npm',
+    ...npmCommand([
       'run',
       'test',
       '--workspace',
       '@ocentra-parent/activity-domain',
       '--',
       'browser-android-owned-shell-url-custody.test.ts',
-    ],
+    ]),
     {
       cwd: root,
       stdio: 'inherit',
@@ -146,4 +143,10 @@ function git(args) {
 
 function relativePath(path) {
   return relative(root, path).replaceAll('\\', '/');
+}
+
+function npmCommand(args) {
+  const command = process.platform === 'win32' ? 'cmd' : 'npm';
+  const commandArgs = process.platform === 'win32' ? ['/c', 'npm', ...args] : args;
+  return [command, commandArgs];
 }

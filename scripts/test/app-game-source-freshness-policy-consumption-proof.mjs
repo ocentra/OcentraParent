@@ -15,17 +15,17 @@ async function main() {
   await mkdir(appGameProofDir, { recursive: true });
   await mkdir(appProofDir, { recursive: true });
 
-  await runCommand('cmd', ['/c', 'npm', 'run', 'build:contracts']);
-  await runCommand('cmd', [
-    '/c',
-    'npm',
-    'run',
-    'test',
-    '--workspace',
-    '@ocentra-parent/parent-domain',
-    '--',
-    'app-game-source-freshness-policy-consumption',
-  ]);
+  await runCommand(...npmCommand(['run', 'build:contracts']));
+  await runCommand(
+    ...npmCommand([
+      'run',
+      'test',
+      '--workspace',
+      '@ocentra-parent/parent-domain',
+      '--',
+      'app-game-source-freshness-policy-consumption',
+    ])
+  );
 
   const { AppGameSourceFreshnessPolicyConsumptionMatrix } =
     await import('../../packages/parent-domain/dist/app-game-source-freshness-policy-consumption-data.js');
@@ -228,4 +228,10 @@ function assertEqual(actual, expected, label) {
   if (actual !== expected) {
     throw new Error(`${label}: expected ${expected}, received ${actual}`);
   }
+}
+
+function npmCommand(args) {
+  const command = process.platform === 'win32' ? 'cmd' : 'npm';
+  const commandArgs = process.platform === 'win32' ? ['/c', 'npm', ...args] : args;
+  return [command, commandArgs];
 }

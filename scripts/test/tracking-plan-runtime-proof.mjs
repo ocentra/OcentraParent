@@ -579,7 +579,7 @@ async function runTrackingRouteScreenshotProof() {
   const output = [];
   const server =
     process.platform === 'win32'
-      ? spawn('cmd', ['/c', 'npm', ...commandArgs], {
+      ? spawn(...npmCommand([...commandArgs]), {
           cwd: repoRoot,
           env: trackingRouteServerEnv(host),
           stdio: ['ignore', 'pipe', 'pipe'],
@@ -842,12 +842,10 @@ async function stopProcessTree(child) {
   child.kill('SIGTERM');
 }
 
-async function runNpm(args) {
-  if (process.platform === 'win32') {
-    await runCommand('cmd', ['/c', 'npm', ...args]);
-    return;
-  }
-  await runCommand('npm', args);
+async function runNpm(args, ...rest) {
+  const command = process.platform === 'win32' ? 'cmd' : 'npm';
+  const commandArgs = process.platform === 'win32' ? ['/c', 'npm', ...args] : args;
+  await runCommand(command, commandArgs, ...rest);
 }
 
 async function runCommand(command, args) {
@@ -860,4 +858,10 @@ async function runCommand(command, args) {
     });
     child.once('error', reject);
   });
+}
+
+function npmCommand(args) {
+  const command = process.platform === 'win32' ? 'cmd' : 'npm';
+  const commandArgs = process.platform === 'win32' ? ['/c', 'npm', ...args] : args;
+  return [command, commandArgs];
 }

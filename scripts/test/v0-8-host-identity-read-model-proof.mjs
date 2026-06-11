@@ -15,7 +15,7 @@ async function main() {
 
   await runCommand('cargo', ['test', '-p', 'ocentra-parent-agent-protocol', 'host_identity']);
   await runCommand('cargo', ['test', '-p', 'ocentra-parent-agent-service', 'host_identity_read_model']);
-  await runCommand('cmd', ['/c', 'npm', 'run', 'test:pre-ai-proof']);
+  await runCommand(...npmCommand(['run', 'test:pre-ai-proof']));
   proofLabels.push('pre-ai-proof.current-matrix-valid');
   proofLabels.push('v0.8.host-identity-read-model.matrix-registered');
   proofLabels.push('v0.8.host-identity-read-model.rust-protocol-service');
@@ -97,4 +97,10 @@ async function gitHead() {
     child.once('error', reject);
   });
   return chunks.join('').trim();
+}
+
+function npmCommand(args) {
+  const command = process.platform === 'win32' ? 'cmd' : 'npm';
+  const commandArgs = process.platform === 'win32' ? ['/c', 'npm', ...args] : args;
+  return [command, commandArgs];
 }

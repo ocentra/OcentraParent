@@ -218,6 +218,11 @@ flowchart LR
 - App/game source status rows are backend read-model summaries only; polished
   portal rendering, policy consumption, richer subscriptions, adapter
   execution, and broad blocking remain separate gaps.
+- App/game timer parent preference setup request persistence writes
+  service-local action-result, mutation receipt, child-runtime handoff, queue,
+  and dispatch readiness audit rows only; actual child runtime receipt,
+  provider delivery, durable production outbox runtime, adapter dispatch, broad
+  blocking, and platform enforcement remain separate gaps.
 - Screen service analysis proofs are backend/local proof hooks only; production
   OCR/VLM quality, authenticated-account surfaces, broader live trigger
   producers, retention UI, and enforcement remain separate gaps.

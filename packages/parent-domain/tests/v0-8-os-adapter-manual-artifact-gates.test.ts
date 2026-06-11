@@ -10,6 +10,7 @@ describe('V0.8 OS adapter manual artifact gates', () => {
   capturesManualArtifactGatesAcrossPlatforms();
   keepsWindowsHostGatesManual();
   recordsAndroidPrivilegedCapabilityGates();
+  recordsHostCapabilityProbeRefsForWindowsLinuxAndAndroid();
   recordsIosEntitlementDistributionGates();
   rejectsClaimUpgrades();
 });
@@ -35,6 +36,11 @@ function capturesManualArtifactGatesAcrossPlatforms() {
     });
     expect(new Set(readModel.entries.map((entry) => entry.gateEntryId)).size).toBe(readModel.entries.length);
     expect(readModel.entries.every((entry) => entry.requiredArtifacts.length > 0)).toBe(true);
+    expect(
+      readModel.entries.every((entry) =>
+        entry.hostCapabilityProbeRefs.every((probeRef) => probeRef.endsWith('-probe-ref'))
+      )
+    ).toBe(true);
     expect(readModel.entries.every((entry) => !entry.productReadyBlockingClaimed)).toBe(true);
   });
 }
@@ -61,6 +67,7 @@ function keepsWindowsHostGatesManual() {
     expect(restart.requiredArtifacts).toContain('post-restart recovered state');
     expect(audit.requiredArtifacts).toContain('artifact hash or path');
     expect(service.requiredArtifacts).toContain('operator consent evidence');
+    expect(service.hostCapabilityProbeRefs).toEqual(['windows-host-local-probe-ref']);
     expect(lifecycle.requiredArtifacts).toContain('rollback or uninstall evidence');
   });
 }
@@ -90,6 +97,27 @@ function recordsAndroidPrivilegedCapabilityGates() {
       'requires-mobile-artifacts',
       'requires-mobile-artifacts',
     ]);
+  });
+}
+
+function recordsHostCapabilityProbeRefsForWindowsLinuxAndAndroid() {
+  it('records parent-safe host capability probe refs without upgrading Linux or Android support', () => {
+    const windows = entryFor(V08OsAdapterManualArtifactGateSurface.WindowsServicePermission);
+    const linux = entryFor(V08OsAdapterManualArtifactGateSurface.LinuxServicePackagePermission);
+    const usageStats = entryFor(V08OsAdapterManualArtifactGateSurface.AndroidUsageStats);
+    const deviceOwner = entryFor(V08OsAdapterManualArtifactGateSurface.AndroidDeviceOwner);
+    const macos = entryFor(V08OsAdapterManualArtifactGateSurface.MacosServicePackagePermission);
+    const ios = entryFor(V08OsAdapterManualArtifactGateSurface.IosFamilyControls);
+
+    expect(windows.hostCapabilityProbeRefs).toEqual(['windows-host-local-probe-ref']);
+    expect(linux.hostCapabilityProbeRefs).toEqual(['linux-wsl-path-probe-ref', 'linux-docker-path-probe-ref']);
+    expect(usageStats.hostCapabilityProbeRefs).toEqual(['android-adb-path-probe-ref', 'android-adb-sdk-probe-ref']);
+    expect(deviceOwner.hostCapabilityProbeRefs).toEqual(['android-adb-path-probe-ref', 'android-adb-sdk-probe-ref']);
+    expect(macos.hostCapabilityProbeRefs).toEqual([]);
+    expect(ios.hostCapabilityProbeRefs).toEqual([]);
+    expect(linux.gateOutcome).toBe('unavailable');
+    expect(usageStats.gateOutcome).toBe('manual-required');
+    expect(deviceOwner.mobilePrivilegeClaimed).toBe(false);
   });
 }
 
@@ -158,6 +186,13 @@ function rejectsClaimUpgrades() {
         ...android,
         gateEntryId: 'invalid-mobile-privilege-upgrade',
         mobilePrivilegeClaimed: true,
+      })
+    ).toThrow();
+    expect(() =>
+      V08OsAdapterManualArtifactGateEntrySchema.parse({
+        ...android,
+        gateEntryId: 'invalid-android-host-probe-refs',
+        hostCapabilityProbeRefs: ['android-raw-device-serial'],
       })
     ).toThrow();
   });

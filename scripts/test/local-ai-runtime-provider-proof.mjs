@@ -16,17 +16,17 @@ async function main() {
   await mkdir(resultOutputDir, { recursive: true });
   await mkdir(trackedOutputDir, { recursive: true });
 
-  await runCommand('cmd', ['/c', 'npm', 'run', 'build:contracts']);
-  await runCommand('cmd', [
-    '/c',
-    'npm',
-    'run',
-    'test',
-    '--workspace',
-    '@ocentra-parent/parent-domain',
-    '--',
-    'local-ai-runtime-provider-proof',
-  ]);
+  await runCommand(...npmCommand(['run', 'build:contracts']));
+  await runCommand(
+    ...npmCommand([
+      'run',
+      'test',
+      '--workspace',
+      '@ocentra-parent/parent-domain',
+      '--',
+      'local-ai-runtime-provider-proof',
+    ])
+  );
   await runCommand('cargo', ['test', '-p', 'ocentra-parent-agent-protocol', 'local_ai_runtime_provider_proof']);
   await runCommand('cargo', ['test', '-p', 'ocentra-parent-agent-service', 'local_ai_provider_scheduler']);
   await runCommand('cargo', [
@@ -188,4 +188,10 @@ function assertSetHas(set, value, label) {
   if (!set.has(value)) {
     throw new Error(`${label}: missing ${value}`);
   }
+}
+
+function npmCommand(args) {
+  const command = process.platform === 'win32' ? 'cmd' : 'npm';
+  const commandArgs = process.platform === 'win32' ? ['/c', 'npm', ...args] : args;
+  return [command, commandArgs];
 }

@@ -101,6 +101,7 @@ const V08OsAdapterManualArtifactGateEntryBaseSchema = Schema.Struct({
   requiredArtifacts: Schema.Array(V08OsAdapterManualArtifactGateRequirementSchema),
   linkedProofCommands: Schema.Array(V08OsAdapterManualArtifactGateReferenceSchema),
   linkedProofArtifacts: Schema.Array(V08OsAdapterManualArtifactGateReferenceSchema),
+  hostCapabilityProbeRefs: Schema.Array(V08OsAdapterManualArtifactGateReferenceSchema),
   claimBoundary: V08OsAdapterManualArtifactGateClaimBoundarySchema,
   fallbackBehavior: V08OsAdapterManualArtifactGateFallbackSchema,
   productReadyBlockingClaimed: Schema.Boolean,
@@ -142,7 +143,11 @@ export const V08OsAdapterManualArtifactGateReadModelSchema = withParser(
 );
 
 function osAdapterManualArtifactGateEntryIsHonest(entry: V08OsAdapterManualArtifactGateEntryCandidate): boolean {
-  if (osAdapterManualArtifactGateEntryHasClaimUpgrade(entry) || entry.requiredArtifacts.length === 0) {
+  if (
+    osAdapterManualArtifactGateEntryHasClaimUpgrade(entry) ||
+    entry.requiredArtifacts.length === 0 ||
+    !hostCapabilityProbeRefsMatchPlatform(entry)
+  ) {
     return false;
   }
 
@@ -163,6 +168,23 @@ function osAdapterManualArtifactGateEntryIsHonest(entry: V08OsAdapterManualArtif
         entry.gateDecision === 'adapter-unavailable'
       );
   }
+}
+
+function hostCapabilityProbeRefsMatchPlatform(entry: V08OsAdapterManualArtifactGateEntryCandidate): boolean {
+  if (entry.platform === 'windows') {
+    return sameRefs(entry.hostCapabilityProbeRefs, ['windows-host-local-probe-ref']);
+  }
+  if (entry.platform === 'linux') {
+    return sameRefs(entry.hostCapabilityProbeRefs, ['linux-wsl-path-probe-ref', 'linux-docker-path-probe-ref']);
+  }
+  if (entry.platform === 'android') {
+    return sameRefs(entry.hostCapabilityProbeRefs, ['android-adb-path-probe-ref', 'android-adb-sdk-probe-ref']);
+  }
+  return entry.hostCapabilityProbeRefs.length === 0;
+}
+
+function sameRefs(actual: readonly string[], expected: readonly string[]): boolean {
+  return actual.length === expected.length && expected.every((ref) => actual.includes(ref));
 }
 
 function osAdapterManualArtifactGateEntryHasClaimUpgrade(entry: V08OsAdapterManualArtifactGateEntryCandidate): boolean {
@@ -202,6 +224,7 @@ type V08OsAdapterManualArtifactGateEntryInput = {
   requiredArtifacts: readonly string[];
   linkedProofCommands: readonly string[];
   linkedProofArtifacts: readonly string[];
+  hostCapabilityProbeRefs: readonly string[];
   claimBoundary: string;
   fallbackBehavior: string;
 };
@@ -528,6 +551,7 @@ function hostGate(
     requiredArtifacts,
     linkedProofCommands: [],
     linkedProofArtifacts: [],
+    hostCapabilityProbeRefs: hostCapabilityProbeRefsForPlatform(platform),
     claimBoundary,
     fallbackBehavior,
   });
@@ -555,6 +579,7 @@ function mobileGate(
     requiredArtifacts,
     linkedProofCommands: [],
     linkedProofArtifacts: [],
+    hostCapabilityProbeRefs: hostCapabilityProbeRefsForPlatform(platform),
     claimBoundary,
     fallbackBehavior,
   });
@@ -582,6 +607,7 @@ function notClaimedGate(
     requiredArtifacts,
     linkedProofCommands: [],
     linkedProofArtifacts: [],
+    hostCapabilityProbeRefs: hostCapabilityProbeRefsForPlatform(platform),
     claimBoundary,
     fallbackBehavior,
   });
@@ -609,6 +635,7 @@ function unavailableGate(
     requiredArtifacts,
     linkedProofCommands: [],
     linkedProofArtifacts: [],
+    hostCapabilityProbeRefs: hostCapabilityProbeRefsForPlatform(platform),
     claimBoundary,
     fallbackBehavior,
   });
@@ -628,6 +655,7 @@ function gateEntry(input: V08OsAdapterManualArtifactGateEntryInput): V08OsAdapte
     requiredArtifacts: [...input.requiredArtifacts],
     linkedProofCommands: [...input.linkedProofCommands],
     linkedProofArtifacts: [...input.linkedProofArtifacts],
+    hostCapabilityProbeRefs: [...input.hostCapabilityProbeRefs],
     claimBoundary: input.claimBoundary,
     fallbackBehavior: input.fallbackBehavior,
     productReadyBlockingClaimed: false,
@@ -639,6 +667,19 @@ function gateEntry(input: V08OsAdapterManualArtifactGateEntryInput): V08OsAdapte
     mobilePrivilegeClaimed: false,
     lastCheckedAt: documentedAt,
   });
+}
+
+function hostCapabilityProbeRefsForPlatform(platform: ParentControlPlatform): readonly string[] {
+  if (platform === 'windows') {
+    return ['windows-host-local-probe-ref'];
+  }
+  if (platform === 'linux') {
+    return ['linux-wsl-path-probe-ref', 'linux-docker-path-probe-ref'];
+  }
+  if (platform === 'android') {
+    return ['android-adb-path-probe-ref', 'android-adb-sdk-probe-ref'];
+  }
+  return [];
 }
 
 export const decodeV08OsAdapterManualArtifactGateEntry = Schema.decodeUnknownSync(

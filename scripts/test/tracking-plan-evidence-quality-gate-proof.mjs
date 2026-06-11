@@ -373,7 +373,7 @@ await main();
 
 function runNpm(args) {
   if (process.platform === 'win32') {
-    return runCommand('cmd', ['/c', 'npm', ...args]);
+    return runCommand(...npmCommand([...args]));
   }
   return runCommand('npm', args);
 }
@@ -400,4 +400,10 @@ function gitHead() {
 
 function relativePath(value) {
   return path.relative(repoRoot, value).replace(/\\/gu, '/');
+}
+
+function npmCommand(args) {
+  const command = process.platform === 'win32' ? 'cmd' : 'npm';
+  const commandArgs = process.platform === 'win32' ? ['/c', 'npm', ...args] : args;
+  return [command, commandArgs];
 }

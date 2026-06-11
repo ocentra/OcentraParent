@@ -12,33 +12,33 @@ await main();
 async function main() {
   await mkdir(outputDir, { recursive: true });
 
-  await runCommand('cmd', ['/c', 'npm', 'run', 'build:contracts']);
-  await runCommand('cmd', [
-    '/c',
-    'npm',
-    'run',
-    'test',
-    '--workspace',
-    '@ocentra-parent/parent-domain',
-    '--',
-    'tests/lan-discovery-source-matrix.test.ts',
-    'tests/lan-signed-discovery-relay-spine.test.ts',
-    'tests/lan-production-household-proof.test.ts',
-  ]);
-  await runCommand('cmd', [
-    '/c',
-    'npm',
-    'run',
-    'test',
-    '--workspace',
-    '@ocentra-parent/agent-protocol-domain',
-    '--',
-    'tests/lan-discovery-source-matrix.test.ts',
-    'tests/lan-pairing-browser-add-device-state.test.ts',
-  ]);
+  await runCommand(...npmCommand(['run', 'build:contracts']));
+  await runCommand(
+    ...npmCommand([
+      'run',
+      'test',
+      '--workspace',
+      '@ocentra-parent/parent-domain',
+      '--',
+      'tests/lan-discovery-source-matrix.test.ts',
+      'tests/lan-signed-discovery-relay-spine.test.ts',
+      'tests/lan-production-household-proof.test.ts',
+    ])
+  );
+  await runCommand(
+    ...npmCommand([
+      'run',
+      'test',
+      '--workspace',
+      '@ocentra-parent/agent-protocol-domain',
+      '--',
+      'tests/lan-discovery-source-matrix.test.ts',
+      'tests/lan-pairing-browser-add-device-state.test.ts',
+    ])
+  );
   await runCommand('cargo', ['test', '-p', 'ocentra-parent-agent-protocol', 'lan_pairing_browser_add_device_state']);
   await runCommand('cargo', ['test', '-p', 'ocentra-parent-agent-service', 'lan_pairing_browser_add_device_state']);
-  await runCommand('cmd', ['/c', 'npm', 'run', 'lint', '--workspace', '@ocentra-parent/portal']);
+  await runCommand(...npmCommand(['run', 'lint', '--workspace', '@ocentra-parent/portal']));
 
   const contract = await import(parentDomainLanPairingModuleUrl());
   const matrix = contract.LanDiscoverySourceMatrixSchema.parse(sourceMatrixFixture());
@@ -456,4 +456,10 @@ async function gitHead() {
 function parentDomainLanPairingModuleUrl() {
   const modulePath = join(repoRoot, 'packages', 'parent-domain', 'dist', 'lan-pairing.js');
   return `file:///${modulePath.replaceAll('\\', '/')}`;
+}
+
+function npmCommand(args) {
+  const command = process.platform === 'win32' ? 'cmd' : 'npm';
+  const commandArgs = process.platform === 'win32' ? ['/c', 'npm', ...args] : args;
+  return [command, commandArgs];
 }

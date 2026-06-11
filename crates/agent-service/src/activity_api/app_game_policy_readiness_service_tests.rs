@@ -14,7 +14,9 @@ use ocentra_parent_agent_protocol::{
     APP_GAME_JOURNAL_FIELD_ROW_JSON, APP_GAME_JOURNAL_FIELD_ROW_KIND,
     APP_GAME_JOURNAL_REPLAY_STATE_STORED, APP_GAME_JOURNAL_ROW_KIND_EVIDENCE_CLAIM,
     APP_GAME_JOURNAL_SOURCE_ID, APP_GAME_OBSERVATION_MODE_INVENTORY_SCAN,
-    APP_GAME_POLICY_READINESS_KIND_POLICY_EVIDENCE, APP_GAME_POLICY_READINESS_STATE_MISSING,
+    APP_GAME_POLICY_READINESS_KIND_CATEGORY_CANDIDATE,
+    APP_GAME_POLICY_READINESS_KIND_POLICY_EVIDENCE, APP_GAME_POLICY_READINESS_KIND_UNKNOWN_REVIEW,
+    APP_GAME_POLICY_READINESS_STATE_MISSING, APP_GAME_POLICY_READINESS_STATE_READY,
     APP_GAME_POLICY_READINESS_STATUS_PARTIAL, APP_GAME_RUNTIME_NOT_CLAIMED,
     APP_GAME_SCHEMA_VERSION, APP_GAME_TEST_DISPLAY_LABEL, APP_GAME_TEST_EVIDENCE_CLAIM_ID,
     APP_GAME_TEST_EVIDENCE_REF_ID, APP_GAME_TEST_TIMESTAMP,
@@ -56,12 +58,16 @@ async fn app_game_policy_readiness_command_reports_service_backed_readiness_rows
         APP_GAME_POLICY_READINESS_STATUS_PARTIAL
     );
     assert!(!read_model.policy_evaluation_ready);
+    assert!(!read_model.category_routing_ready);
+    assert!(!read_model.unknown_review_required);
     assert!(read_model.manual_review_required);
     assert!(!read_model.adapter_dispatch_claimed);
     assert_eq!(read_model.evidence_claim_row_count, 1);
     assert_eq!(read_model.identity_row_count, 0);
     assert_eq!(read_model.platform_authority_row_count, 0);
-    assert_eq!(read_model.rows.len(), 5);
+    assert_eq!(read_model.category_candidate_row_count, 0);
+    assert_eq!(read_model.unknown_review_row_count, 0);
+    assert_eq!(read_model.rows.len(), 7);
     assert_eq!(
         read_model.rows[0].readiness_kind,
         APP_GAME_POLICY_READINESS_KIND_POLICY_EVIDENCE
@@ -76,6 +82,22 @@ async fn app_game_policy_readiness_command_reports_service_backed_readiness_rows
             APP_GAME_TEST_EVIDENCE_REF_ID,
             APP_GAME_TEST_EVIDENCE_CLAIM_ID
         ]
+    );
+    assert_eq!(
+        readiness_row(
+            &read_model.rows,
+            APP_GAME_POLICY_READINESS_KIND_CATEGORY_CANDIDATE
+        )
+        .readiness_state,
+        APP_GAME_POLICY_READINESS_STATE_MISSING
+    );
+    assert_eq!(
+        readiness_row(
+            &read_model.rows,
+            APP_GAME_POLICY_READINESS_KIND_UNKNOWN_REVIEW
+        )
+        .readiness_state,
+        APP_GAME_POLICY_READINESS_STATE_READY
     );
 }
 
@@ -189,6 +211,15 @@ fn policy_readiness_payload(value: &LogFieldValue) -> AppGamePolicyReadinessRead
         }
         _ => std::panic::panic_any(constants::error::AGENT_EVENT_SERIALIZES),
     }
+}
+
+fn readiness_row<'a>(
+    rows: &'a [ocentra_parent_agent_protocol::AppGamePolicyReadinessRow],
+    readiness_kind: &str,
+) -> &'a ocentra_parent_agent_protocol::AppGamePolicyReadinessRow {
+    rows.iter()
+        .find(|row| row.readiness_kind == readiness_kind)
+        .expect(constants::error::AGENT_EVENT_SERIALIZES)
 }
 
 fn temp_path(suffix: &str) -> std::path::PathBuf {

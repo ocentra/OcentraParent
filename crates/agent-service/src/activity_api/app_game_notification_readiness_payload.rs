@@ -1,6 +1,7 @@
 use ocentra_parent_agent_protocol::{
     constants, ActivityEvidenceKind, ActivityEvidenceRef, AppGameNotificationReadinessReadModel,
     AppGameNotificationReadinessRow, AppGameServiceReadModel, LogFieldValue, LogFields,
+    APP_GAME_CONTROL_ACTION_STATUS_ENFORCED,
     APP_GAME_NOTIFICATION_READINESS_CUSTODY_CHILD_DEVICE_QUERY_STORE,
     APP_GAME_NOTIFICATION_READINESS_MINIMAL_PAYLOAD_APPROVAL_REQUEST,
     APP_GAME_NOTIFICATION_READINESS_MINIMAL_PAYLOAD_MANUAL_REQUIRED,
@@ -23,6 +24,7 @@ use crate::fields::fields_from_pairs;
 
 pub fn app_game_notification_readiness_from_service_model(
     model: AppGameServiceReadModel,
+    local_outbox_runtime_claimed: bool,
 ) -> AppGameNotificationReadinessReadModel {
     let rows = notification_rows(&model);
     let returned = rows.len() as u64;
@@ -34,6 +36,10 @@ pub fn app_game_notification_readiness_from_service_model(
         count_rows_with_state(&rows, APP_GAME_NOTIFICATION_READINESS_STATE_MANUAL_REQUIRED);
     let unavailable_count =
         count_rows_with_state(&rows, APP_GAME_NOTIFICATION_READINESS_STATE_UNAVAILABLE);
+    let adapter_dispatch_claimed = model
+        .approval_action_result_rows
+        .iter()
+        .any(|row| row.result_status == APP_GAME_CONTROL_ACTION_STATUS_ENFORCED);
 
     AppGameNotificationReadinessReadModel {
         schema_version: APP_GAME_SCHEMA_VERSION,
@@ -46,9 +52,9 @@ pub fn app_game_notification_readiness_from_service_model(
         unavailable_count,
         provider_delivery_claimed: false,
         provider_receipt_ingestion_claimed: false,
-        local_outbox_runtime_claimed: false,
+        local_outbox_runtime_claimed,
         scheduler_runtime_claimed: false,
-        adapter_dispatch_claimed: false,
+        adapter_dispatch_claimed,
         parent_ui_claimed: false,
         child_delivery_claimed: false,
         rows,

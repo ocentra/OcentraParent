@@ -29,25 +29,12 @@ const commands = [];
 await mkdir(resultDir, { recursive: true });
 await mkdir(proofDir, { recursive: true });
 
-run('cmd', ['/c', 'npm', 'run', 'build:contracts']);
+runNpm(['run', 'build:contracts']);
 run('cargo', ['build', '-p', 'ocentra-parent-agent-service']);
-run(
-  'cmd',
-  [
-    '/c',
-    'npm',
-    'run',
-    'test:e2e',
-    '--workspace',
-    '@ocentra-parent/portal',
-    '--',
-    'social-alert-report-ui-proof.spec.ts',
-  ],
-  {
-    SOCIAL_ALERT_REPORT_UI_PROOF: '1',
-  }
-);
-run('cmd', ['/c', 'npm', '--workspace', '@ocentra-parent/portal', 'run', 'lint:exec']);
+runNpm(['run', 'test:e2e', '--workspace', '@ocentra-parent/portal', '--', 'social-alert-report-ui-proof.spec.ts'], {
+  SOCIAL_ALERT_REPORT_UI_PROOF: '1',
+});
+runNpm(['--workspace', '@ocentra-parent/portal', 'run', 'lint:exec']);
 
 await copyProofArtifacts();
 const accessibilitySummary = await readJson(accessibilitySummaryPath);
@@ -257,4 +244,10 @@ function markdown(proof) {
     '- No-claim boundary: action adapter dispatch, provider delivery, receipt ingestion runtime, report delivery execution, final policy execution, browser mutation, child intervention execution, unmanaged exact URL support, and enforcement remain unclaimed.',
     '',
   ].join('\n');
+}
+
+function runNpm(args, ...rest) {
+  const command = process.platform === 'win32' ? 'cmd' : 'npm';
+  const commandArgs = process.platform === 'win32' ? ['/c', 'npm', ...args] : args;
+  return run(command, commandArgs, ...rest);
 }

@@ -15,8 +15,8 @@ const proofGeneratedAt = '2026-06-05T18:06:02.000Z';
 await main();
 
 async function main() {
-  runCommand('cmd', ['/c', 'npm', 'run', 'build', '--workspace', '@ocentra-parent/activity-domain']);
-  runCommand('cmd', ['/c', 'npm', 'run', 'build', '--workspace', '@ocentra-parent/parent-domain']);
+  runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/activity-domain']));
+  runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/parent-domain']));
 
   const screenEvidence = await import('../../packages/activity-domain/dist/screen-evidence.js');
   const parentRuntime =
@@ -300,4 +300,10 @@ function runCommand(command, args) {
   if (result.status !== 0) {
     throw new Error(`${command} ${args.join(' ')} failed\n${result.stdout}\n${result.stderr}`);
   }
+}
+
+function npmCommand(args) {
+  const command = process.platform === 'win32' ? 'cmd' : 'npm';
+  const commandArgs = process.platform === 'win32' ? ['/c', 'npm', ...args] : args;
+  return [command, commandArgs];
 }

@@ -7,10 +7,17 @@ mod activity_memory_graph;
 mod activity_query;
 mod activity_surface;
 mod app_game;
+mod app_game_adapter_dispatch_preflight;
+mod app_game_adapter_dispatch_result;
+mod app_game_adapter_execution_readiness;
 mod app_game_authority_classifier;
 mod app_game_boundary_read_model;
+mod app_game_child_runtime_transport_receipt;
 mod app_game_notification_readiness;
+mod app_game_platform_proof_status;
 mod app_game_policy_readiness;
+mod app_game_timer_parent_preference_setup_request;
+mod app_game_timer_parent_surface_read_model;
 mod browser;
 mod browser_intervention;
 mod browser_intervention_parse;
@@ -78,10 +85,17 @@ pub use activity_memory_graph::*;
 pub use activity_query::*;
 pub use activity_surface::*;
 pub use app_game::*;
+pub use app_game_adapter_dispatch_preflight::*;
+pub use app_game_adapter_dispatch_result::*;
+pub use app_game_adapter_execution_readiness::*;
 pub use app_game_authority_classifier::*;
 pub use app_game_boundary_read_model::*;
+pub use app_game_child_runtime_transport_receipt::*;
 pub use app_game_notification_readiness::*;
+pub use app_game_platform_proof_status::*;
 pub use app_game_policy_readiness::*;
+pub use app_game_timer_parent_preference_setup_request::*;
+pub use app_game_timer_parent_surface_read_model::*;
 pub use browser::*;
 pub use browser_intervention::*;
 pub use browser_intervention_values::*;
@@ -168,17 +182,29 @@ mod activity_surface_tests;
 #[cfg(test)]
 mod activity_tests;
 #[cfg(test)]
+mod app_game_adapter_dispatch_preflight_tests;
+#[cfg(test)]
+mod app_game_adapter_dispatch_result_tests;
+#[cfg(test)]
+mod app_game_adapter_execution_readiness_tests;
+#[cfg(test)]
 mod app_game_authority_classifier_tests;
 #[cfg(test)]
 mod app_game_boundary_read_model_tests;
+#[cfg(test)]
+mod app_game_child_runtime_transport_receipt_tests;
 #[cfg(test)]
 mod app_game_evidence_identity_tests;
 #[cfg(test)]
 mod app_game_notification_readiness_tests;
 #[cfg(test)]
+mod app_game_platform_proof_status_tests;
+#[cfg(test)]
 mod app_game_policy_readiness_tests;
 #[cfg(test)]
 mod app_game_tests;
+#[cfg(test)]
+mod app_game_timer_parent_surface_read_model_tests;
 #[cfg(test)]
 mod browser_intervention_tests;
 #[cfg(test)]
@@ -261,6 +287,8 @@ mod parent_assistant_tests;
 mod parent_controller_event_tests;
 #[cfg(test)]
 mod policy_preview_tests;
+#[cfg(test)]
+mod route_tests;
 #[cfg(test)]
 mod screen_evidence_tests;
 #[cfg(test)]

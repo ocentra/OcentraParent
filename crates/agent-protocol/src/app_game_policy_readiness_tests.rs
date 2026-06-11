@@ -1,7 +1,7 @@
 use super::{
     constants, AppGamePolicyReadinessReadModel, AppGamePolicyReadinessRow,
     APP_GAME_POLICY_READINESS_CUSTODY_CHILD_DEVICE_QUERY_STORE,
-    APP_GAME_POLICY_READINESS_KIND_POLICY_EVIDENCE, APP_GAME_POLICY_READINESS_STATE_READY,
+    APP_GAME_POLICY_READINESS_KIND_CATEGORY_CANDIDATE, APP_GAME_POLICY_READINESS_STATE_READY,
     APP_GAME_POLICY_READINESS_STATUS_PARTIAL, APP_GAME_SCHEMA_VERSION,
 };
 
@@ -15,6 +15,8 @@ fn app_game_policy_readiness_read_model_serializes_no_adapter_claim() {
         capability_status: APP_GAME_POLICY_READINESS_STATUS_PARTIAL.to_string(),
         returned: 1,
         policy_evaluation_ready: false,
+        category_routing_ready: true,
+        unknown_review_required: false,
         manual_review_required: true,
         adapter_dispatch_claimed: false,
         evidence_claim_row_count: 1,
@@ -23,10 +25,12 @@ fn app_game_policy_readiness_read_model_serializes_no_adapter_claim() {
         approval_action_result_row_count: 0,
         platform_authority_row_count: 0,
         ai_classifier_result_row_count: 0,
+        category_candidate_row_count: 1,
+        unknown_review_row_count: 0,
         rows: vec![AppGamePolicyReadinessRow {
             schema_version: APP_GAME_SCHEMA_VERSION,
-            row_id: APP_GAME_POLICY_READINESS_KIND_POLICY_EVIDENCE.to_string(),
-            readiness_kind: APP_GAME_POLICY_READINESS_KIND_POLICY_EVIDENCE.to_string(),
+            row_id: APP_GAME_POLICY_READINESS_KIND_CATEGORY_CANDIDATE.to_string(),
+            readiness_kind: APP_GAME_POLICY_READINESS_KIND_CATEGORY_CANDIDATE.to_string(),
             readiness_state: APP_GAME_POLICY_READINESS_STATE_READY.to_string(),
             row_count: 1,
             evidence_reference_ids: vec![
@@ -49,9 +53,13 @@ fn app_game_policy_readiness_read_model_serializes_no_adapter_claim() {
         APP_GAME_POLICY_READINESS_STATUS_PARTIAL
     );
     assert_eq!(serialized["policyEvaluationReady"], false);
+    assert_eq!(serialized["categoryRoutingReady"], true);
+    assert_eq!(serialized["unknownReviewRequired"], false);
     assert_eq!(serialized["adapterDispatchClaimed"], false);
+    assert_eq!(serialized["categoryCandidateRowCount"], 1);
+    assert_eq!(serialized["unknownReviewRowCount"], 0);
     assert_eq!(
         serialized["rows"][0]["readinessKind"],
-        APP_GAME_POLICY_READINESS_KIND_POLICY_EVIDENCE
+        APP_GAME_POLICY_READINESS_KIND_CATEGORY_CANDIDATE
     );
 }
