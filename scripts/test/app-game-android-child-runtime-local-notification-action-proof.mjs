@@ -150,7 +150,10 @@ async function main() {
   await writeJson(proofPath, proof);
   await writeJson(join(appGameProofDir, 'proof.json'), proof);
   await writeFile(join(appGameProofDir, '00-source-snapshot.md'), sourceSnapshot(sourceState));
-  await writeFile(join(appGameProofDir, '10-validation-commands.log'), `${commands.map(redactCommandRecord).join('\n\n')}\n`);
+  await writeFile(
+    join(appGameProofDir, '10-validation-commands.log'),
+    `${commands.map(redactCommandRecord).join('\n\n')}\n`
+  );
 
   console.log('app-game-android-child-runtime-local-notification-action-proof-ok');
   console.log(`evidence=${relativePath(proofPath)}`);
@@ -166,12 +169,14 @@ function parseSourceState({ requestMarkerText, notificationText, uiText }) {
     'android-child-runtime-local-notification-request-action-ref'
   );
   return {
-    notificationChannelState: notificationChannelSeen || uiText.includes('local-notification-channel-declared')
-      ? 'local-notification-channel-declared'
-      : 'local-notification-channel-unavailable',
-    notificationPostState: notificationSeenInSystemUi || uiText.includes('local-notification-post-recorded')
-      ? 'local-notification-post-recorded'
-      : 'local-notification-post-unavailable',
+    notificationChannelState:
+      notificationChannelSeen || uiText.includes('local-notification-channel-declared')
+        ? 'local-notification-channel-declared'
+        : 'local-notification-channel-unavailable',
+    notificationPostState:
+      notificationSeenInSystemUi || uiText.includes('local-notification-post-recorded')
+        ? 'local-notification-post-recorded'
+        : 'local-notification-post-unavailable',
     notificationRequestActionState:
       notificationActionSeen || uiText.includes('local-notification-request-action-recorded')
         ? 'local-notification-request-action-recorded'

@@ -65,9 +65,7 @@ const AppGameAndroidChildRuntimeLocalNotificationRequestQueueProofBaseSchema = S
   checkedAt: ParentTimestampSchema,
 });
 
-type LocalRequestQueueCandidate = Infer<
-  typeof AppGameAndroidChildRuntimeLocalNotificationRequestQueueProofBaseSchema
->;
+type LocalRequestQueueCandidate = Infer<typeof AppGameAndroidChildRuntimeLocalNotificationRequestQueueProofBaseSchema>;
 
 export const AppGameAndroidChildRuntimeLocalNotificationRequestQueueProofSchema = withParser(
   AppGameAndroidChildRuntimeLocalNotificationRequestQueueProofBaseSchema.pipe(
@@ -137,6 +135,7 @@ export function summarizeAppGameAndroidChildRuntimeLocalNotificationRequestQueue
   } as const;
 }
 
+// eslint-disable-next-line complexity -- proof honesty predicates intentionally enumerate required evidence gates.
 function localRequestQueueProofIsHonest(proof: LocalRequestQueueCandidate): boolean {
   return (
     proof.packageId === 'ca.ocentra.parent.agent' &&

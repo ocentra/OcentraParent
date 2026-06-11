@@ -87,6 +87,7 @@ pub(crate) async fn build_activity_app_game_adapter_dispatch_result_report_with_
     )
 }
 
+#[cfg(test)]
 pub fn app_game_adapter_dispatch_result_read_model(
     generated_at: &str,
 ) -> AppGameAdapterDispatchResultReadModel {

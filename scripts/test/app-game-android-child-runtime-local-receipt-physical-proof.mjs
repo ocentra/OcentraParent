@@ -18,7 +18,13 @@ const appGameProofDir = join(
 const proofPath = join(outputDir, 'proof.json');
 const uiDumpPath = join(outputDir, 'ui.xml');
 const deviceUiDumpPath = '/sdcard/ocentra-app-game-wp213-ui.xml';
-const apkPath = join(repoRoot, 'target', 'release-packages', 'android', 'ocentra-parent-agent-android-debug-latest.apk');
+const apkPath = join(
+  repoRoot,
+  'target',
+  'release-packages',
+  'android',
+  'ocentra-parent-agent-android-debug-latest.apk'
+);
 const commandResults = [];
 
 await main();
@@ -43,11 +49,9 @@ async function main() {
   await captureCommand('adb', ['-s', serial, 'shell', 'cmd', 'statusbar', 'collapse']);
   const windowState = await captureCommand('adb', ['-s', serial, 'shell', 'dumpsys', 'window']);
   assertIncludes(windowState.stdout, activityName, 'launched Android activity');
-  const uiDump = await captureCommand(
-    'adb',
-    ['-s', serial, 'shell', 'uiautomator', 'dump', deviceUiDumpPath],
-    { allowFailure: true }
-  );
+  const uiDump = await captureCommand('adb', ['-s', serial, 'shell', 'uiautomator', 'dump', deviceUiDumpPath], {
+    allowFailure: true,
+  });
   let uiDumpObserved = false;
   if (uiDump.code === 0) {
     await captureCommand('adb', ['-s', serial, 'pull', deviceUiDumpPath, uiDumpPath]);
@@ -85,7 +89,8 @@ async function main() {
         ? 'test-results/app-game-android-child-runtime-local-receipt-physical-proof/ui.xml'
         : 'uiautomator-dump-unavailable',
       proof: 'test-results/app-game-android-child-runtime-local-receipt-physical-proof/proof.json',
-      outputProof: 'output/app-game-plan-proof/213-app-game-android-child-runtime-local-receipt-physical-proof/proof.json',
+      outputProof:
+        'output/app-game-plan-proof/213-app-game-android-child-runtime-local-receipt-physical-proof/proof.json',
     },
     observedStates: {
       activityLaunched: true,
@@ -108,7 +113,10 @@ async function main() {
   await writeJson(proofPath, proof);
   await writeJson(join(appGameProofDir, 'proof.json'), proof);
   await writeFile(join(appGameProofDir, '00-physical-android-ui-snapshot.md'), sourceSnapshot(proof));
-  await writeFile(join(appGameProofDir, '10-validation-commands.log'), `${commandResults.map((result) => result.command).join('\n')}\n`);
+  await writeFile(
+    join(appGameProofDir, '10-validation-commands.log'),
+    `${commandResults.map((result) => result.command).join('\n')}\n`
+  );
 
   console.log('app-game-android-child-runtime-local-receipt-physical-proof-ok');
   console.log(`evidence=${relativePath(proofPath)}`);

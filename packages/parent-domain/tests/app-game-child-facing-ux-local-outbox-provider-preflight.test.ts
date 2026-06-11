@@ -9,10 +9,7 @@ import {
   AppGameChildUxSurfaceState,
   AppGameChildUxTargetKind,
 } from '../src/app-game-child-facing-ux-rules';
-import {
-  buildAppGameChildUxHandoffReadModel,
-  type AppGameChildUxHandoffReadModel,
-} from '../src/app-game-child-facing-ux-handoff';
+import { buildAppGameChildUxHandoffReadModel } from '../src/app-game-child-facing-ux-handoff';
 import { buildAppGameChildUxLocalHandoffArtifactReadModel } from '../src/app-game-child-facing-ux-local-handoff';
 import { buildAppGameChildUxLocalOutboxBridgeReadModel } from '../src/app-game-child-facing-ux-local-outbox-bridge';
 import {

@@ -15,10 +15,7 @@ const Timestamp = '2026-06-08T23:05:00Z';
 const Options = {
   generatedAt: Timestamp,
   boundaryId: 'app-game-child-runtime-transport-receipt-boundary-proof',
-  receiptContractRefs: [
-    'child-runtime-delivery-receipt-contract-ref',
-    'child-runtime-delivery-receipt-storage-ref',
-  ],
+  receiptContractRefs: ['child-runtime-delivery-receipt-contract-ref', 'child-runtime-delivery-receipt-storage-ref'],
 } as const;
 
 describe('app/game child runtime transport receipt boundary', () => {
@@ -47,15 +44,9 @@ describe('app/game child runtime transport receipt boundary', () => {
     const unavailable = readModel.rows[3];
 
     expect(manual.boundaryState).toBe(AppGameChildRuntimeTransportReceiptBoundaryState.ManualRequired);
-    expect(manual.requiredTransportRefs).toEqual([
-      'manual-proof-required',
-      'child-runtime-transport-not-executed',
-    ]);
+    expect(manual.requiredTransportRefs).toEqual(['manual-proof-required', 'child-runtime-transport-not-executed']);
     expect(unavailable.boundaryState).toBe(AppGameChildRuntimeTransportReceiptBoundaryState.Unavailable);
-    expect(unavailable.requiredReceiptRefs).toEqual([
-      'source-unavailable',
-      'child-runtime-transport-not-executed',
-    ]);
+    expect(unavailable.requiredReceiptRefs).toEqual(['source-unavailable', 'child-runtime-transport-not-executed']);
   });
 
   it('rejects runtime transport receipt provider platform adapter enforcement and raw-source overclaims', () => {

@@ -293,6 +293,38 @@ pub const APP_GAME_PARENT_PREFERENCE_SETUP_PROVIDER_DELIVERY_RECEIPT_INGESTED: &
     "provider-delivery-receipt-ingested";
 pub const APP_GAME_PARENT_PREFERENCE_SETUP_PROVIDER_DELIVERY_RECEIPT_INGESTED_SUFFIX: &str =
     "provider-delivery-receipt-ingested";
+pub const APP_GAME_TEST_CHILD_RUNTIME_TRANSPORT_RECEIPT_GENERATED_AT: &str =
+    "2026-06-08T23:25:00.000Z";
+pub const APP_GAME_TEST_CHILD_RUNTIME_TRANSPORT_RECEIPT_INVENTORY_ENTRY_ID: &str =
+    "inventory-entry-app-game-child-runtime";
+pub const APP_GAME_TEST_CHILD_RUNTIME_TRANSPORT_RECEIPT_PERMISSION_LIMITED_RUNTIME_ID: &str =
+    "runtime-evidence-app-game-child-runtime-permission-limited";
+pub const APP_GAME_TEST_CHILD_RUNTIME_TRANSPORT_RECEIPT_PERMISSION_LIMITED_FOREGROUND_ID: &str =
+    "foreground-evidence-app-game-child-runtime-permission-limited";
+pub const APP_GAME_TEST_CHILD_RUNTIME_TRANSPORT_RECEIPT_UNAVAILABLE_INVENTORY_ENTRY_ID: &str =
+    "inventory-entry-app-game-child-runtime-unavailable";
+pub const APP_GAME_TEST_CHILD_RUNTIME_TRANSPORT_RECEIPT_TEMP_SUFFIX: &str =
+    "child-runtime-transport-receipt";
+pub const APP_GAME_TEST_LOCAL_OUTBOX_RECORD_JSON_LINE: &str =
+    "{\"recordId\":\"app-game-test-local-outbox-record\"}\n";
+pub const APP_GAME_NOTIFICATION_READINESS_LOCAL_OUTBOX: &str =
+    "notification-readiness-local-outbox";
+pub const APP_GAME_TEST_PLATFORM_PROOF_STATUS_GENERATED_AT: &str = "2026-06-08T16:50:00.000Z";
+pub const APP_GAME_TEST_PLATFORM_PROOF_STATUS_REPARSES: &str =
+    "platform proof status read model reparses";
+pub const APP_GAME_TEST_PLATFORM_PROOF_STATUS_ROW_EXISTS: &str = "platform row exists";
+pub const APP_GAME_TEST_PLATFORM_PROOF_STATUS_MISSING_PROOF_REF: &str = "missing proof ref ";
+pub const APP_GAME_TEST_PLATFORM_PROOF_STATUS_MISSING_OPEN_GAP: &str = "missing open gap ";
+pub const APP_GAME_TEST_POLICY_READINESS_CATEGORY_EVIDENCE_ID: &str =
+    "evidence-category-native-game";
+pub const APP_GAME_TEST_POLICY_READINESS_CATEGORY_INVENTORY_ENTRY_ID: &str =
+    "inventory-native-game-category";
+pub const APP_GAME_TEST_POLICY_READINESS_CATEGORY_SOURCE_REF: &str = "source-category-native-game";
+pub const APP_GAME_TEST_POLICY_READINESS_UNKNOWN_INVENTORY_ENTRY_ID: &str =
+    "inventory-unknown-executable-review";
+pub const APP_GAME_TEST_POLICY_READINESS_UNKNOWN_DISPLAY_LABEL: &str = "Unknown executable";
+pub const APP_GAME_TEST_POLICY_READINESS_UNKNOWN_EVIDENCE_ID: &str =
+    "evidence-unknown-executable-review";
 pub const APP_GAME_CHILD_UX_PARENT_PREFERENCE_SETUP_UNAVAILABLE_VISIBLE: &str =
     "unavailable-visible";
 pub const TRANSPORT_WEBSOCKET: &str = "websocket";

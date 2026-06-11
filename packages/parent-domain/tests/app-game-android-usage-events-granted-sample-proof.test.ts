@@ -5,6 +5,10 @@ import {
   summarizeAppGameAndroidUsageEventsGrantedSampleProof,
 } from '../src/app-game-android-usage-events-granted-sample-proof';
 
+const expectRejectedGrantedSample = (candidate: unknown): void => {
+  expect(AppGameAndroidUsageEventsGrantedSampleProofSchema.safeParse(candidate).success).toBe(false);
+};
+
 describe('app-game Android UsageEvents granted sample proof', () => {
   it('accepts a granted count-only UsageEvents sample without raw event custody', () => {
     const readModel = createAppGameAndroidUsageEventsGrantedSampleProof({
@@ -49,29 +53,11 @@ describe('app-game Android UsageEvents granted sample proof', () => {
       checkedAt: '2026-06-08T21:40:00.000Z',
     });
 
-    expect(AppGameAndroidUsageEventsGrantedSampleProofSchema.safeParse({
-      ...readModel,
-      sampleEventCount: 0,
-    }).success).toBe(false);
-    expect(AppGameAndroidUsageEventsGrantedSampleProofSchema.safeParse({
-      ...readModel,
-      rawUsageEventsStored: true,
-    }).success).toBe(false);
-    expect(AppGameAndroidUsageEventsGrantedSampleProofSchema.safeParse({
-      ...readModel,
-      rawActivityRowsStored: true,
-    }).success).toBe(false);
-    expect(AppGameAndroidUsageEventsGrantedSampleProofSchema.safeParse({
-      ...readModel,
-      adapterDispatchClaimed: true,
-    }).success).toBe(false);
-    expect(AppGameAndroidUsageEventsGrantedSampleProofSchema.safeParse({
-      ...readModel,
-      platformEnforcementClaimed: true,
-    }).success).toBe(false);
-    expect(AppGameAndroidUsageEventsGrantedSampleProofSchema.safeParse({
-      ...readModel,
-      childDeviceDeliveryClaimed: true,
-    }).success).toBe(false);
+    expectRejectedGrantedSample({ ...readModel, sampleEventCount: 0 });
+    expectRejectedGrantedSample({ ...readModel, rawUsageEventsStored: true });
+    expectRejectedGrantedSample({ ...readModel, rawActivityRowsStored: true });
+    expectRejectedGrantedSample({ ...readModel, adapterDispatchClaimed: true });
+    expectRejectedGrantedSample({ ...readModel, platformEnforcementClaimed: true });
+    expectRejectedGrantedSample({ ...readModel, childDeviceDeliveryClaimed: true });
   });
 });

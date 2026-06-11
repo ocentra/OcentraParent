@@ -30,7 +30,9 @@ async function main() {
   ]);
   await runCommand('cmd', ['/c', 'npm', 'run', 'build', '--workspace', '@ocentra-parent/parent-domain']);
 
-  const androidProof = await readJson(join(repoRoot, 'test-results', 'app-game-android-physical-device-proof', 'proof.json'));
+  const androidProof = await readJson(
+    join(repoRoot, 'test-results', 'app-game-android-physical-device-proof', 'proof.json')
+  );
   const replayModule = await import(
     pathToFileURL(join(repoRoot, 'packages', 'parent-domain', 'dist', 'app-game-android-usage-events-replay.js')).href
   );
@@ -88,10 +90,7 @@ async function main() {
 
   await writeJson(proofPath, proof);
   await writeJson(join(appGameProofDir, 'proof.json'), proof);
-  await writeFile(
-    join(appGameProofDir, '10-validation-commands.log'),
-    `${commands.join('\n')}\n`
-  );
+  await writeFile(join(appGameProofDir, '10-validation-commands.log'), `${commands.join('\n')}\n`);
 
   console.log('app-game-android-usage-events-replay-proof-ok');
   console.log(`evidence=${relative(repoRoot, proofPath)}`);

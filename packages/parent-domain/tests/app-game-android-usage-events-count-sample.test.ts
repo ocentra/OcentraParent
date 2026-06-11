@@ -54,21 +54,29 @@ describe('app-game Android UsageEvents count sample', () => {
       checkedAt: '2026-06-08T19:50:00.000Z',
     });
 
-    expect(AppGameAndroidUsageEventsCountSampleReadModelSchema.safeParse({
-      ...readModel,
-      rawUsageEventsStored: true,
-    }).success).toBe(false);
-    expect(AppGameAndroidUsageEventsCountSampleReadModelSchema.safeParse({
-      ...readModel,
-      adapterDispatchClaimed: true,
-    }).success).toBe(false);
-    expect(AppGameAndroidUsageEventsCountSampleReadModelSchema.safeParse({
-      ...readModel,
-      childDeviceDeliveryClaimed: true,
-    }).success).toBe(false);
-    expect(AppGameAndroidUsageEventsCountSampleReadModelSchema.safeParse({
-      ...readModel,
-      foregroundEventCount: 10,
-    }).success).toBe(false);
+    expect(
+      AppGameAndroidUsageEventsCountSampleReadModelSchema.safeParse({
+        ...readModel,
+        rawUsageEventsStored: true,
+      }).success
+    ).toBe(false);
+    expect(
+      AppGameAndroidUsageEventsCountSampleReadModelSchema.safeParse({
+        ...readModel,
+        adapterDispatchClaimed: true,
+      }).success
+    ).toBe(false);
+    expect(
+      AppGameAndroidUsageEventsCountSampleReadModelSchema.safeParse({
+        ...readModel,
+        childDeviceDeliveryClaimed: true,
+      }).success
+    ).toBe(false);
+    expect(
+      AppGameAndroidUsageEventsCountSampleReadModelSchema.safeParse({
+        ...readModel,
+        foregroundEventCount: 10,
+      }).success
+    ).toBe(false);
   });
 });

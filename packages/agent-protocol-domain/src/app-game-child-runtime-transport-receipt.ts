@@ -137,9 +137,7 @@ export function parseAgentAppGameChildRuntimeTransportReceiptEvent(
   };
 }
 
-function childRuntimeTransportReceiptRowIsHonest(
-  row: AgentAppGameChildRuntimeTransportReceiptRowCandidate
-): boolean {
+function childRuntimeTransportReceiptRowIsHonest(row: AgentAppGameChildRuntimeTransportReceiptRowCandidate): boolean {
   return (
     row.productMeanings.includes('native-app') &&
     row.productMeanings.includes('native-game') &&

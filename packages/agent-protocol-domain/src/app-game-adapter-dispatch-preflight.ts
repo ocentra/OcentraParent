@@ -224,6 +224,7 @@ export function parseAgentAppGameAdapterDispatchPreflightEvent(
   };
 }
 
+// eslint-disable-next-line complexity -- proof honesty predicates intentionally enumerate required evidence gates.
 function dispatchPreflightRowIsHonest(row: AgentAppGameAdapterDispatchPreflightRowCandidate): boolean {
   if (row.dispatchPreflightState === AgentAppGameAdapterDispatchPreflightState.DispatchEligible) {
     return (
@@ -234,10 +235,10 @@ function dispatchPreflightRowIsHonest(row: AgentAppGameAdapterDispatchPreflightR
       row.dispatchOutcomeState === AgentAppGameAdapterDispatchOutcomeState.DispatchReady &&
       row.dispatchIntentId !== null &&
       row.dispatchEvidenceRefs.length > 0 &&
-    row.hostCapabilityState === AgentAppGameAdapterHostCapabilityState.Available &&
-    row.hostCapabilityEvidenceRefs.length > 0 &&
-    row.hostCapabilityProbeRefs.length > 0 &&
-    row.dispatchAuditRefs.length > 0 &&
+      row.hostCapabilityState === AgentAppGameAdapterHostCapabilityState.Available &&
+      row.hostCapabilityEvidenceRefs.length > 0 &&
+      row.hostCapabilityProbeRefs.length > 0 &&
+      row.dispatchAuditRefs.length > 0 &&
       row.dispatchTimerRefs.length > 0 &&
       row.manualProofRequirements.length === 0 &&
       row.adapterDispatchEligible &&

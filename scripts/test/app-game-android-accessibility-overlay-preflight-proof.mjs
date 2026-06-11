@@ -7,7 +7,12 @@ const repoRoot = process.cwd();
 const proofMode = 'app-game-android-accessibility-overlay-preflight-proof';
 const adbTarget = process.env.OCENTRA_ANDROID_PHYSICAL_SERIAL ?? '192.168.2.45:5555';
 const outputDir = join(repoRoot, 'test-results', proofMode);
-const appGameProofDir = join(repoRoot, 'output', 'app-game-plan-proof', '194-app-game-android-accessibility-overlay-preflight');
+const appGameProofDir = join(
+  repoRoot,
+  'output',
+  'app-game-plan-proof',
+  '194-app-game-android-accessibility-overlay-preflight'
+);
 const proofPath = join(outputDir, 'proof.json');
 const commands = [];
 
@@ -33,7 +38,9 @@ async function main() {
   runAdb(['connect', adbTarget]);
   assertPhysicalDevice(runAdb(['devices', '-l']).stdout);
   const accessibilitySettings = accessibilitySettingsSample();
-  const androidProof = await readJson(join(repoRoot, 'test-results', 'app-game-android-physical-device-proof', 'proof.json'));
+  const androidProof = await readJson(
+    join(repoRoot, 'test-results', 'app-game-android-physical-device-proof', 'proof.json')
+  );
   const preflightModule = await import(
     pathToFileURL(
       join(repoRoot, 'packages', 'parent-domain', 'dist', 'app-game-android-accessibility-overlay-preflight.js')
@@ -139,7 +146,15 @@ function assertPhysicalDevice(devicesOutput) {
 }
 
 function accessibilitySettingsSample() {
-  const enabledValue = runAdb(['-s', adbTarget, 'shell', 'settings', 'get', 'secure', 'accessibility_enabled']).stdout.trim();
+  const enabledValue = runAdb([
+    '-s',
+    adbTarget,
+    'shell',
+    'settings',
+    'get',
+    'secure',
+    'accessibility_enabled',
+  ]).stdout.trim();
   const servicesValue = runAdb([
     '-s',
     adbTarget,

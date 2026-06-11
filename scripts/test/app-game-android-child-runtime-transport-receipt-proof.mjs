@@ -162,7 +162,8 @@ function parseAndroidSourceState(proofSource, mainActivity) {
     proofSource.includes('TRANSPORT_CHANNEL_ACTIVITY_VISIBLE') &&
     mainActivity.includes('AppGameAndroidChildRuntimeTransportReceiptProof.createChildRuntimeTransportReceiptBundle');
   const uiTransportStateObserved =
-    mainActivity.includes('FIELD_TRANSPORT_CHANNEL_STATE') && proofSource.includes('activity-visible-transport-channel');
+    mainActivity.includes('FIELD_TRANSPORT_CHANNEL_STATE') &&
+    proofSource.includes('activity-visible-transport-channel');
   const uiReceiptStateObserved =
     mainActivity.includes('FIELD_RECEIPT_STORE_STATE') && proofSource.includes('internal-receipt-store-available');
 

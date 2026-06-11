@@ -255,6 +255,7 @@ function providerSetupRefsAreBlocked(
   ].every((value) => value === null);
 }
 
+// eslint-disable-next-line complexity -- proof honesty predicates intentionally enumerate required evidence gates.
 function childUxProviderPreflightReadModelIsHonest(
   readModel: Infer<typeof AppGameChildUxLocalOutboxProviderPreflightReadModelBaseSchema>
 ): boolean {

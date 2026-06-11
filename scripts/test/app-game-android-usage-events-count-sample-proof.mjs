@@ -6,7 +6,12 @@ import { pathToFileURL } from 'node:url';
 const repoRoot = process.cwd();
 const proofMode = 'app-game-android-usage-events-count-sample-proof';
 const outputDir = join(repoRoot, 'test-results', proofMode);
-const appGameProofDir = join(repoRoot, 'output', 'app-game-plan-proof', '200-app-game-android-usage-events-count-sample');
+const appGameProofDir = join(
+  repoRoot,
+  'output',
+  'app-game-plan-proof',
+  '200-app-game-android-usage-events-count-sample'
+);
 const proofPath = join(outputDir, 'proof.json');
 const commands = [];
 
@@ -31,7 +36,8 @@ async function main() {
 
   const sourceProof = await assertAndroidSourceProof();
   const contractModule = await import(
-    pathToFileURL(join(repoRoot, 'packages', 'parent-domain', 'dist', 'app-game-android-usage-events-count-sample.js')).href
+    pathToFileURL(join(repoRoot, 'packages', 'parent-domain', 'dist', 'app-game-android-usage-events-count-sample.js'))
+      .href
   );
   const readModel = contractModule.createAppGameAndroidUsageEventsCountSampleReadModel({
     sampleState: 'sample-observed',
@@ -104,7 +110,11 @@ async function assertAndroidSourceProof() {
   assertIncludes(preflight, 'status.putBoolean("rawActivityRowsStored", false)', 'raw activity non-claim');
   assertIncludes(preflight, 'status.putBoolean("runtimeCollectionClaimed", false)', 'collection non-claim');
   assertNotIncludes(preflight, 'event.getPackageName()', 'sample package-name custody');
-  assertIncludes(activity, 'AppGameAndroidUsageEventsRuntimePreflight.FIELD_SAMPLE_STATE', 'activity sample state wiring');
+  assertIncludes(
+    activity,
+    'AppGameAndroidUsageEventsRuntimePreflight.FIELD_SAMPLE_STATE',
+    'activity sample state wiring'
+  );
 
   return {
     preflight: preflightPath,

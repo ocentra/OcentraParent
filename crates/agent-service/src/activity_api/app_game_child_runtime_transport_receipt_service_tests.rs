@@ -191,7 +191,9 @@ fn local_db_ref(evidence_id: &str) -> ActivityEvidenceRef {
 fn temp_path(suffix: &str) -> std::path::PathBuf {
     let mut name = String::from(constants::activity_store::TEST_FILE_PREFIX);
     name.push_str(&std::process::id().to_string());
-    name.push_str("-child-runtime-transport-receipt-");
+    name.push(constants::delimiter::HYPHEN);
+    name.push_str(constants::value::APP_GAME_TEST_CHILD_RUNTIME_TRANSPORT_RECEIPT_TEMP_SUFFIX);
+    name.push(constants::delimiter::HYPHEN);
     name.push_str(suffix);
     let mut path = std::env::temp_dir();
     path.push(name);

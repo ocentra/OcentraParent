@@ -80,9 +80,7 @@ export const AppGameLinuxDockerHostPreflightReadModelSchema = withParser(
   )
 );
 
-export type AppGameLinuxDockerHostPreflightReadModel = Infer<
-  typeof AppGameLinuxDockerHostPreflightReadModelSchema
->;
+export type AppGameLinuxDockerHostPreflightReadModel = Infer<typeof AppGameLinuxDockerHostPreflightReadModelSchema>;
 export type AppGameLinuxDockerHostPreflightGap = Infer<typeof AppGameLinuxDockerHostPreflightGapSchema>;
 
 export const decodeAppGameLinuxDockerHostPreflightReadModel = Schema.decodeUnknownSync(
@@ -124,9 +122,7 @@ export function createAppGameLinuxDockerHostPreflightReadModel(input: {
   });
 }
 
-export function summarizeAppGameLinuxDockerHostPreflightReadModel(
-  readModel: AppGameLinuxDockerHostPreflightReadModel
-) {
+export function summarizeAppGameLinuxDockerHostPreflightReadModel(readModel: AppGameLinuxDockerHostPreflightReadModel) {
   return {
     preflightState: readModel.preflightState,
     dockerCliObserved: readModel.dockerCliObserved,
@@ -190,6 +186,7 @@ function linuxDockerPreflightGaps(
   return gaps;
 }
 
+// eslint-disable-next-line complexity -- proof honesty predicates intentionally enumerate required evidence gates.
 function linuxDockerHostPreflightIsHonest(readModel: AppGameLinuxDockerHostPreflightCandidate): boolean {
   return (
     linuxDockerStateIsConsistent(readModel) &&
@@ -220,7 +217,8 @@ function linuxDockerStateIsConsistent(readModel: AppGameLinuxDockerHostPreflight
 
 function linuxDockerInventoriesAreConsistent(readModel: AppGameLinuxDockerHostPreflightCandidate): boolean {
   return (
-    readModel.contextInventoryState === linuxDockerInventoryState(readModel.dockerCliObserved, readModel.contextCount) &&
+    readModel.contextInventoryState ===
+      linuxDockerInventoryState(readModel.dockerCliObserved, readModel.contextCount) &&
     readModel.imageInventoryState === linuxDockerInventoryState(readModel.dockerDaemonObserved, readModel.imageCount) &&
     readModel.containerInventoryState ===
       linuxDockerInventoryState(readModel.dockerDaemonObserved, readModel.containerCount)

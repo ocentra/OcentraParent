@@ -121,6 +121,7 @@ export function summarizeAppGameLinuxWslRuntimeProof(proof: AppGameLinuxWslRunti
   } as const;
 }
 
+// eslint-disable-next-line complexity -- proof honesty predicates intentionally enumerate required evidence gates.
 function linuxWslRuntimeProofIsHonest(proof: AppGameLinuxWslRuntimeProofCandidate): boolean {
   return (
     proof.targetKind === 'wsl2-distro' &&

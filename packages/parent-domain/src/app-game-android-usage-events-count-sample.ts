@@ -112,10 +112,7 @@ export function summarizeAppGameAndroidUsageEventsCountSampleReadModel(
 }
 
 function countSampleOpenGaps(sampleState: CountSampleCandidate['sampleState']) {
-  const gaps = [
-    'android-child-runtime-delivery-not-proved',
-    'android-platform-enforcement-not-proved',
-  ];
+  const gaps = ['android-child-runtime-delivery-not-proved', 'android-platform-enforcement-not-proved'];
   if (sampleState === 'sample-permission-required') {
     gaps.unshift('android-usage-stats-settings-grant-not-proved');
   }

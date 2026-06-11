@@ -281,6 +281,7 @@ function preferenceSetupRefsAreBlocked(row: PreferencePreflightRowInput): boolea
   );
 }
 
+// eslint-disable-next-line complexity -- proof honesty predicates intentionally enumerate required evidence gates.
 function childUxPreferencePreflightReadModelIsHonest(
   readModel: Infer<typeof AppGameChildUxLocalOutboxPreferencePreflightReadModelBaseSchema>
 ): boolean {

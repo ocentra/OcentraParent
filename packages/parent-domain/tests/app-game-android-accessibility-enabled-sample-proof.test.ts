@@ -5,6 +5,10 @@ import {
   summarizeAppGameAndroidAccessibilityEnabledSampleProof,
 } from '../src/app-game-android-accessibility-enabled-sample-proof';
 
+const expectRejectedAccessibilityEnabledSample = (candidate: unknown): void => {
+  expect(AppGameAndroidAccessibilityEnabledSampleProofSchema.safeParse(candidate).success).toBe(false);
+};
+
 describe('app-game Android Accessibility enabled sample proof', () => {
   it('accepts settings-enabled service and count-only event sample evidence', () => {
     const proof = createAppGameAndroidAccessibilityEnabledSampleProof({
@@ -48,33 +52,12 @@ describe('app-game Android Accessibility enabled sample proof', () => {
       checkedAt: '2026-06-08T21:50:00.000Z',
     });
 
-    expect(AppGameAndroidAccessibilityEnabledSampleProofSchema.safeParse({
-      ...proof,
-      eventSampleCount: 0,
-    }).success).toBe(false);
-    expect(AppGameAndroidAccessibilityEnabledSampleProofSchema.safeParse({
-      ...proof,
-      rawAccessibilityEventRowsStored: true,
-    }).success).toBe(false);
-    expect(AppGameAndroidAccessibilityEnabledSampleProofSchema.safeParse({
-      ...proof,
-      rawOverlayContentStored: true,
-    }).success).toBe(false);
-    expect(AppGameAndroidAccessibilityEnabledSampleProofSchema.safeParse({
-      ...proof,
-      overlayRuntimeClaimed: true,
-    }).success).toBe(false);
-    expect(AppGameAndroidAccessibilityEnabledSampleProofSchema.safeParse({
-      ...proof,
-      adapterDispatchClaimed: true,
-    }).success).toBe(false);
-    expect(AppGameAndroidAccessibilityEnabledSampleProofSchema.safeParse({
-      ...proof,
-      platformEnforcementClaimed: true,
-    }).success).toBe(false);
-    expect(AppGameAndroidAccessibilityEnabledSampleProofSchema.safeParse({
-      ...proof,
-      childDeviceDeliveryClaimed: true,
-    }).success).toBe(false);
+    expectRejectedAccessibilityEnabledSample({ ...proof, eventSampleCount: 0 });
+    expectRejectedAccessibilityEnabledSample({ ...proof, rawAccessibilityEventRowsStored: true });
+    expectRejectedAccessibilityEnabledSample({ ...proof, rawOverlayContentStored: true });
+    expectRejectedAccessibilityEnabledSample({ ...proof, overlayRuntimeClaimed: true });
+    expectRejectedAccessibilityEnabledSample({ ...proof, adapterDispatchClaimed: true });
+    expectRejectedAccessibilityEnabledSample({ ...proof, platformEnforcementClaimed: true });
+    expectRejectedAccessibilityEnabledSample({ ...proof, childDeviceDeliveryClaimed: true });
   });
 });

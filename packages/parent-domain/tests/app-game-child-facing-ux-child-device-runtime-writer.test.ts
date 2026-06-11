@@ -51,15 +51,9 @@ describe('app/game child-device runtime writer', () => {
     const unavailable = readModel.rows[3];
 
     expect(manual.writerEnvelopeState).toBe(AppGameChildDeviceRuntimeWriterState.ManualRequired);
-    expect(manual.childDeliveryTargetRefs).toEqual([
-      'manual-proof-required',
-      'child-runtime-transport-not-attached',
-    ]);
+    expect(manual.childDeliveryTargetRefs).toEqual(['manual-proof-required', 'child-runtime-transport-not-attached']);
     expect(unavailable.writerEnvelopeState).toBe(AppGameChildDeviceRuntimeWriterState.Unavailable);
-    expect(unavailable.childDeliveryTargetRefs).toEqual([
-      'source-unavailable',
-      'child-runtime-transport-not-attached',
-    ]);
+    expect(unavailable.childDeliveryTargetRefs).toEqual(['source-unavailable', 'child-runtime-transport-not-attached']);
   });
 
   it('rejects runtime writer child transport receipt provider platform adapter and raw-source overclaims', () => {
@@ -125,9 +119,10 @@ function readinessRow(suffix: string, deliveryReadinessStatus: AppGameChildDevic
   return {
     deliveryReadinessRowId: `app-game-child-device-delivery-readiness-${suffix}`,
     sourceProviderStatusHandoffRowId: `app-game-child-ux-provider-status-handoff-${suffix}`,
-    sourceProviderStatus: deliveryReadinessStatus === AppGameChildDeviceDeliveryReadinessStatus.Unavailable
-      ? 'unavailable'
-      : 'manual-required',
+    sourceProviderStatus:
+      deliveryReadinessStatus === AppGameChildDeviceDeliveryReadinessStatus.Unavailable
+        ? 'unavailable'
+        : 'manual-required',
     sourceOutboxRecordRef:
       deliveryReadinessStatus === AppGameChildDeviceDeliveryReadinessStatus.TransportRequired
         ? `app-game-child-ux-local-outbox-${suffix}`

@@ -348,9 +348,9 @@ control with better evidence and local audit.
 - Parent-domain source-gated policy preview timer service-readiness protocol
   read-model contracts now consume those protocol handoff rows, keep the same
   future protocol proof refs visible for eligible native app/native game rows,
-      and keep source or compiler blockers blocked without claiming protocol
-      implementation, service event/read-model emission, read API implementation,
-      portal UI, durable audit logs, rollback execution, adapter dispatch, or
+  and keep source or compiler blockers blocked without claiming protocol
+  implementation, service event/read-model emission, read API implementation,
+  portal UI, durable audit logs, rollback execution, adapter dispatch, or
   enforcement.
 - Parent-domain source-gated policy preview timer service-readiness read-API
   response consumer handoff contracts now consume response handoff rows, add

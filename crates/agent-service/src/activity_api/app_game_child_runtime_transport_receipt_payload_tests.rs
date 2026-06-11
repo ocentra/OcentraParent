@@ -21,7 +21,8 @@ use ocentra_parent_agent_protocol::{
     APP_GAME_ENFORCEMENT_ROLLBACK_NOT_REQUIRED, APP_GAME_FOREGROUND_FOREGROUND,
     APP_GAME_FOREGROUND_NOT_CLAIMED, APP_GAME_INVENTORY_CUSTODY_LOCAL_AGENT,
     APP_GAME_INVENTORY_SOURCE_OS_INSTALLED_RECORD, APP_GAME_INVENTORY_STATE_INSTALLED,
-    APP_GAME_INVENTORY_STATE_UNAVAILABLE, APP_GAME_OBSERVATION_MODE_FOREGROUND_WINDOW,
+    APP_GAME_INVENTORY_STATE_UNAVAILABLE, APP_GAME_JOURNAL_CUSTODY_LOCAL_SQLITE,
+    APP_GAME_JOURNAL_REPLAY_STATE_REPLAYED, APP_GAME_OBSERVATION_MODE_FOREGROUND_WINDOW,
     APP_GAME_OBSERVATION_MODE_PROCESS_START, APP_GAME_PARENT_ACTOR_ROLE_PARENT,
     APP_GAME_PARENT_CONTRACT_SCHEMA_VERSION, APP_GAME_PARENT_EVIDENCE_KIND_ACTIVITY_EVENT,
     APP_GAME_PARENT_PLATFORM_WINDOWS, APP_GAME_POLICY_ACTION_BLOCK,
@@ -32,8 +33,8 @@ use ocentra_parent_agent_protocol::{
     APP_GAME_TEST_DEVICE_LABEL, APP_GAME_TEST_DISPLAY_LABEL, APP_GAME_TEST_ENFORCEMENT_ACTION_ID,
     APP_GAME_TEST_ENFORCEMENT_RESULT_ID, APP_GAME_TEST_EVIDENCE_REF_ID,
     APP_GAME_TEST_EXECUTABLE_PATH_REF, APP_GAME_TEST_FOREGROUND_EVIDENCE_ID,
-    APP_GAME_TEST_PARENT_ACTOR_ID, APP_GAME_TEST_PARENT_PROCESS_ID, APP_GAME_TEST_PROCESS_ID,
-    APP_GAME_TEST_PROCESS_IDENTITY, APP_GAME_TEST_PROCESS_NAME,
+    APP_GAME_TEST_PARENT_ACTOR_ID, APP_GAME_TEST_PARENT_PROCESS_ID, APP_GAME_TEST_POLICY_VERSION,
+    APP_GAME_TEST_PROCESS_ID, APP_GAME_TEST_PROCESS_IDENTITY, APP_GAME_TEST_PROCESS_NAME,
     APP_GAME_TEST_REASON_PARENT_APPROVED, APP_GAME_TEST_REQUEST_ID,
     APP_GAME_TEST_RUNTIME_EVIDENCE_ID, APP_GAME_TEST_TARGET_ID, APP_GAME_TEST_TARGET_VALUE,
     APP_GAME_TEST_TIMESTAMP, APP_GAME_TEST_WINDOW_REF, APP_GAME_TEST_WINDOW_TITLE_REF,
@@ -46,14 +47,16 @@ use super::app_game_child_runtime_transport_receipt_payload::{
     app_game_child_runtime_transport_receipt_read_model_from_service_model,
 };
 
-const GENERATED_AT: &str = "2026-06-08T23:25:00.000Z";
-const TEST_INVENTORY_ENTRY_ID: &str = "inventory-entry-app-game-child-runtime";
+const GENERATED_AT: &str =
+    constants::value::APP_GAME_TEST_CHILD_RUNTIME_TRANSPORT_RECEIPT_GENERATED_AT;
+const TEST_INVENTORY_ENTRY_ID: &str =
+    constants::value::APP_GAME_TEST_CHILD_RUNTIME_TRANSPORT_RECEIPT_INVENTORY_ENTRY_ID;
 const TEST_PERMISSION_LIMITED_RUNTIME_ID: &str =
-    "runtime-evidence-app-game-child-runtime-permission-limited";
+    constants::value::APP_GAME_TEST_CHILD_RUNTIME_TRANSPORT_RECEIPT_PERMISSION_LIMITED_RUNTIME_ID;
 const TEST_PERMISSION_LIMITED_FOREGROUND_ID: &str =
-    "foreground-evidence-app-game-child-runtime-permission-limited";
+    constants::value::APP_GAME_TEST_CHILD_RUNTIME_TRANSPORT_RECEIPT_PERMISSION_LIMITED_FOREGROUND_ID;
 const TEST_UNAVAILABLE_INVENTORY_ENTRY_ID: &str =
-    "inventory-entry-app-game-child-runtime-unavailable";
+    constants::value::APP_GAME_TEST_CHILD_RUNTIME_TRANSPORT_RECEIPT_UNAVAILABLE_INVENTORY_ENTRY_ID;
 
 #[test]
 fn child_runtime_transport_receipt_payload_serializes_parent_safe_status_model() {
@@ -65,7 +68,7 @@ fn child_runtime_transport_receipt_payload_serializes_parent_safe_status_model()
             &payload,
             constants::field::APP_GAME_CHILD_RUNTIME_TRANSPORT_RECEIPT_READ_MODEL,
         ))
-        .expect("child runtime transport receipt read model reparses");
+        .expect(constants::error::AGENT_EVENT_SERIALIZES);
 
     assert_eq!(
         reparsed.read_model_id,
@@ -148,8 +151,8 @@ fn service_model() -> AppGameServiceReadModel {
         schema_version: APP_GAME_SCHEMA_VERSION,
         generated_at: APP_GAME_TEST_TIMESTAMP.to_string(),
         limit: 10,
-        custody_label: "localSqlite".to_string(),
-        replay_state: "replayed".to_string(),
+        custody_label: APP_GAME_JOURNAL_CUSTODY_LOCAL_SQLITE.to_string(),
+        replay_state: APP_GAME_JOURNAL_REPLAY_STATE_REPLAYED.to_string(),
         capability_status: APP_GAME_CAPABILITY_STATUS_AVAILABLE.to_string(),
         inventory_returned: 2,
         running_now_returned: 2,
@@ -250,11 +253,11 @@ fn approval_decision() -> AppGameControlApprovalDecision {
                 actor_id: APP_GAME_TEST_PARENT_ACTOR_ID.to_string(),
                 role: APP_GAME_PARENT_ACTOR_ROLE_PARENT.to_string(),
             },
-            policy_version: "policy-version-app-game-receipt-test".to_string(),
+            policy_version: APP_GAME_TEST_POLICY_VERSION.to_string(),
             created_at: APP_GAME_TEST_TIMESTAMP.to_string(),
         }),
         reason_codes: vec![APP_GAME_TEST_REASON_PARENT_APPROVED.to_string()],
-        policy_version: "policy-version-app-game-receipt-test".to_string(),
+        policy_version: APP_GAME_TEST_POLICY_VERSION.to_string(),
         evidence_references: parent_evidence_refs(),
         response_scope: Some(APP_GAME_CONTROL_PARENT_RESPONSE_ALLOW_ONCE.to_string()),
         decision_expires_at: Some(APP_GAME_TEST_TIMESTAMP.to_string()),

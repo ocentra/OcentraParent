@@ -31,7 +31,12 @@ async function main() {
     '--',
     'app-game-child-runtime-transport-receipt',
   ]);
-  await runCommand('cargo', ['test', '-p', 'ocentra-parent-agent-protocol', 'app_game_child_runtime_transport_receipt']);
+  await runCommand('cargo', [
+    'test',
+    '-p',
+    'ocentra-parent-agent-protocol',
+    'app_game_child_runtime_transport_receipt',
+  ]);
   await runCommand('cargo', ['test', '-p', 'ocentra-parent-agent-service', 'app_game_child_runtime_transport_receipt']);
 
   const proof = {

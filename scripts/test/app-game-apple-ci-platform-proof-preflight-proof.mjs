@@ -7,7 +7,12 @@ const repoRoot = process.cwd();
 const proofMode = 'app-game-apple-ci-platform-proof-preflight-proof';
 const outputDir = join(repoRoot, 'test-results', proofMode);
 const proofPath = join(outputDir, 'proof.json');
-const appGameProofDir = join(repoRoot, 'output', 'app-game-plan-proof', '196-app-game-apple-ci-platform-proof-preflight');
+const appGameProofDir = join(
+  repoRoot,
+  'output',
+  'app-game-plan-proof',
+  '196-app-game-apple-ci-platform-proof-preflight'
+);
 const commands = [];
 
 await main();

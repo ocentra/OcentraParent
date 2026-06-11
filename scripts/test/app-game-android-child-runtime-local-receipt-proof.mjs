@@ -8,7 +8,12 @@ const repoRoot = process.cwd();
 const proofMode = 'app-game-android-child-runtime-local-receipt-proof';
 const outputDir = join(repoRoot, 'test-results', proofMode);
 const proofPath = join(outputDir, 'proof.json');
-const appGameProofDir = join(repoRoot, 'output', 'app-game-plan-proof', '212-app-game-android-child-runtime-local-receipt-proof');
+const appGameProofDir = join(
+  repoRoot,
+  'output',
+  'app-game-plan-proof',
+  '212-app-game-android-child-runtime-local-receipt-proof'
+);
 const androidProofPath = join(
   repoRoot,
   'platforms',
@@ -39,7 +44,13 @@ const mainActivityPath = join(
   'agent',
   'MainActivity.java'
 );
-const apkPath = join(repoRoot, 'target', 'release-packages', 'android', 'ocentra-parent-agent-android-debug-latest.apk');
+const apkPath = join(
+  repoRoot,
+  'target',
+  'release-packages',
+  'android',
+  'ocentra-parent-agent-android-debug-latest.apk'
+);
 const commands = [];
 
 await main();

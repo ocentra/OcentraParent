@@ -190,9 +190,7 @@ function childRuntimeTransportReceiptBoundaryRow(
   });
 }
 
-function boundaryStateFor(
-  row: AppGameChildDeviceRuntimeWriterRow
-): AppGameChildRuntimeTransportReceiptBoundaryState {
+function boundaryStateFor(row: AppGameChildDeviceRuntimeWriterRow): AppGameChildRuntimeTransportReceiptBoundaryState {
   if (row.writerEnvelopeState === AppGameChildDeviceRuntimeWriterState.EnvelopeReady) {
     return AppGameChildRuntimeTransportReceiptBoundaryState.TransportRequired;
   }

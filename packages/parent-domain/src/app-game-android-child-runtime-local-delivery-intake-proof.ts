@@ -74,9 +74,7 @@ const AppGameAndroidChildRuntimeLocalDeliveryIntakeProofBaseSchema = Schema.Stru
 type AndroidChildRuntimeLocalDeliveryCandidate = Infer<
   typeof AppGameAndroidChildRuntimeLocalDeliveryIntakeProofBaseSchema
 >;
-type AndroidChildRuntimeLocalDeliveryProofRef = Infer<
-  typeof AppGameAndroidChildRuntimeLocalDeliveryProofRefSchema
->;
+type AndroidChildRuntimeLocalDeliveryProofRef = Infer<typeof AppGameAndroidChildRuntimeLocalDeliveryProofRefSchema>;
 
 export const AppGameAndroidChildRuntimeLocalDeliveryIntakeProofSchema = withParser(
   AppGameAndroidChildRuntimeLocalDeliveryIntakeProofBaseSchema.pipe(
@@ -179,9 +177,8 @@ function androidChildRuntimeLocalDeliveryProofRefs(input: {
   return refs;
 }
 
-function androidChildRuntimeLocalDeliveryProofIsHonest(
-  proof: AndroidChildRuntimeLocalDeliveryCandidate
-): boolean {
+// eslint-disable-next-line complexity -- proof honesty predicates intentionally enumerate required evidence gates.
+function androidChildRuntimeLocalDeliveryProofIsHonest(proof: AndroidChildRuntimeLocalDeliveryCandidate): boolean {
   return (
     proof.deliveryIntakeState === 'package-local-delivery-intake-recorded' &&
     proof.deliveryReadbackState === 'package-local-delivery-readback-observed' &&

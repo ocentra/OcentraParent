@@ -1,4 +1,5 @@
 use std::fs::{remove_file, write};
+use std::path::Path;
 
 use ocentra_parent_agent_core::ActivityStore;
 use ocentra_parent_agent_protocol::{
@@ -95,7 +96,7 @@ async fn app_game_notification_readiness_command_reports_service_backed_intent_r
 #[tokio::test]
 async fn app_game_notification_readiness_command_reports_persisted_local_outbox_runtime() {
     let _guard = REPORT_ENV_LOCK.lock().await;
-    let store_path = temp_path("app-game-notification-readiness-outbox");
+    let store_path = temp_path(constants::value::APP_GAME_NOTIFICATION_READINESS_LOCAL_OUTBOX);
     cleanup_path(&store_path);
     std::env::set_var(constants::env_var::ACTIVITY_DB_PATH, &store_path);
 
@@ -259,13 +260,13 @@ fn cleanup_path(path: &std::path::PathBuf) {
     let _ = remove_file(shm_path);
 }
 
-fn write_setup_outbox_record(path: &std::path::PathBuf) {
+fn write_setup_outbox_record(path: &Path) {
     let outbox_path = path.with_extension(
         constants::value::APP_GAME_PARENT_PREFERENCE_SETUP_DURABLE_OUTBOX_FILE_EXTENSION,
     );
     write(
         outbox_path,
-        "{\"recordId\":\"app-game-test-local-outbox-record\"}\n",
+        constants::value::APP_GAME_TEST_LOCAL_OUTBOX_RECORD_JSON_LINE,
     )
     .expect(constants::error::ACTIVITY_STORE_OPENS);
 }

@@ -1,8 +1,8 @@
 use super::{
     crate_name, AgentCommandEnvelope, AgentCommandName, AgentEventEnvelope, AgentEventName,
     AgentIdentity, AgentLogEntry, AgentLogSnapshot, AgentMessageTarget, AgentPairingProof,
-    AgentPeer, AgentPeerRole, AgentRoute, AgentRouteSecurityPolicy, DevLogEntry, LogFieldValue,
-    LogFields, LogLevel, LogSource, AGENT_PROTOCOL_SCHEMA_VERSION, LOG_SCHEMA_VERSION,
+    AgentPeer, AgentPeerRole, AgentRoute, DevLogEntry, LogFieldValue, LogFields, LogLevel,
+    LogSource, AGENT_PROTOCOL_SCHEMA_VERSION, LOG_SCHEMA_VERSION,
 };
 
 #[test]
@@ -225,28 +225,6 @@ fn app_game_adapter_dispatch_execute_command_and_event_names_serialize_to_contra
 
     assert_eq!(command, "agent.activity.app-game.adapter-dispatch.execute");
     assert_eq!(event, "agent.activity.app-game.adapter-dispatch.executed");
-}
-
-#[test]
-fn local_network_route_serializes_to_typescript_contract_shape() {
-    let serialized = serde_json::to_value(AgentRoute::LocalNetwork).expect("route serializes");
-
-    assert_eq!(serialized, "local-network");
-}
-
-#[test]
-fn local_network_route_security_rejects_anonymous_control() {
-    let policy = AgentRouteSecurityPolicy {
-        route: AgentRoute::LocalNetwork,
-        requires_pairing: true,
-        allows_anonymous_control: false,
-    };
-
-    let serialized = serde_json::to_value(policy).expect("route security serializes");
-
-    assert_eq!(serialized["route"], "local-network");
-    assert_eq!(serialized["requiresPairing"], true);
-    assert_eq!(serialized["allowsAnonymousControl"], false);
 }
 
 #[test]

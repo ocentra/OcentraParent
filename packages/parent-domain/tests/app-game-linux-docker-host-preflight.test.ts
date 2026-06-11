@@ -73,10 +73,12 @@ describe('app-game Linux Docker host preflight', () => {
       containerCount: 1,
     });
 
-    expect(AppGameLinuxDockerHostPreflightReadModelSchema.safeParse({ ...readModel, imageNamesRedacted: false }).success)
-      .toBe(false);
-    expect(AppGameLinuxDockerHostPreflightReadModelSchema.safeParse({ ...readModel, adapterDispatchClaimed: true }).success)
-      .toBe(false);
+    expect(
+      AppGameLinuxDockerHostPreflightReadModelSchema.safeParse({ ...readModel, imageNamesRedacted: false }).success
+    ).toBe(false);
+    expect(
+      AppGameLinuxDockerHostPreflightReadModelSchema.safeParse({ ...readModel, adapterDispatchClaimed: true }).success
+    ).toBe(false);
     expect(
       AppGameLinuxDockerHostPreflightReadModelSchema.safeParse({ ...readModel, platformEnforcementClaimed: true })
         .success

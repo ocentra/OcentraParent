@@ -122,8 +122,7 @@ async function main() {
     readModel,
     summary,
     evidence: {
-      contract:
-        'packages/parent-domain/src/app-game-android-child-runtime-local-notification-request-queue-proof.ts',
+      contract: 'packages/parent-domain/src/app-game-android-child-runtime-local-notification-request-queue-proof.ts',
       contractTest:
         'packages/parent-domain/tests/app-game-android-child-runtime-local-notification-request-queue-proof.test.ts',
       androidQueueRuntime:
@@ -155,7 +154,10 @@ async function main() {
   await writeJson(proofPath, proof);
   await writeJson(join(appGameProofDir, 'proof.json'), proof);
   await writeFile(join(appGameProofDir, '00-source-snapshot.md'), sourceSnapshot(sourceState));
-  await writeFile(join(appGameProofDir, '10-validation-commands.log'), `${commands.map(redactCommandRecord).join('\n\n')}\n`);
+  await writeFile(
+    join(appGameProofDir, '10-validation-commands.log'),
+    `${commands.map(redactCommandRecord).join('\n\n')}\n`
+  );
 
   console.log('app-game-android-child-runtime-local-notification-request-queue-proof-ok');
   console.log(`evidence=${relativePath(proofPath)}`);

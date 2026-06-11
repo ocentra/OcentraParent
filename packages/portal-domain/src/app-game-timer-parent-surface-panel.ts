@@ -735,6 +735,23 @@ function parentPreferenceSetupRequestUiReadableValue(status: string): DisplayTex
   return Readable.NotClaimed;
 }
 
+const ParentPreferenceSetupReadyResultStatuses = new Set([
+  'queued',
+  'dispatch-ready',
+  'receipt-required',
+  'receipt-pending',
+  'receipt-ingested',
+  'outbox-recorded',
+  'provider-delivery-queued',
+]);
+
+const ParentPreferenceSetupManualRequiredResultStatuses = new Set([
+  'provider-manual-required',
+  'provider-delivery-manual-required',
+  'provider-adapter-required',
+  'provider-credential-proof-required',
+]);
+
 function parentPreferenceSetupResultStatus(status: string): DisplayText {
   if (status === 'handoff-ready') {
     return Readable.HandoffReady;
@@ -742,38 +759,11 @@ function parentPreferenceSetupResultStatus(status: string): DisplayText {
   if (status === 'persisted') {
     return Readable.Persisted;
   }
-  if (status === 'queued') {
+  if (ParentPreferenceSetupReadyResultStatuses.has(status)) {
     return Readable.Ready;
   }
-  if (status === 'dispatch-ready') {
-    return Readable.Ready;
-  }
-  if (status === 'receipt-required') {
-    return Readable.Ready;
-  }
-  if (status === 'receipt-pending') {
-    return Readable.Ready;
-  }
-  if (status === 'receipt-ingested') {
-    return Readable.Ready;
-  }
-  if (status === 'outbox-recorded') {
-    return Readable.Ready;
-  }
-  if (status === 'provider-manual-required') {
+  if (ParentPreferenceSetupManualRequiredResultStatuses.has(status)) {
     return Readable.ManualRequired;
-  }
-  if (status === 'provider-delivery-manual-required') {
-    return Readable.ManualRequired;
-  }
-  if (status === 'provider-adapter-required') {
-    return Readable.ManualRequired;
-  }
-  if (status === 'provider-credential-proof-required') {
-    return Readable.ManualRequired;
-  }
-  if (status === 'provider-delivery-queued') {
-    return Readable.Ready;
   }
   if (status === 'provider-delivery-receipt-required') {
     return Readable.Required;

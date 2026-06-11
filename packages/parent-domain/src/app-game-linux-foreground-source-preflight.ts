@@ -63,9 +63,7 @@ const AppGameLinuxForegroundSourcePreflightBaseSchema = Schema.Struct({
   parentVisibleSummary: LinuxForegroundSourceLabelSchema,
 });
 
-type AppGameLinuxForegroundSourcePreflightCandidate = Infer<
-  typeof AppGameLinuxForegroundSourcePreflightBaseSchema
->;
+type AppGameLinuxForegroundSourcePreflightCandidate = Infer<typeof AppGameLinuxForegroundSourcePreflightBaseSchema>;
 
 export const AppGameLinuxForegroundSourcePreflightReadModelSchema = withParser(
   AppGameLinuxForegroundSourcePreflightBaseSchema.pipe(
@@ -146,9 +144,7 @@ function linuxForegroundSourcePreflightRefs(displayReady: boolean) {
   return refs;
 }
 
-function linuxForegroundSourcePreflightIsHonest(
-  readModel: AppGameLinuxForegroundSourcePreflightCandidate
-): boolean {
+function linuxForegroundSourcePreflightIsHonest(readModel: AppGameLinuxForegroundSourcePreflightCandidate): boolean {
   return (
     linuxForegroundSourceStateIsConsistent(readModel) &&
     readModel.custodyState === 'no-window-title-captured' &&
@@ -162,9 +158,7 @@ function linuxForegroundSourcePreflightIsHonest(
   );
 }
 
-function linuxForegroundSourceStateIsConsistent(
-  readModel: AppGameLinuxForegroundSourcePreflightCandidate
-): boolean {
+function linuxForegroundSourceStateIsConsistent(readModel: AppGameLinuxForegroundSourcePreflightCandidate): boolean {
   if (readModel.preflightState === 'display-source-not-ready') {
     return !readModel.displayProofAttached && !readModel.foregroundSourcePreflightReady;
   }

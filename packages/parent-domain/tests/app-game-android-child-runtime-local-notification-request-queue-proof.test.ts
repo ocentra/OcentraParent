@@ -5,6 +5,10 @@ import {
   summarizeAppGameAndroidChildRuntimeLocalNotificationRequestQueueProof,
 } from '../src/app-game-android-child-runtime-local-notification-request-queue-proof';
 
+const expectRejectedNotificationRequestQueue = (candidate: unknown): void => {
+  expect(AppGameAndroidChildRuntimeLocalNotificationRequestQueueProofSchema.safeParse(candidate).success).toBe(false);
+};
+
 describe('app-game Android child runtime local notification request queue proof', () => {
   it('accepts package-local request queue, readback, and drain evidence', () => {
     const proof = createAppGameAndroidChildRuntimeLocalNotificationRequestQueueProof({
@@ -41,37 +45,13 @@ describe('app-game Android child runtime local notification request queue proof'
       checkedAt: '2026-06-08T22:45:00.000Z',
     });
 
-    expect(AppGameAndroidChildRuntimeLocalNotificationRequestQueueProofSchema.safeParse({
-      ...proof,
-      requestQueueReadbackObserved: false,
-    }).success).toBe(false);
-    expect(AppGameAndroidChildRuntimeLocalNotificationRequestQueueProofSchema.safeParse({
-      ...proof,
-      requestDrainReadbackObserved: false,
-    }).success).toBe(false);
-    expect(AppGameAndroidChildRuntimeLocalNotificationRequestQueueProofSchema.safeParse({
-      ...proof,
-      serviceRequestIngestionClaimed: true,
-    }).success).toBe(false);
-    expect(AppGameAndroidChildRuntimeLocalNotificationRequestQueueProofSchema.safeParse({
-      ...proof,
-      parentApprovalRoundTripClaimed: true,
-    }).success).toBe(false);
-    expect(AppGameAndroidChildRuntimeLocalNotificationRequestQueueProofSchema.safeParse({
-      ...proof,
-      providerDeliveryClaimed: true,
-    }).success).toBe(false);
-    expect(AppGameAndroidChildRuntimeLocalNotificationRequestQueueProofSchema.safeParse({
-      ...proof,
-      adapterDispatchClaimed: true,
-    }).success).toBe(false);
-    expect(AppGameAndroidChildRuntimeLocalNotificationRequestQueueProofSchema.safeParse({
-      ...proof,
-      platformEnforcementClaimed: true,
-    }).success).toBe(false);
-    expect(AppGameAndroidChildRuntimeLocalNotificationRequestQueueProofSchema.safeParse({
-      ...proof,
-      rawPrivateSourceRowsStored: true,
-    }).success).toBe(false);
+    expectRejectedNotificationRequestQueue({ ...proof, requestQueueReadbackObserved: false });
+    expectRejectedNotificationRequestQueue({ ...proof, requestDrainReadbackObserved: false });
+    expectRejectedNotificationRequestQueue({ ...proof, serviceRequestIngestionClaimed: true });
+    expectRejectedNotificationRequestQueue({ ...proof, parentApprovalRoundTripClaimed: true });
+    expectRejectedNotificationRequestQueue({ ...proof, providerDeliveryClaimed: true });
+    expectRejectedNotificationRequestQueue({ ...proof, adapterDispatchClaimed: true });
+    expectRejectedNotificationRequestQueue({ ...proof, platformEnforcementClaimed: true });
+    expectRejectedNotificationRequestQueue({ ...proof, rawPrivateSourceRowsStored: true });
   });
 });

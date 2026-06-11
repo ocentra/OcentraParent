@@ -38,9 +38,8 @@ async function main() {
       join(repoRoot, 'packages', 'parent-domain', 'dist', 'app-game-child-facing-ux-child-device-runtime-writer.js')
     ).href
   );
-  const sourceReadiness = readinessModule.AppGameChildDeviceDeliveryReadinessReadModelSchema.parse(
-    deliveryReadinessFixture()
-  );
+  const sourceReadiness =
+    readinessModule.AppGameChildDeviceDeliveryReadinessReadModelSchema.parse(deliveryReadinessFixture());
   const readModel = writerModule.buildAppGameChildDeviceRuntimeWriterReadModel(
     {
       generatedAt: '2026-06-08T22:45:00Z',
@@ -68,8 +67,7 @@ async function main() {
     evidence: {
       contract: 'packages/parent-domain/src/app-game-child-facing-ux-child-device-runtime-writer.ts',
       contractTest: 'packages/parent-domain/tests/app-game-child-facing-ux-child-device-runtime-writer.test.ts',
-      sourceReadinessContract:
-        'packages/parent-domain/src/app-game-child-facing-ux-child-device-delivery-readiness.ts',
+      sourceReadinessContract: 'packages/parent-domain/src/app-game-child-facing-ux-child-device-delivery-readiness.ts',
       sourceReadinessProof: 'test-results/app-game-child-device-delivery-readiness-proof/proof.json',
     },
     claimsProved: [

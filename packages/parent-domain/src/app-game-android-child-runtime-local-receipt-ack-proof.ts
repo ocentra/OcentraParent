@@ -172,9 +172,8 @@ function androidChildRuntimeLocalReceiptAckProofRefs(input: {
   return refs;
 }
 
-function androidChildRuntimeLocalReceiptAckProofIsHonest(
-  proof: AndroidChildRuntimeLocalReceiptAckCandidate
-): boolean {
+// eslint-disable-next-line complexity -- proof honesty predicates intentionally enumerate required evidence gates.
+function androidChildRuntimeLocalReceiptAckProofIsHonest(proof: AndroidChildRuntimeLocalReceiptAckCandidate): boolean {
   return (
     proof.receiptAppendState === 'local-receipt-append-recorded' &&
     proof.receiptReadbackState === 'local-receipt-readback-observed' &&

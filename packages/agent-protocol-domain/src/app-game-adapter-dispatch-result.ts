@@ -180,6 +180,7 @@ type AgentAppGameAdapterDispatchResultReadModelCandidate = Infer<
 export const AgentAppGameAdapterDispatchResultReadModelSchema = withParser(
   AgentAppGameAdapterDispatchResultReadModelBaseSchema.pipe(
     Schema.filter(
+      // eslint-disable-next-line complexity -- dispatch-result read-model honesty checks enumerate required counters.
       (readModel: AgentAppGameAdapterDispatchResultReadModelCandidate) =>
         (readModel.returned === readModel.rows.length &&
           readModel.commandAcceptedCount ===
@@ -362,6 +363,7 @@ export function parseAgentAppGameAdapterDispatchExecuteEvent(
   };
 }
 
+// eslint-disable-next-line complexity -- proof honesty predicates intentionally enumerate required evidence gates.
 function dispatchResultRowIsHonest(row: AgentAppGameAdapterDispatchResultRowCandidate): boolean {
   if (row.dispatchCommandResultState === AgentAppGameAdapterDispatchCommandResultState.CommandAccepted) {
     return (
@@ -417,6 +419,7 @@ function dispatchResultRowIsHonest(row: AgentAppGameAdapterDispatchResultRowCand
   );
 }
 
+// eslint-disable-next-line complexity -- proof honesty predicates intentionally enumerate required evidence gates.
 function acceptedExecutionEvidenceIsHonest(row: AgentAppGameAdapterDispatchResultRowCandidate): boolean {
   if (
     row.dispatchAdapterExecutionDecision ===

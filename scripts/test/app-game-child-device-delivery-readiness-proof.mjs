@@ -47,8 +47,9 @@ async function main() {
     pathToFileURL(join(repoRoot, 'packages', 'parent-domain', 'dist', 'app-game-child-facing-ux-local-handoff.js')).href
   );
   const childUxOutboxModule = await import(
-    pathToFileURL(join(repoRoot, 'packages', 'parent-domain', 'dist', 'app-game-child-facing-ux-local-outbox-bridge.js'))
-      .href
+    pathToFileURL(
+      join(repoRoot, 'packages', 'parent-domain', 'dist', 'app-game-child-facing-ux-local-outbox-bridge.js')
+    ).href
   );
   const childUxSchedulerModule = await import(
     pathToFileURL(
@@ -113,8 +114,7 @@ async function main() {
     summary,
     evidence: {
       contract: 'packages/parent-domain/src/app-game-child-facing-ux-child-device-delivery-readiness.ts',
-      contractTest:
-        'packages/parent-domain/tests/app-game-child-facing-ux-child-device-delivery-readiness.test.ts',
+      contractTest: 'packages/parent-domain/tests/app-game-child-facing-ux-child-device-delivery-readiness.test.ts',
       providerStatusContract:
         'packages/parent-domain/src/app-game-child-facing-ux-local-outbox-provider-status-handoff.ts',
       providerStatusTest:

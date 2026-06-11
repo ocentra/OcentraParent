@@ -56,11 +56,10 @@ async function main() {
     androidProof: androidProof.readModel,
     generatedAt: '2026-06-08T17:46:00.000Z',
   });
-  const androidChildRuntimeReplay =
-    androidRuntimeModule.createAppGameAndroidUsageEventsChildRuntimeReplayReadModel({
-      replayReadModel: androidUsageReplay,
-      generatedAt: '2026-06-08T17:47:00.000Z',
-    });
+  const androidChildRuntimeReplay = androidRuntimeModule.createAppGameAndroidUsageEventsChildRuntimeReplayReadModel({
+    replayReadModel: androidUsageReplay,
+    generatedAt: '2026-06-08T17:47:00.000Z',
+  });
   const linuxForegroundReadiness = linuxReadinessModule.createAppGameLinuxForegroundCaptureReadiness({
     linuxProof: linuxProof.readModel,
     generatedAt: '2026-06-08T17:46:00.000Z',

@@ -16,9 +16,7 @@ export const AppGameAndroidUsageEventsReplaySourceStateSchema = withParser(
   Schema.Literal('foreground-events-observed', 'foreground-events-unavailable')
 );
 
-export const AppGameAndroidUsageEventsReplayCustodyStateSchema = withParser(
-  Schema.Literal('redacted-counts-only')
-);
+export const AppGameAndroidUsageEventsReplayCustodyStateSchema = withParser(Schema.Literal('redacted-counts-only'));
 
 export const AppGameAndroidUsageEventsReplayRefSchema = withParser(
   Schema.Literal(
@@ -39,9 +37,7 @@ export const AppGameAndroidUsageEventsReplayGapSchema = withParser(
   )
 );
 
-const AndroidUsageReplayLabelSchema = AndroidUsageReplayText.pipe(
-  Schema.brand('AppGameAndroidUsageEventsReplayLabel')
-);
+const AndroidUsageReplayLabelSchema = AndroidUsageReplayText.pipe(Schema.brand('AppGameAndroidUsageEventsReplayLabel'));
 
 const AndroidUsageReplayCountSchema = Schema.Number.pipe(Schema.int(), Schema.greaterThanOrEqualTo(0));
 
@@ -81,9 +77,7 @@ export const AppGameAndroidUsageEventsReplayReadModelSchema = withParser(
   )
 );
 
-export type AppGameAndroidUsageEventsReplayReadModel = Infer<
-  typeof AppGameAndroidUsageEventsReplayReadModelSchema
->;
+export type AppGameAndroidUsageEventsReplayReadModel = Infer<typeof AppGameAndroidUsageEventsReplayReadModelSchema>;
 
 export const decodeAppGameAndroidUsageEventsReplayReadModel = Schema.decodeUnknownSync(
   AppGameAndroidUsageEventsReplayReadModelSchema
@@ -123,9 +117,7 @@ export function createAppGameAndroidUsageEventsReplayReadModel(input: {
   return decodeAppGameAndroidUsageEventsReplayReadModel(readModel);
 }
 
-export function summarizeAppGameAndroidUsageEventsReplayReadModel(
-  readModel: AppGameAndroidUsageEventsReplayReadModel
-) {
+export function summarizeAppGameAndroidUsageEventsReplayReadModel(readModel: AppGameAndroidUsageEventsReplayReadModel) {
   return {
     replayState: readModel.replayState,
     runtimeVisibilityReady: readModel.runtimeVisibilityReady,

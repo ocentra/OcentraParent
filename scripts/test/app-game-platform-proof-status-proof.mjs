@@ -26,12 +26,7 @@ const appleCiProofDir = join(
   'app-game-plan-proof',
   '196-app-game-apple-ci-platform-proof-preflight'
 );
-const dockerProofDir = join(
-  repoRoot,
-  'output',
-  'app-game-plan-proof',
-  '197-app-game-linux-docker-host-preflight'
-);
+const dockerProofDir = join(repoRoot, 'output', 'app-game-plan-proof', '197-app-game-linux-docker-host-preflight');
 const commands = [];
 
 await main();
@@ -114,7 +109,9 @@ async function main() {
   await runCommand('node', ['scripts/test/app-game-linux-docker-host-preflight-proof.mjs']);
   await runCommand('cmd', ['/c', 'npm', 'run', 'build', '--workspace', '@ocentra-parent/parent-domain']);
 
-  const androidProof = await readJson(join(repoRoot, 'test-results', 'app-game-android-physical-device-proof', 'proof.json'));
+  const androidProof = await readJson(
+    join(repoRoot, 'test-results', 'app-game-android-physical-device-proof', 'proof.json')
+  );
   const linuxProof = await readJson(join(repoRoot, 'test-results', 'app-game-linux-wsl-runtime-proof', 'proof.json'));
   const dockerProof = await readJson(
     join(repoRoot, 'test-results', 'app-game-linux-docker-host-preflight-proof', 'proof.json')
@@ -140,22 +137,18 @@ async function main() {
     pathToFileURL(join(repoRoot, 'packages', 'parent-domain', 'dist', 'app-game-android-usage-events-replay.js')).href
   );
   const linuxForegroundModule = await import(
-    pathToFileURL(
-      join(repoRoot, 'packages', 'parent-domain', 'dist', 'app-game-linux-foreground-capture-readiness.js')
-    ).href
+    pathToFileURL(join(repoRoot, 'packages', 'parent-domain', 'dist', 'app-game-linux-foreground-capture-readiness.js'))
+      .href
   );
   const linuxDockerModule = await import(
-    pathToFileURL(
-      join(repoRoot, 'packages', 'parent-domain', 'dist', 'app-game-linux-docker-host-preflight.js')
-    ).href
+    pathToFileURL(join(repoRoot, 'packages', 'parent-domain', 'dist', 'app-game-linux-docker-host-preflight.js')).href
   );
   const module = await import(
     pathToFileURL(join(repoRoot, 'packages', 'parent-domain', 'dist', 'app-game-platform-proof-status.js')).href
   );
   const appleCiModule = await import(
-    pathToFileURL(
-      join(repoRoot, 'packages', 'parent-domain', 'dist', 'app-game-apple-ci-platform-proof-preflight.js')
-    ).href
+    pathToFileURL(join(repoRoot, 'packages', 'parent-domain', 'dist', 'app-game-apple-ci-platform-proof-preflight.js'))
+      .href
   );
   const windowsModule = await import(
     pathToFileURL(
@@ -280,46 +273,34 @@ async function main() {
         'packages/parent-domain/src/app-game-windows-broad-blocking-authority-preflight.ts',
       windowsBroadBlockingAuthorityPreflightTest:
         'packages/parent-domain/tests/app-game-windows-broad-blocking-authority-preflight.test.ts',
-      windowsLocalPolicyEvidence:
-        'packages/parent-domain/src/app-game-windows-local-policy-evidence-proof.ts',
+      windowsLocalPolicyEvidence: 'packages/parent-domain/src/app-game-windows-local-policy-evidence-proof.ts',
       windowsLocalPolicyEvidenceTest:
         'packages/parent-domain/tests/app-game-windows-local-policy-evidence-proof.test.ts',
-      androidAuthorityPreflight:
-        'packages/parent-domain/src/app-game-android-authority-preflight.ts',
-      androidAuthorityPreflightTest:
-        'packages/parent-domain/tests/app-game-android-authority-preflight.test.ts',
+      androidAuthorityPreflight: 'packages/parent-domain/src/app-game-android-authority-preflight.ts',
+      androidAuthorityPreflightTest: 'packages/parent-domain/tests/app-game-android-authority-preflight.test.ts',
       androidAccessibilityOverlayPreflight:
         'packages/parent-domain/src/app-game-android-accessibility-overlay-preflight.ts',
       androidAccessibilityOverlayPreflightTest:
         'packages/parent-domain/tests/app-game-android-accessibility-overlay-preflight.test.ts',
-      androidAccessibilityRuntimeProof:
-        'packages/parent-domain/src/app-game-android-accessibility-runtime-proof.ts',
+      androidAccessibilityRuntimeProof: 'packages/parent-domain/src/app-game-android-accessibility-runtime-proof.ts',
       androidAccessibilityRuntimeProofTest:
         'packages/parent-domain/tests/app-game-android-accessibility-runtime-proof.test.ts',
-      appleCiPlatformProofPreflight:
-        'packages/parent-domain/src/app-game-apple-ci-platform-proof-preflight.ts',
+      appleCiPlatformProofPreflight: 'packages/parent-domain/src/app-game-apple-ci-platform-proof-preflight.ts',
       appleCiPlatformProofPreflightTest:
         'packages/parent-domain/tests/app-game-apple-ci-platform-proof-preflight.test.ts',
       portalIntent: 'packages/portal-domain/src/app-game-platform-proof-status-panel.ts',
       portalTest: 'packages/portal-domain/tests/app-game-platform-proof-status-panel.test.ts',
       protocolContract: 'packages/agent-protocol-domain/src/app-game-platform-proof-status.ts',
       protocolTest: 'packages/agent-protocol-domain/tests/app-game-platform-proof-status.test.ts',
-      androidUsageEventsReplay:
-        'packages/parent-domain/src/app-game-android-usage-events-replay.ts',
-      androidUsageEventsReplayTest:
-        'packages/parent-domain/tests/app-game-android-usage-events-replay.test.ts',
-      linuxForegroundCaptureReadiness:
-        'packages/parent-domain/src/app-game-linux-foreground-capture-readiness.ts',
+      androidUsageEventsReplay: 'packages/parent-domain/src/app-game-android-usage-events-replay.ts',
+      androidUsageEventsReplayTest: 'packages/parent-domain/tests/app-game-android-usage-events-replay.test.ts',
+      linuxForegroundCaptureReadiness: 'packages/parent-domain/src/app-game-linux-foreground-capture-readiness.ts',
       linuxForegroundCaptureReadinessTest:
         'packages/parent-domain/tests/app-game-linux-foreground-capture-readiness.test.ts',
-      linuxActiveWindowToolProof:
-        'packages/parent-domain/src/app-game-linux-active-window-tool-proof.ts',
-      linuxActiveWindowToolProofTest:
-        'packages/parent-domain/tests/app-game-linux-active-window-tool-proof.test.ts',
-      linuxDockerHostPreflight:
-        'packages/parent-domain/src/app-game-linux-docker-host-preflight.ts',
-      linuxDockerHostPreflightTest:
-        'packages/parent-domain/tests/app-game-linux-docker-host-preflight.test.ts',
+      linuxActiveWindowToolProof: 'packages/parent-domain/src/app-game-linux-active-window-tool-proof.ts',
+      linuxActiveWindowToolProofTest: 'packages/parent-domain/tests/app-game-linux-active-window-tool-proof.test.ts',
+      linuxDockerHostPreflight: 'packages/parent-domain/src/app-game-linux-docker-host-preflight.ts',
+      linuxDockerHostPreflightTest: 'packages/parent-domain/tests/app-game-linux-docker-host-preflight.test.ts',
       rustProtocol: 'crates/agent-protocol/src/app_game_platform_proof_status.rs',
       rustService: 'crates/agent-service/src/activity_api/app_game_platform_proof_status_payload.rs',
       portalRoute: 'apps/portal/src/AppGamePlatformProofStatusRoutePanel.tsx',
@@ -327,20 +308,14 @@ async function main() {
       androidProof: 'test-results/app-game-android-physical-device-proof/proof.json',
       androidReplayProof: 'test-results/app-game-android-usage-events-replay-proof/proof.json',
       linuxProof: 'test-results/app-game-linux-wsl-runtime-proof/proof.json',
-      linuxForegroundReadinessProof:
-        'test-results/app-game-linux-foreground-capture-readiness-proof/proof.json',
-      linuxActiveWindowToolProofArtifact:
-        'test-results/app-game-linux-active-window-tool-proof/proof.json',
+      linuxForegroundReadinessProof: 'test-results/app-game-linux-foreground-capture-readiness-proof/proof.json',
+      linuxActiveWindowToolProofArtifact: 'test-results/app-game-linux-active-window-tool-proof/proof.json',
       linuxDockerHostPreflightProof: 'test-results/app-game-linux-docker-host-preflight-proof/proof.json',
-      windowsBroadBlockingProof:
-        'test-results/app-game-windows-broad-blocking-authority-preflight-proof/proof.json',
-      windowsLocalPolicyEvidenceProof:
-        'test-results/app-game-windows-local-policy-evidence-proof/proof.json',
+      windowsBroadBlockingProof: 'test-results/app-game-windows-broad-blocking-authority-preflight-proof/proof.json',
+      windowsLocalPolicyEvidenceProof: 'test-results/app-game-windows-local-policy-evidence-proof/proof.json',
       androidAuthorityProof: 'test-results/app-game-android-authority-preflight-proof/proof.json',
-      androidAccessibilityProof:
-        'test-results/app-game-android-accessibility-overlay-preflight-proof/proof.json',
-      androidAccessibilityRuntimeProofArtifact:
-        'test-results/app-game-android-accessibility-runtime-proof/proof.json',
+      androidAccessibilityProof: 'test-results/app-game-android-accessibility-overlay-preflight-proof/proof.json',
+      androidAccessibilityRuntimeProofArtifact: 'test-results/app-game-android-accessibility-runtime-proof/proof.json',
       appleCiProof: 'test-results/app-game-apple-ci-platform-proof-preflight-proof/proof.json',
     },
     windowsBroadBlockingAuthorityPreflight,

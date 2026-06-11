@@ -169,6 +169,7 @@ export function summarizeAppGameAndroidChildRuntimeLocalDeliveryQueueProof(
   } as const;
 }
 
+// eslint-disable-next-line complexity -- proof honesty predicates intentionally enumerate required evidence gates.
 function androidChildRuntimeLocalDeliveryQueueProofIsHonest(
   proof: AndroidChildRuntimeLocalDeliveryQueueCandidate
 ): boolean {

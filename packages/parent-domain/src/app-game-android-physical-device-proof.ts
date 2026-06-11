@@ -107,12 +107,14 @@ export function summarizeAppGameAndroidPhysicalDeviceProof(proof: AppGameAndroid
     usageEventsSampleCount: proof.usageEventsSampleCount,
     foregroundActivityEventCount: proof.foregroundActivityEventCount,
     foregroundEvidenceObserved: proof.foregroundEvidenceObserved,
-    ownerProofAttached: proof.deviceOwnerState !== 'not-device-owner' || proof.profileOwnerState !== 'not-profile-owner',
+    ownerProofAttached:
+      proof.deviceOwnerState !== 'not-device-owner' || proof.profileOwnerState !== 'not-profile-owner',
     adapterDispatchClaimed: proof.adapterDispatchClaimed,
     platformEnforcementClaimed: proof.platformEnforcementClaimed,
   } as const;
 }
 
+// eslint-disable-next-line complexity -- proof honesty predicates intentionally enumerate required evidence gates.
 function androidPhysicalDeviceProofIsHonest(proof: AppGameAndroidPhysicalDeviceProofCandidate): boolean {
   return (
     proof.targetKind === 'physical-device' &&

@@ -4,9 +4,9 @@ import type { AgentAppGamePlatformProofStatusResult } from '@ocentra-parent/agen
 import {
   PortalDetails,
   PortalDom,
-  PortalRoute,
   PortalText,
   PortalTextToken,
+  isPortalAppGameParentSurfaceRoute,
   type PortalDisplayText,
   type PortalRoute as PortalRouteValue,
 } from '@ocentra-parent/portal-domain/contracts';
@@ -19,7 +19,7 @@ import {
 } from './app-game-platform-proof-status-panel';
 
 export function shouldRenderAppGamePlatformProofStatusRoute(route: PortalRouteValue): boolean {
-  return route === PortalRoute.AppGameSessions;
+  return isPortalAppGameParentSurfaceRoute(route);
 }
 
 export function AppGamePlatformProofStatusRoutePanel({
@@ -64,7 +64,9 @@ export function AppGamePlatformProofStatusRoutePanel({
           {intent.rows.length === 0 ? (
             <AppGamePlatformProofStatusEmptyCard intent={intent} />
           ) : (
-            intent.rows.map((row) => <AppGamePlatformProofStatusRowCard key={String(row.title)} row={row} />)
+            intent.rows.map((row, index) => (
+              <AppGamePlatformProofStatusRowCard key={`${String(row.title)}:${index}`} row={row} />
+            ))
           )}
         </div>
       </div>
@@ -135,8 +137,12 @@ function AppGamePlatformProofStatusDetails({
 }): ReactElement {
   return (
     <dl className={PortalDom.Classes.TrackingStatusOverlayMeta}>
-      {details.map((detail) => (
-        <AppGamePlatformProofStatusDetail key={String(detail.label)} label={detail.label} value={detail.value} />
+      {details.map((detail, index) => (
+        <AppGamePlatformProofStatusDetail
+          key={`${String(detail.label)}:${index}`}
+          label={detail.label}
+          value={detail.value}
+        />
       ))}
     </dl>
   );

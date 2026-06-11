@@ -100,9 +100,7 @@ export const AppGameAndroidAuthorityPreflightReadModelSchema = withParser(
   )
 );
 
-export type AppGameAndroidAuthorityPreflightActionRow = Infer<
-  typeof AppGameAndroidAuthorityPreflightActionRowSchema
->;
+export type AppGameAndroidAuthorityPreflightActionRow = Infer<typeof AppGameAndroidAuthorityPreflightActionRowSchema>;
 export type AppGameAndroidAuthorityPreflightReadModel = Infer<typeof AppGameAndroidAuthorityPreflightReadModelSchema>;
 
 export const decodeAppGameAndroidAuthorityPreflightReadModel = Schema.decodeUnknownSync(
@@ -117,9 +115,7 @@ export function createAppGameAndroidAuthorityPreflightReadModel(input: {
   const deviceOwnerProofAttached = false;
   const profileOwnerProofAttached = false;
   const authorityReady = deviceOwnerProofAttached || profileOwnerProofAttached;
-  const rows = androidAuthorityActions().map((action) =>
-    androidAuthorityPreflightActionRow(action, authorityReady)
-  );
+  const rows = androidAuthorityActions().map((action) => androidAuthorityPreflightActionRow(action, authorityReady));
 
   return decodeAppGameAndroidAuthorityPreflightReadModel({
     schemaVersion: 'app-game-android-authority-preflight',

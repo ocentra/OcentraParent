@@ -53,21 +53,29 @@ describe('app-game Android UsageEvents package runtime proof', () => {
       checkedAt: '2026-06-08T20:05:00.000Z',
     });
 
-    expect(AppGameAndroidUsageEventsPackageRuntimeProofSchema.safeParse({
-      ...readModel,
-      uiStateObserved: false,
-    }).success).toBe(false);
-    expect(AppGameAndroidUsageEventsPackageRuntimeProofSchema.safeParse({
-      ...readModel,
-      rawUsageEventsStored: true,
-    }).success).toBe(false);
-    expect(AppGameAndroidUsageEventsPackageRuntimeProofSchema.safeParse({
-      ...readModel,
-      adapterDispatchClaimed: true,
-    }).success).toBe(false);
-    expect(AppGameAndroidUsageEventsPackageRuntimeProofSchema.safeParse({
-      ...readModel,
-      childDeviceDeliveryClaimed: true,
-    }).success).toBe(false);
+    expect(
+      AppGameAndroidUsageEventsPackageRuntimeProofSchema.safeParse({
+        ...readModel,
+        uiStateObserved: false,
+      }).success
+    ).toBe(false);
+    expect(
+      AppGameAndroidUsageEventsPackageRuntimeProofSchema.safeParse({
+        ...readModel,
+        rawUsageEventsStored: true,
+      }).success
+    ).toBe(false);
+    expect(
+      AppGameAndroidUsageEventsPackageRuntimeProofSchema.safeParse({
+        ...readModel,
+        adapterDispatchClaimed: true,
+      }).success
+    ).toBe(false);
+    expect(
+      AppGameAndroidUsageEventsPackageRuntimeProofSchema.safeParse({
+        ...readModel,
+        childDeviceDeliveryClaimed: true,
+      }).success
+    ).toBe(false);
   });
 });

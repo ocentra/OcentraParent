@@ -98,6 +98,7 @@ export const AppGameAdapterExecutionReadinessReadModelSchema = withParser(
   )
 );
 
+// eslint-disable-next-line complexity -- proof honesty predicates intentionally enumerate required evidence gates.
 function appGameAdapterExecutionReadinessRowIsHonest(row: AppGameAdapterExecutionReadinessRowCandidate): boolean {
   if (appGameAdapterExecutionReadinessRowHasClaimUpgrade(row)) return false;
 

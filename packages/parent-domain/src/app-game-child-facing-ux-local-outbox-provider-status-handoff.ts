@@ -284,6 +284,7 @@ function providerStatusBoundaryKeepsDeliveryUnclaimed(entry: ProviderStatusBound
   );
 }
 
+// eslint-disable-next-line complexity -- proof honesty predicates intentionally enumerate required evidence gates.
 function childUxProviderStatusHandoffReadModelIsHonest(
   readModel: Infer<typeof AppGameChildUxLocalOutboxProviderStatusHandoffReadModelBaseSchema>
 ): boolean {

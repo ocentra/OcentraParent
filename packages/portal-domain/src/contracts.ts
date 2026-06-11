@@ -275,21 +275,19 @@ export {
   type SocialChildInterventionRequestedUrlResolver,
 } from './social-child-intervention-page-model';
 
-export type PortalDisplayText = DisplayText;
+type PortalDisplayText = DisplayText;
 
-export const PortalConnectionStateSchema = withParser(
-  Schema.Literal('disconnected', 'connecting', 'connected', 'error')
-);
+const PortalConnectionStateSchema = withParser(Schema.Literal('disconnected', 'connecting', 'connected', 'error'));
 export type PortalConnectionState = Infer<typeof PortalConnectionStateSchema>;
 
-export const PortalConnectionState = {
+const PortalConnectionState = {
   Disconnected: PortalConnectionStateSchema.parse('disconnected'),
   Connecting: PortalConnectionStateSchema.parse('connecting'),
   Connected: PortalConnectionStateSchema.parse('connected'),
   Error: PortalConnectionStateSchema.parse('error'),
 } as const;
 
-export const PortalDom = {
+const PortalDom = {
   RootSelector: '#app',
   HashPrefix: '#/',
   HashQuerySeparator: '?',
@@ -484,26 +482,26 @@ export const PortalDom = {
   },
 } as const;
 
-export const PortalTheme = {
+const PortalTheme = {
   Dark: 'dark',
   Light: 'light',
   LocalStorageKey: 'ocentra-parent-theme',
   MediaDark: '(prefers-color-scheme: dark)',
 } as const;
-export type PortalThemeValue = (typeof PortalTheme)[keyof Pick<typeof PortalTheme, 'Dark' | 'Light'>];
+type PortalThemeValue = (typeof PortalTheme)[keyof Pick<typeof PortalTheme, 'Dark' | 'Light'>];
 
-export const PortalClipboard = {
+const PortalClipboard = {
   CommandCopy: 'copy',
 } as const;
 
-export const PortalFormatting = {
+const PortalFormatting = {
   EventDetailSeparator: ' | ',
   CorrelationPrefix: 'correlation ',
   EndpointSeparator: ':',
   GraphEdgeSeparator: ' -> ',
 } as const;
 
-export const PortalLanPairingScan = {
+const PortalLanPairingScan = {
   PendingIndicatorMs: 8000,
   Text: {
     HeaderTitle: decodeDisplayText('Local Area Network'),
@@ -514,11 +512,11 @@ export const PortalLanPairingScan = {
   },
 } as const;
 
-export const PortalTiming = {
+const PortalTiming = {
   CopyFeedbackMs: 1200,
 } as const;
 
-export const PortalEnvironment = {
+const PortalEnvironment = {
   AgentWebSocketUrl: 'VITE_AGENT_WS_URL',
   BrowserParentExplanationProofBundle: 'VITE_BROWSER_PARENT_EXPLANATION_PROOF_BUNDLE',
   SocialAuditExplanationProofBundle: 'VITE_SOCIAL_AUDIT_EXPLANATION_PROOF_BUNDLE',
@@ -529,4 +527,18 @@ const PortalText = {
 } as const;
 const PortalTextToken = PortalDevTextToken;
 
-export { PortalText, PortalTextToken };
+export {
+  PortalClipboard,
+  PortalConnectionState,
+  PortalConnectionStateSchema,
+  PortalDom,
+  PortalEnvironment,
+  PortalFormatting,
+  PortalLanPairingScan,
+  PortalText,
+  PortalTextToken,
+  PortalTheme,
+  PortalTiming,
+  type PortalDisplayText,
+  type PortalThemeValue,
+};

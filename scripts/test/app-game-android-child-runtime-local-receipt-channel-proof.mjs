@@ -60,7 +60,13 @@ const mainActivityPath = join(
   'MainActivity.java'
 );
 const manifestPath = join(repoRoot, 'platforms', 'android', 'agent', 'app', 'src', 'main', 'AndroidManifest.xml');
-const apkPath = join(repoRoot, 'target', 'release-packages', 'android', 'ocentra-parent-agent-android-debug-latest.apk');
+const apkPath = join(
+  repoRoot,
+  'target',
+  'release-packages',
+  'android',
+  'ocentra-parent-agent-android-debug-latest.apk'
+);
 const commands = [];
 
 await main();
@@ -90,7 +96,13 @@ async function main() {
   const sourceState = parseAndroidSourceState(proofSource, receiverSource, mainActivity, manifest);
   const contractModule = await import(
     pathToFileURL(
-      join(repoRoot, 'packages', 'parent-domain', 'dist', 'app-game-android-child-runtime-local-receipt-channel-proof.js')
+      join(
+        repoRoot,
+        'packages',
+        'parent-domain',
+        'dist',
+        'app-game-android-child-runtime-local-receipt-channel-proof.js'
+      )
     ).href
   );
   const readModel = contractModule.createAppGameAndroidChildRuntimeLocalReceiptChannelProof({
@@ -173,8 +185,12 @@ function parseAndroidSourceState(proofSource, receiverSource, mainActivity, mani
       proofSource.includes('RECEIPT_CHANNEL_RECORD') && receiverSource.includes('recordPackageLocalReceiptChannel')
         ? 'package-local-receipt-channel-recorded'
         : 'package-local-receipt-channel-unavailable',
-    receiptAppendState: proofSource.includes('RECEIPT_RECORD') ? 'local-receipt-append-recorded' : 'local-receipt-append-unavailable',
-    receiptLocalAckState: proofSource.includes('RECEIPT_ACK_RECORD') ? 'local-receipt-ack-recorded' : 'local-receipt-ack-unavailable',
+    receiptAppendState: proofSource.includes('RECEIPT_RECORD')
+      ? 'local-receipt-append-recorded'
+      : 'local-receipt-append-unavailable',
+    receiptLocalAckState: proofSource.includes('RECEIPT_ACK_RECORD')
+      ? 'local-receipt-ack-recorded'
+      : 'local-receipt-ack-unavailable',
     packageLocalBroadcastReceiverDeclared:
       manifest.includes('AppGameAndroidChildRuntimeReceiptReceiver') &&
       manifest.includes('android:exported="false"') &&

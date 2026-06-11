@@ -92,9 +92,7 @@ const WindowsBroadBlockingPreflightReadModelBaseSchema = Schema.Struct({
 });
 
 type WindowsBroadBlockingPreflightRowCandidate = Infer<typeof WindowsBroadBlockingPreflightRowBaseSchema>;
-type WindowsBroadBlockingPreflightReadModelCandidate = Infer<
-  typeof WindowsBroadBlockingPreflightReadModelBaseSchema
->;
+type WindowsBroadBlockingPreflightReadModelCandidate = Infer<typeof WindowsBroadBlockingPreflightReadModelBaseSchema>;
 
 export const AppGameWindowsBroadBlockingAuthorityPreflightRowSchema = withParser(
   WindowsBroadBlockingPreflightRowBaseSchema.pipe(
@@ -276,6 +274,7 @@ function windowsBroadBlockingPreflightRowIsHonest(row: WindowsBroadBlockingPrefl
   );
 }
 
+// eslint-disable-next-line complexity -- proof honesty predicates intentionally enumerate required evidence gates.
 function windowsBroadBlockingPreflightReadModelIsHonest(
   readModel: WindowsBroadBlockingPreflightReadModelCandidate
 ): boolean {

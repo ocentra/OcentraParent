@@ -6,7 +6,12 @@ import { pathToFileURL } from 'node:url';
 const repoRoot = process.cwd();
 const proofMode = 'app-game-android-usage-events-capability-proof';
 const outputDir = join(repoRoot, 'test-results', proofMode);
-const appGameProofDir = join(repoRoot, 'output', 'app-game-plan-proof', '198-app-game-android-usage-events-capability-proof');
+const appGameProofDir = join(
+  repoRoot,
+  'output',
+  'app-game-plan-proof',
+  '198-app-game-android-usage-events-capability-proof'
+);
 const proofPath = join(outputDir, 'proof.json');
 const commands = [];
 
@@ -109,11 +114,7 @@ async function assertAndroidSourceProof() {
   assertIncludes(bridge, 'status.putBoolean("rawUsageEventsStored", false)', 'raw UsageEvents non-claim');
   assertIncludes(bridge, 'status.putBoolean("packageNamesStored", false)', 'package-name non-claim');
   assertIncludes(bridge, 'status.putBoolean("adapterDispatchClaimed", false)', 'adapter dispatch non-claim');
-  assertIncludes(
-    bridge,
-    'status.putBoolean("platformEnforcementClaimed", false)',
-    'platform enforcement non-claim'
-  );
+  assertIncludes(bridge, 'status.putBoolean("platformEnforcementClaimed", false)', 'platform enforcement non-claim');
   assertIncludes(bridge, 'status.putBoolean("childDeviceDeliveryClaimed", false)', 'child delivery non-claim');
   assertIncludes(
     activity,

@@ -130,6 +130,7 @@ export function summarizeAppGameAndroidUsageEventsGrantedSampleProof(
   } as const;
 }
 
+// eslint-disable-next-line complexity -- proof honesty predicates intentionally enumerate required evidence gates.
 function grantedSampleProofIsHonest(readModel: GrantedSampleCandidate): boolean {
   return (
     readModel.packageId === 'ca.ocentra.parent.agent' &&

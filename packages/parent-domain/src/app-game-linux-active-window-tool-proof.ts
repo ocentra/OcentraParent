@@ -34,9 +34,7 @@ export const AppGameLinuxActiveWindowToolGapSchema = withParser(
   )
 );
 
-const LinuxActiveWindowLabelSchema = LinuxActiveWindowText.pipe(
-  Schema.brand('AppGameLinuxActiveWindowToolProofLabel')
-);
+const LinuxActiveWindowLabelSchema = LinuxActiveWindowText.pipe(Schema.brand('AppGameLinuxActiveWindowToolProofLabel'));
 
 const AppGameLinuxActiveWindowToolProofBaseSchema = Schema.Struct({
   schemaVersion: AppGameLinuxActiveWindowToolProofSchemaVersionSchema,

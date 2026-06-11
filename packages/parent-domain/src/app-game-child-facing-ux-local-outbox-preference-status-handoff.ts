@@ -355,6 +355,7 @@ function preferenceStatusEntryKeepsDeliveryUnclaimed(entry: PreferenceStatusEntr
   );
 }
 
+// eslint-disable-next-line complexity -- proof honesty predicates intentionally enumerate required evidence gates.
 function childUxPreferenceStatusHandoffReadModelIsHonest(
   readModel: Infer<typeof AppGameChildUxLocalOutboxPreferenceStatusHandoffReadModelBaseSchema>
 ): boolean {

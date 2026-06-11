@@ -16,10 +16,7 @@ export const AppGameAndroidUsageEventsReplayConsumerStateSchema = withParser(
 );
 
 export const AppGameAndroidUsageEventsCapabilityCommandSchema = withParser(
-  Schema.Literal(
-    'app-game.android.usage-events.capability.get',
-    'app-game.android.usage-events.replay-boundary.get'
-  )
+  Schema.Literal('app-game.android.usage-events.capability.get', 'app-game.android.usage-events.replay-boundary.get')
 );
 
 export const AppGameAndroidUsageEventsCapabilityEventSchema = withParser(
@@ -100,10 +97,7 @@ export function createAppGameAndroidUsageEventsCapabilityReadModel(input: {
     permissionState: 'settings-grant-required',
     eventCollectionState: 'runtime-grant-not-proved',
     replayConsumerState: 'parent-domain-boundary-only',
-    commands: [
-      'app-game.android.usage-events.capability.get',
-      'app-game.android.usage-events.replay-boundary.get',
-    ],
+    commands: ['app-game.android.usage-events.capability.get', 'app-game.android.usage-events.replay-boundary.get'],
     events: [
       'app-game.android.usage-events.capability.reported',
       'app-game.android.usage-events.replay-boundary.reported',
@@ -141,6 +135,7 @@ export function summarizeAppGameAndroidUsageEventsCapabilityReadModel(
   } as const;
 }
 
+// eslint-disable-next-line complexity -- proof honesty predicates intentionally enumerate required evidence gates.
 function androidUsageEventsCapabilityReadModelIsHonest(
   readModel: AppGameAndroidUsageEventsCapabilityCandidate
 ): boolean {

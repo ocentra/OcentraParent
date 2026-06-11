@@ -10,8 +10,7 @@ pub const APP_GAME_CHILD_RUNTIME_TRANSPORT_RECEIPT_ROW_ID_PREFIX: &str =
     "app-game-child-runtime-transport-receipt-";
 pub const APP_GAME_CHILD_RUNTIME_TRANSPORT_RECEIPT_STATE_TRANSPORT_REQUIRED: &str =
     "child-runtime-transport-required";
-pub const APP_GAME_CHILD_RUNTIME_TRANSPORT_RECEIPT_STATE_MANUAL_REQUIRED: &str =
-    "manual-required";
+pub const APP_GAME_CHILD_RUNTIME_TRANSPORT_RECEIPT_STATE_MANUAL_REQUIRED: &str = "manual-required";
 pub const APP_GAME_CHILD_RUNTIME_TRANSPORT_RECEIPT_STATE_UNAVAILABLE: &str = "unavailable";
 pub const APP_GAME_CHILD_RUNTIME_TRANSPORT_RECEIPT_GAP_TRANSPORT_NOT_EXECUTED: &str =
     "child-runtime-transport-not-executed";

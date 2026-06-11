@@ -12,7 +12,12 @@ const activityId = 'ca.ocentra.parent.agent/.MainActivity';
 const accessibilityComponent = 'ca.ocentra.parent.agent/.AppGameAndroidAccessibilityRuntimeService';
 const proofMode = 'app-game-android-accessibility-enabled-sample-proof';
 const outputDir = join(repoRoot, 'test-results', proofMode);
-const appGameProofDir = join(repoRoot, 'output', 'app-game-plan-proof', '219-app-game-android-accessibility-enabled-sample-proof');
+const appGameProofDir = join(
+  repoRoot,
+  'output',
+  'app-game-plan-proof',
+  '219-app-game-android-accessibility-enabled-sample-proof'
+);
 const apkPath = join(
   repoRoot,
   'target',
@@ -110,7 +115,10 @@ async function main() {
   await writeJson(proofPath, proof);
   await writeJson(join(appGameProofDir, 'proof.json'), proof);
   await writeFile(join(appGameProofDir, '00-source-snapshot.md'), sourceSnapshot(sourceState));
-  await writeFile(join(appGameProofDir, '10-validation-commands.log'), `${commands.map(redactCommandRecord).join('\n\n')}\n`);
+  await writeFile(
+    join(appGameProofDir, '10-validation-commands.log'),
+    `${commands.map(redactCommandRecord).join('\n\n')}\n`
+  );
 
   console.log('app-game-android-accessibility-enabled-sample-proof-ok');
   console.log(`evidence=${relativePath(proofPath)}`);
@@ -124,8 +132,7 @@ async function writeBlockedProof({ sourceState, settingsBefore }) {
     commit: await gitHead(),
     adbTargetRef: 'android-physical-adb-device-ref',
     blocked: true,
-    blockedReason:
-      'physical-target-did-not-bind-package-accessibility-service-after-secure-settings-enable-attempt',
+    blockedReason: 'physical-target-did-not-bind-package-accessibility-service-after-secure-settings-enable-attempt',
     commands: commands.map(redactCommandRecord),
     settingsBefore: redactSettings(settingsBefore),
     sourceState,
@@ -160,7 +167,10 @@ async function writeBlockedProof({ sourceState, settingsBefore }) {
   await writeJson(proofPath, proof);
   await writeJson(join(appGameProofDir, 'proof.json'), proof);
   await writeFile(join(appGameProofDir, '00-source-snapshot.md'), sourceSnapshot(sourceState));
-  await writeFile(join(appGameProofDir, '10-validation-commands.log'), `${commands.map(redactCommandRecord).join('\n\n')}\n`);
+  await writeFile(
+    join(appGameProofDir, '10-validation-commands.log'),
+    `${commands.map(redactCommandRecord).join('\n\n')}\n`
+  );
 }
 
 async function readAccessibilitySettings() {
@@ -200,7 +210,10 @@ async function observeAccessibilityEventSample() {
       allowFailure: true,
     });
     lastState = parseRuntimeState({ uiText: uiDump.stdout, settings });
-    if (lastState.runtimeState === 'accessibility-runtime-bound' && lastState.eventSampleState === 'accessibility-event-sample-observed') {
+    if (
+      lastState.runtimeState === 'accessibility-runtime-bound' &&
+      lastState.eventSampleState === 'accessibility-event-sample-observed'
+    ) {
       return lastState;
     }
     await delay(1500);

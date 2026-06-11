@@ -118,12 +118,8 @@ export const AppGameChildDeviceDeliveryReadinessReadModelSchema = withParser(
   )
 );
 
-export type AppGameChildDeviceDeliveryReadinessStatus = Infer<
-  typeof AppGameChildDeviceDeliveryReadinessStatusSchema
->;
-export type AppGameChildDeviceDeliveryReadinessRow = Infer<
-  typeof AppGameChildDeviceDeliveryReadinessRowSchema
->;
+export type AppGameChildDeviceDeliveryReadinessStatus = Infer<typeof AppGameChildDeviceDeliveryReadinessStatusSchema>;
+export type AppGameChildDeviceDeliveryReadinessRow = Infer<typeof AppGameChildDeviceDeliveryReadinessRowSchema>;
 export type AppGameChildDeviceDeliveryReadinessReadModel = Infer<
   typeof AppGameChildDeviceDeliveryReadinessReadModelSchema
 >;
@@ -162,9 +158,7 @@ export function buildAppGameChildDeviceDeliveryReadinessReadModel(
   });
 }
 
-export function summarizeAppGameChildDeviceDeliveryReadiness(
-  readModel: AppGameChildDeviceDeliveryReadinessReadModel
-) {
+export function summarizeAppGameChildDeviceDeliveryReadiness(readModel: AppGameChildDeviceDeliveryReadinessReadModel) {
   return {
     transportRequiredCount: readModel.transportRequiredCount,
     manualRequiredCount: readModel.manualRequiredCount,

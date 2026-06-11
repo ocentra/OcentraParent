@@ -5,6 +5,10 @@ import {
   summarizeAppGameAndroidChildRuntimeLocalNotificationActionProof,
 } from '../src/app-game-android-child-runtime-local-notification-action-proof';
 
+const expectRejectedNotificationAction = (candidate: unknown): void => {
+  expect(AppGameAndroidChildRuntimeLocalNotificationActionProofSchema.safeParse(candidate).success).toBe(false);
+};
+
 describe('app-game Android child runtime local notification action proof', () => {
   it('accepts package-local notification action and request marker readback evidence', () => {
     const proof = createAppGameAndroidChildRuntimeLocalNotificationActionProof({
@@ -16,9 +20,7 @@ describe('app-game Android child runtime local notification action proof', () =>
     expect(summary.notificationChannelState).toBe('local-notification-channel-declared');
     expect(summary.notificationPostState).toBe('local-notification-post-recorded');
     expect(summary.notificationRequestActionState).toBe('local-notification-request-action-recorded');
-    expect(summary.notificationRequestActionMarkerState).toBe(
-      'local-notification-request-action-marker-recorded'
-    );
+    expect(summary.notificationRequestActionMarkerState).toBe('local-notification-request-action-marker-recorded');
     expect(summary.notificationSeenInSystemUi).toBe(true);
     expect(proof.requestActionReadbackObserved).toBe(true);
   });
@@ -47,37 +49,13 @@ describe('app-game Android child runtime local notification action proof', () =>
       checkedAt: '2026-06-08T22:30:00.000Z',
     });
 
-    expect(AppGameAndroidChildRuntimeLocalNotificationActionProofSchema.safeParse({
-      ...proof,
-      requestActionReadbackObserved: false,
-    }).success).toBe(false);
-    expect(AppGameAndroidChildRuntimeLocalNotificationActionProofSchema.safeParse({
-      ...proof,
-      serviceRequestIngestionClaimed: true,
-    }).success).toBe(false);
-    expect(AppGameAndroidChildRuntimeLocalNotificationActionProofSchema.safeParse({
-      ...proof,
-      parentApprovalRoundTripClaimed: true,
-    }).success).toBe(false);
-    expect(AppGameAndroidChildRuntimeLocalNotificationActionProofSchema.safeParse({
-      ...proof,
-      providerDeliveryClaimed: true,
-    }).success).toBe(false);
-    expect(AppGameAndroidChildRuntimeLocalNotificationActionProofSchema.safeParse({
-      ...proof,
-      platformDeliveryOutsidePackageClaimed: true,
-    }).success).toBe(false);
-    expect(AppGameAndroidChildRuntimeLocalNotificationActionProofSchema.safeParse({
-      ...proof,
-      adapterDispatchClaimed: true,
-    }).success).toBe(false);
-    expect(AppGameAndroidChildRuntimeLocalNotificationActionProofSchema.safeParse({
-      ...proof,
-      platformEnforcementClaimed: true,
-    }).success).toBe(false);
-    expect(AppGameAndroidChildRuntimeLocalNotificationActionProofSchema.safeParse({
-      ...proof,
-      rawPrivateSourceRowsStored: true,
-    }).success).toBe(false);
+    expectRejectedNotificationAction({ ...proof, requestActionReadbackObserved: false });
+    expectRejectedNotificationAction({ ...proof, serviceRequestIngestionClaimed: true });
+    expectRejectedNotificationAction({ ...proof, parentApprovalRoundTripClaimed: true });
+    expectRejectedNotificationAction({ ...proof, providerDeliveryClaimed: true });
+    expectRejectedNotificationAction({ ...proof, platformDeliveryOutsidePackageClaimed: true });
+    expectRejectedNotificationAction({ ...proof, adapterDispatchClaimed: true });
+    expectRejectedNotificationAction({ ...proof, platformEnforcementClaimed: true });
+    expectRejectedNotificationAction({ ...proof, rawPrivateSourceRowsStored: true });
   });
 });

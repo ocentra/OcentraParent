@@ -97,7 +97,8 @@ export function createAppGameChildRuntimeTransportReceiptPanelIntent(
 
   return {
     ...base,
-    loadState: readModel.transportRequiredCount > 0 || readModel.manualRequiredCount > 0 ? Readable.Review : Readable.Ready,
+    loadState:
+      readModel.transportRequiredCount > 0 || readModel.manualRequiredCount > 0 ? Readable.Review : Readable.Ready,
     summaryDetails: readModelSummary(readModel),
     rows: readModel.rows.map(transportReceiptRow),
   };

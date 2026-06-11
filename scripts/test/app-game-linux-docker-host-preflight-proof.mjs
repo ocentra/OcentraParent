@@ -99,7 +99,8 @@ async function main() {
 
 function collectDockerHostProbe() {
   const version = run('docker', ['version', '--format', '{{json .}}'], { optional: true });
-  const dockerCliObserved = version.status === 0 || safeText(version.stderr).includes('Cannot connect to the Docker daemon');
+  const dockerCliObserved =
+    version.status === 0 || safeText(version.stderr).includes('Cannot connect to the Docker daemon');
   const dockerDaemonObserved = version.status === 0;
   const contextCount = dockerCliObserved ? countDockerRows(['context', 'ls', '--format', '{{json .Name}}']) : 0;
   const imageCount = dockerDaemonObserved ? countDockerRows(['image', 'ls', '--format', '{{json .Repository}}']) : 0;

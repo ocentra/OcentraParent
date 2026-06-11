@@ -247,7 +247,17 @@ function appGameDashboardMetrics(
     { label: 'Running', value: String(sumRows(rows, (row) => row.runningCount)), tone: 'gold' },
     { label: 'Foreground', value: String(sumRows(rows, (row) => row.foregroundCount)), tone: 'purple' },
     { label: 'Launcher', value: String(sumRows(rows, (row) => row.launcherCount)), tone: 'purple' },
+    {
+      label: 'Game budgets',
+      value: gameRows.length > 0 ? 'policy proof pending' : 'no game rows',
+      tone: gameRows.length > 0 ? 'gold' : 'purple',
+    },
     { label: 'Source rows', value: String(sumRows(sourceStatusRows, (row) => row.rowCount)), tone: 'cyan' },
+    {
+      label: 'Fresh sources',
+      value: String(sourceStatusRows.filter(sourceStatusRowFresh).length),
+      tone: sourceStatusRows.some((row) => row.tone === 'red') ? 'red' : 'cyan',
+    },
     { label: 'Boundary rows', value: String(sumRows(rows, (row) => row.boundaryRowCount)), tone: 'cyan' },
     { label: 'AI classifier', value: String(sumRows(rows, (row) => row.aiClassifierResultRowCount)), tone: 'gold' },
     { label: 'Readiness blockers', value: String(readinessBlockerCount(rows)), tone: 'gold' },
@@ -257,19 +267,9 @@ function appGameDashboardMetrics(
       tone: platformCapabilityTone(platformCapabilityRows),
     },
     { label: 'Adapter executed', value: String(adapterExecutedCount(platformCapabilityRows)), tone: 'gold' },
-    {
-      label: 'Fresh sources',
-      value: String(sourceStatusRows.filter(sourceStatusRowFresh).length),
-      tone: sourceStatusRows.some((row) => row.tone === 'red') ? 'red' : 'cyan',
-    },
     { label: 'Unknown review', value: String(rows.filter((row) => row.unknownApproval).length), tone: 'gold' },
     { label: 'Manual required', value: String(rows.filter((row) => row.manualRequired).length), tone: 'gold' },
     { label: 'Evidence refs', value: String(sumRows(rows, (row) => row.evidenceCount)), tone: 'cyan' },
-    {
-      label: 'Game budgets',
-      value: gameRows.length > 0 ? 'policy proof pending' : 'no game rows',
-      tone: gameRows.length > 0 ? 'gold' : 'purple',
-    },
   ];
 }
 

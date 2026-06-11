@@ -294,7 +294,9 @@ pub enum AgentEventName {
     AgentActivityAppGameAdapterExecutionReadinessReadModelReported,
     #[serde(rename = "agent.activity.app-game.platform-proof-status.read-model.reported")]
     AgentActivityAppGamePlatformProofStatusReadModelReported,
-    #[serde(rename = "agent.activity.app-game.child-runtime-transport-receipt.read-model.reported")]
+    #[serde(
+        rename = "agent.activity.app-game.child-runtime-transport-receipt.read-model.reported"
+    )]
     AgentActivityAppGameChildRuntimeTransportReceiptReadModelReported,
     #[serde(rename = "agent.activity.app-game.adapter-dispatch-preflight.read-model.reported")]
     AgentActivityAppGameAdapterDispatchPreflightReadModelReported,

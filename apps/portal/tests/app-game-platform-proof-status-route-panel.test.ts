@@ -99,6 +99,7 @@ function platformProofStatusRow(platform: string, proofState: string, hostCapabi
     broadInstalledAppBlockingClaimed: false,
     platformEnforcementClaimed: false,
     providerDeliveryClaimed: false,
+    childDeliveryClaimed: false,
     childDeviceDeliveryClaimed: false,
     privateDiagnosticsClaimed: false,
     lastCheckedAt: '2026-06-08T17:15:00.000Z',

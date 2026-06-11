@@ -6,7 +6,12 @@ import { pathToFileURL } from 'node:url';
 const repoRoot = process.cwd();
 const proofMode = 'app-game-android-usage-events-runtime-preflight-proof';
 const outputDir = join(repoRoot, 'test-results', proofMode);
-const appGameProofDir = join(repoRoot, 'output', 'app-game-plan-proof', '199-app-game-android-usage-events-runtime-preflight');
+const appGameProofDir = join(
+  repoRoot,
+  'output',
+  'app-game-plan-proof',
+  '199-app-game-android-usage-events-runtime-preflight'
+);
 const proofPath = join(outputDir, 'proof.json');
 const commands = [];
 

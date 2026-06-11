@@ -44,7 +44,13 @@ const receiptProofPath = join(
   'agent',
   'AppGameAndroidChildRuntimeTransportReceiptProof.java'
 );
-const apkPath = join(repoRoot, 'target', 'release-packages', 'android', 'ocentra-parent-agent-android-debug-latest.apk');
+const apkPath = join(
+  repoRoot,
+  'target',
+  'release-packages',
+  'android',
+  'ocentra-parent-agent-android-debug-latest.apk'
+);
 const commands = [];
 
 await main();
@@ -72,7 +78,13 @@ async function main() {
   const sourceState = parseAndroidSourceState(deliverySource, receiptSource);
   const contractModule = await import(
     pathToFileURL(
-      join(repoRoot, 'packages', 'parent-domain', 'dist', 'app-game-android-child-runtime-local-delivery-queue-proof.js')
+      join(
+        repoRoot,
+        'packages',
+        'parent-domain',
+        'dist',
+        'app-game-android-child-runtime-local-delivery-queue-proof.js'
+      )
     ).href
   );
   const readModel = contractModule.createAppGameAndroidChildRuntimeLocalDeliveryQueueProof({
@@ -166,8 +178,12 @@ function parseAndroidSourceState(deliverySource, receiptSource) {
     receiptChannelState: receiptSource.includes('RECEIPT_CHANNEL_RECORD')
       ? 'package-local-receipt-channel-recorded'
       : 'package-local-receipt-channel-unavailable',
-    receiptAppendState: receiptSource.includes('RECEIPT_RECORD') ? 'local-receipt-append-recorded' : 'local-receipt-append-unavailable',
-    receiptLocalAckState: receiptSource.includes('RECEIPT_ACK_RECORD') ? 'local-receipt-ack-recorded' : 'local-receipt-ack-unavailable',
+    receiptAppendState: receiptSource.includes('RECEIPT_RECORD')
+      ? 'local-receipt-append-recorded'
+      : 'local-receipt-append-unavailable',
+    receiptLocalAckState: receiptSource.includes('RECEIPT_ACK_RECORD')
+      ? 'local-receipt-ack-recorded'
+      : 'local-receipt-ack-unavailable',
   };
 }
 

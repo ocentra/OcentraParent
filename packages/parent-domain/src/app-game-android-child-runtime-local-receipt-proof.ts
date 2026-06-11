@@ -68,9 +68,7 @@ const AppGameAndroidChildRuntimeLocalReceiptProofBaseSchema = Schema.Struct({
   checkedAt: ParentTimestampSchema,
 });
 
-type AndroidChildRuntimeLocalReceiptCandidate = Infer<
-  typeof AppGameAndroidChildRuntimeLocalReceiptProofBaseSchema
->;
+type AndroidChildRuntimeLocalReceiptCandidate = Infer<typeof AppGameAndroidChildRuntimeLocalReceiptProofBaseSchema>;
 
 export const AppGameAndroidChildRuntimeLocalReceiptProofSchema = withParser(
   AppGameAndroidChildRuntimeLocalReceiptProofBaseSchema.pipe(
@@ -166,9 +164,8 @@ function androidChildRuntimeLocalReceiptProofRefs(input: {
   return refs;
 }
 
-function androidChildRuntimeLocalReceiptProofIsHonest(
-  proof: AndroidChildRuntimeLocalReceiptCandidate
-): boolean {
+// eslint-disable-next-line complexity -- proof honesty predicates intentionally enumerate required evidence gates.
+function androidChildRuntimeLocalReceiptProofIsHonest(proof: AndroidChildRuntimeLocalReceiptCandidate): boolean {
   return (
     proof.receiptStoreState === 'internal-receipt-store-available' &&
     proof.receiptAppendState === 'local-receipt-append-recorded' &&

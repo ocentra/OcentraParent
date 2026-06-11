@@ -6,7 +6,12 @@ import { pathToFileURL } from 'node:url';
 const repoRoot = process.cwd();
 const proofMode = 'app-game-windows-local-policy-evidence-proof';
 const outputDir = join(repoRoot, 'test-results', proofMode);
-const appGameProofDir = join(repoRoot, 'output', 'app-game-plan-proof', '203-app-game-windows-local-policy-evidence-proof');
+const appGameProofDir = join(
+  repoRoot,
+  'output',
+  'app-game-plan-proof',
+  '203-app-game-windows-local-policy-evidence-proof'
+);
 const proofPath = join(outputDir, 'proof.json');
 const commands = [];
 
@@ -55,8 +60,7 @@ async function main() {
       appLockerService: 'Get-Service AppIDSvc state reduced to parent-safe service state',
       appLockerPolicy:
         'Get-AppLockerPolicy -Local sampled when available; raw XML/rules/executable paths are not stored',
-      appControlPolicy:
-        'Win32_DeviceGuard sampled when available; raw device policy details are not stored',
+      appControlPolicy: 'Win32_DeviceGuard sampled when available; raw device policy details are not stored',
     },
     claimsProved: [
       'Windows local AppLocker/App Control policy evidence can be sampled as parent-safe counts and booleans',
@@ -75,7 +79,10 @@ async function main() {
   await writeJson(proofPath, proof);
   await writeJson(join(appGameProofDir, 'proof.json'), proof);
   await writeFile(join(appGameProofDir, '00-source-snapshot.md'), sourceSnapshot(sourceState));
-  await writeFile(join(appGameProofDir, '10-validation-commands.log'), `${commands.map(redactCommandRecord).join('\n\n')}\n`);
+  await writeFile(
+    join(appGameProofDir, '10-validation-commands.log'),
+    `${commands.map(redactCommandRecord).join('\n\n')}\n`
+  );
 
   console.log('app-game-windows-local-policy-evidence-proof-ok');
   console.log(`evidence=${relativePath(proofPath)}`);
@@ -203,7 +210,10 @@ function redactCommandRecord(record) {
 }
 
 function redactOutput(output) {
-  return output.split(repoRoot).join('<repo-root>').replace(/<File[A-Za-z]+Rule\b[^>]*>/g, '<windows-policy-rule-redacted>');
+  return output
+    .split(repoRoot)
+    .join('<repo-root>')
+    .replace(/<File[A-Za-z]+Rule\b[^>]*>/g, '<windows-policy-rule-redacted>');
 }
 
 function relativePath(path) {

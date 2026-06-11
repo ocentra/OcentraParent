@@ -106,13 +106,11 @@ async function main() {
       contractTest: 'packages/parent-domain/tests/app-game-linux-wsl-runtime-proof.test.ts',
       wslRuntime:
         'wsl.exe observed a WSL2 Ubuntu runtime with Linux kernel, package manager, process snapshot, and session facts.',
-      packageVisibility:
-        'WSL dpkg package inventory returned a nonzero package count; proof stores only the count.',
+      packageVisibility: 'WSL dpkg package inventory returned a nonzero package count; proof stores only the count.',
       dockerBoundary: 'Docker CLI is recorded as visible or unavailable without claiming Docker-backed enforcement.',
       displayBoundary:
         'WSLg display, X11 socket, and Wayland socket are recorded as parent-safe display readiness only; active foreground capture remains unclaimed.',
-      broadBlockBoundary:
-        'Linux broad blocking remains unavailable because rollback and audit proof are not attached.',
+      broadBlockBoundary: 'Linux broad blocking remains unavailable because rollback and audit proof are not attached.',
     },
     productBoundaries: {
       nativeAppMeaningProven: true,

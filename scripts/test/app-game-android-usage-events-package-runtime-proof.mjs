@@ -11,7 +11,12 @@ const packageId = 'ca.ocentra.parent.agent';
 const activityId = 'ca.ocentra.parent.agent/.MainActivity';
 const proofMode = 'app-game-android-usage-events-package-runtime-proof';
 const outputDir = join(repoRoot, 'test-results', proofMode);
-const appGameProofDir = join(repoRoot, 'output', 'app-game-plan-proof', '201-app-game-android-usage-events-package-runtime-proof');
+const appGameProofDir = join(
+  repoRoot,
+  'output',
+  'app-game-plan-proof',
+  '201-app-game-android-usage-events-package-runtime-proof'
+);
 const apkPath = join(
   repoRoot,
   'target',
@@ -105,7 +110,10 @@ async function main() {
   await writeJson(proofPath, proof);
   await writeJson(join(appGameProofDir, 'proof.json'), proof);
   await writeFile(join(appGameProofDir, '00-source-snapshot.md'), sourceSnapshot(sourceState));
-  await writeFile(join(appGameProofDir, '10-validation-commands.log'), `${commands.map(redactCommandRecord).join('\n\n')}\n`);
+  await writeFile(
+    join(appGameProofDir, '10-validation-commands.log'),
+    `${commands.map(redactCommandRecord).join('\n\n')}\n`
+  );
 
   console.log('app-game-android-usage-events-package-runtime-proof-ok');
   console.log(`evidence=${relativePath(proofPath)}`);
@@ -196,12 +204,9 @@ function redactCommandRecord(record) {
   const rendered = record.commandLine
     .replace(adbTarget, 'android-physical-adb-device-ref')
     .replace(apkPath, 'target/release-packages/android/ocentra-parent-agent-android-debug-latest.apk');
-  return [
-    rendered,
-    `exit=${record.status}`,
-    redactOutput(record.stdout),
-    redactOutput(record.stderr),
-  ].filter(Boolean).join('\n');
+  return [rendered, `exit=${record.status}`, redactOutput(record.stdout), redactOutput(record.stderr)]
+    .filter(Boolean)
+    .join('\n');
 }
 
 function redactOutput(output) {

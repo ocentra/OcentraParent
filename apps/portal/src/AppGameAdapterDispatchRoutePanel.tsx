@@ -8,9 +8,9 @@ import type {
 import {
   PortalDetails,
   PortalDom,
-  PortalRoute,
   PortalText,
   PortalTextToken,
+  isPortalAppGameParentSurfaceRoute,
   type PortalDisplayText,
   type PortalRoute as PortalRouteValue,
 } from '@ocentra-parent/portal-domain/contracts';
@@ -30,7 +30,7 @@ import {
 } from './app-game-adapter-dispatch-result-panel';
 
 export function shouldRenderAppGameAdapterDispatchRoute(route: PortalRouteValue): boolean {
-  return route === PortalRoute.AppGameSessions;
+  return isPortalAppGameParentSurfaceRoute(route);
 }
 
 export function AppGameAdapterDispatchRoutePanel({
@@ -104,13 +104,15 @@ export function AppGameAdapterDispatchRoutePanel({
         >
           <AppGameAdapterDispatchPreflightSummaryCard intent={preflightIntent} />
           <AppGameAdapterDispatchResultSummaryCard intent={resultIntent} />
-          {preflightIntent.rows.map((row) => (
-            <AppGameAdapterDispatchPreflightRowCard key={String(row.title)} row={row} />
+          {preflightIntent.rows.map((row, index) => (
+            <AppGameAdapterDispatchPreflightRowCard key={`${String(row.title)}:${index}`} row={row} />
           ))}
           {resultIntent.rows.length === 0 ? (
             <AppGameAdapterDispatchResultEmptyCard intent={resultIntent} />
           ) : (
-            resultIntent.rows.map((row) => <AppGameAdapterDispatchResultRowCard key={String(row.title)} row={row} />)
+            resultIntent.rows.map((row, index) => (
+              <AppGameAdapterDispatchResultRowCard key={`${String(row.title)}:${index}`} row={row} />
+            ))
           )}
         </div>
       </div>
@@ -221,8 +223,12 @@ function AppGameAdapterDispatchPreflightDetails({
 }): ReactElement {
   return (
     <dl className={PortalDom.Classes.TrackingStatusOverlayMeta}>
-      {details.map((detail) => (
-        <AppGameAdapterDispatchDetail key={String(detail.label)} label={detail.label} value={detail.value} />
+      {details.map((detail, index) => (
+        <AppGameAdapterDispatchDetail
+          key={`${String(detail.label)}:${index}`}
+          label={detail.label}
+          value={detail.value}
+        />
       ))}
     </dl>
   );
@@ -235,8 +241,12 @@ function AppGameAdapterDispatchResultDetails({
 }): ReactElement {
   return (
     <dl className={PortalDom.Classes.TrackingStatusOverlayMeta}>
-      {details.map((detail) => (
-        <AppGameAdapterDispatchDetail key={String(detail.label)} label={detail.label} value={detail.value} />
+      {details.map((detail, index) => (
+        <AppGameAdapterDispatchDetail
+          key={`${String(detail.label)}:${index}`}
+          label={detail.label}
+          value={detail.value}
+        />
       ))}
     </dl>
   );

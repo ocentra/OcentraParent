@@ -127,9 +127,7 @@ function readModelSummary(
   ];
 }
 
-function platformProofStatusRow(
-  row: AppGamePlatformProofStatusPanelReadModelRow
-): AppGamePlatformProofStatusPanelRow {
+function platformProofStatusRow(row: AppGamePlatformProofStatusPanelReadModelRow): AppGamePlatformProofStatusPanelRow {
   return {
     title: displayText(row.platform),
     details: [

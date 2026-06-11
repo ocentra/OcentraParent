@@ -16,7 +16,13 @@ const appGameProofDir = join(
   '216-app-game-android-child-runtime-local-delivery-intake-proof'
 );
 const proofPath = join(outputDir, 'proof.json');
-const apkPath = join(repoRoot, 'target', 'release-packages', 'android', 'ocentra-parent-agent-android-debug-latest.apk');
+const apkPath = join(
+  repoRoot,
+  'target',
+  'release-packages',
+  'android',
+  'ocentra-parent-agent-android-debug-latest.apk'
+);
 const receiptDir = 'files/app-game-child-runtime-receipts';
 const deliveryDir = 'files/app-game-child-runtime-deliveries';
 const commandResults = [];
@@ -70,7 +76,11 @@ async function main() {
     'package-local receipt channel record'
   );
   assertIncludes(receiptRecord, 'receiptId=android-child-runtime-local-receipt-ref', 'local receipt record');
-  assertIncludes(receiptAckRecord, 'receiptAckId=android-child-runtime-local-receipt-ack-ref', 'local receipt ack record');
+  assertIncludes(
+    receiptAckRecord,
+    'receiptAckId=android-child-runtime-local-receipt-ack-ref',
+    'local receipt ack record'
+  );
 
   const proof = {
     schemaVersion: 1,
@@ -114,7 +124,10 @@ async function main() {
   await writeJson(proofPath, proof);
   await writeJson(join(appGameProofDir, 'physical-proof.json'), proof);
   await writeFile(join(appGameProofDir, '01-physical-android-delivery-snapshot.md'), sourceSnapshot(proof));
-  await writeFile(join(appGameProofDir, '11-physical-validation-commands.log'), `${commandResults.map((result) => result.command).join('\n')}\n`);
+  await writeFile(
+    join(appGameProofDir, '11-physical-validation-commands.log'),
+    `${commandResults.map((result) => result.command).join('\n')}\n`
+  );
 
   console.log('app-game-android-child-runtime-local-delivery-intake-physical-proof-ok');
   console.log(`evidence=${relativePath(proofPath)}`);

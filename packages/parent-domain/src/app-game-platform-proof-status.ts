@@ -90,9 +90,7 @@ export const AppGamePlatformProofStatusRefSchema = withParser(
   )
 );
 
-const PlatformProofStatusLabelSchema = PlatformProofStatusText.pipe(
-  Schema.brand('AppGamePlatformProofStatusLabel')
-);
+const PlatformProofStatusLabelSchema = PlatformProofStatusText.pipe(Schema.brand('AppGamePlatformProofStatusLabel'));
 const decodePlatformProofStatusLabel = Schema.decodeUnknownSync(PlatformProofStatusLabelSchema);
 
 const PlatformProofStatusCountSchema = Schema.Number.pipe(Schema.int(), Schema.greaterThanOrEqualTo(0));
@@ -356,6 +354,7 @@ function androidProofRefs(
   return refs;
 }
 
+// eslint-disable-next-line complexity -- proof honesty predicates intentionally enumerate required evidence gates.
 function androidOpenGaps(
   proof: AppGameAndroidPhysicalDeviceProof,
   replay?: AppGameAndroidUsageEventsReplayReadModel,

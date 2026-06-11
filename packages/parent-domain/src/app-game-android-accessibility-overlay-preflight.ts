@@ -87,9 +87,7 @@ const AndroidAccessibilityOverlayPreflightReadModelBaseSchema = Schema.Struct({
   parentVisibleSummary: AndroidAccessibilityLabelSchema,
 });
 
-type AndroidAccessibilityOverlayPreflightRowCandidate = Infer<
-  typeof AndroidAccessibilityOverlayPreflightRowBaseSchema
->;
+type AndroidAccessibilityOverlayPreflightRowCandidate = Infer<typeof AndroidAccessibilityOverlayPreflightRowBaseSchema>;
 type AndroidAccessibilityOverlayPreflightReadModelCandidate = Infer<
   typeof AndroidAccessibilityOverlayPreflightReadModelBaseSchema
 >;
@@ -114,9 +112,7 @@ export const AppGameAndroidAccessibilityOverlayPreflightReadModelSchema = withPa
   )
 );
 
-export type AppGameAndroidAccessibilitySettingsSample = Infer<
-  typeof AppGameAndroidAccessibilitySettingsSampleSchema
->;
+export type AppGameAndroidAccessibilitySettingsSample = Infer<typeof AppGameAndroidAccessibilitySettingsSampleSchema>;
 export type AppGameAndroidAccessibilityOverlayPreflightRow = Infer<
   typeof AppGameAndroidAccessibilityOverlayPreflightRowSchema
 >;

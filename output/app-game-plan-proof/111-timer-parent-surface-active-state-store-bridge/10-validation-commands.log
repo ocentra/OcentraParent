@@ -1,4 +1,0 @@
-cargo fmt --package ocentra-parent-agent-service
-cargo test -p ocentra-parent-agent-service app_game_timer_parent_surface
-
-Result: focused Rust format and agent-service app_game_timer_parent_surface tests passed.

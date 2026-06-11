@@ -1003,7 +1003,7 @@
     "type-check": "tsc -p tsconfig.json --noEmit",
     "lint": "npx turbo run lint:exec --filter=@ocentra-parent/parent-domain",
     "lint:exec": "eslint --cache src tests && tsc -p tsconfig.json --noEmit",
-    "test": "vitest run"
+    "test": "node ../../scripts/test/parent-domain-test.mjs"
   },
   "dependencies": {
     "@ocentra-parent/schema-domain": "file:../schema-domain"

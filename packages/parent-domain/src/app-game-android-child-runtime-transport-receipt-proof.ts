@@ -64,9 +64,7 @@ const AppGameAndroidChildRuntimeTransportReceiptProofBaseSchema = Schema.Struct(
   checkedAt: ParentTimestampSchema,
 });
 
-type AndroidChildRuntimeReceiptCandidate = Infer<
-  typeof AppGameAndroidChildRuntimeTransportReceiptProofBaseSchema
->;
+type AndroidChildRuntimeReceiptCandidate = Infer<typeof AppGameAndroidChildRuntimeTransportReceiptProofBaseSchema>;
 
 export const AppGameAndroidChildRuntimeTransportReceiptProofSchema = withParser(
   AppGameAndroidChildRuntimeTransportReceiptProofBaseSchema.pipe(
@@ -158,9 +156,8 @@ function androidChildRuntimeTransportReceiptProofRefs(input: {
   return refs;
 }
 
-function androidChildRuntimeTransportReceiptProofIsHonest(
-  proof: AndroidChildRuntimeReceiptCandidate
-): boolean {
+// eslint-disable-next-line complexity -- proof honesty predicates intentionally enumerate required evidence gates.
+function androidChildRuntimeTransportReceiptProofIsHonest(proof: AndroidChildRuntimeReceiptCandidate): boolean {
   return (
     proof.transportChannelState === 'activity-visible-transport-channel' &&
     proof.receiptStoreState === 'internal-receipt-store-available' &&

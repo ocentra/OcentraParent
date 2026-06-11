@@ -39,9 +39,7 @@ export const AppGameWindowsLocalPolicyEvidenceGapSchema = withParser(
   )
 );
 
-const WindowsPolicyLabelSchema = WindowsPolicyText.pipe(
-  Schema.brand('AppGameWindowsLocalPolicyEvidenceProofLabel')
-);
+const WindowsPolicyLabelSchema = WindowsPolicyText.pipe(Schema.brand('AppGameWindowsLocalPolicyEvidenceProofLabel'));
 
 const WindowsPolicyCountSchema = Schema.Number.pipe(Schema.int(), Schema.greaterThanOrEqualTo(0));
 
@@ -82,9 +80,7 @@ export const AppGameWindowsLocalPolicyEvidenceProofSchema = withParser(
   )
 );
 
-export type AppGameWindowsLocalPolicyEvidenceProof = Infer<
-  typeof AppGameWindowsLocalPolicyEvidenceProofSchema
->;
+export type AppGameWindowsLocalPolicyEvidenceProof = Infer<typeof AppGameWindowsLocalPolicyEvidenceProofSchema>;
 
 export const decodeAppGameWindowsLocalPolicyEvidenceProof = Schema.decodeUnknownSync(
   AppGameWindowsLocalPolicyEvidenceProofSchema
@@ -128,9 +124,7 @@ export function createAppGameWindowsLocalPolicyEvidenceProof(input: {
   });
 }
 
-export function summarizeAppGameWindowsLocalPolicyEvidenceProof(
-  proof: AppGameWindowsLocalPolicyEvidenceProof
-) {
+export function summarizeAppGameWindowsLocalPolicyEvidenceProof(proof: AppGameWindowsLocalPolicyEvidenceProof) {
   return {
     serviceState: proof.serviceState,
     appLockerPolicyState: proof.appLockerPolicyState,
@@ -185,10 +179,7 @@ function windowsLocalPolicySummary(input: {
   readonly enforceModeObserved: boolean;
   readonly appControlEnforcementObserved: boolean;
 }) {
-  if (
-    input.serviceState === 'appidsvc-running' &&
-    (input.enforceModeObserved || input.appControlEnforcementObserved)
-  ) {
+  if (input.serviceState === 'appidsvc-running' && (input.enforceModeObserved || input.appControlEnforcementObserved)) {
     return 'Windows local policy evidence is visible, but allowlist, rollback, audit custody, adapter dispatch, and child delivery proof are still required before broad app/game blocking can be claimed.';
   }
 

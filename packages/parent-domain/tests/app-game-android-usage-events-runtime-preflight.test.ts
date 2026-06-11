@@ -44,22 +44,30 @@ describe('app-game Android UsageEvents runtime preflight', () => {
       checkedAt: '2026-06-08T19:35:00.000Z',
     });
 
-    expect(AppGameAndroidUsageEventsRuntimePreflightReadModelSchema.safeParse({
-      ...readModel,
-      runtimeCollectionClaimed: true,
-    }).success).toBe(false);
-    expect(AppGameAndroidUsageEventsRuntimePreflightReadModelSchema.safeParse({
-      ...readModel,
-      rawUsageEventsStored: true,
-    }).success).toBe(false);
-    expect(AppGameAndroidUsageEventsRuntimePreflightReadModelSchema.safeParse({
-      ...readModel,
-      adapterDispatchClaimed: true,
-    }).success).toBe(false);
-    expect(AppGameAndroidUsageEventsRuntimePreflightReadModelSchema.safeParse({
-      ...readModel,
-      runtimeCollectionState: 'collection-ready-for-proof',
-    }).success).toBe(false);
+    expect(
+      AppGameAndroidUsageEventsRuntimePreflightReadModelSchema.safeParse({
+        ...readModel,
+        runtimeCollectionClaimed: true,
+      }).success
+    ).toBe(false);
+    expect(
+      AppGameAndroidUsageEventsRuntimePreflightReadModelSchema.safeParse({
+        ...readModel,
+        rawUsageEventsStored: true,
+      }).success
+    ).toBe(false);
+    expect(
+      AppGameAndroidUsageEventsRuntimePreflightReadModelSchema.safeParse({
+        ...readModel,
+        adapterDispatchClaimed: true,
+      }).success
+    ).toBe(false);
+    expect(
+      AppGameAndroidUsageEventsRuntimePreflightReadModelSchema.safeParse({
+        ...readModel,
+        runtimeCollectionState: 'collection-ready-for-proof',
+      }).success
+    ).toBe(false);
   });
 });
 
@@ -69,10 +77,7 @@ function expectRuntimePreflightSignals(
   expect(readModel.commands).toEqual(['app-game.android.usage-events.runtime-preflight.get']);
   expect(readModel.events).toEqual(['app-game.android.usage-events.runtime-preflight.reported']);
   expect(readModel.proofRefs).toEqual(
-    expect.arrayContaining([
-      'android-usage-events-runtime-preflight-ref',
-      'android-usage-stats-appops-preflight-ref',
-    ])
+    expect.arrayContaining(['android-usage-events-runtime-preflight-ref', 'android-usage-stats-appops-preflight-ref'])
   );
   expect(readModel.openGaps).toEqual(
     expect.arrayContaining([

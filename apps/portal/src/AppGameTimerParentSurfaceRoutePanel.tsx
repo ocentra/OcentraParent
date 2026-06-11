@@ -4,9 +4,9 @@ import type { AgentAppGameTimerParentSurfaceResult } from '@ocentra-parent/agent
 import {
   PortalDetails,
   PortalDom,
-  PortalRoute,
   PortalText,
   PortalTextToken,
+  isPortalAppGameParentSurfaceRoute,
   type PortalDisplayText,
   type PortalRoute as PortalRouteValue,
 } from '@ocentra-parent/portal-domain/contracts';
@@ -20,7 +20,7 @@ import {
 } from './app-game-timer-parent-surface-panel';
 
 export function shouldRenderAppGameTimerParentSurfaceRoute(route: PortalRouteValue): boolean {
-  return route === PortalRoute.AppGameSessions;
+  return isPortalAppGameParentSurfaceRoute(route);
 }
 
 export function AppGameTimerParentSurfaceRoutePanel({
@@ -61,21 +61,23 @@ export function AppGameTimerParentSurfaceRoutePanel({
           )}
         >
           <AppGameTimerParentSurfaceSummaryCard intent={intent} />
-          {intent.parentActionRows.map((row) => (
-            <AppGameTimerParentSurfaceRowCard key={String(row.title)} row={row} />
+          {intent.parentActionRows.map((row, index) => (
+            <AppGameTimerParentSurfaceRowCard key={`${String(row.title)}:parent-action:${index}`} row={row} />
           ))}
-          {intent.parentPreferenceSetupRows.map((row) => (
+          {intent.parentPreferenceSetupRows.map((row, index) => (
             <AppGameTimerParentSurfaceRowCard
               actions={actions}
               commandEnabled={commandEnabled}
-              key={String(row.title)}
+              key={`${String(row.title)}:parent-preference:${index}`}
               row={row}
             />
           ))}
           {intent.rows.length === 0 ? (
             <AppGameTimerParentSurfaceEmptyCard intent={intent} />
           ) : (
-            intent.rows.map((row) => <AppGameTimerParentSurfaceRowCard key={String(row.title)} row={row} />)
+            intent.rows.map((row, index) => (
+              <AppGameTimerParentSurfaceRowCard key={`${String(row.title)}:service:${index}`} row={row} />
+            ))
           )}
         </div>
       </div>
@@ -170,8 +172,12 @@ function AppGameTimerParentSurfaceDetails({
 }): ReactElement {
   return (
     <dl className={PortalDom.Classes.TrackingStatusOverlayMeta}>
-      {details.map((detail) => (
-        <AppGameTimerParentSurfaceDetail key={String(detail.label)} label={detail.label} value={detail.value} />
+      {details.map((detail, index) => (
+        <AppGameTimerParentSurfaceDetail
+          key={`${String(detail.label)}:${index}`}
+          label={detail.label}
+          value={detail.value}
+        />
       ))}
     </dl>
   );

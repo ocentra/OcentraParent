@@ -115,12 +115,16 @@ fn windows_executable_candidate_names(executable: &str) -> Vec<String> {
     if executable.ends_with(proof::WINDOWS_EXE_EXTENSION) {
         return Vec::new();
     }
-    let mut names = vec![format!("{executable}{}", proof::WINDOWS_EXE_EXTENSION)];
+    let mut executable_name = executable.to_string();
+    executable_name.push_str(proof::WINDOWS_EXE_EXTENSION);
+    let mut names = vec![executable_name];
     if let Some(path_ext) = env::var_os(proof::ENV_PATHEXT) {
         names.extend(env::split_paths(&path_ext).filter_map(|extension| {
-            extension
-                .to_str()
-                .map(|value| format!("{executable}{value}"))
+            extension.to_str().map(|value| {
+                let mut candidate = executable.to_string();
+                candidate.push_str(value);
+                candidate
+            })
         }));
     }
     names

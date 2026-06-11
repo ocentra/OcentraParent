@@ -155,6 +155,7 @@ function packageRuntimeSummary(
   return 'Android package install and launch are observed, but UsageStats grant or live package sample proof is still missing.';
 }
 
+// eslint-disable-next-line complexity -- proof honesty predicates intentionally enumerate required evidence gates.
 function packageRuntimeProofIsHonest(readModel: PackageRuntimeCandidate): boolean {
   const grantAndSampleConsistent =
     readModel.permissionCheckState === 'usage-stats-granted' ||

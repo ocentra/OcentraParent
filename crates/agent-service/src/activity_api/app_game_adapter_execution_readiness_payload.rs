@@ -309,7 +309,7 @@ fn blocked_spec(
         rollback_reference_state: proof::ROLLBACK_MANUAL_REQUIRED,
         audit_reference_state: proof::AUDIT_MANUAL_REQUIRED,
         evidence_refs: &[],
-        host_capability_state: "",
+        host_capability_state: constants::value::EMPTY,
         host_capability_evidence_refs: vec![proof::REF_ADAPTER_CAPABILITY_STATE],
         host_capability_probe_refs: vec![proof::REF_WINDOWS_HOST_LOCAL_PROBE],
         linked_proof_artifacts: &[],
@@ -341,6 +341,7 @@ fn permission_degraded_spec() -> AdapterReadinessSpec {
     }
 }
 
+#[allow(clippy::too_many_arguments)]
 fn platform_unavailable_spec(
     proof_entry_id: &'static str,
     platform: &'static str,

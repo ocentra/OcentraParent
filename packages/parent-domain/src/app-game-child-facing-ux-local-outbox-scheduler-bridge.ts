@@ -248,6 +248,7 @@ function appGameChildUxLocalOutboxSchedulerBridgeRowIsHonest(
   return row.schedulerRecord === null && row.sourceOutboxRecordRef === null && row.blockedReasonRefs.length > 0;
 }
 
+// eslint-disable-next-line complexity -- proof honesty predicates intentionally enumerate required evidence gates.
 function appGameChildUxLocalOutboxSchedulerBridgeReadModelIsHonest(
   readModel: Infer<typeof AppGameChildUxLocalOutboxSchedulerBridgeReadModelBaseSchema>
 ): boolean {

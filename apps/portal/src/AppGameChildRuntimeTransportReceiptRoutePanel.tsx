@@ -4,9 +4,9 @@ import type { AgentAppGameChildRuntimeTransportReceiptResult } from '@ocentra-pa
 import {
   PortalDetails,
   PortalDom,
-  PortalRoute,
   PortalText,
   PortalTextToken,
+  isPortalAppGameParentSurfaceRoute,
   type PortalDisplayText,
   type PortalRoute as PortalRouteValue,
 } from '@ocentra-parent/portal-domain/contracts';
@@ -19,7 +19,7 @@ import {
 } from './app-game-child-runtime-transport-receipt-panel';
 
 export function shouldRenderAppGameChildRuntimeTransportReceiptRoute(route: PortalRouteValue): boolean {
-  return route === PortalRoute.AppGameSessions;
+  return isPortalAppGameParentSurfaceRoute(route);
 }
 
 export function AppGameChildRuntimeTransportReceiptRoutePanel({
@@ -64,8 +64,8 @@ export function AppGameChildRuntimeTransportReceiptRoutePanel({
           {intent.rows.length === 0 ? (
             <AppGameChildRuntimeTransportReceiptEmptyCard intent={intent} />
           ) : (
-            intent.rows.map((row) => (
-              <AppGameChildRuntimeTransportReceiptRowCard key={String(row.title)} row={row} />
+            intent.rows.map((row, index) => (
+              <AppGameChildRuntimeTransportReceiptRowCard key={`${String(row.title)}:${index}`} row={row} />
             ))
           )}
         </div>
@@ -137,8 +137,8 @@ function AppGameChildRuntimeTransportReceiptDetails({
 }): ReactElement {
   return (
     <dl className={PortalDom.Classes.TrackingStatusOverlayMeta}>
-      {details.map((detail) => (
-        <AppGameChildRuntimeTransportReceiptDetail key={String(detail.label)} {...detail} />
+      {details.map((detail, index) => (
+        <AppGameChildRuntimeTransportReceiptDetail key={`${String(detail.label)}:${index}`} {...detail} />
       ))}
     </dl>
   );

@@ -82,8 +82,7 @@ async function main() {
       contract: 'packages/parent-domain/src/app-game-child-facing-ux-child-runtime-transport-receipt-boundary.ts',
       contractTest:
         'packages/parent-domain/tests/app-game-child-facing-ux-child-runtime-transport-receipt-boundary.test.ts',
-      sourceRuntimeWriterContract:
-        'packages/parent-domain/src/app-game-child-facing-ux-child-device-runtime-writer.ts',
+      sourceRuntimeWriterContract: 'packages/parent-domain/src/app-game-child-facing-ux-child-device-runtime-writer.ts',
       sourceRuntimeWriterProof: 'test-results/app-game-child-device-runtime-writer-proof/proof.json',
     },
     claimsProved: [

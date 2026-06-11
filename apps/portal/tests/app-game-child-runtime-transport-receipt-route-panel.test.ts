@@ -32,7 +32,10 @@ const ChildRuntimeTransportReceiptReadModel = {
   platformEnforcementClaimed: false,
   rawPrivateSourceRowsIncluded: false,
   rows: [
-    childRuntimeTransportReceiptRow('app-game-child-runtime-transport-receipt-warning', 'child-runtime-transport-required'),
+    childRuntimeTransportReceiptRow(
+      'app-game-child-runtime-transport-receipt-warning',
+      'child-runtime-transport-required'
+    ),
     childRuntimeTransportReceiptRow('app-game-child-runtime-transport-receipt-apple', 'manual-required'),
   ],
 } as const;

@@ -13,7 +13,12 @@ const notificationId = '4480';
 const markerFileName = 'app-game-local-notification-proof-state.txt';
 const proofMode = 'app-game-android-child-runtime-local-notification-proof';
 const outputDir = join(repoRoot, 'test-results', proofMode);
-const appGameProofDir = join(repoRoot, 'output', 'app-game-plan-proof', '220-app-game-android-child-runtime-local-notification-proof');
+const appGameProofDir = join(
+  repoRoot,
+  'output',
+  'app-game-plan-proof',
+  '220-app-game-android-child-runtime-local-notification-proof'
+);
 const apkPath = join(
   repoRoot,
   'target',
@@ -68,15 +73,7 @@ async function main() {
   ]);
   await delay(2500);
 
-  const markerReadback = await adb([
-    '-s',
-    adbTarget,
-    'shell',
-    'run-as',
-    packageId,
-    'cat',
-    `files/${markerFileName}`,
-  ]);
+  const markerReadback = await adb(['-s', adbTarget, 'shell', 'run-as', packageId, 'cat', `files/${markerFileName}`]);
   const notificationDump = await adb(['-s', adbTarget, 'shell', 'dumpsys', 'notification'], { allowFailure: true });
   const uiDump = await adb(['-s', adbTarget, 'exec-out', 'uiautomator', 'dump', '/dev/tty'], { allowFailure: true });
   const sourceState = parseSourceState({
@@ -136,7 +133,10 @@ async function main() {
   await writeJson(proofPath, proof);
   await writeJson(join(appGameProofDir, 'proof.json'), proof);
   await writeFile(join(appGameProofDir, '00-source-snapshot.md'), sourceSnapshot(sourceState));
-  await writeFile(join(appGameProofDir, '10-validation-commands.log'), `${commands.map(redactCommandRecord).join('\n\n')}\n`);
+  await writeFile(
+    join(appGameProofDir, '10-validation-commands.log'),
+    `${commands.map(redactCommandRecord).join('\n\n')}\n`
+  );
 
   console.log('app-game-android-child-runtime-local-notification-proof-ok');
   console.log(`evidence=${relativePath(proofPath)}`);

@@ -219,6 +219,7 @@ function countDraftStatus(
   return rows.filter((row) => row.draftStatus === status).length;
 }
 
+// eslint-disable-next-line complexity -- proof honesty predicates intentionally enumerate required evidence gates.
 function parentPreferenceSetupDraftReadModelIsHonest(
   readModel: Infer<typeof AppGameChildUxParentPreferenceSetupDraftReadModelBaseSchema>
 ): boolean {

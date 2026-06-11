@@ -44,13 +44,9 @@ async fn app_game_adapter_dispatch_result_command_returns_typed_event() {
         event.event,
         AgentEventName::AgentActivityAppGameAdapterDispatchResultReadModelReported
     );
-    assert_eq!(
-        event
-            .payload
-            .get(constants::field::APP_GAME_ADAPTER_DISPATCH_RESULT_READ_MODEL)
-            .is_some(),
-        true
-    );
+    assert!(event
+        .payload
+        .contains_key(constants::field::APP_GAME_ADAPTER_DISPATCH_RESULT_READ_MODEL));
 }
 
 #[tokio::test]

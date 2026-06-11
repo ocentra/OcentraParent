@@ -16,9 +16,7 @@ export const AppGameLinuxForegroundCaptureSourceStateSchema = withParser(
   Schema.Literal('wslg-display-sockets-observed', 'source-not-available')
 );
 
-export const AppGameLinuxForegroundCaptureCustodyStateSchema = withParser(
-  Schema.Literal('no-window-title-custody')
-);
+export const AppGameLinuxForegroundCaptureCustodyStateSchema = withParser(Schema.Literal('no-window-title-custody'));
 
 export const AppGameLinuxForegroundCaptureReadinessRefSchema = withParser(
   Schema.Literal(
@@ -65,9 +63,7 @@ const AppGameLinuxForegroundCaptureReadinessBaseSchema = Schema.Struct({
   parentVisibleSummary: LinuxForegroundCaptureLabelSchema,
 });
 
-type AppGameLinuxForegroundCaptureReadinessCandidate = Infer<
-  typeof AppGameLinuxForegroundCaptureReadinessBaseSchema
->;
+type AppGameLinuxForegroundCaptureReadinessCandidate = Infer<typeof AppGameLinuxForegroundCaptureReadinessBaseSchema>;
 
 export const AppGameLinuxForegroundCaptureReadinessSchema = withParser(
   AppGameLinuxForegroundCaptureReadinessBaseSchema.pipe(
@@ -79,9 +75,7 @@ export const AppGameLinuxForegroundCaptureReadinessSchema = withParser(
   )
 );
 
-export type AppGameLinuxForegroundCaptureReadiness = Infer<
-  typeof AppGameLinuxForegroundCaptureReadinessSchema
->;
+export type AppGameLinuxForegroundCaptureReadiness = Infer<typeof AppGameLinuxForegroundCaptureReadinessSchema>;
 
 export const decodeAppGameLinuxForegroundCaptureReadiness = Schema.decodeUnknownSync(
   AppGameLinuxForegroundCaptureReadinessSchema
@@ -122,9 +116,7 @@ export function createAppGameLinuxForegroundCaptureReadiness(input: {
   return decodeAppGameLinuxForegroundCaptureReadiness(readModel);
 }
 
-export function summarizeAppGameLinuxForegroundCaptureReadiness(
-  readiness: AppGameLinuxForegroundCaptureReadiness
-) {
+export function summarizeAppGameLinuxForegroundCaptureReadiness(readiness: AppGameLinuxForegroundCaptureReadiness) {
   return {
     readinessState: readiness.readinessState,
     sourceState: readiness.sourceState,
@@ -166,9 +158,7 @@ function linuxForegroundCaptureOpenGaps(foregroundToolAvailable: boolean) {
   return gaps;
 }
 
-function linuxForegroundCaptureReadinessIsHonest(
-  readiness: AppGameLinuxForegroundCaptureReadinessCandidate
-): boolean {
+function linuxForegroundCaptureReadinessIsHonest(readiness: AppGameLinuxForegroundCaptureReadinessCandidate): boolean {
   return (
     linuxForegroundCaptureStateIsConsistent(readiness) &&
     readiness.custodyState === 'no-window-title-custody' &&
@@ -182,9 +172,7 @@ function linuxForegroundCaptureReadinessIsHonest(
   );
 }
 
-function linuxForegroundCaptureStateIsConsistent(
-  readiness: AppGameLinuxForegroundCaptureReadinessCandidate
-): boolean {
+function linuxForegroundCaptureStateIsConsistent(readiness: AppGameLinuxForegroundCaptureReadinessCandidate): boolean {
   if (readiness.readinessState === 'display-not-ready') {
     return !readiness.displayProofAttached && readiness.sourceState === 'source-not-available';
   }

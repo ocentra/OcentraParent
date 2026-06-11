@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 import { spawnSync } from 'node:child_process';
-import { existsSync } from 'node:fs';
+import { existsSync, readdirSync, statSync } from 'node:fs';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -9,6 +9,7 @@ const ledgerRoot = join(repoRoot, 'tools', 'ocentra-ledger');
 const packagePath = join(ledgerRoot, 'package.json');
 const nodeModulesPath = join(ledgerRoot, 'node_modules');
 const cliPath = join(ledgerRoot, 'dist', 'cli.js');
+const sourcePath = join(ledgerRoot, 'src');
 
 const args = process.argv.slice(2);
 const command = args[0];
@@ -54,10 +55,30 @@ function installIfNeeded() {
 }
 
 function buildIfNeeded() {
-  if (existsSync(cliPath)) {
+  if (existsSync(cliPath) && !isSourceNewerThanCli()) {
     return;
   }
   build();
+}
+
+function isSourceNewerThanCli() {
+  if (!existsSync(cliPath) || !existsSync(sourcePath)) {
+    return true;
+  }
+  const cliMtime = statSync(cliPath).mtimeMs;
+  return newestMtime(sourcePath) > cliMtime;
+}
+
+function newestMtime(path) {
+  const stats = statSync(path);
+  if (!stats.isDirectory()) {
+    return stats.mtimeMs;
+  }
+  let newest = stats.mtimeMs;
+  for (const entry of readdirSync(path)) {
+    newest = Math.max(newest, newestMtime(join(path, entry)));
+  }
+  return newest;
 }
 
 function ensureIdentityIfNeeded() {

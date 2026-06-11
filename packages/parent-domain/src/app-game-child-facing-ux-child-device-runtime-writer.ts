@@ -112,9 +112,7 @@ export const AppGameChildDeviceRuntimeWriterReadModelSchema = withParser(
 
 export type AppGameChildDeviceRuntimeWriterState = Infer<typeof AppGameChildDeviceRuntimeWriterStateSchema>;
 export type AppGameChildDeviceRuntimeWriterRow = Infer<typeof AppGameChildDeviceRuntimeWriterRowSchema>;
-export type AppGameChildDeviceRuntimeWriterReadModel = Infer<
-  typeof AppGameChildDeviceRuntimeWriterReadModelSchema
->;
+export type AppGameChildDeviceRuntimeWriterReadModel = Infer<typeof AppGameChildDeviceRuntimeWriterReadModelSchema>;
 
 export type AppGameChildDeviceRuntimeWriterOptions = {
   readonly generatedAt: string;
@@ -208,7 +206,8 @@ function appGameChildDeviceRuntimeWriterReadModelIsHonest(
   readModel: Infer<typeof AppGameChildDeviceRuntimeWriterReadModelBaseSchema>
 ): boolean {
   return (
-    readModel.writerEnvelopeReadyCount === countRows(readModel.rows, AppGameChildDeviceRuntimeWriterState.EnvelopeReady) &&
+    readModel.writerEnvelopeReadyCount ===
+      countRows(readModel.rows, AppGameChildDeviceRuntimeWriterState.EnvelopeReady) &&
     readModel.manualRequiredCount === countRows(readModel.rows, AppGameChildDeviceRuntimeWriterState.ManualRequired) &&
     readModel.unavailableCount === countRows(readModel.rows, AppGameChildDeviceRuntimeWriterState.Unavailable) &&
     RequiredAppGameChildDeviceRuntimeWriterNonClaims.every((claim) => readModel.nonClaims.includes(claim)) &&

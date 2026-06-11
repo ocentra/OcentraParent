@@ -42,29 +42,41 @@ describe('app-game Android child runtime local notification proof', () => {
       checkedAt: '2026-06-08T22:00:00.000Z',
     });
 
-    expect(AppGameAndroidChildRuntimeLocalNotificationProofSchema.safeParse({
-      ...proof,
-      markerReadbackObserved: false,
-    }).success).toBe(false);
-    expect(AppGameAndroidChildRuntimeLocalNotificationProofSchema.safeParse({
-      ...proof,
-      providerDeliveryClaimed: true,
-    }).success).toBe(false);
-    expect(AppGameAndroidChildRuntimeLocalNotificationProofSchema.safeParse({
-      ...proof,
-      platformDeliveryOutsidePackageClaimed: true,
-    }).success).toBe(false);
-    expect(AppGameAndroidChildRuntimeLocalNotificationProofSchema.safeParse({
-      ...proof,
-      adapterDispatchClaimed: true,
-    }).success).toBe(false);
-    expect(AppGameAndroidChildRuntimeLocalNotificationProofSchema.safeParse({
-      ...proof,
-      platformEnforcementClaimed: true,
-    }).success).toBe(false);
-    expect(AppGameAndroidChildRuntimeLocalNotificationProofSchema.safeParse({
-      ...proof,
-      rawPrivateSourceRowsStored: true,
-    }).success).toBe(false);
+    expect(
+      AppGameAndroidChildRuntimeLocalNotificationProofSchema.safeParse({
+        ...proof,
+        markerReadbackObserved: false,
+      }).success
+    ).toBe(false);
+    expect(
+      AppGameAndroidChildRuntimeLocalNotificationProofSchema.safeParse({
+        ...proof,
+        providerDeliveryClaimed: true,
+      }).success
+    ).toBe(false);
+    expect(
+      AppGameAndroidChildRuntimeLocalNotificationProofSchema.safeParse({
+        ...proof,
+        platformDeliveryOutsidePackageClaimed: true,
+      }).success
+    ).toBe(false);
+    expect(
+      AppGameAndroidChildRuntimeLocalNotificationProofSchema.safeParse({
+        ...proof,
+        adapterDispatchClaimed: true,
+      }).success
+    ).toBe(false);
+    expect(
+      AppGameAndroidChildRuntimeLocalNotificationProofSchema.safeParse({
+        ...proof,
+        platformEnforcementClaimed: true,
+      }).success
+    ).toBe(false);
+    expect(
+      AppGameAndroidChildRuntimeLocalNotificationProofSchema.safeParse({
+        ...proof,
+        rawPrivateSourceRowsStored: true,
+      }).success
+    ).toBe(false);
   });
 });

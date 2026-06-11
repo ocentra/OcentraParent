@@ -73,14 +73,13 @@ const AgentAppGamePlatformProofStatusRowBaseSchema = Schema.Struct({
   broadInstalledAppBlockingClaimed: Schema.Literal(false),
   platformEnforcementClaimed: Schema.Literal(false),
   providerDeliveryClaimed: Schema.Literal(false),
+  childDeliveryClaimed: Schema.Literal(false),
   childDeviceDeliveryClaimed: Schema.Literal(false),
   privateDiagnosticsClaimed: Schema.Literal(false),
   lastCheckedAt: PlatformProofStatusText,
 });
 
-type AgentAppGamePlatformProofStatusRowCandidate = Infer<
-  typeof AgentAppGamePlatformProofStatusRowBaseSchema
->;
+type AgentAppGamePlatformProofStatusRowCandidate = Infer<typeof AgentAppGamePlatformProofStatusRowBaseSchema>;
 
 export const AgentAppGamePlatformProofStatusRowSchema = withParser(
   AgentAppGamePlatformProofStatusRowBaseSchema.pipe(
@@ -129,9 +128,7 @@ export const AgentAppGamePlatformProofStatusReadModelSchema = withParser(
 );
 
 export type AgentAppGamePlatformProofStatusRow = Infer<typeof AgentAppGamePlatformProofStatusRowSchema>;
-export type AgentAppGamePlatformProofStatusReadModel = Infer<
-  typeof AgentAppGamePlatformProofStatusReadModelSchema
->;
+export type AgentAppGamePlatformProofStatusReadModel = Infer<typeof AgentAppGamePlatformProofStatusReadModelSchema>;
 
 export type AgentAppGamePlatformProofStatusFailureReason =
   | 'wrong-event'
@@ -196,6 +193,7 @@ function noRuntimeClaimUpgrade(row: AgentAppGamePlatformProofStatusRowCandidate)
     !row.broadInstalledAppBlockingClaimed &&
     !row.platformEnforcementClaimed &&
     !row.providerDeliveryClaimed &&
+    !row.childDeliveryClaimed &&
     !row.childDeviceDeliveryClaimed &&
     !row.privateDiagnosticsClaimed
   );

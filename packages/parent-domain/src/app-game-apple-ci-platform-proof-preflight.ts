@@ -13,9 +13,7 @@ export const AppGameAppleCiPlatformProofPreflightSchemaVersionSchema = withParse
 
 export const AppGameAppleCiPlatformProofPreflightPlatformSchema = withParser(Schema.Literal('macos', 'ios'));
 
-export const AppGameAppleCiPlatformProofPreflightStateSchema = withParser(
-  Schema.Literal('ci-artifacts-required')
-);
+export const AppGameAppleCiPlatformProofPreflightStateSchema = withParser(Schema.Literal('ci-artifacts-required'));
 
 export const AppGameAppleCiPlatformProofPreflightProofRefSchema = withParser(
   Schema.Literal(
@@ -85,9 +83,7 @@ const AppleCiPlatformProofPreflightReadModelBaseSchema = Schema.Struct({
 });
 
 type AppleCiPlatformProofPreflightRowCandidate = Infer<typeof AppleCiPlatformProofPreflightRowBaseSchema>;
-type AppleCiPlatformProofPreflightReadModelCandidate = Infer<
-  typeof AppleCiPlatformProofPreflightReadModelBaseSchema
->;
+type AppleCiPlatformProofPreflightReadModelCandidate = Infer<typeof AppleCiPlatformProofPreflightReadModelBaseSchema>;
 
 export const AppGameAppleCiPlatformProofPreflightRowSchema = withParser(
   AppleCiPlatformProofPreflightRowBaseSchema.pipe(
@@ -109,9 +105,7 @@ export const AppGameAppleCiPlatformProofPreflightReadModelSchema = withParser(
   )
 );
 
-export type AppGameAppleCiPlatformProofPreflightRow = Infer<
-  typeof AppGameAppleCiPlatformProofPreflightRowSchema
->;
+export type AppGameAppleCiPlatformProofPreflightRow = Infer<typeof AppGameAppleCiPlatformProofPreflightRowSchema>;
 export type AppGameAppleCiPlatformProofPreflightReadModel = Infer<
   typeof AppGameAppleCiPlatformProofPreflightReadModelSchema
 >;

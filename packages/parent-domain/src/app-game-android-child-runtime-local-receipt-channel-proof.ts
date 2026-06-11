@@ -160,6 +160,7 @@ function androidChildRuntimeLocalReceiptChannelProofRefs(input: {
   return refs;
 }
 
+// eslint-disable-next-line complexity -- proof honesty predicates intentionally enumerate required evidence gates.
 function androidChildRuntimeLocalReceiptChannelProofIsHonest(
   proof: AndroidChildRuntimeLocalReceiptChannelCandidate
 ): boolean {

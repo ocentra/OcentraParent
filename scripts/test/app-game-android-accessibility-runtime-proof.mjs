@@ -11,7 +11,12 @@ const packageId = 'ca.ocentra.parent.agent';
 const activityId = 'ca.ocentra.parent.agent/.MainActivity';
 const proofMode = 'app-game-android-accessibility-runtime-proof';
 const outputDir = join(repoRoot, 'test-results', proofMode);
-const appGameProofDir = join(repoRoot, 'output', 'app-game-plan-proof', '202-app-game-android-accessibility-runtime-proof');
+const appGameProofDir = join(
+  repoRoot,
+  'output',
+  'app-game-plan-proof',
+  '202-app-game-android-accessibility-runtime-proof'
+);
 const manifestPath = join(repoRoot, 'platforms', 'android', 'agent', 'app', 'src', 'main', 'AndroidManifest.xml');
 const serviceConfigPath = join(
   repoRoot,
@@ -138,7 +143,10 @@ async function main() {
   await writeJson(proofPath, proof);
   await writeJson(join(appGameProofDir, 'proof.json'), proof);
   await writeFile(join(appGameProofDir, '00-source-snapshot.md'), sourceSnapshot(sourceState));
-  await writeFile(join(appGameProofDir, '10-validation-commands.log'), `${commands.map(redactCommandRecord).join('\n\n')}\n`);
+  await writeFile(
+    join(appGameProofDir, '10-validation-commands.log'),
+    `${commands.map(redactCommandRecord).join('\n\n')}\n`
+  );
 
   console.log('app-game-android-accessibility-runtime-proof-ok');
   console.log(`evidence=${relativePath(proofPath)}`);
@@ -169,7 +177,9 @@ async function accessibilitySettingsSample() {
 
 function parseRuntimeState({ uiText, settingsSample, manifestServiceDeclared, serviceConfigDeclared }) {
   const declarationState =
-    manifestServiceDeclared && serviceConfigDeclared ? 'accessibility-service-declared' : 'accessibility-service-missing';
+    manifestServiceDeclared && serviceConfigDeclared
+      ? 'accessibility-service-declared'
+      : 'accessibility-service-missing';
   const runtimeState =
     uiText.includes('accessibility-runtime-bound') || settingsSample.ocentraServiceEnabled
       ? 'accessibility-runtime-bound'

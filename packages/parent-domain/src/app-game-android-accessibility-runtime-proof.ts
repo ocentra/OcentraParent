@@ -82,9 +82,7 @@ export const AppGameAndroidAccessibilityRuntimeProofSchema = withParser(
   )
 );
 
-export type AppGameAndroidAccessibilityRuntimeProof = Infer<
-  typeof AppGameAndroidAccessibilityRuntimeProofSchema
->;
+export type AppGameAndroidAccessibilityRuntimeProof = Infer<typeof AppGameAndroidAccessibilityRuntimeProofSchema>;
 
 export const decodeAppGameAndroidAccessibilityRuntimeProof = Schema.decodeUnknownSync(
   AppGameAndroidAccessibilityRuntimeProofSchema
@@ -125,9 +123,7 @@ export function createAppGameAndroidAccessibilityRuntimeProof(input: {
   });
 }
 
-export function summarizeAppGameAndroidAccessibilityRuntimeProof(
-  proof: AppGameAndroidAccessibilityRuntimeProof
-) {
+export function summarizeAppGameAndroidAccessibilityRuntimeProof(proof: AppGameAndroidAccessibilityRuntimeProof) {
   return {
     declarationState: proof.declarationState,
     runtimeState: proof.runtimeState,
@@ -190,6 +186,7 @@ function accessibilityRuntimeSummary(
   return 'Android Accessibility service is declared in the package, but enablement or event sample proof is still missing before overlay runtime can be claimed.';
 }
 
+// eslint-disable-next-line complexity -- proof honesty predicates intentionally enumerate required evidence gates.
 function accessibilityRuntimeProofIsHonest(proof: AccessibilityRuntimeCandidate): boolean {
   return (
     proof.declarationState === 'accessibility-service-declared' &&

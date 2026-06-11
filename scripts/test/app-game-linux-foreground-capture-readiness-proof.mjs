@@ -6,7 +6,12 @@ import { pathToFileURL } from 'node:url';
 const repoRoot = process.cwd();
 const proofMode = 'app-game-linux-foreground-capture-readiness-proof';
 const outputDir = join(repoRoot, 'test-results', proofMode);
-const appGameProofDir = join(repoRoot, 'output', 'app-game-plan-proof', '189-app-game-linux-foreground-capture-readiness');
+const appGameProofDir = join(
+  repoRoot,
+  'output',
+  'app-game-plan-proof',
+  '189-app-game-linux-foreground-capture-readiness'
+);
 const proofPath = join(outputDir, 'proof.json');
 const commands = [];
 
@@ -32,12 +37,15 @@ async function main() {
 
   const linuxProof = await readJson(join(repoRoot, 'test-results', 'app-game-linux-wsl-runtime-proof', 'proof.json'));
   const readinessModule = await import(
-    pathToFileURL(join(repoRoot, 'packages', 'parent-domain', 'dist', 'app-game-linux-foreground-capture-readiness.js')).href
+    pathToFileURL(join(repoRoot, 'packages', 'parent-domain', 'dist', 'app-game-linux-foreground-capture-readiness.js'))
+      .href
   );
   const statusModule = await import(
     pathToFileURL(join(repoRoot, 'packages', 'parent-domain', 'dist', 'app-game-platform-proof-status.js')).href
   );
-  const androidProof = await readJson(join(repoRoot, 'test-results', 'app-game-android-physical-device-proof', 'proof.json'));
+  const androidProof = await readJson(
+    join(repoRoot, 'test-results', 'app-game-android-physical-device-proof', 'proof.json')
+  );
   const replayModule = await import(
     pathToFileURL(join(repoRoot, 'packages', 'parent-domain', 'dist', 'app-game-android-usage-events-replay.js')).href
   );

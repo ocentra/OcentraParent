@@ -12159,7 +12159,7 @@ function ManageWorkspacePanel({
           const valueSize = fitSingleLineTextSize(card.value, cardW - 30, 12, 16, 0.58);
           const bodyLines = wrapCardText(card.body, cardW - 30, 10.2, cardH > 86 ? 2 : 1);
           return (
-            <g key={`manage-workspace-card:${kind}:${activeTabKey}:${workspaceTargetKey}:${card.label}`}>
+            <g key={`manage-workspace-card:${kind}:${activeTabKey}:${workspaceTargetKey}:${index}:${card.label}`}>
               <rect
                 x={cardX}
                 y={cardY}
@@ -14858,9 +14858,9 @@ function AssistantChatBubbleBody({ text, choices, choiceColumnCount, choiceActio
             gap: 7,
           }}
         >
-          {choices.map((choice) => (
+          {choices.map((choice, index) => (
             <button
-              key={choice.label}
+              key={`${choice.label}:${index}`}
               type="button"
               aria-label={`Ask MIA about ${choiceActionLabel}: ${choice.label}`}
               onClick={(event) => {

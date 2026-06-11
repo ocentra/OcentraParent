@@ -8,7 +8,12 @@ const repoRoot = process.cwd();
 const proofMode = 'app-game-android-child-runtime-local-receipt-ack-proof';
 const outputDir = join(repoRoot, 'test-results', proofMode);
 const proofPath = join(outputDir, 'proof.json');
-const appGameProofDir = join(repoRoot, 'output', 'app-game-plan-proof', '214-app-game-android-child-runtime-local-receipt-ack-proof');
+const appGameProofDir = join(
+  repoRoot,
+  'output',
+  'app-game-plan-proof',
+  '214-app-game-android-child-runtime-local-receipt-ack-proof'
+);
 const androidProofPath = join(
   repoRoot,
   'platforms',
@@ -39,7 +44,13 @@ const mainActivityPath = join(
   'agent',
   'MainActivity.java'
 );
-const apkPath = join(repoRoot, 'target', 'release-packages', 'android', 'ocentra-parent-agent-android-debug-latest.apk');
+const apkPath = join(
+  repoRoot,
+  'target',
+  'release-packages',
+  'android',
+  'ocentra-parent-agent-android-debug-latest.apk'
+);
 const commands = [];
 
 await main();
@@ -146,9 +157,15 @@ async function gitHead() {
 
 function parseAndroidSourceState(proofSource, mainActivity) {
   return {
-    receiptAppendState: proofSource.includes('RECEIPT_RECORD') ? 'local-receipt-append-recorded' : 'local-receipt-append-unavailable',
-    receiptReadbackState: proofSource.includes('FileInputStream') ? 'local-receipt-readback-observed' : 'local-receipt-readback-unavailable',
-    receiptLocalAckState: proofSource.includes('RECEIPT_ACK_RECORD') ? 'local-receipt-ack-recorded' : 'local-receipt-ack-unavailable',
+    receiptAppendState: proofSource.includes('RECEIPT_RECORD')
+      ? 'local-receipt-append-recorded'
+      : 'local-receipt-append-unavailable',
+    receiptReadbackState: proofSource.includes('FileInputStream')
+      ? 'local-receipt-readback-observed'
+      : 'local-receipt-readback-unavailable',
+    receiptLocalAckState: proofSource.includes('RECEIPT_ACK_RECORD')
+      ? 'local-receipt-ack-recorded'
+      : 'local-receipt-ack-unavailable',
     receiptLocalAckReadbackState: proofSource.includes('RECEIPT_LOCAL_ACK_READBACK_OBSERVED')
       ? 'local-receipt-ack-readback-observed'
       : 'local-receipt-ack-readback-unavailable',

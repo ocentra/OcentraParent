@@ -12,7 +12,7 @@ use super::app_game_platform_proof_status_payload::{
     app_game_platform_proof_status_payload, app_game_platform_proof_status_read_model,
 };
 
-const GENERATED_AT: &str = "2026-06-08T16:50:00.000Z";
+const GENERATED_AT: &str = constants::value::APP_GAME_TEST_PLATFORM_PROOF_STATUS_GENERATED_AT;
 
 #[test]
 fn platform_proof_status_payload_serializes_parent_safe_status_model() {
@@ -23,7 +23,7 @@ fn platform_proof_status_payload_serializes_parent_safe_status_model() {
         &payload,
         constants::field::APP_GAME_PLATFORM_PROOF_STATUS_READ_MODEL,
     ))
-    .expect("platform proof status read model reparses");
+    .expect(constants::value::APP_GAME_TEST_PLATFORM_PROOF_STATUS_REPARSES);
 
     assert_eq!(
         reparsed.read_model_id,
@@ -76,20 +76,14 @@ fn platform_row<'a>(
         .rows
         .iter()
         .find(|row| row.platform == platform)
-        .expect("platform row exists")
+        .expect(constants::value::APP_GAME_TEST_PLATFORM_PROOF_STATUS_ROW_EXISTS)
 }
 
 fn assert_refs(row: &AppGamePlatformProofStatusRow, proof_refs: &[&str], open_gaps: &[&str]) {
     for proof_ref in proof_refs {
-        assert!(
-            row.proof_refs.iter().any(|value| value == proof_ref),
-            "missing proof ref {proof_ref}"
-        );
+        assert!(row.proof_refs.iter().any(|value| value == proof_ref));
     }
     for open_gap in open_gaps {
-        assert!(
-            row.open_gaps.iter().any(|value| value == open_gap),
-            "missing open gap {open_gap}"
-        );
+        assert!(row.open_gaps.iter().any(|value| value == open_gap));
     }
 }

@@ -11,7 +11,12 @@ const packageId = 'ca.ocentra.parent.agent';
 const activityId = 'ca.ocentra.parent.agent/.MainActivity';
 const proofMode = 'app-game-android-usage-events-granted-sample-proof';
 const outputDir = join(repoRoot, 'test-results', proofMode);
-const appGameProofDir = join(repoRoot, 'output', 'app-game-plan-proof', '218-app-game-android-usage-events-granted-sample-proof');
+const appGameProofDir = join(
+  repoRoot,
+  'output',
+  'app-game-plan-proof',
+  '218-app-game-android-usage-events-granted-sample-proof'
+);
 const apkPath = join(
   repoRoot,
   'target',
@@ -85,7 +90,8 @@ async function main() {
     evidence: {
       contract: 'packages/parent-domain/src/app-game-android-usage-events-granted-sample-proof.ts',
       contractTest: 'packages/parent-domain/tests/app-game-android-usage-events-granted-sample-proof.test.ts',
-      androidRuntime: 'platforms/android/agent/app/src/main/java/ca/ocentra/parent/agent/AppGameAndroidUsageEventsRuntimePreflight.java',
+      androidRuntime:
+        'platforms/android/agent/app/src/main/java/ca/ocentra/parent/agent/AppGameAndroidUsageEventsRuntimePreflight.java',
       androidActivity: 'platforms/android/agent/app/src/main/java/ca/ocentra/parent/agent/MainActivity.java',
       packageInstall: 'adb install -r target/release-packages/android/ocentra-parent-agent-android-debug-latest.apk',
       appOpsGrant: 'adb shell appops set ca.ocentra.parent.agent GET_USAGE_STATS allow',
@@ -108,7 +114,10 @@ async function main() {
   await writeJson(proofPath, proof);
   await writeJson(join(appGameProofDir, 'proof.json'), proof);
   await writeFile(join(appGameProofDir, '00-source-snapshot.md'), sourceSnapshot(sourceState));
-  await writeFile(join(appGameProofDir, '10-validation-commands.log'), `${commands.map(redactCommandRecord).join('\n\n')}\n`);
+  await writeFile(
+    join(appGameProofDir, '10-validation-commands.log'),
+    `${commands.map(redactCommandRecord).join('\n\n')}\n`
+  );
 
   console.log('app-game-android-usage-events-granted-sample-proof-ok');
   console.log(`evidence=${relativePath(proofPath)}`);
@@ -231,12 +240,9 @@ function redactCommandRecord(record) {
   const rendered = record.commandLine
     .replace(adbTarget, 'android-physical-adb-device-ref')
     .replace(apkPath, 'target/release-packages/android/ocentra-parent-agent-android-debug-latest.apk');
-  return [
-    rendered,
-    `exit=${record.status}`,
-    redactOutput(record.stdout),
-    redactOutput(record.stderr),
-  ].filter(Boolean).join('\n');
+  return [rendered, `exit=${record.status}`, redactOutput(record.stdout), redactOutput(record.stderr)]
+    .filter(Boolean)
+    .join('\n');
 }
 
 function redactOutput(output) {

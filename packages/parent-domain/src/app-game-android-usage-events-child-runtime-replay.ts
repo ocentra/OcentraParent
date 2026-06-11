@@ -135,9 +135,7 @@ function androidRuntimeReplayRefs(consumerAttached: boolean) {
 }
 
 function androidRuntimeReplayOpenGaps(source: AppGameAndroidUsageEventsReplayReadModel) {
-  return source.openGaps.filter(
-    (gap) => gap !== 'android-child-runtime-replay-consumer-not-attached'
-  );
+  return source.openGaps.filter((gap) => gap !== 'android-child-runtime-replay-consumer-not-attached');
 }
 
 function androidRuntimeReplayReadModelIsHonest(

@@ -9,9 +9,20 @@ const serial = process.env.ANDROID_SERIAL || '192.168.2.45:5555';
 const packageId = 'ca.ocentra.parent.agent';
 const activityName = `${packageId}/.MainActivity`;
 const outputDir = join(repoRoot, 'test-results', proofMode);
-const appGameProofDir = join(repoRoot, 'output', 'app-game-plan-proof', '214-app-game-android-child-runtime-local-receipt-ack-proof');
+const appGameProofDir = join(
+  repoRoot,
+  'output',
+  'app-game-plan-proof',
+  '214-app-game-android-child-runtime-local-receipt-ack-proof'
+);
 const proofPath = join(outputDir, 'proof.json');
-const apkPath = join(repoRoot, 'target', 'release-packages', 'android', 'ocentra-parent-agent-android-debug-latest.apk');
+const apkPath = join(
+  repoRoot,
+  'target',
+  'release-packages',
+  'android',
+  'ocentra-parent-agent-android-debug-latest.apk'
+);
 const commandResults = [];
 
 await main();
@@ -76,7 +87,8 @@ async function main() {
     evidence: {
       apk: 'target/release-packages/android/ocentra-parent-agent-android-debug-latest.apk',
       proof: 'test-results/app-game-android-child-runtime-local-receipt-ack-physical-proof/proof.json',
-      outputProof: 'output/app-game-plan-proof/214-app-game-android-child-runtime-local-receipt-ack-proof/physical-proof.json',
+      outputProof:
+        'output/app-game-plan-proof/214-app-game-android-child-runtime-local-receipt-ack-proof/physical-proof.json',
     },
     observedStates: {
       activityLaunched: true,
@@ -100,7 +112,10 @@ async function main() {
   await writeJson(proofPath, proof);
   await writeJson(join(appGameProofDir, 'physical-proof.json'), proof);
   await writeFile(join(appGameProofDir, '01-physical-android-ack-snapshot.md'), sourceSnapshot(proof));
-  await writeFile(join(appGameProofDir, '11-physical-validation-commands.log'), `${commandResults.map((result) => result.command).join('\n')}\n`);
+  await writeFile(
+    join(appGameProofDir, '11-physical-validation-commands.log'),
+    `${commandResults.map((result) => result.command).join('\n')}\n`
+  );
 
   console.log('app-game-android-child-runtime-local-receipt-ack-physical-proof-ok');
   console.log(`evidence=${relativePath(proofPath)}`);

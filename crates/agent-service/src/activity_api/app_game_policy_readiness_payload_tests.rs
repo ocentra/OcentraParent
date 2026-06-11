@@ -143,7 +143,10 @@ fn assert_category_and_unknown_rows(decoded: &AppGamePolicyReadinessReadModel) {
             APP_GAME_POLICY_READINESS_KIND_CATEGORY_CANDIDATE
         )
         .evidence_reference_ids,
-        vec!["evidence-category-native-game", APP_GAME_TEST_CATALOG_REF]
+        vec![
+            constants::value::APP_GAME_TEST_POLICY_READINESS_CATEGORY_EVIDENCE_ID,
+            APP_GAME_TEST_CATALOG_REF
+        ]
     );
     assert_eq!(
         readiness_row(&decoded.rows, APP_GAME_POLICY_READINESS_KIND_UNKNOWN_REVIEW).readiness_state,
@@ -297,10 +300,12 @@ fn enforcement_capability() -> AppGameEnforcementCapabilityStatus {
 fn categorized_inventory_row() -> AppGameInventoryEvidenceRow {
     AppGameInventoryEvidenceRow {
         schema_version: APP_GAME_SCHEMA_VERSION,
-        inventory_entry_id: "inventory-native-game-category".to_string(),
+        inventory_entry_id:
+            constants::value::APP_GAME_TEST_POLICY_READINESS_CATEGORY_INVENTORY_ENTRY_ID.to_string(),
         observed_at: APP_GAME_TEST_TIMESTAMP.to_string(),
         source_kind: APP_GAME_INVENTORY_SOURCE_OS_INSTALLED_RECORD.to_string(),
-        source_ref: "source-category-native-game".to_string(),
+        source_ref: constants::value::APP_GAME_TEST_POLICY_READINESS_CATEGORY_SOURCE_REF
+            .to_string(),
         custody_state: APP_GAME_INVENTORY_CUSTODY_LOCAL_AGENT.to_string(),
         product_kind: APP_GAME_PRODUCT_NATIVE_GAME.to_string(),
         display_label: APP_GAME_TEST_DISPLAY_LABEL.to_string(),
@@ -324,26 +329,32 @@ fn categorized_inventory_row() -> AppGameInventoryEvidenceRow {
             category_kind: APP_GAME_INVENTORY_CATEGORY_GAME.to_string(),
             confidence: 0.94,
             catalog_ref: Some(APP_GAME_TEST_CATALOG_REF.to_string()),
-            evidence: vec![local_db_ref("evidence-category-native-game")],
+            evidence: vec![local_db_ref(
+                constants::value::APP_GAME_TEST_POLICY_READINESS_CATEGORY_EVIDENCE_ID,
+            )],
         }],
         runtime_state: APP_GAME_RUNTIME_NOT_CLAIMED.to_string(),
         foreground_state: APP_GAME_FOREGROUND_NOT_CLAIMED.to_string(),
         running_duration_ms: 0,
         foreground_duration_ms: 0,
-        evidence: vec![local_db_ref("inventory-native-game-category")],
+        evidence: vec![local_db_ref(
+            constants::value::APP_GAME_TEST_POLICY_READINESS_CATEGORY_INVENTORY_ENTRY_ID,
+        )],
     }
 }
 
 fn unknown_inventory_row() -> AppGameInventoryEvidenceRow {
     AppGameInventoryEvidenceRow {
         schema_version: APP_GAME_SCHEMA_VERSION,
-        inventory_entry_id: "inventory-unknown-executable-review".to_string(),
+        inventory_entry_id:
+            constants::value::APP_GAME_TEST_POLICY_READINESS_UNKNOWN_INVENTORY_ENTRY_ID.to_string(),
         observed_at: APP_GAME_TEST_TIMESTAMP.to_string(),
         source_kind: APP_GAME_INVENTORY_SOURCE_UNKNOWN.to_string(),
         source_ref: APP_GAME_TEST_UNKNOWN_SOURCE_REF.to_string(),
         custody_state: APP_GAME_INVENTORY_CUSTODY_LOCAL_AGENT.to_string(),
         product_kind: APP_GAME_PRODUCT_NATIVE_APP.to_string(),
-        display_label: "Unknown executable".to_string(),
+        display_label: constants::value::APP_GAME_TEST_POLICY_READINESS_UNKNOWN_DISPLAY_LABEL
+            .to_string(),
         identity_id: None,
         package_id: None,
         bundle_id: None,
@@ -365,7 +376,9 @@ fn unknown_inventory_row() -> AppGameInventoryEvidenceRow {
         foreground_state: APP_GAME_FOREGROUND_NOT_CLAIMED.to_string(),
         running_duration_ms: 0,
         foreground_duration_ms: 0,
-        evidence: vec![local_db_ref("evidence-unknown-executable-review")],
+        evidence: vec![local_db_ref(
+            constants::value::APP_GAME_TEST_POLICY_READINESS_UNKNOWN_EVIDENCE_ID,
+        )],
     }
 }
 

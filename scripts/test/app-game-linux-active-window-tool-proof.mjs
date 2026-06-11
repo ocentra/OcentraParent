@@ -30,7 +30,8 @@ async function main() {
 
   const sourceState = await readWslActiveWindowState();
   const contractModule = await import(
-    pathToFileURL(join(repoRoot, 'packages', 'parent-domain', 'dist', 'app-game-linux-active-window-tool-proof.js')).href
+    pathToFileURL(join(repoRoot, 'packages', 'parent-domain', 'dist', 'app-game-linux-active-window-tool-proof.js'))
+      .href
   );
   const readModel = contractModule.createAppGameLinuxActiveWindowToolProof({
     toolState: sourceState.toolState,
@@ -71,7 +72,10 @@ async function main() {
   await writeJson(proofPath, proof);
   await writeJson(join(appGameProofDir, 'proof.json'), proof);
   await writeFile(join(appGameProofDir, '00-source-snapshot.md'), sourceSnapshot(sourceState));
-  await writeFile(join(appGameProofDir, '10-validation-commands.log'), `${commands.map(redactCommandRecord).join('\n\n')}\n`);
+  await writeFile(
+    join(appGameProofDir, '10-validation-commands.log'),
+    `${commands.map(redactCommandRecord).join('\n\n')}\n`
+  );
 
   console.log('app-game-linux-active-window-tool-proof-ok');
   console.log(`evidence=${relativePath(proofPath)}`);
