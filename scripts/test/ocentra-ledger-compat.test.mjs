@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict';
-import { mkdtempSync, writeFileSync } from 'node:fs';
+import { mkdtempSync, readFileSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { spawnSync } from 'node:child_process';
@@ -17,6 +17,58 @@ test('ledger hook claims one active Codex session per lane', () => {
   assert.equal(second.status, 0);
   assert.match(first.context, /Active Codex session lease is held by this thread/u);
   assert.match(second.context, /READ-ONLY: this lane is already owned by another active Codex session/u);
+});
+
+test('worker PR_READY reports also notify the primary inbox', () => {
+  const root = mkdtempSync(join(tmpdir(), 'ocentra-ledger-report-notify-test-'));
+  const fakeLedger = writeReportFakeLedger(root);
+  const result = spawnSync(process.execPath, [wrapper, 'hub:report', '--summary', 'PR_READY app-game branch'], {
+    cwd: process.cwd(),
+    encoding: 'utf8',
+    env: {
+      ...process.env,
+      LEDGER_ROOT: root,
+      LEDGER_LANE: 'codex-c',
+      OCENTRA_LEDGER_WRAPPER: fakeLedger,
+    },
+    stdio: ['ignore', 'pipe', 'pipe'],
+    windowsHide: true,
+  });
+
+  assert.equal(result.status, 0);
+  const calls = JSON.parse(readFileSync(join(root, 'calls.json'), 'utf8'));
+  assert.deepEqual(
+    calls.map((call) => call.command),
+    ['report', 'msg']
+  );
+  assert.deepEqual(calls[0].args.slice(0, 3), ['report', '--lane', 'codex-c']);
+  assert.equal(calls[1].args[0], 'msg');
+  assert.equal(calls[1].args[1], 'primary');
+  assert.match(calls[1].args[2], /Worker report from codex-c: PR_READY app-game branch/u);
+});
+
+test('ordinary worker reports do not notify the primary inbox', () => {
+  const root = mkdtempSync(join(tmpdir(), 'ocentra-ledger-report-quiet-test-'));
+  const fakeLedger = writeReportFakeLedger(root);
+  const result = spawnSync(process.execPath, [wrapper, 'hub:report', '--summary', 'STARTED app-game branch'], {
+    cwd: process.cwd(),
+    encoding: 'utf8',
+    env: {
+      ...process.env,
+      LEDGER_ROOT: root,
+      LEDGER_LANE: 'codex-c',
+      OCENTRA_LEDGER_WRAPPER: fakeLedger,
+    },
+    stdio: ['ignore', 'pipe', 'pipe'],
+    windowsHide: true,
+  });
+
+  assert.equal(result.status, 0);
+  const calls = JSON.parse(readFileSync(join(root, 'calls.json'), 'utf8'));
+  assert.deepEqual(
+    calls.map((call) => call.command),
+    ['report']
+  );
 });
 
 function writeFakeLedger(root) {
@@ -44,6 +96,25 @@ if (active === undefined || active.sessionId === sessionId) {
 
 console.log(JSON.stringify({ activeSession: active }));
 process.exit(1);
+`.trimStart()
+  );
+  return fakeLedger;
+}
+
+function writeReportFakeLedger(root) {
+  const fakeLedger = join(root, 'fake-report-ledger.mjs');
+  writeFileSync(
+    fakeLedger,
+    `
+import { existsSync, readFileSync, writeFileSync } from 'node:fs';
+import { join } from 'node:path';
+
+const args = process.argv.slice(2);
+const store = join(process.env.LEDGER_ROOT, 'calls.json');
+const calls = existsSync(store) ? JSON.parse(readFileSync(store, 'utf8')) : [];
+calls.push({ command: args[0], args });
+writeFileSync(store, JSON.stringify(calls));
+console.log(JSON.stringify({ ok: true }));
 `.trimStart()
   );
   return fakeLedger;

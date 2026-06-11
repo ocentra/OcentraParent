@@ -28,6 +28,7 @@ jobs:
     outputs:
       docs_hub_only: ${{ steps.detect.outputs.docs_hub_only }}
       ci_only: ${{ steps.detect.outputs.ci_only }}
+      repo_support_only: ${{ steps.detect.outputs.repo_support_only }}
       full_ci_required: ${{ steps.detect.outputs.full_ci_required }}
       main_pr_proof_valid: ${{ steps.detect.outputs.main_pr_proof_valid }}
       source_changed: ${{ steps.detect.outputs.source_changed }}
@@ -95,6 +96,8 @@ jobs:
 
           docs_hub_only=true
           ci_only=true
+          repo_support_only=true
+          package_json_changed=false
           workflow_changed=false
           source_changed=false
           portal_changed=false
@@ -135,6 +138,17 @@ jobs:
                 ;;
               *)
                 docs_hub_only=false
+                ;;
+            esac
+
+            case "$path" in
+              .github/workflows/*|.github/actions/*|scripts/ci/*|scripts/test/workflow-ci-trigger.test.mjs|AGENTS.md|docs/architecture/worktree-lanes.md|tools/ocentra-ledger|scripts/dev/ocentra-ledger*.mjs|scripts/test/ocentra-ledger*.test.mjs)
+                ;;
+              package.json)
+                package_json_changed=true
+                ;;
+              *)
+                repo_support_only=false
                 ;;
             esac
 
@@ -198,8 +212,20 @@ jobs:
             tooling_changed=true
           fi
 
+          if [[ "$package_json_changed" == "true" ]]; then
+            package_diff="$(git diff --unified=0 "$base" "$head" -- package.json | grep -E '^[+-][^+-]' || true)"
+            if [[ -n "$package_diff" ]]; then
+              while IFS= read -r diff_line; do
+                if [[ ! "$diff_line" =~ ^[+-][[:space:]]*\"(hub|ledger):[^\"]+\"[[:space:]]*: ]]; then
+                  repo_support_only=false
+                  break
+                fi
+              done <<< "$package_diff"
+            fi
+          fi
+
           product_pr_full_merge_proof=false
-          if [[ "${{ github.event_name }}" == "pull_request" && "$docs_hub_only" != "true" && "$ci_only" != "true" ]]; then
+          if [[ "${{ github.event_name }}" == "pull_request" && "$docs_hub_only" != "true" && "$ci_only" != "true" && "$repo_support_only" != "true" ]]; then
             product_pr_full_merge_proof=true
             source_changed=true
             portal_changed=true
@@ -238,7 +264,7 @@ jobs:
             package_ios_changed=true
           fi
 
-          for name in docs_hub_only ci_only full_ci_required main_pr_proof_valid source_changed portal_changed domain_changed tooling_changed rust_protocol_changed rust_core_changed rust_service_changed rust_adapter_changed parent_desktop_changed parent_mobile_changed child_android_changed child_ios_changed package_windows_changed package_linux_changed package_macos_changed package_parent_android_changed package_parent_ios_changed package_android_changed package_ios_changed; do
+          for name in docs_hub_only ci_only repo_support_only full_ci_required main_pr_proof_valid source_changed portal_changed domain_changed tooling_changed rust_protocol_changed rust_core_changed rust_service_changed rust_adapter_changed parent_desktop_changed parent_mobile_changed child_android_changed child_ios_changed package_windows_changed package_linux_changed package_macos_changed package_parent_android_changed package_parent_ios_changed package_android_changed package_ios_changed; do
             value="${!name}"
             echo "$name=$value" >> "$GITHUB_OUTPUT"
             printf '%s=%s\n' "$name" "$value"
@@ -366,14 +392,14 @@ jobs:
 
   dependency-policy:
     needs: [detect-targets, fail-fast, secret-scan]
-    if: ${{ always() && needs.detect-targets.outputs.full_ci_required == 'true' && needs.detect-targets.outputs.ci_only != 'true' && needs.fail-fast.result == 'success' && needs.secret-scan.result == 'success' }}
+    if: ${{ always() && needs.detect-targets.outputs.full_ci_required == 'true' && needs.detect-targets.outputs.ci_only != 'true' && needs.detect-targets.outputs.repo_support_only != 'true' && needs.fail-fast.result == 'success' && needs.secret-scan.result == 'success' }}
     uses: ./.github/workflows/dependency-policy.yml
     with:
       docs_hub_only: false
 
   static-analysis:
     needs: [detect-targets, fail-fast, secret-scan]
-    if: ${{ always() && needs.detect-targets.outputs.full_ci_required == 'true' && needs.detect-targets.outputs.ci_only != 'true' && needs.fail-fast.result == 'success' && needs.secret-scan.result == 'success' && needs.detect-targets.outputs.source_changed == 'true' }}
+    if: ${{ always() && needs.detect-targets.outputs.full_ci_required == 'true' && needs.detect-targets.outputs.ci_only != 'true' && needs.detect-targets.outputs.repo_support_only != 'true' && needs.fail-fast.result == 'success' && needs.secret-scan.result == 'success' && needs.detect-targets.outputs.source_changed == 'true' }}
     uses: ./.github/workflows/ci-codeql.yml
 
   build:
