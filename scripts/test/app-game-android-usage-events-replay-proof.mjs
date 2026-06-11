@@ -16,19 +16,19 @@ async function main() {
   await mkdir(outputDir, { recursive: true });
   await mkdir(appGameProofDir, { recursive: true });
 
-  await runCommand('cmd', [
-    '/c',
-    'npm',
-    'run',
-    'test',
-    '--workspace',
-    '@ocentra-parent/parent-domain',
-    '--',
-    'app-game-android-physical-device-proof',
-    'app-game-android-usage-events-replay',
-    'app-game-platform-proof-status',
-  ]);
-  await runCommand('cmd', ['/c', 'npm', 'run', 'build', '--workspace', '@ocentra-parent/parent-domain']);
+  await runCommand(
+    ...npmCommand([
+      'run',
+      'test',
+      '--workspace',
+      '@ocentra-parent/parent-domain',
+      '--',
+      'app-game-android-physical-device-proof',
+      'app-game-android-usage-events-replay',
+      'app-game-platform-proof-status',
+    ])
+  );
+  await runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/parent-domain']));
 
   const androidProof = await readJson(
     join(repoRoot, 'test-results', 'app-game-android-physical-device-proof', 'proof.json')
@@ -148,4 +148,10 @@ function assertPositive(actual, label) {
   if (actual <= 0) {
     throw new Error(`${label}: expected positive count, received ${actual}`);
   }
+}
+
+function npmCommand(args) {
+  const command = process.platform === 'win32' ? 'cmd' : 'npm';
+  const commandArgs = process.platform === 'win32' ? ['/c', 'npm', ...args] : args;
+  return [command, commandArgs];
 }

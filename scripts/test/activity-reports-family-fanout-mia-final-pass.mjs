@@ -114,7 +114,7 @@ async function readJson(path) {
 
 async function runNpmWorkspace(workspaceName, args) {
   if (process.platform === 'win32') {
-    await runCommand('cmd', ['/c', 'npm', '--workspace', workspaceName, ...args]);
+    await runCommand(...npmCommand(['--workspace', workspaceName, ...args]));
     return;
   }
   await runCommand('npm', ['--workspace', workspaceName, ...args]);
@@ -156,4 +156,10 @@ async function gitDiffNames() {
     .split(/\r?\n/u)
     .map((path) => path.trim())
     .filter(Boolean);
+}
+
+function npmCommand(args) {
+  const command = process.platform === 'win32' ? 'cmd' : 'npm';
+  const commandArgs = process.platform === 'win32' ? ['/c', 'npm', ...args] : args;
+  return [command, commandArgs];
 }

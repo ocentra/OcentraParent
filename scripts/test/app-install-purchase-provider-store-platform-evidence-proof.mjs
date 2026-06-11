@@ -15,18 +15,18 @@ await main();
 
 async function main() {
   await mkdir(outputDir, { recursive: true });
-  await runCommand('cmd', ['/c', 'npm', 'run', 'build', '--workspace', '@ocentra-parent/schema-domain']);
-  await runCommand('cmd', ['/c', 'npm', 'run', 'build', '--workspace', '@ocentra-parent/parent-domain']);
-  await runCommand('cmd', [
-    '/c',
-    'npm',
-    'run',
-    'test',
-    '--workspace',
-    '@ocentra-parent/parent-domain',
-    '--',
-    'tests/app-install-purchase-provider-store-platform-evidence-proof.test.ts',
-  ]);
+  await runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/schema-domain']));
+  await runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/parent-domain']));
+  await runCommand(
+    ...npmCommand([
+      'run',
+      'test',
+      '--workspace',
+      '@ocentra-parent/parent-domain',
+      '--',
+      'tests/app-install-purchase-provider-store-platform-evidence-proof.test.ts',
+    ])
+  );
 
   const hostEvidenceArtifact = await collectWindowsHostEvidence();
   await writeFile(hostEvidencePath, `${JSON.stringify(hostEvidenceArtifact, null, 2)}\n`);
@@ -200,4 +200,10 @@ function sanitizedEvidenceSummary(output) {
     return 'Get-AppxPackage is available; no package details were emitted by the sanitized host probe.';
   }
   return `Get-AppxPackage available; sanitized Microsoft Store package-source probe returned ${trimmed}`;
+}
+
+function npmCommand(args) {
+  const command = process.platform === 'win32' ? 'cmd' : 'npm';
+  const commandArgs = process.platform === 'win32' ? ['/c', 'npm', ...args] : args;
+  return [command, commandArgs];
 }

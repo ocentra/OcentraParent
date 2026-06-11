@@ -16,10 +16,8 @@ async function main() {
   await mkdir(testOutputDir, { recursive: true });
   await mkdir(proofDir, { recursive: true });
 
-  run('cmd', ['/c', 'npm', 'run', 'build:contracts']);
-  run('cmd', [
-    '/c',
-    'npm',
+  runNpm(['run', 'build:contracts']);
+  runNpm([
     'run',
     'test',
     '--workspace',
@@ -27,9 +25,7 @@ async function main() {
     '--',
     'app-game-broad-blocking-proof-gates.test.ts',
   ]);
-  run('cmd', [
-    '/c',
-    'npm',
+  runNpm([
     'run',
     'test',
     '--workspace',
@@ -37,9 +33,7 @@ async function main() {
     '--',
     'app-game-policy-preview-handoff.test.ts',
   ]);
-  run('cmd', [
-    '/c',
-    'npm',
+  runNpm([
     'run',
     'test',
     '--workspace',
@@ -47,9 +41,7 @@ async function main() {
     '--',
     'app-game-policy-target-compiler.test.ts',
   ]);
-  run('cmd', [
-    '/c',
-    'npm',
+  runNpm([
     'run',
     'test',
     '--workspace',
@@ -310,4 +302,10 @@ function normalizeCommandOutput(output) {
     .replace(/Start at\s+\d{2}:\d{2}:\d{2}/g, 'Start at <normalized>')
     .replace(/\x1b\[2m[^\r\n]*?\x1b\[22m/g, '\x1b[2m<normalized>\x1b[22m')
     .replace(/Duration\s+[^\r\n]+/g, 'Duration <normalized>');
+}
+
+function runNpm(args, ...rest) {
+  const command = process.platform === 'win32' ? 'cmd' : 'npm';
+  const commandArgs = process.platform === 'win32' ? ['/c', 'npm', ...args] : args;
+  return run(command, commandArgs, ...rest);
 }

@@ -15,7 +15,7 @@ await main();
 async function main() {
   await mkdir(outputDir, { recursive: true });
 
-  await runCommand('cmd', ['/c', 'npm', 'run', 'build:contracts']);
+  await runCommand(...npmCommand(['run', 'build:contracts']));
   await runCommand('cargo', ['test', '-p', 'ocentra-parent-agent-core', 'enforcement_app_time_limit']);
   await runCommand('cargo', [
     'test',
@@ -373,4 +373,10 @@ function assertOneOf(actual, expectedValues, label) {
   if (!expectedValues.includes(actual)) {
     throw new Error(`${label}: expected one of ${expectedValues.join(', ')}, received ${actual}`);
   }
+}
+
+function npmCommand(args) {
+  const command = process.platform === 'win32' ? 'cmd' : 'npm';
+  const commandArgs = process.platform === 'win32' ? ['/c', 'npm', ...args] : args;
+  return [command, commandArgs];
 }

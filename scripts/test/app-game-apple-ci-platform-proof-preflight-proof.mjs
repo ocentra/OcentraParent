@@ -21,18 +21,18 @@ async function main() {
   await mkdir(outputDir, { recursive: true });
   await mkdir(appGameProofDir, { recursive: true });
 
-  await runCommand('cmd', [
-    '/c',
-    'npm',
-    'run',
-    'test',
-    '--workspace',
-    '@ocentra-parent/parent-domain',
-    '--',
-    'app-game-apple-ci-platform-proof-preflight',
-    'v0-8-os-adapter-manual-artifact-gates',
-  ]);
-  await runCommand('cmd', ['/c', 'npm', 'run', 'build', '--workspace', '@ocentra-parent/parent-domain']);
+  await runCommand(
+    ...npmCommand([
+      'run',
+      'test',
+      '--workspace',
+      '@ocentra-parent/parent-domain',
+      '--',
+      'app-game-apple-ci-platform-proof-preflight',
+      'v0-8-os-adapter-manual-artifact-gates',
+    ])
+  );
+  await runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/parent-domain']));
 
   const module = await import(
     pathToFileURL(join(repoRoot, 'packages', 'parent-domain', 'dist', 'app-game-apple-ci-platform-proof-preflight.js'))
@@ -128,4 +128,10 @@ function assertEqual(actual, expected, label) {
   if (actual !== expected) {
     throw new Error(`${label}: expected ${expected}, received ${actual}`);
   }
+}
+
+function npmCommand(args) {
+  const command = process.platform === 'win32' ? 'cmd' : 'npm';
+  const commandArgs = process.platform === 'win32' ? ['/c', 'npm', ...args] : args;
+  return [command, commandArgs];
 }

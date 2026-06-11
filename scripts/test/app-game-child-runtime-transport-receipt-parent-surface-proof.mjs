@@ -20,28 +20,28 @@ async function main() {
   await mkdir(outputDir, { recursive: true });
   await mkdir(appGameProofDir, { recursive: true });
 
-  await runCommand('cmd', ['/c', 'npm', 'run', 'build:contracts']);
-  await runCommand('cmd', [
-    '/c',
-    'npm',
-    'run',
-    'test',
-    '--workspace',
-    '@ocentra-parent/portal-domain',
-    '--',
-    'app-game-child-runtime-transport-receipt-panel',
-    'contracts',
-  ]);
-  await runCommand('cmd', [
-    '/c',
-    'npm',
-    'run',
-    'test',
-    '--workspace',
-    '@ocentra-parent/portal',
-    '--',
-    'app-game-child-runtime-transport-receipt-route-panel',
-  ]);
+  await runCommand(...npmCommand(['run', 'build:contracts']));
+  await runCommand(
+    ...npmCommand([
+      'run',
+      'test',
+      '--workspace',
+      '@ocentra-parent/portal-domain',
+      '--',
+      'app-game-child-runtime-transport-receipt-panel',
+      'contracts',
+    ])
+  );
+  await runCommand(
+    ...npmCommand([
+      'run',
+      'test',
+      '--workspace',
+      '@ocentra-parent/portal',
+      '--',
+      'app-game-child-runtime-transport-receipt-route-panel',
+    ])
+  );
 
   const proof = {
     schemaVersion: 1,
@@ -140,4 +140,10 @@ async function writeJson(path, value) {
 
 function relativePath(path) {
   return relative(repoRoot, path).replaceAll('\\', '/');
+}
+
+function npmCommand(args) {
+  const command = process.platform === 'win32' ? 'cmd' : 'npm';
+  const commandArgs = process.platform === 'win32' ? ['/c', 'npm', ...args] : args;
+  return [command, commandArgs];
 }

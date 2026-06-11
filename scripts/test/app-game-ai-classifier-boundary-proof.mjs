@@ -15,27 +15,20 @@ async function main() {
   await mkdir(appGameProofDir, { recursive: true });
   await mkdir(appProofDir, { recursive: true });
 
-  await runCommand('cmd', ['/c', 'npm', 'run', 'build:contracts']);
-  await runCommand('cmd', [
-    '/c',
-    'npm',
-    'run',
-    'test',
-    '--workspace',
-    '@ocentra-parent/parent-domain',
-    '--',
-    'app-game-ai-classifier-boundary',
-  ]);
-  await runCommand('cmd', [
-    '/c',
-    'npm',
-    'run',
-    'test',
-    '--workspace',
-    '@ocentra-parent/activity-domain',
-    '--',
-    'app-game-evidence-claim',
-  ]);
+  await runCommand(...npmCommand(['run', 'build:contracts']));
+  await runCommand(
+    ...npmCommand([
+      'run',
+      'test',
+      '--workspace',
+      '@ocentra-parent/parent-domain',
+      '--',
+      'app-game-ai-classifier-boundary',
+    ])
+  );
+  await runCommand(
+    ...npmCommand(['run', 'test', '--workspace', '@ocentra-parent/activity-domain', '--', 'app-game-evidence-claim'])
+  );
 
   const { AppGameAiClassifierBoundaryProofMatrix } =
     await import('../../packages/parent-domain/dist/app-game-ai-classifier-boundary-data.js');
@@ -185,4 +178,10 @@ function assertEqual(actual, expected, label) {
   if (actual !== expected) {
     throw new Error(`${label}: expected ${expected}, got ${actual}`);
   }
+}
+
+function npmCommand(args) {
+  const command = process.platform === 'win32' ? 'cmd' : 'npm';
+  const commandArgs = process.platform === 'win32' ? ['/c', 'npm', ...args] : args;
+  return [command, commandArgs];
 }

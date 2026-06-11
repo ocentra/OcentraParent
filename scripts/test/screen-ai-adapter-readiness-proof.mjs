@@ -16,17 +16,17 @@ async function main() {
   rmSync(outputDir, { recursive: true, force: true });
   mkdirSync(outputDir, { recursive: true });
 
-  runCommand('cmd', ['/c', 'npm', 'run', 'build', '--workspace', '@ocentra-parent/parent-domain']);
-  runCommand('cmd', [
-    '/c',
-    'npm',
-    'run',
-    'test',
-    '--workspace',
-    '@ocentra-parent/parent-domain',
-    '--',
-    'screen-ai-adapter-readiness-proof',
-  ]);
+  runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/parent-domain']));
+  runCommand(
+    ...npmCommand([
+      'run',
+      'test',
+      '--workspace',
+      '@ocentra-parent/parent-domain',
+      '--',
+      'screen-ai-adapter-readiness-proof',
+    ])
+  );
 
   const readinessContract = await import(
     pathToFileURL(join(repoRoot, 'packages/parent-domain/dist/screen-ai-adapter-readiness-proof.js')).href
@@ -310,4 +310,10 @@ function assertEqual(actual, expected, label) {
   if (actual !== expected) {
     throw new Error(`${label}: expected ${expected}, received ${actual}`);
   }
+}
+
+function npmCommand(args) {
+  const command = process.platform === 'win32' ? 'cmd' : 'npm';
+  const commandArgs = process.platform === 'win32' ? ['/c', 'npm', ...args] : args;
+  return [command, commandArgs];
 }

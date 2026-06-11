@@ -23,7 +23,7 @@ const ClaimBoundaries = {
   enforcementClaimed: false,
 };
 
-runCommand('cmd', ['/c', 'npm', 'run', 'build', '--workspace', '@ocentra-parent/parent-domain']);
+runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/parent-domain']));
 
 const { buildScreenSummaryParentExplanationReadModelSnapshot } = await importDist(
   'local-ai-screen-summary-parent-explanation-read-model.js'
@@ -92,4 +92,10 @@ function runCommand(command, args) {
 
 function relativePath(path) {
   return relative(RepoRoot, path).replaceAll('\\', '/');
+}
+
+function npmCommand(args) {
+  const command = process.platform === 'win32' ? 'cmd' : 'npm';
+  const commandArgs = process.platform === 'win32' ? ['/c', 'npm', ...args] : args;
+  return [command, commandArgs];
 }

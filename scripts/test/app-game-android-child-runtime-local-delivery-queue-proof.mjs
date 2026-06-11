@@ -59,18 +59,18 @@ async function main() {
   await mkdir(outputDir, { recursive: true });
   await mkdir(appGameProofDir, { recursive: true });
 
-  await runCommand('cmd', [
-    '/c',
-    'npm',
-    'run',
-    'test',
-    '--workspace',
-    '@ocentra-parent/parent-domain',
-    '--',
-    'app-game-android-child-runtime-local-delivery-queue-proof',
-  ]);
-  await runCommand('cmd', ['/c', 'npm', 'run', 'build', '--workspace', '@ocentra-parent/parent-domain']);
-  await runCommand('cmd', ['/c', 'npm', 'run', 'release:package:android']);
+  await runCommand(
+    ...npmCommand([
+      'run',
+      'test',
+      '--workspace',
+      '@ocentra-parent/parent-domain',
+      '--',
+      'app-game-android-child-runtime-local-delivery-queue-proof',
+    ])
+  );
+  await runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/parent-domain']));
+  await runCommand(...npmCommand(['run', 'release:package:android']));
   assertFileExists(apkPath, 'Android debug APK');
 
   const deliverySource = await readFile(androidDeliveryPath, 'utf8');
@@ -215,4 +215,10 @@ function sourceSnapshot(sourceState) {
 
 function relativePath(path) {
   return relative(repoRoot, path).replaceAll('\\', '/');
+}
+
+function npmCommand(args) {
+  const command = process.platform === 'win32' ? 'cmd' : 'npm';
+  const commandArgs = process.platform === 'win32' ? ['/c', 'npm', ...args] : args;
+  return [command, commandArgs];
 }

@@ -21,19 +21,19 @@ async function main() {
   await mkdir(outputDirectory, { recursive: true });
   await mkdir(resultDirectory, { recursive: true });
 
-  await runCommand('cmd', ['/c', 'npm', 'run', 'build', '--workspace', '@ocentra-parent/parent-domain']);
-  await runCommand('cmd', [
-    '/c',
-    'npm',
-    'run',
-    'test',
-    '--workspace',
-    '@ocentra-parent/parent-domain',
-    '--',
-    'social-alert-report-preference-preflight',
-    'social-alert-report-scheduler-bridge',
-    'social-alert-report-local-outbox-bridge',
-  ]);
+  await runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/parent-domain']));
+  await runCommand(
+    ...npmCommand([
+      'run',
+      'test',
+      '--workspace',
+      '@ocentra-parent/parent-domain',
+      '--',
+      'social-alert-report-preference-preflight',
+      'social-alert-report-scheduler-bridge',
+      'social-alert-report-local-outbox-bridge',
+    ])
+  );
 
   const bridge = await importDist('social-alert-report-local-outbox-bridge.js');
   const scheduler = await importDist('social-alert-report-scheduler-bridge.js');
@@ -481,4 +481,10 @@ async function gitOutput(args) {
 
 function relativePath(path) {
   return relative(repoRoot, path).replaceAll('\\', '/');
+}
+
+function npmCommand(args) {
+  const command = process.platform === 'win32' ? 'cmd' : 'npm';
+  const commandArgs = process.platform === 'win32' ? ['/c', 'npm', ...args] : args;
+  return [command, commandArgs];
 }

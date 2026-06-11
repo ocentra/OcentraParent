@@ -256,8 +256,8 @@ if (!existsSync(vlmBinary) || !existsSync(vlmModel) || !existsSync(vlmMmproj)) {
 
 prepareOutputRoots();
 
-await runCommand('cmd', ['/c', 'npm', 'run', 'build', '--workspace', '@ocentra-parent/activity-domain']);
-await runCommand('cmd', ['/c', 'npm', 'run', 'build', '--workspace', '@ocentra-parent/parent-domain']);
+await runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/activity-domain']));
+await runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/parent-domain']));
 
 const { ScreenAnalysisResultSchema, ScreenLocalModelOutputSchema } =
   await import('../../packages/activity-domain/dist/screen-evidence.js');
@@ -1452,4 +1452,10 @@ function wait(ms) {
   return new Promise((resolvePromise) => {
     setTimeout(resolvePromise, ms);
   });
+}
+
+function npmCommand(args) {
+  const command = process.platform === 'win32' ? 'cmd' : 'npm';
+  const commandArgs = process.platform === 'win32' ? ['/c', 'npm', ...args] : args;
+  return [command, commandArgs];
 }

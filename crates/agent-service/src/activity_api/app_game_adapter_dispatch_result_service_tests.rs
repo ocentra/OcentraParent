@@ -74,7 +74,11 @@ async fn app_game_adapter_dispatch_result_command_reads_latest_store_audit_evide
     let read_model = dispatch_result_read_model(&event);
     assert_eq!(read_model.adapter_execution_reported_count, 1);
     assert_eq!(read_model.adapter_execution_evidence_missing_count, 0);
+    #[cfg(windows)]
     assert_eq!(read_model.adapter_dispatch_executed_claimed_count, 1);
+
+    #[cfg(not(windows))]
+    assert_eq!(read_model.adapter_dispatch_executed_claimed_count, 0);
     let accepted = read_model
         .rows
         .iter()

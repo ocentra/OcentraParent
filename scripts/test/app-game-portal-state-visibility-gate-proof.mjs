@@ -16,10 +16,8 @@ async function main() {
   await mkdir(testOutputDir, { recursive: true });
   await mkdir(proofDir, { recursive: true });
 
-  run('cmd', ['/c', 'npm', 'run', 'build:contracts']);
-  run('cmd', [
-    '/c',
-    'npm',
+  runNpm(['run', 'build:contracts']);
+  runNpm([
     'run',
     'test',
     '--workspace',
@@ -27,16 +25,7 @@ async function main() {
     '--',
     'activity-ui-app-game-dashboard-intent.test.ts',
   ]);
-  run('cmd', [
-    '/c',
-    'npm',
-    'run',
-    'test',
-    '--workspace',
-    '@ocentra-parent/portal',
-    '--',
-    'app-game-policy-readiness-panel.test.ts',
-  ]);
+  runNpm(['run', 'test', '--workspace', '@ocentra-parent/portal', '--', 'app-game-policy-readiness-panel.test.ts']);
 
   const dashboardIntent = await readFile(
     join(repoRoot, 'vendor', 'ocentra-parent-core-ui', 'AppPages', 'ParentPortal', 'app-game-dashboard-intent.ts'),
@@ -223,4 +212,10 @@ function normalizeCommandOutput(output) {
     .replace(/Start at\s+\d{2}:\d{2}:\d{2}/g, 'Start at <normalized>')
     .replace(/\x1b\[2m[^\r\n]*?\x1b\[22m/g, '\x1b[2m<normalized>\x1b[22m')
     .replace(/Duration\s+[^\r\n]+/g, 'Duration <normalized>');
+}
+
+function runNpm(args, ...rest) {
+  const command = process.platform === 'win32' ? 'cmd' : 'npm';
+  const commandArgs = process.platform === 'win32' ? ['/c', 'npm', ...args] : args;
+  return run(command, commandArgs, ...rest);
 }

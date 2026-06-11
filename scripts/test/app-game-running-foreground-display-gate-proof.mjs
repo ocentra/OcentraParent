@@ -13,9 +13,7 @@ async function main() {
   await mkdir(testOutputDir, { recursive: true });
   await mkdir(proofDir, { recursive: true });
 
-  run('cmd', [
-    '/c',
-    'npm',
+  runNpm([
     'run',
     'test',
     '--workspace',
@@ -180,4 +178,10 @@ function gitOutput(args) {
     throw new Error(`git ${args.join(' ')} failed: ${result.stderr}`);
   }
   return result.stdout.trim();
+}
+
+function runNpm(args, ...rest) {
+  const command = process.platform === 'win32' ? 'cmd' : 'npm';
+  const commandArgs = process.platform === 'win32' ? ['/c', 'npm', ...args] : args;
+  return run(command, commandArgs, ...rest);
 }

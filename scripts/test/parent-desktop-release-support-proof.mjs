@@ -15,18 +15,18 @@ await main();
 
 async function main() {
   await mkdir(outputDir, { recursive: true });
-  await runCommand('cmd', ['/c', 'npm', 'run', 'build', '--workspace', '@ocentra-parent/parent-domain']);
-  await runCommand('cmd', [
-    '/c',
-    'npm',
-    'run',
-    'test',
-    '--workspace',
-    '@ocentra-parent/parent-domain',
-    '--',
-    'tests/parent-desktop-release-support.test.ts',
-    'tests/parent-desktop-release-support-incident.test.ts',
-  ]);
+  await runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/parent-domain']));
+  await runCommand(
+    ...npmCommand([
+      'run',
+      'test',
+      '--workspace',
+      '@ocentra-parent/parent-domain',
+      '--',
+      'tests/parent-desktop-release-support.test.ts',
+      'tests/parent-desktop-release-support-incident.test.ts',
+    ])
+  );
 
   const packageJson = JSON.parse(await readFile(join(repoRoot, 'package.json'), 'utf8'));
   const commit = await gitHead();
@@ -187,4 +187,10 @@ async function gitHead() {
     child.once('error', reject);
   });
   return chunks.join('').trim();
+}
+
+function npmCommand(args) {
+  const command = process.platform === 'win32' ? 'cmd' : 'npm';
+  const commandArgs = process.platform === 'win32' ? ['/c', 'npm', ...args] : args;
+  return [command, commandArgs];
 }

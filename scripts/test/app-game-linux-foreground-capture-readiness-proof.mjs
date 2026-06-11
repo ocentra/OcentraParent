@@ -21,19 +21,19 @@ async function main() {
   await mkdir(outputDir, { recursive: true });
   await mkdir(appGameProofDir, { recursive: true });
 
-  await runCommand('cmd', [
-    '/c',
-    'npm',
-    'run',
-    'test',
-    '--workspace',
-    '@ocentra-parent/parent-domain',
-    '--',
-    'app-game-linux-wsl-runtime-proof',
-    'app-game-linux-foreground-capture-readiness',
-    'app-game-platform-proof-status',
-  ]);
-  await runCommand('cmd', ['/c', 'npm', 'run', 'build', '--workspace', '@ocentra-parent/parent-domain']);
+  await runCommand(
+    ...npmCommand([
+      'run',
+      'test',
+      '--workspace',
+      '@ocentra-parent/parent-domain',
+      '--',
+      'app-game-linux-wsl-runtime-proof',
+      'app-game-linux-foreground-capture-readiness',
+      'app-game-platform-proof-status',
+    ])
+  );
+  await runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/parent-domain']));
 
   const linuxProof = await readJson(join(repoRoot, 'test-results', 'app-game-linux-wsl-runtime-proof', 'proof.json'));
   const readinessModule = await import(
@@ -155,4 +155,10 @@ function assertEqual(actual, expected, label) {
   if (actual !== expected) {
     throw new Error(`${label}: expected ${expected}, received ${actual}`);
   }
+}
+
+function npmCommand(args) {
+  const command = process.platform === 'win32' ? 'cmd' : 'npm';
+  const commandArgs = process.platform === 'win32' ? ['/c', 'npm', ...args] : args;
+  return [command, commandArgs];
 }

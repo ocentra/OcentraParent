@@ -41,8 +41,8 @@ await main();
 async function main() {
   rmSync(outputRoot, { recursive: true, force: true });
   mkdirSync(outputRoot, { recursive: true });
-  runCommand('cmd', ['/c', 'npm', 'run', 'build', '--workspace', '@ocentra-parent/activity-domain']);
-  runCommand('cmd', ['/c', 'npm', 'run', 'build', '--workspace', '@ocentra-parent/parent-domain']);
+  runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/activity-domain']));
+  runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/parent-domain']));
 
   const activityDomain = await import('../../packages/activity-domain/dist/screen-ocr-worker.js');
   const parentDomain = await import('../../packages/parent-domain/dist/policy.js');
@@ -501,4 +501,10 @@ function sha256(value) {
 
 function escapePowerShell(value) {
   return String(value).replace(/'/g, "''");
+}
+
+function npmCommand(args) {
+  const command = process.platform === 'win32' ? 'cmd' : 'npm';
+  const commandArgs = process.platform === 'win32' ? ['/c', 'npm', ...args] : args;
+  return [command, commandArgs];
 }

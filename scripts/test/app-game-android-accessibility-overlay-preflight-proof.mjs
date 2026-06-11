@@ -22,18 +22,18 @@ async function main() {
   await mkdir(outputDir, { recursive: true });
   await mkdir(appGameProofDir, { recursive: true });
 
-  await runCommand('cmd', [
-    '/c',
-    'npm',
-    'run',
-    'test',
-    '--workspace',
-    '@ocentra-parent/parent-domain',
-    '--',
-    'app-game-android-accessibility-overlay-preflight',
-    'app-game-android-physical-device-proof',
-  ]);
-  await runCommand('cmd', ['/c', 'npm', 'run', 'build', '--workspace', '@ocentra-parent/parent-domain']);
+  await runCommand(
+    ...npmCommand([
+      'run',
+      'test',
+      '--workspace',
+      '@ocentra-parent/parent-domain',
+      '--',
+      'app-game-android-accessibility-overlay-preflight',
+      'app-game-android-physical-device-proof',
+    ])
+  );
+  await runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/parent-domain']));
 
   runAdb(['connect', adbTarget]);
   assertPhysicalDevice(runAdb(['devices', '-l']).stdout);
@@ -218,4 +218,10 @@ function assertIncludes(values, expected, label) {
   if (!values.includes(expected)) {
     throw new Error(`${label}: expected ${expected}`);
   }
+}
+
+function npmCommand(args) {
+  const command = process.platform === 'win32' ? 'cmd' : 'npm';
+  const commandArgs = process.platform === 'win32' ? ['/c', 'npm', ...args] : args;
+  return [command, commandArgs];
 }

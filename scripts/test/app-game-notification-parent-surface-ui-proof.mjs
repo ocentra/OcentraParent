@@ -15,20 +15,20 @@ async function main() {
   await mkdir(appGameProofDir, { recursive: true });
   await mkdir(appProofDir, { recursive: true });
 
-  await runCommand('cmd', ['/c', 'npm', 'run', 'build', '--workspace', '@ocentra-parent/parent-domain']);
-  await runCommand('cmd', ['/c', 'npm', 'run', 'build', '--workspace', '@ocentra-parent/text-domain']);
-  await runCommand('cmd', ['/c', 'npm', 'run', 'build', '--workspace', '@ocentra-parent/portal-domain']);
-  await runCommand('cmd', [
-    '/c',
-    'npm',
-    'exec',
-    '--workspace',
-    '@ocentra-parent/portal',
-    '--',
-    'vitest',
-    'run',
-    'tests/app-game-notification-parent-surface-panel.test.ts',
-  ]);
+  await runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/parent-domain']));
+  await runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/text-domain']));
+  await runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/portal-domain']));
+  await runCommand(
+    ...npmCommand([
+      'exec',
+      '--workspace',
+      '@ocentra-parent/portal',
+      '--',
+      'vitest',
+      'run',
+      'tests/app-game-notification-parent-surface-panel.test.ts',
+    ])
+  );
 
   const rendererAssertions = await collectRendererAssertions();
   assertRendererAssertions(rendererAssertions);
@@ -179,4 +179,10 @@ async function writeProofPack(outputDir, proof, label) {
     'utf8'
   );
   await writeJson(join(outputDir, 'proof.json'), proof);
+}
+
+function npmCommand(args) {
+  const command = process.platform === 'win32' ? 'cmd' : 'npm';
+  const commandArgs = process.platform === 'win32' ? ['/c', 'npm', ...args] : args;
+  return [command, commandArgs];
 }

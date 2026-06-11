@@ -20,7 +20,7 @@ process.exit(0);
 
 async function main() {
   await mkdir(outputDir, { recursive: true });
-  await runCommand('cmd', ['/c', 'npm', 'run', 'build:contracts']);
+  await runCommand(...npmCommand(['run', 'build:contracts']));
   await runCommand('cmd', ['/c', 'node', 'scripts/test/v0-9-household-discovery-mobile-controller-product-proof.mjs']);
 
   const aggregateProof = await readJson(sourceProofPath);
@@ -310,4 +310,10 @@ function assertArrayIncludes(values, expected, label) {
   if (!Array.isArray(values) || !values.includes(expected)) {
     throw new Error(`${label}: expected ${expected}`);
   }
+}
+
+function npmCommand(args) {
+  const command = process.platform === 'win32' ? 'cmd' : 'npm';
+  const commandArgs = process.platform === 'win32' ? ['/c', 'npm', ...args] : args;
+  return [command, commandArgs];
 }

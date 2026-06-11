@@ -13,28 +13,28 @@ async function main() {
   await mkdir(testOutputDir, { recursive: true });
   await mkdir(proofDir, { recursive: true });
 
-  await runCommand('cmd', ['/c', 'npm', 'run', 'build:contracts']);
-  await runCommand('cmd', [
-    '/c',
-    'npm',
-    'run',
-    'test',
-    '--workspace',
-    '@ocentra-parent/parent-domain',
-    '--',
-    'social-audit-explanation-read-model.test.ts',
-  ]);
-  await runCommand('cmd', [
-    '/c',
-    'npm',
-    'run',
-    'test',
-    '--workspace',
-    '@ocentra-parent/agent-protocol-domain',
-    '--',
-    'social-audit-explanation-read-model.test.ts',
-    'contracts.test.ts',
-  ]);
+  await runCommand(...npmCommand(['run', 'build:contracts']));
+  await runCommand(
+    ...npmCommand([
+      'run',
+      'test',
+      '--workspace',
+      '@ocentra-parent/parent-domain',
+      '--',
+      'social-audit-explanation-read-model.test.ts',
+    ])
+  );
+  await runCommand(
+    ...npmCommand([
+      'run',
+      'test',
+      '--workspace',
+      '@ocentra-parent/agent-protocol-domain',
+      '--',
+      'social-audit-explanation-read-model.test.ts',
+      'contracts.test.ts',
+    ])
+  );
   await runCommand('cargo', ['test', '-p', 'ocentra-parent-agent-protocol', 'social_audit_explanation']);
   await runCommand('cargo', ['test', '-p', 'ocentra-parent-agent-service', 'social_audit_explanation']);
 
@@ -227,4 +227,10 @@ async function writeJson(filePath, value) {
 
 function tail(text) {
   return text.split(/\r?\n/).filter(Boolean).slice(-20);
+}
+
+function npmCommand(args) {
+  const command = process.platform === 'win32' ? 'cmd' : 'npm';
+  const commandArgs = process.platform === 'win32' ? ['/c', 'npm', ...args] : args;
+  return [command, commandArgs];
 }

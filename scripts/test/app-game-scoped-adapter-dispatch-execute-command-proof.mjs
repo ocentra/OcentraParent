@@ -20,39 +20,30 @@ async function main() {
   await mkdir(outputDir, { recursive: true });
   await mkdir(planOutputDir, { recursive: true });
 
-  await runCommand('cmd', ['/c', 'npm', 'run', 'build:contracts']);
-  await runCommand('cmd', [
-    '/c',
-    'npm',
-    'run',
-    'test',
-    '--workspace',
-    '@ocentra-parent/agent-protocol-domain',
-    '--',
-    'app-game-adapter-dispatch-result',
-    'contracts',
-  ]);
-  await runCommand('cmd', [
-    '/c',
-    'npm',
-    'run',
-    'test',
-    '--workspace',
-    '@ocentra-parent/text-domain',
-    '--',
-    'portal-dev',
-  ]);
-  await runCommand('cmd', [
-    '/c',
-    'npm',
-    'run',
-    'test',
-    '--workspace',
-    '@ocentra-parent/portal-domain',
-    '--',
-    'contracts',
-    'app-game-adapter-dispatch-result-panel',
-  ]);
+  await runCommand(...npmCommand(['run', 'build:contracts']));
+  await runCommand(
+    ...npmCommand([
+      'run',
+      'test',
+      '--workspace',
+      '@ocentra-parent/agent-protocol-domain',
+      '--',
+      'app-game-adapter-dispatch-result',
+      'contracts',
+    ])
+  );
+  await runCommand(...npmCommand(['run', 'test', '--workspace', '@ocentra-parent/text-domain', '--', 'portal-dev']));
+  await runCommand(
+    ...npmCommand([
+      'run',
+      'test',
+      '--workspace',
+      '@ocentra-parent/portal-domain',
+      '--',
+      'contracts',
+      'app-game-adapter-dispatch-result-panel',
+    ])
+  );
   await runCommand('cargo', [
     'test',
     '-p',
@@ -60,7 +51,7 @@ async function main() {
     'app_game_adapter_dispatch_execute_command_and_event_names_serialize_to_contract_shape',
   ]);
   await runCommand('cargo', ['test', '-p', 'ocentra-parent-agent-service', 'app_game_adapter_dispatch_execute']);
-  await runCommand('cmd', ['/c', 'npm', 'run', 'build', '--workspace', '@ocentra-parent/portal']);
+  await runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/portal']));
 
   const proof = {
     schemaVersion: 1,
@@ -137,4 +128,10 @@ async function gitHead() {
     child.once('error', reject);
   });
   return chunks.join('').trim();
+}
+
+function npmCommand(args) {
+  const command = process.platform === 'win32' ? 'cmd' : 'npm';
+  const commandArgs = process.platform === 'win32' ? ['/c', 'npm', ...args] : args;
+  return [command, commandArgs];
 }

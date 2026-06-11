@@ -15,9 +15,7 @@ async function main() {
   await mkdir(testOutputDir, { recursive: true });
   await mkdir(proofDir, { recursive: true });
 
-  run('cmd', [
-    '/c',
-    'npm',
+  runNpm([
     'run',
     'test',
     '--workspace',
@@ -26,7 +24,7 @@ async function main() {
     'app-game-linux-docker-host-preflight',
     'app-game-platform-proof-status',
   ]);
-  run('cmd', ['/c', 'npm', 'run', 'build', '--workspace', '@ocentra-parent/parent-domain']);
+  runNpm(['run', 'build', '--workspace', '@ocentra-parent/parent-domain']);
 
   const dockerProbe = collectDockerHostProbe();
   const module = await import(
@@ -158,4 +156,10 @@ function commandLog(command) {
 
 async function writeJson(path, value) {
   await writeFile(path, `${JSON.stringify(value, null, 2)}\n`);
+}
+
+function runNpm(args, ...rest) {
+  const command = process.platform === 'win32' ? 'cmd' : 'npm';
+  const commandArgs = process.platform === 'win32' ? ['/c', 'npm', ...args] : args;
+  return run(command, commandArgs, ...rest);
 }

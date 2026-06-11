@@ -49,34 +49,34 @@ async function main() {
   await mkdir(testOutputDir, { recursive: true });
   await mkdir(planOutputDir, { recursive: true });
 
-  await runCommand('cmd', ['/c', 'npm', '--workspace', '@ocentra-parent/agent-protocol-domain', 'run', 'build']);
-  await runCommand('cmd', [
-    '/c',
-    'npm',
-    'exec',
-    '--workspace',
-    '@ocentra-parent/portal',
-    '--',
-    'vitest',
-    'run',
-    'tests/live-activity-network-flow.test.ts',
-  ]);
-  await runCommand('cmd', [
-    '/c',
-    'npm',
-    'exec',
-    '--workspace',
-    '@ocentra-parent/portal',
-    '--',
-    'eslint',
-    'src/live-activity-state.ts',
-    'src/live-network-flow-panel.ts',
-    'src/network-flow-read-model.ts',
-    'src/network-evidence-drawer.ts',
-    'src/NetworkEvidenceDrawerRoutePanel.tsx',
-    'tests/live-activity-network-flow.test.ts',
-    '../../packages/portal-domain/src/commands.ts',
-  ]);
+  await runCommand(...npmCommand(['--workspace', '@ocentra-parent/agent-protocol-domain', 'run', 'build']));
+  await runCommand(
+    ...npmCommand([
+      'exec',
+      '--workspace',
+      '@ocentra-parent/portal',
+      '--',
+      'vitest',
+      'run',
+      'tests/live-activity-network-flow.test.ts',
+    ])
+  );
+  await runCommand(
+    ...npmCommand([
+      'exec',
+      '--workspace',
+      '@ocentra-parent/portal',
+      '--',
+      'eslint',
+      'src/live-activity-state.ts',
+      'src/live-network-flow-panel.ts',
+      'src/network-flow-read-model.ts',
+      'src/network-evidence-drawer.ts',
+      'src/NetworkEvidenceDrawerRoutePanel.tsx',
+      'tests/live-activity-network-flow.test.ts',
+      '../../packages/portal-domain/src/commands.ts',
+    ])
+  );
   await runCommand('node', ['scripts/check-source-shape.mjs']);
 
   const scannedFiles = await assertNetworkPortalSourceGate();
@@ -302,4 +302,10 @@ function assertPatternAbsent(text, pattern, label) {
   if (pattern.test(text)) {
     throw new Error(`${label}: matched ${pattern}`);
   }
+}
+
+function npmCommand(args) {
+  const command = process.platform === 'win32' ? 'cmd' : 'npm';
+  const commandArgs = process.platform === 'win32' ? ['/c', 'npm', ...args] : args;
+  return [command, commandArgs];
 }

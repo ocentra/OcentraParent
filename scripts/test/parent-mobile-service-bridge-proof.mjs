@@ -469,7 +469,7 @@ async function runNodeScript(scriptPath) {
 }
 
 async function runNpm(args) {
-  await runCommand('cmd', ['/c', 'npm', ...args]);
+  await runCommand(...npmCommand([...args]));
 }
 
 async function runCommand(commandName, args) {
@@ -549,4 +549,10 @@ function assertArrayLengthAtLeast(value, minimum, label) {
   if (!Array.isArray(value) || value.length < minimum) {
     throw new Error(`${label}: expected at least ${minimum} entries, received ${value?.length ?? 'non-array'}`);
   }
+}
+
+function npmCommand(args) {
+  const command = process.platform === 'win32' ? 'cmd' : 'npm';
+  const commandArgs = process.platform === 'win32' ? ['/c', 'npm', ...args] : args;
+  return [command, commandArgs];
 }

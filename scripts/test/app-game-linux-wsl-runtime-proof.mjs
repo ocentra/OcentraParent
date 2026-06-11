@@ -16,10 +16,8 @@ async function main() {
   await mkdir(testOutputDir, { recursive: true });
   await mkdir(proofDir, { recursive: true });
 
-  run('cmd', ['/c', 'npm', 'run', 'build', '--workspace', '@ocentra-parent/schema-domain']);
-  run('cmd', [
-    '/c',
-    'npm',
+  runNpm(['run', 'build', '--workspace', '@ocentra-parent/schema-domain']);
+  runNpm([
     'run',
     'test',
     '--workspace',
@@ -28,7 +26,7 @@ async function main() {
     'app-game-linux-wsl-runtime-proof',
     'app-game-broad-blocking-proof-gates',
   ]);
-  run('cmd', ['/c', 'npm', 'run', 'build', '--workspace', '@ocentra-parent/parent-domain']);
+  runNpm(['run', 'build', '--workspace', '@ocentra-parent/parent-domain']);
 
   run('wsl.exe', ['--status']);
   const osRelease = parseOsRelease(wsl('cat /etc/os-release'));
@@ -331,4 +329,10 @@ function assertIncludes(source, needle, label) {
 
 async function writeJson(path, value) {
   await writeFile(path, `${JSON.stringify(value, null, 2)}\n`);
+}
+
+function runNpm(args, ...rest) {
+  const command = process.platform === 'win32' ? 'cmd' : 'npm';
+  const commandArgs = process.platform === 'win32' ? ['/c', 'npm', ...args] : args;
+  return run(command, commandArgs, ...rest);
 }

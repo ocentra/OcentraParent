@@ -17,7 +17,7 @@ async function main() {
   rmSync(testResultsDir, { recursive: true, force: true });
   mkdirSync(outputDir, { recursive: true });
   mkdirSync(testResultsDir, { recursive: true });
-  execFileSync('cmd', ['/c', 'npm', 'run', 'build', '--workspace', '@ocentra-parent/parent-domain'], {
+  execFileSync(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/parent-domain']), {
     stdio: 'inherit',
   });
 
@@ -214,4 +214,10 @@ function relativePath(path) {
 
 function writeJson(path, value) {
   writeFileSync(path, `${JSON.stringify(value, null, 2)}\n`);
+}
+
+function npmCommand(args) {
+  const command = process.platform === 'win32' ? 'cmd' : 'npm';
+  const commandArgs = process.platform === 'win32' ? ['/c', 'npm', ...args] : args;
+  return [command, commandArgs];
 }

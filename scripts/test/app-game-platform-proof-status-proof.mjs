@@ -39,62 +39,62 @@ async function main() {
   await mkdir(appleCiProofDir, { recursive: true });
   await mkdir(dockerProofDir, { recursive: true });
 
-  await runCommand('cmd', ['/c', 'npm', 'run', 'build:contracts']);
+  await runCommand(...npmCommand(['run', 'build:contracts']));
   await runCommand('cargo', ['test', '-p', 'ocentra-parent-agent-protocol', 'app_game_platform_proof_status']);
   await runCommand('cargo', ['test', '-p', 'ocentra-parent-agent-service', 'app_game_platform_proof_status']);
-  await runCommand('cmd', [
-    '/c',
-    'npm',
-    'run',
-    'test',
-    '--workspace',
-    '@ocentra-parent/agent-protocol-domain',
-    '--',
-    'app-game-platform-proof-status',
-  ]);
-  await runCommand('cmd', [
-    '/c',
-    'npm',
-    'run',
-    'test',
-    '--workspace',
-    '@ocentra-parent/parent-domain',
-    '--',
-    'app-game-platform-proof-status',
-    'app-game-android-physical-device-proof',
-    'app-game-android-authority-preflight',
-    'app-game-android-accessibility-overlay-preflight',
-    'app-game-android-accessibility-runtime-proof',
-    'app-game-android-usage-events-replay',
-    'app-game-linux-active-window-tool-proof',
-    'app-game-linux-foreground-capture-readiness',
-    'app-game-linux-docker-host-preflight',
-    'app-game-linux-wsl-runtime-proof',
-    'app-game-windows-broad-blocking-authority-preflight',
-    'app-game-windows-local-policy-evidence-proof',
-    'app-game-apple-ci-platform-proof-preflight',
-  ]);
-  await runCommand('cmd', [
-    '/c',
-    'npm',
-    'run',
-    'test',
-    '--workspace',
-    '@ocentra-parent/portal-domain',
-    '--',
-    'app-game-platform-proof-status-panel',
-  ]);
-  await runCommand('cmd', [
-    '/c',
-    'npm',
-    'exec',
-    '--workspace',
-    '@ocentra-parent/portal',
-    '--',
-    'vitest',
-    'run',
-    'tests/app-game-platform-proof-status-route-panel.test.ts',
-  ]);
+  await runCommand(
+    ...npmCommand([
+      'run',
+      'test',
+      '--workspace',
+      '@ocentra-parent/agent-protocol-domain',
+      '--',
+      'app-game-platform-proof-status',
+    ])
+  );
+  await runCommand(
+    ...npmCommand([
+      'run',
+      'test',
+      '--workspace',
+      '@ocentra-parent/parent-domain',
+      '--',
+      'app-game-platform-proof-status',
+      'app-game-android-physical-device-proof',
+      'app-game-android-authority-preflight',
+      'app-game-android-accessibility-overlay-preflight',
+      'app-game-android-accessibility-runtime-proof',
+      'app-game-android-usage-events-replay',
+      'app-game-linux-active-window-tool-proof',
+      'app-game-linux-foreground-capture-readiness',
+      'app-game-linux-docker-host-preflight',
+      'app-game-linux-wsl-runtime-proof',
+      'app-game-windows-broad-blocking-authority-preflight',
+      'app-game-windows-local-policy-evidence-proof',
+      'app-game-apple-ci-platform-proof-preflight',
+    ])
+  );
+  await runCommand(
+    ...npmCommand([
+      'run',
+      'test',
+      '--workspace',
+      '@ocentra-parent/portal-domain',
+      '--',
+      'app-game-platform-proof-status-panel',
+    ])
+  );
+  await runCommand(
+    ...npmCommand([
+      'exec',
+      '--workspace',
+      '@ocentra-parent/portal',
+      '--',
+      'vitest',
+      'run',
+      'tests/app-game-platform-proof-status-route-panel.test.ts',
+    ])
+  );
   await runCommand('node', ['scripts/test/app-game-android-physical-device-proof.mjs']);
   await runCommand('node', ['scripts/test/app-game-android-authority-preflight-proof.mjs']);
   await runCommand('node', ['scripts/test/app-game-android-accessibility-overlay-preflight-proof.mjs']);
@@ -107,7 +107,7 @@ async function main() {
   await runCommand('node', ['scripts/test/app-game-windows-local-policy-evidence-proof.mjs']);
   await runCommand('node', ['scripts/test/app-game-apple-ci-platform-proof-preflight-proof.mjs']);
   await runCommand('node', ['scripts/test/app-game-linux-docker-host-preflight-proof.mjs']);
-  await runCommand('cmd', ['/c', 'npm', 'run', 'build', '--workspace', '@ocentra-parent/parent-domain']);
+  await runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/parent-domain']));
 
   const androidProof = await readJson(
     join(repoRoot, 'test-results', 'app-game-android-physical-device-proof', 'proof.json')
@@ -492,4 +492,10 @@ function assertPositive(actual, label) {
   if (actual <= 0) {
     throw new Error(`${label}: expected positive count, received ${actual}`);
   }
+}
+
+function npmCommand(args) {
+  const command = process.platform === 'win32' ? 'cmd' : 'npm';
+  const commandArgs = process.platform === 'win32' ? ['/c', 'npm', ...args] : args;
+  return [command, commandArgs];
 }
