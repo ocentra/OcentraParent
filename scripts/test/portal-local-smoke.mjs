@@ -42,6 +42,10 @@ const portalPort = resolveParentDevPort(
   ParentDevPort.PortalSmokePortal,
   ParentDevEnv.PortalPort
 );
+const typedActivityAdapterSmokeTimeoutMs = positiveIntegerEnv(
+  'OCENTRA_PARENT_PORTAL_ACTIVITY_SMOKE_TIMEOUT_MS',
+  30_000
+);
 const lanBrowserDiscoverySmokeTimeoutMs = 30_000;
 const devLogDir = await mkdtemp(join(tmpdir(), 'ocentra-parent-portal-log-'));
 
@@ -137,7 +141,10 @@ function assertTypedActivityAdapterStates() {
     const socket = new WebSocket(createAgentWebSocketUrl(agentPort));
     let stepIndex = 0;
     let settled = false;
-    const timer = setTimeout(() => fail(new Error('Typed Activity adapter smoke timed out')), 10000);
+    const timer = setTimeout(
+      () => fail(new Error(describeTypedActivityTimeout(steps, stepIndex))),
+      typedActivityAdapterSmokeTimeoutMs
+    );
 
     const fail = (error) => {
       if (settled) {
@@ -192,6 +199,16 @@ function assertTypedActivityAdapterStates() {
 
     socket.addEventListener('error', () => fail(new Error('Typed Activity adapter smoke WebSocket failed')));
   });
+}
+
+function describeTypedActivityTimeout(steps, stepIndex) {
+  const step = steps[Math.min(stepIndex, steps.length - 1)];
+  return [
+    `Typed Activity adapter smoke timed out after ${typedActivityAdapterSmokeTimeoutMs}ms`,
+    `while waiting for ${step.event}`,
+    `from ${step.command}`,
+    `message ${step.messageId}.`,
+  ].join(' ');
 }
 
 function assertTypedLanBrowserDiscoveryReadModel() {
@@ -401,6 +418,11 @@ async function waitForHttp(url) {
 
 async function stopProcess(child) {
   await stopProcessTreeAndWait(child);
+}
+
+function positiveIntegerEnv(envName, fallback) {
+  const value = Number.parseInt(process.env[envName] ?? '', 10);
+  return Number.isFinite(value) && value > 0 ? value : fallback;
 }
 
 async function assertDevServerLogWritten() {
