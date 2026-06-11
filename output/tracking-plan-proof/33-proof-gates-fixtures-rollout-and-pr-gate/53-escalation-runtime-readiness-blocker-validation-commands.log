@@ -1,4 +1,0 @@
-cmd /c npm run build --workspace @ocentra-parent/parent-domain
-cmd /c npm run test --workspace @ocentra-parent/parent-domain -- tracking-escalation-runtime-readiness-blocker-proof
-node scripts/test/tracking-escalation-readiness-proof.mjs
-node scripts/test/tracking-provider-runtime-readiness-blocker-proof.mjs

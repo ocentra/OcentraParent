@@ -277,6 +277,15 @@ async function expectSurfaceTextToMatch(surface: ReturnType<Page['locator']>, ex
   await expect.poll(() => surfaceText(surface), { timeout: routeSurfaceReadyTimeoutMs }).toMatch(expected);
 }
 
+async function closeParentPortalDetailIfOpen(page: Page): Promise<void> {
+  const closeDetailButton = page.getByRole('button', { name: 'Close parent portal detail' });
+  if ((await closeDetailButton.count()) === 0) {
+    return;
+  }
+  await closeDetailButton.click({ force: true });
+  await expect(closeDetailButton).toHaveCount(0, { timeout: routeSurfaceReadyTimeoutMs });
+}
+
 async function assertLanPairingRouteSurface(page: Page, surface: ReturnType<Page['locator']>): Promise<void> {
   const viewport = page.viewportSize();
   await page.setViewportSize({
@@ -285,6 +294,7 @@ async function assertLanPairingRouteSurface(page: Page, surface: ReturnType<Page
   });
 
   try {
+    await closeParentPortalDetailIfOpen(page);
     await expect(surface.locator('text').filter({ hasText: 'Local Area Network' }).first()).toBeVisible();
     const scanButton = page.getByRole('button', { name: 'Scan Local Area Network' });
     await expect(scanButton).toBeVisible();
@@ -293,31 +303,23 @@ async function assertLanPairingRouteSurface(page: Page, surface: ReturnType<Page
     await expect(surface.locator('text').filter({ hasText: 'Update' }).first()).toBeVisible();
     await expect(surface.locator('text').filter({ hasText: 'Capability' }).first()).toBeVisible();
 
-    const localAgentChoice = page.getByRole('button', { name: /^Select (?!LAN Devices$)(?!Parent Portal$).+/ }).first();
-    if ((await localAgentChoice.count()) > 0) {
-      await expect(localAgentChoice).toBeVisible();
-      await localAgentChoice.click({ force: true });
-      await expect(
-        surface
-          .locator('text')
-          .filter({ hasText: /Device: (?!No device selected).+/ })
-          .first()
-      ).toBeVisible();
-    } else {
-      await expect(surface.locator('text').filter({ hasText: 'SELECTED DEVICE CONTEXT' }).first()).toBeVisible();
-      await expect(surface.locator('text').filter({ hasText: 'Manual Required' }).first()).toBeVisible();
-    }
+    await expect(
+      surface
+        .locator('text')
+        .filter({ hasText: /Device: (?!No device selected).+/ })
+        .first()
+    ).toBeVisible({ timeout: routeSurfaceReadyTimeoutMs });
 
-    await page.getByRole('tab', { name: 'Show LAN pairing Capability' }).click({ force: true });
+    await closeParentPortalDetailIfOpen(page);
+    const capabilityTab = page.getByRole('tab', { name: 'Show LAN pairing Capability' });
+    await capabilityTab.focus();
+    await page.keyboard.press('Enter');
+    await expect(capabilityTab).toHaveAttribute('aria-selected', 'true', { timeout: routeSurfaceReadyTimeoutMs });
     await expect(surface.locator('text').filter({ hasText: 'Agent' }).first()).toBeVisible();
     const capabilityText = await surfaceText(surface);
-    if ((await localAgentChoice.count()) > 0) {
-      expect(capabilityText).toMatch(
-        /(?:ocentra-(?:local-service|child-agent)|parent\s+local\s+service|agent\s+Not reported)/i
-      );
-    } else {
-      await expect(surface.locator('text').filter({ hasText: 'Not reported' }).first()).toBeVisible();
-    }
+    expect(capabilityText).toMatch(
+      /(?:ocentra-(?:local-service|child-agent)|parent\s+local\s+service|agent\s+Not reported)/i
+    );
     if (/ocentra-child-agent/i.test(capabilityText)) {
       await expect(surface.locator('text').filter({ hasText: 'CPU' }).first()).toBeVisible();
       await expect(surface.locator('text').filter({ hasText: 'Device ID' }).first()).toBeVisible();

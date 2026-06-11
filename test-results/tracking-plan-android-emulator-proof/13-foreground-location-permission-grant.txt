@@ -1,4 +1,0 @@
-PASS pm grant android.permission.ACCESS_FINE_LOCATION
-
-
-PASS pm grant android.permission.ACCESS_COARSE_LOCATION

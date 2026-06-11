@@ -1,3 +1,0 @@
-node scripts/test/tracking-retention-product-settings-writable-execution-proof.mjs exit=0
-cmd /c npm run build --workspace @ocentra-parent/parent-domain exit=0
-cmd /c npm run test --workspace @ocentra-parent/parent-domain -- tracking-retention-applied-settings-runtime-bridge-proof exit=0

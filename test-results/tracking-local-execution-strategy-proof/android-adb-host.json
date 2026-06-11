@@ -1,7 +1,0 @@
-{
-  "name": "android-adb-host",
-  "available": true,
-  "status": 0,
-  "output": "Android Debug Bridge version 1.0.41\r\nVersion 37.0.0-14910828\r\nInstalled as C:\\Users\\sujan\\AppData\\Local\\Android\\Sdk\\platform-tools\\adb.exe\r\nRunning on Windows 10.0.26200",
-  "error": ""
-}

@@ -3,6 +3,7 @@ import { spawnSync } from 'node:child_process';
 import { mkdir, stat, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 import { pathToFileURL } from 'node:url';
+import { runNpmCommand } from './run-npm-command.mjs';
 
 const repoRoot = process.cwd();
 const proofMode = 'tracking-local-execution-strategy-proof';
@@ -32,8 +33,8 @@ async function main() {
   await mkdir(output33, { recursive: true });
   await mkdir(namedOutput, { recursive: true });
 
-  run('cmd', ['/c', 'npm', 'run', 'build', '--workspace', '@ocentra-parent/parent-domain']);
-  run('cmd', ['/c', 'npm', 'run', 'test', '--workspace', '@ocentra-parent/parent-domain', '--', proofMode]);
+  runNpmCommand(run, ['run', 'build', '--workspace', '@ocentra-parent/parent-domain']);
+  runNpmCommand(run, ['run', 'test', '--workspace', '@ocentra-parent/parent-domain', '--', proofMode]);
 
   const host = await hostEvidence();
   const proofModule = await importDist('tracking-local-execution-strategy-proof.js');
@@ -88,7 +89,7 @@ function rows(host) {
     wslRow(host),
     dockerRow(host),
     androidEmulatorRow(host),
-    androidPhysicalStatusRow(host),
+    androidPhysicalStatusRow(),
     macosIosCiRow(),
     physicalManualRuntimeRow(),
     finalSyncRow(),

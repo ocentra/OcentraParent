@@ -1,3 +1,0 @@
-node scripts/test/tracking-production-worker-runtime-artifact-gate-proof.mjs
-cmd /c npm run build --workspace @ocentra-parent/parent-domain
-cmd /c npm run test --workspace @ocentra-parent/parent-domain -- tracking-production-worker-runtime-preflight-proof tracking-production-worker-runtime-artifact-gate-proof

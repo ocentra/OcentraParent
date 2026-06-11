@@ -1,3 +1,0 @@
-cmd /c npm run build --workspace @ocentra-parent/parent-domain
-cmd /c npm run test --workspace @ocentra-parent/parent-domain -- tracking-local-platform-proof-batch
-cmd /c node scripts/test/tracking-cross-platform-runtime-capability-proof.mjs

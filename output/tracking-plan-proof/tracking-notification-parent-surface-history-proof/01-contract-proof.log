@@ -1,6 +1,0 @@
-Contract proof:
-
-- cmd /c npm run build --workspace @ocentra-parent/parent-domain: PASS
-- cmd /c npm run test --workspace @ocentra-parent/parent-domain -- tracking-notification-parent-surface-history-proof tracking-notification-receipt-boundary-proof tracking-notification-preference-preflight-proof tracking-provider-notification-proof: PASS
-- Parent-surface history rows preserve source provider, receipt, preference, evidence, policy decision, notification status, reason, audit, drill-in, quiet-hours, and manual proof refs.
-- Rows are parent-surface intent/readiness rows only; no rendered notification UI, preference mutation, provider delivery, or receipt runtime is claimed.

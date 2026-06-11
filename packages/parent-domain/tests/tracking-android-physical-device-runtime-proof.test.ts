@@ -108,17 +108,21 @@ function artifactRows() {
   }));
 }
 
+const artifactCategoryMatchers = [
+  { category: 'package-runtime', tokens: ['install', 'launch', 'activity'] },
+  { category: 'foreground-service', tokens: ['service'] },
+  { category: 'device-status', tokens: ['battery', 'connectivity'] },
+  { category: 'ui-screenshot', tokens: ['ui', 'screen'] },
+  { category: 'permission-state', tokens: ['permission'] },
+  { category: 'physical-location-runtime', tokens: ['sample'] },
+  { category: 'physical-geofence-runtime', tokens: ['geofence'] },
+  { category: 'physical-route-observation', tokens: ['route', 'location-manager'] },
+  { category: 'validation-log', tokens: ['logcat'] },
+] as const;
+
 function categoryFor(artifactRef: string) {
-  if (artifactRef.includes('install') || artifactRef.includes('launch') || artifactRef.includes('activity')) {
-    return 'package-runtime';
-  }
-  if (artifactRef.includes('service')) return 'foreground-service';
-  if (artifactRef.includes('battery') || artifactRef.includes('connectivity')) return 'device-status';
-  if (artifactRef.includes('ui') || artifactRef.includes('screen')) return 'ui-screenshot';
-  if (artifactRef.includes('permission')) return 'permission-state';
-  if (artifactRef.includes('sample')) return 'physical-location-runtime';
-  if (artifactRef.includes('geofence')) return 'physical-geofence-runtime';
-  if (artifactRef.includes('route') || artifactRef.includes('location-manager')) return 'physical-route-observation';
-  if (artifactRef.includes('logcat')) return 'validation-log';
-  return 'adb-runtime-output';
+  return (
+    artifactCategoryMatchers.find(({ tokens }) => tokens.some((token) => artifactRef.includes(token)))?.category ??
+    'adb-runtime-output'
+  );
 }

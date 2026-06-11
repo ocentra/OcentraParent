@@ -1,2 +1,0 @@
-PASS adb emu geo fix synthetic foreground location seed
-OK

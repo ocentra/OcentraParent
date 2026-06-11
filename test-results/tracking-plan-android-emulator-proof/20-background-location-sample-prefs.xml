@@ -1,9 +1,0 @@
-<?xml version='1.0' encoding='utf-8' standalone='yes' ?>
-<map>
-    <string name="backgroundLocationSampleSource">android-location-manager-gps-listener-foreground-service</string>
-    <float name="backgroundLocationSampleAccuracyMeters" value="5.0" />
-    <string name="backgroundLocationSampleProvider">gps</string>
-    <int name="backgroundLocationSampleCount" value="56" />
-    <boolean name="backgroundLocationSampleActivityBackgrounded" value="true" />
-    <long name="backgroundLocationSampleObservedAtEpochMillis" value="1780935283249" />
-</map>

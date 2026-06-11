@@ -1,2 +1,0 @@
-node scripts/test/tracking-product-readiness-closure-proof.mjs exit=0
-node scripts/test/tracking-real-runtime-handoff-proof.mjs exit=0

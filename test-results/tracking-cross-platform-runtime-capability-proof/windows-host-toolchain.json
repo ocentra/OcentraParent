@@ -1,7 +1,0 @@
-{
-  "id": "windows-host-toolchain",
-  "command": "cmd /c ver & where node & node --version & where npm & npm --version & where cargo & cargo --version",
-  "exitCode": 0,
-  "stdout": "\nMicrosoft Windows [Version 10.0.26200.8457]\nC:\\Program Files\\nodejs\\node.exe\nC:\\Program Files\\WindowsApps\\OpenAI.Codex_26.602.4764.0_x64__2p2nqsd0c76g0\\app\\resources\\node.exe\nv22.22.2\nC:\\Program Files\\nodejs\\npm\nC:\\Program Files\\nodejs\\npm.cmd\nC:\\Users\\sujan\\AppData\\Roaming\\npm\\npm\nC:\\Users\\sujan\\AppData\\Roaming\\npm\\npm.cmd\n11.7.0\nC:\\Users\\sujan\\.cargo\\bin\\cargo.exe\ncargo 1.90.0 (840b83a10 2025-07-30)\n",
-  "stderr": ""
-}

@@ -1,2 +1,0 @@
-cmd /c npm run build --workspace @ocentra-parent/parent-domain exit=0
-cmd /c npm run test --workspace @ocentra-parent/parent-domain -- tracking-claim-audit-proof exit=0

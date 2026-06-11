@@ -100,6 +100,15 @@ function expectPlatformAggregate(proof: TrackingProductReadinessClosureProof): v
 }
 
 function expectRuntimeAndProductionAggregate(proof: TrackingProductReadinessClosureProof): void {
+  expectChildRuntimeAggregate(proof);
+  expectCrossPlatformAggregate(proof);
+  expectPhysicalEvidenceAggregate(proof);
+  expectProviderAndEscalationAggregate(proof);
+  expectRetentionAggregate(proof);
+  expectProductionAndClaimAggregate(proof);
+}
+
+function expectChildRuntimeAggregate(proof: TrackingProductReadinessClosureProof): void {
   expect(proof.aggregateEvidence.childRuntimeRequiredArtifactCount).toBe(10);
   expect(proof.aggregateEvidence.childRuntimePresentArtifactCount).toBe(0);
   expect(proof.aggregateEvidence.childRuntimeMissingArtifactCount).toBe(10);
@@ -107,6 +116,9 @@ function expectRuntimeAndProductionAggregate(proof: TrackingProductReadinessClos
   expect(proof.aggregateEvidence.parentChildLocalRuntimeDeadLetterCount).toBe(0);
   expect(proof.aggregateEvidence.parentChildLocalRuntimeChildAgentPhaseCount).toBe(4);
   expect(proof.aggregateEvidence.parentChildLocalRuntimeProductReadyRowCount).toBe(0);
+}
+
+function expectCrossPlatformAggregate(proof: TrackingProductReadinessClosureProof): void {
   expect(proof.aggregateEvidence.crossPlatformCapabilityRowCount).toBe(8);
   expect(proof.aggregateEvidence.crossPlatformLocalProofPassedRowCount).toBe(6);
   expect(proof.aggregateEvidence.crossPlatformCiRunnableRowCount).toBe(6);
@@ -115,6 +127,9 @@ function expectRuntimeAndProductionAggregate(proof: TrackingProductReadinessClos
   expect(proof.aggregateEvidence.crossPlatformAndroidSdkToolchainObservedRows).toBe(1);
   expect(proof.aggregateEvidence.crossPlatformAndroidGradleBuildObservedRows).toBe(1);
   expect(proof.aggregateEvidence.crossPlatformProductReadyRowCount).toBe(0);
+}
+
+function expectPhysicalEvidenceAggregate(proof: TrackingProductReadinessClosureProof): void {
   expect(proof.aggregateEvidence.physicalDeviceEvidenceReviewRowCount).toBe(2);
   expect(proof.aggregateEvidence.physicalDeviceEvidenceReviewArtifactMissingRowCount).toBe(2);
   expect(proof.aggregateEvidence.physicalDeviceEvidenceReviewContentReviewRequiredRowCount).toBe(0);
@@ -122,6 +137,9 @@ function expectRuntimeAndProductionAggregate(proof: TrackingProductReadinessClos
   expect(proof.aggregateEvidence.physicalDeviceEvidenceReviewProductReadyRowCount).toBe(0);
   expect(proof.aggregateEvidence.physicalDeviceEvidenceReviewStatusObservedRowCount).toBe(1);
   expect(proof.aggregateEvidence.physicalDeviceEvidenceReviewSupportingStatusArtifactCount).toBe(13);
+}
+
+function expectProviderAndEscalationAggregate(proof: TrackingProductReadinessClosureProof): void {
   expect(proof.aggregateEvidence.providerRuntimeRequiredArtifactCount).toBe(11);
   expect(proof.aggregateEvidence.providerRuntimePresentArtifactCount).toBe(0);
   expect(proof.aggregateEvidence.providerRuntimeMissingArtifactCount).toBe(11);
@@ -130,6 +148,9 @@ function expectRuntimeAndProductionAggregate(proof: TrackingProductReadinessClos
   expect(proof.aggregateEvidence.escalationRuntimePresentArtifactCount).toBe(0);
   expect(proof.aggregateEvidence.escalationRuntimeMissingArtifactCount).toBe(13);
   expect(proof.aggregateEvidence.escalationRuntimeBlockerCount).toBe(12);
+}
+
+function expectRetentionAggregate(proof: TrackingProductReadinessClosureProof): void {
   expect(proof.aggregateEvidence.retentionRuntimeRequiredArtifactCount).toBe(2);
   expect(proof.aggregateEvidence.retentionRuntimePresentArtifactCount).toBe(1);
   expect(proof.aggregateEvidence.retentionRuntimeMissingArtifactCount).toBe(1);
@@ -146,6 +167,9 @@ function expectRuntimeAndProductionAggregate(proof: TrackingProductReadinessClos
   expect(proof.aggregateEvidence.retentionPlatformPreflightPresentArtifactCount).toBe(0);
   expect(proof.aggregateEvidence.retentionPlatformPreflightMissingArtifactCount).toBe(6);
   expect(proof.aggregateEvidence.retentionPlatformPreflightProductReadyRowCount).toBe(0);
+}
+
+function expectProductionAndClaimAggregate(proof: TrackingProductReadinessClosureProof): void {
   expect(proof.aggregateEvidence.productionWorkerRequiredArtifactCount).toBe(8);
   expect(proof.aggregateEvidence.productionWorkerPresentArtifactCount).toBe(0);
   expect(proof.aggregateEvidence.productionWorkerMissingArtifactCount).toBe(8);

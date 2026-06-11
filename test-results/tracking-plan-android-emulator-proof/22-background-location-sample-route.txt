@@ -1,2 +1,0 @@
-PASS background-activity adb emu geo fix -122.083 37.421
-OK

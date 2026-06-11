@@ -2,6 +2,7 @@ import { spawnSync } from 'node:child_process';
 import { mkdir, rm, writeFile } from 'node:fs/promises';
 import { dirname, join } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
+import { runNpmCommand } from './run-npm-command.mjs';
 
 const repoRoot = dirname(dirname(dirname(fileURLToPath(import.meta.url))));
 const testOutputDir = join(repoRoot, 'test-results', 'tracking-notification-local-outbox-readiness-proof');
@@ -24,7 +25,7 @@ await mkdir(wp26ProofDir, { recursive: true });
 await mkdir(wp33ProofDir, { recursive: true });
 await mkdir(focusedProofDir, { recursive: true });
 
-run('cmd', ['/c', 'npm', 'run', 'build', '--workspace', '@ocentra-parent/parent-domain']);
+runNpmCommand(run, ['run', 'build', '--workspace', '@ocentra-parent/parent-domain']);
 run('cmd', [
   '/c',
   'npm',

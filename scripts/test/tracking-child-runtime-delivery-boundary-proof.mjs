@@ -3,6 +3,7 @@ import { spawn } from 'node:child_process';
 import { mkdir, writeFile } from 'node:fs/promises';
 import { join, relative } from 'node:path';
 import { pathToFileURL } from 'node:url';
+import { runNpmCommand } from './run-npm-command.mjs';
 
 const repoRoot = process.cwd();
 const proofRoot = join(repoRoot, 'output', 'tracking-plan-proof', '30-parent-and-child-ui-ux-surfaces');
@@ -332,7 +333,7 @@ function evidenceTrace() {
 async function runNpm(args) {
   const command = `npm ${args.join(' ')}`;
   commands.push({ command });
-  await run('cmd', ['/c', 'npm', ...args]);
+  await runNpmCommand(run, args);
 }
 
 async function run(command, args) {

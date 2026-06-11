@@ -3,6 +3,7 @@ import { spawnSync } from 'node:child_process';
 import { access, mkdir, readFile, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 import { pathToFileURL } from 'node:url';
+import { runNpmCommand } from './run-npm-command.mjs';
 
 const repoRoot = process.cwd();
 const proofMode = 'tracking-cross-platform-runtime-capability-proof';
@@ -27,8 +28,8 @@ async function main() {
   await mkdir(output31, { recursive: true });
   await mkdir(output33, { recursive: true });
 
-  runRequired('cmd', ['/c', 'npm', 'run', 'build', '--workspace', '@ocentra-parent/parent-domain']);
-  runRequired('cmd', ['/c', 'npm', 'run', 'test', '--workspace', '@ocentra-parent/parent-domain', '--', proofMode]);
+  runNpmCommand(runRequired, ['run', 'build', '--workspace', '@ocentra-parent/parent-domain']);
+  runNpmCommand(runRequired, ['run', 'test', '--workspace', '@ocentra-parent/parent-domain', '--', proofMode]);
 
   const proofModule = await importDist('tracking-cross-platform-runtime-capability-proof.js');
   const probes = await collectProbes();
