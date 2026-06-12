@@ -13,7 +13,7 @@ const outputDir = path.join(
 );
 
 const files = {
-  liveActivityState: path.join(root, 'apps', 'portal', 'src', 'live-activity-state.ts'),
+  liveActivityState: path.join(root, 'packages', 'portal-domain', 'src', 'live-activity-state.ts'),
   liveActivityTest: path.join(root, 'apps', 'portal', 'tests', 'live-activity-state.test.ts'),
   workpack: path.join(
     root,

@@ -68,7 +68,7 @@ async function main() {
       '@ocentra-parent/portal',
       '--',
       'eslint',
-      'src/live-activity-state.ts',
+      '../../packages/portal-domain/src/live-activity-state.ts',
       '../../packages/portal-domain/src/network-evidence-drawer.ts',
       '../../packages/agent-protocol-domain/src/network-flow-read-model.ts',
       'src/NetworkEvidenceDrawerRoutePanel.tsx',
@@ -88,7 +88,7 @@ async function main() {
     proofLabels,
     evidence: {
       portalCommandInventory: 'packages/portal-domain/src/commands.ts',
-      liveActivityState: 'apps/portal/src/live-activity-state.ts',
+      liveActivityState: 'packages/portal-domain/src/live-activity-state.ts',
       networkFlowReadModelParser: 'packages/agent-protocol-domain/src/network-flow-read-model.ts',
       networkEvidenceDrawer: 'packages/portal-domain/src/network-evidence-drawer.ts',
       networkEvidenceDrawerRoutePanel: 'apps/portal/src/NetworkEvidenceDrawerRoutePanel.tsx',
@@ -127,7 +127,7 @@ async function main() {
 
 async function assertNetworkPortalSourceGate() {
   const portalCommands = await readText('packages/portal-domain/src/commands.ts');
-  const liveActivityState = await readText('apps/portal/src/live-activity-state.ts');
+  const liveActivityState = await readText('packages/portal-domain/src/live-activity-state.ts');
   const networkFlowParser = await readText('packages/agent-protocol-domain/src/network-flow-read-model.ts');
   const evidenceDrawer = await readText('packages/portal-domain/src/network-evidence-drawer.ts');
   const drawerRoutePanel = await readText('apps/portal/src/NetworkEvidenceDrawerRoutePanel.tsx');

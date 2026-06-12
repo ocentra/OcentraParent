@@ -10,7 +10,7 @@ mkdirSync(testResultsDir, { recursive: true });
 mkdirSync(outputDir, { recursive: true });
 
 const contractSource = readFileSync('packages/agent-protocol-domain/src/browser-runtime-events.ts', 'utf8');
-const portalSource = readFileSync('apps/portal/src/live-activity-state.ts', 'utf8');
+const portalSource = readFileSync('packages/portal-domain/src/live-activity-state.ts', 'utf8');
 const testSource = readFileSync('packages/agent-protocol-domain/tests/browser-runtime-events.test.ts', 'utf8');
 
 const commands = [

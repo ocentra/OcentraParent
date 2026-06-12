@@ -58,7 +58,7 @@ async function main() {
     readbackCommand: 'agent.activity.app-game.adapter-dispatch-result.read-model.get',
     payloadField: 'appGameAdapterDispatchExecuteResult',
     evidence: {
-      portalLiveState: 'apps/portal/src/live-activity-state.ts',
+      portalLiveState: 'packages/portal-domain/src/live-activity-state.ts',
       portalLiveStateTest: 'apps/portal/tests/live-activity-state.test.ts',
       portalPanel: 'packages/portal-domain/src/app-game-adapter-dispatch-result-panel.ts',
       portalPanelTest: 'packages/portal-domain/tests/app-game-adapter-dispatch-result-panel.test.ts',

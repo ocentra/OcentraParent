@@ -9,7 +9,7 @@ const outputDir = join('output', 'browser-plan-proof', 'browser-runtime-portal-t
 mkdirSync(testResultsDir, { recursive: true });
 mkdirSync(outputDir, { recursive: true });
 
-const portalSource = readFileSync('apps/portal/src/live-activity-state.ts', 'utf8');
+const portalSource = readFileSync('packages/portal-domain/src/live-activity-state.ts', 'utf8');
 const portalTestSource = readFileSync('apps/portal/tests/live-activity-state.test.ts', 'utf8');
 
 const sourceChecks = {

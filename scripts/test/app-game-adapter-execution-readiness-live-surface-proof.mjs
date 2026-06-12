@@ -60,7 +60,7 @@ async function main() {
       rustProtocol: 'crates/agent-protocol/src/app_game_adapter_execution_readiness.rs',
       servicePayload: 'crates/agent-service/src/activity_api/app_game_adapter_execution_readiness_payload.rs',
       portalPanel: 'packages/portal-domain/src/app-game-adapter-execution-readiness-panel.ts',
-      liveState: 'apps/portal/src/live-activity-state.ts',
+      liveState: 'packages/portal-domain/src/live-activity-state.ts',
       commandSurface: 'packages/portal-domain/src/commands.ts',
     },
     summary: {

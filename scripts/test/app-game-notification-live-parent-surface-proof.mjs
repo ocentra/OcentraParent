@@ -61,7 +61,7 @@ async function main() {
     evidence: {
       liveProjection: 'packages/portal-domain/src/app-game-notification-parent-surface-live-readiness.ts',
       overviewCommands: 'packages/portal-domain/src/commands.ts',
-      liveActivityState: 'apps/portal/src/live-activity-state.ts',
+      liveActivityState: 'packages/portal-domain/src/live-activity-state.ts',
       commandResultEvents: 'packages/portal-domain/src/command-results.ts',
       portalDomainTest: 'packages/portal-domain/tests/app-game-notification-parent-surface-panel.test.ts',
       portalRouteTest: 'apps/portal/tests/app-game-notification-parent-surface-panel.test.ts',
@@ -105,7 +105,10 @@ async function collectLiveAssertions() {
     join(repoRoot, 'packages', 'portal-domain', 'src', 'app-game-notification-parent-surface-live-readiness.ts'),
     'utf8'
   );
-  const liveStateSource = await readFile(join(repoRoot, 'apps', 'portal', 'src', 'live-activity-state.ts'), 'utf8');
+  const liveStateSource = await readFile(
+    join(repoRoot, 'packages', 'portal-domain', 'src', 'live-activity-state.ts'),
+    'utf8'
+  );
   const eventResultsSource = await readFile(
     join(repoRoot, 'packages', 'portal-domain', 'src', 'command-results.ts'),
     'utf8'

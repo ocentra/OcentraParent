@@ -33,6 +33,10 @@
       "import": "./dist/package-info.js",
       "types": "./dist/package-info.d.ts"
     },
+    "./live-activity-state": {
+      "import": "./dist/live-activity-state.js",
+      "types": "./dist/live-activity-state.d.ts"
+    },
     "./browser-action-intent-stream-status": {
       "import": "./dist/browser-action-intent-stream-status.js",
       "types": "./dist/browser-action-intent-stream-status.d.ts"

@@ -67,7 +67,7 @@ async function main() {
     sourceAssertions,
     evidence: {
       routePanel: 'apps/portal/src/AppGamePolicyReadinessRoutePanel.tsx',
-      liveState: 'apps/portal/src/live-activity-state.ts',
+      liveState: 'packages/portal-domain/src/live-activity-state.ts',
       domainIntent: 'packages/portal-domain/src/app-game-policy-readiness-panel.ts',
       portalTest: 'apps/portal/tests/app-game-policy-readiness-panel.test.ts',
       domainTest: 'packages/portal-domain/tests/app-game-policy-readiness-panel.test.ts',
@@ -113,7 +113,10 @@ async function collectSourceAssertions() {
     join(repoRoot, 'apps', 'portal', 'src', 'AppGamePolicyReadinessRoutePanel.tsx'),
     'utf8'
   );
-  const liveStateSource = await readFile(join(repoRoot, 'apps', 'portal', 'src', 'live-activity-state.ts'), 'utf8');
+  const liveStateSource = await readFile(
+    join(repoRoot, 'packages', 'portal-domain', 'src', 'live-activity-state.ts'),
+    'utf8'
+  );
   const intentSource = await readFile(
     join(repoRoot, 'packages', 'portal-domain', 'src', 'app-game-policy-readiness-panel.ts'),
     'utf8'
