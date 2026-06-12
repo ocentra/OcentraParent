@@ -4,11 +4,11 @@ import {
   LanPairingProductionDiscoveryStateSchema,
   LanPairingRejectionReasonSchema,
   LanPairingRouteIdSchema,
-} from './lan-pairing-values';
+} from '@ocentra-parent/lan-domain/lan-pairing-values';
 import {
   LanProviderSelectionLifecycleStateSchema,
   LanProviderSelectionPolicyDecisionSchema,
-} from './lan-pairing-provider-selection-proof';
+} from '@ocentra-parent/lan-domain/lan-pairing-provider-selection-proof';
 import {
   ParentMobileCommandAuthorityStateSchema,
   ParentMobileControllerStateSchema,

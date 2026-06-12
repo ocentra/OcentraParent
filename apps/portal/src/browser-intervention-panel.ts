@@ -1,5 +1,5 @@
-import type { BrowserInterventionReadModel, BrowserInterventionRow } from '@ocentra-parent/activity-domain/browser';
-import type { ActivityEvidenceId } from '@ocentra-parent/activity-domain/primitives';
+import type { BrowserInterventionReadModel, BrowserInterventionRow } from '@ocentra-parent/browser-domain/browser';
+import type { ActivityEvidenceId } from '@ocentra-parent/evidence-domain/primitives';
 import { AgentProtocolDefaults, type AgentEventEnvelope } from '@ocentra-parent/agent-protocol-domain/contracts';
 import type { LogFieldValue } from '@ocentra-parent/logging-domain/contracts';
 import {

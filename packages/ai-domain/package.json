@@ -5,6 +5,10 @@
   "type": "module",
   "description": "Shared AI boundary contracts for UI-facing schemas and runtime protocol handoff.",
   "exports": {
+    "./*": {
+      "import": "./dist/*.js",
+      "types": "./dist/*.d.ts"
+    },
     "./context-primitives": {
       "import": "./dist/context-primitives.js",
       "types": "./dist/context-primitives.d.ts"
@@ -31,6 +35,7 @@
   },
   "dependencies": {
     "@ocentra-parent/family-domain": "file:../family-domain",
+    "@ocentra-parent/lan-domain": "file:../lan-domain",
     "@ocentra-parent/schema-domain": "file:../schema-domain"
   }
 }

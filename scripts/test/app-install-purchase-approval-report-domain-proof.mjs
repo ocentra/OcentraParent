@@ -26,7 +26,7 @@ async function main() {
   );
 
   const proofModule = await loadApprovalReportDomainProofModule();
-  const packageModule = await import('@ocentra-parent/parent-domain/app-install-purchase-approval-report-domain-proof');
+  const packageModule = await import('@ocentra-parent/app-game-domain/app-install-purchase-approval-report-domain-proof');
   const parentDomainPackageJson = await loadParentDomainPackageJson();
   const parsedReadModel = proofModule.AppInstallPurchaseApprovalReportDomainProofReadModel;
   const summary = proofModule.summarizeAppInstallPurchaseApprovalReportDomainProof(parsedReadModel);

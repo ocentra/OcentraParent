@@ -101,11 +101,11 @@ async function buildProofBundle() {
     { BrowserAiPostAnalysisActionSchemaVersion },
     { BrowserAiChildUxSchemaVersion },
   ] = await Promise.all([
-    import('@ocentra-parent/activity-domain/browser-ai-parent-explanation-schemas'),
-    import('@ocentra-parent/activity-domain/browser-ai-analysis-schemas'),
-    import('@ocentra-parent/activity-domain/browser-ai-policy-evaluator-schemas'),
-    import('@ocentra-parent/activity-domain/browser-ai-post-analysis-action-schemas'),
-    import('@ocentra-parent/activity-domain/browser-ai-child-ux-schemas'),
+    import('@ocentra-parent/browser-domain/browser-ai-parent-explanation-schemas'),
+    import('@ocentra-parent/browser-domain/browser-ai-analysis-schemas'),
+    import('@ocentra-parent/browser-domain/browser-ai-policy-evaluator-schemas'),
+    import('@ocentra-parent/browser-domain/browser-ai-post-analysis-action-schemas'),
+    import('@ocentra-parent/browser-domain/browser-ai-child-ux-schemas'),
   ]);
   const childUxProof = await readLatestChildUxProof();
   const warningCase = childUxProof.cases.find((entry) => entry.state === 'warning');

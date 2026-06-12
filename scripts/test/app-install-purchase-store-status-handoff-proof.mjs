@@ -26,7 +26,7 @@ async function main() {
   );
 
   const proofModule = await loadStoreStatusHandoffProofModule();
-  const packageModule = await import('@ocentra-parent/parent-domain/app-install-purchase-store-status-handoff-proof');
+  const packageModule = await import('@ocentra-parent/app-game-domain/app-install-purchase-store-status-handoff-proof');
   const parsedReadModel = proofModule.AppInstallPurchaseStoreStatusHandoffProofReadModel;
   const summary = proofModule.summarizeAppInstallPurchaseStoreStatusHandoffProof(parsedReadModel);
 

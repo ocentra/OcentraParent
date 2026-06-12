@@ -26,7 +26,7 @@ async function main() {
   );
 
   const proofModule = await loadReportRuntimeProofModule();
-  const packageModule = await import('@ocentra-parent/parent-domain/app-install-purchase-report-runtime-proof');
+  const packageModule = await import('@ocentra-parent/app-game-domain/app-install-purchase-report-runtime-proof');
   const parsedReadModel = proofModule.AppInstallPurchaseReportRuntimeProofReadModel;
   const summary = proofModule.summarizeAppInstallPurchaseReportRuntimeProof(parsedReadModel);
 

@@ -10,7 +10,7 @@ import {
   type BrowserInterventionReadModel,
   type BrowserInventoryReadModel,
   type BrowserManagedSessionStatus,
-} from '@ocentra-parent/activity-domain/browser';
+} from '@ocentra-parent/browser-domain/browser';
 import {
   ActivityIngestStatusSchema,
   ActivityQuerySchemaVersion,
@@ -18,7 +18,7 @@ import {
   type ActivityIngestStatus,
   type ActivityRecentSummary,
 } from '@ocentra-parent/activity-domain/query';
-import type { ActivityNetworkFlowReadModel } from '@ocentra-parent/activity-domain/network-flow';
+import type { ActivityNetworkFlowReadModel } from '@ocentra-parent/network-domain/network-flow';
 import type {
   ActivityAppUseReadModel,
   ActivityBrowserReadModel,

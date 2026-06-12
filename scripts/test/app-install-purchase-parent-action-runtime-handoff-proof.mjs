@@ -27,7 +27,7 @@ async function main() {
 
   const proofModule = await loadRuntimeHandoffProofModule();
   const packageModule =
-    await import('@ocentra-parent/parent-domain/app-install-purchase-parent-action-runtime-handoff-proof');
+    await import('@ocentra-parent/app-game-domain/app-install-purchase-parent-action-runtime-handoff-proof');
   const parsedReadModel = proofModule.AppInstallPurchaseParentActionRuntimeHandoffProofReadModel;
   const summary = proofModule.summarizeAppInstallPurchaseParentActionRuntimeHandoffProof(parsedReadModel);
 

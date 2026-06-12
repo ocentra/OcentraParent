@@ -90,6 +90,13 @@ fn retention_settings_write_result_serializes_local_execution_without_product_ov
         durable_settings_store_ref:
             constants::tracking_retention_settings_write::DURABLE_SETTINGS_STORE_REF.to_string(),
         durable_settings_persisted: true,
+        child_config_response_state: Some(
+            constants::tracking_config_update::RESPONSE_STATE_APPLIED.to_string(),
+        ),
+        effective_tracking_state: Some(
+            constants::tracking_config_update::EFFECTIVE_STATE_ENABLED.to_string(),
+        ),
+        child_config_ack_received: true,
         command_transport_claimed: true,
         service_write_preflight_claimed: true,
         service_mutation_executed: true,
@@ -123,6 +130,15 @@ fn retention_settings_write_result_serializes_local_execution_without_product_ov
         constants::tracking_retention_settings_write::DURABLE_SETTINGS_STORE_REF
     );
     assert_eq!(serialized["durableSettingsPersisted"], true);
+    assert_eq!(
+        serialized["childConfigResponseState"],
+        constants::tracking_config_update::RESPONSE_STATE_APPLIED
+    );
+    assert_eq!(
+        serialized["effectiveTrackingState"],
+        constants::tracking_config_update::EFFECTIVE_STATE_ENABLED
+    );
+    assert_eq!(serialized["childConfigAckReceived"], true);
     assert_eq!(serialized["commandTransportClaimed"], true);
     assert_eq!(serialized["serviceWritePreflightClaimed"], true);
     assert_eq!(serialized["serviceMutationExecuted"], true);

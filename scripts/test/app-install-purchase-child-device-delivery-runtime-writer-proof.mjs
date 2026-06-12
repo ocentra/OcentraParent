@@ -27,7 +27,7 @@ async function main() {
 
   const proofModule = await loadChildDeviceDeliveryRuntimeWriterProofModule();
   const packageModule =
-    await import('@ocentra-parent/parent-domain/app-install-purchase-child-device-delivery-runtime-writer-proof');
+    await import('@ocentra-parent/app-game-domain/app-install-purchase-child-device-delivery-runtime-writer-proof');
   const parsedReadModel = proofModule.AppInstallPurchaseChildDeviceDeliveryRuntimeWriterProofReadModel;
   const summary = proofModule.summarizeAppInstallPurchaseChildDeviceDeliveryRuntimeWriterProof(parsedReadModel);
   const parentDomainPackageJson = JSON.parse(

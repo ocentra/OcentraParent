@@ -22,7 +22,7 @@ runCommand(
   ])
 );
 
-const { LocalAiSafetyResultSchema } = await import('@ocentra-parent/parent-domain/local-ai');
+const { LocalAiSafetyResultSchema } = await import('@ocentra-parent/ai-domain/local-ai');
 
 const evidenceReference = {
   evidenceReferenceId: 'screen-evidence:invalid-output-degrade',

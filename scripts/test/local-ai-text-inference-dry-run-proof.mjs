@@ -22,7 +22,7 @@ runCommand(
   ])
 );
 
-const dryRunModule = await import('@ocentra-parent/parent-domain/local-ai-text-inference-dry-run-proof');
+const dryRunModule = await import('@ocentra-parent/ai-domain/local-ai-text-inference-dry-run-proof');
 
 const readyInput = localAiTextInferenceDryRunInput();
 const readyProof = dryRunModule.runLocalAiTextInferenceDryRun(readyInput);

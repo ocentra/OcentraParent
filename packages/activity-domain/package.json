@@ -282,6 +282,13 @@
     "test": "vitest run"
   },
   "dependencies": {
+    "@ocentra-parent/app-game-domain": "file:../app-game-domain",
+    "@ocentra-parent/browser-domain": "file:../browser-domain",
+    "@ocentra-parent/evidence-domain": "file:../evidence-domain",
+    "@ocentra-parent/network-domain": "file:../network-domain",
+    "@ocentra-parent/screen-domain": "file:../screen-domain",
+    "@ocentra-parent/social-domain": "file:../social-domain",
+    "@ocentra-parent/tracking-domain": "file:../tracking-domain",
     "@ocentra-parent/schema-domain": "file:../schema-domain"
   }
 }

@@ -134,10 +134,10 @@ async function assertBuiltContract() {
 }
 
 async function assertPublicPackageExports() {
-  const contractModule = await import('@ocentra-parent/parent-domain/production-release-public-runtime-handoff');
+  const contractModule = await import('@ocentra-parent/production-domain/production-release-public-runtime-handoff');
   const readModelModule =
-    await import('@ocentra-parent/parent-domain/production-release-public-runtime-handoff-read-model');
-  const valuesModule = await import('@ocentra-parent/parent-domain/production-release-public-runtime-handoff-values');
+    await import('@ocentra-parent/production-domain/production-release-public-runtime-handoff-read-model');
+  const valuesModule = await import('@ocentra-parent/production-domain/production-release-public-runtime-handoff-values');
 
   assert.equal(typeof contractModule.decodeProductionReleasePublicRuntimeHandoffProof, 'function');
   assert.ok(contractModule.ProductionReleasePublicRuntimeHandoffProofSchema);
@@ -152,9 +152,9 @@ async function assertPublicPackageExports() {
   ]);
 
   return [
-    '@ocentra-parent/parent-domain/production-release-public-runtime-handoff',
-    '@ocentra-parent/parent-domain/production-release-public-runtime-handoff-read-model',
-    '@ocentra-parent/parent-domain/production-release-public-runtime-handoff-values',
+    '@ocentra-parent/production-domain/production-release-public-runtime-handoff',
+    '@ocentra-parent/production-domain/production-release-public-runtime-handoff-read-model',
+    '@ocentra-parent/production-domain/production-release-public-runtime-handoff-values',
   ];
 }
 

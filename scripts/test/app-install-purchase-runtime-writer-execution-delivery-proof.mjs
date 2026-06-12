@@ -27,7 +27,7 @@ async function main() {
 
   const proofModule = await loadRuntimeWriterExecutionDeliveryProofModule();
   const packageProofModule =
-    await import('@ocentra-parent/parent-domain/app-install-purchase-runtime-writer-execution-delivery-proof');
+    await import('@ocentra-parent/app-game-domain/app-install-purchase-runtime-writer-execution-delivery-proof');
   assert.equal(
     packageProofModule.AppInstallPurchaseRuntimeWriterExecutionDeliveryProofReadModel.schemaVersion,
     proofModule.AppInstallPurchaseRuntimeWriterExecutionDeliveryProofReadModel.schemaVersion
@@ -81,7 +81,7 @@ async function main() {
       featureDoc: 'docs/features/app-install-purchase-approval.md',
       expectationDoc: 'docs/expectations/app-install-purchase-approval.md',
       checklistRow: 'docs/product-capability-checklist.md row Install/purchase approval',
-      packageExport: '@ocentra-parent/parent-domain/app-install-purchase-runtime-writer-execution-delivery-proof',
+      packageExport: '@ocentra-parent/app-game-domain/app-install-purchase-runtime-writer-execution-delivery-proof',
       packageReadme: 'packages/parent-domain/README.md',
       output: relative(repoRoot, proofPath),
     },

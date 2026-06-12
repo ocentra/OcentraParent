@@ -1,1 +1,1 @@
-export * from '@ocentra-parent/ai-domain/context-primitives';
+export * from '@ocentra-parent/ai-domain/local-ai-context-primitives';

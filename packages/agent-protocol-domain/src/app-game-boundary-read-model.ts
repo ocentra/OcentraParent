@@ -1,5 +1,5 @@
-import { AppGameSchemaVersion } from '@ocentra-parent/activity-domain/app-game';
-import { ActivityEvidenceRefSchema } from '@ocentra-parent/activity-domain/contracts';
+import { AppGameSchemaVersion } from '@ocentra-parent/app-game-domain/app-game';
+import { ActivityEvidenceRefSchema } from '@ocentra-parent/evidence-domain/contracts';
 import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
 import { AgentEvent, AgentProtocolDefaults, isAgentProtocolLogText, type AgentEventEnvelope } from './contracts';
 

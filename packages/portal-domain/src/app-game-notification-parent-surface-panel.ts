@@ -2,7 +2,7 @@ import {
   AppGameNotificationParentSurfaceIntentReadModelSchema,
   type AppGameNotificationParentSurfaceIntentReadModel,
   type AppGameNotificationParentSurfaceIntentRow,
-} from '@ocentra-parent/parent-domain/app-game-notification-parent-surface-intent';
+} from '@ocentra-parent/app-game-domain/app-game-notification-parent-surface-intent';
 import { type DisplayText } from '@ocentra-parent/text-domain/contracts';
 import { PortalDevTextToken, resolvePortalDevText } from '@ocentra-parent/text-domain/portal-dev';
 import { decodePortalDetailValue, type PortalDetailValue } from './detail-values';

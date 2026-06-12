@@ -38,7 +38,7 @@ const {
   ScreenVlmWorkerRuntimeRef,
   ScreenVlmWorkerSchemaVersion,
   ScreenVlmWorkerTemplateVersion,
-} = await import('@ocentra-parent/activity-domain/screen-vlm-worker');
+} = await import('@ocentra-parent/screen-domain/screen-vlm-worker');
 const {
   ScreenVlmExecutionReadinessProofSchema,
   ScreenVlmExecutionReadinessProofTier,
@@ -47,7 +47,7 @@ const {
   screenVlmManualRequiredStatus,
   screenVlmQueueHandoffFromJob,
   screenVlmQueuedStatusFromHandoff,
-} = await import('@ocentra-parent/activity-domain/screen-vlm-execution-readiness');
+} = await import('@ocentra-parent/screen-domain/screen-vlm-execution-readiness');
 
 const evidenceRef = {
   evidenceId: 'screen-vlm-execution-readiness-proof-evidence',

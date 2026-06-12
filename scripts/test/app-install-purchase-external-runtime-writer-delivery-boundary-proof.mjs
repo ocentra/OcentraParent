@@ -32,7 +32,7 @@ async function main() {
 
   const proofModule = await loadExternalRuntimeWriterDeliveryBoundaryProofModule();
   const packageProofModule =
-    await import('@ocentra-parent/parent-domain/app-install-purchase-external-runtime-writer-delivery-boundary-proof');
+    await import('@ocentra-parent/app-game-domain/app-install-purchase-external-runtime-writer-delivery-boundary-proof');
   assert.equal(
     packageProofModule.AppInstallPurchaseExternalRuntimeWriterDeliveryBoundaryProofReadModel.schemaVersion,
     proofModule.AppInstallPurchaseExternalRuntimeWriterDeliveryBoundaryProofReadModel.schemaVersion
@@ -86,7 +86,7 @@ async function main() {
       expectationDoc: 'docs/expectations/app-install-purchase-approval.md',
       platformExpectationDoc: 'docs/expectations/platforms.md',
       packageExport:
-        '@ocentra-parent/parent-domain/app-install-purchase-external-runtime-writer-delivery-boundary-proof',
+        '@ocentra-parent/app-game-domain/app-install-purchase-external-runtime-writer-delivery-boundary-proof',
       packageReadme: 'packages/parent-domain/README.md',
       checklistRow: 'docs/product-capability-checklist.md row Install/purchase approval',
       output: relative(repoRoot, proofPath),

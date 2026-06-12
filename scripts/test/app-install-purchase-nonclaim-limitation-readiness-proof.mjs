@@ -31,7 +31,7 @@ async function main() {
 
   const proofModule = await loadPlatformAdapterEvidenceGapModule();
   const packageProofModule =
-    await import('@ocentra-parent/parent-domain/app-install-purchase-platform-adapter-evidence-gap-proof');
+    await import('@ocentra-parent/app-game-domain/app-install-purchase-platform-adapter-evidence-gap-proof');
   assert.equal(
     packageProofModule.AppInstallPurchasePlatformAdapterEvidenceGapProofReadModel.schemaVersion,
     proofModule.AppInstallPurchasePlatformAdapterEvidenceGapProofReadModel.schemaVersion
@@ -77,7 +77,7 @@ async function main() {
       featureDoc: 'docs/features/app-install-purchase-approval.md',
       expectationDoc: 'docs/expectations/app-install-purchase-approval.md',
       platformExpectationDoc: 'docs/expectations/platforms.md',
-      packageExport: '@ocentra-parent/parent-domain/app-install-purchase-platform-adapter-evidence-gap-proof',
+      packageExport: '@ocentra-parent/app-game-domain/app-install-purchase-platform-adapter-evidence-gap-proof',
       output: relative(repoRoot, proofPath),
     },
     platformAdapterEvidenceGapSummary: summary,

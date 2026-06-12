@@ -1,4 +1,1 @@
-export const ParentDomainPackage = {
-  Name: '@ocentra-parent/parent-domain',
-  Boundary: 'parent-product-contracts',
-} as const;
+export * from '@ocentra-parent/enforcement-domain/package-info';

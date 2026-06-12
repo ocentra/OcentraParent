@@ -11,7 +11,7 @@ import {
   BrowserUnmanagedEnforcementState,
   BrowserUnmanagedFallbackActionState,
   type BrowserInterventionReadModel,
-} from '@ocentra-parent/activity-domain/browser';
+} from '@ocentra-parent/browser-domain/browser';
 import { AgentProtocolDefaults, isAgentProtocolLogText, type AgentProtocolLogFields } from './contracts';
 
 export function parseBrowserInterventionReadModel(

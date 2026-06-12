@@ -32,9 +32,9 @@ async function main() {
   await writeFile(hostEvidencePath, `${JSON.stringify(hostEvidenceArtifact, null, 2)}\n`);
 
   const windowsPackageSourceModule =
-    await import('@ocentra-parent/parent-domain/app-install-purchase-windows-package-source-adapter-evidence');
+    await import('@ocentra-parent/app-game-domain/app-install-purchase-windows-package-source-adapter-evidence');
   const packageProofModule =
-    await import('@ocentra-parent/parent-domain/app-install-purchase-provider-store-platform-evidence-proof');
+    await import('@ocentra-parent/app-game-domain/app-install-purchase-provider-store-platform-evidence-proof');
   const proofModule = await loadProofModule();
 
   assert.equal(
@@ -97,7 +97,7 @@ async function main() {
       platformExpectationDoc: 'docs/expectations/platforms.md',
       checklistDoc: 'docs/product-capability-checklist.md',
       packageReadme: 'packages/parent-domain/README.md',
-      packageExport: '@ocentra-parent/parent-domain/app-install-purchase-provider-store-platform-evidence-proof',
+      packageExport: '@ocentra-parent/app-game-domain/app-install-purchase-provider-store-platform-evidence-proof',
       output: relative(repoRoot, proofPath),
     },
     windowsHostEvidenceSummary: {

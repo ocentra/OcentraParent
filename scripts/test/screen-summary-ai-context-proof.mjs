@@ -17,7 +17,7 @@ const Device = {
 
 runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/parent-domain']));
 
-const { buildLocalAiEvidenceContext } = await import('@ocentra-parent/parent-domain/local-ai-context-builder');
+const { buildLocalAiEvidenceContext } = await import('@ocentra-parent/ai-domain/local-ai-context-builder');
 const ocrProof = JSON.parse(readFileSync(OcrProofPath, 'utf8'));
 const scenarios = ocrProof.proof.scenarios;
 const rows = scenarios.map((scenario) => contextRowForScenario(scenario));

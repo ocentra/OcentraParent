@@ -71,7 +71,7 @@ async function main() {
       values: 'packages/parent-domain/src/stateless-report-compiler-status-values.ts',
       contractTest: 'packages/parent-domain/tests/stateless-report-compiler-status.test.ts',
       builtModule: 'packages/parent-domain/dist/stateless-report-compiler-status.js',
-      packageExport: '@ocentra-parent/parent-domain/stateless-report-compiler-status',
+      packageExport: '@ocentra-parent/production-domain/stateless-report-compiler-status',
       featureDoc: 'docs/features/reports-notifications-sync.md',
       expectationDocs: [
         'docs/expectations/sync-export.md',
@@ -119,7 +119,7 @@ async function assertPackageExport(proofModule) {
     types: './dist/stateless-report-compiler-status.d.ts',
   });
 
-  const exportedModule = await import('@ocentra-parent/parent-domain/stateless-report-compiler-status');
+  const exportedModule = await import('@ocentra-parent/production-domain/stateless-report-compiler-status');
   assert.equal(
     exportedModule.StatelessReportCompilerContractProofReadModel.request.requestId,
     proofModule.StatelessReportCompilerContractProofReadModel.request.requestId

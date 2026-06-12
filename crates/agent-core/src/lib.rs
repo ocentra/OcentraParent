@@ -326,10 +326,7 @@ pub use screen_household_mesh_runtime_state::{
     ScreenMeshLeaseState, ScreenMeshPayloadMode, ScreenMeshPolicyState,
     ScreenMeshProviderResultState, ScreenMeshResultRejectionReason,
 };
-pub use tracking::{
-    apply_tracking_retention_settings_write, tracking_read_model_for_store,
-    tracking_retention_settings_durable_store_path, TrackingRetentionSettingsWriteAppliedState,
-};
+pub use tracking::tracking_read_model_for_store;
 pub use trusted_device_registry::TrustedDeviceRegistry;
 pub use window_capture::{collect_foreground_window_observation, ForegroundWindowObservation};
 pub use window_capture_event::{foreground_window_event, foreground_window_observation_event};

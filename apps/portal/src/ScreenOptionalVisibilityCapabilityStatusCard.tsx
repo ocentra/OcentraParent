@@ -3,7 +3,7 @@ import {
   screenOptionalVisibilityCapabilityStatusProof,
   ScreenOptionalVisibilityCapabilityProofGeneratedAt,
   type ScreenOptionalVisibilityCapabilityStatus,
-} from '@ocentra-parent/activity-domain/screen-evidence';
+} from '@ocentra-parent/screen-domain/screen-evidence';
 import {
   PortalDetails,
   PortalDom,

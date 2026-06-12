@@ -27,7 +27,7 @@ async function main() {
 
   const proofModule = await loadChildArtifactProofModule();
   const packageModule =
-    await import('@ocentra-parent/parent-domain/app-install-purchase-child-artifact-delivery-proof');
+    await import('@ocentra-parent/app-game-domain/app-install-purchase-child-artifact-delivery-proof');
   const parsedReadModel = proofModule.AppInstallPurchaseChildArtifactDeliveryProofReadModel;
   const summary = proofModule.summarizeAppInstallPurchaseChildArtifactDeliveryProof(parsedReadModel);
 

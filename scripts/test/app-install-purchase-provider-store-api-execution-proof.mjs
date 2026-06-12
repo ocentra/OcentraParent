@@ -27,7 +27,7 @@ async function main() {
 
   const proofModule = await loadProofModule();
   const packageProofModule =
-    await import('@ocentra-parent/parent-domain/app-install-purchase-provider-store-api-execution-proof');
+    await import('@ocentra-parent/app-game-domain/app-install-purchase-provider-store-api-execution-proof');
   assert.equal(
     packageProofModule.AppInstallPurchaseProviderStoreApiExecutionProofReadModel.schemaVersion,
     proofModule.AppInstallPurchaseProviderStoreApiExecutionProofReadModel.schemaVersion
@@ -68,7 +68,7 @@ async function main() {
       platformExpectationDoc: 'docs/expectations/platforms.md',
       checklistDoc: 'docs/product-capability-checklist.md',
       packageReadme: 'packages/parent-domain/README.md',
-      packageExport: '@ocentra-parent/parent-domain/app-install-purchase-provider-store-api-execution-proof',
+      packageExport: '@ocentra-parent/app-game-domain/app-install-purchase-provider-store-api-execution-proof',
       output: relative(repoRoot, proofPath),
     },
     providerStoreApiExecutionSummary: summary,

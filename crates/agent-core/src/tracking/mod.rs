@@ -1,9 +1,16 @@
-mod read_model;
-mod read_model_rows;
-mod retention_settings;
+use ocentra_parent_agent_protocol::TrackingReadModel;
 
-pub use read_model::tracking_read_model_for_store;
-pub use retention_settings::{
-    apply_tracking_retention_settings_write, tracking_retention_settings_durable_store_path,
-    TrackingRetentionSettingsWriteAppliedState,
-};
+use crate::{ActivityStore, ActivityStoreError};
+
+pub fn tracking_read_model_for_store(
+    store: &ActivityStore,
+    limit: u64,
+    generated_at: &str,
+) -> Result<TrackingReadModel, ActivityStoreError> {
+    ocentra_tracking_core::tracking_read_model_for_connection(
+        &store.connection,
+        limit,
+        generated_at,
+    )
+    .map_err(ActivityStoreError::from)
+}

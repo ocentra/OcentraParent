@@ -1,5 +1,5 @@
 import type { ReactElement, ReactNode } from 'react';
-import { screenEvidenceSettingsWritableUiProof } from '@ocentra-parent/activity-domain/screen-evidence';
+import { screenEvidenceSettingsWritableUiProof } from '@ocentra-parent/screen-domain/screen-evidence';
 import { PortalDetails, PortalDom, type PortalDisplayText } from '@ocentra-parent/portal-domain/contracts';
 import {
   latestScreenSettingsServiceResponse,

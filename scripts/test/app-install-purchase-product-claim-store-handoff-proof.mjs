@@ -27,7 +27,7 @@ async function main() {
 
   const proofModule = await loadProofModule();
   const packageModule =
-    await import('@ocentra-parent/parent-domain/app-install-purchase-product-claim-store-handoff-proof');
+    await import('@ocentra-parent/app-game-domain/app-install-purchase-product-claim-store-handoff-proof');
   const parsedReadModel = proofModule.AppInstallPurchaseProductClaimStoreHandoffProofReadModel;
   const summary = proofModule.summarizeAppInstallPurchaseProductClaimStoreHandoffProof(parsedReadModel);
   assert.equal(
@@ -73,7 +73,7 @@ async function main() {
       sourceManualEvidencePacketContract:
         'packages/parent-domain/src/app-install-purchase-provider-store-manual-evidence-packet-proof.ts',
       contractTest: 'packages/parent-domain/tests/app-install-purchase-product-claim-store-handoff-proof.test.ts',
-      packageExport: '@ocentra-parent/parent-domain/app-install-purchase-product-claim-store-handoff-proof',
+      packageExport: '@ocentra-parent/app-game-domain/app-install-purchase-product-claim-store-handoff-proof',
       featureDoc: 'docs/features/app-install-purchase-approval.md',
       expectationDoc: 'docs/expectations/app-install-purchase-approval.md',
       checklistDoc: 'docs/product-capability-checklist.md',

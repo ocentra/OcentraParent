@@ -16,9 +16,9 @@ const generatedAt = new Date().toISOString();
 
 runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/parent-domain']));
 
-const { LocalAiEvaluationInputSchema } = await import('@ocentra-parent/parent-domain/local-ai');
+const { LocalAiEvaluationInputSchema } = await import('@ocentra-parent/ai-domain/local-ai');
 const { runLocalAiTextInferenceDryRun } =
-  await import('@ocentra-parent/parent-domain/local-ai-text-inference-dry-run-proof');
+  await import('@ocentra-parent/ai-domain/local-ai-text-inference-dry-run-proof');
 
 const contextProof = JSON.parse(readFileSync(ContextProofPath, 'utf8'));
 const readyContextRow = contextProof.rows.find((row) => row.rowId === 'mixed-stored-evidence-ready');

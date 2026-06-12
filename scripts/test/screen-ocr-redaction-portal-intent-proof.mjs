@@ -17,7 +17,7 @@ run('npm', ['run', 'test', '--workspace=@ocentra-parent/portal-domain', '--', 't
 
 const { ActivityScreenReadModelSchema, ActivitySurfaceSchemaVersion } =
   await import('@ocentra-parent/activity-domain/activity-surface');
-const { ActivityEvidenceKind } = await import('@ocentra-parent/activity-domain/kinds');
+const { ActivityEvidenceKind } = await import('@ocentra-parent/evidence-domain/kinds');
 const { createScreenSummaryPanelIntent } = await import('@ocentra-parent/portal-domain/screen-summary-panel');
 
 const evidenceRef = {

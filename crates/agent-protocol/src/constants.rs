@@ -206,8 +206,12 @@ pub mod event_id {
 
 #[path = "constants/field.rs"]
 pub mod field;
+#[path = "constants/tracking_config_update.rs"]
+pub mod tracking_config_update;
 #[path = "constants/tracking_retention_settings_write.rs"]
 pub mod tracking_retention_settings_write;
+#[path = "constants/tracking_runtime.rs"]
+pub mod tracking_runtime;
 
 pub mod dev_log {
     pub const AGENT_FILE_PREFIX: &str = "agent-service";
@@ -277,6 +281,8 @@ pub mod activity_surface;
 pub mod browser;
 #[path = "constants/child_agent.rs"]
 pub mod child_agent;
+#[path = "constants/child_domain_runtime.rs"]
+pub mod child_domain_runtime;
 #[path = "constants/enforcement_broad_adapter_proof.rs"]
 pub mod enforcement_broad_adapter_proof;
 #[path = "constants/host_identity.rs"]

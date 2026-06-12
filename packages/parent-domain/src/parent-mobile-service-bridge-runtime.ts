@@ -1,5 +1,5 @@
 import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
-import { LanPairingRejectionReasonSchema, type LanPairingRejectionReason } from './lan-pairing-values';
+import { LanPairingRejectionReasonSchema, type LanPairingRejectionReason } from '@ocentra-parent/lan-domain/lan-pairing-values';
 import {
   AndroidParentMobileCapabilityStatuses,
   IosParentMobileCapabilityStatuses,

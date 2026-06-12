@@ -162,7 +162,7 @@ function buildRuntimeReadModel() {
 }
 
 async function parseRuntimeReadModel(readModel) {
-  const module = await import('@ocentra-parent/parent-domain/child-ios-entitlement-capability-proof');
+  const module = await import('@ocentra-parent/child-runtime-domain/child-ios-entitlement-capability-proof');
   const parsed = module.ChildIosEntitlementCapabilityReadModelSchema.parse(readModel);
   proofLabels.push('parent-domain.child-ios-entitlement-capability-proof-parse');
   return parsed;

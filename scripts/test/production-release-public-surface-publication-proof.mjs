@@ -124,9 +124,9 @@ async function assertPublicStatusProof() {
 }
 
 async function assertRuntimeHandoffProof() {
-  const contractModule = await import('@ocentra-parent/parent-domain/production-release-public-runtime-handoff');
+  const contractModule = await import('@ocentra-parent/production-domain/production-release-public-runtime-handoff');
   const readModelModule =
-    await import('@ocentra-parent/parent-domain/production-release-public-runtime-handoff-read-model');
+    await import('@ocentra-parent/production-domain/production-release-public-runtime-handoff-read-model');
   const proof = contractModule.ProductionReleasePublicRuntimeHandoffProofSchema.parse(
     readModelModule.ProductionReleasePublicRuntimeHandoffReadModel
   );
@@ -162,9 +162,9 @@ async function assertRuntimeHandoffProof() {
 }
 
 async function assertPublicDocsProof() {
-  const contractModule = await import('@ocentra-parent/parent-domain/production-release-public-docs-status');
+  const contractModule = await import('@ocentra-parent/production-domain/production-release-public-docs-status');
   const readModelModule =
-    await import('@ocentra-parent/parent-domain/production-release-public-docs-status-read-model');
+    await import('@ocentra-parent/production-domain/production-release-public-docs-status-read-model');
   const proof = contractModule.ProductionReleasePublicDocsStatusProofSchema.parse(
     readModelModule.ProductionReleasePublicDocsStatusReadModel
   );

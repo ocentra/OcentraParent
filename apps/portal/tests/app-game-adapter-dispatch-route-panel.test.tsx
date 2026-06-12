@@ -1,6 +1,6 @@
 import { renderToStaticMarkup } from 'react-dom/server';
 import { describe, expect, it } from 'vitest';
-import { AppGameSchemaVersion } from '@ocentra-parent/activity-domain/app-game';
+import { AppGameSchemaVersion } from '@ocentra-parent/app-game-domain/app-game';
 import {
   AgentCommand,
   AgentEvent,

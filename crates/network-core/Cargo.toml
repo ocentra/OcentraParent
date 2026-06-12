@@ -1,0 +1,15 @@
+[package]
+name = "ocentra-network-core"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+
+[lib]
+path = "src/lib.rs"
+
+[dependencies]
+ocentra-evidence = { path = "../ocentra-evidence" }
+ocentra-eventing = { path = "../ocentra-eventing" }
+ocentra-parent-agent-protocol = { path = "../agent-protocol" }
+ocentra-network-evidence = { path = "../ocentra-network-evidence" }
+

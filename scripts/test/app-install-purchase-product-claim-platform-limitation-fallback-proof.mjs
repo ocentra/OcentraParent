@@ -31,7 +31,7 @@ async function main() {
 
   const proofModule = await loadProofModule();
   const packageProofModule =
-    await import('@ocentra-parent/parent-domain/app-install-purchase-product-claim-platform-limitation-fallback-proof');
+    await import('@ocentra-parent/app-game-domain/app-install-purchase-product-claim-platform-limitation-fallback-proof');
   assert.equal(
     packageProofModule.AppInstallPurchaseProductClaimPlatformLimitationFallbackProofReadModel.schemaVersion,
     proofModule.AppInstallPurchaseProductClaimPlatformLimitationFallbackProofReadModel.schemaVersion
@@ -75,7 +75,7 @@ async function main() {
       checklistDoc: 'docs/product-capability-checklist.md',
       packageReadme: 'packages/parent-domain/README.md',
       packageExport:
-        '@ocentra-parent/parent-domain/app-install-purchase-product-claim-platform-limitation-fallback-proof',
+        '@ocentra-parent/app-game-domain/app-install-purchase-product-claim-platform-limitation-fallback-proof',
       output: relative(repoRoot, proofPath),
     },
     platformLimitationFallbackSummary: summary,

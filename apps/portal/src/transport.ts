@@ -8,8 +8,12 @@ import {
   type AgentMessageTarget,
   type AgentProtocolLogFields,
 } from '@ocentra-parent/agent-protocol-domain/contracts';
+import {
+  createAgentCommand,
+  parseAgentEventMessage,
+  serializeAgentCommand,
+} from '@ocentra-parent/agent-protocol-domain/agent-message-codec';
 import { PortalConnectionState, PortalDom, PortalOverviewCommands } from '@ocentra-parent/portal-domain/contracts';
-import { createAgentCommand, parseAgentEventMessage, serializeAgentCommand } from './agent-client';
 import { DevLogField, DevLogMessage, writePortalDevLog } from './dev-logger';
 import type { PortalRuntimeState } from './portal-state';
 

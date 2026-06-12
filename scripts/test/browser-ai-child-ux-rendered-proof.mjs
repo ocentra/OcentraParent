@@ -8,9 +8,9 @@ import { setTimeout as delay } from 'node:timers/promises';
 import {
   BrowserAiChildUxSchemaVersion,
   BrowserAiChildUxSnapshotSchema,
-} from '@ocentra-parent/activity-domain/browser-ai-child-ux-schemas';
-import { BrowserAiPolicyEvaluatorSchemaVersion } from '@ocentra-parent/activity-domain/browser-ai-policy-evaluator-schemas';
-import { BrowserAiPostAnalysisActionSchemaVersion } from '@ocentra-parent/activity-domain/browser-ai-post-analysis-action-schemas';
+} from '@ocentra-parent/browser-domain/browser-ai-child-ux-schemas';
+import { BrowserAiPolicyEvaluatorSchemaVersion } from '@ocentra-parent/browser-domain/browser-ai-policy-evaluator-schemas';
+import { BrowserAiPostAnalysisActionSchemaVersion } from '@ocentra-parent/browser-domain/browser-ai-post-analysis-action-schemas';
 import {
   BrowserChildInterventionPageDefaults,
   renderBrowserChildInterventionPage,

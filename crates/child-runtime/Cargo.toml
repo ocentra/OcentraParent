@@ -1,0 +1,28 @@
+[package]
+name = "ocentra-child-runtime"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+
+[lints]
+workspace = true
+
+[lib]
+path = "src/lib.rs"
+
+[dependencies]
+ocentra-app-game-core = { path = "../app-game-core" }
+ocentra-browser-core = { path = "../browser-core" }
+ocentra-child-ai-core = { path = "../child-ai-core" }
+ocentra-child-notification-core = { path = "../child-notification-core" }
+ocentra-child-policy-core = { path = "../child-policy-core" }
+ocentra-eventing = { path = "../ocentra-eventing" }
+ocentra-lan-core = { path = "../lan-core" }
+ocentra-network-core = { path = "../network-core" }
+ocentra-parent-agent-protocol = { path = "../agent-protocol" }
+ocentra-screen-core = { path = "../screen-core" }
+ocentra-screen-live-view-core = { path = "../screen-live-view-core" }
+ocentra-tracking-core = { path = "../tracking-core" }
+
+[dev-dependencies]
+tokio = { version = "1.48.0", features = ["macros", "rt-multi-thread"] }

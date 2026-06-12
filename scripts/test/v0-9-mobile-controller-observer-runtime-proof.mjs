@@ -373,7 +373,7 @@ function operationProof(
 }
 
 async function parseRuntimeReadModel(readModel) {
-  const module = await import('@ocentra-parent/parent-domain/v0-9-mobile-controller-observer-runtime');
+  const module = await import('@ocentra-parent/lan-domain/v0-9-mobile-controller-observer-runtime');
   proofLabels.push('parent-domain.v0.9-mobile-controller-observer-runtime-parse');
   return module.V09MobileControllerObserverRuntimeReadModelSchema.parse(readModel);
 }

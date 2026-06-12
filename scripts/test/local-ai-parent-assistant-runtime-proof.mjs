@@ -26,9 +26,9 @@ async function main() {
   );
   await runCommand('node', ['scripts/test/activity-parent-assistant-runtime-proof.mjs']);
 
-  const proofContractModule = await import('@ocentra-parent/parent-domain/local-ai-parent-assistant-runtime-proof');
+  const proofContractModule = await import('@ocentra-parent/ai-domain/local-ai-parent-assistant-runtime-proof');
   const proofValuesModule =
-    await import('@ocentra-parent/parent-domain/local-ai-parent-assistant-runtime-proof-values');
+    await import('@ocentra-parent/ai-domain/local-ai-parent-assistant-runtime-proof-values');
   assertPublicPackageImports(proofContractModule, proofValuesModule);
 
   const { LocalAiParentAssistantRuntimeProofReadModel } = proofValuesModule;

@@ -31,7 +31,7 @@ async function main() {
   const readinessContract = await import(
     pathToFileURL(join(repoRoot, 'packages/parent-domain/dist/screen-ai-adapter-readiness-proof.js')).href
   );
-  const supportedAdapters = await import('@ocentra-parent/parent-domain/v0-8-supported-adapter-runtime-proof');
+  const supportedAdapters = await import('@ocentra-parent/enforcement-domain/v0-8-supported-adapter-runtime-proof');
   const readModel = readinessContract.ScreenAiAdapterReadinessReadModelSchema.parse(
     buildReadModel(supportedAdapters.V08SupportedAdapterRuntimeProofReadModel)
   );

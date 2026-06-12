@@ -1,0 +1,33 @@
+{
+  "name": "@ocentra-parent/network-domain",
+  "private": true,
+  "version": "0.1.1",
+  "type": "module",
+  "description": "Network evidence, capture, adapter, flow, and runtime-readiness contracts.",
+  "exports": {
+    "./network-contracts": {
+      "import": "./dist/network-contracts.js",
+      "types": "./dist/network-contracts.d.ts"
+    },
+    "./network-flow": {
+      "import": "./dist/network-flow.js",
+      "types": "./dist/network-flow.d.ts"
+    },
+    "./package-info": {
+      "import": "./dist/package-info.js",
+      "types": "./dist/package-info.d.ts"
+    }
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.json && node ../../scripts/fix-esm-imports.mjs dist",
+    "type-check": "tsc -p tsconfig.json --noEmit",
+    "lint": "npx turbo run lint:exec --filter=@ocentra-parent/network-domain",
+    "lint:exec": "eslint --cache src tests && tsc -p tsconfig.json --noEmit",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@ocentra-parent/evidence-domain": "file:../evidence-domain",
+    "@ocentra-parent/family-domain": "file:../family-domain",
+    "@ocentra-parent/schema-domain": "file:../schema-domain"
+  }
+}

@@ -32,7 +32,7 @@ async function main() {
 
   const proofModule = await loadProofModule();
   const packageProofModule =
-    await import('@ocentra-parent/parent-domain/app-install-purchase-windows-package-source-adapter-evidence');
+    await import('@ocentra-parent/app-game-domain/app-install-purchase-windows-package-source-adapter-evidence');
   assert.equal(
     packageProofModule.AppInstallPurchaseWindowsPackageSourceAdapterEvidenceProofReadModel.schemaVersion,
     proofModule.AppInstallPurchaseWindowsPackageSourceAdapterEvidenceProofReadModel.schemaVersion
@@ -98,7 +98,7 @@ async function main() {
       platformExpectationDoc: 'docs/expectations/platforms.md',
       checklistDoc: 'docs/product-capability-checklist.md',
       packageReadme: 'packages/parent-domain/README.md',
-      packageExport: '@ocentra-parent/parent-domain/app-install-purchase-windows-package-source-adapter-evidence',
+      packageExport: '@ocentra-parent/app-game-domain/app-install-purchase-windows-package-source-adapter-evidence',
       output: relative(repoRoot, proofPath),
     },
     windowsHostEvidenceSummary: {

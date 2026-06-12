@@ -27,7 +27,7 @@ async function main() {
 
   const proofModule = await loadApprovedApiEntitlementProofModule();
   const packageModule =
-    await import('@ocentra-parent/parent-domain/app-install-purchase-approved-api-entitlement-proof');
+    await import('@ocentra-parent/app-game-domain/app-install-purchase-approved-api-entitlement-proof');
   const parsedReadModel = proofModule.AppInstallPurchaseApprovedApiEntitlementProofReadModel;
   const summary = proofModule.summarizeAppInstallPurchaseApprovedApiEntitlementProof(parsedReadModel);
 

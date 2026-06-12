@@ -38,7 +38,7 @@ try {
 
   const { ActivityScreenReadModelSchema } = await import('@ocentra-parent/activity-domain/activity-surface');
   const { PolicyAction, PolicyDecisionHandoffState, PolicyDecisionSchema } =
-    await import('@ocentra-parent/parent-domain/policy');
+    await import('@ocentra-parent/policy-domain/policy');
 
   const sourceProof = readJson(SourceProofPath);
   const sourceReadModel = ActivityScreenReadModelSchema.parse(readJson(SourceReadModelPath));

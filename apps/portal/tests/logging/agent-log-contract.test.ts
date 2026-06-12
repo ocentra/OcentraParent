@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
+import { createAgentCommand } from '@ocentra-parent/agent-protocol-domain/agent-message-codec';
 import { AgentCommandEnvelopeSchema, AgentProtocolDefaults } from '@ocentra-parent/agent-protocol-domain/contracts';
 import { AgentLogSnapshotSchema } from '@ocentra-parent/logging-domain/contracts';
-import { createAgentCommand } from '../../src/agent-client';
 
 describe('portal agent log contract', () => {
   it('accepts the localhost agent payload before rendering', () => {

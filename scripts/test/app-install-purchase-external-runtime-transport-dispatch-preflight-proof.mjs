@@ -32,7 +32,7 @@ async function main() {
 
   const proofModule = await loadExternalRuntimeTransportDispatchPreflightProofModule();
   const packageProofModule =
-    await import('@ocentra-parent/parent-domain/app-install-purchase-external-runtime-transport-dispatch-preflight-proof');
+    await import('@ocentra-parent/app-game-domain/app-install-purchase-external-runtime-transport-dispatch-preflight-proof');
   assert.equal(
     packageProofModule.AppInstallPurchaseExternalRuntimeTransportDispatchPreflightProofReadModel.schemaVersion,
     proofModule.AppInstallPurchaseExternalRuntimeTransportDispatchPreflightProofReadModel.schemaVersion
@@ -89,7 +89,7 @@ async function main() {
       expectationDoc: 'docs/expectations/app-install-purchase-approval.md',
       platformExpectationDoc: 'docs/expectations/platforms.md',
       packageExport:
-        '@ocentra-parent/parent-domain/app-install-purchase-external-runtime-transport-dispatch-preflight-proof',
+        '@ocentra-parent/app-game-domain/app-install-purchase-external-runtime-transport-dispatch-preflight-proof',
       packageReadme: 'packages/parent-domain/README.md',
       checklistRow: 'docs/product-capability-checklist.md row Install/purchase approval deferred by current lock',
       output: relative(repoRoot, proofPath),

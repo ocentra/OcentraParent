@@ -12,13 +12,13 @@ import {
   ActivityEventKindSchema,
   ActivityObserverSchema,
   ActivitySubjectKindSchema,
-} from '@ocentra-parent/activity-domain/kinds';
+} from '@ocentra-parent/evidence-domain/kinds';
 import {
   ActivityNetworkAdapterIdSchema,
   ActivityNetworkDomainNameSchema,
   ActivityNetworkEndpointAddressSchema,
   ActivityNetworkProcessNameSchema,
-} from '@ocentra-parent/activity-domain/network-flow';
+} from '@ocentra-parent/network-domain/network-flow';
 import {
   decodeActivityDeviceId,
   decodeActivityEvidenceDigest,
@@ -27,7 +27,7 @@ import {
   decodeActivityPlatform,
   decodeActivitySubjectId,
   decodeActivitySubjectName,
-} from '@ocentra-parent/activity-domain/primitives';
+} from '@ocentra-parent/evidence-domain/primitives';
 
 type NetworkEvidenceDrawerProofFixture = {
   readonly eventId: string;

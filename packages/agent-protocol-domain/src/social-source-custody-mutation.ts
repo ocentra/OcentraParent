@@ -1,7 +1,7 @@
 import {
   SocialVideoSourceCustodySettingsSchema,
   type SocialVideoSourceCustodySettings,
-} from '@ocentra-parent/activity-domain/social-video-source-custody-settings';
+} from '@ocentra-parent/social-domain/social-video-source-custody-settings';
 import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
 import { AgentEvent, AgentProtocolDefaults, isAgentProtocolLogText, type AgentEventEnvelope } from './contracts';
 

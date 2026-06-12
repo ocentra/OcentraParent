@@ -6,7 +6,7 @@ import {
   isAgentProtocolLogText,
   type AgentEventEnvelope,
 } from '@ocentra-parent/agent-protocol-domain/contracts';
-import { SocialAuditExplanationSnapshotSchema } from '@ocentra-parent/parent-domain/social-audit-explanation-read-model';
+import { SocialAuditExplanationSnapshotSchema } from '@ocentra-parent/social-domain/social-audit-explanation-read-model';
 import {
   PortalDom,
   PortalEnvironment,

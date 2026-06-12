@@ -2,7 +2,7 @@ import type {
   ActivityNetworkEndpoint,
   ActivityNetworkFlowObservation,
   ActivityNetworkFlowReadModel,
-} from '@ocentra-parent/activity-domain/network-flow';
+} from '@ocentra-parent/network-domain/network-flow';
 import type { LogFieldValue } from '@ocentra-parent/logging-domain/contracts';
 import { PortalFormatting } from './formatting';
 import { decodePortalDetailValue, type PortalDetailValue } from './detail-values';

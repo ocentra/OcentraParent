@@ -24,7 +24,7 @@ const {
   ScreenVlmWorkerSchemaVersion,
   ScreenVlmWorkerTemplateVersion,
   screenVlmWorkerResultToAnalysisResult,
-} = await import('@ocentra-parent/activity-domain/screen-vlm-worker');
+} = await import('@ocentra-parent/screen-domain/screen-vlm-worker');
 
 const evidenceRef = {
   evidenceId: 'screen-vlm-worker-proof-evidence',

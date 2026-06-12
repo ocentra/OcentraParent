@@ -23,7 +23,7 @@ console.log(`screen-local-ai-resource-scheduler-proof-ok: ${proofOutputPath}`);
 
 async function writeScreenSchedulerProof() {
   const { screenLocalAiResourceSchedulerProof, screenLocalAiResourceSchedulerProofSummary } =
-    await import('@ocentra-parent/activity-domain/screen-evidence');
+    await import('@ocentra-parent/screen-domain/screen-evidence');
   const summary = screenLocalAiResourceSchedulerProofSummary(screenLocalAiResourceSchedulerProof.decisions);
 
   await mkdir(proofOutputDir, { recursive: true });

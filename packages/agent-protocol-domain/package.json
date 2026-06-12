@@ -141,6 +141,10 @@
       "import": "./dist/contracts.js",
       "types": "./dist/contracts.d.ts"
     },
+    "./agent-message-codec": {
+      "import": "./dist/agent-message-codec.js",
+      "types": "./dist/agent-message-codec.d.ts"
+    },
     "./security": {
       "import": "./dist/security.js",
       "types": "./dist/security.d.ts"
@@ -159,9 +163,17 @@
   },
   "dependencies": {
     "@ocentra-parent/activity-domain": "file:../activity-domain",
+    "@ocentra-parent/app-game-domain": "file:../app-game-domain",
+    "@ocentra-parent/browser-domain": "file:../browser-domain",
+    "@ocentra-parent/enforcement-domain": "file:../enforcement-domain",
+    "@ocentra-parent/evidence-domain": "file:../evidence-domain",
     "@ocentra-parent/event-domain": "file:../event-domain",
+    "@ocentra-parent/family-domain": "file:../family-domain",
     "@ocentra-parent/logging-domain": "file:../logging-domain",
+    "@ocentra-parent/network-domain": "file:../network-domain",
     "@ocentra-parent/parent-domain": "file:../parent-domain",
-    "@ocentra-parent/schema-domain": "file:../schema-domain"
+    "@ocentra-parent/schema-domain": "file:../schema-domain",
+    "@ocentra-parent/screen-domain": "file:../screen-domain",
+    "@ocentra-parent/social-domain": "file:../social-domain"
   }
 }
