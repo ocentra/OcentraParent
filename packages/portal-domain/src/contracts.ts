@@ -127,6 +127,16 @@ export {
   TrackingStatusProofArtifactSchema,
   type TrackingStatusProofArtifact,
 } from './tracking-status-proof-artifacts';
+export type {
+  TrackingFamilyDashboardHostedRollupProof,
+  TrackingFamilyDashboardHostedRollupRow,
+  TrackingStatusLiveCitation,
+  TrackingStatusLiveSummary,
+  TrackingStatusProofRow,
+  TrackingStatusServiceDataCoverage,
+  TrackingUnsupportedManualPlatformProof,
+  TrackingUnsupportedManualPlatformRow,
+} from './tracking-status-panel';
 export {
   TrackingEvidenceDrawerHostedUiProofDetails,
   trackingEvidenceDrawerHostedUiProof,
