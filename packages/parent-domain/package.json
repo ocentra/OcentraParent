@@ -1006,6 +1006,8 @@
     "test": "node ../../scripts/test/parent-domain-test.mjs"
   },
   "dependencies": {
+    "@ocentra-parent/ai-domain": "file:../ai-domain",
+    "@ocentra-parent/family-domain": "file:../family-domain",
     "@ocentra-parent/schema-domain": "file:../schema-domain"
   }
 }

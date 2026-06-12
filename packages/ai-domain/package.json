@@ -1,0 +1,36 @@
+{
+  "name": "@ocentra-parent/ai-domain",
+  "private": true,
+  "version": "0.1.1",
+  "type": "module",
+  "description": "Shared AI boundary contracts for UI-facing schemas and runtime protocol handoff.",
+  "exports": {
+    "./context-primitives": {
+      "import": "./dist/context-primitives.js",
+      "types": "./dist/context-primitives.d.ts"
+    },
+    "./primitives": {
+      "import": "./dist/primitives.js",
+      "types": "./dist/primitives.d.ts"
+    },
+    "./references": {
+      "import": "./dist/references.js",
+      "types": "./dist/references.d.ts"
+    },
+    "./package-info": {
+      "import": "./dist/package-info.js",
+      "types": "./dist/package-info.d.ts"
+    }
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.json && node ../../scripts/fix-esm-imports.mjs dist",
+    "type-check": "tsc -p tsconfig.json --noEmit",
+    "lint": "npx turbo run lint:exec --filter=@ocentra-parent/ai-domain",
+    "lint:exec": "eslint --cache src tests && tsc -p tsconfig.json --noEmit",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@ocentra-parent/family-domain": "file:../family-domain",
+    "@ocentra-parent/schema-domain": "file:../schema-domain"
+  }
+}
