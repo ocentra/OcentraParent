@@ -1,11 +1,9 @@
 import {
   PortalDetails,
   PortalDom,
-  PortalFormatting,
   PortalText,
   PortalTextToken,
   TrackingEvidenceDrawerHostedUiProofDetails,
-  decodePortalDetailValue,
   trackingChildCheckInProof,
   trackingChildRuntimeUiProof,
   trackingFamilyDashboardHostedRollupProof,
@@ -29,27 +27,9 @@ import {
   type TrackingUnsupportedManualPlatformProof,
 } from '@ocentra-parent/portal-domain/contracts';
 import { renderTrackingRetentionSettingsHostedUiProof } from './tracking-retention-settings-hosted-ui-proof';
-import { appendDetail } from './detail-list';
+import { appendDetail, portalDetailFromSequence, portalDetailFromValue } from './detail-list';
 import type { PortalLiveActivityState } from './live-activity-state';
 import { renderDashboard } from './portal-dashboard';
-
-export type {
-  TrackingFamilyDashboardHostedRollupProof,
-  TrackingFamilyDashboardHostedRollupRow,
-  TrackingStatusLiveCitation,
-  TrackingStatusLiveSummary,
-  TrackingStatusProofRow,
-  TrackingStatusServiceDataCoverage,
-  TrackingUnsupportedManualPlatformProof,
-  TrackingUnsupportedManualPlatformRow,
-} from '@ocentra-parent/portal-domain/contracts';
-export {
-  trackingFamilyDashboardHostedRollupProof,
-  trackingStatusLiveSummary,
-  trackingStatusProofRows,
-  trackingStatusServiceDataCoverage,
-  trackingUnsupportedManualPlatformProof,
-} from '@ocentra-parent/portal-domain/contracts';
 
 export function renderTrackingStatusSurface(container: HTMLElement, liveActivity: PortalLiveActivityState): void {
   const intro = document.createElement(PortalDom.Tags.Section);
@@ -381,24 +361,9 @@ function renderTrackingChildRuntimeUiProof(proof: TrackingChildRuntimeUiProof): 
 }
 
 function toDetail(value: PortalDisplayText | TrackingStatusProofArtifact): PortalDetailValue {
-  return detailFromValue(value);
-}
-
-function detailFromValue(value: unknown): PortalDetailValue {
-  if (value === undefined || value === null) {
-    return notReported();
-  }
-  return decodePortalDetailValue(String(value));
-}
-
-function notReported(): PortalDetailValue {
-  return toDetail(PortalText.Resolve(PortalTextToken.NotReported));
+  return portalDetailFromValue(value);
 }
 
 function sequenceDetail(values: readonly unknown[]): PortalDetailValue {
-  const normalizedValues = values.map((value) => String(value)).filter((value) => value.length > 0);
-  if (normalizedValues.length === 0) {
-    return notReported();
-  }
-  return detailFromValue(normalizedValues.join(PortalFormatting.EventDetailSeparator));
+  return portalDetailFromSequence(values);
 }
