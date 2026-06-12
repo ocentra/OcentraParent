@@ -1,10 +1,9 @@
 import { describe, expect, it } from 'vitest';
 import type { ActivityNetworkFlowReadModel } from '@ocentra-parent/activity-domain/network-flow';
-import { PortalRoute } from '@ocentra-parent/portal-domain/contracts';
+import { networkEvidenceDrawerSummary, PortalRoute } from '@ocentra-parent/portal-domain/contracts';
 import { AgentEventEnvelopeSchema } from '@ocentra-parent/agent-protocol-domain/contracts';
 import { shouldRenderNetworkEvidenceDrawerRoute } from '../src/NetworkEvidenceDrawerRoutePanel';
 import { resolveLiveActivityState } from '../src/live-activity-state';
-import { networkEvidenceDrawerSummary } from '../src/network-evidence-drawer';
 import { NetworkEvidenceDrawerProof } from './network-evidence-drawer-proof-fixture';
 
 describe('portal live activity network flow state', () => {

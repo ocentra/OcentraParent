@@ -67,7 +67,6 @@ const proof = {
     platformClaimManifestModule: 'crates/ocentra-network-evidence/src/platform_claims.rs',
     platformClaimManifestTests: 'crates/ocentra-network-evidence/src/tests/platform_claims.rs',
     portalNetworkDrawer: 'packages/portal-domain/src/network-evidence-drawer.ts',
-    portalNetworkDrawerWrapper: 'apps/portal/src/network-evidence-drawer.ts',
     portalNetworkDrawerTest: 'apps/portal/tests/live-activity-network-flow.test.ts',
     scannedSourceRoots: sourceRoots,
     scannedFiles,

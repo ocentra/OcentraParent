@@ -61,7 +61,6 @@ async function main() {
       '@ocentra-parent/portal',
       '--',
       'eslint',
-      'src/network-evidence-drawer.ts',
       '../../packages/portal-domain/src/network-evidence-drawer.ts',
       'src/NetworkEvidenceDrawerRoutePanel.tsx',
       'tests/live-activity-network-flow.test.ts',
@@ -90,7 +89,6 @@ async function main() {
     },
     evidence: {
       networkEvidenceDrawer: 'packages/portal-domain/src/network-evidence-drawer.ts',
-      networkEvidenceDrawerWrapper: 'apps/portal/src/network-evidence-drawer.ts',
       networkEvidenceDrawerRoutePanel: 'apps/portal/src/NetworkEvidenceDrawerRoutePanel.tsx',
       portalLabels: 'packages/portal-domain/src/details.ts',
       portalNetworkFlowTest: 'apps/portal/tests/live-activity-network-flow.test.ts',
