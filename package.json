@@ -54,7 +54,7 @@
     "ledger:message": "node scripts/dev/ocentra-ledger.mjs msg",
     "ledger:notify": "node scripts/dev/ocentra-ledger-notifier.mjs",
     "ledger:sync": "node scripts/dev/ocentra-ledger.mjs sync",
-    "build:contracts": "npm run build --workspace @ocentra-parent/schema-domain && npm run build --workspace @ocentra-parent/logging-domain && npm run build --workspace @ocentra-parent/parent-domain && npm run build --workspace @ocentra-parent/activity-domain && npm run build --workspace @ocentra-parent/agent-protocol-domain && npm run build --workspace @ocentra-parent/text-domain && npm run build --workspace @ocentra-parent/portal-domain",
+    "build:contracts": "npm run build --workspace @ocentra-parent/schema-domain && npm run build --workspace @ocentra-parent/family-domain && npm run build --workspace @ocentra-parent/ai-domain && npm run build --workspace @ocentra-parent/event-domain && npm run build --workspace @ocentra-parent/logging-domain && npm run build --workspace @ocentra-parent/parent-domain && npm run build --workspace @ocentra-parent/activity-domain && npm run build --workspace @ocentra-parent/agent-protocol-domain && npm run build --workspace @ocentra-parent/text-domain && npm run build --workspace @ocentra-parent/portal-domain",
     "prepare": "node scripts/git-hooks/install-pre-commit.mjs",
     "hooks:install": "node scripts/git-hooks/install-pre-commit.mjs",
     "precommit": "node scripts/git-hooks/run-precommit-validation.mjs",
