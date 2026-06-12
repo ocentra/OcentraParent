@@ -9,12 +9,12 @@ or crate ownership docs.
 - Owning feature: [App and game control](../../features/app-game-control.md)
 - Main expectation: [App and game evidence](../../expectations/app-game-evidence.md)
 - Milestone expectation:
-  [V0.5.2 app/game evidence sessions](../../expectations/roadmap-v0-5-2-app-game-evidence-sessions.md)
+  [V0.5.2 app/game evidence sessions](../../roadmaps/roadmap-v0-5-2-app-game-evidence-sessions.md)
 - Main architecture:
   [App and game evidence sessions](../../architecture/app-game-evidence-sessions.md)
-- App capability guide: [App control capability guide](../../app-control-capability-guide.md)
-- App schema proposal: [App control schema proposal](../../app-control-schema-proposal.md)
-- Raw app catalog: [App control settings inventory](../../app-control-settings-inventory.md)
+- App capability guide: [App control capability guide](../app-game-plan/workpacks/app-control-capability-guide.md)
+- App schema proposal: [App control schema proposal](../app-game-plan/workpacks/app-control-schema-proposal.md)
+- Raw app catalog: [App control settings inventory](../app-game-plan/workpacks/app-control-settings-inventory.md)
 - Implementation tracking:
   [Native Apps Implementation Checklist](implementation-checklist.md)
 - Pasted-content reconciliation:

@@ -1,5 +1,20 @@
 # 08 - Live Operator Proof Gate
 
+<!-- agent-capsule -->
+
+> Agent Capsule
+> Plan: `screen-ai-pipeline-plan`
+> Doc: `08 - Live Operator Proof Gate`
+> Kind: proof reference; read only when validating matching claim.
+> Read when: Only when this exact workpack is assigned or selected from WORKPACK_INDEX.md.
+> Stop rule: Do not open sibling workpacks. Do not move product status unless this workpack and proof rows say so.
+> Proves: only the local scope, status, route, or contract stated by this file and its named proof/checklist rows.
+> Does not prove: sibling plan completion, implementation correctness, product status, PR readiness, or broad DONE unless routed proof says so.
+> Proof rule: Before DONE, select tests in TEST_PROOF_EXPECTATIONS.md and update proof/checklist rows.
+> Snippet rule: fenced blocks in this document are contract/artifact/command examples only. They are not instructions to copy implementation code unless the surrounding section explicitly says the snippet is the public contract shape.
+
+<!-- /agent-capsule -->
+
 ## Target State
 
 Before product-complete claim, the user or worker can run real URLs/apps and see

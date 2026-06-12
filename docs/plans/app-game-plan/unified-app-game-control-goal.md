@@ -1,5 +1,19 @@
 # Unified Native App/Game Control Goal
 
+<!-- agent-capsule -->
+
+> Agent Capsule
+> Plan: `app-game-plan`
+> Doc: `Unified Native App/Game Control Goal`
+> Kind: plan reference document; read only when routed by AGENTS, DOC_INDEX, or workpack.
+> Read when: Only when named by the plan route, selected workpack, or index row.
+> Stop rule: Do not continue into broader docs unless this file gives an explicit next path.
+> Proves: only the local scope, status, route, or contract stated by this file and its named proof/checklist rows.
+> Does not prove: sibling plan completion, implementation correctness, product status, PR readiness, or broad DONE unless routed proof says so.
+> Proof rule: If this file changes status or claims, update the assigned workpack, checklist row, and proof path.
+
+<!-- /agent-capsule -->
+
 ## Short Goal Pointer
 
 Read and follow `docs/plans/app-game-plan/unified-app-game-control-goal.md`.

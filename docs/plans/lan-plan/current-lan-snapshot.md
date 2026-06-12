@@ -1,5 +1,20 @@
 # Current LAN Snapshot - 2026-06-02
 
+<!-- agent-capsule -->
+
+> Agent Capsule
+> Plan: `lan-plan`
+> Doc: `Current LAN Snapshot - 2026-06-02`
+> Kind: current snapshot; read for status/gap claims.
+> Read when: Only when named by the plan route, selected workpack, or index row.
+> Stop rule: Do not continue into broader docs unless this file gives an explicit next path.
+> Proves: only the local scope, status, route, or contract stated by this file and its named proof/checklist rows.
+> Does not prove: sibling plan completion, implementation correctness, product status, PR readiness, or broad DONE unless routed proof says so.
+> Proof rule: If this file changes status or claims, update the assigned workpack, checklist row, and proof path.
+> Snippet rule: fenced blocks in this document are contract/artifact/command examples only. They are not instructions to copy implementation code unless the surrounding section explicitly says the snippet is the public contract shape.
+
+<!-- /agent-capsule -->
+
 This snapshot records current LAN source, proof, UI, and gap state before the
 LAN plan is used as the active execution checklist.
 

@@ -1,10 +1,23 @@
+<!-- agent-capsule -->
+
+> Agent Capsule
+> Plan: `tracking-plan`
+> Doc: `Tracking Plan`
+> Kind: short plan entry point.
+> Read when: Only when named by the plan route, selected workpack, or index row.
+> Stop rule: Do not continue into broader docs unless this file gives an explicit next path.
+> Proves: only the local scope, status, route, or contract stated by this file and its named proof/checklist rows.
+> Does not prove: sibling plan completion, implementation correctness, product status, PR readiness, or broad DONE unless routed proof says so.
+> Proof rule: If this file changes status or claims, update the assigned workpack, checklist row, and proof path.
+
+<!-- /agent-capsule -->
+
 # Tracking Plan
 
-This folder is the single working plan location for location evidence,
-geofence rules, expected-place schedules, device status, nearby-place
-intelligence, AI safety analysis, parent acknowledgements, alerts, escalation,
-child check-ins, temporary live tracking, missing-device mode, and tracking
-UI/UX requirements.
+This is the short, token-efficient entry point for `tracking-plan`. The original full
+README content is preserved at [README_FULL_ORIGINAL.md](README_FULL_ORIGINAL.md) and is not default context.
+
+## Key local docs
 
 - [Tracking Source Index](source-index.md)
 - [Current Tracking Snapshot](current-tracking-snapshot.md)
@@ -21,31 +34,19 @@ UI/UX requirements.
 - [Repo Organization Movement Map](repo-organization-movement-map.md)
 - [Repo Domain Organization Cleanup Plan](../../architecture/repo-domain-organization-cleanup-plan.md)
 
-The `v0-5` filenames follow the planning draft. They are not a roadmap
-completion claim. The owning feature remains
-`docs/features/location-geofence-device-status.md`, with roadmap ownership in
-V5 parent policy product, V6 mobile agents, and V3 notifications until the
-roadmap is explicitly changed.
+## Default agent path
 
-The rule remains:
+1. Read [AGENTS.md](AGENTS.md).
+2. Read [PLAN_STATE.md](PLAN_STATE.md).
+3. Read [NEXT_ACTIONS.md](NEXT_ACTIONS.md) when starting/resuming.
+4. Read [WORKPACK_INDEX.md](WORKPACK_INDEX.md).
+5. Open only the assigned workpack.
+6. Use [CHECKLIST_INDEX.md](CHECKLIST_INDEX.md) to locate exact checklist sections.
+7. Use [PROOF_INDEX.md](PROOF_INDEX.md) only when proof artifacts are needed.
 
-```text
-Location evidence proves where the child device was reported.
-Geofence evidence proves transition relative to a configured place.
-Schedule context proves where the child was expected to be.
-Nearby-place intelligence suggests nearby place categories with ambiguity.
-AI classification is evidence, not authority.
-Parent policy decides alert/action.
-Parent acknowledgement and exceptions are first-class.
-No precise location is inferred from LAN/IP/pairing.
-No emergency/critical claim is made from one weak signal.
-Never turn uncertainty into accusation.
-CI proves contracts, logic, simulation, and hosted build/test coverage.
-Physical devices prove mobile background behavior.
-Authority-enrolled devices prove hard control.
-Until the required tier exists, product claims remain manual-required,
-authority-required, or not-claimed.
-```
+## Current scope
+
+This folder is the single working plan location for location evidence, geofence rules, expected-place schedules, device status, nearby-place intelligence, AI safety analysis, parent acknowledgements, alerts, escalation, child check-ins, temporary live tracking, missing-device mode, and tracking UI/UX requirements.
 
 ## Event-Driven Runtime Rule
 
@@ -585,3 +586,11 @@ feature product-complete.
       Android/iOS physical-device behavior, enrolled-device authority, provider
       delivery, actual child-device runtime execution, full product parent/child
       UI, or production-pilot proof complete.
+
+## Do not default-read
+
+- `implementation-checklist.md` unless the route names exact rows/sections.
+- `source-index.md` unless source ownership is unclear.
+- all files under `workpacks/`.
+- sibling plan folders.
+- historical proof/checkpoint docs not named by the workpack.

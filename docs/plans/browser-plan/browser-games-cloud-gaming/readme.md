@@ -1,5 +1,19 @@
 # Browser Games Cloud Gaming Workpacks
 
+<!-- agent-capsule -->
+
+> Agent Capsule
+> Plan: `browser-plan`
+> Doc: `Browser Games Cloud Gaming Workpacks`
+> Kind: short plan entry point.
+> Read when: Only when named by the plan route, selected workpack, or index row.
+> Stop rule: Do not continue into broader docs unless this file gives an explicit next path.
+> Proves: only the local scope, status, route, or contract stated by this file and its named proof/checklist rows.
+> Does not prove: sibling plan completion, implementation correctness, product status, PR readiness, or broad DONE unless routed proof says so.
+> Proof rule: If this file changes status or claims, update the assigned workpack, checklist row, and proof path.
+
+<!-- /agent-capsule -->
+
 This folder owns the focused browser-plan workpacks for managed-browser game
 portals, HTML5/WebGL/canvas games, cloud-gaming web sessions, game account
 flows, purchases, UGC/multiplayer risk, educational game classification, and

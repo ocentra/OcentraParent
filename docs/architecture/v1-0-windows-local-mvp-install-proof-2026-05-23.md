@@ -1,3 +1,17 @@
+<!-- agent-capsule -->
+
+> Agent Capsule
+> Doc: V1.0 Windows Local MVP Install Proof - 2026-05-23
+> Kind: architecture/reference documentation; read only when selected by plan route, source router, or assigned workpack.
+> Read when: Only when this exact doc is named by the active route, index, feature doc, or assigned workpack.
+> Stop rule: Do not continue into sibling docs, broad folders, source trees, or historical checkpoints unless this file gives an explicit next path.
+> Proves: only the local scope, status, route, or contract stated by this file and its named proof/checklist rows.
+> Does not prove: sibling plan completion, implementation correctness, product status, PR readiness, or broad DONE unless routed proof says so.
+> Proof rule: If this file changes status or claims, update the owning feature/plan/checklist/proof route that makes the claim current.
+> Snippet rule: fenced blocks in this document are contract/artifact/command examples only. They are not instructions to copy implementation code unless the surrounding section explicitly says the snippet is the public contract shape.
+
+<!-- /agent-capsule -->
+
 # V1.0 Windows Local MVP Install Proof - 2026-05-23
 
 ## Scope
@@ -36,7 +50,7 @@ signing/store claims, cloud auth, billing, or fake install proof.
 - `.ocentra-ai/rules/ocentra-parent-source-shape.mdc`
 - `.ocentra-ai/rules/ocentra-parent-domain-boundaries.mdc`
 - `docs/product-roadmap.md` V1.0
-- `docs/expectations/roadmap-v1-0-local-mvp.md`
+- `docs/roadmaps/roadmap-v1-0-local-mvp.md`
 - `docs/expectations/release-installer.md`
 - `docs/expectations/platform-deliverables.md`
 - `docs/architecture/release-update.md`

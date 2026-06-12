@@ -1,5 +1,20 @@
 # V0.5 Real Capture Proof Matrix
 
+<!-- agent-capsule -->
+
+> Agent Capsule
+> Plan: `screen-plan`
+> Doc: `V0.5 Real Capture Proof Matrix`
+> Kind: proof reference; read only when validating matching claim.
+> Read when: Only when named by the plan route, selected workpack, or index row.
+> Stop rule: Do not continue into broader docs unless this file gives an explicit next path.
+> Proves: only the local scope, status, route, or contract stated by this file and its named proof/checklist rows.
+> Does not prove: sibling plan completion, implementation correctness, product status, PR readiness, or broad DONE unless routed proof says so.
+> Proof rule: If this file changes status or claims, update the assigned workpack, checklist row, and proof path.
+> Snippet rule: fenced blocks in this document are contract/artifact/command examples only. They are not instructions to copy implementation code unless the surrounding section explicitly says the snippet is the public contract shape.
+
+<!-- /agent-capsule -->
+
 This is a merge-blocking proof matrix. A screen-capture slice cannot be called
 done only because contracts and unit tests pass. It must prove that real runtime
 activity triggers a real capture job, writes a real encrypted queue item, records

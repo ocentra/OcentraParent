@@ -1,3 +1,16 @@
+<!-- agent-capsule -->
+
+> Agent Capsule
+> Doc: Location, Geofence, And Device Status
+> Kind: feature documentation; read only when selected by FEATURE_ROUTE_INDEX, PLAN_INDEX, or assigned workpack.
+> Read when: Only when this exact doc is named by the active route, index, feature doc, or assigned workpack.
+> Stop rule: Do not continue into sibling docs, broad folders, source trees, or historical checkpoints unless this file gives an explicit next path.
+> Proves: only the local scope, status, route, or contract stated by this file and its named proof/checklist rows.
+> Does not prove: sibling plan completion, implementation correctness, product status, PR readiness, or broad DONE unless routed proof says so.
+> Proof rule: If this file changes status or claims, update the owning feature/plan/checklist/proof route that makes the claim current.
+
+<!-- /agent-capsule -->
+
 # Location, Geofence, And Device Status
 
 ## Parent Outcome
@@ -18,7 +31,7 @@ and platform proof.
   [platforms](../expectations/platforms.md),
   [notifications](../expectations/notifications.md).
 - Supporting docs:
-  [tracking settings inventory](../tracking-control-settings-inventory.md),
+  [tracking settings inventory](../plans/tracking-plan/workpacks/tracking-control-settings-inventory.md),
   [tracking plan](../plans/tracking-plan/README.md).
 - Modules: `packages/parent-domain`, `packages/activity-domain`,
   `platforms/android`, `platforms/ios`.

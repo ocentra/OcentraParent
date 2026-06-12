@@ -1,3 +1,16 @@
+<!-- agent-capsule -->
+
+> Agent Capsule
+> Doc: Remote, LAN, And Mobile Platforms
+> Kind: feature documentation; read only when selected by FEATURE_ROUTE_INDEX, PLAN_INDEX, or assigned workpack.
+> Read when: Only when this exact doc is named by the active route, index, feature doc, or assigned workpack.
+> Stop rule: Do not continue into sibling docs, broad folders, source trees, or historical checkpoints unless this file gives an explicit next path.
+> Proves: only the local scope, status, route, or contract stated by this file and its named proof/checklist rows.
+> Does not prove: sibling plan completion, implementation correctness, product status, PR readiness, or broad DONE unless routed proof says so.
+> Proof rule: If this file changes status or claims, update the owning feature/plan/checklist/proof route that makes the claim current.
+
+<!-- /agent-capsule -->
+
 # Remote, LAN, And Mobile Platforms
 
 ## Parent Outcome
@@ -24,7 +37,7 @@ does not move to the provider device.
   V8 production hardening.
 - Expectations: [LAN pairing](../expectations/lan-pairing.md),
   [cloud](../expectations/cloud.md), [platforms](../expectations/platforms.md),
-  [mobile agents](../expectations/roadmap-v6-mobile-agents.md),
+  [mobile agents](../roadmaps/roadmap-v6-mobile-agents.md),
   [release installer](../expectations/release-installer.md).
 - Modules: `packages/parent-domain`, `packages/agent-protocol-domain`,
   `apps/parent-desktop`, `platforms/android`, `platforms/ios`,

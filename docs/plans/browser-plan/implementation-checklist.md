@@ -1,5 +1,20 @@
 # Browser Plan Implementation Checklist
 
+<!-- agent-capsule -->
+
+> Agent Capsule
+> Plan: `browser-plan`
+> Doc: `Browser Plan Implementation Checklist`
+> Kind: full checklist; read exact rows only.
+> Read when: Only for exact rows named by CHECKLIST_INDEX.md, workpack, or PR/DONE proof.
+> Stop rule: Do not scan the whole checklist. Open exact row/section only.
+> Proves: only the local scope, status, route, or contract stated by this file and its named proof/checklist rows.
+> Does not prove: sibling plan completion, implementation correctness, product status, PR readiness, or broad DONE unless routed proof says so.
+> Proof rule: If this file changes status or claims, update the assigned workpack, checklist row, and proof path.
+> Snippet rule: fenced blocks in this document are contract/artifact/command examples only. They are not instructions to copy implementation code unless the surrounding section explicitly says the snippet is the public contract shape.
+
+<!-- /agent-capsule -->
+
 This is the fill-in checklist for browser-plan implementation work. Future AI
 workers must update this file and the matching workpack checklist before
 reporting `DONE` or PR-ready.
