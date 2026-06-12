@@ -48,6 +48,7 @@ async function main() {
       event: trackingReadModelContract.event,
       payloadField: trackingReadModelContract.payloadField,
       sourceStore: 'ActivityStore SQLite activity_events',
+      portalProjectionModel: 'packages/portal-domain/src/tracking-status-panel.ts',
       portalConsumer: 'apps/portal/src/tracking-status-panel.ts',
       coveredEventKinds: [
         'activity.location.observed',
@@ -118,6 +119,7 @@ async function main() {
       rustServiceTest: 'crates/agent-service/src/tracking_read_model_service_tests.rs',
       typescriptReadModelParser: 'packages/agent-protocol-domain/src/tracking-read-model.ts',
       portalLiveState: 'apps/portal/src/live-activity-state.ts',
+      portalTrackingProjection: 'packages/portal-domain/src/tracking-status-panel.ts',
       portalTrackingSurface: 'apps/portal/src/tracking-status-panel.ts',
       portalTrackingSurfaceTest: 'apps/portal/tests/tracking-status-panel.test.ts',
     },

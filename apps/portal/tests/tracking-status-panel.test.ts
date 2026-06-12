@@ -10,8 +10,13 @@ import {
 import {
   PortalRoute,
   TrackingStatusProofArtifacts,
+  trackingFamilyDashboardHostedRollupProof,
   trackingEvidenceDrawerHostedUiProof,
   trackingRetentionSettingsHostedUiProof,
+  trackingStatusLiveSummary,
+  trackingStatusProofRows,
+  trackingStatusServiceDataCoverage,
+  trackingUnsupportedManualPlatformProof,
 } from '@ocentra-parent/portal-domain/contracts';
 import { resolveLiveActivityState } from '../src/live-activity-state';
 import { shouldRenderTrackingStatusRoute } from '../src/TrackingStatusRoutePanel';
@@ -21,13 +26,6 @@ import { trackingParentActionReadinessHostedUiProof } from '../src/tracking-pare
 import { trackingMissingDeviceHostedUiProof } from '../src/tracking-missing-device-hosted-ui-proof';
 import { trackingReportExportHostedUiProof } from '../src/tracking-report-export-hosted-ui-proof';
 import { trackingReportPolicyConsumerHostedUiProof } from '../src/tracking-report-policy-consumer-hosted-ui-proof';
-import {
-  trackingFamilyDashboardHostedRollupProof,
-  trackingStatusLiveSummary,
-  trackingStatusProofRows,
-  trackingStatusServiceDataCoverage,
-  trackingUnsupportedManualPlatformProof,
-} from '../src/tracking-status-panel';
 
 const ExpectedTrackingStateTitles = [
   'Tracking off',

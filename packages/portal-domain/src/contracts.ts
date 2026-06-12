@@ -130,11 +130,14 @@ export {
 } from './tracking-status-proof-artifacts';
 export {
   trackingFamilyDashboardHostedRollupProof,
+  trackingStatusLiveSummary,
   trackingStatusProofRows,
+  trackingStatusServiceDataCoverage,
   trackingUnsupportedManualPlatformProof,
   TrackingFamilyDashboardHostedRollupProof,
   TrackingFamilyDashboardHostedRollupRow,
   TrackingStatusLiveCitation,
+  TrackingStatusLiveProjectionInput,
   TrackingStatusLiveSummary,
   TrackingStatusProofRow,
   TrackingStatusServiceDataCoverage,

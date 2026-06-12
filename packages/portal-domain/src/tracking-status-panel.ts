@@ -1,7 +1,15 @@
 import type { DisplayText } from '@ocentra-parent/text-domain/contracts';
 import { PortalDevTextToken, resolvePortalDevText } from '@ocentra-parent/text-domain/portal-dev';
+import type { AgentEventEnvelope } from '@ocentra-parent/agent-protocol-domain/contracts';
+import type {
+  AgentActivityTrackingEvidenceReferenceIds,
+  AgentActivityTrackingReadModel,
+  AgentActivityTrackingReadModelResult,
+  AgentActivityTrackingReadModelRow,
+} from '@ocentra-parent/agent-protocol-domain/tracking-read-model';
 
 import { decodePortalDetailValue, type PortalDetailValue } from './detail-values';
+import { PortalFormatting } from './formatting';
 import { TrackingStatusProofArtifacts, type TrackingStatusProofArtifact } from './tracking-status-proof-artifacts';
 
 type PortalDisplayText = DisplayText;
@@ -89,6 +97,11 @@ export type TrackingStatusServiceDataCoverage = {
   readonly evidenceReferences: PortalDetailValue;
   readonly deletedEvidence: PortalDetailValue;
   readonly productClaim: PortalDisplayText;
+};
+
+export type TrackingStatusLiveProjectionInput = {
+  readonly activityTrackingReadModelEvent: AgentEventEnvelope | null;
+  readonly activityTrackingReadModel: AgentActivityTrackingReadModelResult | null;
 };
 
 export type TrackingUnsupportedManualPlatformRow = {
@@ -282,6 +295,106 @@ export function trackingStatusProofRows(): readonly TrackingStatusProofRow[] {
   return TrackingStatusProofRowDefinitions.map((definition) => row(definition));
 }
 
+export function trackingStatusLiveSummary(input: TrackingStatusLiveProjectionInput): TrackingStatusLiveSummary {
+  const event = input.activityTrackingReadModelEvent;
+  const readModelResult = input.activityTrackingReadModel;
+  const baseSummary = {
+    title: resolvePortalDevText(PortalDevTextToken.TrackingServiceReadModel),
+    proofTier: resolvePortalDevText(PortalDevTextToken.TrackingProofService),
+    rowsReturned: notReported(),
+    lastObserved: notReported(),
+    eventId: notReported(),
+    capability: notReported(),
+    custody: notReported(),
+    evidenceReferences: notReported(),
+    productClaim: resolvePortalDevText(PortalDevTextToken.TrackingNoProductClaim),
+    citations: [],
+  };
+
+  if (event === null || readModelResult === null) {
+    return {
+      ...baseSummary,
+      loadState: notReported(),
+      parserReason: null,
+    };
+  }
+
+  if (!readModelResult.ok) {
+    return {
+      ...baseSummary,
+      loadState: detailFromValue(event.severity),
+      parserReason: detailFromValue(readModelResult.reason),
+    };
+  }
+
+  const readModel = readModelResult.value;
+  return {
+    ...baseSummary,
+    loadState: detailFromValue(event.severity),
+    rowsReturned: detailFromValue(readModel.returned),
+    lastObserved: detailFromValue(readModel.latestObservedAt),
+    eventId: detailFromValue(readModel.latestEventId),
+    capability: detailFromValue(readModel.capabilityStatus),
+    custody: detailFromValue(readModel.custodyLabel),
+    evidenceReferences: readModelEvidenceReferences(readModel),
+    parserReason: null,
+    citations: readModel.rows.map((readModelRow) => liveCitation(readModelRow)),
+  };
+}
+
+export function trackingStatusServiceDataCoverage(
+  input: TrackingStatusLiveProjectionInput
+): TrackingStatusServiceDataCoverage {
+  const event = input.activityTrackingReadModelEvent;
+  const readModelResult = input.activityTrackingReadModel;
+  const baseCoverage = {
+    title: resolvePortalDevText(PortalDevTextToken.TrackingServiceDataCoverage),
+    proofTier: resolvePortalDevText(PortalDevTextToken.TrackingProofService),
+    rowsReturned: notReported(),
+    rowVisibility: notReported(),
+    lastObserved: notReported(),
+    eventId: notReported(),
+    capability: notReported(),
+    custody: notReported(),
+    activityKinds: notReported(),
+    evidenceReferences: notReported(),
+    deletedEvidence: notReported(),
+    productClaim: resolvePortalDevText(PortalDevTextToken.TrackingNoProductClaim),
+  };
+
+  if (event === null || readModelResult === null) {
+    return {
+      ...baseCoverage,
+      loadState: notReported(),
+    };
+  }
+
+  if (!readModelResult.ok) {
+    return {
+      ...baseCoverage,
+      loadState: detailFromValue(event.severity),
+      rowVisibility: detailFromValue(readModelResult.reason),
+    };
+  }
+
+  const readModel = readModelResult.value;
+  return {
+    ...baseCoverage,
+    loadState: detailFromValue(event.severity),
+    rowsReturned: detailFromValue(readModel.returned),
+    rowVisibility: sequenceDetail([readModel.activeRows, readModel.tombstoneRows]),
+    lastObserved: detailFromValue(readModel.latestTombstoneObservedAt ?? readModel.latestObservedAt),
+    eventId: detailFromValue(readModel.latestTombstoneEventId ?? readModel.latestEventId),
+    capability: detailFromValue(readModel.capabilityStatus),
+    custody: detailFromValue(readModel.custodyLabel),
+    activityKinds: listDetail(readModel.rows.map((readModelRow) => readModelRow.kind)),
+    evidenceReferences: evidenceReferenceDetail(
+      readModel.rows.flatMap((readModelRow) => readModelRow.evidenceReferenceIds)
+    ),
+    deletedEvidence: readModelDeletedEvidenceReferences(readModel),
+  };
+}
+
 export function trackingFamilyDashboardHostedRollupProof(): TrackingFamilyDashboardHostedRollupProof {
   const rows = TrackingFamilyDashboardHostedRollupDefinitions.map((definition) => familyDashboardRollupRow(definition));
   return {
@@ -395,4 +508,76 @@ function detailFromValue(value: unknown): PortalDetailValue {
 
 function notReported(): PortalDetailValue {
   return detailFromValue(resolvePortalDevText(PortalDevTextToken.NotReported));
+}
+
+function evidenceReferenceDetail(
+  evidenceReferenceIds: readonly AgentActivityTrackingEvidenceReferenceIds[number][] | undefined
+): PortalDetailValue {
+  if (evidenceReferenceIds === undefined || evidenceReferenceIds.length === 0) {
+    return notReported();
+  }
+  return detailFromValue(evidenceReferenceIds.join(PortalFormatting.EventDetailSeparator));
+}
+
+function readModelEvidenceReferences(readModel: AgentActivityTrackingReadModel): PortalDetailValue {
+  const references = new Set<AgentActivityTrackingEvidenceReferenceIds[number]>();
+  for (const rowValue of readModel.rows) {
+    for (const evidenceReferenceId of rowValue.evidenceReferenceIds) {
+      references.add(evidenceReferenceId);
+    }
+    for (const evidenceReferenceId of rowValue.deletedEvidenceReferenceIds) {
+      references.add(evidenceReferenceId);
+    }
+  }
+  for (const evidenceReferenceId of readModel.deletedEvidenceReferenceIds) {
+    references.add(evidenceReferenceId);
+  }
+  return evidenceReferenceDetail([...references]);
+}
+
+function readModelDeletedEvidenceReferences(readModel: AgentActivityTrackingReadModel): PortalDetailValue {
+  const references = new Set<AgentActivityTrackingEvidenceReferenceIds[number]>();
+  for (const rowValue of readModel.rows) {
+    for (const evidenceReferenceId of rowValue.deletedEvidenceReferenceIds) {
+      references.add(evidenceReferenceId);
+    }
+  }
+  for (const evidenceReferenceId of readModel.deletedEvidenceReferenceIds) {
+    references.add(evidenceReferenceId);
+  }
+  return evidenceReferenceDetail([...references]);
+}
+
+function liveCitation(rowValue: AgentActivityTrackingReadModelRow): TrackingStatusLiveCitation {
+  return {
+    title: detailFromValue(rowValue.subjectDisplayName ?? rowValue.kind),
+    eventId: detailFromValue(rowValue.eventId),
+    observedAt: detailFromValue(rowValue.observedAt),
+    device: detailFromValue(rowValue.deviceId),
+    platform: detailFromValue(rowValue.platform),
+    observer: detailFromValue(rowValue.observer),
+    activityKind: detailFromValue(rowValue.kind),
+    subject: detailFromValue([rowValue.subjectKind, rowValue.subjectId].join(PortalFormatting.EventDetailSeparator)),
+    status: detailFromValue(
+      [rowValue.queryVisibility, rowValue.capabilityStatus]
+        .filter((part) => part !== null && part !== undefined)
+        .join(PortalFormatting.EventDetailSeparator)
+    ),
+    evidenceReferences: evidenceReferenceDetail(rowValue.evidenceReferenceIds),
+    deletedEvidence: evidenceReferenceDetail(rowValue.deletedEvidenceReferenceIds),
+    productClaim: resolvePortalDevText(PortalDevTextToken.TrackingNoProductClaim),
+  };
+}
+
+function listDetail(values: readonly unknown[]): PortalDetailValue {
+  const normalizedValues = values.map((value) => String(value)).filter((value) => value.length > 0);
+  return evidenceReferenceDetail([...new Set(normalizedValues)]);
+}
+
+function sequenceDetail(values: readonly unknown[]): PortalDetailValue {
+  const normalizedValues = values.map((value) => String(value)).filter((value) => value.length > 0);
+  if (normalizedValues.length === 0) {
+    return notReported();
+  }
+  return detailFromValue(normalizedValues.join(PortalFormatting.EventDetailSeparator));
 }

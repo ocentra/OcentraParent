@@ -9,7 +9,9 @@ import {
   trackingFamilyDashboardHostedRollupProof,
   trackingEvidenceDrawerHostedUiProof,
   trackingRetentionSettingsHostedUiProof,
+  trackingStatusLiveSummary,
   trackingStatusProofRows,
+  trackingStatusServiceDataCoverage,
   trackingUnsupportedManualPlatformProof,
   type PortalDetailValue,
   type PortalDisplayText,
@@ -22,11 +24,6 @@ import {
   type TrackingStatusServiceDataCoverage,
   type TrackingUnsupportedManualPlatformProof,
 } from '@ocentra-parent/portal-domain/contracts';
-import type {
-  AgentActivityTrackingEvidenceReferenceIds,
-  AgentActivityTrackingReadModel,
-  AgentActivityTrackingReadModelRow,
-} from '@ocentra-parent/agent-protocol-domain/tracking-read-model';
 import {
   trackingChildCheckInProof,
   trackingChildRuntimeUiProof,
@@ -50,109 +47,11 @@ export type {
 } from '@ocentra-parent/portal-domain/contracts';
 export {
   trackingFamilyDashboardHostedRollupProof,
+  trackingStatusLiveSummary,
   trackingStatusProofRows,
+  trackingStatusServiceDataCoverage,
   trackingUnsupportedManualPlatformProof,
 } from '@ocentra-parent/portal-domain/contracts';
-
-export function trackingStatusLiveSummary(liveActivity: PortalLiveActivityState): TrackingStatusLiveSummary {
-  const event = liveActivity.activityTrackingReadModelEvent;
-  const readModelResult = liveActivity.activityTrackingReadModel;
-  const baseSummary = {
-    title: PortalText.Resolve(PortalTextToken.TrackingServiceReadModel),
-    proofTier: PortalText.Resolve(PortalTextToken.TrackingProofService),
-    rowsReturned: notReported(),
-    lastObserved: notReported(),
-    eventId: notReported(),
-    capability: notReported(),
-    custody: notReported(),
-    evidenceReferences: notReported(),
-    productClaim: PortalText.Resolve(PortalTextToken.TrackingNoProductClaim),
-    citations: [],
-  };
-
-  if (event === null || readModelResult === null) {
-    return {
-      ...baseSummary,
-      loadState: notReported(),
-      parserReason: null,
-    };
-  }
-
-  if (!readModelResult.ok) {
-    return {
-      ...baseSummary,
-      loadState: detailFromValue(event.severity),
-      parserReason: detailFromValue(readModelResult.reason),
-    };
-  }
-
-  const readModel = readModelResult.value;
-  return {
-    ...baseSummary,
-    loadState: detailFromValue(event.severity),
-    rowsReturned: detailFromValue(readModel.returned),
-    lastObserved: detailFromValue(readModel.latestObservedAt),
-    eventId: detailFromValue(readModel.latestEventId),
-    capability: detailFromValue(readModel.capabilityStatus),
-    custody: detailFromValue(readModel.custodyLabel),
-    evidenceReferences: readModelEvidenceReferences(readModel),
-    parserReason: null,
-    citations: readModel.rows.map((readModelRow) => liveCitation(readModelRow)),
-  };
-}
-
-export function trackingStatusServiceDataCoverage(
-  liveActivity: PortalLiveActivityState
-): TrackingStatusServiceDataCoverage {
-  const event = liveActivity.activityTrackingReadModelEvent;
-  const readModelResult = liveActivity.activityTrackingReadModel;
-  const baseCoverage = {
-    title: PortalText.Resolve(PortalTextToken.TrackingServiceDataCoverage),
-    proofTier: PortalText.Resolve(PortalTextToken.TrackingProofService),
-    rowsReturned: notReported(),
-    rowVisibility: notReported(),
-    lastObserved: notReported(),
-    eventId: notReported(),
-    capability: notReported(),
-    custody: notReported(),
-    activityKinds: notReported(),
-    evidenceReferences: notReported(),
-    deletedEvidence: notReported(),
-    productClaim: PortalText.Resolve(PortalTextToken.TrackingNoProductClaim),
-  };
-
-  if (event === null || readModelResult === null) {
-    return {
-      ...baseCoverage,
-      loadState: notReported(),
-    };
-  }
-
-  if (!readModelResult.ok) {
-    return {
-      ...baseCoverage,
-      loadState: detailFromValue(event.severity),
-      rowVisibility: detailFromValue(readModelResult.reason),
-    };
-  }
-
-  const readModel = readModelResult.value;
-  return {
-    ...baseCoverage,
-    loadState: detailFromValue(event.severity),
-    rowsReturned: detailFromValue(readModel.returned),
-    rowVisibility: sequenceDetail([readModel.activeRows, readModel.tombstoneRows]),
-    lastObserved: detailFromValue(readModel.latestTombstoneObservedAt ?? readModel.latestObservedAt),
-    eventId: detailFromValue(readModel.latestTombstoneEventId ?? readModel.latestEventId),
-    capability: detailFromValue(readModel.capabilityStatus),
-    custody: detailFromValue(readModel.custodyLabel),
-    activityKinds: listDetail(readModel.rows.map((readModelRow) => readModelRow.kind)),
-    evidenceReferences: evidenceReferenceDetail(
-      readModel.rows.flatMap((readModelRow) => readModelRow.evidenceReferenceIds)
-    ),
-    deletedEvidence: readModelDeletedEvidenceReferences(readModel),
-  };
-}
 
 export function renderTrackingStatusSurface(container: HTMLElement, liveActivity: PortalLiveActivityState): void {
   const intro = document.createElement(PortalDom.Tags.Section);
@@ -494,72 +393,8 @@ function detailFromValue(value: unknown): PortalDetailValue {
   return decodePortalDetailValue(String(value));
 }
 
-function evidenceReferenceDetail(
-  evidenceReferenceIds: readonly AgentActivityTrackingEvidenceReferenceIds[number][] | undefined
-): PortalDetailValue {
-  if (evidenceReferenceIds === undefined || evidenceReferenceIds.length === 0) {
-    return notReported();
-  }
-  return detailFromValue(evidenceReferenceIds.join(PortalFormatting.EventDetailSeparator));
-}
-
-function readModelEvidenceReferences(readModel: AgentActivityTrackingReadModel): PortalDetailValue {
-  const references = new Set<AgentActivityTrackingEvidenceReferenceIds[number]>();
-  for (const row of readModel.rows) {
-    for (const evidenceReferenceId of row.evidenceReferenceIds) {
-      references.add(evidenceReferenceId);
-    }
-    for (const evidenceReferenceId of row.deletedEvidenceReferenceIds) {
-      references.add(evidenceReferenceId);
-    }
-  }
-  for (const evidenceReferenceId of readModel.deletedEvidenceReferenceIds) {
-    references.add(evidenceReferenceId);
-  }
-  return evidenceReferenceDetail([...references]);
-}
-
-function readModelDeletedEvidenceReferences(readModel: AgentActivityTrackingReadModel): PortalDetailValue {
-  const references = new Set<AgentActivityTrackingEvidenceReferenceIds[number]>();
-  for (const row of readModel.rows) {
-    for (const evidenceReferenceId of row.deletedEvidenceReferenceIds) {
-      references.add(evidenceReferenceId);
-    }
-  }
-  for (const evidenceReferenceId of readModel.deletedEvidenceReferenceIds) {
-    references.add(evidenceReferenceId);
-  }
-  return evidenceReferenceDetail([...references]);
-}
-
-function liveCitation(row: AgentActivityTrackingReadModelRow): TrackingStatusLiveCitation {
-  return {
-    title: detailFromValue(row.subjectDisplayName ?? row.kind),
-    eventId: detailFromValue(row.eventId),
-    observedAt: detailFromValue(row.observedAt),
-    device: detailFromValue(row.deviceId),
-    platform: detailFromValue(row.platform),
-    observer: detailFromValue(row.observer),
-    activityKind: detailFromValue(row.kind),
-    subject: detailFromValue([row.subjectKind, row.subjectId].join(PortalFormatting.EventDetailSeparator)),
-    status: detailFromValue(
-      [row.queryVisibility, row.capabilityStatus]
-        .filter((part) => part !== null && part !== undefined)
-        .join(PortalFormatting.EventDetailSeparator)
-    ),
-    evidenceReferences: evidenceReferenceDetail(row.evidenceReferenceIds),
-    deletedEvidence: evidenceReferenceDetail(row.deletedEvidenceReferenceIds),
-    productClaim: PortalText.Resolve(PortalTextToken.TrackingNoProductClaim),
-  };
-}
-
 function notReported(): PortalDetailValue {
   return toDetail(PortalText.Resolve(PortalTextToken.NotReported));
-}
-
-function listDetail(values: readonly unknown[]): PortalDetailValue {
-  const normalizedValues = values.map((value) => String(value)).filter((value) => value.length > 0);
-  return evidenceReferenceDetail([...new Set(normalizedValues)]);
 }
 
 function sequenceDetail(values: readonly unknown[]): PortalDetailValue {
