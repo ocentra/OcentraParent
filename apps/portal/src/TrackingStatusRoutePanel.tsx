@@ -9,7 +9,9 @@ import {
   TrackingEvidenceDrawerHostedUiProofDetails,
   trackingEvidenceDrawerHostedUiProof,
   trackingRetentionSettingsHostedUiProof,
+  trackingStatusLiveSummary,
   isPortalTrackingStatusRoute,
+  trackingStatusServiceDataCoverage,
   type PortalDetailValue,
   type PortalDisplayText,
   type PortalRoute as PortalRouteValue,
@@ -50,8 +52,6 @@ import {
 } from './tracking-missing-device-hosted-ui-proof';
 import {
   trackingFamilyDashboardHostedRollupProof,
-  trackingStatusLiveSummary,
-  trackingStatusServiceDataCoverage,
   trackingStatusProofRows,
   trackingUnsupportedManualPlatformProof,
   type TrackingFamilyDashboardHostedRollupProof,

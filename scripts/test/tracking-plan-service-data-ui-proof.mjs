@@ -44,7 +44,7 @@ async function main() {
       route: trackingServiceDataContract.portalRoute,
       consumer: 'apps/portal/src/TrackingStatusRoutePanel.tsx',
       modelFunction: 'trackingStatusServiceDataCoverage',
-      sourceModel: 'apps/portal/src/tracking-status-panel.ts',
+      sourceModel: 'packages/portal-domain/src/tracking-status-panel.ts',
       renderedTitle: 'Service data coverage',
       sourcePayload: trackingServiceDataContract.payloadField,
       sourceCommand: trackingServiceDataContract.command,

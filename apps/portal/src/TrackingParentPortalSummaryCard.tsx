@@ -5,13 +5,14 @@ import {
   PortalRoute,
   PortalText,
   PortalTextToken,
+  trackingStatusLiveSummary,
+  trackingStatusServiceDataCoverage,
   type PortalDetailValue,
   type PortalDisplayText,
   type PortalRoute as PortalRouteValue,
   type TrackingStatusProofArtifact,
 } from '@ocentra-parent/portal-domain/contracts';
 import type { PortalLiveActivityState } from './live-activity-state';
-import { trackingStatusLiveSummary, trackingStatusServiceDataCoverage } from './tracking-status-panel';
 
 export function shouldRenderTrackingParentPortalSummary(route: PortalRouteValue): boolean {
   return route === PortalRoute.Overview || route === PortalRoute.Devices;
