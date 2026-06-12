@@ -19,6 +19,13 @@ Context: parents start at `family.ocentra.ca`; the site is informational by defa
 Scope: public web entry, install journey, provisioning state machine, role/device readiness, recovery, and handoff proof.
 Out of scope: package build mechanics, auth provider implementation, LAN protocol internals, portal component details, data sync internals, and enforcement adapters.
 
+## High-Density Execution Contract
+
+- Route first from `PLAN_STATE.md`; this plan owns the setup graph and must not absorb account, package, policy, or LAN implementation details.
+- Work one setup workpack at a time and the exact proof/checklist rows; keep handoffs explicit when ownership crosses plans.
+- Every completion claim must include journey boundary states (account, parent install, child install, pairing, permissions, recovery), proof artifact path, and failure conditions.
+- Stop condition: no DONE/PR_READY without evidence of degraded recovery states and explicit handoff boundaries to owned adjacent plans.
+
 ## Research Gate
 
 This plan is first-pass. Before implementation, DONE, or PR_READY, the assigned agent must inspect existing repo code/docs for the touched slice, map what already exists versus missing, and discuss unresolved product/architecture choices with Sujan. Do not treat this first-pass plan as final architecture.

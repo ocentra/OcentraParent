@@ -11,4 +11,22 @@
 | Observability       | redacted logs, metrics sanity, trace completeness, alert firing.                           |
 | PR gate             | route sync, proof artifacts, skipped-risk notes, remaining gaps.                           |
 
-Failure: no policy DONE with happy-path-only authoring, no ack proof, or no negative authorization/schedule tests.
+## Where tests should live
+
+- Place policy control-plane tests in policy-domain, plan-owned, or owning enforcement workpack test trees before implementation completion.
+- Prefer end-to-end cross-plan proof tests in `TEST_PROOF_EXPECTATIONS`-linked proof-output paths over mock-only tests.
+- Keep fixtures in explicit policy/version boundary files with schema version tags and schedule fixtures.
+
+## Expected test/proof inventory
+
+- `policy-control.source-truth.version-skew`: version and schema mismatch tests reject stale policy inputs.
+- `policy-control.authoring.conflict-resolution`: conflicting edits/approvals resolve with deterministic precedence or explicit manual-required output.
+- `policy-control.schedule.clock-dst-boundary`: timezone/DST/expiry tests for schedule exceptions, bonus-time windows, and revocation edges.
+- `policy-control.delivery.replay-idempotency`: offline replay, stale update, duplicate ack, and retry ordering are safe.
+- `policy-control.enforcement.handoff-boundary`: policy outputs do not invoke enforcement without handoff proof.
+
+## Failure conditions
+
+- No policy DONE/PR_READY if policy authoring proof remains happy-path only.
+- No policy DONE/PR_READY if source-of-truth merge/conflict behavior, delivery ack, or rollback is unproven.
+- No policy DONE/PR_READY if authorization/schedule negative tests and observability redaction are missing.

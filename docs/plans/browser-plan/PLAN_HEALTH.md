@@ -43,3 +43,25 @@ This file records documentation health and consistency checks for the plan. It i
 - Minimum read set: one workpack, exact checklist row, browser source index only for ownership ambiguity, and `TEST_PROOF_EXPECTATIONS.md` for test/proof selection.
 - Test/proof decision: require managed/unmanaged profile, custody/redaction, URL normalization, redirect/URL-hijack, origin/header/security, authZ, rollback, idempotency, rate-limit, and UI screenshot/log proof where touched.
 - DONE blocker: no browser claim may move unless proof distinguishes installed/running browser state, managed profile custody, active tab evidence, policy intent, and actual intervention authority.
+
+## High-Information-Density Gate
+
+### Scope and ownership
+
+- Scope and ownership: this file governs documentation routing, state, and proof expectations for `browser-plan`.
+- Ownership path: this plan is coordinated via `browser-plan/AGENTS.md`, `browser-plan/PLAN_STATE.md`, and `browser-plan/NEXT_ACTIONS.md` plus selected workpack files.
+
+### State
+
+- Current state: route and schema hygiene are present, but implementation/closure proof remains incomplete until checklist and workpack evidence are updated.
+- Current action: keep this file and `browser-plan/PLAN_STATE.md` aligned before any DONE/PR_READY claim.
+
+### Decision routes and failure controls
+
+- Decision route: follow this plan�s AGENTS landing decision, the selected workpack path, and the feature/doc proof matrix referenced in this file.
+- Failure controls: do not claim completion when handoff routes are missing, checklist/workpack states diverge, or known risks remain unmitigated with no explicit deferral.
+
+### Proof mapping
+
+- Required proof before READY: explicit links from workpack checklist rows, proof artifacts named in this file, and cross-plan handoff notes in AGENTS/NEXT_ACTIONS.
+- At minimum, align the following docs before READY: `AGENTS.md`, `PLAN_STATE.md`, `NEXT_ACTIONS.md`, and the assigned plan workpacks.

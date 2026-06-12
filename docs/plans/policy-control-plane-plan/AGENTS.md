@@ -17,6 +17,13 @@ Context: policy is currently scattered across portal, app/game, browser, network
 Scope: policy source of truth, parent authoring, templates, schedule/timezone/DST, preview, approval, ask-parent flow, domain compiler contracts, delivery/ack, conflict resolution, and audit.
 Out of scope: domain-specific adapter implementation, UI component styling, account login, and storage internals.
 
+## High-Density Execution Contract
+
+- Route first from `PLAN_STATE.md`; this plan owns policy control-plane truth and must not duplicate domain-owned policy implementation.
+- Keep work constrained to the selected workpack and exact proof/checklist rows; update adjacent plans only through explicit handoff entries.
+- Every completion claim must include decision model, precedence/conflict resolution proof, delivery acknowledgement, and audit closure evidence.
+- Stop condition: do not close this plan as complete until conflict, schedule boundary, override, and rollback paths are proven and testable.
+
 ## Research Gate
 
 This plan is first-pass. Before implementation, DONE, or PR_READY, the assigned agent must inspect existing policy docs, portal policy UI, domain packages, enforcement handoff code/docs, and plan-local policy workpacks, then discuss unresolved source-of-truth and UX choices with Sujan. Do not treat this first-pass plan as final architecture.
@@ -39,6 +46,11 @@ This plan is first-pass. Before implementation, DONE, or PR_READY, the assigned 
 - `data-custody-storage-plan` owns policy export/delete/sync custody.
 - `v0-8-enforcement-control-plan` owns enforcement action authority and rollback.
 - Domain plans own app/game, browser, network, tracking, screen, and AI policy effects.
+
+## State
+
+- State remains first-pass control-plane setup until source-of-truth versioning, conflict policy, and enforcement handoff proofs are implemented and reconciled in `PLAN_STATE.md`.
+- Do not move to DONE/PR_READY until decision precedence, delivery acknowledgements, rollback behavior, and cross-plan proof links are explicit and green in proofs.
 
 ## Failure Conditions
 

@@ -10,4 +10,22 @@
 | Abuse/security         | brute force, enumeration, CSRF/origin/header, open redirect, token fixation, logging redaction, and alert proof. |
 | PR gate                | Workpack updates, route sync, proof artifacts, skipped-risk notes.                                               |
 
-Failure: no account/identity DONE without authN, authZ, replay, token lifecycle, rate-limit, recovery, and observability proof.
+## Where tests should live
+
+- Place identity-family tests in account/domain package tests and proof output directories once assigned workpacks land.
+- Keep provider decision and session tests in the same workspace as token/session runtime boundaries for shared fixtures.
+- Prefer contract tests + integration tests over mock-only provider fixtures for auth and custody transitions.
+
+## Expected test/proof inventory
+
+- `account-identity.auth-provider.decisions`: migration/rejection matrix for provider choice and custody impact.
+- `account-identity.auth-session.replay-idempotency`: token lifecycle rejects replay, stolen tokens, and stale sessions.
+- `account-identity.authz.role-boundary`: role/device/household authorization rejects cross-family and missing-role actions.
+- `account-identity.recovery.rate-limit`: recovery lockout, enumeration, and rate-limit abuse paths stay negative-first.
+- `account-identity.observability.audit`: logs/metrics/alerts cover auth decisions and denial reasons with redaction.
+
+## Failure conditions
+
+- No account/identity DONE without authN/authZ, replay protection, token lifecycle, and observability proof.
+- No account/identity DONE if role/device/household boundaries are proven only by happy path.
+- No account/identity DONE if abuse and recovery proof does not include negative and stale/retry cases.

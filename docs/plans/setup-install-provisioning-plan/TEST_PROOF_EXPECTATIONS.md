@@ -24,4 +24,22 @@ These are expected proof intents, not implementation recipes.
 | Observability                | Redacted logs/metrics/traces for setup progress, failure reason, and recovery path.                                                           |
 | PR gate                      | Workpack updates, route/index sync, proof paths, skipped-risk notes, and remaining gaps.                                                      |
 
-Failure: no DONE when only the happy path is shown, when registration is treated as marketing contact capture, or when setup is claimed without account, install, permission, pairing, and readiness evidence.
+## Where tests should live
+
+- Route setup/install test intent into setup-install package/domain package tests until those boundaries are instantiated.
+- Maintain end-to-end proof artifacts for public-site, onboarding, pairing, and installer lifecycle in plan-linked proof folders.
+- Prefer platform and real integration checks for device install/pairing over fixture-only stories.
+
+## Expected test/proof inventory
+
+- `setup.public-site.data-boundary`: static content and site behavior prove no child telemetry collection beyond disclosed boundaries.
+- `setup.account-handoff.authn-authz`: account creation and pairing handoff reject reused/expired/replayed invite claims.
+- `setup.installer.platform-matrix`: install, manual-required, tamper/update-channel, and uninstall/rollback behaviors are covered by OS matrix.
+- `setup.permission.device-pairing`: permissions, unsupported platform, and offline readiness are explicit negatives.
+- `setup.observability.recovery`: retry/backoff, error budget, alerts, and support diagnostics are captured with redaction.
+
+## Failure conditions
+
+- No setup/install DONE/PR_READY if public-site promises are not tied to explicit boundary tests.
+- No setup/install DONE/PR_READY if account handoff and install/pairing lifecycle claims rely on positive-path tests only.
+- No setup/install DONE/PR_READY unless recovery and unsupported-platform states are documented and evidenced.

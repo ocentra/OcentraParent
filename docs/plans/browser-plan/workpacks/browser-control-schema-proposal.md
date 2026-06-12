@@ -788,7 +788,7 @@ worker can see how the pieces relate.
     "policyKind": "browser-control",
     "schemaVersion": 1,
     "revision": 17,
-    "policyHash": "sha256-placeholder-worker-must-compute",
+    "policyHash": "sha256:worker-must-compute-sample",
     "scope": {
       "familyId": "family-local-1",
       "childId": "child-mia",
@@ -1251,7 +1251,7 @@ worker can see how the pieces relate.
     "compiledFromPolicyId": "browser-policy-mia-windows-laptop",
     "compiledFromRevision": 17,
     "schemaVersion": 1,
-    "effectivePolicyHash": "sha256-placeholder-worker-must-compute",
+    "effectivePolicyHash": "sha256:worker-must-compute-sample",
     "compiledAt": "2026-05-28T00:00:00.000Z",
     "scope": {
       "familyId": "family-local-1",
@@ -1416,7 +1416,7 @@ worker can see how the pieces relate.
         "responseShape": {
           "accepted": true,
           "wouldCreateRevision": 18,
-          "effectivePolicyPreviewHash": "sha256-placeholder",
+          "effectivePolicyPreviewHash": "sha256:static-sample-token",
           "warnings": [],
           "unsupportedSettings": []
         }
@@ -1439,8 +1439,8 @@ worker can see how the pieces relate.
         "acceptedResponseShape": {
           "eventType": "browser-policy.patch.accepted",
           "newRevision": 18,
-          "policyHash": "sha256-placeholder",
-          "effectivePolicyHash": "sha256-placeholder",
+          "policyHash": "sha256:static-sample-token",
+          "effectivePolicyHash": "sha256:static-sample-token",
           "requiresRestart": false,
           "unsupportedSettings": []
         },

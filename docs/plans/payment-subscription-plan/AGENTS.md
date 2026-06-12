@@ -17,6 +17,13 @@ Context: the games project uses Cloudflare Workers, Stripe Checkout, Stripe Bill
 Scope: products/prices, household subscriptions, entitlement gates, checkout session creation, billing portal, webhook ingestion, refunds/disputes, invoices/tax, cancellation, grace period, abuse controls, and proof.
 Out of scope: account login provider choice, public site content, package install mechanics, child data custody, and domain enforcement.
 
+## High-Density Execution Contract
+
+- Route first from `PLAN_STATE.md`; this plan owns subscription finance authority and must not absorb unrelated policy/app runtime work.
+- Work only the selected workpack plus required checklist/proof rows; prefer concrete billing/entitlement proof over implementation prose.
+- For each claimed row, capture failure state, evidence path, negative test/rollback path, and cross-plan dependency closure before marking done.
+- Stop condition: no DONE/PR_READY for subscriptions without webhook idempotency proof, entitlement correctness, and billing artifact traceability.
+
 ## Research Gate
 
 This plan is first-pass. Before implementation, DONE, or PR_READY, the assigned agent must inspect existing repo account/portal/domain code, `E:\ocentra-games` Cloudflare/Firebase/Stripe payment patterns, current Stripe docs for the touched slice, and unresolved pricing/entitlement/privacy choices with Sujan. Do not treat this first-pass plan as final architecture.

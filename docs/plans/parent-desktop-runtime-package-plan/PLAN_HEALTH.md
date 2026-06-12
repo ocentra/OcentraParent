@@ -43,3 +43,25 @@ This file records documentation health and consistency checks for the plan. It i
 - Minimum read set: assigned workpack or package row, `TEST_PROOF_EXPECTATIONS.md`, package/release docs named by the row, and platform notes only for the target artifact.
 - Test/proof decision: require install/upgrade/uninstall, rollback, service lifecycle, version alignment, platform smoke, dependency policy, signing/notarization/manual credential status, and launch log proof where applicable.
 - DONE blocker: no release/package row may claim production readiness, signing, store delivery, or device-owner capability without artifact proof and explicit credential/entitlement state.
+
+## High-Information-Density Gate
+
+### Scope and ownership
+
+- Scope and ownership: this file governs documentation routing, state, and proof expectations for `parent-desktop-runtime-package-plan`.
+- Ownership path: this plan is coordinated via `parent-desktop-runtime-package-plan/AGENTS.md`, `parent-desktop-runtime-package-plan/PLAN_STATE.md`, and `parent-desktop-runtime-package-plan/NEXT_ACTIONS.md` plus selected workpack files.
+
+### State
+
+- Current state: route and schema hygiene are present, but implementation/closure proof remains incomplete until checklist and workpack evidence are updated.
+- Current action: keep this file and `parent-desktop-runtime-package-plan/PLAN_STATE.md` aligned before any DONE/PR_READY claim.
+
+### Decision routes and failure controls
+
+- Decision route: follow this plan�s AGENTS landing decision, the selected workpack path, and the feature/doc proof matrix referenced in this file.
+- Failure controls: do not claim completion when handoff routes are missing, checklist/workpack states diverge, or known risks remain unmitigated with no explicit deferral.
+
+### Proof mapping
+
+- Required proof before READY: explicit links from workpack checklist rows, proof artifacts named in this file, and cross-plan handoff notes in AGENTS/NEXT_ACTIONS.
+- At minimum, align the following docs before READY: `AGENTS.md`, `PLAN_STATE.md`, `NEXT_ACTIONS.md`, and the assigned plan workpacks.

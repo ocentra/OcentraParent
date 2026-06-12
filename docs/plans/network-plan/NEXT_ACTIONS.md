@@ -1,4 +1,4 @@
-# Network Plan Next Actions
+﻿# Network Plan Next Actions
 
 <!-- agent-capsule -->
 
@@ -39,3 +39,9 @@ This file is the short resume list for the next worker. It is derived from open 
 A PR-ready slice should close a named workpack or clearly explain the exact remaining rows. Do not create a tiny PR that only updates one proof note while leaving the assigned workpack/checklist state stale.
 
 Before reporting `DONE` or `PR_READY`, update the workpack, checklist row(s), proof reference(s), and feature/product docs if product status changed.
+
+## Actioned completion tracker
+
+- [ ] Re-check this plan route from AGENTS/PLAN_STATE and confirm the assigned workpack path.
+- [ ] Update one assigned workpack and matching checklist/proof rows before reporting progress.
+- [ ] Record failure conditions, skipped checks, and evidence path in PLAN_STATE/TEST_PROOF_EXPECTATIONS for every claimed progress.

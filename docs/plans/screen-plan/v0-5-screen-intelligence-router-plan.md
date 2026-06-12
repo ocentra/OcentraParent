@@ -44,7 +44,7 @@ The first MVP focuses on capture and routing:
 - encrypted temporary queue;
 - deletion proof;
 - summary/read-model alignment;
-- AI job/result contract placeholders.
+- AI job/result contract rows must map every candidate run to a typed queue job identifier and explicit result status matrix (`accepted`, `denied`, `retry`, `manual-review`) before implementation.
 
 The second pass focuses on AI processing:
 

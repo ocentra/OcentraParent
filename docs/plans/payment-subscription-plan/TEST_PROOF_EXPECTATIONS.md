@@ -12,4 +12,22 @@
 | Observability          | metrics, traces, alerts, reconciliation report, admin/support audit.                                                       |
 | PR gate                | proof artifacts, route sync, skipped-risk notes, remaining gaps.                                                           |
 
-Failure: no billing DONE without webhook, idempotency, entitlement, refund/dispute, privacy, and abuse proof.
+## Where tests should live
+
+- When implementation exists, place unit/integration tests in the billing/AI/payment package test trees used by the assigned workpack.
+- Capture screenshot/log artifact and proof-output files in the plan proof folder or the owning package proof folder.
+- Use real contract fixtures and protocol boundaries; avoid mock-only coverage for webhook and session entitlement boundaries.
+
+## Expected test/proof inventory
+
+- `payment-subscription.billing.webhook-idempotency`: duplicate and replayed webhooks are replay-safe and do not duplicate entitlement writes.
+- `payment-subscription.billing.entitlement-state-boundary`: trial/grace/downgrade/upgrade/cancel states enforce role/device/family boundaries without over-privilege.
+- `payment-subscription.billing.subscription-lifecycle`: lifecycle transitions include unpaid/past_due/resume flows with stale/replay handling.
+- `payment-subscription.billing.refund-dispute-abuse`: refund/dispute/reverse events are idempotent and non-privilege escalating.
+- `payment-subscription.billing.security-rate-limit`: abuse, brute force, CSRF/origin/header, and webhook smuggling/fraud tests remain negative-first.
+
+## Failure conditions
+
+- No billing DONE/PR_READY if entitlement writes are validated only on happy path.
+- No billing DONE/PR_READY if webhook idempotency/replay/backpressure proofs are missing.
+- No billing DONE/PR_READY if privacy, parent consent, and abuse/fraud controls lack negative proof or proof artifacts.

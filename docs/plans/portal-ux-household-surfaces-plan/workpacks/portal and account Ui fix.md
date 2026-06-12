@@ -17,7 +17,7 @@ Status: first-pass Manage UI wiring is implemented on `codex/parent-portal-manag
 
 ## Goal
 
-Portal and Account manage surfaces should become portal-owned control-plane UI. They should not look like device discovery, child activity, or generic placeholder badge pages.
+Portal and Account manage surfaces should become portal-owned control-plane UI. They should not look like device discovery, child activity, or generic scaffold badge pages.
 
 Device and Activity already established the desired frame rhythm:
 
@@ -147,7 +147,7 @@ Ocentra Games already has useful infrastructure patterns:
 - Vite `/api` proxy to the local Worker during development.
 - Seed scripts for local Cloudflare KV state.
 - Product catalog records with Stripe price ids.
-- Placeholder Stripe price ids during UI/backend planning.
+- Use deterministic UI-check fixture price IDs during planning (`price_ui_check_basic`, `price_ui_check_pro`, `price_ui_check_max`) while the contract-backed billing path is implemented.
 - A dedicated payment Durable Object style boundary for payment state.
 - Explicit go-live gaps for real Stripe price ids and production KV namespaces.
 
@@ -399,7 +399,7 @@ Fake UI-check data:
 
 - `PORTAL_ACCOUNT_UI_CHECK_CHANNELS`
 - Example routes: in-app ready, desktop permission granted, mobile portal not paired, email verified, SMS unverified, WhatsApp setup required, Telegram not linked.
-- Use placeholder contacts like `parent@example.invalid`; no real phone numbers or secrets.
+- Use synthetic fixture contacts only (`portal-account-fixture-parent@ocentra.demo`, no real person identifiers) so the UI can display realistic channel examples.
 
 ### Plan
 
@@ -588,7 +588,7 @@ Proposed intent functions:
 - `saveSupportDraftIntent(input)`
 - `submitSupportMessageIntent(input)`
 
-These names are placeholders for planning. Actual contracts should be defined in the appropriate domain package before UI wiring.
+These names are provisional UI-read intents; replace each with a typed domain contract from the portal module before enabling real account data paths.
 
 Expected typed states:
 
@@ -632,7 +632,7 @@ Do not start these until the plan is accepted.
 1. Add or extend domain contracts for portal/account read models and typed states.
 2. Add tests for the contracts and label/state helpers.
 3. Normalize layout ownership so Portal and Account both use the portal-owned surface shell.
-4. Build a dedicated `PortalAccountSurface` or equivalent shared panel instead of extending generic placeholder controls.
+4. Build a dedicated `PortalAccountSurface` or equivalent shared panel instead of extending generic stub controls.
 5. Add per-surface tabs and body renderers.
 6. Add explicit UI-check fake data behind a loud flag.
 7. Validate Portal routes: Settings, Alerts, Channels.

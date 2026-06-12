@@ -1235,7 +1235,7 @@ commands, and capability registry into one example so a worker can see how the p
     "compiledFromPolicyId": "screen-policy-mia-windows-laptop",
     "compiledFromRevision": 7,
     "schemaVersion": 1,
-    "effectivePolicyHash": "sha256-placeholder-worker-must-compute",
+    "effectivePolicyHash": "sha256:worker-must-compute-sample",
     "compiledAt": "2026-05-28T00:00:00.000Z",
     "scope": {
       "familyId": "family-local-1",
@@ -1461,7 +1461,7 @@ commands, and capability registry into one example so a worker can see how the p
         "responseShape": {
           "accepted": true,
           "wouldCreateRevision": 8,
-          "effectivePolicyPreviewHash": "sha256-placeholder",
+          "effectivePolicyPreviewHash": "sha256:static-sample-token",
           "warnings": ["enforcement-eligible requires typed policy decision and screen summary deletion proof"],
           "unsupportedSettings": []
         }
@@ -1484,8 +1484,8 @@ commands, and capability registry into one example so a worker can see how the p
         "acceptedResponseShape": {
           "eventType": "screen-policy.patch.accepted",
           "newRevision": 8,
-          "policyHash": "sha256-placeholder",
-          "effectivePolicyHash": "sha256-placeholder",
+          "policyHash": "sha256:static-sample-token",
+          "effectivePolicyHash": "sha256:static-sample-token",
           "requiresRestart": false,
           "unsupportedSettings": []
         },
@@ -1523,7 +1523,7 @@ commands, and capability registry into one example so a worker can see how the p
         },
         "acceptedResponseShape": {
           "eventType": "screen-policy.manual-test-capture.accepted",
-          "queueJobId": "screen-job-placeholder",
+          "queueJobId": "screen-job-id-sample-0001",
           "captureWillRunLocally": true,
           "rawCaptureRetention": false
         },

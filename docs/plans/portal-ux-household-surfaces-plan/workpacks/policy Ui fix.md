@@ -262,7 +262,7 @@ Fake UI-check data:
 
 - `POLICY_UI_CHECK_BROWSER`
 - Example states: Edge managed ready, Chrome unmanaged detected, Firefox unsupported, active managed tab evidence ready.
-- Do not use fake real browsing history. Use placeholder domains like `school.example.invalid`.
+- Do not use real browsing history. Use synthetic invalid domain fixtures from `POLICY_UI_CHECK_BROWSER_FIXTURE_DOMAINS` (for example `policy-ui-check-school.ocentra.invalid`) for UI-check only.
 
 Open browser decisions:
 
@@ -595,7 +595,7 @@ Useful fake fixture set:
 
 ## Future Function Intent
 
-These names are planning placeholders. Actual contracts should be domain-first and test-backed.
+These names are provisional surface entries for UI planning; each entry must be replaced by test-backed domain contracts in the portal policy implementation layer before production rollout.
 
 Read models:
 

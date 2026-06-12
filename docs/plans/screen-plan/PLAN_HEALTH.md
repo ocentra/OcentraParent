@@ -43,3 +43,25 @@ This file records documentation health and consistency checks for the plan. It i
 - Minimum read set: assigned screen workpack, exact checklist row, `TEST_PROOF_EXPECTATIONS.md`, platform/source docs named by the row, and proof index for screenshots/logs.
 - Test/proof decision: require permission/manual-required, redaction, custody, no-content-claim, timing/clock-boundary, privacy, platform adapter, storage deletion, and screenshot/log proof where touched.
 - DONE blocker: no screen row may claim content understanding, AI safety, or enforcement without separate proof from the owning AI/policy/enforcement plan.
+
+## High-Information-Density Gate
+
+### Scope and ownership
+
+- Scope and ownership: this file governs documentation routing, state, and proof expectations for `screen-plan`.
+- Ownership path: this plan is coordinated via `screen-plan/AGENTS.md`, `screen-plan/PLAN_STATE.md`, and `screen-plan/NEXT_ACTIONS.md` plus selected workpack files.
+
+### State
+
+- Current state: route and schema hygiene are present, but implementation/closure proof remains incomplete until checklist and workpack evidence are updated.
+- Current action: keep this file and `screen-plan/PLAN_STATE.md` aligned before any DONE/PR_READY claim.
+
+### Decision routes and failure controls
+
+- Decision route: follow this plan�s AGENTS landing decision, the selected workpack path, and the feature/doc proof matrix referenced in this file.
+- Failure controls: do not claim completion when handoff routes are missing, checklist/workpack states diverge, or known risks remain unmitigated with no explicit deferral.
+
+### Proof mapping
+
+- Required proof before READY: explicit links from workpack checklist rows, proof artifacts named in this file, and cross-plan handoff notes in AGENTS/NEXT_ACTIONS.
+- At minimum, align the following docs before READY: `AGENTS.md`, `PLAN_STATE.md`, `NEXT_ACTIONS.md`, and the assigned plan workpacks.

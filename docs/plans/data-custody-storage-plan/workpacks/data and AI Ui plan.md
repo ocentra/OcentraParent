@@ -235,7 +235,7 @@ Show events for:
 
 ## Data Read Models And Intents
 
-Suggested future contracts. Names are placeholders for planning only and should be moved into domain packages before implementation.
+These names are pre-contract labels for implementation capture. Promote each row into domain contracts before the first production data/AI implementation pass.
 
 Read models:
 
@@ -679,7 +679,7 @@ Show:
 
 ## AI Read Models And Intents
 
-Suggested future contracts. Names are placeholders for planning only and should be moved into domain packages before implementation.
+These names are pre-contract labels for implementation capture. Promote each row into domain contracts before the first production data/AI implementation pass.
 
 Read models:
 

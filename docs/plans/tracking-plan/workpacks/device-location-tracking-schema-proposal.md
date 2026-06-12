@@ -754,7 +754,7 @@ worker can see how the pieces relate.
     "compiledFromPolicyId": "location-policy-mia-phone",
     "compiledFromRevision": 4,
     "schemaVersion": 1,
-    "effectivePolicyHash": "sha256-placeholder-worker-must-compute",
+    "effectivePolicyHash": "sha256:worker-must-compute-sample",
     "compiledAt": "2026-05-28T00:00:00.000Z",
     "scope": {
       "familyId": "family-local-1",
@@ -960,7 +960,7 @@ worker can see how the pieces relate.
         "responseShape": {
           "accepted": true,
           "wouldCreateRevision": 5,
-          "effectivePolicyPreviewHash": "sha256-placeholder",
+          "effectivePolicyPreviewHash": "sha256:static-sample-token",
           "warnings": ["background-permission-required-for-live"],
           "unsupportedSettings": []
         }
@@ -983,8 +983,8 @@ worker can see how the pieces relate.
         "acceptedResponseShape": {
           "eventType": "device-location-policy.patch.accepted",
           "newRevision": 5,
-          "policyHash": "sha256-placeholder",
-          "effectivePolicyHash": "sha256-placeholder",
+          "policyHash": "sha256:static-sample-token",
+          "effectivePolicyHash": "sha256:static-sample-token",
           "requiresPermissionSetup": false,
           "unsupportedSettings": []
         },
@@ -1050,7 +1050,7 @@ worker can see how the pieces relate.
         "purpose": "Portal or parent-controller asks the child agent to sync compiled geofence definitions after policy acceptance.",
         "requestShape": {
           "targetDeviceId": "device-android-phone",
-          "effectivePolicyHash": "sha256-placeholder",
+          "effectivePolicyHash": "sha256:static-sample-token",
           "placeIds": ["place-home", "place-school"]
         }
       },

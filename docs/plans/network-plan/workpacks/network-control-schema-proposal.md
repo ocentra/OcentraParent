@@ -1013,7 +1013,7 @@ worker can see how the pieces relate.
     "compiledFromPolicyId": "network-policy-mia-windows-laptop",
     "compiledFromRevision": 12,
     "schemaVersion": 1,
-    "effectivePolicyHash": "sha256-placeholder-worker-must-compute",
+    "effectivePolicyHash": "sha256:worker-must-compute-sample",
     "compiledAt": "2026-05-28T00:00:00.000Z",
     "scope": {
       "familyId": "family-local-1",
@@ -1202,7 +1202,7 @@ worker can see how the pieces relate.
         "responseShape": {
           "accepted": true,
           "wouldCreateRevision": 13,
-          "effectivePolicyPreviewHash": "sha256-placeholder",
+          "effectivePolicyPreviewHash": "sha256:static-sample-token",
           "warnings": [],
           "unsupportedSettings": []
         }
@@ -1225,8 +1225,8 @@ worker can see how the pieces relate.
         "acceptedResponseShape": {
           "eventType": "network-policy.patch.accepted",
           "newRevision": 13,
-          "policyHash": "sha256-placeholder",
-          "effectivePolicyHash": "sha256-placeholder",
+          "policyHash": "sha256:static-sample-token",
+          "effectivePolicyHash": "sha256:static-sample-token",
           "requiresRestart": false,
           "unsupportedSettings": []
         },

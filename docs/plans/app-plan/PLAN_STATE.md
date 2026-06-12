@@ -34,3 +34,24 @@ This plan owns native app identity, installed inventory, process/runtime, foregr
 ## No-Read Boundary
 
 Do not read adjacent plans or source trees until a workpack names the exact handoff.
+
+## HID Execution Guard (added 2026-06-12)
+
+- Scope and completion source:
+  - follow [PLAN_HID_MATRIX.md](../PLAN_HID_MATRIX.md) execution slice, then this plan's assigned WORKPACK_INDEX.md and NEXT_ACTIONS.md.
+  - do not mark this plan complete from checklist deltas alone.
+- Before any checked update, attach:
+  - a real test run log (or explicit known blocker) from the assigned implementation boundary,
+  - a proof manifest under docs/proof/app-plan/.
+- Required proof manifest names:
+  - docs/proof/app-plan/slice-01-\*.md
+  - docs/proof/app-plan/slice-02-\*.md
+  - docs/proof/app-plan/slice-03-\*.md
+  - each proof file must include commands, pass/fail,
+    negative-cases, and manual-required notes.
+- Failure rule: no PR-ready claim until replay/idempotency, authZ/replay, and rollback/teardown proofs are present for the assigned slice.
+
+## HID execution blueprint
+
+Continue execution from: [PLAN_EXECUTION_BLUEPRINT.md](PLAN_EXECUTION_BLUEPRINT.md).
+Update this plan only via the blueprint and matching workpack checklist.

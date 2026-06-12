@@ -17,6 +17,13 @@ Context: remote access is not screen capture and not LAN pairing. It is a high-r
 Scope: remote live screen, remote desktop/control, remote input authority, relay sessions, capability grants, consent/disclosure, abuse limits, and proof.
 Out of scope: raw capture adapter details, local LAN discovery, account login implementation, package signing, and general portal styling.
 
+## High-Density Execution Contract
+
+- Route first from `PLAN_STATE.md`; this plan owns remote access authority and must not merge with local LAN or local capture implementation claims.
+- Select exactly one workpack and matching proof/checklist rows per session; avoid opening all workpacks by default.
+- Every accepted claim must include consent model, session lifecycle evidence, revocation evidence, relay fallback behavior, and abuse/risk mitigation proof.
+- Stop condition: no DONE/PR_READY claims for remote input/control, or live view capabilities without explicit consent, scope, and negative-path validation.
+
 ## Research Gate
 
 This plan is first-pass. Before implementation, DONE, or PR_READY, the assigned agent must inspect existing remote architecture docs, screen-plan code/docs, LAN code/docs, portal-domain route state, and any local service remote capability code, then discuss unresolved safety/product choices with Sujan. Do not treat this first-pass plan as final architecture.
