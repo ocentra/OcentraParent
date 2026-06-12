@@ -28,8 +28,8 @@ async function main() {
     '--',
     'vitest',
     'run',
-    'tests/tracking-child-runtime-delivery-boundary-proof.test.ts',
-    'tests/tracking-child-check-in-timeout-escalation-proof.test.ts',
+    'tests/tracking/tracking-child-runtime-delivery-boundary-proof.test.ts',
+    'tests/tracking/tracking-child-check-in-timeout-escalation-proof.test.ts',
   ]);
 
   const policy = await import(
@@ -66,7 +66,7 @@ async function main() {
       sourceContractRefs: [
         'packages/parent-domain/src/tracking-child-check-in-timeout-escalation-proof.ts',
         'packages/parent-domain/src/tracking-child-runtime-delivery-boundary-proof.ts',
-        'apps/portal/src/tracking-child-check-in-proof.ts',
+        'packages/portal-domain/src/tracking-child-check-in-proof.ts',
         'apps/portal/e2e/tracking-hosted-ui-proof.spec.ts',
         'docs/plans/tracking-plan/workpacks/30-parent-and-child-ui-ux-surfaces.md',
       ],
@@ -179,9 +179,9 @@ function sourceSnapshot({ checkedAt, commit }) {
     '- status: proved',
     '- proves hosted child-runtime disclosure rows linked to child check-in timeout rows and hosted UI proof refs',
     '- proof module: packages/parent-domain/src/tracking-child-runtime-delivery-boundary-proof.ts',
-    '- proof tests: packages/parent-domain/tests/tracking-child-runtime-delivery-boundary-proof.test.ts',
+    '- proof tests: packages/parent-domain/tests/tracking/tracking-child-runtime-delivery-boundary-proof.test.ts',
     '- proof harness: scripts/test/tracking-child-runtime-delivery-boundary-proof.mjs',
-    '- hosted UI source: apps/portal/src/tracking-child-check-in-proof.ts',
+    '- hosted UI source: packages/portal-domain/src/tracking-child-check-in-proof.ts',
     '- hosted UI proof: scripts/test/tracking-plan-hosted-ui-proof.mjs',
     '',
   ].join('\n');
