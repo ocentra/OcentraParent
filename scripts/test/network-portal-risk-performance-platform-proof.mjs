@@ -62,6 +62,7 @@ async function main() {
       '--',
       'eslint',
       'src/network-evidence-drawer.ts',
+      '../../packages/portal-domain/src/network-evidence-drawer.ts',
       'src/NetworkEvidenceDrawerRoutePanel.tsx',
       'tests/live-activity-network-flow.test.ts',
       '../../packages/portal-domain/src/details.ts',
@@ -88,7 +89,8 @@ async function main() {
       testProof: proofPath,
     },
     evidence: {
-      networkEvidenceDrawer: 'apps/portal/src/network-evidence-drawer.ts',
+      networkEvidenceDrawer: 'packages/portal-domain/src/network-evidence-drawer.ts',
+      networkEvidenceDrawerWrapper: 'apps/portal/src/network-evidence-drawer.ts',
       networkEvidenceDrawerRoutePanel: 'apps/portal/src/NetworkEvidenceDrawerRoutePanel.tsx',
       portalLabels: 'packages/portal-domain/src/details.ts',
       portalNetworkFlowTest: 'apps/portal/tests/live-activity-network-flow.test.ts',
@@ -121,7 +123,7 @@ async function main() {
 }
 
 function assertPortalStatusProjection() {
-  const drawer = readText('apps/portal/src/network-evidence-drawer.ts');
+  const drawer = readText('packages/portal-domain/src/network-evidence-drawer.ts');
   const panel = readText('apps/portal/src/NetworkEvidenceDrawerRoutePanel.tsx');
   const labels = readText('packages/portal-domain/src/details.ts');
   const test = readText('apps/portal/tests/live-activity-network-flow.test.ts');
