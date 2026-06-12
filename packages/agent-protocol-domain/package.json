@@ -9,6 +9,10 @@
       "import": "./dist/activity-surface-adapter.js",
       "types": "./dist/activity-surface-adapter.d.ts"
     },
+    "./browser-intervention-read-model": {
+      "import": "./dist/browser-intervention-read-model.js",
+      "types": "./dist/browser-intervention-read-model.d.ts"
+    },
     "./browser-policy-adapter": {
       "import": "./dist/browser-policy-adapter.js",
       "types": "./dist/browser-policy-adapter.d.ts"
@@ -45,9 +49,17 @@
       "import": "./dist/tracking-retention-settings-write-command.js",
       "types": "./dist/tracking-retention-settings-write-command.d.ts"
     },
+    "./policy-preview-read-model": {
+      "import": "./dist/policy-preview-read-model.js",
+      "types": "./dist/policy-preview-read-model.d.ts"
+    },
     "./network-runtime-events": {
       "import": "./dist/network-runtime-events.js",
       "types": "./dist/network-runtime-events.d.ts"
+    },
+    "./network-flow-read-model": {
+      "import": "./dist/network-flow-read-model.js",
+      "types": "./dist/network-flow-read-model.d.ts"
     },
     "./network-remote-delivery-status": {
       "import": "./dist/network-remote-delivery-status.js",

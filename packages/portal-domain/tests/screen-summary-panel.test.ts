@@ -1,4 +1,9 @@
 import { describe, expect, it } from 'vitest';
+import {
+  ActivityScreenReadModelSchema,
+  ActivitySurfaceSchemaVersion,
+} from '@ocentra-parent/activity-domain/activity-surface';
+import { ActivityEvidenceKind } from '@ocentra-parent/activity-domain/kinds';
 import { createScreenSummaryPanelIntent } from '../src/screen-summary-panel';
 
 describe('screen summary panel intent', () => {
@@ -69,16 +74,33 @@ describe('screen summary panel intent', () => {
 });
 
 function screenReadModel() {
-  return {
+  return ActivityScreenReadModelSchema.parse({
+    schemaVersion: ActivitySurfaceSchemaVersion,
+    request: {
+      schemaVersion: ActivitySurfaceSchemaVersion,
+      scope: {
+        scopeKind: 'device',
+        familyId: null,
+        deviceId: 'child-device-screen-summary',
+      },
+      requestedAt: '2026-06-06T22:19:00Z',
+      rangeStart: '2026-06-06T21:20:00Z',
+      rangeEnd: '2026-06-06T22:20:00Z',
+    },
     state: 'ready',
     generatedAt: '2026-06-06T22:20:00Z',
-    returned: 1,
+    summary: 'One screen analysis row is ready for parent review',
     rows: [
       {
         rowId: 'screen-row-school-research',
         label: 'School research window',
+        deviceId: 'child-device-screen-summary',
         state: 'ready',
+        totalMs: 1800000,
+        foregroundMs: 1800000,
+        backgroundMs: 0,
         captureReason: 'timedCadence',
+        captureScope: 'activeWindow',
         capabilityStatus: 'available',
         queueJobId: 'screen-queue-job-1',
         modelRuntimeRef: 'winrt-ocr-runtime',
@@ -86,21 +108,36 @@ function screenReadModel() {
         providerKind: 'localOcr',
         promptOrTemplateVersion: 'screen-ocr-v1',
         primaryCategory: 'school',
-        confidence: 'medium',
+        confidence: 0.72,
         imageDeletionState: 'deleted',
         rawImageRetained: false,
+        policyEligible: true,
         imageDigest: 'sha256:screen-digest',
-        custodyState: 'deletedLocal',
-        evidence: [{ evidenceId: 'screen-summary-ref' }, { evidenceId: 'screen-audit-ref' }],
+        custodyState: 'child-device-query-store',
+        evidence: [
+          evidenceRef('screen-summary-ref', 'sha256:screen-summary-ref'),
+          evidenceRef('screen-audit-ref', 'sha256:screen-audit-ref'),
+        ],
         policyDecisionRef: 'screen-policy-decision-ref',
         policyAction: 'allow',
         policyReasonCodes: ['screen-school-allow'],
         parentRuleRefs: ['screen-parent-rule-ref'],
+        localModelRuntimeRefs: ['winrt-ocr-runtime'],
         parentExplanationRefs: ['screen-parent-explanation-ref'],
         explanationReasons: ['local-ai-screen-summary', 'stricter-parent-rule-checked'],
+        deletionReasons: ['screen-image-deleted'],
         ocrTextSnippets: ['Homework research page [redacted]'],
         redactionNotes: ['credentialLikeTextRedacted', 'piiLikeTextRedacted'],
       },
     ],
+  });
+}
+
+function evidenceRef(evidenceId: string, digest: string) {
+  return {
+    evidenceId,
+    kind: ActivityEvidenceKind.JournalEntry,
+    digest,
+    uri: null,
   } as const;
 }

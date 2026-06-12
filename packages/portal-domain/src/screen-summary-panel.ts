@@ -1,44 +1,15 @@
 import type { ActivitySurfaceAdapterResult } from '@ocentra-parent/agent-protocol-domain/activity-surface-adapter';
+import {
+  ActivityScreenReadModelSchema,
+  type ActivityScreenReadModel,
+} from '@ocentra-parent/activity-domain/activity-surface';
 import { decodeDisplayText, type DisplayText } from '@ocentra-parent/text-domain/contracts';
 import { PortalDevTextToken, resolvePortalDevText } from '@ocentra-parent/text-domain/portal-dev';
 import { PortalDetails, PortalReadableValues } from './details';
 
 const DetailSeparator = ' | ';
 
-type ScreenReadModel = {
-  readonly state: string;
-  readonly generatedAt: string;
-  readonly returned: number;
-  readonly rows: readonly ScreenReadModelRow[];
-};
-
-type ScreenReadModelRow = {
-  readonly rowId: string;
-  readonly label: string;
-  readonly state: string;
-  readonly captureReason: string;
-  readonly capabilityStatus: string;
-  readonly queueJobId: string;
-  readonly modelRuntimeRef: string;
-  readonly modelId: string;
-  readonly providerKind: string;
-  readonly promptOrTemplateVersion: string;
-  readonly primaryCategory: string | null;
-  readonly confidence: string;
-  readonly imageDeletionState: string;
-  readonly rawImageRetained: false;
-  readonly imageDigest: string;
-  readonly custodyState: string;
-  readonly evidence: readonly { readonly evidenceId: string }[];
-  readonly policyDecisionRef?: string | null;
-  readonly policyAction?: string | null;
-  readonly policyReasonCodes?: readonly string[];
-  readonly parentRuleRefs?: readonly string[];
-  readonly parentExplanationRefs?: readonly string[];
-  readonly explanationReasons?: readonly string[];
-  readonly ocrTextSnippets?: readonly string[];
-  readonly redactionNotes?: readonly string[];
-};
+type ScreenReadModelRow = ActivityScreenReadModel['rows'][number];
 
 export type ScreenSummaryPanelDetail = {
   readonly label: DisplayText;
@@ -74,7 +45,7 @@ export function createScreenSummaryPanelIntent(
     return failedIntent(base, readModelResult.reason);
   }
 
-  const readModel = screenReadModelFromUnknown(readModelResult.value);
+  const readModel = parseScreenReadModel(readModelResult.value);
   if (readModel === null) {
     return failedIntent(base, 'screen-read-model-shape');
   }
@@ -122,12 +93,15 @@ function failedIntent(base: ReturnType<typeof baseIntent>, reason: string): Scre
   };
 }
 
-function summaryDetails(readModel: ScreenReadModel, productClaim: DisplayText): readonly ScreenSummaryPanelDetail[] {
+function summaryDetails(
+  readModel: ActivityScreenReadModel,
+  productClaim: DisplayText
+): readonly ScreenSummaryPanelDetail[] {
   const latestRow = readModel.rows.at(0);
   return [
     detail(PortalDetails.Status, readableValue(readModel.state)),
     detail(PortalDetails.GeneratedAt, displayText(readModel.generatedAt)),
-    detail(PortalDetails.RowsReturned, countText(readModel.returned)),
+    detail(PortalDetails.RowsReturned, countText(readModel.rows.length)),
     detail(PortalDetails.Capability, readableValue(latestRow?.capabilityStatus ?? 'unavailable')),
     detail(PortalDetails.Custody, readableValue(latestRow?.custodyState ?? 'unavailable')),
     detail(PortalDetails.DeletedEvidence, readableValue(latestRow?.imageDeletionState ?? 'unavailable')),
@@ -214,84 +188,7 @@ function detail(label: DisplayText, value: DisplayText): ScreenSummaryPanelDetai
   };
 }
 
-function screenReadModelFromUnknown(value: unknown): ScreenReadModel | null {
-  if (!isRecord(value)) {
-    return null;
-  }
-  const rows = Array.isArray(value['rows']) ? value['rows'].map(screenReadModelRowFromUnknown) : null;
-  if (rows === null || rows.some((row) => row === null)) {
-    return null;
-  }
-  return {
-    state: textValue(value['state']),
-    generatedAt: textValue(value['generatedAt']),
-    returned: numberValue(value['returned']) ?? rows.length,
-    rows: rows.filter((row): row is ScreenReadModelRow => row !== null),
-  };
-}
-
-function screenReadModelRowFromUnknown(value: unknown): ScreenReadModelRow | null {
-  if (!isRecord(value)) {
-    return null;
-  }
-  const evidence = Array.isArray(value['evidence']) ? value['evidence'].map(evidenceRefFromUnknown) : [];
-  return {
-    rowId: textValue(value['rowId']),
-    label: textValue(value['label']),
-    state: textValue(value['state']),
-    captureReason: textValue(value['captureReason']),
-    capabilityStatus: textValue(value['capabilityStatus']),
-    queueJobId: textValue(value['queueJobId']),
-    modelRuntimeRef: textValue(value['modelRuntimeRef']),
-    modelId: textValue(value['modelId']),
-    providerKind: textValue(value['providerKind']),
-    promptOrTemplateVersion: textValue(value['promptOrTemplateVersion']),
-    primaryCategory: nullableTextValue(value['primaryCategory']),
-    confidence: textValue(value['confidence']),
-    imageDeletionState: textValue(value['imageDeletionState']),
-    rawImageRetained: false,
-    imageDigest: textValue(value['imageDigest']),
-    custodyState: textValue(value['custodyState']),
-    evidence: evidence.filter((reference): reference is { readonly evidenceId: string } => reference !== null),
-    policyDecisionRef: nullableTextValue(value['policyDecisionRef']),
-    policyAction: nullableTextValue(value['policyAction']),
-    policyReasonCodes: textListValue(value['policyReasonCodes']),
-    parentRuleRefs: textListValue(value['parentRuleRefs']),
-    parentExplanationRefs: textListValue(value['parentExplanationRefs']),
-    explanationReasons: textListValue(value['explanationReasons']),
-    ocrTextSnippets: textListValue(value['ocrTextSnippets']),
-    redactionNotes: textListValue(value['redactionNotes']),
-  };
-}
-
-function evidenceRefFromUnknown(value: unknown): { readonly evidenceId: string } | null {
-  if (!isRecord(value)) {
-    return null;
-  }
-  return {
-    evidenceId: textValue(value['evidenceId']),
-  };
-}
-
-function textListValue(value: unknown): readonly string[] {
-  if (!Array.isArray(value)) {
-    return [];
-  }
-  return value.map((item) => String(item)).filter(Boolean);
-}
-
-function nullableTextValue(value: unknown): string | null {
-  return value === null || value === undefined ? null : textValue(value);
-}
-
-function textValue(value: unknown): string {
-  return String(value ?? resolvePortalDevText(PortalDevTextToken.NotReported));
-}
-
-function numberValue(value: unknown): number | null {
-  return typeof value === 'number' && Number.isFinite(value) ? value : null;
-}
-
-function isRecord(value: unknown): value is Readonly<Record<string, unknown>> {
-  return typeof value === 'object' && value !== null;
+function parseScreenReadModel(value: unknown): ActivityScreenReadModel | null {
+  const parsed = ActivityScreenReadModelSchema.safeParse(value);
+  return parsed.success && parsed.data !== undefined ? parsed.data : null;
 }

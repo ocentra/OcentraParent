@@ -9,7 +9,7 @@ scope. This is not a completion claim.
 
 - Branch: `codex/tracking-plan-full-continuation-a`.
 - Latest checked main: `origin/main` at `f93fe8d1d`.
-- Current branch head: `8b16c5e33`.
+- Previous pushed branch head before this checkpoint: `945109bbd`.
 - Sync state: `origin/main` is an ancestor of this branch; no rebase is needed
   before the first organization chunk.
 - Current organization checkpoint:
@@ -34,6 +34,13 @@ scope. This is not a completion claim.
   - Safe portal unit tests are being grouped by feature folder
     (`logging`, `local-ai`, `diagnostics`, `activity`, `portal`, `screen`)
     without changing test behavior.
+  - Screen summary portal intent now consumes the canonical
+    `ActivityScreenReadModelSchema` from `packages/activity-domain`; the local
+    portal-domain lookalike read-model parser/type copy was removed.
+  - Browser intervention, network flow, and policy preview protocol payload
+    adapters are moving from `apps/portal/src` to
+    `packages/agent-protocol-domain/src`; portal now consumes those adapters
+    from the protocol-domain package.
 
 ## Canonical Ownership
 
@@ -84,17 +91,19 @@ should be reused unless they create duplicate truth.
 
 ## Whole-Repo DRY Workstreams
 
-| Workstream                      | Target                                                    | First action                                                                                            |
-| ------------------------------- | --------------------------------------------------------- | ------------------------------------------------------------------------------------------------------- |
-| Single-source contract manifest | `scripts/check-single-source-contracts.json`              | Inventory owner identities per feature before adding guard entries.                                     |
-| TS domain contract reuse        | `packages/*-domain`                                       | Replace proof/script/UI literal checks with imports from owner packages.                                |
-| Rust protocol canonicalization  | `crates/agent-protocol`                                   | Move protocol payload projection out of service when it is pure protocol/log shape.                     |
-| Rust runtime/service split      | `crates/agent-core`, `crates/agent-service`               | Keep reusable runtime logic in core, dispatch/transport in service.                                     |
-| Test folder organization        | package/crate `tests/` plus source-adjacent private tests | Move only tests with public API boundaries; do not expose internals just to move tests.                 |
-| Proof orchestration             | `scripts/test/<feature>/` later                           | First dedupe canonical imports; move folders as a dedicated chunk after scripts are stable.             |
-| Plan docs                       | `docs/plans/<feature-plan>/`                              | Update only owning plan/docs when paths or proof ownership move.                                        |
-| Portal proof intent models      | `packages/portal-domain/src/<feature>*`                   | Keep proof data builders and detail labels in portal-domain; keep DOM/React rendering in `apps/portal`. |
-| App/social portal intent shims  | `packages/portal-domain/src/<feature>*`                   | Delete app-local re-export mirror files after route panels/tests consume portal-domain directly.        |
+| Workstream                      | Target                                                    | First action                                                                                                              |
+| ------------------------------- | --------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------- |
+| Single-source contract manifest | `scripts/check-single-source-contracts.json`              | Inventory owner identities per feature before adding guard entries.                                                       |
+| TS domain contract reuse        | `packages/*-domain`                                       | Replace proof/script/UI literal checks with imports from owner packages.                                                  |
+| Rust protocol canonicalization  | `crates/agent-protocol`                                   | Move protocol payload projection out of service when it is pure protocol/log shape.                                       |
+| Rust runtime/service split      | `crates/agent-core`, `crates/agent-service`               | Keep reusable runtime logic in core, dispatch/transport in service.                                                       |
+| Test folder organization        | package/crate `tests/` plus source-adjacent private tests | Move only tests with public API boundaries; do not expose internals just to move tests.                                   |
+| Proof orchestration             | `scripts/test/<feature>/` later                           | First dedupe canonical imports; move folders as a dedicated chunk after scripts are stable.                               |
+| Plan docs                       | `docs/plans/<feature-plan>/`                              | Update only owning plan/docs when paths or proof ownership move.                                                          |
+| Portal proof intent models      | `packages/portal-domain/src/<feature>*`                   | Keep proof data builders and detail labels in portal-domain; keep DOM/React rendering in `apps/portal`.                   |
+| App/social portal intent shims  | `packages/portal-domain/src/<feature>*`                   | Delete app-local re-export mirror files after route panels/tests consume portal-domain directly.                          |
+| Portal read-model projections   | `packages/activity-domain` and `packages/portal-domain`   | Portal-domain may format canonical read models, but must parse/accept owner schemas instead of cloning read-model shapes. |
+| Protocol read-model adapters    | `packages/agent-protocol-domain`                          | Protocol log/event payload adapters belong beside protocol contracts; portal consumes them as UI state inputs.            |
 
 ## Tracking-First Ownership
 
@@ -144,6 +153,8 @@ should be reused unless they create duplicate truth.
 | Move remaining portal tracking proof model files                                                               | Do in feature-owned batches after retention/evidence drawer split is validated; several files also touch React route-panel shape.  |
 | Remove app/game and social portal intent re-export shims                                                       | Done in this checkpoint: app/game and social route panels/tests now import directly from `@ocentra-parent/portal-domain`.          |
 | Group safe portal unit tests by feature folder                                                                 | Done in this checkpoint for logging, local AI, diagnostics, activity, portal, and screen tests with import-depth rewiring only.    |
+| Remove portal-domain screen summary read-model duplicate                                                       | Done in this checkpoint: `screen-summary-panel` now parses `ActivityScreenReadModelSchema` and tests use a canonical fixture.      |
+| Move protocol read-model adapters out of portal app                                                            | Done in this checkpoint for browser intervention, network flow, and policy preview payload-to-read-model adapters.                 |
 
 ## Non-Move Decisions
 

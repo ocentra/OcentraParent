@@ -1,5 +1,5 @@
-import { AgentProtocolDefaults, type AgentProtocolLogFields } from '@ocentra-parent/agent-protocol-domain/contracts';
 import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
+import { AgentProtocolDefaults, type AgentProtocolLogFields } from './contracts';
 
 const NullableTextSchema = Schema.Union(Schema.String, Schema.Null);
 const NullableSchemaVersionSchema = Schema.Union(Schema.String, Schema.Number, Schema.Null);
