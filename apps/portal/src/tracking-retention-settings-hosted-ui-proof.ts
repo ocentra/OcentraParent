@@ -1,14 +1,13 @@
 import {
   PortalDetails,
   PortalDom,
-  decodePortalDetailValue,
   type PortalDetailValue,
   type PortalDisplayText,
   type TrackingRetentionSettingsHostedUiProof,
   type TrackingRetentionSettingsWritePreflight,
   type TrackingStatusProofArtifact,
 } from '@ocentra-parent/portal-domain/contracts';
-import { appendDetail } from './detail-list';
+import { appendDetail, portalDetailFromValue } from './detail-list';
 
 export function renderTrackingRetentionSettingsHostedUiProof(
   proof: TrackingRetentionSettingsHostedUiProof
@@ -93,5 +92,5 @@ function appendRetentionSettingsWritePreflight(
 }
 
 function toDetail(value: PortalDisplayText | TrackingStatusProofArtifact): PortalDetailValue {
-  return decodePortalDetailValue(value);
+  return portalDetailFromValue(value);
 }
