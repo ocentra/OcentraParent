@@ -1,6 +1,8 @@
+use crate::{constants, ACTIVITY_QUERY_SCHEMA_VERSION};
+
 use super::{
-    constants, TrackingReadModel, TrackingReadModelCount, TrackingReadModelRow,
-    ACTIVITY_QUERY_SCHEMA_VERSION, TRACKING_READ_MODEL_CUSTODY_CHILD_DEVICE_QUERY_STORE,
+    TrackingReadModel, TrackingReadModelCount, TrackingReadModelRow,
+    TRACKING_READ_MODEL_CUSTODY_CHILD_DEVICE_QUERY_STORE,
     TRACKING_READ_MODEL_ROW_VISIBILITY_ACTIVE, TRACKING_READ_MODEL_STATUS_NO_TRACKING_EVENTS,
 };
 
