@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { PortalConnectionState, PortalRoute } from '@ocentra-parent/portal-domain/contracts';
-import { shouldRequestNetworkFlowReadModelForRoute } from '../src/portal-route-refresh';
+import { shouldRequestNetworkFlowReadModelForRoute } from '../../src/portal-route-refresh';
 
 describe('portal route refresh', () => {
   it('requests network flow read model once when a network drawer route is connected', () => {

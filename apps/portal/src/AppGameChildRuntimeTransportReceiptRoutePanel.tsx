@@ -16,7 +16,7 @@ import {
   type AppGameChildRuntimeTransportReceiptPanelDetail,
   type AppGameChildRuntimeTransportReceiptPanelIntent,
   type AppGameChildRuntimeTransportReceiptPanelRow,
-} from './app-game-child-runtime-transport-receipt-panel';
+} from '@ocentra-parent/portal-domain/app-game-child-runtime-transport-receipt-panel';
 
 export function shouldRenderAppGameChildRuntimeTransportReceiptRoute(route: PortalRouteValue): boolean {
   return isPortalAppGameParentSurfaceRoute(route);

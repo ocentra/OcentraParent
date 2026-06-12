@@ -7,7 +7,7 @@ import {
   type AgentEventEnvelope,
 } from '@ocentra-parent/agent-protocol-domain/contracts';
 import { PortalRoute } from '@ocentra-parent/portal-domain/contracts';
-import { createAppGamePlatformProofStatusPanelIntent } from '../src/app-game-platform-proof-status-panel';
+import { createAppGamePlatformProofStatusPanelIntent } from '@ocentra-parent/portal-domain/app-game-platform-proof-status-panel';
 import { resolveLiveActivityState } from '../src/live-activity-state';
 import { shouldRenderAppGamePlatformProofStatusRoute } from '../src/AppGamePlatformProofStatusRoutePanel';
 

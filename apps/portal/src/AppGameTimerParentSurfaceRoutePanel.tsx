@@ -6,18 +6,16 @@ import {
   PortalDom,
   PortalText,
   PortalTextToken,
+  createAppGameTimerParentPreferenceSetupRequestPayload,
+  createAppGameTimerParentSurfacePanelIntent,
   isPortalAppGameParentSurfaceRoute,
+  type AppGameTimerParentSurfacePanelDetail,
+  type AppGameTimerParentSurfacePanelIntent,
+  type AppGameTimerParentSurfacePanelRow,
   type PortalDisplayText,
   type PortalRoute as PortalRouteValue,
 } from '@ocentra-parent/portal-domain/contracts';
 import type { PortalRenderActions } from './portal-actions';
-import {
-  createAppGameTimerParentPreferenceSetupRequestPayload,
-  createAppGameTimerParentSurfacePanelIntent,
-  type AppGameTimerParentSurfacePanelDetail,
-  type AppGameTimerParentSurfacePanelIntent,
-  type AppGameTimerParentSurfacePanelRow,
-} from './app-game-timer-parent-surface-panel';
 
 export function shouldRenderAppGameTimerParentSurfaceRoute(route: PortalRouteValue): boolean {
   return isPortalAppGameParentSurfaceRoute(route);

@@ -7,7 +7,7 @@ import {
   type AgentEventEnvelope,
 } from '@ocentra-parent/agent-protocol-domain/contracts';
 import { PortalRoute } from '@ocentra-parent/portal-domain/contracts';
-import { createAppGameChildRuntimeTransportReceiptPanelIntent } from '../src/app-game-child-runtime-transport-receipt-panel';
+import { createAppGameChildRuntimeTransportReceiptPanelIntent } from '@ocentra-parent/portal-domain/app-game-child-runtime-transport-receipt-panel';
 import { resolveLiveActivityState } from '../src/live-activity-state';
 import { shouldRenderAppGameChildRuntimeTransportReceiptRoute } from '../src/AppGameChildRuntimeTransportReceiptRoutePanel';
 

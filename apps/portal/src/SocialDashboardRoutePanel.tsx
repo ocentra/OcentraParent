@@ -4,16 +4,14 @@ import { parseAgentSocialDashboardReadModelEvent } from '@ocentra-parent/agent-p
 import {
   PortalDetails,
   PortalDom,
-  isPortalBrowserParentSurfaceRoute,
-  type PortalRoute as PortalRouteValue,
-} from '@ocentra-parent/portal-domain/contracts';
-import type { PortalRenderActions } from './portal-actions';
-import {
   createSocialDashboardPanelIntent,
+  isPortalBrowserParentSurfaceRoute,
   type SocialDashboardPanelDetail,
   type SocialDashboardPanelIntent,
   type SocialDashboardPanelRow,
-} from './social-dashboard-panel';
+  type PortalRoute as PortalRouteValue,
+} from '@ocentra-parent/portal-domain/contracts';
+import type { PortalRenderActions } from './portal-actions';
 
 export function shouldRenderSocialDashboardRoute(route: PortalRouteValue): boolean {
   return isPortalBrowserParentSurfaceRoute(route);

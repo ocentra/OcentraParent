@@ -8,11 +8,11 @@ import {
   AppGameNotificationParentSurfaceIntentReadModelSchema,
   RequiredAppGameNotificationParentSurfaceIntentNonClaims,
 } from '@ocentra-parent/parent-domain/app-game-notification-parent-surface-intent';
-import { PortalRoute } from '@ocentra-parent/portal-domain/contracts';
 import {
   createAppGameNotificationParentSurfacePanelIntent,
   type AppGameNotificationParentSurfacePanelIntent,
-} from '../src/app-game-notification-parent-surface-panel';
+  PortalRoute,
+} from '@ocentra-parent/portal-domain/contracts';
 import { shouldRenderAppGameNotificationParentSurfaceRoute } from '../src/AppGameNotificationParentSurfaceRoutePanel';
 import { resolveLiveActivityState } from '../src/live-activity-state';
 

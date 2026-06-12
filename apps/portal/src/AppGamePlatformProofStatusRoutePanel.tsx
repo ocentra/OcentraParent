@@ -16,7 +16,7 @@ import {
   type AppGamePlatformProofStatusPanelDetail,
   type AppGamePlatformProofStatusPanelIntent,
   type AppGamePlatformProofStatusPanelRow,
-} from './app-game-platform-proof-status-panel';
+} from '@ocentra-parent/portal-domain/app-game-platform-proof-status-panel';
 
 export function shouldRenderAppGamePlatformProofStatusRoute(route: PortalRouteValue): boolean {
   return isPortalAppGameParentSurfaceRoute(route);

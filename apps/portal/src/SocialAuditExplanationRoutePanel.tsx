@@ -10,16 +10,14 @@ import { SocialAuditExplanationSnapshotSchema } from '@ocentra-parent/parent-dom
 import {
   PortalDom,
   PortalEnvironment,
-  isPortalBrowserParentSurfaceRoute,
-  type PortalRoute as PortalRouteValue,
-} from '@ocentra-parent/portal-domain/contracts';
-import type { PortalRenderActions } from './portal-actions';
-import {
   createSocialAuditExplanationPanelIntent,
+  isPortalBrowserParentSurfaceRoute,
   type SocialAuditExplanationPanelDetail,
   type SocialAuditExplanationPanelIntent,
   type SocialAuditExplanationPanelRow,
-} from './social-audit-explanation-panel';
+  type PortalRoute as PortalRouteValue,
+} from '@ocentra-parent/portal-domain/contracts';
+import type { PortalRenderActions } from './portal-actions';
 
 export function shouldRenderSocialAuditExplanationRoute(route: PortalRouteValue): boolean {
   return isPortalBrowserParentSurfaceRoute(route);
