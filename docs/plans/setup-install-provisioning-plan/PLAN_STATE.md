@@ -39,7 +39,7 @@ Start with `workpacks/01-family-web-info-site.md` or `workpacks/02-registration-
 ## HID Execution Guard (added 2026-06-12)
 
 - Scope and completion source:
-  - follow [PLAN_HID_MATRIX.md](../PLAN_HID_MATRIX.md) execution slice, then this plan's assigned WORKPACK_INDEX.md and NEXT_ACTIONS.md.
+  - follow [PLAN_HID_MATRIX.md](../../PLAN_HID_MATRIX.md) execution slice, then this plan's assigned WORKPACK_INDEX.md and NEXT_ACTIONS.md.
   - do not mark this plan complete from checklist deltas alone.
 - Before any checked update, attach:
   - a real test run log (or explicit known blocker) from the assigned implementation boundary,
