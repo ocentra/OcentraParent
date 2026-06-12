@@ -10,9 +10,16 @@ import {
 import {
   PortalRoute,
   TrackingStatusProofArtifacts,
+  trackingChildCheckInProof,
+  trackingChildRuntimeUiProof,
   trackingFamilyDashboardHostedRollupProof,
   trackingEvidenceDrawerHostedUiProof,
+  trackingMissingDeviceHostedUiProof,
+  trackingNotificationParentSurfaceHostedUiProof,
+  trackingParentActionReadinessHostedUiProof,
   trackingRetentionSettingsHostedUiProof,
+  trackingReportExportHostedUiProof,
+  trackingReportPolicyConsumerHostedUiProof,
   trackingStatusLiveSummary,
   trackingStatusProofRows,
   trackingStatusServiceDataCoverage,
@@ -20,12 +27,6 @@ import {
 } from '@ocentra-parent/portal-domain/contracts';
 import { resolveLiveActivityState } from '../src/live-activity-state';
 import { shouldRenderTrackingStatusRoute } from '../src/TrackingStatusRoutePanel';
-import { trackingChildCheckInProof, trackingChildRuntimeUiProof } from '../src/tracking-child-check-in-proof';
-import { trackingNotificationParentSurfaceHostedUiProof } from '../src/tracking-notification-parent-surface-hosted-ui-proof';
-import { trackingParentActionReadinessHostedUiProof } from '../src/tracking-parent-action-readiness-hosted-ui-proof';
-import { trackingMissingDeviceHostedUiProof } from '../src/tracking-missing-device-hosted-ui-proof';
-import { trackingReportExportHostedUiProof } from '../src/tracking-report-export-hosted-ui-proof';
-import { trackingReportPolicyConsumerHostedUiProof } from '../src/tracking-report-policy-consumer-hosted-ui-proof';
 
 const ExpectedTrackingStateTitles = [
   'Tracking off',

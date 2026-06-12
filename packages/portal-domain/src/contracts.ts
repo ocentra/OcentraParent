@@ -156,7 +156,30 @@ export {
   type TrackingRetentionSettingsHostedUiRow,
   type TrackingRetentionSettingsWritePreflight,
 } from './tracking-retention-settings-hosted-ui-proof';
-export * from './tracking-hosted-ui-proofs';
+export {
+  TrackingMissingDeviceHostedUiDetails,
+  TrackingNotificationParentSurfaceHostedUiDetails,
+  TrackingParentActionReadinessHostedUiDetails,
+  trackingChildCheckInProof,
+  trackingChildRuntimeUiProof,
+  trackingMissingDeviceHostedUiProof,
+  trackingNotificationParentSurfaceHostedUiProof,
+  trackingParentActionReadinessHostedUiProof,
+  trackingReportExportHostedUiProof,
+  trackingReportPolicyConsumerHostedUiProof,
+  type TrackingChildCheckInProof,
+  type TrackingChildRuntimeUiProof,
+  type TrackingMissingDeviceHostedUiProof,
+  type TrackingMissingDeviceHostedUiRow,
+  type TrackingNotificationParentSurfaceHostedUiProof,
+  type TrackingNotificationParentSurfaceHostedUiRow,
+  type TrackingParentActionReadinessHostedUiProof,
+  type TrackingParentActionReadinessHostedUiRow,
+  type TrackingReportExportHostedUiProof,
+  type TrackingReportExportHostedUiRow,
+  type TrackingReportPolicyConsumerHostedUiProof,
+  type TrackingReportPolicyConsumerHostedUiRow,
+} from './tracking-hosted-ui-proofs';
 export {
   PARENT_PORTAL_NAV_LABELS,
   type ParentPortalHashRoutePath,
