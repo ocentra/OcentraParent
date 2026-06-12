@@ -23,8 +23,12 @@ async function main() {
   const checkedAt = new Date().toISOString();
   const commit = await gitHead();
   const serviceReadModelProof = await readJson(serviceReadModelProofPath);
-  const serviceBackedCitationMatrix = buildServiceBackedCitationMatrix(serviceReadModelProof);
-  assertServiceBackedCitationMatrix(serviceBackedCitationMatrix);
+  const trackingServiceDataContract = await loadTrackingServiceDataContract();
+  const serviceBackedCitationMatrix = buildServiceBackedCitationMatrix(
+    serviceReadModelProof,
+    trackingServiceDataContract
+  );
+  assertServiceBackedCitationMatrix(serviceBackedCitationMatrix, trackingServiceDataContract);
   const proof = {
     schemaVersion: 1,
     checkedAt,
@@ -37,14 +41,14 @@ async function main() {
     productClaimReady: false,
     commands,
     serviceDataUiSurface: {
-      route: 'policy-tracking',
+      route: trackingServiceDataContract.portalRoute,
       consumer: 'apps/portal/src/TrackingStatusRoutePanel.tsx',
       modelFunction: 'trackingStatusServiceDataCoverage',
       sourceModel: 'apps/portal/src/tracking-status-panel.ts',
       renderedTitle: 'Service data coverage',
-      sourcePayload: 'trackingReadModel',
-      sourceCommand: 'agent.activity.tracking.read-model.get',
-      sourceEvent: 'agent.activity.tracking.read-model.reported',
+      sourcePayload: trackingServiceDataContract.payloadField,
+      sourceCommand: trackingServiceDataContract.command,
+      sourceEvent: trackingServiceDataContract.event,
       validatedFields: [
         'rowsReturned',
         'activeRows',
@@ -112,7 +116,21 @@ async function readJson(path) {
   return JSON.parse(await readFile(path, 'utf8'));
 }
 
-function buildServiceBackedCitationMatrix(serviceReadModelProof) {
+async function loadTrackingServiceDataContract() {
+  const [{ AgentCommand, AgentEvent, AgentProtocolDefaults }, { PortalRoute }] = await Promise.all([
+    import('@ocentra-parent/agent-protocol-domain/contracts'),
+    import('@ocentra-parent/portal-domain/contracts'),
+  ]);
+
+  return {
+    command: AgentCommand.ActivityTrackingReadModelGet,
+    event: AgentEvent.ActivityTrackingReadModelReported,
+    payloadField: AgentProtocolDefaults.Field.ActivityTrackingReadModel,
+    portalRoute: PortalRoute.PolicyTracking,
+  };
+}
+
+function buildServiceBackedCitationMatrix(serviceReadModelProof, trackingServiceDataContract) {
   const serviceBoundary = serviceReadModelProof.serviceBoundary;
   const citationSurface = serviceBoundary.portalCitationSurface;
   const tombstoneReplay = serviceBoundary.tombstoneReplay;
@@ -124,7 +142,7 @@ function buildServiceBackedCitationMatrix(serviceReadModelProof) {
     serviceEvent: serviceBoundary.event,
     payloadField: serviceBoundary.payloadField,
     portalConsumer: serviceBoundary.portalConsumer,
-    portalRoute: 'policy-tracking',
+    portalRoute: trackingServiceDataContract.portalRoute,
     serviceDataConsumer: 'trackingStatusServiceDataCoverage',
     liveCitationConsumer: citationSurface.consumer,
     citationRows: citationSurface.citationRows,
@@ -160,7 +178,7 @@ function buildServiceBackedCitationMatrix(serviceReadModelProof) {
   };
 }
 
-function assertServiceBackedCitationMatrix(matrix) {
+function assertServiceBackedCitationMatrix(matrix, trackingServiceDataContract) {
   const requiredCitedFields = [
     'eventId',
     'observedAt',
@@ -180,9 +198,10 @@ function assertServiceBackedCitationMatrix(matrix) {
     throw new Error(`Service-backed citation matrix is missing cited fields: ${missingFields.join(', ')}`);
   }
   if (
-    matrix.serviceCommand !== 'agent.activity.tracking.read-model.get' ||
-    matrix.serviceEvent !== 'agent.activity.tracking.read-model.reported' ||
-    matrix.payloadField !== 'trackingReadModel' ||
+    matrix.serviceCommand !== trackingServiceDataContract.command ||
+    matrix.serviceEvent !== trackingServiceDataContract.event ||
+    matrix.payloadField !== trackingServiceDataContract.payloadField ||
+    matrix.portalRoute !== trackingServiceDataContract.portalRoute ||
     matrix.citationField !== 'evidenceReferenceIds'
   ) {
     throw new Error(`Service-backed citation matrix drifted from read-model contract: ${JSON.stringify(matrix)}`);

@@ -4,10 +4,14 @@ import {
   PortalFormatting,
   PortalText,
   PortalTextToken,
+  TrackingEvidenceDrawerHostedUiProofDetails,
   TrackingStatusProofArtifacts,
   decodePortalDetailValue,
+  trackingEvidenceDrawerHostedUiProof,
+  trackingRetentionSettingsHostedUiProof,
   type PortalDetailValue,
   type PortalDisplayText,
+  type TrackingEvidenceDrawerHostedUiProof,
   type TrackingStatusProofArtifact,
 } from '@ocentra-parent/portal-domain/contracts';
 import type {
@@ -21,15 +25,7 @@ import {
   type TrackingChildCheckInProof,
   type TrackingChildRuntimeUiProof,
 } from './tracking-child-check-in-proof';
-import {
-  renderTrackingRetentionSettingsHostedUiProof,
-  trackingRetentionSettingsHostedUiProof,
-} from './tracking-retention-settings-hosted-ui-proof';
-import {
-  TrackingEvidenceDrawerHostedUiProofDetails,
-  trackingEvidenceDrawerHostedUiProof,
-  type TrackingEvidenceDrawerHostedUiProof,
-} from './tracking-evidence-drawer-hosted-ui-proof';
+import { renderTrackingRetentionSettingsHostedUiProof } from './tracking-retention-settings-hosted-ui-proof';
 import { appendDetail } from './detail-list';
 import type { PortalLiveActivityState } from './live-activity-state';
 import { renderDashboard } from './portal-dashboard';
