@@ -149,6 +149,7 @@ export {
   type TrackingRetentionSettingsHostedUiRow,
   type TrackingRetentionSettingsWritePreflight,
 } from './tracking-retention-settings-hosted-ui-proof';
+export * from './tracking-hosted-ui-proofs';
 export {
   PARENT_PORTAL_NAV_LABELS,
   type ParentPortalHashRoutePath,
