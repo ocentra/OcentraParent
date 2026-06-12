@@ -62,7 +62,7 @@ async function main() {
       liveProjection: 'packages/portal-domain/src/app-game-notification-parent-surface-live-readiness.ts',
       overviewCommands: 'packages/portal-domain/src/commands.ts',
       liveActivityState: 'apps/portal/src/live-activity-state.ts',
-      commandResultEvents: 'apps/portal/src/event-results.ts',
+      commandResultEvents: 'packages/portal-domain/src/command-results.ts',
       portalDomainTest: 'packages/portal-domain/tests/app-game-notification-parent-surface-panel.test.ts',
       portalRouteTest: 'apps/portal/tests/app-game-notification-parent-surface-panel.test.ts',
       proofHarness: 'scripts/test/app-game-notification-live-parent-surface-proof.mjs',
@@ -106,7 +106,10 @@ async function collectLiveAssertions() {
     'utf8'
   );
   const liveStateSource = await readFile(join(repoRoot, 'apps', 'portal', 'src', 'live-activity-state.ts'), 'utf8');
-  const eventResultsSource = await readFile(join(repoRoot, 'apps', 'portal', 'src', 'event-results.ts'), 'utf8');
+  const eventResultsSource = await readFile(
+    join(repoRoot, 'packages', 'portal-domain', 'src', 'command-results.ts'),
+    'utf8'
+  );
   const portalDomainTestSource = await readFile(
     join(repoRoot, 'packages', 'portal-domain', 'tests', 'app-game-notification-parent-surface-panel.test.ts'),
     'utf8'

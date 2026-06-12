@@ -16,10 +16,10 @@ import {
   createAppGameTimerParentPreferenceSetupCommandResultDetails,
   createAppGameTimerParentPreferenceSetupRequestPayload,
   createAppGameTimerParentSurfacePanelIntent,
+  isCommandResultEvent,
   PortalRoute,
 } from '@ocentra-parent/portal-domain/contracts';
 import { shouldRenderAppGameTimerParentSurfaceRoute } from '../src/AppGameTimerParentSurfaceRoutePanel';
-import { isCommandResultEvent } from '../src/event-results';
 import { resolveLiveActivityState } from '../src/live-activity-state';
 
 const AppGameSchemaVersion = 1;

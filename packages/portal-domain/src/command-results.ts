@@ -4,7 +4,7 @@ import {
   type AgentEventName,
 } from '@ocentra-parent/agent-protocol-domain/contracts';
 
-const CommandResultEvents = new Set<AgentEventName>([
+export const PortalCommandResultEvents = [
   AgentEvent.HealthReported,
   AgentEvent.LogSnapshotReported,
   AgentEvent.DevEchoed,
@@ -39,7 +39,9 @@ const CommandResultEvents = new Set<AgentEventName>([
   AgentEvent.LocalAiRuntimeStatusReported,
   AgentEvent.PolicyPreviewReadModelReported,
   AgentEvent.ActivityAppGamePolicyReadinessReadModelReported,
-]);
+] as const satisfies readonly AgentEventName[];
+
+const CommandResultEvents = new Set<AgentEventName>(PortalCommandResultEvents);
 
 export function latestCommandResult(
   events: readonly AgentEventEnvelope[],

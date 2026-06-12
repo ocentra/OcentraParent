@@ -48,7 +48,7 @@ adapter dispatch.
 - `packages/portal-domain/src/commands.ts`
 - `packages/portal-domain/tests/app-game-notification-parent-surface-panel.test.ts`
 - `apps/portal/src/live-activity-state.ts`
-- `apps/portal/src/event-results.ts`
+- `packages/portal-domain/src/command-results.ts`
 - `apps/portal/tests/app-game-notification-parent-surface-panel.test.ts`
 - `scripts/test/app-game-notification-live-parent-surface-proof.mjs`
 - `test-results/app-game-notification-live-parent-surface-proof/proof.json`

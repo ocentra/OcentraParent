@@ -7,11 +7,11 @@ import {
   PortalTiming,
   createAppGameTimerParentPreferenceSetupCommandResultDetails,
   decodePortalClipboardText,
+  latestCommandResult,
   type AppGameTimerParentSurfacePanelDetail,
 } from '@ocentra-parent/portal-domain/contracts';
 import { writeClipboardText } from './clipboard';
 import { DevLogField, DevLogMessage, writePortalDevLog } from './dev-logger';
-import { latestCommandResult } from './event-results';
 import type { PortalRuntimeState } from './portal-state';
 
 export function renderCommandResultPanel(container: HTMLElement, state: PortalRuntimeState): void {
