@@ -127,7 +127,10 @@ export {
   TrackingStatusProofArtifactSchema,
   type TrackingStatusProofArtifact,
 } from './tracking-status-proof-artifacts';
-export type {
+export {
+  trackingFamilyDashboardHostedRollupProof,
+  trackingStatusProofRows,
+  trackingUnsupportedManualPlatformProof,
   TrackingFamilyDashboardHostedRollupProof,
   TrackingFamilyDashboardHostedRollupRow,
   TrackingStatusLiveCitation,

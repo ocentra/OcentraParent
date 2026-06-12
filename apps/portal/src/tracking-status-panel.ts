@@ -5,22 +5,22 @@ import {
   PortalText,
   PortalTextToken,
   TrackingEvidenceDrawerHostedUiProofDetails,
-  TrackingStatusProofArtifacts,
   decodePortalDetailValue,
+  trackingFamilyDashboardHostedRollupProof,
   trackingEvidenceDrawerHostedUiProof,
   trackingRetentionSettingsHostedUiProof,
+  trackingStatusProofRows,
+  trackingUnsupportedManualPlatformProof,
   type PortalDetailValue,
   type PortalDisplayText,
   type TrackingEvidenceDrawerHostedUiProof,
   type TrackingFamilyDashboardHostedRollupProof,
-  type TrackingFamilyDashboardHostedRollupRow,
   type TrackingStatusLiveCitation,
   type TrackingStatusLiveSummary,
   type TrackingStatusProofArtifact,
   type TrackingStatusProofRow,
   type TrackingStatusServiceDataCoverage,
   type TrackingUnsupportedManualPlatformProof,
-  type TrackingUnsupportedManualPlatformRow,
 } from '@ocentra-parent/portal-domain/contracts';
 import type {
   AgentActivityTrackingEvidenceReferenceIds,
@@ -48,216 +48,11 @@ export type {
   TrackingUnsupportedManualPlatformProof,
   TrackingUnsupportedManualPlatformRow,
 } from '@ocentra-parent/portal-domain/contracts';
-
-type PortalTextTokenValue = (typeof PortalTextToken)[keyof typeof PortalTextToken];
-
-type TrackingStatusRetentionProofDefinition = {
-  readonly historyVisibility: PortalTextTokenValue;
-  readonly deletedEvidence: PortalTextTokenValue;
-};
-
-type TrackingStatusProofRowDefinition = {
-  readonly titleToken: PortalTextTokenValue;
-  readonly evidenceToken: PortalTextTokenValue;
-  readonly proofArtifact: TrackingStatusProofArtifact;
-  readonly retentionProof?: TrackingStatusRetentionProofDefinition;
-};
-
-type TrackingUnsupportedManualPlatformDefinition = {
-  readonly titleToken: PortalTextTokenValue;
-  readonly supportStateToken: PortalTextTokenValue;
-  readonly renderedStateToken: PortalTextTokenValue;
-};
-
-type TrackingFamilyDashboardHostedRollupDefinition = {
-  readonly titleToken: PortalTextTokenValue;
-  readonly evidenceToken: PortalTextTokenValue;
-  readonly visibleChildren: number;
-  readonly attentionItems: number;
-  readonly retainedAuditItems: number;
-};
-
-const TrackingStatusProofRowDefinitions = [
-  {
-    titleToken: PortalTextToken.TrackingStateDisabled,
-    evidenceToken: PortalTextToken.TrackingEvidenceContracts,
-    proofArtifact: TrackingStatusProofArtifacts.ContractBoundary,
-  },
-  {
-    titleToken: PortalTextToken.TrackingStatePermissionRequired,
-    evidenceToken: PortalTextToken.TrackingEvidencePhysicalMissing,
-    proofArtifact: TrackingStatusProofArtifacts.PermissionCapability,
-  },
-  {
-    titleToken: PortalTextToken.TrackingStateStale,
-    evidenceToken: PortalTextToken.TrackingEvidenceUiFixture,
-    proofArtifact: TrackingStatusProofArtifacts.RuntimeLocationEvidence,
-  },
-  {
-    titleToken: PortalTextToken.TrackingStateOffline,
-    evidenceToken: PortalTextToken.TrackingEvidenceUiFixture,
-    proofArtifact: TrackingStatusProofArtifacts.DeviceStatus,
-  },
-  {
-    titleToken: PortalTextToken.TrackingStateLowAccuracy,
-    evidenceToken: PortalTextToken.TrackingEvidenceUiFixture,
-    proofArtifact: TrackingStatusProofArtifacts.RuntimeLocationEvidence,
-  },
-  {
-    titleToken: PortalTextToken.TrackingStateAmbiguousNearby,
-    evidenceToken: PortalTextToken.TrackingEvidenceUiFixture,
-    proofArtifact: TrackingStatusProofArtifacts.NearbyPlace,
-  },
-  {
-    titleToken: PortalTextToken.TrackingStateAlert,
-    evidenceToken: PortalTextToken.TrackingEvidenceUiFixture,
-    proofArtifact: TrackingStatusProofArtifacts.AlertSeverity,
-  },
-  {
-    titleToken: PortalTextToken.TrackingStateAcknowledged,
-    evidenceToken: PortalTextToken.TrackingEvidenceUiFixture,
-    proofArtifact: TrackingStatusProofArtifacts.ParentAcknowledgement,
-  },
-  {
-    titleToken: PortalTextToken.TrackingStateException,
-    evidenceToken: PortalTextToken.TrackingEvidenceUiFixture,
-    proofArtifact: TrackingStatusProofArtifacts.ParentAcknowledgement,
-  },
-  {
-    titleToken: PortalTextToken.TrackingStateChildCheckIn,
-    evidenceToken: PortalTextToken.TrackingEvidenceUiFixture,
-    proofArtifact: TrackingStatusProofArtifacts.ChildCheckIn,
-  },
-  {
-    titleToken: PortalTextToken.TrackingStateTemporaryLive,
-    evidenceToken: PortalTextToken.TrackingEvidencePhysicalMissing,
-    proofArtifact: TrackingStatusProofArtifacts.TemporaryLiveMode,
-  },
-  {
-    titleToken: PortalTextToken.TrackingStateMissingDevice,
-    evidenceToken: PortalTextToken.TrackingEvidencePhysicalMissing,
-    proofArtifact: TrackingStatusProofArtifacts.MissingDeviceMode,
-  },
-  {
-    titleToken: PortalTextToken.TrackingStateRetentionDeleted,
-    evidenceToken: PortalTextToken.TrackingEvidenceUiFixture,
-    proofArtifact: TrackingStatusProofArtifacts.RetentionDelete,
-    retentionProof: {
-      historyVisibility: PortalTextToken.TrackingRetentionHistoryHidden,
-      deletedEvidence: PortalTextToken.TrackingDeletedEvidenceNotRendered,
-    },
-  },
-] as const satisfies readonly TrackingStatusProofRowDefinition[];
-
-const TrackingUnsupportedManualPlatformDefinitions = [
-  {
-    titleToken: PortalTextToken.TrackingUnsupportedManualAndroidBackground,
-    supportStateToken: PortalTextToken.TrackingSupportManualRequired,
-    renderedStateToken: PortalTextToken.TrackingRenderedManualRequired,
-  },
-  {
-    titleToken: PortalTextToken.TrackingUnsupportedManualAndroidGeofence,
-    supportStateToken: PortalTextToken.TrackingSupportManualRequired,
-    renderedStateToken: PortalTextToken.TrackingRenderedManualRequired,
-  },
-  {
-    titleToken: PortalTextToken.TrackingUnsupportedManualIosBackground,
-    supportStateToken: PortalTextToken.TrackingSupportManualRequired,
-    renderedStateToken: PortalTextToken.TrackingRenderedManualRequired,
-  },
-  {
-    titleToken: PortalTextToken.TrackingUnsupportedManualIosGeofence,
-    supportStateToken: PortalTextToken.TrackingSupportManualRequired,
-    renderedStateToken: PortalTextToken.TrackingRenderedManualRequired,
-  },
-  {
-    titleToken: PortalTextToken.TrackingUnsupportedManualDesktopOs,
-    supportStateToken: PortalTextToken.TrackingSupportManualRequired,
-    renderedStateToken: PortalTextToken.TrackingRenderedManualRequired,
-  },
-  {
-    titleToken: PortalTextToken.TrackingUnsupportedManualWebChildAgent,
-    supportStateToken: PortalTextToken.TrackingSupportPlatformUnsupported,
-    renderedStateToken: PortalTextToken.TrackingRenderedUnavailable,
-  },
-  {
-    titleToken: PortalTextToken.TrackingUnsupportedManualAuthorityHardControl,
-    supportStateToken: PortalTextToken.TrackingSupportRealDeviceRequired,
-    renderedStateToken: PortalTextToken.TrackingRenderedAuthorityRequired,
-  },
-] as const satisfies readonly TrackingUnsupportedManualPlatformDefinition[];
-
-const TrackingFamilyDashboardHostedRollupDefinitions = [
-  {
-    titleToken: PortalTextToken.TrackingFamilyDashboardActiveSummary,
-    evidenceToken: PortalTextToken.TrackingFamilyDashboardActiveEvidence,
-    visibleChildren: 2,
-    attentionItems: 1,
-    retainedAuditItems: 0,
-  },
-  {
-    titleToken: PortalTextToken.TrackingFamilyDashboardChildAttention,
-    evidenceToken: PortalTextToken.TrackingFamilyDashboardChildAttentionEvidence,
-    visibleChildren: 1,
-    attentionItems: 2,
-    retainedAuditItems: 0,
-  },
-  {
-    titleToken: PortalTextToken.TrackingFamilyDashboardRetentionAudit,
-    evidenceToken: PortalTextToken.TrackingFamilyDashboardRetentionAuditEvidence,
-    visibleChildren: 0,
-    attentionItems: 0,
-    retainedAuditItems: 2,
-  },
-] as const satisfies readonly TrackingFamilyDashboardHostedRollupDefinition[];
-
-export function trackingStatusProofRows(): readonly TrackingStatusProofRow[] {
-  return TrackingStatusProofRowDefinitions.map((definition) => row(definition));
-}
-
-export function trackingFamilyDashboardHostedRollupProof(): TrackingFamilyDashboardHostedRollupProof {
-  const rows = TrackingFamilyDashboardHostedRollupDefinitions.map((definition) => familyDashboardRollupRow(definition));
-  return {
-    title: PortalText.Resolve(PortalTextToken.TrackingFamilyDashboardRollup),
-    body: PortalText.Resolve(PortalTextToken.TrackingFamilyDashboardRollupBody),
-    proofTier: PortalText.Resolve(PortalTextToken.TrackingProofService),
-    rowsReturned: detailFromValue(rows.length),
-    proofArtifact: TrackingStatusProofArtifacts.FamilyDashboardRollup,
-    boundary: PortalText.Resolve(PortalTextToken.TrackingFamilyDashboardHostedBoundary),
-    missingProof: PortalText.Resolve(PortalTextToken.TrackingManualRequired),
-    productClaim: PortalText.Resolve(PortalTextToken.TrackingNoProductClaim),
-    childDeviceDeliveryClaimedRows: detailFromValue(0),
-    providerDeliveryClaimedRows: detailFromValue(0),
-    notificationReceiptClaimedRows: detailFromValue(0),
-    physicalDeviceClaimedRows: detailFromValue(0),
-    authorityClaimedRows: detailFromValue(0),
-    productClaimReadyRows: detailFromValue(0),
-    rows,
-  };
-}
-
-export function trackingUnsupportedManualPlatformProof(): TrackingUnsupportedManualPlatformProof {
-  const rows = TrackingUnsupportedManualPlatformDefinitions.map((definition) => unsupportedManualRow(definition));
-  return {
-    title: PortalText.Resolve(PortalTextToken.TrackingUnsupportedManualProofTitle),
-    body: PortalText.Resolve(PortalTextToken.TrackingUnsupportedManualProofBody),
-    proofTier: PortalText.Resolve(PortalTextToken.TrackingProofFixture),
-    rowsReturned: detailFromValue(rows.length),
-    manualRequiredRows: renderedStateCount(rows, PortalTextToken.TrackingRenderedManualRequired),
-    unavailableRows: renderedStateCount(rows, PortalTextToken.TrackingRenderedUnavailable),
-    authorityRequiredRows: renderedStateCount(rows, PortalTextToken.TrackingRenderedAuthorityRequired),
-    fakeCapabilityRows: detailFromValue(0),
-    productClaimReadyRows: detailFromValue(0),
-    physicalDeviceClaimedRows: detailFromValue(0),
-    authorityClaimedRows: detailFromValue(0),
-    evidence: PortalText.Resolve(PortalTextToken.TrackingEvidenceUiFixture),
-    proofArtifact: TrackingStatusProofArtifacts.UnsupportedManualPlatform,
-    missingProof: PortalText.Resolve(PortalTextToken.TrackingManualRequired),
-    boundary: PortalText.Resolve(PortalTextToken.TrackingUnsupportedManualBoundary),
-    productClaim: PortalText.Resolve(PortalTextToken.TrackingNoProductClaim),
-    rows,
-  };
-}
+export {
+  trackingFamilyDashboardHostedRollupProof,
+  trackingStatusProofRows,
+  trackingUnsupportedManualPlatformProof,
+} from '@ocentra-parent/portal-domain/contracts';
 
 export function trackingStatusLiveSummary(liveActivity: PortalLiveActivityState): TrackingStatusLiveSummary {
   const event = liveActivity.activityTrackingReadModelEvent;
@@ -396,66 +191,6 @@ export function renderTrackingStatusSurface(container: HTMLElement, liveActivity
       dashboard.append(renderTrackingStatusRow(proofRow));
     }
   });
-}
-
-function row(definition: TrackingStatusProofRowDefinition): TrackingStatusProofRow {
-  const { titleToken, evidenceToken, proofArtifact } = definition;
-  const baseRow = {
-    title: PortalText.Resolve(titleToken),
-    state: PortalText.Resolve(titleToken),
-    proofTier: PortalText.Resolve(PortalTextToken.TrackingProofFixture),
-    evidence: PortalText.Resolve(evidenceToken),
-    proofArtifact,
-    missingProof: missingProofForEvidence(evidenceToken),
-    productClaim: PortalText.Resolve(PortalTextToken.TrackingNoProductClaim),
-  };
-  const retentionProof = definition.retentionProof;
-  if (retentionProof === undefined) {
-    return baseRow;
-  }
-  return {
-    ...baseRow,
-    historyVisibility: PortalText.Resolve(retentionProof.historyVisibility),
-    deletedEvidence: PortalText.Resolve(retentionProof.deletedEvidence),
-  };
-}
-
-function unsupportedManualRow(
-  definition: TrackingUnsupportedManualPlatformDefinition
-): TrackingUnsupportedManualPlatformRow {
-  return {
-    title: PortalText.Resolve(definition.titleToken),
-    supportState: PortalText.Resolve(definition.supportStateToken),
-    renderedState: PortalText.Resolve(definition.renderedStateToken),
-  };
-}
-
-function familyDashboardRollupRow(
-  definition: TrackingFamilyDashboardHostedRollupDefinition
-): TrackingFamilyDashboardHostedRollupRow {
-  return {
-    title: PortalText.Resolve(definition.titleToken),
-    status: PortalText.Resolve(PortalTextToken.TrackingFamilyDashboardRollupReady),
-    visibleChildren: detailFromValue(definition.visibleChildren),
-    attentionItems: detailFromValue(definition.attentionItems),
-    retainedAuditItems: detailFromValue(definition.retainedAuditItems),
-    evidence: PortalText.Resolve(definition.evidenceToken),
-  };
-}
-
-function renderedStateCount(
-  rows: readonly TrackingUnsupportedManualPlatformRow[],
-  renderedStateToken: PortalTextTokenValue
-): PortalDetailValue {
-  const renderedState = PortalText.Resolve(renderedStateToken);
-  return detailFromValue(rows.filter((rowValue) => rowValue.renderedState === renderedState).length);
-}
-
-function missingProofForEvidence(evidenceToken: PortalTextTokenValue): PortalDisplayText {
-  if (evidenceToken === PortalTextToken.TrackingEvidencePhysicalMissing) {
-    return PortalText.Resolve(PortalTextToken.TrackingPhysicalDeviceRequired);
-  }
-  return PortalText.Resolve(PortalTextToken.TrackingManualRequired);
 }
 
 function renderTrackingStatusRow(proofRow: TrackingStatusProofRow): HTMLElement {
