@@ -1,5 +1,20 @@
 # LAN Source Index
 
+<!-- agent-capsule -->
+
+> Agent Capsule
+> Plan: `lan-plan`
+> Doc: `LAN Source Index`
+> Kind: source ownership index; read only when source ownership is unclear.
+> Read when: Only when named by the plan route, selected workpack, or index row.
+> Stop rule: Do not inspect broad source from here; use only the named package/crate path.
+> Proves: only the local scope, status, route, or contract stated by this file and its named proof/checklist rows.
+> Does not prove: sibling plan completion, implementation correctness, product status, PR readiness, or broad DONE unless routed proof says so.
+> Proof rule: If this file changes status or claims, update the assigned workpack, checklist row, and proof path.
+> Snippet rule: fenced blocks in this document are contract/artifact/command examples only. They are not instructions to copy implementation code unless the surrounding section explicitly says the snippet is the public contract shape.
+
+<!-- /agent-capsule -->
+
 This index keeps the LAN plan tied to existing source documents and code. It is
 not a replacement for feature, expectation, roadmap, checklist, package, or
 crate ownership docs.

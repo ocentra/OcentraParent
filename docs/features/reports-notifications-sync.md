@@ -1,3 +1,16 @@
+<!-- agent-capsule -->
+
+> Agent Capsule
+> Doc: Reports, Notifications, And Sync
+> Kind: feature documentation; read only when selected by FEATURE_ROUTE_INDEX, PLAN_INDEX, or assigned workpack.
+> Read when: Only when this exact doc is named by the active route, index, feature doc, or assigned workpack.
+> Stop rule: Do not continue into sibling docs, broad folders, source trees, or historical checkpoints unless this file gives an explicit next path.
+> Proves: only the local scope, status, route, or contract stated by this file and its named proof/checklist rows.
+> Does not prove: sibling plan completion, implementation correctness, product status, PR readiness, or broad DONE unless routed proof says so.
+> Proof rule: If this file changes status or claims, update the owning feature/plan/checklist/proof route that makes the claim current.
+
+<!-- /agent-capsule -->
+
 # Reports, Notifications, And Sync
 
 ## Parent Outcome
@@ -17,7 +30,7 @@ parent-selected storage unless a remote path is explicitly authorized.
 - Expectations: [notifications](../expectations/notifications.md),
   [sync/export](../expectations/sync-export.md),
   [data custody](../expectations/data-custody.md),
-  [roadmap V4](../expectations/roadmap-v4-parent-owned-reports-optional-assistant.md).
+  [roadmap V4](../roadmaps/roadmap-v4-parent-owned-reports-optional-assistant.md).
 - Modules: `packages/activity-domain`, `packages/parent-domain`,
   `packages/logging-domain`, `crates/agent-service`.
 

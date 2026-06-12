@@ -24,3 +24,34 @@ claiming foreground, content, policy, or adapter execution.
 Native app runtime source proof exists at the core boundary, while product
 status remains in progress until service ingestion, parent-visible source
 freshness, policy consumption, and platform action proof are added.
+
+## Execution Detail
+
+Minimum context:
+
+- `docs/features/child-agent-local-service.md`
+- `docs/features/app-game-control.md`
+- `docs/plans/app-game-plan/workpacks/32-live-process-snapshot-source.md`
+
+Owner boundary:
+
+- Core snapshot source proves local process evidence only.
+- App-plan owns native runtime/service handoff.
+- App-game-plan owns product interpretation, app/game category, and game-specific launcher semantics.
+
+Required output:
+
+- Process snapshot fields allowed for native app use.
+- Opaque path/privacy handling.
+- Missing bridges: journal, service event, portal freshness, policy, adapter action.
+
+Expected tests/proof names:
+
+- `app-plan.wp32.live-process-source`
+- `app-plan.wp32.opaque-path-privacy`
+- `app-plan.wp32.no-foreground-claim`
+- `app-plan.wp32.no-policy-claim`
+
+Failure conditions:
+
+- Process exists is treated as foreground usage, content knowledge, app category, or enforceable policy.

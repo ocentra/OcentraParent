@@ -1,5 +1,19 @@
 # V0.5 Native Apps Product Slice Plan
 
+<!-- agent-capsule -->
+
+> Agent Capsule
+> Plan: `app-game-plan`
+> Doc: `V0.5 Native Apps Product Slice Plan`
+> Kind: plan reference document; read only when routed by AGENTS, DOC_INDEX, or workpack.
+> Read when: Only when named by the plan route, selected workpack, or index row.
+> Stop rule: Do not continue into broader docs unless this file gives an explicit next path.
+> Proves: only the local scope, status, route, or contract stated by this file and its named proof/checklist rows.
+> Does not prove: sibling plan completion, implementation correctness, product status, PR readiness, or broad DONE unless routed proof says so.
+> Proof rule: If this file changes status or claims, update the assigned workpack, checklist row, and proof path.
+
+<!-- /agent-capsule -->
+
 Native app product meaning is separate from native game product meaning even
 though both use the shared app/game evidence spine.
 

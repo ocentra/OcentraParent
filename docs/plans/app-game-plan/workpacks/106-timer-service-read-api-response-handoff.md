@@ -1,5 +1,19 @@
 # WP106 - Source-Gated Policy Preview Timer Service Read API Response Handoff
 
+<!-- agent-capsule -->
+
+> Agent Capsule
+> Plan: `app-game-plan`
+> Doc: `WP106 - Source-Gated Policy Preview Timer Service Read API Response Handoff`
+> Kind: assigned workpack; read only when selected by hub or WORKPACK_INDEX.
+> Read when: Only when this exact workpack is assigned or selected from WORKPACK_INDEX.md.
+> Stop rule: Do not open sibling workpacks. Do not move product status unless this workpack and proof rows say so.
+> Proves: only the local scope, status, route, or contract stated by this file and its named proof/checklist rows.
+> Does not prove: sibling plan completion, implementation correctness, product status, PR readiness, or broad DONE unless routed proof says so.
+> Proof rule: Before DONE, select tests in TEST_PROOF_EXPECTATIONS.md and update proof/checklist rows.
+
+<!-- /agent-capsule -->
+
 ## Scope
 
 Add a parent-domain service read API response handoff that consumes WP105 service read API handoff rows and records which native app/native game rows still require service read API response proof before response shaping or parent-surface consumption can be claimed.
