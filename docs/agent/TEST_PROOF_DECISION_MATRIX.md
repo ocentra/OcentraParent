@@ -27,6 +27,10 @@ behavior, then run or cite the exact command/artifact.
   policy, persistence, protocol, scheduling, AI, or platform boundaries.
 - If a risk row applies and no test/proof exists, keep the checklist row open and
   report the missing proof instead of claiming completion.
+- Use explicit families: unit, integration, contract, and e2e tests where each is
+  the minimum boundary needed for the claim. Invariant and fuzz tests are required
+  for parsers, external input, and schema boundaries. Mutation and differential
+  tests are mandatory for security/policy/entitlement-risk paths.
 
 ## Test selection by risk
 

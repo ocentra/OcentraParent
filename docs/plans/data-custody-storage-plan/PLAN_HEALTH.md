@@ -17,7 +17,7 @@
 ## Route Health
 
 - Plan route files present: yes
-- Workpacks indexed: 1
+- Workpacks indexed: 7
 - Implementation completion claimed: no
 
 ## Agent Route Walkthrough
