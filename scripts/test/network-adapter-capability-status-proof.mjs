@@ -34,7 +34,7 @@ runCommand(
     '@ocentra-parent/portal',
     '--',
     'eslint',
-    'src/network-evidence-drawer.ts',
+    '../../packages/portal-domain/src/network-evidence-drawer.ts',
     'src/NetworkEvidenceDrawerRoutePanel.tsx',
     'tests/live-activity-network-flow.test.ts',
     '../../packages/portal-domain/src/details.ts',
@@ -66,7 +66,8 @@ const proof = {
     adapterCapabilityStatusTests: 'crates/ocentra-network-evidence/src/tests/adapter_capability_status.rs',
     platformClaimManifestModule: 'crates/ocentra-network-evidence/src/platform_claims.rs',
     platformClaimManifestTests: 'crates/ocentra-network-evidence/src/tests/platform_claims.rs',
-    portalNetworkDrawer: 'apps/portal/src/network-evidence-drawer.ts',
+    portalNetworkDrawer: 'packages/portal-domain/src/network-evidence-drawer.ts',
+    portalNetworkDrawerWrapper: 'apps/portal/src/network-evidence-drawer.ts',
     portalNetworkDrawerTest: 'apps/portal/tests/live-activity-network-flow.test.ts',
     scannedSourceRoots: sourceRoots,
     scannedFiles,
@@ -137,7 +138,7 @@ function expectedAdapterCapabilityStatus() {
 }
 
 function assertPortalCapabilityStatusProjection() {
-  const drawer = readText('apps/portal/src/network-evidence-drawer.ts');
+  const drawer = readText('packages/portal-domain/src/network-evidence-drawer.ts');
   const test = readText('apps/portal/tests/live-activity-network-flow.test.ts');
 
   for (const expected of [

@@ -122,6 +122,7 @@ export {
   resolveParentPortalServiceState,
   type ParentPortalServiceState,
 } from './parent-portal-service-state';
+export { networkEvidenceDrawerSummary, type NetworkEvidenceDrawerSummary } from './network-evidence-drawer';
 export {
   TrackingStatusProofArtifacts,
   TrackingStatusProofArtifactSchema,
