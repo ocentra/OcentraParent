@@ -1,5 +1,7 @@
 use serde::{Deserialize, Serialize};
 
+use crate::{constants, AGENT_PROTOCOL_SCHEMA_VERSION};
+
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct TrackingRetentionSettingsWriteRequest {
@@ -46,4 +48,25 @@ pub struct TrackingRetentionSettingsWriteResult {
     pub physical_device_claimed: bool,
     pub authority_claimed: bool,
     pub product_claim_ready: bool,
+}
+
+pub fn default_tracking_retention_settings_write_request() -> TrackingRetentionSettingsWriteRequest
+{
+    TrackingRetentionSettingsWriteRequest {
+        schema_version: AGENT_PROTOCOL_SCHEMA_VERSION,
+        command_id: constants::tracking_retention_settings_write::COMMAND_ID.to_string(),
+        settings_kind: constants::tracking_retention_settings_write::SETTINGS_KIND_RETENTION_WINDOW
+            .to_string(),
+        requested_retention_window_hours: Some(168),
+        requested_delete_after_alert_resolved: false,
+        requested_parent_export: false,
+        requested_remote_sync_enabled: false,
+        requested_remote_ai_enabled: false,
+        source_writer_intent_refs: vec![
+            constants::tracking_retention_settings_write::WRITER_INTENT_REF.to_string(),
+        ],
+        source_read_model_proof_refs: vec![
+            constants::tracking_retention_settings_write::READ_MODEL_PROOF_REF.to_string(),
+        ],
+    }
 }

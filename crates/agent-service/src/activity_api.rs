@@ -17,7 +17,6 @@ use crate::{
         stream_network_runtime_event_chain_for_read_model,
     },
     time::timestamp_now,
-    tracking_read_model_payload::tracking_read_model_payload,
 };
 use ocentra_parent_agent_core::{
     collect_process_snapshot, tracking_read_model_for_store,
@@ -25,8 +24,8 @@ use ocentra_parent_agent_core::{
     ProcessObservation,
 };
 use ocentra_parent_agent_protocol::{
-    constants, ActivityIngestStatus, ActivityRecentSummary, AgentCommandEnvelope,
-    AgentEventEnvelope, AgentEventName, BrowserInventoryReadModel, LogLevel,
+    constants, tracking_read_model_payload, ActivityIngestStatus, ActivityRecentSummary,
+    AgentCommandEnvelope, AgentEventEnvelope, AgentEventName, BrowserInventoryReadModel, LogLevel,
 };
 
 mod activity_memory_graph_report;

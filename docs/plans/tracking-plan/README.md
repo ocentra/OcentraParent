@@ -17,6 +17,8 @@ UI/UX requirements.
 - [Tracking And Eventing Real Test Matrix](event-driven-runtime-test-matrix.md)
 - [Tracking Plan Implementation Checklist](implementation-checklist.md)
 - [Pasted Content Coverage Audit](pasted-content-coverage-audit.md)
+- [Repo Organization Goal](repo-organization-goal.md)
+- [Repo Organization Movement Map](repo-organization-movement-map.md)
 - [Repo Domain Organization Cleanup Plan](../../architecture/repo-domain-organization-cleanup-plan.md)
 
 The `v0-5` filenames follow the planning draft. They are not a roadmap
