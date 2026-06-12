@@ -67,6 +67,7 @@ pub fn default_tracking_retention_settings_write_request() -> TrackingRetentionS
         ],
         source_read_model_proof_refs: vec![
             constants::tracking_retention_settings_write::READ_MODEL_PROOF_REF.to_string(),
+            constants::tracking_retention_settings_write::JOURNAL_READ_MODEL_PROOF_REF.to_string(),
         ],
     }
 }

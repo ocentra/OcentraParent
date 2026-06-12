@@ -36,6 +36,7 @@ fn retention_settings_write_request_serializes_without_remote_overclaims() {
         ],
         source_read_model_proof_refs: vec![
             constants::tracking_retention_settings_write::READ_MODEL_PROOF_REF.to_string(),
+            constants::tracking_retention_settings_write::JOURNAL_READ_MODEL_PROOF_REF.to_string(),
         ],
     };
 
@@ -48,6 +49,14 @@ fn retention_settings_write_request_serializes_without_remote_overclaims() {
     assert_eq!(
         serialized["sourceWriterIntentRefs"][0],
         constants::tracking_retention_settings_write::WRITER_INTENT_REF
+    );
+    assert_eq!(
+        serialized["sourceReadModelProofRefs"][0],
+        constants::tracking_retention_settings_write::READ_MODEL_PROOF_REF
+    );
+    assert_eq!(
+        serialized["sourceReadModelProofRefs"][1],
+        constants::tracking_retention_settings_write::JOURNAL_READ_MODEL_PROOF_REF
     );
 }
 

@@ -1,6 +1,7 @@
 import { decodeDisplayText, type DisplayText } from '@ocentra-parent/text-domain/contracts';
 import { PortalDevTextToken, resolvePortalDevText } from '@ocentra-parent/text-domain/portal-dev';
 import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
+export { PortalFormatting } from './formatting';
 export {
   decodePortalClipboardText,
   decodePortalDetailValue,
@@ -126,6 +127,18 @@ export {
   TrackingStatusProofArtifactSchema,
   type TrackingStatusProofArtifact,
 } from './tracking-status-proof-artifacts';
+export {
+  TrackingEvidenceDrawerHostedUiProofDetails,
+  trackingEvidenceDrawerHostedUiProof,
+  type TrackingEvidenceDrawerHostedUiProof,
+  type TrackingEvidenceDrawerSourceCitation,
+} from './tracking-evidence-drawer-hosted-ui-proof';
+export {
+  trackingRetentionSettingsHostedUiProof,
+  type TrackingRetentionSettingsHostedUiProof,
+  type TrackingRetentionSettingsHostedUiRow,
+  type TrackingRetentionSettingsWritePreflight,
+} from './tracking-retention-settings-hosted-ui-proof';
 export {
   PARENT_PORTAL_NAV_LABELS,
   type ParentPortalHashRoutePath,
@@ -499,13 +512,6 @@ const PortalClipboard = {
   CommandCopy: 'copy',
 } as const;
 
-const PortalFormatting = {
-  EventDetailSeparator: ' | ',
-  CorrelationPrefix: 'correlation ',
-  EndpointSeparator: ':',
-  GraphEdgeSeparator: ' -> ',
-} as const;
-
 const PortalLanPairingScan = {
   PendingIndicatorMs: 8000,
   Text: {
@@ -538,7 +544,6 @@ export {
   PortalConnectionStateSchema,
   PortalDom,
   PortalEnvironment,
-  PortalFormatting,
   PortalLanPairingScan,
   PortalText,
   PortalTextToken,

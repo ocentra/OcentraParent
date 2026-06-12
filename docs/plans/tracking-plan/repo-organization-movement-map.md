@@ -9,7 +9,7 @@ scope. This is not a completion claim.
 
 - Branch: `codex/tracking-plan-full-continuation-a`.
 - Latest checked main: `origin/main` at `f93fe8d1d`.
-- Current branch head: `d65b706ad`.
+- Current branch head: `29c9d2ec8`.
 - Sync state: `origin/main` is an ancestor of this branch; no rebase is needed
   before the first organization chunk.
 - Current organization checkpoint:
@@ -22,6 +22,12 @@ scope. This is not a completion claim.
     service websocket test/support code to `crates/agent-protocol`.
   - `packages/parent-domain/tests/tracking*.ts` is moving into
     `packages/parent-domain/tests/tracking/`.
+  - Selected tracking proof scripts are being rewired to consume canonical
+    `agent-protocol-domain` and `portal-domain` command, event, payload, and
+    route exports instead of repeating those identities locally.
+  - Tracking evidence-drawer and retention-settings hosted UI proof intent is
+    moving from `apps/portal` into `packages/portal-domain`; portal app code
+    remains the DOM/React renderer.
 
 ## Canonical Ownership
 
@@ -72,15 +78,16 @@ should be reused unless they create duplicate truth.
 
 ## Whole-Repo DRY Workstreams
 
-| Workstream                      | Target                                                    | First action                                                                                |
-| ------------------------------- | --------------------------------------------------------- | ------------------------------------------------------------------------------------------- |
-| Single-source contract manifest | `scripts/check-single-source-contracts.json`              | Inventory owner identities per feature before adding guard entries.                         |
-| TS domain contract reuse        | `packages/*-domain`                                       | Replace proof/script/UI literal checks with imports from owner packages.                    |
-| Rust protocol canonicalization  | `crates/agent-protocol`                                   | Move protocol payload projection out of service when it is pure protocol/log shape.         |
-| Rust runtime/service split      | `crates/agent-core`, `crates/agent-service`               | Keep reusable runtime logic in core, dispatch/transport in service.                         |
-| Test folder organization        | package/crate `tests/` plus source-adjacent private tests | Move only tests with public API boundaries; do not expose internals just to move tests.     |
-| Proof orchestration             | `scripts/test/<feature>/` later                           | First dedupe canonical imports; move folders as a dedicated chunk after scripts are stable. |
-| Plan docs                       | `docs/plans/<feature-plan>/`                              | Update only owning plan/docs when paths or proof ownership move.                            |
+| Workstream                      | Target                                                    | First action                                                                                            |
+| ------------------------------- | --------------------------------------------------------- | ------------------------------------------------------------------------------------------------------- |
+| Single-source contract manifest | `scripts/check-single-source-contracts.json`              | Inventory owner identities per feature before adding guard entries.                                     |
+| TS domain contract reuse        | `packages/*-domain`                                       | Replace proof/script/UI literal checks with imports from owner packages.                                |
+| Rust protocol canonicalization  | `crates/agent-protocol`                                   | Move protocol payload projection out of service when it is pure protocol/log shape.                     |
+| Rust runtime/service split      | `crates/agent-core`, `crates/agent-service`               | Keep reusable runtime logic in core, dispatch/transport in service.                                     |
+| Test folder organization        | package/crate `tests/` plus source-adjacent private tests | Move only tests with public API boundaries; do not expose internals just to move tests.                 |
+| Proof orchestration             | `scripts/test/<feature>/` later                           | First dedupe canonical imports; move folders as a dedicated chunk after scripts are stable.             |
+| Plan docs                       | `docs/plans/<feature-plan>/`                              | Update only owning plan/docs when paths or proof ownership move.                                        |
+| Portal proof intent models      | `packages/portal-domain/src/<feature>*`                   | Keep proof data builders and detail labels in portal-domain; keep DOM/React rendering in `apps/portal`. |
 
 ## Tracking-First Ownership
 
@@ -109,12 +116,14 @@ should be reused unless they create duplicate truth.
 
 ## First Safe Code Movement Candidates
 
-| Priority | Source                                                                                                                                                                           | Proposed target                                                                             | Reason                                                                                                              | Consumers to update                                       | Validation                                                                                                                             |
-| -------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------- |
-| 1        | `crates/agent-service/src/tracking_read_model_payload.rs` and `tracking_read_model_payload_tests.rs`                                                                             | `crates/agent-protocol/src/tracking_read_model_payload.rs` and protocol tests/module export | Payload flattening is protocol/log-field projection, not service orchestration. It already uses protocol constants. | `activity_api.rs`, protocol exports/tests.                | Done in this checkpoint. Validated with protocol/service/core tracking Rust tests.                                                     |
-| 2        | `default_write_request()` inside `crates/agent-service/src/websocket/tracking_retention_settings_write.rs`                                                                       | `crates/agent-protocol/src/tracking_retention_settings_write_command.rs`                    | It constructs protocol/default fixture shape, not transport behavior.                                               | Service websocket tests and protocol serialization tests. | Done in this checkpoint. Validated with protocol/service tracking Rust tests.                                                          |
-| 3        | Literal protocol/route matrices in `scripts/test/tracking-plan-service-read-model-proof.mjs`, `tracking-plan-service-data-ui-proof.mjs`, and `tracking-plan-hosted-ui-proof.mjs` | Imports from `@ocentra-parent/agent-protocol-domain` and `@ocentra-parent/portal-domain`    | Scripts repeat canonical command/event/payload/route identity.                                                      | Script imports and proof assertions only.                 | Run the touched proof scripts only if outputs are expected; otherwise run package lint/type-check plus schema-boundary lint.           |
-| 4        | `apps/portal/e2e/tracking-hosted-ui-proof.spec.ts` route hash and proof selector literals                                                                                        | Imports or helper from `@ocentra-parent/portal-domain`                                      | E2E should consume canonical route/DOM selector truth.                                                              | E2E imports and selector construction.                    | `cmd /c npm run test:e2e --workspace @ocentra-parent/portal -- tracking-hosted-ui-proof` or existing hosted proof command when needed. |
+| Priority | Source                                                                                                                                     | Proposed target                                                                                                                          | Reason                                                                                                              | Consumers to update                                       | Validation                                                                                                                             |
+| -------- | ------------------------------------------------------------------------------------------------------------------------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------- |
+| 1        | `crates/agent-service/src/tracking_read_model_payload.rs` and `tracking_read_model_payload_tests.rs`                                       | `crates/agent-protocol/src/tracking_read_model_payload.rs` and protocol tests/module export                                              | Payload flattening is protocol/log-field projection, not service orchestration. It already uses protocol constants. | `activity_api.rs`, protocol exports/tests.                | Done in this checkpoint. Validated with protocol/service/core tracking Rust tests.                                                     |
+| 2        | `default_write_request()` inside `crates/agent-service/src/websocket/tracking_retention_settings_write.rs`                                 | `crates/agent-protocol/src/tracking_retention_settings_write_command.rs`                                                                 | It constructs protocol/default fixture shape, not transport behavior.                                               | Service websocket tests and protocol serialization tests. | Done in this checkpoint. Validated with protocol/service tracking Rust tests.                                                          |
+| 3        | Literal protocol/route matrices in `scripts/test/tracking-plan-service-read-model-proof.mjs` and `tracking-plan-service-data-ui-proof.mjs` | Dynamic imports from `@ocentra-parent/agent-protocol-domain/contracts` and `@ocentra-parent/portal-domain/contracts` after package build | Scripts repeated canonical command/event/payload/route identity.                                                    | Script imports and proof assertions only.                 | In progress for this checkpoint. Run the touched proof scripts, package lint/type-check where relevant, and schema-boundary lint.      |
+| 4        | Literal protocol/route matrices in `scripts/test/tracking-plan-hosted-ui-proof.mjs`                                                        | Imports from `@ocentra-parent/agent-protocol-domain` and `@ocentra-parent/portal-domain`                                                 | Hosted UI proof repeats route/protocol identities and has broader dev-server coupling.                              | Script imports and proof assertions only.                 | Defer until the hosted proof chunk because it starts local service/portal flows.                                                       |
+| 5        | `apps/portal/e2e/tracking-hosted-ui-proof.spec.ts` route hash and proof selector literals                                                  | Imports or helper from `@ocentra-parent/portal-domain`                                                                                   | E2E should consume canonical route/DOM selector truth.                                                              | E2E imports and selector construction.                    | `cmd /c npm run test:e2e --workspace @ocentra-parent/portal -- tracking-hosted-ui-proof` or existing hosted proof command when needed. |
+| 6        | `apps/portal/src/tracking-evidence-drawer-hosted-ui-proof.ts` and proof-model parts of `tracking-retention-settings-hosted-ui-proof.ts`    | `packages/portal-domain/src/tracking-evidence-drawer-hosted-ui-proof.ts` and `tracking-retention-settings-hosted-ui-proof.ts`            | Proof intent is domain data, not renderer behavior.                                                                 | Portal tracking panel imports and tests.                  | In progress for this checkpoint. Validate portal-domain build/tests plus portal tracking-status-panel tests.                           |
 
 ## Later Organization Candidates
 
@@ -125,6 +134,7 @@ should be reused unless they create duplicate truth.
 | Split `apps/portal/tests/tracking-status-panel.test.ts` and `apps/portal/e2e/tracking-hosted-ui-proof.spec.ts` | Both are large and mix fixtures/assertions/screenshots. Split when making a portal-proof chunk, not during Rust protocol movement. |
 | Shared test fixture builders for tracking read models                                                          | Useful DRY step, but must avoid test-only fake truth. Prefer exported sample builders from owning domain packages.                 |
 | Expand `scripts/check-single-source-contracts.json`                                                            | Needed for repo-wide DRY enforcement, but only after selected owner contracts are inventoried and stable.                          |
+| Move remaining portal tracking proof model files                                                               | Do in feature-owned batches after retention/evidence drawer split is validated; several files also touch React route-panel shape.  |
 
 ## Non-Move Decisions
 
@@ -149,12 +159,16 @@ The first substantial organization chunk is:
    websocket handler. Done.
 3. Move parent-domain tracking tests into
    `packages/parent-domain/tests/tracking/`. Done.
-4. Replace obvious protocol/route literals in one or two tracking proof scripts
-   with canonical imports. Deferred to the next organization chunk so this
-   checkpoint stays movement-only plus low-risk wiring.
-5. Update this movement map with what actually moved and what was deferred.
-6. Run focused Rust/package validation.
-7. Commit and push the meaningful chunk. Do not open a PR.
+4. Replace obvious protocol/route literals in the tracking service read-model
+   and service-data UI proof scripts with canonical imports. In progress for
+   the next checkpoint; hosted UI proof remains deferred because it starts
+   broader local service/portal flows.
+5. Move tracking evidence-drawer proof intent and retention-settings proof model
+   construction into `packages/portal-domain`, leaving app-local DOM/React
+   renderers in `apps/portal`.
+6. Update this movement map with what actually moved and what was deferred.
+7. Run focused Rust/package validation.
+8. Commit and push the meaningful chunk. Do not open a PR.
 
 ## Validation Plan
 
@@ -188,3 +202,8 @@ cmd /c npm run validate
 - AI remains a tracking boundary dependency only.
 - Single-source contract guard expansion remains a repo-wide TODO after the
   first selected identities are stabilized.
+- The selected tracking proof scripts still need focused validation after the
+  current canonical-import rewiring.
+- Remaining tracking portal proof-model files still live in `apps/portal/src`
+  and should move in feature-owned chunks after this evidence/retention split
+  is validated.

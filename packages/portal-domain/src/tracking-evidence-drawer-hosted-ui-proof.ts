@@ -1,13 +1,10 @@
-import {
-  PortalDetails,
-  PortalText,
-  PortalTextToken,
-  TrackingStatusProofArtifacts,
-  decodePortalDetailValue,
-  type PortalDetailValue,
-  type PortalDisplayText,
-  type TrackingStatusProofArtifact,
-} from '@ocentra-parent/portal-domain/contracts';
+import { PortalDevTextToken, resolvePortalDevText } from '@ocentra-parent/text-domain/portal-dev';
+import type { DisplayText } from '@ocentra-parent/text-domain/contracts';
+import { decodePortalDetailValue, type PortalDetailValue } from './detail-values';
+import { PortalDetails } from './details';
+import { TrackingStatusProofArtifacts, type TrackingStatusProofArtifact } from './tracking-status-proof-artifacts';
+
+type PortalDisplayText = DisplayText;
 
 export type TrackingEvidenceDrawerSourceCitation = {
   readonly eventId: PortalDetailValue;
@@ -40,17 +37,17 @@ export function trackingEvidenceDrawerHostedUiProof(
   citation: TrackingEvidenceDrawerSourceCitation | null
 ): TrackingEvidenceDrawerHostedUiProof {
   return {
-    title: PortalText.Resolve(PortalTextToken.TrackingEvidenceDrawerHostedUi),
-    body: PortalText.Resolve(PortalTextToken.TrackingEvidenceDrawerHostedUiBody),
-    proofTier: PortalText.Resolve(PortalTextToken.TrackingProofService),
-    drawerMode: PortalText.Resolve(PortalTextToken.TrackingEvidenceDrawerReadOnly),
+    title: resolvePortalDevText(PortalDevTextToken.TrackingEvidenceDrawerHostedUi),
+    body: resolvePortalDevText(PortalDevTextToken.TrackingEvidenceDrawerHostedUiBody),
+    proofTier: resolvePortalDevText(PortalDevTextToken.TrackingProofService),
+    drawerMode: resolvePortalDevText(PortalDevTextToken.TrackingEvidenceDrawerReadOnly),
     sourceEventId: citation?.eventId ?? notReported(),
     evidenceReferences: citation?.evidenceReferences ?? notReported(),
     deletedEvidence: citation?.deletedEvidence ?? notReported(),
     proofArtifact: TrackingStatusProofArtifacts.HostedEvidenceDrawer,
-    boundary: PortalText.Resolve(PortalTextToken.TrackingEvidenceDrawerBoundary),
-    missingProof: PortalText.Resolve(PortalTextToken.TrackingManualRequired),
-    productClaim: citation?.productClaim ?? PortalText.Resolve(PortalTextToken.TrackingNoProductClaim),
+    boundary: resolvePortalDevText(PortalDevTextToken.TrackingEvidenceDrawerBoundary),
+    missingProof: resolvePortalDevText(PortalDevTextToken.TrackingManualRequired),
+    productClaim: citation?.productClaim ?? resolvePortalDevText(PortalDevTextToken.TrackingNoProductClaim),
     policyEvaluatorClaimedRows: zeroRows(),
     actionDispatchClaimedRows: zeroRows(),
     childDeviceDeliveryClaimedRows: zeroRows(),
@@ -65,7 +62,7 @@ function zeroRows(): PortalDetailValue {
 }
 
 function notReported(): PortalDetailValue {
-  return decodePortalDetailValue(PortalText.Resolve(PortalTextToken.NotReported));
+  return decodePortalDetailValue(resolvePortalDevText(PortalDevTextToken.NotReported));
 }
 
 export const TrackingEvidenceDrawerHostedUiProofDetails = {

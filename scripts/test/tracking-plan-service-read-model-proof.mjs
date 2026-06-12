@@ -31,6 +31,7 @@ async function main() {
   await runCommand('cargo', ['test', '-p', 'ocentra-parent-agent-service', 'tracking_read_model']);
 
   const checkedAt = new Date().toISOString();
+  const trackingReadModelContract = await loadTrackingReadModelContract();
   const proof = {
     schemaVersion: 1,
     checkedAt,
@@ -43,9 +44,9 @@ async function main() {
     productClaimReady: false,
     commands,
     serviceBoundary: {
-      command: 'agent.activity.tracking.read-model.get',
-      event: 'agent.activity.tracking.read-model.reported',
-      payloadField: 'trackingReadModel',
+      command: trackingReadModelContract.command,
+      event: trackingReadModelContract.event,
+      payloadField: trackingReadModelContract.payloadField,
       sourceStore: 'ActivityStore SQLite activity_events',
       portalConsumer: 'apps/portal/src/tracking-status-panel.ts',
       coveredEventKinds: [
@@ -113,7 +114,7 @@ async function main() {
       rustCoreReadModel: 'crates/agent-core/src/activity_store_tracking.rs',
       rustCoreRows: 'crates/agent-core/src/activity_store_tracking_rows.rs',
       rustServiceDispatcher: 'crates/agent-service/src/websocket.rs',
-      rustServicePayload: 'crates/agent-service/src/tracking_read_model_payload.rs',
+      rustProtocolPayload: 'crates/agent-protocol/src/tracking_read_model_payload.rs',
       rustServiceTest: 'crates/agent-service/src/tracking_read_model_service_tests.rs',
       typescriptReadModelParser: 'packages/agent-protocol-domain/src/tracking-read-model.ts',
       portalLiveState: 'apps/portal/src/live-activity-state.ts',
@@ -164,8 +165,8 @@ async function main() {
       rustProtocolTest: 'crates/agent-protocol/src/tracking_read_model_tests.rs',
       rustCoreReadModel: 'crates/agent-core/src/activity_store_tracking.rs',
       rustCoreReadModelTest: 'crates/agent-core/src/activity_store_tracking_tests.rs',
-      rustServicePayload: 'crates/agent-service/src/tracking_read_model_payload.rs',
-      rustServicePayloadTest: 'crates/agent-service/src/tracking_read_model_payload_tests.rs',
+      rustProtocolPayload: 'crates/agent-protocol/src/tracking_read_model_payload.rs',
+      rustProtocolPayloadTest: 'crates/agent-protocol/src/tracking_read_model_payload_tests.rs',
       rustServiceCommandTest: 'crates/agent-service/src/tracking_read_model_service_tests.rs',
     },
     manualRequiredGaps: [
@@ -257,6 +258,17 @@ async function main() {
   console.log('tracking-plan-service-read-model-proof-ok');
   console.log(`evidence=${relative(repoRoot, serviceProofPath).replace(/\\/gu, '/')}`);
   console.log(`retention=${relative(repoRoot, retentionDeleteProofPath).replace(/\\/gu, '/')}`);
+}
+
+async function loadTrackingReadModelContract() {
+  const { AgentCommand, AgentEvent, AgentProtocolDefaults } =
+    await import('@ocentra-parent/agent-protocol-domain/contracts');
+
+  return {
+    command: AgentCommand.ActivityTrackingReadModelGet,
+    event: AgentEvent.ActivityTrackingReadModelReported,
+    payloadField: AgentProtocolDefaults.Field.ActivityTrackingReadModel,
+  };
 }
 
 async function runNpmWorkspace(workspaceName, args) {
