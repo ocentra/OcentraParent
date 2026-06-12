@@ -1,3 +1,16 @@
+<!-- agent-capsule -->
+
+> Agent Capsule
+> Doc: App And Game Control
+> Kind: feature documentation; read only when selected by FEATURE_ROUTE_INDEX, PLAN_INDEX, or assigned workpack.
+> Read when: Only when this exact doc is named by the active route, index, feature doc, or assigned workpack.
+> Stop rule: Do not continue into sibling docs, broad folders, source trees, or historical checkpoints unless this file gives an explicit next path.
+> Proves: only the local scope, status, route, or contract stated by this file and its named proof/checklist rows.
+> Does not prove: sibling plan completion, implementation correctness, product status, PR readiness, or broad DONE unless routed proof says so.
+> Proof rule: If this file changes status or claims, update the owning feature/plan/checklist/proof route that makes the claim current.
+
+<!-- /agent-capsule -->
+
 # App And Game Control
 
 ## Parent Outcome
@@ -17,8 +30,8 @@ require typed policy decisions and platform adapter proof.
 - Expectations: [app/game evidence](../expectations/app-game-evidence.md),
   [policy](../expectations/policy.md),
   [enforcement](../expectations/enforcement.md).
-- Supporting docs: [app settings inventory](../app-control-settings-inventory.md)
-  and [game settings inventory](../game-control-settings-inventory.md).
+- Supporting docs: [app settings inventory](../plans/app-game-plan/workpacks/app-control-settings-inventory.md)
+  and [game settings inventory](../plans/app-game-plan/workpacks/game-control-settings-inventory.md).
 - Shared native app/game planning:
   [app + game plan](../plans/app-game-plan/README.md).
 - Native app planning:

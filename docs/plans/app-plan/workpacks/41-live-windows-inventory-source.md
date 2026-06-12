@@ -5,12 +5,12 @@
 Cross-record the shared app/game WP41 core live Windows shortcut inventory
 source for the native app plan.
 
-## Implementation
+## Expected Outcome
 
-- Reuses shared app/game `agent-core` source helpers.
-- Maps bounded Windows Start Menu shortcut scans into native app/game
-  inventory-only rows.
-- Hashes path-derived source and desktop-entry refs before journal projection.
+- Native app plan records bounded Windows shortcut inventory evidence from the shared app/game source.
+- Rows are inventory-only and privacy-safe.
+- Path-derived references remain hashed/opaque in proof and downstream docs.
+- Runtime, foreground, policy, and adapter authority remain out of scope.
 
 ## Proof
 
@@ -37,3 +37,21 @@ execution, broad app blocking, or platform support claims.
 `docs/product-capability-checklist.md` is intentionally unchanged because this
 does not move native app product status without service, portal, policy, and
 adapter proof.
+
+## Execution Detail
+
+Minimum context:
+
+- `docs/plans/app-game-plan/workpacks/41-live-windows-inventory-source.md`
+- `docs/plans/data-custody-storage-plan/AGENTS.md` only if retention/export is touched.
+
+Expected tests/proof names:
+
+- `app-plan.wp41.windows-shortcut-inventory`
+- `app-plan.wp41.opaque-source-refs`
+- `app-plan.wp41.inventory-not-runtime`
+- `app-plan.wp41.no-product-status-move`
+
+Failure conditions:
+
+- Inventory presence is treated as usage, foreground, category, or enforceable app policy.

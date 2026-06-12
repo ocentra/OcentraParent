@@ -1,0 +1,117 @@
+# AI Plan State
+
+<!-- agent-capsule -->
+
+> Agent Capsule
+> Plan: `ai-plan`
+> Doc: `AI Plan State`
+> Kind: current state and open gaps.
+> Read when: Immediately after plan AGENTS.md; use for current state and no-claim boundaries.
+> Stop rule: Do not continue into broader docs unless this file gives an explicit next path.
+> Proves: only the local scope, status, route, or contract stated by this file and its named proof/checklist rows.
+> Does not prove: sibling plan completion, implementation correctness, product status, PR readiness, or broad DONE unless routed proof says so.
+> Proof rule: If this file changes status or claims, update the assigned workpack, checklist row, and proof path.
+
+<!-- /agent-capsule -->
+
+Generated from the existing `ai-plan` docs. This is the default resume/status file; large historical docs are linked, not embedded.
+
+## Scope
+
+This folder is the single working plan location for local AI safety contracts, local model runtime, evidence context building, provider routing, AI job queues, memory and knowledge graph, TabAgent reuse, screen OCR/VLM routing, policy handoff, parent explanations, and later parent-approved remote assistant boundaries.
+
+## Resume route
+
+1. Read this file.
+2. Read `NEXT_ACTIONS.md` when starting/resuming.
+3. Read `WORKPACK_INDEX.md`.
+4. Open only the assigned workpack.
+5. Use `CHECKLIST_INDEX.md` for exact checklist sections.
+6. Use `PROOF_INDEX.md` for proof artifacts.
+
+## Current snapshot source
+
+- Snapshot: [current-ai-snapshot.md](current-ai-snapshot.md)
+
+## What is already present / proved
+
+- AI expectation doc and local-first custody boundary.
+- Local AI and TabAgent reuse architecture.
+- Local AI provider runtime boundary.
+- Local AI evidence context builder spec.
+- Local AI safety evaluator feature doc.
+- Parent assistant feature doc and provider routing proof.
+- Browser URL/video, social/feed, and browser-game AI planning inside `browser-plan`.
+- Screen capture and screen-intelligence planning inside `screen-plan`.
+- Runtime/provider status, local AI chat generation, provider scheduler, and parent assistant proof scripts.
+- Reusable Rust eventing infrastructure in `crates/ocentra-eventing`, with existing network and parent/child consumer examples that AI work should follow instead of adding direct capture-to-AI coupling.
+- LAN AI job submit/status and legacy screen family-hub proof primitives exist, but the target architecture is the Household AI Provider Mesh. Those existing primitives are precursors only: they do not yet prove decentralized provider discovery, claim/lease, child-agent result validation, duplicate prevention, retry/dead-letter, mobile dormant/fallback policy, child-agent-only policy authority, or physical household LAN execution.
+- Activity memory graph contracts and read-model proof pieces.
+
+## Open gaps / missing product runtime
+
+- Product-grade local model configuration and artifact selection.
+- Verified local model artifact download, integrity, cache, and retention flow.
+- Product-grade local inference execution path for safety decisions.
+- Cross-slice AI job queue and resource scheduler.
+- Household AI provider mesh contracts and runtime proof. Existing local provider scheduler proof does not prove cross-device provider discovery, claim/lease, idempotency, result validation, two-device LAN execution, no raw screenshot transfer, or child-agent policy authority.
+- Model quality validation and confidence calibration.
+- OCR execution path.
+- Guided local VLM execution path.
+- Evidence-backed memory/graph minimal product implementation.
+- Full TabAgent code reuse audit and extraction plan.
+- Parent explanation UI that cites evidence, rules, model/runtime refs, and degraded states.
+- Real stored-evidence validation for browser, app/game, tracking, LAN, network, and screen slices.
+
+## Checklist summary
+
+- Full checklist: [implementation-checklist.md](implementation-checklist.md) (not default context).
+- Checkbox rows detected: 169 total, 168 checked, 1 unchecked.
+- Checklist index: [CHECKLIST_INDEX.md](CHECKLIST_INDEX.md).
+
+## Workpack summary
+
+- Workpacks indexed: 48.
+- Workpacks with open checkboxes: 47.
+- Workpacks with all detected boxes checked: 1.
+- Workpacks with no checkbox status: 0.
+
+### Active/open workpacks
+
+- [48 - Rollout Checklist And PR Gate](workpacks/48-rollout-checklist-and-pr-gate.md) - 0/25 checked, 25 open.
+- [32 - Household AI Provider Mesh And Remote Assistant Boundary](workpacks/32-family-ai-hub-and-remote-assistant-boundary.md) - 0/11 checked, 11 open.
+- [07 - AI Job Queue Contract](workpacks/07-ai-job-queue-contract.md) - 1/11 checked, 10 open.
+- [08 - AI Provider Routing Contract](workpacks/08-ai-provider-routing-contract.md) - 0/10 checked, 10 open.
+- [38 - Screen OCR VLM Router Lane](workpacks/38-screen-ocr-vlm-router-lane.md) - 0/9 checked, 9 open.
+- [31 - Guided VLM Worker Lane](workpacks/31-guided-vlm-worker-lane.md) - 0/8 checked, 8 open.
+- [46 - Security Privacy Negative Gates Lane](workpacks/46-security-privacy-negative-gates-lane.md) - 0/8 checked, 8 open.
+- [47 - Performance Resource Battery Proof Lane](workpacks/47-performance-resource-battery-proof-lane.md) - 0/8 checked, 8 open.
+- [03 - Contract Boundary And Effect Schemas](workpacks/03-contract-boundary-and-effect-schemas.md) - 0/6 checked, 6 open.
+- [09 - Local Evidence Context Builder V1](workpacks/09-local-evidence-context-builder-v1.md) - 0/6 checked, 6 open.
+- [13 - Deterministic No-Model Classifier Lane](workpacks/13-deterministic-no-model-classifier-lane.md) - 0/6 checked, 6 open.
+- [14 - Local Text LLM Adapter Boundary](workpacks/14-local-text-llm-adapter-boundary.md) - 0/6 checked, 6 open.
+- [15 - Local Text LLM Execution Dry-Run Adapter](workpacks/15-local-text-llm-execution-dry-run-adapter.md) - 0/6 checked, 6 open.
+- [16 - Output Parser And Schema Validator](workpacks/16-output-parser-and-schema-validator.md) - 0/6 checked, 6 open.
+- [17 - Degraded Timeout Invalid-Output Handling](workpacks/17-degraded-timeout-invalid-output-handling.md) - 0/6 checked, 6 open.
+- [20 - Parent Explanation Read Model](workpacks/20-parent-explanation-read-model.md) - 0/6 checked, 6 open.
+- [23 - Evidence-Backed Semantic Memory](workpacks/23-evidence-backed-semantic-memory.md) - 0/6 checked, 6 open.
+- [25 - Minimal Graph Edges For Safety Context](workpacks/25-minimal-graph-edges-for-safety-context.md) - 0/6 checked, 6 open.
+- [33 - Browser URL Video AI Lane](workpacks/33-browser-url-video-ai-lane.md) - 0/6 checked, 6 open.
+- [35 - Browser Game Cloud Game AI Lane](workpacks/35-browser-game-cloud-game-ai-lane.md) - 0/6 checked, 6 open.
+- [36 - App Game Unknown Classifier Lane](workpacks/36-app-game-unknown-classifier-lane.md) - 0/6 checked, 6 open.
+- [37 - Tracking Location Safety Analysis Lane](workpacks/37-tracking-location-safety-analysis-lane.md) - 0/6 checked, 6 open.
+- [41 - Llama GGUF Runtime Packaging Lane](workpacks/41-llama-gguf-runtime-packaging-lane.md) - 0/6 checked, 6 open.
+- [43 - AI Activity Portal Surface Lane](workpacks/43-ai-activity-portal-surface-lane.md) - 0/6 checked, 6 open.
+- [02 - Current AI Snapshot And Gap Map](workpacks/02-current-ai-snapshot-and-gap-map.md) - 0/5 checked, 5 open.
+
+## Default no-read list
+
+- `README_FULL_ORIGINAL.md` unless you need historical full README context.
+- Full `implementation-checklist.md` unless `CHECKLIST_INDEX.md` names exact section/row.
+- All workpacks; use `WORKPACK_INDEX.md`.
+- Source inventories and pasted-content audits unless source ownership is unclear.
+- Historical checkpoint/proof docs unless `PROOF_INDEX.md` or the assigned workpack names them.
+
+## Health / consistency
+
+- See `PLAN_HEALTH.md` before claiming the whole plan is complete or stale.

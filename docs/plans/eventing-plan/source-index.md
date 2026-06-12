@@ -1,5 +1,19 @@
 # Source Index
 
+<!-- agent-capsule -->
+
+> Agent Capsule
+> Plan: `eventing-plan`
+> Doc: `Source Index`
+> Kind: source ownership index; read only when source ownership is unclear.
+> Read when: Only when named by the plan route, selected workpack, or index row.
+> Stop rule: Do not inspect broad source from here; use only the named package/crate path.
+> Proves: only the local scope, status, route, or contract stated by this file and its named proof/checklist rows.
+> Does not prove: sibling plan completion, implementation correctness, product status, PR readiness, or broad DONE unless routed proof says so.
+> Proof rule: If this file changes status or claims, update the assigned workpack, checklist row, and proof path.
+
+<!-- /agent-capsule -->
+
 This index records the source material for the reusable Rust event bus plan.
 Use it before implementation so workers do not invent a second bus shape.
 

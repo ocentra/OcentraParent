@@ -1,3 +1,16 @@
+<!-- agent-capsule -->
+
+> Agent Capsule
+> Doc: Browser And Web Control
+> Kind: feature documentation; read only when selected by FEATURE_ROUTE_INDEX, PLAN_INDEX, or assigned workpack.
+> Read when: Only when this exact doc is named by the active route, index, feature doc, or assigned workpack.
+> Stop rule: Do not continue into sibling docs, broad folders, source trees, or historical checkpoints unless this file gives an explicit next path.
+> Proves: only the local scope, status, route, or contract stated by this file and its named proof/checklist rows.
+> Does not prove: sibling plan completion, implementation correctness, product status, PR readiness, or broad DONE unless routed proof says so.
+> Proof rule: If this file changes status or claims, update the owning feature/plan/checklist/proof route that makes the claim current.
+
+<!-- /agent-capsule -->
+
 # Browser And Web Control
 
 ## Parent Outcome
@@ -18,9 +31,9 @@ Blocking requires typed policy decisions and adapter proof.
   [policy](../expectations/policy.md),
   [enforcement](../expectations/enforcement.md).
 - Supporting docs:
-  [raw 1,057-setting inventory](../browser-control-1057-settings-inventory.md)
+  [raw 1,057-setting inventory](../plans/browser-plan/workpacks/browser-control-1057-settings-inventory.md)
   and
-  [questionnaire forest v1](../browser-policy-questionnaire-forest-v1.md).
+  [questionnaire forest v1](../plans/browser-plan/workpacks/browser-policy-questionnaire-forest-v1.md).
 - Working plan:
   [browser plan](../plans/browser-plan/README.md), including the
   [source index](../plans/browser-plan/source-index.md),

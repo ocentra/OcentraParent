@@ -1,5 +1,19 @@
 # Browser Source Index
 
+<!-- agent-capsule -->
+
+> Agent Capsule
+> Plan: `browser-plan`
+> Doc: `Browser Source Index`
+> Kind: source ownership index; read only when source ownership is unclear.
+> Read when: Only when named by the plan route, selected workpack, or index row.
+> Stop rule: Do not inspect broad source from here; use only the named package/crate path.
+> Proves: only the local scope, status, route, or contract stated by this file and its named proof/checklist rows.
+> Does not prove: sibling plan completion, implementation correctness, product status, PR readiness, or broad DONE unless routed proof says so.
+> Proof rule: If this file changes status or claims, update the assigned workpack, checklist row, and proof path.
+
+<!-- /agent-capsule -->
+
 This index keeps the browser plan tied to existing source documents and code. It
 is not a replacement for feature, expectation, roadmap, checklist, package, or
 crate ownership docs.
@@ -8,14 +22,14 @@ crate ownership docs.
 
 - Owning feature: [Browser and web control](../../features/browser-web-control.md)
 - Main expectation: [Browser URL and tab evidence](../../expectations/browser-evidence.md)
-- Milestone expectation: [V0.5.1 browser URL and tab evidence capture](../../expectations/roadmap-v0-5-1-browser-url-tab-evidence-capture.md)
+- Milestone expectation: [V0.5.1 browser URL and tab evidence capture](../../roadmaps/roadmap-v0-5-1-browser-url-tab-evidence-capture.md)
 - Main architecture: [Browser URL and tab evidence capture](../../architecture/browser-url-tab-evidence-capture.md)
-- Managed/unmanaged guide: [Managed and unmanaged browser capability guide](../../managed-unmanaged-browser.md)
-- Parent policy catalog: [Browser policy settings catalog](../../browser-policy-settings-catalog.md)
-- Schema proposal: [Browser control schema proposal](../../browser-control-schema-proposal.md)
-- Coverage matrix: [Browser control coverage matrix](../../browser-control-coverage-matrix.md)
-- Raw catalog: [Browser control 1057 settings inventory](../../browser-control-1057-settings-inventory.md)
-- Questionnaire forest: [Browser policy questionnaire forest v1](../../browser-policy-questionnaire-forest-v1.md)
+- Managed/unmanaged guide: [Managed and unmanaged browser capability guide](../../plans/browser-plan/workpacks/managed-unmanaged-browser.md)
+- Parent policy catalog: [Browser policy settings catalog](../../plans/browser-plan/workpacks/browser-policy-settings-catalog.md)
+- Schema proposal: [Browser control schema proposal](../../plans/browser-plan/workpacks/browser-control-schema-proposal.md)
+- Coverage matrix: [Browser control coverage matrix](../../plans/browser-plan/workpacks/browser-control-coverage-matrix.md)
+- Raw catalog: [Browser control 1057 settings inventory](../../plans/browser-plan/workpacks/browser-control-1057-settings-inventory.md)
+- Questionnaire forest: [Browser policy questionnaire forest v1](../../plans/browser-plan/workpacks/browser-policy-questionnaire-forest-v1.md)
 - Browser intelligence plan:
   [V0.5 browser URL and video AI intelligence](v0-5-browser-url-video-ai-intelligence-plan.md)
 - Social/platform gating plan:

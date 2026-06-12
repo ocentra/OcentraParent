@@ -1,5 +1,19 @@
 # V0.8 Enforcement Control Test Blueprint
 
+<!-- agent-capsule -->
+
+> Agent Capsule
+> Plan: `v0-8-enforcement-control-plan`
+> Doc: `V0.8 Enforcement Control Test Blueprint`
+> Kind: test blueprint reference; read only when local expectations route here.
+> Read when: Only when named by the plan route, selected workpack, or index row.
+> Stop rule: Do not continue into broader docs unless this file gives an explicit next path.
+> Proves: only the local scope, status, route, or contract stated by this file and its named proof/checklist rows.
+> Does not prove: sibling plan completion, implementation correctness, product status, PR readiness, or broad DONE unless routed proof says so.
+> Proof rule: If this file changes status or claims, update the assigned workpack, checklist row, and proof path.
+
+<!-- /agent-capsule -->
+
 This is the companion requirement blueprint for the
 [V0.8 Enforcement Control 20-Step Plan](v0-8-enforcement-control-20-step-plan.md).
 The plan defines what to build. This blueprint defines the tests, fixtures,

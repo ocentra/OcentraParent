@@ -1,3 +1,16 @@
+<!-- agent-capsule -->
+
+> Agent Capsule
+> Doc: Screen Visibility And Live View
+> Kind: feature documentation; read only when selected by FEATURE_ROUTE_INDEX, PLAN_INDEX, or assigned workpack.
+> Read when: Only when this exact doc is named by the active route, index, feature doc, or assigned workpack.
+> Stop rule: Do not continue into sibling docs, broad folders, source trees, or historical checkpoints unless this file gives an explicit next path.
+> Proves: only the local scope, status, route, or contract stated by this file and its named proof/checklist rows.
+> Does not prove: sibling plan completion, implementation correctness, product status, PR readiness, or broad DONE unless routed proof says so.
+> Proof rule: If this file changes status or claims, update the owning feature/plan/checklist/proof route that makes the claim current.
+
+<!-- /agent-capsule -->
+
 # Screen Visibility And Live View
 
 ## Parent Outcome
@@ -17,11 +30,11 @@ audited, retention-limited, and platform-proved.
 - Roadmap: V0.5.3 screen evidence, V2 remote access, V5 parent product, V6
   mobile agents.
 - Expectations: [screen evidence](../expectations/screen-evidence.md),
-  [remote access](../expectations/roadmap-v2-parent-owned-remote-access-cloud-relay.md),
+  [remote access](../roadmaps/roadmap-v2-parent-owned-remote-access-cloud-relay.md),
   [data custody](../expectations/data-custody.md),
   [platforms](../expectations/platforms.md).
 - Supporting docs:
-  [screen settings inventory](../screen-control-settings-inventory.md).
+  [screen settings inventory](../plans/screen-plan/workpacks/screen-control-settings-inventory.md).
 - Modules: `packages/activity-domain`, `packages/parent-domain`,
   `crates/agent-service`, platform folders.
 

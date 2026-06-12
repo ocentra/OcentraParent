@@ -26,3 +26,34 @@ Native app runtime evidence now has recurring bounded service freshness through
 the existing activity-capture path. Product status remains in progress until
 foreground capture, portal source status, policy consumption, and platform
 action proof are added.
+
+## Execution Detail
+
+Minimum context:
+
+- `docs/plans/app-plan/workpacks/34-service-capture-app-game-live-process-bridge.md`
+- `docs/plans/app-game-plan/workpacks/35-service-app-game-recurring-freshness.md`
+- `docs/plans/policy-control-plane-plan/AGENTS.md`
+
+Owner boundary:
+
+- This workpack proves repeated capture cadence and freshness state.
+- It does not prove user foreground activity, child policy effect, or parent visible readiness.
+
+Required output:
+
+- Freshness cadence expectation.
+- Stale/missing capture state.
+- Proof that repeated rows do not duplicate product claims.
+- Handoff to source-gated policy preview.
+
+Expected tests/proof names:
+
+- `app-plan.wp35.recurring-capture`
+- `app-plan.wp35.stale-source-state`
+- `app-plan.wp35.no-foreground-claim`
+- `app-plan.wp35.policy-preview-handoff`
+
+Failure conditions:
+
+- Fresh runtime rows are treated as active usage, policy enforcement, or UI completion.

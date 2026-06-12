@@ -1,5 +1,20 @@
 # Tests, Proof, And Validation
 
+<!-- agent-capsule -->
+
+> Agent Capsule
+> Plan: `eventing-plan`
+> Doc: `Tests, Proof, And Validation`
+> Kind: proof reference; read only when validating matching claim.
+> Read when: Only when named by the plan route, selected workpack, or index row.
+> Stop rule: Do not continue into broader docs unless this file gives an explicit next path.
+> Proves: only the local scope, status, route, or contract stated by this file and its named proof/checklist rows.
+> Does not prove: sibling plan completion, implementation correctness, product status, PR readiness, or broad DONE unless routed proof says so.
+> Proof rule: If this file changes status or claims, update the assigned workpack, checklist row, and proof path.
+> Snippet rule: fenced blocks in this document are contract/artifact/command examples only. They are not instructions to copy implementation code unless the surrounding section explicitly says the snippet is the public contract shape.
+
+<!-- /agent-capsule -->
+
 The reusable event bus must be test-backed before Ocentra Parent network work
 depends on it. Tests are specifications. They must use real Rust structs, real
 serde roundtrips, real Tokio execution, real temp filesystem paths for journal
