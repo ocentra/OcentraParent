@@ -27,7 +27,7 @@ const files = {
     'browser_runtime_stream_test_assertions.rs'
   ),
   protocolParser: path.join(root, 'packages', 'agent-protocol-domain', 'src', 'browser-runtime-events.ts'),
-  portalState: path.join(root, 'apps', 'portal', 'src', 'live-activity-state.ts'),
+  portalState: path.join(root, 'packages', 'portal-domain', 'src', 'live-activity-state.ts'),
   childStatusProof: path.join(root, 'scripts', 'test', 'browser-runtime-action-intent-child-status-proof.mjs'),
   workpack: path.join(
     root,
