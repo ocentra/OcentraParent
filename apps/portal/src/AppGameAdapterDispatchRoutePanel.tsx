@@ -10,24 +10,20 @@ import {
   PortalDom,
   PortalText,
   PortalTextToken,
-  isPortalAppGameParentSurfaceRoute,
-  type PortalDisplayText,
-  type PortalRoute as PortalRouteValue,
-} from '@ocentra-parent/portal-domain/contracts';
-import type { PortalRenderActions } from './portal-actions';
-import {
   createAppGameAdapterDispatchPreflightPanelIntent,
+  createAppGameAdapterDispatchResultPanelIntent,
+  isPortalAppGameParentSurfaceRoute,
   type AppGameAdapterDispatchPreflightPanelDetail,
   type AppGameAdapterDispatchPreflightPanelIntent,
   type AppGameAdapterDispatchPreflightPanelRow,
-} from './app-game-adapter-dispatch-preflight-panel';
-import {
-  createAppGameAdapterDispatchResultPanelIntent,
   type AppGameAdapterDispatchResultPanelDetail,
   type AppGameAdapterDispatchResultPanelExecuteAction,
   type AppGameAdapterDispatchResultPanelIntent,
   type AppGameAdapterDispatchResultPanelRow,
-} from './app-game-adapter-dispatch-result-panel';
+  type PortalDisplayText,
+  type PortalRoute as PortalRouteValue,
+} from '@ocentra-parent/portal-domain/contracts';
+import type { PortalRenderActions } from './portal-actions';
 
 export function shouldRenderAppGameAdapterDispatchRoute(route: PortalRouteValue): boolean {
   return isPortalAppGameParentSurfaceRoute(route);

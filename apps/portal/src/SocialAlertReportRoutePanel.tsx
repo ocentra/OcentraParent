@@ -7,6 +7,7 @@ import {
 } from '@ocentra-parent/agent-protocol-domain/contracts';
 import { parseAgentSocialAlertReportReadModelEvent } from '@ocentra-parent/agent-protocol-domain/social-alert-report-read-model';
 import {
+  createSocialAlertReportPanelIntent,
   createSocialAlertReportParentSurfacePanelIntent,
   createSocialParentNotificationDeliveryPanelIntent,
   PortalDetails,
@@ -17,6 +18,9 @@ import {
   type BrowserSocialProviderReceiptIngestionReadinessStatusIntent,
   type BrowserSocialProviderReceiptStreamStatusDetail,
   type BrowserSocialProviderReceiptStreamStatusIntent,
+  type SocialAlertReportPanelDetail,
+  type SocialAlertReportPanelIntent,
+  type SocialAlertReportPanelRow,
   type SocialParentNotificationDeliveryPanelDetail,
   type SocialParentNotificationDeliveryPanelIntent,
   type SocialAlertReportParentSurfacePanelDetail,
@@ -30,12 +34,6 @@ import {
   type BrowserActionIntentStreamStatusDetail,
   type BrowserActionIntentStreamStatusIntent,
 } from '@ocentra-parent/portal-domain/browser-action-intent-stream-status';
-import {
-  createSocialAlertReportPanelIntent,
-  type SocialAlertReportPanelDetail,
-  type SocialAlertReportPanelIntent,
-  type SocialAlertReportPanelRow,
-} from './social-alert-report-panel';
 
 export function shouldRenderSocialAlertReportRoute(route: PortalRouteValue): boolean {
   return isPortalBrowserParentSurfaceRoute(route);

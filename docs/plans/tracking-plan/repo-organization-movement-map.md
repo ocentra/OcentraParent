@@ -9,7 +9,7 @@ scope. This is not a completion claim.
 
 - Branch: `codex/tracking-plan-full-continuation-a`.
 - Latest checked main: `origin/main` at `f93fe8d1d`.
-- Current branch head: `29c9d2ec8`.
+- Current branch head: `8b16c5e33`.
 - Sync state: `origin/main` is an ancestor of this branch; no rebase is needed
   before the first organization chunk.
 - Current organization checkpoint:
@@ -28,6 +28,12 @@ scope. This is not a completion claim.
   - Tracking evidence-drawer and retention-settings hosted UI proof intent is
     moving from `apps/portal` into `packages/portal-domain`; portal app code
     remains the DOM/React renderer.
+  - App/game and social portal panel intent re-export shims in `apps/portal/src`
+    are being removed so route panels and tests import canonical intent models
+    directly from `packages/portal-domain`.
+  - Safe portal unit tests are being grouped by feature folder
+    (`logging`, `local-ai`, `diagnostics`, `activity`, `portal`, `screen`)
+    without changing test behavior.
 
 ## Canonical Ownership
 
@@ -88,6 +94,7 @@ should be reused unless they create duplicate truth.
 | Proof orchestration             | `scripts/test/<feature>/` later                           | First dedupe canonical imports; move folders as a dedicated chunk after scripts are stable.             |
 | Plan docs                       | `docs/plans/<feature-plan>/`                              | Update only owning plan/docs when paths or proof ownership move.                                        |
 | Portal proof intent models      | `packages/portal-domain/src/<feature>*`                   | Keep proof data builders and detail labels in portal-domain; keep DOM/React rendering in `apps/portal`. |
+| App/social portal intent shims  | `packages/portal-domain/src/<feature>*`                   | Delete app-local re-export mirror files after route panels/tests consume portal-domain directly.        |
 
 ## Tracking-First Ownership
 
@@ -135,6 +142,8 @@ should be reused unless they create duplicate truth.
 | Shared test fixture builders for tracking read models                                                          | Useful DRY step, but must avoid test-only fake truth. Prefer exported sample builders from owning domain packages.                 |
 | Expand `scripts/check-single-source-contracts.json`                                                            | Needed for repo-wide DRY enforcement, but only after selected owner contracts are inventoried and stable.                          |
 | Move remaining portal tracking proof model files                                                               | Do in feature-owned batches after retention/evidence drawer split is validated; several files also touch React route-panel shape.  |
+| Remove app/game and social portal intent re-export shims                                                       | Done in this checkpoint: app/game and social route panels/tests now import directly from `@ocentra-parent/portal-domain`.          |
+| Group safe portal unit tests by feature folder                                                                 | Done in this checkpoint for logging, local AI, diagnostics, activity, portal, and screen tests with import-depth rewiring only.    |
 
 ## Non-Move Decisions
 

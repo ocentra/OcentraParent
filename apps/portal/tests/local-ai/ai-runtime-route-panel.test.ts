@@ -5,8 +5,8 @@ import {
   AgentProtocolDefaults,
 } from '@ocentra-parent/agent-protocol-domain/contracts';
 import { PortalRoute } from '@ocentra-parent/portal-domain/contracts';
-import { shouldRenderAiRuntimeRoute } from '../src/AiRuntimeRoutePanel';
-import { resolveLiveActivityState } from '../src/live-activity-state';
+import { shouldRenderAiRuntimeRoute } from '../../src/AiRuntimeRoutePanel';
+import { resolveLiveActivityState } from '../../src/live-activity-state';
 
 describe('AI runtime route panel', () => {
   it('renders only on the AI runtime route', () => {

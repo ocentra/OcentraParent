@@ -5,18 +5,16 @@ import {
   PortalDom,
   PortalText,
   PortalTextToken,
+  createAppGamePolicyReadinessPanelIntent,
   isPortalAppGameParentSurfaceRoute,
+  type AppGamePolicyReadinessPanelDetail,
+  type AppGamePolicyReadinessPanelIntent,
+  type AppGamePolicyReadinessPanelRow,
   type PortalDisplayText,
   type PortalRoute as PortalRouteValue,
 } from '@ocentra-parent/portal-domain/contracts';
 import type { AgentAppGamePolicyReadinessResult } from '@ocentra-parent/agent-protocol-domain/app-game-policy-readiness';
 import type { PortalRenderActions } from './portal-actions';
-import {
-  createAppGamePolicyReadinessPanelIntent,
-  type AppGamePolicyReadinessPanelDetail,
-  type AppGamePolicyReadinessPanelIntent,
-  type AppGamePolicyReadinessPanelRow,
-} from './app-game-policy-readiness-panel';
 
 export function shouldRenderAppGamePolicyReadinessRoute(route: PortalRouteValue): boolean {
   return isPortalAppGameParentSurfaceRoute(route);

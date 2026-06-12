@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { AgentEvent, AgentEventEnvelopeSchema } from '@ocentra-parent/agent-protocol-domain/contracts';
-import { resolveLiveActivityState } from '../src/live-activity-state';
+import { resolveLiveActivityState } from '../../src/live-activity-state';
 
 describe('portal live activity memory graph state', () => {
   it('parses service memory graph digest only when edges cite evidence', () => {

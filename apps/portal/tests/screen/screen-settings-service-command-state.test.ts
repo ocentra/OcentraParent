@@ -15,7 +15,7 @@ import {
   latestScreenSettingsServiceResponse,
   screenSettingsBaseVersionForReplace,
   screenSettingsServiceStatusText,
-} from '../src/screen-settings-service-command-state';
+} from '../../src/screen-settings-service-command-state';
 
 describe('screen settings service command state', () => {
   it('builds typed get and replace command payloads for portal actions', () => {

@@ -5,8 +5,8 @@ import {
   AgentProtocolDefaults,
 } from '@ocentra-parent/agent-protocol-domain/contracts';
 import { PortalConnectionState } from '@ocentra-parent/portal-domain/contracts';
-import { createPortalRuntimeState } from '../src/portal-state';
-import { buildDiagnosticsExport } from '../src/diagnostics-export';
+import { createPortalRuntimeState } from '../../src/portal-state';
+import { buildDiagnosticsExport } from '../../src/diagnostics-export';
 
 describe('portal diagnostics export', () => {
   it('copies connection, health, event, and read-model summaries without raw service payload dumps', () => {

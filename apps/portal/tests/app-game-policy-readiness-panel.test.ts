@@ -10,9 +10,8 @@ import {
   AgentAppGamePolicyReadinessKind,
   AgentAppGamePolicyReadinessState,
 } from '@ocentra-parent/agent-protocol-domain/app-game-policy-readiness';
-import { PortalRoute } from '@ocentra-parent/portal-domain/contracts';
+import { createAppGamePolicyReadinessPanelIntent, PortalRoute } from '@ocentra-parent/portal-domain/contracts';
 import { shouldRenderAppGamePolicyReadinessRoute } from '../src/AppGamePolicyReadinessRoutePanel';
-import { createAppGamePolicyReadinessPanelIntent } from '../src/app-game-policy-readiness-panel';
 import { resolveLiveActivityState } from '../src/live-activity-state';
 
 const AppGameSchemaVersion = 1;
