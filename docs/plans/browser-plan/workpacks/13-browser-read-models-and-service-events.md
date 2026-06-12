@@ -169,7 +169,7 @@ consume the evented chain as state.
 Evidence:
 
 - `packages/portal-domain/src/commands.ts`
-- `apps/portal/src/event-results.ts`
+- `packages/portal-domain/src/command-results.ts`
 - `apps/portal/src/live-activity-state.ts`
 - `apps/portal/tests/live-activity-state.test.ts`
 - `test-results/browser-runtime-portal-stream-consumer-proof/proof.json`

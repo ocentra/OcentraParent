@@ -11,6 +11,7 @@ export {
   type PortalDetailValue,
 } from './detail-values';
 export { PortalActivitySurfaceDefaultRequestPayload, PortalCommandButtons, PortalOverviewCommands } from './commands';
+export { PortalCommandResultEvents, isCommandResultEvent, latestCommandResult } from './command-results';
 export { PortalBrowserInventoryFields, PortalDetails, PortalReadableValues } from './details';
 export { PortalDiagnostics } from './diagnostics';
 export {
