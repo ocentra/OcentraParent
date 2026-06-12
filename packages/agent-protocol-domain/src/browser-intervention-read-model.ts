@@ -12,11 +12,7 @@ import {
   BrowserUnmanagedFallbackActionState,
   type BrowserInterventionReadModel,
 } from '@ocentra-parent/activity-domain/browser';
-import {
-  AgentProtocolDefaults,
-  isAgentProtocolLogText,
-  type AgentProtocolLogFields,
-} from '@ocentra-parent/agent-protocol-domain/contracts';
+import { AgentProtocolDefaults, isAgentProtocolLogText, type AgentProtocolLogFields } from './contracts';
 
 export function parseBrowserInterventionReadModel(
   payload: AgentProtocolLogFields

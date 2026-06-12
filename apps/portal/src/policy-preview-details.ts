@@ -1,4 +1,5 @@
 import { AgentProtocolDefaults, type AgentEventEnvelope } from '@ocentra-parent/agent-protocol-domain/contracts';
+import type { PortalPolicyPreviewReadModel } from '@ocentra-parent/agent-protocol-domain/policy-preview-read-model';
 import type { LogFieldValue } from '@ocentra-parent/logging-domain/contracts';
 import {
   PortalDetails,
@@ -14,7 +15,6 @@ import {
   payloadDetail,
   type AgentPayloadField,
 } from './event-detail-values';
-import type { PortalPolicyPreviewReadModel } from './policy-preview-read-model';
 
 type PolicyPreviewValueResolver = (readModel: PortalPolicyPreviewReadModel) => LogFieldValue | undefined;
 

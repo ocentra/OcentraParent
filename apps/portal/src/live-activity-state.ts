@@ -74,6 +74,12 @@ import {
   parseAgentNetworkRuntimeEvent,
   type AgentNetworkRuntimeEventResult,
 } from '@ocentra-parent/agent-protocol-domain/network-runtime-events';
+import { parseBrowserInterventionReadModel } from '@ocentra-parent/agent-protocol-domain/browser-intervention-read-model';
+import { parseNetworkFlowReadModel } from '@ocentra-parent/agent-protocol-domain/network-flow-read-model';
+import {
+  parsePolicyPreviewReadModel,
+  type PortalPolicyPreviewReadModel,
+} from '@ocentra-parent/agent-protocol-domain/policy-preview-read-model';
 import { parseAgentAppGameNotificationReadinessEvent } from '@ocentra-parent/agent-protocol-domain/app-game-notification-readiness';
 import {
   parseAgentAppGameAdapterExecutionReadinessEvent,
@@ -123,9 +129,6 @@ import {
   type BrowserSocialProviderReceiptStreamStatusIntent,
   type PortalActivityMemoryGraphReadModel,
 } from '@ocentra-parent/portal-domain/contracts';
-import { parseBrowserInterventionReadModel } from './browser-intervention-read-model';
-import { parseNetworkFlowReadModel } from './network-flow-read-model';
-import { parsePolicyPreviewReadModel, type PortalPolicyPreviewReadModel } from './policy-preview-read-model';
 
 type ActivitySurfaceReadModel =
   | ActivityScreenReadModel
