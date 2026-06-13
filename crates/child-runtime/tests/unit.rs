@@ -5,7 +5,7 @@ use ocentra_parent_agent_protocol::{
     TrackingAiBoundaryMode, TrackingConfigEffectiveState, TrackingConfigUpdateEventName,
     TrackingConfigUpdateResponseState, TrackingDurableSettingsPersistenceState,
     TrackingEvidenceRef, TrackingNotificationChannel, TrackingParentActionRequirement,
-    TrackingPlaceCategory, TrackingPolicyRuleRef, TrackingRetentionSettingsWriteRequest,
+    TrackingNotificationMode, TrackingPlaceCategory, TrackingPolicyRuleRef, TrackingRetentionSettingsWriteRequest,
     TrackingRuntimeEnabledState, TrackingRuntimeMode, AGENT_PROTOCOL_SCHEMA_VERSION,
 };
 use ocentra_tracking_core::TrackingPortalNotificationCandidateState;
@@ -342,6 +342,19 @@ async fn child_runtime_keeps_ai_disabled_tracking_flow_out_of_ai_policy_and_noti
     assert!(flow_report.ai_analysis_requested.is_none());
     assert!(flow_report.nearby_place_classified.is_none());
     assert!(flow_report.policy_violation_detected.is_none());
+    assert!(flow_report.parent_notification_requested.is_none());
+}
+
+#[tokio::test]
+async fn child_runtime_honors_disabled_notification_mode_without_suppressing_policy_detection() {
+    let mut event = ocentra_tracking_core::default_location_observed_event();
+    event.config.notification_mode = TrackingNotificationMode::Disabled;
+    let flow_report = ocentra_child_runtime::publish_child_tracking_location_observed_event(event)
+        .await
+        .expect(constants::tracking_runtime::ERROR_TRACKING_RUNTIME_FLOW_RECORDED);
+
+    assert!(flow_report.policy_violation_detected.is_some());
+    assert!(flow_report.alert_decision.is_none());
     assert!(flow_report.parent_notification_requested.is_none());
 }
 

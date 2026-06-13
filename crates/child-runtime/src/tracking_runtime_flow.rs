@@ -10,7 +10,7 @@ use ocentra_parent_agent_protocol::{
     TrackingChildCheckInRecordedEvent, TrackingEvidenceRecordedEvent,
     TrackingExpectedPlaceStateEvaluatedEvent, TrackingGeofenceTransitionDetectedEvent,
     TrackingLocationObservedEvent, TrackingNearbyPlaceClassifiedEvent,
-    TrackingPolicyViolationDetectedEvent,
+    TrackingNotificationMode, TrackingPolicyViolationDetectedEvent,
 };
 use ocentra_tracking_core::{
     TrackingAiBoundaryDecision, TrackingAlertDecision,
@@ -156,6 +156,7 @@ async fn subscribe_tracking_location_observed_events(
                     });
                 }
 
+                state.record_location_observed(context.payload().clone());
                 let observation_report =
                     ocentra_tracking_core::observe_tracking_location(context.payload().clone());
                 let evidence = observation_report.evidence_recorded.clone();
@@ -369,6 +370,12 @@ async fn subscribe_child_notification_policy_events(
         move |context| {
             let state = state.clone();
             async move {
+                let Some(location_observed) = state.location_observed() else {
+                    return Ok(());
+                };
+                if location_observed.config.notification_mode == TrackingNotificationMode::Disabled {
+                    return Ok(());
+                }
                 let alert_decision =
                     ocentra_tracking_core::evaluate_tracking_alert(context.payload(), 0);
                 state.record_alert_decision(alert_decision.clone());
@@ -399,6 +406,7 @@ async fn subscribe_child_notification_policy_events(
 
 #[derive(Clone, Debug, Default)]
 struct TrackingRuntimeEventState {
+    location_observed: Arc<Mutex<Option<TrackingLocationObservedEvent>>>,
     evidence_recorded: Arc<Mutex<Option<TrackingEvidenceRecordedEvent>>>,
     geofence_transition_detected: Arc<Mutex<Option<TrackingGeofenceTransitionDetectedEvent>>>,
     expected_place_state_evaluated: Arc<Mutex<Option<TrackingExpectedPlaceStateEvaluatedEvent>>>,
@@ -413,6 +421,10 @@ struct TrackingRuntimeEventState {
 
 impl TrackingRuntimeEventState {
     fn reset_for_new_observation(&self) {
+        *self
+            .location_observed
+            .lock()
+            .expect(constants::tracking_runtime::ERROR_TRACKING_RUNTIME_FLOW_RECORDED) = None;
         *self
             .evidence_recorded
             .lock()
@@ -453,6 +465,14 @@ impl TrackingRuntimeEventState {
             .parent_notification_requested
             .lock()
             .expect(constants::tracking_runtime::ERROR_TRACKING_RUNTIME_FLOW_RECORDED) = None;
+    }
+
+    fn record_location_observed(&self, event: TrackingLocationObservedEvent) {
+        *self
+            .location_observed
+            .lock()
+            .expect(constants::tracking_runtime::ERROR_TRACKING_RUNTIME_FLOW_RECORDED) =
+            Some(event);
     }
 
     fn record_evidence(&self, event: TrackingEvidenceRecordedEvent) {
@@ -537,6 +557,10 @@ impl TrackingRuntimeEventState {
 
     fn evidence_recorded(&self) -> Result<TrackingEvidenceRecordedEvent, EventingError> {
         required_runtime_flow_event(&self.evidence_recorded)
+    }
+
+    fn location_observed(&self) -> Option<TrackingLocationObservedEvent> {
+        self.location_observed.lock().ok()?.clone()
     }
 
     fn geofence_transition_detected(&self) -> Option<TrackingGeofenceTransitionDetectedEvent> {
