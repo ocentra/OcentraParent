@@ -152,7 +152,7 @@ function billingSupportAdminProofIsHonest(proof: {
   readonly portalUiClaim: 'not-implemented';
   readonly providerContactClaim: 'not-executed';
   readonly backendUploadClaim: 'not-executed';
-  readonly childActivityCustodyClaim: 'not-supported';
+  readonly childActivityCustodyClaim: 'not-included';
 }): boolean {
   const requiredNonClaims: ReadonlyArray<BillingSupportAdminNonClaim> = [
     'no-stripe-sdk',
@@ -180,6 +180,6 @@ function billingSupportAdminProofIsHonest(proof: {
     proof.portalUiClaim === 'not-implemented' &&
     proof.providerContactClaim === 'not-executed' &&
     proof.backendUploadClaim === 'not-executed' &&
-    proof.childActivityCustodyClaim === 'not-supported'
+    proof.childActivityCustodyClaim === 'not-included'
   );
 }

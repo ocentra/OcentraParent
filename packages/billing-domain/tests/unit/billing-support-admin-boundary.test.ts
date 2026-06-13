@@ -46,7 +46,7 @@ function acceptsBillingSupportAdminBoundaryProof(): void {
     expect(proof.portalUiClaim).toBe('not-implemented');
     expect(proof.providerContactClaim).toBe('not-executed');
     expect(proof.backendUploadClaim).toBe('not-executed');
-    expect(proof.childActivityCustodyClaim).toBe('not-supported');
+    expect(proof.childActivityCustodyClaim).toBe('not-included');
   });
 }
 

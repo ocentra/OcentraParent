@@ -34,7 +34,7 @@ fn tracking_ai_request_fixture() -> TrackingAiAnalysisRequestedEvent {
         )
         .expect(constants::tracking_runtime::ALLOWED_AI_PURPOSE_NEARBY_PLACE_CLASSIFICATION),
         parent_action_requirement: TrackingParentActionRequirement::Required,
-        private_payload_state: PrivatePayloadState::Redacted,
+        private_payload_state: PrivatePayloadState::Excluded,
     }
 }
 

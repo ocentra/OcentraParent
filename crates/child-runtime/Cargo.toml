@@ -34,4 +34,5 @@ serde = { version = "1.0.228", features = ["derive"] }
 
 [dev-dependencies]
 ocentra-evidence = { path = "../ocentra-evidence" }
+ocentra-policy-control-core = { path = "../policy-control-core" }
 tokio = { version = "1.48.0", features = ["macros", "rt-multi-thread"] }

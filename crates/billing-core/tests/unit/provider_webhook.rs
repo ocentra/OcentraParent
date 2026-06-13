@@ -80,6 +80,50 @@ fn dispute_provider_event_requires_manual_review() {
 }
 
 #[test]
+fn refund_event_is_safe_but_does_not_auto_update_entitlement() {
+    let decision = decide_billing_provider_webhook(BillingProviderWebhookEvent {
+        event_kind: BillingProviderEventKind::RefundIssued,
+        lifecycle_state: BillingSubscriptionLifecycleState::Canceled,
+        ..provider_event()
+    });
+
+    assert_eq!(
+        decision.decision_state,
+        BillingProviderEventDecisionState::Accepted
+    );
+    assert_eq!(
+        decision.entitlement_update_requirement,
+        BillingEntitlementUpdateRequirement::NotRequired
+    );
+    assert_eq!(
+        decision.manual_review_requirement,
+        BillingManualReviewRequirement::Required
+    );
+}
+
+#[test]
+fn verified_unknown_lifecycle_blocks_entitlement_write_pending_manual_review() {
+    let decision = decide_billing_provider_webhook(BillingProviderWebhookEvent {
+        event_kind: BillingProviderEventKind::CustomerPortalUpdated,
+        lifecycle_state: BillingSubscriptionLifecycleState::Unknown,
+        ..provider_event()
+    });
+
+    assert_eq!(
+        decision.decision_state,
+        BillingProviderEventDecisionState::Accepted
+    );
+    assert_eq!(
+        decision.entitlement_update_requirement,
+        BillingEntitlementUpdateRequirement::NotRequired
+    );
+    assert_eq!(
+        decision.manual_review_requirement,
+        BillingManualReviewRequirement::Required
+    );
+}
+
+#[test]
 fn provider_event_id_rejects_empty_boundary_text() {
     assert!(BillingProviderEventId::parse("").is_none());
 }

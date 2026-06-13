@@ -1,9 +1,4 @@
-import {
-  type Infer,
-  Schema,
-  withParser,
-  brandedNonEmptyStringSchema
-} from '@ocentra-parent/schema-domain/effect';
+import { type Infer, Schema, withParser, brandedNonEmptyStringSchema } from '@ocentra-parent/schema-domain/effect';
 
 export const BillingAccountRuntimeSchemaVersionSchema = withParser(
   Schema.Literal('billing-account-runtime-boundary-proof')
@@ -32,7 +27,9 @@ export const BillingAccountRuntimeParentVisibleStateSchema = withParser(
 );
 export const BillingAccountRuntimeProviderBoundarySchema = withParser(Schema.Literal('backend-reference-only', 'none'));
 export const BillingAccountRuntimeProviderSecretCustodySchema = withParser(Schema.Literal('not-present'));
-export const BillingAccountRuntimeChildDeviceConsumptionSchema = withParser(Schema.Literal('not-implemented'));
+export const BillingAccountRuntimeChildDeviceConsumptionSchema = withParser(
+  Schema.Literal('signed-snapshot-consumed', 'manual-required', 'not-implemented')
+);
 export const BillingAccountRuntimeEntitlementSigningStateSchema = withParser(
   Schema.Literal('signed-snapshot-accepted', 'schema-valid-local', 'manual-required', 'unavailable')
 );
@@ -44,7 +41,6 @@ export const BillingAccountRuntimeNonClaimSchema = withParser(
     'no-account-backend',
     'no-entitlement-signing-runtime',
     'no-portal-ui',
-    'no-child-device-consumption',
     'no-child-activity-custody'
   )
 );
@@ -53,11 +49,15 @@ export const BillingAccountRuntimeStripeSdkClaimSchema = withParser(Schema.Liter
 export const BillingAccountRuntimeProviderSecretClaimSchema = withParser(Schema.Literal('not-included'));
 export const BillingAccountRuntimeBackendClaimSchema = withParser(Schema.Literal('not-implemented'));
 export const BillingAccountRuntimePortalUiClaimSchema = withParser(Schema.Literal('not-implemented'));
-export const BillingAccountRuntimeChildDeviceConsumptionClaimSchema = withParser(Schema.Literal('not-supported'));
-export const BillingAccountRuntimeChildActivityCustodyClaimSchema = withParser(Schema.Literal('not-supported'));
+export const BillingAccountRuntimeChildDeviceConsumptionClaimSchema = withParser(
+  Schema.Literal('signed-snapshot-consumption-contract', 'not-supported')
+);
+export const BillingAccountRuntimeChildActivityCustodyClaimSchema = withParser(Schema.Literal('not-included'));
 
 export const BillingAccountRuntimeBoundaryIdSchema = brandedNonEmptyStringSchema('BillingAccountRuntimeBoundaryId');
-export const BillingAccountRuntimeAuditReferenceSchema = brandedNonEmptyStringSchema('BillingAccountRuntimeAuditReference');
+export const BillingAccountRuntimeAuditReferenceSchema = brandedNonEmptyStringSchema(
+  'BillingAccountRuntimeAuditReference'
+);
 
 export type BillingAccountRuntimeStatus = Infer<typeof BillingAccountRuntimeStatusSchema>;
 export type BillingAccountRuntimeOperation = Infer<typeof BillingAccountRuntimeOperationSchema>;

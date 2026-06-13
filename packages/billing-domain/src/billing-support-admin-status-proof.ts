@@ -190,7 +190,7 @@ export const BillingSupportAdminStatusProofReadModel = BillingSupportAdminStatus
   ],
   providerClaim: 'not-executed',
   portalAdminUiClaim: 'not-implemented',
-  childActivityCustodyClaim: 'not-supported',
+  childActivityCustodyClaim: 'not-included',
   updatedAt: UpdatedAt,
 });
 
@@ -322,7 +322,7 @@ function billingSupportAdminStatusProofIsComplete(proof: {
   readonly nonClaims: ReadonlyArray<BillingSupportAdminStatusNonClaim>;
   readonly providerClaim: 'not-executed';
   readonly portalAdminUiClaim: 'not-implemented';
-  readonly childActivityCustodyClaim: 'not-supported';
+  readonly childActivityCustodyClaim: 'not-included';
 }): boolean {
   const requiredRows: ReadonlyArray<BillingSupportAdminStatusRow> = [
     'case-triage-visible',
@@ -352,6 +352,6 @@ function billingSupportAdminStatusProofIsComplete(proof: {
     proof.rows.some((row) => row.runtimeState === 'not-implemented') &&
     proof.providerClaim === 'not-executed' &&
     proof.portalAdminUiClaim === 'not-implemented' &&
-    proof.childActivityCustodyClaim === 'not-supported'
+    proof.childActivityCustodyClaim === 'not-included'
   );
 }

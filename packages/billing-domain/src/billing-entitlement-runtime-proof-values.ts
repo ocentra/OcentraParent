@@ -40,7 +40,9 @@ export const BillingEntitlementRuntimeProviderContactClaimSchema = withParser(Sc
 export const BillingEntitlementRuntimeRefundCreditClaimSchema = withParser(Schema.Literal('manual-required'));
 export const BillingEntitlementRuntimeProductionBillingClaimSchema = withParser(Schema.Literal('not-claimed'));
 export const BillingEntitlementRuntimePortalUiClaimSchema = withParser(Schema.Literal('not-implemented'));
-export const BillingEntitlementRuntimeChildCustodyClaimSchema = withParser(Schema.Literal('not-supported'));
+export const BillingEntitlementRuntimeChildCustodyClaimSchema = withParser(
+  Schema.Literal('signed-snapshot-consumption-contract', 'not-supported')
+);
 
 export const BillingEntitlementRuntimeNonClaimSchema = withParser(
   Schema.Literal(

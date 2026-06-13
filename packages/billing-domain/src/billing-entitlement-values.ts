@@ -80,7 +80,7 @@ export const BillingEntitlementNonClaimSchema = withParser(
 export const BillingStripeSdkClaimSchema = withParser(Schema.Literal('not-included'));
 export const BillingProviderBackendClaimSchema = withParser(Schema.Literal('not-implemented'));
 export const BillingPortalUiClaimSchema = withParser(Schema.Literal('not-implemented'));
-export const BillingChildActivityCustodyClaimSchema = withParser(Schema.Literal('not-supported'));
+export const BillingChildActivityCustodyClaimSchema = withParser(Schema.Literal('not-included'));
 
 export const BillingPlanIdSchema = brandedNonEmptyStringSchema('BillingPlanId');
 export const BillingDisplayTextTokenSchema = brandedNonEmptyStringSchema('BillingDisplayTextToken');

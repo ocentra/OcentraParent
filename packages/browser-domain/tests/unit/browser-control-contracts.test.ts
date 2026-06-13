@@ -11,12 +11,13 @@ import {
 import {
   BrowserControlCapabilityRegistrySchema,
   BrowserControlEffectivePolicySchema,
+  browserControlCreateStorageUnavailableResponse,
   browserControlManifestAllowsPatchRequest,
   BrowserControlPatchPolicyRequestSchema,
   BrowserControlPolicyValueSchema,
   BrowserControlUpdateRequestSchema,
 } from '../../src/browser-control-policy';
-import { BrowserControlFieldIdSchema } from '../../src/browser-control-identifiers';
+import { BrowserControlFieldIdSchema, BrowserControlRequestIdSchema } from '../../src/browser-control-identifiers';
 import { BrowserControlUnmanagedBrowserModeSchema, BrowserControlWritesToPath } from '../../src/browser-control-values';
 import { BrowserControlRuleActionSchema } from '../../src/browser-control-catalog-values';
 
@@ -164,6 +165,17 @@ function registerPolicyShapeCases() {
     expect(BrowserControlEffectivePolicySchema.safeParse(validEffectivePolicy()).success).toBe(true);
     expect(BrowserControlCapabilityRegistrySchema.safeParse(validCapabilityRegistry()).success).toBe(true);
     expect(BrowserControlUpdateRequestSchema.safeParse(validPatchRequest()).success).toBe(true);
+  });
+
+  it('creates an honest storage-unavailable rejection for the implemented browser policy runtime boundary', () => {
+    const response = browserControlCreateStorageUnavailableResponse(
+      BrowserControlRequestIdSchema.parse('browser-policy-request-storage'),
+      'patch'
+    );
+
+    expect(response.status).toBe('rejected');
+    expect(response.rejectionReason).toBe('storage-unavailable');
+    expect(response.effectivePolicy).toBeNull();
   });
 
   it('accepts policy target compiler vocabulary for social, video, and browser-game targets', () => {

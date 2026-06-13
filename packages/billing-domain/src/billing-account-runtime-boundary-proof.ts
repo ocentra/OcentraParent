@@ -86,15 +86,37 @@ export const BillingAccountRuntimeBoundaryProofReadModel = BillingAccountRuntime
     ),
   ],
   runtimeOperations: [
-    runtimeOperation('account-status-read', 'not-implemented', 'none', true, ProviderUnavailableFailure),
-    runtimeOperation('subscription-status-read', 'not-implemented', 'none', true, ProviderUnavailableFailure),
-    runtimeOperation('entitlement-snapshot-read', 'manual-required', 'none', true, ValidationFailedFailure),
-    runtimeOperation('device-limit-decision-read', 'manual-required', 'none', true, ValidationFailedFailure),
-    runtimeOperation('download-status-read', 'not-implemented', 'none', true, NetworkUnavailableFailure),
+    runtimeOperation('account-status-read', 'not-implemented', 'none', 'not-implemented', true, ProviderUnavailableFailure),
+    runtimeOperation(
+      'subscription-status-read',
+      'not-implemented',
+      'none',
+      'not-implemented',
+      true,
+      ProviderUnavailableFailure
+    ),
+    runtimeOperation(
+      'entitlement-snapshot-read',
+      'manual-required',
+      'none',
+      'signed-snapshot-consumed',
+      true,
+      ValidationFailedFailure
+    ),
+    runtimeOperation(
+      'device-limit-decision-read',
+      'manual-required',
+      'none',
+      'manual-required',
+      true,
+      ValidationFailedFailure
+    ),
+    runtimeOperation('download-status-read', 'not-implemented', 'none', 'not-implemented', true, NetworkUnavailableFailure),
     runtimeOperation(
       'provider-webhook-sync',
       'not-implemented',
       'backend-reference-only',
+      'not-implemented',
       true,
       ProviderUnavailableFailure
     ),
@@ -120,15 +142,14 @@ export const BillingAccountRuntimeBoundaryProofReadModel = BillingAccountRuntime
     'no-account-backend',
     'no-entitlement-signing-runtime',
     'no-portal-ui',
-    'no-child-device-consumption',
     'no-child-activity-custody',
   ],
   stripeSdkClaim: 'not-included',
   providerSecretClaim: 'not-included',
   accountBackendClaim: 'not-implemented',
   portalUiClaim: 'not-implemented',
-  childDeviceConsumptionClaim: 'not-supported',
-  childActivityCustodyClaim: 'not-supported',
+  childDeviceConsumptionClaim: 'signed-snapshot-consumption-contract',
+  childActivityCustodyClaim: 'not-included',
   updatedAt: Timestamp,
 });
 
@@ -139,7 +160,7 @@ export const BillingAccountRuntimeBoundaryKnownGaps = [
   'Stripe/provider secrets are not present and provider references stay behind a future backend boundary.',
   'Entitlement signing delivery runtime remains manual-required.',
   'Portal billing UI and account-management flows remain unimplemented.',
-  'Child-device entitlement consumption is not implemented.',
+  'Child-device entitlement consumption is limited to signed local snapshots and does not contact providers.',
 ] as const;
 
 function accountStatusRow(
@@ -184,6 +205,7 @@ function runtimeOperation(
   operation: BillingAccountRuntimeOperation,
   backendRuntimeState: 'manual-required' | 'not-implemented',
   providerBoundary: 'backend-reference-only' | 'none',
+  childDeviceConsumption: 'signed-snapshot-consumed' | 'manual-required' | 'not-implemented',
   manualRequired: true,
   failureState: ReturnType<typeof billingFailureState>
 ) {
@@ -193,7 +215,7 @@ function runtimeOperation(
     backendRuntimeState,
     providerBoundary,
     providerSecretCustody: 'not-present',
-    childDeviceConsumption: 'not-implemented',
+    childDeviceConsumption,
     manualRequired,
     failureState,
   } as const;

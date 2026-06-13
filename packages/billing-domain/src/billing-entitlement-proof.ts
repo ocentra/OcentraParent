@@ -187,7 +187,7 @@ export const BillingEntitlementContractProofReadModel = BillingEntitlementContra
   stripeSdkClaim: 'not-included',
   billingProviderBackendClaim: 'not-implemented',
   portalUiClaim: 'not-implemented',
-  childActivityCustodyClaim: 'not-supported',
+  childActivityCustodyClaim: 'not-included',
   updatedAt: Timestamp,
 });
 

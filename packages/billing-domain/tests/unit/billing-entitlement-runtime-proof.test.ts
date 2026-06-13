@@ -18,7 +18,7 @@ describe('billing entitlement runtime proof', () => {
 });
 
 function acceptsRuntimeStatusConsumptionProof(): void {
-  it('accepts entitlement snapshot device-limit and failure consumption without provider or production claims', () => {
+  it('accepts entitlement snapshot device-limit and failure consumption with signed child snapshot delivery and no provider or production claims', () => {
     const proof = BillingEntitlementRuntimeProofSchema.parse(BillingEntitlementRuntimeProofReadModel);
 
     expect(summarizeBillingEntitlementRuntimeSnapshotStates(proof.snapshotConsumptions)).toEqual({
@@ -50,6 +50,7 @@ function acceptsRuntimeStatusConsumptionProof(): void {
       'no-production-billing-claim',
       'no-portal-ui',
     ]);
+    expect(proof.childCustodyClaim).toBe('signed-snapshot-consumption-contract');
   });
 }
 
@@ -111,6 +112,7 @@ function rejectsRuntimeProofOverclaims(): void {
       { ...proof, refundCreditClaim: 'implemented' },
       { ...proof, productionBillingClaim: 'claimed' },
       { ...proof, portalUiClaim: 'implemented' },
+      { ...proof, childCustodyClaim: 'not-supported' },
       { ...proof, nonClaims: proof.nonClaims.filter((claim) => claim !== 'no-provider-contact') },
     ]) {
       expect(BillingEntitlementRuntimeProofSchema.safeParse(invalidProof).success).toBe(false);

@@ -546,7 +546,7 @@ pub mod browser_policy {
     pub const REJECTION_STALE_REVISION: &str = "stale-revision";
     pub const REJECTION_REVISION_NOT_FOUND: &str = "revision-not-found";
     pub const SCAFFOLD_UNAVAILABLE_MESSAGE: &str =
-        "Browser policy persistence and compiler are not implemented in this scaffold slice.";
+        "Browser policy runtime returned a legacy scaffold-unavailable rejection.";
     pub const MESSAGE_ACCEPTED: &str = "Browser policy update accepted.";
     pub const MESSAGE_PREVIEWED: &str =
         "Browser policy preview compiled without persisting a revision.";
