@@ -53,7 +53,7 @@ fn tracking_ai_classification_preserves_request_evidence_refs() {
     assert_eq!(result.evidence_refs, request.evidence_refs);
     assert_eq!(
         result.provider_kind,
-        constants::tracking_runtime::NEARBY_PROVIDER_KIND_PARENT_DEFINED
+        constants::tracking_runtime::NEARBY_PROVIDER_KIND_LOCAL_CACHE
     );
     assert_eq!(
         result.provider_ref.as_ref().map(|value| value.as_str()),
@@ -78,9 +78,9 @@ fn tracking_ai_classification_preserves_request_evidence_refs() {
     assert_eq!(
         result.reason_codes,
         vec![ocentra_parent_agent_protocol::TrackingReasonCode::parse(
-            constants::tracking_runtime::REASON_PARENT_DEFINED_PLACE_MATCH
+            constants::tracking_runtime::REASON_NEARBY_PLACE_SINGLE_CANDIDATE
         )
-        .expect(constants::tracking_runtime::REASON_PARENT_DEFINED_PLACE_MATCH)]
+        .expect(constants::tracking_runtime::REASON_NEARBY_PLACE_SINGLE_CANDIDATE)]
     );
     assert_eq!(
         result.parent_action_requirement,

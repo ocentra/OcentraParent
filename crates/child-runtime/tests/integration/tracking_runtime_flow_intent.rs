@@ -124,7 +124,7 @@ async fn tracking_runtime_flow_keeps_ai_policy_and_notification_decoupled_by_eve
             .as_ref()
             .expect(constants::tracking_runtime::ERROR_TRACKING_RUNTIME_FLOW_RECORDED)
             .provider_kind,
-        constants::tracking_runtime::NEARBY_PROVIDER_KIND_PARENT_DEFINED
+        constants::tracking_runtime::NEARBY_PROVIDER_KIND_LOCAL_CACHE
     );
     assert_eq!(
         flow_report

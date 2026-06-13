@@ -49,8 +49,8 @@ pub use missing_device::{
     evaluate_missing_device_mode, TrackingLastKnownVisibilityState, TrackingMissingDeviceDecision,
 };
 pub use nearby_place::{
-    request_nearby_place_provider_analysis, TrackingNearbyPlaceProviderAvailabilityState,
-    TrackingNearbyPlaceProviderDecision,
+    classify_tracking_nearby_place_request, request_nearby_place_provider_analysis,
+    TrackingNearbyPlaceProviderAvailabilityState, TrackingNearbyPlaceProviderDecision,
 };
 pub use parent_acknowledgement::record_parent_acknowledgement;
 pub use read_model::tracking_read_model_for_connection;

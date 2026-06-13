@@ -132,9 +132,9 @@ fn ai_result_for_request(
         source_location_evidence_ref: request.evidence_refs[0].clone(),
         evidence_refs: request.evidence_refs.clone(),
         provider_kind: TrackingNearbyPlaceProviderKind::parse(
-            constants::tracking_runtime::NEARBY_PROVIDER_KIND_PARENT_DEFINED,
+            constants::tracking_runtime::NEARBY_PROVIDER_KIND_LOCAL_CACHE,
         )
-        .expect(constants::tracking_runtime::NEARBY_PROVIDER_KIND_PARENT_DEFINED),
+        .expect(constants::tracking_runtime::NEARBY_PROVIDER_KIND_LOCAL_CACHE),
         provider_ref: Some(
             TrackingProviderRef::parse(constants::tracking_runtime::DEFAULT_TRACKING_PROVIDER_REF)
                 .expect(constants::tracking_runtime::DEFAULT_TRACKING_PROVIDER_REF),
@@ -155,9 +155,9 @@ fn ai_result_for_request(
         )
         .expect(constants::tracking_runtime::NEARBY_PLACE_AMBIGUITY_CLEAR),
         reason_codes: vec![TrackingReasonCode::parse(
-            constants::tracking_runtime::REASON_PARENT_DEFINED_PLACE_MATCH,
+            constants::tracking_runtime::REASON_NEARBY_PLACE_SINGLE_CANDIDATE,
         )
-        .expect(constants::tracking_runtime::REASON_PARENT_DEFINED_PLACE_MATCH)],
+        .expect(constants::tracking_runtime::REASON_NEARBY_PLACE_SINGLE_CANDIDATE)],
         parent_action_requirement: TrackingParentActionRequirement::Required,
     }
 }

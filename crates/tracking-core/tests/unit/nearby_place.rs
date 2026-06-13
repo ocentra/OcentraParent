@@ -85,3 +85,36 @@ fn nearby_place_provider_unavailable_degrades_without_policy_authority() {
         AiResultAuthorityState::EvidenceOnly
     );
 }
+
+#[test]
+fn nearby_place_classification_helper_reuses_canonical_provider_decision_shape() {
+    let observed = ocentra_tracking_core::default_location_observed_event();
+    let report = ocentra_tracking_core::observe_tracking_location(observed);
+    let request = report
+        .ai_analysis_requested
+        .expect(constants::tracking_runtime::ERROR_TRACKING_RUNTIME_FLOW_RECORDED);
+
+    let classified = ocentra_tracking_core::classify_tracking_nearby_place_request(&request);
+
+    assert_eq!(classified.source_ai_request_id, request.ai_request_id);
+    assert_eq!(classified.source_location_evidence_ref, request.evidence_refs[0]);
+    assert_eq!(
+        classified.provider_kind,
+        constants::tracking_runtime::NEARBY_PROVIDER_KIND_LOCAL_CACHE
+    );
+    assert_eq!(
+        classified.provider_ref.as_ref().map(|value| value.as_str()),
+        Some(constants::tracking_runtime::DEFAULT_TRACKING_PROVIDER_REF)
+    );
+    assert_eq!(
+        classified.ambiguity_state,
+        constants::tracking_runtime::NEARBY_PLACE_AMBIGUITY_CLEAR
+    );
+    assert_eq!(
+        classified.reason_codes,
+        vec![TrackingReasonCode::parse(
+            constants::tracking_runtime::REASON_NEARBY_PLACE_SINGLE_CANDIDATE
+        )
+        .expect(constants::tracking_runtime::REASON_NEARBY_PLACE_SINGLE_CANDIDATE)]
+    );
+}

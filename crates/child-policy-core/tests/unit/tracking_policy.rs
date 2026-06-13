@@ -31,9 +31,9 @@ fn tracking_nearby_place_fixture(
         source_location_evidence_ref: evidence_ref.clone(),
         evidence_refs: vec![evidence_ref],
         provider_kind: TrackingNearbyPlaceProviderKind::parse(
-            constants::tracking_runtime::NEARBY_PROVIDER_KIND_PARENT_DEFINED,
+            constants::tracking_runtime::NEARBY_PROVIDER_KIND_LOCAL_CACHE,
         )
-        .expect(constants::tracking_runtime::NEARBY_PROVIDER_KIND_PARENT_DEFINED),
+        .expect(constants::tracking_runtime::NEARBY_PROVIDER_KIND_LOCAL_CACHE),
         provider_ref: Some(
             TrackingProviderRef::parse(constants::tracking_runtime::DEFAULT_TRACKING_PROVIDER_REF)
                 .expect(constants::tracking_runtime::DEFAULT_TRACKING_PROVIDER_REF),
@@ -54,9 +54,9 @@ fn tracking_nearby_place_fixture(
         )
         .expect(constants::tracking_runtime::NEARBY_PLACE_AMBIGUITY_CLEAR),
         reason_codes: vec![TrackingReasonCode::parse(
-            constants::tracking_runtime::REASON_PARENT_DEFINED_PLACE_MATCH,
+            constants::tracking_runtime::REASON_NEARBY_PLACE_SINGLE_CANDIDATE,
         )
-        .expect(constants::tracking_runtime::REASON_PARENT_DEFINED_PLACE_MATCH)],
+        .expect(constants::tracking_runtime::REASON_NEARBY_PLACE_SINGLE_CANDIDATE)],
         parent_action_requirement,
     }
 }
