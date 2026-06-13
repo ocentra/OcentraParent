@@ -1,7 +1,11 @@
 use ocentra_eventing::EventingError;
 use ocentra_parent_agent_protocol::{
-    constants, TrackingAlertSeverity, TrackingCheckInState, TrackingEvidenceRef,
-    TrackingExpectedPlaceState, TrackingTransitionKind,
+    constants, TrackingAlertSeverity, TrackingCheckInState, TrackingExpectedPlaceState,
+    TrackingTransitionKind,
+    tracking_ai_request_id_from_evidence_ref, tracking_check_in_id_from_observation_id,
+    tracking_evaluation_id_from_observation_id, tracking_evidence_ref_from_observation_id,
+    tracking_notification_id_from_violation_id, tracking_transition_id_from_observation_id,
+    tracking_violation_id_from_ai_request_and_rule_ref,
 };
 
 #[tokio::test]
@@ -11,6 +15,9 @@ async fn tracking_runtime_flow_keeps_ai_policy_and_notification_decoupled_by_eve
     )
     .await
     .expect(constants::tracking_runtime::ERROR_TRACKING_RUNTIME_FLOW_RECORDED);
+    let expected_evidence_ref = tracking_evidence_ref_from_observation_id(
+        &flow_report.evidence_recorded.source_observation_id,
+    );
 
     assert_eq!(
         flow_report
@@ -18,10 +25,19 @@ async fn tracking_runtime_flow_keeps_ai_policy_and_notification_decoupled_by_eve
             .as_ref()
             .expect(constants::tracking_runtime::ERROR_TRACKING_RUNTIME_FLOW_RECORDED)
             .evidence_refs,
-        vec![
-            TrackingEvidenceRef::parse(constants::tracking_runtime::DEFAULT_EVIDENCE_REF)
-                .expect(constants::tracking_runtime::DEFAULT_EVIDENCE_REF)
-        ]
+        vec![expected_evidence_ref.clone()]
+    );
+    assert_eq!(
+        flow_report.evidence_recorded.evidence_ref,
+        expected_evidence_ref
+    );
+    assert_eq!(
+        flow_report
+            .ai_analysis_requested
+            .as_ref()
+            .expect(constants::tracking_runtime::ERROR_TRACKING_RUNTIME_FLOW_RECORDED)
+            .ai_request_id,
+        tracking_ai_request_id_from_evidence_ref(&flow_report.evidence_recorded.evidence_ref)
     );
     assert_eq!(
         flow_report
@@ -31,6 +47,16 @@ async fn tracking_runtime_flow_keeps_ai_policy_and_notification_decoupled_by_eve
             .transition_kind,
         TrackingTransitionKind::parse(constants::tracking_runtime::GEOFENCE_TRANSITION_AMBIGUOUS)
             .expect(constants::tracking_runtime::GEOFENCE_TRANSITION_AMBIGUOUS)
+    );
+    assert_eq!(
+        flow_report
+            .geofence_transition_detected
+            .as_ref()
+            .expect(constants::tracking_runtime::ERROR_TRACKING_RUNTIME_FLOW_RECORDED)
+            .transition_id,
+        tracking_transition_id_from_observation_id(
+            &flow_report.evidence_recorded.source_observation_id
+        )
     );
     assert_eq!(
         flow_report
@@ -45,12 +71,32 @@ async fn tracking_runtime_flow_keeps_ai_policy_and_notification_decoupled_by_eve
     );
     assert_eq!(
         flow_report
+            .expected_place_state_evaluated
+            .as_ref()
+            .expect(constants::tracking_runtime::ERROR_TRACKING_RUNTIME_FLOW_RECORDED)
+            .evaluation_id,
+        tracking_evaluation_id_from_observation_id(
+            &flow_report.evidence_recorded.source_observation_id
+        )
+    );
+    assert_eq!(
+        flow_report
             .child_check_in_recorded
             .as_ref()
             .expect(constants::tracking_runtime::ERROR_TRACKING_RUNTIME_FLOW_RECORDED)
             .check_in_state,
         TrackingCheckInState::parse(constants::tracking_runtime::CHECK_IN_STATE_RECEIVED)
             .expect(constants::tracking_runtime::CHECK_IN_STATE_RECEIVED)
+    );
+    assert_eq!(
+        flow_report
+            .child_check_in_recorded
+            .as_ref()
+            .expect(constants::tracking_runtime::ERROR_TRACKING_RUNTIME_FLOW_RECORDED)
+            .check_in_id,
+        tracking_check_in_id_from_observation_id(
+            &flow_report.evidence_recorded.source_observation_id
+        )
     );
     assert_eq!(
         flow_report
@@ -104,6 +150,39 @@ async fn tracking_runtime_flow_keeps_ai_policy_and_notification_decoupled_by_eve
             .as_ref()
             .expect(constants::tracking_runtime::ERROR_TRACKING_RUNTIME_FLOW_RECORDED)
             .violation_id
+    );
+    assert_eq!(
+        flow_report
+            .policy_violation_detected
+            .as_ref()
+            .expect(constants::tracking_runtime::ERROR_TRACKING_RUNTIME_FLOW_RECORDED)
+            .violation_id,
+        tracking_violation_id_from_ai_request_and_rule_ref(
+            &flow_report
+                .ai_analysis_requested
+                .as_ref()
+                .expect(constants::tracking_runtime::ERROR_TRACKING_RUNTIME_FLOW_RECORDED)
+                .ai_request_id,
+            &flow_report
+                .policy_violation_detected
+                .as_ref()
+                .expect(constants::tracking_runtime::ERROR_TRACKING_RUNTIME_FLOW_RECORDED)
+                .policy_rule_ref,
+        )
+    );
+    assert_eq!(
+        flow_report
+            .parent_notification_requested
+            .as_ref()
+            .expect(constants::tracking_runtime::ERROR_TRACKING_RUNTIME_FLOW_RECORDED)
+            .notification_id,
+        tracking_notification_id_from_violation_id(
+            &flow_report
+                .policy_violation_detected
+                .as_ref()
+                .expect(constants::tracking_runtime::ERROR_TRACKING_RUNTIME_FLOW_RECORDED)
+                .violation_id,
+        )
     );
 }
 

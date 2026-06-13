@@ -1,8 +1,11 @@
 use ocentra_parent_agent_protocol::{
     constants, ParentNotificationRequestedEvent, TrackingAcknowledgementState,
     TrackingAiAnalysisRequirement, TrackingCheckInState, TrackingExpectedPlaceState,
-    TrackingNotificationChannel, TrackingNotificationId, TrackingParentActionRequirement,
-    TrackingPolicyViolationId, TrackingTransitionKind,
+    TrackingNotificationChannel, TrackingParentActionRequirement, TrackingPolicyRuleRef,
+    TrackingTransitionKind,
+    tracking_acknowledgement_id_from_violation_id, tracking_check_in_id_from_observation_id,
+    tracking_evaluation_id_from_observation_id, tracking_notification_id_from_violation_id,
+    tracking_transition_id_from_observation_id, tracking_violation_id_from_evaluation_and_rule_ref,
 };
 
 #[test]
@@ -16,6 +19,10 @@ fn tracking_evidence_can_branch_to_geofence_and_expected_place_events() {
     assert_eq!(geofence.child_device_id, evidence.child_device_id);
     assert_eq!(geofence.child_profile_id, evidence.child_profile_id);
     assert_eq!(
+        geofence.transition_id,
+        tracking_transition_id_from_observation_id(&observed.observation_id)
+    );
+    assert_eq!(
         geofence.transition_kind,
         TrackingTransitionKind::parse(constants::tracking_runtime::GEOFENCE_TRANSITION_AMBIGUOUS)
             .expect(constants::tracking_runtime::GEOFENCE_TRANSITION_AMBIGUOUS)
@@ -27,6 +34,10 @@ fn tracking_evidence_can_branch_to_geofence_and_expected_place_events() {
             constants::tracking_runtime::EXPECTED_PLACE_STATE_UNKNOWN
         )
         .expect(constants::tracking_runtime::EXPECTED_PLACE_STATE_UNKNOWN)
+    );
+    assert_eq!(
+        expected_place.evaluation_id,
+        tracking_evaluation_id_from_observation_id(&observed.observation_id)
     );
     assert_eq!(expected_place.evidence_refs, vec![evidence.evidence_ref]);
 }
@@ -101,17 +112,19 @@ fn tracking_evidence_can_resolve_away_from_expected_place_and_keep_observe_only_
 fn parent_notification_can_be_acknowledged_without_reopening_policy_authority() {
     let observed = ocentra_tracking_core::default_location_observed_event();
     let evidence = ocentra_tracking_core::record_tracking_evidence_from_location(&observed);
+    let policy_rule_ref = TrackingPolicyRuleRef::parse(
+        constants::tracking_runtime::POLICY_RULE_EXPECTED_PLACE,
+    )
+    .expect(constants::tracking_runtime::POLICY_RULE_EXPECTED_PLACE);
+    let source_policy_violation_id = tracking_violation_id_from_evaluation_and_rule_ref(
+        &tracking_evaluation_id_from_observation_id(&observed.observation_id),
+        &policy_rule_ref,
+    );
     let notification = ParentNotificationRequestedEvent {
         child_device_id: evidence.child_device_id,
         child_profile_id: evidence.child_profile_id,
-        notification_id: TrackingNotificationId::parse(
-            constants::tracking_runtime::DEFAULT_NOTIFICATION_ID,
-        )
-        .expect(constants::tracking_runtime::DEFAULT_NOTIFICATION_ID),
-        source_policy_violation_id: TrackingPolicyViolationId::parse(
-            constants::tracking_runtime::DEFAULT_POLICY_VIOLATION_ID,
-        )
-        .expect(constants::tracking_runtime::DEFAULT_POLICY_VIOLATION_ID),
+        source_policy_violation_id: source_policy_violation_id.clone(),
+        notification_id: tracking_notification_id_from_violation_id(&source_policy_violation_id),
         channel: TrackingNotificationChannel::parse(
             constants::tracking_runtime::NOTIFICATION_CHANNEL_PARENT_PORTAL,
         )
@@ -132,6 +145,10 @@ fn parent_notification_can_be_acknowledged_without_reopening_policy_authority() 
         )
         .expect(constants::tracking_runtime::ACKNOWLEDGEMENT_STATE_ACKNOWLEDGED)
     );
+    assert_eq!(
+        acknowledgement.acknowledgement_id,
+        tracking_acknowledgement_id_from_violation_id(&notification.source_policy_violation_id)
+    );
     assert_eq!(acknowledgement.evidence_refs, notification.evidence_refs);
 }
 
@@ -146,6 +163,10 @@ fn child_check_in_cites_source_observation_and_evidence() {
 
     assert_eq!(check_in.source_observation_id, observed.observation_id);
     assert_eq!(check_in.checked_in_at, observed.observed_at);
+    assert_eq!(
+        check_in.check_in_id,
+        tracking_check_in_id_from_observation_id(&observed.observation_id)
+    );
     assert_eq!(
         check_in.check_in_state,
         TrackingCheckInState::parse(constants::tracking_runtime::CHECK_IN_STATE_RECEIVED)

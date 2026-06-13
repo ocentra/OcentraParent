@@ -4,9 +4,11 @@ use ocentra_parent_agent_protocol::{
     AgentCommandName, AgentMessageTarget, AgentPeer, AgentPeerRole, AgentRoute, LogFields,
     TrackingAiBoundaryMode, TrackingConfigEffectiveState, TrackingConfigUpdateEventName,
     TrackingConfigUpdateResponseState, TrackingDurableSettingsPersistenceState,
-    TrackingEvidenceRef, TrackingNotificationChannel, TrackingParentActionRequirement,
-    TrackingNotificationMode, TrackingPlaceCategory, TrackingPolicyRuleRef, TrackingRetentionSettingsWriteRequest,
+    TrackingNotificationChannel, TrackingParentActionRequirement, TrackingNotificationMode,
+    TrackingPlaceCategory, TrackingPolicyRuleRef, TrackingRetentionSettingsWriteRequest,
     TrackingRuntimeEnabledState, TrackingRuntimeMode, AGENT_PROTOCOL_SCHEMA_VERSION,
+    tracking_ai_request_id_from_evidence_ref, tracking_evidence_ref_from_observation_id,
+    tracking_notification_id_from_violation_id, tracking_violation_id_from_ai_request_and_rule_ref,
 };
 use ocentra_tracking_core::TrackingPortalNotificationCandidateState;
 
@@ -212,6 +214,9 @@ async fn child_runtime_routes_tracking_observation_through_ai_policy_and_notific
     let flow_report = ocentra_child_runtime::publish_child_tracking_location_observed_event(event)
         .await
         .expect(constants::tracking_runtime::ERROR_TRACKING_RUNTIME_FLOW_RECORDED);
+    let expected_evidence_ref = tracking_evidence_ref_from_observation_id(
+        &flow_report.evidence_recorded.source_observation_id,
+    );
 
     assert_eq!(
         flow_report
@@ -243,8 +248,7 @@ async fn child_runtime_routes_tracking_observation_through_ai_policy_and_notific
     );
     assert_eq!(
         flow_report.evidence_recorded.evidence_ref,
-        TrackingEvidenceRef::parse(constants::tracking_runtime::DEFAULT_EVIDENCE_REF)
-            .expect(constants::tracking_runtime::DEFAULT_EVIDENCE_REF)
+        expected_evidence_ref
     );
     assert_eq!(
         flow_report.evidence_recorded.parent_action_requirement,
@@ -256,10 +260,15 @@ async fn child_runtime_routes_tracking_observation_through_ai_policy_and_notific
             .as_ref()
             .expect(constants::tracking_runtime::ERROR_TRACKING_RUNTIME_FLOW_RECORDED)
             .evidence_refs,
-        vec![
-            TrackingEvidenceRef::parse(constants::tracking_runtime::DEFAULT_EVIDENCE_REF)
-                .expect(constants::tracking_runtime::DEFAULT_EVIDENCE_REF)
-        ]
+        vec![flow_report.evidence_recorded.evidence_ref.clone()]
+    );
+    assert_eq!(
+        flow_report
+            .ai_analysis_requested
+            .as_ref()
+            .expect(constants::tracking_runtime::ERROR_TRACKING_RUNTIME_FLOW_RECORDED)
+            .ai_request_id,
+        tracking_ai_request_id_from_evidence_ref(&flow_report.evidence_recorded.evidence_ref)
     );
     assert_eq!(
         flow_report
@@ -300,11 +309,26 @@ async fn child_runtime_routes_tracking_observation_through_ai_policy_and_notific
             .expect(constants::tracking_runtime::POLICY_RULE_EXPECTED_PLACE)
     );
     assert_eq!(
+        policy_violation.violation_id,
+        tracking_violation_id_from_ai_request_and_rule_ref(
+            &flow_report
+                .ai_analysis_requested
+                .as_ref()
+                .expect(constants::tracking_runtime::ERROR_TRACKING_RUNTIME_FLOW_RECORDED)
+                .ai_request_id,
+            &policy_violation.policy_rule_ref,
+        )
+    );
+    assert_eq!(
         parent_notification.channel,
         TrackingNotificationChannel::parse(
             constants::tracking_runtime::NOTIFICATION_CHANNEL_PARENT_PORTAL,
         )
         .expect(constants::tracking_runtime::NOTIFICATION_CHANNEL_PARENT_PORTAL)
+    );
+    assert_eq!(
+        parent_notification.notification_id,
+        tracking_notification_id_from_violation_id(&policy_violation.violation_id)
     );
     assert_eq!(
         ocentra_tracking_core::tracking_observation_portal_notification_candidate_state(
