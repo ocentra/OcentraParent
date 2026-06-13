@@ -269,6 +269,39 @@ pub fn tracking_check_in_id_from_observation_id(
         .expect(constants::tracking_runtime::TRACKING_CHILD_CHECK_IN_RECORDED_EVENT_TYPE)
 }
 
+pub fn tracking_temporary_live_session_id_from_child_device_id(
+    child_device_id: &TrackingChildDeviceId,
+) -> TrackingTemporaryLiveSessionId {
+    let value = derived_tracking_identifier_value(
+        constants::tracking_runtime::TRACKING_TEMPORARY_LIVE_SESSION_ID_PREFIX,
+        &[child_device_id.as_str()],
+    );
+    TrackingTemporaryLiveSessionId::parse(value)
+        .expect(constants::tracking_runtime::TRACKING_TEMPORARY_LIVE_SESSION_ID_PREFIX)
+}
+
+pub fn tracking_missing_device_evaluation_id_from_child_device_id(
+    child_device_id: &TrackingChildDeviceId,
+) -> TrackingMissingDeviceEvaluationId {
+    let value = derived_tracking_identifier_value(
+        constants::tracking_runtime::TRACKING_MISSING_DEVICE_EVALUATION_ID_PREFIX,
+        &[child_device_id.as_str()],
+    );
+    TrackingMissingDeviceEvaluationId::parse(value)
+        .expect(constants::tracking_runtime::TRACKING_MISSING_DEVICE_EVALUATION_ID_PREFIX)
+}
+
+pub fn tracking_parent_defined_place_id_from_evidence_ref(
+    evidence_ref: &TrackingEvidenceRef,
+) -> TrackingParentDefinedPlaceId {
+    let value = derived_tracking_identifier_value(
+        constants::tracking_runtime::TRACKING_PARENT_DEFINED_PLACE_ID_PREFIX,
+        &[evidence_ref.as_str()],
+    );
+    TrackingParentDefinedPlaceId::parse(value)
+        .expect(constants::tracking_runtime::TRACKING_PARENT_DEFINED_PLACE_ID_PREFIX)
+}
+
 pub fn tracking_violation_id_from_ai_request_and_rule_ref(
     ai_request_id: &TrackingAiRequestId,
     policy_rule_ref: &TrackingPolicyRuleRef,

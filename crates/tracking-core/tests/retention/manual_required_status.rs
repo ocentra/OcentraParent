@@ -1,14 +1,20 @@
 use ocentra_evidence::ManualReviewState;
-use ocentra_parent_agent_protocol::constants;
+use ocentra_parent_agent_protocol::{constants, TrackingChildDeviceId};
 use ocentra_tracking_core::{
     TrackingChargingState, TrackingConnectivityState, TrackingLowPowerModeState,
     TrackingRadioState, TrackingRuntimeServiceState,
 };
 
+fn child_device_id() -> TrackingChildDeviceId {
+    TrackingChildDeviceId::parse(constants::tracking_runtime::DEFAULT_CHILD_DEVICE_ID)
+        .expect(constants::tracking_runtime::DEFAULT_CHILD_DEVICE_ID)
+}
+
 #[test]
 fn offline_device_state_remains_last_known_only_manual_required() {
     let decision = ocentra_tracking_core::evaluate_tracking_device_status(
         ocentra_tracking_core::TrackingDeviceStatusInput {
+            child_device_id: child_device_id(),
             last_heartbeat_age_seconds: 901,
             last_location_sample_age_seconds: 60,
             last_parent_sync_age_seconds: 60,

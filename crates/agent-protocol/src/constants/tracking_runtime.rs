@@ -148,6 +148,10 @@ pub const DEFAULT_ALERT_EVALUATION_ID: &str = "tracking-alert-evaluation-default
 pub const DEFAULT_TEMPORARY_LIVE_SESSION_ID: &str = "tracking-temporary-live-session-default";
 pub const DEFAULT_MISSING_DEVICE_EVALUATION_ID: &str = "tracking-missing-device-evaluation-default";
 pub const DEFAULT_PARENT_DEFINED_PLACE_ID: &str = "parent-defined-place-home";
+pub const TRACKING_TEMPORARY_LIVE_SESSION_ID_PREFIX: &str = "tracking.temporary-live.session";
+pub const TRACKING_MISSING_DEVICE_EVALUATION_ID_PREFIX: &str =
+    "tracking.missing-device.evaluation";
+pub const TRACKING_PARENT_DEFINED_PLACE_ID_PREFIX: &str = "tracking.parent-defined-place";
 pub const DEFAULT_POLICY_VIOLATION_ID: &str = "tracking-policy-violation-default";
 pub const DEFAULT_PARENT_ACKNOWLEDGEMENT_ID: &str = "tracking-parent-acknowledgement-default";
 pub const DEFAULT_CHILD_CHECK_IN_ID: &str = "tracking-child-check-in-default";

@@ -1,15 +1,21 @@
 use ocentra_evidence::ManualReviewState;
-use ocentra_parent_agent_protocol::constants;
+use ocentra_parent_agent_protocol::{constants, TrackingChildDeviceId};
 use ocentra_tracking_core::{
     TrackingBackgroundCapabilityState, TrackingChargingState, TrackingConnectivityState,
     TrackingLowPowerModeState, TrackingPermissionState, TrackingPlatformState, TrackingRadioState,
     TrackingRuntimeServiceState,
 };
 
+fn child_device_id() -> TrackingChildDeviceId {
+    TrackingChildDeviceId::parse(constants::tracking_runtime::DEFAULT_CHILD_DEVICE_ID)
+        .expect(constants::tracking_runtime::DEFAULT_CHILD_DEVICE_ID)
+}
+
 #[test]
 fn device_status_reports_live_when_runtime_inputs_are_healthy() {
     let decision = ocentra_tracking_core::evaluate_tracking_device_status(
         ocentra_tracking_core::TrackingDeviceStatusInput {
+            child_device_id: child_device_id(),
             last_heartbeat_age_seconds: 45,
             last_location_sample_age_seconds: 30,
             last_parent_sync_age_seconds: 120,
@@ -35,6 +41,7 @@ fn device_status_reports_live_when_runtime_inputs_are_healthy() {
 fn device_status_reports_stale_without_claiming_live_location() {
     let decision = ocentra_tracking_core::evaluate_tracking_device_status(
         ocentra_tracking_core::TrackingDeviceStatusInput {
+            child_device_id: child_device_id(),
             last_heartbeat_age_seconds: 360,
             last_location_sample_age_seconds: 320,
             last_parent_sync_age_seconds: 1_200,
@@ -67,6 +74,7 @@ fn device_status_reports_stale_without_claiming_live_location() {
 fn device_status_reports_pending_upload_backlog_explicitly() {
     let decision = ocentra_tracking_core::evaluate_tracking_device_status(
         ocentra_tracking_core::TrackingDeviceStatusInput {
+            child_device_id: child_device_id(),
             last_heartbeat_age_seconds: 45,
             last_location_sample_age_seconds: 45,
             last_parent_sync_age_seconds: 1_400,
@@ -93,6 +101,7 @@ fn device_status_reports_pending_upload_backlog_explicitly() {
 fn device_status_reports_service_disabled_explicitly() {
     let decision = ocentra_tracking_core::evaluate_tracking_device_status(
         ocentra_tracking_core::TrackingDeviceStatusInput {
+            child_device_id: child_device_id(),
             last_heartbeat_age_seconds: 10,
             last_location_sample_age_seconds: 10,
             last_parent_sync_age_seconds: 10,

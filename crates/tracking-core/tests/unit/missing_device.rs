@@ -1,13 +1,22 @@
-use ocentra_parent_agent_protocol::{constants, TrackingMissingDeviceState};
+use ocentra_parent_agent_protocol::{
+    constants, tracking_missing_device_evaluation_id_from_child_device_id, TrackingChildDeviceId,
+    TrackingMissingDeviceState,
+};
 use ocentra_tracking_core::{
     TrackingChargingState, TrackingConnectivityState, TrackingLowPowerModeState,
     TrackingRadioState, TrackingRuntimeServiceState,
 };
 
+fn child_device_id() -> TrackingChildDeviceId {
+    TrackingChildDeviceId::parse(constants::tracking_runtime::DEFAULT_CHILD_DEVICE_ID)
+        .expect(constants::tracking_runtime::DEFAULT_CHILD_DEVICE_ID)
+}
+
 #[test]
 fn missing_device_mode_exposes_last_known_only_without_live_claim() {
     let decision = ocentra_tracking_core::evaluate_missing_device_mode(
         ocentra_tracking_core::TrackingDeviceStatusInput {
+            child_device_id: child_device_id(),
             last_heartbeat_age_seconds: 1_200,
             last_location_sample_age_seconds: 45,
             last_parent_sync_age_seconds: 45,
@@ -31,5 +40,9 @@ fn missing_device_mode_exposes_last_known_only_without_live_claim() {
     assert_eq!(
         decision.parent_visibility_state,
         ocentra_tracking_core::TrackingLastKnownVisibilityState::LastKnownOnly
+    );
+    assert_eq!(
+        decision.evaluation_id,
+        tracking_missing_device_evaluation_id_from_child_device_id(&child_device_id())
     );
 }

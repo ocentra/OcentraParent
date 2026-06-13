@@ -1,16 +1,17 @@
 use ocentra_parent_agent_protocol::{
-    constants, TrackingEvidenceRef, TrackingParentDefinedPlaceState,
+    constants, tracking_parent_defined_place_id_from_evidence_ref, TrackingEvidenceRef,
+    TrackingParentDefinedPlaceState,
 };
 
 #[test]
 fn parent_defined_place_rejects_invalid_zero_radius() {
+    let evidence_ref = TrackingEvidenceRef::parse(constants::tracking_runtime::DEFAULT_EVIDENCE_REF)
+        .expect(constants::tracking_runtime::DEFAULT_EVIDENCE_REF);
     let decision = ocentra_tracking_core::evaluate_parent_defined_place(
         ocentra_tracking_core::TrackingParentDefinedPlaceInput {
+            source_evidence_ref: evidence_ref.clone(),
             radius_meters: 0,
-            evidence_refs: vec![
-                TrackingEvidenceRef::parse(constants::tracking_runtime::DEFAULT_EVIDENCE_REF)
-                    .expect(constants::tracking_runtime::DEFAULT_EVIDENCE_REF),
-            ],
+            evidence_refs: vec![evidence_ref.clone()],
         },
     );
 
@@ -23,9 +24,10 @@ fn parent_defined_place_rejects_invalid_zero_radius() {
     );
     assert_eq!(
         decision.evidence_refs,
-        vec![
-            TrackingEvidenceRef::parse(constants::tracking_runtime::DEFAULT_EVIDENCE_REF)
-                .expect(constants::tracking_runtime::DEFAULT_EVIDENCE_REF)
-        ]
+        vec![evidence_ref.clone()]
+    );
+    assert_eq!(
+        decision.place_id,
+        tracking_parent_defined_place_id_from_evidence_ref(&evidence_ref)
     );
 }
