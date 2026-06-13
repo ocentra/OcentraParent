@@ -202,13 +202,28 @@ pub fn parent_runtime_tracking_dispatch_evaluated_event(
     event: &ParentTrackingConfigUpdatedEvent,
     child_acknowledgement_state: ChildAcknowledgementState,
 ) -> ParentRuntimeTrackingDispatchEvaluatedEvent {
-    let decision = route_parent_tracking_config_update_event(event, child_acknowledgement_state);
+    parent_runtime_tracking_dispatch_evaluated_event_from_origin(
+        event,
+        child_acknowledgement_state,
+        ParentRuntimeOriginState::TrustedLocalUi,
+    )
+}
+
+pub fn parent_runtime_tracking_dispatch_evaluated_event_from_origin(
+    event: &ParentTrackingConfigUpdatedEvent,
+    child_acknowledgement_state: ChildAcknowledgementState,
+    origin_state: ParentRuntimeOriginState,
+) -> ParentRuntimeTrackingDispatchEvaluatedEvent {
     ParentRuntimeTrackingDispatchEvaluatedEvent {
         dispatch_id: ParentRuntimeDispatchId::parse(parent_runtime_dispatch_ref(event))
             .expect(PARENT_RUNTIME_TRACKING_DISPATCH_PREFIX),
         source_event: event.clone(),
         child_acknowledgement_state,
-        decision,
+        decision: route_parent_tracking_config_update_event_from_origin(
+            event,
+            child_acknowledgement_state,
+            origin_state,
+        ),
     }
 }
 

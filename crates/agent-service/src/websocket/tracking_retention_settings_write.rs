@@ -1,9 +1,7 @@
-use ocentra_child_runtime::{
-    parent_tracking_config_updated_event_from_command, publish_parent_tracking_config_updated_event,
-    TrackingConfigUpdateEventFlowReport,
-};
+use ocentra_child_runtime::TrackingConfigUpdateEventFlowReport;
 use ocentra_parent_runtime_core::{
-    route_parent_tracking_config_update_event, ChildAcknowledgementState, ChildRuntimePublishState,
+    publish_parent_tracking_config_updated_event_flow, ChildAcknowledgementState,
+    ParentRuntimeOriginState,
 };
 use ocentra_parent_agent_protocol::{
     constants, default_tracking_retention_settings_write_request, AgentCommandEnvelope,
@@ -11,24 +9,17 @@ use ocentra_parent_agent_protocol::{
     LogFieldValue, LogLevel, ParentActionReceivedEvent, ParentChildCommandForwardRequestedEvent,
     ParentChildCommandTransportBoundary, ParentCommandRejectedEvent, ParentCommandValidatedEvent,
     ParentCommandValidationState, ParentControllerActionKind, ParentControllerSource,
-    ParentTrackingConfigUpdatedEvent,
+    ParentTrackingConfigUpdatedEvent, parent_tracking_config_updated_event_from_command,
     TrackingConfigAckState, TrackingConfigAuditEntryCommittedEvent,
-    TrackingConfigAuditOutcome, TrackingConfigChangeApprovedEvent,
-    TrackingConfigChangeRejectedEvent, TrackingConfigChangeRequestedEvent,
-    TrackingConfigPolicyDecisionCompletedEvent, TrackingConfigPolicyDecisionState,
+    TrackingConfigChangeApprovedEvent, TrackingConfigChangeRejectedEvent,
+    TrackingConfigChangeRequestedEvent, TrackingConfigPolicyDecisionCompletedEvent,
     TrackingConfigPolicyEvaluationRequestedEvent, TrackingConfigPortalReadModelUpdatedEvent,
-    TrackingConfigPortalUpdateKind, TrackingDurableSettingsPersistenceState,
-    TrackingExecutionClaimState, TrackingPolicyRuleRef, TrackingRemoteAiState,
+    TrackingDurableSettingsPersistenceState, TrackingExecutionClaimState, TrackingRemoteAiState,
     TrackingRemoteSyncState, TrackingRetentionWriteState,
     tracking_durable_settings_store_ref, tracking_local_service_state_snapshot_ref,
-    tracking_mutation_proof_ref, tracking_retention_accepted_at,
-    tracking_config_audit_entry_committed_event, tracking_config_change_approved_event,
-    tracking_config_change_rejected_event, tracking_config_change_requested_event,
-    tracking_config_policy_decision_completed_event,
-    tracking_config_policy_evaluation_requested_event,
-    tracking_config_portal_read_model_updated_event,
-    tracking_retention_write_state_accepted, tracking_retention_write_state_rejected,
-    TrackingRetentionSettingsWriteRequest, TrackingRetentionSettingsWriteResult,
+    tracking_mutation_proof_ref, tracking_retention_accepted_at, tracking_retention_write_state_accepted,
+    tracking_retention_write_state_rejected, TrackingRetentionSettingsWriteRequest,
+    TrackingRetentionSettingsWriteResult,
     AGENT_PROTOCOL_SCHEMA_VERSION,
 };
 
@@ -200,109 +191,61 @@ async fn execute_tracking_retention_settings_write_flow(
     let parent_event = parent_tracking_config_updated_event_from_command(command, request.clone());
     let parent_command_validated =
         tracking_parent_command_validated_event(&request.command_id, &parent_action_received);
-    let change_requested = tracking_config_change_requested_event(
+    let parent_runtime_flow = publish_parent_tracking_config_updated_event_flow(
         parent_action_received.parent_action_event_ref.clone(),
         &parent_event,
-    );
-    let policy_evaluation_requested = tracking_config_policy_evaluation_requested_event(
-        &change_requested,
-        tracking_policy_rule_refs(request),
-        false,
-    );
-    let dispatch_decision = route_parent_tracking_config_update_event(
-        &parent_event,
         ChildAcknowledgementState::Required,
-    );
-    let child_runtime_publish_required =
-        dispatch_decision.child_runtime_publish_state == ChildRuntimePublishState::Publish;
-    let policy_decision_completed = tracking_config_policy_decision_completed_event(
-        &policy_evaluation_requested,
-        if child_runtime_publish_required {
-            TrackingConfigPolicyDecisionState::Approved
-        } else {
-            TrackingConfigPolicyDecisionState::Rejected
-        },
-        child_runtime_publish_required,
-    );
-
-    if !child_runtime_publish_required {
-        let change_rejected = tracking_config_change_rejected_event(
-            &policy_decision_completed,
-            constants::tracking_config_update::REJECTION_REASON_CHILD_RUNTIME_DISPATCH_BLOCKED,
-        );
-        let audit_entry_committed = tracking_config_audit_entry_committed_event(
-            &policy_decision_completed,
-            change_rejected.change_rejected_event_ref.clone(),
-            TrackingConfigAuditOutcome::Failed,
-        );
-        let portal_read_model_updated = tracking_config_portal_read_model_updated_event(
-            &audit_entry_committed,
-            TrackingConfigPortalUpdateKind::ManualRequiredState,
-            true,
-            true,
-        );
-        return TrackingRetentionSettingsWriteFlowReport {
-            parent_action_received,
-            parent_command_validated: Some(parent_command_validated),
-            parent_command_rejected: None,
-            change_requested: Some(change_requested),
-            policy_evaluation_requested: Some(policy_evaluation_requested),
-            policy_decision_completed: Some(policy_decision_completed),
-            change_approved: None,
-            change_rejected: Some(change_rejected),
-            child_command_forward_requested: None,
-            child_command_received: None,
-            child_runtime_flow: None,
-            audit_entry_committed: Some(audit_entry_committed),
-            portal_read_model_updated: Some(portal_read_model_updated),
-        };
-    }
-
-    let change_approved = tracking_config_change_approved_event(&policy_decision_completed);
-    let child_command_forward_requested = tracking_parent_child_command_forward_requested_event(
-        &request.command_id,
-        &parent_command_validated,
-        &parent_event,
-    );
-    let child_command_received =
-        tracking_child_command_received_event(&request.command_id, &child_command_forward_requested);
-    let child_runtime_flow = publish_parent_tracking_config_updated_event(&parent_event)
+        ParentRuntimeOriginState::TrustedLocalUi,
+    )
         .await
         .ok();
-    let audit_entry_committed = tracking_config_audit_entry_committed_event(
-        &policy_decision_completed,
-        child_command_received.command_received_event_ref.clone(),
-        if child_runtime_flow.is_some() {
-            TrackingConfigAuditOutcome::Committed
-        } else {
-            TrackingConfigAuditOutcome::Failed
-        },
-    );
-    let portal_read_model_updated = tracking_config_portal_read_model_updated_event(
-        &audit_entry_committed,
-        if child_runtime_flow.is_some() {
-            TrackingConfigPortalUpdateKind::TrackingConfigState
-        } else {
-            TrackingConfigPortalUpdateKind::ManualRequiredState
-        },
-        child_runtime_flow.is_none(),
-        child_runtime_flow.is_none(),
-    );
+    let child_command_forward_requested = parent_runtime_flow
+        .as_ref()
+        .and_then(|report| {
+            report.change_approved_event.as_ref().map(|_| {
+                tracking_parent_child_command_forward_requested_event(
+                    &request.command_id,
+                    &parent_command_validated,
+                    &parent_event,
+                )
+            })
+        });
+    let child_command_received = child_command_forward_requested
+        .as_ref()
+        .map(|forward_requested| {
+            tracking_child_command_received_event(&request.command_id, forward_requested)
+        });
 
     TrackingRetentionSettingsWriteFlowReport {
         parent_action_received,
         parent_command_validated: Some(parent_command_validated),
         parent_command_rejected: None,
-        change_requested: Some(change_requested),
-        policy_evaluation_requested: Some(policy_evaluation_requested),
-        policy_decision_completed: Some(policy_decision_completed),
-        change_approved: Some(change_approved),
-        change_rejected: None,
-        child_command_forward_requested: Some(child_command_forward_requested),
-        child_command_received: Some(child_command_received),
-        child_runtime_flow,
-        audit_entry_committed: Some(audit_entry_committed),
-        portal_read_model_updated: Some(portal_read_model_updated),
+        change_requested: parent_runtime_flow
+            .as_ref()
+            .map(|report| report.change_requested_event.clone()),
+        policy_evaluation_requested: parent_runtime_flow
+            .as_ref()
+            .map(|report| report.policy_evaluation_event.clone()),
+        policy_decision_completed: parent_runtime_flow
+            .as_ref()
+            .map(|report| report.policy_decision_event.clone()),
+        change_approved: parent_runtime_flow
+            .as_ref()
+            .and_then(|report| report.change_approved_event.clone()),
+        change_rejected: parent_runtime_flow
+            .as_ref()
+            .and_then(|report| report.change_rejected_event.clone()),
+        child_command_forward_requested,
+        child_command_received,
+        child_runtime_flow: parent_runtime_flow
+            .as_ref()
+            .and_then(|report| report.child_runtime_flow.clone()),
+        audit_entry_committed: parent_runtime_flow
+            .as_ref()
+            .map(|report| report.audit_event.clone()),
+        portal_read_model_updated: parent_runtime_flow
+            .as_ref()
+            .map(|report| report.portal_event.clone()),
     }
 }
 
@@ -391,32 +334,6 @@ fn tracking_child_command_received_event(
     }
 }
 
-fn tracking_policy_rule_refs(
-    request: &TrackingRetentionSettingsWriteRequest,
-) -> Vec<TrackingPolicyRuleRef> {
-    let mut rule_refs = vec![TrackingPolicyRuleRef::parse(
-        constants::tracking_config_update::POLICY_RULE_LOCAL_CHILD_RUNTIME,
-    )
-    .expect(constants::tracking_config_update::POLICY_RULE_LOCAL_CHILD_RUNTIME)];
-    if request.requested_remote_sync_state == TrackingRemoteSyncState::Disabled {
-        rule_refs.push(
-            TrackingPolicyRuleRef::parse(
-                constants::tracking_config_update::POLICY_RULE_REMOTE_SYNC_DISABLED,
-            )
-            .expect(constants::tracking_config_update::POLICY_RULE_REMOTE_SYNC_DISABLED),
-        );
-    }
-    if request.requested_remote_ai_state == TrackingRemoteAiState::Disabled {
-        rule_refs.push(
-            TrackingPolicyRuleRef::parse(
-                constants::tracking_config_update::POLICY_RULE_REMOTE_AI_DISABLED,
-            )
-            .expect(constants::tracking_config_update::POLICY_RULE_REMOTE_AI_DISABLED),
-        );
-    }
-    rule_refs
-}
-
 fn tracking_parent_command_ref(
     command_id: &ocentra_parent_agent_protocol::TrackingRetentionCommandId,
 ) -> String {
@@ -480,9 +397,11 @@ mod tests {
     use ocentra_child_runtime::tracking_retention_settings_durable_store_path;
     use ocentra_parent_agent_protocol::{
         AgentCommandEnvelope, AgentCommandName, AgentMessageTarget, AgentPeer, AgentPeerRole,
-        AgentRoute, LogFields, TrackingConfigAckState, TrackingDurableSettingsPersistenceState,
-        TrackingExecutionClaimState, TrackingRemoteAiState, TrackingRemoteSyncState,
-        TrackingRetentionSettingsWriteResult, TrackingRetentionWriteState,
+        AgentRoute, LogFields, TrackingConfigAckState, TrackingConfigAuditOutcome,
+        TrackingConfigPolicyDecisionState, TrackingConfigPortalUpdateKind,
+        TrackingDurableSettingsPersistenceState, TrackingExecutionClaimState,
+        TrackingRemoteAiState, TrackingRemoteSyncState, TrackingRetentionSettingsWriteResult,
+        TrackingRetentionWriteState,
         AGENT_PROTOCOL_SCHEMA_VERSION,
     };
 
