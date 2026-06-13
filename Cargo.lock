@@ -2514,6 +2514,7 @@ dependencies = [
  "ocentra-evidence",
  "ocentra-parent-agent-protocol",
  "ocentra-parent-screen-capture-adapter",
+ "serde",
 ]
 
 [[package]]
