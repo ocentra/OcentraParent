@@ -2251,6 +2251,7 @@ dependencies = [
 name = "ocentra-child-ai-core"
 version = "0.1.1"
 dependencies = [
+ "ocentra-eventing",
  "ocentra-evidence",
  "ocentra-parent-agent-protocol",
 ]

@@ -240,7 +240,7 @@ async fn subscribe_child_ai_tracking_analysis_events(
             let state = state.clone();
             async move {
                 let classified =
-                    ocentra_child_ai_core::classify_tracking_nearby_place(context.payload());
+                    ocentra_child_ai_core::classify_tracking_nearby_place(context.payload())?;
                 state.record_nearby_place_classified(classified.clone());
                 context
                     .publisher()

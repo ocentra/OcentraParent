@@ -11,7 +11,8 @@ workspace = true
 path = "src/lib.rs"
 
 [dependencies]
+ocentra-eventing = { path = "../ocentra-eventing" }
+ocentra-evidence = { path = "../ocentra-evidence" }
 ocentra-parent-agent-protocol = { path = "../agent-protocol" }
 
 [dev-dependencies]
-ocentra-evidence = { path = "../ocentra-evidence" }
