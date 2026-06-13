@@ -224,3 +224,41 @@ async fn tracking_runtime_flow_can_route_away_from_expected_place_without_ai_bou
             .violation_id
     );
 }
+
+#[tokio::test]
+async fn tracking_runtime_flow_clears_optional_state_between_observations() {
+    let runtime_flow = ocentra_child_runtime::TrackingRuntimeEventFlow::new()
+        .await
+        .expect(constants::tracking_runtime::ERROR_TRACKING_RUNTIME_FLOW_RECORDED);
+
+    let first_report = runtime_flow
+        .publish_location_observed(ocentra_tracking_core::default_location_observed_event())
+        .await
+        .expect(constants::tracking_runtime::ERROR_TRACKING_RUNTIME_FLOW_RECORDED);
+    let second_report = runtime_flow
+        .publish_location_observed(
+            ocentra_tracking_core::default_at_expected_place_location_observed_event(),
+        )
+        .await
+        .expect(constants::tracking_runtime::ERROR_TRACKING_RUNTIME_FLOW_RECORDED);
+
+    assert!(first_report.ai_analysis_requested.is_some());
+    assert!(first_report.policy_violation_detected.is_some());
+    assert!(first_report.parent_notification_requested.is_some());
+    assert!(second_report.ai_analysis_requested.is_none());
+    assert!(second_report.nearby_place_classified.is_none());
+    assert!(second_report.ai_boundary_decision.is_none());
+    assert!(second_report.policy_violation_detected.is_none());
+    assert!(second_report.parent_notification_requested.is_none());
+    assert_eq!(
+        second_report
+            .expected_place_state_evaluated
+            .as_ref()
+            .expect(constants::tracking_runtime::ERROR_TRACKING_RUNTIME_FLOW_RECORDED)
+            .expected_place_state,
+        TrackingExpectedPlaceState::parse(
+            constants::tracking_runtime::EXPECTED_PLACE_STATE_WHERE_EXPECTED
+        )
+        .expect(constants::tracking_runtime::EXPECTED_PLACE_STATE_WHERE_EXPECTED)
+    );
+}
