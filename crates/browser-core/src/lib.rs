@@ -1,5 +1,7 @@
 #![forbid(unsafe_code)]
 
+mod performance_budget;
+
 use ocentra_parent_agent_protocol::{
     child_domain_ai_analysis_requested_event_if_required,
     child_domain_direct_policy_evaluation_requested_event_if_required,
@@ -11,6 +13,11 @@ use ocentra_parent_agent_protocol::{
 };
 
 pub const CRATE_NAME: &str = "ocentra-browser-core";
+
+pub use performance_budget::{
+    browser_performance_fixture_budget_matrix, evaluate_browser_performance_budget,
+    BrowserPerformanceBudgetCheck, BrowserPerformanceBudgetError, BrowserPerformanceBudgetState,
+};
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum BrowserObservationIntent {

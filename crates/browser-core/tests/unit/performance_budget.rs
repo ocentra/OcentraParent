@@ -1,4 +1,4 @@
-use crate::browser_performance_health::{
+use ocentra_browser_core::{
     browser_performance_fixture_budget_matrix, evaluate_browser_performance_budget,
     BrowserPerformanceBudgetCheck, BrowserPerformanceBudgetError, BrowserPerformanceBudgetState,
 };

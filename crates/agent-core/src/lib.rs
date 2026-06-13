@@ -40,8 +40,6 @@ mod browser_event_runtime_tests;
 mod browser_intervention_event;
 mod browser_managed_discovery;
 mod browser_managed_session;
-#[cfg(test)]
-mod browser_performance_health;
 mod browser_windows_inventory;
 mod browser_windows_inventory_paths;
 mod browser_windows_inventory_source;
@@ -375,8 +373,6 @@ mod browser_bridge_poll_tests;
 mod browser_bridge_tests;
 #[cfg(test)]
 mod browser_managed_session_tests;
-#[cfg(test)]
-mod browser_performance_health_tests;
 #[cfg(test)]
 mod browser_windows_inventory_source_tests;
 #[cfg(test)]

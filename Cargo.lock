@@ -2434,6 +2434,7 @@ dependencies = [
  "ocentra-parent-agent-protocol",
  "ocentra-parent-runtime-core",
  "ocentra-parent-screen-capture-adapter",
+ "ocentra-screen-live-view-core",
  "serde",
  "serde_json",
  "sha2",

@@ -1,26 +1,26 @@
 use ocentra_parent_agent_protocol::constants;
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
-pub(crate) struct BrowserPerformanceBudgetCheck {
-    pub(crate) budget_id: &'static str,
-    pub(crate) observed_ms: u64,
-    pub(crate) budget_ms: u64,
-    pub(crate) sample_size: usize,
+pub struct BrowserPerformanceBudgetCheck {
+    pub budget_id: &'static str,
+    pub observed_ms: u64,
+    pub budget_ms: u64,
+    pub sample_size: usize,
 }
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
-pub(crate) enum BrowserPerformanceBudgetState {
+pub enum BrowserPerformanceBudgetState {
     WithinBudget,
     Degraded,
 }
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
-pub(crate) enum BrowserPerformanceBudgetError {
+pub enum BrowserPerformanceBudgetError {
     MissingBudget,
     MissingSample,
 }
 
-pub(crate) fn evaluate_browser_performance_budget(
+pub fn evaluate_browser_performance_budget(
     check: BrowserPerformanceBudgetCheck,
 ) -> Result<BrowserPerformanceBudgetState, BrowserPerformanceBudgetError> {
     if check.budget_ms == 0 {
@@ -36,7 +36,7 @@ pub(crate) fn evaluate_browser_performance_budget(
     }
 }
 
-pub(crate) fn browser_performance_fixture_budget_matrix() -> [BrowserPerformanceBudgetCheck; 8] {
+pub fn browser_performance_fixture_budget_matrix() -> [BrowserPerformanceBudgetCheck; 8] {
     [
         BrowserPerformanceBudgetCheck {
             budget_id: constants::browser::PERFORMANCE_BUDGET_INVENTORY_SCAN,
