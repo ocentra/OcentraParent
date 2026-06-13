@@ -819,6 +819,19 @@ pub fn child_domain_fact_ref_from_observation_id(
     child_domain_fact_ref_text(value.as_str())
 }
 
+pub fn child_domain_observation_id_from_subject_ref(
+    domain: ChildRuntimeDomain,
+    subject_ref: &ChildDomainSubjectRef,
+    observed_state: &ChildDomainObservedState,
+) -> ChildDomainObservationId {
+    let value = child_domain_derived_identifier_text(
+        domain.observed_event_type().as_str(),
+        &[subject_ref.as_str(), observed_state.as_str()],
+    );
+    ChildDomainObservationId::parse(value)
+        .expect(constants::child_domain_runtime::ERROR_CHILD_DOMAIN_FLOW_RECORDED)
+}
+
 pub fn child_domain_evidence_ref_from_observation_id(
     domain: ChildRuntimeDomain,
     observation_id: &ChildDomainObservationId,
@@ -929,17 +942,20 @@ fn canonical_child_domain_evidence_refs(
 pub fn child_domain_observed_event(
     profile: ChildDomainObservedEventProfile,
 ) -> ChildDomainObservedEvent {
+    let subject_ref = child_domain_subject_ref(profile.domain, profile.subject_ref_suffix);
+    let observed_state = child_domain_observed_state(profile.observed_state);
     ChildDomainObservedEvent {
         event_type: profile.domain.observed_event_type(),
         domain: profile.domain,
         child_device_id: child_domain_child_device_id(),
         child_profile_id: child_domain_child_profile_id(),
-        observation_id: child_domain_observation_id(
+        observation_id: child_domain_observation_id_from_subject_ref(
             profile.domain,
-            ChildDomainRefSuffix::DefaultObservation,
+            &subject_ref,
+            &observed_state,
         ),
-        subject_ref: child_domain_subject_ref(profile.domain, profile.subject_ref_suffix),
-        observed_state: child_domain_observed_state(profile.observed_state),
+        subject_ref,
+        observed_state,
         observed_at: child_domain_observed_at(),
         ai_analysis_requirement: profile.ai_analysis_requirement,
         policy_evaluation_requirement: profile.policy_evaluation_requirement,

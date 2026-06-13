@@ -5,7 +5,10 @@ use ocentra_app_core::{
     AppRuntimeDecisionId, AppRuntimeInput,
 };
 use ocentra_eventing::DomainEvent;
-use ocentra_parent_agent_protocol::ChildRuntimeDomain;
+use ocentra_parent_agent_protocol::{
+    child_domain_evidence_ref_from_observation_id, child_domain_observation_id_from_subject_ref,
+    ChildRuntimeDomain,
+};
 
 #[test]
 fn foreground_known_policy_app_publishes_policy_without_ai() {
@@ -52,6 +55,14 @@ fn foreground_unknown_app_routes_to_ai_boundary() {
     assert_eq!(
         observed.event_type,
         ChildRuntimeDomain::App.observed_event_type()
+    );
+    assert_eq!(
+        observed.observation_id,
+        child_domain_observation_id_from_subject_ref(
+            ChildRuntimeDomain::App,
+            &observed.subject_ref,
+            &observed.observed_state
+        )
     );
 }
 
@@ -107,5 +118,23 @@ fn background_inventory_state_records_decision_event_with_typed_contract() {
             .event_type
             .as_str(),
         "app.runtime.decision-recorded"
+    );
+}
+
+#[test]
+fn app_runtime_observed_event_drives_derived_evidence_chain() {
+    let observed = app_runtime_observed_event(AppRuntimeInput {
+        capability_state: AppCapabilityState::Supported,
+        foreground_state: AppForegroundState::Foreground,
+        classification_state: AppClassificationState::KnownPolicyApp,
+    });
+    let evidence = ocentra_app_core::app_evidence_recorded_event(&observed);
+
+    assert_eq!(
+        evidence.evidence_ref,
+        child_domain_evidence_ref_from_observation_id(
+            ChildRuntimeDomain::App,
+            &observed.observation_id
+        )
     );
 }
