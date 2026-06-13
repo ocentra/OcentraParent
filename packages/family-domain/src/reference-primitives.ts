@@ -1,9 +1,8 @@
-import {
-  type Infer,
-  Schema,
-  brandedNonEmptyStringSchema,
-  withParser,
-} from '@ocentra-parent/schema-domain/effect';
+import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
+
+function brandedNonEmptyStringSchema<const Brand extends string>(brand: Brand) {
+  return Schema.String.pipe(Schema.minLength(1), Schema.brand(brand));
+}
 
 export const ParentContractSchemaVersionSchema = withParser(Schema.Literal('v0.6'));
 
