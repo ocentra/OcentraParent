@@ -2254,6 +2254,7 @@ dependencies = [
  "ocentra-eventing",
  "ocentra-evidence",
  "ocentra-parent-agent-protocol",
+ "ocentra-tracking-core",
 ]
 
 [[package]]
