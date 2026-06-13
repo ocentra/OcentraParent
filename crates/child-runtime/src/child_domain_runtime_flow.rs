@@ -10,7 +10,7 @@ use ocentra_parent_agent_protocol::{
     ChildDomainAiAnalysisCompletedEvent, ChildDomainAiAnalysisRequestedEvent,
     ChildDomainAiRequestId, ChildDomainEventType, ChildDomainEvidenceRecordedEvent,
     ChildDomainEvidenceRef, ChildDomainNotificationRequestedEvent, ChildDomainObservationId,
-    ChildDomainObservedEvent, ChildDomainPolicyEvaluationRequestedEvent,
+    ChildDomainObservedAt, ChildDomainObservedEvent, ChildDomainPolicyEvaluationRequestedEvent,
     ChildDomainPolicyRequestId, ChildDomainPolicyViolationDetectedEvent,
     ChildDomainPolicyViolationId, ChildRuntimeDomain,
 };
@@ -72,12 +72,13 @@ impl ChildDomainRuntimeEventFlow {
         &self,
         event: ChildDomainObservedEvent,
     ) -> Result<ChildDomainRuntimeFlowReport, EventingError> {
+        let recorded_at = event.observed_at.clone();
         self.bus
             .publish(
                 event.clone(),
                 child_domain_runtime_metadata(ChildDomainRuntimeHop::Observed(
                     &event.observation_id,
-                ))?,
+                ), &recorded_at)?,
             )
             .await?;
 
@@ -155,7 +156,7 @@ async fn subscribe_child_domain_observer(
                         evidence.clone(),
                         child_domain_runtime_metadata(ChildDomainRuntimeHop::EvidenceRecorded(
                             &evidence.evidence_ref,
-                        ))?,
+                        ), &evidence.source_observed_at)?,
                     )
                     .await?;
                 if let Some(ai_request) = child_domain_ai_analysis_requested_event(&evidence)? {
@@ -166,6 +167,7 @@ async fn subscribe_child_domain_observer(
                             ai_request,
                             child_domain_runtime_metadata(
                                 ChildDomainRuntimeHop::AiAnalysisRequested(&evidence.evidence_ref),
+                                &evidence.source_observed_at,
                             )?,
                         )
                         .await?;
@@ -182,6 +184,7 @@ async fn subscribe_child_domain_observer(
                                 ChildDomainRuntimeHop::PolicyEvaluationRequested(
                                     &evidence.evidence_ref,
                                 ),
+                                &evidence.source_observed_at,
                             )?,
                         )
                         .await?;
@@ -218,7 +221,7 @@ async fn subscribe_child_domain_ai(
                         completed,
                         child_domain_runtime_metadata(ChildDomainRuntimeHop::AiAnalysisCompleted(
                             &context.payload().ai_request_id,
-                        ))?,
+                        ), &context.payload().source_observed_at)?,
                     )
                     .await?;
                 Ok(())
@@ -259,6 +262,7 @@ async fn subscribe_child_domain_ai_policy_bridge(
                                 ChildDomainRuntimeHop::PolicyEvaluationRequestedFromAi(
                                     &context.payload().source_ai_request_id,
                                 ),
+                                &context.payload().source_observed_at,
                             )?,
                         )
                         .await?;
@@ -304,6 +308,7 @@ async fn subscribe_child_domain_policy(
                             ChildDomainRuntimeHop::PolicyViolationDetected(
                                 &context.payload().policy_request_id,
                             ),
+                            &context.payload().source_observed_at,
                         )?,
                     )
                     .await?;
@@ -344,6 +349,7 @@ async fn subscribe_child_domain_notification(
                             ChildDomainRuntimeHop::NotificationRequested(
                                 &context.payload().violation_id,
                             ),
+                            &context.payload().detected_at,
                         )?,
                     )
                     .await?;
@@ -613,6 +619,7 @@ impl<'a> ChildDomainRuntimeHop<'a> {
 
 fn child_domain_runtime_metadata(
     hop: ChildDomainRuntimeHop<'_>,
+    recorded_at: &ChildDomainObservedAt,
 ) -> Result<EventMetadata, EventingError> {
     Ok(EventMetadata::from_parts(
         EventId::generated(),
@@ -624,7 +631,7 @@ fn child_domain_runtime_metadata(
             SourceComponent::parse(hop.source_component())?,
             RuntimeInstanceId::parse(constants::child_agent::RUNTIME_INSTANCE_LOCAL_CHILD_AGENT)?,
         ),
-        RecordedAt::parse(constants::child_domain_runtime::DEFAULT_OBSERVED_AT)?,
+        RecordedAt::parse(recorded_at.as_str())?,
         Some(TargetHandler::parse(hop.target_handler())?),
     ))
 }
