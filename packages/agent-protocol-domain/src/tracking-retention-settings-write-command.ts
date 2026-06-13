@@ -6,6 +6,7 @@ import {
   withParser,
 } from '@ocentra-parent/schema-domain/effect';
 import { AgentEvent, AgentProtocolDefaults, isAgentProtocolLogText, type AgentEventEnvelope } from './contracts';
+import { AgentNetworkRuntimeEventType } from './network-runtime-events';
 import {
   AgentDeviceIdSchema,
   AgentMessageIdSchema,
@@ -27,17 +28,43 @@ export const AgentTrackingMutationProofRefSchema = brandedNonEmptyStringSchema(
   'AgentTrackingMutationProofRef'
 );
 export const AgentTrackingAcceptedAtSchema = brandedNonEmptyStringSchema('AgentTrackingAcceptedAt');
+export const AgentTrackingEventRefSchema = brandedNonEmptyStringSchema('AgentTrackingEventRef');
 export const AgentTrackingLocalServiceStateSnapshotRefSchema = brandedNonEmptyStringSchema(
   'AgentTrackingLocalServiceStateSnapshotRef'
 );
 export const AgentTrackingDurableSettingsStoreRefSchema = brandedNonEmptyStringSchema(
   'AgentTrackingDurableSettingsStoreRef'
 );
+export const AgentTrackingPolicyRuleRefSchema = brandedNonEmptyStringSchema(
+  'AgentTrackingPolicyRuleRef'
+);
+export const AgentTrackingReadModelEventIdSchema = brandedNonEmptyStringSchema(
+  'AgentTrackingReadModelEventId'
+);
+export const AgentTrackingRejectionReasonCodeSchema = brandedNonEmptyStringSchema(
+  'AgentTrackingRejectionReasonCode'
+);
 
 export const AgentTrackingConfigUpdateEventType = {
   Parent: EventingEventTypeSchema.parse('tracking.config.updated.parent'),
   Child: EventingEventTypeSchema.parse('tracking.config.updated.child'),
   Applied: EventingEventTypeSchema.parse('tracking.config.applied.child'),
+} as const;
+
+export const AgentTrackingConfigCommandFlowEventType = {
+  ChangeRequested: EventingEventTypeSchema.parse('tracking.config.change_requested'),
+  ChangeApproved: EventingEventTypeSchema.parse('tracking.config.change_approved'),
+  ChangeRejected: EventingEventTypeSchema.parse('tracking.config.change_rejected'),
+  PolicyEvaluationRequested: EventingEventTypeSchema.parse(
+    AgentNetworkRuntimeEventType.PolicyEvaluationRequested
+  ),
+  PolicyDecisionCompleted: EventingEventTypeSchema.parse(
+    AgentNetworkRuntimeEventType.PolicyDecisionCompleted
+  ),
+  AuditEntryCommitted: EventingEventTypeSchema.parse(AgentNetworkRuntimeEventType.AuditEntryCommitted),
+  PortalReadModelUpdated: EventingEventTypeSchema.parse(
+    AgentNetworkRuntimeEventType.PortalReadModelUpdated
+  ),
 } as const;
 
 export const AgentTrackingConfigUpdateTargetScopeLiteral = {
@@ -86,6 +113,21 @@ export const AgentTrackingConfigAckStateLiteral = {
 export const AgentTrackingExecutionClaimStateLiteral = {
   Claimed: 'claimed',
   Unclaimed: 'unclaimed',
+} as const;
+
+export const AgentTrackingConfigPolicyDecisionStateLiteral = {
+  Approved: 'approved',
+  Rejected: 'rejected',
+} as const;
+
+export const AgentTrackingConfigAuditOutcomeLiteral = {
+  Committed: 'committed',
+  Failed: 'failed',
+} as const;
+
+export const AgentTrackingConfigPortalUpdateKindLiteral = {
+  TrackingConfigState: 'tracking-config-state',
+  ManualRequiredState: 'manual-required-state',
 } as const;
 
 export const AgentTrackingRetentionSettingsWriteDefaults = {
@@ -174,6 +216,27 @@ export const AgentTrackingExecutionClaimStateSchema = withParser(
   Schema.Literal(AgentTrackingExecutionClaimStateLiteral.Claimed, AgentTrackingExecutionClaimStateLiteral.Unclaimed)
 );
 
+export const AgentTrackingConfigPolicyDecisionStateSchema = withParser(
+  Schema.Literal(
+    AgentTrackingConfigPolicyDecisionStateLiteral.Approved,
+    AgentTrackingConfigPolicyDecisionStateLiteral.Rejected
+  )
+);
+
+export const AgentTrackingConfigAuditOutcomeSchema = withParser(
+  Schema.Literal(
+    AgentTrackingConfigAuditOutcomeLiteral.Committed,
+    AgentTrackingConfigAuditOutcomeLiteral.Failed
+  )
+);
+
+export const AgentTrackingConfigPortalUpdateKindSchema = withParser(
+  Schema.Literal(
+    AgentTrackingConfigPortalUpdateKindLiteral.TrackingConfigState,
+    AgentTrackingConfigPortalUpdateKindLiteral.ManualRequiredState
+  )
+);
+
 export const AgentTrackingDeleteAfterAlertResolutionState = {
   DeleteAfterAlertResolved: AgentTrackingDeleteAfterAlertResolutionStateSchema.parse(
     AgentTrackingDeleteAfterAlertResolutionStateLiteral.DeleteAfterAlertResolved
@@ -216,6 +279,10 @@ export const AgentTrackingExecutionClaimState = {
   Claimed: AgentTrackingExecutionClaimStateSchema.parse(AgentTrackingExecutionClaimStateLiteral.Claimed),
   Unclaimed: AgentTrackingExecutionClaimStateSchema.parse(AgentTrackingExecutionClaimStateLiteral.Unclaimed),
 } as const;
+
+const AgentTrackingNonEmptyPolicyRuleRefsSchema = Schema.Array(AgentTrackingPolicyRuleRefSchema).pipe(
+  Schema.filter((refs) => refs.length > 0 || 'Tracking config flow requires parent policy rule refs')
+);
 
 export const AgentTrackingConfigUpdateEventNameSchema = withParser(
   Schema.Literal(
@@ -314,6 +381,88 @@ export const TrackingConfigUpdateResponseSchema = withParser(
     target: AgentTrackingConfigUpdateTargetSchema,
     localServiceStateRevision: Schema.Union(Schema.Number.pipe(Schema.int(), Schema.positive()), Schema.Null),
     durableSettingsPersistenceState: AgentTrackingDurableSettingsPersistenceStateSchema,
+  })
+);
+
+export const TrackingConfigChangeRequestedEventSchema = withParser(
+  Schema.Struct({
+    changeRequestedEventRef: AgentTrackingEventRefSchema,
+    previousEventRef: AgentTrackingEventRefSchema,
+    sourceCommandId: AgentTrackingRetentionCommandIdSchema,
+    sourceMessageId: AgentMessageIdSchema,
+    sourcePeerId: AgentPeerIdSchema,
+    target: AgentTrackingConfigUpdateTargetSchema,
+    config: AgentTrackingRetentionSettingsWriteRequestSchema,
+    requestedAt: AgentTrackingAcceptedAtSchema,
+  })
+);
+
+export const TrackingConfigPolicyEvaluationRequestedEventSchema = withParser(
+  Schema.Struct({
+    policyEvaluationRef: AgentTrackingEventRefSchema,
+    previousEventRef: AgentTrackingEventRefSchema,
+    sourceCommandId: AgentTrackingRetentionCommandIdSchema,
+    target: AgentTrackingConfigUpdateTargetSchema,
+    parentRuleRefs: AgentTrackingNonEmptyPolicyRuleRefsSchema,
+    dryRun: Schema.Boolean,
+  })
+);
+
+export const TrackingConfigPolicyDecisionCompletedEventSchema = withParser(
+  Schema.Struct({
+    policyDecisionRef: AgentTrackingEventRefSchema,
+    previousEventRef: AgentTrackingEventRefSchema,
+    sourceCommandId: AgentTrackingRetentionCommandIdSchema,
+    target: AgentTrackingConfigUpdateTargetSchema,
+    decisionState: AgentTrackingConfigPolicyDecisionStateSchema,
+    parentRuleRefs: AgentTrackingNonEmptyPolicyRuleRefsSchema,
+    childRuntimePublishRequired: Schema.Boolean,
+  })
+);
+
+export const TrackingConfigChangeApprovedEventSchema = withParser(
+  Schema.Struct({
+    changeApprovedEventRef: AgentTrackingEventRefSchema,
+    previousEventRef: AgentTrackingEventRefSchema,
+    sourceCommandId: AgentTrackingRetentionCommandIdSchema,
+    target: AgentTrackingConfigUpdateTargetSchema,
+    approvedAt: AgentTrackingAcceptedAtSchema,
+    childRuntimePublishRequired: Schema.Boolean,
+  })
+);
+
+export const TrackingConfigChangeRejectedEventSchema = withParser(
+  Schema.Struct({
+    changeRejectedEventRef: AgentTrackingEventRefSchema,
+    previousEventRef: AgentTrackingEventRefSchema,
+    sourceCommandId: AgentTrackingRetentionCommandIdSchema,
+    target: AgentTrackingConfigUpdateTargetSchema,
+    rejectedAt: AgentTrackingAcceptedAtSchema,
+    rejectionReasonCode: AgentTrackingRejectionReasonCodeSchema,
+  })
+);
+
+export const TrackingConfigAuditEntryCommittedEventSchema = withParser(
+  Schema.Struct({
+    auditEntryRef: AgentTrackingEventRefSchema,
+    previousEventRef: AgentTrackingEventRefSchema,
+    sourceCommandId: AgentTrackingRetentionCommandIdSchema,
+    policyDecisionRef: AgentTrackingEventRefSchema,
+    target: AgentTrackingConfigUpdateTargetSchema,
+    auditOutcome: AgentTrackingConfigAuditOutcomeSchema,
+  })
+);
+
+export const TrackingConfigPortalReadModelUpdatedEventSchema = withParser(
+  Schema.Struct({
+    readModelRef: AgentTrackingReadModelEventIdSchema,
+    previousEventRef: AgentTrackingEventRefSchema,
+    auditEntryRef: AgentTrackingEventRefSchema,
+    sourceCommandId: AgentTrackingRetentionCommandIdSchema,
+    target: AgentTrackingConfigUpdateTargetSchema,
+    updateKind: AgentTrackingConfigPortalUpdateKindSchema,
+    visibleManualRequired: Schema.Boolean,
+    visibleUnavailable: Schema.Boolean,
   })
 );
 
@@ -423,10 +572,32 @@ export type AgentTrackingRetentionSettingsWriteRequest = Infer<typeof AgentTrack
 export type AgentTrackingRetentionSettingsWriteResult = Infer<typeof AgentTrackingRetentionSettingsWriteResultSchema>;
 export type AgentTrackingConfigUpdateTargetScope = Infer<typeof AgentTrackingConfigUpdateTargetScopeSchema>;
 export type AgentTrackingConfigUpdateTarget = Infer<typeof AgentTrackingConfigUpdateTargetSchema>;
+export type AgentTrackingConfigPolicyDecisionState = Infer<
+  typeof AgentTrackingConfigPolicyDecisionStateSchema
+>;
+export type AgentTrackingConfigAuditOutcome = Infer<typeof AgentTrackingConfigAuditOutcomeSchema>;
+export type AgentTrackingConfigPortalUpdateKind = Infer<
+  typeof AgentTrackingConfigPortalUpdateKindSchema
+>;
 export type ParentTrackingConfigUpdatedEvent = Infer<typeof ParentTrackingConfigUpdatedEventSchema>;
 export type ChildTrackingConfigUpdatedEvent = Infer<typeof ChildTrackingConfigUpdatedEventSchema>;
 export type TrackingConfigUpdateAppliedEvent = Infer<typeof TrackingConfigUpdateAppliedEventSchema>;
 export type TrackingConfigUpdateResponse = Infer<typeof TrackingConfigUpdateResponseSchema>;
+export type TrackingConfigChangeRequestedEvent = Infer<typeof TrackingConfigChangeRequestedEventSchema>;
+export type TrackingConfigPolicyEvaluationRequestedEvent = Infer<
+  typeof TrackingConfigPolicyEvaluationRequestedEventSchema
+>;
+export type TrackingConfigPolicyDecisionCompletedEvent = Infer<
+  typeof TrackingConfigPolicyDecisionCompletedEventSchema
+>;
+export type TrackingConfigChangeApprovedEvent = Infer<typeof TrackingConfigChangeApprovedEventSchema>;
+export type TrackingConfigChangeRejectedEvent = Infer<typeof TrackingConfigChangeRejectedEventSchema>;
+export type TrackingConfigAuditEntryCommittedEvent = Infer<
+  typeof TrackingConfigAuditEntryCommittedEventSchema
+>;
+export type TrackingConfigPortalReadModelUpdatedEvent = Infer<
+  typeof TrackingConfigPortalReadModelUpdatedEventSchema
+>;
 
 export function defaultAgentTrackingRetentionSettingsWriteRequest(): AgentTrackingRetentionSettingsWriteRequest {
   return AgentTrackingRetentionSettingsWriteRequestSchema.parse({

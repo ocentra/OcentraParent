@@ -2,8 +2,12 @@ import { describe, expect, it } from 'vitest';
 import { AgentEvent, AgentProtocolDefaults, type AgentEventEnvelope } from '../../src/contracts';
 import { AgentProtocolSchemaVersion } from '../../src/primitives';
 import {
+  AgentTrackingConfigCommandFlowEventType,
   AgentTrackingConfigUpdateEventType,
   AgentTrackingConfigAckState,
+  AgentTrackingConfigAuditOutcomeLiteral,
+  AgentTrackingConfigPolicyDecisionStateLiteral,
+  AgentTrackingConfigPortalUpdateKindLiteral,
   AgentTrackingConfigUpdateResponseStateLiteral,
   AgentTrackingDeleteAfterAlertResolutionState,
   AgentTrackingDurableSettingsPersistenceState,
@@ -17,6 +21,13 @@ import {
   AgentTrackingRetentionSettingsWriteResultParseState,
   ChildTrackingConfigUpdatedEventSchema,
   ParentTrackingConfigUpdatedEventSchema,
+  TrackingConfigAuditEntryCommittedEventSchema,
+  TrackingConfigChangeApprovedEventSchema,
+  TrackingConfigChangeRejectedEventSchema,
+  TrackingConfigChangeRequestedEventSchema,
+  TrackingConfigPolicyDecisionCompletedEventSchema,
+  TrackingConfigPolicyEvaluationRequestedEventSchema,
+  TrackingConfigPortalReadModelUpdatedEventSchema,
   TrackingConfigUpdateAppliedEventSchema,
   defaultAgentTrackingRetentionSettingsWriteRequest,
   parseAgentTrackingRetentionSettingsWriteResultEvent,
@@ -135,6 +146,103 @@ describe('agent tracking retention settings write result parser', () => {
       durableSettingsPersistenceState:
         AgentTrackingDurableSettingsPersistenceState.Persisted,
     });
+  });
+
+  it('parses tracking config command-flow payload contracts with shared policy and audit event types', () => {
+    const config = defaultAgentTrackingRetentionSettingsWriteRequest();
+    const target = {
+      scope: 'child-device',
+      deviceId: 'local-dev-agent',
+      platform: 'windows',
+      route: 'localhost',
+    } as const;
+    const changeRequested = TrackingConfigChangeRequestedEventSchema.parse({
+      changeRequestedEventRef: 'event.tracking-retention-settings-write.command-1.change-requested',
+      previousEventRef: 'event.parent-controller.parent-action.received.1',
+      sourceCommandId: config.commandId,
+      sourceMessageId: AgentTrackingRetentionSettingsWriteDefaults.CommandId,
+      sourcePeerId: 'portal-dev',
+      target,
+      config,
+      requestedAt: AgentTrackingRetentionSettingsWriteDefaults.AcceptedAt,
+    });
+    const policyEvaluation = TrackingConfigPolicyEvaluationRequestedEventSchema.parse({
+      policyEvaluationRef: 'event.tracking-retention-settings-write.command-1.policy-evaluation',
+      previousEventRef: changeRequested.changeRequestedEventRef,
+      sourceCommandId: config.commandId,
+      target,
+      parentRuleRefs: [
+        'policy.rule.tracking.local-child-runtime',
+        'policy.rule.tracking.remote-sync-disabled',
+      ],
+      dryRun: false,
+    });
+    const policyDecision = TrackingConfigPolicyDecisionCompletedEventSchema.parse({
+      policyDecisionRef: 'event.tracking-retention-settings-write.command-1.policy-decision',
+      previousEventRef: policyEvaluation.policyEvaluationRef,
+      sourceCommandId: config.commandId,
+      target,
+      decisionState: AgentTrackingConfigPolicyDecisionStateLiteral.Approved,
+      parentRuleRefs: policyEvaluation.parentRuleRefs,
+      childRuntimePublishRequired: true,
+    });
+    const changeApproved = TrackingConfigChangeApprovedEventSchema.parse({
+      changeApprovedEventRef: 'event.tracking-retention-settings-write.command-1.change-approved',
+      previousEventRef: policyDecision.policyDecisionRef,
+      sourceCommandId: config.commandId,
+      target,
+      approvedAt: AgentTrackingRetentionSettingsWriteDefaults.AcceptedAt,
+      childRuntimePublishRequired: true,
+    });
+    const audit = TrackingConfigAuditEntryCommittedEventSchema.parse({
+      auditEntryRef: 'event.tracking-retention-settings-write.command-1.audit-entry',
+      previousEventRef: changeApproved.changeApprovedEventRef,
+      sourceCommandId: config.commandId,
+      policyDecisionRef: policyDecision.policyDecisionRef,
+      target,
+      auditOutcome: AgentTrackingConfigAuditOutcomeLiteral.Committed,
+    });
+    const readModelUpdated = TrackingConfigPortalReadModelUpdatedEventSchema.parse({
+      readModelRef: 'event.tracking-retention-settings-write.command-1.portal-read-model',
+      previousEventRef: audit.auditEntryRef,
+      auditEntryRef: audit.auditEntryRef,
+      sourceCommandId: config.commandId,
+      target,
+      updateKind: AgentTrackingConfigPortalUpdateKindLiteral.TrackingConfigState,
+      visibleManualRequired: false,
+      visibleUnavailable: false,
+    });
+    const changeRejected = TrackingConfigChangeRejectedEventSchema.parse({
+      changeRejectedEventRef: 'event.tracking-retention-settings-write.command-1.change-rejected',
+      previousEventRef: policyDecision.policyDecisionRef,
+      sourceCommandId: config.commandId,
+      target,
+      rejectedAt: AgentTrackingRetentionSettingsWriteDefaults.AcceptedAt,
+      rejectionReasonCode: 'invalid-tracking-config-request',
+    });
+
+    expect(AgentTrackingConfigCommandFlowEventType.ChangeRequested).toBe(
+      'tracking.config.change_requested'
+    );
+    expect(AgentTrackingConfigCommandFlowEventType.PolicyEvaluationRequested).toBe(
+      'policy.evaluation.requested'
+    );
+    expect(AgentTrackingConfigCommandFlowEventType.PolicyDecisionCompleted).toBe(
+      'policy.decision.completed'
+    );
+    expect(AgentTrackingConfigCommandFlowEventType.AuditEntryCommitted).toBe(
+      'audit.entry.committed'
+    );
+    expect(AgentTrackingConfigCommandFlowEventType.PortalReadModelUpdated).toBe(
+      'portal.read_model.updated'
+    );
+    expect(policyDecision.decisionState).toBe(
+      AgentTrackingConfigPolicyDecisionStateLiteral.Approved
+    );
+    expect(readModelUpdated.updateKind).toBe(
+      AgentTrackingConfigPortalUpdateKindLiteral.TrackingConfigState
+    );
+    expect(changeRejected.rejectionReasonCode).toBe('invalid-tracking-config-request');
   });
 
   it('parses accepted service write command results without product overclaims', () => {
