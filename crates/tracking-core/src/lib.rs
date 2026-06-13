@@ -5,8 +5,8 @@ mod alerting;
 mod child_check_in;
 mod expected_place;
 mod geofence;
-mod location_validation;
 mod local_place;
+mod location_validation;
 mod missing_device;
 mod nearby_place;
 mod parent_acknowledgement;
@@ -36,17 +36,16 @@ pub use expected_place::{
 pub use geofence::{
     detect_geofence_transition, TrackingGeofenceEvaluation, TrackingGeofenceInsideState,
 };
-pub use location_validation::{
-    validate_tracking_location_observation, TrackingLocationValidationDecision,
-    TrackingLocationValidationResultState,
-};
 pub use local_place::{
     evaluate_parent_defined_place, TrackingParentDefinedPlaceDecision,
     TrackingParentDefinedPlaceInput,
 };
+pub use location_validation::{
+    validate_tracking_location_observation, TrackingLocationValidationDecision,
+    TrackingLocationValidationResultState,
+};
 pub use missing_device::{
-    evaluate_missing_device_mode, TrackingLastKnownVisibilityState,
-    TrackingMissingDeviceDecision,
+    evaluate_missing_device_mode, TrackingLastKnownVisibilityState, TrackingMissingDeviceDecision,
 };
 pub use nearby_place::{
     request_nearby_place_provider_analysis, TrackingNearbyPlaceProviderAvailabilityState,
@@ -67,8 +66,11 @@ pub use runtime_flow::{
     default_child_tracking_runtime_config, default_location_observed_event,
     observe_tracking_location, policy_eligible_child_tracking_runtime_config,
     record_tracking_evidence_from_location, tracking_ai_analysis_request_from_evidence,
+    tracking_child_check_in_from_location, tracking_expected_place_state_from_evidence,
+    tracking_geofence_transition_from_evidence,
     tracking_observation_portal_notification_candidate_state,
-    TrackingPortalNotificationCandidateState, TrackingRuntimeObservationReport,
+    tracking_parent_acknowledgement_from_notification, TrackingPortalNotificationCandidateState,
+    TrackingRuntimeObservationReport,
 };
 pub use status::{
     evaluate_tracking_capability_status, evaluate_tracking_device_status,

@@ -4,10 +4,10 @@ use ocentra_parent_agent_protocol::{
     child_domain_ai_analysis_requested_event_if_required,
     child_domain_direct_policy_evaluation_requested_event_if_required,
     child_domain_evidence_recorded_event, child_domain_observed_event,
-    ChildDomainAiAnalysisRequirement, ChildDomainAiAnalysisRequestedEvent,
+    ChildDomainAiAnalysisRequestedEvent, ChildDomainAiAnalysisRequirement,
     ChildDomainEvidenceRecordedEvent, ChildDomainObservedEvent, ChildDomainObservedEventProfile,
     ChildDomainObservedSignal, ChildDomainPolicyEvaluationRequestedEvent,
-    ChildDomainPolicyEvaluationRequirement, ChildDomainRefSuffix, ChildRuntimeDomain,
+    ChildDomainPolicyEvaluationRequirement, ChildRuntimeDomain,
 };
 
 pub const CRATE_NAME: &str = "ocentra-app-core";
@@ -28,11 +28,7 @@ pub fn app_observed_event(intent: AppObservationIntent) -> ChildDomainObservedEv
 }
 
 pub fn app_observed_profile(intent: AppObservationIntent) -> ChildDomainObservedEventProfile {
-    let (
-        observed_state,
-        ai_analysis_requirement,
-        policy_evaluation_requirement,
-    ) = match intent {
+    let (observed_state, ai_analysis_requirement, policy_evaluation_requirement) = match intent {
         AppObservationIntent::ForegroundAppRequiresPolicy => (
             ChildDomainObservedSignal::RequiresPolicy,
             ChildDomainAiAnalysisRequirement::NotRequired,
@@ -50,13 +46,12 @@ pub fn app_observed_profile(intent: AppObservationIntent) -> ChildDomainObserved
         ),
     };
 
-    ChildDomainObservedEventProfile {
-        domain: ChildRuntimeDomain::App,
-        subject_ref_suffix: ChildDomainRefSuffix::AppSubject,
+    ChildRuntimeDomain::App.observed_profile(
+        ocentra_parent_agent_protocol::ChildDomainRefSuffix::AppSubject,
         observed_state,
         ai_analysis_requirement,
         policy_evaluation_requirement,
-    }
+    )
 }
 
 pub fn app_evidence_recorded_event(

@@ -4,11 +4,10 @@ use ocentra_parent_agent_protocol::{
     child_domain_ai_analysis_requested_event_if_required,
     child_domain_direct_policy_evaluation_requested_event_if_required,
     child_domain_evidence_recorded_event, child_domain_observed_event,
-    ChildDomainAiAnalysisRequirement,
-    ChildDomainAiAnalysisRequestedEvent, ChildDomainEvidenceRecordedEvent,
-    ChildDomainObservedEvent, ChildDomainObservedEventProfile, ChildDomainObservedSignal,
-    ChildDomainPolicyEvaluationRequestedEvent, ChildDomainPolicyEvaluationRequirement,
-    ChildDomainRefSuffix, ChildRuntimeDomain,
+    ChildDomainAiAnalysisRequestedEvent, ChildDomainAiAnalysisRequirement,
+    ChildDomainEvidenceRecordedEvent, ChildDomainObservedEvent, ChildDomainObservedEventProfile,
+    ChildDomainObservedSignal, ChildDomainPolicyEvaluationRequestedEvent,
+    ChildDomainPolicyEvaluationRequirement, ChildRuntimeDomain,
 };
 
 pub const CRATE_NAME: &str = "ocentra-app-game-core";
@@ -31,11 +30,7 @@ pub fn app_game_observed_event(intent: AppGameObservationIntent) -> ChildDomainO
 pub fn app_game_observed_profile(
     intent: AppGameObservationIntent,
 ) -> ChildDomainObservedEventProfile {
-    let (
-        observed_state,
-        ai_analysis_requirement,
-        policy_evaluation_requirement,
-    ) = match intent {
+    let (observed_state, ai_analysis_requirement, policy_evaluation_requirement) = match intent {
         AppGameObservationIntent::ForegroundUsageRequiresPolicy => (
             ChildDomainObservedSignal::RequiresPolicy,
             ChildDomainAiAnalysisRequirement::NotRequired,
@@ -53,13 +48,12 @@ pub fn app_game_observed_profile(
         ),
     };
 
-    ChildDomainObservedEventProfile {
-        domain: ChildRuntimeDomain::AppGame,
-        subject_ref_suffix: ChildDomainRefSuffix::AppGameSubject,
+    ChildRuntimeDomain::AppGame.observed_profile(
+        ocentra_parent_agent_protocol::ChildDomainRefSuffix::AppGameSubject,
         observed_state,
         ai_analysis_requirement,
         policy_evaluation_requirement,
-    }
+    )
 }
 
 pub fn app_game_evidence_recorded_event(

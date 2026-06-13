@@ -1,13 +1,12 @@
 use ocentra_parent_agent_protocol::{
-    constants, ActivityEvidenceRef, LogFieldValue, LogFields, TrackingReadModel,
-    TrackingEvidenceRef, TrackingReadModelCapabilityStatus, TrackingReadModelCount,
+    constants, ActivityEvidenceRef, LogFieldValue, LogFields, TrackingEvidenceRef,
+    TrackingReadModel, TrackingReadModelCapabilityStatus, TrackingReadModelCount,
     TrackingReadModelCountValue, TrackingReadModelCustodyLabel, TrackingReadModelDeletedAt,
     TrackingReadModelDeviceId, TrackingReadModelEventId, TrackingReadModelGeneratedAt,
     TrackingReadModelKind, TrackingReadModelObservedAt, TrackingReadModelObserver,
     TrackingReadModelPlatform, TrackingReadModelQueryVisibility, TrackingReadModelRow,
     TrackingReadModelSubjectDisplayName, TrackingReadModelSubjectId, TrackingReadModelSubjectKind,
-    ACTIVITY_QUERY_SCHEMA_VERSION,
-    TRACKING_READ_MODEL_CUSTODY_CHILD_DEVICE_QUERY_STORE,
+    ACTIVITY_QUERY_SCHEMA_VERSION, TRACKING_READ_MODEL_CUSTODY_CHILD_DEVICE_QUERY_STORE,
     TRACKING_READ_MODEL_ROW_VISIBILITY_ACTIVE, TRACKING_READ_MODEL_ROW_VISIBILITY_TOMBSTONE,
     TRACKING_READ_MODEL_STATUS_NO_TRACKING_EVENTS,
 };
@@ -59,7 +58,9 @@ fn tracking_read_model(
     Ok(TrackingReadModel {
         schema_version: ACTIVITY_QUERY_SCHEMA_VERSION,
         generated_at: read_model_generated_at(generated_at),
-        custody_label: read_model_custody_label(TRACKING_READ_MODEL_CUSTODY_CHILD_DEVICE_QUERY_STORE),
+        custody_label: read_model_custody_label(
+            TRACKING_READ_MODEL_CUSTODY_CHILD_DEVICE_QUERY_STORE,
+        ),
         limit,
         returned: read_rows.len() as u64,
         active_rows,
@@ -88,10 +89,10 @@ fn row_from_store(row: TrackingStoreRow) -> TrackingReadModelRow {
     let deleted_at = deleted_at(&row, lifecycle_state);
     let deleted_evidence_reference_ids =
         if lifecycle_state == TrackingReadModelRowLifecycleState::Tombstone {
-        evidence_reference_ids.clone()
-    } else {
-        Vec::new()
-    };
+            evidence_reference_ids.clone()
+        } else {
+            Vec::new()
+        };
     let capability_status = string_field(&row.fields, constants::field::CAPABILITY_STATUS);
 
     TrackingReadModelRow {
@@ -146,15 +147,14 @@ fn deleted_at(
 ) -> Option<TrackingReadModelDeletedAt> {
     match lifecycle_state {
         TrackingReadModelRowLifecycleState::Active => None,
-        TrackingReadModelRowLifecycleState::Tombstone => string_field(
-            &row.fields,
-            constants::field::DELETED_AT,
-        )
-        .or_else(|| Some(row.observed_at.clone()))
-        .map(|value| {
-            TrackingReadModelDeletedAt::parse(value)
-                .expect(constants::activity_store::TEST_TRACKING_LOCATION_OBSERVED_AT)
-        }),
+        TrackingReadModelRowLifecycleState::Tombstone => {
+            string_field(&row.fields, constants::field::DELETED_AT)
+                .or_else(|| Some(row.observed_at.clone()))
+                .map(|value| {
+                    TrackingReadModelDeletedAt::parse(value)
+                        .expect(constants::activity_store::TEST_TRACKING_LOCATION_OBSERVED_AT)
+                })
+        }
     }
 }
 
@@ -193,7 +193,10 @@ fn active_counts_by(
         .collect()
 }
 
-fn evidence_reference_ids(fields: &LogFields, evidence: &[ActivityEvidenceRef]) -> Vec<TrackingEvidenceRef> {
+fn evidence_reference_ids(
+    fields: &LogFields,
+    evidence: &[ActivityEvidenceRef],
+) -> Vec<TrackingEvidenceRef> {
     let mut ids = string_field(fields, constants::field::EVIDENCE_REFERENCE_IDS)
         .map(|value| split_evidence_reference_ids(&value))
         .unwrap_or_default();
@@ -228,11 +231,13 @@ fn string_field(fields: &LogFields, key: &str) -> Option<String> {
 }
 
 fn read_model_event_id(value: &str) -> TrackingReadModelEventId {
-    TrackingReadModelEventId::parse(value).expect(constants::activity_store::TEST_TRACKING_LOCATION_EVENT_ID)
+    TrackingReadModelEventId::parse(value)
+        .expect(constants::activity_store::TEST_TRACKING_LOCATION_EVENT_ID)
 }
 
 fn read_model_observed_at(value: &str) -> TrackingReadModelObservedAt {
-    TrackingReadModelObservedAt::parse(value).expect(constants::activity_store::TEST_TRACKING_LOCATION_OBSERVED_AT)
+    TrackingReadModelObservedAt::parse(value)
+        .expect(constants::activity_store::TEST_TRACKING_LOCATION_OBSERVED_AT)
 }
 
 fn read_model_device_id(value: &str) -> TrackingReadModelDeviceId {
@@ -240,7 +245,8 @@ fn read_model_device_id(value: &str) -> TrackingReadModelDeviceId {
 }
 
 fn read_model_platform(value: &str) -> TrackingReadModelPlatform {
-    TrackingReadModelPlatform::parse(value).expect(constants::activity_store::TEST_TRACKING_PLATFORM_ANDROID)
+    TrackingReadModelPlatform::parse(value)
+        .expect(constants::activity_store::TEST_TRACKING_PLATFORM_ANDROID)
 }
 
 fn read_model_observer(value: &str) -> TrackingReadModelObserver {
@@ -256,11 +262,13 @@ fn read_model_subject_kind(value: &str) -> TrackingReadModelSubjectKind {
 }
 
 fn read_model_subject_id(value: &str) -> TrackingReadModelSubjectId {
-    TrackingReadModelSubjectId::parse(value).expect(constants::activity_store::TEST_TRACKING_SUBJECT_ID)
+    TrackingReadModelSubjectId::parse(value)
+        .expect(constants::activity_store::TEST_TRACKING_SUBJECT_ID)
 }
 
 fn read_model_subject_display_name(value: &str) -> TrackingReadModelSubjectDisplayName {
-    TrackingReadModelSubjectDisplayName::parse(value).expect(constants::activity_store::TEST_TRACKING_SUBJECT_NAME)
+    TrackingReadModelSubjectDisplayName::parse(value)
+        .expect(constants::activity_store::TEST_TRACKING_SUBJECT_NAME)
 }
 
 fn read_model_capability_status(value: &str) -> TrackingReadModelCapabilityStatus {
@@ -269,8 +277,7 @@ fn read_model_capability_status(value: &str) -> TrackingReadModelCapabilityStatu
 }
 
 fn read_model_query_visibility(value: &'static str) -> TrackingReadModelQueryVisibility {
-    TrackingReadModelQueryVisibility::parse(value)
-        .expect(TRACKING_READ_MODEL_ROW_VISIBILITY_ACTIVE)
+    TrackingReadModelQueryVisibility::parse(value).expect(TRACKING_READ_MODEL_ROW_VISIBILITY_ACTIVE)
 }
 
 fn read_model_generated_at(value: &str) -> TrackingReadModelGeneratedAt {

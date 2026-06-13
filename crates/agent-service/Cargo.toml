@@ -7,6 +7,9 @@ license.workspace = true
 [lints]
 workspace = true
 
+[lib]
+path = "src/lib.rs"
+
 [dependencies]
 axum = { version = "=0.8.7", features = ["ws"] }
 chrono = { version = "0.4.42", default-features = false, features = ["clock", "std"] }

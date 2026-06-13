@@ -1,6 +1,7 @@
 use ocentra_parent_agent_protocol::{
-    constants, TrackingEvidenceRef, TrackingGeofenceRuleRef, TrackingGeofenceTransitionDetectedEvent,
-    TrackingLocationObservedEvent, TrackingTransitionId, TrackingTransitionKind,
+    constants, TrackingEvidenceRef, TrackingGeofenceRuleRef,
+    TrackingGeofenceTransitionDetectedEvent, TrackingLocationObservedEvent, TrackingTransitionId,
+    TrackingTransitionKind,
 };
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
@@ -33,10 +34,10 @@ pub fn detect_geofence_transition(
         source_observation_id: event.observation_id.clone(),
         transition_kind: TrackingTransitionKind::parse(transition_kind_for(evaluation))
             .expect(constants::tracking_runtime::GEOFENCE_TRANSITION_ENTER),
-        evidence_refs: vec![
-            TrackingEvidenceRef::parse(constants::tracking_runtime::DEFAULT_EVIDENCE_REF)
-                .expect(constants::tracking_runtime::DEFAULT_EVIDENCE_REF),
-        ],
+        evidence_refs: vec![TrackingEvidenceRef::parse(
+            constants::tracking_runtime::DEFAULT_EVIDENCE_REF,
+        )
+        .expect(constants::tracking_runtime::DEFAULT_EVIDENCE_REF)],
     }
 }
 

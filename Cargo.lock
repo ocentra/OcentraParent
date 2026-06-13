@@ -2215,12 +2215,27 @@ dependencies = [
 ]
 
 [[package]]
+name = "ocentra-app-core"
+version = "0.1.1"
+dependencies = [
+ "ocentra-parent-agent-protocol",
+]
+
+[[package]]
 name = "ocentra-app-game-core"
 version = "0.1.1"
 dependencies = [
  "ocentra-eventing",
  "ocentra-evidence",
  "ocentra-parent-agent-protocol",
+]
+
+[[package]]
+name = "ocentra-billing-core"
+version = "0.1.1"
+dependencies = [
+ "ocentra-eventing",
+ "serde",
 ]
 
 [[package]]
@@ -2236,7 +2251,17 @@ dependencies = [
 name = "ocentra-child-ai-core"
 version = "0.1.1"
 dependencies = [
+ "ocentra-evidence",
  "ocentra-parent-agent-protocol",
+]
+
+[[package]]
+name = "ocentra-child-enforcement-core"
+version = "0.1.1"
+dependencies = [
+ "ocentra-eventing",
+ "ocentra-policy-control-core",
+ "serde",
 ]
 
 [[package]]
@@ -2257,13 +2282,36 @@ dependencies = [
 name = "ocentra-child-runtime"
 version = "0.1.1"
 dependencies = [
+ "ocentra-app-core",
+ "ocentra-app-game-core",
+ "ocentra-browser-core",
  "ocentra-child-ai-core",
+ "ocentra-child-enforcement-core",
  "ocentra-child-notification-core",
  "ocentra-child-policy-core",
+ "ocentra-entitlement-core",
  "ocentra-eventing",
+ "ocentra-evidence",
+ "ocentra-family-identity-core",
+ "ocentra-lan-core",
+ "ocentra-network-core",
  "ocentra-parent-agent-protocol",
+ "ocentra-provisioning-core",
+ "ocentra-remote-access-core",
+ "ocentra-screen-core",
+ "ocentra-screen-live-view-core",
+ "ocentra-storage-custody-core",
  "ocentra-tracking-core",
+ "serde",
  "tokio",
+]
+
+[[package]]
+name = "ocentra-entitlement-core"
+version = "0.1.1"
+dependencies = [
+ "ocentra-eventing",
+ "serde",
 ]
 
 [[package]]
@@ -2281,6 +2329,17 @@ dependencies = [
 [[package]]
 name = "ocentra-evidence"
 version = "0.1.1"
+dependencies = [
+ "serde",
+]
+
+[[package]]
+name = "ocentra-family-identity-core"
+version = "0.1.1"
+dependencies = [
+ "ocentra-eventing",
+ "serde",
+]
 
 [[package]]
 name = "ocentra-lan-core"
@@ -2289,6 +2348,7 @@ dependencies = [
  "ocentra-eventing",
  "ocentra-evidence",
  "ocentra-parent-agent-protocol",
+ "serde",
 ]
 
 [[package]]
@@ -2299,6 +2359,7 @@ dependencies = [
  "ocentra-evidence",
  "ocentra-network-evidence",
  "ocentra-parent-agent-protocol",
+ "serde",
 ]
 
 [[package]]
@@ -2351,6 +2412,7 @@ name = "ocentra-parent-agent-protocol"
 version = "0.1.1"
 dependencies = [
  "ocentra-eventing",
+ "ocentra-evidence",
  "serde",
  "serde_json",
 ]
@@ -2367,12 +2429,22 @@ dependencies = [
  "ocentra-network-evidence",
  "ocentra-parent-agent-core",
  "ocentra-parent-agent-protocol",
+ "ocentra-parent-runtime-core",
  "ocentra-parent-screen-capture-adapter",
  "serde",
  "serde_json",
  "sha2",
  "tokio",
  "tower-http",
+]
+
+[[package]]
+name = "ocentra-parent-runtime-core"
+version = "0.1.1"
+dependencies = [
+ "ocentra-eventing",
+ "ocentra-parent-agent-protocol",
+ "serde",
 ]
 
 [[package]]
@@ -2388,6 +2460,44 @@ dependencies = [
 ]
 
 [[package]]
+name = "ocentra-policy-control-core"
+version = "0.1.1"
+dependencies = [
+ "ocentra-eventing",
+ "ocentra-evidence",
+ "serde",
+]
+
+[[package]]
+name = "ocentra-provisioning-core"
+version = "0.1.1"
+dependencies = [
+ "ocentra-eventing",
+ "ocentra-family-identity-core",
+ "serde",
+]
+
+[[package]]
+name = "ocentra-remote-access-core"
+version = "0.1.1"
+dependencies = [
+ "ocentra-eventing",
+ "ocentra-family-identity-core",
+ "ocentra-policy-control-core",
+ "serde",
+]
+
+[[package]]
+name = "ocentra-screen-ai-core"
+version = "0.1.1"
+dependencies = [
+ "ocentra-eventing",
+ "ocentra-evidence",
+ "ocentra-policy-control-core",
+ "serde",
+]
+
+[[package]]
 name = "ocentra-screen-core"
 version = "0.1.1"
 dependencies = [
@@ -2398,12 +2508,29 @@ dependencies = [
 ]
 
 [[package]]
+name = "ocentra-screen-live-view-core"
+version = "0.1.1"
+dependencies = [
+ "ocentra-parent-agent-protocol",
+]
+
+[[package]]
+name = "ocentra-storage-custody-core"
+version = "0.1.1"
+dependencies = [
+ "ocentra-eventing",
+ "serde",
+]
+
+[[package]]
 name = "ocentra-tracking-core"
 version = "0.1.1"
 dependencies = [
  "ocentra-eventing",
  "ocentra-evidence",
+ "ocentra-family-identity-core",
  "ocentra-parent-agent-protocol",
+ "ocentra-policy-control-core",
  "rusqlite",
  "serde",
  "serde_json",

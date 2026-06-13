@@ -1,7 +1,7 @@
 use ocentra_parent_agent_protocol::{
-    constants, TrackingDeleteAfterAlertResolutionState,
-    TrackingDurableSettingsPersistenceState, TrackingParentExportState, TrackingRemoteAiState,
-    TrackingRemoteSyncState, TrackingRetentionSettingsWriteRequest,
+    constants, TrackingDeleteAfterAlertResolutionState, TrackingDurableSettingsPersistenceState,
+    TrackingParentExportState, TrackingRemoteAiState, TrackingRemoteSyncState,
+    TrackingRetentionSettingsWriteRequest,
 };
 use serde::Serialize;
 use std::fs;
