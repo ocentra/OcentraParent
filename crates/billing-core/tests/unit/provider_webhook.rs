@@ -80,10 +80,54 @@ fn dispute_provider_event_requires_manual_review() {
 }
 
 #[test]
+fn grace_lifecycle_stays_accepted_and_projects_an_entitlement_write() {
+    let decision = decide_billing_provider_webhook(BillingProviderWebhookEvent {
+        event_kind: BillingProviderEventKind::SubscriptionUpdated,
+        lifecycle_state: BillingSubscriptionLifecycleState::Grace,
+        ..provider_event()
+    });
+
+    assert_eq!(
+        decision.decision_state,
+        BillingProviderEventDecisionState::Accepted
+    );
+    assert_eq!(
+        decision.entitlement_update_requirement,
+        BillingEntitlementUpdateRequirement::Required
+    );
+    assert_eq!(
+        decision.manual_review_requirement,
+        BillingManualReviewRequirement::NotRequired
+    );
+}
+
+#[test]
 fn refund_event_is_safe_but_does_not_auto_update_entitlement() {
     let decision = decide_billing_provider_webhook(BillingProviderWebhookEvent {
         event_kind: BillingProviderEventKind::RefundIssued,
         lifecycle_state: BillingSubscriptionLifecycleState::Canceled,
+        ..provider_event()
+    });
+
+    assert_eq!(
+        decision.decision_state,
+        BillingProviderEventDecisionState::Accepted
+    );
+    assert_eq!(
+        decision.entitlement_update_requirement,
+        BillingEntitlementUpdateRequirement::NotRequired
+    );
+    assert_eq!(
+        decision.manual_review_requirement,
+        BillingManualReviewRequirement::Required
+    );
+}
+
+#[test]
+fn support_required_lifecycle_blocks_automatic_updates_pending_manual_review() {
+    let decision = decide_billing_provider_webhook(BillingProviderWebhookEvent {
+        event_kind: BillingProviderEventKind::CustomerPortalUpdated,
+        lifecycle_state: BillingSubscriptionLifecycleState::SupportRequired,
         ..provider_event()
     });
 
