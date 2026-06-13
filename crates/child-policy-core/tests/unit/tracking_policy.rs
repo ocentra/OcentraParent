@@ -91,6 +91,10 @@ fn tracking_expected_place_fixture(
         )
         .expect(constants::tracking_runtime::DEFAULT_EXPECTED_PLACE_REF),
         source_observation_id: observation_id.clone(),
+        source_observed_at: TrackingTimestamp::parse(
+            constants::tracking_runtime::DEFAULT_OBSERVED_AT,
+        )
+        .expect(constants::tracking_runtime::DEFAULT_OBSERVED_AT),
         expected_place_state: TrackingExpectedPlaceState::parse(expected_place_state)
             .expect(expected_place_state),
         reason_codes: vec![TrackingReasonCode::parse(
@@ -134,6 +138,7 @@ fn tracking_policy_emits_review_violation_for_hospital_nearby_place() {
             &policy_rule_ref,
         )
     );
+    assert_eq!(violation.detected_at, classified.source_observed_at);
     assert_eq!(violation.evidence_refs, classified.evidence_refs);
 }
 
@@ -198,6 +203,7 @@ fn tracking_policy_emits_review_violation_for_left_expected_place() {
             &policy_rule_ref,
         )
     );
+    assert_eq!(violation.detected_at, evaluated.source_observed_at);
     assert_eq!(violation.evidence_refs, evaluated.evidence_refs);
 }
 

@@ -84,6 +84,7 @@ fn tracking_policy_violation_detected(
     child_profile_id: ocentra_parent_agent_protocol::TrackingChildProfileId,
     violation_id: TrackingPolicyViolationId,
     policy_rule_ref: TrackingPolicyRuleRef,
+    detected_at: ocentra_parent_agent_protocol::TrackingTimestamp,
     evidence_refs: Vec<ocentra_parent_agent_protocol::TrackingEvidenceRef>,
 ) -> TrackingPolicyViolationDetectedEvent {
     TrackingPolicyViolationDetectedEvent {
@@ -95,6 +96,7 @@ fn tracking_policy_violation_detected(
             constants::tracking_runtime::POLICY_SEVERITY_REVIEW,
         )
         .expect(constants::tracking_runtime::POLICY_SEVERITY_REVIEW),
+        detected_at,
         evidence_refs,
     }
 }
@@ -115,6 +117,7 @@ fn tracking_nearby_place_policy_violation_detected(
             &policy_rule_ref,
         ),
         policy_rule_ref,
+        event.source_observed_at.clone(),
         event.evidence_refs.clone(),
     )
 }
@@ -132,6 +135,7 @@ fn tracking_expected_place_policy_violation_detected(
         event.child_profile_id.clone(),
         tracking_violation_id_from_evaluation_and_rule_ref(&event.evaluation_id, &policy_rule_ref),
         policy_rule_ref,
+        event.source_observed_at.clone(),
         event.evidence_refs.clone(),
     )
 }

@@ -1,6 +1,6 @@
 use ocentra_parent_agent_protocol::{
     constants, TrackingAcknowledgementState, TrackingParentAcknowledgementRecordedEvent,
-    TrackingPolicyViolationDetectedEvent, TrackingTimestamp,
+    TrackingPolicyViolationDetectedEvent,
     tracking_acknowledgement_id_from_violation_id,
 };
 
@@ -12,8 +12,7 @@ pub fn record_parent_acknowledgement(
         child_profile_id: event.child_profile_id.clone(),
         acknowledgement_id: tracking_acknowledgement_id_from_violation_id(&event.violation_id),
         source_policy_violation_id: event.violation_id.clone(),
-        acknowledged_at: TrackingTimestamp::parse(constants::tracking_runtime::DEFAULT_OBSERVED_AT)
-            .expect(constants::tracking_runtime::DEFAULT_OBSERVED_AT),
+        acknowledged_at: event.detected_at.clone(),
         acknowledgement_state: TrackingAcknowledgementState::parse(
             constants::tracking_runtime::ACKNOWLEDGEMENT_STATE_ACKNOWLEDGED,
         )

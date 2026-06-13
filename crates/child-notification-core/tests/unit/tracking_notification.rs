@@ -3,7 +3,7 @@ use ocentra_parent_agent_protocol::{
     TrackingPolicyRuleRef, TrackingPolicySeverity,
     TrackingPolicyViolationDetectedEvent, tracking_evaluation_id_from_observation_id,
     tracking_evidence_ref_from_observation_id, tracking_notification_id_from_violation_id,
-    tracking_violation_id_from_evaluation_and_rule_ref, TrackingObservationId,
+    tracking_violation_id_from_evaluation_and_rule_ref, TrackingObservationId, TrackingTimestamp,
 };
 
 fn tracking_policy_violation_fixture() -> TrackingPolicyViolationDetectedEvent {
@@ -30,6 +30,8 @@ fn tracking_policy_violation_fixture() -> TrackingPolicyViolationDetectedEvent {
         policy_rule_ref,
         severity: TrackingPolicySeverity::parse(constants::tracking_runtime::POLICY_SEVERITY_REVIEW)
             .expect(constants::tracking_runtime::POLICY_SEVERITY_REVIEW),
+        detected_at: TrackingTimestamp::parse(constants::tracking_runtime::DEFAULT_OBSERVED_AT)
+            .expect(constants::tracking_runtime::DEFAULT_OBSERVED_AT),
         evidence_refs: vec![tracking_evidence_ref_from_observation_id(&observation_id)],
     }
 }
@@ -58,5 +60,6 @@ fn tracking_notification_keeps_policy_violation_as_source_authority() {
         notification.notification_id,
         tracking_notification_id_from_violation_id(&violation.violation_id)
     );
+    assert_eq!(notification.requested_at, violation.detected_at);
     assert_eq!(notification.evidence_refs, violation.evidence_refs);
 }

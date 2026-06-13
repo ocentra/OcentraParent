@@ -1,7 +1,7 @@
 use ocentra_parent_agent_protocol::{
     constants, TrackingCapabilityStatus, TrackingGeofenceRuleRef,
     TrackingGeofenceTransitionDetectedEvent, TrackingLocationObservedEvent, TrackingReasonCode,
-    TrackingTransitionKind, tracking_evidence_ref_from_observation_id,
+    TrackingTimestamp, TrackingTransitionKind, tracking_evidence_ref_from_observation_id,
     tracking_transition_id_from_observation_id,
 };
 
@@ -29,6 +29,7 @@ pub fn detect_geofence_transition(
         event.child_device_id.clone(),
         event.child_profile_id.clone(),
         event.observation_id.clone(),
+        event.observed_at.clone(),
         TrackingGeofenceRuleRef::parse(constants::tracking_runtime::DEFAULT_GEOFENCE_RULE_REF)
             .expect(constants::tracking_runtime::DEFAULT_GEOFENCE_RULE_REF),
         evaluation,
@@ -40,6 +41,7 @@ pub(crate) fn geofence_transition_from_parts(
     child_device_id: ocentra_parent_agent_protocol::TrackingChildDeviceId,
     child_profile_id: ocentra_parent_agent_protocol::TrackingChildProfileId,
     source_observation_id: ocentra_parent_agent_protocol::TrackingObservationId,
+    source_observed_at: TrackingTimestamp,
     geofence_rule_ref: TrackingGeofenceRuleRef,
     evaluation: TrackingGeofenceEvaluation,
     evidence_refs: Vec<ocentra_parent_agent_protocol::TrackingEvidenceRef>,
@@ -52,6 +54,7 @@ pub(crate) fn geofence_transition_from_parts(
         transition_id: tracking_transition_id_from_observation_id(&source_observation_id),
         geofence_rule_ref,
         source_observation_id,
+        source_observed_at,
         transition_kind: TrackingTransitionKind::parse(transition_kind)
             .expect(constants::tracking_runtime::GEOFENCE_TRANSITION_AMBIGUOUS),
         capability_status: evaluation.capability_status,
