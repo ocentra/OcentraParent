@@ -1,16 +1,31 @@
 use ocentra_child_runtime::{
     parent_tracking_config_updated_event_from_command, publish_parent_tracking_config_updated_event,
+    TrackingConfigUpdateEventFlowReport,
 };
 use ocentra_parent_runtime_core::{
     route_parent_tracking_config_update_event, ChildAcknowledgementState, ChildRuntimePublishState,
 };
 use ocentra_parent_agent_protocol::{
     constants, default_tracking_retention_settings_write_request, AgentCommandEnvelope,
-    AgentEventEnvelope, AgentEventName, LogFieldValue, LogLevel, TrackingConfigAckState,
-    TrackingDurableSettingsPersistenceState, TrackingExecutionClaimState, TrackingRemoteAiState,
+    AgentEventEnvelope, AgentEventName, ChildCommandKind, ChildCommandReceivedEvent,
+    LogFieldValue, LogLevel, ParentActionReceivedEvent, ParentChildCommandForwardRequestedEvent,
+    ParentChildCommandTransportBoundary, ParentCommandRejectedEvent, ParentCommandValidatedEvent,
+    ParentCommandValidationState, ParentControllerActionKind, ParentControllerSource,
+    TrackingConfigAckState, TrackingConfigAuditEntryCommittedEvent,
+    TrackingConfigAuditOutcome, TrackingConfigChangeApprovedEvent,
+    TrackingConfigChangeRejectedEvent, TrackingConfigChangeRequestedEvent,
+    TrackingConfigPolicyDecisionCompletedEvent, TrackingConfigPolicyDecisionState,
+    TrackingConfigPolicyEvaluationRequestedEvent, TrackingConfigPortalReadModelUpdatedEvent,
+    TrackingConfigPortalUpdateKind, TrackingDurableSettingsPersistenceState,
+    TrackingExecutionClaimState, TrackingPolicyRuleRef, TrackingRemoteAiState,
     TrackingRemoteSyncState, TrackingRetentionWriteState,
     tracking_durable_settings_store_ref, tracking_local_service_state_snapshot_ref,
     tracking_mutation_proof_ref, tracking_retention_accepted_at,
+    tracking_config_audit_entry_committed_event, tracking_config_change_approved_event,
+    tracking_config_change_rejected_event, tracking_config_change_requested_event,
+    tracking_config_policy_decision_completed_event,
+    tracking_config_policy_evaluation_requested_event,
+    tracking_config_portal_read_model_updated_event,
     tracking_retention_write_state_accepted, tracking_retention_write_state_rejected,
     TrackingRetentionSettingsWriteRequest, TrackingRetentionSettingsWriteResult,
     AGENT_PROTOCOL_SCHEMA_VERSION,
@@ -22,6 +37,23 @@ use crate::{event_builder::build_event, fields::fields_from_pairs};
 enum TrackingWriteRequestParseState {
     Accepted,
     Rejected,
+}
+
+#[derive(Clone, Debug)]
+struct TrackingRetentionSettingsWriteFlowReport {
+    parent_action_received: ParentActionReceivedEvent,
+    parent_command_validated: Option<ParentCommandValidatedEvent>,
+    parent_command_rejected: Option<ParentCommandRejectedEvent>,
+    change_requested: Option<TrackingConfigChangeRequestedEvent>,
+    policy_evaluation_requested: Option<TrackingConfigPolicyEvaluationRequestedEvent>,
+    policy_decision_completed: Option<TrackingConfigPolicyDecisionCompletedEvent>,
+    change_approved: Option<TrackingConfigChangeApprovedEvent>,
+    change_rejected: Option<TrackingConfigChangeRejectedEvent>,
+    child_command_forward_requested: Option<ParentChildCommandForwardRequestedEvent>,
+    child_command_received: Option<ChildCommandReceivedEvent>,
+    child_runtime_flow: Option<TrackingConfigUpdateEventFlowReport>,
+    audit_entry_committed: Option<TrackingConfigAuditEntryCommittedEvent>,
+    portal_read_model_updated: Option<TrackingConfigPortalReadModelUpdatedEvent>,
 }
 
 pub(crate) async fn build_tracking_retention_settings_write_report(
