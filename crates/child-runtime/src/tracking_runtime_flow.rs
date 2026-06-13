@@ -19,6 +19,7 @@ pub struct TrackingRuntimeEventFlowReport {
     pub tracking_subscription_report: SubscriptionReport,
     pub child_ai_subscription_report: SubscriptionReport,
     pub child_policy_subscription_report: SubscriptionReport,
+    pub child_expected_place_policy_subscription_report: SubscriptionReport,
     pub child_notification_subscription_report: SubscriptionReport,
     pub evidence_recorded: TrackingEvidenceRecordedEvent,
     pub geofence_transition_detected: Option<TrackingGeofenceTransitionDetectedEvent>,
@@ -37,6 +38,7 @@ pub struct TrackingRuntimeEventFlow {
     tracking_subscription_report: SubscriptionReport,
     child_ai_subscription_report: SubscriptionReport,
     child_policy_subscription_report: SubscriptionReport,
+    child_expected_place_policy_subscription_report: SubscriptionReport,
     child_notification_subscription_report: SubscriptionReport,
 }
 
@@ -51,6 +53,8 @@ impl TrackingRuntimeEventFlow {
             subscribe_tracking_location_observed_events(&bus, state.clone()).await?;
         let child_ai_subscription_report =
             subscribe_child_ai_tracking_analysis_events(&bus, state.clone()).await?;
+        let child_expected_place_policy_subscription_report =
+            subscribe_child_policy_tracking_expected_place_events(&bus, state.clone()).await?;
         let child_policy_subscription_report =
             subscribe_child_policy_tracking_analysis_events(&bus, state.clone()).await?;
         let child_notification_subscription_report =
@@ -62,6 +66,7 @@ impl TrackingRuntimeEventFlow {
             tracking_subscription_report,
             child_ai_subscription_report,
             child_policy_subscription_report,
+            child_expected_place_policy_subscription_report,
             child_notification_subscription_report,
         })
     }
@@ -89,6 +94,9 @@ impl TrackingRuntimeEventFlow {
             tracking_subscription_report: self.tracking_subscription_report.clone(),
             child_ai_subscription_report: self.child_ai_subscription_report.clone(),
             child_policy_subscription_report: self.child_policy_subscription_report.clone(),
+            child_expected_place_policy_subscription_report: self
+                .child_expected_place_policy_subscription_report
+                .clone(),
             child_notification_subscription_report: self
                 .child_notification_subscription_report
                 .clone(),
@@ -264,6 +272,46 @@ async fn subscribe_child_policy_tracking_analysis_events(
                 }
                 let policy_decision =
                     ocentra_child_policy_core::evaluate_tracking_nearby_place_policy(
+                        context.payload(),
+                    );
+                if let Some(violation) = policy_decision.policy_violation_detected {
+                    state.record_policy_violation_detected(violation.clone());
+                    context
+                        .publisher()
+                        .publish(
+                            violation,
+                            tracking_runtime_metadata(TrackingRuntimeHop::PolicyViolationDetected)?,
+                        )
+                        .await?;
+                }
+                Ok(())
+            }
+        },
+    )
+    .await
+}
+
+async fn subscribe_child_policy_tracking_expected_place_events(
+    bus: &EventBus,
+    state: TrackingRuntimeEventState,
+) -> Result<SubscriptionReport, EventingError> {
+    bus.subscribe::<TrackingExpectedPlaceStateEvaluatedEvent, _, _>(
+        EventSubscriber::new(
+            SubscriberId::parse(
+                constants::tracking_runtime::SUBSCRIBER_CHILD_POLICY_EXPECTED_PLACE_EVALUATOR,
+            )?,
+            EventType::parse(
+                constants::tracking_runtime::TRACKING_EXPECTED_PLACE_STATE_EVALUATED_EVENT_TYPE,
+            )?,
+            TargetHandler::parse(
+                constants::tracking_runtime::TARGET_HANDLER_CHILD_POLICY_EXPECTED_PLACE_EVALUATOR,
+            )?,
+        ),
+        move |context| {
+            let state = state.clone();
+            async move {
+                let policy_decision =
+                    ocentra_child_policy_core::evaluate_tracking_expected_place_policy(
                         context.payload(),
                     );
                 if let Some(violation) = policy_decision.policy_violation_detected {
