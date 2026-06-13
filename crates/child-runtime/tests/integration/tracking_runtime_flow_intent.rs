@@ -1,6 +1,6 @@
 use ocentra_parent_agent_protocol::{
-    constants, TrackingCheckInState, TrackingEvidenceRef, TrackingExpectedPlaceState,
-    TrackingTransitionKind,
+    constants, TrackingAlertSeverity, TrackingCheckInState, TrackingEvidenceRef,
+    TrackingExpectedPlaceState, TrackingTransitionKind,
 };
 
 #[tokio::test]
@@ -70,6 +70,15 @@ async fn tracking_runtime_flow_keeps_ai_policy_and_notification_decoupled_by_eve
             .expect(constants::tracking_runtime::ERROR_TRACKING_RUNTIME_FLOW_RECORDED)
             .decision_state,
         constants::tracking_runtime::AI_RESULT_ACCEPTED_AS_EVIDENCE
+    );
+    assert_eq!(
+        flow_report
+            .alert_decision
+            .as_ref()
+            .expect(constants::tracking_runtime::ERROR_TRACKING_RUNTIME_FLOW_RECORDED)
+            .severity,
+        TrackingAlertSeverity::parse(constants::tracking_runtime::ALERT_SEVERITY_REVIEW)
+            .expect(constants::tracking_runtime::ALERT_SEVERITY_REVIEW)
     );
     assert_eq!(
         flow_report
@@ -181,6 +190,15 @@ async fn tracking_runtime_flow_can_route_away_from_expected_place_without_ai_bou
     assert!(flow_report.ai_boundary_decision.is_none());
     assert_eq!(
         flow_report
+            .alert_decision
+            .as_ref()
+            .expect(constants::tracking_runtime::ERROR_TRACKING_RUNTIME_FLOW_RECORDED)
+            .severity,
+        TrackingAlertSeverity::parse(constants::tracking_runtime::ALERT_SEVERITY_REVIEW)
+            .expect(constants::tracking_runtime::ALERT_SEVERITY_REVIEW)
+    );
+    assert_eq!(
+        flow_report
             .geofence_transition_detected
             .as_ref()
             .expect(constants::tracking_runtime::ERROR_TRACKING_RUNTIME_FLOW_RECORDED)
@@ -248,6 +266,7 @@ async fn tracking_runtime_flow_clears_optional_state_between_observations() {
     assert!(second_report.ai_analysis_requested.is_none());
     assert!(second_report.nearby_place_classified.is_none());
     assert!(second_report.ai_boundary_decision.is_none());
+    assert!(second_report.alert_decision.is_none());
     assert!(second_report.policy_violation_detected.is_none());
     assert!(second_report.parent_notification_requested.is_none());
     assert_eq!(

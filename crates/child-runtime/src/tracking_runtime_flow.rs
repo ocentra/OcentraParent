@@ -12,7 +12,10 @@ use ocentra_parent_agent_protocol::{
     TrackingLocationObservedEvent, TrackingNearbyPlaceClassifiedEvent,
     TrackingPolicyViolationDetectedEvent,
 };
-use ocentra_tracking_core::TrackingAiBoundaryDecision;
+use ocentra_tracking_core::{
+    TrackingAiBoundaryDecision, TrackingAlertDecision,
+    TrackingParentNotificationDecisionState,
+};
 
 #[derive(Clone, Debug, PartialEq)]
 pub struct TrackingRuntimeEventFlowReport {
@@ -28,6 +31,7 @@ pub struct TrackingRuntimeEventFlowReport {
     pub ai_analysis_requested: Option<TrackingAiAnalysisRequestedEvent>,
     pub nearby_place_classified: Option<TrackingNearbyPlaceClassifiedEvent>,
     pub ai_boundary_decision: Option<TrackingAiBoundaryDecision>,
+    pub alert_decision: Option<TrackingAlertDecision>,
     pub policy_violation_detected: Option<TrackingPolicyViolationDetectedEvent>,
     pub parent_notification_requested: Option<ParentNotificationRequestedEvent>,
 }
@@ -108,6 +112,7 @@ impl TrackingRuntimeEventFlow {
             ai_analysis_requested: self.state.ai_analysis_requested(),
             nearby_place_classified: self.state.nearby_place_classified(),
             ai_boundary_decision: self.state.ai_boundary_decision(),
+            alert_decision: self.state.alert_decision(),
             policy_violation_detected: self.state.policy_violation_detected(),
             parent_notification_requested: self.state.parent_notification_requested(),
         })
@@ -351,6 +356,15 @@ async fn subscribe_child_notification_policy_events(
         move |context| {
             let state = state.clone();
             async move {
+                let alert_decision =
+                    ocentra_tracking_core::evaluate_tracking_alert(context.payload(), 0);
+                state.record_alert_decision(alert_decision.clone());
+                if alert_decision.parent_notification_state
+                    != TrackingParentNotificationDecisionState::Allowed
+                {
+                    return Ok(());
+                }
+
                 let notification =
                     ocentra_child_notification_core::request_parent_notification_from_policy_violation(
                         context.payload(),
@@ -379,6 +393,7 @@ struct TrackingRuntimeEventState {
     ai_analysis_requested: Arc<Mutex<Option<TrackingAiAnalysisRequestedEvent>>>,
     nearby_place_classified: Arc<Mutex<Option<TrackingNearbyPlaceClassifiedEvent>>>,
     ai_boundary_decision: Arc<Mutex<Option<TrackingAiBoundaryDecision>>>,
+    alert_decision: Arc<Mutex<Option<TrackingAlertDecision>>>,
     policy_violation_detected: Arc<Mutex<Option<TrackingPolicyViolationDetectedEvent>>>,
     parent_notification_requested: Arc<Mutex<Option<ParentNotificationRequestedEvent>>>,
 }
@@ -411,6 +426,10 @@ impl TrackingRuntimeEventState {
             .expect(constants::tracking_runtime::ERROR_TRACKING_RUNTIME_FLOW_RECORDED) = None;
         *self
             .ai_boundary_decision
+            .lock()
+            .expect(constants::tracking_runtime::ERROR_TRACKING_RUNTIME_FLOW_RECORDED) = None;
+        *self
+            .alert_decision
             .lock()
             .expect(constants::tracking_runtime::ERROR_TRACKING_RUNTIME_FLOW_RECORDED) = None;
         *self
@@ -479,6 +498,14 @@ impl TrackingRuntimeEventState {
             Some(decision);
     }
 
+    fn record_alert_decision(&self, decision: TrackingAlertDecision) {
+        *self
+            .alert_decision
+            .lock()
+            .expect(constants::tracking_runtime::ERROR_TRACKING_RUNTIME_FLOW_RECORDED) =
+            Some(decision);
+    }
+
     fn record_policy_violation_detected(&self, event: TrackingPolicyViolationDetectedEvent) {
         *self
             .policy_violation_detected
@@ -521,6 +548,10 @@ impl TrackingRuntimeEventState {
 
     fn ai_boundary_decision(&self) -> Option<TrackingAiBoundaryDecision> {
         self.ai_boundary_decision.lock().ok()?.clone()
+    }
+
+    fn alert_decision(&self) -> Option<TrackingAlertDecision> {
+        self.alert_decision.lock().ok()?.clone()
     }
 
     fn policy_violation_detected(&self) -> Option<TrackingPolicyViolationDetectedEvent> {
