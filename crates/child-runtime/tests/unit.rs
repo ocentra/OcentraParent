@@ -62,6 +62,13 @@ async fn child_runtime_routes_parent_config_event_through_named_subscribers_to_c
         constants::tracking_config_update::SUBSCRIBER_CHILD_TRACKING_CONFIG_APPLIER
     );
     assert_eq!(
+        flow_report
+            .applied_subscription_report
+            .subscriber_id
+            .as_str(),
+        constants::tracking_config_update::SUBSCRIBER_CHILD_TRACKING_CONFIG_APPLIED_RECORDER
+    );
+    assert_eq!(
         flow_report.parent_request_report.response.response_state,
         TrackingConfigUpdateResponseState::Applied
     );
@@ -85,6 +92,18 @@ async fn child_runtime_routes_parent_config_event_through_named_subscribers_to_c
             .publish_report
             .handled_count,
         1
+    );
+    assert_eq!(
+        applied_report.applied_event_type,
+        TrackingConfigUpdateEventName::Applied
+    );
+    assert_eq!(
+        applied_report.response_state,
+        TrackingConfigUpdateResponseState::Applied
+    );
+    assert_eq!(
+        applied_report.effective_tracking_state,
+        TrackingConfigEffectiveState::Enabled
     );
     assert!(applied_report.applied_state.local_service_state_revision > 0);
     assert_eq!(
@@ -114,9 +133,10 @@ async fn parent_tracking_config_flow_can_attach_once_to_runtime_owned_bus() {
         .await
         .expect(constants::tracking_config_update::ERROR_PARENT_CONFIG_EVENT_APPLIED);
     let metrics_after = runtime_flow.metrics_snapshot().await;
+    let journal = runtime_flow.journal_snapshot().await;
 
-    assert_eq!(metrics_before.subscription_count, 2);
-    assert_eq!(metrics_after.subscription_count, 2);
+    assert_eq!(metrics_before.subscription_count, 3);
+    assert_eq!(metrics_after.subscription_count, 3);
     assert_eq!(
         flow_report.parent_request_report.response.response_state,
         TrackingConfigUpdateResponseState::Applied
@@ -124,6 +144,19 @@ async fn parent_tracking_config_flow_can_attach_once_to_runtime_owned_bus() {
     assert_eq!(
         flow_report.applied_report.child_event_type,
         TrackingConfigUpdateEventName::Child
+    );
+    assert_eq!(journal.len(), 3);
+    assert_eq!(
+        journal[0].contract.event_type.as_str(),
+        constants::tracking_config_update::PARENT_EVENT_TYPE
+    );
+    assert_eq!(
+        journal[1].contract.event_type.as_str(),
+        constants::tracking_config_update::CHILD_EVENT_TYPE
+    );
+    assert_eq!(
+        journal[2].contract.event_type.as_str(),
+        constants::tracking_config_update::APPLIED_EVENT_TYPE
     );
 }
 

@@ -37,6 +37,7 @@ export const AgentTrackingDurableSettingsStoreRefSchema = brandedNonEmptyStringS
 export const AgentTrackingConfigUpdateEventType = {
   Parent: EventingEventTypeSchema.parse('tracking.config.updated.parent'),
   Child: EventingEventTypeSchema.parse('tracking.config.updated.child'),
+  Applied: EventingEventTypeSchema.parse('tracking.config.applied.child'),
 } as const;
 
 export const AgentTrackingConfigUpdateTargetScopeLiteral = {
@@ -217,7 +218,11 @@ export const AgentTrackingExecutionClaimState = {
 } as const;
 
 export const AgentTrackingConfigUpdateEventNameSchema = withParser(
-  Schema.Literal(AgentTrackingConfigUpdateEventType.Parent, AgentTrackingConfigUpdateEventType.Child)
+  Schema.Literal(
+    AgentTrackingConfigUpdateEventType.Parent,
+    AgentTrackingConfigUpdateEventType.Child,
+    AgentTrackingConfigUpdateEventType.Applied
+  )
 );
 
 export const AgentTrackingConfigUpdateTargetScopeSchema = withParser(
@@ -283,6 +288,19 @@ export const ChildTrackingConfigUpdatedEventSchema = withParser(
     sourceCommandId: AgentTrackingRetentionCommandIdSchema,
     target: AgentTrackingConfigUpdateTargetSchema,
     config: AgentTrackingRetentionSettingsWriteRequestSchema,
+  })
+);
+
+export const TrackingConfigUpdateAppliedEventSchema = withParser(
+  Schema.Struct({
+    parentEventType: Schema.Literal(AgentTrackingConfigUpdateEventType.Parent),
+    childEventType: Schema.Literal(AgentTrackingConfigUpdateEventType.Child),
+    sourceCommandId: AgentTrackingRetentionCommandIdSchema,
+    target: AgentTrackingConfigUpdateTargetSchema,
+    responseState: AgentTrackingConfigUpdateResponseStateSchema,
+    effectiveTrackingState: AgentTrackingEffectiveStateSchema,
+    localServiceStateRevision: Schema.Number.pipe(Schema.int(), Schema.positive()),
+    durableSettingsPersistenceState: AgentTrackingDurableSettingsPersistenceStateSchema,
   })
 );
 
@@ -407,6 +425,7 @@ export type AgentTrackingConfigUpdateTargetScope = Infer<typeof AgentTrackingCon
 export type AgentTrackingConfigUpdateTarget = Infer<typeof AgentTrackingConfigUpdateTargetSchema>;
 export type ParentTrackingConfigUpdatedEvent = Infer<typeof ParentTrackingConfigUpdatedEventSchema>;
 export type ChildTrackingConfigUpdatedEvent = Infer<typeof ChildTrackingConfigUpdatedEventSchema>;
+export type TrackingConfigUpdateAppliedEvent = Infer<typeof TrackingConfigUpdateAppliedEventSchema>;
 export type TrackingConfigUpdateResponse = Infer<typeof TrackingConfigUpdateResponseSchema>;
 
 export function defaultAgentTrackingRetentionSettingsWriteRequest(): AgentTrackingRetentionSettingsWriteRequest {

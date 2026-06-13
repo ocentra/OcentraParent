@@ -27,6 +27,7 @@ pub enum TrackingConfigUpdateTargetScope {
 pub enum TrackingConfigUpdateEventName {
     Parent,
     Child,
+    Applied,
 }
 
 impl TrackingConfigUpdateEventName {
@@ -34,6 +35,7 @@ impl TrackingConfigUpdateEventName {
         match self {
             Self::Parent => constants::tracking_config_update::PARENT_EVENT_TYPE,
             Self::Child => constants::tracking_config_update::CHILD_EVENT_TYPE,
+            Self::Applied => constants::tracking_config_update::APPLIED_EVENT_TYPE,
         }
     }
 }
@@ -56,11 +58,13 @@ impl<'de> Deserialize<'de> for TrackingConfigUpdateEventName {
         match value.as_str() {
             constants::tracking_config_update::PARENT_EVENT_TYPE => Ok(Self::Parent),
             constants::tracking_config_update::CHILD_EVENT_TYPE => Ok(Self::Child),
+            constants::tracking_config_update::APPLIED_EVENT_TYPE => Ok(Self::Applied),
             _ => Err(serde::de::Error::unknown_variant(
                 value.as_str(),
                 &[
                     constants::tracking_config_update::PARENT_EVENT_TYPE,
                     constants::tracking_config_update::CHILD_EVENT_TYPE,
+                    constants::tracking_config_update::APPLIED_EVENT_TYPE,
                 ],
             )),
         }
@@ -194,6 +198,41 @@ impl DomainEvent for ChildTrackingConfigUpdatedEvent {
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
+pub struct TrackingConfigUpdateAppliedEvent {
+    pub parent_event_type: TrackingConfigUpdateEventName,
+    pub child_event_type: TrackingConfigUpdateEventName,
+    pub source_command_id: TrackingRetentionCommandId,
+    pub target: TrackingConfigUpdateTarget,
+    pub response_state: TrackingConfigUpdateResponseState,
+    pub effective_tracking_state: TrackingConfigEffectiveState,
+    pub local_service_state_revision: u64,
+    pub durable_settings_persistence_state: TrackingDurableSettingsPersistenceState,
+}
+
+impl DomainEvent for TrackingConfigUpdateAppliedEvent {
+    fn contract(&self) -> Result<EventContract, EventingError> {
+        Ok(EventContract::new(
+            EventType::parse(constants::tracking_config_update::APPLIED_EVENT_TYPE)?,
+            SchemaVersion::new(AGENT_PROTOCOL_SCHEMA_VERSION)?,
+        ))
+    }
+
+    fn aggregate_key(&self) -> Result<AggregateKey, EventingError> {
+        AggregateKey::parse(self.target.aggregate_key_text())
+    }
+
+    fn idempotency_key(&self) -> Result<IdempotencyKey, EventingError> {
+        IdempotencyKey::parse(format!(
+            "{}:{}:{}",
+            TrackingConfigUpdateEventName::Applied.as_contract_text(),
+            self.source_command_id,
+            self.target.aggregate_key_text()
+        ))
+    }
+}
+
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub struct TrackingConfigUpdateResponse {
     pub schema_version: u16,
     pub source_command_id: TrackingRetentionCommandId,
@@ -237,5 +276,24 @@ pub fn child_tracking_config_updated_event_from_parent(
         source_command_id: parent_event.source_command_id.clone(),
         target: parent_event.target.clone(),
         config: parent_event.config.clone(),
+    }
+}
+
+pub fn tracking_config_update_applied_event_from_child(
+    child_event: &ChildTrackingConfigUpdatedEvent,
+    response_state: TrackingConfigUpdateResponseState,
+    effective_tracking_state: TrackingConfigEffectiveState,
+    local_service_state_revision: u64,
+    durable_settings_persistence_state: TrackingDurableSettingsPersistenceState,
+) -> TrackingConfigUpdateAppliedEvent {
+    TrackingConfigUpdateAppliedEvent {
+        parent_event_type: child_event.parent_event_type.clone(),
+        child_event_type: TrackingConfigUpdateEventName::Child,
+        source_command_id: child_event.source_command_id.clone(),
+        target: child_event.target.clone(),
+        response_state,
+        effective_tracking_state,
+        local_service_state_revision,
+        durable_settings_persistence_state,
     }
 }
