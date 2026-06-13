@@ -1,15 +1,24 @@
 use ocentra_evidence::ManualReviewState;
 use ocentra_parent_agent_protocol::constants;
-use ocentra_tracking_core::TrackingLowPowerModeState;
+use ocentra_tracking_core::{
+    TrackingChargingState, TrackingConnectivityState, TrackingLowPowerModeState,
+    TrackingRadioState, TrackingRuntimeServiceState,
+};
 
 #[test]
 fn offline_device_state_remains_last_known_only_manual_required() {
     let decision = ocentra_tracking_core::evaluate_tracking_device_status(
         ocentra_tracking_core::TrackingDeviceStatusInput {
-            heartbeat_age_seconds: 901,
-            battery_percentage: 90,
+            last_heartbeat_age_seconds: 901,
+            last_location_sample_age_seconds: 60,
+            last_parent_sync_age_seconds: 60,
+            battery_percentage: Some(90),
+            charging_state: TrackingChargingState::Discharging,
             low_power_mode_state: TrackingLowPowerModeState::Inactive,
+            connectivity_state: TrackingConnectivityState::Online,
+            radio_state: TrackingRadioState::Enabled,
             pending_upload_count: 0,
+            service_state: TrackingRuntimeServiceState::Running,
         },
     );
 
@@ -18,4 +27,7 @@ fn offline_device_state_remains_last_known_only_manual_required() {
         constants::tracking_runtime::DEVICE_STATUS_OFFLINE_LAST_KNOWN_ONLY
     );
     assert_eq!(decision.manual_review_state, ManualReviewState::Required);
+    assert!(decision
+        .degraded_reasons
+        .contains(&constants::tracking_runtime::REASON_TRACKING_HEARTBEAT_STALE));
 }

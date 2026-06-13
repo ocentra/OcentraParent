@@ -1,42 +1,54 @@
 use ocentra_parent_agent_protocol::constants;
 use ocentra_tracking_core::{
-    TrackingPermissionState, TrackingPlatformBackgroundState,
+    TrackingBackgroundCapabilityState, TrackingPermissionState, TrackingPlatformState,
+    TrackingRuntimeServiceState,
 };
 
 #[test]
-fn tracking_capability_distinguishes_granted_degraded_and_manual_required() {
-    let granted = ocentra_tracking_core::evaluate_tracking_capability_status(
+fn tracking_capability_distinguishes_background_ready_and_permission_required_states() {
+    let background_ready = ocentra_tracking_core::evaluate_tracking_capability_status(
         ocentra_tracking_core::TrackingCapabilityStatusInput {
-            foreground_permission_state: TrackingPermissionState::Granted,
-            background_permission_state: TrackingPermissionState::Granted,
-            platform_background_state: TrackingPlatformBackgroundState::Supported,
+            permission_state: TrackingPermissionState::GrantedBackground,
+            platform_state: TrackingPlatformState::Android,
+            background_capability_state: TrackingBackgroundCapabilityState::Ready,
+            strict_background_required: false,
+            service_state: TrackingRuntimeServiceState::Running,
+            device_status: constants::tracking_runtime::DEVICE_STATUS_LIVE,
         },
     );
-    let degraded = ocentra_tracking_core::evaluate_tracking_capability_status(
+    let background_permission_required = ocentra_tracking_core::evaluate_tracking_capability_status(
         ocentra_tracking_core::TrackingCapabilityStatusInput {
-            foreground_permission_state: TrackingPermissionState::Granted,
-            background_permission_state: TrackingPermissionState::Missing,
-            platform_background_state: TrackingPlatformBackgroundState::Supported,
+            permission_state: TrackingPermissionState::GrantedForeground,
+            platform_state: TrackingPlatformState::Android,
+            background_capability_state: TrackingBackgroundCapabilityState::PermissionRequired,
+            strict_background_required: true,
+            service_state: TrackingRuntimeServiceState::Running,
+            device_status: constants::tracking_runtime::DEVICE_STATUS_LIVE,
         },
     );
-    let manual = ocentra_tracking_core::evaluate_tracking_capability_status(
+    let manual_required = ocentra_tracking_core::evaluate_tracking_capability_status(
         ocentra_tracking_core::TrackingCapabilityStatusInput {
-            foreground_permission_state: TrackingPermissionState::Missing,
-            background_permission_state: TrackingPermissionState::Granted,
-            platform_background_state: TrackingPlatformBackgroundState::Supported,
+            permission_state: TrackingPermissionState::ManualRequired,
+            platform_state: TrackingPlatformState::ManagedDevice,
+            background_capability_state: TrackingBackgroundCapabilityState::ManagedDeviceRequired,
+            strict_background_required: false,
+            service_state: TrackingRuntimeServiceState::Running,
+            device_status: constants::tracking_runtime::DEVICE_STATUS_LIVE,
         },
     );
 
     assert_eq!(
-        granted.capability_status,
-        constants::tracking_runtime::CAPABILITY_STATUS_GRANTED
+        background_ready.capability_status,
+        constants::tracking_runtime::CAPABILITY_STATUS_BACKGROUND_READY
     );
     assert_eq!(
-        degraded.capability_status,
-        constants::tracking_runtime::CAPABILITY_STATUS_DEGRADED
+        background_permission_required.capability_status,
+        constants::tracking_runtime::CAPABILITY_STATUS_BACKGROUND_PERMISSION_REQUIRED
     );
     assert_eq!(
-        manual.capability_status,
+        manual_required.capability_status,
         constants::tracking_runtime::CAPABILITY_STATUS_MANUAL_REQUIRED
     );
+    assert!(background_permission_required.manual_action_required);
+    assert!(manual_required.manual_action_required);
 }

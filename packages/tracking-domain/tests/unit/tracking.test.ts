@@ -50,7 +50,11 @@ describe('tracking evidence contracts', () => {
     expect(readModel.locationRows[0]?.custodyLabel).toBe('child-device-local');
   });
 
-  it('parses background-permission and unsupported tracking capability states', () => {
+  it('parses foreground, background, and degraded tracking capability states', () => {
+    expect(TrackingCapabilityStatusSchema.parse('foreground-only')).toBe('foreground-only');
+    expect(TrackingCapabilityStatusSchema.parse('background-ready')).toBe('background-ready');
+    expect(TrackingCapabilityStatusSchema.parse('approximate-only')).toBe('approximate-only');
+    expect(TrackingCapabilityStatusSchema.parse('permission-required')).toBe('permission-required');
     expect(TrackingCapabilityStatusSchema.parse('background-permission-required')).toBe(
       'background-permission-required'
     );
