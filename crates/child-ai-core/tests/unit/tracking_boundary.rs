@@ -1,3 +1,4 @@
+use ocentra_eventing::EventingError;
 use ocentra_evidence::PrivatePayloadState;
 use ocentra_parent_agent_protocol::{
     constants, TrackingAiAnalysisRequestedEvent, TrackingAiPurpose, TrackingAiRequestId,
@@ -42,7 +43,8 @@ fn tracking_ai_request_fixture() -> TrackingAiAnalysisRequestedEvent {
 fn tracking_ai_classification_preserves_request_evidence_refs() {
     let request = tracking_ai_request_fixture();
 
-    let result = ocentra_child_ai_core::classify_tracking_nearby_place(&request);
+    let result =
+        ocentra_child_ai_core::classify_tracking_nearby_place(&request).expect("valid request");
 
     assert_eq!(result.child_device_id, request.child_device_id);
     assert_eq!(result.child_profile_id, request.child_profile_id);
@@ -55,5 +57,75 @@ fn tracking_ai_classification_preserves_request_evidence_refs() {
     assert_eq!(
         result.confidence_basis,
         constants::tracking_runtime::CONFIDENCE_BASIS_AI_BOUNDARY_CONTRACT
+    );
+}
+
+#[test]
+fn tracking_ai_classification_rejects_unsupported_analysis_purpose() {
+    let mut request = tracking_ai_request_fixture();
+    request.allowed_analysis_purpose = TrackingAiPurpose::parse("unsupported-purpose")
+        .expect("unsupported purpose literal should still parse");
+
+    let error =
+        ocentra_child_ai_core::classify_tracking_nearby_place(&request).expect_err("must reject");
+
+    assert_eq!(
+        error,
+        EventingError::InvalidValue {
+            field: "tracking.allowed_analysis_purpose",
+            value: String::from("unsupported-purpose"),
+        }
+    );
+}
+
+#[test]
+fn tracking_ai_classification_rejects_unexpected_uncertainty_code() {
+    let mut request = tracking_ai_request_fixture();
+    request.uncertainty_code = TrackingUncertaintyCode::parse("unexpected-uncertainty")
+        .expect("unexpected uncertainty literal should still parse");
+
+    let error =
+        ocentra_child_ai_core::classify_tracking_nearby_place(&request).expect_err("must reject");
+
+    assert_eq!(
+        error,
+        EventingError::InvalidValue {
+            field: "tracking.uncertainty_code",
+            value: String::from("unexpected-uncertainty"),
+        }
+    );
+}
+
+#[test]
+fn tracking_ai_classification_rejects_private_payload_inclusion() {
+    let mut request = tracking_ai_request_fixture();
+    request.private_payload_state = PrivatePayloadState::Included;
+
+    let error =
+        ocentra_child_ai_core::classify_tracking_nearby_place(&request).expect_err("must reject");
+
+    assert_eq!(
+        error,
+        EventingError::InvalidValue {
+            field: "tracking.private_payload_state",
+            value: String::from("Included"),
+        }
+    );
+}
+
+#[test]
+fn tracking_ai_classification_rejects_missing_evidence_refs() {
+    let mut request = tracking_ai_request_fixture();
+    request.evidence_refs.clear();
+
+    let error =
+        ocentra_child_ai_core::classify_tracking_nearby_place(&request).expect_err("must reject");
+
+    assert_eq!(
+        error,
+        EventingError::InvalidValue {
+            field: "tracking.evidence_refs",
+            value: String::from("empty"),
+        }
     );
 }
