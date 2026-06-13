@@ -74,9 +74,11 @@ pub use runtime_flow::{
 };
 pub use status::{
     evaluate_tracking_capability_status, evaluate_tracking_device_status,
-    TrackingCapabilityAvailabilityState, TrackingCapabilityStatusDecision,
-    TrackingCapabilityStatusInput, TrackingDeviceStatusDecision, TrackingDeviceStatusInput,
-    TrackingLowPowerModeState, TrackingPermissionState, TrackingPlatformBackgroundState,
+    TrackingBackgroundCapabilityState, TrackingCapabilityAvailabilityState,
+    TrackingCapabilityStatusDecision, TrackingCapabilityStatusInput, TrackingChargingState,
+    TrackingConnectivityState, TrackingDeviceStatusDecision, TrackingDeviceStatusInput,
+    TrackingLowPowerModeState, TrackingPermissionState, TrackingPlatformState, TrackingRadioState,
+    TrackingRuntimeServiceState,
 };
 pub use temporary_live::{
     evaluate_temporary_live_tracking_session, TrackingHighCadenceState,
