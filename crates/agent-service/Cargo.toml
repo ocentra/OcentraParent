@@ -20,6 +20,7 @@ ocentra-child-runtime = { path = "../child-runtime" }
 ocentra-eventing = { path = "../ocentra-eventing" }
 ocentra-parent-runtime-core = { path = "../parent-runtime-core" }
 ocentra-parent-screen-capture-adapter = { path = "../screen-capture-adapter" }
+ocentra-screen-live-view-core = { path = "../screen-live-view-core" }
 ocentra-network-evidence = { path = "../ocentra-network-evidence" }
 serde = { version = "1.0.228", features = ["derive"] }
 serde_json = "1.0.145"
