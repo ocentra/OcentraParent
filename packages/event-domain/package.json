@@ -5,6 +5,10 @@
   "type": "module",
   "description": "Shared event, message, peer, and route identity contracts for UI-facing schemas and runtime protocol handoff.",
   "exports": {
+    "./eventing": {
+      "import": "./dist/eventing.js",
+      "types": "./dist/eventing.d.ts"
+    },
     "./primitives": {
       "import": "./dist/primitives.js",
       "types": "./dist/primitives.d.ts"

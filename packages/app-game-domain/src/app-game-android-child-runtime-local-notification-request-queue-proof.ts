@@ -1,7 +1,10 @@
-import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
+import {
+  type Infer,
+  Schema,
+  withParser,
+  brandedNonEmptyStringSchema
+} from '@ocentra-parent/schema-domain/effect';
 import { ParentTimestampSchema } from '@ocentra-parent/family-domain/reference-primitives';
-
-const LocalRequestQueueText = Schema.String.pipe(Schema.minLength(1));
 
 export const AppGameAndroidChildRuntimeLocalNotificationRequestQueueProofSchemaVersionSchema = withParser(
   Schema.Literal('app-game-android-child-runtime-local-notification-request-queue-proof')
@@ -40,9 +43,7 @@ export const AppGameAndroidChildRuntimeLocalNotificationRequestQueueGapSchema = 
   )
 );
 
-const LocalRequestQueueLabelSchema = LocalRequestQueueText.pipe(
-  Schema.brand('AppGameAndroidChildRuntimeLocalNotificationRequestQueueProofLabel')
-);
+const LocalRequestQueueLabelSchema = brandedNonEmptyStringSchema('AppGameAndroidChildRuntimeLocalNotificationRequestQueueProofLabel');
 
 const AppGameAndroidChildRuntimeLocalNotificationRequestQueueProofBaseSchema = Schema.Struct({
   schemaVersion: AppGameAndroidChildRuntimeLocalNotificationRequestQueueProofSchemaVersionSchema,
@@ -157,3 +158,4 @@ function localRequestQueueProofIsHonest(proof: LocalRequestQueueCandidate): bool
     proof.openGaps.includes('platform-enforcement-not-proved')
   );
 }
+

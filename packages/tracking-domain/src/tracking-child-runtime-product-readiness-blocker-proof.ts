@@ -1,4 +1,10 @@
-import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
+import {
+  type Infer,
+  Schema,
+  withParser,
+  brandedNonEmptyStringSchema,
+  NonEmptyStringSchema
+} from '@ocentra-parent/schema-domain/effect';
 import { ParentTimestampSchema } from '@ocentra-parent/family-domain/reference-primitives';
 import {
   TrackingChildRuntimeSnapshotRequirementsReadModelSchema,
@@ -8,14 +14,10 @@ import { TrackingChildRuntimeAndroidEmulatorBridgeProofSchema } from './tracking
 import { TrackingParentChildLocalRuntimeBridgeProofSchema } from './tracking-parent-child-local-runtime-bridge-proof';
 import { TrackingPolicyAuditRefSchema, TrackingPolicySchemaVersion } from './tracking-location-policy-primitives';
 import { TrackingRetentionSettingsProofRefSchema } from './tracking-retention-settings-read-model-proof';
-
-const TrackingChildRuntimeProductReadinessTextSchema = Schema.String.pipe(Schema.minLength(1));
 const TrackingChildRuntimeProductReadinessCounterSchema = Schema.Number.pipe(Schema.int(), Schema.nonNegative());
 
 export const TrackingChildRuntimeProductReadinessBlockerProofIdSchema =
-  TrackingChildRuntimeProductReadinessTextSchema.pipe(
-    Schema.brand('TrackingChildRuntimeProductReadinessBlockerProofId')
-  );
+  brandedNonEmptyStringSchema('TrackingChildRuntimeProductReadinessBlockerProofId');
 
 export const TrackingChildRuntimeProductReadinessBlockerSchema = Schema.Literal(
   'child-device-delivery-runtime-proof-required',
@@ -44,12 +46,12 @@ const TrackingChildRuntimeProductReadinessBlockerRowBaseSchema = Schema.Struct({
   sourceSnapshotRequirementsProofRef: TrackingRetentionSettingsProofRefSchema,
   sourceAndroidEmulatorBridgeProofRef: TrackingRetentionSettingsProofRefSchema,
   sourceParentChildLocalRuntimeBridgeProofRef: TrackingRetentionSettingsProofRefSchema,
-  sourceCheckInId: TrackingChildRuntimeProductReadinessTextSchema,
-  sourceSnapshotRequirementRowId: TrackingChildRuntimeProductReadinessTextSchema,
-  sourceAndroidEmulatorBridgeRowId: TrackingChildRuntimeProductReadinessTextSchema,
-  sourceParentChildLocalRuntimeBridgeRowId: TrackingChildRuntimeProductReadinessTextSchema,
+  sourceCheckInId: NonEmptyStringSchema,
+  sourceSnapshotRequirementRowId: NonEmptyStringSchema,
+  sourceAndroidEmulatorBridgeRowId: NonEmptyStringSchema,
+  sourceParentChildLocalRuntimeBridgeRowId: NonEmptyStringSchema,
   auditRefs: Schema.Array(TrackingPolicyAuditRefSchema),
-  deliveryEnvelopeRef: TrackingChildRuntimeProductReadinessTextSchema,
+  deliveryEnvelopeRef: NonEmptyStringSchema,
   executionResultRequirementRefCount: TrackingChildRuntimeProductReadinessCounterSchema,
   visibleSnapshotRequirementRefCount: TrackingChildRuntimeProductReadinessCounterSchema,
   parentReceiptRequirementRefCount: TrackingChildRuntimeProductReadinessCounterSchema,
@@ -64,9 +66,9 @@ const TrackingChildRuntimeProductReadinessBlockerRowBaseSchema = Schema.Struct({
   parentChildLocalRuntimeStoredEventCount: TrackingChildRuntimeProductReadinessCounterSchema,
   parentChildLocalRuntimeDeadLetterCount: Schema.Literal(0),
   parentChildLocalRuntimeChildAgentPhaseCount: TrackingChildRuntimeProductReadinessCounterSchema,
-  childRuntimeRequiredArtifacts: Schema.Array(TrackingChildRuntimeProductReadinessTextSchema),
-  childRuntimePresentArtifacts: Schema.Array(TrackingChildRuntimeProductReadinessTextSchema),
-  childRuntimeMissingArtifacts: Schema.Array(TrackingChildRuntimeProductReadinessTextSchema),
+  childRuntimeRequiredArtifacts: Schema.Array(NonEmptyStringSchema),
+  childRuntimePresentArtifacts: Schema.Array(NonEmptyStringSchema),
+  childRuntimeMissingArtifacts: Schema.Array(NonEmptyStringSchema),
   childRuntimeRequiredArtifactCount: TrackingChildRuntimeProductReadinessCounterSchema,
   childRuntimePresentArtifactCount: TrackingChildRuntimeProductReadinessCounterSchema,
   childRuntimeMissingArtifactCount: TrackingChildRuntimeProductReadinessCounterSchema,
@@ -109,9 +111,9 @@ export const TrackingChildRuntimeProductReadinessBlockerProofSchema = withParser
     sourceSnapshotRequirementsProofRef: TrackingRetentionSettingsProofRefSchema,
     sourceAndroidEmulatorBridgeProofRef: TrackingRetentionSettingsProofRefSchema,
     sourceParentChildLocalRuntimeBridgeProofRef: TrackingRetentionSettingsProofRefSchema,
-    sourceSnapshotRequirementsStatus: TrackingChildRuntimeProductReadinessTextSchema,
-    sourceAndroidEmulatorBridgeStatus: TrackingChildRuntimeProductReadinessTextSchema,
-    sourceParentChildLocalRuntimeBridgeStatus: TrackingChildRuntimeProductReadinessTextSchema,
+    sourceSnapshotRequirementsStatus: NonEmptyStringSchema,
+    sourceAndroidEmulatorBridgeStatus: NonEmptyStringSchema,
+    sourceParentChildLocalRuntimeBridgeStatus: NonEmptyStringSchema,
     childRuntimeRequiredArtifactCount: TrackingChildRuntimeProductReadinessCounterSchema,
     childRuntimePresentArtifactCount: TrackingChildRuntimeProductReadinessCounterSchema,
     childRuntimeMissingArtifactCount: TrackingChildRuntimeProductReadinessCounterSchema,
@@ -467,3 +469,4 @@ function trackingChildRuntimeProductReadinessBlockerRowNonClaimsAreHonest(
     row.productReadyClaimed === false
   );
 }
+

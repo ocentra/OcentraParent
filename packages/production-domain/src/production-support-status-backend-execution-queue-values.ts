@@ -1,6 +1,8 @@
-import { Schema, withParser } from '@ocentra-parent/schema-domain/effect';
-
-const NonEmptyStatusBackendExecutionQueueText = Schema.String.pipe(Schema.minLength(1));
+import {
+  Schema,
+  withParser,
+  brandedNonEmptyStringSchema
+} from '@ocentra-parent/schema-domain/effect';
 
 export const ProductionSupportStatusBackendExecutionQueueSchemaVersionSchema = withParser(
   Schema.Literal('production-support-status-backend-execution-queue-proof')
@@ -92,12 +94,8 @@ export const ProductionSupportStatusBackendExecutionQueueNonClaimSchema = withPa
   )
 );
 
-export const StatusBackendExecutionQueueReferenceSchema = NonEmptyStatusBackendExecutionQueueText.pipe(
-  Schema.brand('ProductionSupportStatusBackendExecutionQueueReference')
-);
-export const StatusBackendExecutionQueueManualRequirementSchema = NonEmptyStatusBackendExecutionQueueText.pipe(
-  Schema.brand('ProductionSupportStatusBackendExecutionQueueManualRequirement')
-);
+export const StatusBackendExecutionQueueReferenceSchema = brandedNonEmptyStringSchema('ProductionSupportStatusBackendExecutionQueueReference');
+export const StatusBackendExecutionQueueManualRequirementSchema = brandedNonEmptyStringSchema('ProductionSupportStatusBackendExecutionQueueManualRequirement');
 
 export const ForbiddenStatusBackendExecutionQueueDataClasses = [
   'child-activity-evidence',
@@ -146,3 +144,4 @@ export const RequiredStatusBackendExecutionQueueNonClaims = [
   'no-provider-secret-custody',
   'no-status-backend-payload-custody',
 ] as const;
+

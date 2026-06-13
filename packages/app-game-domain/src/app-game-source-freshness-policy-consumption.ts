@@ -1,4 +1,9 @@
-import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
+import {
+  type Infer,
+  Schema,
+  withParser,
+  brandedNonEmptyStringSchema
+} from '@ocentra-parent/schema-domain/effect';
 import {
   appGameSourceFreshnessReadinessIsPolicyReady,
   appGameSourceFreshnessRequirementFailure,
@@ -18,8 +23,6 @@ import {
   AppGameSourceFreshnessSourceKind,
 } from './app-game-source-freshness-policy-consumption-values';
 import { ParentContractSchemaVersionSchema, ParentTimestampSchema } from '@ocentra-parent/family-domain/reference-primitives';
-
-const NonEmptySourceFreshnessText = Schema.String.pipe(Schema.minLength(1));
 const NonNegativeSourceFreshnessNumber = Schema.Number.pipe(
   Schema.filter((value) => (Number.isFinite(value) && value >= 0) || 'Expected a non-negative finite number')
 );
@@ -27,21 +30,11 @@ const PositiveSourceFreshnessNumber = Schema.Number.pipe(
   Schema.filter((value) => (Number.isFinite(value) && value > 0) || 'Expected a positive finite number')
 );
 
-export const AppGameSourceFreshnessPolicyRequestIdSchema = NonEmptySourceFreshnessText.pipe(
-  Schema.brand('AppGameSourceFreshnessPolicyRequestId')
-);
-export const AppGameSourceFreshnessPolicyReadinessIdSchema = NonEmptySourceFreshnessText.pipe(
-  Schema.brand('AppGameSourceFreshnessPolicyReadinessId')
-);
-export const AppGameSourceFreshnessTargetRefSchema = NonEmptySourceFreshnessText.pipe(
-  Schema.brand('AppGameSourceFreshnessTargetRef')
-);
-export const AppGameSourceFreshnessEvidenceRefSchema = NonEmptySourceFreshnessText.pipe(
-  Schema.brand('AppGameSourceFreshnessEvidenceRef')
-);
-export const AppGameSourceFreshnessMatrixIdSchema = NonEmptySourceFreshnessText.pipe(
-  Schema.brand('AppGameSourceFreshnessMatrixId')
-);
+export const AppGameSourceFreshnessPolicyRequestIdSchema = brandedNonEmptyStringSchema('AppGameSourceFreshnessPolicyRequestId');
+export const AppGameSourceFreshnessPolicyReadinessIdSchema = brandedNonEmptyStringSchema('AppGameSourceFreshnessPolicyReadinessId');
+export const AppGameSourceFreshnessTargetRefSchema = brandedNonEmptyStringSchema('AppGameSourceFreshnessTargetRef');
+export const AppGameSourceFreshnessEvidenceRefSchema = brandedNonEmptyStringSchema('AppGameSourceFreshnessEvidenceRef');
+export const AppGameSourceFreshnessMatrixIdSchema = brandedNonEmptyStringSchema('AppGameSourceFreshnessMatrixId');
 
 export const AppGameSourceFreshnessPolicyTargetKindSchema = withParser(
   Schema.Literal(...Object.values(AppGameSourceFreshnessPolicyTargetKind))
@@ -312,3 +305,4 @@ export const decodeAppGameSourceFreshnessPolicyReadiness = Schema.decodeUnknownS
 export const decodeAppGameSourceFreshnessPolicyConsumptionMatrix = Schema.decodeUnknownSync(
   AppGameSourceFreshnessPolicyConsumptionMatrixSchema
 );
+

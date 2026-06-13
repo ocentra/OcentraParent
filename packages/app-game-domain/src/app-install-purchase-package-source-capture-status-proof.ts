@@ -1,9 +1,12 @@
-import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
+import {
+  type Infer,
+  Schema,
+  withParser,
+  brandedNonEmptyStringSchema
+} from '@ocentra-parent/schema-domain/effect';
 import { AppInstallPurchaseChildArtifactDeliveryProofReadModel } from './app-install-purchase-child-artifact-delivery-proof';
 import { AppInstallPurchaseStoreStatusHandoffProofReadModel } from './app-install-purchase-store-status-handoff-proof';
 import { ParentPlatformSchema, ParentTimestampSchema } from '@ocentra-parent/family-domain/reference-primitives';
-
-const PackageSourceCaptureText = Schema.String.pipe(Schema.minLength(1));
 const PackageSourceCaptureProofVersion = 'app-install-purchase-package-source-capture-status-proof';
 const SourceChildArtifactDeliveryProofVersion = 'app-install-purchase-child-artifact-delivery-proof';
 const SourceStoreStatusHandoffProofVersion = 'app-install-purchase-store-status-handoff-proof';
@@ -122,24 +125,12 @@ const AppInstallPurchasePackageSourceCaptureNonClaimSchema = withParser(
   Schema.Literal(...PackageSourceCaptureNonClaims)
 );
 
-const PackageSourceCaptureRowIdSchema = PackageSourceCaptureText.pipe(
-  Schema.brand('AppInstallPurchasePackageSourceCaptureRowId')
-);
-const PackageSourceCaptureSourceRowIdSchema = PackageSourceCaptureText.pipe(
-  Schema.brand('AppInstallPurchasePackageSourceCaptureSourceRowId')
-);
-const PackageSourceCaptureRefSchema = PackageSourceCaptureText.pipe(
-  Schema.brand('AppInstallPurchasePackageSourceCaptureRef')
-);
-const PackageSourceCaptureAuditRefSchema = PackageSourceCaptureText.pipe(
-  Schema.brand('AppInstallPurchasePackageSourceCaptureAuditRef')
-);
-const PackageSourceCaptureReportRefSchema = PackageSourceCaptureText.pipe(
-  Schema.brand('AppInstallPurchasePackageSourceCaptureReportRef')
-);
-const PackageSourceCaptureClaimBoundarySchema = PackageSourceCaptureText.pipe(
-  Schema.brand('AppInstallPurchasePackageSourceCaptureClaimBoundary')
-);
+const PackageSourceCaptureRowIdSchema = brandedNonEmptyStringSchema('AppInstallPurchasePackageSourceCaptureRowId');
+const PackageSourceCaptureSourceRowIdSchema = brandedNonEmptyStringSchema('AppInstallPurchasePackageSourceCaptureSourceRowId');
+const PackageSourceCaptureRefSchema = brandedNonEmptyStringSchema('AppInstallPurchasePackageSourceCaptureRef');
+const PackageSourceCaptureAuditRefSchema = brandedNonEmptyStringSchema('AppInstallPurchasePackageSourceCaptureAuditRef');
+const PackageSourceCaptureReportRefSchema = brandedNonEmptyStringSchema('AppInstallPurchasePackageSourceCaptureReportRef');
+const PackageSourceCaptureClaimBoundarySchema = brandedNonEmptyStringSchema('AppInstallPurchasePackageSourceCaptureClaimBoundary');
 
 const PackageSourceCaptureRowBaseSchema = Schema.Struct({
   schemaVersion: AppInstallPurchasePackageSourceCaptureStatusProofSchemaVersionSchema,
@@ -450,3 +441,4 @@ function packageSourceCaptureBoundaryIsExplicit(
     boundary.includes('no Ocentra-hosted family data custody')
   );
 }
+

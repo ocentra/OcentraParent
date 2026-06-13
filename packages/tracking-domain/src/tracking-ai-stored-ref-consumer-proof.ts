@@ -1,4 +1,9 @@
-import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
+import {
+  type Infer,
+  Schema,
+  withParser,
+  brandedNonEmptyStringSchema
+} from '@ocentra-parent/schema-domain/effect';
 import { ParentTimestampSchema } from '@ocentra-parent/family-domain/reference-primitives';
 import { buildTrackingAiProviderRoutingProofRows } from './tracking-ai-provider-routing-proof';
 import {
@@ -8,23 +13,13 @@ import {
 } from './tracking-location-policy';
 import { TrackingPolicyAuditRefSchema, TrackingPolicyReasonCodeSchema } from './tracking-location-policy-primitives';
 
-const TrackingAiStoredRefConsumerTextSchema = Schema.String.pipe(Schema.minLength(1));
+export const TrackingAiStoredRefConsumerRowIdSchema = brandedNonEmptyStringSchema('TrackingAiStoredRefConsumerRowId');
 
-export const TrackingAiStoredRefConsumerRowIdSchema = TrackingAiStoredRefConsumerTextSchema.pipe(
-  Schema.brand('TrackingAiStoredRefConsumerRowId')
-);
+export const TrackingAiStoredRefConsumerProofRefSchema = brandedNonEmptyStringSchema('TrackingAiStoredRefConsumerProofRef');
 
-export const TrackingAiStoredRefConsumerProofRefSchema = TrackingAiStoredRefConsumerTextSchema.pipe(
-  Schema.brand('TrackingAiStoredRefConsumerProofRef')
-);
+export const TrackingAiStoredRefConsumerJournalRefSchema = brandedNonEmptyStringSchema('TrackingAiStoredRefConsumerJournalRef');
 
-export const TrackingAiStoredRefConsumerJournalRefSchema = TrackingAiStoredRefConsumerTextSchema.pipe(
-  Schema.brand('TrackingAiStoredRefConsumerJournalRef')
-);
-
-export const TrackingAiStoredRefConsumerReadModelRefSchema = TrackingAiStoredRefConsumerTextSchema.pipe(
-  Schema.brand('TrackingAiStoredRefConsumerReadModelRef')
-);
+export const TrackingAiStoredRefConsumerReadModelRefSchema = brandedNonEmptyStringSchema('TrackingAiStoredRefConsumerReadModelRef');
 
 export const TrackingAiStoredRefConsumerKindSchema = withParser(
   Schema.Literal('ai-parent-report-context', 'ai-policy-drill-in-context', 'ai-metadata-fallback-context')
@@ -261,3 +256,4 @@ function evidence(
     observedAt,
   });
 }
+

@@ -1,11 +1,12 @@
-import { Schema } from '@ocentra-parent/schema-domain/effect';
+import {
+  Schema,
+  brandedNonEmptyStringSchema
+} from '@ocentra-parent/schema-domain/effect';
 
-const NonEmptyJournalText = Schema.String.pipe(Schema.minLength(1));
-
-export const ActivityJournalCiphertextSchema = NonEmptyJournalText.pipe(Schema.brand('ActivityJournalCiphertext'));
-export const ActivityJournalEntryIdSchema = NonEmptyJournalText.pipe(Schema.brand('ActivityJournalEntryId'));
-export const ActivityJournalNonceSchema = NonEmptyJournalText.pipe(Schema.brand('ActivityJournalNonce'));
-export const ActivityJournalSegmentIdSchema = NonEmptyJournalText.pipe(Schema.brand('ActivityJournalSegmentId'));
+export const ActivityJournalCiphertextSchema = brandedNonEmptyStringSchema('ActivityJournalCiphertext');
+export const ActivityJournalEntryIdSchema = brandedNonEmptyStringSchema('ActivityJournalEntryId');
+export const ActivityJournalNonceSchema = brandedNonEmptyStringSchema('ActivityJournalNonce');
+export const ActivityJournalSegmentIdSchema = brandedNonEmptyStringSchema('ActivityJournalSegmentId');
 
 export type ActivityJournalCiphertext = typeof ActivityJournalCiphertextSchema.Type;
 export type ActivityJournalEntryId = typeof ActivityJournalEntryIdSchema.Type;
@@ -16,3 +17,4 @@ export const decodeActivityJournalCiphertext = Schema.decodeUnknownSync(Activity
 export const decodeActivityJournalEntryId = Schema.decodeUnknownSync(ActivityJournalEntryIdSchema);
 export const decodeActivityJournalNonce = Schema.decodeUnknownSync(ActivityJournalNonceSchema);
 export const decodeActivityJournalSegmentId = Schema.decodeUnknownSync(ActivityJournalSegmentIdSchema);
+

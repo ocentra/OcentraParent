@@ -1,11 +1,15 @@
-import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
+import {
+  type Infer,
+  Schema,
+  withParser,
+  brandedNonEmptyStringSchema,
+  NonEmptyStringSchema
+} from '@ocentra-parent/schema-domain/effect';
 import {
   ParentContractSchemaVersion,
   ParentContractSchemaVersionSchema,
   ParentTimestampSchema,
 } from '@ocentra-parent/family-domain/reference-primitives';
-
-const TrackingLocalPlatformProofBatchText = Schema.String.pipe(Schema.minLength(1));
 
 export const TrackingLocalPlatformProofBatchAreaSchema = withParser(
   Schema.Literal(
@@ -24,13 +28,11 @@ export const TrackingLocalPlatformProofBatchStatusSchema = withParser(
   Schema.Literal('local-proof-passed', 'manual-required')
 );
 
-export const TrackingLocalPlatformProofBatchRefSchema = TrackingLocalPlatformProofBatchText.pipe(
-  Schema.brand('TrackingLocalPlatformProofBatchRef')
-);
+export const TrackingLocalPlatformProofBatchRefSchema = brandedNonEmptyStringSchema('TrackingLocalPlatformProofBatchRef');
 
 export const TrackingLocalPlatformProofBatchMetricSchema = withParser(
   Schema.Struct({
-    name: TrackingLocalPlatformProofBatchText,
+    name: NonEmptyStringSchema,
     value: Schema.Number.pipe(Schema.int(), Schema.nonNegative()),
   })
 );
@@ -43,10 +45,10 @@ export const TrackingLocalPlatformProofBatchRowSchema = withParser(
     generatedAt: ParentTimestampSchema,
     proofRef: TrackingLocalPlatformProofBatchRefSchema,
     sourceRefs: Schema.Array(TrackingLocalPlatformProofBatchRefSchema),
-    currentProofTier: TrackingLocalPlatformProofBatchText,
-    requiredProofTier: TrackingLocalPlatformProofBatchText,
-    passedLocalAssertions: Schema.Array(TrackingLocalPlatformProofBatchText),
-    remainingBlockers: Schema.Array(TrackingLocalPlatformProofBatchText),
+    currentProofTier: NonEmptyStringSchema,
+    requiredProofTier: NonEmptyStringSchema,
+    passedLocalAssertions: Schema.Array(NonEmptyStringSchema),
+    remainingBlockers: Schema.Array(NonEmptyStringSchema),
     metrics: Schema.Array(TrackingLocalPlatformProofBatchMetricSchema),
     ciRunnable: Schema.Boolean,
     physicalDeviceClaimed: Schema.Literal(false),
@@ -240,3 +242,4 @@ function row(generatedAt: string, input: TrackingLocalPlatformProofBatchRowInput
 function uniqueRefs(refs: readonly string[]): readonly string[] {
   return [...new Set(refs.filter((ref) => ref.length > 0))];
 }
+

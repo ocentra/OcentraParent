@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 import {
   ScreenAiEnforcementHandoffGuardInputSchema,
   ScreenAiEnforcementHandoffGuardPayloadSchema,
+  ScreenAiEnforcementHandoffAcceptedEventType,
   buildScreenAiEnforcementHandoffGuardPayload,
 } from '../../src/screen-ai-enforcement-handoff-guard-proof';
 
@@ -33,7 +34,7 @@ describe('screen AI enforcement handoff guard proof', () => {
     expect(payload.summaryReference).toEqual(SummaryReference);
     expect(payload.localAiResultReference).toEqual(LocalAiResultReference);
     expect(payload.auditReference).toEqual(AuditReference);
-    expect(payload.auditEvent.eventType).toBe('screen.enforcement.handoff.guard.accepted');
+    expect(payload.auditEvent.eventType).toBe(ScreenAiEnforcementHandoffAcceptedEventType);
     expect(payload.rawPixelsIncluded).toBe(false);
     expect(payload.rawModelTextIncluded).toBe(false);
     expect(payload.rawScreenshotRetained).toBe(false);
@@ -113,7 +114,7 @@ function validInput() {
     inputMaterial: inputMaterial(),
     auditEvent: {
       auditEventId: 'screen-ai-enforcement-handoff-school-research-audit',
-      eventType: 'screen.enforcement.handoff.guard.accepted',
+      eventType: ScreenAiEnforcementHandoffAcceptedEventType,
       emittedAt: GeneratedAt,
       evidenceReference: AuditReference,
     },

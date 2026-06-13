@@ -1,20 +1,24 @@
-import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
+import {
+  type Infer,
+  Schema,
+  withParser,
+  brandedNonEmptyStringSchema,
+  NonEmptyStringSchema
+} from '@ocentra-parent/schema-domain/effect';
 import { BrowserEvidenceSchemaVersion } from './browser-schemas';
 import { ActivityTimestampSchema } from '@ocentra-parent/evidence-domain/primitives';
-
-const AndroidOwnedShellUrlCustodyText = Schema.String.pipe(Schema.minLength(1));
 
 export const BrowserAndroidOwnedShellUrlCustodyStateSchema = withParser(
   Schema.Literal('physical-owned-shell-request-url-ref', 'manual-required')
 );
 export const BrowserAndroidOwnedShellUrlCustodyProofRefSchema = withParser(
-  AndroidOwnedShellUrlCustodyText.pipe(Schema.brand('BrowserAndroidOwnedShellUrlCustodyProofRef'))
+  brandedNonEmptyStringSchema('BrowserAndroidOwnedShellUrlCustodyProofRef')
 );
 export const BrowserAndroidOwnedShellRequestedUrlRefSchema = withParser(
-  AndroidOwnedShellUrlCustodyText.pipe(Schema.brand('BrowserAndroidOwnedShellRequestedUrlRef'))
+  brandedNonEmptyStringSchema('BrowserAndroidOwnedShellRequestedUrlRef')
 );
 export const BrowserAndroidOwnedShellUrlCustodyReasonSchema = withParser(
-  AndroidOwnedShellUrlCustodyText.pipe(Schema.brand('BrowserAndroidOwnedShellUrlCustodyReason'))
+  brandedNonEmptyStringSchema('BrowserAndroidOwnedShellUrlCustodyReason')
 );
 
 const BrowserAndroidOwnedShellUrlCustodyDeviceSchema = Schema.Struct({
@@ -49,7 +53,7 @@ const BrowserAndroidOwnedShellUrlCustodyProofSchema = withParser(
     schemaVersion: Schema.Literal(1),
     proofId: Schema.Literal('browser-platform-android-owned-shell-proof'),
     generatedAt: ActivityTimestampSchema,
-    proofUrlRef: Schema.Union(AndroidOwnedShellUrlCustodyText, Schema.Null),
+    proofUrlRef: Schema.Union(NonEmptyStringSchema, Schema.Null),
     proofUrlPersisted: Schema.Boolean,
     hostProofSummary: Schema.Struct({
       physicalDeviceProofObserved: Schema.Boolean,
@@ -288,3 +292,4 @@ function physicalUrlRowsNeedOwnedShellProof(row: BrowserAndroidOwnedShellUrlCust
       row.localProofPageObserved)
   );
 }
+

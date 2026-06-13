@@ -1,4 +1,9 @@
-import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
+import {
+  type Infer,
+  Schema,
+  withParser,
+  NonEmptyStringSchema
+} from '@ocentra-parent/schema-domain/effect';
 import { ActivityEvidenceRefSchema } from '@ocentra-parent/evidence-domain/contracts';
 import { ActivityTimestampSchema } from '@ocentra-parent/evidence-domain/primitives';
 import { ScreenOcrTextSnippetSchema } from './screen-evidence-result';
@@ -10,7 +15,6 @@ export const ScreenOcrRedactionMaxSnippetLimit = 5;
 
 const RequiredTrue = Schema.Literal(true);
 const RequiredFalse = Schema.Literal(false);
-const NonEmptyText = Schema.String.pipe(Schema.minLength(1));
 const ScreenEvidenceOcrSnippetTextParser = withParser(ScreenEvidenceOcrSnippetTextSchema);
 const RedactionSnippetLimitSchema = ScreenEvidenceSnippetLimitSchema.pipe(
   Schema.filter(
@@ -31,7 +35,7 @@ export const ScreenOcrSensitiveTextKindSchema = withParser(
 export const ScreenOcrRedactionPolicySchema = withParser(
   Schema.Struct({
     schemaVersion: Schema.Literal(ScreenOcrRedactionSchemaVersion),
-    policyId: NonEmptyText,
+    policyId: NonEmptyStringSchema,
     updatedAt: ActivityTimestampSchema,
     ocrTextEnabled: Schema.Boolean,
     snippetLimit: RedactionSnippetLimitSchema,
@@ -82,7 +86,7 @@ export const ScreenOcrSuppressedTextLineSchema = withParser(
 export const ScreenOcrRedactionResultSchema = withParser(
   Schema.Struct({
     schemaVersion: Schema.Literal(ScreenOcrRedactionSchemaVersion),
-    policyId: NonEmptyText,
+    policyId: NonEmptyStringSchema,
     processedAt: ActivityTimestampSchema,
     snippets: Schema.Array(ScreenOcrTextSnippetSchema),
     suppressed: Schema.Array(ScreenOcrSuppressedTextLineSchema),
@@ -110,7 +114,7 @@ export const ScreenOcrRedactionResultSchema = withParser(
 export const ScreenOcrRedactionProofSchema = withParser(
   Schema.Struct({
     schemaVersion: Schema.Literal(ScreenOcrRedactionSchemaVersion),
-    proofId: NonEmptyText,
+    proofId: NonEmptyStringSchema,
     proofTier: Schema.Literal('P2_CONTRACT_SCREEN_OCR_REDACTION'),
     policy: ScreenOcrRedactionPolicySchema,
     result: ScreenOcrRedactionResultSchema,
@@ -231,3 +235,4 @@ export type ScreenOcrSuppressedTextLine = Infer<typeof ScreenOcrSuppressedTextLi
 export type ScreenOcrRedactionResult = Infer<typeof ScreenOcrRedactionResultSchema>;
 export type ScreenOcrRedactionProof = Infer<typeof ScreenOcrRedactionProofSchema>;
 export type ScreenEvidenceOcrSnippetText = Infer<typeof ScreenEvidenceOcrSnippetTextSchema>;
+

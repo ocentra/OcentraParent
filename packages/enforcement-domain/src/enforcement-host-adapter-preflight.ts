@@ -1,4 +1,9 @@
-import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
+import {
+  type Infer,
+  Schema,
+  withParser,
+  brandedNonEmptyStringSchema
+} from '@ocentra-parent/schema-domain/effect';
 import {
   EnforcementAdapterKind,
   EnforcementAdapterKindSchema,
@@ -24,23 +29,11 @@ import {
   ParentTimestampSchema,
 } from '@ocentra-parent/family-domain/reference-primitives';
 
-const NonEmptyPreflightText = Schema.String.pipe(Schema.minLength(1));
-
-export const EnforcementHostAdapterPreflightIdSchema = NonEmptyPreflightText.pipe(
-  Schema.brand('EnforcementHostAdapterPreflightId')
-);
-export const EnforcementHostAdapterPreflightMatrixIdSchema = NonEmptyPreflightText.pipe(
-  Schema.brand('EnforcementHostAdapterPreflightMatrixId')
-);
-export const EnforcementHostAdapterEvidenceRequirementSchema = NonEmptyPreflightText.pipe(
-  Schema.brand('EnforcementHostAdapterEvidenceRequirement')
-);
-export const EnforcementHostAdapterManualStepSchema = NonEmptyPreflightText.pipe(
-  Schema.brand('EnforcementHostAdapterManualStep')
-);
-export const EnforcementHostAdapterRejectionReasonSchema = NonEmptyPreflightText.pipe(
-  Schema.brand('EnforcementHostAdapterRejectionReason')
-);
+export const EnforcementHostAdapterPreflightIdSchema = brandedNonEmptyStringSchema('EnforcementHostAdapterPreflightId');
+export const EnforcementHostAdapterPreflightMatrixIdSchema = brandedNonEmptyStringSchema('EnforcementHostAdapterPreflightMatrixId');
+export const EnforcementHostAdapterEvidenceRequirementSchema = brandedNonEmptyStringSchema('EnforcementHostAdapterEvidenceRequirement');
+export const EnforcementHostAdapterManualStepSchema = brandedNonEmptyStringSchema('EnforcementHostAdapterManualStep');
+export const EnforcementHostAdapterRejectionReasonSchema = brandedNonEmptyStringSchema('EnforcementHostAdapterRejectionReason');
 
 export const EnforcementHostAdapterPreflightGateSchema = withParser(
   Schema.Literal(
@@ -404,3 +397,4 @@ export const decodeEnforcementHostAdapterPreflightEntry = Schema.decodeUnknownSy
 export const decodeEnforcementHostAdapterPreflightMatrix = Schema.decodeUnknownSync(
   EnforcementHostAdapterPreflightMatrixSchema
 );
+

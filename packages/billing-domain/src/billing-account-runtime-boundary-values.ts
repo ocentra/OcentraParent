@@ -1,6 +1,9 @@
-import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
-
-const NonEmptyBillingRuntimeText = Schema.String.pipe(Schema.minLength(1));
+import {
+  type Infer,
+  Schema,
+  withParser,
+  brandedNonEmptyStringSchema
+} from '@ocentra-parent/schema-domain/effect';
 
 export const BillingAccountRuntimeSchemaVersionSchema = withParser(
   Schema.Literal('billing-account-runtime-boundary-proof')
@@ -53,12 +56,8 @@ export const BillingAccountRuntimePortalUiClaimSchema = withParser(Schema.Litera
 export const BillingAccountRuntimeChildDeviceConsumptionClaimSchema = withParser(Schema.Literal('not-supported'));
 export const BillingAccountRuntimeChildActivityCustodyClaimSchema = withParser(Schema.Literal('not-supported'));
 
-export const BillingAccountRuntimeBoundaryIdSchema = NonEmptyBillingRuntimeText.pipe(
-  Schema.brand('BillingAccountRuntimeBoundaryId')
-);
-export const BillingAccountRuntimeAuditReferenceSchema = NonEmptyBillingRuntimeText.pipe(
-  Schema.brand('BillingAccountRuntimeAuditReference')
-);
+export const BillingAccountRuntimeBoundaryIdSchema = brandedNonEmptyStringSchema('BillingAccountRuntimeBoundaryId');
+export const BillingAccountRuntimeAuditReferenceSchema = brandedNonEmptyStringSchema('BillingAccountRuntimeAuditReference');
 
 export type BillingAccountRuntimeStatus = Infer<typeof BillingAccountRuntimeStatusSchema>;
 export type BillingAccountRuntimeOperation = Infer<typeof BillingAccountRuntimeOperationSchema>;
@@ -98,3 +97,4 @@ export function summarizeBillingAccountRuntimeOperations(
   }
   return counts;
 }
+

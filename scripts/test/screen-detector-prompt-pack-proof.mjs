@@ -10,9 +10,9 @@ const artifactSummaryPath = join(outputRoot, 'proof-summary.json');
 await main();
 
 async function main() {
-  runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/activity-domain']));
+  runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/screen-domain']));
 
-  const screenEvidence = await import('../../packages/activity-domain/dist/screen-evidence.js');
+  const screenEvidence = await import('../../packages/screen-domain/dist/screen-evidence.js');
   const pack = screenEvidence.ScreenDetectorPromptPackSchema.parse(promptPack(screenEvidence));
   const validOutput = screenEvidence.ScreenDetectorPromptOutputSchema.parse(detectorOutput(screenEvidence));
   const invalidRows = {

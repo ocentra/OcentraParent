@@ -1,4 +1,9 @@
-import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
+import {
+  type Infer,
+  Schema,
+  withParser,
+  brandedNonEmptyStringSchema
+} from '@ocentra-parent/schema-domain/effect';
 import {
   ParentContractSchemaVersion,
   ParentContractSchemaVersionSchema,
@@ -11,9 +16,7 @@ import {
   type TrackingProviderNotificationProofReadModel,
   type TrackingProviderNotificationProofRow,
 } from './tracking-provider-notification-proof';
-import { V08NotificationProviderStatusBoundaryReadModel } from './v0-8-notification-provider-status-boundary';
-
-const TrackingNotificationReceiptText = Schema.String.pipe(Schema.minLength(1));
+import { V08NotificationProviderStatusBoundaryReadModel } from '@ocentra-parent/notification-domain/v0-8-notification-provider-status-boundary';
 
 export const RequiredTrackingNotificationReceiptBoundaryNonClaims = [
   'no-webhook-receipt-ingestion-runtime',
@@ -33,12 +36,8 @@ export const TrackingNotificationReceiptBoundaryNonClaimSchema = withParser(
   Schema.Literal(...RequiredTrackingNotificationReceiptBoundaryNonClaims)
 );
 
-export const TrackingNotificationReceiptBoundaryProofIdSchema = TrackingNotificationReceiptText.pipe(
-  Schema.brand('TrackingNotificationReceiptBoundaryProofId')
-);
-export const TrackingNotificationReceiptBoundaryReferenceSchema = TrackingNotificationReceiptText.pipe(
-  Schema.brand('TrackingNotificationReceiptBoundaryReference')
-);
+export const TrackingNotificationReceiptBoundaryProofIdSchema = brandedNonEmptyStringSchema('TrackingNotificationReceiptBoundaryProofId');
+export const TrackingNotificationReceiptBoundaryReferenceSchema = brandedNonEmptyStringSchema('TrackingNotificationReceiptBoundaryReference');
 
 export const TrackingNotificationReceiptBoundaryStateSchema = withParser(
   Schema.Literal('receipt-ingestion-required', 'manual-receipt-required', 'provider-unavailable')
@@ -279,3 +278,4 @@ const countReceiptState = (
 export const decodeTrackingNotificationReceiptBoundaryReadModel = Schema.decodeUnknownSync(
   TrackingNotificationReceiptBoundaryReadModelSchema
 );
+

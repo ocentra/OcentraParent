@@ -16,7 +16,7 @@ import {
   parseActivityReportHistoryEvent,
   parseActivityServiceUiSpineEvents,
 } from '../../src/activity-surface-adapter';
-import { AgentEvent, AgentProtocolDefaults } from '../../src/contracts';
+import { AgentCommand, AgentEvent, AgentProtocolDefaults } from '../../src/contracts';
 
 const Source = {
   peerId: 'portal-dev',
@@ -225,14 +225,14 @@ function specifyAdapterManifest() {
       (operation) => operation.operationId === ActivitySurfaceAdapterOperationId.GetNetworkActivity
     );
 
-    expect(history?.command).toBe('agent.activity.report.history.list');
-    expect(history?.successEvent).toBe('agent.activity.report.history.reported');
+    expect(history?.command).toBe(AgentCommand.ActivityReportHistoryList);
+    expect(history?.successEvent).toBe(AgentEvent.ActivityReportHistoryReported);
     expect(history?.payloadField).toBe('activityReports');
     expect(history?.responseKind).toBe('report-history');
     expect(history?.commandBuilder).toBe(ActivitySurfaceAdapterCommandBuilder.ReportHistory);
     expect(history?.eventParser).toBe(ActivitySurfaceAdapterEventParser.ReportHistory);
-    expect(network?.command).toBe('agent.activity.network.read-model.get');
-    expect(network?.successEvent).toBe('agent.activity.network.read-model.reported');
+    expect(network?.command).toBe(AgentCommand.ActivityNetworkReadModelGet);
+    expect(network?.successEvent).toBe(AgentEvent.ActivityNetworkReadModelReported);
     expect(network?.readModelKind).toBe('network');
     expect(network?.commandBuilder).toBe(ActivitySurfaceAdapterCommandBuilder.ReadModel);
     expect(network?.eventParser).toBe(ActivitySurfaceAdapterEventParser.ReadModel);
@@ -301,8 +301,8 @@ function specifyCommandCreation() {
     const reportCommand = createActivityReportGenerateCommand('daily', commandInput());
     const readModelCommand = createActivityReadModelCommand('network', commandInput());
 
-    expect(reportCommand.command).toBe('agent.activity.report.daily.generate');
-    expect(readModelCommand.command).toBe('agent.activity.network.read-model.get');
+    expect(reportCommand.command).toBe(AgentCommand.ActivityReportDailyGenerate);
+    expect(readModelCommand.command).toBe(AgentCommand.ActivityNetworkReadModelGet);
     expect(reportCommand.payload[AgentProtocolDefaults.Field.ScopeKind]).toBe('device');
     expect(reportCommand.payload[AgentProtocolDefaults.Field.DeviceId]).toBe('local-dev-agent');
   });
@@ -310,7 +310,7 @@ function specifyCommandCreation() {
   it('creates save command payloads with the typed report document JSON', () => {
     const command = createActivityReportSaveCommand({ ...commandInput(), report: Report });
 
-    expect(command.command).toBe('agent.activity.report.save');
+    expect(command.command).toBe(AgentCommand.ActivityReportSave);
     expect(typeof command.payload[AgentProtocolDefaults.Field.ActivityReportDocument]).toBe('string');
   });
 
@@ -321,7 +321,7 @@ function specifyCommandCreation() {
     });
     const sources = parsedFamilySources(command.payload[AgentProtocolDefaults.Field.ActivityFamilySources]);
 
-    expect(command.command).toBe('agent.activity.report.weekly.generate');
+    expect(command.command).toBe(AgentCommand.ActivityReportWeeklyGenerate);
     expect(sources[0]?.reachabilityState).toBe('offline');
     expect(sources[1]?.reachabilityState).toBe('error');
   });
@@ -336,7 +336,7 @@ function specifyReportEventParsing() {
       })
     );
 
-    expect(command.command).toBe('agent.activity.report.history.list');
+    expect(command.command).toBe(AgentCommand.ActivityReportHistoryList);
     expect(parsed.ok).toBe(true);
     expect(parsed.ok ? parsed.value.storageState : null).toBe('saved');
     expect(parsed.ok ? parsed.value.reports[0]?.savedState : null).toBe('saved');

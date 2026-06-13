@@ -1,1 +1,1 @@
-export * from '@ocentra-parent/social-domain/social-parent-sensitivity-settings-values';
+export * from '@ocentra-parent/browser-domain/social-parent-sensitivity-settings-values';

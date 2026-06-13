@@ -1,4 +1,9 @@
-import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
+import {
+  type Infer,
+  Schema,
+  withParser,
+  brandedNonEmptyStringSchema
+} from '@ocentra-parent/schema-domain/effect';
 import { ParentTimestampSchema } from '@ocentra-parent/family-domain/reference-primitives';
 import {
   TrackingAlertIntentSchema,
@@ -16,8 +21,6 @@ import {
   TrackingPolicyReasonCodeSchema,
   TrackingPolicySchemaVersion,
 } from './tracking-location-policy-primitives';
-
-const ExpectedPlaceAlertPolicyText = Schema.String.pipe(Schema.minLength(1));
 
 export const TrackingExpectedPlaceAlertPolicyRowStatus = {
   AlertPolicyReady: 'alert-policy-ready',
@@ -38,12 +41,8 @@ export const RequiredTrackingExpectedPlaceAlertPolicyNonClaims = [
   'no-adapter-dispatch',
 ] as const;
 
-export const TrackingExpectedPlaceAlertPolicyProofRefSchema = ExpectedPlaceAlertPolicyText.pipe(
-  Schema.brand('TrackingExpectedPlaceAlertPolicyProofRef')
-);
-export const TrackingExpectedPlaceAlertPolicyRowIdSchema = ExpectedPlaceAlertPolicyText.pipe(
-  Schema.brand('TrackingExpectedPlaceAlertPolicyRowId')
-);
+export const TrackingExpectedPlaceAlertPolicyProofRefSchema = brandedNonEmptyStringSchema('TrackingExpectedPlaceAlertPolicyProofRef');
+export const TrackingExpectedPlaceAlertPolicyRowIdSchema = brandedNonEmptyStringSchema('TrackingExpectedPlaceAlertPolicyRowId');
 export const TrackingExpectedPlaceAlertPolicyRowStatusSchema = withParser(
   Schema.Literal(...Object.values(TrackingExpectedPlaceAlertPolicyRowStatus))
 );
@@ -264,3 +263,4 @@ function countRows(
 ) {
   return rows.filter((row) => row.status === status).length;
 }
+

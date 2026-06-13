@@ -1,4 +1,9 @@
-import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
+import {
+  type Infer,
+  Schema,
+  withParser,
+  brandedNonEmptyStringSchema
+} from '@ocentra-parent/schema-domain/effect';
 import {
   AppGamePolicyCompilerAuthorityState,
   AppGamePolicyCompilerCapabilityState,
@@ -30,19 +35,13 @@ import {
   PolicyTargetSchema,
 } from '@ocentra-parent/policy-domain/policy';
 
-const NonEmptyCompilerText = Schema.String.pipe(Schema.minLength(1));
-
-export const AppGamePolicyCompileRequestIdSchema = NonEmptyCompilerText.pipe(
-  Schema.brand('AppGamePolicyCompileRequestId')
-);
-export const AppGamePolicyCompiledDecisionIdSchema = NonEmptyCompilerText.pipe(
-  Schema.brand('AppGamePolicyCompiledDecisionId')
-);
-export const AppGamePolicyTargetRefSchema = NonEmptyCompilerText.pipe(Schema.brand('AppGamePolicyTargetRef'));
-export const AppGamePolicyLocalUserRefSchema = NonEmptyCompilerText.pipe(Schema.brand('AppGamePolicyLocalUserRef'));
-export const AppGamePolicyCapabilityRefSchema = NonEmptyCompilerText.pipe(Schema.brand('AppGamePolicyCapabilityRef'));
-export const AppGamePolicyAuthorityRefSchema = NonEmptyCompilerText.pipe(Schema.brand('AppGamePolicyAuthorityRef'));
-export const AppGamePolicyAuditRefSchema = NonEmptyCompilerText.pipe(Schema.brand('AppGamePolicyAuditRef'));
+export const AppGamePolicyCompileRequestIdSchema = brandedNonEmptyStringSchema('AppGamePolicyCompileRequestId');
+export const AppGamePolicyCompiledDecisionIdSchema = brandedNonEmptyStringSchema('AppGamePolicyCompiledDecisionId');
+export const AppGamePolicyTargetRefSchema = brandedNonEmptyStringSchema('AppGamePolicyTargetRef');
+export const AppGamePolicyLocalUserRefSchema = brandedNonEmptyStringSchema('AppGamePolicyLocalUserRef');
+export const AppGamePolicyCapabilityRefSchema = brandedNonEmptyStringSchema('AppGamePolicyCapabilityRef');
+export const AppGamePolicyAuthorityRefSchema = brandedNonEmptyStringSchema('AppGamePolicyAuthorityRef');
+export const AppGamePolicyAuditRefSchema = brandedNonEmptyStringSchema('AppGamePolicyAuditRef');
 
 export const AppGamePolicyTargetKindSchema = withParser(Schema.Literal(...Object.values(AppGamePolicyTargetKind)));
 export const AppGamePolicyCompilerProofKindSchema = withParser(
@@ -224,3 +223,4 @@ export type AppGamePolicyCompilerTarget = Infer<typeof AppGamePolicyCompilerTarg
 export type AppGamePolicyCompilerEvidence = Infer<typeof AppGamePolicyCompilerEvidenceSchema>;
 export type AppGamePolicyCompileRequest = Infer<typeof AppGamePolicyCompileRequestSchema>;
 export type AppGamePolicyCompiledDecision = Infer<typeof AppGamePolicyCompiledDecisionSchema>;
+

@@ -1,4 +1,9 @@
-import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
+import {
+  type Infer,
+  Schema,
+  withParser,
+  NonEmptyStringSchema
+} from '@ocentra-parent/schema-domain/effect';
 import { ActivityTimestampSchema } from '@ocentra-parent/evidence-domain/primitives';
 import { ScreenEvidenceCustodyStateSchema } from './screen-evidence-states';
 import {
@@ -13,8 +18,6 @@ import {
 
 export const ScreenLiveViewPermissionGateSchemaVersion = 1;
 export const ScreenLiveViewProductionReadinessEvidenceSchemaVersion = 1;
-
-const NonEmptyLiveViewText = Schema.String.pipe(Schema.minLength(1));
 const RequiredFalse = Schema.Literal(false);
 const OptionalLiveViewProofRefSchema = Schema.Union(ScreenOptionalVisibilityPlatformProofRefSchema, Schema.Null);
 const OptionalLiveViewAuditRefSchema = Schema.Union(ScreenOptionalVisibilityAuditRefSchema, Schema.Null);
@@ -50,7 +53,7 @@ const ScreenLiveViewPlatformPermissionGateBaseSchema = Schema.Struct({
   sessionRecordingAllowed: RequiredFalse,
   remoteInputControlAllowed: RequiredFalse,
   productLiveViewReady: Schema.Boolean,
-  reason: NonEmptyLiveViewText,
+  reason: NonEmptyStringSchema,
 });
 
 type ScreenLiveViewPlatformPermissionGateInput = Infer<typeof ScreenLiveViewPlatformPermissionGateBaseSchema>;
@@ -59,7 +62,7 @@ const ScreenLiveViewPromptArtifactSchema = Schema.Struct({
   platform: ScreenLiveViewPlatformKindSchema,
   artifactKind: ScreenLiveViewPromptArtifactKindSchema,
   artifactRef: ScreenOptionalVisibilityPlatformProofRefSchema,
-  artifactDigest: NonEmptyLiveViewText,
+  artifactDigest: NonEmptyStringSchema,
   capturedAt: ActivityTimestampSchema,
   operatorAuditRef: ScreenOptionalVisibilityAuditRefSchema,
   permissionEvidenceKind: Schema.Literal('live-view-permission'),
@@ -211,3 +214,4 @@ export type ScreenLiveViewPermissionEvidenceKind = Infer<typeof ScreenLiveViewPe
 export type ScreenLiveViewPromptArtifactKind = Infer<typeof ScreenLiveViewPromptArtifactKindSchema>;
 export type ScreenLiveViewPlatformPermissionGate = Infer<typeof ScreenLiveViewPlatformPermissionGateSchema>;
 export type ScreenLiveViewProductionReadinessEvidence = Infer<typeof ScreenLiveViewProductionReadinessEvidenceSchema>;
+

@@ -1,9 +1,12 @@
-import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
-
-const NonEmptySupportBundleRedactionText = Schema.String.pipe(Schema.minLength(1));
+import {
+  type Infer,
+  Schema,
+  withParser,
+  NonEmptyStringSchema
+} from '@ocentra-parent/schema-domain/effect';
 
 const supportBundleText = <Brand extends string>(brand: Brand) =>
-  NonEmptySupportBundleRedactionText.pipe(Schema.brand(brand));
+  NonEmptyStringSchema.pipe(Schema.brand(brand));
 
 export const SupportBundleRedactionReadModelIdSchema = supportBundleText('SupportBundleRedactionReadModelId');
 export const SupportBundleRedactionIncidentIdSchema = supportBundleText('SupportBundleRedactionIncidentId');
@@ -337,3 +340,4 @@ export type SupportBundleRedactionReadModel = Infer<typeof SupportBundleRedactio
 
 export const decodeSupportBundleRedactionEntry = Schema.decodeUnknownSync(SupportBundleRedactionEntrySchema);
 export const decodeSupportBundleRedactionReadModel = Schema.decodeUnknownSync(SupportBundleRedactionReadModelSchema);
+

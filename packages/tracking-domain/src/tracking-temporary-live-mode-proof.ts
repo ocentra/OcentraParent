@@ -1,12 +1,15 @@
-import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
+import {
+  type Infer,
+  Schema,
+  withParser,
+  brandedNonEmptyStringSchema
+} from '@ocentra-parent/schema-domain/effect';
 import { TrackingLocationPolicyReadModelSchema, TrackingPolicySchemaVersion } from './tracking-location-policy';
 import {
   TrackingLiveTrackingGrantStateSchema,
   TrackingPolicyAuditRefSchema,
 } from './tracking-location-policy-primitives';
 import type { TrackingTemporaryLiveTrackingGrant } from './tracking-location-policy-types';
-
-const TrackingTemporaryLiveModeText = Schema.String.pipe(Schema.minLength(1));
 const TrackingTemporaryLiveDurationSeconds = Schema.Number.pipe(Schema.int(), Schema.positive());
 const TrackingTemporaryLiveNonNegativeSeconds = Schema.Number.pipe(Schema.int(), Schema.nonNegative());
 
@@ -26,12 +29,8 @@ export const TrackingTemporaryLiveModeNonClaimSchema = withParser(
   Schema.Literal(...RequiredTrackingTemporaryLiveModeNonClaims)
 );
 
-export const TrackingTemporaryLiveModeProofIdSchema = TrackingTemporaryLiveModeText.pipe(
-  Schema.brand('TrackingTemporaryLiveModeProofId')
-);
-export const TrackingTemporaryLiveModeReferenceSchema = TrackingTemporaryLiveModeText.pipe(
-  Schema.brand('TrackingTemporaryLiveModeReference')
-);
+export const TrackingTemporaryLiveModeProofIdSchema = brandedNonEmptyStringSchema('TrackingTemporaryLiveModeProofId');
+export const TrackingTemporaryLiveModeReferenceSchema = brandedNonEmptyStringSchema('TrackingTemporaryLiveModeReference');
 export const TrackingTemporaryLiveModeSessionStateSchema = withParser(
   Schema.Literal(
     'active-authorized',
@@ -337,3 +336,4 @@ function countRows(
 ) {
   return rows.filter((row) => states.includes(row.sessionState)).length;
 }
+

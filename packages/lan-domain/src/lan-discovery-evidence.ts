@@ -1,12 +1,14 @@
-import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
+import {
+  type Infer,
+  Schema,
+  withParser,
+  brandedNonEmptyStringSchema,
+  NonEmptyStringSchema
+} from '@ocentra-parent/schema-domain/effect';
 import { ParentDeviceIdSchema } from '@ocentra-parent/family-domain/reference-primitives';
 import { LanPairingSchemaVersionSchema, LanPairingTimestampSchema } from './lan-pairing-values';
 
-const NonEmptyLanDiscoveryEvidenceText = Schema.String.pipe(Schema.minLength(1));
-
-export const LanDiscoveryEvidenceIdSchema = NonEmptyLanDiscoveryEvidenceText.pipe(
-  Schema.brand('LanDiscoveryEvidenceId')
-);
+export const LanDiscoveryEvidenceIdSchema = brandedNonEmptyStringSchema('LanDiscoveryEvidenceId');
 
 export const LanDiscoveryEvidenceSourceSchema = withParser(
   Schema.Literal(
@@ -47,14 +49,14 @@ export const LanDiscoveryEvidenceRecordSchema = withParser(
     source: LanDiscoveryEvidenceSourceSchema,
     evidenceKind: LanDiscoveryEvidenceKindSchema,
     deviceId: ParentDeviceIdSchema,
-    value: NonEmptyLanDiscoveryEvidenceText,
-    normalizedValue: NonEmptyLanDiscoveryEvidenceText,
+    value: NonEmptyStringSchema,
+    normalizedValue: NonEmptyStringSchema,
     firstSeenAt: LanPairingTimestampSchema,
     lastSeenAt: LanPairingTimestampSchema,
     expiresAt: Schema.Union(LanPairingTimestampSchema, Schema.Null),
     confidence: LanDiscoveryEvidenceConfidenceSchema,
-    mergeKey: NonEmptyLanDiscoveryEvidenceText,
-    note: Schema.Union(NonEmptyLanDiscoveryEvidenceText, Schema.Null),
+    mergeKey: NonEmptyStringSchema,
+    note: Schema.Union(NonEmptyStringSchema, Schema.Null),
   })
 );
 
@@ -63,3 +65,4 @@ export type LanDiscoveryEvidenceSource = Infer<typeof LanDiscoveryEvidenceSource
 export type LanDiscoveryEvidenceKind = Infer<typeof LanDiscoveryEvidenceKindSchema>;
 export type LanDiscoveryEvidenceConfidence = Infer<typeof LanDiscoveryEvidenceConfidenceSchema>;
 export type LanDiscoveryEvidenceRecord = Infer<typeof LanDiscoveryEvidenceRecordSchema>;
+

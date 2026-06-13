@@ -1,4 +1,9 @@
-import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
+import {
+  type Infer,
+  Schema,
+  withParser,
+  brandedNonEmptyStringSchema
+} from '@ocentra-parent/schema-domain/effect';
 import {
   LanPairingDeviceReachabilitySchema,
   LanPairingProductionDiscoveryStateSchema,
@@ -9,8 +14,6 @@ import {
 import { ParentMobileCommandAuthorityStateSchema } from './parent-mobile-runtime';
 import { ParentTimestampSchema } from '@ocentra-parent/family-domain/reference-primitives';
 import { V09RuntimeProofStateSchema } from './v0-9-mobile-controller-discovery-runtime';
-
-const NonEmptyV09HouseholdPhysicalProofText = Schema.String.pipe(Schema.minLength(1));
 
 export const V09HouseholdPhysicalProofArtifactGateIdSchema = withParser(
   Schema.Literal('v0-9-household-physical-proof-artifact-gate')
@@ -66,18 +69,10 @@ export const V09HouseholdPhysicalProofEvidenceCustodyStateSchema = withParser(
   Schema.Literal('not-collected', 'partial-artifacts-collected', 'ready-for-human-review', 'rejected-overclaim')
 );
 
-export const V09HouseholdPhysicalProofPathSchema = NonEmptyV09HouseholdPhysicalProofText.pipe(
-  Schema.brand('V09HouseholdPhysicalProofPath')
-);
-export const V09HouseholdPhysicalProofCommandSchema = NonEmptyV09HouseholdPhysicalProofText.pipe(
-  Schema.brand('V09HouseholdPhysicalProofCommand')
-);
-export const V09HouseholdPhysicalProofLabelSchema = NonEmptyV09HouseholdPhysicalProofText.pipe(
-  Schema.brand('V09HouseholdPhysicalProofLabel')
-);
-export const V09HouseholdPhysicalProofBoundarySchema = NonEmptyV09HouseholdPhysicalProofText.pipe(
-  Schema.brand('V09HouseholdPhysicalProofBoundary')
-);
+export const V09HouseholdPhysicalProofPathSchema = brandedNonEmptyStringSchema('V09HouseholdPhysicalProofPath');
+export const V09HouseholdPhysicalProofCommandSchema = brandedNonEmptyStringSchema('V09HouseholdPhysicalProofCommand');
+export const V09HouseholdPhysicalProofLabelSchema = brandedNonEmptyStringSchema('V09HouseholdPhysicalProofLabel');
+export const V09HouseholdPhysicalProofBoundarySchema = brandedNonEmptyStringSchema('V09HouseholdPhysicalProofBoundary');
 
 export const V09HouseholdPhysicalProofSourceInputSchema = withParser(
   Schema.Struct({
@@ -297,3 +292,4 @@ export type V09HouseholdPhysicalProofManualEvidenceCustody = Infer<
 export type V09HouseholdPhysicalProofArtifactGateReadModel = Infer<
   typeof V09HouseholdPhysicalProofArtifactGateReadModelSchema
 >;
+

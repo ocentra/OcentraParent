@@ -1,4 +1,9 @@
-import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
+import {
+  type Infer,
+  Schema,
+  withParser,
+  NonEmptyStringSchema
+} from '@ocentra-parent/schema-domain/effect';
 import { AppGamePolicyPreviewTargetDomainSchema } from './app-game-policy-preview-handoff';
 import { AppGameSourceFreshnessEvidenceRefSchema } from './app-game-source-freshness-policy-consumption';
 import {
@@ -19,30 +24,28 @@ import {
 } from './app-game-timer-service-event-handoff-rules';
 import { ParentContractSchemaVersionSchema, ParentTimestampSchema } from '@ocentra-parent/family-domain/reference-primitives';
 
-const ServiceEventHandoffText = Schema.String.pipe(Schema.minLength(1));
-
 type ServiceReadModelHandoffRow = Infer<typeof ServiceReadModelHandoffRowSchema>;
 
 export const AppGameSourceGatedPolicyPreviewTimerServiceReadinessResponseConsumerParentSurfaceStatusReadModelParentSurfaceReadModelServiceEventHandoffIdSchema =
-  ServiceEventHandoffText.pipe(
+  NonEmptyStringSchema.pipe(
     Schema.brand(
       'AppGameSourceGatedPolicyPreviewTimerServiceReadinessResponseConsumerParentSurfaceStatusReadModelParentSurfaceReadModelServiceEventHandoffId'
     )
   );
 export const AppGameSourceGatedPolicyPreviewTimerServiceReadinessResponseConsumerParentSurfaceStatusReadModelParentSurfaceReadModelServiceEventHandoffRowIdSchema =
-  ServiceEventHandoffText.pipe(
+  NonEmptyStringSchema.pipe(
     Schema.brand(
       'AppGameSourceGatedPolicyPreviewTimerServiceReadinessResponseConsumerParentSurfaceStatusReadModelParentSurfaceReadModelServiceEventHandoffRowId'
     )
   );
 export const AppGameSourceGatedPolicyPreviewTimerServiceReadinessResponseConsumerParentSurfaceStatusReadModelParentSurfaceReadModelServiceEventProofRefSchema =
-  ServiceEventHandoffText.pipe(
+  NonEmptyStringSchema.pipe(
     Schema.brand(
       'AppGameSourceGatedPolicyPreviewTimerServiceReadinessResponseConsumerParentSurfaceStatusReadModelParentSurfaceReadModelServiceEventProofRef'
     )
   );
 export const AppGameSourceGatedPolicyPreviewTimerServiceReadinessResponseConsumerParentSurfaceStatusReadModelParentSurfaceReadModelServiceEventHandoffContractRefSchema =
-  ServiceEventHandoffText.pipe(
+  NonEmptyStringSchema.pipe(
     Schema.brand(
       'AppGameSourceGatedPolicyPreviewTimerServiceReadinessResponseConsumerParentSurfaceStatusReadModelParentSurfaceReadModelServiceEventHandoffContractRef'
     )
@@ -269,3 +272,4 @@ function mapServiceEventHandoffState(
   }
   return AppGameSourceGatedPolicyPreviewTimerServiceReadinessResponseConsumerParentSurfaceStatusReadModelParentSurfaceReadModelServiceEventHandoffState.BlockedByCompilerDecision;
 }
+

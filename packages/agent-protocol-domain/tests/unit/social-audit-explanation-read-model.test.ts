@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { SocialAuditExplanationSnapshotSchema } from '@ocentra-parent/social-domain/social-audit-explanation-read-model';
+import { SocialAuditExplanationSnapshotSchema } from '@ocentra-parent/browser-domain/social-audit-explanation-read-model';
 import { AgentEvent, AgentProtocolDefaults, isAgentProtocolLogText, type AgentEventEnvelope } from '../../src/contracts';
 import { AgentProtocolSchemaVersion } from '../../src/primitives';
 

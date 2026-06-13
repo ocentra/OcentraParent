@@ -6,8 +6,8 @@ const outputDirectory = join(root, 'output', 'browser-plan-proof', 'social-video
 const resultDirectory = join(root, 'test-results', 'social-video-source-custody-settings-proof');
 
 const requiredFiles = [
-  'packages/activity-domain/src/social-video-source-custody-settings.ts',
-  'packages/activity-domain/tests/social-video-source-custody-settings.test.ts',
+  'packages/browser-domain/src/social-video-source-custody-settings.ts',
+  'packages/browser-domain/tests/unit/social-video-source-custody-settings.test.ts',
   'docs/features/social-video-control.md',
   'docs/plans/browser-plan/social-platform-account-feed/readme.md',
   'docs/plans/browser-plan/v0-5-social-platform-account-feed-gating-plan.md',
@@ -21,7 +21,7 @@ async function main() {
 
   const files = Object.fromEntries(await Promise.all(requiredFiles.map(async (path) => [path, await readText(path)])));
   const checks = [
-    checkIncludes(files, 'packages/activity-domain/src/social-video-source-custody-settings.ts', [
+    checkIncludes(files, 'packages/browser-domain/src/social-video-source-custody-settings.ts', [
       'SocialVideoSourceCustodySettingsSchema',
       'sourcePrivacyEvidenceIds',
       'connector-authorization-ref-only',
@@ -29,7 +29,7 @@ async function main() {
       'finalPolicyDecisionClaimed',
       'enforcementClaimed',
     ]),
-    checkIncludes(files, 'packages/activity-domain/tests/social-video-source-custody-settings.test.ts', [
+    checkIncludes(files, 'packages/browser-domain/tests/unit/social-video-source-custody-settings.test.ts', [
       'accepts enabled source custody settings over source privacy refs',
       'accepts parent-review connector and manual-required custody boundaries',
       'rejects disabled manual and unavailable settings that pretend to feed policy input',

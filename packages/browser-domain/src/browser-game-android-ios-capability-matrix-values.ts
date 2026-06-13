@@ -1,7 +1,10 @@
-import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
+import {
+  type Infer,
+  Schema,
+  withParser,
+  brandedNonEmptyStringSchema
+} from '@ocentra-parent/schema-domain/effect';
 import { ParentEvidenceReferenceIdSchema } from '@ocentra-parent/family-domain/reference-primitives';
-
-const NonEmptyBrowserGameMobileCapabilityText = Schema.String.pipe(Schema.minLength(1));
 
 export const BrowserGameMobileCapabilityMatrixSchemaVersionSchema = withParser(
   Schema.Literal('browser-game-android-ios-capability-matrix')
@@ -103,11 +106,10 @@ export const BrowserGameMobileProofRefsSchema = Schema.Array(ParentEvidenceRefer
   Schema.filter((value) => value.length > 0 || 'Expected browser game mobile proof refs')
 );
 
-export const BrowserGameMobileCapabilityBoundarySchema = NonEmptyBrowserGameMobileCapabilityText.pipe(
-  Schema.brand('BrowserGameMobileCapabilityBoundary')
-);
+export const BrowserGameMobileCapabilityBoundarySchema = brandedNonEmptyStringSchema('BrowserGameMobileCapabilityBoundary');
 
 export type BrowserGameMobilePlatform = Infer<typeof BrowserGameMobilePlatformSchema>;
 export type BrowserGameMobileCapabilitySurface = Infer<typeof BrowserGameMobileCapabilitySurfaceSchema>;
 export type BrowserGameMobileCapabilityState = Infer<typeof BrowserGameMobileCapabilityStateSchema>;
 export type BrowserGameMobileProofState = Infer<typeof BrowserGameMobileProofStateSchema>;
+

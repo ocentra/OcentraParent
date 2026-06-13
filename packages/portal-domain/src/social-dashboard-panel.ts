@@ -6,7 +6,7 @@ import {
   SocialDashboardUxSnapshotSchema,
   type SocialDashboardPanel,
   type SocialDashboardUxSnapshot,
-} from '@ocentra-parent/social-domain/social-dashboard-ux';
+} from '@ocentra-parent/browser-domain/social-dashboard-ux';
 import { type DisplayText, decodeDisplayText } from '@ocentra-parent/text-domain/contracts';
 import { decodePortalDetailValue, type PortalDetailValue } from './detail-values';
 import { PortalDetails } from './details';

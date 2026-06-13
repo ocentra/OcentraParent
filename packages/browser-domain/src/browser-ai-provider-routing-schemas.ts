@@ -1,4 +1,10 @@
-import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
+import {
+  type Infer,
+  Schema,
+  withParser,
+  brandedNonEmptyStringSchema,
+  NonEmptyStringSchema
+} from '@ocentra-parent/schema-domain/effect';
 import { ActivityEvidenceIdSchema, ActivityTimestampSchema } from '@ocentra-parent/evidence-domain/primitives';
 import { BrowserCustodyLabelSchema } from './browser-schemas';
 import {
@@ -9,18 +15,16 @@ import {
   BrowserUrlAiAnalysisInputSchema,
   BrowserUrlAiAnalysisRequestIdSchema,
 } from './browser-ai-analysis-schemas';
-
-const NonEmptyBrowserAiProviderText = Schema.String.pipe(Schema.minLength(1));
-const OptionalProviderTextSchema = Schema.Union(NonEmptyBrowserAiProviderText, Schema.Null);
+const OptionalProviderTextSchema = Schema.Union(NonEmptyStringSchema, Schema.Null);
 const OptionalModelRuntimeRefSchema = Schema.Union(BrowserAiModelRuntimeRefSchema, Schema.Null);
 
 export const BrowserAiProviderRouteSchemaVersion = 1;
 
 export const BrowserAiProviderRouteIdSchema = withParser(
-  NonEmptyBrowserAiProviderText.pipe(Schema.brand('BrowserAiProviderRouteId'))
+  brandedNonEmptyStringSchema('BrowserAiProviderRouteId')
 );
 export const BrowserAiProviderIdSchema = withParser(
-  NonEmptyBrowserAiProviderText.pipe(Schema.brand('BrowserAiProviderId'))
+  brandedNonEmptyStringSchema('BrowserAiProviderId')
 );
 
 export const BrowserAiProviderKindSchema = withParser(
@@ -244,3 +248,4 @@ function routeClaimsUnsafeRemoteAuthority(value: Infer<typeof BrowserAiProviderR
     value.remoteDefaultForBlocking || value.remoteCanOverrideStricterLocalRules || value.remoteOutageDisablesLocalSafety
   );
 }
+

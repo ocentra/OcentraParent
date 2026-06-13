@@ -1,14 +1,17 @@
-import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
+import {
+  type Infer,
+  Schema,
+  withParser,
+  NonEmptyStringSchema
+} from '@ocentra-parent/schema-domain/effect';
 
 import {
   statusBackendPayloadCustodyCoversRequiredStates,
   statusBackendPayloadCustodyEntryIsSafe,
 } from './status-backend-payload-custody-guards.js';
 
-const NonEmptyStatusBackendPayloadCustodyText = Schema.String.pipe(Schema.minLength(1));
-
 const statusBackendPayloadCustodyText = <Brand extends string>(brand: Brand) =>
-  NonEmptyStatusBackendPayloadCustodyText.pipe(Schema.brand(brand));
+  NonEmptyStringSchema.pipe(Schema.brand(brand));
 
 export const StatusBackendPayloadCustodyReadModelIdSchema = statusBackendPayloadCustodyText(
   'StatusBackendPayloadCustodyReadModelId'
@@ -173,3 +176,4 @@ export const decodeStatusBackendPayloadCustodyEntry = Schema.decodeUnknownSync(S
 export const decodeStatusBackendPayloadCustodyReadModel = Schema.decodeUnknownSync(
   StatusBackendPayloadCustodyReadModelSchema
 );
+

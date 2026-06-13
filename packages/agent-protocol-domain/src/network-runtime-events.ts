@@ -1,12 +1,18 @@
+import { EventingEventTypeSchema } from '@ocentra-parent/event-domain/eventing';
 import { ActivityNetworkEvidenceGradeSchema } from '@ocentra-parent/network-domain/network-flow';
-import { type Infer, type SafeParseResult, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
+import {
+  type Infer,
+  NonEmptyStringSchema,
+  type SafeParseResult,
+  Schema,
+  withParser,
+} from '@ocentra-parent/schema-domain/effect';
 
-const NetworkRuntimeText = Schema.String.pipe(Schema.minLength(1));
 const NetworkRuntimeConfidence = Schema.Number.pipe(Schema.between(0, 1));
-const NetworkRuntimeNonEmptyRefs = Schema.Array(NetworkRuntimeText).pipe(
+const NetworkRuntimeNonEmptyRefs = Schema.Array(NonEmptyStringSchema).pipe(
   Schema.filter((refs) => refs.length > 0 || 'Expected network runtime event refs to be non-empty')
 );
-const NullableNetworkRuntimeText = Schema.Union(NetworkRuntimeText, Schema.Null);
+const NullableNetworkRuntimeText = Schema.Union(NonEmptyStringSchema, Schema.Null);
 
 export const AgentNetworkRuntimeEventSchemaVersion = 1;
 
@@ -37,6 +43,12 @@ export const AgentNetworkRuntimeEventTypeSchema = withParser(
     AgentNetworkRuntimeEventType.EnforcementResultObserved,
     AgentNetworkRuntimeEventType.AuditEntryCommitted,
     AgentNetworkRuntimeEventType.PortalReadModelUpdated
+  ).pipe(
+    Schema.filter(
+      (eventType) =>
+        EventingEventTypeSchema.safeParse(eventType).success ||
+        'Expected network runtime event type to satisfy the shared eventing taxonomy'
+    )
   )
 );
 
@@ -85,7 +97,8 @@ export const AgentNetworkClaimBoundarySchema = withParser(
           !boundary.messageContentAvailable &&
           !boundary.searchQueryAvailable &&
           !boundary.adapterActionExecuted) ||
-        'Network runtime events cannot claim exact URL, decrypted payload, message content, search query, or adapter action'
+        'Network runtime events cannot claim exact URL, decrypted payload, message content, search query, or ' +
+          'adapter action'
     )
   )
 );
@@ -97,11 +110,11 @@ const NetworkRuntimeEventBase = {
 export const AgentNetworkFlowObservedEventSchema = withParser(
   Schema.Struct({
     ...NetworkRuntimeEventBase,
-    flowEventRef: NetworkRuntimeText,
-    observedAt: NetworkRuntimeText,
-    deviceRef: NetworkRuntimeText,
-    flowEvidenceRef: NetworkRuntimeText,
-    custody: NetworkRuntimeText,
+    flowEventRef: NonEmptyStringSchema,
+    observedAt: NonEmptyStringSchema,
+    deviceRef: NonEmptyStringSchema,
+    flowEvidenceRef: NonEmptyStringSchema,
+    custody: NonEmptyStringSchema,
     evidenceGrade: ActivityNetworkEvidenceGradeSchema,
     claimBoundary: AgentNetworkClaimBoundarySchema,
   })
@@ -110,13 +123,13 @@ export const AgentNetworkFlowObservedEventSchema = withParser(
 export const AgentNetworkDomainObservedEventSchema = withParser(
   Schema.Struct({
     ...NetworkRuntimeEventBase,
-    domainEventRef: NetworkRuntimeText,
-    previousEventRef: NetworkRuntimeText,
-    flowEvidenceRef: NetworkRuntimeText,
-    domainEvidenceRef: NetworkRuntimeText,
+    domainEventRef: NonEmptyStringSchema,
+    previousEventRef: NonEmptyStringSchema,
+    flowEvidenceRef: NonEmptyStringSchema,
+    domainEvidenceRef: NonEmptyStringSchema,
     attribution: AgentNetworkDomainAttributionKindSchema,
     evidenceGrade: ActivityNetworkEvidenceGradeSchema,
-    uncertaintyCodes: Schema.Array(NetworkRuntimeText),
+    uncertaintyCodes: Schema.Array(NonEmptyStringSchema),
     claimBoundary: AgentNetworkClaimBoundarySchema,
   })
 );
@@ -124,24 +137,24 @@ export const AgentNetworkDomainObservedEventSchema = withParser(
 export const AgentNetworkActivityClassifiedEventSchema = withParser(
   Schema.Struct({
     ...NetworkRuntimeEventBase,
-    classificationEventRef: NetworkRuntimeText,
-    previousEventRef: NetworkRuntimeText,
+    classificationEventRef: NonEmptyStringSchema,
+    previousEventRef: NonEmptyStringSchema,
     evidenceRefs: NetworkRuntimeNonEmptyRefs,
     activityKind: AgentNetworkRuntimeActivityKindSchema,
     confidence: NetworkRuntimeConfidence,
     evidenceGrade: ActivityNetworkEvidenceGradeSchema,
-    uncertaintyCodes: Schema.Array(NetworkRuntimeText),
+    uncertaintyCodes: Schema.Array(NonEmptyStringSchema),
   })
 );
 
 export const AgentNetworkAiAnalysisRequestedEventSchema = withParser(
   Schema.Struct({
     ...NetworkRuntimeEventBase,
-    aiRequestRef: NetworkRuntimeText,
-    previousEventRef: NetworkRuntimeText,
+    aiRequestRef: NonEmptyStringSchema,
+    previousEventRef: NonEmptyStringSchema,
     evidenceRefs: NetworkRuntimeNonEmptyRefs,
-    promptTemplateRef: NetworkRuntimeText,
-    custody: NetworkRuntimeText,
+    promptTemplateRef: NonEmptyStringSchema,
+    custody: NonEmptyStringSchema,
     rawPacketPayloadIncluded: Schema.Boolean,
   }).pipe(
     Schema.filter((event) => !event.rawPacketPayloadIncluded || 'Network AI events cannot include raw packet payloads')
@@ -151,20 +164,20 @@ export const AgentNetworkAiAnalysisRequestedEventSchema = withParser(
 export const AgentNetworkAiAnalysisCompletedEventSchema = withParser(
   Schema.Struct({
     ...NetworkRuntimeEventBase,
-    aiAnalysisRef: NetworkRuntimeText,
-    aiRequestRef: NetworkRuntimeText,
-    previousEventRef: NetworkRuntimeText,
+    aiAnalysisRef: NonEmptyStringSchema,
+    aiRequestRef: NonEmptyStringSchema,
+    previousEventRef: NonEmptyStringSchema,
     advisoryState: AgentNetworkAiAdvisoryStateSchema,
     evidenceRefs: NetworkRuntimeNonEmptyRefs,
-    unsupportedClaims: Schema.Array(NetworkRuntimeText),
+    unsupportedClaims: Schema.Array(NonEmptyStringSchema),
   })
 );
 
 export const AgentNetworkPolicyEvaluationRequestedEventSchema = withParser(
   Schema.Struct({
     ...NetworkRuntimeEventBase,
-    policyEvaluationRef: NetworkRuntimeText,
-    previousEventRef: NetworkRuntimeText,
+    policyEvaluationRef: NonEmptyStringSchema,
+    previousEventRef: NonEmptyStringSchema,
     evidenceRefs: NetworkRuntimeNonEmptyRefs,
     aiAnalysisRef: NullableNetworkRuntimeText,
     parentRuleRefs: NetworkRuntimeNonEmptyRefs,
@@ -175,9 +188,9 @@ export const AgentNetworkPolicyEvaluationRequestedEventSchema = withParser(
 export const AgentNetworkPolicyDecisionCompletedEventSchema = withParser(
   Schema.Struct({
     ...NetworkRuntimeEventBase,
-    policyDecisionRef: NetworkRuntimeText,
-    policyEvaluationRef: NetworkRuntimeText,
-    previousEventRef: NetworkRuntimeText,
+    policyDecisionRef: NonEmptyStringSchema,
+    policyEvaluationRef: NonEmptyStringSchema,
+    previousEventRef: NonEmptyStringSchema,
     decisionAction: AgentNetworkPolicyDecisionActionSchema,
     evidenceRefs: NetworkRuntimeNonEmptyRefs,
     parentRuleRefs: NetworkRuntimeNonEmptyRefs,
@@ -188,10 +201,10 @@ export const AgentNetworkPolicyDecisionCompletedEventSchema = withParser(
 export const AgentNetworkEnforcementCommandIssuedEventSchema = withParser(
   Schema.Struct({
     ...NetworkRuntimeEventBase,
-    enforcementCommandRef: NetworkRuntimeText,
-    previousEventRef: NetworkRuntimeText,
-    policyDecisionRef: NetworkRuntimeText,
-    adapterCapabilityRef: NetworkRuntimeText,
+    enforcementCommandRef: NonEmptyStringSchema,
+    previousEventRef: NonEmptyStringSchema,
+    policyDecisionRef: NonEmptyStringSchema,
+    adapterCapabilityRef: NonEmptyStringSchema,
     enforcementMode: AgentNetworkEnforcementModeSchema,
     evidenceRefs: NetworkRuntimeNonEmptyRefs,
     rollbackRef: NullableNetworkRuntimeText,
@@ -201,9 +214,9 @@ export const AgentNetworkEnforcementCommandIssuedEventSchema = withParser(
 export const AgentNetworkEnforcementResultObservedEventSchema = withParser(
   Schema.Struct({
     ...NetworkRuntimeEventBase,
-    enforcementResultRef: NetworkRuntimeText,
-    enforcementCommandRef: NetworkRuntimeText,
-    previousEventRef: NetworkRuntimeText,
+    enforcementResultRef: NonEmptyStringSchema,
+    enforcementCommandRef: NonEmptyStringSchema,
+    previousEventRef: NonEmptyStringSchema,
     resultStatus: AgentNetworkEnforcementResultStatusSchema,
     adapterActionExecuted: Schema.Boolean,
     rollbackRef: NullableNetworkRuntimeText,
@@ -216,9 +229,9 @@ export const AgentNetworkEnforcementResultObservedEventSchema = withParser(
 export const AgentNetworkAuditEntryCommittedEventSchema = withParser(
   Schema.Struct({
     ...NetworkRuntimeEventBase,
-    auditEntryRef: NetworkRuntimeText,
-    previousEventRef: NetworkRuntimeText,
-    policyDecisionRef: NetworkRuntimeText,
+    auditEntryRef: NonEmptyStringSchema,
+    previousEventRef: NonEmptyStringSchema,
+    policyDecisionRef: NonEmptyStringSchema,
     enforcementCommandRef: NullableNetworkRuntimeText,
     enforcementResultRef: NullableNetworkRuntimeText,
     evidenceRefs: NetworkRuntimeNonEmptyRefs,
@@ -229,9 +242,9 @@ export const AgentNetworkAuditEntryCommittedEventSchema = withParser(
 export const AgentNetworkPortalReadModelUpdatedEventSchema = withParser(
   Schema.Struct({
     ...NetworkRuntimeEventBase,
-    readModelRef: NetworkRuntimeText,
-    previousEventRef: NetworkRuntimeText,
-    auditEntryRef: NetworkRuntimeText,
+    readModelRef: NonEmptyStringSchema,
+    previousEventRef: NonEmptyStringSchema,
+    auditEntryRef: NonEmptyStringSchema,
     updateKind: AgentNetworkPortalUpdateKindSchema,
     visibleManualRequired: Schema.Boolean,
     visibleUnavailable: Schema.Boolean,

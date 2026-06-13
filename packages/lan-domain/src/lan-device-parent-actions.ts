@@ -1,16 +1,18 @@
-import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
+import {
+  type Infer,
+  Schema,
+  withParser,
+  brandedNonEmptyStringSchema,
+  NonEmptyStringSchema
+} from '@ocentra-parent/schema-domain/effect';
 import { ChildProfileIdSchema, ParentActorIdSchema } from '@ocentra-parent/family-domain/reference-primitives';
 import { HouseholdCanonicalDeviceIdSchema } from './household-device-spine';
 import { LanPairingSchemaVersionSchema, LanPairingTimestampSchema } from './lan-pairing-values';
 
-const NonEmptyLanDeviceActionText = Schema.String.pipe(Schema.minLength(1));
-
 export const LAN_HOUSEHOLD_DEVICE_KIND_VALUES = ['mobile', 'desktop', 'laptop', 'tablet', 'router', 'unknown'] as const;
 export const LAN_HOUSEHOLD_ACTION_DEVICE_KIND_FIELD = 'deviceKind';
 
-export const LanHouseholdDeviceActionIdSchema = NonEmptyLanDeviceActionText.pipe(
-  Schema.brand('LanHouseholdDeviceActionId')
-);
+export const LanHouseholdDeviceActionIdSchema = brandedNonEmptyStringSchema('LanHouseholdDeviceActionId');
 
 export const LanHouseholdDeviceActionKindSchema = withParser(
   Schema.Literal('assign', 'rename', 'ignore', 'restore', 'trust')
@@ -25,7 +27,7 @@ export const LanHouseholdDeviceDecisionSchema = withParser(
     actionKind: LanHouseholdDeviceActionKindSchema,
     canonicalDeviceId: HouseholdCanonicalDeviceIdSchema,
     childProfileId: Schema.Union(ChildProfileIdSchema, Schema.Null),
-    displayName: Schema.Union(NonEmptyLanDeviceActionText, Schema.Null),
+    displayName: Schema.Union(NonEmptyStringSchema, Schema.Null),
     deviceKind: Schema.optionalWith(Schema.Union(LanHouseholdDeviceKindSchema, Schema.Null), { default: () => null }),
     parentActorId: ParentActorIdSchema,
     decidedAt: LanPairingTimestampSchema,
@@ -37,3 +39,4 @@ export type LanHouseholdDeviceActionId = typeof LanHouseholdDeviceActionIdSchema
 export type LanHouseholdDeviceActionKind = Infer<typeof LanHouseholdDeviceActionKindSchema>;
 export type LanHouseholdDeviceKind = Infer<typeof LanHouseholdDeviceKindSchema>;
 export type LanHouseholdDeviceDecision = Infer<typeof LanHouseholdDeviceDecisionSchema>;
+

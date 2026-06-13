@@ -26,6 +26,7 @@
     "test": "vitest run"
   },
   "dependencies": {
+    "@ocentra-parent/activity-domain": "file:../activity-domain",
     "@ocentra-parent/evidence-domain": "file:../evidence-domain",
     "@ocentra-parent/family-domain": "file:../family-domain",
     "@ocentra-parent/schema-domain": "file:../schema-domain"

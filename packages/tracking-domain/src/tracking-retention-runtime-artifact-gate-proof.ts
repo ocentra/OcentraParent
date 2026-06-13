@@ -1,4 +1,9 @@
-import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
+import {
+  type Infer,
+  Schema,
+  withParser,
+  brandedNonEmptyStringSchema
+} from '@ocentra-parent/schema-domain/effect';
 import { ParentTimestampSchema } from '@ocentra-parent/family-domain/reference-primitives';
 import { TrackingPolicyAuditRefSchema, TrackingPolicySchemaVersion } from './tracking-location-policy-primitives';
 import {
@@ -6,23 +11,17 @@ import {
   RequiredTrackingRetentionRuntimeProductBlockers,
 } from './tracking-retention-product-readiness-proof';
 
-const TrackingRetentionRuntimeArtifactGateTextSchema = Schema.String.pipe(Schema.minLength(1));
-
 export const TrackingRetentionRuntimeArtifactGateStatusSchema = Schema.Literal(
   'manual-required',
   'artifact-set-present'
 );
 
-export const TrackingRetentionRuntimeArtifactGatePathSchema = TrackingRetentionRuntimeArtifactGateTextSchema.pipe(
-  Schema.brand('TrackingRetentionRuntimeArtifactGatePath')
-);
+export const TrackingRetentionRuntimeArtifactGatePathSchema = brandedNonEmptyStringSchema('TrackingRetentionRuntimeArtifactGatePath');
 
-export const TrackingRetentionRuntimeArtifactGateRowIdSchema = TrackingRetentionRuntimeArtifactGateTextSchema.pipe(
-  Schema.brand('TrackingRetentionRuntimeArtifactGateRowId')
-);
+export const TrackingRetentionRuntimeArtifactGateRowIdSchema = brandedNonEmptyStringSchema('TrackingRetentionRuntimeArtifactGateRowId');
 
 export const TrackingRetentionRuntimeArtifactGateArtifactRefSchema =
-  TrackingRetentionRuntimeArtifactGateTextSchema.pipe(Schema.brand('TrackingRetentionRuntimeArtifactGateArtifactRef'));
+  brandedNonEmptyStringSchema('TrackingRetentionRuntimeArtifactGateArtifactRef');
 
 export const TrackingRetentionRuntimeArtifactGateBlockerSchema = Schema.Literal(
   ...RequiredTrackingRetentionRuntimeProductBlockers
@@ -214,3 +213,4 @@ function retentionRuntimeArtifactRow(
     productClaimReady: false,
   });
 }
+

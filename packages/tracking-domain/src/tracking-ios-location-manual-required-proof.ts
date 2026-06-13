@@ -1,26 +1,23 @@
-import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
+import {
+  type Infer,
+  Schema,
+  withParser,
+  brandedNonEmptyStringSchema
+} from '@ocentra-parent/schema-domain/effect';
 import {
   ParentContractSchemaVersion,
   ParentContractSchemaVersionSchema,
   ParentTimestampSchema,
 } from '@ocentra-parent/family-domain/reference-primitives';
 import { FamilyReferenceSchema, ParentDeviceReferenceSchema, ParentEvidenceReferenceSchema } from '@ocentra-parent/family-domain/references';
-
-const TrackingIosLocationManualRequiredTextSchema = Schema.String.pipe(Schema.minLength(1));
 const TrackingIosLocationManualRequiredNonNegativeIntegerSchema = Schema.Number.pipe(
   Schema.int(),
   Schema.nonNegative()
 );
 
-export const TrackingIosLocationManualRequiredProofIdSchema = TrackingIosLocationManualRequiredTextSchema.pipe(
-  Schema.brand('TrackingIosLocationManualRequiredProofId')
-);
-export const TrackingIosLocationManualRequiredProofReferenceSchema = TrackingIosLocationManualRequiredTextSchema.pipe(
-  Schema.brand('TrackingIosLocationManualRequiredProofReference')
-);
-export const TrackingIosLocationRuntimeArtifactRefSchema = TrackingIosLocationManualRequiredTextSchema.pipe(
-  Schema.brand('TrackingIosLocationRuntimeArtifactRef')
-);
+export const TrackingIosLocationManualRequiredProofIdSchema = brandedNonEmptyStringSchema('TrackingIosLocationManualRequiredProofId');
+export const TrackingIosLocationManualRequiredProofReferenceSchema = brandedNonEmptyStringSchema('TrackingIosLocationManualRequiredProofReference');
+export const TrackingIosLocationRuntimeArtifactRefSchema = brandedNonEmptyStringSchema('TrackingIosLocationRuntimeArtifactRef');
 
 export const TrackingIosLocationManualRequiredCaseSchema = withParser(
   Schema.Literal(
@@ -524,3 +521,4 @@ function countRows(
 ): number {
   return rows.filter(predicate).length;
 }
+

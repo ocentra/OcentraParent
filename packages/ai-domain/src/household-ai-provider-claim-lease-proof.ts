@@ -1,12 +1,14 @@
-import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
-
-const ClaimLeaseTextSchema = Schema.String.pipe(Schema.minLength(1));
+import {
+  type Infer,
+  Schema,
+  withParser,
+  brandedNonEmptyStringSchema,
+  NonEmptyStringSchema
+} from '@ocentra-parent/schema-domain/effect';
 const ClaimLeaseCountSchema = Schema.Number.pipe(Schema.nonNegative(), Schema.int());
 const ClaimLeasePositiveCountSchema = Schema.Number.pipe(Schema.positive(), Schema.int());
 
-export const HouseholdAiProviderClaimLeaseProofIdSchema = ClaimLeaseTextSchema.pipe(
-  Schema.brand('HouseholdAiProviderClaimLeaseProofId')
-);
+export const HouseholdAiProviderClaimLeaseProofIdSchema = brandedNonEmptyStringSchema('HouseholdAiProviderClaimLeaseProofId');
 
 export const HouseholdAiProviderLeaseStateSchema = withParser(
   Schema.Literal('queued', 'claimed', 'duplicate-rejected', 'expired-requeued', 'dead-lettered')
@@ -35,36 +37,36 @@ export const HouseholdAiProviderClaimLeaseBoundarySchema = withParser(
 );
 
 const HouseholdAiProviderLeaseAttemptSchema = Schema.Struct({
-  attemptId: ClaimLeaseTextSchema,
-  jobId: ClaimLeaseTextSchema,
-  providerId: ClaimLeaseTextSchema,
-  claimId: ClaimLeaseTextSchema,
-  leaseId: ClaimLeaseTextSchema,
+  attemptId: NonEmptyStringSchema,
+  jobId: NonEmptyStringSchema,
+  providerId: NonEmptyStringSchema,
+  claimId: NonEmptyStringSchema,
+  leaseId: NonEmptyStringSchema,
   state: HouseholdAiProviderLeaseStateSchema,
-  leaseExpiresAt: ClaimLeaseTextSchema,
+  leaseExpiresAt: NonEmptyStringSchema,
   attemptNumber: ClaimLeasePositiveCountSchema,
   acceptedClaim: Schema.Boolean,
   activeLeaseCountAfterDecision: ClaimLeaseCountSchema,
-  rejectionReason: Schema.NullOr(ClaimLeaseTextSchema),
+  rejectionReason: Schema.NullOr(NonEmptyStringSchema),
 });
 
 const HouseholdAiProviderMessageReceiptSchema = Schema.Struct({
-  messageId: ClaimLeaseTextSchema,
-  jobId: ClaimLeaseTextSchema,
-  providerId: ClaimLeaseTextSchema,
+  messageId: NonEmptyStringSchema,
+  jobId: NonEmptyStringSchema,
+  providerId: NonEmptyStringSchema,
   state: HouseholdAiProviderMessageStateSchema,
-  idempotencyKey: ClaimLeaseTextSchema,
+  idempotencyKey: NonEmptyStringSchema,
   sideEffectApplied: Schema.Boolean,
 });
 
 const HouseholdAiProviderClaimLeaseProofBaseSchema = Schema.Struct({
   proofId: HouseholdAiProviderClaimLeaseProofIdSchema,
-  generatedAt: ClaimLeaseTextSchema,
-  childAgentId: ClaimLeaseTextSchema,
-  jobId: ClaimLeaseTextSchema,
+  generatedAt: NonEmptyStringSchema,
+  childAgentId: NonEmptyStringSchema,
+  jobId: NonEmptyStringSchema,
   workKind: Schema.Literal('screen-ai-analysis'),
-  custodyRef: ClaimLeaseTextSchema,
-  redactedPayloadRef: ClaimLeaseTextSchema,
+  custodyRef: NonEmptyStringSchema,
+  redactedPayloadRef: NonEmptyStringSchema,
   maxAttempts: ClaimLeasePositiveCountSchema,
   leaseTtlMs: ClaimLeasePositiveCountSchema,
   leaseAttempts: Schema.Array(HouseholdAiProviderLeaseAttemptSchema),
@@ -250,3 +252,4 @@ function duplicateMessagesAreIdempotent(proof: HouseholdAiProviderClaimLeaseProo
 export const decodeHouseholdAiProviderClaimLeaseProof = Schema.decodeUnknownSync(
   HouseholdAiProviderClaimLeaseProofSchema
 );
+

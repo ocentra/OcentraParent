@@ -1,11 +1,14 @@
-import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
+import {
+  type Infer,
+  Schema,
+  withParser,
+  NonEmptyStringSchema
+} from '@ocentra-parent/schema-domain/effect';
 import {
   ScreenAnalysisParentSettingSchema,
   ScreenEvidenceRemoteBoundarySettingSchema,
 } from './screen-evidence-settings';
 import { ScreenEvidenceSchemaVersion } from './screen-evidence-primitives';
-
-const ScreenSettingsUiTextSchema = Schema.String.pipe(Schema.minLength(1));
 
 export const ScreenEvidenceSettingsUiIntentKeySchema = withParser(
   Schema.Literal(
@@ -19,8 +22,8 @@ export const ScreenEvidenceSettingsUiIntentKeySchema = withParser(
 export const ScreenEvidenceSettingsUiIntentSchema = withParser(
   Schema.Struct({
     intentKey: ScreenEvidenceSettingsUiIntentKeySchema,
-    label: ScreenSettingsUiTextSchema,
-    detail: ScreenSettingsUiTextSchema,
+    label: NonEmptyStringSchema,
+    detail: NonEmptyStringSchema,
     setting: ScreenAnalysisParentSettingSchema,
     remoteBoundarySetting: ScreenEvidenceRemoteBoundarySettingSchema,
   })
@@ -28,22 +31,22 @@ export const ScreenEvidenceSettingsUiIntentSchema = withParser(
 
 export const ScreenEvidenceSettingsUiProofSchema = withParser(
   Schema.Struct({
-    title: ScreenSettingsUiTextSchema,
-    note: ScreenSettingsUiTextSchema,
-    intentLegend: ScreenSettingsUiTextSchema,
-    draftHeading: ScreenSettingsUiTextSchema,
-    draftTriggerHeading: ScreenSettingsUiTextSchema,
-    retentionHeading: ScreenSettingsUiTextSchema,
-    serviceCommandHeading: ScreenSettingsUiTextSchema,
-    serviceApplyActionLabel: ScreenSettingsUiTextSchema,
-    serviceRefreshActionLabel: ScreenSettingsUiTextSchema,
-    servicePendingStatus: ScreenSettingsUiTextSchema,
-    serviceAcceptedStatus: ScreenSettingsUiTextSchema,
-    serviceRejectedStatus: ScreenSettingsUiTextSchema,
-    serviceDisconnectedStatus: ScreenSettingsUiTextSchema,
-    serviceNoResponseStatus: ScreenSettingsUiTextSchema,
-    validationStatusLabel: ScreenSettingsUiTextSchema,
-    validationStatusValue: ScreenSettingsUiTextSchema,
+    title: NonEmptyStringSchema,
+    note: NonEmptyStringSchema,
+    intentLegend: NonEmptyStringSchema,
+    draftHeading: NonEmptyStringSchema,
+    draftTriggerHeading: NonEmptyStringSchema,
+    retentionHeading: NonEmptyStringSchema,
+    serviceCommandHeading: NonEmptyStringSchema,
+    serviceApplyActionLabel: NonEmptyStringSchema,
+    serviceRefreshActionLabel: NonEmptyStringSchema,
+    servicePendingStatus: NonEmptyStringSchema,
+    serviceAcceptedStatus: NonEmptyStringSchema,
+    serviceRejectedStatus: NonEmptyStringSchema,
+    serviceDisconnectedStatus: NonEmptyStringSchema,
+    serviceNoResponseStatus: NonEmptyStringSchema,
+    validationStatusLabel: NonEmptyStringSchema,
+    validationStatusValue: NonEmptyStringSchema,
     defaultIntentKey: ScreenEvidenceSettingsUiIntentKeySchema,
     intents: Schema.Array(ScreenEvidenceSettingsUiIntentSchema).pipe(
       Schema.filter((value) => value.length === 4 || 'Expected four parent Screen settings UI intents')
@@ -249,3 +252,4 @@ function remoteBoundaryForSetting(setting: typeof DisabledSetting) {
   }
   return DisabledRemoteBoundarySetting;
 }
+

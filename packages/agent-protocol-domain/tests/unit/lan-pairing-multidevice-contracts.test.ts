@@ -12,6 +12,7 @@ import {
   AgentProtocolDefaults,
 } from '../../src/contracts';
 import { AgentLanPairingChallengeRequestSchema } from '../../src/lan-pairing-challenge';
+import { AgentLanBrowserRuntimeCommandNameLiteral } from '../../src/lan-pairing-browser-runtime';
 import {
   AgentLanPairingRejectionReasonSchema,
   AgentLanSelectedRouteTrustStateSchema,
@@ -49,8 +50,8 @@ function assertSupportedWebSocketCommands() {
     'agent.lan-pairing.route.select',
     'agent.lan-pairing.route.revoke',
     'agent.lan-pairing.status.get',
-    'agent.lan-pairing.browser-discovery.scan',
-    'agent.lan-pairing.add-device.request',
+    AgentLanBrowserRuntimeCommandNameLiteral.BrowserDiscoveryScan,
+    AgentLanBrowserRuntimeCommandNameLiteral.AddDeviceRequest,
     'agent.lan-pairing.controller-lease.renew',
     'agent.lan-pairing.controller-lease.release',
     'agent.lan-pairing.controller-lease.takeover',

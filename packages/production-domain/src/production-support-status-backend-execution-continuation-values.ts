@@ -1,6 +1,8 @@
-import { Schema, withParser } from '@ocentra-parent/schema-domain/effect';
-
-const NonEmptyExecutionContinuationText = Schema.String.pipe(Schema.minLength(1));
+import {
+  Schema,
+  withParser,
+  brandedNonEmptyStringSchema
+} from '@ocentra-parent/schema-domain/effect';
 
 export const ProductionSupportStatusBackendExecutionContinuationSchemaVersionSchema = withParser(
   Schema.Literal('production-support-status-backend-execution-continuation-proof')
@@ -92,12 +94,8 @@ export const ProductionSupportStatusBackendExecutionContinuationNonClaimSchema =
   )
 );
 
-export const ExecutionContinuationReferenceSchema = NonEmptyExecutionContinuationText.pipe(
-  Schema.brand('ProductionSupportStatusBackendExecutionContinuationReference')
-);
-export const ExecutionContinuationManualRequirementSchema = NonEmptyExecutionContinuationText.pipe(
-  Schema.brand('ProductionSupportStatusBackendExecutionContinuationManualRequirement')
-);
+export const ExecutionContinuationReferenceSchema = brandedNonEmptyStringSchema('ProductionSupportStatusBackendExecutionContinuationReference');
+export const ExecutionContinuationManualRequirementSchema = brandedNonEmptyStringSchema('ProductionSupportStatusBackendExecutionContinuationManualRequirement');
 
 export const RequiredExecutionContinuationTargets = [
   'support-runbook-status-backend-execution-continuation',
@@ -173,3 +171,4 @@ export const RequiredExecutionContinuationNonClaims = [
   'no-default-hosted-family-data',
   'no-child-activity-custody',
 ] as const;
+

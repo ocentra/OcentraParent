@@ -1,4 +1,9 @@
-import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
+import {
+  type Infer,
+  Schema,
+  withParser,
+  NonEmptyStringSchema
+} from '@ocentra-parent/schema-domain/effect';
 import { ActivityTimestampSchema } from '@ocentra-parent/evidence-domain/primitives';
 import { ScreenEvidenceParentSettingRefSchema } from './screen-evidence-primitives';
 import {
@@ -9,8 +14,6 @@ import { ScreenLiveViewOptInSettingSchema } from './screen-optional-visibility-m
 import { ScreenOptionalVisibilityAuditRefSchema } from './screen-optional-visibility-mode-values';
 
 export const ScreenLiveViewParentUiPersistenceSchemaVersion = 1;
-
-const NonEmptyLiveViewText = Schema.String.pipe(Schema.minLength(1));
 const RequiredFalse = Schema.Literal(false);
 const RequiredTrue = Schema.Literal(true);
 
@@ -29,12 +32,12 @@ const ScreenLiveViewParentUiPersistenceProofBaseSchema = Schema.Struct({
   settingsRouteRendered: RequiredTrue,
   persistedInParentSettingsStore: RequiredTrue,
   viewerAuditRef: ScreenOptionalVisibilityAuditRefSchema,
-  portalProofRef: NonEmptyLiveViewText,
-  serviceSettingsProofRef: NonEmptyLiveViewText,
+  portalProofRef: NonEmptyStringSchema,
+  serviceSettingsProofRef: NonEmptyStringSchema,
   rawFramesRetained: RequiredFalse,
   remoteInputAllowed: RequiredFalse,
   productLiveViewReady: RequiredFalse,
-  reason: NonEmptyLiveViewText,
+  reason: NonEmptyStringSchema,
 });
 
 type ScreenLiveViewParentUiPersistenceProofInput = Infer<typeof ScreenLiveViewParentUiPersistenceProofBaseSchema>;
@@ -94,3 +97,4 @@ function persistedOptInUiPersistenceIsConsistent(value: ScreenLiveViewParentUiPe
 
 export type ScreenLiveViewParentUiPersistenceStatus = Infer<typeof ScreenLiveViewParentUiPersistenceStatusSchema>;
 export type ScreenLiveViewParentUiPersistenceProof = Infer<typeof ScreenLiveViewParentUiPersistenceProofSchema>;
+

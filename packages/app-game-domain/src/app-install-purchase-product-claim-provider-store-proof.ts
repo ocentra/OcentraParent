@@ -1,4 +1,9 @@
-import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
+import {
+  type Infer,
+  Schema,
+  withParser,
+  brandedNonEmptyStringSchema
+} from '@ocentra-parent/schema-domain/effect';
 import { AppInstallPurchaseProductClaimGateProofReadModel } from './app-install-purchase-product-claim-gate-proof';
 import { AppInstallPurchaseProviderStoreExecutionPreflightProofReadModel } from './app-install-purchase-provider-store-execution-preflight-proof';
 import { ParentPlatformSchema, ParentTimestampSchema } from '@ocentra-parent/family-domain/reference-primitives';
@@ -7,7 +12,6 @@ const ProofVersion = 'app-install-purchase-product-claim-provider-store-proof';
 const SourceProductClaimGateProofVersion = 'app-install-purchase-product-claim-gate-proof';
 const SourceProviderStorePreflightProofVersion = 'app-install-purchase-provider-store-execution-preflight-proof';
 const UpdatedAt = '2026-06-06T13:30:00.000Z';
-const Text = Schema.String.pipe(Schema.minLength(1));
 const StoreSurfaces = [
   'microsoft-store',
   'mac-app-store',
@@ -76,8 +80,8 @@ const NotClaimedSchema = withParser(Schema.Literal('not-claimed'));
 const NotImplementedSchema = withParser(Schema.Literal('not-implemented'));
 const NotDeliveredSchema = withParser(Schema.Literal('not-delivered'));
 const CustodySchema = withParser(Schema.Literal('no-child-activity-data'));
-const RefSchema = Text.pipe(Schema.brand('AppInstallPurchaseProductClaimProviderStoreRef'));
-const BoundarySchema = Text.pipe(Schema.brand('AppInstallPurchaseProductClaimProviderStoreBoundary'));
+const RefSchema = brandedNonEmptyStringSchema('AppInstallPurchaseProductClaimProviderStoreRef');
+const BoundarySchema = brandedNonEmptyStringSchema('AppInstallPurchaseProductClaimProviderStoreBoundary');
 
 const RowBaseSchema = Schema.Struct({
   schemaVersion: AppInstallPurchaseProductClaimProviderStoreProofSchemaVersionSchema,
@@ -360,3 +364,4 @@ function providerStoreProductClaimProofIsHonest(proof: AppInstallPurchaseProduct
 function uniqueRefs(refs: readonly string[]) {
   return Array.from(new Set(refs));
 }
+

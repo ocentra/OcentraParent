@@ -1,11 +1,14 @@
-import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
+import {
+  type Infer,
+  Schema,
+  withParser,
+  brandedNonEmptyStringSchema
+} from '@ocentra-parent/schema-domain/effect';
 import {
   AppGameLinuxForegroundCaptureReadinessSchema,
   type AppGameLinuxForegroundCaptureReadiness,
 } from './app-game-linux-foreground-capture-readiness';
 import { ParentTimestampSchema } from '@ocentra-parent/family-domain/reference-primitives';
-
-const LinuxForegroundSourceText = Schema.String.pipe(Schema.minLength(1));
 
 export const AppGameLinuxForegroundSourcePreflightSchemaVersionSchema = withParser(
   Schema.Literal('app-game-linux-foreground-source-preflight')
@@ -39,9 +42,7 @@ export const AppGameLinuxForegroundSourcePreflightGapSchema = withParser(
   )
 );
 
-const LinuxForegroundSourceLabelSchema = LinuxForegroundSourceText.pipe(
-  Schema.brand('AppGameLinuxForegroundSourcePreflightLabel')
-);
+const LinuxForegroundSourceLabelSchema = brandedNonEmptyStringSchema('AppGameLinuxForegroundSourcePreflightLabel');
 
 const AppGameLinuxForegroundSourcePreflightBaseSchema = Schema.Struct({
   schemaVersion: AppGameLinuxForegroundSourcePreflightSchemaVersionSchema,
@@ -177,3 +178,4 @@ function linuxForegroundSourceStateIsConsistent(readModel: AppGameLinuxForegroun
     readModel.proofRefs.includes('linux-foreground-source-preflight-ref')
   );
 }
+

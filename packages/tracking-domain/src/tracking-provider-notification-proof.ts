@@ -1,4 +1,9 @@
-import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
+import {
+  type Infer,
+  Schema,
+  withParser,
+  brandedNonEmptyStringSchema
+} from '@ocentra-parent/schema-domain/effect';
 import {
   ParentContractSchemaVersion,
   ParentContractSchemaVersionSchema,
@@ -14,9 +19,7 @@ import {
   V08NotificationProviderStatusBoundaryEntrySchema,
   V08NotificationProviderStatusBoundaryReadModel,
   type V08NotificationProviderStatus,
-} from './v0-8-notification-provider-status-boundary';
-
-const TrackingProviderNotificationText = Schema.String.pipe(Schema.minLength(1));
+} from '@ocentra-parent/notification-domain/v0-8-notification-provider-status-boundary';
 
 export const RequiredTrackingProviderNotificationProofNonClaims = [
   'no-provider-delivery-execution',
@@ -36,12 +39,8 @@ export const TrackingProviderNotificationProofNonClaimSchema = withParser(
   Schema.Literal(...RequiredTrackingProviderNotificationProofNonClaims)
 );
 
-export const TrackingProviderNotificationProofIdSchema = TrackingProviderNotificationText.pipe(
-  Schema.brand('TrackingProviderNotificationProofId')
-);
-export const TrackingProviderNotificationProofReferenceSchema = TrackingProviderNotificationText.pipe(
-  Schema.brand('TrackingProviderNotificationProofReference')
-);
+export const TrackingProviderNotificationProofIdSchema = brandedNonEmptyStringSchema('TrackingProviderNotificationProofId');
+export const TrackingProviderNotificationProofReferenceSchema = brandedNonEmptyStringSchema('TrackingProviderNotificationProofReference');
 
 export const TrackingProviderNotificationStatusKindSchema = withParser(
   Schema.Literal('provider-adapter-required', 'manual-required', 'unavailable')
@@ -312,3 +311,4 @@ const countStatusKind = (
 export const decodeTrackingProviderNotificationProofReadModel = Schema.decodeUnknownSync(
   TrackingProviderNotificationProofReadModelSchema
 );
+

@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest';
+import { AgentCommand, AgentEvent } from '@ocentra-parent/agent-protocol-domain/contracts';
 import {
   PARENT_ASSISTANT_PORTAL_NEW_CHAT_ACTION,
   PARENT_ASSISTANT_PORTAL_QUICK_ACTIONS,
@@ -24,6 +25,7 @@ import {
   PortalBrowserParentSurfaceRoutes,
   PortalNetworkEvidenceDrawerRoutes,
   PortalRoute,
+  PortalRouteLiteral,
   PortalRouteSchema,
   PortalRoutes,
   PortalScreenSettingsRoutes,
@@ -40,6 +42,7 @@ import {
   isPortalScreenSettingsRoute,
   isPortalScreenSummaryRoute,
   isPortalTrackingStatusRoute,
+  portalRouteHashPath,
   parentPortalRouteContext,
   type ParentPortalHashRoutePath,
   type ParentPortalNavItem,
@@ -80,7 +83,7 @@ function expectRouteContextsToTargetSelectableControls(selectableTargetIds: Read
   for (const [route, routeContext] of Object.entries(PARENT_PORTAL_ROUTE_CONTEXT) as Array<
     [PortalRoute, NonNullable<(typeof PARENT_PORTAL_ROUTE_CONTEXT)[PortalRoute]>]
   >) {
-    const navMatches = PARENT_PORTAL_CONTENT.navItems.filter((item) => item.routePath === `#/${route}`);
+    const navMatches = PARENT_PORTAL_CONTENT.navItems.filter((item) => item.routePath === portalRouteHashPath(route));
     if (navMatches.length > 0) {
       expect(navMatches.map((item) => item.label)).toEqual([routeContext.navLabel]);
     }
@@ -122,20 +125,20 @@ function summarizeManageItem(item: ParentPortalNavItem) {
 }
 
 function expectManageItemOrder(): void {
-  expect(manageNavItems().map((item) => item.routePath)).toEqual([
-    '#/settings-rules',
-    '#/devices',
-    '#/activity',
-    '#/browser-settings',
-    '#/policy-apps',
-    '#/policy-games',
-    '#/policy-screen',
-    '#/policy-network',
-    '#/policy-tracking',
-    '#/policy-remote-screen',
-    '#/drive-connections',
-    '#/ai-runtime',
-    '#/subscription',
+    expect(manageNavItems().map((item) => item.routePath)).toEqual([
+    portalRouteHashPath(PortalRoute.SettingsRules),
+    portalRouteHashPath(PortalRoute.Devices),
+    portalRouteHashPath(PortalRoute.Activity),
+    portalRouteHashPath(PortalRoute.BrowserSettings),
+    portalRouteHashPath(PortalRoute.PolicyApps),
+    portalRouteHashPath(PortalRoute.PolicyGames),
+    portalRouteHashPath(PortalRoute.PolicyScreen),
+    portalRouteHashPath(PortalRoute.PolicyNetwork),
+    portalRouteHashPath(PortalRoute.PolicyTracking),
+    portalRouteHashPath(PortalRoute.PolicyRemoteScreen),
+    portalRouteHashPath(PortalRoute.DriveConnections),
+    portalRouteHashPath(PortalRoute.AiRuntime),
+    portalRouteHashPath(PortalRoute.Subscription),
   ]);
 }
 
@@ -172,22 +175,22 @@ function expectNoManageSectionChildren(sectionLabel: ParentPortalNavSectionLabel
 function expectManageAccountAndControlBuckets(): void {
   expectManageStandaloneItem(PARENT_PORTAL_NAV_LABELS.Portal, {
     icon: 'portal',
-    routePath: '#/settings-rules',
+    routePath: portalRouteHashPath(PortalRoute.SettingsRules),
     sectionLabel: undefined,
   });
   expectManageStandaloneItem(PARENT_PORTAL_NAV_LABELS.DataPrivacy, {
     icon: 'drives',
-    routePath: '#/drive-connections',
+    routePath: portalRouteHashPath(PortalRoute.DriveConnections),
     sectionLabel: undefined,
   });
   expectManageStandaloneItem(PARENT_PORTAL_NAV_LABELS.AiMemory, {
     icon: 'ai-setup',
-    routePath: '#/ai-runtime',
+    routePath: portalRouteHashPath(PortalRoute.AiRuntime),
     sectionLabel: undefined,
   });
   expectManageStandaloneItem(PARENT_PORTAL_NAV_LABELS.Account, {
     icon: 'account',
-    routePath: '#/subscription',
+    routePath: portalRouteHashPath(PortalRoute.Subscription),
     sectionLabel: undefined,
   });
 }
@@ -199,13 +202,13 @@ function expectManageCollapsedSections(): void {
   expectNoManageSectionChildren(PARENT_PORTAL_NAV_LABELS.Account);
   expectManageStandaloneItem(PARENT_PORTAL_NAV_LABELS.Devices, {
     icon: 'lan',
-    routePath: '#/devices',
+    routePath: portalRouteHashPath(PortalRoute.Devices),
     sectionLabel: undefined,
   });
   expectNoManageSectionChildren(PARENT_PORTAL_NAV_LABELS.Devices);
   expectManageStandaloneItem(PARENT_PORTAL_NAV_LABELS.Activity, {
     icon: 'activity',
-    routePath: '#/activity',
+    routePath: portalRouteHashPath(PortalRoute.Activity),
     sectionLabel: undefined,
   });
   expectNoManageSectionChildren(PARENT_PORTAL_NAV_LABELS.Activity);
@@ -214,61 +217,61 @@ function expectManageCollapsedSections(): void {
 describe('portal route schema contracts', () => {
   it('PortalRouteSchema: accepts only declared dev routes', () => {
     expect(PortalRoutes).toEqual([
-      'overview',
-      'assistant',
-      'start',
-      'activity',
-      'browser',
-      'browser-settings',
-      'policy',
-      'policy-apps',
-      'policy-games',
-      'policy-screen',
-      'policy-network',
-      'policy-tracking',
-      'policy-remote-screen',
-      'rule-management',
-      'schedules',
-      'approvals',
-      'enforcement',
-      'privacy-design',
-      'memory',
-      'memory-settings',
-      'ai-guide',
-      'ai-runtime',
-      'api-providers',
-      'reports-guide',
-      'screen-analysis',
-      'app-game-sessions',
-      'network-activity',
-      'devices',
-      'lan-pairing',
-      'capability-status',
-      'notifications',
-      'notification-channels',
-      'drive-connections',
-      'export-retention',
-      'remote-access',
-      'report-compiler',
-      'audit-history',
-      'subscription',
-      'entitlements',
-      'platforms-install',
-      'install-updates',
-      'diagnostics',
-      'settings-rules',
-      'app-layout',
-      'commands',
-      'events',
-      'logs',
+      PortalRouteLiteral.Overview,
+      PortalRouteLiteral.Assistant,
+      PortalRouteLiteral.Start,
+      PortalRouteLiteral.Activity,
+      PortalRouteLiteral.Browser,
+      PortalRouteLiteral.BrowserSettings,
+      PortalRouteLiteral.Policy,
+      PortalRouteLiteral.PolicyApps,
+      PortalRouteLiteral.PolicyGames,
+      PortalRouteLiteral.PolicyScreen,
+      PortalRouteLiteral.PolicyNetwork,
+      PortalRouteLiteral.PolicyTracking,
+      PortalRouteLiteral.PolicyRemoteScreen,
+      PortalRouteLiteral.RuleManagement,
+      PortalRouteLiteral.Schedules,
+      PortalRouteLiteral.Approvals,
+      PortalRouteLiteral.Enforcement,
+      PortalRouteLiteral.PrivacyDesign,
+      PortalRouteLiteral.Memory,
+      PortalRouteLiteral.MemorySettings,
+      PortalRouteLiteral.AiGuide,
+      PortalRouteLiteral.AiRuntime,
+      PortalRouteLiteral.ApiProviders,
+      PortalRouteLiteral.ReportsGuide,
+      PortalRouteLiteral.ScreenAnalysis,
+      PortalRouteLiteral.AppGameSessions,
+      PortalRouteLiteral.NetworkActivity,
+      PortalRouteLiteral.Devices,
+      PortalRouteLiteral.LanPairing,
+      PortalRouteLiteral.CapabilityStatus,
+      PortalRouteLiteral.Notifications,
+      PortalRouteLiteral.NotificationChannels,
+      PortalRouteLiteral.DriveConnections,
+      PortalRouteLiteral.ExportRetention,
+      PortalRouteLiteral.RemoteAccess,
+      PortalRouteLiteral.ReportCompiler,
+      PortalRouteLiteral.AuditHistory,
+      PortalRouteLiteral.Subscription,
+      PortalRouteLiteral.Entitlements,
+      PortalRouteLiteral.PlatformsInstall,
+      PortalRouteLiteral.InstallUpdates,
+      PortalRouteLiteral.Diagnostics,
+      PortalRouteLiteral.SettingsRules,
+      PortalRouteLiteral.FrameTuner,
+      PortalRouteLiteral.Commands,
+      PortalRouteLiteral.Events,
+      PortalRouteLiteral.Logs,
     ]);
-    expect(PortalRouteSchema.safeParse('commands').success).toBe(true);
-    expect(PortalRouteSchema.safeParse('settings-rules').success).toBe(true);
-    expect(PortalRouteSchema.safeParse('policy-apps').success).toBe(true);
-    expect(PortalRouteSchema.safeParse('policy-games').success).toBe(true);
-    expect(PortalRouteSchema.safeParse('policy-screen').success).toBe(true);
-    expect(PortalRouteSchema.safeParse('policy-network').success).toBe(true);
-    expect(PortalRouteSchema.safeParse('policy-tracking').success).toBe(true);
+    expect(PortalRouteSchema.safeParse(PortalRouteLiteral.Commands).success).toBe(true);
+    expect(PortalRouteSchema.safeParse(PortalRouteLiteral.SettingsRules).success).toBe(true);
+    expect(PortalRouteSchema.safeParse(PortalRouteLiteral.PolicyApps).success).toBe(true);
+    expect(PortalRouteSchema.safeParse(PortalRouteLiteral.PolicyGames).success).toBe(true);
+    expect(PortalRouteSchema.safeParse(PortalRouteLiteral.PolicyScreen).success).toBe(true);
+    expect(PortalRouteSchema.safeParse(PortalRouteLiteral.PolicyNetwork).success).toBe(true);
+    expect(PortalRouteSchema.safeParse(PortalRouteLiteral.PolicyTracking).success).toBe(true);
     expect(PortalRouteSchema.safeParse('frame-tuner').success).toBe(false);
     expect(PortalRouteSchema.safeParse('billing').success).toBe(false);
     expect(PortalRouteDescriptors.map((descriptor) => descriptor.route)).toContain(PortalRoute.PolicyApps);
@@ -292,7 +295,7 @@ describe('portal guide route contracts', () => {
   it('guide side-panel routes: keep guide entries on guide pages until the user chooses a manage action', () => {
     const guideItems = PARENT_PORTAL_CONTENT.navItems.filter((item) => item.groupId === 'guide');
     const manageItems = PARENT_PORTAL_CONTENT.navItems.filter((item) => item.groupId === 'manage');
-    const guideRules = guideItems.find((item) => item.routePath === '#/policy');
+    const guideRules = guideItems.find((item) => item.routePath === portalRouteHashPath(PortalRoute.Policy));
     const guideAi = guideItems.find((item) => item.label === PARENT_PORTAL_NAV_LABELS.Ai);
     const guideReports = guideItems.find((item) => item.label === PARENT_PORTAL_NAV_LABELS.ReportsGuide);
     const policyRoutes = manageItems
@@ -301,32 +304,32 @@ describe('portal guide route contracts', () => {
 
     expect(guideRules?.label).toBe(PARENT_PORTAL_NAV_LABELS.RulesGuide);
     expect(manageItems.find((item) => item.label === PARENT_PORTAL_NAV_LABELS.Portal)?.routePath).toBe(
-      '#/settings-rules'
+      portalRouteHashPath(PortalRoute.SettingsRules)
     );
     expect(manageItems.find((item) => item.label === PARENT_PORTAL_NAV_LABELS.Account)?.routePath).toBe(
-      '#/subscription'
+      portalRouteHashPath(PortalRoute.Subscription)
     );
     expect(manageItems.find((item) => item.label === PARENT_PORTAL_NAV_LABELS.DataPrivacy)?.routePath).toBe(
-      '#/drive-connections'
+      portalRouteHashPath(PortalRoute.DriveConnections)
     );
     expect(manageItems.find((item) => item.label === PARENT_PORTAL_NAV_LABELS.AiMemory)?.routePath).toBe(
-      '#/ai-runtime'
+      portalRouteHashPath(PortalRoute.AiRuntime)
     );
     expect(policyRoutes).toEqual([
-      '#/browser-settings',
-      '#/policy-apps',
-      '#/policy-games',
-      '#/policy-screen',
-      '#/policy-network',
-      '#/policy-tracking',
-      '#/policy-remote-screen',
+      portalRouteHashPath(PortalRoute.BrowserSettings),
+      portalRouteHashPath(PortalRoute.PolicyApps),
+      portalRouteHashPath(PortalRoute.PolicyGames),
+      portalRouteHashPath(PortalRoute.PolicyScreen),
+      portalRouteHashPath(PortalRoute.PolicyNetwork),
+      portalRouteHashPath(PortalRoute.PolicyTracking),
+      portalRouteHashPath(PortalRoute.PolicyRemoteScreen),
     ]);
-    expect(manageItems.some((item) => item.routePath === '#/rule-management')).toBe(false);
-    expect(manageItems.some((item) => item.routePath === '#/schedules')).toBe(false);
-    expect(manageItems.some((item) => item.routePath === '#/approvals')).toBe(false);
-    expect(manageItems.some((item) => item.routePath === '#/enforcement')).toBe(false);
-    expect(guideAi?.routePath).toBe('#/ai-guide');
-    expect(guideReports?.routePath).toBe('#/reports-guide');
+    expect(manageItems.some((item) => item.routePath === portalRouteHashPath(PortalRoute.RuleManagement))).toBe(false);
+    expect(manageItems.some((item) => item.routePath === portalRouteHashPath(PortalRoute.Schedules))).toBe(false);
+    expect(manageItems.some((item) => item.routePath === portalRouteHashPath(PortalRoute.Approvals))).toBe(false);
+    expect(manageItems.some((item) => item.routePath === portalRouteHashPath(PortalRoute.Enforcement))).toBe(false);
+    expect(guideAi?.routePath).toBe(portalRouteHashPath(PortalRoute.AiGuide));
+    expect(guideReports?.routePath).toBe(portalRouteHashPath(PortalRoute.ReportsGuide));
     expect(parentPortalRouteContext(PortalRoute.Policy).pageMode).toBe('parentGuide');
     expect(parentPortalRouteContext(PortalRoute.RuleManagement).pageMode).toBe('parentManage');
     expect(parentPortalRouteContext(PortalRoute.PolicyApps).pageMode).toBe('parentManage');
@@ -449,13 +452,13 @@ describe('portal manage section contracts', () => {
   it('parent portal manage sections: keep side-panel items in the agreed account and control buckets', () => {
     expectManageItemOrder();
     expectManageSectionRoutes(PARENT_PORTAL_NAV_LABELS.Policies, [
-      '#/browser-settings',
-      '#/policy-apps',
-      '#/policy-games',
-      '#/policy-screen',
-      '#/policy-network',
-      '#/policy-tracking',
-      '#/policy-remote-screen',
+      portalRouteHashPath(PortalRoute.BrowserSettings),
+      portalRouteHashPath(PortalRoute.PolicyApps),
+      portalRouteHashPath(PortalRoute.PolicyGames),
+      portalRouteHashPath(PortalRoute.PolicyScreen),
+      portalRouteHashPath(PortalRoute.PolicyNetwork),
+      portalRouteHashPath(PortalRoute.PolicyTracking),
+      portalRouteHashPath(PortalRoute.PolicyRemoteScreen),
     ]);
     expectManageAccountAndControlBuckets();
     expectManageCollapsedSections();
@@ -487,80 +490,80 @@ describe('portal parent assistant contracts', () => {
 });
 
 const EXPECTED_PORTAL_COMMAND_BUTTONS = [
-  ['agent.health.check', 'agent.health.reported'],
-  ['agent.activity.ingest.status.get', 'agent.activity.recent.summary.reported'],
-  ['agent.browser.evidence.recent.get', 'agent.browser.evidence.recent.reported'],
-  ['agent.activity.memory-graph.get', 'agent.activity.memory-graph.reported'],
+  [AgentCommand.HealthCheck, AgentEvent.HealthReported],
+  [AgentCommand.ActivityIngestStatusGet, AgentEvent.ActivityRecentSummaryReported],
+  [AgentCommand.BrowserEvidenceRecentGet, AgentEvent.BrowserEvidenceRecentReported],
+  [AgentCommand.ActivityMemoryGraphGet, AgentEvent.ActivityMemoryGraphReported],
   [
-    'agent.activity.app-game.adapter-execution-readiness.read-model.get',
-    'agent.activity.app-game.adapter-execution-readiness.read-model.reported',
+    AgentCommand.ActivityAppGameAdapterExecutionReadinessReadModelGet,
+    AgentEvent.ActivityAppGameAdapterExecutionReadinessReadModelReported,
   ],
   [
-    'agent.activity.app-game.platform-proof-status.read-model.get',
-    'agent.activity.app-game.platform-proof-status.read-model.reported',
+    AgentCommand.ActivityAppGamePlatformProofStatusReadModelGet,
+    AgentEvent.ActivityAppGamePlatformProofStatusReadModelReported,
   ],
   [
-    'agent.activity.app-game.child-runtime-transport-receipt.read-model.get',
-    'agent.activity.app-game.child-runtime-transport-receipt.read-model.reported',
+    AgentCommand.ActivityAppGameChildRuntimeTransportReceiptReadModelGet,
+    AgentEvent.ActivityAppGameChildRuntimeTransportReceiptReadModelReported,
   ],
   [
-    'agent.activity.app-game.adapter-dispatch-preflight.read-model.get',
-    'agent.activity.app-game.adapter-dispatch-preflight.read-model.reported',
+    AgentCommand.ActivityAppGameAdapterDispatchPreflightReadModelGet,
+    AgentEvent.ActivityAppGameAdapterDispatchPreflightReadModelReported,
   ],
   [
-    'agent.activity.app-game.adapter-dispatch-result.read-model.get',
-    'agent.activity.app-game.adapter-dispatch-result.read-model.reported',
+    AgentCommand.ActivityAppGameAdapterDispatchResultReadModelGet,
+    AgentEvent.ActivityAppGameAdapterDispatchResultReadModelReported,
   ],
-  ['agent.activity.app-game.adapter-dispatch.execute', 'agent.activity.app-game.adapter-dispatch.executed'],
-  ['agent.browser.intervention.read-model.get', 'agent.browser.intervention.read-model.reported'],
-  ['agent.browser.managed.bridge.poll', 'agent.browser.managed.status.reported'],
-  ['agent.browser.runtime.event-chain.stream.get', 'agent.browser.runtime.event-chain.stream.reported'],
-  ['agent.network.flow.read-model.get', 'agent.network.flow.read-model.reported'],
-  ['agent.network.runtime.event-chain.stream.get', 'agent.network.runtime.event-chain.stream.reported'],
-  ['agent.network.remote-delivery.status.get', 'agent.network.remote-delivery.status.reported'],
-  ['agent.network.live-capture.status.get', 'agent.network.live-capture.status.reported'],
-  ['agent.network.linux-nftables-lab.status.get', 'agent.network.linux-nftables-lab.status.reported'],
-  ['agent.network.windows-firewall-lab.status.get', 'agent.network.windows-firewall-lab.status.reported'],
-  ['agent.network.windows-wfp-gate.status.get', 'agent.network.windows-wfp-gate.status.reported'],
-  ['agent.activity.tracking.read-model.get', 'agent.activity.tracking.read-model.reported'],
-  ['agent.local-ai.runtime.status.get', 'agent.local-ai.runtime.status.reported'],
-  ['agent.policy.preview.read-model.get', 'agent.policy.preview.read-model.reported'],
+  [AgentCommand.ActivityAppGameAdapterDispatchExecute, AgentEvent.ActivityAppGameAdapterDispatchExecuted],
+  [AgentCommand.BrowserInterventionReadModelGet, AgentEvent.BrowserInterventionReadModelReported],
+  [AgentCommand.BrowserManagedBridgePoll, AgentEvent.BrowserManagedStatusReported],
+  [AgentCommand.BrowserRuntimeEventChainStreamGet, AgentEvent.BrowserRuntimeEventChainStreamReported],
+  [AgentCommand.NetworkFlowReadModelGet, AgentEvent.NetworkFlowReadModelReported],
+  [AgentCommand.NetworkRuntimeEventChainStreamGet, AgentEvent.NetworkRuntimeEventChainStreamReported],
+  [AgentCommand.NetworkRemoteDeliveryStatusGet, AgentEvent.NetworkRemoteDeliveryStatusReported],
+  [AgentCommand.NetworkLiveCaptureStatusGet, AgentEvent.NetworkLiveCaptureStatusReported],
+  [AgentCommand.NetworkLinuxNftablesLabStatusGet, AgentEvent.NetworkLinuxNftablesLabStatusReported],
+  [AgentCommand.NetworkWindowsFirewallLabStatusGet, AgentEvent.NetworkWindowsFirewallLabStatusReported],
+  [AgentCommand.NetworkWindowsWfpGateStatusGet, AgentEvent.NetworkWindowsWfpGateStatusReported],
+  [AgentCommand.ActivityTrackingReadModelGet, AgentEvent.ActivityTrackingReadModelReported],
+  [AgentCommand.LocalAiRuntimeStatusGet, AgentEvent.LocalAiRuntimeStatusReported],
+  [AgentCommand.PolicyPreviewReadModelGet, AgentEvent.PolicyPreviewReadModelReported],
 ] as const;
 
 const EXPECTED_PORTAL_OVERVIEW_COMMANDS = [
-  'agent.health.check',
-  'agent.log.snapshot.get',
-  'agent.network.flow.read-model.get',
-  'agent.lan-pairing.status.get',
-  'agent.activity.ingest.status.get',
-  'agent.activity.recent.summary.get',
-  'agent.browser.evidence.recent.get',
-  'agent.browser.managed.bridge.poll',
-  'agent.browser.inventory.read-model.get',
-  'agent.activity.memory-graph.get',
-  'agent.activity.report.history.list',
-  'agent.activity.screen.read-model.get',
-  'agent.activity.app-use.read-model.get',
-  'agent.activity.browser.read-model.get',
-  'agent.activity.games.read-model.get',
-  'agent.activity.app-game.notification-readiness.read-model.get',
-  'agent.activity.app-game.adapter-execution-readiness.read-model.get',
-  'agent.activity.app-game.platform-proof-status.read-model.get',
-  'agent.activity.app-game.child-runtime-transport-receipt.read-model.get',
-  'agent.activity.app-game.adapter-dispatch-preflight.read-model.get',
-  'agent.activity.app-game.adapter-dispatch-result.read-model.get',
-  'agent.activity.network.read-model.get',
-  'agent.browser.intervention.read-model.get',
-  'agent.browser.runtime.event-chain.stream.get',
-  'agent.network.runtime.event-chain.stream.get',
-  'agent.network.remote-delivery.status.get',
-  'agent.network.live-capture.status.get',
-  'agent.network.linux-nftables-lab.status.get',
-  'agent.network.windows-firewall-lab.status.get',
-  'agent.network.windows-wfp-gate.status.get',
-  'agent.activity.tracking.read-model.get',
-  'agent.local-ai.runtime.status.get',
-  'agent.policy.preview.read-model.get',
+  AgentCommand.HealthCheck,
+  AgentCommand.LogSnapshotGet,
+  AgentCommand.NetworkFlowReadModelGet,
+  AgentCommand.LanPairingStatusGet,
+  AgentCommand.ActivityIngestStatusGet,
+  AgentCommand.ActivityRecentSummaryGet,
+  AgentCommand.BrowserEvidenceRecentGet,
+  AgentCommand.BrowserManagedBridgePoll,
+  AgentCommand.BrowserInventoryReadModelGet,
+  AgentCommand.ActivityMemoryGraphGet,
+  AgentCommand.ActivityReportHistoryList,
+  AgentCommand.ActivityScreenReadModelGet,
+  AgentCommand.ActivityAppUseReadModelGet,
+  AgentCommand.ActivityBrowserReadModelGet,
+  AgentCommand.ActivityGamesReadModelGet,
+  AgentCommand.ActivityAppGameNotificationReadinessReadModelGet,
+  AgentCommand.ActivityAppGameAdapterExecutionReadinessReadModelGet,
+  AgentCommand.ActivityAppGamePlatformProofStatusReadModelGet,
+  AgentCommand.ActivityAppGameChildRuntimeTransportReceiptReadModelGet,
+  AgentCommand.ActivityAppGameAdapterDispatchPreflightReadModelGet,
+  AgentCommand.ActivityAppGameAdapterDispatchResultReadModelGet,
+  AgentCommand.ActivityNetworkReadModelGet,
+  AgentCommand.BrowserInterventionReadModelGet,
+  AgentCommand.BrowserRuntimeEventChainStreamGet,
+  AgentCommand.NetworkRuntimeEventChainStreamGet,
+  AgentCommand.NetworkRemoteDeliveryStatusGet,
+  AgentCommand.NetworkLiveCaptureStatusGet,
+  AgentCommand.NetworkLinuxNftablesLabStatusGet,
+  AgentCommand.NetworkWindowsFirewallLabStatusGet,
+  AgentCommand.NetworkWindowsWfpGateStatusGet,
+  AgentCommand.ActivityTrackingReadModelGet,
+  AgentCommand.LocalAiRuntimeStatusGet,
+  AgentCommand.PolicyPreviewReadModelGet,
 ] as const;
 
 describe('portal command contracts', () => {
@@ -579,10 +582,10 @@ describe('portal command contracts', () => {
 
   it('PortalActivitySurfaceDefaultRequestPayload: wires screen read-model commands to default request payload', () => {
     expect(
-      PortalOverviewCommands.find((button) => button.command === 'agent.activity.screen.read-model.get')?.payload
+      PortalOverviewCommands.find((button) => button.command === AgentCommand.ActivityScreenReadModelGet)?.payload
     ).toEqual(PortalActivitySurfaceDefaultRequestPayload);
     expect(
-      PortalCommandButtons.find((button) => button.command === 'agent.activity.screen.read-model.get')?.payload
+      PortalCommandButtons.find((button) => button.command === AgentCommand.ActivityScreenReadModelGet)?.payload
     ).toEqual(PortalActivitySurfaceDefaultRequestPayload);
     expect(PortalActivitySurfaceDefaultRequestPayload).toMatchObject({
       scopeKind: 'family',

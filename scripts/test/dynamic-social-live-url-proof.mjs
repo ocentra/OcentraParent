@@ -12,13 +12,13 @@ const outputProofPath = join(
 );
 
 const sourceFiles = [
-  'packages/activity-domain/src/browser-url-intelligence-schemas.ts',
-  'packages/activity-domain/src/browser-url-intelligence.ts',
+  'packages/browser-domain/src/browser-url-intelligence-schemas.ts',
+  'packages/browser-domain/src/browser-url-intelligence.ts',
 ];
 
 const builtFiles = [
-  'packages/activity-domain/dist/browser-url-intelligence-schemas.js',
-  'packages/activity-domain/dist/browser-url-intelligence.js',
+  'packages/browser-domain/dist/browser-url-intelligence-schemas.js',
+  'packages/browser-domain/dist/browser-url-intelligence.js',
 ];
 
 const liveRouteCases = [
@@ -160,7 +160,7 @@ const liveRouteCases = [
 assertBuiltContractsAreFresh();
 
 const { parseBrowserUrlShape } = await import(
-  pathToFileURL(join(repoRoot, 'packages/activity-domain/dist/browser-url-intelligence.js')).href
+  pathToFileURL(join(repoRoot, 'packages/browser-domain/dist/browser-url-intelligence.js')).href
 );
 const {
   BrowserUrlIntelligenceMemoryHitSchema,
@@ -168,7 +168,7 @@ const {
   BrowserUrlShapeClassificationResultSchema,
   BrowserUrlShapeSchemaVersion,
 } = await import(
-  pathToFileURL(join(repoRoot, 'packages/activity-domain/dist/browser-url-intelligence-schemas.js')).href
+  pathToFileURL(join(repoRoot, 'packages/browser-domain/dist/browser-url-intelligence-schemas.js')).href
 );
 
 const fetchedRoutes = await Promise.all(liveRouteCases.map(fetchLiveRoute));

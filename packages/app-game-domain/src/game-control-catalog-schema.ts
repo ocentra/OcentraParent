@@ -1,41 +1,45 @@
-import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
+import {
+  type Infer,
+  Schema,
+  withParser,
+  brandedNonEmptyStringSchema,
+  NonEmptyStringSchema
+} from '@ocentra-parent/schema-domain/effect';
 
 import { ParentContractSchemaVersionSchema } from '@ocentra-parent/family-domain/reference-primitives';
 
-const NonEmptyGameControlText = Schema.String.pipe(Schema.minLength(1));
-
 export const GameControlCatalogIdSchema = withParser(
-  NonEmptyGameControlText.pipe(Schema.brand('GameControlCatalogId'))
+  brandedNonEmptyStringSchema('GameControlCatalogId')
 );
 export const GameControlSectionIdSchema = withParser(
-  NonEmptyGameControlText.pipe(Schema.brand('GameControlSectionId'))
+  brandedNonEmptyStringSchema('GameControlSectionId')
 );
-export const GameControlGroupIdSchema = withParser(NonEmptyGameControlText.pipe(Schema.brand('GameControlGroupId')));
+export const GameControlGroupIdSchema = withParser(brandedNonEmptyStringSchema('GameControlGroupId'));
 export const GameControlSettingIdSchema = withParser(
-  NonEmptyGameControlText.pipe(Schema.brand('GameControlSettingId'))
+  brandedNonEmptyStringSchema('GameControlSettingId')
 );
-export const GameControlOptionIdSchema = withParser(NonEmptyGameControlText.pipe(Schema.brand('GameControlOptionId')));
+export const GameControlOptionIdSchema = withParser(brandedNonEmptyStringSchema('GameControlOptionId'));
 export const GameControlEffectKeySchema = withParser(
-  NonEmptyGameControlText.pipe(Schema.brand('GameControlEffectKey'))
+  brandedNonEmptyStringSchema('GameControlEffectKey')
 );
 export const GameControlWritePathSchema = withParser(
-  NonEmptyGameControlText.pipe(Schema.brand('GameControlWritePath'))
+  brandedNonEmptyStringSchema('GameControlWritePath')
 );
-export const GameControlRuleIdSchema = withParser(NonEmptyGameControlText.pipe(Schema.brand('GameControlRuleId')));
+export const GameControlRuleIdSchema = withParser(brandedNonEmptyStringSchema('GameControlRuleId'));
 export const GameControlCapabilityIdSchema = withParser(
-  NonEmptyGameControlText.pipe(Schema.brand('GameControlCapabilityId'))
+  brandedNonEmptyStringSchema('GameControlCapabilityId')
 );
 export const GameControlPolicyDocumentIdSchema = withParser(
-  NonEmptyGameControlText.pipe(Schema.brand('GameControlPolicyDocumentId'))
+  brandedNonEmptyStringSchema('GameControlPolicyDocumentId')
 );
 export const GameControlPolicyRevisionSchema = withParser(
-  NonEmptyGameControlText.pipe(Schema.brand('GameControlPolicyRevision'))
+  brandedNonEmptyStringSchema('GameControlPolicyRevision')
 );
 export const GameControlPolicyHashSchema = withParser(
-  NonEmptyGameControlText.pipe(Schema.brand('GameControlPolicyHash'))
+  brandedNonEmptyStringSchema('GameControlPolicyHash')
 );
 export const GameControlCommandIdSchema = withParser(
-  NonEmptyGameControlText.pipe(Schema.brand('GameControlCommandId'))
+  brandedNonEmptyStringSchema('GameControlCommandId')
 );
 
 const GameControlPolicyKindSchema = withParser(Schema.Literal('game-control'));
@@ -157,10 +161,10 @@ const GameControlUpdateCommandTypeSchema = withParser(
 const GameControlOptionSchema = withParser(
   Schema.Struct({
     optionId: GameControlOptionIdSchema,
-    label: NonEmptyGameControlText,
-    value: NonEmptyGameControlText,
-    originalSourceText: NonEmptyGameControlText,
-    meaning: Schema.Union(NonEmptyGameControlText, Schema.Null),
+    label: NonEmptyStringSchema,
+    value: NonEmptyStringSchema,
+    originalSourceText: NonEmptyStringSchema,
+    meaning: Schema.Union(NonEmptyStringSchema, Schema.Null),
     defaultSelected: Schema.Boolean,
   })
 );
@@ -179,7 +183,7 @@ const GameControlLayoutHintsSchema = withParser(
 const GameControlConditionSchema = withParser(
   Schema.Struct({
     ruleId: GameControlRuleIdSchema,
-    description: NonEmptyGameControlText,
+    description: NonEmptyStringSchema,
   })
 );
 
@@ -193,10 +197,10 @@ const GameControlSettingSchema = withParser(
     groupId: GameControlGroupIdSchema,
     settingId: GameControlSettingIdSchema,
     sourceDocument: GameControlSourceDocumentSchema,
-    sourceHeadingPath: Schema.Array(NonEmptyGameControlText),
-    originalSourceText: NonEmptyGameControlText,
-    uiQuestionText: NonEmptyGameControlText,
-    helperText: Schema.Union(NonEmptyGameControlText, Schema.Null),
+    sourceHeadingPath: Schema.Array(NonEmptyStringSchema),
+    originalSourceText: NonEmptyStringSchema,
+    uiQuestionText: NonEmptyStringSchema,
+    helperText: Schema.Union(NonEmptyStringSchema, Schema.Null),
     displayOrder: Schema.Number,
     controlType: GameControlControlTypeSchema,
     uiCardType: GameControlUiCardTypeSchema,
@@ -209,19 +213,19 @@ const GameControlSettingSchema = withParser(
     effectStatus: GameControlEffectStatusSchema,
     runtimeOwner: GameControlRuntimeOwnerSchema,
     capabilityState: GameControlCapabilityStateSchema,
-    capabilityRequirement: Schema.Union(NonEmptyGameControlText, Schema.Null),
-    proofRequirement: Schema.Union(NonEmptyGameControlText, Schema.Null),
+    capabilityRequirement: Schema.Union(NonEmptyStringSchema, Schema.Null),
+    proofRequirement: Schema.Union(NonEmptyStringSchema, Schema.Null),
     visibilityConditions: Schema.Array(GameControlConditionSchema),
     enabledConditions: Schema.Array(GameControlConditionSchema),
     validationRules: Schema.Array(GameControlConditionSchema),
-    unsafeOrUnsupportedFallback: Schema.Union(NonEmptyGameControlText, Schema.Null),
+    unsafeOrUnsupportedFallback: Schema.Union(NonEmptyStringSchema, Schema.Null),
   })
 );
 
 const GameControlGroupSchema = withParser(
   Schema.Struct({
     groupId: GameControlGroupIdSchema,
-    title: NonEmptyGameControlText,
+    title: NonEmptyStringSchema,
     displayOrder: Schema.Number,
     settings: Schema.Array(GameControlSettingSchema),
   })
@@ -230,8 +234,8 @@ const GameControlGroupSchema = withParser(
 const GameControlSectionSchema = withParser(
   Schema.Struct({
     sectionId: GameControlSectionIdSchema,
-    title: NonEmptyGameControlText,
-    purpose: NonEmptyGameControlText,
+    title: NonEmptyStringSchema,
+    purpose: NonEmptyStringSchema,
     displayOrder: Schema.Number,
     policyLane: GameControlPolicyLaneSchema,
     groups: Schema.Array(GameControlGroupSchema),
@@ -241,7 +245,7 @@ const GameControlSectionSchema = withParser(
 const GameControlLaneSchema = withParser(
   Schema.Struct({
     laneId: GameControlPolicyLaneSchema,
-    title: NonEmptyGameControlText,
+    title: NonEmptyStringSchema,
     displayOrder: Schema.Number,
     sections: Schema.Array(GameControlSectionSchema),
   })
@@ -251,8 +255,8 @@ const GameControlCapabilityTruthSchema = withParser(
   Schema.Struct({
     truthId: GameControlRuleIdSchema,
     sourceDocument: GameControlSourceDocumentSchema,
-    sourceHeadingPath: Schema.Array(NonEmptyGameControlText),
-    originalSourceText: NonEmptyGameControlText,
+    sourceHeadingPath: Schema.Array(NonEmptyStringSchema),
+    originalSourceText: NonEmptyStringSchema,
     appliesToSettingIds: Schema.Array(GameControlSettingIdSchema),
     capabilityState: GameControlCapabilityStateSchema,
   })
@@ -262,7 +266,7 @@ const GameControlCapabilityEntrySchema = withParser(
   Schema.Struct({
     capabilityId: GameControlCapabilityIdSchema,
     state: GameControlCapabilityStateSchema,
-    proofRequirement: NonEmptyGameControlText,
+    proofRequirement: NonEmptyStringSchema,
     affectsSettingIds: Schema.Array(GameControlSettingIdSchema),
   })
 );
@@ -323,8 +327,8 @@ export const GameControlEffectivePolicySettingSchema = withParser(
     effectStatus: GameControlEffectStatusSchema,
     runtimeOwner: GameControlRuntimeOwnerSchema,
     capabilityState: GameControlCapabilityStateSchema,
-    proofRequirement: Schema.Union(NonEmptyGameControlText, Schema.Null),
-    fallbackDecision: NonEmptyGameControlText,
+    proofRequirement: Schema.Union(NonEmptyStringSchema, Schema.Null),
+    fallbackDecision: NonEmptyStringSchema,
   })
 );
 
@@ -348,7 +352,7 @@ export const GameControlPolicyUpdateCommandSchema = withParser(
     policyKind: GameControlPolicyKindSchema,
     targetScopes: Schema.Array(GameControlTargetScopeSchema),
     expectedRevision: Schema.Union(GameControlPolicyRevisionSchema, Schema.Null),
-    purpose: NonEmptyGameControlText,
+    purpose: NonEmptyStringSchema,
   })
 );
 
@@ -388,3 +392,4 @@ export interface GameControlCatalogSettingSeed {
   readonly defaultValue: unknown;
   readonly options: readonly GameControlCatalogOptionSeed[];
 }
+

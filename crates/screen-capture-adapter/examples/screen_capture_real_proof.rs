@@ -5,7 +5,7 @@ use std::{env, fs::create_dir_all, path::PathBuf};
 use ocentra_parent_agent_protocol::constants;
 use ocentra_parent_screen_capture_adapter::{
     capture_active_window_png, capture_primary_display_png, capture_window_title_contains_png,
-    ScreenCaptureAttempt, ScreenCaptureScope,
+    ScreenCaptureAttempt, ScreenCaptureScope, ScreenCaptureWindowTitleQuery,
 };
 use screen_capture_real_proof_support::{
     proof_scope_label, run_id, write_captured_artifacts, write_degraded_artifacts,
@@ -20,7 +20,9 @@ fn main() {
     create_dir_all(&output_dir).expect(constants::error::JOURNAL_OPENS);
 
     let run_id = run_id();
-    let target_title = env::var("OCENTRA_SCREEN_CAPTURE_WINDOW_TITLE_CONTAINS").ok();
+    let target_title = env::var("OCENTRA_SCREEN_CAPTURE_WINDOW_TITLE_CONTAINS")
+        .ok()
+        .and_then(|value| ScreenCaptureWindowTitleQuery::try_from(value).ok());
     let requested_scope = env::var("OCENTRA_SCREEN_CAPTURE_SCOPE")
         .ok()
         .as_deref()
@@ -37,7 +39,7 @@ fn main() {
     let attempt = match requested_scope {
         ScreenCaptureScope::ActiveWindow => capture_active_window_png(),
         ScreenCaptureScope::SelectedWindow => target_title
-            .as_deref()
+            .as_ref()
             .map(capture_window_title_contains_png)
             .unwrap_or_else(capture_active_window_png),
         ScreenCaptureScope::PrimaryDisplay => capture_primary_display_png(),
@@ -48,7 +50,7 @@ fn main() {
         &output_dir,
         &run_id,
         attempt.status(),
-        target_title,
+        target_title.as_ref(),
         requested_scope_label,
         keep_raw_until_analysis,
     );

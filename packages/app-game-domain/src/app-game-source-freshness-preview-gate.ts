@@ -1,4 +1,9 @@
-import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
+import {
+  type Infer,
+  Schema,
+  withParser,
+  brandedNonEmptyStringSchema
+} from '@ocentra-parent/schema-domain/effect';
 import {
   AppGamePolicyCompiledDecisionSchema,
   type AppGamePolicyCompiledDecision,
@@ -40,17 +45,9 @@ import {
 } from './app-game-source-freshness-preview-gate-rules';
 import { ParentContractSchemaVersionSchema, ParentTimestampSchema } from '@ocentra-parent/family-domain/reference-primitives';
 
-const NonEmptyPreviewGateText = Schema.String.pipe(Schema.minLength(1));
-
-export const AppGameSourceFreshnessPreviewGateIdSchema = NonEmptyPreviewGateText.pipe(
-  Schema.brand('AppGameSourceFreshnessPreviewGateId')
-);
-export const AppGameSourceFreshnessPreviewGateRowIdSchema = NonEmptyPreviewGateText.pipe(
-  Schema.brand('AppGameSourceFreshnessPreviewGateRowId')
-);
-export const AppGameSourceFreshnessPreviewGateSourceContractRefSchema = NonEmptyPreviewGateText.pipe(
-  Schema.brand('AppGameSourceFreshnessPreviewGateSourceContractRef')
-);
+export const AppGameSourceFreshnessPreviewGateIdSchema = brandedNonEmptyStringSchema('AppGameSourceFreshnessPreviewGateId');
+export const AppGameSourceFreshnessPreviewGateRowIdSchema = brandedNonEmptyStringSchema('AppGameSourceFreshnessPreviewGateRowId');
+export const AppGameSourceFreshnessPreviewGateSourceContractRefSchema = brandedNonEmptyStringSchema('AppGameSourceFreshnessPreviewGateSourceContractRef');
 
 export const AppGameSourceFreshnessPreviewGateStatusSchema = withParser(
   Schema.Literal(...Object.values(AppGameSourceFreshnessPreviewGateStatus))
@@ -283,3 +280,4 @@ export const decodeAppGameSourceFreshnessPreviewGateReadModel = Schema.decodeUnk
 );
 
 export { AppGameSourceFreshnessPreviewGateState, AppGameSourceFreshnessPreviewGateStatus };
+

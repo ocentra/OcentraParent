@@ -1,4 +1,10 @@
-import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
+import {
+  type Infer,
+  Schema,
+  withParser,
+  brandedNonEmptyStringSchema,
+  NonEmptyStringSchema
+} from '@ocentra-parent/schema-domain/effect';
 import { ActivityEvidenceIdSchema, ActivityTimestampSchema } from '@ocentra-parent/evidence-domain/primitives';
 import {
   BrowserSocialPlatformSchema,
@@ -7,9 +13,7 @@ import {
   BrowserSocialRouteEvidenceSchema,
   BrowserSocialRouteKindSchema,
 } from './browser-social-platform-route-schemas';
-
-const NonEmptySocialVideoMetadataText = Schema.String.pipe(Schema.minLength(1));
-const OptionalSocialVideoMetadataTextSchema = Schema.Union(NonEmptySocialVideoMetadataText, Schema.Null);
+const OptionalSocialVideoMetadataTextSchema = Schema.Union(NonEmptyStringSchema, Schema.Null);
 const OptionalSocialVideoMetadataTimestampSchema = Schema.Union(ActivityTimestampSchema, Schema.Null);
 const OptionalSocialVideoMetadataDurationSchema = Schema.Union(
   Schema.Number.pipe(Schema.nonNegative(), Schema.int()),
@@ -22,7 +26,7 @@ const SocialVideoMetadataSourceEvidenceIdsSchema = Schema.Array(ActivityEvidence
 export const BrowserSocialVideoMetadataSchemaVersion = 1;
 
 export const BrowserSocialVideoMetadataEvidenceIdSchema = withParser(
-  NonEmptySocialVideoMetadataText.pipe(Schema.brand('BrowserSocialVideoMetadataEvidenceId'))
+  brandedNonEmptyStringSchema('BrowserSocialVideoMetadataEvidenceId')
 );
 
 export const BrowserSocialVideoMetadataSourceKindSchema = withParser(
@@ -225,3 +229,4 @@ function hasAnyEvidenceMetadataRef(value: Infer<typeof BrowserSocialVideoMetadat
     value.restrictionSignalRef !== null
   );
 }
+

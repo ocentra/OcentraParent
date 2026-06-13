@@ -1,16 +1,13 @@
-import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
+import {
+  type Infer,
+  Schema,
+  withParser,
+  brandedNonEmptyStringSchema
+} from '@ocentra-parent/schema-domain/effect';
 
-const NonEmptyAppGameCategoryText = Schema.String.pipe(Schema.minLength(1));
-
-export const AppGameCategoryCandidateIdSchema = NonEmptyAppGameCategoryText.pipe(
-  Schema.brand('AppGameCategoryCandidateId')
-);
-export const AppGameCategorySourceRefSchema = NonEmptyAppGameCategoryText.pipe(
-  Schema.brand('AppGameCategorySourceRef')
-);
-export const AppGameCategoryReasonCodeSchema = NonEmptyAppGameCategoryText.pipe(
-  Schema.brand('AppGameCategoryReasonCode')
-);
+export const AppGameCategoryCandidateIdSchema = brandedNonEmptyStringSchema('AppGameCategoryCandidateId');
+export const AppGameCategorySourceRefSchema = brandedNonEmptyStringSchema('AppGameCategorySourceRef');
+export const AppGameCategoryReasonCodeSchema = brandedNonEmptyStringSchema('AppGameCategoryReasonCode');
 
 export const AppGameCategoryFamilySchema = withParser(
   Schema.Literal('nativeApp', 'nativeGame', 'riskCandidate', 'gameContext')
@@ -216,3 +213,4 @@ export type AppGameCategorySourceKind = Infer<typeof AppGameCategorySourceKindSc
 export type AppGameCategoryCandidateState = Infer<typeof AppGameCategoryCandidateStateSchema>;
 export type AppGameCategoryPolicyCandidateAction = Infer<typeof AppGameCategoryPolicyCandidateActionSchema>;
 export type AppGameCategoryEnforcementState = Infer<typeof AppGameCategoryEnforcementStateSchema>;
+

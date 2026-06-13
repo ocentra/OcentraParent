@@ -1,4 +1,9 @@
-import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
+import {
+  type Infer,
+  Schema,
+  withParser,
+  brandedNonEmptyStringSchema
+} from '@ocentra-parent/schema-domain/effect';
 import { LanPairingRejectionReasonSchema, LanPairingRouteIdSchema } from '@ocentra-parent/lan-domain/lan-pairing-values';
 import { ParentMobileCommandAuthorityStateSchema } from './parent-mobile-runtime';
 import { ParentTimestampSchema } from '@ocentra-parent/family-domain/reference-primitives';
@@ -13,8 +18,6 @@ import {
   V09HouseholdPhysicalProofManualEvidenceStatusSchema,
 } from './v0-9-household-physical-proof-artifact-gate';
 import { V09RuntimeProofStateSchema } from './v0-9-mobile-controller-discovery-runtime';
-
-const NonEmptyV09HouseholdMultiDeviceProofGateText = Schema.String.pipe(Schema.minLength(1));
 
 export const V09HouseholdMultiDeviceProofGateIdSchema = withParser(
   Schema.Literal('v0-9-household-multi-device-proof-gates')
@@ -45,18 +48,10 @@ export const V09HouseholdMultiDeviceRouteCustodyGateSchema = withParser(
   )
 );
 
-const V09HouseholdMultiDeviceProofPathSchema = NonEmptyV09HouseholdMultiDeviceProofGateText.pipe(
-  Schema.brand('V09HouseholdMultiDeviceProofPath')
-);
-const V09HouseholdMultiDeviceProofCommandSchema = NonEmptyV09HouseholdMultiDeviceProofGateText.pipe(
-  Schema.brand('V09HouseholdMultiDeviceProofCommand')
-);
-const V09HouseholdMultiDeviceProofLabelSchema = NonEmptyV09HouseholdMultiDeviceProofGateText.pipe(
-  Schema.brand('V09HouseholdMultiDeviceProofLabel')
-);
-const V09HouseholdMultiDeviceClaimBoundarySchema = NonEmptyV09HouseholdMultiDeviceProofGateText.pipe(
-  Schema.brand('V09HouseholdMultiDeviceClaimBoundary')
-);
+const V09HouseholdMultiDeviceProofPathSchema = brandedNonEmptyStringSchema('V09HouseholdMultiDeviceProofPath');
+const V09HouseholdMultiDeviceProofCommandSchema = brandedNonEmptyStringSchema('V09HouseholdMultiDeviceProofCommand');
+const V09HouseholdMultiDeviceProofLabelSchema = brandedNonEmptyStringSchema('V09HouseholdMultiDeviceProofLabel');
+const V09HouseholdMultiDeviceClaimBoundarySchema = brandedNonEmptyStringSchema('V09HouseholdMultiDeviceClaimBoundary');
 
 const V09HouseholdMultiDeviceSourceProofInputSchema = withParser(
   Schema.Struct({
@@ -507,3 +502,4 @@ export type V09HouseholdMultiDeviceArtifactReadinessGateSummary = Infer<
 >;
 export type V09HouseholdMultiDevicePortalDeviceSpine = Infer<typeof V09HouseholdMultiDevicePortalDeviceSpineSchema>;
 export type V09HouseholdMultiDeviceProofGateReadModel = Infer<typeof V09HouseholdMultiDeviceProofGateReadModelSchema>;
+

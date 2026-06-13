@@ -1,4 +1,10 @@
-import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
+import {
+  type Infer,
+  Schema,
+  withParser,
+  brandedNonEmptyStringSchema,
+  NonEmptyStringSchema
+} from '@ocentra-parent/schema-domain/effect';
 import { ActivityEvidenceIdSchema, ActivityTimestampSchema } from '@ocentra-parent/evidence-domain/primitives';
 import { BrowserCustodyLabelSchema } from './browser-schemas';
 import {
@@ -13,17 +19,15 @@ import {
   BrowserAiProviderRouteIdSchema,
   BrowserAiProviderRouteSchema,
 } from './browser-ai-provider-routing-schemas';
-
-const NonEmptyFamilyHubText = Schema.String.pipe(Schema.minLength(1));
-const OptionalFamilyHubTextSchema = Schema.Union(NonEmptyFamilyHubText, Schema.Null);
+const OptionalFamilyHubTextSchema = Schema.Union(NonEmptyStringSchema, Schema.Null);
 const OptionalFamilyHubRuntimeRefSchema = Schema.Union(BrowserAiModelRuntimeRefSchema, Schema.Null);
 
 export const BrowserAiFamilyHubRouteSchemaVersion = 1;
 
 export const BrowserAiFamilyHubRouteIdSchema = withParser(
-  NonEmptyFamilyHubText.pipe(Schema.brand('BrowserAiFamilyHubRouteId'))
+  brandedNonEmptyStringSchema('BrowserAiFamilyHubRouteId')
 );
-export const BrowserAiFamilyHubIdSchema = withParser(NonEmptyFamilyHubText.pipe(Schema.brand('BrowserAiFamilyHubId')));
+export const BrowserAiFamilyHubIdSchema = withParser(brandedNonEmptyStringSchema('BrowserAiFamilyHubId'));
 
 export const BrowserAiFamilyHubCapabilityStateSchema = withParser(
   Schema.Literal('available', 'disabled-by-parent', 'hub-unavailable', 'lan-proof-missing', 'resource-exhausted')
@@ -238,3 +242,4 @@ function familyHubRouteVisibilityIsComplete(value: Infer<typeof BrowserAiFamilyH
     value.noRetentionVisible
   );
 }
+

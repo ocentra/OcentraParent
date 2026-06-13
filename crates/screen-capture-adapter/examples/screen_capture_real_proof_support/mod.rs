@@ -9,7 +9,9 @@ mod queue;
 use base64::{engine::general_purpose::STANDARD, Engine as _};
 use ocentra_parent_agent_core::{JournalKey, ScreenEvidenceQueue, JOURNAL_KEY_BYTES};
 use ocentra_parent_agent_protocol::{constants, ActivityCaptureCapabilityStatus};
-use ocentra_parent_screen_capture_adapter::{CapturedScreenImage, ScreenCaptureScope};
+use ocentra_parent_screen_capture_adapter::{
+    CapturedScreenImage, ScreenCaptureScope, ScreenCaptureWindowTitleQuery,
+};
 use queue::{digest_hex, screen_queue_job};
 use serde_json::json;
 
@@ -20,7 +22,7 @@ pub(crate) fn write_run_metadata(
     output_dir: &Path,
     run_id: &str,
     status: ActivityCaptureCapabilityStatus,
-    target_title: Option<String>,
+    target_title: Option<&ScreenCaptureWindowTitleQuery>,
     requested_scope: &'static str,
     keep_raw_until_analysis: bool,
 ) {
@@ -32,7 +34,9 @@ pub(crate) fn write_run_metadata(
             "runId": run_id,
             "platform": std::env::consts::OS,
             "status": status.as_protocol_str(),
-            "targetWindowTitleContains": target_title,
+            "targetWindowTitleContainsPresent": target_title.is_some(),
+            "targetWindowTitleContainsDigest": target_title
+                .map(|query| digest_hex(query.as_str().as_bytes())),
             "requestedScope": requested_scope,
             "keepRawUntilAnalysis": keep_raw_until_analysis,
         }),

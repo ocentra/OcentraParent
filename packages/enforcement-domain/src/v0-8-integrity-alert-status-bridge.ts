@@ -1,27 +1,20 @@
-import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
+import {
+  type Infer,
+  Schema,
+  withParser,
+  brandedNonEmptyStringSchema
+} from '@ocentra-parent/schema-domain/effect';
 import {
   ParentContractSchemaVersion,
   ParentContractSchemaVersionSchema,
   ParentTimestampSchema,
 } from '@ocentra-parent/family-domain/reference-primitives';
 
-const NonEmptyIntegrityAlertBridgeText = Schema.String.pipe(Schema.minLength(1));
-
-export const V08IntegrityAlertStatusBridgeReadModelIdSchema = NonEmptyIntegrityAlertBridgeText.pipe(
-  Schema.brand('V08IntegrityAlertStatusBridgeReadModelId')
-);
-export const V08IntegrityAlertStatusBridgeEntryIdSchema = NonEmptyIntegrityAlertBridgeText.pipe(
-  Schema.brand('V08IntegrityAlertStatusBridgeEntryId')
-);
-export const V08IntegrityAlertStatusBridgeReferenceSchema = NonEmptyIntegrityAlertBridgeText.pipe(
-  Schema.brand('V08IntegrityAlertStatusBridgeReference')
-);
-export const V08IntegrityAlertStatusBridgeRequirementSchema = NonEmptyIntegrityAlertBridgeText.pipe(
-  Schema.brand('V08IntegrityAlertStatusBridgeRequirement')
-);
-export const V08IntegrityAlertStatusBridgeBoundarySchema = NonEmptyIntegrityAlertBridgeText.pipe(
-  Schema.brand('V08IntegrityAlertStatusBridgeBoundary')
-);
+export const V08IntegrityAlertStatusBridgeReadModelIdSchema = brandedNonEmptyStringSchema('V08IntegrityAlertStatusBridgeReadModelId');
+export const V08IntegrityAlertStatusBridgeEntryIdSchema = brandedNonEmptyStringSchema('V08IntegrityAlertStatusBridgeEntryId');
+export const V08IntegrityAlertStatusBridgeReferenceSchema = brandedNonEmptyStringSchema('V08IntegrityAlertStatusBridgeReference');
+export const V08IntegrityAlertStatusBridgeRequirementSchema = brandedNonEmptyStringSchema('V08IntegrityAlertStatusBridgeRequirement');
+export const V08IntegrityAlertStatusBridgeBoundarySchema = brandedNonEmptyStringSchema('V08IntegrityAlertStatusBridgeBoundary');
 
 export const V08IntegrityAlertStateSchema = withParser(
   Schema.Literal('permission-loss', 'stale-heartbeat', 'stopped-or-removed', 'tamper-manual-required')
@@ -289,3 +282,4 @@ export const decodeV08IntegrityAlertStatusBridgeEntry = Schema.decodeUnknownSync
 export const decodeV08IntegrityAlertStatusBridgeReadModel = Schema.decodeUnknownSync(
   V08IntegrityAlertStatusBridgeReadModelSchema
 );
+

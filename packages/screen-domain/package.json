@@ -24,9 +24,12 @@
   "dependencies": {
     "@ocentra-parent/ai-domain": "file:../ai-domain",
     "@ocentra-parent/browser-domain": "file:../browser-domain",
+    "@ocentra-parent/enforcement-domain": "file:../enforcement-domain",
+    "@ocentra-parent/event-domain": "file:../event-domain",
     "@ocentra-parent/evidence-domain": "file:../evidence-domain",
     "@ocentra-parent/family-domain": "file:../family-domain",
     "@ocentra-parent/lan-domain": "file:../lan-domain",
+    "@ocentra-parent/policy-domain": "file:../policy-domain",
     "@ocentra-parent/schema-domain": "file:../schema-domain"
   }
 }

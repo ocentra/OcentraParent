@@ -1,1 +1,1 @@
-export * from '@ocentra-parent/social-domain/social-video-source-custody-settings';
+export * from '@ocentra-parent/browser-domain/social-video-source-custody-settings';

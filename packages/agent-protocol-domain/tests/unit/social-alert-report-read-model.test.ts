@@ -14,7 +14,7 @@ import {
   SocialAlertReportParentCopyToken,
   SocialAlertReportPayloadField,
   SocialAlertReportReasonCode,
-} from '@ocentra-parent/social-domain/social-alert-report-intent';
+} from '@ocentra-parent/browser-domain/social-alert-report-intent';
 import {
   ParentActorRole,
   ParentContractSchemaVersion,

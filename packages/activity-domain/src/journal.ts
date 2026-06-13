@@ -5,7 +5,11 @@ import {
   ActivityJournalNonceSchema,
   ActivityJournalSegmentIdSchema,
 } from './journal-primitives';
-import { ActivityEventIdSchema, ActivityEvidenceDigestSchema, ActivityTimestampSchema } from './primitives';
+import {
+  ActivityEventIdSchema,
+  ActivityEvidenceDigestSchema,
+  ActivityTimestampSchema,
+} from '@ocentra-parent/evidence-domain/primitives';
 
 export const ActivityJournalSchemaVersion = 1;
 

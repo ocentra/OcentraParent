@@ -52,7 +52,7 @@ async function main() {
     checkProofFiles(proofFiles),
     checkLog(
       wp03Validation,
-      'cmd /c npm run test --workspace @ocentra-parent/activity-domain -- browser-inventory.test.ts'
+      'cmd /c npm run test --workspace @ocentra-parent/browser-domain -- browser-inventory.test.ts'
     ),
     checkLog(wp03Validation, 'cargo test -p ocentra-parent-agent-protocol browser_inventory --quiet'),
     checkLog(wp03Validation, 'cargo test -p ocentra-parent-agent-service browser_inventory_read_model --quiet'),

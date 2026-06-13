@@ -1,4 +1,10 @@
-import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
+import {
+  type Infer,
+  Schema,
+  withParser,
+  brandedNonEmptyStringSchema,
+  NonEmptyStringSchema
+} from '@ocentra-parent/schema-domain/effect';
 import {
   TrackingLocationPolicyReadModelSchema,
   TrackingPolicySchemaVersion,
@@ -15,8 +21,6 @@ import type {
   TrackingLocationPolicyReadModel,
   TrackingPolicyDecision,
 } from './tracking-location-policy-types';
-
-const TrackingEscalationReadinessText = Schema.String.pipe(Schema.minLength(1));
 
 export const RequiredTrackingEscalationReadinessNonClaims = [
   'no-emergency-auto-contact',
@@ -35,12 +39,8 @@ export const TrackingEscalationReadinessNonClaimSchema = withParser(
   Schema.Literal(...RequiredTrackingEscalationReadinessNonClaims)
 );
 
-export const TrackingEscalationReadinessIdSchema = TrackingEscalationReadinessText.pipe(
-  Schema.brand('TrackingEscalationReadinessId')
-);
-export const TrackingEscalationReadinessRowIdSchema = TrackingEscalationReadinessText.pipe(
-  Schema.brand('TrackingEscalationReadinessRowId')
-);
+export const TrackingEscalationReadinessIdSchema = brandedNonEmptyStringSchema('TrackingEscalationReadinessId');
+export const TrackingEscalationReadinessRowIdSchema = brandedNonEmptyStringSchema('TrackingEscalationReadinessRowId');
 export const TrackingEscalationReadinessStateSchema = withParser(
   Schema.Literal(
     'waiting-for-parent',
@@ -56,18 +56,18 @@ export const TrackingEscalationReadinessStateSchema = withParser(
 
 const TrackingEscalationReadinessRowBaseSchema = Schema.Struct({
   rowId: TrackingEscalationReadinessRowIdSchema,
-  alertId: TrackingEscalationReadinessText,
-  sourceEscalationId: Schema.Union(TrackingEscalationReadinessText, Schema.Null),
-  sourceDecisionId: TrackingEscalationReadinessText,
-  severity: TrackingEscalationReadinessText,
+  alertId: NonEmptyStringSchema,
+  sourceEscalationId: Schema.Union(NonEmptyStringSchema, Schema.Null),
+  sourceDecisionId: NonEmptyStringSchema,
+  severity: NonEmptyStringSchema,
   readinessState: TrackingEscalationReadinessStateSchema,
-  nextActionAt: Schema.Union(TrackingEscalationReadinessText, Schema.Null),
-  evidenceReferenceIds: Schema.Array(TrackingEscalationReadinessText),
-  policyDecisionRefs: Schema.Array(TrackingEscalationReadinessText),
-  acknowledgementRefs: Schema.Array(TrackingEscalationReadinessText),
-  childCheckInRefs: Schema.Array(TrackingEscalationReadinessText),
-  guardianActionRefs: Schema.Array(TrackingEscalationReadinessText),
-  manualProofRequirements: Schema.Array(TrackingEscalationReadinessText),
+  nextActionAt: Schema.Union(NonEmptyStringSchema, Schema.Null),
+  evidenceReferenceIds: Schema.Array(NonEmptyStringSchema),
+  policyDecisionRefs: Schema.Array(NonEmptyStringSchema),
+  acknowledgementRefs: Schema.Array(NonEmptyStringSchema),
+  childCheckInRefs: Schema.Array(NonEmptyStringSchema),
+  guardianActionRefs: Schema.Array(NonEmptyStringSchema),
+  manualProofRequirements: Schema.Array(NonEmptyStringSchema),
   reasonRefs: Schema.Array(TrackingPolicyAuditRefSchema),
   parentAcknowledgementCancelsEscalation: Schema.Boolean,
   childCheckInCancelsEscalation: Schema.Boolean,
@@ -90,9 +90,9 @@ export const TrackingEscalationReadinessRowSchema = withParser(
 const TrackingEscalationReadinessReadModelBaseSchema = Schema.Struct({
   schemaVersion: Schema.Literal(TrackingPolicySchemaVersion),
   readinessId: TrackingEscalationReadinessIdSchema,
-  generatedAt: TrackingEscalationReadinessText,
-  sourceReadModelGeneratedAt: TrackingEscalationReadinessText,
-  sourceContractRefs: Schema.Array(TrackingEscalationReadinessText),
+  generatedAt: NonEmptyStringSchema,
+  sourceReadModelGeneratedAt: NonEmptyStringSchema,
+  sourceContractRefs: Schema.Array(NonEmptyStringSchema),
   rows: Schema.Array(TrackingEscalationReadinessRowSchema),
   waitingCount: Schema.Number.pipe(Schema.int(), Schema.nonNegative()),
   resolvedCount: Schema.Number.pipe(Schema.int(), Schema.nonNegative()),
@@ -420,3 +420,4 @@ function trackingEscalationReadinessReadModelIsHonest(readModel: TrackingEscalat
     readModel.productClaimReady === false
   );
 }
+

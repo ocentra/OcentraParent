@@ -1,8 +1,6 @@
-import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
+import { type Infer, brandedNonEmptyStringSchema, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
 import { ParentControlCapabilityNameSchema, ParentControlCapabilityStatusSchema } from '@ocentra-parent/capability-domain/capabilities';
 import { ParentTimestampSchema } from '@ocentra-parent/family-domain/reference-primitives';
-
-const NonEmptyChildAndroidText = Schema.String.pipe(Schema.minLength(1));
 
 export const ChildAndroidLifecycleProofSchemaVersionSchema = withParser(
   Schema.Literal('child-android-protocol-package-lifecycle-proof')
@@ -71,13 +69,13 @@ export const ChildAndroidPermissionDeclarationStateSchema = withParser(
 );
 export const ChildAndroidRuntimeGrantStateSchema = withParser(Schema.Literal('not-applicable', 'manual-required'));
 
-const ChildAndroidPackageIdSchema = NonEmptyChildAndroidText.pipe(Schema.brand('ChildAndroidPackageId'));
-const ChildAndroidClassNameSchema = NonEmptyChildAndroidText.pipe(Schema.brand('ChildAndroidClassName'));
-const ChildAndroidPathSchema = NonEmptyChildAndroidText.pipe(Schema.brand('ChildAndroidProofPath'));
-const ChildAndroidCommandTextSchema = NonEmptyChildAndroidText.pipe(Schema.brand('ChildAndroidCommandText'));
-const ChildAndroidProofRequirementSchema = NonEmptyChildAndroidText.pipe(Schema.brand('ChildAndroidProofRequirement'));
-const ChildAndroidClaimBoundarySchema = NonEmptyChildAndroidText.pipe(Schema.brand('ChildAndroidClaimBoundary'));
-const ChildAndroidPermissionNameSchema = NonEmptyChildAndroidText.pipe(Schema.brand('ChildAndroidPermissionName'));
+const ChildAndroidPackageIdSchema = brandedNonEmptyStringSchema('ChildAndroidPackageId');
+const ChildAndroidClassNameSchema = brandedNonEmptyStringSchema('ChildAndroidClassName');
+const ChildAndroidPathSchema = brandedNonEmptyStringSchema('ChildAndroidProofPath');
+const ChildAndroidCommandTextSchema = brandedNonEmptyStringSchema('ChildAndroidCommandText');
+const ChildAndroidProofRequirementSchema = brandedNonEmptyStringSchema('ChildAndroidProofRequirement');
+const ChildAndroidClaimBoundarySchema = brandedNonEmptyStringSchema('ChildAndroidClaimBoundary');
+const ChildAndroidPermissionNameSchema = brandedNonEmptyStringSchema('ChildAndroidPermissionName');
 
 export const ChildAndroidCapabilityProofSchema = withParser(
   Schema.Struct({

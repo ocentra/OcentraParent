@@ -1,4 +1,9 @@
-import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
+import {
+  type Infer,
+  Schema,
+  withParser,
+  brandedNonEmptyStringSchema
+} from '@ocentra-parent/schema-domain/effect';
 import {
   AppGamePlatformAuthorityTierSchema,
   AppGamePlatformSetupStateSchema,
@@ -7,23 +12,11 @@ import { platformExtensionRoutingRowIsHonest } from './app-game-platform-extensi
 import { EnforcementCapabilityStateSchema } from '@ocentra-parent/enforcement-domain/enforcement';
 import { ParentContractSchemaVersionSchema, ParentPlatformSchema, ParentTimestampSchema } from '@ocentra-parent/family-domain/reference-primitives';
 
-const NonEmptyPlatformExtensionText = Schema.String.pipe(Schema.minLength(1));
-
-export const AppGamePlatformExtensionRoutingRowIdSchema = NonEmptyPlatformExtensionText.pipe(
-  Schema.brand('AppGamePlatformExtensionRoutingRowId')
-);
-export const AppGamePlatformExtensionRoutingMatrixIdSchema = NonEmptyPlatformExtensionText.pipe(
-  Schema.brand('AppGamePlatformExtensionRoutingMatrixId')
-);
-export const AppGamePlatformExtensionProofPackRefSchema = NonEmptyPlatformExtensionText.pipe(
-  Schema.brand('AppGamePlatformExtensionProofPackRef')
-);
-export const AppGamePlatformExtensionSourceRefSchema = NonEmptyPlatformExtensionText.pipe(
-  Schema.brand('AppGamePlatformExtensionSourceRef')
-);
-export const AppGamePlatformExtensionLabelSchema = NonEmptyPlatformExtensionText.pipe(
-  Schema.brand('AppGamePlatformExtensionLabel')
-);
+export const AppGamePlatformExtensionRoutingRowIdSchema = brandedNonEmptyStringSchema('AppGamePlatformExtensionRoutingRowId');
+export const AppGamePlatformExtensionRoutingMatrixIdSchema = brandedNonEmptyStringSchema('AppGamePlatformExtensionRoutingMatrixId');
+export const AppGamePlatformExtensionProofPackRefSchema = brandedNonEmptyStringSchema('AppGamePlatformExtensionProofPackRef');
+export const AppGamePlatformExtensionSourceRefSchema = brandedNonEmptyStringSchema('AppGamePlatformExtensionSourceRef');
+export const AppGamePlatformExtensionLabelSchema = brandedNonEmptyStringSchema('AppGamePlatformExtensionLabel');
 
 export const AppGamePlatformExtensionProductScopeSchema = withParser(
   Schema.Literal('native-app', 'native-game', 'shared-app-game', 'platform-handoff')
@@ -120,7 +113,7 @@ export const AppGamePlatformExtensionProofKindSchema = withParser(
 const AppGamePlatformExtensionProofReferenceSchema = Schema.Struct({
   proofKind: AppGamePlatformExtensionProofKindSchema,
   proofFile: AppGamePlatformExtensionProofFileSchema,
-  artifactRef: NonEmptyPlatformExtensionText.pipe(Schema.brand('AppGamePlatformExtensionProofArtifactRef')),
+  artifactRef: brandedNonEmptyStringSchema('AppGamePlatformExtensionProofArtifactRef'),
 });
 
 const AppGamePlatformExtensionRoutingRowBaseSchema = Schema.Struct({
@@ -223,3 +216,4 @@ export const decodeAppGamePlatformExtensionRoutingRow = Schema.decodeUnknownSync
 export const decodeAppGamePlatformExtensionRoutingMatrix = Schema.decodeUnknownSync(
   AppGamePlatformExtensionRoutingMatrixSchema
 );
+

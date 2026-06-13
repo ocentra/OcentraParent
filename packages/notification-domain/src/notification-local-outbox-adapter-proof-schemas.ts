@@ -1,4 +1,9 @@
-import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
+import {
+  type Infer,
+  Schema,
+  withParser,
+  brandedNonEmptyStringSchema
+} from '@ocentra-parent/schema-domain/effect';
 import {
   NotificationLocalOutboxForbiddenDetailFragments,
   NotificationLocalOutboxProviderChannels,
@@ -15,9 +20,7 @@ import {
 import {
   V3NotificationProviderChannelSchema,
   V3NotificationRuleReasonCodeSchema,
-} from './v3-notification-rule-provider-retry-contract';
-
-const NonEmptyNotificationOutboxText = Schema.String.pipe(Schema.minLength(1));
+} from '@ocentra-parent/notification-domain/v3-notification-rule-provider-retry-contract';
 const NotificationOutboxRetryCountSchema = Schema.Number.pipe(Schema.int(), Schema.nonNegative());
 export const NotificationLocalOutboxAdapterProofSchemaVersionSchema = withParser(
   Schema.Literal('notification-local-outbox-adapter-proof')
@@ -30,18 +33,10 @@ export const NotificationLocalOutboxSeveritySchema = withParser(Schema.Literal('
 export const NotificationLocalOutboxDeliveryClaimStateSchema = withParser(
   Schema.Literal('local-outbox-only', 'provider-receipt-required', 'manual-required')
 );
-export const NotificationLocalOutboxReadModelIdSchema = NonEmptyNotificationOutboxText.pipe(
-  Schema.brand('NotificationLocalOutboxReadModelId')
-);
-export const NotificationLocalOutboxEntryIdSchema = NonEmptyNotificationOutboxText.pipe(
-  Schema.brand('NotificationLocalOutboxEntryId')
-);
-export const NotificationLocalOutboxReferenceSchema = NonEmptyNotificationOutboxText.pipe(
-  Schema.brand('NotificationLocalOutboxReference')
-);
-export const NotificationLocalOutboxPayloadPreviewSchema = NonEmptyNotificationOutboxText.pipe(
-  Schema.brand('NotificationLocalOutboxPayloadPreview')
-);
+export const NotificationLocalOutboxReadModelIdSchema = brandedNonEmptyStringSchema('NotificationLocalOutboxReadModelId');
+export const NotificationLocalOutboxEntryIdSchema = brandedNonEmptyStringSchema('NotificationLocalOutboxEntryId');
+export const NotificationLocalOutboxReferenceSchema = brandedNonEmptyStringSchema('NotificationLocalOutboxReference');
+export const NotificationLocalOutboxPayloadPreviewSchema = brandedNonEmptyStringSchema('NotificationLocalOutboxPayloadPreview');
 
 const NotificationLocalOutboxMinimalAlertEnvelopeBaseSchema = Schema.Struct({
   alertRef: NotificationLocalOutboxReferenceSchema,
@@ -245,3 +240,4 @@ function textContainsForbiddenDetail(text: string): boolean {
   const lowerText = text.toLowerCase();
   return NotificationLocalOutboxForbiddenDetailFragments.some((fragment) => lowerText.includes(fragment));
 }
+

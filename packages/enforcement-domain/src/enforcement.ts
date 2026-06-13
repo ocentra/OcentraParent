@@ -1,4 +1,9 @@
-import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
+import {
+  type Infer,
+  Schema,
+  withParser,
+  brandedNonEmptyStringSchema
+} from '@ocentra-parent/schema-domain/effect';
 import {
   ParentActionReferenceSchema,
   ParentActorReferenceSchema,
@@ -19,18 +24,16 @@ import {
   PolicyTargetSchema,
 } from '@ocentra-parent/policy-domain/policy';
 
-const NonEmptyEnforcementText = Schema.String.pipe(Schema.minLength(1));
-
-const EnforcementIntentIdSchema = NonEmptyEnforcementText.pipe(Schema.brand('EnforcementIntentId'));
-const EnforcementActionIdSchema = NonEmptyEnforcementText.pipe(Schema.brand('EnforcementActionId'));
-const EnforcementResultIdSchema = NonEmptyEnforcementText.pipe(Schema.brand('EnforcementResultId'));
-const EnforcementAuditEventIdSchema = NonEmptyEnforcementText.pipe(Schema.brand('EnforcementAuditEventId'));
-const EnforcementTimerEventIdSchema = NonEmptyEnforcementText.pipe(Schema.brand('EnforcementTimerEventId'));
-const EnforcementTimerStateIdSchema = NonEmptyEnforcementText.pipe(Schema.brand('EnforcementTimerStateId'));
-const EnforcementRollbackTokenSchema = NonEmptyEnforcementText.pipe(Schema.brand('EnforcementRollbackToken'));
-const EnforcementIdempotencyKeySchema = NonEmptyEnforcementText.pipe(Schema.brand('EnforcementIdempotencyKey'));
-const EnforcementStatusReasonSchema = NonEmptyEnforcementText.pipe(Schema.brand('EnforcementStatusReason'));
-const EnforcementJournalSequenceSchema = NonEmptyEnforcementText.pipe(Schema.brand('EnforcementJournalSequence'));
+const EnforcementIntentIdSchema = brandedNonEmptyStringSchema('EnforcementIntentId');
+const EnforcementActionIdSchema = brandedNonEmptyStringSchema('EnforcementActionId');
+const EnforcementResultIdSchema = brandedNonEmptyStringSchema('EnforcementResultId');
+const EnforcementAuditEventIdSchema = brandedNonEmptyStringSchema('EnforcementAuditEventId');
+const EnforcementTimerEventIdSchema = brandedNonEmptyStringSchema('EnforcementTimerEventId');
+const EnforcementTimerStateIdSchema = brandedNonEmptyStringSchema('EnforcementTimerStateId');
+const EnforcementRollbackTokenSchema = brandedNonEmptyStringSchema('EnforcementRollbackToken');
+const EnforcementIdempotencyKeySchema = brandedNonEmptyStringSchema('EnforcementIdempotencyKey');
+const EnforcementStatusReasonSchema = brandedNonEmptyStringSchema('EnforcementStatusReason');
+const EnforcementJournalSequenceSchema = brandedNonEmptyStringSchema('EnforcementJournalSequence');
 
 const EnforcementIntentSourceSchema = withParser(
   Schema.Literal('parent-portal', 'parent-rule', 'local-policy-evaluator', 'system-recovery')
@@ -497,3 +500,4 @@ export const EnforcementAuditEventKind = {
   Unavailable: EnforcementAuditEventKindSchema.parse('unavailable'),
   Cancelled: EnforcementAuditEventKindSchema.parse('cancelled'),
 } as const;
+

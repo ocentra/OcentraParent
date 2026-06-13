@@ -1,9 +1,12 @@
-import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
+import {
+  type Infer,
+  Schema,
+  withParser,
+  brandedNonEmptyStringSchema
+} from '@ocentra-parent/schema-domain/effect';
 import { ParentTimestampSchema } from '@ocentra-parent/family-domain/reference-primitives';
 import { TrackingPolicyAuditRefSchema, TrackingPolicySchemaVersion } from './tracking-location-policy-primitives';
 import { type TrackingFullProductUiRuntimeArtifactGateProof } from './tracking-full-product-ui-runtime-artifact-gate-proof';
-
-const TrackingFullProductUiRuntimePreflightTextSchema = Schema.String.pipe(Schema.minLength(1));
 
 export const TrackingFullProductUiRuntimePreflightAreaSchema = Schema.Literal(
   'retention-settings-production-write-result',
@@ -14,20 +17,14 @@ export const TrackingFullProductUiRuntimePreflightAreaSchema = Schema.Literal(
 
 export const TrackingFullProductUiRuntimePreflightStatusSchema = Schema.Literal('manual-required');
 
-export const TrackingFullProductUiRuntimePreflightRowIdSchema = TrackingFullProductUiRuntimePreflightTextSchema.pipe(
-  Schema.brand('TrackingFullProductUiRuntimePreflightRowId')
-);
+export const TrackingFullProductUiRuntimePreflightRowIdSchema = brandedNonEmptyStringSchema('TrackingFullProductUiRuntimePreflightRowId');
 
-export const TrackingFullProductUiRuntimePreflightPathSchema = TrackingFullProductUiRuntimePreflightTextSchema.pipe(
-  Schema.brand('TrackingFullProductUiRuntimePreflightPath')
-);
+export const TrackingFullProductUiRuntimePreflightPathSchema = brandedNonEmptyStringSchema('TrackingFullProductUiRuntimePreflightPath');
 
-export const TrackingFullProductUiRuntimePreflightCommandSchema = TrackingFullProductUiRuntimePreflightTextSchema.pipe(
-  Schema.brand('TrackingFullProductUiRuntimePreflightCommand')
-);
+export const TrackingFullProductUiRuntimePreflightCommandSchema = brandedNonEmptyStringSchema('TrackingFullProductUiRuntimePreflightCommand');
 
 export const TrackingFullProductUiRuntimePreflightCriterionSchema =
-  TrackingFullProductUiRuntimePreflightTextSchema.pipe(Schema.brand('TrackingFullProductUiRuntimePreflightCriterion'));
+  brandedNonEmptyStringSchema('TrackingFullProductUiRuntimePreflightCriterion');
 
 const RequiredTrackingFullProductUiRuntimePreflightRows = [
   {
@@ -311,3 +308,4 @@ function preflightRow(
     productClaimReady: false,
   });
 }
+

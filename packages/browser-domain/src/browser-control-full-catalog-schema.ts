@@ -1,4 +1,9 @@
-import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
+import {
+  type Infer,
+  Schema,
+  withParser,
+  NonEmptyStringSchema
+} from '@ocentra-parent/schema-domain/effect';
 
 import {
   BrowserControlFieldIdSchema,
@@ -7,8 +12,6 @@ import {
   BrowserControlSectionIdSchema,
 } from './browser-control-identifiers';
 import { ParentContractSchemaVersionSchema } from '@ocentra-parent/family-domain/reference-primitives';
-
-const BrowserControlFullCatalogTextSchema = Schema.String.pipe(Schema.minLength(1));
 
 export const BrowserControlFullCatalogControlKindSchema = withParser(
   Schema.Literal(
@@ -112,10 +115,10 @@ export const BrowserControlFullCatalogSectionKindSchema = withParser(
 export const BrowserControlFullCatalogOptionSchema = withParser(
   Schema.Struct({
     optionId: BrowserControlOptionIdSchema,
-    label: BrowserControlFullCatalogTextSchema,
-    value: BrowserControlFullCatalogTextSchema,
-    originalSourceText: BrowserControlFullCatalogTextSchema,
-    meaning: Schema.Union(BrowserControlFullCatalogTextSchema, Schema.Null),
+    label: NonEmptyStringSchema,
+    value: NonEmptyStringSchema,
+    originalSourceText: NonEmptyStringSchema,
+    meaning: Schema.Union(NonEmptyStringSchema, Schema.Null),
     defaultSelected: Schema.Boolean,
   })
 );
@@ -134,7 +137,7 @@ export const BrowserControlFullCatalogLayoutHintsSchema = withParser(
 export const BrowserControlFullCatalogRuleSchema = withParser(
   Schema.Struct({
     ruleId: BrowserControlFieldIdSchema,
-    description: BrowserControlFullCatalogTextSchema,
+    description: NonEmptyStringSchema,
   })
 );
 
@@ -144,17 +147,17 @@ export const BrowserControlFullCatalogSettingSchema = withParser(
     sectionId: BrowserControlSectionIdSchema,
     groupId: BrowserControlSectionIdSchema,
     settingId: BrowserControlFieldIdSchema,
-    sourceDocument: BrowserControlFullCatalogTextSchema,
-    sourceHeadingPath: Schema.Array(BrowserControlFullCatalogTextSchema),
+    sourceDocument: NonEmptyStringSchema,
+    sourceHeadingPath: Schema.Array(NonEmptyStringSchema),
     sourceSection: BrowserControlSectionIdSchema,
     sourceGroup: BrowserControlSectionIdSchema,
     sourceOrder: Schema.Number,
     sourceLine: Schema.Number,
-    sourceText: BrowserControlFullCatalogTextSchema,
-    originalSourceText: BrowserControlFullCatalogTextSchema,
-    question: BrowserControlFullCatalogTextSchema,
-    uiQuestionText: BrowserControlFullCatalogTextSchema,
-    helperText: Schema.Union(BrowserControlFullCatalogTextSchema, Schema.Null),
+    sourceText: NonEmptyStringSchema,
+    originalSourceText: NonEmptyStringSchema,
+    question: NonEmptyStringSchema,
+    uiQuestionText: NonEmptyStringSchema,
+    helperText: Schema.Union(NonEmptyStringSchema, Schema.Null),
     displayOrder: Schema.Number,
     uiTab: BrowserControlFullCatalogUiTabSchema,
     policyLane: BrowserControlFullCatalogUiTabSchema,
@@ -170,19 +173,19 @@ export const BrowserControlFullCatalogSettingSchema = withParser(
     effectStatus: BrowserControlFullCatalogEffectStatusSchema,
     runtimeOwner: BrowserControlFullCatalogRuntimeOwnerSchema,
     capabilityState: BrowserControlFullCatalogCapabilityStateSchema,
-    capabilityRequirement: Schema.Union(BrowserControlFullCatalogTextSchema, Schema.Null),
-    proofRequirement: Schema.Union(BrowserControlFullCatalogTextSchema, Schema.Null),
+    capabilityRequirement: Schema.Union(NonEmptyStringSchema, Schema.Null),
+    proofRequirement: Schema.Union(NonEmptyStringSchema, Schema.Null),
     visibilityConditions: Schema.Array(BrowserControlFullCatalogRuleSchema),
     enabledConditions: Schema.Array(BrowserControlFullCatalogRuleSchema),
     validationRules: Schema.Array(BrowserControlFullCatalogRuleSchema),
-    unsafeOrUnsupportedFallback: Schema.Union(BrowserControlFullCatalogTextSchema, Schema.Null),
+    unsafeOrUnsupportedFallback: Schema.Union(NonEmptyStringSchema, Schema.Null),
   })
 );
 
 export const BrowserControlFullCatalogGroupSchema = withParser(
   Schema.Struct({
     groupId: BrowserControlSectionIdSchema,
-    title: BrowserControlFullCatalogTextSchema,
+    title: NonEmptyStringSchema,
     sourceOrder: Schema.Number,
     settings: Schema.Array(BrowserControlFullCatalogSettingSchema),
   })
@@ -191,7 +194,7 @@ export const BrowserControlFullCatalogGroupSchema = withParser(
 export const BrowserControlFullCatalogSectionSchema = withParser(
   Schema.Struct({
     sectionId: BrowserControlSectionIdSchema,
-    title: BrowserControlFullCatalogTextSchema,
+    title: NonEmptyStringSchema,
     sourceOrder: Schema.Number,
     uiTab: BrowserControlFullCatalogUiTabSchema,
     sectionKind: BrowserControlFullCatalogSectionKindSchema,
@@ -202,7 +205,7 @@ export const BrowserControlFullCatalogSectionSchema = withParser(
 export const BrowserControlFullCatalogTabSchema = withParser(
   Schema.Struct({
     tabId: BrowserControlFullCatalogUiTabSchema,
-    title: BrowserControlFullCatalogTextSchema,
+    title: NonEmptyStringSchema,
     sourceOrder: Schema.Number,
     sections: Schema.Array(BrowserControlFullCatalogSectionSchema),
   })
@@ -213,8 +216,8 @@ export const BrowserControlFullCatalogSchema = withParser(
     schemaVersion: ParentContractSchemaVersionSchema,
     catalogId: BrowserControlManifestIdSchema,
     sidePanelCategory: BrowserControlFullCatalogSidePanelCategorySchema,
-    sourceDocument: BrowserControlFullCatalogTextSchema,
-    sourceDocuments: Schema.Array(BrowserControlFullCatalogTextSchema),
+    sourceDocument: NonEmptyStringSchema,
+    sourceDocuments: Schema.Array(NonEmptyStringSchema),
     settingCount: Schema.Number,
     targetScopeOptions: Schema.Array(BrowserControlFullCatalogOptionSchema),
     effectModeOptions: Schema.Array(BrowserControlFullCatalogOptionSchema),
@@ -251,3 +254,4 @@ export type BrowserControlFullCatalogSettingSeed = readonly [
   sourceLine: number,
   sourceText: string,
 ];
+

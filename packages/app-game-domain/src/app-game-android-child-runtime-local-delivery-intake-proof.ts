@@ -1,7 +1,10 @@
-import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
+import {
+  type Infer,
+  Schema,
+  withParser,
+  brandedNonEmptyStringSchema
+} from '@ocentra-parent/schema-domain/effect';
 import { ParentTimestampSchema } from '@ocentra-parent/family-domain/reference-primitives';
-
-const AndroidChildRuntimeLocalDeliveryText = Schema.String.pipe(Schema.minLength(1));
 
 export const AppGameAndroidChildRuntimeLocalDeliveryIntakeProofSchemaVersionSchema = withParser(
   Schema.Literal('app-game-android-child-runtime-local-delivery-intake-proof')
@@ -39,9 +42,7 @@ export const AppGameAndroidChildRuntimeLocalDeliveryGapSchema = withParser(
   )
 );
 
-const AndroidChildRuntimeLocalDeliveryProofIdSchema = AndroidChildRuntimeLocalDeliveryText.pipe(
-  Schema.brand('AppGameAndroidChildRuntimeLocalDeliveryProofId')
-);
+const AndroidChildRuntimeLocalDeliveryProofIdSchema = brandedNonEmptyStringSchema('AppGameAndroidChildRuntimeLocalDeliveryProofId');
 
 const AppGameAndroidChildRuntimeLocalDeliveryIntakeProofBaseSchema = Schema.Struct({
   schemaVersion: AppGameAndroidChildRuntimeLocalDeliveryIntakeProofSchemaVersionSchema,
@@ -215,3 +216,4 @@ function androidChildRuntimeLocalDeliveryProofIsHonest(proof: AndroidChildRuntim
     !proof.rawPrivateSourceRowsIncluded
   );
 }
+

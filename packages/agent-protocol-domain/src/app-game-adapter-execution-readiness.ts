@@ -1,8 +1,7 @@
 import { AppGameSchemaVersion } from '@ocentra-parent/app-game-domain/app-game';
-import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
+import { type Infer, NonEmptyStringSchema, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
 import { AgentEvent, isAgentProtocolLogText, type AgentEventEnvelope } from './contracts';
 
-const AdapterReadinessText = Schema.String.pipe(Schema.minLength(1));
 const AdapterReadinessCount = Schema.Number.pipe(Schema.nonNegative(), Schema.int());
 
 export const AgentAppGameAdapterExecutionReadinessPayloadField = 'appGameAdapterExecutionReadinessReadModel' as const;
@@ -34,13 +33,13 @@ export const AgentAppGameAdapterHostCapabilityState = {
 
 const AgentAppGameAdapterExecutionReadinessRowBaseSchema = Schema.Struct({
   schemaVersion: Schema.Literal(AppGameSchemaVersion),
-  rowId: AdapterReadinessText,
-  sourceProofEntryId: AdapterReadinessText,
-  platform: AdapterReadinessText,
+  rowId: NonEmptyStringSchema,
+  sourceProofEntryId: NonEmptyStringSchema,
+  platform: NonEmptyStringSchema,
   productMeanings: Schema.Array(
     Schema.Literal(AgentAppGameAdapterProductMeaning.NativeApp, AgentAppGameAdapterProductMeaning.NativeGame)
   ),
-  adapterCapability: AdapterReadinessText,
+  adapterCapability: NonEmptyStringSchema,
   adapterExecutionState: Schema.Literal(
     AgentAppGameAdapterExecutionState.ProvedScopedExecution,
     AgentAppGameAdapterExecutionState.ManualRequired,
@@ -53,29 +52,29 @@ const AgentAppGameAdapterExecutionReadinessRowBaseSchema = Schema.Struct({
     AgentAppGameAdapterExecutionDecision.ExecutionAllowed,
     AgentAppGameAdapterExecutionDecision.BlockedBeforeExecution
   ),
-  runtimeBoundary: AdapterReadinessText,
-  targetIdentityState: AdapterReadinessText,
-  rollbackReferenceState: AdapterReadinessText,
-  auditReferenceState: AdapterReadinessText,
-  evidenceRefs: Schema.Array(AdapterReadinessText),
+  runtimeBoundary: NonEmptyStringSchema,
+  targetIdentityState: NonEmptyStringSchema,
+  rollbackReferenceState: NonEmptyStringSchema,
+  auditReferenceState: NonEmptyStringSchema,
+  evidenceRefs: Schema.Array(NonEmptyStringSchema),
   hostCapabilityState: Schema.Literal(
     AgentAppGameAdapterHostCapabilityState.Available,
     AgentAppGameAdapterHostCapabilityState.NotDetected,
     AgentAppGameAdapterHostCapabilityState.NotApplicable
   ),
-  hostCapabilityEvidenceRefs: Schema.Array(AdapterReadinessText),
-  hostCapabilityProbeRefs: Schema.Array(AdapterReadinessText),
-  linkedProofArtifacts: Schema.Array(AdapterReadinessText),
-  manualProofRequirements: Schema.Array(AdapterReadinessText),
-  claimBoundary: AdapterReadinessText,
-  fallbackBehavior: AdapterReadinessText,
+  hostCapabilityEvidenceRefs: Schema.Array(NonEmptyStringSchema),
+  hostCapabilityProbeRefs: Schema.Array(NonEmptyStringSchema),
+  linkedProofArtifacts: Schema.Array(NonEmptyStringSchema),
+  manualProofRequirements: Schema.Array(NonEmptyStringSchema),
+  claimBoundary: NonEmptyStringSchema,
+  fallbackBehavior: NonEmptyStringSchema,
   adapterExecutionClaimed: Schema.Boolean,
   broadInstalledAppBlockingClaimed: Schema.Literal(false),
   childDeviceDeliveryClaimed: Schema.Literal(false),
   platformEnforcementClaimed: Schema.Literal(false),
   providerDeliveryClaimed: Schema.Literal(false),
   privateDiagnosticsClaimed: Schema.Literal(false),
-  lastCheckedAt: AdapterReadinessText,
+  lastCheckedAt: NonEmptyStringSchema,
 });
 
 type AgentAppGameAdapterExecutionReadinessRowCandidate = Infer<
@@ -94,11 +93,11 @@ export const AgentAppGameAdapterExecutionReadinessRowSchema = withParser(
 
 const AgentAppGameAdapterExecutionReadinessReadModelBaseSchema = Schema.Struct({
   schemaVersion: Schema.Literal(AppGameSchemaVersion),
-  readModelId: AdapterReadinessText,
-  generatedAt: AdapterReadinessText,
-  sourceReadModelIds: Schema.Array(AdapterReadinessText),
-  custodyLabel: AdapterReadinessText,
-  capabilityStatus: AdapterReadinessText,
+  readModelId: NonEmptyStringSchema,
+  generatedAt: NonEmptyStringSchema,
+  sourceReadModelIds: Schema.Array(NonEmptyStringSchema),
+  custodyLabel: NonEmptyStringSchema,
+  capabilityStatus: NonEmptyStringSchema,
   returned: AdapterReadinessCount,
   executionAllowedCount: AdapterReadinessCount,
   blockedBeforeExecutionCount: AdapterReadinessCount,

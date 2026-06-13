@@ -17,7 +17,7 @@ async function main() {
   await mkdir(proofDir, { recursive: true });
 
   runNpm(['run', 'build:contracts']);
-  runNpm(['run', 'test', '--workspace', '@ocentra-parent/activity-domain', '--', 'app-game-category-risk.test.ts']);
+  runNpm(['run', 'test', '--workspace', '@ocentra-parent/app-game-domain', '--', 'app-game-category-risk.test.ts']);
   runNpm([
     'run',
     'test',
@@ -26,7 +26,7 @@ async function main() {
     '--',
     'app-game-category-risk-policy-routing.test.ts',
   ]);
-  runNpm(['run', 'test', '--workspace', '@ocentra-parent/activity-domain', '--', 'app-game.test.ts']);
+  runNpm(['run', 'test', '--workspace', '@ocentra-parent/app-game-domain', '--', 'app-game.test.ts']);
 
   const appGameSource = await readFile(join(repoRoot, 'packages', 'activity-domain', 'src', 'app-game.ts'), 'utf8');
   const primitivesSource = await readFile(
@@ -167,11 +167,11 @@ async function main() {
     gateState: 'prevented-by-ai-review-only-and-not-dispatched-policy-routing-contracts',
     evidence: {
       aiDigestContract:
-        'packages/activity-domain/src/app-game.ts represents AI classifier output as classification state, confidence, actionHints, and source evidence/session refs only.',
+        'packages/app-game-domain/src/app-game.ts represents AI classifier output as classification state, confidence, actionHints, and source evidence/session refs only.',
       categoryRiskContract:
-        'packages/activity-domain/src/app-game-category-risk.ts requires local-AI category candidates to cite aiDigestRef, stay notEnforcement, and use only soft/manual-review actions.',
+        'packages/app-game-domain/src/app-game-category-risk.ts requires local-AI category candidates to cite aiDigestRef, stay notEnforcement, and use only soft/manual-review actions.',
       categoryRiskTests:
-        'packages/activity-domain/tests/app-game-category-risk.test.ts rejects local-AI hard action candidates such as shieldApp and missing digest refs.',
+        'packages/app-game-domain/tests/unit/app-game-category-risk.test.ts rejects local-AI hard action candidates such as shieldApp and missing digest refs.',
       policyRouteContract:
         'packages/parent-domain/src/app-game-category-risk-policy-routing.ts constrains adapterDispatchState to not-dispatched for category/risk routes.',
       policyRouteTests:

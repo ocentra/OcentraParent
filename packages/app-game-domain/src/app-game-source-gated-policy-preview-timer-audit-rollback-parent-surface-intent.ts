@@ -1,4 +1,9 @@
-import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
+import {
+  type Infer,
+  Schema,
+  withParser,
+  brandedNonEmptyStringSchema
+} from '@ocentra-parent/schema-domain/effect';
 import { AppGamePolicyPreviewTargetDomainSchema } from './app-game-policy-preview-handoff';
 import { AppGameSourceFreshnessEvidenceRefSchema } from './app-game-source-freshness-policy-consumption';
 import { AppGameSourceGatedPolicyPreviewTimerAuditRollbackHandoffRowIdSchema } from './app-game-source-gated-policy-preview-timer-audit-rollback-handoff';
@@ -21,24 +26,14 @@ import {
 } from './app-game-source-gated-policy-preview-timer-audit-rollback-parent-surface-intent-rules';
 import { ParentContractSchemaVersionSchema, ParentTimestampSchema } from '@ocentra-parent/family-domain/reference-primitives';
 
-const SourceGatedPolicyPreviewTimerAuditRollbackParentSurfaceIntentText = Schema.String.pipe(Schema.minLength(1));
-
 export const AppGameSourceGatedPolicyPreviewTimerAuditRollbackParentSurfaceIntentIdSchema =
-  SourceGatedPolicyPreviewTimerAuditRollbackParentSurfaceIntentText.pipe(
-    Schema.brand('AppGameSourceGatedPolicyPreviewTimerAuditRollbackParentSurfaceIntentId')
-  );
+  brandedNonEmptyStringSchema('AppGameSourceGatedPolicyPreviewTimerAuditRollbackParentSurfaceIntentId');
 export const AppGameSourceGatedPolicyPreviewTimerAuditRollbackParentSurfaceIntentRowIdSchema =
-  SourceGatedPolicyPreviewTimerAuditRollbackParentSurfaceIntentText.pipe(
-    Schema.brand('AppGameSourceGatedPolicyPreviewTimerAuditRollbackParentSurfaceIntentRowId')
-  );
+  brandedNonEmptyStringSchema('AppGameSourceGatedPolicyPreviewTimerAuditRollbackParentSurfaceIntentRowId');
 export const AppGameSourceGatedPolicyPreviewTimerAuditRollbackParentSurfaceIntentContractRefSchema =
-  SourceGatedPolicyPreviewTimerAuditRollbackParentSurfaceIntentText.pipe(
-    Schema.brand('AppGameSourceGatedPolicyPreviewTimerAuditRollbackParentSurfaceIntentContractRef')
-  );
+  brandedNonEmptyStringSchema('AppGameSourceGatedPolicyPreviewTimerAuditRollbackParentSurfaceIntentContractRef');
 export const AppGameSourceGatedPolicyPreviewTimerAuditRollbackParentSurfaceIntentDrillInRefSchema =
-  SourceGatedPolicyPreviewTimerAuditRollbackParentSurfaceIntentText.pipe(
-    Schema.brand('AppGameSourceGatedPolicyPreviewTimerAuditRollbackParentSurfaceIntentDrillInRef')
-  );
+  brandedNonEmptyStringSchema('AppGameSourceGatedPolicyPreviewTimerAuditRollbackParentSurfaceIntentDrillInRef');
 
 export const AppGameSourceGatedPolicyPreviewTimerAuditRollbackParentSurfaceIntentStateSchema = withParser(
   Schema.Literal(...Object.values(AppGameSourceGatedPolicyPreviewTimerAuditRollbackParentSurfaceIntentState))
@@ -264,3 +259,4 @@ export const decodeAppGameSourceGatedPolicyPreviewTimerAuditRollbackParentSurfac
 );
 
 export { AppGameSourceGatedPolicyPreviewTimerAuditRollbackParentSurfaceIntentState };
+

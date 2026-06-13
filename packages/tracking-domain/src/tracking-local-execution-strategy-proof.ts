@@ -1,11 +1,15 @@
-import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
+import {
+  type Infer,
+  Schema,
+  withParser,
+  brandedNonEmptyStringSchema,
+  NonEmptyStringSchema
+} from '@ocentra-parent/schema-domain/effect';
 import {
   ParentContractSchemaVersion,
   ParentContractSchemaVersionSchema,
   ParentTimestampSchema,
 } from '@ocentra-parent/family-domain/reference-primitives';
-
-const TrackingLocalExecutionStrategyText = Schema.String.pipe(Schema.minLength(1));
 const TrackingLocalExecutionStrategyCount = Schema.Number.pipe(Schema.int(), Schema.nonNegative());
 
 export const TrackingLocalExecutionStrategyAreaSchema = withParser(
@@ -29,13 +33,9 @@ export const TrackingLocalExecutionStrategyStatusSchema = withParser(
   Schema.Literal('ready', 'observed', 'manual-required', 'unavailable-here')
 );
 
-export const TrackingLocalExecutionStrategyRefSchema = TrackingLocalExecutionStrategyText.pipe(
-  Schema.brand('TrackingLocalExecutionStrategyRef')
-);
+export const TrackingLocalExecutionStrategyRefSchema = brandedNonEmptyStringSchema('TrackingLocalExecutionStrategyRef');
 
-export const TrackingLocalExecutionStrategyCommandSchema = TrackingLocalExecutionStrategyText.pipe(
-  Schema.brand('TrackingLocalExecutionStrategyCommand')
-);
+export const TrackingLocalExecutionStrategyCommandSchema = brandedNonEmptyStringSchema('TrackingLocalExecutionStrategyCommand');
 
 export const TrackingLocalExecutionStrategyRowSchema = withParser(
   Schema.Struct({
@@ -49,7 +49,7 @@ export const TrackingLocalExecutionStrategyRowSchema = withParser(
     commandsToRunAfterCodeBatch: Schema.Array(TrackingLocalExecutionStrategyCommandSchema),
     evidenceRefsExpected: Schema.Array(TrackingLocalExecutionStrategyRefSchema),
     passedEvidenceRefs: Schema.Array(TrackingLocalExecutionStrategyRefSchema),
-    blockers: Schema.Array(TrackingLocalExecutionStrategyText),
+    blockers: Schema.Array(NonEmptyStringSchema),
     localRunnable: Schema.Boolean,
     ciRunnable: Schema.Boolean,
     requiresPhysicalDevice: Schema.Boolean,
@@ -239,3 +239,4 @@ function summaryFrom(rows: readonly TrackingLocalExecutionStrategyRow[]) {
 function uniqueRefs(refs: readonly string[]): readonly string[] {
   return [...new Set(refs.filter((ref) => ref.length > 0))];
 }
+

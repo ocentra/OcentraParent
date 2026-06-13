@@ -6,7 +6,7 @@ use ocentra_parent_agent_protocol::{
     constants, ActivityEvent, ActivityEventKind, ActivityObserver, ActivitySource, ActivitySubject,
     ActivitySubjectKind, AgentCommandEnvelope, AgentCommandName, AgentEventName,
     AgentMessageTarget, AgentPeer, AgentPeerRole, AgentRoute, LogFieldValue, LogFields,
-    TrackingReadModel, ACTIVITY_SCHEMA_VERSION, AGENT_PROTOCOL_SCHEMA_VERSION,
+    TrackingEvidenceRef, TrackingReadModel, ACTIVITY_SCHEMA_VERSION, AGENT_PROTOCOL_SCHEMA_VERSION,
 };
 
 use crate::{
@@ -75,20 +75,25 @@ fn seed_tracking_store(store_path: &Path) {
 
 fn assert_service_read_model_latest_events(read_model: &TrackingReadModel) {
     assert_eq!(
-        read_model.latest_event_id.as_deref(),
+        read_model.latest_event_id.as_ref().map(|value| value.as_str()),
         Some(constants::activity_store::TEST_TRACKING_RETENTION_DELETE_EVENT_ID)
     );
     assert_eq!(
-        read_model.latest_tombstone_event_id.as_deref(),
+        read_model.latest_tombstone_event_id.as_ref().map(|value| value.as_str()),
         Some(constants::activity_store::TEST_TRACKING_RETENTION_DELETE_EVENT_ID)
     );
     assert_eq!(
-        read_model.latest_active_event_id.as_deref(),
+        read_model.latest_active_event_id.as_ref().map(|value| value.as_str()),
         Some(constants::activity_store::TEST_TRACKING_GEOFENCE_EVENT_ID)
     );
     assert_eq!(
         read_model.deleted_evidence_reference_ids,
-        vec![constants::activity_store::TEST_TRACKING_EVIDENCE_REFERENCE_ID.to_string()]
+        vec![
+            TrackingEvidenceRef::parse(
+                constants::activity_store::TEST_TRACKING_EVIDENCE_REFERENCE_ID,
+            )
+            .expect(constants::activity_store::TEST_TRACKING_EVIDENCE_REFERENCE_ID)
+        ]
     );
 }
 

@@ -3,7 +3,7 @@ import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { describe, expect, it } from 'vitest';
 
-const ParentDomainBrowserPlanExportPaths = [
+const BrowserDomainBrowserPlanExportPaths = [
   './browser-game-account-purchase-gate-values',
   './browser-game-account-purchase-gate',
   './browser-game-ai-analysis-values',
@@ -70,14 +70,14 @@ const ParentDomainBrowserPlanExportPaths = [
 
 const PackageJsonPath = resolve(dirname(fileURLToPath(import.meta.url)), '..', 'package.json');
 
-describe('parent-domain browser plan package exports', () => {
+describe('browser-domain browser plan package exports', () => {
   it('exposes social and browser-game contracts as public package subpaths', () => {
     const packageJson = JSON.parse(readFileSync(PackageJsonPath, 'utf8')) as { readonly exports?: unknown };
 
     expect(packageJson.exports).toBeTypeOf('object');
-    const exportsObject = packageJson.exports as Record<(typeof ParentDomainBrowserPlanExportPaths)[number], unknown>;
+    const exportsObject = packageJson.exports as Record<(typeof BrowserDomainBrowserPlanExportPaths)[number], unknown>;
 
-    for (const exportPath of ParentDomainBrowserPlanExportPaths) {
+    for (const exportPath of BrowserDomainBrowserPlanExportPaths) {
       const moduleName = exportPath.slice(2);
       expect(exportsObject[exportPath]).toEqual({
         import: `./dist/${moduleName}.js`,

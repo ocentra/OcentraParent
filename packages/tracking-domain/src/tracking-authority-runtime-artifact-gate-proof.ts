@@ -1,4 +1,9 @@
-import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
+import {
+  type Infer,
+  Schema,
+  withParser,
+  brandedNonEmptyStringSchema
+} from '@ocentra-parent/schema-domain/effect';
 import { ParentTimestampSchema } from '@ocentra-parent/family-domain/reference-primitives';
 import {
   RequiredTrackingAuthorityRuntimeReadinessBlockers,
@@ -9,20 +14,14 @@ import {
 } from './tracking-authority-runtime-readiness-blocker-proof';
 import { TrackingPolicyAuditRefSchema, TrackingPolicySchemaVersion } from './tracking-location-policy-primitives';
 
-const TrackingAuthorityRuntimeArtifactGateTextSchema = Schema.String.pipe(Schema.minLength(1));
-
 export const TrackingAuthorityRuntimeArtifactGateStatusSchema = Schema.Literal(
   'manual-required',
   'artifact-set-present'
 );
 
-export const TrackingAuthorityRuntimeArtifactGatePathSchema = TrackingAuthorityRuntimeArtifactGateTextSchema.pipe(
-  Schema.brand('TrackingAuthorityRuntimeArtifactGatePath')
-);
+export const TrackingAuthorityRuntimeArtifactGatePathSchema = brandedNonEmptyStringSchema('TrackingAuthorityRuntimeArtifactGatePath');
 
-export const TrackingAuthorityRuntimeArtifactGateRowIdSchema = TrackingAuthorityRuntimeArtifactGateTextSchema.pipe(
-  Schema.brand('TrackingAuthorityRuntimeArtifactGateRowId')
-);
+export const TrackingAuthorityRuntimeArtifactGateRowIdSchema = brandedNonEmptyStringSchema('TrackingAuthorityRuntimeArtifactGateRowId');
 
 export const TrackingAuthorityRuntimeArtifactGateRowSchema = withParser(
   Schema.Struct({
@@ -205,3 +204,4 @@ function authorityRuntimeArtifactRow(
 function uniqueRefs(refs: readonly string[]): readonly string[] {
   return [...new Set(refs)];
 }
+

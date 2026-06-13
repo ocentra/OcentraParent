@@ -17,9 +17,9 @@ async function main() {
   await mkdir(proofDir, { recursive: true });
 
   runNpm(['run', 'build:contracts']);
-  runNpm(['run', 'test', '--workspace', '@ocentra-parent/activity-domain', '--', 'app-game-launcher.test.ts']);
-  runNpm(['run', 'test', '--workspace', '@ocentra-parent/activity-domain', '--', 'app-game-evidence-claim.test.ts']);
-  runNpm(['run', 'test', '--workspace', '@ocentra-parent/activity-domain', '--', 'app-game-identity.test.ts']);
+  runNpm(['run', 'test', '--workspace', '@ocentra-parent/app-game-domain', '--', 'app-game-launcher.test.ts']);
+  runNpm(['run', 'test', '--workspace', '@ocentra-parent/app-game-domain', '--', 'app-game-evidence-claim.test.ts']);
+  runNpm(['run', 'test', '--workspace', '@ocentra-parent/app-game-domain', '--', 'app-game-identity.test.ts']);
   runNpm([
     'run',
     'test',
@@ -157,13 +157,13 @@ async function main() {
     gateState: 'prevented-by-launcher-contracts-and-portal-launcher-only-display',
     evidence: {
       launcherContract:
-        'packages/activity-domain/src/app-game-launcher.ts requires child-game proof before knownGame and keeps launcherOnly evidence knownLauncher.',
+        'packages/app-game-domain/src/app-game-launcher.ts requires child-game proof before knownGame and keeps launcherOnly evidence knownLauncher.',
       evidenceClaimContract:
-        'packages/activity-domain/src/app-game.ts blocks launcher evidence from knownGame unless identityStrength is childGameProof.',
+        'packages/app-game-domain/src/app-game.ts blocks launcher evidence from knownGame unless identityStrength is childGameProof.',
       launcherTests:
-        'packages/activity-domain/tests/app-game-launcher.test.ts rejects launcher candidate overclaims and missing child-game proof ids.',
+        'packages/app-game-domain/tests/unit/app-game-launcher.test.ts rejects launcher candidate overclaims and missing child-game proof ids.',
       identityTests:
-        'packages/activity-domain/tests/app-game-identity.test.ts rejects launcher-as-game identity without childGameEvidenceClaimId.',
+        'packages/app-game-domain/tests/unit/app-game-identity.test.ts rejects launcher-as-game identity without childGameEvidenceClaimId.',
       portalIntent:
         'vendor/ocentra-parent-core-ui/AppPages/ParentPortal/app-game-dashboard-intent.ts renders launcher rows as launcherOnly/Launcher metrics, separate from active child-game proof.',
       portalTest:

@@ -1,1 +1,1 @@
-export * from '@ocentra-parent/social-domain/social-child-approval-block-ux-values';
+export * from '@ocentra-parent/browser-domain/social-child-approval-block-ux-values';

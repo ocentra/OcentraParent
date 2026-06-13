@@ -10,7 +10,7 @@ const commands = [
   {
     label: 'activity-domain screen settings export build',
     command: 'cmd',
-    args: ['/c', 'npm', 'run', 'build', '--workspace', '@ocentra-parent/activity-domain'],
+    args: ['/c', 'npm', 'run', 'build', '--workspace', '@ocentra-parent/screen-domain'],
   },
   {
     label: 'agent-protocol-domain screen settings adapter tests',
@@ -47,7 +47,7 @@ assert(
 );
 
 const sourceFiles = [
-  'packages/activity-domain/src/screen-evidence-settings.ts',
+  'packages/screen-domain/src/screen-evidence-settings.ts',
   'packages/agent-protocol-domain/src/screen-settings-adapter.ts',
   'packages/agent-protocol-domain/tests/screen-settings-adapter.test.ts',
   'crates/agent-protocol/src/screen_settings.rs',

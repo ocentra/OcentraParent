@@ -1,16 +1,16 @@
-import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
+import {
+  type Infer,
+  Schema,
+  withParser,
+  brandedNonEmptyStringSchema,
+  NonEmptyStringSchema
+} from '@ocentra-parent/schema-domain/effect';
 import { ParentTimestampSchema } from '@ocentra-parent/family-domain/reference-primitives';
 import { TrackingPolicyAuditRefSchema, TrackingPolicySchemaVersion } from './tracking-location-policy-primitives';
 
-const TrackingAuthorityEnrollmentTextSchema = Schema.String.pipe(Schema.minLength(1));
+export const TrackingAuthorityEnrollmentRowIdSchema = brandedNonEmptyStringSchema('TrackingAuthorityEnrollmentRowId');
 
-export const TrackingAuthorityEnrollmentRowIdSchema = TrackingAuthorityEnrollmentTextSchema.pipe(
-  Schema.brand('TrackingAuthorityEnrollmentRowId')
-);
-
-export const TrackingAuthorityEnrollmentProofRefSchema = TrackingAuthorityEnrollmentTextSchema.pipe(
-  Schema.brand('TrackingAuthorityEnrollmentProofRef')
-);
+export const TrackingAuthorityEnrollmentProofRefSchema = brandedNonEmptyStringSchema('TrackingAuthorityEnrollmentProofRef');
 
 export const TrackingAuthorityEnrollmentPlatformSchema = Schema.Literal('android', 'ios', 'desktop');
 
@@ -39,7 +39,7 @@ export const TrackingAuthorityEnrollmentRowSchema = withParser(
     requiredProofTier: Schema.Literal('P4_PHYSICAL_DEVICE'),
     currentProofTier: Schema.Literal('P0_CONTRACT'),
     requiredEvidenceRefs: Schema.Array(TrackingAuthorityEnrollmentProofRefSchema),
-    manualProofCommand: TrackingAuthorityEnrollmentTextSchema,
+    manualProofCommand: NonEmptyStringSchema,
     auditRefs: Schema.Array(TrackingPolicyAuditRefSchema),
     authorityEnrollmentClaimed: Schema.Literal(false),
     hardControlRuntimeClaimed: Schema.Literal(false),
@@ -164,3 +164,4 @@ function evidenceRefsForMode(mode: (typeof RequiredTrackingAuthorityEnrollmentMo
 function manualCommandForMode(mode: (typeof RequiredTrackingAuthorityEnrollmentModes)[number]) {
   return `collect tracking authority evidence for ${mode} with enrolled device, capability grant, screenshot/log bundle, and parent-visible status row`;
 }
+

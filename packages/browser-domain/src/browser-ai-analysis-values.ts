@@ -1,36 +1,39 @@
-import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
-
-const NonEmptyBrowserAiValueText = Schema.String.pipe(Schema.minLength(1));
+import {
+  type Infer,
+  Schema,
+  withParser,
+  brandedNonEmptyStringSchema
+} from '@ocentra-parent/schema-domain/effect';
 
 export const BrowserUrlAiAnalysisRequestIdSchema = withParser(
-  NonEmptyBrowserAiValueText.pipe(Schema.brand('BrowserUrlAiAnalysisRequestId'))
+  brandedNonEmptyStringSchema('BrowserUrlAiAnalysisRequestId')
 );
 export const BrowserUrlAiAnalysisIdSchema = withParser(
-  NonEmptyBrowserAiValueText.pipe(Schema.brand('BrowserUrlAiAnalysisId'))
+  brandedNonEmptyStringSchema('BrowserUrlAiAnalysisId')
 );
 export const BrowserAiPromptTemplateIdSchema = withParser(
-  NonEmptyBrowserAiValueText.pipe(Schema.brand('BrowserAiPromptTemplateId'))
+  brandedNonEmptyStringSchema('BrowserAiPromptTemplateId')
 );
 export const BrowserAiPromptTemplateVersionSchema = withParser(
-  NonEmptyBrowserAiValueText.pipe(Schema.brand('BrowserAiPromptTemplateVersion'))
+  brandedNonEmptyStringSchema('BrowserAiPromptTemplateVersion')
 );
 export const BrowserAiModelRuntimeRefSchema = withParser(
-  NonEmptyBrowserAiValueText.pipe(Schema.brand('BrowserAiModelRuntimeRef'))
+  brandedNonEmptyStringSchema('BrowserAiModelRuntimeRef')
 );
 export const BrowserPolicyVersionRefSchema = withParser(
-  NonEmptyBrowserAiValueText.pipe(Schema.brand('BrowserPolicyVersionRef'))
+  brandedNonEmptyStringSchema('BrowserPolicyVersionRef')
 );
 export const BrowserParentRuleRefSchema = withParser(
-  NonEmptyBrowserAiValueText.pipe(Schema.brand('BrowserParentRuleRef'))
+  brandedNonEmptyStringSchema('BrowserParentRuleRef')
 );
 export const BrowserScheduleContextRefSchema = withParser(
-  NonEmptyBrowserAiValueText.pipe(Schema.brand('BrowserScheduleContextRef'))
+  brandedNonEmptyStringSchema('BrowserScheduleContextRef')
 );
 export const BrowserEvidenceBackedContentRefSchema = withParser(
-  NonEmptyBrowserAiValueText.pipe(Schema.brand('BrowserEvidenceBackedContentRef'))
+  brandedNonEmptyStringSchema('BrowserEvidenceBackedContentRef')
 );
 export const BrowserKnowledgeGraphRefSchema = withParser(
-  NonEmptyBrowserAiValueText.pipe(Schema.brand('BrowserKnowledgeGraphRef'))
+  brandedNonEmptyStringSchema('BrowserKnowledgeGraphRef')
 );
 
 export const BrowserAiRequestedTaskSchema = withParser(
@@ -120,3 +123,4 @@ export const BrowserVideoKindSchema = withParser(
 
 export type BrowserContentCategory = Infer<typeof BrowserContentCategorySchema>;
 export type BrowserContentModifier = Infer<typeof BrowserContentModifierSchema>;
+

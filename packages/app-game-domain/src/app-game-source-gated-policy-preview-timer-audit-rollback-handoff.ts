@@ -1,4 +1,9 @@
-import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
+import {
+  type Infer,
+  Schema,
+  withParser,
+  brandedNonEmptyStringSchema
+} from '@ocentra-parent/schema-domain/effect';
 import { AppGamePolicyPreviewTargetDomainSchema } from './app-game-policy-preview-handoff';
 import { AppGameSourceFreshnessEvidenceRefSchema } from './app-game-source-freshness-policy-consumption';
 import { AppGameSourceGatedPolicyPreviewTimerProofRefSchema } from './app-game-source-gated-policy-preview-timer-status';
@@ -19,20 +24,12 @@ import {
 } from './app-game-source-gated-policy-preview-timer-audit-rollback-handoff-rules';
 import { ParentContractSchemaVersionSchema, ParentTimestampSchema } from '@ocentra-parent/family-domain/reference-primitives';
 
-const SourceGatedPolicyPreviewTimerAuditRollbackHandoffText = Schema.String.pipe(Schema.minLength(1));
-
 export const AppGameSourceGatedPolicyPreviewTimerAuditRollbackHandoffIdSchema =
-  SourceGatedPolicyPreviewTimerAuditRollbackHandoffText.pipe(
-    Schema.brand('AppGameSourceGatedPolicyPreviewTimerAuditRollbackHandoffId')
-  );
+  brandedNonEmptyStringSchema('AppGameSourceGatedPolicyPreviewTimerAuditRollbackHandoffId');
 export const AppGameSourceGatedPolicyPreviewTimerAuditRollbackHandoffRowIdSchema =
-  SourceGatedPolicyPreviewTimerAuditRollbackHandoffText.pipe(
-    Schema.brand('AppGameSourceGatedPolicyPreviewTimerAuditRollbackHandoffRowId')
-  );
+  brandedNonEmptyStringSchema('AppGameSourceGatedPolicyPreviewTimerAuditRollbackHandoffRowId');
 export const AppGameSourceGatedPolicyPreviewTimerAuditRollbackHandoffContractRefSchema =
-  SourceGatedPolicyPreviewTimerAuditRollbackHandoffText.pipe(
-    Schema.brand('AppGameSourceGatedPolicyPreviewTimerAuditRollbackHandoffContractRef')
-  );
+  brandedNonEmptyStringSchema('AppGameSourceGatedPolicyPreviewTimerAuditRollbackHandoffContractRef');
 
 export const AppGameSourceGatedPolicyPreviewTimerAuditRollbackHandoffStateSchema = withParser(
   Schema.Literal(...Object.values(AppGameSourceGatedPolicyPreviewTimerAuditRollbackHandoffState))
@@ -264,3 +261,4 @@ export const decodeAppGameSourceGatedPolicyPreviewTimerAuditRollbackHandoff = Sc
 );
 
 export { AppGameSourceGatedPolicyPreviewTimerAuditRollbackHandoffState };
+

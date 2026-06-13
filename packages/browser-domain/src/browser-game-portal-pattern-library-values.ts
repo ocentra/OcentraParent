@@ -1,22 +1,25 @@
-import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
+import {
+  type Infer,
+  Schema,
+  withParser,
+  brandedNonEmptyStringSchema
+} from '@ocentra-parent/schema-domain/effect';
 import { ParentEvidenceReferenceIdSchema } from '@ocentra-parent/family-domain/reference-primitives';
-
-const NonEmptyBrowserGamePortalPatternText = Schema.String.pipe(Schema.minLength(1));
 
 export const BrowserGamePortalPatternLibrarySchemaVersionSchema = withParser(
   Schema.Literal('browser-game-portal-pattern-library-contract')
 );
 
 export const BrowserGamePortalPatternLibraryIdSchema = withParser(
-  NonEmptyBrowserGamePortalPatternText.pipe(Schema.brand('BrowserGamePortalPatternLibraryId'))
+  brandedNonEmptyStringSchema('BrowserGamePortalPatternLibraryId')
 );
 
 export const BrowserGamePortalPatternIdSchema = withParser(
-  NonEmptyBrowserGamePortalPatternText.pipe(Schema.brand('BrowserGamePortalPatternId'))
+  brandedNonEmptyStringSchema('BrowserGamePortalPatternId')
 );
 
 export const BrowserGamePortalPatternFingerprintSchema = withParser(
-  NonEmptyBrowserGamePortalPatternText.pipe(Schema.brand('BrowserGamePortalPatternFingerprint'))
+  brandedNonEmptyStringSchema('BrowserGamePortalPatternFingerprint')
 );
 
 export const BrowserGamePortalFamilySchema = withParser(
@@ -82,3 +85,4 @@ export type BrowserGamePortalPatternConfidence = Infer<typeof BrowserGamePortalP
 export type BrowserGamePortalPatternReviewState = Infer<typeof BrowserGamePortalPatternReviewStateSchema>;
 export type BrowserGamePortalRouteKind = Infer<typeof BrowserGamePortalRouteKindSchema>;
 export type BrowserGamePortalSignalKind = Infer<typeof BrowserGamePortalSignalKindSchema>;
+

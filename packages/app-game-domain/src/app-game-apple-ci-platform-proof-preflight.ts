@@ -1,11 +1,14 @@
-import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
+import {
+  type Infer,
+  Schema,
+  withParser,
+  brandedNonEmptyStringSchema
+} from '@ocentra-parent/schema-domain/effect';
 import {
   V08OsAdapterManualArtifactGateReadModel,
   type V08OsAdapterManualArtifactGateEntry,
-} from './v0-8-os-adapter-manual-artifact-gates';
+} from '@ocentra-parent/enforcement-domain/v0-8-os-adapter-manual-artifact-gates';
 import { ParentTimestampSchema } from '@ocentra-parent/family-domain/reference-primitives';
-
-const AppleCiPreflightText = Schema.String.pipe(Schema.minLength(1));
 
 export const AppGameAppleCiPlatformProofPreflightSchemaVersionSchema = withParser(
   Schema.Literal('app-game-apple-ci-platform-proof-preflight')
@@ -45,9 +48,7 @@ export const AppGameAppleCiPlatformProofPreflightBlockerSchema = withParser(
   )
 );
 
-const AppleCiPreflightLabelSchema = AppleCiPreflightText.pipe(
-  Schema.brand('AppGameAppleCiPlatformProofPreflightLabel')
-);
+const AppleCiPreflightLabelSchema = brandedNonEmptyStringSchema('AppGameAppleCiPlatformProofPreflightLabel');
 
 const AppleCiPreflightCountSchema = Schema.Number.pipe(Schema.int(), Schema.greaterThanOrEqualTo(0));
 
@@ -251,3 +252,4 @@ function appleCiPreflightReadModelIsHonest(readModel: AppleCiPlatformProofPrefli
     !readModel.childDeviceDeliveryClaimed
   );
 }
+

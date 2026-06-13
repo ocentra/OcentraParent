@@ -1,4 +1,9 @@
-import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
+import {
+  type Infer,
+  Schema,
+  withParser,
+  brandedNonEmptyStringSchema
+} from '@ocentra-parent/schema-domain/effect';
 import {
   AppGameNotificationProviderPreflightReadModelSchema,
   AppGameNotificationProviderPreflightStatus,
@@ -16,9 +21,7 @@ import {
   V08NotificationProviderStatusBoundaryEntrySchema,
   V08NotificationProviderStatusBoundaryReadModel,
   type V08NotificationProviderStatus,
-} from './v0-8-notification-provider-status-boundary';
-
-const HandoffText = Schema.String.pipe(Schema.minLength(1));
+} from '@ocentra-parent/notification-domain/v0-8-notification-provider-status-boundary';
 
 export const RequiredAppGameNotificationProviderStatusHandoffNonClaims = [
   'no-provider-delivery-execution',
@@ -38,9 +41,9 @@ export const AppGameNotificationProviderStatusHandoffNonClaimSchema = withParser
 );
 
 // prettier-ignore
-export const AppGameNotificationProviderStatusHandoffIdSchema = HandoffText.pipe(Schema.brand('AppGameNotificationProviderStatusHandoffId'));
+export const AppGameNotificationProviderStatusHandoffIdSchema = brandedNonEmptyStringSchema('AppGameNotificationProviderStatusHandoffId');
 // prettier-ignore
-export const AppGameNotificationProviderStatusHandoffReferenceSchema = HandoffText.pipe(Schema.brand('AppGameNotificationProviderStatusHandoffReference'));
+export const AppGameNotificationProviderStatusHandoffReferenceSchema = brandedNonEmptyStringSchema('AppGameNotificationProviderStatusHandoffReference');
 
 const AppGameNotificationProviderStatusHandoffRowBaseSchema = Schema.Struct({
   handoffRowId: AppGameNotificationProviderStatusHandoffReferenceSchema,
@@ -297,3 +300,4 @@ const countProviderStatus = (
   }>,
   providerStatus: V08NotificationProviderStatus
 ): number => rows.filter((row) => row.providerStatusBoundaryEntry.providerStatus === providerStatus).length;
+

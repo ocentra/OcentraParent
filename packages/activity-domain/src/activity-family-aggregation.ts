@@ -13,7 +13,11 @@ import {
   type ActivityReportSourceState,
   type ActivityReportSourceStateSummary,
 } from './activity-surface';
-import { ActivityDeviceIdSchema, ActivityTimestampSchema, type ActivityDeviceId } from './primitives';
+import {
+  ActivityDeviceIdSchema,
+  ActivityTimestampSchema,
+  type ActivityDeviceId,
+} from '@ocentra-parent/evidence-domain/primitives';
 
 type ActivityFamilyAggregationReadModelState = ReturnType<typeof ActivityReadModelStateSchema.parse>;
 type ActivityFamilyAggregationHistory = ReturnType<typeof ActivityHistoricalReportListSchema.parse>;

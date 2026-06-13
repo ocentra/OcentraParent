@@ -1,4 +1,10 @@
-import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
+import {
+  type Infer,
+  Schema,
+  withParser,
+  brandedNonEmptyStringSchema,
+  NonEmptyStringSchema
+} from '@ocentra-parent/schema-domain/effect';
 import { ParentTimestampSchema } from '@ocentra-parent/family-domain/reference-primitives';
 import { TrackingPolicyAuditRefSchema, TrackingPolicySchemaVersion } from './tracking-location-policy-primitives';
 import {
@@ -10,11 +16,7 @@ import {
   TrackingRetentionSettingsProofRefSchema,
 } from './tracking-retention-settings-read-model-proof';
 
-const TrackingRetentionProductReadinessTextSchema = Schema.String.pipe(Schema.minLength(1));
-
-export const TrackingRetentionProductReadinessProofIdSchema = TrackingRetentionProductReadinessTextSchema.pipe(
-  Schema.brand('TrackingRetentionProductReadinessProofId')
-);
+export const TrackingRetentionProductReadinessProofIdSchema = brandedNonEmptyStringSchema('TrackingRetentionProductReadinessProofId');
 
 export const TrackingRetentionProductBlockerSchema = Schema.Literal(
   'writable-product-settings-execution',
@@ -39,7 +41,7 @@ export const TrackingRetentionProductReadinessRowSchema = withParser(
     sourceMutationProofRefs: Schema.Array(TrackingRetentionSettingsProofRefSchema),
     auditRefs: Schema.Array(TrackingPolicyAuditRefSchema),
     localServiceStateRevision: Schema.Number.pipe(Schema.int(), Schema.positive()),
-    durableSettingsStoreRef: TrackingRetentionProductReadinessTextSchema,
+    durableSettingsStoreRef: NonEmptyStringSchema,
     durableSettingsPersisted: Schema.Literal(true),
     productReadinessBlockers: Schema.Array(TrackingRetentionProductBlockerSchema),
     localDurableSettingsReady: Schema.Literal(true),
@@ -173,3 +175,4 @@ function readinessRow(
     productClaimReady: false,
   });
 }
+

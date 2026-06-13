@@ -13,8 +13,8 @@ await Promise.all([
   mkdir(testResultRoot, { recursive: true }),
 ]);
 
-runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/activity-domain']));
-runCommand(...npmCommand(['run', 'test', '--workspace', '@ocentra-parent/activity-domain', '--', 'screen-vlm-worker']));
+runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/screen-domain']));
+runCommand(...npmCommand(['run', 'test', '--workspace', '@ocentra-parent/screen-domain', '--', 'screen-vlm-worker']));
 
 const {
   ScreenVlmWorkerMaxImagePixels,
@@ -98,8 +98,8 @@ const summary = {
   analysisRows,
   assertions,
   validationCommands: [
-    'npm run build --workspace @ocentra-parent/activity-domain',
-    'npm run test --workspace @ocentra-parent/activity-domain -- screen-vlm-worker',
+    'npm run build --workspace @ocentra-parent/screen-domain',
+    'npm run test --workspace @ocentra-parent/screen-domain -- screen-vlm-worker',
     'node scripts/test/screen-ai-vlm-worker-contract-proof.mjs',
   ],
   nonClaims: [

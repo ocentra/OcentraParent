@@ -1,17 +1,18 @@
-import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
+import {
+  type Infer,
+  Schema,
+  withParser,
+  brandedNonEmptyStringSchema
+} from '@ocentra-parent/schema-domain/effect';
 import { ParentTimestampSchema } from '@ocentra-parent/family-domain/reference-primitives';
 import { TrackingPolicyAuditRefSchema, TrackingPolicySchemaVersion } from './tracking-location-policy-primitives';
-
-const TrackingAndroidEmulatorArtifactInventoryTextSchema = Schema.String.pipe(Schema.minLength(1));
 const TrackingAndroidEmulatorArtifactInventoryCountSchema = Schema.Number.pipe(Schema.int(), Schema.nonNegative());
 
 export const TrackingAndroidEmulatorArtifactInventoryRefSchema =
-  TrackingAndroidEmulatorArtifactInventoryTextSchema.pipe(Schema.brand('TrackingAndroidEmulatorArtifactInventoryRef'));
+  brandedNonEmptyStringSchema('TrackingAndroidEmulatorArtifactInventoryRef');
 
 export const TrackingAndroidEmulatorArtifactInventoryRowIdSchema =
-  TrackingAndroidEmulatorArtifactInventoryTextSchema.pipe(
-    Schema.brand('TrackingAndroidEmulatorArtifactInventoryRowId')
-  );
+  brandedNonEmptyStringSchema('TrackingAndroidEmulatorArtifactInventoryRowId');
 
 export const TrackingAndroidEmulatorArtifactInventoryStatusSchema = Schema.Literal(
   'android-emulator-local-artifacts-present-physical-device-required'
@@ -347,3 +348,4 @@ function androidEmulatorArtifactInventoryNonClaimsAreHonest(
     row.productClaimReady === false
   );
 }
+

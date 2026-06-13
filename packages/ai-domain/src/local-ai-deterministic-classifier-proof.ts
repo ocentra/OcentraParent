@@ -1,5 +1,10 @@
-import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
-import { LocalAiEvaluationInputSchema, LocalAiSafetyResultSchema, type LocalAiSafetyResult } from './local-ai';
+import {
+  type Infer,
+  Schema,
+  withParser,
+  brandedNonEmptyStringSchema
+} from '@ocentra-parent/schema-domain/effect';
+import { LocalAiEvaluationInputSchema, LocalAiSafetyResultSchema, type LocalAiSafetyResult } from '@ocentra-parent/ai-domain/local-ai';
 import {
   LocalAiDegradedState,
   LocalAiContextKindSchema,
@@ -7,21 +12,13 @@ import {
   LocalAiUnknownState,
   type LocalAiContextKind,
 } from './local-ai-primitives';
-import { LocalModelRuntimeStatusSchema, type LocalModelRuntimeStatus } from './local-ai-runtime';
-import { PolicyAction, PolicyReasonCodeSchema } from './policy';
+import { LocalModelRuntimeStatusSchema, type LocalModelRuntimeStatus } from '@ocentra-parent/ai-domain/local-ai-runtime';
+import { PolicyAction, PolicyReasonCodeSchema } from '@ocentra-parent/policy-domain/policy';
 import { ParentContractSchemaVersion, ParentContractSchemaVersionSchema } from '@ocentra-parent/family-domain/reference-primitives';
 
-const NonEmptyClassifierText = Schema.String.pipe(Schema.minLength(1));
-
-export const LocalAiDeterministicClassifierRunIdSchema = NonEmptyClassifierText.pipe(
-  Schema.brand('LocalAiDeterministicClassifierRunId')
-);
-export const LocalAiDeterministicClassifierTraceRefSchema = NonEmptyClassifierText.pipe(
-  Schema.brand('LocalAiDeterministicClassifierTraceRef')
-);
-export const LocalAiDeterministicClassifierNonClaimSchema = NonEmptyClassifierText.pipe(
-  Schema.brand('LocalAiDeterministicClassifierNonClaim')
-);
+export const LocalAiDeterministicClassifierRunIdSchema = brandedNonEmptyStringSchema('LocalAiDeterministicClassifierRunId');
+export const LocalAiDeterministicClassifierTraceRefSchema = brandedNonEmptyStringSchema('LocalAiDeterministicClassifierTraceRef');
+export const LocalAiDeterministicClassifierNonClaimSchema = brandedNonEmptyStringSchema('LocalAiDeterministicClassifierNonClaim');
 
 export const LocalAiDeterministicClassifierStateSchema = withParser(
   Schema.Literal('classified', 'low-confidence', 'missing-evidence', 'runtime-unavailable')
@@ -336,3 +333,4 @@ function deterministicClassifierMatchesReferenceCounts(
     candidate.result.parentRuleReferences.length === candidate.parentRuleReferenceCount
   );
 }
+

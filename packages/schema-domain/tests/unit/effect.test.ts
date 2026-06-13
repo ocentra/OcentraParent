@@ -1,5 +1,12 @@
 import { describe, expect, it } from 'vitest';
-import { Schema, parseUnknown, safeParseUnknown, withParser } from '../../src/effect';
+import {
+  NonEmptyStringSchema,
+  Schema,
+  brandedNonEmptyStringSchema,
+  parseUnknown,
+  safeParseUnknown,
+  withParser,
+} from '../../src/effect';
 
 describe('schema-domain effect helpers', () => {
   it('parseUnknown: returns decoded values for valid input', () => {
@@ -23,5 +30,17 @@ describe('schema-domain effect helpers', () => {
 
     expect(schema.parse({ enabled: true })).toEqual({ enabled: true });
     expect(schema.safeParse({ enabled: 'yes' }).success).toBe(false);
+  });
+
+  it('NonEmptyStringSchema: rejects empty shared text values', () => {
+    expect(safeParseUnknown(NonEmptyStringSchema, 'contract-ref').success).toBe(true);
+    expect(safeParseUnknown(NonEmptyStringSchema, '').success).toBe(false);
+  });
+
+  it('brandedNonEmptyStringSchema: creates branded shared text schemas', () => {
+    const schema = brandedNonEmptyStringSchema('SharedDomainReference');
+
+    expect(parseUnknown(schema, 'domain-ref')).toBe('domain-ref');
+    expect(safeParseUnknown(schema, '').success).toBe(false);
   });
 });

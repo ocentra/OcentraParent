@@ -8,7 +8,7 @@ const repoRoot = join(__dirname, '..', '..');
 const proofDir = join(repoRoot, 'output', 'screen-plan-proof', '27-28-optional-retention-live-preflight');
 const proofPath = join(proofDir, 'proof-summary.json');
 
-run('npm', ['run', 'build', '--workspace', '@ocentra-parent/activity-domain']);
+run('npm', ['run', 'build', '--workspace', '@ocentra-parent/screen-domain']);
 
 const screenEvidence = await import(
   pathToFileURL(join(repoRoot, 'packages', 'activity-domain', 'dist', 'screen-evidence.js')).href

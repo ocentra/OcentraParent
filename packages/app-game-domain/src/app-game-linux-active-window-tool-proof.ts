@@ -1,7 +1,10 @@
-import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
+import {
+  type Infer,
+  Schema,
+  withParser,
+  brandedNonEmptyStringSchema
+} from '@ocentra-parent/schema-domain/effect';
 import { ParentTimestampSchema } from '@ocentra-parent/family-domain/reference-primitives';
-
-const LinuxActiveWindowText = Schema.String.pipe(Schema.minLength(1));
 
 export const AppGameLinuxActiveWindowToolProofSchemaVersionSchema = withParser(
   Schema.Literal('app-game-linux-active-window-tool-proof')
@@ -34,7 +37,7 @@ export const AppGameLinuxActiveWindowToolGapSchema = withParser(
   )
 );
 
-const LinuxActiveWindowLabelSchema = LinuxActiveWindowText.pipe(Schema.brand('AppGameLinuxActiveWindowToolProofLabel'));
+const LinuxActiveWindowLabelSchema = brandedNonEmptyStringSchema('AppGameLinuxActiveWindowToolProofLabel');
 
 const AppGameLinuxActiveWindowToolProofBaseSchema = Schema.Struct({
   schemaVersion: AppGameLinuxActiveWindowToolProofSchemaVersionSchema,
@@ -171,3 +174,4 @@ function linuxActiveWindowToolProofIsHonest(proof: LinuxActiveWindowCandidate): 
     !proof.childDeviceDeliveryClaimed
   );
 }
+

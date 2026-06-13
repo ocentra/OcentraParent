@@ -1,4 +1,10 @@
-import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
+import {
+  type Infer,
+  brandedNonEmptyStringSchema,
+  NonEmptyStringSchema,
+  Schema,
+  withParser,
+} from '@ocentra-parent/schema-domain/effect';
 import { ActivityEvidenceRefSchema } from '@ocentra-parent/evidence-domain/contracts';
 import {
   ActivityCaptureCapabilityStatusSchema,
@@ -6,7 +12,7 @@ import {
   ActivityNetworkProtocolSchema,
   ActivityNetworkTcpStateSchema,
   ActivityProcessAttributionStatusSchema,
-} from './capture';
+} from '@ocentra-parent/activity-domain/capture';
 import { ActivityObserverSchema } from '@ocentra-parent/evidence-domain/kinds';
 import {
   ActivityEventIdSchema,
@@ -18,25 +24,24 @@ export * from './network-contracts';
 
 export const ActivityQuerySchemaVersion = 1;
 
-const NetworkNonEmptyText = Schema.String.pipe(Schema.minLength(1));
 const NetworkPortNumber = Schema.Number.pipe(Schema.int(), Schema.between(0, 65535));
 const NetworkNonNegativeNumber = Schema.Number.pipe(Schema.nonNegative());
 const NetworkNonNegativeInteger = NetworkNonNegativeNumber.pipe(Schema.int());
 
 export const ActivityNetworkEndpointAddressSchema = withParser(
-  NetworkNonEmptyText.pipe(Schema.brand('ActivityNetworkEndpointAddress'))
+  brandedNonEmptyStringSchema('ActivityNetworkEndpointAddress')
 );
 
 export const ActivityNetworkDomainNameSchema = withParser(
-  NetworkNonEmptyText.pipe(Schema.brand('ActivityNetworkDomainName'))
+  brandedNonEmptyStringSchema('ActivityNetworkDomainName')
 );
 
 export const ActivityNetworkProcessNameSchema = withParser(
-  NetworkNonEmptyText.pipe(Schema.brand('ActivityNetworkProcessName'))
+  brandedNonEmptyStringSchema('ActivityNetworkProcessName')
 );
 
 export const ActivityNetworkAdapterIdSchema = withParser(
-  NetworkNonEmptyText.pipe(Schema.brand('ActivityNetworkAdapterId'))
+  brandedNonEmptyStringSchema('ActivityNetworkAdapterId')
 );
 
 export const ActivityNetworkCustodyStateSchema = withParser(
@@ -138,8 +143,8 @@ export const ActivityNetworkFlowReadModelSchema = withParser(
 
 export const ActivityNetworkFlowRollupSchema = withParser(
   Schema.Struct({
-    key: NetworkNonEmptyText,
-    label: NetworkNonEmptyText,
+    key: NonEmptyStringSchema,
+    label: NonEmptyStringSchema,
     connectionCount: NetworkNonNegativeNumber,
     bytesSent: Schema.Union(NetworkNonNegativeNumber, Schema.Null),
     bytesReceived: Schema.Union(NetworkNonNegativeNumber, Schema.Null),
@@ -150,7 +155,7 @@ export const ActivityNetworkFlowRollupSchema = withParser(
 export const ActivityNetworkFlowIndicatorSchema = withParser(
   Schema.Struct({
     kind: ActivityNetworkFlowIndicatorKindSchema,
-    label: NetworkNonEmptyText,
+    label: NonEmptyStringSchema,
     observedAt: ActivityTimestampSchema,
     evidenceIds: Schema.Array(ActivityEvidenceIdSchema),
   })

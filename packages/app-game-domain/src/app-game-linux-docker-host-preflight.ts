@@ -1,7 +1,10 @@
-import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
+import {
+  type Infer,
+  Schema,
+  withParser,
+  brandedNonEmptyStringSchema
+} from '@ocentra-parent/schema-domain/effect';
 import { ParentTimestampSchema } from '@ocentra-parent/family-domain/reference-primitives';
-
-const LinuxDockerPreflightText = Schema.String.pipe(Schema.minLength(1));
 
 export const AppGameLinuxDockerHostPreflightSchemaVersionSchema = withParser(
   Schema.Literal('app-game-linux-docker-host-preflight')
@@ -38,9 +41,7 @@ export const AppGameLinuxDockerHostPreflightGapSchema = withParser(
   )
 );
 
-const LinuxDockerPreflightLabelSchema = LinuxDockerPreflightText.pipe(
-  Schema.brand('AppGameLinuxDockerHostPreflightLabel')
-);
+const LinuxDockerPreflightLabelSchema = brandedNonEmptyStringSchema('AppGameLinuxDockerHostPreflightLabel');
 const LinuxDockerPreflightCountSchema = Schema.Number.pipe(Schema.int(), Schema.greaterThanOrEqualTo(0));
 
 const AppGameLinuxDockerHostPreflightBaseSchema = Schema.Struct({
@@ -224,3 +225,4 @@ function linuxDockerInventoriesAreConsistent(readModel: AppGameLinuxDockerHostPr
       linuxDockerInventoryState(readModel.dockerDaemonObserved, readModel.containerCount)
   );
 }
+

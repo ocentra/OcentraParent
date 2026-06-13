@@ -1,4 +1,9 @@
-import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
+import {
+  type Infer,
+  Schema,
+  withParser,
+  brandedNonEmptyStringSchema
+} from '@ocentra-parent/schema-domain/effect';
 import { ParentTimestampSchema } from '@ocentra-parent/family-domain/reference-primitives';
 import { TrackingEvidenceTraceSchema, TrackingPolicyDecisionSchema } from './tracking-location-policy';
 import {
@@ -7,23 +12,13 @@ import {
   TrackingPolicySchemaVersion,
 } from './tracking-location-policy-primitives';
 
-const TrackingReportPolicyConsumerTextSchema = Schema.String.pipe(Schema.minLength(1));
+export const TrackingReportPolicyConsumerRowIdSchema = brandedNonEmptyStringSchema('TrackingReportPolicyConsumerRowId');
 
-export const TrackingReportPolicyConsumerRowIdSchema = TrackingReportPolicyConsumerTextSchema.pipe(
-  Schema.brand('TrackingReportPolicyConsumerRowId')
-);
+export const TrackingReportPolicyConsumerProofRefSchema = brandedNonEmptyStringSchema('TrackingReportPolicyConsumerProofRef');
 
-export const TrackingReportPolicyConsumerProofRefSchema = TrackingReportPolicyConsumerTextSchema.pipe(
-  Schema.brand('TrackingReportPolicyConsumerProofRef')
-);
+export const TrackingReportPolicyConsumerJournalRefSchema = brandedNonEmptyStringSchema('TrackingReportPolicyConsumerJournalRef');
 
-export const TrackingReportPolicyConsumerJournalRefSchema = TrackingReportPolicyConsumerTextSchema.pipe(
-  Schema.brand('TrackingReportPolicyConsumerJournalRef')
-);
-
-export const TrackingReportPolicyConsumerReadModelRowRefSchema = TrackingReportPolicyConsumerTextSchema.pipe(
-  Schema.brand('TrackingReportPolicyConsumerReadModelRowRef')
-);
+export const TrackingReportPolicyConsumerReadModelRowRefSchema = brandedNonEmptyStringSchema('TrackingReportPolicyConsumerReadModelRowRef');
 
 export const TrackingReportPolicyConsumerKindSchema = withParser(
   Schema.Literal('parent-report-summary', 'policy-evidence-drill-in', 'retention-audit-export')
@@ -253,3 +248,4 @@ function evidence(
     observedAt,
   });
 }
+

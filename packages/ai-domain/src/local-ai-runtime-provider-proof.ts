@@ -1,4 +1,10 @@
-import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
+import {
+  type Infer,
+  Schema,
+  withParser,
+  brandedNonEmptyStringSchema,
+  NonEmptyStringSchema
+} from '@ocentra-parent/schema-domain/effect';
 import { DeviceRuntimeRoleSchema } from '@ocentra-parent/lan-domain/device-roles';
 import {
   type LocalAiResourceClass,
@@ -17,35 +23,21 @@ import {
   LocalAiProviderSchedulerQueueSchema,
   LocalAiProviderSchedulerStatusSchema,
   LocalAiProviderSingletonScopeSchema,
-} from './local-ai-provider-scheduler';
+} from '@ocentra-parent/ai-domain/local-ai-provider-scheduler';
 import {
   ParentContractSchemaVersion,
   ParentContractSchemaVersionSchema,
   ParentTimestampSchema,
 } from '@ocentra-parent/family-domain/reference-primitives';
-
-const NonEmptyProviderProofText = Schema.String.pipe(Schema.minLength(1));
 const RuntimeAccessLaneCountSchema = Schema.Number.pipe(Schema.nonNegative(), Schema.int());
 const RuntimeLoadCountSchema = Schema.Number.pipe(Schema.nonNegative(), Schema.int());
 
-export const LocalAiRuntimeProviderProofReadModelIdSchema = NonEmptyProviderProofText.pipe(
-  Schema.brand('LocalAiRuntimeProviderProofReadModelId')
-);
-export const LocalAiRuntimeProviderProofEntryIdSchema = NonEmptyProviderProofText.pipe(
-  Schema.brand('LocalAiRuntimeProviderProofEntryId')
-);
-export const LocalAiRuntimeProviderProofRequirementTextSchema = NonEmptyProviderProofText.pipe(
-  Schema.brand('LocalAiRuntimeProviderProofRequirementText')
-);
-export const LocalAiRuntimeProviderProofClaimBoundarySchema = NonEmptyProviderProofText.pipe(
-  Schema.brand('LocalAiRuntimeProviderProofClaimBoundary')
-);
-export const LocalAiRuntimeProviderProofFallbackSchema = NonEmptyProviderProofText.pipe(
-  Schema.brand('LocalAiRuntimeProviderProofFallback')
-);
-export const LocalAiRuntimeProviderProofEvidenceLabelSchema = NonEmptyProviderProofText.pipe(
-  Schema.brand('LocalAiRuntimeProviderProofEvidenceLabel')
-);
+export const LocalAiRuntimeProviderProofReadModelIdSchema = brandedNonEmptyStringSchema('LocalAiRuntimeProviderProofReadModelId');
+export const LocalAiRuntimeProviderProofEntryIdSchema = brandedNonEmptyStringSchema('LocalAiRuntimeProviderProofEntryId');
+export const LocalAiRuntimeProviderProofRequirementTextSchema = brandedNonEmptyStringSchema('LocalAiRuntimeProviderProofRequirementText');
+export const LocalAiRuntimeProviderProofClaimBoundarySchema = brandedNonEmptyStringSchema('LocalAiRuntimeProviderProofClaimBoundary');
+export const LocalAiRuntimeProviderProofFallbackSchema = brandedNonEmptyStringSchema('LocalAiRuntimeProviderProofFallback');
+export const LocalAiRuntimeProviderProofEvidenceLabelSchema = brandedNonEmptyStringSchema('LocalAiRuntimeProviderProofEvidenceLabel');
 
 export const LocalAiRuntimeProviderProofRequirementSchema = withParser(
   Schema.Literal(
@@ -86,7 +78,7 @@ const LocalAiRuntimeProviderProofEntryBaseSchema = Schema.Struct({
   parentAssistantSubmissionAllowed: Schema.Boolean,
   queue: LocalAiProviderSchedulerQueueSchema,
   degradedState: LocalAiDegradedStateSchema,
-  unavailableReason: Schema.Union(NonEmptyProviderProofText, Schema.Null),
+  unavailableReason: Schema.Union(NonEmptyStringSchema, Schema.Null),
   evidenceLabel: LocalAiRuntimeProviderProofEvidenceLabelSchema,
   capabilityRequirement: LocalAiRuntimeProviderProofRequirementTextSchema,
   proofRequirement: LocalAiRuntimeProviderProofRequirementTextSchema,
@@ -111,7 +103,7 @@ const LocalAiRuntimeProviderProofReadModelBaseSchema = Schema.Struct({
   schemaVersion: ParentContractSchemaVersionSchema,
   readModelId: LocalAiRuntimeProviderProofReadModelIdSchema,
   generatedAt: ParentTimestampSchema,
-  sourceReadModelIds: Schema.Array(NonEmptyProviderProofText),
+  sourceReadModelIds: Schema.Array(NonEmptyStringSchema),
   entries: Schema.Array(LocalAiRuntimeProviderProofEntrySchema),
 });
 
@@ -519,3 +511,4 @@ export const decodeLocalAiRuntimeProviderProofEntry = Schema.decodeUnknownSync(L
 export const decodeLocalAiRuntimeProviderProofReadModel = Schema.decodeUnknownSync(
   LocalAiRuntimeProviderProofReadModelSchema
 );
+

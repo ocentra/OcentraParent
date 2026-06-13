@@ -18,6 +18,12 @@ export type SafeParseResult<T> =
 
 export type Infer<S extends Schema.Schema.AnyNoContext> = Schema.Schema.Type<S>;
 
+export const NonEmptyStringSchema = Schema.String.pipe(Schema.minLength(1));
+
+export function brandedNonEmptyStringSchema<const Brand extends string>(brand: Brand) {
+  return NonEmptyStringSchema.pipe(Schema.brand(brand));
+}
+
 export interface ParsedSchema<S extends Schema.Schema.AnyNoContext> extends Schema.Schema<
   Schema.Schema.Type<S>,
   Schema.Schema.Encoded<S>,

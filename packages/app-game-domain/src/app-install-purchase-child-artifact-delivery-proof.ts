@@ -1,9 +1,12 @@
-import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
+import {
+  type Infer,
+  Schema,
+  withParser,
+  brandedNonEmptyStringSchema
+} from '@ocentra-parent/schema-domain/effect';
 import { AppInstallPurchaseRuntimeProofReadModel } from './app-install-purchase-runtime-proof';
 import { AppInstallPurchasePlatformArtifactProofReadModel } from './app-install-purchase-platform-artifact-proof';
 import { ParentPlatformSchema, ParentTimestampSchema } from '@ocentra-parent/family-domain/reference-primitives';
-
-const ChildArtifactProofText = Schema.String.pipe(Schema.minLength(1));
 const ChildArtifactSchemaVersion = 'app-install-purchase-child-artifact-delivery-proof';
 const SourcePlatformArtifactProofVersion = 'app-install-purchase-platform-artifact-proof';
 const SourceRuntimeProofVersion = 'app-install-purchase-runtime-proof';
@@ -61,30 +64,16 @@ const AppInstallPurchaseChildArtifactDataCustodyClaimSchema = withParser(Schema.
 const AppInstallPurchaseChildVisibleStatusSchema = withParser(Schema.Literal(...RequiredChildStatuses));
 const AppInstallPurchaseChildArtifactNonClaimSchema = withParser(Schema.Literal(...ChildArtifactNonClaims));
 
-const ChildArtifactRowIdSchema = ChildArtifactProofText.pipe(Schema.brand('AppInstallPurchaseChildArtifactRowId'));
-const ChildDeliveryRowIdSchema = ChildArtifactProofText.pipe(Schema.brand('AppInstallPurchaseChildDeliveryRowId'));
-const ChildArtifactPlatformRowIdSchema = ChildArtifactProofText.pipe(
-  Schema.brand('AppInstallPurchaseChildArtifactPlatformRowId')
-);
-const ChildArtifactPackageRowIdSchema = ChildArtifactProofText.pipe(
-  Schema.brand('AppInstallPurchaseChildArtifactPackageRowId')
-);
-const ChildArtifactRefSchema = ChildArtifactProofText.pipe(Schema.brand('AppInstallPurchaseChildArtifactRef'));
-const ChildArtifactReportRefSchema = ChildArtifactProofText.pipe(
-  Schema.brand('AppInstallPurchaseChildArtifactReportRef')
-);
-const ChildArtifactAuditRefSchema = ChildArtifactProofText.pipe(
-  Schema.brand('AppInstallPurchaseChildArtifactAuditRef')
-);
-const ChildArtifactProofRefSchema = ChildArtifactProofText.pipe(
-  Schema.brand('AppInstallPurchaseChildArtifactProofRef')
-);
-const ChildArtifactClaimBoundarySchema = ChildArtifactProofText.pipe(
-  Schema.brand('AppInstallPurchaseChildArtifactClaimBoundary')
-);
-const ChildArtifactRequestIdSchema = ChildArtifactProofText.pipe(
-  Schema.brand('AppInstallPurchaseChildArtifactRequestId')
-);
+const ChildArtifactRowIdSchema = brandedNonEmptyStringSchema('AppInstallPurchaseChildArtifactRowId');
+const ChildDeliveryRowIdSchema = brandedNonEmptyStringSchema('AppInstallPurchaseChildDeliveryRowId');
+const ChildArtifactPlatformRowIdSchema = brandedNonEmptyStringSchema('AppInstallPurchaseChildArtifactPlatformRowId');
+const ChildArtifactPackageRowIdSchema = brandedNonEmptyStringSchema('AppInstallPurchaseChildArtifactPackageRowId');
+const ChildArtifactRefSchema = brandedNonEmptyStringSchema('AppInstallPurchaseChildArtifactRef');
+const ChildArtifactReportRefSchema = brandedNonEmptyStringSchema('AppInstallPurchaseChildArtifactReportRef');
+const ChildArtifactAuditRefSchema = brandedNonEmptyStringSchema('AppInstallPurchaseChildArtifactAuditRef');
+const ChildArtifactProofRefSchema = brandedNonEmptyStringSchema('AppInstallPurchaseChildArtifactProofRef');
+const ChildArtifactClaimBoundarySchema = brandedNonEmptyStringSchema('AppInstallPurchaseChildArtifactClaimBoundary');
+const ChildArtifactRequestIdSchema = brandedNonEmptyStringSchema('AppInstallPurchaseChildArtifactRequestId');
 
 const ChildPackageArtifactRowBaseSchema = Schema.Struct({
   schemaVersion: AppInstallPurchaseChildArtifactDeliveryProofSchemaVersionSchema,
@@ -361,3 +350,4 @@ function childArtifactBoundaryIsExplicit(boundary: typeof ChildArtifactClaimBoun
     boundary.includes('not generic app blocking')
   );
 }
+

@@ -1,5 +1,10 @@
-import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
-import { PolicyActionSchema, PolicyDecisionIdSchema } from './policy';
+import {
+  type Infer,
+  Schema,
+  withParser,
+  brandedNonEmptyStringSchema
+} from '@ocentra-parent/schema-domain/effect';
+import { PolicyActionSchema, PolicyDecisionIdSchema } from '@ocentra-parent/policy-domain/policy';
 import { ParentContractSchemaVersionSchema, ParentPlatformSchema, ParentTimestampSchema } from '@ocentra-parent/family-domain/reference-primitives';
 import { ParentEvidenceReferenceSchema } from '@ocentra-parent/family-domain/references';
 import {
@@ -12,28 +17,14 @@ import {
   V08SupportedAdapterRuntimeBoundarySchema,
   V08SupportedAdapterRuntimeStateSchema,
   V08SupportedAdapterTargetIdentityStateSchema,
-} from './v0-8-supported-adapter-runtime-proof';
+} from '@ocentra-parent/enforcement-domain/v0-8-supported-adapter-runtime-proof';
 
-const NonEmptyReadinessText = Schema.String.pipe(Schema.minLength(1));
-
-export const ScreenAiAdapterReadinessReadModelIdSchema = NonEmptyReadinessText.pipe(
-  Schema.brand('ScreenAiAdapterReadinessReadModelId')
-);
-export const ScreenAiAdapterReadinessRowIdSchema = NonEmptyReadinessText.pipe(
-  Schema.brand('ScreenAiAdapterReadinessRowId')
-);
-export const ScreenAiAdapterReadinessArtifactRefSchema = NonEmptyReadinessText.pipe(
-  Schema.brand('ScreenAiAdapterReadinessArtifactRef')
-);
-export const ScreenAiAdapterReadinessRequirementSchema = NonEmptyReadinessText.pipe(
-  Schema.brand('ScreenAiAdapterReadinessRequirement')
-);
-export const ScreenAiAdapterReadinessBoundarySchema = NonEmptyReadinessText.pipe(
-  Schema.brand('ScreenAiAdapterReadinessBoundary')
-);
-export const ScreenAiAdapterCompletionResultRefSchema = NonEmptyReadinessText.pipe(
-  Schema.brand('ScreenAiAdapterCompletionResultRef')
-);
+export const ScreenAiAdapterReadinessReadModelIdSchema = brandedNonEmptyStringSchema('ScreenAiAdapterReadinessReadModelId');
+export const ScreenAiAdapterReadinessRowIdSchema = brandedNonEmptyStringSchema('ScreenAiAdapterReadinessRowId');
+export const ScreenAiAdapterReadinessArtifactRefSchema = brandedNonEmptyStringSchema('ScreenAiAdapterReadinessArtifactRef');
+export const ScreenAiAdapterReadinessRequirementSchema = brandedNonEmptyStringSchema('ScreenAiAdapterReadinessRequirement');
+export const ScreenAiAdapterReadinessBoundarySchema = brandedNonEmptyStringSchema('ScreenAiAdapterReadinessBoundary');
+export const ScreenAiAdapterCompletionResultRefSchema = brandedNonEmptyStringSchema('ScreenAiAdapterCompletionResultRef');
 
 export const ScreenAiAdapterReadinessRuntimeBoundarySchema = withParser(
   Schema.Union(V08SupportedAdapterRuntimeBoundarySchema, Schema.Literal('windows-screen-owned-process-block'))
@@ -408,3 +399,4 @@ export type ScreenAiAdapterReadinessClaimFlags = Infer<typeof ScreenAiAdapterRea
 export type ScreenAiAdapterReadinessRow = Infer<typeof ScreenAiAdapterReadinessRowSchema>;
 export type ScreenAiAdapterReadinessReadModel = Infer<typeof ScreenAiAdapterReadinessReadModelSchema>;
 export type ScreenAiAdapterCompletionArtifact = Infer<typeof ScreenAiAdapterCompletionArtifactSchema>;
+

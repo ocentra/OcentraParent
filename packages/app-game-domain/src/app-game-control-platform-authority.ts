@@ -1,9 +1,12 @@
-import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
+import {
+  type Infer,
+  Schema,
+  withParser,
+  brandedNonEmptyStringSchema
+} from '@ocentra-parent/schema-domain/effect';
 import { EnforcementCapabilityStateSchema, EnforcementModeSchema } from '@ocentra-parent/enforcement-domain/enforcement';
 import { ParentContractSchemaVersionSchema, ParentPlatformSchema, ParentTimestampSchema } from '@ocentra-parent/family-domain/reference-primitives';
 import { platformAuthorityRowIsConsistent } from './app-game-control-platform-authority-rules';
-
-const NonEmptyPlatformAuthorityText = Schema.String.pipe(Schema.minLength(1));
 
 export const AppGamePlatformAuthorityTierSchema = withParser(
   Schema.Literal(
@@ -108,12 +111,12 @@ export const AppGamePlatformProofKindSchema = withParser(
 
 const AppGamePlatformProofReferenceSchema = Schema.Struct({
   proofKind: AppGamePlatformProofKindSchema,
-  artifactRef: NonEmptyPlatformAuthorityText.pipe(Schema.brand('AppGamePlatformAuthorityProofArtifactRef')),
+  artifactRef: brandedNonEmptyStringSchema('AppGamePlatformAuthorityProofArtifactRef'),
 });
 
 const AppGamePlatformAuthorityRowBaseSchema = Schema.Struct({
   schemaVersion: ParentContractSchemaVersionSchema,
-  rowId: NonEmptyPlatformAuthorityText.pipe(Schema.brand('AppGamePlatformAuthorityRowId')),
+  rowId: brandedNonEmptyStringSchema('AppGamePlatformAuthorityRowId'),
   platform: ParentPlatformSchema,
   action: AppGamePlatformActionSchema,
   authorityTier: AppGamePlatformAuthorityTierSchema,
@@ -121,18 +124,18 @@ const AppGamePlatformAuthorityRowBaseSchema = Schema.Struct({
   proofState: AppGamePlatformProofStateSchema,
   capabilityState: EnforcementCapabilityStateSchema,
   parentVisibleState: AppGamePlatformParentVisibleStateSchema,
-  parentVisibleLimitation: NonEmptyPlatformAuthorityText.pipe(Schema.brand('AppGamePlatformParentVisibleLimitation')),
+  parentVisibleLimitation: brandedNonEmptyStringSchema('AppGamePlatformParentVisibleLimitation'),
   canExecuteAdapter: Schema.Boolean,
   supportedModes: Schema.Array(EnforcementModeSchema),
   proofReferences: Schema.Array(AppGamePlatformProofReferenceSchema),
   proofNeededToClaim: Schema.Array(AppGamePlatformProofKindSchema),
   linuxMechanism: Schema.Union(
-    NonEmptyPlatformAuthorityText.pipe(Schema.brand('LinuxAppGameControlMechanism')),
+    brandedNonEmptyStringSchema('LinuxAppGameControlMechanism'),
     Schema.Null
   ),
-  linuxDistro: Schema.Union(NonEmptyPlatformAuthorityText.pipe(Schema.brand('LinuxAppGameControlDistro')), Schema.Null),
+  linuxDistro: Schema.Union(brandedNonEmptyStringSchema('LinuxAppGameControlDistro'), Schema.Null),
   linuxSession: Schema.Union(
-    NonEmptyPlatformAuthorityText.pipe(Schema.brand('LinuxAppGameControlSession')),
+    brandedNonEmptyStringSchema('LinuxAppGameControlSession'),
     Schema.Null
   ),
   lastCheckedAt: ParentTimestampSchema,
@@ -153,7 +156,7 @@ export const AppGamePlatformAuthorityRowSchema = withParser(
 export const AppGamePlatformAuthorityMatrixSchema = withParser(
   Schema.Struct({
     schemaVersion: ParentContractSchemaVersionSchema,
-    matrixId: NonEmptyPlatformAuthorityText.pipe(Schema.brand('AppGamePlatformAuthorityMatrixId')),
+    matrixId: brandedNonEmptyStringSchema('AppGamePlatformAuthorityMatrixId'),
     rows: Schema.Array(AppGamePlatformAuthorityRowSchema),
     generatedAt: ParentTimestampSchema,
   }).pipe(
@@ -219,3 +222,4 @@ export const AppGamePlatformAction = {
   BlockLaunch: AppGamePlatformActionSchema.parse('block-launch'),
   EnforceAllowlist: AppGamePlatformActionSchema.parse('enforce-allowlist'),
 } as const;
+

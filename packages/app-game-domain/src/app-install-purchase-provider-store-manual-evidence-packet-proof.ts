@@ -1,4 +1,9 @@
-import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
+import {
+  type Infer,
+  Schema,
+  withParser,
+  brandedNonEmptyStringSchema
+} from '@ocentra-parent/schema-domain/effect';
 import { AppInstallPurchasePlatformProofReadinessProofReadModel } from './app-install-purchase-platform-proof-readiness';
 import { AppInstallPurchaseProviderStoreExecutionPreflightProofReadModel } from './app-install-purchase-provider-store-execution-preflight-proof';
 import { ParentPlatformSchema, ParentTimestampSchema } from '@ocentra-parent/family-domain/reference-primitives';
@@ -7,7 +12,6 @@ const ProofVersion = 'app-install-purchase-provider-store-manual-evidence-packet
 const PlatformProofReadinessVersion = 'app-install-purchase-platform-proof-readiness';
 const ProviderStorePreflightVersion = 'app-install-purchase-provider-store-execution-preflight-proof';
 const UpdatedAt = '2026-06-06T09:45:00.000Z';
-const Text = Schema.String.pipe(Schema.minLength(1));
 const StoreSurfaces = [
   'microsoft-store',
   'mac-app-store',
@@ -67,8 +71,8 @@ const NotImplementedSchema = withParser(Schema.Literal('not-implemented'));
 const NotDeliveredSchema = withParser(Schema.Literal('not-delivered'));
 const CustodySchema = withParser(Schema.Literal('no-child-activity-data'));
 const NonClaimSchema = withParser(Schema.Literal(...NonClaims));
-const RefSchema = Text.pipe(Schema.brand('AppInstallPurchaseProviderStoreManualEvidencePacketRef'));
-const BoundarySchema = Text.pipe(Schema.brand('AppInstallPurchaseProviderStoreManualEvidencePacketBoundary'));
+const RefSchema = brandedNonEmptyStringSchema('AppInstallPurchaseProviderStoreManualEvidencePacketRef');
+const BoundarySchema = brandedNonEmptyStringSchema('AppInstallPurchaseProviderStoreManualEvidencePacketBoundary');
 
 const RowBaseSchema = Schema.Struct({
   schemaVersion: AppInstallPurchaseProviderStoreManualEvidencePacketProofSchemaVersionSchema,
@@ -296,3 +300,4 @@ function proofIsHonest(proof: AppInstallPurchaseProviderStoreManualEvidencePacke
     proof.knownGaps.length > 0
   );
 }
+

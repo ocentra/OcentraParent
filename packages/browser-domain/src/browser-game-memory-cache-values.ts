@@ -1,17 +1,20 @@
-import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
-
-const NonEmptyBrowserGameMemoryText = Schema.String.pipe(Schema.minLength(1));
+import {
+  type Infer,
+  Schema,
+  withParser,
+  brandedNonEmptyStringSchema
+} from '@ocentra-parent/schema-domain/effect';
 
 export const BrowserGameMemoryCacheSchemaVersionSchema = withParser(
   Schema.Literal('browser-game-memory-cache-contract')
 );
 
 export const BrowserGameMemoryCacheEntryIdSchema = withParser(
-  NonEmptyBrowserGameMemoryText.pipe(Schema.brand('BrowserGameMemoryCacheEntryId'))
+  brandedNonEmptyStringSchema('BrowserGameMemoryCacheEntryId')
 );
 
 export const BrowserGameMemoryCacheSnapshotIdSchema = withParser(
-  NonEmptyBrowserGameMemoryText.pipe(Schema.brand('BrowserGameMemoryCacheSnapshotId'))
+  brandedNonEmptyStringSchema('BrowserGameMemoryCacheSnapshotId')
 );
 
 export const BrowserGameMemorySubjectKindSchema = withParser(
@@ -72,11 +75,10 @@ export const BrowserGameMemoryInvalidationReasonSchema = withParser(
   )
 );
 
-export const BrowserGameMemoryCacheKeyValueSchema = NonEmptyBrowserGameMemoryText.pipe(
-  Schema.brand('BrowserGameMemoryCacheKeyValue')
-);
+export const BrowserGameMemoryCacheKeyValueSchema = brandedNonEmptyStringSchema('BrowserGameMemoryCacheKeyValue');
 
 export type BrowserGameMemoryCacheKeyKind = Infer<typeof BrowserGameMemoryCacheKeyKindSchema>;
 export type BrowserGameMemoryState = Infer<typeof BrowserGameMemoryStateSchema>;
 export type BrowserGameMemorySubjectKind = Infer<typeof BrowserGameMemorySubjectKindSchema>;
 export type BrowserGameMemoryTtlClass = Infer<typeof BrowserGameMemoryTtlClassSchema>;
+

@@ -1,1 +1,1 @@
-export * from '@ocentra-parent/social-domain/social-policy-compiler';
+export * from '@ocentra-parent/browser-domain/social-policy-compiler';

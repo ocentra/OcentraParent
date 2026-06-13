@@ -1,7 +1,14 @@
-import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
+import {
+  type Infer,
+  Schema,
+  withParser,
+  brandedNonEmptyStringSchema
+} from '@ocentra-parent/schema-domain/effect';
 import { ParentTimestampSchema } from '@ocentra-parent/family-domain/reference-primitives';
-
-const RuntimePreflightText = Schema.String.pipe(Schema.minLength(1));
+import {
+  AppGameAndroidUsageEventsCommandName,
+  AppGameAndroidUsageEventsEventName,
+} from './app-game-android-usage-events-contracts';
 
 export const AppGameAndroidUsageEventsRuntimePreflightSchemaVersionSchema = withParser(
   Schema.Literal('app-game-android-usage-events-runtime-preflight')
@@ -20,11 +27,11 @@ export const AppGameAndroidUsageEventsRuntimeServiceStateSchema = withParser(
 );
 
 export const AppGameAndroidUsageEventsRuntimePreflightCommandSchema = withParser(
-  Schema.Literal('app-game.android.usage-events.runtime-preflight.get')
+  Schema.Literal(AppGameAndroidUsageEventsCommandName.RuntimePreflightGet)
 );
 
 export const AppGameAndroidUsageEventsRuntimePreflightEventSchema = withParser(
-  Schema.Literal('app-game.android.usage-events.runtime-preflight.reported')
+  Schema.Literal(AppGameAndroidUsageEventsEventName.RuntimePreflightReported)
 );
 
 export const AppGameAndroidUsageEventsRuntimePreflightRefSchema = withParser(
@@ -39,9 +46,7 @@ export const AppGameAndroidUsageEventsRuntimePreflightGapSchema = withParser(
   )
 );
 
-const RuntimePreflightLabelSchema = RuntimePreflightText.pipe(
-  Schema.brand('AppGameAndroidUsageEventsRuntimePreflightLabel')
-);
+const RuntimePreflightLabelSchema = brandedNonEmptyStringSchema('AppGameAndroidUsageEventsRuntimePreflightLabel');
 
 const AppGameAndroidUsageEventsRuntimePreflightReadModelBaseSchema = Schema.Struct({
   schemaVersion: AppGameAndroidUsageEventsRuntimePreflightSchemaVersionSchema,
@@ -101,8 +106,8 @@ export function createAppGameAndroidUsageEventsRuntimePreflightReadModel(input: 
     permissionCheckState: input.permissionCheckState,
     runtimeCollectionState: collectionState,
     usageStatsServiceState: input.usageStatsServiceState,
-    commands: ['app-game.android.usage-events.runtime-preflight.get'],
-    events: ['app-game.android.usage-events.runtime-preflight.reported'],
+    commands: [AppGameAndroidUsageEventsCommandName.RuntimePreflightGet],
+    events: [AppGameAndroidUsageEventsEventName.RuntimePreflightReported],
     proofRefs: ['android-usage-events-runtime-preflight-ref', 'android-usage-stats-appops-preflight-ref'],
     openGaps: [
       'android-usage-events-runtime-sample-not-proved',
@@ -156,8 +161,8 @@ function androidUsageEventsRuntimePreflightIsHonest(readModel: RuntimePreflightC
     readModel.packageId === 'ca.ocentra.parent.agent' &&
     readModel.nativeBridgeClass === 'ca.ocentra.parent.agent.AppGameAndroidUsageEventsRuntimePreflight' &&
     collectionStateMatchesPermission &&
-    readModel.commands.includes('app-game.android.usage-events.runtime-preflight.get') &&
-    readModel.events.includes('app-game.android.usage-events.runtime-preflight.reported') &&
+    readModel.commands.includes(AppGameAndroidUsageEventsCommandName.RuntimePreflightGet) &&
+    readModel.events.includes(AppGameAndroidUsageEventsEventName.RuntimePreflightReported) &&
     readModel.proofRefs.includes('android-usage-events-runtime-preflight-ref') &&
     readModel.proofRefs.includes('android-usage-stats-appops-preflight-ref') &&
     readModel.openGaps.includes('android-usage-events-runtime-sample-not-proved') &&
@@ -165,3 +170,4 @@ function androidUsageEventsRuntimePreflightIsHonest(readModel: RuntimePreflightC
     readModel.openGaps.includes('android-platform-enforcement-not-proved')
   );
 }
+

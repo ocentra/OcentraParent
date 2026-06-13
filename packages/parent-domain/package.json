@@ -1021,7 +1021,6 @@
     "@ocentra-parent/production-domain": "file:../production-domain",
     "@ocentra-parent/schema-domain": "file:../schema-domain",
     "@ocentra-parent/screen-domain": "file:../screen-domain",
-    "@ocentra-parent/social-domain": "file:../social-domain",
     "@ocentra-parent/tracking-domain": "file:../tracking-domain"
   }
 }

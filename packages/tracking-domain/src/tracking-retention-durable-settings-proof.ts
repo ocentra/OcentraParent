@@ -1,4 +1,9 @@
-import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
+import {
+  type Infer,
+  Schema,
+  withParser,
+  brandedNonEmptyStringSchema
+} from '@ocentra-parent/schema-domain/effect';
 import { ParentTimestampSchema } from '@ocentra-parent/family-domain/reference-primitives';
 import { TrackingPolicyAuditRefSchema, TrackingPolicySchemaVersion } from './tracking-location-policy-primitives';
 import {
@@ -10,15 +15,9 @@ import {
   TrackingRetentionSettingsProofRefSchema,
 } from './tracking-retention-settings-read-model-proof';
 
-const TrackingRetentionDurableSettingsTextSchema = Schema.String.pipe(Schema.minLength(1));
+export const TrackingRetentionDurableSettingsProofIdSchema = brandedNonEmptyStringSchema('TrackingRetentionDurableSettingsProofId');
 
-export const TrackingRetentionDurableSettingsProofIdSchema = TrackingRetentionDurableSettingsTextSchema.pipe(
-  Schema.brand('TrackingRetentionDurableSettingsProofId')
-);
-
-export const TrackingRetentionDurableSettingsStoreRefSchema = TrackingRetentionDurableSettingsTextSchema.pipe(
-  Schema.brand('TrackingRetentionDurableSettingsStoreRef')
-);
+export const TrackingRetentionDurableSettingsStoreRefSchema = brandedNonEmptyStringSchema('TrackingRetentionDurableSettingsStoreRef');
 
 export const TrackingRetentionDurableSettingsRowSchema = withParser(
   Schema.Struct({
@@ -147,3 +146,4 @@ function durableSettingsRow(
     productClaimReady: false,
   });
 }
+

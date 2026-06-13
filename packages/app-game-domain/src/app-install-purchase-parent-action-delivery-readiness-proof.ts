@@ -1,9 +1,12 @@
-import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
+import {
+  type Infer,
+  Schema,
+  withParser,
+  brandedNonEmptyStringSchema
+} from '@ocentra-parent/schema-domain/effect';
 import { AppInstallPurchaseChildDeviceDeliveryRuntimeWriterProofReadModel } from './app-install-purchase-child-device-delivery-runtime-writer-proof';
 import { AppInstallPurchaseParentActionRuntimeHandoffProofReadModel } from './app-install-purchase-parent-action-runtime-handoff-proof';
 import { ParentTimestampSchema } from '@ocentra-parent/family-domain/reference-primitives';
-
-const ParentActionDeliveryReadinessText = Schema.String.pipe(Schema.minLength(1));
 const ParentActionDeliveryReadinessProofVersion = 'app-install-purchase-parent-action-delivery-readiness-proof';
 const SourceParentActionRuntimeHandoffProofVersion = 'app-install-purchase-parent-action-runtime-handoff-proof';
 const SourceChildDeviceDeliveryRuntimeWriterProofVersion =
@@ -70,18 +73,10 @@ const AppInstallPurchaseParentActionDeliveryReadinessNonClaimSchema = withParser
   Schema.Literal(...ParentActionDeliveryReadinessNonClaims)
 );
 
-const ParentActionDeliveryReadinessRowIdSchema = ParentActionDeliveryReadinessText.pipe(
-  Schema.brand('AppInstallPurchaseParentActionDeliveryReadinessRowId')
-);
-const ParentActionDeliveryReadinessRefSchema = ParentActionDeliveryReadinessText.pipe(
-  Schema.brand('AppInstallPurchaseParentActionDeliveryReadinessRef')
-);
-const ParentActionDeliveryReadinessAuditRefSchema = ParentActionDeliveryReadinessText.pipe(
-  Schema.brand('AppInstallPurchaseParentActionDeliveryReadinessAuditRef')
-);
-const ParentActionDeliveryReadinessClaimBoundarySchema = ParentActionDeliveryReadinessText.pipe(
-  Schema.brand('AppInstallPurchaseParentActionDeliveryReadinessClaimBoundary')
-);
+const ParentActionDeliveryReadinessRowIdSchema = brandedNonEmptyStringSchema('AppInstallPurchaseParentActionDeliveryReadinessRowId');
+const ParentActionDeliveryReadinessRefSchema = brandedNonEmptyStringSchema('AppInstallPurchaseParentActionDeliveryReadinessRef');
+const ParentActionDeliveryReadinessAuditRefSchema = brandedNonEmptyStringSchema('AppInstallPurchaseParentActionDeliveryReadinessAuditRef');
+const ParentActionDeliveryReadinessClaimBoundarySchema = brandedNonEmptyStringSchema('AppInstallPurchaseParentActionDeliveryReadinessClaimBoundary');
 
 const ParentActionDeliveryReadinessRowBaseSchema = Schema.Struct({
   schemaVersion: AppInstallPurchaseParentActionDeliveryReadinessProofSchemaVersionSchema,
@@ -330,3 +325,4 @@ function parentActionDeliveryReadinessBoundaryIsExplicit(
 ) {
   return ParentActionDeliveryReadinessBoundaryFragments.every((fragment) => boundary.includes(fragment));
 }
+

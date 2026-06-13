@@ -1,17 +1,19 @@
-import { Schema, withParser } from '@ocentra-parent/schema-domain/effect';
-
-const NonEmptySocialSignalTextSchema = Schema.String.pipe(Schema.minLength(1));
+import {
+  Schema,
+  withParser,
+  brandedNonEmptyStringSchema
+} from '@ocentra-parent/schema-domain/effect';
 
 export const BrowserSocialRiskBenefitSignalSchemaVersion = 1;
 
 export const BrowserSocialRiskBenefitSignalSetIdSchema = withParser(
-  NonEmptySocialSignalTextSchema.pipe(Schema.brand('BrowserSocialRiskBenefitSignalSetId'))
+  brandedNonEmptyStringSchema('BrowserSocialRiskBenefitSignalSetId')
 );
 export const BrowserSocialRiskSignalIdSchema = withParser(
-  NonEmptySocialSignalTextSchema.pipe(Schema.brand('BrowserSocialRiskSignalId'))
+  brandedNonEmptyStringSchema('BrowserSocialRiskSignalId')
 );
 export const BrowserSocialBenefitSignalIdSchema = withParser(
-  NonEmptySocialSignalTextSchema.pipe(Schema.brand('BrowserSocialBenefitSignalId'))
+  brandedNonEmptyStringSchema('BrowserSocialBenefitSignalId')
 );
 
 export const BrowserSocialRiskSignalKindSchema = withParser(
@@ -47,3 +49,4 @@ export const BrowserSocialSignalStateSchema = withParser(Schema.Literal('candida
 export const BrowserSocialSignalSourceKindSchema = withParser(
   Schema.Literal('social-ai-analysis', 'social-route-evidence', 'social-metadata', 'manual-required')
 );
+

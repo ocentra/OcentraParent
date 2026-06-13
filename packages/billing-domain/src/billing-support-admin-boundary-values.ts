@@ -1,6 +1,9 @@
-import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
-
-const NonEmptyBillingSupportAdminText = Schema.String.pipe(Schema.minLength(1));
+import {
+  type Infer,
+  Schema,
+  withParser,
+  brandedNonEmptyStringSchema
+} from '@ocentra-parent/schema-domain/effect';
 
 export const BillingSupportAdminSchemaVersionSchema = withParser(
   Schema.Literal('billing-support-admin-boundary-proof')
@@ -48,15 +51,9 @@ export const BillingSupportAdminProviderContactClaimSchema = withParser(Schema.L
 export const BillingSupportAdminBackendUploadClaimSchema = withParser(Schema.Literal('not-executed'));
 export const BillingSupportAdminChildActivityCustodyClaimSchema = withParser(Schema.Literal('not-supported'));
 
-export const BillingSupportAdminBoundaryIdSchema = NonEmptyBillingSupportAdminText.pipe(
-  Schema.brand('BillingSupportAdminBoundaryId')
-);
-export const BillingSupportAdminCaseReferenceSchema = NonEmptyBillingSupportAdminText.pipe(
-  Schema.brand('BillingSupportAdminCaseReference')
-);
-export const BillingSupportAdminAuditReferenceSchema = NonEmptyBillingSupportAdminText.pipe(
-  Schema.brand('BillingSupportAdminAuditReference')
-);
+export const BillingSupportAdminBoundaryIdSchema = brandedNonEmptyStringSchema('BillingSupportAdminBoundaryId');
+export const BillingSupportAdminCaseReferenceSchema = brandedNonEmptyStringSchema('BillingSupportAdminCaseReference');
+export const BillingSupportAdminAuditReferenceSchema = brandedNonEmptyStringSchema('BillingSupportAdminAuditReference');
 
 export type BillingSupportAdminAction = Infer<typeof BillingSupportAdminActionSchema>;
 export type BillingSupportAdminRuntimeState = Infer<typeof BillingSupportAdminRuntimeStateSchema>;
@@ -93,3 +90,4 @@ export function summarizeBillingSupportAdminRuntimeStates(
   }
   return counts;
 }
+

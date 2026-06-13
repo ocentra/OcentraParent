@@ -1,9 +1,12 @@
-import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
-
-const NonEmptyProviderSecretExecutionText = Schema.String.pipe(Schema.minLength(1));
+import {
+  type Infer,
+  Schema,
+  withParser,
+  NonEmptyStringSchema
+} from '@ocentra-parent/schema-domain/effect';
 
 const providerSecretExecutionText = <Brand extends string>(brand: Brand) =>
-  NonEmptyProviderSecretExecutionText.pipe(Schema.brand(brand));
+  NonEmptyStringSchema.pipe(Schema.brand(brand));
 
 export const ProviderSecretExecutionReadModelIdSchema = providerSecretExecutionText(
   'ProviderSecretExecutionReadModelId'
@@ -241,3 +244,4 @@ function providerSecretExecutionRequiredValuesArePresent(
     ProviderSecretExecutionRequiredDataClasses.every((value) => actual.has(value))
   );
 }
+

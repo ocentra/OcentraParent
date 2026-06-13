@@ -16,7 +16,7 @@ import {
   type EnforcementUnavailableStatus,
   EnforcementUnavailableStatusSchema,
 } from '../../src/enforcement';
-import { ParentContractSchemaVersion, ParentEvidenceReferenceKind, ParentPlatform } from '../../src/reference-primitives';
+import { ParentContractSchemaVersion, ParentEvidenceReferenceKind, ParentPlatform } from '@ocentra-parent/family-domain/reference-primitives';
 
 const observedAt = '2026-05-24T21:20:00.000Z';
 const evidenceReference = {

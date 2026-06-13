@@ -1,6 +1,8 @@
-import { Schema, withParser } from '@ocentra-parent/schema-domain/effect';
-
-const NonEmptyBillingText = Schema.String.pipe(Schema.minLength(1));
+import {
+  Schema,
+  withParser,
+  brandedNonEmptyStringSchema
+} from '@ocentra-parent/schema-domain/effect';
 
 export const PositiveBillingLimitSchema = Schema.Number.pipe(
   Schema.filter((value) => (Number.isInteger(value) && value > 0) || 'Expected billing limits to be positive integers')
@@ -80,17 +82,14 @@ export const BillingProviderBackendClaimSchema = withParser(Schema.Literal('not-
 export const BillingPortalUiClaimSchema = withParser(Schema.Literal('not-implemented'));
 export const BillingChildActivityCustodyClaimSchema = withParser(Schema.Literal('not-supported'));
 
-export const BillingPlanIdSchema = NonEmptyBillingText.pipe(Schema.brand('BillingPlanId'));
-export const BillingDisplayTextTokenSchema = NonEmptyBillingText.pipe(Schema.brand('BillingDisplayTextToken'));
-export const BillingPriceReferenceSchema = NonEmptyBillingText.pipe(Schema.brand('BillingPriceReference'));
-export const BillingFeatureCodeSchema = NonEmptyBillingText.pipe(Schema.brand('BillingFeatureCode'));
-export const BillingEntitlementSnapshotIdSchema = NonEmptyBillingText.pipe(
-  Schema.brand('BillingEntitlementSnapshotId')
-);
-export const BillingReasonCodeSchema = NonEmptyBillingText.pipe(Schema.brand('BillingReasonCode'));
-export const BillingSyncEventIdSchema = NonEmptyBillingText.pipe(Schema.brand('BillingSyncEventId'));
-export const BillingProviderReferenceSchema = NonEmptyBillingText.pipe(Schema.brand('BillingProviderReference'));
-export const BillingDeviceLimitDecisionIdSchema = NonEmptyBillingText.pipe(
-  Schema.brand('BillingDeviceLimitDecisionId')
-);
-export const BillingAuditReferenceSchema = NonEmptyBillingText.pipe(Schema.brand('BillingAuditReference'));
+export const BillingPlanIdSchema = brandedNonEmptyStringSchema('BillingPlanId');
+export const BillingDisplayTextTokenSchema = brandedNonEmptyStringSchema('BillingDisplayTextToken');
+export const BillingPriceReferenceSchema = brandedNonEmptyStringSchema('BillingPriceReference');
+export const BillingFeatureCodeSchema = brandedNonEmptyStringSchema('BillingFeatureCode');
+export const BillingEntitlementSnapshotIdSchema = brandedNonEmptyStringSchema('BillingEntitlementSnapshotId');
+export const BillingReasonCodeSchema = brandedNonEmptyStringSchema('BillingReasonCode');
+export const BillingSyncEventIdSchema = brandedNonEmptyStringSchema('BillingSyncEventId');
+export const BillingProviderReferenceSchema = brandedNonEmptyStringSchema('BillingProviderReference');
+export const BillingDeviceLimitDecisionIdSchema = brandedNonEmptyStringSchema('BillingDeviceLimitDecisionId');
+export const BillingAuditReferenceSchema = brandedNonEmptyStringSchema('BillingAuditReference');
+

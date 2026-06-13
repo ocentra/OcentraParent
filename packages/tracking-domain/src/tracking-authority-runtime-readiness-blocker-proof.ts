@@ -1,4 +1,9 @@
-import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
+import {
+  type Infer,
+  Schema,
+  withParser,
+  brandedNonEmptyStringSchema
+} from '@ocentra-parent/schema-domain/effect';
 import {
   ParentContractSchemaVersion,
   ParentContractSchemaVersionSchema,
@@ -8,8 +13,6 @@ import {
   TrackingAuthorityEnrollmentManualRequiredProofSchema,
   type TrackingAuthorityEnrollmentManualRequiredProof,
 } from './tracking-authority-enrollment-manual-required-proof';
-
-const TrackingAuthorityRuntimeReadinessBlockerText = Schema.String.pipe(Schema.minLength(1));
 
 export const TrackingAuthorityRuntimeReadinessBlockerIdSchema = withParser(
   Schema.Literal(
@@ -27,10 +30,8 @@ export const TrackingAuthorityRuntimeReadinessBlockerIdSchema = withParser(
 );
 
 export const TrackingAuthorityRuntimeReadinessBlockerReferenceSchema =
-  TrackingAuthorityRuntimeReadinessBlockerText.pipe(Schema.brand('TrackingAuthorityRuntimeReadinessBlockerReference'));
-export const TrackingAuthorityRuntimeReadinessBlockerProofIdSchema = TrackingAuthorityRuntimeReadinessBlockerText.pipe(
-  Schema.brand('TrackingAuthorityRuntimeReadinessBlockerProofId')
-);
+  brandedNonEmptyStringSchema('TrackingAuthorityRuntimeReadinessBlockerReference');
+export const TrackingAuthorityRuntimeReadinessBlockerProofIdSchema = brandedNonEmptyStringSchema('TrackingAuthorityRuntimeReadinessBlockerProofId');
 
 export const TrackingAuthorityRuntimeReadinessBlockerStatusSchema = withParser(
   Schema.Literal('authority-required', 'manual-required')
@@ -188,3 +189,4 @@ function trackingAuthorityRuntimeReadinessProofIsHonest(
 function uniqueRefs(refs: readonly string[]): readonly string[] {
   return [...new Set(refs)];
 }
+

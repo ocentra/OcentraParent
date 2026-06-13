@@ -1,5 +1,11 @@
 import { describe, expect, it } from 'vitest';
-import { FamilyPolicySetSchema, PolicyRuleSchema } from '../../src/policy';
+import {
+  FamilyPolicySetSchema,
+  PolicyAction,
+  PolicyRuleSchema,
+  PolicyScheduleDay,
+  PolicyTargetType,
+} from '../../src/policy';
 
 describe('parent policy contracts', () => {
   it('FamilyPolicySetSchema: parses parent-authored rules, schedules, children, and devices', () => {
@@ -19,8 +25,8 @@ describe('parent policy contracts', () => {
       rules: [
         {
           ruleId: 'rule-1',
-          target: { targetId: 'target-1', targetType: 'domain', targetValue: 'video.example' },
-          action: 'ask-parent',
+          target: { targetId: 'target-1', targetType: PolicyTargetType.Domain, targetValue: 'video.example' },
+          action: PolicyAction.AskParent,
           scheduleId: 'school-night',
           priority: 10,
           reasonCode: 'school-night-video',
@@ -34,19 +40,25 @@ describe('parent policy contracts', () => {
         {
           scheduleId: 'school-night',
           timeZone: 'America/Toronto',
-          windows: [{ days: ['monday', 'tuesday'], startLocalTime: '18:00', endLocalTime: '21:00' }],
+          windows: [
+            {
+              days: [PolicyScheduleDay.Monday, PolicyScheduleDay.Tuesday],
+              startLocalTime: '18:00',
+              endLocalTime: '21:00',
+            },
+          ],
         },
       ],
     });
 
-    expect(parsed.rules[0]?.action).toBe('ask-parent');
-    expect(parsed.schedules[0]?.windows[0]?.days).toEqual(['monday', 'tuesday']);
+    expect(parsed.rules[0]?.action).toBe(PolicyAction.AskParent);
+    expect(parsed.schedules[0]?.windows[0]?.days).toEqual([PolicyScheduleDay.Monday, PolicyScheduleDay.Tuesday]);
   });
 
   it('PolicyRuleSchema: rejects actions outside the local policy decision set', () => {
     const result = PolicyRuleSchema.safeParse({
       ruleId: 'rule-1',
-      target: { targetId: 'target-1', targetType: 'domain', targetValue: 'video.example' },
+      target: { targetId: 'target-1', targetType: PolicyTargetType.Domain, targetValue: 'video.example' },
       action: 'auto-escalate',
       scheduleId: null,
       priority: 10,

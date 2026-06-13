@@ -1,22 +1,25 @@
-import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
+import {
+  type Infer,
+  Schema,
+  withParser,
+  brandedNonEmptyStringSchema
+} from '@ocentra-parent/schema-domain/effect';
 import { ParentEvidenceReferenceIdSchema } from '@ocentra-parent/family-domain/reference-primitives';
-
-const NonEmptyBrowserGameRuntimeSignalText = Schema.String.pipe(Schema.minLength(1));
 
 export const BrowserGameRuntimeSignalDetectorSchemaVersionSchema = withParser(
   Schema.Literal('browser-game-runtime-signal-detector-contract')
 );
 
 export const BrowserGameRuntimeSignalDetectionIdSchema = withParser(
-  NonEmptyBrowserGameRuntimeSignalText.pipe(Schema.brand('BrowserGameRuntimeSignalDetectionId'))
+  brandedNonEmptyStringSchema('BrowserGameRuntimeSignalDetectionId')
 );
 
 export const BrowserGameRuntimeSignalIdSchema = withParser(
-  NonEmptyBrowserGameRuntimeSignalText.pipe(Schema.brand('BrowserGameRuntimeSignalId'))
+  brandedNonEmptyStringSchema('BrowserGameRuntimeSignalId')
 );
 
 export const BrowserGameRuntimeSignalFingerprintSchema = withParser(
-  NonEmptyBrowserGameRuntimeSignalText.pipe(Schema.brand('BrowserGameRuntimeSignalFingerprint'))
+  brandedNonEmptyStringSchema('BrowserGameRuntimeSignalFingerprint')
 );
 
 export const BrowserGameRuntimeSignalKindSchema = withParser(
@@ -82,3 +85,4 @@ export type BrowserGameRuntimeSignalKind = Infer<typeof BrowserGameRuntimeSignal
 export type BrowserGameRuntimeSignalReasonCode = Infer<typeof BrowserGameRuntimeSignalReasonCodeSchema>;
 export type BrowserGameRuntimeSignalSourceKind = Infer<typeof BrowserGameRuntimeSignalSourceKindSchema>;
 export type BrowserGameRuntimeSignalStatus = Infer<typeof BrowserGameRuntimeSignalStatusSchema>;
+

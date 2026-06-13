@@ -1,4 +1,9 @@
-import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
+import {
+  type Infer,
+  Schema,
+  withParser,
+  brandedNonEmptyStringSchema
+} from '@ocentra-parent/schema-domain/effect';
 import { AppInstallPurchasePlatformProofReadinessProofReadModel } from './app-install-purchase-platform-proof-readiness';
 import { AppInstallPurchaseProviderStoreApiExecutionProofReadModel } from './app-install-purchase-provider-store-api-execution-proof';
 import { ParentPlatformSchema, ParentTimestampSchema } from '@ocentra-parent/family-domain/reference-primitives';
@@ -7,7 +12,6 @@ const ProofVersion = 'app-install-purchase-platform-adapter-evidence-gap-proof';
 const SourceProviderStoreApiExecutionProofVersion = 'app-install-purchase-provider-store-api-execution-proof';
 const SourcePlatformProofReadinessProofVersion = 'app-install-purchase-platform-proof-readiness';
 const UpdatedAt = '2026-06-07T00:36:00.000Z';
-const Text = Schema.String.pipe(Schema.minLength(1));
 const StoreSurfaces = [
   'microsoft-store',
   'mac-app-store',
@@ -82,8 +86,8 @@ const SourcePlatformProofReadinessStateSchema = withParser(
   Schema.Literal('manual-proof-required', 'policy-blocked', 'unavailable')
 );
 const NonClaimSchema = withParser(Schema.Literal(...NonClaims));
-const RefSchema = Text.pipe(Schema.brand('AppInstallPurchasePlatformAdapterEvidenceGapRef'));
-const BoundarySchema = Text.pipe(Schema.brand('AppInstallPurchasePlatformAdapterEvidenceGapBoundary'));
+const RefSchema = brandedNonEmptyStringSchema('AppInstallPurchasePlatformAdapterEvidenceGapRef');
+const BoundarySchema = brandedNonEmptyStringSchema('AppInstallPurchasePlatformAdapterEvidenceGapBoundary');
 const NotExecutedSchema = withParser(Schema.Literal('not-executed'));
 const NotClaimedSchema = withParser(Schema.Literal('not-claimed'));
 const NotImplementedSchema = withParser(Schema.Literal('not-implemented'));
@@ -425,3 +429,4 @@ function platformAdapterEvidenceGapProofIsHonest(proof: AppInstallPurchasePlatfo
 function uniqueRefs(refs: readonly string[]) {
   return Array.from(new Set(refs));
 }
+

@@ -1,12 +1,15 @@
-import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
+import {
+  type Infer,
+  Schema,
+  withParser,
+  brandedNonEmptyStringSchema
+} from '@ocentra-parent/schema-domain/effect';
 import { ParentTimestampSchema } from '@ocentra-parent/family-domain/reference-primitives';
 import { TrackingPolicyAuditRefSchema, TrackingPolicySchemaVersion } from './tracking-location-policy-primitives';
 import {
   RequiredTrackingRetentionRuntimeArtifactPlan,
   type TrackingRetentionRuntimeArtifactGateProof,
 } from './tracking-retention-runtime-artifact-gate-proof';
-
-const TrackingRetentionPlatformEnforcementPreflightTextSchema = Schema.String.pipe(Schema.minLength(1));
 
 export const TrackingRetentionPlatformEnforcementPreflightPlatformSchema = Schema.Literal(
   'android-device-policy',
@@ -17,29 +20,19 @@ export const TrackingRetentionPlatformEnforcementPreflightPlatformSchema = Schem
 export const TrackingRetentionPlatformEnforcementPreflightStatusSchema = Schema.Literal('manual-required');
 
 export const TrackingRetentionPlatformEnforcementPreflightRowIdSchema =
-  TrackingRetentionPlatformEnforcementPreflightTextSchema.pipe(
-    Schema.brand('TrackingRetentionPlatformEnforcementPreflightRowId')
-  );
+  brandedNonEmptyStringSchema('TrackingRetentionPlatformEnforcementPreflightRowId');
 
 export const TrackingRetentionPlatformEnforcementPreflightPathSchema =
-  TrackingRetentionPlatformEnforcementPreflightTextSchema.pipe(
-    Schema.brand('TrackingRetentionPlatformEnforcementPreflightPath')
-  );
+  brandedNonEmptyStringSchema('TrackingRetentionPlatformEnforcementPreflightPath');
 
 export const TrackingRetentionPlatformEnforcementPreflightArtifactRefSchema =
-  TrackingRetentionPlatformEnforcementPreflightTextSchema.pipe(
-    Schema.brand('TrackingRetentionPlatformEnforcementPreflightArtifactRef')
-  );
+  brandedNonEmptyStringSchema('TrackingRetentionPlatformEnforcementPreflightArtifactRef');
 
 export const TrackingRetentionPlatformEnforcementPreflightCommandSchema =
-  TrackingRetentionPlatformEnforcementPreflightTextSchema.pipe(
-    Schema.brand('TrackingRetentionPlatformEnforcementPreflightCommand')
-  );
+  brandedNonEmptyStringSchema('TrackingRetentionPlatformEnforcementPreflightCommand');
 
 export const TrackingRetentionPlatformEnforcementPreflightCriterionSchema =
-  TrackingRetentionPlatformEnforcementPreflightTextSchema.pipe(
-    Schema.brand('TrackingRetentionPlatformEnforcementPreflightCriterion')
-  );
+  brandedNonEmptyStringSchema('TrackingRetentionPlatformEnforcementPreflightCriterion');
 
 export const RequiredTrackingRetentionPlatformEnforcementArtifactRef =
   'tracking-retention/platform-runtime-retention-enforcement.json';
@@ -344,3 +337,4 @@ function preflightRow(
     productClaimReady: false,
   });
 }
+

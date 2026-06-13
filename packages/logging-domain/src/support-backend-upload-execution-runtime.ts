@@ -1,14 +1,17 @@
-import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
+import {
+  type Infer,
+  Schema,
+  withParser,
+  NonEmptyStringSchema
+} from '@ocentra-parent/schema-domain/effect';
 
 import {
   supportBackendUploadExecutionRuntimeCoversRequiredStates,
   supportBackendUploadExecutionRuntimeEntryIsSafe,
 } from './support-backend-upload-execution-runtime-guards.js';
 
-const NonEmptySupportBackendUploadExecutionRuntimeText = Schema.String.pipe(Schema.minLength(1));
-
 const supportBackendUploadExecutionRuntimeText = <Brand extends string>(brand: Brand) =>
-  NonEmptySupportBackendUploadExecutionRuntimeText.pipe(Schema.brand(brand));
+  NonEmptyStringSchema.pipe(Schema.brand(brand));
 
 export const SupportBackendUploadExecutionRuntimeReadModelIdSchema = supportBackendUploadExecutionRuntimeText(
   'SupportBackendUploadExecutionRuntimeReadModelId'
@@ -200,3 +203,4 @@ export const decodeSupportBackendUploadExecutionRuntimeEntry = Schema.decodeUnkn
 export const decodeSupportBackendUploadExecutionRuntimeReadModel = Schema.decodeUnknownSync(
   SupportBackendUploadExecutionRuntimeReadModelSchema
 );
+

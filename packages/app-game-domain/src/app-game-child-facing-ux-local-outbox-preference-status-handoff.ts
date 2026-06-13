@@ -1,4 +1,10 @@
-import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
+import {
+  type Infer,
+  Schema,
+  withParser,
+  brandedNonEmptyStringSchema,
+  NonEmptyStringSchema
+} from '@ocentra-parent/schema-domain/effect';
 import {
   AppGameChildUxLocalOutboxPreferencePreflightReadModelSchema,
   AppGameChildUxLocalOutboxPreferencePreflightStatus,
@@ -21,9 +27,7 @@ import {
   type V3NotificationProviderChannel,
   type V3NotificationQuietHoursDecision,
   type V3NotificationRuleReasonCode,
-} from './v3-notification-rule-provider-retry-contract';
-
-const ChildUxPreferenceStatusHandoffText = Schema.String.pipe(Schema.minLength(1));
+} from '@ocentra-parent/notification-domain/v3-notification-rule-provider-retry-contract';
 
 export const RequiredAppGameChildUxLocalOutboxPreferenceStatusHandoffNonClaims = [
   'no-parent-preference-ui',
@@ -46,12 +50,8 @@ export const RequiredAppGameChildUxLocalOutboxPreferenceStatusHandoffNonClaims =
 export const AppGameChildUxLocalOutboxPreferenceStatusHandoffNonClaimSchema = withParser(
   Schema.Literal(...RequiredAppGameChildUxLocalOutboxPreferenceStatusHandoffNonClaims)
 );
-export const AppGameChildUxLocalOutboxPreferenceStatusHandoffIdSchema = ChildUxPreferenceStatusHandoffText.pipe(
-  Schema.brand('AppGameChildUxLocalOutboxPreferenceStatusHandoffId')
-);
-export const AppGameChildUxLocalOutboxPreferenceStatusHandoffReferenceSchema = ChildUxPreferenceStatusHandoffText.pipe(
-  Schema.brand('AppGameChildUxLocalOutboxPreferenceStatusHandoffReference')
-);
+export const AppGameChildUxLocalOutboxPreferenceStatusHandoffIdSchema = brandedNonEmptyStringSchema('AppGameChildUxLocalOutboxPreferenceStatusHandoffId');
+export const AppGameChildUxLocalOutboxPreferenceStatusHandoffReferenceSchema = brandedNonEmptyStringSchema('AppGameChildUxLocalOutboxPreferenceStatusHandoffReference');
 
 const AppGameChildUxLocalOutboxPreferenceStatusHandoffRowBaseSchema = Schema.Struct({
   handoffRowId: AppGameChildUxLocalOutboxPreferenceStatusHandoffReferenceSchema,
@@ -61,8 +61,8 @@ const AppGameChildUxLocalOutboxPreferenceStatusHandoffRowBaseSchema = Schema.Str
   sourceOutboxRecordRef: Schema.Union(AppGameChildUxLocalOutboxPreferenceStatusHandoffReferenceSchema, Schema.Null),
   sourceProviderChannelRef: Schema.Union(AppGameChildUxLocalOutboxPreferenceStatusHandoffReferenceSchema, Schema.Null),
   sourceReasonCodeRef: Schema.Union(AppGameChildUxLocalOutboxPreferenceStatusHandoffReferenceSchema, Schema.Null),
-  sourceParentPreferenceState: Schema.Union(Schema.String.pipe(Schema.minLength(1)), Schema.Null),
-  sourceQuietHoursDecision: Schema.Union(Schema.String.pipe(Schema.minLength(1)), Schema.Null),
+  sourceParentPreferenceState: Schema.Union(NonEmptyStringSchema, Schema.Null),
+  sourceQuietHoursDecision: Schema.Union(NonEmptyStringSchema, Schema.Null),
   sourceParentPreferenceRequirementRefs: Schema.Array(AppGameChildUxLocalOutboxPreferenceStatusHandoffReferenceSchema),
   sourceQuietHoursRequirementRefs: Schema.Array(AppGameChildUxLocalOutboxPreferenceStatusHandoffReferenceSchema),
   notificationPreferenceStatusEntry: V3NotificationRuleProviderRetryContractEntrySchema,
@@ -410,3 +410,5 @@ const countSourceStatus = (
   rows: ReadonlyArray<{ readonly sourcePreferenceStatus: AppGameChildUxLocalOutboxPreferencePreflightStatus }>,
   status: AppGameChildUxLocalOutboxPreferencePreflightStatus
 ): number => rows.filter((row) => row.sourcePreferenceStatus === status).length;
+
+

@@ -1,8 +1,11 @@
-import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
+import {
+  type Infer,
+  Schema,
+  withParser,
+  brandedNonEmptyStringSchema
+} from '@ocentra-parent/schema-domain/effect';
 import { AppInstallPurchaseExternalRuntimeWriterDeliveryBlockerProofReadModel } from './app-install-purchase-external-runtime-writer-delivery-blocker-proof';
 import { ParentTimestampSchema } from '@ocentra-parent/family-domain/reference-primitives';
-
-const ExternalRuntimeTransportQueueText = Schema.String.pipe(Schema.minLength(1));
 const ExternalRuntimeTransportQueueProofVersion = 'app-install-purchase-external-runtime-transport-queue-proof';
 const SourceExternalRuntimeWriterDeliveryBlockerProofVersion =
   'app-install-purchase-external-runtime-writer-delivery-blocker-proof';
@@ -81,18 +84,10 @@ const ExternalRuntimeTransportQueueRequiredBlockerSchema = withParser(
   Schema.Literal(...ExternalRuntimeTransportQueueRequiredBlockers)
 );
 
-const ExternalRuntimeTransportQueueRowIdSchema = ExternalRuntimeTransportQueueText.pipe(
-  Schema.brand('AppInstallPurchaseExternalRuntimeTransportQueueRowId')
-);
-const ExternalRuntimeTransportQueueRefSchema = ExternalRuntimeTransportQueueText.pipe(
-  Schema.brand('AppInstallPurchaseExternalRuntimeTransportQueueRef')
-);
-const ExternalRuntimeTransportQueueAuditRefSchema = ExternalRuntimeTransportQueueText.pipe(
-  Schema.brand('AppInstallPurchaseExternalRuntimeTransportQueueAuditRef')
-);
-const ExternalRuntimeTransportQueueBoundarySchema = ExternalRuntimeTransportQueueText.pipe(
-  Schema.brand('AppInstallPurchaseExternalRuntimeTransportQueueBoundary')
-);
+const ExternalRuntimeTransportQueueRowIdSchema = brandedNonEmptyStringSchema('AppInstallPurchaseExternalRuntimeTransportQueueRowId');
+const ExternalRuntimeTransportQueueRefSchema = brandedNonEmptyStringSchema('AppInstallPurchaseExternalRuntimeTransportQueueRef');
+const ExternalRuntimeTransportQueueAuditRefSchema = brandedNonEmptyStringSchema('AppInstallPurchaseExternalRuntimeTransportQueueAuditRef');
+const ExternalRuntimeTransportQueueBoundarySchema = brandedNonEmptyStringSchema('AppInstallPurchaseExternalRuntimeTransportQueueBoundary');
 
 const ExternalRuntimeTransportQueueRowBaseSchema = Schema.Struct({
   schemaVersion: AppInstallPurchaseExternalRuntimeTransportQueueProofSchemaVersionSchema,
@@ -346,3 +341,4 @@ function externalRuntimeTransportQueueBoundaryIsExplicit(
 ): boolean {
   return ExternalRuntimeTransportQueueBoundaryFragments.every((fragment) => boundary.includes(fragment));
 }
+

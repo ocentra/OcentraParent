@@ -1,8 +1,10 @@
-import { Schema, withParser } from '@ocentra-parent/schema-domain/effect';
+import {
+  Schema,
+  withParser,
+  brandedNonEmptyStringSchema
+} from '@ocentra-parent/schema-domain/effect';
 import { ParentEvidenceReferenceSchema } from '@ocentra-parent/family-domain/references';
 import { ParentTimestampSchema } from '@ocentra-parent/family-domain/reference-primitives';
-
-const NonEmptyAppGameControlText = Schema.String.pipe(Schema.minLength(1));
 
 export const AppGameControlApprovalCandidateKindSchema = withParser(
   Schema.Literal(
@@ -43,20 +45,18 @@ export const AppGameControlUnansweredFallbackSchema = withParser(
   Schema.Literal('deny', 'expire', 'observe-only', 'manual-required')
 );
 
-export const AppGameControlApprovalFlowReferenceSchema = NonEmptyAppGameControlText.pipe(
-  Schema.brand('AppGameControlApprovalFlowReference')
-);
+export const AppGameControlApprovalFlowReferenceSchema = brandedNonEmptyStringSchema('AppGameControlApprovalFlowReference');
 
 export const AppGameControlSettingReferenceSchema = withParser(
   Schema.Struct({
-    settingId: NonEmptyAppGameControlText.pipe(Schema.brand('AppGameControlSettingId')),
-    writesTo: NonEmptyAppGameControlText.pipe(Schema.brand('AppGameControlWritePath')),
+    settingId: brandedNonEmptyStringSchema('AppGameControlSettingId'),
+    writesTo: brandedNonEmptyStringSchema('AppGameControlWritePath'),
   })
 );
 
 export const AppGameControlApprovalCandidateSchema = withParser(
   Schema.Struct({
-    candidateId: NonEmptyAppGameControlText.pipe(Schema.brand('AppGameControlApprovalCandidateId')),
+    candidateId: brandedNonEmptyStringSchema('AppGameControlApprovalCandidateId'),
     candidateKind: AppGameControlApprovalCandidateKindSchema,
     candidateSource: AppGameControlApprovalCandidateSourceSchema,
     detectedAt: ParentTimestampSchema,
@@ -67,3 +67,4 @@ export const AppGameControlApprovalCandidateSchema = withParser(
     )
   )
 );
+

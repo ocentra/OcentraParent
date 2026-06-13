@@ -1,11 +1,15 @@
-import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
+import {
+  type Infer,
+  Schema,
+  withParser,
+  brandedNonEmptyStringSchema
+} from '@ocentra-parent/schema-domain/effect';
 import { AppInstallPurchaseProductClaimGateProofReadModel } from './app-install-purchase-product-claim-gate-proof';
 import { ParentPlatformSchema, ParentTimestampSchema } from '@ocentra-parent/family-domain/reference-primitives';
 
 const ProofVersion = 'app-install-purchase-product-claim-portal-test-readiness-proof';
 const SourceGateProofVersion = 'app-install-purchase-product-claim-gate-proof';
 const UpdatedAt = '2026-06-06T12:35:00.000Z';
-const Text = Schema.String.pipe(Schema.minLength(1));
 const StoreSurfaces = [
   'microsoft-store',
   'mac-app-store',
@@ -57,8 +61,8 @@ const StoreSurfaceSchema = withParser(Schema.Literal(...StoreSurfaces));
 const ReadinessStateSchema = withParser(Schema.Literal(...ReadinessStates));
 const GateStateSchema = withParser(Schema.Literal('product-claim-denied', 'manual-required', 'blocked'));
 const NonClaimSchema = withParser(Schema.Literal(...NonClaims));
-const RefSchema = Text.pipe(Schema.brand('AppInstallPurchaseProductClaimPortalTestReadinessRef'));
-const BoundarySchema = Text.pipe(Schema.brand('AppInstallPurchaseProductClaimPortalTestReadinessBoundary'));
+const RefSchema = brandedNonEmptyStringSchema('AppInstallPurchaseProductClaimPortalTestReadinessRef');
+const BoundarySchema = brandedNonEmptyStringSchema('AppInstallPurchaseProductClaimPortalTestReadinessBoundary');
 const NotExecutedSchema = withParser(Schema.Literal('not-executed'));
 const NotClaimedSchema = withParser(Schema.Literal('not-claimed'));
 const NotImplementedSchema = withParser(Schema.Literal('not-implemented'));
@@ -270,3 +274,4 @@ function portalTestReadinessProofIsHonest(proof: AppInstallPurchaseProductClaimP
     proof.knownGaps.length > 0
   );
 }
+

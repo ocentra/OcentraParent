@@ -8,9 +8,9 @@ import {
   LocalAiEvidenceContextRefIdSchema,
   LocalAiEvidenceContextSummarySchema,
   LocalAiStoredEvidenceContextBuildInputSchema,
-} from './local-ai-context';
+} from '@ocentra-parent/ai-domain/local-ai-context';
 import { LocalAiContextBuildStateSchema, LocalAiContextNonNegativeCountSchema } from './local-ai-context-primitives';
-import { buildLocalAiEvidenceContext } from './local-ai-context-builder';
+import { buildLocalAiEvidenceContext } from '@ocentra-parent/ai-domain/local-ai-context-builder';
 import { LocalAiMemoryReferenceSchema, type LocalAiMemoryReference } from './local-ai-references';
 import { LocalAiEvaluationRequestIdSchema, LocalAiTimestampSchema } from './local-ai-primitives';
 import { ChildProfileReferenceSchema, ParentDeviceReferenceSchema, ParentEvidenceReferenceSchema } from '@ocentra-parent/family-domain/references';

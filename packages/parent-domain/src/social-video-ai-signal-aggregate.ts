@@ -1,1 +1,1 @@
-export * from '@ocentra-parent/social-domain/social-video-ai-signal-aggregate';
+export * from '@ocentra-parent/browser-domain/social-video-ai-signal-aggregate';

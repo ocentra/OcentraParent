@@ -16,7 +16,7 @@ import {
   ActivitySubjectIdSchema,
   ActivitySubjectNameSchema,
   ActivityTimestampSchema,
-} from './primitives';
+} from '@ocentra-parent/evidence-domain/primitives';
 
 export const ActivitySchemaVersion = 1;
 

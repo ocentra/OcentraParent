@@ -17,7 +17,7 @@ async function main() {
   await mkdir(proofDir, { recursive: true });
 
   runNpm(['run', 'build', '--workspace', '@ocentra-parent/schema-domain']);
-  runNpm(['run', 'test', '--workspace', '@ocentra-parent/activity-domain', '--', 'app-game.test.ts']);
+  runNpm(['run', 'test', '--workspace', '@ocentra-parent/app-game-domain', '--', 'app-game.test.ts']);
   run('cargo', ['test', '-p', 'ocentra-parent-agent-core', 'app_game_sessionization', '--no-default-features']);
   run('cargo', ['test', '-p', 'ocentra-parent-agent-core', 'app_game_journal_sqlite_ingest', '--no-default-features']);
 
@@ -140,7 +140,7 @@ async function main() {
     gateState: 'prevented-by-replay-duration-contract-and-dedupe-proof',
     evidence: {
       typeScriptContracts:
-        'packages/activity-domain/src/app-game.ts requires session and daily-rollup foreground + background duration to equal running duration, with tests covering invalid totals and evidence timestamp requirements.',
+        'packages/app-game-domain/src/app-game.ts requires session and daily-rollup foreground + background duration to equal running duration, with tests covering invalid totals and evidence timestamp requirements.',
       rustSessionization:
         'crates/agent-core/src/activity_store_app_game/app_game_sessionization.rs sorts replayed rows, derives running duration from observation timestamps, and derives background duration from running minus foreground duration.',
       rustSessionizationTests:

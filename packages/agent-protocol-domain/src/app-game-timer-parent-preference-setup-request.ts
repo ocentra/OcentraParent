@@ -1,15 +1,13 @@
-import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
+import { type Infer, NonEmptyStringSchema, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
 import { AgentEvent, AgentProtocolDefaults, isAgentProtocolLogText, type AgentEventEnvelope } from './contracts';
-
-const NonEmptyTextSchema = Schema.String.pipe(Schema.minLength(1));
 
 export const AppGameTimerParentPreferenceSetupRequestSchema = withParser(
   Schema.Struct({
-    requestId: NonEmptyTextSchema,
-    requestedAt: NonEmptyTextSchema,
-    parentSurfaceIntentReferenceId: NonEmptyTextSchema,
-    parentPreferenceSetupReferenceId: NonEmptyTextSchema,
-    requestReferenceIds: Schema.Array(NonEmptyTextSchema).pipe(
+    requestId: NonEmptyStringSchema,
+    requestedAt: NonEmptyStringSchema,
+    parentSurfaceIntentReferenceId: NonEmptyStringSchema,
+    parentPreferenceSetupReferenceId: NonEmptyStringSchema,
+    requestReferenceIds: Schema.Array(NonEmptyStringSchema).pipe(
       Schema.filter((value) => value.length > 0 || 'Expected parent preference setup request references')
     ),
   })
@@ -18,52 +16,52 @@ export const AppGameTimerParentPreferenceSetupRequestSchema = withParser(
 export const AppGameTimerParentPreferenceSetupRequestResultSchema = withParser(
   Schema.Struct({
     schemaVersion: Schema.Literal('app-game-timer-parent-preference-setup-request-proof'),
-    requestId: NonEmptyTextSchema,
-    requestedAt: NonEmptyTextSchema,
-    acceptedAt: NonEmptyTextSchema,
+    requestId: NonEmptyStringSchema,
+    requestedAt: NonEmptyStringSchema,
+    acceptedAt: NonEmptyStringSchema,
     requestStatus: Schema.Literal('accepted'),
-    parentSurfaceIntentReferenceId: NonEmptyTextSchema,
-    parentPreferenceSetupReferenceId: NonEmptyTextSchema,
-    requestReferenceIds: Schema.Array(NonEmptyTextSchema).pipe(
+    parentSurfaceIntentReferenceId: NonEmptyStringSchema,
+    parentPreferenceSetupReferenceId: NonEmptyStringSchema,
+    requestReferenceIds: Schema.Array(NonEmptyStringSchema).pipe(
       Schema.filter((value) => value.length > 0 || 'Expected parent preference setup request result references')
     ),
-    actionResultReferenceId: NonEmptyTextSchema,
-    actionResultReferenceIds: Schema.Array(NonEmptyTextSchema).pipe(
+    actionResultReferenceId: NonEmptyStringSchema,
+    actionResultReferenceIds: Schema.Array(NonEmptyStringSchema).pipe(
       Schema.filter((value) => value.length > 0 || 'Expected parent preference setup request action result references')
     ),
     actionResultPersistenceStatus: Schema.Literal('persisted', 'unavailable'),
-    parentPreferenceMutationReceiptId: NonEmptyTextSchema,
-    parentPreferenceMutationReceiptIds: Schema.Array(NonEmptyTextSchema).pipe(
+    parentPreferenceMutationReceiptId: NonEmptyStringSchema,
+    parentPreferenceMutationReceiptIds: Schema.Array(NonEmptyStringSchema).pipe(
       Schema.filter((value) => value.length > 0 || 'Expected parent preference setup mutation receipt references')
     ),
     parentPreferenceMutationReceiptStatus: Schema.Literal('persisted', 'unavailable'),
     parentPreferenceMutationReceiptClaimed: Schema.Boolean,
-    childRuntimeDeliveryHandoffId: NonEmptyTextSchema,
-    childRuntimeDeliveryHandoffIds: Schema.Array(NonEmptyTextSchema).pipe(
+    childRuntimeDeliveryHandoffId: NonEmptyStringSchema,
+    childRuntimeDeliveryHandoffIds: Schema.Array(NonEmptyStringSchema).pipe(
       Schema.filter(
         (value) => value.length > 0 || 'Expected parent preference setup child runtime delivery handoff references'
       )
     ),
     childRuntimeDeliveryHandoffStatus: Schema.Literal('handoff-ready', 'unavailable'),
     childRuntimeDeliveryHandoffClaimed: Schema.Boolean,
-    childRuntimeDeliveryQueueId: NonEmptyTextSchema,
-    childRuntimeDeliveryQueueIds: Schema.Array(NonEmptyTextSchema).pipe(
+    childRuntimeDeliveryQueueId: NonEmptyStringSchema,
+    childRuntimeDeliveryQueueIds: Schema.Array(NonEmptyStringSchema).pipe(
       Schema.filter(
         (value) => value.length > 0 || 'Expected parent preference setup child runtime delivery queue references'
       )
     ),
     childRuntimeDeliveryQueueStatus: Schema.Literal('queued', 'unavailable'),
     childRuntimeDeliveryQueueClaimed: Schema.Boolean,
-    childRuntimeDeliveryDispatchId: NonEmptyTextSchema,
-    childRuntimeDeliveryDispatchIds: Schema.Array(NonEmptyTextSchema).pipe(
+    childRuntimeDeliveryDispatchId: NonEmptyStringSchema,
+    childRuntimeDeliveryDispatchIds: Schema.Array(NonEmptyStringSchema).pipe(
       Schema.filter(
         (value) => value.length > 0 || 'Expected parent preference setup child runtime delivery dispatch references'
       )
     ),
     childRuntimeDeliveryDispatchStatus: Schema.Literal('dispatch-ready', 'unavailable'),
     childRuntimeDeliveryDispatchClaimed: Schema.Boolean,
-    childRuntimeDeliveryReceiptRequirementId: NonEmptyTextSchema,
-    childRuntimeDeliveryReceiptRequirementIds: Schema.Array(NonEmptyTextSchema).pipe(
+    childRuntimeDeliveryReceiptRequirementId: NonEmptyStringSchema,
+    childRuntimeDeliveryReceiptRequirementIds: Schema.Array(NonEmptyStringSchema).pipe(
       Schema.filter(
         (value) =>
           value.length > 0 || 'Expected parent preference setup child runtime delivery receipt requirement references'
@@ -71,8 +69,8 @@ export const AppGameTimerParentPreferenceSetupRequestResultSchema = withParser(
     ),
     childRuntimeDeliveryReceiptRequirementStatus: Schema.Literal('receipt-required', 'unavailable'),
     childRuntimeDeliveryReceiptRequirementClaimed: Schema.Boolean,
-    childRuntimeDeliveryReceiptPendingId: NonEmptyTextSchema,
-    childRuntimeDeliveryReceiptPendingIds: Schema.Array(NonEmptyTextSchema).pipe(
+    childRuntimeDeliveryReceiptPendingId: NonEmptyStringSchema,
+    childRuntimeDeliveryReceiptPendingIds: Schema.Array(NonEmptyStringSchema).pipe(
       Schema.filter(
         (value) =>
           value.length > 0 || 'Expected parent preference setup child runtime delivery receipt pending references'
@@ -80,8 +78,8 @@ export const AppGameTimerParentPreferenceSetupRequestResultSchema = withParser(
     ),
     childRuntimeDeliveryReceiptPendingStatus: Schema.Literal('receipt-pending', 'unavailable'),
     childRuntimeDeliveryReceiptPendingClaimed: Schema.Boolean,
-    childRuntimeDeliveryReceiptIngestedId: NonEmptyTextSchema,
-    childRuntimeDeliveryReceiptIngestedIds: Schema.Array(NonEmptyTextSchema).pipe(
+    childRuntimeDeliveryReceiptIngestedId: NonEmptyStringSchema,
+    childRuntimeDeliveryReceiptIngestedIds: Schema.Array(NonEmptyStringSchema).pipe(
       Schema.filter(
         (value) =>
           value.length > 0 || 'Expected parent preference setup child runtime delivery receipt ingested references'
@@ -89,65 +87,65 @@ export const AppGameTimerParentPreferenceSetupRequestResultSchema = withParser(
     ),
     childRuntimeDeliveryReceiptIngestedStatus: Schema.Literal('receipt-ingested', 'unavailable'),
     childRuntimeDeliveryReceiptIngestedClaimed: Schema.Boolean,
-    durableOutboxRecordId: NonEmptyTextSchema,
-    durableOutboxRecordIds: Schema.Array(NonEmptyTextSchema).pipe(
+    durableOutboxRecordId: NonEmptyStringSchema,
+    durableOutboxRecordIds: Schema.Array(NonEmptyStringSchema).pipe(
       Schema.filter((value) => value.length > 0 || 'Expected parent preference setup durable outbox references')
     ),
     durableOutboxStatus: Schema.Literal('outbox-recorded', 'unavailable'),
-    providerDeliveryReadinessId: NonEmptyTextSchema,
-    providerDeliveryReadinessIds: Schema.Array(NonEmptyTextSchema).pipe(
+    providerDeliveryReadinessId: NonEmptyStringSchema,
+    providerDeliveryReadinessIds: Schema.Array(NonEmptyStringSchema).pipe(
       Schema.filter(
         (value) => value.length > 0 || 'Expected parent preference setup provider delivery readiness references'
       )
     ),
     providerDeliveryReadinessStatus: Schema.Literal('provider-manual-required', 'unavailable'),
-    providerDeliveryAttemptId: NonEmptyTextSchema,
-    providerDeliveryAttemptIds: Schema.Array(NonEmptyTextSchema).pipe(
+    providerDeliveryAttemptId: NonEmptyStringSchema,
+    providerDeliveryAttemptIds: Schema.Array(NonEmptyStringSchema).pipe(
       Schema.filter(
         (value) => value.length > 0 || 'Expected parent preference setup provider delivery attempt references'
       )
     ),
     providerDeliveryAttemptStatus: Schema.Literal('provider-delivery-manual-required', 'unavailable'),
-    providerDeliveryAdapterRequirementId: NonEmptyTextSchema,
-    providerDeliveryAdapterRequirementIds: Schema.Array(NonEmptyTextSchema).pipe(
+    providerDeliveryAdapterRequirementId: NonEmptyStringSchema,
+    providerDeliveryAdapterRequirementIds: Schema.Array(NonEmptyStringSchema).pipe(
       Schema.filter(
         (value) =>
           value.length > 0 || 'Expected parent preference setup provider delivery adapter requirement references'
       )
     ),
     providerDeliveryAdapterRequirementStatus: Schema.Literal('provider-adapter-required', 'unavailable'),
-    providerDeliveryCredentialRequirementId: NonEmptyTextSchema,
-    providerDeliveryCredentialRequirementIds: Schema.Array(NonEmptyTextSchema).pipe(
+    providerDeliveryCredentialRequirementId: NonEmptyStringSchema,
+    providerDeliveryCredentialRequirementIds: Schema.Array(NonEmptyStringSchema).pipe(
       Schema.filter(
         (value) =>
           value.length > 0 || 'Expected parent preference setup provider delivery credential requirement references'
       )
     ),
     providerDeliveryCredentialRequirementStatus: Schema.Literal('provider-credential-proof-required', 'unavailable'),
-    providerDeliveryQueueId: NonEmptyTextSchema,
-    providerDeliveryQueueIds: Schema.Array(NonEmptyTextSchema).pipe(
+    providerDeliveryQueueId: NonEmptyStringSchema,
+    providerDeliveryQueueIds: Schema.Array(NonEmptyStringSchema).pipe(
       Schema.filter(
         (value) => value.length > 0 || 'Expected parent preference setup provider delivery queue references'
       )
     ),
     providerDeliveryQueueStatus: Schema.Literal('provider-delivery-queued', 'unavailable'),
-    providerDeliveryReceiptRequirementId: NonEmptyTextSchema,
-    providerDeliveryReceiptRequirementIds: Schema.Array(NonEmptyTextSchema).pipe(
+    providerDeliveryReceiptRequirementId: NonEmptyStringSchema,
+    providerDeliveryReceiptRequirementIds: Schema.Array(NonEmptyStringSchema).pipe(
       Schema.filter(
         (value) =>
           value.length > 0 || 'Expected parent preference setup provider delivery receipt requirement references'
       )
     ),
     providerDeliveryReceiptRequirementStatus: Schema.Literal('provider-delivery-receipt-required', 'unavailable'),
-    providerDeliveryReceiptPendingId: NonEmptyTextSchema,
-    providerDeliveryReceiptPendingIds: Schema.Array(NonEmptyTextSchema).pipe(
+    providerDeliveryReceiptPendingId: NonEmptyStringSchema,
+    providerDeliveryReceiptPendingIds: Schema.Array(NonEmptyStringSchema).pipe(
       Schema.filter(
         (value) => value.length > 0 || 'Expected parent preference setup provider delivery receipt pending references'
       )
     ),
     providerDeliveryReceiptPendingStatus: Schema.Literal('provider-delivery-receipt-pending', 'unavailable'),
-    providerDeliveryReceiptIngestedId: NonEmptyTextSchema,
-    providerDeliveryReceiptIngestedIds: Schema.Array(NonEmptyTextSchema).pipe(
+    providerDeliveryReceiptIngestedId: NonEmptyStringSchema,
+    providerDeliveryReceiptIngestedIds: Schema.Array(NonEmptyStringSchema).pipe(
       Schema.filter(
         (value) => value.length > 0 || 'Expected parent preference setup provider delivery receipt ingested references'
       )

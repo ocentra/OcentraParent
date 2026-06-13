@@ -14,7 +14,7 @@ import {
   type AgentEventEnvelope,
   type AgentEventName,
 } from './contracts';
-import { AgentProtocolSchemaVersion, type AgentRoute } from './primitives';
+import { AgentProtocolSchemaVersion, type AgentPeerRole, type AgentRoute } from '@ocentra-parent/evidence-domain/primitives';
 
 export type BrowserPolicyAdapterFailureReason =
   | 'wrong-event'
@@ -35,7 +35,7 @@ export type BrowserPolicyAdapterResult =
 
 export type BrowserPolicyCommandPeerInput = {
   readonly peerId: string;
-  readonly role: 'portal' | 'agent-service' | 'cloud-relay';
+  readonly role: AgentPeerRole;
 };
 
 export type BrowserPolicyCommandTargetInput = {

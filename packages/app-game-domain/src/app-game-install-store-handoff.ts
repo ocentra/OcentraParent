@@ -1,4 +1,9 @@
-import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
+import {
+  type Infer,
+  Schema,
+  withParser,
+  brandedNonEmptyStringSchema
+} from '@ocentra-parent/schema-domain/effect';
 import {
   AppInstallPurchaseApprovalPlatformSupportStateSchema,
   AppInstallPurchaseApprovalStoreSurfaceSchema,
@@ -7,8 +12,6 @@ import { appGameInstallStoreHandoffRowIsHonest } from './app-game-install-store-
 import { EnforcementCapabilityStateSchema } from '@ocentra-parent/enforcement-domain/enforcement';
 import { ParentEvidenceReferenceSchema } from '@ocentra-parent/family-domain/references';
 import { ParentContractSchemaVersionSchema, ParentPlatformSchema, ParentTimestampSchema } from '@ocentra-parent/family-domain/reference-primitives';
-
-const NonEmptyHandoffText = Schema.String.pipe(Schema.minLength(1));
 
 export const AppGameInstallStoreHandoffSchemaVersionSchema = withParser(
   Schema.Literal('app-game-install-store-handoff-proof')
@@ -71,22 +74,12 @@ export const AppGameInstallStoreHandoffNoClaimBoundarySchema = withParser(
   )
 );
 
-const AppGameInstallStoreHandoffIdSchema = NonEmptyHandoffText.pipe(Schema.brand('AppGameInstallStoreHandoffId'));
-const AppGameInstallStoreHandoffApprovalRequestRefSchema = NonEmptyHandoffText.pipe(
-  Schema.brand('AppGameInstallStoreHandoffApprovalRequestRef')
-);
-const AppGameInstallStoreHandoffManualRequirementSchema = NonEmptyHandoffText.pipe(
-  Schema.brand('AppGameInstallStoreHandoffManualRequirement')
-);
-const AppGameInstallStoreHandoffParentVisibleStateSchema = NonEmptyHandoffText.pipe(
-  Schema.brand('AppGameInstallStoreHandoffParentVisibleState')
-);
-const AppGameInstallStoreHandoffProofPackRefSchema = NonEmptyHandoffText.pipe(
-  Schema.brand('AppGameInstallStoreHandoffProofPackRef')
-);
-const AppGameInstallStoreHandoffMatrixIdSchema = NonEmptyHandoffText.pipe(
-  Schema.brand('AppGameInstallStoreHandoffMatrixId')
-);
+const AppGameInstallStoreHandoffIdSchema = brandedNonEmptyStringSchema('AppGameInstallStoreHandoffId');
+const AppGameInstallStoreHandoffApprovalRequestRefSchema = brandedNonEmptyStringSchema('AppGameInstallStoreHandoffApprovalRequestRef');
+const AppGameInstallStoreHandoffManualRequirementSchema = brandedNonEmptyStringSchema('AppGameInstallStoreHandoffManualRequirement');
+const AppGameInstallStoreHandoffParentVisibleStateSchema = brandedNonEmptyStringSchema('AppGameInstallStoreHandoffParentVisibleState');
+const AppGameInstallStoreHandoffProofPackRefSchema = brandedNonEmptyStringSchema('AppGameInstallStoreHandoffProofPackRef');
+const AppGameInstallStoreHandoffMatrixIdSchema = brandedNonEmptyStringSchema('AppGameInstallStoreHandoffMatrixId');
 
 const AppGameInstallStoreHandoffRowBaseSchema = Schema.Struct({
   schemaVersion: AppGameInstallStoreHandoffSchemaVersionSchema,
@@ -177,3 +170,4 @@ export type AppGameInstallStoreHandoffMatrix = Infer<typeof AppGameInstallStoreH
 
 export const decodeAppGameInstallStoreHandoffRow = Schema.decodeUnknownSync(AppGameInstallStoreHandoffRowSchema);
 export const decodeAppGameInstallStoreHandoffMatrix = Schema.decodeUnknownSync(AppGameInstallStoreHandoffMatrixSchema);
+

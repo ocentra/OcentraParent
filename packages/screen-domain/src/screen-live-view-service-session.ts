@@ -1,4 +1,9 @@
-import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
+import {
+  type Infer,
+  Schema,
+  withParser,
+  NonEmptyStringSchema
+} from '@ocentra-parent/schema-domain/effect';
 import { ActivityTimestampSchema } from '@ocentra-parent/evidence-domain/primitives';
 import { ScreenEvidenceCustodyStateSchema } from './screen-evidence-states';
 import { ScreenLiveViewPermissionEvidenceKindSchema } from './screen-live-view-platform-permission';
@@ -17,7 +22,6 @@ const RequiredFalse = Schema.Literal(false);
 const RequiredTrue = Schema.Literal(true);
 const OptionalLiveViewProofRefSchema = Schema.Union(ScreenOptionalVisibilityPlatformProofRefSchema, Schema.Null);
 const OptionalLiveViewAuditRefSchema = Schema.Union(ScreenOptionalVisibilityAuditRefSchema, Schema.Null);
-const NonEmptyLiveViewText = Schema.String.pipe(Schema.minLength(1));
 
 export const ScreenLiveViewServiceSessionStateSchema = withParser(
   Schema.Literal('disabled', 'loopbackTransportOnly', 'serviceRuntimeReady')
@@ -49,7 +53,7 @@ const ScreenLiveViewServiceSessionGateBaseSchema = Schema.Struct({
   sessionRecordingAllowed: RequiredFalse,
   remoteInputControlAllowed: RequiredFalse,
   productLiveViewReady: Schema.Boolean,
-  reason: NonEmptyLiveViewText,
+  reason: NonEmptyStringSchema,
 });
 
 type ScreenLiveViewServiceSessionGateInput = Infer<typeof ScreenLiveViewServiceSessionGateBaseSchema>;
@@ -114,3 +118,4 @@ export type ScreenLiveViewServiceSessionState = Infer<typeof ScreenLiveViewServi
 export type ScreenLiveViewParentUiPersistenceState = Infer<typeof ScreenLiveViewParentUiPersistenceStateSchema>;
 export type ScreenLiveViewRelayCacheState = Infer<typeof ScreenLiveViewRelayCacheStateSchema>;
 export type ScreenLiveViewServiceSessionGate = Infer<typeof ScreenLiveViewServiceSessionGateSchema>;
+

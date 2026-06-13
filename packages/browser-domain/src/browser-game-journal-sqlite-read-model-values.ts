@@ -1,17 +1,20 @@
-import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
-
-const NonEmptyBrowserGameReadModelText = Schema.String.pipe(Schema.minLength(1));
+import {
+  type Infer,
+  Schema,
+  withParser,
+  brandedNonEmptyStringSchema
+} from '@ocentra-parent/schema-domain/effect';
 
 export const BrowserGameJournalSqliteReadModelSchemaVersionSchema = withParser(
   Schema.Literal('browser-game-journal-sqlite-read-model-contract')
 );
 
 export const BrowserGameJournalSqliteReadModelIdSchema = withParser(
-  NonEmptyBrowserGameReadModelText.pipe(Schema.brand('BrowserGameJournalSqliteReadModelId'))
+  brandedNonEmptyStringSchema('BrowserGameJournalSqliteReadModelId')
 );
 
 export const BrowserGameJournalSqliteReadModelRowIdSchema = withParser(
-  NonEmptyBrowserGameReadModelText.pipe(Schema.brand('BrowserGameJournalSqliteReadModelRowId'))
+  brandedNonEmptyStringSchema('BrowserGameJournalSqliteReadModelRowId')
 );
 
 export const BrowserGameReadModelSourceKindSchema = withParser(
@@ -46,3 +49,4 @@ export const BrowserGameReadModelReasonSchema = withParser(
 );
 
 export type BrowserGameReadModelSourceKind = Infer<typeof BrowserGameReadModelSourceKindSchema>;
+

@@ -17,9 +17,9 @@ async function main() {
   await mkdir(proofDir, { recursive: true });
 
   runNpm(['run', 'build:contracts']);
-  runNpm(['run', 'test', '--workspace', '@ocentra-parent/activity-domain', '--', 'app-game.test.ts']);
-  runNpm(['run', 'test', '--workspace', '@ocentra-parent/activity-domain', '--', 'app-game-identity.test.ts']);
-  runNpm(['run', 'test', '--workspace', '@ocentra-parent/activity-domain', '--', 'app-game-category-risk.test.ts']);
+  runNpm(['run', 'test', '--workspace', '@ocentra-parent/app-game-domain', '--', 'app-game.test.ts']);
+  runNpm(['run', 'test', '--workspace', '@ocentra-parent/app-game-domain', '--', 'app-game-identity.test.ts']);
+  runNpm(['run', 'test', '--workspace', '@ocentra-parent/app-game-domain', '--', 'app-game-category-risk.test.ts']);
   runNpm([
     'run',
     'test',
@@ -154,13 +154,13 @@ async function main() {
     gateState: 'prevented-by-weak-unknown-identity-and-manual-review-contracts',
     evidence: {
       identityContract:
-        'packages/activity-domain/src/app-game.ts keeps display-label-only identities weak, unknownProcess, and unknownExecutable.',
+        'packages/app-game-domain/src/app-game.ts keeps display-label-only identities weak, unknownProcess, and unknownExecutable.',
       evidenceClaimContract:
-        'packages/activity-domain/src/app-game.ts keeps displayNameOnly claims weak and unlinked from inventory, process, launcher, and catalog refs.',
+        'packages/app-game-domain/src/app-game.ts keeps displayNameOnly claims weak and unlinked from inventory, process, launcher, and catalog refs.',
       identityTests:
-        'packages/activity-domain/tests/app-game-identity.test.ts rejects deterministic known-game promotion from display-only identity.',
+        'packages/app-game-domain/tests/unit/app-game-identity.test.ts rejects deterministic known-game promotion from display-only identity.',
       categoryRiskTests:
-        'packages/activity-domain/tests/app-game-category-risk.test.ts keeps heuristic unknown executable labels as manual-review candidates and rejects direct block.',
+        'packages/app-game-domain/tests/unit/app-game-category-risk.test.ts keeps heuristic unknown executable labels as manual-review candidates and rejects direct block.',
       portalIntent:
         'vendor/ocentra-parent-core-ui/AppPages/ParentPortal/app-game-dashboard-intent.ts surfaces unknown/possible-game rows as unknownApproval/manual review state.',
       portalTest:

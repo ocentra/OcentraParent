@@ -1,4 +1,10 @@
-import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
+import {
+  type Infer,
+  Schema,
+  withParser,
+  brandedNonEmptyStringSchema,
+  NonEmptyStringSchema
+} from '@ocentra-parent/schema-domain/effect';
 import { ActivityEvidenceIdSchema, ActivityTimestampSchema } from '@ocentra-parent/evidence-domain/primitives';
 import {
   type BrowserSocialAccountFlowEvidence,
@@ -16,9 +22,7 @@ import {
   BrowserSocialPlatformSchema,
   BrowserSocialRouteEvidenceIdSchema,
 } from './browser-social-platform-route-schemas';
-
-const NonEmptySocialGateText = Schema.String.pipe(Schema.minLength(1));
-const OptionalSocialGateTextSchema = Schema.Union(NonEmptySocialGateText, Schema.Null);
+const OptionalSocialGateTextSchema = Schema.Union(NonEmptyStringSchema, Schema.Null);
 const SocialGateSourceEvidenceIdsSchema = Schema.Array(ActivityEvidenceIdSchema).pipe(
   Schema.filter((value) => value.length > 0 || 'Expected social account gate source evidence ids')
 );
@@ -26,7 +30,7 @@ const SocialGateSourceEvidenceIdsSchema = Schema.Array(ActivityEvidenceIdSchema)
 export const BrowserSocialAccountCreationGateSchemaVersion = 1;
 
 export const BrowserSocialAccountCreationGatePlanIdSchema = withParser(
-  NonEmptySocialGateText.pipe(Schema.brand('BrowserSocialAccountCreationGatePlanId'))
+  brandedNonEmptyStringSchema('BrowserSocialAccountCreationGatePlanId')
 );
 
 export const BrowserSocialAccountCreationGateActionSchema = withParser(
@@ -233,3 +237,4 @@ function socialAccountGatePlanClaimsRuntime(value: Infer<typeof BrowserSocialAcc
     value.accountCreatedClaimed
   );
 }
+

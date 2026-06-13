@@ -181,13 +181,6 @@ mod activity_query_tests;
 mod activity_surface_tests;
 #[cfg(test)]
 mod activity_tests;
-#[cfg(test)]
-mod app_game_adapter_dispatch_preflight_tests;
-#[cfg(test)]
-mod app_game_adapter_dispatch_result_tests;
-#[cfg(test)]
-mod app_game_adapter_execution_readiness_tests;
-#[cfg(test)]
 mod app_game_authority_classifier_tests;
 #[cfg(test)]
 mod app_game_boundary_read_model_tests;
@@ -217,6 +210,8 @@ mod browser_policy_tests;
 mod browser_read_model_tests;
 #[cfg(test)]
 mod child_agent_event_tests;
+#[cfg(test)]
+mod child_domain_runtime_tests;
 #[cfg(test)]
 mod enforcement_audit_boundary_tests;
 #[cfg(test)]
@@ -293,15 +288,6 @@ mod route_tests;
 mod screen_evidence_tests;
 #[cfg(test)]
 mod screen_settings_tests;
-#[cfg(test)]
-mod social_alert_report_read_model_tests;
-#[cfg(test)]
-mod social_audit_explanation_read_model_tests;
-#[cfg(test)]
-mod social_dashboard_read_model_tests;
-#[cfg(test)]
-mod social_parent_notification_delivery_read_model_tests;
-#[cfg(test)]
 mod social_source_custody_mutation_tests;
 #[cfg(test)]
 mod tests;

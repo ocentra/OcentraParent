@@ -1,9 +1,12 @@
-import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
-
-const NonEmptyProviderSecretCustodyText = Schema.String.pipe(Schema.minLength(1));
+import {
+  type Infer,
+  Schema,
+  withParser,
+  NonEmptyStringSchema
+} from '@ocentra-parent/schema-domain/effect';
 
 const providerSecretCustodyText = <Brand extends string>(brand: Brand) =>
-  NonEmptyProviderSecretCustodyText.pipe(Schema.brand(brand));
+  NonEmptyStringSchema.pipe(Schema.brand(brand));
 
 export const ProviderSecretCustodyReadModelIdSchema = providerSecretCustodyText('ProviderSecretCustodyReadModelId');
 export const ProviderSecretCustodyStatusIdSchema = providerSecretCustodyText('ProviderSecretCustodyStatusId');
@@ -236,3 +239,4 @@ function providerSecretCustodyRequiredValuesArePresent(
     actual.size === actualValues.length && ProviderSecretCustodyRequiredDataClasses.every((value) => actual.has(value))
   );
 }
+

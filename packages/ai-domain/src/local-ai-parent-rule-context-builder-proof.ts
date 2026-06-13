@@ -1,4 +1,9 @@
-import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
+import {
+  type Infer,
+  Schema,
+  withParser,
+  brandedNonEmptyStringSchema
+} from '@ocentra-parent/schema-domain/effect';
 import {
   LocalAiContextBuildStateSchema,
   LocalAiContextReasonCodeSchema,
@@ -11,10 +16,10 @@ import {
   type LocalAiContextReasonCode,
   type LocalAiEvidenceContextBuildResult,
   type LocalAiStoredEvidenceContextBuildInput,
-} from './local-ai-context';
-import { buildLocalAiEvidenceContext } from './local-ai-context-builder';
+} from '@ocentra-parent/ai-domain/local-ai-context';
+import { buildLocalAiEvidenceContext } from '@ocentra-parent/ai-domain/local-ai-context-builder';
 import { LocalAiEvaluationRequestIdSchema, LocalAiTimestampSchema } from './local-ai-primitives';
-import { PolicyRuleIdSchema } from './policy';
+import { PolicyRuleIdSchema } from '@ocentra-parent/policy-domain/policy';
 import { ChildProfileReferenceSchema, ParentDeviceReferenceSchema } from '@ocentra-parent/family-domain/references';
 
 const LocalAiParentRuleContextBuilderProofRowBaseSchema = Schema.Struct({
@@ -54,7 +59,7 @@ export const LocalAiParentRuleContextBuilderProofRowSchema = withParser(
 );
 
 const LocalAiParentRuleContextBuilderProofBaseSchema = Schema.Struct({
-  proofId: Schema.String.pipe(Schema.minLength(1), Schema.brand('LocalAiParentRuleContextBuilderProofId')),
+  proofId: brandedNonEmptyStringSchema('LocalAiParentRuleContextBuilderProofId'),
   generatedAt: LocalAiTimestampSchema,
   readyRow: LocalAiParentRuleContextBuilderProofRowSchema,
   ungroundedRow: LocalAiParentRuleContextBuilderProofRowSchema,
@@ -198,3 +203,4 @@ function localAiParentRuleContextBuilderProofIsReady(proof: LocalAiParentRuleCon
     proof.validationSummary.enforcementRows === 0
   );
 }
+

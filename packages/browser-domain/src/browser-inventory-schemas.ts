@@ -1,4 +1,9 @@
-import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
+import {
+  type Infer,
+  Schema,
+  withParser,
+  brandedNonEmptyStringSchema
+} from '@ocentra-parent/schema-domain/effect';
 import { ActivityDeviceIdSchema, ActivityTimestampSchema } from '@ocentra-parent/evidence-domain/primitives';
 import {
   BrowserCapabilityStatusSchema,
@@ -10,8 +15,6 @@ import {
   BrowserQueryVisibilityLabelSchema,
   BrowserVersionSchema,
 } from './browser-schemas';
-
-const NonEmptyBrowserInventoryText = Schema.String.pipe(Schema.minLength(1));
 
 export const BrowserInventoryInstallStateSchema = withParser(
   Schema.Literal('installed', 'not-installed', 'candidate-running', 'packaged', 'portable', 'unknown')
@@ -77,22 +80,22 @@ export const BrowserUnmanagedFallbackCapabilitySchema = withParser(
 );
 
 export const BrowserExecutablePathRefSchema = withParser(
-  NonEmptyBrowserInventoryText.pipe(Schema.brand('BrowserExecutablePathRef'))
+  brandedNonEmptyStringSchema('BrowserExecutablePathRef')
 );
 export const BrowserFileHashRefSchema = withParser(
-  NonEmptyBrowserInventoryText.pipe(Schema.brand('BrowserFileHashRef'))
+  brandedNonEmptyStringSchema('BrowserFileHashRef')
 );
 export const BrowserInventoryReasonCodeSchema = withParser(
-  NonEmptyBrowserInventoryText.pipe(Schema.brand('BrowserInventoryReasonCode'))
+  brandedNonEmptyStringSchema('BrowserInventoryReasonCode')
 );
 export const BrowserInventoryRowIdSchema = withParser(
-  NonEmptyBrowserInventoryText.pipe(Schema.brand('BrowserInventoryRowId'))
+  brandedNonEmptyStringSchema('BrowserInventoryRowId')
 );
 export const BrowserProductNameSchema = withParser(
-  NonEmptyBrowserInventoryText.pipe(Schema.brand('BrowserProductName'))
+  brandedNonEmptyStringSchema('BrowserProductName')
 );
 export const BrowserPublisherSignatureRefSchema = withParser(
-  NonEmptyBrowserInventoryText.pipe(Schema.brand('BrowserPublisherSignatureRef'))
+  brandedNonEmptyStringSchema('BrowserPublisherSignatureRef')
 );
 
 const BrowserInventoryRowBaseSchema = Schema.Struct({
@@ -184,3 +187,4 @@ function browserInventoryRowIsConsistent(row: Infer<typeof BrowserInventoryRowBa
 
   return true;
 }
+

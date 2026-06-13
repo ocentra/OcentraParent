@@ -1,13 +1,16 @@
-import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
-
-const NonEmptyBrowserGameChildUxText = Schema.String.pipe(Schema.minLength(1));
+import {
+  type Infer,
+  Schema,
+  withParser,
+  brandedNonEmptyStringSchema
+} from '@ocentra-parent/schema-domain/effect';
 
 export const BrowserGameChildCheckingBlockUxSchemaVersionSchema = withParser(
   Schema.Literal('browser-game-child-checking-block-ux-contract')
 );
 
 export const BrowserGameChildCheckingBlockSurfaceIdSchema = withParser(
-  NonEmptyBrowserGameChildUxText.pipe(Schema.brand('BrowserGameChildCheckingBlockSurfaceId'))
+  brandedNonEmptyStringSchema('BrowserGameChildCheckingBlockSurfaceId')
 );
 
 export const BrowserGameChildCheckingBlockSurfaceKindSchema = withParser(
@@ -83,3 +86,4 @@ export const BrowserGameChildCheckingBlockTextToken = {
   Manual: BrowserGameChildCheckingBlockTextTokenSchema.parse('browser-game.child.manual.title'),
   Unavailable: BrowserGameChildCheckingBlockTextTokenSchema.parse('browser-game.child.unavailable.title'),
 } as const;
+

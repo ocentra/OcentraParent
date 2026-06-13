@@ -1,4 +1,10 @@
-import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
+import {
+  type Infer,
+  Schema,
+  withParser,
+  brandedNonEmptyStringSchema,
+  NonEmptyStringSchema
+} from '@ocentra-parent/schema-domain/effect';
 import {
   AppGameNotificationPreferencePreflightReadModelSchema,
   AppGameNotificationPreferencePreflightStatus,
@@ -21,9 +27,7 @@ import {
   type V3NotificationProviderChannel,
   type V3NotificationQuietHoursDecision,
   type V3NotificationRuleReasonCode,
-} from './v3-notification-rule-provider-retry-contract';
-
-const HandoffText = Schema.String.pipe(Schema.minLength(1));
+} from '@ocentra-parent/notification-domain/v3-notification-rule-provider-retry-contract';
 
 export const RequiredAppGameNotificationPreferenceStatusHandoffNonClaims = [
   'no-parent-preference-ui',
@@ -45,9 +49,9 @@ export const AppGameNotificationPreferenceStatusHandoffNonClaimSchema = withPars
 );
 
 // prettier-ignore
-export const AppGameNotificationPreferenceStatusHandoffIdSchema = HandoffText.pipe(Schema.brand('AppGameNotificationPreferenceStatusHandoffId'));
+export const AppGameNotificationPreferenceStatusHandoffIdSchema = brandedNonEmptyStringSchema('AppGameNotificationPreferenceStatusHandoffId');
 // prettier-ignore
-export const AppGameNotificationPreferenceStatusHandoffReferenceSchema = HandoffText.pipe(Schema.brand('AppGameNotificationPreferenceStatusHandoffReference'));
+export const AppGameNotificationPreferenceStatusHandoffReferenceSchema = brandedNonEmptyStringSchema('AppGameNotificationPreferenceStatusHandoffReference');
 
 const AppGameNotificationPreferenceStatusHandoffRowBaseSchema = Schema.Struct({
   handoffRowId: AppGameNotificationPreferenceStatusHandoffReferenceSchema,
@@ -57,8 +61,8 @@ const AppGameNotificationPreferenceStatusHandoffRowBaseSchema = Schema.Struct({
   sourceOutboxRecordRef: Schema.Union(AppGameNotificationPreferenceStatusHandoffReferenceSchema, Schema.Null),
   sourceProviderChannelRef: Schema.Union(AppGameNotificationPreferenceStatusHandoffReferenceSchema, Schema.Null),
   sourceReasonCodeRef: Schema.Union(AppGameNotificationPreferenceStatusHandoffReferenceSchema, Schema.Null),
-  sourceParentPreferenceState: Schema.Union(Schema.String.pipe(Schema.minLength(1)), Schema.Null),
-  sourceQuietHoursDecision: Schema.Union(Schema.String.pipe(Schema.minLength(1)), Schema.Null),
+  sourceParentPreferenceState: Schema.Union(NonEmptyStringSchema, Schema.Null),
+  sourceQuietHoursDecision: Schema.Union(NonEmptyStringSchema, Schema.Null),
   sourceParentPreferenceRequirementRefs: Schema.Array(AppGameNotificationPreferenceStatusHandoffReferenceSchema),
   sourceQuietHoursRequirementRefs: Schema.Array(AppGameNotificationPreferenceStatusHandoffReferenceSchema),
   notificationPreferenceStatusEntry: V3NotificationRuleProviderRetryContractEntrySchema,
@@ -377,3 +381,5 @@ const countSourceStatus = (
   rows: ReadonlyArray<{ readonly sourcePreferenceStatus: AppGameNotificationPreferencePreflightStatus }>,
   status: AppGameNotificationPreferencePreflightStatus
 ): number => rows.filter((row) => row.sourcePreferenceStatus === status).length;
+
+

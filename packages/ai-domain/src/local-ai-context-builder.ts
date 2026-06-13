@@ -6,7 +6,7 @@ import {
   type LocalAiEvidenceContext,
   type LocalAiEvidenceContextBuildResult,
   type LocalAiStoredEvidenceContextBuildInput,
-} from './local-ai-context';
+} from '@ocentra-parent/ai-domain/local-ai-context';
 import { selectLocalAiEvidenceContextInput, type LocalAiEvidenceContextSelection } from './local-ai-context-selection';
 import { contextForInput, resultFor } from './local-ai-context-result';
 

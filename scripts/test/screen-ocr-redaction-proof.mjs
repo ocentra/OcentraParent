@@ -8,9 +8,9 @@ const testResultRoot = resolve(repoRoot, 'test-results', 'screen-ocr-redaction-p
 
 await Promise.all([mkdir(outputRoot, { recursive: true }), mkdir(testResultRoot, { recursive: true })]);
 
-runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/activity-domain']));
+runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/screen-domain']));
 runCommand(
-  ...npmCommand(['run', 'test', '--workspace', '@ocentra-parent/activity-domain', '--', 'screen-ocr-redaction'])
+  ...npmCommand(['run', 'test', '--workspace', '@ocentra-parent/screen-domain', '--', 'screen-ocr-redaction'])
 );
 
 const {
@@ -124,8 +124,8 @@ const proofSummary = {
   ],
   validationCommands: [
     'node scripts/test/screen-ocr-redaction-proof.mjs',
-    'cmd /c npm run build --workspace @ocentra-parent/activity-domain',
-    'cmd /c npm run test --workspace @ocentra-parent/activity-domain -- screen-ocr-redaction',
+    'cmd /c npm run build --workspace @ocentra-parent/screen-domain',
+    'cmd /c npm run test --workspace @ocentra-parent/screen-domain -- screen-ocr-redaction',
   ],
 };
 

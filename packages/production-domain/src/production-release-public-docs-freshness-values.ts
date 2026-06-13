@@ -1,6 +1,8 @@
-import { Schema, withParser } from '@ocentra-parent/schema-domain/effect';
-
-const NonEmptyPublicDocsFreshnessText = Schema.String.pipe(Schema.minLength(1));
+import {
+  Schema,
+  withParser,
+  brandedNonEmptyStringSchema
+} from '@ocentra-parent/schema-domain/effect';
 
 export const ProductionReleasePublicDocsFreshnessSchemaVersionSchema = withParser(
   Schema.Literal('production-release-public-docs-freshness-proof')
@@ -51,13 +53,9 @@ export const ProductionReleasePublicDocsFreshnessNonClaimSchema = withParser(
   )
 );
 
-export const PublicDocsFreshnessReferenceSchema = NonEmptyPublicDocsFreshnessText.pipe(
-  Schema.brand('ProductionReleasePublicDocsFreshnessReference')
-);
+export const PublicDocsFreshnessReferenceSchema = brandedNonEmptyStringSchema('ProductionReleasePublicDocsFreshnessReference');
 
-export const PublicDocsFreshnessRequirementSchema = NonEmptyPublicDocsFreshnessText.pipe(
-  Schema.brand('ProductionReleasePublicDocsFreshnessRequirement')
-);
+export const PublicDocsFreshnessRequirementSchema = brandedNonEmptyStringSchema('ProductionReleasePublicDocsFreshnessRequirement');
 
 export const RequiredPublicDocsFreshnessDocuments = [
   'privacy-policy',
@@ -78,3 +76,4 @@ export const RequiredPublicDocsFreshnessNonClaims = [
   'no-production-sla',
   'no-child-activity-custody',
 ] as const;
+

@@ -1,4 +1,10 @@
-import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
+import {
+  type Infer,
+  Schema,
+  withParser,
+  brandedNonEmptyStringSchema,
+  NonEmptyStringSchema
+} from '@ocentra-parent/schema-domain/effect';
 import {
   AppGameNotificationPreferenceStatusHandoffReadModelSchema,
   type AppGameNotificationPreferenceStatusHandoffReadModel,
@@ -18,15 +24,13 @@ import { FamilyReferenceSchema } from '@ocentra-parent/family-domain/references'
 import {
   V08NotificationProviderStatusSchema,
   type V08NotificationProviderStatus,
-} from './v0-8-notification-provider-status-boundary';
+} from '@ocentra-parent/notification-domain/v0-8-notification-provider-status-boundary';
 import {
   V3NotificationDeliveryResultStateSchema,
   V3NotificationParentPreferenceStateSchema,
   V3NotificationProviderChannelSchema,
   V3NotificationQuietHoursDecisionSchema,
-} from './v3-notification-rule-provider-retry-contract';
-
-const SurfaceText = Schema.String.pipe(Schema.minLength(1));
+} from '@ocentra-parent/notification-domain/v3-notification-rule-provider-retry-contract';
 
 export const RequiredAppGameNotificationParentSurfaceIntentNonClaims = [
   'no-parent-notification-ui-rendered',
@@ -56,9 +60,9 @@ export const AppGameNotificationParentSurfacePreferenceVisibilitySchema = withPa
 );
 
 // prettier-ignore
-export const AppGameNotificationParentSurfaceIntentIdSchema = SurfaceText.pipe(Schema.brand('AppGameNotificationParentSurfaceIntentId'));
+export const AppGameNotificationParentSurfaceIntentIdSchema = brandedNonEmptyStringSchema('AppGameNotificationParentSurfaceIntentId');
 // prettier-ignore
-export const AppGameNotificationParentSurfaceIntentReferenceSchema = SurfaceText.pipe(Schema.brand('AppGameNotificationParentSurfaceIntentReference'));
+export const AppGameNotificationParentSurfaceIntentReferenceSchema = brandedNonEmptyStringSchema('AppGameNotificationParentSurfaceIntentReference');
 
 const AppGameNotificationParentSurfaceIntentRowBaseSchema = Schema.Struct({
   surfaceRowId: AppGameNotificationParentSurfaceIntentReferenceSchema,
@@ -77,7 +81,7 @@ const AppGameNotificationParentSurfaceIntentRowBaseSchema = Schema.Struct({
   drillInRefs: Schema.Array(AppGameNotificationParentSurfaceIntentReferenceSchema),
   auditRefs: Schema.Array(AppGameNotificationParentSurfaceIntentReferenceSchema),
   manualProofRequirements: Schema.Array(AppGameNotificationParentSurfaceIntentReferenceSchema),
-  minimalSurfacePayloadBoundary: SurfaceText,
+  minimalSurfacePayloadBoundary: NonEmptyStringSchema,
   sensitiveDetailIncluded: Schema.Literal(false),
   providerDeliveryClaimed: Schema.Literal(false),
   providerReceiptClaimed: Schema.Literal(false),
@@ -288,3 +292,4 @@ const countPreferenceVisibility = (
   rows: readonly ParentSurfaceIntentRowInput[],
   visibility: ParentSurfaceIntentRowInput['preferenceVisibility']
 ): number => rows.filter((row) => row.preferenceVisibility === visibility).length;
+

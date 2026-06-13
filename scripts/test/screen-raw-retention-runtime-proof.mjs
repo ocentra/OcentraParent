@@ -8,7 +8,7 @@ const repoRoot = join(__dirname, '..', '..');
 const proofDir = join(repoRoot, 'output', 'screen-plan-proof', 'raw-retention-runtime');
 const proofPath = join(proofDir, 'proof-summary.json');
 
-run('npm', ['run', 'build', '--workspace', '@ocentra-parent/activity-domain']);
+run('npm', ['run', 'build', '--workspace', '@ocentra-parent/screen-domain']);
 run('cargo', [
   'test',
   '-p',

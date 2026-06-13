@@ -1,8 +1,6 @@
-import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
+import { type Infer, brandedNonEmptyStringSchema, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
 import { ParentControlCapabilityNameSchema, ParentControlCapabilityStatusSchema } from '@ocentra-parent/capability-domain/capabilities';
 import { ParentTimestampSchema } from '@ocentra-parent/family-domain/reference-primitives';
-
-const MobileChildAgentProofText = Schema.String.pipe(Schema.minLength(1));
 
 export const MobileChildAgentCapabilityProofSchemaVersionSchema = withParser(
   Schema.Literal('mobile-child-agent-capability-proof')
@@ -78,14 +76,14 @@ export const MobileChildAgentPackageRuntimeHookSchema = withParser(
   )
 );
 
-export const MobileChildAgentCapabilityProofPathSchema = MobileChildAgentProofText.pipe(
-  Schema.brand('MobileChildAgentCapabilityProofPath')
+export const MobileChildAgentCapabilityProofPathSchema = brandedNonEmptyStringSchema(
+  'MobileChildAgentCapabilityProofPath'
 );
-export const MobileChildAgentCapabilityProofCommandSchema = MobileChildAgentProofText.pipe(
-  Schema.brand('MobileChildAgentCapabilityProofCommand')
+export const MobileChildAgentCapabilityProofCommandSchema = brandedNonEmptyStringSchema(
+  'MobileChildAgentCapabilityProofCommand'
 );
-export const MobileChildAgentCapabilityProofBoundarySchema = MobileChildAgentProofText.pipe(
-  Schema.brand('MobileChildAgentCapabilityProofBoundary')
+export const MobileChildAgentCapabilityProofBoundarySchema = brandedNonEmptyStringSchema(
+  'MobileChildAgentCapabilityProofBoundary'
 );
 
 export const MobileChildAgentPlatformSummarySchema = withParser(

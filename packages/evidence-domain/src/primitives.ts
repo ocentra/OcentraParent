@@ -1,17 +1,15 @@
-import { Schema } from '@ocentra-parent/schema-domain/effect';
+import { Schema, brandedNonEmptyStringSchema } from '@ocentra-parent/schema-domain/effect';
 
-const NonEmptyActivityText = Schema.String.pipe(Schema.minLength(1));
-
-export const ActivityDeviceIdSchema = NonEmptyActivityText.pipe(Schema.brand('ActivityDeviceId'));
-export const ActivityEvidenceDigestSchema = NonEmptyActivityText.pipe(Schema.brand('ActivityEvidenceDigest'));
-export const ActivityEvidenceIdSchema = NonEmptyActivityText.pipe(Schema.brand('ActivityEvidenceId'));
-export const ActivityEvidenceUriSchema = NonEmptyActivityText.pipe(Schema.brand('ActivityEvidenceUri'));
-export const ActivityEventIdSchema = NonEmptyActivityText.pipe(Schema.brand('ActivityEventId'));
-export const ActivityPlatformSchema = NonEmptyActivityText.pipe(Schema.brand('ActivityPlatform'));
-export const ActivitySourceIdSchema = NonEmptyActivityText.pipe(Schema.brand('ActivitySourceId'));
-export const ActivitySubjectIdSchema = NonEmptyActivityText.pipe(Schema.brand('ActivitySubjectId'));
-export const ActivitySubjectNameSchema = NonEmptyActivityText.pipe(Schema.brand('ActivitySubjectName'));
-export const ActivityTimestampSchema = NonEmptyActivityText.pipe(Schema.brand('ActivityTimestamp'));
+export const ActivityDeviceIdSchema = brandedNonEmptyStringSchema('ActivityDeviceId');
+export const ActivityEvidenceDigestSchema = brandedNonEmptyStringSchema('ActivityEvidenceDigest');
+export const ActivityEvidenceIdSchema = brandedNonEmptyStringSchema('ActivityEvidenceId');
+export const ActivityEvidenceUriSchema = brandedNonEmptyStringSchema('ActivityEvidenceUri');
+export const ActivityEventIdSchema = brandedNonEmptyStringSchema('ActivityEventId');
+export const ActivityPlatformSchema = brandedNonEmptyStringSchema('ActivityPlatform');
+export const ActivitySourceIdSchema = brandedNonEmptyStringSchema('ActivitySourceId');
+export const ActivitySubjectIdSchema = brandedNonEmptyStringSchema('ActivitySubjectId');
+export const ActivitySubjectNameSchema = brandedNonEmptyStringSchema('ActivitySubjectName');
+export const ActivityTimestampSchema = brandedNonEmptyStringSchema('ActivityTimestamp');
 
 export type ActivityDeviceId = typeof ActivityDeviceIdSchema.Type;
 export type ActivityEvidenceDigest = typeof ActivityEvidenceDigestSchema.Type;

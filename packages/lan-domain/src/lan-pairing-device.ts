@@ -1,4 +1,9 @@
-import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
+import {
+  type Infer,
+  Schema,
+  withParser,
+  NonEmptyStringSchema
+} from '@ocentra-parent/schema-domain/effect';
 import { ParentDeviceIdSchema } from '@ocentra-parent/family-domain/reference-primitives';
 import { ChildProfileReferenceSchema, ParentDeviceReferenceSchema } from '@ocentra-parent/family-domain/references';
 import {
@@ -157,7 +162,7 @@ export const LanBrowserAddDevicePairingRequestSchema = withParser(
 export const LanBrowserAddDeviceScanSummarySchema = withParser(
   Schema.Struct({
     schemaVersion: LanPairingSchemaVersionSchema,
-    sourceLabels: Schema.Array(Schema.String.pipe(Schema.minLength(1))),
+    sourceLabels: Schema.Array(NonEmptyStringSchema),
     scannedDeviceCount: Schema.Number,
     agentDeviceCount: Schema.Number,
     passiveDeviceCount: Schema.Number,
@@ -215,9 +220,9 @@ export const LanBrowserAddDeviceReadModelSchema = withParser(
     selectedDeviceReadiness: LanSelectedDeviceReadinessSchema,
     controllerAuthority: LanPairingParentAuthoritySchema,
     observerAuthority: LanPairingParentAuthoritySchema,
-    routeRequirementLabels: Schema.Array(Schema.String.pipe(Schema.minLength(1))),
-    auditCheckLabels: Schema.Array(Schema.String.pipe(Schema.minLength(1))),
-    honestNonClaims: Schema.Array(Schema.String.pipe(Schema.minLength(1))),
+    routeRequirementLabels: Schema.Array(NonEmptyStringSchema),
+    auditCheckLabels: Schema.Array(NonEmptyStringSchema),
+    honestNonClaims: Schema.Array(NonEmptyStringSchema),
   })
 );
 
@@ -233,3 +238,4 @@ export type LanBrowserAddDevicePairingRequest = Infer<typeof LanBrowserAddDevice
 export type LanBrowserAddDeviceScanSummary = Infer<typeof LanBrowserAddDeviceScanSummarySchema>;
 export type LanSelectedDeviceReadiness = Infer<typeof LanSelectedDeviceReadinessSchema>;
 export type LanBrowserAddDeviceReadModel = Infer<typeof LanBrowserAddDeviceReadModelSchema>;
+

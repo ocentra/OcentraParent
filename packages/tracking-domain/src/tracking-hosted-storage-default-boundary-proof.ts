@@ -1,17 +1,17 @@
-import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
+import {
+  type Infer,
+  Schema,
+  withParser,
+  brandedNonEmptyStringSchema
+} from '@ocentra-parent/schema-domain/effect';
+import { AgentTrackingRetentionSettingsWriteDefaults } from '@ocentra-parent/agent-protocol-domain/tracking-retention-settings-write-command';
 import { ParentTimestampSchema } from '@ocentra-parent/family-domain/reference-primitives';
 import { TrackingEvidenceTraceSchema, TrackingPolicySchemaVersion } from './tracking-location-policy';
 import { TrackingPolicyAuditRefSchema, TrackingPolicyReasonCodeSchema } from './tracking-location-policy-primitives';
 
-const TrackingHostedStorageDefaultTextSchema = Schema.String.pipe(Schema.minLength(1));
+export const TrackingHostedStorageDefaultRowIdSchema = brandedNonEmptyStringSchema('TrackingHostedStorageDefaultRowId');
 
-export const TrackingHostedStorageDefaultRowIdSchema = TrackingHostedStorageDefaultTextSchema.pipe(
-  Schema.brand('TrackingHostedStorageDefaultRowId')
-);
-
-export const TrackingHostedStorageDefaultProofRefSchema = TrackingHostedStorageDefaultTextSchema.pipe(
-  Schema.brand('TrackingHostedStorageDefaultProofRef')
-);
+export const TrackingHostedStorageDefaultProofRefSchema = brandedNonEmptyStringSchema('TrackingHostedStorageDefaultProofRef');
 
 export const TrackingHostedStorageDefaultKindSchema = withParser(
   Schema.Literal(
@@ -270,7 +270,7 @@ function row(input: {
     ],
     retentionProofRefs: [
       'output/tracking-plan-proof/07-retention-and-custody-model/14-retention-delete-proof.json',
-      'output/tracking-plan-proof/32-journal-sqlite-and-read-model-proof/24-retention-settings-read-model-proof.json',
+      AgentTrackingRetentionSettingsWriteDefaults.ReadModelProofRefs[1],
     ],
     aiConsumerProofRefs: [...(input.aiConsumerProofRefs ?? [])],
     evidenceReferences: [evidence(input.evidenceId, input.evidenceKind, input.generatedAt)],
@@ -309,3 +309,4 @@ function evidence(
     observedAt,
   });
 }
+

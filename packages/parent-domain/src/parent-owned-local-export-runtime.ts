@@ -1,10 +1,15 @@
-import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
+import {
+  type Infer,
+  Schema,
+  withParser,
+  brandedNonEmptyStringSchema
+} from '@ocentra-parent/schema-domain/effect';
 import {
   ParentOwnedSyncExportDataClassSchema,
   type ParentOwnedSyncExportDataClass,
   ParentOwnedSyncExportDestinationOwnershipSchema,
   ParentOwnedSyncExportFormatSchema,
-} from './parent-owned-sync-export';
+} from '@ocentra-parent/production-domain/parent-owned-sync-export';
 import {
   ParentOwnedLocalExportRuntimeKnownGaps,
   RequiredParentOwnedLocalExportRuntimeNonClaims,
@@ -16,11 +21,9 @@ import {
   ParentDeviceReferenceSchema,
   ParentEvidenceReferenceSchema,
 } from './references';
-import { ParentTimestampSchema } from './reference-primitives';
+import { ParentTimestampSchema } from '@ocentra-parent/family-domain/reference-primitives';
 
 export { ParentOwnedLocalExportRuntimeKnownGaps };
-
-const NonEmptyLocalExportRuntimeText = Schema.String.pipe(Schema.minLength(1));
 
 export const ParentOwnedLocalExportRuntimeSchemaVersionSchema = withParser(
   Schema.Literal('parent-owned-local-export-runtime-proof')
@@ -39,27 +42,13 @@ export const ParentOwnedLocalExportRuntimeAuditStateSchema = withParser(
   Schema.Literal('audit-recorded', 'audit-pending', 'manual-audit-required')
 );
 
-const ParentOwnedLocalExportRuntimeJobIdSchema = NonEmptyLocalExportRuntimeText.pipe(
-  Schema.brand('ParentOwnedLocalExportRuntimeJobId')
-);
-const ParentOwnedLocalExportRuntimeBundleRefSchema = NonEmptyLocalExportRuntimeText.pipe(
-  Schema.brand('ParentOwnedLocalExportRuntimeBundleRef')
-);
-const ParentOwnedLocalExportRuntimeOutputRefSchema = NonEmptyLocalExportRuntimeText.pipe(
-  Schema.brand('ParentOwnedLocalExportRuntimeOutputRef')
-);
-const ParentOwnedLocalExportRuntimeDeleteRequestRefSchema = NonEmptyLocalExportRuntimeText.pipe(
-  Schema.brand('ParentOwnedLocalExportRuntimeDeleteRequestRef')
-);
-const ParentOwnedLocalExportRuntimePolicyRefSchema = NonEmptyLocalExportRuntimeText.pipe(
-  Schema.brand('ParentOwnedLocalExportRuntimePolicyRef')
-);
-const ParentOwnedLocalExportRuntimeQueueRefSchema = NonEmptyLocalExportRuntimeText.pipe(
-  Schema.brand('ParentOwnedLocalExportRuntimeQueueRef')
-);
-const ParentOwnedLocalExportRuntimeStorageRefSchema = NonEmptyLocalExportRuntimeText.pipe(
-  Schema.brand('ParentOwnedLocalExportRuntimeStorageRef')
-);
+const ParentOwnedLocalExportRuntimeJobIdSchema = brandedNonEmptyStringSchema('ParentOwnedLocalExportRuntimeJobId');
+const ParentOwnedLocalExportRuntimeBundleRefSchema = brandedNonEmptyStringSchema('ParentOwnedLocalExportRuntimeBundleRef');
+const ParentOwnedLocalExportRuntimeOutputRefSchema = brandedNonEmptyStringSchema('ParentOwnedLocalExportRuntimeOutputRef');
+const ParentOwnedLocalExportRuntimeDeleteRequestRefSchema = brandedNonEmptyStringSchema('ParentOwnedLocalExportRuntimeDeleteRequestRef');
+const ParentOwnedLocalExportRuntimePolicyRefSchema = brandedNonEmptyStringSchema('ParentOwnedLocalExportRuntimePolicyRef');
+const ParentOwnedLocalExportRuntimeQueueRefSchema = brandedNonEmptyStringSchema('ParentOwnedLocalExportRuntimeQueueRef');
+const ParentOwnedLocalExportRuntimeStorageRefSchema = brandedNonEmptyStringSchema('ParentOwnedLocalExportRuntimeStorageRef');
 
 const RequiredStates = RequiredParentOwnedLocalExportRuntimeStates;
 const RuntimeClaimFlags = [
@@ -432,3 +421,4 @@ function countBy<const T extends string>(values: ReadonlyArray<T>, keys: readonl
     number
   >;
 }
+

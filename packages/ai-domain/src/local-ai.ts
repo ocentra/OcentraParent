@@ -1,5 +1,5 @@
 import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
-import { PolicyActionSchema, PolicyReasonCodeSchema, PolicyRuleIdSchema } from './policy';
+import { PolicyActionSchema, PolicyReasonCodeSchema, PolicyRuleIdSchema } from '@ocentra-parent/policy-domain/policy';
 import { ChildProfileReferenceSchema, ParentDeviceReferenceSchema, ParentEvidenceReferenceSchema } from '@ocentra-parent/family-domain/references';
 import { ParentContractSchemaVersionSchema } from '@ocentra-parent/family-domain/reference-primitives';
 import {
@@ -17,7 +17,7 @@ import {
   LocalAiMemoryReferenceSchema,
   LocalAiObservationReferenceSchema,
 } from './local-ai-references';
-import { LocalAiModelRequestMetadataSchema, LocalModelRuntimeStatusSchema } from './local-ai-runtime';
+import { LocalAiModelRequestMetadataSchema, LocalModelRuntimeStatusSchema } from '@ocentra-parent/ai-domain/local-ai-runtime';
 
 export const LocalAiEvaluationInputSchema = withParser(
   Schema.Struct({

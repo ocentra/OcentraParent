@@ -17,7 +17,7 @@ async function main() {
   await mkdir(proofDir, { recursive: true });
 
   runNpm(['run', 'build:contracts']);
-  runNpm(['run', 'test', '--workspace', '@ocentra-parent/activity-domain', '--', 'app-game-foreground.test.ts']);
+  runNpm(['run', 'test', '--workspace', '@ocentra-parent/app-game-domain', '--', 'app-game-foreground.test.ts']);
   runNpm([
     'run',
     'test',
@@ -141,9 +141,9 @@ async function main() {
     gateState: 'prevented-by-foreground-contract-and-portal-display-boundary',
     evidence: {
       foregroundContract:
-        'packages/activity-domain/src/app-game-foreground.ts restricts contentKnowledgeState to notClaimed and keeps window title data behind refs/capture state.',
+        'packages/app-game-domain/src/app-game-foreground.ts restricts contentKnowledgeState to notClaimed and keeps window title data behind refs/capture state.',
       foregroundTest:
-        'packages/activity-domain/tests/app-game-foreground.test.ts proves notClaimed content knowledge and rejects a content-knowledge promotion value.',
+        'packages/app-game-domain/tests/unit/app-game-foreground.test.ts proves notClaimed content knowledge and rejects a content-knowledge promotion value.',
       portalIntent:
         'vendor/ocentra-parent-core-ui/AppPages/ParentPortal/app-game-dashboard-intent.ts renders foreground source rows as counts, capability state, timestamps, and evidence refs.',
       portalSurface:

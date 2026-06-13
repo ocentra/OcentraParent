@@ -12,3 +12,6 @@ path = "src/lib.rs"
 
 [dependencies]
 ocentra-parent-agent-protocol = { path = "../agent-protocol" }
+
+[dev-dependencies]
+ocentra-evidence = { path = "../ocentra-evidence" }

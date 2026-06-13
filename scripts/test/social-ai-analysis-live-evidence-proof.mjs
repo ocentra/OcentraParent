@@ -5,8 +5,8 @@ import { fileURLToPath } from 'node:url';
 import {
   BrowserSocialAiAnalysisInputSchema,
   BrowserSocialAiAnalysisResultSchema,
-} from '../../packages/activity-domain/dist/browser-social-ai-analysis-schemas.js';
-import { buildBrowserSocialAiAnalysisResult } from '../../packages/activity-domain/dist/browser-social-ai-analysis-result-builder.js';
+} from '../../packages/browser-domain/dist/browser-social-ai-analysis-schemas.js';
+import { buildBrowserSocialAiAnalysisResult } from '../../packages/browser-domain/dist/browser-social-ai-analysis-result-builder.js';
 
 const scriptDir = dirname(fileURLToPath(import.meta.url));
 const repoRoot = join(scriptDir, '..', '..');
@@ -18,14 +18,14 @@ const observedAt = new Date().toISOString();
 const expiresAt = new Date(Date.parse(observedAt) + 60 * 60 * 1000).toISOString();
 
 const sourceFiles = [
-  'packages/activity-domain/src/browser-social-ai-analysis-values.ts',
-  'packages/activity-domain/src/browser-social-ai-analysis-schemas.ts',
-  'packages/activity-domain/src/browser-social-ai-analysis-result-builder.ts',
+  'packages/browser-domain/src/browser-social-ai-analysis-values.ts',
+  'packages/browser-domain/src/browser-social-ai-analysis-schemas.ts',
+  'packages/browser-domain/src/browser-social-ai-analysis-result-builder.ts',
 ];
 const builtFiles = [
-  'packages/activity-domain/dist/browser-social-ai-analysis-values.js',
-  'packages/activity-domain/dist/browser-social-ai-analysis-schemas.js',
-  'packages/activity-domain/dist/browser-social-ai-analysis-result-builder.js',
+  'packages/browser-domain/dist/browser-social-ai-analysis-values.js',
+  'packages/browser-domain/dist/browser-social-ai-analysis-schemas.js',
+  'packages/browser-domain/dist/browser-social-ai-analysis-result-builder.js',
 ];
 
 assertBuiltContractsAreFresh();

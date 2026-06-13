@@ -2,88 +2,203 @@ use ocentra_eventing::{
     AggregateKey, DomainEvent, EventContract, EventType, EventingError, IdempotencyKey,
     SchemaVersion,
 };
+use ocentra_evidence::PrivatePayloadState;
 use serde::{Deserialize, Serialize};
 
 use crate::{constants, AGENT_PROTOCOL_SCHEMA_VERSION};
+use super::{
+    TrackingAcknowledgementId, TrackingAcknowledgementState, TrackingAiPurpose,
+    TrackingAiRequestId, TrackingAlertEvaluationId, TrackingAlertSeverity, TrackingCheckInId,
+    TrackingCheckInState, TrackingChildDeviceId, TrackingChildProfileId, TrackingConfidenceBasis,
+    TrackingEvaluationId, TrackingEvidenceRef, TrackingExpectedPlaceRef,
+    TrackingExpectedPlaceState, TrackingGeofenceRuleRef, TrackingLocationRelation,
+    TrackingMissingDeviceEvaluationId, TrackingMissingDeviceState,
+    TrackingNearbyPlaceAmbiguityState, TrackingNearbyPlaceProviderState,
+    TrackingNearbyPlaceRequestId, TrackingNotificationChannel, TrackingNotificationId,
+    TrackingObservationId, TrackingParentDefinedPlaceId, TrackingParentDefinedPlaceState,
+    TrackingPlaceCategory, TrackingPolicyRuleRef, TrackingPolicySeverity,
+    TrackingPolicyViolationId, TrackingTemporaryLiveSessionId, TrackingTemporaryLiveState,
+    TrackingTimestamp, TrackingTransitionId, TrackingTransitionKind, TrackingUncertaintyCode,
+};
+
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+pub enum TrackingRuntimeMode {
+    #[serde(rename = "observe-only")]
+    ObserveOnly,
+    #[serde(rename = "policy-eligible")]
+    PolicyEligible,
+}
+
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+pub enum TrackingRuntimeEnabledState {
+    #[serde(rename = "enabled")]
+    Enabled,
+    #[serde(rename = "disabled")]
+    Disabled,
+}
+
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+pub enum TrackingAiBoundaryMode {
+    #[serde(rename = "request-when-uncertain")]
+    RequestWhenUncertain,
+    #[serde(rename = "disabled")]
+    Disabled,
+}
+
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+pub enum TrackingNotificationMode {
+    #[serde(rename = "portal-only")]
+    ParentPortalOnly,
+    #[serde(rename = "disabled")]
+    Disabled,
+}
+
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+pub enum TrackingAiAnalysisRequirement {
+    #[serde(rename = "required")]
+    Required,
+    #[serde(rename = "not-required")]
+    NotRequired,
+}
+
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+pub enum TrackingParentActionRequirement {
+    #[serde(rename = "required")]
+    Required,
+    #[serde(rename = "not-required")]
+    NotRequired,
+}
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct TrackingRuntimeConfig {
-    pub tracking_enabled: bool,
-    pub tracking_mode: String,
-    pub ai_boundary_mode: String,
-    pub notification_mode: String,
+    pub tracking_enabled_state: TrackingRuntimeEnabledState,
+    pub tracking_mode: TrackingRuntimeMode,
+    pub ai_boundary_mode: TrackingAiBoundaryMode,
+    pub notification_mode: TrackingNotificationMode,
 }
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct TrackingLocationObservedEvent {
-    pub child_device_id: String,
-    pub child_profile_id: String,
-    pub observation_id: String,
-    pub observed_at: String,
+    pub child_device_id: TrackingChildDeviceId,
+    pub child_profile_id: TrackingChildProfileId,
+    pub observation_id: TrackingObservationId,
+    pub observed_at: TrackingTimestamp,
     pub latitude_e7: i32,
     pub longitude_e7: i32,
     pub horizontal_accuracy_meters: u16,
-    pub expected_place_ref: String,
+    pub expected_place_ref: TrackingExpectedPlaceRef,
     pub config: TrackingRuntimeConfig,
 }
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct TrackingEvidenceRecordedEvent {
-    pub child_device_id: String,
-    pub child_profile_id: String,
-    pub evidence_ref: String,
-    pub source_observation_id: String,
-    pub location_relation: String,
-    pub requires_ai_analysis: bool,
-    pub allowed_ai_purpose: String,
+    pub child_device_id: TrackingChildDeviceId,
+    pub child_profile_id: TrackingChildProfileId,
+    pub evidence_ref: TrackingEvidenceRef,
+    pub source_observation_id: TrackingObservationId,
+    pub location_relation: TrackingLocationRelation,
+    pub ai_analysis_requirement: TrackingAiAnalysisRequirement,
+    pub parent_action_requirement: TrackingParentActionRequirement,
+    pub allowed_ai_purpose: TrackingAiPurpose,
 }
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct TrackingAiAnalysisRequestedEvent {
-    pub child_device_id: String,
-    pub child_profile_id: String,
-    pub ai_request_id: String,
-    pub evidence_refs: Vec<String>,
-    pub uncertainty_code: String,
-    pub allowed_analysis_purpose: String,
-    pub raw_private_payload_included: bool,
+    pub child_device_id: TrackingChildDeviceId,
+    pub child_profile_id: TrackingChildProfileId,
+    pub ai_request_id: TrackingAiRequestId,
+    pub evidence_refs: Vec<TrackingEvidenceRef>,
+    pub uncertainty_code: TrackingUncertaintyCode,
+    pub allowed_analysis_purpose: TrackingAiPurpose,
+    pub parent_action_requirement: TrackingParentActionRequirement,
+    pub private_payload_state: PrivatePayloadState,
 }
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct TrackingNearbyPlaceClassifiedEvent {
-    pub child_device_id: String,
-    pub child_profile_id: String,
-    pub source_ai_request_id: String,
-    pub evidence_refs: Vec<String>,
-    pub place_category: String,
-    pub confidence_basis: String,
+    pub child_device_id: TrackingChildDeviceId,
+    pub child_profile_id: TrackingChildProfileId,
+    pub source_ai_request_id: TrackingAiRequestId,
+    pub evidence_refs: Vec<TrackingEvidenceRef>,
+    pub place_category: TrackingPlaceCategory,
+    pub confidence_basis: TrackingConfidenceBasis,
+    pub parent_action_requirement: TrackingParentActionRequirement,
+}
+
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct TrackingGeofenceTransitionDetectedEvent {
+    pub child_device_id: TrackingChildDeviceId,
+    pub child_profile_id: TrackingChildProfileId,
+    pub transition_id: TrackingTransitionId,
+    pub geofence_rule_ref: TrackingGeofenceRuleRef,
+    pub source_observation_id: TrackingObservationId,
+    pub transition_kind: TrackingTransitionKind,
+    pub evidence_refs: Vec<TrackingEvidenceRef>,
+}
+
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct TrackingExpectedPlaceStateEvaluatedEvent {
+    pub child_device_id: TrackingChildDeviceId,
+    pub child_profile_id: TrackingChildProfileId,
+    pub evaluation_id: TrackingEvaluationId,
+    pub expected_place_ref: TrackingExpectedPlaceRef,
+    pub source_observation_id: TrackingObservationId,
+    pub expected_place_state: TrackingExpectedPlaceState,
+    pub evidence_refs: Vec<TrackingEvidenceRef>,
+    pub parent_action_requirement: TrackingParentActionRequirement,
 }
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct TrackingPolicyViolationDetectedEvent {
-    pub child_device_id: String,
-    pub child_profile_id: String,
-    pub violation_id: String,
-    pub policy_rule_ref: String,
-    pub severity: String,
-    pub evidence_refs: Vec<String>,
+    pub child_device_id: TrackingChildDeviceId,
+    pub child_profile_id: TrackingChildProfileId,
+    pub violation_id: TrackingPolicyViolationId,
+    pub policy_rule_ref: TrackingPolicyRuleRef,
+    pub severity: TrackingPolicySeverity,
+    pub evidence_refs: Vec<TrackingEvidenceRef>,
+}
+
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct TrackingParentAcknowledgementRecordedEvent {
+    pub child_device_id: TrackingChildDeviceId,
+    pub child_profile_id: TrackingChildProfileId,
+    pub acknowledgement_id: TrackingAcknowledgementId,
+    pub source_policy_violation_id: TrackingPolicyViolationId,
+    pub acknowledged_at: TrackingTimestamp,
+    pub acknowledgement_state: TrackingAcknowledgementState,
+    pub evidence_refs: Vec<TrackingEvidenceRef>,
+}
+
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct TrackingChildCheckInRecordedEvent {
+    pub child_device_id: TrackingChildDeviceId,
+    pub child_profile_id: TrackingChildProfileId,
+    pub check_in_id: TrackingCheckInId,
+    pub source_observation_id: TrackingObservationId,
+    pub checked_in_at: TrackingTimestamp,
+    pub check_in_state: TrackingCheckInState,
+    pub evidence_refs: Vec<TrackingEvidenceRef>,
 }
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct ParentNotificationRequestedEvent {
-    pub child_device_id: String,
-    pub child_profile_id: String,
-    pub notification_id: String,
-    pub source_policy_violation_id: String,
-    pub channel: String,
-    pub evidence_refs: Vec<String>,
+    pub child_device_id: TrackingChildDeviceId,
+    pub child_profile_id: TrackingChildProfileId,
+    pub notification_id: TrackingNotificationId,
+    pub source_policy_violation_id: TrackingPolicyViolationId,
+    pub channel: TrackingNotificationChannel,
+    pub evidence_refs: Vec<TrackingEvidenceRef>,
 }
 
 impl DomainEvent for TrackingLocationObservedEvent {
@@ -158,6 +273,44 @@ impl DomainEvent for TrackingNearbyPlaceClassifiedEvent {
     }
 }
 
+impl DomainEvent for TrackingGeofenceTransitionDetectedEvent {
+    fn contract(&self) -> Result<EventContract, EventingError> {
+        tracking_event_contract(
+            constants::tracking_runtime::TRACKING_GEOFENCE_TRANSITION_DETECTED_EVENT_TYPE,
+        )
+    }
+
+    fn aggregate_key(&self) -> Result<AggregateKey, EventingError> {
+        tracking_child_aggregate_key(&self.child_device_id, &self.child_profile_id)
+    }
+
+    fn idempotency_key(&self) -> Result<IdempotencyKey, EventingError> {
+        tracking_idempotency_key(
+            constants::tracking_runtime::TRACKING_GEOFENCE_TRANSITION_DETECTED_EVENT_TYPE,
+            &self.transition_id,
+        )
+    }
+}
+
+impl DomainEvent for TrackingExpectedPlaceStateEvaluatedEvent {
+    fn contract(&self) -> Result<EventContract, EventingError> {
+        tracking_event_contract(
+            constants::tracking_runtime::TRACKING_EXPECTED_PLACE_STATE_EVALUATED_EVENT_TYPE,
+        )
+    }
+
+    fn aggregate_key(&self) -> Result<AggregateKey, EventingError> {
+        tracking_child_aggregate_key(&self.child_device_id, &self.child_profile_id)
+    }
+
+    fn idempotency_key(&self) -> Result<IdempotencyKey, EventingError> {
+        tracking_idempotency_key(
+            constants::tracking_runtime::TRACKING_EXPECTED_PLACE_STATE_EVALUATED_EVENT_TYPE,
+            &self.evaluation_id,
+        )
+    }
+}
+
 impl DomainEvent for TrackingPolicyViolationDetectedEvent {
     fn contract(&self) -> Result<EventContract, EventingError> {
         tracking_event_contract(
@@ -173,6 +326,42 @@ impl DomainEvent for TrackingPolicyViolationDetectedEvent {
         tracking_idempotency_key(
             constants::tracking_runtime::TRACKING_POLICY_VIOLATION_DETECTED_EVENT_TYPE,
             &self.violation_id,
+        )
+    }
+}
+
+impl DomainEvent for TrackingParentAcknowledgementRecordedEvent {
+    fn contract(&self) -> Result<EventContract, EventingError> {
+        tracking_event_contract(
+            constants::tracking_runtime::TRACKING_PARENT_ACKNOWLEDGEMENT_RECORDED_EVENT_TYPE,
+        )
+    }
+
+    fn aggregate_key(&self) -> Result<AggregateKey, EventingError> {
+        tracking_child_aggregate_key(&self.child_device_id, &self.child_profile_id)
+    }
+
+    fn idempotency_key(&self) -> Result<IdempotencyKey, EventingError> {
+        tracking_idempotency_key(
+            constants::tracking_runtime::TRACKING_PARENT_ACKNOWLEDGEMENT_RECORDED_EVENT_TYPE,
+            &self.acknowledgement_id,
+        )
+    }
+}
+
+impl DomainEvent for TrackingChildCheckInRecordedEvent {
+    fn contract(&self) -> Result<EventContract, EventingError> {
+        tracking_event_contract(constants::tracking_runtime::TRACKING_CHILD_CHECK_IN_RECORDED_EVENT_TYPE)
+    }
+
+    fn aggregate_key(&self) -> Result<AggregateKey, EventingError> {
+        tracking_child_aggregate_key(&self.child_device_id, &self.child_profile_id)
+    }
+
+    fn idempotency_key(&self) -> Result<IdempotencyKey, EventingError> {
+        tracking_idempotency_key(
+            constants::tracking_runtime::TRACKING_CHILD_CHECK_IN_RECORDED_EVENT_TYPE,
+            &self.check_in_id,
         )
     }
 }
@@ -198,17 +387,16 @@ impl DomainEvent for ParentNotificationRequestedEvent {
 
 pub fn default_tracking_runtime_config() -> TrackingRuntimeConfig {
     TrackingRuntimeConfig {
-        tracking_enabled: true,
-        tracking_mode: constants::tracking_runtime::TRACKING_MODE_OBSERVE_ONLY.to_string(),
-        ai_boundary_mode: constants::tracking_runtime::AI_BOUNDARY_MODE_REQUEST_WHEN_UNCERTAIN
-            .to_string(),
-        notification_mode: constants::tracking_runtime::NOTIFICATION_MODE_PORTAL_ONLY.to_string(),
+        tracking_enabled_state: TrackingRuntimeEnabledState::Enabled,
+        tracking_mode: TrackingRuntimeMode::ObserveOnly,
+        ai_boundary_mode: TrackingAiBoundaryMode::RequestWhenUncertain,
+        notification_mode: TrackingNotificationMode::ParentPortalOnly,
     }
 }
 
 pub fn policy_eligible_tracking_runtime_config() -> TrackingRuntimeConfig {
     TrackingRuntimeConfig {
-        tracking_mode: constants::tracking_runtime::TRACKING_MODE_POLICY_ELIGIBLE.to_string(),
+        tracking_mode: TrackingRuntimeMode::PolicyEligible,
         ..default_tracking_runtime_config()
     }
 }
@@ -221,20 +409,20 @@ fn tracking_event_contract(event_type: &str) -> Result<EventContract, EventingEr
 }
 
 fn tracking_child_aggregate_key(
-    child_device_id: &str,
-    child_profile_id: &str,
+    child_device_id: &TrackingChildDeviceId,
+    child_profile_id: &TrackingChildProfileId,
 ) -> Result<AggregateKey, EventingError> {
     AggregateKey::parse(format!(
         "{}{}{}",
-        child_device_id,
+        child_device_id.as_str(),
         constants::tracking_runtime::IDEMPOTENCY_SEPARATOR,
-        child_profile_id
+        child_profile_id.as_str()
     ))
 }
 
 fn tracking_idempotency_key(
     event_type: &str,
-    unique_ref: &str,
+    unique_ref: impl std::fmt::Display,
 ) -> Result<IdempotencyKey, EventingError> {
     IdempotencyKey::parse(format!(
         "{}{}{}",

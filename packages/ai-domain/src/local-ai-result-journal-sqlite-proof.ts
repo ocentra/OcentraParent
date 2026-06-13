@@ -1,8 +1,13 @@
-import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
-import { PolicyActionSchema, PolicyReasonCodeSchema, PolicyRuleIdSchema } from './policy';
+import {
+  type Infer,
+  Schema,
+  withParser,
+  brandedNonEmptyStringSchema
+} from '@ocentra-parent/schema-domain/effect';
+import { PolicyActionSchema, PolicyReasonCodeSchema, PolicyRuleIdSchema } from '@ocentra-parent/policy-domain/policy';
 import { ParentEvidenceReferenceSchema } from '@ocentra-parent/family-domain/references';
 import { ParentContractSchemaVersion, ParentContractSchemaVersionSchema } from '@ocentra-parent/family-domain/reference-primitives';
-import { LocalAiSafetyResultSchema, type LocalAiSafetyResult } from './local-ai';
+import { LocalAiSafetyResultSchema, type LocalAiSafetyResult } from '@ocentra-parent/ai-domain/local-ai';
 import {
   LocalAiEvaluationRequestIdSchema,
   LocalAiModelIdSchema,
@@ -12,15 +17,13 @@ import {
   LocalAiRuntimeReferenceIdSchema,
   LocalAiTimestampSchema,
 } from './local-ai-primitives';
-
-const NonEmptyJournalText = Schema.String.pipe(Schema.minLength(1));
 const LocalAiJournalCountSchema = Schema.Number.pipe(Schema.nonNegative(), Schema.int());
 
-export const LocalAiResultJournalEntryIdSchema = NonEmptyJournalText.pipe(Schema.brand('LocalAiResultJournalEntryId'));
-export const LocalAiResultSqliteRowIdSchema = NonEmptyJournalText.pipe(Schema.brand('LocalAiResultSqliteRowId'));
-export const LocalAiResultReadModelIdSchema = NonEmptyJournalText.pipe(Schema.brand('LocalAiResultReadModelId'));
-export const LocalAiResultProofRefSchema = NonEmptyJournalText.pipe(Schema.brand('LocalAiResultProofRef'));
-export const LocalAiResultNonClaimSchema = NonEmptyJournalText.pipe(Schema.brand('LocalAiResultNonClaim'));
+export const LocalAiResultJournalEntryIdSchema = brandedNonEmptyStringSchema('LocalAiResultJournalEntryId');
+export const LocalAiResultSqliteRowIdSchema = brandedNonEmptyStringSchema('LocalAiResultSqliteRowId');
+export const LocalAiResultReadModelIdSchema = brandedNonEmptyStringSchema('LocalAiResultReadModelId');
+export const LocalAiResultProofRefSchema = brandedNonEmptyStringSchema('LocalAiResultProofRef');
+export const LocalAiResultNonClaimSchema = brandedNonEmptyStringSchema('LocalAiResultNonClaim');
 
 export const LocalAiResultJournalStateSchema = withParser(
   Schema.Literal('journaled', 'manual-required', 'unavailable')
@@ -306,3 +309,4 @@ function countSqliteRows(
 ): number {
   return rows.filter((row) => row.ingestState === ingestState).length;
 }
+

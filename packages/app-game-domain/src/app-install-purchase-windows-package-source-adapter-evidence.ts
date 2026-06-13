@@ -1,4 +1,10 @@
-import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
+import {
+  type Infer,
+  Schema,
+  withParser,
+  brandedNonEmptyStringSchema,
+  NonEmptyStringSchema
+} from '@ocentra-parent/schema-domain/effect';
 import { AppInstallPurchasePlatformAdapterEvidenceGapProofReadModel } from './app-install-purchase-platform-adapter-evidence-gap-proof';
 import { AppInstallPurchasePackageSourceAdapterExecutionProofReadModel } from './app-install-purchase-package-source-adapter-execution-proof';
 import { ParentPlatformSchema, ParentTimestampSchema } from '@ocentra-parent/family-domain/reference-primitives';
@@ -7,7 +13,6 @@ const ProofVersion = 'app-install-purchase-windows-package-source-adapter-eviden
 const SourcePlatformAdapterEvidenceGapProofVersion = 'app-install-purchase-platform-adapter-evidence-gap-proof';
 const SourcePackageSourceAdapterExecutionProofVersion = 'app-install-purchase-package-source-adapter-execution-proof';
 const UpdatedAt = '2026-06-07T02:30:00.000Z';
-const Text = Schema.String.pipe(Schema.minLength(1));
 const StoreSurfaces = [
   'microsoft-store',
   'mac-app-store',
@@ -99,8 +104,8 @@ const SourceAdapterExecutionStateSchema = withParser(
   )
 );
 const NonClaimSchema = withParser(Schema.Literal(...NonClaims));
-const RefSchema = Text.pipe(Schema.brand('AppInstallPurchaseWindowsPackageSourceAdapterEvidenceRef'));
-const BoundarySchema = Text.pipe(Schema.brand('AppInstallPurchaseWindowsPackageSourceAdapterEvidenceBoundary'));
+const RefSchema = brandedNonEmptyStringSchema('AppInstallPurchaseWindowsPackageSourceAdapterEvidenceRef');
+const BoundarySchema = brandedNonEmptyStringSchema('AppInstallPurchaseWindowsPackageSourceAdapterEvidenceBoundary');
 const NotExecutedSchema = withParser(Schema.Literal('not-executed'));
 const NotClaimedSchema = withParser(Schema.Literal('not-claimed'));
 const NotImplementedSchema = withParser(Schema.Literal('not-implemented'));
@@ -108,11 +113,11 @@ const NotDeliveredSchema = withParser(Schema.Literal('not-delivered'));
 const CustodySchema = withParser(Schema.Literal('no-child-activity-data'));
 const HostEvidenceArtifactSchema = Schema.Struct({
   artifactRef: RefSchema,
-  hostPlatform: Text,
-  commandName: Text,
+  hostPlatform: NonEmptyStringSchema,
+  commandName: NonEmptyStringSchema,
   commandAvailable: Schema.Boolean,
   commandExitCode: Schema.Number,
-  evidenceSummary: Text,
+  evidenceSummary: NonEmptyStringSchema,
   collectedAt: ParentTimestampSchema,
 });
 const HostEvidenceArtifactParser = withParser(HostEvidenceArtifactSchema);
@@ -738,3 +743,4 @@ function windowsPackageSourceRuntimeHandoffProofIsHonest(
 function uniqueRefs(refs: readonly string[]) {
   return Array.from(new Set(refs));
 }
+

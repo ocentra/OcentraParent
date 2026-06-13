@@ -22,7 +22,7 @@ async function main() {
 
   await runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/parent-domain']));
   await runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/text-domain']));
-  await runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/activity-domain']));
+  await runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/app-game-domain']));
   await runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/agent-protocol-domain']));
   await runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/portal-domain']));
   await runCommand(

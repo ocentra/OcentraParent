@@ -1,8 +1,7 @@
-import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
+import { type Infer, NonEmptyStringSchema, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
 import { AgentEvent, isAgentProtocolLogText, type AgentEventEnvelope } from './contracts';
 import { AgentProtocolDefaults } from './defaults';
 
-const LinuxNftablesText = Schema.String.pipe(Schema.minLength(1));
 const LinuxNftablesCount = Schema.Number.pipe(Schema.nonNegative(), Schema.int());
 const LinuxNftablesRefs = AgentProtocolDefaults.NetworkLinuxNftablesLabStatus;
 
@@ -23,26 +22,26 @@ export const AgentNetworkLinuxNftablesLabCommandKindSchema = withParser(
 
 const AgentNetworkLinuxNftablesLabCommandRowSchema = Schema.Struct({
   kind: AgentNetworkLinuxNftablesLabCommandKindSchema,
-  commandRef: LinuxNftablesText,
+  commandRef: NonEmptyStringSchema,
   exitStatus: Schema.Number.pipe(Schema.int()),
-  outputSha256: LinuxNftablesText,
+  outputSha256: NonEmptyStringSchema,
   tablePresentAfterCommand: Schema.Boolean,
   chainPresentAfterCommand: Schema.Boolean,
   rulePresentAfterCommand: Schema.Boolean,
 });
 
 const AgentNetworkLinuxNftablesLabStatusFields = Schema.Struct({
-  statusRef: LinuxNftablesText,
-  labRef: LinuxNftablesText,
-  linuxAdapterGateRef: LinuxNftablesText,
-  policyDecisionRef: LinuxNftablesText,
-  parentRuleRef: LinuxNftablesText,
-  evidenceRefs: Schema.Array(LinuxNftablesText),
-  distroRef: LinuxNftablesText,
-  kernelRef: LinuxNftablesText,
-  tableName: LinuxNftablesText,
-  chainName: LinuxNftablesText,
-  targetRemoteAddress: LinuxNftablesText,
+  statusRef: NonEmptyStringSchema,
+  labRef: NonEmptyStringSchema,
+  linuxAdapterGateRef: NonEmptyStringSchema,
+  policyDecisionRef: NonEmptyStringSchema,
+  parentRuleRef: NonEmptyStringSchema,
+  evidenceRefs: Schema.Array(NonEmptyStringSchema),
+  distroRef: NonEmptyStringSchema,
+  kernelRef: NonEmptyStringSchema,
+  tableName: NonEmptyStringSchema,
+  chainName: NonEmptyStringSchema,
+  targetRemoteAddress: NonEmptyStringSchema,
   state: AgentNetworkLinuxNftablesLabStateSchema,
   wslHostObserved: Schema.Boolean,
   rootPermissionObserved: Schema.Boolean,
@@ -80,7 +79,8 @@ export const AgentNetworkLinuxNftablesLabStatusSchema = withParser(
           executionShapeMatches(status) &&
           commandCountsMatch(status) &&
           commandEvidenceMatches(status)) ||
-        'Network Linux nftables lab status must preserve the bounded lab refs, six command rows, rollback verification, and no production/content/enforcement claims'
+        'Network Linux nftables lab status must preserve the bounded lab refs, six command rows, ' +
+          'rollback verification, and no production/content/enforcement claims'
     )
   )
 );

@@ -1,4 +1,9 @@
-import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
+import {
+  type Infer,
+  Schema,
+  withParser,
+  brandedNonEmptyStringSchema
+} from '@ocentra-parent/schema-domain/effect';
 import { LanBrowserAddDeviceReadModelSchema, type LanBrowserAddDeviceReadModel } from '@ocentra-parent/lan-domain/lan-pairing-device';
 import {
   type LanPairingProductionDiscoveryStateSchema,
@@ -7,8 +12,6 @@ import {
 } from '@ocentra-parent/lan-domain/lan-pairing-values';
 import { ParentTimestampSchema } from '@ocentra-parent/family-domain/reference-primitives';
 import { V09RuntimeProofStateSchema } from './v0-9-mobile-controller-discovery-runtime';
-
-const NonEmptyV09HouseholdLanPairingProofText = Schema.String.pipe(Schema.minLength(1));
 
 export const V09HouseholdLanPairingProofIdSchema = withParser(Schema.Literal('v0-9-household-lan-pairing-proof'));
 
@@ -64,18 +67,10 @@ const V09HouseholdLanPairingReadinessDecisionSchema = withParser(
   Schema.Literal('manual-physical-household-gate-required')
 );
 
-const V09HouseholdLanPairingProofPathSchema = NonEmptyV09HouseholdLanPairingProofText.pipe(
-  Schema.brand('V09HouseholdLanPairingProofPath')
-);
-const V09HouseholdLanPairingProofCommandSchema = NonEmptyV09HouseholdLanPairingProofText.pipe(
-  Schema.brand('V09HouseholdLanPairingProofCommand')
-);
-const V09HouseholdLanPairingProofLabelSchema = NonEmptyV09HouseholdLanPairingProofText.pipe(
-  Schema.brand('V09HouseholdLanPairingProofLabel')
-);
-const V09HouseholdLanPairingClaimBoundarySchema = NonEmptyV09HouseholdLanPairingProofText.pipe(
-  Schema.brand('V09HouseholdLanPairingClaimBoundary')
-);
+const V09HouseholdLanPairingProofPathSchema = brandedNonEmptyStringSchema('V09HouseholdLanPairingProofPath');
+const V09HouseholdLanPairingProofCommandSchema = brandedNonEmptyStringSchema('V09HouseholdLanPairingProofCommand');
+const V09HouseholdLanPairingProofLabelSchema = brandedNonEmptyStringSchema('V09HouseholdLanPairingProofLabel');
+const V09HouseholdLanPairingClaimBoundarySchema = brandedNonEmptyStringSchema('V09HouseholdLanPairingClaimBoundary');
 
 const V09HouseholdLanPairingSourceProofInputSchema = withParser(
   Schema.Struct({
@@ -336,3 +331,4 @@ export type V09HouseholdLanPairingRouteSecurityEvidence = Infer<
 export type V09HouseholdLanPairingManualGateEvidence = Infer<typeof V09HouseholdLanPairingManualGateEvidenceSchema>;
 export type V09HouseholdLanPairingBoundarySummary = Infer<typeof V09HouseholdLanPairingBoundarySummarySchema>;
 export type V09HouseholdLanPairingProofReadModel = Infer<typeof V09HouseholdLanPairingProofReadModelSchema>;
+

@@ -2,12 +2,12 @@ import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { execFileSync } from 'node:child_process';
 import { dirname, join, relative } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { parseBrowserUrlShape } from '../../packages/activity-domain/dist/browser-url-intelligence.js';
-import { BrowserSocialRouteEvidenceSchema } from '../../packages/activity-domain/dist/browser-social-platform-route-schemas.js';
+import { parseBrowserUrlShape } from '../../packages/browser-domain/dist/browser-url-intelligence.js';
+import { BrowserSocialRouteEvidenceSchema } from '../../packages/browser-domain/dist/browser-social-platform-route-schemas.js';
 import {
   buildBrowserSocialRouteEvidenceFromUrlPattern,
   matchBrowserSocialUrlPattern,
-} from '../../packages/activity-domain/dist/browser-social-url-patterns.js';
+} from '../../packages/browser-domain/dist/browser-social-url-patterns.js';
 
 const scriptDir = dirname(fileURLToPath(import.meta.url));
 const repoRoot = join(scriptDir, '..', '..');

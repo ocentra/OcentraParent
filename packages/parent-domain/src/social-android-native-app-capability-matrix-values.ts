@@ -1,1 +1,1 @@
-export * from '@ocentra-parent/social-domain/social-android-native-app-capability-matrix-values';
+export * from '@ocentra-parent/browser-domain/social-android-native-app-capability-matrix-values';

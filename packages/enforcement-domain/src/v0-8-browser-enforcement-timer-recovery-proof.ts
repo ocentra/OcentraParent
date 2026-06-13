@@ -1,33 +1,24 @@
-import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
+import {
+  type Infer,
+  Schema,
+  withParser,
+  brandedNonEmptyStringSchema
+} from '@ocentra-parent/schema-domain/effect';
 import {
   ParentControlCapabilityName,
   ParentControlCapabilityNameSchema,
   ParentControlCapabilityStatus,
   ParentControlCapabilityStatusSchema,
   ParentControlPlatformSchema,
-} from './capabilities';
+} from '@ocentra-parent/capability-domain/capabilities';
 import { ParentContractSchemaVersionSchema, ParentTimestampSchema } from '@ocentra-parent/family-domain/reference-primitives';
 
-const NonEmptyProofText = Schema.String.pipe(Schema.minLength(1));
-
-export const V08BrowserEnforcementTimerRecoveryProofReadModelIdSchema = NonEmptyProofText.pipe(
-  Schema.brand('V08BrowserEnforcementTimerRecoveryProofReadModelId')
-);
-export const V08BrowserEnforcementTimerRecoveryProofEntryIdSchema = NonEmptyProofText.pipe(
-  Schema.brand('V08BrowserEnforcementTimerRecoveryProofEntryId')
-);
-export const V08BrowserEnforcementTimerRecoveryProofReferenceSchema = NonEmptyProofText.pipe(
-  Schema.brand('V08BrowserEnforcementTimerRecoveryProofReference')
-);
-export const V08BrowserEnforcementTimerRecoveryProofRequirementSchema = NonEmptyProofText.pipe(
-  Schema.brand('V08BrowserEnforcementTimerRecoveryProofRequirement')
-);
-export const V08BrowserEnforcementTimerRecoveryProofBoundarySchema = NonEmptyProofText.pipe(
-  Schema.brand('V08BrowserEnforcementTimerRecoveryProofBoundary')
-);
-export const V08BrowserEnforcementTimerRecoveryProofFallbackSchema = NonEmptyProofText.pipe(
-  Schema.brand('V08BrowserEnforcementTimerRecoveryProofFallback')
-);
+export const V08BrowserEnforcementTimerRecoveryProofReadModelIdSchema = brandedNonEmptyStringSchema('V08BrowserEnforcementTimerRecoveryProofReadModelId');
+export const V08BrowserEnforcementTimerRecoveryProofEntryIdSchema = brandedNonEmptyStringSchema('V08BrowserEnforcementTimerRecoveryProofEntryId');
+export const V08BrowserEnforcementTimerRecoveryProofReferenceSchema = brandedNonEmptyStringSchema('V08BrowserEnforcementTimerRecoveryProofReference');
+export const V08BrowserEnforcementTimerRecoveryProofRequirementSchema = brandedNonEmptyStringSchema('V08BrowserEnforcementTimerRecoveryProofRequirement');
+export const V08BrowserEnforcementTimerRecoveryProofBoundarySchema = brandedNonEmptyStringSchema('V08BrowserEnforcementTimerRecoveryProofBoundary');
+export const V08BrowserEnforcementTimerRecoveryProofFallbackSchema = brandedNonEmptyStringSchema('V08BrowserEnforcementTimerRecoveryProofFallback');
 
 export const V08TimerRecoverySurfaceSchema = withParser(
   Schema.Literal(
@@ -618,3 +609,4 @@ export const decodeV08UnmanagedBrowserFallbackProofEntry = Schema.decodeUnknownS
 export const decodeV08BrowserEnforcementTimerRecoveryProofReadModel = Schema.decodeUnknownSync(
   V08BrowserEnforcementTimerRecoveryProofReadModelSchema
 );
+

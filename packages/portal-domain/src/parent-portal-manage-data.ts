@@ -1,6 +1,6 @@
 import type { ParentPortalContent, ParentPortalRow } from './parent-portal-data';
 import { PARENT_PORTAL_NAV_LABELS } from './parent-portal-nav';
-import { PortalRoute } from './routes';
+import { PortalRoute, portalRouteHashPath } from './routes';
 
 export const PARENT_PORTAL_MANAGE_ROWS: ParentPortalRow[] = [
   {
@@ -305,7 +305,7 @@ export const PARENT_PORTAL_MANAGE_QUICK_CONTROLS: ParentPortalContent['quickCont
     category: 'Browser',
     subcategory: 'Per-device browser choices',
     controlCode: 1,
-    routePath: '#/browser-settings',
+    routePath: portalRouteHashPath(PortalRoute.BrowserSettings),
   },
   {
     id: 'policy-apps',
@@ -316,7 +316,7 @@ export const PARENT_PORTAL_MANAGE_QUICK_CONTROLS: ParentPortalContent['quickCont
     category: 'Policy',
     subcategory: 'Installed apps',
     controlCode: 3,
-    routePath: '#/policy-apps',
+    routePath: portalRouteHashPath(PortalRoute.PolicyApps),
   },
   {
     id: 'policy-games',
@@ -327,7 +327,7 @@ export const PARENT_PORTAL_MANAGE_QUICK_CONTROLS: ParentPortalContent['quickCont
     category: 'Policy',
     subcategory: 'Games and entertainment',
     controlCode: 3,
-    routePath: '#/policy-games',
+    routePath: portalRouteHashPath(PortalRoute.PolicyGames),
   },
   {
     id: 'policy-tracking',
@@ -338,7 +338,7 @@ export const PARENT_PORTAL_MANAGE_QUICK_CONTROLS: ParentPortalContent['quickCont
     category: 'Policy',
     subcategory: 'Device location',
     controlCode: 3,
-    routePath: '#/policy-tracking',
+    routePath: portalRouteHashPath(PortalRoute.PolicyTracking),
   },
   {
     id: 'policy-remote-screen',
@@ -349,7 +349,7 @@ export const PARENT_PORTAL_MANAGE_QUICK_CONTROLS: ParentPortalContent['quickCont
     category: 'Policy',
     subcategory: 'Live screen view',
     controlCode: 3,
-    routePath: '#/policy-remote-screen',
+    routePath: portalRouteHashPath(PortalRoute.PolicyRemoteScreen),
   },
   {
     id: 'rules-management',
@@ -360,7 +360,7 @@ export const PARENT_PORTAL_MANAGE_QUICK_CONTROLS: ParentPortalContent['quickCont
     category: 'Policy',
     subcategory: 'Family and device rules',
     controlCode: 3,
-    routePath: '#/rule-management',
+    routePath: portalRouteHashPath(PortalRoute.RuleManagement),
   },
   {
     id: 'schedules-budgets',
@@ -371,7 +371,7 @@ export const PARENT_PORTAL_MANAGE_QUICK_CONTROLS: ParentPortalContent['quickCont
     category: 'Routine',
     subcategory: 'Time budgets',
     controlCode: 3,
-    routePath: '#/schedules',
+    routePath: portalRouteHashPath(PortalRoute.Schedules),
   },
   {
     id: 'approvals',
@@ -382,7 +382,7 @@ export const PARENT_PORTAL_MANAGE_QUICK_CONTROLS: ParentPortalContent['quickCont
     category: 'Routine',
     subcategory: 'Approve deny explain',
     controlCode: 3,
-    routePath: '#/approvals',
+    routePath: portalRouteHashPath(PortalRoute.Approvals),
   },
   {
     id: 'enforcement-readiness',
@@ -393,7 +393,7 @@ export const PARENT_PORTAL_MANAGE_QUICK_CONTROLS: ParentPortalContent['quickCont
     category: 'Policy',
     subcategory: 'Adapter readiness',
     controlCode: 3,
-    routePath: '#/enforcement',
+    routePath: portalRouteHashPath(PortalRoute.Enforcement),
   },
   {
     id: 'reports-settings',
@@ -404,7 +404,7 @@ export const PARENT_PORTAL_MANAGE_QUICK_CONTROLS: ParentPortalContent['quickCont
     category: 'Reports',
     subcategory: 'Report schedule and custody',
     controlCode: 4,
-    routePath: '#/activity',
+    routePath: portalRouteHashPath(PortalRoute.Activity),
   },
   {
     id: 'screen-analysis',
@@ -415,7 +415,7 @@ export const PARENT_PORTAL_MANAGE_QUICK_CONTROLS: ParentPortalContent['quickCont
     category: 'Activity',
     subcategory: 'Optional local summaries',
     controlCode: 4,
-    routePath: '#/screen-analysis',
+    routePath: portalRouteHashPath(PortalRoute.ScreenAnalysis),
   },
   {
     id: 'app-game-sessions',
@@ -426,7 +426,7 @@ export const PARENT_PORTAL_MANAGE_QUICK_CONTROLS: ParentPortalContent['quickCont
     category: 'Activity',
     subcategory: 'Apps, games, focus time',
     controlCode: 4,
-    routePath: '#/app-game-sessions',
+    routePath: portalRouteHashPath(PortalRoute.AppGameSessions),
   },
   {
     id: 'network-activity',
@@ -437,7 +437,7 @@ export const PARENT_PORTAL_MANAGE_QUICK_CONTROLS: ParentPortalContent['quickCont
     category: 'Activity',
     subcategory: 'Network metadata',
     controlCode: 4,
-    routePath: '#/network-activity',
+    routePath: portalRouteHashPath(PortalRoute.NetworkActivity),
   },
   {
     id: 'memory-settings',
@@ -448,7 +448,7 @@ export const PARENT_PORTAL_MANAGE_QUICK_CONTROLS: ParentPortalContent['quickCont
     category: 'Memory',
     subcategory: 'Parent editable context',
     controlCode: 7,
-    routePath: '#/memory-settings',
+    routePath: portalRouteHashPath(PortalRoute.MemorySettings),
   },
   {
     id: 'ai-runtime',
@@ -459,7 +459,7 @@ export const PARENT_PORTAL_MANAGE_QUICK_CONTROLS: ParentPortalContent['quickCont
     category: 'AI',
     subcategory: 'Per-device model runtime',
     controlCode: 7,
-    routePath: '#/ai-runtime',
+    routePath: portalRouteHashPath(PortalRoute.AiRuntime),
   },
   {
     id: 'api-providers',
@@ -470,7 +470,7 @@ export const PARENT_PORTAL_MANAGE_QUICK_CONTROLS: ParentPortalContent['quickCont
     category: 'Parent Portal',
     subcategory: 'Provider keys and limits',
     controlCode: 8,
-    routePath: '#/api-providers',
+    routePath: portalRouteHashPath(PortalRoute.ApiProviders),
   },
   {
     id: 'remote-access',
@@ -481,7 +481,7 @@ export const PARENT_PORTAL_MANAGE_QUICK_CONTROLS: ParentPortalContent['quickCont
     category: 'Privacy',
     subcategory: 'Away from home',
     controlCode: 8,
-    routePath: '#/remote-access',
+    routePath: portalRouteHashPath(PortalRoute.RemoteAccess),
   },
   {
     id: 'subscription-plans',
@@ -492,7 +492,7 @@ export const PARENT_PORTAL_MANAGE_QUICK_CONTROLS: ParentPortalContent['quickCont
     category: 'Support',
     subcategory: 'Billing and entitlements',
     controlCode: 8,
-    routePath: '#/subscription',
+    routePath: portalRouteHashPath(PortalRoute.Subscription),
   },
   {
     id: 'platforms-install',
@@ -503,7 +503,7 @@ export const PARENT_PORTAL_MANAGE_QUICK_CONTROLS: ParentPortalContent['quickCont
     category: 'Support',
     subcategory: 'Packaging and support',
     controlCode: 8,
-    routePath: '#/platforms-install',
+    routePath: portalRouteHashPath(PortalRoute.PlatformsInstall),
   },
   {
     id: 'lan-pairing',
@@ -514,7 +514,7 @@ export const PARENT_PORTAL_MANAGE_QUICK_CONTROLS: ParentPortalContent['quickCont
     category: 'Devices',
     subcategory: 'Explicit LAN trust',
     controlCode: 7,
-    routePath: '#/lan-pairing',
+    routePath: portalRouteHashPath(PortalRoute.LanPairing),
   },
   {
     id: 'capability-status',
@@ -525,7 +525,7 @@ export const PARENT_PORTAL_MANAGE_QUICK_CONTROLS: ParentPortalContent['quickCont
     category: 'Devices',
     subcategory: 'Per-device readiness',
     controlCode: 7,
-    routePath: '#/capability-status',
+    routePath: portalRouteHashPath(PortalRoute.CapabilityStatus),
   },
   {
     id: 'notifications',
@@ -536,7 +536,7 @@ export const PARENT_PORTAL_MANAGE_QUICK_CONTROLS: ParentPortalContent['quickCont
     category: 'Parent Portal',
     subcategory: 'Parent alert policy',
     controlCode: 8,
-    routePath: '#/notifications',
+    routePath: portalRouteHashPath(PortalRoute.Notifications),
   },
   {
     id: 'notification-channels',
@@ -547,7 +547,7 @@ export const PARENT_PORTAL_MANAGE_QUICK_CONTROLS: ParentPortalContent['quickCont
     category: 'Alerts',
     subcategory: 'Delivery and quiet hours',
     controlCode: 8,
-    routePath: '#/notification-channels',
+    routePath: portalRouteHashPath(PortalRoute.NotificationChannels),
   },
   {
     id: 'drive-exports',
@@ -558,7 +558,7 @@ export const PARENT_PORTAL_MANAGE_QUICK_CONTROLS: ParentPortalContent['quickCont
     category: 'Data',
     subcategory: 'Drive connections',
     controlCode: 8,
-    routePath: '#/drive-connections',
+    routePath: portalRouteHashPath(PortalRoute.DriveConnections),
   },
   {
     id: 'export-retention',
@@ -569,7 +569,7 @@ export const PARENT_PORTAL_MANAGE_QUICK_CONTROLS: ParentPortalContent['quickCont
     category: 'Privacy',
     subcategory: 'Export sync delete',
     controlCode: 8,
-    routePath: '#/export-retention',
+    routePath: portalRouteHashPath(PortalRoute.ExportRetention),
   },
   {
     id: 'report-compiler',
@@ -580,7 +580,7 @@ export const PARENT_PORTAL_MANAGE_QUICK_CONTROLS: ParentPortalContent['quickCont
     category: 'Reports',
     subcategory: 'Stateless report build',
     controlCode: 4,
-    routePath: '#/report-compiler',
+    routePath: portalRouteHashPath(PortalRoute.ReportCompiler),
   },
   {
     id: 'audit-history',
@@ -591,7 +591,7 @@ export const PARENT_PORTAL_MANAGE_QUICK_CONTROLS: ParentPortalContent['quickCont
     category: 'Support',
     subcategory: 'Parent-visible audit',
     controlCode: 8,
-    routePath: '#/audit-history',
+    routePath: portalRouteHashPath(PortalRoute.AuditHistory),
   },
   {
     id: 'support-api-status',
@@ -602,7 +602,7 @@ export const PARENT_PORTAL_MANAGE_QUICK_CONTROLS: ParentPortalContent['quickCont
     category: 'Support',
     subcategory: 'Contact and help',
     controlCode: 8,
-    routePath: '#/diagnostics',
+    routePath: portalRouteHashPath(PortalRoute.Diagnostics),
   },
   {
     id: 'entitlements',
@@ -613,7 +613,7 @@ export const PARENT_PORTAL_MANAGE_QUICK_CONTROLS: ParentPortalContent['quickCont
     category: 'Support',
     subcategory: 'Paid feature state',
     controlCode: 8,
-    routePath: '#/entitlements',
+    routePath: portalRouteHashPath(PortalRoute.Entitlements),
   },
   {
     id: 'install-updates',
@@ -624,7 +624,7 @@ export const PARENT_PORTAL_MANAGE_QUICK_CONTROLS: ParentPortalContent['quickCont
     category: 'Support',
     subcategory: 'Installer lifecycle',
     controlCode: 8,
-    routePath: '#/install-updates',
+    routePath: portalRouteHashPath(PortalRoute.InstallUpdates),
   },
   {
     id: 'family-settings',
@@ -635,7 +635,7 @@ export const PARENT_PORTAL_MANAGE_QUICK_CONTROLS: ParentPortalContent['quickCont
     category: 'Parent Portal',
     subcategory: 'Family defaults',
     controlCode: 8,
-    routePath: '#/settings-rules',
+    routePath: portalRouteHashPath(PortalRoute.SettingsRules),
   },
   {
     id: 'dev-commands',
@@ -646,7 +646,7 @@ export const PARENT_PORTAL_MANAGE_QUICK_CONTROLS: ParentPortalContent['quickCont
     category: 'Dev tools',
     subcategory: 'Command lane',
     controlCode: 9,
-    routePath: `#/${PortalRoute.Commands}`,
+    routePath: portalRouteHashPath(PortalRoute.Commands),
   },
   {
     id: 'dev-events',
@@ -657,7 +657,7 @@ export const PARENT_PORTAL_MANAGE_QUICK_CONTROLS: ParentPortalContent['quickCont
     category: 'Dev tools',
     subcategory: 'Event stream',
     controlCode: 9,
-    routePath: `#/${PortalRoute.Events}`,
+    routePath: portalRouteHashPath(PortalRoute.Events),
   },
   {
     id: 'dev-logs',
@@ -668,7 +668,7 @@ export const PARENT_PORTAL_MANAGE_QUICK_CONTROLS: ParentPortalContent['quickCont
     category: 'Dev tools',
     subcategory: 'Runtime logs',
     controlCode: 9,
-    routePath: `#/${PortalRoute.Logs}`,
+    routePath: portalRouteHashPath(PortalRoute.Logs),
   },
   {
     id: 'app-layout',
@@ -679,6 +679,6 @@ export const PARENT_PORTAL_MANAGE_QUICK_CONTROLS: ParentPortalContent['quickCont
     category: 'Dev tools',
     subcategory: 'Layout surface',
     controlCode: 9,
-    routePath: `#/${PortalRoute.FrameTuner}`,
+    routePath: portalRouteHashPath(PortalRoute.FrameTuner),
   },
 ];

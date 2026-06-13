@@ -1,25 +1,47 @@
 use ocentra_child_runtime::{
     parent_tracking_config_updated_event_from_command, publish_parent_tracking_config_updated_event,
 };
+use ocentra_parent_runtime_core::{
+    route_parent_tracking_config_update_event, ChildAcknowledgementState, ChildRuntimePublishState,
+};
 use ocentra_parent_agent_protocol::{
     constants, default_tracking_retention_settings_write_request, AgentCommandEnvelope,
-    AgentEventEnvelope, AgentEventName, LogFieldValue, LogLevel,
+    AgentEventEnvelope, AgentEventName, LogFieldValue, LogLevel, TrackingConfigAckState,
+    TrackingDurableSettingsPersistenceState, TrackingExecutionClaimState, TrackingRemoteAiState,
+    TrackingRemoteSyncState, TrackingRetentionWriteState,
+    tracking_durable_settings_store_ref, tracking_local_service_state_snapshot_ref,
+    tracking_mutation_proof_ref, tracking_retention_accepted_at,
+    tracking_retention_write_state_accepted, tracking_retention_write_state_rejected,
     TrackingRetentionSettingsWriteRequest, TrackingRetentionSettingsWriteResult,
     AGENT_PROTOCOL_SCHEMA_VERSION,
 };
 
 use crate::{event_builder::build_event, fields::fields_from_pairs};
 
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+enum TrackingWriteRequestParseState {
+    Accepted,
+    Rejected,
+}
+
 pub(crate) async fn build_tracking_retention_settings_write_report(
     command: AgentCommandEnvelope,
 ) -> AgentEventEnvelope {
-    let (request, accepted) = parse_write_request(&command);
-    let event_flow_report = if accepted {
+    let (request, parse_state) = parse_write_request(&command);
+    let event_flow_report = if parse_state == TrackingWriteRequestParseState::Accepted {
         let parent_event =
             parent_tracking_config_updated_event_from_command(&command, request.clone());
-        publish_parent_tracking_config_updated_event(&parent_event)
-            .await
-            .ok()
+        let dispatch_decision = route_parent_tracking_config_update_event(
+            &parent_event,
+            ChildAcknowledgementState::Required,
+        );
+        if dispatch_decision.child_runtime_publish_state == ChildRuntimePublishState::Publish {
+            publish_parent_tracking_config_updated_event(&parent_event)
+                .await
+                .ok()
+        } else {
+            None
+        }
     } else {
         None
     };
@@ -33,44 +55,49 @@ pub(crate) async fn build_tracking_retention_settings_write_report(
         schema_version: AGENT_PROTOCOL_SCHEMA_VERSION,
         command_id: request.command_id,
         settings_kind: request.settings_kind,
-        write_state: write_state(accepted),
-        accepted_at: constants::tracking_retention_settings_write::ACCEPTED_AT.to_string(),
+        write_state: write_state(parse_state),
+        accepted_at: tracking_retention_accepted_at(),
         source_writer_intent_refs: request.source_writer_intent_refs,
         source_read_model_proof_refs: request.source_read_model_proof_refs,
-        source_mutation_proof_refs: vec![
-            constants::tracking_retention_settings_write::MUTATION_PROOF_REF.to_string(),
-        ],
+        source_mutation_proof_refs: vec![tracking_mutation_proof_ref()],
         applied_retention_window_hours: request.requested_retention_window_hours,
-        applied_delete_after_alert_resolved: request.requested_delete_after_alert_resolved,
-        parent_export_prepared: request.requested_parent_export,
-        remote_sync_enabled: false,
-        remote_ai_enabled: false,
+        applied_delete_after_alert_resolution_state:
+            request.requested_delete_after_alert_resolution_state,
+        parent_export_state: request.requested_parent_export_state,
+        remote_sync_state: TrackingRemoteSyncState::Disabled,
+        remote_ai_state: TrackingRemoteAiState::Disabled,
         local_service_state_revision: applied_report
             .as_ref()
             .map(|report| report.applied_state.local_service_state_revision),
-        local_service_state_snapshot_ref:
-            constants::tracking_retention_settings_write::LOCAL_SERVICE_STATE_SNAPSHOT_REF
-                .to_string(),
-        durable_settings_store_ref:
-            constants::tracking_retention_settings_write::DURABLE_SETTINGS_STORE_REF.to_string(),
-        durable_settings_persisted: applied_report
+        local_service_state_snapshot_ref: tracking_local_service_state_snapshot_ref(),
+        durable_settings_store_ref: tracking_durable_settings_store_ref(),
+        durable_settings_persistence_state: applied_report
             .as_ref()
-            .is_some_and(|report| report.applied_state.durable_settings_persisted),
+            .map(|report| report.applied_state.durable_settings_persistence_state)
+            .unwrap_or(TrackingDurableSettingsPersistenceState::NotPersisted),
         child_config_response_state: child_response.map(|response| response.response_state.clone()),
         effective_tracking_state: child_response
             .map(|response| response.effective_tracking_state.clone()),
-        child_config_ack_received: child_response.is_some(),
-        command_transport_claimed: true,
-        service_write_preflight_claimed: true,
-        service_mutation_executed: applied_report.is_some(),
-        portal_writable_ui_claimed: false,
-        platform_runtime_claimed: false,
-        child_device_delivery_claimed: false,
-        provider_delivery_claimed: false,
-        notification_receipt_claimed: false,
-        physical_device_claimed: false,
-        authority_claimed: false,
-        product_claim_ready: false,
+        child_config_ack_state: if child_response.is_some() {
+            TrackingConfigAckState::Received
+        } else {
+            TrackingConfigAckState::Missing
+        },
+        command_transport_claim_state: TrackingExecutionClaimState::Claimed,
+        service_write_preflight_claim_state: TrackingExecutionClaimState::Claimed,
+        service_mutation_execution_state: if applied_report.is_some() {
+            TrackingExecutionClaimState::Claimed
+        } else {
+            TrackingExecutionClaimState::Unclaimed
+        },
+        portal_writable_ui_claim_state: TrackingExecutionClaimState::Unclaimed,
+        platform_runtime_claim_state: TrackingExecutionClaimState::Unclaimed,
+        child_device_delivery_claim_state: TrackingExecutionClaimState::Unclaimed,
+        provider_delivery_claim_state: TrackingExecutionClaimState::Unclaimed,
+        notification_receipt_claim_state: TrackingExecutionClaimState::Unclaimed,
+        physical_device_claim_state: TrackingExecutionClaimState::Unclaimed,
+        authority_claim_state: TrackingExecutionClaimState::Unclaimed,
+        product_claim_state: TrackingExecutionClaimState::Unclaimed,
     };
     let result_text =
         serde_json::to_string(&result).expect(constants::error::AGENT_EVENT_SERIALIZES);
@@ -91,24 +118,32 @@ pub(crate) async fn build_tracking_retention_settings_write_report(
 
 fn parse_write_request(
     command: &AgentCommandEnvelope,
-) -> (TrackingRetentionSettingsWriteRequest, bool) {
+) -> (
+    TrackingRetentionSettingsWriteRequest,
+    TrackingWriteRequestParseState,
+) {
     match command
         .payload
         .get(constants::field::ACTIVITY_TRACKING_RETENTION_SETTINGS_WRITE_REQUEST)
     {
         Some(LogFieldValue::String(text)) => match serde_json::from_str(text) {
-            Ok(request) => (request, true),
-            Err(_) => (default_tracking_retention_settings_write_request(), false),
+            Ok(request) => (request, TrackingWriteRequestParseState::Accepted),
+            Err(_) => (
+                default_tracking_retention_settings_write_request(),
+                TrackingWriteRequestParseState::Rejected,
+            ),
         },
-        _ => (default_tracking_retention_settings_write_request(), false),
+        _ => (
+            default_tracking_retention_settings_write_request(),
+            TrackingWriteRequestParseState::Rejected,
+        ),
     }
 }
 
-fn write_state(accepted: bool) -> String {
-    if accepted {
-        constants::tracking_retention_settings_write::WRITE_STATE_ACCEPTED.to_string()
-    } else {
-        constants::tracking_retention_settings_write::WRITE_STATE_REJECTED.to_string()
+fn write_state(parse_state: TrackingWriteRequestParseState) -> TrackingRetentionWriteState {
+    match parse_state {
+        TrackingWriteRequestParseState::Accepted => tracking_retention_write_state_accepted(),
+        TrackingWriteRequestParseState::Rejected => tracking_retention_write_state_rejected(),
     }
 }
 
@@ -117,7 +152,10 @@ mod tests {
     use ocentra_child_runtime::tracking_retention_settings_durable_store_path;
     use ocentra_parent_agent_protocol::{
         AgentCommandEnvelope, AgentCommandName, AgentMessageTarget, AgentPeer, AgentPeerRole,
-        AgentRoute, LogFields, TrackingRetentionSettingsWriteResult, AGENT_PROTOCOL_SCHEMA_VERSION,
+        AgentRoute, LogFields, TrackingConfigAckState, TrackingDurableSettingsPersistenceState,
+        TrackingExecutionClaimState, TrackingRemoteAiState, TrackingRemoteSyncState,
+        TrackingRetentionSettingsWriteResult, TrackingRetentionWriteState,
+        AGENT_PROTOCOL_SCHEMA_VERSION,
     };
 
     use super::*;
@@ -142,35 +180,68 @@ mod tests {
         );
         assert_eq!(
             write_result.write_state,
-            constants::tracking_retention_settings_write::WRITE_STATE_ACCEPTED
+            TrackingRetentionWriteState::parse(
+                constants::tracking_retention_settings_write::WRITE_STATE_ACCEPTED
+            )
+            .expect(constants::tracking_retention_settings_write::WRITE_STATE_ACCEPTED)
         );
         assert!(write_result.command_transport_claimed);
         assert!(write_result.service_write_preflight_claimed);
         assert!(write_result.service_mutation_executed);
         assert_eq!(write_result.applied_retention_window_hours, Some(168));
-        assert!(!write_result.remote_sync_enabled);
-        assert!(!write_result.remote_ai_enabled);
+        assert_eq!(
+            write_result.remote_sync_state,
+            TrackingRemoteSyncState::Disabled
+        );
+        assert_eq!(write_result.remote_ai_state, TrackingRemoteAiState::Disabled);
         assert!(write_result
             .local_service_state_revision
             .is_some_and(|revision| revision > 0));
         assert_eq!(
             write_result.local_service_state_snapshot_ref,
-            constants::tracking_retention_settings_write::LOCAL_SERVICE_STATE_SNAPSHOT_REF
+            tracking_local_service_state_snapshot_ref()
         );
         assert_eq!(
             write_result.durable_settings_store_ref,
-            constants::tracking_retention_settings_write::DURABLE_SETTINGS_STORE_REF
+            tracking_durable_settings_store_ref()
         );
-        assert!(write_result.durable_settings_persisted);
+        assert_eq!(
+            write_result.durable_settings_persistence_state,
+            TrackingDurableSettingsPersistenceState::Persisted
+        );
         assert!(tracking_retention_settings_durable_store_path().exists());
-        assert!(!write_result.portal_writable_ui_claimed);
-        assert!(!write_result.platform_runtime_claimed);
-        assert!(!write_result.child_device_delivery_claimed);
-        assert!(!write_result.provider_delivery_claimed);
-        assert!(!write_result.notification_receipt_claimed);
-        assert!(!write_result.physical_device_claimed);
-        assert!(!write_result.authority_claimed);
-        assert!(!write_result.product_claim_ready);
+        assert_eq!(
+            write_result.portal_writable_ui_claim_state,
+            TrackingExecutionClaimState::Unclaimed
+        );
+        assert_eq!(
+            write_result.platform_runtime_claim_state,
+            TrackingExecutionClaimState::Unclaimed
+        );
+        assert_eq!(
+            write_result.child_device_delivery_claim_state,
+            TrackingExecutionClaimState::Unclaimed
+        );
+        assert_eq!(
+            write_result.provider_delivery_claim_state,
+            TrackingExecutionClaimState::Unclaimed
+        );
+        assert_eq!(
+            write_result.notification_receipt_claim_state,
+            TrackingExecutionClaimState::Unclaimed
+        );
+        assert_eq!(
+            write_result.physical_device_claim_state,
+            TrackingExecutionClaimState::Unclaimed
+        );
+        assert_eq!(
+            write_result.authority_claim_state,
+            TrackingExecutionClaimState::Unclaimed
+        );
+        assert_eq!(
+            write_result.product_claim_state,
+            TrackingExecutionClaimState::Unclaimed
+        );
     }
 
     #[tokio::test]
@@ -188,16 +259,32 @@ mod tests {
         );
         assert_eq!(
             write_result.write_state,
-            constants::tracking_retention_settings_write::WRITE_STATE_REJECTED
+            TrackingRetentionWriteState::parse(
+                constants::tracking_retention_settings_write::WRITE_STATE_REJECTED
+            )
+            .expect(constants::tracking_retention_settings_write::WRITE_STATE_REJECTED)
         );
         assert_eq!(write_result.local_service_state_revision, None);
         assert_eq!(
             write_result.durable_settings_store_ref,
-            constants::tracking_retention_settings_write::DURABLE_SETTINGS_STORE_REF
+            tracking_durable_settings_store_ref()
         );
-        assert!(!write_result.durable_settings_persisted);
-        assert!(!write_result.service_mutation_executed);
-        assert!(!write_result.product_claim_ready);
+        assert_eq!(
+            write_result.durable_settings_persistence_state,
+            TrackingDurableSettingsPersistenceState::NotPersisted
+        );
+        assert_eq!(
+            write_result.service_mutation_execution_state,
+            TrackingExecutionClaimState::Unclaimed
+        );
+        assert_eq!(
+            write_result.child_config_ack_state,
+            TrackingConfigAckState::Missing
+        );
+        assert_eq!(
+            write_result.product_claim_state,
+            TrackingExecutionClaimState::Unclaimed
+        );
     }
 
     fn command_envelope() -> AgentCommandEnvelope {

@@ -1,17 +1,16 @@
-import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
+import {
+  type Infer,
+  Schema,
+  withParser,
+  brandedNonEmptyStringSchema
+} from '@ocentra-parent/schema-domain/effect';
 import { ParentTimestampSchema } from '@ocentra-parent/family-domain/reference-primitives';
 import { TrackingPolicyAuditRefSchema, TrackingPolicySchemaVersion } from './tracking-location-policy-primitives';
-
-const TrackingParentChildLocalRuntimeBridgeTextSchema = Schema.String.pipe(Schema.minLength(1));
 const TrackingParentChildLocalRuntimeBridgeCountSchema = Schema.Number.pipe(Schema.int(), Schema.nonNegative());
 
-export const TrackingParentChildLocalRuntimeBridgeRefSchema = TrackingParentChildLocalRuntimeBridgeTextSchema.pipe(
-  Schema.brand('TrackingParentChildLocalRuntimeBridgeRef')
-);
+export const TrackingParentChildLocalRuntimeBridgeRefSchema = brandedNonEmptyStringSchema('TrackingParentChildLocalRuntimeBridgeRef');
 
-export const TrackingParentChildLocalRuntimeBridgeRowIdSchema = TrackingParentChildLocalRuntimeBridgeTextSchema.pipe(
-  Schema.brand('TrackingParentChildLocalRuntimeBridgeRowId')
-);
+export const TrackingParentChildLocalRuntimeBridgeRowIdSchema = brandedNonEmptyStringSchema('TrackingParentChildLocalRuntimeBridgeRowId');
 
 export const TrackingParentChildLocalRuntimeBridgeStatusSchema = Schema.Literal(
   'local-parent-child-runtime-observed-physical-child-runtime-required'
@@ -252,3 +251,4 @@ function trackingParentChildLocalRuntimeBridgeNonClaimsAreHonest(
     row.productClaimReady === false
   );
 }
+

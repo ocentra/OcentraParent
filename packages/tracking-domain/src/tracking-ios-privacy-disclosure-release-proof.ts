@@ -1,20 +1,19 @@
-import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
+import {
+  type Infer,
+  Schema,
+  withParser,
+  brandedNonEmptyStringSchema
+} from '@ocentra-parent/schema-domain/effect';
 import {
   ParentContractSchemaVersion,
   ParentContractSchemaVersionSchema,
   ParentTimestampSchema,
 } from '@ocentra-parent/family-domain/reference-primitives';
 import { FamilyReferenceSchema, ParentDeviceReferenceSchema, ParentEvidenceReferenceSchema } from '@ocentra-parent/family-domain/references';
-
-const TrackingIosPrivacyDisclosureTextSchema = Schema.String.pipe(Schema.minLength(1));
 const TrackingIosPrivacyDisclosureNonNegativeIntegerSchema = Schema.Number.pipe(Schema.int(), Schema.nonNegative());
 
-export const TrackingIosPrivacyDisclosureProofIdSchema = TrackingIosPrivacyDisclosureTextSchema.pipe(
-  Schema.brand('TrackingIosPrivacyDisclosureProofId')
-);
-export const TrackingIosPrivacyDisclosureProofReferenceSchema = TrackingIosPrivacyDisclosureTextSchema.pipe(
-  Schema.brand('TrackingIosPrivacyDisclosureProofReference')
-);
+export const TrackingIosPrivacyDisclosureProofIdSchema = brandedNonEmptyStringSchema('TrackingIosPrivacyDisclosureProofId');
+export const TrackingIosPrivacyDisclosureProofReferenceSchema = brandedNonEmptyStringSchema('TrackingIosPrivacyDisclosureProofReference');
 
 export const TrackingIosPrivacyDisclosureReleaseGateSchema = withParser(
   Schema.Literal(
@@ -325,3 +324,4 @@ function countRows(
 ): number {
   return rows.filter(predicate).length;
 }
+

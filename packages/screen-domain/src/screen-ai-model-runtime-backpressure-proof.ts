@@ -1,4 +1,9 @@
-import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
+import {
+  type Infer,
+  Schema,
+  withParser,
+  brandedNonEmptyStringSchema
+} from '@ocentra-parent/schema-domain/effect';
 import {
   LocalAiDegradedStateSchema,
   LocalAiModelIdSchema,
@@ -6,19 +11,11 @@ import {
   LocalAiTimestampSchema,
   LocalAiUnavailableReasonSchema,
 } from '@ocentra-parent/ai-domain/local-ai-primitives';
-import { LocalAiPhysicalDeviceIdSchema, LocalAiProviderSchedulerDecisionSchema } from './local-ai-provider-scheduler';
+import { LocalAiPhysicalDeviceIdSchema, LocalAiProviderSchedulerDecisionSchema } from '@ocentra-parent/ai-domain/local-ai-provider-scheduler';
 import { ParentContractSchemaVersionSchema, ParentTimestampSchema } from '@ocentra-parent/family-domain/reference-primitives';
-
-const NonEmptyScreenAiBackpressureTextSchema = Schema.String.pipe(Schema.minLength(1));
-const ScreenAiModelRuntimeBackpressureProofIdSchema = NonEmptyScreenAiBackpressureTextSchema.pipe(
-  Schema.brand('ScreenAiModelRuntimeBackpressureProofId')
-);
-const ScreenAiModelRuntimeBackpressureJobIdSchema = NonEmptyScreenAiBackpressureTextSchema.pipe(
-  Schema.brand('ScreenAiModelRuntimeBackpressureJobId')
-);
-const ScreenAiModelRuntimeEvidenceRefSchema = NonEmptyScreenAiBackpressureTextSchema.pipe(
-  Schema.brand('ScreenAiModelRuntimeEvidenceRef')
-);
+const ScreenAiModelRuntimeBackpressureProofIdSchema = brandedNonEmptyStringSchema('ScreenAiModelRuntimeBackpressureProofId');
+const ScreenAiModelRuntimeBackpressureJobIdSchema = brandedNonEmptyStringSchema('ScreenAiModelRuntimeBackpressureJobId');
+const ScreenAiModelRuntimeEvidenceRefSchema = brandedNonEmptyStringSchema('ScreenAiModelRuntimeEvidenceRef');
 const BackpressureCountSchema = Schema.Number.pipe(Schema.nonNegative(), Schema.int());
 
 export const ScreenAiModelRuntimeBackpressureJobStateSchema = withParser(
@@ -204,3 +201,4 @@ function screenAiModelRuntimeBackpressureProofIsSafe(proof: ScreenAiModelRuntime
     activeHeavyRuntimeCount === 1
   );
 }
+

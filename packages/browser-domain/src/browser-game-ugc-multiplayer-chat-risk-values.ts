@@ -1,18 +1,21 @@
-import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
+import {
+  type Infer,
+  Schema,
+  withParser,
+  brandedNonEmptyStringSchema
+} from '@ocentra-parent/schema-domain/effect';
 import { ParentEvidenceReferenceIdSchema } from '@ocentra-parent/family-domain/reference-primitives';
-
-const NonEmptyBrowserGameUgcRiskText = Schema.String.pipe(Schema.minLength(1));
 
 export const BrowserGameUgcRiskSchemaVersionSchema = withParser(
   Schema.Literal('browser-game-ugc-multiplayer-chat-risk-contract')
 );
 
 export const BrowserGameUgcRiskAssessmentIdSchema = withParser(
-  NonEmptyBrowserGameUgcRiskText.pipe(Schema.brand('BrowserGameUgcRiskAssessmentId'))
+  brandedNonEmptyStringSchema('BrowserGameUgcRiskAssessmentId')
 );
 
 export const BrowserGameUgcRiskRowIdSchema = withParser(
-  NonEmptyBrowserGameUgcRiskText.pipe(Schema.brand('BrowserGameUgcRiskRowId'))
+  brandedNonEmptyStringSchema('BrowserGameUgcRiskRowId')
 );
 
 export const BrowserGameUgcPlatformSurfaceKindSchema = withParser(
@@ -100,3 +103,4 @@ export type BrowserGameUgcRecommendedControl = Infer<typeof BrowserGameUgcRecomm
 export type BrowserGameUgcRiskConfidence = Infer<typeof BrowserGameUgcRiskConfidenceSchema>;
 export type BrowserGameUgcRiskKind = Infer<typeof BrowserGameUgcRiskKindSchema>;
 export type BrowserGameUgcRiskSeverity = Infer<typeof BrowserGameUgcRiskSeveritySchema>;
+

@@ -1,20 +1,20 @@
-import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
+import {
+  type Infer,
+  Schema,
+  withParser,
+  brandedNonEmptyStringSchema,
+  NonEmptyStringSchema
+} from '@ocentra-parent/schema-domain/effect';
 import { ParentTimestampSchema } from '@ocentra-parent/family-domain/reference-primitives';
 import { TrackingPolicyAuditRefSchema, TrackingPolicySchemaVersion } from './tracking-location-policy-primitives';
-
-const TrackingPhysicalDeviceArtifactTextSchema = Schema.String.pipe(Schema.minLength(1));
 
 export const TrackingPhysicalDeviceArtifactPlatformSchema = Schema.Literal('android', 'ios');
 
 export const TrackingPhysicalDeviceArtifactGateStatusSchema = Schema.Literal('manual-required', 'artifact-set-present');
 
-export const TrackingPhysicalDeviceArtifactPathSchema = TrackingPhysicalDeviceArtifactTextSchema.pipe(
-  Schema.brand('TrackingPhysicalDeviceArtifactPath')
-);
+export const TrackingPhysicalDeviceArtifactPathSchema = brandedNonEmptyStringSchema('TrackingPhysicalDeviceArtifactPath');
 
-export const TrackingPhysicalDeviceArtifactGateRowIdSchema = TrackingPhysicalDeviceArtifactTextSchema.pipe(
-  Schema.brand('TrackingPhysicalDeviceArtifactGateRowId')
-);
+export const TrackingPhysicalDeviceArtifactGateRowIdSchema = brandedNonEmptyStringSchema('TrackingPhysicalDeviceArtifactGateRowId');
 
 export const TrackingPhysicalDeviceArtifactGateRowSchema = withParser(
   Schema.Struct({
@@ -32,9 +32,9 @@ export const TrackingPhysicalDeviceArtifactGateRowSchema = withParser(
     supportingStatusProofRef: TrackingPhysicalDeviceArtifactPathSchema,
     supportingStatusArtifacts: Schema.Array(TrackingPhysicalDeviceArtifactPathSchema),
     auditRefs: Schema.Array(TrackingPolicyAuditRefSchema),
-    acceptanceCriteria: Schema.Array(TrackingPhysicalDeviceArtifactTextSchema),
-    manualValidationCommands: Schema.Array(TrackingPhysicalDeviceArtifactTextSchema),
-    artifactAcceptanceNotes: Schema.Array(TrackingPhysicalDeviceArtifactTextSchema),
+    acceptanceCriteria: Schema.Array(NonEmptyStringSchema),
+    manualValidationCommands: Schema.Array(NonEmptyStringSchema),
+    artifactAcceptanceNotes: Schema.Array(NonEmptyStringSchema),
     physicalArtifactSetComplete: Schema.Boolean,
     physicalDeviceStatusObserved: Schema.Boolean,
     physicalDeviceBehaviorClaimed: Schema.Literal(false),
@@ -264,3 +264,4 @@ function artifactAcceptanceNotesFor(
     'Product claims stay false for authority, provider delivery, production runtime, and product readiness in this gate.',
   ];
 }
+

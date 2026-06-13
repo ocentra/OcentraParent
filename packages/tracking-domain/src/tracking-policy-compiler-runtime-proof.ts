@@ -1,4 +1,9 @@
-import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
+import {
+  type Infer,
+  Schema,
+  withParser,
+  brandedNonEmptyStringSchema
+} from '@ocentra-parent/schema-domain/effect';
 import { ParentTimestampSchema } from '@ocentra-parent/family-domain/reference-primitives';
 import {
   TrackingAlertIntentSchema,
@@ -29,13 +34,9 @@ import type {
   TrackingPolicyRule,
   TrackingTemporaryLiveTrackingGrant,
 } from './tracking-location-policy-types';
-
-const TrackingPolicyCompilerTextSchema = Schema.String.pipe(Schema.minLength(1));
 const TrackingPolicyCompilerDurationSecondsSchema = Schema.Number.pipe(Schema.int(), Schema.nonNegative());
 
-export const TrackingPolicyCompilerRuntimeProofRequestIdSchema = TrackingPolicyCompilerTextSchema.pipe(
-  Schema.brand('TrackingPolicyCompilerRuntimeProofRequestId')
-);
+export const TrackingPolicyCompilerRuntimeProofRequestIdSchema = brandedNonEmptyStringSchema('TrackingPolicyCompilerRuntimeProofRequestId');
 
 export const TrackingPolicyCompilerRuntimeProofModeSchema = withParser(Schema.Literal('dry-run', 'active'));
 
@@ -334,3 +335,4 @@ function reasonCodeForAction(action: TrackingPolicyDecision['action']) {
 function reasonCode(value: string) {
   return TrackingPolicyReasonCodeSchema.parse(value);
 }
+

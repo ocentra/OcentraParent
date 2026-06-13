@@ -1,4 +1,9 @@
-import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
+import {
+  type Infer,
+  Schema,
+  withParser,
+  brandedNonEmptyStringSchema
+} from '@ocentra-parent/schema-domain/effect';
 import {
   AppGameChildUxLocalOutboxSchedulerBridgeReadModelSchema,
   AppGameChildUxLocalOutboxSchedulerBridgeStatus,
@@ -11,8 +16,6 @@ import {
   ParentTimestampSchema,
 } from '@ocentra-parent/family-domain/reference-primitives';
 import { FamilyReferenceSchema } from '@ocentra-parent/family-domain/references';
-
-const ChildUxProviderPreflightText = Schema.String.pipe(Schema.minLength(1));
 
 export const AppGameChildUxLocalOutboxProviderPreflightStatus = {
   ProviderAdapterRequired: 'provider-adapter-required',
@@ -41,12 +44,8 @@ export const AppGameChildUxLocalOutboxProviderPreflightStatusSchema = withParser
 export const AppGameChildUxLocalOutboxProviderPreflightNonClaimSchema = withParser(
   Schema.Literal(...RequiredAppGameChildUxLocalOutboxProviderPreflightNonClaims)
 );
-export const AppGameChildUxLocalOutboxProviderPreflightIdSchema = ChildUxProviderPreflightText.pipe(
-  Schema.brand('AppGameChildUxLocalOutboxProviderPreflightId')
-);
-export const AppGameChildUxLocalOutboxProviderPreflightReferenceSchema = ChildUxProviderPreflightText.pipe(
-  Schema.brand('AppGameChildUxLocalOutboxProviderPreflightReference')
-);
+export const AppGameChildUxLocalOutboxProviderPreflightIdSchema = brandedNonEmptyStringSchema('AppGameChildUxLocalOutboxProviderPreflightId');
+export const AppGameChildUxLocalOutboxProviderPreflightReferenceSchema = brandedNonEmptyStringSchema('AppGameChildUxLocalOutboxProviderPreflightReference');
 
 const AppGameChildUxLocalOutboxProviderPreflightRowBaseSchema = Schema.Struct({
   preflightRowId: AppGameChildUxLocalOutboxProviderPreflightReferenceSchema,
@@ -290,3 +289,4 @@ function countRows(
 ): number {
   return rows.filter((row) => row.status === status).length;
 }
+

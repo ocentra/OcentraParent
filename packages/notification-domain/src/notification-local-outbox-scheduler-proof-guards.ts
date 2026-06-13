@@ -5,7 +5,7 @@ import {
 import {
   RequiredNotificationLocalOutboxSchedulerNonClaims,
   RequiredNotificationLocalOutboxSchedulerStates,
-} from './notification-local-outbox-scheduler-proof-values';
+} from '@ocentra-parent/notification-domain/notification-local-outbox-scheduler-proof-values';
 import type {
   NotificationOutboxSchedulerProofCandidate,
   NotificationOutboxSchedulerRecordCandidate,

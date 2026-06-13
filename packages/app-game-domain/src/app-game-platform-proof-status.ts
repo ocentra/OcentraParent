@@ -1,4 +1,9 @@
-import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
+import {
+  type Infer,
+  Schema,
+  withParser,
+  brandedNonEmptyStringSchema
+} from '@ocentra-parent/schema-domain/effect';
 import { type AppGameAndroidAccessibilityOverlayPreflightReadModel } from './app-game-android-accessibility-overlay-preflight';
 import { type AppGameAndroidAccessibilityRuntimeProof } from './app-game-android-accessibility-runtime-proof';
 import { type AppGameAndroidAuthorityPreflightReadModel } from './app-game-android-authority-preflight';
@@ -12,8 +17,6 @@ import { type AppGameLinuxWslRuntimeProof } from './app-game-linux-wsl-runtime-p
 import { type AppGameWindowsBroadBlockingAuthorityPreflightReadModel } from './app-game-windows-broad-blocking-authority-preflight';
 import { type AppGameWindowsLocalPolicyEvidenceProof } from './app-game-windows-local-policy-evidence-proof';
 import { ParentTimestampSchema } from '@ocentra-parent/family-domain/reference-primitives';
-
-const PlatformProofStatusText = Schema.String.pipe(Schema.minLength(1));
 
 export const AppGamePlatformProofStatusSchemaVersionSchema = withParser(
   Schema.Literal('app-game-platform-proof-status')
@@ -90,7 +93,7 @@ export const AppGamePlatformProofStatusRefSchema = withParser(
   )
 );
 
-const PlatformProofStatusLabelSchema = PlatformProofStatusText.pipe(Schema.brand('AppGamePlatformProofStatusLabel'));
+const PlatformProofStatusLabelSchema = brandedNonEmptyStringSchema('AppGamePlatformProofStatusLabel');
 const decodePlatformProofStatusLabel = Schema.decodeUnknownSync(PlatformProofStatusLabelSchema);
 
 const PlatformProofStatusCountSchema = Schema.Number.pipe(Schema.int(), Schema.greaterThanOrEqualTo(0));
@@ -538,3 +541,4 @@ function appGamePlatformProofStatusReadModelCountsMatch(
     readModel.openGapCount === readModel.rows.reduce((total, row) => total + row.openGaps.length, 0)
   );
 }
+

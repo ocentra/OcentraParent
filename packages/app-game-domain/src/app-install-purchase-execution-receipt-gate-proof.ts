@@ -1,4 +1,9 @@
-import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
+import {
+  type Infer,
+  Schema,
+  withParser,
+  brandedNonEmptyStringSchema
+} from '@ocentra-parent/schema-domain/effect';
 import { AppInstallPurchaseExternalRuntimeWriterTransportExecutionProofReadModel } from './app-install-purchase-external-runtime-writer-transport-execution-proof';
 import { ParentTimestampSchema } from '@ocentra-parent/family-domain/reference-primitives';
 
@@ -6,7 +11,6 @@ const ExecutionReceiptGateProofVersion = 'app-install-purchase-execution-receipt
 const SourceWriterTransportExecutionProofVersion =
   'app-install-purchase-external-runtime-writer-transport-execution-proof';
 const ExecutionReceiptGateTimestamp = '2026-06-08T04:24:00.000Z';
-const ExecutionReceiptGateText = Schema.String.pipe(Schema.minLength(1));
 const ExecutionReceiptGateBoundary =
   'execution receipt gate proof only; rows consume external runtime writer transport execution rows and keep product progress blocked until external writer dispatch executor receipt provider-store execution receipt platform adapter execution receipt and child-device transport receipt artifacts are attached no external runtime writer execution no external runtime writer delivery no parent action runtime delivery no provider API execution no store integration no platform interception no platform adapter implementation no child-device delivery no runtime report delivery no real install or purchase interception no app blocking no child activity data no Ocentra-hosted family data custody';
 const ExecutionReceiptGateActions = ['approve', 'deny', 'time-box', 'review-needed'] as const;
@@ -72,18 +76,10 @@ const ExecutionReceiptGateIntegrationClaimSchema = withParser(Schema.Literal('no
 const ExecutionReceiptGateAdapterClaimSchema = withParser(Schema.Literal('not-implemented'));
 const ExecutionReceiptGateCustodyClaimSchema = withParser(Schema.Literal('no-child-activity-data'));
 
-const ExecutionReceiptGateRowIdSchema = ExecutionReceiptGateText.pipe(
-  Schema.brand('AppInstallPurchaseExecutionReceiptGateRowId')
-);
-const ExecutionReceiptGateRefSchema = ExecutionReceiptGateText.pipe(
-  Schema.brand('AppInstallPurchaseExecutionReceiptGateRef')
-);
-const ExecutionReceiptGateAuditRefSchema = ExecutionReceiptGateText.pipe(
-  Schema.brand('AppInstallPurchaseExecutionReceiptGateAuditRef')
-);
-const ExecutionReceiptGateBoundarySchema = ExecutionReceiptGateText.pipe(
-  Schema.brand('AppInstallPurchaseExecutionReceiptGateBoundary')
-);
+const ExecutionReceiptGateRowIdSchema = brandedNonEmptyStringSchema('AppInstallPurchaseExecutionReceiptGateRowId');
+const ExecutionReceiptGateRefSchema = brandedNonEmptyStringSchema('AppInstallPurchaseExecutionReceiptGateRef');
+const ExecutionReceiptGateAuditRefSchema = brandedNonEmptyStringSchema('AppInstallPurchaseExecutionReceiptGateAuditRef');
+const ExecutionReceiptGateBoundarySchema = brandedNonEmptyStringSchema('AppInstallPurchaseExecutionReceiptGateBoundary');
 
 const ExecutionReceiptGateRowBaseSchema = Schema.Struct({
   schemaVersion: AppInstallPurchaseExecutionReceiptGateProofSchemaVersionSchema,
@@ -349,3 +345,4 @@ function executionReceiptGateProofIsHonest(proof: AppInstallPurchaseExecutionRec
 function executionReceiptGateBoundaryIsExplicit(boundary: typeof ExecutionReceiptGateBoundarySchema.Type): boolean {
   return ExecutionReceiptGateFragments.every((fragment) => boundary.includes(fragment));
 }
+

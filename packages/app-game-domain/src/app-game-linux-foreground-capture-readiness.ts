@@ -1,8 +1,11 @@
-import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
+import {
+  type Infer,
+  Schema,
+  withParser,
+  brandedNonEmptyStringSchema
+} from '@ocentra-parent/schema-domain/effect';
 import { type AppGameLinuxWslRuntimeProof } from './app-game-linux-wsl-runtime-proof';
 import { ParentTimestampSchema } from '@ocentra-parent/family-domain/reference-primitives';
-
-const LinuxForegroundCaptureText = Schema.String.pipe(Schema.minLength(1));
 
 export const AppGameLinuxForegroundCaptureReadinessSchemaVersionSchema = withParser(
   Schema.Literal('app-game-linux-foreground-capture-readiness')
@@ -37,9 +40,7 @@ export const AppGameLinuxForegroundCaptureReadinessGapSchema = withParser(
   )
 );
 
-const LinuxForegroundCaptureLabelSchema = LinuxForegroundCaptureText.pipe(
-  Schema.brand('AppGameLinuxForegroundCaptureReadinessLabel')
-);
+const LinuxForegroundCaptureLabelSchema = brandedNonEmptyStringSchema('AppGameLinuxForegroundCaptureReadinessLabel');
 
 const AppGameLinuxForegroundCaptureReadinessBaseSchema = Schema.Struct({
   schemaVersion: AppGameLinuxForegroundCaptureReadinessSchemaVersionSchema,
@@ -191,3 +192,4 @@ function linuxForegroundCaptureStateIsConsistent(readiness: AppGameLinuxForegrou
     readiness.sourceState === 'wslg-display-sockets-observed'
   );
 }
+

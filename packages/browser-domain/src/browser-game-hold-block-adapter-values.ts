@@ -1,13 +1,16 @@
-import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
-
-const NonEmptyBrowserGameHoldBlockText = Schema.String.pipe(Schema.minLength(1));
+import {
+  type Infer,
+  Schema,
+  withParser,
+  brandedNonEmptyStringSchema
+} from '@ocentra-parent/schema-domain/effect';
 
 export const BrowserGameHoldBlockAdapterSchemaVersionSchema = withParser(
   Schema.Literal('browser-game-hold-block-adapter-contract')
 );
 
 export const BrowserGameHoldBlockAdapterPlanIdSchema = withParser(
-  NonEmptyBrowserGameHoldBlockText.pipe(Schema.brand('BrowserGameHoldBlockAdapterPlanId'))
+  brandedNonEmptyStringSchema('BrowserGameHoldBlockAdapterPlanId')
 );
 
 export const BrowserGameHoldBlockTargetKindSchema = withParser(
@@ -75,3 +78,4 @@ export const BrowserGameHoldBlockReasonSchema = withParser(
 export type BrowserGameHoldBlockAction = Infer<typeof BrowserGameHoldBlockActionSchema>;
 export type BrowserGameHoldBlockAdapterState = Infer<typeof BrowserGameHoldBlockAdapterStateSchema>;
 export type BrowserGameHoldBlockDeliveryMode = Infer<typeof BrowserGameHoldBlockDeliveryModeSchema>;
+

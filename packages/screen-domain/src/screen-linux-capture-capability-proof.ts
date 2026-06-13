@@ -1,4 +1,9 @@
-import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
+import {
+  type Infer,
+  Schema,
+  withParser,
+  brandedNonEmptyStringSchema
+} from '@ocentra-parent/schema-domain/effect';
 import { ActivityTimestampSchema } from '@ocentra-parent/evidence-domain/primitives';
 import { ScreenEvidenceReasonSchema } from './screen-evidence-primitives';
 import { ScreenOptionalVisibilityPlatformProofRefSchema } from './screen-optional-visibility-mode-values';
@@ -6,7 +11,7 @@ import { ScreenOptionalVisibilityPlatformProofRefSchema } from './screen-optiona
 export const ScreenLinuxCaptureCapabilitySchemaVersion = 1;
 
 const ScreenLinuxCaptureDocRefSchema = withParser(
-  Schema.String.pipe(Schema.minLength(1), Schema.brand('ScreenLinuxCaptureDocRef'))
+  brandedNonEmptyStringSchema('ScreenLinuxCaptureDocRef')
 );
 const ScreenLinuxCaptureReasonSchema = withParser(ScreenEvidenceReasonSchema);
 const OptionalScreenLinuxCaptureProofRefSchema = Schema.Union(
@@ -323,3 +328,4 @@ export type ScreenLinuxCaptureProofState = Infer<typeof ScreenLinuxCaptureProofS
 export type ScreenLinuxCompositor = Infer<typeof ScreenLinuxCompositorSchema>;
 export type ScreenLinuxCaptureCapabilityRow = Infer<typeof ScreenLinuxCaptureCapabilityRowSchema>;
 export type ScreenLinuxCaptureCapabilityProof = Infer<typeof ScreenLinuxCaptureCapabilityProofSchema>;
+

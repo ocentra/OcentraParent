@@ -1,13 +1,12 @@
 import { AppGameSchemaVersion } from '@ocentra-parent/app-game-domain/app-game';
-import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
+import { type Infer, NonEmptyStringSchema, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
 import {
   AgentAppGameAdapterDispatchDecision,
   AgentAppGameAdapterDispatchOutcomeState,
   AgentAppGameAdapterDispatchPreflightState,
 } from './app-game-adapter-dispatch-preflight';
-import { AgentEvent, isAgentProtocolLogText, type AgentEventEnvelope } from './contracts';
+import { AgentCommand, AgentEvent, isAgentProtocolLogText, type AgentEventEnvelope } from './contracts';
 
-const DispatchResultText = Schema.String.pipe(Schema.minLength(1));
 const DispatchResultCount = Schema.Number.pipe(Schema.nonNegative(), Schema.int());
 
 export const AgentAppGameAdapterDispatchResultPayloadField = 'appGameAdapterDispatchResultReadModel' as const;
@@ -51,12 +50,12 @@ export const AgentAppGameAdapterDispatchAdapterExecutionDecision = {
 
 const AgentAppGameAdapterDispatchResultRowBaseSchema = Schema.Struct({
   schemaVersion: Schema.Literal(AppGameSchemaVersion),
-  rowId: DispatchResultText,
-  sourceDispatchPreflightRowId: DispatchResultText,
-  sourceProofEntryId: DispatchResultText,
-  platform: DispatchResultText,
+  rowId: NonEmptyStringSchema,
+  sourceDispatchPreflightRowId: NonEmptyStringSchema,
+  sourceProofEntryId: NonEmptyStringSchema,
+  platform: NonEmptyStringSchema,
   productMeanings: Schema.Array(Schema.Literal('native-app', 'native-game')),
-  adapterCapability: DispatchResultText,
+  adapterCapability: NonEmptyStringSchema,
   dispatchPreflightState: Schema.Literal(
     AgentAppGameAdapterDispatchPreflightState.DispatchEligible,
     AgentAppGameAdapterDispatchPreflightState.BlockedBeforeDispatch,
@@ -69,7 +68,7 @@ const AgentAppGameAdapterDispatchResultRowBaseSchema = Schema.Struct({
     AgentAppGameAdapterDispatchDecision.DispatchEligible,
     AgentAppGameAdapterDispatchDecision.BlockedBeforeDispatch
   ),
-  dispatchIntentId: Schema.Union(DispatchResultText, Schema.Null),
+  dispatchIntentId: Schema.Union(NonEmptyStringSchema, Schema.Null),
   dispatchOutcomeState: Schema.Literal(
     AgentAppGameAdapterDispatchOutcomeState.DispatchReady,
     AgentAppGameAdapterDispatchOutcomeState.ManualRequired,
@@ -90,12 +89,12 @@ const AgentAppGameAdapterDispatchResultRowBaseSchema = Schema.Struct({
     AgentAppGameAdapterDispatchCommandResultDecision.CommandAccepted,
     AgentAppGameAdapterDispatchCommandResultDecision.BlockedBeforeCommand
   ),
-  enforcementCommandName: Schema.Union(Schema.Literal('agent.enforcement.execute'), Schema.Null),
-  enforcementEventName: Schema.Union(Schema.Literal('agent.enforcement.audit.reported'), Schema.Null),
+  enforcementCommandName: Schema.Union(Schema.Literal(AgentCommand.EnforcementExecute), Schema.Null),
+  enforcementEventName: Schema.Union(Schema.Literal(AgentEvent.EnforcementAuditReported), Schema.Null),
   enforcementActionMode: Schema.Union(Schema.Literal('terminate-process'), Schema.Null),
-  dispatchCommandResultId: Schema.Union(DispatchResultText, Schema.Null),
-  dispatchCommandAuditRefs: Schema.Array(DispatchResultText),
-  dispatchCommandTimerRefs: Schema.Array(DispatchResultText),
+  dispatchCommandResultId: Schema.Union(NonEmptyStringSchema, Schema.Null),
+  dispatchCommandAuditRefs: Schema.Array(NonEmptyStringSchema),
+  dispatchCommandTimerRefs: Schema.Array(NonEmptyStringSchema),
   dispatchExecutionAuditState: Schema.Literal(
     AgentAppGameAdapterDispatchExecutionAuditState.ServiceLocalAuditRecorded,
     AgentAppGameAdapterDispatchExecutionAuditState.BlockedBeforeExecutionAudit
@@ -104,8 +103,8 @@ const AgentAppGameAdapterDispatchResultRowBaseSchema = Schema.Struct({
     AgentAppGameAdapterDispatchExecutionAuditDecision.ServiceLocalAuditRecorded,
     AgentAppGameAdapterDispatchExecutionAuditDecision.BlockedBeforeExecutionAudit
   ),
-  dispatchExecutionAuditId: Schema.Union(DispatchResultText, Schema.Null),
-  dispatchExecutionAuditRefs: Schema.Array(DispatchResultText),
+  dispatchExecutionAuditId: Schema.Union(NonEmptyStringSchema, Schema.Null),
+  dispatchExecutionAuditRefs: Schema.Array(NonEmptyStringSchema),
   dispatchAdapterExecutionState: Schema.Literal(
     AgentAppGameAdapterDispatchAdapterExecutionState.AdapterExecutionReported,
     AgentAppGameAdapterDispatchAdapterExecutionState.AdapterExecutionEvidenceMissing,
@@ -116,14 +115,14 @@ const AgentAppGameAdapterDispatchResultRowBaseSchema = Schema.Struct({
     AgentAppGameAdapterDispatchAdapterExecutionDecision.AdapterExecutionEvidenceMissing,
     AgentAppGameAdapterDispatchAdapterExecutionDecision.BlockedBeforeAdapterExecution
   ),
-  dispatchAdapterExecutionResultId: Schema.Union(DispatchResultText, Schema.Null),
-  dispatchAdapterExecutionStatus: Schema.Union(DispatchResultText, Schema.Null),
-  dispatchAdapterExecutionAdapterResultCode: Schema.Union(DispatchResultText, Schema.Null),
-  dispatchAdapterExecutionAuditEventId: Schema.Union(DispatchResultText, Schema.Null),
-  dispatchAdapterExecutionRefs: Schema.Array(DispatchResultText),
-  manualProofRequirements: Schema.Array(DispatchResultText),
-  claimBoundary: DispatchResultText,
-  fallbackBehavior: DispatchResultText,
+  dispatchAdapterExecutionResultId: Schema.Union(NonEmptyStringSchema, Schema.Null),
+  dispatchAdapterExecutionStatus: Schema.Union(NonEmptyStringSchema, Schema.Null),
+  dispatchAdapterExecutionAdapterResultCode: Schema.Union(NonEmptyStringSchema, Schema.Null),
+  dispatchAdapterExecutionAuditEventId: Schema.Union(NonEmptyStringSchema, Schema.Null),
+  dispatchAdapterExecutionRefs: Schema.Array(NonEmptyStringSchema),
+  manualProofRequirements: Schema.Array(NonEmptyStringSchema),
+  claimBoundary: NonEmptyStringSchema,
+  fallbackBehavior: NonEmptyStringSchema,
   adapterDispatchCommandResultClaimed: Schema.Boolean,
   adapterDispatchExecutedClaimed: Schema.Boolean,
   serviceLocalExecutionAuditClaimed: Schema.Boolean,
@@ -132,7 +131,7 @@ const AgentAppGameAdapterDispatchResultRowBaseSchema = Schema.Struct({
   platformEnforcementClaimed: Schema.Literal(false),
   providerDeliveryClaimed: Schema.Literal(false),
   privateDiagnosticsClaimed: Schema.Literal(false),
-  lastCheckedAt: DispatchResultText,
+  lastCheckedAt: NonEmptyStringSchema,
 });
 
 type AgentAppGameAdapterDispatchResultRowCandidate = Infer<typeof AgentAppGameAdapterDispatchResultRowBaseSchema>;
@@ -142,18 +141,19 @@ export const AgentAppGameAdapterDispatchResultRowSchema = withParser(
     Schema.filter(
       (row: AgentAppGameAdapterDispatchResultRowCandidate) =>
         dispatchResultRowIsHonest(row) ||
-        'Expected only the scoped Windows owned-process time-limit row to claim an accepted dispatch command result without claiming adapter execution'
+        'Expected only the scoped Windows owned-process time-limit row to claim an accepted dispatch ' +
+          'command result without claiming adapter execution'
     )
   )
 );
 
 const AgentAppGameAdapterDispatchResultReadModelBaseSchema = Schema.Struct({
   schemaVersion: Schema.Literal(AppGameSchemaVersion),
-  readModelId: DispatchResultText,
-  generatedAt: DispatchResultText,
-  sourceReadModelIds: Schema.Array(DispatchResultText),
-  custodyLabel: DispatchResultText,
-  capabilityStatus: DispatchResultText,
+  readModelId: NonEmptyStringSchema,
+  generatedAt: NonEmptyStringSchema,
+  sourceReadModelIds: Schema.Array(NonEmptyStringSchema),
+  custodyLabel: NonEmptyStringSchema,
+  capabilityStatus: NonEmptyStringSchema,
   returned: DispatchResultCount,
   commandAcceptedCount: DispatchResultCount,
   blockedBeforeCommandCount: DispatchResultCount,
@@ -238,18 +238,18 @@ export const AgentAppGameAdapterDispatchResultReadModelSchema = withParser(
 
 const AgentAppGameAdapterDispatchExecuteResultBaseSchema = Schema.Struct({
   schemaVersion: Schema.Literal(AppGameSchemaVersion),
-  commandId: DispatchResultText,
-  generatedAt: DispatchResultText,
+  commandId: NonEmptyStringSchema,
+  generatedAt: NonEmptyStringSchema,
   sourceReadModelId: Schema.Literal('app-game-adapter-dispatch-result'),
   sourceDispatchRowId: Schema.Literal('app-game-adapter-dispatch-result-windows-app-game-owned-process-time-limit'),
   sourceProofEntryId: Schema.Literal('windows-app-game-owned-process-time-limit'),
-  executionCommandName: Schema.Literal('agent.enforcement.execute'),
-  executionEventName: Schema.Literal('agent.enforcement.audit.reported'),
-  executionResultId: DispatchResultText,
-  executionStatus: DispatchResultText,
-  executionAdapterResultCode: DispatchResultText,
-  executionAuditEventId: DispatchResultText,
-  readbackCommandName: Schema.Literal('agent.activity.app-game.adapter-dispatch-result.read-model.get'),
+  executionCommandName: Schema.Literal(AgentCommand.EnforcementExecute),
+  executionEventName: Schema.Literal(AgentEvent.EnforcementAuditReported),
+  executionResultId: NonEmptyStringSchema,
+  executionStatus: NonEmptyStringSchema,
+  executionAdapterResultCode: NonEmptyStringSchema,
+  executionAuditEventId: NonEmptyStringSchema,
+  readbackCommandName: Schema.Literal(AgentCommand.ActivityAppGameAdapterDispatchResultReadModelGet),
   adapterDispatchExecutedClaimed: Schema.Boolean,
   broadInstalledAppBlockingClaimed: Schema.Literal(false),
   childDeviceDeliveryClaimed: Schema.Literal(false),
@@ -374,8 +374,8 @@ function dispatchResultRowIsHonest(row: AgentAppGameAdapterDispatchResultRowCand
       row.dispatchOutcomeState === AgentAppGameAdapterDispatchOutcomeState.DispatchReady &&
       row.dispatchIntentId !== null &&
       row.dispatchCommandResultDecision === AgentAppGameAdapterDispatchCommandResultDecision.CommandAccepted &&
-      row.enforcementCommandName === 'agent.enforcement.execute' &&
-      row.enforcementEventName === 'agent.enforcement.audit.reported' &&
+      row.enforcementCommandName === AgentCommand.EnforcementExecute &&
+      row.enforcementEventName === AgentEvent.EnforcementAuditReported &&
       row.enforcementActionMode === 'terminate-process' &&
       row.dispatchCommandResultId !== null &&
       row.dispatchCommandAuditRefs.length > 0 &&

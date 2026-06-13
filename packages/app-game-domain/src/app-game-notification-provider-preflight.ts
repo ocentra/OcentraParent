@@ -1,4 +1,9 @@
-import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
+import {
+  type Infer,
+  Schema,
+  withParser,
+  brandedNonEmptyStringSchema
+} from '@ocentra-parent/schema-domain/effect';
 import {
   AppGameNotificationSchedulerBridgeReadModelSchema,
   AppGameNotificationSchedulerBridgeStatus,
@@ -11,8 +16,6 @@ import {
   ParentTimestampSchema,
 } from '@ocentra-parent/family-domain/reference-primitives';
 import { FamilyReferenceSchema } from '@ocentra-parent/family-domain/references';
-
-const PreflightText = Schema.String.pipe(Schema.minLength(1));
 
 export const AppGameNotificationProviderPreflightStatus = {
   ProviderAdapterRequired: 'provider-adapter-required',
@@ -41,9 +44,9 @@ export const AppGameNotificationProviderPreflightNonClaimSchema = withParser(
 );
 
 // prettier-ignore
-export const AppGameNotificationProviderPreflightIdSchema = PreflightText.pipe(Schema.brand('AppGameNotificationProviderPreflightId'));
+export const AppGameNotificationProviderPreflightIdSchema = brandedNonEmptyStringSchema('AppGameNotificationProviderPreflightId');
 // prettier-ignore
-export const AppGameNotificationProviderPreflightReferenceSchema = PreflightText.pipe(Schema.brand('AppGameNotificationProviderPreflightReference'));
+export const AppGameNotificationProviderPreflightReferenceSchema = brandedNonEmptyStringSchema('AppGameNotificationProviderPreflightReference');
 
 const AppGameNotificationProviderPreflightRowBaseSchema = Schema.Struct({
   preflightRowId: AppGameNotificationProviderPreflightReferenceSchema,
@@ -252,3 +255,4 @@ const countRows = (
   rows: ReadonlyArray<{ readonly status: AppGameNotificationProviderPreflightStatus }>,
   status: AppGameNotificationProviderPreflightStatus
 ): number => rows.filter((row) => row.status === status).length;
+

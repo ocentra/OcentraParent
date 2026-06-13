@@ -1,22 +1,25 @@
-import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
+import {
+  type Infer,
+  Schema,
+  withParser,
+  brandedNonEmptyStringSchema
+} from '@ocentra-parent/schema-domain/effect';
 import { ParentEvidenceReferenceIdSchema } from '@ocentra-parent/family-domain/reference-primitives';
-
-const NonEmptyBrowserGameSignalText = Schema.String.pipe(Schema.minLength(1));
 
 export const BrowserGameRiskBenefitSignalSchemaVersionSchema = withParser(
   Schema.Literal('browser-game-riskbenefit-signal-contract')
 );
 
 export const BrowserGameRiskBenefitSignalSetIdSchema = withParser(
-  NonEmptyBrowserGameSignalText.pipe(Schema.brand('BrowserGameRiskBenefitSignalSetId'))
+  brandedNonEmptyStringSchema('BrowserGameRiskBenefitSignalSetId')
 );
 
 export const BrowserGameRiskSignalIdSchema = withParser(
-  NonEmptyBrowserGameSignalText.pipe(Schema.brand('BrowserGameRiskSignalId'))
+  brandedNonEmptyStringSchema('BrowserGameRiskSignalId')
 );
 
 export const BrowserGameBenefitSignalIdSchema = withParser(
-  NonEmptyBrowserGameSignalText.pipe(Schema.brand('BrowserGameBenefitSignalId'))
+  brandedNonEmptyStringSchema('BrowserGameBenefitSignalId')
 );
 
 export const BrowserGameRiskSignalKindSchema = withParser(
@@ -87,3 +90,4 @@ export type BrowserGameSignalConfidence = Infer<typeof BrowserGameSignalConfiden
 export type BrowserGameSignalSetDegradedState = Infer<typeof BrowserGameSignalSetDegradedStateSchema>;
 export type BrowserGameSignalSeverity = Infer<typeof BrowserGameSignalSeveritySchema>;
 export type BrowserGameSignalState = Infer<typeof BrowserGameSignalStateSchema>;
+

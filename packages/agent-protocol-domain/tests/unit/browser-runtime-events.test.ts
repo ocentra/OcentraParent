@@ -85,8 +85,7 @@ const PolicyDecisionPayload = {
   policyAuthority: true,
   dryRun: true,
   adapterDispatchClaimed: false,
-  previousPhaseRef:
-    'browser-runtime-correlation-browser-evidence.1-2026-06-07T19:30:00Z-browser.policy.evaluation.requested',
+  previousPhaseRef: `browser-runtime-correlation-browser-evidence.1-2026-06-07T19:30:00Z-${AgentBrowserRuntimeEventType.PolicyEvaluationRequested}`,
 } as const;
 
 const FinalPolicyDecisionPayload = {
@@ -107,7 +106,7 @@ const AiAnalysisCompletedPayload = {
   ...AiAnalysisRequestedPayload,
   phase: AgentBrowserRuntimePhase.AiAnalysisCompleted,
   aiAnalysisRef: 'browser-ai-analysis-ref-test',
-  previousPhaseRef: 'browser-runtime-correlation-browser-evidence.1-2026-06-07T19:30:00Z-browser.ai.analysis.requested',
+  previousPhaseRef: `browser-runtime-correlation-browser-evidence.1-2026-06-07T19:30:00Z-${AgentBrowserRuntimeEventType.AiAnalysisRequested}`,
 } as const;
 
 const PolicyEvaluationPayload = {
@@ -208,9 +207,9 @@ function specifyRustEventNameParity() {
   expect(parsed.value.entries.map((entry) => entry.eventType)).toEqual([
     'browser.evidence.observed',
     'browser.evidence.journaled',
-    'browser.ai.analysis.requested',
+    AgentBrowserRuntimeEventType.AiAnalysisRequested,
     'browser.ai.analysis.completed',
-    'browser.policy.evaluation.requested',
+    AgentBrowserRuntimeEventType.PolicyEvaluationRequested,
     'browser.policy.decision.completed',
     'browser.intervention.command.issued',
     'browser.intervention.result.observed',

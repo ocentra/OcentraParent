@@ -1,4 +1,9 @@
-import { Schema, withParser, type Infer } from '@ocentra-parent/schema-domain/effect';
+import {
+  Schema,
+  withParser,
+  type Infer,
+  NonEmptyStringSchema
+} from '@ocentra-parent/schema-domain/effect';
 import {
   TrackingPoiAmbiguityState,
   TrackingPoiAmbiguityStateSchema,
@@ -12,16 +17,14 @@ import {
   TrackingPolicyReasonCodeSchema,
   TrackingPolicySchemaVersion,
 } from './tracking-location-policy-primitives';
-
-const TrackingPlaceCategoryCopyTextSchema = Schema.String.pipe(Schema.minLength(1));
 const TrackingPlaceCategoryReviewStateSchema = withParser(
   Schema.Literal('category-policy-input-only', 'parent-zone-override-review', 'manual-required')
 );
 
 export const TrackingPlaceCategorySafeCopySchema = withParser(
   Schema.Struct({
-    headline: TrackingPlaceCategoryCopyTextSchema,
-    body: TrackingPlaceCategoryCopyTextSchema,
+    headline: NonEmptyStringSchema,
+    body: NonEmptyStringSchema,
     accusationFree: Schema.Literal(true),
     allowsAutomaticAction: Schema.Literal(false),
     reasonCodes: Schema.Array(TrackingPolicyReasonCodeSchema),
@@ -37,8 +40,8 @@ export const TrackingPlaceCategorySafeCopySchema = withParser(
 export const TrackingPlaceCategoryAmbiguityReviewSchema = withParser(
   Schema.Struct({
     schemaVersion: Schema.Literal(TrackingPolicySchemaVersion),
-    providerPlaceId: Schema.String.pipe(Schema.minLength(1)),
-    displayName: Schema.String.pipe(Schema.minLength(1)),
+    providerPlaceId: NonEmptyStringSchema,
+    displayName: NonEmptyStringSchema,
     category: TrackingPoiCategorySchema,
     ambiguityState: TrackingPoiAmbiguityStateSchema,
     confidence: Schema.Number.pipe(Schema.between(0, 1)),
@@ -113,3 +116,5 @@ function safeCopyFor(candidate: Infer<typeof TrackingPoiCandidateSchema>): Track
     reasonCodes: [ambiguityReason, 'category-is-policy-input-only'],
   });
 }
+
+

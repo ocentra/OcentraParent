@@ -1,7 +1,10 @@
-import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
+import {
+  type Infer,
+  Schema,
+  withParser,
+  brandedNonEmptyStringSchema
+} from '@ocentra-parent/schema-domain/effect';
 import { ParentTimestampSchema } from '@ocentra-parent/family-domain/reference-primitives';
-
-const AndroidChildRuntimeReceiptText = Schema.String.pipe(Schema.minLength(1));
 
 export const AppGameAndroidChildRuntimeTransportReceiptProofSchemaVersionSchema = withParser(
   Schema.Literal('app-game-android-child-runtime-transport-receipt-proof')
@@ -38,9 +41,7 @@ export const AppGameAndroidChildRuntimeTransportReceiptGapSchema = withParser(
   )
 );
 
-const AndroidChildRuntimeReceiptIdSchema = AndroidChildRuntimeReceiptText.pipe(
-  Schema.brand('AppGameAndroidChildRuntimeTransportReceiptProofId')
-);
+const AndroidChildRuntimeReceiptIdSchema = brandedNonEmptyStringSchema('AppGameAndroidChildRuntimeTransportReceiptProofId');
 
 const AppGameAndroidChildRuntimeTransportReceiptProofBaseSchema = Schema.Struct({
   schemaVersion: AppGameAndroidChildRuntimeTransportReceiptProofSchemaVersionSchema,
@@ -183,3 +184,4 @@ function androidChildRuntimeTransportReceiptProofIsHonest(proof: AndroidChildRun
     !proof.rawPrivateSourceRowsIncluded
   );
 }
+

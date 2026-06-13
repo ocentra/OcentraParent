@@ -1,4 +1,9 @@
-import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
+import {
+  type Infer,
+  Schema,
+  withParser,
+  NonEmptyStringSchema
+} from '@ocentra-parent/schema-domain/effect';
 import {
   BrowserAiAnalysisSchemaVersion,
   BrowserUrlAiAnalysisInputSchema,
@@ -23,8 +28,6 @@ export const ScreenAiBrowserTriggerMobileParityStateSchema = withParser(
 );
 
 export const ScreenAiBrowserTriggerLocalAiExpectedStateSchema = withParser(Schema.Literal('ready', 'partial'));
-
-const ScreenAiBrowserTriggerProofIdSchema = Schema.String.pipe(Schema.minLength(1));
 const ScreenAiBrowserTriggerNoClaimFlagsSchema = Schema.Struct({
   rawBrowserStateIncluded: Schema.Literal(false),
   rawScreenFrameStored: Schema.Literal(false),
@@ -38,7 +41,7 @@ const ScreenAiBrowserTriggerNoClaimFlagsSchema = Schema.Struct({
 
 const ScreenAiBrowserTriggerProofRowBaseSchema = Schema.Struct({
   schemaVersion: Schema.Literal(ScreenAiBrowserTriggerProofSchemaVersion),
-  rowId: ScreenAiBrowserTriggerProofIdSchema,
+  rowId: NonEmptyStringSchema,
   surface: ScreenAiBrowserTriggerSurfaceSchema,
   triggerReason: ScreenCaptureReasonSchema,
   triggerState: ScreenAiBrowserTriggerStateSchema,
@@ -509,3 +512,4 @@ function screenAiBrowserTriggerProofMatrixIsComplete(rows: readonly ScreenAiBrow
     rows.some((row) => row.triggerState === 'unavailable')
   );
 }
+

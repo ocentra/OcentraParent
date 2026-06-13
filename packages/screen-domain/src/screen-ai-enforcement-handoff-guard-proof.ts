@@ -1,30 +1,34 @@
-import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
-import { PolicyActionSchema, PolicyDecisionSchema, PolicyRuleSchema } from './policy';
+import { EventingEventTypeSchema } from '@ocentra-parent/event-domain/eventing';
+import {
+  type Infer,
+  Schema,
+  withParser,
+  brandedNonEmptyStringSchema
+} from '@ocentra-parent/schema-domain/effect';
+import { PolicyActionSchema, PolicyDecisionSchema, PolicyRuleSchema } from '@ocentra-parent/policy-domain/policy';
 import { ParentContractSchemaVersionSchema, ParentTimestampSchema } from '@ocentra-parent/family-domain/reference-primitives';
 import { ParentEvidenceReferenceSchema } from '@ocentra-parent/family-domain/references';
 
-const NonEmptyHandoffText = Schema.String.pipe(Schema.minLength(1));
-
-export const ScreenAiEnforcementHandoffGuardPayloadIdSchema = NonEmptyHandoffText.pipe(
-  Schema.brand('ScreenAiEnforcementHandoffGuardPayloadId')
-);
-export const ScreenAiEnforcementHandoffGuardAuditEventIdSchema = NonEmptyHandoffText.pipe(
-  Schema.brand('ScreenAiEnforcementHandoffGuardAuditEventId')
-);
-export const ScreenAiEnforcementHandoffGuardBoundarySchema = NonEmptyHandoffText.pipe(
-  Schema.brand('ScreenAiEnforcementHandoffGuardBoundary')
-);
+export const ScreenAiEnforcementHandoffGuardPayloadIdSchema = brandedNonEmptyStringSchema('ScreenAiEnforcementHandoffGuardPayloadId');
+export const ScreenAiEnforcementHandoffGuardAuditEventIdSchema = brandedNonEmptyStringSchema('ScreenAiEnforcementHandoffGuardAuditEventId');
+export const ScreenAiEnforcementHandoffGuardBoundarySchema = brandedNonEmptyStringSchema('ScreenAiEnforcementHandoffGuardBoundary');
 
 export const ScreenAiEnforcementHandoffConfidenceStateSchema = withParser(
   Schema.Literal('high', 'medium', 'low', 'unknown')
 );
 
 export const ScreenAiEnforcementHandoffModeSchema = withParser(Schema.Literal('dry-run', 'manual-required'));
+export const ScreenAiEnforcementHandoffEventNameLiteral = {
+  Accepted: 'screen.enforcement.handoff.guard.accepted',
+} as const;
+export const ScreenAiEnforcementHandoffAcceptedEventType = EventingEventTypeSchema.parse(
+  ScreenAiEnforcementHandoffEventNameLiteral.Accepted
+);
 
 export const ScreenAiEnforcementHandoffAuditEventSchema = withParser(
   Schema.Struct({
     auditEventId: ScreenAiEnforcementHandoffGuardAuditEventIdSchema,
-    eventType: Schema.Literal('screen.enforcement.handoff.guard.accepted'),
+    eventType: Schema.Literal(ScreenAiEnforcementHandoffAcceptedEventType),
     emittedAt: ParentTimestampSchema,
     evidenceReference: ParentEvidenceReferenceSchema,
   })
@@ -193,3 +197,4 @@ export type ScreenAiEnforcementHandoffAuditEvent = Infer<typeof ScreenAiEnforcem
 export type ScreenAiEnforcementHandoffInputMaterial = Infer<typeof ScreenAiEnforcementHandoffInputMaterialSchema>;
 export type ScreenAiEnforcementHandoffGuardInput = Infer<typeof ScreenAiEnforcementHandoffGuardInputSchema>;
 export type ScreenAiEnforcementHandoffGuardPayload = Infer<typeof ScreenAiEnforcementHandoffGuardPayloadSchema>;
+

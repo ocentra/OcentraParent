@@ -131,6 +131,7 @@ pub const DEVICE_RUNTIME_SURFACE_CHILD_IOS: &str = "child-ios";
 pub const DEVICE_RUNTIME_PLATFORM_IOS: &str = "ios";
 pub const DEVICE_RUNTIME_ROUTE_LOCALHOST: &str = "localhost";
 pub const DEVICE_RUNTIME_ROUTE_LOCAL_NETWORK: &str = "local-network";
+pub const DEVICE_RUNTIME_ROUTE_CLOUD_RELAY: &str = "cloud-relay";
 pub const DEVICE_RUNTIME_ROUTE_MANUAL_REQUIRED: &str = "manual-required";
 pub const DEVICE_RUNTIME_AI_PROVIDER_AVAILABLE: &str = "available";
 pub const DEVICE_RUNTIME_AI_PROVIDER_DEGRADED: &str = "degraded";

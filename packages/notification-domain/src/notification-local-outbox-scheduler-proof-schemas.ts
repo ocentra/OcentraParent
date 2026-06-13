@@ -1,4 +1,9 @@
-import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
+import {
+  type Infer,
+  Schema,
+  withParser,
+  brandedNonEmptyStringSchema
+} from '@ocentra-parent/schema-domain/effect';
 import {
   NotificationLocalOutboxEntryIdSchema,
   NotificationLocalOutboxPayloadPreviewSchema,
@@ -10,17 +15,15 @@ import { ParentContractSchemaVersionSchema, ParentTimestampSchema } from '@ocent
 import {
   RequiredNotificationLocalOutboxSchedulerNonClaims,
   RequiredNotificationLocalOutboxSchedulerStates,
-} from './notification-local-outbox-scheduler-proof-values';
+} from '@ocentra-parent/notification-domain/notification-local-outbox-scheduler-proof-values';
 import {
   V3NotificationProviderChannelSchema,
   V3NotificationRuleReasonCodeSchema,
-} from './v3-notification-rule-provider-retry-contract';
+} from '@ocentra-parent/notification-domain/v3-notification-rule-provider-retry-contract';
 import {
   notificationOutboxSchedulerProofIsSafe,
   notificationOutboxSchedulerRecordIsSafe,
 } from './notification-local-outbox-scheduler-proof-guards';
-
-const NonEmptyNotificationSchedulerText = Schema.String.pipe(Schema.minLength(1));
 const NotificationSchedulerAttemptCountSchema = Schema.Number.pipe(Schema.int(), Schema.nonNegative());
 
 export const NotificationLocalOutboxSchedulerProofSchemaVersionSchema = withParser(
@@ -32,12 +35,8 @@ export const NotificationLocalOutboxSchedulerStateSchema = withParser(
 export const NotificationLocalOutboxSchedulerNonClaimSchema = withParser(
   Schema.Literal(...RequiredNotificationLocalOutboxSchedulerNonClaims)
 );
-export const NotificationLocalOutboxSchedulerReadModelIdSchema = NonEmptyNotificationSchedulerText.pipe(
-  Schema.brand('NotificationLocalOutboxSchedulerReadModelId')
-);
-export const NotificationLocalOutboxSchedulerEntryIdSchema = NonEmptyNotificationSchedulerText.pipe(
-  Schema.brand('NotificationLocalOutboxSchedulerEntryId')
-);
+export const NotificationLocalOutboxSchedulerReadModelIdSchema = brandedNonEmptyStringSchema('NotificationLocalOutboxSchedulerReadModelId');
+export const NotificationLocalOutboxSchedulerEntryIdSchema = brandedNonEmptyStringSchema('NotificationLocalOutboxSchedulerEntryId');
 
 const NotificationLocalOutboxQuietHoursWindowSchema = Schema.Struct({
   quietHoursWindowRef: NotificationLocalOutboxReferenceSchema,
@@ -137,3 +136,4 @@ export type NotificationLocalOutboxSchedulerState = Infer<typeof NotificationLoc
 export type NotificationLocalOutboxSchedulerNonClaim = Infer<typeof NotificationLocalOutboxSchedulerNonClaimSchema>;
 export type NotificationLocalOutboxSchedulerRecord = Infer<typeof NotificationLocalOutboxSchedulerRecordSchema>;
 export type NotificationLocalOutboxSchedulerProof = Infer<typeof NotificationLocalOutboxSchedulerProofSchema>;
+

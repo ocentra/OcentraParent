@@ -1,11 +1,14 @@
-import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
+import {
+  type Infer,
+  Schema,
+  withParser,
+  NonEmptyStringSchema
+} from '@ocentra-parent/schema-domain/effect';
 
 import { providerSecretRotationRevocationStatusEntryIsSafe } from './provider-secret-rotation-revocation-status-guards.js';
 
-const NonEmptyProviderSecretRotationRevocationText = Schema.String.pipe(Schema.minLength(1));
-
 const providerSecretRotationRevocationText = <Brand extends string>(brand: Brand) =>
-  NonEmptyProviderSecretRotationRevocationText.pipe(Schema.brand(brand));
+  NonEmptyStringSchema.pipe(Schema.brand(brand));
 
 export const ProviderSecretRotationRevocationReadModelIdSchema = providerSecretRotationRevocationText(
   'ProviderSecretRotationRevocationReadModelId'
@@ -177,3 +180,4 @@ export function providerSecretRotationRevocationStatusCoversRequiredStates(
     'audit-export-ready',
   ].every((state) => states.has(state as ProviderSecretRotationRevocationStatusState));
 }
+

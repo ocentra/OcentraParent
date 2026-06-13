@@ -1,8 +1,11 @@
-import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
+import {
+  type Infer,
+  Schema,
+  withParser,
+  brandedNonEmptyStringSchema
+} from '@ocentra-parent/schema-domain/effect';
 import { type AppGameAndroidPhysicalDeviceProof } from './app-game-android-physical-device-proof';
 import { ParentTimestampSchema } from '@ocentra-parent/family-domain/reference-primitives';
-
-const AndroidUsageReplayText = Schema.String.pipe(Schema.minLength(1));
 
 export const AppGameAndroidUsageEventsReplaySchemaVersionSchema = withParser(
   Schema.Literal('app-game-android-usage-events-replay')
@@ -37,7 +40,7 @@ export const AppGameAndroidUsageEventsReplayGapSchema = withParser(
   )
 );
 
-const AndroidUsageReplayLabelSchema = AndroidUsageReplayText.pipe(Schema.brand('AppGameAndroidUsageEventsReplayLabel'));
+const AndroidUsageReplayLabelSchema = brandedNonEmptyStringSchema('AppGameAndroidUsageEventsReplayLabel');
 
 const AndroidUsageReplayCountSchema = Schema.Number.pipe(Schema.int(), Schema.greaterThanOrEqualTo(0));
 
@@ -184,3 +187,4 @@ function androidUsageEventsReplayStateIsConsistent(
     readModel.proofRefs.includes('android-physical-usage-events-dump-ref')
   );
 }
+

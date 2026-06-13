@@ -1,8 +1,11 @@
-import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
+import {
+  type Infer,
+  Schema,
+  withParser,
+  brandedNonEmptyStringSchema
+} from '@ocentra-parent/schema-domain/effect';
 import { AppInstallPurchaseExternalRuntimeDeliveryHandoffProofReadModel } from './app-install-purchase-external-runtime-delivery-handoff-proof';
 import { ParentTimestampSchema } from '@ocentra-parent/family-domain/reference-primitives';
-
-const WriterDeliveryBoundaryText = Schema.String.pipe(Schema.minLength(1));
 const WriterDeliveryBoundaryProofVersion = 'app-install-purchase-external-runtime-writer-delivery-boundary-proof';
 const SourceDeliveryHandoffProofVersion = 'app-install-purchase-external-runtime-delivery-handoff-proof';
 const WriterDeliveryBoundaryTimestamp = '2026-06-07T10:45:00.000Z';
@@ -59,18 +62,10 @@ const WriterDeliveryBoundaryAdapterClaimSchema = withParser(Schema.Literal('not-
 const WriterDeliveryBoundaryCustodyClaimSchema = withParser(Schema.Literal('no-child-activity-data'));
 const WriterDeliveryBoundaryNonClaimSchema = withParser(Schema.Literal(...WriterDeliveryBoundaryNonClaims));
 
-const WriterDeliveryBoundaryRowIdSchema = WriterDeliveryBoundaryText.pipe(
-  Schema.brand('AppInstallPurchaseExternalRuntimeWriterDeliveryBoundaryRowId')
-);
-const WriterDeliveryBoundaryRefSchema = WriterDeliveryBoundaryText.pipe(
-  Schema.brand('AppInstallPurchaseExternalRuntimeWriterDeliveryBoundaryRef')
-);
-const WriterDeliveryBoundaryAuditRefSchema = WriterDeliveryBoundaryText.pipe(
-  Schema.brand('AppInstallPurchaseExternalRuntimeWriterDeliveryBoundaryAuditRef')
-);
-const WriterDeliveryBoundaryClaimBoundarySchema = WriterDeliveryBoundaryText.pipe(
-  Schema.brand('AppInstallPurchaseExternalRuntimeWriterDeliveryBoundaryClaimBoundary')
-);
+const WriterDeliveryBoundaryRowIdSchema = brandedNonEmptyStringSchema('AppInstallPurchaseExternalRuntimeWriterDeliveryBoundaryRowId');
+const WriterDeliveryBoundaryRefSchema = brandedNonEmptyStringSchema('AppInstallPurchaseExternalRuntimeWriterDeliveryBoundaryRef');
+const WriterDeliveryBoundaryAuditRefSchema = brandedNonEmptyStringSchema('AppInstallPurchaseExternalRuntimeWriterDeliveryBoundaryAuditRef');
+const WriterDeliveryBoundaryClaimBoundarySchema = brandedNonEmptyStringSchema('AppInstallPurchaseExternalRuntimeWriterDeliveryBoundaryClaimBoundary');
 
 const WriterDeliveryBoundaryRowBaseSchema = Schema.Struct({
   schemaVersion: AppInstallPurchaseExternalRuntimeWriterDeliveryBoundaryProofSchemaVersionSchema,
@@ -309,3 +304,4 @@ function writerDeliveryBoundaryProofIsHonest(
 function writerDeliveryBoundaryIsExplicit(boundary: typeof WriterDeliveryBoundaryClaimBoundarySchema.Type): boolean {
   return WriterDeliveryBoundaryFragments.every((fragment) => boundary.includes(fragment));
 }
+

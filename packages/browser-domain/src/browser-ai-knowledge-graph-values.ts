@@ -1,24 +1,27 @@
-import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
+import {
+  type Infer,
+  Schema,
+  withParser,
+  brandedNonEmptyStringSchema
+} from '@ocentra-parent/schema-domain/effect';
 import { BrowserKnowledgeGraphRefSchema } from './browser-ai-analysis-values';
-
-const NonEmptyKnowledgeGraphText = Schema.String.pipe(Schema.minLength(1));
 
 export { BrowserKnowledgeGraphRefSchema };
 
 export const BrowserAiKnowledgeGraphIdSchema = withParser(
-  NonEmptyKnowledgeGraphText.pipe(Schema.brand('BrowserAiKnowledgeGraphId'))
+  brandedNonEmptyStringSchema('BrowserAiKnowledgeGraphId')
 );
 export const BrowserAiKnowledgeGraphSnapshotIdSchema = withParser(
-  NonEmptyKnowledgeGraphText.pipe(Schema.brand('BrowserAiKnowledgeGraphSnapshotId'))
+  brandedNonEmptyStringSchema('BrowserAiKnowledgeGraphSnapshotId')
 );
 export const BrowserAiKnowledgeGraphVersionRefSchema = withParser(
-  NonEmptyKnowledgeGraphText.pipe(Schema.brand('BrowserAiKnowledgeGraphVersionRef'))
+  brandedNonEmptyStringSchema('BrowserAiKnowledgeGraphVersionRef')
 );
 export const BrowserAiKnowledgeGraphNodeRefSchema = withParser(
-  NonEmptyKnowledgeGraphText.pipe(Schema.brand('BrowserAiKnowledgeGraphNodeRef'))
+  brandedNonEmptyStringSchema('BrowserAiKnowledgeGraphNodeRef')
 );
 export const BrowserAiKnowledgeGraphEdgeRefSchema = withParser(
-  NonEmptyKnowledgeGraphText.pipe(Schema.brand('BrowserAiKnowledgeGraphEdgeRef'))
+  brandedNonEmptyStringSchema('BrowserAiKnowledgeGraphEdgeRef')
 );
 
 export const BrowserAiKnowledgeGraphSourceKindSchema = withParser(
@@ -73,3 +76,4 @@ export type BrowserKnowledgeGraphRef = Infer<typeof BrowserKnowledgeGraphRefSche
 export type BrowserAiKnowledgeGraphNodeRef = Infer<typeof BrowserAiKnowledgeGraphNodeRefSchema>;
 export type BrowserAiKnowledgeGraphSourceKind = Infer<typeof BrowserAiKnowledgeGraphSourceKindSchema>;
 export type BrowserAiKnowledgeGraphUse = Infer<typeof BrowserAiKnowledgeGraphUseSchema>;
+

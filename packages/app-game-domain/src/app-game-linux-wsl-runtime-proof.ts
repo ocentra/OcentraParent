@@ -1,7 +1,10 @@
-import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
+import {
+  type Infer,
+  Schema,
+  withParser,
+  brandedNonEmptyStringSchema
+} from '@ocentra-parent/schema-domain/effect';
 import { ParentTimestampSchema } from '@ocentra-parent/family-domain/reference-primitives';
-
-const LinuxWslProofText = Schema.String.pipe(Schema.minLength(1));
 
 export const AppGameLinuxWslRuntimeProofSchemaVersionSchema = withParser(
   Schema.Literal('app-game-linux-wsl-runtime-proof')
@@ -41,7 +44,7 @@ export const AppGameLinuxWslProofRefSchema = withParser(
   )
 );
 
-const LinuxWslProofLabelSchema = LinuxWslProofText.pipe(Schema.brand('AppGameLinuxWslRuntimeProofLabel'));
+const LinuxWslProofLabelSchema = brandedNonEmptyStringSchema('AppGameLinuxWslRuntimeProofLabel');
 const LinuxWslPositiveCountSchema = Schema.Number.pipe(Schema.int(), Schema.greaterThanOrEqualTo(1));
 
 const AppGameLinuxWslRuntimeProofBaseSchema = Schema.Struct({
@@ -170,3 +173,4 @@ function linuxWslDisplayProofIsHonest(proof: AppGameLinuxWslRuntimeProofCandidat
     proof.displayProofAttached
   );
 }
+

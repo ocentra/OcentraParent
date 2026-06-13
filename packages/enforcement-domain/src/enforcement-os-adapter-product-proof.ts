@@ -1,4 +1,10 @@
-import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
+import {
+  type Infer,
+  Schema,
+  withParser,
+  brandedNonEmptyStringSchema,
+  NonEmptyStringSchema
+} from '@ocentra-parent/schema-domain/effect';
 import {
   EnforcementAdapterKind,
   EnforcementAdapterKindSchema,
@@ -24,29 +30,13 @@ import {
   ParentTimestampSchema,
 } from '@ocentra-parent/family-domain/reference-primitives';
 
-const NonEmptyProductProofText = Schema.String.pipe(Schema.minLength(1));
-
-export const V08OsAdapterProductProofReadModelIdSchema = NonEmptyProductProofText.pipe(
-  Schema.brand('V08OsAdapterProductProofReadModelId')
-);
-export const V08OsAdapterProductProofEntryIdSchema = NonEmptyProductProofText.pipe(
-  Schema.brand('V08OsAdapterProductProofEntryId')
-);
-export const V08OsAdapterCapabilityProofEntryIdSchema = NonEmptyProductProofText.pipe(
-  Schema.brand('V08OsAdapterCapabilityProofEntryId')
-);
-export const V08OsAdapterArtifactGateEntryIdSchema = NonEmptyProductProofText.pipe(
-  Schema.brand('V08OsAdapterArtifactGateEntryId')
-);
-export const V08OsAdapterProductProofRequirementSchema = NonEmptyProductProofText.pipe(
-  Schema.brand('V08OsAdapterProductProofRequirement')
-);
-export const V08OsAdapterProductProofClaimBoundarySchema = NonEmptyProductProofText.pipe(
-  Schema.brand('V08OsAdapterProductProofClaimBoundary')
-);
-export const V08OsAdapterProductProofFallbackSchema = NonEmptyProductProofText.pipe(
-  Schema.brand('V08OsAdapterProductProofFallback')
-);
+export const V08OsAdapterProductProofReadModelIdSchema = brandedNonEmptyStringSchema('V08OsAdapterProductProofReadModelId');
+export const V08OsAdapterProductProofEntryIdSchema = brandedNonEmptyStringSchema('V08OsAdapterProductProofEntryId');
+export const V08OsAdapterCapabilityProofEntryIdSchema = brandedNonEmptyStringSchema('V08OsAdapterCapabilityProofEntryId');
+export const V08OsAdapterArtifactGateEntryIdSchema = brandedNonEmptyStringSchema('V08OsAdapterArtifactGateEntryId');
+export const V08OsAdapterProductProofRequirementSchema = brandedNonEmptyStringSchema('V08OsAdapterProductProofRequirement');
+export const V08OsAdapterProductProofClaimBoundarySchema = brandedNonEmptyStringSchema('V08OsAdapterProductProofClaimBoundary');
+export const V08OsAdapterProductProofFallbackSchema = brandedNonEmptyStringSchema('V08OsAdapterProductProofFallback');
 
 export const V08OsAdapterProductProofSurfaceSchema = withParser(
   Schema.Literal(
@@ -131,7 +121,7 @@ export const V08OsAdapterProductProofReadModelSchema = withParser(
     schemaVersion: ParentContractSchemaVersionSchema,
     readModelId: V08OsAdapterProductProofReadModelIdSchema,
     generatedAt: ParentTimestampSchema,
-    sourceReadModelIds: Schema.Array(NonEmptyProductProofText),
+    sourceReadModelIds: Schema.Array(NonEmptyStringSchema),
     entries: Schema.Array(V08OsAdapterProductProofEntrySchema),
   }).pipe(
     Schema.filter(
@@ -539,3 +529,4 @@ export const decodeV08OsAdapterProductProofEntry = Schema.decodeUnknownSync(V08O
 export const decodeV08OsAdapterProductProofReadModel = Schema.decodeUnknownSync(
   V08OsAdapterProductProofReadModelSchema
 );
+

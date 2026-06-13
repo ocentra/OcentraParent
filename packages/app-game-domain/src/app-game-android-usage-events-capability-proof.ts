@@ -1,7 +1,14 @@
-import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
+import {
+  type Infer,
+  Schema,
+  withParser,
+  brandedNonEmptyStringSchema
+} from '@ocentra-parent/schema-domain/effect';
 import { ParentTimestampSchema } from '@ocentra-parent/family-domain/reference-primitives';
-
-const AndroidUsageEventsText = Schema.String.pipe(Schema.minLength(1));
+import {
+  AppGameAndroidUsageEventsCommandName,
+  AppGameAndroidUsageEventsEventName,
+} from './app-game-android-usage-events-contracts';
 
 export const AppGameAndroidUsageEventsCapabilityProofSchemaVersionSchema = withParser(
   Schema.Literal('app-game-android-usage-events-capability-proof')
@@ -16,13 +23,16 @@ export const AppGameAndroidUsageEventsReplayConsumerStateSchema = withParser(
 );
 
 export const AppGameAndroidUsageEventsCapabilityCommandSchema = withParser(
-  Schema.Literal('app-game.android.usage-events.capability.get', 'app-game.android.usage-events.replay-boundary.get')
+  Schema.Literal(
+    AppGameAndroidUsageEventsCommandName.CapabilityGet,
+    AppGameAndroidUsageEventsCommandName.ReplayBoundaryGet
+  )
 );
 
 export const AppGameAndroidUsageEventsCapabilityEventSchema = withParser(
   Schema.Literal(
-    'app-game.android.usage-events.capability.reported',
-    'app-game.android.usage-events.replay-boundary.reported'
+    AppGameAndroidUsageEventsEventName.CapabilityReported,
+    AppGameAndroidUsageEventsEventName.ReplayBoundaryReported
   )
 );
 
@@ -39,9 +49,7 @@ export const AppGameAndroidUsageEventsCapabilityGapSchema = withParser(
   )
 );
 
-const AndroidUsageEventsLabelSchema = AndroidUsageEventsText.pipe(
-  Schema.brand('AppGameAndroidUsageEventsCapabilityProofLabel')
-);
+const AndroidUsageEventsLabelSchema = brandedNonEmptyStringSchema('AppGameAndroidUsageEventsCapabilityProofLabel');
 
 const AppGameAndroidUsageEventsCapabilityReadModelBaseSchema = Schema.Struct({
   schemaVersion: AppGameAndroidUsageEventsCapabilityProofSchemaVersionSchema,
@@ -97,10 +105,13 @@ export function createAppGameAndroidUsageEventsCapabilityReadModel(input: {
     permissionState: 'settings-grant-required',
     eventCollectionState: 'runtime-grant-not-proved',
     replayConsumerState: 'parent-domain-boundary-only',
-    commands: ['app-game.android.usage-events.capability.get', 'app-game.android.usage-events.replay-boundary.get'],
+    commands: [
+      AppGameAndroidUsageEventsCommandName.CapabilityGet,
+      AppGameAndroidUsageEventsCommandName.ReplayBoundaryGet,
+    ],
     events: [
-      'app-game.android.usage-events.capability.reported',
-      'app-game.android.usage-events.replay-boundary.reported',
+      AppGameAndroidUsageEventsEventName.CapabilityReported,
+      AppGameAndroidUsageEventsEventName.ReplayBoundaryReported,
     ],
     proofRefs: ['android-usage-events-capability-bridge-ref', 'android-package-local-usage-events-proof-ref'],
     openGaps: [
@@ -146,10 +157,10 @@ function androidUsageEventsCapabilityReadModelIsHonest(
     readModel.permissionState === 'settings-grant-required' &&
     readModel.eventCollectionState === 'runtime-grant-not-proved' &&
     readModel.replayConsumerState === 'parent-domain-boundary-only' &&
-    readModel.commands.includes('app-game.android.usage-events.capability.get') &&
-    readModel.commands.includes('app-game.android.usage-events.replay-boundary.get') &&
-    readModel.events.includes('app-game.android.usage-events.capability.reported') &&
-    readModel.events.includes('app-game.android.usage-events.replay-boundary.reported') &&
+    readModel.commands.includes(AppGameAndroidUsageEventsCommandName.CapabilityGet) &&
+    readModel.commands.includes(AppGameAndroidUsageEventsCommandName.ReplayBoundaryGet) &&
+    readModel.events.includes(AppGameAndroidUsageEventsEventName.CapabilityReported) &&
+    readModel.events.includes(AppGameAndroidUsageEventsEventName.ReplayBoundaryReported) &&
     readModel.proofRefs.includes('android-usage-events-capability-bridge-ref') &&
     readModel.proofRefs.includes('android-package-local-usage-events-proof-ref') &&
     readModel.openGaps.includes('android-usage-stats-settings-grant-not-proved') &&
@@ -158,3 +169,4 @@ function androidUsageEventsCapabilityReadModelIsHonest(
     readModel.openGaps.includes('android-platform-enforcement-not-proved')
   );
 }
+

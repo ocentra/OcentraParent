@@ -1,4 +1,9 @@
-import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
+import {
+  type Infer,
+  Schema,
+  withParser,
+  brandedNonEmptyStringSchema
+} from '@ocentra-parent/schema-domain/effect';
 import { ParentTimestampSchema } from '@ocentra-parent/family-domain/reference-primitives';
 import {
   RequiredTrackingFullProductUiRuntimeArtifactRefs,
@@ -6,20 +11,16 @@ import {
 } from './tracking-full-product-ui-readiness-blocker-proof';
 import { TrackingPolicyAuditRefSchema, TrackingPolicySchemaVersion } from './tracking-location-policy-primitives';
 
-const TrackingFullProductUiRuntimeArtifactGateTextSchema = Schema.String.pipe(Schema.minLength(1));
-
 export const TrackingFullProductUiRuntimeArtifactGateStatusSchema = Schema.Literal(
   'manual-required',
   'artifact-set-present'
 );
 
 export const TrackingFullProductUiRuntimeArtifactGatePathSchema =
-  TrackingFullProductUiRuntimeArtifactGateTextSchema.pipe(Schema.brand('TrackingFullProductUiRuntimeArtifactGatePath'));
+  brandedNonEmptyStringSchema('TrackingFullProductUiRuntimeArtifactGatePath');
 
 export const TrackingFullProductUiRuntimeArtifactGateRowIdSchema =
-  TrackingFullProductUiRuntimeArtifactGateTextSchema.pipe(
-    Schema.brand('TrackingFullProductUiRuntimeArtifactGateRowId')
-  );
+  brandedNonEmptyStringSchema('TrackingFullProductUiRuntimeArtifactGateRowId');
 
 export const TrackingFullProductUiRuntimeArtifactGateRowSchema = withParser(
   Schema.Struct({
@@ -225,3 +226,4 @@ function fullProductUiArtifactRow(
     productClaimReady: false,
   });
 }
+

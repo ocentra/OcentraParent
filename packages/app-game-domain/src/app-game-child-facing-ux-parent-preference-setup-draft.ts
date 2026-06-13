@@ -1,4 +1,9 @@
-import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
+import {
+  type Infer,
+  Schema,
+  withParser,
+  brandedNonEmptyStringSchema
+} from '@ocentra-parent/schema-domain/effect';
 import {
   AppGameChildUxLocalOutboxParentSurfaceIntentReadModelSchema,
   type AppGameChildUxLocalOutboxParentSurfaceIntentReadModel,
@@ -14,9 +19,7 @@ import {
   V3NotificationParentPreferenceStateSchema,
   V3NotificationProviderChannelSchema,
   V3NotificationQuietHoursDecisionSchema,
-} from './v3-notification-rule-provider-retry-contract';
-
-const PreferenceSetupDraftText = Schema.String.pipe(Schema.minLength(1));
+} from '@ocentra-parent/notification-domain/v3-notification-rule-provider-retry-contract';
 
 export const AppGameChildUxParentPreferenceSetupDraftStatus = {
   DraftReady: 'draft-ready',
@@ -45,12 +48,8 @@ export const AppGameChildUxParentPreferenceSetupDraftStatusSchema = withParser(
 export const AppGameChildUxParentPreferenceSetupDraftNonClaimSchema = withParser(
   Schema.Literal(...RequiredAppGameChildUxParentPreferenceSetupDraftNonClaims)
 );
-export const AppGameChildUxParentPreferenceSetupDraftIdSchema = PreferenceSetupDraftText.pipe(
-  Schema.brand('AppGameChildUxParentPreferenceSetupDraftId')
-);
-export const AppGameChildUxParentPreferenceSetupDraftReferenceSchema = PreferenceSetupDraftText.pipe(
-  Schema.brand('AppGameChildUxParentPreferenceSetupDraftReference')
-);
+export const AppGameChildUxParentPreferenceSetupDraftIdSchema = brandedNonEmptyStringSchema('AppGameChildUxParentPreferenceSetupDraftId');
+export const AppGameChildUxParentPreferenceSetupDraftReferenceSchema = brandedNonEmptyStringSchema('AppGameChildUxParentPreferenceSetupDraftReference');
 
 const AppGameChildUxParentPreferenceSetupDraftRowBaseSchema = Schema.Struct({
   draftRowId: AppGameChildUxParentPreferenceSetupDraftReferenceSchema,
@@ -278,3 +277,4 @@ function requiredNonClaimsPresent(
 ): boolean {
   return RequiredAppGameChildUxParentPreferenceSetupDraftNonClaims.every((claim) => claims.includes(claim));
 }
+

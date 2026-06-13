@@ -1,4 +1,9 @@
-import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
+import {
+  type Infer,
+  Schema,
+  withParser,
+  brandedNonEmptyStringSchema
+} from '@ocentra-parent/schema-domain/effect';
 import { AppGamePolicyPreviewTargetDomainSchema } from './app-game-policy-preview-handoff';
 import { AppGameSourceFreshnessEvidenceRefSchema } from './app-game-source-freshness-policy-consumption';
 import { AppGameSourceGatedPolicyPreviewTimerProofRefSchema } from './app-game-source-gated-policy-preview-timer-status';
@@ -21,24 +26,14 @@ import {
 } from './app-game-source-gated-policy-preview-timer-service-readiness-protocol-read-model-rules';
 import { ParentContractSchemaVersionSchema, ParentTimestampSchema } from '@ocentra-parent/family-domain/reference-primitives';
 
-const ServiceReadinessProtocolReadModelText = Schema.String.pipe(Schema.minLength(1));
-
 export const AppGameSourceGatedPolicyPreviewTimerServiceReadinessProtocolReadModelIdSchema =
-  ServiceReadinessProtocolReadModelText.pipe(
-    Schema.brand('AppGameSourceGatedPolicyPreviewTimerServiceReadinessProtocolReadModelId')
-  );
+  brandedNonEmptyStringSchema('AppGameSourceGatedPolicyPreviewTimerServiceReadinessProtocolReadModelId');
 export const AppGameSourceGatedPolicyPreviewTimerServiceReadinessProtocolReadModelRowIdSchema =
-  ServiceReadinessProtocolReadModelText.pipe(
-    Schema.brand('AppGameSourceGatedPolicyPreviewTimerServiceReadinessProtocolReadModelRowId')
-  );
+  brandedNonEmptyStringSchema('AppGameSourceGatedPolicyPreviewTimerServiceReadinessProtocolReadModelRowId');
 export const AppGameSourceGatedPolicyPreviewTimerServiceReadinessProtocolReadModelContractRefSchema =
-  ServiceReadinessProtocolReadModelText.pipe(
-    Schema.brand('AppGameSourceGatedPolicyPreviewTimerServiceReadinessProtocolReadModelContractRef')
-  );
+  brandedNonEmptyStringSchema('AppGameSourceGatedPolicyPreviewTimerServiceReadinessProtocolReadModelContractRef');
 export const AppGameSourceGatedPolicyPreviewTimerServiceReadinessProtocolSummaryRefSchema =
-  ServiceReadinessProtocolReadModelText.pipe(
-    Schema.brand('AppGameSourceGatedPolicyPreviewTimerServiceReadinessProtocolSummaryRef')
-  );
+  brandedNonEmptyStringSchema('AppGameSourceGatedPolicyPreviewTimerServiceReadinessProtocolSummaryRef');
 
 export const AppGameSourceGatedPolicyPreviewTimerServiceReadinessProtocolReadModelStateSchema = withParser(
   Schema.Literal(...Object.values(AppGameSourceGatedPolicyPreviewTimerServiceReadinessProtocolReadModelState))
@@ -259,3 +254,4 @@ export const decodeAppGameSourceGatedPolicyPreviewTimerServiceReadinessProtocolR
 );
 
 export { AppGameSourceGatedPolicyPreviewTimerServiceReadinessProtocolReadModelState };
+

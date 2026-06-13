@@ -1,20 +1,19 @@
-import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
+import {
+  type Infer,
+  Schema,
+  withParser,
+  brandedNonEmptyStringSchema
+} from '@ocentra-parent/schema-domain/effect';
 import {
   ParentContractSchemaVersion,
   ParentContractSchemaVersionSchema,
   ParentTimestampSchema,
 } from '@ocentra-parent/family-domain/reference-primitives';
 import { FamilyReferenceSchema, ParentDeviceReferenceSchema, ParentEvidenceReferenceSchema } from '@ocentra-parent/family-domain/references';
-
-const TrackingAndroidPermissionTextSchema = Schema.String.pipe(Schema.minLength(1));
 const TrackingAndroidPermissionNonNegativeIntegerSchema = Schema.Number.pipe(Schema.int(), Schema.nonNegative());
 
-export const TrackingAndroidPermissionBackgroundProofIdSchema = TrackingAndroidPermissionTextSchema.pipe(
-  Schema.brand('TrackingAndroidPermissionBackgroundProofId')
-);
-export const TrackingAndroidPermissionBackgroundProofReferenceSchema = TrackingAndroidPermissionTextSchema.pipe(
-  Schema.brand('TrackingAndroidPermissionBackgroundProofReference')
-);
+export const TrackingAndroidPermissionBackgroundProofIdSchema = brandedNonEmptyStringSchema('TrackingAndroidPermissionBackgroundProofId');
+export const TrackingAndroidPermissionBackgroundProofReferenceSchema = brandedNonEmptyStringSchema('TrackingAndroidPermissionBackgroundProofReference');
 
 export const TrackingAndroidPermissionBackgroundCaseSchema = withParser(
   Schema.Literal(
@@ -379,3 +378,4 @@ function countRows(
 ): number {
   return rows.filter(predicate).length;
 }
+

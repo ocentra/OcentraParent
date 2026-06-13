@@ -1,8 +1,12 @@
-import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
+import {
+  type Infer,
+  Schema,
+  withParser,
+  brandedNonEmptyStringSchema,
+  NonEmptyStringSchema
+} from '@ocentra-parent/schema-domain/effect';
 import { ParentTimestampSchema } from '@ocentra-parent/family-domain/reference-primitives';
 import { TrackingPolicyAuditRefSchema, TrackingPolicySchemaVersion } from './tracking-location-policy-primitives';
-
-const TrackingClaimAuditTextSchema = Schema.String.pipe(Schema.minLength(1));
 
 export const TrackingClaimAuditAreaSchema = Schema.Literal(
   'android-physical-background-and-geofence',
@@ -20,8 +24,8 @@ export const TrackingClaimAuditAreaSchema = Schema.Literal(
 
 export const TrackingClaimAuditStatusSchema = Schema.Literal('manual-required', 'artifact-set-present-review-required');
 
-export const TrackingClaimAuditPathSchema = TrackingClaimAuditTextSchema.pipe(Schema.brand('TrackingClaimAuditPath'));
-export const TrackingClaimAuditRowIdSchema = TrackingClaimAuditTextSchema.pipe(Schema.brand('TrackingClaimAuditRowId'));
+export const TrackingClaimAuditPathSchema = brandedNonEmptyStringSchema('TrackingClaimAuditPath');
+export const TrackingClaimAuditRowIdSchema = brandedNonEmptyStringSchema('TrackingClaimAuditRowId');
 
 export const TrackingClaimAuditRowSchema = withParser(
   Schema.Struct({
@@ -32,12 +36,12 @@ export const TrackingClaimAuditRowSchema = withParser(
     sourceProofRef: TrackingClaimAuditPathSchema,
     supportingProofRefs: Schema.Array(TrackingClaimAuditPathSchema),
     proofRoot: TrackingClaimAuditPathSchema,
-    requiredProofTier: TrackingClaimAuditTextSchema,
+    requiredProofTier: NonEmptyStringSchema,
     currentProofTier: Schema.Literal('P3_LOCAL_DEV_MACHINE'),
     status: TrackingClaimAuditStatusSchema,
-    acceptanceCriteria: Schema.Array(TrackingClaimAuditTextSchema),
-    manualValidationCommands: Schema.Array(TrackingClaimAuditTextSchema),
-    artifactAcceptanceNotes: Schema.Array(TrackingClaimAuditTextSchema),
+    acceptanceCriteria: Schema.Array(NonEmptyStringSchema),
+    manualValidationCommands: Schema.Array(NonEmptyStringSchema),
+    artifactAcceptanceNotes: Schema.Array(NonEmptyStringSchema),
     requiredArtifacts: Schema.Array(TrackingClaimAuditPathSchema),
     presentArtifacts: Schema.Array(TrackingClaimAuditPathSchema),
     missingArtifacts: Schema.Array(TrackingClaimAuditPathSchema),
@@ -442,3 +446,4 @@ function summarizeRows(rows: readonly TrackingClaimAuditRow[]) {
     productReadyRowCount: 0 as const,
   };
 }
+

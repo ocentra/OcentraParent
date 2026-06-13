@@ -1,6 +1,8 @@
-import { Schema, withParser } from '@ocentra-parent/schema-domain/effect';
-
-const NonEmptyPublicStatusText = Schema.String.pipe(Schema.minLength(1));
+import {
+  Schema,
+  withParser,
+  brandedNonEmptyStringSchema
+} from '@ocentra-parent/schema-domain/effect';
 
 export const ProductionReleasePublicStatusSchemaVersionSchema = withParser(
   Schema.Literal('production-release-public-status-proof')
@@ -70,15 +72,9 @@ export const ProductionReleasePublicNonClaimSchema = withParser(
   )
 );
 
-export const PublicStatusLabelSchema = NonEmptyPublicStatusText.pipe(
-  Schema.brand('ProductionReleasePublicStatusLabel')
-);
-export const PublicStatusRequirementSchema = NonEmptyPublicStatusText.pipe(
-  Schema.brand('ProductionReleasePublicStatusRequirement')
-);
-export const PublicStatusReferenceSchema = NonEmptyPublicStatusText.pipe(
-  Schema.brand('ProductionReleasePublicStatusReference')
-);
+export const PublicStatusLabelSchema = brandedNonEmptyStringSchema('ProductionReleasePublicStatusLabel');
+export const PublicStatusRequirementSchema = brandedNonEmptyStringSchema('ProductionReleasePublicStatusRequirement');
+export const PublicStatusReferenceSchema = brandedNonEmptyStringSchema('ProductionReleasePublicStatusReference');
 
 export const ForbiddenPublicDataClasses = [
   'child-activity-evidence',
@@ -111,3 +107,4 @@ export const RequiredNonClaims = [
   'no-support-backend-upload',
   'no-child-activity-custody',
 ] as const;
+

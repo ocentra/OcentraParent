@@ -1,5 +1,5 @@
 import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
-import { ParentControlCapabilityNameSchema, ParentControlCapabilityStatusSchema } from './capabilities';
+import { ParentControlCapabilityNameSchema, ParentControlCapabilityStatusSchema } from '@ocentra-parent/capability-domain/capabilities';
 import { ParentTimestampSchema } from '@ocentra-parent/family-domain/reference-primitives';
 import {
   BrowserGameMobileCapabilityBoundarySchema,

@@ -1,11 +1,15 @@
-import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
+import {
+  type Infer,
+  Schema,
+  withParser,
+  brandedNonEmptyStringSchema
+} from '@ocentra-parent/schema-domain/effect';
 import { AppInstallPurchaseProductClaimGateProofReadModel } from './app-install-purchase-product-claim-gate-proof';
 import { ParentPlatformSchema, ParentTimestampSchema } from '@ocentra-parent/family-domain/reference-primitives';
 
 const ProofVersion = 'app-install-purchase-product-claim-safe-parent-workflow-proof';
 const SourceGateProofVersion = 'app-install-purchase-product-claim-gate-proof';
 const UpdatedAt = '2026-06-06T11:55:00.000Z';
-const Text = Schema.String.pipe(Schema.minLength(1));
 const StoreSurfaces = [
   'microsoft-store',
   'mac-app-store',
@@ -56,8 +60,8 @@ const StoreSurfaceSchema = withParser(Schema.Literal(...StoreSurfaces));
 const WorkflowStateSchema = withParser(Schema.Literal(...WorkflowStates));
 const ProductClaimGateStateSchema = withParser(Schema.Literal('product-claim-denied', 'manual-required', 'blocked'));
 const NonClaimSchema = withParser(Schema.Literal(...NonClaims));
-const RefSchema = Text.pipe(Schema.brand('AppInstallPurchaseProductClaimSafeParentWorkflowRef'));
-const BoundarySchema = Text.pipe(Schema.brand('AppInstallPurchaseProductClaimSafeParentWorkflowBoundary'));
+const RefSchema = brandedNonEmptyStringSchema('AppInstallPurchaseProductClaimSafeParentWorkflowRef');
+const BoundarySchema = brandedNonEmptyStringSchema('AppInstallPurchaseProductClaimSafeParentWorkflowBoundary');
 const NotExecutedSchema = withParser(Schema.Literal('not-executed'));
 const NotClaimedSchema = withParser(Schema.Literal('not-claimed'));
 const NotImplementedSchema = withParser(Schema.Literal('not-implemented'));
@@ -283,3 +287,4 @@ function safeParentWorkflowProofIsHonest(proof: AppInstallPurchaseProductClaimSa
     proof.knownGaps.length > 0
   );
 }
+

@@ -1,9 +1,12 @@
-import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
+import {
+  type Infer,
+  Schema,
+  withParser,
+  brandedNonEmptyStringSchema
+} from '@ocentra-parent/schema-domain/effect';
 import { AppInstallPurchaseProviderStoreExecutionReadinessProofReadModel } from './app-install-purchase-provider-store-execution-readiness-proof';
 import { AppInstallPurchaseRuntimeReportWriterDeliveryProofReadModel } from './app-install-purchase-runtime-report-writer-delivery-proof';
 import { ParentPlatformSchema, ParentTimestampSchema } from '@ocentra-parent/family-domain/reference-primitives';
-
-const ProviderStoreReportStatusRuntimeText = Schema.String.pipe(Schema.minLength(1));
 const ProviderStoreReportStatusRuntimeProofVersion = 'app-install-purchase-provider-store-report-status-runtime-proof';
 const SourceProviderStoreExecutionReadinessProofVersion =
   'app-install-purchase-provider-store-execution-readiness-proof';
@@ -62,15 +65,9 @@ const ProviderStoreReportStatusRuntimeNonClaimSchema = withParser(
   Schema.Literal(...ProviderStoreReportStatusRuntimeNonClaims)
 );
 
-const ProviderStoreReportStatusRuntimeRowIdSchema = ProviderStoreReportStatusRuntimeText.pipe(
-  Schema.brand('AppInstallPurchaseProviderStoreReportStatusRuntimeRowId')
-);
-const ProviderStoreReportStatusRuntimeRefSchema = ProviderStoreReportStatusRuntimeText.pipe(
-  Schema.brand('AppInstallPurchaseProviderStoreReportStatusRuntimeRef')
-);
-const ProviderStoreReportStatusRuntimeBoundarySchema = ProviderStoreReportStatusRuntimeText.pipe(
-  Schema.brand('AppInstallPurchaseProviderStoreReportStatusRuntimeBoundary')
-);
+const ProviderStoreReportStatusRuntimeRowIdSchema = brandedNonEmptyStringSchema('AppInstallPurchaseProviderStoreReportStatusRuntimeRowId');
+const ProviderStoreReportStatusRuntimeRefSchema = brandedNonEmptyStringSchema('AppInstallPurchaseProviderStoreReportStatusRuntimeRef');
+const ProviderStoreReportStatusRuntimeBoundarySchema = brandedNonEmptyStringSchema('AppInstallPurchaseProviderStoreReportStatusRuntimeBoundary');
 
 const ProviderStoreReportStatusRuntimeRowBaseSchema = Schema.Struct({
   schemaVersion: AppInstallPurchaseProviderStoreReportStatusRuntimeProofSchemaVersionSchema,
@@ -283,3 +280,4 @@ function providerStoreReportStatusRuntimeProofIsHonest(
     proof.knownGaps.length > 0
   );
 }
+

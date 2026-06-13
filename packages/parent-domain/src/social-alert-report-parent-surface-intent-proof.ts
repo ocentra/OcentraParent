@@ -1,1 +1,1 @@
-export * from '@ocentra-parent/social-domain/social-alert-report-parent-surface-intent-proof';
+export * from '@ocentra-parent/browser-domain/social-alert-report-parent-surface-intent-proof';

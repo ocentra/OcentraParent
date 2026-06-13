@@ -1,6 +1,8 @@
-import { Schema, withParser } from '@ocentra-parent/schema-domain/effect';
-
-const NonEmptyQueueAuditPersistenceText = Schema.String.pipe(Schema.minLength(1));
+import {
+  Schema,
+  withParser,
+  brandedNonEmptyStringSchema
+} from '@ocentra-parent/schema-domain/effect';
 
 export const ProductionSupportStatusBackendQueueAuditPersistenceSchemaVersionSchema = withParser(
   Schema.Literal('production-support-status-backend-queue-audit-persistence-proof')
@@ -98,12 +100,8 @@ export const ProductionSupportStatusBackendQueueAuditPersistenceNonClaimSchema =
   )
 );
 
-export const QueueAuditPersistenceReferenceSchema = NonEmptyQueueAuditPersistenceText.pipe(
-  Schema.brand('ProductionSupportStatusBackendQueueAuditPersistenceReference')
-);
-export const QueueAuditPersistenceManualRequirementSchema = NonEmptyQueueAuditPersistenceText.pipe(
-  Schema.brand('ProductionSupportStatusBackendQueueAuditPersistenceManualRequirement')
-);
+export const QueueAuditPersistenceReferenceSchema = brandedNonEmptyStringSchema('ProductionSupportStatusBackendQueueAuditPersistenceReference');
+export const QueueAuditPersistenceManualRequirementSchema = brandedNonEmptyStringSchema('ProductionSupportStatusBackendQueueAuditPersistenceManualRequirement');
 
 export const ForbiddenQueueAuditPersistenceDataClasses = [
   'child-activity-evidence',
@@ -158,3 +156,4 @@ export const RequiredQueueAuditPersistenceNonClaims = [
   'no-provider-secret-custody',
   'no-status-backend-payload-custody',
 ] as const;
+

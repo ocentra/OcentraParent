@@ -1,17 +1,21 @@
-import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
+import {
+  type Infer,
+  Schema,
+  withParser,
+  brandedNonEmptyStringSchema,
+  NonEmptyStringSchema
+} from '@ocentra-parent/schema-domain/effect';
 import { ActivityTimestampSchema } from '@ocentra-parent/evidence-domain/primitives';
 import { BrowserEvidenceSchemaVersion } from './browser-schemas';
-
-const AndroidOwnedShellRuntimeText = Schema.String.pipe(Schema.minLength(1));
 
 export const BrowserAndroidOwnedShellRuntimeStateSchema = withParser(
   Schema.Literal('physical-visible-owned-shell', 'emulator-browser-role-routing', 'manual-required')
 );
 export const BrowserAndroidOwnedShellRuntimeProofRefSchema = withParser(
-  AndroidOwnedShellRuntimeText.pipe(Schema.brand('BrowserAndroidOwnedShellRuntimeProofRef'))
+  brandedNonEmptyStringSchema('BrowserAndroidOwnedShellRuntimeProofRef')
 );
 export const BrowserAndroidOwnedShellRuntimeReasonSchema = withParser(
-  AndroidOwnedShellRuntimeText.pipe(Schema.brand('BrowserAndroidOwnedShellRuntimeReason'))
+  brandedNonEmptyStringSchema('BrowserAndroidOwnedShellRuntimeReason')
 );
 
 const BrowserAndroidOwnedShellProofDeviceSchema = Schema.Struct({
@@ -62,8 +66,8 @@ const BrowserAndroidOwnedShellProofSchema = withParser(
       usageStatsRouteProofClaimed: Schema.Boolean,
       accessibilityRouteProofClaimed: Schema.Boolean,
       enforcementClaimed: Schema.Boolean,
-      physicalDeviceClaimBoundary: AndroidOwnedShellRuntimeText,
-      resultState: AndroidOwnedShellRuntimeText,
+      physicalDeviceClaimBoundary: NonEmptyStringSchema,
+      resultState: NonEmptyStringSchema,
     }),
     devices: Schema.Array(BrowserAndroidOwnedShellProofDeviceSchema),
   })
@@ -293,3 +297,4 @@ function emulatorRoutingRowsStayEmulatorScoped(row: BrowserAndroidOwnedShellRunt
       row.emulatorBrowserRoleRoutingOnly)
   );
 }
+

@@ -1,4 +1,9 @@
-import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
+import {
+  type Infer,
+  Schema,
+  withParser,
+  brandedNonEmptyStringSchema
+} from '@ocentra-parent/schema-domain/effect';
 import {
   NotificationAuditHistoryEntrySchema,
   NotificationAuditHistoryRequiredPayloadFields,
@@ -8,8 +13,6 @@ import {
   type NotificationAuditHistoryRetryLifecycleState,
   type NotificationAuditHistoryEscalationState,
 } from './notification-audit-history';
-
-const HandoffText = Schema.String.pipe(Schema.minLength(1));
 
 export const NotificationAuditHistoryHandoffSourceStatus = {
   QueuedLocalOutbox: 'queued-local-outbox',
@@ -21,15 +24,9 @@ export const NotificationAuditHistoryHandoffSourceStatusSchema = withParser(
   Schema.Literal(...Object.values(NotificationAuditHistoryHandoffSourceStatus))
 );
 
-export const NotificationAuditHistoryHandoffIdSchema = HandoffText.pipe(
-  Schema.brand('NotificationAuditHistoryHandoffId')
-);
-export const NotificationAuditHistoryHandoffReferenceSchema = HandoffText.pipe(
-  Schema.brand('NotificationAuditHistoryHandoffReference')
-);
-export const NotificationAuditHistoryHandoffTimestampSchema = HandoffText.pipe(
-  Schema.brand('NotificationAuditHistoryHandoffTimestamp')
-);
+export const NotificationAuditHistoryHandoffIdSchema = brandedNonEmptyStringSchema('NotificationAuditHistoryHandoffId');
+export const NotificationAuditHistoryHandoffReferenceSchema = brandedNonEmptyStringSchema('NotificationAuditHistoryHandoffReference');
+export const NotificationAuditHistoryHandoffTimestampSchema = brandedNonEmptyStringSchema('NotificationAuditHistoryHandoffTimestamp');
 
 const NotificationAuditHistoryHandoffSourceRowBaseSchema = Schema.Struct({
   handoffEntryId: NotificationAuditHistoryHandoffReferenceSchema,
@@ -243,3 +240,4 @@ function countRows(
 ): number {
   return rows.filter((row) => row.sourceStatus === sourceStatus).length;
 }
+

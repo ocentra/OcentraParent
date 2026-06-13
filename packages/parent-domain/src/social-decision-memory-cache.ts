@@ -1,1 +1,1 @@
-export * from '@ocentra-parent/social-domain/social-decision-memory-cache';
+export * from '@ocentra-parent/browser-domain/social-decision-memory-cache';

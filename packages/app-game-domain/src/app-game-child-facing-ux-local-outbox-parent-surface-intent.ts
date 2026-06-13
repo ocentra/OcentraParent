@@ -1,4 +1,10 @@
-import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
+import {
+  type Infer,
+  Schema,
+  withParser,
+  brandedNonEmptyStringSchema,
+  NonEmptyStringSchema
+} from '@ocentra-parent/schema-domain/effect';
 import {
   AppGameChildUxLocalOutboxPreferenceStatusHandoffReadModelSchema,
   type AppGameChildUxLocalOutboxPreferenceStatusHandoffReadModel,
@@ -18,15 +24,13 @@ import { FamilyReferenceSchema } from '@ocentra-parent/family-domain/references'
 import {
   V08NotificationProviderStatusSchema,
   type V08NotificationProviderStatus,
-} from './v0-8-notification-provider-status-boundary';
+} from '@ocentra-parent/notification-domain/v0-8-notification-provider-status-boundary';
 import {
   V3NotificationDeliveryResultStateSchema,
   V3NotificationParentPreferenceStateSchema,
   V3NotificationProviderChannelSchema,
   V3NotificationQuietHoursDecisionSchema,
-} from './v3-notification-rule-provider-retry-contract';
-
-const ParentSurfaceText = Schema.String.pipe(Schema.minLength(1));
+} from '@ocentra-parent/notification-domain/v3-notification-rule-provider-retry-contract';
 
 export const RequiredAppGameChildUxLocalOutboxParentSurfaceIntentNonClaims = [
   'no-parent-notification-ui-rendered',
@@ -57,12 +61,8 @@ export const AppGameChildUxLocalOutboxParentSurfaceHistoryVisibilitySchema = wit
 export const AppGameChildUxLocalOutboxParentSurfacePreferenceVisibilitySchema = withParser(
   Schema.Literal('preference-setup-required', 'preference-disabled-visible')
 );
-export const AppGameChildUxLocalOutboxParentSurfaceIntentIdSchema = ParentSurfaceText.pipe(
-  Schema.brand('AppGameChildUxLocalOutboxParentSurfaceIntentId')
-);
-export const AppGameChildUxLocalOutboxParentSurfaceIntentReferenceSchema = ParentSurfaceText.pipe(
-  Schema.brand('AppGameChildUxLocalOutboxParentSurfaceIntentReference')
-);
+export const AppGameChildUxLocalOutboxParentSurfaceIntentIdSchema = brandedNonEmptyStringSchema('AppGameChildUxLocalOutboxParentSurfaceIntentId');
+export const AppGameChildUxLocalOutboxParentSurfaceIntentReferenceSchema = brandedNonEmptyStringSchema('AppGameChildUxLocalOutboxParentSurfaceIntentReference');
 
 const AppGameChildUxLocalOutboxParentSurfaceIntentRowBaseSchema = Schema.Struct({
   surfaceRowId: AppGameChildUxLocalOutboxParentSurfaceIntentReferenceSchema,
@@ -81,8 +81,8 @@ const AppGameChildUxLocalOutboxParentSurfaceIntentRowBaseSchema = Schema.Struct(
   drillInRefs: Schema.Array(AppGameChildUxLocalOutboxParentSurfaceIntentReferenceSchema),
   auditRefs: Schema.Array(AppGameChildUxLocalOutboxParentSurfaceIntentReferenceSchema),
   manualProofRequirements: Schema.Array(AppGameChildUxLocalOutboxParentSurfaceIntentReferenceSchema),
-  minimalSurfacePayloadBoundary: ParentSurfaceText,
-  childUxLocalOutboxSurfaceClaim: ParentSurfaceText,
+  minimalSurfacePayloadBoundary: NonEmptyStringSchema,
+  childUxLocalOutboxSurfaceClaim: NonEmptyStringSchema,
   sensitiveDetailIncluded: Schema.Literal(false),
   providerDeliveryClaimed: Schema.Literal(false),
   providerReceiptClaimed: Schema.Literal(false),
@@ -324,3 +324,4 @@ const countPreferenceVisibility = (
   rows: readonly ParentSurfaceIntentRowInput[],
   visibility: ParentSurfaceIntentRowInput['preferenceVisibility']
 ): number => rows.filter((row) => row.preferenceVisibility === visibility).length;
+

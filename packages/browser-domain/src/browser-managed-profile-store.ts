@@ -1,4 +1,10 @@
-import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
+import {
+  type Infer,
+  Schema,
+  withParser,
+  brandedNonEmptyStringSchema,
+  NonEmptyStringSchema
+} from '@ocentra-parent/schema-domain/effect';
 import { ActivityDeviceIdSchema, ActivityTimestampSchema } from '@ocentra-parent/evidence-domain/primitives';
 import {
   BrowserChannelSchema,
@@ -9,9 +15,7 @@ import {
   BrowserProfileIdSchema,
   BrowserProfilePathRefSchema,
 } from './browser-schemas';
-
-const NonEmptyProfileStoreText = Schema.String.pipe(Schema.minLength(1));
-const RedactedProfileRefText = NonEmptyProfileStoreText.pipe(
+const RedactedProfileRefText = NonEmptyStringSchema.pipe(
   Schema.filter((value) => profileRefIsRedacted(value) || 'Expected a redacted managed profile ref')
 );
 
@@ -31,10 +35,10 @@ export const BrowserProfileRootRefSchema = withParser(
   RedactedProfileRefText.pipe(Schema.brand('BrowserProfileRootRef'))
 );
 export const BrowserProfileScopeIdSchema = withParser(
-  NonEmptyProfileStoreText.pipe(Schema.brand('BrowserProfileScopeId'))
+  brandedNonEmptyStringSchema('BrowserProfileScopeId')
 );
 export const BrowserPolicyRevisionSchema = withParser(
-  NonEmptyProfileStoreText.pipe(Schema.brand('BrowserPolicyRevision'))
+  brandedNonEmptyStringSchema('BrowserPolicyRevision')
 );
 
 const BrowserManagedProfileStoreEntryBaseSchema = Schema.Struct({
@@ -124,3 +128,4 @@ function repairReasonProfileEntryIsConsistent(entry: BrowserManagedProfileStoreE
 function profileRefIsRedacted(value: string): boolean {
   return !value.includes('/') && !value.includes('\\') && !value.includes(':');
 }
+

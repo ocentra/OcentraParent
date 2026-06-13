@@ -1,4 +1,9 @@
-import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
+import {
+  type Infer,
+  Schema,
+  withParser,
+  brandedNonEmptyStringSchema
+} from '@ocentra-parent/schema-domain/effect';
 import { AppInstallPurchasePlatformProofReadinessProofReadModel } from './app-install-purchase-platform-proof-readiness';
 import { AppInstallPurchaseProductClaimPortalTestReadinessProofReadModel } from './app-install-purchase-product-claim-portal-test-readiness-proof';
 import { ParentPlatformSchema, ParentTimestampSchema } from '@ocentra-parent/family-domain/reference-primitives';
@@ -7,7 +12,6 @@ const ProofVersion = 'app-install-purchase-product-claim-platform-preclaim-proof
 const SourcePortalTestReadinessProofVersion = 'app-install-purchase-product-claim-portal-test-readiness-proof';
 const SourcePlatformProofReadinessProofVersion = 'app-install-purchase-platform-proof-readiness';
 const UpdatedAt = '2026-06-06T21:20:00.000Z';
-const Text = Schema.String.pipe(Schema.minLength(1));
 const StoreSurfaces = [
   'microsoft-store',
   'mac-app-store',
@@ -69,8 +73,8 @@ const PlatformProofReadinessStateSchema = withParser(
   Schema.Literal('manual-proof-required', 'policy-blocked', 'unavailable')
 );
 const NonClaimSchema = withParser(Schema.Literal(...NonClaims));
-const RefSchema = Text.pipe(Schema.brand('AppInstallPurchaseProductClaimPlatformPreclaimRef'));
-const BoundarySchema = Text.pipe(Schema.brand('AppInstallPurchaseProductClaimPlatformPreclaimBoundary'));
+const RefSchema = brandedNonEmptyStringSchema('AppInstallPurchaseProductClaimPlatformPreclaimRef');
+const BoundarySchema = brandedNonEmptyStringSchema('AppInstallPurchaseProductClaimPlatformPreclaimBoundary');
 const NotExecutedSchema = withParser(Schema.Literal('not-executed'));
 const NotClaimedSchema = withParser(Schema.Literal('not-claimed'));
 const NotImplementedSchema = withParser(Schema.Literal('not-implemented'));
@@ -357,3 +361,4 @@ function platformPreclaimProofIsHonest(proof: AppInstallPurchaseProductClaimPlat
 function uniqueRefs(refs: readonly string[]) {
   return Array.from(new Set(refs));
 }
+

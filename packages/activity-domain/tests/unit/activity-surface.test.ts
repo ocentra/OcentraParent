@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { ActivityEvidenceKind } from '../../src/kinds';
+import { ActivityEvidenceKind } from '@ocentra-parent/evidence-domain/kinds';
 import {
   ActivityAppUseReadModelSchema,
   ActivityBrowserReadModelSchema,

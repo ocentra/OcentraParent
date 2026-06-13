@@ -62,11 +62,12 @@
     "test": "vitest run"
   },
   "dependencies": {
-    "@ocentra-parent/ai-domain": "file:../ai-domain",
+    "@ocentra-parent/agent-protocol-domain": "file:../agent-protocol-domain",
+    "@ocentra-parent/event-domain": "file:../event-domain",
     "@ocentra-parent/evidence-domain": "file:../evidence-domain",
     "@ocentra-parent/family-domain": "file:../family-domain",
-    "@ocentra-parent/lan-domain": "file:../lan-domain",
-    "@ocentra-parent/policy-domain": "file:../policy-domain",
+    "@ocentra-parent/notification-domain": "file:../notification-domain",
+    "@ocentra-parent/production-domain": "file:../production-domain",
     "@ocentra-parent/schema-domain": "file:../schema-domain"
   }
 }

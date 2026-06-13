@@ -1,11 +1,15 @@
-import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
+import {
+  type Infer,
+  Schema,
+  withParser,
+  brandedNonEmptyStringSchema
+} from '@ocentra-parent/schema-domain/effect';
 import { AppInstallPurchasePlatformProofReadinessProofReadModel } from './app-install-purchase-platform-proof-readiness';
 import { ParentTimestampSchema } from '@ocentra-parent/family-domain/reference-primitives';
 
 const ProofVersion = 'app-install-purchase-store-manual-evidence-proof';
 const SourceProofVersion = 'app-install-purchase-platform-proof-readiness';
 const CheckedAt = '2026-06-06T08:24:00.000Z';
-const Text = Schema.String.pipe(Schema.minLength(1));
 const Platforms = ['windows', 'macos', 'linux', 'android', 'ios'] as const;
 const StoreSurfaces = [
   'microsoft-store',
@@ -56,8 +60,8 @@ const PlatformSchema = withParser(Schema.Literal(...Platforms));
 const StoreSurfaceSchema = withParser(Schema.Literal(...StoreSurfaces));
 const StoreManualEvidenceStateSchema = withParser(Schema.Literal(...StoreManualEvidenceStates));
 const NonClaimSchema = withParser(Schema.Literal(...NonClaims));
-const RefSchema = Text.pipe(Schema.brand('AppInstallPurchaseStoreManualEvidenceRef'));
-const BoundarySchema = Text.pipe(Schema.brand('AppInstallPurchaseStoreManualEvidenceBoundary'));
+const RefSchema = brandedNonEmptyStringSchema('AppInstallPurchaseStoreManualEvidenceRef');
+const BoundarySchema = brandedNonEmptyStringSchema('AppInstallPurchaseStoreManualEvidenceBoundary');
 const NotExecutedSchema = withParser(Schema.Literal('not-executed'));
 const NotClaimedSchema = withParser(Schema.Literal('not-claimed'));
 const NotImplementedSchema = withParser(Schema.Literal('not-implemented'));
@@ -234,3 +238,4 @@ function proofIsHonest(proof: AppInstallPurchaseStoreManualEvidenceProof): boole
     proof.knownGaps.length > 0
   );
 }
+

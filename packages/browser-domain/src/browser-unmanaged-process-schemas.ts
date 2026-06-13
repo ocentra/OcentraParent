@@ -1,7 +1,11 @@
-import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
-
-const NonEmptyBrowserText = Schema.String.pipe(Schema.minLength(1));
-const BrowserRedactedRefText = NonEmptyBrowserText.pipe(
+import {
+  type Infer,
+  Schema,
+  withParser,
+  brandedNonEmptyStringSchema,
+  NonEmptyStringSchema
+} from '@ocentra-parent/schema-domain/effect';
+const BrowserRedactedRefText = NonEmptyStringSchema.pipe(
   Schema.filter((value) => browserRedactedRefIsSafe(value) || 'Expected a redacted browser reference')
 );
 
@@ -41,7 +45,7 @@ export const BrowserUnmanagedProcessHashRefSchema = withParser(
   BrowserRedactedRefText.pipe(Schema.brand('BrowserUnmanagedProcessHashRef'))
 );
 export const BrowserUnmanagedProcessNameSchema = withParser(
-  NonEmptyBrowserText.pipe(Schema.brand('BrowserUnmanagedProcessName'))
+  brandedNonEmptyStringSchema('BrowserUnmanagedProcessName')
 );
 export const BrowserUnmanagedSignatureRefSchema = withParser(
   BrowserRedactedRefText.pipe(Schema.brand('BrowserUnmanagedSignatureRef'))
@@ -54,3 +58,4 @@ export type BrowserUnmanagedProcessKind = Infer<typeof BrowserUnmanagedProcessKi
 function browserRedactedRefIsSafe(value: string): boolean {
   return !value.includes('/') && !value.includes('\\') && !value.includes(':');
 }
+

@@ -1,4 +1,9 @@
-import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
+import {
+  type Infer,
+  Schema,
+  withParser,
+  brandedNonEmptyStringSchema
+} from '@ocentra-parent/schema-domain/effect';
 import { LocalAiContextNonNegativeCountSchema, LocalAiContextReasonCodeSchema } from './local-ai-context-primitives';
 import {
   LocalAiConfidenceSchema,
@@ -12,21 +17,11 @@ import {
   ParentDeviceReferenceSchema,
   ParentEvidenceReferenceSchema,
 } from '@ocentra-parent/family-domain/references';
-
-const NonEmptyActivityMemoryText = Schema.String.pipe(Schema.minLength(1));
-const LocalAiActivityMemoryGraphIdSchema = NonEmptyActivityMemoryText.pipe(
-  Schema.brand('LocalAiActivityMemoryGraphId')
-);
-const LocalAiActivityMemoryGraphNodeIdSchema = NonEmptyActivityMemoryText.pipe(
-  Schema.brand('LocalAiActivityMemoryGraphNodeId')
-);
-const LocalAiActivityMemoryGraphEdgeIdSchema = NonEmptyActivityMemoryText.pipe(
-  Schema.brand('LocalAiActivityMemoryGraphEdgeId')
-);
-const LocalAiActivityMemoryGraphQueryIdSchema = NonEmptyActivityMemoryText.pipe(
-  Schema.brand('LocalAiActivityMemoryGraphQueryId')
-);
-const LocalAiActivityMemoryLabelSchema = NonEmptyActivityMemoryText.pipe(Schema.brand('LocalAiActivityMemoryLabel'));
+const LocalAiActivityMemoryGraphIdSchema = brandedNonEmptyStringSchema('LocalAiActivityMemoryGraphId');
+const LocalAiActivityMemoryGraphNodeIdSchema = brandedNonEmptyStringSchema('LocalAiActivityMemoryGraphNodeId');
+const LocalAiActivityMemoryGraphEdgeIdSchema = brandedNonEmptyStringSchema('LocalAiActivityMemoryGraphEdgeId');
+const LocalAiActivityMemoryGraphQueryIdSchema = brandedNonEmptyStringSchema('LocalAiActivityMemoryGraphQueryId');
+const LocalAiActivityMemoryLabelSchema = brandedNonEmptyStringSchema('LocalAiActivityMemoryLabel');
 const LocalAiActivityMemoryDurationMsSchema = Schema.Number.pipe(Schema.nonNegative(), Schema.int());
 
 const LocalAiActivityMemoryGraphNodeKindSchema = withParser(
@@ -164,3 +159,4 @@ function edgeReferencesReturnedNodes(
   const nodeIds = new Set(nodes.map((node) => node.nodeId));
   return nodeIds.has(edge.fromNodeId) && nodeIds.has(edge.toNodeId);
 }
+

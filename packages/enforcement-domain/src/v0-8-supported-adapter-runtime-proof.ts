@@ -1,4 +1,9 @@
-import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
+import {
+  type Infer,
+  Schema,
+  withParser,
+  brandedNonEmptyStringSchema
+} from '@ocentra-parent/schema-domain/effect';
 import {
   ParentContractSchemaVersion,
   ParentContractSchemaVersionSchema,
@@ -7,29 +12,15 @@ import {
 } from '@ocentra-parent/family-domain/reference-primitives';
 
 export * from './v0-8-integrity-alert-status-bridge';
-export * from './v0-8-notification-provider-status-boundary';
+export * from '@ocentra-parent/notification-domain/v0-8-notification-provider-status-boundary';
 export * from './v0-8-enforcement-integrity-runtime-audit';
 
-const NonEmptySupportedAdapterText = Schema.String.pipe(Schema.minLength(1));
-
-export const V08SupportedAdapterRuntimeProofReadModelIdSchema = NonEmptySupportedAdapterText.pipe(
-  Schema.brand('V08SupportedAdapterRuntimeProofReadModelId')
-);
-export const V08SupportedAdapterRuntimeProofEntryIdSchema = NonEmptySupportedAdapterText.pipe(
-  Schema.brand('V08SupportedAdapterRuntimeProofEntryId')
-);
-export const V08SupportedAdapterRuntimeProofReferenceSchema = NonEmptySupportedAdapterText.pipe(
-  Schema.brand('V08SupportedAdapterRuntimeProofReference')
-);
-export const V08SupportedAdapterRuntimeProofRequirementSchema = NonEmptySupportedAdapterText.pipe(
-  Schema.brand('V08SupportedAdapterRuntimeProofRequirement')
-);
-export const V08SupportedAdapterRuntimeProofBoundarySchema = NonEmptySupportedAdapterText.pipe(
-  Schema.brand('V08SupportedAdapterRuntimeProofBoundary')
-);
-export const V08SupportedAdapterRuntimeProofFallbackSchema = NonEmptySupportedAdapterText.pipe(
-  Schema.brand('V08SupportedAdapterRuntimeProofFallback')
-);
+export const V08SupportedAdapterRuntimeProofReadModelIdSchema = brandedNonEmptyStringSchema('V08SupportedAdapterRuntimeProofReadModelId');
+export const V08SupportedAdapterRuntimeProofEntryIdSchema = brandedNonEmptyStringSchema('V08SupportedAdapterRuntimeProofEntryId');
+export const V08SupportedAdapterRuntimeProofReferenceSchema = brandedNonEmptyStringSchema('V08SupportedAdapterRuntimeProofReference');
+export const V08SupportedAdapterRuntimeProofRequirementSchema = brandedNonEmptyStringSchema('V08SupportedAdapterRuntimeProofRequirement');
+export const V08SupportedAdapterRuntimeProofBoundarySchema = brandedNonEmptyStringSchema('V08SupportedAdapterRuntimeProofBoundary');
+export const V08SupportedAdapterRuntimeProofFallbackSchema = brandedNonEmptyStringSchema('V08SupportedAdapterRuntimeProofFallback');
 
 export const V08SupportedAdapterRuntimeBoundarySchema = withParser(
   Schema.Literal(
@@ -685,3 +676,4 @@ export const decodeV08SupportedAdapterRuntimeProofEntry = Schema.decodeUnknownSy
 export const decodeV08SupportedAdapterRuntimeProofReadModel = Schema.decodeUnknownSync(
   V08SupportedAdapterRuntimeProofReadModelSchema
 );
+

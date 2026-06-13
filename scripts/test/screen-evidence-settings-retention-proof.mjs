@@ -11,7 +11,7 @@ import {
   ScreenEvidenceRecentSummarySchema,
   ScreenEvidenceRemoteBoundarySettingSchema,
   ScreenEvidenceSchemaVersion,
-} from '../../packages/activity-domain/dist/screen-evidence.js';
+} from '../../packages/screen-domain/dist/screen-evidence.js';
 
 const repoRoot = fileURLToPath(new URL('../..', import.meta.url));
 const outputDir = join(repoRoot, 'test-results', 'screen-evidence-settings-retention-proof');
@@ -265,7 +265,7 @@ assert.equal(invalidRemoteSummaryCustodyBoundary.success, false);
 const proof = {
   proofId: 'screen-evidence-settings-retention-proof',
   generatedAt: '2026-05-21T06:58:00Z',
-  source: '@ocentra-parent/activity-domain screen evidence contracts',
+  source: '@ocentra-parent/screen-domain screen evidence contracts',
   assertions: [
     'parent opt-in gates cadence, trigger capture, strict mode, and policy use',
     'temporary queue custody stays on child-device-temp-queue with encrypted image ref',

@@ -1,11 +1,14 @@
-import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
+import {
+  type Infer,
+  Schema,
+  withParser,
+  brandedNonEmptyStringSchema
+} from '@ocentra-parent/schema-domain/effect';
 import { ParentTimestampSchema } from '@ocentra-parent/family-domain/reference-primitives';
 import {
   TrackingFixtureCoverageRequiredStates,
   TrackingFixtureCoverageStateExpectations,
 } from './tracking-fixture-coverage-proof-values';
-
-const TrackingFixtureCoverageTextSchema = Schema.String.pipe(Schema.minLength(1));
 
 export const TrackingFixtureCoverageProofSchemaVersionSchema = withParser(
   Schema.Literal('tracking-fixture-coverage-proof')
@@ -33,11 +36,9 @@ export const TrackingFixtureProofTierSchema = withParser(
 );
 export const TrackingFixtureCoverageStateStatusSchema = withParser(Schema.Literal('covered', 'manual-required'));
 
-const TrackingFixtureProofRefSchema = TrackingFixtureCoverageTextSchema.pipe(Schema.brand('TrackingFixtureProofRef'));
-const TrackingFixtureRequirementSchema = TrackingFixtureCoverageTextSchema.pipe(
-  Schema.brand('TrackingFixtureRequirement')
-);
-const TrackingFixtureBoundarySchema = TrackingFixtureCoverageTextSchema.pipe(Schema.brand('TrackingFixtureBoundary'));
+const TrackingFixtureProofRefSchema = brandedNonEmptyStringSchema('TrackingFixtureProofRef');
+const TrackingFixtureRequirementSchema = brandedNonEmptyStringSchema('TrackingFixtureRequirement');
+const TrackingFixtureBoundarySchema = brandedNonEmptyStringSchema('TrackingFixtureBoundary');
 
 export const TrackingFixtureCoverageRowSchema = withParser(
   Schema.Struct({
@@ -184,3 +185,4 @@ export type TrackingFixtureCoverageStateStatus = Infer<typeof TrackingFixtureCov
 export type TrackingFixtureCoverageRow = Infer<typeof TrackingFixtureCoverageRowSchema>;
 export type TrackingFixtureCoverageSummary = Infer<typeof TrackingFixtureCoverageSummarySchema>;
 export type TrackingFixtureCoverageReadModel = Infer<typeof TrackingFixtureCoverageReadModelSchema>;
+

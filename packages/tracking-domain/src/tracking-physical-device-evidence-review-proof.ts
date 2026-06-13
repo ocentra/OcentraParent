@@ -1,4 +1,10 @@
-import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
+import {
+  type Infer,
+  Schema,
+  withParser,
+  brandedNonEmptyStringSchema,
+  NonEmptyStringSchema
+} from '@ocentra-parent/schema-domain/effect';
 import { ParentTimestampSchema } from '@ocentra-parent/family-domain/reference-primitives';
 import {
   TrackingPhysicalDeviceArtifactGateProofSchema,
@@ -10,11 +16,7 @@ import {
 } from './tracking-physical-device-artifact-gate-proof';
 import { TrackingPolicySchemaVersion } from './tracking-location-policy-primitives';
 
-const TrackingPhysicalDeviceEvidenceReviewTextSchema = Schema.String.pipe(Schema.minLength(1));
-
-export const TrackingPhysicalDeviceEvidenceReviewRowIdSchema = TrackingPhysicalDeviceEvidenceReviewTextSchema.pipe(
-  Schema.brand('TrackingPhysicalDeviceEvidenceReviewRowId')
-);
+export const TrackingPhysicalDeviceEvidenceReviewRowIdSchema = brandedNonEmptyStringSchema('TrackingPhysicalDeviceEvidenceReviewRowId');
 
 export const TrackingPhysicalDeviceEvidenceReviewStatusSchema = Schema.Literal(
   'artifact-missing',
@@ -37,9 +39,9 @@ export const TrackingPhysicalDeviceEvidenceReviewRowSchema = withParser(
     missingArtifacts: Schema.Array(TrackingPhysicalDeviceArtifactPathSchema),
     supportingStatusProofRef: TrackingPhysicalDeviceArtifactPathSchema,
     supportingStatusArtifacts: Schema.Array(TrackingPhysicalDeviceArtifactPathSchema),
-    acceptanceCriteria: Schema.Array(TrackingPhysicalDeviceEvidenceReviewTextSchema),
-    manualValidationCommands: Schema.Array(TrackingPhysicalDeviceEvidenceReviewTextSchema),
-    artifactAcceptanceNotes: Schema.Array(TrackingPhysicalDeviceEvidenceReviewTextSchema),
+    acceptanceCriteria: Schema.Array(NonEmptyStringSchema),
+    manualValidationCommands: Schema.Array(NonEmptyStringSchema),
+    artifactAcceptanceNotes: Schema.Array(NonEmptyStringSchema),
     artifactSetComplete: Schema.Boolean,
     physicalDeviceStatusObserved: Schema.Boolean,
     reviewerRequired: Schema.Literal(true),
@@ -192,3 +194,4 @@ function summaryFor(rows: readonly TrackingPhysicalDeviceEvidenceReviewRow[]) {
     artifactAcceptanceNoteCount: rows.reduce((total, row) => total + row.artifactAcceptanceNotes.length, 0),
   };
 }
+

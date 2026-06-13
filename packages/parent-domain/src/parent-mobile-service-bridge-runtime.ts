@@ -1,4 +1,9 @@
-import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
+import {
+  type Infer,
+  Schema,
+  withParser,
+  brandedNonEmptyStringSchema
+} from '@ocentra-parent/schema-domain/effect';
 import { LanPairingRejectionReasonSchema, type LanPairingRejectionReason } from '@ocentra-parent/lan-domain/lan-pairing-values';
 import {
   AndroidParentMobileCapabilityStatuses,
@@ -15,10 +20,8 @@ import {
   type ParentMobileCommandAuthorityState,
   type ParentMobilePlatform,
 } from './parent-mobile-runtime';
-import { ParentControlCapabilityNameSchema, ParentControlCapabilityStatusSchema } from './capabilities';
-import { ParentDeviceIdSchema, ParentEvidenceReferenceIdSchema, ParentTimestampSchema } from './reference-primitives';
-
-const NonEmptyParentMobileServiceBridgeText = Schema.String.pipe(Schema.minLength(1));
+import { ParentControlCapabilityNameSchema, ParentControlCapabilityStatusSchema } from '@ocentra-parent/capability-domain/capabilities';
+import { ParentDeviceIdSchema, ParentEvidenceReferenceIdSchema, ParentTimestampSchema } from '@ocentra-parent/family-domain/reference-primitives';
 
 export const ParentMobileServiceBridgeRuntimeSchemaVersionSchema = withParser(
   Schema.Literal('parent-mobile-service-bridge-proof')
@@ -105,36 +108,16 @@ export const ParentMobileServiceBridgeProofSourceSchema = withParser(
   )
 );
 
-const ParentMobileServiceBridgeProofLabelSchema = NonEmptyParentMobileServiceBridgeText.pipe(
-  Schema.brand('ParentMobileServiceBridgeProofLabel')
-);
-const ParentMobileServiceBridgeProofPathSchema = NonEmptyParentMobileServiceBridgeText.pipe(
-  Schema.brand('ParentMobileServiceBridgeProofPath')
-);
-const ParentMobileServiceBridgeProofCommandSchema = NonEmptyParentMobileServiceBridgeText.pipe(
-  Schema.brand('ParentMobileServiceBridgeProofCommand')
-);
-const ParentMobileServiceBridgeProofRequirementSchema = NonEmptyParentMobileServiceBridgeText.pipe(
-  Schema.brand('ParentMobileServiceBridgeProofRequirement')
-);
-const ParentMobileServiceBridgeClaimBoundarySchema = NonEmptyParentMobileServiceBridgeText.pipe(
-  Schema.brand('ParentMobileServiceBridgeClaimBoundary')
-);
-const ParentMobileServiceBridgeRouteIdSchema = NonEmptyParentMobileServiceBridgeText.pipe(
-  Schema.brand('ParentMobileServiceBridgeRouteId')
-);
-const ParentMobileServiceBridgeProviderIdSchema = NonEmptyParentMobileServiceBridgeText.pipe(
-  Schema.brand('ParentMobileServiceBridgeProviderId')
-);
-const ParentMobileServiceBridgeAiCapabilitySchema = NonEmptyParentMobileServiceBridgeText.pipe(
-  Schema.brand('ParentMobileServiceBridgeAiCapability')
-);
-const ParentMobileServiceBridgeUnavailableReasonSchema = NonEmptyParentMobileServiceBridgeText.pipe(
-  Schema.brand('ParentMobileServiceBridgeUnavailableReason')
-);
-const ParentMobileServiceBridgeLaunchTargetSchema = NonEmptyParentMobileServiceBridgeText.pipe(
-  Schema.brand('ParentMobileServiceBridgeLaunchTarget')
-);
+const ParentMobileServiceBridgeProofLabelSchema = brandedNonEmptyStringSchema('ParentMobileServiceBridgeProofLabel');
+const ParentMobileServiceBridgeProofPathSchema = brandedNonEmptyStringSchema('ParentMobileServiceBridgeProofPath');
+const ParentMobileServiceBridgeProofCommandSchema = brandedNonEmptyStringSchema('ParentMobileServiceBridgeProofCommand');
+const ParentMobileServiceBridgeProofRequirementSchema = brandedNonEmptyStringSchema('ParentMobileServiceBridgeProofRequirement');
+const ParentMobileServiceBridgeClaimBoundarySchema = brandedNonEmptyStringSchema('ParentMobileServiceBridgeClaimBoundary');
+const ParentMobileServiceBridgeRouteIdSchema = brandedNonEmptyStringSchema('ParentMobileServiceBridgeRouteId');
+const ParentMobileServiceBridgeProviderIdSchema = brandedNonEmptyStringSchema('ParentMobileServiceBridgeProviderId');
+const ParentMobileServiceBridgeAiCapabilitySchema = brandedNonEmptyStringSchema('ParentMobileServiceBridgeAiCapability');
+const ParentMobileServiceBridgeUnavailableReasonSchema = brandedNonEmptyStringSchema('ParentMobileServiceBridgeUnavailableReason');
+const ParentMobileServiceBridgeLaunchTargetSchema = brandedNonEmptyStringSchema('ParentMobileServiceBridgeLaunchTarget');
 
 export const ParentMobileServiceBridgeProofInputSchema = withParser(
   Schema.Struct({
@@ -577,3 +560,4 @@ export type ParentMobileServiceBridgeReadModel = Infer<typeof ParentMobileServic
 export type ParentMobileServiceBridgeClaimBoundaries = Infer<typeof ParentMobileServiceBridgeClaimBoundariesSchema>;
 export type ParentMobileServiceBridgeProofHarness = Infer<typeof ParentMobileServiceBridgeProofHarnessSchema>;
 export type ParentMobileServiceBridgeRuntimeReadModel = Infer<typeof ParentMobileServiceBridgeRuntimeReadModelSchema>;
+

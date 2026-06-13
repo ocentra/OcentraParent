@@ -1,10 +1,11 @@
-import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
+import {
+  type Infer,
+  Schema,
+  withParser,
+  brandedNonEmptyStringSchema
+} from '@ocentra-parent/schema-domain/effect';
 
-const NonEmptyAppGameInventoryText = Schema.String.pipe(Schema.minLength(1));
-
-export const AppGameInventorySourceRefSchema = NonEmptyAppGameInventoryText.pipe(
-  Schema.brand('AppGameInventorySourceRef')
-);
+export const AppGameInventorySourceRefSchema = brandedNonEmptyStringSchema('AppGameInventorySourceRef');
 
 export const AppGameInventorySourceKindSchema = withParser(
   Schema.Literal(
@@ -89,3 +90,4 @@ export type AppGameInventorySourceKind = Infer<typeof AppGameInventorySourceKind
 export type AppGameInventoryDetectionState = Infer<typeof AppGameInventoryDetectionStateSchema>;
 export type AppGameInventoryCustodyState = Infer<typeof AppGameInventoryCustodyStateSchema>;
 export type AppGameInventoryCategoryKind = Infer<typeof AppGameInventoryCategoryKindSchema>;
+

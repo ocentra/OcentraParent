@@ -1,7 +1,10 @@
-import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
+import {
+  type Infer,
+  Schema,
+  withParser,
+  brandedNonEmptyStringSchema
+} from '@ocentra-parent/schema-domain/effect';
 import { ParentTimestampSchema } from '@ocentra-parent/family-domain/reference-primitives';
-
-const LocalNotificationActionText = Schema.String.pipe(Schema.minLength(1));
 
 export const AppGameAndroidChildRuntimeLocalNotificationActionProofSchemaVersionSchema = withParser(
   Schema.Literal('app-game-android-child-runtime-local-notification-action-proof')
@@ -44,9 +47,7 @@ export const AppGameAndroidChildRuntimeLocalNotificationActionGapSchema = withPa
   )
 );
 
-const LocalNotificationActionLabelSchema = LocalNotificationActionText.pipe(
-  Schema.brand('AppGameAndroidChildRuntimeLocalNotificationActionProofLabel')
-);
+const LocalNotificationActionLabelSchema = brandedNonEmptyStringSchema('AppGameAndroidChildRuntimeLocalNotificationActionProofLabel');
 
 const AppGameAndroidChildRuntimeLocalNotificationActionProofBaseSchema = Schema.Struct({
   schemaVersion: AppGameAndroidChildRuntimeLocalNotificationActionProofSchemaVersionSchema,
@@ -166,3 +167,4 @@ function localNotificationActionProofIsHonest(proof: LocalNotificationActionCand
     proof.openGaps.includes('platform-enforcement-not-proved')
   );
 }
+

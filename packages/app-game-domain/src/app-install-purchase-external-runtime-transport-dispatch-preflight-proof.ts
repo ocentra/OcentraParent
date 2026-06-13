@@ -1,11 +1,15 @@
-import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
+import {
+  type Infer,
+  Schema,
+  withParser,
+  brandedNonEmptyStringSchema
+} from '@ocentra-parent/schema-domain/effect';
 import { AppInstallPurchaseExternalRuntimeTransportQueueProofReadModel } from './app-install-purchase-external-runtime-transport-queue-proof';
 import { ParentTimestampSchema } from '@ocentra-parent/family-domain/reference-primitives';
 
 const DispatchPreflightProofVersion = 'app-install-purchase-external-runtime-transport-dispatch-preflight-proof';
 const SourceTransportQueueProofVersion = 'app-install-purchase-external-runtime-transport-queue-proof';
 const DispatchPreflightTimestamp = '2026-06-07T17:52:00.000Z';
-const DispatchPreflightText = Schema.String.pipe(Schema.minLength(1));
 const DispatchPreflightBoundary =
   'external runtime transport dispatch preflight proof only; dispatch packets are parent-owned withheld rows and must not leave the parent queue until external writer transport handler provider-store execution handler platform adapter execution handler and child-device transport receipt refs are real no external runtime writer execution no external runtime writer delivery no parent action runtime delivery no provider API execution no store integration no platform interception no platform adapter implementation no child-device delivery no runtime report delivery no real install or purchase interception no app blocking no child activity data no Ocentra-hosted family data custody';
 const DispatchPreflightActions = ['approve', 'deny', 'time-box', 'review-needed'] as const;
@@ -74,18 +78,10 @@ const DispatchIntegrationClaimSchema = withParser(Schema.Literal('not-claimed'))
 const DispatchAdapterClaimSchema = withParser(Schema.Literal('not-implemented'));
 const DispatchCustodyClaimSchema = withParser(Schema.Literal('no-child-activity-data'));
 
-const DispatchPreflightRowIdSchema = DispatchPreflightText.pipe(
-  Schema.brand('AppInstallPurchaseExternalRuntimeTransportDispatchPreflightRowId')
-);
-const DispatchPreflightRefSchema = DispatchPreflightText.pipe(
-  Schema.brand('AppInstallPurchaseExternalRuntimeTransportDispatchPreflightRef')
-);
-const DispatchPreflightAuditRefSchema = DispatchPreflightText.pipe(
-  Schema.brand('AppInstallPurchaseExternalRuntimeTransportDispatchPreflightAuditRef')
-);
-const DispatchPreflightBoundarySchema = DispatchPreflightText.pipe(
-  Schema.brand('AppInstallPurchaseExternalRuntimeTransportDispatchPreflightBoundary')
-);
+const DispatchPreflightRowIdSchema = brandedNonEmptyStringSchema('AppInstallPurchaseExternalRuntimeTransportDispatchPreflightRowId');
+const DispatchPreflightRefSchema = brandedNonEmptyStringSchema('AppInstallPurchaseExternalRuntimeTransportDispatchPreflightRef');
+const DispatchPreflightAuditRefSchema = brandedNonEmptyStringSchema('AppInstallPurchaseExternalRuntimeTransportDispatchPreflightAuditRef');
+const DispatchPreflightBoundarySchema = brandedNonEmptyStringSchema('AppInstallPurchaseExternalRuntimeTransportDispatchPreflightBoundary');
 
 const DispatchPreflightRowBaseSchema = Schema.Struct({
   schemaVersion: AppInstallPurchaseExternalRuntimeTransportDispatchPreflightProofSchemaVersionSchema,
@@ -344,3 +340,4 @@ function dispatchPreflightProofIsHonest(
 function dispatchPreflightBoundaryIsExplicit(boundary: typeof DispatchPreflightBoundarySchema.Type): boolean {
   return DispatchPreflightBoundaryFragments.every((fragment) => boundary.includes(fragment));
 }
+

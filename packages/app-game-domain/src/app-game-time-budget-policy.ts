@@ -1,4 +1,9 @@
-import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
+import {
+  type Infer,
+  Schema,
+  withParser,
+  brandedNonEmptyStringSchema
+} from '@ocentra-parent/schema-domain/effect';
 import { ParentActionReferenceSchema, ParentDeviceReferenceSchema, ParentEvidenceReferenceSchema } from '@ocentra-parent/family-domain/references';
 import {
   ParentContractSchemaVersionSchema,
@@ -26,8 +31,6 @@ import {
   appGameTimeBudgetTargetAllowsNullRef,
   appGameTimeBudgetTimerStateIsAuditable,
 } from './app-game-time-budget-policy-rules';
-
-const NonEmptyTimeBudgetText = Schema.String.pipe(Schema.minLength(1));
 const NonNegativeTimeBudgetNumber = Schema.Number.pipe(
   Schema.filter((value) => (Number.isFinite(value) && value >= 0) || 'Expected a non-negative finite number')
 );
@@ -35,16 +38,12 @@ const PositiveTimeBudgetNumber = Schema.Number.pipe(
   Schema.filter((value) => (Number.isFinite(value) && value > 0) || 'Expected a positive finite number')
 );
 
-export const AppGameTimeBudgetPolicyIdSchema = NonEmptyTimeBudgetText.pipe(Schema.brand('AppGameTimeBudgetPolicyId'));
-export const AppGameTimeBudgetDecisionIdSchema = NonEmptyTimeBudgetText.pipe(
-  Schema.brand('AppGameTimeBudgetDecisionId')
-);
-export const AppGameTimeBudgetSessionRefIdSchema = NonEmptyTimeBudgetText.pipe(
-  Schema.brand('AppGameTimeBudgetSessionRefId')
-);
-export const AppGameTimeBudgetTargetRefSchema = NonEmptyTimeBudgetText.pipe(Schema.brand('AppGameTimeBudgetTargetRef'));
-export const AppGameTimeBudgetAuditRefSchema = NonEmptyTimeBudgetText.pipe(Schema.brand('AppGameTimeBudgetAuditRef'));
-export const AppGameTimeBudgetTimerRefSchema = NonEmptyTimeBudgetText.pipe(Schema.brand('AppGameTimeBudgetTimerRef'));
+export const AppGameTimeBudgetPolicyIdSchema = brandedNonEmptyStringSchema('AppGameTimeBudgetPolicyId');
+export const AppGameTimeBudgetDecisionIdSchema = brandedNonEmptyStringSchema('AppGameTimeBudgetDecisionId');
+export const AppGameTimeBudgetSessionRefIdSchema = brandedNonEmptyStringSchema('AppGameTimeBudgetSessionRefId');
+export const AppGameTimeBudgetTargetRefSchema = brandedNonEmptyStringSchema('AppGameTimeBudgetTargetRef');
+export const AppGameTimeBudgetAuditRefSchema = brandedNonEmptyStringSchema('AppGameTimeBudgetAuditRef');
+export const AppGameTimeBudgetTimerRefSchema = brandedNonEmptyStringSchema('AppGameTimeBudgetTimerRef');
 
 export const AppGameTimeBudgetTargetKindSchema = withParser(
   Schema.Literal(...Object.values(AppGameTimeBudgetTargetKind))
@@ -243,3 +242,4 @@ export type AppGameTimeBudgetSessionInput = Infer<typeof AppGameTimeBudgetSessio
 export type AppGameTimeBudgetBonusGrant = Infer<typeof AppGameTimeBudgetBonusGrantSchema>;
 export type AppGameTimeBudgetPolicy = Infer<typeof AppGameTimeBudgetPolicySchema>;
 export type AppGameTimeBudgetDryRunDecision = Infer<typeof AppGameTimeBudgetDryRunDecisionSchema>;
+

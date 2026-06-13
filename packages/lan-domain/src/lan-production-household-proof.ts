@@ -1,12 +1,15 @@
-import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
+import {
+  type Infer,
+  Schema,
+  withParser,
+  NonEmptyStringSchema
+} from '@ocentra-parent/schema-domain/effect';
 import {
   LanPairingProductionDiscoveryStateSchema,
   LanPairingSchemaVersionSchema,
   LanPairingTimestampSchema,
 } from './lan-pairing-values';
 import { LanHouseholdProductProofStateSchema } from './lan-pairing-product-proof';
-
-const NonEmptyProductionLanText = Schema.String.pipe(Schema.minLength(1));
 
 export const LanProductionHouseholdProofCapabilitySchema = withParser(
   Schema.Literal(
@@ -45,8 +48,8 @@ export const LanProductionHouseholdProofStatusSchema = withParser(
     discoveryState: LanPairingProductionDiscoveryStateSchema,
     proofState: LanHouseholdProductProofStateSchema,
     runtimeOwner: LanProductionHouseholdProofRuntimeOwnerSchema,
-    evidenceLabel: NonEmptyProductionLanText,
-    requiredArtifactSummary: Schema.Union(NonEmptyProductionLanText, Schema.Null),
+    evidenceLabel: NonEmptyStringSchema,
+    requiredArtifactSummary: Schema.Union(NonEmptyStringSchema, Schema.Null),
   })
 );
 
@@ -56,8 +59,8 @@ const LanProductionHouseholdProofSummaryBaseSchema = Schema.Struct({
   statusRows: Schema.Array(LanProductionHouseholdProofStatusSchema),
   manualProofRequired: Schema.Array(LanProductionHouseholdProofCapabilitySchema),
   notImplemented: Schema.Array(LanProductionHouseholdProofCapabilitySchema),
-  claimsProved: Schema.Array(NonEmptyProductionLanText),
-  claimsNotProved: Schema.Array(NonEmptyProductionLanText),
+  claimsProved: Schema.Array(NonEmptyStringSchema),
+  claimsNotProved: Schema.Array(NonEmptyStringSchema),
 });
 
 type LanProductionHouseholdProofSummaryCandidate = Infer<typeof LanProductionHouseholdProofSummaryBaseSchema>;
@@ -145,3 +148,4 @@ export type LanProductionHouseholdProofCapability = Infer<typeof LanProductionHo
 export type LanProductionHouseholdProofRuntimeOwner = Infer<typeof LanProductionHouseholdProofRuntimeOwnerSchema>;
 export type LanProductionHouseholdProofStatus = Infer<typeof LanProductionHouseholdProofStatusSchema>;
 export type LanProductionHouseholdProofSummary = Infer<typeof LanProductionHouseholdProofSummarySchema>;
+

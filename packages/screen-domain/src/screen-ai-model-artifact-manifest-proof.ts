@@ -1,9 +1,14 @@
-import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
+import {
+  type Infer,
+  Schema,
+  withParser,
+  brandedNonEmptyStringSchema
+} from '@ocentra-parent/schema-domain/effect';
 import {
   LocalAiModelArtifactRefSchema,
   LocalAiModelCacheStatusSchema,
   LocalAiModelManifestRefSchema,
-} from './local-ai-model-artifacts';
+} from '@ocentra-parent/ai-domain/local-ai-model-artifacts';
 import {
   LocalAiCapabilityFlagSchema,
   LocalAiModelIdSchema,
@@ -14,13 +19,9 @@ import {
   LocalAiProviderPrivacyModeSchema,
   LocalModelRuntimeStatusSchema,
   LocalProviderCapabilitySchema,
-} from './local-ai-runtime';
+} from '@ocentra-parent/ai-domain/local-ai-runtime';
 import { ParentContractSchemaVersionSchema, ParentTimestampSchema } from '@ocentra-parent/family-domain/reference-primitives';
-
-const NonEmptyScreenAiModelManifestTextSchema = Schema.String.pipe(Schema.minLength(1));
-const ScreenAiModelManifestProofIdSchema = NonEmptyScreenAiModelManifestTextSchema.pipe(
-  Schema.brand('ScreenAiModelManifestProofId')
-);
+const ScreenAiModelManifestProofIdSchema = brandedNonEmptyStringSchema('ScreenAiModelManifestProofId');
 
 export const ScreenAiModelManifestClaimBoundarySchema = withParser(
   Schema.Struct({
@@ -134,3 +135,4 @@ function boundariesStayNonClaiming(manifest: ScreenAiModelArtifactManifestCandid
     manifest.claimBoundaries.executionClaimed === false
   );
 }
+

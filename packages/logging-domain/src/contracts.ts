@@ -1,14 +1,21 @@
-import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
+import {
+  AgentDeviceIdSchema as EventAgentDeviceIdSchema,
+  AgentPlatformSchema as EventAgentPlatformSchema,
+} from '@ocentra-parent/event-domain/primitives';
+import {
+  type Infer,
+  Schema,
+  withParser,
+  brandedNonEmptyStringSchema
+} from '@ocentra-parent/schema-domain/effect';
 
-const NonEmptyLogText = Schema.String.pipe(Schema.minLength(1));
-
-export const AgentDeviceIdSchema = NonEmptyLogText.pipe(Schema.brand('AgentDeviceId'));
-export const AgentHostnameSchema = NonEmptyLogText.pipe(Schema.brand('AgentHostname'));
-export const AgentPlatformSchema = NonEmptyLogText.pipe(Schema.brand('AgentPlatform'));
-export const AgentServiceVersionSchema = NonEmptyLogText.pipe(Schema.brand('AgentServiceVersion'));
-export const LogEntryIdSchema = NonEmptyLogText.pipe(Schema.brand('LogEntryId'));
-export const LogTimestampSchema = NonEmptyLogText.pipe(Schema.brand('LogTimestamp'));
-export const LogMessageSchema = NonEmptyLogText.pipe(Schema.brand('LogMessage'));
+export const AgentDeviceIdSchema = EventAgentDeviceIdSchema;
+export const AgentHostnameSchema = brandedNonEmptyStringSchema('AgentHostname');
+export const AgentPlatformSchema = EventAgentPlatformSchema;
+export const AgentServiceVersionSchema = brandedNonEmptyStringSchema('AgentServiceVersion');
+export const LogEntryIdSchema = brandedNonEmptyStringSchema('LogEntryId');
+export const LogTimestampSchema = brandedNonEmptyStringSchema('LogTimestamp');
+export const LogMessageSchema = brandedNonEmptyStringSchema('LogMessage');
 
 export const LogFieldValueSchema = withParser(Schema.Union(Schema.String, Schema.Number, Schema.Boolean, Schema.Null));
 
@@ -142,3 +149,4 @@ export const DevLogMessage = {
   PortalResultCopied: decodeLogMessage('Portal command result copied.'),
   DevServerStarted: decodeLogMessage('Vite dev server started.'),
 } as const;
+

@@ -1,9 +1,8 @@
 import { AppGameSchemaVersion } from '@ocentra-parent/app-game-domain/app-game';
 import { ActivityEvidenceRefSchema } from '@ocentra-parent/evidence-domain/contracts';
-import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
+import { type Infer, NonEmptyStringSchema, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
 import { AgentEvent, AgentProtocolDefaults, isAgentProtocolLogText, type AgentEventEnvelope } from './contracts';
 
-const TimerParentSurfaceText = Schema.String.pipe(Schema.minLength(1));
 const TimerParentSurfaceCount = Schema.Number.pipe(Schema.nonNegative(), Schema.int());
 const TimerParentSurfaceParentPreferenceSetupRequestStatus = Schema.Literal('request-ready', 'unavailable-visible');
 
@@ -22,7 +21,7 @@ export const AgentAppGameTimerParentSurfaceState = {
 export const AgentAppGameTimerParentSurfaceRowSchema = withParser(
   Schema.Struct({
     schemaVersion: Schema.Literal(AppGameSchemaVersion),
-    rowId: TimerParentSurfaceText,
+    rowId: NonEmptyStringSchema,
     targetDomain: Schema.Literal(
       AgentAppGameTimerParentSurfaceTargetDomain.NativeApp,
       AgentAppGameTimerParentSurfaceTargetDomain.NativeGame
@@ -34,7 +33,7 @@ export const AgentAppGameTimerParentSurfaceRowSchema = withParser(
       AgentAppGameTimerParentSurfaceState.RuntimeManualRequired
     ),
     rowCount: TimerParentSurfaceCount,
-    evidenceReferenceIds: Schema.Array(TimerParentSurfaceText),
+    evidenceReferenceIds: Schema.Array(NonEmptyStringSchema),
     evidence: Schema.Array(ActivityEvidenceRefSchema),
   })
 );
@@ -42,14 +41,14 @@ export const AgentAppGameTimerParentSurfaceRowSchema = withParser(
 export const AgentAppGameTimerParentSurfaceChildUxLocalArtifactRecordSchema = withParser(
   Schema.Struct({
     schemaVersion: Schema.Literal(AppGameSchemaVersion),
-    artifactReferenceId: TimerParentSurfaceText,
-    sourceResultId: TimerParentSurfaceText,
+    artifactReferenceId: NonEmptyStringSchema,
+    sourceResultId: NonEmptyStringSchema,
     targetDomain: Schema.Literal(
       AgentAppGameTimerParentSurfaceTargetDomain.NativeApp,
       AgentAppGameTimerParentSurfaceTargetDomain.NativeGame
     ),
-    childReasonReferenceIds: Schema.Array(TimerParentSurfaceText),
-    childStatusReferenceIds: Schema.Array(TimerParentSurfaceText),
+    childReasonReferenceIds: Schema.Array(NonEmptyStringSchema),
+    childStatusReferenceIds: Schema.Array(NonEmptyStringSchema),
     childDeliveryClaimed: Schema.Literal(false),
     notificationDeliveryClaimed: Schema.Literal(false),
     adapterDispatchClaimed: Schema.Literal(false),
@@ -61,9 +60,9 @@ export const AgentAppGameTimerParentSurfaceChildUxLocalArtifactRecordSchema = wi
 export const AgentAppGameTimerParentSurfaceChildUxParentSurfaceIntentRecordSchema = withParser(
   Schema.Struct({
     schemaVersion: Schema.Literal(AppGameSchemaVersion),
-    parentSurfaceIntentReferenceId: TimerParentSurfaceText,
-    sourceResultId: TimerParentSurfaceText,
-    sourceArtifactReferenceId: TimerParentSurfaceText,
+    parentSurfaceIntentReferenceId: NonEmptyStringSchema,
+    sourceResultId: NonEmptyStringSchema,
+    sourceArtifactReferenceId: NonEmptyStringSchema,
     targetDomain: Schema.Literal(
       AgentAppGameTimerParentSurfaceTargetDomain.NativeApp,
       AgentAppGameTimerParentSurfaceTargetDomain.NativeGame
@@ -71,8 +70,8 @@ export const AgentAppGameTimerParentSurfaceChildUxParentSurfaceIntentRecordSchem
     historyVisibility: Schema.Literal('history-row-visible'),
     parentSurfaceStatus: Schema.Literal('manual-action-required'),
     preferenceVisibility: Schema.Literal('preference-setup-required'),
-    drillInReferenceIds: Schema.Array(TimerParentSurfaceText),
-    manualProofReferenceIds: Schema.Array(TimerParentSurfaceText),
+    drillInReferenceIds: Schema.Array(NonEmptyStringSchema),
+    manualProofReferenceIds: Schema.Array(NonEmptyStringSchema),
     sensitiveDetailIncluded: Schema.Literal(false),
     parentNotificationUiRendered: Schema.Literal(false),
     parentPreferenceMutationClaimed: Schema.Literal(false),
@@ -87,19 +86,19 @@ export const AgentAppGameTimerParentSurfaceChildUxParentSurfaceIntentRecordSchem
 export const AgentAppGameTimerParentSurfaceChildUxParentPreferenceSetupRecordSchema = withParser(
   Schema.Struct({
     schemaVersion: Schema.Literal(AppGameSchemaVersion),
-    parentPreferenceSetupReferenceId: TimerParentSurfaceText,
-    sourceParentSurfaceIntentReferenceId: TimerParentSurfaceText,
-    sourceResultId: TimerParentSurfaceText,
-    sourceArtifactReferenceId: TimerParentSurfaceText,
+    parentPreferenceSetupReferenceId: NonEmptyStringSchema,
+    sourceParentSurfaceIntentReferenceId: NonEmptyStringSchema,
+    sourceResultId: NonEmptyStringSchema,
+    sourceArtifactReferenceId: NonEmptyStringSchema,
     targetDomain: Schema.Literal(
       AgentAppGameTimerParentSurfaceTargetDomain.NativeApp,
       AgentAppGameTimerParentSurfaceTargetDomain.NativeGame
     ),
     draftStatus: Schema.Literal('draft-ready', 'unavailable-visible'),
     parentPreferenceSetupRequestStatus: TimerParentSurfaceParentPreferenceSetupRequestStatus,
-    parentPreferenceSetupRequestReferenceIds: Schema.Array(TimerParentSurfaceText),
-    drillInReferenceIds: Schema.Array(TimerParentSurfaceText),
-    manualProofReferenceIds: Schema.Array(TimerParentSurfaceText),
+    parentPreferenceSetupRequestReferenceIds: Schema.Array(NonEmptyStringSchema),
+    drillInReferenceIds: Schema.Array(NonEmptyStringSchema),
+    manualProofReferenceIds: Schema.Array(NonEmptyStringSchema),
     parentPreferenceUiRendered: Schema.Literal(false),
     parentFrequencyControlUiRendered: Schema.Literal(false),
     parentPreferenceMutationClaimed: Schema.Literal(false),
@@ -115,42 +114,42 @@ export const AgentAppGameTimerParentSurfaceChildUxParentPreferenceSetupRecordSch
 export const AgentAppGameTimerParentSurfaceReadModelSchema = withParser(
   Schema.Struct({
     schemaVersion: Schema.Literal(AppGameSchemaVersion),
-    generatedAt: TimerParentSurfaceText,
-    custodyLabel: TimerParentSurfaceText,
-    capabilityStatus: TimerParentSurfaceText,
+    generatedAt: NonEmptyStringSchema,
+    custodyLabel: NonEmptyStringSchema,
+    capabilityStatus: NonEmptyStringSchema,
     returned: TimerParentSurfaceCount,
     readyForParentSurfaceCount: TimerParentSurfaceCount,
     blockedBySourceFreshnessCount: TimerParentSurfaceCount,
     blockedByCompilerDecisionCount: TimerParentSurfaceCount,
     runtimeManualRequiredCount: TimerParentSurfaceCount,
     controlActionResultCount: TimerParentSurfaceCount,
-    controlActionResultReferenceIds: Schema.Array(TimerParentSurfaceText),
-    controlActionResultStatuses: Schema.Array(TimerParentSurfaceText),
-    controlActionResultCapabilityStates: Schema.Array(TimerParentSurfaceText),
-    controlActionResultEnforcementStatuses: Schema.Array(TimerParentSurfaceText),
-    childFacingReasonReferenceIds: Schema.Array(TimerParentSurfaceText),
-    childFacingStatusReferenceIds: Schema.Array(TimerParentSurfaceText),
+    controlActionResultReferenceIds: Schema.Array(NonEmptyStringSchema),
+    controlActionResultStatuses: Schema.Array(NonEmptyStringSchema),
+    controlActionResultCapabilityStates: Schema.Array(NonEmptyStringSchema),
+    controlActionResultEnforcementStatuses: Schema.Array(NonEmptyStringSchema),
+    childFacingReasonReferenceIds: Schema.Array(NonEmptyStringSchema),
+    childFacingStatusReferenceIds: Schema.Array(NonEmptyStringSchema),
     childUxHandoffReadyCount: TimerParentSurfaceCount,
     childUxHandoffBlockedCount: TimerParentSurfaceCount,
-    childUxHandoffReferenceIds: Schema.Array(TimerParentSurfaceText),
+    childUxHandoffReferenceIds: Schema.Array(NonEmptyStringSchema),
     childUxLocalHandoffArtifactRecordCount: TimerParentSurfaceCount,
     childUxLocalHandoffArtifactSkippedCount: TimerParentSurfaceCount,
-    childUxLocalHandoffArtifactReferenceIds: Schema.Array(TimerParentSurfaceText),
+    childUxLocalHandoffArtifactReferenceIds: Schema.Array(NonEmptyStringSchema),
     childUxLocalHandoffArtifactRecords: Schema.Array(AgentAppGameTimerParentSurfaceChildUxLocalArtifactRecordSchema),
     childUxParentSurfaceIntentManualActionRequiredCount: TimerParentSurfaceCount,
     childUxParentSurfaceIntentUnavailableVisibleCount: TimerParentSurfaceCount,
     childUxParentSurfaceIntentHistoryVisibleCount: TimerParentSurfaceCount,
     childUxParentSurfaceIntentPreferenceSetupRequiredCount: TimerParentSurfaceCount,
-    childUxParentSurfaceIntentReferenceIds: Schema.Array(TimerParentSurfaceText),
+    childUxParentSurfaceIntentReferenceIds: Schema.Array(NonEmptyStringSchema),
     childUxParentSurfaceIntentRecords: Schema.Array(
       AgentAppGameTimerParentSurfaceChildUxParentSurfaceIntentRecordSchema
     ),
     childUxParentPreferenceSetupDraftReadyCount: TimerParentSurfaceCount,
     childUxParentPreferenceSetupUnavailableVisibleCount: TimerParentSurfaceCount,
-    childUxParentPreferenceSetupReferenceIds: Schema.Array(TimerParentSurfaceText),
+    childUxParentPreferenceSetupReferenceIds: Schema.Array(NonEmptyStringSchema),
     childUxParentPreferenceSetupRequestReadyCount: TimerParentSurfaceCount,
     childUxParentPreferenceSetupRequestUnavailableVisibleCount: TimerParentSurfaceCount,
-    childUxParentPreferenceSetupRequestReferenceIds: Schema.Array(TimerParentSurfaceText),
+    childUxParentPreferenceSetupRequestReferenceIds: Schema.Array(NonEmptyStringSchema),
     childUxParentPreferenceSetupRecords: Schema.Array(
       AgentAppGameTimerParentSurfaceChildUxParentPreferenceSetupRecordSchema
     ),

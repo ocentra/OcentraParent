@@ -1,4 +1,9 @@
-import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
+import {
+  type Infer,
+  Schema,
+  withParser,
+  brandedNonEmptyStringSchema
+} from '@ocentra-parent/schema-domain/effect';
 import { ActivityEvidenceRefSchema } from '@ocentra-parent/evidence-domain/contracts';
 import { ActivityTimestampSchema } from '@ocentra-parent/evidence-domain/primitives';
 import {
@@ -19,12 +24,9 @@ import {
   AppGameSchemaVersion,
 } from './app-game-primitives';
 
-const AppGameForegroundEvidenceIdSchema = Schema.String.pipe(
-  Schema.minLength(1),
-  Schema.brand('AppGameForegroundEvidenceId')
-);
-const AppGameWindowRefSchema = Schema.String.pipe(Schema.minLength(1), Schema.brand('AppGameWindowRef'));
-const AppGameWindowTitleRefSchema = Schema.String.pipe(Schema.minLength(1), Schema.brand('AppGameWindowTitleRef'));
+const AppGameForegroundEvidenceIdSchema = brandedNonEmptyStringSchema('AppGameForegroundEvidenceId');
+const AppGameWindowRefSchema = brandedNonEmptyStringSchema('AppGameWindowRef');
+const AppGameWindowTitleRefSchema = brandedNonEmptyStringSchema('AppGameWindowTitleRef');
 const AppGameWindowTitleCaptureStateSchema = withParser(
   Schema.Literal('titleRef', 'titleOmitted', 'permissionLimited', 'adapterError', 'notClaimed')
 );
@@ -107,3 +109,4 @@ export const AppGameForegroundEvidenceSchema = withParser(
 );
 
 export type AppGameForegroundEvidence = Infer<typeof AppGameForegroundEvidenceSchema>;
+

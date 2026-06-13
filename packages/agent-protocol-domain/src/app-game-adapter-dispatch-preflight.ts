@@ -1,5 +1,5 @@
 import { AppGameSchemaVersion } from '@ocentra-parent/app-game-domain/app-game';
-import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
+import { type Infer, NonEmptyStringSchema, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
 import {
   AgentAppGameAdapterExecutionDecision,
   AgentAppGameAdapterExecutionState,
@@ -7,7 +7,6 @@ import {
 } from './app-game-adapter-execution-readiness';
 import { AgentEvent, isAgentProtocolLogText, type AgentEventEnvelope } from './contracts';
 
-const DispatchPreflightText = Schema.String.pipe(Schema.minLength(1));
 const DispatchPreflightCount = Schema.Number.pipe(Schema.nonNegative(), Schema.int());
 
 export const AgentAppGameAdapterDispatchPreflightPayloadField = 'appGameAdapterDispatchPreflightReadModel' as const;
@@ -37,12 +36,12 @@ export const AgentAppGameAdapterDispatchOutcomeState = {
 
 const AgentAppGameAdapterDispatchPreflightRowBaseSchema = Schema.Struct({
   schemaVersion: Schema.Literal(AppGameSchemaVersion),
-  rowId: DispatchPreflightText,
-  sourceExecutionReadinessRowId: DispatchPreflightText,
-  sourceProofEntryId: DispatchPreflightText,
-  platform: DispatchPreflightText,
+  rowId: NonEmptyStringSchema,
+  sourceExecutionReadinessRowId: NonEmptyStringSchema,
+  sourceProofEntryId: NonEmptyStringSchema,
+  platform: NonEmptyStringSchema,
   productMeanings: Schema.Array(Schema.Literal('native-app', 'native-game')),
-  adapterCapability: DispatchPreflightText,
+  adapterCapability: NonEmptyStringSchema,
   adapterExecutionState: Schema.Literal(
     AgentAppGameAdapterExecutionState.ProvedScopedExecution,
     AgentAppGameAdapterExecutionState.ManualRequired,
@@ -67,7 +66,7 @@ const AgentAppGameAdapterDispatchPreflightRowBaseSchema = Schema.Struct({
     AgentAppGameAdapterDispatchDecision.DispatchEligible,
     AgentAppGameAdapterDispatchDecision.BlockedBeforeDispatch
   ),
-  dispatchIntentId: Schema.Union(DispatchPreflightText, Schema.Null),
+  dispatchIntentId: Schema.Union(NonEmptyStringSchema, Schema.Null),
   dispatchOutcomeState: Schema.Literal(
     AgentAppGameAdapterDispatchOutcomeState.DispatchReady,
     AgentAppGameAdapterDispatchOutcomeState.ManualRequired,
@@ -76,19 +75,19 @@ const AgentAppGameAdapterDispatchPreflightRowBaseSchema = Schema.Struct({
     AgentAppGameAdapterDispatchOutcomeState.Degraded,
     AgentAppGameAdapterDispatchOutcomeState.NotDispatched
   ),
-  dispatchEvidenceRefs: Schema.Array(DispatchPreflightText),
+  dispatchEvidenceRefs: Schema.Array(NonEmptyStringSchema),
   hostCapabilityState: Schema.Literal(
     AgentAppGameAdapterHostCapabilityState.Available,
     AgentAppGameAdapterHostCapabilityState.NotDetected,
     AgentAppGameAdapterHostCapabilityState.NotApplicable
   ),
-  hostCapabilityEvidenceRefs: Schema.Array(DispatchPreflightText),
-  hostCapabilityProbeRefs: Schema.Array(DispatchPreflightText),
-  dispatchAuditRefs: Schema.Array(DispatchPreflightText),
-  dispatchTimerRefs: Schema.Array(DispatchPreflightText),
-  manualProofRequirements: Schema.Array(DispatchPreflightText),
-  claimBoundary: DispatchPreflightText,
-  fallbackBehavior: DispatchPreflightText,
+  hostCapabilityEvidenceRefs: Schema.Array(NonEmptyStringSchema),
+  hostCapabilityProbeRefs: Schema.Array(NonEmptyStringSchema),
+  dispatchAuditRefs: Schema.Array(NonEmptyStringSchema),
+  dispatchTimerRefs: Schema.Array(NonEmptyStringSchema),
+  manualProofRequirements: Schema.Array(NonEmptyStringSchema),
+  claimBoundary: NonEmptyStringSchema,
+  fallbackBehavior: NonEmptyStringSchema,
   adapterDispatchEligible: Schema.Boolean,
   adapterDispatchExecutedClaimed: Schema.Literal(false),
   broadInstalledAppBlockingClaimed: Schema.Literal(false),
@@ -96,7 +95,7 @@ const AgentAppGameAdapterDispatchPreflightRowBaseSchema = Schema.Struct({
   platformEnforcementClaimed: Schema.Literal(false),
   providerDeliveryClaimed: Schema.Literal(false),
   privateDiagnosticsClaimed: Schema.Literal(false),
-  lastCheckedAt: DispatchPreflightText,
+  lastCheckedAt: NonEmptyStringSchema,
 });
 
 type AgentAppGameAdapterDispatchPreflightRowCandidate = Infer<typeof AgentAppGameAdapterDispatchPreflightRowBaseSchema>;
@@ -106,18 +105,19 @@ export const AgentAppGameAdapterDispatchPreflightRowSchema = withParser(
     Schema.filter(
       (row: AgentAppGameAdapterDispatchPreflightRowCandidate) =>
         dispatchPreflightRowIsHonest(row) ||
-        'Expected only the scoped Windows owned-process time-limit row to be dispatch-eligible without claiming adapter execution'
+        'Expected only the scoped Windows owned-process time-limit row to be dispatch-eligible without ' +
+          'claiming adapter execution'
     )
   )
 );
 
 const AgentAppGameAdapterDispatchPreflightReadModelBaseSchema = Schema.Struct({
   schemaVersion: Schema.Literal(AppGameSchemaVersion),
-  readModelId: DispatchPreflightText,
-  generatedAt: DispatchPreflightText,
-  sourceReadModelIds: Schema.Array(DispatchPreflightText),
-  custodyLabel: DispatchPreflightText,
-  capabilityStatus: DispatchPreflightText,
+  readModelId: NonEmptyStringSchema,
+  generatedAt: NonEmptyStringSchema,
+  sourceReadModelIds: Schema.Array(NonEmptyStringSchema),
+  custodyLabel: NonEmptyStringSchema,
+  capabilityStatus: NonEmptyStringSchema,
   returned: DispatchPreflightCount,
   dispatchEligibleCount: DispatchPreflightCount,
   blockedBeforeDispatchCount: DispatchPreflightCount,

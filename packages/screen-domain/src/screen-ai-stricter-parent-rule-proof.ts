@@ -1,17 +1,19 @@
-import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
+import {
+  type Infer,
+  Schema,
+  withParser,
+  brandedNonEmptyStringSchema,
+  NonEmptyStringSchema
+} from '@ocentra-parent/schema-domain/effect';
 import {
   PolicyActionSchema,
   PolicyDecisionSchema,
   PolicyRuleSchema,
   comparePolicyActionStrictness,
   selectStricterPolicyAction,
-} from './policy';
+} from '@ocentra-parent/policy-domain/policy';
 import { ParentContractSchemaVersionSchema, ParentTimestampSchema } from '@ocentra-parent/family-domain/reference-primitives';
-
-const NonEmptyScreenAiPolicyTextSchema = Schema.String.pipe(Schema.minLength(1));
-const ScreenAiStricterParentRuleProofIdSchema = NonEmptyScreenAiPolicyTextSchema.pipe(
-  Schema.brand('ScreenAiStricterParentRuleProofId')
-);
+const ScreenAiStricterParentRuleProofIdSchema = brandedNonEmptyStringSchema('ScreenAiStricterParentRuleProofId');
 
 export const ScreenAiStricterParentRuleClaimBoundarySchema = withParser(
   Schema.Struct({
@@ -27,7 +29,7 @@ const ScreenAiStricterParentRuleInputBaseSchema = Schema.Struct({
   schemaVersion: ParentContractSchemaVersionSchema,
   proofId: ScreenAiStricterParentRuleProofIdSchema,
   generatedAt: ParentTimestampSchema,
-  sourceProof: NonEmptyScreenAiPolicyTextSchema,
+  sourceProof: NonEmptyStringSchema,
   sourceDecision: PolicyDecisionSchema,
   stricterParentRule: PolicyRuleSchema,
   expectedFinalAction: PolicyActionSchema,
@@ -50,7 +52,7 @@ const ScreenAiStricterParentRuleProofBaseSchema = Schema.Struct({
   schemaVersion: ParentContractSchemaVersionSchema,
   proofId: ScreenAiStricterParentRuleProofIdSchema,
   generatedAt: ParentTimestampSchema,
-  sourceProof: NonEmptyScreenAiPolicyTextSchema,
+  sourceProof: NonEmptyStringSchema,
   sourceLocalAiAction: PolicyActionSchema,
   stricterParentRuleAction: PolicyActionSchema,
   finalAction: PolicyActionSchema,
@@ -124,3 +126,4 @@ function screenAiStricterParentRuleProofIsHonest(proof: ScreenAiStricterParentRu
     Object.values(proof.claimBoundaries).every((claim) => claim === false)
   );
 }
+

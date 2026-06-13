@@ -1,11 +1,15 @@
-import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
+import {
+  type Infer,
+  Schema,
+  withParser,
+  brandedNonEmptyStringSchema,
+  NonEmptyStringSchema
+} from '@ocentra-parent/schema-domain/effect';
 import {
   TrackingChildRuntimeDeliveryBoundaryReadModelSchema,
   type TrackingChildRuntimeDeliveryBoundaryRow,
 } from './tracking-child-runtime-delivery-boundary-proof';
 import { TrackingPolicySchemaVersion } from './tracking-location-policy';
-
-const TrackingChildRuntimeExecutionReadinessText = Schema.String.pipe(Schema.minLength(1));
 
 export const RequiredTrackingChildRuntimeExecutionReadinessNonClaims = [
   'no-child-device-delivery-runtime',
@@ -24,12 +28,8 @@ export const TrackingChildRuntimeExecutionReadinessNonClaimSchema = withParser(
   Schema.Literal(...RequiredTrackingChildRuntimeExecutionReadinessNonClaims)
 );
 
-export const TrackingChildRuntimeExecutionReadinessIdSchema = TrackingChildRuntimeExecutionReadinessText.pipe(
-  Schema.brand('TrackingChildRuntimeExecutionReadinessId')
-);
-export const TrackingChildRuntimeExecutionReadinessRowIdSchema = TrackingChildRuntimeExecutionReadinessText.pipe(
-  Schema.brand('TrackingChildRuntimeExecutionReadinessRowId')
-);
+export const TrackingChildRuntimeExecutionReadinessIdSchema = brandedNonEmptyStringSchema('TrackingChildRuntimeExecutionReadinessId');
+export const TrackingChildRuntimeExecutionReadinessRowIdSchema = brandedNonEmptyStringSchema('TrackingChildRuntimeExecutionReadinessRowId');
 export const TrackingChildRuntimeExecutionReadinessStateSchema = withParser(
   Schema.Literal(
     'delivery-envelope-ready',
@@ -44,19 +44,19 @@ export const TrackingChildRuntimeSnapshotKindSchema = withParser(
 
 const TrackingChildRuntimeExecutionReadinessRowBaseSchema = Schema.Struct({
   rowId: TrackingChildRuntimeExecutionReadinessRowIdSchema,
-  sourceBoundaryRowId: TrackingChildRuntimeExecutionReadinessText,
-  sourceCheckInId: TrackingChildRuntimeExecutionReadinessText,
-  sourceBoundaryState: TrackingChildRuntimeExecutionReadinessText,
+  sourceBoundaryRowId: NonEmptyStringSchema,
+  sourceCheckInId: NonEmptyStringSchema,
+  sourceBoundaryState: NonEmptyStringSchema,
   readinessState: TrackingChildRuntimeExecutionReadinessStateSchema,
   snapshotKind: TrackingChildRuntimeSnapshotKindSchema,
-  deliveryEnvelopeRef: TrackingChildRuntimeExecutionReadinessText,
-  executionRequirementRefs: Schema.Array(TrackingChildRuntimeExecutionReadinessText),
-  runtimeObservationRequirementRefs: Schema.Array(TrackingChildRuntimeExecutionReadinessText),
-  hostedUiProofRefs: Schema.Array(TrackingChildRuntimeExecutionReadinessText),
-  sourceEvidenceRefs: Schema.Array(TrackingChildRuntimeExecutionReadinessText),
-  sourceAuditRefs: Schema.Array(TrackingChildRuntimeExecutionReadinessText),
-  boundaryRuntimeProofRefs: Schema.Array(TrackingChildRuntimeExecutionReadinessText),
-  parentVisibleStatusRefs: Schema.Array(TrackingChildRuntimeExecutionReadinessText),
+  deliveryEnvelopeRef: NonEmptyStringSchema,
+  executionRequirementRefs: Schema.Array(NonEmptyStringSchema),
+  runtimeObservationRequirementRefs: Schema.Array(NonEmptyStringSchema),
+  hostedUiProofRefs: Schema.Array(NonEmptyStringSchema),
+  sourceEvidenceRefs: Schema.Array(NonEmptyStringSchema),
+  sourceAuditRefs: Schema.Array(NonEmptyStringSchema),
+  boundaryRuntimeProofRefs: Schema.Array(NonEmptyStringSchema),
+  parentVisibleStatusRefs: Schema.Array(NonEmptyStringSchema),
   childDeviceDeliveryRuntimeClaimed: Schema.Literal(false),
   childDeviceExecutionRuntimeClaimed: Schema.Literal(false),
   renderedChildDeviceUiRuntimeClaimed: Schema.Literal(false),
@@ -82,10 +82,10 @@ export const TrackingChildRuntimeExecutionReadinessRowSchema = withParser(
 const TrackingChildRuntimeExecutionReadinessReadModelBaseSchema = Schema.Struct({
   schemaVersion: Schema.Literal(TrackingPolicySchemaVersion),
   readinessId: TrackingChildRuntimeExecutionReadinessIdSchema,
-  generatedAt: TrackingChildRuntimeExecutionReadinessText,
-  sourceBoundaryReadinessId: TrackingChildRuntimeExecutionReadinessText,
-  sourceBoundaryGeneratedAt: TrackingChildRuntimeExecutionReadinessText,
-  sourceContractRefs: Schema.Array(TrackingChildRuntimeExecutionReadinessText),
+  generatedAt: NonEmptyStringSchema,
+  sourceBoundaryReadinessId: NonEmptyStringSchema,
+  sourceBoundaryGeneratedAt: NonEmptyStringSchema,
+  sourceContractRefs: Schema.Array(NonEmptyStringSchema),
   rows: Schema.Array(TrackingChildRuntimeExecutionReadinessRowSchema),
   deliveryEnvelopeReadyCount: Schema.Number.pipe(Schema.int(), Schema.nonNegative()),
   safeResponseExecutionReadyCount: Schema.Number.pipe(Schema.int(), Schema.nonNegative()),
@@ -323,3 +323,4 @@ function trackingChildRuntimeExecutionReadinessReadModelNonClaimsAreHonest(
     readModel.productReadyClaimed === false
   );
 }
+

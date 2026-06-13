@@ -1,4 +1,9 @@
-import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
+import {
+  type Infer,
+  Schema,
+  withParser,
+  brandedNonEmptyStringSchema
+} from '@ocentra-parent/schema-domain/effect';
 import {
   ParentContractSchemaVersion,
   ParentContractSchemaVersionSchema,
@@ -10,8 +15,6 @@ import {
   type TrackingLocationPolicyReadModel,
   type TrackingMissingDeviceCase,
 } from './tracking-location-policy';
-
-const TrackingMissingDeviceProofText = Schema.String.pipe(Schema.minLength(1));
 const TrackingMissingDeviceNonNegativeInteger = Schema.Number.pipe(Schema.int(), Schema.nonNegative());
 
 export const RequiredTrackingMissingDeviceModeProofNonClaims = [
@@ -29,12 +32,8 @@ export const TrackingMissingDeviceModeProofNonClaimSchema = withParser(
   Schema.Literal(...RequiredTrackingMissingDeviceModeProofNonClaims)
 );
 
-export const TrackingMissingDeviceModeProofIdSchema = TrackingMissingDeviceProofText.pipe(
-  Schema.brand('TrackingMissingDeviceModeProofId')
-);
-export const TrackingMissingDeviceModeProofReferenceSchema = TrackingMissingDeviceProofText.pipe(
-  Schema.brand('TrackingMissingDeviceModeProofReference')
-);
+export const TrackingMissingDeviceModeProofIdSchema = brandedNonEmptyStringSchema('TrackingMissingDeviceModeProofId');
+export const TrackingMissingDeviceModeProofReferenceSchema = brandedNonEmptyStringSchema('TrackingMissingDeviceModeProofReference');
 
 export const TrackingMissingDeviceContactStateSchema = withParser(
   Schema.Literal('online', 'offline', 'powered-off', 'battery-throttled', 'unknown')
@@ -424,3 +423,4 @@ const countRows = (
 export const decodeTrackingMissingDeviceModeProofReadModel = Schema.decodeUnknownSync(
   TrackingMissingDeviceModeProofReadModelSchema
 );
+

@@ -45,7 +45,7 @@ const portalPort = resolveParentDevPort(
 
 await mkdir(outputRoot, { recursive: true });
 await Promise.all([rm(failureScreenshotPath, { force: true }), rm(failureSummaryPath, { force: true })]);
-runCommand('cmd', ['/c', 'npm run build --workspace @ocentra-parent/activity-domain']);
+runCommand('cmd', ['/c', 'npm run build --workspace @ocentra-parent/screen-domain']);
 runCommand('cmd', ['/c', 'npm run build --workspace @ocentra-parent/portal-domain']);
 runCommand('cmd', ['/c', 'npm run type-check --workspace @ocentra-parent/portal']);
 runCommand('cargo', ['build', '-p', 'ocentra-parent-agent-service']);

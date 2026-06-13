@@ -1,4 +1,9 @@
-import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
+import {
+  type Infer,
+  Schema,
+  withParser,
+  brandedNonEmptyStringSchema
+} from '@ocentra-parent/schema-domain/effect';
 import {
   AppGameSourceGatedPolicyPreviewTimerAuditRollbackParentSurfaceIntentIdSchema,
   AppGameSourceGatedPolicyPreviewTimerAuditRollbackParentSurfaceIntentRowIdSchema,
@@ -22,22 +27,12 @@ import {
 } from './app-game-source-gated-policy-preview-timer-service-readiness-handoff-rules';
 import { ParentContractSchemaVersionSchema, ParentTimestampSchema } from '@ocentra-parent/family-domain/reference-primitives';
 
-const ServiceReadinessHandoffText = Schema.String.pipe(Schema.minLength(1));
-
-export const AppGameSourceGatedPolicyPreviewTimerServiceReadinessHandoffIdSchema = ServiceReadinessHandoffText.pipe(
-  Schema.brand('AppGameSourceGatedPolicyPreviewTimerServiceReadinessHandoffId')
-);
-export const AppGameSourceGatedPolicyPreviewTimerServiceReadinessHandoffRowIdSchema = ServiceReadinessHandoffText.pipe(
-  Schema.brand('AppGameSourceGatedPolicyPreviewTimerServiceReadinessHandoffRowId')
-);
+export const AppGameSourceGatedPolicyPreviewTimerServiceReadinessHandoffIdSchema = brandedNonEmptyStringSchema('AppGameSourceGatedPolicyPreviewTimerServiceReadinessHandoffId');
+export const AppGameSourceGatedPolicyPreviewTimerServiceReadinessHandoffRowIdSchema = brandedNonEmptyStringSchema('AppGameSourceGatedPolicyPreviewTimerServiceReadinessHandoffRowId');
 export const AppGameSourceGatedPolicyPreviewTimerServiceReadinessHandoffContractRefSchema =
-  ServiceReadinessHandoffText.pipe(
-    Schema.brand('AppGameSourceGatedPolicyPreviewTimerServiceReadinessHandoffContractRef')
-  );
+  brandedNonEmptyStringSchema('AppGameSourceGatedPolicyPreviewTimerServiceReadinessHandoffContractRef');
 export const AppGameSourceGatedPolicyPreviewTimerServiceReadinessHandoffReadApiRefSchema =
-  ServiceReadinessHandoffText.pipe(
-    Schema.brand('AppGameSourceGatedPolicyPreviewTimerServiceReadinessHandoffReadApiRef')
-  );
+  brandedNonEmptyStringSchema('AppGameSourceGatedPolicyPreviewTimerServiceReadinessHandoffReadApiRef');
 
 export const AppGameSourceGatedPolicyPreviewTimerServiceReadinessHandoffStateSchema = withParser(
   Schema.Literal(...Object.values(AppGameSourceGatedPolicyPreviewTimerServiceReadinessHandoffState))
@@ -257,3 +252,4 @@ export const decodeAppGameSourceGatedPolicyPreviewTimerServiceReadinessHandoff =
 );
 
 export { AppGameSourceGatedPolicyPreviewTimerServiceReadinessHandoffState };
+

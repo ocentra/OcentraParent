@@ -4,12 +4,12 @@ import { existsSync, mkdirSync, readFileSync, statSync, writeFileSync } from 'no
 import { dirname, join, relative } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { chromium } from 'playwright';
-import { parseBrowserUrlShape } from '../../packages/activity-domain/dist/browser-url-intelligence.js';
+import { parseBrowserUrlShape } from '../../packages/browser-domain/dist/browser-url-intelligence.js';
 import {
   BrowserSocialVideoMetadataEvidenceSchema,
   extractBrowserSocialVideoMetadata,
-} from '../../packages/activity-domain/dist/browser-social-video-metadata.js';
-import { buildBrowserSocialRouteEvidenceFromUrlPattern } from '../../packages/activity-domain/dist/browser-social-url-patterns.js';
+} from '../../packages/browser-domain/dist/browser-social-video-metadata.js';
+import { buildBrowserSocialRouteEvidenceFromUrlPattern } from '../../packages/browser-domain/dist/browser-social-url-patterns.js';
 
 const scriptDir = dirname(fileURLToPath(import.meta.url));
 const repoRoot = join(scriptDir, '..', '..');
@@ -20,14 +20,14 @@ const outputProofPath = join(proofRoot, '11-live-metadata-proof.json');
 const observedAt = new Date().toISOString();
 
 const sourceFiles = [
-  'packages/activity-domain/src/browser-url-intelligence.ts',
-  'packages/activity-domain/src/browser-social-url-patterns.ts',
-  'packages/activity-domain/src/browser-social-video-metadata.ts',
+  'packages/browser-domain/src/browser-url-intelligence.ts',
+  'packages/browser-domain/src/browser-social-url-patterns.ts',
+  'packages/browser-domain/src/browser-social-video-metadata.ts',
 ];
 const builtFiles = [
-  'packages/activity-domain/dist/browser-url-intelligence.js',
-  'packages/activity-domain/dist/browser-social-url-patterns.js',
-  'packages/activity-domain/dist/browser-social-video-metadata.js',
+  'packages/browser-domain/dist/browser-url-intelligence.js',
+  'packages/browser-domain/dist/browser-social-url-patterns.js',
+  'packages/browser-domain/dist/browser-social-video-metadata.js',
 ];
 
 const liveTargets = [

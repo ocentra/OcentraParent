@@ -1,4 +1,9 @@
-import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
+import {
+  type Infer,
+  Schema,
+  withParser,
+  brandedNonEmptyStringSchema
+} from '@ocentra-parent/schema-domain/effect';
 import {
   AppGameChildUxCopyTokenSchema,
   AppGameChildUxTargetKindSchema,
@@ -23,16 +28,10 @@ import {
 } from './app-game-notification-intent-rules';
 import { ParentActionReferenceSchema, ParentDeviceReferenceSchema, ParentEvidenceReferenceSchema } from '@ocentra-parent/family-domain/references';
 import { ParentContractSchemaVersionSchema, ParentTimestampSchema } from '@ocentra-parent/family-domain/reference-primitives';
-import { V3NotificationProviderChannelSchema } from './v3-notification-rule-provider-retry-contract';
+import { V3NotificationProviderChannelSchema } from '@ocentra-parent/notification-domain/v3-notification-rule-provider-retry-contract';
 
-const NonEmptyNotificationIntentText = Schema.String.pipe(Schema.minLength(1));
-
-export const AppGameNotificationIntentIdSchema = NonEmptyNotificationIntentText.pipe(
-  Schema.brand('AppGameNotificationIntentId')
-);
-export const AppGameNotificationReferenceSchema = NonEmptyNotificationIntentText.pipe(
-  Schema.brand('AppGameNotificationReference')
-);
+export const AppGameNotificationIntentIdSchema = brandedNonEmptyStringSchema('AppGameNotificationIntentId');
+export const AppGameNotificationReferenceSchema = brandedNonEmptyStringSchema('AppGameNotificationReference');
 export const AppGameNotificationParentCopyTokenSchema = withParser(
   Schema.Literal(...Object.values(AppGameNotificationParentCopyToken))
 );
@@ -169,3 +168,4 @@ export {
 };
 
 export const decodeAppGameNotificationIntent = Schema.decodeUnknownSync(AppGameNotificationIntentSchema);
+

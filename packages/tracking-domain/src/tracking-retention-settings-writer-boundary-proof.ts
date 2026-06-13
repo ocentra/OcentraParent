@@ -1,4 +1,10 @@
-import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
+import {
+  type Infer,
+  Schema,
+  withParser,
+  brandedNonEmptyStringSchema
+} from '@ocentra-parent/schema-domain/effect';
+import { AgentTrackingRetentionSettingsWriteDefaults } from '@ocentra-parent/agent-protocol-domain/tracking-retention-settings-write-command';
 import { ParentTimestampSchema } from '@ocentra-parent/family-domain/reference-primitives';
 import { TrackingEvidenceTraceSchema } from './tracking-location-policy';
 import {
@@ -12,11 +18,7 @@ import {
   TrackingPolicySchemaVersion,
 } from './tracking-location-policy-primitives';
 
-const TrackingRetentionSettingsWriterTextSchema = Schema.String.pipe(Schema.minLength(1));
-
-export const TrackingRetentionSettingsWriteIntentIdSchema = TrackingRetentionSettingsWriterTextSchema.pipe(
-  Schema.brand('TrackingRetentionSettingsWriteIntentId')
-);
+export const TrackingRetentionSettingsWriteIntentIdSchema = brandedNonEmptyStringSchema('TrackingRetentionSettingsWriteIntentId');
 
 export const TrackingRetentionSettingsWriteActionSchema = withParser(
   Schema.Literal(
@@ -93,7 +95,7 @@ export const TrackingRetentionSettingsWriterBoundaryRowSchema = withParser(
     .pipe(
       Schema.filter(
         (row) =>
-          row.settingsKind !== 'retention-window-setting' ||
+          row.settingsKind !== AgentTrackingRetentionSettingsWriteDefaults.SettingsKindRetentionWindow ||
           (row.writeAction === 'set-retention-window' && row.requestedRetentionWindowHours !== null) ||
           'Tracking retention writer window rows must set a retention window'
       )
@@ -194,8 +196,8 @@ export function buildTrackingRetentionSettingsWriterBoundaryProof(
 function writerRows(timestamp: string): readonly TrackingRetentionSettingsWriterBoundaryRow[] {
   return [
     writerRow({
-      intentId: 'tracking-retention-settings-write-retention-window',
-      settingsKind: 'retention-window-setting',
+      intentId: AgentTrackingRetentionSettingsWriteDefaults.WriterIntentRef,
+      settingsKind: AgentTrackingRetentionSettingsWriteDefaults.SettingsKindRetentionWindow,
       writeAction: 'set-retention-window',
       generatedAt: timestamp,
       evidenceReferences: [evidence('tracking-retention-writer-evidence-window', 'query-store-summary', timestamp)],
@@ -285,8 +287,7 @@ function writerRow(input: {
     writerState: 'writer-preflight-ready',
     generatedAt: input.generatedAt,
     sourceReadModelProofRefs: [
-      'output/tracking-plan-proof/07-retention-and-custody-model/18-retention-settings-read-model-proof.json',
-      'output/tracking-plan-proof/32-journal-sqlite-and-read-model-proof/24-retention-settings-read-model-proof.json',
+      ...AgentTrackingRetentionSettingsWriteDefaults.ReadModelProofRefs,
     ],
     retentionProofRefs: [
       'output/tracking-plan-proof/07-retention-and-custody-model/14-retention-delete-proof.json',
@@ -294,7 +295,7 @@ function writerRow(input: {
     ],
     readModelProofRefs: [
       'output/tracking-plan-proof/32-journal-sqlite-and-read-model-proof/18-service-read-model-proof.json',
-      'output/tracking-plan-proof/32-journal-sqlite-and-read-model-proof/24-retention-settings-read-model-proof.json',
+      AgentTrackingRetentionSettingsWriteDefaults.ReadModelProofRefs[1],
     ],
     evidenceReferences: input.evidenceReferences,
     reasonCodes: input.reasonCodes,
@@ -331,3 +332,4 @@ function evidence(
     observedAt,
   });
 }
+

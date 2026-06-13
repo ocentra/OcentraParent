@@ -1,15 +1,19 @@
-import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
+import {
+  type Infer,
+  Schema,
+  withParser,
+  brandedNonEmptyStringSchema,
+  NonEmptyStringSchema
+} from '@ocentra-parent/schema-domain/effect';
 import { ActivityEvidenceIdSchema, ActivityTimestampSchema } from '@ocentra-parent/evidence-domain/primitives';
 import { BrowserPageTitleSchema, BrowserUrlSchema } from './browser-schemas';
 import { BrowserUrlShapeClassificationIdSchema } from './browser-url-intelligence-schemas';
 
 export const BrowserUrlMetadataSchemaVersion = 1;
-
-const NonEmptyBrowserUrlMetadataText = Schema.String.pipe(Schema.minLength(1));
-const OptionalMetadataTextSchema = Schema.Union(NonEmptyBrowserUrlMetadataText, Schema.Null);
+const OptionalMetadataTextSchema = Schema.Union(NonEmptyStringSchema, Schema.Null);
 
 export const BrowserUrlMetadataEvidenceIdSchema = withParser(
-  NonEmptyBrowserUrlMetadataText.pipe(Schema.brand('BrowserUrlMetadataEvidenceId'))
+  brandedNonEmptyStringSchema('BrowserUrlMetadataEvidenceId')
 );
 
 export const BrowserUrlMetadataSourceKindSchema = withParser(
@@ -147,3 +151,4 @@ function browserUrlMetadataEvidenceClaimsAuthority(value: Infer<typeof BrowserUr
 function hasMetadataField(value: Infer<typeof BrowserUrlMetadataFieldsSchema>) {
   return Object.values(value).some((fieldValue) => fieldValue !== null);
 }
+

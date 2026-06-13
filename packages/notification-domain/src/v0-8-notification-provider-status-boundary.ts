@@ -1,27 +1,20 @@
-import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
+import {
+  type Infer,
+  Schema,
+  withParser,
+  brandedNonEmptyStringSchema
+} from '@ocentra-parent/schema-domain/effect';
 import {
   ParentContractSchemaVersion,
   ParentContractSchemaVersionSchema,
   ParentTimestampSchema,
 } from '@ocentra-parent/family-domain/reference-primitives';
 
-const NonEmptyNotificationProviderStatusText = Schema.String.pipe(Schema.minLength(1));
-
-export const V08NotificationProviderStatusBoundaryReadModelIdSchema = NonEmptyNotificationProviderStatusText.pipe(
-  Schema.brand('V08NotificationProviderStatusBoundaryReadModelId')
-);
-export const V08NotificationProviderStatusBoundaryEntryIdSchema = NonEmptyNotificationProviderStatusText.pipe(
-  Schema.brand('V08NotificationProviderStatusBoundaryEntryId')
-);
-export const V08NotificationProviderStatusBoundaryReferenceSchema = NonEmptyNotificationProviderStatusText.pipe(
-  Schema.brand('V08NotificationProviderStatusBoundaryReference')
-);
-export const V08NotificationProviderStatusBoundaryRequirementSchema = NonEmptyNotificationProviderStatusText.pipe(
-  Schema.brand('V08NotificationProviderStatusBoundaryRequirement')
-);
-export const V08NotificationProviderStatusBoundaryTextSchema = NonEmptyNotificationProviderStatusText.pipe(
-  Schema.brand('V08NotificationProviderStatusBoundaryText')
-);
+export const V08NotificationProviderStatusBoundaryReadModelIdSchema = brandedNonEmptyStringSchema('V08NotificationProviderStatusBoundaryReadModelId');
+export const V08NotificationProviderStatusBoundaryEntryIdSchema = brandedNonEmptyStringSchema('V08NotificationProviderStatusBoundaryEntryId');
+export const V08NotificationProviderStatusBoundaryReferenceSchema = brandedNonEmptyStringSchema('V08NotificationProviderStatusBoundaryReference');
+export const V08NotificationProviderStatusBoundaryRequirementSchema = brandedNonEmptyStringSchema('V08NotificationProviderStatusBoundaryRequirement');
+export const V08NotificationProviderStatusBoundaryTextSchema = brandedNonEmptyStringSchema('V08NotificationProviderStatusBoundaryText');
 
 export const V08NotificationProviderStatusSchema = withParser(
   Schema.Literal('queued', 'delivered', 'failed', 'unavailable', 'manual-required')
@@ -345,3 +338,4 @@ export const decodeV08NotificationProviderStatusBoundaryEntry = Schema.decodeUnk
 export const decodeV08NotificationProviderStatusBoundaryReadModel = Schema.decodeUnknownSync(
   V08NotificationProviderStatusBoundaryReadModelSchema
 );
+

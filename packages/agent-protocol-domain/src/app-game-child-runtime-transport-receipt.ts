@@ -1,8 +1,7 @@
 import { AppGameSchemaVersion } from '@ocentra-parent/app-game-domain/app-game';
-import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
+import { type Infer, NonEmptyStringSchema, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
 import { AgentEvent, isAgentProtocolLogText, type AgentEventEnvelope } from './contracts';
 
-const ChildRuntimeTransportReceiptText = Schema.String.pipe(Schema.minLength(1));
 const ChildRuntimeTransportReceiptCount = Schema.Number.pipe(Schema.nonNegative(), Schema.int());
 
 export const AgentAppGameChildRuntimeTransportReceiptPayloadField =
@@ -16,17 +15,17 @@ export const AgentAppGameChildRuntimeTransportReceiptState = {
 
 const AgentAppGameChildRuntimeTransportReceiptRowBaseSchema = Schema.Struct({
   schemaVersion: Schema.Literal(AppGameSchemaVersion),
-  rowId: ChildRuntimeTransportReceiptText,
-  sourceRuntimeWriterRowId: ChildRuntimeTransportReceiptText,
+  rowId: NonEmptyStringSchema,
+  sourceRuntimeWriterRowId: NonEmptyStringSchema,
   boundaryState: Schema.Literal(
     AgentAppGameChildRuntimeTransportReceiptState.TransportRequired,
     AgentAppGameChildRuntimeTransportReceiptState.ManualRequired,
     AgentAppGameChildRuntimeTransportReceiptState.Unavailable
   ),
   productMeanings: Schema.Array(Schema.Literal('native-app', 'native-game')),
-  requiredTransportRefs: Schema.Array(ChildRuntimeTransportReceiptText),
-  requiredReceiptRefs: Schema.Array(ChildRuntimeTransportReceiptText),
-  openGaps: Schema.Array(ChildRuntimeTransportReceiptText),
+  requiredTransportRefs: Schema.Array(NonEmptyStringSchema),
+  requiredReceiptRefs: Schema.Array(NonEmptyStringSchema),
+  openGaps: Schema.Array(NonEmptyStringSchema),
   runtimeTransportExecuted: Schema.Literal(false),
   runtimeReceiptIngested: Schema.Literal(false),
   providerDeliveryExecuted: Schema.Literal(false),
@@ -49,11 +48,11 @@ export const AgentAppGameChildRuntimeTransportReceiptRowSchema = withParser(
 
 const AgentAppGameChildRuntimeTransportReceiptReadModelBaseSchema = Schema.Struct({
   schemaVersion: Schema.Literal(AppGameSchemaVersion),
-  readModelId: ChildRuntimeTransportReceiptText,
-  generatedAt: ChildRuntimeTransportReceiptText,
-  sourceReadModelIds: Schema.Array(ChildRuntimeTransportReceiptText),
-  custodyLabel: ChildRuntimeTransportReceiptText,
-  capabilityStatus: ChildRuntimeTransportReceiptText,
+  readModelId: NonEmptyStringSchema,
+  generatedAt: NonEmptyStringSchema,
+  sourceReadModelIds: Schema.Array(NonEmptyStringSchema),
+  custodyLabel: NonEmptyStringSchema,
+  capabilityStatus: NonEmptyStringSchema,
   returned: ChildRuntimeTransportReceiptCount,
   transportRequiredCount: ChildRuntimeTransportReceiptCount,
   manualRequiredCount: ChildRuntimeTransportReceiptCount,

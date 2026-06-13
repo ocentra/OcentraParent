@@ -150,6 +150,7 @@
     "test": "vitest run"
   },
   "dependencies": {
+    "@ocentra-parent/event-domain": "file:../event-domain",
     "@ocentra-parent/schema-domain": "file:../schema-domain"
   }
 }

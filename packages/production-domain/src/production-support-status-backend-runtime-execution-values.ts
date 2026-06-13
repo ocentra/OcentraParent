@@ -1,6 +1,8 @@
-import { Schema, withParser } from '@ocentra-parent/schema-domain/effect';
-
-const NonEmptyRuntimeExecutionText = Schema.String.pipe(Schema.minLength(1));
+import {
+  Schema,
+  withParser,
+  brandedNonEmptyStringSchema
+} from '@ocentra-parent/schema-domain/effect';
 
 export const ProductionSupportStatusBackendRuntimeExecutionSchemaVersionSchema = withParser(
   Schema.Literal('production-support-status-backend-runtime-execution-proof')
@@ -107,12 +109,8 @@ export const ProductionSupportStatusBackendRuntimeExecutionNonClaimSchema = with
   )
 );
 
-export const RuntimeExecutionReferenceSchema = NonEmptyRuntimeExecutionText.pipe(
-  Schema.brand('ProductionSupportStatusBackendRuntimeExecutionReference')
-);
-export const RuntimeExecutionManualRequirementSchema = NonEmptyRuntimeExecutionText.pipe(
-  Schema.brand('ProductionSupportStatusBackendRuntimeExecutionManualRequirement')
-);
+export const RuntimeExecutionReferenceSchema = brandedNonEmptyStringSchema('ProductionSupportStatusBackendRuntimeExecutionReference');
+export const RuntimeExecutionManualRequirementSchema = brandedNonEmptyStringSchema('ProductionSupportStatusBackendRuntimeExecutionManualRequirement');
 
 export const ForbiddenRuntimeExecutionDataClasses = [
   'child-activity-evidence',
@@ -171,3 +169,4 @@ export const RequiredRuntimeExecutionNonClaims = [
   'no-provider-secret-custody',
   'no-status-backend-payload-custody',
 ] as const;
+

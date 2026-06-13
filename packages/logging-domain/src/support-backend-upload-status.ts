@@ -1,14 +1,17 @@
-import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
+import {
+  type Infer,
+  Schema,
+  withParser,
+  NonEmptyStringSchema
+} from '@ocentra-parent/schema-domain/effect';
 
 import {
   supportBackendUploadStatusCoversRequiredStates,
   supportBackendUploadStatusEntryIsSafe,
 } from './support-backend-upload-status-guards.js';
 
-const NonEmptySupportBackendUploadStatusText = Schema.String.pipe(Schema.minLength(1));
-
 const supportBackendUploadStatusText = <Brand extends string>(brand: Brand) =>
-  NonEmptySupportBackendUploadStatusText.pipe(Schema.brand(brand));
+  NonEmptyStringSchema.pipe(Schema.brand(brand));
 
 export const SupportBackendUploadStatusReadModelIdSchema = supportBackendUploadStatusText(
   'SupportBackendUploadStatusReadModelId'
@@ -187,3 +190,4 @@ export const decodeSupportBackendUploadStatusEntry = Schema.decodeUnknownSync(Su
 export const decodeSupportBackendUploadStatusReadModel = Schema.decodeUnknownSync(
   SupportBackendUploadStatusReadModelSchema
 );
+

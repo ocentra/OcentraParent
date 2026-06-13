@@ -1,8 +1,6 @@
-import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
+import { type Infer, brandedNonEmptyStringSchema, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
 import { ParentControlCapabilityNameSchema, ParentControlCapabilityStatusSchema } from '@ocentra-parent/capability-domain/capabilities';
 import { ParentTimestampSchema } from '@ocentra-parent/family-domain/reference-primitives';
-
-const NonEmptyChildIosEntitlementText = Schema.String.pipe(Schema.minLength(1));
 
 export const ChildIosEntitlementCapabilityProofSchemaVersionSchema = withParser(
   Schema.Literal('child-ios-entitlement-capability-proof')
@@ -87,18 +85,10 @@ export const ChildIosEntitlementProtocolEventSchema = withParser(
 );
 export const ChildIosEntitlementBridgeStateSchema = withParser(Schema.Literal('simulator-scaffold', 'not-implemented'));
 
-const ChildIosEntitlementBundleIdSchema = NonEmptyChildIosEntitlementText.pipe(
-  Schema.brand('ChildIosEntitlementBundleId')
-);
-const ChildIosEntitlementClassNameSchema = NonEmptyChildIosEntitlementText.pipe(
-  Schema.brand('ChildIosEntitlementClassName')
-);
-const ChildIosEntitlementRequirementSchema = NonEmptyChildIosEntitlementText.pipe(
-  Schema.brand('ChildIosEntitlementRequirement')
-);
-const ChildIosEntitlementBoundarySchema = NonEmptyChildIosEntitlementText.pipe(
-  Schema.brand('ChildIosEntitlementBoundary')
-);
+const ChildIosEntitlementBundleIdSchema = brandedNonEmptyStringSchema('ChildIosEntitlementBundleId');
+const ChildIosEntitlementClassNameSchema = brandedNonEmptyStringSchema('ChildIosEntitlementClassName');
+const ChildIosEntitlementRequirementSchema = brandedNonEmptyStringSchema('ChildIosEntitlementRequirement');
+const ChildIosEntitlementBoundarySchema = brandedNonEmptyStringSchema('ChildIosEntitlementBoundary');
 
 export const ChildIosEntitlementSurfaceProofSchema = withParser(
   Schema.Struct({

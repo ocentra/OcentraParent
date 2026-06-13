@@ -1,5 +1,5 @@
 import { Schema } from '@ocentra-parent/schema-domain/effect';
-import { type V3NotificationProviderChannel } from './v3-notification-rule-provider-retry-contract';
+import { type V3NotificationProviderChannel } from '@ocentra-parent/notification-domain/v3-notification-rule-provider-retry-contract';
 import {
   NotificationLocalOutboxForbiddenDetailFragments,
   NotificationLocalOutboxKnownGaps,

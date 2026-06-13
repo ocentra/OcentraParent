@@ -1,9 +1,12 @@
-import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
+import {
+  type Infer,
+  Schema,
+  withParser,
+  brandedNonEmptyStringSchema
+} from '@ocentra-parent/schema-domain/effect';
 import { AppInstallPurchaseParentReviewActionProofReadModel } from './app-install-purchase-parent-review-action-proof';
 import { AppInstallPurchaseReportRuntimeProofReadModel } from './app-install-purchase-report-runtime-proof';
 import { ParentTimestampSchema } from '@ocentra-parent/family-domain/reference-primitives';
-
-const ApprovalReportDomainText = Schema.String.pipe(Schema.minLength(1));
 const ApprovalReportDomainProofVersion = 'app-install-purchase-approval-report-domain-proof';
 const SourceParentReviewActionProofVersion = 'app-install-purchase-parent-review-action-proof';
 const SourceReportRuntimeProofVersion = 'app-install-purchase-report-runtime-proof';
@@ -56,15 +59,9 @@ const AppInstallPurchaseApprovalReportDomainNonClaimSchema = withParser(
   Schema.Literal(...RequiredApprovalReportNonClaims)
 );
 
-const ApprovalReportDomainRowIdSchema = ApprovalReportDomainText.pipe(
-  Schema.brand('AppInstallPurchaseApprovalReportDomainRowId')
-);
-const ApprovalReportDomainRefSchema = ApprovalReportDomainText.pipe(
-  Schema.brand('AppInstallPurchaseApprovalReportDomainRef')
-);
-const ApprovalReportDomainClaimBoundarySchema = ApprovalReportDomainText.pipe(
-  Schema.brand('AppInstallPurchaseApprovalReportDomainClaimBoundary')
-);
+const ApprovalReportDomainRowIdSchema = brandedNonEmptyStringSchema('AppInstallPurchaseApprovalReportDomainRowId');
+const ApprovalReportDomainRefSchema = brandedNonEmptyStringSchema('AppInstallPurchaseApprovalReportDomainRef');
+const ApprovalReportDomainClaimBoundarySchema = brandedNonEmptyStringSchema('AppInstallPurchaseApprovalReportDomainClaimBoundary');
 
 const ApprovalReportDomainRowBaseSchema = Schema.Struct({
   schemaVersion: AppInstallPurchaseApprovalReportDomainProofSchemaVersionSchema,
@@ -279,3 +276,4 @@ function approvalReportDomainBoundaryIsExplicit(
 ): boolean {
   return ApprovalReportBoundaryFragments.every((fragment) => boundary.includes(fragment));
 }
+

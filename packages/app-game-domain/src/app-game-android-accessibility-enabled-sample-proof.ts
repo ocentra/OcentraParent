@@ -1,7 +1,10 @@
-import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
+import {
+  type Infer,
+  Schema,
+  withParser,
+  brandedNonEmptyStringSchema
+} from '@ocentra-parent/schema-domain/effect';
 import { ParentTimestampSchema } from '@ocentra-parent/family-domain/reference-primitives';
-
-const EnabledSampleText = Schema.String.pipe(Schema.minLength(1));
 
 export const AppGameAndroidAccessibilityEnabledSampleProofSchemaVersionSchema = withParser(
   Schema.Literal('app-game-android-accessibility-enabled-sample-proof')
@@ -34,9 +37,7 @@ export const AppGameAndroidAccessibilityEnabledSampleGapSchema = withParser(
   )
 );
 
-const EnabledSampleLabelSchema = EnabledSampleText.pipe(
-  Schema.brand('AppGameAndroidAccessibilityEnabledSampleProofLabel')
-);
+const EnabledSampleLabelSchema = brandedNonEmptyStringSchema('AppGameAndroidAccessibilityEnabledSampleProofLabel');
 
 const AppGameAndroidAccessibilityEnabledSampleProofBaseSchema = Schema.Struct({
   schemaVersion: AppGameAndroidAccessibilityEnabledSampleProofSchemaVersionSchema,
@@ -148,3 +149,4 @@ function enabledSampleProofIsHonest(proof: EnabledSampleCandidate): boolean {
     proof.openGaps.includes('android-platform-enforcement-not-proved')
   );
 }
+

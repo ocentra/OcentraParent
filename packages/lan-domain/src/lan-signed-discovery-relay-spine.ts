@@ -1,4 +1,9 @@
-import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
+import {
+  type Infer,
+  Schema,
+  withParser,
+  NonEmptyStringSchema
+} from '@ocentra-parent/schema-domain/effect';
 import { LanHouseholdProductProofStateSchema } from './lan-pairing-product-proof';
 import {
   LanPairingProductionDiscoveryStateSchema,
@@ -9,8 +14,6 @@ import {
   LanPairingTimestampSchema,
 } from './lan-pairing-values';
 import { LanProductionHouseholdProofRuntimeOwnerSchema } from './lan-production-household-proof';
-
-const NonEmptySignedDiscoveryRelayText = Schema.String.pipe(Schema.minLength(1));
 
 export const LanSignedDiscoveryRelayAdapterKindSchema = withParser(
   Schema.Literal(
@@ -96,8 +99,8 @@ export const LanSignedDiscoveryRelayAdapterRowSchema = withParser(
     sourceConfidence: LanSignedDiscoveryRelaySourceConfidenceSchema,
     custodyLabel: LanSignedDiscoveryRelayCustodyLabelSchema,
     runtimeOwner: LanProductionHouseholdProofRuntimeOwnerSchema,
-    evidenceLabel: NonEmptySignedDiscoveryRelayText,
-    requiredArtifactSummary: Schema.Union(NonEmptySignedDiscoveryRelayText, Schema.Null),
+    evidenceLabel: NonEmptyStringSchema,
+    requiredArtifactSummary: Schema.Union(NonEmptyStringSchema, Schema.Null),
   })
 );
 
@@ -110,7 +113,7 @@ export const LanSignedDiscoveryRelaySignedProofRowSchema = withParser(
     rejectionReason: Schema.Union(LanPairingRejectionReasonSchema, Schema.Null),
     proofState: LanHouseholdProductProofStateSchema,
     runtimeOwner: LanProductionHouseholdProofRuntimeOwnerSchema,
-    evidenceLabel: NonEmptySignedDiscoveryRelayText,
+    evidenceLabel: NonEmptyStringSchema,
   })
 );
 
@@ -125,7 +128,7 @@ export const LanSignedDiscoveryRelayRouteSafetyRowSchema = withParser(
     proofState: LanHouseholdProductProofStateSchema,
     runtimeOwner: LanProductionHouseholdProofRuntimeOwnerSchema,
     custodyLabel: LanSignedDiscoveryRelayCustodyLabelSchema,
-    evidenceLabel: NonEmptySignedDiscoveryRelayText,
+    evidenceLabel: NonEmptyStringSchema,
   })
 );
 
@@ -138,7 +141,7 @@ export const LanSignedDiscoveryRelayCacheRowSchema = withParser(
     proofState: LanHouseholdProductProofStateSchema,
     runtimeOwner: LanProductionHouseholdProofRuntimeOwnerSchema,
     custodyLabel: LanSignedDiscoveryRelayCustodyLabelSchema,
-    evidenceLabel: NonEmptySignedDiscoveryRelayText,
+    evidenceLabel: NonEmptyStringSchema,
   })
 );
 
@@ -151,8 +154,8 @@ const LanSignedDiscoveryRelaySpineBaseSchema = Schema.Struct({
   relayCacheRows: Schema.Array(LanSignedDiscoveryRelayCacheRowSchema),
   manualProofRequired: Schema.Array(LanSignedDiscoveryRelayAdapterKindSchema),
   notImplemented: Schema.Array(LanSignedDiscoveryRelayCacheCheckSchema),
-  claimsProved: Schema.Array(NonEmptySignedDiscoveryRelayText),
-  claimsNotProved: Schema.Array(NonEmptySignedDiscoveryRelayText),
+  claimsProved: Schema.Array(NonEmptyStringSchema),
+  claimsNotProved: Schema.Array(NonEmptyStringSchema),
 });
 
 type LanSignedDiscoveryRelaySpineCandidate = Infer<typeof LanSignedDiscoveryRelaySpineBaseSchema>;
@@ -310,3 +313,4 @@ export type LanSignedDiscoveryRelaySignedProofRow = Infer<typeof LanSignedDiscov
 export type LanSignedDiscoveryRelayRouteSafetyRow = Infer<typeof LanSignedDiscoveryRelayRouteSafetyRowSchema>;
 export type LanSignedDiscoveryRelayCacheRow = Infer<typeof LanSignedDiscoveryRelayCacheRowSchema>;
 export type LanSignedDiscoveryRelaySpine = Infer<typeof LanSignedDiscoveryRelaySpineSchema>;
+

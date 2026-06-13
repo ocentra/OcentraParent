@@ -1,4 +1,9 @@
-import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
+import {
+  type Infer,
+  Schema,
+  withParser,
+  brandedNonEmptyStringSchema
+} from '@ocentra-parent/schema-domain/effect';
 import { AppGamePolicyPreviewTargetDomainSchema } from './app-game-policy-preview-handoff';
 import { AppGameSourceFreshnessEvidenceRefSchema } from './app-game-source-freshness-policy-consumption';
 import {
@@ -18,20 +23,12 @@ import {
 } from './app-game-source-gated-policy-preview-timer-runtime-readiness-rules';
 import { ParentContractSchemaVersionSchema, ParentTimestampSchema } from '@ocentra-parent/family-domain/reference-primitives';
 
-const SourceGatedPolicyPreviewTimerRuntimeReadinessText = Schema.String.pipe(Schema.minLength(1));
-
 export const AppGameSourceGatedPolicyPreviewTimerRuntimeReadinessIdSchema =
-  SourceGatedPolicyPreviewTimerRuntimeReadinessText.pipe(
-    Schema.brand('AppGameSourceGatedPolicyPreviewTimerRuntimeReadinessId')
-  );
+  brandedNonEmptyStringSchema('AppGameSourceGatedPolicyPreviewTimerRuntimeReadinessId');
 export const AppGameSourceGatedPolicyPreviewTimerRuntimeReadinessRowIdSchema =
-  SourceGatedPolicyPreviewTimerRuntimeReadinessText.pipe(
-    Schema.brand('AppGameSourceGatedPolicyPreviewTimerRuntimeReadinessRowId')
-  );
+  brandedNonEmptyStringSchema('AppGameSourceGatedPolicyPreviewTimerRuntimeReadinessRowId');
 export const AppGameSourceGatedPolicyPreviewTimerRuntimeReadinessContractRefSchema =
-  SourceGatedPolicyPreviewTimerRuntimeReadinessText.pipe(
-    Schema.brand('AppGameSourceGatedPolicyPreviewTimerRuntimeReadinessContractRef')
-  );
+  brandedNonEmptyStringSchema('AppGameSourceGatedPolicyPreviewTimerRuntimeReadinessContractRef');
 
 export const AppGameSourceGatedPolicyPreviewTimerRuntimeReadinessStateSchema = withParser(
   Schema.Literal(...Object.values(AppGameSourceGatedPolicyPreviewTimerRuntimeReadinessState))
@@ -239,3 +236,4 @@ export const decodeAppGameSourceGatedPolicyPreviewTimerRuntimeReadiness = Schema
 );
 
 export { AppGameSourceGatedPolicyPreviewTimerRuntimeReadinessState };
+

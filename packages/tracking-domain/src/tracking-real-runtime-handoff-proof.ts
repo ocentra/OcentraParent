@@ -1,8 +1,12 @@
-import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
+import {
+  type Infer,
+  Schema,
+  withParser,
+  brandedNonEmptyStringSchema,
+  NonEmptyStringSchema
+} from '@ocentra-parent/schema-domain/effect';
 import { ParentTimestampSchema } from '@ocentra-parent/family-domain/reference-primitives';
 import { TrackingPolicyAuditRefSchema, TrackingPolicySchemaVersion } from './tracking-location-policy-primitives';
-
-const TrackingRealRuntimeHandoffTextSchema = Schema.String.pipe(Schema.minLength(1));
 
 export const TrackingRealRuntimeHandoffAreaSchema = Schema.Literal(
   'android-physical-background-and-geofence',
@@ -43,24 +47,18 @@ export const TrackingRealRuntimeHandoffBlockerSchema = Schema.Literal(
   'production-durable-workers-required'
 );
 
-export const TrackingRealRuntimeHandoffArtifactPathSchema = TrackingRealRuntimeHandoffTextSchema.pipe(
-  Schema.brand('TrackingRealRuntimeHandoffArtifactPath')
-);
+export const TrackingRealRuntimeHandoffArtifactPathSchema = brandedNonEmptyStringSchema('TrackingRealRuntimeHandoffArtifactPath');
 
-export const TrackingRealRuntimeHandoffRowIdSchema = TrackingRealRuntimeHandoffTextSchema.pipe(
-  Schema.brand('TrackingRealRuntimeHandoffRowId')
-);
+export const TrackingRealRuntimeHandoffRowIdSchema = brandedNonEmptyStringSchema('TrackingRealRuntimeHandoffRowId');
 
-export const TrackingRealRuntimeHandoffCommandSchema = TrackingRealRuntimeHandoffTextSchema.pipe(
-  Schema.brand('TrackingRealRuntimeHandoffCommand')
-);
+export const TrackingRealRuntimeHandoffCommandSchema = brandedNonEmptyStringSchema('TrackingRealRuntimeHandoffCommand');
 
 export const TrackingRealRuntimeHandoffClaimAuditAcceptanceSchema = withParser(
   Schema.Struct({
     sourceProofRef: TrackingRealRuntimeHandoffArtifactPathSchema,
-    acceptanceCriteria: Schema.Array(TrackingRealRuntimeHandoffTextSchema),
+    acceptanceCriteria: Schema.Array(NonEmptyStringSchema),
     manualValidationCommands: Schema.Array(TrackingRealRuntimeHandoffCommandSchema),
-    artifactAcceptanceNotes: Schema.Array(TrackingRealRuntimeHandoffTextSchema),
+    artifactAcceptanceNotes: Schema.Array(NonEmptyStringSchema),
   })
     .pipe(
       Schema.filter(
@@ -818,3 +816,4 @@ function summarizeRealRuntimeHandoffRows(
     productReadyRowCount: 0,
   };
 }
+

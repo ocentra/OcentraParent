@@ -1,9 +1,13 @@
-import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
+import {
+  type Infer,
+  Schema,
+  withParser,
+  brandedNonEmptyStringSchema,
+  NonEmptyStringSchema
+} from '@ocentra-parent/schema-domain/effect';
 import { ActivityEvidenceIdSchema } from '@ocentra-parent/evidence-domain/primitives';
 
-const NonEmptySocialRouteGateText = Schema.String.pipe(Schema.minLength(1));
-
-export const OptionalSocialFeedVideoRouteGateTextSchema = Schema.Union(NonEmptySocialRouteGateText, Schema.Null);
+export const OptionalSocialFeedVideoRouteGateTextSchema = Schema.Union(NonEmptyStringSchema, Schema.Null);
 
 export const SocialFeedVideoRouteGateSourceEvidenceIdsSchema = Schema.Array(ActivityEvidenceIdSchema).pipe(
   Schema.filter((value) => value.length > 0 || 'Expected social feed video route gate source evidence ids')
@@ -12,7 +16,7 @@ export const SocialFeedVideoRouteGateSourceEvidenceIdsSchema = Schema.Array(Acti
 export const BrowserSocialFeedVideoRouteGateSchemaVersion = 1;
 
 export const BrowserSocialFeedVideoRouteGatePlanIdSchema = withParser(
-  NonEmptySocialRouteGateText.pipe(Schema.brand('BrowserSocialFeedVideoRouteGatePlanId'))
+  brandedNonEmptyStringSchema('BrowserSocialFeedVideoRouteGatePlanId')
 );
 
 export const BrowserSocialFeedVideoRouteGateTargetKindSchema = withParser(
@@ -59,3 +63,4 @@ export type BrowserSocialFeedVideoRouteGateAction = Infer<typeof BrowserSocialFe
 export type BrowserSocialFeedVideoRouteGateReason = Infer<typeof BrowserSocialFeedVideoRouteGateReasonSchema>;
 export type BrowserSocialFeedVideoRouteGateState = Infer<typeof BrowserSocialFeedVideoRouteGateStateSchema>;
 export type BrowserSocialFeedVideoRouteGateTargetKind = Infer<typeof BrowserSocialFeedVideoRouteGateTargetKindSchema>;
+

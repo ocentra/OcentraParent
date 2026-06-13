@@ -102,7 +102,7 @@ const commands = [
       '--workspace',
       '@ocentra-parent/logging-domain',
       '--workspace',
-      '@ocentra-parent/activity-domain',
+      '@ocentra-parent/network-domain',
       '--workspace',
       '@ocentra-parent/parent-domain',
       '--workspace',

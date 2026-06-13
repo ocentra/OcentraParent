@@ -1,1 +1,1 @@
-export * from '@ocentra-parent/social-domain/social-alert-report-preference-status-handoff';
+export * from '@ocentra-parent/browser-domain/social-alert-report-preference-status-handoff';

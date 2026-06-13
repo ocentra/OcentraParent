@@ -1,11 +1,13 @@
-import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
+import { type Infer, NonEmptyStringSchema, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
 import { AgentEvent, isAgentProtocolLogText, type AgentEventEnvelope } from './contracts';
 import { AgentProtocolDefaults } from './defaults';
 
-const NetworkLiveCaptureText = Schema.String.pipe(Schema.minLength(1));
-const NullableNetworkLiveCaptureText = Schema.Union(NetworkLiveCaptureText, Schema.Null);
+const NullableNonEmptyStringSchema = Schema.Union(NonEmptyStringSchema, Schema.Null);
 const NetworkLiveCaptureCount = Schema.Number.pipe(Schema.nonNegative(), Schema.int());
 const NetworkLiveCaptureRefs = AgentProtocolDefaults.NetworkLiveCaptureStatus;
+const NetworkLiveCaptureStatusErrorMessage =
+  'Network live capture status must preserve row13 and row03a readiness refs, exact proof/manual/' +
+  'unavailable/degraded rows, and no live capture/content/authority claims';
 
 export const AgentNetworkLiveCapturePlatformSchema = withParser(
   Schema.Literal('windows-npcap', 'linux-libpcap', 'macos-bpf-libpcap')
@@ -25,39 +27,39 @@ export const AgentNetworkLiveCaptureExecutionStateSchema = withParser(
 
 const AgentNetworkLiveCaptureStatusRowSchema = Schema.Struct({
   platform: AgentNetworkLiveCapturePlatformSchema,
-  captureProofRef: NetworkLiveCaptureText,
+  captureProofRef: NonEmptyStringSchema,
   proofState: AgentNetworkLiveCaptureProofStateSchema,
-  storageProofRef: NetworkLiveCaptureText,
+  storageProofRef: NonEmptyStringSchema,
   storageState: AgentNetworkRawCaptureStorageStateSchema,
-  interfaceRef: NullableNetworkLiveCaptureText,
-  driverProofRef: NullableNetworkLiveCaptureText,
-  permissionProofRef: NullableNetworkLiveCaptureText,
-  boundedCaptureRef: NullableNetworkLiveCaptureText,
-  cleanStopRef: NullableNetworkLiveCaptureText,
-  quotaRotationRef: NullableNetworkLiveCaptureText,
-  retentionDeleteExportRef: NullableNetworkLiveCaptureText,
-  custodyRef: NullableNetworkLiveCaptureText,
-  privateTrafficExclusionRef: NullableNetworkLiveCaptureText,
-  rawArtifactManifestRef: NullableNetworkLiveCaptureText,
-  storageLocationRef: NullableNetworkLiveCaptureText,
-  encryptionAtRestRef: NullableNetworkLiveCaptureText,
-  storageQuotaRotationRef: NullableNetworkLiveCaptureText,
-  retentionPolicyRef: NullableNetworkLiveCaptureText,
-  storageDeleteExportRef: NullableNetworkLiveCaptureText,
-  custodyChainRef: NullableNetworkLiveCaptureText,
-  storagePrivateTrafficExclusionRef: NullableNetworkLiveCaptureText,
-  executionRef: NullableNetworkLiveCaptureText,
+  interfaceRef: NullableNonEmptyStringSchema,
+  driverProofRef: NullableNonEmptyStringSchema,
+  permissionProofRef: NullableNonEmptyStringSchema,
+  boundedCaptureRef: NullableNonEmptyStringSchema,
+  cleanStopRef: NullableNonEmptyStringSchema,
+  quotaRotationRef: NullableNonEmptyStringSchema,
+  retentionDeleteExportRef: NullableNonEmptyStringSchema,
+  custodyRef: NullableNonEmptyStringSchema,
+  privateTrafficExclusionRef: NullableNonEmptyStringSchema,
+  rawArtifactManifestRef: NullableNonEmptyStringSchema,
+  storageLocationRef: NullableNonEmptyStringSchema,
+  encryptionAtRestRef: NullableNonEmptyStringSchema,
+  storageQuotaRotationRef: NullableNonEmptyStringSchema,
+  retentionPolicyRef: NullableNonEmptyStringSchema,
+  storageDeleteExportRef: NullableNonEmptyStringSchema,
+  custodyChainRef: NullableNonEmptyStringSchema,
+  storagePrivateTrafficExclusionRef: NullableNonEmptyStringSchema,
+  executionRef: NullableNonEmptyStringSchema,
   executionState: AgentNetworkLiveCaptureExecutionStateSchema,
   executionMissingArtifactCount: NetworkLiveCaptureCount,
-  driverInvocationRef: NullableNetworkLiveCaptureText,
-  interfaceObservationRef: NullableNetworkLiveCaptureText,
-  executionPermissionRef: NullableNetworkLiveCaptureText,
-  boundedWindowRef: NullableNetworkLiveCaptureText,
-  executionCleanStopRef: NullableNetworkLiveCaptureText,
-  executionCustodyRef: NullableNetworkLiveCaptureText,
-  executionRetentionDeleteExportRef: NullableNetworkLiveCaptureText,
-  metadataOnlySanitizationRef: NullableNetworkLiveCaptureText,
-  executionPrivateTrafficExclusionRef: NullableNetworkLiveCaptureText,
+  driverInvocationRef: NullableNonEmptyStringSchema,
+  interfaceObservationRef: NullableNonEmptyStringSchema,
+  executionPermissionRef: NullableNonEmptyStringSchema,
+  boundedWindowRef: NullableNonEmptyStringSchema,
+  executionCleanStopRef: NullableNonEmptyStringSchema,
+  executionCustodyRef: NullableNonEmptyStringSchema,
+  executionRetentionDeleteExportRef: NullableNonEmptyStringSchema,
+  metadataOnlySanitizationRef: NullableNonEmptyStringSchema,
+  executionPrivateTrafficExclusionRef: NullableNonEmptyStringSchema,
   metadataSnapshotExecuted: Schema.Boolean,
   capturedPacketCount: NetworkLiveCaptureCount,
   rawArtifactCreated: Schema.Literal(false),
@@ -82,10 +84,10 @@ const AgentNetworkLiveCaptureStatusRowSchema = Schema.Struct({
 });
 
 const AgentNetworkLiveCaptureStatusFields = Schema.Struct({
-  statusRef: NetworkLiveCaptureText,
-  row13StatusRef: NetworkLiveCaptureText,
-  executionStatusRef: NetworkLiveCaptureText,
-  rawStorageStatusRef: NetworkLiveCaptureText,
+  statusRef: NonEmptyStringSchema,
+  row13StatusRef: NonEmptyStringSchema,
+  executionStatusRef: NonEmptyStringSchema,
+  rawStorageStatusRef: NonEmptyStringSchema,
   platformRowCount: NetworkLiveCaptureCount,
   proofReadyCount: NetworkLiveCaptureCount,
   manualRequiredCount: NetworkLiveCaptureCount,
@@ -137,7 +139,7 @@ export const AgentNetworkLiveCaptureStatusSchema = withParser(
           rowRefsMatch(status) &&
           readinessMatches(status) &&
           missingArtifactCountsMatch(status)) ||
-        'Network live capture status must preserve row13 and row03a readiness refs, exact proof/manual/unavailable/degraded rows, and no live capture/content/authority claims'
+        NetworkLiveCaptureStatusErrorMessage
     )
   )
 );

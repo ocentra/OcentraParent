@@ -1,4 +1,10 @@
-import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
+import {
+  type Infer,
+  Schema,
+  withParser,
+  brandedNonEmptyStringSchema,
+  NonEmptyStringSchema
+} from '@ocentra-parent/schema-domain/effect';
 import {
   ActivityDeviceIdSchema,
   ActivityEvidenceIdSchema,
@@ -18,12 +24,10 @@ import {
 import { BrowserTargetIdSchema } from './browser-target-schemas';
 
 export const BrowserEvidenceSchemaVersion = 1;
-
-const NonEmptyBrowserText = Schema.String.pipe(Schema.minLength(1));
-const BrowserUrlText = NonEmptyBrowserText.pipe(
+const BrowserUrlText = NonEmptyStringSchema.pipe(
   Schema.filter((value) => browserUrlIsValid(value) || 'Expected an absolute browser URL')
 );
-const BrowserRedactedRefText = NonEmptyBrowserText.pipe(
+const BrowserRedactedRefText = NonEmptyStringSchema.pipe(
   Schema.filter((value) => browserRedactedRefIsSafe(value) || 'Expected a redacted browser reference')
 );
 
@@ -98,28 +102,28 @@ export const BrowserCustodyLabelSchema = withParser(
 export const BrowserQueryVisibilityLabelSchema = withParser(
   Schema.Literal('live-local', 'live-lan', 'parent-cache', 'parent-owned-export', 'unavailable')
 );
-export const BrowserAdapterIdSchema = withParser(NonEmptyBrowserText.pipe(Schema.brand('BrowserAdapterId')));
+export const BrowserAdapterIdSchema = withParser(brandedNonEmptyStringSchema('BrowserAdapterId'));
 export const BrowserBridgeEndpointRefSchema = withParser(
-  NonEmptyBrowserText.pipe(Schema.brand('BrowserBridgeEndpointRef'))
+  brandedNonEmptyStringSchema('BrowserBridgeEndpointRef')
 );
-export const BrowserDegradedReasonSchema = withParser(NonEmptyBrowserText.pipe(Schema.brand('BrowserDegradedReason')));
-export const BrowserDomainSchema = withParser(NonEmptyBrowserText.pipe(Schema.brand('BrowserDomain')));
+export const BrowserDegradedReasonSchema = withParser(brandedNonEmptyStringSchema('BrowserDegradedReason'));
+export const BrowserDomainSchema = withParser(brandedNonEmptyStringSchema('BrowserDomain'));
 export const BrowserManagedSessionIdSchema = withParser(
-  NonEmptyBrowserText.pipe(Schema.brand('BrowserManagedSessionId'))
+  brandedNonEmptyStringSchema('BrowserManagedSessionId')
 );
-export const BrowserOriginSchema = withParser(NonEmptyBrowserText.pipe(Schema.brand('BrowserOrigin')));
-export const BrowserPageTitleSchema = withParser(NonEmptyBrowserText.pipe(Schema.brand('BrowserPageTitle')));
-export const BrowserProfileIdSchema = withParser(NonEmptyBrowserText.pipe(Schema.brand('BrowserProfileId')));
+export const BrowserOriginSchema = withParser(brandedNonEmptyStringSchema('BrowserOrigin'));
+export const BrowserPageTitleSchema = withParser(brandedNonEmptyStringSchema('BrowserPageTitle'));
+export const BrowserProfileIdSchema = withParser(brandedNonEmptyStringSchema('BrowserProfileId'));
 export const BrowserProfilePathRefSchema = withParser(
   BrowserRedactedRefText.pipe(Schema.brand('BrowserProfilePathRef'))
 );
 const BrowserProfileRootRefSchema = withParser(BrowserRedactedRefText.pipe(Schema.brand('BrowserProfileRootRef')));
-const BrowserProfileScopeIdSchema = withParser(NonEmptyBrowserText.pipe(Schema.brand('BrowserProfileScopeId')));
-const BrowserPolicyRevisionSchema = withParser(NonEmptyBrowserText.pipe(Schema.brand('BrowserPolicyRevision')));
-export const BrowserTabIdSchema = withParser(NonEmptyBrowserText.pipe(Schema.brand('BrowserTabId')));
+const BrowserProfileScopeIdSchema = withParser(brandedNonEmptyStringSchema('BrowserProfileScopeId'));
+const BrowserPolicyRevisionSchema = withParser(brandedNonEmptyStringSchema('BrowserPolicyRevision'));
+export const BrowserTabIdSchema = withParser(brandedNonEmptyStringSchema('BrowserTabId'));
 export const BrowserUrlSchema = withParser(BrowserUrlText.pipe(Schema.brand('BrowserUrl')));
-export const BrowserVersionSchema = withParser(NonEmptyBrowserText.pipe(Schema.brand('BrowserVersion')));
-export const BrowserWindowIdSchema = withParser(NonEmptyBrowserText.pipe(Schema.brand('BrowserWindowId')));
+export const BrowserVersionSchema = withParser(brandedNonEmptyStringSchema('BrowserVersion'));
+export const BrowserWindowIdSchema = withParser(brandedNonEmptyStringSchema('BrowserWindowId'));
 
 const BrowserUnmanagedProcessEvidenceBaseSchema = Schema.Struct({
   schemaVersion: Schema.Literal(BrowserEvidenceSchemaVersion),
@@ -414,3 +418,4 @@ function normalizedHost(value: string): string | null {
 function browserRedactedRefIsSafe(value: string): boolean {
   return !value.includes('/') && !value.includes('\\') && !value.includes(':');
 }
+

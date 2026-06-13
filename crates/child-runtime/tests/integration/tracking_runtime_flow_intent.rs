@@ -1,0 +1,66 @@
+use ocentra_parent_agent_protocol::{constants, TrackingEvidenceRef};
+
+#[tokio::test]
+async fn tracking_runtime_flow_keeps_ai_policy_and_notification_decoupled_by_events() {
+    let flow_report = ocentra_child_runtime::publish_child_tracking_location_observed_event(
+        ocentra_tracking_core::default_location_observed_event(),
+    )
+    .await
+    .expect(constants::tracking_runtime::ERROR_TRACKING_RUNTIME_FLOW_RECORDED);
+
+    assert_eq!(
+        flow_report
+            .ai_analysis_requested
+            .as_ref()
+            .expect(constants::tracking_runtime::ERROR_TRACKING_RUNTIME_FLOW_RECORDED)
+            .evidence_refs,
+        vec![
+            TrackingEvidenceRef::parse(constants::tracking_runtime::DEFAULT_EVIDENCE_REF)
+                .expect(constants::tracking_runtime::DEFAULT_EVIDENCE_REF)
+        ]
+    );
+    assert_eq!(
+        flow_report
+            .nearby_place_classified
+            .as_ref()
+            .expect(constants::tracking_runtime::ERROR_TRACKING_RUNTIME_FLOW_RECORDED)
+            .source_ai_request_id,
+        flow_report
+            .ai_analysis_requested
+            .as_ref()
+            .expect(constants::tracking_runtime::ERROR_TRACKING_RUNTIME_FLOW_RECORDED)
+            .ai_request_id
+    );
+    assert_eq!(
+        flow_report
+            .ai_boundary_decision
+            .as_ref()
+            .expect(constants::tracking_runtime::ERROR_TRACKING_RUNTIME_FLOW_RECORDED)
+            .decision_state,
+        constants::tracking_runtime::AI_RESULT_ACCEPTED_AS_EVIDENCE
+    );
+    assert_eq!(
+        flow_report
+            .policy_violation_detected
+            .as_ref()
+            .expect(constants::tracking_runtime::ERROR_TRACKING_RUNTIME_FLOW_RECORDED)
+            .evidence_refs,
+        flow_report
+            .nearby_place_classified
+            .as_ref()
+            .expect(constants::tracking_runtime::ERROR_TRACKING_RUNTIME_FLOW_RECORDED)
+            .evidence_refs
+    );
+    assert_eq!(
+        flow_report
+            .parent_notification_requested
+            .as_ref()
+            .expect(constants::tracking_runtime::ERROR_TRACKING_RUNTIME_FLOW_RECORDED)
+            .source_policy_violation_id,
+        flow_report
+            .policy_violation_detected
+            .as_ref()
+            .expect(constants::tracking_runtime::ERROR_TRACKING_RUNTIME_FLOW_RECORDED)
+            .violation_id
+    );
+}

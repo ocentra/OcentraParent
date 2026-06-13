@@ -1,7 +1,6 @@
-import { Schema, withParser } from '@ocentra-parent/schema-domain/effect';
+import { NonEmptyStringSchema, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
 import { AgentEvent, AgentProtocolDefaults, isAgentProtocolLogText, type AgentEventEnvelope } from './contracts';
 
-const NonEmptyRefSchema = Schema.String.pipe(Schema.minLength(1));
 const ParentSurfaceStateSchema = Schema.Literal('manual-action-required', 'unavailable-visible');
 const HistoryVisibilitySchema = Schema.Literal('history-row-visible', 'manual-review-only', 'unavailable-row-visible');
 const PreferenceVisibilitySchema = Schema.Literal('preference-setup-required', 'preference-disabled-visible');
@@ -87,19 +86,19 @@ export type SocialAlertReportParentSurfaceReadModelSnapshot = {
 };
 
 const ParentSurfaceRowSchema = Schema.Struct({
-  surfaceRowId: NonEmptyRefSchema,
-  sourceProviderHandoffRowId: NonEmptyRefSchema,
-  sourcePreferenceHandoffRowId: NonEmptyRefSchema,
-  sourceIntentRef: NonEmptyRefSchema,
+  surfaceRowId: NonEmptyStringSchema,
+  sourceProviderHandoffRowId: NonEmptyStringSchema,
+  sourcePreferenceHandoffRowId: NonEmptyStringSchema,
+  sourceIntentRef: NonEmptyStringSchema,
   parentSurfaceStatus: ParentSurfaceStateSchema,
   historyVisibility: HistoryVisibilitySchema,
   preferenceVisibility: PreferenceVisibilitySchema,
-  notificationStatusRef: NonEmptyRefSchema,
-  sourcePreferenceStatusRef: NonEmptyRefSchema,
-  drillInRefs: Schema.Array(NonEmptyRefSchema),
-  auditRefs: Schema.Array(NonEmptyRefSchema),
-  manualProofRequirements: Schema.Array(NonEmptyRefSchema),
-  minimalSurfacePayloadBoundary: NonEmptyRefSchema,
+  notificationStatusRef: NonEmptyStringSchema,
+  sourcePreferenceStatusRef: NonEmptyStringSchema,
+  drillInRefs: Schema.Array(NonEmptyStringSchema),
+  auditRefs: Schema.Array(NonEmptyStringSchema),
+  manualProofRequirements: Schema.Array(NonEmptyStringSchema),
+  minimalSurfacePayloadBoundary: NonEmptyStringSchema,
   sensitiveDetailIncluded: Schema.Literal(false),
   parentNotificationUiRendered: Schema.Literal(false),
   parentNotificationPreferenceUiRendered: Schema.Literal(false),
@@ -125,10 +124,10 @@ const ParentSurfaceRowSchema = Schema.Struct({
 export const SocialAlertReportParentSurfaceReadModelSnapshotSchema = withParser(
   Schema.Struct({
     schemaVersion: Schema.Literal('social-alert-report-parent-surface-read-model'),
-    intentId: NonEmptyRefSchema,
-    generatedAt: NonEmptyRefSchema,
-    sourceProviderStatusHandoffId: NonEmptyRefSchema,
-    sourcePreferenceStatusHandoffId: NonEmptyRefSchema,
+    intentId: NonEmptyStringSchema,
+    generatedAt: NonEmptyStringSchema,
+    sourceProviderStatusHandoffId: NonEmptyStringSchema,
+    sourcePreferenceStatusHandoffId: NonEmptyStringSchema,
     rows: Schema.Array(ParentSurfaceRowSchema).pipe(
       Schema.filter((value) => value.length > 0 || 'Expected parent-surface rows')
     ),

@@ -1,4 +1,9 @@
-import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
+import {
+  type Infer,
+  Schema,
+  withParser,
+  brandedNonEmptyStringSchema
+} from '@ocentra-parent/schema-domain/effect';
 import { ParentTimestampSchema } from '@ocentra-parent/family-domain/reference-primitives';
 import { TrackingEvidenceTraceSchema } from './tracking-location-policy';
 import {
@@ -7,15 +12,9 @@ import {
   TrackingPolicySchemaVersion,
 } from './tracking-location-policy-primitives';
 
-const TrackingFamilyDashboardRollupTextSchema = Schema.String.pipe(Schema.minLength(1));
+export const TrackingFamilyDashboardRollupRowIdSchema = brandedNonEmptyStringSchema('TrackingFamilyDashboardRollupRowId');
 
-export const TrackingFamilyDashboardRollupRowIdSchema = TrackingFamilyDashboardRollupTextSchema.pipe(
-  Schema.brand('TrackingFamilyDashboardRollupRowId')
-);
-
-export const TrackingFamilyDashboardRollupProofRefSchema = TrackingFamilyDashboardRollupTextSchema.pipe(
-  Schema.brand('TrackingFamilyDashboardRollupProofRef')
-);
+export const TrackingFamilyDashboardRollupProofRefSchema = brandedNonEmptyStringSchema('TrackingFamilyDashboardRollupProofRef');
 
 export const TrackingFamilyDashboardRollupKindSchema = withParser(
   Schema.Literal('family-active-summary', 'child-attention-summary', 'retention-audit-summary')
@@ -223,3 +222,4 @@ function evidence(
     observedAt,
   });
 }
+

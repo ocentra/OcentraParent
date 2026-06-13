@@ -1,4 +1,9 @@
-import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
+import {
+  type Infer,
+  Schema,
+  withParser,
+  brandedNonEmptyStringSchema
+} from '@ocentra-parent/schema-domain/effect';
 import { AppInstallPurchaseRuntimeTransportDeliveryExecutionProofReadModel } from './app-install-purchase-runtime-transport-delivery-execution-proof';
 import { ParentTimestampSchema } from '@ocentra-parent/family-domain/reference-primitives';
 
@@ -7,7 +12,6 @@ const ExternalRuntimeWriterTransportExecutionProofVersion =
 const SourceRuntimeTransportDeliveryExecutionProofVersion =
   'app-install-purchase-runtime-transport-delivery-execution-proof';
 const ExternalRuntimeWriterTransportExecutionTimestamp = '2026-06-08T02:59:00.000Z';
-const ExternalRuntimeWriterTransportExecutionText = Schema.String.pipe(Schema.minLength(1));
 const ExternalRuntimeWriterTransportExecutionBoundary =
   'external runtime writer transport execution proof only; rows consume runtime transport delivery execution rows and create parent-owned external writer transport packet execution status refs that remain blocked until an external writer dispatch executor provider-store execution receipt platform adapter execution receipt and child-device transport receipt are real no external runtime writer execution no external runtime writer delivery no parent action runtime delivery no provider API execution no store integration no platform interception no platform adapter implementation no child-device delivery no runtime report delivery no real install or purchase interception no app blocking no child activity data no Ocentra-hosted family data custody';
 const ExternalRuntimeWriterTransportExecutionActions = ['approve', 'deny', 'time-box', 'review-needed'] as const;
@@ -87,18 +91,10 @@ const ExternalRuntimeWriterTransportExecutionIntegrationClaimSchema = withParser
 const ExternalRuntimeWriterTransportExecutionAdapterClaimSchema = withParser(Schema.Literal('not-implemented'));
 const ExternalRuntimeWriterTransportExecutionCustodyClaimSchema = withParser(Schema.Literal('no-child-activity-data'));
 
-const ExternalRuntimeWriterTransportExecutionRowIdSchema = ExternalRuntimeWriterTransportExecutionText.pipe(
-  Schema.brand('AppInstallPurchaseExternalRuntimeWriterTransportExecutionRowId')
-);
-const ExternalRuntimeWriterTransportExecutionRefSchema = ExternalRuntimeWriterTransportExecutionText.pipe(
-  Schema.brand('AppInstallPurchaseExternalRuntimeWriterTransportExecutionRef')
-);
-const ExternalRuntimeWriterTransportExecutionAuditRefSchema = ExternalRuntimeWriterTransportExecutionText.pipe(
-  Schema.brand('AppInstallPurchaseExternalRuntimeWriterTransportExecutionAuditRef')
-);
-const ExternalRuntimeWriterTransportExecutionBoundarySchema = ExternalRuntimeWriterTransportExecutionText.pipe(
-  Schema.brand('AppInstallPurchaseExternalRuntimeWriterTransportExecutionBoundary')
-);
+const ExternalRuntimeWriterTransportExecutionRowIdSchema = brandedNonEmptyStringSchema('AppInstallPurchaseExternalRuntimeWriterTransportExecutionRowId');
+const ExternalRuntimeWriterTransportExecutionRefSchema = brandedNonEmptyStringSchema('AppInstallPurchaseExternalRuntimeWriterTransportExecutionRef');
+const ExternalRuntimeWriterTransportExecutionAuditRefSchema = brandedNonEmptyStringSchema('AppInstallPurchaseExternalRuntimeWriterTransportExecutionAuditRef');
+const ExternalRuntimeWriterTransportExecutionBoundarySchema = brandedNonEmptyStringSchema('AppInstallPurchaseExternalRuntimeWriterTransportExecutionBoundary');
 
 const ExternalRuntimeWriterTransportExecutionRowBaseSchema = Schema.Struct({
   schemaVersion: AppInstallPurchaseExternalRuntimeWriterTransportExecutionProofSchemaVersionSchema,
@@ -403,3 +399,4 @@ function externalRuntimeWriterTransportExecutionBoundaryIsExplicit(
 ): boolean {
   return ExternalRuntimeWriterTransportExecutionBoundaryFragments.every((fragment) => boundary.includes(fragment));
 }
+

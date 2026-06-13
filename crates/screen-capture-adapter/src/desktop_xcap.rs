@@ -2,7 +2,7 @@ use ocentra_parent_agent_protocol::ActivityCaptureCapabilityStatus;
 
 use crate::{
     degraded_capture, CapturedScreenImage, ScreenCaptureAttempt, ScreenCaptureMetadata,
-    ScreenCaptureScope,
+    ScreenCaptureScope, ScreenCaptureWindowTitleQuery,
 };
 
 pub(super) fn capture_active_window_png() -> ScreenCaptureAttempt {
@@ -14,13 +14,15 @@ pub(super) fn capture_active_window_png() -> ScreenCaptureAttempt {
     )
 }
 
-pub(super) fn capture_window_title_contains_png(title_contains: &str) -> ScreenCaptureAttempt {
+pub(super) fn capture_window_title_contains_png(
+    title_query: &ScreenCaptureWindowTitleQuery,
+) -> ScreenCaptureAttempt {
     capture_window_png(
         |window| {
             !matches!(window.is_minimized(), Ok(true))
                 && window
                     .title()
-                    .is_ok_and(|title| title.contains(title_contains))
+                    .is_ok_and(|title| title.contains(title_query.as_str()))
         },
         ScreenCaptureScope::SelectedWindow,
     )

@@ -1,4 +1,9 @@
-import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
+import {
+  type Infer,
+  Schema,
+  withParser,
+  brandedNonEmptyStringSchema
+} from '@ocentra-parent/schema-domain/effect';
 import {
   AppGameAiClassifierCandidateKind,
   AppGameAiClassifierFallbackState,
@@ -10,31 +15,15 @@ import {
   AppGameAiClassifierState,
 } from './app-game-ai-classifier-boundary-values';
 
-const NonEmptyAiClassifierText = Schema.String.pipe(Schema.minLength(1));
-
-export const AppGameAiClassifierRunIdSchema = NonEmptyAiClassifierText.pipe(Schema.brand('AppGameAiClassifierRunId'));
-export const AppGameAiClassifierDigestRefSchema = NonEmptyAiClassifierText.pipe(
-  Schema.brand('AppGameAiClassifierDigestRef')
-);
-export const AppGameAiClassifierEvidenceRefSchema = NonEmptyAiClassifierText.pipe(
-  Schema.brand('AppGameAiClassifierEvidenceRef')
-);
-export const AppGameAiClassifierSessionRefSchema = NonEmptyAiClassifierText.pipe(
-  Schema.brand('AppGameAiClassifierSessionRef')
-);
-export const AppGameAiClassifierRuntimeRefSchema = NonEmptyAiClassifierText.pipe(
-  Schema.brand('AppGameAiClassifierRuntimeRef')
-);
-export const AppGameAiClassifierPromptRefSchema = NonEmptyAiClassifierText.pipe(
-  Schema.brand('AppGameAiClassifierPromptRef')
-);
-export const AppGameAiClassifierLabelSchema = NonEmptyAiClassifierText.pipe(Schema.brand('AppGameAiClassifierLabel'));
-export const AppGameAiClassifierReasonCodeSchema = NonEmptyAiClassifierText.pipe(
-  Schema.brand('AppGameAiClassifierReasonCode')
-);
-export const AppGameAiClassifierTimestampSchema = NonEmptyAiClassifierText.pipe(
-  Schema.brand('AppGameAiClassifierTimestamp')
-);
+export const AppGameAiClassifierRunIdSchema = brandedNonEmptyStringSchema('AppGameAiClassifierRunId');
+export const AppGameAiClassifierDigestRefSchema = brandedNonEmptyStringSchema('AppGameAiClassifierDigestRef');
+export const AppGameAiClassifierEvidenceRefSchema = brandedNonEmptyStringSchema('AppGameAiClassifierEvidenceRef');
+export const AppGameAiClassifierSessionRefSchema = brandedNonEmptyStringSchema('AppGameAiClassifierSessionRef');
+export const AppGameAiClassifierRuntimeRefSchema = brandedNonEmptyStringSchema('AppGameAiClassifierRuntimeRef');
+export const AppGameAiClassifierPromptRefSchema = brandedNonEmptyStringSchema('AppGameAiClassifierPromptRef');
+export const AppGameAiClassifierLabelSchema = brandedNonEmptyStringSchema('AppGameAiClassifierLabel');
+export const AppGameAiClassifierReasonCodeSchema = brandedNonEmptyStringSchema('AppGameAiClassifierReasonCode');
+export const AppGameAiClassifierTimestampSchema = brandedNonEmptyStringSchema('AppGameAiClassifierTimestamp');
 
 const AppGameAiClassifierProductKindSchema = withParser(
   Schema.Literal(...Object.values(AppGameAiClassifierProductKind))
@@ -161,3 +150,4 @@ function collectForbiddenOutputKeyPaths(value: unknown, path: readonly PropertyK
 function appGameAiClassifierIsRecord(value: unknown): value is Record<PropertyKey, unknown> {
   return typeof value === 'object' && value !== null;
 }
+

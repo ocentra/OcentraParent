@@ -4,6 +4,10 @@ import {
   createAppGameAndroidUsageEventsRuntimePreflightReadModel,
   summarizeAppGameAndroidUsageEventsRuntimePreflightReadModel,
 } from '../../src/app-game-android-usage-events-runtime-preflight';
+import {
+  AppGameAndroidUsageEventsCommandName,
+  AppGameAndroidUsageEventsEventName,
+} from '../../src/app-game-android-usage-events-contracts';
 
 describe('app-game Android UsageEvents runtime preflight', () => {
   it('keeps runtime collection blocked when UsageStats settings grant is still required', () => {
@@ -74,8 +78,8 @@ describe('app-game Android UsageEvents runtime preflight', () => {
 function expectRuntimePreflightSignals(
   readModel: ReturnType<typeof createAppGameAndroidUsageEventsRuntimePreflightReadModel>
 ) {
-  expect(readModel.commands).toEqual(['app-game.android.usage-events.runtime-preflight.get']);
-  expect(readModel.events).toEqual(['app-game.android.usage-events.runtime-preflight.reported']);
+  expect(readModel.commands).toEqual([AppGameAndroidUsageEventsCommandName.RuntimePreflightGet]);
+  expect(readModel.events).toEqual([AppGameAndroidUsageEventsEventName.RuntimePreflightReported]);
   expect(readModel.proofRefs).toEqual(
     expect.arrayContaining(['android-usage-events-runtime-preflight-ref', 'android-usage-stats-appops-preflight-ref'])
   );

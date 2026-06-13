@@ -3,7 +3,16 @@ import { AgentEvent, AgentProtocolDefaults, type AgentEventEnvelope } from '../.
 import { AgentProtocolSchemaVersion } from '../../src/primitives';
 import {
   AgentTrackingConfigUpdateEventType,
+  AgentTrackingConfigAckState,
+  AgentTrackingDeleteAfterAlertResolutionState,
+  AgentTrackingDurableSettingsPersistenceState,
+  AgentTrackingExecutionClaimState,
+  AgentTrackingParentExportState,
+  AgentTrackingRemoteAiState,
+  AgentTrackingRemoteSyncState,
+  AgentTrackingRetentionSettingsWriteDefaults,
   AgentTrackingRetentionSettingsWriteRequestSchema,
+  AgentTrackingRetentionSettingsWriteResultParseState,
   ChildTrackingConfigUpdatedEventSchema,
   ParentTrackingConfigUpdatedEventSchema,
   defaultAgentTrackingRetentionSettingsWriteRequest,
@@ -23,36 +32,33 @@ const Target = {
 const TrackingRetentionSettingsWriteResult = {
   schemaVersion: AgentProtocolSchemaVersion,
   commandId: 'tracking-retention-write-command-1',
-  settingsKind: 'retention-window-setting',
-  writeState: 'service-write-command-accepted',
-  acceptedAt: '2026-06-06T19:50:00Z',
-  sourceWriterIntentRefs: ['tracking-retention-settings-write-retention-window'],
-  sourceReadModelProofRefs: [
-    'output/tracking-plan-proof/07-retention-and-custody-model/18-retention-settings-read-model-proof.json',
-  ],
-  sourceMutationProofRefs: [
-    'output/tracking-plan-proof/07-retention-and-custody-model/20-retention-settings-mutation-proof.json',
-  ],
+  settingsKind: AgentTrackingRetentionSettingsWriteDefaults.SettingsKindRetentionWindow,
+  writeState: AgentTrackingRetentionSettingsWriteDefaults.WriteStateAccepted,
+  acceptedAt: AgentTrackingRetentionSettingsWriteDefaults.AcceptedAt,
+  sourceWriterIntentRefs: [AgentTrackingRetentionSettingsWriteDefaults.WriterIntentRef],
+  sourceReadModelProofRefs: [AgentTrackingRetentionSettingsWriteDefaults.ReadModelProofRefs[0]],
+  sourceMutationProofRefs: [AgentTrackingRetentionSettingsWriteDefaults.MutationProofRef],
   appliedRetentionWindowHours: 168,
-  appliedDeleteAfterAlertResolved: false,
-  parentExportPrepared: false,
-  remoteSyncEnabled: false,
-  remoteAiEnabled: false,
+  appliedDeleteAfterAlertResolutionState: AgentTrackingDeleteAfterAlertResolutionState.RetainAfterAlertResolved,
+  parentExportState: AgentTrackingParentExportState.NotPrepared,
+  remoteSyncState: AgentTrackingRemoteSyncState.Disabled,
+  remoteAiState: AgentTrackingRemoteAiState.Disabled,
   localServiceStateRevision: 1,
-  localServiceStateSnapshotRef: 'agent-service-local-retention-settings-state',
-  durableSettingsStoreRef: 'agent-service-local-retention-settings-durable-json',
-  durableSettingsPersisted: true,
-  commandTransportClaimed: true,
-  serviceWritePreflightClaimed: true,
-  serviceMutationExecuted: true,
-  portalWritableUiClaimed: false,
-  platformRuntimeClaimed: false,
-  childDeviceDeliveryClaimed: false,
-  providerDeliveryClaimed: false,
-  notificationReceiptClaimed: false,
-  physicalDeviceClaimed: false,
-  authorityClaimed: false,
-  productClaimReady: false,
+  localServiceStateSnapshotRef: AgentTrackingRetentionSettingsWriteDefaults.LocalServiceStateSnapshotRef,
+  durableSettingsStoreRef: AgentTrackingRetentionSettingsWriteDefaults.DurableSettingsStoreRef,
+  durableSettingsPersistenceState: AgentTrackingDurableSettingsPersistenceState.Persisted,
+  childConfigAckState: AgentTrackingConfigAckState.Received,
+  commandTransportClaimState: AgentTrackingExecutionClaimState.Claimed,
+  serviceWritePreflightClaimState: AgentTrackingExecutionClaimState.Claimed,
+  serviceMutationExecutionState: AgentTrackingExecutionClaimState.Claimed,
+  portalWritableUiClaimState: AgentTrackingExecutionClaimState.Unclaimed,
+  platformRuntimeClaimState: AgentTrackingExecutionClaimState.Unclaimed,
+  childDeviceDeliveryClaimState: AgentTrackingExecutionClaimState.Unclaimed,
+  providerDeliveryClaimState: AgentTrackingExecutionClaimState.Unclaimed,
+  notificationReceiptClaimState: AgentTrackingExecutionClaimState.Unclaimed,
+  physicalDeviceClaimState: AgentTrackingExecutionClaimState.Unclaimed,
+  authorityClaimState: AgentTrackingExecutionClaimState.Unclaimed,
+  productClaimState: AgentTrackingExecutionClaimState.Unclaimed,
 } as const;
 
 describe('agent tracking retention settings write result parser', () => {
@@ -61,18 +67,15 @@ describe('agent tracking retention settings write result parser', () => {
       AgentTrackingRetentionSettingsWriteRequestSchema.parse(defaultAgentTrackingRetentionSettingsWriteRequest())
     ).toEqual({
       schemaVersion: AgentProtocolSchemaVersion,
-      commandId: 'tracking-retention-settings-write-command',
-      settingsKind: 'retention-window-setting',
+      commandId: AgentTrackingRetentionSettingsWriteDefaults.CommandId,
+      settingsKind: AgentTrackingRetentionSettingsWriteDefaults.SettingsKindRetentionWindow,
       requestedRetentionWindowHours: 168,
-      requestedDeleteAfterAlertResolved: false,
-      requestedParentExport: false,
-      requestedRemoteSyncEnabled: false,
-      requestedRemoteAiEnabled: false,
-      sourceWriterIntentRefs: ['tracking-retention-settings-write-retention-window'],
-      sourceReadModelProofRefs: [
-        'output/tracking-plan-proof/07-retention-and-custody-model/18-retention-settings-read-model-proof.json',
-        'output/tracking-plan-proof/32-journal-sqlite-and-read-model-proof/24-retention-settings-read-model-proof.json',
-      ],
+      requestedDeleteAfterAlertResolutionState: AgentTrackingDeleteAfterAlertResolutionState.RetainAfterAlertResolved,
+      requestedParentExportState: AgentTrackingParentExportState.NotPrepared,
+      requestedRemoteSyncState: AgentTrackingRemoteSyncState.Disabled,
+      requestedRemoteAiState: AgentTrackingRemoteAiState.Disabled,
+      sourceWriterIntentRefs: [AgentTrackingRetentionSettingsWriteDefaults.WriterIntentRef],
+      sourceReadModelProofRefs: AgentTrackingRetentionSettingsWriteDefaults.ReadModelProofRefs,
     });
   });
 
@@ -86,7 +89,7 @@ describe('agent tracking retention settings write result parser', () => {
     } as const;
     const parentEvent = ParentTrackingConfigUpdatedEventSchema.parse({
       sourceCommandId: config.commandId,
-      sourceMessageId: 'tracking-retention-settings-write-command',
+      sourceMessageId: AgentTrackingRetentionSettingsWriteDefaults.CommandId,
       sourcePeerId: 'portal-dev',
       target,
       config,
@@ -114,7 +117,7 @@ describe('agent tracking retention settings write result parser', () => {
     );
 
     expect(parsed).toEqual({
-      ok: true,
+      parseState: AgentTrackingRetentionSettingsWriteResultParseState.Parsed,
       value: TrackingRetentionSettingsWriteResult,
     });
   });
@@ -126,35 +129,50 @@ describe('agent tracking retention settings write result parser', () => {
         event: AgentEvent.HealthReported,
       })
     ).toEqual({
-      ok: false,
+      parseState: AgentTrackingRetentionSettingsWriteResultParseState.Failed,
       reason: 'wrong-event',
     });
     expect(parseAgentTrackingRetentionSettingsWriteResultEvent(writeResultEvent('{'))).toEqual({
-      ok: false,
+      parseState: AgentTrackingRetentionSettingsWriteResultParseState.Failed,
       reason: 'invalid-json',
     });
     expect(
       parseAgentTrackingRetentionSettingsWriteResultEvent(
-        writeResultEvent(JSON.stringify({ ...TrackingRetentionSettingsWriteResult, productClaimReady: true }))
+        writeResultEvent(
+          JSON.stringify({
+            ...TrackingRetentionSettingsWriteResult,
+            productClaimState: AgentTrackingExecutionClaimState.Claimed,
+          })
+        )
       )
     ).toEqual({
-      ok: false,
+      parseState: AgentTrackingRetentionSettingsWriteResultParseState.Failed,
       reason: 'invalid-payload',
     });
     expect(
       parseAgentTrackingRetentionSettingsWriteResultEvent(
-        writeResultEvent(JSON.stringify({ ...TrackingRetentionSettingsWriteResult, serviceMutationExecuted: false }))
+        writeResultEvent(
+          JSON.stringify({
+            ...TrackingRetentionSettingsWriteResult,
+            serviceMutationExecutionState: AgentTrackingExecutionClaimState.Unclaimed,
+          })
+        )
       )
     ).toEqual({
-      ok: false,
+      parseState: AgentTrackingRetentionSettingsWriteResultParseState.Failed,
       reason: 'invalid-payload',
     });
     expect(
       parseAgentTrackingRetentionSettingsWriteResultEvent(
-        writeResultEvent(JSON.stringify({ ...TrackingRetentionSettingsWriteResult, durableSettingsPersisted: false }))
+        writeResultEvent(
+          JSON.stringify({
+            ...TrackingRetentionSettingsWriteResult,
+            durableSettingsPersistenceState: AgentTrackingDurableSettingsPersistenceState.NotPersisted,
+          })
+        )
       )
     ).toEqual({
-      ok: false,
+      parseState: AgentTrackingRetentionSettingsWriteResultParseState.Failed,
       reason: 'invalid-payload',
     });
   });
@@ -164,7 +182,7 @@ function writeResultEvent(serializedResult: string): AgentEventEnvelope {
   return {
     schemaVersion: AgentProtocolSchemaVersion,
     eventId: 'tracking-retention-settings-write-result-event',
-    correlationId: 'tracking-retention-settings-write-command',
+    correlationId: AgentTrackingRetentionSettingsWriteDefaults.CommandId,
     sentAt: '2026-06-06T19:50:01Z',
     source: Source,
     target: Target,

@@ -1,11 +1,15 @@
-import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
+import {
+  type Infer,
+  Schema,
+  withParser,
+  brandedNonEmptyStringSchema,
+  NonEmptyStringSchema
+} from '@ocentra-parent/schema-domain/effect';
 import {
   TrackingChildRuntimeExecutionReadinessReadModelSchema,
   type TrackingChildRuntimeExecutionReadinessRow,
 } from './tracking-child-runtime-execution-readiness-proof';
 import { TrackingPolicySchemaVersion } from './tracking-location-policy';
-
-const TrackingChildRuntimeSnapshotRequirementsText = Schema.String.pipe(Schema.minLength(1));
 
 export const TrackingChildRuntimeSnapshotRequirementKinds = [
   'delivery-envelope',
@@ -36,30 +40,26 @@ export const TrackingChildRuntimeSnapshotRequirementsNonClaimSchema = withParser
   Schema.Literal(...RequiredTrackingChildRuntimeSnapshotRequirementsNonClaims)
 );
 
-export const TrackingChildRuntimeSnapshotRequirementsIdSchema = TrackingChildRuntimeSnapshotRequirementsText.pipe(
-  Schema.brand('TrackingChildRuntimeSnapshotRequirementsId')
-);
+export const TrackingChildRuntimeSnapshotRequirementsIdSchema = brandedNonEmptyStringSchema('TrackingChildRuntimeSnapshotRequirementsId');
 
-export const TrackingChildRuntimeSnapshotRequirementsRowIdSchema = TrackingChildRuntimeSnapshotRequirementsText.pipe(
-  Schema.brand('TrackingChildRuntimeSnapshotRequirementsRowId')
-);
+export const TrackingChildRuntimeSnapshotRequirementsRowIdSchema = brandedNonEmptyStringSchema('TrackingChildRuntimeSnapshotRequirementsRowId');
 
 const TrackingChildRuntimeSnapshotRequirementsRowBaseSchema = Schema.Struct({
   rowId: TrackingChildRuntimeSnapshotRequirementsRowIdSchema,
-  sourceReadinessRowId: TrackingChildRuntimeSnapshotRequirementsText,
-  sourceCheckInId: TrackingChildRuntimeSnapshotRequirementsText,
-  sourceReadinessState: TrackingChildRuntimeSnapshotRequirementsText,
-  sourceSnapshotKind: TrackingChildRuntimeSnapshotRequirementsText,
+  sourceReadinessRowId: NonEmptyStringSchema,
+  sourceCheckInId: NonEmptyStringSchema,
+  sourceReadinessState: NonEmptyStringSchema,
+  sourceSnapshotKind: NonEmptyStringSchema,
   requiredSnapshotKinds: Schema.Array(TrackingChildRuntimeSnapshotRequirementKindSchema),
-  deliveryEnvelopeRef: TrackingChildRuntimeSnapshotRequirementsText,
-  executionResultRequirementRefs: Schema.Array(TrackingChildRuntimeSnapshotRequirementsText),
-  visibleSnapshotRequirementRefs: Schema.Array(TrackingChildRuntimeSnapshotRequirementsText),
-  parentReceiptRequirementRefs: Schema.Array(TrackingChildRuntimeSnapshotRequirementsText),
-  runtimeObservationRequirementRefs: Schema.Array(TrackingChildRuntimeSnapshotRequirementsText),
-  hostedUiProofRefs: Schema.Array(TrackingChildRuntimeSnapshotRequirementsText),
-  sourceEvidenceRefs: Schema.Array(TrackingChildRuntimeSnapshotRequirementsText),
-  parentVisibleStatusRefs: Schema.Array(TrackingChildRuntimeSnapshotRequirementsText),
-  boundaryRuntimeProofRefs: Schema.Array(TrackingChildRuntimeSnapshotRequirementsText),
+  deliveryEnvelopeRef: NonEmptyStringSchema,
+  executionResultRequirementRefs: Schema.Array(NonEmptyStringSchema),
+  visibleSnapshotRequirementRefs: Schema.Array(NonEmptyStringSchema),
+  parentReceiptRequirementRefs: Schema.Array(NonEmptyStringSchema),
+  runtimeObservationRequirementRefs: Schema.Array(NonEmptyStringSchema),
+  hostedUiProofRefs: Schema.Array(NonEmptyStringSchema),
+  sourceEvidenceRefs: Schema.Array(NonEmptyStringSchema),
+  parentVisibleStatusRefs: Schema.Array(NonEmptyStringSchema),
+  boundaryRuntimeProofRefs: Schema.Array(NonEmptyStringSchema),
   childDeviceDeliveryRuntimeClaimed: Schema.Literal(false),
   childDeviceExecutionRuntimeClaimed: Schema.Literal(false),
   renderedChildDeviceUiRuntimeClaimed: Schema.Literal(false),
@@ -85,10 +85,10 @@ export const TrackingChildRuntimeSnapshotRequirementsRowSchema = withParser(
 const TrackingChildRuntimeSnapshotRequirementsReadModelBaseSchema = Schema.Struct({
   schemaVersion: Schema.Literal(TrackingPolicySchemaVersion),
   snapshotRequirementsId: TrackingChildRuntimeSnapshotRequirementsIdSchema,
-  generatedAt: TrackingChildRuntimeSnapshotRequirementsText,
-  sourceExecutionReadinessId: TrackingChildRuntimeSnapshotRequirementsText,
-  sourceExecutionReadinessGeneratedAt: TrackingChildRuntimeSnapshotRequirementsText,
-  sourceContractRefs: Schema.Array(TrackingChildRuntimeSnapshotRequirementsText),
+  generatedAt: NonEmptyStringSchema,
+  sourceExecutionReadinessId: NonEmptyStringSchema,
+  sourceExecutionReadinessGeneratedAt: NonEmptyStringSchema,
+  sourceContractRefs: Schema.Array(NonEmptyStringSchema),
   rows: Schema.Array(TrackingChildRuntimeSnapshotRequirementsRowSchema),
   requiredSnapshotKindCount: Schema.Number.pipe(Schema.int(), Schema.nonNegative()),
   deliveryEnvelopeRequirementCount: Schema.Number.pipe(Schema.int(), Schema.nonNegative()),
@@ -285,3 +285,4 @@ function trackingChildRuntimeSnapshotRequirementsReadModelNonClaimsAreHonest(
     readModel.productReadyClaimed === false
   );
 }
+

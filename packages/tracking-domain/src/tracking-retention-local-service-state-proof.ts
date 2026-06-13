@@ -1,28 +1,29 @@
-import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
+import {
+  type Infer,
+  Schema,
+  withParser,
+  brandedNonEmptyStringSchema,
+  NonEmptyStringSchema
+} from '@ocentra-parent/schema-domain/effect';
+import { AgentTrackingRetentionSettingsWriteDefaults } from '@ocentra-parent/agent-protocol-domain/tracking-retention-settings-write-command';
 import { ParentTimestampSchema } from '@ocentra-parent/family-domain/reference-primitives';
 import { TrackingPolicyAuditRefSchema, TrackingPolicySchemaVersion } from './tracking-location-policy-primitives';
 import {
   TrackingRetentionSettingsKindSchema,
   TrackingRetentionSettingsProofRefSchema,
 } from './tracking-retention-settings-read-model-proof';
-
-const TrackingRetentionLocalStateTextSchema = Schema.String.pipe(Schema.minLength(1));
 const AgentProtocolSchemaVersion = 1;
 
-export const TrackingRetentionLocalServiceStateProofIdSchema = TrackingRetentionLocalStateTextSchema.pipe(
-  Schema.brand('TrackingRetentionLocalServiceStateProofId')
-);
+export const TrackingRetentionLocalServiceStateProofIdSchema = brandedNonEmptyStringSchema('TrackingRetentionLocalServiceStateProofId');
 
-export const TrackingRetentionLocalServiceStateSnapshotRefSchema = TrackingRetentionLocalStateTextSchema.pipe(
-  Schema.brand('TrackingRetentionLocalServiceStateSnapshotRef')
-);
+export const TrackingRetentionLocalServiceStateSnapshotRefSchema = brandedNonEmptyStringSchema('TrackingRetentionLocalServiceStateSnapshotRef');
 
 export const TrackingRetentionLocalServiceStateWriteResultSchema = withParser(
   Schema.Struct({
     schemaVersion: Schema.Literal(AgentProtocolSchemaVersion),
-    commandId: TrackingRetentionLocalStateTextSchema,
+    commandId: NonEmptyStringSchema,
     settingsKind: TrackingRetentionSettingsKindSchema,
-    writeState: Schema.Literal('service-write-command-accepted'),
+    writeState: Schema.Literal(AgentTrackingRetentionSettingsWriteDefaults.WriteStateAccepted),
     sourceWriterIntentRefs: Schema.Array(TrackingRetentionSettingsProofRefSchema),
     sourceReadModelProofRefs: Schema.Array(TrackingRetentionSettingsProofRefSchema),
     sourceMutationProofRefs: Schema.Array(TrackingRetentionSettingsProofRefSchema),
@@ -97,7 +98,7 @@ export const TrackingRetentionLocalServiceStateRowSchema = withParser(
     .pipe(
       Schema.filter(
         (row) =>
-          row.settingsKind !== 'retention-window-setting' ||
+          row.settingsKind !== AgentTrackingRetentionSettingsWriteDefaults.SettingsKindRetentionWindow ||
           row.appliedRetentionWindowHours !== null ||
           'Retention-window local state readback must include the applied window'
       )
@@ -203,3 +204,4 @@ function localStateRow(
     productClaimReady: false,
   });
 }
+

@@ -2,7 +2,7 @@ import {
   SocialAuditExplanationSnapshotSchema,
   type SocialAuditExplanationEntry,
   type SocialAuditExplanationSnapshot,
-} from '@ocentra-parent/social-domain/social-audit-explanation-read-model';
+} from '@ocentra-parent/browser-domain/social-audit-explanation-read-model';
 import { type DisplayText, decodeDisplayText } from '@ocentra-parent/text-domain/contracts';
 import { decodePortalDetailValue, type PortalDetailValue } from './detail-values';
 import { PortalDetails } from './details';

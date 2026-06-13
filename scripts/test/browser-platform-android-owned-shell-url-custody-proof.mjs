@@ -15,7 +15,7 @@ await main();
 
 async function main() {
   buildWorkspace('@ocentra-parent/schema-domain');
-  buildWorkspace('@ocentra-parent/activity-domain');
+  buildWorkspace('@ocentra-parent/browser-domain');
   runFocusedTest();
 
   if (!existsSync(sourceProofPath)) {
@@ -36,8 +36,8 @@ async function main() {
     commit: git(['rev-parse', 'HEAD']),
     baseCommit: git(['rev-parse', 'origin/main']),
     sourceProof: relativePath(sourceProofPath),
-    source: 'packages/activity-domain/src/browser-android-owned-shell-url-custody.ts',
-    test: 'packages/activity-domain/tests/browser-android-owned-shell-url-custody.test.ts',
+    source: 'packages/browser-domain/src/browser-android-owned-shell-url-custody.ts',
+    test: 'packages/browser-domain/tests/unit/browser-android-owned-shell-url-custody.test.ts',
     summary: {
       rows: readModel.rows.length,
       physicalRequestedUrlRefRows: readModel.physicalRequestedUrlRefRows,
@@ -126,7 +126,7 @@ function runFocusedTest() {
       'run',
       'test',
       '--workspace',
-      '@ocentra-parent/activity-domain',
+      '@ocentra-parent/browser-domain',
       '--',
       'browser-android-owned-shell-url-custody.test.ts',
     ]),

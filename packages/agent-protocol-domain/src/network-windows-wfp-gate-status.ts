@@ -1,8 +1,7 @@
-import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
+import { type Infer, NonEmptyStringSchema, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
 import { AgentEvent, isAgentProtocolLogText, type AgentEventEnvelope } from './contracts';
 import { AgentProtocolDefaults } from './defaults';
 
-const WindowsWfpText = Schema.String.pipe(Schema.minLength(1));
 const WindowsWfpRefs = AgentProtocolDefaults.NetworkWindowsWfpGateStatus;
 
 export const AgentNetworkWindowsWfpGateStateSchema = withParser(
@@ -14,27 +13,27 @@ export const AgentNetworkWindowsWfpCapabilityStateSchema = withParser(
 );
 
 const AgentNetworkWindowsWfpGateStatusFields = Schema.Struct({
-  statusRef: WindowsWfpText,
-  wfpGateRef: WindowsWfpText,
-  policyDecisionRef: WindowsWfpText,
-  parentRuleRef: WindowsWfpText,
-  evidenceRefs: Schema.Array(WindowsWfpText),
-  localAiResultRef: Schema.NullOr(WindowsWfpText),
-  targetRef: WindowsWfpText,
-  wfpProviderRef: WindowsWfpText,
-  wfpLayerRef: WindowsWfpText,
+  statusRef: NonEmptyStringSchema,
+  wfpGateRef: NonEmptyStringSchema,
+  policyDecisionRef: NonEmptyStringSchema,
+  parentRuleRef: NonEmptyStringSchema,
+  evidenceRefs: Schema.Array(NonEmptyStringSchema),
+  localAiResultRef: Schema.NullOr(NonEmptyStringSchema),
+  targetRef: NonEmptyStringSchema,
+  wfpProviderRef: NonEmptyStringSchema,
+  wfpLayerRef: NonEmptyStringSchema,
   capabilityState: AgentNetworkWindowsWfpCapabilityStateSchema,
   gateState: AgentNetworkWindowsWfpGateStateSchema,
-  boundaryReasons: Schema.Array(WindowsWfpText),
-  missingRequiredArtifacts: Schema.Array(WindowsWfpText),
-  administratorPermissionProofRef: Schema.NullOr(WindowsWfpText),
-  driverSigningProofRef: Schema.NullOr(WindowsWfpText),
-  driverPackageProofRef: Schema.NullOr(WindowsWfpText),
-  providerRegistrationPlanRef: Schema.NullOr(WindowsWfpText),
-  layerCapabilityMatrixRef: Schema.NullOr(WindowsWfpText),
-  rollbackPlanRef: Schema.NullOr(WindowsWfpText),
-  labResultArtifactRef: Schema.NullOr(WindowsWfpText),
-  auditEventRef: Schema.NullOr(WindowsWfpText),
+  boundaryReasons: Schema.Array(NonEmptyStringSchema),
+  missingRequiredArtifacts: Schema.Array(NonEmptyStringSchema),
+  administratorPermissionProofRef: Schema.NullOr(NonEmptyStringSchema),
+  driverSigningProofRef: Schema.NullOr(NonEmptyStringSchema),
+  driverPackageProofRef: Schema.NullOr(NonEmptyStringSchema),
+  providerRegistrationPlanRef: Schema.NullOr(NonEmptyStringSchema),
+  layerCapabilityMatrixRef: Schema.NullOr(NonEmptyStringSchema),
+  rollbackPlanRef: Schema.NullOr(NonEmptyStringSchema),
+  labResultArtifactRef: Schema.NullOr(NonEmptyStringSchema),
+  auditEventRef: Schema.NullOr(NonEmptyStringSchema),
   wfpLabProofReady: Schema.Boolean,
   adapterApplyAuthorized: Schema.Literal(false),
   enforcementCommandPublished: Schema.Literal(false),
@@ -55,7 +54,8 @@ export const AgentNetworkWindowsWfpGateStatusSchema = withParser(
     Schema.filter(
       (status: AgentNetworkWindowsWfpGateStatus) =>
         (refsMatch(status) && artifactRefsMatch(status) && statusShapeMatches(status)) ||
-        'Network Windows WFP gate status must preserve row39 refs, lab-proof-ready status, required artifacts, and no execution/content/enforcement claims'
+        'Network Windows WFP gate status must preserve row39 refs, lab-proof-ready status, required ' +
+          'artifacts, and no execution/content/enforcement claims'
     )
   )
 );

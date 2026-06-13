@@ -1,14 +1,17 @@
-import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
+import {
+  type Infer,
+  Schema,
+  withParser,
+  NonEmptyStringSchema
+} from '@ocentra-parent/schema-domain/effect';
 
 import {
   supportCaseResolutionStatusCoversRequiredStates,
   supportCaseResolutionStatusEntryIsSafe,
 } from './support-case-resolution-status-guards.js';
 
-const NonEmptySupportCaseResolutionText = Schema.String.pipe(Schema.minLength(1));
-
 const supportCaseResolutionText = <Brand extends string>(brand: Brand) =>
-  NonEmptySupportCaseResolutionText.pipe(Schema.brand(brand));
+  NonEmptyStringSchema.pipe(Schema.brand(brand));
 
 export const SupportCaseResolutionReadModelIdSchema = supportCaseResolutionText('SupportCaseResolutionReadModelId');
 export const SupportCaseResolutionCaseIdSchema = supportCaseResolutionText('SupportCaseResolutionCaseId');
@@ -168,3 +171,4 @@ export const decodeSupportCaseResolutionStatusEntry = Schema.decodeUnknownSync(S
 export const decodeSupportCaseResolutionStatusReadModel = Schema.decodeUnknownSync(
   SupportCaseResolutionStatusReadModelSchema
 );
+

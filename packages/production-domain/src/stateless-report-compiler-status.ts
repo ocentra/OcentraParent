@@ -1,14 +1,19 @@
-import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
+import {
+  type Infer,
+  Schema,
+  withParser,
+  brandedNonEmptyStringSchema
+} from '@ocentra-parent/schema-domain/effect';
 import {
   ParentOwnedSyncExportDataClassSchema,
   type ParentOwnedSyncExportDataClass,
   ParentOwnedSyncExportDestinationOwnershipSchema,
-} from './parent-owned-sync-export';
+} from '@ocentra-parent/production-domain/parent-owned-sync-export';
 import {
   RequiredStatelessReportCompilerNonClaims,
   RequiredStatelessReportCompilerStatuses,
   StatelessReportCompilerKnownGaps,
-} from './stateless-report-compiler-status-values';
+} from '@ocentra-parent/production-domain/stateless-report-compiler-status-values';
 import {
   FamilyReferenceSchema,
   ParentAccountReferenceSchema,
@@ -20,8 +25,6 @@ import { ParentTimestampSchema } from '@ocentra-parent/family-domain/reference-p
 
 export { StatelessReportCompilerKnownGaps };
 
-const NonEmptyReportCompilerText = Schema.String.pipe(Schema.minLength(1));
-
 export const StatelessReportCompilerSchemaVersionSchema = withParser(
   Schema.Literal('stateless-report-compiler-status-proof')
 );
@@ -32,30 +35,14 @@ export const StatelessReportCompilerNonClaimSchema = withParser(
   Schema.Literal(...RequiredStatelessReportCompilerNonClaims)
 );
 
-const StatelessReportCompilerRequestIdSchema = NonEmptyReportCompilerText.pipe(
-  Schema.brand('StatelessReportCompilerRequestId')
-);
-const StatelessReportCompilerStatusRefSchema = NonEmptyReportCompilerText.pipe(
-  Schema.brand('StatelessReportCompilerStatusRef')
-);
-const StatelessReportCompilerResultRefSchema = NonEmptyReportCompilerText.pipe(
-  Schema.brand('StatelessReportCompilerResultRef')
-);
-const StatelessReportCompilerConnectorStatusRefSchema = NonEmptyReportCompilerText.pipe(
-  Schema.brand('StatelessReportCompilerConnectorStatusRef')
-);
-const StatelessReportCompilerCursorRefSchema = NonEmptyReportCompilerText.pipe(
-  Schema.brand('StatelessReportCompilerCursorRef')
-);
-const StatelessReportCompilerDestinationRefSchema = NonEmptyReportCompilerText.pipe(
-  Schema.brand('StatelessReportCompilerDestinationRef')
-);
-const StatelessReportCompilerPolicyRefSchema = NonEmptyReportCompilerText.pipe(
-  Schema.brand('StatelessReportCompilerPolicyRef')
-);
-const StatelessReportCompilerTempArtifactRefSchema = NonEmptyReportCompilerText.pipe(
-  Schema.brand('StatelessReportCompilerTempArtifactRef')
-);
+const StatelessReportCompilerRequestIdSchema = brandedNonEmptyStringSchema('StatelessReportCompilerRequestId');
+const StatelessReportCompilerStatusRefSchema = brandedNonEmptyStringSchema('StatelessReportCompilerStatusRef');
+const StatelessReportCompilerResultRefSchema = brandedNonEmptyStringSchema('StatelessReportCompilerResultRef');
+const StatelessReportCompilerConnectorStatusRefSchema = brandedNonEmptyStringSchema('StatelessReportCompilerConnectorStatusRef');
+const StatelessReportCompilerCursorRefSchema = brandedNonEmptyStringSchema('StatelessReportCompilerCursorRef');
+const StatelessReportCompilerDestinationRefSchema = brandedNonEmptyStringSchema('StatelessReportCompilerDestinationRef');
+const StatelessReportCompilerPolicyRefSchema = brandedNonEmptyStringSchema('StatelessReportCompilerPolicyRef');
+const StatelessReportCompilerTempArtifactRefSchema = brandedNonEmptyStringSchema('StatelessReportCompilerTempArtifactRef');
 
 const FinalStatuses = ['succeeded', 'failed', 'expired', 'manual-required'] as const;
 const FailureStatuses = ['failed', 'expired', 'manual-required'] as const;
@@ -519,3 +506,4 @@ function countBy<const T extends string>(values: readonly T[], expected: readonl
   }
   return counts;
 }
+

@@ -1,4 +1,9 @@
-import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
+import {
+  type Infer,
+  Schema,
+  withParser,
+  brandedNonEmptyStringSchema
+} from '@ocentra-parent/schema-domain/effect';
 import {
   AppGameChildUxLocalOutboxProviderStatusHandoffReadModelSchema,
   type AppGameChildUxLocalOutboxProviderStatusHandoffReadModel,
@@ -10,8 +15,6 @@ import {
   ParentTimestampSchema,
 } from '@ocentra-parent/family-domain/reference-primitives';
 import { FamilyReferenceSchema } from '@ocentra-parent/family-domain/references';
-
-const ChildDeviceDeliveryReadinessText = Schema.String.pipe(Schema.minLength(1));
 
 export const AppGameChildDeviceDeliveryReadinessStatus = {
   TransportRequired: 'child-transport-required',
@@ -56,12 +59,8 @@ export const RequiredAppGameChildDeviceDeliveryReadinessNonClaims = [
   'no-raw-private-source-rows',
 ] as const;
 
-const ChildDeviceDeliveryReadinessIdSchema = ChildDeviceDeliveryReadinessText.pipe(
-  Schema.brand('AppGameChildDeviceDeliveryReadinessId')
-);
-const ChildDeviceDeliveryReadinessReferenceSchema = ChildDeviceDeliveryReadinessText.pipe(
-  Schema.brand('AppGameChildDeviceDeliveryReadinessReference')
-);
+const ChildDeviceDeliveryReadinessIdSchema = brandedNonEmptyStringSchema('AppGameChildDeviceDeliveryReadinessId');
+const ChildDeviceDeliveryReadinessReferenceSchema = brandedNonEmptyStringSchema('AppGameChildDeviceDeliveryReadinessReference');
 
 const AppGameChildDeviceDeliveryReadinessRowBaseSchema = Schema.Struct({
   deliveryReadinessRowId: ChildDeviceDeliveryReadinessReferenceSchema,
@@ -258,3 +257,4 @@ function countRows(
 ): number {
   return rows.filter((row) => row.deliveryReadinessStatus === status).length;
 }
+

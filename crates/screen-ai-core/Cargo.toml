@@ -1,0 +1,15 @@
+[package]
+name = "ocentra-screen-ai-core"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+
+[lints]
+workspace = true
+
+[lib]
+path = "src/lib.rs"
+
+[dependencies]
+ocentra-evidence = { path = "../ocentra-evidence" }
+ocentra-policy-control-core = { path = "../policy-control-core" }

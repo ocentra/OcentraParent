@@ -10,6 +10,7 @@ use ocentra_parent_agent_protocol::{
     TrackingEvidenceRecordedEvent, TrackingLocationObservedEvent,
     TrackingNearbyPlaceClassifiedEvent, TrackingPolicyViolationDetectedEvent,
 };
+use ocentra_tracking_core::TrackingAiBoundaryDecision;
 
 #[derive(Clone, Debug, PartialEq)]
 pub struct TrackingRuntimeEventFlowReport {
@@ -18,10 +19,11 @@ pub struct TrackingRuntimeEventFlowReport {
     pub child_policy_subscription_report: SubscriptionReport,
     pub child_notification_subscription_report: SubscriptionReport,
     pub evidence_recorded: TrackingEvidenceRecordedEvent,
-    pub ai_analysis_requested: TrackingAiAnalysisRequestedEvent,
-    pub nearby_place_classified: TrackingNearbyPlaceClassifiedEvent,
-    pub policy_violation_detected: TrackingPolicyViolationDetectedEvent,
-    pub parent_notification_requested: ParentNotificationRequestedEvent,
+    pub ai_analysis_requested: Option<TrackingAiAnalysisRequestedEvent>,
+    pub nearby_place_classified: Option<TrackingNearbyPlaceClassifiedEvent>,
+    pub ai_boundary_decision: Option<TrackingAiBoundaryDecision>,
+    pub policy_violation_detected: Option<TrackingPolicyViolationDetectedEvent>,
+    pub parent_notification_requested: Option<ParentNotificationRequestedEvent>,
 }
 
 pub async fn publish_child_tracking_location_observed_event(
@@ -40,12 +42,7 @@ pub async fn publish_child_tracking_location_observed_event(
 
     bus.publish(
         event,
-        tracking_runtime_metadata(
-            constants::tracking_runtime::SOURCE_COMPONENT_CHILD_TRACKING_RUNTIME,
-            constants::eventing_source::ROLE_AGENT,
-            constants::tracking_runtime::TARGET_HANDLER_CHILD_TRACKING_OBSERVER,
-            constants::tracking_runtime::DEFAULT_OBSERVATION_ID,
-        )?,
+        tracking_runtime_metadata(TrackingRuntimeHop::LocationObserved)?,
     )
     .await?;
 
@@ -55,10 +52,11 @@ pub async fn publish_child_tracking_location_observed_event(
         child_policy_subscription_report,
         child_notification_subscription_report,
         evidence_recorded: state.evidence_recorded()?,
-        ai_analysis_requested: state.ai_analysis_requested()?,
-        nearby_place_classified: state.nearby_place_classified()?,
-        policy_violation_detected: state.policy_violation_detected()?,
-        parent_notification_requested: state.parent_notification_requested()?,
+        ai_analysis_requested: state.ai_analysis_requested(),
+        nearby_place_classified: state.nearby_place_classified(),
+        ai_boundary_decision: state.ai_boundary_decision(),
+        policy_violation_detected: state.policy_violation_detected(),
+        parent_notification_requested: state.parent_notification_requested(),
     })
 }
 
@@ -85,12 +83,7 @@ async fn subscribe_tracking_location_observed_events(
                     .publisher()
                     .publish(
                         report.evidence_recorded,
-                        tracking_runtime_metadata(
-                            constants::tracking_runtime::SOURCE_COMPONENT_CHILD_TRACKING_RUNTIME,
-                            constants::eventing_source::ROLE_AGENT,
-                            constants::tracking_runtime::TARGET_HANDLER_CHILD_TRACKING_OBSERVER,
-                            constants::tracking_runtime::DEFAULT_EVIDENCE_REF,
-                        )?,
+                        tracking_runtime_metadata(TrackingRuntimeHop::EvidenceRecorded)?,
                     )
                     .await?;
                 if let Some(ai_request) = report.ai_analysis_requested {
@@ -99,12 +92,7 @@ async fn subscribe_tracking_location_observed_events(
                         .publisher()
                         .publish(
                             ai_request,
-                            tracking_runtime_metadata(
-                                constants::tracking_runtime::SOURCE_COMPONENT_CHILD_TRACKING_RUNTIME,
-                                constants::eventing_source::ROLE_AGENT,
-                                constants::tracking_runtime::TARGET_HANDLER_CHILD_AI_TRACKING_ANALYZER,
-                                constants::tracking_runtime::DEFAULT_AI_REQUEST_ID,
-                            )?,
+                            tracking_runtime_metadata(TrackingRuntimeHop::AiAnalysisRequested)?,
                         )
                         .await?;
                 }
@@ -139,12 +127,7 @@ async fn subscribe_child_ai_tracking_analysis_events(
                     .publisher()
                     .publish(
                         classified,
-                        tracking_runtime_metadata(
-                            constants::tracking_runtime::SOURCE_COMPONENT_CHILD_AI_RUNTIME,
-                            constants::eventing_source::ROLE_ANALYZER,
-                            constants::tracking_runtime::TARGET_HANDLER_CHILD_POLICY_TRACKING_ANALYZER,
-                            constants::tracking_runtime::DEFAULT_AI_REQUEST_ID,
-                        )?,
+                        tracking_runtime_metadata(TrackingRuntimeHop::NearbyPlaceClassified)?,
                     )
                     .await?;
                 Ok(())
@@ -173,22 +156,31 @@ async fn subscribe_child_policy_tracking_analysis_events(
         move |context| {
             let state = state.clone();
             async move {
-                if let Some(violation) =
+                let Some(ai_request) = state.ai_analysis_requested() else {
+                    return Ok(());
+                };
+                let ai_boundary_decision =
+                    ocentra_tracking_core::validate_tracking_ai_result_as_evidence(
+                        &ai_request,
+                        context.payload(),
+                    );
+                state.record_ai_boundary_decision(ai_boundary_decision.clone());
+                if ai_boundary_decision.decision_state
+                    != constants::tracking_runtime::AI_RESULT_ACCEPTED_AS_EVIDENCE
+                {
+                    return Ok(());
+                }
+                let policy_decision =
                     ocentra_child_policy_core::evaluate_tracking_nearby_place_policy(
                         context.payload(),
-                    )
-                {
+                    );
+                if let Some(violation) = policy_decision.policy_violation_detected {
                     state.record_policy_violation_detected(violation.clone());
                     context
                         .publisher()
                         .publish(
                             violation,
-                            tracking_runtime_metadata(
-                                constants::tracking_runtime::SOURCE_COMPONENT_CHILD_POLICY_RUNTIME,
-                                constants::eventing_source::ROLE_DECISION_ENGINE,
-                                constants::tracking_runtime::TARGET_HANDLER_CHILD_NOTIFICATION_POLICY_BRIDGE,
-                                constants::tracking_runtime::DEFAULT_POLICY_VIOLATION_ID,
-                            )?,
+                            tracking_runtime_metadata(TrackingRuntimeHop::PolicyViolationDetected)?,
                         )
                         .await?;
                 }
@@ -227,12 +219,7 @@ async fn subscribe_child_notification_policy_events(
                     .publisher()
                     .publish(
                         notification,
-                        tracking_runtime_metadata(
-                            constants::tracking_runtime::SOURCE_COMPONENT_CHILD_NOTIFICATION_RUNTIME,
-                            constants::eventing_source::ROLE_SIDE_EFFECT_ADAPTER,
-                            constants::tracking_runtime::TARGET_HANDLER_CHILD_NOTIFICATION_POLICY_BRIDGE,
-                            constants::tracking_runtime::DEFAULT_NOTIFICATION_ID,
-                        )?,
+                        tracking_runtime_metadata(TrackingRuntimeHop::ParentNotificationRequested)?,
                     )
                     .await?;
                 Ok(())
@@ -247,6 +234,7 @@ struct TrackingRuntimeEventState {
     evidence_recorded: Arc<Mutex<Option<TrackingEvidenceRecordedEvent>>>,
     ai_analysis_requested: Arc<Mutex<Option<TrackingAiAnalysisRequestedEvent>>>,
     nearby_place_classified: Arc<Mutex<Option<TrackingNearbyPlaceClassifiedEvent>>>,
+    ai_boundary_decision: Arc<Mutex<Option<TrackingAiBoundaryDecision>>>,
     policy_violation_detected: Arc<Mutex<Option<TrackingPolicyViolationDetectedEvent>>>,
     parent_notification_requested: Arc<Mutex<Option<ParentNotificationRequestedEvent>>>,
 }
@@ -276,6 +264,14 @@ impl TrackingRuntimeEventState {
             Some(event);
     }
 
+    fn record_ai_boundary_decision(&self, decision: TrackingAiBoundaryDecision) {
+        *self
+            .ai_boundary_decision
+            .lock()
+            .expect(constants::tracking_runtime::ERROR_TRACKING_RUNTIME_FLOW_RECORDED) =
+            Some(decision);
+    }
+
     fn record_policy_violation_detected(&self, event: TrackingPolicyViolationDetectedEvent) {
         *self
             .policy_violation_detected
@@ -296,24 +292,24 @@ impl TrackingRuntimeEventState {
         required_runtime_flow_event(&self.evidence_recorded)
     }
 
-    fn ai_analysis_requested(&self) -> Result<TrackingAiAnalysisRequestedEvent, EventingError> {
-        required_runtime_flow_event(&self.ai_analysis_requested)
+    fn ai_analysis_requested(&self) -> Option<TrackingAiAnalysisRequestedEvent> {
+        self.ai_analysis_requested.lock().ok()?.clone()
     }
 
-    fn nearby_place_classified(&self) -> Result<TrackingNearbyPlaceClassifiedEvent, EventingError> {
-        required_runtime_flow_event(&self.nearby_place_classified)
+    fn nearby_place_classified(&self) -> Option<TrackingNearbyPlaceClassifiedEvent> {
+        self.nearby_place_classified.lock().ok()?.clone()
     }
 
-    fn policy_violation_detected(
-        &self,
-    ) -> Result<TrackingPolicyViolationDetectedEvent, EventingError> {
-        required_runtime_flow_event(&self.policy_violation_detected)
+    fn ai_boundary_decision(&self) -> Option<TrackingAiBoundaryDecision> {
+        self.ai_boundary_decision.lock().ok()?.clone()
     }
 
-    fn parent_notification_requested(
-        &self,
-    ) -> Result<ParentNotificationRequestedEvent, EventingError> {
-        required_runtime_flow_event(&self.parent_notification_requested)
+    fn policy_violation_detected(&self) -> Option<TrackingPolicyViolationDetectedEvent> {
+        self.policy_violation_detected.lock().ok()?.clone()
+    }
+
+    fn parent_notification_requested(&self) -> Option<ParentNotificationRequestedEvent> {
+        self.parent_notification_requested.lock().ok()?.clone()
     }
 }
 
@@ -331,29 +327,99 @@ where
         })
 }
 
-fn tracking_runtime_metadata(
-    source_component: &str,
-    runtime_role: &str,
-    target_handler: &str,
-    correlation_suffix: &str,
-) -> Result<EventMetadata, EventingError> {
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+enum TrackingRuntimeHop {
+    LocationObserved,
+    EvidenceRecorded,
+    AiAnalysisRequested,
+    NearbyPlaceClassified,
+    PolicyViolationDetected,
+    ParentNotificationRequested,
+}
+
+impl TrackingRuntimeHop {
+    fn source_component(self) -> &'static str {
+        match self {
+            Self::LocationObserved | Self::EvidenceRecorded | Self::AiAnalysisRequested => {
+                constants::tracking_runtime::SOURCE_COMPONENT_CHILD_TRACKING_RUNTIME
+            }
+            Self::NearbyPlaceClassified => {
+                constants::tracking_runtime::SOURCE_COMPONENT_CHILD_AI_RUNTIME
+            }
+            Self::PolicyViolationDetected => {
+                constants::tracking_runtime::SOURCE_COMPONENT_CHILD_POLICY_RUNTIME
+            }
+            Self::ParentNotificationRequested => {
+                constants::tracking_runtime::SOURCE_COMPONENT_CHILD_NOTIFICATION_RUNTIME
+            }
+        }
+    }
+
+    fn runtime_role(self) -> &'static str {
+        match self {
+            Self::LocationObserved | Self::EvidenceRecorded | Self::AiAnalysisRequested => {
+                constants::eventing_source::ROLE_AGENT
+            }
+            Self::NearbyPlaceClassified => constants::eventing_source::ROLE_ANALYZER,
+            Self::PolicyViolationDetected => constants::eventing_source::ROLE_DECISION_ENGINE,
+            Self::ParentNotificationRequested => {
+                constants::eventing_source::ROLE_SIDE_EFFECT_ADAPTER
+            }
+        }
+    }
+
+    fn target_handler(self) -> &'static str {
+        match self {
+            Self::LocationObserved | Self::EvidenceRecorded => {
+                constants::tracking_runtime::TARGET_HANDLER_CHILD_TRACKING_OBSERVER
+            }
+            Self::AiAnalysisRequested => {
+                constants::tracking_runtime::TARGET_HANDLER_CHILD_AI_TRACKING_ANALYZER
+            }
+            Self::NearbyPlaceClassified => {
+                constants::tracking_runtime::TARGET_HANDLER_CHILD_POLICY_TRACKING_ANALYZER
+            }
+            Self::PolicyViolationDetected | Self::ParentNotificationRequested => {
+                constants::tracking_runtime::TARGET_HANDLER_CHILD_NOTIFICATION_POLICY_BRIDGE
+            }
+        }
+    }
+
+    fn correlation_suffix(self) -> &'static str {
+        match self {
+            Self::LocationObserved => constants::tracking_runtime::DEFAULT_OBSERVATION_ID,
+            Self::EvidenceRecorded => constants::tracking_runtime::DEFAULT_EVIDENCE_REF,
+            Self::AiAnalysisRequested | Self::NearbyPlaceClassified => {
+                constants::tracking_runtime::DEFAULT_AI_REQUEST_ID
+            }
+            Self::PolicyViolationDetected => {
+                constants::tracking_runtime::DEFAULT_POLICY_VIOLATION_ID
+            }
+            Self::ParentNotificationRequested => {
+                constants::tracking_runtime::DEFAULT_NOTIFICATION_ID
+            }
+        }
+    }
+}
+
+fn tracking_runtime_metadata(hop: TrackingRuntimeHop) -> Result<EventMetadata, EventingError> {
     Ok(EventMetadata::from_parts(
         EventId::generated(),
-        CorrelationId::parse(tracking_runtime_correlation_id(correlation_suffix))?,
+        tracking_runtime_correlation_id(hop)?,
         EventSource::new(
             EventCustody::parse(constants::child_agent::CUSTODY_CHILD_AGENT_RUNTIME)?,
-            RuntimeRole::parse(runtime_role)?,
+            RuntimeRole::parse(hop.runtime_role())?,
             SourceService::parse(constants::peer::LOCAL_DEV_AGENT)?,
-            SourceComponent::parse(source_component)?,
+            SourceComponent::parse(hop.source_component())?,
             RuntimeInstanceId::parse(constants::child_agent::RUNTIME_INSTANCE_LOCAL_CHILD_AGENT)?,
         ),
         RecordedAt::parse(constants::tracking_runtime::DEFAULT_OBSERVED_AT)?,
-        Some(TargetHandler::parse(target_handler)?),
+        Some(TargetHandler::parse(hop.target_handler())?),
     ))
 }
 
-fn tracking_runtime_correlation_id(suffix: &str) -> String {
+fn tracking_runtime_correlation_id(hop: TrackingRuntimeHop) -> Result<CorrelationId, EventingError> {
     let mut value = String::from(constants::tracking_runtime::CORRELATION_PREFIX);
-    value.push_str(suffix);
-    value
+    value.push_str(hop.correlation_suffix());
+    CorrelationId::parse(value)
 }

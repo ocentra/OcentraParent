@@ -1,10 +1,16 @@
-import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
+import {
+  type Infer,
+  Schema,
+  withParser,
+  brandedNonEmptyStringSchema,
+  NonEmptyStringSchema
+} from '@ocentra-parent/schema-domain/effect';
 import {
   LocalAiContextReasonCodeSchema,
   LocalAiEvidenceContextBuildResultSchema,
   LocalAiEvidenceContextRefIdSchema,
   type LocalAiEvidenceContextBuildResult,
-} from './local-ai-context';
+} from '@ocentra-parent/ai-domain/local-ai-context';
 import { LocalAiRuntimeReferenceIdSchema } from './local-ai-primitives';
 import {
   PolicyActionSchema,
@@ -13,11 +19,9 @@ import {
   PolicyDecisionSchema,
   PolicyReasonCodeSchema,
   PolicyRuleIdSchema,
-} from './policy';
+} from '@ocentra-parent/policy-domain/policy';
 import { ParentEvidenceReferenceSchema } from '@ocentra-parent/family-domain/references';
 import { ParentContractSchemaVersionSchema, ParentTimestampSchema } from '@ocentra-parent/family-domain/reference-primitives';
-
-const NonEmptyExplanationText = Schema.String.pipe(Schema.minLength(1));
 const NonEmptyEvidenceRefIds = Schema.Array(LocalAiEvidenceContextRefIdSchema).pipe(
   Schema.filter((refs) => refs.length > 0 || 'Expected screen-summary explanation refs')
 );
@@ -37,9 +41,7 @@ const ScreenSummaryDeletionReasons = Schema.Array(LocalAiContextReasonCodeSchema
   Schema.filter((reasons) => reasons.includes('screen-image-deleted') || 'Expected deleted screen-image custody reason')
 );
 
-export const ScreenSummaryParentExplanationIdSchema = NonEmptyExplanationText.pipe(
-  Schema.brand('ScreenSummaryParentExplanationId')
-);
+export const ScreenSummaryParentExplanationIdSchema = brandedNonEmptyStringSchema('ScreenSummaryParentExplanationId');
 
 export const ScreenSummaryParentExplanationReadinessSchema = withParser(Schema.Literal('ready-for-parent-audit'));
 
@@ -110,8 +112,8 @@ const ScreenSummaryParentExplanationBaseSchema = Schema.Struct({
   explanationId: ScreenSummaryParentExplanationIdSchema,
   generatedAt: ParentTimestampSchema,
   readiness: ScreenSummaryParentExplanationReadinessSchema,
-  sourceContextId: NonEmptyExplanationText,
-  sourceRequestId: NonEmptyExplanationText,
+  sourceContextId: NonEmptyStringSchema,
+  sourceRequestId: NonEmptyStringSchema,
   screenSummaryRefs: NonEmptyEvidenceRefIds,
   auditEvidenceReferences: NonEmptyParentEvidenceRefs,
   policyDecisionEvidenceReferences: NonEmptyParentEvidenceRefs,
@@ -122,7 +124,7 @@ const ScreenSummaryParentExplanationBaseSchema = Schema.Struct({
   policyDryRun: Schema.Literal(true),
   enforcementHandoffState: PolicyDecisionHandoffStateSchema,
   localModelRuntimeRefs: NonEmptyRuntimeRefs,
-  custodyLabels: Schema.Array(NonEmptyExplanationText),
+  custodyLabels: Schema.Array(NonEmptyStringSchema),
   deletionReasons: ScreenSummaryDeletionReasons,
   explanationReasons: ScreenSummaryParentExplanationReasonsSchema,
   claimBoundaries: ScreenSummaryParentExplanationClaimBoundarySchema,
@@ -237,3 +239,4 @@ function screenSummaryParentExplanationIsHonest(explanation: ScreenSummaryParent
     explanation.claimBoundaries.portalRuntimeClaimed === false
   );
 }
+

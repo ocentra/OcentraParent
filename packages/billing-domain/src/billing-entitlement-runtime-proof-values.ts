@@ -1,6 +1,9 @@
-import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
-
-const NonEmptyBillingRuntimeText = Schema.String.pipe(Schema.minLength(1));
+import {
+  type Infer,
+  Schema,
+  withParser,
+  brandedNonEmptyStringSchema
+} from '@ocentra-parent/schema-domain/effect';
 
 export const BillingEntitlementRuntimeSchemaVersionSchema = withParser(
   Schema.Literal('billing-entitlement-runtime-proof')
@@ -51,13 +54,9 @@ export const BillingEntitlementRuntimeNonClaimSchema = withParser(
   )
 );
 
-export const BillingEntitlementRuntimeBoundaryIdSchema = NonEmptyBillingRuntimeText.pipe(
-  Schema.brand('BillingEntitlementRuntimeBoundaryId')
-);
+export const BillingEntitlementRuntimeBoundaryIdSchema = brandedNonEmptyStringSchema('BillingEntitlementRuntimeBoundaryId');
 
-export const BillingEntitlementRuntimeAuditReferenceSchema = NonEmptyBillingRuntimeText.pipe(
-  Schema.brand('BillingEntitlementRuntimeAuditReference')
-);
+export const BillingEntitlementRuntimeAuditReferenceSchema = brandedNonEmptyStringSchema('BillingEntitlementRuntimeAuditReference');
 
 export type BillingEntitlementRuntimeSnapshotState = Infer<typeof BillingEntitlementRuntimeSnapshotStateSchema>;
 export type BillingEntitlementRuntimeOperation = Infer<typeof BillingEntitlementRuntimeOperationSchema>;
@@ -95,3 +94,4 @@ export function summarizeBillingEntitlementRuntimeConsumptionStates(
   }
   return counts;
 }
+

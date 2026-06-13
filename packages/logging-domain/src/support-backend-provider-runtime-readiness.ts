@@ -1,9 +1,12 @@
-import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
-
-const NonEmptySupportBackendProviderRuntimeReadinessText = Schema.String.pipe(Schema.minLength(1));
+import {
+  type Infer,
+  Schema,
+  withParser,
+  NonEmptyStringSchema
+} from '@ocentra-parent/schema-domain/effect';
 
 const supportBackendProviderRuntimeReadinessText = <Brand extends string>(brand: Brand) =>
-  NonEmptySupportBackendProviderRuntimeReadinessText.pipe(Schema.brand(brand));
+  NonEmptyStringSchema.pipe(Schema.brand(brand));
 
 export const SupportBackendProviderRuntimeReadinessReadModelIdSchema = supportBackendProviderRuntimeReadinessText(
   'SupportBackendProviderRuntimeReadinessReadModelId'
@@ -273,3 +276,4 @@ function supportBackendProviderRuntimeReadinessRequiredValuesArePresent(
     SupportBackendProviderRuntimeReadinessRequiredDataClasses.every((value) => actual.has(value))
   );
 }
+

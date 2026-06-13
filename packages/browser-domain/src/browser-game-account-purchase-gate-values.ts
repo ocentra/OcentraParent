@@ -1,14 +1,17 @@
-import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
+import {
+  type Infer,
+  Schema,
+  withParser,
+  brandedNonEmptyStringSchema
+} from '@ocentra-parent/schema-domain/effect';
 import { ParentEvidenceReferenceIdSchema } from '@ocentra-parent/family-domain/reference-primitives';
 
-const NonEmptyBrowserGameApprovalText = Schema.String.pipe(Schema.minLength(1));
-
 export const BrowserGameApprovalRequestIdSchema = withParser(
-  NonEmptyBrowserGameApprovalText.pipe(Schema.brand('BrowserGameApprovalRequestId'))
+  brandedNonEmptyStringSchema('BrowserGameApprovalRequestId')
 );
 
 export const BrowserGameApprovalDecisionIdSchema = withParser(
-  NonEmptyBrowserGameApprovalText.pipe(Schema.brand('BrowserGameApprovalDecisionId'))
+  brandedNonEmptyStringSchema('BrowserGameApprovalDecisionId')
 );
 
 export const BrowserGameApprovalRequestKindSchema = withParser(
@@ -84,3 +87,4 @@ export type BrowserGameApprovalRequestState = Infer<typeof BrowserGameApprovalRe
 export type BrowserGameApprovalDecisionKind = Infer<typeof BrowserGameApprovalDecisionKindSchema>;
 export type BrowserGameApprovalDecisionState = Infer<typeof BrowserGameApprovalDecisionStateSchema>;
 export type BrowserGameApprovalReasonCode = Infer<typeof BrowserGameApprovalReasonCodeSchema>;
+

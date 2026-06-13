@@ -1,17 +1,20 @@
-import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
-
-const NonEmptyScreenDetectorText = Schema.String.pipe(Schema.minLength(1));
+import {
+  type Infer,
+  Schema,
+  withParser,
+  brandedNonEmptyStringSchema
+} from '@ocentra-parent/schema-domain/effect';
 
 export const ScreenDetectorPromptPackSchemaVersion = 1;
 
 export const ScreenDetectorPromptPackIdSchema = withParser(
-  NonEmptyScreenDetectorText.pipe(Schema.brand('ScreenDetectorPromptPackId'))
+  brandedNonEmptyStringSchema('ScreenDetectorPromptPackId')
 );
 export const ScreenDetectorPromptPackVersionSchema = withParser(
-  NonEmptyScreenDetectorText.pipe(Schema.brand('ScreenDetectorPromptPackVersion'))
+  brandedNonEmptyStringSchema('ScreenDetectorPromptPackVersion')
 );
 export const ScreenDetectorPromptHashRefSchema = withParser(
-  NonEmptyScreenDetectorText.pipe(Schema.brand('ScreenDetectorPromptHashRef'))
+  brandedNonEmptyStringSchema('ScreenDetectorPromptHashRef')
 );
 
 export const ScreenDetectorIdSchema = withParser(
@@ -82,3 +85,4 @@ export const ScreenDetectorRequiredIds = [
 ] as const;
 
 export type ScreenDetectorId = Infer<typeof ScreenDetectorIdSchema>;
+

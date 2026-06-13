@@ -71,12 +71,12 @@ async function main() {
 async function assertActivityDomainBuildIsFresh() {
   const pairs = [
     [
-      'packages/activity-domain/src/browser-url-intelligence.ts',
-      'packages/activity-domain/dist/browser-url-intelligence.js',
+      'packages/browser-domain/src/browser-url-intelligence.ts',
+      'packages/browser-domain/dist/browser-url-intelligence.js',
     ],
     [
-      'packages/activity-domain/src/browser-youtube-metadata.ts',
-      'packages/activity-domain/dist/browser-youtube-metadata.js',
+      'packages/browser-domain/src/browser-youtube-metadata.ts',
+      'packages/browser-domain/dist/browser-youtube-metadata.js',
     ],
   ];
   for (const [sourcePath, distPath] of pairs) {

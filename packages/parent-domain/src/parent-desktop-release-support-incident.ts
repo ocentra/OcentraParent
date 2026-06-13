@@ -1,8 +1,11 @@
-import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
+import {
+  type Infer,
+  Schema,
+  withParser,
+  brandedNonEmptyStringSchema
+} from '@ocentra-parent/schema-domain/effect';
 import { parentDesktopReleaseSupportIncidentHandoffIsHonest } from './parent-desktop-release-support-incident-guards';
-import { ParentTimestampSchema } from './reference-primitives';
-
-const NonEmptyIncidentText = Schema.String.pipe(Schema.minLength(1));
+import { ParentTimestampSchema } from '@ocentra-parent/family-domain/reference-primitives';
 
 export const ParentDesktopReleaseSupportIncidentStatusSchema = withParser(
   Schema.Literal('triage-ready', 'waiting-on-parent', 'manual-required', 'closed-no-upload')
@@ -62,18 +65,10 @@ export const ParentDesktopReleaseSupportIncidentDiagnosticReferenceKindSchema = 
   Schema.Literal('proof-json', 'package-preview-workflow', 'redaction-summary', 'manual-runbook', 'support-status-row')
 );
 
-export const ParentDesktopReleaseSupportIncidentIdSchema = NonEmptyIncidentText.pipe(
-  Schema.brand('ParentDesktopReleaseSupportIncidentId')
-);
-export const ParentDesktopReleaseSupportIncidentLabelSchema = NonEmptyIncidentText.pipe(
-  Schema.brand('ParentDesktopReleaseSupportIncidentLabel')
-);
-export const ParentDesktopReleaseSupportIncidentReferenceSchema = NonEmptyIncidentText.pipe(
-  Schema.brand('ParentDesktopReleaseSupportIncidentReference')
-);
-export const ParentDesktopReleaseSupportIncidentNonClaimSchema = NonEmptyIncidentText.pipe(
-  Schema.brand('ParentDesktopReleaseSupportIncidentNonClaim')
-);
+export const ParentDesktopReleaseSupportIncidentIdSchema = brandedNonEmptyStringSchema('ParentDesktopReleaseSupportIncidentId');
+export const ParentDesktopReleaseSupportIncidentLabelSchema = brandedNonEmptyStringSchema('ParentDesktopReleaseSupportIncidentLabel');
+export const ParentDesktopReleaseSupportIncidentReferenceSchema = brandedNonEmptyStringSchema('ParentDesktopReleaseSupportIncidentReference');
+export const ParentDesktopReleaseSupportIncidentNonClaimSchema = brandedNonEmptyStringSchema('ParentDesktopReleaseSupportIncidentNonClaim');
 
 export const ParentDesktopReleaseSupportIncidentMetadataSchema = withParser(
   Schema.Struct({
@@ -173,3 +168,4 @@ export type ParentDesktopReleaseSupportIncidentExcludedDataClass = Infer<
 export type ParentDesktopReleaseSupportIncidentDiagnosticReferenceKind = Infer<
   typeof ParentDesktopReleaseSupportIncidentDiagnosticReferenceKindSchema
 >;
+

@@ -1,4 +1,9 @@
-import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
+import {
+  type Infer,
+  Schema,
+  withParser,
+  brandedNonEmptyStringSchema
+} from '@ocentra-parent/schema-domain/effect';
 import {
   ParentContractSchemaVersion,
   ParentContractSchemaVersionSchema,
@@ -9,22 +14,12 @@ import {
   V08SupportedAdapterRuntimeProofReadModel,
   type V08SupportedAdapterRuntimeProofEntry,
   type V08SupportedAdapterRuntimeProofReadModel as V08SupportedAdapterRuntimeProofReadModelType,
-} from './v0-8-supported-adapter-runtime-proof';
+} from '@ocentra-parent/enforcement-domain/v0-8-supported-adapter-runtime-proof';
 
-const NonEmptyAdapterReadinessText = Schema.String.pipe(Schema.minLength(1));
-
-export const AppGameAdapterExecutionReadinessReadModelIdSchema = NonEmptyAdapterReadinessText.pipe(
-  Schema.brand('AppGameAdapterExecutionReadinessReadModelId')
-);
-export const AppGameAdapterExecutionReadinessRowIdSchema = NonEmptyAdapterReadinessText.pipe(
-  Schema.brand('AppGameAdapterExecutionReadinessRowId')
-);
-export const AppGameAdapterExecutionReadinessReferenceSchema = NonEmptyAdapterReadinessText.pipe(
-  Schema.brand('AppGameAdapterExecutionReadinessReference')
-);
-export const AppGameAdapterExecutionReadinessBoundarySchema = NonEmptyAdapterReadinessText.pipe(
-  Schema.brand('AppGameAdapterExecutionReadinessBoundary')
-);
+export const AppGameAdapterExecutionReadinessReadModelIdSchema = brandedNonEmptyStringSchema('AppGameAdapterExecutionReadinessReadModelId');
+export const AppGameAdapterExecutionReadinessRowIdSchema = brandedNonEmptyStringSchema('AppGameAdapterExecutionReadinessRowId');
+export const AppGameAdapterExecutionReadinessReferenceSchema = brandedNonEmptyStringSchema('AppGameAdapterExecutionReadinessReference');
+export const AppGameAdapterExecutionReadinessBoundarySchema = brandedNonEmptyStringSchema('AppGameAdapterExecutionReadinessBoundary');
 
 export const AppGameAdapterProductMeaningSchema = withParser(Schema.Literal('native-app', 'native-game'));
 
@@ -323,3 +318,4 @@ export const decodeAppGameAdapterExecutionReadinessRow = Schema.decodeUnknownSyn
 export const decodeAppGameAdapterExecutionReadinessReadModel = Schema.decodeUnknownSync(
   AppGameAdapterExecutionReadinessReadModelSchema
 );
+

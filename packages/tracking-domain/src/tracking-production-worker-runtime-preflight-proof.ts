@@ -1,4 +1,9 @@
-import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
+import {
+  type Infer,
+  Schema,
+  withParser,
+  brandedNonEmptyStringSchema
+} from '@ocentra-parent/schema-domain/effect';
 import { ParentTimestampSchema } from '@ocentra-parent/family-domain/reference-primitives';
 import {
   RequiredTrackingProductionWorkerRuntimeArtifactPlan,
@@ -6,8 +11,6 @@ import {
 } from './tracking-production-worker-runtime-artifact-gate-proof';
 import { TrackingPolicyAuditRefSchema, TrackingPolicySchemaVersion } from './tracking-location-policy-primitives';
 import { TrackingProductionDurableWorkersReadinessBlockerReferenceSchema } from './tracking-production-durable-workers-readiness-blocker-proof';
-
-const TrackingProductionWorkerRuntimePreflightTextSchema = Schema.String.pipe(Schema.minLength(1));
 
 export const TrackingProductionWorkerRuntimePreflightAreaSchema = Schema.Literal(
   'location-upload-worker-runtime',
@@ -23,22 +26,16 @@ export const TrackingProductionWorkerRuntimePreflightAreaSchema = Schema.Literal
 export const TrackingProductionWorkerRuntimePreflightStatusSchema = Schema.Literal('manual-required');
 
 export const TrackingProductionWorkerRuntimePreflightRowIdSchema =
-  TrackingProductionWorkerRuntimePreflightTextSchema.pipe(
-    Schema.brand('TrackingProductionWorkerRuntimePreflightRowId')
-  );
+  brandedNonEmptyStringSchema('TrackingProductionWorkerRuntimePreflightRowId');
 
 export const TrackingProductionWorkerRuntimePreflightPathSchema =
-  TrackingProductionWorkerRuntimePreflightTextSchema.pipe(Schema.brand('TrackingProductionWorkerRuntimePreflightPath'));
+  brandedNonEmptyStringSchema('TrackingProductionWorkerRuntimePreflightPath');
 
 export const TrackingProductionWorkerRuntimePreflightCommandSchema =
-  TrackingProductionWorkerRuntimePreflightTextSchema.pipe(
-    Schema.brand('TrackingProductionWorkerRuntimePreflightCommand')
-  );
+  brandedNonEmptyStringSchema('TrackingProductionWorkerRuntimePreflightCommand');
 
 export const TrackingProductionWorkerRuntimePreflightCriterionSchema =
-  TrackingProductionWorkerRuntimePreflightTextSchema.pipe(
-    Schema.brand('TrackingProductionWorkerRuntimePreflightCriterion')
-  );
+  brandedNonEmptyStringSchema('TrackingProductionWorkerRuntimePreflightCriterion');
 
 const RequiredTrackingProductionWorkerRuntimePreflightRows = [
   {
@@ -434,3 +431,4 @@ function preflightRow(
     productClaimReady: false,
   });
 }
+
