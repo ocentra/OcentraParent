@@ -114,7 +114,7 @@ export const BillingSupportAdminBoundaryProofReadModel = BillingSupportAdminBoun
   portalUiClaim: 'not-implemented',
   providerContactClaim: 'not-executed',
   backendUploadClaim: 'not-executed',
-  childActivityCustodyClaim: 'not-supported',
+  childActivityCustodyClaim: 'not-included',
   updatedAt: Timestamp,
 });
 

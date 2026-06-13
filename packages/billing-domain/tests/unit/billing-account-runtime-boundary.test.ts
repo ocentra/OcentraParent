@@ -15,10 +15,11 @@ describe('billing account runtime boundary', () => {
   rejectsAvailableRuntimeRowsFromUnavailableSources();
   rejectsEntitlementSigningGapsWithoutManualRequiredContext();
   rejectsRuntimeOperationOverclaims();
+  rejectsProofWithoutSignedChildConsumptionClaim();
 });
 
 function acceptsBillingAccountRuntimeBoundaryProof(): void {
-  it('accepts account backend runtime proof without provider secrets portal UI or child-device claims', () => {
+  it('accepts account runtime proof with signed child snapshot consumption and no provider secrets or portal UI claim', () => {
     const proof = BillingAccountRuntimeBoundaryProofSchema.parse(BillingAccountRuntimeBoundaryProofReadModel);
 
     expect(summarizeBillingAccountRuntimeStatuses(proof.accountStatusRows)).toEqual({
@@ -44,9 +45,12 @@ function acceptsBillingAccountRuntimeBoundaryProof(): void {
       'no-account-backend',
       'no-entitlement-signing-runtime',
       'no-portal-ui',
-      'no-child-device-consumption',
       'no-child-activity-custody',
     ]);
+    expect(requiredRuntimeOperation('entitlement-snapshot-read').childDeviceConsumption).toBe(
+      'signed-snapshot-consumed'
+    );
+    expect(proof.childDeviceConsumptionClaim).toBe('signed-snapshot-consumption-contract');
     expect(proof.entitlementSigningBoundary.failureState).toEqual(requiredFailure('validation-failed'));
   });
 }
@@ -109,7 +113,24 @@ function rejectsRuntimeOperationOverclaims(): void {
     expect(
       BillingAccountRuntimeOperationRowSchema.safeParse({
         ...webhookOperation,
-        childDeviceConsumption: 'implemented',
+        childDeviceConsumption: 'signed-snapshot-consumed',
+      }).success
+    ).toBe(false);
+    expect(
+      BillingAccountRuntimeOperationRowSchema.safeParse({
+        ...requiredRuntimeOperation('entitlement-snapshot-read'),
+        childDeviceConsumption: 'not-implemented',
+      }).success
+    ).toBe(false);
+  });
+}
+
+function rejectsProofWithoutSignedChildConsumptionClaim(): void {
+  it('rejects billing runtime proof that omits the signed child consumption contract claim', () => {
+    expect(
+      BillingAccountRuntimeBoundaryProofSchema.safeParse({
+        ...BillingAccountRuntimeBoundaryProofReadModel,
+        childDeviceConsumptionClaim: 'not-supported',
       }).success
     ).toBe(false);
   });
@@ -125,7 +146,7 @@ function requiredAccountStatusRow(accountStatus: 'backend-unavailable' | 'provid
   return row;
 }
 
-function requiredRuntimeOperation(operation: 'provider-webhook-sync') {
+function requiredRuntimeOperation(operation: 'provider-webhook-sync' | 'entitlement-snapshot-read') {
   const row = BillingAccountRuntimeBoundaryProofReadModel.runtimeOperations.find(
     (entry) => entry.operation === operation
   );

@@ -1,0 +1,185 @@
+import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
+import {
+  FamilyReferenceSchema,
+  ParentAccountReferenceSchema,
+  ParentActorReferenceSchema,
+} from '@ocentra-parent/family-domain/references';
+import { ParentTimestampSchema } from '@ocentra-parent/family-domain/reference-primitives';
+import { BillingPlanIdSchema } from './billing-entitlement-values';
+import {
+  BillingCheckoutAbuseGateStateSchema,
+  BillingCheckoutPortalBoundarySchemaVersionSchema,
+  BillingHostedCheckoutUrlSchema,
+  BillingHostedPortalUrlSchema,
+  BillingHostedReturnPathSchema,
+  BillingHostedReturnRouteIdSchema,
+  BillingHostedSessionIdSchema,
+  BillingHostedSessionKindSchema,
+  BillingHostedSessionRejectionReasonSchema,
+  BillingHostedSessionRequestIdSchema,
+  BillingHostedSessionStatusSchema,
+} from './billing-checkout-portal-boundary-values';
+
+export * from './billing-checkout-portal-boundary-values';
+
+const BillingHostedRoutePathById = {
+  'family-billing-checkout-success': '/family/billing/checkout/success',
+  'family-billing-checkout-cancel': '/family/billing/checkout/cancel',
+  'family-billing-portal-return': '/family/billing/manage',
+} as const;
+
+export const BillingHostedReturnRouteSchema = withParser(
+  Schema.Struct({
+    routeId: BillingHostedReturnRouteIdSchema,
+    relativePath: BillingHostedReturnPathSchema,
+  }).pipe(
+    Schema.filter(
+      (route) =>
+        billingHostedReturnRoutePath(route.routeId) === route.relativePath ||
+        'Expected billing hosted session routes to use the exact allowlisted relative path for each route id'
+    )
+  )
+);
+
+export const BillingCheckoutSessionRequestSchema = withParser(
+  Schema.Struct({
+    schemaVersion: BillingCheckoutPortalBoundarySchemaVersionSchema,
+    requestId: BillingHostedSessionRequestIdSchema,
+    kind: Schema.Literal('checkout-session-create'),
+    actor: ParentActorReferenceSchema,
+    parentAccount: ParentAccountReferenceSchema,
+    family: FamilyReferenceSchema,
+    planId: BillingPlanIdSchema,
+    successRoute: BillingHostedReturnRouteSchema,
+    cancelRoute: BillingHostedReturnRouteSchema,
+    abuseGateState: BillingCheckoutAbuseGateStateSchema,
+  }).pipe(
+    Schema.filter(
+      (request) =>
+        billingActorMayCreateHostedSession(request.actor) ||
+        'Expected interactive checkout session creation to require a parent or guardian actor'
+    ),
+    Schema.filter(
+      (request) =>
+        request.successRoute.routeId === 'family-billing-checkout-success' ||
+        'Expected checkout success redirects to use the allowlisted checkout success route'
+    ),
+    Schema.filter(
+      (request) =>
+        request.cancelRoute.routeId === 'family-billing-checkout-cancel' ||
+        'Expected checkout cancel redirects to use the allowlisted checkout cancel route'
+    ),
+    Schema.filter(
+      (request) =>
+        request.successRoute.relativePath !== request.cancelRoute.relativePath ||
+        'Expected checkout success and cancel redirects to remain distinct'
+    )
+  )
+);
+
+export const BillingPortalSessionRequestSchema = withParser(
+  Schema.Struct({
+    schemaVersion: BillingCheckoutPortalBoundarySchemaVersionSchema,
+    requestId: BillingHostedSessionRequestIdSchema,
+    kind: Schema.Literal('billing-portal-session-create'),
+    actor: ParentActorReferenceSchema,
+    parentAccount: ParentAccountReferenceSchema,
+    family: FamilyReferenceSchema,
+    returnRoute: BillingHostedReturnRouteSchema,
+    abuseGateState: BillingCheckoutAbuseGateStateSchema,
+  }).pipe(
+    Schema.filter(
+      (request) =>
+        billingActorMayCreateHostedSession(request.actor) ||
+        'Expected interactive billing portal session creation to require a parent or guardian actor'
+    ),
+    Schema.filter(
+      (request) =>
+        request.returnRoute.routeId === 'family-billing-portal-return' ||
+        'Expected billing portal sessions to return through the allowlisted billing management route'
+    )
+  )
+);
+
+export const BillingCheckoutSessionResponseSchema = withParser(
+  Schema.Struct({
+    schemaVersion: BillingCheckoutPortalBoundarySchemaVersionSchema,
+    requestId: BillingHostedSessionRequestIdSchema,
+    kind: Schema.Literal('checkout-session-create'),
+    status: BillingHostedSessionStatusSchema,
+    hostedSessionId: Schema.Union(BillingHostedSessionIdSchema, Schema.Null),
+    hostedUrl: Schema.Union(BillingHostedCheckoutUrlSchema, Schema.Null),
+    expiresAt: Schema.Union(ParentTimestampSchema, Schema.Null),
+    rejectionReason: Schema.Union(BillingHostedSessionRejectionReasonSchema, Schema.Null),
+  }).pipe(
+    Schema.filter(
+      (response) =>
+        billingHostedSessionResponseIsConsistent(response.status, response.hostedSessionId, response.hostedUrl, response.expiresAt, response.rejectionReason) ||
+        'Expected checkout session responses to be either accepted with a Stripe checkout URL or rejected with an explicit reason'
+    )
+  )
+);
+
+export const BillingPortalSessionResponseSchema = withParser(
+  Schema.Struct({
+    schemaVersion: BillingCheckoutPortalBoundarySchemaVersionSchema,
+    requestId: BillingHostedSessionRequestIdSchema,
+    kind: Schema.Literal('billing-portal-session-create'),
+    status: BillingHostedSessionStatusSchema,
+    hostedSessionId: Schema.Union(BillingHostedSessionIdSchema, Schema.Null),
+    hostedUrl: Schema.Union(BillingHostedPortalUrlSchema, Schema.Null),
+    expiresAt: Schema.Union(ParentTimestampSchema, Schema.Null),
+    rejectionReason: Schema.Union(BillingHostedSessionRejectionReasonSchema, Schema.Null),
+  }).pipe(
+    Schema.filter(
+      (response) =>
+        billingHostedSessionResponseIsConsistent(response.status, response.hostedSessionId, response.hostedUrl, response.expiresAt, response.rejectionReason) ||
+        'Expected billing portal responses to be either accepted with a Stripe billing portal URL or rejected with an explicit reason'
+    )
+  )
+);
+
+export type BillingHostedReturnRoute = Infer<typeof BillingHostedReturnRouteSchema>;
+export type BillingCheckoutSessionRequest = Infer<typeof BillingCheckoutSessionRequestSchema>;
+export type BillingPortalSessionRequest = Infer<typeof BillingPortalSessionRequestSchema>;
+export type BillingCheckoutSessionResponse = Infer<typeof BillingCheckoutSessionResponseSchema>;
+export type BillingPortalSessionResponse = Infer<typeof BillingPortalSessionResponseSchema>;
+
+export const BillingHostedReturnRoute = {
+  CheckoutSuccess: BillingHostedReturnRouteSchema.parse({
+    routeId: 'family-billing-checkout-success',
+    relativePath: '/family/billing/checkout/success',
+  }),
+  CheckoutCancel: BillingHostedReturnRouteSchema.parse({
+    routeId: 'family-billing-checkout-cancel',
+    relativePath: '/family/billing/checkout/cancel',
+  }),
+  PortalReturn: BillingHostedReturnRouteSchema.parse({
+    routeId: 'family-billing-portal-return',
+    relativePath: '/family/billing/manage',
+  }),
+} as const;
+
+export function billingHostedReturnRoutePath(
+  routeId: keyof typeof BillingHostedRoutePathById
+): (typeof BillingHostedRoutePathById)[typeof routeId] {
+  return BillingHostedRoutePathById[routeId];
+}
+
+function billingActorMayCreateHostedSession(actor: Infer<typeof ParentActorReferenceSchema>): boolean {
+  return actor.role === 'parent' || actor.role === 'guardian';
+}
+
+function billingHostedSessionResponseIsConsistent(
+  status: Infer<typeof BillingHostedSessionStatusSchema>,
+  hostedSessionId: Infer<typeof BillingHostedSessionIdSchema> | null,
+  hostedUrl: string | null,
+  expiresAt: Infer<typeof ParentTimestampSchema> | null,
+  rejectionReason: Infer<typeof BillingHostedSessionRejectionReasonSchema> | null
+): boolean {
+  if (status === 'accepted') {
+    return hostedSessionId !== null && hostedUrl !== null && expiresAt !== null && rejectionReason === null;
+  }
+  return hostedSessionId === null && hostedUrl === null && expiresAt === null && rejectionReason !== null;
+}
+

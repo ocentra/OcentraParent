@@ -118,6 +118,18 @@ export const BillingAccountRuntimeOperationRowSchema = withParser(
         row.providerBoundary === 'backend-reference-only' ||
         row.backendRuntimeState === 'not-implemented' ||
         'Expected provider webhook sync to stay behind the backend-reference boundary'
+    ),
+    Schema.filter(
+      (row) =>
+        row.childDeviceConsumption !== 'signed-snapshot-consumed' ||
+        row.operation === 'entitlement-snapshot-read' ||
+        'Expected child-device billing consumption to be limited to signed entitlement snapshot reads'
+    ),
+    Schema.filter(
+      (row) =>
+        row.operation !== 'entitlement-snapshot-read' ||
+        row.childDeviceConsumption === 'signed-snapshot-consumed' ||
+        'Expected entitlement snapshot reads to expose the child signed-snapshot consumption boundary'
     )
   )
 );
@@ -165,7 +177,7 @@ export const BillingAccountRuntimeBoundaryProofSchema = withParser(
     Schema.filter(
       (proof) =>
         billingAccountRuntimeBoundaryProofIsHonest(proof) ||
-        'Expected billing account runtime proof to keep backend provider secret UI and child-device non-claims explicit'
+        'Expected billing account runtime proof to keep backend provider secret UI custody non-claims and signed child consumption explicit'
     )
   )
 );
@@ -190,13 +202,14 @@ function billingAccountRuntimeBoundaryProofIsHonest(proof: {
   }>;
   readonly runtimeOperations: ReadonlyArray<{
     readonly operation: BillingAccountRuntimeOperation;
-    readonly childDeviceConsumption: 'not-implemented';
+    readonly childDeviceConsumption: 'signed-snapshot-consumed' | 'manual-required' | 'not-implemented';
     readonly providerSecretCustody: 'not-present';
   }>;
   readonly entitlementSigningBoundary: {
     readonly signingState: string;
     readonly manualRequired: boolean;
   };
+  readonly childDeviceConsumptionClaim: 'signed-snapshot-consumption-contract' | 'not-supported';
   readonly failureStates: ReadonlyArray<unknown>;
   readonly nonClaims: ReadonlyArray<BillingAccountRuntimeNonClaim>;
 }): boolean {
@@ -207,7 +220,6 @@ function billingAccountRuntimeBoundaryProofIsHonest(proof: {
     'no-account-backend',
     'no-entitlement-signing-runtime',
     'no-portal-ui',
-    'no-child-device-consumption',
     'no-child-activity-custody',
   ];
   const requiredOperations: ReadonlyArray<BillingAccountRuntimeOperation> = [
@@ -225,8 +237,13 @@ function billingAccountRuntimeBoundaryProofIsHonest(proof: {
     proof.accountStatusRows.some((row) => row.accountStatus === 'provider-unavailable' && row.failureState !== null) &&
     proof.accountStatusRows.every((row) => row.providerSecretCustody === 'not-present') &&
     proof.runtimeOperations.every(
-      (row) => row.providerSecretCustody === 'not-present' && row.childDeviceConsumption === 'not-implemented'
+      (row) =>
+        row.providerSecretCustody === 'not-present' &&
+        (row.operation === 'entitlement-snapshot-read'
+          ? row.childDeviceConsumption === 'signed-snapshot-consumed'
+          : row.childDeviceConsumption !== 'signed-snapshot-consumed')
     ) &&
+    proof.childDeviceConsumptionClaim === 'signed-snapshot-consumption-contract' &&
     proof.entitlementSigningBoundary.signingState === 'manual-required' &&
     proof.entitlementSigningBoundary.manualRequired &&
     proof.failureStates.length >= 2

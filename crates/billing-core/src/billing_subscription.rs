@@ -19,11 +19,17 @@ const BILLING_PROVIDER_WEBHOOK_DECISION_RECORDED_EVENT_TYPE: &str =
     "billing.provider-webhook.decision-recorded";
 const BILLING_ENTITLEMENT_TRANSITION_PROJECTED_EVENT_TYPE: &str =
     "billing.entitlement.transition-projected";
+const BILLING_CHILD_ENTITLEMENT_SNAPSHOT_RECEIVED_EVENT_TYPE: &str =
+    "billing.child-entitlement-snapshot.received";
+const BILLING_CHILD_ENTITLEMENT_CONSUMPTION_RECORDED_EVENT_TYPE: &str =
+    "billing.child-entitlement-consumption.recorded";
 const BILLING_IDEMPOTENCY_SEPARATOR: &str = ":";
 const BILLING_DECISION_PREFIX: &str = "billing-decision:";
 const BILLING_TRANSITION_PREFIX: &str = "billing-transition:";
+const BILLING_CHILD_CONSUMPTION_PREFIX: &str = "billing-child-consumption:";
 const ERROR_BILLING_DECISION_ID: &str = "billing decision id";
 const ERROR_BILLING_TRANSITION_ID: &str = "billing transition id";
+const ERROR_BILLING_CHILD_CONSUMPTION_ID: &str = "billing child consumption id";
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct BillingProviderEventId {
@@ -53,18 +59,28 @@ impl std::fmt::Display for BillingProviderEventId {
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 pub enum BillingProviderEventKind {
+    #[serde(rename = "checkout-completed")]
+    CheckoutCompleted,
     #[serde(rename = "subscription-created")]
     SubscriptionCreated,
     #[serde(rename = "subscription-updated")]
     SubscriptionUpdated,
-    #[serde(rename = "payment-succeeded")]
-    PaymentSucceeded,
-    #[serde(rename = "payment-failed")]
-    PaymentFailed,
+    #[serde(rename = "subscription-deleted")]
+    SubscriptionDeleted,
+    #[serde(rename = "invoice-paid")]
+    InvoicePaid,
+    #[serde(rename = "invoice-payment-failed")]
+    InvoicePaymentFailed,
+    #[serde(rename = "payment-intent-succeeded")]
+    PaymentIntentSucceeded,
+    #[serde(rename = "payment-intent-failed")]
+    PaymentIntentFailed,
+    #[serde(rename = "customer-portal-updated")]
+    CustomerPortalUpdated,
+    #[serde(rename = "refund-issued")]
+    RefundIssued,
     #[serde(rename = "dispute-opened")]
     DisputeOpened,
-    #[serde(rename = "subscription-canceled")]
-    SubscriptionCanceled,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
@@ -161,6 +177,62 @@ pub enum BillingEntitlementWriteState {
     DoNotWrite,
 }
 
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
+pub enum BillingChildSnapshotSignatureState {
+    #[serde(rename = "trusted")]
+    Trusted,
+    #[serde(rename = "missing")]
+    Missing,
+    #[serde(rename = "invalid")]
+    Invalid,
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
+pub enum BillingChildSnapshotFreshnessState {
+    #[serde(rename = "fresh")]
+    Fresh,
+    #[serde(rename = "stale")]
+    Stale,
+    #[serde(rename = "expired")]
+    Expired,
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
+pub enum BillingChildEntitlementConsumptionState {
+    #[serde(rename = "accepted")]
+    Accepted,
+    #[serde(rename = "rejected")]
+    Rejected,
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
+pub enum BillingChildEntitlementAccessState {
+    #[serde(rename = "full-access")]
+    FullAccess,
+    #[serde(rename = "limited-access")]
+    LimitedAccess,
+    #[serde(rename = "revoked")]
+    Revoked,
+    #[serde(rename = "hold-for-review")]
+    HoldForReview,
+    #[serde(rename = "no-change")]
+    NoChange,
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
+pub enum BillingChildEntitlementRejectionReason {
+    #[serde(rename = "missing-signature")]
+    MissingSignature,
+    #[serde(rename = "invalid-signature")]
+    InvalidSignature,
+    #[serde(rename = "stale-snapshot")]
+    StaleSnapshot,
+    #[serde(rename = "expired-snapshot")]
+    ExpiredSnapshot,
+    #[serde(rename = "unknown-lifecycle")]
+    UnknownLifecycle,
+}
+
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct BillingProviderWebhookEvent {
     pub event_id: BillingProviderEventId,
@@ -235,6 +307,12 @@ macro_rules! billing_text_id {
 billing_text_id!(BillingDecisionId, "billing.decision_id");
 billing_text_id!(BillingTransitionId, "billing.transition_id");
 billing_text_id!(BillingAggregateId, "billing.aggregate_id");
+billing_text_id!(BillingEntitlementSnapshotId, "billing.entitlement_snapshot_id");
+billing_text_id!(BillingChildDeviceId, "billing.child_device_id");
+billing_text_id!(
+    BillingChildEntitlementConsumptionId,
+    "billing.child_entitlement_consumption_id"
+);
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct BillingProviderWebhookReceivedEvent {
@@ -255,6 +333,40 @@ pub struct BillingEntitlementTransitionProjectedEvent {
     pub transition_id: BillingTransitionId,
     pub source_decision_id: BillingDecisionId,
     pub transition: BillingEntitlementTransition,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub struct BillingChildEntitlementSnapshot {
+    pub snapshot_id: BillingEntitlementSnapshotId,
+    pub child_device_id: BillingChildDeviceId,
+    pub lifecycle_state: BillingSubscriptionLifecycleState,
+    pub signature_state: BillingChildSnapshotSignatureState,
+    pub freshness_state: BillingChildSnapshotFreshnessState,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub struct BillingChildEntitlementConsumptionDecision {
+    pub snapshot_id: BillingEntitlementSnapshotId,
+    pub child_device_id: BillingChildDeviceId,
+    pub decision_state: BillingChildEntitlementConsumptionState,
+    pub lifecycle_state: BillingSubscriptionLifecycleState,
+    pub access_state: BillingChildEntitlementAccessState,
+    pub write_state: BillingEntitlementWriteState,
+    pub manual_review_requirement: BillingManualReviewRequirement,
+    pub rejection_reason: Option<BillingChildEntitlementRejectionReason>,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub struct BillingChildEntitlementSnapshotReceivedEvent {
+    pub aggregate_id: BillingAggregateId,
+    pub snapshot: BillingChildEntitlementSnapshot,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub struct BillingChildEntitlementConsumptionRecordedEvent {
+    pub aggregate_id: BillingAggregateId,
+    pub consumption_id: BillingChildEntitlementConsumptionId,
+    pub decision: BillingChildEntitlementConsumptionDecision,
 }
 
 impl DomainEvent for BillingProviderWebhookReceivedEvent {
@@ -308,6 +420,40 @@ impl DomainEvent for BillingEntitlementTransitionProjectedEvent {
     }
 }
 
+impl DomainEvent for BillingChildEntitlementSnapshotReceivedEvent {
+    fn contract(&self) -> Result<EventContract, EventingError> {
+        billing_event_contract(BILLING_CHILD_ENTITLEMENT_SNAPSHOT_RECEIVED_EVENT_TYPE)
+    }
+
+    fn aggregate_key(&self) -> Result<AggregateKey, EventingError> {
+        AggregateKey::parse(self.aggregate_id.as_str())
+    }
+
+    fn idempotency_key(&self) -> Result<IdempotencyKey, EventingError> {
+        billing_idempotency_key(
+            BILLING_CHILD_ENTITLEMENT_SNAPSHOT_RECEIVED_EVENT_TYPE,
+            &self.snapshot.snapshot_id,
+        )
+    }
+}
+
+impl DomainEvent for BillingChildEntitlementConsumptionRecordedEvent {
+    fn contract(&self) -> Result<EventContract, EventingError> {
+        billing_event_contract(BILLING_CHILD_ENTITLEMENT_CONSUMPTION_RECORDED_EVENT_TYPE)
+    }
+
+    fn aggregate_key(&self) -> Result<AggregateKey, EventingError> {
+        AggregateKey::parse(self.aggregate_id.as_str())
+    }
+
+    fn idempotency_key(&self) -> Result<IdempotencyKey, EventingError> {
+        billing_idempotency_key(
+            BILLING_CHILD_ENTITLEMENT_CONSUMPTION_RECORDED_EVENT_TYPE,
+            &self.consumption_id,
+        )
+    }
+}
+
 pub fn decide_billing_provider_webhook(
     event: BillingProviderWebhookEvent,
 ) -> BillingProviderWebhookDecision {
@@ -315,10 +461,14 @@ pub fn decide_billing_provider_webhook(
         && event.duplicate_state == BillingProviderDuplicateState::Fresh
         && event.account_match_state == BillingAccountMatchState::Matched;
     let manual_review_required = !accepted
-        || event.event_kind == BillingProviderEventKind::DisputeOpened
+        || matches!(
+            event.event_kind,
+            BillingProviderEventKind::DisputeOpened | BillingProviderEventKind::RefundIssued
+        )
         || event.lifecycle_state == BillingSubscriptionLifecycleState::Disputed
         || event.lifecycle_state == BillingSubscriptionLifecycleState::Unknown;
     let entitlement_update_required = accepted
+        && event.event_kind != BillingProviderEventKind::RefundIssued
         && matches!(
             event.lifecycle_state,
             BillingSubscriptionLifecycleState::Active
@@ -348,6 +498,57 @@ pub fn decide_billing_provider_webhook(
     }
 }
 
+pub fn decide_child_entitlement_snapshot(
+    snapshot: BillingChildEntitlementSnapshot,
+) -> BillingChildEntitlementConsumptionDecision {
+    if let Some(rejection_reason) = child_entitlement_snapshot_rejection_reason(&snapshot) {
+        return BillingChildEntitlementConsumptionDecision {
+            snapshot_id: snapshot.snapshot_id,
+            child_device_id: snapshot.child_device_id,
+            decision_state: BillingChildEntitlementConsumptionState::Rejected,
+            lifecycle_state: snapshot.lifecycle_state,
+            access_state: BillingChildEntitlementAccessState::NoChange,
+            write_state: BillingEntitlementWriteState::DoNotWrite,
+            manual_review_requirement: BillingManualReviewRequirement::Required,
+            rejection_reason: Some(rejection_reason),
+        };
+    }
+
+    let (access_state, manual_review_requirement) = match snapshot.lifecycle_state {
+        BillingSubscriptionLifecycleState::Active => (
+            BillingChildEntitlementAccessState::FullAccess,
+            BillingManualReviewRequirement::NotRequired,
+        ),
+        BillingSubscriptionLifecycleState::PastDue => (
+            BillingChildEntitlementAccessState::LimitedAccess,
+            BillingManualReviewRequirement::NotRequired,
+        ),
+        BillingSubscriptionLifecycleState::Canceled => (
+            BillingChildEntitlementAccessState::Revoked,
+            BillingManualReviewRequirement::NotRequired,
+        ),
+        BillingSubscriptionLifecycleState::Disputed => (
+            BillingChildEntitlementAccessState::HoldForReview,
+            BillingManualReviewRequirement::Required,
+        ),
+        BillingSubscriptionLifecycleState::Unknown => (
+            BillingChildEntitlementAccessState::NoChange,
+            BillingManualReviewRequirement::Required,
+        ),
+    };
+
+    BillingChildEntitlementConsumptionDecision {
+        snapshot_id: snapshot.snapshot_id,
+        child_device_id: snapshot.child_device_id,
+        decision_state: BillingChildEntitlementConsumptionState::Accepted,
+        lifecycle_state: snapshot.lifecycle_state,
+        access_state,
+        write_state: BillingEntitlementWriteState::WriteRequired,
+        manual_review_requirement,
+        rejection_reason: None,
+    }
+}
+
 pub fn record_billing_provider_webhook_decision_event(
     event: BillingProviderWebhookReceivedEvent,
 ) -> BillingProviderWebhookDecisionRecordedEvent {
@@ -357,6 +558,21 @@ pub fn record_billing_provider_webhook_decision_event(
         decision_id: BillingDecisionId::parse(billing_decision_ref(&provider_event_id))
             .expect(ERROR_BILLING_DECISION_ID),
         decision: decide_billing_provider_webhook(event.provider_event),
+    }
+}
+
+pub fn record_child_entitlement_consumption_event(
+    event: BillingChildEntitlementSnapshotReceivedEvent,
+) -> BillingChildEntitlementConsumptionRecordedEvent {
+    let snapshot_id = event.snapshot.snapshot_id.clone();
+    let child_device_id = event.snapshot.child_device_id.clone();
+    BillingChildEntitlementConsumptionRecordedEvent {
+        aggregate_id: event.aggregate_id,
+        consumption_id: BillingChildEntitlementConsumptionId::parse(
+            billing_child_consumption_ref(&snapshot_id, &child_device_id),
+        )
+        .expect(ERROR_BILLING_CHILD_CONSUMPTION_ID),
+        decision: decide_child_entitlement_snapshot(event.snapshot),
     }
 }
 
@@ -443,4 +659,44 @@ fn billing_transition_ref(decision_id: &BillingDecisionId) -> String {
     let mut value = String::from(BILLING_TRANSITION_PREFIX);
     value.push_str(decision_id.as_str());
     value
+}
+
+fn billing_child_consumption_ref(
+    snapshot_id: &BillingEntitlementSnapshotId,
+    child_device_id: &BillingChildDeviceId,
+) -> String {
+    let mut value = String::from(BILLING_CHILD_CONSUMPTION_PREFIX);
+    value.push_str(snapshot_id.as_str());
+    value.push_str(BILLING_IDEMPOTENCY_SEPARATOR);
+    value.push_str(child_device_id.as_str());
+    value
+}
+
+fn child_entitlement_snapshot_rejection_reason(
+    snapshot: &BillingChildEntitlementSnapshot,
+) -> Option<BillingChildEntitlementRejectionReason> {
+    match snapshot.signature_state {
+        BillingChildSnapshotSignatureState::Missing => {
+            return Some(BillingChildEntitlementRejectionReason::MissingSignature);
+        }
+        BillingChildSnapshotSignatureState::Invalid => {
+            return Some(BillingChildEntitlementRejectionReason::InvalidSignature);
+        }
+        BillingChildSnapshotSignatureState::Trusted => {}
+    }
+
+    match snapshot.freshness_state {
+        BillingChildSnapshotFreshnessState::Stale => {
+            Some(BillingChildEntitlementRejectionReason::StaleSnapshot)
+        }
+        BillingChildSnapshotFreshnessState::Expired => {
+            Some(BillingChildEntitlementRejectionReason::ExpiredSnapshot)
+        }
+        BillingChildSnapshotFreshnessState::Fresh
+            if snapshot.lifecycle_state == BillingSubscriptionLifecycleState::Unknown =>
+        {
+            Some(BillingChildEntitlementRejectionReason::UnknownLifecycle)
+        }
+        BillingChildSnapshotFreshnessState::Fresh => None,
+    }
 }

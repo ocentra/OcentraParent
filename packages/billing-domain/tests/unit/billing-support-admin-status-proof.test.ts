@@ -46,7 +46,7 @@ function acceptsBillingSupportAdminStatusProof(): void {
     ]);
     expect(proof.providerClaim).toBe('not-executed');
     expect(proof.portalAdminUiClaim).toBe('not-implemented');
-    expect(proof.childActivityCustodyClaim).toBe('not-supported');
+    expect(proof.childActivityCustodyClaim).toBe('not-included');
   });
 }
 

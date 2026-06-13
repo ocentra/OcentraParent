@@ -3,7 +3,7 @@
   "private": true,
   "version": "0.1.1",
   "type": "module",
-  "description": "Operational logging contract boundary placeholder.",
+  "description": "Operational logging, audit history, redaction, provider custody, and support workflow contracts.",
   "exports": {
     "./contracts": {
       "import": "./dist/contracts.js",

@@ -3,7 +3,7 @@
   "private": true,
   "version": "0.1.1",
   "type": "module",
-  "description": "Device activity contract boundary placeholder.",
+  "description": "Device activity capture, journal, read-model, and family aggregation contracts.",
   "exports": {
     "./activity-family-aggregation": {
       "import": "./dist/activity-family-aggregation.js",

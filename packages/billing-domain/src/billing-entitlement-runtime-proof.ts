@@ -264,8 +264,8 @@ export const BillingEntitlementRuntimeProofReadModel = BillingEntitlementRuntime
   refundCreditClaim: 'manual-required',
   productionBillingClaim: 'not-claimed',
   portalUiClaim: 'not-implemented',
-  childCustodyClaim: 'not-supported',
-  childActivityCustodyClaim: 'not-supported',
+  childCustodyClaim: 'signed-snapshot-consumption-contract',
+  childActivityCustodyClaim: 'not-included',
   updatedAt: Timestamp,
 });
 
@@ -274,7 +274,7 @@ export const BillingEntitlementRuntimeProof = BillingEntitlementRuntimeProofRead
 export const BillingEntitlementRuntimeKnownGaps = [
   'Stripe/live provider execution remains unimplemented.',
   'Provider contact, refund, and credit actions remain manual-required support/admin states.',
-  'Entitlement signing/delivery runtime and child-device consumption remain unimplemented.',
+  'Child-device entitlement runtime is limited to signed local snapshot consumption and does not execute live provider delivery.',
   'Portal billing UI and production subscription support remain unclaimed.',
 ] as const;
 
@@ -296,6 +296,7 @@ function billingEntitlementRuntimeProofIsHonest(proof: {
     readonly childActivityCustody: 'not-included';
   }>;
   readonly nonClaims: ReadonlyArray<BillingEntitlementRuntimeNonClaim>;
+  readonly childCustodyClaim: 'signed-snapshot-consumption-contract' | 'not-supported';
 }): boolean {
   const requiredNonClaims: ReadonlyArray<BillingEntitlementRuntimeNonClaim> = [
     'no-stripe-sdk',
@@ -329,7 +330,8 @@ function billingEntitlementRuntimeProofIsHonest(proof: {
     ) &&
     proof.failureConsumptions.every(
       (row) => row.failureState.existingLocalSafetyContinues && row.childActivityCustody === 'not-included'
-    )
+    ) &&
+    proof.childCustodyClaim === 'signed-snapshot-consumption-contract'
   );
 }
 

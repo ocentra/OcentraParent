@@ -49,7 +49,7 @@ export const BillingSupportAdminProviderSecretCustodySchema = withParser(Schema.
 export const BillingSupportAdminPortalUiClaimSchema = withParser(Schema.Literal('not-implemented'));
 export const BillingSupportAdminProviderContactClaimSchema = withParser(Schema.Literal('not-executed'));
 export const BillingSupportAdminBackendUploadClaimSchema = withParser(Schema.Literal('not-executed'));
-export const BillingSupportAdminChildActivityCustodyClaimSchema = withParser(Schema.Literal('not-supported'));
+export const BillingSupportAdminChildActivityCustodyClaimSchema = withParser(Schema.Literal('not-included'));
 
 export const BillingSupportAdminBoundaryIdSchema = brandedNonEmptyStringSchema('BillingSupportAdminBoundaryId');
 export const BillingSupportAdminCaseReferenceSchema = brandedNonEmptyStringSchema('BillingSupportAdminCaseReference');

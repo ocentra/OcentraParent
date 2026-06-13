@@ -60,7 +60,7 @@ export const BillingSupportAdminStatusEvidenceExportAccessSchema = withParser(Sc
 export const BillingSupportAdminStatusLocalSafetyClaimSchema = withParser(Schema.Literal('continues'));
 export const BillingSupportAdminStatusProviderClaimSchema = withParser(Schema.Literal('not-executed'));
 export const BillingSupportAdminStatusPortalClaimSchema = withParser(Schema.Literal('not-implemented'));
-export const BillingSupportAdminStatusChildActivityCustodyClaimSchema = withParser(Schema.Literal('not-supported'));
+export const BillingSupportAdminStatusChildActivityCustodyClaimSchema = withParser(Schema.Literal('not-included'));
 
 export const BillingSupportAdminStatusIdSchema = brandedNonEmptyStringSchema('BillingSupportAdminStatusId');
 export const BillingSupportAdminStatusAuditReferenceSchema = brandedNonEmptyStringSchema('BillingSupportAdminStatusAuditReference');

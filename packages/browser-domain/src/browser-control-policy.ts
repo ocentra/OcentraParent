@@ -688,7 +688,7 @@ export function browserControlManifestAllowsPatchRequest(
   return request.patches.every((patch) => browserControlManifestAllowsPatch(manifest, patch));
 }
 
-export function browserControlCreateScaffoldUnavailableResponse(
+export function browserControlCreateStorageUnavailableResponse(
   requestId: BrowserControlRequestId,
   kind: BrowserControlUpdateKind
 ): BrowserControlUpdateResponse {
@@ -700,9 +700,9 @@ export function browserControlCreateScaffoldUnavailableResponse(
     policy: null,
     effectivePolicy: null,
     capabilityRegistry: null,
-    rejectionReason: 'scaffold-unavailable',
+    rejectionReason: 'storage-unavailable',
     auditEventId: null,
-    message: 'Browser policy persistence and compiler are not implemented in this scaffold slice.',
+    message: 'Browser policy storage is unavailable.',
   });
 }
 

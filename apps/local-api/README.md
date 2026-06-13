@@ -1,19 +1,13 @@
 # Local API App
 
-Reserved local query/control API package placeholder.
+Typed local query/control API contract package for routes owned by the Rust agent service.
 
-The current localhost dev API is hosted by the Rust agent service. Keep this package empty until there is a TypeScript-specific boundary that should not live in the Rust service.
+The current localhost dev API is hosted by the Rust agent service. This package does not implement a second server; it exposes the UI-facing route and command manifest that points back to `crates/agent-service`.
 
 ## Ownership
 
-This workspace should remain empty until there is a concrete TypeScript runtime
-boundary that cannot belong to `crates/agent-service` or a platform shell.
-
-Possible future use:
-
-- parent-owned report compile helper that runs outside Ocentra-hosted services;
-- local-only bridge that cannot be expressed cleanly in Rust;
-- typed API harness for a future packaging target.
+This workspace owns TypeScript contract metadata for local agent-service routes,
+WebSocket command transport, and route ownership checks.
 
 ## Must Not Own
 

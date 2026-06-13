@@ -2296,6 +2296,7 @@ dependencies = [
  "ocentra-lan-core",
  "ocentra-network-core",
  "ocentra-parent-agent-protocol",
+ "ocentra-policy-control-core",
  "ocentra-provisioning-core",
  "ocentra-remote-access-core",
  "ocentra-screen-core",
