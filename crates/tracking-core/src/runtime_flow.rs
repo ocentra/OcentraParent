@@ -265,6 +265,7 @@ pub fn tracking_geofence_transition_from_evidence(
         event.child_device_id.clone(),
         event.child_profile_id.clone(),
         event.source_observation_id.clone(),
+        event.source_observed_at.clone(),
         TrackingGeofenceRuleRef::parse(constants::tracking_runtime::DEFAULT_GEOFENCE_RULE_REF)
             .expect(constants::tracking_runtime::DEFAULT_GEOFENCE_RULE_REF),
         evaluation,
@@ -294,7 +295,7 @@ pub fn tracking_parent_acknowledgement_from_notification(
         child_profile_id: event.child_profile_id.clone(),
         acknowledgement_id: tracking_acknowledgement_id(&event.source_policy_violation_id),
         source_policy_violation_id: event.source_policy_violation_id.clone(),
-        acknowledged_at: tracking_timestamp(TrackingTimestampKind::DefaultObservedAt),
+        acknowledged_at: event.requested_at.clone(),
         acknowledgement_state: tracking_acknowledgement_state(
             TrackingAcknowledgementStateValue::Acknowledged,
         ),

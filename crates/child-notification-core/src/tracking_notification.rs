@@ -15,6 +15,7 @@ pub fn request_parent_notification_from_policy_violation(
             constants::tracking_runtime::NOTIFICATION_CHANNEL_PARENT_PORTAL,
         )
         .expect(constants::tracking_runtime::NOTIFICATION_CHANNEL_PARENT_PORTAL),
+        requested_at: event.detected_at.clone(),
         evidence_refs: event.evidence_refs.clone(),
     }
 }

@@ -136,6 +136,7 @@ fn parent_notification_can_be_acknowledged_without_reopening_policy_authority() 
             constants::tracking_runtime::NOTIFICATION_CHANNEL_PARENT_PORTAL,
         )
         .expect(constants::tracking_runtime::NOTIFICATION_CHANNEL_PARENT_PORTAL),
+        requested_at: observed.observed_at.clone(),
         evidence_refs: vec![evidence.evidence_ref],
     };
     let acknowledgement =
@@ -156,6 +157,7 @@ fn parent_notification_can_be_acknowledged_without_reopening_policy_authority() 
         acknowledgement.acknowledgement_id,
         tracking_acknowledgement_id_from_violation_id(&notification.source_policy_violation_id)
     );
+    assert_eq!(acknowledgement.acknowledged_at, notification.requested_at);
     assert_eq!(acknowledgement.evidence_refs, notification.evidence_refs);
 }
 

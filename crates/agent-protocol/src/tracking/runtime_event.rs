@@ -147,6 +147,7 @@ pub struct TrackingGeofenceTransitionDetectedEvent {
     pub transition_id: TrackingTransitionId,
     pub geofence_rule_ref: TrackingGeofenceRuleRef,
     pub source_observation_id: TrackingObservationId,
+    pub source_observed_at: TrackingTimestamp,
     pub transition_kind: TrackingTransitionKind,
     pub capability_status: TrackingCapabilityStatus,
     pub distance_meters: Option<u32>,
@@ -163,6 +164,7 @@ pub struct TrackingExpectedPlaceStateEvaluatedEvent {
     pub schedule_id: TrackingScheduleId,
     pub expected_place_ref: TrackingExpectedPlaceRef,
     pub source_observation_id: TrackingObservationId,
+    pub source_observed_at: TrackingTimestamp,
     pub expected_place_state: TrackingExpectedPlaceState,
     pub reason_codes: Vec<TrackingReasonCode>,
     pub evidence_refs: Vec<TrackingEvidenceRef>,
@@ -177,6 +179,7 @@ pub struct TrackingPolicyViolationDetectedEvent {
     pub violation_id: TrackingPolicyViolationId,
     pub policy_rule_ref: TrackingPolicyRuleRef,
     pub severity: TrackingPolicySeverity,
+    pub detected_at: TrackingTimestamp,
     pub evidence_refs: Vec<TrackingEvidenceRef>,
 }
 
@@ -212,6 +215,7 @@ pub struct ParentNotificationRequestedEvent {
     pub notification_id: TrackingNotificationId,
     pub source_policy_violation_id: TrackingPolicyViolationId,
     pub channel: TrackingNotificationChannel,
+    pub requested_at: TrackingTimestamp,
     pub evidence_refs: Vec<TrackingEvidenceRef>,
 }
 

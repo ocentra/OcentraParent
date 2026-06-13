@@ -28,6 +28,7 @@ fn geofence_transition_marks_low_accuracy_boundaries_as_ambiguous() {
         transition.reason_codes[0],
         constants::tracking_runtime::REASON_LOCATION_ACCURACY_BELOW_RULE_THRESHOLD
     );
+    assert_eq!(transition.source_observed_at, observed.observed_at);
 }
 
 #[test]
@@ -57,4 +58,5 @@ fn geofence_transition_rejects_stale_location_as_stale_at_place() {
         transition.reason_codes[0],
         constants::tracking_runtime::REASON_STALE_LOCATION_REJECTED
     );
+    assert_eq!(transition.source_observed_at, observed.observed_at);
 }

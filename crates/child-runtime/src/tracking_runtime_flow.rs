@@ -10,7 +10,7 @@ use ocentra_parent_agent_protocol::{
     TrackingChildCheckInRecordedEvent, TrackingEvidenceRecordedEvent,
     TrackingExpectedPlaceStateEvaluatedEvent, TrackingGeofenceTransitionDetectedEvent,
     TrackingLocationObservedEvent, TrackingNearbyPlaceClassifiedEvent,
-    TrackingNotificationMode, TrackingPolicyViolationDetectedEvent,
+    TrackingNotificationMode, TrackingPolicyViolationDetectedEvent, TrackingTimestamp,
 };
 use ocentra_tracking_core::{
     TrackingAiBoundaryDecision, TrackingAlertDecision,
@@ -81,10 +81,15 @@ impl TrackingRuntimeEventFlow {
     ) -> Result<TrackingRuntimeEventFlowReport, EventingError> {
         self.state.reset_for_new_observation();
         let correlation_suffix = event.observation_id.as_str().to_owned();
+        let recorded_at = event.observed_at.clone();
         self.bus
             .publish(
                 event,
-                tracking_runtime_metadata(TrackingRuntimeHop::LocationObserved, &correlation_suffix)?,
+                tracking_runtime_metadata(
+                    TrackingRuntimeHop::LocationObserved,
+                    &correlation_suffix,
+                    &recorded_at,
+                )?,
             )
             .await?;
 
@@ -169,6 +174,7 @@ async fn subscribe_tracking_location_observed_events(
                         tracking_runtime_metadata(
                             TrackingRuntimeHop::EvidenceRecorded,
                             evidence.evidence_ref.as_str(),
+                            &evidence.source_observed_at,
                         )?,
                     )
                     .await?;
@@ -183,6 +189,7 @@ async fn subscribe_tracking_location_observed_events(
                         tracking_runtime_metadata(
                             TrackingRuntimeHop::GeofenceTransitionDetected,
                             geofence.transition_id.as_str(),
+                            &geofence.source_observed_at,
                         )?,
                     )
                     .await?;
@@ -197,6 +204,7 @@ async fn subscribe_tracking_location_observed_events(
                         tracking_runtime_metadata(
                             TrackingRuntimeHop::ExpectedPlaceStateEvaluated,
                             expected_place.evaluation_id.as_str(),
+                            &expected_place.source_observed_at,
                         )?,
                     )
                     .await?;
@@ -213,6 +221,7 @@ async fn subscribe_tracking_location_observed_events(
                         tracking_runtime_metadata(
                             TrackingRuntimeHop::ChildCheckInRecorded,
                             check_in.check_in_id.as_str(),
+                            &check_in.checked_in_at,
                         )?,
                     )
                     .await?;
@@ -226,6 +235,7 @@ async fn subscribe_tracking_location_observed_events(
                             tracking_runtime_metadata(
                                 TrackingRuntimeHop::AiAnalysisRequested,
                                 ai_request.ai_request_id.as_str(),
+                                &ai_request.source_observed_at,
                             )?,
                         )
                         .await?;
@@ -266,6 +276,7 @@ async fn subscribe_child_ai_tracking_analysis_events(
                         tracking_runtime_metadata(
                             TrackingRuntimeHop::NearbyPlaceClassified,
                             classified.source_ai_request_id.as_str(),
+                            &classified.source_observed_at,
                         )?,
                     )
                     .await?;
@@ -322,6 +333,7 @@ async fn subscribe_child_policy_tracking_analysis_events(
                             tracking_runtime_metadata(
                                 TrackingRuntimeHop::PolicyViolationDetected,
                                 violation.violation_id.as_str(),
+                                &violation.detected_at,
                             )?,
                         )
                         .await?;
@@ -365,6 +377,7 @@ async fn subscribe_child_policy_tracking_expected_place_events(
                             tracking_runtime_metadata(
                                 TrackingRuntimeHop::PolicyViolationDetected,
                                 violation.violation_id.as_str(),
+                                &violation.detected_at,
                             )?,
                         )
                         .await?;
@@ -423,13 +436,14 @@ async fn subscribe_child_notification_policy_events(
                 context
                     .publisher()
                     .publish(
-                        notification.clone(),
-                        tracking_runtime_metadata(
-                            TrackingRuntimeHop::ParentNotificationRequested,
-                            notification.notification_id.as_str(),
-                        )?,
-                    )
-                    .await?;
+                            notification.clone(),
+                            tracking_runtime_metadata(
+                                TrackingRuntimeHop::ParentNotificationRequested,
+                                notification.notification_id.as_str(),
+                                &notification.requested_at,
+                            )?,
+                        )
+                        .await?;
                 Ok(())
             }
         },
@@ -762,6 +776,7 @@ impl TrackingRuntimeHop {
 fn tracking_runtime_metadata(
     hop: TrackingRuntimeHop,
     correlation_suffix: &str,
+    recorded_at: &TrackingTimestamp,
 ) -> Result<EventMetadata, EventingError> {
     Ok(EventMetadata::from_parts(
         EventId::generated(),
@@ -773,7 +788,7 @@ fn tracking_runtime_metadata(
             SourceComponent::parse(hop.source_component())?,
             RuntimeInstanceId::parse(constants::child_agent::RUNTIME_INSTANCE_LOCAL_CHILD_AGENT)?,
         ),
-        RecordedAt::parse(constants::tracking_runtime::DEFAULT_OBSERVED_AT)?,
+        RecordedAt::parse(recorded_at.as_str())?,
         Some(TargetHandler::parse(hop.target_handler())?),
     ))
 }

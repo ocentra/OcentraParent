@@ -1,7 +1,7 @@
 use ocentra_parent_agent_protocol::{
     constants, TrackingAlertSeverity, TrackingChildDeviceId, TrackingChildProfileId,
     TrackingEvidenceRef, TrackingPolicyRuleRef, TrackingPolicySeverity,
-    TrackingPolicyViolationDetectedEvent, TrackingPolicyViolationId,
+    TrackingPolicyViolationDetectedEvent, TrackingPolicyViolationId, TrackingTimestamp,
 };
 use ocentra_tracking_core::TrackingParentNotificationDecisionState;
 
@@ -22,6 +22,8 @@ fn alert_decision_rate_limits_duplicate_parent_notifications() {
         .expect(constants::tracking_runtime::POLICY_RULE_EXPECTED_PLACE),
         severity: TrackingPolicySeverity::parse(constants::tracking_runtime::POLICY_SEVERITY_REVIEW)
             .expect(constants::tracking_runtime::POLICY_SEVERITY_REVIEW),
+        detected_at: TrackingTimestamp::parse(constants::tracking_runtime::DEFAULT_OBSERVED_AT)
+            .expect(constants::tracking_runtime::DEFAULT_OBSERVED_AT),
         evidence_refs: vec![
             TrackingEvidenceRef::parse(constants::tracking_runtime::DEFAULT_EVIDENCE_REF)
                 .expect(constants::tracking_runtime::DEFAULT_EVIDENCE_REF),

@@ -3,7 +3,7 @@ use ocentra_parent_agent_protocol::{
     constants, TrackingCapabilityStatus, TrackingChildDeviceId, TrackingChildProfileId,
     TrackingEvidenceRef, TrackingParentActionRequirement, TrackingPolicyRuleRef,
     TrackingPolicySeverity, TrackingPolicyViolationDetectedEvent, TrackingPolicyViolationId,
-    TrackingRuntimeMode,
+    TrackingRuntimeMode, TrackingTimestamp,
 };
 use ocentra_tracking_core::TrackingGeofenceInsideState;
 
@@ -80,6 +80,8 @@ fn tracking_parent_acknowledgement_event_uses_protocol_contract() {
             constants::tracking_runtime::POLICY_SEVERITY_REVIEW,
         )
         .expect(constants::tracking_runtime::POLICY_SEVERITY_REVIEW),
+        detected_at: TrackingTimestamp::parse(constants::tracking_runtime::DEFAULT_OBSERVED_AT)
+            .expect(constants::tracking_runtime::DEFAULT_OBSERVED_AT),
         evidence_refs: vec![TrackingEvidenceRef::parse(
             constants::tracking_runtime::DEFAULT_EVIDENCE_REF,
         )
@@ -95,4 +97,5 @@ fn tracking_parent_acknowledgement_event_uses_protocol_contract() {
         contract.event_type.as_str(),
         constants::tracking_runtime::TRACKING_PARENT_ACKNOWLEDGEMENT_RECORDED_EVENT_TYPE
     );
+    assert_eq!(acknowledgement.acknowledged_at, violation.detected_at);
 }

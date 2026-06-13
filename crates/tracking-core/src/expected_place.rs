@@ -47,6 +47,7 @@ pub fn evaluate_expected_place_state(
         schedule_id: evaluation.schedule_id,
         expected_place_ref: event.expected_place_ref.clone(),
         source_observation_id: event.source_observation_id.clone(),
+        source_observed_at: event.source_observed_at.clone(),
         expected_place_state: TrackingExpectedPlaceState::parse(expected_place_state)
             .expect(constants::tracking_runtime::EXPECTED_PLACE_STATE_UNKNOWN),
         reason_codes,
