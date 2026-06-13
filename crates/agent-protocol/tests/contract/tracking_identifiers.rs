@@ -3,15 +3,22 @@ use ocentra_parent_agent_protocol::{
     tracking_ai_request_id_from_evidence_ref, tracking_alert_evaluation_id_from_violation_id,
     tracking_check_in_id_from_observation_id, tracking_evaluation_id_from_observation_id,
     tracking_evidence_ref_from_observation_id, tracking_notification_id_from_violation_id,
+    tracking_missing_device_evaluation_id_from_child_device_id,
+    tracking_parent_defined_place_id_from_evidence_ref,
+    tracking_temporary_live_session_id_from_child_device_id,
     tracking_transition_id_from_observation_id, tracking_violation_id_from_ai_request_and_rule_ref,
-    tracking_violation_id_from_evaluation_and_rule_ref, TrackingObservationId,
-    TrackingPolicyRuleRef,
+    tracking_violation_id_from_evaluation_and_rule_ref, TrackingChildDeviceId,
+    TrackingObservationId, TrackingPolicyRuleRef,
 };
 
 #[test]
 fn tracking_derived_identifiers_use_source_refs_and_protocol_prefixes() {
     let observation_id = TrackingObservationId::parse("tracking-observation-42")
         .expect("tracking observation fixture parses");
+    let child_device_id = TrackingChildDeviceId::parse(
+        constants::tracking_runtime::DEFAULT_CHILD_DEVICE_ID,
+    )
+    .expect(constants::tracking_runtime::DEFAULT_CHILD_DEVICE_ID);
     let policy_rule_ref = TrackingPolicyRuleRef::parse(
         constants::tracking_runtime::POLICY_RULE_EXPECTED_PLACE,
     )
@@ -29,6 +36,12 @@ fn tracking_derived_identifiers_use_source_refs_and_protocol_prefixes() {
     let notification_id = tracking_notification_id_from_violation_id(&ai_violation_id);
     let acknowledgement_id = tracking_acknowledgement_id_from_violation_id(&ai_violation_id);
     let alert_evaluation_id = tracking_alert_evaluation_id_from_violation_id(&ai_violation_id);
+    let temporary_live_session_id =
+        tracking_temporary_live_session_id_from_child_device_id(&child_device_id);
+    let missing_device_evaluation_id =
+        tracking_missing_device_evaluation_id_from_child_device_id(&child_device_id);
+    let parent_defined_place_id =
+        tracking_parent_defined_place_id_from_evidence_ref(&evidence_ref);
 
     assert_eq!(
         evidence_ref.as_str(),
@@ -69,5 +82,17 @@ fn tracking_derived_identifiers_use_source_refs_and_protocol_prefixes() {
     assert_eq!(
         alert_evaluation_id.as_str(),
         "tracking.alert.evaluated:tracking.policy.violation.detected:tracking.ai.analysis.requested:tracking.evidence.recorded:tracking-observation-42:policy.expected-place"
+    );
+    assert_eq!(
+        temporary_live_session_id.as_str(),
+        "tracking.temporary-live.session:child-device-default"
+    );
+    assert_eq!(
+        missing_device_evaluation_id.as_str(),
+        "tracking.missing-device.evaluation:child-device-default"
+    );
+    assert_eq!(
+        parent_defined_place_id.as_str(),
+        "tracking.parent-defined-place:tracking.evidence.recorded:tracking-observation-42"
     );
 }

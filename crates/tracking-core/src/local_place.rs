@@ -1,9 +1,11 @@
 use ocentra_parent_agent_protocol::{
     constants, TrackingEvidenceRef, TrackingParentDefinedPlaceId, TrackingParentDefinedPlaceState,
+    tracking_parent_defined_place_id_from_evidence_ref,
 };
 
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub struct TrackingParentDefinedPlaceInput {
+    pub source_evidence_ref: TrackingEvidenceRef,
     pub radius_meters: u16,
     pub evidence_refs: Vec<TrackingEvidenceRef>,
 }
@@ -25,10 +27,7 @@ pub fn evaluate_parent_defined_place(
     };
 
     TrackingParentDefinedPlaceDecision {
-        place_id: TrackingParentDefinedPlaceId::parse(
-            constants::tracking_runtime::DEFAULT_PARENT_DEFINED_PLACE_ID,
-        )
-        .expect(constants::tracking_runtime::DEFAULT_PARENT_DEFINED_PLACE_ID),
+        place_id: tracking_parent_defined_place_id_from_evidence_ref(&input.source_evidence_ref),
         place_state: TrackingParentDefinedPlaceState::parse(place_state)
             .expect(constants::tracking_runtime::PARENT_DEFINED_PLACE_STATE_ACCEPTED),
         evidence_refs: input.evidence_refs,

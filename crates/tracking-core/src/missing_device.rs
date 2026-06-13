@@ -1,5 +1,6 @@
 use ocentra_parent_agent_protocol::{
     constants, TrackingMissingDeviceEvaluationId, TrackingMissingDeviceState,
+    tracking_missing_device_evaluation_id_from_child_device_id,
 };
 
 use crate::{evaluate_tracking_device_status, TrackingDeviceStatusInput};
@@ -20,15 +21,13 @@ pub struct TrackingMissingDeviceDecision {
 pub fn evaluate_missing_device_mode(
     input: TrackingDeviceStatusInput,
 ) -> TrackingMissingDeviceDecision {
+    let child_device_id = input.child_device_id.clone();
     let status = evaluate_tracking_device_status(input);
     let missing =
         status.device_status == constants::tracking_runtime::DEVICE_STATUS_OFFLINE_LAST_KNOWN_ONLY;
 
     TrackingMissingDeviceDecision {
-        evaluation_id: TrackingMissingDeviceEvaluationId::parse(
-            constants::tracking_runtime::DEFAULT_MISSING_DEVICE_EVALUATION_ID,
-        )
-        .expect(constants::tracking_runtime::DEFAULT_MISSING_DEVICE_EVALUATION_ID),
+        evaluation_id: tracking_missing_device_evaluation_id_from_child_device_id(&child_device_id),
         missing_device_state: TrackingMissingDeviceState::parse(if missing {
             constants::tracking_runtime::MISSING_DEVICE_STATE_LAST_KNOWN_ONLY
         } else {

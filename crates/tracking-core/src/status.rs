@@ -1,5 +1,5 @@
 use ocentra_evidence::ManualReviewState;
-use ocentra_parent_agent_protocol::constants;
+use ocentra_parent_agent_protocol::{constants, TrackingChildDeviceId};
 
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub enum TrackingLowPowerModeState {
@@ -82,6 +82,7 @@ pub enum TrackingCapabilityAvailabilityState {
 
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub struct TrackingDeviceStatusInput {
+    pub child_device_id: TrackingChildDeviceId,
     pub last_heartbeat_age_seconds: u32,
     pub last_location_sample_age_seconds: u32,
     pub last_parent_sync_age_seconds: u32,
