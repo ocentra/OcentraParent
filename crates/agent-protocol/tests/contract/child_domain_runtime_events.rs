@@ -5,7 +5,8 @@ use ocentra_parent_agent_protocol::{
     child_domain_evidence_recorded_event, child_domain_notification_requested_event,
     child_domain_evidence_ref_from_observation_id,
     child_domain_notification_id_from_policy_violation_id,
-    child_domain_observed_event, child_domain_policy_evaluation_requested_from_ai_result_event,
+    child_domain_observation_id_from_subject_ref, child_domain_observed_event,
+    child_domain_policy_evaluation_requested_from_ai_result_event,
     child_domain_policy_request_id_from_fact_ref,
     child_domain_policy_violation_id_from_policy_request_id,
     child_domain_policy_violation_detected_event, constants, ChildDomainEventType,
@@ -34,6 +35,14 @@ fn child_domain_events_expose_eventing_contract_keys_without_local_shape_duplica
     assert_eq!(
         observed_contract.schema_version.value(),
         AGENT_PROTOCOL_SCHEMA_VERSION
+    );
+    assert_eq!(
+        observed.observation_id,
+        child_domain_observation_id_from_subject_ref(
+            ChildRuntimeDomain::Browser,
+            &observed.subject_ref,
+            &observed.observed_state
+        )
     );
     assert_eq!(
         evidence.evidence_ref,

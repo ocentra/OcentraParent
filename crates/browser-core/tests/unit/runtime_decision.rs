@@ -6,6 +6,10 @@ use ocentra_browser_core::{
     BrowserForegroundState, BrowserObservationIntent, BrowserPolicyHandoffState,
     BrowserRuntimeActionState, BrowserRuntimeDecisionId, BrowserRuntimeInput,
 };
+use ocentra_parent_agent_protocol::{
+    child_domain_evidence_ref_from_observation_id, child_domain_observation_id_from_subject_ref,
+    ChildRuntimeDomain,
+};
 
 #[test]
 fn foreground_known_policy_navigation_publishes_policy_without_ai() {
@@ -33,6 +37,14 @@ fn foreground_known_policy_navigation_publishes_policy_without_ai() {
             .expect("known navigation should publish policy evidence")
             .evidence_refs,
         vec![evidence.evidence_ref]
+    );
+    assert_eq!(
+        observed.observation_id,
+        child_domain_observation_id_from_subject_ref(
+            ChildRuntimeDomain::Browser,
+            &observed.subject_ref,
+            &observed.observed_state
+        )
     );
 }
 
@@ -110,6 +122,24 @@ fn background_inventory_navigation_records_typed_runtime_decision() {
     assert_eq!(
         event.decision.policy_handoff_state,
         BrowserPolicyHandoffState::DoNotPublish
+    );
+}
+
+#[test]
+fn browser_runtime_observed_event_drives_derived_evidence_chain() {
+    let observed = browser_runtime_observed_event(BrowserRuntimeInput {
+        capability_state: BrowserCapabilityState::Supported,
+        foreground_state: BrowserForegroundState::Foreground,
+        classification_state: BrowserClassificationState::KnownPolicyNavigation,
+    });
+    let evidence = browser_evidence_recorded_event(&observed);
+
+    assert_eq!(
+        evidence.evidence_ref,
+        child_domain_evidence_ref_from_observation_id(
+            ChildRuntimeDomain::Browser,
+            &observed.observation_id
+        )
     );
 }
 
