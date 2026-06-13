@@ -1,7 +1,7 @@
 use ocentra_eventing::DomainEvent;
 use ocentra_parent_agent_protocol::{
     child_tracking_config_updated_event_from_parent, constants,
-    default_tracking_retention_settings_write_request,
+    default_tracking_config_update_request,
     parent_tracking_config_updated_event_from_command,
     tracking_config_audit_entry_committed_event, tracking_config_change_approved_event,
     tracking_config_change_rejected_event, tracking_config_change_requested_event,
@@ -37,7 +37,7 @@ fn tracking_config_update_event_names_serialize_exact_contract_text() {
 
 #[test]
 fn tracking_config_update_applied_event_serializes_durable_child_runtime_result() {
-    let request = default_tracking_retention_settings_write_request();
+    let request = default_tracking_config_update_request();
     let command = command_envelope(&request.command_id);
     let parent_event = parent_tracking_config_updated_event_from_command(&command, request);
     let child_event = child_tracking_config_updated_event_from_parent(&parent_event);
@@ -75,13 +75,17 @@ fn tracking_config_update_applied_event_serializes_durable_child_runtime_result(
         serialized["effectiveTrackingState"],
         constants::tracking_config_update::EFFECTIVE_STATE_ENABLED
     );
+    assert_eq!(
+        serialized["target"]["scope"],
+        constants::tracking_config_update::TARGET_SCOPE_CHILD_DEVICE
+    );
     assert_eq!(serialized["localServiceStateRevision"], 7);
     assert_eq!(serialized["durableSettingsPersistenceState"], "persisted");
 }
 
 #[test]
 fn tracking_config_change_approval_chain_serializes_named_contract_and_refs() {
-    let request = default_tracking_retention_settings_write_request();
+    let request = default_tracking_config_update_request();
     let command = command_envelope(&request.command_id);
     let parent_event = parent_tracking_config_updated_event_from_command(&command, request);
     let change_requested = tracking_config_change_requested_event(
@@ -173,9 +177,15 @@ fn tracking_config_change_approval_chain_serializes_named_contract_and_refs() {
         serde_json::to_value(&decision).expect(constants::error::AGENT_EVENT_SERIALIZES);
     let serialized_portal =
         serde_json::to_value(&portal).expect(constants::error::AGENT_EVENT_SERIALIZES);
+    let serialized_requested =
+        serde_json::to_value(&change_requested).expect(constants::error::AGENT_EVENT_SERIALIZES);
 
     assert_eq!(serialized_decision["decisionState"], "approved");
     assert_eq!(serialized_decision["childRuntimePublishRequired"], true);
+    assert_eq!(
+        serialized_requested["config"]["runtimeConfig"]["trackingEnabledState"],
+        constants::tracking_config_update::EFFECTIVE_STATE_ENABLED
+    );
     assert_eq!(serialized_portal["updateKind"], "tracking-config-state");
     assert_eq!(serialized_portal["visibleManualRequired"], false);
     assert_eq!(serialized_portal["visibleUnavailable"], false);
@@ -183,7 +193,7 @@ fn tracking_config_change_approval_chain_serializes_named_contract_and_refs() {
 
 #[test]
 fn tracking_config_change_rejection_chain_serializes_manual_required_surface_state() {
-    let request = default_tracking_retention_settings_write_request();
+    let request = default_tracking_config_update_request();
     let command = command_envelope(&request.command_id);
     let parent_event = parent_tracking_config_updated_event_from_command(&command, request);
     let change_requested = tracking_config_change_requested_event(

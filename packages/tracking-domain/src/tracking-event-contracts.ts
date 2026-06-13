@@ -1,16 +1,13 @@
 import { AgentEventDeliveryMode, AgentEventEnvelopeSchema } from '@ocentra-parent/event-domain/primitives';
 import { EventingEventTypeSchema } from '@ocentra-parent/event-domain/eventing';
 import {
+  AgentTrackingConfigUpdateRequestSchema,
   AgentTrackingConfigUpdateEventType,
+  AgentTrackingRuntimeEnabledState,
+  AgentTrackingRuntimeEnabledStateSchema,
   TrackingConfigUpdateAppliedEventSchema,
 } from '@ocentra-parent/agent-protocol-domain/tracking-retention-settings-write-command';
-import {
-  ParentActorReferenceSchema,
-  ParentDeviceReferenceSchema,
-} from '@ocentra-parent/family-domain/references';
 import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
-import { TrackingRetentionPolicySchema } from './tracking-evidence';
-import { TrackingEvidenceSchemaVersion } from './tracking-primitives';
 
 export const TrackingRuntimeEventNameLiteral = {
   LocationObserved: 'tracking.location.observed',
@@ -24,18 +21,6 @@ export const TrackingRuntimeEventNameLiteral = {
   ChildCheckInRecorded: 'tracking.child-check-in.recorded',
   ParentNotificationRequested: 'tracking.parent.notification.requested',
 } as const;
-
-export const TrackingRuntimeEnabledStateLiteral = {
-  Enabled: 'enabled',
-  Disabled: 'disabled',
-} as const;
-
-export const TrackingRuntimeEnabledStateSchema = withParser(
-  Schema.Literal(
-    TrackingRuntimeEnabledStateLiteral.Enabled,
-    TrackingRuntimeEnabledStateLiteral.Disabled
-  )
-);
 
 export const TrackingEventNameSchema = withParser(
   Schema.Literal(
@@ -61,15 +46,7 @@ export const TrackingEventNameSchema = withParser(
   )
 );
 
-export const TrackingRuntimeConfigUpdatedPayloadSchema = withParser(
-  Schema.Struct({
-    schemaVersion: Schema.Literal(TrackingEvidenceSchemaVersion),
-    requestedBy: ParentActorReferenceSchema,
-    targetDevice: ParentDeviceReferenceSchema,
-    retentionPolicy: TrackingRetentionPolicySchema,
-    trackingEnabledState: TrackingRuntimeEnabledStateSchema,
-  })
-);
+export const TrackingRuntimeConfigUpdatedPayloadSchema = AgentTrackingConfigUpdateRequestSchema;
 
 export const TrackingRuntimeConfigUpdatedEventSchema = withParser(
   Schema.Struct({
@@ -182,7 +159,4 @@ export const TrackingEventName = {
   ),
 } as const;
 
-export const TrackingRuntimeEnabledState = {
-  Enabled: TrackingRuntimeEnabledStateSchema.parse(TrackingRuntimeEnabledStateLiteral.Enabled),
-  Disabled: TrackingRuntimeEnabledStateSchema.parse(TrackingRuntimeEnabledStateLiteral.Disabled),
-} as const;
+export { AgentTrackingRuntimeEnabledState as TrackingRuntimeEnabledState };

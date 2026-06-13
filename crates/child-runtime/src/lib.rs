@@ -32,7 +32,7 @@ pub use ocentra_parent_agent_protocol::{
     TrackingConfigUpdateResponse, TrackingConfigUpdateResponseState, TrackingConfigUpdateTarget,
     TrackingConfigUpdateTargetScope,
 };
-pub use ocentra_tracking_core::TrackingRetentionSettingsWriteAppliedState;
+pub use ocentra_tracking_core::TrackingConfigUpdateAppliedState;
 pub use runtime_gate::{
     child_runtime_remote_upload_allowed, evaluate_child_runtime_enforcement,
     evaluate_child_runtime_preflight, evaluate_child_runtime_remote_access,

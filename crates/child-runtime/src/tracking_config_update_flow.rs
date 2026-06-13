@@ -14,7 +14,7 @@ use ocentra_parent_agent_protocol::{
     TrackingConfigUpdateResponse, TrackingConfigUpdateResponseState,
     TrackingConfigUpdateTargetScope,
 };
-use ocentra_tracking_core::TrackingRetentionSettingsWriteAppliedState;
+use ocentra_tracking_core::TrackingConfigUpdateAppliedState;
 
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub struct TrackingConfigUpdateAppliedReport {
@@ -24,7 +24,7 @@ pub struct TrackingConfigUpdateAppliedReport {
     pub target_scope: TrackingConfigUpdateTargetScope,
     pub response_state: TrackingConfigUpdateResponseState,
     pub effective_tracking_state: TrackingConfigEffectiveState,
-    pub applied_state: TrackingRetentionSettingsWriteAppliedState,
+    pub applied_state: TrackingConfigUpdateAppliedState,
 }
 
 #[derive(Clone, Debug, PartialEq)]
@@ -216,7 +216,7 @@ fn tracking_config_update_response(
         schema_version: ocentra_parent_agent_protocol::AGENT_PROTOCOL_SCHEMA_VERSION,
         source_command_id: parent_event.source_command_id.clone(),
         response_state: applied_report.response_state,
-        effective_tracking_state: applied_report.effective_tracking_state,
+        effective_tracking_state: applied_report.applied_state.effective_tracking_state.clone(),
         child_event_type: applied_report.child_event_type,
         target: parent_event.target.clone(),
         local_service_state_revision: Some(
@@ -314,7 +314,7 @@ fn apply_child_tracking_config_updated_event(
     child_event: &ChildTrackingConfigUpdatedEvent,
 ) -> TrackingConfigUpdateAppliedReport {
     let applied_state = on_child_tracking_config_updated_event(child_event);
-    let effective_tracking_state = effective_tracking_state_from_applied_state(&applied_state);
+    let effective_tracking_state = applied_state.effective_tracking_state.clone();
 
     TrackingConfigUpdateAppliedReport {
         parent_event_type: child_event.parent_event_type.clone(),
@@ -329,8 +329,8 @@ fn apply_child_tracking_config_updated_event(
 
 fn on_child_tracking_config_updated_event(
     child_event: &ChildTrackingConfigUpdatedEvent,
-) -> TrackingRetentionSettingsWriteAppliedState {
-    ocentra_tracking_core::apply_tracking_retention_settings_write(&child_event.config)
+) -> TrackingConfigUpdateAppliedState {
+    ocentra_tracking_core::apply_tracking_config_update(&child_event.config)
 }
 
 fn parent_tracking_config_updated_metadata(
@@ -409,18 +409,6 @@ fn tracking_config_update_correlation_id(
     CorrelationId::parse(value)
 }
 
-fn effective_tracking_state_from_applied_state(
-    applied_state: &TrackingRetentionSettingsWriteAppliedState,
-) -> TrackingConfigEffectiveState {
-    if applied_state.durable_settings_persistence_state
-        == ocentra_parent_agent_protocol::TrackingDurableSettingsPersistenceState::Persisted
-    {
-        TrackingConfigEffectiveState::Enabled
-    } else {
-        TrackingConfigEffectiveState::Degraded
-    }
-}
-
 fn tracking_config_update_applied_event_from_report(
     child_event: &ChildTrackingConfigUpdatedEvent,
     applied_report: &TrackingConfigUpdateAppliedReport,
@@ -446,10 +434,11 @@ fn tracking_config_update_applied_report(
         target_scope: applied_event.target.scope.clone(),
         response_state: applied_event.response_state.clone(),
         effective_tracking_state: applied_event.effective_tracking_state.clone(),
-        applied_state: TrackingRetentionSettingsWriteAppliedState {
+        applied_state: TrackingConfigUpdateAppliedState {
             local_service_state_revision: applied_event.local_service_state_revision,
             durable_settings_persistence_state: applied_event
                 .durable_settings_persistence_state,
+            effective_tracking_state: applied_event.effective_tracking_state.clone(),
         },
     }
 }

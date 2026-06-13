@@ -4,9 +4,10 @@ use ocentra_parent_runtime_core::{
     ParentRuntimeOriginState,
 };
 use ocentra_parent_agent_protocol::{
-    constants, default_tracking_retention_settings_write_request, AgentCommandEnvelope,
-    AgentEventEnvelope, AgentEventName, ChildCommandKind, ChildCommandReceivedEvent,
-    LogFieldValue, LogLevel, ParentActionReceivedEvent, ParentChildCommandForwardRequestedEvent,
+    constants, default_tracking_retention_settings_write_request,
+    default_tracking_runtime_config, AgentCommandEnvelope, AgentEventEnvelope, AgentEventName,
+    ChildCommandKind, ChildCommandReceivedEvent, LogFieldValue, LogLevel,
+    ParentActionReceivedEvent, ParentChildCommandForwardRequestedEvent,
     ParentChildCommandTransportBoundary, ParentCommandRejectedEvent, ParentCommandValidatedEvent,
     ParentCommandValidationState, ParentControllerActionKind, ParentControllerSource,
     ParentTrackingConfigUpdatedEvent, parent_tracking_config_updated_event_from_command,
@@ -14,6 +15,7 @@ use ocentra_parent_agent_protocol::{
     TrackingConfigChangeApprovedEvent, TrackingConfigChangeRejectedEvent,
     TrackingConfigChangeRequestedEvent, TrackingConfigPolicyDecisionCompletedEvent,
     TrackingConfigPolicyEvaluationRequestedEvent, TrackingConfigPortalReadModelUpdatedEvent,
+    TrackingConfigUpdateRequest,
     TrackingDurableSettingsPersistenceState, TrackingExecutionClaimState, TrackingRemoteAiState,
     TrackingRemoteSyncState, TrackingRetentionWriteState,
     tracking_durable_settings_store_ref, tracking_local_service_state_snapshot_ref,
@@ -188,7 +190,14 @@ async fn execute_tracking_retention_settings_write_flow(
         };
     }
 
-    let parent_event = parent_tracking_config_updated_event_from_command(command, request.clone());
+    let parent_event = parent_tracking_config_updated_event_from_command(
+        command,
+        TrackingConfigUpdateRequest {
+            command_id: request.command_id.clone(),
+            runtime_config: default_tracking_runtime_config(),
+            retention_settings: request.clone(),
+        },
+    );
     let parent_command_validated =
         tracking_parent_command_validated_event(&request.command_id, &parent_action_received);
     let parent_runtime_flow = publish_parent_tracking_config_updated_event_flow(

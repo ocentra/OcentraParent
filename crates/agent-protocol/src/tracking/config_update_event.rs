@@ -5,13 +5,15 @@ use ocentra_eventing::{
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
 
 use crate::{
-    constants, AgentCommandEnvelope, AgentRoute, TrackingRetentionSettingsWriteRequest,
+    constants, AgentCommandEnvelope, AgentRoute,
     AGENT_PROTOCOL_SCHEMA_VERSION,
 };
 use super::{
+    default_tracking_retention_settings_write_request, default_tracking_runtime_config,
     TrackingAcceptedAt, TrackingDurableSettingsPersistenceState, TrackingPolicyRuleRef,
-    TrackingReadModelEventId, TrackingRetentionCommandId, TrackingSourceMessageId,
-    TrackingSourcePeerId, TrackingTargetDeviceId, TrackingTargetPlatform,
+    TrackingReadModelEventId, TrackingRetentionCommandId, TrackingRetentionSettingsWriteRequest,
+    TrackingRuntimeConfig, TrackingSourceMessageId, TrackingSourcePeerId, TrackingTargetDeviceId,
+    TrackingTargetPlatform,
 };
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
@@ -128,12 +130,20 @@ impl TrackingConfigUpdateTarget {
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
+pub struct TrackingConfigUpdateRequest {
+    pub command_id: TrackingRetentionCommandId,
+    pub runtime_config: TrackingRuntimeConfig,
+    pub retention_settings: TrackingRetentionSettingsWriteRequest,
+}
+
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub struct ParentTrackingConfigUpdatedEvent {
     pub source_command_id: TrackingRetentionCommandId,
     pub source_message_id: TrackingSourceMessageId,
     pub source_peer_id: TrackingSourcePeerId,
     pub target: TrackingConfigUpdateTarget,
-    pub config: TrackingRetentionSettingsWriteRequest,
+    pub config: TrackingConfigUpdateRequest,
 }
 
 impl DomainEvent for ParentTrackingConfigUpdatedEvent {
@@ -171,7 +181,7 @@ pub struct ChildTrackingConfigUpdatedEvent {
     pub parent_event_type: TrackingConfigUpdateEventName,
     pub source_command_id: TrackingRetentionCommandId,
     pub target: TrackingConfigUpdateTarget,
-    pub config: TrackingRetentionSettingsWriteRequest,
+    pub config: TrackingConfigUpdateRequest,
 }
 
 impl DomainEvent for ChildTrackingConfigUpdatedEvent {
@@ -286,7 +296,7 @@ pub struct TrackingConfigChangeRequestedEvent {
     pub source_message_id: TrackingSourceMessageId,
     pub source_peer_id: TrackingSourcePeerId,
     pub target: TrackingConfigUpdateTarget,
-    pub config: TrackingRetentionSettingsWriteRequest,
+    pub config: TrackingConfigUpdateRequest,
     pub requested_at: TrackingAcceptedAt,
 }
 
@@ -637,7 +647,7 @@ pub fn tracking_config_portal_read_model_updated_event(
 
 pub fn parent_tracking_config_updated_event_from_command(
     command: &AgentCommandEnvelope,
-    request: TrackingRetentionSettingsWriteRequest,
+    request: TrackingConfigUpdateRequest,
 ) -> ParentTrackingConfigUpdatedEvent {
     ParentTrackingConfigUpdatedEvent {
         source_command_id: request.command_id.clone(),
@@ -647,6 +657,15 @@ pub fn parent_tracking_config_updated_event_from_command(
             .expect(constants::peer::PORTAL_DEV),
         target: TrackingConfigUpdateTarget::from_command(command),
         config: request,
+    }
+}
+
+pub fn default_tracking_config_update_request() -> TrackingConfigUpdateRequest {
+    let retention_settings = default_tracking_retention_settings_write_request();
+    TrackingConfigUpdateRequest {
+        command_id: retention_settings.command_id.clone(),
+        runtime_config: default_tracking_runtime_config(),
+        retention_settings,
     }
 }
 
