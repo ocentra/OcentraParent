@@ -181,6 +181,7 @@ mod activity_query_tests;
 mod activity_surface_tests;
 #[cfg(test)]
 mod activity_tests;
+#[cfg(test)]
 mod app_game_authority_classifier_tests;
 #[cfg(test)]
 mod app_game_boundary_read_model_tests;
@@ -288,6 +289,7 @@ mod route_tests;
 mod screen_evidence_tests;
 #[cfg(test)]
 mod screen_settings_tests;
+#[cfg(test)]
 mod social_source_custody_mutation_tests;
 #[cfg(test)]
 mod tests;

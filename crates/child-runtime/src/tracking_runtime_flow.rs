@@ -75,6 +75,7 @@ impl TrackingRuntimeEventFlow {
         &self,
         event: TrackingLocationObservedEvent,
     ) -> Result<TrackingRuntimeEventFlowReport, EventingError> {
+        self.state.reset_for_new_observation();
         self.bus
             .publish(
                 event,
@@ -383,6 +384,45 @@ struct TrackingRuntimeEventState {
 }
 
 impl TrackingRuntimeEventState {
+    fn reset_for_new_observation(&self) {
+        *self
+            .evidence_recorded
+            .lock()
+            .expect(constants::tracking_runtime::ERROR_TRACKING_RUNTIME_FLOW_RECORDED) = None;
+        *self
+            .geofence_transition_detected
+            .lock()
+            .expect(constants::tracking_runtime::ERROR_TRACKING_RUNTIME_FLOW_RECORDED) = None;
+        *self
+            .expected_place_state_evaluated
+            .lock()
+            .expect(constants::tracking_runtime::ERROR_TRACKING_RUNTIME_FLOW_RECORDED) = None;
+        *self
+            .child_check_in_recorded
+            .lock()
+            .expect(constants::tracking_runtime::ERROR_TRACKING_RUNTIME_FLOW_RECORDED) = None;
+        *self
+            .ai_analysis_requested
+            .lock()
+            .expect(constants::tracking_runtime::ERROR_TRACKING_RUNTIME_FLOW_RECORDED) = None;
+        *self
+            .nearby_place_classified
+            .lock()
+            .expect(constants::tracking_runtime::ERROR_TRACKING_RUNTIME_FLOW_RECORDED) = None;
+        *self
+            .ai_boundary_decision
+            .lock()
+            .expect(constants::tracking_runtime::ERROR_TRACKING_RUNTIME_FLOW_RECORDED) = None;
+        *self
+            .policy_violation_detected
+            .lock()
+            .expect(constants::tracking_runtime::ERROR_TRACKING_RUNTIME_FLOW_RECORDED) = None;
+        *self
+            .parent_notification_requested
+            .lock()
+            .expect(constants::tracking_runtime::ERROR_TRACKING_RUNTIME_FLOW_RECORDED) = None;
+    }
+
     fn record_evidence(&self, event: TrackingEvidenceRecordedEvent) {
         *self
             .evidence_recorded
