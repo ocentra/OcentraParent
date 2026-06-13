@@ -284,6 +284,51 @@ async fn tracking_runtime_flow_clears_optional_state_between_observations() {
 }
 
 #[tokio::test]
+async fn tracking_runtime_flow_suppresses_duplicate_parent_notifications_on_repeated_violation() {
+    let runtime_flow = ocentra_child_runtime::TrackingRuntimeEventFlow::new()
+        .await
+        .expect(constants::tracking_runtime::ERROR_TRACKING_RUNTIME_FLOW_RECORDED);
+
+    let first_report = runtime_flow
+        .publish_location_observed(ocentra_tracking_core::default_location_observed_event())
+        .await
+        .expect(constants::tracking_runtime::ERROR_TRACKING_RUNTIME_FLOW_RECORDED);
+    let second_report = runtime_flow
+        .publish_location_observed(ocentra_tracking_core::default_location_observed_event())
+        .await
+        .expect(constants::tracking_runtime::ERROR_TRACKING_RUNTIME_FLOW_RECORDED);
+
+    assert_eq!(
+        first_report
+            .alert_decision
+            .as_ref()
+            .expect(constants::tracking_runtime::ERROR_TRACKING_RUNTIME_FLOW_RECORDED)
+            .parent_notification_state,
+        ocentra_tracking_core::TrackingParentNotificationDecisionState::Allowed
+    );
+    assert!(first_report.parent_notification_requested.is_some());
+    assert_eq!(
+        second_report
+            .alert_decision
+            .as_ref()
+            .expect(constants::tracking_runtime::ERROR_TRACKING_RUNTIME_FLOW_RECORDED)
+            .severity,
+        TrackingAlertSeverity::parse(constants::tracking_runtime::ALERT_SEVERITY_NONE)
+            .expect(constants::tracking_runtime::ALERT_SEVERITY_NONE)
+    );
+    assert_eq!(
+        second_report
+            .alert_decision
+            .as_ref()
+            .expect(constants::tracking_runtime::ERROR_TRACKING_RUNTIME_FLOW_RECORDED)
+            .parent_notification_state,
+        ocentra_tracking_core::TrackingParentNotificationDecisionState::Suppressed
+    );
+    assert!(second_report.policy_violation_detected.is_some());
+    assert!(second_report.parent_notification_requested.is_none());
+}
+
+#[tokio::test]
 async fn tracking_runtime_flow_rejects_invalid_location_before_recording_evidence() {
     let mut observed = ocentra_tracking_core::default_location_observed_event();
     observed.horizontal_accuracy_meters = 0;

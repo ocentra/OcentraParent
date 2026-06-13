@@ -376,9 +376,14 @@ async fn subscribe_child_notification_policy_events(
                 if location_observed.config.notification_mode == TrackingNotificationMode::Disabled {
                     return Ok(());
                 }
-                let alert_decision =
-                    ocentra_tracking_core::evaluate_tracking_alert(context.payload(), 0);
+                let recent_duplicate_count =
+                    state.recent_policy_violation_duplicate_count(context.payload());
+                let alert_decision = ocentra_tracking_core::evaluate_tracking_alert(
+                    context.payload(),
+                    recent_duplicate_count,
+                );
                 state.record_alert_decision(alert_decision.clone());
+                state.record_policy_violation_history(context.payload().clone());
                 if alert_decision.parent_notification_state
                     != TrackingParentNotificationDecisionState::Allowed
                 {
@@ -417,6 +422,7 @@ struct TrackingRuntimeEventState {
     alert_decision: Arc<Mutex<Option<TrackingAlertDecision>>>,
     policy_violation_detected: Arc<Mutex<Option<TrackingPolicyViolationDetectedEvent>>>,
     parent_notification_requested: Arc<Mutex<Option<ParentNotificationRequestedEvent>>>,
+    policy_violation_history: Arc<Mutex<Vec<TrackingPolicyViolationDetectedEvent>>>,
 }
 
 impl TrackingRuntimeEventState {
@@ -555,6 +561,17 @@ impl TrackingRuntimeEventState {
             Some(event);
     }
 
+    fn record_policy_violation_history(&self, event: TrackingPolicyViolationDetectedEvent) {
+        let mut history = self
+            .policy_violation_history
+            .lock()
+            .expect(constants::tracking_runtime::ERROR_TRACKING_RUNTIME_FLOW_RECORDED);
+        if history.len() >= 32 {
+            history.remove(0);
+        }
+        history.push(event);
+    }
+
     fn evidence_recorded(&self) -> Result<TrackingEvidenceRecordedEvent, EventingError> {
         required_runtime_flow_event(&self.evidence_recorded)
     }
@@ -598,6 +615,20 @@ impl TrackingRuntimeEventState {
     fn parent_notification_requested(&self) -> Option<ParentNotificationRequestedEvent> {
         self.parent_notification_requested.lock().ok()?.clone()
     }
+
+    fn recent_policy_violation_duplicate_count(
+        &self,
+        event: &TrackingPolicyViolationDetectedEvent,
+    ) -> u16 {
+        let Ok(history) = self.policy_violation_history.lock() else {
+            return 0;
+        };
+        history
+            .iter()
+            .filter(|prior| same_policy_violation(prior, event))
+            .count()
+            .min(u16::MAX as usize) as u16
+    }
 }
 
 fn required_runtime_flow_event<E>(value: &Arc<Mutex<Option<E>>>) -> Result<E, EventingError>
@@ -612,6 +643,17 @@ where
             field: constants::tracking_runtime::ERROR_TRACKING_RUNTIME_FLOW_RECORDED,
             value: constants::tracking_runtime::TRACKING_LOCATION_OBSERVED_EVENT_TYPE.to_string(),
         })
+}
+
+fn same_policy_violation(
+    left: &TrackingPolicyViolationDetectedEvent,
+    right: &TrackingPolicyViolationDetectedEvent,
+) -> bool {
+    left.child_device_id == right.child_device_id
+        && left.child_profile_id == right.child_profile_id
+        && left.policy_rule_ref == right.policy_rule_ref
+        && left.severity == right.severity
+        && left.evidence_refs == right.evidence_refs
 }
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
