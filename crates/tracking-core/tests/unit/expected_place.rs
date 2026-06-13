@@ -31,6 +31,7 @@ fn expected_place_evaluation_marks_uncertain_location_without_parent_action() {
         expected_place.reason_codes[0],
         constants::tracking_runtime::REASON_EXPECTED_PLACE_AMBIGUOUS
     );
+    assert_eq!(expected_place.expected_place_ref, observed.expected_place_ref);
     assert_eq!(expected_place.evidence_refs, vec![evidence.evidence_ref]);
 }
 

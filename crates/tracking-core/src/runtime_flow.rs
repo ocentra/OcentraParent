@@ -1,7 +1,8 @@
 use super::{
-    default_expected_place_evaluation, detect_geofence_transition, evaluate_expected_place_state,
+    default_expected_place_evaluation, evaluate_expected_place_state,
     TrackingExpectedPlaceEvaluation, TrackingGeofenceEvaluation, TrackingGeofenceInsideState,
 };
+use super::geofence::geofence_transition_from_parts;
 use ocentra_evidence::PrivatePayloadState;
 use ocentra_parent_agent_protocol::{
     constants, ParentNotificationRequestedEvent, TrackingAcknowledgementId,
@@ -10,7 +11,8 @@ use ocentra_parent_agent_protocol::{
     TrackingCheckInId, TrackingCheckInState, TrackingChildCheckInRecordedEvent,
     TrackingChildDeviceId, TrackingChildProfileId, TrackingEvidenceRecordedEvent,
     TrackingEvidenceRef, TrackingExpectedPlaceRef, TrackingExpectedPlaceStateEvaluatedEvent,
-    TrackingGeofenceTransitionDetectedEvent, TrackingLocationObservedEvent,
+    TrackingGeofenceRuleRef, TrackingGeofenceTransitionDetectedEvent,
+    TrackingLocationObservedEvent,
     TrackingLocationRelation, TrackingNotificationChannel, TrackingObservationId,
     TrackingParentAcknowledgementRecordedEvent, TrackingParentActionRequirement,
     TrackingRuntimeConfig, TrackingRuntimeEnabledState, TrackingRuntimeMode, TrackingTimestamp,
@@ -225,6 +227,7 @@ pub fn record_tracking_evidence_from_location(
         evidence_ref: tracking_evidence_ref(&event.observation_id),
         source_observation_id: event.observation_id.clone(),
         source_observed_at: event.observed_at.clone(),
+        expected_place_ref: event.expected_place_ref.clone(),
         location_relation: tracking_location_relation(relation_kind),
         ai_analysis_requirement: tracking_ai_analysis_requirement(&event.config, relation_kind),
         parent_action_requirement: tracking_parent_action_requirement(&event.config),
@@ -258,13 +261,15 @@ pub fn tracking_geofence_transition_from_evidence(
     event: &TrackingEvidenceRecordedEvent,
 ) -> TrackingGeofenceTransitionDetectedEvent {
     let evaluation = default_tracking_geofence_evaluation_from_relation(&event.location_relation);
-    let observed = default_location_observed_event();
-    let mut geofence = detect_geofence_transition(&observed, evaluation);
-    geofence.child_device_id = event.child_device_id.clone();
-    geofence.child_profile_id = event.child_profile_id.clone();
-    geofence.source_observation_id = event.source_observation_id.clone();
-    geofence.evidence_refs = vec![event.evidence_ref.clone()];
-    geofence
+    geofence_transition_from_parts(
+        event.child_device_id.clone(),
+        event.child_profile_id.clone(),
+        event.source_observation_id.clone(),
+        TrackingGeofenceRuleRef::parse(constants::tracking_runtime::DEFAULT_GEOFENCE_RULE_REF)
+            .expect(constants::tracking_runtime::DEFAULT_GEOFENCE_RULE_REF),
+        evaluation,
+        vec![event.evidence_ref.clone()],
+    )
 }
 
 pub fn tracking_expected_place_state_from_evidence(

@@ -1,5 +1,5 @@
 use ocentra_parent_agent_protocol::{
-    constants, TrackingCapabilityStatus, TrackingEvidenceRecordedEvent, TrackingExpectedPlaceRef,
+    constants, TrackingCapabilityStatus, TrackingEvidenceRecordedEvent,
     TrackingExpectedPlaceState, TrackingExpectedPlaceStateEvaluatedEvent,
     TrackingParentActionRequirement, TrackingReasonCode, TrackingScheduleId,
     TrackingTransitionKind, tracking_evaluation_id_from_observation_id,
@@ -45,10 +45,7 @@ pub fn evaluate_expected_place_state(
         child_profile_id: event.child_profile_id.clone(),
         evaluation_id: tracking_evaluation_id_from_observation_id(&event.source_observation_id),
         schedule_id: evaluation.schedule_id,
-        expected_place_ref: TrackingExpectedPlaceRef::parse(
-            constants::tracking_runtime::DEFAULT_EXPECTED_PLACE_REF,
-        )
-        .expect(constants::tracking_runtime::DEFAULT_EXPECTED_PLACE_REF),
+        expected_place_ref: event.expected_place_ref.clone(),
         source_observation_id: event.source_observation_id.clone(),
         expected_place_state: TrackingExpectedPlaceState::parse(expected_place_state)
             .expect(constants::tracking_runtime::EXPECTED_PLACE_STATE_UNKNOWN),
