@@ -6,6 +6,10 @@ use ocentra_entitlement_core::{
     evaluate_entitlement_capability, EntitlementCapabilityAccessState, EntitlementCapabilityInput,
     EntitlementDecision,
 };
+use ocentra_eventing::{
+    AggregateKey, DomainEvent, EventContract, EventType, EventingError, IdempotencyKey,
+    SchemaVersion,
+};
 use ocentra_family_identity_core::{
     authorize_child_device_scope, DeviceScopeAuthorizationState, DeviceScopeDecision,
     DeviceScopeInput,
@@ -21,20 +25,33 @@ use ocentra_remote_access_core::{
 use ocentra_storage_custody_core::{
     evaluate_storage_custody, RemoteUploadState, StorageCustodyDecision, StorageCustodyInput,
 };
+use serde::{Deserialize, Serialize};
 
-#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+const CHILD_RUNTIME_SCHEMA_VERSION: u16 = 1;
+pub const CHILD_RUNTIME_PREFLIGHT_REQUESTED_EVENT_TYPE: &str = "child-runtime.preflight.requested";
+pub const CHILD_RUNTIME_PREFLIGHT_DECISION_RECORDED_EVENT_TYPE: &str =
+    "child-runtime.preflight-decision.recorded";
+const CHILD_RUNTIME_IDEMPOTENCY_SEPARATOR: &str = ":";
+const CHILD_RUNTIME_PREFLIGHT_DECISION_PREFIX: &str = "child-runtime-preflight-decision:";
+const ERROR_CHILD_RUNTIME_PREFLIGHT_DECISION_ID: &str = "child runtime preflight decision id";
+
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
 pub enum ChildRuntimeStartState {
+    #[serde(rename = "allowed")]
     Allowed,
+    #[serde(rename = "blocked")]
     Blocked,
 }
 
-#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
 pub enum ChildRuntimeManualReviewState {
+    #[serde(rename = "required")]
     Required,
+    #[serde(rename = "not-required")]
     NotRequired,
 }
 
-#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
 pub struct ChildRuntimePreflightInput {
     pub device_scope_input: DeviceScopeInput,
     pub provisioning_input: ProvisioningReadinessInput,
@@ -42,7 +59,7 @@ pub struct ChildRuntimePreflightInput {
     pub storage_custody_input: StorageCustodyInput,
 }
 
-#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
 pub struct ChildRuntimePreflightDecision {
     pub device_scope_decision: DeviceScopeDecision,
     pub provisioning_decision: ProvisioningReadinessDecision,
@@ -50,6 +67,107 @@ pub struct ChildRuntimePreflightDecision {
     pub storage_custody_decision: StorageCustodyDecision,
     pub runtime_start_state: ChildRuntimeStartState,
     pub manual_review_state: ChildRuntimeManualReviewState,
+}
+
+macro_rules! child_runtime_text_id {
+    ($name:ident, $field:expr) => {
+        #[derive(Clone, Debug, PartialEq, Eq, PartialOrd, Ord, Hash, Serialize, Deserialize)]
+        #[serde(try_from = "String", into = "String")]
+        pub struct $name(String);
+
+        impl $name {
+            pub fn parse(value: impl Into<String>) -> Result<Self, EventingError> {
+                let value = value.into();
+                if value.trim().is_empty() {
+                    return Err(EventingError::EmptyValue { field: $field });
+                }
+                Ok(Self(value))
+            }
+
+            pub fn as_str(&self) -> &str {
+                &self.0
+            }
+        }
+
+        impl TryFrom<String> for $name {
+            type Error = EventingError;
+
+            fn try_from(value: String) -> Result<Self, Self::Error> {
+                Self::parse(value)
+            }
+        }
+
+        impl From<$name> for String {
+            fn from(value: $name) -> Self {
+                value.0
+            }
+        }
+
+        impl std::fmt::Display for $name {
+            fn fmt(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+                formatter.write_str(self.as_str())
+            }
+        }
+    };
+}
+
+child_runtime_text_id!(
+    ChildRuntimePreflightRequestId,
+    "child_runtime.preflight_request_id"
+);
+child_runtime_text_id!(
+    ChildRuntimePreflightDecisionId,
+    "child_runtime.preflight_decision_id"
+);
+child_runtime_text_id!(ChildRuntimeAggregateId, "child_runtime.aggregate_id");
+
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+pub struct ChildRuntimePreflightRequestedEvent {
+    pub aggregate_id: ChildRuntimeAggregateId,
+    pub request_id: ChildRuntimePreflightRequestId,
+    pub input: ChildRuntimePreflightInput,
+}
+
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+pub struct ChildRuntimePreflightDecisionRecordedEvent {
+    pub aggregate_id: ChildRuntimeAggregateId,
+    pub decision_id: ChildRuntimePreflightDecisionId,
+    pub source_request_id: ChildRuntimePreflightRequestId,
+    pub decision: ChildRuntimePreflightDecision,
+}
+
+impl DomainEvent for ChildRuntimePreflightRequestedEvent {
+    fn contract(&self) -> Result<EventContract, EventingError> {
+        child_runtime_event_contract(CHILD_RUNTIME_PREFLIGHT_REQUESTED_EVENT_TYPE)
+    }
+
+    fn aggregate_key(&self) -> Result<AggregateKey, EventingError> {
+        AggregateKey::parse(self.aggregate_id.as_str())
+    }
+
+    fn idempotency_key(&self) -> Result<IdempotencyKey, EventingError> {
+        child_runtime_idempotency_key(
+            CHILD_RUNTIME_PREFLIGHT_REQUESTED_EVENT_TYPE,
+            &self.request_id,
+        )
+    }
+}
+
+impl DomainEvent for ChildRuntimePreflightDecisionRecordedEvent {
+    fn contract(&self) -> Result<EventContract, EventingError> {
+        child_runtime_event_contract(CHILD_RUNTIME_PREFLIGHT_DECISION_RECORDED_EVENT_TYPE)
+    }
+
+    fn aggregate_key(&self) -> Result<AggregateKey, EventingError> {
+        AggregateKey::parse(self.aggregate_id.as_str())
+    }
+
+    fn idempotency_key(&self) -> Result<IdempotencyKey, EventingError> {
+        child_runtime_idempotency_key(
+            CHILD_RUNTIME_PREFLIGHT_DECISION_RECORDED_EVENT_TYPE,
+            &self.decision_id,
+        )
+    }
 }
 
 pub fn evaluate_child_runtime_preflight(
@@ -60,11 +178,10 @@ pub fn evaluate_child_runtime_preflight(
     let entitlement_decision = evaluate_entitlement_capability(input.entitlement_input);
     let storage_custody_decision = evaluate_storage_custody(input.storage_custody_input);
 
-    let runtime_allowed =
-        device_scope_decision.authorization_state == DeviceScopeAuthorizationState::Authorized
-            && provisioning_decision.child_runtime_readiness_state
-                == ChildRuntimeReadinessState::Ready
-            && entitlement_decision.access_state == EntitlementCapabilityAccessState::Allowed;
+    let runtime_allowed = device_scope_decision.authorization_state
+        == DeviceScopeAuthorizationState::Authorized
+        && provisioning_decision.child_runtime_readiness_state == ChildRuntimeReadinessState::Ready
+        && entitlement_decision.access_state == EntitlementCapabilityAccessState::Allowed;
 
     ChildRuntimePreflightDecision {
         device_scope_decision,
@@ -81,6 +198,20 @@ pub fn evaluate_child_runtime_preflight(
         } else {
             ChildRuntimeManualReviewState::Required
         },
+    }
+}
+
+pub fn record_child_runtime_preflight_decision(
+    event: &ChildRuntimePreflightRequestedEvent,
+) -> ChildRuntimePreflightDecisionRecordedEvent {
+    ChildRuntimePreflightDecisionRecordedEvent {
+        aggregate_id: event.aggregate_id.clone(),
+        decision_id: ChildRuntimePreflightDecisionId::parse(child_runtime_preflight_decision_ref(
+            &event.request_id,
+        ))
+        .expect(ERROR_CHILD_RUNTIME_PREFLIGHT_DECISION_ID),
+        source_request_id: event.request_id.clone(),
+        decision: evaluate_child_runtime_preflight(event.input),
     }
 }
 
@@ -130,8 +261,29 @@ pub fn evaluate_child_runtime_enforcement(
     }
 }
 
-pub fn child_runtime_remote_upload_allowed(
-    decision: &ChildRuntimePreflightDecision,
-) -> bool {
+pub fn child_runtime_remote_upload_allowed(decision: &ChildRuntimePreflightDecision) -> bool {
     decision.storage_custody_decision.remote_upload_state == RemoteUploadState::Allowed
+}
+
+fn child_runtime_event_contract(event_type: &str) -> Result<EventContract, EventingError> {
+    Ok(EventContract::new(
+        EventType::parse(event_type)?,
+        SchemaVersion::new(CHILD_RUNTIME_SCHEMA_VERSION)?,
+    ))
+}
+
+fn child_runtime_idempotency_key(
+    event_type: &str,
+    unique_ref: impl std::fmt::Display,
+) -> Result<IdempotencyKey, EventingError> {
+    IdempotencyKey::parse(format!(
+        "{}{}{}",
+        event_type, CHILD_RUNTIME_IDEMPOTENCY_SEPARATOR, unique_ref
+    ))
+}
+
+fn child_runtime_preflight_decision_ref(request_id: &ChildRuntimePreflightRequestId) -> String {
+    let mut value = String::from(CHILD_RUNTIME_PREFLIGHT_DECISION_PREFIX);
+    value.push_str(request_id.as_str());
+    value
 }

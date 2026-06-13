@@ -12,4 +12,6 @@ path = "src/lib.rs"
 
 [dependencies]
 ocentra-evidence = { path = "../ocentra-evidence" }
+ocentra-eventing = { path = "../ocentra-eventing" }
 ocentra-policy-control-core = { path = "../policy-control-core" }
+serde = { version = "1.0.228", features = ["derive"] }

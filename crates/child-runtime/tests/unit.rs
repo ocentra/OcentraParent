@@ -1,3 +1,4 @@
+use ocentra_evidence::PrivatePayloadState;
 use ocentra_parent_agent_protocol::{
     constants, default_tracking_retention_settings_write_request, AgentCommandEnvelope,
     AgentCommandName, AgentMessageTarget, AgentPeer, AgentPeerRole, AgentRoute, LogFields,
@@ -7,7 +8,6 @@ use ocentra_parent_agent_protocol::{
     TrackingPlaceCategory, TrackingPolicyRuleRef, TrackingRetentionSettingsWriteRequest,
     TrackingRuntimeEnabledState, TrackingRuntimeMode, AGENT_PROTOCOL_SCHEMA_VERSION,
 };
-use ocentra_evidence::PrivatePayloadState;
 use ocentra_tracking_core::TrackingPortalNotificationCandidateState;
 
 #[path = "unit/runtime_gate.rs"]
@@ -98,6 +98,36 @@ async fn child_runtime_routes_parent_config_event_through_named_subscribers_to_c
 }
 
 #[tokio::test]
+async fn parent_tracking_config_flow_can_attach_once_to_runtime_owned_bus() {
+    let request: TrackingRetentionSettingsWriteRequest =
+        default_tracking_retention_settings_write_request();
+    let command = command_envelope(request.clone());
+    let parent_event =
+        ocentra_child_runtime::parent_tracking_config_updated_event_from_command(&command, request);
+    let runtime_flow = ocentra_child_runtime::TrackingConfigUpdateEventFlow::new()
+        .await
+        .expect(constants::tracking_config_update::ERROR_PARENT_CONFIG_EVENT_APPLIED);
+    let metrics_before = runtime_flow.metrics_snapshot().await;
+
+    let flow_report = runtime_flow
+        .publish_parent_config_updated(&parent_event)
+        .await
+        .expect(constants::tracking_config_update::ERROR_PARENT_CONFIG_EVENT_APPLIED);
+    let metrics_after = runtime_flow.metrics_snapshot().await;
+
+    assert_eq!(metrics_before.subscription_count, 2);
+    assert_eq!(metrics_after.subscription_count, 2);
+    assert_eq!(
+        flow_report.parent_request_report.response.response_state,
+        TrackingConfigUpdateResponseState::Applied
+    );
+    assert_eq!(
+        flow_report.applied_report.child_event_type,
+        TrackingConfigUpdateEventName::Child
+    );
+}
+
+#[tokio::test]
 async fn child_runtime_routes_tracking_observation_through_ai_policy_and_notification_boundaries() {
     let event = ocentra_tracking_core::default_location_observed_event();
     let flow_report = ocentra_child_runtime::publish_child_tracking_location_observed_event(event)
@@ -138,9 +168,7 @@ async fn child_runtime_routes_tracking_observation_through_ai_policy_and_notific
             .expect(constants::tracking_runtime::DEFAULT_EVIDENCE_REF)
     );
     assert_eq!(
-        flow_report
-            .evidence_recorded
-            .parent_action_requirement,
+        flow_report.evidence_recorded.parent_action_requirement,
         TrackingParentActionRequirement::Required
     );
     assert_eq!(
@@ -217,9 +245,7 @@ async fn child_runtime_keeps_observe_only_tracking_flow_out_of_policy_and_notifi
         .expect(constants::tracking_runtime::ERROR_TRACKING_RUNTIME_FLOW_RECORDED);
 
     assert_eq!(
-        flow_report
-            .evidence_recorded
-            .parent_action_requirement,
+        flow_report.evidence_recorded.parent_action_requirement,
         TrackingParentActionRequirement::NotRequired
     );
     assert!(flow_report.policy_violation_detected.is_none());

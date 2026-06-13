@@ -1,7 +1,11 @@
+use ocentra_eventing::DomainEvent;
 use ocentra_policy_control_core::{
-    evaluate_policy_control, AiResultAuthorityState, EvidenceReferenceState, ParentAuthorityState,
-    PolicyActionAuthorizationState, PolicyControlInput, PolicyDecisionMode,
-    PolicyEnforcementExecutionState, PolicyManualReviewState,
+    evaluate_policy_control, resolve_policy_conflict, resolve_policy_evaluation_request,
+    AiResultAuthorityState, EvidenceReferenceState, ParentAuthorityState,
+    PolicyActionAuthorizationState, PolicyConflictInput, PolicyConflictResolutionState,
+    PolicyConflictState, PolicyControlAggregateId, PolicyControlInput, PolicyControlRequestId,
+    PolicyDecisionMode, PolicyDecisionResolvedEvent, PolicyDecisionSource,
+    PolicyEnforcementExecutionState, PolicyEvaluationRequestedEvent, PolicyManualReviewState,
 };
 
 #[test]
@@ -21,7 +25,10 @@ fn enforce_mode_allows_adapter_only_after_policy_authority_boundary() {
         decision.enforcement_execution_state,
         PolicyEnforcementExecutionState::MayExecute
     );
-    assert_eq!(decision.manual_review_state, PolicyManualReviewState::NotRequired);
+    assert_eq!(
+        decision.manual_review_state,
+        PolicyManualReviewState::NotRequired
+    );
 }
 
 #[test]
@@ -41,7 +48,10 @@ fn ai_authority_claim_forces_manual_review() {
         decision.enforcement_execution_state,
         PolicyEnforcementExecutionState::MustNotExecute
     );
-    assert_eq!(decision.manual_review_state, PolicyManualReviewState::Required);
+    assert_eq!(
+        decision.manual_review_state,
+        PolicyManualReviewState::Required
+    );
 }
 
 #[test]
@@ -80,7 +90,10 @@ fn missing_evidence_blocks_policy_authority_even_with_parent_authority() {
         decision.enforcement_execution_state,
         PolicyEnforcementExecutionState::MustNotExecute
     );
-    assert_eq!(decision.manual_review_state, PolicyManualReviewState::Required);
+    assert_eq!(
+        decision.manual_review_state,
+        PolicyManualReviewState::Required
+    );
 }
 
 #[test]
@@ -100,5 +113,97 @@ fn observe_only_mode_can_authorize_policy_record_without_adapter_execution() {
         decision.enforcement_execution_state,
         PolicyEnforcementExecutionState::MustNotExecute
     );
-    assert_eq!(decision.manual_review_state, PolicyManualReviewState::NotRequired);
+    assert_eq!(
+        decision.manual_review_state,
+        PolicyManualReviewState::NotRequired
+    );
+}
+
+#[test]
+fn conflict_resolution_uses_parent_policy_only_with_authority_and_stable_evidence() {
+    let decision = resolve_policy_conflict(PolicyConflictInput {
+        parent_authority_state: ParentAuthorityState::Authorized,
+        conflict_state: PolicyConflictState::NoConflict,
+        requested_source: PolicyDecisionSource::ParentPolicy,
+        evidence_reference_state: EvidenceReferenceState::Stable,
+    });
+
+    assert_eq!(
+        decision.resolution_state,
+        PolicyConflictResolutionState::UseParentPolicy
+    );
+    assert_eq!(
+        decision.manual_review_state,
+        PolicyManualReviewState::NotRequired
+    );
+}
+
+#[test]
+fn ai_evidence_never_becomes_policy_authority_during_conflict_resolution() {
+    let decision = resolve_policy_conflict(PolicyConflictInput {
+        parent_authority_state: ParentAuthorityState::Authorized,
+        conflict_state: PolicyConflictState::NoConflict,
+        requested_source: PolicyDecisionSource::AiEvidence,
+        evidence_reference_state: EvidenceReferenceState::Stable,
+    });
+
+    assert_eq!(
+        decision.resolution_state,
+        PolicyConflictResolutionState::ManualReview
+    );
+    assert_eq!(
+        decision.manual_review_state,
+        PolicyManualReviewState::Required
+    );
+}
+
+#[test]
+fn policy_evaluation_request_resolves_to_typed_decision_event() {
+    let request = PolicyEvaluationRequestedEvent {
+        aggregate_id: PolicyControlAggregateId::parse("policy-control-family-default")
+            .expect("policy control aggregate"),
+        request_id: PolicyControlRequestId::parse("policy-control-request-default")
+            .expect("policy control request"),
+        input: PolicyControlInput {
+            mode: PolicyDecisionMode::Enforce,
+            parent_authority_state: ParentAuthorityState::Authorized,
+            evidence_reference_state: EvidenceReferenceState::Stable,
+            ai_result_authority_state: AiResultAuthorityState::EvidenceOnly,
+        },
+        conflict_input: PolicyConflictInput {
+            parent_authority_state: ParentAuthorityState::Authorized,
+            conflict_state: PolicyConflictState::NoConflict,
+            requested_source: PolicyDecisionSource::ParentPolicy,
+            evidence_reference_state: EvidenceReferenceState::Stable,
+        },
+    };
+
+    let decision: PolicyDecisionResolvedEvent = resolve_policy_evaluation_request(&request);
+
+    assert_eq!(decision.aggregate_id, request.aggregate_id);
+    assert_eq!(decision.source_request_id, request.request_id);
+    assert_eq!(
+        decision.decision.action_authorization_state,
+        PolicyActionAuthorizationState::Authorized
+    );
+    assert_eq!(
+        decision.conflict_decision.resolution_state,
+        PolicyConflictResolutionState::UseParentPolicy
+    );
+    assert_eq!(
+        request
+            .contract()
+            .expect("policy request contract")
+            .event_type
+            .as_str(),
+        "policy-control.evaluation.requested"
+    );
+    assert_eq!(
+        decision
+            .contract()
+            .expect("policy decision contract")
+            .event_type
+            .as_str(),
+        "policy-control.decision.resolved"
+    );
 }

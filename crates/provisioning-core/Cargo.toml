@@ -12,3 +12,5 @@ path = "src/lib.rs"
 
 [dependencies]
 ocentra-family-identity-core = { path = "../family-identity-core" }
+ocentra-eventing = { path = "../ocentra-eventing" }
+serde = { version = "1.0.228", features = ["derive"] }

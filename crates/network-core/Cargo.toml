@@ -15,4 +15,4 @@ ocentra-evidence = { path = "../ocentra-evidence" }
 ocentra-eventing = { path = "../ocentra-eventing" }
 ocentra-parent-agent-protocol = { path = "../agent-protocol" }
 ocentra-network-evidence = { path = "../ocentra-network-evidence" }
-
+serde = { version = "1.0.228", features = ["derive"] }

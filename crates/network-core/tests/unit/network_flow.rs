@@ -1,3 +1,10 @@
+use ocentra_eventing::DomainEvent;
+use ocentra_network_core::{
+    evaluate_network_runtime, network_runtime_decision_recorded_event, NetworkAdapterState,
+    NetworkAggregateId, NetworkCapturePermissionState, NetworkParserState,
+    NetworkPolicyHandoffState, NetworkRuntimeActionState, NetworkRuntimeDecisionId,
+    NetworkRuntimeInput,
+};
 use ocentra_parent_agent_protocol::{
     ChildDomainAiAnalysisRequirement, ChildDomainPolicyEvaluationRequirement, ChildRuntimeDomain,
 };
@@ -79,4 +86,70 @@ fn network_telemetry_observation_only_records_no_ai_or_policy_work() {
     );
     assert!(ai.is_none());
     assert!(policy.is_none());
+}
+
+#[test]
+fn network_runtime_captures_and_publishes_policy_for_valid_flow() {
+    let decision = evaluate_network_runtime(NetworkRuntimeInput {
+        adapter_state: NetworkAdapterState::Available,
+        capture_permission_state: NetworkCapturePermissionState::Granted,
+        parser_state: NetworkParserState::Valid,
+        observation_intent: ocentra_network_core::NetworkObservationIntent::FlowRequiresPolicy,
+    });
+
+    assert_eq!(
+        decision.runtime_action_state,
+        NetworkRuntimeActionState::CaptureAndRecord
+    );
+    assert_eq!(
+        decision.policy_handoff_state,
+        NetworkPolicyHandoffState::Publish
+    );
+}
+
+#[test]
+fn network_runtime_blocks_policy_handoff_when_parser_drifted() {
+    let decision = evaluate_network_runtime(NetworkRuntimeInput {
+        adapter_state: NetworkAdapterState::Available,
+        capture_permission_state: NetworkCapturePermissionState::Granted,
+        parser_state: NetworkParserState::Drifted,
+        observation_intent: ocentra_network_core::NetworkObservationIntent::FlowRequiresPolicy,
+    });
+
+    assert_eq!(
+        decision.runtime_action_state,
+        NetworkRuntimeActionState::ManualRequired
+    );
+    assert_eq!(
+        decision.policy_handoff_state,
+        NetworkPolicyHandoffState::DoNotPublish
+    );
+}
+
+#[test]
+fn network_runtime_decision_is_recorded_as_typed_event() {
+    let event = network_runtime_decision_recorded_event(
+        NetworkAggregateId::parse("network-child-default").expect("network aggregate"),
+        NetworkRuntimeDecisionId::parse("network-runtime-decision-default")
+            .expect("network runtime decision"),
+        NetworkRuntimeInput {
+            adapter_state: NetworkAdapterState::Available,
+            capture_permission_state: NetworkCapturePermissionState::Granted,
+            parser_state: NetworkParserState::Valid,
+            observation_intent: ocentra_network_core::NetworkObservationIntent::FlowRequiresPolicy,
+        },
+    );
+
+    assert_eq!(
+        event.decision.runtime_action_state,
+        NetworkRuntimeActionState::CaptureAndRecord
+    );
+    assert_eq!(
+        event
+            .contract()
+            .expect("network contract")
+            .event_type
+            .as_str(),
+        "network.runtime.decision-recorded"
+    );
 }

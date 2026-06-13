@@ -1,16 +1,16 @@
+use ocentra_eventing::DomainEvent;
+use ocentra_parent_agent_protocol::{
+    constants, default_tracking_retention_settings_write_request, AgentRoute,
+    ParentTrackingConfigUpdatedEvent, TrackingConfigUpdateTarget, TrackingConfigUpdateTargetScope,
+    TrackingSourceMessageId, TrackingSourcePeerId, TrackingTargetDeviceId, TrackingTargetPlatform,
+};
 use ocentra_parent_runtime_core::{
-    parent_runtime_target_from_tracking_scope, route_parent_runtime_change,
-    route_parent_tracking_config_update_event,
+    parent_runtime_target_from_tracking_scope, parent_runtime_tracking_dispatch_evaluated_event,
+    route_parent_runtime_change, route_parent_tracking_config_update_event,
     route_parent_tracking_config_update_event_from_origin, ChildAcknowledgementState,
     ChildAcknowledgementWaitState, ChildRuntimeDispatchState, ChildRuntimePublishState,
     ParentAuditRetentionState, ParentRuntimeChangeRequest, ParentRuntimeOriginState,
-    ParentRuntimeTarget,
-};
-use ocentra_parent_agent_protocol::{
-    constants, default_tracking_retention_settings_write_request, AgentRoute,
-    ParentTrackingConfigUpdatedEvent, TrackingConfigUpdateTarget,
-    TrackingConfigUpdateTargetScope, TrackingSourceMessageId, TrackingSourcePeerId,
-    TrackingTargetDeviceId, TrackingTargetPlatform,
+    ParentRuntimeTarget, PARENT_RUNTIME_TRACKING_DISPATCH_EVALUATED_EVENT_TYPE,
 };
 
 #[test]
@@ -194,6 +194,34 @@ fn tracking_config_child_profile_scope_maps_to_child_device_runtime_target() {
     assert_eq!(
         parent_runtime_target_from_tracking_scope(&TrackingConfigUpdateTargetScope::DeviceGroup),
         ParentRuntimeTarget::Household
+    );
+}
+
+#[test]
+fn tracking_config_parent_runtime_records_typed_dispatch_event() {
+    let event = parent_tracking_config_event(TrackingConfigUpdateTargetScope::ChildDevice);
+
+    let dispatch = parent_runtime_tracking_dispatch_evaluated_event(
+        &event,
+        ChildAcknowledgementState::Required,
+    );
+
+    assert_eq!(dispatch.source_event, event);
+    assert_eq!(
+        dispatch.decision.child_runtime_publish_state,
+        ChildRuntimePublishState::Publish
+    );
+    assert_eq!(
+        dispatch.decision.child_acknowledgement_wait_state,
+        ChildAcknowledgementWaitState::Await
+    );
+    assert_eq!(
+        dispatch
+            .contract()
+            .expect("parent runtime dispatch contract")
+            .event_type
+            .as_str(),
+        PARENT_RUNTIME_TRACKING_DISPATCH_EVALUATED_EVENT_TYPE
     );
 }
 
