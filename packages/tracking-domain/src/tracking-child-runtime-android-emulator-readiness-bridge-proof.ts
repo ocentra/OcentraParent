@@ -1,19 +1,18 @@
-import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
+import {
+  type Infer,
+  Schema,
+  withParser,
+  brandedNonEmptyStringSchema
+} from '@ocentra-parent/schema-domain/effect';
 import { ParentTimestampSchema } from '@ocentra-parent/family-domain/reference-primitives';
 import { TrackingPolicyAuditRefSchema, TrackingPolicySchemaVersion } from './tracking-location-policy-primitives';
-
-const TrackingChildRuntimeAndroidEmulatorBridgeTextSchema = Schema.String.pipe(Schema.minLength(1));
 const TrackingChildRuntimeAndroidEmulatorBridgeCountSchema = Schema.Number.pipe(Schema.int(), Schema.nonNegative());
 
 export const TrackingChildRuntimeAndroidEmulatorBridgeRefSchema =
-  TrackingChildRuntimeAndroidEmulatorBridgeTextSchema.pipe(
-    Schema.brand('TrackingChildRuntimeAndroidEmulatorBridgeRef')
-  );
+  brandedNonEmptyStringSchema('TrackingChildRuntimeAndroidEmulatorBridgeRef');
 
 export const TrackingChildRuntimeAndroidEmulatorBridgeRowIdSchema =
-  TrackingChildRuntimeAndroidEmulatorBridgeTextSchema.pipe(
-    Schema.brand('TrackingChildRuntimeAndroidEmulatorBridgeRowId')
-  );
+  brandedNonEmptyStringSchema('TrackingChildRuntimeAndroidEmulatorBridgeRowId');
 
 export const TrackingChildRuntimeAndroidEmulatorBridgeStatusSchema = Schema.Literal(
   'emulator-prerequisites-observed-manual-runtime-required'
@@ -278,3 +277,4 @@ function trackingChildRuntimeAndroidEmulatorBridgeNonClaimsAreHonest(
     row.productClaimReady === false
   );
 }
+

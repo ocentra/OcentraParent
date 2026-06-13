@@ -1,32 +1,35 @@
 import { AgentProtocolDefaults, type AgentProtocolLogFields } from '@ocentra-parent/agent-protocol-domain/contracts';
-import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
-
-const NonEmptyTextSchema = Schema.String.pipe(Schema.minLength(1));
+import {
+  type Infer,
+  Schema,
+  withParser,
+  NonEmptyStringSchema
+} from '@ocentra-parent/schema-domain/effect';
 const NonNegativeCountSchema = Schema.Number.pipe(Schema.nonNegative(), Schema.int());
-const NullableTextSchema = Schema.Union(NonEmptyTextSchema, Schema.Null);
+const NullableTextSchema = Schema.Union(NonEmptyStringSchema, Schema.Null);
 const EvidenceReferenceSchema = Schema.Struct({
-  evidenceReferenceId: NonEmptyTextSchema,
-  kind: NonEmptyTextSchema,
-  observedAt: NonEmptyTextSchema,
+  evidenceReferenceId: NonEmptyStringSchema,
+  kind: NonEmptyStringSchema,
+  observedAt: NonEmptyStringSchema,
 });
 const ParentActionReferenceSchema = Schema.Struct({
-  actionReferenceId: NonEmptyTextSchema,
+  actionReferenceId: NonEmptyStringSchema,
   actor: Schema.Struct({
-    actorId: NonEmptyTextSchema,
-    role: NonEmptyTextSchema,
+    actorId: NonEmptyStringSchema,
+    role: NonEmptyStringSchema,
   }),
-  policyVersion: NonEmptyTextSchema,
-  createdAt: NonEmptyTextSchema,
+  policyVersion: NonEmptyStringSchema,
+  createdAt: NonEmptyStringSchema,
 });
 const DeviceReferenceSchema = Schema.Struct({
-  deviceId: NonEmptyTextSchema,
+  deviceId: NonEmptyStringSchema,
   childProfileId: NullableTextSchema,
-  label: NonEmptyTextSchema,
-  platform: NonEmptyTextSchema,
+  label: NonEmptyStringSchema,
+  platform: NonEmptyStringSchema,
 });
 const ChildProfileReferenceSchema = Schema.Struct({
-  childProfileId: NonEmptyTextSchema,
-  displayName: NonEmptyTextSchema,
+  childProfileId: NonEmptyStringSchema,
+  displayName: NonEmptyStringSchema,
 });
 
 const ActivityMemoryGraphTraceSchema = withParser(
@@ -35,11 +38,11 @@ const ActivityMemoryGraphTraceSchema = withParser(
     sourceEvidenceReferences: Schema.Array(EvidenceReferenceSchema),
     sourcePolicyVersion: NullableTextSchema,
     sourceParentActionReferences: Schema.Array(ParentActionReferenceSchema),
-    generatedAt: NonEmptyTextSchema,
+    generatedAt: NonEmptyStringSchema,
     expiresAt: NullableTextSchema,
     confidence: Schema.Number.pipe(Schema.nonNegative()),
-    derivedIndexVersion: NonEmptyTextSchema,
-    degradedReasons: Schema.Array(NonEmptyTextSchema),
+    derivedIndexVersion: NonEmptyStringSchema,
+    degradedReasons: Schema.Array(NonEmptyStringSchema),
   }).pipe(
     Schema.filter(
       (trace) =>
@@ -52,8 +55,8 @@ const ActivityMemoryGraphTraceSchema = withParser(
 );
 
 const ActivityMemoryGraphNodeSchema = Schema.Struct({
-  graphId: NonEmptyTextSchema,
-  nodeId: NonEmptyTextSchema,
+  graphId: NonEmptyStringSchema,
+  nodeId: NonEmptyStringSchema,
   nodeKind: Schema.Literal(
     'child-profile',
     'device',
@@ -64,14 +67,14 @@ const ActivityMemoryGraphNodeSchema = Schema.Struct({
     'game',
     'activity-session'
   ),
-  label: NonEmptyTextSchema,
+  label: NonEmptyStringSchema,
   childProfile: Schema.Union(ChildProfileReferenceSchema, Schema.Null),
   device: Schema.Union(DeviceReferenceSchema, Schema.Null),
   trace: ActivityMemoryGraphTraceSchema,
 });
 const ActivityMemoryGraphEdgeSchema = Schema.Struct({
-  graphId: NonEmptyTextSchema,
-  edgeId: NonEmptyTextSchema,
+  graphId: NonEmptyStringSchema,
+  edgeId: NonEmptyStringSchema,
   edgeKind: Schema.Literal(
     'visited',
     'watched',
@@ -80,9 +83,9 @@ const ActivityMemoryGraphEdgeSchema = Schema.Struct({
     'performed-by-child',
     'derived-from-evidence'
   ),
-  fromNodeId: NonEmptyTextSchema,
-  toNodeId: NonEmptyTextSchema,
-  observedFrom: NonEmptyTextSchema,
+  fromNodeId: NonEmptyStringSchema,
+  toNodeId: NonEmptyStringSchema,
+  observedFrom: NonEmptyStringSchema,
   observedUntil: NullableTextSchema,
   durationMs: Schema.Union(NonNegativeCountSchema, Schema.Null),
   trace: ActivityMemoryGraphTraceSchema,
@@ -90,11 +93,11 @@ const ActivityMemoryGraphEdgeSchema = Schema.Struct({
 const ActivityMemoryGraphReadModelSchema = withParser(
   Schema.Struct({
     schemaVersion: NonNegativeCountSchema,
-    generatedAt: NonEmptyTextSchema,
-    custody: NonEmptyTextSchema,
-    capabilityStatus: NonEmptyTextSchema,
+    generatedAt: NonEmptyStringSchema,
+    custody: NonEmptyStringSchema,
+    capabilityStatus: NonEmptyStringSchema,
     query: Schema.Struct({
-      queryId: NonEmptyTextSchema,
+      queryId: NonEmptyStringSchema,
       queryKind: Schema.Literal(
         'visited-urls',
         'played-games',
@@ -105,19 +108,19 @@ const ActivityMemoryGraphReadModelSchema = withParser(
       childProfile: Schema.Union(ChildProfileReferenceSchema, Schema.Null),
       device: DeviceReferenceSchema,
       timeRange: Schema.Struct({
-        observedFrom: NonEmptyTextSchema,
-        observedUntil: NonEmptyTextSchema,
+        observedFrom: NonEmptyStringSchema,
+        observedUntil: NonEmptyStringSchema,
       }),
-      asOf: NonEmptyTextSchema,
+      asOf: NonEmptyStringSchema,
       limit: NonNegativeCountSchema,
     }),
-    readAt: NonEmptyTextSchema,
+    readAt: NonEmptyStringSchema,
     nodes: Schema.Array(ActivityMemoryGraphNodeSchema),
     edges: Schema.Array(ActivityMemoryGraphEdgeSchema),
     returnedNodeCount: NonNegativeCountSchema,
     returnedEdgeCount: NonNegativeCountSchema,
     omittedEdgeCount: NonNegativeCountSchema,
-    degradedReasons: Schema.Array(NonEmptyTextSchema),
+    degradedReasons: Schema.Array(NonEmptyStringSchema),
   }).pipe(
     Schema.filter(
       (model) => model.returnedNodeCount === model.nodes.length || 'Expected memory graph node count match'
@@ -156,3 +159,4 @@ function parseDigest(digest: string): unknown {
     return null;
   }
 }
+

@@ -9,6 +9,10 @@
       "import": "./dist/contracts.js",
       "types": "./dist/contracts.d.ts"
     },
+    "./custody": {
+      "import": "./dist/custody.js",
+      "types": "./dist/custody.d.ts"
+    },
     "./kinds": {
       "import": "./dist/kinds.js",
       "types": "./dist/kinds.d.ts"

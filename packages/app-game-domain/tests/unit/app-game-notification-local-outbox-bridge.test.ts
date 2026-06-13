@@ -19,7 +19,7 @@ import {
 import {
   NotificationLocalOutboxRecordSchema,
   type NotificationLocalOutboxRecord,
-} from '../../src/notification-local-outbox-adapter-proof';
+} from '@ocentra-parent/notification-domain/notification-local-outbox-adapter-proof';
 import {
   ParentActorRole,
   ParentContractSchemaVersion,

@@ -11,11 +11,11 @@ await runPackageCommand([
   'run',
   'test',
   '--workspace',
-  '@ocentra-parent/activity-domain',
+  '@ocentra-parent/screen-domain',
   '--',
   'screen-evidence-resource-scheduler.test.ts',
 ]);
-await runPackageCommand(['run', 'build', '--workspace', '@ocentra-parent/activity-domain']);
+await runPackageCommand(['run', 'build', '--workspace', '@ocentra-parent/screen-domain']);
 await runCommand('node', ['scripts/test/local-ai-provider-scheduler-proof.mjs']);
 await writeScreenSchedulerProof();
 

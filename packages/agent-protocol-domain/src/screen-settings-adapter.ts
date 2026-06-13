@@ -2,7 +2,7 @@ import {
   ScreenAnalysisParentSettingSchema,
   type ScreenAnalysisParentSetting,
 } from '@ocentra-parent/screen-domain/screen-evidence-settings';
-import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
+import { type Infer, NonEmptyStringSchema, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
 import {
   AgentCommand,
   AgentCommandEnvelopeSchema,
@@ -13,7 +13,7 @@ import {
   type AgentEventName,
   type AgentProtocolLogFields,
 } from './contracts';
-import { AgentProtocolSchemaVersion, type AgentRoute } from './primitives';
+import { AgentProtocolSchemaVersion, type AgentPeerRole, type AgentRoute } from '@ocentra-parent/evidence-domain/primitives';
 
 export const ScreenSettingsUpdateKindSchema = withParser(Schema.Literal('get', 'replace'));
 export const ScreenSettingsUpdateStatusSchema = withParser(Schema.Literal('accepted', 'rejected'));
@@ -34,7 +34,7 @@ export const ScreenSettingsRejectionReasonSchema = withParser(
 export const ScreenSettingsGetRequestSchema = withParser(
   Schema.Struct({
     schemaVersion: Schema.Literal(1),
-    requestId: Schema.String,
+    requestId: NonEmptyStringSchema,
     kind: Schema.Literal('get'),
   })
 );
@@ -42,7 +42,7 @@ export const ScreenSettingsGetRequestSchema = withParser(
 export const ScreenSettingsReplaceRequestSchema = withParser(
   Schema.Struct({
     schemaVersion: Schema.Literal(1),
-    requestId: Schema.String,
+    requestId: NonEmptyStringSchema,
     kind: Schema.Literal('replace'),
     baseSettingVersion: Schema.Union(Schema.Number, Schema.Null),
     setting: ScreenAnalysisParentSettingSchema,
@@ -56,13 +56,13 @@ export const ScreenSettingsUpdateRequestSchema = withParser(
 export const ScreenSettingsUpdateResponseSchema = withParser(
   Schema.Struct({
     schemaVersion: Schema.Literal(1),
-    requestId: Schema.String,
+    requestId: NonEmptyStringSchema,
     kind: ScreenSettingsUpdateKindSchema,
     status: ScreenSettingsUpdateStatusSchema,
     setting: Schema.Union(ScreenAnalysisParentSettingSchema, Schema.Null),
-    auditEventId: Schema.Union(Schema.String, Schema.Null),
+    auditEventId: Schema.Union(NonEmptyStringSchema, Schema.Null),
     rejectionReason: Schema.Union(ScreenSettingsRejectionReasonSchema, Schema.Null),
-    message: Schema.Union(Schema.String, Schema.Null),
+    message: Schema.Union(NonEmptyStringSchema, Schema.Null),
   })
 );
 
@@ -99,7 +99,7 @@ export type ScreenSettingsAdapterResult =
 
 export type ScreenSettingsCommandPeerInput = {
   readonly peerId: string;
-  readonly role: 'portal' | 'agent-service' | 'cloud-relay';
+  readonly role: AgentPeerRole;
 };
 
 export type ScreenSettingsCommandTargetInput = {

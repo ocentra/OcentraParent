@@ -8,6 +8,10 @@ import {
   AgentPairingProofSchema,
   AgentProtocolDefaults,
 } from '../../src/contracts';
+import {
+  AgentLanBrowserRuntimeCommandNameLiteral,
+  AgentLanBrowserRuntimeEventNameLiteral,
+} from '../../src/lan-pairing-browser-runtime';
 
 const EXPECTED_AGENT_COMMAND_ENTRIES = [
   ['ActivityIngestStatusGet', 'agent.activity.ingest.status.get'],
@@ -73,8 +77,8 @@ const EXPECTED_AGENT_COMMAND_ENTRIES = [
   ['LanPairingRouteSelect', 'agent.lan-pairing.route.select'],
   ['LanPairingRouteRevoke', 'agent.lan-pairing.route.revoke'],
   ['LanPairingStatusGet', 'agent.lan-pairing.status.get'],
-  ['LanPairingBrowserDiscoveryScan', 'agent.lan-pairing.browser-discovery.scan'],
-  ['LanPairingAddDeviceRequest', 'agent.lan-pairing.add-device.request'],
+  ['LanPairingBrowserDiscoveryScan', AgentLanBrowserRuntimeCommandNameLiteral.BrowserDiscoveryScan],
+  ['LanPairingAddDeviceRequest', AgentLanBrowserRuntimeCommandNameLiteral.AddDeviceRequest],
   ['LanPairingControllerLeaseRenew', 'agent.lan-pairing.controller-lease.renew'],
   ['LanPairingControllerLeaseRelease', 'agent.lan-pairing.controller-lease.release'],
   ['LanPairingControllerLeaseTakeover', 'agent.lan-pairing.controller-lease.takeover'],
@@ -151,6 +155,8 @@ const EXPECTED_AGENT_EVENT_ENTRIES = [
   ['ParentAssistantProviderDegraded', 'agent.parent-assistant.provider.degraded'],
   ['ParentAssistantErrorReported', 'agent.parent-assistant.error.reported'],
   ['LanPairingStatusReported', 'agent.lan-pairing.status.reported'],
+  ['LanPairingBrowserDiscoveryReported', AgentLanBrowserRuntimeEventNameLiteral.BrowserDiscoveryReported],
+  ['LanPairingAddDeviceReported', AgentLanBrowserRuntimeEventNameLiteral.AddDeviceReported],
   ['LanPairingAuditReported', 'agent.lan-pairing.audit.reported'],
   ['LanAiJobReported', 'agent.lan-ai.job.reported'],
 ] as const satisfies ReadonlyArray<readonly [keyof typeof AgentEvent, unknown]>;
@@ -272,8 +278,8 @@ it('AgentLanPairingSupportedWebSocketCommand: keeps V0.9 LAN pairing support lim
     'agent.lan-pairing.route.select',
     'agent.lan-pairing.route.revoke',
     'agent.lan-pairing.status.get',
-    'agent.lan-pairing.browser-discovery.scan',
-    'agent.lan-pairing.add-device.request',
+    AgentLanBrowserRuntimeCommandNameLiteral.BrowserDiscoveryScan,
+    AgentLanBrowserRuntimeCommandNameLiteral.AddDeviceRequest,
     'agent.lan-pairing.controller-lease.renew',
     'agent.lan-pairing.controller-lease.release',
     'agent.lan-pairing.controller-lease.takeover',

@@ -1,4 +1,9 @@
-import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
+import {
+  type Infer,
+  Schema,
+  withParser,
+  brandedNonEmptyStringSchema
+} from '@ocentra-parent/schema-domain/effect';
 import {
   AppGameChildUxLocalOutboxSchedulerBridgeReadModelSchema,
   AppGameChildUxLocalOutboxSchedulerBridgeStatus,
@@ -14,9 +19,7 @@ import { FamilyReferenceSchema } from '@ocentra-parent/family-domain/references'
 import {
   V3NotificationParentPreferenceStateSchema,
   V3NotificationQuietHoursDecisionSchema,
-} from './v3-notification-rule-provider-retry-contract';
-
-const ChildUxPreferencePreflightText = Schema.String.pipe(Schema.minLength(1));
+} from '@ocentra-parent/notification-domain/v3-notification-rule-provider-retry-contract';
 
 export const AppGameChildUxLocalOutboxPreferencePreflightStatus = {
   ParentPreferenceRequired: 'parent-preference-required',
@@ -47,12 +50,8 @@ export const AppGameChildUxLocalOutboxPreferencePreflightStatusSchema = withPars
 export const AppGameChildUxLocalOutboxPreferencePreflightNonClaimSchema = withParser(
   Schema.Literal(...RequiredAppGameChildUxLocalOutboxPreferencePreflightNonClaims)
 );
-export const AppGameChildUxLocalOutboxPreferencePreflightIdSchema = ChildUxPreferencePreflightText.pipe(
-  Schema.brand('AppGameChildUxLocalOutboxPreferencePreflightId')
-);
-export const AppGameChildUxLocalOutboxPreferencePreflightReferenceSchema = ChildUxPreferencePreflightText.pipe(
-  Schema.brand('AppGameChildUxLocalOutboxPreferencePreflightReference')
-);
+export const AppGameChildUxLocalOutboxPreferencePreflightIdSchema = brandedNonEmptyStringSchema('AppGameChildUxLocalOutboxPreferencePreflightId');
+export const AppGameChildUxLocalOutboxPreferencePreflightReferenceSchema = brandedNonEmptyStringSchema('AppGameChildUxLocalOutboxPreferencePreflightReference');
 
 const AppGameChildUxLocalOutboxPreferencePreflightRowBaseSchema = Schema.Struct({
   preferenceRowId: AppGameChildUxLocalOutboxPreferencePreflightReferenceSchema,
@@ -318,3 +317,4 @@ function countRows(
 ): number {
   return rows.filter((row) => row.status === status).length;
 }
+

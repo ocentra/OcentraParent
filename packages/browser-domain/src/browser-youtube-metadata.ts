@@ -1,4 +1,9 @@
-import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
+import {
+  type Infer,
+  Schema,
+  withParser,
+  NonEmptyStringSchema
+} from '@ocentra-parent/schema-domain/effect';
 import { ActivityEvidenceIdSchema, ActivityTimestampSchema } from '@ocentra-parent/evidence-domain/primitives';
 import { BrowserPageTitleSchema, BrowserUrlSchema } from './browser-schemas';
 import {
@@ -13,9 +18,7 @@ import {
   BrowserUrlMetadataEvidenceSchema,
   BrowserUrlMetadataSchemaVersion,
 } from './browser-url-metadata-schemas';
-
-const NonEmptyYouTubeMetadataText = Schema.String.pipe(Schema.minLength(1));
-const OptionalYouTubeMetadataTextSchema = Schema.Union(NonEmptyYouTubeMetadataText, Schema.Null);
+const OptionalYouTubeMetadataTextSchema = Schema.Union(NonEmptyStringSchema, Schema.Null);
 const OptionalYouTubeMetadataUrlSchema = Schema.Union(BrowserUrlSchema, Schema.Null);
 const OptionalYouTubeMetadataDurationSecondsSchema = Schema.Union(
   Schema.Number.pipe(Schema.nonNegative(), Schema.int()),
@@ -135,3 +138,4 @@ function youtubeSchemaOrgType(value: BrowserUrlShapeClassificationResult) {
   }
   return null;
 }
+

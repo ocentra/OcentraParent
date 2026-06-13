@@ -1,8 +1,6 @@
-import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
+import { type Infer, brandedNonEmptyStringSchema, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
 import { ParentControlCapabilityNameSchema, ParentControlCapabilityStatusSchema } from '@ocentra-parent/capability-domain/capabilities';
 import { ParentTimestampSchema } from '@ocentra-parent/family-domain/reference-primitives';
-
-const NonEmptyChildAndroidDeviceProofText = Schema.String.pipe(Schema.minLength(1));
 
 export const ChildAndroidDeviceProofArtifactGateSchemaVersionSchema = withParser(
   Schema.Literal('child-android-device-proof-artifact-gate')
@@ -79,18 +77,10 @@ export const ChildAndroidDeviceProofCustodyStateSchema = withParser(
   Schema.Literal('not-collected', 'ci-artifacts-only', 'ready-for-human-review', 'rejected-overclaim')
 );
 
-export const ChildAndroidDeviceProofPathSchema = NonEmptyChildAndroidDeviceProofText.pipe(
-  Schema.brand('ChildAndroidDeviceProofPath')
-);
-export const ChildAndroidDeviceProofCommandSchema = NonEmptyChildAndroidDeviceProofText.pipe(
-  Schema.brand('ChildAndroidDeviceProofCommand')
-);
-export const ChildAndroidDeviceProofSummarySchema = NonEmptyChildAndroidDeviceProofText.pipe(
-  Schema.brand('ChildAndroidDeviceProofSummary')
-);
-export const ChildAndroidDeviceProofBoundarySchema = NonEmptyChildAndroidDeviceProofText.pipe(
-  Schema.brand('ChildAndroidDeviceProofBoundary')
-);
+export const ChildAndroidDeviceProofPathSchema = brandedNonEmptyStringSchema('ChildAndroidDeviceProofPath');
+export const ChildAndroidDeviceProofCommandSchema = brandedNonEmptyStringSchema('ChildAndroidDeviceProofCommand');
+export const ChildAndroidDeviceProofSummarySchema = brandedNonEmptyStringSchema('ChildAndroidDeviceProofSummary');
+export const ChildAndroidDeviceProofBoundarySchema = brandedNonEmptyStringSchema('ChildAndroidDeviceProofBoundary');
 
 export const ChildAndroidDeviceProofSourceInputSchema = withParser(
   Schema.Struct({

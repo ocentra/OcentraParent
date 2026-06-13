@@ -1,4 +1,10 @@
-import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
+import {
+  type Infer,
+  Schema,
+  withParser,
+  brandedNonEmptyStringSchema,
+  NonEmptyStringSchema
+} from '@ocentra-parent/schema-domain/effect';
 import {
   AppGamePolicyCompiledDecisionSchema,
   AppGamePolicyCompiledDecisionIdSchema,
@@ -35,17 +41,9 @@ import {
   ParentTimestampSchema,
 } from '@ocentra-parent/family-domain/reference-primitives';
 
-const NonEmptyPreviewHandoffText = Schema.String.pipe(Schema.minLength(1));
-
-export const AppGamePolicyPreviewHandoffIdSchema = NonEmptyPreviewHandoffText.pipe(
-  Schema.brand('AppGamePolicyPreviewHandoffId')
-);
-export const AppGamePolicyPreviewHandoffRowIdSchema = NonEmptyPreviewHandoffText.pipe(
-  Schema.brand('AppGamePolicyPreviewHandoffRowId')
-);
-export const AppGamePolicyPreviewHandoffSourceContractRefSchema = NonEmptyPreviewHandoffText.pipe(
-  Schema.brand('AppGamePolicyPreviewHandoffSourceContractRef')
-);
+export const AppGamePolicyPreviewHandoffIdSchema = brandedNonEmptyStringSchema('AppGamePolicyPreviewHandoffId');
+export const AppGamePolicyPreviewHandoffRowIdSchema = brandedNonEmptyStringSchema('AppGamePolicyPreviewHandoffRowId');
+export const AppGamePolicyPreviewHandoffSourceContractRefSchema = brandedNonEmptyStringSchema('AppGamePolicyPreviewHandoffSourceContractRef');
 export const AppGamePolicyPreviewHandoffRuntimeClaimStateSchema = withParser(Schema.Literal('not-claimed'));
 export const AppGamePolicyPreviewHandoffAdapterDispatchStateSchema = withParser(Schema.Literal('not-dispatched'));
 
@@ -88,9 +86,9 @@ const AppGamePolicyPreviewHandoffRowBaseSchema = Schema.Struct({
   rejectionReason: AppGamePolicyCompilerRejectionReasonSchema,
   ruleRefs: Schema.Array(PolicyRuleIdSchema),
   evidenceReferences: Schema.Array(ParentEvidenceReferenceSchema),
-  capabilityRefs: Schema.Array(NonEmptyPreviewHandoffText),
-  authorityRefs: Schema.Array(NonEmptyPreviewHandoffText),
-  auditRefs: Schema.Array(NonEmptyPreviewHandoffText),
+  capabilityRefs: Schema.Array(NonEmptyStringSchema),
+  authorityRefs: Schema.Array(NonEmptyStringSchema),
+  auditRefs: Schema.Array(NonEmptyStringSchema),
   dryRun: Schema.Boolean,
   enforcementHandoffState: PolicyDecisionHandoffStateSchema,
   policyEvaluatorRuntimeClaimState: AppGamePolicyPreviewHandoffRuntimeClaimStateSchema,
@@ -245,3 +243,4 @@ export const decodeAppGamePolicyPreviewHandoffReadModel = Schema.decodeUnknownSy
 );
 
 export { AppGamePolicyPreviewStatus, AppGamePolicyPreviewTargetDomain };
+

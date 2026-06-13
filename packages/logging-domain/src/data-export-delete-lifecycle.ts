@@ -1,14 +1,17 @@
-import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
+import {
+  type Infer,
+  Schema,
+  withParser,
+  NonEmptyStringSchema
+} from '@ocentra-parent/schema-domain/effect';
 
 import {
   dataExportDeleteLifecycleCoversRequiredStates,
   dataExportDeleteLifecycleEntryIsSafe,
 } from './data-export-delete-lifecycle-guards.js';
 
-const NonEmptyDataExportDeleteLifecycleText = Schema.String.pipe(Schema.minLength(1));
-
 const dataExportDeleteLifecycleText = <Brand extends string>(brand: Brand) =>
-  NonEmptyDataExportDeleteLifecycleText.pipe(Schema.brand(brand));
+  NonEmptyStringSchema.pipe(Schema.brand(brand));
 
 export const DataExportDeleteLifecycleReadModelIdSchema = dataExportDeleteLifecycleText(
   'DataExportDeleteLifecycleReadModelId'
@@ -142,3 +145,4 @@ export const decodeDataExportDeleteLifecycleEntry = Schema.decodeUnknownSync(Dat
 export const decodeDataExportDeleteLifecycleReadModel = Schema.decodeUnknownSync(
   DataExportDeleteLifecycleReadModelSchema
 );
+

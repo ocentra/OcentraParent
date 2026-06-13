@@ -18,12 +18,12 @@ const mobileScreenshotPath = join(screenshotDir, 'screen-child-disclosure-mobile
 run('npx', [
   'vitest',
   'run',
-  'packages/activity-domain/tests/screen-child-disclosure.test.ts',
-  'packages/activity-domain/tests/screen-child-disclosure-page.test.ts',
+  'packages/screen-domain/tests/unit/screen-child-disclosure.test.ts',
+  'packages/screen-domain/tests/unit/screen-child-disclosure-page.test.ts',
 ]);
-run('npm', ['run', 'build', '--workspace=@ocentra-parent/activity-domain']);
+run('npm', ['run', 'build', '--workspace=@ocentra-parent/screen-domain']);
 
-const screenEvidence = await import('../../packages/activity-domain/dist/screen-evidence.js');
+const screenEvidence = await import('../../packages/screen-domain/dist/screen-evidence.js');
 const snapshots = screenEvidence.screenChildDisclosureProofSnapshots();
 const parsed = snapshots.map((snapshot) => screenEvidence.ScreenChildDisclosureSnapshotSchema.parse(snapshot));
 const pageModel = screenEvidence.createScreenChildDisclosurePageModel(parsed);
@@ -61,7 +61,7 @@ await captureScreenshots(renderedHtmlPath);
 const proof = {
   proofId: 'screen-child-disclosure-proof',
   generatedAt: '2026-06-06T21:55:00Z',
-  source: '@ocentra-parent/activity-domain screen child disclosure contracts',
+  source: '@ocentra-parent/screen-domain screen child disclosure contracts',
   assertions: [
     'child-visible screen disclosure states are schema-backed',
     'disabled-by-parent state cannot claim cadence, trigger, or active capture',

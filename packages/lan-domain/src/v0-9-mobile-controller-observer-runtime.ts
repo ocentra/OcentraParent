@@ -1,4 +1,9 @@
-import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
+import {
+  type Infer,
+  Schema,
+  withParser,
+  brandedNonEmptyStringSchema
+} from '@ocentra-parent/schema-domain/effect';
 import {
   LanPairingIntentKindSchema,
   LanPairingRejectionReasonSchema,
@@ -13,10 +18,8 @@ import {
   ParentMobileSigningStateSchema,
   ParentMobileStoreDistributionStateSchema,
 } from './parent-mobile-runtime';
-import { ParentControlCapabilityNameSchema, ParentControlCapabilityStatusSchema } from './capabilities';
+import { ParentControlCapabilityNameSchema, ParentControlCapabilityStatusSchema } from '@ocentra-parent/capability-domain/capabilities';
 import { ParentDeviceIdSchema, ParentEvidenceReferenceIdSchema, ParentTimestampSchema } from '@ocentra-parent/family-domain/reference-primitives';
-
-const NonEmptyV09ObserverRuntimeText = Schema.String.pipe(Schema.minLength(1));
 
 export const V09MobileControllerObserverRuntimeSchemaVersionSchema = withParser(
   Schema.Literal('v0.9-mobile-controller-observer-runtime')
@@ -68,27 +71,13 @@ export const V09MobileControllerObserverControllerLeaseStateSchema = withParser(
   Schema.Literal('visible-read-only', 'manual-required', 'unavailable')
 );
 
-export const V09MobileControllerObserverProofLabelSchema = NonEmptyV09ObserverRuntimeText.pipe(
-  Schema.brand('V09MobileControllerObserverProofLabel')
-);
-export const V09MobileControllerObserverProofPathSchema = NonEmptyV09ObserverRuntimeText.pipe(
-  Schema.brand('V09MobileControllerObserverProofPath')
-);
-export const V09MobileControllerObserverProofCommandSchema = NonEmptyV09ObserverRuntimeText.pipe(
-  Schema.brand('V09MobileControllerObserverProofCommand')
-);
-export const V09MobileControllerObserverProofRequirementSchema = NonEmptyV09ObserverRuntimeText.pipe(
-  Schema.brand('V09MobileControllerObserverProofRequirement')
-);
-export const V09MobileControllerObserverClaimBoundarySchema = NonEmptyV09ObserverRuntimeText.pipe(
-  Schema.brand('V09MobileControllerObserverClaimBoundary')
-);
-const V09MobileControllerObserverRouteIdSchema = NonEmptyV09ObserverRuntimeText.pipe(
-  Schema.brand('V09MobileControllerObserverRouteId')
-);
-const V09MobileControllerObserverControllerLeaseIdSchema = NonEmptyV09ObserverRuntimeText.pipe(
-  Schema.brand('V09MobileControllerObserverControllerLeaseId')
-);
+export const V09MobileControllerObserverProofLabelSchema = brandedNonEmptyStringSchema('V09MobileControllerObserverProofLabel');
+export const V09MobileControllerObserverProofPathSchema = brandedNonEmptyStringSchema('V09MobileControllerObserverProofPath');
+export const V09MobileControllerObserverProofCommandSchema = brandedNonEmptyStringSchema('V09MobileControllerObserverProofCommand');
+export const V09MobileControllerObserverProofRequirementSchema = brandedNonEmptyStringSchema('V09MobileControllerObserverProofRequirement');
+export const V09MobileControllerObserverClaimBoundarySchema = brandedNonEmptyStringSchema('V09MobileControllerObserverClaimBoundary');
+const V09MobileControllerObserverRouteIdSchema = brandedNonEmptyStringSchema('V09MobileControllerObserverRouteId');
+const V09MobileControllerObserverControllerLeaseIdSchema = brandedNonEmptyStringSchema('V09MobileControllerObserverControllerLeaseId');
 
 export const V09MobileControllerObserverPackageReadinessSchema = withParser(
   Schema.Struct({
@@ -486,3 +475,4 @@ export type V09MobileControllerObserverClaimBoundaries = Infer<typeof V09MobileC
 export type V09MobileControllerObserverRuntimeReadModel = Infer<
   typeof V09MobileControllerObserverRuntimeReadModelSchema
 >;
+

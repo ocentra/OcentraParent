@@ -1,32 +1,36 @@
-import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
+import {
+  type Infer,
+  Schema,
+  withParser,
+  brandedNonEmptyStringSchema,
+  NonEmptyStringSchema
+} from '@ocentra-parent/schema-domain/effect';
 import { ParentContractSchemaVersionSchema, ParentDeviceIdSchema, ParentTimestampSchema } from '@ocentra-parent/family-domain/reference-primitives';
 
-const AppControlCatalogTextSchema = Schema.String.pipe(Schema.minLength(1));
-
 export const AppControlCatalogIdSchema = withParser(
-  AppControlCatalogTextSchema.pipe(Schema.brand('AppControlCatalogId'))
+  brandedNonEmptyStringSchema('AppControlCatalogId')
 );
 export const AppControlSectionIdSchema = withParser(
-  AppControlCatalogTextSchema.pipe(Schema.brand('AppControlSectionId'))
+  brandedNonEmptyStringSchema('AppControlSectionId')
 );
-export const AppControlGroupIdSchema = withParser(AppControlCatalogTextSchema.pipe(Schema.brand('AppControlGroupId')));
+export const AppControlGroupIdSchema = withParser(brandedNonEmptyStringSchema('AppControlGroupId'));
 export const AppControlSettingIdSchema = withParser(
-  AppControlCatalogTextSchema.pipe(Schema.brand('AppControlSettingId'))
+  brandedNonEmptyStringSchema('AppControlSettingId')
 );
 export const AppControlOptionIdSchema = withParser(
-  AppControlCatalogTextSchema.pipe(Schema.brand('AppControlOptionId'))
+  brandedNonEmptyStringSchema('AppControlOptionId')
 );
 export const AppControlWritesToPathSchema = withParser(
-  AppControlCatalogTextSchema.pipe(Schema.brand('AppControlWritesToPath'))
+  brandedNonEmptyStringSchema('AppControlWritesToPath')
 );
 export const AppControlCapabilityIdSchema = withParser(
-  AppControlCatalogTextSchema.pipe(Schema.brand('AppControlCapabilityId'))
+  brandedNonEmptyStringSchema('AppControlCapabilityId')
 );
 export const AppControlPolicyDocumentIdSchema = withParser(
-  AppControlCatalogTextSchema.pipe(Schema.brand('AppControlPolicyDocumentId'))
+  brandedNonEmptyStringSchema('AppControlPolicyDocumentId')
 );
 export const AppControlPolicyHashSchema = withParser(
-  AppControlCatalogTextSchema.pipe(Schema.brand('AppControlPolicyHash'))
+  brandedNonEmptyStringSchema('AppControlPolicyHash')
 );
 
 export const AppControlSidePanelCategorySchema = withParser(Schema.Literal('apps'));
@@ -109,20 +113,20 @@ export const AppControlEffectModeSchema = withParser(
   Schema.Literal('off', 'observe', 'dry-run', 'warn', 'notify', 'ask', 'limit', 'block', 'enforce', 'audit-only')
 );
 export const AppControlPolicyValuePrimitiveSchema = Schema.Union(
-  Schema.String,
+  NonEmptyStringSchema,
   Schema.Number,
   Schema.Boolean,
-  Schema.Array(Schema.String),
+  Schema.Array(NonEmptyStringSchema),
   Schema.Null
 );
 
 export const AppControlCatalogOptionSchema = withParser(
   Schema.Struct({
     optionId: AppControlOptionIdSchema,
-    label: AppControlCatalogTextSchema,
-    value: AppControlCatalogTextSchema,
-    originalSourceText: AppControlCatalogTextSchema,
-    meaning: Schema.Union(AppControlCatalogTextSchema, Schema.Null),
+    label: NonEmptyStringSchema,
+    value: NonEmptyStringSchema,
+    originalSourceText: NonEmptyStringSchema,
+    meaning: Schema.Union(NonEmptyStringSchema, Schema.Null),
     defaultSelected: Schema.Boolean,
   })
 );
@@ -141,7 +145,7 @@ export const AppControlCatalogLayoutHintsSchema = withParser(
 export const AppControlCatalogRuleSchema = withParser(
   Schema.Struct({
     ruleId: AppControlSettingIdSchema,
-    description: AppControlCatalogTextSchema,
+    description: NonEmptyStringSchema,
   })
 );
 
@@ -152,17 +156,17 @@ export const AppControlCatalogSettingSchema = withParser(
     sectionId: AppControlSectionIdSchema,
     groupId: AppControlGroupIdSchema,
     settingId: AppControlSettingIdSchema,
-    sourceDocument: AppControlCatalogTextSchema,
-    sourceHeadingPath: Schema.Array(AppControlCatalogTextSchema),
+    sourceDocument: NonEmptyStringSchema,
+    sourceHeadingPath: Schema.Array(NonEmptyStringSchema),
     sourceSection: AppControlSectionIdSchema,
     sourceGroup: AppControlGroupIdSchema,
     sourceOrder: Schema.Number,
     sourceLine: Schema.Number,
-    sourceText: AppControlCatalogTextSchema,
-    originalSourceText: AppControlCatalogTextSchema,
-    question: AppControlCatalogTextSchema,
-    uiQuestionText: AppControlCatalogTextSchema,
-    helperText: Schema.Union(AppControlCatalogTextSchema, Schema.Null),
+    sourceText: NonEmptyStringSchema,
+    originalSourceText: NonEmptyStringSchema,
+    question: NonEmptyStringSchema,
+    uiQuestionText: NonEmptyStringSchema,
+    helperText: Schema.Union(NonEmptyStringSchema, Schema.Null),
     displayOrder: Schema.Number,
     controlKind: AppControlKindSchema,
     cardKind: AppControlCardKindSchema,
@@ -176,19 +180,19 @@ export const AppControlCatalogSettingSchema = withParser(
     effectStatus: AppControlEffectStatusSchema,
     runtimeOwner: AppControlRuntimeOwnerSchema,
     capabilityState: AppControlCapabilityStateSchema,
-    capabilityRequirement: Schema.Union(AppControlCatalogTextSchema, Schema.Null),
-    proofRequirement: Schema.Union(AppControlCatalogTextSchema, Schema.Null),
+    capabilityRequirement: Schema.Union(NonEmptyStringSchema, Schema.Null),
+    proofRequirement: Schema.Union(NonEmptyStringSchema, Schema.Null),
     visibilityConditions: Schema.Array(AppControlCatalogRuleSchema),
     enabledConditions: Schema.Array(AppControlCatalogRuleSchema),
     validationRules: Schema.Array(AppControlCatalogRuleSchema),
-    unsafeOrUnsupportedFallback: Schema.Union(AppControlCatalogTextSchema, Schema.Null),
+    unsafeOrUnsupportedFallback: Schema.Union(NonEmptyStringSchema, Schema.Null),
   })
 );
 
 export const AppControlCatalogGroupSchema = withParser(
   Schema.Struct({
     groupId: AppControlGroupIdSchema,
-    title: AppControlCatalogTextSchema,
+    title: NonEmptyStringSchema,
     sourceOrder: Schema.Number,
     settings: Schema.Array(AppControlCatalogSettingSchema),
   })
@@ -197,7 +201,7 @@ export const AppControlCatalogGroupSchema = withParser(
 export const AppControlCatalogSectionSchema = withParser(
   Schema.Struct({
     sectionId: AppControlSectionIdSchema,
-    title: AppControlCatalogTextSchema,
+    title: NonEmptyStringSchema,
     sourceOrder: Schema.Number,
     policyLane: AppControlUiTabSchema,
     groups: Schema.Array(AppControlCatalogGroupSchema),
@@ -209,7 +213,7 @@ export const AppControlAuthoringCatalogSchema = withParser(
     schemaVersion: ParentContractSchemaVersionSchema,
     catalogId: AppControlCatalogIdSchema,
     sidePanelCategory: AppControlSidePanelCategorySchema,
-    sourceDocuments: Schema.Array(AppControlCatalogTextSchema),
+    sourceDocuments: Schema.Array(NonEmptyStringSchema),
     settingCount: Schema.Number,
     acceptedOptionCount: Schema.Number,
     targetScopeOptions: Schema.Array(AppControlTargetScopeSchema),
@@ -222,8 +226,8 @@ export const AppControlCapabilitySchema = withParser(
   Schema.Struct({
     capabilityId: AppControlCapabilityIdSchema,
     state: AppControlCapabilityStateSchema,
-    proof: AppControlCatalogTextSchema,
-    source: AppControlCatalogTextSchema,
+    proof: NonEmptyStringSchema,
+    source: NonEmptyStringSchema,
     affectsSettings: Schema.Array(AppControlSettingIdSchema),
   })
 );
@@ -258,7 +262,7 @@ export const AppControlEffectivePolicySchema = withParser(
         settingId: AppControlSettingIdSchema,
         effectStatus: AppControlEffectStatusSchema,
         runtimeOwner: AppControlRuntimeOwnerSchema,
-        fallback: AppControlCatalogTextSchema,
+        fallback: NonEmptyStringSchema,
       })
     ),
   })
@@ -266,7 +270,7 @@ export const AppControlEffectivePolicySchema = withParser(
 
 export const AppControlUpdateCommandSchema = withParser(
   Schema.Struct({
-    commandType: AppControlCatalogTextSchema,
+    commandType: NonEmptyStringSchema,
     targetDeviceId: ParentDeviceIdSchema,
     expectedRevision: Schema.Union(Schema.Number, Schema.Null),
     patch: Schema.Array(
@@ -293,3 +297,4 @@ export type AppControlCapability = Infer<typeof AppControlCapabilitySchema>;
 export type AppControlPolicyValue = Infer<typeof AppControlPolicyValueSchema>;
 export type AppControlEffectivePolicy = Infer<typeof AppControlEffectivePolicySchema>;
 export type AppControlUpdateCommand = Infer<typeof AppControlUpdateCommandSchema>;
+

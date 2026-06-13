@@ -1,8 +1,6 @@
-import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
+import { type Infer, brandedNonEmptyStringSchema, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
 import { ParentControlCapabilityNameSchema, ParentControlCapabilityStatusSchema } from '@ocentra-parent/capability-domain/capabilities';
 import { ParentTimestampSchema } from '@ocentra-parent/family-domain/reference-primitives';
-
-const NonEmptyChildAndroidServiceText = Schema.String.pipe(Schema.minLength(1));
 
 export const ChildAndroidServiceProtocolProofSchemaVersionSchema = withParser(
   Schema.Literal('child-android-service-protocol-capability-proof')
@@ -73,21 +71,11 @@ export const ChildAndroidServiceStatusExportFieldSchema = withParser(
   )
 );
 
-const ChildAndroidServicePackageIdSchema = NonEmptyChildAndroidServiceText.pipe(
-  Schema.brand('ChildAndroidServicePackageId')
-);
-const ChildAndroidServiceClassNameSchema = NonEmptyChildAndroidServiceText.pipe(
-  Schema.brand('ChildAndroidServiceClassName')
-);
-const ChildAndroidServiceRequirementSchema = NonEmptyChildAndroidServiceText.pipe(
-  Schema.brand('ChildAndroidServiceRequirement')
-);
-const ChildAndroidServiceBoundarySchema = NonEmptyChildAndroidServiceText.pipe(
-  Schema.brand('ChildAndroidServiceBoundary')
-);
-const ChildAndroidServiceIdentifierSchema = NonEmptyChildAndroidServiceText.pipe(
-  Schema.brand('ChildAndroidServiceIdentifier')
-);
+const ChildAndroidServicePackageIdSchema = brandedNonEmptyStringSchema('ChildAndroidServicePackageId');
+const ChildAndroidServiceClassNameSchema = brandedNonEmptyStringSchema('ChildAndroidServiceClassName');
+const ChildAndroidServiceRequirementSchema = brandedNonEmptyStringSchema('ChildAndroidServiceRequirement');
+const ChildAndroidServiceBoundarySchema = brandedNonEmptyStringSchema('ChildAndroidServiceBoundary');
+const ChildAndroidServiceIdentifierSchema = brandedNonEmptyStringSchema('ChildAndroidServiceIdentifier');
 
 export const ChildAndroidForegroundServiceProofSchema = withParser(
   Schema.Struct({

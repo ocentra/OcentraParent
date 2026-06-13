@@ -1,1 +1,1 @@
-export * from '@ocentra-parent/social-domain/social-parent-notification-delivery-readiness';
+export * from '@ocentra-parent/browser-domain/social-parent-notification-delivery-readiness';

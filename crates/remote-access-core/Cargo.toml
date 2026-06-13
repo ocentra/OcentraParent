@@ -1,0 +1,15 @@
+[package]
+name = "ocentra-remote-access-core"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+
+[lints]
+workspace = true
+
+[lib]
+path = "src/lib.rs"
+
+[dependencies]
+ocentra-family-identity-core = { path = "../family-identity-core" }
+ocentra-policy-control-core = { path = "../policy-control-core" }

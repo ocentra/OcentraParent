@@ -1,12 +1,14 @@
-import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
-
-const ProviderAdTextSchema = Schema.String.pipe(Schema.minLength(1));
+import {
+  type Infer,
+  Schema,
+  withParser,
+  brandedNonEmptyStringSchema,
+  NonEmptyStringSchema
+} from '@ocentra-parent/schema-domain/effect';
 const ProviderAdCountSchema = Schema.Number.pipe(Schema.nonNegative(), Schema.int());
 const ProviderAdPositiveCountSchema = Schema.Number.pipe(Schema.positive(), Schema.int());
 
-export const HouseholdAiProviderAdvertisementHeartbeatProofIdSchema = ProviderAdTextSchema.pipe(
-  Schema.brand('HouseholdAiProviderAdvertisementHeartbeatProofId')
-);
+export const HouseholdAiProviderAdvertisementHeartbeatProofIdSchema = brandedNonEmptyStringSchema('HouseholdAiProviderAdvertisementHeartbeatProofId');
 
 export const HouseholdAiProviderAdvertisementStateSchema = withParser(
   Schema.Literal('eligible', 'stale', 'offline', 'revoked', 'unsupported')
@@ -40,11 +42,11 @@ export const HouseholdAiProviderHeartbeatBoundarySchema = withParser(
 );
 
 const HouseholdAiProviderAdvertisementRowSchema = Schema.Struct({
-  providerId: ProviderAdTextSchema,
-  deviceId: ProviderAdTextSchema,
-  providerTrustRef: ProviderAdTextSchema,
-  advertisementId: ProviderAdTextSchema,
-  heartbeatId: ProviderAdTextSchema,
+  providerId: NonEmptyStringSchema,
+  deviceId: NonEmptyStringSchema,
+  providerTrustRef: NonEmptyStringSchema,
+  advertisementId: NonEmptyStringSchema,
+  heartbeatId: NonEmptyStringSchema,
   state: HouseholdAiProviderAdvertisementStateSchema,
   capabilities: Schema.Array(HouseholdAiProviderCapabilitySchema),
   resourceClass: HouseholdAiProviderResourceClassSchema,
@@ -53,12 +55,12 @@ const HouseholdAiProviderAdvertisementRowSchema = Schema.Struct({
   heartbeatTtlMs: ProviderAdPositiveCountSchema,
   rawPayloadAdvertised: Schema.Literal(false),
   remoteApiAdvertised: Schema.Literal(false),
-  rejectionReason: Schema.NullOr(ProviderAdTextSchema),
+  rejectionReason: Schema.NullOr(NonEmptyStringSchema),
 });
 
 const HouseholdAiProviderAdvertisementHeartbeatProofBaseSchema = Schema.Struct({
   proofId: HouseholdAiProviderAdvertisementHeartbeatProofIdSchema,
-  generatedAt: ProviderAdTextSchema,
+  generatedAt: NonEmptyStringSchema,
   requestedCapability: Schema.Literal('screen-ai-analysis'),
   advertisements: Schema.Array(HouseholdAiProviderAdvertisementRowSchema),
   validationSummary: Schema.Struct({
@@ -254,3 +256,4 @@ function noRawOrRemoteAdvertisement(proof: HouseholdAiProviderAdvertisementHeart
 export const decodeHouseholdAiProviderAdvertisementHeartbeatProof = Schema.decodeUnknownSync(
   HouseholdAiProviderAdvertisementHeartbeatProofSchema
 );
+

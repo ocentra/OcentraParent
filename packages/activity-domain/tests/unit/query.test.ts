@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { ActivityEventKind, ActivityObserver, ActivitySubjectKind } from '../../src/kinds';
+import { ActivityEventKind, ActivityObserver, ActivitySubjectKind } from '@ocentra-parent/evidence-domain/kinds';
 import {
   ActivityIngestStatusSchema,
   ActivityQuerySchemaVersion,

@@ -1,4 +1,11 @@
-import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
+import { type Infer, NonEmptyStringSchema, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
+import {
+  ParentEvidenceReferenceIdSchema,
+  ParentEvidenceReferenceKindSchema,
+} from '@ocentra-parent/family-domain/reference-primitives';
+import {
+  LanPairingAuditEventTypeSchema as AgentLanPairingAuditEventTypeSchema,
+} from '@ocentra-parent/lan-domain/lan-pairing-values';
 import {
   AgentDeviceIdSchema,
   AgentEventIdSchema,
@@ -7,21 +14,17 @@ import {
   AgentProtocolSchemaVersion,
   AgentRouteSchema,
   AgentTimestampSchema,
-} from './primitives';
+} from '@ocentra-parent/evidence-domain/primitives';
 
-const NonEmptySecurityText = Schema.String.pipe(Schema.minLength(1));
-
-export const AgentPairingIdSchema = NonEmptySecurityText.pipe(Schema.brand('AgentPairingId'));
-export const AgentPairingTokenHashSchema = NonEmptySecurityText.pipe(Schema.brand('AgentPairingTokenHash'));
-export const AgentLanPairingAddressRefSchema = NonEmptySecurityText.pipe(Schema.brand('AgentLanPairingAddressRef'));
-export const AgentLanPairingChallengeIdSchema = NonEmptySecurityText.pipe(Schema.brand('AgentLanPairingChallengeId'));
-const AgentLanPairingEvidenceReferenceIdSchema = NonEmptySecurityText.pipe(
-  Schema.brand('AgentLanPairingEvidenceReferenceId')
-);
-export const AgentLanPairingIntentIdSchema = NonEmptySecurityText.pipe(Schema.brand('AgentLanPairingIntentId'));
-export const AgentLanPairingProofDigestSchema = NonEmptySecurityText.pipe(Schema.brand('AgentLanPairingProofDigest'));
-export const AgentLanPairingRouteIdSchema = NonEmptySecurityText.pipe(Schema.brand('AgentLanPairingRouteId'));
-const AgentLanPairingControllerLeaseIdSchema = NonEmptySecurityText.pipe(
+export const AgentPairingIdSchema = NonEmptyStringSchema.pipe(Schema.brand('AgentPairingId'));
+export const AgentPairingTokenHashSchema = NonEmptyStringSchema.pipe(Schema.brand('AgentPairingTokenHash'));
+export const AgentLanPairingAddressRefSchema = NonEmptyStringSchema.pipe(Schema.brand('AgentLanPairingAddressRef'));
+export const AgentLanPairingChallengeIdSchema = NonEmptyStringSchema.pipe(Schema.brand('AgentLanPairingChallengeId'));
+const AgentLanPairingEvidenceReferenceIdSchema = ParentEvidenceReferenceIdSchema;
+export const AgentLanPairingIntentIdSchema = NonEmptyStringSchema.pipe(Schema.brand('AgentLanPairingIntentId'));
+export const AgentLanPairingProofDigestSchema = NonEmptyStringSchema.pipe(Schema.brand('AgentLanPairingProofDigest'));
+export const AgentLanPairingRouteIdSchema = NonEmptyStringSchema.pipe(Schema.brand('AgentLanPairingRouteId'));
+const AgentLanPairingControllerLeaseIdSchema = NonEmptyStringSchema.pipe(
   Schema.brand('AgentLanPairingControllerLeaseId')
 );
 
@@ -72,31 +75,7 @@ export const AgentLanPairingIntentKindSchema = withParser(
 export const AgentLanPairingResponseStateSchema = withParser(
   Schema.Literal('accepted', 'rejected', 'queued', 'completed', 'degraded')
 );
-const AgentLanPairingEvidenceReferenceKindSchema = withParser(
-  Schema.Literal('journal-event', 'query-store-summary', 'activity-event', 'policy-decision', 'local-ai-result')
-);
-const AgentLanPairingAuditEventTypeSchema = withParser(
-  Schema.Literal(
-    'discovery-advertised',
-    'pairing-challenge-issued',
-    'pairing-proof-accepted',
-    'pairing-proof-rejected',
-    'control-accepted',
-    'control-rejected',
-    'route-selected',
-    'pairing-revoked',
-    'selected-device-changed',
-    'controller-lease-renewed',
-    'controller-lease-released',
-    'controller-lease-takeover-accepted',
-    'controller-lease-takeover-rejected',
-    'lan-ai-provider-advertised',
-    'lan-ai-job-accepted',
-    'lan-ai-job-rejected',
-    'lan-ai-job-completed',
-    'lan-ai-job-degraded'
-  )
-);
+const AgentLanPairingEvidenceReferenceKindSchema = ParentEvidenceReferenceKindSchema;
 export const AgentLanPairingRejectionReasonSchema = withParser(
   Schema.Literal(
     'anonymous',
@@ -124,26 +103,26 @@ export const AgentLanPairingRejectionReasonSchema = withParser(
 export const AgentLanPairingDeviceRefSchema = withParser(
   Schema.Struct({
     deviceId: AgentDeviceIdSchema,
-    childProfileId: Schema.Union(NonEmptySecurityText, Schema.Null),
-    label: NonEmptySecurityText,
+    childProfileId: Schema.Union(NonEmptyStringSchema, Schema.Null),
+    label: NonEmptyStringSchema,
     platform: AgentPlatformSchema,
-    ipAddress: Schema.optionalWith(Schema.Union(NonEmptySecurityText, Schema.Null), { default: () => null }),
-    macAddress: Schema.optionalWith(Schema.Union(NonEmptySecurityText, Schema.Null), { default: () => null }),
-    hostname: Schema.optionalWith(Schema.Union(NonEmptySecurityText, Schema.Null), { default: () => null }),
-    networkInterface: Schema.optionalWith(Schema.Union(NonEmptySecurityText, Schema.Null), { default: () => null }),
-    agentStatus: Schema.optionalWith(Schema.Union(NonEmptySecurityText, Schema.Null), { default: () => null }),
+    ipAddress: Schema.optionalWith(Schema.Union(NonEmptyStringSchema, Schema.Null), { default: () => null }),
+    macAddress: Schema.optionalWith(Schema.Union(NonEmptyStringSchema, Schema.Null), { default: () => null }),
+    hostname: Schema.optionalWith(Schema.Union(NonEmptyStringSchema, Schema.Null), { default: () => null }),
+    networkInterface: Schema.optionalWith(Schema.Union(NonEmptyStringSchema, Schema.Null), { default: () => null }),
+    agentStatus: Schema.optionalWith(Schema.Union(NonEmptyStringSchema, Schema.Null), { default: () => null }),
     hardwareProfile: Schema.optionalWith(
       Schema.Union(
         Schema.Struct({
-          manufacturer: Schema.optionalWith(Schema.Union(NonEmptySecurityText, Schema.Null), { default: () => null }),
-          model: Schema.optionalWith(Schema.Union(NonEmptySecurityText, Schema.Null), { default: () => null }),
-          cpuModel: Schema.optionalWith(Schema.Union(NonEmptySecurityText, Schema.Null), { default: () => null }),
-          cpuCores: Schema.optionalWith(Schema.Union(NonEmptySecurityText, Schema.Null), { default: () => null }),
-          memoryTotal: Schema.optionalWith(Schema.Union(NonEmptySecurityText, Schema.Null), { default: () => null }),
-          gpuModel: Schema.optionalWith(Schema.Union(NonEmptySecurityText, Schema.Null), { default: () => null }),
-          gpuDriver: Schema.optionalWith(Schema.Union(NonEmptySecurityText, Schema.Null), { default: () => null }),
-          gpuMemory: Schema.optionalWith(Schema.Union(NonEmptySecurityText, Schema.Null), { default: () => null }),
-          nvidiaSmi: Schema.optionalWith(Schema.Union(NonEmptySecurityText, Schema.Null), { default: () => null }),
+          manufacturer: Schema.optionalWith(Schema.Union(NonEmptyStringSchema, Schema.Null), { default: () => null }),
+          model: Schema.optionalWith(Schema.Union(NonEmptyStringSchema, Schema.Null), { default: () => null }),
+          cpuModel: Schema.optionalWith(Schema.Union(NonEmptyStringSchema, Schema.Null), { default: () => null }),
+          cpuCores: Schema.optionalWith(Schema.Union(NonEmptyStringSchema, Schema.Null), { default: () => null }),
+          memoryTotal: Schema.optionalWith(Schema.Union(NonEmptyStringSchema, Schema.Null), { default: () => null }),
+          gpuModel: Schema.optionalWith(Schema.Union(NonEmptyStringSchema, Schema.Null), { default: () => null }),
+          gpuDriver: Schema.optionalWith(Schema.Union(NonEmptyStringSchema, Schema.Null), { default: () => null }),
+          gpuMemory: Schema.optionalWith(Schema.Union(NonEmptyStringSchema, Schema.Null), { default: () => null }),
+          nvidiaSmi: Schema.optionalWith(Schema.Union(NonEmptyStringSchema, Schema.Null), { default: () => null }),
         }),
         Schema.Null
       ),
@@ -182,7 +161,7 @@ export const AgentLanPairingChallengeSchema = withParser(
     childDevice: AgentLanPairingDeviceRefSchema,
     parentDevice: AgentLanPairingDeviceRefSchema,
     routeId: AgentLanPairingRouteIdSchema,
-    origin: NonEmptySecurityText,
+    origin: NonEmptyStringSchema,
     issuedAt: AgentTimestampSchema,
     expiresAt: AgentTimestampSchema,
     challengeStatus: AgentLanPairingRuntimeSupportStatusSchema,
@@ -196,7 +175,7 @@ export const AgentLanPairingProofPreviewSchema = withParser(
     childDeviceId: AgentDeviceIdSchema,
     parentDeviceId: AgentDeviceIdSchema,
     routeId: AgentLanPairingRouteIdSchema,
-    origin: NonEmptySecurityText,
+    origin: NonEmptyStringSchema,
     proofDigest: AgentLanPairingProofDigestSchema,
     issuedAt: AgentTimestampSchema,
     expiresAt: AgentTimestampSchema,
@@ -213,12 +192,12 @@ export const AgentLanParentIntentEnvelopeSchema = withParser(
     routeId: AgentLanPairingRouteIdSchema,
     pairingId: AgentPairingIdSchema,
     proofDigest: AgentLanPairingProofDigestSchema,
-    origin: NonEmptySecurityText,
+    origin: NonEmptyStringSchema,
     issuedAt: AgentTimestampSchema,
     expiresAt: AgentTimestampSchema,
     controllerLeaseId: AgentLanPairingControllerLeaseIdSchema,
     controllerDeviceId: AgentDeviceIdSchema,
-    parentActorId: NonEmptySecurityText,
+    parentActorId: NonEmptyStringSchema,
     parentAuthority: AgentLanPairingParentAuthoritySchema,
     controllerLeaseIssuedAt: AgentTimestampSchema,
     controllerLeaseExpiresAt: AgentTimestampSchema,
@@ -237,9 +216,9 @@ export const AgentLanPairingAuditEventSchema = withParser(
     parentDeviceId: Schema.Union(AgentDeviceIdSchema, Schema.Null),
     controllerLeaseId: Schema.Union(AgentLanPairingControllerLeaseIdSchema, Schema.Null),
     controllerDeviceId: Schema.Union(AgentDeviceIdSchema, Schema.Null),
-    parentActorId: Schema.Union(NonEmptySecurityText, Schema.Null),
+    parentActorId: Schema.Union(NonEmptyStringSchema, Schema.Null),
     routeId: AgentLanPairingRouteIdSchema,
-    origin: Schema.Union(NonEmptySecurityText, Schema.Null),
+    origin: Schema.Union(NonEmptyStringSchema, Schema.Null),
     rejectionReason: Schema.Union(AgentLanPairingRejectionReasonSchema, Schema.Null),
     observedAt: AgentTimestampSchema,
     evidenceReferences: Schema.Array(AgentLanPairingEvidenceReferenceSchema),

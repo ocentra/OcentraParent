@@ -1,16 +1,23 @@
+import { ChildDomainRuntimeEventTypeLiteral } from '@ocentra-parent/child-runtime-domain/child-domain-runtime-events';
+import { EventingEventTypeSchema } from '@ocentra-parent/event-domain/eventing';
 import { type LogFields } from '@ocentra-parent/logging-domain/contracts';
-import { type Infer, type SafeParseResult, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
+import {
+  type Infer,
+  NonEmptyStringSchema,
+  type SafeParseResult,
+  Schema,
+  withParser,
+} from '@ocentra-parent/schema-domain/effect';
 import { AgentProtocolDefaults } from './defaults';
 
-const BrowserRuntimeText = Schema.String.pipe(Schema.minLength(1));
-const NullableBrowserRuntimeText = Schema.Union(BrowserRuntimeText, Schema.Null);
+const NullableBrowserRuntimeText = Schema.Union(NonEmptyStringSchema, Schema.Null);
 
 export const AgentBrowserRuntimeEventType = {
   EvidenceObserved: 'browser.evidence.observed',
   EvidenceJournaled: 'browser.evidence.journaled',
-  AiAnalysisRequested: 'browser.ai.analysis.requested',
+  AiAnalysisRequested: ChildDomainRuntimeEventTypeLiteral.BrowserAiAnalysisRequested,
   AiAnalysisCompleted: 'browser.ai.analysis.completed',
-  PolicyEvaluationRequested: 'browser.policy.evaluation.requested',
+  PolicyEvaluationRequested: ChildDomainRuntimeEventTypeLiteral.BrowserPolicyEvaluationRequested,
   PolicyDecisionCompleted: 'browser.policy.decision.completed',
   InterventionCommandIssued: 'browser.intervention.command.issued',
   InterventionResultObserved: 'browser.intervention.result.observed',
@@ -72,6 +79,12 @@ export const AgentBrowserRuntimeEventTypeSchema = withParser(
     AgentBrowserRuntimeEventType.InterventionResultObserved,
     AgentBrowserRuntimeEventType.AuditEntryCommitted,
     AgentBrowserRuntimeEventType.ReadModelProjected
+  ).pipe(
+    Schema.filter(
+      (eventType) =>
+        EventingEventTypeSchema.safeParse(eventType).success ||
+        'Expected browser runtime event type to satisfy the shared eventing taxonomy'
+    )
   )
 );
 
@@ -128,8 +141,8 @@ export const AgentBrowserRuntimeQueryVisibilitySchema = withParser(
 export const AgentBrowserRuntimeEventPayloadSchema = withParser(
   Schema.Struct({
     phase: AgentBrowserRuntimePhaseSchema,
-    sourceRef: BrowserRuntimeText,
-    evidenceRef: BrowserRuntimeText,
+    sourceRef: NonEmptyStringSchema,
+    evidenceRef: NonEmptyStringSchema,
     capabilityStatus: AgentBrowserRuntimeCapabilityStatusSchema,
     custodyLabel: AgentBrowserRuntimeCustodyLabelSchema,
     queryVisibility: AgentBrowserRuntimeQueryVisibilitySchema,
@@ -152,7 +165,7 @@ export const AgentBrowserRuntimeEventPayloadSchema = withParser(
     dryRun: Schema.Boolean,
     adapterDispatchClaimed: Schema.Boolean,
     interventionCommandAllowed: Schema.Boolean,
-    observedAt: BrowserRuntimeText,
+    observedAt: NonEmptyStringSchema,
   }).pipe(
     Schema.filter(
       (payload) =>
@@ -165,7 +178,7 @@ export const AgentBrowserRuntimeEventPayloadSchema = withParser(
 export const AgentBrowserRuntimeEventChainEntrySchema = withParser(
   Schema.Struct({
     eventType: AgentBrowserRuntimeEventTypeSchema,
-    eventRef: BrowserRuntimeText,
+    eventRef: NonEmptyStringSchema,
     payload: AgentBrowserRuntimeEventPayloadSchema,
   }).pipe(
     Schema.filter(
@@ -187,12 +200,12 @@ export const AgentBrowserRuntimeEventChainStreamSchema = withParser(
     readModelProjectionEvents: Schema.Number,
     actionIntentCandidates: Schema.Number,
     actionIntentHandoffCandidates: Schema.Number,
-    actionIntentHandoffOutboxRefs: Schema.Array(BrowserRuntimeText),
-    actionIntentHandoffRefs: Schema.Array(BrowserRuntimeText),
+    actionIntentHandoffOutboxRefs: Schema.Array(NonEmptyStringSchema),
+    actionIntentHandoffRefs: Schema.Array(NonEmptyStringSchema),
     actionIntentChildAcceptedRows: Schema.Number,
-    actionIntentChildCommandRefs: Schema.Array(BrowserRuntimeText),
-    actionIntentChildAcceptedEventRefs: Schema.Array(BrowserRuntimeText),
-    actionIntentParentReadModelRefs: Schema.Array(BrowserRuntimeText),
+    actionIntentChildCommandRefs: Schema.Array(NonEmptyStringSchema),
+    actionIntentChildAcceptedEventRefs: Schema.Array(NonEmptyStringSchema),
+    actionIntentParentReadModelRefs: Schema.Array(NonEmptyStringSchema),
     actionIntentDispatchAttempts: Schema.Literal(0),
     actionIntentAdapterExecutions: Schema.Literal(0),
     actionIntentChildInterventionExecutions: Schema.Literal(0),
@@ -200,13 +213,13 @@ export const AgentBrowserRuntimeEventChainStreamSchema = withParser(
     socialProviderReceiptBoundaryRows: Schema.Number,
     socialProviderDispatchRequiredRows: Schema.Number,
     socialProviderManualReceiptRequiredRows: Schema.Number,
-    socialProviderAttemptRefs: Schema.Array(BrowserRuntimeText),
-    socialProviderReceiptProofRefs: Schema.Array(BrowserRuntimeText),
+    socialProviderAttemptRefs: Schema.Array(NonEmptyStringSchema),
+    socialProviderReceiptProofRefs: Schema.Array(NonEmptyStringSchema),
     socialProviderDurableRows: Schema.Number,
-    socialProviderDurableResultRefs: Schema.Array(BrowserRuntimeText),
-    socialProviderDurableStoreRefs: Schema.Array(BrowserRuntimeText),
-    socialProviderReadModelRefs: Schema.Array(BrowserRuntimeText),
-    socialProviderSupportStatusRefs: Schema.Array(BrowserRuntimeText),
+    socialProviderDurableResultRefs: Schema.Array(NonEmptyStringSchema),
+    socialProviderDurableStoreRefs: Schema.Array(NonEmptyStringSchema),
+    socialProviderReadModelRefs: Schema.Array(NonEmptyStringSchema),
+    socialProviderSupportStatusRefs: Schema.Array(NonEmptyStringSchema),
     entries: Schema.Array(AgentBrowserRuntimeEventChainEntrySchema),
   }).pipe(
     Schema.filter(

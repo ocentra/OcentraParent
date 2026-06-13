@@ -1,8 +1,6 @@
-import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
+import { type Infer, brandedNonEmptyStringSchema, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
 import { ParentControlCapabilityNameSchema, ParentControlCapabilityStatusSchema } from '@ocentra-parent/capability-domain/capabilities';
 import { ParentTimestampSchema } from '@ocentra-parent/family-domain/reference-primitives';
-
-const NonEmptyChildAndroidPrivilegedText = Schema.String.pipe(Schema.minLength(1));
 
 export const ChildAndroidPrivilegedCapabilityProofSchemaVersionSchema = withParser(
   Schema.Literal('child-android-privileged-capability-proof')
@@ -79,18 +77,10 @@ export const ChildAndroidPrivilegedBridgeStateSchema = withParser(
   Schema.Literal('package-local-scaffold', 'not-implemented')
 );
 
-const ChildAndroidPrivilegedPackageIdSchema = NonEmptyChildAndroidPrivilegedText.pipe(
-  Schema.brand('ChildAndroidPrivilegedPackageId')
-);
-const ChildAndroidPrivilegedClassNameSchema = NonEmptyChildAndroidPrivilegedText.pipe(
-  Schema.brand('ChildAndroidPrivilegedClassName')
-);
-const ChildAndroidPrivilegedRequirementSchema = NonEmptyChildAndroidPrivilegedText.pipe(
-  Schema.brand('ChildAndroidPrivilegedRequirement')
-);
-const ChildAndroidPrivilegedBoundarySchema = NonEmptyChildAndroidPrivilegedText.pipe(
-  Schema.brand('ChildAndroidPrivilegedBoundary')
-);
+const ChildAndroidPrivilegedPackageIdSchema = brandedNonEmptyStringSchema('ChildAndroidPrivilegedPackageId');
+const ChildAndroidPrivilegedClassNameSchema = brandedNonEmptyStringSchema('ChildAndroidPrivilegedClassName');
+const ChildAndroidPrivilegedRequirementSchema = brandedNonEmptyStringSchema('ChildAndroidPrivilegedRequirement');
+const ChildAndroidPrivilegedBoundarySchema = brandedNonEmptyStringSchema('ChildAndroidPrivilegedBoundary');
 
 export const ChildAndroidPrivilegedSurfaceProofSchema = withParser(
   Schema.Struct({

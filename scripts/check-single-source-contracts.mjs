@@ -76,19 +76,116 @@ function valueAtPath(source, jsonPath) {
   return value;
 }
 
+function escapeRegExp(value) {
+  return value.replace(/[.*+?^${}()|[\]\\]/gu, '\\$&');
+}
+
+function valueAtSourceObjectPath(source, sourceObjectPath, ownerPath) {
+  const lastDotIndex = sourceObjectPath.lastIndexOf('.');
+  if (lastDotIndex <= 0 || lastDotIndex === sourceObjectPath.length - 1) {
+    throw new Error(`${ownerPath}: ${sourceObjectPath} must be formatted as ObjectName.PropertyName`);
+  }
+  const objectName = sourceObjectPath.slice(0, lastDotIndex);
+  const propertyName = sourceObjectPath.slice(lastDotIndex + 1);
+  const objectPattern = new RegExp(
+    `(?:export\\s+)?const\\s+${escapeRegExp(objectName)}\\s*=\\s*\\{([\\s\\S]*?)\\}\\s*(?:as\\s+const)?`,
+    'u'
+  );
+  const objectMatch = objectPattern.exec(source);
+  if (objectMatch === null) {
+    throw new Error(`${ownerPath}: ${objectName} constant object is missing`);
+  }
+  const propertyPattern = new RegExp(`\\b${escapeRegExp(propertyName)}\\s*:\\s*(['"\`])([^'"\`]+)\\1`, 'u');
+  const propertyMatch = propertyPattern.exec(objectMatch[1]);
+  if (propertyMatch === null) {
+    throw new Error(`${ownerPath}: ${sourceObjectPath} string literal is missing`);
+  }
+  return propertyMatch[2];
+}
+
+function valueAtRustConst(source, rustConst, ownerPath) {
+  const constPattern = new RegExp(
+    `(?:pub\\s+)?const\\s+${escapeRegExp(rustConst)}\\s*:\\s*&str\\s*=\\s*"([^"]+)"\\s*;`,
+    'u'
+  );
+  const constMatch = constPattern.exec(source);
+  if (constMatch === null) {
+    throw new Error(`${ownerPath}: ${rustConst} string const is missing`);
+  }
+  return constMatch[1];
+}
+
+function valueAtRustSerdeRename(source, rustSerdeRename, ownerPath) {
+  const separatorIndex = rustSerdeRename.indexOf('::');
+  if (separatorIndex <= 0 || separatorIndex === rustSerdeRename.length - 2) {
+    throw new Error(`${ownerPath}: ${rustSerdeRename} must be formatted as EnumName::VariantName`);
+  }
+  const enumName = rustSerdeRename.slice(0, separatorIndex);
+  const variantName = rustSerdeRename.slice(separatorIndex + 2);
+  const enumPattern = new RegExp(`enum\\s+${escapeRegExp(enumName)}\\s*\\{([\\s\\S]*?)\\n\\}`, 'u');
+  const enumMatch = enumPattern.exec(source);
+  if (enumMatch === null) {
+    throw new Error(`${ownerPath}: ${enumName} enum is missing`);
+  }
+  const variantPattern = new RegExp(
+    `#\\[serde\\(rename\\s*=\\s*"([^"]+)"\\)\\]\\s*${escapeRegExp(variantName)}\\b`,
+    'u'
+  );
+  const variantMatch = variantPattern.exec(enumMatch[1]);
+  if (variantMatch === null) {
+    throw new Error(`${ownerPath}: ${rustSerdeRename} serde rename is missing`);
+  }
+  return variantMatch[1];
+}
+
+function valueFromSpec(ownerPath, valueSpec) {
+  const sourceText = readFileSync(join(repoRoot, ownerPath), 'utf8');
+  if ('jsonPath' in valueSpec) {
+    return valueAtPath(JSON.parse(sourceText), valueSpec.jsonPath);
+  }
+  if ('sourceObjectPath' in valueSpec) {
+    return valueAtSourceObjectPath(sourceText, valueSpec.sourceObjectPath, ownerPath);
+  }
+  if ('rustConst' in valueSpec) {
+    return valueAtRustConst(sourceText, valueSpec.rustConst, ownerPath);
+  }
+  if ('rustSerdeRename' in valueSpec) {
+    return valueAtRustSerdeRename(sourceText, valueSpec.rustSerdeRename, ownerPath);
+  }
+  throw new Error(
+    `${ownerPath}: ${valueSpec.name} needs jsonPath, sourceObjectPath, rustConst, or rustSerdeRename`
+  );
+}
+
 function loadContract(rawContract) {
   const ownerPath = rawContract.ownerPath;
-  const source = JSON.parse(readFileSync(join(repoRoot, ownerPath), 'utf8'));
-  const values = rawContract.values.map(({ name, jsonPath }) => {
-    const text = valueAtPath(source, jsonPath);
+  const values = rawContract.values.map((valueSpec) => {
+    const text = valueFromSpec(ownerPath, valueSpec);
     if (typeof text !== 'string' || text.length === 0) {
-      throw new Error(`${ownerPath}: ${name} at ${jsonPath} must be a non-empty string`);
+      throw new Error(`${ownerPath}: ${valueSpec.name} must be a non-empty string`);
     }
-    return { name, text };
+    return { name: valueSpec.name, text };
   });
+  const valueByName = new Map(values.map((value) => [value.name, value.text]));
+  const mirrorPaths = [];
+  for (const mirror of rawContract.mirrors ?? []) {
+    mirrorPaths.push(mirror.path);
+    for (const mirrorValueSpec of mirror.values ?? []) {
+      const ownerText = valueByName.get(mirrorValueSpec.name);
+      if (ownerText === undefined) {
+        throw new Error(`${mirror.path}: ${mirrorValueSpec.name} does not match an owner value name`);
+      }
+      const mirrorText = valueFromSpec(mirror.path, mirrorValueSpec);
+      if (mirrorText !== ownerText) {
+        throw new Error(
+          `${mirror.path}: ${rawContract.name}.${mirrorValueSpec.name} ${mirrorText} does not match ${ownerPath} ${ownerText}`
+        );
+      }
+    }
+  }
   return {
     ...rawContract,
-    allowedPaths: new Set([ownerPath, ...(rawContract.allowedPaths ?? [])]),
+    allowedPaths: new Set([ownerPath, ...mirrorPaths, ...(rawContract.allowedPaths ?? [])]),
     values,
   };
 }

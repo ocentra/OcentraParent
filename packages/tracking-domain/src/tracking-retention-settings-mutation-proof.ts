@@ -1,4 +1,10 @@
-import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
+import {
+  type Infer,
+  Schema,
+  withParser,
+  brandedNonEmptyStringSchema
+} from '@ocentra-parent/schema-domain/effect';
+import { AgentTrackingRetentionSettingsWriteDefaults } from '@ocentra-parent/agent-protocol-domain/tracking-retention-settings-write-command';
 import { ParentTimestampSchema } from '@ocentra-parent/family-domain/reference-primitives';
 import { TrackingEvidenceTraceSchema } from './tracking-location-policy';
 import {
@@ -15,11 +21,7 @@ import {
   buildTrackingRetentionSettingsWriterBoundaryProof,
 } from './tracking-retention-settings-writer-boundary-proof';
 
-const TrackingRetentionMutationTextSchema = Schema.String.pipe(Schema.minLength(1));
-
-export const TrackingRetentionSettingsMutationIdSchema = TrackingRetentionMutationTextSchema.pipe(
-  Schema.brand('TrackingRetentionSettingsMutationId')
-);
+export const TrackingRetentionSettingsMutationIdSchema = brandedNonEmptyStringSchema('TrackingRetentionSettingsMutationId');
 
 export const TrackingRetentionSettingsMutationStateSchema = withParser(
   Schema.Literal('service-mutation-executed', 'remote-disabled-preserved')
@@ -65,7 +67,7 @@ export const TrackingRetentionSettingsMutationRowSchema = withParser(
     .pipe(
       Schema.filter(
         (row) =>
-          row.settingsKind !== 'retention-window-setting' ||
+          row.settingsKind !== AgentTrackingRetentionSettingsWriteDefaults.SettingsKindRetentionWindow ||
           row.appliedRetentionWindowHours !== null ||
           'Retention window mutations must apply a retention window'
       )
@@ -186,3 +188,4 @@ function mutationRow(
     productClaimReady: false,
   });
 }
+

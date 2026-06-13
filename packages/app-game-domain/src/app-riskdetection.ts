@@ -1,4 +1,9 @@
-import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
+import {
+  type Infer,
+  Schema,
+  withParser,
+  brandedNonEmptyStringSchema
+} from '@ocentra-parent/schema-domain/effect';
 import { ParentEvidenceReferenceSchema } from '@ocentra-parent/family-domain/references';
 import {
   AppRiskDetectionAskParentRouting,
@@ -15,29 +20,13 @@ import {
 } from './app-riskdetection-rules';
 import { ParentContractSchemaVersionSchema, ParentPlatformSchema, ParentTimestampSchema } from '@ocentra-parent/family-domain/reference-primitives';
 
-const NonEmptyAppRiskDetectionText = Schema.String.pipe(Schema.minLength(1));
-
-export const AppRiskDetectionCandidateIdSchema = NonEmptyAppRiskDetectionText.pipe(
-  Schema.brand('AppRiskDetectionCandidateId')
-);
-export const AppRiskDetectionMatrixIdSchema = NonEmptyAppRiskDetectionText.pipe(
-  Schema.brand('AppRiskDetectionMatrixId')
-);
-export const AppRiskDetectionInventoryEntryRefSchema = NonEmptyAppRiskDetectionText.pipe(
-  Schema.brand('AppRiskDetectionInventoryEntryRef')
-);
-export const AppRiskDetectionIdentityRefSchema = NonEmptyAppRiskDetectionText.pipe(
-  Schema.brand('AppRiskDetectionIdentityRef')
-);
-export const AppRiskDetectionSourceRefSchema = NonEmptyAppRiskDetectionText.pipe(
-  Schema.brand('AppRiskDetectionSourceRef')
-);
-export const AppRiskDetectionLocalAiDigestRefSchema = NonEmptyAppRiskDetectionText.pipe(
-  Schema.brand('AppRiskDetectionLocalAiDigestRef')
-);
-export const AppRiskDetectionParentDisplayLabelSchema = NonEmptyAppRiskDetectionText.pipe(
-  Schema.brand('AppRiskDetectionParentDisplayLabel')
-);
+export const AppRiskDetectionCandidateIdSchema = brandedNonEmptyStringSchema('AppRiskDetectionCandidateId');
+export const AppRiskDetectionMatrixIdSchema = brandedNonEmptyStringSchema('AppRiskDetectionMatrixId');
+export const AppRiskDetectionInventoryEntryRefSchema = brandedNonEmptyStringSchema('AppRiskDetectionInventoryEntryRef');
+export const AppRiskDetectionIdentityRefSchema = brandedNonEmptyStringSchema('AppRiskDetectionIdentityRef');
+export const AppRiskDetectionSourceRefSchema = brandedNonEmptyStringSchema('AppRiskDetectionSourceRef');
+export const AppRiskDetectionLocalAiDigestRefSchema = brandedNonEmptyStringSchema('AppRiskDetectionLocalAiDigestRef');
+export const AppRiskDetectionParentDisplayLabelSchema = brandedNonEmptyStringSchema('AppRiskDetectionParentDisplayLabel');
 
 export const AppRiskDetectionRiskSignalSchema = withParser(
   Schema.Literal(...Object.values(AppRiskDetectionRiskSignal))
@@ -144,3 +133,4 @@ export type AppRiskDetectionMatrix = Infer<typeof AppRiskDetectionMatrixSchema>;
 
 export const decodeAppRiskDetectionCandidate = Schema.decodeUnknownSync(AppRiskDetectionCandidateSchema);
 export const decodeAppRiskDetectionMatrix = Schema.decodeUnknownSync(AppRiskDetectionMatrixSchema);
+

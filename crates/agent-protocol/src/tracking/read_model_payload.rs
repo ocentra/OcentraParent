@@ -36,11 +36,11 @@ fn read_model_summary_pairs(read_model: &TrackingReadModel) -> Vec<FieldPair> {
     vec![
         (
             constants::field::GENERATED_AT,
-            LogFieldValue::String(read_model.generated_at.clone()),
+            LogFieldValue::String(read_model.generated_at.to_string()),
         ),
         (
             constants::field::CUSTODY_LABEL,
-            LogFieldValue::String(read_model.custody_label.clone()),
+            LogFieldValue::String(read_model.custody_label.to_string()),
         ),
         (
             constants::field::LIMIT,
@@ -60,7 +60,7 @@ fn read_model_summary_pairs(read_model: &TrackingReadModel) -> Vec<FieldPair> {
         ),
         (
             constants::field::CAPABILITY_STATUS,
-            LogFieldValue::String(read_model.capability_status.clone()),
+            LogFieldValue::String(read_model.capability_status.to_string()),
         ),
     ]
 }
@@ -98,7 +98,14 @@ fn read_model_retention_pairs(read_model: &TrackingReadModel) -> Vec<FieldPair> 
     let separator = constants::delimiter::LIST.to_string();
     vec![(
         TRACKING_READ_MODEL_FIELD_DELETED_EVIDENCE_REFERENCE_IDS,
-        LogFieldValue::String(read_model.deleted_evidence_reference_ids.join(&separator)),
+        LogFieldValue::String(
+            read_model
+                .deleted_evidence_reference_ids
+                .iter()
+                .map(ToString::to_string)
+                .collect::<Vec<_>>()
+                .join(&separator),
+        ),
     )]
 }
 
@@ -178,15 +185,22 @@ fn fields_from_pairs(pairs: Vec<FieldPair>) -> LogFields {
     fields
 }
 
-fn optional_string(value: Option<&String>) -> LogFieldValue {
+fn optional_string(value: Option<impl std::fmt::Display>) -> LogFieldValue {
     match value {
-        Some(text) => LogFieldValue::String(text.clone()),
+        Some(text) => LogFieldValue::String(text.to_string()),
         None => LogFieldValue::Null(()),
     }
 }
 
 fn join_evidence_ids(row: Option<&TrackingReadModelRow>) -> String {
     let separator = constants::delimiter::LIST.to_string();
-    row.map(|value| value.evidence_reference_ids.join(&separator))
+    row.map(|value| {
+        value
+            .evidence_reference_ids
+            .iter()
+            .map(ToString::to_string)
+            .collect::<Vec<_>>()
+            .join(&separator)
+    })
         .unwrap_or_default()
 }

@@ -1,8 +1,11 @@
-import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
+import {
+  type Infer,
+  Schema,
+  withParser,
+  brandedNonEmptyStringSchema
+} from '@ocentra-parent/schema-domain/effect';
 import { AppInstallPurchaseExternalRuntimeWriterReadinessProofReadModel } from './app-install-purchase-external-runtime-writer-readiness-proof';
 import { ParentTimestampSchema } from '@ocentra-parent/family-domain/reference-primitives';
-
-const ExternalRuntimeWriterTransportPreflightText = Schema.String.pipe(Schema.minLength(1));
 const ExternalRuntimeWriterTransportPreflightProofVersion =
   'app-install-purchase-external-runtime-writer-transport-preflight-proof';
 const SourceExternalRuntimeWriterReadinessProofVersion = 'app-install-purchase-external-runtime-writer-readiness-proof';
@@ -77,18 +80,10 @@ const ExternalRuntimeWriterTransportPreflightNonClaimSchema = withParser(
   Schema.Literal(...ExternalRuntimeWriterTransportPreflightNonClaims)
 );
 
-const ExternalRuntimeWriterTransportPreflightRowIdSchema = ExternalRuntimeWriterTransportPreflightText.pipe(
-  Schema.brand('AppInstallPurchaseExternalRuntimeWriterTransportPreflightRowId')
-);
-const ExternalRuntimeWriterTransportPreflightRefSchema = ExternalRuntimeWriterTransportPreflightText.pipe(
-  Schema.brand('AppInstallPurchaseExternalRuntimeWriterTransportPreflightRef')
-);
-const ExternalRuntimeWriterTransportPreflightAuditRefSchema = ExternalRuntimeWriterTransportPreflightText.pipe(
-  Schema.brand('AppInstallPurchaseExternalRuntimeWriterTransportPreflightAuditRef')
-);
-const ExternalRuntimeWriterTransportPreflightBoundarySchema = ExternalRuntimeWriterTransportPreflightText.pipe(
-  Schema.brand('AppInstallPurchaseExternalRuntimeWriterTransportPreflightBoundary')
-);
+const ExternalRuntimeWriterTransportPreflightRowIdSchema = brandedNonEmptyStringSchema('AppInstallPurchaseExternalRuntimeWriterTransportPreflightRowId');
+const ExternalRuntimeWriterTransportPreflightRefSchema = brandedNonEmptyStringSchema('AppInstallPurchaseExternalRuntimeWriterTransportPreflightRef');
+const ExternalRuntimeWriterTransportPreflightAuditRefSchema = brandedNonEmptyStringSchema('AppInstallPurchaseExternalRuntimeWriterTransportPreflightAuditRef');
+const ExternalRuntimeWriterTransportPreflightBoundarySchema = brandedNonEmptyStringSchema('AppInstallPurchaseExternalRuntimeWriterTransportPreflightBoundary');
 
 const ExternalRuntimeWriterTransportPreflightRowBaseSchema = Schema.Struct({
   schemaVersion: AppInstallPurchaseExternalRuntimeWriterTransportPreflightProofSchemaVersionSchema,
@@ -385,3 +380,4 @@ function externalRuntimeWriterTransportPreflightBoundaryIsExplicit(
 ) {
   return ExternalRuntimeWriterTransportPreflightBoundaryFragments.every((fragment) => boundary.includes(fragment));
 }
+

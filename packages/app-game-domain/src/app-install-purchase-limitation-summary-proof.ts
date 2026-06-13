@@ -1,9 +1,12 @@
-import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
+import {
+  type Infer,
+  Schema,
+  withParser,
+  brandedNonEmptyStringSchema
+} from '@ocentra-parent/schema-domain/effect';
 import { AppInstallPurchaseProviderStoreReportStatusProofReadModel } from './app-install-purchase-provider-store-report-status-proof';
 import { AppInstallPurchaseReportStatusReadModelHandoffProofReadModel } from './app-install-purchase-report-status-read-model-handoff-proof';
 import { ParentTimestampSchema } from '@ocentra-parent/family-domain/reference-primitives';
-
-const LimitationSummaryText = Schema.String.pipe(Schema.minLength(1));
 const LimitationSummaryProofVersion = 'app-install-purchase-limitation-summary-proof';
 const SourceProviderStoreReportStatusProofVersion = 'app-install-purchase-provider-store-report-status-proof';
 const SourceReportStatusReadModelProofVersion = 'app-install-purchase-report-status-read-model-handoff-proof';
@@ -58,13 +61,9 @@ const LimitationSummaryNotDeliveredSchema = withParser(Schema.Literal('not-deliv
 const LimitationSummaryCustodySchema = withParser(Schema.Literal('no-child-activity-data'));
 const LimitationSummaryNonClaimSchema = withParser(Schema.Literal(...LimitationSummaryNonClaims));
 
-const LimitationSummaryRowIdSchema = LimitationSummaryText.pipe(
-  Schema.brand('AppInstallPurchaseLimitationSummaryRowId')
-);
-const LimitationSummaryRefSchema = LimitationSummaryText.pipe(Schema.brand('AppInstallPurchaseLimitationSummaryRef'));
-const LimitationSummaryBoundarySchema = LimitationSummaryText.pipe(
-  Schema.brand('AppInstallPurchaseLimitationSummaryBoundary')
-);
+const LimitationSummaryRowIdSchema = brandedNonEmptyStringSchema('AppInstallPurchaseLimitationSummaryRowId');
+const LimitationSummaryRefSchema = brandedNonEmptyStringSchema('AppInstallPurchaseLimitationSummaryRef');
+const LimitationSummaryBoundarySchema = brandedNonEmptyStringSchema('AppInstallPurchaseLimitationSummaryBoundary');
 
 const LimitationSummaryRowBaseSchema = Schema.Struct({
   schemaVersion: AppInstallPurchaseLimitationSummaryProofSchemaVersionSchema,
@@ -269,3 +268,4 @@ function limitationSummaryProofIsHonest(proof: AppInstallPurchaseLimitationSumma
     proof.knownGaps.length > 0
   );
 }
+

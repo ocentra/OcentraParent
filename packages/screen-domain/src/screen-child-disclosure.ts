@@ -1,4 +1,9 @@
-import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
+import {
+  type Infer,
+  Schema,
+  withParser,
+  brandedNonEmptyStringSchema
+} from '@ocentra-parent/schema-domain/effect';
 import { ActivityEvidenceIdSchema, ActivityTimestampSchema } from '@ocentra-parent/evidence-domain/primitives';
 import {
   ScreenEvidenceParentSettingRefSchema,
@@ -12,8 +17,6 @@ import {
   ScreenEvidenceCustodyStateSchema,
   ScreenQueueStatusSchema,
 } from './screen-evidence-states';
-
-const NonEmptyScreenChildDisclosureText = Schema.String.pipe(Schema.minLength(1));
 const RequiredFalse = Schema.Literal(false);
 const RequiredTrue = Schema.Literal(true);
 const EvidenceRefsSchema = Schema.Array(ActivityEvidenceIdSchema).pipe(
@@ -36,7 +39,7 @@ const OptionalTextTokenSchema = Schema.Union(
 );
 
 export const ScreenChildDisclosureSnapshotIdSchema = withParser(
-  NonEmptyScreenChildDisclosureText.pipe(Schema.brand('ScreenChildDisclosureSnapshotId'))
+  brandedNonEmptyStringSchema('ScreenChildDisclosureSnapshotId')
 );
 
 export const ScreenChildDisclosureStateSchema = withParser(
@@ -276,3 +279,4 @@ function baseDisclosureSnapshot(snapshotId: string, state: ScreenChildDisclosure
     renderedChildAgentDeliveryClaimed: false,
   };
 }
+

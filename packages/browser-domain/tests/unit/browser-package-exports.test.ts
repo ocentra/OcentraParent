@@ -3,7 +3,7 @@ import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { describe, expect, it } from 'vitest';
 
-const ActivityDomainBrowserPlanExportPaths = [
+const BrowserDomainBrowserPlanExportPaths = [
   './browser-ai-child-ux-schemas',
   './browser-ai-parent-explanation-schemas',
   './browser-ai-provider-fallback-schemas',
@@ -33,14 +33,14 @@ const ActivityDomainBrowserPlanExportPaths = [
 
 const PackageJsonPath = resolve(dirname(fileURLToPath(import.meta.url)), '..', 'package.json');
 
-describe('activity-domain browser plan package exports', () => {
+describe('browser-domain browser plan package exports', () => {
   it('exposes browser-plan AI and social contracts as public package subpaths', () => {
     const packageJson = JSON.parse(readFileSync(PackageJsonPath, 'utf8')) as { readonly exports?: unknown };
 
     expect(packageJson.exports).toBeTypeOf('object');
-    const exportsObject = packageJson.exports as Record<(typeof ActivityDomainBrowserPlanExportPaths)[number], unknown>;
+    const exportsObject = packageJson.exports as Record<(typeof BrowserDomainBrowserPlanExportPaths)[number], unknown>;
 
-    for (const exportPath of ActivityDomainBrowserPlanExportPaths) {
+    for (const exportPath of BrowserDomainBrowserPlanExportPaths) {
       const moduleName = exportPath.slice(2);
       expect(exportsObject[exportPath]).toEqual({
         import: `./dist/${moduleName}.js`,

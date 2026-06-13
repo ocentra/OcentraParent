@@ -1,4 +1,9 @@
-import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
+import {
+  type Infer,
+  Schema,
+  withParser,
+  brandedNonEmptyStringSchema
+} from '@ocentra-parent/schema-domain/effect';
 import {
   ParentContractSchemaVersion,
   ParentContractSchemaVersionSchema,
@@ -21,8 +26,6 @@ import {
   type TrackingProviderNotificationProofReadModel,
 } from './tracking-provider-notification-proof';
 
-const TrackingProviderRuntimeReadinessBlockerText = Schema.String.pipe(Schema.minLength(1));
-
 export const TrackingProviderRuntimeReadinessBlockerIdSchema = withParser(
   Schema.Literal(
     'provider-delivery-runtime',
@@ -40,12 +43,8 @@ export const TrackingProviderRuntimeReadinessBlockerIdSchema = withParser(
   )
 );
 
-export const TrackingProviderRuntimeReadinessBlockerReferenceSchema = TrackingProviderRuntimeReadinessBlockerText.pipe(
-  Schema.brand('TrackingProviderRuntimeReadinessBlockerReference')
-);
-export const TrackingProviderRuntimeReadinessBlockerProofIdSchema = TrackingProviderRuntimeReadinessBlockerText.pipe(
-  Schema.brand('TrackingProviderRuntimeReadinessBlockerProofId')
-);
+export const TrackingProviderRuntimeReadinessBlockerReferenceSchema = brandedNonEmptyStringSchema('TrackingProviderRuntimeReadinessBlockerReference');
+export const TrackingProviderRuntimeReadinessBlockerProofIdSchema = brandedNonEmptyStringSchema('TrackingProviderRuntimeReadinessBlockerProofId');
 
 export const TrackingProviderRuntimeReadinessBlockerStatusSchema = withParser(Schema.Literal('manual-required'));
 
@@ -235,3 +234,4 @@ function trackingProviderRuntimeReadinessProofIsHonest(
 function uniqueRefs(refs: readonly string[]): readonly string[] {
   return [...new Set(refs)];
 }
+

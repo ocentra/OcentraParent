@@ -1,5 +1,13 @@
 #![forbid(unsafe_code)]
 
+//! Child runtime orchestration ownership boundary.
+//!
+//! This crate composes child-side feature domains, shared eventing, runtime
+//! preflight gates, and parent-to-child command application. Parent runtime and
+//! portal UI code must route through this boundary instead of owning child
+//! tracking, app/game, browser, LAN, network, screen, AI, policy, notification,
+//! storage, remote-access, or enforcement decisions directly.
+
 use std::sync::{Arc, Mutex};
 use std::{path::PathBuf, time::Duration};
 
@@ -11,6 +19,7 @@ use ocentra_eventing::{
 use ocentra_parent_agent_protocol::constants;
 
 mod child_domain_runtime_flow;
+mod runtime_gate;
 mod tracking_runtime_flow;
 
 pub const CRATE_NAME: &str = "ocentra-child-runtime";
@@ -23,10 +32,18 @@ pub use child_domain_runtime_flow::{
     publish_child_domain_observed_event, publish_default_child_domain_runtime_flows,
     ChildDomainRuntimeFlowReport,
 };
+pub use runtime_gate::{
+    child_runtime_remote_upload_allowed, evaluate_child_runtime_enforcement,
+    evaluate_child_runtime_preflight, evaluate_child_runtime_remote_access,
+    ChildRuntimeEnforcementDecision, ChildRuntimeManualReviewState,
+    ChildRuntimePreflightDecision, ChildRuntimePreflightInput, ChildRuntimeRemoteAccessDecision,
+    ChildRuntimeStartState,
+};
 pub use ocentra_parent_agent_protocol::{
     child_tracking_config_updated_event_from_parent,
     parent_tracking_config_updated_event_from_command, ChildTrackingConfigUpdatedEvent,
-    ParentTrackingConfigUpdatedEvent, TrackingConfigUpdateResponse, TrackingConfigUpdateTarget,
+    ParentTrackingConfigUpdatedEvent, TrackingConfigEffectiveState, TrackingConfigUpdateEventName,
+    TrackingConfigUpdateResponse, TrackingConfigUpdateResponseState, TrackingConfigUpdateTarget,
     TrackingConfigUpdateTargetScope,
 };
 pub use ocentra_tracking_core::TrackingRetentionSettingsWriteAppliedState;
@@ -36,8 +53,8 @@ pub use tracking_runtime_flow::{
 
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub struct TrackingConfigUpdateAppliedReport {
-    pub parent_event_type: String,
-    pub child_event_type: String,
+    pub parent_event_type: TrackingConfigUpdateEventName,
+    pub child_event_type: TrackingConfigUpdateEventName,
     pub target_scope: TrackingConfigUpdateTargetScope,
     pub applied_state: TrackingRetentionSettingsWriteAppliedState,
 }
@@ -150,26 +167,30 @@ fn tracking_config_update_response(
     TrackingConfigUpdateResponse {
         schema_version: ocentra_parent_agent_protocol::AGENT_PROTOCOL_SCHEMA_VERSION,
         source_command_id: parent_event.source_command_id.clone(),
-        response_state: constants::tracking_config_update::RESPONSE_STATE_APPLIED.to_string(),
+        response_state: TrackingConfigUpdateResponseState::Applied,
         effective_tracking_state: effective_tracking_state(parent_event),
         child_event_type: applied_report.child_event_type,
         target: parent_event.target.clone(),
         local_service_state_revision: Some(
             applied_report.applied_state.local_service_state_revision,
         ),
-        durable_settings_persisted: applied_report.applied_state.durable_settings_persisted,
+        durable_settings_persistence_state: applied_report
+            .applied_state
+            .durable_settings_persistence_state,
     }
 }
 
-fn effective_tracking_state(parent_event: &ParentTrackingConfigUpdatedEvent) -> String {
+fn effective_tracking_state(
+    parent_event: &ParentTrackingConfigUpdatedEvent,
+) -> TrackingConfigEffectiveState {
     if parent_event
         .config
         .requested_retention_window_hours
         .is_some()
     {
-        constants::tracking_config_update::EFFECTIVE_STATE_ENABLED.to_string()
+        TrackingConfigEffectiveState::Enabled
     } else {
-        constants::tracking_config_update::EFFECTIVE_STATE_DISABLED.to_string()
+        TrackingConfigEffectiveState::Disabled
     }
 }
 
@@ -203,12 +224,12 @@ pub fn tracking_config_update_event_bus() -> EventBus {
     EventBus::new()
 }
 
-pub fn tracking_config_update_parent_event_type() -> &'static str {
-    constants::tracking_config_update::PARENT_EVENT_TYPE
+pub fn tracking_config_update_parent_event_type() -> TrackingConfigUpdateEventName {
+    TrackingConfigUpdateEventName::Parent
 }
 
-pub fn tracking_config_update_child_event_type() -> &'static str {
-    constants::tracking_config_update::CHILD_EVENT_TYPE
+pub fn tracking_config_update_child_event_type() -> TrackingConfigUpdateEventName {
+    TrackingConfigUpdateEventName::Child
 }
 
 fn apply_child_tracking_config_updated_event(
@@ -218,7 +239,7 @@ fn apply_child_tracking_config_updated_event(
 
     TrackingConfigUpdateAppliedReport {
         parent_event_type: child_event.parent_event_type.clone(),
-        child_event_type: constants::tracking_config_update::CHILD_EVENT_TYPE.to_string(),
+        child_event_type: TrackingConfigUpdateEventName::Child,
         target_scope: child_event.target.scope.clone(),
         applied_state,
     }
@@ -257,7 +278,7 @@ fn tracking_config_update_metadata(
 ) -> Result<EventMetadata, EventingError> {
     Ok(EventMetadata::from_parts(
         EventId::generated(),
-        CorrelationId::parse(tracking_config_update_correlation_id(parent_event))?,
+        tracking_config_update_correlation_id(parent_event)?,
         source,
         RecordedAt::parse(constants::tracking_retention_settings_write::ACCEPTED_AT)?,
         Some(TargetHandler::parse(target_handler)?),
@@ -290,10 +311,10 @@ fn tracking_child_event_source() -> Result<EventSource, EventingError> {
 
 fn tracking_config_update_correlation_id(
     parent_event: &ParentTrackingConfigUpdatedEvent,
-) -> String {
+) -> Result<CorrelationId, EventingError> {
     let mut value = String::from(constants::tracking_config_update::CORRELATION_PREFIX);
-    value.push_str(&parent_event.source_command_id);
-    value
+    value.push_str(parent_event.source_command_id.as_str());
+    CorrelationId::parse(value)
 }
 
 pub fn tracking_retention_settings_durable_store_path() -> PathBuf {

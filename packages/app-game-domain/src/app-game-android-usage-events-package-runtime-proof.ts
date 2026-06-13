@@ -1,7 +1,10 @@
-import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
+import {
+  type Infer,
+  Schema,
+  withParser,
+  brandedNonEmptyStringSchema
+} from '@ocentra-parent/schema-domain/effect';
 import { ParentTimestampSchema } from '@ocentra-parent/family-domain/reference-primitives';
-
-const PackageRuntimeText = Schema.String.pipe(Schema.minLength(1));
 
 export const AppGameAndroidUsageEventsPackageRuntimeProofSchemaVersionSchema = withParser(
   Schema.Literal('app-game-android-usage-events-package-runtime-proof')
@@ -37,9 +40,7 @@ export const AppGameAndroidUsageEventsPackageRuntimeGapSchema = withParser(
   )
 );
 
-const PackageRuntimeLabelSchema = PackageRuntimeText.pipe(
-  Schema.brand('AppGameAndroidUsageEventsPackageRuntimeProofLabel')
-);
+const PackageRuntimeLabelSchema = brandedNonEmptyStringSchema('AppGameAndroidUsageEventsPackageRuntimeProofLabel');
 
 const AppGameAndroidUsageEventsPackageRuntimeProofBaseSchema = Schema.Struct({
   schemaVersion: AppGameAndroidUsageEventsPackageRuntimeProofSchemaVersionSchema,
@@ -177,3 +178,4 @@ function packageRuntimeProofIsHonest(readModel: PackageRuntimeCandidate): boolea
     readModel.openGaps.includes('android-platform-enforcement-not-proved')
   );
 }
+

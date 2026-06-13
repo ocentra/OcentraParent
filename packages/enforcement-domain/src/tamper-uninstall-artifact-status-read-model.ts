@@ -1,9 +1,9 @@
-import { ParentControlCapabilityName, ParentControlCapabilityStatus } from './capabilities';
+import { ParentControlCapabilityName, ParentControlCapabilityStatus } from '@ocentra-parent/capability-domain/capabilities';
 import type {
   ParentControlCapabilityNameSchema,
   ParentControlCapabilityStatusSchema,
   ParentControlPlatformSchema,
-} from './capabilities';
+} from '@ocentra-parent/capability-domain/capabilities';
 import { ParentContractSchemaVersion } from '@ocentra-parent/family-domain/reference-primitives';
 import {
   TamperUninstallArtifactStatusEntrySchema,

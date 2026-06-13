@@ -1,8 +1,11 @@
-import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
+import {
+  type Infer,
+  Schema,
+  withParser,
+  brandedNonEmptyStringSchema
+} from '@ocentra-parent/schema-domain/effect';
 import { AppInstallPurchaseRuntimeProofReadModel } from './app-install-purchase-runtime-proof';
 import { ParentPlatformSchema, ParentTimestampSchema } from '@ocentra-parent/family-domain/reference-primitives';
-
-const PlatformArtifactProofText = Schema.String.pipe(Schema.minLength(1));
 const PlatformArtifactSchemaVersion = 'app-install-purchase-platform-artifact-proof';
 const SourceRuntimeProofVersion = 'app-install-purchase-runtime-proof';
 const PlatformArtifactTimestamp = '2026-06-04T07:05:00.000Z';
@@ -60,25 +63,13 @@ const AppInstallPurchasePlatformArtifactAppBlockingClaimSchema = withParser(Sche
 const AppInstallPurchasePlatformArtifactReportSurfaceSchema = withParser(Schema.Literal(...RequiredReportSurfaces));
 const AppInstallPurchasePlatformArtifactNonClaimSchema = withParser(Schema.Literal(...PlatformArtifactNonClaims));
 
-const PlatformArtifactRefSchema = PlatformArtifactProofText.pipe(Schema.brand('AppInstallPurchasePlatformArtifactRef'));
-const PlatformArtifactRowIdSchema = PlatformArtifactProofText.pipe(
-  Schema.brand('AppInstallPurchasePlatformArtifactRowId')
-);
-const PlatformArtifactSourceRowIdSchema = PlatformArtifactProofText.pipe(
-  Schema.brand('AppInstallPurchasePlatformArtifactSourceRowId')
-);
-const PlatformArtifactPackageSourceRowIdSchema = PlatformArtifactProofText.pipe(
-  Schema.brand('AppInstallPurchasePlatformArtifactPackageSourceRowId')
-);
-const PlatformArtifactProofRefSchema = PlatformArtifactProofText.pipe(
-  Schema.brand('AppInstallPurchasePlatformArtifactProofRef')
-);
-const PlatformArtifactReportRefSchema = PlatformArtifactProofText.pipe(
-  Schema.brand('AppInstallPurchasePlatformArtifactReportRef')
-);
-const PlatformArtifactClaimBoundarySchema = PlatformArtifactProofText.pipe(
-  Schema.brand('AppInstallPurchasePlatformArtifactClaimBoundary')
-);
+const PlatformArtifactRefSchema = brandedNonEmptyStringSchema('AppInstallPurchasePlatformArtifactRef');
+const PlatformArtifactRowIdSchema = brandedNonEmptyStringSchema('AppInstallPurchasePlatformArtifactRowId');
+const PlatformArtifactSourceRowIdSchema = brandedNonEmptyStringSchema('AppInstallPurchasePlatformArtifactSourceRowId');
+const PlatformArtifactPackageSourceRowIdSchema = brandedNonEmptyStringSchema('AppInstallPurchasePlatformArtifactPackageSourceRowId');
+const PlatformArtifactProofRefSchema = brandedNonEmptyStringSchema('AppInstallPurchasePlatformArtifactProofRef');
+const PlatformArtifactReportRefSchema = brandedNonEmptyStringSchema('AppInstallPurchasePlatformArtifactReportRef');
+const PlatformArtifactClaimBoundarySchema = brandedNonEmptyStringSchema('AppInstallPurchasePlatformArtifactClaimBoundary');
 
 const PlatformStoreArtifactRowBaseSchema = Schema.Struct({
   schemaVersion: AppInstallPurchasePlatformArtifactProofSchemaVersionSchema,
@@ -329,3 +320,4 @@ function artifactBoundaryIsExplicit(boundary: typeof PlatformArtifactClaimBounda
     boundary.includes('not generic app blocking')
   );
 }
+

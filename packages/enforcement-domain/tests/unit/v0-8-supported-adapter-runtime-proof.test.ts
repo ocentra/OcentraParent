@@ -4,7 +4,7 @@ import {
   V08SupportedAdapterRuntimeProofEntrySchema,
   V08SupportedAdapterRuntimeProofReadModel,
   V08SupportedAdapterRuntimeProofReadModelSchema,
-} from '../../src/v0-8-supported-adapter-runtime-proof';
+} from '@ocentra-parent/enforcement-domain/v0-8-supported-adapter-runtime-proof';
 
 describe('V0.8 supported adapter runtime proof', () => {
   registerRuntimeStateTests();

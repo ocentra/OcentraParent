@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { LocalAiSafetyResultSchema } from '../../src/local-ai';
+import { LocalAiSafetyResultSchema } from '@ocentra-parent/ai-domain/local-ai';
 
 const observedAt = '2026-06-05T22:32:00.000Z';
 

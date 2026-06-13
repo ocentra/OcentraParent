@@ -1,4 +1,9 @@
-import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
+import {
+  type Infer,
+  Schema,
+  withParser,
+  NonEmptyStringSchema
+} from '@ocentra-parent/schema-domain/effect';
 import { ActivityEvidenceRefSchema } from '@ocentra-parent/evidence-domain/contracts';
 import { ActivityTimestampSchema } from '@ocentra-parent/evidence-domain/primitives';
 import {
@@ -36,8 +41,7 @@ export const ScreenVlmWorkerRejectedOpenEndedPromptTerms = ['describe the screen
 const RequiredFalse = Schema.Literal(false);
 const RequiredTrue = Schema.Literal(true);
 const PositiveInteger = Schema.Number.pipe(Schema.int(), Schema.positive());
-const NonEmptyText = Schema.String.pipe(Schema.minLength(1));
-const PromptText = NonEmptyText.pipe(Schema.maxLength(ScreenVlmWorkerMaxPromptCharacters));
+const PromptText = NonEmptyStringSchema.pipe(Schema.maxLength(ScreenVlmWorkerMaxPromptCharacters));
 const SupportedVlmProvider = Schema.Literal('localVision', 'localMultimodal');
 
 export const ScreenVlmWorkerJobSchema = withParser(
@@ -50,7 +54,7 @@ export const ScreenVlmWorkerJobSchema = withParser(
     capabilityStatus: ScreenCapabilityStatusSchema,
     sourceEvidenceRefs: Schema.Array(ActivityEvidenceRefSchema),
     imageDigest: ScreenEvidenceImageDigestSchema,
-    encryptedImageRef: NonEmptyText,
+    encryptedImageRef: NonEmptyStringSchema,
     modelRuntimeRef: ScreenEvidenceModelRuntimeRefSchema,
     modelId: ScreenEvidenceModelIdSchema,
     promptOrTemplateVersion: ScreenEvidenceTemplateVersionSchema,
@@ -162,7 +166,7 @@ export const ScreenVlmWorkerResultSchema = withParser(
 export const ScreenVlmWorkerProofSchema = withParser(
   Schema.Struct({
     schemaVersion: Schema.Literal(ScreenVlmWorkerSchemaVersion),
-    proofId: NonEmptyText,
+    proofId: NonEmptyStringSchema,
     proofTier: Schema.Literal('P3_CONTRACT_LOCAL_VLM_WORKER'),
     scenarios: Schema.Array(ScreenVlmWorkerResultSchema),
     localOnly: RequiredTrue,
@@ -212,3 +216,4 @@ export function screenVlmWorkerResultToAnalysisResult(result: ScreenVlmWorkerRes
 export type ScreenVlmWorkerJob = Infer<typeof ScreenVlmWorkerJobSchema>;
 export type ScreenVlmWorkerResult = Infer<typeof ScreenVlmWorkerResultSchema>;
 export type ScreenVlmWorkerProof = Infer<typeof ScreenVlmWorkerProofSchema>;
+

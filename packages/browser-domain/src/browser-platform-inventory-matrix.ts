@@ -1,4 +1,9 @@
-import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
+import {
+  type Infer,
+  Schema,
+  withParser,
+  brandedNonEmptyStringSchema
+} from '@ocentra-parent/schema-domain/effect';
 import {
   BrowserCapabilityStatusSchema,
   BrowserChannelSchema,
@@ -17,8 +22,6 @@ import {
   BrowserUnmanagedFallbackCapabilitySchema,
 } from './browser-inventory-schemas';
 
-const BrowserPlatformMatrixText = Schema.String.pipe(Schema.minLength(1));
-
 export const BrowserInventoryPlatformSchema = withParser(
   Schema.Literal('windows', 'macos', 'linux', 'android', 'ios', 'unknown')
 );
@@ -26,7 +29,7 @@ export const BrowserInventoryPlatformProofStateSchema = withParser(
   Schema.Literal('host-observed', 'fixture-backed', 'manual-required', 'unsupported', 'not-claimed')
 );
 export const BrowserInventoryPlatformProofRequirementSchema = withParser(
-  BrowserPlatformMatrixText.pipe(Schema.brand('BrowserInventoryPlatformProofRequirement'))
+  brandedNonEmptyStringSchema('BrowserInventoryPlatformProofRequirement')
 );
 
 const BrowserInventoryPlatformMatrixEntryBaseSchema = Schema.Struct({
@@ -315,3 +318,4 @@ function iosEntryIsUnsupported(entry: BrowserInventoryPlatformMatrixEntryCandida
 function platformMatrixEntryKey(entry: BrowserInventoryPlatformMatrixEntryCandidate): string {
   return [entry.platform, entry.browserFamily, entry.browserChannel, entry.productName].join('|');
 }
+

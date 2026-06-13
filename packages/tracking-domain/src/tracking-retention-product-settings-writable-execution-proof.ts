@@ -1,4 +1,10 @@
-import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
+import {
+  type Infer,
+  Schema,
+  withParser,
+  brandedNonEmptyStringSchema,
+  NonEmptyStringSchema
+} from '@ocentra-parent/schema-domain/effect';
 import { ParentTimestampSchema } from '@ocentra-parent/family-domain/reference-primitives';
 import { TrackingPolicyAuditRefSchema, TrackingPolicySchemaVersion } from './tracking-location-policy-primitives';
 import {
@@ -10,17 +16,11 @@ import {
   TrackingRetentionSettingsProofRefSchema,
 } from './tracking-retention-settings-read-model-proof';
 
-const TrackingRetentionWritableExecutionTextSchema = Schema.String.pipe(Schema.minLength(1));
-
 export const TrackingRetentionProductSettingsWritableExecutionArtifactRefSchema =
-  TrackingRetentionWritableExecutionTextSchema.pipe(
-    Schema.brand('TrackingRetentionProductSettingsWritableExecutionArtifactRef')
-  );
+  brandedNonEmptyStringSchema('TrackingRetentionProductSettingsWritableExecutionArtifactRef');
 
 export const TrackingRetentionProductSettingsWritableExecutionRowIdSchema =
-  TrackingRetentionWritableExecutionTextSchema.pipe(
-    Schema.brand('TrackingRetentionProductSettingsWritableExecutionRowId')
-  );
+  brandedNonEmptyStringSchema('TrackingRetentionProductSettingsWritableExecutionRowId');
 
 export const TrackingRetentionProductSettingsWritableExecutionRowSchema = withParser(
   Schema.Struct({
@@ -35,8 +35,8 @@ export const TrackingRetentionProductSettingsWritableExecutionRowSchema = withPa
     outputArtifactRef: TrackingRetentionProductSettingsWritableExecutionArtifactRefSchema,
     auditRefs: Schema.Array(TrackingPolicyAuditRefSchema),
     localServiceStateRevision: Schema.Number.pipe(Schema.int(), Schema.positive()),
-    localServiceStateSnapshotRef: TrackingRetentionWritableExecutionTextSchema,
-    durableSettingsStoreRef: TrackingRetentionWritableExecutionTextSchema,
+    localServiceStateSnapshotRef: NonEmptyStringSchema,
+    durableSettingsStoreRef: NonEmptyStringSchema,
     appliedRetentionWindowHours: Schema.Union(Schema.Number.pipe(Schema.int(), Schema.positive()), Schema.Null),
     appliedDeleteAfterAlertResolved: Schema.Boolean,
     parentExportPrepared: Schema.Boolean,
@@ -103,8 +103,8 @@ export const TrackingRetentionProductSettingsWritableExecutionProofSchema = with
         sourceReadModelProofRefs: Schema.Array(TrackingRetentionSettingsProofRefSchema),
         sourceMutationProofRefs: Schema.Array(TrackingRetentionSettingsProofRefSchema),
         localServiceStateRevision: Schema.Number.pipe(Schema.int(), Schema.positive()),
-        localServiceStateSnapshotRef: TrackingRetentionWritableExecutionTextSchema,
-        durableSettingsStoreRef: TrackingRetentionWritableExecutionTextSchema,
+        localServiceStateSnapshotRef: NonEmptyStringSchema,
+        durableSettingsStoreRef: NonEmptyStringSchema,
         appliedRetentionWindowHours: Schema.Union(Schema.Number.pipe(Schema.int(), Schema.positive()), Schema.Null),
         appliedDeleteAfterAlertResolved: Schema.Boolean,
         outputArtifactRef: TrackingRetentionProductSettingsWritableExecutionArtifactRefSchema,
@@ -222,3 +222,4 @@ function writableExecutionRow(
     productClaimReady: false,
   });
 }
+

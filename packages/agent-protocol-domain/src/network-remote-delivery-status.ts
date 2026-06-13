@@ -1,10 +1,15 @@
-import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
+import { type Infer, NonEmptyStringSchema, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
 import { AgentEvent, isAgentProtocolLogText, type AgentEventEnvelope } from './contracts';
 import { AgentProtocolDefaults } from './defaults';
 
-const NetworkRemoteDeliveryText = Schema.String.pipe(Schema.minLength(1));
 const NetworkRemoteDeliveryCount = Schema.Number.pipe(Schema.nonNegative(), Schema.int());
 const NetworkRemoteDeliveryRefs = AgentProtocolDefaults.NetworkRemoteDeliveryStatus;
+const NetworkRemoteDeliveryStatusErrorMessage =
+  'Network remote delivery status must preserve row10t status identity, row10g outbox refs, ' +
+  'row10k blocked dispatch refs, row10l fixture transport refs, row10m delete/export readiness refs, ' +
+  'row10p provider/child readiness refs, row10q cross-process custody refs, row10r replay metadata refs, ' +
+  'and row10t external cross-process transport refs without live broker/family/provider delivery, ' +
+  'product-ready delivery, or content claims';
 
 export const AgentNetworkRemoteDeliveryRow10tRefs = {
   StatusRef: 'network.remote-delivery.external-cross-process-transport-status.10t',
@@ -34,21 +39,21 @@ export const AgentNetworkRemoteDeliveryExternalCrossProcessTransportStateSchema 
 );
 
 const AgentNetworkRemoteDeliveryStatusFields = Schema.Struct({
-  statusRef: NetworkRemoteDeliveryText,
+  statusRef: NonEmptyStringSchema,
   brokerStatus: AgentNetworkRemoteDeliveryStatusStateSchema,
   familyHubStatus: AgentNetworkRemoteDeliveryStatusStateSchema,
-  custodyProofRef: NetworkRemoteDeliveryText,
-  publisherAuthRef: NetworkRemoteDeliveryText,
-  subscriberAuthRef: NetworkRemoteDeliveryText,
-  encryptionRef: NetworkRemoteDeliveryText,
-  retentionPolicyRef: NetworkRemoteDeliveryText,
-  replayPlanRef: NetworkRemoteDeliveryText,
-  deletionPlanRef: NetworkRemoteDeliveryText,
-  offsetPolicyRef: NetworkRemoteDeliveryText,
-  dedupePolicyRef: NetworkRemoteDeliveryText,
-  transportConfigRef: NetworkRemoteDeliveryText,
-  relayIdentityRef: NetworkRemoteDeliveryText,
-  relayPolicyRef: NetworkRemoteDeliveryText,
+  custodyProofRef: NonEmptyStringSchema,
+  publisherAuthRef: NonEmptyStringSchema,
+  subscriberAuthRef: NonEmptyStringSchema,
+  encryptionRef: NonEmptyStringSchema,
+  retentionPolicyRef: NonEmptyStringSchema,
+  replayPlanRef: NonEmptyStringSchema,
+  deletionPlanRef: NonEmptyStringSchema,
+  offsetPolicyRef: NonEmptyStringSchema,
+  dedupePolicyRef: NonEmptyStringSchema,
+  transportConfigRef: NonEmptyStringSchema,
+  relayIdentityRef: NonEmptyStringSchema,
+  relayPolicyRef: NonEmptyStringSchema,
   brokerMissingArtifactCount: NetworkRemoteDeliveryCount,
   familyHubMissingArtifactCount: NetworkRemoteDeliveryCount,
   acceptedEventTypeCount: NetworkRemoteDeliveryCount,
@@ -56,44 +61,44 @@ const AgentNetworkRemoteDeliveryStatusFields = Schema.Struct({
   droppedEventDeadLetterCount: NetworkRemoteDeliveryCount,
   queuedDuplicateRejected: Schema.Boolean,
   completedDuplicateRejected: Schema.Boolean,
-  eventChainJournalRef: NetworkRemoteDeliveryText,
-  receiptLedgerRef: NetworkRemoteDeliveryText,
-  localReceiptAckRef: NetworkRemoteDeliveryText,
-  durableEnvelopeRef: NetworkRemoteDeliveryText,
-  durableStoreRef: NetworkRemoteDeliveryText,
-  durableReplayRef: NetworkRemoteDeliveryText,
-  durableDeleteExportRef: NetworkRemoteDeliveryText,
-  durableSupportStatusRef: NetworkRemoteDeliveryText,
+  eventChainJournalRef: NonEmptyStringSchema,
+  receiptLedgerRef: NonEmptyStringSchema,
+  localReceiptAckRef: NonEmptyStringSchema,
+  durableEnvelopeRef: NonEmptyStringSchema,
+  durableStoreRef: NonEmptyStringSchema,
+  durableReplayRef: NonEmptyStringSchema,
+  durableDeleteExportRef: NonEmptyStringSchema,
+  durableSupportStatusRef: NonEmptyStringSchema,
   durableEnvelopeReady: Schema.Boolean,
   durableEnvelopeMissingArtifactCount: NetworkRemoteDeliveryCount,
-  outboxRef: NetworkRemoteDeliveryText,
-  outboxHandoffRef: NetworkRemoteDeliveryText,
-  outboxReplayRef: NetworkRemoteDeliveryText,
-  outboxSupportStatusRef: NetworkRemoteDeliveryText,
-  transportDispatchStateRef: NetworkRemoteDeliveryText,
-  blockedDispatchRef: NetworkRemoteDeliveryText,
-  futureTransportSeamRef: NetworkRemoteDeliveryText,
-  fixtureTransportRef: NetworkRemoteDeliveryText,
-  fixtureDispatchAttemptRef: NetworkRemoteDeliveryText,
-  fixtureAckRef: NetworkRemoteDeliveryText,
-  deleteExportPropagationRef: NetworkRemoteDeliveryText,
-  remoteDeleteReadinessRef: NetworkRemoteDeliveryText,
-  remoteExportReadinessRef: NetworkRemoteDeliveryText,
-  providerRouteRef: NetworkRemoteDeliveryText,
-  childDeviceRouteRef: NetworkRemoteDeliveryText,
-  providerDeliveryReadinessRef: NetworkRemoteDeliveryText,
-  childDeviceDeliveryReadinessRef: NetworkRemoteDeliveryText,
-  crossProcessCustodyStatusRef: NetworkRemoteDeliveryText,
-  crossProcessReplayReadinessRef: NetworkRemoteDeliveryText,
-  remoteRetentionReadinessRef: NetworkRemoteDeliveryText,
-  remoteDeleteCustodyReadinessRef: NetworkRemoteDeliveryText,
-  remoteExportCustodyReadinessRef: NetworkRemoteDeliveryText,
-  crossProcessReplayRef: NetworkRemoteDeliveryText,
-  crossProcessReplayStoreRef: NetworkRemoteDeliveryText,
-  crossProcessReplayCursorRef: NetworkRemoteDeliveryText,
-  externalCrossProcessTransportRef: NetworkRemoteDeliveryText,
-  externalCrossProcessTransportEnvelopeRef: NetworkRemoteDeliveryText,
-  externalCrossProcessTransportAckRef: NetworkRemoteDeliveryText,
+  outboxRef: NonEmptyStringSchema,
+  outboxHandoffRef: NonEmptyStringSchema,
+  outboxReplayRef: NonEmptyStringSchema,
+  outboxSupportStatusRef: NonEmptyStringSchema,
+  transportDispatchStateRef: NonEmptyStringSchema,
+  blockedDispatchRef: NonEmptyStringSchema,
+  futureTransportSeamRef: NonEmptyStringSchema,
+  fixtureTransportRef: NonEmptyStringSchema,
+  fixtureDispatchAttemptRef: NonEmptyStringSchema,
+  fixtureAckRef: NonEmptyStringSchema,
+  deleteExportPropagationRef: NonEmptyStringSchema,
+  remoteDeleteReadinessRef: NonEmptyStringSchema,
+  remoteExportReadinessRef: NonEmptyStringSchema,
+  providerRouteRef: NonEmptyStringSchema,
+  childDeviceRouteRef: NonEmptyStringSchema,
+  providerDeliveryReadinessRef: NonEmptyStringSchema,
+  childDeviceDeliveryReadinessRef: NonEmptyStringSchema,
+  crossProcessCustodyStatusRef: NonEmptyStringSchema,
+  crossProcessReplayReadinessRef: NonEmptyStringSchema,
+  remoteRetentionReadinessRef: NonEmptyStringSchema,
+  remoteDeleteCustodyReadinessRef: NonEmptyStringSchema,
+  remoteExportCustodyReadinessRef: NonEmptyStringSchema,
+  crossProcessReplayRef: NonEmptyStringSchema,
+  crossProcessReplayStoreRef: NonEmptyStringSchema,
+  crossProcessReplayCursorRef: NonEmptyStringSchema,
+  externalCrossProcessTransportRef: NonEmptyStringSchema,
+  externalCrossProcessTransportEnvelopeRef: NonEmptyStringSchema,
+  externalCrossProcessTransportAckRef: NonEmptyStringSchema,
   transportDispatchState: AgentNetworkRemoteDeliveryTransportDispatchStateSchema,
   providerDeliveryReadinessState: AgentNetworkRemoteDeliveryProviderChildReadinessStateSchema,
   childDeviceDeliveryReadinessState: AgentNetworkRemoteDeliveryProviderChildReadinessStateSchema,
@@ -187,7 +192,7 @@ export const AgentNetworkRemoteDeliveryStatusSchema = withParser(
           crossProcessReplayMetadataMatches(status) &&
           externalCrossProcessTransportMatches(status) &&
           localDeliveryProofMatches(status)) ||
-        'Network remote delivery status must preserve row10t status identity, row10g outbox refs, row10k blocked dispatch refs, row10l fixture transport refs, row10m delete/export readiness refs, row10p provider/child readiness refs, row10q cross-process custody refs, row10r replay metadata refs, and row10t external cross-process transport refs without live broker/family/provider delivery, product-ready delivery, or content claims'
+        NetworkRemoteDeliveryStatusErrorMessage
     )
   )
 );

@@ -1,8 +1,11 @@
-import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
+import {
+  type Infer,
+  Schema,
+  withParser,
+  NonEmptyStringSchema
+} from '@ocentra-parent/schema-domain/effect';
 
-const NonEmptyDeleteExecutorText = Schema.String.pipe(Schema.minLength(1));
-
-const deleteExecutorText = <Brand extends string>(brand: Brand) => NonEmptyDeleteExecutorText.pipe(Schema.brand(brand));
+const deleteExecutorText = <Brand extends string>(brand: Brand) => NonEmptyStringSchema.pipe(Schema.brand(brand));
 
 export const DeleteExecutorReadModelIdSchema = deleteExecutorText('DeleteExecutorReadModelId');
 export const DeleteExecutorRowIdSchema = deleteExecutorText('DeleteExecutorRowId');
@@ -218,3 +221,4 @@ function requiredValuesArePresent<T extends string>(
   const actual = new Set(actualValues);
   return actual.size === actualValues.length && requiredValues.every((value) => actual.has(value));
 }
+

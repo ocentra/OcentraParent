@@ -1,4 +1,10 @@
-import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
+import {
+  type Infer,
+  Schema,
+  withParser,
+  brandedNonEmptyStringSchema
+} from '@ocentra-parent/schema-domain/effect';
+import { AgentTrackingRetentionSettingsWriteDefaults } from '@ocentra-parent/agent-protocol-domain/tracking-retention-settings-write-command';
 import { ParentTimestampSchema } from '@ocentra-parent/family-domain/reference-primitives';
 import { TrackingEvidenceTraceSchema } from './tracking-location-policy';
 import {
@@ -7,15 +13,9 @@ import {
   TrackingPolicySchemaVersion,
 } from './tracking-location-policy-primitives';
 
-const TrackingReportExportReadModelTextSchema = Schema.String.pipe(Schema.minLength(1));
+export const TrackingReportExportReadModelPacketIdSchema = brandedNonEmptyStringSchema('TrackingReportExportReadModelPacketId');
 
-export const TrackingReportExportReadModelPacketIdSchema = TrackingReportExportReadModelTextSchema.pipe(
-  Schema.brand('TrackingReportExportReadModelPacketId')
-);
-
-export const TrackingReportExportReadModelProofRefSchema = TrackingReportExportReadModelTextSchema.pipe(
-  Schema.brand('TrackingReportExportReadModelProofRef')
-);
+export const TrackingReportExportReadModelProofRefSchema = brandedNonEmptyStringSchema('TrackingReportExportReadModelProofRef');
 
 export const TrackingReportExportReadModelKindSchema = withParser(
   Schema.Literal(
@@ -251,7 +251,7 @@ function packet(input: {
       'output/tracking-plan-proof/32-journal-sqlite-and-read-model-proof/21-product-surface-summary-proof.json',
       'output/tracking-plan-proof/32-journal-sqlite-and-read-model-proof/22-report-policy-consumer-proof.json',
       'output/tracking-plan-proof/32-journal-sqlite-and-read-model-proof/23-family-dashboard-rollup-proof.json',
-      'output/tracking-plan-proof/32-journal-sqlite-and-read-model-proof/24-retention-settings-read-model-proof.json',
+      AgentTrackingRetentionSettingsWriteDefaults.ReadModelProofRefs[1],
     ],
     serviceReadModelProofRefs: [
       'output/tracking-plan-proof/32-journal-sqlite-and-read-model-proof/18-service-read-model-proof.json',
@@ -264,8 +264,7 @@ function packet(input: {
       'output/tracking-plan-proof/32-journal-sqlite-and-read-model-proof/23-family-dashboard-rollup-proof.json',
     ],
     retentionSettingsProofRefs: [
-      'output/tracking-plan-proof/07-retention-and-custody-model/18-retention-settings-read-model-proof.json',
-      'output/tracking-plan-proof/32-journal-sqlite-and-read-model-proof/24-retention-settings-read-model-proof.json',
+      ...AgentTrackingRetentionSettingsWriteDefaults.ReadModelProofRefs,
     ],
     evidenceReferences: input.evidenceReferences,
     exportedRowCount: input.exportedRowCount,
@@ -301,3 +300,4 @@ function evidence(
     observedAt,
   });
 }
+

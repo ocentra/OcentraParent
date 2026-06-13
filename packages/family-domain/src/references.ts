@@ -14,7 +14,7 @@ import {
   ParentPlatformSchema,
   ParentPolicyVersionSchema,
   ParentTimestampSchema,
-} from './reference-primitives';
+} from '@ocentra-parent/family-domain/reference-primitives';
 
 export const ParentActorReferenceSchema = withParser(
   Schema.Struct({

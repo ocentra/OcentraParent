@@ -1,4 +1,9 @@
-import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
+import {
+  type Infer,
+  Schema,
+  withParser,
+  brandedNonEmptyStringSchema
+} from '@ocentra-parent/schema-domain/effect';
 import {
   AppGameNotificationSchedulerBridgeReadModelSchema,
   AppGameNotificationSchedulerBridgeStatus,
@@ -14,9 +19,7 @@ import { FamilyReferenceSchema } from '@ocentra-parent/family-domain/references'
 import {
   V3NotificationParentPreferenceStateSchema,
   V3NotificationQuietHoursDecisionSchema,
-} from './v3-notification-rule-provider-retry-contract';
-
-const PreferencePreflightText = Schema.String.pipe(Schema.minLength(1));
+} from '@ocentra-parent/notification-domain/v3-notification-rule-provider-retry-contract';
 
 export const AppGameNotificationPreferencePreflightStatus = {
   ParentPreferenceRequired: 'parent-preference-required',
@@ -46,9 +49,9 @@ export const AppGameNotificationPreferencePreflightNonClaimSchema = withParser(
 );
 
 // prettier-ignore
-export const AppGameNotificationPreferencePreflightIdSchema = PreferencePreflightText.pipe(Schema.brand('AppGameNotificationPreferencePreflightId'));
+export const AppGameNotificationPreferencePreflightIdSchema = brandedNonEmptyStringSchema('AppGameNotificationPreferencePreflightId');
 // prettier-ignore
-export const AppGameNotificationPreferencePreflightReferenceSchema = PreferencePreflightText.pipe(Schema.brand('AppGameNotificationPreferencePreflightReference'));
+export const AppGameNotificationPreferencePreflightReferenceSchema = brandedNonEmptyStringSchema('AppGameNotificationPreferencePreflightReference');
 
 const AppGameNotificationPreferencePreflightRowBaseSchema = Schema.Struct({
   preferenceRowId: AppGameNotificationPreferencePreflightReferenceSchema,
@@ -283,3 +286,4 @@ const countRows = (
   rows: ReadonlyArray<{ readonly status: AppGameNotificationPreferencePreflightStatus }>,
   status: AppGameNotificationPreferencePreflightStatus
 ): number => rows.filter((row) => row.status === status).length;
+

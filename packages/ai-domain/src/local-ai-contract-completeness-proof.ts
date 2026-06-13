@@ -1,19 +1,21 @@
-import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
-import { LocalAiEvaluationInputSchema, LocalAiSafetyResultSchema } from './local-ai';
+import {
+  type Infer,
+  Schema,
+  withParser,
+  brandedNonEmptyStringSchema,
+  NonEmptyStringSchema
+} from '@ocentra-parent/schema-domain/effect';
+import { LocalAiEvaluationInputSchema, LocalAiSafetyResultSchema } from '@ocentra-parent/ai-domain/local-ai';
 import { LocalAiDegradedState, LocalAiUnknownState } from './local-ai-primitives';
 import {
   LocalAiProviderSchedulerDecisionSchema,
   LocalAiProviderSchedulerStatusSchema,
-} from './local-ai-provider-scheduler';
-import { LocalProviderCapabilitySchema, LocalModelRuntimeStatusSchema } from './local-ai-runtime';
+} from '@ocentra-parent/ai-domain/local-ai-provider-scheduler';
+import { LocalProviderCapabilitySchema, LocalModelRuntimeStatusSchema } from '@ocentra-parent/ai-domain/local-ai-runtime';
 import { ParentContractSchemaVersion } from '@ocentra-parent/family-domain/reference-primitives';
-
-const LocalAiContractProofTextSchema = Schema.String.pipe(Schema.minLength(1));
 const LocalAiContractProofCountSchema = Schema.Number.pipe(Schema.nonNegative(), Schema.int());
 
-export const LocalAiContractCompletenessProofIdSchema = LocalAiContractProofTextSchema.pipe(
-  Schema.brand('LocalAiContractCompletenessProofId')
-);
+export const LocalAiContractCompletenessProofIdSchema = brandedNonEmptyStringSchema('LocalAiContractCompletenessProofId');
 
 export const LocalAiContractCompletenessContractKindSchema = withParser(
   Schema.Literal('input', 'result', 'provider-capability', 'job-queue', 'provider-route')
@@ -40,7 +42,7 @@ export const LocalAiContractCompletenessClaimBoundariesSchema = withParser(
 
 const LocalAiContractCompletenessProofBaseSchema = Schema.Struct({
   proofId: LocalAiContractCompletenessProofIdSchema,
-  generatedAt: LocalAiContractProofTextSchema,
+  generatedAt: NonEmptyStringSchema,
   evaluationInput: LocalAiEvaluationInputSchema,
   safetyResult: LocalAiSafetyResultSchema,
   providerCapability: LocalProviderCapabilitySchema,
@@ -275,3 +277,4 @@ function localAiResultIsCited(proof: LocalAiContractCompletenessProofCandidate):
 }
 
 export const decodeLocalAiContractCompletenessProof = Schema.decodeUnknownSync(LocalAiContractCompletenessProofSchema);
+

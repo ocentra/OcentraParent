@@ -124,11 +124,11 @@ rmSync(aiProofRoot, { recursive: true, force: true });
 mkdirSync(proofRoot, { recursive: true });
 mkdirSync(aiProofRoot, { recursive: true });
 
-await runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/activity-domain']));
+await runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/screen-domain']));
 await runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/parent-domain']));
 
 const { ScreenAnalysisResultSchema, ScreenLocalModelOutputSchema } =
-  await import('../../packages/activity-domain/dist/screen-evidence.js');
+  await import('../../packages/screen-domain/dist/screen-evidence.js');
 const { LocalAiSafetyResultSchema } = await import('../../packages/parent-domain/dist/local-ai.js');
 const { FamilyPolicySetSchema, PolicyDecisionSchema, selectStricterPolicyAction } =
   await import('../../packages/parent-domain/dist/policy.js');

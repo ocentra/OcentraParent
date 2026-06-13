@@ -1,5 +1,10 @@
-import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
-import { LocalAiContextReasonCodeSchema, LocalAiEvidenceContextRefIdSchema } from './local-ai-context';
+import {
+  type Infer,
+  Schema,
+  withParser,
+  NonEmptyStringSchema
+} from '@ocentra-parent/schema-domain/effect';
+import { LocalAiContextReasonCodeSchema, LocalAiEvidenceContextRefIdSchema } from '@ocentra-parent/ai-domain/local-ai-context';
 import { LocalAiRuntimeReferenceIdSchema } from './local-ai-primitives';
 import {
   PolicyActionSchema,
@@ -7,14 +12,14 @@ import {
   PolicyDecisionIdSchema,
   PolicyReasonCodeSchema,
   PolicyRuleIdSchema,
-} from './policy';
+} from '@ocentra-parent/policy-domain/policy';
 import { ParentEvidenceReferenceIdSchema } from '@ocentra-parent/family-domain/reference-primitives';
 import {
   ScreenSummaryParentExplanationClaimBoundarySchema,
   ScreenSummaryParentExplanationReasonSchema,
 } from './local-ai-screen-summary-parent-explanation';
 
-export const ScreenSummaryParentReadModelTextSchema = Schema.String.pipe(Schema.minLength(1));
+export const ScreenSummaryParentReadModelTextSchema = NonEmptyStringSchema;
 export const ScreenSummaryParentReadModelNonNegativeIntegerSchema = Schema.Number.pipe(
   Schema.int(),
   Schema.greaterThanOrEqualTo(0)
@@ -111,3 +116,4 @@ function screenSummaryParentExplanationReadModelSourceRowIsReady(
     row.deletionReasons.includes('screen-image-deleted')
   );
 }
+

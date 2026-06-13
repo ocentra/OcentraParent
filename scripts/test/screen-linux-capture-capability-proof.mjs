@@ -9,7 +9,7 @@ const outputDir = join(repoRoot, 'output', 'screen-plan-proof', 'linux');
 const proofPath = join(outputDir, 'proof-summary.json');
 const wslgProofPath = join(repoRoot, 'output', 'screen-plan-proof', 'linux-wslg', 'proof-summary.json');
 
-run('npm', ['run', 'build', '--workspace', '@ocentra-parent/activity-domain']);
+run('npm', ['run', 'build', '--workspace', '@ocentra-parent/screen-domain']);
 
 const screenLinux = await import(
   pathToFileURL(join(repoRoot, 'packages', 'activity-domain', 'dist', 'screen-linux-capture-capability-proof.js')).href

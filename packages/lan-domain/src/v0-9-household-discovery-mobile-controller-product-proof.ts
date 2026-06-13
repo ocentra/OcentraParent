@@ -1,4 +1,9 @@
-import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
+import {
+  type Infer,
+  Schema,
+  withParser,
+  brandedNonEmptyStringSchema
+} from '@ocentra-parent/schema-domain/effect';
 import {
   LanPairingDeviceReachabilitySchema,
   LanPairingProductionDiscoveryStateSchema,
@@ -23,8 +28,6 @@ import {
   V09MobileControllerTransitionStateSchema,
   V09RuntimeProofStateSchema,
 } from './v0-9-mobile-controller-discovery-runtime';
-
-const NonEmptyHouseholdMobileProductProofText = Schema.String.pipe(Schema.minLength(1));
 
 export const V09HouseholdDiscoveryMobileControllerProductProofIdSchema = withParser(
   Schema.Literal('v0-9-household-discovery-mobile-controller-product-proof')
@@ -58,18 +61,10 @@ export const V09HouseholdDiscoveryMobileControllerCloudRelayDecisionSchema = wit
   Schema.Literal('manual-decision-required')
 );
 
-export const V09HouseholdDiscoveryMobileControllerProofPathSchema = NonEmptyHouseholdMobileProductProofText.pipe(
-  Schema.brand('V09HouseholdDiscoveryMobileControllerProofPath')
-);
-export const V09HouseholdDiscoveryMobileControllerProofCommandSchema = NonEmptyHouseholdMobileProductProofText.pipe(
-  Schema.brand('V09HouseholdDiscoveryMobileControllerProofCommand')
-);
-export const V09HouseholdDiscoveryMobileControllerProofLabelSchema = NonEmptyHouseholdMobileProductProofText.pipe(
-  Schema.brand('V09HouseholdDiscoveryMobileControllerProofLabel')
-);
-export const V09HouseholdDiscoveryMobileControllerClaimBoundarySchema = NonEmptyHouseholdMobileProductProofText.pipe(
-  Schema.brand('V09HouseholdDiscoveryMobileControllerClaimBoundary')
-);
+export const V09HouseholdDiscoveryMobileControllerProofPathSchema = brandedNonEmptyStringSchema('V09HouseholdDiscoveryMobileControllerProofPath');
+export const V09HouseholdDiscoveryMobileControllerProofCommandSchema = brandedNonEmptyStringSchema('V09HouseholdDiscoveryMobileControllerProofCommand');
+export const V09HouseholdDiscoveryMobileControllerProofLabelSchema = brandedNonEmptyStringSchema('V09HouseholdDiscoveryMobileControllerProofLabel');
+export const V09HouseholdDiscoveryMobileControllerClaimBoundarySchema = brandedNonEmptyStringSchema('V09HouseholdDiscoveryMobileControllerClaimBoundary');
 
 export const V09HouseholdDiscoveryMobileControllerSourceProofInputSchema = withParser(
   Schema.Struct({
@@ -434,3 +429,4 @@ export type V09HouseholdDiscoveryMobileControllerManualBoundary = Infer<
 export type V09HouseholdDiscoveryMobileControllerProductProofReadModel = Infer<
   typeof V09HouseholdDiscoveryMobileControllerProductProofReadModelSchema
 >;
+

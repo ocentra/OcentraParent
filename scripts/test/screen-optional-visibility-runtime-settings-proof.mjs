@@ -9,12 +9,12 @@ const proofDir = join(repoRoot, 'output', 'screen-plan-proof', 'optional-visibil
 const proofPath = join(proofDir, 'proof-summary.json');
 const generatedAt = '2026-06-07T20:10:00Z';
 
-run('npm', ['run', 'build', '--workspace', '@ocentra-parent/activity-domain']);
+run('npm', ['run', 'build', '--workspace', '@ocentra-parent/screen-domain']);
 run('npm', [
   'run',
   'test',
   '--workspace',
-  '@ocentra-parent/activity-domain',
+  '@ocentra-parent/screen-domain',
   '--',
   '--run',
   'tests/screen-optional-visibility-runtime-settings.test.ts',
@@ -101,8 +101,8 @@ writeFileSync(
       claim:
         'Optional raw-retention and live-view settings have a separate runtime settings contract that accepts parent-approved live view as view-only state, rejects stale writes, rejects mixed raw-retention/live-view custody, and keeps product live view false.',
       artifactInputs: {
-        contract: 'packages/activity-domain/src/screen-optional-visibility-runtime-settings.ts',
-        tests: 'packages/activity-domain/tests/screen-optional-visibility-runtime-settings.test.ts',
+        contract: 'packages/screen-domain/src/screen-optional-visibility-runtime-settings.ts',
+        tests: 'packages/screen-domain/tests/unit/screen-optional-visibility-runtime-settings.test.ts',
       },
       acceptedRows: {
         liveViewRevision: liveViewAccepted.state?.revision,

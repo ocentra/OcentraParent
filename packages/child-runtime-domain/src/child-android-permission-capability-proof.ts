@@ -1,8 +1,6 @@
-import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
+import { type Infer, brandedNonEmptyStringSchema, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
 import { ParentControlCapabilityNameSchema, ParentControlCapabilityStatusSchema } from '@ocentra-parent/capability-domain/capabilities';
 import { ParentTimestampSchema } from '@ocentra-parent/family-domain/reference-primitives';
-
-const NonEmptyChildAndroidPermissionText = Schema.String.pipe(Schema.minLength(1));
 
 export const ChildAndroidPermissionCapabilityProofSchemaVersionSchema = withParser(
   Schema.Literal('child-android-permission-capability-proof')
@@ -102,18 +100,10 @@ export const ChildAndroidPermissionBridgeStateSchema = withParser(
   Schema.Literal('package-local-scaffold', 'not-implemented')
 );
 
-const ChildAndroidPermissionPackageIdSchema = NonEmptyChildAndroidPermissionText.pipe(
-  Schema.brand('ChildAndroidPermissionPackageId')
-);
-const ChildAndroidPermissionClassNameSchema = NonEmptyChildAndroidPermissionText.pipe(
-  Schema.brand('ChildAndroidPermissionClassName')
-);
-const ChildAndroidPermissionRequirementSchema = NonEmptyChildAndroidPermissionText.pipe(
-  Schema.brand('ChildAndroidPermissionRequirement')
-);
-const ChildAndroidPermissionBoundarySchema = NonEmptyChildAndroidPermissionText.pipe(
-  Schema.brand('ChildAndroidPermissionBoundary')
-);
+const ChildAndroidPermissionPackageIdSchema = brandedNonEmptyStringSchema('ChildAndroidPermissionPackageId');
+const ChildAndroidPermissionClassNameSchema = brandedNonEmptyStringSchema('ChildAndroidPermissionClassName');
+const ChildAndroidPermissionRequirementSchema = brandedNonEmptyStringSchema('ChildAndroidPermissionRequirement');
+const ChildAndroidPermissionBoundarySchema = brandedNonEmptyStringSchema('ChildAndroidPermissionBoundary');
 
 export const ChildAndroidPermissionProofSchema = withParser(
   Schema.Struct({

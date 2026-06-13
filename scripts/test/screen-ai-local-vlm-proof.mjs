@@ -256,11 +256,11 @@ if (!existsSync(vlmBinary) || !existsSync(vlmModel) || !existsSync(vlmMmproj)) {
 
 prepareOutputRoots();
 
-await runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/activity-domain']));
+await runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/screen-domain']));
 await runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/parent-domain']));
 
 const { ScreenAnalysisResultSchema, ScreenLocalModelOutputSchema } =
-  await import('../../packages/activity-domain/dist/screen-evidence.js');
+  await import('../../packages/screen-domain/dist/screen-evidence.js');
 const parentSchemas = await import('../../packages/parent-domain/dist/local-ai.js');
 const policySchemas = await import('../../packages/parent-domain/dist/policy.js');
 const summary = [];

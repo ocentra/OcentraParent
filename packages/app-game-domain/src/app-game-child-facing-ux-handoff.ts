@@ -1,12 +1,15 @@
-import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
+import {
+  type Infer,
+  Schema,
+  withParser,
+  brandedNonEmptyStringSchema
+} from '@ocentra-parent/schema-domain/effect';
 import { AppGameChildUxCardSchema, type AppGameChildUxCard } from './app-game-child-facing-ux';
 import {
   ParentContractSchemaVersion,
   ParentContractSchemaVersionSchema,
   ParentTimestampSchema,
 } from '@ocentra-parent/family-domain/reference-primitives';
-
-const NonEmptyChildUxHandoffText = Schema.String.pipe(Schema.minLength(1));
 
 export const AppGameChildUxHandoffStatus = {
   Ready: 'ready-for-local-child-ux-handoff',
@@ -16,10 +19,8 @@ export const AppGameChildUxHandoffStatus = {
 export const AppGameChildUxHandoffStatusSchema = withParser(
   Schema.Literal(...Object.values(AppGameChildUxHandoffStatus))
 );
-export const AppGameChildUxHandoffIdSchema = NonEmptyChildUxHandoffText.pipe(Schema.brand('AppGameChildUxHandoffId'));
-export const AppGameChildUxHandoffReferenceSchema = NonEmptyChildUxHandoffText.pipe(
-  Schema.brand('AppGameChildUxHandoffReference')
-);
+export const AppGameChildUxHandoffIdSchema = brandedNonEmptyStringSchema('AppGameChildUxHandoffId');
+export const AppGameChildUxHandoffReferenceSchema = brandedNonEmptyStringSchema('AppGameChildUxHandoffReference');
 
 const AppGameChildUxHandoffRowBaseSchema = Schema.Struct({
   handoffReferenceId: AppGameChildUxHandoffReferenceSchema,
@@ -132,3 +133,4 @@ function countRows(
 ): number {
   return rows.filter((row) => row.status === status).length;
 }
+

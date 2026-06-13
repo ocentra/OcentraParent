@@ -1,6 +1,8 @@
-import { Schema, withParser } from '@ocentra-parent/schema-domain/effect';
-
-const NonEmptyRuntimeClosureText = Schema.String.pipe(Schema.minLength(1));
+import {
+  Schema,
+  withParser,
+  brandedNonEmptyStringSchema
+} from '@ocentra-parent/schema-domain/effect';
 
 export const ProductionSupportStatusBackendRuntimeClosureSchemaVersionSchema = withParser(
   Schema.Literal('production-support-status-backend-runtime-closure-proof')
@@ -97,12 +99,8 @@ export const ProductionSupportStatusBackendRuntimeClosureNonClaimSchema = withPa
   )
 );
 
-export const RuntimeClosureReferenceSchema = NonEmptyRuntimeClosureText.pipe(
-  Schema.brand('ProductionSupportStatusBackendRuntimeClosureReference')
-);
-export const RuntimeClosureManualRequirementSchema = NonEmptyRuntimeClosureText.pipe(
-  Schema.brand('ProductionSupportStatusBackendRuntimeClosureManualRequirement')
-);
+export const RuntimeClosureReferenceSchema = brandedNonEmptyStringSchema('ProductionSupportStatusBackendRuntimeClosureReference');
+export const RuntimeClosureManualRequirementSchema = brandedNonEmptyStringSchema('ProductionSupportStatusBackendRuntimeClosureManualRequirement');
 
 export const RequiredRuntimeClosureTargets = [
   'support-runbook-status-backend-closure',
@@ -181,3 +179,4 @@ export const RequiredRuntimeClosureNonClaims = [
   'no-provider-secret-custody',
   'no-child-activity-custody',
 ] as const;
+

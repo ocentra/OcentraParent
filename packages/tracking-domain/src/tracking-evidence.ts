@@ -1,11 +1,16 @@
-import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
+import {
+  type Infer,
+  Schema,
+  withParser,
+  NonEmptyStringSchema
+} from '@ocentra-parent/schema-domain/effect';
 import { ActivityEvidenceRefSchema } from '@ocentra-parent/evidence-domain/contracts';
 import {
   ActivityDeviceIdSchema,
   ActivityEvidenceIdSchema,
   ActivitySourceIdSchema,
   ActivityTimestampSchema,
-} from './primitives';
+} from '@ocentra-parent/evidence-domain/primitives';
 import {
   TrackingAdapterIdSchema,
   TrackingAuditRefSchema,
@@ -29,7 +34,7 @@ export const TrackingLocationHintSchema = withParser(
   Schema.Struct({
     quality: TrackingHintQualitySchema,
     coarseRadiusMeters: Schema.Union(TrackingNonNegativeNumberSchema, Schema.Null),
-    label: Schema.Union(Schema.String.pipe(Schema.minLength(1)), Schema.Null),
+    label: Schema.Union(NonEmptyStringSchema, Schema.Null),
   })
 );
 
@@ -164,3 +169,4 @@ function trackingLocationPrecisionIsHonest(value: TrackingLocationEvidenceBase) 
 
   return preciseSourceKind && preciseHintQuality && value.coordinate !== null && value.accuracyMeters !== null;
 }
+

@@ -1,22 +1,24 @@
-import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
-
-const NonEmptyLanPairingText = Schema.String.pipe(Schema.minLength(1));
+import { EventingEventTypeSchema } from '@ocentra-parent/event-domain/eventing';
+import {
+  type Infer,
+  Schema,
+  withParser,
+  brandedNonEmptyStringSchema
+} from '@ocentra-parent/schema-domain/effect';
 
 export const LanPairingSchemaVersionSchema = withParser(Schema.Literal('v0.9'));
 
-export const LanPairingIdSchema = NonEmptyLanPairingText.pipe(Schema.brand('LanPairingId'));
-export const LanPairingChallengeIdSchema = NonEmptyLanPairingText.pipe(Schema.brand('LanPairingChallengeId'));
-export const LanPairingProofDigestSchema = NonEmptyLanPairingText.pipe(Schema.brand('LanPairingProofDigest'));
-export const LanPairingIntentIdSchema = NonEmptyLanPairingText.pipe(Schema.brand('LanPairingIntentId'));
-export const LanPairingAuditEventIdSchema = NonEmptyLanPairingText.pipe(Schema.brand('LanPairingAuditEventId'));
-export const LanPairingRouteIdSchema = NonEmptyLanPairingText.pipe(Schema.brand('LanPairingRouteId'));
-export const LanPairingControllerLeaseIdSchema = NonEmptyLanPairingText.pipe(
-  Schema.brand('LanPairingControllerLeaseId')
-);
-export const LanPairingOriginSchema = NonEmptyLanPairingText.pipe(Schema.brand('LanPairingOrigin'));
-export const LanPairingTimestampSchema = NonEmptyLanPairingText.pipe(Schema.brand('LanPairingTimestamp'));
-export const LanPairingAgentPeerIdSchema = NonEmptyLanPairingText.pipe(Schema.brand('LanPairingAgentPeerId'));
-export const LanPairingAddressRefSchema = NonEmptyLanPairingText.pipe(Schema.brand('LanPairingAddressRef'));
+export const LanPairingIdSchema = brandedNonEmptyStringSchema('LanPairingId');
+export const LanPairingChallengeIdSchema = brandedNonEmptyStringSchema('LanPairingChallengeId');
+export const LanPairingProofDigestSchema = brandedNonEmptyStringSchema('LanPairingProofDigest');
+export const LanPairingIntentIdSchema = brandedNonEmptyStringSchema('LanPairingIntentId');
+export const LanPairingAuditEventIdSchema = brandedNonEmptyStringSchema('LanPairingAuditEventId');
+export const LanPairingRouteIdSchema = brandedNonEmptyStringSchema('LanPairingRouteId');
+export const LanPairingControllerLeaseIdSchema = brandedNonEmptyStringSchema('LanPairingControllerLeaseId');
+export const LanPairingOriginSchema = brandedNonEmptyStringSchema('LanPairingOrigin');
+export const LanPairingTimestampSchema = brandedNonEmptyStringSchema('LanPairingTimestamp');
+export const LanPairingAgentPeerIdSchema = brandedNonEmptyStringSchema('LanPairingAgentPeerId');
+export const LanPairingAddressRefSchema = brandedNonEmptyStringSchema('LanPairingAddressRef');
 
 export const LanPairingNetworkModeSchema = withParser(Schema.Literal('loopback', 'local-network'));
 export const LanPairingParentAuthoritySchema = withParser(Schema.Literal('active-controller', 'observer'));
@@ -107,6 +109,12 @@ export const LanPairingAuditEventTypeSchema = withParser(
     'lan-ai-job-rejected',
     'lan-ai-job-completed',
     'lan-ai-job-degraded'
+  ).pipe(
+    Schema.filter(
+      (eventType) =>
+        EventingEventTypeSchema.safeParse(eventType).success ||
+        'Expected LAN audit event type to satisfy the shared eventing taxonomy'
+    )
   )
 );
 
@@ -224,3 +232,4 @@ export const LanPairingDiscoverySources = {
   PhysicalHouseholdLan: LanPairingDiscoverySourceSchema.parse('physical-household-lan'),
   CloudRelay: LanPairingDiscoverySourceSchema.parse('cloud-relay'),
 } as const;
+

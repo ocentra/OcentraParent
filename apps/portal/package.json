@@ -20,11 +20,9 @@
     "@ocentra-parent/evidence-domain": "file:../../packages/evidence-domain",
     "@ocentra-parent/logging-domain": "file:../../packages/logging-domain",
     "@ocentra-parent/network-domain": "file:../../packages/network-domain",
-    "@ocentra-parent/parent-domain": "file:../../packages/parent-domain",
     "@ocentra-parent/portal-domain": "file:../../packages/portal-domain",
     "@ocentra-parent/schema-domain": "file:../../packages/schema-domain",
     "@ocentra-parent/screen-domain": "file:../../packages/screen-domain",
-    "@ocentra-parent/social-domain": "file:../../packages/social-domain",
     "@tauri-apps/api": "^2.11.0",
     "react": "^19.2.6",
     "react-dom": "^19.2.6"

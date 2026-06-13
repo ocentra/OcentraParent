@@ -1,0 +1,142 @@
+use ocentra_parent_agent_protocol::{
+    constants, TrackingAiAnalysisRequestedEvent, TrackingAiRequestId, TrackingChildDeviceId,
+    TrackingConfidenceBasis, TrackingEvidenceRef, TrackingNearbyPlaceClassifiedEvent,
+    TrackingParentActionRequirement, TrackingPlaceCategory,
+};
+
+#[test]
+fn tracking_accepts_ai_result_only_as_evidence_when_refs_match_request() {
+    let observed = ocentra_tracking_core::default_location_observed_event();
+    let report = ocentra_tracking_core::observe_tracking_location(observed);
+    let request = report
+        .ai_analysis_requested
+        .expect(constants::tracking_runtime::ERROR_TRACKING_RUNTIME_FLOW_RECORDED);
+    let result = ai_result_for_request(&request);
+
+    let decision = ocentra_tracking_core::validate_tracking_ai_result_as_evidence(
+        &request,
+        &result,
+    );
+
+    assert_eq!(
+        decision.decision_state,
+        constants::tracking_runtime::AI_RESULT_ACCEPTED_AS_EVIDENCE
+    );
+    assert_eq!(decision.accepted_evidence_refs, request.evidence_refs);
+}
+
+#[test]
+fn tracking_rejects_ai_result_with_hallucinated_evidence_ref() {
+    let observed = ocentra_tracking_core::default_location_observed_event();
+    let report = ocentra_tracking_core::observe_tracking_location(observed);
+    let request = report
+        .ai_analysis_requested
+        .expect(constants::tracking_runtime::ERROR_TRACKING_RUNTIME_FLOW_RECORDED);
+    let mut result = ai_result_for_request(&request);
+    result.evidence_refs = vec![
+        TrackingEvidenceRef::parse(constants::tracking_runtime::DEFAULT_GEOFENCE_RULE_REF)
+            .expect(constants::tracking_runtime::DEFAULT_GEOFENCE_RULE_REF),
+    ];
+
+    let decision = ocentra_tracking_core::validate_tracking_ai_result_as_evidence(
+        &request,
+        &result,
+    );
+
+    assert_eq!(
+        decision.decision_state,
+        constants::tracking_runtime::AI_RESULT_REJECTED_HALLUCINATED_EVIDENCE_REF
+    );
+    assert!(decision.accepted_evidence_refs.is_empty());
+}
+
+#[test]
+fn tracking_rejects_ai_result_without_evidence_refs() {
+    let observed = ocentra_tracking_core::default_location_observed_event();
+    let report = ocentra_tracking_core::observe_tracking_location(observed);
+    let request = report
+        .ai_analysis_requested
+        .expect(constants::tracking_runtime::ERROR_TRACKING_RUNTIME_FLOW_RECORDED);
+    let mut result = ai_result_for_request(&request);
+    result.evidence_refs = Vec::new();
+
+    let decision = ocentra_tracking_core::validate_tracking_ai_result_as_evidence(
+        &request,
+        &result,
+    );
+
+    assert_eq!(
+        decision.decision_state,
+        constants::tracking_runtime::AI_RESULT_REJECTED_MISSING_EVIDENCE_REF
+    );
+    assert!(decision.accepted_evidence_refs.is_empty());
+}
+
+#[test]
+fn tracking_rejects_ai_result_with_stale_correlation() {
+    let observed = ocentra_tracking_core::default_location_observed_event();
+    let report = ocentra_tracking_core::observe_tracking_location(observed);
+    let request = report
+        .ai_analysis_requested
+        .expect(constants::tracking_runtime::ERROR_TRACKING_RUNTIME_FLOW_RECORDED);
+    let mut result = ai_result_for_request(&request);
+    result.source_ai_request_id = TrackingAiRequestId::parse(
+        constants::tracking_runtime::DEFAULT_NEARBY_PLACE_REQUEST_ID,
+    )
+    .expect(constants::tracking_runtime::DEFAULT_NEARBY_PLACE_REQUEST_ID);
+
+    let decision = ocentra_tracking_core::validate_tracking_ai_result_as_evidence(
+        &request,
+        &result,
+    );
+
+    assert_eq!(
+        decision.decision_state,
+        constants::tracking_runtime::AI_RESULT_REJECTED_STALE_CORRELATION
+    );
+    assert!(decision.accepted_evidence_refs.is_empty());
+}
+
+#[test]
+fn tracking_rejects_ai_result_with_wrong_child_or_device_ref() {
+    let observed = ocentra_tracking_core::default_location_observed_event();
+    let report = ocentra_tracking_core::observe_tracking_location(observed);
+    let request = report
+        .ai_analysis_requested
+        .expect(constants::tracking_runtime::ERROR_TRACKING_RUNTIME_FLOW_RECORDED);
+    let mut result = ai_result_for_request(&request);
+    result.child_device_id =
+        TrackingChildDeviceId::parse(constants::tracking_runtime::DEFAULT_PARENT_DEFINED_PLACE_ID)
+            .expect(constants::tracking_runtime::DEFAULT_PARENT_DEFINED_PLACE_ID);
+
+    let decision = ocentra_tracking_core::validate_tracking_ai_result_as_evidence(
+        &request,
+        &result,
+    );
+
+    assert_eq!(
+        decision.decision_state,
+        constants::tracking_runtime::AI_RESULT_REJECTED_WRONG_CHILD_OR_DEVICE_REF
+    );
+    assert!(decision.accepted_evidence_refs.is_empty());
+}
+
+fn ai_result_for_request(
+    request: &TrackingAiAnalysisRequestedEvent,
+) -> TrackingNearbyPlaceClassifiedEvent {
+    TrackingNearbyPlaceClassifiedEvent {
+        child_device_id: request.child_device_id.clone(),
+        child_profile_id: request.child_profile_id.clone(),
+        source_ai_request_id: request.ai_request_id.clone(),
+        evidence_refs: request.evidence_refs.clone(),
+        place_category: TrackingPlaceCategory::parse(
+            constants::tracking_runtime::PLACE_CATEGORY_HOSPITAL,
+        )
+        .expect(constants::tracking_runtime::PLACE_CATEGORY_HOSPITAL),
+        confidence_basis: TrackingConfidenceBasis::parse(
+            constants::tracking_runtime::CONFIDENCE_BASIS_AI_BOUNDARY_CONTRACT,
+        )
+        .expect(constants::tracking_runtime::CONFIDENCE_BASIS_AI_BOUNDARY_CONTRACT),
+        parent_action_requirement: TrackingParentActionRequirement::Required,
+    }
+}

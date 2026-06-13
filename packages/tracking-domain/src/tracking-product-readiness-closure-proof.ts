@@ -1,13 +1,15 @@
-import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
+import {
+  type Infer,
+  Schema,
+  withParser,
+  brandedNonEmptyStringSchema,
+  NonEmptyStringSchema
+} from '@ocentra-parent/schema-domain/effect';
 import { ParentTimestampSchema } from '@ocentra-parent/family-domain/reference-primitives';
 import { TrackingPolicyAuditRefSchema, TrackingPolicySchemaVersion } from './tracking-location-policy-primitives';
 import { TrackingRetentionSettingsProofRefSchema } from './tracking-retention-settings-read-model-proof';
 
-const TrackingProductReadinessClosureTextSchema = Schema.String.pipe(Schema.minLength(1));
-
-export const TrackingProductReadinessClosureProofIdSchema = TrackingProductReadinessClosureTextSchema.pipe(
-  Schema.brand('TrackingProductReadinessClosureProofId')
-);
+export const TrackingProductReadinessClosureProofIdSchema = brandedNonEmptyStringSchema('TrackingProductReadinessClosureProofId');
 
 export const TrackingProductReadinessClosureCoverageTagSchema = Schema.Literal(
   'pre-device-gate',
@@ -121,8 +123,8 @@ export const TrackingProductReadinessClosureSourceProofSchema = withParser(
   Schema.Struct({
     coverageTag: TrackingProductReadinessClosureCoverageTagSchema,
     proofRef: TrackingRetentionSettingsProofRefSchema,
-    status: TrackingProductReadinessClosureTextSchema,
-    proofTier: TrackingProductReadinessClosureTextSchema,
+    status: NonEmptyStringSchema,
+    proofTier: NonEmptyStringSchema,
   })
 );
 
@@ -608,3 +610,4 @@ function trackingProductReadinessClosureRowNonClaimsAreHonest(row: TrackingProdu
     row.productReadyClaimed === false
   );
 }
+

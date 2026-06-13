@@ -1,7 +1,7 @@
 import {
   SocialDashboardUxSnapshotSchema,
   type SocialDashboardUxSnapshot,
-} from '@ocentra-parent/social-domain/social-dashboard-ux';
+} from '@ocentra-parent/browser-domain/social-dashboard-ux';
 import { AgentEvent, AgentProtocolDefaults, isAgentProtocolLogText, type AgentEventEnvelope } from './contracts';
 
 export type AgentSocialDashboardReadModelFailureReason =

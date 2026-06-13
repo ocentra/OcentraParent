@@ -10,12 +10,12 @@ const commands = [
     'run',
     'test',
     '--workspace',
-    '@ocentra-parent/activity-domain',
+    '@ocentra-parent/network-domain',
     '--',
     'network-contracts.test.ts',
     'network-flow.test.ts',
   ]),
-  npmCommand('activity-domain-build', ['run', 'build', '--workspace', '@ocentra-parent/activity-domain']),
+  npmCommand('activity-domain-build', ['run', 'build', '--workspace', '@ocentra-parent/network-domain']),
   {
     name: 'source-shape',
     command: 'node',
@@ -36,10 +36,10 @@ const sourceSnapshot = [
   '',
   'Inspected source paths:',
   '',
-  '- packages/activity-domain/src/network-flow.ts',
-  '- packages/activity-domain/src/network-contracts.ts',
-  '- packages/activity-domain/tests/network-flow.test.ts',
-  '- packages/activity-domain/tests/network-contracts.test.ts',
+  '- packages/network-domain/src/network-flow.ts',
+  '- packages/network-domain/src/network-contracts.ts',
+  '- packages/network-domain/tests/unit/network-flow.test.ts',
+  '- packages/network-domain/tests/unit/network-contracts.test.ts',
   '',
   'Before-state gap: network flow observations existed, but workpack 03 rows 05-09 did not yet expose a shared Effect Schema boundary for flow evidence, domain evidence, activity classification, A/B/C/D evidence grades, and policy/action capability gating.',
 ];
@@ -47,9 +47,9 @@ writeFileSync(join(proofRoot, '00-source-snapshot.md'), `${sourceSnapshot.join('
 
 const commandResults = commands.map((entry) => runCommand(entry));
 
-const networkContractsSource = readFileSync('packages/activity-domain/src/network-contracts.ts', 'utf8');
-const networkFlowSource = readFileSync('packages/activity-domain/src/network-flow.ts', 'utf8');
-const networkContractTests = readFileSync('packages/activity-domain/tests/network-contracts.test.ts', 'utf8');
+const networkContractsSource = readFileSync('packages/network-domain/src/network-contracts.ts', 'utf8');
+const networkFlowSource = readFileSync('packages/network-domain/src/network-flow.ts', 'utf8');
+const networkContractTests = readFileSync('packages/network-domain/tests/unit/network-contracts.test.ts', 'utf8');
 
 const assertions = [
   ['flow-evidence-schema', networkContractsSource.includes('ActivityNetworkFlowEvidenceSchema')],

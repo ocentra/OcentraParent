@@ -1,4 +1,9 @@
-import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
+import {
+  type Infer,
+  Schema,
+  withParser,
+  brandedNonEmptyStringSchema
+} from '@ocentra-parent/schema-domain/effect';
 import {
   appGamePerformanceHealthMatrixCoversRequiredSurfaces,
   appGamePerformanceHealthRowIsHonest,
@@ -6,8 +11,6 @@ import {
 import { EnforcementCapabilityStateSchema } from '@ocentra-parent/enforcement-domain/enforcement';
 import { ParentEvidenceReferenceSchema } from '@ocentra-parent/family-domain/references';
 import { ParentContractSchemaVersionSchema, ParentTimestampSchema } from '@ocentra-parent/family-domain/reference-primitives';
-
-const NonEmptyPerformanceHealthText = Schema.String.pipe(Schema.minLength(1));
 const PositivePerformanceHealthNumber = Schema.Number.pipe(
   Schema.filter((value) => (Number.isFinite(value) && value > 0) || 'Expected a positive finite number')
 );
@@ -74,18 +77,10 @@ export const AppGamePerformanceHealthNoClaimBoundarySchema = withParser(
   )
 );
 
-const AppGamePerformanceHealthCheckIdSchema = NonEmptyPerformanceHealthText.pipe(
-  Schema.brand('AppGamePerformanceHealthCheckId')
-);
-const AppGamePerformanceHealthMatrixIdSchema = NonEmptyPerformanceHealthText.pipe(
-  Schema.brand('AppGamePerformanceHealthMatrixId')
-);
-const AppGamePerformanceHealthParentVisibleStateSchema = NonEmptyPerformanceHealthText.pipe(
-  Schema.brand('AppGamePerformanceHealthParentVisibleState')
-);
-const AppGamePerformanceHealthProofPackRefSchema = NonEmptyPerformanceHealthText.pipe(
-  Schema.brand('AppGamePerformanceHealthProofPackRef')
-);
+const AppGamePerformanceHealthCheckIdSchema = brandedNonEmptyStringSchema('AppGamePerformanceHealthCheckId');
+const AppGamePerformanceHealthMatrixIdSchema = brandedNonEmptyStringSchema('AppGamePerformanceHealthMatrixId');
+const AppGamePerformanceHealthParentVisibleStateSchema = brandedNonEmptyStringSchema('AppGamePerformanceHealthParentVisibleState');
+const AppGamePerformanceHealthProofPackRefSchema = brandedNonEmptyStringSchema('AppGamePerformanceHealthProofPackRef');
 
 const AppGamePerformanceHealthRowBaseSchema = Schema.Struct({
   schemaVersion: AppGamePerformanceHealthSchemaVersionSchema,
@@ -151,3 +146,4 @@ export type AppGamePerformanceHealthMatrix = Infer<typeof AppGamePerformanceHeal
 
 export const decodeAppGamePerformanceHealthRow = Schema.decodeUnknownSync(AppGamePerformanceHealthRowSchema);
 export const decodeAppGamePerformanceHealthMatrix = Schema.decodeUnknownSync(AppGamePerformanceHealthMatrixSchema);
+

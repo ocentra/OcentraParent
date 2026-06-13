@@ -1,4 +1,9 @@
-import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
+import {
+  type Infer,
+  Schema,
+  withParser,
+  NonEmptyStringSchema
+} from '@ocentra-parent/schema-domain/effect';
 import {
   BrowserControlCapabilityIdSchema,
   BrowserControlFieldIdSchema,
@@ -21,14 +26,12 @@ import {
 } from './browser-control-values';
 import { ParentContractSchemaVersionSchema } from '@ocentra-parent/family-domain/reference-primitives';
 
-const BrowserControlManifestTextSchema = Schema.String.pipe(Schema.minLength(1));
-
 export const BrowserControlFieldOptionSchema = withParser(
   Schema.Struct({
     optionId: BrowserControlOptionIdSchema,
-    label: BrowserControlManifestTextSchema,
+    label: NonEmptyStringSchema,
     value: BrowserControlFieldValueSchema,
-    description: Schema.Union(BrowserControlManifestTextSchema, Schema.Null),
+    description: Schema.Union(NonEmptyStringSchema, Schema.Null),
   })
 );
 
@@ -45,8 +48,8 @@ export const BrowserControlConditionSchema = withParser(
 
 export const BrowserControlAuthoringFieldBaseSchema = Schema.Struct({
   fieldId: BrowserControlFieldIdSchema,
-  label: BrowserControlManifestTextSchema,
-  description: Schema.Union(BrowserControlManifestTextSchema, Schema.Null),
+  label: NonEmptyStringSchema,
+  description: Schema.Union(NonEmptyStringSchema, Schema.Null),
   controlKind: BrowserControlKindSchema,
   writesTo: BrowserControlSchemaKnownWritesToPathSchema,
   defaultValue: BrowserControlFieldValueSchema,
@@ -70,8 +73,8 @@ export const BrowserControlAuthoringFieldSchema = withParser(
 
 export const BrowserControlAuthoringSectionBaseSchema = Schema.Struct({
   sectionId: BrowserControlSectionIdSchema,
-  title: BrowserControlManifestTextSchema,
-  description: Schema.Union(BrowserControlManifestTextSchema, Schema.Null),
+  title: NonEmptyStringSchema,
+  description: Schema.Union(NonEmptyStringSchema, Schema.Null),
   visibleWhen: Schema.Array(BrowserControlConditionSchema),
   fields: Schema.Array(BrowserControlAuthoringFieldSchema),
 });
@@ -90,7 +93,7 @@ export const BrowserControlAuthoringSectionSchema = withParser(
 export const BrowserControlAuthoringManifestBaseSchema = Schema.Struct({
   schemaVersion: ParentContractSchemaVersionSchema,
   manifestId: BrowserControlManifestIdSchema,
-  title: BrowserControlManifestTextSchema,
+  title: NonEmptyStringSchema,
   sections: Schema.Array(BrowserControlAuthoringSectionSchema),
 });
 
@@ -339,3 +342,4 @@ function browserControlFieldIdsAreUnique(fields: ReadonlyArray<BrowserControlAut
 function browserControlSectionIdsAreUnique(sections: ReadonlyArray<BrowserControlAuthoringSectionCandidate>): boolean {
   return new Set(sections.map((section) => section.sectionId)).size === sections.length;
 }
+

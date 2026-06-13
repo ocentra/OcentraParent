@@ -1,22 +1,25 @@
-import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
+import {
+  type Infer,
+  Schema,
+  withParser,
+  brandedNonEmptyStringSchema
+} from '@ocentra-parent/schema-domain/effect';
 import { ParentEvidenceReferenceIdSchema } from '@ocentra-parent/family-domain/reference-primitives';
-
-const NonEmptyBrowserGamePlatformRouteText = Schema.String.pipe(Schema.minLength(1));
 
 export const BrowserGamePlatformRouteCatalogSchemaVersionSchema = withParser(
   Schema.Literal('browser-game-platform-route-contract')
 );
 
 export const BrowserGamePlatformRouteCatalogIdSchema = withParser(
-  NonEmptyBrowserGamePlatformRouteText.pipe(Schema.brand('BrowserGamePlatformRouteCatalogId'))
+  brandedNonEmptyStringSchema('BrowserGamePlatformRouteCatalogId')
 );
 
 export const BrowserGamePlatformRouteContractIdSchema = withParser(
-  NonEmptyBrowserGamePlatformRouteText.pipe(Schema.brand('BrowserGamePlatformRouteContractId'))
+  brandedNonEmptyStringSchema('BrowserGamePlatformRouteContractId')
 );
 
 export const BrowserGameRoutePatternRefSchema = withParser(
-  NonEmptyBrowserGamePlatformRouteText.pipe(Schema.brand('BrowserGameRoutePatternRef'))
+  brandedNonEmptyStringSchema('BrowserGameRoutePatternRef')
 );
 
 export const BrowserGamePlatformKindSchema = withParser(
@@ -79,3 +82,4 @@ export type BrowserGamePlatformRouteStatus = Infer<typeof BrowserGamePlatformRou
 export type BrowserGameRouteCustodyLabel = Infer<typeof BrowserGameRouteCustodyLabelSchema>;
 export type BrowserGameRouteSourceKind = Infer<typeof BrowserGameRouteSourceKindSchema>;
 export type BrowserGameRouteSurfaceKind = Infer<typeof BrowserGameRouteSurfaceKindSchema>;
+

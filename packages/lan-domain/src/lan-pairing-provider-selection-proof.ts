@@ -1,4 +1,9 @@
-import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
+import {
+  type Infer,
+  Schema,
+  withParser,
+  NonEmptyStringSchema
+} from '@ocentra-parent/schema-domain/effect';
 import {
   LanAiProviderRoutingStateSchema,
   LanPairingAgentPeerIdSchema,
@@ -15,8 +20,6 @@ import {
   LanHouseholdCloudRelayImplementationStateSchema,
   LanHouseholdProductProofStateSchema,
 } from './lan-pairing-product-proof';
-
-const NonEmptyProviderSelectionText = Schema.String.pipe(Schema.minLength(1));
 
 export const LanProviderSelectionLifecycleStateSchema = withParser(
   Schema.Literal(
@@ -67,7 +70,7 @@ export const LanProviderSelectionCandidateEvidenceSchema = withParser(
     rejectionReason: Schema.Union(LanPairingRejectionReasonSchema, Schema.Null),
     policyDecision: LanProviderSelectionPolicyDecisionSchema,
     proofState: LanHouseholdProductProofStateSchema,
-    evidenceLabel: NonEmptyProviderSelectionText,
+    evidenceLabel: NonEmptyStringSchema,
   })
 );
 
@@ -76,7 +79,7 @@ export const LanProviderSelectionManualRequirementEvidenceSchema = withParser(
     schemaVersion: LanPairingSchemaVersionSchema,
     requirement: LanProviderSelectionManualRequirementSchema,
     state: LanHouseholdProductProofStateSchema,
-    requiredArtifactSummary: NonEmptyProviderSelectionText,
+    requiredArtifactSummary: NonEmptyStringSchema,
   })
 );
 
@@ -102,3 +105,4 @@ export type LanProviderSelectionManualRequirementEvidence = Infer<
   typeof LanProviderSelectionManualRequirementEvidenceSchema
 >;
 export type LanProviderSelectionReadModel = Infer<typeof LanProviderSelectionReadModelSchema>;
+

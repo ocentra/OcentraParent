@@ -1,17 +1,16 @@
-import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
+import {
+  type Infer,
+  Schema,
+  withParser,
+  brandedNonEmptyStringSchema
+} from '@ocentra-parent/schema-domain/effect';
 import { ParentTimestampSchema } from '@ocentra-parent/family-domain/reference-primitives';
 import { TrackingPolicyAuditRefSchema, TrackingPolicySchemaVersion } from './tracking-location-policy-primitives';
-
-const TrackingIosSimulatorArtifactInventoryTextSchema = Schema.String.pipe(Schema.minLength(1));
 const TrackingIosSimulatorArtifactInventoryCountSchema = Schema.Number.pipe(Schema.int(), Schema.nonNegative());
 
-export const TrackingIosSimulatorArtifactInventoryRefSchema = TrackingIosSimulatorArtifactInventoryTextSchema.pipe(
-  Schema.brand('TrackingIosSimulatorArtifactInventoryRef')
-);
+export const TrackingIosSimulatorArtifactInventoryRefSchema = brandedNonEmptyStringSchema('TrackingIosSimulatorArtifactInventoryRef');
 
-export const TrackingIosSimulatorArtifactInventoryRowIdSchema = TrackingIosSimulatorArtifactInventoryTextSchema.pipe(
-  Schema.brand('TrackingIosSimulatorArtifactInventoryRowId')
-);
+export const TrackingIosSimulatorArtifactInventoryRowIdSchema = brandedNonEmptyStringSchema('TrackingIosSimulatorArtifactInventoryRowId');
 
 export const TrackingIosSimulatorArtifactInventoryStatusSchema = Schema.Literal(
   'ios-simulator-local-artifacts-present-physical-device-required'
@@ -334,3 +333,4 @@ function trackingIosSimulatorArtifactInventoryNonClaimsAreHonest(
     row.productClaimReady === false
   );
 }
+

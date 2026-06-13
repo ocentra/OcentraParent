@@ -1,23 +1,27 @@
-import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
+import {
+  type Infer,
+  Schema,
+  withParser,
+  brandedNonEmptyStringSchema,
+  NonEmptyStringSchema
+} from '@ocentra-parent/schema-domain/effect';
 
 import { ParentContractSchemaVersionSchema } from '@ocentra-parent/family-domain/reference-primitives';
 
-const ScreenControlCatalogTextSchema = Schema.String.pipe(Schema.minLength(1));
-
 export const ScreenControlCatalogIdSchema = withParser(
-  ScreenControlCatalogTextSchema.pipe(Schema.brand('ScreenControlCatalogId'))
+  brandedNonEmptyStringSchema('ScreenControlCatalogId')
 );
 export const ScreenControlSectionIdSchema = withParser(
-  ScreenControlCatalogTextSchema.pipe(Schema.brand('ScreenControlSectionId'))
+  brandedNonEmptyStringSchema('ScreenControlSectionId')
 );
 export const ScreenControlSettingIdSchema = withParser(
-  ScreenControlCatalogTextSchema.pipe(Schema.brand('ScreenControlSettingId'))
+  brandedNonEmptyStringSchema('ScreenControlSettingId')
 );
 export const ScreenControlOptionIdSchema = withParser(
-  ScreenControlCatalogTextSchema.pipe(Schema.brand('ScreenControlOptionId'))
+  brandedNonEmptyStringSchema('ScreenControlOptionId')
 );
 export const ScreenControlRuleIdSchema = withParser(
-  ScreenControlCatalogTextSchema.pipe(Schema.brand('ScreenControlRuleId'))
+  brandedNonEmptyStringSchema('ScreenControlRuleId')
 );
 
 export const ScreenControlCatalogSourceKindSchema = withParser(
@@ -154,10 +158,10 @@ export const ScreenControlCatalogSidePanelCategorySchema = withParser(Schema.Lit
 export const ScreenControlCatalogOptionSchema = withParser(
   Schema.Struct({
     optionId: ScreenControlOptionIdSchema,
-    label: ScreenControlCatalogTextSchema,
-    value: ScreenControlCatalogTextSchema,
-    originalSourceText: ScreenControlCatalogTextSchema,
-    meaning: Schema.Union(ScreenControlCatalogTextSchema, Schema.Null),
+    label: NonEmptyStringSchema,
+    value: NonEmptyStringSchema,
+    originalSourceText: NonEmptyStringSchema,
+    meaning: Schema.Union(NonEmptyStringSchema, Schema.Null),
     defaultSelected: Schema.Boolean,
   })
 );
@@ -176,7 +180,7 @@ export const ScreenControlCatalogLayoutHintsSchema = withParser(
 export const ScreenControlCatalogRuleSchema = withParser(
   Schema.Struct({
     ruleId: ScreenControlRuleIdSchema,
-    description: ScreenControlCatalogTextSchema,
+    description: NonEmptyStringSchema,
   })
 );
 
@@ -187,17 +191,17 @@ export const ScreenControlCatalogSettingSchema = withParser(
     sectionId: ScreenControlSectionIdSchema,
     groupId: ScreenControlSectionIdSchema,
     settingId: ScreenControlSettingIdSchema,
-    sourceDocument: ScreenControlCatalogTextSchema,
-    sourceHeadingPath: Schema.Array(ScreenControlCatalogTextSchema),
+    sourceDocument: NonEmptyStringSchema,
+    sourceHeadingPath: Schema.Array(NonEmptyStringSchema),
     sourceSection: ScreenControlSectionIdSchema,
     sourceGroup: ScreenControlSectionIdSchema,
     sourceOrder: Schema.Number,
     sourceLine: Schema.Number,
-    sourceText: ScreenControlCatalogTextSchema,
-    originalSourceText: ScreenControlCatalogTextSchema,
-    question: ScreenControlCatalogTextSchema,
-    uiQuestionText: ScreenControlCatalogTextSchema,
-    helperText: Schema.Union(ScreenControlCatalogTextSchema, Schema.Null),
+    sourceText: NonEmptyStringSchema,
+    originalSourceText: NonEmptyStringSchema,
+    question: NonEmptyStringSchema,
+    uiQuestionText: NonEmptyStringSchema,
+    helperText: Schema.Union(NonEmptyStringSchema, Schema.Null),
     displayOrder: Schema.Number,
     uiTab: ScreenControlCatalogUiTabSchema,
     policyLane: ScreenControlCatalogUiTabSchema,
@@ -212,19 +216,19 @@ export const ScreenControlCatalogSettingSchema = withParser(
     effectStatus: ScreenControlCatalogEffectStatusSchema,
     runtimeOwner: ScreenControlCatalogRuntimeOwnerSchema,
     capabilityState: ScreenControlCatalogCapabilityStateSchema,
-    capabilityRequirement: Schema.Union(ScreenControlCatalogTextSchema, Schema.Null),
-    proofRequirement: Schema.Union(ScreenControlCatalogTextSchema, Schema.Null),
+    capabilityRequirement: Schema.Union(NonEmptyStringSchema, Schema.Null),
+    proofRequirement: Schema.Union(NonEmptyStringSchema, Schema.Null),
     visibilityConditions: Schema.Array(ScreenControlCatalogRuleSchema),
     enabledConditions: Schema.Array(ScreenControlCatalogRuleSchema),
     validationRules: Schema.Array(ScreenControlCatalogRuleSchema),
-    unsafeOrUnsupportedFallback: Schema.Union(ScreenControlCatalogTextSchema, Schema.Null),
+    unsafeOrUnsupportedFallback: Schema.Union(NonEmptyStringSchema, Schema.Null),
   })
 );
 
 export const ScreenControlCatalogGroupSchema = withParser(
   Schema.Struct({
     groupId: ScreenControlSectionIdSchema,
-    title: ScreenControlCatalogTextSchema,
+    title: NonEmptyStringSchema,
     sourceOrder: Schema.Number,
     settings: Schema.Array(ScreenControlCatalogSettingSchema),
   })
@@ -233,7 +237,7 @@ export const ScreenControlCatalogGroupSchema = withParser(
 export const ScreenControlCatalogSectionSchema = withParser(
   Schema.Struct({
     sectionId: ScreenControlSectionIdSchema,
-    title: ScreenControlCatalogTextSchema,
+    title: NonEmptyStringSchema,
     sourceOrder: Schema.Number,
     uiTab: ScreenControlCatalogUiTabSchema,
     sectionKind: ScreenControlCatalogSectionKindSchema,
@@ -244,7 +248,7 @@ export const ScreenControlCatalogSectionSchema = withParser(
 export const ScreenControlCatalogTabSchema = withParser(
   Schema.Struct({
     tabId: ScreenControlCatalogUiTabSchema,
-    title: ScreenControlCatalogTextSchema,
+    title: NonEmptyStringSchema,
     sourceOrder: Schema.Number,
     sections: Schema.Array(ScreenControlCatalogSectionSchema),
   })
@@ -255,7 +259,7 @@ export const ScreenControlCatalogSchema = withParser(
     schemaVersion: ParentContractSchemaVersionSchema,
     catalogId: ScreenControlCatalogIdSchema,
     sidePanelCategory: ScreenControlCatalogSidePanelCategorySchema,
-    sourceDocuments: Schema.Array(ScreenControlCatalogTextSchema),
+    sourceDocuments: Schema.Array(NonEmptyStringSchema),
     settingCount: Schema.Number,
     targetScopeOptions: Schema.Array(ScreenControlCatalogOptionSchema),
     effectModeOptions: Schema.Array(ScreenControlCatalogOptionSchema),
@@ -298,3 +302,4 @@ export type ScreenControlCatalogSettingSeed = readonly [
   controlKind: ScreenControlCatalogControlKind,
   acceptedOptions: readonly string[],
 ];
+

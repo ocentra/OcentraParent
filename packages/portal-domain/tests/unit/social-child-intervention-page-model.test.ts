@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import type { SocialChildApprovalBlockUxSnapshot } from '@ocentra-parent/social-domain/social-child-approval-block-ux';
+import type { SocialChildApprovalBlockUxSnapshot } from '@ocentra-parent/browser-domain/social-child-approval-block-ux';
 import { createSocialChildInterventionPageModels, renderBrowserChildInterventionPage } from '../../src/contracts';
 
 describe('social child intervention page model', () => {

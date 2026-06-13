@@ -1,18 +1,21 @@
-import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
+import {
+  type Infer,
+  Schema,
+  withParser,
+  brandedNonEmptyStringSchema
+} from '@ocentra-parent/schema-domain/effect';
 import { ParentEvidenceReferenceIdSchema } from '@ocentra-parent/family-domain/reference-primitives';
-
-const NonEmptyBrowserGameUnblockedText = Schema.String.pipe(Schema.minLength(1));
 
 export const BrowserGameUnblockedSiteDetectionSchemaVersionSchema = withParser(
   Schema.Literal('browser-game-unblocked-site-detection-contract')
 );
 
 export const BrowserGameUnblockedSiteDetectionIdSchema = withParser(
-  NonEmptyBrowserGameUnblockedText.pipe(Schema.brand('BrowserGameUnblockedSiteDetectionId'))
+  brandedNonEmptyStringSchema('BrowserGameUnblockedSiteDetectionId')
 );
 
 export const BrowserGameUnblockedSiteSignalIdSchema = withParser(
-  NonEmptyBrowserGameUnblockedText.pipe(Schema.brand('BrowserGameUnblockedSiteSignalId'))
+  brandedNonEmptyStringSchema('BrowserGameUnblockedSiteSignalId')
 );
 
 export const BrowserGameUnblockedSiteSurfaceKindSchema = withParser(
@@ -101,3 +104,4 @@ export type BrowserGameUnblockedSiteDetectionState = Infer<typeof BrowserGameUnb
 export type BrowserGameUnblockedSiteReasonCode = Infer<typeof BrowserGameUnblockedSiteReasonCodeSchema>;
 export type BrowserGameUnblockedSiteSignalKind = Infer<typeof BrowserGameUnblockedSiteSignalKindSchema>;
 export type BrowserGameUnblockedSiteSurfaceKind = Infer<typeof BrowserGameUnblockedSiteSurfaceKindSchema>;
+

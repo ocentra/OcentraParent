@@ -1,7 +1,10 @@
-import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
+import {
+  type Infer,
+  Schema,
+  withParser,
+  brandedNonEmptyStringSchema
+} from '@ocentra-parent/schema-domain/effect';
 import { ParentTimestampSchema } from '@ocentra-parent/family-domain/reference-primitives';
-
-const WindowsPolicyText = Schema.String.pipe(Schema.minLength(1));
 
 export const AppGameWindowsLocalPolicyEvidenceProofSchemaVersionSchema = withParser(
   Schema.Literal('app-game-windows-local-policy-evidence-proof')
@@ -39,7 +42,7 @@ export const AppGameWindowsLocalPolicyEvidenceGapSchema = withParser(
   )
 );
 
-const WindowsPolicyLabelSchema = WindowsPolicyText.pipe(Schema.brand('AppGameWindowsLocalPolicyEvidenceProofLabel'));
+const WindowsPolicyLabelSchema = brandedNonEmptyStringSchema('AppGameWindowsLocalPolicyEvidenceProofLabel');
 
 const WindowsPolicyCountSchema = Schema.Number.pipe(Schema.int(), Schema.greaterThanOrEqualTo(0));
 
@@ -202,3 +205,4 @@ function windowsLocalPolicyEvidenceProofIsHonest(proof: WindowsPolicyCandidate):
     !proof.childDeviceDeliveryClaimed
   );
 }
+

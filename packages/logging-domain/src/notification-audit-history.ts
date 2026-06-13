@@ -1,22 +1,15 @@
-import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
+import {
+  type Infer,
+  Schema,
+  withParser,
+  brandedNonEmptyStringSchema
+} from '@ocentra-parent/schema-domain/effect';
 
-const NonEmptyNotificationAuditHistoryText = Schema.String.pipe(Schema.minLength(1));
-
-export const NotificationAuditHistoryReadModelIdSchema = NonEmptyNotificationAuditHistoryText.pipe(
-  Schema.brand('NotificationAuditHistoryReadModelId')
-);
-export const NotificationAuditHistoryEntryIdSchema = NonEmptyNotificationAuditHistoryText.pipe(
-  Schema.brand('NotificationAuditHistoryEntryId')
-);
-export const NotificationAuditHistoryReferenceSchema = NonEmptyNotificationAuditHistoryText.pipe(
-  Schema.brand('NotificationAuditHistoryReference')
-);
-export const NotificationAuditHistoryRequirementSchema = NonEmptyNotificationAuditHistoryText.pipe(
-  Schema.brand('NotificationAuditHistoryRequirement')
-);
-export const NotificationAuditHistoryTimestampSchema = NonEmptyNotificationAuditHistoryText.pipe(
-  Schema.brand('NotificationAuditHistoryTimestamp')
-);
+export const NotificationAuditHistoryReadModelIdSchema = brandedNonEmptyStringSchema('NotificationAuditHistoryReadModelId');
+export const NotificationAuditHistoryEntryIdSchema = brandedNonEmptyStringSchema('NotificationAuditHistoryEntryId');
+export const NotificationAuditHistoryReferenceSchema = brandedNonEmptyStringSchema('NotificationAuditHistoryReference');
+export const NotificationAuditHistoryRequirementSchema = brandedNonEmptyStringSchema('NotificationAuditHistoryRequirement');
+export const NotificationAuditHistoryTimestampSchema = brandedNonEmptyStringSchema('NotificationAuditHistoryTimestamp');
 
 export const NotificationAuditHistoryProviderStatusSchema = withParser(
   Schema.Literal('queued', 'delivered', 'failed', 'unavailable', 'manual-required')
@@ -433,3 +426,4 @@ export const decodeNotificationAuditHistoryEntry = Schema.decodeUnknownSync(Noti
 export const decodeNotificationAuditHistoryReadModel = Schema.decodeUnknownSync(
   NotificationAuditHistoryReadModelSchema
 );
+

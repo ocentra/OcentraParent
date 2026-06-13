@@ -1,4 +1,9 @@
-import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
+import {
+  type Infer,
+  Schema,
+  withParser,
+  brandedNonEmptyStringSchema
+} from '@ocentra-parent/schema-domain/effect';
 import {
   EnforcementAdapterKind,
   EnforcementAdapterKindSchema,
@@ -22,25 +27,12 @@ import {
   ParentPlatformSchema,
   ParentTimestampSchema,
 } from '@ocentra-parent/family-domain/reference-primitives';
-const NonEmptyBroadOsProofText = Schema.String.pipe(Schema.minLength(1));
-export const V08BroadOsAdapterProofReadModelIdSchema = NonEmptyBroadOsProofText.pipe(
-  Schema.brand('V08BroadOsAdapterProofReadModelId')
-);
-export const V08BroadOsAdapterProofEntryIdSchema = NonEmptyBroadOsProofText.pipe(
-  Schema.brand('V08BroadOsAdapterProofEntryId')
-);
-export const V08BroadOsAdapterProofReferenceSchema = NonEmptyBroadOsProofText.pipe(
-  Schema.brand('V08BroadOsAdapterProofReference')
-);
-export const V08BroadOsAdapterProofRequirementSchema = NonEmptyBroadOsProofText.pipe(
-  Schema.brand('V08BroadOsAdapterProofRequirement')
-);
-export const V08BroadOsAdapterProofClaimBoundarySchema = NonEmptyBroadOsProofText.pipe(
-  Schema.brand('V08BroadOsAdapterProofClaimBoundary')
-);
-export const V08BroadOsAdapterProofFallbackSchema = NonEmptyBroadOsProofText.pipe(
-  Schema.brand('V08BroadOsAdapterProofFallback')
-);
+export const V08BroadOsAdapterProofReadModelIdSchema = brandedNonEmptyStringSchema('V08BroadOsAdapterProofReadModelId');
+export const V08BroadOsAdapterProofEntryIdSchema = brandedNonEmptyStringSchema('V08BroadOsAdapterProofEntryId');
+export const V08BroadOsAdapterProofReferenceSchema = brandedNonEmptyStringSchema('V08BroadOsAdapterProofReference');
+export const V08BroadOsAdapterProofRequirementSchema = brandedNonEmptyStringSchema('V08BroadOsAdapterProofRequirement');
+export const V08BroadOsAdapterProofClaimBoundarySchema = brandedNonEmptyStringSchema('V08BroadOsAdapterProofClaimBoundary');
+export const V08BroadOsAdapterProofFallbackSchema = brandedNonEmptyStringSchema('V08BroadOsAdapterProofFallback');
 
 export const V08BroadOsAdapterProofSurfaceSchema = withParser(
   Schema.Literal(
@@ -509,3 +501,4 @@ function proofEntry(entry: V08BroadOsAdapterProofEntryInput): V08BroadOsAdapterP
 
 export const decodeV08BroadOsAdapterProofEntry = Schema.decodeUnknownSync(V08BroadOsAdapterProofEntrySchema);
 export const decodeV08BroadOsAdapterProofReadModel = Schema.decodeUnknownSync(V08BroadOsAdapterProofReadModelSchema);
+

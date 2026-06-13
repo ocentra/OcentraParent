@@ -1,4 +1,9 @@
-import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
+import {
+  type Infer,
+  Schema,
+  withParser,
+  NonEmptyStringSchema
+} from '@ocentra-parent/schema-domain/effect';
 import { LanHouseholdProductProofStateSchema } from './lan-pairing-product-proof';
 import {
   LanPairingProductionDiscoveryStateSchema,
@@ -6,8 +11,6 @@ import {
   LanPairingTimestampSchema,
 } from './lan-pairing-values';
 import { LanProductionHouseholdProofRuntimeOwnerSchema } from './lan-production-household-proof';
-
-const NonEmptyLanSourceMatrixText = Schema.String.pipe(Schema.minLength(1));
 
 export const LanPlanWorkpackIdSchema = withParser(
   Schema.Literal(
@@ -107,13 +110,13 @@ export const LanPlanWorkpackStatusRowSchema = withParser(
   Schema.Struct({
     schemaVersion: LanPairingSchemaVersionSchema,
     workpackId: LanPlanWorkpackIdSchema,
-    title: NonEmptyLanSourceMatrixText,
+    title: NonEmptyStringSchema,
     discoveryState: LanPairingProductionDiscoveryStateSchema,
     proofState: LanHouseholdProductProofStateSchema,
     runtimeOwner: LanProductionHouseholdProofRuntimeOwnerSchema,
     status: LanDiscoverySourceStatusSchema,
     readModelVisible: Schema.Boolean,
-    requiredArtifactSummary: Schema.Union(NonEmptyLanSourceMatrixText, Schema.Null),
+    requiredArtifactSummary: Schema.Union(NonEmptyStringSchema, Schema.Null),
   })
 );
 
@@ -131,8 +134,8 @@ export const LanDiscoverySourceRowSchema = withParser(
     canControlRoute: Schema.Boolean,
     requiresSelectedInterface: Schema.Boolean,
     persistsAcrossRestart: Schema.Boolean,
-    evidenceLabel: NonEmptyLanSourceMatrixText,
-    requiredArtifactSummary: Schema.Union(NonEmptyLanSourceMatrixText, Schema.Null),
+    evidenceLabel: NonEmptyStringSchema,
+    requiredArtifactSummary: Schema.Union(NonEmptyStringSchema, Schema.Null),
   })
 );
 
@@ -141,8 +144,8 @@ const LanDiscoverySourceMatrixBaseSchema = Schema.Struct({
   generatedAt: LanPairingTimestampSchema,
   workpackRows: Schema.Array(LanPlanWorkpackStatusRowSchema),
   sourceRows: Schema.Array(LanDiscoverySourceRowSchema),
-  claimsProved: Schema.Array(NonEmptyLanSourceMatrixText),
-  claimsNotProved: Schema.Array(NonEmptyLanSourceMatrixText),
+  claimsProved: Schema.Array(NonEmptyStringSchema),
+  claimsNotProved: Schema.Array(NonEmptyStringSchema),
 });
 
 type LanDiscoverySourceMatrixCandidate = Infer<typeof LanDiscoverySourceMatrixBaseSchema>;
@@ -232,3 +235,4 @@ export type LanDiscoverySourceUiSurface = Infer<typeof LanDiscoverySourceUiSurfa
 export type LanPlanWorkpackStatusRow = Infer<typeof LanPlanWorkpackStatusRowSchema>;
 export type LanDiscoverySourceRow = Infer<typeof LanDiscoverySourceRowSchema>;
 export type LanDiscoverySourceMatrix = Infer<typeof LanDiscoverySourceMatrixSchema>;
+

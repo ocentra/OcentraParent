@@ -1,6 +1,9 @@
-import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
-
-const NonEmptyBillingSupportAdminStatusText = Schema.String.pipe(Schema.minLength(1));
+import {
+  type Infer,
+  Schema,
+  withParser,
+  brandedNonEmptyStringSchema
+} from '@ocentra-parent/schema-domain/effect';
 
 export const BillingSupportAdminStatusSchemaVersionSchema = withParser(
   Schema.Literal('billing-support-admin-status-proof')
@@ -59,12 +62,8 @@ export const BillingSupportAdminStatusProviderClaimSchema = withParser(Schema.Li
 export const BillingSupportAdminStatusPortalClaimSchema = withParser(Schema.Literal('not-implemented'));
 export const BillingSupportAdminStatusChildActivityCustodyClaimSchema = withParser(Schema.Literal('not-supported'));
 
-export const BillingSupportAdminStatusIdSchema = NonEmptyBillingSupportAdminStatusText.pipe(
-  Schema.brand('BillingSupportAdminStatusId')
-);
-export const BillingSupportAdminStatusAuditReferenceSchema = NonEmptyBillingSupportAdminStatusText.pipe(
-  Schema.brand('BillingSupportAdminStatusAuditReference')
-);
+export const BillingSupportAdminStatusIdSchema = brandedNonEmptyStringSchema('BillingSupportAdminStatusId');
+export const BillingSupportAdminStatusAuditReferenceSchema = brandedNonEmptyStringSchema('BillingSupportAdminStatusAuditReference');
 
 export type BillingSupportAdminStatusRow = Infer<typeof BillingSupportAdminStatusRowSchema>;
 export type BillingSupportAdminStatusRuntimeState = Infer<typeof BillingSupportAdminStatusRuntimeStateSchema>;
@@ -103,3 +102,4 @@ export function summarizeBillingSupportAdminStatusRuntimeStates(
   }
   return counts;
 }
+

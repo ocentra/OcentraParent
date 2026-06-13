@@ -1,7 +1,10 @@
-import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
+import {
+  type Infer,
+  Schema,
+  withParser,
+  brandedNonEmptyStringSchema
+} from '@ocentra-parent/schema-domain/effect';
 import { ParentTimestampSchema } from '@ocentra-parent/family-domain/reference-primitives';
-
-const GrantedSampleText = Schema.String.pipe(Schema.minLength(1));
 
 export const AppGameAndroidUsageEventsGrantedSampleProofSchemaVersionSchema = withParser(
   Schema.Literal('app-game-android-usage-events-granted-sample-proof')
@@ -31,9 +34,7 @@ export const AppGameAndroidUsageEventsGrantedSampleGapSchema = withParser(
   )
 );
 
-const GrantedSampleLabelSchema = GrantedSampleText.pipe(
-  Schema.brand('AppGameAndroidUsageEventsGrantedSampleProofLabel')
-);
+const GrantedSampleLabelSchema = brandedNonEmptyStringSchema('AppGameAndroidUsageEventsGrantedSampleProofLabel');
 
 const AppGameAndroidUsageEventsGrantedSampleProofBaseSchema = Schema.Struct({
   schemaVersion: AppGameAndroidUsageEventsGrantedSampleProofSchemaVersionSchema,
@@ -148,3 +149,4 @@ function grantedSampleProofIsHonest(readModel: GrantedSampleCandidate): boolean 
     readModel.openGaps.includes('android-platform-enforcement-not-proved')
   );
 }
+

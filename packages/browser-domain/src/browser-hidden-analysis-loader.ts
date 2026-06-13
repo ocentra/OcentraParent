@@ -1,4 +1,10 @@
-import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
+import {
+  type Infer,
+  Schema,
+  withParser,
+  brandedNonEmptyStringSchema,
+  NonEmptyStringSchema
+} from '@ocentra-parent/schema-domain/effect';
 import { ActivityEvidenceIdSchema, ActivityTimestampSchema } from '@ocentra-parent/evidence-domain/primitives';
 import {
   BrowserHiddenAnalysisDegradedReasonSchema,
@@ -8,16 +14,14 @@ import {
 } from './browser-hidden-analysis-schemas';
 
 export const BrowserHiddenAnalysisLoaderSchemaVersion = 1;
-
-const NonEmptyBrowserHiddenAnalysisLoaderText = Schema.String.pipe(Schema.minLength(1));
-const OptionalHiddenAnalysisLoaderTextSchema = Schema.Union(NonEmptyBrowserHiddenAnalysisLoaderText, Schema.Null);
+const OptionalHiddenAnalysisLoaderTextSchema = Schema.Union(NonEmptyStringSchema, Schema.Null);
 
 export const BrowserHiddenAnalysisLoaderRequestIdSchema = withParser(
-  NonEmptyBrowserHiddenAnalysisLoaderText.pipe(Schema.brand('BrowserHiddenAnalysisLoaderRequestId'))
+  brandedNonEmptyStringSchema('BrowserHiddenAnalysisLoaderRequestId')
 );
 
 export const BrowserHiddenAnalysisLoaderResultIdSchema = withParser(
-  NonEmptyBrowserHiddenAnalysisLoaderText.pipe(Schema.brand('BrowserHiddenAnalysisLoaderResultId'))
+  brandedNonEmptyStringSchema('BrowserHiddenAnalysisLoaderResultId')
 );
 
 export const BrowserHiddenAnalysisLoaderCapabilityStateSchema = withParser(
@@ -185,3 +189,4 @@ function manualRequiredLoaderResult(
     transcriptTextCaptured: false,
   };
 }
+

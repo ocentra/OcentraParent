@@ -5,14 +5,14 @@ import {
   ParentAssistantProviderStatusSchema,
   ParentAssistantRunCancelResultSchema,
   ParentAssistantThreadResponseSchema,
-} from '@ocentra-parent/parent-domain/parent-assistant';
+} from '@ocentra-parent/ai-domain/parent-assistant';
 import type {
   ParentAssistantActionConfirmResult,
   ParentAssistantAnswer,
   ParentAssistantProviderStatus,
   ParentAssistantRunCancelResult,
   ParentAssistantThreadResponse,
-} from '@ocentra-parent/parent-domain/parent-assistant';
+} from '@ocentra-parent/ai-domain/parent-assistant';
 import type { ActivityReportDocument } from '@ocentra-parent/activity-domain/activity-surface';
 import type { Infer } from '@ocentra-parent/schema-domain/effect';
 import {
@@ -23,7 +23,7 @@ import {
   type AgentCommandEnvelope,
   type AgentEventEnvelope,
 } from './contracts';
-import { AgentProtocolSchemaVersion, type AgentRoute } from './primitives';
+import { AgentProtocolSchemaVersion, type AgentPeerRole, type AgentRoute } from '@ocentra-parent/evidence-domain/primitives';
 
 export const ParentAssistantAdapterPayloadField = {
   ActionPreview: AgentProtocolDefaults.Field.ParentAssistantActionPreview,
@@ -101,7 +101,7 @@ export type ParentAssistantActionPreviewAdapterResult =
 
 export type ParentAssistantCommandPeerInput = {
   readonly peerId: string;
-  readonly role: 'portal' | 'agent-service' | 'cloud-relay';
+  readonly role: AgentPeerRole;
 };
 
 export type ParentAssistantCommandTargetInput = {

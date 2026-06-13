@@ -1,4 +1,9 @@
-import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
+import {
+  type Infer,
+  Schema,
+  withParser,
+  brandedNonEmptyStringSchema
+} from '@ocentra-parent/schema-domain/effect';
 import { AppInstallPurchaseApprovalStateSnapshotSchema } from './app-install-purchase-approval';
 import {
   AppInstallPurchaseApprovalContractProofReadModel,
@@ -6,8 +11,6 @@ import {
 } from './app-install-purchase-approval-proof';
 import { ParentPlatformSchema, ParentTimestampSchema } from '@ocentra-parent/family-domain/reference-primitives';
 import { appInstallPurchaseRuntimeProofIsHonest } from './app-install-purchase-runtime-proof-rules';
-
-const NonEmptyRuntimeProofText = Schema.String.pipe(Schema.minLength(1));
 const RuntimeSchemaVersion = 'app-install-purchase-runtime-proof';
 const RuntimeBoundary =
   'runtime boundary proof only; no runtime status reader implementation no store integration no platform adapter no child-device delivery no runtime report delivery no real install or purchase interception not generic app blocking';
@@ -64,23 +67,15 @@ const AppInstallPurchaseRuntimeReportSurfaceSchema = withParser(
   )
 );
 const AppInstallPurchaseRuntimeNonClaimSchema = withParser(Schema.Literal(...RuntimeNonClaims));
-const RuntimeProofTextRefSchema = NonEmptyRuntimeProofText.pipe(Schema.brand('AppInstallPurchaseRuntimeProofTextRef'));
-const RuntimePlatformSourceRowIdSchema = NonEmptyRuntimeProofText.pipe(
-  Schema.brand('AppInstallPurchaseRuntimePlatformSourceRowId')
-);
-const RuntimePackageSourceArtifactRowIdSchema = NonEmptyRuntimeProofText.pipe(
-  Schema.brand('AppInstallPurchaseRuntimePackageSourceArtifactRowId')
-);
-const RuntimeChildStateIdSchema = NonEmptyRuntimeProofText.pipe(Schema.brand('AppInstallPurchaseRuntimeChildStateId'));
-const RuntimeRequestIdSchema = NonEmptyRuntimeProofText.pipe(Schema.brand('AppInstallPurchaseRuntimeRequestId'));
-const RuntimeAuditEventIdSchema = NonEmptyRuntimeProofText.pipe(Schema.brand('AppInstallPurchaseRuntimeAuditEventId'));
-const RuntimeReportRefSchema = NonEmptyRuntimeProofText.pipe(Schema.brand('AppInstallPurchaseRuntimeReportRef'));
-const RuntimeStatusReadinessRowIdSchema = NonEmptyRuntimeProofText.pipe(
-  Schema.brand('AppInstallPurchaseRuntimeStatusReadinessRowId')
-);
-const RuntimeClaimBoundarySchema = NonEmptyRuntimeProofText.pipe(
-  Schema.brand('AppInstallPurchaseRuntimeClaimBoundary')
-);
+const RuntimeProofTextRefSchema = brandedNonEmptyStringSchema('AppInstallPurchaseRuntimeProofTextRef');
+const RuntimePlatformSourceRowIdSchema = brandedNonEmptyStringSchema('AppInstallPurchaseRuntimePlatformSourceRowId');
+const RuntimePackageSourceArtifactRowIdSchema = brandedNonEmptyStringSchema('AppInstallPurchaseRuntimePackageSourceArtifactRowId');
+const RuntimeChildStateIdSchema = brandedNonEmptyStringSchema('AppInstallPurchaseRuntimeChildStateId');
+const RuntimeRequestIdSchema = brandedNonEmptyStringSchema('AppInstallPurchaseRuntimeRequestId');
+const RuntimeAuditEventIdSchema = brandedNonEmptyStringSchema('AppInstallPurchaseRuntimeAuditEventId');
+const RuntimeReportRefSchema = brandedNonEmptyStringSchema('AppInstallPurchaseRuntimeReportRef');
+const RuntimeStatusReadinessRowIdSchema = brandedNonEmptyStringSchema('AppInstallPurchaseRuntimeStatusReadinessRowId');
+const RuntimeClaimBoundarySchema = brandedNonEmptyStringSchema('AppInstallPurchaseRuntimeClaimBoundary');
 
 const AppInstallPurchaseRuntimePlatformArtifactRowBaseSchema = Schema.Struct({
   schemaVersion: AppInstallPurchaseRuntimeProofSchemaVersionSchema,
@@ -311,3 +306,4 @@ function statusReadinessRow(
     claimBoundary: RuntimeBoundary,
   } as const;
 }
+

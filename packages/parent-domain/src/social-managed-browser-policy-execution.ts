@@ -1,1 +1,1 @@
-export * from '@ocentra-parent/social-domain/social-managed-browser-policy-execution';
+export * from '@ocentra-parent/browser-domain/social-managed-browser-policy-execution';

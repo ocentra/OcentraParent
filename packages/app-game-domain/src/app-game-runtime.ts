@@ -1,4 +1,4 @@
-import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
+import { type Infer, brandedNonEmptyStringSchema, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
 import { ActivityEvidenceRefSchema } from '@ocentra-parent/evidence-domain/contracts';
 import { ActivityTimestampSchema } from '@ocentra-parent/evidence-domain/primitives';
 import {
@@ -24,10 +24,7 @@ import {
   AppGameSchemaVersion,
 } from './app-game-primitives';
 
-const AppGameRuntimeEvidenceIdSchema = Schema.String.pipe(
-  Schema.minLength(1),
-  Schema.brand('AppGameRuntimeEvidenceId')
-);
+const AppGameRuntimeEvidenceIdSchema = brandedNonEmptyStringSchema('AppGameRuntimeEvidenceId');
 
 const AppGameRuntimeEvidenceBaseSchema = Schema.Struct({
   schemaVersion: Schema.Literal(AppGameSchemaVersion),

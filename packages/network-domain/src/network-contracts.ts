@@ -1,13 +1,12 @@
-import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
+import { type Infer, NonEmptyStringSchema, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
 import {
   ActivityCaptureCapabilityStatusSchema,
   ActivityDomainAttributionStatusSchema,
   ActivityProcessAttributionStatusSchema,
-} from './capture';
+} from '@ocentra-parent/activity-domain/capture';
 import { ActivityEvidenceRefSchema } from '@ocentra-parent/evidence-domain/contracts';
 import { ActivityEvidenceIdSchema, ActivityTimestampSchema } from '@ocentra-parent/evidence-domain/primitives';
 
-const NetworkContractText = Schema.String.pipe(Schema.minLength(1));
 const NetworkConfidenceScore = Schema.Number.pipe(Schema.between(0, 1));
 const NonEmptyNetworkEvidenceRefs = Schema.Array(ActivityEvidenceRefSchema).pipe(
   Schema.filter((refs) => refs.length > 0 || 'Expected at least one network evidence ref')
@@ -110,8 +109,8 @@ export const ActivityNetworkDomainEvidenceSchema = withParser(
     observedAt: ActivityTimestampSchema,
     source: ActivityNetworkDomainEvidenceSourceSchema,
     attributionStatus: ActivityDomainAttributionStatusSchema,
-    domainName: Schema.Union(NetworkContractText, Schema.Null),
-    destinationIp: Schema.Union(NetworkContractText, Schema.Null),
+    domainName: Schema.Union(NonEmptyStringSchema, Schema.Null),
+    destinationIp: Schema.Union(NonEmptyStringSchema, Schema.Null),
     evidenceGrade: ActivityNetworkEvidenceGradeSchema,
     confidence: NetworkConfidenceScore,
     evidence: NonEmptyNetworkEvidenceRefs,
@@ -148,7 +147,7 @@ export const ActivityNetworkActivityClassificationSchema = withParser(
     kind: ActivityNetworkActivityClassificationKindSchema,
     evidenceGrade: ActivityNetworkEvidenceGradeSchema,
     confidence: NetworkConfidenceScore,
-    uncertaintyReason: Schema.Union(NetworkContractText, Schema.Null),
+    uncertaintyReason: Schema.Union(NonEmptyStringSchema, Schema.Null),
     evidenceIds: Schema.Array(ActivityEvidenceIdSchema),
     evidence: NonEmptyNetworkEvidenceRefs,
   }).pipe(
@@ -166,10 +165,10 @@ export const ActivityNetworkActivityClassificationSchema = withParser(
 
 export const ActivityNetworkAdapterCapabilitySchema = withParser(
   Schema.Struct({
-    capabilityId: NetworkContractText,
+    capabilityId: NonEmptyStringSchema,
     state: ActivityNetworkAdapterCapabilityStateSchema,
     proofRefs: Schema.Array(ActivityEvidenceRefSchema),
-    manualRequiredReason: Schema.Union(NetworkContractText, Schema.Null),
+    manualRequiredReason: Schema.Union(NonEmptyStringSchema, Schema.Null),
   }).pipe(
     Schema.filter(
       (entry) =>
@@ -194,7 +193,7 @@ export const ActivityNetworkPolicyActionSchema = withParser(
     mode: ActivityNetworkPolicyActionModeSchema,
     action: ActivityNetworkPolicyActionKindSchema,
     evidenceGrade: ActivityNetworkEvidenceGradeSchema,
-    policyDecisionRef: Schema.Union(NetworkContractText, Schema.Null),
+    policyDecisionRef: Schema.Union(NonEmptyStringSchema, Schema.Null),
     adapterCapability: ActivityNetworkAdapterCapabilitySchema,
     adapterCallAuthorized: Schema.Boolean,
     evidence: NonEmptyNetworkEvidenceRefs,

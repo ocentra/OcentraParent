@@ -1,11 +1,14 @@
-import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
+import {
+  type Infer,
+  Schema,
+  withParser,
+  brandedNonEmptyStringSchema
+} from '@ocentra-parent/schema-domain/effect';
 import { AppInstallPurchaseApprovedApiEntitlementProofReadModel } from './app-install-purchase-approved-api-entitlement-proof';
 import { AppInstallPurchasePackageSourceAdapterExecutionProofReadModel } from './app-install-purchase-package-source-adapter-execution-proof';
 import { AppInstallPurchaseParentActionDeliveryReadinessProofReadModel } from './app-install-purchase-parent-action-delivery-readiness-proof';
 import { AppInstallPurchaseStoreStatusHandoffProofReadModel } from './app-install-purchase-store-status-handoff-proof';
 import { ParentPlatformSchema, ParentTimestampSchema } from '@ocentra-parent/family-domain/reference-primitives';
-
-const ProviderStoreExecutionReadinessText = Schema.String.pipe(Schema.minLength(1));
 const ProviderStoreExecutionReadinessProofVersion = 'app-install-purchase-provider-store-execution-readiness-proof';
 const SourceApprovedApiEntitlementProofVersion = 'app-install-purchase-approved-api-entitlement-proof';
 const SourceStoreStatusHandoffProofVersion = 'app-install-purchase-store-status-handoff-proof';
@@ -111,18 +114,10 @@ const AppInstallPurchaseProviderStoreExecutionReadinessNonClaimSchema = withPars
   Schema.Literal(...ProviderStoreExecutionReadinessNonClaims)
 );
 
-const ProviderStoreExecutionReadinessRowIdSchema = ProviderStoreExecutionReadinessText.pipe(
-  Schema.brand('AppInstallPurchaseProviderStoreExecutionReadinessRowId')
-);
-const ProviderStoreExecutionReadinessRefSchema = ProviderStoreExecutionReadinessText.pipe(
-  Schema.brand('AppInstallPurchaseProviderStoreExecutionReadinessRef')
-);
-const ProviderStoreExecutionReadinessAuditRefSchema = ProviderStoreExecutionReadinessText.pipe(
-  Schema.brand('AppInstallPurchaseProviderStoreExecutionReadinessAuditRef')
-);
-const ProviderStoreExecutionReadinessClaimBoundarySchema = ProviderStoreExecutionReadinessText.pipe(
-  Schema.brand('AppInstallPurchaseProviderStoreExecutionReadinessClaimBoundary')
-);
+const ProviderStoreExecutionReadinessRowIdSchema = brandedNonEmptyStringSchema('AppInstallPurchaseProviderStoreExecutionReadinessRowId');
+const ProviderStoreExecutionReadinessRefSchema = brandedNonEmptyStringSchema('AppInstallPurchaseProviderStoreExecutionReadinessRef');
+const ProviderStoreExecutionReadinessAuditRefSchema = brandedNonEmptyStringSchema('AppInstallPurchaseProviderStoreExecutionReadinessAuditRef');
+const ProviderStoreExecutionReadinessClaimBoundarySchema = brandedNonEmptyStringSchema('AppInstallPurchaseProviderStoreExecutionReadinessClaimBoundary');
 
 const ProviderStoreExecutionReadinessRowBaseSchema = Schema.Struct({
   schemaVersion: AppInstallPurchaseProviderStoreExecutionReadinessProofSchemaVersionSchema,
@@ -477,3 +472,4 @@ function providerStoreExecutionReadinessBoundaryIsExplicit(
 ): boolean {
   return ProviderStoreExecutionReadinessBoundaryFragments.every((fragment) => boundary.includes(fragment));
 }
+

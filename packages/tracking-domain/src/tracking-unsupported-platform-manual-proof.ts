@@ -1,4 +1,10 @@
-import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
+import {
+  type Infer,
+  Schema,
+  withParser,
+  brandedNonEmptyStringSchema,
+  NonEmptyStringSchema
+} from '@ocentra-parent/schema-domain/effect';
 import {
   TrackingPlatformProofRouteStateSchema,
   TrackingPolicyAuditRefSchema,
@@ -6,11 +12,7 @@ import {
   TrackingPolicySchemaVersion,
 } from './tracking-location-policy-primitives';
 
-const TrackingUnsupportedPlatformManualProofTextSchema = Schema.String.pipe(Schema.minLength(1));
-
-export const TrackingUnsupportedPlatformManualProofRowIdSchema = TrackingUnsupportedPlatformManualProofTextSchema.pipe(
-  Schema.brand('TrackingUnsupportedPlatformManualProofRowId')
-);
+export const TrackingUnsupportedPlatformManualProofRowIdSchema = brandedNonEmptyStringSchema('TrackingUnsupportedPlatformManualProofRowId');
 
 export const TrackingUnsupportedPlatformManualProofPlatformSchema = withParser(
   Schema.Literal('android', 'ios', 'windows', 'macos', 'linux', 'web')
@@ -52,7 +54,7 @@ export const TrackingUnsupportedPlatformManualProofRowSchema = withParser(
     currentProofTier: TrackingUnsupportedPlatformManualProofTierSchema,
     supportState: TrackingPlatformProofRouteStateSchema,
     renderedState: TrackingUnsupportedPlatformManualProofRenderStateSchema,
-    manualProofCommand: TrackingUnsupportedPlatformManualProofTextSchema,
+    manualProofCommand: NonEmptyStringSchema,
     proofArtifactRefs: Schema.Array(TrackingPolicyAuditRefSchema),
     reasonCodes: Schema.Array(TrackingPolicyReasonCodeSchema),
     fakeCapabilityRendered: Schema.Literal(false),
@@ -92,7 +94,7 @@ export const TrackingUnsupportedPlatformManualProofRowSchema = withParser(
 export const TrackingUnsupportedPlatformManualProofSchema = withParser(
   Schema.Struct({
     schemaVersion: Schema.Literal(TrackingPolicySchemaVersion),
-    generatedAt: TrackingUnsupportedPlatformManualProofTextSchema,
+    generatedAt: NonEmptyStringSchema,
     rows: Schema.Array(TrackingUnsupportedPlatformManualProofRowSchema),
     allRowsAvoidFakeCapability: Schema.Literal(true),
     allRowsKeepProductClaimBlocked: Schema.Literal(true),
@@ -210,3 +212,4 @@ function manualProofCommandFor(
   }
   return `collect ${platform} ${surface} ${renderedState} tracking proof before product claim`;
 }
+

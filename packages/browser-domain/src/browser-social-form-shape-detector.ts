@@ -1,4 +1,9 @@
-import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
+import {
+  type Infer,
+  Schema,
+  withParser,
+  brandedNonEmptyStringSchema
+} from '@ocentra-parent/schema-domain/effect';
 import { ActivityEvidenceIdSchema, ActivityTimestampSchema } from '@ocentra-parent/evidence-domain/primitives';
 import {
   type BrowserSocialAccountFlowEvidence,
@@ -10,8 +15,6 @@ import {
   BrowserSocialPlatformSchema,
   BrowserSocialRouteEvidenceIdSchema,
 } from './browser-social-platform-route-schemas';
-
-const NonEmptySocialFormShapeText = Schema.String.pipe(Schema.minLength(1));
 const SocialFormShapeSourceEvidenceIdsSchema = Schema.Array(ActivityEvidenceIdSchema).pipe(
   Schema.filter((value) => value.length > 0 || 'Expected social form-shape source evidence ids')
 );
@@ -19,7 +22,7 @@ const SocialFormShapeSourceEvidenceIdsSchema = Schema.Array(ActivityEvidenceIdSc
 export const BrowserSocialFormShapeSchemaVersion = 1;
 
 export const BrowserSocialFormShapeEvidenceIdSchema = withParser(
-  NonEmptySocialFormShapeText.pipe(Schema.brand('BrowserSocialFormShapeEvidenceId'))
+  brandedNonEmptyStringSchema('BrowserSocialFormShapeEvidenceId')
 );
 
 export const BrowserSocialFormShapeKindSchema = withParser(
@@ -233,3 +236,4 @@ function missingControls(
 function uniqueControlKinds(controls: readonly BrowserSocialFormControlKind[]) {
   return [...new Set(controls)].filter((control) => control !== 'unknown-control');
 }
+

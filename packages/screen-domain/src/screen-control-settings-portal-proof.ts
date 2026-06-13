@@ -1,4 +1,9 @@
-import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
+import {
+  type Infer,
+  Schema,
+  withParser,
+  NonEmptyStringSchema
+} from '@ocentra-parent/schema-domain/effect';
 
 import { BaselineScreenControlCatalog, screenControlCatalogSettings } from './screen-control-catalog';
 import {
@@ -8,32 +13,30 @@ import {
   type ScreenControlCatalogSetting,
 } from './screen-control-catalog-schema';
 
-const ScreenControlSettingsPortalTextSchema = Schema.String.pipe(Schema.minLength(1));
-
 export const ScreenControlSettingsPortalMetricSchema = withParser(
   Schema.Struct({
-    label: ScreenControlSettingsPortalTextSchema,
-    value: ScreenControlSettingsPortalTextSchema,
-    detail: ScreenControlSettingsPortalTextSchema,
+    label: NonEmptyStringSchema,
+    value: NonEmptyStringSchema,
+    detail: NonEmptyStringSchema,
   })
 );
 
 export const ScreenControlSettingsPortalGateSchema = withParser(
   Schema.Struct({
-    label: ScreenControlSettingsPortalTextSchema,
-    status: ScreenControlSettingsPortalTextSchema,
-    statusText: ScreenControlSettingsPortalTextSchema,
-    capabilityState: ScreenControlSettingsPortalTextSchema,
-    runtimeOwner: ScreenControlSettingsPortalTextSchema,
-    detail: ScreenControlSettingsPortalTextSchema,
-    sourceDocument: ScreenControlSettingsPortalTextSchema,
+    label: NonEmptyStringSchema,
+    status: NonEmptyStringSchema,
+    statusText: NonEmptyStringSchema,
+    capabilityState: NonEmptyStringSchema,
+    runtimeOwner: NonEmptyStringSchema,
+    detail: NonEmptyStringSchema,
+    sourceDocument: NonEmptyStringSchema,
   })
 );
 
 export const ScreenControlSettingsPortalProofSchema = withParser(
   Schema.Struct({
-    title: ScreenControlSettingsPortalTextSchema,
-    note: ScreenControlSettingsPortalTextSchema,
+    title: NonEmptyStringSchema,
+    note: NonEmptyStringSchema,
     metrics: Schema.Array(ScreenControlSettingsPortalMetricSchema),
     gates: Schema.Array(ScreenControlSettingsPortalGateSchema),
   })
@@ -142,3 +145,4 @@ function settingBySourceText(settings: readonly ScreenControlCatalogSetting[], s
   }
   return setting;
 }
+

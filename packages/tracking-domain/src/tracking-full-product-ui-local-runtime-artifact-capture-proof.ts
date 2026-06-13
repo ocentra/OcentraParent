@@ -1,4 +1,9 @@
-import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
+import {
+  type Infer,
+  Schema,
+  withParser,
+  brandedNonEmptyStringSchema
+} from '@ocentra-parent/schema-domain/effect';
 import {
   ParentContractSchemaVersion,
   ParentContractSchemaVersionSchema,
@@ -10,8 +15,6 @@ import {
 } from './tracking-child-runtime-artifact-gate-proof';
 import { TrackingFullProductUiReadinessBlockerReferenceSchema } from './tracking-full-product-ui-readiness-blocker-proof';
 import { TrackingRetentionProductSettingsWritableExecutionProofSchema } from './tracking-retention-product-settings-writable-execution-proof';
-
-const TrackingFullProductUiLocalRuntimeArtifactCaptureText = Schema.String.pipe(Schema.minLength(1));
 
 export const TrackingFullProductUiLocalRuntimeArtifactCaptureIdSchema = withParser(
   Schema.Literal(
@@ -31,9 +34,7 @@ export const TrackingFullProductUiLocalRuntimeArtifactCaptureStatusSchema = with
 );
 
 export const TrackingFullProductUiLocalRuntimeArtifactCapturePathSchema =
-  TrackingFullProductUiLocalRuntimeArtifactCaptureText.pipe(
-    Schema.brand('TrackingFullProductUiLocalRuntimeArtifactCapturePath')
-  );
+  brandedNonEmptyStringSchema('TrackingFullProductUiLocalRuntimeArtifactCapturePath');
 
 export const TrackingFullProductUiLocalRuntimeArtifactCaptureRowSchema = withParser(
   Schema.Struct({
@@ -296,3 +297,4 @@ function captureRow(
 function uniqueRefs(refs: readonly string[]): readonly string[] {
   return [...new Set(refs)];
 }
+

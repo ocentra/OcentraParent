@@ -1,9 +1,12 @@
-import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
-
-const TrackingStatusProofArtifactText = Schema.String.pipe(Schema.minLength(1));
+import {
+  type Infer,
+  Schema,
+  withParser,
+  brandedNonEmptyStringSchema
+} from '@ocentra-parent/schema-domain/effect';
 
 export const TrackingStatusProofArtifactSchema = withParser(
-  TrackingStatusProofArtifactText.pipe(Schema.brand('TrackingStatusProofArtifact'))
+  brandedNonEmptyStringSchema('TrackingStatusProofArtifact')
 );
 export type TrackingStatusProofArtifact = Infer<typeof TrackingStatusProofArtifactSchema>;
 
@@ -62,3 +65,4 @@ export const TrackingStatusProofArtifacts = {
   MissingDeviceMode: artifact('output/tracking-plan-proof/29-missing-device-mode/proof.json'),
   RetentionDelete: artifact('output/tracking-plan-proof/07-retention-and-custody-model/14-retention-delete-proof.json'),
 } as const;
+

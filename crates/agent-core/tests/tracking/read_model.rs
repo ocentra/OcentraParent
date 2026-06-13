@@ -1,7 +1,7 @@
 use ocentra_parent_agent_protocol::{
     constants, ActivityEvent, ActivityEventKind, ActivityObserver, ActivitySource, ActivitySubject,
-    ActivitySubjectKind, LogFieldValue, LogFields, TrackingReadModel, ACTIVITY_SCHEMA_VERSION,
-    TRACKING_READ_MODEL_STATUS_NO_TRACKING_EVENTS,
+    ActivitySubjectKind, LogFieldValue, LogFields, TrackingEvidenceRef, TrackingReadModel,
+    ACTIVITY_SCHEMA_VERSION, TRACKING_READ_MODEL_STATUS_NO_TRACKING_EVENTS,
 };
 
 use ocentra_parent_agent_core::{tracking_read_model_for_store, ActivityStore};
@@ -67,19 +67,28 @@ fn assert_mixed_read_model_counts(read_model: &TrackingReadModel) {
 
 fn assert_mixed_read_model_latest_events(read_model: &TrackingReadModel) {
     assert_eq!(
-        read_model.latest_event_id.as_deref(),
+        read_model.latest_event_id.as_ref().map(|value| value.as_str()),
         Some(constants::activity_store::TEST_TRACKING_RETENTION_DELETE_EVENT_ID)
     );
     assert_eq!(
-        read_model.latest_tombstone_event_id.as_deref(),
+        read_model
+            .latest_tombstone_event_id
+            .as_ref()
+            .map(|value| value.as_str()),
         Some(constants::activity_store::TEST_TRACKING_RETENTION_DELETE_EVENT_ID)
     );
     assert_eq!(
-        read_model.latest_active_event_id.as_deref(),
+        read_model
+            .latest_active_event_id
+            .as_ref()
+            .map(|value| value.as_str()),
         Some(constants::activity_store::TEST_TRACKING_EXPECTED_PLACE_EVENT_ID)
     );
     assert_eq!(
-        read_model.latest_active_observed_at.as_deref(),
+        read_model
+            .latest_active_observed_at
+            .as_ref()
+            .map(|value| value.as_str()),
         Some(constants::activity_store::TEST_TRACKING_EXPECTED_PLACE_OBSERVED_AT)
     );
     assert_eq!(
@@ -88,14 +97,18 @@ fn assert_mixed_read_model_latest_events(read_model: &TrackingReadModel) {
     );
     assert_eq!(
         read_model.deleted_evidence_reference_ids,
-        vec![constants::activity_store::TEST_TRACKING_EVIDENCE_REFERENCE_ID.to_string()]
+        vec![tracking_evidence_ref(
+            constants::activity_store::TEST_TRACKING_EVIDENCE_REFERENCE_ID
+        )]
     );
 }
 
 fn assert_mixed_read_model_tombstone_row(read_model: &TrackingReadModel) {
     assert_eq!(
         read_model.rows[0].evidence_reference_ids,
-        vec![constants::activity_store::TEST_TRACKING_EVIDENCE_REFERENCE_ID.to_string()]
+        vec![tracking_evidence_ref(
+            constants::activity_store::TEST_TRACKING_EVIDENCE_REFERENCE_ID
+        )]
     );
     assert_eq!(
         read_model.rows[0].kind,
@@ -106,7 +119,10 @@ fn assert_mixed_read_model_tombstone_row(read_model: &TrackingReadModel) {
         ocentra_parent_agent_protocol::TRACKING_READ_MODEL_ROW_VISIBILITY_TOMBSTONE
     );
     assert_eq!(
-        read_model.rows[0].deleted_at.as_deref(),
+        read_model.rows[0]
+            .deleted_at
+            .as_ref()
+            .map(|value| value.as_str()),
         Some(constants::activity_store::TEST_TRACKING_RETENTION_DELETE_OBSERVED_AT)
     );
 }
@@ -168,6 +184,10 @@ fn activity_store_reports_empty_tracking_read_model_without_inventing_rows() {
         read_model.capability_status,
         TRACKING_READ_MODEL_STATUS_NO_TRACKING_EVENTS
     );
+}
+
+fn tracking_evidence_ref(value: &str) -> TrackingEvidenceRef {
+    TrackingEvidenceRef::parse(value).expect(constants::error::TRACKING_RUNTIME_EVENT_PARSES)
 }
 
 fn assert_count(

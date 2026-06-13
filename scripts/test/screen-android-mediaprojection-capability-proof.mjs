@@ -15,7 +15,7 @@ const emulatorProofPath = join(
   'proof-summary.json'
 );
 
-run('npm', ['run', 'build', '--workspace', '@ocentra-parent/activity-domain']);
+run('npm', ['run', 'build', '--workspace', '@ocentra-parent/screen-domain']);
 
 const screenAndroid = await import(
   pathToFileURL(

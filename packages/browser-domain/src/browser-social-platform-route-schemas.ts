@@ -1,19 +1,23 @@
-import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
+import {
+  type Infer,
+  Schema,
+  withParser,
+  brandedNonEmptyStringSchema,
+  NonEmptyStringSchema
+} from '@ocentra-parent/schema-domain/effect';
 import { ActivityEvidenceIdSchema, ActivityTimestampSchema } from '@ocentra-parent/evidence-domain/primitives';
 import {
   BrowserUrlShapeClassificationIdSchema,
   BrowserUrlShapeTargetKindSchema,
 } from './browser-url-intelligence-schemas';
-
-const NonEmptyBrowserSocialRouteText = Schema.String.pipe(Schema.minLength(1));
-const OptionalBrowserSocialRouteTextSchema = Schema.Union(NonEmptyBrowserSocialRouteText, Schema.Null);
+const OptionalBrowserSocialRouteTextSchema = Schema.Union(NonEmptyStringSchema, Schema.Null);
 const OptionalUrlShapeClassificationIdSchema = Schema.Union(BrowserUrlShapeClassificationIdSchema, Schema.Null);
 const OptionalUrlShapeTargetKindSchema = Schema.Union(BrowserUrlShapeTargetKindSchema, Schema.Null);
 
 export const BrowserSocialRouteSchemaVersion = 1;
 
 export const BrowserSocialRouteEvidenceIdSchema = withParser(
-  NonEmptyBrowserSocialRouteText.pipe(Schema.brand('BrowserSocialRouteEvidenceId'))
+  brandedNonEmptyStringSchema('BrowserSocialRouteEvidenceId')
 );
 
 export const BrowserSocialPlatformSchema = withParser(
@@ -177,3 +181,4 @@ function nativeSocialManualRequiredEvidenceIsConsistent(value: Infer<typeof Brow
     value.parentApprovalRequestRef === null
   );
 }
+

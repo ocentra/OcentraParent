@@ -1,4 +1,9 @@
-import { Schema, withParser, type Infer } from '@ocentra-parent/schema-domain/effect';
+import {
+  Schema,
+  withParser,
+  type Infer,
+  brandedNonEmptyStringSchema
+} from '@ocentra-parent/schema-domain/effect';
 import {
   TrackingAiProviderRouteSchema,
   TrackingEvidenceTraceSchema,
@@ -7,7 +12,7 @@ import {
 import { TrackingPolicyAuditRefSchema, TrackingPolicyReasonCodeSchema } from './tracking-location-policy-primitives';
 import { ParentEvidenceReferenceIdSchema } from '@ocentra-parent/family-domain/reference-primitives';
 
-const CustodyRefSchema = Schema.String.pipe(Schema.minLength(1), Schema.brand('TrackingAiCustodyRef'));
+const CustodyRefSchema = brandedNonEmptyStringSchema('TrackingAiCustodyRef');
 const CustodyRefParsedSchema = withParser(CustodyRefSchema);
 const ParentEvidenceReferenceIdParsedSchema = withParser(ParentEvidenceReferenceIdSchema);
 const RoutePurposeSchema = withParser(
@@ -198,3 +203,4 @@ function reasonCode(value: string): Infer<typeof TrackingPolicyReasonCodeSchema>
 function custodyRef(value: string): Infer<typeof CustodyRefSchema> {
   return CustodyRefParsedSchema.parse(value);
 }
+

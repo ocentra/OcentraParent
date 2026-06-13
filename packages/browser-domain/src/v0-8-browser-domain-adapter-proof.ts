@@ -1,4 +1,9 @@
-import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
+import {
+  type Infer,
+  Schema,
+  withParser,
+  brandedNonEmptyStringSchema
+} from '@ocentra-parent/schema-domain/effect';
 import {
   ParentControlCapabilityName,
   ParentControlCapabilityNameSchema,
@@ -6,33 +11,19 @@ import {
   ParentControlCapabilityStatusSchema,
   type ParentControlPlatform,
   ParentControlPlatformSchema,
-} from './capabilities';
+} from '@ocentra-parent/capability-domain/capabilities';
 import {
   ParentContractSchemaVersion,
   ParentContractSchemaVersionSchema,
   ParentTimestampSchema,
 } from '@ocentra-parent/family-domain/reference-primitives';
 
-const NonEmptyBrowserDomainProofText = Schema.String.pipe(Schema.minLength(1));
-
-export const V08BrowserDomainAdapterProofReadModelIdSchema = NonEmptyBrowserDomainProofText.pipe(
-  Schema.brand('V08BrowserDomainAdapterProofReadModelId')
-);
-export const V08BrowserDomainAdapterProofEntryIdSchema = NonEmptyBrowserDomainProofText.pipe(
-  Schema.brand('V08BrowserDomainAdapterProofEntryId')
-);
-export const V08BrowserDomainAdapterProofReferenceSchema = NonEmptyBrowserDomainProofText.pipe(
-  Schema.brand('V08BrowserDomainAdapterProofReference')
-);
-export const V08BrowserDomainAdapterProofRequirementSchema = NonEmptyBrowserDomainProofText.pipe(
-  Schema.brand('V08BrowserDomainAdapterProofRequirement')
-);
-export const V08BrowserDomainAdapterProofClaimBoundarySchema = NonEmptyBrowserDomainProofText.pipe(
-  Schema.brand('V08BrowserDomainAdapterProofClaimBoundary')
-);
-export const V08BrowserDomainAdapterProofFallbackSchema = NonEmptyBrowserDomainProofText.pipe(
-  Schema.brand('V08BrowserDomainAdapterProofFallback')
-);
+export const V08BrowserDomainAdapterProofReadModelIdSchema = brandedNonEmptyStringSchema('V08BrowserDomainAdapterProofReadModelId');
+export const V08BrowserDomainAdapterProofEntryIdSchema = brandedNonEmptyStringSchema('V08BrowserDomainAdapterProofEntryId');
+export const V08BrowserDomainAdapterProofReferenceSchema = brandedNonEmptyStringSchema('V08BrowserDomainAdapterProofReference');
+export const V08BrowserDomainAdapterProofRequirementSchema = brandedNonEmptyStringSchema('V08BrowserDomainAdapterProofRequirement');
+export const V08BrowserDomainAdapterProofClaimBoundarySchema = brandedNonEmptyStringSchema('V08BrowserDomainAdapterProofClaimBoundary');
+export const V08BrowserDomainAdapterProofFallbackSchema = brandedNonEmptyStringSchema('V08BrowserDomainAdapterProofFallback');
 
 export const V08BrowserDomainAdapterProofSurfaceSchema = withParser(
   Schema.Literal(
@@ -79,9 +70,7 @@ export const V08BrowserDomainAdapterExecutionStateSchema = withParser(
   )
 );
 
-export const V08WindowsAppControlProofStateIdSchema = NonEmptyBrowserDomainProofText.pipe(
-  Schema.brand('V08WindowsAppControlProofStateId')
-);
+export const V08WindowsAppControlProofStateIdSchema = brandedNonEmptyStringSchema('V08WindowsAppControlProofStateId');
 export const V08WindowsAppControlReadinessStateSchema = withParser(
   Schema.Literal('readiness-check', 'audit-only', 'enforced', 'manual-required', 'unavailable', 'failed')
 );
@@ -974,3 +963,4 @@ function entry(input: V08BrowserDomainAdapterProofEntryInput): V08BrowserDomainA
     lastCheckedAt: documentedAt,
   });
 }
+

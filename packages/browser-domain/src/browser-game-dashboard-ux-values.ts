@@ -1,13 +1,16 @@
-import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
-
-const NonEmptyBrowserGameDashboardText = Schema.String.pipe(Schema.minLength(1));
+import {
+  type Infer,
+  Schema,
+  withParser,
+  brandedNonEmptyStringSchema
+} from '@ocentra-parent/schema-domain/effect';
 
 export const BrowserGameDashboardUxSchemaVersionSchema = withParser(
   Schema.Literal('browser-game-dashboard-ux-contract')
 );
 
 export const BrowserGameDashboardPanelIdSchema = withParser(
-  NonEmptyBrowserGameDashboardText.pipe(Schema.brand('BrowserGameDashboardPanelId'))
+  brandedNonEmptyStringSchema('BrowserGameDashboardPanelId')
 );
 
 export const BrowserGameDashboardPanelKindSchema = withParser(
@@ -54,3 +57,4 @@ export const BrowserGameDashboardPanelReasonSchema = withParser(
 
 export type BrowserGameDashboardPanelKind = Infer<typeof BrowserGameDashboardPanelKindSchema>;
 export type BrowserGameDashboardPanelStatus = Infer<typeof BrowserGameDashboardPanelStatusSchema>;
+

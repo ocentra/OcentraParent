@@ -1,4 +1,9 @@
-import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
+import {
+  type Infer,
+  Schema,
+  withParser,
+  brandedNonEmptyStringSchema
+} from '@ocentra-parent/schema-domain/effect';
 import {
   LocalAiDegradedStateSchema,
   LocalAiModelIdSchema,
@@ -9,11 +14,9 @@ import {
   LocalAiTimestampSchema,
   LocalAiUnavailableReasonSchema,
 } from './local-ai-primitives';
-
-const NonEmptyLocalAiSchedulerText = Schema.String.pipe(Schema.minLength(1));
 const LocalAiProviderSchedulerQueueCountSchema = Schema.Number.pipe(Schema.nonNegative(), Schema.int());
 
-export const LocalAiPhysicalDeviceIdSchema = NonEmptyLocalAiSchedulerText.pipe(Schema.brand('LocalAiPhysicalDeviceId'));
+export const LocalAiPhysicalDeviceIdSchema = brandedNonEmptyStringSchema('LocalAiPhysicalDeviceId');
 
 export const LocalAiProviderSingletonScopeSchema = withParser(Schema.Literal('physical-device'));
 
@@ -190,3 +193,4 @@ export type LocalAiProviderSchedulerJobClass = Infer<typeof LocalAiProviderSched
 export type LocalAiProviderSchedulerJobStatus = Infer<typeof LocalAiProviderSchedulerJobStatusSchema>;
 export type LocalAiProviderSchedulerStatus = Infer<typeof LocalAiProviderSchedulerStatusSchema>;
 export type LocalAiProviderSchedulerDecision = Infer<typeof LocalAiProviderSchedulerDecisionSchema>;
+

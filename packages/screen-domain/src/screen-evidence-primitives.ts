@@ -1,40 +1,32 @@
-import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
+import {
+  type Infer,
+  Schema,
+  withParser,
+  brandedNonEmptyStringSchema,
+  NonEmptyStringSchema
+} from '@ocentra-parent/schema-domain/effect';
 
 export const ScreenEvidenceSchemaVersion = 1;
-
-const NonEmptyScreenText = Schema.String.pipe(Schema.minLength(1));
-const BoundedSummaryText = NonEmptyScreenText.pipe(
+const BoundedSummaryText = NonEmptyStringSchema.pipe(
   Schema.filter((value) => value.length <= 1000 || 'Expected screen summary text within 1000 characters')
 );
-const BoundedSnippetText = NonEmptyScreenText.pipe(
+const BoundedSnippetText = NonEmptyStringSchema.pipe(
   Schema.filter((value) => value.length <= 240 || 'Expected OCR snippet text within 240 characters')
 );
 const NonNegativeInteger = Schema.Number.pipe(Schema.nonNegative(), Schema.int());
 
-export const ScreenEvidenceQueueJobIdSchema = NonEmptyScreenText.pipe(Schema.brand('ScreenEvidenceQueueJobId'));
-export const ScreenEvidenceResultIdSchema = NonEmptyScreenText.pipe(Schema.brand('ScreenEvidenceResultId'));
-export const ScreenEvidenceParentSettingRefSchema = NonEmptyScreenText.pipe(
-  Schema.brand('ScreenEvidenceParentSettingRef')
-);
-export const ScreenEvidenceLocalUserRefSchema = NonEmptyScreenText.pipe(Schema.brand('ScreenEvidenceLocalUserRef'));
-export const ScreenEvidenceAdapterIdSchema = NonEmptyScreenText.pipe(Schema.brand('ScreenEvidenceAdapterId'));
-export const ScreenEvidenceEncryptedImageRefSchema = NonEmptyScreenText.pipe(
-  Schema.brand('ScreenEvidenceEncryptedImageRef')
-);
-export const ScreenEvidenceImageDigestSchema = NonEmptyScreenText.pipe(Schema.brand('ScreenEvidenceImageDigest'));
-export const ScreenEvidenceModelRuntimeRefSchema = NonEmptyScreenText.pipe(
-  Schema.brand('ScreenEvidenceModelRuntimeRef')
-);
-export const ScreenEvidenceModelIdSchema = NonEmptyScreenText.pipe(Schema.brand('ScreenEvidenceModelId'));
-export const ScreenEvidenceTemplateVersionSchema = NonEmptyScreenText.pipe(
-  Schema.brand('ScreenEvidenceTemplateVersion')
-);
-export const ScreenEvidenceDeletionProofRefSchema = NonEmptyScreenText.pipe(
-  Schema.brand('ScreenEvidenceDeletionProofRef')
-);
-export const ScreenEvidenceRemoteApprovalRefSchema = NonEmptyScreenText.pipe(
-  Schema.brand('ScreenEvidenceRemoteApprovalRef')
-);
+export const ScreenEvidenceQueueJobIdSchema = brandedNonEmptyStringSchema('ScreenEvidenceQueueJobId');
+export const ScreenEvidenceResultIdSchema = brandedNonEmptyStringSchema('ScreenEvidenceResultId');
+export const ScreenEvidenceParentSettingRefSchema = brandedNonEmptyStringSchema('ScreenEvidenceParentSettingRef');
+export const ScreenEvidenceLocalUserRefSchema = brandedNonEmptyStringSchema('ScreenEvidenceLocalUserRef');
+export const ScreenEvidenceAdapterIdSchema = brandedNonEmptyStringSchema('ScreenEvidenceAdapterId');
+export const ScreenEvidenceEncryptedImageRefSchema = brandedNonEmptyStringSchema('ScreenEvidenceEncryptedImageRef');
+export const ScreenEvidenceImageDigestSchema = brandedNonEmptyStringSchema('ScreenEvidenceImageDigest');
+export const ScreenEvidenceModelRuntimeRefSchema = brandedNonEmptyStringSchema('ScreenEvidenceModelRuntimeRef');
+export const ScreenEvidenceModelIdSchema = brandedNonEmptyStringSchema('ScreenEvidenceModelId');
+export const ScreenEvidenceTemplateVersionSchema = brandedNonEmptyStringSchema('ScreenEvidenceTemplateVersion');
+export const ScreenEvidenceDeletionProofRefSchema = brandedNonEmptyStringSchema('ScreenEvidenceDeletionProofRef');
+export const ScreenEvidenceRemoteApprovalRefSchema = brandedNonEmptyStringSchema('ScreenEvidenceRemoteApprovalRef');
 export const ScreenEvidenceReasonSchema = BoundedSummaryText.pipe(Schema.brand('ScreenEvidenceReason'));
 export const ScreenEvidenceSummaryTextSchema = BoundedSummaryText.pipe(Schema.brand('ScreenEvidenceSummaryText'));
 export const ScreenEvidenceOcrSnippetTextSchema = BoundedSnippetText.pipe(Schema.brand('ScreenEvidenceOcrSnippetText'));
@@ -55,3 +47,4 @@ export type ScreenEvidenceResultId = Infer<typeof ScreenEvidenceResultIdSchema>;
 export type ScreenEvidenceParentSettingRef = Infer<typeof ScreenEvidenceParentSettingRefSchema>;
 export type ScreenEvidenceImageDigest = Infer<typeof ScreenEvidenceImageDigestSchema>;
 export type ScreenEvidenceRemoteApprovalRef = Infer<typeof ScreenEvidenceRemoteApprovalRefSchema>;
+

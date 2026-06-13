@@ -1,11 +1,15 @@
-import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
+import {
+  type Infer,
+  Schema,
+  withParser,
+  brandedNonEmptyStringSchema
+} from '@ocentra-parent/schema-domain/effect';
 import { AppInstallPurchaseLimitationSummaryProofReadModel } from './app-install-purchase-limitation-summary-proof';
 import { ParentTimestampSchema } from '@ocentra-parent/family-domain/reference-primitives';
 
 const ProofVersion = 'app-install-purchase-platform-proof-readiness';
 const SourceProofVersion = 'app-install-purchase-limitation-summary-proof';
 const CheckedAt = '2026-06-06T04:32:00.000Z';
-const Text = Schema.String.pipe(Schema.minLength(1));
 const Platforms = ['windows', 'macos', 'linux', 'android', 'ios'] as const;
 const ReadinessStates = ['manual-proof-required', 'policy-blocked', 'unavailable'] as const;
 const NonClaims = [
@@ -42,8 +46,8 @@ export const AppInstallPurchasePlatformProofReadinessSchemaVersionSchema = withP
 const PlatformSchema = withParser(Schema.Literal(...Platforms));
 const ReadinessStateSchema = withParser(Schema.Literal(...ReadinessStates));
 const NonClaimSchema = withParser(Schema.Literal(...NonClaims));
-const RefSchema = Text.pipe(Schema.brand('AppInstallPurchasePlatformProofReadinessRef'));
-const BoundarySchema = Text.pipe(Schema.brand('AppInstallPurchasePlatformProofReadinessBoundary'));
+const RefSchema = brandedNonEmptyStringSchema('AppInstallPurchasePlatformProofReadinessRef');
+const BoundarySchema = brandedNonEmptyStringSchema('AppInstallPurchasePlatformProofReadinessBoundary');
 const NotExecutedSchema = withParser(Schema.Literal('not-executed'));
 const NotClaimedSchema = withParser(Schema.Literal('not-claimed'));
 const NotImplementedSchema = withParser(Schema.Literal('not-implemented'));
@@ -215,3 +219,4 @@ function proofIsHonest(proof: AppInstallPurchasePlatformProofReadinessProof): bo
     proof.knownGaps.length > 0
   );
 }
+

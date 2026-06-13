@@ -24,7 +24,7 @@ import {
   parseAppGameChildUxLocalOutboxJsonl,
   serializeAppGameChildUxLocalOutboxJsonl,
 } from '../../src/app-game-child-facing-ux-local-outbox-bridge';
-import { NotificationLocalOutboxRecordSchema } from '../../src/notification-local-outbox-adapter-proof';
+import { NotificationLocalOutboxRecordSchema } from '@ocentra-parent/notification-domain/notification-local-outbox-adapter-proof';
 import {
   ParentActorRole,
   ParentContractSchemaVersion,

@@ -35,7 +35,7 @@ await main();
 
 async function main() {
   buildWorkspace('@ocentra-parent/schema-domain');
-  buildWorkspace('@ocentra-parent/activity-domain');
+  buildWorkspace('@ocentra-parent/browser-domain');
 
   const matrixModule = await import(
     pathToFileURL(join(root, 'packages', 'activity-domain', 'dist', 'browser-platform-inventory-matrix.js')).href
@@ -66,7 +66,7 @@ async function main() {
     schemaVersion: 1,
     proofMode: 'browser-platform-inventory-matrix-proof',
     generatedAt: new Date().toISOString(),
-    proofContract: 'packages/activity-domain/src/browser-platform-inventory-matrix.ts',
+    proofContract: 'packages/browser-domain/src/browser-platform-inventory-matrix.ts',
     sourceWorkpack: 'docs/plans/browser-plan/workpacks/05-cross-platform-inventory-matrix.md',
     rows: matrix.entries.map((entry) => proofRow(entry)),
     summary: {

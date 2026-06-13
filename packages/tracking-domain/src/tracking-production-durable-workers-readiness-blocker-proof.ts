@@ -1,4 +1,9 @@
-import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
+import {
+  type Infer,
+  Schema,
+  withParser,
+  brandedNonEmptyStringSchema
+} from '@ocentra-parent/schema-domain/effect';
 import {
   ParentContractSchemaVersion,
   ParentContractSchemaVersionSchema,
@@ -7,9 +12,7 @@ import {
 import {
   ProductionSupportStatusBackendDurableQueueRuntimeProofSchema,
   type ProductionSupportStatusBackendDurableQueueRuntimeProof,
-} from './production-support-status-backend-durable-queue-runtime-proof';
-
-const TrackingProductionDurableWorkersReadinessBlockerText = Schema.String.pipe(Schema.minLength(1));
+} from '@ocentra-parent/production-domain/production-support-status-backend-durable-queue-runtime-proof';
 
 export const TrackingProductionDurableWorkersReadinessBlockerIdSchema = withParser(
   Schema.Literal(
@@ -26,13 +29,9 @@ export const TrackingProductionDurableWorkersReadinessBlockerIdSchema = withPars
 );
 
 export const TrackingProductionDurableWorkersReadinessBlockerReferenceSchema =
-  TrackingProductionDurableWorkersReadinessBlockerText.pipe(
-    Schema.brand('TrackingProductionDurableWorkersReadinessBlockerReference')
-  );
+  brandedNonEmptyStringSchema('TrackingProductionDurableWorkersReadinessBlockerReference');
 export const TrackingProductionDurableWorkersReadinessBlockerProofIdSchema =
-  TrackingProductionDurableWorkersReadinessBlockerText.pipe(
-    Schema.brand('TrackingProductionDurableWorkersReadinessBlockerProofId')
-  );
+  brandedNonEmptyStringSchema('TrackingProductionDurableWorkersReadinessBlockerProofId');
 export const TrackingProductionDurableWorkersReadinessBlockerStatusSchema = withParser(
   Schema.Literal('manual-required')
 );
@@ -246,3 +245,4 @@ function productionSupportManualClaimCount(proof: ProductionSupportStatusBackend
 function uniqueRefs(refs: readonly string[]): readonly string[] {
   return [...new Set(refs)];
 }
+

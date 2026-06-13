@@ -1,23 +1,25 @@
-import { Schema, withParser } from '@ocentra-parent/schema-domain/effect';
-
-const TrackingPolicyText = Schema.String.pipe(Schema.minLength(1));
+import {
+  Schema,
+  withParser,
+  brandedNonEmptyStringSchema
+} from '@ocentra-parent/schema-domain/effect';
 
 export const TrackingPolicySchemaVersion = 'v0.5-tracking';
 
-export const TrackingPolicyRuleIdSchema = TrackingPolicyText.pipe(Schema.brand('TrackingPolicyRuleId'));
-export const TrackingPolicyDecisionIdSchema = TrackingPolicyText.pipe(Schema.brand('TrackingPolicyDecisionId'));
-export const TrackingAlertIdSchema = TrackingPolicyText.pipe(Schema.brand('TrackingAlertId'));
-export const TrackingAcknowledgementIdSchema = TrackingPolicyText.pipe(Schema.brand('TrackingAcknowledgementId'));
-export const TrackingCheckInIdSchema = TrackingPolicyText.pipe(Schema.brand('TrackingCheckInId'));
-export const TrackingAiAnalysisIdSchema = TrackingPolicyText.pipe(Schema.brand('TrackingAiAnalysisId'));
-export const TrackingProviderRouteIdSchema = TrackingPolicyText.pipe(Schema.brand('TrackingProviderRouteId'));
-export const TrackingEscalationIdSchema = TrackingPolicyText.pipe(Schema.brand('TrackingEscalationId'));
-export const TrackingLiveTrackingGrantIdSchema = TrackingPolicyText.pipe(Schema.brand('TrackingLiveTrackingGrantId'));
-export const TrackingMissingDeviceCaseIdSchema = TrackingPolicyText.pipe(Schema.brand('TrackingMissingDeviceCaseId'));
+export const TrackingPolicyRuleIdSchema = brandedNonEmptyStringSchema('TrackingPolicyRuleId');
+export const TrackingPolicyDecisionIdSchema = brandedNonEmptyStringSchema('TrackingPolicyDecisionId');
+export const TrackingAlertIdSchema = brandedNonEmptyStringSchema('TrackingAlertId');
+export const TrackingAcknowledgementIdSchema = brandedNonEmptyStringSchema('TrackingAcknowledgementId');
+export const TrackingCheckInIdSchema = brandedNonEmptyStringSchema('TrackingCheckInId');
+export const TrackingAiAnalysisIdSchema = brandedNonEmptyStringSchema('TrackingAiAnalysisId');
+export const TrackingProviderRouteIdSchema = brandedNonEmptyStringSchema('TrackingProviderRouteId');
+export const TrackingEscalationIdSchema = brandedNonEmptyStringSchema('TrackingEscalationId');
+export const TrackingLiveTrackingGrantIdSchema = brandedNonEmptyStringSchema('TrackingLiveTrackingGrantId');
+export const TrackingMissingDeviceCaseIdSchema = brandedNonEmptyStringSchema('TrackingMissingDeviceCaseId');
 export const TrackingPolicyReasonCodeSchema = withParser(
-  TrackingPolicyText.pipe(Schema.brand('TrackingPolicyReasonCode'))
+  brandedNonEmptyStringSchema('TrackingPolicyReasonCode')
 );
-export const TrackingPolicyAuditRefSchema = TrackingPolicyText.pipe(Schema.brand('TrackingPolicyAuditRef'));
+export const TrackingPolicyAuditRefSchema = brandedNonEmptyStringSchema('TrackingPolicyAuditRef');
 
 export const TrackingPolicyTargetKindSchema = withParser(
   Schema.Literal(
@@ -93,3 +95,4 @@ export const TrackingPlatformProofRouteStateSchema = withParser(
     'not-claimed'
   )
 );
+

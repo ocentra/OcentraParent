@@ -1,5 +1,11 @@
-import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
-import { LocalAiProviderSchedulerLifecycleSchema } from './local-ai-provider-scheduler';
+import {
+  type Infer,
+  Schema,
+  withParser,
+  brandedNonEmptyStringSchema,
+  NonEmptyStringSchema
+} from '@ocentra-parent/schema-domain/effect';
+import { LocalAiProviderSchedulerLifecycleSchema } from '@ocentra-parent/ai-domain/local-ai-provider-scheduler';
 import {
   LocalAiRuntimeProviderProofReadModel,
   LocalAiRuntimeProviderProofRequirementSchema,
@@ -14,26 +20,12 @@ import {
 } from './parent-assistant';
 import { ParentContractSchemaVersionSchema, ParentTimestampSchema } from '@ocentra-parent/family-domain/reference-primitives';
 
-const NonEmptyRuntimeProofText = Schema.String.pipe(Schema.minLength(1));
-
-export const LocalAiParentAssistantRuntimeProofReadModelIdSchema = NonEmptyRuntimeProofText.pipe(
-  Schema.brand('LocalAiParentAssistantRuntimeProofReadModelId')
-);
-export const LocalAiParentAssistantRuntimeProofEntryIdSchema = NonEmptyRuntimeProofText.pipe(
-  Schema.brand('LocalAiParentAssistantRuntimeProofEntryId')
-);
-export const LocalAiParentAssistantRuntimeProofEvidenceLabelSchema = NonEmptyRuntimeProofText.pipe(
-  Schema.brand('LocalAiParentAssistantRuntimeProofEvidenceLabel')
-);
-export const LocalAiParentAssistantRuntimeProofRuntimeCommandSchema = NonEmptyRuntimeProofText.pipe(
-  Schema.brand('LocalAiParentAssistantRuntimeProofRuntimeCommand')
-);
-export const LocalAiParentAssistantRuntimeProofClaimBoundarySchema = NonEmptyRuntimeProofText.pipe(
-  Schema.brand('LocalAiParentAssistantRuntimeProofClaimBoundary')
-);
-export const LocalAiParentAssistantRuntimeProofFallbackSchema = NonEmptyRuntimeProofText.pipe(
-  Schema.brand('LocalAiParentAssistantRuntimeProofFallback')
-);
+export const LocalAiParentAssistantRuntimeProofReadModelIdSchema = brandedNonEmptyStringSchema('LocalAiParentAssistantRuntimeProofReadModelId');
+export const LocalAiParentAssistantRuntimeProofEntryIdSchema = brandedNonEmptyStringSchema('LocalAiParentAssistantRuntimeProofEntryId');
+export const LocalAiParentAssistantRuntimeProofEvidenceLabelSchema = brandedNonEmptyStringSchema('LocalAiParentAssistantRuntimeProofEvidenceLabel');
+export const LocalAiParentAssistantRuntimeProofRuntimeCommandSchema = brandedNonEmptyStringSchema('LocalAiParentAssistantRuntimeProofRuntimeCommand');
+export const LocalAiParentAssistantRuntimeProofClaimBoundarySchema = brandedNonEmptyStringSchema('LocalAiParentAssistantRuntimeProofClaimBoundary');
+export const LocalAiParentAssistantRuntimeProofFallbackSchema = brandedNonEmptyStringSchema('LocalAiParentAssistantRuntimeProofFallback');
 
 export const LocalAiParentAssistantRuntimeProofRequirementSchema = withParser(
   Schema.Literal(
@@ -56,7 +48,7 @@ const LocalAiParentAssistantRuntimeProofEntryBaseSchema = Schema.Struct({
   requirement: LocalAiParentAssistantRuntimeProofRequirementSchema,
   proofStatus: LocalAiParentAssistantRuntimeProofStatusSchema,
   sourceProviderProofRequirement: LocalAiRuntimeProviderProofRequirementSchema,
-  sourceProviderProofEntryId: NonEmptyRuntimeProofText,
+  sourceProviderProofEntryId: NonEmptyStringSchema,
   schedulerLifecycle: LocalAiProviderSchedulerLifecycleSchema,
   parentAssistantAnswer: Schema.Union(ParentAssistantAnswerSchema, Schema.Null),
   providerStatus: Schema.Union(ParentAssistantProviderStatusSchema, Schema.Null),
@@ -90,7 +82,7 @@ const LocalAiParentAssistantRuntimeProofReadModelBaseSchema = Schema.Struct({
   schemaVersion: ParentContractSchemaVersionSchema,
   readModelId: LocalAiParentAssistantRuntimeProofReadModelIdSchema,
   generatedAt: ParentTimestampSchema,
-  sourceReadModelIds: Schema.Array(NonEmptyRuntimeProofText),
+  sourceReadModelIds: Schema.Array(NonEmptyStringSchema),
   entries: Schema.Array(LocalAiParentAssistantRuntimeProofEntrySchema),
 });
 
@@ -288,3 +280,4 @@ export const decodeLocalAiParentAssistantRuntimeProofEntry = Schema.decodeUnknow
 export const decodeLocalAiParentAssistantRuntimeProofReadModel = Schema.decodeUnknownSync(
   LocalAiParentAssistantRuntimeProofReadModelSchema
 );
+

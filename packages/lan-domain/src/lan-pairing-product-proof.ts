@@ -1,4 +1,9 @@
-import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
+import {
+  type Infer,
+  Schema,
+  withParser,
+  NonEmptyStringSchema
+} from '@ocentra-parent/schema-domain/effect';
 import {
   LanAiProviderRoutingStateSchema,
   LanPairingDeviceReachabilitySchema,
@@ -9,8 +14,6 @@ import {
   LanPairingTimestampSchema,
   LanPairingTrustStateSchema,
 } from './lan-pairing-values';
-
-const NonEmptyLanProductProofText = Schema.String.pipe(Schema.minLength(1));
 
 export const LanHouseholdProductProofStateSchema = withParser(
   Schema.Literal('ci-mechanical-proof', 'manual-required', 'not-implemented')
@@ -64,7 +67,7 @@ export const LanHouseholdSelectedRouteEvidenceSchema = withParser(
     reachability: LanPairingDeviceReachabilitySchema,
     rejectionReason: Schema.Union(LanPairingRejectionReasonSchema, Schema.Null),
     proofState: LanHouseholdProductProofStateSchema,
-    evidenceLabel: NonEmptyLanProductProofText,
+    evidenceLabel: NonEmptyStringSchema,
   })
 );
 
@@ -78,7 +81,7 @@ export const LanHouseholdRouteCheckOutcomeSchema = withParser(
     reachability: LanPairingDeviceReachabilitySchema,
     rejectionReason: Schema.Union(LanPairingRejectionReasonSchema, Schema.Null),
     proofState: LanHouseholdProductProofStateSchema,
-    evidenceLabel: NonEmptyLanProductProofText,
+    evidenceLabel: NonEmptyStringSchema,
   })
 );
 
@@ -91,7 +94,7 @@ export const LanHouseholdSelectedProviderPolicyEvidenceSchema = withParser(
     selectedDeviceReachability: LanPairingDeviceReachabilitySchema,
     rejectionReason: Schema.Union(LanPairingRejectionReasonSchema, Schema.Null),
     proofState: LanHouseholdProductProofStateSchema,
-    evidenceLabel: NonEmptyLanProductProofText,
+    evidenceLabel: NonEmptyStringSchema,
   })
 );
 
@@ -100,7 +103,7 @@ export const LanHouseholdManualProofGateRequirementSchema = withParser(
     schemaVersion: LanPairingSchemaVersionSchema,
     gate: LanHouseholdManualProofGateSchema,
     state: LanHouseholdProductProofStateSchema,
-    requiredArtifactSummary: NonEmptyLanProductProofText,
+    requiredArtifactSummary: NonEmptyStringSchema,
   })
 );
 
@@ -109,8 +112,8 @@ export const LanHouseholdCloudRelayDecisionSchema = withParser(
     schemaVersion: LanPairingSchemaVersionSchema,
     implementationState: LanHouseholdCloudRelayImplementationStateSchema,
     decisionState: LanHouseholdCloudRelayDecisionStateSchema,
-    requiredDecisionSummary: NonEmptyLanProductProofText,
-    proofBoundary: NonEmptyLanProductProofText,
+    requiredDecisionSummary: NonEmptyStringSchema,
+    proofBoundary: NonEmptyStringSchema,
   })
 );
 
@@ -143,3 +146,4 @@ export type LanHouseholdSelectedProviderPolicyEvidence = Infer<typeof LanHouseho
 export type LanHouseholdManualProofGateRequirement = Infer<typeof LanHouseholdManualProofGateRequirementSchema>;
 export type LanHouseholdCloudRelayDecision = Infer<typeof LanHouseholdCloudRelayDecisionSchema>;
 export type LanHouseholdProductProofReadModel = Infer<typeof LanHouseholdProductProofReadModelSchema>;
+

@@ -1,7 +1,10 @@
-import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
+import {
+  type Infer,
+  Schema,
+  withParser,
+  brandedNonEmptyStringSchema
+} from '@ocentra-parent/schema-domain/effect';
 import { ParentTimestampSchema } from '@ocentra-parent/family-domain/reference-primitives';
-
-const CountSampleText = Schema.String.pipe(Schema.minLength(1));
 
 export const AppGameAndroidUsageEventsCountSampleSchemaVersionSchema = withParser(
   Schema.Literal('app-game-android-usage-events-count-sample')
@@ -24,7 +27,7 @@ export const AppGameAndroidUsageEventsCountSampleGapSchema = withParser(
   )
 );
 
-const CountSampleLabelSchema = CountSampleText.pipe(Schema.brand('AppGameAndroidUsageEventsCountSampleLabel'));
+const CountSampleLabelSchema = brandedNonEmptyStringSchema('AppGameAndroidUsageEventsCountSampleLabel');
 
 const AppGameAndroidUsageEventsCountSampleReadModelBaseSchema = Schema.Struct({
   schemaVersion: AppGameAndroidUsageEventsCountSampleSchemaVersionSchema,
@@ -144,3 +147,4 @@ function countSampleReadModelIsHonest(readModel: CountSampleCandidate): boolean 
     readModel.openGaps.includes('android-platform-enforcement-not-proved')
   );
 }
+

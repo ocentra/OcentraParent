@@ -1,11 +1,14 @@
-import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
+import {
+  type Infer,
+  Schema,
+  withParser,
+  brandedNonEmptyStringSchema
+} from '@ocentra-parent/schema-domain/effect';
 import {
   AppGameAndroidPhysicalDeviceProofSchema,
   type AppGameAndroidPhysicalDeviceProof,
 } from './app-game-android-physical-device-proof';
 import { ParentTimestampSchema } from '@ocentra-parent/family-domain/reference-primitives';
-
-const AndroidAuthorityText = Schema.String.pipe(Schema.minLength(1));
 
 export const AppGameAndroidAuthorityPreflightSchemaVersionSchema = withParser(
   Schema.Literal('app-game-android-authority-preflight')
@@ -38,7 +41,7 @@ export const AppGameAndroidAuthorityPreflightBlockerSchema = withParser(
   )
 );
 
-const AndroidAuthorityLabelSchema = AndroidAuthorityText.pipe(Schema.brand('AppGameAndroidAuthorityPreflightLabel'));
+const AndroidAuthorityLabelSchema = brandedNonEmptyStringSchema('AppGameAndroidAuthorityPreflightLabel');
 
 const AppGameAndroidAuthorityPreflightActionRowBaseSchema = Schema.Struct({
   action: AppGameAndroidAuthorityPreflightActionSchema,
@@ -231,3 +234,4 @@ function androidAuthorityStateMatchesProof(readModel: AppGameAndroidAuthorityPre
     readModel.blockedActionCount === readModel.rows.length
   );
 }
+

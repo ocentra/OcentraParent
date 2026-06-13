@@ -1,11 +1,15 @@
-import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
+import {
+  type Infer,
+  Schema,
+  withParser,
+  brandedNonEmptyStringSchema
+} from '@ocentra-parent/schema-domain/effect';
 import { AppInstallPurchaseExecutionReceiptGateProofReadModel } from './app-install-purchase-execution-receipt-gate-proof';
 import { ParentTimestampSchema } from '@ocentra-parent/family-domain/reference-primitives';
 
 const DispatchExecutorReceiptProofVersion = 'app-install-purchase-dispatch-executor-receipt-proof';
 const SourceExecutionReceiptGateProofVersion = 'app-install-purchase-execution-receipt-gate-proof';
 const DispatchExecutorReceiptTimestamp = '2026-06-08T22:04:00.000Z';
-const DispatchExecutorReceiptText = Schema.String.pipe(Schema.minLength(1));
 const DispatchExecutorReceiptBoundary =
   'dispatch executor receipt proof only; rows consume execution receipt gate rows and create parent-owned external writer dispatch executor receipt artifact requirements that remain blocked until a real external writer dispatch executor receipt is attached no external runtime writer execution no external runtime writer delivery no parent action runtime delivery no provider API execution no store integration no platform interception no platform adapter implementation no child-device delivery no runtime report delivery no real install or purchase interception no app blocking no child activity data no Ocentra-hosted family data custody';
 const DispatchExecutorReceiptActions = ['approve', 'deny', 'time-box', 'review-needed'] as const;
@@ -69,18 +73,10 @@ const DispatchExecutorReceiptIntegrationClaimSchema = withParser(Schema.Literal(
 const DispatchExecutorReceiptAdapterClaimSchema = withParser(Schema.Literal('not-implemented'));
 const DispatchExecutorReceiptCustodyClaimSchema = withParser(Schema.Literal('no-child-activity-data'));
 
-const DispatchExecutorReceiptRowIdSchema = DispatchExecutorReceiptText.pipe(
-  Schema.brand('AppInstallPurchaseDispatchExecutorReceiptRowId')
-);
-const DispatchExecutorReceiptRefSchema = DispatchExecutorReceiptText.pipe(
-  Schema.brand('AppInstallPurchaseDispatchExecutorReceiptRef')
-);
-const DispatchExecutorReceiptAuditRefSchema = DispatchExecutorReceiptText.pipe(
-  Schema.brand('AppInstallPurchaseDispatchExecutorReceiptAuditRef')
-);
-const DispatchExecutorReceiptBoundarySchema = DispatchExecutorReceiptText.pipe(
-  Schema.brand('AppInstallPurchaseDispatchExecutorReceiptBoundary')
-);
+const DispatchExecutorReceiptRowIdSchema = brandedNonEmptyStringSchema('AppInstallPurchaseDispatchExecutorReceiptRowId');
+const DispatchExecutorReceiptRefSchema = brandedNonEmptyStringSchema('AppInstallPurchaseDispatchExecutorReceiptRef');
+const DispatchExecutorReceiptAuditRefSchema = brandedNonEmptyStringSchema('AppInstallPurchaseDispatchExecutorReceiptAuditRef');
+const DispatchExecutorReceiptBoundarySchema = brandedNonEmptyStringSchema('AppInstallPurchaseDispatchExecutorReceiptBoundary');
 
 const DispatchExecutorReceiptRowBaseSchema = Schema.Struct({
   schemaVersion: AppInstallPurchaseDispatchExecutorReceiptProofSchemaVersionSchema,
@@ -311,3 +307,4 @@ function dispatchExecutorReceiptBoundaryIsExplicit(
 ): boolean {
   return DispatchExecutorReceiptBoundaryFragments.every((fragment) => boundary.includes(fragment));
 }
+

@@ -1,22 +1,26 @@
-import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
-
-const NonEmptyCdpCaptureText = Schema.String.pipe(Schema.minLength(1));
+import {
+  type Infer,
+  Schema,
+  withParser,
+  brandedNonEmptyStringSchema
+} from '@ocentra-parent/schema-domain/effect';
 
 export const ScreenManagedBrowserCdpCaptureSchemaVersion = 1;
 export const ScreenManagedBrowserCdpMaxPixels = 4_000_000;
 export const ScreenManagedBrowserCdpMaxDimension = 4096;
 
 export const ScreenManagedBrowserCdpCaptureIdSchema = withParser(
-  NonEmptyCdpCaptureText.pipe(Schema.brand('ScreenManagedBrowserCdpCaptureId'))
+  brandedNonEmptyStringSchema('ScreenManagedBrowserCdpCaptureId')
 );
 export const ScreenManagedBrowserCdpCaptureRequestIdSchema = withParser(
-  NonEmptyCdpCaptureText.pipe(Schema.brand('ScreenManagedBrowserCdpCaptureRequestId'))
+  brandedNonEmptyStringSchema('ScreenManagedBrowserCdpCaptureRequestId')
 );
 export const ScreenManagedBrowserCdpTargetIdSchema = withParser(
-  NonEmptyCdpCaptureText.pipe(Schema.brand('ScreenManagedBrowserCdpTargetId'))
+  brandedNonEmptyStringSchema('ScreenManagedBrowserCdpTargetId')
 );
 export const ScreenManagedBrowserCdpCaptureModeSchema = withParser(Schema.Literal('page', 'viewport', 'crop'));
 export const ScreenManagedBrowserCdpTargetTypeSchema = withParser(Schema.Literal('page'));
 export const ScreenManagedBrowserCdpMethodSchema = withParser(Schema.Literal('Page.captureScreenshot'));
 
 export type ScreenManagedBrowserCdpCaptureMode = Infer<typeof ScreenManagedBrowserCdpCaptureModeSchema>;
+

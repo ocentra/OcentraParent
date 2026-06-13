@@ -1,4 +1,9 @@
-import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
+import {
+  type Infer,
+  Schema,
+  withParser,
+  NonEmptyStringSchema
+} from '@ocentra-parent/schema-domain/effect';
 import { ActivityEvidenceRefSchema } from '@ocentra-parent/evidence-domain/contracts';
 import { ActivityTimestampSchema } from '@ocentra-parent/evidence-domain/primitives';
 import {
@@ -34,7 +39,6 @@ export const ScreenOcrWorkerMaxSnippetCount = 5;
 
 const RequiredFalse = Schema.Literal(false);
 const PositiveInteger = Schema.Number.pipe(Schema.int(), Schema.positive());
-const NonEmptyText = Schema.String.pipe(Schema.minLength(1));
 const SupportedOcrEngine = Schema.Literal('winRtOcr');
 
 export const ScreenOcrWorkerJobSchema = withParser(
@@ -47,7 +51,7 @@ export const ScreenOcrWorkerJobSchema = withParser(
     capabilityStatus: ScreenCapabilityStatusSchema,
     sourceEvidenceRefs: Schema.Array(ActivityEvidenceRefSchema),
     imageDigest: ScreenEvidenceImageDigestSchema,
-    encryptedImageRef: NonEmptyText,
+    encryptedImageRef: NonEmptyStringSchema,
     ocrEngine: SupportedOcrEngine,
     custodyState: ScreenEvidenceCustodyStateSchema,
     rawImageRetained: RequiredFalse,
@@ -67,7 +71,7 @@ export const ScreenOcrWorkerTextLineSchema = withParser(
   Schema.Struct({
     text: ScreenEvidenceOcrSnippetTextSchema,
     confidence: ScreenEvidenceConfidenceSchema,
-    boundingBoxRef: NonEmptyText,
+    boundingBoxRef: NonEmptyStringSchema,
   })
 );
 
@@ -143,7 +147,7 @@ export const ScreenOcrWorkerResultSchema = withParser(
 export const ScreenOcrWorkerProofSchema = withParser(
   Schema.Struct({
     schemaVersion: Schema.Literal(ScreenOcrWorkerSchemaVersion),
-    proofId: NonEmptyText,
+    proofId: NonEmptyStringSchema,
     proofTier: Schema.Literal('P3_REAL_CAPTURE_LOCAL_OCR'),
     scenarios: Schema.Array(ScreenOcrWorkerResultSchema),
     localOnly: Schema.Literal(true),
@@ -195,3 +199,4 @@ export type ScreenOcrWorkerJob = Infer<typeof ScreenOcrWorkerJobSchema>;
 export type ScreenOcrWorkerTextLine = Infer<typeof ScreenOcrWorkerTextLineSchema>;
 export type ScreenOcrWorkerResult = Infer<typeof ScreenOcrWorkerResultSchema>;
 export type ScreenOcrWorkerProof = Infer<typeof ScreenOcrWorkerProofSchema>;
+

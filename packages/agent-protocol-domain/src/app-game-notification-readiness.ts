@@ -1,9 +1,8 @@
 import { AppGameSchemaVersion } from '@ocentra-parent/app-game-domain/app-game';
 import { ActivityEvidenceRefSchema } from '@ocentra-parent/evidence-domain/contracts';
-import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
+import { type Infer, NonEmptyStringSchema, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
 import { AgentEvent, AgentProtocolDefaults, isAgentProtocolLogText, type AgentEventEnvelope } from './contracts';
 
-const NotificationReadinessText = Schema.String.pipe(Schema.minLength(1));
 const NotificationReadinessCount = Schema.Number.pipe(Schema.nonNegative(), Schema.int());
 
 export const AgentAppGameNotificationReadinessReason = {
@@ -23,7 +22,7 @@ export const AgentAppGameNotificationReadinessState = {
 export const AgentAppGameNotificationReadinessRowSchema = withParser(
   Schema.Struct({
     schemaVersion: Schema.Literal(AppGameSchemaVersion),
-    rowId: NotificationReadinessText,
+    rowId: NonEmptyStringSchema,
     reason: Schema.Literal(
       AgentAppGameNotificationReadinessReason.TimeLimitExceeded,
       AgentAppGameNotificationReadinessReason.ApprovalRequest,
@@ -37,8 +36,8 @@ export const AgentAppGameNotificationReadinessRowSchema = withParser(
       AgentAppGameNotificationReadinessState.Unavailable
     ),
     rowCount: NotificationReadinessCount,
-    minimalPayloadRef: NotificationReadinessText,
-    evidenceReferenceIds: Schema.Array(NotificationReadinessText),
+    minimalPayloadRef: NonEmptyStringSchema,
+    evidenceReferenceIds: Schema.Array(NonEmptyStringSchema),
     evidence: Schema.Array(ActivityEvidenceRefSchema),
   })
 );
@@ -46,9 +45,9 @@ export const AgentAppGameNotificationReadinessRowSchema = withParser(
 export const AgentAppGameNotificationReadinessReadModelSchema = withParser(
   Schema.Struct({
     schemaVersion: Schema.Literal(AppGameSchemaVersion),
-    generatedAt: NotificationReadinessText,
-    custodyLabel: NotificationReadinessText,
-    capabilityStatus: NotificationReadinessText,
+    generatedAt: NonEmptyStringSchema,
+    custodyLabel: NonEmptyStringSchema,
+    capabilityStatus: NonEmptyStringSchema,
     returned: NotificationReadinessCount,
     readyIntentCount: NotificationReadinessCount,
     manualRequiredCount: NotificationReadinessCount,

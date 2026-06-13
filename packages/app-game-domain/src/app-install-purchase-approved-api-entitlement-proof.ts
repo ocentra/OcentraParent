@@ -1,8 +1,11 @@
-import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
+import {
+  type Infer,
+  Schema,
+  withParser,
+  brandedNonEmptyStringSchema
+} from '@ocentra-parent/schema-domain/effect';
 import { AppInstallPurchaseChildArtifactDeliveryProofReadModel } from './app-install-purchase-child-artifact-delivery-proof';
 import { ParentPlatformSchema, ParentTimestampSchema } from '@ocentra-parent/family-domain/reference-primitives';
-
-const ApiEntitlementProofText = Schema.String.pipe(Schema.minLength(1));
 const ApiEntitlementProofVersion = 'app-install-purchase-approved-api-entitlement-proof';
 const SourceChildArtifactProofVersion = 'app-install-purchase-child-artifact-delivery-proof';
 const ApiEntitlementTimestamp = '2026-06-05T00:15:00.000Z';
@@ -54,23 +57,13 @@ const AppInstallPurchaseApprovedApiBlockingClaimSchema = withParser(Schema.Liter
 const AppInstallPurchaseApprovedApiDataCustodyClaimSchema = withParser(Schema.Literal('no-child-activity-data'));
 const AppInstallPurchaseApprovedApiEntitlementNonClaimSchema = withParser(Schema.Literal(...ApiEntitlementNonClaims));
 
-const ApiEntitlementRowIdSchema = ApiEntitlementProofText.pipe(Schema.brand('AppInstallPurchaseApiEntitlementRowId'));
-const ApiEntitlementChildArtifactRowIdSchema = ApiEntitlementProofText.pipe(
-  Schema.brand('AppInstallPurchaseApiEntitlementChildArtifactRowId')
-);
-const ApiEntitlementRefSchema = ApiEntitlementProofText.pipe(Schema.brand('AppInstallPurchaseApiEntitlementRef'));
-const ApiEntitlementReportRefSchema = ApiEntitlementProofText.pipe(
-  Schema.brand('AppInstallPurchaseApiEntitlementReportRef')
-);
-const ApiEntitlementAuditRefSchema = ApiEntitlementProofText.pipe(
-  Schema.brand('AppInstallPurchaseApiEntitlementAuditRef')
-);
-const ApiEntitlementProofRefSchema = ApiEntitlementProofText.pipe(
-  Schema.brand('AppInstallPurchaseApiEntitlementProofRef')
-);
-const ApiEntitlementClaimBoundarySchema = ApiEntitlementProofText.pipe(
-  Schema.brand('AppInstallPurchaseApiEntitlementClaimBoundary')
-);
+const ApiEntitlementRowIdSchema = brandedNonEmptyStringSchema('AppInstallPurchaseApiEntitlementRowId');
+const ApiEntitlementChildArtifactRowIdSchema = brandedNonEmptyStringSchema('AppInstallPurchaseApiEntitlementChildArtifactRowId');
+const ApiEntitlementRefSchema = brandedNonEmptyStringSchema('AppInstallPurchaseApiEntitlementRef');
+const ApiEntitlementReportRefSchema = brandedNonEmptyStringSchema('AppInstallPurchaseApiEntitlementReportRef');
+const ApiEntitlementAuditRefSchema = brandedNonEmptyStringSchema('AppInstallPurchaseApiEntitlementAuditRef');
+const ApiEntitlementProofRefSchema = brandedNonEmptyStringSchema('AppInstallPurchaseApiEntitlementProofRef');
+const ApiEntitlementClaimBoundarySchema = brandedNonEmptyStringSchema('AppInstallPurchaseApiEntitlementClaimBoundary');
 
 const ApiEntitlementEvidenceRowBaseSchema = Schema.Struct({
   schemaVersion: AppInstallPurchaseApprovedApiEntitlementProofSchemaVersionSchema,
@@ -293,3 +286,4 @@ function apiEntitlementBoundaryIsExplicit(boundary: typeof ApiEntitlementClaimBo
     boundary.includes('not generic app blocking')
   );
 }
+

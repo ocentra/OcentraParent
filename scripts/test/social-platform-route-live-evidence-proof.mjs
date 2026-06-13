@@ -5,7 +5,7 @@ import { fileURLToPath } from 'node:url';
 import {
   BrowserSocialRouteEvidenceSchema,
   BrowserSocialRouteSchemaVersion,
-} from '../../packages/activity-domain/dist/browser-social-platform-route-schemas.js';
+} from '../../packages/browser-domain/dist/browser-social-platform-route-schemas.js';
 
 const scriptDir = dirname(fileURLToPath(import.meta.url));
 const repoRoot = join(scriptDir, '..', '..');

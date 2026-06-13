@@ -1,4 +1,10 @@
-import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
+import {
+  type Infer,
+  Schema,
+  withParser,
+  brandedNonEmptyStringSchema,
+  NonEmptyStringSchema
+} from '@ocentra-parent/schema-domain/effect';
 import { TrackingLocationPolicyReadModelSchema, TrackingPolicySchemaVersion } from './tracking-location-policy';
 import { TrackingPolicyAuditRefSchema } from './tracking-location-policy-primitives';
 import type {
@@ -8,8 +14,6 @@ import type {
   TrackingLocationPolicyReadModel,
   TrackingPolicyDecision,
 } from './tracking-location-policy-types';
-
-const TrackingParentAcknowledgementActionText = Schema.String.pipe(Schema.minLength(1));
 
 export const RequiredTrackingParentAcknowledgementActionNonClaims = [
   'no-rendered-portal-acknowledgement-ui',
@@ -27,12 +31,8 @@ export const TrackingParentAcknowledgementActionNonClaimSchema = withParser(
   Schema.Literal(...RequiredTrackingParentAcknowledgementActionNonClaims)
 );
 
-export const TrackingParentAcknowledgementActionReadinessIdSchema = TrackingParentAcknowledgementActionText.pipe(
-  Schema.brand('TrackingParentAcknowledgementActionReadinessId')
-);
-export const TrackingParentAcknowledgementActionRowIdSchema = TrackingParentAcknowledgementActionText.pipe(
-  Schema.brand('TrackingParentAcknowledgementActionRowId')
-);
+export const TrackingParentAcknowledgementActionReadinessIdSchema = brandedNonEmptyStringSchema('TrackingParentAcknowledgementActionReadinessId');
+export const TrackingParentAcknowledgementActionRowIdSchema = brandedNonEmptyStringSchema('TrackingParentAcknowledgementActionRowId');
 export const TrackingParentAcknowledgementActionStateSchema = withParser(
   Schema.Literal(
     'acknowledgement-action-ready',
@@ -58,21 +58,21 @@ export const TrackingParentAcknowledgementActionKindSchema = withParser(
 
 const TrackingParentAcknowledgementActionRowBaseSchema = Schema.Struct({
   rowId: TrackingParentAcknowledgementActionRowIdSchema,
-  alertId: TrackingParentAcknowledgementActionText,
-  sourceDecisionId: TrackingParentAcknowledgementActionText,
-  sourceAcknowledgementId: Schema.Union(TrackingParentAcknowledgementActionText, Schema.Null),
-  sourceEscalationId: Schema.Union(TrackingParentAcknowledgementActionText, Schema.Null),
-  severity: TrackingParentAcknowledgementActionText,
+  alertId: NonEmptyStringSchema,
+  sourceDecisionId: NonEmptyStringSchema,
+  sourceAcknowledgementId: Schema.Union(NonEmptyStringSchema, Schema.Null),
+  sourceEscalationId: Schema.Union(NonEmptyStringSchema, Schema.Null),
+  severity: NonEmptyStringSchema,
   actionState: TrackingParentAcknowledgementActionStateSchema,
   primaryAction: TrackingParentAcknowledgementActionKindSchema,
   allowedActions: Schema.Array(TrackingParentAcknowledgementActionKindSchema),
-  exceptionExpiresAt: Schema.Union(TrackingParentAcknowledgementActionText, Schema.Null),
+  exceptionExpiresAt: Schema.Union(NonEmptyStringSchema, Schema.Null),
   stillAlertForCritical: Schema.Boolean,
-  evidenceReferenceIds: Schema.Array(TrackingParentAcknowledgementActionText),
-  policyDecisionRefs: Schema.Array(TrackingParentAcknowledgementActionText),
+  evidenceReferenceIds: Schema.Array(NonEmptyStringSchema),
+  policyDecisionRefs: Schema.Array(NonEmptyStringSchema),
   auditRefs: Schema.Array(TrackingPolicyAuditRefSchema),
-  uiSurfaceRef: TrackingParentAcknowledgementActionText,
-  manualProofRequirements: Schema.Array(TrackingParentAcknowledgementActionText),
+  uiSurfaceRef: NonEmptyStringSchema,
+  manualProofRequirements: Schema.Array(NonEmptyStringSchema),
   renderedPortalAcknowledgementUiClaimed: Schema.Literal(false),
   liveServiceMutationClaimed: Schema.Literal(false),
   providerDeliveryClaimed: Schema.Literal(false),
@@ -93,9 +93,9 @@ export const TrackingParentAcknowledgementActionRowSchema = withParser(
 const TrackingParentAcknowledgementActionReadModelBaseSchema = Schema.Struct({
   schemaVersion: Schema.Literal(TrackingPolicySchemaVersion),
   readinessId: TrackingParentAcknowledgementActionReadinessIdSchema,
-  generatedAt: TrackingParentAcknowledgementActionText,
-  sourceReadModelGeneratedAt: TrackingParentAcknowledgementActionText,
-  sourceContractRefs: Schema.Array(TrackingParentAcknowledgementActionText),
+  generatedAt: NonEmptyStringSchema,
+  sourceReadModelGeneratedAt: NonEmptyStringSchema,
+  sourceContractRefs: Schema.Array(NonEmptyStringSchema),
   rows: Schema.Array(TrackingParentAcknowledgementActionRowSchema),
   actionReadyCount: Schema.Number.pipe(Schema.int(), Schema.nonNegative()),
   recordedCount: Schema.Number.pipe(Schema.int(), Schema.nonNegative()),
@@ -414,3 +414,4 @@ function trackingParentAcknowledgementActionReadModelIsHonest(
     readModel.productClaimReady === false
   );
 }
+

@@ -1,4 +1,9 @@
-import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
+import {
+  type Infer,
+  Schema,
+  withParser,
+  brandedNonEmptyStringSchema
+} from '@ocentra-parent/schema-domain/effect';
 import {
   AppInstallPurchaseApprovalDecisionActionSchema,
   AppInstallPurchaseApprovalRequestKindSchema,
@@ -8,8 +13,6 @@ import { AppInstallPurchaseApprovalContractProofReadModel } from './app-install-
 import { AppInstallPurchaseApprovedApiEntitlementProofReadModel } from './app-install-purchase-approved-api-entitlement-proof';
 import { AppInstallPurchaseReportRuntimeProofReadModel } from './app-install-purchase-report-runtime-proof';
 import { ParentTimestampSchema } from '@ocentra-parent/family-domain/reference-primitives';
-
-const ParentReviewActionProofText = Schema.String.pipe(Schema.minLength(1));
 const ParentReviewActionProofVersion = 'app-install-purchase-parent-review-action-proof';
 const SourceApprovalContractProofVersion = 'app-install-purchase-approval-contract-proof';
 const SourceApprovedApiEntitlementProofVersion = 'app-install-purchase-approved-api-entitlement-proof';
@@ -51,30 +54,14 @@ const AppInstallPurchaseParentReviewActionDataCustodyClaimSchema = withParser(Sc
 const AppInstallPurchaseParentReviewActionHostedCustodyClaimSchema = withParser(Schema.Literal('not-claimed'));
 const AppInstallPurchaseParentReviewActionNonClaimSchema = withParser(Schema.Literal(...RequiredParentReviewNonClaims));
 
-const ParentReviewActionRowIdSchema = ParentReviewActionProofText.pipe(
-  Schema.brand('AppInstallPurchaseParentReviewActionRowId')
-);
-const ParentReviewActionDecisionRefSchema = ParentReviewActionProofText.pipe(
-  Schema.brand('AppInstallPurchaseParentReviewActionDecisionRef')
-);
-const ParentReviewActionRequestRefSchema = ParentReviewActionProofText.pipe(
-  Schema.brand('AppInstallPurchaseParentReviewActionRequestRef')
-);
-const ParentReviewActionRefSchema = ParentReviewActionProofText.pipe(
-  Schema.brand('AppInstallPurchaseParentReviewActionRef')
-);
-const ParentReviewActionReportRuntimeRefSchema = ParentReviewActionProofText.pipe(
-  Schema.brand('AppInstallPurchaseParentReviewActionReportRuntimeRef')
-);
-const ParentReviewActionEvidenceRefSchema = ParentReviewActionProofText.pipe(
-  Schema.brand('AppInstallPurchaseParentReviewActionEvidenceRef')
-);
-const ParentReviewActionAuditRefSchema = ParentReviewActionProofText.pipe(
-  Schema.brand('AppInstallPurchaseParentReviewActionAuditRef')
-);
-const ParentReviewActionClaimBoundarySchema = ParentReviewActionProofText.pipe(
-  Schema.brand('AppInstallPurchaseParentReviewActionClaimBoundary')
-);
+const ParentReviewActionRowIdSchema = brandedNonEmptyStringSchema('AppInstallPurchaseParentReviewActionRowId');
+const ParentReviewActionDecisionRefSchema = brandedNonEmptyStringSchema('AppInstallPurchaseParentReviewActionDecisionRef');
+const ParentReviewActionRequestRefSchema = brandedNonEmptyStringSchema('AppInstallPurchaseParentReviewActionRequestRef');
+const ParentReviewActionRefSchema = brandedNonEmptyStringSchema('AppInstallPurchaseParentReviewActionRef');
+const ParentReviewActionReportRuntimeRefSchema = brandedNonEmptyStringSchema('AppInstallPurchaseParentReviewActionReportRuntimeRef');
+const ParentReviewActionEvidenceRefSchema = brandedNonEmptyStringSchema('AppInstallPurchaseParentReviewActionEvidenceRef');
+const ParentReviewActionAuditRefSchema = brandedNonEmptyStringSchema('AppInstallPurchaseParentReviewActionAuditRef');
+const ParentReviewActionClaimBoundarySchema = brandedNonEmptyStringSchema('AppInstallPurchaseParentReviewActionClaimBoundary');
 
 const ParentReviewActionRowBaseSchema = Schema.Struct({
   schemaVersion: AppInstallPurchaseParentReviewActionProofSchemaVersionSchema,
@@ -340,3 +327,4 @@ function parentReviewActionBoundaryIsExplicit(boundary: typeof ParentReviewActio
     boundary.includes('no Ocentra-hosted family data custody')
   );
 }
+

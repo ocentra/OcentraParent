@@ -23,6 +23,7 @@
   },
   "dependencies": {
     "@ocentra-parent/capability-domain": "file:../capability-domain",
+    "@ocentra-parent/event-domain": "file:../event-domain",
     "@ocentra-parent/family-domain": "file:../family-domain",
     "@ocentra-parent/schema-domain": "file:../schema-domain"
   }

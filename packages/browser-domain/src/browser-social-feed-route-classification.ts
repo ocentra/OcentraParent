@@ -1,4 +1,9 @@
-import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
+import {
+  type Infer,
+  Schema,
+  withParser,
+  brandedNonEmptyStringSchema
+} from '@ocentra-parent/schema-domain/effect';
 import { ActivityEvidenceIdSchema, ActivityTimestampSchema } from '@ocentra-parent/evidence-domain/primitives';
 import {
   BrowserSocialPlatformSchema,
@@ -7,8 +12,6 @@ import {
   BrowserSocialRouteEvidenceSchema,
   BrowserSocialRouteKindSchema,
 } from './browser-social-platform-route-schemas';
-
-const NonEmptySocialFeedRouteText = Schema.String.pipe(Schema.minLength(1));
 const SocialFeedRouteSourceEvidenceIdsSchema = Schema.Array(ActivityEvidenceIdSchema).pipe(
   Schema.filter((value) => value.length > 0 || 'Expected social feed route source evidence ids')
 );
@@ -16,7 +19,7 @@ const SocialFeedRouteSourceEvidenceIdsSchema = Schema.Array(ActivityEvidenceIdSc
 export const BrowserSocialFeedRouteSchemaVersion = 1;
 
 export const BrowserSocialFeedRouteClassificationIdSchema = withParser(
-  NonEmptySocialFeedRouteText.pipe(Schema.brand('BrowserSocialFeedRouteClassificationId'))
+  brandedNonEmptyStringSchema('BrowserSocialFeedRouteClassificationId')
 );
 
 export const BrowserSocialFeedSurfaceHintSchema = withParser(
@@ -180,3 +183,4 @@ function surfaceKindForHint(value: BrowserSocialFeedSurfaceHint): BrowserSocialF
   }
   return 'dynamic-feed';
 }
+

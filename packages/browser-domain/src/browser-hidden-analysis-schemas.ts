@@ -1,22 +1,26 @@
-import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
+import {
+  type Infer,
+  Schema,
+  withParser,
+  brandedNonEmptyStringSchema,
+  NonEmptyStringSchema
+} from '@ocentra-parent/schema-domain/effect';
 import { ActivityEvidenceIdSchema, ActivityTimestampSchema } from '@ocentra-parent/evidence-domain/primitives';
 import { BrowserUrlShapeClassificationIdSchema } from './browser-url-intelligence-schemas';
 
 export const BrowserHiddenAnalysisSchemaVersion = 1;
-
-const NonEmptyBrowserHiddenAnalysisText = Schema.String.pipe(Schema.minLength(1));
-const OptionalHiddenAnalysisTextSchema = Schema.Union(NonEmptyBrowserHiddenAnalysisText, Schema.Null);
+const OptionalHiddenAnalysisTextSchema = Schema.Union(NonEmptyStringSchema, Schema.Null);
 const PositiveHiddenAnalysisIntegerSchema = Schema.Number.pipe(
   Schema.int(),
   Schema.filter((value) => value > 0 || 'Expected a positive hidden analysis integer')
 );
 
 export const BrowserHiddenAnalysisProfileDesignIdSchema = withParser(
-  NonEmptyBrowserHiddenAnalysisText.pipe(Schema.brand('BrowserHiddenAnalysisProfileDesignId'))
+  brandedNonEmptyStringSchema('BrowserHiddenAnalysisProfileDesignId')
 );
 
 export const BrowserHiddenAnalysisProfileIdSchema = withParser(
-  NonEmptyBrowserHiddenAnalysisText.pipe(Schema.brand('BrowserHiddenAnalysisProfileId'))
+  brandedNonEmptyStringSchema('BrowserHiddenAnalysisProfileId')
 );
 
 export const BrowserHiddenAnalysisStateSchema = withParser(
@@ -137,3 +141,4 @@ function hiddenAnalysisProfileSafetyIsInvalid(value: Infer<typeof BrowserHiddenA
     !value.boundedRetention
   );
 }
+

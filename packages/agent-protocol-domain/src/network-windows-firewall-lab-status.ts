@@ -1,8 +1,7 @@
-import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
+import { type Infer, NonEmptyStringSchema, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
 import { AgentEvent, isAgentProtocolLogText, type AgentEventEnvelope } from './contracts';
 import { AgentProtocolDefaults } from './defaults';
 
-const WindowsFirewallText = Schema.String.pipe(Schema.minLength(1));
 const WindowsFirewallCount = Schema.Number.pipe(Schema.nonNegative(), Schema.int());
 const WindowsFirewallRefs = AgentProtocolDefaults.NetworkWindowsFirewallLabStatus;
 
@@ -16,24 +15,24 @@ export const AgentNetworkWindowsFirewallLabCommandKindSchema = withParser(
 
 const AgentNetworkWindowsFirewallLabCommandRowSchema = Schema.Struct({
   kind: AgentNetworkWindowsFirewallLabCommandKindSchema,
-  commandRef: WindowsFirewallText,
+  commandRef: NonEmptyStringSchema,
   exitStatus: Schema.Number.pipe(Schema.int()),
-  outputSha256: WindowsFirewallText,
+  outputSha256: NonEmptyStringSchema,
   rulePresentAfterCommand: Schema.Boolean,
 });
 
 const AgentNetworkWindowsFirewallLabStatusFields = Schema.Struct({
-  statusRef: WindowsFirewallText,
-  labRef: WindowsFirewallText,
-  firewallAdapterPlanRef: WindowsFirewallText,
-  policyDecisionRef: WindowsFirewallText,
-  parentRuleRef: WindowsFirewallText,
-  evidenceRefs: Schema.Array(WindowsFirewallText),
-  windowsOsScopeRef: WindowsFirewallText,
-  targetRef: WindowsFirewallText,
-  firewallRuleRef: WindowsFirewallText,
-  ruleName: WindowsFirewallText,
-  targetRemoteAddress: WindowsFirewallText,
+  statusRef: NonEmptyStringSchema,
+  labRef: NonEmptyStringSchema,
+  firewallAdapterPlanRef: NonEmptyStringSchema,
+  policyDecisionRef: NonEmptyStringSchema,
+  parentRuleRef: NonEmptyStringSchema,
+  evidenceRefs: Schema.Array(NonEmptyStringSchema),
+  windowsOsScopeRef: NonEmptyStringSchema,
+  targetRef: NonEmptyStringSchema,
+  firewallRuleRef: NonEmptyStringSchema,
+  ruleName: NonEmptyStringSchema,
+  targetRemoteAddress: NonEmptyStringSchema,
   state: AgentNetworkWindowsFirewallLabStateSchema,
   windowsHostObserved: Schema.Boolean,
   administratorPermissionObserved: Schema.Boolean,
@@ -70,7 +69,8 @@ export const AgentNetworkWindowsFirewallLabStatusSchema = withParser(
           executionShapeMatches(status) &&
           commandCountsMatch(status) &&
           commandEvidenceMatches(status)) ||
-        'Network Windows firewall lab status must preserve row38a refs, four command rows, rollback verification, and no production/content/enforcement claims'
+        'Network Windows firewall lab status must preserve row38a refs, four command rows, rollback ' +
+          'verification, and no production/content/enforcement claims'
     )
   )
 );

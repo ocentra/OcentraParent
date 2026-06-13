@@ -17,7 +17,7 @@ import {
   parseAgentAppGameAdapterDispatchExecuteEvent,
   parseAgentAppGameAdapterDispatchResultEvent,
 } from '../../src/app-game-adapter-dispatch-result';
-import { AgentEvent, type AgentEventEnvelope } from '../../src/contracts';
+import { AgentCommand, AgentEvent, type AgentEventEnvelope } from '../../src/contracts';
 import { AgentProtocolSchemaVersion } from '../../src/primitives';
 
 const Source = {
@@ -34,7 +34,7 @@ const DispatchResultReadModel = {
   schemaVersion: AppGameSchemaVersion,
   readModelId: 'app-game-adapter-dispatch-result',
   generatedAt: '2026-06-08T10:44:00.000Z',
-  sourceReadModelIds: ['app-game-adapter-dispatch-preflight', 'agent.enforcement.execute'],
+  sourceReadModelIds: ['app-game-adapter-dispatch-preflight', AgentCommand.EnforcementExecute],
   custodyLabel: 'adapter-dispatch-preflight-and-enforcement-command-result',
   capabilityStatus: 'app-game-adapter-dispatch-command-result-partial',
   returned: 2,
@@ -68,8 +68,8 @@ const DispatchResultReadModel = {
       dispatchOutcomeState: AgentAppGameAdapterDispatchOutcomeState.DispatchReady,
       dispatchCommandResultState: AgentAppGameAdapterDispatchCommandResultState.CommandAccepted,
       dispatchCommandResultDecision: AgentAppGameAdapterDispatchCommandResultDecision.CommandAccepted,
-      enforcementCommandName: 'agent.enforcement.execute',
-      enforcementEventName: 'agent.enforcement.audit.reported',
+      enforcementCommandName: AgentCommand.EnforcementExecute,
+      enforcementEventName: AgentEvent.EnforcementAuditReported,
       enforcementActionMode: 'terminate-process',
       dispatchCommandResultId: 'app-game-dispatch-command-result-owned-process-time-limit',
       dispatchCommandAuditRefs: ['audit-owned-process-dispatch-command-accepted'],
@@ -86,8 +86,7 @@ const DispatchResultReadModel = {
       dispatchAdapterExecutionAuditEventId: 'enforcement-audit-app-game-owned-process',
       dispatchAdapterExecutionRefs: ['adapter-execution-audit-enforcement-audit-app-game-owned-process'],
       manualProofRequirements: [],
-      claimBoundary:
-        'Dispatch command-result is limited to scoped Windows owned-process app/game time-limit rows and reuses agent.enforcement.execute.',
+      claimBoundary: `Dispatch command-result is limited to scoped Windows owned-process app/game time-limit rows and reuses ${AgentCommand.EnforcementExecute}.`,
       fallbackBehavior: 'Rows without scoped process/session identity stay blocked before dispatch command handoff.',
       adapterDispatchCommandResultClaimed: true,
       adapterDispatchExecutedClaimed: true,
@@ -155,13 +154,13 @@ const DispatchExecuteResult = {
   sourceReadModelId: 'app-game-adapter-dispatch-result',
   sourceDispatchRowId: 'app-game-adapter-dispatch-result-windows-app-game-owned-process-time-limit',
   sourceProofEntryId: 'windows-app-game-owned-process-time-limit',
-  executionCommandName: 'agent.enforcement.execute',
-  executionEventName: 'agent.enforcement.audit.reported',
+  executionCommandName: AgentCommand.EnforcementExecute,
+  executionEventName: AgentEvent.EnforcementAuditReported,
   executionResultId: 'enforcement-result-app-game-owned-process',
   executionStatus: 'actually-enforced',
   executionAdapterResultCode: 'process-already-exited',
   executionAuditEventId: 'enforcement-audit-app-game-owned-process',
-  readbackCommandName: 'agent.activity.app-game.adapter-dispatch-result.read-model.get',
+  readbackCommandName: AgentCommand.ActivityAppGameAdapterDispatchResultReadModelGet,
   adapterDispatchExecutedClaimed: true,
   broadInstalledAppBlockingClaimed: false,
   childDeviceDeliveryClaimed: false,
@@ -178,8 +177,8 @@ function unsafeBroadDispatchResultReadModel() {
         ...DispatchResultReadModel.rows[1],
         dispatchCommandResultState: AgentAppGameAdapterDispatchCommandResultState.CommandAccepted,
         dispatchCommandResultDecision: AgentAppGameAdapterDispatchCommandResultDecision.CommandAccepted,
-        enforcementCommandName: 'agent.enforcement.execute',
-        enforcementEventName: 'agent.enforcement.audit.reported',
+        enforcementCommandName: AgentCommand.EnforcementExecute,
+        enforcementEventName: AgentEvent.EnforcementAuditReported,
         enforcementActionMode: 'terminate-process',
         dispatchCommandResultId: 'unsafe-broad-app-command-result',
         dispatchCommandAuditRefs: ['unsafe-audit-ref'],

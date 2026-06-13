@@ -1,9 +1,12 @@
-import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
+import {
+  type Infer,
+  Schema,
+  withParser,
+  brandedNonEmptyStringSchema
+} from '@ocentra-parent/schema-domain/effect';
 import { AppInstallPurchaseParentReviewActionProofReadModel } from './app-install-purchase-parent-review-action-proof';
 import { AppInstallPurchasePlatformAdapterBoundaryProofReadModel } from './app-install-purchase-platform-adapter-boundary-proof';
 import { ParentTimestampSchema } from '@ocentra-parent/family-domain/reference-primitives';
-
-const ParentActionRuntimeHandoffText = Schema.String.pipe(Schema.minLength(1));
 const ParentActionRuntimeHandoffVersion = 'app-install-purchase-parent-action-runtime-handoff-proof';
 const SourceParentReviewActionProofVersion = 'app-install-purchase-parent-review-action-proof';
 const SourcePlatformAdapterBoundaryProofVersion = 'app-install-purchase-platform-adapter-boundary-proof';
@@ -64,18 +67,10 @@ const AppInstallPurchaseParentActionRuntimeHandoffNonClaimSchema = withParser(
   Schema.Literal(...RequiredParentActionRuntimeHandoffNonClaims)
 );
 
-const ParentActionRuntimeHandoffRowIdSchema = ParentActionRuntimeHandoffText.pipe(
-  Schema.brand('AppInstallPurchaseParentActionRuntimeHandoffRowId')
-);
-const ParentActionRuntimeHandoffRefSchema = ParentActionRuntimeHandoffText.pipe(
-  Schema.brand('AppInstallPurchaseParentActionRuntimeHandoffRef')
-);
-const ParentActionRuntimeHandoffAuditRefSchema = ParentActionRuntimeHandoffText.pipe(
-  Schema.brand('AppInstallPurchaseParentActionRuntimeHandoffAuditRef')
-);
-const ParentActionRuntimeHandoffClaimBoundarySchema = ParentActionRuntimeHandoffText.pipe(
-  Schema.brand('AppInstallPurchaseParentActionRuntimeHandoffClaimBoundary')
-);
+const ParentActionRuntimeHandoffRowIdSchema = brandedNonEmptyStringSchema('AppInstallPurchaseParentActionRuntimeHandoffRowId');
+const ParentActionRuntimeHandoffRefSchema = brandedNonEmptyStringSchema('AppInstallPurchaseParentActionRuntimeHandoffRef');
+const ParentActionRuntimeHandoffAuditRefSchema = brandedNonEmptyStringSchema('AppInstallPurchaseParentActionRuntimeHandoffAuditRef');
+const ParentActionRuntimeHandoffClaimBoundarySchema = brandedNonEmptyStringSchema('AppInstallPurchaseParentActionRuntimeHandoffClaimBoundary');
 
 const ParentActionRuntimeHandoffRowBaseSchema = Schema.Struct({
   schemaVersion: AppInstallPurchaseParentActionRuntimeHandoffProofSchemaVersionSchema,
@@ -289,3 +284,4 @@ function parentActionRuntimeHandoffBoundaryIsExplicit(
 ): boolean {
   return RequiredParentActionRuntimeHandoffBoundaryFragments.every((fragment) => boundary.includes(fragment));
 }
+

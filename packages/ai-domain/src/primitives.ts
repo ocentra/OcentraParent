@@ -1,20 +1,23 @@
-import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
+import {
+  type Infer,
+  Schema,
+  withParser,
+  brandedNonEmptyStringSchema
+} from '@ocentra-parent/schema-domain/effect';
 
-const NonEmptyAiText = Schema.String.pipe(Schema.minLength(1));
-
-export const LocalAiEvaluationRequestIdSchema = NonEmptyAiText.pipe(Schema.brand('LocalAiEvaluationRequestId'));
-export const LocalAiResultIdSchema = NonEmptyAiText.pipe(Schema.brand('LocalAiResultId'));
-export const LocalAiPromptVersionSchema = NonEmptyAiText.pipe(Schema.brand('LocalAiPromptVersion'));
-export const LocalAiModelIdSchema = NonEmptyAiText.pipe(Schema.brand('LocalAiModelId'));
-export const LocalAiProviderIdSchema = NonEmptyAiText.pipe(Schema.brand('LocalAiProviderId'));
-export const LocalAiModelReferenceSchema = NonEmptyAiText.pipe(Schema.brand('LocalAiModelReference'));
-export const LocalAiExplanationReferenceSchema = NonEmptyAiText.pipe(Schema.brand('LocalAiExplanationReference'));
-export const LocalAiMemoryReferenceIdSchema = NonEmptyAiText.pipe(Schema.brand('LocalAiMemoryReferenceId'));
-export const LocalAiGraphReferenceIdSchema = NonEmptyAiText.pipe(Schema.brand('LocalAiGraphReferenceId'));
-export const LocalAiRuntimeReferenceIdSchema = NonEmptyAiText.pipe(Schema.brand('LocalAiRuntimeReferenceId'));
-export const LocalAiTimestampSchema = NonEmptyAiText.pipe(Schema.brand('AiTimestamp'));
-export const LocalAiDerivedIndexVersionSchema = NonEmptyAiText.pipe(Schema.brand('LocalAiDerivedIndexVersion'));
-export const LocalAiUnavailableReasonSchema = NonEmptyAiText.pipe(Schema.brand('LocalAiUnavailableReason'));
+export const LocalAiEvaluationRequestIdSchema = brandedNonEmptyStringSchema('LocalAiEvaluationRequestId');
+export const LocalAiResultIdSchema = brandedNonEmptyStringSchema('LocalAiResultId');
+export const LocalAiPromptVersionSchema = brandedNonEmptyStringSchema('LocalAiPromptVersion');
+export const LocalAiModelIdSchema = brandedNonEmptyStringSchema('LocalAiModelId');
+export const LocalAiProviderIdSchema = brandedNonEmptyStringSchema('LocalAiProviderId');
+export const LocalAiModelReferenceSchema = brandedNonEmptyStringSchema('LocalAiModelReference');
+export const LocalAiExplanationReferenceSchema = brandedNonEmptyStringSchema('LocalAiExplanationReference');
+export const LocalAiMemoryReferenceIdSchema = brandedNonEmptyStringSchema('LocalAiMemoryReferenceId');
+export const LocalAiGraphReferenceIdSchema = brandedNonEmptyStringSchema('LocalAiGraphReferenceId');
+export const LocalAiRuntimeReferenceIdSchema = brandedNonEmptyStringSchema('LocalAiRuntimeReferenceId');
+export const LocalAiTimestampSchema = brandedNonEmptyStringSchema('AiTimestamp');
+export const LocalAiDerivedIndexVersionSchema = brandedNonEmptyStringSchema('LocalAiDerivedIndexVersion');
+export const LocalAiUnavailableReasonSchema = brandedNonEmptyStringSchema('LocalAiUnavailableReason');
 export const LocalAiConfidenceSchema = Schema.Number.pipe(Schema.between(0, 1));
 
 export const LocalAiContextKindSchema = withParser(
@@ -80,3 +83,4 @@ export const LocalAiUnknownState = {
   ModelUnavailable: LocalAiUnknownStateSchema.parse('model-unavailable'),
   PolicyConflict: LocalAiUnknownStateSchema.parse('policy-conflict'),
 } as const;
+

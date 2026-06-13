@@ -19,12 +19,13 @@ await Promise.all([
 ]);
 
 runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/activity-domain']));
+runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/screen-domain']));
 runCommand(
   ...npmCommand([
     'run',
     'test',
     '--workspace',
-    '@ocentra-parent/activity-domain',
+    '@ocentra-parent/screen-domain',
     '--',
     'screen-vlm-journal-read-model',
   ])
@@ -239,12 +240,13 @@ const summary = {
     custodyState: row.custodyState,
     evidenceKinds: row.evidence.map((ref) => ref.kind),
   })),
-  assertions,
-  validationCommands: [
-    'npm run build --workspace @ocentra-parent/activity-domain',
-    'npm run test --workspace @ocentra-parent/activity-domain -- screen-vlm-journal-read-model',
-    'node scripts/test/screen-ai-vlm-journal-read-model-proof.mjs',
-  ],
+    assertions,
+    validationCommands: [
+      'npm run build --workspace @ocentra-parent/activity-domain',
+      'npm run build --workspace @ocentra-parent/screen-domain',
+      'npm run test --workspace @ocentra-parent/screen-domain -- screen-vlm-journal-read-model',
+      'node scripts/test/screen-ai-vlm-journal-read-model-proof.mjs',
+    ],
   nonClaims: [
     'This proof uses schema-backed VLM readiness status rows; it does not execute a live VLM model.',
     'It proves encrypted journal and Activity Screen read-model projection only; it does not render production portal UI.',

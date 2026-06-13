@@ -1,4 +1,9 @@
-import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
+import {
+  type Infer,
+  Schema,
+  withParser,
+  brandedNonEmptyStringSchema
+} from '@ocentra-parent/schema-domain/effect';
 import {
   AppGameChildDeviceRuntimeWriterReadModelSchema,
   AppGameChildDeviceRuntimeWriterState,
@@ -11,8 +16,6 @@ import {
   ParentTimestampSchema,
 } from '@ocentra-parent/family-domain/reference-primitives';
 import { FamilyReferenceSchema } from '@ocentra-parent/family-domain/references';
-
-const ChildRuntimeTransportReceiptText = Schema.String.pipe(Schema.minLength(1));
 
 export const AppGameChildRuntimeTransportReceiptBoundaryState = {
   TransportRequired: 'child-runtime-transport-required',
@@ -46,12 +49,8 @@ export const RequiredAppGameChildRuntimeTransportReceiptBoundaryNonClaims = [
   'no-raw-private-source-rows',
 ] as const;
 
-const ChildRuntimeTransportReceiptBoundaryIdSchema = ChildRuntimeTransportReceiptText.pipe(
-  Schema.brand('AppGameChildRuntimeTransportReceiptBoundaryId')
-);
-const ChildRuntimeTransportReceiptBoundaryRefSchema = ChildRuntimeTransportReceiptText.pipe(
-  Schema.brand('AppGameChildRuntimeTransportReceiptBoundaryReference')
-);
+const ChildRuntimeTransportReceiptBoundaryIdSchema = brandedNonEmptyStringSchema('AppGameChildRuntimeTransportReceiptBoundaryId');
+const ChildRuntimeTransportReceiptBoundaryRefSchema = brandedNonEmptyStringSchema('AppGameChildRuntimeTransportReceiptBoundaryReference');
 
 const AppGameChildRuntimeTransportReceiptBoundaryRowBaseSchema = Schema.Struct({
   boundaryRowId: ChildRuntimeTransportReceiptBoundaryRefSchema,
@@ -258,3 +257,4 @@ function countRows(
 ): number {
   return rows.filter((row) => row.boundaryState === state).length;
 }
+

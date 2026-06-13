@@ -1,4 +1,8 @@
-import { Schema, withParser } from '@ocentra-parent/schema-domain/effect';
+import {
+  Schema,
+  withParser,
+  NonEmptyStringSchema
+} from '@ocentra-parent/schema-domain/effect';
 import {
   ChildProfileIdSchema,
   FamilyIdSchema,
@@ -38,7 +42,6 @@ import {
 import { TrackingPlatformProofRouteSchema } from './tracking-location-policy-platform-proof';
 const TrackingPolicyConfidenceSchema = Schema.Number.pipe(Schema.between(0, 1));
 const TrackingPolicyDurationSecondsSchema = Schema.Number.pipe(Schema.int(), Schema.nonNegative());
-const TrackingPolicyTextSchema = Schema.String.pipe(Schema.minLength(1));
 export const TrackingEvidenceTraceSchema = withParser(
   Schema.Struct({
     evidenceReferenceId: ParentEvidenceReferenceIdSchema,
@@ -201,7 +204,7 @@ export const TrackingEscalationChainSchema = withParser(
     state: TrackingEscalationStateSchema,
     startedAt: ParentTimestampSchema,
     nextActionAt: Schema.Union(ParentTimestampSchema, Schema.Null),
-    steps: Schema.Array(TrackingPolicyTextSchema),
+    steps: Schema.Array(NonEmptyStringSchema),
     auditRefs: Schema.Array(TrackingPolicyAuditRefSchema),
   })
 );
@@ -279,3 +282,4 @@ function trackingAcknowledgementPreservesCriticalAlerts(acknowledgement: {
 
   return true;
 }
+

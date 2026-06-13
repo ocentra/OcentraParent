@@ -1,7 +1,10 @@
-import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
+import {
+  type Infer,
+  Schema,
+  withParser,
+  brandedNonEmptyStringSchema
+} from '@ocentra-parent/schema-domain/effect';
 import { ParentTimestampSchema } from '@ocentra-parent/family-domain/reference-primitives';
-
-const AccessibilityRuntimeText = Schema.String.pipe(Schema.minLength(1));
 
 export const AppGameAndroidAccessibilityRuntimeProofSchemaVersionSchema = withParser(
   Schema.Literal('app-game-android-accessibility-runtime-proof')
@@ -42,9 +45,7 @@ export const AppGameAndroidAccessibilityRuntimeGapSchema = withParser(
   )
 );
 
-const AccessibilityRuntimeLabelSchema = AccessibilityRuntimeText.pipe(
-  Schema.brand('AppGameAndroidAccessibilityRuntimeProofLabel')
-);
+const AccessibilityRuntimeLabelSchema = brandedNonEmptyStringSchema('AppGameAndroidAccessibilityRuntimeProofLabel');
 
 const AppGameAndroidAccessibilityRuntimeProofBaseSchema = Schema.Struct({
   schemaVersion: AppGameAndroidAccessibilityRuntimeProofSchemaVersionSchema,
@@ -209,3 +210,4 @@ function accessibilityRuntimeProofIsHonest(proof: AccessibilityRuntimeCandidate)
     !proof.childDeviceDeliveryClaimed
   );
 }
+

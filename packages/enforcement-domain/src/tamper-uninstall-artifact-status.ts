@@ -1,14 +1,17 @@
-import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
+import {
+  type Infer,
+  Schema,
+  withParser,
+  NonEmptyStringSchema
+} from '@ocentra-parent/schema-domain/effect';
 import {
   ParentControlCapabilityNameSchema,
   ParentControlCapabilityStatusSchema,
   ParentControlPlatformSchema,
-} from './capabilities';
+} from '@ocentra-parent/capability-domain/capabilities';
 import { ParentContractSchemaVersionSchema, ParentTimestampSchema } from '@ocentra-parent/family-domain/reference-primitives';
-
-const NonEmptyTamperUninstallArtifactText = Schema.String.pipe(Schema.minLength(1));
 const tamperUninstallArtifactText = <Brand extends string>(brand: Brand) =>
-  NonEmptyTamperUninstallArtifactText.pipe(Schema.brand(brand));
+  NonEmptyStringSchema.pipe(Schema.brand(brand));
 
 export const TamperUninstallArtifactStatusReadModelIdSchema = tamperUninstallArtifactText(
   'TamperUninstallArtifactStatusReadModelId'
@@ -176,3 +179,4 @@ export const decodeTamperUninstallArtifactStatusEntry = Schema.decodeUnknownSync
 export const decodeTamperUninstallArtifactStatusReadModel = Schema.decodeUnknownSync(
   TamperUninstallArtifactStatusReadModelSchema
 );
+

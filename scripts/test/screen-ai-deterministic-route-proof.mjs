@@ -7,11 +7,11 @@ const outputRoot = resolve(repoRoot, 'output', 'screen-ai-pipeline-proof', 'dete
 const artifactSummaryPath = join(outputRoot, 'proof-summary.json');
 
 await mkdir(outputRoot, { recursive: true });
-runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/activity-domain']));
+runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/screen-domain']));
 runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/parent-domain']));
 
 const { ScreenAnalysisResultSchema, ScreenEvidenceSchemaVersion } =
-  await import('../../packages/activity-domain/dist/screen-evidence.js');
+  await import('../../packages/screen-domain/dist/screen-evidence.js');
 const { PolicyDecisionHandoffState, PolicyDecisionSchema } =
   await import('../../packages/parent-domain/dist/policy.js');
 

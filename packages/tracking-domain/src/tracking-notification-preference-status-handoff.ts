@@ -1,4 +1,10 @@
-import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
+import {
+  type Infer,
+  Schema,
+  withParser,
+  brandedNonEmptyStringSchema,
+  NonEmptyStringSchema
+} from '@ocentra-parent/schema-domain/effect';
 import {
   ParentContractSchemaVersion,
   ParentContractSchemaVersionSchema,
@@ -21,9 +27,7 @@ import {
   type V3NotificationProviderChannel,
   type V3NotificationQuietHoursDecision,
   type V3NotificationRuleReasonCode,
-} from './v3-notification-rule-provider-retry-contract';
-
-const TrackingPreferenceStatusHandoffText = Schema.String.pipe(Schema.minLength(1));
+} from '@ocentra-parent/notification-domain/v3-notification-rule-provider-retry-contract';
 
 export const RequiredTrackingNotificationPreferenceStatusHandoffNonClaims = [
   'no-parent-notification-preference-ui',
@@ -45,12 +49,8 @@ export const RequiredTrackingNotificationPreferenceStatusHandoffNonClaims = [
 export const TrackingNotificationPreferenceStatusHandoffNonClaimSchema = withParser(
   Schema.Literal(...RequiredTrackingNotificationPreferenceStatusHandoffNonClaims)
 );
-export const TrackingNotificationPreferenceStatusHandoffIdSchema = TrackingPreferenceStatusHandoffText.pipe(
-  Schema.brand('TrackingNotificationPreferenceStatusHandoffId')
-);
-export const TrackingNotificationPreferenceStatusHandoffReferenceSchema = TrackingPreferenceStatusHandoffText.pipe(
-  Schema.brand('TrackingNotificationPreferenceStatusHandoffReference')
-);
+export const TrackingNotificationPreferenceStatusHandoffIdSchema = brandedNonEmptyStringSchema('TrackingNotificationPreferenceStatusHandoffId');
+export const TrackingNotificationPreferenceStatusHandoffReferenceSchema = brandedNonEmptyStringSchema('TrackingNotificationPreferenceStatusHandoffReference');
 
 const TrackingNotificationPreferenceStatusHandoffRowBaseSchema = Schema.Struct({
   handoffRowId: TrackingNotificationPreferenceStatusHandoffReferenceSchema,
@@ -61,8 +61,8 @@ const TrackingNotificationPreferenceStatusHandoffRowBaseSchema = Schema.Struct({
   sourceProviderAttemptRef: Schema.Union(TrackingNotificationPreferenceStatusHandoffReferenceSchema, Schema.Null),
   sourcePolicyDecisionId: TrackingNotificationPreferenceStatusHandoffReferenceSchema,
   sourceReasonCodeRef: Schema.Union(TrackingNotificationPreferenceStatusHandoffReferenceSchema, Schema.Null),
-  sourceParentPreferenceState: Schema.Union(Schema.String.pipe(Schema.minLength(1)), Schema.Null),
-  sourceQuietHoursDecision: Schema.Union(Schema.String.pipe(Schema.minLength(1)), Schema.Null),
+  sourceParentPreferenceState: Schema.Union(NonEmptyStringSchema, Schema.Null),
+  sourceQuietHoursDecision: Schema.Union(NonEmptyStringSchema, Schema.Null),
   evidenceRefs: Schema.Array(TrackingNotificationPreferenceStatusHandoffReferenceSchema),
   providerPreferenceRefs: Schema.Array(TrackingNotificationPreferenceStatusHandoffReferenceSchema),
   parentPreferenceRequirementRefs: Schema.Array(TrackingNotificationPreferenceStatusHandoffReferenceSchema),
@@ -391,3 +391,5 @@ function countSourceStatus(
 ): number {
   return rows.filter((row) => row.sourcePreferenceStatus === status).length;
 }
+
+

@@ -1,4 +1,9 @@
-import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
+import {
+  type Infer,
+  Schema,
+  withParser,
+  brandedNonEmptyStringSchema
+} from '@ocentra-parent/schema-domain/effect';
 import {
   AppGamePolicyPreviewStatusSchema,
   AppGamePolicyPreviewTargetDomainSchema,
@@ -32,20 +37,10 @@ import {
 } from './app-game-source-gated-policy-preview-read-model-rules';
 import { ParentContractSchemaVersionSchema, ParentTimestampSchema } from '@ocentra-parent/family-domain/reference-primitives';
 
-const SourceGatedPolicyPreviewText = Schema.String.pipe(Schema.minLength(1));
-
-export const AppGameSourceGatedPolicyPreviewReadModelIdSchema = SourceGatedPolicyPreviewText.pipe(
-  Schema.brand('AppGameSourceGatedPolicyPreviewReadModelId')
-);
-export const AppGameSourceGatedPolicyPreviewReadModelRowIdSchema = SourceGatedPolicyPreviewText.pipe(
-  Schema.brand('AppGameSourceGatedPolicyPreviewReadModelRowId')
-);
-export const AppGameSourceGatedPolicyPreviewReadModelContractRefSchema = SourceGatedPolicyPreviewText.pipe(
-  Schema.brand('AppGameSourceGatedPolicyPreviewReadModelContractRef')
-);
-export const AppGameSourceGatedPolicyPreviewDecisionRefSchema = SourceGatedPolicyPreviewText.pipe(
-  Schema.brand('AppGameSourceGatedPolicyPreviewDecisionRef')
-);
+export const AppGameSourceGatedPolicyPreviewReadModelIdSchema = brandedNonEmptyStringSchema('AppGameSourceGatedPolicyPreviewReadModelId');
+export const AppGameSourceGatedPolicyPreviewReadModelRowIdSchema = brandedNonEmptyStringSchema('AppGameSourceGatedPolicyPreviewReadModelRowId');
+export const AppGameSourceGatedPolicyPreviewReadModelContractRefSchema = brandedNonEmptyStringSchema('AppGameSourceGatedPolicyPreviewReadModelContractRef');
+export const AppGameSourceGatedPolicyPreviewDecisionRefSchema = brandedNonEmptyStringSchema('AppGameSourceGatedPolicyPreviewDecisionRef');
 
 export const AppGameSourceGatedPolicyPreviewReadModelProjectionStateSchema = withParser(
   Schema.Literal(...Object.values(AppGameSourceGatedPolicyPreviewReadModelProjectionState))
@@ -244,3 +239,4 @@ export {
   AppGameSourceGatedPolicyPreviewReadModelProjectionState,
   AppGameSourceGatedPolicyPreviewReadModelSensitiveBoundary,
 };
+

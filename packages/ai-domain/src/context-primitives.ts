@@ -1,19 +1,18 @@
-import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
-
-const LocalAiContextText = Schema.String.pipe(Schema.minLength(1));
+import {
+  type Infer,
+  Schema,
+  withParser,
+  brandedNonEmptyStringSchema
+} from '@ocentra-parent/schema-domain/effect';
 
 export const LocalAiContextNonNegativeCountSchema = Schema.Number.pipe(Schema.nonNegative(), Schema.int());
-export const LocalAiEvidenceContextIdSchema = LocalAiContextText.pipe(Schema.brand('LocalAiEvidenceContextId'));
-export const LocalAiEvidenceContextRefIdSchema = LocalAiContextText.pipe(Schema.brand('LocalAiEvidenceContextRefId'));
-export const LocalAiParentRuleContextRefIdSchema = LocalAiContextText.pipe(
-  Schema.brand('LocalAiParentRuleContextRefId')
-);
-export const LocalAiEvidenceSourceIdSchema = LocalAiContextText.pipe(Schema.brand('LocalAiEvidenceSourceId'));
-export const LocalAiEvidenceAdapterIdSchema = LocalAiContextText.pipe(Schema.brand('LocalAiEvidenceAdapterId'));
-export const LocalAiEvidenceContextSummarySchema = LocalAiContextText.pipe(
-  Schema.brand('LocalAiEvidenceContextSummary')
-);
-export const LocalAiRejectedFieldSchema = LocalAiContextText.pipe(Schema.brand('LocalAiRejectedField'));
+export const LocalAiEvidenceContextIdSchema = brandedNonEmptyStringSchema('LocalAiEvidenceContextId');
+export const LocalAiEvidenceContextRefIdSchema = brandedNonEmptyStringSchema('LocalAiEvidenceContextRefId');
+export const LocalAiParentRuleContextRefIdSchema = brandedNonEmptyStringSchema('LocalAiParentRuleContextRefId');
+export const LocalAiEvidenceSourceIdSchema = brandedNonEmptyStringSchema('LocalAiEvidenceSourceId');
+export const LocalAiEvidenceAdapterIdSchema = brandedNonEmptyStringSchema('LocalAiEvidenceAdapterId');
+export const LocalAiEvidenceContextSummarySchema = brandedNonEmptyStringSchema('LocalAiEvidenceContextSummary');
+export const LocalAiRejectedFieldSchema = brandedNonEmptyStringSchema('LocalAiRejectedField');
 
 export const LocalAiRequestedEvaluationKindSchema = withParser(
   Schema.Literal(
@@ -125,3 +124,4 @@ export type LocalAiConfidenceKind = Infer<typeof LocalAiConfidenceKindSchema>;
 export type LocalAiContextCapabilityStatus = Infer<typeof LocalAiContextCapabilityStatusSchema>;
 export type LocalAiContextReasonCode = Infer<typeof LocalAiContextReasonCodeSchema>;
 export type LocalAiContextBuildState = Infer<typeof LocalAiContextBuildStateSchema>;
+

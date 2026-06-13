@@ -1,4 +1,9 @@
-import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
+import {
+  type Infer,
+  Schema,
+  withParser,
+  brandedNonEmptyStringSchema
+} from '@ocentra-parent/schema-domain/effect';
 import {
   ParentContractSchemaVersion,
   ParentContractSchemaVersionSchema,
@@ -12,25 +17,13 @@ import {
 import {
   V08NotificationProviderStatusBoundaryReadModel,
   V08NotificationProviderStatusBoundaryReadModelSchema,
-} from './v0-8-notification-provider-status-boundary';
+} from '@ocentra-parent/notification-domain/v0-8-notification-provider-status-boundary';
 
-const NonEmptyIntegrityAuditText = Schema.String.pipe(Schema.minLength(1));
-
-export const V08EnforcementIntegrityRuntimeAuditReadModelIdSchema = NonEmptyIntegrityAuditText.pipe(
-  Schema.brand('V08EnforcementIntegrityRuntimeAuditReadModelId')
-);
-export const V08EnforcementIntegrityRuntimeAuditEntryIdSchema = NonEmptyIntegrityAuditText.pipe(
-  Schema.brand('V08EnforcementIntegrityRuntimeAuditEntryId')
-);
-export const V08EnforcementIntegrityRuntimeAuditReferenceSchema = NonEmptyIntegrityAuditText.pipe(
-  Schema.brand('V08EnforcementIntegrityRuntimeAuditReference')
-);
-export const V08EnforcementIntegrityRuntimeAuditRequirementSchema = NonEmptyIntegrityAuditText.pipe(
-  Schema.brand('V08EnforcementIntegrityRuntimeAuditRequirement')
-);
-export const V08EnforcementIntegrityRuntimeAuditBoundarySchema = NonEmptyIntegrityAuditText.pipe(
-  Schema.brand('V08EnforcementIntegrityRuntimeAuditBoundary')
-);
+export const V08EnforcementIntegrityRuntimeAuditReadModelIdSchema = brandedNonEmptyStringSchema('V08EnforcementIntegrityRuntimeAuditReadModelId');
+export const V08EnforcementIntegrityRuntimeAuditEntryIdSchema = brandedNonEmptyStringSchema('V08EnforcementIntegrityRuntimeAuditEntryId');
+export const V08EnforcementIntegrityRuntimeAuditReferenceSchema = brandedNonEmptyStringSchema('V08EnforcementIntegrityRuntimeAuditReference');
+export const V08EnforcementIntegrityRuntimeAuditRequirementSchema = brandedNonEmptyStringSchema('V08EnforcementIntegrityRuntimeAuditRequirement');
+export const V08EnforcementIntegrityRuntimeAuditBoundarySchema = brandedNonEmptyStringSchema('V08EnforcementIntegrityRuntimeAuditBoundary');
 
 export const V08EnforcementIntegrityRuntimeAuditSurfaceSchema = withParser(
   Schema.Literal(
@@ -694,3 +687,4 @@ export const decodeV08EnforcementIntegrityRuntimeAuditEntry = Schema.decodeUnkno
 export const decodeV08EnforcementIntegrityRuntimeAuditReadModel = Schema.decodeUnknownSync(
   V08EnforcementIntegrityRuntimeAuditReadModelSchema
 );
+

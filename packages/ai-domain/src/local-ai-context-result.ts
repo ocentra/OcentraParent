@@ -10,7 +10,7 @@ import {
   type LocalAiEvidenceContextValidationSummary,
   type LocalAiRejectedField,
   type LocalAiStoredEvidenceContextBuildInput,
-} from './local-ai-context';
+} from '@ocentra-parent/ai-domain/local-ai-context';
 import { refIdsForKind, uniqueCustodyLabels, uniqueReasonCodes } from './local-ai-context-selection';
 
 export interface LocalAiEvidenceContextBoundaryCounts {

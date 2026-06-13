@@ -1,10 +1,15 @@
-import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
+import {
+  type Infer,
+  Schema,
+  withParser,
+  brandedNonEmptyStringSchema
+} from '@ocentra-parent/schema-domain/effect';
 import {
   LocalAiRuntimeProviderProofReadModel,
   LocalAiRuntimeProviderProofReadModelSchema,
   type LocalAiRuntimeProviderProofEntry,
 } from './local-ai-runtime-provider-proof';
-import { LocalAiProviderSchedulerLifecycleSchema } from './local-ai-provider-scheduler';
+import { LocalAiProviderSchedulerLifecycleSchema } from '@ocentra-parent/ai-domain/local-ai-provider-scheduler';
 import {
   LocalAiDegradedStateSchema,
   LocalAiModelIdSchema,
@@ -19,25 +24,13 @@ import {
   ParentContractSchemaVersionSchema,
   ParentTimestampSchema,
 } from '@ocentra-parent/family-domain/reference-primitives';
-
-const NonEmptyRuntimeStatusText = Schema.String.pipe(Schema.minLength(1));
 const RuntimeStatusRowCountSchema = Schema.Number.pipe(Schema.nonNegative(), Schema.int());
 
-export const LocalAiRuntimeStatusSurfaceReadModelIdSchema = NonEmptyRuntimeStatusText.pipe(
-  Schema.brand('LocalAiRuntimeStatusSurfaceReadModelId')
-);
-export const LocalAiRuntimeStatusSurfaceRowIdSchema = NonEmptyRuntimeStatusText.pipe(
-  Schema.brand('LocalAiRuntimeStatusSurfaceRowId')
-);
-export const LocalAiRuntimeStatusSurfaceSourceRefSchema = NonEmptyRuntimeStatusText.pipe(
-  Schema.brand('LocalAiRuntimeStatusSurfaceSourceRef')
-);
-export const LocalAiRuntimeStatusSurfaceLabelSchema = NonEmptyRuntimeStatusText.pipe(
-  Schema.brand('LocalAiRuntimeStatusSurfaceLabel')
-);
-export const LocalAiRuntimeStatusSurfaceNonClaimSchema = NonEmptyRuntimeStatusText.pipe(
-  Schema.brand('LocalAiRuntimeStatusSurfaceNonClaim')
-);
+export const LocalAiRuntimeStatusSurfaceReadModelIdSchema = brandedNonEmptyStringSchema('LocalAiRuntimeStatusSurfaceReadModelId');
+export const LocalAiRuntimeStatusSurfaceRowIdSchema = brandedNonEmptyStringSchema('LocalAiRuntimeStatusSurfaceRowId');
+export const LocalAiRuntimeStatusSurfaceSourceRefSchema = brandedNonEmptyStringSchema('LocalAiRuntimeStatusSurfaceSourceRef');
+export const LocalAiRuntimeStatusSurfaceLabelSchema = brandedNonEmptyStringSchema('LocalAiRuntimeStatusSurfaceLabel');
+export const LocalAiRuntimeStatusSurfaceNonClaimSchema = brandedNonEmptyStringSchema('LocalAiRuntimeStatusSurfaceNonClaim');
 
 export const LocalAiRuntimeStatusSurfaceStateSchema = withParser(
   Schema.Literal('ready-visible', 'queued-visible', 'degraded-visible', 'unavailable-visible', 'manual-setup-required')
@@ -273,3 +266,4 @@ export const decodeLocalAiRuntimeStatusSurfaceRow = Schema.decodeUnknownSync(Loc
 export const decodeLocalAiRuntimeStatusSurfaceReadModel = Schema.decodeUnknownSync(
   LocalAiRuntimeStatusSurfaceReadModelSchema
 );
+

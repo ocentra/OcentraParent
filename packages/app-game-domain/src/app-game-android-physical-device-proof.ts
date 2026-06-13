@@ -1,7 +1,10 @@
-import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
+import {
+  type Infer,
+  Schema,
+  withParser,
+  brandedNonEmptyStringSchema
+} from '@ocentra-parent/schema-domain/effect';
 import { ParentTimestampSchema } from '@ocentra-parent/family-domain/reference-primitives';
-
-const AndroidPhysicalProofText = Schema.String.pipe(Schema.minLength(1));
 
 export const AppGameAndroidPhysicalDeviceProofSchemaVersionSchema = withParser(
   Schema.Literal('app-game-android-physical-device-proof')
@@ -36,9 +39,7 @@ export const AppGameAndroidPhysicalDeviceProofRefSchema = withParser(
   )
 );
 
-const AndroidPhysicalDeviceLabelSchema = AndroidPhysicalProofText.pipe(
-  Schema.brand('AppGameAndroidPhysicalDeviceLabel')
-);
+const AndroidPhysicalDeviceLabelSchema = brandedNonEmptyStringSchema('AppGameAndroidPhysicalDeviceLabel');
 
 const AndroidPhysicalDeviceApiLevelSchema = Schema.Number.pipe(Schema.int(), Schema.greaterThanOrEqualTo(1));
 const AndroidPhysicalDevicePackageCountSchema = Schema.Number.pipe(Schema.int(), Schema.greaterThanOrEqualTo(1));
@@ -151,3 +152,4 @@ function androidUsageEventsProofIsHonest(proof: AppGameAndroidPhysicalDeviceProo
     proof.foregroundEvidenceObserved
   );
 }
+

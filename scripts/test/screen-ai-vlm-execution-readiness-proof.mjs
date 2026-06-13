@@ -18,13 +18,13 @@ await Promise.all([
   mkdir(testResultRoot, { recursive: true }),
 ]);
 
-runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/activity-domain']));
+runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/screen-domain']));
 runCommand(
   ...npmCommand([
     'run',
     'test',
     '--workspace',
-    '@ocentra-parent/activity-domain',
+    '@ocentra-parent/screen-domain',
     '--',
     'screen-vlm-execution-readiness',
   ])
@@ -215,8 +215,8 @@ const summary = {
   })),
   assertions,
   validationCommands: [
-    'npm run build --workspace @ocentra-parent/activity-domain',
-    'npm run test --workspace @ocentra-parent/activity-domain -- screen-vlm-execution-readiness',
+    'npm run build --workspace @ocentra-parent/screen-domain',
+    'npm run test --workspace @ocentra-parent/screen-domain -- screen-vlm-execution-readiness',
     'node scripts/test/screen-ai-vlm-execution-readiness-proof.mjs',
   ],
   nonClaims: [

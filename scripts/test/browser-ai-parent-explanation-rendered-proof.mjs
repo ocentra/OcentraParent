@@ -61,7 +61,7 @@ try {
   await mkdir(proofResultDir, { recursive: true });
   await runNpm(['run', 'build:contracts']);
   const proofBundle = await buildProofBundle();
-  await runNpmWorkspace('@ocentra-parent/activity-domain', [
+  await runNpmWorkspace('@ocentra-parent/browser-domain', [
     'run',
     'test',
     '--',

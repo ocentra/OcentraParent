@@ -1,11 +1,15 @@
 import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
-import { ActivityEventKindSchema, ActivityObserverSchema, ActivitySubjectKindSchema } from './kinds';
+import {
+  ActivityEventKindSchema,
+  ActivityObserverSchema,
+  ActivitySubjectKindSchema,
+} from '@ocentra-parent/evidence-domain/kinds';
 import {
   ActivityEventIdSchema,
   ActivitySubjectIdSchema,
   ActivitySubjectNameSchema,
   ActivityTimestampSchema,
-} from './primitives';
+} from '@ocentra-parent/evidence-domain/primitives';
 
 export const ActivityQuerySchemaVersion = 1;
 

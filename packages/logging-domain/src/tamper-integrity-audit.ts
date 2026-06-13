@@ -1,9 +1,12 @@
-import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
-
-const NonEmptyTamperIntegrityAuditText = Schema.String.pipe(Schema.minLength(1));
+import {
+  type Infer,
+  Schema,
+  withParser,
+  NonEmptyStringSchema
+} from '@ocentra-parent/schema-domain/effect';
 
 const tamperIntegrityAuditText = <Brand extends string>(brand: Brand) =>
-  NonEmptyTamperIntegrityAuditText.pipe(Schema.brand(brand));
+  NonEmptyStringSchema.pipe(Schema.brand(brand));
 export const TamperIntegrityAuditReadModelIdSchema = tamperIntegrityAuditText('TamperIntegrityAuditReadModelId');
 export const TamperIntegrityAuditEntryIdSchema = tamperIntegrityAuditText('TamperIntegrityAuditEntryId');
 export const TamperIntegrityAuditReferenceSchema = tamperIntegrityAuditText('TamperIntegrityAuditReference');
@@ -290,3 +293,4 @@ export type TamperIntegrityAuditReadModel = Infer<typeof TamperIntegrityAuditRea
 
 export const decodeTamperIntegrityAuditEntry = Schema.decodeUnknownSync(TamperIntegrityAuditEntrySchema);
 export const decodeTamperIntegrityAuditReadModel = Schema.decodeUnknownSync(TamperIntegrityAuditReadModelSchema);
+

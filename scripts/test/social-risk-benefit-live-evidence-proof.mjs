@@ -2,13 +2,13 @@ import { execFileSync } from 'node:child_process';
 import { existsSync, mkdirSync, readFileSync, statSync, writeFileSync } from 'node:fs';
 import { dirname, join, relative } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { BrowserSocialAiAnalysisResultSchema } from '../../packages/activity-domain/dist/browser-social-ai-analysis-schemas.js';
+import { BrowserSocialAiAnalysisResultSchema } from '../../packages/browser-domain/dist/browser-social-ai-analysis-schemas.js';
 import {
   BrowserSocialBenefitSignalSchema,
   BrowserSocialRiskBenefitSignalSetSchema,
   BrowserSocialRiskSignalSchema,
   buildBrowserSocialRiskBenefitSignalSet,
-} from '../../packages/activity-domain/dist/browser-social-riskbenefit-signals.js';
+} from '../../packages/browser-domain/dist/browser-social-riskbenefit-signals.js';
 
 const scriptDir = dirname(fileURLToPath(import.meta.url));
 const repoRoot = join(scriptDir, '..', '..');
@@ -19,12 +19,12 @@ const testResultPath = join(repoRoot, 'test-results/social-risk-benefit-live-evi
 const observedAt = new Date().toISOString();
 
 const sourceFiles = [
-  'packages/activity-domain/src/browser-social-riskbenefit-values.ts',
-  'packages/activity-domain/src/browser-social-riskbenefit-signals.ts',
+  'packages/browser-domain/src/browser-social-riskbenefit-values.ts',
+  'packages/browser-domain/src/browser-social-riskbenefit-signals.ts',
 ];
 const builtFiles = [
-  'packages/activity-domain/dist/browser-social-riskbenefit-values.js',
-  'packages/activity-domain/dist/browser-social-riskbenefit-signals.js',
+  'packages/browser-domain/dist/browser-social-riskbenefit-values.js',
+  'packages/browser-domain/dist/browser-social-riskbenefit-signals.js',
 ];
 
 assertBuiltContractsAreFresh();

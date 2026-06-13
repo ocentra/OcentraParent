@@ -1,9 +1,12 @@
-import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
-
-const NonEmptyBrowserChildUxText = Schema.String.pipe(Schema.minLength(1));
+import {
+  type Infer,
+  Schema,
+  withParser,
+  brandedNonEmptyStringSchema
+} from '@ocentra-parent/schema-domain/effect';
 
 export const BrowserAiChildUxSnapshotIdSchema = withParser(
-  NonEmptyBrowserChildUxText.pipe(Schema.brand('BrowserAiChildUxSnapshotId'))
+  brandedNonEmptyStringSchema('BrowserAiChildUxSnapshotId')
 );
 
 export const BrowserAiChildUxStateSchema = withParser(
@@ -61,3 +64,4 @@ export const BrowserAiChildUxTextToken = {
   Manual: BrowserAiChildUxTextTokenSchema.parse('browser.child.manual.title'),
   Unavailable: BrowserAiChildUxTextTokenSchema.parse('browser.child.unavailable.title'),
 } as const;
+

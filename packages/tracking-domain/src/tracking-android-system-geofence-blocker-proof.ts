@@ -1,18 +1,17 @@
-import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
+import {
+  type Infer,
+  Schema,
+  withParser,
+  brandedNonEmptyStringSchema
+} from '@ocentra-parent/schema-domain/effect';
 import { ParentTimestampSchema } from '@ocentra-parent/family-domain/reference-primitives';
 import { TrackingPolicyAuditRefSchema, TrackingPolicySchemaVersion } from './tracking-location-policy-primitives';
 import { TrackingRetentionSettingsProofRefSchema } from './tracking-retention-settings-read-model-proof';
-
-const TrackingAndroidSystemGeofenceTextSchema = Schema.String.pipe(Schema.minLength(1));
 const TrackingAndroidSystemGeofenceCounterSchema = Schema.Number.pipe(Schema.int(), Schema.nonNegative());
 
-export const TrackingAndroidSystemGeofenceProofIdSchema = TrackingAndroidSystemGeofenceTextSchema.pipe(
-  Schema.brand('TrackingAndroidSystemGeofenceProofId')
-);
+export const TrackingAndroidSystemGeofenceProofIdSchema = brandedNonEmptyStringSchema('TrackingAndroidSystemGeofenceProofId');
 
-export const TrackingAndroidSystemGeofenceArtifactRefSchema = TrackingAndroidSystemGeofenceTextSchema.pipe(
-  Schema.brand('TrackingAndroidSystemGeofenceArtifactRef')
-);
+export const TrackingAndroidSystemGeofenceArtifactRefSchema = brandedNonEmptyStringSchema('TrackingAndroidSystemGeofenceArtifactRef');
 
 export const TrackingAndroidSystemGeofenceBlockerSchema = Schema.Literal(
   'system-proximity-broadcast-counter-zero',
@@ -214,3 +213,4 @@ function numberFrom(value: unknown): number {
   }
   return value;
 }
+

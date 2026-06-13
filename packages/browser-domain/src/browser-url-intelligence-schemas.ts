@@ -1,18 +1,22 @@
-import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
+import {
+  type Infer,
+  Schema,
+  withParser,
+  brandedNonEmptyStringSchema,
+  NonEmptyStringSchema
+} from '@ocentra-parent/schema-domain/effect';
 import { ActivityEvidenceIdSchema, ActivityTimestampSchema } from '@ocentra-parent/evidence-domain/primitives';
 import { BrowserDomainSchema, BrowserPageTitleSchema, BrowserUrlSchema } from './browser-schemas';
 
 export const BrowserUrlShapeSchemaVersion = 1;
 export const BrowserUrlIntelligenceMemorySchemaVersion = 1;
 
-const NonEmptyBrowserUrlIntelligenceText = Schema.String.pipe(Schema.minLength(1));
-
 export const BrowserUrlShapeClassificationIdSchema = withParser(
-  NonEmptyBrowserUrlIntelligenceText.pipe(Schema.brand('BrowserUrlShapeClassificationId'))
+  brandedNonEmptyStringSchema('BrowserUrlShapeClassificationId')
 );
 
 export const BrowserUrlIntelligenceMemoryHitIdSchema = withParser(
-  NonEmptyBrowserUrlIntelligenceText.pipe(Schema.brand('BrowserUrlIntelligenceMemoryHitId'))
+  brandedNonEmptyStringSchema('BrowserUrlIntelligenceMemoryHitId')
 );
 
 export const BrowserUrlShapeSourceKindSchema = withParser(
@@ -131,7 +135,7 @@ export const BrowserUrlIntelligenceMemoryStaleReasonSchema = withParser(
   )
 );
 
-const OptionalShapeIdSchema = Schema.Union(NonEmptyBrowserUrlIntelligenceText, Schema.Null);
+const OptionalShapeIdSchema = Schema.Union(NonEmptyStringSchema, Schema.Null);
 
 export const BrowserUrlShapePlatformIdsSchema = Schema.Struct({
   videoId: OptionalShapeIdSchema,
@@ -141,11 +145,11 @@ export const BrowserUrlShapePlatformIdsSchema = Schema.Struct({
   query: OptionalShapeIdSchema,
 });
 
-const BrowserUrlIntelligenceMemoryRefSchema = Schema.Union(NonEmptyBrowserUrlIntelligenceText, Schema.Null);
+const BrowserUrlIntelligenceMemoryRefSchema = Schema.Union(NonEmptyStringSchema, Schema.Null);
 
 export const BrowserUrlIntelligenceMemoryKeySchema = Schema.Struct({
   keyKind: BrowserUrlIntelligenceMemoryKeyKindSchema,
-  keyValue: NonEmptyBrowserUrlIntelligenceText,
+  keyValue: NonEmptyStringSchema,
 });
 
 const BrowserUrlShapeClassificationResultBaseSchema = Schema.Struct({
@@ -360,3 +364,4 @@ function browserUrlIntelligenceMemoryHitHasDecisionSource(
   }
   return value.analysisRef !== null || value.parentActionRef !== null;
 }
+

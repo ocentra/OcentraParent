@@ -1,28 +1,31 @@
-import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
+import {
+  type Infer,
+  Schema,
+  withParser,
+  brandedNonEmptyStringSchema
+} from '@ocentra-parent/schema-domain/effect';
 import { ParentEvidenceReferenceIdSchema } from '@ocentra-parent/family-domain/reference-primitives';
-
-const NonEmptyBrowserGameAiText = Schema.String.pipe(Schema.minLength(1));
 
 export const BrowserGameAiAnalysisSchemaVersionSchema = withParser(Schema.Literal('browser-game-ai-analysis-contract'));
 
 export const BrowserGameAiAnalysisRequestIdSchema = withParser(
-  NonEmptyBrowserGameAiText.pipe(Schema.brand('BrowserGameAiAnalysisRequestId'))
+  brandedNonEmptyStringSchema('BrowserGameAiAnalysisRequestId')
 );
 
 export const BrowserGameAiAnalysisResultIdSchema = withParser(
-  NonEmptyBrowserGameAiText.pipe(Schema.brand('BrowserGameAiAnalysisResultId'))
+  brandedNonEmptyStringSchema('BrowserGameAiAnalysisResultId')
 );
 
 export const BrowserGameAiModelRuntimeRefSchema = withParser(
-  NonEmptyBrowserGameAiText.pipe(Schema.brand('BrowserGameAiModelRuntimeRef'))
+  brandedNonEmptyStringSchema('BrowserGameAiModelRuntimeRef')
 );
 
 export const BrowserGameAiPromptTemplateVersionSchema = withParser(
-  NonEmptyBrowserGameAiText.pipe(Schema.brand('BrowserGameAiPromptTemplateVersion'))
+  brandedNonEmptyStringSchema('BrowserGameAiPromptTemplateVersion')
 );
 
 export const BrowserGameAiSummaryRefSchema = withParser(
-  NonEmptyBrowserGameAiText.pipe(Schema.brand('BrowserGameAiSummaryRef'))
+  brandedNonEmptyStringSchema('BrowserGameAiSummaryRef')
 );
 
 export const BrowserGameAiTaskSchema = withParser(
@@ -146,3 +149,4 @@ export type BrowserGameAiRiskSignal = Infer<typeof BrowserGameAiRiskSignalSchema
 export type BrowserGameAiSurfaceKind = Infer<typeof BrowserGameAiSurfaceKindSchema>;
 export type BrowserGameAiTask = Infer<typeof BrowserGameAiTaskSchema>;
 export type BrowserGameAiUncertaintyReason = Infer<typeof BrowserGameAiUncertaintyReasonSchema>;
+

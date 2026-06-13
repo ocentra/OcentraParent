@@ -29,7 +29,7 @@ const parentUiPersistenceProofPath = join(
   'proof-summary.json'
 );
 
-run('npm', ['run', 'build', '--workspace', '@ocentra-parent/activity-domain']);
+run('npm', ['run', 'build', '--workspace', '@ocentra-parent/screen-domain']);
 
 const liveView = await import(
   pathToFileURL(join(repoRoot, 'packages', 'activity-domain', 'dist', 'screen-live-view-service-session.js')).href

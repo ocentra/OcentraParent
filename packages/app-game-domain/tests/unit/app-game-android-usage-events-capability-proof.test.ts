@@ -4,6 +4,10 @@ import {
   createAppGameAndroidUsageEventsCapabilityReadModel,
   summarizeAppGameAndroidUsageEventsCapabilityReadModel,
 } from '../../src/app-game-android-usage-events-capability-proof';
+import {
+  AppGameAndroidUsageEventsCommandName,
+  AppGameAndroidUsageEventsEventName,
+} from '../../src/app-game-android-usage-events-contracts';
 
 describe('app-game Android UsageEvents capability proof', () => {
   it('accepts the package-local Android UsageEvents bridge without promoting runtime claims', () => {
@@ -78,14 +82,14 @@ function expectUsageEventsBridgeSignals(
 ) {
   expect(readModel.commands).toEqual(
     expect.arrayContaining([
-      'app-game.android.usage-events.capability.get',
-      'app-game.android.usage-events.replay-boundary.get',
+      AppGameAndroidUsageEventsCommandName.CapabilityGet,
+      AppGameAndroidUsageEventsCommandName.ReplayBoundaryGet,
     ])
   );
   expect(readModel.events).toEqual(
     expect.arrayContaining([
-      'app-game.android.usage-events.capability.reported',
-      'app-game.android.usage-events.replay-boundary.reported',
+      AppGameAndroidUsageEventsEventName.CapabilityReported,
+      AppGameAndroidUsageEventsEventName.ReplayBoundaryReported,
     ])
   );
   expect(readModel.proofRefs).toEqual(

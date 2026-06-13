@@ -1,4 +1,9 @@
-import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
+import {
+  type Infer,
+  Schema,
+  withParser,
+  brandedNonEmptyStringSchema
+} from '@ocentra-parent/schema-domain/effect';
 import { AppInstallPurchasePlatformLimitationActionProofReadModel } from './app-install-purchase-platform-limitation-action-proof';
 import { AppInstallPurchaseProductClaimPlatformPreclaimProofReadModel } from './app-install-purchase-product-claim-platform-preclaim-proof';
 import { AppInstallPurchaseProductClaimSafeParentWorkflowProofReadModel } from './app-install-purchase-product-claim-safe-parent-workflow-proof';
@@ -9,7 +14,6 @@ const SourcePlatformPreclaimProofVersion = 'app-install-purchase-product-claim-p
 const SourceSafeParentWorkflowProofVersion = 'app-install-purchase-product-claim-safe-parent-workflow-proof';
 const SourcePlatformLimitationActionProofVersion = 'app-install-purchase-platform-limitation-action-proof';
 const UpdatedAt = '2026-06-06T22:35:00.000Z';
-const Text = Schema.String.pipe(Schema.minLength(1));
 const StoreSurfaces = [
   'microsoft-store',
   'mac-app-store',
@@ -84,8 +88,8 @@ const PlatformLimitationActionStateSchema = withParser(
   Schema.Literal('parent-action-ready', 'manual-required', 'unavailable')
 );
 const NonClaimSchema = withParser(Schema.Literal(...NonClaims));
-const RefSchema = Text.pipe(Schema.brand('AppInstallPurchaseProductClaimPlatformLimitationFallbackRef'));
-const BoundarySchema = Text.pipe(Schema.brand('AppInstallPurchaseProductClaimPlatformLimitationFallbackBoundary'));
+const RefSchema = brandedNonEmptyStringSchema('AppInstallPurchaseProductClaimPlatformLimitationFallbackRef');
+const BoundarySchema = brandedNonEmptyStringSchema('AppInstallPurchaseProductClaimPlatformLimitationFallbackBoundary');
 const NotExecutedSchema = withParser(Schema.Literal('not-executed'));
 const NotClaimedSchema = withParser(Schema.Literal('not-claimed'));
 const NotImplementedSchema = withParser(Schema.Literal('not-implemented'));
@@ -416,3 +420,4 @@ function platformLimitationFallbackProofIsHonest(
 function uniqueRefs(refs: readonly string[]) {
   return Array.from(new Set(refs));
 }
+

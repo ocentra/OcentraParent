@@ -14,11 +14,11 @@ const commands = [];
 await main();
 
 async function main() {
-  await runNpm(['--workspace', '@ocentra-parent/activity-domain', 'run', 'build']);
+  await runNpm(['--workspace', '@ocentra-parent/tracking-domain', 'run', 'build']);
   await runNpm([
     'exec',
     '--workspace',
-    '@ocentra-parent/activity-domain',
+    '@ocentra-parent/tracking-domain',
     '--',
     'vitest',
     'run',
@@ -207,8 +207,8 @@ function sourceSnapshot(commit) {
     '',
     `- checkedAt: ${checkedAt}`,
     `- commit: ${commit}`,
-    '- source: packages/activity-domain/src/tracking-local-place-store.ts',
-    '- test: packages/activity-domain/tests/tracking-local-place-store.test.ts',
+    '- source: packages/tracking-domain/src/tracking-local-place-store.ts',
+    '- test: packages/tracking-domain/tests/unit/tracking-local-place-store.test.ts',
     '- command: npm run test:tracking-plan-local-place-store-proof',
     '',
   ].join('\n');

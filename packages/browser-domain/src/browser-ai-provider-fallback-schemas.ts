@@ -1,11 +1,14 @@
-import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
+import {
+  type Infer,
+  Schema,
+  withParser,
+  brandedNonEmptyStringSchema
+} from '@ocentra-parent/schema-domain/effect';
 import { ActivityEvidenceIdSchema, ActivityTimestampSchema } from '@ocentra-parent/evidence-domain/primitives';
 import { BrowserAiModelRuntimeRefSchema, BrowserUrlAiAnalysisRequestIdSchema } from './browser-ai-analysis-schemas';
 import { BrowserAiFamilyHubRouteSchema, type BrowserAiFamilyHubRoute } from './browser-ai-family-hub-routing-schemas';
 import { BrowserAiProviderKindSchema, BrowserAiProviderRouteSchema } from './browser-ai-provider-routing-schemas';
 import { BrowserAiRemoteRouteSchema, type BrowserAiRemoteRoute } from './browser-ai-remote-boundary-schemas';
-
-const NonEmptyProviderFallbackText = Schema.String.pipe(Schema.minLength(1));
 const OptionalProviderFallbackRuntimeRefSchema = Schema.Union(BrowserAiModelRuntimeRefSchema, Schema.Null);
 const OptionalFamilyHubRouteSchema = Schema.Union(BrowserAiFamilyHubRouteSchema, Schema.Null);
 const OptionalRemoteRouteSchema = Schema.Union(BrowserAiRemoteRouteSchema, Schema.Null);
@@ -13,7 +16,7 @@ const OptionalRemoteRouteSchema = Schema.Union(BrowserAiRemoteRouteSchema, Schem
 export const BrowserAiProviderFallbackDecisionSchemaVersion = 1;
 
 export const BrowserAiProviderFallbackDecisionIdSchema = withParser(
-  NonEmptyProviderFallbackText.pipe(Schema.brand('BrowserAiProviderFallbackDecisionId'))
+  brandedNonEmptyStringSchema('BrowserAiProviderFallbackDecisionId')
 );
 
 export const BrowserAiProviderFallbackReasonSchema = withParser(
@@ -205,3 +208,4 @@ function familyHubRouteIsSelected(value: BrowserAiFamilyHubRoute | null) {
 function remoteRouteIsSelected(value: BrowserAiRemoteRoute | null) {
   return value !== null && value.executionState === 'selected';
 }
+

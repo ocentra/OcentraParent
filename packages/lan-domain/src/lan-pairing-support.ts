@@ -1,4 +1,10 @@
-import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
+import {
+  type Infer,
+  Schema,
+  withParser,
+  brandedNonEmptyStringSchema,
+  NonEmptyStringSchema
+} from '@ocentra-parent/schema-domain/effect';
 import {
   LanAiProviderRoutingStateSchema,
   LanPairingProductionDiscoveryStateSchema,
@@ -6,17 +12,9 @@ import {
   LanPairingTrustStateSchema,
 } from './lan-pairing-values';
 
-const NonEmptyLanPairingSupportText = Schema.String.pipe(Schema.minLength(1));
-
-export const LanPairingRuntimeCommandSchema = NonEmptyLanPairingSupportText.pipe(
-  Schema.brand('LanPairingRuntimeCommand')
-);
-export const LanPairingHttpEndpointIdSchema = NonEmptyLanPairingSupportText.pipe(
-  Schema.brand('LanPairingHttpEndpointId')
-);
-export const LanPairingHttpEndpointPathSchema = NonEmptyLanPairingSupportText.pipe(
-  Schema.brand('LanPairingHttpEndpointPath')
-);
+export const LanPairingRuntimeCommandSchema = brandedNonEmptyStringSchema('LanPairingRuntimeCommand');
+export const LanPairingHttpEndpointIdSchema = brandedNonEmptyStringSchema('LanPairingHttpEndpointId');
+export const LanPairingHttpEndpointPathSchema = brandedNonEmptyStringSchema('LanPairingHttpEndpointPath');
 export const LanPairingTransportSchema = withParser(Schema.Literal('websocket'));
 export const LanPairingHttpEndpointSupportSchema = withParser(Schema.Literal('planned-unsupported'));
 export const LanPairingRuntimeSupportStatusSchema = withParser(
@@ -76,7 +74,7 @@ export const LanPairingRuntimeSupportSurfaceSchema = withParser(
     proofPreviewStatus: LanPairingRuntimeSupportStatusSchema,
     lanAiProviderStatus: LanPairingRuntimeSupportStatusSchema,
     lanAiProviderRoutingState: LanAiProviderRoutingStateSchema,
-    lanAiProviderCustodyLabel: NonEmptyLanPairingSupportText,
+    lanAiProviderCustodyLabel: NonEmptyStringSchema,
     lanAiJobStatus: LanPairingRuntimeSupportStatusSchema,
     persistenceMode: LanPairingPersistenceModeSchema,
     restartBehavior: LanPairingRestartBehaviorSchema,
@@ -149,3 +147,4 @@ export const LanPairingManualProofGap = {
   Firewall: LanPairingManualProofGapSchema.parse('manual-firewall-proof'),
   PhysicalDevice: LanPairingManualProofGapSchema.parse('manual-physical-device-proof'),
 } as const;
+

@@ -1,1 +1,1 @@
-export * from '@ocentra-parent/social-domain/social-parent-approval';
+export * from '@ocentra-parent/browser-domain/social-parent-approval';

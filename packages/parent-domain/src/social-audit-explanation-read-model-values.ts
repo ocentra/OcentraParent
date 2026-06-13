@@ -1,1 +1,1 @@
-export * from '@ocentra-parent/social-domain/social-audit-explanation-read-model-values';
+export * from '@ocentra-parent/browser-domain/social-audit-explanation-read-model-values';

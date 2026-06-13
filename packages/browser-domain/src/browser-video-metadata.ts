@@ -1,4 +1,9 @@
-import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
+import {
+  type Infer,
+  Schema,
+  withParser,
+  NonEmptyStringSchema
+} from '@ocentra-parent/schema-domain/effect';
 import { ActivityEvidenceIdSchema, ActivityTimestampSchema } from '@ocentra-parent/evidence-domain/primitives';
 import { BrowserPageTitleSchema, BrowserUrlSchema } from './browser-schemas';
 import {
@@ -13,9 +18,7 @@ import {
   BrowserUrlMetadataSchemaVersion,
   BrowserUrlMetadataSourceKindSchema,
 } from './browser-url-metadata-schemas';
-
-const NonEmptyVideoMetadataText = Schema.String.pipe(Schema.minLength(1));
-const OptionalVideoMetadataTextSchema = Schema.Union(NonEmptyVideoMetadataText, Schema.Null);
+const OptionalVideoMetadataTextSchema = Schema.Union(NonEmptyStringSchema, Schema.Null);
 const OptionalVideoMetadataUrlSchema = Schema.Union(BrowserUrlSchema, Schema.Null);
 const OptionalVideoMetadataDurationSecondsSchema = Schema.Union(
   Schema.Number.pipe(Schema.nonNegative(), Schema.int()),
@@ -138,3 +141,4 @@ function hasGenericVideoMetadata(value: Infer<typeof VideoMetadataAdapterInputBa
     value.platformVideoIdOverride !== null
   );
 }
+

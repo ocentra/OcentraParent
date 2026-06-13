@@ -1,8 +1,12 @@
-import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
+import {
+  type Infer,
+  Schema,
+  withParser,
+  brandedNonEmptyStringSchema,
+  NonEmptyStringSchema
+} from '@ocentra-parent/schema-domain/effect';
 import { ParentTimestampSchema } from '@ocentra-parent/family-domain/reference-primitives';
 import { TrackingPolicySchemaVersion } from './tracking-location-policy-primitives';
-
-const TextSchema = Schema.String.pipe(Schema.minLength(1));
 const CountSchema = Schema.Number.pipe(Schema.int(), Schema.nonNegative());
 
 export const TrackingCrossPlatformRuntimeCapabilityAreaSchema = withParser(
@@ -22,9 +26,7 @@ export const TrackingCrossPlatformRuntimeCapabilityStatusSchema = withParser(
   Schema.Literal('local-proof-passed', 'ci-manual-required', 'host-tool-unavailable')
 );
 
-export const TrackingCrossPlatformRuntimeCapabilityRefSchema = TextSchema.pipe(
-  Schema.brand('TrackingCrossPlatformRuntimeCapabilityRef')
-);
+export const TrackingCrossPlatformRuntimeCapabilityRefSchema = brandedNonEmptyStringSchema('TrackingCrossPlatformRuntimeCapabilityRef');
 
 export const RequiredTrackingCrossPlatformRuntimeCapabilityAreas = [
   'windows-host-toolchain',
@@ -45,12 +47,12 @@ export const TrackingCrossPlatformRuntimeCapabilityRowSchema = withParser(
     generatedAt: ParentTimestampSchema,
     proofRef: TrackingCrossPlatformRuntimeCapabilityRefSchema,
     sourceRefs: Schema.Array(TrackingCrossPlatformRuntimeCapabilityRefSchema),
-    currentProofTier: TextSchema,
-    requiredProofTier: TextSchema,
-    observedTooling: Schema.Array(TextSchema),
-    observedCapabilityRefs: Schema.Array(TextSchema),
-    passedAssertions: Schema.Array(TextSchema),
-    remainingBlockers: Schema.Array(TextSchema),
+    currentProofTier: NonEmptyStringSchema,
+    requiredProofTier: NonEmptyStringSchema,
+    observedTooling: Schema.Array(NonEmptyStringSchema),
+    observedCapabilityRefs: Schema.Array(NonEmptyStringSchema),
+    passedAssertions: Schema.Array(NonEmptyStringSchema),
+    remainingBlockers: Schema.Array(NonEmptyStringSchema),
     artifactCount: CountSchema,
     ciRunnable: Schema.Boolean,
     localRuntimeClaimed: Schema.Boolean,
@@ -234,3 +236,4 @@ function hasPassed(
 ): boolean {
   return rows.some((row) => row.area === area && row.status === 'local-proof-passed');
 }
+

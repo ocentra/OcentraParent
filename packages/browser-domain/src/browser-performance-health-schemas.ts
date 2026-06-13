@@ -1,4 +1,9 @@
-import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
+import {
+  type Infer,
+  Schema,
+  withParser,
+  NonEmptyStringSchema
+} from '@ocentra-parent/schema-domain/effect';
 import { ActivitySourceIdSchema, ActivityTimestampSchema } from '@ocentra-parent/evidence-domain/primitives';
 
 export const BrowserPerformanceHealthSchemaVersion = 1;
@@ -41,8 +46,6 @@ const BrowserPerformanceSampleSizeSchema = Schema.Number.pipe(
   Schema.filter((value) => (Number.isInteger(value) && value > 0) || 'Expected positive integer sample size')
 );
 
-const BrowserPerformanceReasonSchema = Schema.String.pipe(Schema.minLength(1));
-
 const BrowserPerformanceHealthRowBaseSchema = Schema.Struct({
   budgetId: BrowserPerformanceBudgetIdSchema,
   state: BrowserPerformanceBudgetStateSchema,
@@ -50,8 +53,8 @@ const BrowserPerformanceHealthRowBaseSchema = Schema.Struct({
   observedMs: Schema.Union(BrowserPerformanceMillisecondsSchema, Schema.Null),
   budgetMs: BrowserPerformanceMillisecondsSchema,
   sampleSize: BrowserPerformanceSampleSizeSchema,
-  degradedReason: Schema.Union(BrowserPerformanceReasonSchema, Schema.Null),
-  manualRequiredReason: Schema.Union(BrowserPerformanceReasonSchema, Schema.Null),
+  degradedReason: Schema.Union(NonEmptyStringSchema, Schema.Null),
+  manualRequiredReason: Schema.Union(NonEmptyStringSchema, Schema.Null),
   runtimeClaimed: Schema.Boolean,
 });
 
@@ -162,3 +165,4 @@ function browserPerformanceReadModelHealthIsConsistent(
   }
   return degradedRows.length === 0 && measuredRows.length > 0;
 }
+

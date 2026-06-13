@@ -1,16 +1,21 @@
-import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
+import {
+  type Infer,
+  Schema,
+  withParser,
+  brandedNonEmptyStringSchema
+} from '@ocentra-parent/schema-domain/effect';
 import {
   NotificationLocalOutboxAdapterProofReadModel,
   NotificationLocalOutboxAdapterProofSchema,
   type NotificationLocalOutboxAdapterProof,
   type NotificationLocalOutboxRecord,
-} from './notification-local-outbox-adapter-proof';
+} from '@ocentra-parent/notification-domain/notification-local-outbox-adapter-proof';
 import {
   NotificationLocalOutboxSchedulerProofReadModel,
   NotificationLocalOutboxSchedulerProofSchema,
   type NotificationLocalOutboxSchedulerProof,
   type NotificationLocalOutboxSchedulerRecord,
-} from './notification-local-outbox-scheduler-proof';
+} from '@ocentra-parent/notification-domain/notification-local-outbox-scheduler-proof';
 import {
   ParentContractSchemaVersion,
   ParentContractSchemaVersionSchema,
@@ -22,8 +27,6 @@ import {
   type TrackingNotificationReceiptBoundaryReadModel,
   type TrackingNotificationReceiptBoundaryRow,
 } from './tracking-notification-receipt-boundary-proof';
-
-const TrackingNotificationLocalOutboxReadinessText = Schema.String.pipe(Schema.minLength(1));
 
 export const RequiredTrackingNotificationLocalOutboxReadinessNonClaims = [
   'no-provider-delivery-execution',
@@ -43,11 +46,9 @@ export const TrackingNotificationLocalOutboxReadinessNonClaimSchema = withParser
   Schema.Literal(...RequiredTrackingNotificationLocalOutboxReadinessNonClaims)
 );
 
-export const TrackingNotificationLocalOutboxReadinessProofIdSchema = TrackingNotificationLocalOutboxReadinessText.pipe(
-  Schema.brand('TrackingNotificationLocalOutboxReadinessProofId')
-);
+export const TrackingNotificationLocalOutboxReadinessProofIdSchema = brandedNonEmptyStringSchema('TrackingNotificationLocalOutboxReadinessProofId');
 export const TrackingNotificationLocalOutboxReadinessReferenceSchema =
-  TrackingNotificationLocalOutboxReadinessText.pipe(Schema.brand('TrackingNotificationLocalOutboxReadinessReference'));
+  brandedNonEmptyStringSchema('TrackingNotificationLocalOutboxReadinessReference');
 export const TrackingNotificationLocalOutboxReadinessStateSchema = withParser(
   Schema.Literal('local-outbox-receipt-required', 'local-outbox-manual-required', 'local-outbox-provider-unavailable')
 );
@@ -343,3 +344,4 @@ function uniqueRefs(refs: readonly string[]): readonly string[] {
 export const decodeTrackingNotificationLocalOutboxReadinessReadModel = Schema.decodeUnknownSync(
   TrackingNotificationLocalOutboxReadinessReadModelSchema
 );
+

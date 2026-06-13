@@ -1,4 +1,9 @@
-import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
+import {
+  type Infer,
+  Schema,
+  withParser,
+  brandedNonEmptyStringSchema
+} from '@ocentra-parent/schema-domain/effect';
 import { ActivityTimestampSchema } from '@ocentra-parent/evidence-domain/primitives';
 import {
   TrackingAmbiguityStateSchema,
@@ -13,10 +18,8 @@ import {
   TrackingReasonCodeSchema,
 } from './tracking-primitives';
 
-const TrackingLocalPlaceStoreTextSchema = Schema.String.pipe(Schema.minLength(1));
-
 export const TrackingLocalPlaceStoreIdSchema = withParser(
-  TrackingLocalPlaceStoreTextSchema.pipe(Schema.brand('TrackingLocalPlaceStoreId'))
+  brandedNonEmptyStringSchema('TrackingLocalPlaceStoreId')
 );
 
 export const TrackingLocalPlaceMutationKindSchema = withParser(Schema.Literal('create', 'update', 'import', 'delete'));
@@ -101,3 +104,4 @@ export type TrackingLocalParentDefinedPlaceMutationReceipt = Infer<
   typeof TrackingLocalParentDefinedPlaceMutationReceiptSchema
 >;
 export type TrackingLocalParentDefinedPlaceMatch = Infer<typeof TrackingLocalParentDefinedPlaceMatchSchema>;
+

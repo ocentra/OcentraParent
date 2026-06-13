@@ -1,6 +1,8 @@
-import { Schema, withParser } from '@ocentra-parent/schema-domain/effect';
-
-const NonEmptyPublicSupportContactStatusText = Schema.String.pipe(Schema.minLength(1));
+import {
+  Schema,
+  withParser,
+  brandedNonEmptyStringSchema
+} from '@ocentra-parent/schema-domain/effect';
 
 export const PublicSupportContactStatusSchemaVersionSchema = withParser(
   Schema.Literal('public-support-contact-status-proof')
@@ -83,12 +85,8 @@ export const PublicSupportContactStatusNonClaimSchema = withParser(
   )
 );
 
-export const PublicSupportContactStatusReferenceSchema = NonEmptyPublicSupportContactStatusText.pipe(
-  Schema.brand('PublicSupportContactStatusReference')
-);
-export const PublicSupportContactStatusRequirementSchema = NonEmptyPublicSupportContactStatusText.pipe(
-  Schema.brand('PublicSupportContactStatusRequirement')
-);
+export const PublicSupportContactStatusReferenceSchema = brandedNonEmptyStringSchema('PublicSupportContactStatusReference');
+export const PublicSupportContactStatusRequirementSchema = brandedNonEmptyStringSchema('PublicSupportContactStatusRequirement');
 
 export const ForbiddenPublicSupportContactStatusDataClasses = [
   'child-activity-evidence',
@@ -125,3 +123,4 @@ export const RequiredPublicSupportContactStatusNonClaims = [
   'no-provider-secrets',
   'no-legal-disclosure-execution',
 ] as const;
+

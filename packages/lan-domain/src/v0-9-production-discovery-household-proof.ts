@@ -1,4 +1,9 @@
-import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
+import {
+  type Infer,
+  Schema,
+  withParser,
+  NonEmptyStringSchema
+} from '@ocentra-parent/schema-domain/effect';
 import {
   LanHouseholdManualProofGateSchema,
   LanHouseholdProductProofStateSchema,
@@ -13,8 +18,6 @@ import {
   LanPairingTimestampSchema,
   LanPairingTrustStateSchema,
 } from '@ocentra-parent/lan-domain/lan-pairing-values';
-
-const NonEmptyV09HouseholdDiscoveryText = Schema.String.pipe(Schema.minLength(1));
 
 export const V09ProductionDiscoveryHouseholdProofBoundarySchema = withParser(
   Schema.Literal('local-real-service-not-physical-household-lan')
@@ -81,7 +84,7 @@ export const V09ProductionDiscoveryHouseholdStateEvidenceSchema = withParser(
     routeRecoveryState: V09ProductionDiscoveryHouseholdRouteRecoveryStateSchema,
     proofState: LanHouseholdProductProofStateSchema,
     runtimeOwner: V09ProductionDiscoveryHouseholdRuntimeOwnerSchema,
-    evidenceLabel: NonEmptyV09HouseholdDiscoveryText,
+    evidenceLabel: NonEmptyStringSchema,
   })
 );
 
@@ -90,7 +93,7 @@ export const V09ProductionDiscoveryHouseholdManualChecklistItemSchema = withPars
     schemaVersion: LanPairingSchemaVersionSchema,
     gate: LanHouseholdManualProofGateSchema,
     state: LanHouseholdProductProofStateSchema,
-    requiredArtifactSummary: NonEmptyV09HouseholdDiscoveryText,
+    requiredArtifactSummary: NonEmptyStringSchema,
     runtimeOwner: V09ProductionDiscoveryHouseholdRuntimeOwnerSchema,
   })
 );
@@ -106,8 +109,8 @@ export const V09ProductionDiscoveryHouseholdProofReadModelSchema = withParser(
     restartRecovery: Schema.Array(V09ProductionDiscoveryHouseholdStateEvidenceSchema),
     sourceDeviceStates: Schema.Array(V09ProductionDiscoveryHouseholdStateEvidenceSchema),
     manualHouseholdProofChecklist: Schema.Array(V09ProductionDiscoveryHouseholdManualChecklistItemSchema),
-    claimsProved: Schema.Array(NonEmptyV09HouseholdDiscoveryText),
-    claimsNotProved: Schema.Array(NonEmptyV09HouseholdDiscoveryText),
+    claimsProved: Schema.Array(NonEmptyStringSchema),
+    claimsNotProved: Schema.Array(NonEmptyStringSchema),
   })
 );
 
@@ -131,3 +134,4 @@ export type V09ProductionDiscoveryHouseholdManualChecklistItem = Infer<
 export type V09ProductionDiscoveryHouseholdProofReadModel = Infer<
   typeof V09ProductionDiscoveryHouseholdProofReadModelSchema
 >;
+

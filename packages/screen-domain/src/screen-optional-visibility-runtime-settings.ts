@@ -1,4 +1,9 @@
-import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
+import {
+  type Infer,
+  Schema,
+  withParser,
+  NonEmptyStringSchema
+} from '@ocentra-parent/schema-domain/effect';
 import { ActivityTimestampSchema } from '@ocentra-parent/evidence-domain/primitives';
 import { ScreenEvidenceReasonSchema, ScreenEvidenceSettingVersionSchema } from './screen-evidence-primitives';
 import {
@@ -11,8 +16,6 @@ import {
 export const ScreenOptionalVisibilityRuntimeSettingsSchemaVersion = 1;
 
 const RequiredFalse = Schema.Literal(false);
-const RuntimeRequestIdSchema = Schema.String.pipe(Schema.minLength(1));
-const RuntimeMessageSchema = Schema.String.pipe(Schema.minLength(1));
 const OptionalRuntimeReasonSchema = Schema.Union(ScreenEvidenceReasonSchema, Schema.Null);
 type OptionalRuntimeReason = Infer<typeof OptionalRuntimeReasonSchema>;
 
@@ -79,7 +82,7 @@ export const ScreenOptionalVisibilityRuntimeSettingsStateSchema = withParser(
 export const ScreenOptionalVisibilityRuntimeUpdateRequestSchema = withParser(
   Schema.Struct({
     schemaVersion: Schema.Literal(ScreenOptionalVisibilityRuntimeSettingsSchemaVersion),
-    requestId: RuntimeRequestIdSchema,
+    requestId: NonEmptyStringSchema,
     kind: ScreenOptionalVisibilityRuntimeRequestKindSchema,
     baseRevision: Schema.Union(ScreenEvidenceSettingVersionSchema, Schema.Null),
     rawRetentionSetting: Schema.Union(ScreenRawScreenshotRetentionOptInSettingSchema, Schema.Null),
@@ -98,11 +101,11 @@ export const ScreenOptionalVisibilityRuntimeUpdateRequestSchema = withParser(
 export const ScreenOptionalVisibilityRuntimeUpdateResponseSchema = withParser(
   Schema.Struct({
     schemaVersion: Schema.Literal(ScreenOptionalVisibilityRuntimeSettingsSchemaVersion),
-    requestId: RuntimeRequestIdSchema,
+    requestId: NonEmptyStringSchema,
     status: ScreenOptionalVisibilityRuntimeUpdateStatusSchema,
     state: Schema.Union(ScreenOptionalVisibilityRuntimeSettingsStateSchema, Schema.Null),
     rejectionReason: Schema.Union(ScreenOptionalVisibilityRuntimeRejectionReasonSchema, Schema.Null),
-    message: RuntimeMessageSchema,
+    message: NonEmptyStringSchema,
   }).pipe(
     Schema.filter(
       (value) =>
@@ -315,3 +318,4 @@ export type ScreenOptionalVisibilityRuntimeUpdateRequest = Infer<
 export type ScreenOptionalVisibilityRuntimeUpdateResponse = Infer<
   typeof ScreenOptionalVisibilityRuntimeUpdateResponseSchema
 >;
+

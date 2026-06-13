@@ -1,14 +1,17 @@
-import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
+import {
+  type Infer,
+  Schema,
+  withParser,
+  brandedNonEmptyStringSchema
+} from '@ocentra-parent/schema-domain/effect';
 import { AppInstallPurchaseChildArtifactDeliveryProofReadModel } from './app-install-purchase-child-artifact-delivery-proof';
 import { AppInstallPurchasePlatformArtifactProofReadModel } from './app-install-purchase-platform-artifact-proof';
 import {
   StatelessReportCompilerContractProofReadModel,
   StatelessReportCompilerSchemaVersionSchema,
-} from './stateless-report-compiler-status';
-import { RequiredStatelessReportCompilerStatuses } from './stateless-report-compiler-status-values';
+} from '@ocentra-parent/production-domain/stateless-report-compiler-status';
+import { RequiredStatelessReportCompilerStatuses } from '@ocentra-parent/production-domain/stateless-report-compiler-status-values';
 import { ParentTimestampSchema } from '@ocentra-parent/family-domain/reference-primitives';
-
-const ReportRuntimeProofText = Schema.String.pipe(Schema.minLength(1));
 const ReportRuntimeSchemaVersion = 'app-install-purchase-report-runtime-proof';
 const SourceChildArtifactProofVersion = 'app-install-purchase-child-artifact-delivery-proof';
 const SourcePlatformArtifactProofVersion = 'app-install-purchase-platform-artifact-proof';
@@ -55,14 +58,10 @@ const AppInstallPurchaseReportRuntimeAppBlockingClaimSchema = withParser(Schema.
 const AppInstallPurchaseReportRuntimeHostedCustodyClaimSchema = withParser(Schema.Literal('not-claimed'));
 const AppInstallPurchaseReportRuntimeNonClaimSchema = withParser(Schema.Literal(...ReportRuntimeNonClaims));
 
-const ReportRuntimeRowIdSchema = ReportRuntimeProofText.pipe(Schema.brand('AppInstallPurchaseReportRuntimeRowId'));
-const ReportRuntimeRefSchema = ReportRuntimeProofText.pipe(Schema.brand('AppInstallPurchaseReportRuntimeRef'));
-const ReportRuntimeChildArtifactRefSchema = ReportRuntimeProofText.pipe(
-  Schema.brand('AppInstallPurchaseReportRuntimeChildArtifactRef')
-);
-const ReportRuntimeClaimBoundarySchema = ReportRuntimeProofText.pipe(
-  Schema.brand('AppInstallPurchaseReportRuntimeClaimBoundary')
-);
+const ReportRuntimeRowIdSchema = brandedNonEmptyStringSchema('AppInstallPurchaseReportRuntimeRowId');
+const ReportRuntimeRefSchema = brandedNonEmptyStringSchema('AppInstallPurchaseReportRuntimeRef');
+const ReportRuntimeChildArtifactRefSchema = brandedNonEmptyStringSchema('AppInstallPurchaseReportRuntimeChildArtifactRef');
+const ReportRuntimeClaimBoundarySchema = brandedNonEmptyStringSchema('AppInstallPurchaseReportRuntimeClaimBoundary');
 
 const ReportRuntimeSurfaceRowBaseSchema = Schema.Struct({
   schemaVersion: AppInstallPurchaseReportRuntimeProofSchemaVersionSchema,
@@ -307,3 +306,4 @@ function reportRuntimeBoundaryIsExplicit(boundary: typeof ReportRuntimeClaimBoun
     boundary.includes('no Ocentra-hosted family data custody')
   );
 }
+

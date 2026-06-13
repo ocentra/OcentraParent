@@ -129,7 +129,7 @@ const commands = [
   {
     name: 'activity-domain-build',
     command: 'cmd',
-    args: ['/c', 'npm', 'run', 'build', '--workspace', '@ocentra-parent/activity-domain'],
+    args: ['/c', 'npm', 'run', 'build', '--workspace', '@ocentra-parent/network-domain'],
     log: join(proofRoot, 'activity-domain-build.log'),
   },
   {

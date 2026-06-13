@@ -1,4 +1,9 @@
-import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
+import {
+  type Infer,
+  Schema,
+  withParser,
+  brandedNonEmptyStringSchema
+} from '@ocentra-parent/schema-domain/effect';
 import {
   ParentControlCapabilityName,
   ParentControlCapabilityNameSchema,
@@ -6,33 +11,19 @@ import {
   ParentControlCapabilityStatusSchema,
   type ParentControlPlatform,
   ParentControlPlatformSchema,
-} from './capabilities';
+} from '@ocentra-parent/capability-domain/capabilities';
 import {
   ParentContractSchemaVersion,
   ParentContractSchemaVersionSchema,
   ParentTimestampSchema,
 } from '@ocentra-parent/family-domain/reference-primitives';
 
-const NonEmptyCapabilityProofText = Schema.String.pipe(Schema.minLength(1));
-
-export const V08CrossPlatformEnforcementCapabilityProofReadModelIdSchema = NonEmptyCapabilityProofText.pipe(
-  Schema.brand('V08CrossPlatformEnforcementCapabilityProofReadModelId')
-);
-export const V08CrossPlatformEnforcementCapabilityProofEntryIdSchema = NonEmptyCapabilityProofText.pipe(
-  Schema.brand('V08CrossPlatformEnforcementCapabilityProofEntryId')
-);
-export const V08CrossPlatformEnforcementCapabilityProofReferenceSchema = NonEmptyCapabilityProofText.pipe(
-  Schema.brand('V08CrossPlatformEnforcementCapabilityProofReference')
-);
-export const V08CrossPlatformEnforcementCapabilityProofRequirementSchema = NonEmptyCapabilityProofText.pipe(
-  Schema.brand('V08CrossPlatformEnforcementCapabilityProofRequirement')
-);
-export const V08CrossPlatformEnforcementCapabilityProofClaimBoundarySchema = NonEmptyCapabilityProofText.pipe(
-  Schema.brand('V08CrossPlatformEnforcementCapabilityProofClaimBoundary')
-);
-export const V08CrossPlatformEnforcementCapabilityProofFallbackSchema = NonEmptyCapabilityProofText.pipe(
-  Schema.brand('V08CrossPlatformEnforcementCapabilityProofFallback')
-);
+export const V08CrossPlatformEnforcementCapabilityProofReadModelIdSchema = brandedNonEmptyStringSchema('V08CrossPlatformEnforcementCapabilityProofReadModelId');
+export const V08CrossPlatformEnforcementCapabilityProofEntryIdSchema = brandedNonEmptyStringSchema('V08CrossPlatformEnforcementCapabilityProofEntryId');
+export const V08CrossPlatformEnforcementCapabilityProofReferenceSchema = brandedNonEmptyStringSchema('V08CrossPlatformEnforcementCapabilityProofReference');
+export const V08CrossPlatformEnforcementCapabilityProofRequirementSchema = brandedNonEmptyStringSchema('V08CrossPlatformEnforcementCapabilityProofRequirement');
+export const V08CrossPlatformEnforcementCapabilityProofClaimBoundarySchema = brandedNonEmptyStringSchema('V08CrossPlatformEnforcementCapabilityProofClaimBoundary');
+export const V08CrossPlatformEnforcementCapabilityProofFallbackSchema = brandedNonEmptyStringSchema('V08CrossPlatformEnforcementCapabilityProofFallback');
 
 export const V08CrossPlatformEnforcementCapabilitySurfaceSchema = withParser(
   Schema.Literal(
@@ -592,3 +583,4 @@ export const decodeV08CrossPlatformEnforcementCapabilityProofEntry = Schema.deco
 export const decodeV08CrossPlatformEnforcementCapabilityProofReadModel = Schema.decodeUnknownSync(
   V08CrossPlatformEnforcementCapabilityProofReadModelSchema
 );
+

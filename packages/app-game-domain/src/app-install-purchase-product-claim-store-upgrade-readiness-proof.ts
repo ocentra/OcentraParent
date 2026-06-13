@@ -1,4 +1,9 @@
-import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
+import {
+  type Infer,
+  Schema,
+  withParser,
+  brandedNonEmptyStringSchema
+} from '@ocentra-parent/schema-domain/effect';
 import { AppInstallPurchaseProductClaimGateProofReadModel } from './app-install-purchase-product-claim-gate-proof';
 import { AppInstallPurchaseProductClaimPortalTestReadinessProofReadModel } from './app-install-purchase-product-claim-portal-test-readiness-proof';
 import { AppInstallPurchaseProductClaimProviderStoreProofReadModel } from './app-install-purchase-product-claim-provider-store-proof';
@@ -9,7 +14,6 @@ const SourceProductClaimGateProofVersion = 'app-install-purchase-product-claim-g
 const SourcePortalTestReadinessProofVersion = 'app-install-purchase-product-claim-portal-test-readiness-proof';
 const SourceProviderStoreProofVersion = 'app-install-purchase-product-claim-provider-store-proof';
 const UpdatedAt = '2026-06-06T15:20:00.000Z';
-const Text = Schema.String.pipe(Schema.minLength(1));
 const StoreSurfaces = [
   'microsoft-store',
   'mac-app-store',
@@ -96,8 +100,8 @@ const NotClaimedSchema = withParser(Schema.Literal('not-claimed'));
 const NotImplementedSchema = withParser(Schema.Literal('not-implemented'));
 const NotDeliveredSchema = withParser(Schema.Literal('not-delivered'));
 const CustodySchema = withParser(Schema.Literal('no-child-activity-data'));
-const RefSchema = Text.pipe(Schema.brand('AppInstallPurchaseProductClaimStoreUpgradeReadinessRef'));
-const BoundarySchema = Text.pipe(Schema.brand('AppInstallPurchaseProductClaimStoreUpgradeReadinessBoundary'));
+const RefSchema = brandedNonEmptyStringSchema('AppInstallPurchaseProductClaimStoreUpgradeReadinessRef');
+const BoundarySchema = brandedNonEmptyStringSchema('AppInstallPurchaseProductClaimStoreUpgradeReadinessBoundary');
 
 const RowBaseSchema = Schema.Struct({
   schemaVersion: AppInstallPurchaseProductClaimStoreUpgradeReadinessProofSchemaVersionSchema,
@@ -435,3 +439,4 @@ function storeUpgradeReadinessProofIsHonest(proof: AppInstallPurchaseProductClai
 function uniqueRefs(refs: readonly string[]) {
   return Array.from(new Set(refs));
 }
+

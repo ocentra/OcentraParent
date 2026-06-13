@@ -1,1 +1,1 @@
-export * from '@ocentra-parent/social-domain/social-alert-report-provider-dispatch-execution';
+export * from '@ocentra-parent/browser-domain/social-alert-report-provider-dispatch-execution';

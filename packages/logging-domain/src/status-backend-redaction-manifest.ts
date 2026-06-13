@@ -1,14 +1,17 @@
-import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
+import {
+  type Infer,
+  Schema,
+  withParser,
+  NonEmptyStringSchema
+} from '@ocentra-parent/schema-domain/effect';
 
 import {
   statusBackendRedactionManifestCoversRequiredStates,
   statusBackendRedactionManifestEntryIsSafe,
 } from './status-backend-redaction-manifest-guards.js';
 
-const NonEmptyStatusBackendRedactionManifestText = Schema.String.pipe(Schema.minLength(1));
-
 const statusBackendRedactionManifestText = <Brand extends string>(brand: Brand) =>
-  NonEmptyStatusBackendRedactionManifestText.pipe(Schema.brand(brand));
+  NonEmptyStringSchema.pipe(Schema.brand(brand));
 
 export const StatusBackendRedactionManifestReadModelIdSchema = statusBackendRedactionManifestText(
   'StatusBackendRedactionManifestReadModelId'
@@ -171,3 +174,4 @@ export const decodeStatusBackendRedactionManifestEntry = Schema.decodeUnknownSyn
 export const decodeStatusBackendRedactionManifestReadModel = Schema.decodeUnknownSync(
   StatusBackendRedactionManifestReadModelSchema
 );
+

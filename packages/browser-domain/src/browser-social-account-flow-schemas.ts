@@ -1,4 +1,10 @@
-import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
+import {
+  type Infer,
+  Schema,
+  withParser,
+  brandedNonEmptyStringSchema,
+  NonEmptyStringSchema
+} from '@ocentra-parent/schema-domain/effect';
 import { ActivityEvidenceIdSchema, ActivityTimestampSchema } from '@ocentra-parent/evidence-domain/primitives';
 import {
   BrowserSocialPlatformSchema,
@@ -8,9 +14,7 @@ import {
   type BrowserSocialRouteKind,
   BrowserSocialRouteKindSchema,
 } from './browser-social-platform-route-schemas';
-
-const NonEmptySocialAccountFlowText = Schema.String.pipe(Schema.minLength(1));
-const OptionalSocialAccountFlowTextSchema = Schema.Union(NonEmptySocialAccountFlowText, Schema.Null);
+const OptionalSocialAccountFlowTextSchema = Schema.Union(NonEmptyStringSchema, Schema.Null);
 const SocialAccountFlowSourceEvidenceIdsSchema = Schema.Array(ActivityEvidenceIdSchema).pipe(
   Schema.filter((value) => value.length > 0 || 'Expected social account flow source evidence ids')
 );
@@ -18,7 +22,7 @@ const SocialAccountFlowSourceEvidenceIdsSchema = Schema.Array(ActivityEvidenceId
 export const BrowserSocialAccountFlowSchemaVersion = 1;
 
 export const BrowserSocialAccountFlowEvidenceIdSchema = withParser(
-  NonEmptySocialAccountFlowText.pipe(Schema.brand('BrowserSocialAccountFlowEvidenceId'))
+  brandedNonEmptyStringSchema('BrowserSocialAccountFlowEvidenceId')
 );
 
 export const BrowserSocialAccountFlowKindSchema = withParser(
@@ -202,3 +206,4 @@ function accountFlowKindForRouteKind(value: BrowserSocialRouteKind) {
   }
   return null;
 }
+

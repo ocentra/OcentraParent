@@ -1,8 +1,11 @@
-import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
+import {
+  type Infer,
+  Schema,
+  withParser,
+  brandedNonEmptyStringSchema
+} from '@ocentra-parent/schema-domain/effect';
 import { AppInstallPurchaseExternalRuntimeDeviceDeliveryProofReadModel } from './app-install-purchase-external-runtime-device-delivery-proof';
 import { ParentTimestampSchema } from '@ocentra-parent/family-domain/reference-primitives';
-
-const ExternalRuntimeWriterReadinessText = Schema.String.pipe(Schema.minLength(1));
 const ExternalRuntimeWriterReadinessProofVersion = 'app-install-purchase-external-runtime-writer-readiness-proof';
 const SourceExternalRuntimeDeviceDeliveryProofVersion = 'app-install-purchase-external-runtime-device-delivery-proof';
 const ExternalRuntimeWriterReadinessTimestamp = '2026-06-07T09:58:00.000Z';
@@ -64,18 +67,10 @@ const ExternalRuntimeWriterReadinessNonClaimSchema = withParser(
   Schema.Literal(...ExternalRuntimeWriterReadinessNonClaims)
 );
 
-const ExternalRuntimeWriterReadinessRowIdSchema = ExternalRuntimeWriterReadinessText.pipe(
-  Schema.brand('AppInstallPurchaseExternalRuntimeWriterReadinessRowId')
-);
-const ExternalRuntimeWriterReadinessRefSchema = ExternalRuntimeWriterReadinessText.pipe(
-  Schema.brand('AppInstallPurchaseExternalRuntimeWriterReadinessRef')
-);
-const ExternalRuntimeWriterReadinessAuditRefSchema = ExternalRuntimeWriterReadinessText.pipe(
-  Schema.brand('AppInstallPurchaseExternalRuntimeWriterReadinessAuditRef')
-);
-const ExternalRuntimeWriterReadinessBoundarySchema = ExternalRuntimeWriterReadinessText.pipe(
-  Schema.brand('AppInstallPurchaseExternalRuntimeWriterReadinessBoundary')
-);
+const ExternalRuntimeWriterReadinessRowIdSchema = brandedNonEmptyStringSchema('AppInstallPurchaseExternalRuntimeWriterReadinessRowId');
+const ExternalRuntimeWriterReadinessRefSchema = brandedNonEmptyStringSchema('AppInstallPurchaseExternalRuntimeWriterReadinessRef');
+const ExternalRuntimeWriterReadinessAuditRefSchema = brandedNonEmptyStringSchema('AppInstallPurchaseExternalRuntimeWriterReadinessAuditRef');
+const ExternalRuntimeWriterReadinessBoundarySchema = brandedNonEmptyStringSchema('AppInstallPurchaseExternalRuntimeWriterReadinessBoundary');
 
 const ExternalRuntimeWriterReadinessRowBaseSchema = Schema.Struct({
   schemaVersion: AppInstallPurchaseExternalRuntimeWriterReadinessProofSchemaVersionSchema,
@@ -320,3 +315,4 @@ function externalRuntimeWriterReadinessBoundaryIsExplicit(
 ) {
   return ExternalRuntimeWriterReadinessBoundaryFragments.every((fragment) => boundary.includes(fragment));
 }
+

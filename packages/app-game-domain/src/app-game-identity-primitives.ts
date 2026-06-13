@@ -1,29 +1,24 @@
-import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
+import {
+  type Infer,
+  Schema,
+  withParser,
+  brandedNonEmptyStringSchema
+} from '@ocentra-parent/schema-domain/effect';
 
-const NonEmptyAppGameIdentityText = Schema.String.pipe(Schema.minLength(1));
-
-export const AppGameIdentityIdSchema = NonEmptyAppGameIdentityText.pipe(Schema.brand('AppGameIdentityId'));
-export const AppGameDisplayLabelSchema = NonEmptyAppGameIdentityText.pipe(Schema.brand('AppGameDisplayLabel'));
-export const AppGameParentLabelSchema = NonEmptyAppGameIdentityText.pipe(Schema.brand('AppGameParentLabel'));
-export const AppGameExecutablePathRefSchema = NonEmptyAppGameIdentityText.pipe(
-  Schema.brand('AppGameExecutablePathRef')
-);
-export const AppGamePackageIdSchema = NonEmptyAppGameIdentityText.pipe(Schema.brand('AppGamePackageId'));
-export const AppGameBundleIdSchema = NonEmptyAppGameIdentityText.pipe(Schema.brand('AppGameBundleId'));
-export const AppGameAppUserModelIdSchema = NonEmptyAppGameIdentityText.pipe(Schema.brand('AppGameAppUserModelId'));
-export const AppGameDesktopEntryIdSchema = NonEmptyAppGameIdentityText.pipe(Schema.brand('AppGameDesktopEntryId'));
-export const AppGameApplicationTokenRefSchema = NonEmptyAppGameIdentityText.pipe(
-  Schema.brand('AppGameApplicationTokenRef')
-);
-export const AppGamePublisherSignatureRefSchema = NonEmptyAppGameIdentityText.pipe(
-  Schema.brand('AppGamePublisherSignatureRef')
-);
-export const AppGameFileHashRefSchema = NonEmptyAppGameIdentityText.pipe(Schema.brand('AppGameFileHashRef'));
-export const AppGameLauncherAppIdSchema = NonEmptyAppGameIdentityText.pipe(Schema.brand('AppGameLauncherAppId'));
-export const AppGameLauncherManifestIdSchema = NonEmptyAppGameIdentityText.pipe(
-  Schema.brand('AppGameLauncherManifestId')
-);
-export const AppGameStoreIdSchema = NonEmptyAppGameIdentityText.pipe(Schema.brand('AppGameStoreId'));
+export const AppGameIdentityIdSchema = brandedNonEmptyStringSchema('AppGameIdentityId');
+export const AppGameDisplayLabelSchema = brandedNonEmptyStringSchema('AppGameDisplayLabel');
+export const AppGameParentLabelSchema = brandedNonEmptyStringSchema('AppGameParentLabel');
+export const AppGameExecutablePathRefSchema = brandedNonEmptyStringSchema('AppGameExecutablePathRef');
+export const AppGamePackageIdSchema = brandedNonEmptyStringSchema('AppGamePackageId');
+export const AppGameBundleIdSchema = brandedNonEmptyStringSchema('AppGameBundleId');
+export const AppGameAppUserModelIdSchema = brandedNonEmptyStringSchema('AppGameAppUserModelId');
+export const AppGameDesktopEntryIdSchema = brandedNonEmptyStringSchema('AppGameDesktopEntryId');
+export const AppGameApplicationTokenRefSchema = brandedNonEmptyStringSchema('AppGameApplicationTokenRef');
+export const AppGamePublisherSignatureRefSchema = brandedNonEmptyStringSchema('AppGamePublisherSignatureRef');
+export const AppGameFileHashRefSchema = brandedNonEmptyStringSchema('AppGameFileHashRef');
+export const AppGameLauncherAppIdSchema = brandedNonEmptyStringSchema('AppGameLauncherAppId');
+export const AppGameLauncherManifestIdSchema = brandedNonEmptyStringSchema('AppGameLauncherManifestId');
+export const AppGameStoreIdSchema = brandedNonEmptyStringSchema('AppGameStoreId');
 
 export const AppGameProductKindSchema = withParser(
   Schema.Literal('nativeApp', 'nativeGame', 'launcher', 'unknownExecutable')
@@ -85,3 +80,4 @@ export const AppGameIdentityDeterministicRefKind = {
 export type AppGameProductKind = Infer<typeof AppGameProductKindSchema>;
 export type AppGameIdentityConfidence = Infer<typeof AppGameIdentityConfidenceSchema>;
 export type AppGameIdentityDeterministicRefKind = Infer<typeof AppGameIdentityDeterministicRefKindSchema>;
+

@@ -1,14 +1,17 @@
-import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
+import {
+  type Infer,
+  Schema,
+  withParser,
+  brandedNonEmptyStringSchema
+} from '@ocentra-parent/schema-domain/effect';
 import { ActivityDeviceIdSchema, ActivitySourceIdSchema, ActivityTimestampSchema } from '@ocentra-parent/evidence-domain/primitives';
 import { BrowserManagedSessionIdSchema, BrowserOriginSchema, BrowserProfileIdSchema } from './browser-schemas';
 
 export const BrowserExtensionNativeHostSchemaVersion = 1;
 export const BrowserNativeHostMaxMessageLengthBytes = 1_048_576;
 
-const NonEmptyExtensionText = Schema.String.pipe(Schema.minLength(1));
-
-export const BrowserExtensionIdSchema = withParser(NonEmptyExtensionText.pipe(Schema.brand('BrowserExtensionId')));
-export const BrowserNativeHostIdSchema = withParser(NonEmptyExtensionText.pipe(Schema.brand('BrowserNativeHostId')));
+export const BrowserExtensionIdSchema = withParser(brandedNonEmptyStringSchema('BrowserExtensionId'));
+export const BrowserNativeHostIdSchema = withParser(brandedNonEmptyStringSchema('BrowserNativeHostId'));
 
 export const BrowserExtensionInstallStateSchema = withParser(
   Schema.Literal(
@@ -152,3 +155,4 @@ function runtimeSignalsStayManual(value: BrowserExtensionNativeHostBoundaryCandi
 function messageLengthIsValid(value: number): boolean {
   return value > 0 && value <= BrowserNativeHostMaxMessageLengthBytes;
 }
+

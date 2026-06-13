@@ -1,4 +1,9 @@
-import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
+import {
+  type Infer,
+  Schema,
+  withParser,
+  brandedNonEmptyStringSchema
+} from '@ocentra-parent/schema-domain/effect';
 import { ParentActionReferenceSchema, ParentDeviceReferenceSchema, ParentEvidenceReferenceSchema } from '@ocentra-parent/family-domain/references';
 import { ParentContractSchemaVersionSchema } from '@ocentra-parent/family-domain/reference-primitives';
 import {
@@ -15,14 +20,12 @@ import {
   appGameChildUxStateIsHonest,
 } from './app-game-child-facing-ux-rules';
 
-const NonEmptyChildUxText = Schema.String.pipe(Schema.minLength(1));
-
-export const AppGameChildUxStateIdSchema = NonEmptyChildUxText.pipe(Schema.brand('AppGameChildUxStateId'));
-export const AppGameChildUxTargetRefSchema = NonEmptyChildUxText.pipe(Schema.brand('AppGameChildUxTargetRef'));
+export const AppGameChildUxStateIdSchema = brandedNonEmptyStringSchema('AppGameChildUxStateId');
+export const AppGameChildUxTargetRefSchema = brandedNonEmptyStringSchema('AppGameChildUxTargetRef');
 export const AppGameChildUxCopyTokenSchema = withParser(Schema.Literal(...Object.values(AppGameChildUxCopyToken)));
-export const AppGameChildUxReasonRefSchema = NonEmptyChildUxText.pipe(Schema.brand('AppGameChildUxReasonRef'));
-export const AppGameChildUxStatusRefSchema = NonEmptyChildUxText.pipe(Schema.brand('AppGameChildUxStatusRef'));
-export const AppGameChildUxDiagnosticRefSchema = NonEmptyChildUxText.pipe(Schema.brand('AppGameChildUxDiagnosticRef'));
+export const AppGameChildUxReasonRefSchema = brandedNonEmptyStringSchema('AppGameChildUxReasonRef');
+export const AppGameChildUxStatusRefSchema = brandedNonEmptyStringSchema('AppGameChildUxStatusRef');
+export const AppGameChildUxDiagnosticRefSchema = brandedNonEmptyStringSchema('AppGameChildUxDiagnosticRef');
 
 export const AppGameChildUxSurfaceStateSchema = withParser(
   Schema.Literal(...Object.values(AppGameChildUxSurfaceState))
@@ -90,3 +93,4 @@ export const AppGameChildUxCardSchema = withParser(
 );
 
 export type AppGameChildUxCard = Infer<typeof AppGameChildUxCardSchema>;
+

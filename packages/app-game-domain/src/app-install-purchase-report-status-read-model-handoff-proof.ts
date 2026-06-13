@@ -1,9 +1,12 @@
-import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
+import {
+  type Infer,
+  Schema,
+  withParser,
+  brandedNonEmptyStringSchema
+} from '@ocentra-parent/schema-domain/effect';
 import { AppInstallPurchaseApprovalReportDomainProofReadModel } from './app-install-purchase-approval-report-domain-proof';
 import { AppInstallPurchaseRuntimeReportWriterDeliveryProofReadModel } from './app-install-purchase-runtime-report-writer-delivery-proof';
 import { ParentTimestampSchema } from '@ocentra-parent/family-domain/reference-primitives';
-
-const ReportStatusReadModelText = Schema.String.pipe(Schema.minLength(1));
 const ReportStatusReadModelProofVersion = 'app-install-purchase-report-status-read-model-handoff-proof';
 const SourceRuntimeReportWriterDeliveryProofVersion = 'app-install-purchase-runtime-report-writer-delivery-proof';
 const SourceApprovalReportDomainProofVersion = 'app-install-purchase-approval-report-domain-proof';
@@ -59,15 +62,9 @@ const ReportStatusReadModelNotClaimedSchema = withParser(Schema.Literal('not-cla
 const ReportStatusReadModelCustodySchema = withParser(Schema.Literal('no-child-activity-data'));
 const ReportStatusReadModelNonClaimSchema = withParser(Schema.Literal(...ReportStatusReadModelNonClaims));
 
-const ReportStatusReadModelRowIdSchema = ReportStatusReadModelText.pipe(
-  Schema.brand('AppInstallPurchaseReportStatusReadModelRowId')
-);
-const ReportStatusReadModelRefSchema = ReportStatusReadModelText.pipe(
-  Schema.brand('AppInstallPurchaseReportStatusReadModelRef')
-);
-const ReportStatusReadModelBoundarySchema = ReportStatusReadModelText.pipe(
-  Schema.brand('AppInstallPurchaseReportStatusReadModelBoundary')
-);
+const ReportStatusReadModelRowIdSchema = brandedNonEmptyStringSchema('AppInstallPurchaseReportStatusReadModelRowId');
+const ReportStatusReadModelRefSchema = brandedNonEmptyStringSchema('AppInstallPurchaseReportStatusReadModelRef');
+const ReportStatusReadModelBoundarySchema = brandedNonEmptyStringSchema('AppInstallPurchaseReportStatusReadModelBoundary');
 
 const ReportStatusReadModelRowBaseSchema = Schema.Struct({
   schemaVersion: AppInstallPurchaseReportStatusReadModelHandoffProofSchemaVersionSchema,
@@ -268,3 +265,4 @@ function reportStatusReadModelProofIsHonest(proof: AppInstallPurchaseReportStatu
     proof.knownGaps.length > 0
   );
 }
+

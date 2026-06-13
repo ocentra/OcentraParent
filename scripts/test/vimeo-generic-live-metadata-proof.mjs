@@ -16,22 +16,22 @@ const outputProofPath = join(
 );
 
 const sourceFiles = [
-  'packages/activity-domain/src/browser-url-intelligence.ts',
-  'packages/activity-domain/src/browser-video-metadata.ts',
+  'packages/browser-domain/src/browser-url-intelligence.ts',
+  'packages/browser-domain/src/browser-video-metadata.ts',
 ];
 
 const builtFiles = [
-  'packages/activity-domain/dist/browser-url-intelligence.js',
-  'packages/activity-domain/dist/browser-video-metadata.js',
+  'packages/browser-domain/dist/browser-url-intelligence.js',
+  'packages/browser-domain/dist/browser-video-metadata.js',
 ];
 
 assertBuiltContractsAreFresh();
 
 const { parseBrowserUrlShape } = await import(
-  pathToFileURL(join(repoRoot, 'packages/activity-domain/dist/browser-url-intelligence.js')).href
+  pathToFileURL(join(repoRoot, 'packages/browser-domain/dist/browser-url-intelligence.js')).href
 );
 const { buildVideoMetadataEvidence } = await import(
-  pathToFileURL(join(repoRoot, 'packages/activity-domain/dist/browser-video-metadata.js')).href
+  pathToFileURL(join(repoRoot, 'packages/browser-domain/dist/browser-video-metadata.js')).href
 );
 
 const [vimeoPage, vimeoPlayer, genericVideoPage] = await Promise.all([

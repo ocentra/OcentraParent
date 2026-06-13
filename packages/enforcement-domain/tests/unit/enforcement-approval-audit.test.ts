@@ -19,7 +19,7 @@ import {
   ParentContractSchemaVersion,
   ParentEvidenceReferenceKind,
   ParentPlatform,
-} from '../../src/reference-primitives';
+} from '@ocentra-parent/family-domain/reference-primitives';
 
 const observedAt = '2026-05-24T22:55:00.000Z';
 const expiresAt = '2026-05-24T23:25:00.000Z';

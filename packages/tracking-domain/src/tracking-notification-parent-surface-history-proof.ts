@@ -1,4 +1,9 @@
-import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
+import {
+  type Infer,
+  Schema,
+  withParser,
+  brandedNonEmptyStringSchema
+} from '@ocentra-parent/schema-domain/effect';
 import {
   ParentContractSchemaVersion,
   ParentContractSchemaVersionSchema,
@@ -20,8 +25,6 @@ import {
   type TrackingProviderNotificationProofReadModel,
   type TrackingProviderNotificationProofRow,
 } from './tracking-provider-notification-proof';
-
-const ParentSurfaceHistoryText = Schema.String.pipe(Schema.minLength(1));
 
 export const TrackingNotificationParentSurfaceHistoryStatus = {
   HistoryIntentReady: 'history-intent-ready',
@@ -53,12 +56,8 @@ export const TrackingNotificationParentSurfaceHistoryStatusSchema = withParser(
 export const TrackingNotificationParentSurfaceHistoryNonClaimSchema = withParser(
   Schema.Literal(...RequiredTrackingNotificationParentSurfaceHistoryNonClaims)
 );
-export const TrackingNotificationParentSurfaceHistoryProofIdSchema = ParentSurfaceHistoryText.pipe(
-  Schema.brand('TrackingNotificationParentSurfaceHistoryProofId')
-);
-export const TrackingNotificationParentSurfaceHistoryReferenceSchema = ParentSurfaceHistoryText.pipe(
-  Schema.brand('TrackingNotificationParentSurfaceHistoryReference')
-);
+export const TrackingNotificationParentSurfaceHistoryProofIdSchema = brandedNonEmptyStringSchema('TrackingNotificationParentSurfaceHistoryProofId');
+export const TrackingNotificationParentSurfaceHistoryReferenceSchema = brandedNonEmptyStringSchema('TrackingNotificationParentSurfaceHistoryReference');
 
 const TrackingNotificationParentSurfaceHistoryRowBaseSchema = Schema.Struct({
   historyRowId: TrackingNotificationParentSurfaceHistoryReferenceSchema,
@@ -333,3 +332,4 @@ function countHistoryStatus(
 function uniqueRefs(refs: readonly string[]): readonly string[] {
   return [...new Set(refs)];
 }
+

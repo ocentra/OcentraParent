@@ -1,9 +1,12 @@
-import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
+import {
+  type Infer,
+  Schema,
+  withParser,
+  brandedNonEmptyStringSchema
+} from '@ocentra-parent/schema-domain/effect';
 import { AppInstallPurchaseReportRuntimeProofReadModel } from './app-install-purchase-report-runtime-proof';
 import { AppInstallPurchaseRuntimeWriterExecutionDeliveryProofReadModel } from './app-install-purchase-runtime-writer-execution-delivery-proof';
 import { ParentTimestampSchema } from '@ocentra-parent/family-domain/reference-primitives';
-
-const RuntimeReportWriterDeliveryText = Schema.String.pipe(Schema.minLength(1));
 const RuntimeReportWriterDeliveryProofVersion = 'app-install-purchase-runtime-report-writer-delivery-proof';
 const SourceRuntimeWriterExecutionDeliveryProofVersion = 'app-install-purchase-runtime-writer-execution-delivery-proof';
 const SourceReportRuntimeProofVersion = 'app-install-purchase-report-runtime-proof';
@@ -55,18 +58,10 @@ const RuntimeReportWriterDeliveryDeliveryClaimSchema = withParser(Schema.Literal
 const RuntimeReportWriterDeliveryCustodyClaimSchema = withParser(Schema.Literal('no-child-activity-data'));
 const RuntimeReportWriterDeliveryNonClaimSchema = withParser(Schema.Literal(...RuntimeReportWriterDeliveryNonClaims));
 
-const RuntimeReportWriterDeliveryRowIdSchema = RuntimeReportWriterDeliveryText.pipe(
-  Schema.brand('AppInstallPurchaseRuntimeReportWriterDeliveryRowId')
-);
-const RuntimeReportWriterDeliveryRefSchema = RuntimeReportWriterDeliveryText.pipe(
-  Schema.brand('AppInstallPurchaseRuntimeReportWriterDeliveryRef')
-);
-const RuntimeReportWriterDeliveryAuditRefSchema = RuntimeReportWriterDeliveryText.pipe(
-  Schema.brand('AppInstallPurchaseRuntimeReportWriterDeliveryAuditRef')
-);
-const RuntimeReportWriterDeliveryBoundarySchema = RuntimeReportWriterDeliveryText.pipe(
-  Schema.brand('AppInstallPurchaseRuntimeReportWriterDeliveryBoundary')
-);
+const RuntimeReportWriterDeliveryRowIdSchema = brandedNonEmptyStringSchema('AppInstallPurchaseRuntimeReportWriterDeliveryRowId');
+const RuntimeReportWriterDeliveryRefSchema = brandedNonEmptyStringSchema('AppInstallPurchaseRuntimeReportWriterDeliveryRef');
+const RuntimeReportWriterDeliveryAuditRefSchema = brandedNonEmptyStringSchema('AppInstallPurchaseRuntimeReportWriterDeliveryAuditRef');
+const RuntimeReportWriterDeliveryBoundarySchema = brandedNonEmptyStringSchema('AppInstallPurchaseRuntimeReportWriterDeliveryBoundary');
 
 const RuntimeReportWriterDeliveryRowBaseSchema = Schema.Struct({
   schemaVersion: AppInstallPurchaseRuntimeReportWriterDeliveryProofSchemaVersionSchema,
@@ -298,3 +293,4 @@ function runtimeReportWriterDeliveryBoundaryIsExplicit(
 ): boolean {
   return RuntimeReportWriterDeliveryBoundaryFragments.every((fragment) => boundary.includes(fragment));
 }
+

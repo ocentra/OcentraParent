@@ -1,24 +1,23 @@
 import {
   SocialVideoSourceCustodySettingsSchema,
   type SocialVideoSourceCustodySettings,
-} from '@ocentra-parent/social-domain/social-video-source-custody-settings';
-import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
+} from '@ocentra-parent/browser-domain/social-video-source-custody-settings';
+import { type Infer, NonEmptyStringSchema, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
 import { AgentEvent, AgentProtocolDefaults, isAgentProtocolLogText, type AgentEventEnvelope } from './contracts';
 
-const NonEmptyTextSchema = Schema.String.pipe(Schema.minLength(1));
 
 export const SocialSourceCustodyMutationSnapshotSchema = withParser(
   Schema.Struct({
     schemaVersion: Schema.Literal('social-source-custody-mutation-proof'),
-    mutationId: NonEmptyTextSchema,
-    requestedAt: NonEmptyTextSchema,
-    appliedAt: NonEmptyTextSchema,
+    mutationId: NonEmptyStringSchema,
+    requestedAt: NonEmptyStringSchema,
+    appliedAt: NonEmptyStringSchema,
     mutationState: Schema.Literal('applied'),
     settings: SocialVideoSourceCustodySettingsSchema,
-    evidenceRefs: Schema.Array(NonEmptyTextSchema).pipe(
+    evidenceRefs: Schema.Array(NonEmptyStringSchema).pipe(
       Schema.filter((value) => value.length > 0 || 'Expected social source custody mutation evidence refs')
     ),
-    auditRefs: Schema.Array(NonEmptyTextSchema).pipe(
+    auditRefs: Schema.Array(NonEmptyStringSchema).pipe(
       Schema.filter((value) => value.length > 0 || 'Expected social source custody mutation audit refs')
     ),
     serviceMutationExecuted: Schema.Literal(true),

@@ -1,1 +1,1 @@
-export * from '@ocentra-parent/social-domain/social-ios-screen-time-capability-matrix';
+export * from '@ocentra-parent/browser-domain/social-ios-screen-time-capability-matrix';

@@ -1,4 +1,9 @@
-import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
+import {
+  type Infer,
+  Schema,
+  withParser,
+  brandedNonEmptyStringSchema
+} from '@ocentra-parent/schema-domain/effect';
 import {
   AppGameChildUxLocalOutboxBridgeReadModelSchema,
   AppGameChildUxLocalOutboxBridgeStatus,
@@ -8,16 +13,14 @@ import {
 import {
   NotificationLocalOutboxSchedulerRecordSchema,
   type NotificationLocalOutboxSchedulerRecord,
-} from './notification-local-outbox-scheduler-proof';
-import { RequiredNotificationLocalOutboxSchedulerNonClaims } from './notification-local-outbox-scheduler-proof-values';
+} from '@ocentra-parent/notification-domain/notification-local-outbox-scheduler-proof';
+import { RequiredNotificationLocalOutboxSchedulerNonClaims } from '@ocentra-parent/notification-domain/notification-local-outbox-scheduler-proof-values';
 import {
   ParentContractSchemaVersion,
   ParentContractSchemaVersionSchema,
   ParentTimestampSchema,
 } from '@ocentra-parent/family-domain/reference-primitives';
 import { FamilyReferenceSchema } from '@ocentra-parent/family-domain/references';
-
-const SchedulerBridgeText = Schema.String.pipe(Schema.minLength(1));
 
 export const AppGameChildUxLocalOutboxSchedulerBridgeStatus = {
   ScheduledLocal: 'scheduled-local-proof-row',
@@ -28,12 +31,8 @@ export const AppGameChildUxLocalOutboxSchedulerBridgeStatus = {
 export const AppGameChildUxLocalOutboxSchedulerBridgeStatusSchema = withParser(
   Schema.Literal(...Object.values(AppGameChildUxLocalOutboxSchedulerBridgeStatus))
 );
-export const AppGameChildUxLocalOutboxSchedulerBridgeIdSchema = SchedulerBridgeText.pipe(
-  Schema.brand('AppGameChildUxLocalOutboxSchedulerBridgeId')
-);
-export const AppGameChildUxLocalOutboxSchedulerBridgeReferenceSchema = SchedulerBridgeText.pipe(
-  Schema.brand('AppGameChildUxLocalOutboxSchedulerBridgeReference')
-);
+export const AppGameChildUxLocalOutboxSchedulerBridgeIdSchema = brandedNonEmptyStringSchema('AppGameChildUxLocalOutboxSchedulerBridgeId');
+export const AppGameChildUxLocalOutboxSchedulerBridgeReferenceSchema = brandedNonEmptyStringSchema('AppGameChildUxLocalOutboxSchedulerBridgeReference');
 
 const AppGameChildUxLocalOutboxSchedulerBridgeRowBaseSchema = Schema.Struct({
   schedulerBridgeRecordId: AppGameChildUxLocalOutboxSchedulerBridgeReferenceSchema,
@@ -281,3 +280,4 @@ function countRows(
 ): number {
   return rows.filter((row) => row.status === status).length;
 }
+

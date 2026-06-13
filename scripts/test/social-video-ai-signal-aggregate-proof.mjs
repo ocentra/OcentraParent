@@ -14,13 +14,13 @@ await main();
 
 async function main() {
   await mkdir(outputDir, { recursive: true });
-  await runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/activity-domain']));
+  await runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/browser-domain']));
   await runCommand(
     ...npmCommand([
       'run',
       'test',
       '--workspace',
-      '@ocentra-parent/activity-domain',
+      '@ocentra-parent/browser-domain',
       '--',
       'tests/social-video-ai-signal-aggregate.test.ts',
     ])
@@ -37,8 +37,8 @@ async function main() {
     proofMode,
     commands,
     evidence: {
-      contract: 'packages/activity-domain/src/social-video-ai-signal-aggregate.ts',
-      contractTest: 'packages/activity-domain/tests/social-video-ai-signal-aggregate.test.ts',
+      contract: 'packages/browser-domain/src/social-video-ai-signal-aggregate.ts',
+      contractTest: 'packages/browser-domain/tests/unit/social-video-ai-signal-aggregate.test.ts',
       packageExport,
       documentation,
       output: relativePath(proofPath),

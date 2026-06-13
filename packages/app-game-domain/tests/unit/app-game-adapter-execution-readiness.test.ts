@@ -5,7 +5,7 @@ import {
   buildAppGameAdapterExecutionReadinessReadModel,
   summarizeAppGameAdapterExecutionReadiness,
 } from '../../src/app-game-adapter-execution-readiness';
-import { V08SupportedAdapterRuntimeProofReadModel } from '../../src/v0-8-supported-adapter-runtime-proof';
+import { V08SupportedAdapterRuntimeProofReadModel } from '@ocentra-parent/enforcement-domain/v0-8-supported-adapter-runtime-proof';
 
 it('projects app/game adapter execution readiness from the V0.8 supported adapter runtime proof', () => {
   const readModel = buildAppGameAdapterExecutionReadinessReadModel(V08SupportedAdapterRuntimeProofReadModel);

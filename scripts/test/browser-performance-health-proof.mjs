@@ -10,7 +10,7 @@ await main();
 async function main() {
   await mkdir(outputDir, { recursive: true });
 
-  const { BrowserPerformanceHealthReadModelSchema } = await import('../../packages/activity-domain/dist/browser.js');
+  const { BrowserPerformanceHealthReadModelSchema } = await import('../../packages/browser-domain/dist/browser.js');
   const readModel = browserPerformanceHealthReadModel();
   const parsed = BrowserPerformanceHealthReadModelSchema.safeParse(readModel);
 

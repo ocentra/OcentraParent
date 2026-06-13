@@ -1,4 +1,9 @@
-import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
+import {
+  type Infer,
+  Schema,
+  withParser,
+  NonEmptyStringSchema
+} from '@ocentra-parent/schema-domain/effect';
 import {
   BrowserControlAuditEventIdSchema,
   BrowserControlBudgetIdSchema,
@@ -65,8 +70,6 @@ import {
 } from './browser-control-manifest';
 import { ParentContractSchemaVersionSchema, ParentTimestampSchema } from '@ocentra-parent/family-domain/reference-primitives';
 
-const BrowserControlPolicyTextSchema = Schema.String.pipe(Schema.minLength(1));
-
 export const BrowserControlBudgetSchema = withParser(
   Schema.Struct({
     budgetId: BrowserControlBudgetIdSchema,
@@ -93,8 +96,8 @@ export const BrowserControlEvidenceRequirementSchema = withParser(
 const BrowserControlRuleTargetSchema = withParser(
   Schema.Struct({
     kind: BrowserControlUrlTargetTypeSchema,
-    values: Schema.Array(BrowserControlPolicyTextSchema),
-    matchMode: BrowserControlPolicyTextSchema,
+    values: Schema.Array(NonEmptyStringSchema),
+    matchMode: NonEmptyStringSchema,
   })
 );
 
@@ -107,7 +110,7 @@ const BrowserControlRuleActionPlanSchema = withParser(
     approvalKind: Schema.optionalWith(Schema.Union(BrowserControlApprovalRequiredForSchema, Schema.Null), {
       default: () => null,
     }),
-    reasonCode: Schema.optionalWith(Schema.Union(BrowserControlPolicyTextSchema, Schema.Null), {
+    reasonCode: Schema.optionalWith(Schema.Union(NonEmptyStringSchema, Schema.Null), {
       default: () => null,
     }),
   })
@@ -118,7 +121,7 @@ const BrowserControlRuleBaseSchema = Schema.Struct({
   targetType: Schema.optionalWith(Schema.Union(BrowserControlUrlTargetTypeSchema, Schema.Null), {
     default: () => null,
   }),
-  targetValue: Schema.optionalWith(Schema.Union(BrowserControlPolicyTextSchema, Schema.Null), {
+  targetValue: Schema.optionalWith(Schema.Union(NonEmptyStringSchema, Schema.Null), {
     default: () => null,
   }),
   enabled: Schema.Boolean,
@@ -131,7 +134,7 @@ const BrowserControlRuleBaseSchema = Schema.Struct({
   action: Schema.optionalWith(Schema.Union(BrowserControlRuleActionPlanSchema, Schema.Null), {
     default: () => null,
   }),
-  proofRequirement: Schema.optionalWith(Schema.Union(BrowserControlPolicyTextSchema, Schema.Null), {
+  proofRequirement: Schema.optionalWith(Schema.Union(NonEmptyStringSchema, Schema.Null), {
     default: () => null,
   }),
   scheduleId: Schema.optionalWith(Schema.Union(BrowserControlScheduleIdSchema, Schema.Null), {
@@ -140,7 +143,7 @@ const BrowserControlRuleBaseSchema = Schema.Struct({
   budgetId: Schema.optionalWith(Schema.Union(BrowserControlBudgetIdSchema, Schema.Null), {
     default: () => null,
   }),
-  auditLevel: Schema.optionalWith(Schema.Union(BrowserControlPolicyTextSchema, Schema.Null), {
+  auditLevel: Schema.optionalWith(Schema.Union(NonEmptyStringSchema, Schema.Null), {
     default: () => null,
   }),
 });
@@ -160,8 +163,8 @@ export const BrowserControlRuleSchema = withParser(
 const BrowserControlScheduleSchema = withParser(
   Schema.Struct({
     scheduleId: BrowserControlScheduleIdSchema,
-    kind: BrowserControlPolicyTextSchema,
-    timezone: Schema.optionalWith(Schema.Union(BrowserControlPolicyTextSchema, Schema.Null), {
+    kind: NonEmptyStringSchema,
+    timezone: Schema.optionalWith(Schema.Union(NonEmptyStringSchema, Schema.Null), {
       default: () => null,
     }),
   })
@@ -186,7 +189,7 @@ const BrowserControlPortalAiSchema = withParser(
     allowEvidenceRefs: Schema.optionalWith(Schema.Boolean, { default: () => false }),
     allowRawContent: Schema.optionalWith(Schema.Boolean, { default: () => false }),
     requiresManualReview: Schema.optionalWith(Schema.Boolean, { default: () => false }),
-    fallbackWhenUnavailable: Schema.optionalWith(Schema.Union(BrowserControlPolicyTextSchema, Schema.Null), {
+    fallbackWhenUnavailable: Schema.optionalWith(Schema.Union(NonEmptyStringSchema, Schema.Null), {
       default: () => null,
     }),
   })
@@ -203,9 +206,9 @@ const BrowserControlDiscoverySchema = withParser(
 const BrowserControlPlatformCapabilitySchema = withParser(
   Schema.Struct({
     enabled: Schema.optionalWith(Schema.Boolean, { default: () => false }),
-    state: Schema.optionalWith(Schema.Union(BrowserControlPolicyTextSchema, Schema.Null), { default: () => null }),
-    allowedAdapters: Schema.optionalWith(Schema.Array(BrowserControlPolicyTextSchema), { default: () => [] }),
-    manualRequiredAdapters: Schema.optionalWith(Schema.Array(BrowserControlPolicyTextSchema), { default: () => [] }),
+    state: Schema.optionalWith(Schema.Union(NonEmptyStringSchema, Schema.Null), { default: () => null }),
+    allowedAdapters: Schema.optionalWith(Schema.Array(NonEmptyStringSchema), { default: () => [] }),
+    manualRequiredAdapters: Schema.optionalWith(Schema.Array(NonEmptyStringSchema), { default: () => [] }),
     authoringOnly: Schema.optionalWith(Schema.Boolean, { default: () => false }),
     mayRunCapture: Schema.optionalWith(Schema.Boolean, { default: () => false }),
     mayConnectToBrowserBridge: Schema.optionalWith(Schema.Boolean, { default: () => false }),
@@ -225,37 +228,37 @@ const BrowserControlPlatformsSchema = withParser(
 
 const BrowserControlFallbacksSchema = withParser(
   Schema.Struct({
-    managedProfileMissing: Schema.optionalWith(Schema.Union(BrowserControlPolicyTextSchema, Schema.Null), {
+    managedProfileMissing: Schema.optionalWith(Schema.Union(NonEmptyStringSchema, Schema.Null), {
       default: () => null,
     }),
-    bridgeMissing: Schema.optionalWith(Schema.Union(BrowserControlPolicyTextSchema, Schema.Null), {
+    bridgeMissing: Schema.optionalWith(Schema.Union(NonEmptyStringSchema, Schema.Null), {
       default: () => null,
     }),
-    extensionDisabled: Schema.optionalWith(Schema.Union(BrowserControlPolicyTextSchema, Schema.Null), {
+    extensionDisabled: Schema.optionalWith(Schema.Union(NonEmptyStringSchema, Schema.Null), {
       default: () => null,
     }),
-    nativeHostMissing: Schema.optionalWith(Schema.Union(BrowserControlPolicyTextSchema, Schema.Null), {
+    nativeHostMissing: Schema.optionalWith(Schema.Union(NonEmptyStringSchema, Schema.Null), {
       default: () => null,
     }),
-    unsupportedBrowser: Schema.optionalWith(Schema.Union(BrowserControlPolicyTextSchema, Schema.Null), {
+    unsupportedBrowser: Schema.optionalWith(Schema.Union(NonEmptyStringSchema, Schema.Null), {
       default: () => null,
     }),
-    staleEvidence: Schema.optionalWith(Schema.Union(BrowserControlPolicyTextSchema, Schema.Null), {
+    staleEvidence: Schema.optionalWith(Schema.Union(NonEmptyStringSchema, Schema.Null), {
       default: () => null,
     }),
-    networkAdapterUnavailable: Schema.optionalWith(Schema.Union(BrowserControlPolicyTextSchema, Schema.Null), {
+    networkAdapterUnavailable: Schema.optionalWith(Schema.Union(NonEmptyStringSchema, Schema.Null), {
       default: () => null,
     }),
-    processControlUnavailable: Schema.optionalWith(Schema.Union(BrowserControlPolicyTextSchema, Schema.Null), {
+    processControlUnavailable: Schema.optionalWith(Schema.Union(NonEmptyStringSchema, Schema.Null), {
       default: () => null,
     }),
-    enforcementFailure: Schema.optionalWith(Schema.Union(BrowserControlPolicyTextSchema, Schema.Null), {
+    enforcementFailure: Schema.optionalWith(Schema.Union(NonEmptyStringSchema, Schema.Null), {
       default: () => null,
     }),
-    childDeviceOffline: Schema.optionalWith(Schema.Union(BrowserControlPolicyTextSchema, Schema.Null), {
+    childDeviceOffline: Schema.optionalWith(Schema.Union(NonEmptyStringSchema, Schema.Null), {
       default: () => null,
     }),
-    platformUnsupported: Schema.optionalWith(Schema.Union(BrowserControlPolicyTextSchema, Schema.Null), {
+    platformUnsupported: Schema.optionalWith(Schema.Union(NonEmptyStringSchema, Schema.Null), {
       default: () => null,
     }),
   })
@@ -322,10 +325,10 @@ export const BrowserControlPolicyValueBaseSchema = Schema.Struct({
     entries: Schema.optionalWith(Schema.Array(BrowserControlRuleSchema), {
       default: () => [],
     }),
-    urlAllowList: Schema.optionalWith(Schema.Array(BrowserControlPolicyTextSchema), {
+    urlAllowList: Schema.optionalWith(Schema.Array(NonEmptyStringSchema), {
       default: () => [],
     }),
-    urlBlockList: Schema.optionalWith(Schema.Array(BrowserControlPolicyTextSchema), {
+    urlBlockList: Schema.optionalWith(Schema.Array(NonEmptyStringSchema), {
       default: () => [],
     }),
   }),
@@ -493,7 +496,7 @@ export const BrowserControlEffectiveRuleSchema = withParser(
   Schema.Struct({
     ruleId: BrowserControlRuleIdSchema,
     targetType: BrowserControlUrlTargetTypeSchema,
-    targetValue: BrowserControlPolicyTextSchema,
+    targetValue: NonEmptyStringSchema,
     defaultPosture: BrowserControlDefaultPostureSchema,
     evidence: BrowserControlEvidenceRequirementSchema,
     action: BrowserControlRuleActionSchema,
@@ -501,7 +504,7 @@ export const BrowserControlEffectiveRuleSchema = withParser(
     capabilityState: BrowserControlCapabilityStateSchema,
     actionExecution: BrowserControlActionExecutionStateSchema,
     aiAuthority: BrowserControlAiAuthoritySchema,
-    compileNote: BrowserControlPolicyTextSchema,
+    compileNote: NonEmptyStringSchema,
   })
 );
 
@@ -543,10 +546,10 @@ export const BrowserControlCapabilitySchema = withParser(
   Schema.Struct({
     capabilityId: BrowserControlCapabilityIdSchema,
     state: BrowserControlCapabilityStateSchema,
-    label: BrowserControlPolicyTextSchema,
+    label: NonEmptyStringSchema,
     affectedWritesTo: Schema.Array(BrowserControlSchemaKnownWritesToPathSchema),
     checkedAt: ParentTimestampSchema,
-    reason: Schema.Union(BrowserControlPolicyTextSchema, Schema.Null),
+    reason: Schema.Union(NonEmptyStringSchema, Schema.Null),
   })
 );
 
@@ -642,7 +645,7 @@ export const BrowserControlUpdateResponseSchema = withParser(
     capabilityRegistry: Schema.Union(BrowserControlCapabilityRegistrySchema, Schema.Null),
     rejectionReason: Schema.Union(BrowserControlRejectionReasonSchema, Schema.Null),
     auditEventId: Schema.Union(BrowserControlAuditEventIdSchema, Schema.Null),
-    message: Schema.Union(BrowserControlPolicyTextSchema, Schema.Null),
+    message: Schema.Union(NonEmptyStringSchema, Schema.Null),
   })
 );
 
@@ -837,3 +840,4 @@ function defaultFallbacks() {
     platformUnsupported: null,
   };
 }
+

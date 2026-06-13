@@ -1,7 +1,5 @@
-import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
+import { type Infer, brandedNonEmptyStringSchema, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
 import { ParentControlPlatformCapabilityInputs } from './capability-data';
-
-const NonEmptyCapabilityText = Schema.String.pipe(Schema.minLength(1));
 
 export const ParentControlPlatformSchema = withParser(Schema.Literal('windows', 'linux', 'macos', 'android', 'ios'));
 export const ParentControlCapabilityStatusSchema = withParser(
@@ -56,7 +54,7 @@ export const ParentControlCapabilitySchema = withParser(
   Schema.Struct({
     capability: ParentControlCapabilityNameSchema,
     status: ParentControlCapabilityStatusSchema,
-    note: NonEmptyCapabilityText.pipe(Schema.brand('ParentControlCapabilityNote')),
+    note: brandedNonEmptyStringSchema('ParentControlCapabilityNote'),
   })
 );
 

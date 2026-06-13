@@ -1,9 +1,12 @@
-import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
-
-const NonEmptyAnalysisQueueValueText = Schema.String.pipe(Schema.minLength(1));
+import {
+  type Infer,
+  Schema,
+  withParser,
+  brandedNonEmptyStringSchema
+} from '@ocentra-parent/schema-domain/effect';
 
 export const BrowserAnalysisJobIdSchema = withParser(
-  NonEmptyAnalysisQueueValueText.pipe(Schema.brand('BrowserAnalysisJobId'))
+  brandedNonEmptyStringSchema('BrowserAnalysisJobId')
 );
 
 export const BrowserAnalysisPrioritySchema = withParser(
@@ -24,3 +27,4 @@ export const BrowserAnalysisTimeoutDispositionSchema = withParser(
 );
 
 export type BrowserAnalysisPriority = Infer<typeof BrowserAnalysisPrioritySchema>;
+

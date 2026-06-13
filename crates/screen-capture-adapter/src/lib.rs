@@ -14,6 +14,37 @@ pub enum ScreenCaptureScope {
 }
 
 #[derive(Clone, Debug, PartialEq, Eq)]
+pub struct ScreenCaptureWindowTitleQuery {
+    value: String,
+}
+
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub enum ScreenCaptureWindowTitleQueryError {
+    Empty,
+}
+
+impl ScreenCaptureWindowTitleQuery {
+    pub fn as_str(&self) -> &str {
+        &self.value
+    }
+}
+
+impl TryFrom<String> for ScreenCaptureWindowTitleQuery {
+    type Error = ScreenCaptureWindowTitleQueryError;
+
+    fn try_from(value: String) -> Result<Self, Self::Error> {
+        let trimmed = value.trim();
+        if trimmed.is_empty() {
+            return Err(ScreenCaptureWindowTitleQueryError::Empty);
+        }
+
+        Ok(Self {
+            value: trimmed.to_owned(),
+        })
+    }
+}
+
+#[derive(Clone, Debug, PartialEq, Eq)]
 pub struct ScreenCaptureMetadata {
     pub status: ActivityCaptureCapabilityStatus,
     pub scope: ScreenCaptureScope,
@@ -52,8 +83,10 @@ pub fn capture_active_window_png() -> ScreenCaptureAttempt {
     platform_capture_active_window_png()
 }
 
-pub fn capture_window_title_contains_png(title_contains: &str) -> ScreenCaptureAttempt {
-    platform_capture_window_title_contains_png(title_contains)
+pub fn capture_window_title_contains_png(
+    title_query: &ScreenCaptureWindowTitleQuery,
+) -> ScreenCaptureAttempt {
+    platform_capture_window_title_contains_png(title_query)
 }
 
 pub fn capture_primary_display_png() -> ScreenCaptureAttempt {
@@ -91,8 +124,10 @@ fn platform_capture_active_window_png() -> ScreenCaptureAttempt {
 }
 
 #[cfg(any(target_os = "windows", target_os = "macos"))]
-fn platform_capture_window_title_contains_png(title_contains: &str) -> ScreenCaptureAttempt {
-    desktop_xcap::capture_window_title_contains_png(title_contains)
+fn platform_capture_window_title_contains_png(
+    title_query: &ScreenCaptureWindowTitleQuery,
+) -> ScreenCaptureAttempt {
+    desktop_xcap::capture_window_title_contains_png(title_query)
 }
 
 #[cfg(any(target_os = "windows", target_os = "macos"))]
@@ -117,7 +152,9 @@ fn platform_capture_active_window_png() -> ScreenCaptureAttempt {
     target_os = "macos",
     all(target_os = "linux", not(target_env = "ohos"))
 )))]
-fn platform_capture_window_title_contains_png(_title_contains: &str) -> ScreenCaptureAttempt {
+fn platform_capture_window_title_contains_png(
+    _title_query: &ScreenCaptureWindowTitleQuery,
+) -> ScreenCaptureAttempt {
     degraded_selected_window(ActivityCaptureCapabilityStatus::Unavailable)
 }
 
@@ -139,8 +176,10 @@ fn platform_capture_active_window_png() -> ScreenCaptureAttempt {
 }
 
 #[cfg(all(target_os = "linux", not(target_env = "ohos")))]
-fn platform_capture_window_title_contains_png(title_contains: &str) -> ScreenCaptureAttempt {
-    linux_x11::capture_window_title_contains_png(title_contains)
+fn platform_capture_window_title_contains_png(
+    title_query: &ScreenCaptureWindowTitleQuery,
+) -> ScreenCaptureAttempt {
+    linux_x11::capture_window_title_contains_png(title_query)
 }
 
 #[cfg(all(target_os = "linux", not(target_env = "ohos")))]
@@ -191,5 +230,21 @@ mod tests {
         });
 
         assert_eq!(attempt.status(), ActivityCaptureCapabilityStatus::Available);
+    }
+
+    #[test]
+    fn window_title_query_rejects_blank_input() {
+        assert_eq!(
+            ScreenCaptureWindowTitleQuery::try_from(String::from("  ")),
+            Err(ScreenCaptureWindowTitleQueryError::Empty)
+        );
+    }
+
+    #[test]
+    fn window_title_query_trims_input() {
+        let query = ScreenCaptureWindowTitleQuery::try_from(String::from(" Ocentra "))
+            .expect("query parses");
+
+        assert_eq!(query.as_str(), "Ocentra");
     }
 }

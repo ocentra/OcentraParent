@@ -1,6 +1,7 @@
 import { decodeDisplayText, type DisplayText } from '@ocentra-parent/text-domain/contracts';
 import { PortalDevTextToken, resolvePortalDevText } from '@ocentra-parent/text-domain/portal-dev';
 import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
+import { PortalRouteHashPrefix, PortalRouteHashQuerySeparator } from './routes';
 export { PortalFormatting } from './formatting';
 export {
   decodePortalClipboardText,
@@ -270,6 +271,9 @@ export {
 } from './browser-social-provider-receipt-ingestion-readiness-status';
 export {
   PortalRoute,
+  PortalRouteLiteral,
+  PortalRouteHashPrefix,
+  PortalRouteHashQuerySeparator,
   PortalDevToolWindow,
   PortalAiRuntimeRoutes,
   PortalRouteDescriptors,
@@ -292,7 +296,11 @@ export {
   isPortalScreenSummaryRoute,
   isPortalTrackingStatusRoute,
   portalDevToolUrl,
+  portalRouteHashPath,
+  portalRouteHashPathWithQuery,
   type PortalDevToolUrl,
+  type PortalRouteHashPath,
+  type PortalRouteHashQueryPath,
   type PortalRouteDescriptor,
   type PortalRouteGroupValue,
 } from './routes';
@@ -344,8 +352,8 @@ const PortalConnectionState = {
 
 const PortalDom = {
   RootSelector: '#app',
-  HashPrefix: '#/',
-  HashQuerySeparator: '?',
+  HashPrefix: PortalRouteHashPrefix,
+  HashQuerySeparator: PortalRouteHashQuerySeparator,
   BackgroundDevToolHashFlag: 'bg-only=1',
   EmptyHashRoute: '',
   Ids: {

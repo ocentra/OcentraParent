@@ -21,6 +21,7 @@ describe('social parent notification delivery read model adapter', () => {
     expect(result.value.parentReportStatusReadyCount).toBe(1);
     expect(result.value.manualRequiredCount).toBe(1);
     expect(result.value.unavailableCount).toBe(1);
+    expect(result.value.parentLocalDeliveryResultCount).toBe(1);
     expect(result.value.parentNotificationUiDeliveryClaimed).toBe(false);
     expect(result.value.externalRuntimeReportDeliveryClaimed).toBe(false);
     expect(result.value.finalPolicyExecutionClaimed).toBe(false);
@@ -92,7 +93,7 @@ function eventWithPayload(payload: AgentEventEnvelope['payload']): AgentEventEnv
 
 function snapshot() {
   return {
-    schemaVersion: 'social-parent-notification-delivery-read-model',
+    schemaVersion: 'v0.6',
     readinessId: 'social-parent-notification-delivery-readiness-service',
     generatedAt: Timestamp,
     sourceReportWriterProofRef: 'social-report-writer-delivery-proof-service',
@@ -108,6 +109,7 @@ function snapshot() {
     parentReportStatusReadyCount: 1,
     manualRequiredCount: 1,
     unavailableCount: 1,
+    parentLocalDeliveryResultCount: 1,
     parentNotificationUiDeliveryClaimed: false,
     externalRuntimeReportDeliveryClaimed: false,
     finalPolicyExecutionClaimed: false,
@@ -119,12 +121,14 @@ function readyRow() {
   return baseRow({
     notificationDeliveryReadinessRowId: 'social-parent-notification-ready-high-risk-service',
     parentVisibleReportStatusRef: 'social-parent-visible-report-status-high-risk-service',
+    parentLocalDeliveryResultRef: 'social-parent-local-delivery-result-high-risk-service',
     parentReportRef: 'social-parent-report-high-risk-service',
     reportArtifactRef: 'social-report-artifact-high-risk-service',
     reportReceiptRef: 'social-report-receipt-high-risk-service',
     manualProofRequirements: [],
     notificationDeliveryReadinessState: 'parent-report-status-ready',
     reportDeliveryExecutionState: 'parent-owned-report-ready',
+    parentLocalDeliveryResultRecorded: true,
     parentOwnedReportArtifactWritten: true,
     parentOwnedReportReceiptRecorded: true,
   });
@@ -134,12 +138,14 @@ function manualRow() {
   return baseRow({
     notificationDeliveryReadinessRowId: 'social-parent-notification-manual-required-service',
     parentVisibleReportStatusRef: 'social-parent-visible-report-status-manual-required-service',
+    parentLocalDeliveryResultRef: null,
     parentReportRef: null,
     reportArtifactRef: null,
     reportReceiptRef: null,
     manualProofRequirements: ['manual-parent-notification-ui-runtime-proof-required'],
     notificationDeliveryReadinessState: 'manual-required',
     reportDeliveryExecutionState: 'manual-required',
+    parentLocalDeliveryResultRecorded: false,
     parentOwnedReportArtifactWritten: false,
     parentOwnedReportReceiptRecorded: false,
   });
@@ -149,12 +155,14 @@ function unavailableRow() {
   return baseRow({
     notificationDeliveryReadinessRowId: 'social-parent-notification-unavailable-service',
     parentVisibleReportStatusRef: null,
+    parentLocalDeliveryResultRef: null,
     parentReportRef: null,
     reportArtifactRef: null,
     reportReceiptRef: null,
     manualProofRequirements: ['external-report-delivery-runtime-unavailable'],
     notificationDeliveryReadinessState: 'unavailable',
     reportDeliveryExecutionState: 'unavailable',
+    parentLocalDeliveryResultRecorded: false,
     parentOwnedReportArtifactWritten: false,
     parentOwnedReportReceiptRecorded: false,
   });
@@ -163,16 +171,19 @@ function unavailableRow() {
 function baseRow(overrides: {
   readonly notificationDeliveryReadinessRowId: string;
   readonly parentVisibleReportStatusRef: string | null;
+  readonly parentLocalDeliveryResultRef: string | null;
   readonly parentReportRef: string | null;
   readonly reportArtifactRef: string | null;
   readonly reportReceiptRef: string | null;
   readonly manualProofRequirements: readonly string[];
   readonly notificationDeliveryReadinessState: 'parent-report-status-ready' | 'manual-required' | 'unavailable';
   readonly reportDeliveryExecutionState: 'parent-owned-report-ready' | 'manual-required' | 'unavailable';
+  readonly parentLocalDeliveryResultRecorded: boolean;
   readonly parentOwnedReportArtifactWritten: boolean;
   readonly parentOwnedReportReceiptRecorded: boolean;
 }) {
   return {
+    schemaVersion: 'v0.6',
     ...overrides,
     sourceReportWriterDeliveryRowRef: 'social-report-writer-delivery-row-service',
     sourceIntentRef: 'social-alert-report-high-risk-service',

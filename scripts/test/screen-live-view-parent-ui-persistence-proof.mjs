@@ -29,12 +29,12 @@ const serviceSessionProofPath = join(
   'proof-summary.json'
 );
 
-run('npm', ['run', 'build', '--workspace', '@ocentra-parent/activity-domain']);
+run('npm', ['run', 'build', '--workspace', '@ocentra-parent/screen-domain']);
 run('npm', [
   'run',
   'test',
   '--workspace',
-  '@ocentra-parent/activity-domain',
+  '@ocentra-parent/screen-domain',
   '--',
   'screen-live-view-parent-ui-persistence',
 ]);

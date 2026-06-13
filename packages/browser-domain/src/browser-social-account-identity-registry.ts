@@ -1,4 +1,10 @@
-import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
+import {
+  type Infer,
+  Schema,
+  withParser,
+  brandedNonEmptyStringSchema,
+  NonEmptyStringSchema
+} from '@ocentra-parent/schema-domain/effect';
 import { ActivityEvidenceIdSchema, ActivityTimestampSchema } from '@ocentra-parent/evidence-domain/primitives';
 import {
   type BrowserSocialAccountFlowEvidence,
@@ -9,9 +15,7 @@ import {
   BrowserSocialPlatformSchema,
   BrowserSocialRouteEvidenceIdSchema,
 } from './browser-social-platform-route-schemas';
-
-const NonEmptySocialAccountIdentityText = Schema.String.pipe(Schema.minLength(1));
-const OptionalSocialAccountIdentityTextSchema = Schema.Union(NonEmptySocialAccountIdentityText, Schema.Null);
+const OptionalSocialAccountIdentityTextSchema = Schema.Union(NonEmptyStringSchema, Schema.Null);
 const SocialAccountIdentitySourceEvidenceIdsSchema = Schema.Array(ActivityEvidenceIdSchema).pipe(
   Schema.filter((value) => value.length > 0 || 'Expected social account identity source evidence ids')
 );
@@ -19,11 +23,11 @@ const SocialAccountIdentitySourceEvidenceIdsSchema = Schema.Array(ActivityEviden
 export const BrowserSocialAccountIdentityRegistrySchemaVersion = 1;
 
 export const BrowserSocialAccountIdentityRegistryEntryIdSchema = withParser(
-  NonEmptySocialAccountIdentityText.pipe(Schema.brand('BrowserSocialAccountIdentityRegistryEntryId'))
+  brandedNonEmptyStringSchema('BrowserSocialAccountIdentityRegistryEntryId')
 );
 
 export const BrowserSocialAccountIdentityRefSchema = withParser(
-  NonEmptySocialAccountIdentityText.pipe(Schema.brand('BrowserSocialAccountIdentityRef'))
+  brandedNonEmptyStringSchema('BrowserSocialAccountIdentityRef')
 );
 
 export const BrowserSocialAccountIdentitySourceKindSchema = withParser(
@@ -226,3 +230,4 @@ function manualRequiredIdentityEntryIsConsistent(
 function accountFlowCanBuildUnverifiedIdentityContext(value: BrowserSocialAccountFlowEvidence) {
   return value.evidenceState === 'route-only' && !value.accountIdentityClaimed && value.accountIdentityRef === null;
 }
+

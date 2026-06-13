@@ -8,7 +8,7 @@ const repoRoot = join(__dirname, '..', '..');
 const outputDir = join(repoRoot, 'output', 'screen-plan-proof', 'macos');
 const proofPath = join(outputDir, 'proof-summary.json');
 
-run('npm', ['run', 'build', '--workspace', '@ocentra-parent/activity-domain']);
+run('npm', ['run', 'build', '--workspace', '@ocentra-parent/screen-domain']);
 
 const screenMacos = await import(
   pathToFileURL(join(repoRoot, 'packages', 'activity-domain', 'dist', 'screen-macos-capture-capability-proof.js')).href

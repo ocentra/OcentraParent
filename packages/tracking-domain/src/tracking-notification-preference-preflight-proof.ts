@@ -1,4 +1,9 @@
-import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
+import {
+  type Infer,
+  Schema,
+  withParser,
+  brandedNonEmptyStringSchema
+} from '@ocentra-parent/schema-domain/effect';
 import {
   ParentContractSchemaVersion,
   ParentContractSchemaVersionSchema,
@@ -14,9 +19,7 @@ import {
 import {
   V3NotificationParentPreferenceStateSchema,
   V3NotificationQuietHoursDecisionSchema,
-} from './v3-notification-rule-provider-retry-contract';
-
-const PreferenceProofText = Schema.String.pipe(Schema.minLength(1));
+} from '@ocentra-parent/notification-domain/v3-notification-rule-provider-retry-contract';
 
 export const TrackingNotificationPreferencePreflightStatus = {
   ParentPreferenceRequired: 'parent-preference-required',
@@ -46,12 +49,8 @@ export const TrackingNotificationPreferencePreflightStatusSchema = withParser(
 export const TrackingNotificationPreferencePreflightNonClaimSchema = withParser(
   Schema.Literal(...RequiredTrackingNotificationPreferencePreflightNonClaims)
 );
-export const TrackingNotificationPreferencePreflightIdSchema = PreferenceProofText.pipe(
-  Schema.brand('TrackingNotificationPreferencePreflightId')
-);
-export const TrackingNotificationPreferencePreflightReferenceSchema = PreferenceProofText.pipe(
-  Schema.brand('TrackingNotificationPreferencePreflightReference')
-);
+export const TrackingNotificationPreferencePreflightIdSchema = brandedNonEmptyStringSchema('TrackingNotificationPreferencePreflightId');
+export const TrackingNotificationPreferencePreflightReferenceSchema = brandedNonEmptyStringSchema('TrackingNotificationPreferencePreflightReference');
 
 const TrackingNotificationPreferencePreflightRowBaseSchema = Schema.Struct({
   preferenceRowId: TrackingNotificationPreferencePreflightReferenceSchema,
@@ -271,3 +270,4 @@ function countRows(
 ): number {
   return rows.filter((row) => row.status === status).length;
 }
+

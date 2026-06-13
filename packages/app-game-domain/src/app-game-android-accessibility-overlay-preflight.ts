@@ -1,11 +1,14 @@
-import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
+import {
+  type Infer,
+  Schema,
+  withParser,
+  brandedNonEmptyStringSchema
+} from '@ocentra-parent/schema-domain/effect';
 import {
   AppGameAndroidPhysicalDeviceProofSchema,
   type AppGameAndroidPhysicalDeviceProof,
 } from './app-game-android-physical-device-proof';
 import { ParentTimestampSchema } from '@ocentra-parent/family-domain/reference-primitives';
-
-const AndroidAccessibilityText = Schema.String.pipe(Schema.minLength(1));
 
 export const AppGameAndroidAccessibilityOverlayPreflightSchemaVersionSchema = withParser(
   Schema.Literal('app-game-android-accessibility-overlay-preflight')
@@ -37,9 +40,7 @@ export const AppGameAndroidAccessibilityOverlayPreflightBlockerSchema = withPars
   )
 );
 
-const AndroidAccessibilityLabelSchema = AndroidAccessibilityText.pipe(
-  Schema.brand('AppGameAndroidAccessibilityOverlayPreflightLabel')
-);
+const AndroidAccessibilityLabelSchema = brandedNonEmptyStringSchema('AppGameAndroidAccessibilityOverlayPreflightLabel');
 
 const AndroidAccessibilityCountSchema = Schema.Number.pipe(Schema.int(), Schema.greaterThanOrEqualTo(0));
 
@@ -242,3 +243,4 @@ function androidAccessibilityOverlayPreflightReadModelIsHonest(
     !readModel.childDeviceDeliveryClaimed
   );
 }
+

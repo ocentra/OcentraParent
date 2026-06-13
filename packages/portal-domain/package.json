@@ -62,10 +62,7 @@
     "@ocentra-parent/family-domain": "file:../family-domain",
     "@ocentra-parent/logging-domain": "file:../logging-domain",
     "@ocentra-parent/network-domain": "file:../network-domain",
-    "@ocentra-parent/parent-domain": "file:../parent-domain",
     "@ocentra-parent/schema-domain": "file:../schema-domain",
-    "@ocentra-parent/screen-domain": "file:../screen-domain",
-    "@ocentra-parent/social-domain": "file:../social-domain",
     "@ocentra-parent/text-domain": "file:../text-domain"
   }
 }

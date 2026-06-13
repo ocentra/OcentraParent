@@ -7,7 +7,7 @@ import { fileURLToPath } from 'node:url';
 import {
   BrowserSocialUnmanagedBypassEvidenceSchema,
   detectBrowserSocialUnmanagedBypass,
-} from '../../packages/activity-domain/dist/browser-social-unmanaged-bypass-detector.js';
+} from '../../packages/browser-domain/dist/browser-social-unmanaged-bypass-detector.js';
 
 const scriptDir = dirname(fileURLToPath(import.meta.url));
 const repoRoot = join(scriptDir, '..', '..');
@@ -17,12 +17,12 @@ const outputProofPath = join(proofRoot, '11-live-process-proof.json');
 const observedAt = new Date().toISOString();
 
 const sourceFiles = [
-  'packages/activity-domain/src/browser-social-unmanaged-bypass-detector-values.ts',
-  'packages/activity-domain/src/browser-social-unmanaged-bypass-detector.ts',
+  'packages/browser-domain/src/browser-social-unmanaged-bypass-detector-values.ts',
+  'packages/browser-domain/src/browser-social-unmanaged-bypass-detector.ts',
 ];
 const builtFiles = [
-  'packages/activity-domain/dist/browser-social-unmanaged-bypass-detector-values.js',
-  'packages/activity-domain/dist/browser-social-unmanaged-bypass-detector.js',
+  'packages/browser-domain/dist/browser-social-unmanaged-bypass-detector-values.js',
+  'packages/browser-domain/dist/browser-social-unmanaged-bypass-detector.js',
 ];
 
 const liveTargets = [

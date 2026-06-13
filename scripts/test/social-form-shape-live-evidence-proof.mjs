@@ -2,13 +2,13 @@ import { execFileSync } from 'node:child_process';
 import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { dirname, join, relative } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { buildBrowserSocialAccountFlowEvidenceFromRoute } from '../../packages/activity-domain/dist/browser-social-account-flow-schemas.js';
+import { buildBrowserSocialAccountFlowEvidenceFromRoute } from '../../packages/browser-domain/dist/browser-social-account-flow-schemas.js';
 import {
   BrowserSocialFormShapeEvidenceSchema,
   detectBrowserSocialFormShape,
-} from '../../packages/activity-domain/dist/browser-social-form-shape-detector.js';
-import { buildBrowserSocialRouteEvidenceFromUrlPattern } from '../../packages/activity-domain/dist/browser-social-url-patterns.js';
-import { parseBrowserUrlShape } from '../../packages/activity-domain/dist/browser-url-intelligence.js';
+} from '../../packages/browser-domain/dist/browser-social-form-shape-detector.js';
+import { buildBrowserSocialRouteEvidenceFromUrlPattern } from '../../packages/browser-domain/dist/browser-social-url-patterns.js';
+import { parseBrowserUrlShape } from '../../packages/browser-domain/dist/browser-url-intelligence.js';
 
 const scriptDir = dirname(fileURLToPath(import.meta.url));
 const repoRoot = join(scriptDir, '..', '..');

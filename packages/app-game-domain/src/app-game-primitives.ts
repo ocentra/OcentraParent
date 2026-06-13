@@ -1,8 +1,11 @@
-import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
+import {
+  type Infer,
+  Schema,
+  withParser,
+  brandedNonEmptyStringSchema
+} from '@ocentra-parent/schema-domain/effect';
 
 export const AppGameSchemaVersion = 1;
-
-const NonEmptyAppGameText = Schema.String.pipe(Schema.minLength(1));
 
 export const AppGameNonNegativeDurationSchema = Schema.Number.pipe(
   Schema.filter((value) => value >= 0 || 'Expected a non-negative duration')
@@ -12,17 +15,17 @@ export const AppGameNonNegativeCountSchema = Schema.Number.pipe(
   Schema.filter((value) => value >= 0 || 'Expected a non-negative count')
 );
 
-export const AppGameInventoryEntryIdSchema = NonEmptyAppGameText.pipe(Schema.brand('AppGameInventoryEntryId'));
-export const AppGameEvidenceClaimIdSchema = NonEmptyAppGameText.pipe(Schema.brand('AppGameEvidenceClaimId'));
-export const AppGameProcessIdentitySchema = NonEmptyAppGameText.pipe(Schema.brand('AppGameProcessIdentity'));
-export const AppGameProcessNameSchema = NonEmptyAppGameText.pipe(Schema.brand('AppGameProcessName'));
-export const AppGameDisplayNameSchema = NonEmptyAppGameText.pipe(Schema.brand('AppGameDisplayName'));
-export const AppGameExecutablePathSchema = NonEmptyAppGameText.pipe(Schema.brand('AppGameExecutablePath'));
-export const AppGameSessionIdSchema = NonEmptyAppGameText.pipe(Schema.brand('AppGameSessionId'));
-export const AppGameCatalogRefSchema = NonEmptyAppGameText.pipe(Schema.brand('AppGameCatalogRef'));
-export const AppGameLauncherRefSchema = NonEmptyAppGameText.pipe(Schema.brand('AppGameLauncherRef'));
-export const AppGameAiDigestRefSchema = NonEmptyAppGameText.pipe(Schema.brand('AppGameAiDigestRef'));
-export const AppGameUnavailableReasonSchema = NonEmptyAppGameText.pipe(Schema.brand('AppGameUnavailableReason'));
+export const AppGameInventoryEntryIdSchema = brandedNonEmptyStringSchema('AppGameInventoryEntryId');
+export const AppGameEvidenceClaimIdSchema = brandedNonEmptyStringSchema('AppGameEvidenceClaimId');
+export const AppGameProcessIdentitySchema = brandedNonEmptyStringSchema('AppGameProcessIdentity');
+export const AppGameProcessNameSchema = brandedNonEmptyStringSchema('AppGameProcessName');
+export const AppGameDisplayNameSchema = brandedNonEmptyStringSchema('AppGameDisplayName');
+export const AppGameExecutablePathSchema = brandedNonEmptyStringSchema('AppGameExecutablePath');
+export const AppGameSessionIdSchema = brandedNonEmptyStringSchema('AppGameSessionId');
+export const AppGameCatalogRefSchema = brandedNonEmptyStringSchema('AppGameCatalogRef');
+export const AppGameLauncherRefSchema = brandedNonEmptyStringSchema('AppGameLauncherRef');
+export const AppGameAiDigestRefSchema = brandedNonEmptyStringSchema('AppGameAiDigestRef');
+export const AppGameUnavailableReasonSchema = brandedNonEmptyStringSchema('AppGameUnavailableReason');
 
 export const AppGameConfidenceSchema = withParser(Schema.Number.pipe(Schema.between(0, 1)));
 
@@ -246,3 +249,4 @@ export type AppGameIdentityStrength = Infer<typeof AppGameIdentityStrengthSchema
 export type AppGameAiActionHint = Infer<typeof AppGameAiActionHintSchema>;
 export type AppGameObservationMode = Infer<typeof AppGameObservationModeSchema>;
 export type AppGameLauncherKind = Infer<typeof AppGameLauncherKindSchema>;
+

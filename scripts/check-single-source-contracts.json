@@ -16,6 +16,303 @@
         { "name": "evidenceDigest", "jsonPath": "evidenceDigest" },
         { "name": "journalEvidenceDigest", "jsonPath": "journalEvidenceDigest" }
       ]
+    },
+    {
+      "name": "tracking-runtime-event-names",
+      "ownerPath": "packages/tracking-domain/src/tracking-event-contracts.ts",
+      "scanRoots": ["apps", "packages", "scripts", "crates", "docs", ".github"],
+      "mirrors": [
+        {
+          "path": "crates/agent-protocol/src/constants/tracking_runtime.rs",
+          "values": [
+            { "name": "locationObserved", "rustConst": "TRACKING_LOCATION_OBSERVED_EVENT_TYPE" },
+            { "name": "evidenceRecorded", "rustConst": "TRACKING_EVIDENCE_RECORDED_EVENT_TYPE" },
+            { "name": "aiAnalysisRequested", "rustConst": "TRACKING_AI_ANALYSIS_REQUESTED_EVENT_TYPE" },
+            { "name": "nearbyPlaceClassified", "rustConst": "TRACKING_NEARBY_PLACE_CLASSIFIED_EVENT_TYPE" },
+            {
+              "name": "geofenceTransitionDetected",
+              "rustConst": "TRACKING_GEOFENCE_TRANSITION_DETECTED_EVENT_TYPE"
+            },
+            {
+              "name": "expectedPlaceStateEvaluated",
+              "rustConst": "TRACKING_EXPECTED_PLACE_STATE_EVALUATED_EVENT_TYPE"
+            },
+            { "name": "policyViolationDetected", "rustConst": "TRACKING_POLICY_VIOLATION_DETECTED_EVENT_TYPE" },
+            {
+              "name": "parentAcknowledgementRecorded",
+              "rustConst": "TRACKING_PARENT_ACKNOWLEDGEMENT_RECORDED_EVENT_TYPE"
+            },
+            { "name": "childCheckInRecorded", "rustConst": "TRACKING_CHILD_CHECK_IN_RECORDED_EVENT_TYPE" },
+            { "name": "parentNotificationRequested", "rustConst": "PARENT_NOTIFICATION_REQUESTED_EVENT_TYPE" }
+          ]
+        }
+      ],
+      "values": [
+        { "name": "locationObserved", "sourceObjectPath": "TrackingRuntimeEventNameLiteral.LocationObserved" },
+        { "name": "evidenceRecorded", "sourceObjectPath": "TrackingRuntimeEventNameLiteral.EvidenceRecorded" },
+        { "name": "aiAnalysisRequested", "sourceObjectPath": "TrackingRuntimeEventNameLiteral.AiAnalysisRequested" },
+        {
+          "name": "nearbyPlaceClassified",
+          "sourceObjectPath": "TrackingRuntimeEventNameLiteral.NearbyPlaceClassified"
+        },
+        {
+          "name": "geofenceTransitionDetected",
+          "sourceObjectPath": "TrackingRuntimeEventNameLiteral.GeofenceTransitionDetected"
+        },
+        {
+          "name": "expectedPlaceStateEvaluated",
+          "sourceObjectPath": "TrackingRuntimeEventNameLiteral.ExpectedPlaceStateEvaluated"
+        },
+        {
+          "name": "policyViolationDetected",
+          "sourceObjectPath": "TrackingRuntimeEventNameLiteral.PolicyViolationDetected"
+        },
+        {
+          "name": "parentAcknowledgementRecorded",
+          "sourceObjectPath": "TrackingRuntimeEventNameLiteral.ParentAcknowledgementRecorded"
+        },
+        {
+          "name": "childCheckInRecorded",
+          "sourceObjectPath": "TrackingRuntimeEventNameLiteral.ChildCheckInRecorded"
+        },
+        {
+          "name": "parentNotificationRequested",
+          "sourceObjectPath": "TrackingRuntimeEventNameLiteral.ParentNotificationRequested"
+        }
+      ]
+    },
+    {
+      "name": "tracking-config-update-event-types",
+      "ownerPath": "packages/agent-protocol-domain/src/tracking-retention-settings-write-command.ts",
+      "scanRoots": ["apps", "packages", "scripts", "crates", "docs", ".github"],
+      "mirrors": [
+        {
+          "path": "crates/agent-protocol/src/constants/tracking_config_update.rs",
+          "values": [
+            { "name": "parent", "rustConst": "PARENT_EVENT_TYPE" },
+            { "name": "child", "rustConst": "CHILD_EVENT_TYPE" }
+          ]
+        }
+      ],
+      "values": [
+        { "name": "parent", "sourceObjectPath": "AgentTrackingConfigUpdateEventType.Parent" },
+        { "name": "child", "sourceObjectPath": "AgentTrackingConfigUpdateEventType.Child" }
+      ]
+    },
+    {
+      "name": "child-domain-runtime-event-types",
+      "ownerPath": "packages/child-runtime-domain/src/child-domain-runtime-events.ts",
+      "scanRoots": ["apps", "packages", "crates"],
+      "allowedPaths": ["crates/agent-protocol/src/constants/screen_flow.rs"],
+      "mirrors": [
+        {
+          "path": "crates/agent-protocol/src/constants/child_domain_runtime.rs",
+          "values": [
+            { "name": "appObserved", "rustConst": "APP_OBSERVED_EVENT_TYPE" },
+            { "name": "appEvidenceRecorded", "rustConst": "APP_EVIDENCE_RECORDED_EVENT_TYPE" },
+            { "name": "appAiAnalysisRequested", "rustConst": "APP_AI_ANALYSIS_REQUESTED_EVENT_TYPE" },
+            {
+              "name": "appPolicyEvaluationRequested",
+              "rustConst": "APP_POLICY_EVALUATION_REQUESTED_EVENT_TYPE"
+            },
+            { "name": "appGameObserved", "rustConst": "APP_GAME_OBSERVED_EVENT_TYPE" },
+            { "name": "appGameEvidenceRecorded", "rustConst": "APP_GAME_EVIDENCE_RECORDED_EVENT_TYPE" },
+            { "name": "appGameAiAnalysisRequested", "rustConst": "APP_GAME_AI_ANALYSIS_REQUESTED_EVENT_TYPE" },
+            {
+              "name": "appGamePolicyEvaluationRequested",
+              "rustConst": "APP_GAME_POLICY_EVALUATION_REQUESTED_EVENT_TYPE"
+            },
+            { "name": "browserObserved", "rustConst": "BROWSER_OBSERVED_EVENT_TYPE" },
+            { "name": "browserEvidenceRecorded", "rustConst": "BROWSER_EVIDENCE_RECORDED_EVENT_TYPE" },
+            { "name": "browserAiAnalysisRequested", "rustConst": "BROWSER_AI_ANALYSIS_REQUESTED_EVENT_TYPE" },
+            {
+              "name": "browserPolicyEvaluationRequested",
+              "rustConst": "BROWSER_POLICY_EVALUATION_REQUESTED_EVENT_TYPE"
+            },
+            { "name": "lanObserved", "rustConst": "LAN_OBSERVED_EVENT_TYPE" },
+            { "name": "lanEvidenceRecorded", "rustConst": "LAN_EVIDENCE_RECORDED_EVENT_TYPE" },
+            { "name": "lanAiAnalysisRequested", "rustConst": "LAN_AI_ANALYSIS_REQUESTED_EVENT_TYPE" },
+            { "name": "lanPolicyEvaluationRequested", "rustConst": "LAN_POLICY_EVALUATION_REQUESTED_EVENT_TYPE" },
+            { "name": "networkObserved", "rustConst": "NETWORK_OBSERVED_EVENT_TYPE" },
+            { "name": "networkEvidenceRecorded", "rustConst": "NETWORK_EVIDENCE_RECORDED_EVENT_TYPE" },
+            { "name": "networkAiAnalysisRequested", "rustConst": "NETWORK_AI_ANALYSIS_REQUESTED_EVENT_TYPE" },
+            {
+              "name": "networkPolicyEvaluationRequested",
+              "rustConst": "NETWORK_POLICY_EVALUATION_REQUESTED_EVENT_TYPE"
+            },
+            { "name": "screenObserved", "rustConst": "SCREEN_OBSERVED_EVENT_TYPE" },
+            { "name": "screenEvidenceRecorded", "rustConst": "SCREEN_EVIDENCE_RECORDED_EVENT_TYPE" },
+            { "name": "screenAiAnalysisRequested", "rustConst": "SCREEN_AI_ANALYSIS_REQUESTED_EVENT_TYPE" },
+            { "name": "screenPolicyEvaluationRequested", "rustConst": "SCREEN_POLICY_EVALUATION_REQUESTED_EVENT_TYPE" },
+            { "name": "screenLiveViewObserved", "rustConst": "SCREEN_LIVE_VIEW_OBSERVED_EVENT_TYPE" },
+            {
+              "name": "screenLiveViewEvidenceRecorded",
+              "rustConst": "SCREEN_LIVE_VIEW_EVIDENCE_RECORDED_EVENT_TYPE"
+            },
+            {
+              "name": "screenLiveViewAiAnalysisRequested",
+              "rustConst": "SCREEN_LIVE_VIEW_AI_ANALYSIS_REQUESTED_EVENT_TYPE"
+            },
+            {
+              "name": "screenLiveViewPolicyEvaluationRequested",
+              "rustConst": "SCREEN_LIVE_VIEW_POLICY_EVALUATION_REQUESTED_EVENT_TYPE"
+            },
+            { "name": "aiAnalysisCompleted", "rustConst": "AI_ANALYSIS_COMPLETED_EVENT_TYPE" },
+            { "name": "policyViolationDetected", "rustConst": "POLICY_VIOLATION_DETECTED_EVENT_TYPE" },
+            { "name": "notificationRequested", "rustConst": "NOTIFICATION_REQUESTED_EVENT_TYPE" }
+          ]
+        }
+      ],
+      "values": [
+        { "name": "appObserved", "sourceObjectPath": "ChildDomainRuntimeEventTypeLiteral.AppObserved" },
+        {
+          "name": "appEvidenceRecorded",
+          "sourceObjectPath": "ChildDomainRuntimeEventTypeLiteral.AppEvidenceRecorded"
+        },
+        {
+          "name": "appAiAnalysisRequested",
+          "sourceObjectPath": "ChildDomainRuntimeEventTypeLiteral.AppAiAnalysisRequested"
+        },
+        {
+          "name": "appPolicyEvaluationRequested",
+          "sourceObjectPath": "ChildDomainRuntimeEventTypeLiteral.AppPolicyEvaluationRequested"
+        },
+        { "name": "appGameObserved", "sourceObjectPath": "ChildDomainRuntimeEventTypeLiteral.AppGameObserved" },
+        {
+          "name": "appGameEvidenceRecorded",
+          "sourceObjectPath": "ChildDomainRuntimeEventTypeLiteral.AppGameEvidenceRecorded"
+        },
+        {
+          "name": "appGameAiAnalysisRequested",
+          "sourceObjectPath": "ChildDomainRuntimeEventTypeLiteral.AppGameAiAnalysisRequested"
+        },
+        {
+          "name": "appGamePolicyEvaluationRequested",
+          "sourceObjectPath": "ChildDomainRuntimeEventTypeLiteral.AppGamePolicyEvaluationRequested"
+        },
+        { "name": "browserObserved", "sourceObjectPath": "ChildDomainRuntimeEventTypeLiteral.BrowserObserved" },
+        {
+          "name": "browserEvidenceRecorded",
+          "sourceObjectPath": "ChildDomainRuntimeEventTypeLiteral.BrowserEvidenceRecorded"
+        },
+        {
+          "name": "browserAiAnalysisRequested",
+          "sourceObjectPath": "ChildDomainRuntimeEventTypeLiteral.BrowserAiAnalysisRequested"
+        },
+        {
+          "name": "browserPolicyEvaluationRequested",
+          "sourceObjectPath": "ChildDomainRuntimeEventTypeLiteral.BrowserPolicyEvaluationRequested"
+        },
+        { "name": "lanObserved", "sourceObjectPath": "ChildDomainRuntimeEventTypeLiteral.LanObserved" },
+        {
+          "name": "lanEvidenceRecorded",
+          "sourceObjectPath": "ChildDomainRuntimeEventTypeLiteral.LanEvidenceRecorded"
+        },
+        {
+          "name": "lanAiAnalysisRequested",
+          "sourceObjectPath": "ChildDomainRuntimeEventTypeLiteral.LanAiAnalysisRequested"
+        },
+        {
+          "name": "lanPolicyEvaluationRequested",
+          "sourceObjectPath": "ChildDomainRuntimeEventTypeLiteral.LanPolicyEvaluationRequested"
+        },
+        { "name": "networkObserved", "sourceObjectPath": "ChildDomainRuntimeEventTypeLiteral.NetworkObserved" },
+        {
+          "name": "networkEvidenceRecorded",
+          "sourceObjectPath": "ChildDomainRuntimeEventTypeLiteral.NetworkEvidenceRecorded"
+        },
+        {
+          "name": "networkAiAnalysisRequested",
+          "sourceObjectPath": "ChildDomainRuntimeEventTypeLiteral.NetworkAiAnalysisRequested"
+        },
+        {
+          "name": "networkPolicyEvaluationRequested",
+          "sourceObjectPath": "ChildDomainRuntimeEventTypeLiteral.NetworkPolicyEvaluationRequested"
+        },
+        { "name": "screenObserved", "sourceObjectPath": "ChildDomainRuntimeEventTypeLiteral.ScreenObserved" },
+        {
+          "name": "screenEvidenceRecorded",
+          "sourceObjectPath": "ChildDomainRuntimeEventTypeLiteral.ScreenEvidenceRecorded"
+        },
+        {
+          "name": "screenAiAnalysisRequested",
+          "sourceObjectPath": "ChildDomainRuntimeEventTypeLiteral.ScreenAiAnalysisRequested"
+        },
+        {
+          "name": "screenPolicyEvaluationRequested",
+          "sourceObjectPath": "ChildDomainRuntimeEventTypeLiteral.ScreenPolicyEvaluationRequested"
+        },
+        {
+          "name": "screenLiveViewObserved",
+          "sourceObjectPath": "ChildDomainRuntimeEventTypeLiteral.ScreenLiveViewObserved"
+        },
+        {
+          "name": "screenLiveViewEvidenceRecorded",
+          "sourceObjectPath": "ChildDomainRuntimeEventTypeLiteral.ScreenLiveViewEvidenceRecorded"
+        },
+        {
+          "name": "screenLiveViewAiAnalysisRequested",
+          "sourceObjectPath": "ChildDomainRuntimeEventTypeLiteral.ScreenLiveViewAiAnalysisRequested"
+        },
+        {
+          "name": "screenLiveViewPolicyEvaluationRequested",
+          "sourceObjectPath": "ChildDomainRuntimeEventTypeLiteral.ScreenLiveViewPolicyEvaluationRequested"
+        },
+        {
+          "name": "aiAnalysisCompleted",
+          "sourceObjectPath": "ChildDomainRuntimeEventTypeLiteral.AiAnalysisCompleted"
+        },
+        {
+          "name": "policyViolationDetected",
+          "sourceObjectPath": "ChildDomainRuntimeEventTypeLiteral.PolicyViolationDetected"
+        },
+        {
+          "name": "notificationRequested",
+          "sourceObjectPath": "ChildDomainRuntimeEventTypeLiteral.NotificationRequested"
+        }
+      ]
+    },
+    {
+      "name": "app-game-android-usage-events-command-event-names",
+      "ownerPath": "packages/app-game-domain/src/app-game-android-usage-events-contracts.ts",
+      "scanRoots": ["apps", "packages", "scripts", "crates"],
+      "values": [
+        {
+          "name": "capabilityGet",
+          "sourceObjectPath": "AppGameAndroidUsageEventsCommandName.CapabilityGet"
+        },
+        {
+          "name": "replayBoundaryGet",
+          "sourceObjectPath": "AppGameAndroidUsageEventsCommandName.ReplayBoundaryGet"
+        },
+        {
+          "name": "runtimePreflightGet",
+          "sourceObjectPath": "AppGameAndroidUsageEventsCommandName.RuntimePreflightGet"
+        },
+        {
+          "name": "capabilityReported",
+          "sourceObjectPath": "AppGameAndroidUsageEventsEventNameLiteral.CapabilityReported"
+        },
+        {
+          "name": "replayBoundaryReported",
+          "sourceObjectPath": "AppGameAndroidUsageEventsEventNameLiteral.ReplayBoundaryReported"
+        },
+        {
+          "name": "runtimePreflightReported",
+          "sourceObjectPath": "AppGameAndroidUsageEventsEventNameLiteral.RuntimePreflightReported"
+        }
+      ]
+    },
+    {
+      "name": "screen-ai-enforcement-handoff-event-names",
+      "ownerPath": "packages/screen-domain/src/screen-ai-enforcement-handoff-guard-proof.ts",
+      "scanRoots": ["apps", "packages", "scripts", "crates"],
+      "values": [
+        {
+          "name": "accepted",
+          "sourceObjectPath": "ScreenAiEnforcementHandoffEventNameLiteral.Accepted"
+        }
+      ]
     }
   ]
 }

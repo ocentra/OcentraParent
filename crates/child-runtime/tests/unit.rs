@@ -1,8 +1,17 @@
 use ocentra_parent_agent_protocol::{
     constants, default_tracking_retention_settings_write_request, AgentCommandEnvelope,
     AgentCommandName, AgentMessageTarget, AgentPeer, AgentPeerRole, AgentRoute, LogFields,
-    TrackingRetentionSettingsWriteRequest, AGENT_PROTOCOL_SCHEMA_VERSION,
+    TrackingAiBoundaryMode, TrackingConfigEffectiveState, TrackingConfigUpdateEventName,
+    TrackingConfigUpdateResponseState, TrackingDurableSettingsPersistenceState,
+    TrackingEvidenceRef, TrackingNotificationChannel, TrackingParentActionRequirement,
+    TrackingPlaceCategory, TrackingPolicyRuleRef, TrackingRetentionSettingsWriteRequest,
+    TrackingRuntimeEnabledState, TrackingRuntimeMode, AGENT_PROTOCOL_SCHEMA_VERSION,
 };
+use ocentra_evidence::PrivatePayloadState;
+use ocentra_tracking_core::TrackingPortalNotificationCandidateState;
+
+#[path = "unit/runtime_gate.rs"]
+mod runtime_gate;
 
 #[test]
 fn child_runtime_declares_tracking_core_dependency() {
@@ -31,15 +40,15 @@ async fn child_runtime_routes_parent_config_event_through_named_subscribers_to_c
 
     assert_eq!(
         applied_report.parent_event_type,
-        constants::tracking_config_update::PARENT_EVENT_TYPE
+        TrackingConfigUpdateEventName::Parent
     );
     assert_eq!(
         applied_report.child_event_type,
-        constants::tracking_config_update::CHILD_EVENT_TYPE
+        TrackingConfigUpdateEventName::Child
     );
     assert_eq!(
         child_event.parent_event_type,
-        constants::tracking_config_update::PARENT_EVENT_TYPE
+        TrackingConfigUpdateEventName::Parent
     );
     assert_eq!(
         flow_report
@@ -54,14 +63,14 @@ async fn child_runtime_routes_parent_config_event_through_named_subscribers_to_c
     );
     assert_eq!(
         flow_report.parent_request_report.response.response_state,
-        constants::tracking_config_update::RESPONSE_STATE_APPLIED
+        TrackingConfigUpdateResponseState::Applied
     );
     assert_eq!(
         flow_report
             .parent_request_report
             .response
             .effective_tracking_state,
-        constants::tracking_config_update::EFFECTIVE_STATE_ENABLED
+        TrackingConfigEffectiveState::Enabled
     );
     assert_eq!(
         flow_report
@@ -78,6 +87,13 @@ async fn child_runtime_routes_parent_config_event_through_named_subscribers_to_c
         1
     );
     assert!(applied_report.applied_state.local_service_state_revision > 0);
+    assert_eq!(
+        flow_report
+            .parent_request_report
+            .response
+            .durable_settings_persistence_state,
+        TrackingDurableSettingsPersistenceState::Persisted
+    );
     assert!(ocentra_child_runtime::tracking_retention_settings_durable_store_path().exists());
 }
 
@@ -118,40 +134,116 @@ async fn child_runtime_routes_tracking_observation_through_ai_policy_and_notific
     );
     assert_eq!(
         flow_report.evidence_recorded.evidence_ref,
-        constants::tracking_runtime::DEFAULT_EVIDENCE_REF
+        TrackingEvidenceRef::parse(constants::tracking_runtime::DEFAULT_EVIDENCE_REF)
+            .expect(constants::tracking_runtime::DEFAULT_EVIDENCE_REF)
     );
     assert_eq!(
-        flow_report.ai_analysis_requested.evidence_refs,
-        vec![constants::tracking_runtime::DEFAULT_EVIDENCE_REF.to_string()]
+        flow_report
+            .evidence_recorded
+            .parent_action_requirement,
+        TrackingParentActionRequirement::Required
     );
-    assert!(
-        !flow_report
+    assert_eq!(
+        flow_report
             .ai_analysis_requested
-            .raw_private_payload_included
+            .as_ref()
+            .expect(constants::tracking_runtime::ERROR_TRACKING_RUNTIME_FLOW_RECORDED)
+            .evidence_refs,
+        vec![
+            TrackingEvidenceRef::parse(constants::tracking_runtime::DEFAULT_EVIDENCE_REF)
+                .expect(constants::tracking_runtime::DEFAULT_EVIDENCE_REF)
+        ]
     );
     assert_eq!(
-        flow_report.nearby_place_classified.place_category,
-        constants::tracking_runtime::PLACE_CATEGORY_HOSPITAL
+        flow_report
+            .ai_analysis_requested
+            .as_ref()
+            .expect(constants::tracking_runtime::ERROR_TRACKING_RUNTIME_FLOW_RECORDED)
+            .private_payload_state,
+        PrivatePayloadState::Excluded
     );
     assert_eq!(
-        flow_report.policy_violation_detected.policy_rule_ref,
-        constants::tracking_runtime::POLICY_RULE_EXPECTED_PLACE
+        flow_report
+            .nearby_place_classified
+            .as_ref()
+            .expect(constants::tracking_runtime::ERROR_TRACKING_RUNTIME_FLOW_RECORDED)
+            .place_category,
+        TrackingPlaceCategory::parse(constants::tracking_runtime::PLACE_CATEGORY_HOSPITAL)
+            .expect(constants::tracking_runtime::PLACE_CATEGORY_HOSPITAL)
     );
     assert_eq!(
-        flow_report.parent_notification_requested.channel,
-        constants::tracking_runtime::NOTIFICATION_CHANNEL_PARENT_PORTAL
+        flow_report
+            .ai_boundary_decision
+            .as_ref()
+            .expect(constants::tracking_runtime::ERROR_TRACKING_RUNTIME_FLOW_RECORDED)
+            .decision_state,
+        constants::tracking_runtime::AI_RESULT_ACCEPTED_AS_EVIDENCE
     );
-    assert!(
-        ocentra_tracking_core::tracking_observation_is_portal_notification_candidate(
-            &flow_report.parent_notification_requested
+    let policy_violation = flow_report
+        .policy_violation_detected
+        .as_ref()
+        .expect(constants::tracking_runtime::ERROR_TRACKING_RUNTIME_FLOW_RECORDED);
+    let parent_notification = flow_report
+        .parent_notification_requested
+        .as_ref()
+        .expect(constants::tracking_runtime::ERROR_TRACKING_RUNTIME_FLOW_RECORDED);
+    assert_eq!(
+        policy_violation.policy_rule_ref,
+        TrackingPolicyRuleRef::parse(constants::tracking_runtime::POLICY_RULE_EXPECTED_PLACE)
+            .expect(constants::tracking_runtime::POLICY_RULE_EXPECTED_PLACE)
+    );
+    assert_eq!(
+        parent_notification.channel,
+        TrackingNotificationChannel::parse(
+            constants::tracking_runtime::NOTIFICATION_CHANNEL_PARENT_PORTAL,
         )
+        .expect(constants::tracking_runtime::NOTIFICATION_CHANNEL_PARENT_PORTAL)
     );
+    assert_eq!(
+        ocentra_tracking_core::tracking_observation_portal_notification_candidate_state(
+            parent_notification
+        ),
+        TrackingPortalNotificationCandidateState::Candidate
+    );
+}
+
+#[tokio::test]
+async fn child_runtime_keeps_observe_only_tracking_flow_out_of_policy_and_notification() {
+    let mut event = ocentra_tracking_core::default_location_observed_event();
+    event.config.tracking_enabled_state = TrackingRuntimeEnabledState::Enabled;
+    event.config.tracking_mode = TrackingRuntimeMode::ObserveOnly;
+    let flow_report = ocentra_child_runtime::publish_child_tracking_location_observed_event(event)
+        .await
+        .expect(constants::tracking_runtime::ERROR_TRACKING_RUNTIME_FLOW_RECORDED);
+
+    assert_eq!(
+        flow_report
+            .evidence_recorded
+            .parent_action_requirement,
+        TrackingParentActionRequirement::NotRequired
+    );
+    assert!(flow_report.policy_violation_detected.is_none());
+    assert!(flow_report.parent_notification_requested.is_none());
+}
+
+#[tokio::test]
+async fn child_runtime_keeps_ai_disabled_tracking_flow_out_of_ai_policy_and_notification() {
+    let mut event = ocentra_tracking_core::default_location_observed_event();
+    event.config.ai_boundary_mode = TrackingAiBoundaryMode::Disabled;
+    let flow_report = ocentra_child_runtime::publish_child_tracking_location_observed_event(event)
+        .await
+        .expect(constants::tracking_runtime::ERROR_TRACKING_RUNTIME_FLOW_RECORDED);
+
+    assert!(flow_report.ai_analysis_requested.is_none());
+    assert!(flow_report.nearby_place_classified.is_none());
+    assert!(flow_report.policy_violation_detected.is_none());
+    assert!(flow_report.parent_notification_requested.is_none());
 }
 
 fn command_envelope(request: TrackingRetentionSettingsWriteRequest) -> AgentCommandEnvelope {
     AgentCommandEnvelope {
         schema_version: AGENT_PROTOCOL_SCHEMA_VERSION,
-        message_id: request.command_id,
+        message_id: String::from(request.command_id),
         sent_at: constants::tracking_retention_settings_write::ACCEPTED_AT.to_string(),
         source: AgentPeer {
             peer_id: constants::peer::PORTAL_DEV.to_string(),

@@ -1,8 +1,11 @@
-import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
+import {
+  type Infer,
+  Schema,
+  withParser,
+  brandedNonEmptyStringSchema
+} from '@ocentra-parent/schema-domain/effect';
 import { AppInstallPurchaseExternalRuntimeWriterDeliveryBoundaryProofReadModel } from './app-install-purchase-external-runtime-writer-delivery-boundary-proof';
 import { ParentTimestampSchema } from '@ocentra-parent/family-domain/reference-primitives';
-
-const ExternalRuntimeWriterDeliveryBlockerText = Schema.String.pipe(Schema.minLength(1));
 const ExternalRuntimeWriterDeliveryBlockerProofVersion =
   'app-install-purchase-external-runtime-writer-delivery-blocker-proof';
 const SourceExternalRuntimeWriterDeliveryBoundaryProofVersion =
@@ -89,18 +92,10 @@ const ExternalRuntimeWriterDeliveryRequiredBlockerSchema = withParser(
   Schema.Literal(...ExternalRuntimeWriterDeliveryRequiredBlockers)
 );
 
-const ExternalRuntimeWriterDeliveryBlockerRowIdSchema = ExternalRuntimeWriterDeliveryBlockerText.pipe(
-  Schema.brand('AppInstallPurchaseExternalRuntimeWriterDeliveryBlockerRowId')
-);
-const ExternalRuntimeWriterDeliveryBlockerRefSchema = ExternalRuntimeWriterDeliveryBlockerText.pipe(
-  Schema.brand('AppInstallPurchaseExternalRuntimeWriterDeliveryBlockerRef')
-);
-const ExternalRuntimeWriterDeliveryBlockerAuditRefSchema = ExternalRuntimeWriterDeliveryBlockerText.pipe(
-  Schema.brand('AppInstallPurchaseExternalRuntimeWriterDeliveryBlockerAuditRef')
-);
-const ExternalRuntimeWriterDeliveryBlockerBoundarySchema = ExternalRuntimeWriterDeliveryBlockerText.pipe(
-  Schema.brand('AppInstallPurchaseExternalRuntimeWriterDeliveryBlockerBoundary')
-);
+const ExternalRuntimeWriterDeliveryBlockerRowIdSchema = brandedNonEmptyStringSchema('AppInstallPurchaseExternalRuntimeWriterDeliveryBlockerRowId');
+const ExternalRuntimeWriterDeliveryBlockerRefSchema = brandedNonEmptyStringSchema('AppInstallPurchaseExternalRuntimeWriterDeliveryBlockerRef');
+const ExternalRuntimeWriterDeliveryBlockerAuditRefSchema = brandedNonEmptyStringSchema('AppInstallPurchaseExternalRuntimeWriterDeliveryBlockerAuditRef');
+const ExternalRuntimeWriterDeliveryBlockerBoundarySchema = brandedNonEmptyStringSchema('AppInstallPurchaseExternalRuntimeWriterDeliveryBlockerBoundary');
 
 const ExternalRuntimeWriterDeliveryBlockerRowBaseSchema = Schema.Struct({
   schemaVersion: AppInstallPurchaseExternalRuntimeWriterDeliveryBlockerProofSchemaVersionSchema,
@@ -350,3 +345,4 @@ function externalRuntimeWriterDeliveryBlockerBoundaryIsExplicit(
 ): boolean {
   return ExternalRuntimeWriterDeliveryBlockerFragments.every((fragment) => boundary.includes(fragment));
 }
+

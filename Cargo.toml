@@ -1,24 +1,35 @@
 [workspace]
 resolver = "2"
 members = [
+  "crates/app-core",
   "crates/app-game-core",
+  "crates/billing-core",
   "crates/agent-core",
   "crates/agent-protocol",
   "crates/agent-service",
   "crates/agent-updater",
   "crates/browser-core",
   "crates/child-ai-core",
+  "crates/child-enforcement-core",
   "crates/child-notification-core",
   "crates/child-policy-core",
   "crates/child-runtime",
+  "crates/entitlement-core",
+  "crates/family-identity-core",
   "crates/lan-core",
   "crates/network-core",
   "crates/ocentra-evidence",
   "crates/ocentra-eventing",
   "crates/ocentra-network-evidence",
+  "crates/parent-runtime-core",
+  "crates/policy-control-core",
+  "crates/provisioning-core",
+  "crates/remote-access-core",
   "crates/screen-capture-adapter",
+  "crates/screen-ai-core",
   "crates/screen-core",
   "crates/screen-live-view-core",
+  "crates/storage-custody-core",
   "crates/tracking-core"
 ]
 

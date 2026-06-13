@@ -1,6 +1,8 @@
-import { Schema, withParser } from '@ocentra-parent/schema-domain/effect';
-
-const NonEmptyPublicStatusFreshnessText = Schema.String.pipe(Schema.minLength(1));
+import {
+  Schema,
+  withParser,
+  brandedNonEmptyStringSchema
+} from '@ocentra-parent/schema-domain/effect';
 
 export const ProductionReleasePublicStatusFreshnessSchemaVersionSchema = withParser(
   Schema.Literal('production-release-public-status-freshness-proof')
@@ -55,13 +57,9 @@ export const ProductionReleasePublicStatusFreshnessNonClaimSchema = withParser(
   )
 );
 
-export const PublicStatusFreshnessReferenceSchema = NonEmptyPublicStatusFreshnessText.pipe(
-  Schema.brand('ProductionReleasePublicStatusFreshnessReference')
-);
+export const PublicStatusFreshnessReferenceSchema = brandedNonEmptyStringSchema('ProductionReleasePublicStatusFreshnessReference');
 
-export const PublicStatusFreshnessRequirementSchema = NonEmptyPublicStatusFreshnessText.pipe(
-  Schema.brand('ProductionReleasePublicStatusFreshnessRequirement')
-);
+export const PublicStatusFreshnessRequirementSchema = brandedNonEmptyStringSchema('ProductionReleasePublicStatusFreshnessRequirement');
 
 export const RequiredPublicStatusFreshnessSurfaces = [
   'public-download',
@@ -83,3 +81,4 @@ export const RequiredPublicStatusFreshnessNonClaims = [
   'no-production-sla',
   'no-child-activity-custody',
 ] as const;
+

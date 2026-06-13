@@ -1,4 +1,9 @@
-import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
+import {
+  type Infer,
+  Schema,
+  withParser,
+  brandedNonEmptyStringSchema
+} from '@ocentra-parent/schema-domain/effect';
 import { ActivityTimestampSchema } from '@ocentra-parent/evidence-domain/primitives';
 import { ScreenEvidenceReasonSchema } from './screen-evidence-primitives';
 import { ScreenOptionalVisibilityPlatformProofRefSchema } from './screen-optional-visibility-mode-values';
@@ -6,7 +11,7 @@ import { ScreenOptionalVisibilityPlatformProofRefSchema } from './screen-optiona
 export const ScreenIosReplayKitCapabilitySchemaVersion = 1;
 
 const ScreenIosReplayKitDocRefSchema = withParser(
-  Schema.String.pipe(Schema.minLength(1), Schema.brand('ScreenIosReplayKitDocRef'))
+  brandedNonEmptyStringSchema('ScreenIosReplayKitDocRef')
 );
 const ScreenIosReplayKitReasonSchema = withParser(ScreenEvidenceReasonSchema);
 const OptionalScreenIosReplayKitProofRefSchema = Schema.Union(
@@ -232,3 +237,4 @@ export type ScreenIosReplayKitCaptureState = Infer<typeof ScreenIosReplayKitCapt
 export type ScreenIosReplayKitProofState = Infer<typeof ScreenIosReplayKitProofStateSchema>;
 export type ScreenIosReplayKitCapabilityRow = Infer<typeof ScreenIosReplayKitCapabilityRowSchema>;
 export type ScreenIosReplayKitCapabilityProof = Infer<typeof ScreenIosReplayKitCapabilityProofSchema>;
+

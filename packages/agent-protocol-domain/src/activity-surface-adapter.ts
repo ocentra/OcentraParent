@@ -34,7 +34,7 @@ import {
   type AgentCommandEnvelope,
   type AgentEventEnvelope,
 } from './contracts';
-import { AgentProtocolSchemaVersion, type AgentRoute } from './primitives';
+import { AgentProtocolSchemaVersion, type AgentPeerRole, type AgentRoute } from '@ocentra-parent/evidence-domain/primitives';
 
 export * from './activity-surface-adapter-manifest';
 
@@ -96,7 +96,7 @@ type ActivitySurfaceReadModel =
 
 export type ActivitySurfaceCommandPeerInput = {
   readonly peerId: string;
-  readonly role: 'portal' | 'agent-service' | 'cloud-relay';
+  readonly role: AgentPeerRole;
 };
 
 export type ActivitySurfaceCommandTargetInput = {

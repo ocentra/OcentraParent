@@ -1,4 +1,9 @@
-import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
+import {
+  type Infer,
+  Schema,
+  withParser,
+  brandedNonEmptyStringSchema
+} from '@ocentra-parent/schema-domain/effect';
 import {
   AppGameChildUxLocalHandoffArtifactReadModelSchema,
   AppGameChildUxLocalHandoffArtifactRecordSchema,
@@ -9,16 +14,14 @@ import { AppGameChildUxSurfaceState } from './app-game-child-facing-ux-rules';
 import {
   NotificationLocalOutboxRecordSchema,
   type NotificationLocalOutboxRecord,
-} from './notification-local-outbox-adapter-proof';
+} from '@ocentra-parent/notification-domain/notification-local-outbox-adapter-proof';
 import { FamilyReferenceSchema, type FamilyReference, type ParentActionReference } from '@ocentra-parent/family-domain/references';
 import {
   ParentContractSchemaVersion,
   ParentContractSchemaVersionSchema,
   ParentTimestampSchema,
 } from '@ocentra-parent/family-domain/reference-primitives';
-import { V3NotificationRuleReasonCodeSchema } from './v3-notification-rule-provider-retry-contract';
-
-const ChildUxLocalOutboxText = Schema.String.pipe(Schema.minLength(1));
+import { V3NotificationRuleReasonCodeSchema } from '@ocentra-parent/notification-domain/v3-notification-rule-provider-retry-contract';
 
 export const AppGameChildUxLocalOutboxBridgeStatus = {
   Linked: 'linked-local-outbox-record',
@@ -29,12 +32,8 @@ export const AppGameChildUxLocalOutboxBridgeStatus = {
 export const AppGameChildUxLocalOutboxBridgeStatusSchema = withParser(
   Schema.Literal(...Object.values(AppGameChildUxLocalOutboxBridgeStatus))
 );
-export const AppGameChildUxLocalOutboxBridgeIdSchema = ChildUxLocalOutboxText.pipe(
-  Schema.brand('AppGameChildUxLocalOutboxBridgeId')
-);
-export const AppGameChildUxLocalOutboxBridgeReferenceSchema = ChildUxLocalOutboxText.pipe(
-  Schema.brand('AppGameChildUxLocalOutboxBridgeReference')
-);
+export const AppGameChildUxLocalOutboxBridgeIdSchema = brandedNonEmptyStringSchema('AppGameChildUxLocalOutboxBridgeId');
+export const AppGameChildUxLocalOutboxBridgeReferenceSchema = brandedNonEmptyStringSchema('AppGameChildUxLocalOutboxBridgeReference');
 
 const AppGameChildUxLocalOutboxBridgeRowBaseSchema = Schema.Struct({
   bridgeRecordId: AppGameChildUxLocalOutboxBridgeReferenceSchema,
@@ -291,3 +290,4 @@ function countRows(
 ): number {
   return rows.filter((row) => row.status === status).length;
 }
+

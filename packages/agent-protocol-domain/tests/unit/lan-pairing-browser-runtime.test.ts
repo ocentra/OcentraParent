@@ -9,6 +9,10 @@ import {
   AgentLanPairingSupportedWebSocketCommand,
   AgentProtocolDefaults,
 } from '../../src/contracts';
+import {
+  AgentLanBrowserRuntimeCommandNameLiteral,
+  AgentLanBrowserRuntimeEventNameLiteral,
+} from '../../src/lan-pairing-browser-runtime';
 
 describe('agent protocol browser-first LAN runtime commands', () => {
   it('parses scan and add-device request contracts for service-backed portal commands', () => {
@@ -29,18 +33,20 @@ describe('agent protocol browser-first LAN runtime commands', () => {
     expect(scan.requestedDiscoverySource).toBe('local-service');
     expect(addDevice.childDeviceId).toBe('child-device-1');
     expect(addDevice.routeId).toBe('lan-route-local-network');
-    expect(AgentLanBrowserRuntimeCommandSchema.parse('agent.lan-pairing.browser-discovery.scan')).toBe(
-      AgentCommand.LanPairingBrowserDiscoveryScan
-    );
-    expect(AgentLanBrowserRuntimeCommandSchema.parse('agent.lan-pairing.add-device.request')).toBe(
+    expect(
+      AgentLanBrowserRuntimeCommandSchema.parse(AgentLanBrowserRuntimeCommandNameLiteral.BrowserDiscoveryScan)
+    ).toBe(AgentCommand.LanPairingBrowserDiscoveryScan);
+    expect(AgentLanBrowserRuntimeCommandSchema.parse(AgentLanBrowserRuntimeCommandNameLiteral.AddDeviceRequest)).toBe(
       AgentCommand.LanPairingAddDeviceRequest
     );
-    expect(AgentLanBrowserRuntimeEventSchema.parse('agent.lan-pairing.add-device.reported')).toBe(
+    expect(AgentLanBrowserRuntimeEventSchema.parse(AgentLanBrowserRuntimeEventNameLiteral.AddDeviceReported)).toBe(
       AgentEvent.LanPairingAddDeviceReported
     );
     expect(AgentLanPairingSupportedWebSocketCommand.BrowserDiscoveryScan).toBe(
-      'agent.lan-pairing.browser-discovery.scan'
+      AgentLanBrowserRuntimeCommandNameLiteral.BrowserDiscoveryScan
     );
-    expect(AgentLanPairingSupportedWebSocketCommand.AddDeviceRequest).toBe('agent.lan-pairing.add-device.request');
+    expect(AgentLanPairingSupportedWebSocketCommand.AddDeviceRequest).toBe(
+      AgentLanBrowserRuntimeCommandNameLiteral.AddDeviceRequest
+    );
   });
 });

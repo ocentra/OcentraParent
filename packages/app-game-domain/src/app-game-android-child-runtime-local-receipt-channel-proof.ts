@@ -1,7 +1,10 @@
-import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
+import {
+  type Infer,
+  Schema,
+  withParser,
+  brandedNonEmptyStringSchema
+} from '@ocentra-parent/schema-domain/effect';
 import { ParentTimestampSchema } from '@ocentra-parent/family-domain/reference-primitives';
-
-const AndroidChildRuntimeLocalReceiptChannelText = Schema.String.pipe(Schema.minLength(1));
 
 export const AppGameAndroidChildRuntimeLocalReceiptChannelProofSchemaVersionSchema = withParser(
   Schema.Literal('app-game-android-child-runtime-local-receipt-channel-proof')
@@ -32,9 +35,7 @@ export const AppGameAndroidChildRuntimeLocalReceiptChannelGapSchema = withParser
   )
 );
 
-const AndroidChildRuntimeLocalReceiptChannelProofIdSchema = AndroidChildRuntimeLocalReceiptChannelText.pipe(
-  Schema.brand('AppGameAndroidChildRuntimeLocalReceiptChannelProofId')
-);
+const AndroidChildRuntimeLocalReceiptChannelProofIdSchema = brandedNonEmptyStringSchema('AppGameAndroidChildRuntimeLocalReceiptChannelProofId');
 
 const AppGameAndroidChildRuntimeLocalReceiptChannelProofBaseSchema = Schema.Struct({
   schemaVersion: AppGameAndroidChildRuntimeLocalReceiptChannelProofSchemaVersionSchema,
@@ -194,3 +195,4 @@ function androidChildRuntimeLocalReceiptChannelProofIsHonest(
     !proof.rawPrivateSourceRowsIncluded
   );
 }
+

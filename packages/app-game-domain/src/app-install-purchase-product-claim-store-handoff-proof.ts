@@ -1,4 +1,9 @@
-import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
+import {
+  type Infer,
+  Schema,
+  withParser,
+  brandedNonEmptyStringSchema
+} from '@ocentra-parent/schema-domain/effect';
 import { AppInstallPurchaseProductClaimSafeParentWorkflowProofReadModel } from './app-install-purchase-product-claim-safe-parent-workflow-proof';
 import { AppInstallPurchaseProviderStoreManualEvidencePacketProofReadModel } from './app-install-purchase-provider-store-manual-evidence-packet-proof';
 import { ParentPlatformSchema, ParentTimestampSchema } from '@ocentra-parent/family-domain/reference-primitives';
@@ -7,7 +12,6 @@ const ProofVersion = 'app-install-purchase-product-claim-store-handoff-proof';
 const SourceSafeWorkflowVersion = 'app-install-purchase-product-claim-safe-parent-workflow-proof';
 const SourceManualEvidencePacketVersion = 'app-install-purchase-provider-store-manual-evidence-packet-proof';
 const UpdatedAt = '2026-06-06T13:58:00.000Z';
-const Text = Schema.String.pipe(Schema.minLength(1));
 const StoreSurfaces = [
   'microsoft-store',
   'mac-app-store',
@@ -66,8 +70,8 @@ const PacketStateSchema = withParser(
   Schema.Literal('manual-evidence-packet-ready', 'manual-review-required', 'provider-unavailable')
 );
 const NonClaimSchema = withParser(Schema.Literal(...NonClaims));
-const RefSchema = Text.pipe(Schema.brand('AppInstallPurchaseProductClaimStoreHandoffRef'));
-const BoundarySchema = Text.pipe(Schema.brand('AppInstallPurchaseProductClaimStoreHandoffBoundary'));
+const RefSchema = brandedNonEmptyStringSchema('AppInstallPurchaseProductClaimStoreHandoffRef');
+const BoundarySchema = brandedNonEmptyStringSchema('AppInstallPurchaseProductClaimStoreHandoffBoundary');
 const NotExecutedSchema = withParser(Schema.Literal('not-executed'));
 const NotClaimedSchema = withParser(Schema.Literal('not-claimed'));
 const NotImplementedSchema = withParser(Schema.Literal('not-implemented'));
@@ -325,3 +329,4 @@ function storeHandoffProofIsHonest(proof: AppInstallPurchaseProductClaimStoreHan
     proof.knownGaps.length > 0
   );
 }
+

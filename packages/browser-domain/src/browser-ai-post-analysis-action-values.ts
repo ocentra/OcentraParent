@@ -1,12 +1,15 @@
-import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
-
-const NonEmptyPostAnalysisText = Schema.String.pipe(Schema.minLength(1));
+import {
+  type Infer,
+  Schema,
+  withParser,
+  brandedNonEmptyStringSchema
+} from '@ocentra-parent/schema-domain/effect';
 
 export const BrowserAiPostAnalysisActionPlanIdSchema = withParser(
-  NonEmptyPostAnalysisText.pipe(Schema.brand('BrowserAiPostAnalysisActionPlanId'))
+  brandedNonEmptyStringSchema('BrowserAiPostAnalysisActionPlanId')
 );
 export const BrowserAiPostAnalysisActionAuditRefSchema = withParser(
-  NonEmptyPostAnalysisText.pipe(Schema.brand('BrowserAiPostAnalysisActionAuditRef'))
+  brandedNonEmptyStringSchema('BrowserAiPostAnalysisActionAuditRef')
 );
 
 export const BrowserAiPostAnalysisActionLabelSchema = withParser(
@@ -34,3 +37,4 @@ export const BrowserAiPostAnalysisDeliveryStateSchema = withParser(
 
 export type BrowserAiPostAnalysisActionLabel = Infer<typeof BrowserAiPostAnalysisActionLabelSchema>;
 export type BrowserAiPostAnalysisDeliveryState = Infer<typeof BrowserAiPostAnalysisDeliveryStateSchema>;
+

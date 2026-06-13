@@ -1,4 +1,9 @@
-import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
+import {
+  type Infer,
+  Schema,
+  withParser,
+  brandedNonEmptyStringSchema
+} from '@ocentra-parent/schema-domain/effect';
 import {
   AppGameNotificationDeliveryClaimState,
   AppGameNotificationIntentSchema,
@@ -8,15 +13,14 @@ import {
 import {
   NotificationLocalOutboxRecordSchema,
   type NotificationLocalOutboxRecord,
-} from './notification-local-outbox-adapter-proof';
+} from '@ocentra-parent/notification-domain/notification-local-outbox-adapter-proof';
 import { FamilyReferenceSchema, type FamilyReference, type ParentActionReference } from '@ocentra-parent/family-domain/references';
 import {
   ParentContractSchemaVersion,
   ParentContractSchemaVersionSchema,
   ParentTimestampSchema,
 } from '@ocentra-parent/family-domain/reference-primitives';
-import { V3NotificationRuleReasonCodeSchema } from './v3-notification-rule-provider-retry-contract';
-const NonEmptyAppGameNotificationOutboxBridgeText = Schema.String.pipe(Schema.minLength(1));
+import { V3NotificationRuleReasonCodeSchema } from '@ocentra-parent/notification-domain/v3-notification-rule-provider-retry-contract';
 export const AppGameNotificationLocalOutboxBridgeStatus = {
   Linked: 'linked-local-outbox-record',
   ManualRequired: 'manual-required',
@@ -25,12 +29,8 @@ export const AppGameNotificationLocalOutboxBridgeStatus = {
 export const AppGameNotificationLocalOutboxBridgeStatusSchema = withParser(
   Schema.Literal(...Object.values(AppGameNotificationLocalOutboxBridgeStatus))
 );
-export const AppGameNotificationLocalOutboxBridgeIdSchema = NonEmptyAppGameNotificationOutboxBridgeText.pipe(
-  Schema.brand('AppGameNotificationLocalOutboxBridgeId')
-);
-export const AppGameNotificationLocalOutboxBridgeReferenceSchema = NonEmptyAppGameNotificationOutboxBridgeText.pipe(
-  Schema.brand('AppGameNotificationLocalOutboxBridgeReference')
-);
+export const AppGameNotificationLocalOutboxBridgeIdSchema = brandedNonEmptyStringSchema('AppGameNotificationLocalOutboxBridgeId');
+export const AppGameNotificationLocalOutboxBridgeReferenceSchema = brandedNonEmptyStringSchema('AppGameNotificationLocalOutboxBridgeReference');
 const AppGameNotificationLocalOutboxBridgeRowBaseSchema = Schema.Struct({
   bridgeRecordId: AppGameNotificationLocalOutboxBridgeReferenceSchema,
   status: AppGameNotificationLocalOutboxBridgeStatusSchema,
@@ -238,3 +238,4 @@ function countRows(
 ): number {
   return rows.filter((row) => row.status === status).length;
 }
+

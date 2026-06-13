@@ -1,4 +1,10 @@
-import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
+import {
+  type Infer,
+  Schema,
+  withParser,
+  brandedNonEmptyStringSchema,
+  NonEmptyStringSchema
+} from '@ocentra-parent/schema-domain/effect';
 import {
   TrackingLocationPolicyReadModelSchema,
   TrackingPolicySchemaVersion,
@@ -11,8 +17,6 @@ import type {
   TrackingChildCheckInResponse,
   TrackingLocationPolicyReadModel,
 } from './tracking-location-policy-types';
-
-const TrackingChildCheckInTimeoutText = Schema.String.pipe(Schema.minLength(1));
 
 export const RequiredTrackingChildCheckInTimeoutNonClaims = [
   'no-child-device-delivery-runtime',
@@ -31,12 +35,8 @@ export const TrackingChildCheckInTimeoutNonClaimSchema = withParser(
   Schema.Literal(...RequiredTrackingChildCheckInTimeoutNonClaims)
 );
 
-export const TrackingChildCheckInTimeoutReadinessIdSchema = TrackingChildCheckInTimeoutText.pipe(
-  Schema.brand('TrackingChildCheckInTimeoutReadinessId')
-);
-export const TrackingChildCheckInTimeoutRowIdSchema = TrackingChildCheckInTimeoutText.pipe(
-  Schema.brand('TrackingChildCheckInTimeoutRowId')
-);
+export const TrackingChildCheckInTimeoutReadinessIdSchema = brandedNonEmptyStringSchema('TrackingChildCheckInTimeoutReadinessId');
+export const TrackingChildCheckInTimeoutRowIdSchema = brandedNonEmptyStringSchema('TrackingChildCheckInTimeoutRowId');
 export const TrackingChildCheckInTimeoutStateSchema = withParser(
   Schema.Literal(
     'waiting-for-child',
@@ -63,24 +63,24 @@ export const TrackingChildCheckInTimeoutEscalationBasisSchema = withParser(
 
 const TrackingChildCheckInTimeoutRowBaseSchema = Schema.Struct({
   rowId: TrackingChildCheckInTimeoutRowIdSchema,
-  checkInId: TrackingChildCheckInTimeoutText,
-  relatedAlertId: Schema.Union(TrackingChildCheckInTimeoutText, Schema.Null),
-  sourceResponseKind: Schema.Union(TrackingChildCheckInTimeoutText, Schema.Null),
-  timeoutAt: TrackingChildCheckInTimeoutText,
-  evaluatedAt: TrackingChildCheckInTimeoutText,
+  checkInId: NonEmptyStringSchema,
+  relatedAlertId: Schema.Union(NonEmptyStringSchema, Schema.Null),
+  sourceResponseKind: Schema.Union(NonEmptyStringSchema, Schema.Null),
+  timeoutAt: NonEmptyStringSchema,
+  evaluatedAt: NonEmptyStringSchema,
   resolutionState: TrackingChildCheckInTimeoutStateSchema,
   escalates: Schema.Boolean,
   includeLocationIfPermitted: Schema.Boolean,
-  locationEvidenceReferenceId: Schema.Union(TrackingChildCheckInTimeoutText, Schema.Null),
+  locationEvidenceReferenceId: Schema.Union(NonEmptyStringSchema, Schema.Null),
   locationSampleState: TrackingChildCheckInTimeoutLocationSampleStateSchema,
   auditCoverageState: TrackingChildCheckInTimeoutAuditCoverageStateSchema,
   alertOutcome: TrackingChildCheckInTimeoutAlertOutcomeSchema,
   escalationBasis: TrackingChildCheckInTimeoutEscalationBasisSchema,
-  evidenceReferenceIds: Schema.Array(TrackingChildCheckInTimeoutText),
-  policyDecisionRefs: Schema.Array(TrackingChildCheckInTimeoutText),
+  evidenceReferenceIds: Schema.Array(NonEmptyStringSchema),
+  policyDecisionRefs: Schema.Array(NonEmptyStringSchema),
   auditRefs: Schema.Array(TrackingPolicyAuditRefSchema),
-  parentActionRefs: Schema.Array(TrackingChildCheckInTimeoutText),
-  manualProofRequirements: Schema.Array(TrackingChildCheckInTimeoutText),
+  parentActionRefs: Schema.Array(NonEmptyStringSchema),
+  manualProofRequirements: Schema.Array(NonEmptyStringSchema),
   childDeviceDeliveryRuntimeClaimed: Schema.Literal(false),
   childDeviceResponseRuntimeClaimed: Schema.Literal(false),
   renderedChildDeviceUiClaimed: Schema.Literal(false),
@@ -102,9 +102,9 @@ export const TrackingChildCheckInTimeoutRowSchema = withParser(
 const TrackingChildCheckInTimeoutReadModelBaseSchema = Schema.Struct({
   schemaVersion: Schema.Literal(TrackingPolicySchemaVersion),
   readinessId: TrackingChildCheckInTimeoutReadinessIdSchema,
-  generatedAt: TrackingChildCheckInTimeoutText,
-  sourceReadModelGeneratedAt: TrackingChildCheckInTimeoutText,
-  sourceContractRefs: Schema.Array(TrackingChildCheckInTimeoutText),
+  generatedAt: NonEmptyStringSchema,
+  sourceReadModelGeneratedAt: NonEmptyStringSchema,
+  sourceContractRefs: Schema.Array(NonEmptyStringSchema),
   rows: Schema.Array(TrackingChildCheckInTimeoutRowSchema),
   waitingCount: Schema.Number.pipe(Schema.int(), Schema.nonNegative()),
   resolvedCount: Schema.Number.pipe(Schema.int(), Schema.nonNegative()),
@@ -489,3 +489,4 @@ function locationSampleStateFromRow(
   }
   return 'requested-not-yet-attached';
 }
+

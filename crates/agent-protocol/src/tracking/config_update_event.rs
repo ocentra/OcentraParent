@@ -2,11 +2,16 @@ use ocentra_eventing::{
     AggregateKey, DomainEvent, EventContract, EventResponseContract, EventType, EventingError,
     IdempotencyKey, RequestEvent, RequestId, SchemaVersion,
 };
-use serde::{Deserialize, Serialize};
+use serde::{Deserialize, Deserializer, Serialize, Serializer};
 
 use crate::{
     constants, AgentCommandEnvelope, AgentRoute, TrackingRetentionSettingsWriteRequest,
     AGENT_PROTOCOL_SCHEMA_VERSION,
+};
+use super::{
+    TrackingDurableSettingsPersistenceState,
+    TrackingRetentionCommandId, TrackingSourceMessageId, TrackingSourcePeerId,
+    TrackingTargetDeviceId, TrackingTargetPlatform,
 };
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
@@ -16,6 +21,68 @@ pub enum TrackingConfigUpdateTargetScope {
     ChildProfile,
     ChildDevice,
     DeviceGroup,
+}
+
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub enum TrackingConfigUpdateEventName {
+    Parent,
+    Child,
+}
+
+impl TrackingConfigUpdateEventName {
+    pub fn as_contract_text(&self) -> &'static str {
+        match self {
+            Self::Parent => constants::tracking_config_update::PARENT_EVENT_TYPE,
+            Self::Child => constants::tracking_config_update::CHILD_EVENT_TYPE,
+        }
+    }
+}
+
+impl Serialize for TrackingConfigUpdateEventName {
+    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+    where
+        S: Serializer,
+    {
+        serializer.serialize_str(self.as_contract_text())
+    }
+}
+
+impl<'de> Deserialize<'de> for TrackingConfigUpdateEventName {
+    fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
+    where
+        D: Deserializer<'de>,
+    {
+        let value = String::deserialize(deserializer)?;
+        match value.as_str() {
+            constants::tracking_config_update::PARENT_EVENT_TYPE => Ok(Self::Parent),
+            constants::tracking_config_update::CHILD_EVENT_TYPE => Ok(Self::Child),
+            _ => Err(serde::de::Error::unknown_variant(
+                value.as_str(),
+                &[
+                    constants::tracking_config_update::PARENT_EVENT_TYPE,
+                    constants::tracking_config_update::CHILD_EVENT_TYPE,
+                ],
+            )),
+        }
+    }
+}
+
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+pub enum TrackingConfigUpdateResponseState {
+    #[serde(rename = "applied")]
+    Applied,
+    #[serde(rename = "rejected")]
+    Rejected,
+}
+
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+pub enum TrackingConfigEffectiveState {
+    #[serde(rename = "enabled")]
+    Enabled,
+    #[serde(rename = "disabled")]
+    Disabled,
+    #[serde(rename = "degraded")]
+    Degraded,
 }
 
 impl TrackingConfigUpdateTargetScope {
@@ -33,18 +100,20 @@ impl TrackingConfigUpdateTargetScope {
 #[serde(rename_all = "camelCase")]
 pub struct TrackingConfigUpdateTarget {
     pub scope: TrackingConfigUpdateTargetScope,
-    pub device_id: String,
-    pub platform: String,
-    pub route: String,
+    pub device_id: TrackingTargetDeviceId,
+    pub platform: TrackingTargetPlatform,
+    pub route: AgentRoute,
 }
 
 impl TrackingConfigUpdateTarget {
     pub fn from_command(command: &AgentCommandEnvelope) -> Self {
         Self {
             scope: TrackingConfigUpdateTargetScope::ChildDevice,
-            device_id: command.target.device_id.clone(),
-            platform: command.target.platform.clone(),
-            route: route_contract_text(&command.target.route).to_string(),
+            device_id: TrackingTargetDeviceId::parse(command.target.device_id.clone())
+                .expect(constants::peer::LOCAL_DEV_AGENT),
+            platform: TrackingTargetPlatform::parse(command.target.platform.clone())
+                .expect(constants::tracking_config_update::TARGET_SCOPE_CHILD_DEVICE),
+            route: command.target.route.clone(),
         }
     }
 
@@ -56,9 +125,9 @@ impl TrackingConfigUpdateTarget {
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct ParentTrackingConfigUpdatedEvent {
-    pub source_command_id: String,
-    pub source_message_id: String,
-    pub source_peer_id: String,
+    pub source_command_id: TrackingRetentionCommandId,
+    pub source_message_id: TrackingSourceMessageId,
+    pub source_peer_id: TrackingSourcePeerId,
     pub target: TrackingConfigUpdateTarget,
     pub config: TrackingRetentionSettingsWriteRequest,
 }
@@ -88,15 +157,15 @@ impl RequestEvent for ParentTrackingConfigUpdatedEvent {
     type Response = TrackingConfigUpdateResponse;
 
     fn request_id(&self) -> Result<RequestId, EventingError> {
-        RequestId::parse(self.source_command_id.clone())
+        RequestId::parse(self.source_command_id.as_str())
     }
 }
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct ChildTrackingConfigUpdatedEvent {
-    pub parent_event_type: String,
-    pub source_command_id: String,
+    pub parent_event_type: TrackingConfigUpdateEventName,
+    pub source_command_id: TrackingRetentionCommandId,
     pub target: TrackingConfigUpdateTarget,
     pub config: TrackingRetentionSettingsWriteRequest,
 }
@@ -116,7 +185,7 @@ impl DomainEvent for ChildTrackingConfigUpdatedEvent {
     fn idempotency_key(&self) -> Result<IdempotencyKey, EventingError> {
         IdempotencyKey::parse(format!(
             "{}:{}:{}",
-            self.parent_event_type,
+            self.parent_event_type.as_contract_text(),
             self.source_command_id,
             self.target.aggregate_key_text()
         ))
@@ -127,13 +196,13 @@ impl DomainEvent for ChildTrackingConfigUpdatedEvent {
 #[serde(rename_all = "camelCase")]
 pub struct TrackingConfigUpdateResponse {
     pub schema_version: u16,
-    pub source_command_id: String,
-    pub response_state: String,
-    pub effective_tracking_state: String,
-    pub child_event_type: String,
+    pub source_command_id: TrackingRetentionCommandId,
+    pub response_state: TrackingConfigUpdateResponseState,
+    pub effective_tracking_state: TrackingConfigEffectiveState,
+    pub child_event_type: TrackingConfigUpdateEventName,
     pub target: TrackingConfigUpdateTarget,
     pub local_service_state_revision: Option<u64>,
-    pub durable_settings_persisted: bool,
+    pub durable_settings_persistence_state: TrackingDurableSettingsPersistenceState,
 }
 
 impl EventResponseContract for TrackingConfigUpdateResponse {
@@ -151,8 +220,10 @@ pub fn parent_tracking_config_updated_event_from_command(
 ) -> ParentTrackingConfigUpdatedEvent {
     ParentTrackingConfigUpdatedEvent {
         source_command_id: request.command_id.clone(),
-        source_message_id: command.message_id.clone(),
-        source_peer_id: command.source.peer_id.clone(),
+        source_message_id: TrackingSourceMessageId::parse(command.message_id.clone())
+            .expect(constants::tracking_retention_settings_write::COMMAND_ID),
+        source_peer_id: TrackingSourcePeerId::parse(command.source.peer_id.clone())
+            .expect(constants::peer::PORTAL_DEV),
         target: TrackingConfigUpdateTarget::from_command(command),
         config: request,
     }
@@ -162,17 +233,9 @@ pub fn child_tracking_config_updated_event_from_parent(
     parent_event: &ParentTrackingConfigUpdatedEvent,
 ) -> ChildTrackingConfigUpdatedEvent {
     ChildTrackingConfigUpdatedEvent {
-        parent_event_type: constants::tracking_config_update::PARENT_EVENT_TYPE.to_string(),
+        parent_event_type: TrackingConfigUpdateEventName::Parent,
         source_command_id: parent_event.source_command_id.clone(),
         target: parent_event.target.clone(),
         config: parent_event.config.clone(),
-    }
-}
-
-fn route_contract_text(route: &AgentRoute) -> &'static str {
-    match route {
-        AgentRoute::Localhost => constants::tracking_config_update::ROUTE_LOCALHOST,
-        AgentRoute::LocalNetwork => constants::tracking_config_update::ROUTE_LOCAL_NETWORK,
-        AgentRoute::CloudRelay => constants::tracking_config_update::ROUTE_CLOUD_RELAY,
     }
 }

@@ -1,21 +1,20 @@
-import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
+import {
+  type Infer,
+  Schema,
+  withParser,
+  brandedNonEmptyStringSchema
+} from '@ocentra-parent/schema-domain/effect';
 import {
   ParentContractSchemaVersion,
   ParentContractSchemaVersionSchema,
   ParentTimestampSchema,
 } from '@ocentra-parent/family-domain/reference-primitives';
 import { FamilyReferenceSchema, ParentDeviceReferenceSchema, ParentEvidenceReferenceSchema } from '@ocentra-parent/family-domain/references';
-
-const TrackingAndroidStatusTextSchema = Schema.String.pipe(Schema.minLength(1));
 const TrackingAndroidStatusNonNegativeIntegerSchema = Schema.Number.pipe(Schema.int(), Schema.nonNegative());
 const TrackingAndroidBatteryPercentSchema = Schema.Number.pipe(Schema.int(), Schema.between(0, 100));
 
-export const TrackingAndroidStatusProofIdSchema = TrackingAndroidStatusTextSchema.pipe(
-  Schema.brand('TrackingAndroidStatusProofId')
-);
-export const TrackingAndroidStatusProofReferenceSchema = TrackingAndroidStatusTextSchema.pipe(
-  Schema.brand('TrackingAndroidStatusProofReference')
-);
+export const TrackingAndroidStatusProofIdSchema = brandedNonEmptyStringSchema('TrackingAndroidStatusProofId');
+export const TrackingAndroidStatusProofReferenceSchema = brandedNonEmptyStringSchema('TrackingAndroidStatusProofReference');
 
 export const TrackingAndroidStatusCaseSchema = withParser(
   Schema.Literal(
@@ -356,3 +355,4 @@ function countRows(
 ): number {
   return rows.filter(predicate).length;
 }
+

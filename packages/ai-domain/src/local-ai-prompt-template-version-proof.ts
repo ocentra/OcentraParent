@@ -1,6 +1,12 @@
-import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
-import { LocalAiEvaluationInputSchema, LocalAiSafetyResultSchema } from './local-ai';
-import { LocalAiEvidenceContextBuildRequestSchema } from './local-ai-context';
+import {
+  type Infer,
+  Schema,
+  withParser,
+  brandedNonEmptyStringSchema,
+  NonEmptyStringSchema
+} from '@ocentra-parent/schema-domain/effect';
+import { LocalAiEvaluationInputSchema, LocalAiSafetyResultSchema } from '@ocentra-parent/ai-domain/local-ai';
+import { LocalAiEvidenceContextBuildRequestSchema } from '@ocentra-parent/ai-domain/local-ai-context';
 import {
   LocalAiCapabilityFlagSchema,
   LocalAiModelIdSchema,
@@ -8,13 +14,9 @@ import {
   LocalAiProviderIdSchema,
 } from './local-ai-primitives';
 import { ParentContractSchemaVersionSchema } from '@ocentra-parent/family-domain/reference-primitives';
-
-const LocalAiPromptTemplateProofTextSchema = Schema.String.pipe(Schema.minLength(1));
 const LocalAiPromptTemplateProofCountSchema = Schema.Number.pipe(Schema.nonNegative(), Schema.int());
 
-export const LocalAiPromptTemplateRefSchema = LocalAiPromptTemplateProofTextSchema.pipe(
-  Schema.brand('LocalAiPromptTemplateRef')
-);
+export const LocalAiPromptTemplateRefSchema = brandedNonEmptyStringSchema('LocalAiPromptTemplateRef');
 
 export const LocalAiPromptTemplateInputBindingSchema = withParser(
   Schema.Literal('context-builder', 'evaluation-input', 'safety-result')
@@ -28,7 +30,7 @@ export const LocalAiPromptTemplateVersionRowSchema = withParser(
     modelId: LocalAiModelIdSchema,
     task: LocalAiCapabilityFlagSchema,
     inputBinding: LocalAiPromptTemplateInputBindingSchema,
-    outputSchemaRef: LocalAiPromptTemplateProofTextSchema,
+    outputSchemaRef: NonEmptyStringSchema,
     active: Schema.Boolean,
     rawPromptRetained: Schema.Literal(false),
     rawModelOutputRetained: Schema.Literal(false),
@@ -180,3 +182,4 @@ export function buildLocalAiPromptTemplateVersionProof(input: unknown): LocalAiP
     claimBoundaries: parsed.claimBoundaries,
   });
 }
+

@@ -1,4 +1,9 @@
-import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
+import {
+  type Infer,
+  Schema,
+  brandedNonEmptyStringSchema,
+  withParser,
+} from '@ocentra-parent/schema-domain/effect';
 import {
   ChildProfileReferenceSchema,
   FamilyReferenceSchema,
@@ -7,57 +12,132 @@ import {
   ParentDeviceReferenceSchema,
   ParentEvidenceReferenceSchema,
 } from '@ocentra-parent/family-domain/references';
-import { ParentContractSchemaVersionSchema, ParentPolicyVersionSchema } from '@ocentra-parent/family-domain/reference-primitives';
+import {
+  ParentContractSchemaVersionSchema,
+  ParentPolicyVersionSchema,
+} from '@ocentra-parent/family-domain/reference-primitives';
 
-const NonEmptyPolicyText = Schema.String.pipe(Schema.minLength(1));
-const PolicyTimestamp = NonEmptyPolicyText.pipe(Schema.brand('PolicyTimestamp'));
+const PolicyTimestamp = brandedNonEmptyStringSchema('PolicyTimestamp');
 
-export const PolicyRuleIdSchema = NonEmptyPolicyText.pipe(Schema.brand('PolicyRuleId'));
-export const PolicyScheduleIdSchema = NonEmptyPolicyText.pipe(Schema.brand('PolicyScheduleId'));
-export const PolicyTargetIdSchema = NonEmptyPolicyText.pipe(Schema.brand('PolicyTargetId'));
-export const PermissionRequestIdSchema = NonEmptyPolicyText.pipe(Schema.brand('PermissionRequestId'));
-export const PolicyDecisionIdSchema = NonEmptyPolicyText.pipe(Schema.brand('PolicyDecisionId'));
-export const PolicyReasonCodeSchema = NonEmptyPolicyText.pipe(Schema.brand('PolicyReasonCode'));
-export const PolicyLocalTimeSchema = NonEmptyPolicyText.pipe(Schema.brand('PolicyLocalTime'));
-export const PolicyTimeZoneSchema = NonEmptyPolicyText.pipe(Schema.brand('PolicyTimeZone'));
-export const LocalAiResultReferenceIdSchema = NonEmptyPolicyText.pipe(Schema.brand('LocalAiResultReferenceId'));
+export const PolicyRuleIdSchema = brandedNonEmptyStringSchema('PolicyRuleId');
+export const PolicyScheduleIdSchema = brandedNonEmptyStringSchema('PolicyScheduleId');
+export const PolicyTargetIdSchema = brandedNonEmptyStringSchema('PolicyTargetId');
+export const PermissionRequestIdSchema = brandedNonEmptyStringSchema('PermissionRequestId');
+export const PolicyDecisionIdSchema = brandedNonEmptyStringSchema('PolicyDecisionId');
+export const PolicyReasonCodeSchema = brandedNonEmptyStringSchema('PolicyReasonCode');
+export const PolicyLocalTimeSchema = brandedNonEmptyStringSchema('PolicyLocalTime');
+export const PolicyTimeZoneSchema = brandedNonEmptyStringSchema('PolicyTimeZone');
+export const LocalAiResultReferenceIdSchema = brandedNonEmptyStringSchema('LocalAiResultReferenceId');
+
+export const PolicyActionLiteral = {
+  Allow: 'allow',
+  Warn: 'warn',
+  Block: 'block',
+  TimeLimit: 'time-limit',
+  AskParent: 'ask-parent',
+  Unknown: 'unknown',
+} as const;
+
+export const PolicyTargetTypeLiteral = {
+  App: 'app',
+  Process: 'process',
+  Window: 'window',
+  Domain: 'domain',
+  Site: 'site',
+  Category: 'category',
+  Video: 'video',
+  Channel: 'channel',
+  ActivityType: 'activity-type',
+  Device: 'device',
+} as const;
+
+export const PolicyScheduleDayLiteral = {
+  Monday: 'monday',
+  Tuesday: 'tuesday',
+  Wednesday: 'wednesday',
+  Thursday: 'thursday',
+  Friday: 'friday',
+  Saturday: 'saturday',
+  Sunday: 'sunday',
+} as const;
+
+export const PolicyDecisionHandoffStateLiteral = {
+  NotRequested: 'not-requested',
+  Disabled: 'disabled',
+  Pending: 'pending',
+  HandedOff: 'handed-off',
+} as const;
+
+export const PermissionRequestStateLiteral = {
+  Open: 'open',
+  Approved: 'approved',
+  Denied: 'denied',
+  Expired: 'expired',
+  Cancelled: 'cancelled',
+} as const;
 
 export const PolicyActionSchema = withParser(
-  Schema.Literal('allow', 'warn', 'block', 'time-limit', 'ask-parent', 'unknown')
+  Schema.Literal(
+    PolicyActionLiteral.Allow,
+    PolicyActionLiteral.Warn,
+    PolicyActionLiteral.Block,
+    PolicyActionLiteral.TimeLimit,
+    PolicyActionLiteral.AskParent,
+    PolicyActionLiteral.Unknown
+  )
 );
 
 export const PolicyTargetTypeSchema = withParser(
   Schema.Literal(
-    'app',
-    'process',
-    'window',
-    'domain',
-    'site',
-    'category',
-    'video',
-    'channel',
-    'activity-type',
-    'device'
+    PolicyTargetTypeLiteral.App,
+    PolicyTargetTypeLiteral.Process,
+    PolicyTargetTypeLiteral.Window,
+    PolicyTargetTypeLiteral.Domain,
+    PolicyTargetTypeLiteral.Site,
+    PolicyTargetTypeLiteral.Category,
+    PolicyTargetTypeLiteral.Video,
+    PolicyTargetTypeLiteral.Channel,
+    PolicyTargetTypeLiteral.ActivityType,
+    PolicyTargetTypeLiteral.Device
   )
 );
 
 export const PolicyScheduleDaySchema = withParser(
-  Schema.Literal('monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday')
+  Schema.Literal(
+    PolicyScheduleDayLiteral.Monday,
+    PolicyScheduleDayLiteral.Tuesday,
+    PolicyScheduleDayLiteral.Wednesday,
+    PolicyScheduleDayLiteral.Thursday,
+    PolicyScheduleDayLiteral.Friday,
+    PolicyScheduleDayLiteral.Saturday,
+    PolicyScheduleDayLiteral.Sunday
+  )
 );
 
 export const PolicyDecisionHandoffStateSchema = withParser(
-  Schema.Literal('not-requested', 'disabled', 'pending', 'handed-off')
+  Schema.Literal(
+    PolicyDecisionHandoffStateLiteral.NotRequested,
+    PolicyDecisionHandoffStateLiteral.Disabled,
+    PolicyDecisionHandoffStateLiteral.Pending,
+    PolicyDecisionHandoffStateLiteral.HandedOff
+  )
 );
 
 export const PermissionRequestStateSchema = withParser(
-  Schema.Literal('open', 'approved', 'denied', 'expired', 'cancelled')
+  Schema.Literal(
+    PermissionRequestStateLiteral.Open,
+    PermissionRequestStateLiteral.Approved,
+    PermissionRequestStateLiteral.Denied,
+    PermissionRequestStateLiteral.Expired,
+    PermissionRequestStateLiteral.Cancelled
+  )
 );
 
 export const PolicyTargetSchema = withParser(
   Schema.Struct({
     targetId: PolicyTargetIdSchema,
     targetType: PolicyTargetTypeSchema,
-    targetValue: NonEmptyPolicyText.pipe(Schema.brand('PolicyTargetValue')),
+    targetValue: brandedNonEmptyStringSchema('PolicyTargetValue'),
   })
 );
 
@@ -154,19 +234,50 @@ export type PermissionRequest = Infer<typeof PermissionRequestSchema>;
 export type PolicyDecision = Infer<typeof PolicyDecisionSchema>;
 
 export const PolicyAction = {
-  Allow: PolicyActionSchema.parse('allow'),
-  Warn: PolicyActionSchema.parse('warn'),
-  Block: PolicyActionSchema.parse('block'),
-  TimeLimit: PolicyActionSchema.parse('time-limit'),
-  AskParent: PolicyActionSchema.parse('ask-parent'),
-  Unknown: PolicyActionSchema.parse('unknown'),
+  Allow: PolicyActionSchema.parse(PolicyActionLiteral.Allow),
+  Warn: PolicyActionSchema.parse(PolicyActionLiteral.Warn),
+  Block: PolicyActionSchema.parse(PolicyActionLiteral.Block),
+  TimeLimit: PolicyActionSchema.parse(PolicyActionLiteral.TimeLimit),
+  AskParent: PolicyActionSchema.parse(PolicyActionLiteral.AskParent),
+  Unknown: PolicyActionSchema.parse(PolicyActionLiteral.Unknown),
+} as const;
+
+export const PolicyTargetType = {
+  App: PolicyTargetTypeSchema.parse(PolicyTargetTypeLiteral.App),
+  Process: PolicyTargetTypeSchema.parse(PolicyTargetTypeLiteral.Process),
+  Window: PolicyTargetTypeSchema.parse(PolicyTargetTypeLiteral.Window),
+  Domain: PolicyTargetTypeSchema.parse(PolicyTargetTypeLiteral.Domain),
+  Site: PolicyTargetTypeSchema.parse(PolicyTargetTypeLiteral.Site),
+  Category: PolicyTargetTypeSchema.parse(PolicyTargetTypeLiteral.Category),
+  Video: PolicyTargetTypeSchema.parse(PolicyTargetTypeLiteral.Video),
+  Channel: PolicyTargetTypeSchema.parse(PolicyTargetTypeLiteral.Channel),
+  ActivityType: PolicyTargetTypeSchema.parse(PolicyTargetTypeLiteral.ActivityType),
+  Device: PolicyTargetTypeSchema.parse(PolicyTargetTypeLiteral.Device),
+} as const;
+
+export const PolicyScheduleDay = {
+  Monday: PolicyScheduleDaySchema.parse(PolicyScheduleDayLiteral.Monday),
+  Tuesday: PolicyScheduleDaySchema.parse(PolicyScheduleDayLiteral.Tuesday),
+  Wednesday: PolicyScheduleDaySchema.parse(PolicyScheduleDayLiteral.Wednesday),
+  Thursday: PolicyScheduleDaySchema.parse(PolicyScheduleDayLiteral.Thursday),
+  Friday: PolicyScheduleDaySchema.parse(PolicyScheduleDayLiteral.Friday),
+  Saturday: PolicyScheduleDaySchema.parse(PolicyScheduleDayLiteral.Saturday),
+  Sunday: PolicyScheduleDaySchema.parse(PolicyScheduleDayLiteral.Sunday),
 } as const;
 
 export const PolicyDecisionHandoffState = {
-  NotRequested: PolicyDecisionHandoffStateSchema.parse('not-requested'),
-  Disabled: PolicyDecisionHandoffStateSchema.parse('disabled'),
-  Pending: PolicyDecisionHandoffStateSchema.parse('pending'),
-  HandedOff: PolicyDecisionHandoffStateSchema.parse('handed-off'),
+  NotRequested: PolicyDecisionHandoffStateSchema.parse(PolicyDecisionHandoffStateLiteral.NotRequested),
+  Disabled: PolicyDecisionHandoffStateSchema.parse(PolicyDecisionHandoffStateLiteral.Disabled),
+  Pending: PolicyDecisionHandoffStateSchema.parse(PolicyDecisionHandoffStateLiteral.Pending),
+  HandedOff: PolicyDecisionHandoffStateSchema.parse(PolicyDecisionHandoffStateLiteral.HandedOff),
+} as const;
+
+export const PermissionRequestState = {
+  Open: PermissionRequestStateSchema.parse(PermissionRequestStateLiteral.Open),
+  Approved: PermissionRequestStateSchema.parse(PermissionRequestStateLiteral.Approved),
+  Denied: PermissionRequestStateSchema.parse(PermissionRequestStateLiteral.Denied),
+  Expired: PermissionRequestStateSchema.parse(PermissionRequestStateLiteral.Expired),
+  Cancelled: PermissionRequestStateSchema.parse(PermissionRequestStateLiteral.Cancelled),
 } as const;
 
 export const PolicyActionStrictnessRank = Object.freeze(

@@ -1,4 +1,9 @@
-import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
+import {
+  type Infer,
+  Schema,
+  withParser,
+  brandedNonEmptyStringSchema
+} from '@ocentra-parent/schema-domain/effect';
 import { ParentTimestampSchema } from '@ocentra-parent/family-domain/reference-primitives';
 import {
   RequiredTrackingProductionDurableWorkerArtifactRefs,
@@ -6,22 +11,16 @@ import {
 } from './tracking-production-durable-workers-readiness-blocker-proof';
 import { TrackingPolicyAuditRefSchema, TrackingPolicySchemaVersion } from './tracking-location-policy-primitives';
 
-const TrackingProductionWorkerRuntimeArtifactGateTextSchema = Schema.String.pipe(Schema.minLength(1));
-
 export const TrackingProductionWorkerRuntimeArtifactGateStatusSchema = Schema.Literal(
   'manual-required',
   'artifact-set-present'
 );
 
 export const TrackingProductionWorkerRuntimeArtifactGatePathSchema =
-  TrackingProductionWorkerRuntimeArtifactGateTextSchema.pipe(
-    Schema.brand('TrackingProductionWorkerRuntimeArtifactGatePath')
-  );
+  brandedNonEmptyStringSchema('TrackingProductionWorkerRuntimeArtifactGatePath');
 
 export const TrackingProductionWorkerRuntimeArtifactGateRowIdSchema =
-  TrackingProductionWorkerRuntimeArtifactGateTextSchema.pipe(
-    Schema.brand('TrackingProductionWorkerRuntimeArtifactGateRowId')
-  );
+  brandedNonEmptyStringSchema('TrackingProductionWorkerRuntimeArtifactGateRowId');
 
 export const TrackingProductionWorkerRuntimeArtifactGateRowSchema = withParser(
   Schema.Struct({
@@ -215,3 +214,4 @@ function productionWorkerArtifactRow(
     productClaimReady: false,
   });
 }
+

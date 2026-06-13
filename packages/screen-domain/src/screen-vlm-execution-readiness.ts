@@ -1,4 +1,9 @@
-import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
+import {
+  type Infer,
+  Schema,
+  withParser,
+  NonEmptyStringSchema
+} from '@ocentra-parent/schema-domain/effect';
 import { ActivityTimestampSchema } from '@ocentra-parent/evidence-domain/primitives';
 import {
   ScreenVlmWorkerJobSchema,
@@ -35,17 +40,16 @@ export {
 
 const RequiredFalse = Schema.Literal(false);
 const RequiredTrue = Schema.Literal(true);
-const NonEmptyText = Schema.String.pipe(Schema.minLength(1));
 
 export const ScreenVlmQueueHandoffSchema = withParser(
   Schema.Struct({
     schemaVersion: Schema.Literal(ScreenVlmExecutionReadinessSchemaVersion),
-    handoffId: NonEmptyText,
+    handoffId: NonEmptyStringSchema,
     queueJobId: ScreenEvidenceQueueJobIdSchema,
     queuedAt: ActivityTimestampSchema,
     acceptedAt: ActivityTimestampSchema,
     status: Schema.Literal('queued', 'ready', 'running'),
-    statusReason: NonEmptyText,
+    statusReason: NonEmptyStringSchema,
     job: ScreenVlmWorkerJobSchema,
     modelRuntimeRef: ScreenEvidenceModelRuntimeRefSchema,
     modelId: ScreenEvidenceModelIdSchema,
@@ -89,14 +93,14 @@ export const ScreenVlmExecutionStatusRowSchema = withParser(
     queueJobId: ScreenEvidenceQueueJobIdSchema,
     updatedAt: ActivityTimestampSchema,
     status: ScreenVlmExecutionReadinessStateSchema,
-    statusReason: NonEmptyText,
+    statusReason: NonEmptyStringSchema,
     modelRuntimeRef: ScreenEvidenceModelRuntimeRefSchema,
     modelId: ScreenEvidenceModelIdSchema,
     promptOrTemplateVersion: ScreenEvidenceTemplateVersionSchema,
     custodyState: ScreenEvidenceCustodyStateSchema,
     queueAccepted: Schema.Boolean,
     result: Schema.Union(ScreenVlmWorkerResultSchema, Schema.Null),
-    degradedReasons: Schema.Array(NonEmptyText),
+    degradedReasons: Schema.Array(NonEmptyStringSchema),
     statusSource: Schema.Literal(ScreenVlmExecutionReadinessStatusSource),
     nonClaims: ScreenVlmExecutionReadinessNonClaimsSchema,
   }).pipe(
@@ -144,7 +148,7 @@ export const ScreenVlmExecutionStatusRowSchema = withParser(
 export const ScreenVlmExecutionReadinessProofSchema = withParser(
   Schema.Struct({
     schemaVersion: Schema.Literal(ScreenVlmExecutionReadinessSchemaVersion),
-    proofId: NonEmptyText,
+    proofId: NonEmptyStringSchema,
     proofTier: Schema.Literal(ScreenVlmExecutionReadinessProofTier),
     handoffs: Schema.Array(ScreenVlmQueueHandoffSchema),
     statusRows: Schema.Array(ScreenVlmExecutionStatusRowSchema),
@@ -287,3 +291,4 @@ export type ScreenVlmExecutionReadinessNonClaims = Infer<typeof ScreenVlmExecuti
 export type ScreenVlmQueueHandoff = Infer<typeof ScreenVlmQueueHandoffSchema>;
 export type ScreenVlmExecutionStatusRow = Infer<typeof ScreenVlmExecutionStatusRowSchema>;
 export type ScreenVlmExecutionReadinessProof = Infer<typeof ScreenVlmExecutionReadinessProofSchema>;
+

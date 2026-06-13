@@ -14,12 +14,12 @@ const commands = [];
 async function main() {
   await mkdir(workpack33, { recursive: true });
   await mkdir(proofResultDir, { recursive: true });
-  await runNpm(['--workspace', '@ocentra-parent/activity-domain', 'run', 'build']);
+  await runNpm(['--workspace', '@ocentra-parent/tracking-domain', 'run', 'build']);
   await runNpm(['--workspace', '@ocentra-parent/parent-domain', 'run', 'build']);
   await runNpm(['--workspace', '@ocentra-parent/portal-domain', 'run', 'build']);
   await runNpm([
     '--workspace',
-    '@ocentra-parent/activity-domain',
+    '@ocentra-parent/tracking-domain',
     'run',
     'test',
     '--',

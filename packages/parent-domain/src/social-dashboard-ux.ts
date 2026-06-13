@@ -1,1 +1,1 @@
-export * from '@ocentra-parent/social-domain/social-dashboard-ux';
+export * from '@ocentra-parent/browser-domain/social-dashboard-ux';

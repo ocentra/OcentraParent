@@ -1,20 +1,23 @@
-import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
-
-const NonEmptyParentText = Schema.String.pipe(Schema.minLength(1));
+import {
+  type Infer,
+  Schema,
+  brandedNonEmptyStringSchema,
+  withParser,
+} from '@ocentra-parent/schema-domain/effect';
 
 export const ParentContractSchemaVersionSchema = withParser(Schema.Literal('v0.6'));
 
-export const ParentAccountIdSchema = NonEmptyParentText.pipe(Schema.brand('ParentAccountId'));
-export const FamilyIdSchema = NonEmptyParentText.pipe(Schema.brand('FamilyId'));
-export const ChildProfileIdSchema = NonEmptyParentText.pipe(Schema.brand('ChildProfileId'));
-export const ChildProfileDisplayNameSchema = NonEmptyParentText.pipe(Schema.brand('ChildProfileDisplayName'));
-export const ParentDeviceIdSchema = NonEmptyParentText.pipe(Schema.brand('ParentDeviceId'));
-export const ParentDeviceLabelSchema = NonEmptyParentText.pipe(Schema.brand('ParentDeviceLabel'));
-export const ParentActorIdSchema = NonEmptyParentText.pipe(Schema.brand('ParentActorId'));
-export const ParentPolicyVersionSchema = NonEmptyParentText.pipe(Schema.brand('ParentPolicyVersion'));
-export const ParentEvidenceReferenceIdSchema = NonEmptyParentText.pipe(Schema.brand('ParentEvidenceReferenceId'));
-export const ParentActionReferenceIdSchema = NonEmptyParentText.pipe(Schema.brand('ParentActionReferenceId'));
-export const ParentTimestampSchema = NonEmptyParentText.pipe(Schema.brand('ParentTimestamp'));
+export const ParentAccountIdSchema = brandedNonEmptyStringSchema('ParentAccountId');
+export const FamilyIdSchema = brandedNonEmptyStringSchema('FamilyId');
+export const ChildProfileIdSchema = brandedNonEmptyStringSchema('ChildProfileId');
+export const ChildProfileDisplayNameSchema = brandedNonEmptyStringSchema('ChildProfileDisplayName');
+export const ParentDeviceIdSchema = brandedNonEmptyStringSchema('ParentDeviceId');
+export const ParentDeviceLabelSchema = brandedNonEmptyStringSchema('ParentDeviceLabel');
+export const ParentActorIdSchema = brandedNonEmptyStringSchema('ParentActorId');
+export const ParentPolicyVersionSchema = brandedNonEmptyStringSchema('ParentPolicyVersion');
+export const ParentEvidenceReferenceIdSchema = brandedNonEmptyStringSchema('ParentEvidenceReferenceId');
+export const ParentActionReferenceIdSchema = brandedNonEmptyStringSchema('ParentActionReferenceId');
+export const ParentTimestampSchema = brandedNonEmptyStringSchema('ParentTimestamp');
 
 export const ParentPlatformSchema = withParser(Schema.Literal('windows', 'linux', 'macos', 'android', 'ios'));
 

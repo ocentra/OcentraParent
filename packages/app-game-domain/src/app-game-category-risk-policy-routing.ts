@@ -1,4 +1,9 @@
-import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
+import {
+  type Infer,
+  Schema,
+  withParser,
+  brandedNonEmptyStringSchema
+} from '@ocentra-parent/schema-domain/effect';
 import {
   AppGameCategoryRiskPolicyAdapterDispatchState,
   AppGameCategoryRiskPolicyCandidateAction,
@@ -21,20 +26,10 @@ import { PolicyActionSchema } from '@ocentra-parent/policy-domain/policy';
 import { ParentEvidenceReferenceSchema } from '@ocentra-parent/family-domain/references';
 import { ParentContractSchemaVersionSchema } from '@ocentra-parent/family-domain/reference-primitives';
 
-const NonEmptyCategoryRiskPolicyRoutingText = Schema.String.pipe(Schema.minLength(1));
-
-export const AppGameCategoryRiskPolicyRouteIdSchema = NonEmptyCategoryRiskPolicyRoutingText.pipe(
-  Schema.brand('AppGameCategoryRiskPolicyRouteId')
-);
-export const AppGameCategoryCandidateRefSchema = NonEmptyCategoryRiskPolicyRoutingText.pipe(
-  Schema.brand('AppGameCategoryCandidateRef')
-);
-export const AppGameCategoryRiskPolicySourceRefSchema = NonEmptyCategoryRiskPolicyRoutingText.pipe(
-  Schema.brand('AppGameCategoryRiskPolicySourceRef')
-);
-export const AppGameCategoryRiskPolicyAiDigestRefSchema = NonEmptyCategoryRiskPolicyRoutingText.pipe(
-  Schema.brand('AppGameCategoryRiskPolicyAiDigestRef')
-);
+export const AppGameCategoryRiskPolicyRouteIdSchema = brandedNonEmptyStringSchema('AppGameCategoryRiskPolicyRouteId');
+export const AppGameCategoryCandidateRefSchema = brandedNonEmptyStringSchema('AppGameCategoryCandidateRef');
+export const AppGameCategoryRiskPolicySourceRefSchema = brandedNonEmptyStringSchema('AppGameCategoryRiskPolicySourceRef');
+export const AppGameCategoryRiskPolicyAiDigestRefSchema = brandedNonEmptyStringSchema('AppGameCategoryRiskPolicyAiDigestRef');
 export const AppGameCategoryRiskPolicyConfidenceSchema = Schema.Number.pipe(Schema.between(0, 1));
 
 export const AppGameCategoryRiskPolicyRouteFamilySchema = withParser(
@@ -126,3 +121,4 @@ export {
   AppGameCategoryRiskPolicyRouteSourceKind,
   AppGameCategoryRiskPolicyRoutingState,
 };
+

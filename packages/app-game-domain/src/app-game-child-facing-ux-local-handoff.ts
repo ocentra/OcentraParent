@@ -1,4 +1,9 @@
-import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
+import {
+  type Infer,
+  Schema,
+  withParser,
+  brandedNonEmptyStringSchema
+} from '@ocentra-parent/schema-domain/effect';
 import { AppGameChildUxCardSchema } from './app-game-child-facing-ux';
 import {
   AppGameChildUxHandoffReadModelSchema,
@@ -12,14 +17,8 @@ import {
   ParentTimestampSchema,
 } from '@ocentra-parent/family-domain/reference-primitives';
 
-const NonEmptyChildUxLocalHandoffText = Schema.String.pipe(Schema.minLength(1));
-
-export const AppGameChildUxLocalHandoffArtifactRecordIdSchema = NonEmptyChildUxLocalHandoffText.pipe(
-  Schema.brand('AppGameChildUxLocalHandoffArtifactRecordId')
-);
-export const AppGameChildUxLocalHandoffArtifactReferenceSchema = NonEmptyChildUxLocalHandoffText.pipe(
-  Schema.brand('AppGameChildUxLocalHandoffArtifactReference')
-);
+export const AppGameChildUxLocalHandoffArtifactRecordIdSchema = brandedNonEmptyStringSchema('AppGameChildUxLocalHandoffArtifactRecordId');
+export const AppGameChildUxLocalHandoffArtifactReferenceSchema = brandedNonEmptyStringSchema('AppGameChildUxLocalHandoffArtifactReference');
 
 const AppGameChildUxLocalHandoffArtifactRecordBaseSchema = Schema.Struct({
   schemaVersion: ParentContractSchemaVersionSchema,
@@ -180,3 +179,4 @@ function appGameChildUxLocalHandoffArtifactCountsMatch(
     readModel.privateDiagnosticsIncluded === false
   );
 }
+

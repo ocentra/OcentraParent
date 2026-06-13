@@ -2,7 +2,7 @@ import { Schema } from '@ocentra-parent/schema-domain/effect';
 import {
   NotificationLocalOutboxAdapterProofReadModel,
   type NotificationLocalOutboxRecord,
-} from './notification-local-outbox-adapter-proof';
+} from '@ocentra-parent/notification-domain/notification-local-outbox-adapter-proof';
 import {
   NotificationLocalOutboxSchedulerArtifactRef,
   NotificationLocalOutboxSchedulerKnownGaps,
@@ -11,7 +11,7 @@ import {
   NotificationLocalOutboxSchedulerProofTimestamp,
   RequiredNotificationLocalOutboxSchedulerNonClaims,
   RequiredNotificationLocalOutboxSchedulerStates,
-} from './notification-local-outbox-scheduler-proof-values';
+} from '@ocentra-parent/notification-domain/notification-local-outbox-scheduler-proof-values';
 import {
   NotificationLocalOutboxSchedulerProofSchema,
   NotificationLocalOutboxSchedulerRecordSchema,
@@ -19,7 +19,7 @@ import {
   type NotificationLocalOutboxSchedulerState,
 } from './notification-local-outbox-scheduler-proof-schemas';
 import { NotificationLocalOutboxProviderChannels } from './notification-local-outbox-adapter-proof-values';
-import { type V3NotificationProviderChannel } from './v3-notification-rule-provider-retry-contract';
+import { type V3NotificationProviderChannel } from '@ocentra-parent/notification-domain/v3-notification-rule-provider-retry-contract';
 import { ParentContractSchemaVersion } from '@ocentra-parent/family-domain/reference-primitives';
 
 export {

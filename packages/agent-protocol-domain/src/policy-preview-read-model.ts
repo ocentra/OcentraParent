@@ -1,8 +1,8 @@
-import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
+import { type Infer, NonEmptyStringSchema, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
 import { AgentProtocolDefaults, type AgentProtocolLogFields } from './contracts';
 
-const NullableTextSchema = Schema.Union(Schema.String, Schema.Null);
-const NullableSchemaVersionSchema = Schema.Union(Schema.String, Schema.Number, Schema.Null);
+const NullableTextSchema = Schema.Union(NonEmptyStringSchema, Schema.Null);
+const NullableSchemaVersionSchema = Schema.Union(NonEmptyStringSchema, Schema.Number, Schema.Null);
 const NullableNumberSchema = Schema.Union(Schema.Number, Schema.Null);
 const NullableBooleanSchema = Schema.Union(Schema.Boolean, Schema.Null);
 const FalseOrNullSchema = Schema.Union(Schema.Literal(false), Schema.Null);

@@ -1,19 +1,23 @@
-import { Schema, withParser, type Infer } from '@ocentra-parent/schema-domain/effect';
+import {
+  Schema,
+  withParser,
+  type Infer,
+  brandedNonEmptyStringSchema,
+  NonEmptyStringSchema
+} from '@ocentra-parent/schema-domain/effect';
 import { ParentEvidenceReferenceIdSchema, ParentTimestampSchema } from '@ocentra-parent/family-domain/reference-primitives';
 import {
   TrackingPolicyAuditRefSchema,
   TrackingPolicyReasonCodeSchema,
   TrackingPolicySchemaVersion,
 } from './tracking-location-policy-primitives';
-
-const ProviderText = Schema.String.pipe(Schema.minLength(1));
 const LatitudeSchema = Schema.Number.pipe(Schema.between(-90, 90));
 const LongitudeSchema = Schema.Number.pipe(Schema.between(-180, 180));
 const RadiusMetersSchema = Schema.Number.pipe(Schema.int(), Schema.between(25, 1000));
 const ResultCountSchema = Schema.Number.pipe(Schema.int(), Schema.between(1, 20));
 const ConfidenceSchema = Schema.Number.pipe(Schema.between(0, 1));
 const DistanceMetersSchema = Schema.Number.pipe(Schema.nonNegative());
-const IncludedTypesSchema = Schema.Array(ProviderText).pipe(Schema.minItems(1), Schema.maxItems(50));
+const IncludedTypesSchema = Schema.Array(NonEmptyStringSchema).pipe(Schema.minItems(1), Schema.maxItems(50));
 const TrackingPolicyAuditRefParsedSchema = withParser(TrackingPolicyAuditRefSchema);
 
 export const TrackingPoiProviderId = {
@@ -83,7 +87,7 @@ export const TrackingGooglePlacesNearbySearchInputSchema = withParser(
   Schema.Struct({
     schemaVersion: Schema.Literal(TrackingPolicySchemaVersion),
     provider: Schema.Literal(TrackingPoiProviderId.GooglePlacesNearby),
-    requestId: ProviderText.pipe(Schema.brand('TrackingPoiProviderRequestId')),
+    requestId: brandedNonEmptyStringSchema('TrackingPoiProviderRequestId'),
     requestedAt: ParentTimestampSchema,
     center: TrackingPoiSearchCenterSchema,
     radiusMeters: RadiusMetersSchema,
@@ -105,10 +109,10 @@ export const TrackingGooglePlacesNearbyRequestSchema = withParser(
     schemaVersion: Schema.Literal(TrackingPolicySchemaVersion),
     provider: Schema.Literal(TrackingPoiProviderId.GooglePlacesNearby),
     status: Schema.Literal(TrackingPoiProviderStatus.RequestReady),
-    requestId: ProviderText,
+    requestId: NonEmptyStringSchema,
     method: Schema.Literal('POST'),
     endpointRef: Schema.Literal('places.googleapis.com/v1/places:searchNearby'),
-    fieldMaskHeader: ProviderText,
+    fieldMaskHeader: NonEmptyStringSchema,
     body: Schema.Struct({
       includedTypes: IncludedTypesSchema,
       maxResultCount: ResultCountSchema,
@@ -130,7 +134,7 @@ export const TrackingGooglePlacesNearbyRequestSchema = withParser(
 );
 
 const GoogleDisplayNameSchema = Schema.Struct({
-  text: ProviderText,
+  text: NonEmptyStringSchema,
 });
 
 const GoogleLocationSchema = Schema.Struct({
@@ -139,12 +143,12 @@ const GoogleLocationSchema = Schema.Struct({
 });
 
 const GooglePlaceSchema = Schema.Struct({
-  id: ProviderText,
-  name: ProviderText,
+  id: NonEmptyStringSchema,
+  name: NonEmptyStringSchema,
   displayName: GoogleDisplayNameSchema,
   location: GoogleLocationSchema,
-  primaryType: ProviderText,
-  types: Schema.Array(ProviderText),
+  primaryType: NonEmptyStringSchema,
+  types: Schema.Array(NonEmptyStringSchema),
 });
 
 export const GooglePlacesNearbySearchResponseSchema = withParser(
@@ -155,10 +159,10 @@ export const GooglePlacesNearbySearchResponseSchema = withParser(
 
 export const TrackingPoiCandidateSchema = withParser(
   Schema.Struct({
-    providerPlaceId: ProviderText,
-    providerResourceName: ProviderText,
-    displayName: ProviderText,
-    primaryType: ProviderText,
+    providerPlaceId: NonEmptyStringSchema,
+    providerResourceName: NonEmptyStringSchema,
+    displayName: NonEmptyStringSchema,
+    primaryType: NonEmptyStringSchema,
     category: TrackingPoiCategorySchema,
     distanceMeters: DistanceMetersSchema,
     confidence: ConfidenceSchema,
@@ -500,3 +504,4 @@ function distanceBetweenMeters(
 function radians(value: number): number {
   return (value * Math.PI) / 180;
 }
+

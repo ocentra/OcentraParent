@@ -1,4 +1,10 @@
-import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
+import {
+  type Infer,
+  Schema,
+  withParser,
+  brandedNonEmptyStringSchema,
+  NonEmptyStringSchema
+} from '@ocentra-parent/schema-domain/effect';
 import { ChildProfileIdSchema, ParentDeviceIdSchema, ParentDeviceLabelSchema } from '@ocentra-parent/family-domain/reference-primitives';
 import {
   LanPairingDeviceReachabilitySchema,
@@ -12,11 +18,7 @@ import {
 import { DeviceRuntimeRoleSchema, DeviceRuntimeRoleStateSchema, DeviceRuntimeRouteStateSchema } from './device-roles';
 import { LanDiscoveryEvidenceRecordSchema } from './lan-discovery-evidence';
 
-const NonEmptyHouseholdDeviceText = Schema.String.pipe(Schema.minLength(1));
-
-export const HouseholdCanonicalDeviceIdSchema = NonEmptyHouseholdDeviceText.pipe(
-  Schema.brand('HouseholdCanonicalDeviceId')
-);
+export const HouseholdCanonicalDeviceIdSchema = brandedNonEmptyStringSchema('HouseholdCanonicalDeviceId');
 
 export const HouseholdDevicePlatformSchema = withParser(
   Schema.Literal('windows', 'linux', 'macos', 'android', 'ios', 'router', 'unknown')
@@ -44,39 +46,39 @@ export const HouseholdLanDeviceRefSchema = withParser(
     childProfileId: Schema.Union(ChildProfileIdSchema, Schema.Null),
     label: ParentDeviceLabelSchema,
     platform: HouseholdDevicePlatformSchema,
-    ipAddress: Schema.optionalWith(Schema.Union(NonEmptyHouseholdDeviceText, Schema.Null), { default: () => null }),
-    macAddress: Schema.optionalWith(Schema.Union(NonEmptyHouseholdDeviceText, Schema.Null), { default: () => null }),
-    hostname: Schema.optionalWith(Schema.Union(NonEmptyHouseholdDeviceText, Schema.Null), { default: () => null }),
-    networkInterface: Schema.optionalWith(Schema.Union(NonEmptyHouseholdDeviceText, Schema.Null), {
+    ipAddress: Schema.optionalWith(Schema.Union(NonEmptyStringSchema, Schema.Null), { default: () => null }),
+    macAddress: Schema.optionalWith(Schema.Union(NonEmptyStringSchema, Schema.Null), { default: () => null }),
+    hostname: Schema.optionalWith(Schema.Union(NonEmptyStringSchema, Schema.Null), { default: () => null }),
+    networkInterface: Schema.optionalWith(Schema.Union(NonEmptyStringSchema, Schema.Null), {
       default: () => null,
     }),
-    agentStatus: Schema.optionalWith(Schema.Union(NonEmptyHouseholdDeviceText, Schema.Null), { default: () => null }),
+    agentStatus: Schema.optionalWith(Schema.Union(NonEmptyStringSchema, Schema.Null), { default: () => null }),
     hardwareProfile: Schema.optionalWith(
       Schema.Union(
         Schema.Struct({
-          manufacturer: Schema.optionalWith(Schema.Union(NonEmptyHouseholdDeviceText, Schema.Null), {
+          manufacturer: Schema.optionalWith(Schema.Union(NonEmptyStringSchema, Schema.Null), {
             default: () => null,
           }),
-          model: Schema.optionalWith(Schema.Union(NonEmptyHouseholdDeviceText, Schema.Null), { default: () => null }),
-          cpuModel: Schema.optionalWith(Schema.Union(NonEmptyHouseholdDeviceText, Schema.Null), {
+          model: Schema.optionalWith(Schema.Union(NonEmptyStringSchema, Schema.Null), { default: () => null }),
+          cpuModel: Schema.optionalWith(Schema.Union(NonEmptyStringSchema, Schema.Null), {
             default: () => null,
           }),
-          cpuCores: Schema.optionalWith(Schema.Union(NonEmptyHouseholdDeviceText, Schema.Null), {
+          cpuCores: Schema.optionalWith(Schema.Union(NonEmptyStringSchema, Schema.Null), {
             default: () => null,
           }),
-          memoryTotal: Schema.optionalWith(Schema.Union(NonEmptyHouseholdDeviceText, Schema.Null), {
+          memoryTotal: Schema.optionalWith(Schema.Union(NonEmptyStringSchema, Schema.Null), {
             default: () => null,
           }),
-          gpuModel: Schema.optionalWith(Schema.Union(NonEmptyHouseholdDeviceText, Schema.Null), {
+          gpuModel: Schema.optionalWith(Schema.Union(NonEmptyStringSchema, Schema.Null), {
             default: () => null,
           }),
-          gpuDriver: Schema.optionalWith(Schema.Union(NonEmptyHouseholdDeviceText, Schema.Null), {
+          gpuDriver: Schema.optionalWith(Schema.Union(NonEmptyStringSchema, Schema.Null), {
             default: () => null,
           }),
-          gpuMemory: Schema.optionalWith(Schema.Union(NonEmptyHouseholdDeviceText, Schema.Null), {
+          gpuMemory: Schema.optionalWith(Schema.Union(NonEmptyStringSchema, Schema.Null), {
             default: () => null,
           }),
-          nvidiaSmi: Schema.optionalWith(Schema.Union(NonEmptyHouseholdDeviceText, Schema.Null), {
+          nvidiaSmi: Schema.optionalWith(Schema.Union(NonEmptyStringSchema, Schema.Null), {
             default: () => null,
           }),
         }),
@@ -89,11 +91,11 @@ export const HouseholdLanDeviceRefSchema = withParser(
 
 export const HouseholdDeviceNetworkIdentitySchema = withParser(
   Schema.Struct({
-    hostname: Schema.Union(NonEmptyHouseholdDeviceText, Schema.Null),
-    ipAddresses: Schema.Array(NonEmptyHouseholdDeviceText),
-    macAddress: Schema.Union(NonEmptyHouseholdDeviceText, Schema.Null),
-    macVendor: Schema.Union(NonEmptyHouseholdDeviceText, Schema.Null),
-    networkInterfaces: Schema.Array(NonEmptyHouseholdDeviceText),
+    hostname: Schema.Union(NonEmptyStringSchema, Schema.Null),
+    ipAddresses: Schema.Array(NonEmptyStringSchema),
+    macAddress: Schema.Union(NonEmptyStringSchema, Schema.Null),
+    macVendor: Schema.Union(NonEmptyStringSchema, Schema.Null),
+    networkInterfaces: Schema.Array(NonEmptyStringSchema),
     reachability: LanPairingDeviceReachabilitySchema,
     confidence: HouseholdDeviceInventoryConfidenceSchema,
     staleAt: Schema.Union(LanPairingTimestampSchema, Schema.Null),
@@ -108,18 +110,18 @@ export const HouseholdDeviceNetworkIdentitySchema = withParser(
 
 export const ChildAgentInventoryPacketSchema = withParser(
   Schema.Struct({
-    deviceName: NonEmptyHouseholdDeviceText,
+    deviceName: NonEmptyStringSchema,
     platform: HouseholdDevicePlatformSchema,
     os: HouseholdDevicePlatformSchema,
-    cpuModel: Schema.Union(NonEmptyHouseholdDeviceText, Schema.Null),
-    cpuCores: Schema.Union(NonEmptyHouseholdDeviceText, Schema.Null),
-    memoryTotal: Schema.Union(NonEmptyHouseholdDeviceText, Schema.Null),
-    gpuModel: Schema.Union(NonEmptyHouseholdDeviceText, Schema.Null),
-    gpuDriver: Schema.Union(NonEmptyHouseholdDeviceText, Schema.Null),
-    gpuMemory: Schema.Union(NonEmptyHouseholdDeviceText, Schema.Null),
-    nvidiaSmi: Schema.Union(NonEmptyHouseholdDeviceText, Schema.Null),
-    networkInterfaces: Schema.Array(NonEmptyHouseholdDeviceText),
-    capabilities: Schema.Array(NonEmptyHouseholdDeviceText),
+    cpuModel: Schema.Union(NonEmptyStringSchema, Schema.Null),
+    cpuCores: Schema.Union(NonEmptyStringSchema, Schema.Null),
+    memoryTotal: Schema.Union(NonEmptyStringSchema, Schema.Null),
+    gpuModel: Schema.Union(NonEmptyStringSchema, Schema.Null),
+    gpuDriver: Schema.Union(NonEmptyStringSchema, Schema.Null),
+    gpuMemory: Schema.Union(NonEmptyStringSchema, Schema.Null),
+    nvidiaSmi: Schema.Union(NonEmptyStringSchema, Schema.Null),
+    networkInterfaces: Schema.Array(NonEmptyStringSchema),
+    capabilities: Schema.Array(NonEmptyStringSchema),
     roleState: DeviceRuntimeRoleStateSchema,
     routeState: DeviceRuntimeRouteStateSchema,
     pairingTrustState: LanPairingTrustStateSchema,
@@ -186,3 +188,4 @@ export type HouseholdLanDeviceRef = Infer<typeof HouseholdLanDeviceRefSchema>;
 export type HouseholdDeviceNetworkIdentity = Infer<typeof HouseholdDeviceNetworkIdentitySchema>;
 export type ChildAgentInventoryPacket = Infer<typeof ChildAgentInventoryPacketSchema>;
 export type HouseholdDeviceSpineEntry = Infer<typeof HouseholdDeviceSpineEntrySchema>;
+

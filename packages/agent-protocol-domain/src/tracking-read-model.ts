@@ -1,15 +1,19 @@
 import { ActivityEvidenceRefSchema } from '@ocentra-parent/evidence-domain/contracts';
 import { ActivityQuerySchemaVersion } from '@ocentra-parent/activity-domain/query';
-import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
+import {
+  type Infer,
+  NonEmptyStringSchema,
+  Schema,
+  withParser,
+} from '@ocentra-parent/schema-domain/effect';
 import { AgentEvent, AgentProtocolDefaults, isAgentProtocolLogText, type AgentEventEnvelope } from './contracts';
 
-const TrackingProtocolText = Schema.String.pipe(Schema.minLength(1));
 const TrackingProtocolCount = Schema.Number.pipe(Schema.nonNegative(), Schema.int());
-const NullableTrackingProtocolText = Schema.Union(TrackingProtocolText, Schema.Null);
+const NullableTrackingProtocolText = Schema.Union(NonEmptyStringSchema, Schema.Null);
 
 export const AgentActivityTrackingReadModelCountSchema = withParser(
   Schema.Struct({
-    value: TrackingProtocolText,
+    value: NonEmptyStringSchema,
     count: TrackingProtocolCount,
   })
 );
@@ -17,20 +21,20 @@ export const AgentActivityTrackingReadModelCountSchema = withParser(
 export const AgentActivityTrackingReadModelRowSchema = withParser(
   Schema.Struct({
     schemaVersion: Schema.Literal(ActivityQuerySchemaVersion),
-    eventId: TrackingProtocolText,
-    observedAt: TrackingProtocolText,
-    deviceId: TrackingProtocolText,
-    platform: TrackingProtocolText,
-    observer: TrackingProtocolText,
-    kind: TrackingProtocolText,
-    subjectKind: TrackingProtocolText,
-    subjectId: TrackingProtocolText,
+    eventId: NonEmptyStringSchema,
+    observedAt: NonEmptyStringSchema,
+    deviceId: NonEmptyStringSchema,
+    platform: NonEmptyStringSchema,
+    observer: NonEmptyStringSchema,
+    kind: NonEmptyStringSchema,
+    subjectKind: NonEmptyStringSchema,
+    subjectId: NonEmptyStringSchema,
     subjectDisplayName: NullableTrackingProtocolText,
     capabilityStatus: NullableTrackingProtocolText,
-    queryVisibility: TrackingProtocolText,
+    queryVisibility: NonEmptyStringSchema,
     deletedAt: NullableTrackingProtocolText,
-    evidenceReferenceIds: Schema.Array(TrackingProtocolText),
-    deletedEvidenceReferenceIds: Schema.Array(TrackingProtocolText),
+    evidenceReferenceIds: Schema.Array(NonEmptyStringSchema),
+    deletedEvidenceReferenceIds: Schema.Array(NonEmptyStringSchema),
     evidence: Schema.Array(ActivityEvidenceRefSchema),
   })
 );
@@ -38,13 +42,13 @@ export const AgentActivityTrackingReadModelRowSchema = withParser(
 export const AgentActivityTrackingReadModelSchema = withParser(
   Schema.Struct({
     schemaVersion: Schema.Literal(ActivityQuerySchemaVersion),
-    generatedAt: TrackingProtocolText,
-    custodyLabel: TrackingProtocolText,
+    generatedAt: NonEmptyStringSchema,
+    custodyLabel: NonEmptyStringSchema,
     limit: TrackingProtocolCount,
     returned: TrackingProtocolCount,
     activeRows: TrackingProtocolCount,
     tombstoneRows: TrackingProtocolCount,
-    capabilityStatus: TrackingProtocolText,
+    capabilityStatus: NonEmptyStringSchema,
     latestEventId: NullableTrackingProtocolText,
     latestObservedAt: NullableTrackingProtocolText,
     latestActiveEventId: Schema.optionalWith(NullableTrackingProtocolText, { default: () => null }),
@@ -60,7 +64,7 @@ export const AgentActivityTrackingReadModelSchema = withParser(
     activeCapabilityStatusCounts: Schema.optionalWith(Schema.Array(AgentActivityTrackingReadModelCountSchema), {
       default: () => [],
     }),
-    deletedEvidenceReferenceIds: Schema.Array(TrackingProtocolText),
+    deletedEvidenceReferenceIds: Schema.Array(NonEmptyStringSchema),
     rows: Schema.Array(AgentActivityTrackingReadModelRowSchema),
   })
 );

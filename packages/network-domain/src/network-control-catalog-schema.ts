@@ -1,30 +1,37 @@
-import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
+import {
+  type Infer,
+  brandedNonEmptyStringSchema,
+  NonEmptyStringSchema,
+  Schema,
+  withParser,
+} from '@ocentra-parent/schema-domain/effect';
 
-import { ParentContractSchemaVersionSchema, ParentDeviceIdSchema, ParentTimestampSchema } from '@ocentra-parent/family-domain/reference-primitives';
-
-const NetworkControlCatalogTextSchema = Schema.String.pipe(Schema.minLength(1));
-const NonEmptyNetworkControlIdSchema = Schema.String.pipe(Schema.minLength(1));
+import {
+  ParentContractSchemaVersionSchema,
+  ParentDeviceIdSchema,
+  ParentTimestampSchema,
+} from '@ocentra-parent/family-domain/reference-primitives';
 
 export const NetworkControlCatalogIdSchema = withParser(
-  NonEmptyNetworkControlIdSchema.pipe(Schema.brand('NetworkControlCatalogId'))
+  brandedNonEmptyStringSchema('NetworkControlCatalogId')
 );
 export const NetworkControlSectionIdSchema = withParser(
-  NonEmptyNetworkControlIdSchema.pipe(Schema.brand('NetworkControlSectionId'))
+  brandedNonEmptyStringSchema('NetworkControlSectionId')
 );
 export const NetworkControlGroupIdSchema = withParser(
-  NonEmptyNetworkControlIdSchema.pipe(Schema.brand('NetworkControlGroupId'))
+  brandedNonEmptyStringSchema('NetworkControlGroupId')
 );
 export const NetworkControlSettingIdSchema = withParser(
-  NonEmptyNetworkControlIdSchema.pipe(Schema.brand('NetworkControlSettingId'))
+  brandedNonEmptyStringSchema('NetworkControlSettingId')
 );
 export const NetworkControlOptionIdSchema = withParser(
-  NonEmptyNetworkControlIdSchema.pipe(Schema.brand('NetworkControlOptionId'))
+  brandedNonEmptyStringSchema('NetworkControlOptionId')
 );
 export const NetworkControlCapabilityIdSchema = withParser(
-  NonEmptyNetworkControlIdSchema.pipe(Schema.brand('NetworkControlCapabilityId'))
+  brandedNonEmptyStringSchema('NetworkControlCapabilityId')
 );
 export const NetworkControlWritesToPathSchema = withParser(
-  NonEmptyNetworkControlIdSchema.pipe(Schema.brand('NetworkControlWritesToPath'))
+  brandedNonEmptyStringSchema('NetworkControlWritesToPath')
 );
 
 const NetworkControlSidePanelCategorySchema = withParser(Schema.Literal('network'));
@@ -125,10 +132,10 @@ export const NetworkControlCapabilityStateSchema = withParser(
 export const NetworkControlOptionSchema = withParser(
   Schema.Struct({
     optionId: NetworkControlOptionIdSchema,
-    label: NetworkControlCatalogTextSchema,
-    value: NetworkControlCatalogTextSchema,
-    originalSourceText: NetworkControlCatalogTextSchema,
-    meaning: Schema.Union(NetworkControlCatalogTextSchema, Schema.Null),
+    label: NonEmptyStringSchema,
+    value: NonEmptyStringSchema,
+    originalSourceText: NonEmptyStringSchema,
+    meaning: Schema.Union(NonEmptyStringSchema, Schema.Null),
     defaultSelected: Schema.Boolean,
   })
 );
@@ -147,7 +154,7 @@ const NetworkControlLayoutHintsSchema = withParser(
 const NetworkControlRuleSchema = withParser(
   Schema.Struct({
     ruleId: NetworkControlSettingIdSchema,
-    description: NetworkControlCatalogTextSchema,
+    description: NonEmptyStringSchema,
   })
 );
 
@@ -158,17 +165,17 @@ export const NetworkControlCatalogSettingSchema = withParser(
     sectionId: NetworkControlSectionIdSchema,
     groupId: NetworkControlGroupIdSchema,
     settingId: NetworkControlSettingIdSchema,
-    sourceDocument: NetworkControlCatalogTextSchema,
-    sourceHeadingPath: Schema.Array(NetworkControlCatalogTextSchema),
+    sourceDocument: NonEmptyStringSchema,
+    sourceHeadingPath: Schema.Array(NonEmptyStringSchema),
     sourceSection: NetworkControlSectionIdSchema,
     sourceGroup: NetworkControlGroupIdSchema,
     sourceOrder: Schema.Number,
     sourceLine: Schema.Number,
-    sourceText: NetworkControlCatalogTextSchema,
-    originalSourceText: NetworkControlCatalogTextSchema,
-    question: NetworkControlCatalogTextSchema,
-    uiQuestionText: NetworkControlCatalogTextSchema,
-    helperText: NetworkControlCatalogTextSchema,
+    sourceText: NonEmptyStringSchema,
+    originalSourceText: NonEmptyStringSchema,
+    question: NonEmptyStringSchema,
+    uiQuestionText: NonEmptyStringSchema,
+    helperText: NonEmptyStringSchema,
     displayOrder: Schema.Number,
     selectionMode: NetworkControlSelectionModeSchema,
     controlKind: NetworkControlKindSchema,
@@ -183,19 +190,19 @@ export const NetworkControlCatalogSettingSchema = withParser(
     effectStatus: NetworkControlEffectStatusSchema,
     runtimeOwner: NetworkControlRuntimeOwnerSchema,
     capabilityState: NetworkControlCapabilityStateSchema,
-    capabilityRequirement: NetworkControlCatalogTextSchema,
-    proofRequirement: Schema.Union(NetworkControlCatalogTextSchema, Schema.Null),
+    capabilityRequirement: NonEmptyStringSchema,
+    proofRequirement: Schema.Union(NonEmptyStringSchema, Schema.Null),
     visibilityConditions: Schema.Array(NetworkControlRuleSchema),
     enabledConditions: Schema.Array(NetworkControlRuleSchema),
     validationRules: Schema.Array(NetworkControlRuleSchema),
-    unsafeOrUnsupportedFallback: NetworkControlCatalogTextSchema,
+    unsafeOrUnsupportedFallback: NonEmptyStringSchema,
   })
 );
 
 export const NetworkControlCatalogGroupSchema = withParser(
   Schema.Struct({
     groupId: NetworkControlGroupIdSchema,
-    title: NetworkControlCatalogTextSchema,
+    title: NonEmptyStringSchema,
     sourceOrder: Schema.Number,
     settings: Schema.Array(NetworkControlCatalogSettingSchema),
   })
@@ -204,7 +211,7 @@ export const NetworkControlCatalogGroupSchema = withParser(
 export const NetworkControlCatalogSectionSchema = withParser(
   Schema.Struct({
     sectionId: NetworkControlSectionIdSchema,
-    title: NetworkControlCatalogTextSchema,
+    title: NonEmptyStringSchema,
     sourceOrder: Schema.Number,
     policyLane: NetworkControlUiTabSchema,
     groups: Schema.Array(NetworkControlCatalogGroupSchema),
@@ -214,7 +221,7 @@ export const NetworkControlCatalogSectionSchema = withParser(
 export const NetworkControlCatalogTabSchema = withParser(
   Schema.Struct({
     tabId: NetworkControlUiTabSchema,
-    title: NetworkControlCatalogTextSchema,
+    title: NonEmptyStringSchema,
     sourceOrder: Schema.Number,
     sections: Schema.Array(NetworkControlCatalogSectionSchema),
   })
@@ -225,7 +232,7 @@ export const NetworkControlCatalogSchema = withParser(
     schemaVersion: ParentContractSchemaVersionSchema,
     catalogId: NetworkControlCatalogIdSchema,
     sidePanelCategory: NetworkControlSidePanelCategorySchema,
-    sourceDocuments: Schema.Array(NetworkControlCatalogTextSchema),
+    sourceDocuments: Schema.Array(NonEmptyStringSchema),
     settingCount: Schema.Number,
     acceptedOptionCount: Schema.Number,
     targetScopeOptions: Schema.Array(NetworkControlOptionSchema),
@@ -238,17 +245,17 @@ export const NetworkControlCapabilitySchema = withParser(
   Schema.Struct({
     capabilityId: NetworkControlCapabilityIdSchema,
     state: NetworkControlCapabilityStateSchema,
-    sourceState: NetworkControlCatalogTextSchema,
-    proof: NetworkControlCatalogTextSchema,
+    sourceState: NonEmptyStringSchema,
+    proof: NonEmptyStringSchema,
     affectsSettings: Schema.Array(NetworkControlSettingIdSchema),
   })
 );
 
 const NetworkControlPolicyValuePrimitiveSchema = Schema.Union(
-  Schema.String,
+  NonEmptyStringSchema,
   Schema.Number,
   Schema.Boolean,
-  Schema.Array(Schema.String),
+  Schema.Array(NonEmptyStringSchema),
   Schema.Null
 );
 
@@ -274,7 +281,7 @@ export const NetworkControlEffectivePolicySchema = withParser(
     documentId: NetworkControlCatalogIdSchema,
     compiledFromPolicyId: NetworkControlCatalogIdSchema,
     schemaVersion: ParentContractSchemaVersionSchema,
-    effectivePolicyHash: NetworkControlCatalogTextSchema,
+    effectivePolicyHash: NonEmptyStringSchema,
     compiledAt: ParentTimestampSchema,
     runtimeOwner: NetworkControlRuntimeOwnerSchema,
     plans: Schema.Array(
@@ -284,7 +291,7 @@ export const NetworkControlEffectivePolicySchema = withParser(
         effectStatus: NetworkControlEffectStatusSchema,
         runtimeOwner: NetworkControlRuntimeOwnerSchema,
         capabilityState: NetworkControlCapabilityStateSchema,
-        fallback: NetworkControlCatalogTextSchema,
+        fallback: NonEmptyStringSchema,
       })
     ),
   })

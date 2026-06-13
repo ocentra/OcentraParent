@@ -1,9 +1,8 @@
 import { AppGameSchemaVersion } from '@ocentra-parent/app-game-domain/app-game';
 import { ActivityEvidenceRefSchema } from '@ocentra-parent/evidence-domain/contracts';
-import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
+import { type Infer, NonEmptyStringSchema, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
 import { AgentEvent, AgentProtocolDefaults, isAgentProtocolLogText, type AgentEventEnvelope } from './contracts';
 
-const PolicyReadinessText = Schema.String.pipe(Schema.minLength(1));
 const PolicyReadinessCount = Schema.Number.pipe(Schema.nonNegative(), Schema.int());
 
 export const AgentAppGamePolicyReadinessKind = {
@@ -25,7 +24,7 @@ export const AgentAppGamePolicyReadinessState = {
 export const AgentAppGamePolicyReadinessRowSchema = withParser(
   Schema.Struct({
     schemaVersion: Schema.Literal(AppGameSchemaVersion),
-    rowId: PolicyReadinessText,
+    rowId: NonEmptyStringSchema,
     readinessKind: Schema.Literal(
       AgentAppGamePolicyReadinessKind.PolicyEvidence,
       AgentAppGamePolicyReadinessKind.ApprovalAuthority,
@@ -41,7 +40,7 @@ export const AgentAppGamePolicyReadinessRowSchema = withParser(
       AgentAppGamePolicyReadinessState.ManualRequired
     ),
     rowCount: PolicyReadinessCount,
-    evidenceReferenceIds: Schema.Array(PolicyReadinessText),
+    evidenceReferenceIds: Schema.Array(NonEmptyStringSchema),
     evidence: Schema.Array(ActivityEvidenceRefSchema),
   })
 );
@@ -49,9 +48,9 @@ export const AgentAppGamePolicyReadinessRowSchema = withParser(
 export const AgentAppGamePolicyReadinessReadModelSchema = withParser(
   Schema.Struct({
     schemaVersion: Schema.Literal(AppGameSchemaVersion),
-    generatedAt: PolicyReadinessText,
-    custodyLabel: PolicyReadinessText,
-    capabilityStatus: PolicyReadinessText,
+    generatedAt: NonEmptyStringSchema,
+    custodyLabel: NonEmptyStringSchema,
+    capabilityStatus: NonEmptyStringSchema,
     returned: PolicyReadinessCount,
     policyEvaluationReady: Schema.Boolean,
     categoryRoutingReady: Schema.Boolean,

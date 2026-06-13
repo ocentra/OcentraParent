@@ -1,4 +1,9 @@
-import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
+import {
+  type Infer,
+  Schema,
+  withParser,
+  brandedNonEmptyStringSchema
+} from '@ocentra-parent/schema-domain/effect';
 import {
   AppGameChildUxLocalOutboxProviderPreflightReadModelSchema,
   AppGameChildUxLocalOutboxProviderPreflightStatus,
@@ -16,9 +21,7 @@ import {
   V08NotificationProviderStatusBoundaryEntrySchema,
   V08NotificationProviderStatusBoundaryReadModel,
   type V08NotificationProviderStatus,
-} from './v0-8-notification-provider-status-boundary';
-
-const ChildUxProviderStatusHandoffText = Schema.String.pipe(Schema.minLength(1));
+} from '@ocentra-parent/notification-domain/v0-8-notification-provider-status-boundary';
 
 export const RequiredAppGameChildUxLocalOutboxProviderStatusHandoffNonClaims = [
   'no-provider-delivery-execution',
@@ -38,12 +41,8 @@ export const RequiredAppGameChildUxLocalOutboxProviderStatusHandoffNonClaims = [
 export const AppGameChildUxLocalOutboxProviderStatusHandoffNonClaimSchema = withParser(
   Schema.Literal(...RequiredAppGameChildUxLocalOutboxProviderStatusHandoffNonClaims)
 );
-export const AppGameChildUxLocalOutboxProviderStatusHandoffIdSchema = ChildUxProviderStatusHandoffText.pipe(
-  Schema.brand('AppGameChildUxLocalOutboxProviderStatusHandoffId')
-);
-export const AppGameChildUxLocalOutboxProviderStatusHandoffReferenceSchema = ChildUxProviderStatusHandoffText.pipe(
-  Schema.brand('AppGameChildUxLocalOutboxProviderStatusHandoffReference')
-);
+export const AppGameChildUxLocalOutboxProviderStatusHandoffIdSchema = brandedNonEmptyStringSchema('AppGameChildUxLocalOutboxProviderStatusHandoffId');
+export const AppGameChildUxLocalOutboxProviderStatusHandoffReferenceSchema = brandedNonEmptyStringSchema('AppGameChildUxLocalOutboxProviderStatusHandoffReference');
 
 const AppGameChildUxLocalOutboxProviderStatusHandoffRowBaseSchema = Schema.Struct({
   handoffRowId: AppGameChildUxLocalOutboxProviderStatusHandoffReferenceSchema,
@@ -317,3 +316,4 @@ const countProviderStatus = (
   }>,
   providerStatus: V08NotificationProviderStatus
 ): number => rows.filter((row) => row.providerStatusBoundaryEntry.providerStatus === providerStatus).length;
+

@@ -1,4 +1,9 @@
-import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
+import {
+  type Infer,
+  Schema,
+  withParser,
+  brandedNonEmptyStringSchema
+} from '@ocentra-parent/schema-domain/effect';
 import {
   ActivityDeviceIdSchema,
   ActivityEvidenceIdSchema,
@@ -18,8 +23,6 @@ import {
 } from './browser-schemas';
 
 export const BrowserInterventionSchemaVersion = 1;
-
-const NonEmptyBrowserInterventionText = Schema.String.pipe(Schema.minLength(1));
 
 export const BrowserInterventionDecisionSourceSchema = withParser(
   Schema.Literal('parent-rule', 'parent-portal', 'local-ai', 'system', 'manual-test', 'unknown')
@@ -161,19 +164,19 @@ export const BrowserInterventionDeliveryStateSchema = withParser(
 );
 
 export const BrowserInterventionIdSchema = withParser(
-  NonEmptyBrowserInterventionText.pipe(Schema.brand('BrowserInterventionId'))
+  brandedNonEmptyStringSchema('BrowserInterventionId')
 );
 export const BrowserInterventionActionIdSchema = withParser(
-  NonEmptyBrowserInterventionText.pipe(Schema.brand('BrowserInterventionActionId'))
+  brandedNonEmptyStringSchema('BrowserInterventionActionId')
 );
 export const BrowserInterventionAuditIdSchema = withParser(
-  NonEmptyBrowserInterventionText.pipe(Schema.brand('BrowserInterventionAuditId'))
+  brandedNonEmptyStringSchema('BrowserInterventionAuditId')
 );
 export const BrowserPolicyDecisionIdSchema = withParser(
-  NonEmptyBrowserInterventionText.pipe(Schema.brand('BrowserPolicyDecisionId'))
+  brandedNonEmptyStringSchema('BrowserPolicyDecisionId')
 );
 export const BrowserTargetValueSchema = withParser(
-  NonEmptyBrowserInterventionText.pipe(Schema.brand('BrowserTargetValue'))
+  brandedNonEmptyStringSchema('BrowserTargetValue')
 );
 
 export const BrowserInterventionRowSchema = withParser(
@@ -278,3 +281,4 @@ export type BrowserUnmanagedDetectionState = Infer<typeof BrowserUnmanagedDetect
 export type BrowserInterventionDeliveryState = Infer<typeof BrowserInterventionDeliveryStateSchema>;
 export type BrowserInterventionRow = Infer<typeof BrowserInterventionRowSchema>;
 export type BrowserInterventionReadModel = Infer<typeof BrowserInterventionReadModelSchema>;
+

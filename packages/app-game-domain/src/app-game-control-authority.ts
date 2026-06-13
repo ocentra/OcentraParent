@@ -1,4 +1,8 @@
-import { Schema, withParser } from '@ocentra-parent/schema-domain/effect';
+import {
+  Schema,
+  withParser,
+  brandedNonEmptyStringSchema
+} from '@ocentra-parent/schema-domain/effect';
 import {
   approvalDecisionPersistenceIsConsistent,
   approvalDecisionResponseScopeIsConsistent,
@@ -42,7 +46,6 @@ import { PolicyActionSchema, PolicyReasonCodeSchema, PolicyTargetSchema } from '
 
 export * from './app-game-control-platform-authority';
 export * from './app-game-control-approval-flow';
-const NonEmptyAppGameControlText = Schema.String.pipe(Schema.minLength(1));
 const ApprovalFlowRefsSchema = Schema.Array(AppGameControlApprovalFlowReferenceSchema);
 const OptionalApprovalFlowRefsSchema = Schema.optionalWith(ApprovalFlowRefsSchema, { default: () => [] });
 
@@ -74,7 +77,7 @@ export const AppGameControlEvidenceProofKindSchema = withParser(
 
 const AppGameControlApprovalAuthorityBaseSchema = Schema.Struct({
   schemaVersion: ParentContractSchemaVersionSchema,
-  authorityId: NonEmptyAppGameControlText.pipe(Schema.brand('AppGameControlAuthorityId')),
+  authorityId: brandedNonEmptyStringSchema('AppGameControlAuthorityId'),
   actor: ParentActorReferenceSchema,
   device: ParentDeviceReferenceSchema,
   policyVersion: ParentPolicyVersionSchema,
@@ -100,7 +103,7 @@ export const AppGameControlApprovalAuthoritySchema = withParser(
 
 const AppGameControlApprovalRequestBaseSchema = Schema.Struct({
   schemaVersion: ParentContractSchemaVersionSchema,
-  requestId: NonEmptyAppGameControlText.pipe(Schema.brand('AppGameControlApprovalRequestId')),
+  requestId: brandedNonEmptyStringSchema('AppGameControlApprovalRequestId'),
   policyKind: AppGameControlPolicyKindSchema,
   device: ParentDeviceReferenceSchema,
   target: PolicyTargetSchema,
@@ -144,8 +147,8 @@ export const AppGameControlApprovalRequestSchema = withParser(
 
 const AppGameControlApprovalDecisionBaseSchema = Schema.Struct({
   schemaVersion: ParentContractSchemaVersionSchema,
-  decisionId: NonEmptyAppGameControlText.pipe(Schema.brand('AppGameControlApprovalDecisionId')),
-  requestId: NonEmptyAppGameControlText.pipe(Schema.brand('AppGameControlApprovalRequestId')),
+  decisionId: brandedNonEmptyStringSchema('AppGameControlApprovalDecisionId'),
+  requestId: brandedNonEmptyStringSchema('AppGameControlApprovalRequestId'),
   policyKind: AppGameControlPolicyKindSchema,
   decisionState: AppGameControlApprovalDecisionStateSchema,
   parentAction: Schema.Union(ParentActionReferenceSchema, Schema.Null),
@@ -203,7 +206,7 @@ export const AppGameControlApprovalDecisionSchema = withParser(
 
 const AppGameControlActionResultBaseSchema = Schema.Struct({
   schemaVersion: ParentContractSchemaVersionSchema,
-  resultId: NonEmptyAppGameControlText.pipe(Schema.brand('AppGameControlActionResultId')),
+  resultId: brandedNonEmptyStringSchema('AppGameControlActionResultId'),
   request: AppGameControlApprovalRequestSchema,
   decision: AppGameControlApprovalDecisionSchema,
   approvalState: EnforcementPolicyDispatchApprovalStateSchema,
@@ -245,3 +248,4 @@ export const AppGameControlActionResultSchema = withParser(
       )
     )
 );
+

@@ -1,4 +1,10 @@
-import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
+import {
+  type Infer,
+  Schema,
+  withParser,
+  brandedNonEmptyStringSchema,
+  NonEmptyStringSchema
+} from '@ocentra-parent/schema-domain/effect';
 import {
   LocalAiDeterministicClassifierResultSchema,
   LocalAiDeterministicClassifierTraceRefSchema,
@@ -14,27 +20,21 @@ import {
   LocalAiRuntimeReferenceIdSchema,
   LocalAiTimestampSchema,
 } from './local-ai-primitives';
-import { PolicyActionSchema, PolicyReasonCodeSchema, PolicyRuleIdSchema } from './policy';
+import { PolicyActionSchema, PolicyReasonCodeSchema, PolicyRuleIdSchema } from '@ocentra-parent/policy-domain/policy';
 import { ParentContractSchemaVersion, ParentContractSchemaVersionSchema } from '@ocentra-parent/family-domain/reference-primitives';
 import { ParentEvidenceReferenceSchema } from '@ocentra-parent/family-domain/references';
-
-const NonEmptyReportText = Schema.String.pipe(Schema.minLength(1));
 const ReportCountSchema = Schema.Number.pipe(Schema.nonNegative(), Schema.int());
 
-export const LocalAiClassifierReportRowIdSchema = NonEmptyReportText.pipe(Schema.brand('LocalAiClassifierReportRowId'));
-export const LocalAiClassifierReportSnapshotIdSchema = NonEmptyReportText.pipe(
-  Schema.brand('LocalAiClassifierReportSnapshotId')
-);
-export const LocalAiClassifierManualReasonSchema = NonEmptyReportText.pipe(
-  Schema.brand('LocalAiClassifierManualReason')
-);
+export const LocalAiClassifierReportRowIdSchema = brandedNonEmptyStringSchema('LocalAiClassifierReportRowId');
+export const LocalAiClassifierReportSnapshotIdSchema = brandedNonEmptyStringSchema('LocalAiClassifierReportSnapshotId');
+export const LocalAiClassifierManualReasonSchema = brandedNonEmptyStringSchema('LocalAiClassifierManualReason');
 
 export const LocalAiClassifierReportStateSchema = withParser(Schema.Literal('ready', 'manual-required', 'unavailable'));
 
 const LocalAiClassifierReportRowBaseSchema = Schema.Struct({
   schemaVersion: ParentContractSchemaVersionSchema,
   reportRowId: LocalAiClassifierReportRowIdSchema,
-  classifierRunId: NonEmptyReportText,
+  classifierRunId: NonEmptyStringSchema,
   sourceResultId: LocalAiResultIdSchema,
   requestId: LocalAiEvaluationRequestIdSchema,
   action: PolicyActionSchema,
@@ -266,3 +266,4 @@ function localAiClassifierReportSnapshotIsComplete(snapshot: LocalAiClassifierRe
     snapshot.nonClaims.length > 0
   );
 }
+

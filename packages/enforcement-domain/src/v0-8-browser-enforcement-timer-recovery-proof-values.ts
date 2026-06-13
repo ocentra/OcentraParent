@@ -2,7 +2,7 @@ import {
   ParentControlCapabilityName,
   ParentControlCapabilityStatus,
   type ParentControlCapabilityStatus as ParentControlCapabilityStatusType,
-} from './capabilities';
+} from '@ocentra-parent/capability-domain/capabilities';
 import { ParentContractSchemaVersion } from '@ocentra-parent/family-domain/reference-primitives';
 import {
   V08BrowserEnforcementTimerRecoveryProofReadModelSchema,

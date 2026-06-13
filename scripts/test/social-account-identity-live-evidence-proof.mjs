@@ -5,10 +5,10 @@ import { fileURLToPath } from 'node:url';
 import {
   BrowserSocialAccountIdentityRegistryEntrySchema,
   buildUnverifiedSocialAccountIdentityContextFromFlow,
-} from '../../packages/activity-domain/dist/browser-social-account-identity-registry.js';
-import { buildBrowserSocialAccountFlowEvidenceFromRoute } from '../../packages/activity-domain/dist/browser-social-account-flow-schemas.js';
-import { buildBrowserSocialRouteEvidenceFromUrlPattern } from '../../packages/activity-domain/dist/browser-social-url-patterns.js';
-import { parseBrowserUrlShape } from '../../packages/activity-domain/dist/browser-url-intelligence.js';
+} from '../../packages/browser-domain/dist/browser-social-account-identity-registry.js';
+import { buildBrowserSocialAccountFlowEvidenceFromRoute } from '../../packages/browser-domain/dist/browser-social-account-flow-schemas.js';
+import { buildBrowserSocialRouteEvidenceFromUrlPattern } from '../../packages/browser-domain/dist/browser-social-url-patterns.js';
+import { parseBrowserUrlShape } from '../../packages/browser-domain/dist/browser-url-intelligence.js';
 
 const scriptDir = dirname(fileURLToPath(import.meta.url));
 const repoRoot = join(scriptDir, '..', '..');

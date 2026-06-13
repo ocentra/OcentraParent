@@ -1,1 +1,1 @@
-export * from '@ocentra-parent/social-domain/social-alert-report-scheduler-bridge';
+export * from '@ocentra-parent/browser-domain/social-alert-report-scheduler-bridge';

@@ -15,10 +15,10 @@ const proofGeneratedAt = '2026-06-05T18:06:02.000Z';
 await main();
 
 async function main() {
-  runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/activity-domain']));
+  runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/screen-domain']));
   runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/parent-domain']));
 
-  const screenEvidence = await import('../../packages/activity-domain/dist/screen-evidence.js');
+  const screenEvidence = await import('../../packages/screen-domain/dist/screen-evidence.js');
   const parentRuntime =
     await import('../../packages/parent-domain/dist/screen-family-ai-hub-runtime-discovery-proof.js');
 

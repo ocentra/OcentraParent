@@ -1,4 +1,9 @@
-import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
+import {
+  type Infer,
+  Schema,
+  withParser,
+  brandedNonEmptyStringSchema
+} from '@ocentra-parent/schema-domain/effect';
 import { appGameBroadBlockingGateIsHonest } from './app-game-broad-blocking-proof-gate-rules';
 import {
   AppGamePlatformActionSchema,
@@ -8,20 +13,10 @@ import {
 import { EnforcementCapabilityStateSchema, EnforcementModeSchema } from '@ocentra-parent/enforcement-domain/enforcement';
 import { ParentContractSchemaVersionSchema, ParentPlatformSchema, ParentTimestampSchema } from '@ocentra-parent/family-domain/reference-primitives';
 
-const NonEmptyBroadBlockingGateText = Schema.String.pipe(Schema.minLength(1));
-
-export const AppGameBroadBlockingGateIdSchema = NonEmptyBroadBlockingGateText.pipe(
-  Schema.brand('AppGameBroadBlockingGateId')
-);
-export const AppGameBroadBlockingGateMatrixIdSchema = NonEmptyBroadBlockingGateText.pipe(
-  Schema.brand('AppGameBroadBlockingGateMatrixId')
-);
-export const AppGameBroadBlockingGateReasonSchema = NonEmptyBroadBlockingGateText.pipe(
-  Schema.brand('AppGameBroadBlockingGateReason')
-);
-export const AppGameBroadBlockingGateProofArtifactRefSchema = NonEmptyBroadBlockingGateText.pipe(
-  Schema.brand('AppGameBroadBlockingGateProofArtifactRef')
-);
+export const AppGameBroadBlockingGateIdSchema = brandedNonEmptyStringSchema('AppGameBroadBlockingGateId');
+export const AppGameBroadBlockingGateMatrixIdSchema = brandedNonEmptyStringSchema('AppGameBroadBlockingGateMatrixId');
+export const AppGameBroadBlockingGateReasonSchema = brandedNonEmptyStringSchema('AppGameBroadBlockingGateReason');
+export const AppGameBroadBlockingGateProofArtifactRefSchema = brandedNonEmptyStringSchema('AppGameBroadBlockingGateProofArtifactRef');
 
 export const AppGameBroadBlockingGateOutcomeSchema = withParser(
   Schema.Literal('manual-required', 'unavailable', 'not-claimed', 'supported')
@@ -124,3 +119,4 @@ export type AppGameBroadBlockingGateMatrix = Infer<typeof AppGameBroadBlockingGa
 
 export const decodeAppGameBroadBlockingGate = Schema.decodeUnknownSync(AppGameBroadBlockingGateSchema);
 export const decodeAppGameBroadBlockingGateMatrix = Schema.decodeUnknownSync(AppGameBroadBlockingGateMatrixSchema);
+

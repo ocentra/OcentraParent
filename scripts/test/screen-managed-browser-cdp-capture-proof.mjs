@@ -20,13 +20,13 @@ const successfulCommands = [];
 await runPackageCommand([
   'exec',
   '--workspace',
-  '@ocentra-parent/activity-domain',
+  '@ocentra-parent/screen-domain',
   '--',
   'vitest',
   'run',
   'tests/screen-managed-browser-cdp-capture.test.ts',
 ]);
-await runPackageCommand(['run', 'build', '--workspace', '@ocentra-parent/activity-domain']);
+await runPackageCommand(['run', 'build', '--workspace', '@ocentra-parent/screen-domain']);
 await runManagedBrowserCdpProof();
 
 console.log(`screen-managed-browser-cdp-capture-proof-ok:${proofSummaryPath}`);

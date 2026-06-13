@@ -1,7 +1,12 @@
-import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
-import { PolicyAction, PolicyReasonCodeSchema } from './policy';
+import {
+  type Infer,
+  Schema,
+  withParser,
+  brandedNonEmptyStringSchema
+} from '@ocentra-parent/schema-domain/effect';
+import { PolicyAction, PolicyReasonCodeSchema } from '@ocentra-parent/policy-domain/policy';
 import { ParentContractSchemaVersion, ParentContractSchemaVersionSchema } from '@ocentra-parent/family-domain/reference-primitives';
-import { LocalAiEvaluationInputSchema, LocalAiSafetyResultSchema, type LocalAiSafetyResult } from './local-ai';
+import { LocalAiEvaluationInputSchema, LocalAiSafetyResultSchema, type LocalAiSafetyResult } from '@ocentra-parent/ai-domain/local-ai';
 import {
   LocalAiDegradedState,
   LocalAiPromptVersionSchema,
@@ -9,13 +14,11 @@ import {
   type LocalAiDegradedStateSchema,
   type LocalAiUnknownStateSchema,
 } from './local-ai-primitives';
-import { LocalModelRuntimeStatusSchema, type LocalModelRuntimeStatus } from './local-ai-runtime';
+import { LocalModelRuntimeStatusSchema, type LocalModelRuntimeStatus } from '@ocentra-parent/ai-domain/local-ai-runtime';
 
-const NonEmptyDryRunText = Schema.String.pipe(Schema.minLength(1));
-
-export const LocalAiTextInferenceDryRunIdSchema = NonEmptyDryRunText.pipe(Schema.brand('LocalAiTextInferenceDryRunId'));
-export const LocalAiTextInferenceTraceRefSchema = NonEmptyDryRunText.pipe(Schema.brand('LocalAiTextInferenceTraceRef'));
-export const LocalAiTextInferenceNonClaimSchema = NonEmptyDryRunText.pipe(Schema.brand('LocalAiTextInferenceNonClaim'));
+export const LocalAiTextInferenceDryRunIdSchema = brandedNonEmptyStringSchema('LocalAiTextInferenceDryRunId');
+export const LocalAiTextInferenceTraceRefSchema = brandedNonEmptyStringSchema('LocalAiTextInferenceTraceRef');
+export const LocalAiTextInferenceNonClaimSchema = brandedNonEmptyStringSchema('LocalAiTextInferenceNonClaim');
 
 export const LocalAiTextInferenceDryRunStateSchema = withParser(
   Schema.Literal('ready-dry-run', 'degraded-dry-run', 'unavailable-dry-run')
@@ -261,3 +264,4 @@ function resultStateMatchesOutcome(result: LocalAiTextInferenceDryRunResultCandi
 
   return result.result.action === 'warn' && result.result.unknownState === 'none';
 }
+

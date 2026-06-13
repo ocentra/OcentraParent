@@ -12,7 +12,7 @@ await main();
 
 async function main() {
   buildWorkspace('@ocentra-parent/schema-domain');
-  buildWorkspace('@ocentra-parent/activity-domain');
+  buildWorkspace('@ocentra-parent/screen-domain');
   buildWorkspace('@ocentra-parent/parent-domain');
 
   const activityProof = await import('@ocentra-parent/screen-domain/screen-ai-browser-trigger-proof');

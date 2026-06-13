@@ -1,15 +1,19 @@
-import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
+import {
+  type Infer,
+  Schema,
+  withParser,
+  brandedNonEmptyStringSchema,
+  NonEmptyStringSchema
+} from '@ocentra-parent/schema-domain/effect';
 import { ActivityEvidenceIdSchema } from '@ocentra-parent/evidence-domain/primitives';
-
-const NonEmptySocialBypassText = Schema.String.pipe(Schema.minLength(1));
 
 export const BrowserSocialUnmanagedBypassSchemaVersion = 1;
 
 export const BrowserSocialUnmanagedBypassEvidenceIdSchema = withParser(
-  NonEmptySocialBypassText.pipe(Schema.brand('BrowserSocialUnmanagedBypassEvidenceId'))
+  brandedNonEmptyStringSchema('BrowserSocialUnmanagedBypassEvidenceId')
 );
 
-export const OptionalBrowserSocialUnmanagedBypassTextSchema = Schema.Union(NonEmptySocialBypassText, Schema.Null);
+export const OptionalBrowserSocialUnmanagedBypassTextSchema = Schema.Union(NonEmptyStringSchema, Schema.Null);
 
 export const BrowserSocialUnmanagedBypassSourceEvidenceIdsSchema = Schema.Array(ActivityEvidenceIdSchema).pipe(
   Schema.filter((value) => value.length > 0 || 'Expected unmanaged social bypass source evidence ids')
@@ -40,3 +44,4 @@ export const BrowserSocialUnmanagedBypassReasonsSchema = Schema.Array(BrowserSoc
 
 export type BrowserSocialUnmanagedBypassReason = Infer<typeof BrowserSocialUnmanagedBypassReasonSchema>;
 export type BrowserSocialUnmanagedBypassTargetState = Infer<typeof BrowserSocialUnmanagedBypassTargetStateSchema>;
+

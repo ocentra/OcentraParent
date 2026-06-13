@@ -1,4 +1,9 @@
-import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
+import {
+  type Infer,
+  Schema,
+  withParser,
+  brandedNonEmptyStringSchema
+} from '@ocentra-parent/schema-domain/effect';
 import {
   LanPairingDeviceReachabilitySchema,
   LanPairingProductionDiscoveryStateSchema,
@@ -15,8 +20,6 @@ import {
 } from './parent-mobile-runtime';
 import { ParentDeviceIdSchema, ParentEvidenceReferenceIdSchema, ParentTimestampSchema } from '@ocentra-parent/family-domain/reference-primitives';
 
-const NonEmptyV09RuntimeText = Schema.String.pipe(Schema.minLength(1));
-
 export const V09MobileControllerDiscoveryRuntimeSchemaVersionSchema = withParser(
   Schema.Literal('v0.9-mobile-controller-discovery-runtime')
 );
@@ -32,8 +35,8 @@ export const V09MobileControllerTransitionSchema = withParser(
 export const V09MobileControllerTransitionStateSchema = withParser(
   Schema.Literal('proved-local-service', 'manual-required-mobile-package', 'degraded', 'rejected')
 );
-export const V09ProofLabelSchema = NonEmptyV09RuntimeText.pipe(Schema.brand('V09ProofLabel'));
-export const V09ClaimBoundarySchema = NonEmptyV09RuntimeText.pipe(Schema.brand('V09ClaimBoundary'));
+export const V09ProofLabelSchema = brandedNonEmptyStringSchema('V09ProofLabel');
+export const V09ClaimBoundarySchema = brandedNonEmptyStringSchema('V09ClaimBoundary');
 
 export const V09HouseholdDiscoveryRuntimeProofSchema = withParser(
   Schema.Struct({
@@ -180,3 +183,4 @@ export type V09RuntimeClaimBoundaries = Infer<typeof V09RuntimeClaimBoundariesSc
 export type V09MobileControllerDiscoveryRuntimeReadModel = Infer<
   typeof V09MobileControllerDiscoveryRuntimeReadModelSchema
 >;
+

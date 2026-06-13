@@ -22,10 +22,10 @@
     "test": "vitest run"
   },
   "dependencies": {
-    "@ocentra-parent/ai-domain": "file:../ai-domain",
+    "@ocentra-parent/capability-domain": "file:../capability-domain",
     "@ocentra-parent/evidence-domain": "file:../evidence-domain",
     "@ocentra-parent/family-domain": "file:../family-domain",
-    "@ocentra-parent/policy-domain": "file:../policy-domain",
+    "@ocentra-parent/notification-domain": "file:../notification-domain",
     "@ocentra-parent/schema-domain": "file:../schema-domain"
   }
 }

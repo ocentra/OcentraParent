@@ -1,34 +1,37 @@
-import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
+import {
+  type Infer,
+  Schema,
+  withParser,
+  brandedNonEmptyStringSchema
+} from '@ocentra-parent/schema-domain/effect';
 import { ParentEvidenceReferenceIdSchema } from '@ocentra-parent/family-domain/reference-primitives';
-
-const NonEmptyBrowserGameHiddenAnalysisText = Schema.String.pipe(Schema.minLength(1));
 
 export const BrowserGameHiddenAnalysisProfileSafetySchemaVersionSchema = withParser(
   Schema.Literal('browser-game-hidden-analysis-profile-safety-contract')
 );
 
 export const BrowserGameHiddenAnalysisProfileDesignIdSchema = withParser(
-  NonEmptyBrowserGameHiddenAnalysisText.pipe(Schema.brand('BrowserGameHiddenAnalysisProfileDesignId'))
+  brandedNonEmptyStringSchema('BrowserGameHiddenAnalysisProfileDesignId')
 );
 
 export const BrowserGameHiddenAnalysisProfileFingerprintSchema = withParser(
-  NonEmptyBrowserGameHiddenAnalysisText.pipe(Schema.brand('BrowserGameHiddenAnalysisProfileFingerprint'))
+  brandedNonEmptyStringSchema('BrowserGameHiddenAnalysisProfileFingerprint')
 );
 
 export const BrowserGameHiddenAnalysisLoaderRequestIdSchema = withParser(
-  NonEmptyBrowserGameHiddenAnalysisText.pipe(Schema.brand('BrowserGameHiddenAnalysisLoaderRequestId'))
+  brandedNonEmptyStringSchema('BrowserGameHiddenAnalysisLoaderRequestId')
 );
 
 export const BrowserGameHiddenAnalysisLoaderResultIdSchema = withParser(
-  NonEmptyBrowserGameHiddenAnalysisText.pipe(Schema.brand('BrowserGameHiddenAnalysisLoaderResultId'))
+  brandedNonEmptyStringSchema('BrowserGameHiddenAnalysisLoaderResultId')
 );
 
 export const BrowserGameHiddenAnalysisLoaderProofRefSchema = withParser(
-  NonEmptyBrowserGameHiddenAnalysisText.pipe(Schema.brand('BrowserGameHiddenAnalysisLoaderProofRef'))
+  brandedNonEmptyStringSchema('BrowserGameHiddenAnalysisLoaderProofRef')
 );
 
 export const BrowserGameHiddenAnalysisSummaryRefSchema = withParser(
-  NonEmptyBrowserGameHiddenAnalysisText.pipe(Schema.brand('BrowserGameHiddenAnalysisSummaryRef'))
+  brandedNonEmptyStringSchema('BrowserGameHiddenAnalysisSummaryRef')
 );
 
 export const BrowserGameHiddenAnalysisProfileKindSchema = withParser(
@@ -93,3 +96,4 @@ export type BrowserGameHiddenAnalysisConfidence = Infer<typeof BrowserGameHidden
 export type BrowserGameHiddenAnalysisProfileKind = Infer<typeof BrowserGameHiddenAnalysisProfileKindSchema>;
 export type BrowserGameHiddenAnalysisReasonCode = Infer<typeof BrowserGameHiddenAnalysisReasonCodeSchema>;
 export type BrowserGameHiddenAnalysisState = Infer<typeof BrowserGameHiddenAnalysisStateSchema>;
+

@@ -1,11 +1,15 @@
-import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
+import {
+  type Infer,
+  Schema,
+  withParser,
+  brandedNonEmptyStringSchema
+} from '@ocentra-parent/schema-domain/effect';
 import { AppInstallPurchaseRuntimeDeliveryReceiptBoundaryProofReadModel } from './app-install-purchase-runtime-delivery-receipt-boundary-proof';
 import { ParentTimestampSchema } from '@ocentra-parent/family-domain/reference-primitives';
 
 const RuntimeTransportDeliveryExecutionProofVersion = 'app-install-purchase-runtime-transport-delivery-execution-proof';
 const SourceReceiptBoundaryProofVersion = 'app-install-purchase-runtime-delivery-receipt-boundary-proof';
 const RuntimeTransportDeliveryExecutionTimestamp = '2026-06-08T02:05:00.000Z';
-const RuntimeTransportDeliveryExecutionText = Schema.String.pipe(Schema.minLength(1));
 const RuntimeTransportDeliveryExecutionBoundary =
   'runtime transport delivery execution proof only; rows consume runtime delivery receipt boundary rows and keep parent-owned transport execution attempts withheld until external writer dispatch execution provider-store execution receipt platform adapter execution receipt and child-device transport receipt refs are real no external runtime writer execution no external runtime writer delivery no parent action runtime delivery no provider API execution no store integration no platform interception no platform adapter implementation no child-device delivery no runtime report delivery no real install or purchase interception no app blocking no child activity data no Ocentra-hosted family data custody';
 const RuntimeTransportDeliveryExecutionActions = ['approve', 'deny', 'time-box', 'review-needed'] as const;
@@ -82,18 +86,10 @@ const RuntimeTransportDeliveryExecutionIntegrationClaimSchema = withParser(Schem
 const RuntimeTransportDeliveryExecutionAdapterClaimSchema = withParser(Schema.Literal('not-implemented'));
 const RuntimeTransportDeliveryExecutionCustodyClaimSchema = withParser(Schema.Literal('no-child-activity-data'));
 
-const RuntimeTransportDeliveryExecutionRowIdSchema = RuntimeTransportDeliveryExecutionText.pipe(
-  Schema.brand('AppInstallPurchaseRuntimeTransportDeliveryExecutionRowId')
-);
-const RuntimeTransportDeliveryExecutionRefSchema = RuntimeTransportDeliveryExecutionText.pipe(
-  Schema.brand('AppInstallPurchaseRuntimeTransportDeliveryExecutionRef')
-);
-const RuntimeTransportDeliveryExecutionAuditRefSchema = RuntimeTransportDeliveryExecutionText.pipe(
-  Schema.brand('AppInstallPurchaseRuntimeTransportDeliveryExecutionAuditRef')
-);
-const RuntimeTransportDeliveryExecutionBoundarySchema = RuntimeTransportDeliveryExecutionText.pipe(
-  Schema.brand('AppInstallPurchaseRuntimeTransportDeliveryExecutionBoundary')
-);
+const RuntimeTransportDeliveryExecutionRowIdSchema = brandedNonEmptyStringSchema('AppInstallPurchaseRuntimeTransportDeliveryExecutionRowId');
+const RuntimeTransportDeliveryExecutionRefSchema = brandedNonEmptyStringSchema('AppInstallPurchaseRuntimeTransportDeliveryExecutionRef');
+const RuntimeTransportDeliveryExecutionAuditRefSchema = brandedNonEmptyStringSchema('AppInstallPurchaseRuntimeTransportDeliveryExecutionAuditRef');
+const RuntimeTransportDeliveryExecutionBoundarySchema = brandedNonEmptyStringSchema('AppInstallPurchaseRuntimeTransportDeliveryExecutionBoundary');
 
 const RuntimeTransportDeliveryExecutionRowBaseSchema = Schema.Struct({
   schemaVersion: AppInstallPurchaseRuntimeTransportDeliveryExecutionProofSchemaVersionSchema,
@@ -387,3 +383,4 @@ function runtimeTransportDeliveryExecutionBoundaryIsExplicit(
 ): boolean {
   return RuntimeTransportDeliveryExecutionBoundaryFragments.every((fragment) => boundary.includes(fragment));
 }
+

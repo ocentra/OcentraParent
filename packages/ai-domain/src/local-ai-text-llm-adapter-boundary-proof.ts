@@ -1,15 +1,19 @@
-import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
-import { LocalAiEvaluationInputSchema } from './local-ai';
+import {
+  type Infer,
+  Schema,
+  withParser,
+  brandedNonEmptyStringSchema,
+  NonEmptyStringSchema
+} from '@ocentra-parent/schema-domain/effect';
+import { LocalAiEvaluationInputSchema } from '@ocentra-parent/ai-domain/local-ai';
 import { LocalAiPromptVersionSchema } from './local-ai-primitives';
-import { LocalModelRuntimeStatusSchema, type LocalModelRuntimeStatus } from './local-ai-runtime';
+import { LocalModelRuntimeStatusSchema, type LocalModelRuntimeStatus } from '@ocentra-parent/ai-domain/local-ai-runtime';
 import { ParentContractSchemaVersion, ParentContractSchemaVersionSchema } from '@ocentra-parent/family-domain/reference-primitives';
 
-const NonEmptyText = Schema.String.pipe(Schema.minLength(1));
-
-export const LocalAiTextLlmAdapterRequestIdSchema = NonEmptyText.pipe(Schema.brand('LocalAiTextLlmAdapterRequestId'));
-export const LocalAiTextLlmAdapterTraceRefSchema = NonEmptyText.pipe(Schema.brand('LocalAiTextLlmAdapterTraceRef'));
-export const LocalAiTextLlmAdapterParserRefSchema = NonEmptyText.pipe(Schema.brand('LocalAiTextLlmAdapterParserRef'));
-export const LocalAiTextLlmAdapterNonClaimSchema = NonEmptyText.pipe(Schema.brand('LocalAiTextLlmAdapterNonClaim'));
+export const LocalAiTextLlmAdapterRequestIdSchema = brandedNonEmptyStringSchema('LocalAiTextLlmAdapterRequestId');
+export const LocalAiTextLlmAdapterTraceRefSchema = brandedNonEmptyStringSchema('LocalAiTextLlmAdapterTraceRef');
+export const LocalAiTextLlmAdapterParserRefSchema = brandedNonEmptyStringSchema('LocalAiTextLlmAdapterParserRef');
+export const LocalAiTextLlmAdapterNonClaimSchema = brandedNonEmptyStringSchema('LocalAiTextLlmAdapterNonClaim');
 
 export const LocalAiTextLlmAdapterBoundaryStateSchema = withParser(
   Schema.Literal('ready-for-local-adapter', 'manual-required', 'unavailable')
@@ -43,9 +47,9 @@ const LocalAiTextLlmAdapterBoundaryProofBaseSchema = Schema.Struct({
   schemaVersion: ParentContractSchemaVersionSchema,
   adapterRequestId: LocalAiTextLlmAdapterRequestIdSchema,
   state: LocalAiTextLlmAdapterBoundaryStateSchema,
-  runtimeReferenceId: NonEmptyText,
-  providerId: NonEmptyText,
-  modelId: NonEmptyText,
+  runtimeReferenceId: NonEmptyStringSchema,
+  providerId: NonEmptyStringSchema,
+  modelId: NonEmptyStringSchema,
   promptVersion: LocalAiPromptVersionSchema,
   evidenceReferenceCount: Schema.Number.pipe(Schema.nonNegative(), Schema.int()),
   parentRuleReferenceCount: Schema.Number.pipe(Schema.nonNegative(), Schema.int()),
@@ -162,3 +166,4 @@ function localAiTextLlmAdapterBoundaryProofIsHonest(proof: LocalAiTextLlmAdapter
     proof.parserRefs.length > 0
   );
 }
+

@@ -1,6 +1,8 @@
-import { Schema, withParser } from '@ocentra-parent/schema-domain/effect';
-
-const NonEmptyStatusBackendDeadLetterText = Schema.String.pipe(Schema.minLength(1));
+import {
+  Schema,
+  withParser,
+  brandedNonEmptyStringSchema
+} from '@ocentra-parent/schema-domain/effect';
 
 export const ProductionSupportStatusBackendDeadLetterSchemaVersionSchema = withParser(
   Schema.Literal('production-support-status-backend-dead-letter-proof')
@@ -100,12 +102,8 @@ export const ProductionSupportStatusBackendDeadLetterNonClaimSchema = withParser
   )
 );
 
-export const StatusBackendDeadLetterReferenceSchema = NonEmptyStatusBackendDeadLetterText.pipe(
-  Schema.brand('ProductionSupportStatusBackendDeadLetterReference')
-);
-export const StatusBackendDeadLetterManualRequirementSchema = NonEmptyStatusBackendDeadLetterText.pipe(
-  Schema.brand('ProductionSupportStatusBackendDeadLetterManualRequirement')
-);
+export const StatusBackendDeadLetterReferenceSchema = brandedNonEmptyStringSchema('ProductionSupportStatusBackendDeadLetterReference');
+export const StatusBackendDeadLetterManualRequirementSchema = brandedNonEmptyStringSchema('ProductionSupportStatusBackendDeadLetterManualRequirement');
 
 export const ForbiddenStatusBackendDeadLetterDataClasses = [
   'child-activity-evidence',
@@ -161,3 +159,4 @@ export const RequiredStatusBackendDeadLetterNonClaims = [
   'no-remote-support-session',
   'no-provider-secret-custody',
 ] as const;
+

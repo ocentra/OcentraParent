@@ -1,30 +1,33 @@
-import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
+import {
+  type Infer,
+  Schema,
+  withParser,
+  brandedNonEmptyStringSchema,
+  NonEmptyStringSchema
+} from '@ocentra-parent/schema-domain/effect';
 
 import { ParentContractSchemaVersionSchema, ParentDeviceIdSchema, ParentTimestampSchema } from '@ocentra-parent/family-domain/reference-primitives';
 
-const TrackingControlCatalogTextSchema = Schema.String.pipe(Schema.minLength(1));
-const NonEmptyTrackingControlIdSchema = Schema.String.pipe(Schema.minLength(1));
-
 export const TrackingControlCatalogIdSchema = withParser(
-  NonEmptyTrackingControlIdSchema.pipe(Schema.brand('TrackingControlCatalogId'))
+  brandedNonEmptyStringSchema('TrackingControlCatalogId')
 );
 export const TrackingControlSectionIdSchema = withParser(
-  NonEmptyTrackingControlIdSchema.pipe(Schema.brand('TrackingControlSectionId'))
+  brandedNonEmptyStringSchema('TrackingControlSectionId')
 );
 export const TrackingControlGroupIdSchema = withParser(
-  NonEmptyTrackingControlIdSchema.pipe(Schema.brand('TrackingControlGroupId'))
+  brandedNonEmptyStringSchema('TrackingControlGroupId')
 );
 export const TrackingControlSettingIdSchema = withParser(
-  NonEmptyTrackingControlIdSchema.pipe(Schema.brand('TrackingControlSettingId'))
+  brandedNonEmptyStringSchema('TrackingControlSettingId')
 );
 export const TrackingControlOptionIdSchema = withParser(
-  NonEmptyTrackingControlIdSchema.pipe(Schema.brand('TrackingControlOptionId'))
+  brandedNonEmptyStringSchema('TrackingControlOptionId')
 );
 export const TrackingControlCapabilityIdSchema = withParser(
-  NonEmptyTrackingControlIdSchema.pipe(Schema.brand('TrackingControlCapabilityId'))
+  brandedNonEmptyStringSchema('TrackingControlCapabilityId')
 );
 export const TrackingControlWritesToPathSchema = withParser(
-  NonEmptyTrackingControlIdSchema.pipe(Schema.brand('TrackingControlWritesToPath'))
+  brandedNonEmptyStringSchema('TrackingControlWritesToPath')
 );
 
 const TrackingControlSidePanelCategorySchema = withParser(Schema.Literal('tracking'));
@@ -130,10 +133,10 @@ export const TrackingControlCapabilityStateSchema = withParser(
 export const TrackingControlOptionSchema = withParser(
   Schema.Struct({
     optionId: TrackingControlOptionIdSchema,
-    label: TrackingControlCatalogTextSchema,
-    value: TrackingControlCatalogTextSchema,
-    originalSourceText: TrackingControlCatalogTextSchema,
-    meaning: Schema.Union(TrackingControlCatalogTextSchema, Schema.Null),
+    label: NonEmptyStringSchema,
+    value: NonEmptyStringSchema,
+    originalSourceText: NonEmptyStringSchema,
+    meaning: Schema.Union(NonEmptyStringSchema, Schema.Null),
     defaultSelected: Schema.Boolean,
   })
 );
@@ -152,7 +155,7 @@ const TrackingControlLayoutHintsSchema = withParser(
 const TrackingControlRuleSchema = withParser(
   Schema.Struct({
     ruleId: TrackingControlSettingIdSchema,
-    description: TrackingControlCatalogTextSchema,
+    description: NonEmptyStringSchema,
   })
 );
 
@@ -163,17 +166,17 @@ export const TrackingControlCatalogSettingSchema = withParser(
     sectionId: TrackingControlSectionIdSchema,
     groupId: TrackingControlGroupIdSchema,
     settingId: TrackingControlSettingIdSchema,
-    sourceDocument: TrackingControlCatalogTextSchema,
-    sourceHeadingPath: Schema.Array(TrackingControlCatalogTextSchema),
+    sourceDocument: NonEmptyStringSchema,
+    sourceHeadingPath: Schema.Array(NonEmptyStringSchema),
     sourceSection: TrackingControlSectionIdSchema,
     sourceGroup: TrackingControlGroupIdSchema,
     sourceOrder: Schema.Number,
     sourceLine: Schema.Number,
-    sourceText: TrackingControlCatalogTextSchema,
-    originalSourceText: TrackingControlCatalogTextSchema,
-    question: TrackingControlCatalogTextSchema,
-    uiQuestionText: TrackingControlCatalogTextSchema,
-    helperText: TrackingControlCatalogTextSchema,
+    sourceText: NonEmptyStringSchema,
+    originalSourceText: NonEmptyStringSchema,
+    question: NonEmptyStringSchema,
+    uiQuestionText: NonEmptyStringSchema,
+    helperText: NonEmptyStringSchema,
     displayOrder: Schema.Number,
     selectionMode: TrackingControlSelectionModeSchema,
     controlKind: TrackingControlKindSchema,
@@ -188,19 +191,19 @@ export const TrackingControlCatalogSettingSchema = withParser(
     effectStatus: TrackingControlEffectStatusSchema,
     runtimeOwner: TrackingControlRuntimeOwnerSchema,
     capabilityState: TrackingControlCapabilityStateSchema,
-    capabilityRequirement: TrackingControlCatalogTextSchema,
-    proofRequirement: Schema.Union(TrackingControlCatalogTextSchema, Schema.Null),
+    capabilityRequirement: NonEmptyStringSchema,
+    proofRequirement: Schema.Union(NonEmptyStringSchema, Schema.Null),
     visibilityConditions: Schema.Array(TrackingControlRuleSchema),
     enabledConditions: Schema.Array(TrackingControlRuleSchema),
     validationRules: Schema.Array(TrackingControlRuleSchema),
-    unsafeOrUnsupportedFallback: TrackingControlCatalogTextSchema,
+    unsafeOrUnsupportedFallback: NonEmptyStringSchema,
   })
 );
 
 export const TrackingControlCatalogGroupSchema = withParser(
   Schema.Struct({
     groupId: TrackingControlGroupIdSchema,
-    title: TrackingControlCatalogTextSchema,
+    title: NonEmptyStringSchema,
     sourceOrder: Schema.Number,
     settings: Schema.Array(TrackingControlCatalogSettingSchema),
   })
@@ -209,7 +212,7 @@ export const TrackingControlCatalogGroupSchema = withParser(
 export const TrackingControlCatalogSectionSchema = withParser(
   Schema.Struct({
     sectionId: TrackingControlSectionIdSchema,
-    title: TrackingControlCatalogTextSchema,
+    title: NonEmptyStringSchema,
     sourceOrder: Schema.Number,
     policyLane: TrackingControlUiTabSchema,
     groups: Schema.Array(TrackingControlCatalogGroupSchema),
@@ -219,7 +222,7 @@ export const TrackingControlCatalogSectionSchema = withParser(
 export const TrackingControlCatalogTabSchema = withParser(
   Schema.Struct({
     tabId: TrackingControlUiTabSchema,
-    title: TrackingControlCatalogTextSchema,
+    title: NonEmptyStringSchema,
     sourceOrder: Schema.Number,
     sections: Schema.Array(TrackingControlCatalogSectionSchema),
   })
@@ -230,7 +233,7 @@ export const TrackingControlCatalogSchema = withParser(
     schemaVersion: ParentContractSchemaVersionSchema,
     catalogId: TrackingControlCatalogIdSchema,
     sidePanelCategory: TrackingControlSidePanelCategorySchema,
-    sourceDocuments: Schema.Array(TrackingControlCatalogTextSchema),
+    sourceDocuments: Schema.Array(NonEmptyStringSchema),
     settingCount: Schema.Number,
     acceptedOptionCount: Schema.Number,
     targetScopeOptions: Schema.Array(TrackingControlOptionSchema),
@@ -243,17 +246,17 @@ export const TrackingControlCapabilitySchema = withParser(
   Schema.Struct({
     capabilityId: TrackingControlCapabilityIdSchema,
     state: TrackingControlCapabilityStateSchema,
-    sourceState: TrackingControlCatalogTextSchema,
-    proof: TrackingControlCatalogTextSchema,
+    sourceState: NonEmptyStringSchema,
+    proof: NonEmptyStringSchema,
     affectsSettings: Schema.Array(TrackingControlSettingIdSchema),
   })
 );
 
 const TrackingControlPolicyValuePrimitiveSchema = Schema.Union(
-  Schema.String,
+  NonEmptyStringSchema,
   Schema.Number,
   Schema.Boolean,
-  Schema.Array(Schema.String),
+  Schema.Array(NonEmptyStringSchema),
   Schema.Null
 );
 
@@ -279,7 +282,7 @@ export const TrackingControlEffectivePolicySchema = withParser(
     documentId: TrackingControlCatalogIdSchema,
     compiledFromPolicyId: TrackingControlCatalogIdSchema,
     schemaVersion: ParentContractSchemaVersionSchema,
-    effectivePolicyHash: TrackingControlCatalogTextSchema,
+    effectivePolicyHash: NonEmptyStringSchema,
     compiledAt: ParentTimestampSchema,
     runtimeOwner: TrackingControlRuntimeOwnerSchema,
     plans: Schema.Array(
@@ -289,7 +292,7 @@ export const TrackingControlEffectivePolicySchema = withParser(
         effectStatus: TrackingControlEffectStatusSchema,
         runtimeOwner: TrackingControlRuntimeOwnerSchema,
         capabilityState: TrackingControlCapabilityStateSchema,
-        fallback: TrackingControlCatalogTextSchema,
+        fallback: NonEmptyStringSchema,
       })
     ),
   })
@@ -341,3 +344,4 @@ export type TrackingControlCapability = Infer<typeof TrackingControlCapabilitySc
 export type TrackingControlPolicyValue = Infer<typeof TrackingControlPolicyValueSchema>;
 export type TrackingControlEffectivePolicy = Infer<typeof TrackingControlEffectivePolicySchema>;
 export type TrackingControlUpdateCommand = Infer<typeof TrackingControlUpdateCommandSchema>;
+

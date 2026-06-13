@@ -1,6 +1,9 @@
-import { Schema, withParser } from '@ocentra-parent/schema-domain/effect';
-
-const TrackingText = Schema.String.pipe(Schema.minLength(1));
+import {
+  Schema,
+  withParser,
+  brandedNonEmptyStringSchema,
+  NonEmptyStringSchema
+} from '@ocentra-parent/schema-domain/effect';
 export const TrackingNonNegativeNumberSchema = Schema.Number.pipe(Schema.nonNegative());
 export const TrackingNonNegativeIntegerSchema = TrackingNonNegativeNumberSchema.pipe(Schema.int());
 export const TrackingConfidenceSchema = Schema.Number.pipe(Schema.between(0, 1));
@@ -10,16 +13,16 @@ export const TrackingCoordinateCountSchema = Schema.Number.pipe(Schema.int(), Sc
 
 export const TrackingEvidenceSchemaVersion = 1;
 
-export const TrackingAdapterIdSchema = withParser(TrackingText.pipe(Schema.brand('TrackingAdapterId')));
-export const TrackingReasonCodeSchema = withParser(TrackingText.pipe(Schema.brand('TrackingReasonCode')));
-export const TrackingRuleIdSchema = withParser(TrackingText.pipe(Schema.brand('TrackingRuleId')));
-export const TrackingPlaceIdSchema = withParser(TrackingText.pipe(Schema.brand('TrackingPlaceId')));
-export const TrackingGeofenceIdSchema = withParser(TrackingText.pipe(Schema.brand('TrackingGeofenceId')));
-export const TrackingScheduleIdSchema = withParser(TrackingText.pipe(Schema.brand('TrackingScheduleId')));
-export const TrackingProviderRefSchema = withParser(TrackingText.pipe(Schema.brand('TrackingProviderRef')));
-export const TrackingAuditRefSchema = withParser(TrackingText.pipe(Schema.brand('TrackingAuditRef')));
-export const TrackingLabelSchema = withParser(TrackingText.pipe(Schema.brand('TrackingLabel')));
-export const TrackingTimezoneSchema = withParser(TrackingText.pipe(Schema.brand('TrackingTimezone')));
+export const TrackingAdapterIdSchema = withParser(brandedNonEmptyStringSchema('TrackingAdapterId'));
+export const TrackingReasonCodeSchema = withParser(brandedNonEmptyStringSchema('TrackingReasonCode'));
+export const TrackingRuleIdSchema = withParser(brandedNonEmptyStringSchema('TrackingRuleId'));
+export const TrackingPlaceIdSchema = withParser(brandedNonEmptyStringSchema('TrackingPlaceId'));
+export const TrackingGeofenceIdSchema = withParser(brandedNonEmptyStringSchema('TrackingGeofenceId'));
+export const TrackingScheduleIdSchema = withParser(brandedNonEmptyStringSchema('TrackingScheduleId'));
+export const TrackingProviderRefSchema = withParser(brandedNonEmptyStringSchema('TrackingProviderRef'));
+export const TrackingAuditRefSchema = withParser(brandedNonEmptyStringSchema('TrackingAuditRef'));
+export const TrackingLabelSchema = withParser(brandedNonEmptyStringSchema('TrackingLabel'));
+export const TrackingTimezoneSchema = withParser(brandedNonEmptyStringSchema('TrackingTimezone'));
 
 export const TrackingSourceKindSchema = withParser(
   Schema.Literal(
@@ -114,8 +117,9 @@ export const TrackingCoordinateSchema = withParser(
 
 export const TrackingTimeWindowSchema = withParser(
   Schema.Struct({
-    startsAt: TrackingText,
-    endsAt: TrackingText,
+    startsAt: NonEmptyStringSchema,
+    endsAt: NonEmptyStringSchema,
     timezone: TrackingTimezoneSchema,
   })
 );
+

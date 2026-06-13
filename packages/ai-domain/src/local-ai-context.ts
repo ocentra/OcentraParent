@@ -1,5 +1,5 @@
 import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
-import { PolicyRuleIdSchema, PolicyRuleSchema } from './policy';
+import { PolicyRuleIdSchema, PolicyRuleSchema } from '@ocentra-parent/policy-domain/policy';
 import {
   ChildProfileReferenceSchema,
   FamilyReferenceSchema,
@@ -16,7 +16,7 @@ import {
   LocalAiTimestampSchema,
 } from './local-ai-primitives';
 import { LocalAiGraphReferenceSchema, LocalAiMemoryReferenceSchema } from './local-ai-references';
-import { LocalModelRuntimeStatusSchema } from './local-ai-runtime';
+import { LocalModelRuntimeStatusSchema } from '@ocentra-parent/ai-domain/local-ai-runtime';
 import {
   LocalAiConfidenceKindSchema,
   LocalAiContextBuildStateSchema,

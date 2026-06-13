@@ -1,15 +1,18 @@
-import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
-
-const NonEmptyPromptTemplateValueText = Schema.String.pipe(Schema.minLength(1));
+import {
+  type Infer,
+  Schema,
+  withParser,
+  brandedNonEmptyStringSchema
+} from '@ocentra-parent/schema-domain/effect';
 
 export const BrowserAiPromptTemplateRegistryIdSchema = withParser(
-  NonEmptyPromptTemplateValueText.pipe(Schema.brand('BrowserAiPromptTemplateRegistryId'))
+  brandedNonEmptyStringSchema('BrowserAiPromptTemplateRegistryId')
 );
 export const BrowserAiPromptTemplateHashRefSchema = withParser(
-  NonEmptyPromptTemplateValueText.pipe(Schema.brand('BrowserAiPromptTemplateHashRef'))
+  brandedNonEmptyStringSchema('BrowserAiPromptTemplateHashRef')
 );
 export const BrowserAiPromptTemplateChangeRefSchema = withParser(
-  NonEmptyPromptTemplateValueText.pipe(Schema.brand('BrowserAiPromptTemplateChangeRef'))
+  brandedNonEmptyStringSchema('BrowserAiPromptTemplateChangeRef')
 );
 
 export const BrowserAiPromptTemplateStatusSchema = withParser(
@@ -44,3 +47,4 @@ export type BrowserAiPromptTemplateStatus = Infer<typeof BrowserAiPromptTemplate
 export type BrowserAiPromptTemplateSelectionDegradedState = Infer<
   typeof BrowserAiPromptTemplateSelectionDegradedStateSchema
 >;
+

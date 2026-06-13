@@ -20,7 +20,7 @@ import {
   parseAppGameNotificationSchedulerJsonl,
   serializeAppGameNotificationSchedulerJsonl,
 } from '../../src/app-game-notification-scheduler-bridge';
-import { NotificationLocalOutboxSchedulerRecordSchema } from '../../src/notification-local-outbox-scheduler-proof';
+import { NotificationLocalOutboxSchedulerRecordSchema } from '@ocentra-parent/notification-domain/notification-local-outbox-scheduler-proof';
 import {
   ParentActorRole,
   ParentContractSchemaVersion,

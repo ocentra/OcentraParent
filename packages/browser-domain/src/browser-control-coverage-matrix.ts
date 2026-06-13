@@ -1,4 +1,9 @@
-import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
+import {
+  type Infer,
+  Schema,
+  withParser,
+  NonEmptyStringSchema
+} from '@ocentra-parent/schema-domain/effect';
 
 import { BrowserControlFieldIdSchema } from './browser-control-identifiers';
 import {
@@ -7,8 +12,6 @@ import {
   BrowserControlWritesToPath,
   type BrowserControlSchemaKnownWritesToPath,
 } from './browser-control-values';
-
-const BrowserControlCoverageTextSchema = Schema.String.pipe(Schema.minLength(1));
 
 export const BrowserControlCoverageKindSchema = withParser(Schema.Literal('candidate-mvp', 'catalog-section'));
 
@@ -27,14 +30,14 @@ export const BrowserControlCoverageStatusSchema = withParser(
 export const BrowserControlCoverageEntrySchema = withParser(
   Schema.Struct({
     coverageKind: BrowserControlCoverageKindSchema,
-    catalogSection: BrowserControlCoverageTextSchema,
-    catalogItem: BrowserControlCoverageTextSchema,
+    catalogSection: NonEmptyStringSchema,
+    catalogItem: NonEmptyStringSchema,
     coverageStatus: BrowserControlCoverageStatusSchema,
     manifestFieldIds: Schema.Array(BrowserControlFieldIdSchema),
     writesTo: Schema.Array(BrowserControlSchemaKnownWritesToPathSchema),
-    policyShape: Schema.Union(BrowserControlCoverageTextSchema, Schema.Null),
+    policyShape: Schema.Union(NonEmptyStringSchema, Schema.Null),
     capabilityState: Schema.Union(BrowserControlCapabilityStateSchema, Schema.Null),
-    notes: BrowserControlCoverageTextSchema,
+    notes: NonEmptyStringSchema,
   })
 );
 
@@ -829,3 +832,4 @@ function section(
 function field(value: string) {
   return BrowserControlFieldIdSchema.parse(value);
 }
+

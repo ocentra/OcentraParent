@@ -1,18 +1,21 @@
-import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
-
-const NonEmptyPolicyEvaluatorText = Schema.String.pipe(Schema.minLength(1));
+import {
+  type Infer,
+  Schema,
+  withParser,
+  brandedNonEmptyStringSchema
+} from '@ocentra-parent/schema-domain/effect';
 
 export const BrowserAiPolicyEvaluatorRequestIdSchema = withParser(
-  NonEmptyPolicyEvaluatorText.pipe(Schema.brand('BrowserAiPolicyEvaluatorRequestId'))
+  brandedNonEmptyStringSchema('BrowserAiPolicyEvaluatorRequestId')
 );
 export const BrowserPolicyDecisionIdSchema = withParser(
-  NonEmptyPolicyEvaluatorText.pipe(Schema.brand('BrowserPolicyDecisionId'))
+  brandedNonEmptyStringSchema('BrowserPolicyDecisionId')
 );
 export const BrowserPolicyDecisionAuditRefSchema = withParser(
-  NonEmptyPolicyEvaluatorText.pipe(Schema.brand('BrowserPolicyDecisionAuditRef'))
+  brandedNonEmptyStringSchema('BrowserPolicyDecisionAuditRef')
 );
 export const BrowserPolicyAdapterProofRefSchema = withParser(
-  NonEmptyPolicyEvaluatorText.pipe(Schema.brand('BrowserPolicyAdapterProofRef'))
+  brandedNonEmptyStringSchema('BrowserPolicyAdapterProofRef')
 );
 
 export const BrowserPolicyDecisionOutcomeSchema = withParser(
@@ -42,3 +45,4 @@ export const BrowserPolicyDecisionReasonCodeSchema = withParser(
 export type BrowserPolicyDecisionOutcome = Infer<typeof BrowserPolicyDecisionOutcomeSchema>;
 export type BrowserPolicyEvaluatorMode = Infer<typeof BrowserPolicyEvaluatorModeSchema>;
 export type BrowserPolicyDecisionReasonCode = Infer<typeof BrowserPolicyDecisionReasonCodeSchema>;
+

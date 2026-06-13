@@ -1,23 +1,29 @@
-import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
-import { ActivityEvidenceRefSchema } from './contracts';
+import {
+  type Infer,
+  Schema,
+  withParser,
+  brandedNonEmptyStringSchema,
+  NonEmptyStringSchema
+} from '@ocentra-parent/schema-domain/effect';
+import { ActivityEvidenceRefSchema } from '@ocentra-parent/evidence-domain/contracts';
 import {
   ActivityDeviceIdSchema,
   ActivityEvidenceDigestSchema,
   ActivitySubjectNameSchema,
   ActivityTimestampSchema,
-} from './primitives';
+} from '@ocentra-parent/evidence-domain/primitives';
 import {
   AppGameCapabilityStatusSchema,
   AppGameClassificationStateSchema,
   AppGameForegroundStateSchema,
   AppGameObservationModeSchema,
   AppGameRuntimeStateSchema,
-} from './app-game-primitives';
-import { AppGameProductKindSchema } from './app-game-identity-primitives';
+} from '@ocentra-parent/app-game-domain/app-game-primitives';
+import { AppGameProductKindSchema } from '@ocentra-parent/app-game-domain/app-game-identity-primitives';
 import {
   AppGameInventoryDetectionStateSchema,
   AppGameInventorySourceKindSchema,
-} from './app-game-inventory-primitives';
+} from '@ocentra-parent/app-game-domain/app-game-inventory-primitives';
 import {
   ScreenEvidenceConfidenceSchema,
   ScreenEvidenceImageDigestSchema,
@@ -26,7 +32,7 @@ import {
   ScreenEvidenceOcrSnippetTextSchema,
   ScreenEvidenceQueueJobIdSchema,
   ScreenEvidenceTemplateVersionSchema,
-} from './screen-evidence-primitives';
+} from '@ocentra-parent/screen-domain/screen-evidence-primitives';
 import {
   ScreenCapabilityStatusSchema,
   ScreenCaptureReasonSchema,
@@ -36,12 +42,10 @@ import {
   ScreenLocalModelProviderKindSchema,
   ScreenRedactionNoteSchema,
   ScreenVisibleCategorySchema,
-} from './screen-evidence-states';
-
-const NonEmptyActivitySurfaceText = Schema.String.pipe(Schema.minLength(1));
+} from '@ocentra-parent/screen-domain/screen-evidence-states';
 const NonNegativeActivityCount = Schema.Number.pipe(Schema.nonNegative(), Schema.int());
 const NonNegativeActivityDuration = Schema.Number.pipe(Schema.nonNegative(), Schema.int());
-const ActivitySurfaceReferenceListSchema = Schema.Array(NonEmptyActivitySurfaceText);
+const ActivitySurfaceReferenceListSchema = Schema.Array(NonEmptyStringSchema);
 const ActivityScreenRawImageRetainedSchema = Schema.optionalWith(Schema.Literal(false), {
   default: () => false as const,
 });
@@ -55,12 +59,12 @@ const ActivityScreenRedactionNoteListSchema = Schema.Array(ScreenRedactionNoteSc
 
 export const ActivitySurfaceSchemaVersion = 1;
 
-export const ActivityFamilyIdSchema = NonEmptyActivitySurfaceText.pipe(Schema.brand('ActivityFamilyId'));
-export const ActivityReportIdSchema = NonEmptyActivitySurfaceText.pipe(Schema.brand('ActivityReportId'));
-export const ActivityReportFileNameSchema = NonEmptyActivitySurfaceText.pipe(Schema.brand('ActivityReportFileName'));
-export const ActivityReportSummarySchema = NonEmptyActivitySurfaceText.pipe(Schema.brand('ActivityReportSummary'));
-export const ActivitySurfaceRowIdSchema = NonEmptyActivitySurfaceText.pipe(Schema.brand('ActivitySurfaceRowId'));
-export const ActivitySurfaceLabelSchema = NonEmptyActivitySurfaceText.pipe(Schema.brand('ActivitySurfaceLabel'));
+export const ActivityFamilyIdSchema = brandedNonEmptyStringSchema('ActivityFamilyId');
+export const ActivityReportIdSchema = brandedNonEmptyStringSchema('ActivityReportId');
+export const ActivityReportFileNameSchema = brandedNonEmptyStringSchema('ActivityReportFileName');
+export const ActivityReportSummarySchema = brandedNonEmptyStringSchema('ActivityReportSummary');
+export const ActivitySurfaceRowIdSchema = brandedNonEmptyStringSchema('ActivitySurfaceRowId');
+export const ActivitySurfaceLabelSchema = brandedNonEmptyStringSchema('ActivitySurfaceLabel');
 
 export const ActivitySurfaceScopeKindSchema = withParser(Schema.Literal('family', 'device'));
 export const ActivityReportFrequencySchema = withParser(Schema.Literal('daily', 'weekly', 'monthly'));
@@ -278,10 +282,10 @@ export const ActivityScreenReadModelSchema = withParser(
         imageDigest: ScreenEvidenceImageDigestSchema,
         custodyState: ScreenEvidenceCustodyStateSchema,
         evidence: Schema.Array(ActivityEvidenceRefSchema),
-        policyDecisionRef: Schema.optionalWith(Schema.Union(NonEmptyActivitySurfaceText, Schema.Null), {
+        policyDecisionRef: Schema.optionalWith(Schema.Union(NonEmptyStringSchema, Schema.Null), {
           default: () => null,
         }),
-        policyAction: Schema.optionalWith(Schema.Union(NonEmptyActivitySurfaceText, Schema.Null), {
+        policyAction: Schema.optionalWith(Schema.Union(NonEmptyStringSchema, Schema.Null), {
           default: () => null,
         }),
         policyReasonCodes: Schema.optionalWith(ActivitySurfaceReferenceListSchema, { default: () => [] }),
@@ -419,3 +423,4 @@ export type ActivityAppUseReadModel = Infer<typeof ActivityAppUseReadModelSchema
 export type ActivityBrowserReadModel = Infer<typeof ActivityBrowserReadModelSchema>;
 export type ActivityGamesReadModel = Infer<typeof ActivityGamesReadModelSchema>;
 export type ActivityNetworkReadModel = Infer<typeof ActivityNetworkReadModelSchema>;
+

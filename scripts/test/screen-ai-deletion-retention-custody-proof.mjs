@@ -9,7 +9,7 @@ import {
   ScreenAnalysisQueueJobSchema,
   ScreenEvidenceRecentSummarySchema,
   ScreenEvidenceSchemaVersion,
-} from '../../packages/activity-domain/dist/screen-evidence.js';
+} from '../../packages/screen-domain/dist/screen-evidence.js';
 
 const repoRoot = fileURLToPath(new URL('../..', import.meta.url));
 const outputDir = join(repoRoot, 'output', 'screen-ai-pipeline-proof', 'deletion-retention-custody');

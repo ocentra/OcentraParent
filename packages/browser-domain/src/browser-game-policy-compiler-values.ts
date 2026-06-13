@@ -1,21 +1,24 @@
-import { Schema, withParser } from '@ocentra-parent/schema-domain/effect';
+import {
+  Schema,
+  withParser,
+  brandedNonEmptyStringSchema,
+  NonEmptyStringSchema
+} from '@ocentra-parent/schema-domain/effect';
 import { ParentEvidenceReferenceIdSchema } from '@ocentra-parent/family-domain/reference-primitives';
-
-const NonEmptyBrowserGamePolicyText = Schema.String.pipe(Schema.minLength(1));
 
 export const BrowserGamePolicyEvidenceRefsSchema = Schema.Array(ParentEvidenceReferenceIdSchema).pipe(
   Schema.filter((value) => value.length > 0 || 'Expected browser game policy evidence refs')
 );
-export const BrowserGamePolicyAnalysisRefsSchema = Schema.Array(NonEmptyBrowserGamePolicyText);
-export const BrowserGamePolicyMobileCapabilityRefsSchema = Schema.Array(NonEmptyBrowserGamePolicyText);
-export const BrowserGamePolicyParentRuleRefsSchema = Schema.Array(NonEmptyBrowserGamePolicyText);
-export const BrowserGamePolicyScheduleRefsSchema = Schema.Array(NonEmptyBrowserGamePolicyText);
+export const BrowserGamePolicyAnalysisRefsSchema = Schema.Array(NonEmptyStringSchema);
+export const BrowserGamePolicyMobileCapabilityRefsSchema = Schema.Array(NonEmptyStringSchema);
+export const BrowserGamePolicyParentRuleRefsSchema = Schema.Array(NonEmptyStringSchema);
+export const BrowserGamePolicyScheduleRefsSchema = Schema.Array(NonEmptyStringSchema);
 
 export const BrowserGamePolicyCompileRequestIdSchema = withParser(
-  NonEmptyBrowserGamePolicyText.pipe(Schema.brand('BrowserGamePolicyCompileRequestId'))
+  brandedNonEmptyStringSchema('BrowserGamePolicyCompileRequestId')
 );
 export const BrowserGamePolicyDecisionCandidateIdSchema = withParser(
-  NonEmptyBrowserGamePolicyText.pipe(Schema.brand('BrowserGamePolicyDecisionCandidateId'))
+  brandedNonEmptyStringSchema('BrowserGamePolicyDecisionCandidateId')
 );
 
 export const BrowserGamePolicyTargetKindSchema = withParser(
@@ -74,3 +77,4 @@ export const BrowserGamePolicyConfidenceSchema = withParser(Schema.Literal('high
 export const BrowserGamePolicyReasonCodesSchema = Schema.Array(BrowserGamePolicyReasonCodeSchema).pipe(
   Schema.filter((value) => value.length > 0 || 'Expected browser game policy reason codes')
 );
+

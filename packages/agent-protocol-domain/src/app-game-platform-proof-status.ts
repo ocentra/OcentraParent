@@ -1,8 +1,7 @@
 import { AppGameSchemaVersion } from '@ocentra-parent/app-game-domain/app-game';
-import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
+import { type Infer, NonEmptyStringSchema, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
 import { AgentEvent, isAgentProtocolLogText, type AgentEventEnvelope } from './contracts';
 
-const PlatformProofStatusText = Schema.String.pipe(Schema.minLength(1));
 const PlatformProofStatusCount = Schema.Number.pipe(Schema.nonNegative(), Schema.int());
 
 export const AgentAppGamePlatformProofStatusPayloadField = 'appGamePlatformProofStatusReadModel' as const;
@@ -38,7 +37,7 @@ export const AgentAppGamePlatformProofStatusHostCapability = {
 
 const AgentAppGamePlatformProofStatusRowBaseSchema = Schema.Struct({
   schemaVersion: Schema.Literal(AppGameSchemaVersion),
-  rowId: PlatformProofStatusText,
+  rowId: NonEmptyStringSchema,
   platform: Schema.Literal(
     AgentAppGamePlatformProofStatusPlatform.Windows,
     AgentAppGamePlatformProofStatusPlatform.Android,
@@ -64,11 +63,11 @@ const AgentAppGamePlatformProofStatusRowBaseSchema = Schema.Struct({
     AgentAppGamePlatformProofStatusHostCapability.NotDetected,
     AgentAppGamePlatformProofStatusHostCapability.NotApplicable
   ),
-  hostCapabilityEvidenceRefs: Schema.Array(PlatformProofStatusText),
-  hostCapabilityProbeRefs: Schema.Array(PlatformProofStatusText),
+  hostCapabilityEvidenceRefs: Schema.Array(NonEmptyStringSchema),
+  hostCapabilityProbeRefs: Schema.Array(NonEmptyStringSchema),
   productMeanings: Schema.Array(Schema.Literal('native-app', 'native-game')),
-  proofRefs: Schema.Array(PlatformProofStatusText),
-  openGaps: Schema.Array(PlatformProofStatusText),
+  proofRefs: Schema.Array(NonEmptyStringSchema),
+  openGaps: Schema.Array(NonEmptyStringSchema),
   adapterDispatchClaimed: Schema.Literal(false),
   broadInstalledAppBlockingClaimed: Schema.Literal(false),
   platformEnforcementClaimed: Schema.Literal(false),
@@ -76,7 +75,7 @@ const AgentAppGamePlatformProofStatusRowBaseSchema = Schema.Struct({
   childDeliveryClaimed: Schema.Literal(false),
   childDeviceDeliveryClaimed: Schema.Literal(false),
   privateDiagnosticsClaimed: Schema.Literal(false),
-  lastCheckedAt: PlatformProofStatusText,
+  lastCheckedAt: NonEmptyStringSchema,
 });
 
 type AgentAppGamePlatformProofStatusRowCandidate = Infer<typeof AgentAppGamePlatformProofStatusRowBaseSchema>;
@@ -93,11 +92,11 @@ export const AgentAppGamePlatformProofStatusRowSchema = withParser(
 
 const AgentAppGamePlatformProofStatusReadModelBaseSchema = Schema.Struct({
   schemaVersion: Schema.Literal(AppGameSchemaVersion),
-  readModelId: PlatformProofStatusText,
-  generatedAt: PlatformProofStatusText,
-  sourceReadModelIds: Schema.Array(PlatformProofStatusText),
-  custodyLabel: PlatformProofStatusText,
-  capabilityStatus: PlatformProofStatusText,
+  readModelId: NonEmptyStringSchema,
+  generatedAt: NonEmptyStringSchema,
+  sourceReadModelIds: Schema.Array(NonEmptyStringSchema),
+  custodyLabel: NonEmptyStringSchema,
+  capabilityStatus: NonEmptyStringSchema,
   returned: PlatformProofStatusCount,
   hostVisibleCount: PlatformProofStatusCount,
   hostNotDetectedCount: PlatformProofStatusCount,

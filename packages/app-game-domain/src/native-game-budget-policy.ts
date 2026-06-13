@@ -1,4 +1,9 @@
-import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
+import {
+  type Infer,
+  Schema,
+  withParser,
+  brandedNonEmptyStringSchema
+} from '@ocentra-parent/schema-domain/effect';
 import { ParentDeviceReferenceSchema, ParentEvidenceReferenceSchema } from '@ocentra-parent/family-domain/references';
 import {
   ParentContractSchemaVersionSchema,
@@ -18,8 +23,6 @@ import {
   nativeGameBudgetRecommendedActionMatchesBudget,
   nativeGameBudgetSignalIsAdvisoryOnly,
 } from './native-game-budget-policy-rules';
-
-const NonEmptyNativeGameBudgetText = Schema.String.pipe(Schema.minLength(1));
 const NonNegativeNativeGameBudgetNumber = Schema.Number.pipe(
   Schema.filter((value) => (Number.isFinite(value) && value >= 0) || 'Expected a non-negative finite number')
 );
@@ -86,21 +89,11 @@ export const NativeGameBudgetEnforcementHandoffStateSchema = withParser(
   Schema.Literal('not-requested', 'manual-required')
 );
 
-export const NativeGameBudgetPolicyIdSchema = NonEmptyNativeGameBudgetText.pipe(
-  Schema.brand('NativeGameBudgetPolicyId')
-);
-export const NativeGameBudgetSessionRefIdSchema = NonEmptyNativeGameBudgetText.pipe(
-  Schema.brand('NativeGameBudgetSessionRefId')
-);
-export const NativeGameBudgetDecisionIdSchema = NonEmptyNativeGameBudgetText.pipe(
-  Schema.brand('NativeGameBudgetDecisionId')
-);
-export const NativeGameBudgetTargetRefSchema = NonEmptyNativeGameBudgetText.pipe(
-  Schema.brand('NativeGameBudgetTargetRef')
-);
-export const NativeGameBudgetSignalRefSchema = NonEmptyNativeGameBudgetText.pipe(
-  Schema.brand('NativeGameBudgetSignalRef')
-);
+export const NativeGameBudgetPolicyIdSchema = brandedNonEmptyStringSchema('NativeGameBudgetPolicyId');
+export const NativeGameBudgetSessionRefIdSchema = brandedNonEmptyStringSchema('NativeGameBudgetSessionRefId');
+export const NativeGameBudgetDecisionIdSchema = brandedNonEmptyStringSchema('NativeGameBudgetDecisionId');
+export const NativeGameBudgetTargetRefSchema = brandedNonEmptyStringSchema('NativeGameBudgetTargetRef');
+export const NativeGameBudgetSignalRefSchema = brandedNonEmptyStringSchema('NativeGameBudgetSignalRef');
 
 export const NativeGameBudgetTargetSchema = withParser(
   Schema.Struct({
@@ -246,3 +239,4 @@ export type NativeGameBudgetSignal = Infer<typeof NativeGameBudgetSignalSchema>;
 export type NativeGameBudgetSessionInput = Infer<typeof NativeGameBudgetSessionInputSchema>;
 export type NativeGameBudgetPolicy = Infer<typeof NativeGameBudgetPolicySchema>;
 export type NativeGameBudgetDryRunDecision = Infer<typeof NativeGameBudgetDryRunDecisionSchema>;
+

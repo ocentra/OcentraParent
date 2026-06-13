@@ -1,11 +1,16 @@
-import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
+import {
+  type Infer,
+  Schema,
+  withParser,
+  NonEmptyStringSchema
+} from '@ocentra-parent/schema-domain/effect';
 import { ActivityEvidenceIdSchema } from '@ocentra-parent/evidence-domain/primitives';
 import { BrowserAiModelRuntimeRefSchema } from './browser-ai-analysis-schemas';
 import { BrowserAiPromptTemplateIdSchema, BrowserAiPromptTemplateVersionSchema } from './browser-ai-analysis-values';
 
 export const BrowserSocialAiAnalysisSchemaVersion = 1;
 
-export const NonEmptySocialAiTextSchema = Schema.String.pipe(Schema.minLength(1));
+export const NonEmptySocialAiTextSchema = NonEmptyStringSchema;
 export const OptionalSocialAiTextSchema = Schema.Union(NonEmptySocialAiTextSchema, Schema.Null);
 export const OptionalSocialAiRuntimeRefSchema = Schema.Union(BrowserAiModelRuntimeRefSchema, Schema.Null);
 
@@ -87,3 +92,4 @@ function browserSocialAiPromptTemplateIsConsistent(value: Infer<typeof BrowserSo
     !value.capturesScreenshot
   );
 }
+

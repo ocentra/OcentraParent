@@ -1,17 +1,20 @@
-import { Schema, withParser } from '@ocentra-parent/schema-domain/effect';
+import {
+  Schema,
+  withParser,
+  brandedNonEmptyStringSchema,
+  NonEmptyStringSchema
+} from '@ocentra-parent/schema-domain/effect';
 import { ActivityEvidenceIdSchema } from '@ocentra-parent/evidence-domain/primitives';
 import { ScreenEvidenceModelRuntimeRefSchema } from './screen-evidence-primitives';
-
-const NonEmptyFamilyHubText = Schema.String.pipe(Schema.minLength(1));
 
 export const ScreenFamilyAiHubRouteSchemaVersion = 1;
 
 export const ScreenFamilyAiHubRouteIdSchema = withParser(
-  NonEmptyFamilyHubText.pipe(Schema.brand('ScreenFamilyAiHubRouteId'))
+  brandedNonEmptyStringSchema('ScreenFamilyAiHubRouteId')
 );
-export const ScreenFamilyAiHubIdSchema = withParser(NonEmptyFamilyHubText.pipe(Schema.brand('ScreenFamilyAiHubId')));
+export const ScreenFamilyAiHubIdSchema = withParser(brandedNonEmptyStringSchema('ScreenFamilyAiHubId'));
 export const ScreenFamilyAiHubRouteRefSchema = withParser(
-  NonEmptyFamilyHubText.pipe(Schema.brand('ScreenFamilyAiHubRouteRef'))
+  brandedNonEmptyStringSchema('ScreenFamilyAiHubRouteRef')
 );
 
 export const ScreenFamilyAiHubRequestedTaskSchema = withParser(
@@ -42,7 +45,7 @@ export const ScreenChildLocalAnalysisAttemptStateSchema = withParser(
   Schema.Literal('selected', 'degraded', 'manualRequired', 'unavailable')
 );
 
-export const ScreenFamilyAiHubOptionalTextSchema = Schema.Union(NonEmptyFamilyHubText, Schema.Null);
+export const ScreenFamilyAiHubOptionalTextSchema = Schema.Union(NonEmptyStringSchema, Schema.Null);
 export const ScreenFamilyAiHubOptionalRuntimeRefSchema = Schema.Union(ScreenEvidenceModelRuntimeRefSchema, Schema.Null);
 export const ScreenFamilyAiHubRequiredFalseSchema = Schema.Literal(false);
 export const ScreenFamilyAiHubRequiredTrueSchema = Schema.Literal(true);
@@ -53,3 +56,4 @@ export const ScreenFamilyAiHubAuditEvidenceIdsSchema = Schema.Array(ActivityEvid
   Schema.filter((value) => value.length > 0 || 'Expected at least one screen family AI hub audit evidence id')
 );
 export const ScreenFamilyAiHubDegradedStatesSchema = Schema.Array(ScreenFamilyAiHubDegradedStateSchema);
+

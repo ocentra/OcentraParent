@@ -1,11 +1,14 @@
-import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
+import {
+  type Infer,
+  Schema,
+  withParser,
+  brandedNonEmptyStringSchema
+} from '@ocentra-parent/schema-domain/effect';
 import {
   AppGameAndroidUsageEventsReplayReadModelSchema,
   type AppGameAndroidUsageEventsReplayReadModel,
 } from './app-game-android-usage-events-replay';
 import { ParentTimestampSchema } from '@ocentra-parent/family-domain/reference-primitives';
-
-const AndroidRuntimeReplayText = Schema.String.pipe(Schema.minLength(1));
 
 export const AppGameAndroidUsageEventsChildRuntimeReplaySchemaVersionSchema = withParser(
   Schema.Literal('app-game-android-usage-events-child-runtime-replay')
@@ -37,9 +40,7 @@ export const AppGameAndroidUsageEventsChildRuntimeReplayGapSchema = withParser(
   )
 );
 
-const AndroidRuntimeReplayLabelSchema = AndroidRuntimeReplayText.pipe(
-  Schema.brand('AppGameAndroidUsageEventsChildRuntimeReplayLabel')
-);
+const AndroidRuntimeReplayLabelSchema = brandedNonEmptyStringSchema('AppGameAndroidUsageEventsChildRuntimeReplayLabel');
 const AndroidRuntimeReplayCountSchema = Schema.Number.pipe(Schema.int(), Schema.greaterThanOrEqualTo(0));
 
 const AppGameAndroidUsageEventsChildRuntimeReplayBaseSchema = Schema.Struct({
@@ -173,3 +174,4 @@ function androidRuntimeReplayStateIsConsistent(
     !readModel.openGaps.includes('android-child-runtime-replay-consumer-not-attached' as never)
   );
 }
+

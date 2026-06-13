@@ -1,15 +1,18 @@
-import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
-
-const NonEmptyRemoteAiValueText = Schema.String.pipe(Schema.minLength(1));
+import {
+  type Infer,
+  Schema,
+  withParser,
+  brandedNonEmptyStringSchema
+} from '@ocentra-parent/schema-domain/effect';
 
 export const BrowserAiRemoteApprovalIdSchema = withParser(
-  NonEmptyRemoteAiValueText.pipe(Schema.brand('BrowserAiRemoteApprovalId'))
+  brandedNonEmptyStringSchema('BrowserAiRemoteApprovalId')
 );
 export const BrowserAiRemoteProviderIdSchema = withParser(
-  NonEmptyRemoteAiValueText.pipe(Schema.brand('BrowserAiRemoteProviderId'))
+  brandedNonEmptyStringSchema('BrowserAiRemoteProviderId')
 );
 export const BrowserAiRemoteRouteIdSchema = withParser(
-  NonEmptyRemoteAiValueText.pipe(Schema.brand('BrowserAiRemoteRouteId'))
+  brandedNonEmptyStringSchema('BrowserAiRemoteRouteId')
 );
 
 export const BrowserAiRemoteDataScopeSchema = withParser(
@@ -38,3 +41,4 @@ export const BrowserAiRemoteExecutionStateSchema = withParser(
 );
 
 export type BrowserAiRemoteDegradedState = Infer<typeof BrowserAiRemoteDegradedStateSchema>;
+

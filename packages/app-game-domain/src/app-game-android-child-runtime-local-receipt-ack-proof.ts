@@ -1,7 +1,10 @@
-import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
+import {
+  type Infer,
+  Schema,
+  withParser,
+  brandedNonEmptyStringSchema
+} from '@ocentra-parent/schema-domain/effect';
 import { ParentTimestampSchema } from '@ocentra-parent/family-domain/reference-primitives';
-
-const AndroidChildRuntimeLocalReceiptAckText = Schema.String.pipe(Schema.minLength(1));
 
 export const AppGameAndroidChildRuntimeLocalReceiptAckProofSchemaVersionSchema = withParser(
   Schema.Literal('app-game-android-child-runtime-local-receipt-ack-proof')
@@ -36,9 +39,7 @@ export const AppGameAndroidChildRuntimeLocalReceiptAckGapSchema = withParser(
   )
 );
 
-const AndroidChildRuntimeLocalReceiptAckProofIdSchema = AndroidChildRuntimeLocalReceiptAckText.pipe(
-  Schema.brand('AppGameAndroidChildRuntimeLocalReceiptAckProofId')
-);
+const AndroidChildRuntimeLocalReceiptAckProofIdSchema = brandedNonEmptyStringSchema('AppGameAndroidChildRuntimeLocalReceiptAckProofId');
 
 const AppGameAndroidChildRuntimeLocalReceiptAckProofBaseSchema = Schema.Struct({
   schemaVersion: AppGameAndroidChildRuntimeLocalReceiptAckProofSchemaVersionSchema,
@@ -208,3 +209,4 @@ function androidChildRuntimeLocalReceiptAckProofIsHonest(proof: AndroidChildRunt
     !proof.rawPrivateSourceRowsIncluded
   );
 }
+

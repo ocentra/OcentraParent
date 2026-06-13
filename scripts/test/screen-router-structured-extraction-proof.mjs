@@ -11,11 +11,11 @@ await runPackageCommand([
   'run',
   'test',
   '--workspace',
-  '@ocentra-parent/activity-domain',
+  '@ocentra-parent/screen-domain',
   '--',
   'screen-intelligence-router.test.ts',
 ]);
-await runPackageCommand(['run', 'build', '--workspace', '@ocentra-parent/activity-domain']);
+await runPackageCommand(['run', 'build', '--workspace', '@ocentra-parent/screen-domain']);
 await writeProof();
 
 console.log(`screen-router-structured-extraction-proof-ok: ${proofOutputPath}`);

@@ -1,8 +1,11 @@
-import { Schema, withParser, type Infer } from '@ocentra-parent/schema-domain/effect';
+import {
+  Schema,
+  withParser,
+  type Infer,
+  NonEmptyStringSchema
+} from '@ocentra-parent/schema-domain/effect';
 import { TrackingPolicySchemaVersion } from './tracking-location-policy';
 import { TrackingPolicyAuditRefSchema, TrackingPolicyReasonCodeSchema } from './tracking-location-policy-primitives';
-
-const PresenceProofTextSchema = Schema.String.pipe(Schema.minLength(1));
 
 interface DesktopPresenceHintClaimShape {
   readonly source: Infer<typeof TrackingDesktopPresenceSourceSchema>;
@@ -37,7 +40,7 @@ export const TrackingDesktopPresenceHintRowSchema = withParser(
     schemaVersion: Schema.Literal(TrackingPolicySchemaVersion),
     source: TrackingDesktopPresenceSourceSchema,
     state: TrackingDesktopPresenceStateSchema,
-    label: PresenceProofTextSchema,
+    label: NonEmptyStringSchema,
     canClaimPreciseLocation: Schema.Literal(false),
     physicalPresenceClaimed: Schema.Literal(false),
     liveDeviceClaimed: Schema.Boolean,
@@ -140,3 +143,4 @@ function row(
     auditRefs: ['tracking-desktop-presence-hint-proof'],
   });
 }
+

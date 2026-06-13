@@ -1,4 +1,9 @@
-import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
+import {
+  type Infer,
+  Schema,
+  withParser,
+  brandedNonEmptyStringSchema
+} from '@ocentra-parent/schema-domain/effect';
 import {
   AppGameNotificationLocalOutboxBridgeReadModelSchema,
   AppGameNotificationLocalOutboxBridgeStatus,
@@ -8,16 +13,14 @@ import {
 import {
   NotificationLocalOutboxSchedulerRecordSchema,
   type NotificationLocalOutboxSchedulerRecord,
-} from './notification-local-outbox-scheduler-proof';
-import { RequiredNotificationLocalOutboxSchedulerNonClaims } from './notification-local-outbox-scheduler-proof-values';
+} from '@ocentra-parent/notification-domain/notification-local-outbox-scheduler-proof';
+import { RequiredNotificationLocalOutboxSchedulerNonClaims } from '@ocentra-parent/notification-domain/notification-local-outbox-scheduler-proof-values';
 import {
   ParentContractSchemaVersion,
   ParentContractSchemaVersionSchema,
   ParentTimestampSchema,
 } from '@ocentra-parent/family-domain/reference-primitives';
 import { FamilyReferenceSchema } from '@ocentra-parent/family-domain/references';
-
-const BridgeText = Schema.String.pipe(Schema.minLength(1));
 
 export const AppGameNotificationSchedulerBridgeStatus = {
   ScheduledLocal: 'scheduled-local-proof-row',
@@ -30,9 +33,9 @@ export const AppGameNotificationSchedulerBridgeStatusSchema = withParser(
 );
 
 // prettier-ignore
-export const AppGameNotificationSchedulerBridgeIdSchema = BridgeText.pipe(Schema.brand('AppGameNotificationSchedulerBridgeId'));
+export const AppGameNotificationSchedulerBridgeIdSchema = brandedNonEmptyStringSchema('AppGameNotificationSchedulerBridgeId');
 // prettier-ignore
-export const AppGameNotificationSchedulerBridgeReferenceSchema = BridgeText.pipe(Schema.brand('AppGameNotificationSchedulerBridgeReference'));
+export const AppGameNotificationSchedulerBridgeReferenceSchema = brandedNonEmptyStringSchema('AppGameNotificationSchedulerBridgeReference');
 
 const AppGameNotificationSchedulerBridgeRowBaseSchema = Schema.Struct({
   schedulerBridgeRecordId: AppGameNotificationSchedulerBridgeReferenceSchema,
@@ -246,3 +249,4 @@ const countRows = (
   rows: ReadonlyArray<{ readonly status: AppGameNotificationSchedulerBridgeStatus }>,
   status: AppGameNotificationSchedulerBridgeStatus
 ): number => rows.filter((row) => row.status === status).length;
+

@@ -1,4 +1,4 @@
-import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
+import { type Infer, NonEmptyStringSchema, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
 
 const BrowserControlKnownWritesToPathLiteralSchema = Schema.Literal(
   '/browserPolicy/enabled',
@@ -60,7 +60,7 @@ export const BrowserControlSchemaKnownWritesToPathSchema = withParser(
 );
 
 export const BrowserControlFieldValueSchema = withParser(
-  Schema.Union(Schema.String, Schema.Number, Schema.Boolean, Schema.Array(Schema.String), Schema.Null)
+  Schema.Union(NonEmptyStringSchema, Schema.Number, Schema.Boolean, Schema.Array(NonEmptyStringSchema), Schema.Null)
 );
 
 export const BrowserControlKindSchema = withParser(

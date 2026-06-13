@@ -1,9 +1,13 @@
-import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
+import {
+  type Infer,
+  Schema,
+  withParser,
+  brandedNonEmptyStringSchema,
+  NonEmptyStringSchema
+} from '@ocentra-parent/schema-domain/effect';
 import { LanDiscoveryEvidenceRecordSchema } from '@ocentra-parent/lan-domain/lan-discovery-evidence';
 import { LanPairingRouteIdSchema, LanPairingSchemaVersionSchema } from '@ocentra-parent/lan-domain/lan-pairing-values';
 import { ParentEvidenceReferenceIdSchema, ParentTimestampSchema } from '@ocentra-parent/family-domain/reference-primitives';
-
-const NonEmptyScreenFamilyHubRuntimeText = Schema.String.pipe(Schema.minLength(1));
 
 export const ScreenFamilyAiHubRuntimeDiscoveryProofSchemaVersionSchema = withParser(
   Schema.Literal('screen-family-ai-hub-runtime-discovery-proof')
@@ -20,19 +24,15 @@ export const ScreenFamilyAiHubRuntimeExchangeStateSchema = withParser(
   Schema.Literal('accepted', 'completed', 'rejected')
 );
 export const ScreenFamilyAiHubRuntimeTransferModeSchema = withParser(Schema.Literal('summaryOnly', 'redactedCrop'));
-export const ScreenFamilyAiHubRuntimeClaimSchema = NonEmptyScreenFamilyHubRuntimeText.pipe(
-  Schema.brand('ScreenFamilyAiHubRuntimeClaim')
-);
-export const ScreenFamilyAiHubRouteLinkIdSchema = NonEmptyScreenFamilyHubRuntimeText.pipe(
-  Schema.brand('ScreenFamilyAiHubRouteLinkId')
-);
+export const ScreenFamilyAiHubRuntimeClaimSchema = brandedNonEmptyStringSchema('ScreenFamilyAiHubRuntimeClaim');
+export const ScreenFamilyAiHubRouteLinkIdSchema = brandedNonEmptyStringSchema('ScreenFamilyAiHubRouteLinkId');
 
 const ScreenFamilyAiHubRuntimeDiscoveryStateSchema = Schema.Struct({
   runtimeState: ScreenFamilyAiHubRuntimeStateSchema,
   householdLanState: ScreenFamilyAiHubHouseholdLanStateSchema,
   cloudRelayState: ScreenFamilyAiHubCloudRelayStateSchema,
   discoveredAt: ParentTimestampSchema,
-  runtimeEndpointRef: NonEmptyScreenFamilyHubRuntimeText,
+  runtimeEndpointRef: NonEmptyStringSchema,
   discoveryEvidence: Schema.Array(LanDiscoveryEvidenceRecordSchema),
 });
 
@@ -119,3 +119,4 @@ export type ScreenFamilyAiHubCloudRelayState = Infer<typeof ScreenFamilyAiHubClo
 export type ScreenFamilyAiHubRuntimeExchangeState = Infer<typeof ScreenFamilyAiHubRuntimeExchangeStateSchema>;
 export type ScreenFamilyAiHubRuntimeTransferMode = Infer<typeof ScreenFamilyAiHubRuntimeTransferModeSchema>;
 export type ScreenFamilyAiHubRuntimeDiscoveryReadModel = Infer<typeof ScreenFamilyAiHubRuntimeDiscoveryReadModelSchema>;
+

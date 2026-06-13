@@ -1,4 +1,9 @@
-import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
+import {
+  type Infer,
+  Schema,
+  withParser,
+  NonEmptyStringSchema
+} from '@ocentra-parent/schema-domain/effect';
 import {
   ActivityDeviceIdSchema,
   ActivityEvidenceIdSchema,
@@ -64,14 +69,12 @@ export {
 export type { BrowserContentCategory, BrowserContentModifier } from './browser-ai-analysis-values';
 
 export const BrowserAiAnalysisSchemaVersion = 1;
-
-const NonEmptyBrowserAiText = Schema.String.pipe(Schema.minLength(1));
-const OptionalBrowserAiTextSchema = Schema.Union(NonEmptyBrowserAiText, Schema.Null);
+const OptionalBrowserAiTextSchema = Schema.Union(NonEmptyStringSchema, Schema.Null);
 const OptionalBrowserAiUrlSchema = Schema.Union(BrowserUrlSchema, Schema.Null);
 const OptionalBrowserAiDomainSchema = Schema.Union(BrowserDomainSchema, Schema.Null);
 const OptionalBrowserAiTitleSchema = Schema.Union(BrowserPageTitleSchema, Schema.Null);
 
-const NonEmptyBrowserAiTextArraySchema = Schema.Array(NonEmptyBrowserAiText).pipe(
+const NonEmptyBrowserAiTextArraySchema = Schema.Array(NonEmptyStringSchema).pipe(
   Schema.filter((value) => value.length > 0 || 'Expected at least one browser AI text ref')
 );
 const SourceEvidenceIdsSchema = Schema.Array(ActivityEvidenceIdSchema).pipe(
@@ -167,7 +170,7 @@ const BrowserUrlAiAnalysisResultBaseSchema = Schema.Struct({
   recommendedPolicyInput: BrowserAiRecommendedPolicyInputSchema,
   confidence: BrowserAiConfidenceSchema,
   uncertaintyReasons: Schema.Array(BrowserAiUncertaintyReasonSchema),
-  parentSummary: NonEmptyBrowserAiText,
+  parentSummary: NonEmptyStringSchema,
   childSafeSummary: OptionalBrowserAiTextSchema,
   modelRuntimeRef: BrowserAiModelRuntimeRefSchema,
   promptTemplate: BrowserAiPromptTemplateSchema,
@@ -239,3 +242,4 @@ function browserAiVideoKindMatchesContentKind(contentKind: string, videoKind: st
   }
   return videoKind === 'non-video' || videoKind === 'unknown';
 }
+

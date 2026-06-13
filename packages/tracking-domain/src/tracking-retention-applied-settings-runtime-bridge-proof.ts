@@ -1,4 +1,10 @@
-import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
+import {
+  type Infer,
+  Schema,
+  withParser,
+  brandedNonEmptyStringSchema,
+  NonEmptyStringSchema
+} from '@ocentra-parent/schema-domain/effect';
 import { ParentTimestampSchema } from '@ocentra-parent/family-domain/reference-primitives';
 import { TrackingPolicyAuditRefSchema, TrackingPolicySchemaVersion } from './tracking-location-policy-primitives';
 import {
@@ -11,17 +17,11 @@ import {
   type TrackingRetentionProductSettingsWritableExecutionRow,
 } from './tracking-retention-product-settings-writable-execution-proof';
 
-const TrackingRetentionAppliedSettingsRuntimeBridgeTextSchema = Schema.String.pipe(Schema.minLength(1));
-
 export const TrackingRetentionAppliedSettingsRuntimeBridgeRowIdSchema =
-  TrackingRetentionAppliedSettingsRuntimeBridgeTextSchema.pipe(
-    Schema.brand('TrackingRetentionAppliedSettingsRuntimeBridgeRowId')
-  );
+  brandedNonEmptyStringSchema('TrackingRetentionAppliedSettingsRuntimeBridgeRowId');
 
 export const TrackingRetentionAppliedSettingsRuntimeBridgeArtifactRefSchema =
-  TrackingRetentionAppliedSettingsRuntimeBridgeTextSchema.pipe(
-    Schema.brand('TrackingRetentionAppliedSettingsRuntimeBridgeArtifactRef')
-  );
+  brandedNonEmptyStringSchema('TrackingRetentionAppliedSettingsRuntimeBridgeArtifactRef');
 
 export const TrackingRetentionAppliedSettingsRuntimeBridgeStatusSchema = Schema.Literal(
   'local-applied-settings-observed',
@@ -39,8 +39,8 @@ export const TrackingRetentionAppliedSettingsRuntimeBridgeRowSchema = withParser
     sourceRuntimeArtifactPlanRef: TrackingRetentionSettingsProofRefSchema,
     auditRefs: Schema.Array(TrackingPolicyAuditRefSchema),
     localServiceStateRevision: Schema.Number.pipe(Schema.int(), Schema.positive()),
-    localServiceStateSnapshotRef: TrackingRetentionAppliedSettingsRuntimeBridgeTextSchema,
-    durableSettingsStoreRef: TrackingRetentionAppliedSettingsRuntimeBridgeTextSchema,
+    localServiceStateSnapshotRef: NonEmptyStringSchema,
+    durableSettingsStoreRef: NonEmptyStringSchema,
     appliedRetentionWindowHours: Schema.Union(Schema.Number.pipe(Schema.int(), Schema.positive()), Schema.Null),
     appliedDeleteAfterAlertResolved: Schema.Boolean,
     parentExportPrepared: Schema.Boolean,
@@ -243,3 +243,4 @@ function missingRuntimeArtifacts(inventory: TrackingRetentionRuntimeArtifactInve
     (artifact) => !presentArtifacts.has(artifact)
   );
 }
+

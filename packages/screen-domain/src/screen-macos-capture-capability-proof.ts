@@ -1,4 +1,9 @@
-import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
+import {
+  type Infer,
+  Schema,
+  withParser,
+  brandedNonEmptyStringSchema
+} from '@ocentra-parent/schema-domain/effect';
 import { ActivityTimestampSchema } from '@ocentra-parent/evidence-domain/primitives';
 import { ScreenEvidenceReasonSchema } from './screen-evidence-primitives';
 import { ScreenOptionalVisibilityPlatformProofRefSchema } from './screen-optional-visibility-mode-values';
@@ -6,7 +11,7 @@ import { ScreenOptionalVisibilityPlatformProofRefSchema } from './screen-optiona
 export const ScreenMacosCaptureCapabilitySchemaVersion = 1;
 
 const ScreenMacosCaptureDocRefSchema = withParser(
-  Schema.String.pipe(Schema.minLength(1), Schema.brand('ScreenMacosCaptureDocRef'))
+  brandedNonEmptyStringSchema('ScreenMacosCaptureDocRef')
 );
 const ScreenMacosCaptureReasonSchema = withParser(ScreenEvidenceReasonSchema);
 const OptionalScreenMacosCaptureProofRefSchema = Schema.Union(
@@ -243,3 +248,4 @@ export type ScreenMacosCaptureState = Infer<typeof ScreenMacosCaptureStateSchema
 export type ScreenMacosCaptureProofState = Infer<typeof ScreenMacosCaptureProofStateSchema>;
 export type ScreenMacosCaptureCapabilityRow = Infer<typeof ScreenMacosCaptureCapabilityRowSchema>;
 export type ScreenMacosCaptureCapabilityProof = Infer<typeof ScreenMacosCaptureCapabilityProofSchema>;
+

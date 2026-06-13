@@ -1,4 +1,4 @@
-import { PortalRoute, type PortalRoute as PortalRouteValue } from './routes';
+import { PortalRoute, portalRouteHashPath, type PortalRoute as PortalRouteValue } from './routes';
 import {
   PARENT_PORTAL_NAV_LABELS,
   PARENT_PORTAL_NAV_GROUPS,
@@ -179,8 +179,8 @@ export const PARENT_PORTAL_ROUTE = {
   PageMode: 'parentOverview',
   EmptyTimestamp: '',
   HashRoutes: {
-    Assistant: '#/assistant',
-    Overview: '#/overview',
+    Assistant: portalRouteHashPath(PortalRoute.Assistant),
+    Overview: portalRouteHashPath(PortalRoute.Overview),
   },
   StatusText: {
     Local: 'LOCAL',
@@ -426,7 +426,7 @@ export const PARENT_PORTAL_CONTENT: ParentPortalContent = {
       category: 'Browser',
       subcategory: 'Supported browsers',
       controlCode: 1,
-      routePath: '#/browser',
+      routePath: portalRouteHashPath(PortalRoute.Browser),
     },
     {
       id: 'browser-gap',
@@ -438,7 +438,7 @@ export const PARENT_PORTAL_CONTENT: ParentPortalContent = {
       category: 'Browser',
       subcategory: 'Unsupported browsers',
       controlCode: 2,
-      routePath: '#/browser',
+      routePath: portalRouteHashPath(PortalRoute.Browser),
     },
     {
       id: 'policy-action',
@@ -450,7 +450,7 @@ export const PARENT_PORTAL_CONTENT: ParentPortalContent = {
       category: 'Policy',
       subcategory: 'Block or allow',
       controlCode: 3,
-      routePath: '#/policy',
+      routePath: portalRouteHashPath(PortalRoute.Policy),
     },
     {
       id: 'activity-store',
@@ -462,7 +462,7 @@ export const PARENT_PORTAL_CONTENT: ParentPortalContent = {
       category: 'Activity',
       subcategory: 'Recent events',
       controlCode: 4,
-      routePath: '#/activity',
+      routePath: portalRouteHashPath(PortalRoute.Activity),
     },
     {
       id: 'drive-exports',
@@ -474,7 +474,7 @@ export const PARENT_PORTAL_CONTENT: ParentPortalContent = {
       category: 'Support',
       subcategory: 'Connect your drives',
       controlCode: 5,
-      routePath: '#/drive-connections',
+      routePath: portalRouteHashPath(PortalRoute.DriveConnections),
     },
     {
       id: 'privacy-design',
@@ -486,7 +486,7 @@ export const PARENT_PORTAL_CONTENT: ParentPortalContent = {
       category: 'Privacy',
       subcategory: 'Data custody',
       controlCode: 6,
-      routePath: '#/privacy-design',
+      routePath: portalRouteHashPath(PortalRoute.PrivacyDesign),
     },
     {
       id: 'memory-citations',
@@ -498,7 +498,7 @@ export const PARENT_PORTAL_CONTENT: ParentPortalContent = {
       category: 'Memory',
       subcategory: 'Local knowledge',
       controlCode: 7,
-      routePath: '#/memory',
+      routePath: portalRouteHashPath(PortalRoute.Memory),
     },
     {
       id: 'notifications',
@@ -510,7 +510,7 @@ export const PARENT_PORTAL_CONTENT: ParentPortalContent = {
       category: 'Devices',
       subcategory: 'Parent alerts',
       controlCode: 8,
-      routePath: '#/notifications',
+      routePath: portalRouteHashPath(PortalRoute.Notifications),
     },
     {
       id: 'family-settings',
@@ -522,7 +522,7 @@ export const PARENT_PORTAL_CONTENT: ParentPortalContent = {
       category: 'Devices',
       subcategory: 'Family defaults',
       controlCode: 9,
-      routePath: '#/settings-rules',
+      routePath: portalRouteHashPath(PortalRoute.SettingsRules),
     },
     {
       id: 'api-providers',
@@ -534,7 +534,7 @@ export const PARENT_PORTAL_CONTENT: ParentPortalContent = {
       category: 'AI',
       subcategory: 'External AI setup',
       controlCode: 10,
-      routePath: '#/api-providers',
+      routePath: portalRouteHashPath(PortalRoute.ApiProviders),
     },
   ],
   quickControls: [
@@ -547,7 +547,7 @@ export const PARENT_PORTAL_CONTENT: ParentPortalContent = {
       category: 'Browser',
       subcategory: 'Supported browsers',
       controlCode: 1,
-      routePath: '#/browser',
+      routePath: portalRouteHashPath(PortalRoute.Browser),
     },
     ...PARENT_PORTAL_MANAGE_QUICK_CONTROLS,
     {
@@ -559,7 +559,7 @@ export const PARENT_PORTAL_CONTENT: ParentPortalContent = {
       category: 'Policy',
       subcategory: 'Rules and approvals',
       controlCode: 3,
-      routePath: '#/policy',
+      routePath: portalRouteHashPath(PortalRoute.Policy),
     },
     {
       id: 'local-ai',
@@ -570,7 +570,7 @@ export const PARENT_PORTAL_CONTENT: ParentPortalContent = {
       category: 'AI',
       subcategory: 'Evidence summaries',
       controlCode: 6,
-      routePath: '#/ai-runtime',
+      routePath: portalRouteHashPath(PortalRoute.AiRuntime),
     },
     {
       id: 'local-ai-hub',
@@ -581,7 +581,7 @@ export const PARENT_PORTAL_CONTENT: ParentPortalContent = {
       category: 'AI',
       subcategory: 'Local hub',
       controlCode: 6,
-      routePath: '#/ai-runtime',
+      routePath: portalRouteHashPath(PortalRoute.AiRuntime),
     },
     {
       id: 'privacy-design',
@@ -592,7 +592,7 @@ export const PARENT_PORTAL_CONTENT: ParentPortalContent = {
       category: 'Privacy',
       subcategory: 'Data custody',
       controlCode: 6,
-      routePath: '#/privacy-design',
+      routePath: portalRouteHashPath(PortalRoute.PrivacyDesign),
     },
     {
       id: 'memory-citations',
@@ -603,7 +603,7 @@ export const PARENT_PORTAL_CONTENT: ParentPortalContent = {
       category: 'Memory',
       subcategory: 'Freshness gated',
       controlCode: 7,
-      routePath: '#/memory',
+      routePath: portalRouteHashPath(PortalRoute.Memory),
     },
     {
       id: 'support-exports',
@@ -614,7 +614,7 @@ export const PARENT_PORTAL_CONTENT: ParentPortalContent = {
       category: 'Support',
       subcategory: 'Diagnostics and drives',
       controlCode: 8,
-      routePath: '#/diagnostics',
+      routePath: portalRouteHashPath(PortalRoute.Diagnostics),
     },
   ],
   guideTopics: PARENT_PORTAL_GUIDE_TOPICS,
@@ -710,21 +710,21 @@ export const PARENT_PORTAL_CONTENT: ParentPortalContent = {
       defaultTab: 'overall',
       selectedControlId: 'managed-web',
       title: 'Parent Command Deck',
-      routeLabel: '#/overview',
+      routeLabel: portalRouteHashPath(PortalRoute.Overview),
       rowSource: 'fallbackRows',
     },
     parentManage: {
       defaultTab: 'controls',
       selectedControlId: 'managed-web',
       title: 'Control Detail',
-      routeLabel: '#/browser',
+      routeLabel: portalRouteHashPath(PortalRoute.Browser),
       rowSource: 'fallbackRows',
     },
     parentGuide: {
       defaultTab: 'aiStatus',
       selectedControlId: 'api-providers',
       title: 'AI',
-      routeLabel: '#/ai-runtime',
+      routeLabel: portalRouteHashPath(PortalRoute.AiRuntime),
       rowSource: 'aiBenchmarkRows',
     },
   },

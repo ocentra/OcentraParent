@@ -1,4 +1,9 @@
-import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
+import {
+  type Infer,
+  Schema,
+  withParser,
+  brandedNonEmptyStringSchema
+} from '@ocentra-parent/schema-domain/effect';
 import { AppInstallPurchaseProductClaimPlatformLimitationFallbackProofReadModel } from './app-install-purchase-product-claim-platform-limitation-fallback-proof';
 import { AppInstallPurchaseProductClaimProviderStoreProofReadModel } from './app-install-purchase-product-claim-provider-store-proof';
 import { ParentPlatformSchema, ParentTimestampSchema } from '@ocentra-parent/family-domain/reference-primitives';
@@ -8,7 +13,6 @@ const SourceProviderStoreProofVersion = 'app-install-purchase-product-claim-prov
 const SourcePlatformLimitationFallbackProofVersion =
   'app-install-purchase-product-claim-platform-limitation-fallback-proof';
 const UpdatedAt = '2026-06-06T23:35:00.000Z';
-const Text = Schema.String.pipe(Schema.minLength(1));
 const StoreSurfaces = [
   'microsoft-store',
   'mac-app-store',
@@ -93,8 +97,8 @@ const PlatformLimitationFallbackStateSchema = withParser(
   )
 );
 const NonClaimSchema = withParser(Schema.Literal(...NonClaims));
-const RefSchema = Text.pipe(Schema.brand('AppInstallPurchaseProviderStoreApiExecutionRef'));
-const BoundarySchema = Text.pipe(Schema.brand('AppInstallPurchaseProviderStoreApiExecutionBoundary'));
+const RefSchema = brandedNonEmptyStringSchema('AppInstallPurchaseProviderStoreApiExecutionRef');
+const BoundarySchema = brandedNonEmptyStringSchema('AppInstallPurchaseProviderStoreApiExecutionBoundary');
 const NotExecutedSchema = withParser(Schema.Literal('not-executed'));
 const NotClaimedSchema = withParser(Schema.Literal('not-claimed'));
 const NotImplementedSchema = withParser(Schema.Literal('not-implemented'));
@@ -419,3 +423,4 @@ function providerStoreApiExecutionProofIsHonest(proof: AppInstallPurchaseProvide
 function uniqueRefs(refs: readonly string[]) {
   return Array.from(new Set(refs));
 }
+

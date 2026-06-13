@@ -1,17 +1,16 @@
-import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
+import {
+  type Infer,
+  Schema,
+  withParser,
+  brandedNonEmptyStringSchema
+} from '@ocentra-parent/schema-domain/effect';
 import { ParentTimestampSchema } from '@ocentra-parent/family-domain/reference-primitives';
 import { TrackingPolicyAuditRefSchema, TrackingPolicySchemaVersion } from './tracking-location-policy-primitives';
-
-const TrackingAndroidPhysicalDeviceRuntimeTextSchema = Schema.String.pipe(Schema.minLength(1));
 const TrackingAndroidPhysicalDeviceRuntimeCountSchema = Schema.Number.pipe(Schema.int(), Schema.nonNegative());
 
-export const TrackingAndroidPhysicalDeviceRuntimeRefSchema = TrackingAndroidPhysicalDeviceRuntimeTextSchema.pipe(
-  Schema.brand('TrackingAndroidPhysicalDeviceRuntimeRef')
-);
+export const TrackingAndroidPhysicalDeviceRuntimeRefSchema = brandedNonEmptyStringSchema('TrackingAndroidPhysicalDeviceRuntimeRef');
 
-export const TrackingAndroidPhysicalDeviceRuntimeRowIdSchema = TrackingAndroidPhysicalDeviceRuntimeTextSchema.pipe(
-  Schema.brand('TrackingAndroidPhysicalDeviceRuntimeRowId')
-);
+export const TrackingAndroidPhysicalDeviceRuntimeRowIdSchema = brandedNonEmptyStringSchema('TrackingAndroidPhysicalDeviceRuntimeRowId');
 
 export const TrackingAndroidPhysicalDeviceRuntimeStatusSchema = Schema.Literal(
   'android-physical-device-runtime-observed-product-gaps-remain'
@@ -385,3 +384,4 @@ function androidPhysicalDeviceRuntimeClaimsAreHonest(row: TrackingAndroidPhysica
     row.productClaimReady === false
   );
 }
+

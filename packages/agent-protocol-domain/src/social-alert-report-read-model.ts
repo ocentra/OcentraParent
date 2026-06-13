@@ -1,8 +1,13 @@
 import {
   SocialAlertReportIntentSchema,
   type SocialAlertReportIntent,
-} from '@ocentra-parent/social-domain/social-alert-report-intent';
-import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
+} from '@ocentra-parent/browser-domain/social-alert-report-intent';
+import {
+  type Infer,
+  NonEmptyStringSchema,
+  Schema,
+  withParser,
+} from '@ocentra-parent/schema-domain/effect';
 import { AgentEvent, AgentProtocolDefaults, isAgentProtocolLogText, type AgentEventEnvelope } from './contracts';
 
 const SocialAlertReportReadModelClaimBoundariesSchema = Schema.Struct({
@@ -14,18 +19,18 @@ const SocialAlertReportReadModelClaimBoundariesSchema = Schema.Struct({
 });
 
 const SocialAlertReportProviderStatusRowSchema = Schema.Struct({
-  statusEntryId: Schema.String.pipe(Schema.minLength(1)),
-  sourceIntentRef: Schema.String.pipe(Schema.minLength(1)),
+  statusEntryId: NonEmptyStringSchema,
+  sourceIntentRef: NonEmptyStringSchema,
   sourcePreflightStatus: Schema.Literal('provider-adapter-required', 'manual-required', 'unavailable'),
   providerStatus: Schema.Literal('manual-required', 'unavailable'),
   statusProofState: Schema.Literal('manual-action-required', 'provider-unavailable-contract'),
   deliveryClaimState: Schema.Literal('not-observed', 'not-implemented'),
-  providerAttemptRef: Schema.String.pipe(Schema.minLength(1)),
-  readinessRefs: Schema.Array(Schema.String.pipe(Schema.minLength(1))).pipe(
+  providerAttemptRef: NonEmptyStringSchema,
+  readinessRefs: Schema.Array(NonEmptyStringSchema).pipe(
     Schema.filter((value) => value.length > 0 || 'Expected provider status readiness refs')
   ),
-  providerReceiptRefs: Schema.Array(Schema.String),
-  manualProofRequirements: Schema.Array(Schema.String.pipe(Schema.minLength(1))).pipe(
+  providerReceiptRefs: Schema.Array(NonEmptyStringSchema),
+  manualProofRequirements: Schema.Array(NonEmptyStringSchema).pipe(
     Schema.filter((value) => value.length > 0 || 'Expected provider status manual proof requirements')
   ),
   providerDeliveryImplemented: Schema.Literal(false),
@@ -33,21 +38,22 @@ const SocialAlertReportProviderStatusRowSchema = Schema.Struct({
   deliveredNotificationClaimed: Schema.Literal(false),
   sensitiveProviderPayloadClaimed: Schema.Literal(false),
   providerStoresChildEvidenceClaimed: Schema.Literal(false),
-  lastCheckedAt: Schema.String.pipe(Schema.minLength(1)),
+  lastCheckedAt: NonEmptyStringSchema,
 }).pipe(
   Schema.filter(
     (row) =>
       socialAlertReportProviderStatusRowIsHonest(row) ||
-      'Expected social alert/report provider status rows to preserve manual-required/unavailable no-delivery boundaries'
+      'Expected social alert/report provider status rows to preserve manual-required/unavailable ' +
+        'no-delivery boundaries'
   )
 );
 
 export const SocialAlertReportReadModelSnapshotSchema = withParser(
   Schema.Struct({
     schemaVersion: Schema.Literal('social-alert-report-read-model'),
-    familyId: Schema.String.pipe(Schema.minLength(1)),
-    childProfileId: Schema.String.pipe(Schema.minLength(1)),
-    generatedAt: Schema.String.pipe(Schema.minLength(1)),
+    familyId: NonEmptyStringSchema,
+    childProfileId: NonEmptyStringSchema,
+    generatedAt: NonEmptyStringSchema,
     intents: Schema.Array(SocialAlertReportIntentSchema).pipe(
       Schema.filter((value) => value.length > 0 || 'Expected social alert/report intent rows')
     ),

@@ -1,37 +1,25 @@
-import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
+import {
+  type Infer,
+  Schema,
+  withParser,
+  brandedNonEmptyStringSchema,
+  NonEmptyStringSchema
+} from '@ocentra-parent/schema-domain/effect';
 import { ParentActionReferenceSchema, ParentActorReferenceSchema, ParentEvidenceReferenceSchema } from '@ocentra-parent/family-domain/references';
 import { ParentContractSchemaVersion, ParentContractSchemaVersionSchema } from '@ocentra-parent/family-domain/reference-primitives';
-import { PolicyDecisionSchema, PolicyReasonCodeSchema, comparePolicyActionStrictness } from './policy';
-import { LocalAiSafetyResultSchema } from './local-ai';
+import { PolicyDecisionSchema, PolicyReasonCodeSchema, comparePolicyActionStrictness } from '@ocentra-parent/policy-domain/policy';
+import { LocalAiSafetyResultSchema } from '@ocentra-parent/ai-domain/local-ai';
 import { LocalAiPromptVersionSchema } from './local-ai-primitives';
-
-const NonEmptyRemoteAssistantBoundaryText = Schema.String.pipe(Schema.minLength(1));
 const RemoteAssistantBoundaryCountSchema = Schema.Number.pipe(Schema.nonNegative(), Schema.int());
 
-export const RemoteAssistantRequestIdSchema = NonEmptyRemoteAssistantBoundaryText.pipe(
-  Schema.brand('RemoteAssistantRequestId')
-);
-export const RemoteAssistantResultIdSchema = NonEmptyRemoteAssistantBoundaryText.pipe(
-  Schema.brand('RemoteAssistantResultId')
-);
-export const RemoteAssistantQuestionRefSchema = NonEmptyRemoteAssistantBoundaryText.pipe(
-  Schema.brand('RemoteAssistantQuestionRef')
-);
-export const RemoteAssistantReportBundleRefSchema = NonEmptyRemoteAssistantBoundaryText.pipe(
-  Schema.brand('RemoteAssistantReportBundleRef')
-);
-export const RemoteAssistantAnswerRefSchema = NonEmptyRemoteAssistantBoundaryText.pipe(
-  Schema.brand('RemoteAssistantAnswerRef')
-);
-export const RemoteAssistantUncertaintyCodeSchema = NonEmptyRemoteAssistantBoundaryText.pipe(
-  Schema.brand('RemoteAssistantUncertaintyCode')
-);
-export const RemoteAssistantFailureReasonSchema = NonEmptyRemoteAssistantBoundaryText.pipe(
-  Schema.brand('RemoteAssistantFailureReason')
-);
-export const LocalAiRemoteAssistantBoundaryProofIdSchema = NonEmptyRemoteAssistantBoundaryText.pipe(
-  Schema.brand('LocalAiRemoteAssistantBoundaryProofId')
-);
+export const RemoteAssistantRequestIdSchema = brandedNonEmptyStringSchema('RemoteAssistantRequestId');
+export const RemoteAssistantResultIdSchema = brandedNonEmptyStringSchema('RemoteAssistantResultId');
+export const RemoteAssistantQuestionRefSchema = brandedNonEmptyStringSchema('RemoteAssistantQuestionRef');
+export const RemoteAssistantReportBundleRefSchema = brandedNonEmptyStringSchema('RemoteAssistantReportBundleRef');
+export const RemoteAssistantAnswerRefSchema = brandedNonEmptyStringSchema('RemoteAssistantAnswerRef');
+export const RemoteAssistantUncertaintyCodeSchema = brandedNonEmptyStringSchema('RemoteAssistantUncertaintyCode');
+export const RemoteAssistantFailureReasonSchema = brandedNonEmptyStringSchema('RemoteAssistantFailureReason');
+export const LocalAiRemoteAssistantBoundaryProofIdSchema = brandedNonEmptyStringSchema('LocalAiRemoteAssistantBoundaryProofId');
 
 export const RemoteAssistantCustodyBoundarySchema = withParser(
   Schema.Literal('parent-authorized-report-bundle', 'parent-owned-local-storage')
@@ -50,8 +38,8 @@ export const RemoteAssistantRequestBaseSchema = Schema.Struct({
   approvedSourceEvidenceReferences: Schema.Array(ParentEvidenceReferenceSchema),
   permittedReportBundleRefs: Schema.Array(RemoteAssistantReportBundleRefSchema),
   custodyBoundary: RemoteAssistantCustodyBoundarySchema,
-  modelProviderId: NonEmptyRemoteAssistantBoundaryText.pipe(Schema.brand('RemoteAssistantModelProviderId')),
-  modelId: NonEmptyRemoteAssistantBoundaryText.pipe(Schema.brand('RemoteAssistantModelId')),
+  modelProviderId: brandedNonEmptyStringSchema('RemoteAssistantModelProviderId'),
+  modelId: brandedNonEmptyStringSchema('RemoteAssistantModelId'),
   promptVersion: LocalAiPromptVersionSchema,
   rawPromptRetained: Schema.Boolean,
   childSafetyDecisionPath: Schema.Boolean,
@@ -106,7 +94,7 @@ export const RemoteAssistantResultSchema = withParser(
 export const LocalAiRemoteAssistantBoundaryProofSchema = withParser(
   Schema.Struct({
     proofId: LocalAiRemoteAssistantBoundaryProofIdSchema,
-    generatedAt: NonEmptyRemoteAssistantBoundaryText,
+    generatedAt: NonEmptyStringSchema,
     readyRequest: RemoteAssistantRequestSchema,
     readyResult: RemoteAssistantResultSchema,
     fallbackResult: RemoteAssistantResultSchema,
@@ -337,3 +325,4 @@ function remoteSuggestionCannotWeakenLocalPolicy(result: RemoteAssistantResultCa
     comparePolicyActionStrictness(result.localPolicyDecision.action, result.remoteSuggestedPolicyDecision.action) >= 0
   );
 }
+

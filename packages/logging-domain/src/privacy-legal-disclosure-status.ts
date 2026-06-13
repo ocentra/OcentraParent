@@ -1,14 +1,17 @@
-import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
+import {
+  type Infer,
+  Schema,
+  withParser,
+  NonEmptyStringSchema
+} from '@ocentra-parent/schema-domain/effect';
 
 import {
   privacyLegalDisclosureCoversRequiredStates,
   privacyLegalDisclosureEntryIsSafe,
 } from './privacy-legal-disclosure-status-guards.js';
 
-const NonEmptyPrivacyLegalDisclosureText = Schema.String.pipe(Schema.minLength(1));
-
 const privacyLegalDisclosureText = <Brand extends string>(brand: Brand) =>
-  NonEmptyPrivacyLegalDisclosureText.pipe(Schema.brand(brand));
+  NonEmptyStringSchema.pipe(Schema.brand(brand));
 
 export const PrivacyLegalDisclosureReadModelIdSchema = privacyLegalDisclosureText('PrivacyLegalDisclosureReadModelId');
 export const PrivacyLegalDisclosureIdSchema = privacyLegalDisclosureText('PrivacyLegalDisclosureId');
@@ -151,3 +154,4 @@ export type PrivacyLegalDisclosureReadModel = Infer<typeof PrivacyLegalDisclosur
 
 export const decodePrivacyLegalDisclosureEntry = Schema.decodeUnknownSync(PrivacyLegalDisclosureEntrySchema);
 export const decodePrivacyLegalDisclosureReadModel = Schema.decodeUnknownSync(PrivacyLegalDisclosureReadModelSchema);
+

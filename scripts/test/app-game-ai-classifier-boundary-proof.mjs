@@ -27,7 +27,7 @@ async function main() {
     ])
   );
   await runCommand(
-    ...npmCommand(['run', 'test', '--workspace', '@ocentra-parent/activity-domain', '--', 'app-game-evidence-claim'])
+    ...npmCommand(['run', 'test', '--workspace', '@ocentra-parent/app-game-domain', '--', 'app-game-evidence-claim'])
   );
 
   const { AppGameAiClassifierBoundaryProofMatrix } =
@@ -52,8 +52,8 @@ async function main() {
       tsContractValues: 'packages/parent-domain/src/app-game-ai-classifier-boundary-values.ts',
       tsContractData: 'packages/parent-domain/src/app-game-ai-classifier-boundary-data.ts',
       tsContractTest: 'packages/parent-domain/tests/app-game-ai-classifier-boundary.test.ts',
-      activityDigestSource: 'packages/activity-domain/src/app-game.ts',
-      activityDigestTest: 'packages/activity-domain/tests/app-game-evidence-claim.test.ts',
+      activityDigestSource: 'packages/app-game-domain/src/app-game.ts',
+      activityDigestTest: 'packages/app-game-domain/tests/unit/app-game-evidence-claim.test.ts',
       proofHarness: 'scripts/test/app-game-ai-classifier-boundary-proof.mjs',
       appGameProofPack: 'output/app-game-plan-proof/24-ai-classifier-digest-boundary',
       appProofPack: 'output/app-plan-proof/23-app-ai-classifier-digest-boundary',

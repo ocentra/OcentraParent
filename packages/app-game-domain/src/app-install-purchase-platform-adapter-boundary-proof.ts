@@ -1,9 +1,12 @@
-import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
+import {
+  type Infer,
+  Schema,
+  withParser,
+  brandedNonEmptyStringSchema
+} from '@ocentra-parent/schema-domain/effect';
 import { AppInstallPurchaseApprovedApiEntitlementProofReadModel } from './app-install-purchase-approved-api-entitlement-proof';
 import { AppInstallPurchaseReportRuntimeProofReadModel } from './app-install-purchase-report-runtime-proof';
 import { ParentPlatformSchema, ParentTimestampSchema } from '@ocentra-parent/family-domain/reference-primitives';
-
-const PlatformAdapterBoundaryText = Schema.String.pipe(Schema.minLength(1));
 const PlatformAdapterBoundaryVersion = 'app-install-purchase-platform-adapter-boundary-proof';
 const SourceApprovedApiEntitlementProofVersion = 'app-install-purchase-approved-api-entitlement-proof';
 const SourceReportRuntimeProofVersion = 'app-install-purchase-report-runtime-proof';
@@ -61,21 +64,11 @@ const AppInstallPurchasePlatformAdapterBoundaryNonClaimSchema = withParser(
   Schema.Literal(...PlatformAdapterBoundaryNonClaims)
 );
 
-const PlatformAdapterBoundaryRowIdSchema = PlatformAdapterBoundaryText.pipe(
-  Schema.brand('AppInstallPurchasePlatformAdapterBoundaryRowId')
-);
-const PlatformAdapterBoundarySourceRowIdSchema = PlatformAdapterBoundaryText.pipe(
-  Schema.brand('AppInstallPurchasePlatformAdapterBoundarySourceRowId')
-);
-const PlatformAdapterBoundaryRefSchema = PlatformAdapterBoundaryText.pipe(
-  Schema.brand('AppInstallPurchasePlatformAdapterBoundaryRef')
-);
-const PlatformAdapterBoundaryReportRefSchema = PlatformAdapterBoundaryText.pipe(
-  Schema.brand('AppInstallPurchasePlatformAdapterBoundaryReportRef')
-);
-const PlatformAdapterBoundaryClaimBoundarySchema = PlatformAdapterBoundaryText.pipe(
-  Schema.brand('AppInstallPurchasePlatformAdapterBoundaryClaimBoundary')
-);
+const PlatformAdapterBoundaryRowIdSchema = brandedNonEmptyStringSchema('AppInstallPurchasePlatformAdapterBoundaryRowId');
+const PlatformAdapterBoundarySourceRowIdSchema = brandedNonEmptyStringSchema('AppInstallPurchasePlatformAdapterBoundarySourceRowId');
+const PlatformAdapterBoundaryRefSchema = brandedNonEmptyStringSchema('AppInstallPurchasePlatformAdapterBoundaryRef');
+const PlatformAdapterBoundaryReportRefSchema = brandedNonEmptyStringSchema('AppInstallPurchasePlatformAdapterBoundaryReportRef');
+const PlatformAdapterBoundaryClaimBoundarySchema = brandedNonEmptyStringSchema('AppInstallPurchasePlatformAdapterBoundaryClaimBoundary');
 
 const PlatformAdapterBoundaryRowBaseSchema = Schema.Struct({
   schemaVersion: AppInstallPurchasePlatformAdapterBoundaryProofSchemaVersionSchema,
@@ -293,3 +286,4 @@ function platformAdapterBoundaryIsExplicit(boundary: typeof PlatformAdapterBound
     boundary.includes('no Ocentra-hosted family data custody')
   );
 }
+

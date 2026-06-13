@@ -1,14 +1,17 @@
-import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
+import {
+  type Infer,
+  Schema,
+  withParser,
+  brandedNonEmptyStringSchema
+} from '@ocentra-parent/schema-domain/effect';
 import { parentDesktopReleaseSupportReadModelIsHonest } from './parent-desktop-release-support-guards';
 import {
   ParentDesktopReleaseSupportIncidentHandoffSchema,
   type ParentDesktopReleaseSupportIncidentHandoff,
 } from './parent-desktop-release-support-incident';
-import { ParentTimestampSchema } from './reference-primitives';
+import { ParentTimestampSchema } from '@ocentra-parent/family-domain/reference-primitives';
 
 export { ParentDesktopReleaseSupportIncidentHandoffSchema, type ParentDesktopReleaseSupportIncidentHandoff };
-
-const NonEmptyReleaseSupportText = Schema.String.pipe(Schema.minLength(1));
 
 export const ParentDesktopReleaseSupportSchemaVersionSchema = withParser(
   Schema.Literal('parent-desktop-release-support-proof')
@@ -82,16 +85,12 @@ const ParentDesktopReleaseSupportProcessOwnershipSchema = withParser(Schema.Lite
 const ParentDesktopReleaseSupportBlankWindowGuardSchema = withParser(Schema.Literal('frontend-dist-required'));
 const ParentDesktopReleaseSupportUpdateRollbackPostureSchema = withParser(Schema.Literal('signed-channel-required'));
 
-const ReleaseSupportLabelSchema = NonEmptyReleaseSupportText.pipe(Schema.brand('ParentDesktopReleaseSupportLabel'));
-const ReleaseSupportRequirementSchema = NonEmptyReleaseSupportText.pipe(
-  Schema.brand('ParentDesktopReleaseSupportRequirement')
-);
-const ReleaseSupportCommandSchema = NonEmptyReleaseSupportText.pipe(Schema.brand('ParentDesktopReleaseSupportCommand'));
-const ReleaseSupportProofPathSchema = NonEmptyReleaseSupportText.pipe(
-  Schema.brand('ParentDesktopReleaseSupportProofPath')
-);
-const ReleaseSupportUrlSchema = NonEmptyReleaseSupportText.pipe(Schema.brand('ParentDesktopReleaseSupportUrl'));
-const ReleaseSupportValueSchema = NonEmptyReleaseSupportText.pipe(Schema.brand('ParentDesktopReleaseSupportValue'));
+const ReleaseSupportLabelSchema = brandedNonEmptyStringSchema('ParentDesktopReleaseSupportLabel');
+const ReleaseSupportRequirementSchema = brandedNonEmptyStringSchema('ParentDesktopReleaseSupportRequirement');
+const ReleaseSupportCommandSchema = brandedNonEmptyStringSchema('ParentDesktopReleaseSupportCommand');
+const ReleaseSupportProofPathSchema = brandedNonEmptyStringSchema('ParentDesktopReleaseSupportProofPath');
+const ReleaseSupportUrlSchema = brandedNonEmptyStringSchema('ParentDesktopReleaseSupportUrl');
+const ReleaseSupportValueSchema = brandedNonEmptyStringSchema('ParentDesktopReleaseSupportValue');
 
 export const ParentDesktopReleaseSupportAuthorityOperationSchema = withParser(
   Schema.Struct({
@@ -332,3 +331,4 @@ export type ParentDesktopReleaseSupportDiagnostics = Infer<typeof ParentDesktopR
 export type ParentDesktopReleaseSupportManualRunbookEntry = Infer<
   typeof ParentDesktopReleaseSupportManualRunbookEntrySchema
 >;
+

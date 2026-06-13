@@ -1,31 +1,24 @@
-import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
+import {
+  type Infer,
+  Schema,
+  withParser,
+  brandedNonEmptyStringSchema
+} from '@ocentra-parent/schema-domain/effect';
 import {
   ParentContractSchemaVersion,
   ParentContractSchemaVersionSchema,
   ParentTimestampSchema,
 } from '@ocentra-parent/family-domain/reference-primitives';
 
-const NonEmptyNotificationRuleProviderRetryContractText = Schema.String.pipe(Schema.minLength(1));
-
 export const V3NotificationRuleProviderRetryContractReadModelIdSchema =
-  NonEmptyNotificationRuleProviderRetryContractText.pipe(
-    Schema.brand('V3NotificationRuleProviderRetryContractReadModelId')
-  );
+  brandedNonEmptyStringSchema('V3NotificationRuleProviderRetryContractReadModelId');
 export const V3NotificationRuleProviderRetryContractEntryIdSchema =
-  NonEmptyNotificationRuleProviderRetryContractText.pipe(
-    Schema.brand('V3NotificationRuleProviderRetryContractEntryId')
-  );
+  brandedNonEmptyStringSchema('V3NotificationRuleProviderRetryContractEntryId');
 export const V3NotificationRuleProviderRetryContractReferenceSchema =
-  NonEmptyNotificationRuleProviderRetryContractText.pipe(
-    Schema.brand('V3NotificationRuleProviderRetryContractReference')
-  );
+  brandedNonEmptyStringSchema('V3NotificationRuleProviderRetryContractReference');
 export const V3NotificationRuleProviderRetryContractRequirementSchema =
-  NonEmptyNotificationRuleProviderRetryContractText.pipe(
-    Schema.brand('V3NotificationRuleProviderRetryContractRequirement')
-  );
-export const V3NotificationRuleProviderRetryContractTextSchema = NonEmptyNotificationRuleProviderRetryContractText.pipe(
-  Schema.brand('V3NotificationRuleProviderRetryContractText')
-);
+  brandedNonEmptyStringSchema('V3NotificationRuleProviderRetryContractRequirement');
+export const V3NotificationRuleProviderRetryContractTextSchema = brandedNonEmptyStringSchema('V3NotificationRuleProviderRetryContractText');
 
 export const V3NotificationRuleReasonCodeSchema = withParser(
   Schema.Literal(
@@ -545,3 +538,4 @@ export const decodeV3NotificationRuleProviderRetryContractEntry = Schema.decodeU
 export const decodeV3NotificationRuleProviderRetryContractReadModel = Schema.decodeUnknownSync(
   V3NotificationRuleProviderRetryContractReadModelSchema
 );
+

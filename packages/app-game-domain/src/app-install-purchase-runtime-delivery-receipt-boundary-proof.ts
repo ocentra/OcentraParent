@@ -1,11 +1,15 @@
-import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
+import {
+  type Infer,
+  Schema,
+  withParser,
+  brandedNonEmptyStringSchema
+} from '@ocentra-parent/schema-domain/effect';
 import { AppInstallPurchaseExternalRuntimeTransportDispatchPreflightProofReadModel } from './app-install-purchase-external-runtime-transport-dispatch-preflight-proof';
 import { ParentTimestampSchema } from '@ocentra-parent/family-domain/reference-primitives';
 
 const ReceiptBoundaryProofVersion = 'app-install-purchase-runtime-delivery-receipt-boundary-proof';
 const SourceDispatchPreflightProofVersion = 'app-install-purchase-external-runtime-transport-dispatch-preflight-proof';
 const ReceiptBoundaryTimestamp = '2026-06-07T19:18:00.000Z';
-const ReceiptBoundaryText = Schema.String.pipe(Schema.minLength(1));
 const ReceiptBoundary =
   'runtime delivery receipt boundary proof only; receipt rows consume parent-owned withheld dispatch packets and require external writer dispatch execution child-device transport receipt provider-store execution and platform adapter execution proof refs before any delivery receipt claim no external runtime writer execution no external runtime writer delivery no parent action runtime delivery no provider API execution no store integration no platform interception no platform adapter implementation no child-device delivery no runtime report delivery no real install or purchase interception no app blocking no child activity data no Ocentra-hosted family data custody';
 const ReceiptBoundaryActions = ['approve', 'deny', 'time-box', 'review-needed'] as const;
@@ -74,18 +78,10 @@ const ReceiptIntegrationClaimSchema = withParser(Schema.Literal('not-claimed'));
 const ReceiptAdapterClaimSchema = withParser(Schema.Literal('not-implemented'));
 const ReceiptCustodyClaimSchema = withParser(Schema.Literal('no-child-activity-data'));
 
-const ReceiptBoundaryRowIdSchema = ReceiptBoundaryText.pipe(
-  Schema.brand('AppInstallPurchaseRuntimeDeliveryReceiptBoundaryRowId')
-);
-const ReceiptBoundaryRefSchema = ReceiptBoundaryText.pipe(
-  Schema.brand('AppInstallPurchaseRuntimeDeliveryReceiptBoundaryRef')
-);
-const ReceiptBoundaryAuditRefSchema = ReceiptBoundaryText.pipe(
-  Schema.brand('AppInstallPurchaseRuntimeDeliveryReceiptBoundaryAuditRef')
-);
-const ReceiptBoundaryClaimBoundarySchema = ReceiptBoundaryText.pipe(
-  Schema.brand('AppInstallPurchaseRuntimeDeliveryReceiptBoundaryClaimBoundary')
-);
+const ReceiptBoundaryRowIdSchema = brandedNonEmptyStringSchema('AppInstallPurchaseRuntimeDeliveryReceiptBoundaryRowId');
+const ReceiptBoundaryRefSchema = brandedNonEmptyStringSchema('AppInstallPurchaseRuntimeDeliveryReceiptBoundaryRef');
+const ReceiptBoundaryAuditRefSchema = brandedNonEmptyStringSchema('AppInstallPurchaseRuntimeDeliveryReceiptBoundaryAuditRef');
+const ReceiptBoundaryClaimBoundarySchema = brandedNonEmptyStringSchema('AppInstallPurchaseRuntimeDeliveryReceiptBoundaryClaimBoundary');
 
 const ReceiptBoundaryRowBaseSchema = Schema.Struct({
   schemaVersion: AppInstallPurchaseRuntimeDeliveryReceiptBoundaryProofSchemaVersionSchema,
@@ -327,3 +323,4 @@ function receiptBoundaryProofIsHonest(proof: AppInstallPurchaseRuntimeDeliveryRe
 function receiptBoundaryIsExplicit(boundary: typeof ReceiptBoundaryClaimBoundarySchema.Type): boolean {
   return ReceiptBoundaryFragments.every((fragment) => boundary.includes(fragment));
 }
+

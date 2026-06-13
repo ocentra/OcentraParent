@@ -1,4 +1,9 @@
-import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
+import {
+  type Infer,
+  Schema,
+  withParser,
+  NonEmptyStringSchema
+} from '@ocentra-parent/schema-domain/effect';
 import { ActivityTimestampSchema } from '@ocentra-parent/evidence-domain/primitives';
 import { BrowserUrlIntelligenceMemoryHitSchema } from './browser-url-intelligence-schemas';
 import {
@@ -15,11 +20,10 @@ const PositiveCacheTtlMsSchema = Schema.Number.pipe(
   Schema.int(),
   Schema.filter((value) => value > 0 || 'Expected positive cache TTL milliseconds')
 );
-const MemoryCacheKeyValueSchema = Schema.String.pipe(Schema.minLength(1));
 const MemoryCacheKeysSchema = Schema.Array(
   Schema.Struct({
     keyKind: BrowserAiMemoryCacheKeyKindSchema,
-    keyValue: MemoryCacheKeyValueSchema,
+    keyValue: NonEmptyStringSchema,
   })
 ).pipe(Schema.filter((value) => value.length > 0 || 'Expected at least one memory cache key'));
 const InvalidationReasonsSchema = Schema.Array(BrowserAiMemoryCacheInvalidationReasonSchema);
@@ -110,3 +114,4 @@ function ttlClassIsBounded(ttlClass: BrowserAiMemoryCacheTtlClass, ttlMs: number
   }
   return ttlMs <= 600000;
 }
+

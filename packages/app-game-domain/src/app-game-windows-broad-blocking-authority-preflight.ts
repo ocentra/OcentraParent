@@ -1,13 +1,16 @@
-import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
+import {
+  type Infer,
+  Schema,
+  withParser,
+  brandedNonEmptyStringSchema
+} from '@ocentra-parent/schema-domain/effect';
 import { AppGameBroadBlockingGateMatrix } from './app-game-broad-blocking-proof-gate-data';
 import { type AppGameBroadBlockingGate } from './app-game-broad-blocking-proof-gates';
 import {
   V08OsAdapterManualArtifactGateReadModel,
   type V08OsAdapterManualArtifactGateEntry,
-} from './v0-8-os-adapter-manual-artifact-gates';
+} from '@ocentra-parent/enforcement-domain/v0-8-os-adapter-manual-artifact-gates';
 import { ParentTimestampSchema } from '@ocentra-parent/family-domain/reference-primitives';
-
-const WindowsBroadBlockingText = Schema.String.pipe(Schema.minLength(1));
 
 export const AppGameWindowsBroadBlockingAuthorityPreflightSchemaVersionSchema = withParser(
   Schema.Literal('app-game-windows-broad-blocking-authority-preflight')
@@ -51,9 +54,7 @@ export const AppGameWindowsBroadBlockingAuthorityPreflightBlockerSchema = withPa
   )
 );
 
-const WindowsBroadBlockingLabelSchema = WindowsBroadBlockingText.pipe(
-  Schema.brand('AppGameWindowsBroadBlockingAuthorityPreflightLabel')
-);
+const WindowsBroadBlockingLabelSchema = brandedNonEmptyStringSchema('AppGameWindowsBroadBlockingAuthorityPreflightLabel');
 
 const WindowsBroadBlockingPreflightRowBaseSchema = Schema.Struct({
   action: AppGameWindowsBroadBlockingAuthorityPreflightActionSchema,
@@ -297,3 +298,4 @@ function windowsBroadBlockingPreflightReadModelIsHonest(
     !readModel.childDeviceDeliveryClaimed
   );
 }
+

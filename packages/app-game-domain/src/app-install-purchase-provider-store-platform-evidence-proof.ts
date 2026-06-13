@@ -1,4 +1,9 @@
-import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
+import {
+  type Infer,
+  Schema,
+  withParser,
+  brandedNonEmptyStringSchema
+} from '@ocentra-parent/schema-domain/effect';
 import { AppInstallPurchaseProviderStoreExecutionPreflightProofReadModel } from './app-install-purchase-provider-store-execution-preflight-proof';
 import {
   AppInstallPurchaseWindowsPackageSourceRuntimeHandoffProofReadModel,
@@ -13,7 +18,6 @@ const SourceProviderStoreExecutionPreflightProofVersion =
 const SourceWindowsPackageSourceRuntimeHandoffProofVersion =
   'app-install-purchase-windows-package-source-adapter-evidence';
 const UpdatedAt = '2026-06-07T13:45:00.000Z';
-const Text = Schema.String.pipe(Schema.minLength(1));
 const StoreSurfaces = [
   'microsoft-store',
   'mac-app-store',
@@ -93,8 +97,8 @@ const ProviderStorePlatformEvidenceStateSchema = withParser(Schema.Literal(...Pr
 const RuntimeHandoffStateSchema = withParser(Schema.Literal(...RuntimeHandoffStates));
 const ProviderStorePreflightStateSchema = withParser(Schema.Literal(...ProviderStorePreflightStates));
 const NonClaimSchema = withParser(Schema.Literal(...NonClaims));
-const RefSchema = Text.pipe(Schema.brand('AppInstallPurchaseProviderStorePlatformEvidenceRef'));
-const BoundarySchema = Text.pipe(Schema.brand('AppInstallPurchaseProviderStorePlatformEvidenceBoundary'));
+const RefSchema = brandedNonEmptyStringSchema('AppInstallPurchaseProviderStorePlatformEvidenceRef');
+const BoundarySchema = brandedNonEmptyStringSchema('AppInstallPurchaseProviderStorePlatformEvidenceBoundary');
 const NotExecutedSchema = withParser(Schema.Literal('not-executed'));
 const NotClaimedSchema = withParser(Schema.Literal('not-claimed'));
 const NotImplementedSchema = withParser(Schema.Literal('not-implemented'));
@@ -459,3 +463,4 @@ function providerStorePlatformEvidenceProofIsHonest(
 function uniqueRefs(refs: readonly string[]) {
   return Array.from(new Set(refs));
 }
+

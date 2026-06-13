@@ -1,9 +1,8 @@
 import { AppGameSchemaVersion } from '@ocentra-parent/app-game-domain/app-game';
 import { ActivityEvidenceRefSchema } from '@ocentra-parent/evidence-domain/contracts';
-import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
+import { type Infer, NonEmptyStringSchema, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
 import { AgentEvent, AgentProtocolDefaults, isAgentProtocolLogText, type AgentEventEnvelope } from './contracts';
 
-const BoundaryText = Schema.String.pipe(Schema.minLength(1));
 const BoundaryCount = Schema.Number.pipe(Schema.nonNegative(), Schema.int());
 
 export const AgentAppGameBoundaryReadModelKind = {
@@ -19,7 +18,7 @@ export const AgentAppGameBoundaryReadModelKind = {
 export const AgentAppGameBoundaryReadModelRowSchema = withParser(
   Schema.Struct({
     schemaVersion: Schema.Literal(AppGameSchemaVersion),
-    rowId: BoundaryText,
+    rowId: NonEmptyStringSchema,
     boundaryKind: Schema.Literal(
       AgentAppGameBoundaryReadModelKind.EvidenceClaim,
       AgentAppGameBoundaryReadModelKind.Identity,
@@ -30,7 +29,7 @@ export const AgentAppGameBoundaryReadModelRowSchema = withParser(
       AgentAppGameBoundaryReadModelKind.AiClassifierResult
     ),
     rowCount: BoundaryCount,
-    evidenceReferenceIds: Schema.Array(BoundaryText),
+    evidenceReferenceIds: Schema.Array(NonEmptyStringSchema),
     evidence: Schema.Array(ActivityEvidenceRefSchema),
   })
 );
@@ -38,9 +37,9 @@ export const AgentAppGameBoundaryReadModelRowSchema = withParser(
 export const AgentAppGameBoundaryReadModelSchema = withParser(
   Schema.Struct({
     schemaVersion: Schema.Literal(AppGameSchemaVersion),
-    generatedAt: BoundaryText,
-    custodyLabel: BoundaryText,
-    capabilityStatus: BoundaryText,
+    generatedAt: NonEmptyStringSchema,
+    custodyLabel: NonEmptyStringSchema,
+    capabilityStatus: NonEmptyStringSchema,
     returned: BoundaryCount,
     evidenceClaimRowCount: BoundaryCount,
     identityRowCount: BoundaryCount,

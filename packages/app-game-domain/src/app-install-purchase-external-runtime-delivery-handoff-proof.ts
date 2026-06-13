@@ -1,8 +1,11 @@
-import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
+import {
+  type Infer,
+  Schema,
+  withParser,
+  brandedNonEmptyStringSchema
+} from '@ocentra-parent/schema-domain/effect';
 import { AppInstallPurchaseExternalRuntimeDeviceDeliveryProofReadModel } from './app-install-purchase-external-runtime-device-delivery-proof';
 import { ParentTimestampSchema } from '@ocentra-parent/family-domain/reference-primitives';
-
-const ExternalRuntimeDeliveryHandoffText = Schema.String.pipe(Schema.minLength(1));
 const ExternalRuntimeDeliveryHandoffProofVersion = 'app-install-purchase-external-runtime-delivery-handoff-proof';
 const SourceExternalRuntimeDeviceDeliveryProofVersion = 'app-install-purchase-external-runtime-device-delivery-proof';
 const ExternalRuntimeDeliveryHandoffTimestamp = '2026-06-07T09:42:00.000Z';
@@ -59,18 +62,10 @@ const ExternalRuntimeDeliveryHandoffNonClaimSchema = withParser(
   Schema.Literal(...ExternalRuntimeDeliveryHandoffNonClaims)
 );
 
-const ExternalRuntimeDeliveryHandoffRowIdSchema = ExternalRuntimeDeliveryHandoffText.pipe(
-  Schema.brand('AppInstallPurchaseExternalRuntimeDeliveryHandoffRowId')
-);
-const ExternalRuntimeDeliveryHandoffRefSchema = ExternalRuntimeDeliveryHandoffText.pipe(
-  Schema.brand('AppInstallPurchaseExternalRuntimeDeliveryHandoffRef')
-);
-const ExternalRuntimeDeliveryHandoffAuditRefSchema = ExternalRuntimeDeliveryHandoffText.pipe(
-  Schema.brand('AppInstallPurchaseExternalRuntimeDeliveryHandoffAuditRef')
-);
-const ExternalRuntimeDeliveryHandoffBoundarySchema = ExternalRuntimeDeliveryHandoffText.pipe(
-  Schema.brand('AppInstallPurchaseExternalRuntimeDeliveryHandoffBoundary')
-);
+const ExternalRuntimeDeliveryHandoffRowIdSchema = brandedNonEmptyStringSchema('AppInstallPurchaseExternalRuntimeDeliveryHandoffRowId');
+const ExternalRuntimeDeliveryHandoffRefSchema = brandedNonEmptyStringSchema('AppInstallPurchaseExternalRuntimeDeliveryHandoffRef');
+const ExternalRuntimeDeliveryHandoffAuditRefSchema = brandedNonEmptyStringSchema('AppInstallPurchaseExternalRuntimeDeliveryHandoffAuditRef');
+const ExternalRuntimeDeliveryHandoffBoundarySchema = brandedNonEmptyStringSchema('AppInstallPurchaseExternalRuntimeDeliveryHandoffBoundary');
 
 const ExternalRuntimeDeliveryHandoffRowBaseSchema = Schema.Struct({
   schemaVersion: AppInstallPurchaseExternalRuntimeDeliveryHandoffProofSchemaVersionSchema,
@@ -306,3 +301,4 @@ function externalRuntimeDeliveryHandoffBoundaryIsExplicit(
 ): boolean {
   return ExternalRuntimeDeliveryHandoffBoundaryFragments.every((fragment) => boundary.includes(fragment));
 }
+

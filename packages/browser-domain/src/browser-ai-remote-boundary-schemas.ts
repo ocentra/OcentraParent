@@ -1,4 +1,9 @@
-import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
+import {
+  type Infer,
+  Schema,
+  withParser,
+  NonEmptyStringSchema
+} from '@ocentra-parent/schema-domain/effect';
 import { ActivityEvidenceIdSchema, ActivityTimestampSchema } from '@ocentra-parent/evidence-domain/primitives';
 import {
   BrowserAiModelRuntimeRefSchema,
@@ -17,9 +22,7 @@ import {
   BrowserAiRemoteRetentionModeSchema,
   BrowserAiRemoteRouteIdSchema,
 } from './browser-ai-remote-boundary-values';
-
-const NonEmptyRemoteAiText = Schema.String.pipe(Schema.minLength(1));
-const OptionalRemoteAiTextSchema = Schema.Union(NonEmptyRemoteAiText, Schema.Null);
+const OptionalRemoteAiTextSchema = Schema.Union(NonEmptyStringSchema, Schema.Null);
 const OptionalRemoteRuntimeRefSchema = Schema.Union(BrowserAiModelRuntimeRefSchema, Schema.Null);
 
 export const BrowserAiRemoteBoundarySchemaVersion = 1;
@@ -39,7 +42,7 @@ const BrowserAiRemoteApprovalBaseSchema = Schema.Struct({
   schemaVersion: Schema.Literal(BrowserAiRemoteBoundarySchemaVersion),
   approvalId: BrowserAiRemoteApprovalIdSchema,
   approvedAt: ActivityTimestampSchema,
-  approvedByParentRef: NonEmptyRemoteAiText,
+  approvedByParentRef: NonEmptyStringSchema,
   providerId: BrowserAiRemoteProviderIdSchema,
   allowedTasks: RemoteSupportedTasksSchema,
   allowedDataScopes: RemoteDataScopesSchema,
@@ -245,3 +248,4 @@ function remoteRouteClaimsUnsafeAuthority(value: Infer<typeof BrowserAiRemoteRou
     value.remoteDefaultForBlocking || value.remoteCanOverrideStricterLocalRules || value.remoteOutageDisablesLocalSafety
   );
 }
+

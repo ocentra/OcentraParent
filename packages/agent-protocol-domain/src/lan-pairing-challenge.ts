@@ -1,8 +1,6 @@
-import { Schema, withParser } from '@ocentra-parent/schema-domain/effect';
-import { AgentDeviceIdSchema, AgentProtocolSchemaVersion, AgentTimestampSchema } from './primitives';
+import { NonEmptyStringSchema, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
+import { AgentDeviceIdSchema, AgentProtocolSchemaVersion, AgentTimestampSchema } from '@ocentra-parent/evidence-domain/primitives';
 import { AgentLanPairingRouteIdSchema } from './security';
-
-const NonEmptyLanChallengeText = Schema.String.pipe(Schema.minLength(1));
 
 export const AgentLanPairingChallengeRequestSchema = withParser(
   Schema.Struct({
@@ -10,7 +8,7 @@ export const AgentLanPairingChallengeRequestSchema = withParser(
     childDeviceId: AgentDeviceIdSchema,
     parentDeviceId: AgentDeviceIdSchema,
     routeId: AgentLanPairingRouteIdSchema,
-    origin: NonEmptyLanChallengeText,
+    origin: NonEmptyStringSchema,
     issuedAt: AgentTimestampSchema,
     expiresAt: AgentTimestampSchema,
   })

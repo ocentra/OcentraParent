@@ -105,8 +105,8 @@ const proofPacks = [
 await main();
 
 async function main() {
-  await runNpmWorkspace('@ocentra-parent/activity-domain', ['run', 'build']);
-  await runNpmWorkspace('@ocentra-parent/activity-domain', ['run', 'test', '--', 'tracking']);
+  await runNpmWorkspace('@ocentra-parent/tracking-domain', ['run', 'build']);
+  await runNpmWorkspace('@ocentra-parent/tracking-domain', ['run', 'test', '--', 'tracking']);
   await runNpmWorkspace('@ocentra-parent/parent-domain', ['run', 'build']);
   await runNpmWorkspace('@ocentra-parent/parent-domain', ['run', 'test', '--', 'tracking-location-policy']);
   await runNpm(['run', 'lint:schema-boundaries']);
@@ -153,9 +153,9 @@ function sourceSnapshot(pack, commit, checkedAt) {
     `- commit: ${commit}`,
     `- proofState: ${pack.proofState}`,
     `- summary: ${pack.summary}`,
-    '- activity contracts: packages/activity-domain/src/tracking.ts',
+    '- activity contracts: packages/tracking-domain/src/tracking.ts',
     '- parent contracts: packages/parent-domain/src/tracking-location-policy.ts',
-    '- activity tests: packages/activity-domain/tests/tracking.test.ts',
+    '- activity tests: packages/tracking-domain/tests/unit/tracking.test.ts',
     '- parent tests: packages/parent-domain/tests/tracking-location-policy.test.ts',
     '',
   ].join('\n');

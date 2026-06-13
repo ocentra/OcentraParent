@@ -1,10 +1,14 @@
-import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
-
-const NonEmptyScreenRouterText = Schema.String.pipe(Schema.minLength(1));
-const BoundedPolicyQuestionText = NonEmptyScreenRouterText.pipe(
+import {
+  type Infer,
+  Schema,
+  withParser,
+  brandedNonEmptyStringSchema,
+  NonEmptyStringSchema
+} from '@ocentra-parent/schema-domain/effect';
+const BoundedPolicyQuestionText = NonEmptyStringSchema.pipe(
   Schema.filter((value) => value.length <= 240 || 'Expected screen policy question text within 240 characters')
 );
-const BoundedStructuredText = NonEmptyScreenRouterText.pipe(
+const BoundedStructuredText = NonEmptyStringSchema.pipe(
   Schema.filter((value) => value.length <= 480 || 'Expected managed browser structured text within 480 characters')
 );
 
@@ -12,13 +16,13 @@ export const ScreenIntelligenceRouterSchemaVersion = 1;
 export const ScreenManagedBrowserStructuredTextLimit = 480;
 
 export const ScreenIntelligenceRouteIdSchema = withParser(
-  NonEmptyScreenRouterText.pipe(Schema.brand('ScreenIntelligenceRouteId'))
+  brandedNonEmptyStringSchema('ScreenIntelligenceRouteId')
 );
 export const ScreenIntelligenceRouteRequestIdSchema = withParser(
-  NonEmptyScreenRouterText.pipe(Schema.brand('ScreenIntelligenceRouteRequestId'))
+  brandedNonEmptyStringSchema('ScreenIntelligenceRouteRequestId')
 );
 export const ScreenStructuredExtractionIdSchema = withParser(
-  NonEmptyScreenRouterText.pipe(Schema.brand('ScreenStructuredExtractionId'))
+  brandedNonEmptyStringSchema('ScreenStructuredExtractionId')
 );
 export const ScreenStructuredEvidenceSummarySchema = withParser(
   BoundedStructuredText.pipe(Schema.brand('ScreenStructuredEvidenceSummary'))
@@ -65,3 +69,4 @@ export const ScreenStructuredExtractionRedactionStateSchema = withParser(
 export type ScreenIntelligenceSourceKind = Infer<typeof ScreenIntelligenceSourceKindSchema>;
 export type ScreenIntelligenceRouteKind = Infer<typeof ScreenIntelligenceRouteKindSchema>;
 export type ScreenIntelligencePolicySensitivity = Infer<typeof ScreenIntelligencePolicySensitivitySchema>;
+

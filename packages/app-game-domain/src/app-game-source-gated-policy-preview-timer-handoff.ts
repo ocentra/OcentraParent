@@ -1,4 +1,9 @@
-import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
+import {
+  type Infer,
+  Schema,
+  withParser,
+  brandedNonEmptyStringSchema
+} from '@ocentra-parent/schema-domain/effect';
 import {
   AppGameSourceGatedPolicyPreviewReadModelIdSchema,
   AppGameSourceGatedPolicyPreviewReadModelRowIdSchema,
@@ -21,14 +26,8 @@ import {
 import { AppGamePolicyPreviewTargetDomainSchema } from './app-game-policy-preview-handoff';
 import { ParentContractSchemaVersionSchema, ParentTimestampSchema } from '@ocentra-parent/family-domain/reference-primitives';
 
-const SourceGatedPolicyPreviewTimerText = Schema.String.pipe(Schema.minLength(1));
-
-export const AppGameSourceGatedPolicyPreviewTimerHandoffIdSchema = SourceGatedPolicyPreviewTimerText.pipe(
-  Schema.brand('AppGameSourceGatedPolicyPreviewTimerHandoffId')
-);
-export const AppGameSourceGatedPolicyPreviewTimerHandoffRowIdSchema = SourceGatedPolicyPreviewTimerText.pipe(
-  Schema.brand('AppGameSourceGatedPolicyPreviewTimerHandoffRowId')
-);
+export const AppGameSourceGatedPolicyPreviewTimerHandoffIdSchema = brandedNonEmptyStringSchema('AppGameSourceGatedPolicyPreviewTimerHandoffId');
+export const AppGameSourceGatedPolicyPreviewTimerHandoffRowIdSchema = brandedNonEmptyStringSchema('AppGameSourceGatedPolicyPreviewTimerHandoffRowId');
 
 export const AppGameSourceGatedPolicyPreviewTimerHandoffStateSchema = withParser(
   Schema.Literal(...Object.values(AppGameSourceGatedPolicyPreviewTimerHandoffState))
@@ -206,3 +205,4 @@ export const decodeAppGameSourceGatedPolicyPreviewTimerHandoff = Schema.decodeUn
 );
 
 export { AppGameSourceGatedPolicyPreviewTimerHandoffState };
+

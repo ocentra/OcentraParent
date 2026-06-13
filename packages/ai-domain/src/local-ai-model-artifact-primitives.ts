@@ -1,12 +1,11 @@
-import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
+import { type Infer, NonEmptyStringSchema, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
 
 const LOCAL_MODEL_ARTIFACT_REF_PREFIX = 'artifact:';
 const LOCAL_MODEL_MANIFEST_REF_PREFIX = 'manifest:';
 const LOCAL_MODEL_OPAQUE_REF_BODY = /^[a-z0-9][a-z0-9_-]{2,127}$/u;
 const LOCAL_MODEL_UNSAFE_REF_PATTERNS = [/^[a-z][a-z0-9+.-]*:\/\//iu, /^[a-z]:[\\/]/iu, /^\\\\/u, /^\//u, /[\\/]/u];
 
-const LocalAiModelArtifactText = Schema.String.pipe(
-  Schema.minLength(1),
+const LocalAiModelArtifactText = NonEmptyStringSchema.pipe(
   Schema.filter(
     (candidate) =>
       isOpaqueLocalModelRef(candidate, LOCAL_MODEL_ARTIFACT_REF_PREFIX) ||
@@ -14,8 +13,7 @@ const LocalAiModelArtifactText = Schema.String.pipe(
   )
 );
 
-const LocalAiModelManifestText = Schema.String.pipe(
-  Schema.minLength(1),
+const LocalAiModelManifestText = NonEmptyStringSchema.pipe(
   Schema.filter(
     (candidate) =>
       isOpaqueLocalModelRef(candidate, LOCAL_MODEL_MANIFEST_REF_PREFIX) ||

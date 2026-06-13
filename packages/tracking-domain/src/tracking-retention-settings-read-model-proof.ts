@@ -1,4 +1,10 @@
-import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
+import {
+  type Infer,
+  Schema,
+  withParser,
+  brandedNonEmptyStringSchema
+} from '@ocentra-parent/schema-domain/effect';
+import { AgentTrackingRetentionSettingsWriteDefaults } from '@ocentra-parent/agent-protocol-domain/tracking-retention-settings-write-command';
 import { ParentTimestampSchema } from '@ocentra-parent/family-domain/reference-primitives';
 import { TrackingEvidenceTraceSchema } from './tracking-location-policy';
 import {
@@ -7,19 +13,15 @@ import {
   TrackingPolicySchemaVersion,
 } from './tracking-location-policy-primitives';
 
-const TrackingRetentionSettingsTextSchema = Schema.String.pipe(Schema.minLength(1));
+export { AgentTrackingRetentionSettingsWriteDefaults };
 
-export const TrackingRetentionSettingsRowIdSchema = TrackingRetentionSettingsTextSchema.pipe(
-  Schema.brand('TrackingRetentionSettingsRowId')
-);
+export const TrackingRetentionSettingsRowIdSchema = brandedNonEmptyStringSchema('TrackingRetentionSettingsRowId');
 
-export const TrackingRetentionSettingsProofRefSchema = TrackingRetentionSettingsTextSchema.pipe(
-  Schema.brand('TrackingRetentionSettingsProofRef')
-);
+export const TrackingRetentionSettingsProofRefSchema = brandedNonEmptyStringSchema('TrackingRetentionSettingsProofRef');
 
 export const TrackingRetentionSettingsKindSchema = withParser(
   Schema.Literal(
-    'retention-window-setting',
+    AgentTrackingRetentionSettingsWriteDefaults.SettingsKindRetentionWindow,
     'delete-after-alert-setting',
     'parent-export-setting',
     'remote-sync-disabled-setting',
@@ -166,7 +168,7 @@ function settingsRows(timestamp: string): readonly TrackingRetentionSettingsRow[
   return [
     row({
       rowId: 'tracking-retention-settings-row-retention-window',
-      settingsKind: 'retention-window-setting',
+      settingsKind: AgentTrackingRetentionSettingsWriteDefaults.SettingsKindRetentionWindow,
       generatedAt: timestamp,
       evidenceReferences: [evidence('tracking-retention-settings-evidence-window', 'query-store-summary', timestamp)],
       custodyScope: 'parent-device-local',
@@ -315,3 +317,4 @@ function evidence(
     observedAt,
   });
 }
+

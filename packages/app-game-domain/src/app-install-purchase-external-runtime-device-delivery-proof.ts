@@ -1,9 +1,12 @@
-import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
+import {
+  type Infer,
+  Schema,
+  withParser,
+  brandedNonEmptyStringSchema
+} from '@ocentra-parent/schema-domain/effect';
 import { AppInstallPurchaseChildDeviceDeliveryRuntimeWriterProofReadModel } from './app-install-purchase-child-device-delivery-runtime-writer-proof';
 import { AppInstallPurchaseRuntimeWriterExecutionDeliveryProofReadModel } from './app-install-purchase-runtime-writer-execution-delivery-proof';
 import { ParentTimestampSchema } from '@ocentra-parent/family-domain/reference-primitives';
-
-const ExternalRuntimeDeviceDeliveryText = Schema.String.pipe(Schema.minLength(1));
 const ExternalRuntimeDeviceDeliveryProofVersion = 'app-install-purchase-external-runtime-device-delivery-proof';
 const SourceRuntimeWriterExecutionDeliveryProofVersion = 'app-install-purchase-runtime-writer-execution-delivery-proof';
 const SourceChildDeviceDeliveryRuntimeWriterProofVersion =
@@ -65,18 +68,10 @@ const ExternalRuntimeDeviceDeliveryNonClaimSchema = withParser(
   Schema.Literal(...ExternalRuntimeDeviceDeliveryNonClaims)
 );
 
-const ExternalRuntimeDeviceDeliveryRowIdSchema = ExternalRuntimeDeviceDeliveryText.pipe(
-  Schema.brand('AppInstallPurchaseExternalRuntimeDeviceDeliveryRowId')
-);
-const ExternalRuntimeDeviceDeliveryRefSchema = ExternalRuntimeDeviceDeliveryText.pipe(
-  Schema.brand('AppInstallPurchaseExternalRuntimeDeviceDeliveryRef')
-);
-const ExternalRuntimeDeviceDeliveryAuditRefSchema = ExternalRuntimeDeviceDeliveryText.pipe(
-  Schema.brand('AppInstallPurchaseExternalRuntimeDeviceDeliveryAuditRef')
-);
-const ExternalRuntimeDeviceDeliveryBoundarySchema = ExternalRuntimeDeviceDeliveryText.pipe(
-  Schema.brand('AppInstallPurchaseExternalRuntimeDeviceDeliveryBoundary')
-);
+const ExternalRuntimeDeviceDeliveryRowIdSchema = brandedNonEmptyStringSchema('AppInstallPurchaseExternalRuntimeDeviceDeliveryRowId');
+const ExternalRuntimeDeviceDeliveryRefSchema = brandedNonEmptyStringSchema('AppInstallPurchaseExternalRuntimeDeviceDeliveryRef');
+const ExternalRuntimeDeviceDeliveryAuditRefSchema = brandedNonEmptyStringSchema('AppInstallPurchaseExternalRuntimeDeviceDeliveryAuditRef');
+const ExternalRuntimeDeviceDeliveryBoundarySchema = brandedNonEmptyStringSchema('AppInstallPurchaseExternalRuntimeDeviceDeliveryBoundary');
 
 const ExternalRuntimeDeviceDeliveryRowBaseSchema = Schema.Struct({
   schemaVersion: AppInstallPurchaseExternalRuntimeDeviceDeliveryProofSchemaVersionSchema,
@@ -334,3 +329,4 @@ function externalRuntimeDeviceDeliveryBoundaryIsExplicit(
 ) {
   return ExternalRuntimeDeviceDeliveryBoundaryFragments.every((fragment) => boundary.includes(fragment));
 }
+

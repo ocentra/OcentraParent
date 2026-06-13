@@ -1,4 +1,9 @@
-import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
+import {
+  type Infer,
+  Schema,
+  withParser,
+  brandedNonEmptyStringSchema
+} from '@ocentra-parent/schema-domain/effect';
 import {
   AppGameChildDeviceDeliveryReadinessReadModelSchema,
   AppGameChildDeviceDeliveryReadinessStatus,
@@ -11,8 +16,6 @@ import {
   ParentTimestampSchema,
 } from '@ocentra-parent/family-domain/reference-primitives';
 import { FamilyReferenceSchema } from '@ocentra-parent/family-domain/references';
-
-const ChildDeviceRuntimeWriterText = Schema.String.pipe(Schema.minLength(1));
 
 export const AppGameChildDeviceRuntimeWriterState = {
   EnvelopeReady: 'writer-envelope-ready',
@@ -48,12 +51,8 @@ export const RequiredAppGameChildDeviceRuntimeWriterNonClaims = [
   'no-raw-private-source-rows',
 ] as const;
 
-const ChildDeviceRuntimeWriterIdSchema = ChildDeviceRuntimeWriterText.pipe(
-  Schema.brand('AppGameChildDeviceRuntimeWriterId')
-);
-const ChildDeviceRuntimeWriterRefSchema = ChildDeviceRuntimeWriterText.pipe(
-  Schema.brand('AppGameChildDeviceRuntimeWriterReference')
-);
+const ChildDeviceRuntimeWriterIdSchema = brandedNonEmptyStringSchema('AppGameChildDeviceRuntimeWriterId');
+const ChildDeviceRuntimeWriterRefSchema = brandedNonEmptyStringSchema('AppGameChildDeviceRuntimeWriterReference');
 
 const AppGameChildDeviceRuntimeWriterRowBaseSchema = Schema.Struct({
   runtimeWriterRowId: ChildDeviceRuntimeWriterRefSchema,
@@ -228,3 +227,4 @@ function countRows(
 ): number {
   return rows.filter((row) => row.writerEnvelopeState === state).length;
 }
+

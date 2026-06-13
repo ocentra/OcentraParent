@@ -1,9 +1,12 @@
-import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
+import {
+  type Infer,
+  Schema,
+  withParser,
+  brandedNonEmptyStringSchema
+} from '@ocentra-parent/schema-domain/effect';
 import { AppInstallPurchaseProviderStoreExecutionReadinessProofReadModel } from './app-install-purchase-provider-store-execution-readiness-proof';
 import { AppInstallPurchaseRuntimeWriterExecutionDeliveryProofReadModel } from './app-install-purchase-runtime-writer-execution-delivery-proof';
 import { ParentPlatformSchema, ParentTimestampSchema } from '@ocentra-parent/family-domain/reference-primitives';
-
-const ProviderStoreExecutionPreflightText = Schema.String.pipe(Schema.minLength(1));
 const ProviderStoreExecutionPreflightProofVersion = 'app-install-purchase-provider-store-execution-preflight-proof';
 const SourceProviderStoreExecutionReadinessProofVersion =
   'app-install-purchase-provider-store-execution-readiness-proof';
@@ -78,15 +81,9 @@ const ProviderStoreExecutionPreflightNonClaimSchema = withParser(
   Schema.Literal(...ProviderStoreExecutionPreflightNonClaims)
 );
 
-const ProviderStoreExecutionPreflightRowIdSchema = ProviderStoreExecutionPreflightText.pipe(
-  Schema.brand('AppInstallPurchaseProviderStoreExecutionPreflightRowId')
-);
-const ProviderStoreExecutionPreflightRefSchema = ProviderStoreExecutionPreflightText.pipe(
-  Schema.brand('AppInstallPurchaseProviderStoreExecutionPreflightRef')
-);
-const ProviderStoreExecutionPreflightBoundarySchema = ProviderStoreExecutionPreflightText.pipe(
-  Schema.brand('AppInstallPurchaseProviderStoreExecutionPreflightBoundary')
-);
+const ProviderStoreExecutionPreflightRowIdSchema = brandedNonEmptyStringSchema('AppInstallPurchaseProviderStoreExecutionPreflightRowId');
+const ProviderStoreExecutionPreflightRefSchema = brandedNonEmptyStringSchema('AppInstallPurchaseProviderStoreExecutionPreflightRef');
+const ProviderStoreExecutionPreflightBoundarySchema = brandedNonEmptyStringSchema('AppInstallPurchaseProviderStoreExecutionPreflightBoundary');
 
 const ProviderStoreExecutionPreflightRowBaseSchema = Schema.Struct({
   schemaVersion: AppInstallPurchaseProviderStoreExecutionPreflightProofSchemaVersionSchema,
@@ -349,3 +346,4 @@ function providerStoreExecutionPreflightBoundaryIsExplicit(
 ): boolean {
   return ProviderStoreExecutionPreflightBoundaryFragments.every((fragment) => boundary.includes(fragment));
 }
+

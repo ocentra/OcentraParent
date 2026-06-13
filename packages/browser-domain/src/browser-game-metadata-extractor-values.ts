@@ -1,22 +1,25 @@
-import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
+import {
+  type Infer,
+  Schema,
+  withParser,
+  brandedNonEmptyStringSchema
+} from '@ocentra-parent/schema-domain/effect';
 import { ParentEvidenceReferenceIdSchema } from '@ocentra-parent/family-domain/reference-primitives';
-
-const NonEmptyBrowserGameMetadataText = Schema.String.pipe(Schema.minLength(1));
 
 export const BrowserGameMetadataExtractorSchemaVersionSchema = withParser(
   Schema.Literal('browser-game-metadata-extractor-contract')
 );
 
 export const BrowserGameMetadataExtractionIdSchema = withParser(
-  NonEmptyBrowserGameMetadataText.pipe(Schema.brand('BrowserGameMetadataExtractionId'))
+  brandedNonEmptyStringSchema('BrowserGameMetadataExtractionId')
 );
 
 export const BrowserGameMetadataFieldIdSchema = withParser(
-  NonEmptyBrowserGameMetadataText.pipe(Schema.brand('BrowserGameMetadataFieldId'))
+  brandedNonEmptyStringSchema('BrowserGameMetadataFieldId')
 );
 
 export const BrowserGameMetadataFingerprintSchema = withParser(
-  NonEmptyBrowserGameMetadataText.pipe(Schema.brand('BrowserGameMetadataFingerprint'))
+  brandedNonEmptyStringSchema('BrowserGameMetadataFingerprint')
 );
 
 export const BrowserGameMetadataSourceKindSchema = withParser(
@@ -78,3 +81,4 @@ export type BrowserGameMetadataFieldKind = Infer<typeof BrowserGameMetadataField
 export type BrowserGameMetadataReasonCode = Infer<typeof BrowserGameMetadataReasonCodeSchema>;
 export type BrowserGameMetadataSourceKind = Infer<typeof BrowserGameMetadataSourceKindSchema>;
 export type BrowserGameMetadataStatus = Infer<typeof BrowserGameMetadataStatusSchema>;
+

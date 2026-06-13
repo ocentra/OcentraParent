@@ -163,17 +163,18 @@
   },
   "dependencies": {
     "@ocentra-parent/activity-domain": "file:../activity-domain",
+    "@ocentra-parent/ai-domain": "file:../ai-domain",
     "@ocentra-parent/app-game-domain": "file:../app-game-domain",
     "@ocentra-parent/browser-domain": "file:../browser-domain",
+    "@ocentra-parent/child-runtime-domain": "file:../child-runtime-domain",
     "@ocentra-parent/enforcement-domain": "file:../enforcement-domain",
-    "@ocentra-parent/evidence-domain": "file:../evidence-domain",
     "@ocentra-parent/event-domain": "file:../event-domain",
+    "@ocentra-parent/evidence-domain": "file:../evidence-domain",
     "@ocentra-parent/family-domain": "file:../family-domain",
+    "@ocentra-parent/lan-domain": "file:../lan-domain",
     "@ocentra-parent/logging-domain": "file:../logging-domain",
     "@ocentra-parent/network-domain": "file:../network-domain",
-    "@ocentra-parent/parent-domain": "file:../parent-domain",
     "@ocentra-parent/schema-domain": "file:../schema-domain",
-    "@ocentra-parent/screen-domain": "file:../screen-domain",
-    "@ocentra-parent/social-domain": "file:../social-domain"
+    "@ocentra-parent/screen-domain": "file:../screen-domain"
   }
 }

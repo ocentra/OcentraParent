@@ -1,8 +1,6 @@
-import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
+import { type Infer, brandedNonEmptyStringSchema, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
 import { ParentControlCapabilityNameSchema, ParentControlCapabilityStatusSchema } from '@ocentra-parent/capability-domain/capabilities';
 import { ParentTimestampSchema } from '@ocentra-parent/family-domain/reference-primitives';
-
-const NonEmptyChildAndroidStorageText = Schema.String.pipe(Schema.minLength(1));
 
 export const ChildAndroidStorageProtocolProofSchemaVersionSchema = withParser(
   Schema.Literal('child-android-storage-protocol-capability-proof')
@@ -58,18 +56,10 @@ export const ChildAndroidStorageProtocolBridgeStateSchema = withParser(
   Schema.Literal('package-local-scaffold', 'not-implemented')
 );
 
-const ChildAndroidStoragePackageIdSchema = NonEmptyChildAndroidStorageText.pipe(
-  Schema.brand('ChildAndroidStoragePackageId')
-);
-const ChildAndroidStorageClassNameSchema = NonEmptyChildAndroidStorageText.pipe(
-  Schema.brand('ChildAndroidStorageClassName')
-);
-const ChildAndroidStorageRequirementSchema = NonEmptyChildAndroidStorageText.pipe(
-  Schema.brand('ChildAndroidStorageRequirement')
-);
-const ChildAndroidStorageBoundarySchema = NonEmptyChildAndroidStorageText.pipe(
-  Schema.brand('ChildAndroidStorageBoundary')
-);
+const ChildAndroidStoragePackageIdSchema = brandedNonEmptyStringSchema('ChildAndroidStoragePackageId');
+const ChildAndroidStorageClassNameSchema = brandedNonEmptyStringSchema('ChildAndroidStorageClassName');
+const ChildAndroidStorageRequirementSchema = brandedNonEmptyStringSchema('ChildAndroidStorageRequirement');
+const ChildAndroidStorageBoundarySchema = brandedNonEmptyStringSchema('ChildAndroidStorageBoundary');
 
 export const ChildAndroidStorageSurfaceProofSchema = withParser(
   Schema.Struct({
