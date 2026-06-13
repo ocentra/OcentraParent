@@ -33,6 +33,8 @@ pub struct TrackingConfigUpdateEventFlowReport {
     pub child_subscription_report: SubscriptionReport,
     pub applied_subscription_report: SubscriptionReport,
     pub parent_request_report: RequestReport<TrackingConfigUpdateResponse>,
+    pub child_event: ChildTrackingConfigUpdatedEvent,
+    pub applied_event: TrackingConfigUpdateAppliedEvent,
     pub applied_report: TrackingConfigUpdateAppliedReport,
 }
 
@@ -77,6 +79,8 @@ impl TrackingConfigUpdateEventFlow {
                 ))?,
             )
             .await?;
+        let child_event = self.state.child_event()?;
+        let applied_event = self.state.applied_event()?;
         let applied_report = self.state.applied_report()?;
 
         Ok(TrackingConfigUpdateEventFlowReport {
@@ -84,6 +88,8 @@ impl TrackingConfigUpdateEventFlow {
             child_subscription_report: self.child_subscription_report.clone(),
             applied_subscription_report: self.applied_subscription_report.clone(),
             parent_request_report,
+            child_event,
+            applied_event,
             applied_report,
         })
     }
@@ -125,6 +131,7 @@ pub async fn subscribe_parent_tracking_config_updated_events(
             async move {
                 let child_event =
                     child_tracking_config_updated_event_from_parent(context.payload());
+                state.record_child_event(child_event.clone());
                 let child_event_metadata = child_tracking_config_updated_metadata(&child_event)?;
                 context
                     .publisher()
@@ -192,7 +199,8 @@ pub async fn subscribe_child_tracking_config_applied_events(
         move |context| {
             let state = state.clone();
             async move {
-                state.record(tracking_config_update_applied_report(context.payload()));
+                state.record_applied_event(context.payload().clone());
+                state.record_applied_report(tracking_config_update_applied_report(context.payload()));
                 Ok(())
             }
         },
@@ -222,15 +230,55 @@ fn tracking_config_update_response(
 
 #[derive(Clone, Debug, Default)]
 pub struct TrackingConfigUpdateEventState {
+    child_events: Arc<Mutex<Vec<ChildTrackingConfigUpdatedEvent>>>,
+    applied_events: Arc<Mutex<Vec<TrackingConfigUpdateAppliedEvent>>>,
     applied_reports: Arc<Mutex<Vec<TrackingConfigUpdateAppliedReport>>>,
 }
 
 impl TrackingConfigUpdateEventState {
-    fn record(&self, report: TrackingConfigUpdateAppliedReport) {
+    fn record_child_event(&self, event: ChildTrackingConfigUpdatedEvent) {
+        self.child_events
+            .lock()
+            .expect(constants::tracking_config_update::ERROR_PARENT_CONFIG_EVENT_APPLIED)
+            .push(event);
+    }
+
+    fn record_applied_event(&self, event: TrackingConfigUpdateAppliedEvent) {
+        self.applied_events
+            .lock()
+            .expect(constants::tracking_config_update::ERROR_CHILD_CONFIG_APPLIED_EVENT_RECORDED)
+            .push(event);
+    }
+
+    fn record_applied_report(&self, report: TrackingConfigUpdateAppliedReport) {
         self.applied_reports
             .lock()
             .expect(constants::tracking_config_update::ERROR_CHILD_CONFIG_APPLIED_EVENT_RECORDED)
             .push(report);
+    }
+
+    fn child_event(&self) -> Result<ChildTrackingConfigUpdatedEvent, EventingError> {
+        self.child_events
+            .lock()
+            .expect(constants::tracking_config_update::ERROR_PARENT_CONFIG_EVENT_APPLIED)
+            .last()
+            .cloned()
+            .ok_or_else(|| EventingError::InvalidValue {
+                field: constants::tracking_config_update::ERROR_PARENT_CONFIG_EVENT_APPLIED,
+                value: constants::tracking_config_update::CHILD_EVENT_TYPE.to_string(),
+            })
+    }
+
+    fn applied_event(&self) -> Result<TrackingConfigUpdateAppliedEvent, EventingError> {
+        self.applied_events
+            .lock()
+            .expect(constants::tracking_config_update::ERROR_CHILD_CONFIG_APPLIED_EVENT_RECORDED)
+            .last()
+            .cloned()
+            .ok_or_else(|| EventingError::InvalidValue {
+                field: constants::tracking_config_update::ERROR_CHILD_CONFIG_APPLIED_EVENT_RECORDED,
+                value: constants::tracking_config_update::APPLIED_EVENT_TYPE.to_string(),
+            })
     }
 
     fn applied_report(&self) -> Result<TrackingConfigUpdateAppliedReport, EventingError> {

@@ -51,6 +51,14 @@ async fn child_runtime_routes_parent_config_event_through_named_subscribers_to_c
         TrackingConfigUpdateEventName::Parent
     );
     assert_eq!(
+        flow_report.child_event.parent_event_type,
+        TrackingConfigUpdateEventName::Parent
+    );
+    assert_eq!(
+        flow_report.applied_event.child_event_type,
+        TrackingConfigUpdateEventName::Child
+    );
+    assert_eq!(
         flow_report
             .parent_subscription_report
             .subscriber_id
@@ -105,6 +113,10 @@ async fn child_runtime_routes_parent_config_event_through_named_subscribers_to_c
         applied_report.effective_tracking_state,
         TrackingConfigEffectiveState::Enabled
     );
+    assert_eq!(
+        flow_report.applied_event.response_state,
+        TrackingConfigUpdateResponseState::Applied
+    );
     assert!(applied_report.applied_state.local_service_state_revision > 0);
     assert_eq!(
         flow_report
@@ -144,6 +156,14 @@ async fn parent_tracking_config_flow_can_attach_once_to_runtime_owned_bus() {
     assert_eq!(
         flow_report.applied_report.child_event_type,
         TrackingConfigUpdateEventName::Child
+    );
+    assert_eq!(
+        flow_report.child_event.target.scope,
+        ocentra_child_runtime::TrackingConfigUpdateTargetScope::ChildDevice
+    );
+    assert_eq!(
+        flow_report.applied_event.target.scope,
+        ocentra_child_runtime::TrackingConfigUpdateTargetScope::ChildDevice
     );
     assert_eq!(journal.len(), 3);
     assert_eq!(
