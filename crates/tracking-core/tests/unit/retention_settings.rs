@@ -21,6 +21,23 @@ fn retention_settings_write_state_is_owned_by_agent_core_not_websocket_transport
     assert!(tracking_retention_settings_durable_store_path().exists());
 }
 
+#[test]
+fn retention_settings_write_persists_requested_remote_states() {
+    let mut request = retention_write_request();
+    request.requested_remote_sync_state = TrackingRemoteSyncState::Enabled;
+    request.requested_remote_ai_state = TrackingRemoteAiState::Enabled;
+
+    apply_tracking_retention_settings_write(&request);
+
+    let durable_record = std::fs::read_to_string(tracking_retention_settings_durable_store_path())
+        .expect("durable tracking settings record");
+    let durable_record: serde_json::Value =
+        serde_json::from_str(&durable_record).expect("json durable tracking settings record");
+
+    assert_eq!(durable_record["remote_sync_state"], "enabled");
+    assert_eq!(durable_record["remote_ai_state"], "enabled");
+}
+
 fn retention_write_request() -> TrackingRetentionSettingsWriteRequest {
     TrackingRetentionSettingsWriteRequest {
         schema_version: AGENT_PROTOCOL_SCHEMA_VERSION,

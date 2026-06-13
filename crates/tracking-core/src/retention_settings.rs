@@ -79,8 +79,8 @@ fn apply_local_retention_settings_state(request: &TrackingRetentionSettingsWrite
     guard.delete_after_alert_resolution_state =
         request.requested_delete_after_alert_resolution_state;
     guard.parent_export_state = request.requested_parent_export_state;
-    guard.remote_sync_state = TrackingRemoteSyncState::Disabled;
-    guard.remote_ai_state = TrackingRemoteAiState::Disabled;
+    guard.remote_sync_state = request.requested_remote_sync_state;
+    guard.remote_ai_state = request.requested_remote_ai_state;
     guard.revision
 }
 
