@@ -1,7 +1,8 @@
 use ocentra_parent_agent_protocol::{
     constants, TrackingAiAnalysisRequestedEvent, TrackingAiRequestId, TrackingChildDeviceId,
-    TrackingConfidenceBasis, TrackingEvidenceRef, TrackingNearbyPlaceClassifiedEvent,
-    TrackingParentActionRequirement, TrackingPlaceCategory,
+    TrackingConfidenceBasis, TrackingEvidenceRef, TrackingNearbyPlaceAmbiguityState,
+    TrackingNearbyPlaceClassifiedEvent, TrackingNearbyPlaceProviderKind,
+    TrackingParentActionRequirement, TrackingPlaceCategory, TrackingProviderRef, TrackingReasonCode,
 };
 
 #[test]
@@ -128,15 +129,35 @@ fn ai_result_for_request(
         child_device_id: request.child_device_id.clone(),
         child_profile_id: request.child_profile_id.clone(),
         source_ai_request_id: request.ai_request_id.clone(),
+        source_location_evidence_ref: request.evidence_refs[0].clone(),
         evidence_refs: request.evidence_refs.clone(),
+        provider_kind: TrackingNearbyPlaceProviderKind::parse(
+            constants::tracking_runtime::NEARBY_PROVIDER_KIND_PARENT_DEFINED,
+        )
+        .expect(constants::tracking_runtime::NEARBY_PROVIDER_KIND_PARENT_DEFINED),
+        provider_ref: Some(
+            TrackingProviderRef::parse(constants::tracking_runtime::DEFAULT_TRACKING_PROVIDER_REF)
+                .expect(constants::tracking_runtime::DEFAULT_TRACKING_PROVIDER_REF),
+        ),
+        query_radius_meters: constants::tracking_runtime::DEFAULT_NEARBY_QUERY_RADIUS_METERS,
+        distance_meters: Some(constants::tracking_runtime::DEFAULT_NEARBY_DISTANCE_METERS),
         place_category: TrackingPlaceCategory::parse(
             constants::tracking_runtime::PLACE_CATEGORY_HOSPITAL,
         )
         .expect(constants::tracking_runtime::PLACE_CATEGORY_HOSPITAL),
+        confidence: constants::tracking_runtime::DEFAULT_NEARBY_PLACE_CONFIDENCE,
         confidence_basis: TrackingConfidenceBasis::parse(
             constants::tracking_runtime::CONFIDENCE_BASIS_AI_BOUNDARY_CONTRACT,
         )
         .expect(constants::tracking_runtime::CONFIDENCE_BASIS_AI_BOUNDARY_CONTRACT),
+        ambiguity_state: TrackingNearbyPlaceAmbiguityState::parse(
+            constants::tracking_runtime::NEARBY_PLACE_AMBIGUITY_CLEAR,
+        )
+        .expect(constants::tracking_runtime::NEARBY_PLACE_AMBIGUITY_CLEAR),
+        reason_codes: vec![TrackingReasonCode::parse(
+            constants::tracking_runtime::REASON_PARENT_DEFINED_PLACE_MATCH,
+        )
+        .expect(constants::tracking_runtime::REASON_PARENT_DEFINED_PLACE_MATCH)],
         parent_action_requirement: TrackingParentActionRequirement::Required,
     }
 }

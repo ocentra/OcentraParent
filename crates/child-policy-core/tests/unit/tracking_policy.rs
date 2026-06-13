@@ -2,10 +2,12 @@ use ocentra_child_policy_core::TrackingPolicyViolationState;
 use ocentra_parent_agent_protocol::{
     constants, TrackingChildDeviceId, TrackingChildProfileId, TrackingConfidenceBasis,
     TrackingExpectedPlaceRef, TrackingExpectedPlaceState, TrackingExpectedPlaceStateEvaluatedEvent,
-    TrackingNearbyPlaceClassifiedEvent, TrackingObservationId, TrackingParentActionRequirement,
-    TrackingPlaceCategory, TrackingPolicyRuleRef, TrackingReasonCode, TrackingScheduleId,
-    tracking_ai_request_id_from_evidence_ref, tracking_evaluation_id_from_observation_id,
-    tracking_evidence_ref_from_observation_id, tracking_violation_id_from_ai_request_and_rule_ref,
+    TrackingNearbyPlaceAmbiguityState, TrackingNearbyPlaceClassifiedEvent,
+    TrackingNearbyPlaceProviderKind, TrackingObservationId, TrackingParentActionRequirement,
+    TrackingPlaceCategory, TrackingPolicyRuleRef, TrackingProviderRef, TrackingReasonCode,
+    TrackingScheduleId, tracking_ai_request_id_from_evidence_ref,
+    tracking_evaluation_id_from_observation_id, tracking_evidence_ref_from_observation_id,
+    tracking_violation_id_from_ai_request_and_rule_ref,
     tracking_violation_id_from_evaluation_and_rule_ref,
 };
 
@@ -26,15 +28,35 @@ fn tracking_nearby_place_fixture(
         )
         .expect(constants::tracking_runtime::DEFAULT_CHILD_PROFILE_ID),
         source_ai_request_id: tracking_ai_request_id_from_evidence_ref(&evidence_ref),
+        source_location_evidence_ref: evidence_ref.clone(),
         evidence_refs: vec![evidence_ref],
+        provider_kind: TrackingNearbyPlaceProviderKind::parse(
+            constants::tracking_runtime::NEARBY_PROVIDER_KIND_PARENT_DEFINED,
+        )
+        .expect(constants::tracking_runtime::NEARBY_PROVIDER_KIND_PARENT_DEFINED),
+        provider_ref: Some(
+            TrackingProviderRef::parse(constants::tracking_runtime::DEFAULT_TRACKING_PROVIDER_REF)
+                .expect(constants::tracking_runtime::DEFAULT_TRACKING_PROVIDER_REF),
+        ),
+        query_radius_meters: constants::tracking_runtime::DEFAULT_NEARBY_QUERY_RADIUS_METERS,
+        distance_meters: Some(constants::tracking_runtime::DEFAULT_NEARBY_DISTANCE_METERS),
         place_category: TrackingPlaceCategory::parse(
             constants::tracking_runtime::PLACE_CATEGORY_HOSPITAL,
         )
         .expect(constants::tracking_runtime::PLACE_CATEGORY_HOSPITAL),
+        confidence: constants::tracking_runtime::DEFAULT_NEARBY_PLACE_CONFIDENCE,
         confidence_basis: TrackingConfidenceBasis::parse(
             constants::tracking_runtime::CONFIDENCE_BASIS_AI_BOUNDARY_CONTRACT,
         )
         .expect(constants::tracking_runtime::CONFIDENCE_BASIS_AI_BOUNDARY_CONTRACT),
+        ambiguity_state: TrackingNearbyPlaceAmbiguityState::parse(
+            constants::tracking_runtime::NEARBY_PLACE_AMBIGUITY_CLEAR,
+        )
+        .expect(constants::tracking_runtime::NEARBY_PLACE_AMBIGUITY_CLEAR),
+        reason_codes: vec![TrackingReasonCode::parse(
+            constants::tracking_runtime::REASON_PARENT_DEFINED_PLACE_MATCH,
+        )
+        .expect(constants::tracking_runtime::REASON_PARENT_DEFINED_PLACE_MATCH)],
         parent_action_requirement,
     }
 }
@@ -114,6 +136,23 @@ fn tracking_policy_emits_review_violation_for_hospital_nearby_place() {
 #[test]
 fn tracking_policy_does_not_emit_violation_for_observe_only_mode() {
     let classified = tracking_nearby_place_fixture(TrackingParentActionRequirement::NotRequired);
+
+    let decision = ocentra_child_policy_core::evaluate_tracking_nearby_place_policy(&classified);
+
+    assert_eq!(
+        decision.violation_state,
+        TrackingPolicyViolationState::NotDetected
+    );
+    assert!(decision.policy_violation_detected.is_none());
+}
+
+#[test]
+fn tracking_policy_does_not_emit_violation_for_ambiguous_nearby_place() {
+    let mut classified = tracking_nearby_place_fixture(TrackingParentActionRequirement::Required);
+    classified.ambiguity_state = TrackingNearbyPlaceAmbiguityState::parse(
+        constants::tracking_runtime::NEARBY_PLACE_AMBIGUITY_MULTIPLE_CANDIDATES,
+    )
+    .expect(constants::tracking_runtime::NEARBY_PLACE_AMBIGUITY_MULTIPLE_CANDIDATES);
 
     let decision = ocentra_child_policy_core::evaluate_tracking_nearby_place_policy(&classified);
 
