@@ -1,9 +1,12 @@
 use ocentra_eventing::{DomainEvent, EventingError};
 use ocentra_parent_agent_protocol::{
     child_domain_ai_analysis_completed_event, child_domain_ai_analysis_requested_event,
+    child_domain_ai_request_id_from_evidence_ref,
     child_domain_evidence_recorded_event, child_domain_notification_requested_event,
+    child_domain_evidence_ref_from_observation_id,
     child_domain_notification_id_from_policy_violation_id,
     child_domain_observed_event, child_domain_policy_evaluation_requested_from_ai_result_event,
+    child_domain_policy_request_id_from_fact_ref,
     child_domain_policy_violation_id_from_policy_request_id,
     child_domain_policy_violation_detected_event, constants, ChildDomainEventType,
     ChildDomainObservedEvent, ChildRuntimeDomain, AGENT_PROTOCOL_SCHEMA_VERSION,
@@ -33,6 +36,20 @@ fn child_domain_events_expose_eventing_contract_keys_without_local_shape_duplica
         AGENT_PROTOCOL_SCHEMA_VERSION
     );
     assert_eq!(
+        evidence.evidence_ref,
+        child_domain_evidence_ref_from_observation_id(
+            ChildRuntimeDomain::Browser,
+            &observed.observation_id
+        )
+    );
+    assert_eq!(
+        ai_requested.ai_request_id,
+        child_domain_ai_request_id_from_evidence_ref(
+            ChildRuntimeDomain::Browser,
+            &evidence.evidence_ref
+        )
+    );
+    assert_eq!(
         notification_contract.event_type.as_str(),
         constants::child_domain_runtime::NOTIFICATION_REQUESTED_EVENT_TYPE
     );
@@ -50,6 +67,13 @@ fn child_domain_events_expose_eventing_contract_keys_without_local_shape_duplica
         violation.violation_id,
         child_domain_policy_violation_id_from_policy_request_id(
             &policy_requested.policy_request_id
+        )
+    );
+    assert_eq!(
+        policy_requested.policy_request_id,
+        child_domain_policy_request_id_from_fact_ref(
+            ChildRuntimeDomain::Browser,
+            &policy_requested.source_fact_ref
         )
     );
     assert_eq!(

@@ -819,10 +819,46 @@ pub fn child_domain_fact_ref_from_observation_id(
     child_domain_fact_ref_text(value.as_str())
 }
 
+pub fn child_domain_evidence_ref_from_observation_id(
+    domain: ChildRuntimeDomain,
+    observation_id: &ChildDomainObservationId,
+) -> ChildDomainEvidenceRef {
+    let value = child_domain_derived_identifier_text(
+        domain.evidence_recorded_event_type().as_str(),
+        &[observation_id.as_str()],
+    );
+    ChildDomainEvidenceRef::parse(value)
+        .expect(constants::child_domain_runtime::ERROR_CHILD_DOMAIN_FLOW_RECORDED)
+}
+
+pub fn child_domain_ai_request_id_from_evidence_ref(
+    domain: ChildRuntimeDomain,
+    evidence_ref: &ChildDomainEvidenceRef,
+) -> ChildDomainAiRequestId {
+    let value = child_domain_derived_identifier_text(
+        domain.ai_analysis_requested_event_type().as_str(),
+        &[evidence_ref.as_str()],
+    );
+    ChildDomainAiRequestId::parse(value)
+        .expect(constants::child_domain_runtime::ERROR_CHILD_DOMAIN_FLOW_RECORDED)
+}
+
 pub fn child_domain_fact_ref_from_ai_request_id(
     value: &ChildDomainAiRequestId,
 ) -> ChildDomainFactRef {
     child_domain_fact_ref_text(value.as_str())
+}
+
+pub fn child_domain_policy_request_id_from_fact_ref(
+    domain: ChildRuntimeDomain,
+    fact_ref: &ChildDomainFactRef,
+) -> ChildDomainPolicyRequestId {
+    let value = child_domain_derived_identifier_text(
+        domain.policy_evaluation_requested_event_type().as_str(),
+        &[fact_ref.as_str()],
+    );
+    ChildDomainPolicyRequestId::parse(value)
+        .expect(constants::child_domain_runtime::ERROR_CHILD_DOMAIN_FLOW_RECORDED)
 }
 
 fn child_domain_fact_ref_text(value: &str) -> ChildDomainFactRef {
@@ -918,9 +954,9 @@ pub fn child_domain_evidence_recorded_event(
         domain: event.domain,
         child_device_id: event.child_device_id.clone(),
         child_profile_id: event.child_profile_id.clone(),
-        evidence_ref: child_domain_evidence_ref(
+        evidence_ref: child_domain_evidence_ref_from_observation_id(
             event.domain,
-            ChildDomainRefSuffix::DefaultEvidence,
+            &event.observation_id,
         ),
         source_observation_id: event.observation_id.clone(),
         signal: event.observed_state.clone(),
@@ -937,9 +973,9 @@ pub fn child_domain_ai_analysis_requested_event(
         domain: event.domain,
         child_device_id: event.child_device_id.clone(),
         child_profile_id: event.child_profile_id.clone(),
-        ai_request_id: child_domain_ai_request_id(
+        ai_request_id: child_domain_ai_request_id_from_evidence_ref(
             event.domain,
-            ChildDomainRefSuffix::DefaultAiRequest,
+            &event.evidence_ref,
         ),
         evidence_refs: vec![event.evidence_ref.clone()],
         allowed_analysis_purpose: child_domain_analysis_purpose(
@@ -969,9 +1005,9 @@ pub fn child_domain_policy_evaluation_requested_event(
         domain: event.domain,
         child_device_id: event.child_device_id.clone(),
         child_profile_id: event.child_profile_id.clone(),
-        policy_request_id: child_domain_policy_request_id(
+        policy_request_id: child_domain_policy_request_id_from_fact_ref(
             event.domain,
-            ChildDomainRefSuffix::DefaultPolicyRequest,
+            &source_fact_ref,
         ),
         evidence_refs: vec![event.evidence_ref.clone()],
         source_fact_ref,
@@ -1020,17 +1056,18 @@ pub fn child_domain_ai_analysis_completed_event(
 pub fn child_domain_policy_evaluation_requested_from_ai_result_event(
     event: &ChildDomainAiAnalysisCompletedEvent,
 ) -> ChildDomainPolicyEvaluationRequestedEvent {
+    let source_fact_ref = event.result_fact_ref.clone();
     ChildDomainPolicyEvaluationRequestedEvent {
         event_type: event.domain.policy_evaluation_requested_event_type(),
         domain: event.domain,
         child_device_id: event.child_device_id.clone(),
         child_profile_id: event.child_profile_id.clone(),
-        policy_request_id: child_domain_policy_request_id(
+        policy_request_id: child_domain_policy_request_id_from_fact_ref(
             event.domain,
-            ChildDomainRefSuffix::DefaultPolicyRequest,
+            &source_fact_ref,
         ),
         evidence_refs: event.evidence_refs.clone(),
-        source_fact_ref: event.result_fact_ref.clone(),
+        source_fact_ref,
     }
 }
 

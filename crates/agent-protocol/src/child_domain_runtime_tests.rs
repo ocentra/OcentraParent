@@ -2,8 +2,10 @@ use ocentra_eventing::EventingError;
 
 use crate::{
     child_domain_ai_analysis_completed_event, child_domain_ai_analysis_requested_event,
-    child_domain_ai_request_id, child_domain_analysis_purpose, child_domain_evidence_recorded_event,
-    child_domain_evidence_ref, child_domain_observed_event,
+    child_domain_ai_request_id, child_domain_ai_request_id_from_evidence_ref,
+    child_domain_analysis_purpose, child_domain_evidence_recorded_event, child_domain_evidence_ref,
+    child_domain_evidence_ref_from_observation_id, child_domain_observed_event,
+    child_domain_policy_request_id_from_fact_ref,
     child_domain_policy_evaluation_requested_from_ai_result_event_if_required,
     child_domain_policy_rule_ref, child_domain_policy_severity, child_domain_policy_violation_id,
     constants, ChildDomainAiAnalysisRequirement, ChildDomainAnalysisPurposeKind,
@@ -59,6 +61,13 @@ fn child_domain_default_profile_uses_typed_contract_selectors() {
     assert_eq!(
         evidence.policy_evaluation_requirement,
         ChildDomainPolicyEvaluationRequirement::Required
+    );
+    assert_eq!(
+        evidence.evidence_ref,
+        child_domain_evidence_ref_from_observation_id(
+            ChildRuntimeDomain::Browser,
+            &event.observation_id
+        )
     );
 }
 
@@ -116,4 +125,18 @@ fn child_domain_ai_completion_is_a_named_boundary_event_before_policy() {
     assert_eq!(ai_completed.source_ai_request_id, ai_request.ai_request_id);
     assert_eq!(ai_completed.evidence_refs, ai_request.evidence_refs);
     assert_eq!(policy_request.source_fact_ref, ai_completed.result_fact_ref);
+    assert_eq!(
+        ai_request.ai_request_id,
+        child_domain_ai_request_id_from_evidence_ref(
+            ChildRuntimeDomain::Browser,
+            &evidence.evidence_ref
+        )
+    );
+    assert_eq!(
+        policy_request.policy_request_id,
+        child_domain_policy_request_id_from_fact_ref(
+            ChildRuntimeDomain::Browser,
+            &ai_completed.result_fact_ref
+        )
+    );
 }
