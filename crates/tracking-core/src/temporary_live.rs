@@ -33,7 +33,9 @@ pub fn evaluate_temporary_live_tracking_session(
     {
         return TrackingTemporaryLiveSessionDecision {
             session_id: temporary_live_session_id(),
-            session_state: temporary_live_state(constants::tracking_runtime::TEMPORARY_LIVE_STATE_AUTO_STOPPED),
+            session_state: temporary_live_state(
+                constants::tracking_runtime::TEMPORARY_LIVE_STATE_AUTO_STOPPED,
+            ),
             high_cadence_state: TrackingHighCadenceState::Blocked,
         };
     }
@@ -41,23 +43,30 @@ pub fn evaluate_temporary_live_tracking_session(
     if input.elapsed_minutes >= input.requested_duration_minutes {
         return TrackingTemporaryLiveSessionDecision {
             session_id: temporary_live_session_id(),
-            session_state: temporary_live_state(constants::tracking_runtime::TEMPORARY_LIVE_STATE_EXPIRED),
+            session_state: temporary_live_state(
+                constants::tracking_runtime::TEMPORARY_LIVE_STATE_EXPIRED,
+            ),
             high_cadence_state: TrackingHighCadenceState::Blocked,
         };
     }
 
     TrackingTemporaryLiveSessionDecision {
         session_id: temporary_live_session_id(),
-        session_state: temporary_live_state(constants::tracking_runtime::TEMPORARY_LIVE_STATE_ACTIVE),
+        session_state: temporary_live_state(
+            constants::tracking_runtime::TEMPORARY_LIVE_STATE_ACTIVE,
+        ),
         high_cadence_state: TrackingHighCadenceState::Allowed,
     }
 }
 
 fn temporary_live_session_id() -> TrackingTemporaryLiveSessionId {
-    TrackingTemporaryLiveSessionId::parse(constants::tracking_runtime::DEFAULT_TEMPORARY_LIVE_SESSION_ID)
-        .expect(constants::tracking_runtime::DEFAULT_TEMPORARY_LIVE_SESSION_ID)
+    TrackingTemporaryLiveSessionId::parse(
+        constants::tracking_runtime::DEFAULT_TEMPORARY_LIVE_SESSION_ID,
+    )
+    .expect(constants::tracking_runtime::DEFAULT_TEMPORARY_LIVE_SESSION_ID)
 }
 
 fn temporary_live_state(value: &'static str) -> TrackingTemporaryLiveState {
-    TrackingTemporaryLiveState::parse(value).expect(constants::tracking_runtime::TEMPORARY_LIVE_STATE_ACTIVE)
+    TrackingTemporaryLiveState::parse(value)
+        .expect(constants::tracking_runtime::TEMPORARY_LIVE_STATE_ACTIVE)
 }

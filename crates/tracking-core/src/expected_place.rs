@@ -51,7 +51,9 @@ pub fn evaluate_expected_place_state(
 fn parent_action_requirement_for_expected_place_state(
     expected_place_state: &'static str,
 ) -> TrackingParentActionRequirement {
-    if expected_place_state == constants::tracking_runtime::EXPECTED_PLACE_STATE_AWAY_FROM_EXPECTED_PLACE {
+    if expected_place_state
+        == constants::tracking_runtime::EXPECTED_PLACE_STATE_AWAY_FROM_EXPECTED_PLACE
+    {
         TrackingParentActionRequirement::Required
     } else {
         TrackingParentActionRequirement::NotRequired
@@ -59,9 +61,13 @@ fn parent_action_requirement_for_expected_place_state(
 }
 
 fn expected_place_state_for_relation(location_relation: &TrackingLocationRelation) -> &'static str {
-    if location_relation == constants::tracking_runtime::LOCATION_RELATION_AT_EXPECTED_PLACE {
+    if location_relation.as_str()
+        == constants::tracking_runtime::LOCATION_RELATION_AT_EXPECTED_PLACE
+    {
         constants::tracking_runtime::EXPECTED_PLACE_STATE_AT_EXPECTED_PLACE
-    } else if location_relation == constants::tracking_runtime::LOCATION_RELATION_AWAY_FROM_EXPECTED_PLACE {
+    } else if location_relation.as_str()
+        == constants::tracking_runtime::LOCATION_RELATION_AWAY_FROM_EXPECTED_PLACE
+    {
         constants::tracking_runtime::EXPECTED_PLACE_STATE_AWAY_FROM_EXPECTED_PLACE
     } else {
         constants::tracking_runtime::EXPECTED_PLACE_STATE_UNKNOWN

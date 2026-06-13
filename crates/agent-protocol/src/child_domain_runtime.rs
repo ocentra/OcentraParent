@@ -191,12 +191,16 @@ impl ChildRuntimeDomain {
             Self::AppGame => {
                 constants::child_domain_runtime::APP_GAME_AI_ANALYSIS_REQUESTED_EVENT_TYPE
             }
-            Self::Browser => constants::child_domain_runtime::BROWSER_AI_ANALYSIS_REQUESTED_EVENT_TYPE,
+            Self::Browser => {
+                constants::child_domain_runtime::BROWSER_AI_ANALYSIS_REQUESTED_EVENT_TYPE
+            }
             Self::Lan => constants::child_domain_runtime::LAN_AI_ANALYSIS_REQUESTED_EVENT_TYPE,
             Self::Network => {
                 constants::child_domain_runtime::NETWORK_AI_ANALYSIS_REQUESTED_EVENT_TYPE
             }
-            Self::Screen => constants::child_domain_runtime::SCREEN_AI_ANALYSIS_REQUESTED_EVENT_TYPE,
+            Self::Screen => {
+                constants::child_domain_runtime::SCREEN_AI_ANALYSIS_REQUESTED_EVENT_TYPE
+            }
             Self::ScreenLiveView => {
                 constants::child_domain_runtime::SCREEN_LIVE_VIEW_AI_ANALYSIS_REQUESTED_EVENT_TYPE
             }
@@ -288,7 +292,7 @@ impl ChildRuntimeDomain {
         }
     }
 
-    fn observed_profile(
+    pub fn observed_profile(
         self,
         subject_ref_suffix: ChildDomainRefSuffix,
         observed_state: ChildDomainObservedSignal,
@@ -773,8 +777,7 @@ pub fn child_domain_observation_id(
     suffix: ChildDomainRefSuffix,
 ) -> ChildDomainObservationId {
     let suffix_text = suffix.as_contract_text();
-    ChildDomainObservationId::parse(child_domain_ref_text(domain, suffix_text))
-        .expect(suffix_text)
+    ChildDomainObservationId::parse(child_domain_ref_text(domain, suffix_text)).expect(suffix_text)
 }
 
 pub fn child_domain_subject_ref(
@@ -841,8 +844,7 @@ pub fn child_domain_notification_id(
     suffix: ChildDomainRefSuffix,
 ) -> ChildDomainNotificationId {
     let suffix_text = suffix.as_contract_text();
-    ChildDomainNotificationId::parse(child_domain_ref_text(domain, suffix_text))
-        .expect(suffix_text)
+    ChildDomainNotificationId::parse(child_domain_ref_text(domain, suffix_text)).expect(suffix_text)
 }
 
 pub fn child_domain_observed_event(
@@ -1054,7 +1056,9 @@ fn child_domain_ref_text(domain: ChildRuntimeDomain, suffix: &str) -> String {
     )
 }
 
-fn child_domain_contract(event_type: &ChildDomainEventType) -> Result<EventContract, EventingError> {
+fn child_domain_contract(
+    event_type: &ChildDomainEventType,
+) -> Result<EventContract, EventingError> {
     Ok(EventContract::new(
         EventType::parse(event_type.as_str())?,
         SchemaVersion::new(AGENT_PROTOCOL_SCHEMA_VERSION)?,

@@ -4,10 +4,10 @@ use ocentra_parent_agent_protocol::{
     child_domain_ai_analysis_requested_event_if_required,
     child_domain_direct_policy_evaluation_requested_event_if_required,
     child_domain_evidence_recorded_event, child_domain_observed_event,
-    ChildDomainAiAnalysisRequirement, ChildDomainAiAnalysisRequestedEvent,
+    ChildDomainAiAnalysisRequestedEvent, ChildDomainAiAnalysisRequirement,
     ChildDomainEvidenceRecordedEvent, ChildDomainObservedEvent, ChildDomainObservedEventProfile,
     ChildDomainObservedSignal, ChildDomainPolicyEvaluationRequestedEvent,
-    ChildDomainPolicyEvaluationRequirement, ChildDomainRefSuffix, ChildRuntimeDomain,
+    ChildDomainPolicyEvaluationRequirement, ChildRuntimeDomain,
 };
 
 pub const CRATE_NAME: &str = "ocentra-screen-core";
@@ -28,11 +28,7 @@ pub fn screen_observed_event(intent: ScreenObservationIntent) -> ChildDomainObse
 }
 
 pub fn screen_observed_profile(intent: ScreenObservationIntent) -> ChildDomainObservedEventProfile {
-    let (
-        observed_state,
-        ai_analysis_requirement,
-        policy_evaluation_requirement,
-    ) = match intent {
+    let (observed_state, ai_analysis_requirement, policy_evaluation_requirement) = match intent {
         ScreenObservationIntent::AmbiguousContentRequiresAi => (
             ChildDomainObservedSignal::RequiresAi,
             ChildDomainAiAnalysisRequirement::Required,
@@ -50,13 +46,12 @@ pub fn screen_observed_profile(intent: ScreenObservationIntent) -> ChildDomainOb
         ),
     };
 
-    ChildDomainObservedEventProfile {
-        domain: ChildRuntimeDomain::Screen,
-        subject_ref_suffix: ChildDomainRefSuffix::ScreenSubject,
+    ChildRuntimeDomain::Screen.observed_profile(
+        ocentra_parent_agent_protocol::ChildDomainRefSuffix::ScreenSubject,
         observed_state,
         ai_analysis_requirement,
         policy_evaluation_requirement,
-    }
+    )
 }
 
 pub fn screen_evidence_recorded_event(

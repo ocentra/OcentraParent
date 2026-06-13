@@ -10,9 +10,8 @@ use ocentra_parent_agent_protocol::{
     TrackingGeofenceTransitionDetectedEvent, TrackingLocationObservedEvent,
     TrackingLocationRelation, TrackingNotificationChannel, TrackingObservationId,
     TrackingParentAcknowledgementRecordedEvent, TrackingParentActionRequirement,
-    TrackingPolicyViolationId, TrackingRuntimeConfig, TrackingRuntimeEnabledState,
-    TrackingRuntimeMode, TrackingTimestamp, TrackingTransitionId, TrackingTransitionKind,
-    TrackingUncertaintyCode,
+    TrackingRuntimeConfig, TrackingRuntimeEnabledState, TrackingRuntimeMode, TrackingTimestamp,
+    TrackingTransitionId, TrackingTransitionKind, TrackingUncertaintyCode,
 };
 
 #[derive(Clone, Debug, PartialEq, Eq)]

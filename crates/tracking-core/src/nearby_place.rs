@@ -1,6 +1,7 @@
 use ocentra_parent_agent_protocol::{
-    constants, TrackingEvidenceRecordedEvent, TrackingEvidenceRef, TrackingNearbyPlaceAmbiguityState,
-    TrackingNearbyPlaceProviderState, TrackingNearbyPlaceRequestId,
+    constants, TrackingEvidenceRecordedEvent, TrackingEvidenceRef,
+    TrackingNearbyPlaceAmbiguityState, TrackingNearbyPlaceProviderState,
+    TrackingNearbyPlaceRequestId,
 };
 use ocentra_policy_control_core::AiResultAuthorityState;
 
@@ -58,8 +59,10 @@ fn ambiguity_state_for_candidate_count(candidate_count: u16) -> TrackingNearbyPl
 }
 
 fn nearby_request_id() -> TrackingNearbyPlaceRequestId {
-    TrackingNearbyPlaceRequestId::parse(constants::tracking_runtime::DEFAULT_NEARBY_PLACE_REQUEST_ID)
-        .expect(constants::tracking_runtime::DEFAULT_NEARBY_PLACE_REQUEST_ID)
+    TrackingNearbyPlaceRequestId::parse(
+        constants::tracking_runtime::DEFAULT_NEARBY_PLACE_REQUEST_ID,
+    )
+    .expect(constants::tracking_runtime::DEFAULT_NEARBY_PLACE_REQUEST_ID)
 }
 
 fn nearby_provider_state(value: &'static str) -> TrackingNearbyPlaceProviderState {

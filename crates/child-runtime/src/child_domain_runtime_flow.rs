@@ -542,7 +542,7 @@ enum ChildDomainRuntimeHop<'a> {
     NotificationRequested(&'a ChildDomainPolicyViolationId),
 }
 
-impl ChildDomainRuntimeHop<'_> {
+impl<'a> ChildDomainRuntimeHop<'a> {
     fn source_component(self) -> &'static str {
         match self {
             Self::Observed(_)
@@ -597,7 +597,7 @@ impl ChildDomainRuntimeHop<'_> {
         }
     }
 
-    fn correlation_ref(self) -> &'_ str {
+    fn correlation_ref(self) -> &'a str {
         match self {
             Self::Observed(value) => value.as_str(),
             Self::EvidenceRecorded(value)

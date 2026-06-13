@@ -4,11 +4,10 @@ use ocentra_parent_agent_protocol::{
     child_domain_ai_analysis_requested_event_if_required,
     child_domain_direct_policy_evaluation_requested_event_if_required,
     child_domain_evidence_recorded_event, child_domain_observed_event,
-    ChildDomainAiAnalysisRequirement,
-    ChildDomainAiAnalysisRequestedEvent, ChildDomainEvidenceRecordedEvent,
-    ChildDomainObservedEvent, ChildDomainObservedEventProfile, ChildDomainObservedSignal,
-    ChildDomainPolicyEvaluationRequestedEvent, ChildDomainPolicyEvaluationRequirement,
-    ChildDomainRefSuffix, ChildRuntimeDomain,
+    ChildDomainAiAnalysisRequestedEvent, ChildDomainAiAnalysisRequirement,
+    ChildDomainEvidenceRecordedEvent, ChildDomainObservedEvent, ChildDomainObservedEventProfile,
+    ChildDomainObservedSignal, ChildDomainPolicyEvaluationRequestedEvent,
+    ChildDomainPolicyEvaluationRequirement, ChildRuntimeDomain,
 };
 
 pub const CRATE_NAME: &str = "ocentra-screen-live-view-core";
@@ -33,11 +32,7 @@ pub fn screen_live_view_observed_event(
 pub fn screen_live_view_observed_profile(
     intent: ScreenLiveViewObservationIntent,
 ) -> ChildDomainObservedEventProfile {
-    let (
-        observed_state,
-        ai_analysis_requirement,
-        policy_evaluation_requirement,
-    ) = match intent {
+    let (observed_state, ai_analysis_requirement, policy_evaluation_requirement) = match intent {
         ScreenLiveViewObservationIntent::SessionRequiresPolicy
         | ScreenLiveViewObservationIntent::UnauthorizedSessionRequiresPolicy => (
             ChildDomainObservedSignal::RequiresPolicy,
@@ -51,13 +46,12 @@ pub fn screen_live_view_observed_profile(
         ),
     };
 
-    ChildDomainObservedEventProfile {
-        domain: ChildRuntimeDomain::ScreenLiveView,
-        subject_ref_suffix: ChildDomainRefSuffix::ScreenLiveViewSubject,
+    ChildRuntimeDomain::ScreenLiveView.observed_profile(
+        ocentra_parent_agent_protocol::ChildDomainRefSuffix::ScreenLiveViewSubject,
         observed_state,
         ai_analysis_requirement,
         policy_evaluation_requirement,
-    }
+    )
 }
 
 pub fn screen_live_view_evidence_recorded_event(

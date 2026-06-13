@@ -21,8 +21,8 @@ pub fn evaluate_missing_device_mode(
     input: TrackingDeviceStatusInput,
 ) -> TrackingMissingDeviceDecision {
     let status = evaluate_tracking_device_status(input);
-    let missing = status.device_status
-        == constants::tracking_runtime::DEVICE_STATUS_OFFLINE_LAST_KNOWN_ONLY;
+    let missing =
+        status.device_status == constants::tracking_runtime::DEVICE_STATUS_OFFLINE_LAST_KNOWN_ONLY;
 
     TrackingMissingDeviceDecision {
         evaluation_id: TrackingMissingDeviceEvaluationId::parse(
