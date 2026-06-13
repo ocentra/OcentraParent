@@ -28,14 +28,26 @@ pub enum FamilyActorRole {
     Parent,
     #[serde(rename = "guardian")]
     Guardian,
+    #[serde(rename = "observer")]
+    Observer,
     #[serde(rename = "child")]
     Child,
+    #[serde(rename = "child-device-agent")]
+    ChildDeviceAgent,
+    #[serde(rename = "support-admin")]
+    SupportAdmin,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 pub enum HouseholdMembership {
     #[serde(rename = "member")]
     Member,
+    #[serde(rename = "invited")]
+    Invited,
+    #[serde(rename = "revoked")]
+    Revoked,
+    #[serde(rename = "disabled")]
+    Disabled,
     #[serde(rename = "external")]
     External,
 }
@@ -46,6 +58,8 @@ pub enum ActorAccountState {
     Active,
     #[serde(rename = "suspended")]
     Suspended,
+    #[serde(rename = "disabled")]
+    Disabled,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
@@ -54,12 +68,16 @@ pub enum ChildProfileBindingState {
     Bound,
     #[serde(rename = "missing")]
     Missing,
+    #[serde(rename = "unassigned")]
+    Unassigned,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 pub enum DeviceOwnershipScope {
     #[serde(rename = "child-profile-device")]
     ChildProfileDevice,
+    #[serde(rename = "parent-controller-device")]
+    ParentControllerDevice,
     #[serde(rename = "other-device")]
     OtherDevice,
 }
@@ -86,6 +104,28 @@ pub enum ParentAuthorityRequirementState {
     Required,
     #[serde(rename = "not-required")]
     NotRequired,
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
+pub enum DeviceTrustState {
+    #[serde(rename = "pending")]
+    Pending,
+    #[serde(rename = "trusted")]
+    Trusted,
+    #[serde(rename = "revoked")]
+    Revoked,
+    #[serde(rename = "disabled")]
+    Disabled,
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
+pub enum SessionFreshnessState {
+    #[serde(rename = "fresh")]
+    Fresh,
+    #[serde(rename = "stale")]
+    Stale,
+    #[serde(rename = "expired")]
+    Expired,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]

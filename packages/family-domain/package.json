@@ -5,6 +5,14 @@
   "type": "module",
   "description": "Shared family, profile, device, actor, and evidence reference contracts.",
   "exports": {
+    "./household-authority": {
+      "import": "./dist/household-authority.js",
+      "types": "./dist/household-authority.d.ts"
+    },
+    "./setup-lifecycle": {
+      "import": "./dist/setup-lifecycle.js",
+      "types": "./dist/setup-lifecycle.d.ts"
+    },
     "./reference-primitives": {
       "import": "./dist/reference-primitives.js",
       "types": "./dist/reference-primitives.d.ts"
