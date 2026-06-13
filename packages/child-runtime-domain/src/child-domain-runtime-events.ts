@@ -207,6 +207,7 @@ export const ChildDomainEvidenceRecordedEventSchema = withParser(
     childProfileId: ChildDomainChildProfileIdSchema,
     evidenceRef: ChildDomainEvidenceRefSchema,
     sourceObservationId: ChildDomainObservationIdSchema,
+    sourceObservedAt: ChildDomainObservedAtSchema,
     signal: ChildDomainObservedStateSchema,
     aiAnalysisRequirement: ChildDomainAiAnalysisRequirementSchema,
     policyEvaluationRequirement: ChildDomainPolicyEvaluationRequirementSchema,
@@ -227,6 +228,7 @@ export const ChildDomainAiAnalysisRequestedEventSchema = withParser(
     childProfileId: ChildDomainChildProfileIdSchema,
     aiRequestId: ChildDomainAiRequestIdSchema,
     evidenceRefs: ChildDomainEvidenceRefsSchema,
+    sourceObservedAt: ChildDomainObservedAtSchema,
     allowedAnalysisPurpose: ChildDomainAnalysisPurposeSchema,
     privatePayloadState: ChildDomainPrivatePayloadStateSchema,
     policyEvaluationRequirement: ChildDomainPolicyEvaluationRequirementSchema,
@@ -247,6 +249,7 @@ export const ChildDomainAiAnalysisCompletedEventSchema = withParser(
     childProfileId: ChildDomainChildProfileIdSchema,
     sourceAiRequestId: ChildDomainAiRequestIdSchema,
     evidenceRefs: ChildDomainEvidenceRefsSchema,
+    sourceObservedAt: ChildDomainObservedAtSchema,
     resultFactRef: ChildDomainFactRefSchema,
     privatePayloadState: ChildDomainPrivatePayloadStateSchema,
     policyEvaluationRequirement: ChildDomainPolicyEvaluationRequirementSchema,
@@ -267,6 +270,7 @@ export const ChildDomainPolicyEvaluationRequestedEventSchema = withParser(
     childProfileId: ChildDomainChildProfileIdSchema,
     policyRequestId: ChildDomainPolicyRequestIdSchema,
     evidenceRefs: ChildDomainEvidenceRefsSchema,
+    sourceObservedAt: ChildDomainObservedAtSchema,
     sourceFactRef: ChildDomainFactRefSchema,
   }).pipe(
     Schema.filter(
@@ -286,6 +290,7 @@ export const ChildDomainPolicyViolationDetectedEventSchema = withParser(
     violationId: ChildDomainPolicyViolationIdSchema,
     policyRuleRef: ChildDomainPolicyRuleRefSchema,
     severity: ChildDomainPolicySeveritySchema,
+    detectedAt: ChildDomainObservedAtSchema,
     evidenceRefs: ChildDomainEvidenceRefsSchema,
   }).pipe(
     Schema.filter(
@@ -305,6 +310,7 @@ export const ChildDomainNotificationRequestedEventSchema = withParser(
     notificationId: ChildDomainNotificationIdSchema,
     sourcePolicyViolationId: ChildDomainPolicyViolationIdSchema,
     channel: ChildDomainNotificationChannelSchema,
+    requestedAt: ChildDomainObservedAtSchema,
     evidenceRefs: ChildDomainEvidenceRefsSchema,
   }).pipe(
     Schema.filter(

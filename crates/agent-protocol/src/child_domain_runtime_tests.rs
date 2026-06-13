@@ -78,6 +78,7 @@ fn child_domain_default_profile_uses_typed_contract_selectors() {
             &event.observation_id
         )
     );
+    assert_eq!(evidence.source_observed_at, event.observed_at);
 }
 
 #[test]
@@ -133,6 +134,12 @@ fn child_domain_ai_completion_is_a_named_boundary_event_before_policy() {
     assert_eq!(ai_completed.event_type, ChildDomainEventType::ai_analysis_completed());
     assert_eq!(ai_completed.source_ai_request_id, ai_request.ai_request_id);
     assert_eq!(ai_completed.evidence_refs, ai_request.evidence_refs);
+    assert_eq!(ai_request.source_observed_at, evidence.source_observed_at);
+    assert_eq!(ai_completed.source_observed_at, ai_request.source_observed_at);
+    assert_eq!(
+        policy_request.source_observed_at,
+        ai_completed.source_observed_at
+    );
     assert_eq!(policy_request.source_fact_ref, ai_completed.result_fact_ref);
     assert_eq!(
         ai_request.ai_request_id,

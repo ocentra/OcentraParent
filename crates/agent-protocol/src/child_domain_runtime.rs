@@ -530,6 +530,7 @@ pub struct ChildDomainEvidenceRecordedEvent {
     pub child_profile_id: ChildDomainChildProfileId,
     pub evidence_ref: ChildDomainEvidenceRef,
     pub source_observation_id: ChildDomainObservationId,
+    pub source_observed_at: ChildDomainObservedAt,
     pub signal: ChildDomainObservedState,
     pub ai_analysis_requirement: ChildDomainAiAnalysisRequirement,
     pub policy_evaluation_requirement: ChildDomainPolicyEvaluationRequirement,
@@ -544,6 +545,7 @@ pub struct ChildDomainAiAnalysisRequestedEvent {
     pub child_profile_id: ChildDomainChildProfileId,
     pub ai_request_id: ChildDomainAiRequestId,
     pub evidence_refs: Vec<ChildDomainEvidenceRef>,
+    pub source_observed_at: ChildDomainObservedAt,
     pub allowed_analysis_purpose: ChildDomainAnalysisPurpose,
     pub private_payload_state: PrivatePayloadState,
     pub policy_evaluation_requirement: ChildDomainPolicyEvaluationRequirement,
@@ -558,6 +560,7 @@ pub struct ChildDomainAiAnalysisCompletedEvent {
     pub child_profile_id: ChildDomainChildProfileId,
     pub source_ai_request_id: ChildDomainAiRequestId,
     pub evidence_refs: Vec<ChildDomainEvidenceRef>,
+    pub source_observed_at: ChildDomainObservedAt,
     pub result_fact_ref: ChildDomainFactRef,
     pub private_payload_state: PrivatePayloadState,
     pub policy_evaluation_requirement: ChildDomainPolicyEvaluationRequirement,
@@ -572,6 +575,7 @@ pub struct ChildDomainPolicyEvaluationRequestedEvent {
     pub child_profile_id: ChildDomainChildProfileId,
     pub policy_request_id: ChildDomainPolicyRequestId,
     pub evidence_refs: Vec<ChildDomainEvidenceRef>,
+    pub source_observed_at: ChildDomainObservedAt,
     pub source_fact_ref: ChildDomainFactRef,
 }
 
@@ -585,6 +589,7 @@ pub struct ChildDomainPolicyViolationDetectedEvent {
     pub violation_id: ChildDomainPolicyViolationId,
     pub policy_rule_ref: ChildDomainPolicyRuleRef,
     pub severity: ChildDomainPolicySeverity,
+    pub detected_at: ChildDomainObservedAt,
     pub evidence_refs: Vec<ChildDomainEvidenceRef>,
 }
 
@@ -598,6 +603,7 @@ pub struct ChildDomainNotificationRequestedEvent {
     pub notification_id: ChildDomainNotificationId,
     pub source_policy_violation_id: ChildDomainPolicyViolationId,
     pub channel: ChildDomainNotificationChannel,
+    pub requested_at: ChildDomainObservedAt,
     pub evidence_refs: Vec<ChildDomainEvidenceRef>,
 }
 
@@ -975,6 +981,7 @@ pub fn child_domain_evidence_recorded_event(
             &event.observation_id,
         ),
         source_observation_id: event.observation_id.clone(),
+        source_observed_at: event.observed_at.clone(),
         signal: event.observed_state.clone(),
         ai_analysis_requirement: event.ai_analysis_requirement,
         policy_evaluation_requirement: event.policy_evaluation_requirement,
@@ -994,6 +1001,7 @@ pub fn child_domain_ai_analysis_requested_event(
             &event.evidence_ref,
         ),
         evidence_refs: vec![event.evidence_ref.clone()],
+        source_observed_at: event.source_observed_at.clone(),
         allowed_analysis_purpose: child_domain_analysis_purpose(
             ChildDomainAnalysisPurposeKind::Classification,
         ),
@@ -1026,6 +1034,7 @@ pub fn child_domain_policy_evaluation_requested_event(
             &source_fact_ref,
         ),
         evidence_refs: vec![event.evidence_ref.clone()],
+        source_observed_at: event.source_observed_at.clone(),
         source_fact_ref,
     }
 }
@@ -1063,6 +1072,7 @@ pub fn child_domain_ai_analysis_completed_event(
         child_profile_id: event.child_profile_id.clone(),
         source_ai_request_id: event.ai_request_id.clone(),
         evidence_refs: event.evidence_refs.clone(),
+        source_observed_at: event.source_observed_at.clone(),
         result_fact_ref: child_domain_fact_ref_from_ai_request_id(&event.ai_request_id),
         private_payload_state: PrivatePayloadState::Excluded,
         policy_evaluation_requirement: event.policy_evaluation_requirement,
@@ -1083,6 +1093,7 @@ pub fn child_domain_policy_evaluation_requested_from_ai_result_event(
             &source_fact_ref,
         ),
         evidence_refs: event.evidence_refs.clone(),
+        source_observed_at: event.source_observed_at.clone(),
         source_fact_ref,
     }
 }
@@ -1118,6 +1129,7 @@ pub fn child_domain_policy_violation_detected_event(
         ),
         policy_rule_ref: child_domain_policy_rule_ref(ChildDomainPolicyRuleKind::Default),
         severity: child_domain_policy_severity(ChildDomainPolicySeverityKind::Review),
+        detected_at: event.source_observed_at.clone(),
         evidence_refs: canonical_child_domain_evidence_refs(&event.evidence_refs),
     }
 }
@@ -1137,6 +1149,7 @@ pub fn child_domain_notification_requested_event(
         channel: child_domain_notification_channel(
             ChildDomainNotificationChannelKind::ParentPortal,
         ),
+        requested_at: event.detected_at.clone(),
         evidence_refs: canonical_child_domain_evidence_refs(&event.evidence_refs),
     }
 }
