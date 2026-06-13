@@ -1,7 +1,7 @@
 use ocentra_parent_agent_protocol::{
-    constants, TrackingEvidenceRef, TrackingGeofenceRuleRef,
-    TrackingGeofenceTransitionDetectedEvent, TrackingLocationObservedEvent, TrackingTransitionId,
-    TrackingTransitionKind,
+    constants, TrackingCapabilityStatus, TrackingEvidenceRef, TrackingGeofenceRuleRef,
+    TrackingGeofenceTransitionDetectedEvent, TrackingLocationObservedEvent, TrackingReasonCode,
+    TrackingTransitionId, TrackingTransitionKind,
 };
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
@@ -14,12 +14,18 @@ pub enum TrackingGeofenceInsideState {
 pub struct TrackingGeofenceEvaluation {
     pub previous_inside_state: Option<TrackingGeofenceInsideState>,
     pub current_inside_state: TrackingGeofenceInsideState,
+    pub capability_status: TrackingCapabilityStatus,
+    pub distance_meters: Option<u32>,
+    pub low_accuracy_near_boundary: bool,
+    pub grace_period_active: bool,
 }
 
 pub fn detect_geofence_transition(
     event: &TrackingLocationObservedEvent,
     evaluation: TrackingGeofenceEvaluation,
 ) -> TrackingGeofenceTransitionDetectedEvent {
+    let (transition_kind, reason_codes) = transition_outcome_for(&evaluation);
+
     TrackingGeofenceTransitionDetectedEvent {
         child_device_id: event.child_device_id.clone(),
         child_profile_id: event.child_profile_id.clone(),
@@ -32,8 +38,11 @@ pub fn detect_geofence_transition(
         )
         .expect(constants::tracking_runtime::DEFAULT_GEOFENCE_RULE_REF),
         source_observation_id: event.observation_id.clone(),
-        transition_kind: TrackingTransitionKind::parse(transition_kind_for(evaluation))
-            .expect(constants::tracking_runtime::GEOFENCE_TRANSITION_ENTER),
+        transition_kind: TrackingTransitionKind::parse(transition_kind)
+            .expect(constants::tracking_runtime::GEOFENCE_TRANSITION_AMBIGUOUS),
+        capability_status: evaluation.capability_status,
+        distance_meters: evaluation.distance_meters,
+        reason_codes,
         evidence_refs: vec![TrackingEvidenceRef::parse(
             constants::tracking_runtime::DEFAULT_EVIDENCE_REF,
         )
@@ -41,8 +50,37 @@ pub fn detect_geofence_transition(
     }
 }
 
-fn transition_kind_for(evaluation: TrackingGeofenceEvaluation) -> &'static str {
-    match (
+fn transition_outcome_for(
+    evaluation: &TrackingGeofenceEvaluation,
+) -> (&'static str, Vec<TrackingReasonCode>) {
+    if evaluation.grace_period_active {
+        return (
+            constants::tracking_runtime::GEOFENCE_TRANSITION_AMBIGUOUS,
+            vec![reason_code(
+                constants::tracking_runtime::REASON_GEOFENCE_GRACE_ACTIVE,
+            )],
+        );
+    }
+
+    if evaluation.low_accuracy_near_boundary {
+        return (
+            constants::tracking_runtime::GEOFENCE_TRANSITION_AMBIGUOUS,
+            vec![reason_code(
+                constants::tracking_runtime::REASON_LOCATION_ACCURACY_BELOW_RULE_THRESHOLD,
+            )],
+        );
+    }
+
+    if capability_requires_stale_rejection(&evaluation.capability_status) {
+        return (
+            constants::tracking_runtime::GEOFENCE_TRANSITION_STALE_AT_PLACE,
+            vec![reason_code(
+                constants::tracking_runtime::REASON_STALE_LOCATION_REJECTED,
+            )],
+        );
+    }
+
+    let transition_kind = match (
         evaluation.previous_inside_state,
         evaluation.current_inside_state,
     ) {
@@ -64,5 +102,24 @@ fn transition_kind_for(evaluation: TrackingGeofenceEvaluation) -> &'static str {
         (None, TrackingGeofenceInsideState::Outside) => {
             constants::tracking_runtime::GEOFENCE_TRANSITION_UNCHANGED
         }
-    }
+    };
+
+    let reason = if evaluation.current_inside_state == TrackingGeofenceInsideState::Inside {
+        constants::tracking_runtime::REASON_INSIDE_GEOFENCE_WITH_ACCURACY
+    } else {
+        constants::tracking_runtime::REASON_OUTSIDE_GEOFENCE_WITH_ACCURACY
+    };
+
+    (transition_kind, vec![reason_code(reason)])
+}
+
+fn capability_requires_stale_rejection(capability_status: &TrackingCapabilityStatus) -> bool {
+    capability_status.as_str() == constants::tracking_runtime::CAPABILITY_STATUS_STALE
+        || capability_status.as_str() == constants::tracking_runtime::CAPABILITY_STATUS_LAST_KNOWN
+        || capability_status.as_str()
+            == constants::tracking_runtime::CAPABILITY_STATUS_OFFLINE_LAST_KNOWN_ONLY
+}
+
+fn reason_code(value: &'static str) -> TrackingReasonCode {
+    TrackingReasonCode::parse(value).expect(value)
 }

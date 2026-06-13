@@ -5,21 +5,17 @@ use ocentra_eventing::{
 use ocentra_evidence::PrivatePayloadState;
 use serde::{Deserialize, Serialize};
 
-use crate::{constants, AGENT_PROTOCOL_SCHEMA_VERSION};
 use super::{
     TrackingAcknowledgementId, TrackingAcknowledgementState, TrackingAiPurpose,
-    TrackingAiRequestId, TrackingAlertEvaluationId, TrackingAlertSeverity, TrackingCheckInId,
-    TrackingCheckInState, TrackingChildDeviceId, TrackingChildProfileId, TrackingConfidenceBasis,
-    TrackingEvaluationId, TrackingEvidenceRef, TrackingExpectedPlaceRef,
-    TrackingExpectedPlaceState, TrackingGeofenceRuleRef, TrackingLocationRelation,
-    TrackingMissingDeviceEvaluationId, TrackingMissingDeviceState,
-    TrackingNearbyPlaceAmbiguityState, TrackingNearbyPlaceProviderState,
-    TrackingNearbyPlaceRequestId, TrackingNotificationChannel, TrackingNotificationId,
-    TrackingObservationId, TrackingParentDefinedPlaceId, TrackingParentDefinedPlaceState,
-    TrackingPlaceCategory, TrackingPolicyRuleRef, TrackingPolicySeverity,
-    TrackingPolicyViolationId, TrackingTemporaryLiveSessionId, TrackingTemporaryLiveState,
+    TrackingAiRequestId, TrackingCapabilityStatus, TrackingCheckInId, TrackingCheckInState,
+    TrackingChildDeviceId, TrackingChildProfileId, TrackingConfidenceBasis, TrackingEvaluationId,
+    TrackingEvidenceRef, TrackingExpectedPlaceRef, TrackingExpectedPlaceState,
+    TrackingGeofenceRuleRef, TrackingLocationRelation, TrackingNotificationChannel,
+    TrackingNotificationId, TrackingObservationId, TrackingPlaceCategory, TrackingPolicyRuleRef,
+    TrackingPolicySeverity, TrackingPolicyViolationId, TrackingReasonCode, TrackingScheduleId,
     TrackingTimestamp, TrackingTransitionId, TrackingTransitionKind, TrackingUncertaintyCode,
 };
+use crate::{constants, AGENT_PROTOCOL_SCHEMA_VERSION};
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 pub enum TrackingRuntimeMode {
@@ -139,6 +135,9 @@ pub struct TrackingGeofenceTransitionDetectedEvent {
     pub geofence_rule_ref: TrackingGeofenceRuleRef,
     pub source_observation_id: TrackingObservationId,
     pub transition_kind: TrackingTransitionKind,
+    pub capability_status: TrackingCapabilityStatus,
+    pub distance_meters: Option<u32>,
+    pub reason_codes: Vec<TrackingReasonCode>,
     pub evidence_refs: Vec<TrackingEvidenceRef>,
 }
 
@@ -148,9 +147,11 @@ pub struct TrackingExpectedPlaceStateEvaluatedEvent {
     pub child_device_id: TrackingChildDeviceId,
     pub child_profile_id: TrackingChildProfileId,
     pub evaluation_id: TrackingEvaluationId,
+    pub schedule_id: TrackingScheduleId,
     pub expected_place_ref: TrackingExpectedPlaceRef,
     pub source_observation_id: TrackingObservationId,
     pub expected_place_state: TrackingExpectedPlaceState,
+    pub reason_codes: Vec<TrackingReasonCode>,
     pub evidence_refs: Vec<TrackingEvidenceRef>,
     pub parent_action_requirement: TrackingParentActionRequirement,
 }
@@ -351,7 +352,9 @@ impl DomainEvent for TrackingParentAcknowledgementRecordedEvent {
 
 impl DomainEvent for TrackingChildCheckInRecordedEvent {
     fn contract(&self) -> Result<EventContract, EventingError> {
-        tracking_event_contract(constants::tracking_runtime::TRACKING_CHILD_CHECK_IN_RECORDED_EVENT_TYPE)
+        tracking_event_contract(
+            constants::tracking_runtime::TRACKING_CHILD_CHECK_IN_RECORDED_EVENT_TYPE,
+        )
     }
 
     fn aggregate_key(&self) -> Result<AggregateKey, EventingError> {

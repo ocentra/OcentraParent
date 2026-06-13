@@ -1,8 +1,9 @@
 use ocentra_eventing::DomainEvent;
 use ocentra_parent_agent_protocol::{
-    constants, TrackingChildDeviceId, TrackingChildProfileId, TrackingParentActionRequirement,
-    TrackingEvidenceRef, TrackingPolicyRuleRef, TrackingPolicySeverity,
-    TrackingPolicyViolationDetectedEvent, TrackingPolicyViolationId, TrackingRuntimeMode,
+    constants, TrackingCapabilityStatus, TrackingChildDeviceId, TrackingChildProfileId,
+    TrackingEvidenceRef, TrackingParentActionRequirement, TrackingPolicyRuleRef,
+    TrackingPolicySeverity, TrackingPolicyViolationDetectedEvent, TrackingPolicyViolationId,
+    TrackingRuntimeMode,
 };
 use ocentra_tracking_core::TrackingGeofenceInsideState;
 
@@ -25,6 +26,13 @@ fn tracking_geofence_transition_event_uses_protocol_contract() {
         ocentra_tracking_core::TrackingGeofenceEvaluation {
             previous_inside_state: Some(TrackingGeofenceInsideState::Outside),
             current_inside_state: TrackingGeofenceInsideState::Inside,
+            capability_status: TrackingCapabilityStatus::parse(
+                constants::tracking_runtime::CAPABILITY_STATUS_LIVE,
+            )
+            .expect(constants::tracking_runtime::CAPABILITY_STATUS_LIVE),
+            distance_meters: Some(0),
+            low_accuracy_near_boundary: false,
+            grace_period_active: false,
         },
     );
 
@@ -36,15 +44,27 @@ fn tracking_geofence_transition_event_uses_protocol_contract() {
         contract.event_type.as_str(),
         constants::tracking_runtime::TRACKING_GEOFENCE_TRANSITION_DETECTED_EVENT_TYPE
     );
+    assert_eq!(
+        event.capability_status,
+        constants::tracking_runtime::CAPABILITY_STATUS_LIVE
+    );
+    assert_eq!(
+        event.reason_codes[0],
+        constants::tracking_runtime::REASON_INSIDE_GEOFENCE_WITH_ACCURACY
+    );
 }
 
 #[test]
 fn tracking_parent_acknowledgement_event_uses_protocol_contract() {
     let violation = TrackingPolicyViolationDetectedEvent {
-        child_device_id: TrackingChildDeviceId::parse(constants::tracking_runtime::DEFAULT_CHILD_DEVICE_ID)
-            .expect(constants::tracking_runtime::DEFAULT_CHILD_DEVICE_ID),
-        child_profile_id: TrackingChildProfileId::parse(constants::tracking_runtime::DEFAULT_CHILD_PROFILE_ID)
-            .expect(constants::tracking_runtime::DEFAULT_CHILD_PROFILE_ID),
+        child_device_id: TrackingChildDeviceId::parse(
+            constants::tracking_runtime::DEFAULT_CHILD_DEVICE_ID,
+        )
+        .expect(constants::tracking_runtime::DEFAULT_CHILD_DEVICE_ID),
+        child_profile_id: TrackingChildProfileId::parse(
+            constants::tracking_runtime::DEFAULT_CHILD_PROFILE_ID,
+        )
+        .expect(constants::tracking_runtime::DEFAULT_CHILD_PROFILE_ID),
         violation_id: TrackingPolicyViolationId::parse(
             constants::tracking_runtime::DEFAULT_POLICY_VIOLATION_ID,
         )
@@ -53,12 +73,14 @@ fn tracking_parent_acknowledgement_event_uses_protocol_contract() {
             constants::tracking_runtime::POLICY_RULE_EXPECTED_PLACE,
         )
         .expect(constants::tracking_runtime::POLICY_RULE_EXPECTED_PLACE),
-        severity: TrackingPolicySeverity::parse(constants::tracking_runtime::POLICY_SEVERITY_REVIEW)
-            .expect(constants::tracking_runtime::POLICY_SEVERITY_REVIEW),
-        evidence_refs: vec![
-            TrackingEvidenceRef::parse(constants::tracking_runtime::DEFAULT_EVIDENCE_REF)
-                .expect(constants::tracking_runtime::DEFAULT_EVIDENCE_REF),
-        ],
+        severity: TrackingPolicySeverity::parse(
+            constants::tracking_runtime::POLICY_SEVERITY_REVIEW,
+        )
+        .expect(constants::tracking_runtime::POLICY_SEVERITY_REVIEW),
+        evidence_refs: vec![TrackingEvidenceRef::parse(
+            constants::tracking_runtime::DEFAULT_EVIDENCE_REF,
+        )
+        .expect(constants::tracking_runtime::DEFAULT_EVIDENCE_REF)],
     };
     let acknowledgement = ocentra_tracking_core::record_parent_acknowledgement(&violation);
 
