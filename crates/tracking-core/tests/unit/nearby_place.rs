@@ -98,6 +98,7 @@ fn nearby_place_classification_helper_reuses_canonical_provider_decision_shape()
 
     assert_eq!(classified.source_ai_request_id, request.ai_request_id);
     assert_eq!(classified.source_location_evidence_ref, request.evidence_refs[0]);
+    assert_eq!(classified.source_observed_at, request.source_observed_at);
     assert_eq!(
         classified.provider_kind,
         constants::tracking_runtime::NEARBY_PROVIDER_KIND_LOCAL_CACHE

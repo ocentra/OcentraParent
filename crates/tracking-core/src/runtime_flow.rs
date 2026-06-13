@@ -224,6 +224,7 @@ pub fn record_tracking_evidence_from_location(
         child_profile_id: event.child_profile_id.clone(),
         evidence_ref: tracking_evidence_ref(&event.observation_id),
         source_observation_id: event.observation_id.clone(),
+        source_observed_at: event.observed_at.clone(),
         location_relation: tracking_location_relation(relation_kind),
         ai_analysis_requirement: tracking_ai_analysis_requirement(&event.config, relation_kind),
         parent_action_requirement: tracking_parent_action_requirement(&event.config),
@@ -243,6 +244,7 @@ pub fn tracking_ai_analysis_request_from_evidence(
         child_profile_id: event.child_profile_id.clone(),
         ai_request_id: tracking_ai_request_id(&event.evidence_ref),
         evidence_refs: vec![event.evidence_ref.clone()],
+        source_observed_at: event.source_observed_at.clone(),
         uncertainty_code: tracking_uncertainty_code(
             TrackingUncertaintyKind::NearbyPlaceClassificationRequired,
         ),

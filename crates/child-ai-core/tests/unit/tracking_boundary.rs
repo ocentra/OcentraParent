@@ -24,6 +24,10 @@ fn tracking_ai_request_fixture() -> TrackingAiAnalysisRequestedEvent {
             constants::tracking_runtime::DEFAULT_EVIDENCE_REF,
         )
         .expect(constants::tracking_runtime::DEFAULT_EVIDENCE_REF)],
+        source_observed_at: ocentra_parent_agent_protocol::TrackingTimestamp::parse(
+            constants::tracking_runtime::DEFAULT_OBSERVED_AT,
+        )
+        .expect(constants::tracking_runtime::DEFAULT_OBSERVED_AT),
         uncertainty_code: TrackingUncertaintyCode::parse(
             constants::tracking_runtime::UNCERTAINTY_CODE_NEARBY_PLACE_CLASSIFICATION_REQUIRED,
         )
@@ -50,6 +54,7 @@ fn tracking_ai_classification_preserves_request_evidence_refs() {
     assert_eq!(result.child_profile_id, request.child_profile_id);
     assert_eq!(result.source_ai_request_id, request.ai_request_id);
     assert_eq!(result.source_location_evidence_ref, request.evidence_refs[0]);
+    assert_eq!(result.source_observed_at, request.source_observed_at);
     assert_eq!(result.evidence_refs, request.evidence_refs);
     assert_eq!(
         result.provider_kind,

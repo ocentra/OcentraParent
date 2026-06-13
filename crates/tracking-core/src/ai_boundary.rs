@@ -23,6 +23,10 @@ pub fn validate_tracking_ai_result_as_evidence(
         return rejected(constants::tracking_runtime::AI_RESULT_REJECTED_STALE_CORRELATION);
     }
 
+    if result.source_observed_at != request.source_observed_at {
+        return rejected(constants::tracking_runtime::AI_RESULT_REJECTED_STALE_CORRELATION);
+    }
+
     if result.evidence_refs.is_empty() {
         return rejected(constants::tracking_runtime::AI_RESULT_REJECTED_MISSING_EVIDENCE_REF);
     }
