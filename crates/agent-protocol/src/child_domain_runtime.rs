@@ -830,6 +830,15 @@ fn child_domain_fact_ref_text(value: &str) -> ChildDomainFactRef {
         .expect(constants::child_domain_runtime::ERROR_CHILD_DOMAIN_FLOW_RECORDED)
 }
 
+fn child_domain_derived_identifier_text(prefix: &str, segments: &[&str]) -> String {
+    let mut value = String::from(prefix);
+    for segment in segments {
+        value.push(':');
+        value.push_str(segment);
+    }
+    value
+}
+
 pub fn child_domain_policy_violation_id(
     domain: ChildRuntimeDomain,
     suffix: ChildDomainRefSuffix,
@@ -845,6 +854,40 @@ pub fn child_domain_notification_id(
 ) -> ChildDomainNotificationId {
     let suffix_text = suffix.as_contract_text();
     ChildDomainNotificationId::parse(child_domain_ref_text(domain, suffix_text)).expect(suffix_text)
+}
+
+pub fn child_domain_policy_violation_id_from_policy_request_id(
+    policy_request_id: &ChildDomainPolicyRequestId,
+) -> ChildDomainPolicyViolationId {
+    let value = child_domain_derived_identifier_text(
+        constants::child_domain_runtime::POLICY_VIOLATION_DETECTED_EVENT_TYPE,
+        &[policy_request_id.as_str()],
+    );
+    ChildDomainPolicyViolationId::parse(value)
+        .expect(constants::child_domain_runtime::POLICY_VIOLATION_DETECTED_EVENT_TYPE)
+}
+
+pub fn child_domain_notification_id_from_policy_violation_id(
+    policy_violation_id: &ChildDomainPolicyViolationId,
+) -> ChildDomainNotificationId {
+    let value = child_domain_derived_identifier_text(
+        constants::child_domain_runtime::NOTIFICATION_REQUESTED_EVENT_TYPE,
+        &[policy_violation_id.as_str()],
+    );
+    ChildDomainNotificationId::parse(value)
+        .expect(constants::child_domain_runtime::NOTIFICATION_REQUESTED_EVENT_TYPE)
+}
+
+fn canonical_child_domain_evidence_refs(
+    evidence_refs: &[ChildDomainEvidenceRef],
+) -> Vec<ChildDomainEvidenceRef> {
+    let mut canonical = Vec::with_capacity(evidence_refs.len());
+    for evidence_ref in evidence_refs {
+        if !canonical.contains(evidence_ref) {
+            canonical.push(evidence_ref.clone());
+        }
+    }
+    canonical
 }
 
 pub fn child_domain_observed_event(
@@ -1017,13 +1060,12 @@ pub fn child_domain_policy_violation_detected_event(
         domain: event.domain,
         child_device_id: event.child_device_id.clone(),
         child_profile_id: event.child_profile_id.clone(),
-        violation_id: child_domain_policy_violation_id(
-            event.domain,
-            ChildDomainRefSuffix::DefaultPolicyViolation,
+        violation_id: child_domain_policy_violation_id_from_policy_request_id(
+            &event.policy_request_id,
         ),
         policy_rule_ref: child_domain_policy_rule_ref(ChildDomainPolicyRuleKind::Default),
         severity: child_domain_policy_severity(ChildDomainPolicySeverityKind::Review),
-        evidence_refs: event.evidence_refs.clone(),
+        evidence_refs: canonical_child_domain_evidence_refs(&event.evidence_refs),
     }
 }
 
@@ -1035,15 +1077,14 @@ pub fn child_domain_notification_requested_event(
         domain: event.domain,
         child_device_id: event.child_device_id.clone(),
         child_profile_id: event.child_profile_id.clone(),
-        notification_id: child_domain_notification_id(
-            event.domain,
-            ChildDomainRefSuffix::DefaultNotification,
+        notification_id: child_domain_notification_id_from_policy_violation_id(
+            &event.violation_id,
         ),
         source_policy_violation_id: event.violation_id.clone(),
         channel: child_domain_notification_channel(
             ChildDomainNotificationChannelKind::ParentPortal,
         ),
-        evidence_refs: event.evidence_refs.clone(),
+        evidence_refs: canonical_child_domain_evidence_refs(&event.evidence_refs),
     }
 }
 
