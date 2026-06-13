@@ -68,13 +68,14 @@ async fn child_domain_runtime_flow_keeps_feature_ai_policy_and_notification_deco
         }
     }
 
-    assert!(reports
+    let ai_requested_domains: Vec<ChildRuntimeDomain> = reports
         .iter()
-        .filter(|report| report.ai_analysis_requested.is_some())
-        .all(|report| matches!(
-            report.domain,
-            ChildRuntimeDomain::Browser | ChildRuntimeDomain::Screen
-        )));
+        .filter_map(|report| report.ai_analysis_requested.as_ref().map(|_| report.domain))
+        .collect();
+    assert_eq!(
+        ai_requested_domains,
+        vec![ChildRuntimeDomain::Browser, ChildRuntimeDomain::Screen]
+    );
 }
 
 #[tokio::test]
@@ -91,11 +92,19 @@ async fn child_domain_ai_only_flow_does_not_publish_policy_or_notification() {
         .await
         .expect(constants::child_domain_runtime::ERROR_CHILD_DOMAIN_FLOW_RECORDED);
 
-    assert!(report.ai_analysis_requested.is_some());
-    assert!(report.ai_analysis_completed.is_some());
-    assert!(report.policy_evaluation_requested.is_none());
-    assert!(report.policy_violation_detected.is_none());
-    assert!(report.notification_requested.is_none());
+    let ai_analysis_requested = report
+        .ai_analysis_requested
+        .expect(constants::child_domain_runtime::ERROR_CHILD_DOMAIN_FLOW_RECORDED);
+    let ai_analysis_completed = report
+        .ai_analysis_completed
+        .expect(constants::child_domain_runtime::ERROR_CHILD_DOMAIN_FLOW_RECORDED);
+    assert_eq!(
+        ai_analysis_completed.source_ai_request_id,
+        ai_analysis_requested.ai_request_id
+    );
+    assert_eq!(report.policy_evaluation_requested, None);
+    assert_eq!(report.policy_violation_detected, None);
+    assert_eq!(report.notification_requested, None);
 }
 
 #[tokio::test]
@@ -118,11 +127,11 @@ async fn child_domain_observe_only_intent_records_evidence_without_side_effects(
         report.evidence_recorded.policy_evaluation_requirement,
         ChildDomainPolicyEvaluationRequirement::NotRequired
     );
-    assert!(report.ai_analysis_requested.is_none());
-    assert!(report.ai_analysis_completed.is_none());
-    assert!(report.policy_evaluation_requested.is_none());
-    assert!(report.policy_violation_detected.is_none());
-    assert!(report.notification_requested.is_none());
+    assert_eq!(report.ai_analysis_requested, None);
+    assert_eq!(report.ai_analysis_completed, None);
+    assert_eq!(report.policy_evaluation_requested, None);
+    assert_eq!(report.policy_violation_detected, None);
+    assert_eq!(report.notification_requested, None);
 }
 
 #[tokio::test]
@@ -140,11 +149,7 @@ async fn child_domain_ambiguous_feature_intent_routes_ai_then_policy_then_notifi
         report.evidence_recorded.ai_analysis_requirement,
         ChildDomainAiAnalysisRequirement::Required
     );
-    assert!(report.ai_analysis_requested.is_some());
-    assert!(report.ai_analysis_completed.is_some());
-    assert!(report.policy_evaluation_requested.is_some());
-    assert!(report.policy_violation_detected.is_some());
-    assert!(report.notification_requested.is_some());
+    assert_ai_policy_notification_chain(&report);
 }
 
 #[tokio::test]
@@ -162,9 +167,69 @@ async fn child_domain_unknown_app_intent_routes_ai_then_policy_then_notification
         report.evidence_recorded.ai_analysis_requirement,
         ChildDomainAiAnalysisRequirement::Required
     );
-    assert!(report.ai_analysis_requested.is_some());
-    assert!(report.ai_analysis_completed.is_some());
-    assert!(report.policy_evaluation_requested.is_some());
-    assert!(report.policy_violation_detected.is_some());
-    assert!(report.notification_requested.is_some());
+    assert_ai_policy_notification_chain(&report);
+}
+
+#[tokio::test]
+async fn child_domain_runtime_flow_can_attach_once_for_domain_event_family() {
+    let event = ocentra_browser_core::browser_observed_event(
+        ocentra_browser_core::BrowserObservationIntent::AmbiguousNavigationRequiresAi,
+    );
+    let runtime_flow = ocentra_child_runtime::ChildDomainRuntimeEventFlow::for_event(&event)
+        .await
+        .expect(constants::child_domain_runtime::ERROR_CHILD_DOMAIN_FLOW_RECORDED);
+    let metrics_before = runtime_flow.metrics_snapshot().await;
+
+    let report = runtime_flow
+        .publish_observed(event)
+        .await
+        .expect(constants::child_domain_runtime::ERROR_CHILD_DOMAIN_FLOW_RECORDED);
+    let metrics_after = runtime_flow.metrics_snapshot().await;
+
+    assert_eq!(metrics_before.subscription_count, 5);
+    assert_eq!(metrics_after.subscription_count, 5);
+    assert_eq!(report.domain, ChildRuntimeDomain::Browser);
+    assert_ai_policy_notification_chain(&report);
+}
+
+fn assert_ai_policy_notification_chain(
+    report: &ocentra_child_runtime::ChildDomainRuntimeFlowReport,
+) {
+    let ai_analysis_requested = report
+        .ai_analysis_requested
+        .as_ref()
+        .expect(constants::child_domain_runtime::ERROR_CHILD_DOMAIN_FLOW_RECORDED);
+    let ai_analysis_completed = report
+        .ai_analysis_completed
+        .as_ref()
+        .expect(constants::child_domain_runtime::ERROR_CHILD_DOMAIN_FLOW_RECORDED);
+    let policy_evaluation_requested = report
+        .policy_evaluation_requested
+        .as_ref()
+        .expect(constants::child_domain_runtime::ERROR_CHILD_DOMAIN_FLOW_RECORDED);
+    let policy_violation_detected = report
+        .policy_violation_detected
+        .as_ref()
+        .expect(constants::child_domain_runtime::ERROR_CHILD_DOMAIN_FLOW_RECORDED);
+    let notification_requested = report
+        .notification_requested
+        .as_ref()
+        .expect(constants::child_domain_runtime::ERROR_CHILD_DOMAIN_FLOW_RECORDED);
+
+    assert_eq!(
+        ai_analysis_completed.source_ai_request_id,
+        ai_analysis_requested.ai_request_id
+    );
+    assert_eq!(
+        policy_evaluation_requested.evidence_refs,
+        ai_analysis_completed.evidence_refs
+    );
+    assert_eq!(
+        policy_violation_detected.evidence_refs,
+        policy_evaluation_requested.evidence_refs
+    );
+    assert_eq!(
+        notification_requested.source_policy_violation_id,
+        policy_violation_detected.violation_id
+    );
 }

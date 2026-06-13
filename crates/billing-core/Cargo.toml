@@ -11,3 +11,5 @@ workspace = true
 path = "src/lib.rs"
 
 [dependencies]
+ocentra-eventing = { path = "../ocentra-eventing" }
+serde = { version = "1.0.228", features = ["derive"] }

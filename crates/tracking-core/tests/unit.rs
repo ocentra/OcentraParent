@@ -6,6 +6,8 @@ mod missing_device;
 mod nearby_place;
 #[path = "unit/retention_settings.rs"]
 mod retention_settings;
+#[path = "unit/runtime_side_branch.rs"]
+mod runtime_side_branch;
 
 #[test]
 fn declares_tracking_core_boundary() {

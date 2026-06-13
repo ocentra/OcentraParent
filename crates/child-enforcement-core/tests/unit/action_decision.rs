@@ -1,9 +1,12 @@
-use ocentra_policy_control_core::ParentAuthorityState;
 use ocentra_child_enforcement_core::{
-    evaluate_enforcement_action, EnforcementActionInput, EnforcementActionMode,
-    EnforcementAdapterExecutionState, EnforcementAdapterState, EnforcementAuditRecordState,
-    EnforcementIdempotencyState, EnforcementRollbackRequirementState, EnforcementRollbackState,
+    evaluate_enforcement_action, record_enforcement_action_decision, EnforcementActionInput,
+    EnforcementActionMode, EnforcementActionRequestId, EnforcementActionRequestedEvent,
+    EnforcementAdapterExecutionState, EnforcementAdapterState, EnforcementAggregateId,
+    EnforcementAuditRecordState, EnforcementIdempotencyState, EnforcementRollbackRequirementState,
+    EnforcementRollbackState,
 };
+use ocentra_eventing::DomainEvent;
+use ocentra_policy_control_core::ParentAuthorityState;
 
 #[test]
 fn execute_mode_requires_policy_adapter_and_rollback_boundary() {
@@ -19,7 +22,10 @@ fn execute_mode_requires_policy_adapter_and_rollback_boundary() {
         decision.adapter_execution_state,
         EnforcementAdapterExecutionState::Execute
     );
-    assert_eq!(decision.audit_record_state, EnforcementAuditRecordState::Record);
+    assert_eq!(
+        decision.audit_record_state,
+        EnforcementAuditRecordState::Record
+    );
     assert_eq!(
         decision.rollback_requirement_state,
         EnforcementRollbackRequirementState::NotRequired
@@ -40,7 +46,10 @@ fn dry_run_never_executes_adapter() {
         decision.adapter_execution_state,
         EnforcementAdapterExecutionState::DoNotExecute
     );
-    assert_eq!(decision.audit_record_state, EnforcementAuditRecordState::Record);
+    assert_eq!(
+        decision.audit_record_state,
+        EnforcementAuditRecordState::Record
+    );
 }
 
 #[test]
@@ -77,7 +86,10 @@ fn execute_mode_requires_parent_policy_authority() {
         decision.adapter_execution_state,
         EnforcementAdapterExecutionState::DoNotExecute
     );
-    assert_eq!(decision.audit_record_state, EnforcementAuditRecordState::Record);
+    assert_eq!(
+        decision.audit_record_state,
+        EnforcementAuditRecordState::Record
+    );
     assert_eq!(
         decision.rollback_requirement_state,
         EnforcementRollbackRequirementState::NotRequired
@@ -98,7 +110,10 @@ fn execute_mode_does_not_dispatch_when_adapter_is_unavailable() {
         decision.adapter_execution_state,
         EnforcementAdapterExecutionState::DoNotExecute
     );
-    assert_eq!(decision.audit_record_state, EnforcementAuditRecordState::Record);
+    assert_eq!(
+        decision.audit_record_state,
+        EnforcementAuditRecordState::Record
+    );
     assert_eq!(
         decision.rollback_requirement_state,
         EnforcementRollbackRequirementState::NotRequired
@@ -119,9 +134,54 @@ fn already_applied_action_records_audit_without_reexecuting_adapter() {
         decision.adapter_execution_state,
         EnforcementAdapterExecutionState::DoNotExecute
     );
-    assert_eq!(decision.audit_record_state, EnforcementAuditRecordState::Record);
+    assert_eq!(
+        decision.audit_record_state,
+        EnforcementAuditRecordState::Record
+    );
     assert_eq!(
         decision.rollback_requirement_state,
         EnforcementRollbackRequirementState::NotRequired
+    );
+}
+
+#[test]
+fn enforcement_action_request_records_typed_decision_event() {
+    let request = EnforcementActionRequestedEvent {
+        aggregate_id: EnforcementAggregateId::parse("child-enforcement-family-default")
+            .expect("child enforcement aggregate"),
+        request_id: EnforcementActionRequestId::parse("child-enforcement-request-default")
+            .expect("child enforcement request"),
+        input: EnforcementActionInput {
+            mode: EnforcementActionMode::Execute,
+            policy_authority_state: ParentAuthorityState::Authorized,
+            adapter_state: EnforcementAdapterState::Available,
+            rollback_state: EnforcementRollbackState::Available,
+            idempotency_state: EnforcementIdempotencyState::NewAction,
+        },
+    };
+
+    let decision = record_enforcement_action_decision(&request);
+
+    assert_eq!(decision.aggregate_id, request.aggregate_id);
+    assert_eq!(decision.source_request_id, request.request_id);
+    assert_eq!(
+        decision.decision.adapter_execution_state,
+        EnforcementAdapterExecutionState::Execute
+    );
+    assert_eq!(
+        request
+            .contract()
+            .expect("child enforcement request contract")
+            .event_type
+            .as_str(),
+        "child-enforcement.action.requested"
+    );
+    assert_eq!(
+        decision
+            .contract()
+            .expect("child enforcement decision contract")
+            .event_type
+            .as_str(),
+        "child-enforcement.action-decision.recorded"
     );
 }

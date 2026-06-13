@@ -11,8 +11,8 @@ use ocentra_parent_agent_protocol::{
     ChildDomainAiRequestId, ChildDomainEventType, ChildDomainEvidenceRecordedEvent,
     ChildDomainEvidenceRef, ChildDomainNotificationRequestedEvent, ChildDomainObservationId,
     ChildDomainObservedEvent, ChildDomainPolicyEvaluationRequestedEvent,
-    ChildDomainPolicyRequestId,
-    ChildDomainPolicyViolationDetectedEvent, ChildDomainPolicyViolationId, ChildRuntimeDomain,
+    ChildDomainPolicyRequestId, ChildDomainPolicyViolationDetectedEvent,
+    ChildDomainPolicyViolationId, ChildRuntimeDomain,
 };
 
 #[derive(Clone, Debug, PartialEq)]
@@ -29,6 +29,81 @@ pub struct ChildDomainRuntimeFlowReport {
     pub policy_evaluation_requested: Option<ChildDomainPolicyEvaluationRequestedEvent>,
     pub policy_violation_detected: Option<ChildDomainPolicyViolationDetectedEvent>,
     pub notification_requested: Option<ChildDomainNotificationRequestedEvent>,
+}
+
+pub struct ChildDomainRuntimeEventFlow {
+    bus: EventBus,
+    domain: ChildRuntimeDomain,
+    observer_subscription_report: SubscriptionReport,
+    ai_subscription_report: SubscriptionReport,
+    ai_policy_subscription_report: SubscriptionReport,
+    policy_subscription_report: SubscriptionReport,
+    notification_subscription_report: SubscriptionReport,
+    state: ChildDomainRuntimeFlowState,
+}
+
+impl ChildDomainRuntimeEventFlow {
+    pub async fn for_event(event: &ChildDomainObservedEvent) -> Result<Self, EventingError> {
+        let bus = EventBus::new();
+        let state = ChildDomainRuntimeFlowState::default();
+        let observer_subscription_report =
+            subscribe_child_domain_observer(&bus, event, state.clone()).await?;
+        let ai_subscription_report = subscribe_child_domain_ai(&bus, event, state.clone()).await?;
+        let ai_policy_subscription_report =
+            subscribe_child_domain_ai_policy_bridge(&bus, state.clone()).await?;
+        let policy_subscription_report =
+            subscribe_child_domain_policy(&bus, event, state.clone()).await?;
+        let notification_subscription_report =
+            subscribe_child_domain_notification(&bus, state.clone()).await?;
+
+        Ok(Self {
+            bus,
+            domain: event.domain,
+            observer_subscription_report,
+            ai_subscription_report,
+            ai_policy_subscription_report,
+            policy_subscription_report,
+            notification_subscription_report,
+            state,
+        })
+    }
+
+    pub async fn publish_observed(
+        &self,
+        event: ChildDomainObservedEvent,
+    ) -> Result<ChildDomainRuntimeFlowReport, EventingError> {
+        self.bus
+            .publish(
+                event.clone(),
+                child_domain_runtime_metadata(ChildDomainRuntimeHop::Observed(
+                    &event.observation_id,
+                ))?,
+            )
+            .await?;
+
+        self.report()
+    }
+
+    pub async fn metrics_snapshot(&self) -> ocentra_eventing::EventMetricsSnapshot {
+        self.bus.metrics_snapshot().await
+    }
+
+    fn report(&self) -> Result<ChildDomainRuntimeFlowReport, EventingError> {
+        Ok(ChildDomainRuntimeFlowReport {
+            domain: self.domain,
+            observer_subscription_report: self.observer_subscription_report.clone(),
+            ai_subscription_report: self.ai_subscription_report.clone(),
+            ai_policy_subscription_report: self.ai_policy_subscription_report.clone(),
+            policy_subscription_report: self.policy_subscription_report.clone(),
+            notification_subscription_report: self.notification_subscription_report.clone(),
+            evidence_recorded: self.state.evidence_recorded()?,
+            ai_analysis_requested: self.state.ai_analysis_requested(),
+            ai_analysis_completed: self.state.ai_analysis_completed(),
+            policy_evaluation_requested: self.state.policy_evaluation_requested(),
+            policy_violation_detected: self.state.policy_violation_detected(),
+            notification_requested: self.state.notification_requested(),
+        })
+    }
 }
 
 pub async fn publish_default_child_domain_runtime_flows(
@@ -52,40 +127,10 @@ pub async fn publish_default_child_domain_runtime_flows(
 pub async fn publish_child_domain_observed_event(
     event: ChildDomainObservedEvent,
 ) -> Result<ChildDomainRuntimeFlowReport, EventingError> {
-    let bus = EventBus::new();
-    let state = ChildDomainRuntimeFlowState::default();
-    let observer_subscription_report =
-        subscribe_child_domain_observer(&bus, &event, state.clone()).await?;
-    let ai_subscription_report = subscribe_child_domain_ai(&bus, &event, state.clone()).await?;
-    let ai_policy_subscription_report =
-        subscribe_child_domain_ai_policy_bridge(&bus, state.clone()).await?;
-    let policy_subscription_report =
-        subscribe_child_domain_policy(&bus, &event, state.clone()).await?;
-    let notification_subscription_report =
-        subscribe_child_domain_notification(&bus, state.clone()).await?;
-
-    bus.publish(
-        event.clone(),
-        child_domain_runtime_metadata(ChildDomainRuntimeHop::Observed(
-            &event.observation_id,
-        ))?,
-    )
-    .await?;
-
-    Ok(ChildDomainRuntimeFlowReport {
-        domain: event.domain,
-        observer_subscription_report,
-        ai_subscription_report,
-        ai_policy_subscription_report,
-        policy_subscription_report,
-        notification_subscription_report,
-        evidence_recorded: state.evidence_recorded()?,
-        ai_analysis_requested: state.ai_analysis_requested(),
-        ai_analysis_completed: state.ai_analysis_completed(),
-        policy_evaluation_requested: state.policy_evaluation_requested(),
-        policy_violation_detected: state.policy_violation_detected(),
-        notification_requested: state.notification_requested(),
-    })
+    ChildDomainRuntimeEventFlow::for_event(&event)
+        .await?
+        .publish_observed(event)
+        .await
 }
 
 async fn subscribe_child_domain_observer(
@@ -120,9 +165,7 @@ async fn subscribe_child_domain_observer(
                         .publish(
                             ai_request,
                             child_domain_runtime_metadata(
-                                ChildDomainRuntimeHop::AiAnalysisRequested(
-                                    &evidence.evidence_ref,
-                                ),
+                                ChildDomainRuntimeHop::AiAnalysisRequested(&evidence.evidence_ref),
                             )?,
                         )
                         .await?;
@@ -237,7 +280,12 @@ async fn subscribe_child_domain_policy(
             SubscriberId::parse(
                 constants::child_domain_runtime::SUBSCRIBER_CHILD_POLICY_EVALUATOR,
             )?,
-            EventType::parse(event.domain.policy_evaluation_requested_event_type().as_str())?,
+            EventType::parse(
+                event
+                    .domain
+                    .policy_evaluation_requested_event_type()
+                    .as_str(),
+            )?,
             TargetHandler::parse(
                 constants::child_domain_runtime::TARGET_HANDLER_CHILD_POLICY_EVALUATOR,
             )?,
@@ -395,15 +443,13 @@ fn child_domain_evidence_recorded_event(
 ) -> Result<ChildDomainEvidenceRecordedEvent, EventingError> {
     match event.domain {
         ChildRuntimeDomain::App => Ok(ocentra_app_core::app_evidence_recorded_event(event)),
-        ChildRuntimeDomain::AppGame => Ok(
-            ocentra_app_game_core::app_game_evidence_recorded_event(event),
-        ),
+        ChildRuntimeDomain::AppGame => Ok(ocentra_app_game_core::app_game_evidence_recorded_event(
+            event,
+        )),
         ChildRuntimeDomain::Browser => {
             Ok(ocentra_browser_core::browser_evidence_recorded_event(event))
         }
-        ChildRuntimeDomain::Lan => {
-            Ok(ocentra_lan_core::lan_evidence_recorded_event(event))
-        }
+        ChildRuntimeDomain::Lan => Ok(ocentra_lan_core::lan_evidence_recorded_event(event)),
         ChildRuntimeDomain::Network => {
             Ok(ocentra_network_core::network_evidence_recorded_event(event))
         }
@@ -420,24 +466,20 @@ fn child_domain_ai_analysis_requested_event(
     event: &ChildDomainEvidenceRecordedEvent,
 ) -> Result<Option<ChildDomainAiAnalysisRequestedEvent>, EventingError> {
     match event.domain {
-        ChildRuntimeDomain::App => {
-            Ok(ocentra_app_core::app_ai_analysis_requested_event(event))
-        }
+        ChildRuntimeDomain::App => Ok(ocentra_app_core::app_ai_analysis_requested_event(event)),
         ChildRuntimeDomain::AppGame => Ok(
             ocentra_app_game_core::app_game_ai_analysis_requested_event(event),
         ),
         ChildRuntimeDomain::Browser => Ok(
             ocentra_browser_core::browser_ai_analysis_requested_event(event),
         ),
-        ChildRuntimeDomain::Lan => {
-            Ok(ocentra_lan_core::lan_ai_analysis_requested_event(event))
-        }
+        ChildRuntimeDomain::Lan => Ok(ocentra_lan_core::lan_ai_analysis_requested_event(event)),
         ChildRuntimeDomain::Network => Ok(
             ocentra_network_core::network_ai_analysis_requested_event(event),
         ),
-        ChildRuntimeDomain::Screen => Ok(
-            ocentra_screen_core::screen_ai_analysis_requested_event(event),
-        ),
+        ChildRuntimeDomain::Screen => Ok(ocentra_screen_core::screen_ai_analysis_requested_event(
+            event,
+        )),
         ChildRuntimeDomain::ScreenLiveView => {
             Ok(ocentra_screen_live_view_core::screen_live_view_ai_analysis_requested_event(event))
         }
@@ -448,18 +490,18 @@ fn child_domain_policy_evaluation_requested_event(
     event: &ChildDomainEvidenceRecordedEvent,
 ) -> Result<Option<ChildDomainPolicyEvaluationRequestedEvent>, EventingError> {
     match event.domain {
-        ChildRuntimeDomain::App => {
-            Ok(ocentra_app_core::app_policy_evaluation_requested_event(event))
-        }
+        ChildRuntimeDomain::App => Ok(ocentra_app_core::app_policy_evaluation_requested_event(
+            event,
+        )),
         ChildRuntimeDomain::AppGame => {
             Ok(ocentra_app_game_core::app_game_policy_evaluation_requested_event(event))
         }
         ChildRuntimeDomain::Browser => {
             Ok(ocentra_browser_core::browser_policy_evaluation_requested_event(event))
         }
-        ChildRuntimeDomain::Lan => Ok(
-            ocentra_lan_core::lan_policy_evaluation_requested_event(event),
-        ),
+        ChildRuntimeDomain::Lan => Ok(ocentra_lan_core::lan_policy_evaluation_requested_event(
+            event,
+        )),
         ChildRuntimeDomain::Network => {
             Ok(ocentra_network_core::network_policy_evaluation_requested_event(event))
         }

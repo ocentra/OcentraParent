@@ -6,6 +6,7 @@ use ocentra_entitlement_core::{
     EntitlementCapability, EntitlementCapabilityInput, EntitlementCapabilityScope,
     EntitlementPolicyState, FamilySetupState, OfflineGraceState, SubscriptionState,
 };
+use ocentra_eventing::DomainEvent;
 use ocentra_family_identity_core::{
     ActorAccountState, ChildDisclosureState, ChildProfileBindingState, DeviceOwnershipScope,
     DeviceScopeInput, FamilyActorRole, HouseholdMembership,
@@ -38,9 +39,10 @@ fn child_runtime_preflight_allows_start_when_identity_setup_entitlement_and_stor
         decision.manual_review_state,
         ocentra_child_runtime::ChildRuntimeManualReviewState::NotRequired
     );
-    assert!(ocentra_child_runtime::child_runtime_remote_upload_allowed(
-        &decision
-    ));
+    assert_eq!(
+        ocentra_child_runtime::child_runtime_remote_upload_allowed(&decision),
+        true
+    );
 }
 
 #[test]
@@ -62,8 +64,8 @@ fn child_runtime_preflight_blocks_when_entitlement_is_parent_portal_only() {
 
 #[test]
 fn child_runtime_remote_access_reuses_remote_session_gate() {
-    let decision = ocentra_child_runtime::evaluate_child_runtime_remote_access(
-        RemoteAccessSessionRequest {
+    let decision =
+        ocentra_child_runtime::evaluate_child_runtime_remote_access(RemoteAccessSessionRequest {
             parent_authority_state: ParentAuthorityState::Authorized,
             child_disclosure_state: ChildDisclosureState::Disclosed,
             relay_state: RemoteAccessRelayState::Available,
@@ -71,8 +73,7 @@ fn child_runtime_remote_access_reuses_remote_session_gate() {
             input_authority_state: RemoteAccessInputAuthorityState::ViewOnly,
             requested_minutes: 15,
             maximum_minutes: 30,
-        },
-    );
+        });
 
     assert_eq!(
         decision.session_decision.authorization_state,
@@ -102,6 +103,46 @@ fn child_runtime_enforcement_reuses_policy_authorized_adapter_gate() {
     assert_eq!(
         decision.runtime_start_state,
         ocentra_child_runtime::ChildRuntimeStartState::Allowed
+    );
+}
+
+#[test]
+fn child_runtime_preflight_request_records_typed_decision_event() {
+    let request = ocentra_child_runtime::ChildRuntimePreflightRequestedEvent {
+        aggregate_id: ocentra_child_runtime::ChildRuntimeAggregateId::parse(
+            "child-runtime-device-default",
+        )
+        .expect("child runtime aggregate"),
+        request_id: ocentra_child_runtime::ChildRuntimePreflightRequestId::parse(
+            "child-runtime-preflight-default",
+        )
+        .expect("child runtime preflight request"),
+        input: valid_child_runtime_preflight_input(),
+    };
+
+    let decision = ocentra_child_runtime::record_child_runtime_preflight_decision(&request);
+
+    assert_eq!(decision.aggregate_id, request.aggregate_id);
+    assert_eq!(decision.source_request_id, request.request_id);
+    assert_eq!(
+        decision.decision.runtime_start_state,
+        ocentra_child_runtime::ChildRuntimeStartState::Allowed
+    );
+    assert_eq!(
+        request
+            .contract()
+            .expect("child runtime preflight request contract")
+            .event_type
+            .as_str(),
+        ocentra_child_runtime::CHILD_RUNTIME_PREFLIGHT_REQUESTED_EVENT_TYPE
+    );
+    assert_eq!(
+        decision
+            .contract()
+            .expect("child runtime preflight decision contract")
+            .event_type
+            .as_str(),
+        ocentra_child_runtime::CHILD_RUNTIME_PREFLIGHT_DECISION_RECORDED_EVENT_TYPE
     );
 }
 

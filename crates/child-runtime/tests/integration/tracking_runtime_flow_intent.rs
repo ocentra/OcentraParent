@@ -1,4 +1,7 @@
-use ocentra_parent_agent_protocol::{constants, TrackingEvidenceRef};
+use ocentra_parent_agent_protocol::{
+    constants, TrackingCheckInState, TrackingEvidenceRef, TrackingExpectedPlaceState,
+    TrackingTransitionKind,
+};
 
 #[tokio::test]
 async fn tracking_runtime_flow_keeps_ai_policy_and_notification_decoupled_by_events() {
@@ -18,6 +21,35 @@ async fn tracking_runtime_flow_keeps_ai_policy_and_notification_decoupled_by_eve
             TrackingEvidenceRef::parse(constants::tracking_runtime::DEFAULT_EVIDENCE_REF)
                 .expect(constants::tracking_runtime::DEFAULT_EVIDENCE_REF)
         ]
+    );
+    assert_eq!(
+        flow_report
+            .geofence_transition_detected
+            .as_ref()
+            .expect(constants::tracking_runtime::ERROR_TRACKING_RUNTIME_FLOW_RECORDED)
+            .transition_kind,
+        TrackingTransitionKind::parse(constants::tracking_runtime::GEOFENCE_TRANSITION_UNCHANGED)
+            .expect(constants::tracking_runtime::GEOFENCE_TRANSITION_UNCHANGED)
+    );
+    assert_eq!(
+        flow_report
+            .expected_place_state_evaluated
+            .as_ref()
+            .expect(constants::tracking_runtime::ERROR_TRACKING_RUNTIME_FLOW_RECORDED)
+            .expected_place_state,
+        TrackingExpectedPlaceState::parse(
+            constants::tracking_runtime::EXPECTED_PLACE_STATE_UNKNOWN
+        )
+        .expect(constants::tracking_runtime::EXPECTED_PLACE_STATE_UNKNOWN)
+    );
+    assert_eq!(
+        flow_report
+            .child_check_in_recorded
+            .as_ref()
+            .expect(constants::tracking_runtime::ERROR_TRACKING_RUNTIME_FLOW_RECORDED)
+            .check_in_state,
+        TrackingCheckInState::parse(constants::tracking_runtime::CHECK_IN_STATE_RECEIVED)
+            .expect(constants::tracking_runtime::CHECK_IN_STATE_RECEIVED)
     );
     assert_eq!(
         flow_report
@@ -62,5 +94,69 @@ async fn tracking_runtime_flow_keeps_ai_policy_and_notification_decoupled_by_eve
             .as_ref()
             .expect(constants::tracking_runtime::ERROR_TRACKING_RUNTIME_FLOW_RECORDED)
             .violation_id
+    );
+}
+
+#[tokio::test]
+async fn tracking_runtime_flow_can_attach_once_to_runtime_owned_bus() {
+    let runtime_flow = ocentra_child_runtime::TrackingRuntimeEventFlow::new()
+        .await
+        .expect(constants::tracking_runtime::ERROR_TRACKING_RUNTIME_FLOW_RECORDED);
+    let metrics_before = runtime_flow.metrics_snapshot().await;
+
+    let flow_report = runtime_flow
+        .publish_location_observed(ocentra_tracking_core::default_location_observed_event())
+        .await
+        .expect(constants::tracking_runtime::ERROR_TRACKING_RUNTIME_FLOW_RECORDED);
+    let metrics_after = runtime_flow.metrics_snapshot().await;
+
+    assert_eq!(metrics_before.subscription_count, 4);
+    assert_eq!(metrics_after.subscription_count, 4);
+    assert_eq!(
+        flow_report
+            .tracking_subscription_report
+            .subscriber_id
+            .as_str(),
+        constants::tracking_runtime::SUBSCRIBER_CHILD_TRACKING_OBSERVER
+    );
+    assert_eq!(
+        flow_report
+            .geofence_transition_detected
+            .expect(constants::tracking_runtime::ERROR_TRACKING_RUNTIME_FLOW_RECORDED)
+            .evidence_refs,
+        vec![flow_report.evidence_recorded.evidence_ref.clone()]
+    );
+    assert_eq!(
+        flow_report
+            .expected_place_state_evaluated
+            .expect(constants::tracking_runtime::ERROR_TRACKING_RUNTIME_FLOW_RECORDED)
+            .evidence_refs,
+        vec![flow_report.evidence_recorded.evidence_ref.clone()]
+    );
+    assert_eq!(
+        flow_report
+            .child_check_in_recorded
+            .expect(constants::tracking_runtime::ERROR_TRACKING_RUNTIME_FLOW_RECORDED)
+            .source_observation_id,
+        flow_report.evidence_recorded.source_observation_id
+    );
+    assert_eq!(
+        flow_report
+            .ai_analysis_requested
+            .expect(constants::tracking_runtime::ERROR_TRACKING_RUNTIME_FLOW_RECORDED)
+            .evidence_refs,
+        vec![flow_report.evidence_recorded.evidence_ref.clone()]
+    );
+    assert_eq!(
+        flow_report
+            .policy_violation_detected
+            .as_ref()
+            .expect(constants::tracking_runtime::ERROR_TRACKING_RUNTIME_FLOW_RECORDED)
+            .evidence_refs,
+        flow_report
+            .parent_notification_requested
+            .as_ref()
+            .expect(constants::tracking_runtime::ERROR_TRACKING_RUNTIME_FLOW_RECORDED)
+            .evidence_refs
     );
 }

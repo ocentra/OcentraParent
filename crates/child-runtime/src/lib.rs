@@ -30,14 +30,7 @@ pub fn tracking_runtime_crate_name() -> &'static str {
 
 pub use child_domain_runtime_flow::{
     publish_child_domain_observed_event, publish_default_child_domain_runtime_flows,
-    ChildDomainRuntimeFlowReport,
-};
-pub use runtime_gate::{
-    child_runtime_remote_upload_allowed, evaluate_child_runtime_enforcement,
-    evaluate_child_runtime_preflight, evaluate_child_runtime_remote_access,
-    ChildRuntimeEnforcementDecision, ChildRuntimeManualReviewState,
-    ChildRuntimePreflightDecision, ChildRuntimePreflightInput, ChildRuntimeRemoteAccessDecision,
-    ChildRuntimeStartState,
+    ChildDomainRuntimeEventFlow, ChildDomainRuntimeFlowReport,
 };
 pub use ocentra_parent_agent_protocol::{
     child_tracking_config_updated_event_from_parent,
@@ -47,8 +40,20 @@ pub use ocentra_parent_agent_protocol::{
     TrackingConfigUpdateTargetScope,
 };
 pub use ocentra_tracking_core::TrackingRetentionSettingsWriteAppliedState;
+pub use runtime_gate::{
+    child_runtime_remote_upload_allowed, evaluate_child_runtime_enforcement,
+    evaluate_child_runtime_preflight, evaluate_child_runtime_remote_access,
+    record_child_runtime_preflight_decision, ChildRuntimeAggregateId,
+    ChildRuntimeEnforcementDecision, ChildRuntimeManualReviewState, ChildRuntimePreflightDecision,
+    ChildRuntimePreflightDecisionId, ChildRuntimePreflightDecisionRecordedEvent,
+    ChildRuntimePreflightInput, ChildRuntimePreflightRequestId,
+    ChildRuntimePreflightRequestedEvent, ChildRuntimeRemoteAccessDecision, ChildRuntimeStartState,
+    CHILD_RUNTIME_PREFLIGHT_DECISION_RECORDED_EVENT_TYPE,
+    CHILD_RUNTIME_PREFLIGHT_REQUESTED_EVENT_TYPE,
+};
 pub use tracking_runtime_flow::{
-    publish_child_tracking_location_observed_event, TrackingRuntimeEventFlowReport,
+    publish_child_tracking_location_observed_event, TrackingRuntimeEventFlow,
+    TrackingRuntimeEventFlowReport,
 };
 
 #[derive(Clone, Debug, PartialEq, Eq)]
@@ -67,32 +72,66 @@ pub struct TrackingConfigUpdateEventFlowReport {
     pub applied_report: TrackingConfigUpdateAppliedReport,
 }
 
+pub struct TrackingConfigUpdateEventFlow {
+    bus: EventBus,
+    state: TrackingConfigUpdateEventState,
+    parent_subscription_report: SubscriptionReport,
+    child_subscription_report: SubscriptionReport,
+}
+
+impl TrackingConfigUpdateEventFlow {
+    pub async fn new() -> Result<Self, EventingError> {
+        let bus = EventBus::new();
+        let state = TrackingConfigUpdateEventState::default();
+        let child_subscription_report =
+            subscribe_child_tracking_config_updated_events(&bus, state.clone()).await?;
+        let parent_subscription_report =
+            subscribe_parent_tracking_config_updated_events(&bus, state.clone()).await?;
+
+        Ok(Self {
+            bus,
+            state,
+            parent_subscription_report,
+            child_subscription_report,
+        })
+    }
+
+    pub async fn publish_parent_config_updated(
+        &self,
+        parent_event: &ParentTrackingConfigUpdatedEvent,
+    ) -> Result<TrackingConfigUpdateEventFlowReport, EventingError> {
+        let parent_request_report = self
+            .bus
+            .publish_request(
+                parent_event.clone(),
+                parent_tracking_config_updated_metadata(parent_event)?,
+                RequestOptions::with_timeout(Duration::from_millis(
+                    constants::tracking_config_update::REQUEST_TIMEOUT_MS,
+                ))?,
+            )
+            .await?;
+        let applied_report = self.state.applied_report()?;
+
+        Ok(TrackingConfigUpdateEventFlowReport {
+            parent_subscription_report: self.parent_subscription_report.clone(),
+            child_subscription_report: self.child_subscription_report.clone(),
+            parent_request_report,
+            applied_report,
+        })
+    }
+
+    pub async fn metrics_snapshot(&self) -> ocentra_eventing::EventMetricsSnapshot {
+        self.bus.metrics_snapshot().await
+    }
+}
+
 pub async fn publish_parent_tracking_config_updated_event(
     parent_event: &ParentTrackingConfigUpdatedEvent,
 ) -> Result<TrackingConfigUpdateEventFlowReport, EventingError> {
-    let bus = EventBus::new();
-    let state = TrackingConfigUpdateEventState::default();
-    let child_subscription_report =
-        subscribe_child_tracking_config_updated_events(&bus, state.clone()).await?;
-    let parent_subscription_report =
-        subscribe_parent_tracking_config_updated_events(&bus, state.clone()).await?;
-    let parent_request_report = bus
-        .publish_request(
-            parent_event.clone(),
-            parent_tracking_config_updated_metadata(parent_event)?,
-            RequestOptions::with_timeout(Duration::from_millis(
-                constants::tracking_config_update::REQUEST_TIMEOUT_MS,
-            ))?,
-        )
-        .await?;
-    let applied_report = state.applied_report()?;
-
-    Ok(TrackingConfigUpdateEventFlowReport {
-        parent_subscription_report,
-        child_subscription_report,
-        parent_request_report,
-        applied_report,
-    })
+    TrackingConfigUpdateEventFlow::new()
+        .await?
+        .publish_parent_config_updated(parent_event)
+        .await
 }
 
 pub async fn subscribe_parent_tracking_config_updated_events(
