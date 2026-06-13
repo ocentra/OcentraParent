@@ -1,6 +1,7 @@
 #![forbid(unsafe_code)]
 
 mod performance_budget;
+mod runtime_decision;
 
 use ocentra_parent_agent_protocol::{
     child_domain_ai_analysis_requested_event_if_required,
@@ -11,6 +12,7 @@ use ocentra_parent_agent_protocol::{
     ChildDomainObservedSignal, ChildDomainPolicyEvaluationRequestedEvent,
     ChildDomainPolicyEvaluationRequirement, ChildRuntimeDomain,
 };
+use serde::{Deserialize, Serialize};
 
 pub const CRATE_NAME: &str = "ocentra-browser-core";
 
@@ -18,8 +20,15 @@ pub use performance_budget::{
     browser_performance_fixture_budget_matrix, evaluate_browser_performance_budget,
     BrowserPerformanceBudgetCheck, BrowserPerformanceBudgetError, BrowserPerformanceBudgetState,
 };
+pub use runtime_decision::{
+    browser_runtime_decision_recorded_event, browser_runtime_observed_event,
+    evaluate_browser_runtime, BrowserAggregateId, BrowserAiHandoffState,
+    BrowserCapabilityState, BrowserClassificationState, BrowserForegroundState,
+    BrowserPolicyHandoffState, BrowserRuntimeActionState, BrowserRuntimeDecision,
+    BrowserRuntimeDecisionId, BrowserRuntimeDecisionRecordedEvent, BrowserRuntimeInput,
+};
 
-#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
 pub enum BrowserObservationIntent {
     AmbiguousNavigationRequiresAi,
     KnownPolicyNavigationRequiresPolicy,
