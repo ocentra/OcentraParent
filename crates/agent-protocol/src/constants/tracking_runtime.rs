@@ -8,6 +8,7 @@ pub const TRACKING_EXPECTED_PLACE_STATE_EVALUATED_EVENT_TYPE: &str =
     "tracking.expected-place.state.evaluated";
 pub const TRACKING_POLICY_VIOLATION_DETECTED_EVENT_TYPE: &str =
     "tracking.policy.violation.detected";
+pub const TRACKING_ALERT_EVALUATED_EVENT_TYPE: &str = "tracking.alert.evaluated";
 pub const TRACKING_PARENT_ACKNOWLEDGEMENT_RECORDED_EVENT_TYPE: &str =
     "tracking.parent-acknowledgement.recorded";
 pub const TRACKING_CHILD_CHECK_IN_RECORDED_EVENT_TYPE: &str = "tracking.child-check-in.recorded";

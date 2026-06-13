@@ -1,7 +1,8 @@
 use ocentra_parent_agent_protocol::{
-    constants, TrackingCapabilityStatus, TrackingEvidenceRef, TrackingGeofenceRuleRef,
+    constants, TrackingCapabilityStatus, TrackingGeofenceRuleRef,
     TrackingGeofenceTransitionDetectedEvent, TrackingLocationObservedEvent, TrackingReasonCode,
-    TrackingTransitionId, TrackingTransitionKind,
+    TrackingTransitionKind, tracking_evidence_ref_from_observation_id,
+    tracking_transition_id_from_observation_id,
 };
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
@@ -29,10 +30,7 @@ pub fn detect_geofence_transition(
     TrackingGeofenceTransitionDetectedEvent {
         child_device_id: event.child_device_id.clone(),
         child_profile_id: event.child_profile_id.clone(),
-        transition_id: TrackingTransitionId::parse(
-            constants::tracking_runtime::DEFAULT_GEOFENCE_TRANSITION_ID,
-        )
-        .expect(constants::tracking_runtime::DEFAULT_GEOFENCE_TRANSITION_ID),
+        transition_id: tracking_transition_id_from_observation_id(&event.observation_id),
         geofence_rule_ref: TrackingGeofenceRuleRef::parse(
             constants::tracking_runtime::DEFAULT_GEOFENCE_RULE_REF,
         )
@@ -43,10 +41,7 @@ pub fn detect_geofence_transition(
         capability_status: evaluation.capability_status,
         distance_meters: evaluation.distance_meters,
         reason_codes,
-        evidence_refs: vec![TrackingEvidenceRef::parse(
-            constants::tracking_runtime::DEFAULT_EVIDENCE_REF,
-        )
-        .expect(constants::tracking_runtime::DEFAULT_EVIDENCE_REF)],
+        evidence_refs: vec![tracking_evidence_ref_from_observation_id(&event.observation_id)],
     }
 }
 

@@ -1,6 +1,6 @@
 use ocentra_parent_agent_protocol::{
     constants, TrackingAlertEvaluationId, TrackingAlertSeverity, TrackingEvidenceRef,
-    TrackingPolicyViolationDetectedEvent,
+    TrackingPolicyViolationDetectedEvent, tracking_alert_evaluation_id_from_violation_id,
 };
 
 #[derive(Clone, Debug, PartialEq, Eq)]
@@ -29,10 +29,7 @@ pub fn evaluate_tracking_alert(
         };
 
     TrackingAlertDecision {
-        alert_evaluation_id: TrackingAlertEvaluationId::parse(
-            constants::tracking_runtime::DEFAULT_ALERT_EVALUATION_ID,
-        )
-        .expect(constants::tracking_runtime::DEFAULT_ALERT_EVALUATION_ID),
+        alert_evaluation_id: tracking_alert_evaluation_id_from_violation_id(&event.violation_id),
         severity: alert_severity_for(event, &parent_notification_state),
         parent_notification_state,
         evidence_refs: event.evidence_refs.clone(),

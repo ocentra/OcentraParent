@@ -1,4 +1,5 @@
 use ocentra_eventing::EventingError;
+use crate::constants;
 use serde::{Deserialize, Serialize};
 
 macro_rules! tracking_text_identifier {
@@ -177,3 +178,132 @@ tracking_text_identifier!(TrackingTransitionId, "tracking.transition_id");
 tracking_text_identifier!(TrackingTransitionKind, "tracking.transition_kind");
 tracking_text_identifier!(TrackingUncertaintyCode, "tracking.uncertainty_code");
 tracking_text_identifier!(TrackingWriterIntentRef, "tracking.writer_intent_ref");
+
+fn derived_tracking_identifier_value(prefix: &str, segments: &[&str]) -> String {
+    let mut value = String::from(prefix);
+    for segment in segments {
+        value.push_str(constants::tracking_runtime::IDEMPOTENCY_SEPARATOR);
+        value.push_str(segment);
+    }
+    value
+}
+
+fn tracking_policy_violation_id_from_source_and_rule_ref(
+    source_ref: &str,
+    policy_rule_ref: &TrackingPolicyRuleRef,
+) -> TrackingPolicyViolationId {
+    let value = derived_tracking_identifier_value(
+        constants::tracking_runtime::TRACKING_POLICY_VIOLATION_DETECTED_EVENT_TYPE,
+        &[source_ref, policy_rule_ref.as_str()],
+    );
+    TrackingPolicyViolationId::parse(value)
+        .expect(constants::tracking_runtime::TRACKING_POLICY_VIOLATION_DETECTED_EVENT_TYPE)
+}
+
+pub fn tracking_evidence_ref_from_observation_id(
+    observation_id: &TrackingObservationId,
+) -> TrackingEvidenceRef {
+    let value = derived_tracking_identifier_value(
+        constants::tracking_runtime::TRACKING_EVIDENCE_RECORDED_EVENT_TYPE,
+        &[observation_id.as_str()],
+    );
+    TrackingEvidenceRef::parse(value)
+        .expect(constants::tracking_runtime::TRACKING_EVIDENCE_RECORDED_EVENT_TYPE)
+}
+
+pub fn tracking_ai_request_id_from_evidence_ref(
+    evidence_ref: &TrackingEvidenceRef,
+) -> TrackingAiRequestId {
+    let value = derived_tracking_identifier_value(
+        constants::tracking_runtime::TRACKING_AI_ANALYSIS_REQUESTED_EVENT_TYPE,
+        &[evidence_ref.as_str()],
+    );
+    TrackingAiRequestId::parse(value)
+        .expect(constants::tracking_runtime::TRACKING_AI_ANALYSIS_REQUESTED_EVENT_TYPE)
+}
+
+pub fn tracking_transition_id_from_observation_id(
+    observation_id: &TrackingObservationId,
+) -> TrackingTransitionId {
+    let value = derived_tracking_identifier_value(
+        constants::tracking_runtime::TRACKING_GEOFENCE_TRANSITION_DETECTED_EVENT_TYPE,
+        &[observation_id.as_str()],
+    );
+    TrackingTransitionId::parse(value).expect(
+        constants::tracking_runtime::TRACKING_GEOFENCE_TRANSITION_DETECTED_EVENT_TYPE,
+    )
+}
+
+pub fn tracking_evaluation_id_from_observation_id(
+    observation_id: &TrackingObservationId,
+) -> TrackingEvaluationId {
+    let value = derived_tracking_identifier_value(
+        constants::tracking_runtime::TRACKING_EXPECTED_PLACE_STATE_EVALUATED_EVENT_TYPE,
+        &[observation_id.as_str()],
+    );
+    TrackingEvaluationId::parse(value).expect(
+        constants::tracking_runtime::TRACKING_EXPECTED_PLACE_STATE_EVALUATED_EVENT_TYPE,
+    )
+}
+
+pub fn tracking_check_in_id_from_observation_id(
+    observation_id: &TrackingObservationId,
+) -> TrackingCheckInId {
+    let value = derived_tracking_identifier_value(
+        constants::tracking_runtime::TRACKING_CHILD_CHECK_IN_RECORDED_EVENT_TYPE,
+        &[observation_id.as_str()],
+    );
+    TrackingCheckInId::parse(value)
+        .expect(constants::tracking_runtime::TRACKING_CHILD_CHECK_IN_RECORDED_EVENT_TYPE)
+}
+
+pub fn tracking_violation_id_from_ai_request_and_rule_ref(
+    ai_request_id: &TrackingAiRequestId,
+    policy_rule_ref: &TrackingPolicyRuleRef,
+) -> TrackingPolicyViolationId {
+    tracking_policy_violation_id_from_source_and_rule_ref(ai_request_id.as_str(), policy_rule_ref)
+}
+
+pub fn tracking_violation_id_from_evaluation_and_rule_ref(
+    evaluation_id: &TrackingEvaluationId,
+    policy_rule_ref: &TrackingPolicyRuleRef,
+) -> TrackingPolicyViolationId {
+    tracking_policy_violation_id_from_source_and_rule_ref(
+        evaluation_id.as_str(),
+        policy_rule_ref,
+    )
+}
+
+pub fn tracking_notification_id_from_violation_id(
+    violation_id: &TrackingPolicyViolationId,
+) -> TrackingNotificationId {
+    let value = derived_tracking_identifier_value(
+        constants::tracking_runtime::PARENT_NOTIFICATION_REQUESTED_EVENT_TYPE,
+        &[violation_id.as_str()],
+    );
+    TrackingNotificationId::parse(value)
+        .expect(constants::tracking_runtime::PARENT_NOTIFICATION_REQUESTED_EVENT_TYPE)
+}
+
+pub fn tracking_acknowledgement_id_from_violation_id(
+    violation_id: &TrackingPolicyViolationId,
+) -> TrackingAcknowledgementId {
+    let value = derived_tracking_identifier_value(
+        constants::tracking_runtime::TRACKING_PARENT_ACKNOWLEDGEMENT_RECORDED_EVENT_TYPE,
+        &[violation_id.as_str()],
+    );
+    TrackingAcknowledgementId::parse(value).expect(
+        constants::tracking_runtime::TRACKING_PARENT_ACKNOWLEDGEMENT_RECORDED_EVENT_TYPE,
+    )
+}
+
+pub fn tracking_alert_evaluation_id_from_violation_id(
+    violation_id: &TrackingPolicyViolationId,
+) -> TrackingAlertEvaluationId {
+    let value = derived_tracking_identifier_value(
+        constants::tracking_runtime::TRACKING_ALERT_EVALUATED_EVENT_TYPE,
+        &[violation_id.as_str()],
+    );
+    TrackingAlertEvaluationId::parse(value)
+        .expect(constants::tracking_runtime::TRACKING_ALERT_EVALUATED_EVENT_TYPE)
+}

@@ -80,10 +80,11 @@ impl TrackingRuntimeEventFlow {
         event: TrackingLocationObservedEvent,
     ) -> Result<TrackingRuntimeEventFlowReport, EventingError> {
         self.state.reset_for_new_observation();
+        let correlation_suffix = event.observation_id.as_str().to_owned();
         self.bus
             .publish(
                 event,
-                tracking_runtime_metadata(TrackingRuntimeHop::LocationObserved)?,
+                tracking_runtime_metadata(TrackingRuntimeHop::LocationObserved, &correlation_suffix)?,
             )
             .await?;
 
@@ -165,7 +166,10 @@ async fn subscribe_tracking_location_observed_events(
                     .publisher()
                     .publish(
                         evidence.clone(),
-                        tracking_runtime_metadata(TrackingRuntimeHop::EvidenceRecorded)?,
+                        tracking_runtime_metadata(
+                            TrackingRuntimeHop::EvidenceRecorded,
+                            evidence.evidence_ref.as_str(),
+                        )?,
                     )
                     .await?;
 
@@ -175,8 +179,11 @@ async fn subscribe_tracking_location_observed_events(
                 context
                     .publisher()
                     .publish(
-                        geofence,
-                        tracking_runtime_metadata(TrackingRuntimeHop::GeofenceTransitionDetected)?,
+                        geofence.clone(),
+                        tracking_runtime_metadata(
+                            TrackingRuntimeHop::GeofenceTransitionDetected,
+                            geofence.transition_id.as_str(),
+                        )?,
                     )
                     .await?;
 
@@ -186,8 +193,11 @@ async fn subscribe_tracking_location_observed_events(
                 context
                     .publisher()
                     .publish(
-                        expected_place,
-                        tracking_runtime_metadata(TrackingRuntimeHop::ExpectedPlaceStateEvaluated)?,
+                        expected_place.clone(),
+                        tracking_runtime_metadata(
+                            TrackingRuntimeHop::ExpectedPlaceStateEvaluated,
+                            expected_place.evaluation_id.as_str(),
+                        )?,
                     )
                     .await?;
 
@@ -199,8 +209,11 @@ async fn subscribe_tracking_location_observed_events(
                 context
                     .publisher()
                     .publish(
-                        check_in,
-                        tracking_runtime_metadata(TrackingRuntimeHop::ChildCheckInRecorded)?,
+                        check_in.clone(),
+                        tracking_runtime_metadata(
+                            TrackingRuntimeHop::ChildCheckInRecorded,
+                            check_in.check_in_id.as_str(),
+                        )?,
                     )
                     .await?;
 
@@ -209,8 +222,11 @@ async fn subscribe_tracking_location_observed_events(
                     context
                         .publisher()
                         .publish(
-                            ai_request,
-                            tracking_runtime_metadata(TrackingRuntimeHop::AiAnalysisRequested)?,
+                            ai_request.clone(),
+                            tracking_runtime_metadata(
+                                TrackingRuntimeHop::AiAnalysisRequested,
+                                ai_request.ai_request_id.as_str(),
+                            )?,
                         )
                         .await?;
                 }
@@ -246,8 +262,11 @@ async fn subscribe_child_ai_tracking_analysis_events(
                 context
                     .publisher()
                     .publish(
-                        classified,
-                        tracking_runtime_metadata(TrackingRuntimeHop::NearbyPlaceClassified)?,
+                        classified.clone(),
+                        tracking_runtime_metadata(
+                            TrackingRuntimeHop::NearbyPlaceClassified,
+                            classified.source_ai_request_id.as_str(),
+                        )?,
                     )
                     .await?;
                 Ok(())
@@ -299,8 +318,11 @@ async fn subscribe_child_policy_tracking_analysis_events(
                     context
                         .publisher()
                         .publish(
-                            violation,
-                            tracking_runtime_metadata(TrackingRuntimeHop::PolicyViolationDetected)?,
+                            violation.clone(),
+                            tracking_runtime_metadata(
+                                TrackingRuntimeHop::PolicyViolationDetected,
+                                violation.violation_id.as_str(),
+                            )?,
                         )
                         .await?;
                 }
@@ -339,8 +361,11 @@ async fn subscribe_child_policy_tracking_expected_place_events(
                     context
                         .publisher()
                         .publish(
-                            violation,
-                            tracking_runtime_metadata(TrackingRuntimeHop::PolicyViolationDetected)?,
+                            violation.clone(),
+                            tracking_runtime_metadata(
+                                TrackingRuntimeHop::PolicyViolationDetected,
+                                violation.violation_id.as_str(),
+                            )?,
                         )
                         .await?;
                 }
@@ -398,8 +423,11 @@ async fn subscribe_child_notification_policy_events(
                 context
                     .publisher()
                     .publish(
-                        notification,
-                        tracking_runtime_metadata(TrackingRuntimeHop::ParentNotificationRequested)?,
+                        notification.clone(),
+                        tracking_runtime_metadata(
+                            TrackingRuntimeHop::ParentNotificationRequested,
+                            notification.notification_id.as_str(),
+                        )?,
                     )
                     .await?;
                 Ok(())
@@ -729,34 +757,15 @@ impl TrackingRuntimeHop {
         }
     }
 
-    fn correlation_suffix(self) -> &'static str {
-        match self {
-            Self::LocationObserved => constants::tracking_runtime::DEFAULT_OBSERVATION_ID,
-            Self::EvidenceRecorded => constants::tracking_runtime::DEFAULT_EVIDENCE_REF,
-            Self::GeofenceTransitionDetected => {
-                constants::tracking_runtime::DEFAULT_GEOFENCE_TRANSITION_ID
-            }
-            Self::ExpectedPlaceStateEvaluated => {
-                constants::tracking_runtime::DEFAULT_EXPECTED_PLACE_EVALUATION_ID
-            }
-            Self::ChildCheckInRecorded => constants::tracking_runtime::DEFAULT_CHILD_CHECK_IN_ID,
-            Self::AiAnalysisRequested | Self::NearbyPlaceClassified => {
-                constants::tracking_runtime::DEFAULT_AI_REQUEST_ID
-            }
-            Self::PolicyViolationDetected => {
-                constants::tracking_runtime::DEFAULT_POLICY_VIOLATION_ID
-            }
-            Self::ParentNotificationRequested => {
-                constants::tracking_runtime::DEFAULT_NOTIFICATION_ID
-            }
-        }
-    }
 }
 
-fn tracking_runtime_metadata(hop: TrackingRuntimeHop) -> Result<EventMetadata, EventingError> {
+fn tracking_runtime_metadata(
+    hop: TrackingRuntimeHop,
+    correlation_suffix: &str,
+) -> Result<EventMetadata, EventingError> {
     Ok(EventMetadata::from_parts(
         EventId::generated(),
-        tracking_runtime_correlation_id(hop)?,
+        tracking_runtime_correlation_id(correlation_suffix)?,
         EventSource::new(
             EventCustody::parse(constants::child_agent::CUSTODY_CHILD_AGENT_RUNTIME)?,
             RuntimeRole::parse(hop.runtime_role())?,
@@ -769,10 +778,8 @@ fn tracking_runtime_metadata(hop: TrackingRuntimeHop) -> Result<EventMetadata, E
     ))
 }
 
-fn tracking_runtime_correlation_id(
-    hop: TrackingRuntimeHop,
-) -> Result<CorrelationId, EventingError> {
+fn tracking_runtime_correlation_id(correlation_suffix: &str) -> Result<CorrelationId, EventingError> {
     let mut value = String::from(constants::tracking_runtime::CORRELATION_PREFIX);
-    value.push_str(hop.correlation_suffix());
+    value.push_str(correlation_suffix);
     CorrelationId::parse(value)
 }

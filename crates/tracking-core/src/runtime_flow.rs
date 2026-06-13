@@ -14,7 +14,9 @@ use ocentra_parent_agent_protocol::{
     TrackingLocationRelation, TrackingNotificationChannel, TrackingObservationId,
     TrackingParentAcknowledgementRecordedEvent, TrackingParentActionRequirement,
     TrackingRuntimeConfig, TrackingRuntimeEnabledState, TrackingRuntimeMode, TrackingTimestamp,
-    TrackingUncertaintyCode,
+    TrackingUncertaintyCode, tracking_acknowledgement_id_from_violation_id,
+    tracking_ai_request_id_from_evidence_ref, tracking_check_in_id_from_observation_id,
+    tracking_evidence_ref_from_observation_id,
 };
 
 #[derive(Clone, Debug, PartialEq, Eq)]
@@ -41,10 +43,6 @@ enum TrackingRuntimeRef {
     DefaultChildProfile,
     DefaultObservation,
     DefaultExpectedPlace,
-    DefaultEvidence,
-    DefaultAiRequest,
-    DefaultParentAcknowledgement,
-    DefaultChildCheckIn,
 }
 
 impl TrackingRuntimeRef {
@@ -54,12 +52,6 @@ impl TrackingRuntimeRef {
             Self::DefaultChildProfile => constants::tracking_runtime::DEFAULT_CHILD_PROFILE_ID,
             Self::DefaultObservation => constants::tracking_runtime::DEFAULT_OBSERVATION_ID,
             Self::DefaultExpectedPlace => constants::tracking_runtime::DEFAULT_EXPECTED_PLACE_REF,
-            Self::DefaultEvidence => constants::tracking_runtime::DEFAULT_EVIDENCE_REF,
-            Self::DefaultAiRequest => constants::tracking_runtime::DEFAULT_AI_REQUEST_ID,
-            Self::DefaultParentAcknowledgement => {
-                constants::tracking_runtime::DEFAULT_PARENT_ACKNOWLEDGEMENT_ID
-            }
-            Self::DefaultChildCheckIn => constants::tracking_runtime::DEFAULT_CHILD_CHECK_IN_ID,
         }
     }
 }
@@ -230,7 +222,7 @@ pub fn record_tracking_evidence_from_location(
     TrackingEvidenceRecordedEvent {
         child_device_id: event.child_device_id.clone(),
         child_profile_id: event.child_profile_id.clone(),
-        evidence_ref: tracking_evidence_ref(TrackingRuntimeRef::DefaultEvidence),
+        evidence_ref: tracking_evidence_ref(&event.observation_id),
         source_observation_id: event.observation_id.clone(),
         location_relation: tracking_location_relation(relation_kind),
         ai_analysis_requirement: tracking_ai_analysis_requirement(&event.config, relation_kind),
@@ -249,7 +241,7 @@ pub fn tracking_ai_analysis_request_from_evidence(
     Some(TrackingAiAnalysisRequestedEvent {
         child_device_id: event.child_device_id.clone(),
         child_profile_id: event.child_profile_id.clone(),
-        ai_request_id: tracking_ai_request_id(TrackingRuntimeRef::DefaultAiRequest),
+        ai_request_id: tracking_ai_request_id(&event.evidence_ref),
         evidence_refs: vec![event.evidence_ref.clone()],
         uncertainty_code: tracking_uncertainty_code(
             TrackingUncertaintyKind::NearbyPlaceClassificationRequired,
@@ -293,9 +285,7 @@ pub fn tracking_parent_acknowledgement_from_notification(
     TrackingParentAcknowledgementRecordedEvent {
         child_device_id: event.child_device_id.clone(),
         child_profile_id: event.child_profile_id.clone(),
-        acknowledgement_id: tracking_acknowledgement_id(
-            TrackingRuntimeRef::DefaultParentAcknowledgement,
-        ),
+        acknowledgement_id: tracking_acknowledgement_id(&event.source_policy_violation_id),
         source_policy_violation_id: event.source_policy_violation_id.clone(),
         acknowledged_at: tracking_timestamp(TrackingTimestampKind::DefaultObservedAt),
         acknowledgement_state: tracking_acknowledgement_state(
@@ -312,7 +302,7 @@ pub fn tracking_child_check_in_from_location(
     TrackingChildCheckInRecordedEvent {
         child_device_id: event.child_device_id.clone(),
         child_profile_id: event.child_profile_id.clone(),
-        check_in_id: tracking_check_in_id(TrackingRuntimeRef::DefaultChildCheckIn),
+        check_in_id: tracking_check_in_id(&event.observation_id),
         source_observation_id: event.observation_id.clone(),
         checked_in_at: event.observed_at.clone(),
         check_in_state: tracking_check_in_state(TrackingCheckInStateValue::Received),
@@ -383,9 +373,8 @@ fn tracking_expected_place_ref(value: TrackingRuntimeRef) -> TrackingExpectedPla
     TrackingExpectedPlaceRef::parse(value).expect(value)
 }
 
-fn tracking_evidence_ref(value: TrackingRuntimeRef) -> TrackingEvidenceRef {
-    let value = value.as_contract_text();
-    TrackingEvidenceRef::parse(value).expect(value)
+fn tracking_evidence_ref(observation_id: &TrackingObservationId) -> TrackingEvidenceRef {
+    tracking_evidence_ref_from_observation_id(observation_id)
 }
 
 fn tracking_location_relation(value: TrackingLocationRelationKind) -> TrackingLocationRelation {
@@ -398,9 +387,8 @@ fn tracking_ai_purpose(value: TrackingAiPurposeKind) -> TrackingAiPurpose {
     TrackingAiPurpose::parse(value).expect(value)
 }
 
-fn tracking_ai_request_id(value: TrackingRuntimeRef) -> TrackingAiRequestId {
-    let value = value.as_contract_text();
-    TrackingAiRequestId::parse(value).expect(value)
+fn tracking_ai_request_id(evidence_ref: &TrackingEvidenceRef) -> TrackingAiRequestId {
+    tracking_ai_request_id_from_evidence_ref(evidence_ref)
 }
 
 fn tracking_uncertainty_code(value: TrackingUncertaintyKind) -> TrackingUncertaintyCode {
@@ -415,14 +403,14 @@ fn tracking_notification_channel(
     TrackingNotificationChannel::parse(value).expect(value)
 }
 
-fn tracking_acknowledgement_id(value: TrackingRuntimeRef) -> TrackingAcknowledgementId {
-    let value = value.as_contract_text();
-    TrackingAcknowledgementId::parse(value).expect(value)
+fn tracking_acknowledgement_id(
+    violation_id: &ocentra_parent_agent_protocol::TrackingPolicyViolationId,
+) -> TrackingAcknowledgementId {
+    tracking_acknowledgement_id_from_violation_id(violation_id)
 }
 
-fn tracking_check_in_id(value: TrackingRuntimeRef) -> TrackingCheckInId {
-    let value = value.as_contract_text();
-    TrackingCheckInId::parse(value).expect(value)
+fn tracking_check_in_id(observation_id: &TrackingObservationId) -> TrackingCheckInId {
+    tracking_check_in_id_from_observation_id(observation_id)
 }
 
 fn tracking_capability_status(value: &'static str) -> TrackingCapabilityStatus {

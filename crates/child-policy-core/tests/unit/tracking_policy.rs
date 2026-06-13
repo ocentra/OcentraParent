@@ -1,15 +1,21 @@
 use ocentra_child_policy_core::TrackingPolicyViolationState;
 use ocentra_parent_agent_protocol::{
-    constants, TrackingAiRequestId, TrackingChildDeviceId, TrackingChildProfileId,
-    TrackingConfidenceBasis, TrackingEvaluationId, TrackingEvidenceRef,
+    constants, TrackingChildDeviceId, TrackingChildProfileId, TrackingConfidenceBasis,
     TrackingExpectedPlaceRef, TrackingExpectedPlaceState, TrackingExpectedPlaceStateEvaluatedEvent,
     TrackingNearbyPlaceClassifiedEvent, TrackingObservationId, TrackingParentActionRequirement,
-    TrackingPlaceCategory, TrackingReasonCode, TrackingScheduleId,
+    TrackingPlaceCategory, TrackingPolicyRuleRef, TrackingReasonCode, TrackingScheduleId,
+    tracking_ai_request_id_from_evidence_ref, tracking_evaluation_id_from_observation_id,
+    tracking_evidence_ref_from_observation_id, tracking_violation_id_from_ai_request_and_rule_ref,
+    tracking_violation_id_from_evaluation_and_rule_ref,
 };
 
 fn tracking_nearby_place_fixture(
     parent_action_requirement: TrackingParentActionRequirement,
 ) -> TrackingNearbyPlaceClassifiedEvent {
+    let observation_id = TrackingObservationId::parse(constants::tracking_runtime::DEFAULT_OBSERVATION_ID)
+        .expect(constants::tracking_runtime::DEFAULT_OBSERVATION_ID);
+    let evidence_ref = tracking_evidence_ref_from_observation_id(&observation_id);
+
     TrackingNearbyPlaceClassifiedEvent {
         child_device_id: TrackingChildDeviceId::parse(
             constants::tracking_runtime::DEFAULT_CHILD_DEVICE_ID,
@@ -19,14 +25,8 @@ fn tracking_nearby_place_fixture(
             constants::tracking_runtime::DEFAULT_CHILD_PROFILE_ID,
         )
         .expect(constants::tracking_runtime::DEFAULT_CHILD_PROFILE_ID),
-        source_ai_request_id: TrackingAiRequestId::parse(
-            constants::tracking_runtime::DEFAULT_AI_REQUEST_ID,
-        )
-        .expect(constants::tracking_runtime::DEFAULT_AI_REQUEST_ID),
-        evidence_refs: vec![TrackingEvidenceRef::parse(
-            constants::tracking_runtime::DEFAULT_EVIDENCE_REF,
-        )
-        .expect(constants::tracking_runtime::DEFAULT_EVIDENCE_REF)],
+        source_ai_request_id: tracking_ai_request_id_from_evidence_ref(&evidence_ref),
+        evidence_refs: vec![evidence_ref],
         place_category: TrackingPlaceCategory::parse(
             constants::tracking_runtime::PLACE_CATEGORY_HOSPITAL,
         )
@@ -43,6 +43,9 @@ fn tracking_expected_place_fixture(
     expected_place_state: &'static str,
     parent_action_requirement: TrackingParentActionRequirement,
 ) -> TrackingExpectedPlaceStateEvaluatedEvent {
+    let observation_id = TrackingObservationId::parse(constants::tracking_runtime::DEFAULT_OBSERVATION_ID)
+        .expect(constants::tracking_runtime::DEFAULT_OBSERVATION_ID);
+
     TrackingExpectedPlaceStateEvaluatedEvent {
         child_device_id: TrackingChildDeviceId::parse(
             constants::tracking_runtime::DEFAULT_CHILD_DEVICE_ID,
@@ -52,10 +55,7 @@ fn tracking_expected_place_fixture(
             constants::tracking_runtime::DEFAULT_CHILD_PROFILE_ID,
         )
         .expect(constants::tracking_runtime::DEFAULT_CHILD_PROFILE_ID),
-        evaluation_id: TrackingEvaluationId::parse(
-            constants::tracking_runtime::DEFAULT_EXPECTED_PLACE_EVALUATION_ID,
-        )
-        .expect(constants::tracking_runtime::DEFAULT_EXPECTED_PLACE_EVALUATION_ID),
+        evaluation_id: tracking_evaluation_id_from_observation_id(&observation_id),
         schedule_id: TrackingScheduleId::parse(
             constants::tracking_runtime::DEFAULT_EXPECTED_PLACE_SCHEDULE_ID,
         )
@@ -64,20 +64,14 @@ fn tracking_expected_place_fixture(
             constants::tracking_runtime::DEFAULT_EXPECTED_PLACE_REF,
         )
         .expect(constants::tracking_runtime::DEFAULT_EXPECTED_PLACE_REF),
-        source_observation_id: TrackingObservationId::parse(
-            constants::tracking_runtime::DEFAULT_OBSERVATION_ID,
-        )
-        .expect(constants::tracking_runtime::DEFAULT_OBSERVATION_ID),
+        source_observation_id: observation_id.clone(),
         expected_place_state: TrackingExpectedPlaceState::parse(expected_place_state)
             .expect(expected_place_state),
         reason_codes: vec![TrackingReasonCode::parse(
             constants::tracking_runtime::REASON_EXPECTED_PLACE_AMBIGUOUS,
         )
         .expect(constants::tracking_runtime::REASON_EXPECTED_PLACE_AMBIGUOUS)],
-        evidence_refs: vec![TrackingEvidenceRef::parse(
-            constants::tracking_runtime::DEFAULT_EVIDENCE_REF,
-        )
-        .expect(constants::tracking_runtime::DEFAULT_EVIDENCE_REF)],
+        evidence_refs: vec![tracking_evidence_ref_from_observation_id(&observation_id)],
         parent_action_requirement,
     }
 }
@@ -90,6 +84,10 @@ fn tracking_policy_emits_review_violation_for_hospital_nearby_place() {
     let violation = decision
         .policy_violation_detected
         .expect("hospital tracking policy violation is expected");
+    let policy_rule_ref = TrackingPolicyRuleRef::parse(
+        constants::tracking_runtime::POLICY_RULE_EXPECTED_PLACE,
+    )
+    .expect(constants::tracking_runtime::POLICY_RULE_EXPECTED_PLACE);
 
     assert_eq!(
         decision.violation_state,
@@ -102,6 +100,13 @@ fn tracking_policy_emits_review_violation_for_hospital_nearby_place() {
     assert_eq!(
         violation.severity,
         constants::tracking_runtime::POLICY_SEVERITY_REVIEW
+    );
+    assert_eq!(
+        violation.violation_id,
+        tracking_violation_id_from_ai_request_and_rule_ref(
+            &classified.source_ai_request_id,
+            &policy_rule_ref,
+        )
     );
     assert_eq!(violation.evidence_refs, classified.evidence_refs);
 }
@@ -130,6 +135,10 @@ fn tracking_policy_emits_review_violation_for_left_expected_place() {
     let violation = decision
         .policy_violation_detected
         .expect("expected-place policy violation is expected");
+    let policy_rule_ref = TrackingPolicyRuleRef::parse(
+        constants::tracking_runtime::POLICY_RULE_EXPECTED_PLACE,
+    )
+    .expect(constants::tracking_runtime::POLICY_RULE_EXPECTED_PLACE);
 
     assert_eq!(
         decision.violation_state,
@@ -138,6 +147,13 @@ fn tracking_policy_emits_review_violation_for_left_expected_place() {
     assert_eq!(
         violation.policy_rule_ref,
         constants::tracking_runtime::POLICY_RULE_EXPECTED_PLACE
+    );
+    assert_eq!(
+        violation.violation_id,
+        tracking_violation_id_from_evaluation_and_rule_ref(
+            &evaluated.evaluation_id,
+            &policy_rule_ref,
+        )
     );
     assert_eq!(violation.evidence_refs, evaluated.evidence_refs);
 }
