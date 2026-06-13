@@ -25,14 +25,31 @@ pub const ROUTE_LOCAL_NETWORK: &str = super::value::DEVICE_RUNTIME_ROUTE_LOCAL_N
 pub const ROUTE_CLOUD_RELAY: &str = super::value::DEVICE_RUNTIME_ROUTE_CLOUD_RELAY;
 pub const SOURCE_COMPONENT_PARENT_PORTAL: &str = "parent-portal";
 pub const SOURCE_COMPONENT_PARENT_AGENT_SERVICE: &str = "parent-agent-service";
+pub const SOURCE_COMPONENT_PARENT_RUNTIME: &str = "parent-runtime-core";
 pub const SOURCE_COMPONENT_CHILD_TRACKING_RUNTIME: &str = "child-tracking-runtime";
 pub const SUBSCRIBER_PARENT_TRACKING_CONFIG_RELAY: &str = "subscriber.tracking-config.parent-relay";
+pub const SUBSCRIBER_PARENT_TRACKING_CONFIG_CHANGE_REQUESTER: &str =
+    "subscriber.tracking-config.change-requester";
+pub const SUBSCRIBER_PARENT_TRACKING_CONFIG_POLICY_REQUESTER: &str =
+    "subscriber.tracking-config.policy-requester";
+pub const SUBSCRIBER_PARENT_TRACKING_CONFIG_POLICY_DECIDER: &str =
+    "subscriber.tracking-config.policy-decider";
+pub const SUBSCRIBER_PARENT_TRACKING_CONFIG_DECISION_APPLIER: &str =
+    "subscriber.tracking-config.decision-applier";
 pub const SUBSCRIBER_CHILD_TRACKING_CONFIG_APPLIER: &str =
     "subscriber.tracking-config.child-applier";
 pub const SUBSCRIBER_CHILD_TRACKING_CONFIG_APPLIED_RECORDER: &str =
     "subscriber.tracking-config.child-applied-recorder";
 pub const TARGET_HANDLER_CHILD_TRACKING_RUNTIME: &str = "child-tracking-runtime";
 pub const TARGET_HANDLER_PARENT_TRACKING_CONFIG_RELAY: &str = "target.tracking-config.parent-relay";
+pub const TARGET_HANDLER_PARENT_TRACKING_CONFIG_CHANGE_REQUESTER: &str =
+    "target.tracking-config.change-requester";
+pub const TARGET_HANDLER_PARENT_TRACKING_CONFIG_POLICY_REQUESTER: &str =
+    "target.tracking-config.policy-requester";
+pub const TARGET_HANDLER_PARENT_TRACKING_CONFIG_POLICY_DECIDER: &str =
+    "target.tracking-config.policy-decider";
+pub const TARGET_HANDLER_PARENT_TRACKING_CONFIG_DECISION_APPLIER: &str =
+    "target.tracking-config.decision-applier";
 pub const TARGET_HANDLER_CHILD_TRACKING_CONFIG_APPLIER: &str =
     "target.tracking-config.child-applier";
 pub const TARGET_HANDLER_CHILD_TRACKING_CONFIG_APPLIED_RECORDER: &str =
