@@ -20,6 +20,7 @@ fn ai_result_from_wrong_child_or_device_is_rejected_before_policy() {
         child_profile_id: request.child_profile_id.clone(),
         source_ai_request_id: request.ai_request_id.clone(),
         source_location_evidence_ref: request.evidence_refs[0].clone(),
+        source_observed_at: request.source_observed_at.clone(),
         evidence_refs: request.evidence_refs.clone(),
         provider_kind: TrackingNearbyPlaceProviderKind::parse(
             constants::tracking_runtime::NEARBY_PROVIDER_KIND_LOCAL_CACHE,

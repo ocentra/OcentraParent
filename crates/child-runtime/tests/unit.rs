@@ -251,6 +251,13 @@ async fn child_runtime_routes_tracking_observation_through_ai_policy_and_notific
         expected_evidence_ref
     );
     assert_eq!(
+        flow_report.evidence_recorded.source_observed_at,
+        ocentra_parent_agent_protocol::TrackingTimestamp::parse(
+            constants::tracking_runtime::DEFAULT_OBSERVED_AT,
+        )
+        .expect(constants::tracking_runtime::DEFAULT_OBSERVED_AT)
+    );
+    assert_eq!(
         flow_report.evidence_recorded.parent_action_requirement,
         TrackingParentActionRequirement::Required
     );
@@ -261,6 +268,14 @@ async fn child_runtime_routes_tracking_observation_through_ai_policy_and_notific
             .expect(constants::tracking_runtime::ERROR_TRACKING_RUNTIME_FLOW_RECORDED)
             .evidence_refs,
         vec![flow_report.evidence_recorded.evidence_ref.clone()]
+    );
+    assert_eq!(
+        flow_report
+            .ai_analysis_requested
+            .as_ref()
+            .expect(constants::tracking_runtime::ERROR_TRACKING_RUNTIME_FLOW_RECORDED)
+            .source_observed_at,
+        flow_report.evidence_recorded.source_observed_at
     );
     assert_eq!(
         flow_report
@@ -294,6 +309,14 @@ async fn child_runtime_routes_tracking_observation_through_ai_policy_and_notific
             .expect(constants::tracking_runtime::ERROR_TRACKING_RUNTIME_FLOW_RECORDED)
             .source_location_evidence_ref,
         flow_report.evidence_recorded.evidence_ref
+    );
+    assert_eq!(
+        flow_report
+            .nearby_place_classified
+            .as_ref()
+            .expect(constants::tracking_runtime::ERROR_TRACKING_RUNTIME_FLOW_RECORDED)
+            .source_observed_at,
+        flow_report.evidence_recorded.source_observed_at
     );
     assert_eq!(
         flow_report

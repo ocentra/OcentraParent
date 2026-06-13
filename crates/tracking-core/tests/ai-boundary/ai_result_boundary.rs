@@ -99,6 +99,31 @@ fn tracking_rejects_ai_result_with_stale_correlation() {
 }
 
 #[test]
+fn tracking_rejects_ai_result_with_mismatched_source_observed_at() {
+    let observed = ocentra_tracking_core::default_location_observed_event();
+    let report = ocentra_tracking_core::observe_tracking_location(observed);
+    let request = report
+        .ai_analysis_requested
+        .expect(constants::tracking_runtime::ERROR_TRACKING_RUNTIME_FLOW_RECORDED);
+    let mut result = ai_result_for_request(&request);
+    result.source_observed_at = ocentra_parent_agent_protocol::TrackingTimestamp::parse(
+        "2026-06-12T12:05:00Z",
+    )
+    .expect("valid timestamp");
+
+    let decision = ocentra_tracking_core::validate_tracking_ai_result_as_evidence(
+        &request,
+        &result,
+    );
+
+    assert_eq!(
+        decision.decision_state,
+        constants::tracking_runtime::AI_RESULT_REJECTED_STALE_CORRELATION
+    );
+    assert!(decision.accepted_evidence_refs.is_empty());
+}
+
+#[test]
 fn tracking_rejects_ai_result_with_wrong_child_or_device_ref() {
     let observed = ocentra_tracking_core::default_location_observed_event();
     let report = ocentra_tracking_core::observe_tracking_location(observed);
@@ -130,6 +155,7 @@ fn ai_result_for_request(
         child_profile_id: request.child_profile_id.clone(),
         source_ai_request_id: request.ai_request_id.clone(),
         source_location_evidence_ref: request.evidence_refs[0].clone(),
+        source_observed_at: request.source_observed_at.clone(),
         evidence_refs: request.evidence_refs.clone(),
         provider_kind: TrackingNearbyPlaceProviderKind::parse(
             constants::tracking_runtime::NEARBY_PROVIDER_KIND_LOCAL_CACHE,

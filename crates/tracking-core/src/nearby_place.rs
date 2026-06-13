@@ -53,6 +53,7 @@ pub fn classify_tracking_nearby_place_request(
         child_profile_id: event.child_profile_id.clone(),
         source_ai_request_id: event.ai_request_id.clone(),
         source_location_evidence_ref,
+        source_observed_at: event.source_observed_at.clone(),
         evidence_refs: event.evidence_refs.clone(),
         provider_kind: provider_decision.provider_kind,
         provider_ref: provider_decision.provider_ref,

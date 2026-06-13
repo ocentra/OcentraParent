@@ -5,7 +5,7 @@ use ocentra_parent_agent_protocol::{
     TrackingNearbyPlaceAmbiguityState, TrackingNearbyPlaceClassifiedEvent,
     TrackingNearbyPlaceProviderKind, TrackingObservationId, TrackingParentActionRequirement,
     TrackingPlaceCategory, TrackingPolicyRuleRef, TrackingProviderRef, TrackingReasonCode,
-    TrackingScheduleId, tracking_ai_request_id_from_evidence_ref,
+    TrackingScheduleId, TrackingTimestamp, tracking_ai_request_id_from_evidence_ref,
     tracking_evaluation_id_from_observation_id, tracking_evidence_ref_from_observation_id,
     tracking_violation_id_from_ai_request_and_rule_ref,
     tracking_violation_id_from_evaluation_and_rule_ref,
@@ -29,6 +29,10 @@ fn tracking_nearby_place_fixture(
         .expect(constants::tracking_runtime::DEFAULT_CHILD_PROFILE_ID),
         source_ai_request_id: tracking_ai_request_id_from_evidence_ref(&evidence_ref),
         source_location_evidence_ref: evidence_ref.clone(),
+        source_observed_at: TrackingTimestamp::parse(
+            constants::tracking_runtime::DEFAULT_OBSERVED_AT,
+        )
+        .expect(constants::tracking_runtime::DEFAULT_OBSERVED_AT),
         evidence_refs: vec![evidence_ref],
         provider_kind: TrackingNearbyPlaceProviderKind::parse(
             constants::tracking_runtime::NEARBY_PROVIDER_KIND_LOCAL_CACHE,
