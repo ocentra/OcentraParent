@@ -181,6 +181,32 @@ async fn parent_tracking_config_flow_can_attach_once_to_runtime_owned_bus() {
 }
 
 #[tokio::test]
+async fn child_runtime_keeps_tracking_enabled_when_config_clears_retention_window() {
+    let mut request: TrackingRetentionSettingsWriteRequest =
+        default_tracking_retention_settings_write_request();
+    request.requested_retention_window_hours = None;
+    let command = command_envelope(request.clone());
+    let parent_event =
+        ocentra_child_runtime::parent_tracking_config_updated_event_from_command(&command, request);
+
+    let flow_report = ocentra_child_runtime::publish_parent_tracking_config_updated_event(&parent_event)
+        .await
+        .expect(constants::tracking_config_update::ERROR_PARENT_CONFIG_EVENT_APPLIED);
+
+    assert_eq!(
+        flow_report
+            .parent_request_report
+            .response
+            .effective_tracking_state,
+        TrackingConfigEffectiveState::Enabled
+    );
+    assert_eq!(
+        flow_report.applied_report.effective_tracking_state,
+        TrackingConfigEffectiveState::Enabled
+    );
+}
+
+#[tokio::test]
 async fn child_runtime_routes_tracking_observation_through_ai_policy_and_notification_boundaries() {
     let event = ocentra_tracking_core::default_location_observed_event();
     let flow_report = ocentra_child_runtime::publish_child_tracking_location_observed_event(event)
