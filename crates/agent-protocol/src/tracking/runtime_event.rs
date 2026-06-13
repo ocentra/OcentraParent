@@ -97,6 +97,7 @@ pub struct TrackingEvidenceRecordedEvent {
     pub evidence_ref: TrackingEvidenceRef,
     pub source_observation_id: TrackingObservationId,
     pub source_observed_at: TrackingTimestamp,
+    pub expected_place_ref: TrackingExpectedPlaceRef,
     pub location_relation: TrackingLocationRelation,
     pub ai_analysis_requirement: TrackingAiAnalysisRequirement,
     pub parent_action_requirement: TrackingParentActionRequirement,

@@ -1,7 +1,8 @@
 use ocentra_parent_agent_protocol::{
     constants, ParentNotificationRequestedEvent, TrackingAcknowledgementState,
     TrackingAiAnalysisRequirement, TrackingCheckInState, TrackingExpectedPlaceState,
-    TrackingNotificationChannel, TrackingParentActionRequirement, TrackingPolicyRuleRef,
+    TrackingExpectedPlaceRef, TrackingNotificationChannel, TrackingObservationId,
+    TrackingParentActionRequirement, TrackingPolicyRuleRef,
     TrackingTransitionKind,
     tracking_acknowledgement_id_from_violation_id, tracking_check_in_id_from_observation_id,
     tracking_evaluation_id_from_observation_id, tracking_notification_id_from_violation_id,
@@ -10,12 +11,17 @@ use ocentra_parent_agent_protocol::{
 
 #[test]
 fn tracking_evidence_can_branch_to_geofence_and_expected_place_events() {
-    let observed = ocentra_tracking_core::default_location_observed_event();
+    let mut observed = ocentra_tracking_core::default_location_observed_event();
+    observed.observation_id = TrackingObservationId::parse("tracking-observation-side-branch")
+        .expect("tracking side-branch observation id parses");
+    observed.expected_place_ref = TrackingExpectedPlaceRef::parse("expected-place-side-branch")
+        .expect("tracking side-branch expected place ref parses");
     let evidence = ocentra_tracking_core::record_tracking_evidence_from_location(&observed);
     let geofence = ocentra_tracking_core::tracking_geofence_transition_from_evidence(&evidence);
     let expected_place =
         ocentra_tracking_core::tracking_expected_place_state_from_evidence(&evidence);
 
+    assert_eq!(evidence.expected_place_ref, observed.expected_place_ref);
     assert_eq!(geofence.child_device_id, evidence.child_device_id);
     assert_eq!(geofence.child_profile_id, evidence.child_profile_id);
     assert_eq!(
@@ -39,6 +45,7 @@ fn tracking_evidence_can_branch_to_geofence_and_expected_place_events() {
         expected_place.evaluation_id,
         tracking_evaluation_id_from_observation_id(&observed.observation_id)
     );
+    assert_eq!(expected_place.expected_place_ref, observed.expected_place_ref);
     assert_eq!(expected_place.evidence_refs, vec![evidence.evidence_ref]);
 }
 

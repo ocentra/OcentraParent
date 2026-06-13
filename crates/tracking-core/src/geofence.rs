@@ -25,23 +25,39 @@ pub fn detect_geofence_transition(
     event: &TrackingLocationObservedEvent,
     evaluation: TrackingGeofenceEvaluation,
 ) -> TrackingGeofenceTransitionDetectedEvent {
+    geofence_transition_from_parts(
+        event.child_device_id.clone(),
+        event.child_profile_id.clone(),
+        event.observation_id.clone(),
+        TrackingGeofenceRuleRef::parse(constants::tracking_runtime::DEFAULT_GEOFENCE_RULE_REF)
+            .expect(constants::tracking_runtime::DEFAULT_GEOFENCE_RULE_REF),
+        evaluation,
+        vec![tracking_evidence_ref_from_observation_id(&event.observation_id)],
+    )
+}
+
+pub(crate) fn geofence_transition_from_parts(
+    child_device_id: ocentra_parent_agent_protocol::TrackingChildDeviceId,
+    child_profile_id: ocentra_parent_agent_protocol::TrackingChildProfileId,
+    source_observation_id: ocentra_parent_agent_protocol::TrackingObservationId,
+    geofence_rule_ref: TrackingGeofenceRuleRef,
+    evaluation: TrackingGeofenceEvaluation,
+    evidence_refs: Vec<ocentra_parent_agent_protocol::TrackingEvidenceRef>,
+) -> TrackingGeofenceTransitionDetectedEvent {
     let (transition_kind, reason_codes) = transition_outcome_for(&evaluation);
 
     TrackingGeofenceTransitionDetectedEvent {
-        child_device_id: event.child_device_id.clone(),
-        child_profile_id: event.child_profile_id.clone(),
-        transition_id: tracking_transition_id_from_observation_id(&event.observation_id),
-        geofence_rule_ref: TrackingGeofenceRuleRef::parse(
-            constants::tracking_runtime::DEFAULT_GEOFENCE_RULE_REF,
-        )
-        .expect(constants::tracking_runtime::DEFAULT_GEOFENCE_RULE_REF),
-        source_observation_id: event.observation_id.clone(),
+        child_device_id,
+        child_profile_id,
+        transition_id: tracking_transition_id_from_observation_id(&source_observation_id),
+        geofence_rule_ref,
+        source_observation_id,
         transition_kind: TrackingTransitionKind::parse(transition_kind)
             .expect(constants::tracking_runtime::GEOFENCE_TRANSITION_AMBIGUOUS),
         capability_status: evaluation.capability_status,
         distance_meters: evaluation.distance_meters,
         reason_codes,
-        evidence_refs: vec![tracking_evidence_ref_from_observation_id(&event.observation_id)],
+        evidence_refs,
     }
 }
 

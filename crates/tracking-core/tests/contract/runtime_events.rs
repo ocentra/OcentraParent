@@ -12,11 +12,14 @@ fn tracking_observe_only_evidence_carries_no_parent_action_authority() {
     let mut observed = ocentra_tracking_core::default_location_observed_event();
     observed.config.tracking_mode = TrackingRuntimeMode::ObserveOnly;
     let evidence = ocentra_tracking_core::record_tracking_evidence_from_location(&observed);
+    let serialized = serde_json::to_value(&evidence).expect("tracking evidence serializes");
 
     assert_eq!(
         evidence.parent_action_requirement,
         TrackingParentActionRequirement::NotRequired
     );
+    assert_eq!(evidence.expected_place_ref, observed.expected_place_ref);
+    assert_eq!(serialized["expectedPlaceRef"], observed.expected_place_ref.as_str());
 }
 
 #[test]
