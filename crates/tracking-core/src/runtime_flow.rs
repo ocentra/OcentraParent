@@ -24,6 +24,11 @@ pub struct TrackingRuntimeObservationReport {
     pub ai_analysis_requested: Option<TrackingAiAnalysisRequestedEvent>,
 }
 
+const DEFAULT_EXPECTED_PLACE_LATITUDE_E7: i32 = 436531000;
+const DEFAULT_EXPECTED_PLACE_LONGITUDE_E7: i32 = -793833000;
+const PRECISE_EXPECTED_PLACE_ACCURACY_MAX_METERS: u16 = 15;
+const EXPECTED_PLACE_MAX_DELTA_E7: u32 = 150;
+
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum TrackingPortalNotificationCandidateState {
     Candidate,
@@ -62,6 +67,8 @@ impl TrackingRuntimeRef {
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 enum TrackingLocationRelationKind {
     UncertainNearExpectedPlace,
+    AtExpectedPlace,
+    AwayFromExpectedPlace,
 }
 
 impl TrackingLocationRelationKind {
@@ -69,6 +76,10 @@ impl TrackingLocationRelationKind {
         match self {
             Self::UncertainNearExpectedPlace => {
                 constants::tracking_runtime::LOCATION_RELATION_UNCERTAIN_NEAR_EXPECTED_PLACE
+            }
+            Self::AtExpectedPlace => constants::tracking_runtime::LOCATION_RELATION_AT_EXPECTED_PLACE,
+            Self::AwayFromExpectedPlace => {
+                constants::tracking_runtime::LOCATION_RELATION_AWAY_FROM_EXPECTED_PLACE
             }
         }
     }
@@ -165,16 +176,36 @@ pub fn policy_eligible_child_tracking_runtime_config() -> TrackingRuntimeConfig 
 }
 
 pub fn default_location_observed_event() -> TrackingLocationObservedEvent {
+    default_uncertain_location_observed_event()
+}
+
+pub fn default_uncertain_location_observed_event() -> TrackingLocationObservedEvent {
     TrackingLocationObservedEvent {
         child_device_id: tracking_child_device_id(TrackingRuntimeRef::DefaultChildDevice),
         child_profile_id: tracking_child_profile_id(TrackingRuntimeRef::DefaultChildProfile),
         observation_id: tracking_observation_id(TrackingRuntimeRef::DefaultObservation),
         observed_at: tracking_timestamp(TrackingTimestampKind::DefaultObservedAt),
-        latitude_e7: 436531000,
-        longitude_e7: -793833000,
+        latitude_e7: DEFAULT_EXPECTED_PLACE_LATITUDE_E7,
+        longitude_e7: DEFAULT_EXPECTED_PLACE_LONGITUDE_E7,
         horizontal_accuracy_meters: 25,
         expected_place_ref: tracking_expected_place_ref(TrackingRuntimeRef::DefaultExpectedPlace),
         config: policy_eligible_child_tracking_runtime_config(),
+    }
+}
+
+pub fn default_at_expected_place_location_observed_event() -> TrackingLocationObservedEvent {
+    TrackingLocationObservedEvent {
+        horizontal_accuracy_meters: PRECISE_EXPECTED_PLACE_ACCURACY_MAX_METERS,
+        ..default_uncertain_location_observed_event()
+    }
+}
+
+pub fn default_away_from_expected_place_location_observed_event() -> TrackingLocationObservedEvent {
+    TrackingLocationObservedEvent {
+        latitude_e7: DEFAULT_EXPECTED_PLACE_LATITUDE_E7 + 3_500,
+        longitude_e7: DEFAULT_EXPECTED_PLACE_LONGITUDE_E7 - 3_500,
+        horizontal_accuracy_meters: PRECISE_EXPECTED_PLACE_ACCURACY_MAX_METERS,
+        ..default_uncertain_location_observed_event()
     }
 }
 
@@ -194,15 +225,15 @@ pub fn observe_tracking_location(
 pub fn record_tracking_evidence_from_location(
     event: &TrackingLocationObservedEvent,
 ) -> TrackingEvidenceRecordedEvent {
+    let relation_kind = infer_tracking_location_relation(event);
+
     TrackingEvidenceRecordedEvent {
         child_device_id: event.child_device_id.clone(),
         child_profile_id: event.child_profile_id.clone(),
         evidence_ref: tracking_evidence_ref(TrackingRuntimeRef::DefaultEvidence),
         source_observation_id: event.observation_id.clone(),
-        location_relation: tracking_location_relation(
-            TrackingLocationRelationKind::UncertainNearExpectedPlace,
-        ),
-        ai_analysis_requirement: tracking_ai_analysis_requirement(&event.config),
+        location_relation: tracking_location_relation(relation_kind),
+        ai_analysis_requirement: tracking_ai_analysis_requirement(&event.config, relation_kind),
         parent_action_requirement: tracking_parent_action_requirement(&event.config),
         allowed_ai_purpose: tracking_ai_purpose(TrackingAiPurposeKind::NearbyPlaceClassification),
     }
@@ -249,8 +280,11 @@ pub fn tracking_expected_place_state_from_evidence(
         &event.location_relation,
         &event.parent_action_requirement,
     );
-
-    evaluate_expected_place_state(event, evaluation)
+    let mut expected_place = evaluate_expected_place_state(event, evaluation);
+    if event.parent_action_requirement != TrackingParentActionRequirement::Required {
+        expected_place.parent_action_requirement = TrackingParentActionRequirement::NotRequired;
+    }
+    expected_place
 }
 
 pub fn tracking_parent_acknowledgement_from_notification(
@@ -288,9 +322,11 @@ pub fn tracking_child_check_in_from_location(
 
 fn tracking_ai_analysis_requirement(
     config: &TrackingRuntimeConfig,
+    relation: TrackingLocationRelationKind,
 ) -> TrackingAiAnalysisRequirement {
     if config.tracking_enabled_state == TrackingRuntimeEnabledState::Enabled
         && config.ai_boundary_mode == TrackingAiBoundaryMode::RequestWhenUncertain
+        && relation == TrackingLocationRelationKind::UncertainNearExpectedPlace
     {
         TrackingAiAnalysisRequirement::Required
     } else {
@@ -403,6 +439,24 @@ fn tracking_acknowledgement_state(
 fn tracking_check_in_state(value: TrackingCheckInStateValue) -> TrackingCheckInState {
     let value = value.as_contract_text();
     TrackingCheckInState::parse(value).expect(value)
+}
+
+fn infer_tracking_location_relation(
+    event: &TrackingLocationObservedEvent,
+) -> TrackingLocationRelationKind {
+    let latitude_delta = event.latitude_e7.abs_diff(DEFAULT_EXPECTED_PLACE_LATITUDE_E7);
+    let longitude_delta = event.longitude_e7.abs_diff(DEFAULT_EXPECTED_PLACE_LONGITUDE_E7);
+    let expected_place_delta = latitude_delta.max(longitude_delta);
+
+    if expected_place_delta <= EXPECTED_PLACE_MAX_DELTA_E7 {
+        if event.horizontal_accuracy_meters <= PRECISE_EXPECTED_PLACE_ACCURACY_MAX_METERS {
+            TrackingLocationRelationKind::AtExpectedPlace
+        } else {
+            TrackingLocationRelationKind::UncertainNearExpectedPlace
+        }
+    } else {
+        TrackingLocationRelationKind::AwayFromExpectedPlace
+    }
 }
 
 fn default_tracking_geofence_evaluation_from_relation(

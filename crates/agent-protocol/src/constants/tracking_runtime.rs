@@ -109,6 +109,8 @@ pub const SUBSCRIBER_CHILD_TRACKING_OBSERVER: &str = "subscriber.tracking.locati
 pub const SUBSCRIBER_CHILD_AI_TRACKING_ANALYZER: &str = "subscriber.child-ai.tracking-analyzer";
 pub const SUBSCRIBER_CHILD_POLICY_TRACKING_ANALYZER: &str =
     "subscriber.child-policy.tracking-analyzer";
+pub const SUBSCRIBER_CHILD_POLICY_EXPECTED_PLACE_EVALUATOR: &str =
+    "subscriber.child-policy.expected-place-evaluator";
 pub const SUBSCRIBER_CHILD_NOTIFICATION_POLICY_BRIDGE: &str =
     "subscriber.child-notification.policy-bridge";
 
@@ -116,6 +118,8 @@ pub const TARGET_HANDLER_CHILD_TRACKING_OBSERVER: &str = "target.tracking.locati
 pub const TARGET_HANDLER_CHILD_AI_TRACKING_ANALYZER: &str = "target.child-ai.tracking-analyzer";
 pub const TARGET_HANDLER_CHILD_POLICY_TRACKING_ANALYZER: &str =
     "target.child-policy.tracking-analyzer";
+pub const TARGET_HANDLER_CHILD_POLICY_EXPECTED_PLACE_EVALUATOR: &str =
+    "target.child-policy.expected-place-evaluator";
 pub const TARGET_HANDLER_CHILD_NOTIFICATION_POLICY_BRIDGE: &str =
     "target.child-notification.policy-bridge";
 

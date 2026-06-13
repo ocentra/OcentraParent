@@ -1,7 +1,8 @@
 use ocentra_parent_agent_protocol::{
     constants, ParentNotificationRequestedEvent, TrackingAcknowledgementState,
-    TrackingCheckInState, TrackingExpectedPlaceState, TrackingNotificationChannel,
-    TrackingNotificationId, TrackingPolicyViolationId, TrackingTransitionKind,
+    TrackingAiAnalysisRequirement, TrackingCheckInState, TrackingExpectedPlaceState,
+    TrackingNotificationChannel, TrackingNotificationId, TrackingParentActionRequirement,
+    TrackingPolicyViolationId, TrackingTransitionKind,
 };
 
 #[test]
@@ -28,6 +29,72 @@ fn tracking_evidence_can_branch_to_geofence_and_expected_place_events() {
         .expect(constants::tracking_runtime::EXPECTED_PLACE_STATE_UNKNOWN)
     );
     assert_eq!(expected_place.evidence_refs, vec![evidence.evidence_ref]);
+}
+
+#[test]
+fn tracking_evidence_can_resolve_precise_expected_place_without_ai_request() {
+    let observed = ocentra_tracking_core::default_at_expected_place_location_observed_event();
+    let evidence = ocentra_tracking_core::record_tracking_evidence_from_location(&observed);
+    let geofence = ocentra_tracking_core::tracking_geofence_transition_from_evidence(&evidence);
+    let expected_place =
+        ocentra_tracking_core::tracking_expected_place_state_from_evidence(&evidence);
+
+    assert_eq!(
+        evidence.location_relation,
+        constants::tracking_runtime::LOCATION_RELATION_AT_EXPECTED_PLACE
+    );
+    assert_eq!(
+        evidence.ai_analysis_requirement,
+        TrackingAiAnalysisRequirement::NotRequired
+    );
+    assert_eq!(
+        geofence.transition_kind,
+        TrackingTransitionKind::parse(constants::tracking_runtime::GEOFENCE_TRANSITION_DWELL)
+            .expect(constants::tracking_runtime::GEOFENCE_TRANSITION_DWELL)
+    );
+    assert_eq!(
+        expected_place.expected_place_state,
+        TrackingExpectedPlaceState::parse(
+            constants::tracking_runtime::EXPECTED_PLACE_STATE_WHERE_EXPECTED
+        )
+        .expect(constants::tracking_runtime::EXPECTED_PLACE_STATE_WHERE_EXPECTED)
+    );
+}
+
+#[test]
+fn tracking_evidence_can_resolve_away_from_expected_place_and_keep_observe_only_non_authoritative() {
+    let mut observed = ocentra_tracking_core::default_away_from_expected_place_location_observed_event();
+    observed.config = ocentra_tracking_core::default_child_tracking_runtime_config();
+
+    let evidence = ocentra_tracking_core::record_tracking_evidence_from_location(&observed);
+    let geofence = ocentra_tracking_core::tracking_geofence_transition_from_evidence(&evidence);
+    let expected_place =
+        ocentra_tracking_core::tracking_expected_place_state_from_evidence(&evidence);
+
+    assert_eq!(
+        evidence.location_relation,
+        constants::tracking_runtime::LOCATION_RELATION_AWAY_FROM_EXPECTED_PLACE
+    );
+    assert_eq!(
+        evidence.ai_analysis_requirement,
+        TrackingAiAnalysisRequirement::NotRequired
+    );
+    assert_eq!(
+        geofence.transition_kind,
+        TrackingTransitionKind::parse(constants::tracking_runtime::GEOFENCE_TRANSITION_EXIT)
+            .expect(constants::tracking_runtime::GEOFENCE_TRANSITION_EXIT)
+    );
+    assert_eq!(
+        expected_place.expected_place_state,
+        TrackingExpectedPlaceState::parse(
+            constants::tracking_runtime::EXPECTED_PLACE_STATE_LATE_ARRIVAL
+        )
+        .expect(constants::tracking_runtime::EXPECTED_PLACE_STATE_LATE_ARRIVAL)
+    );
+    assert_eq!(
+        expected_place.parent_action_requirement,
+        TrackingParentActionRequirement::NotRequired
+    );
 }
 
 #[test]
