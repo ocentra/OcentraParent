@@ -1,5 +1,7 @@
 #![forbid(unsafe_code)]
 
+mod runtime_decision;
+
 use ocentra_parent_agent_protocol::{
     child_domain_ai_analysis_requested_event_if_required,
     child_domain_direct_policy_evaluation_requested_event_if_required,
@@ -12,7 +14,14 @@ use ocentra_parent_agent_protocol::{
 
 pub const CRATE_NAME: &str = "ocentra-app-core";
 
-#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub use runtime_decision::{
+    app_runtime_decision_recorded_event, app_runtime_observed_event, evaluate_app_runtime,
+    AppAggregateId, AppAiHandoffState, AppCapabilityState, AppClassificationState,
+    AppForegroundState, AppPolicyHandoffState, AppRuntimeActionState, AppRuntimeDecision,
+    AppRuntimeDecisionId, AppRuntimeDecisionRecordedEvent, AppRuntimeInput,
+};
+
+#[derive(Clone, Copy, Debug, PartialEq, Eq, serde::Serialize, serde::Deserialize)]
 pub enum AppObservationIntent {
     ForegroundAppRequiresPolicy,
     UnknownAppRequiresAi,

@@ -14,4 +14,4 @@ path = "src/lib.rs"
 ocentra-evidence = { path = "../ocentra-evidence" }
 ocentra-eventing = { path = "../ocentra-eventing" }
 ocentra-parent-agent-protocol = { path = "../agent-protocol" }
-
+serde = { version = "1.0.228", features = ["derive"] }
