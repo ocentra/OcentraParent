@@ -11,6 +11,7 @@ use ocentra_parent_agent_protocol::{
     LogFieldValue, LogLevel, ParentActionReceivedEvent, ParentChildCommandForwardRequestedEvent,
     ParentChildCommandTransportBoundary, ParentCommandRejectedEvent, ParentCommandValidatedEvent,
     ParentCommandValidationState, ParentControllerActionKind, ParentControllerSource,
+    ParentTrackingConfigUpdatedEvent,
     TrackingConfigAckState, TrackingConfigAuditEntryCommittedEvent,
     TrackingConfigAuditOutcome, TrackingConfigChangeApprovedEvent,
     TrackingConfigChangeRejectedEvent, TrackingConfigChangeRequestedEvent,
@@ -40,6 +41,7 @@ enum TrackingWriteRequestParseState {
 }
 
 #[derive(Clone, Debug)]
+#[allow(dead_code)]
 struct TrackingRetentionSettingsWriteFlowReport {
     parent_action_received: ParentActionReceivedEvent,
     parent_command_validated: Option<ParentCommandValidatedEvent>,
@@ -60,27 +62,14 @@ pub(crate) async fn build_tracking_retention_settings_write_report(
     command: AgentCommandEnvelope,
 ) -> AgentEventEnvelope {
     let (request, parse_state) = parse_write_request(&command);
-    let event_flow_report = if parse_state == TrackingWriteRequestParseState::Accepted {
-        let parent_event =
-            parent_tracking_config_updated_event_from_command(&command, request.clone());
-        let dispatch_decision = route_parent_tracking_config_update_event(
-            &parent_event,
-            ChildAcknowledgementState::Required,
-        );
-        if dispatch_decision.child_runtime_publish_state == ChildRuntimePublishState::Publish {
-            publish_parent_tracking_config_updated_event(&parent_event)
-                .await
-                .ok()
-        } else {
-            None
-        }
-    } else {
-        None
-    };
-    let applied_report = event_flow_report
+    let flow_report = execute_tracking_retention_settings_write_flow(&command, &request, parse_state)
+        .await;
+    let applied_report = flow_report
+        .child_runtime_flow
         .as_ref()
         .map(|report| &report.applied_report);
-    let child_response = event_flow_report
+    let child_response = flow_report
+        .child_runtime_flow
         .as_ref()
         .map(|report| &report.parent_request_report.response);
     let result = TrackingRetentionSettingsWriteResult {
@@ -179,6 +168,313 @@ fn write_state(parse_state: TrackingWriteRequestParseState) -> TrackingRetention
     }
 }
 
+async fn execute_tracking_retention_settings_write_flow(
+    command: &AgentCommandEnvelope,
+    request: &TrackingRetentionSettingsWriteRequest,
+    parse_state: TrackingWriteRequestParseState,
+) -> TrackingRetentionSettingsWriteFlowReport {
+    let parent_action_received = tracking_parent_action_received_event(command, request);
+    if parse_state == TrackingWriteRequestParseState::Rejected {
+        let parent_command_rejected = tracking_parent_command_rejected_event(
+            &request.command_id,
+            &parent_action_received,
+            constants::tracking_config_update::REJECTION_REASON_INVALID_REQUEST,
+        );
+        return TrackingRetentionSettingsWriteFlowReport {
+            parent_action_received,
+            parent_command_validated: None,
+            parent_command_rejected: Some(parent_command_rejected),
+            change_requested: None,
+            policy_evaluation_requested: None,
+            policy_decision_completed: None,
+            change_approved: None,
+            change_rejected: None,
+            child_command_forward_requested: None,
+            child_command_received: None,
+            child_runtime_flow: None,
+            audit_entry_committed: None,
+            portal_read_model_updated: None,
+        };
+    }
+
+    let parent_event = parent_tracking_config_updated_event_from_command(command, request.clone());
+    let parent_command_validated =
+        tracking_parent_command_validated_event(&request.command_id, &parent_action_received);
+    let change_requested = tracking_config_change_requested_event(
+        parent_action_received.parent_action_event_ref.clone(),
+        &parent_event,
+    );
+    let policy_evaluation_requested = tracking_config_policy_evaluation_requested_event(
+        &change_requested,
+        tracking_policy_rule_refs(request),
+        false,
+    );
+    let dispatch_decision = route_parent_tracking_config_update_event(
+        &parent_event,
+        ChildAcknowledgementState::Required,
+    );
+    let child_runtime_publish_required =
+        dispatch_decision.child_runtime_publish_state == ChildRuntimePublishState::Publish;
+    let policy_decision_completed = tracking_config_policy_decision_completed_event(
+        &policy_evaluation_requested,
+        if child_runtime_publish_required {
+            TrackingConfigPolicyDecisionState::Approved
+        } else {
+            TrackingConfigPolicyDecisionState::Rejected
+        },
+        child_runtime_publish_required,
+    );
+
+    if !child_runtime_publish_required {
+        let change_rejected = tracking_config_change_rejected_event(
+            &policy_decision_completed,
+            constants::tracking_config_update::REJECTION_REASON_CHILD_RUNTIME_DISPATCH_BLOCKED,
+        );
+        let audit_entry_committed = tracking_config_audit_entry_committed_event(
+            &policy_decision_completed,
+            change_rejected.change_rejected_event_ref.clone(),
+            TrackingConfigAuditOutcome::Failed,
+        );
+        let portal_read_model_updated = tracking_config_portal_read_model_updated_event(
+            &audit_entry_committed,
+            TrackingConfigPortalUpdateKind::ManualRequiredState,
+            true,
+            true,
+        );
+        return TrackingRetentionSettingsWriteFlowReport {
+            parent_action_received,
+            parent_command_validated: Some(parent_command_validated),
+            parent_command_rejected: None,
+            change_requested: Some(change_requested),
+            policy_evaluation_requested: Some(policy_evaluation_requested),
+            policy_decision_completed: Some(policy_decision_completed),
+            change_approved: None,
+            change_rejected: Some(change_rejected),
+            child_command_forward_requested: None,
+            child_command_received: None,
+            child_runtime_flow: None,
+            audit_entry_committed: Some(audit_entry_committed),
+            portal_read_model_updated: Some(portal_read_model_updated),
+        };
+    }
+
+    let change_approved = tracking_config_change_approved_event(&policy_decision_completed);
+    let child_command_forward_requested = tracking_parent_child_command_forward_requested_event(
+        &request.command_id,
+        &parent_command_validated,
+        &parent_event,
+    );
+    let child_command_received =
+        tracking_child_command_received_event(&request.command_id, &child_command_forward_requested);
+    let child_runtime_flow = publish_parent_tracking_config_updated_event(&parent_event)
+        .await
+        .ok();
+    let audit_entry_committed = tracking_config_audit_entry_committed_event(
+        &policy_decision_completed,
+        child_command_received.command_received_event_ref.clone(),
+        if child_runtime_flow.is_some() {
+            TrackingConfigAuditOutcome::Committed
+        } else {
+            TrackingConfigAuditOutcome::Failed
+        },
+    );
+    let portal_read_model_updated = tracking_config_portal_read_model_updated_event(
+        &audit_entry_committed,
+        if child_runtime_flow.is_some() {
+            TrackingConfigPortalUpdateKind::TrackingConfigState
+        } else {
+            TrackingConfigPortalUpdateKind::ManualRequiredState
+        },
+        child_runtime_flow.is_none(),
+        child_runtime_flow.is_none(),
+    );
+
+    TrackingRetentionSettingsWriteFlowReport {
+        parent_action_received,
+        parent_command_validated: Some(parent_command_validated),
+        parent_command_rejected: None,
+        change_requested: Some(change_requested),
+        policy_evaluation_requested: Some(policy_evaluation_requested),
+        policy_decision_completed: Some(policy_decision_completed),
+        change_approved: Some(change_approved),
+        change_rejected: None,
+        child_command_forward_requested: Some(child_command_forward_requested),
+        child_command_received: Some(child_command_received),
+        child_runtime_flow,
+        audit_entry_committed: Some(audit_entry_committed),
+        portal_read_model_updated: Some(portal_read_model_updated),
+    }
+}
+
+fn tracking_parent_action_received_event(
+    command: &AgentCommandEnvelope,
+    request: &TrackingRetentionSettingsWriteRequest,
+) -> ParentActionReceivedEvent {
+    ParentActionReceivedEvent {
+        schema_version: constants::parent_controller::EVENT_SCHEMA_VERSION,
+        parent_action_event_ref: tracking_service_event_ref(&request.command_id, "parent-action"),
+        received_at: tracking_retention_accepted_at().to_string(),
+        parent_intent_ref: tracking_service_ref(&request.command_id, "parent-intent"),
+        parent_profile_ref: tracking_service_ref(&request.command_id, "parent-profile"),
+        device_ref: command.target.device_id.clone(),
+        action_kind: ParentControllerActionKind::UpdateTrackingConfig,
+        source: ParentControllerSource::PortalTypedIntent,
+        custody: constants::parent_controller::CUSTODY_LOCAL_SERVICE_VALIDATION.to_string(),
+        idempotency_key: tracking_service_idempotency_key(&request.command_id, "parent-action"),
+    }
+}
+
+fn tracking_parent_command_validated_event(
+    command_id: &ocentra_parent_agent_protocol::TrackingRetentionCommandId,
+    parent_action_received: &ParentActionReceivedEvent,
+) -> ParentCommandValidatedEvent {
+    ParentCommandValidatedEvent {
+        schema_version: constants::parent_controller::EVENT_SCHEMA_VERSION,
+        command_validated_event_ref: tracking_service_event_ref(command_id, "command-validated"),
+        parent_action_event_ref: parent_action_received.parent_action_event_ref.clone(),
+        parent_command_ref: tracking_parent_command_ref(command_id),
+        child_command_ref: Some(tracking_child_command_ref(command_id)),
+        validated_at: tracking_retention_accepted_at().to_string(),
+        validation_state: ParentCommandValidationState::Validated,
+        causation_event_ref: parent_action_received.parent_action_event_ref.clone(),
+        idempotency_key: tracking_service_idempotency_key(command_id, "command-validated"),
+    }
+}
+
+fn tracking_parent_command_rejected_event(
+    command_id: &ocentra_parent_agent_protocol::TrackingRetentionCommandId,
+    parent_action_received: &ParentActionReceivedEvent,
+    rejection_reason_code: impl Into<String>,
+) -> ParentCommandRejectedEvent {
+    ParentCommandRejectedEvent {
+        schema_version: constants::parent_controller::EVENT_SCHEMA_VERSION,
+        command_rejected_event_ref: tracking_service_event_ref(command_id, "command-rejected"),
+        parent_action_event_ref: parent_action_received.parent_action_event_ref.clone(),
+        rejected_at: tracking_retention_accepted_at().to_string(),
+        rejection_reason_code: rejection_reason_code.into(),
+        causation_event_ref: parent_action_received.parent_action_event_ref.clone(),
+        idempotency_key: tracking_service_idempotency_key(command_id, "command-rejected"),
+    }
+}
+
+fn tracking_parent_child_command_forward_requested_event(
+    command_id: &ocentra_parent_agent_protocol::TrackingRetentionCommandId,
+    parent_command_validated: &ParentCommandValidatedEvent,
+    parent_event: &ParentTrackingConfigUpdatedEvent,
+) -> ParentChildCommandForwardRequestedEvent {
+    ParentChildCommandForwardRequestedEvent {
+        schema_version: constants::parent_controller::EVENT_SCHEMA_VERSION,
+        forward_requested_event_ref: tracking_service_event_ref(command_id, "forward-requested"),
+        parent_command_ref: parent_command_validated.parent_command_ref.clone(),
+        child_command_ref: tracking_child_command_ref(command_id),
+        device_ref: parent_event.target.device_id.as_str().to_string(),
+        requested_at: tracking_retention_accepted_at().to_string(),
+        transport_boundary: ParentChildCommandTransportBoundary::TypedLocalServiceTransport,
+        causation_event_ref: parent_command_validated.command_validated_event_ref.clone(),
+        idempotency_key: tracking_service_idempotency_key(command_id, "forward-requested"),
+    }
+}
+
+fn tracking_child_command_received_event(
+    command_id: &ocentra_parent_agent_protocol::TrackingRetentionCommandId,
+    forward_requested_event: &ParentChildCommandForwardRequestedEvent,
+) -> ChildCommandReceivedEvent {
+    ChildCommandReceivedEvent {
+        schema_version: constants::child_agent::EVENT_SCHEMA_VERSION,
+        command_received_event_ref: tracking_service_event_ref(command_id, "child-command-received"),
+        child_command_ref: forward_requested_event.child_command_ref.clone(),
+        received_at: tracking_retention_accepted_at().to_string(),
+        device_ref: forward_requested_event.device_ref.clone(),
+        parent_controller_event_ref: forward_requested_event.forward_requested_event_ref.clone(),
+        transport_message_ref: tracking_transport_message_ref(command_id),
+        command_kind: ChildCommandKind::ApplyTrackingConfig,
+    }
+}
+
+fn tracking_policy_rule_refs(
+    request: &TrackingRetentionSettingsWriteRequest,
+) -> Vec<TrackingPolicyRuleRef> {
+    let mut rule_refs = vec![TrackingPolicyRuleRef::parse(
+        constants::tracking_config_update::POLICY_RULE_LOCAL_CHILD_RUNTIME,
+    )
+    .expect(constants::tracking_config_update::POLICY_RULE_LOCAL_CHILD_RUNTIME)];
+    if request.requested_remote_sync_state == TrackingRemoteSyncState::Disabled {
+        rule_refs.push(
+            TrackingPolicyRuleRef::parse(
+                constants::tracking_config_update::POLICY_RULE_REMOTE_SYNC_DISABLED,
+            )
+            .expect(constants::tracking_config_update::POLICY_RULE_REMOTE_SYNC_DISABLED),
+        );
+    }
+    if request.requested_remote_ai_state == TrackingRemoteAiState::Disabled {
+        rule_refs.push(
+            TrackingPolicyRuleRef::parse(
+                constants::tracking_config_update::POLICY_RULE_REMOTE_AI_DISABLED,
+            )
+            .expect(constants::tracking_config_update::POLICY_RULE_REMOTE_AI_DISABLED),
+        );
+    }
+    rule_refs
+}
+
+fn tracking_parent_command_ref(
+    command_id: &ocentra_parent_agent_protocol::TrackingRetentionCommandId,
+) -> String {
+    tracking_service_ref(
+        command_id,
+        constants::parent_controller::REF_PARENT_COMMAND_SUFFIX,
+    )
+}
+
+fn tracking_child_command_ref(
+    command_id: &ocentra_parent_agent_protocol::TrackingRetentionCommandId,
+) -> String {
+    tracking_service_ref(
+        command_id,
+        constants::parent_controller::REF_CHILD_COMMAND_SUFFIX,
+    )
+}
+
+fn tracking_transport_message_ref(
+    command_id: &ocentra_parent_agent_protocol::TrackingRetentionCommandId,
+) -> String {
+    tracking_service_ref(
+        command_id,
+        constants::parent_controller::REF_TRANSPORT_MESSAGE_SUFFIX,
+    )
+}
+
+fn tracking_service_ref(
+    command_id: &ocentra_parent_agent_protocol::TrackingRetentionCommandId,
+    suffix: &str,
+) -> String {
+    format!(
+        "{}{}.{}",
+        constants::parent_controller::CORRELATION_PARENT_CHILD_RUNTIME_PREFIX,
+        command_id,
+        suffix
+    )
+}
+
+fn tracking_service_event_ref(
+    command_id: &ocentra_parent_agent_protocol::TrackingRetentionCommandId,
+    suffix: &str,
+) -> String {
+    format!("event.tracking-retention-settings-write.{}.{}", command_id, suffix)
+}
+
+fn tracking_service_idempotency_key(
+    command_id: &ocentra_parent_agent_protocol::TrackingRetentionCommandId,
+    suffix: &str,
+) -> String {
+    format!(
+        "{}{}.{}",
+        constants::parent_controller::IDEMPOTENCY_PARENT_CHILD_RUNTIME_PREFIX,
+        command_id,
+        suffix
+    )
+}
+
 #[cfg(test)]
 mod tests {
     use ocentra_child_runtime::tracking_retention_settings_durable_store_path;
@@ -217,9 +513,18 @@ mod tests {
             )
             .expect(constants::tracking_retention_settings_write::WRITE_STATE_ACCEPTED)
         );
-        assert!(write_result.command_transport_claimed);
-        assert!(write_result.service_write_preflight_claimed);
-        assert!(write_result.service_mutation_executed);
+        assert_eq!(
+            write_result.command_transport_claim_state,
+            TrackingExecutionClaimState::Claimed
+        );
+        assert_eq!(
+            write_result.service_write_preflight_claim_state,
+            TrackingExecutionClaimState::Claimed
+        );
+        assert_eq!(
+            write_result.service_mutation_execution_state,
+            TrackingExecutionClaimState::Claimed
+        );
         assert_eq!(write_result.applied_retention_window_hours, Some(168));
         assert_eq!(
             write_result.remote_sync_state,
@@ -277,6 +582,81 @@ mod tests {
     }
 
     #[tokio::test]
+    async fn retention_settings_write_flow_builds_parent_child_policy_and_audit_chain() {
+        let command = command_envelope();
+        let request = default_tracking_retention_settings_write_request();
+        let flow_report = execute_tracking_retention_settings_write_flow(
+            &command,
+            &request,
+            TrackingWriteRequestParseState::Accepted,
+        )
+        .await;
+
+        assert_eq!(
+            flow_report.parent_action_received.action_kind,
+            ParentControllerActionKind::UpdateTrackingConfig
+        );
+        assert_eq!(
+            flow_report
+                .parent_command_validated
+                .as_ref()
+                .expect(constants::error::AGENT_EVENT_SERIALIZES)
+                .validation_state,
+            ParentCommandValidationState::Validated
+        );
+        assert_eq!(
+            flow_report
+                .policy_evaluation_requested
+                .as_ref()
+                .expect(constants::error::AGENT_EVENT_SERIALIZES)
+                .parent_rule_refs
+                .len(),
+            3
+        );
+        assert_eq!(
+            flow_report
+                .policy_decision_completed
+                .as_ref()
+                .expect(constants::error::AGENT_EVENT_SERIALIZES)
+                .decision_state,
+            TrackingConfigPolicyDecisionState::Approved
+        );
+        assert_eq!(
+            flow_report
+                .child_command_forward_requested
+                .as_ref()
+                .expect(constants::error::AGENT_EVENT_SERIALIZES)
+                .transport_boundary,
+            ParentChildCommandTransportBoundary::TypedLocalServiceTransport
+        );
+        assert_eq!(
+            flow_report
+                .child_command_received
+                .as_ref()
+                .expect(constants::error::AGENT_EVENT_SERIALIZES)
+                .command_kind,
+            ChildCommandKind::ApplyTrackingConfig
+        );
+        assert_eq!(
+            flow_report
+                .audit_entry_committed
+                .as_ref()
+                .expect(constants::error::AGENT_EVENT_SERIALIZES)
+                .audit_outcome,
+            TrackingConfigAuditOutcome::Committed
+        );
+        assert_eq!(
+            flow_report
+                .portal_read_model_updated
+                .as_ref()
+                .expect(constants::error::AGENT_EVENT_SERIALIZES)
+                .update_kind,
+            TrackingConfigPortalUpdateKind::TrackingConfigState
+        );
+        assert!(flow_report.child_runtime_flow.is_some());
+    }
+
+    #[tokio::test]
     async fn retention_settings_write_command_rejects_missing_typed_request_payload() {
         let body = serde_json::to_string(&command_envelope_without_request())
             .expect(constants::error::AGENT_EVENT_SERIALIZES);
@@ -317,6 +697,31 @@ mod tests {
             write_result.product_claim_state,
             TrackingExecutionClaimState::Unclaimed
         );
+    }
+
+    #[tokio::test]
+    async fn retention_settings_write_flow_rejects_before_child_runtime_when_request_is_missing() {
+        let command = command_envelope();
+        let request = default_tracking_retention_settings_write_request();
+        let flow_report = execute_tracking_retention_settings_write_flow(
+            &command,
+            &request,
+            TrackingWriteRequestParseState::Rejected,
+        )
+        .await;
+
+        assert!(flow_report.parent_command_validated.is_none());
+        assert_eq!(
+            flow_report
+                .parent_command_rejected
+                .as_ref()
+                .expect(constants::error::AGENT_EVENT_SERIALIZES)
+                .rejection_reason_code,
+            constants::tracking_config_update::REJECTION_REASON_INVALID_REQUEST
+        );
+        assert!(flow_report.change_requested.is_none());
+        assert!(flow_report.child_runtime_flow.is_none());
+        assert!(flow_report.audit_entry_committed.is_none());
     }
 
     fn command_envelope() -> AgentCommandEnvelope {

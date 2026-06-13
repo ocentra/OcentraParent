@@ -3,8 +3,14 @@ use ocentra_parent_agent_protocol::{
     child_tracking_config_updated_event_from_parent, constants,
     default_tracking_retention_settings_write_request,
     parent_tracking_config_updated_event_from_command,
+    tracking_config_audit_entry_committed_event, tracking_config_change_approved_event,
+    tracking_config_change_rejected_event, tracking_config_change_requested_event,
+    tracking_config_policy_decision_completed_event,
+    tracking_config_policy_evaluation_requested_event,
+    tracking_config_portal_read_model_updated_event,
     tracking_config_update_applied_event_from_child, AgentCommandEnvelope, AgentCommandName,
-    AgentMessageTarget, AgentPeer, AgentPeerRole, AgentRoute, LogFields,
+    AgentMessageTarget, AgentPeer, AgentPeerRole, AgentRoute, LogFields, TrackingConfigAuditOutcome,
+    TrackingConfigPolicyDecisionState, TrackingConfigPortalUpdateKind, TrackingPolicyRuleRef,
     TrackingConfigEffectiveState, TrackingConfigUpdateEventName,
     TrackingConfigUpdateResponseState,
     TrackingDurableSettingsPersistenceState,
@@ -71,6 +77,165 @@ fn tracking_config_update_applied_event_serializes_durable_child_runtime_result(
     );
     assert_eq!(serialized["localServiceStateRevision"], 7);
     assert_eq!(serialized["durableSettingsPersistenceState"], "persisted");
+}
+
+#[test]
+fn tracking_config_change_approval_chain_serializes_named_contract_and_refs() {
+    let request = default_tracking_retention_settings_write_request();
+    let command = command_envelope(&request.command_id);
+    let parent_event = parent_tracking_config_updated_event_from_command(&command, request);
+    let change_requested = tracking_config_change_requested_event(
+        "event.parent-controller.parent-action.received.1",
+        &parent_event,
+    );
+    let evaluation = tracking_config_policy_evaluation_requested_event(
+        &change_requested,
+        vec![
+            TrackingPolicyRuleRef::parse(
+                constants::tracking_config_update::POLICY_RULE_LOCAL_CHILD_RUNTIME,
+            )
+            .expect(constants::tracking_config_update::POLICY_RULE_LOCAL_CHILD_RUNTIME),
+            TrackingPolicyRuleRef::parse(
+                constants::tracking_config_update::POLICY_RULE_REMOTE_SYNC_DISABLED,
+            )
+            .expect(constants::tracking_config_update::POLICY_RULE_REMOTE_SYNC_DISABLED),
+        ],
+        false,
+    );
+    let decision = tracking_config_policy_decision_completed_event(
+        &evaluation,
+        TrackingConfigPolicyDecisionState::Approved,
+        true,
+    );
+    let approved = tracking_config_change_approved_event(&decision);
+    let audit = tracking_config_audit_entry_committed_event(
+        &decision,
+        approved.change_approved_event_ref.clone(),
+        TrackingConfigAuditOutcome::Committed,
+    );
+    let portal = tracking_config_portal_read_model_updated_event(
+        &audit,
+        TrackingConfigPortalUpdateKind::TrackingConfigState,
+        false,
+        false,
+    );
+
+    assert_eq!(
+        change_requested
+            .contract()
+            .expect(constants::error::AGENT_EVENT_SERIALIZES)
+            .event_type
+            .as_str(),
+        constants::tracking_config_update::CHANGE_REQUESTED_EVENT_TYPE
+    );
+    assert_eq!(
+        evaluation
+            .contract()
+            .expect(constants::error::AGENT_EVENT_SERIALIZES)
+            .event_type
+            .as_str(),
+        constants::network_flow::EVENT_POLICY_EVALUATION_REQUESTED
+    );
+    assert_eq!(
+        decision
+            .contract()
+            .expect(constants::error::AGENT_EVENT_SERIALIZES)
+            .event_type
+            .as_str(),
+        constants::network_flow::EVENT_POLICY_DECISION_COMPLETED
+    );
+    assert_eq!(
+        approved
+            .contract()
+            .expect(constants::error::AGENT_EVENT_SERIALIZES)
+            .event_type
+            .as_str(),
+        constants::tracking_config_update::CHANGE_APPROVED_EVENT_TYPE
+    );
+    assert_eq!(
+        audit
+            .contract()
+            .expect(constants::error::AGENT_EVENT_SERIALIZES)
+            .event_type
+            .as_str(),
+        constants::network_flow::EVENT_AUDIT_ENTRY_COMMITTED
+    );
+    assert_eq!(
+        portal
+            .contract()
+            .expect(constants::error::AGENT_EVENT_SERIALIZES)
+            .event_type
+            .as_str(),
+        constants::network_flow::EVENT_PORTAL_READ_MODEL_UPDATED
+    );
+
+    let serialized_decision =
+        serde_json::to_value(&decision).expect(constants::error::AGENT_EVENT_SERIALIZES);
+    let serialized_portal =
+        serde_json::to_value(&portal).expect(constants::error::AGENT_EVENT_SERIALIZES);
+
+    assert_eq!(serialized_decision["decisionState"], "approved");
+    assert_eq!(serialized_decision["childRuntimePublishRequired"], true);
+    assert_eq!(serialized_portal["updateKind"], "tracking-config-state");
+    assert_eq!(serialized_portal["visibleManualRequired"], false);
+    assert_eq!(serialized_portal["visibleUnavailable"], false);
+}
+
+#[test]
+fn tracking_config_change_rejection_chain_serializes_manual_required_surface_state() {
+    let request = default_tracking_retention_settings_write_request();
+    let command = command_envelope(&request.command_id);
+    let parent_event = parent_tracking_config_updated_event_from_command(&command, request);
+    let change_requested = tracking_config_change_requested_event(
+        "event.parent-controller.parent-action.received.1",
+        &parent_event,
+    );
+    let evaluation = tracking_config_policy_evaluation_requested_event(
+        &change_requested,
+        vec![
+            TrackingPolicyRuleRef::parse(
+                constants::tracking_config_update::POLICY_RULE_LOCAL_CHILD_RUNTIME,
+            )
+            .expect(constants::tracking_config_update::POLICY_RULE_LOCAL_CHILD_RUNTIME),
+        ],
+        false,
+    );
+    let decision = tracking_config_policy_decision_completed_event(
+        &evaluation,
+        TrackingConfigPolicyDecisionState::Rejected,
+        false,
+    );
+    let rejected = tracking_config_change_rejected_event(
+        &decision,
+        constants::tracking_config_update::REJECTION_REASON_CHILD_RUNTIME_DISPATCH_BLOCKED,
+    );
+    let audit = tracking_config_audit_entry_committed_event(
+        &decision,
+        rejected.change_rejected_event_ref.clone(),
+        TrackingConfigAuditOutcome::Failed,
+    );
+    let portal = tracking_config_portal_read_model_updated_event(
+        &audit,
+        TrackingConfigPortalUpdateKind::ManualRequiredState,
+        true,
+        true,
+    );
+
+    let serialized_rejected =
+        serde_json::to_value(&rejected).expect(constants::error::AGENT_EVENT_SERIALIZES);
+    let serialized_audit =
+        serde_json::to_value(&audit).expect(constants::error::AGENT_EVENT_SERIALIZES);
+    let serialized_portal =
+        serde_json::to_value(&portal).expect(constants::error::AGENT_EVENT_SERIALIZES);
+
+    assert_eq!(
+        serialized_rejected["rejectionReasonCode"],
+        constants::tracking_config_update::REJECTION_REASON_CHILD_RUNTIME_DISPATCH_BLOCKED
+    );
+    assert_eq!(serialized_audit["auditOutcome"], "failed");
+    assert_eq!(serialized_portal["updateKind"], "manual-required-state");
+    assert_eq!(serialized_portal["visibleManualRequired"], true);
+    assert_eq!(serialized_portal["visibleUnavailable"], true);
 }
 
 fn command_envelope(command_id: &str) -> AgentCommandEnvelope {
