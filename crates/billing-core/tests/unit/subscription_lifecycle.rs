@@ -79,8 +79,32 @@ fn subscription_deleted_projects_household_revocation() {
 }
 
 #[test]
+fn grace_lifecycle_projects_household_grace_access() {
+    let decision = decide_billing_provider_webhook(BillingProviderWebhookEvent {
+        event_kind: BillingProviderEventKind::SubscriptionUpdated,
+        ..provider_event(
+            BillingSubscriptionLifecycleState::Grace,
+            BillingProviderSignatureState::Verified,
+        )
+    });
+    let transition =
+        project_billing_entitlement_transition(decision, BillingEntitlementScope::Household);
+
+    assert_eq!(
+        transition.transition_state,
+        BillingEntitlementTransitionState::GraceAccess
+    );
+    assert_eq!(transition.write_state, BillingEntitlementWriteState::WriteRequired);
+}
+
+#[test]
 fn supported_webhook_event_classes_follow_the_subscription_lifecycle_projection_matrix() {
     let scenarios = [
+        (
+            BillingProviderEventKind::SubscriptionCreated,
+            BillingSubscriptionLifecycleState::Trialing,
+            BillingEntitlementTransitionState::GrantFullAccess,
+        ),
         (
             BillingProviderEventKind::SubscriptionCreated,
             BillingSubscriptionLifecycleState::Active,
@@ -107,9 +131,24 @@ fn supported_webhook_event_classes_follow_the_subscription_lifecycle_projection_
             BillingEntitlementTransitionState::LimitAccess,
         ),
         (
+            BillingProviderEventKind::SubscriptionUpdated,
+            BillingSubscriptionLifecycleState::Grace,
+            BillingEntitlementTransitionState::GraceAccess,
+        ),
+        (
             BillingProviderEventKind::CustomerPortalUpdated,
             BillingSubscriptionLifecycleState::Canceled,
             BillingEntitlementTransitionState::RevokeAccess,
+        ),
+        (
+            BillingProviderEventKind::CustomerPortalUpdated,
+            BillingSubscriptionLifecycleState::DisputeLost,
+            BillingEntitlementTransitionState::RevokeAccess,
+        ),
+        (
+            BillingProviderEventKind::SubscriptionUpdated,
+            BillingSubscriptionLifecycleState::DisputeWon,
+            BillingEntitlementTransitionState::GrantFullAccess,
         ),
     ];
 

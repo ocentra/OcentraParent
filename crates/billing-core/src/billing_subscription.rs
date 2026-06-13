@@ -111,14 +111,28 @@ pub enum BillingAccountMatchState {
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 pub enum BillingSubscriptionLifecycleState {
+    #[serde(rename = "trialing")]
+    Trialing,
     #[serde(rename = "active")]
     Active,
+    #[serde(rename = "grace")]
+    Grace,
     #[serde(rename = "past-due")]
     PastDue,
+    #[serde(rename = "unpaid")]
+    Unpaid,
     #[serde(rename = "canceled")]
     Canceled,
+    #[serde(rename = "refunded")]
+    Refunded,
     #[serde(rename = "disputed")]
     Disputed,
+    #[serde(rename = "dispute-won")]
+    DisputeWon,
+    #[serde(rename = "dispute-lost")]
+    DisputeLost,
+    #[serde(rename = "support-required")]
+    SupportRequired,
     #[serde(rename = "unknown")]
     Unknown,
 }
@@ -159,6 +173,8 @@ pub enum BillingEntitlementScope {
 pub enum BillingEntitlementTransitionState {
     #[serde(rename = "grant-full-access")]
     GrantFullAccess,
+    #[serde(rename = "grace-access")]
+    GraceAccess,
     #[serde(rename = "limit-access")]
     LimitAccess,
     #[serde(rename = "revoke-access")]
@@ -209,6 +225,8 @@ pub enum BillingChildEntitlementConsumptionState {
 pub enum BillingChildEntitlementAccessState {
     #[serde(rename = "full-access")]
     FullAccess,
+    #[serde(rename = "grace-access")]
+    GraceAccess,
     #[serde(rename = "limited-access")]
     LimitedAccess,
     #[serde(rename = "revoked")]
@@ -465,16 +483,26 @@ pub fn decide_billing_provider_webhook(
             event.event_kind,
             BillingProviderEventKind::DisputeOpened | BillingProviderEventKind::RefundIssued
         )
-        || event.lifecycle_state == BillingSubscriptionLifecycleState::Disputed
-        || event.lifecycle_state == BillingSubscriptionLifecycleState::Unknown;
+        || matches!(
+            event.lifecycle_state,
+            BillingSubscriptionLifecycleState::Disputed
+                | BillingSubscriptionLifecycleState::SupportRequired
+                | BillingSubscriptionLifecycleState::Unknown
+        );
     let entitlement_update_required = accepted
         && event.event_kind != BillingProviderEventKind::RefundIssued
         && matches!(
             event.lifecycle_state,
-            BillingSubscriptionLifecycleState::Active
+            BillingSubscriptionLifecycleState::Trialing
+                | BillingSubscriptionLifecycleState::Active
+                | BillingSubscriptionLifecycleState::Grace
                 | BillingSubscriptionLifecycleState::PastDue
+                | BillingSubscriptionLifecycleState::Unpaid
                 | BillingSubscriptionLifecycleState::Canceled
+                | BillingSubscriptionLifecycleState::Refunded
                 | BillingSubscriptionLifecycleState::Disputed
+                | BillingSubscriptionLifecycleState::DisputeWon
+                | BillingSubscriptionLifecycleState::DisputeLost
         );
 
     BillingProviderWebhookDecision {
@@ -515,19 +543,29 @@ pub fn decide_child_entitlement_snapshot(
     }
 
     let (access_state, manual_review_requirement) = match snapshot.lifecycle_state {
-        BillingSubscriptionLifecycleState::Active => (
+        BillingSubscriptionLifecycleState::Trialing
+        | BillingSubscriptionLifecycleState::Active
+        | BillingSubscriptionLifecycleState::DisputeWon => (
             BillingChildEntitlementAccessState::FullAccess,
+            BillingManualReviewRequirement::NotRequired,
+        ),
+        BillingSubscriptionLifecycleState::Grace => (
+            BillingChildEntitlementAccessState::GraceAccess,
             BillingManualReviewRequirement::NotRequired,
         ),
         BillingSubscriptionLifecycleState::PastDue => (
             BillingChildEntitlementAccessState::LimitedAccess,
             BillingManualReviewRequirement::NotRequired,
         ),
-        BillingSubscriptionLifecycleState::Canceled => (
+        BillingSubscriptionLifecycleState::Unpaid
+        | BillingSubscriptionLifecycleState::Canceled
+        | BillingSubscriptionLifecycleState::Refunded
+        | BillingSubscriptionLifecycleState::DisputeLost => (
             BillingChildEntitlementAccessState::Revoked,
             BillingManualReviewRequirement::NotRequired,
         ),
-        BillingSubscriptionLifecycleState::Disputed => (
+        BillingSubscriptionLifecycleState::Disputed
+        | BillingSubscriptionLifecycleState::SupportRequired => (
             BillingChildEntitlementAccessState::HoldForReview,
             BillingManualReviewRequirement::Required,
         ),
@@ -586,16 +624,25 @@ pub fn project_billing_entitlement_transition(
         BillingEntitlementTransitionState::NoWrite
     } else {
         match decision.lifecycle_state {
-            BillingSubscriptionLifecycleState::Active => {
+            BillingSubscriptionLifecycleState::Trialing
+            | BillingSubscriptionLifecycleState::Active
+            | BillingSubscriptionLifecycleState::DisputeWon => {
                 BillingEntitlementTransitionState::GrantFullAccess
+            }
+            BillingSubscriptionLifecycleState::Grace => {
+                BillingEntitlementTransitionState::GraceAccess
             }
             BillingSubscriptionLifecycleState::PastDue => {
                 BillingEntitlementTransitionState::LimitAccess
             }
-            BillingSubscriptionLifecycleState::Canceled => {
+            BillingSubscriptionLifecycleState::Unpaid
+            | BillingSubscriptionLifecycleState::Canceled
+            | BillingSubscriptionLifecycleState::Refunded
+            | BillingSubscriptionLifecycleState::DisputeLost => {
                 BillingEntitlementTransitionState::RevokeAccess
             }
-            BillingSubscriptionLifecycleState::Disputed => {
+            BillingSubscriptionLifecycleState::Disputed
+            | BillingSubscriptionLifecycleState::SupportRequired => {
                 BillingEntitlementTransitionState::HoldForReview
             }
             BillingSubscriptionLifecycleState::Unknown => {

@@ -55,6 +55,25 @@ fn trusted_active_child_snapshot_grants_full_access() {
 }
 
 #[test]
+fn trusted_grace_child_snapshot_projects_grace_access() {
+    let decision = decide_child_entitlement_snapshot(snapshot(
+        BillingSubscriptionLifecycleState::Grace,
+        BillingChildSnapshotSignatureState::Trusted,
+        BillingChildSnapshotFreshnessState::Fresh,
+    ));
+
+    assert_eq!(
+        decision.decision_state,
+        BillingChildEntitlementConsumptionState::Accepted
+    );
+    assert_eq!(
+        decision.access_state,
+        BillingChildEntitlementAccessState::GraceAccess
+    );
+    assert_eq!(decision.write_state, BillingEntitlementWriteState::WriteRequired);
+}
+
+#[test]
 fn stale_child_snapshot_is_rejected_without_overwriting_local_state() {
     let decision = decide_child_entitlement_snapshot(snapshot(
         BillingSubscriptionLifecycleState::Active,
@@ -94,6 +113,25 @@ fn invalid_signature_child_snapshot_is_rejected_before_lifecycle_changes() {
     assert_eq!(
         decision.rejection_reason,
         Some(BillingChildEntitlementRejectionReason::InvalidSignature)
+    );
+}
+
+#[test]
+fn dispute_won_child_snapshot_restores_full_access() {
+    let decision = decide_child_entitlement_snapshot(snapshot(
+        BillingSubscriptionLifecycleState::DisputeWon,
+        BillingChildSnapshotSignatureState::Trusted,
+        BillingChildSnapshotFreshnessState::Fresh,
+    ));
+
+    assert_eq!(
+        decision.decision_state,
+        BillingChildEntitlementConsumptionState::Accepted
+    );
+    assert_eq!(decision.access_state, BillingChildEntitlementAccessState::FullAccess);
+    assert_eq!(
+        decision.manual_review_requirement,
+        BillingManualReviewRequirement::NotRequired
     );
 }
 

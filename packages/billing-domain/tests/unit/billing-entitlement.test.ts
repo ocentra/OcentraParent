@@ -1,11 +1,14 @@
+import { type Infer } from '@ocentra-parent/schema-domain/effect';
 import { describe, expect, it } from 'vitest';
 import {
   BillingDeviceLimitDecisionSchema,
   BillingEntitlementContractProofSchema,
   BillingEntitlementSnapshotSchema,
+  type BillingFailureState,
   BillingFailureStateSchema,
   BillingFeatureDecisionSchema,
   BillingFeatureEntitlementSchema,
+  type BillingSubscriptionStatusProofRow,
   BillingSubscriptionStatusProofRowSchema,
   BillingSyncEventSchema,
 } from '../../src/billing-entitlement';
@@ -26,6 +29,9 @@ describe('billing entitlement contracts', () => {
   rejectsBillingFailuresThatDropLocalSafetyContinuation();
   rejectsProofOverclaims();
 });
+
+type BillingFeatureEntitlement = Infer<typeof BillingFeatureEntitlementSchema>;
+type BillingFeatureDecision = Infer<typeof BillingFeatureDecisionSchema>;
 
 function acceptsBillingEntitlementProofWithoutProviderClaims(): void {
   it('accepts plan entitlement subscription device-limit and failure contracts without provider or custody claims', () => {
@@ -75,7 +81,7 @@ function acceptsBillingEntitlementProofWithoutProviderClaims(): void {
 function rejectsPaidGatesForSafetyCriticalBehavior(): void {
   it('rejects paid gates that can disable safety-critical local behavior', () => {
     const safetyCriticalFeature = BillingEntitlementContractProofReadModel.plan.featureEntitlements.find(
-      (entry) => entry.featureCode === 'local-evidence-capture'
+      (entry: BillingFeatureEntitlement) => entry.featureCode === 'local-evidence-capture'
     );
     if (safetyCriticalFeature === undefined) {
       throw new Error('missing safety-critical local evidence feature');
@@ -93,7 +99,7 @@ function rejectsPaidGatesForSafetyCriticalBehavior(): void {
 function rejectsLockedSafetyCriticalDecisionAndDroppedExportAccess(): void {
   it('rejects entitlement decisions that lock safety-critical access or drop export access', () => {
     const exportDecision = BillingEntitlementContractProofReadModel.entitlementSnapshot.featureDecisions.find(
-      (entry) => entry.featureCode === 'evidence-export-access'
+      (entry: BillingFeatureDecision) => entry.featureCode === 'evidence-export-access'
     );
     if (exportDecision === undefined) {
       throw new Error('missing evidence export entitlement decision');
@@ -142,7 +148,7 @@ function rejectsUnavailableSnapshotsWithoutFailureState(): void {
 function rejectsDegradedSubscriptionRowsWithoutFailureState(): void {
   it('rejects degraded subscription status proof rows without failure state', () => {
     const pastDueRow = BillingEntitlementContractProofReadModel.subscriptionStatusProofRows.find(
-      (entry) => entry.subscriptionStatus === 'past-due'
+      (entry: BillingSubscriptionStatusProofRow) => entry.subscriptionStatus === 'past-due'
     );
     if (pastDueRow === undefined) {
       throw new Error('missing past-due subscription proof row');
@@ -173,7 +179,7 @@ function rejectsProviderReferencesOutsideBackendBoundary(): void {
 function rejectsDeniedDeviceLimitDecisionWithAllowedReason(): void {
   it('rejects denied device-limit decisions that use an allowed reason', () => {
     const deniedDecision = BillingEntitlementContractProofReadModel.deviceLimitDecisions.find(
-      (entry) => entry.decision === 'denied'
+      (entry: { readonly decision: string }) => entry.decision === 'denied'
     );
     if (deniedDecision === undefined) {
       throw new Error('missing denied device-limit decision');
@@ -191,7 +197,7 @@ function rejectsDeniedDeviceLimitDecisionWithAllowedReason(): void {
 function rejectsAllowedDeviceActivationAtPlanLimit(): void {
   it('rejects new-device activation when the plan device limit is already reached', () => {
     const allowedDecision = BillingEntitlementContractProofReadModel.deviceLimitDecisions.find(
-      (entry) => entry.decision === 'allowed'
+      (entry: { readonly decision: string }) => entry.decision === 'allowed'
     );
     if (allowedDecision === undefined) {
       throw new Error('missing allowed device-limit decision');
@@ -216,7 +222,7 @@ function rejectsAllowedDeviceActivationAtPlanLimit(): void {
 function rejectsBillingFailuresThatDropLocalSafetyContinuation(): void {
   it('rejects billing failure states that drop existing local safety continuation', () => {
     const paymentRequiredFailure = BillingEntitlementContractProofReadModel.failureStates.find(
-      (entry) => entry.failureKind === 'payment-required'
+      (entry: BillingFailureState) => entry.failureKind === 'payment-required'
     );
     if (paymentRequiredFailure === undefined) {
       throw new Error('missing payment-required billing failure state');
@@ -240,7 +246,12 @@ function rejectsProofOverclaims(): void {
       { ...proof, billingProviderBackendClaim: 'implemented' },
       { ...proof, portalUiClaim: 'implemented' },
       { ...proof, childActivityCustodyClaim: 'supported' },
-      { ...proof, nonClaims: proof.nonClaims.filter((claim) => claim !== 'no-safety-shutdown') },
+      {
+        ...proof,
+        nonClaims: proof.nonClaims.filter(
+          (claim: (typeof proof.nonClaims)[number]) => claim !== 'no-safety-shutdown'
+        ),
+      },
     ]) {
       expect(BillingEntitlementContractProofSchema.safeParse(invalidProof).success).toBe(false);
     }
@@ -248,15 +259,17 @@ function rejectsProofOverclaims(): void {
 }
 
 function featureDecisionCounts(proof: typeof BillingEntitlementContractProofReadModel) {
-  return countBy(proof.entitlementSnapshot.featureDecisions.map((entry) => entry.decision));
+  return countBy(proof.entitlementSnapshot.featureDecisions.map((entry: BillingFeatureDecision) => entry.decision));
 }
 
 function subscriptionStatusCounts(proof: typeof BillingEntitlementContractProofReadModel) {
-  return countBy(proof.subscriptionStatusProofRows.map((entry) => entry.subscriptionStatus));
+  return countBy(
+    proof.subscriptionStatusProofRows.map((entry: BillingSubscriptionStatusProofRow) => entry.subscriptionStatus)
+  );
 }
 
 function deviceLimitDecisionCounts(proof: typeof BillingEntitlementContractProofReadModel) {
-  return countBy(proof.deviceLimitDecisions.map((entry) => entry.decision));
+  return countBy(proof.deviceLimitDecisions.map((entry: { readonly decision: string }) => entry.decision));
 }
 
 function countBy<T extends string>(values: ReadonlyArray<T>): Partial<Record<T, number>> {

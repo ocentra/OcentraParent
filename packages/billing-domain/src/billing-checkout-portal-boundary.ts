@@ -14,7 +14,6 @@ import {
   BillingHostedReturnPathSchema,
   BillingHostedReturnRouteIdSchema,
   BillingHostedSessionIdSchema,
-  BillingHostedSessionKindSchema,
   BillingHostedSessionRejectionReasonSchema,
   BillingHostedSessionRequestIdSchema,
   BillingHostedSessionStatusSchema,
@@ -161,8 +160,8 @@ export const BillingHostedReturnRoute = {
 } as const;
 
 export function billingHostedReturnRoutePath(
-  routeId: keyof typeof BillingHostedRoutePathById
-): (typeof BillingHostedRoutePathById)[typeof routeId] {
+  routeId: Infer<typeof BillingHostedReturnRouteIdSchema>
+): string {
   return BillingHostedRoutePathById[routeId];
 }
 
@@ -182,4 +181,3 @@ function billingHostedSessionResponseIsConsistent(
   }
   return hostedSessionId === null && hostedUrl === null && expiresAt === null && rejectionReason !== null;
 }
-
