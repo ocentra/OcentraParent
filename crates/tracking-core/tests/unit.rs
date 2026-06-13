@@ -1,5 +1,7 @@
 #[path = "unit/expected_place.rs"]
 mod expected_place;
+#[path = "unit/geofence.rs"]
+mod geofence;
 #[path = "unit/missing_device.rs"]
 mod missing_device;
 #[path = "unit/nearby_place.rs"]

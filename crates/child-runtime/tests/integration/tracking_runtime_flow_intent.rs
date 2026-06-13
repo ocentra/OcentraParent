@@ -28,8 +28,8 @@ async fn tracking_runtime_flow_keeps_ai_policy_and_notification_decoupled_by_eve
             .as_ref()
             .expect(constants::tracking_runtime::ERROR_TRACKING_RUNTIME_FLOW_RECORDED)
             .transition_kind,
-        TrackingTransitionKind::parse(constants::tracking_runtime::GEOFENCE_TRANSITION_UNCHANGED)
-            .expect(constants::tracking_runtime::GEOFENCE_TRANSITION_UNCHANGED)
+        TrackingTransitionKind::parse(constants::tracking_runtime::GEOFENCE_TRANSITION_AMBIGUOUS)
+            .expect(constants::tracking_runtime::GEOFENCE_TRANSITION_AMBIGUOUS)
     );
     assert_eq!(
         flow_report

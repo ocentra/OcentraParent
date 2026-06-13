@@ -30,7 +30,8 @@ pub use alerting::{
 };
 pub use child_check_in::record_child_check_in;
 pub use expected_place::{
-    evaluate_expected_place_state, expected_place_window_contains_minute,
+    default_expected_place_evaluation, evaluate_expected_place_state,
+    expected_place_window_contains_minute, TrackingExpectedPlaceEvaluation,
     TrackingExpectedPlaceWindow,
 };
 pub use geofence::{

@@ -16,8 +16,8 @@ fn tracking_evidence_can_branch_to_geofence_and_expected_place_events() {
     assert_eq!(geofence.child_profile_id, evidence.child_profile_id);
     assert_eq!(
         geofence.transition_kind,
-        TrackingTransitionKind::parse(constants::tracking_runtime::GEOFENCE_TRANSITION_UNCHANGED)
-            .expect(constants::tracking_runtime::GEOFENCE_TRANSITION_UNCHANGED)
+        TrackingTransitionKind::parse(constants::tracking_runtime::GEOFENCE_TRANSITION_AMBIGUOUS)
+            .expect(constants::tracking_runtime::GEOFENCE_TRANSITION_AMBIGUOUS)
     );
     assert_eq!(geofence.evidence_refs, vec![evidence.evidence_ref.clone()]);
     assert_eq!(
