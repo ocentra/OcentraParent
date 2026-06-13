@@ -301,7 +301,7 @@ async fn child_runtime_routes_tracking_observation_through_ai_policy_and_notific
             .as_ref()
             .expect(constants::tracking_runtime::ERROR_TRACKING_RUNTIME_FLOW_RECORDED)
             .provider_kind,
-        constants::tracking_runtime::NEARBY_PROVIDER_KIND_PARENT_DEFINED
+        constants::tracking_runtime::NEARBY_PROVIDER_KIND_LOCAL_CACHE
     );
     assert_eq!(
         flow_report

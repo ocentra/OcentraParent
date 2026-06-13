@@ -14,5 +14,6 @@ path = "src/lib.rs"
 ocentra-eventing = { path = "../ocentra-eventing" }
 ocentra-evidence = { path = "../ocentra-evidence" }
 ocentra-parent-agent-protocol = { path = "../agent-protocol" }
+ocentra-tracking-core = { path = "../tracking-core" }
 
 [dev-dependencies]
