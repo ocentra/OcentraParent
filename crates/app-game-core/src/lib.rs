@@ -1,5 +1,7 @@
 #![forbid(unsafe_code)]
 
+mod runtime_decision;
+
 use ocentra_parent_agent_protocol::{
     child_domain_ai_analysis_requested_event_if_required,
     child_domain_direct_policy_evaluation_requested_event_if_required,
@@ -12,7 +14,15 @@ use ocentra_parent_agent_protocol::{
 
 pub const CRATE_NAME: &str = "ocentra-app-game-core";
 
-#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub use runtime_decision::{
+    app_game_runtime_decision_recorded_event, app_game_runtime_observed_event,
+    evaluate_app_game_runtime, AppGameAggregateId, AppGameAiHandoffState,
+    AppGameCapabilityState, AppGameClassificationState, AppGameForegroundState,
+    AppGamePolicyHandoffState, AppGameRuntimeActionState, AppGameRuntimeDecision,
+    AppGameRuntimeDecisionId, AppGameRuntimeDecisionRecordedEvent, AppGameRuntimeInput,
+};
+
+#[derive(Clone, Copy, Debug, PartialEq, Eq, serde::Serialize, serde::Deserialize)]
 pub enum AppGameObservationIntent {
     ForegroundUsageRequiresPolicy,
     AmbiguousUsageRequiresAi,
