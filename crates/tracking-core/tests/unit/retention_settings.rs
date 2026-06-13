@@ -1,12 +1,15 @@
 use ocentra_parent_agent_protocol::{
-    tracking_read_model_proof_ref, tracking_retention_command_id,
+    default_tracking_config_update_request, tracking_read_model_proof_ref,
+    tracking_retention_command_id,
     tracking_retention_settings_kind, tracking_writer_intent_ref,
     TrackingDeleteAfterAlertResolutionState, TrackingDurableSettingsPersistenceState,
     TrackingParentExportState, TrackingRemoteAiState, TrackingRemoteSyncState,
-    TrackingRetentionSettingsWriteRequest, AGENT_PROTOCOL_SCHEMA_VERSION,
+    TrackingRetentionSettingsWriteRequest, TrackingRuntimeEnabledState,
+    AGENT_PROTOCOL_SCHEMA_VERSION,
 };
 use ocentra_tracking_core::{
-    apply_tracking_retention_settings_write, tracking_retention_settings_durable_store_path,
+    apply_tracking_config_update, apply_tracking_retention_settings_write,
+    tracking_retention_settings_durable_store_path,
 };
 
 #[test]
@@ -36,6 +39,25 @@ fn retention_settings_write_persists_requested_remote_states() {
 
     assert_eq!(durable_record["remote_sync_state"], "enabled");
     assert_eq!(durable_record["remote_ai_state"], "enabled");
+}
+
+#[test]
+fn tracking_config_update_persists_runtime_state_and_can_disable_tracking() {
+    let mut request = default_tracking_config_update_request();
+    request.runtime_config.tracking_enabled_state = TrackingRuntimeEnabledState::Disabled;
+
+    let applied = apply_tracking_config_update(&request);
+    let durable_record = std::fs::read_to_string(tracking_retention_settings_durable_store_path())
+        .expect("durable tracking settings record");
+    let durable_record: serde_json::Value =
+        serde_json::from_str(&durable_record).expect("json durable tracking settings record");
+
+    assert_eq!(
+        applied.effective_tracking_state,
+        ocentra_parent_agent_protocol::TrackingConfigEffectiveState::Disabled
+    );
+    assert_eq!(durable_record["tracking_enabled_state"], "disabled");
+    assert_eq!(durable_record["tracking_mode"], "observe-only");
 }
 
 fn retention_write_request() -> TrackingRetentionSettingsWriteRequest {

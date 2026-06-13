@@ -1,12 +1,13 @@
 use ocentra_evidence::PrivatePayloadState;
 use ocentra_parent_agent_protocol::{
-    constants, default_tracking_retention_settings_write_request, AgentCommandEnvelope,
+    constants, default_tracking_config_update_request, AgentCommandEnvelope,
     AgentCommandName, AgentMessageTarget, AgentPeer, AgentPeerRole, AgentRoute, LogFields,
     TrackingAiBoundaryMode, TrackingConfigEffectiveState, TrackingConfigUpdateEventName,
-    TrackingConfigUpdateResponseState, TrackingDurableSettingsPersistenceState,
-    TrackingNotificationChannel, TrackingParentActionRequirement, TrackingNotificationMode,
-    TrackingPlaceCategory, TrackingPolicyRuleRef, TrackingRetentionSettingsWriteRequest,
-    TrackingRuntimeEnabledState, TrackingRuntimeMode, AGENT_PROTOCOL_SCHEMA_VERSION,
+    TrackingConfigUpdateRequest, TrackingConfigUpdateResponseState,
+    TrackingDurableSettingsPersistenceState, TrackingNotificationChannel,
+    TrackingNotificationMode, TrackingParentActionRequirement, TrackingPlaceCategory,
+    TrackingPolicyRuleRef, TrackingRuntimeEnabledState, TrackingRuntimeMode,
+    AGENT_PROTOCOL_SCHEMA_VERSION,
     tracking_ai_request_id_from_evidence_ref, tracking_evidence_ref_from_observation_id,
     tracking_notification_id_from_violation_id, tracking_violation_id_from_ai_request_and_rule_ref,
 };
@@ -27,8 +28,7 @@ fn child_runtime_declares_tracking_core_dependency() {
 #[tokio::test]
 async fn child_runtime_routes_parent_config_event_through_named_subscribers_to_child_tracking_core()
 {
-    let request: TrackingRetentionSettingsWriteRequest =
-        default_tracking_retention_settings_write_request();
+    let request: TrackingConfigUpdateRequest = default_tracking_config_update_request();
     let command = command_envelope(request.clone());
     let parent_event =
         ocentra_child_runtime::parent_tracking_config_updated_event_from_command(&command, request);
@@ -132,8 +132,7 @@ async fn child_runtime_routes_parent_config_event_through_named_subscribers_to_c
 
 #[tokio::test]
 async fn parent_tracking_config_flow_can_attach_once_to_runtime_owned_bus() {
-    let request: TrackingRetentionSettingsWriteRequest =
-        default_tracking_retention_settings_write_request();
+    let request: TrackingConfigUpdateRequest = default_tracking_config_update_request();
     let command = command_envelope(request.clone());
     let parent_event =
         ocentra_child_runtime::parent_tracking_config_updated_event_from_command(&command, request);
@@ -183,10 +182,9 @@ async fn parent_tracking_config_flow_can_attach_once_to_runtime_owned_bus() {
 }
 
 #[tokio::test]
-async fn child_runtime_keeps_tracking_enabled_when_config_clears_retention_window() {
-    let mut request: TrackingRetentionSettingsWriteRequest =
-        default_tracking_retention_settings_write_request();
-    request.requested_retention_window_hours = None;
+async fn child_runtime_applies_disabled_tracking_runtime_config_without_rejecting_request() {
+    let mut request: TrackingConfigUpdateRequest = default_tracking_config_update_request();
+    request.runtime_config.tracking_enabled_state = TrackingRuntimeEnabledState::Disabled;
     let command = command_envelope(request.clone());
     let parent_event =
         ocentra_child_runtime::parent_tracking_config_updated_event_from_command(&command, request);
@@ -200,11 +198,11 @@ async fn child_runtime_keeps_tracking_enabled_when_config_clears_retention_windo
             .parent_request_report
             .response
             .effective_tracking_state,
-        TrackingConfigEffectiveState::Enabled
+        TrackingConfigEffectiveState::Disabled
     );
     assert_eq!(
         flow_report.applied_report.effective_tracking_state,
-        TrackingConfigEffectiveState::Enabled
+        TrackingConfigEffectiveState::Disabled
     );
 }
 
@@ -429,7 +427,7 @@ async fn child_runtime_honors_disabled_notification_mode_without_suppressing_pol
     assert!(flow_report.parent_notification_requested.is_none());
 }
 
-fn command_envelope(request: TrackingRetentionSettingsWriteRequest) -> AgentCommandEnvelope {
+fn command_envelope(request: TrackingConfigUpdateRequest) -> AgentCommandEnvelope {
     AgentCommandEnvelope {
         schema_version: AGENT_PROTOCOL_SCHEMA_VERSION,
         message_id: String::from(request.command_id),

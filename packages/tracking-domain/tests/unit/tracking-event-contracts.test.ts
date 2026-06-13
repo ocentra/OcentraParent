@@ -5,6 +5,10 @@ import {
   AgentRouteLiteral,
 } from '@ocentra-parent/event-domain/primitives';
 import {
+  AgentTrackingAiBoundaryMode,
+  AgentTrackingNotificationMode,
+  AgentTrackingRetentionSettingsWriteDefaults,
+  AgentTrackingRuntimeMode,
   AgentTrackingConfigUpdateEventType,
   AgentTrackingConfigUpdateResponseStateLiteral,
   AgentTrackingConfigUpdateTargetScopeLiteral,
@@ -21,34 +25,35 @@ import {
   TrackingRuntimeEventEnvelopeSchema,
 } from '../../src/tracking-event-contracts';
 
-const retentionPolicy = {
-  schemaVersion: 1,
-  policyId: 'tracking-retention-default',
-  mode: '7d',
-  custodyLabel: 'child-device-local',
-  customRetentionHours: null,
-  deleteOnResolution: false,
-  exportAllowed: false,
-  remoteSyncDefault: 'disabled',
-  auditRefs: ['parent-config-update'],
+const trackingConfigUpdatePayload = {
+  commandId: AgentTrackingRetentionSettingsWriteDefaults.CommandId,
+  runtimeConfig: {
+    trackingEnabledState: TrackingRuntimeEnabledState.Enabled,
+    trackingMode: AgentTrackingRuntimeMode.ObserveOnly,
+    aiBoundaryMode: AgentTrackingAiBoundaryMode.RequestWhenUncertain,
+    notificationMode: AgentTrackingNotificationMode.ParentPortalOnly,
+  },
+  retentionSettings: {
+    schemaVersion: 1,
+    commandId: AgentTrackingRetentionSettingsWriteDefaults.CommandId,
+    settingsKind: AgentTrackingRetentionSettingsWriteDefaults.SettingsKindRetentionWindow,
+    requestedRetentionWindowHours: 168,
+    requestedDeleteAfterAlertResolutionState: 'retain-after-alert-resolved',
+    requestedParentExportState: 'not-prepared',
+    requestedRemoteSyncState: 'disabled',
+    requestedRemoteAiState: 'disabled',
+    sourceWriterIntentRefs: [AgentTrackingRetentionSettingsWriteDefaults.WriterIntentRef],
+    sourceReadModelProofRefs: AgentTrackingRetentionSettingsWriteDefaults.ReadModelProofRefs,
+  },
 } as const;
 
 describe('tracking event contracts', () => {
   it('parses tracking config update payload as a named tracking schema', () => {
-    const payload = TrackingRuntimeConfigUpdatedPayloadSchema.parse({
-      schemaVersion: 1,
-      requestedBy: { actorId: 'parent-1', role: 'parent' },
-      targetDevice: {
-        deviceId: 'child-device-1',
-        childProfileId: 'child-profile-1',
-        label: 'Child Android',
-        platform: 'android',
-      },
-      retentionPolicy,
-      trackingEnabledState: TrackingRuntimeEnabledState.Enabled,
-    });
+    const payload = TrackingRuntimeConfigUpdatedPayloadSchema.parse(trackingConfigUpdatePayload);
 
-    expect(payload.retentionPolicy.policyId).toBe('tracking-retention-default');
+    expect(payload.retentionSettings.settingsKind).toBe(
+      AgentTrackingRetentionSettingsWriteDefaults.SettingsKindRetentionWindow
+    );
   });
 
   it('composes shared event envelope metadata with tracking-owned payload schema', () => {
@@ -66,22 +71,13 @@ describe('tracking event contracts', () => {
         },
         deliveryMode: AgentEventDeliveryMode.RequestResponse,
       },
-      payload: {
-        schemaVersion: 1,
-        requestedBy: { actorId: 'parent-1', role: 'parent' },
-        targetDevice: {
-          deviceId: 'child-device-1',
-          childProfileId: 'child-profile-1',
-          label: 'Child Android',
-          platform: 'android',
-        },
-        retentionPolicy,
-        trackingEnabledState: TrackingRuntimeEnabledState.Enabled,
-      },
+      payload: trackingConfigUpdatePayload,
     });
 
     expect(event.envelope.eventName).toBe(AgentTrackingConfigUpdateEventType.Parent);
-    expect(event.payload.trackingEnabledState).toBe(TrackingRuntimeEnabledState.Enabled);
+    expect(event.payload.runtimeConfig.trackingEnabledState).toBe(
+      TrackingRuntimeEnabledState.Enabled
+    );
   });
 
   it('rejects tracking config update events that use another tracking event name', () => {
@@ -99,18 +95,7 @@ describe('tracking event contracts', () => {
         },
         deliveryMode: AgentEventDeliveryMode.RequestResponse,
       },
-      payload: {
-        schemaVersion: 1,
-        requestedBy: { actorId: 'parent-1', role: 'parent' },
-        targetDevice: {
-          deviceId: 'child-device-1',
-          childProfileId: 'child-profile-1',
-          label: 'Child Android',
-          platform: 'android',
-        },
-        retentionPolicy,
-        trackingEnabledState: TrackingRuntimeEnabledState.Enabled,
-      },
+      payload: trackingConfigUpdatePayload,
     });
 
     expect(result.success).toBe(false);
@@ -131,22 +116,13 @@ describe('tracking event contracts', () => {
         },
         deliveryMode: AgentEventDeliveryMode.FireAndForget,
       },
-      payload: {
-        schemaVersion: 1,
-        requestedBy: { actorId: 'parent-1', role: 'parent' },
-        targetDevice: {
-          deviceId: 'child-device-1',
-          childProfileId: 'child-profile-1',
-          label: 'Child Android',
-          platform: 'android',
-        },
-        retentionPolicy,
-        trackingEnabledState: TrackingRuntimeEnabledState.Enabled,
-      },
+      payload: trackingConfigUpdatePayload,
     });
 
     expect(event.envelope.eventName).toBe(AgentTrackingConfigUpdateEventType.Child);
-    expect(event.payload.targetDevice.deviceId).toBe('child-device-1');
+    expect(event.payload.retentionSettings.commandId).toBe(
+      AgentTrackingRetentionSettingsWriteDefaults.CommandId
+    );
   });
 
   it('composes child tracking config applied as a durable typed child runtime event', () => {

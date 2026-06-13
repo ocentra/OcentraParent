@@ -1,5 +1,5 @@
 use ocentra_parent_agent_protocol::{
-    constants, default_tracking_retention_settings_write_request, AgentRoute,
+    constants, default_tracking_config_update_request, AgentRoute,
     ParentTrackingConfigUpdatedEvent, TrackingConfigPolicyDecisionState,
     TrackingConfigPortalUpdateKind, TrackingConfigUpdateResponseState,
     TrackingConfigUpdateTarget, TrackingConfigUpdateTargetScope, TrackingSourceMessageId,
@@ -98,7 +98,7 @@ async fn parent_runtime_tracking_config_flow_rejects_untrusted_origin_without_ch
 fn parent_tracking_config_event(
     scope: TrackingConfigUpdateTargetScope,
 ) -> ParentTrackingConfigUpdatedEvent {
-    let request = default_tracking_retention_settings_write_request();
+    let request = default_tracking_config_update_request();
     ParentTrackingConfigUpdatedEvent {
         source_command_id: request.command_id.clone(),
         source_message_id: TrackingSourceMessageId::parse(

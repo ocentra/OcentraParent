@@ -18,12 +18,13 @@ use ocentra_parent_agent_protocol::{
     TrackingConfigAuditEntryCommittedEvent, TrackingConfigAuditOutcome,
     TrackingConfigChangeApprovedEvent, TrackingConfigChangeRejectedEvent,
     TrackingConfigChangeRequestedEvent, TrackingConfigEffectiveState,
+    TrackingConfigUpdateRequest,
     TrackingConfigPolicyDecisionCompletedEvent, TrackingConfigPolicyDecisionState,
     TrackingConfigPolicyEvaluationRequestedEvent, TrackingConfigPortalReadModelUpdatedEvent,
     TrackingConfigPortalUpdateKind, TrackingConfigUpdateEventName, TrackingConfigUpdateResponse,
     TrackingConfigUpdateResponseState, TrackingDurableSettingsPersistenceState,
     TrackingPolicyRuleRef, TrackingRemoteAiState, TrackingRemoteSyncState,
-    TrackingRetentionSettingsWriteRequest, AGENT_PROTOCOL_SCHEMA_VERSION,
+    AGENT_PROTOCOL_SCHEMA_VERSION,
 };
 
 use crate::{
@@ -673,13 +674,13 @@ impl ParentTrackingConfigUpdateEventState {
 }
 
 fn tracking_policy_rule_refs(
-    request: &TrackingRetentionSettingsWriteRequest,
+    request: &TrackingConfigUpdateRequest,
 ) -> Vec<TrackingPolicyRuleRef> {
     let mut rule_refs = vec![TrackingPolicyRuleRef::parse(
         constants::tracking_config_update::POLICY_RULE_LOCAL_CHILD_RUNTIME,
     )
     .expect(constants::tracking_config_update::POLICY_RULE_LOCAL_CHILD_RUNTIME)];
-    if request.requested_remote_sync_state == TrackingRemoteSyncState::Disabled {
+    if request.retention_settings.requested_remote_sync_state == TrackingRemoteSyncState::Disabled {
         rule_refs.push(
             TrackingPolicyRuleRef::parse(
                 constants::tracking_config_update::POLICY_RULE_REMOTE_SYNC_DISABLED,
@@ -687,7 +688,7 @@ fn tracking_policy_rule_refs(
             .expect(constants::tracking_config_update::POLICY_RULE_REMOTE_SYNC_DISABLED),
         );
     }
-    if request.requested_remote_ai_state == TrackingRemoteAiState::Disabled {
+    if request.retention_settings.requested_remote_ai_state == TrackingRemoteAiState::Disabled {
         rule_refs.push(
             TrackingPolicyRuleRef::parse(
                 constants::tracking_config_update::POLICY_RULE_REMOTE_AI_DISABLED,

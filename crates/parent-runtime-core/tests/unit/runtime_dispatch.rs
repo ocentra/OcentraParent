@@ -1,6 +1,6 @@
 use ocentra_eventing::DomainEvent;
 use ocentra_parent_agent_protocol::{
-    constants, default_tracking_retention_settings_write_request, AgentRoute,
+    constants, default_tracking_config_update_request, AgentRoute,
     ParentTrackingConfigUpdatedEvent, TrackingConfigUpdateTarget, TrackingConfigUpdateTargetScope,
     TrackingSourceMessageId, TrackingSourcePeerId, TrackingTargetDeviceId, TrackingTargetPlatform,
 };
@@ -228,7 +228,7 @@ fn tracking_config_parent_runtime_records_typed_dispatch_event() {
 fn parent_tracking_config_event(
     scope: TrackingConfigUpdateTargetScope,
 ) -> ParentTrackingConfigUpdatedEvent {
-    let request = default_tracking_retention_settings_write_request();
+    let request = default_tracking_config_update_request();
     ParentTrackingConfigUpdatedEvent {
         source_command_id: request.command_id.clone(),
         source_message_id: TrackingSourceMessageId::parse(

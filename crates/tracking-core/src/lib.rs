@@ -60,7 +60,8 @@ pub use read_model_guard::{
     TrackingReadModelMigrationState, TrackingReadModelSchemaDecision,
 };
 pub use retention_settings::{
-    apply_tracking_retention_settings_write, tracking_retention_settings_durable_store_path,
+    apply_tracking_config_update, apply_tracking_retention_settings_write,
+    tracking_retention_settings_durable_store_path, TrackingConfigUpdateAppliedState,
     TrackingRetentionSettingsWriteAppliedState,
 };
 pub use runtime_flow::{

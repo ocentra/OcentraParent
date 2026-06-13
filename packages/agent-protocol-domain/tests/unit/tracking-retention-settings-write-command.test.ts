@@ -3,8 +3,10 @@ import { AgentEvent, AgentProtocolDefaults, type AgentEventEnvelope } from '../.
 import { AgentProtocolSchemaVersion } from '../../src/primitives';
 import {
   AgentTrackingConfigCommandFlowEventType,
+  AgentTrackingConfigUpdateRequestSchema,
   AgentTrackingConfigUpdateEventType,
   AgentTrackingConfigAckState,
+  AgentTrackingAiBoundaryMode,
   AgentTrackingConfigAuditOutcomeLiteral,
   AgentTrackingConfigPolicyDecisionStateLiteral,
   AgentTrackingConfigPortalUpdateKindLiteral,
@@ -14,10 +16,13 @@ import {
   AgentTrackingEffectiveStateLiteral,
   AgentTrackingExecutionClaimState,
   AgentTrackingParentExportState,
+  AgentTrackingNotificationMode,
   AgentTrackingRemoteAiState,
   AgentTrackingRemoteSyncState,
   AgentTrackingRetentionSettingsWriteDefaults,
   AgentTrackingRetentionSettingsWriteRequestSchema,
+  AgentTrackingRuntimeEnabledState,
+  AgentTrackingRuntimeMode,
   AgentTrackingRetentionSettingsWriteResultParseState,
   ChildTrackingConfigUpdatedEventSchema,
   ParentTrackingConfigUpdatedEventSchema,
@@ -29,6 +34,7 @@ import {
   TrackingConfigPolicyEvaluationRequestedEventSchema,
   TrackingConfigPortalReadModelUpdatedEventSchema,
   TrackingConfigUpdateAppliedEventSchema,
+  defaultAgentTrackingConfigUpdateRequest,
   defaultAgentTrackingRetentionSettingsWriteRequest,
   parseAgentTrackingRetentionSettingsWriteResultEvent,
 } from '../../src/tracking-retention-settings-write-command';
@@ -94,7 +100,7 @@ describe('agent tracking retention settings write result parser', () => {
   });
 
   it('parses parent and child tracking config update events as canonical protocol contracts', () => {
-    const config = defaultAgentTrackingRetentionSettingsWriteRequest();
+    const config = defaultAgentTrackingConfigUpdateRequest();
     const target = {
       scope: 'child-device',
       deviceId: 'local-dev-agent',
@@ -146,10 +152,22 @@ describe('agent tracking retention settings write result parser', () => {
       durableSettingsPersistenceState:
         AgentTrackingDurableSettingsPersistenceState.Persisted,
     });
+    expect(
+      AgentTrackingConfigUpdateRequestSchema.parse({
+        commandId: config.commandId,
+        runtimeConfig: {
+          trackingEnabledState: AgentTrackingRuntimeEnabledState.Enabled,
+          trackingMode: AgentTrackingRuntimeMode.ObserveOnly,
+          aiBoundaryMode: AgentTrackingAiBoundaryMode.RequestWhenUncertain,
+          notificationMode: AgentTrackingNotificationMode.ParentPortalOnly,
+        },
+        retentionSettings: config.retentionSettings,
+      })
+    ).toEqual(config);
   });
 
   it('parses tracking config command-flow payload contracts with shared policy and audit event types', () => {
-    const config = defaultAgentTrackingRetentionSettingsWriteRequest();
+    const config = defaultAgentTrackingConfigUpdateRequest();
     const target = {
       scope: 'child-device',
       deviceId: 'local-dev-agent',

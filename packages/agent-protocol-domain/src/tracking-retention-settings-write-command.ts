@@ -100,6 +100,21 @@ export const AgentTrackingEnabledStateLiteral = {
   Disabled: 'disabled',
 } as const;
 
+export const AgentTrackingRuntimeModeLiteral = {
+  ObserveOnly: 'observe-only',
+  PolicyEligible: 'policy-eligible',
+} as const;
+
+export const AgentTrackingAiBoundaryModeLiteral = {
+  RequestWhenUncertain: 'request-when-uncertain',
+  Disabled: 'disabled',
+} as const;
+
+export const AgentTrackingNotificationModeLiteral = {
+  ParentPortalOnly: 'portal-only',
+  Disabled: 'disabled',
+} as const;
+
 export const AgentTrackingDurableSettingsPersistenceStateLiteral = {
   Persisted: 'persisted',
   NotPersisted: 'not-persisted',
@@ -193,6 +208,31 @@ export const AgentTrackingParentExportStateSchema = withParser(
   )
 );
 
+export const AgentTrackingRuntimeEnabledStateSchema = withParser(
+  Schema.Literal(AgentTrackingEnabledStateLiteral.Enabled, AgentTrackingEnabledStateLiteral.Disabled)
+);
+
+export const AgentTrackingRuntimeModeSchema = withParser(
+  Schema.Literal(
+    AgentTrackingRuntimeModeLiteral.ObserveOnly,
+    AgentTrackingRuntimeModeLiteral.PolicyEligible
+  )
+);
+
+export const AgentTrackingAiBoundaryModeSchema = withParser(
+  Schema.Literal(
+    AgentTrackingAiBoundaryModeLiteral.RequestWhenUncertain,
+    AgentTrackingAiBoundaryModeLiteral.Disabled
+  )
+);
+
+export const AgentTrackingNotificationModeSchema = withParser(
+  Schema.Literal(
+    AgentTrackingNotificationModeLiteral.ParentPortalOnly,
+    AgentTrackingNotificationModeLiteral.Disabled
+  )
+);
+
 export const AgentTrackingRemoteSyncStateSchema = withParser(
   Schema.Literal(AgentTrackingEnabledStateLiteral.Enabled, AgentTrackingEnabledStateLiteral.Disabled)
 );
@@ -249,6 +289,30 @@ export const AgentTrackingDeleteAfterAlertResolutionState = {
 export const AgentTrackingParentExportState = {
   Prepared: AgentTrackingParentExportStateSchema.parse(AgentTrackingParentExportStateLiteral.Prepared),
   NotPrepared: AgentTrackingParentExportStateSchema.parse(AgentTrackingParentExportStateLiteral.NotPrepared),
+} as const;
+
+export const AgentTrackingRuntimeEnabledState = {
+  Enabled: AgentTrackingRuntimeEnabledStateSchema.parse(AgentTrackingEnabledStateLiteral.Enabled),
+  Disabled: AgentTrackingRuntimeEnabledStateSchema.parse(AgentTrackingEnabledStateLiteral.Disabled),
+} as const;
+
+export const AgentTrackingRuntimeMode = {
+  ObserveOnly: AgentTrackingRuntimeModeSchema.parse(AgentTrackingRuntimeModeLiteral.ObserveOnly),
+  PolicyEligible: AgentTrackingRuntimeModeSchema.parse(AgentTrackingRuntimeModeLiteral.PolicyEligible),
+} as const;
+
+export const AgentTrackingAiBoundaryMode = {
+  RequestWhenUncertain: AgentTrackingAiBoundaryModeSchema.parse(
+    AgentTrackingAiBoundaryModeLiteral.RequestWhenUncertain
+  ),
+  Disabled: AgentTrackingAiBoundaryModeSchema.parse(AgentTrackingAiBoundaryModeLiteral.Disabled),
+} as const;
+
+export const AgentTrackingNotificationMode = {
+  ParentPortalOnly: AgentTrackingNotificationModeSchema.parse(
+    AgentTrackingNotificationModeLiteral.ParentPortalOnly
+  ),
+  Disabled: AgentTrackingNotificationModeSchema.parse(AgentTrackingNotificationModeLiteral.Disabled),
 } as const;
 
 export const AgentTrackingRemoteSyncState = {
@@ -330,6 +394,29 @@ export const AgentTrackingRetentionSettingsWriteRequestSchema = withParser(
     )
 );
 
+export const AgentTrackingRuntimeConfigSchema = withParser(
+  Schema.Struct({
+    trackingEnabledState: AgentTrackingRuntimeEnabledStateSchema,
+    trackingMode: AgentTrackingRuntimeModeSchema,
+    aiBoundaryMode: AgentTrackingAiBoundaryModeSchema,
+    notificationMode: AgentTrackingNotificationModeSchema,
+  })
+);
+
+export const AgentTrackingConfigUpdateRequestSchema = withParser(
+  Schema.Struct({
+    commandId: AgentTrackingRetentionCommandIdSchema,
+    runtimeConfig: AgentTrackingRuntimeConfigSchema,
+    retentionSettings: AgentTrackingRetentionSettingsWriteRequestSchema,
+  }).pipe(
+    Schema.filter(
+      (request) =>
+        request.commandId === request.retentionSettings.commandId ||
+        'Tracking config update request commandId must match nested retentionSettings commandId'
+    )
+  )
+);
+
 export const AgentTrackingConfigUpdateTargetSchema = withParser(
   Schema.Struct({
     scope: AgentTrackingConfigUpdateTargetScopeSchema,
@@ -345,7 +432,7 @@ export const ParentTrackingConfigUpdatedEventSchema = withParser(
     sourceMessageId: AgentMessageIdSchema,
     sourcePeerId: AgentPeerIdSchema,
     target: AgentTrackingConfigUpdateTargetSchema,
-    config: AgentTrackingRetentionSettingsWriteRequestSchema,
+    config: AgentTrackingConfigUpdateRequestSchema,
   })
 );
 
@@ -354,7 +441,7 @@ export const ChildTrackingConfigUpdatedEventSchema = withParser(
     parentEventType: Schema.Literal(AgentTrackingConfigUpdateEventType.Parent),
     sourceCommandId: AgentTrackingRetentionCommandIdSchema,
     target: AgentTrackingConfigUpdateTargetSchema,
-    config: AgentTrackingRetentionSettingsWriteRequestSchema,
+    config: AgentTrackingConfigUpdateRequestSchema,
   })
 );
 
@@ -392,7 +479,7 @@ export const TrackingConfigChangeRequestedEventSchema = withParser(
     sourceMessageId: AgentMessageIdSchema,
     sourcePeerId: AgentPeerIdSchema,
     target: AgentTrackingConfigUpdateTargetSchema,
-    config: AgentTrackingRetentionSettingsWriteRequestSchema,
+    config: AgentTrackingConfigUpdateRequestSchema,
     requestedAt: AgentTrackingAcceptedAtSchema,
   })
 );
@@ -570,6 +657,12 @@ export type AgentTrackingConfigAckState = Infer<typeof AgentTrackingConfigAckSta
 export type AgentTrackingExecutionClaimState = Infer<typeof AgentTrackingExecutionClaimStateSchema>;
 export type AgentTrackingRetentionSettingsWriteRequest = Infer<typeof AgentTrackingRetentionSettingsWriteRequestSchema>;
 export type AgentTrackingRetentionSettingsWriteResult = Infer<typeof AgentTrackingRetentionSettingsWriteResultSchema>;
+export type AgentTrackingRuntimeEnabledState = Infer<typeof AgentTrackingRuntimeEnabledStateSchema>;
+export type AgentTrackingRuntimeMode = Infer<typeof AgentTrackingRuntimeModeSchema>;
+export type AgentTrackingAiBoundaryMode = Infer<typeof AgentTrackingAiBoundaryModeSchema>;
+export type AgentTrackingNotificationMode = Infer<typeof AgentTrackingNotificationModeSchema>;
+export type AgentTrackingRuntimeConfig = Infer<typeof AgentTrackingRuntimeConfigSchema>;
+export type AgentTrackingConfigUpdateRequest = Infer<typeof AgentTrackingConfigUpdateRequestSchema>;
 export type AgentTrackingConfigUpdateTargetScope = Infer<typeof AgentTrackingConfigUpdateTargetScopeSchema>;
 export type AgentTrackingConfigUpdateTarget = Infer<typeof AgentTrackingConfigUpdateTargetSchema>;
 export type AgentTrackingConfigPolicyDecisionState = Infer<
@@ -611,6 +704,20 @@ export function defaultAgentTrackingRetentionSettingsWriteRequest(): AgentTracki
     requestedRemoteAiState: AgentTrackingRemoteAiState.Disabled,
     sourceWriterIntentRefs: [AgentTrackingRetentionSettingsWriteDefaults.WriterIntentRef],
     sourceReadModelProofRefs: AgentTrackingRetentionSettingsWriteDefaults.ReadModelProofRefs,
+  });
+}
+
+export function defaultAgentTrackingConfigUpdateRequest(): AgentTrackingConfigUpdateRequest {
+  const retentionSettings = defaultAgentTrackingRetentionSettingsWriteRequest();
+  return AgentTrackingConfigUpdateRequestSchema.parse({
+    commandId: retentionSettings.commandId,
+    runtimeConfig: {
+      trackingEnabledState: AgentTrackingRuntimeEnabledState.Enabled,
+      trackingMode: AgentTrackingRuntimeMode.ObserveOnly,
+      aiBoundaryMode: AgentTrackingAiBoundaryMode.RequestWhenUncertain,
+      notificationMode: AgentTrackingNotificationMode.ParentPortalOnly,
+    },
+    retentionSettings,
   });
 }
 
