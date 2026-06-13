@@ -91,8 +91,8 @@ tracking_text_identifier!(
     "tracking.nearby_place_ambiguity_state"
 );
 tracking_text_identifier!(
-    TrackingNearbyPlaceProviderState,
-    "tracking.nearby_place_provider_state"
+    TrackingNearbyPlaceProviderKind,
+    "tracking.nearby_place_provider_kind"
 );
 tracking_text_identifier!(
     TrackingNearbyPlaceRequestId,
@@ -113,6 +113,7 @@ tracking_text_identifier!(TrackingPlaceCategory, "tracking.place_category");
 tracking_text_identifier!(TrackingPolicyRuleRef, "tracking.policy_rule_ref");
 tracking_text_identifier!(TrackingPolicySeverity, "tracking.policy_severity");
 tracking_text_identifier!(TrackingPolicyViolationId, "tracking.policy_violation_id");
+tracking_text_identifier!(TrackingProviderRef, "tracking.provider_ref");
 tracking_text_identifier!(TrackingReadModelProofRef, "tracking.read_model_proof_ref");
 tracking_text_identifier!(
     TrackingReadModelCapabilityStatus,
@@ -220,6 +221,17 @@ pub fn tracking_ai_request_id_from_evidence_ref(
     );
     TrackingAiRequestId::parse(value)
         .expect(constants::tracking_runtime::TRACKING_AI_ANALYSIS_REQUESTED_EVENT_TYPE)
+}
+
+pub fn tracking_nearby_place_request_id_from_evidence_ref(
+    evidence_ref: &TrackingEvidenceRef,
+) -> TrackingNearbyPlaceRequestId {
+    let value = derived_tracking_identifier_value(
+        constants::tracking_runtime::TRACKING_NEARBY_PLACE_PROVIDER_REQUEST_ID_PREFIX,
+        &[evidence_ref.as_str()],
+    );
+    TrackingNearbyPlaceRequestId::parse(value)
+        .expect(constants::tracking_runtime::TRACKING_NEARBY_PLACE_PROVIDER_REQUEST_ID_PREFIX)
 }
 
 pub fn tracking_transition_id_from_observation_id(

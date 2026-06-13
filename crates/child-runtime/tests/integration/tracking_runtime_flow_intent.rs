@@ -112,6 +112,30 @@ async fn tracking_runtime_flow_keeps_ai_policy_and_notification_decoupled_by_eve
     );
     assert_eq!(
         flow_report
+            .nearby_place_classified
+            .as_ref()
+            .expect(constants::tracking_runtime::ERROR_TRACKING_RUNTIME_FLOW_RECORDED)
+            .source_location_evidence_ref,
+        flow_report.evidence_recorded.evidence_ref
+    );
+    assert_eq!(
+        flow_report
+            .nearby_place_classified
+            .as_ref()
+            .expect(constants::tracking_runtime::ERROR_TRACKING_RUNTIME_FLOW_RECORDED)
+            .provider_kind,
+        constants::tracking_runtime::NEARBY_PROVIDER_KIND_PARENT_DEFINED
+    );
+    assert_eq!(
+        flow_report
+            .nearby_place_classified
+            .as_ref()
+            .expect(constants::tracking_runtime::ERROR_TRACKING_RUNTIME_FLOW_RECORDED)
+            .ambiguity_state,
+        constants::tracking_runtime::NEARBY_PLACE_AMBIGUITY_CLEAR
+    );
+    assert_eq!(
+        flow_report
             .ai_boundary_decision
             .as_ref()
             .expect(constants::tracking_runtime::ERROR_TRACKING_RUNTIME_FLOW_RECORDED)

@@ -1,5 +1,5 @@
 use ocentra_parent_agent_protocol::{
-    constants, TrackingNearbyPlaceAmbiguityState, TrackingNearbyPlaceProviderState,
+    constants, TrackingNearbyPlaceAmbiguityState, TrackingNearbyPlaceProviderKind, TrackingReasonCode,
 };
 use ocentra_policy_control_core::AiResultAuthorityState;
 use ocentra_tracking_core::TrackingNearbyPlaceProviderAvailabilityState;
@@ -17,18 +17,68 @@ fn nearby_place_provider_request_never_drives_policy_directly() {
         );
 
     assert_eq!(
-        decision.request_state,
-        TrackingNearbyPlaceProviderState::parse(
-            constants::tracking_runtime::NEARBY_PLACE_PROVIDER_REQUESTED,
+        decision.provider_kind,
+        TrackingNearbyPlaceProviderKind::parse(
+            constants::tracking_runtime::NEARBY_PROVIDER_KIND_LOCAL_CACHE,
         )
-        .expect(constants::tracking_runtime::NEARBY_PLACE_PROVIDER_REQUESTED)
+        .expect(constants::tracking_runtime::NEARBY_PROVIDER_KIND_LOCAL_CACHE)
     );
     assert_eq!(
         decision.ambiguity_state,
         TrackingNearbyPlaceAmbiguityState::parse(
-            constants::tracking_runtime::NEARBY_PLACE_AMBIGUITY_HIGH,
+            constants::tracking_runtime::NEARBY_PLACE_AMBIGUITY_MULTIPLE_CANDIDATES,
         )
-        .expect(constants::tracking_runtime::NEARBY_PLACE_AMBIGUITY_HIGH)
+        .expect(constants::tracking_runtime::NEARBY_PLACE_AMBIGUITY_MULTIPLE_CANDIDATES)
+    );
+    assert_eq!(
+        decision.provider_ref.as_ref().map(|value| value.as_str()),
+        Some(constants::tracking_runtime::DEFAULT_TRACKING_PROVIDER_REF)
+    );
+    assert_eq!(
+        decision.query_radius_meters,
+        constants::tracking_runtime::DEFAULT_NEARBY_QUERY_RADIUS_METERS
+    );
+    assert_eq!(decision.distance_meters, None);
+    assert_eq!(
+        decision.reason_codes,
+        vec![TrackingReasonCode::parse(
+            constants::tracking_runtime::REASON_NEARBY_PLACE_AMBIGUITY_PRESERVED
+        )
+        .expect(constants::tracking_runtime::REASON_NEARBY_PLACE_AMBIGUITY_PRESERVED)]
+    );
+    assert_eq!(
+        decision.ai_result_authority_state,
+        AiResultAuthorityState::EvidenceOnly
+    );
+}
+
+#[test]
+fn nearby_place_provider_unavailable_degrades_without_policy_authority() {
+    let observed = ocentra_tracking_core::default_location_observed_event();
+    let evidence = ocentra_tracking_core::record_tracking_evidence_from_location(&observed);
+
+    let decision =
+        ocentra_tracking_core::request_nearby_place_provider_analysis(
+            &evidence,
+            TrackingNearbyPlaceProviderAvailabilityState::Unavailable,
+            0,
+        );
+
+    assert_eq!(
+        decision.provider_kind,
+        constants::tracking_runtime::NEARBY_PROVIDER_KIND_UNAVAILABLE
+    );
+    assert!(decision.provider_ref.is_none());
+    assert_eq!(
+        decision.ambiguity_state,
+        constants::tracking_runtime::NEARBY_PLACE_AMBIGUITY_PROVIDER_UNAVAILABLE
+    );
+    assert_eq!(
+        decision.reason_codes,
+        vec![TrackingReasonCode::parse(
+            constants::tracking_runtime::REASON_NEARBY_PLACE_PROVIDER_UNAVAILABLE
+        )
+        .expect(constants::tracking_runtime::REASON_NEARBY_PLACE_PROVIDER_UNAVAILABLE)]
     );
     assert_eq!(
         decision.ai_result_authority_state,

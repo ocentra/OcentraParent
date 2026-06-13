@@ -49,7 +49,39 @@ fn tracking_ai_classification_preserves_request_evidence_refs() {
     assert_eq!(result.child_device_id, request.child_device_id);
     assert_eq!(result.child_profile_id, request.child_profile_id);
     assert_eq!(result.source_ai_request_id, request.ai_request_id);
+    assert_eq!(result.source_location_evidence_ref, request.evidence_refs[0]);
     assert_eq!(result.evidence_refs, request.evidence_refs);
+    assert_eq!(
+        result.provider_kind,
+        constants::tracking_runtime::NEARBY_PROVIDER_KIND_PARENT_DEFINED
+    );
+    assert_eq!(
+        result.provider_ref.as_ref().map(|value| value.as_str()),
+        Some(constants::tracking_runtime::DEFAULT_TRACKING_PROVIDER_REF)
+    );
+    assert_eq!(
+        result.query_radius_meters,
+        constants::tracking_runtime::DEFAULT_NEARBY_QUERY_RADIUS_METERS
+    );
+    assert_eq!(
+        result.distance_meters,
+        Some(constants::tracking_runtime::DEFAULT_NEARBY_DISTANCE_METERS)
+    );
+    assert_eq!(
+        result.confidence,
+        constants::tracking_runtime::DEFAULT_NEARBY_PLACE_CONFIDENCE
+    );
+    assert_eq!(
+        result.ambiguity_state,
+        constants::tracking_runtime::NEARBY_PLACE_AMBIGUITY_CLEAR
+    );
+    assert_eq!(
+        result.reason_codes,
+        vec![ocentra_parent_agent_protocol::TrackingReasonCode::parse(
+            constants::tracking_runtime::REASON_PARENT_DEFINED_PLACE_MATCH
+        )
+        .expect(constants::tracking_runtime::REASON_PARENT_DEFINED_PLACE_MATCH)]
+    );
     assert_eq!(
         result.parent_action_requirement,
         request.parent_action_requirement

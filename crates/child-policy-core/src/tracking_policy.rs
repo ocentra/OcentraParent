@@ -31,6 +31,10 @@ pub fn evaluate_tracking_nearby_place_policy(
         return tracking_nearby_place_not_detected();
     }
 
+    if event.ambiguity_state != constants::tracking_runtime::NEARBY_PLACE_AMBIGUITY_CLEAR {
+        return tracking_nearby_place_not_detected();
+    }
+
     if event.place_category != constants::tracking_runtime::PLACE_CATEGORY_HOSPITAL {
         return tracking_nearby_place_not_detected();
     }

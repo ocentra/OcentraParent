@@ -10,9 +10,10 @@ use super::{
     TrackingAiRequestId, TrackingCapabilityStatus, TrackingCheckInId, TrackingCheckInState,
     TrackingChildDeviceId, TrackingChildProfileId, TrackingConfidenceBasis, TrackingEvaluationId,
     TrackingEvidenceRef, TrackingExpectedPlaceRef, TrackingExpectedPlaceState,
-    TrackingGeofenceRuleRef, TrackingLocationRelation, TrackingNotificationChannel,
-    TrackingNotificationId, TrackingObservationId, TrackingPlaceCategory, TrackingPolicyRuleRef,
-    TrackingPolicySeverity, TrackingPolicyViolationId, TrackingReasonCode, TrackingScheduleId,
+    TrackingGeofenceRuleRef, TrackingLocationRelation, TrackingNearbyPlaceAmbiguityState,
+    TrackingNearbyPlaceProviderKind, TrackingNotificationChannel, TrackingNotificationId,
+    TrackingObservationId, TrackingPlaceCategory, TrackingPolicyRuleRef, TrackingPolicySeverity,
+    TrackingPolicyViolationId, TrackingProviderRef, TrackingReasonCode, TrackingScheduleId,
     TrackingTimestamp, TrackingTransitionId, TrackingTransitionKind, TrackingUncertaintyCode,
 };
 use crate::{constants, AGENT_PROTOCOL_SCHEMA_VERSION};
@@ -114,15 +115,23 @@ pub struct TrackingAiAnalysisRequestedEvent {
     pub private_payload_state: PrivatePayloadState,
 }
 
-#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct TrackingNearbyPlaceClassifiedEvent {
     pub child_device_id: TrackingChildDeviceId,
     pub child_profile_id: TrackingChildProfileId,
     pub source_ai_request_id: TrackingAiRequestId,
+    pub source_location_evidence_ref: TrackingEvidenceRef,
     pub evidence_refs: Vec<TrackingEvidenceRef>,
+    pub provider_kind: TrackingNearbyPlaceProviderKind,
+    pub provider_ref: Option<TrackingProviderRef>,
+    pub query_radius_meters: u32,
+    pub distance_meters: Option<u32>,
     pub place_category: TrackingPlaceCategory,
+    pub confidence: f64,
     pub confidence_basis: TrackingConfidenceBasis,
+    pub ambiguity_state: TrackingNearbyPlaceAmbiguityState,
+    pub reason_codes: Vec<TrackingReasonCode>,
     pub parent_action_requirement: TrackingParentActionRequirement,
 }
 
