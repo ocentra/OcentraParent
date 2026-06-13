@@ -314,7 +314,7 @@ fn apply_child_tracking_config_updated_event(
     child_event: &ChildTrackingConfigUpdatedEvent,
 ) -> TrackingConfigUpdateAppliedReport {
     let applied_state = on_child_tracking_config_updated_event(child_event);
-    let effective_tracking_state = effective_tracking_state_from_child_event(child_event);
+    let effective_tracking_state = effective_tracking_state_from_applied_state(&applied_state);
 
     TrackingConfigUpdateAppliedReport {
         parent_event_type: child_event.parent_event_type.clone(),
@@ -409,17 +409,15 @@ fn tracking_config_update_correlation_id(
     CorrelationId::parse(value)
 }
 
-fn effective_tracking_state_from_child_event(
-    child_event: &ChildTrackingConfigUpdatedEvent,
+fn effective_tracking_state_from_applied_state(
+    applied_state: &TrackingRetentionSettingsWriteAppliedState,
 ) -> TrackingConfigEffectiveState {
-    if child_event
-        .config
-        .requested_retention_window_hours
-        .is_some()
+    if applied_state.durable_settings_persistence_state
+        == ocentra_parent_agent_protocol::TrackingDurableSettingsPersistenceState::Persisted
     {
         TrackingConfigEffectiveState::Enabled
     } else {
-        TrackingConfigEffectiveState::Disabled
+        TrackingConfigEffectiveState::Degraded
     }
 }
 
