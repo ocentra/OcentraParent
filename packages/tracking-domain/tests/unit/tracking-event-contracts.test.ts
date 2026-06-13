@@ -4,11 +4,18 @@ import {
   AgentPeerRoleLiteral,
   AgentRouteLiteral,
 } from '@ocentra-parent/event-domain/primitives';
-import { AgentTrackingConfigUpdateEventType } from '@ocentra-parent/agent-protocol-domain/tracking-retention-settings-write-command';
+import {
+  AgentTrackingConfigUpdateEventType,
+  AgentTrackingConfigUpdateResponseStateLiteral,
+  AgentTrackingConfigUpdateTargetScopeLiteral,
+  AgentTrackingDurableSettingsPersistenceStateLiteral,
+  AgentTrackingEffectiveStateLiteral,
+} from '@ocentra-parent/agent-protocol-domain/tracking-retention-settings-write-command';
 import {
   TrackingEventName,
   TrackingRuntimeEnabledState,
   TrackingRuntimeChildConfigUpdatedEventSchema,
+  TrackingRuntimeChildConfigAppliedEventSchema,
   TrackingRuntimeConfigUpdatedEventSchema,
   TrackingRuntimeConfigUpdatedPayloadSchema,
   TrackingRuntimeEventEnvelopeSchema,
@@ -140,6 +147,46 @@ describe('tracking event contracts', () => {
 
     expect(event.envelope.eventName).toBe(AgentTrackingConfigUpdateEventType.Child);
     expect(event.payload.targetDevice.deviceId).toBe('child-device-1');
+  });
+
+  it('composes child tracking config applied as a durable typed child runtime event', () => {
+    const event = TrackingRuntimeChildConfigAppliedEventSchema.parse({
+      envelope: {
+        eventId: 'event-child-config-applied-1',
+        eventName: TrackingEventName.ChildConfigApplied,
+        correlationId: 'correlation-child-config-applied-1',
+        occurredAt: '2026-06-12T10:00:02.000Z',
+        source: { peerId: 'child-runtime', role: AgentPeerRoleLiteral.AgentService },
+        target: {
+          deviceId: 'child-device-1',
+          platform: 'android',
+          route: AgentRouteLiteral.LocalNetwork,
+        },
+        deliveryMode: AgentEventDeliveryMode.FireAndForget,
+      },
+      payload: {
+        parentEventType: AgentTrackingConfigUpdateEventType.Parent,
+        childEventType: AgentTrackingConfigUpdateEventType.Child,
+        sourceCommandId: 'tracking-retention-settings-write-command',
+        target: {
+          scope: AgentTrackingConfigUpdateTargetScopeLiteral.ChildDevice,
+          deviceId: 'child-device-1',
+          platform: 'android',
+          route: AgentRouteLiteral.LocalNetwork,
+        },
+        responseState: AgentTrackingConfigUpdateResponseStateLiteral.Applied,
+        effectiveTrackingState: AgentTrackingEffectiveStateLiteral.Enabled,
+        localServiceStateRevision: 1,
+        durableSettingsPersistenceState:
+          AgentTrackingDurableSettingsPersistenceStateLiteral.Persisted,
+      },
+    });
+
+    expect(event.envelope.eventName).toBe(AgentTrackingConfigUpdateEventType.Applied);
+    expect(event.payload.responseState).toBe(
+      AgentTrackingConfigUpdateResponseStateLiteral.Applied
+    );
+    expect(event.payload.localServiceStateRevision).toBe(1);
   });
 
   it('parses fire-and-forget tracking runtime event envelopes for child evidence flow', () => {

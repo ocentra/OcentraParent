@@ -1,5 +1,6 @@
 pub const PARENT_EVENT_TYPE: &str = "tracking.config.updated.parent";
 pub const CHILD_EVENT_TYPE: &str = "tracking.config.updated.child";
+pub const APPLIED_EVENT_TYPE: &str = "tracking.config.applied.child";
 pub const RESPONSE_STATE_APPLIED: &str = "applied";
 pub const RESPONSE_STATE_REJECTED: &str = "rejected";
 pub const EFFECTIVE_STATE_ENABLED: &str = "enabled";
@@ -19,9 +20,15 @@ pub const SOURCE_COMPONENT_CHILD_TRACKING_RUNTIME: &str = "child-tracking-runtim
 pub const SUBSCRIBER_PARENT_TRACKING_CONFIG_RELAY: &str = "subscriber.tracking-config.parent-relay";
 pub const SUBSCRIBER_CHILD_TRACKING_CONFIG_APPLIER: &str =
     "subscriber.tracking-config.child-applier";
+pub const SUBSCRIBER_CHILD_TRACKING_CONFIG_APPLIED_RECORDER: &str =
+    "subscriber.tracking-config.child-applied-recorder";
 pub const TARGET_HANDLER_CHILD_TRACKING_RUNTIME: &str = "child-tracking-runtime";
 pub const TARGET_HANDLER_PARENT_TRACKING_CONFIG_RELAY: &str = "target.tracking-config.parent-relay";
 pub const TARGET_HANDLER_CHILD_TRACKING_CONFIG_APPLIER: &str =
     "target.tracking-config.child-applier";
+pub const TARGET_HANDLER_CHILD_TRACKING_CONFIG_APPLIED_RECORDER: &str =
+    "target.tracking-config.child-applied-recorder";
 pub const CORRELATION_PREFIX: &str = "tracking-config-update:";
 pub const ERROR_PARENT_CONFIG_EVENT_APPLIED: &str = "parent tracking config event applied";
+pub const ERROR_CHILD_CONFIG_APPLIED_EVENT_RECORDED: &str =
+    "child tracking config applied event recorded";

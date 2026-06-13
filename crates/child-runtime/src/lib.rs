@@ -25,8 +25,10 @@ pub use child_domain_runtime_flow::{
 };
 pub use ocentra_parent_agent_protocol::{
     child_tracking_config_updated_event_from_parent,
-    parent_tracking_config_updated_event_from_command, ChildTrackingConfigUpdatedEvent,
-    ParentTrackingConfigUpdatedEvent, TrackingConfigEffectiveState, TrackingConfigUpdateEventName,
+    parent_tracking_config_updated_event_from_command,
+    tracking_config_update_applied_event_from_child, ChildTrackingConfigUpdatedEvent,
+    ParentTrackingConfigUpdatedEvent, TrackingConfigEffectiveState,
+    TrackingConfigUpdateAppliedEvent, TrackingConfigUpdateEventName,
     TrackingConfigUpdateResponse, TrackingConfigUpdateResponseState, TrackingConfigUpdateTarget,
     TrackingConfigUpdateTargetScope,
 };
@@ -48,7 +50,8 @@ pub use tracking_runtime_flow::{
 };
 pub use tracking_config_update_flow::{
     publish_parent_tracking_config_updated_event, subscribe_child_tracking_config_updated_events,
-    subscribe_parent_tracking_config_updated_events, tracking_config_update_child_event_type,
+    subscribe_child_tracking_config_applied_events, subscribe_parent_tracking_config_updated_events,
+    tracking_config_update_applied_event_type, tracking_config_update_child_event_type,
     tracking_config_update_event_bus, tracking_config_update_parent_event_type,
     tracking_retention_settings_durable_store_path, TrackingConfigUpdateAppliedReport,
     TrackingConfigUpdateEventFlow, TrackingConfigUpdateEventFlowReport,

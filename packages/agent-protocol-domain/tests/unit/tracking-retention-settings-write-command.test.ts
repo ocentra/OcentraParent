@@ -4,8 +4,10 @@ import { AgentProtocolSchemaVersion } from '../../src/primitives';
 import {
   AgentTrackingConfigUpdateEventType,
   AgentTrackingConfigAckState,
+  AgentTrackingConfigUpdateResponseStateLiteral,
   AgentTrackingDeleteAfterAlertResolutionState,
   AgentTrackingDurableSettingsPersistenceState,
+  AgentTrackingEffectiveStateLiteral,
   AgentTrackingExecutionClaimState,
   AgentTrackingParentExportState,
   AgentTrackingRemoteAiState,
@@ -15,6 +17,7 @@ import {
   AgentTrackingRetentionSettingsWriteResultParseState,
   ChildTrackingConfigUpdatedEventSchema,
   ParentTrackingConfigUpdatedEventSchema,
+  TrackingConfigUpdateAppliedEventSchema,
   defaultAgentTrackingRetentionSettingsWriteRequest,
   parseAgentTrackingRetentionSettingsWriteResultEvent,
 } from '../../src/tracking-retention-settings-write-command';
@@ -108,6 +111,29 @@ describe('agent tracking retention settings write result parser', () => {
       sourceCommandId: config.commandId,
       target,
       config,
+    });
+    expect(
+      TrackingConfigUpdateAppliedEventSchema.parse({
+        parentEventType: AgentTrackingConfigUpdateEventType.Parent,
+        childEventType: AgentTrackingConfigUpdateEventType.Child,
+        sourceCommandId: parentEvent.sourceCommandId,
+        target: parentEvent.target,
+        responseState: AgentTrackingConfigUpdateResponseStateLiteral.Applied,
+        effectiveTrackingState: AgentTrackingEffectiveStateLiteral.Enabled,
+        localServiceStateRevision: 1,
+        durableSettingsPersistenceState:
+          AgentTrackingDurableSettingsPersistenceState.Persisted,
+      })
+    ).toEqual({
+      parentEventType: AgentTrackingConfigUpdateEventType.Parent,
+      childEventType: AgentTrackingConfigUpdateEventType.Child,
+      sourceCommandId: config.commandId,
+      target,
+      responseState: AgentTrackingConfigUpdateResponseStateLiteral.Applied,
+      effectiveTrackingState: AgentTrackingEffectiveStateLiteral.Enabled,
+      localServiceStateRevision: 1,
+      durableSettingsPersistenceState:
+        AgentTrackingDurableSettingsPersistenceState.Persisted,
     });
   });
 

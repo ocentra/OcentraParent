@@ -7,8 +7,10 @@ use ocentra_eventing::{
     RuntimeRole, SourceComponent, SourceService, SubscriberId, SubscriptionReport, TargetHandler,
 };
 use ocentra_parent_agent_protocol::{
-    child_tracking_config_updated_event_from_parent, constants, ChildTrackingConfigUpdatedEvent,
-    ParentTrackingConfigUpdatedEvent, TrackingConfigEffectiveState, TrackingConfigUpdateEventName,
+    child_tracking_config_updated_event_from_parent, constants,
+    tracking_config_update_applied_event_from_child, ChildTrackingConfigUpdatedEvent,
+    ParentTrackingConfigUpdatedEvent, TrackingConfigEffectiveState,
+    TrackingConfigUpdateAppliedEvent, TrackingConfigUpdateEventName,
     TrackingConfigUpdateResponse, TrackingConfigUpdateResponseState,
     TrackingConfigUpdateTargetScope,
 };
@@ -18,7 +20,10 @@ use ocentra_tracking_core::TrackingRetentionSettingsWriteAppliedState;
 pub struct TrackingConfigUpdateAppliedReport {
     pub parent_event_type: TrackingConfigUpdateEventName,
     pub child_event_type: TrackingConfigUpdateEventName,
+    pub applied_event_type: TrackingConfigUpdateEventName,
     pub target_scope: TrackingConfigUpdateTargetScope,
+    pub response_state: TrackingConfigUpdateResponseState,
+    pub effective_tracking_state: TrackingConfigEffectiveState,
     pub applied_state: TrackingRetentionSettingsWriteAppliedState,
 }
 
@@ -26,6 +31,7 @@ pub struct TrackingConfigUpdateAppliedReport {
 pub struct TrackingConfigUpdateEventFlowReport {
     pub parent_subscription_report: SubscriptionReport,
     pub child_subscription_report: SubscriptionReport,
+    pub applied_subscription_report: SubscriptionReport,
     pub parent_request_report: RequestReport<TrackingConfigUpdateResponse>,
     pub applied_report: TrackingConfigUpdateAppliedReport,
 }
@@ -35,14 +41,16 @@ pub struct TrackingConfigUpdateEventFlow {
     state: TrackingConfigUpdateEventState,
     parent_subscription_report: SubscriptionReport,
     child_subscription_report: SubscriptionReport,
+    applied_subscription_report: SubscriptionReport,
 }
 
 impl TrackingConfigUpdateEventFlow {
     pub async fn new() -> Result<Self, EventingError> {
         let bus = EventBus::new();
         let state = TrackingConfigUpdateEventState::default();
-        let child_subscription_report =
-            subscribe_child_tracking_config_updated_events(&bus, state.clone()).await?;
+        let applied_subscription_report =
+            subscribe_child_tracking_config_applied_events(&bus, state.clone()).await?;
+        let child_subscription_report = subscribe_child_tracking_config_updated_events(&bus).await?;
         let parent_subscription_report =
             subscribe_parent_tracking_config_updated_events(&bus, state.clone()).await?;
 
@@ -51,6 +59,7 @@ impl TrackingConfigUpdateEventFlow {
             state,
             parent_subscription_report,
             child_subscription_report,
+            applied_subscription_report,
         })
     }
 
@@ -73,6 +82,7 @@ impl TrackingConfigUpdateEventFlow {
         Ok(TrackingConfigUpdateEventFlowReport {
             parent_subscription_report: self.parent_subscription_report.clone(),
             child_subscription_report: self.child_subscription_report.clone(),
+            applied_subscription_report: self.applied_subscription_report.clone(),
             parent_request_report,
             applied_report,
         })
@@ -80,6 +90,10 @@ impl TrackingConfigUpdateEventFlow {
 
     pub async fn metrics_snapshot(&self) -> ocentra_eventing::EventMetricsSnapshot {
         self.bus.metrics_snapshot().await
+    }
+
+    pub async fn journal_snapshot(&self) -> Vec<ocentra_eventing::StoredEventEnvelope> {
+        self.bus.journal().await
     }
 }
 
@@ -111,12 +125,10 @@ pub async fn subscribe_parent_tracking_config_updated_events(
             async move {
                 let child_event =
                     child_tracking_config_updated_event_from_parent(context.payload());
+                let child_event_metadata = child_tracking_config_updated_metadata(&child_event)?;
                 context
                     .publisher()
-                    .publish(
-                        child_event,
-                        child_tracking_config_updated_metadata(context.payload())?,
-                    )
+                    .publish(child_event, child_event_metadata)
                     .await?;
                 context
                     .complete_request(tracking_config_update_response(
@@ -133,7 +145,6 @@ pub async fn subscribe_parent_tracking_config_updated_events(
 
 pub async fn subscribe_child_tracking_config_updated_events(
     bus: &EventBus,
-    state: TrackingConfigUpdateEventState,
 ) -> Result<SubscriptionReport, EventingError> {
     bus.subscribe::<ChildTrackingConfigUpdatedEvent, _, _>(
         EventSubscriber::new(
@@ -145,11 +156,43 @@ pub async fn subscribe_child_tracking_config_updated_events(
                 constants::tracking_config_update::TARGET_HANDLER_CHILD_TRACKING_CONFIG_APPLIER,
             )?,
         ),
+        move |context| async move {
+            let applied_report = apply_child_tracking_config_updated_event(context.payload());
+            let applied_event = tracking_config_update_applied_event_from_report(
+                context.payload(),
+                &applied_report,
+            );
+            context
+                .publisher()
+                .publish(
+                    applied_event,
+                    child_tracking_config_applied_metadata(context.payload())?,
+                )
+                .await?;
+            Ok(())
+        },
+    )
+    .await
+}
+
+pub async fn subscribe_child_tracking_config_applied_events(
+    bus: &EventBus,
+    state: TrackingConfigUpdateEventState,
+) -> Result<SubscriptionReport, EventingError> {
+    bus.subscribe::<TrackingConfigUpdateAppliedEvent, _, _>(
+        EventSubscriber::new(
+            SubscriberId::parse(
+                constants::tracking_config_update::SUBSCRIBER_CHILD_TRACKING_CONFIG_APPLIED_RECORDER,
+            )?,
+            EventType::parse(constants::tracking_config_update::APPLIED_EVENT_TYPE)?,
+            TargetHandler::parse(
+                constants::tracking_config_update::TARGET_HANDLER_CHILD_TRACKING_CONFIG_APPLIED_RECORDER,
+            )?,
+        ),
         move |context| {
             let state = state.clone();
             async move {
-                let applied_report = apply_child_tracking_config_updated_event(context.payload());
-                state.record(applied_report);
+                state.record(tracking_config_update_applied_report(context.payload()));
                 Ok(())
             }
         },
@@ -164,8 +207,8 @@ fn tracking_config_update_response(
     TrackingConfigUpdateResponse {
         schema_version: ocentra_parent_agent_protocol::AGENT_PROTOCOL_SCHEMA_VERSION,
         source_command_id: parent_event.source_command_id.clone(),
-        response_state: TrackingConfigUpdateResponseState::Applied,
-        effective_tracking_state: effective_tracking_state(parent_event),
+        response_state: applied_report.response_state,
+        effective_tracking_state: applied_report.effective_tracking_state,
         child_event_type: applied_report.child_event_type,
         target: parent_event.target.clone(),
         local_service_state_revision: Some(
@@ -174,20 +217,6 @@ fn tracking_config_update_response(
         durable_settings_persistence_state: applied_report
             .applied_state
             .durable_settings_persistence_state,
-    }
-}
-
-fn effective_tracking_state(
-    parent_event: &ParentTrackingConfigUpdatedEvent,
-) -> TrackingConfigEffectiveState {
-    if parent_event
-        .config
-        .requested_retention_window_hours
-        .is_some()
-    {
-        TrackingConfigEffectiveState::Enabled
-    } else {
-        TrackingConfigEffectiveState::Disabled
     }
 }
 
@@ -200,19 +229,19 @@ impl TrackingConfigUpdateEventState {
     fn record(&self, report: TrackingConfigUpdateAppliedReport) {
         self.applied_reports
             .lock()
-            .expect(constants::tracking_config_update::ERROR_PARENT_CONFIG_EVENT_APPLIED)
+            .expect(constants::tracking_config_update::ERROR_CHILD_CONFIG_APPLIED_EVENT_RECORDED)
             .push(report);
     }
 
     fn applied_report(&self) -> Result<TrackingConfigUpdateAppliedReport, EventingError> {
         self.applied_reports
             .lock()
-            .expect(constants::tracking_config_update::ERROR_PARENT_CONFIG_EVENT_APPLIED)
+            .expect(constants::tracking_config_update::ERROR_CHILD_CONFIG_APPLIED_EVENT_RECORDED)
             .last()
             .cloned()
             .ok_or_else(|| EventingError::InvalidValue {
-                field: constants::tracking_config_update::ERROR_PARENT_CONFIG_EVENT_APPLIED,
-                value: constants::tracking_config_update::CHILD_EVENT_TYPE.to_string(),
+                field: constants::tracking_config_update::ERROR_CHILD_CONFIG_APPLIED_EVENT_RECORDED,
+                value: constants::tracking_config_update::APPLIED_EVENT_TYPE.to_string(),
             })
     }
 }
@@ -229,15 +258,23 @@ pub fn tracking_config_update_child_event_type() -> TrackingConfigUpdateEventNam
     TrackingConfigUpdateEventName::Child
 }
 
+pub fn tracking_config_update_applied_event_type() -> TrackingConfigUpdateEventName {
+    TrackingConfigUpdateEventName::Applied
+}
+
 fn apply_child_tracking_config_updated_event(
     child_event: &ChildTrackingConfigUpdatedEvent,
 ) -> TrackingConfigUpdateAppliedReport {
     let applied_state = on_child_tracking_config_updated_event(child_event);
+    let effective_tracking_state = effective_tracking_state_from_child_event(child_event);
 
     TrackingConfigUpdateAppliedReport {
         parent_event_type: child_event.parent_event_type.clone(),
         child_event_type: TrackingConfigUpdateEventName::Child,
+        applied_event_type: TrackingConfigUpdateEventName::Applied,
         target_scope: child_event.target.scope.clone(),
+        response_state: TrackingConfigUpdateResponseState::Applied,
+        effective_tracking_state,
         applied_state,
     }
 }
@@ -252,30 +289,40 @@ fn parent_tracking_config_updated_metadata(
     parent_event: &ParentTrackingConfigUpdatedEvent,
 ) -> Result<EventMetadata, EventingError> {
     tracking_config_update_metadata(
-        parent_event,
+        parent_event.source_command_id.as_str(),
         tracking_parent_event_source()?,
         constants::tracking_config_update::TARGET_HANDLER_PARENT_TRACKING_CONFIG_RELAY,
     )
 }
 
 fn child_tracking_config_updated_metadata(
-    parent_event: &ParentTrackingConfigUpdatedEvent,
+    child_event: &ChildTrackingConfigUpdatedEvent,
 ) -> Result<EventMetadata, EventingError> {
     tracking_config_update_metadata(
-        parent_event,
+        child_event.source_command_id.as_str(),
         tracking_child_event_source()?,
         constants::tracking_config_update::TARGET_HANDLER_CHILD_TRACKING_CONFIG_APPLIER,
     )
 }
 
+fn child_tracking_config_applied_metadata(
+    child_event: &ChildTrackingConfigUpdatedEvent,
+) -> Result<EventMetadata, EventingError> {
+    tracking_config_update_metadata(
+        child_event.source_command_id.as_str(),
+        tracking_child_event_source()?,
+        constants::tracking_config_update::TARGET_HANDLER_CHILD_TRACKING_CONFIG_APPLIED_RECORDER,
+    )
+}
+
 fn tracking_config_update_metadata(
-    parent_event: &ParentTrackingConfigUpdatedEvent,
+    source_command_id: &str,
     source: EventSource,
     target_handler: &str,
 ) -> Result<EventMetadata, EventingError> {
     Ok(EventMetadata::from_parts(
         EventId::generated(),
-        tracking_config_update_correlation_id(parent_event)?,
+        tracking_config_update_correlation_id(source_command_id)?,
         source,
         RecordedAt::parse(constants::tracking_retention_settings_write::ACCEPTED_AT)?,
         Some(TargetHandler::parse(target_handler)?),
@@ -307,11 +354,58 @@ fn tracking_child_event_source() -> Result<EventSource, EventingError> {
 }
 
 fn tracking_config_update_correlation_id(
-    parent_event: &ParentTrackingConfigUpdatedEvent,
+    source_command_id: &str,
 ) -> Result<CorrelationId, EventingError> {
     let mut value = String::from(constants::tracking_config_update::CORRELATION_PREFIX);
-    value.push_str(parent_event.source_command_id.as_str());
+    value.push_str(source_command_id);
     CorrelationId::parse(value)
+}
+
+fn effective_tracking_state_from_child_event(
+    child_event: &ChildTrackingConfigUpdatedEvent,
+) -> TrackingConfigEffectiveState {
+    if child_event
+        .config
+        .requested_retention_window_hours
+        .is_some()
+    {
+        TrackingConfigEffectiveState::Enabled
+    } else {
+        TrackingConfigEffectiveState::Disabled
+    }
+}
+
+fn tracking_config_update_applied_event_from_report(
+    child_event: &ChildTrackingConfigUpdatedEvent,
+    applied_report: &TrackingConfigUpdateAppliedReport,
+) -> TrackingConfigUpdateAppliedEvent {
+    tracking_config_update_applied_event_from_child(
+        child_event,
+        applied_report.response_state.clone(),
+        applied_report.effective_tracking_state.clone(),
+        applied_report.applied_state.local_service_state_revision,
+        applied_report
+            .applied_state
+            .durable_settings_persistence_state,
+    )
+}
+
+fn tracking_config_update_applied_report(
+    applied_event: &TrackingConfigUpdateAppliedEvent,
+) -> TrackingConfigUpdateAppliedReport {
+    TrackingConfigUpdateAppliedReport {
+        parent_event_type: applied_event.parent_event_type.clone(),
+        child_event_type: applied_event.child_event_type.clone(),
+        applied_event_type: TrackingConfigUpdateEventName::Applied,
+        target_scope: applied_event.target.scope.clone(),
+        response_state: applied_event.response_state.clone(),
+        effective_tracking_state: applied_event.effective_tracking_state.clone(),
+        applied_state: TrackingRetentionSettingsWriteAppliedState {
+            local_service_state_revision: applied_event.local_service_state_revision,
+            durable_settings_persistence_state: applied_event
+                .durable_settings_persistence_state,
+        },
+    }
 }
 
 pub fn tracking_retention_settings_durable_store_path() -> PathBuf {

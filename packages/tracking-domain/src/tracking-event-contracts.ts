@@ -1,6 +1,9 @@
 import { AgentEventDeliveryMode, AgentEventEnvelopeSchema } from '@ocentra-parent/event-domain/primitives';
 import { EventingEventTypeSchema } from '@ocentra-parent/event-domain/eventing';
-import { AgentTrackingConfigUpdateEventType } from '@ocentra-parent/agent-protocol-domain/tracking-retention-settings-write-command';
+import {
+  AgentTrackingConfigUpdateEventType,
+  TrackingConfigUpdateAppliedEventSchema,
+} from '@ocentra-parent/agent-protocol-domain/tracking-retention-settings-write-command';
 import {
   ParentActorReferenceSchema,
   ParentDeviceReferenceSchema,
@@ -38,6 +41,7 @@ export const TrackingEventNameSchema = withParser(
   Schema.Literal(
     AgentTrackingConfigUpdateEventType.Parent,
     AgentTrackingConfigUpdateEventType.Child,
+    AgentTrackingConfigUpdateEventType.Applied,
     TrackingRuntimeEventNameLiteral.LocationObserved,
     TrackingRuntimeEventNameLiteral.EvidenceRecorded,
     TrackingRuntimeEventNameLiteral.AiAnalysisRequested,
@@ -95,6 +99,20 @@ export const TrackingRuntimeChildConfigUpdatedEventSchema = withParser(
   )
 );
 
+export const TrackingRuntimeChildConfigAppliedEventSchema = withParser(
+  Schema.Struct({
+    envelope: AgentEventEnvelopeSchema,
+    payload: TrackingConfigUpdateAppliedEventSchema,
+  }).pipe(
+    Schema.filter(
+      (event) =>
+        (event.envelope.eventName === TrackingEventName.ChildConfigApplied &&
+          event.envelope.deliveryMode === AgentEventDeliveryMode.FireAndForget) ||
+        'Child tracking config applied events use the canonical applied payload schema and fire-and-forget delivery'
+    )
+  )
+);
+
 export const TrackingRuntimeEventEnvelopeSchema = withParser(
   Schema.Struct({
     envelope: AgentEventEnvelopeSchema,
@@ -127,11 +145,15 @@ export type TrackingRuntimeConfigUpdatedEvent = Infer<typeof TrackingRuntimeConf
 export type TrackingRuntimeChildConfigUpdatedEvent = Infer<
   typeof TrackingRuntimeChildConfigUpdatedEventSchema
 >;
+export type TrackingRuntimeChildConfigAppliedEvent = Infer<
+  typeof TrackingRuntimeChildConfigAppliedEventSchema
+>;
 export type TrackingRuntimeEventEnvelope = Infer<typeof TrackingRuntimeEventEnvelopeSchema>;
 
 export const TrackingEventName = {
   ConfigUpdated: TrackingEventNameSchema.parse(AgentTrackingConfigUpdateEventType.Parent),
   ChildConfigUpdated: TrackingEventNameSchema.parse(AgentTrackingConfigUpdateEventType.Child),
+  ChildConfigApplied: TrackingEventNameSchema.parse(AgentTrackingConfigUpdateEventType.Applied),
   LocationObserved: TrackingEventNameSchema.parse(TrackingRuntimeEventNameLiteral.LocationObserved),
   EvidenceRecorded: TrackingEventNameSchema.parse(TrackingRuntimeEventNameLiteral.EvidenceRecorded),
   AiAnalysisRequested: TrackingEventNameSchema.parse(
