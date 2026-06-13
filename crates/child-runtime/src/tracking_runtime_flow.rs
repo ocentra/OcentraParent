@@ -143,6 +143,19 @@ async fn subscribe_tracking_location_observed_events(
         move |context| {
             let state = state.clone();
             async move {
+                let validation =
+                    ocentra_tracking_core::validate_tracking_location_observation(
+                        context.payload(),
+                    );
+                if validation.result_state
+                    == ocentra_tracking_core::TrackingLocationValidationResultState::Rejected
+                {
+                    return Err(EventingError::InvalidValue {
+                        field: "tracking.location.validation",
+                        value: validation.validation_state.to_string(),
+                    });
+                }
+
                 let observation_report =
                     ocentra_tracking_core::observe_tracking_location(context.payload().clone());
                 let evidence = observation_report.evidence_recorded.clone();

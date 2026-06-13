@@ -1,3 +1,4 @@
+use ocentra_eventing::EventingError;
 use ocentra_parent_agent_protocol::{
     constants, TrackingAlertSeverity, TrackingCheckInState, TrackingEvidenceRef,
     TrackingExpectedPlaceState, TrackingTransitionKind,
@@ -279,5 +280,23 @@ async fn tracking_runtime_flow_clears_optional_state_between_observations() {
             constants::tracking_runtime::EXPECTED_PLACE_STATE_WHERE_EXPECTED
         )
         .expect(constants::tracking_runtime::EXPECTED_PLACE_STATE_WHERE_EXPECTED)
+    );
+}
+
+#[tokio::test]
+async fn tracking_runtime_flow_rejects_invalid_location_before_recording_evidence() {
+    let mut observed = ocentra_tracking_core::default_location_observed_event();
+    observed.horizontal_accuracy_meters = 0;
+
+    let error = ocentra_child_runtime::publish_child_tracking_location_observed_event(observed)
+        .await
+        .expect_err("invalid tracking observation should fail");
+
+    assert_eq!(
+        error,
+        EventingError::InvalidValue {
+            field: "tracking.location.validation",
+            value: String::from(constants::tracking_runtime::LOCATION_VALIDATION_REJECTED_ACCURACY),
+        }
     );
 }
