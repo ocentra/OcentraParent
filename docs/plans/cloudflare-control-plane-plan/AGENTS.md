@@ -14,7 +14,7 @@
 
 Task: define the repo-local Cloudflare backend module for Ocentra Parent so payment, portal, support/admin, entitlement, and future cloud edges share one control-plane foundation.
 
-Context: this plan is derived from the reusable control-plane patterns found in `E:\ocentra-games\infra\cloudflare`. Parent keeps the module boundary, wrangler shape, runtime guards, manifest routing, auth middleware, Durable Object coordination, storage bindings, queue/reconciliation model, and heavy test boundary. Parent explicitly strips game economy, Solana, matchmaking, presence, tournaments, leaderboard, marketplace, AI proxy, asset delivery, and other game-only surfaces.
+Context: this plan is derived from the reusable control-plane patterns captured in `GAMES_INFRA_PARITY_MAP.md` from the games Cloudflare module. Parent keeps the module boundary, wrangler shape, runtime guards, manifest routing, auth middleware, Durable Object coordination, storage bindings, queue/reconciliation model, and heavy test boundary. Parent explicitly strips game economy, Solana, matchmaking, presence, tournaments, leaderboard, marketplace, AI proxy, asset delivery, and other game-only surfaces.
 
 Scope: `infra/cloudflare/` module ownership, wrangler config, environment and secret custody, Worker entrypoint, auth/admin/support boundary, route manifest ownership, Durable Object and D1/KV/R2/Queue binding model, local dev and seeding, testing pyramid, deployment promotion, security/privacy/observability, and the handoff gate to payment.
 
@@ -29,7 +29,7 @@ Out of scope: billing product math, referral qualification policy, invoice/grace
 
 ## Research Gate
 
-Before implementation, DONE, or PR_READY, the assigned agent must inspect the parent repo, this plan's docs, the named `ocentra-games/infra/cloudflare` source files, and the current Parent plan boundaries. Do not copy game-only runtime concerns into Parent.
+Before implementation, DONE, or PR_READY, the assigned agent must inspect the parent repo, this plan's docs, the games Cloudflare source files summarized in `GAMES_INFRA_PARITY_MAP.md`, and the current Parent plan boundaries. Do not copy game-only runtime concerns into Parent.
 
 ## Decision Tree
 

@@ -43,6 +43,9 @@ No shared-module, auth, binding, queue, test-runner, or payment-handoff claim is
 - `cloudflare-control.test-runner-contract`
 - `cloudflare-control.test-runner-security`
 - `cloudflare-control.property-fuzz-boundary`
+- `cloudflare-control.unit-redaction`
+- `cloudflare-control.security-redaction`
+- `cloudflare-control.billing-idempotency-property`
 - `cloudflare-control.payment-plan-handoff`
 
 ## Validation matrix
@@ -57,9 +60,9 @@ No shared-module, auth, binding, queue, test-runner, or payment-handoff claim is
 | WP05 | `npm run format:check` | `docs/proof/cloudflare-control-plane-plan/wp05-auth-admin-support-boundary/auth-boundary-proof.md` |
 | WP06 | `npm run format:check` | `docs/proof/cloudflare-control-plane-plan/wp06-storage-do-d1-kv-r2-queue-bindings/storage-binding-proof.md` |
 | WP07 | `npm run format:check` | `docs/proof/cloudflare-control-plane-plan/wp07-local-dev-seeding-and-fixtures/local-dev-proof.md` |
-| WP08 | `npm run format:check`; scaffold command family now exists: `npm run test:cloudflare:unit`, `test:cloudflare:integration`, `test:cloudflare:e2e`, `test:cloudflare:contract`, `test:cloudflare:security`, `test:cloudflare:property`, `test:cloudflare:fuzz`; current runner still returns exact blockers | `docs/proof/cloudflare-control-plane-plan/wp08-testing-runner-and-test-pyramid/test-pyramid-proof.md` |
-| WP09 | `npm run format:check`; scaffold command family now exists: `npm run test:cloudflare:e2e`; current runner still returns exact blockers | `docs/proof/cloudflare-control-plane-plan/wp09-portal-to-worker-e2e-smoke/portal-smoke-proof.md` |
-| WP10 | `npm run format:check`; scaffold command family now exists: `npm run test:cloudflare:security`; `npm run test:cloudflare:property`; `npm run test:cloudflare:fuzz`; current runner still returns exact blockers | `docs/proof/cloudflare-control-plane-plan/wp10-security-fuzz-property-observability/security-baseline-proof.md` |
+| WP08 | `npm run format:check`; scaffold command family now exists: `npm run test:cloudflare:unit`, `test:cloudflare:integration`, `test:cloudflare:e2e`, `test:cloudflare:contract`, `test:cloudflare:security`, `test:cloudflare:property`, `test:cloudflare:fuzz`; exact file inventory is listed in `TESTING_STRATEGY.md`; current runner still returns exact blockers | `docs/proof/cloudflare-control-plane-plan/wp08-testing-runner-and-test-pyramid/test-pyramid-proof.md` |
+| WP09 | `npm run format:check`; scaffold command family now exists: `npm run test:cloudflare:e2e`; exact portal-to-worker smoke file is listed in `TESTING_STRATEGY.md`; current runner still returns exact blockers | `docs/proof/cloudflare-control-plane-plan/wp09-portal-to-worker-e2e-smoke/portal-smoke-proof.md` |
+| WP10 | `npm run format:check`; scaffold command family now exists: `npm run test:cloudflare:security`; `npm run test:cloudflare:property`; `npm run test:cloudflare:fuzz`; exact security/property/fuzz file inventory is listed in `TESTING_STRATEGY.md`; current runner still returns exact blockers | `docs/proof/cloudflare-control-plane-plan/wp10-security-fuzz-property-observability/security-baseline-proof.md` |
 | WP11 | `npm run format:check` | `docs/proof/cloudflare-control-plane-plan/wp11-deployment-and-environment-promotion/deployment-model-proof.md` |
 | WP12 | `npm run format:check` | `docs/proof/cloudflare-control-plane-plan/wp12-payment-plan-handoff-gate/payment-handoff-proof.md` |
 

@@ -2,7 +2,7 @@
 
 Status: cross-cutting Cloudflare control-plane architecture documented and repo-local scaffold created; runtime implementation, validation, and proof remain open.
 
-Research status: aligned against the current Parent repo and a direct inspection of `E:\ocentra-games\infra\cloudflare` package scripts, wrangler config, route manifest, auth middleware, payment flows, `PaymentDO`, test runner, and module docs. Parent keeps the module and testing patterns; Parent strips game-only economy, Solana, matchmaking, social, AI proxy, and asset-delivery concerns.
+Research status: aligned against the current Parent repo and a direct inspection of the reusable games Cloudflare module, summarized in `GAMES_INFRA_PARITY_MAP.md`, including its package scripts, wrangler config, route manifest, auth middleware, payment flows, `PaymentDO`, test runner, and module docs. Parent keeps the module and testing patterns; Parent strips game-only economy, Solana, matchmaking, social, AI proxy, and asset-delivery concerns.
 
 Current Parent direction:
 
@@ -23,7 +23,7 @@ Current Parent direction:
 | --- | --- | --- | --- |
 | CFCP-001 through CFCP-011 | architecture-closed / scaffold-present / implementation-open | Shared module, runtime guards, route/auth/storage ownership now have repo-local files, but no runtime proof exists yet. | `infra/cloudflare/` scaffold, bindings, route/docs, and future proof stay synchronized. |
 | CFCP-012 | architecture-closed / scaffold-present / manual-required | Local Wrangler and seed flow are specified and scaffolded, but no validated dev loop is captured yet. | Local start, seed, and teardown proof exists. |
-| CFCP-013 | architecture-closed / scaffold-present / proof-open | Test pyramid is named and placeholder files exist, but real runnable coverage is not proven. | Unit/integration/e2e/contract/security/property/fuzz proof exists or exact blocker is recorded. |
+| CFCP-013 | architecture-closed / scaffold-present / proof-open | Test pyramid is named, exact test inventory exists, and placeholder files exist, but real runnable coverage is not proven. | Unit/integration/e2e/contract/security/property/fuzz proof exists or exact blocker is recorded. |
 | CFCP-014 | architecture-closed / proof-open | Payment dependency is explicit, but the handoff proof is not yet satisfied. | `payment-subscription-plan` WP00 proof points to this plan's accepted handoff artifact. |
 
 ## HID Execution Guard
