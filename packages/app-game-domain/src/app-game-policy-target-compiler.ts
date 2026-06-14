@@ -6,7 +6,6 @@ import {
 } from '@ocentra-parent/schema-domain/effect';
 import {
   AppGamePolicyCompilerAuthorityState,
-  AppGamePolicyCompilerCapabilityState,
   AppGamePolicyCompilerEvidenceState,
   AppGamePolicyCompilerOutcomeState,
   AppGamePolicyCompilerProofKind,
@@ -14,6 +13,7 @@ import {
   AppGamePolicyCompilerRequestedAction,
   AppGamePolicyTargetKind,
   appGamePolicyBlockLaunchWithoutProofIsManualRequired,
+  appGamePolicyCapabilityRefsKeepNonReadyStatesExplicit,
   appGamePolicyCompiledDecisionCarriesProofRefs,
   appGamePolicyHardActionProofIsComplete,
   appGamePolicyRequestHasCapabilityRef,
@@ -34,6 +34,7 @@ import {
   PolicyScheduleIdSchema,
   PolicyTargetSchema,
 } from '@ocentra-parent/policy-domain/policy';
+import { PolicyCompilerCapabilityStateSchema } from '@ocentra-parent/policy-domain/policy-compiler';
 
 export const AppGamePolicyCompileRequestIdSchema = brandedNonEmptyStringSchema('AppGamePolicyCompileRequestId');
 export const AppGamePolicyCompiledDecisionIdSchema = brandedNonEmptyStringSchema('AppGamePolicyCompiledDecisionId');
@@ -50,9 +51,7 @@ export const AppGamePolicyCompilerProofKindSchema = withParser(
 export const AppGamePolicyCompilerEvidenceStateSchema = withParser(
   Schema.Literal(...Object.values(AppGamePolicyCompilerEvidenceState))
 );
-export const AppGamePolicyCompilerCapabilityStateSchema = withParser(
-  Schema.Literal(...Object.values(AppGamePolicyCompilerCapabilityState))
-);
+export const AppGamePolicyCompilerCapabilityStateSchema = PolicyCompilerCapabilityStateSchema;
 export const AppGamePolicyCompilerAuthorityStateSchema = withParser(
   Schema.Literal(...Object.values(AppGamePolicyCompilerAuthorityState))
 );
@@ -198,6 +197,13 @@ export const AppGamePolicyCompiledDecisionSchema = withParser(
         (decision) =>
           decision.policyDecision.action === decision.request.policyAction ||
           'Expected compiled app/game policy decision action to match the requested policy action'
+      )
+    )
+    .pipe(
+      Schema.filter(
+        (decision) =>
+          appGamePolicyCapabilityRefsKeepNonReadyStatesExplicit(decision) ||
+          'Expected manual-required or unsupported app/game capability refs to avoid dry-run-ready output'
       )
     )
     .pipe(

@@ -5,7 +5,6 @@ import {
 } from '../../src/app-game-policy-target-compiler';
 import {
   AppGamePolicyCompilerAuthorityState,
-  AppGamePolicyCompilerCapabilityState,
   AppGamePolicyCompilerEvidenceState,
   AppGamePolicyCompilerOutcomeState,
   AppGamePolicyCompilerProofKind,
@@ -14,6 +13,7 @@ import {
   AppGamePolicyTargetKind,
 } from '../../src/app-game-policy-target-compiler-rules';
 import { PolicyAction, PolicyDecisionHandoffState } from '@ocentra-parent/policy-domain/policy';
+import { PolicyCompilerCapabilityState } from '@ocentra-parent/policy-domain/policy-compiler';
 import { ParentContractSchemaVersion, ParentEvidenceReferenceKind, ParentPlatform } from '@ocentra-parent/family-domain/reference-primitives';
 
 const Timestamp = '2026-06-03T08:35:00Z';
@@ -41,13 +41,18 @@ const EvidenceReference = {
 
 const CapabilityRef = {
   capabilityRef: 'capability-ref-1',
-  capabilityState: AppGamePolicyCompilerCapabilityState.Supported,
+  capabilityState: PolicyCompilerCapabilityState.Supported,
   evidenceReferences: [EvidenceReference],
 } as const;
 
 const ManualCapabilityRef = {
   ...CapabilityRef,
-  capabilityState: AppGamePolicyCompilerCapabilityState.ManualRequired,
+  capabilityState: PolicyCompilerCapabilityState.ManualRequired,
+} as const;
+
+const UnsupportedCapabilityRef = {
+  ...CapabilityRef,
+  capabilityState: PolicyCompilerCapabilityState.Unsupported,
 } as const;
 
 const AuthorityRef = {
@@ -216,6 +221,41 @@ const assertPolicyOutputCarriesEvidenceAndCapabilityRefs = () => {
   ).toBe(false);
 };
 
+const assertNonSupportedCapabilityStatesStayOutOfDryRunReady = () => {
+  expect(
+    AppGamePolicyCompiledDecisionSchema.safeParse({
+      ...baseCompiledDecision,
+      request: { ...baseCompileRequest, capabilityRefs: [ManualCapabilityRef] },
+      outcomeState: AppGamePolicyCompilerOutcomeState.ManualRequired,
+      rejectionReason: AppGamePolicyCompilerRejectionReason.MissingCapability,
+    }).success
+  ).toBe(true);
+  expect(
+    AppGamePolicyCompiledDecisionSchema.safeParse({
+      ...baseCompiledDecision,
+      request: { ...baseCompileRequest, capabilityRefs: [ManualCapabilityRef] },
+      outcomeState: AppGamePolicyCompilerOutcomeState.DryRunReady,
+      rejectionReason: AppGamePolicyCompilerRejectionReason.None,
+    }).success
+  ).toBe(false);
+  expect(
+    AppGamePolicyCompiledDecisionSchema.safeParse({
+      ...baseCompiledDecision,
+      request: { ...baseCompileRequest, capabilityRefs: [UnsupportedCapabilityRef] },
+      outcomeState: AppGamePolicyCompilerOutcomeState.Rejected,
+      rejectionReason: AppGamePolicyCompilerRejectionReason.MissingCapability,
+    }).success
+  ).toBe(true);
+  expect(
+    AppGamePolicyCompiledDecisionSchema.safeParse({
+      ...baseCompiledDecision,
+      request: { ...baseCompileRequest, capabilityRefs: [UnsupportedCapabilityRef] },
+      outcomeState: AppGamePolicyCompilerOutcomeState.DryRunReady,
+      rejectionReason: AppGamePolicyCompilerRejectionReason.None,
+    }).success
+  ).toBe(false);
+};
+
 describe('app/game policy target compiler contracts', () => {
   it('requires identity proof for specific targets', () => {
     assertSpecificTargetRequiresIdentity();
@@ -235,5 +275,9 @@ describe('app/game policy target compiler contracts', () => {
 
   it('requires compiled output to carry evidence and capability refs', () => {
     assertPolicyOutputCarriesEvidenceAndCapabilityRefs();
+  });
+
+  it('keeps manual-required and unsupported capability refs out of dry-run-ready output', () => {
+    assertNonSupportedCapabilityStatesStayOutOfDryRunReady();
   });
 });
