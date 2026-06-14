@@ -10,9 +10,11 @@ This file tracks the required execution flow for the shared Cloudflare module. I
 
 - [ ] Select one workpack and its proof path under `docs/proof/cloudflare-control-plane-plan/`.
 - [ ] Update the module docs, scaffold, or blockers for that workpack.
+- [ ] For WP08 or WP10, map every required test file and assertion ID from `REQUIRED_TEST_ASSERTION_MATRIX.md` to proof or an exact blocker.
 - [ ] Record real validation commands or exact missing-runtime blockers.
 - [ ] Capture at least one negative case and one rollback or teardown note.
 - [ ] Keep runtime claims separate from placeholder or scaffold existence.
+- [ ] Keep spec completeness separate from runtime readiness.
 - [ ] Sync route docs, workpack docs, and proof pointers.
 - [ ] Keep payment blocked until WP12 handoff proof exists.
 
@@ -24,3 +26,4 @@ Proof artifacts live under `docs/proof/cloudflare-control-plane-plan/`, not in t
 
 - Do not mark DONE or PR_READY until code, tests, validation, and proof flow are complete for the selected slice.
 - Do not treat placeholder test files, placeholder scripts, or placeholder wrangler configs as runtime proof.
+- Do not treat a complete assertion matrix as payment handoff or runtime proof.

@@ -4,6 +4,11 @@
 
 This document defines required proof and tests for the corrected payment, subscription, referral, billing dashboard, and support-ops plan.
 
+Exact assertion scope lives in
+[`REQUIRED_TEST_ASSERTION_MATRIX.md`](REQUIRED_TEST_ASSERTION_MATRIX.md). This
+document owns harnesses, commands, artifact paths, and proof bundle structure;
+the assertion matrix owns the exact meaning of each test or proof ID.
+
 Use proof root:
 
 ```text
@@ -16,6 +21,7 @@ No payment, referral, entitlement, invoice, dashboard, admin, provider, or regio
 
 | Workpack | First-touch harness / test files | Notes |
 | --- | --- | --- |
+| WP00 | `docs/plans/cloudflare-control-plane-plan/PLAN_STATE.md`, `docs/plans/cloudflare-control-plane-plan/ROUTE_MANIFEST_MODEL.md`, `docs/plans/cloudflare-control-plane-plan/TESTING_STRATEGY.md`, `docs/plans/cloudflare-control-plane-plan/REQUIRED_TEST_ASSERTION_MATRIX.md` | Cloudflare handoff is a proof-gate workpack; payment runtime remains blocked until this bundle exists or records an exact blocker. |
 | WP01 | `packages/billing-domain/tests/unit/billing-pricing-matrix.test.ts`, `packages/billing-domain/tests/unit/billing-entitlement.test.ts` | Covers starter bundle math, seat expansion, and over-limit behavior. |
 | WP02 | `packages/billing-domain/tests/unit/billing-checkout-portal-boundary.test.ts`, `packages/billing-domain/tests/unit/billing-account-runtime-boundary.test.ts`, `scripts/test/billing-account-endpoint-contract-proof.mjs` | Covers hosted checkout, portal handoff, and boundary negatives. |
 | WP03 | `crates/billing-core/tests/unit/provider_webhook.rs`, `crates/billing-core/tests/unit/subscription_lifecycle.rs` | Covers webhook signatures, replay rejection, and lifecycle convergence. |
@@ -26,7 +32,7 @@ No payment, referral, entitlement, invoice, dashboard, admin, provider, or regio
 | WP08 | `packages/billing-domain/tests/unit/billing-checkout-portal-boundary.test.ts`, `packages/billing-domain/tests/unit/billing-account-runtime-boundary.test.ts` | Covers provider portability entrypoints and normalization boundaries. |
 | WP09 | `packages/billing-domain/tests/unit/billing-pricing-matrix.test.ts`, `packages/billing-domain/tests/unit/billing-checkout-portal-boundary.test.ts` | Covers region/provider choice and rollout-gating inputs. |
 | WP10 | `packages/billing-domain/tests/unit/billing-entitlement.test.ts`, `packages/billing-domain/tests/unit/billing-entitlement-runtime-proof.test.ts` | Covers referral credits, entitlement impact, and grace behavior. |
-| WP11 | `packages/parent-domain/src/billing-entitlement.ts`, `packages/parent-domain/src/billing-entitlement-proof.ts`, `packages/billing-domain/tests/unit/billing-support-admin-status-proof.test.ts` | Covers the parent billing surface and its proof model. |
+| WP11 | `packages/parent-domain/src/billing-entitlement.ts`, `packages/parent-domain/src/billing-entitlement-proof.ts`, `packages/parent-domain/tests/unit/billing-entitlement-proof.test.ts`, `packages/billing-domain/tests/unit/billing-support-admin-status-proof.test.ts` | Covers the parent billing surface and its proof model. `packages/parent-domain/tests/unit/billing-entitlement-proof.test.ts` is currently missing and must be created or explicitly blocked during execution. |
 | WP12 | `scripts/test/billing-support-admin-status-proof.mjs`, `scripts/test/billing-support-admin-boundary-proof.mjs`, `packages/billing-domain/tests/unit/billing-support-admin-boundary.test.ts` | Covers support/admin search, redaction, and audit gating. |
 
 ## Required proof manifest fields
@@ -82,10 +88,31 @@ production support readiness
 
 Default is false unless proof exists.
 
+## Proof minimum contents
+
+Every proof bundle for WP00 through WP12 must record:
+
+- the exact workpack assertion IDs executed from
+  `REQUIRED_TEST_ASSERTION_MATRIX.md`;
+- the exact command used or the exact blocker when no command could run;
+- at least one negative case;
+- at least one rollback or teardown note;
+- any manual-required provider, legal, or Cloudflare dependency that remains
+  open;
+- a no-claim boundary stating what runtime remains unproven.
+
+## Spec-only completion rule
+
+- This plan may be `engineering-spec complete` while runtime remains blocked.
+- Runtime completion still requires code, tests, commands, and proof artifacts.
+- Open provider setup, legal/tax closure, missing test files, or Cloudflare
+  runtime proof are execution blockers, not reasons to under-spec the plan.
+
 ## Validation matrix
 
 | Workpack | Exact validation commands | Run order | Proof locations |
 | --- | --- | --- | --- |
+| WP00 | `npm run format:check`; `npm run lint:schema-boundaries` | 0 | `docs/proof/payment-subscription-plan/wp00-cloudflare-control-plane-handoff/cloudflare-handoff-proof.md` |
 | WP01 | `npm run format:check`; `npm run lint:schema-boundaries` | 1 | `docs/proof/payment-subscription-plan/01-free-starter-bundle-proof.md`, `docs/proof/payment-subscription-plan/01-effective-child-device-limit-proof.md`, `docs/proof/payment-subscription-plan/01-safety-critical-grace-proof.md`, `docs/proof/payment-subscription-plan/01-rejected-game-economy-proof.md` |
 | WP02 | `npm run format:check`; `npm run lint:schema-boundaries` | 2 | `docs/proof/payment-subscription-plan/02-cloudflare-billing-api-boundary-proof.md`, `docs/proof/payment-subscription-plan/02-hosted-checkout-proof.md`, `docs/proof/payment-subscription-plan/02-billing-portal-proof.md`, `docs/proof/payment-subscription-plan/02-no-client-secret-proof.md`, `docs/proof/payment-subscription-plan/02-redirect-origin-negative-proof.md` |
 | WP03 | `npm run format:check`; `npm run lint:schema-boundaries` | 3 | `docs/proof/payment-subscription-plan/03-provider-webhook-proof.md`, `docs/proof/payment-subscription-plan/03-idempotency-replay-proof.md`, `docs/proof/payment-subscription-plan/03-dead-letter-proof.md`, `docs/proof/payment-subscription-plan/03-reconciliation-proof.md`, `docs/proof/payment-subscription-plan/03-test-live-boundary-proof.md` |
@@ -98,6 +125,26 @@ Default is false unless proof exists.
 | WP10 | `npm run format:check`; `npm run lint:schema-boundaries` | 10 | `docs/proof/payment-subscription-plan/10-referral-state-machine-proof.md`, `docs/proof/payment-subscription-plan/10-referral-qualification-proof.md`, `docs/proof/payment-subscription-plan/10-referral-abuse-negative-proof.md`, `docs/proof/payment-subscription-plan/10-referral-loss-entitlement-proof.md`, `docs/proof/payment-subscription-plan/10-over-limit-grace-proof.md` |
 | WP11 | `npm run format:check`; `npm run lint:schema-boundaries` | 11 | `docs/proof/payment-subscription-plan/11-parent-website-dashboard-proof.md`, `docs/proof/payment-subscription-plan/11-dashboard-wrong-household-negative-proof.md`, `docs/proof/payment-subscription-plan/11-dashboard-no-child-private-data-proof.md` |
 | WP12 | `npm run format:check`; `npm run lint:schema-boundaries` | 12 | `docs/proof/payment-subscription-plan/12-support-admin-ops-proof.md`, `docs/proof/payment-subscription-plan/12-admin-role-negative-proof.md`, `docs/proof/payment-subscription-plan/12-support-data-minimization-proof.md`, `docs/proof/payment-subscription-plan/12-reconciliation-admin-proof.md` |
+
+## WP00 - Cloudflare Control Plane Handoff
+
+Required checks:
+
+```text
+payment-route.cloudflare-plan-exists
+payment-route.cloudflare-module-spec-exists
+payment-route.cloudflare-auth-boundary-consumed
+payment-route.cloudflare-route-manifest-consumed
+payment-route.cloudflare-test-shape-consumed
+payment-route.cloudflare-portal-smoke-blocker-visible
+payment-route.payment-remains-blocked-without-handoff
+```
+
+Proof artifacts:
+
+```text
+docs/proof/payment-subscription-plan/wp00-cloudflare-control-plane-handoff/cloudflare-handoff-proof.md
+```
 
 ## WP01 - Product Pricing Entitlement
 
@@ -398,6 +445,7 @@ payment-dashboard.billing-portal-link
 payment-dashboard.license-snapshot-visible
 payment-dashboard.wrong-household-denied
 payment-dashboard.no-child-private-data
+payment-dashboard.targeted-parent-proof-file
 ```
 
 Proof artifacts:
@@ -477,6 +525,7 @@ signed EntitlementSnapshot proof
 local device trust requirement
 metadata no-child-data proof
 support/admin data minimization proof
+targeted parent billing proof file
 test/live mode separation
 route/index sync
 commands run

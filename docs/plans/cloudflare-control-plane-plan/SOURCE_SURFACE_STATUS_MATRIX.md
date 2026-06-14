@@ -14,6 +14,7 @@ Purpose: track which shared Cloudflare surfaces exist now versus which remain sc
 | 06 | `infra/cloudflare/src/env.ts` | Yes | binding interface scaffold present | Add real validation and binding proofs. | No binding validation claim. |
 | 07 | `infra/cloudflare/scripts/test-runner.ts` | Yes | exact blocker runner present | Replace blocker output with real suite execution and logs. | No test-runner proof yet. |
 | 07 | `infra/cloudflare/scripts/seed-local.ts` | Yes | exact blocker seed placeholder present | Replace blockers with real fixture and teardown flows. | No seed proof yet. |
-| 08 | `infra/cloudflare/tests/` | Yes | placeholder test family files present | Replace placeholder files with real assertions and artifacts. | No test pass claim. |
+| 08 | `infra/cloudflare/tests/` | Yes | placeholder test family files present; exact required assertions now live in `REQUIRED_TEST_ASSERTION_MATRIX.md` | Replace placeholder files with real assertions and artifacts that map back to the assertion IDs. | No test pass claim. |
 | 08 | `infra/cloudflare/docs/TESTING.md` | Yes | module-local pointer doc present | Keep module docs synchronized with runnable suites and blockers. | No runtime proof claim. |
+| 08 | `docs/plans/cloudflare-control-plane-plan/REQUIRED_TEST_ASSERTION_MATRIX.md` | Yes | engineering-spec complete | Future execution must implement every listed file and assertion ID without reducing scope. | Spec complete does not imply runtime passing tests. |
 | 12 | `docs/proof/cloudflare-control-plane-plan/wp12-payment-plan-handoff-gate/payment-handoff-proof.md` | No | missing | Add accepted handoff proof once slices 00-11 are explicit. | Payment remains blocked. |

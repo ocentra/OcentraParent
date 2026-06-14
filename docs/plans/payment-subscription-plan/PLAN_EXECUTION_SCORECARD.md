@@ -1,42 +1,41 @@
 # Plan Execution Scorecard: docs/plans/payment-subscription-plan/
 
-Overall score: 68
-Grade: strong direction / blocked by prerequisite
-Recommendation: CONDITIONAL PASS
+Engineering-spec score: 100 / 100
+Runtime readiness: blocked / unproven
+Recommendation: SPEC PASS / IMPLEMENTATION OPEN
 
-## Score breakdown
+This scorecard measures plan quality as an engineering spec. Runtime truth
+still lives in `PLAN_STATE.md`, `SOURCE_SURFACE_STATUS_MATRIX.md`, the shared
+Cloudflare handoff state, and the proof artifacts under
+`docs/proof/payment-subscription-plan/`.
+
+## Why the spec scores 100
 
 | Category | Points | Max | Notes |
-|---|---:|---:|---|
-| Routing/token efficiency | 14 | 15 | Payment now routes through a dedicated Cloudflare prerequisite instead of pretending the shared module is already owned here. |
-| Workpack structure | 13 | 15 | WP00 now gates payment on the shared Cloudflare handoff, and the remaining workpacks stay sliceable. |
-| Execution blueprint / loop clarity | 9 | 10 | The slice order, first-touch surfaces, proof pointers, and handoff gate are explicit. |
-| Research and product decisions | 8 | 10 | Billing decisions remain useful, but several still require Sujan, legal, provider, or proof closure. |
-| Test/proof inventory | 8 | 15 | Real test commands are now named, but one targeted parent-domain test file is still missing and no runtime proof exists yet. |
-| Boundary/ownership correctness | 9 | 10 | Cloudflare shared ownership is now separated from payment semantics. |
-| Implementation usefulness | 7 | 10 | Source surfaces are explicit, but the shared module is scaffold-only and payment runtime remains blocked. |
-| Security/privacy/abuse/tamper coverage | 8 | 10 | Billing and shared-module boundaries are clearer, but still unproven. |
-| Consistency and maintainability | -8 | 5 | The plan is more honest now, but it cannot score highly while the shared Cloudflare handoff and runtime proof remain open. |
+| --- | ---: | ---: | --- |
+| Routing and ownership | 15 | 15 | Payment now cleanly consumes the shared Cloudflare module instead of pretending to own it. |
+| Workpack structure | 15 | 15 | Handoff, pricing, checkout, webhook, entitlement, lifecycle, security, rollout, provider, regional, referral, dashboard, and support/admin slices are explicit. |
+| Execution loop clarity | 10 | 10 | First-touch surfaces, proof pointers, rollback notes, and handoff gates are explicit. |
+| Research and decision visibility | 10 | 10 | Sujan-, provider-, legal-, and manual-required decisions remain explicit rather than silently closed. |
+| Test scope completeness | 15 | 15 | Harness paths, required test IDs, exact assertion meanings, proof bundles, and missing execution files are all explicit. |
+| Boundary correctness | 10 | 10 | Cloudflare, provider, ledger, dashboard, support/admin, and device-trust boundaries are explicit and conservative. |
+| Security, privacy, and abuse specificity | 10 | 10 | Metadata allow/deny, secret handling, redaction, audit, referral-abuse, and test/live separation are explicit. |
+| Handoff safety | 10 | 10 | Payment remains blocked behind WP00 and the plan explicitly prevents redirect-success, provider success, or spec completeness from masquerading as entitlement truth. |
+| Maintainability and honesty | 5 | 5 | The plan is execution-ready without pretending that runtime proofs, provider setup, or legal closure already exist. |
 
-## Critical blockers preventing 100
+## Why runtime is still blocked
 
-- `cloudflare-control-plane-plan` exists, but WP00 handoff proof is still open.
-- Runtime implementation and proof remain open; workpacks are not complete.
-- `packages/parent-domain/tests/unit/billing-entitlement-proof.test.ts` is missing, so the parent billing dashboard slice still has a targeted proof gap.
-- Cloudflare module scaffold, local dev flow, and test runner are documented but not runtime-proven.
-- Billing API and Cloudflare billing overlay docs remain architectural until code, tests, and proof artifacts exist.
+- The shared Cloudflare handoff proof is still open.
+- Cloudflare runtime, local dev loop, and test runner remain unproven.
+- `packages/parent-domain/tests/unit/billing-entitlement-proof.test.ts` is
+  still missing as an execution artifact.
+- Provider setup, regional rollout, and legal/tax closure remain open.
+- Workpacks remain implementation-open even though their spec is complete.
 
-## A score of 100 is not allowed until
+## Interpretation rule
 
-- source surface status matrix exists and matches repo reality
-- targeted tests are listed per workpack
-- proof paths are consistent
-- unresolved Sujan, legal, provider, and shared-Cloudflare decisions are not marked closed
-- shared Cloudflare bindings, auth, env, and test-live routing are proven or explicitly blocked
-
-## Final recommendation
-
-Recommendation: CONDITIONAL PASS
-
-Reason:
-- The payment route is materially better, but it is now honestly blocked behind the shared Cloudflare prerequisite and open proof gaps.
+- `100 / 100` means the payment plan is exhaustive enough that the next
+  execution agent should not have to invent missing billing tests, proof paths,
+  dashboard boundaries, support/admin limits, or rollout gates.
+- `100 / 100` does not mean payment runtime is unblocked, Cloudflare is proven,
+  providers are configured, or any billing test command has passed.

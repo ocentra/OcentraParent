@@ -16,6 +16,7 @@ Define the non-negotiable controls around monetization data, secret handling, pr
 - [SECURITY_PRIVACY_OBSERVABILITY.md](../SECURITY_PRIVACY_OBSERVABILITY.md)
 - [BILLING_API_BOUNDARY.md](../BILLING_API_BOUNDARY.md)
 - [PROOF_AND_TEST_INVENTORY.md](../PROOF_AND_TEST_INVENTORY.md)
+- [REQUIRED_TEST_ASSERTION_MATRIX.md](../REQUIRED_TEST_ASSERTION_MATRIX.md)
 - [DECISIONS.md](../DECISIONS.md)
 
 ## Output files
@@ -31,6 +32,7 @@ Define the non-negotiable controls around monetization data, secret handling, pr
 - Child data never appears in payment telemetry or provider metadata.
 - Test and live mode separation is visible in the ledger and dashboard.
 - Queue retries and dead-letter events are observable.
+- Provider metadata allow/deny boundaries are explicit.
 
 ## Proof IDs
 

@@ -1,5 +1,8 @@
 # Workpack Index
 
+Status column below reflects runtime execution state, not engineering-spec
+completeness.
+
 | Workpack                                                                                | Purpose                                                                   | Status  |
 | --------------------------------------------------------------------------------------- | ------------------------------------------------------------------------- | ------- |
 | [00-cloudflare-control-plane-handoff](workpacks/00-cloudflare-control-plane-handoff.md) | Consume the shared Cloudflare plan handoff before payment runtime work.   | Planned |

@@ -19,6 +19,8 @@ Consume the shared Cloudflare plan handoff before any payment runtime slice star
 - [../../cloudflare-control-plane-plan/AUTH_BOUNDARY_MODEL.md](../../cloudflare-control-plane-plan/AUTH_BOUNDARY_MODEL.md)
 - [../../cloudflare-control-plane-plan/ROUTE_MANIFEST_MODEL.md](../../cloudflare-control-plane-plan/ROUTE_MANIFEST_MODEL.md)
 - [../../cloudflare-control-plane-plan/TESTING_STRATEGY.md](../../cloudflare-control-plane-plan/TESTING_STRATEGY.md)
+- [../../cloudflare-control-plane-plan/REQUIRED_TEST_ASSERTION_MATRIX.md](../../cloudflare-control-plane-plan/REQUIRED_TEST_ASSERTION_MATRIX.md)
+- [../REQUIRED_TEST_ASSERTION_MATRIX.md](../REQUIRED_TEST_ASSERTION_MATRIX.md)
 
 ## Output files
 
@@ -37,11 +39,19 @@ Consume the shared Cloudflare plan handoff before any payment runtime slice star
 - Local dev and test runner exist or are blocked with an exact reason.
 - Portal-to-worker smoke boundary exists or is blocked with an exact reason.
 - No provider secrets are in repo.
+- Payment keeps runtime blocked until the handoff proof is explicit.
 
 ## Proof IDs
 
 - `payment-route.cloudflare-prerequisite`
 - `payment-route.cloudflare-handoff`
+- `payment-route.cloudflare-plan-exists`
+- `payment-route.cloudflare-module-spec-exists`
+- `payment-route.cloudflare-auth-boundary-consumed`
+- `payment-route.cloudflare-route-manifest-consumed`
+- `payment-route.cloudflare-test-shape-consumed`
+- `payment-route.cloudflare-portal-smoke-blocker-visible`
+- `payment-route.payment-remains-blocked-without-handoff`
 
 ## Validation
 

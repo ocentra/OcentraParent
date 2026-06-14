@@ -10,9 +10,9 @@
 | [05-auth-admin-support-boundary](workpacks/05-auth-admin-support-boundary.md) | Define auth states and private/admin/webhook trust gates. | Planned |
 | [06-storage-do-d1-kv-r2-queue-bindings](workpacks/06-storage-do-d1-kv-r2-queue-bindings.md) | Freeze storage and coordination ownership. | Planned |
 | [07-local-dev-seeding-and-fixtures](workpacks/07-local-dev-seeding-and-fixtures.md) | Define local dev, fixtures, and seed flows. | Planned |
-| [08-testing-runner-and-test-pyramid](workpacks/08-testing-runner-and-test-pyramid.md) | Define the Cloudflare test runner shape and required test families. | Planned |
+| [08-testing-runner-and-test-pyramid](workpacks/08-testing-runner-and-test-pyramid.md) | Define the Cloudflare test runner shape and required test families. | Spec-complete / implementation-open |
 | [09-portal-to-worker-e2e-smoke](workpacks/09-portal-to-worker-e2e-smoke.md) | Define first consumer smoke and portal handoff proof. | Planned |
-| [10-security-fuzz-property-observability](workpacks/10-security-fuzz-property-observability.md) | Reduce games security tooling to the Parent baseline. | Planned |
+| [10-security-fuzz-property-observability](workpacks/10-security-fuzz-property-observability.md) | Reduce games security tooling to the Parent baseline. | Spec-complete / implementation-open |
 | [11-deployment-and-environment-promotion](workpacks/11-deployment-and-environment-promotion.md) | Define environment promotion, deploy, and rollback flow. | Planned |
 | [12-payment-plan-handoff-gate](workpacks/12-payment-plan-handoff-gate.md) | Gate payment on real Cloudflare control-plane assumptions. | Planned |
 
