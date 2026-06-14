@@ -1,26 +1,60 @@
 # Workpack 03: Subscription Webhook Lifecycle
 
-Purpose: define signature validation, deduplication, lifecycle transitions, and settlement for provider events.
+## Goal
 
-## Owns
+Define how provider events become app-owned billing truth, including signature validation, dedupe, retries, and reconciliation.
 
-- `SUBSCRIPTION_WEBHOOK_LIFECYCLE.md`
-- PSP-003 and the webhook part of PSP-005
+## First-touch surface
 
-## Must prove
+- `crates/billing-core/src/billing_subscription.rs`
+- `crates/billing-core/tests/unit/provider_webhook.rs`
 
-- Valid signatures are accepted.
-- Invalid signatures are rejected.
-- Duplicate events do not double-grant entitlement.
-- Out-of-order events normalize to one ledger state.
-- Reconciliation or retry work is queued when needed.
+## Read inputs
 
-## Proof path
+- [PLAN_STATE.md](../PLAN_STATE.md)
+- [PLAN_EXECUTION_BLUEPRINT.md](../PLAN_EXECUTION_BLUEPRINT.md)
+- [SUBSCRIPTION_WEBHOOK_LIFECYCLE.md](../SUBSCRIPTION_WEBHOOK_LIFECYCLE.md)
+- [BILLING_API_BOUNDARY.md](../BILLING_API_BOUNDARY.md)
+- [APP_OWNED_BILLING_LEDGER.md](../APP_OWNED_BILLING_LEDGER.md)
 
-- Use `docs/proof/payment-subscription-plan/wp03/` or the owning crate's local proof directory.
+## Output files
+
+- [SUBSCRIPTION_WEBHOOK_LIFECYCLE.md](../SUBSCRIPTION_WEBHOOK_LIFECYCLE.md)
+- [APP_OWNED_BILLING_LEDGER.md](../APP_OWNED_BILLING_LEDGER.md)
+- `docs/proof/payment-subscription-plan/wp03-subscription-webhook-lifecycle/`
+
+## Acceptance
+
+- Every provider event is signature-verified before parsing.
+- Every accepted event produces an app-owned ledger entry.
+- Stable provider event IDs dedupe replays and duplicates.
+- Out-of-order events converge on the same final ledger state.
+- Retry or reconciliation work is queued when a webhook needs follow-up.
+
+## Proof IDs
+
+- `payment-webhook.stripe-signature-valid`
+- `payment-webhook.razorpay-signature-valid`
+- `payment-webhook.paypal-webhook-verified`
+- `payment-webhook.duplicate-event-idempotent`
+- `payment-webhook.replayed-event-rejected`
+- `payment-webhook.reconciliation-repairs-drift`
+
+## Validation
+
+- Docs validation: `npm run format:check`; `npm run lint:schema-boundaries`
+- Required proof families: `payment-webhook.stripe-signature-valid`, `payment-webhook.stripe-signature-invalid`, `payment-webhook.razorpay-signature-valid`, `payment-webhook.paypal-webhook-verified`, `payment-webhook.duplicate-event-idempotent`, `payment-webhook.replayed-event-rejected`, `payment-webhook.out-of-order-event-safe`, `payment-webhook.unknown-event-safe`, `payment-webhook.retry-no-double-grant`, `payment-webhook.dead-letter-manual-required`, `payment-webhook.reconciliation-repairs-drift`, `payment-webhook.test-live-separated`
+- Proof bundle: `docs/proof/payment-subscription-plan/03-provider-webhook-proof.md`, `docs/proof/payment-subscription-plan/03-idempotency-replay-proof.md`, `docs/proof/payment-subscription-plan/03-dead-letter-proof.md`, `docs/proof/payment-subscription-plan/03-reconciliation-proof.md`, `docs/proof/payment-subscription-plan/03-test-live-boundary-proof.md`
+
+## Negative cases
+
+- Reject unsigned or malformed provider payloads.
+- Reject duplicate events as new entitlement.
+- Reject replayed events that would double-grant access.
+- Reject any webhook path that changes access without a ledger entry.
 
 ## Failure conditions
 
-- The workpack fails if an accepted webhook can change access without a ledger entry.
-- The workpack fails if dedupe markers are missing.
-- The workpack fails if replay or retry creates duplicate entitlement.
+- Do not trust provider payloads without signature validation.
+- Do not let a webhook change access without the ledger.
+- Do not double-grant entitlement on duplicate events.

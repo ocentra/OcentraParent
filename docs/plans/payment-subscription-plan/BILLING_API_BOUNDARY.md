@@ -2,15 +2,51 @@
 
 Purpose: define which callers can touch billing state and what they are allowed to ask for.
 
-## Callers
+## Public API groups
 
-| Caller                        | Allowed operations                                                          | Authentication                                       |
-| ----------------------------- | --------------------------------------------------------------------------- | ---------------------------------------------------- |
-| Parent web or mobile surface  | Start checkout, open portal, read billing status, preview entitlement state | Parent auth, plus device trust for sensitive actions |
-| Support/admin surface         | Search accounts, issue refunds, apply manual credits, inspect timelines     | Admin auth and audit logging                         |
-| Provider webhook              | Deliver payment, subscription, refund, or dispute events                    | Provider signature validation                        |
-| Queue / cron / reconciliation | Retry, reconcile, and finalize ledger state                                 | Internal worker boundary                             |
-| Other product surfaces        | Read signed entitlement snapshot only                                       | Snapshot signature and device binding                |
+- `/public/pricing`
+
+## Authenticated billing API groups
+
+- `/auth/billing/status`
+- `/auth/billing/checkout`
+- `/auth/billing/portal`
+- `/auth/billing/invoices`
+- `/auth/billing/change-plan`
+- `/auth/billing/cancel`
+- `/auth/billing/referrals`
+- `/auth/billing/referral-invite`
+- `/auth/billing/entitlement-snapshot`
+- `/auth/billing/license-check`
+- `/auth/billing/manual-invoice`
+
+## Webhook API groups
+
+- `/webhooks/stripe`
+- `/webhooks/razorpay`
+- `/webhooks/paypal`
+- `/webhooks/apple`
+- `/webhooks/google`
+
+## Admin API groups
+
+- `/admin/billing/accounts`
+- `/admin/billing/invoices`
+- `/admin/billing/refunds`
+- `/admin/billing/disputes`
+- `/admin/billing/referrals`
+- `/admin/billing/reconciliation`
+- `/admin/billing/audit`
+
+## Caller rules
+
+| Caller | Allowed operations | Authentication |
+| --- | --- | --- |
+| Parent web or mobile surface | Read pricing, start checkout, open portal, read billing status, preview entitlement state | Parent auth, plus device trust for sensitive actions |
+| Support/admin surface | Search accounts, issue refunds, apply manual credits, inspect timelines | Admin auth and audit logging |
+| Provider webhook | Deliver payment, subscription, refund, or dispute events | Provider signature validation |
+| Queue / cron / reconciliation | Retry, reconcile, and finalize ledger state | Internal worker boundary |
+| Other product surfaces | Read signed entitlement snapshot only | Snapshot signature and device binding |
 
 ## Boundary rules
 
@@ -19,11 +55,6 @@ Purpose: define which callers can touch billing state and what they are allowed 
 - Provider event payloads are inputs, not truth.
 - Billing writes must pass through the Worker and the per-account or per-household serialization boundary.
 - Sensitive actions may require device-trust proof, but the device-trust flow itself belongs to the device-trust plan.
-
-## Required shapes
-
-- Billing summary must include current plan, child-device seat count, referral credit state, invoice state, provider mode, and grace state.
-- Provider responses must normalize to app-owned ledger fields.
 - Dashboard actions must return redacted, audit-friendly payloads.
 
 ## Failure conditions

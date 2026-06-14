@@ -4,14 +4,19 @@ Purpose: define the canonical billing history owned by the app, not by the provi
 
 ## Ledger entries
 
-| Entry         | Meaning                                       | Required fields                                                                                       |
-| ------------- | --------------------------------------------- | ----------------------------------------------------------------------------------------------------- |
-| CheckoutInit  | A payment session was created.                | `billingAccountId`, `paymentId`, `provider`, `amountMinor`, `currency`, `productId`, `region`, `mode` |
-| ProviderEvent | An external event was normalized.             | `providerEventId`, `providerObjectId`, `eventType`, `receivedAt`, `mode`                              |
-| Invoice       | An invoice or renewal entry was materialized. | `invoiceId`, `periodStart`, `periodEnd`, `taxMinor`, `status`                                         |
-| Refund        | A refund or partial reversal was recorded.    | `refundId`, `reason`, `amountMinor`, `providerRefs`, `actor`                                          |
-| Dispute       | A dispute or chargeback was recorded.         | `disputeId`, `state`, `evidenceDeadline`, `providerRefs`                                              |
-| Adjustment    | A support/admin change was applied.           | `adjustmentId`, `actor`, `reason`, `deltaSeats`, `deltaAmountMinor`                                   |
+| Entry | Meaning | Required fields |
+| --- | --- | --- |
+| `BillingAccount` | Canonical billing identity for a household or parent account. | `billingAccountId`, `householdRef`, `parentAccountRef`, `status`, `createdAt` |
+| `BillingCustomer` | App-owned customer record for a payment provider. | `billingCustomerId`, `provider`, `providerCustomerRef`, `createdAt` |
+| `ProviderCustomerRef` | External provider customer mapping. | `billingAccountId`, `provider`, `providerCustomerRef`, `createdAt` |
+| `ProviderSubscriptionRef` | External provider subscription mapping. | `billingAccountId`, `provider`, `providerSubscriptionRef`, `status`, `createdAt` |
+| `ProviderInvoiceRef` | External provider invoice mapping. | `billingAccountId`, `provider`, `providerInvoiceRef`, `status`, `createdAt` |
+| `ProviderRefundRef` | External provider refund mapping. | `billingAccountId`, `provider`, `providerRefundRef`, `status`, `createdAt` |
+| `ProviderDisputeRef` | External provider dispute mapping. | `billingAccountId`, `provider`, `providerDisputeRef`, `status`, `createdAt` |
+| `BillingEvent` | Provider, checkout, refund, or support event normalized into app truth. | `billingEventId`, `billingAccountId`, `eventType`, `provider`, `providerEventId`, `receivedAt` |
+| `BillingStateProjection` | Queryable billing state for dashboard and API consumers. | `billingAccountId`, `planTier`, `status`, `graceState`, `updatedAt` |
+| `ManualInvoice` | App-owned manual invoice record. | `manualInvoiceId`, `billingAccountId`, `amountMinor`, `currency`, `status`, `createdAt` |
+| `BillingAuditEvent` | Audited support/admin or operator action. | `auditEventId`, `billingAccountId`, `actorRef`, `action`, `createdAt` |
 
 ## Rules
 

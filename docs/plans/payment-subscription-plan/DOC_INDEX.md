@@ -8,4 +8,5 @@
 - [TEST_PROOF_EXPECTATIONS.md](TEST_PROOF_EXPECTATIONS.md): required execution flow.
 - [PROOF_AND_TEST_INVENTORY.md](PROOF_AND_TEST_INVENTORY.md): expected proof matrix.
 - [PROOF_INDEX.md](PROOF_INDEX.md): proof references.
+- [PLAN_EXECUTION_SCORECARD_REVIEW.md](PLAN_EXECUTION_SCORECARD_REVIEW.md): audit baseline and rewrite target.
 - [NEXT_ACTIONS.md](NEXT_ACTIONS.md): immediate step order.
