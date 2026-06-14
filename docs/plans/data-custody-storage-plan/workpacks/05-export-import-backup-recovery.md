@@ -4,6 +4,9 @@ Goal: define parent-controlled portability and recovery.
 
 Context to read:
 
+- `docs/plans/data-custody-storage-plan/BUNDLE_PROTOCOL.md`
+- `docs/plans/data-custody-storage-plan/PARENT_SAVE_RETRIEVE_APPLY_FLOW.md`
+- `docs/plans/data-custody-storage-plan/DECISIONS.md`
 - `docs/expectations/sync-export.md`
 - `docs/expectations/data-custody.md`
 - `docs/expectations/platform-deliverables.md`
@@ -20,52 +23,23 @@ Out of scope:
 
 - Cloud provider adapter implementation.
 - UI styling.
-- Plain JSON dumps of sensitive child/family data.
+- Plain JSON dumps of sensitive child or family data.
 
-Decision tree:
+Acceptance:
 
-| If the assignment touches...   | Route                                                       |
-| ------------------------------ | ----------------------------------------------------------- |
-| Export bundle data classes     | WP01 custody source of truth and WP04 retention rules       |
-| Encryption/key handling        | WP02 encryption/key custody                                 |
-| Cloud backup provider          | WP03 parent-owned cloud sync                                |
-| Restore into account/household | account-identity-family-plan for household/device authority |
-| Report export                  | WP06 report/query custody                                   |
+- Retrieve, preview, and apply are separate steps.
+- Wrong-household, wrong-key, expired-retention, duplicate-device, and corrupt-bundle cases fail closed.
+- Partial restore states are explicit.
+- Support cannot recover encrypted payloads by default.
 
 Required bundle properties:
 
 - Versioned manifest with schema version, created-at, source, household binding, data classes, proof tier, and retention notes.
-- Encrypted payload sections by data class; sensitive sections are not readable without the parent-held key path.
-- Checksums or signatures for manifest/payload integrity.
-- Redacted human summary that is safe for support and parent review.
+- Encrypted payload sections by data class.
+- Checksums or signatures for manifest and payload integrity.
+- Redacted human summary safe for support and parent review.
 - Import preflight that validates version, household binding, key availability, tombstones, duplicates, and migration path before restore.
 - Partial restore state when some data classes are rejected or unavailable.
-
-Decisions required:
-
-- Bundle shape and versioning.
-- Migration and rollback expectations.
-- Import authority and household binding.
-- Human support recovery limits.
-- Whether support can ever help recover encrypted payloads; default should be no unless parent-owned keys permit it.
-
-Expected artifacts:
-
-- Export/import contract.
-- Backup/restore state machine.
-- Corruption recovery proof plan.
-- Schema migration expectations.
-- Wrong-household, wrong-key, expired-retention, duplicate-device, and partial-restore handling matrix.
-
-Expected proof:
-
-- Export decrypt/verify/restore proof.
-- Corrupt bundle rejection.
-- Wrong household import rejection.
-- Migration/backward compatibility proof.
-- Backup cadence and rollback proof.
-- Redacted summary proof.
-- Tombstone preservation proof.
 
 Expected proof names:
 
@@ -82,6 +56,7 @@ Failure conditions:
 
 - Export cannot be imported.
 - Export is readable by anyone who obtains the file.
-- Restore creates duplicate child/device/policy truth.
+- Restore creates duplicate child, device, or policy truth.
 - Restore ignores tombstones or retention expiry.
 - Support workflow requires Ocentra to possess parent decrypt keys for child evidence by default.
+

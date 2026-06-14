@@ -57,13 +57,13 @@ and quiet-hours proof requirements before any provider delivery can be claimed.
 
 ## Validation
 
-- [x] Preference preflight parses the WP59 app/game scheduler bridge read model
+- [ ] Preference preflight parses the WP59 app/game scheduler bridge read model
       before mapping rows.
-- [x] Scheduled local rows become parent-preference-required preflight rows with
+- [ ] Scheduled local rows become parent-preference-required preflight rows with
       source scheduler/outbox/provider/reason refs.
-- [x] Manual-required and unavailable rows remain blocked before preference
+- [ ] Manual-required and unavailable rows remain blocked before preference
       preflight.
-- [x] Proof pack records no parent preference UI, no frequency-control UI, no
+- [ ] Proof pack records no parent preference UI, no frequency-control UI, no
       quiet-hours timer runtime, no provider delivery, no receipt ingestion, no
       credentials, no child delivery, no adapter dispatch, and no durable
       production outbox claim.

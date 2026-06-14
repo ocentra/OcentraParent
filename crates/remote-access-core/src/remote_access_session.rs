@@ -11,7 +11,7 @@ use ocentra_eventing::{
     SchemaVersion,
 };
 use ocentra_family_identity_core::ChildDisclosureState;
-use ocentra_policy_control_core::ParentAuthorityState;
+use ocentra_policy_control_core::policy_authority::ParentAuthorityState;
 use serde::{Deserialize, Serialize};
 
 pub const CRATE_NAME: &str = "ocentra-remote-access-core";

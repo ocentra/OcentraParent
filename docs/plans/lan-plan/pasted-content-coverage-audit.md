@@ -31,49 +31,49 @@ copied as unmanaged notes.
 
 ## Coverage Checklist
 
-- [x] The 20-step plan is represented as 20 workpack files.
-- [x] The implementation checklist tracks all 20 workpacks in one table.
-- [x] The source matrix carries all 20 workpack ids through
+- [ ] The 20-step plan is represented as 20 workpack files.
+- [ ] The implementation checklist tracks all 20 workpacks in one table.
+- [ ] The source matrix carries all 20 workpack ids through
       parent-domain, agent-protocol-domain, Rust protocol, Rust service state,
       and portal diagnostics.
-- [x] The current snapshot records where we are, where we want to be, current
+- [ ] The current snapshot records where we are, where we want to be, current
       proof, current UI screenshots, and current gaps.
-- [x] The source index names owning feature docs, expectation docs, adjacent
+- [ ] The source index names owning feature docs, expectation docs, adjacent
       feature boundaries, TypeScript paths, Rust paths, portal paths, proof
       scripts, and test files.
-- [x] The UI/UX guide is treated as product requirement guidance, not as an
+- [ ] The UI/UX guide is treated as product requirement guidance, not as an
       already-complete implementation claim.
-- [x] Exact fixture/proof expectations are carried by the test blueprint,
+- [ ] Exact fixture/proof expectations are carried by the test blueprint,
       workpack 20, and the proof-pack checklist.
-- [x] Property-based test expectations for merge, evidence, parser robustness,
+- [ ] Property-based test expectations for merge, evidence, parser robustness,
       events, and presence state are carried by the test blueprint and proof
       gates.
-- [x] Proof matrix coverage is represented by source-matrix rows and proof JSON,
+- [ ] Proof matrix coverage is represented by source-matrix rows and proof JSON,
       not only by prose acceptance.
-- [x] Playwright UI proof is required for changed service-backed surfaces, with
+- [ ] Playwright UI proof is required for changed service-backed surfaces, with
       contract-fixture proof before backend proof where needed.
-- [x] Scan cadence, network-change triggers, selected-interface state, and
+- [ ] Scan cadence, network-change triggers, selected-interface state, and
       stale/offline transitions remain visible as open work where not yet
       implemented.
-- [x] Modular Rust ownership is recorded in the source index instead of being
+- [ ] Modular Rust ownership is recorded in the source index instead of being
       collapsed into one LAN service file.
-- [x] Android/iOS child-agent limits remain platform-specific/manual-required
+- [ ] Android/iOS child-agent limits remain platform-specific/manual-required
       until real devices, entitlements, signing, stores, and external transport
       proof exist.
-- [x] Coverage targets for core model/security/protocol parsers are required by
+- [ ] Coverage targets for core model/security/protocol parsers are required by
       the proof pack and validation gates.
-- [x] UI states keep discovered, assigned, confirmed, trusted, ignored, revoked,
+- [ ] UI states keep discovered, assigned, confirmed, trusted, ignored, revoked,
       stale, offline, LAN-seen, and agent-connected concepts separate.
-- [x] Evidence-first device cards and details must not show guessed owner or
+- [ ] Evidence-first device cards and details must not show guessed owner or
       child identity.
-- [x] Activity/Network diagnostics are the parent-visible place for route,
+- [ ] Activity/Network diagnostics are the parent-visible place for route,
       source, evidence, signed proof, parent decision, manual proof, and audit
       state.
-- [x] Policy Network target binding must come from service-backed target rows,
+- [ ] Policy Network target binding must come from service-backed target rows,
       not unsupported/passive/router rows.
-- [x] Weak-source fence is explicit: weak sources cannot confirm child-agent
+- [ ] Weak-source fence is explicit: weak sources cannot confirm child-agent
       identity, assign a child profile, or enable control.
-- [x] Manual-required physical proof remains explicit for the second child
+- [ ] Manual-required physical proof remains explicit for the second child
       device, signed hello/heartbeat, router/firewall reachability, and proof
       artifacts.
 

@@ -1,8 +1,7 @@
 use ocentra_parent_agent_protocol::ActivityCaptureCapabilityStatus;
 use ocentra_parent_screen_capture_adapter::{
     trigger_scheduler::{
-        ScreenCaptureScheduleDecision, ScreenCaptureScheduleTrigger,
-        ScreenCaptureSuppressionReason,
+        ScreenCaptureScheduleDecision, ScreenCaptureScheduleTrigger, ScreenCaptureSuppressionReason,
     },
     CapturedScreenImage, ScreenCaptureAttempt, ScreenCaptureMetadata, ScreenCaptureScope,
 };
@@ -28,8 +27,14 @@ fn suppressed_capture_stays_idle_without_handoffs() {
     let observed = screen_runtime_observed_event(input);
     let evidence = screen_evidence_recorded_event(&observed);
 
-    assert_eq!(decision.observation_intent, ScreenObservationIntent::IdleObservationOnly);
-    assert_eq!(decision.runtime_action_state, ScreenRuntimeActionState::SuppressCapture);
+    assert_eq!(
+        decision.observation_intent,
+        ScreenObservationIntent::IdleObservationOnly
+    );
+    assert_eq!(
+        decision.runtime_action_state,
+        ScreenRuntimeActionState::SuppressCapture
+    );
     assert_eq!(decision.ai_handoff_state, ScreenAiHandoffState::NotRequired);
     assert_eq!(
         decision.policy_handoff_state,
@@ -163,7 +168,10 @@ fn runtime_decision_recorded_event_preserves_input_and_decision() {
         event.decision.runtime_action_state,
         ScreenRuntimeActionState::RecordCapturedEvidence
     );
-    assert_eq!(event.decision.ai_handoff_state, ScreenAiHandoffState::NotRequired);
+    assert_eq!(
+        event.decision.ai_handoff_state,
+        ScreenAiHandoffState::NotRequired
+    );
     assert_eq!(
         event.decision.policy_handoff_state,
         ScreenPolicyHandoffState::DoNotPublish

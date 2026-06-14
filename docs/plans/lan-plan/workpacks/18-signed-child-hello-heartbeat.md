@@ -41,12 +41,12 @@ update last confirmed, online, stale, and offline state.
 
 ## Requirement Checklist
 
-- [x] Current branch records signed-discovery proof rows and rejection outcomes
+- [ ] Current branch records signed-discovery proof rows and rejection outcomes
       for invalid, revoked, wrong-target, unavailable, and manual-required
       states in typed contracts and Rust protocol/service parity.
-- [x] Current branch keeps physical second-device household proof
+- [ ] Current branch keeps physical second-device household proof
       manual-required instead of claiming CI can prove it.
-- [x] Portal LAN selected-device details and Activity/Network diagnostics now
+- [ ] Portal LAN selected-device details and Activity/Network diagnostics now
       show signed-hello/signed-heartbeat manual-required labels from the typed
       read model.
 - [ ] Reject unsigned, invalid-signature, expired, replayed, wrong-family,

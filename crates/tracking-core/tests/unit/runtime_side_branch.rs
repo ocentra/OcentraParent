@@ -1,12 +1,12 @@
 use ocentra_parent_agent_protocol::{
-    constants, ParentNotificationRequestedEvent, TrackingAcknowledgementState,
-    TrackingAiAnalysisRequirement, TrackingCheckInState, TrackingExpectedPlaceState,
-    TrackingExpectedPlaceRef, TrackingNotificationChannel, TrackingObservationId,
-    TrackingParentActionRequirement, TrackingPolicyRuleRef,
+    constants, tracking_acknowledgement_id_from_violation_id,
+    tracking_check_in_id_from_observation_id, tracking_evaluation_id_from_observation_id,
+    tracking_notification_id_from_violation_id, tracking_transition_id_from_observation_id,
+    tracking_violation_id_from_evaluation_and_rule_ref, ParentNotificationRequestedEvent,
+    TrackingAcknowledgementState, TrackingAiAnalysisRequirement, TrackingCheckInState,
+    TrackingExpectedPlaceRef, TrackingExpectedPlaceState, TrackingNotificationChannel,
+    TrackingObservationId, TrackingParentActionRequirement, TrackingPolicyRuleRef,
     TrackingTransitionKind,
-    tracking_acknowledgement_id_from_violation_id, tracking_check_in_id_from_observation_id,
-    tracking_evaluation_id_from_observation_id, tracking_notification_id_from_violation_id,
-    tracking_transition_id_from_observation_id, tracking_violation_id_from_evaluation_and_rule_ref,
 };
 
 #[test]
@@ -45,7 +45,10 @@ fn tracking_evidence_can_branch_to_geofence_and_expected_place_events() {
         expected_place.evaluation_id,
         tracking_evaluation_id_from_observation_id(&observed.observation_id)
     );
-    assert_eq!(expected_place.expected_place_ref, observed.expected_place_ref);
+    assert_eq!(
+        expected_place.expected_place_ref,
+        observed.expected_place_ref
+    );
     assert_eq!(expected_place.evidence_refs, vec![evidence.evidence_ref]);
 }
 
@@ -80,8 +83,10 @@ fn tracking_evidence_can_resolve_precise_expected_place_without_ai_request() {
 }
 
 #[test]
-fn tracking_evidence_can_resolve_away_from_expected_place_and_keep_observe_only_non_authoritative() {
-    let mut observed = ocentra_tracking_core::default_away_from_expected_place_location_observed_event();
+fn tracking_evidence_can_resolve_away_from_expected_place_and_keep_observe_only_non_authoritative()
+{
+    let mut observed =
+        ocentra_tracking_core::default_away_from_expected_place_location_observed_event();
     observed.config = ocentra_tracking_core::default_child_tracking_runtime_config();
 
     let evidence = ocentra_tracking_core::record_tracking_evidence_from_location(&observed);
@@ -119,10 +124,9 @@ fn tracking_evidence_can_resolve_away_from_expected_place_and_keep_observe_only_
 fn parent_notification_can_be_acknowledged_without_reopening_policy_authority() {
     let observed = ocentra_tracking_core::default_location_observed_event();
     let evidence = ocentra_tracking_core::record_tracking_evidence_from_location(&observed);
-    let policy_rule_ref = TrackingPolicyRuleRef::parse(
-        constants::tracking_runtime::POLICY_RULE_EXPECTED_PLACE,
-    )
-    .expect(constants::tracking_runtime::POLICY_RULE_EXPECTED_PLACE);
+    let policy_rule_ref =
+        TrackingPolicyRuleRef::parse(constants::tracking_runtime::POLICY_RULE_EXPECTED_PLACE)
+            .expect(constants::tracking_runtime::POLICY_RULE_EXPECTED_PLACE);
     let source_policy_violation_id = tracking_violation_id_from_evaluation_and_rule_ref(
         &tracking_evaluation_id_from_observation_id(&observed.observation_id),
         &policy_rule_ref,

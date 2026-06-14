@@ -24,6 +24,7 @@ ocentra-family-identity-core = { path = "../family-identity-core" }
 ocentra-lan-core = { path = "../lan-core" }
 ocentra-network-core = { path = "../network-core" }
 ocentra-parent-agent-protocol = { path = "../agent-protocol" }
+ocentra-policy-control-core = { path = "../policy-control-core" }
 ocentra-provisioning-core = { path = "../provisioning-core" }
 ocentra-remote-access-core = { path = "../remote-access-core" }
 ocentra-screen-core = { path = "../screen-core" }
@@ -34,5 +35,4 @@ serde = { version = "1.0.228", features = ["derive"] }
 
 [dev-dependencies]
 ocentra-evidence = { path = "../ocentra-evidence" }
-ocentra-policy-control-core = { path = "../policy-control-core" }
 tokio = { version = "1.48.0", features = ["macros", "rt-multi-thread"] }

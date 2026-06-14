@@ -1,9 +1,8 @@
 use ocentra_parent_agent_protocol::{
-    constants, TrackingExpectedPlaceStateEvaluatedEvent, TrackingNearbyPlaceClassifiedEvent,
-    TrackingParentActionRequirement,
-    TrackingPolicyRuleRef, TrackingPolicySeverity, TrackingPolicyViolationDetectedEvent,
-    TrackingPolicyViolationId, tracking_violation_id_from_ai_request_and_rule_ref,
-    tracking_violation_id_from_evaluation_and_rule_ref,
+    constants, tracking_violation_id_from_ai_request_and_rule_ref,
+    tracking_violation_id_from_evaluation_and_rule_ref, TrackingExpectedPlaceStateEvaluatedEvent,
+    TrackingNearbyPlaceClassifiedEvent, TrackingParentActionRequirement, TrackingPolicyRuleRef,
+    TrackingPolicySeverity, TrackingPolicyViolationDetectedEvent, TrackingPolicyViolationId,
 };
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
@@ -52,7 +51,8 @@ pub fn evaluate_tracking_expected_place_policy(
         return tracking_expected_place_not_detected();
     }
 
-    if event.expected_place_state != constants::tracking_runtime::EXPECTED_PLACE_STATE_LEFT_EXPECTED_PLACE
+    if event.expected_place_state
+        != constants::tracking_runtime::EXPECTED_PLACE_STATE_LEFT_EXPECTED_PLACE
         && event.expected_place_state
             != constants::tracking_runtime::EXPECTED_PLACE_STATE_LATE_ARRIVAL
     {
@@ -104,10 +104,9 @@ fn tracking_policy_violation_detected(
 fn tracking_nearby_place_policy_violation_detected(
     event: &TrackingNearbyPlaceClassifiedEvent,
 ) -> TrackingPolicyViolationDetectedEvent {
-    let policy_rule_ref = TrackingPolicyRuleRef::parse(
-        constants::tracking_runtime::POLICY_RULE_EXPECTED_PLACE,
-    )
-    .expect(constants::tracking_runtime::POLICY_RULE_EXPECTED_PLACE);
+    let policy_rule_ref =
+        TrackingPolicyRuleRef::parse(constants::tracking_runtime::POLICY_RULE_EXPECTED_PLACE)
+            .expect(constants::tracking_runtime::POLICY_RULE_EXPECTED_PLACE);
 
     tracking_policy_violation_detected(
         event.child_device_id.clone(),
@@ -125,10 +124,9 @@ fn tracking_nearby_place_policy_violation_detected(
 fn tracking_expected_place_policy_violation_detected(
     event: &TrackingExpectedPlaceStateEvaluatedEvent,
 ) -> TrackingPolicyViolationDetectedEvent {
-    let policy_rule_ref = TrackingPolicyRuleRef::parse(
-        constants::tracking_runtime::POLICY_RULE_EXPECTED_PLACE,
-    )
-    .expect(constants::tracking_runtime::POLICY_RULE_EXPECTED_PLACE);
+    let policy_rule_ref =
+        TrackingPolicyRuleRef::parse(constants::tracking_runtime::POLICY_RULE_EXPECTED_PLACE)
+            .expect(constants::tracking_runtime::POLICY_RULE_EXPECTED_PLACE);
 
     tracking_policy_violation_detected(
         event.child_device_id.clone(),

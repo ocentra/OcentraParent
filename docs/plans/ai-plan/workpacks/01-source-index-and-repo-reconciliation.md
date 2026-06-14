@@ -27,12 +27,12 @@ portal surfaces, proof scripts, and local TabAgent references.
 
 ## Checklist
 
-- [x] Refresh `source-index.md` against current repo.
-- [x] Refresh `tabagent-source-index.md` before reuse work.
-- [x] Reconcile browser, screen, app/game, tracking, LAN, and activity plan
+- [ ] Refresh `source-index.md` against current repo.
+- [ ] Refresh `tabagent-source-index.md` before reuse work.
+- [ ] Reconcile browser, screen, app/game, tracking, LAN, and activity plan
       links.
-- [x] Mark stale docs or duplicate claims.
-- [x] Name exact owner docs that need product status updates.
+- [ ] Mark stale docs or duplicate claims.
+- [ ] Name exact owner docs that need product status updates.
 
 ## Current Reconciliation
 

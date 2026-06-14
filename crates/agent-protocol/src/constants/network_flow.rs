@@ -168,6 +168,10 @@ pub const FIELD_NETWORK_LIVE_CAPTURE_STATUS: &str = "networkLiveCaptureStatus";
 pub const FIELD_NETWORK_LINUX_NFTABLES_LAB_STATUS: &str = "networkLinuxNftablesLabStatus";
 pub const FIELD_NETWORK_WINDOWS_FIREWALL_LAB_STATUS: &str = "networkWindowsFirewallLabStatus";
 pub const FIELD_NETWORK_WINDOWS_WFP_GATE_STATUS: &str = "networkWindowsWfpGateStatus";
+pub const FIELD_NETWORK_ANDROID_VPN_SERVICE_GATE_STATUS: &str =
+    "networkAndroidVpnServiceGateStatus";
+pub const FIELD_NETWORK_APPLE_NETWORK_EXTENSION_GATE_STATUS: &str =
+    "networkAppleNetworkExtensionGateStatus";
 pub const TEST_WINDOWS_FIREWALL_LAB_STATUS_REF: &str = "network.windows-firewall.lab-status.38a";
 pub const TEST_WINDOWS_FIREWALL_LAB_REF: &str = "network.windows-firewall.lab-execution.38a";
 pub const TEST_WINDOWS_FIREWALL_ADAPTER_PLAN_REF: &str =
@@ -248,6 +252,120 @@ pub const WFP_ARTIFACT_LAYER_CAPABILITY_MATRIX: &str = "layer-capability-matrix"
 pub const WFP_ARTIFACT_ROLLBACK_PLAN: &str = "rollback-plan";
 pub const WFP_ARTIFACT_LAB_RESULT_ARTIFACT: &str = "lab-result-artifact";
 pub const WFP_ARTIFACT_AUDIT_EVENT: &str = "audit-event";
+pub const TEST_ANDROID_VPN_SERVICE_GATE_STATUS_REF: &str =
+    "network.android-vpn-service.gate-status.40";
+pub const TEST_ANDROID_VPN_SERVICE_GATE_REF: &str = "network.android-vpn-service.gate.40";
+pub const TEST_ANDROID_VPN_SERVICE_POLICY_DECISION_REF: &str =
+    "network.policy-decision.android-vpn-service.40";
+pub const TEST_ANDROID_VPN_SERVICE_PARENT_RULE_REF: &str =
+    "network.parent-rule.android-vpn-service.40";
+pub const TEST_ANDROID_VPN_SERVICE_EVIDENCE_REF: &str =
+    "network.evidence.android-vpn-service.40";
+pub const TEST_ANDROID_VPN_SERVICE_LOCAL_AI_RESULT_REF: &str =
+    "network.local-ai.android-vpn-service.40";
+pub const TEST_ANDROID_VPN_SERVICE_PACKAGE_REF: &str = "network.android-vpn-service.package.40";
+pub const TEST_ANDROID_VPN_SERVICE_REF: &str = "network.android-vpn-service.service.40";
+pub const TEST_ANDROID_VPN_SERVICE_DECLARATION_REF: &str =
+    "network.android-vpn-service.declaration.40";
+pub const TEST_ANDROID_VPN_USER_CONSENT_PROOF_REF: &str =
+    "network.android-vpn-service.user-consent-proof.40";
+pub const TEST_ANDROID_VPN_PHYSICAL_DEVICE_PROOF_REF: &str =
+    "network.android-vpn-service.physical-device-proof.40";
+pub const TEST_ANDROID_VPN_PACKAGE_IDENTITY_PROOF_REF: &str =
+    "network.android-vpn-service.package-identity-proof.40";
+pub const TEST_ANDROID_VPN_VIRTUAL_INTERFACE_PROOF_REF: &str =
+    "network.android-vpn-service.virtual-interface-proof.40";
+pub const TEST_ANDROID_VPN_TRAFFIC_OBSERVATION_PROOF_REF: &str =
+    "network.android-vpn-service.traffic-observation-proof.40";
+pub const TEST_ANDROID_VPN_ROLLBACK_PLAN_REF: &str =
+    "network.android-vpn-service.rollback-plan.40";
+pub const TEST_ANDROID_VPN_AUDIT_EVENT_REF: &str =
+    "network.android-vpn-service.audit-event.40";
+pub const TEST_ANDROID_VPN_DEVICE_OWNER_PROOF_REF: &str =
+    "network.android-vpn-service.device-owner-proof.40";
+pub const ANDROID_VPN_BOUNDARY_RESEARCH_ONLY_REQUESTED: &str = "research-only-requested";
+pub const ANDROID_VPN_BOUNDARY_CAPABILITY_MANUAL_REQUIRED: &str =
+    "capability-manual-required";
+pub const ANDROID_VPN_BOUNDARY_CAPABILITY_UNAVAILABLE: &str = "capability-unavailable";
+pub const ANDROID_VPN_BOUNDARY_EVIDENCE_GRADE_BELOW_PROOF_THRESHOLD: &str =
+    "evidence-grade-below-proof-threshold";
+pub const ANDROID_VPN_BOUNDARY_POLICY_NOT_VPN_SERVICE_APPROVED: &str =
+    "policy-not-vpn-service-approved";
+pub const ANDROID_VPN_BOUNDARY_MISSING_REQUIRED_ARTIFACT: &str = "missing-required-artifact";
+pub const ANDROID_VPN_ARTIFACT_VPN_SERVICE_DECLARATION: &str = "vpn-service-declaration";
+pub const ANDROID_VPN_ARTIFACT_USER_CONSENT_PROOF: &str = "user-consent-proof";
+pub const ANDROID_VPN_ARTIFACT_PHYSICAL_DEVICE_PROOF: &str = "physical-device-proof";
+pub const ANDROID_VPN_ARTIFACT_PACKAGE_IDENTITY_PROOF: &str = "package-identity-proof";
+pub const ANDROID_VPN_ARTIFACT_VIRTUAL_INTERFACE_PROOF: &str = "virtual-interface-proof";
+pub const ANDROID_VPN_ARTIFACT_TRAFFIC_OBSERVATION_PROOF: &str = "traffic-observation-proof";
+pub const ANDROID_VPN_ARTIFACT_ROLLBACK_PLAN: &str = "rollback-plan";
+pub const ANDROID_VPN_ARTIFACT_AUDIT_EVENT: &str = "audit-event";
+pub const ANDROID_VPN_ARTIFACT_DEVICE_OWNER_PROOF: &str = "device-owner-proof";
+pub const TEST_APPLE_NETWORK_EXTENSION_GATE_STATUS_REF: &str =
+    "network.apple-network-extension.gate-status.41";
+pub const TEST_APPLE_NETWORK_EXTENSION_GATE_REF: &str =
+    "network.apple-network-extension.gate.41";
+pub const TEST_APPLE_NETWORK_EXTENSION_POLICY_DECISION_REF: &str =
+    "network.policy-decision.apple-network-extension.41";
+pub const TEST_APPLE_NETWORK_EXTENSION_PARENT_RULE_REF: &str =
+    "network.parent-rule.apple-network-extension.41";
+pub const TEST_APPLE_NETWORK_EXTENSION_EVIDENCE_REF: &str =
+    "network.evidence.apple-network-extension.41";
+pub const TEST_APPLE_NETWORK_EXTENSION_LOCAL_AI_RESULT_REF: &str =
+    "network.local-ai.apple-network-extension.41";
+pub const TEST_APPLE_NETWORK_EXTENSION_BUNDLE_REF: &str =
+    "network.apple-network-extension.bundle.41";
+pub const TEST_APPLE_NETWORK_EXTENSION_REF: &str =
+    "network.apple-network-extension.extension.41";
+pub const TEST_APPLE_NETWORK_EXTENSION_DEVELOPER_TEAM_PROOF_REF: &str =
+    "network.apple-network-extension.developer-team-proof.41";
+pub const TEST_APPLE_NETWORK_EXTENSION_ENTITLEMENT_APPROVAL_PROOF_REF: &str =
+    "network.apple-network-extension.entitlement-approval-proof.41";
+pub const TEST_APPLE_NETWORK_EXTENSION_PROVISIONING_PROFILE_PROOF_REF: &str =
+    "network.apple-network-extension.provisioning-profile-proof.41";
+pub const TEST_APPLE_NETWORK_EXTENSION_SIGNING_PROOF_REF: &str =
+    "network.apple-network-extension.signing-proof.41";
+pub const TEST_APPLE_NETWORK_EXTENSION_DEVICE_OR_TESTFLIGHT_PROOF_REF: &str =
+    "network.apple-network-extension.device-or-testflight-proof.41";
+pub const TEST_APPLE_NETWORK_EXTENSION_DECLARATION_REF: &str =
+    "network.apple-network-extension.declaration.41";
+pub const TEST_APPLE_NETWORK_EXTENSION_CONFIGURATION_PROOF_REF: &str =
+    "network.apple-network-extension.configuration-proof.41";
+pub const TEST_APPLE_NETWORK_EXTENSION_ROLLBACK_PLAN_REF: &str =
+    "network.apple-network-extension.rollback-plan.41";
+pub const TEST_APPLE_NETWORK_EXTENSION_AUDIT_EVENT_REF: &str =
+    "network.apple-network-extension.audit-event.41";
+pub const TEST_APPLE_NETWORK_EXTENSION_SUPERVISION_OR_MDM_PROOF_REF: &str =
+    "network.apple-network-extension.supervision-or-mdm-proof.41";
+pub const APPLE_NETWORK_EXTENSION_BOUNDARY_RESEARCH_ONLY_REQUESTED: &str =
+    "research-only-requested";
+pub const APPLE_NETWORK_EXTENSION_BOUNDARY_CAPABILITY_MANUAL_REQUIRED: &str =
+    "capability-manual-required";
+pub const APPLE_NETWORK_EXTENSION_BOUNDARY_CAPABILITY_UNAVAILABLE: &str =
+    "capability-unavailable";
+pub const APPLE_NETWORK_EXTENSION_BOUNDARY_EVIDENCE_GRADE_BELOW_PROOF_THRESHOLD: &str =
+    "evidence-grade-below-proof-threshold";
+pub const APPLE_NETWORK_EXTENSION_BOUNDARY_POLICY_NOT_NETWORK_EXTENSION_APPROVED: &str =
+    "policy-not-network-extension-approved";
+pub const APPLE_NETWORK_EXTENSION_BOUNDARY_MISSING_REQUIRED_ARTIFACT: &str =
+    "missing-required-artifact";
+pub const APPLE_NETWORK_EXTENSION_ARTIFACT_DEVELOPER_TEAM_PROOF: &str =
+    "developer-team-proof";
+pub const APPLE_NETWORK_EXTENSION_ARTIFACT_ENTITLEMENT_APPROVAL_PROOF: &str =
+    "entitlement-approval-proof";
+pub const APPLE_NETWORK_EXTENSION_ARTIFACT_PROVISIONING_PROFILE_PROOF: &str =
+    "provisioning-profile-proof";
+pub const APPLE_NETWORK_EXTENSION_ARTIFACT_SIGNING_PROOF: &str = "signing-proof";
+pub const APPLE_NETWORK_EXTENSION_ARTIFACT_DEVICE_OR_TESTFLIGHT_PROOF: &str =
+    "device-or-testflight-proof";
+pub const APPLE_NETWORK_EXTENSION_ARTIFACT_NETWORK_EXTENSION_DECLARATION: &str =
+    "network-extension-declaration";
+pub const APPLE_NETWORK_EXTENSION_ARTIFACT_EXTENSION_CONFIGURATION_PROOF: &str =
+    "extension-configuration-proof";
+pub const APPLE_NETWORK_EXTENSION_ARTIFACT_ROLLBACK_PLAN: &str = "rollback-plan";
+pub const APPLE_NETWORK_EXTENSION_ARTIFACT_AUDIT_EVENT: &str = "audit-event";
+pub const APPLE_NETWORK_EXTENSION_ARTIFACT_SUPERVISION_OR_MDM_PROOF: &str =
+    "supervision-or-mdm-proof";
 pub const TEST_LINUX_NFTABLES_LAB_STATUS_REF: &str = "network.linux-nftables.lab-status.42a";
 pub const TEST_LINUX_NFTABLES_LAB_REF: &str = "network.linux-nftables.lab-execution.42a";
 pub const TEST_LINUX_ADAPTER_GATE_REF: &str = "network.linux-adapter.gate.42a";
@@ -478,3 +596,7 @@ pub const ERROR_NETWORK_LINUX_NFTABLES_LAB_STATUS: &str = "network Linux nftable
 pub const ERROR_NETWORK_WINDOWS_FIREWALL_LAB_STATUS: &str =
     "network Windows firewall lab status proof";
 pub const ERROR_NETWORK_WINDOWS_WFP_GATE_STATUS: &str = "network Windows WFP gate status proof";
+pub const ERROR_NETWORK_ANDROID_VPN_SERVICE_GATE_STATUS: &str =
+    "network Android VpnService gate status proof";
+pub const ERROR_NETWORK_APPLE_NETWORK_EXTENSION_GATE_STATUS: &str =
+    "network Apple Network Extension gate status proof";

@@ -1,25 +1,30 @@
-use std::sync::{Arc, Mutex};
+use std::{
+    collections::BTreeSet,
+    sync::{Arc, Mutex},
+};
 
 use ocentra_eventing::{
     CorrelationId, EventBus, EventCustody, EventId, EventMetadata, EventSource, EventSubscriber,
-    EventType, EventingError, RecordedAt, RuntimeInstanceId, RuntimeRole, SourceComponent,
-    SourceService, SubscriberId, SubscriptionReport, TargetHandler,
+    EventType, EventingError, RecordedAt, RequestCompletionReport, RuntimeInstanceId, RuntimeRole,
+    SourceComponent, SourceService, SubscriberId, SubscriptionReport, TargetHandler,
 };
 use ocentra_parent_agent_protocol::{
     constants, ParentNotificationRequestedEvent, TrackingAiAnalysisRequestedEvent,
-    TrackingChildCheckInRecordedEvent, TrackingEvidenceRecordedEvent,
+    TrackingCheckInId, TrackingChildCheckInDeliveryState, TrackingChildCheckInRecordedEvent,
+    TrackingChildCheckInRequestReceipt, TrackingChildCheckInRequestState,
+    TrackingChildCheckInRequestedEvent, TrackingEvidenceRecordedEvent,
     TrackingExpectedPlaceStateEvaluatedEvent, TrackingGeofenceTransitionDetectedEvent,
-    TrackingLocationObservedEvent, TrackingNearbyPlaceClassifiedEvent,
-    TrackingNotificationMode, TrackingPolicyViolationDetectedEvent, TrackingTimestamp,
+    TrackingLocationObservedEvent, TrackingNearbyPlaceClassifiedEvent, TrackingNotificationMode,
+    TrackingPolicyViolationDetectedEvent, TrackingReasonCode, TrackingTimestamp,
 };
 use ocentra_tracking_core::{
-    TrackingAiBoundaryDecision, TrackingAlertDecision,
-    TrackingParentNotificationDecisionState,
+    TrackingAiBoundaryDecision, TrackingAlertDecision, TrackingParentNotificationDecisionState,
 };
 
 #[derive(Clone, Debug, PartialEq)]
 pub struct TrackingRuntimeEventFlowReport {
     pub tracking_subscription_report: SubscriptionReport,
+    pub child_check_in_request_subscription_report: SubscriptionReport,
     pub child_ai_subscription_report: SubscriptionReport,
     pub child_policy_subscription_report: SubscriptionReport,
     pub child_expected_place_policy_subscription_report: SubscriptionReport,
@@ -34,12 +39,16 @@ pub struct TrackingRuntimeEventFlowReport {
     pub alert_decision: Option<TrackingAlertDecision>,
     pub policy_violation_detected: Option<TrackingPolicyViolationDetectedEvent>,
     pub parent_notification_requested: Option<ParentNotificationRequestedEvent>,
+    pub parent_requested_check_in: Option<TrackingChildCheckInRequestedEvent>,
+    pub parent_requested_check_in_receipt: Option<TrackingChildCheckInRequestReceipt>,
+    pub parent_requested_check_in_completion: Option<RequestCompletionReport>,
 }
 
 pub struct TrackingRuntimeEventFlow {
     bus: EventBus,
     state: TrackingRuntimeEventState,
     tracking_subscription_report: SubscriptionReport,
+    child_check_in_request_subscription_report: SubscriptionReport,
     child_ai_subscription_report: SubscriptionReport,
     child_policy_subscription_report: SubscriptionReport,
     child_expected_place_policy_subscription_report: SubscriptionReport,
@@ -55,6 +64,8 @@ impl TrackingRuntimeEventFlow {
         let state = TrackingRuntimeEventState::default();
         let tracking_subscription_report =
             subscribe_tracking_location_observed_events(&bus, state.clone()).await?;
+        let child_check_in_request_subscription_report =
+            subscribe_child_tracking_check_in_request_events(&bus, state.clone()).await?;
         let child_ai_subscription_report =
             subscribe_child_ai_tracking_analysis_events(&bus, state.clone()).await?;
         let child_expected_place_policy_subscription_report =
@@ -68,6 +79,7 @@ impl TrackingRuntimeEventFlow {
             bus,
             state,
             tracking_subscription_report,
+            child_check_in_request_subscription_report,
             child_ai_subscription_report,
             child_policy_subscription_report,
             child_expected_place_policy_subscription_report,
@@ -100,9 +112,28 @@ impl TrackingRuntimeEventFlow {
         self.bus.metrics_snapshot().await
     }
 
+    pub fn latest_parent_requested_check_in(
+        &self,
+    ) -> Option<(
+        TrackingChildCheckInRequestedEvent,
+        EventMetadata,
+        TrackingChildCheckInRequestReceipt,
+        RequestCompletionReport,
+    )> {
+        Some((
+            self.state.parent_requested_check_in()?,
+            self.state.parent_requested_check_in_metadata()?,
+            self.state.parent_requested_check_in_receipt()?,
+            self.state.parent_requested_check_in_completion()?,
+        ))
+    }
+
     fn report(&self) -> Result<TrackingRuntimeEventFlowReport, EventingError> {
         Ok(TrackingRuntimeEventFlowReport {
             tracking_subscription_report: self.tracking_subscription_report.clone(),
+            child_check_in_request_subscription_report: self
+                .child_check_in_request_subscription_report
+                .clone(),
             child_ai_subscription_report: self.child_ai_subscription_report.clone(),
             child_policy_subscription_report: self.child_policy_subscription_report.clone(),
             child_expected_place_policy_subscription_report: self
@@ -121,6 +152,9 @@ impl TrackingRuntimeEventFlow {
             alert_decision: self.state.alert_decision(),
             policy_violation_detected: self.state.policy_violation_detected(),
             parent_notification_requested: self.state.parent_notification_requested(),
+            parent_requested_check_in: self.state.parent_requested_check_in(),
+            parent_requested_check_in_receipt: self.state.parent_requested_check_in_receipt(),
+            parent_requested_check_in_completion: self.state.parent_requested_check_in_completion(),
         })
     }
 }
@@ -149,15 +183,14 @@ async fn subscribe_tracking_location_observed_events(
         move |context| {
             let state = state.clone();
             async move {
-                let validation =
-                    ocentra_tracking_core::validate_tracking_location_observation(
-                        context.payload(),
-                    );
+                let validation = ocentra_tracking_core::validate_tracking_location_observation(
+                    context.payload(),
+                );
                 if validation.result_state
                     == ocentra_tracking_core::TrackingLocationValidationResultState::Rejected
                 {
                     return Err(EventingError::InvalidValue {
-                        field: "tracking.location.validation",
+                        field: constants::tracking_runtime::FIELD_LOCATION_VALIDATION,
                         value: validation.validation_state.to_string(),
                     });
                 }
@@ -247,6 +280,55 @@ async fn subscribe_tracking_location_observed_events(
     .await
 }
 
+async fn subscribe_child_tracking_check_in_request_events(
+    bus: &EventBus,
+    state: TrackingRuntimeEventState,
+) -> Result<SubscriptionReport, EventingError> {
+    bus.subscribe::<TrackingChildCheckInRequestedEvent, _, _>(
+        EventSubscriber::new(
+            SubscriberId::parse(
+                constants::tracking_runtime::SUBSCRIBER_CHILD_TRACKING_CHECK_IN_REQUESTER,
+            )?,
+            EventType::parse(
+                constants::tracking_runtime::TRACKING_CHILD_CHECK_IN_REQUESTED_EVENT_TYPE,
+            )?,
+            TargetHandler::parse(
+                constants::tracking_runtime::TARGET_HANDLER_CHILD_TRACKING_CHECK_IN_REQUESTER,
+            )?,
+        ),
+        move |context| {
+            let state = state.clone();
+            async move {
+                let request = context.payload().clone();
+                let envelope = context.envelope();
+                let metadata = EventMetadata {
+                    event_id: envelope.event_id.clone(),
+                    correlation_id: envelope.correlation_id.clone(),
+                    causation_id: envelope.causation_id.clone(),
+                    source: envelope.source.clone(),
+                    observed_at: envelope.observed_at.clone(),
+                    target_handler: envelope.target_handler.clone(),
+                    priority: envelope.priority,
+                    deadline: envelope.deadline.clone(),
+                };
+                state.record_parent_requested_check_in(request.clone(), metadata.clone());
+                let receipt = tracking_child_check_in_request_receipt(
+                    &request,
+                    &metadata,
+                    state.has_seen_parent_requested_check_in(&request.check_in_id),
+                );
+                if receipt.delivery_state == TrackingChildCheckInDeliveryState::Requested {
+                    state.mark_parent_requested_check_in_seen(request.check_in_id.clone());
+                }
+                let completion = context.complete_request(receipt.clone()).await?;
+                state.record_parent_requested_check_in_receipt(receipt, completion);
+                Ok(())
+            }
+        },
+    )
+    .await
+}
+
 async fn subscribe_child_ai_tracking_analysis_events(
     bus: &EventBus,
     state: TrackingRuntimeEventState,
@@ -321,7 +403,7 @@ async fn subscribe_child_policy_tracking_analysis_events(
                     return Ok(());
                 }
                 let policy_decision =
-                    ocentra_child_policy_core::evaluate_tracking_nearby_place_policy(
+                    ocentra_child_policy_core::tracking_policy::evaluate_tracking_nearby_place_policy(
                         context.payload(),
                     );
                 if let Some(violation) = policy_decision.policy_violation_detected {
@@ -365,7 +447,7 @@ async fn subscribe_child_policy_tracking_expected_place_events(
             let state = state.clone();
             async move {
                 let policy_decision =
-                    ocentra_child_policy_core::evaluate_tracking_expected_place_policy(
+                    ocentra_child_policy_core::tracking_policy::evaluate_tracking_expected_place_policy(
                         context.payload(),
                     );
                 if let Some(violation) = policy_decision.policy_violation_detected {
@@ -458,6 +540,10 @@ struct TrackingRuntimeEventState {
     geofence_transition_detected: Arc<Mutex<Option<TrackingGeofenceTransitionDetectedEvent>>>,
     expected_place_state_evaluated: Arc<Mutex<Option<TrackingExpectedPlaceStateEvaluatedEvent>>>,
     child_check_in_recorded: Arc<Mutex<Option<TrackingChildCheckInRecordedEvent>>>,
+    parent_requested_check_in: Arc<Mutex<Option<TrackingChildCheckInRequestedEvent>>>,
+    parent_requested_check_in_metadata: Arc<Mutex<Option<EventMetadata>>>,
+    parent_requested_check_in_receipt: Arc<Mutex<Option<TrackingChildCheckInRequestReceipt>>>,
+    parent_requested_check_in_completion: Arc<Mutex<Option<RequestCompletionReport>>>,
     ai_analysis_requested: Arc<Mutex<Option<TrackingAiAnalysisRequestedEvent>>>,
     nearby_place_classified: Arc<Mutex<Option<TrackingNearbyPlaceClassifiedEvent>>>,
     ai_boundary_decision: Arc<Mutex<Option<TrackingAiBoundaryDecision>>>,
@@ -465,6 +551,7 @@ struct TrackingRuntimeEventState {
     policy_violation_detected: Arc<Mutex<Option<TrackingPolicyViolationDetectedEvent>>>,
     parent_notification_requested: Arc<Mutex<Option<ParentNotificationRequestedEvent>>>,
     policy_violation_history: Arc<Mutex<Vec<TrackingPolicyViolationDetectedEvent>>>,
+    seen_parent_requested_check_in_ids: Arc<Mutex<BTreeSet<TrackingCheckInId>>>,
 }
 
 impl TrackingRuntimeEventState {
@@ -563,6 +650,54 @@ impl TrackingRuntimeEventState {
             Some(event);
     }
 
+    fn record_parent_requested_check_in(
+        &self,
+        event: TrackingChildCheckInRequestedEvent,
+        metadata: EventMetadata,
+    ) {
+        *self
+            .parent_requested_check_in
+            .lock()
+            .expect(constants::tracking_runtime::ERROR_TRACKING_RUNTIME_FLOW_RECORDED) =
+            Some(event);
+        *self
+            .parent_requested_check_in_metadata
+            .lock()
+            .expect(constants::tracking_runtime::ERROR_TRACKING_RUNTIME_FLOW_RECORDED) =
+            Some(metadata);
+    }
+
+    fn record_parent_requested_check_in_receipt(
+        &self,
+        receipt: TrackingChildCheckInRequestReceipt,
+        completion: RequestCompletionReport,
+    ) {
+        *self
+            .parent_requested_check_in_receipt
+            .lock()
+            .expect(constants::tracking_runtime::ERROR_TRACKING_RUNTIME_FLOW_RECORDED) =
+            Some(receipt);
+        *self
+            .parent_requested_check_in_completion
+            .lock()
+            .expect(constants::tracking_runtime::ERROR_TRACKING_RUNTIME_FLOW_RECORDED) =
+            Some(completion);
+    }
+
+    fn mark_parent_requested_check_in_seen(&self, check_in_id: TrackingCheckInId) {
+        self.seen_parent_requested_check_in_ids
+            .lock()
+            .expect(constants::tracking_runtime::ERROR_TRACKING_RUNTIME_FLOW_RECORDED)
+            .insert(check_in_id);
+    }
+
+    fn has_seen_parent_requested_check_in(&self, check_in_id: &TrackingCheckInId) -> bool {
+        self.seen_parent_requested_check_in_ids
+            .lock()
+            .map(|seen| seen.contains(check_in_id))
+            .unwrap_or(false)
+    }
+
     fn record_nearby_place_classified(&self, event: TrackingNearbyPlaceClassifiedEvent) {
         *self
             .nearby_place_classified
@@ -632,6 +767,25 @@ impl TrackingRuntimeEventState {
 
     fn child_check_in_recorded(&self) -> Option<TrackingChildCheckInRecordedEvent> {
         self.child_check_in_recorded.lock().ok()?.clone()
+    }
+
+    fn parent_requested_check_in(&self) -> Option<TrackingChildCheckInRequestedEvent> {
+        self.parent_requested_check_in.lock().ok()?.clone()
+    }
+
+    fn parent_requested_check_in_metadata(&self) -> Option<EventMetadata> {
+        self.parent_requested_check_in_metadata.lock().ok()?.clone()
+    }
+
+    fn parent_requested_check_in_receipt(&self) -> Option<TrackingChildCheckInRequestReceipt> {
+        self.parent_requested_check_in_receipt.lock().ok()?.clone()
+    }
+
+    fn parent_requested_check_in_completion(&self) -> Option<RequestCompletionReport> {
+        self.parent_requested_check_in_completion
+            .lock()
+            .ok()?
+            .clone()
     }
 
     fn ai_analysis_requested(&self) -> Option<TrackingAiAnalysisRequestedEvent> {
@@ -705,6 +859,7 @@ enum TrackingRuntimeHop {
     GeofenceTransitionDetected,
     ExpectedPlaceStateEvaluated,
     ChildCheckInRecorded,
+    ParentRequestedChildCheckIn,
     AiAnalysisRequested,
     NearbyPlaceClassified,
     PolicyViolationDetected,
@@ -719,6 +874,7 @@ impl TrackingRuntimeHop {
             | Self::GeofenceTransitionDetected
             | Self::ExpectedPlaceStateEvaluated
             | Self::ChildCheckInRecorded
+            | Self::ParentRequestedChildCheckIn
             | Self::AiAnalysisRequested => {
                 constants::tracking_runtime::SOURCE_COMPONENT_CHILD_TRACKING_RUNTIME
             }
@@ -741,6 +897,7 @@ impl TrackingRuntimeHop {
             | Self::GeofenceTransitionDetected
             | Self::ExpectedPlaceStateEvaluated
             | Self::ChildCheckInRecorded
+            | Self::ParentRequestedChildCheckIn
             | Self::AiAnalysisRequested => constants::eventing_source::ROLE_AGENT,
             Self::NearbyPlaceClassified => constants::eventing_source::ROLE_ANALYZER,
             Self::PolicyViolationDetected => constants::eventing_source::ROLE_DECISION_ENGINE,
@@ -759,6 +916,9 @@ impl TrackingRuntimeHop {
             | Self::ChildCheckInRecorded => {
                 constants::tracking_runtime::TARGET_HANDLER_CHILD_TRACKING_OBSERVER
             }
+            Self::ParentRequestedChildCheckIn => {
+                constants::tracking_runtime::TARGET_HANDLER_CHILD_TRACKING_CHECK_IN_REQUESTER
+            }
             Self::AiAnalysisRequested => {
                 constants::tracking_runtime::TARGET_HANDLER_CHILD_AI_TRACKING_ANALYZER
             }
@@ -770,7 +930,6 @@ impl TrackingRuntimeHop {
             }
         }
     }
-
 }
 
 fn tracking_runtime_metadata(
@@ -793,8 +952,67 @@ fn tracking_runtime_metadata(
     ))
 }
 
-fn tracking_runtime_correlation_id(correlation_suffix: &str) -> Result<CorrelationId, EventingError> {
+fn tracking_runtime_correlation_id(
+    correlation_suffix: &str,
+) -> Result<CorrelationId, EventingError> {
     let mut value = String::from(constants::tracking_runtime::CORRELATION_PREFIX);
     value.push_str(correlation_suffix);
     CorrelationId::parse(value)
+}
+
+fn tracking_child_check_in_request_receipt(
+    request: &TrackingChildCheckInRequestedEvent,
+    metadata: &EventMetadata,
+    duplicate_request: bool,
+) -> TrackingChildCheckInRequestReceipt {
+    let delivery_state = if request.request_state != TrackingChildCheckInRequestState::Pending
+        || request.delivery_state != TrackingChildCheckInDeliveryState::Queued
+    {
+        TrackingChildCheckInDeliveryState::UnsupportedDelivery
+    } else if tracking_child_check_in_request_is_stale(request, metadata) {
+        TrackingChildCheckInDeliveryState::Stale
+    } else if duplicate_request {
+        TrackingChildCheckInDeliveryState::Duplicate
+    } else {
+        TrackingChildCheckInDeliveryState::Requested
+    };
+
+    TrackingChildCheckInRequestReceipt {
+        schema_version: ocentra_parent_agent_protocol::AGENT_PROTOCOL_SCHEMA_VERSION,
+        child_device_id: request.child_device_id.clone(),
+        child_profile_id: request.child_profile_id.clone(),
+        check_in_id: request.check_in_id.clone(),
+        related_alert_id: request.related_alert_id.clone(),
+        request_state: request.request_state.clone(),
+        receipt_recorded_at: TrackingTimestamp::parse(metadata.observed_at.as_str())
+            .expect(constants::tracking_runtime::DEFAULT_OBSERVED_AT),
+        reason_code: tracking_child_check_in_request_reason_code(&delivery_state),
+        delivery_state,
+    }
+}
+
+fn tracking_child_check_in_request_is_stale(
+    request: &TrackingChildCheckInRequestedEvent,
+    metadata: &EventMetadata,
+) -> bool {
+    request.expires_at.as_str() <= metadata.observed_at.as_str()
+}
+
+fn tracking_child_check_in_request_reason_code(
+    delivery_state: &TrackingChildCheckInDeliveryState,
+) -> Option<TrackingReasonCode> {
+    let value = match delivery_state {
+        TrackingChildCheckInDeliveryState::Duplicate => {
+            constants::tracking_runtime::REASON_DUPLICATE_CHECK_IN_REQUEST
+        }
+        TrackingChildCheckInDeliveryState::Stale => {
+            constants::tracking_runtime::REASON_STALE_CHECK_IN_REQUEST
+        }
+        TrackingChildCheckInDeliveryState::UnsupportedDelivery => {
+            constants::tracking_runtime::REASON_UNSUPPORTED_CHECK_IN_DELIVERY
+        }
+        TrackingChildCheckInDeliveryState::Queued
+        | TrackingChildCheckInDeliveryState::Requested => return None,
+    };
+    Some(TrackingReasonCode::parse(value).expect(value))
 }

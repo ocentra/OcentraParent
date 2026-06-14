@@ -1,9 +1,9 @@
 use ocentra_app_game_core::{
     app_game_runtime_decision_recorded_event, app_game_runtime_observed_event,
-    evaluate_app_game_runtime, AppGameAggregateId, AppGameAiHandoffState,
-    AppGameCapabilityState, AppGameClassificationState, AppGameForegroundState,
-    AppGameObservationIntent, AppGamePolicyHandoffState, AppGameRuntimeActionState,
-    AppGameRuntimeDecisionId, AppGameRuntimeInput,
+    evaluate_app_game_runtime, AppGameAggregateId, AppGameAiHandoffState, AppGameCapabilityState,
+    AppGameClassificationState, AppGameForegroundState, AppGameObservationIntent,
+    AppGamePolicyHandoffState, AppGameRuntimeActionState, AppGameRuntimeDecisionId,
+    AppGameRuntimeInput,
 };
 use ocentra_eventing::DomainEvent;
 use ocentra_parent_agent_protocol::ChildRuntimeDomain;
@@ -24,7 +24,10 @@ fn foreground_known_game_publishes_policy_without_ai() {
         decision.runtime_action_state,
         AppGameRuntimeActionState::RecordForegroundSession
     );
-    assert_eq!(decision.ai_handoff_state, AppGameAiHandoffState::NotRequired);
+    assert_eq!(
+        decision.ai_handoff_state,
+        AppGameAiHandoffState::NotRequired
+    );
     assert_eq!(
         decision.policy_handoff_state,
         AppGamePolicyHandoffState::Publish
@@ -72,7 +75,10 @@ fn missing_capability_forces_manual_review_without_handoffs() {
         decision.runtime_action_state,
         AppGameRuntimeActionState::ManualRequired
     );
-    assert_eq!(decision.ai_handoff_state, AppGameAiHandoffState::NotRequired);
+    assert_eq!(
+        decision.ai_handoff_state,
+        AppGameAiHandoffState::NotRequired
+    );
     assert_eq!(
         decision.policy_handoff_state,
         AppGamePolicyHandoffState::DoNotPublish

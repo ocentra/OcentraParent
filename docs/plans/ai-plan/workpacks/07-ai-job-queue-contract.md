@@ -36,7 +36,7 @@ idempotency, and child-agent authority.
 - [ ] Define deterministic `dedupeKey` rules.
 - [ ] Define aggregate key rules for ordered work transitions.
 - [ ] Define idempotency key rules for duplicate jobs, claims, and results.
-- [x] Define provider scheduler queue state and child-safety priority for the
+- [ ] Define provider scheduler queue state and child-safety priority for the
       local runtime lane.
 - [ ] Add timeout, cancellation, retry, TTL, deadline, and max attempts.
 - [ ] Define payload mode and custody policy.

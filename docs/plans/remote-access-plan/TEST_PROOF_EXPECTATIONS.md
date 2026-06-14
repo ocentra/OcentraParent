@@ -1,31 +1,22 @@
 # Test and Proof Expectations
 
-| Risk surface             | Expected proof                                                                                        |
-| ------------------------ | ----------------------------------------------------------------------------------------------------- |
-| Remote session authority | AuthN/authZ matrix, household/device binding, stale/revoked session rejection.                        |
-| Live view                | Permission, protected-surface, retention, redaction, unavailable relay, and degraded-state proof.     |
-| Remote control           | Parent confirmation, child disclosure where required, input scope, escape/stop path, and abuse proof. |
-| Relay transport          | reconnect, timeout, partial outage, retry storm, rate limit, DoS, and backpressure proof.             |
-| Privacy/custody          | no unintended raw retention, delete/export boundary, audit and redacted logs.                         |
-| Observability            | session start/stop/error metrics, alerts, traces, and support diagnostics without sensitive leakage.  |
-| PR gate                  | route sync, proof artifact paths, negative cases, skipped-risk notes.                                 |
+Status: reset.
 
-## Where tests should live
+## Purpose
+This file tracks the required execution flow. It does not store proof artifacts.
 
-- Keep remote-access tests in remote-control/runtime package test trees and proof-output folder referenced by the selected workpack.
-- Real peer/relay tests are preferred over mocked transport tests for reconnect, retry, and permission failures.
-- Pair protocol proofs with protocol/domain package tests for token and session contracts.
+## Required flow
+- [ ] Code written.
+- [ ] Tests written.
+- [ ] Compile and validate passed.
+- [ ] Tests passed.
+- [ ] Full crate or package validation passed.
+- [ ] Proof collected in the designated local artifact path.
+- [ ] Proof pointer recorded outside the plan folder.
 
-## Expected test/proof inventory
-
-- `remote-access.session.authn-authz`: household/device authN/authZ matrix rejects cross-household and stale/revoked sessions.
-- `remote-access.relay.reconnect-retry-storm`: reconnect and retry-storm handling includes backpressure and rate control proof.
-- `remote-access.control.permission-escape`: input scope and stop/escape path remain constrained and non-escalating.
-- `remote-access.privacy.raw-retention`: no unintended raw retention or unapproved telemetry; custody and deletion proofs exist.
-- `remote-access.observability.relay-failure`: session lifecycle logs, alerts, and traces include start/stop/error with redaction.
+## Proof storage
+Proof artifacts live in the designated local artifact path for the workpack or crate, not in this plan folder.
 
 ## Failure conditions
-
-- No remote access DONE/PR_READY if negative authorization, replay, and relay failure paths are not tested.
-- No remote access DONE/PR_READY if parent confirmation/child-disclosure boundaries remain implicit.
-- No remote access DONE/PR_READY without explicit cancellation/escape/rollback and privacy leakage proof.
+- Do not mark DONE or PR_READY until the code, tests, validation, and proof flow are complete.
+- Do not store proof inventories inside the plan folder.

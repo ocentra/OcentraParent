@@ -1,7 +1,8 @@
 use ocentra_parent_agent_protocol::{
-    constants, TrackingNearbyPlaceAmbiguityState, TrackingNearbyPlaceProviderKind, TrackingReasonCode,
+    constants, TrackingNearbyPlaceAmbiguityState, TrackingNearbyPlaceProviderKind,
+    TrackingReasonCode,
 };
-use ocentra_policy_control_core::AiResultAuthorityState;
+use ocentra_policy_control_core::policy_authority::AiResultAuthorityState;
 use ocentra_tracking_core::TrackingNearbyPlaceProviderAvailabilityState;
 
 #[test]
@@ -9,12 +10,11 @@ fn nearby_place_provider_request_never_drives_policy_directly() {
     let observed = ocentra_tracking_core::default_location_observed_event();
     let evidence = ocentra_tracking_core::record_tracking_evidence_from_location(&observed);
 
-    let decision =
-        ocentra_tracking_core::request_nearby_place_provider_analysis(
-            &evidence,
-            TrackingNearbyPlaceProviderAvailabilityState::Available,
-            2,
-        );
+    let decision = ocentra_tracking_core::request_nearby_place_provider_analysis(
+        &evidence,
+        TrackingNearbyPlaceProviderAvailabilityState::Available,
+        2,
+    );
 
     assert_eq!(
         decision.provider_kind,
@@ -57,12 +57,11 @@ fn nearby_place_provider_unavailable_degrades_without_policy_authority() {
     let observed = ocentra_tracking_core::default_location_observed_event();
     let evidence = ocentra_tracking_core::record_tracking_evidence_from_location(&observed);
 
-    let decision =
-        ocentra_tracking_core::request_nearby_place_provider_analysis(
-            &evidence,
-            TrackingNearbyPlaceProviderAvailabilityState::Unavailable,
-            0,
-        );
+    let decision = ocentra_tracking_core::request_nearby_place_provider_analysis(
+        &evidence,
+        TrackingNearbyPlaceProviderAvailabilityState::Unavailable,
+        0,
+    );
 
     assert_eq!(
         decision.provider_kind,
@@ -97,7 +96,10 @@ fn nearby_place_classification_helper_reuses_canonical_provider_decision_shape()
     let classified = ocentra_tracking_core::classify_tracking_nearby_place_request(&request);
 
     assert_eq!(classified.source_ai_request_id, request.ai_request_id);
-    assert_eq!(classified.source_location_evidence_ref, request.evidence_refs[0]);
+    assert_eq!(
+        classified.source_location_evidence_ref,
+        request.evidence_refs[0]
+    );
     assert_eq!(classified.source_observed_at, request.source_observed_at);
     assert_eq!(
         classified.provider_kind,

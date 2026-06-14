@@ -240,6 +240,8 @@ impl StoredEventEnvelope {
             return Err(EventingError::ContractMismatch {
                 expected: expected.event_type,
                 received: self.contract.event_type.clone(),
+                expected_schema_version: expected.schema_version,
+                received_schema_version: self.contract.schema_version,
             });
         }
         Ok(EventEnvelope {

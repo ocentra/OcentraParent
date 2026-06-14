@@ -2,9 +2,9 @@ use ocentra_parent_agent_protocol::{
     constants, default_tracking_runtime_config, TrackingAiBoundaryMode,
     TrackingConfigEffectiveState, TrackingConfigUpdateRequest,
     TrackingDeleteAfterAlertResolutionState, TrackingDurableSettingsPersistenceState,
-    TrackingNotificationMode,
-    TrackingParentExportState, TrackingRemoteAiState, TrackingRemoteSyncState,
-    TrackingRetentionSettingsWriteRequest, TrackingRuntimeEnabledState, TrackingRuntimeMode,
+    TrackingNotificationMode, TrackingParentExportState, TrackingRemoteAiState,
+    TrackingRemoteSyncState, TrackingRetentionSettingsWriteRequest, TrackingRuntimeEnabledState,
+    TrackingRuntimeMode,
 };
 use serde::Serialize;
 use std::fs;
@@ -122,13 +122,18 @@ fn apply_local_tracking_config_state(request: &TrackingConfigUpdateRequest) -> u
     guard.ai_boundary_mode = request.runtime_config.ai_boundary_mode.clone();
     guard.notification_mode = request.runtime_config.notification_mode.clone();
     guard.retention_window_hours = request.retention_settings.requested_retention_window_hours;
-    guard.delete_after_alert_resolution_state =
-        request
-            .retention_settings
-            .requested_delete_after_alert_resolution_state
-            .clone();
-    guard.parent_export_state = request.retention_settings.requested_parent_export_state.clone();
-    guard.remote_sync_state = request.retention_settings.requested_remote_sync_state.clone();
+    guard.delete_after_alert_resolution_state = request
+        .retention_settings
+        .requested_delete_after_alert_resolution_state
+        .clone();
+    guard.parent_export_state = request
+        .retention_settings
+        .requested_parent_export_state
+        .clone();
+    guard.remote_sync_state = request
+        .retention_settings
+        .requested_remote_sync_state
+        .clone();
     guard.remote_ai_state = request.retention_settings.requested_remote_ai_state.clone();
     guard.revision
 }
@@ -168,7 +173,8 @@ fn effective_tracking_state_for_request(
 ) -> TrackingConfigEffectiveState {
     if durable_settings_persistence_state != TrackingDurableSettingsPersistenceState::Persisted {
         TrackingConfigEffectiveState::Degraded
-    } else if request.runtime_config.tracking_enabled_state == TrackingRuntimeEnabledState::Disabled {
+    } else if request.runtime_config.tracking_enabled_state == TrackingRuntimeEnabledState::Disabled
+    {
         TrackingConfigEffectiveState::Disabled
     } else {
         TrackingConfigEffectiveState::Enabled

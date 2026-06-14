@@ -1,5 +1,3 @@
 #![forbid(unsafe_code)]
 
-mod network_runtime;
-
-pub use network_runtime::*;
+include!("network_runtime.rs");

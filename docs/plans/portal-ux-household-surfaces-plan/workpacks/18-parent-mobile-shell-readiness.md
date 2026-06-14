@@ -36,7 +36,7 @@ can map to parent mobile shells later.
 - [ ] Preserve source/authority labels on small widths.
 - [ ] Avoid desktop-only assumptions in reusable components.
 - [ ] Label mobile runtime gaps honestly.
-- [x] Track parent mobile Android/iOS package-preview CI targets separately
+- [ ] Track parent mobile Android/iOS package-preview CI targets separately
       from child-agent mobile previews.
 - [ ] Test narrow widths for key workflows.
 

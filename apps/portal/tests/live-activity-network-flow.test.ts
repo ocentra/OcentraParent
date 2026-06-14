@@ -1,7 +1,15 @@
 import { describe, expect, it } from 'vitest';
 import type { ActivityNetworkFlowReadModel } from '@ocentra-parent/network-domain/network-flow';
 import { networkEvidenceDrawerSummary, PortalRoute } from '@ocentra-parent/portal-domain/contracts';
-import { AgentEventEnvelopeSchema } from '@ocentra-parent/agent-protocol-domain/contracts';
+import {
+  AgentEvent,
+  AgentEventEnvelopeSchema,
+  AgentProtocolDefaults,
+} from '@ocentra-parent/agent-protocol-domain/contracts';
+import {
+  AgentNetworkRuntimeEventSchemaVersion,
+  AgentNetworkRuntimeEventType,
+} from '@ocentra-parent/agent-protocol-domain/network-runtime-events';
 import { shouldRenderNetworkEvidenceDrawerRoute } from '../src/NetworkEvidenceDrawerRoutePanel';
 import { resolveLiveActivityState } from '../src/live-activity-state';
 import { NetworkEvidenceDrawerProof } from './network-evidence-drawer-proof-fixture';
@@ -79,7 +87,9 @@ function registerNetworkFlowNormalizationTests(): void {
     const summary = networkEvidenceDrawerSummary(readModel);
 
     expectNetworkReadModelCounts(readModel, 1);
-    expect(row).toBeDefined();
+    if (row === undefined) {
+      throw new Error('blank optional Windows network flow row missing');
+    }
     expect(row?.destinationDomain).toBeNull();
     expect(row?.processName).toBeNull();
     expect(row?.evidence.map((evidence) => evidence.evidenceId)).toEqual([
@@ -155,9 +165,13 @@ function registerNetworkFlowRejectionTests(): void {
 }
 
 function registerNetworkEvidenceDrawerTests(): void {
-  it('projects the parent network evidence drawer without unsupported claims', () => {
-    const state = resolveLiveActivityState([networkFlowEvent()]);
-    const summary = networkEvidenceDrawerSummary(state.networkFlowReadModel);
+  it('projects the parent network evidence drawer with truthful surfaced refs and unsupported gaps', () => {
+    const state = resolveLiveActivityState([
+      networkFlowEventWithProductPathRefs(),
+      policyPreviewEvent(),
+      networkRuntimeEventChainEvent(),
+    ]);
+    const summary = networkEvidenceDrawerSummary(state.networkFlowReadModel, networkEvidenceDrawerSummaryContext(state));
 
     expect(summary.evidenceId).toBe(NetworkEvidenceDrawerProof.eventId);
     expect(summary.sourceAdapter).toBe('windows-network-snapshot');
@@ -172,12 +186,29 @@ function registerNetworkEvidenceDrawerTests(): void {
       `${NetworkEvidenceDrawerProof.evidenceId} | ${NetworkEvidenceDrawerProof.journalEvidenceId}`
     );
     expect(summary.exactUrlClaim).toBe('Not reported');
-    expect(summary.aiAuditRef).toBe('Not reported');
-    expect(summary.policyDecisionRef).toBe('Not reported');
-    expect(summary.interventionResultRef).toBe('Not reported');
+    expect(summary.analyzerAlertRef).toBe('event.network.analyzer.alert.1');
+    expect(summary.detectionResultRef).toBe('event.network.detection.result.1');
+    expect(summary.aiAuditRef).toBe('event.ai.analysis.completed.1');
+    expect(summary.policyDecisionRef).toBe('event.policy.decision.completed.1');
+    expect(summary.interventionResultRef).toBe('event.enforcement.result.observed.1');
+    expect(summary.riskBudgetRef).toBe('event.network.risk-budget.1');
+    expect(summary.evidenceGrade).toBe('A');
     expect(summary.retentionState).toBe('0 | 1');
     expect(summary.deletedEvidenceReferences).toBe('Not reported');
     expect(summary.degradedState).toBe('available | domain-observed | process-attributed');
+  });
+
+  it('falls back to policy preview refs when no runtime refs were streamed', () => {
+    const state = resolveLiveActivityState([networkFlowEvent(), policyPreviewEvent()]);
+    const summary = networkEvidenceDrawerSummary(state.networkFlowReadModel, networkEvidenceDrawerSummaryContext(state));
+
+    expect(summary.analyzerAlertRef).toBe('Not reported');
+    expect(summary.detectionResultRef).toBe('Not reported');
+    expect(summary.aiAuditRef).toBe('local-ai-result.network.preview.1');
+    expect(summary.policyDecisionRef).toBe('policy-decision.network.preview.1');
+    expect(summary.interventionResultRef).toBe('Not reported');
+    expect(summary.evidenceGrade).toBe('A');
+    expect(summary.riskBudgetRef).toBe('Not reported');
   });
 
   it('mounts the network evidence drawer on canonical network product routes only', () => {
@@ -196,6 +227,14 @@ function requireNetworkFlowReadModel(readModel: ActivityNetworkFlowReadModel | n
   return readModel;
 }
 
+function networkEvidenceDrawerSummaryContext(state: ReturnType<typeof resolveLiveActivityState>) {
+  return {
+    networkFlowEventPayload: state.networkFlowEvent?.payload,
+    policyPreviewReadModel: state.policyPreviewReadModel,
+    networkRuntimeEventChainStream: state.networkRuntimeEventChainStream,
+  };
+}
+
 function expectNetworkReadModelCounts(readModel: ActivityNetworkFlowReadModel, expectedRows: number): void {
   expect(readModel.returned).toBe(expectedRows);
   expect(readModel.activeRows).toBe(expectedRows);
@@ -212,7 +251,6 @@ function expectNetworkReadModelDeletedCounts(readModel: ActivityNetworkFlowReadM
 
 function expectNetworkFlowRow(readModel: ActivityNetworkFlowReadModel): void {
   const row = readModel.rows[0];
-  expect(row).toBeDefined();
   if (row === undefined) {
     throw new Error('network flow row missing');
   }
@@ -276,6 +314,20 @@ function networkFlowEvent() {
       activityDigest: JSON.stringify(networkFlowDigest()),
     },
     snapshot: null,
+  });
+}
+
+function networkFlowEventWithProductPathRefs() {
+  return AgentEventEnvelopeSchema.parse({
+    ...networkFlowEvent(),
+    eventId: 'evt-network-product-path-refs',
+    correlationId: 'cmd-network-product-path-refs',
+    payload: {
+      ...networkFlowEvent().payload,
+      [AgentProtocolDefaults.Field.NetworkProductPathAnalyzerAlertRefs]: 'event.network.analyzer.alert.1',
+      [AgentProtocolDefaults.Field.NetworkProductPathAiDetectionRefs]: 'event.network.detection.result.1',
+      [AgentProtocolDefaults.Field.NetworkProductPathRiskBudgetRefs]: 'event.network.risk-budget.1',
+    },
   });
 }
 
@@ -359,6 +411,114 @@ function networkFlowDigest() {
     topDestinations: [],
     unusualIndicators: [],
   };
+}
+
+function policyPreviewEvent() {
+  return AgentEventEnvelopeSchema.parse({
+    schemaVersion: 1,
+    eventId: 'evt-policy-preview-network',
+    correlationId: 'cmd-policy-preview-network',
+    sentAt: '2026-05-21T02:00:03Z',
+    source: {
+      peerId: 'local-dev-agent',
+      role: 'agent-service',
+    },
+    target: {
+      peerId: 'portal-dev',
+      role: 'portal',
+    },
+    event: AgentEvent.PolicyPreviewReadModelReported,
+    severity: 'info',
+    payload: {
+      [AgentProtocolDefaults.Field.SchemaVersion]: 1,
+      [AgentProtocolDefaults.Field.GeneratedAt]: '2026-05-21T02:00:03Z',
+      [AgentProtocolDefaults.Field.Custody]: 'child-device-query-store',
+      [AgentProtocolDefaults.Field.Limit]: 10,
+      [AgentProtocolDefaults.Field.Returned]: 1,
+      [AgentProtocolDefaults.Field.CapabilityStatus]: 'preview-ready',
+      [AgentProtocolDefaults.Field.PolicyPreviewId]: 'policy-preview.network.1',
+      [AgentProtocolDefaults.Field.LatestEventId]: 'policy-preview.network.event.1',
+      [AgentProtocolDefaults.Field.LatestObservedAt]: '2026-05-21T02:00:02Z',
+      [AgentProtocolDefaults.Field.PolicyTargetType]: AgentProtocolDefaults.PolicyPreview.TargetType.NetworkDomain,
+      [AgentProtocolDefaults.Field.PolicyTargetValue]: NetworkEvidenceDrawerProof.fields.destinationDomain,
+      [AgentProtocolDefaults.Field.PolicyDecisionId]: 'policy-decision.network.preview.1',
+      [AgentProtocolDefaults.Field.PolicyAction]: AgentProtocolDefaults.PolicyPreview.Action.Block,
+      [AgentProtocolDefaults.Field.LocalAiResultId]: 'local-ai-result.network.preview.1',
+      [AgentProtocolDefaults.Field.PolicyDryRun]: true,
+      [AgentProtocolDefaults.Field.PolicyHandoffState]:
+        AgentProtocolDefaults.PolicyPreview.HandoffState.DisabledPreviewOnly,
+      [AgentProtocolDefaults.Field.NetworkEvidenceGrade]: AgentProtocolDefaults.PolicyPreview.EvidenceGrade.A,
+      [AgentProtocolDefaults.Field.NetworkRequestedPolicyAction]: AgentProtocolDefaults.PolicyPreview.Action.Block,
+      [AgentProtocolDefaults.Field.NetworkMappedPolicyAction]: AgentProtocolDefaults.PolicyPreview.Action.Block,
+      [AgentProtocolDefaults.Field.NetworkPolicyMappingMode]: AgentProtocolDefaults.PolicyPreview.MappingMode.DryRun,
+      [AgentProtocolDefaults.Field.NetworkAdapterActionAuthorized]: false,
+      [AgentProtocolDefaults.Field.NetworkEnforcementCommandAuthorized]: false,
+    },
+    snapshot: null,
+  });
+}
+
+function networkRuntimeEventChainEvent() {
+  return AgentEventEnvelopeSchema.parse({
+    schemaVersion: 1,
+    eventId: 'evt-network-runtime-stream',
+    correlationId: 'cmd-network-runtime-stream',
+    sentAt: '2026-05-21T02:00:04Z',
+    source: {
+      peerId: 'local-dev-agent',
+      role: 'agent-service',
+    },
+    target: {
+      peerId: 'portal-dev',
+      role: 'portal',
+    },
+    event: AgentEvent.NetworkRuntimeEventChainStreamReported,
+    severity: 'info',
+    payload: {
+      [AgentProtocolDefaults.Field.NetworkRuntimeStreamedEvents]: 3,
+      [AgentProtocolDefaults.Field.NetworkRuntimeEventChainStream]: JSON.stringify([
+        {
+          eventType: AgentNetworkRuntimeEventType.AiAnalysisCompleted,
+          payload: {
+            schemaVersion: AgentNetworkRuntimeEventSchemaVersion,
+            aiAnalysisRef: 'event.ai.analysis.completed.1',
+            aiRequestRef: 'event.ai.requested.1',
+            previousEventRef: 'event.ai.requested.1',
+            advisoryState: 'completed',
+            evidenceRefs: [NetworkEvidenceDrawerProof.evidenceId],
+            unsupportedClaims: ['decrypted-https-payload'],
+          },
+        },
+        {
+          eventType: AgentNetworkRuntimeEventType.PolicyDecisionCompleted,
+          payload: {
+            schemaVersion: AgentNetworkRuntimeEventSchemaVersion,
+            policyDecisionRef: 'event.policy.decision.completed.1',
+            policyEvaluationRef: 'event.policy.evaluation.requested.1',
+            previousEventRef: 'event.policy.evaluation.requested.1',
+            decisionAction: 'block',
+            evidenceRefs: [NetworkEvidenceDrawerProof.evidenceId],
+            parentRuleRefs: ['policy.rule.network-domain.1'],
+            adapterCapabilityRequired: true,
+          },
+        },
+        {
+          eventType: AgentNetworkRuntimeEventType.EnforcementResultObserved,
+          payload: {
+            schemaVersion: AgentNetworkRuntimeEventSchemaVersion,
+            enforcementResultRef: 'event.enforcement.result.observed.1',
+            enforcementCommandRef: 'event.enforcement.command.issued.1',
+            previousEventRef: 'event.enforcement.command.issued.1',
+            resultStatus: 'dry-run',
+            adapterActionExecuted: false,
+            rollbackRef: 'rollback.network.command.1',
+            unavailableReasonCode: null,
+          },
+        },
+      ]),
+    },
+    snapshot: null,
+  });
 }
 
 function emptyNetworkFlowEvent() {

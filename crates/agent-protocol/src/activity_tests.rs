@@ -155,6 +155,26 @@ fn browser_evidence_values_serialize_to_typescript_contract_shape() {
         constants::activity_event_kind::NETWORK_RETENTION_DELETED
     );
     assert_eq!(
+        ActivityEventKind::TrackingAlertEvaluated.as_protocol_str(),
+        constants::activity_event_kind::TRACKING_ALERT_EVALUATED
+    );
+    assert_eq!(
+        ActivityEventKind::from_protocol_str(
+            constants::activity_event_kind::TRACKING_ALERT_EVALUATED
+        ),
+        Some(ActivityEventKind::TrackingAlertEvaluated)
+    );
+    assert_eq!(
+        ActivityEventKind::TrackingParentNotificationRequested.as_protocol_str(),
+        constants::activity_event_kind::TRACKING_PARENT_NOTIFICATION_REQUESTED
+    );
+    assert_eq!(
+        ActivityEventKind::from_protocol_str(
+            constants::activity_event_kind::TRACKING_PARENT_NOTIFICATION_REQUESTED
+        ),
+        Some(ActivityEventKind::TrackingParentNotificationRequested)
+    );
+    assert_eq!(
         ActivityEventKind::from_protocol_str(
             constants::activity_event_kind::NETWORK_RETENTION_DELETED
         ),

@@ -6,8 +6,7 @@ use ocentra_parent_agent_protocol::{
     TrackingReadModelDeviceId, TrackingReadModelEventId, TrackingReadModelGeneratedAt,
     TrackingReadModelKind, TrackingReadModelObservedAt, TrackingReadModelObserver,
     TrackingReadModelPlatform, TrackingReadModelQueryVisibility, TrackingReadModelRow,
-    TrackingReadModelSubjectDisplayName, TrackingReadModelSubjectId,
-    TrackingReadModelSubjectKind,
+    TrackingReadModelSubjectDisplayName, TrackingReadModelSubjectId, TrackingReadModelSubjectKind,
     TRACKING_READ_MODEL_CUSTODY_CHILD_DEVICE_QUERY_STORE,
     TRACKING_READ_MODEL_ROW_VISIBILITY_ACTIVE, TRACKING_READ_MODEL_STATUS_NO_TRACKING_EVENTS,
 };
@@ -16,7 +15,9 @@ use ocentra_parent_agent_protocol::{
 fn tracking_read_model_serializes_without_product_completion_claims() {
     let read_model = TrackingReadModel {
         schema_version: ACTIVITY_QUERY_SCHEMA_VERSION,
-        generated_at: generated_at(constants::activity_store::TEST_TRACKING_RETENTION_DELETE_OBSERVED_AT),
+        generated_at: generated_at(
+            constants::activity_store::TEST_TRACKING_RETENTION_DELETE_OBSERVED_AT,
+        ),
         custody_label: custody_label(),
         limit: constants::activity_store::DEFAULT_RECENT_LIMIT,
         returned: 0,
@@ -80,11 +81,15 @@ fn tracking_read_model_serializes_active_product_surface_counts() {
         capability_status: capability_status(
             constants::activity_store::TEST_TRACKING_CAPABILITY_STATUS_RECENT,
         ),
-        latest_event_id: Some(event_id(constants::activity_store::TEST_TRACKING_LOCATION_EVENT_ID)),
+        latest_event_id: Some(event_id(
+            constants::activity_store::TEST_TRACKING_LOCATION_EVENT_ID,
+        )),
         latest_observed_at: Some(observed_at(
             constants::activity_store::TEST_TRACKING_LOCATION_OBSERVED_AT,
         )),
-        latest_active_event_id: Some(event_id(constants::activity_store::TEST_TRACKING_LOCATION_EVENT_ID)),
+        latest_active_event_id: Some(event_id(
+            constants::activity_store::TEST_TRACKING_LOCATION_EVENT_ID,
+        )),
         latest_active_observed_at: Some(observed_at(
             constants::activity_store::TEST_TRACKING_LOCATION_OBSERVED_AT,
         )),
@@ -148,9 +153,9 @@ fn tracking_read_model_row_serializes_journal_citation_ids_and_visibility() {
         )),
         query_visibility: query_visibility(TRACKING_READ_MODEL_ROW_VISIBILITY_ACTIVE),
         deleted_at: None,
-        evidence_reference_ids: vec![
-            evidence_ref(constants::activity_store::TEST_TRACKING_EVIDENCE_REFERENCE_ID),
-        ],
+        evidence_reference_ids: vec![evidence_ref(
+            constants::activity_store::TEST_TRACKING_EVIDENCE_REFERENCE_ID,
+        )],
         deleted_evidence_reference_ids: Vec::new(),
         evidence: Vec::new(),
     };
@@ -170,6 +175,57 @@ fn tracking_read_model_row_serializes_journal_citation_ids_and_visibility() {
         TRACKING_READ_MODEL_ROW_VISIBILITY_ACTIVE
     );
     assert!(serialized["deletedAt"].is_null());
+}
+
+#[test]
+fn tracking_read_model_row_serializes_tracking_alert_and_parent_notification_kinds() {
+    let alert_row = tracking_row(
+        constants::activity_store::TEST_TRACKING_LOCATION_EVENT_ID,
+        constants::activity_event_kind::TRACKING_ALERT_EVALUATED,
+    );
+    let notification_row = tracking_row(
+        constants::activity_store::TEST_TRACKING_GEOFENCE_EVENT_ID,
+        constants::activity_event_kind::TRACKING_PARENT_NOTIFICATION_REQUESTED,
+    );
+
+    let serialized = serde_json::to_value(vec![alert_row, notification_row])
+        .expect(constants::error::AGENT_EVENT_SERIALIZES);
+
+    assert_eq!(
+        serialized[0]["kind"],
+        constants::activity_event_kind::TRACKING_ALERT_EVALUATED
+    );
+    assert_eq!(
+        serialized[1]["kind"],
+        constants::activity_event_kind::TRACKING_PARENT_NOTIFICATION_REQUESTED
+    );
+}
+
+fn tracking_row(event_id_value: &str, kind_value: &str) -> TrackingReadModelRow {
+    TrackingReadModelRow {
+        schema_version: ACTIVITY_QUERY_SCHEMA_VERSION,
+        event_id: event_id(event_id_value),
+        observed_at: observed_at(constants::activity_store::TEST_TRACKING_LOCATION_OBSERVED_AT),
+        device_id: device_id(constants::activity_store::TEST_REMOTE_DEVICE_ID),
+        platform: platform(constants::activity_store::TEST_TRACKING_PLATFORM_ANDROID),
+        observer: observer(constants::activity_observer::TRACKING_ENGINE),
+        kind: kind(kind_value),
+        subject_kind: subject_kind(constants::activity_subject_kind::TRACKING_RULE),
+        subject_id: subject_id(constants::activity_store::TEST_TRACKING_SUBJECT_ID),
+        subject_display_name: Some(subject_display_name(
+            constants::activity_store::TEST_TRACKING_SUBJECT_NAME,
+        )),
+        capability_status: Some(capability_status(
+            constants::activity_store::TEST_TRACKING_CAPABILITY_STATUS_RECENT,
+        )),
+        query_visibility: query_visibility(TRACKING_READ_MODEL_ROW_VISIBILITY_ACTIVE),
+        deleted_at: None,
+        evidence_reference_ids: vec![evidence_ref(
+            constants::activity_store::TEST_TRACKING_EVIDENCE_REFERENCE_ID,
+        )],
+        deleted_evidence_reference_ids: Vec::new(),
+        evidence: Vec::new(),
+    }
 }
 
 fn generated_at(value: &str) -> TrackingReadModelGeneratedAt {
@@ -222,7 +278,8 @@ fn subject_id(value: &str) -> TrackingReadModelSubjectId {
 }
 
 fn subject_display_name(value: &str) -> TrackingReadModelSubjectDisplayName {
-    TrackingReadModelSubjectDisplayName::parse(value).expect(constants::error::AGENT_EVENT_SERIALIZES)
+    TrackingReadModelSubjectDisplayName::parse(value)
+        .expect(constants::error::AGENT_EVENT_SERIALIZES)
 }
 
 fn query_visibility(value: &str) -> TrackingReadModelQueryVisibility {

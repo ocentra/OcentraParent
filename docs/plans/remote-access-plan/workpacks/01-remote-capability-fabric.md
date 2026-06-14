@@ -1,22 +1,22 @@
 # Workpack 01: Remote Capability Fabric
 
-Goal: define the remote session and capability model.
+Goal: define the paired remote session and capability model.
 
 Expected shape:
 
-- Capability grants are scoped by household, child device, parent actor, action type, expiry, consent state, and revocation state.
-- Live view and remote control are separate capabilities.
-- Session state includes requested, authorized, connecting, active, degraded, stopped, expired, revoked, denied, and failed.
+- Capability grants are scoped by household, child device, parent actor, action type, pairing state, and revocation/remove-device state.
+- Live view and remote control are separate capabilities, but only live view is current-pass.
+- Session state includes requested, authorized, paired, connecting, active, degraded, stopped, removed, revoked, denied, and failed.
 - Every session has audit references and redacted diagnostics.
 
 Expected proof:
 
 - Capability schema/contract proof when implemented.
 - AuthZ matrix.
-- Replay/stale/revoked session negative proof.
+- Replay/stale/revoked/removed session negative proof.
 - Route handoffs to account, screen, LAN, and data custody.
 
-Failure: one generic remote flag that authorizes unrelated remote actions.
+Failure: one generic remote flag that authorizes unrelated remote actions or hides pairing state.
 
 ## Execution Detail
 
@@ -29,11 +29,11 @@ Minimum context:
 
 Required model:
 
-- Remote capability type: live view, screenshot request, file/log diagnostic if allowed, remote input/control.
+- Remote capability type: live view, screenshot request, file/log diagnostic if allowed, deferred remote input/control.
 - Actor: parent owner, co-parent, support/admin if any, child agent.
-- Resource: household, child profile, child device, session, relay.
-- Grant: requested, approved, active, expired, revoked, denied, failed.
-- Audit: who requested, who approved, what capability, when, why, and proof refs.
+- Resource: household, child profile, child device, pair, session, relay.
+- Grant: requested, paired, active, removed, revoked, denied, failed.
+- Audit: who requested, who paired, what capability, when, why, and proof refs.
 
 Agent decision tree:
 
@@ -44,9 +44,10 @@ Agent decision tree:
 
 Expected tests/proof names:
 
-- `remote-capability.grant-scope`
+- `remote-capability.paired-access`
 - `remote-capability.live-view-not-control`
 - `remote-capability.revoked-grant-denied`
+- `remote-capability.removed-device-denied`
 - `remote-capability.wrong-household-denied`
 - `remote-capability.audit-complete`
 

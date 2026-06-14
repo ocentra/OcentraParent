@@ -44,23 +44,23 @@ proof, and production startup wiring are still non-claims.
 
 ## Checklist
 
-- [x] Add contract/unit tests for completed screen contracts.
-- [x] Add Rust core/service proof tests for completed screen service paths.
-- [x] Add security negative tests for completed raw-retention, raw-output, and
+- [ ] Add contract/unit tests for completed screen contracts.
+- [ ] Add Rust core/service proof tests for completed screen service paths.
+- [ ] Add security negative tests for completed raw-retention, raw-output, and
       authority boundaries.
-- [x] Add platform manual proof for currently claimed platform capture paths.
-- [x] Add Playwright UI tests.
-- [x] Add E2E proof against real service.
-- [x] Add real browser-use trigger proof.
-- [x] Add real app-use trigger proof.
-- [x] Add timed cadence capture proof.
-- [x] Add operator live URL/app proof before product-complete claim.
-- [x] Add capture plus analysis plus policy dry-run proof.
-- [x] Update feature docs/checklist for completed proof gates.
-- [x] Record known gaps.
-- [x] Add external proof-gate intake that rejects fixture/static/raw-private
+- [ ] Add platform manual proof for currently claimed platform capture paths.
+- [ ] Add Playwright UI tests.
+- [ ] Add E2E proof against real service.
+- [ ] Add real browser-use trigger proof.
+- [ ] Add real app-use trigger proof.
+- [ ] Add timed cadence capture proof.
+- [ ] Add operator live URL/app proof before product-complete claim.
+- [ ] Add capture plus analysis plus policy dry-run proof.
+- [ ] Update feature docs/checklist for completed proof gates.
+- [ ] Record known gaps.
+- [ ] Add external proof-gate intake that rejects fixture/static/raw-private
       artifacts.
-- [x] Run a screen-plan closure audit that proves current readiness artifacts
+- [ ] Run a screen-plan closure audit that proves current readiness artifacts
       are present while platform/model/live-view product gates remain explicit
       non-claims.
 - [ ] Run final screen-plan closure validation after partial platform/model

@@ -263,6 +263,8 @@ export const AgentCommandNameLiteral = {
   NetworkLinuxNftablesLabStatusGet: 'agent.network.linux-nftables-lab.status.get',
   NetworkWindowsFirewallLabStatusGet: 'agent.network.windows-firewall-lab.status.get',
   NetworkWindowsWfpGateStatusGet: 'agent.network.windows-wfp-gate.status.get',
+  NetworkAndroidVpnServiceGateStatusGet: 'agent.network.android-vpn-service-gate.status.get',
+  NetworkAppleNetworkExtensionGateStatusGet: 'agent.network.apple-network-extension-gate.status.get',
   LocalAiRuntimeStatusGet: 'agent.local-ai.runtime.status.get',
   LocalAiChatGenerate: 'agent.local-ai.chat.generate',
   ParentAssistantAnswerGenerate: 'agent.parent-assistant.answer.generate',
@@ -347,6 +349,8 @@ export const AgentEventNameLiteral = {
   NetworkLiveCaptureStatusReported: 'agent.network.live-capture.status.reported',
   NetworkLinuxNftablesLabStatusReported: 'agent.network.linux-nftables-lab.status.reported',
   NetworkWindowsWfpGateStatusReported: 'agent.network.windows-wfp-gate.status.reported',
+  NetworkAndroidVpnServiceGateStatusReported: 'agent.network.android-vpn-service-gate.status.reported',
+  NetworkAppleNetworkExtensionGateStatusReported: 'agent.network.apple-network-extension-gate.status.reported',
   LocalAiRuntimeStatusReported: 'agent.local-ai.runtime.status.reported',
   LocalAiChatGenerationReported: 'agent.local-ai.chat.generation.reported',
   ParentAssistantAnswerReported: 'agent.parent-assistant.answer.reported',
@@ -453,6 +457,8 @@ export const AgentCommandNameSchema = withParser(
     AgentCommandNameLiteral.NetworkLinuxNftablesLabStatusGet,
     AgentCommandNameLiteral.NetworkWindowsFirewallLabStatusGet,
     AgentCommandNameLiteral.NetworkWindowsWfpGateStatusGet,
+    AgentCommandNameLiteral.NetworkAndroidVpnServiceGateStatusGet,
+    AgentCommandNameLiteral.NetworkAppleNetworkExtensionGateStatusGet,
     AgentCommandNameLiteral.LocalAiRuntimeStatusGet,
     AgentCommandNameLiteral.LocalAiChatGenerate,
     AgentCommandNameLiteral.ParentAssistantAnswerGenerate,
@@ -546,6 +552,8 @@ export const AgentEventNameSchema = withParser(
     AgentEventNameLiteral.NetworkLinuxNftablesLabStatusReported,
     AgentEventNameLiteral.NetworkWindowsFirewallLabStatusReported,
     AgentEventNameLiteral.NetworkWindowsWfpGateStatusReported,
+    AgentEventNameLiteral.NetworkAndroidVpnServiceGateStatusReported,
+    AgentEventNameLiteral.NetworkAppleNetworkExtensionGateStatusReported,
     AgentEventNameLiteral.LocalAiRuntimeStatusReported,
     AgentEventNameLiteral.LocalAiChatGenerationReported,
     AgentEventNameLiteral.ParentAssistantAnswerReported,
@@ -754,6 +762,12 @@ export const AgentCommand = {
   NetworkLinuxNftablesLabStatusGet: AgentCommandNameSchema.parse(AgentCommandNameLiteral.NetworkLinuxNftablesLabStatusGet),
   NetworkWindowsFirewallLabStatusGet: AgentCommandNameSchema.parse(AgentCommandNameLiteral.NetworkWindowsFirewallLabStatusGet),
   NetworkWindowsWfpGateStatusGet: AgentCommandNameSchema.parse(AgentCommandNameLiteral.NetworkWindowsWfpGateStatusGet),
+  NetworkAndroidVpnServiceGateStatusGet: AgentCommandNameSchema.parse(
+    AgentCommandNameLiteral.NetworkAndroidVpnServiceGateStatusGet
+  ),
+  NetworkAppleNetworkExtensionGateStatusGet: AgentCommandNameSchema.parse(
+    AgentCommandNameLiteral.NetworkAppleNetworkExtensionGateStatusGet
+  ),
   LocalAiRuntimeStatusGet: AgentCommandNameSchema.parse(AgentCommandNameLiteral.LocalAiRuntimeStatusGet),
   LocalAiChatGenerate: AgentCommandNameSchema.parse(AgentCommandNameLiteral.LocalAiChatGenerate),
   ParentAssistantAnswerGenerate: AgentCommandNameSchema.parse(AgentCommandNameLiteral.ParentAssistantAnswerGenerate),
@@ -905,6 +919,12 @@ export const AgentEvent = {
     AgentEventNameLiteral.NetworkWindowsFirewallLabStatusReported
   ),
   NetworkWindowsWfpGateStatusReported: AgentEventNameSchema.parse(AgentEventNameLiteral.NetworkWindowsWfpGateStatusReported),
+  NetworkAndroidVpnServiceGateStatusReported: AgentEventNameSchema.parse(
+    AgentEventNameLiteral.NetworkAndroidVpnServiceGateStatusReported
+  ),
+  NetworkAppleNetworkExtensionGateStatusReported: AgentEventNameSchema.parse(
+    AgentEventNameLiteral.NetworkAppleNetworkExtensionGateStatusReported
+  ),
   LocalAiRuntimeStatusReported: AgentEventNameSchema.parse(AgentEventNameLiteral.LocalAiRuntimeStatusReported),
   LocalAiChatGenerationReported: AgentEventNameSchema.parse(AgentEventNameLiteral.LocalAiChatGenerationReported),
   ParentAssistantAnswerReported: AgentEventNameSchema.parse(AgentEventNameLiteral.ParentAssistantAnswerReported),

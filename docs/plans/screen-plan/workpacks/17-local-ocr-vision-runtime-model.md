@@ -31,13 +31,13 @@ coverage, or enforcement.
 
 ## Checklist
 
-- [x] Define local runtime status.
-- [x] Define worker input boundary.
-- [x] Define worker output boundary.
-- [x] Reject cloud/API upload by default.
-- [x] Add low-confidence and unavailable states.
-- [x] Add model/version metadata.
-- [x] Prove local-only processing.
+- [ ] Define local runtime status.
+- [ ] Define worker input boundary.
+- [ ] Define worker output boundary.
+- [ ] Reject cloud/API upload by default.
+- [ ] Add low-confidence and unavailable states.
+- [ ] Add model/version metadata.
+- [ ] Prove local-only processing.
 
 ## Proof
 

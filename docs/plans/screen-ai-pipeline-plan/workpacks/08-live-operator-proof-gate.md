@@ -62,18 +62,18 @@ deletion/no-retention custody.
 
 ## Checklist
 
-- [x] Harness manifest template covers the required live operator scenarios.
-- [x] Harness readiness proof records that live proof is not claimed without a
+- [ ] Harness manifest template covers the required live operator scenarios.
+- [ ] Harness readiness proof records that live proof is not claimed without a
       manifest.
-- [x] YouTube ordinary video.
-- [x] YouTube or Vimeo education video.
-- [x] Vimeo ordinary video.
-- [x] Facebook/social surface.
-- [x] Browser game/cloud-game surface.
-- [x] Shopping page.
-- [x] School/productivity page/app.
-- [x] Native app.
-- [x] Protected/unsupported state.
+- [ ] YouTube ordinary video.
+- [ ] YouTube or Vimeo education video.
+- [ ] Vimeo ordinary video.
+- [ ] Facebook/social surface.
+- [ ] Browser game/cloud-game surface.
+- [ ] Shopping page.
+- [ ] School/productivity page/app.
+- [ ] Native app.
+- [ ] Protected/unsupported state.
 
 ## Proof
 

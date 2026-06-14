@@ -32,13 +32,13 @@ execution.
 
 ## Checklist
 
-- [x] Verify current Android MediaProjection docs.
-- [x] Define consent/session state.
-- [x] Define foreground service requirements.
-- [x] Define app-window/full-display availability.
-- [x] Define stop callback behavior.
-- [x] Prove no silent background capture.
-- [x] Prove emulator capture deletion.
+- [ ] Verify current Android MediaProjection docs.
+- [ ] Define consent/session state.
+- [ ] Define foreground service requirements.
+- [ ] Define app-window/full-display availability.
+- [ ] Define stop callback behavior.
+- [ ] Prove no silent background capture.
+- [ ] Prove emulator capture deletion.
 - [ ] Prove physical-device capture deletion.
 - [ ] Prove local OCR on physical-device Android capture.
 

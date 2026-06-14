@@ -2,11 +2,10 @@ use ocentra_evidence::PrivatePayloadState;
 use ocentra_parent_agent_protocol::{
     child_domain_ai_request_id, child_domain_analysis_purpose, child_domain_child_device_id,
     child_domain_child_profile_id, child_domain_evidence_ref, child_domain_observed_at,
-    child_domain_policy_request_id_from_fact_ref,
     child_domain_policy_evaluation_requested_from_ai_result_event_if_required,
-    ChildDomainAiAnalysisRequestedEvent, ChildDomainAnalysisPurposeKind,
-    ChildDomainEventType, ChildDomainPolicyEvaluationRequirement, ChildDomainRefSuffix,
-    ChildRuntimeDomain,
+    child_domain_policy_request_id_from_fact_ref, ChildDomainAiAnalysisRequestedEvent,
+    ChildDomainAnalysisPurposeKind, ChildDomainEventType, ChildDomainPolicyEvaluationRequirement,
+    ChildDomainRefSuffix, ChildRuntimeDomain,
 };
 
 #[test]
@@ -37,11 +36,17 @@ fn child_domain_ai_completion_hands_off_to_policy_without_authority() {
         child_domain_policy_evaluation_requested_from_ai_result_event_if_required(&completed)
             .expect("policy handoff is required");
 
-    assert_eq!(completed.event_type, ChildDomainEventType::ai_analysis_completed());
+    assert_eq!(
+        completed.event_type,
+        ChildDomainEventType::ai_analysis_completed()
+    );
     assert_eq!(completed.domain, request.domain);
     assert_eq!(completed.evidence_refs, request.evidence_refs);
     assert_eq!(completed.source_observed_at, request.source_observed_at);
-    assert_eq!(completed.result_fact_ref.as_str(), request.ai_request_id.as_str());
+    assert_eq!(
+        completed.result_fact_ref.as_str(),
+        request.ai_request_id.as_str()
+    );
     assert_eq!(
         handoff.event_type,
         ChildRuntimeDomain::Browser.policy_evaluation_requested_event_type()
@@ -49,7 +54,10 @@ fn child_domain_ai_completion_hands_off_to_policy_without_authority() {
     assert_eq!(handoff.domain, request.domain);
     assert_eq!(handoff.evidence_refs, request.evidence_refs);
     assert_eq!(handoff.source_observed_at, request.source_observed_at);
-    assert_eq!(handoff.source_fact_ref.as_str(), request.ai_request_id.as_str());
+    assert_eq!(
+        handoff.source_fact_ref.as_str(),
+        request.ai_request_id.as_str()
+    );
     assert_eq!(
         handoff.policy_request_id,
         child_domain_policy_request_id_from_fact_ref(
@@ -83,11 +91,13 @@ fn child_domain_ai_completion_without_policy_requirement_does_not_handoff_to_pol
     };
 
     let completed = ocentra_child_ai_core::complete_child_domain_ai_analysis(&request);
-    let handoff = child_domain_policy_evaluation_requested_from_ai_result_event_if_required(
-        &completed,
-    );
+    let handoff =
+        child_domain_policy_evaluation_requested_from_ai_result_event_if_required(&completed);
 
-    assert_eq!(completed.event_type, ChildDomainEventType::ai_analysis_completed());
+    assert_eq!(
+        completed.event_type,
+        ChildDomainEventType::ai_analysis_completed()
+    );
     assert_eq!(completed.source_observed_at, request.source_observed_at);
     assert!(handoff.is_none());
 }

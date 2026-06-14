@@ -41,12 +41,12 @@ Proof root: `output/tracking-plan-proof/25-policy-compiler-for-tracking-rules/`
 
 ## AI Worker Checklist
 
-- [x] Parent policy is final action authority.
-- [x] Compile observe, notify, ask child, ask parent ack, live tracking,
+- [ ] Parent policy is final action authority.
+- [ ] Compile observe, notify, ask child, ask parent ack, live tracking,
       escalate, critical alert, suppress, and manual-required.
-- [x] Add deterministic conflict tests.
-- [x] Prevent AI-only alert/escalation.
-- [x] Preserve dry-run/preview where applicable.
+- [ ] Add deterministic conflict tests.
+- [ ] Prevent AI-only alert/escalation.
+- [ ] Preserve dry-run/preview where applicable.
 
 ## Where We Are
 
@@ -82,16 +82,16 @@ This workpack can be assigned independently, implemented against the owning doma
 
 ## Fill This Before Reporting DONE Or PR-ready
 
-- [x] Workpack id and branch:
+- [ ] Workpack id and branch:
       `codex/tracking-policy-compiler-runtime-proof-refresh`.
-- [x] Touched files: tracking policy compiler proof source/test/script, proof
+- [ ] Touched files: tracking policy compiler proof source/test/script, proof
       artifacts, product docs, checklist, and this workpack doc.
-- [x] Validation commands and results:
+- [ ] Validation commands and results:
       `node scripts/test/tracking-policy-compiler-runtime-proof.mjs` passed.
-- [x] Proof artifacts under `output/tracking-plan-proof/25-policy-compiler-for-tracking-rules/`.
-- [x] Product doc/checklist updates: owning feature doc, capability checklist,
+- [ ] Proof artifacts under `output/tracking-plan-proof/25-policy-compiler-for-tracking-rules/`.
+- [ ] Product doc/checklist updates: owning feature doc, capability checklist,
       implementation checklist, and this workpack doc updated.
-- [x] Known gaps/manual-required states: runtime enforcement, platform adapters,
+- [ ] Known gaps/manual-required states: runtime enforcement, platform adapters,
       provider delivery, notification receipt ingestion, production workers,
       physical-device behavior, full UI/report/policy consumers, and child
       delivery remain proof-gated as applicable.

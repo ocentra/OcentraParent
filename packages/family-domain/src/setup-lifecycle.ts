@@ -6,8 +6,15 @@ import {
   ParentActorReferenceSchema,
   ParentDeviceReferenceSchema,
 } from './references';
-import { ParentContractSchemaVersionSchema, ParentTimestampSchema } from './reference-primitives';
-import { HouseholdRole, HouseholdRoleSchema } from './household-authority';
+import { ParentActorRole, ParentContractSchemaVersionSchema, ParentTimestampSchema } from './reference-primitives';
+import {
+  AuditRequirementState,
+  AuditRequirementStateSchema,
+  HouseholdMembershipState,
+  HouseholdMembershipStateSchema,
+  HouseholdRole,
+  HouseholdRoleSchema,
+} from './household-authority';
 import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
 
 function brandedNonEmptyStringSchema<const Brand extends string>(brand: Brand) {
@@ -32,6 +39,25 @@ export const SetupInviteStateLiteral = {
   Revoked: 'revoked',
 } as const;
 
+export const SetupInviteReplayStateLiteral = {
+  Fresh: 'fresh',
+  ReplayDetected: 'replay-detected',
+} as const;
+
+export const SetupInviteDecisionStateLiteral = {
+  Acceptable: 'acceptable',
+  Rejected: 'rejected',
+} as const;
+
+export const SetupInviteFailureReasonLiteral = {
+  InviteNotActive: 'invite-not-active',
+  InviteReplayRejected: 'invite-replay-rejected',
+  InviteNotSingleUse: 'invite-not-single-use',
+  WrongHousehold: 'wrong-household',
+  WrongTargetRole: 'wrong-target-role',
+  InviterNotAuthorized: 'inviter-not-authorized',
+} as const;
+
 export const RecoveryKindLiteral = {
   ForgotLogin: 'forgot-login',
   LostParentDevice: 'lost-parent-device',
@@ -46,6 +72,41 @@ export const RecoveryStateLiteral = {
   Approved: 'approved',
   Completed: 'completed',
   Revoked: 'revoked',
+} as const;
+
+export const RecoveryIdentityProofStateLiteral = {
+  Verified: 'verified',
+  Pending: 'pending',
+  Failed: 'failed',
+} as const;
+
+export const RecoverySupportChannelLiteral = {
+  SelfServe: 'self-serve',
+  HouseholdOwnerAssisted: 'household-owner-assisted',
+  SupportAssisted: 'support-assisted',
+} as const;
+
+export const RecoveryDecisionStateLiteral = {
+  Authorized: 'authorized',
+  Rejected: 'rejected',
+} as const;
+
+export const RecoveryChildEvidenceAccessStateLiteral = {
+  Allowed: 'allowed',
+  Blocked: 'blocked',
+} as const;
+
+export const RecoveryDataCustodyHandoffStateLiteral = {
+  None: 'none',
+  ExportDeleteHandoffRequired: 'export-delete-handoff-required',
+  HouseholdTransferHandoffRequired: 'household-transfer-handoff-required',
+} as const;
+
+export const RecoveryFailureReasonLiteral = {
+  RecoveryNotActive: 'recovery-not-active',
+  WrongHousehold: 'wrong-household',
+  IdentityProofRequired: 'identity-proof-required',
+  RoleNotAuthorized: 'role-not-authorized',
 } as const;
 
 export const SetupAuditEventKindLiteral = {
@@ -76,6 +137,34 @@ export const SetupInviteStateSchema = withParser(
   )
 );
 
+export const SetupInviteReplayStateSchema = withParser(
+  Schema.Literal(SetupInviteReplayStateLiteral.Fresh, SetupInviteReplayStateLiteral.ReplayDetected)
+);
+
+export const SetupInviteTargetRoleSchema = withParser(
+  Schema.Literal(
+    'co-parent-guardian',
+    'observer',
+    'child-device-agent',
+    'parent-owner'
+  )
+);
+
+export const SetupInviteDecisionStateSchema = withParser(
+  Schema.Literal(SetupInviteDecisionStateLiteral.Acceptable, SetupInviteDecisionStateLiteral.Rejected)
+);
+
+export const SetupInviteFailureReasonSchema = withParser(
+  Schema.Literal(
+    SetupInviteFailureReasonLiteral.InviteNotActive,
+    SetupInviteFailureReasonLiteral.InviteReplayRejected,
+    SetupInviteFailureReasonLiteral.InviteNotSingleUse,
+    SetupInviteFailureReasonLiteral.WrongHousehold,
+    SetupInviteFailureReasonLiteral.WrongTargetRole,
+    SetupInviteFailureReasonLiteral.InviterNotAuthorized
+  )
+);
+
 export const RecoveryKindSchema = withParser(
   Schema.Literal(
     RecoveryKindLiteral.ForgotLogin,
@@ -93,6 +182,50 @@ export const RecoveryStateSchema = withParser(
     RecoveryStateLiteral.Approved,
     RecoveryStateLiteral.Completed,
     RecoveryStateLiteral.Revoked
+  )
+);
+
+export const RecoveryIdentityProofStateSchema = withParser(
+  Schema.Literal(
+    RecoveryIdentityProofStateLiteral.Verified,
+    RecoveryIdentityProofStateLiteral.Pending,
+    RecoveryIdentityProofStateLiteral.Failed
+  )
+);
+
+export const RecoverySupportChannelSchema = withParser(
+  Schema.Literal(
+    RecoverySupportChannelLiteral.SelfServe,
+    RecoverySupportChannelLiteral.HouseholdOwnerAssisted,
+    RecoverySupportChannelLiteral.SupportAssisted
+  )
+);
+
+export const RecoveryDecisionStateSchema = withParser(
+  Schema.Literal(RecoveryDecisionStateLiteral.Authorized, RecoveryDecisionStateLiteral.Rejected)
+);
+
+export const RecoveryChildEvidenceAccessStateSchema = withParser(
+  Schema.Literal(
+    RecoveryChildEvidenceAccessStateLiteral.Allowed,
+    RecoveryChildEvidenceAccessStateLiteral.Blocked
+  )
+);
+
+export const RecoveryDataCustodyHandoffStateSchema = withParser(
+  Schema.Literal(
+    RecoveryDataCustodyHandoffStateLiteral.None,
+    RecoveryDataCustodyHandoffStateLiteral.ExportDeleteHandoffRequired,
+    RecoveryDataCustodyHandoffStateLiteral.HouseholdTransferHandoffRequired
+  )
+);
+
+export const RecoveryFailureReasonSchema = withParser(
+  Schema.Literal(
+    RecoveryFailureReasonLiteral.RecoveryNotActive,
+    RecoveryFailureReasonLiteral.WrongHousehold,
+    RecoveryFailureReasonLiteral.IdentityProofRequired,
+    RecoveryFailureReasonLiteral.RoleNotAuthorized
   )
 );
 
@@ -124,19 +257,67 @@ export const SetupInviteSchema = withParser(
   })
 );
 
+export const SetupInviteAuthorizationInputSchema = withParser(
+  Schema.Struct({
+    inviterRole: HouseholdRoleSchema,
+    sameFamily: Schema.Boolean,
+    purpose: SetupInvitePurposeSchema,
+    targetRole: SetupInviteTargetRoleSchema,
+    inviteState: SetupInviteStateSchema,
+    singleUse: Schema.Boolean,
+    replayState: SetupInviteReplayStateSchema,
+  })
+);
+
+export const SetupInviteDecisionSchema = withParser(
+  Schema.Struct({
+    decisionState: SetupInviteDecisionStateSchema,
+    auditRequirementState: AuditRequirementStateSchema,
+    failureReason: Schema.Union(SetupInviteFailureReasonSchema, Schema.Null),
+  })
+);
+
 export const RecoveryOperationSchema = withParser(
   Schema.Struct({
     schemaVersion: ParentContractSchemaVersionSchema,
     recoveryOperationId: RecoveryOperationIdSchema,
     family: FamilyReferenceSchema,
     requestedBy: ParentActorReferenceSchema,
+    requesterMembershipState: HouseholdMembershipStateSchema,
     relatedAccount: Schema.Union(ParentAccountReferenceSchema, Schema.Null),
     relatedDevice: Schema.Union(ParentDeviceReferenceSchema, Schema.Null),
     kind: RecoveryKindSchema,
     state: RecoveryStateSchema,
     ownerApprovalRequired: Schema.Boolean,
+    identityProofState: RecoveryIdentityProofStateSchema,
+    supportChannel: RecoverySupportChannelSchema,
+    deleteExportHandoffRequired: Schema.Boolean,
     openedAt: ParentTimestampSchema,
     closedAt: Schema.Union(ParentTimestampSchema, Schema.Null),
+  })
+);
+
+export const RecoveryAuthorizationInputSchema = withParser(
+  Schema.Struct({
+    requesterRole: HouseholdRoleSchema,
+    sameFamily: Schema.Boolean,
+    kind: RecoveryKindSchema,
+    state: RecoveryStateSchema,
+    ownerApprovalRequired: Schema.Boolean,
+    identityProofState: RecoveryIdentityProofStateSchema,
+    supportChannel: RecoverySupportChannelSchema,
+    deleteExportHandoffRequired: Schema.Boolean,
+  })
+);
+
+export const RecoveryDecisionSchema = withParser(
+  Schema.Struct({
+    decisionState: RecoveryDecisionStateSchema,
+    ownerApprovalRequired: Schema.Boolean,
+    auditRequirementState: AuditRequirementStateSchema,
+    childEvidenceAccessState: RecoveryChildEvidenceAccessStateSchema,
+    dataCustodyHandoffState: RecoveryDataCustodyHandoffStateSchema,
+    failureReason: Schema.Union(RecoveryFailureReasonSchema, Schema.Null),
   })
 );
 
@@ -156,11 +337,25 @@ export const SetupAuditEventSchema = withParser(
 
 export type SetupInvitePurpose = Infer<typeof SetupInvitePurposeSchema>;
 export type SetupInviteState = Infer<typeof SetupInviteStateSchema>;
+export type SetupInviteReplayState = Infer<typeof SetupInviteReplayStateSchema>;
+export type SetupInviteTargetRole = Infer<typeof SetupInviteTargetRoleSchema>;
+export type SetupInviteDecisionState = Infer<typeof SetupInviteDecisionStateSchema>;
+export type SetupInviteFailureReason = Infer<typeof SetupInviteFailureReasonSchema>;
 export type RecoveryKind = Infer<typeof RecoveryKindSchema>;
 export type RecoveryState = Infer<typeof RecoveryStateSchema>;
+export type RecoveryIdentityProofState = Infer<typeof RecoveryIdentityProofStateSchema>;
+export type RecoverySupportChannel = Infer<typeof RecoverySupportChannelSchema>;
+export type RecoveryDecisionState = Infer<typeof RecoveryDecisionStateSchema>;
+export type RecoveryChildEvidenceAccessState = Infer<typeof RecoveryChildEvidenceAccessStateSchema>;
+export type RecoveryDataCustodyHandoffState = Infer<typeof RecoveryDataCustodyHandoffStateSchema>;
+export type RecoveryFailureReason = Infer<typeof RecoveryFailureReasonSchema>;
 export type SetupAuditEventKind = Infer<typeof SetupAuditEventKindSchema>;
 export type SetupInvite = Infer<typeof SetupInviteSchema>;
+export type SetupInviteAuthorizationInput = Infer<typeof SetupInviteAuthorizationInputSchema>;
+export type SetupInviteDecision = Infer<typeof SetupInviteDecisionSchema>;
 export type RecoveryOperation = Infer<typeof RecoveryOperationSchema>;
+export type RecoveryAuthorizationInput = Infer<typeof RecoveryAuthorizationInputSchema>;
+export type RecoveryDecision = Infer<typeof RecoveryDecisionSchema>;
 export type SetupAuditEvent = Infer<typeof SetupAuditEventSchema>;
 
 export const SetupInvitePurpose = {
@@ -177,6 +372,27 @@ export const SetupInviteState = {
   Revoked: SetupInviteStateSchema.parse(SetupInviteStateLiteral.Revoked),
 } as const;
 
+export const SetupInviteReplayState = {
+  Fresh: SetupInviteReplayStateSchema.parse(SetupInviteReplayStateLiteral.Fresh),
+  ReplayDetected: SetupInviteReplayStateSchema.parse(SetupInviteReplayStateLiteral.ReplayDetected),
+} as const;
+
+export const SetupInviteDecisionState = {
+  Acceptable: SetupInviteDecisionStateSchema.parse(SetupInviteDecisionStateLiteral.Acceptable),
+  Rejected: SetupInviteDecisionStateSchema.parse(SetupInviteDecisionStateLiteral.Rejected),
+} as const;
+
+export const SetupInviteFailureReason = {
+  InviteNotActive: SetupInviteFailureReasonSchema.parse(SetupInviteFailureReasonLiteral.InviteNotActive),
+  InviteReplayRejected: SetupInviteFailureReasonSchema.parse(SetupInviteFailureReasonLiteral.InviteReplayRejected),
+  InviteNotSingleUse: SetupInviteFailureReasonSchema.parse(SetupInviteFailureReasonLiteral.InviteNotSingleUse),
+  WrongHousehold: SetupInviteFailureReasonSchema.parse(SetupInviteFailureReasonLiteral.WrongHousehold),
+  WrongTargetRole: SetupInviteFailureReasonSchema.parse(SetupInviteFailureReasonLiteral.WrongTargetRole),
+  InviterNotAuthorized: SetupInviteFailureReasonSchema.parse(
+    SetupInviteFailureReasonLiteral.InviterNotAuthorized
+  ),
+} as const;
+
 export const RecoveryKind = {
   ForgotLogin: RecoveryKindSchema.parse(RecoveryKindLiteral.ForgotLogin),
   LostParentDevice: RecoveryKindSchema.parse(RecoveryKindLiteral.LostParentDevice),
@@ -191,6 +407,47 @@ export const RecoveryState = {
   Approved: RecoveryStateSchema.parse(RecoveryStateLiteral.Approved),
   Completed: RecoveryStateSchema.parse(RecoveryStateLiteral.Completed),
   Revoked: RecoveryStateSchema.parse(RecoveryStateLiteral.Revoked),
+} as const;
+
+export const RecoveryIdentityProofState = {
+  Verified: RecoveryIdentityProofStateSchema.parse(RecoveryIdentityProofStateLiteral.Verified),
+  Pending: RecoveryIdentityProofStateSchema.parse(RecoveryIdentityProofStateLiteral.Pending),
+  Failed: RecoveryIdentityProofStateSchema.parse(RecoveryIdentityProofStateLiteral.Failed),
+} as const;
+
+export const RecoverySupportChannel = {
+  SelfServe: RecoverySupportChannelSchema.parse(RecoverySupportChannelLiteral.SelfServe),
+  HouseholdOwnerAssisted: RecoverySupportChannelSchema.parse(RecoverySupportChannelLiteral.HouseholdOwnerAssisted),
+  SupportAssisted: RecoverySupportChannelSchema.parse(RecoverySupportChannelLiteral.SupportAssisted),
+} as const;
+
+export const RecoveryDecisionState = {
+  Authorized: RecoveryDecisionStateSchema.parse(RecoveryDecisionStateLiteral.Authorized),
+  Rejected: RecoveryDecisionStateSchema.parse(RecoveryDecisionStateLiteral.Rejected),
+} as const;
+
+export const RecoveryChildEvidenceAccessState = {
+  Allowed: RecoveryChildEvidenceAccessStateSchema.parse(RecoveryChildEvidenceAccessStateLiteral.Allowed),
+  Blocked: RecoveryChildEvidenceAccessStateSchema.parse(RecoveryChildEvidenceAccessStateLiteral.Blocked),
+} as const;
+
+export const RecoveryDataCustodyHandoffState = {
+  None: RecoveryDataCustodyHandoffStateSchema.parse(RecoveryDataCustodyHandoffStateLiteral.None),
+  ExportDeleteHandoffRequired: RecoveryDataCustodyHandoffStateSchema.parse(
+    RecoveryDataCustodyHandoffStateLiteral.ExportDeleteHandoffRequired
+  ),
+  HouseholdTransferHandoffRequired: RecoveryDataCustodyHandoffStateSchema.parse(
+    RecoveryDataCustodyHandoffStateLiteral.HouseholdTransferHandoffRequired
+  ),
+} as const;
+
+export const RecoveryFailureReason = {
+  RecoveryNotActive: RecoveryFailureReasonSchema.parse(RecoveryFailureReasonLiteral.RecoveryNotActive),
+  WrongHousehold: RecoveryFailureReasonSchema.parse(RecoveryFailureReasonLiteral.WrongHousehold),
+  IdentityProofRequired: RecoveryFailureReasonSchema.parse(
+    RecoveryFailureReasonLiteral.IdentityProofRequired
+  ),
+  RoleNotAuthorized: RecoveryFailureReasonSchema.parse(RecoveryFailureReasonLiteral.RoleNotAuthorized),
 } as const;
 
 export const SetupAuditEventKind = {
@@ -212,27 +469,240 @@ export function isSetupInviteActive(input: SetupInvite): boolean {
 export function doesSetupInviteMatchTargetRole(input: SetupInvite): boolean {
   const invite = SetupInviteSchema.parse(input);
 
-  switch (invite.purpose) {
-    case SetupInvitePurpose.CoParentInvite:
-      return invite.targetRole === HouseholdRole.CoParentGuardian;
-    case SetupInvitePurpose.ObserverInvite:
-      return invite.targetRole === HouseholdRole.Observer;
-    case SetupInvitePurpose.ChildDevicePairing:
-      return invite.targetRole === HouseholdRole.ChildDeviceAgent;
-    case SetupInvitePurpose.HouseholdTransfer:
-      return invite.targetRole === HouseholdRole.ParentOwner;
-    default:
-      return false;
+  return purposeMatchesTargetRole(invite.purpose, invite.targetRole);
+}
+
+export function isSetupInviteSinglePurpose(input: SetupInvite): boolean {
+  const invite = SetupInviteSchema.parse(input);
+
+  return invite.singleUse && doesSetupInviteMatchTargetRole(invite);
+}
+
+export function authorizeSetupInvite(input: SetupInviteAuthorizationInput): SetupInviteDecision {
+  const parsedInput = SetupInviteAuthorizationInputSchema.parse(input);
+
+  if (parsedInput.inviteState !== SetupInviteState.Pending) {
+    return rejectedSetupInvite(SetupInviteFailureReason.InviteNotActive);
   }
+
+  if (!parsedInput.singleUse) {
+    return rejectedSetupInvite(SetupInviteFailureReason.InviteNotSingleUse);
+  }
+
+  if (parsedInput.replayState !== SetupInviteReplayState.Fresh) {
+    return rejectedSetupInvite(SetupInviteFailureReason.InviteReplayRejected);
+  }
+
+  if (!parsedInput.sameFamily) {
+    return rejectedSetupInvite(SetupInviteFailureReason.WrongHousehold);
+  }
+
+  if (!purposeMatchesTargetRole(parsedInput.purpose, parsedInput.targetRole)) {
+    return rejectedSetupInvite(SetupInviteFailureReason.WrongTargetRole);
+  }
+
+  if (!inviterCanIssue(parsedInput.inviterRole, parsedInput.purpose)) {
+    return rejectedSetupInvite(SetupInviteFailureReason.InviterNotAuthorized);
+  }
+
+  return SetupInviteDecisionSchema.parse({
+    decisionState: SetupInviteDecisionState.Acceptable,
+    auditRequirementState: AuditRequirementState.Required,
+    failureReason: null,
+  });
 }
 
 export function recoveryRequiresOwnerApproval(input: RecoveryOperation): boolean {
   const recovery = RecoveryOperationSchema.parse(input);
 
+  return requiresOwnerApproval(recovery.kind, recovery.ownerApprovalRequired);
+}
+
+export function recoveryDataCustodyHandoffState(input: RecoveryOperation): RecoveryDataCustodyHandoffState {
+  const recovery = RecoveryOperationSchema.parse(input);
+
+  return dataCustodyHandoffState(recovery.kind, recovery.deleteExportHandoffRequired);
+}
+
+export function recoveryRequiresAuditedSupport(input: RecoveryOperation): boolean {
+  const recovery = RecoveryOperationSchema.parse(input);
+
+  return recovery.supportChannel === RecoverySupportChannel.SupportAssisted;
+}
+
+export function recoveryCanAccessChildEvidence(input: RecoveryOperation): boolean {
+  const recovery = RecoveryOperationSchema.parse(input);
+  const hasHouseholdAuthority =
+    recovery.requesterMembershipState === HouseholdMembershipState.Active &&
+    (recovery.requestedBy.role === ParentActorRole.Parent || recovery.requestedBy.role === ParentActorRole.Guardian);
+
   return (
-    recovery.ownerApprovalRequired ||
-    recovery.kind === RecoveryKind.LostParentDevice ||
-    recovery.kind === RecoveryKind.CompromisedAccount ||
-    recovery.kind === RecoveryKind.HouseholdTransfer
+    hasHouseholdAuthority &&
+    recovery.identityProofState === RecoveryIdentityProofState.Verified &&
+    recovery.supportChannel !== RecoverySupportChannel.SupportAssisted
   );
+}
+
+export function evaluateRecoveryOperation(input: RecoveryAuthorizationInput): RecoveryDecision {
+  const parsedInput = RecoveryAuthorizationInputSchema.parse(input);
+  const ownerApprovalRequired = requiresOwnerApproval(parsedInput.kind, parsedInput.ownerApprovalRequired);
+  const childEvidenceAccessState = recoveryChildEvidenceAccessState(
+    parsedInput.requesterRole,
+    parsedInput.sameFamily,
+    parsedInput.supportChannel
+  );
+  const dataCustodyHandoffState = dataCustodyHandoffState(
+    parsedInput.kind,
+    parsedInput.deleteExportHandoffRequired
+  );
+
+  if (parsedInput.state === RecoveryState.Revoked) {
+    return rejectedRecovery(
+      RecoveryFailureReason.RecoveryNotActive,
+      ownerApprovalRequired,
+      childEvidenceAccessState,
+      dataCustodyHandoffState
+    );
+  }
+
+  if (parsedInput.requesterRole !== HouseholdRole.SupportAdmin && !parsedInput.sameFamily) {
+    return rejectedRecovery(
+      RecoveryFailureReason.WrongHousehold,
+      ownerApprovalRequired,
+      childEvidenceAccessState,
+      dataCustodyHandoffState
+    );
+  }
+
+  if (parsedInput.identityProofState !== RecoveryIdentityProofState.Verified) {
+    return rejectedRecovery(
+      RecoveryFailureReason.IdentityProofRequired,
+      ownerApprovalRequired,
+      childEvidenceAccessState,
+      dataCustodyHandoffState
+    );
+  }
+
+  if (!requesterCanRecover(parsedInput.requesterRole, parsedInput.kind, parsedInput.supportChannel)) {
+    return rejectedRecovery(
+      RecoveryFailureReason.RoleNotAuthorized,
+      ownerApprovalRequired,
+      childEvidenceAccessState,
+      dataCustodyHandoffState
+    );
+  }
+
+  return RecoveryDecisionSchema.parse({
+    decisionState: RecoveryDecisionState.Authorized,
+    ownerApprovalRequired,
+    auditRequirementState: AuditRequirementState.Required,
+    childEvidenceAccessState,
+    dataCustodyHandoffState,
+    failureReason: null,
+  });
+}
+
+function rejectedSetupInvite(failureReason: SetupInviteFailureReason): SetupInviteDecision {
+  return SetupInviteDecisionSchema.parse({
+    decisionState: SetupInviteDecisionState.Rejected,
+    auditRequirementState: AuditRequirementState.Required,
+    failureReason,
+  });
+}
+
+function rejectedRecovery(
+  failureReason: RecoveryFailureReason,
+  ownerApprovalRequired: boolean,
+  childEvidenceAccessState: RecoveryChildEvidenceAccessState,
+  dataCustodyHandoffState: RecoveryDataCustodyHandoffState
+): RecoveryDecision {
+  return RecoveryDecisionSchema.parse({
+    decisionState: RecoveryDecisionState.Rejected,
+    ownerApprovalRequired,
+    auditRequirementState: AuditRequirementState.Required,
+    childEvidenceAccessState,
+    dataCustodyHandoffState,
+    failureReason,
+  });
+}
+
+function purposeMatchesTargetRole(
+  purpose: SetupInvitePurpose,
+  targetRole: SetupInviteTargetRole | HouseholdRole
+): boolean {
+  return (
+    (purpose === SetupInvitePurpose.CoParentInvite && targetRole === HouseholdRole.CoParentGuardian) ||
+    (purpose === SetupInvitePurpose.ObserverInvite && targetRole === HouseholdRole.Observer) ||
+    (purpose === SetupInvitePurpose.ChildDevicePairing && targetRole === HouseholdRole.ChildDeviceAgent) ||
+    (purpose === SetupInvitePurpose.HouseholdTransfer && targetRole === HouseholdRole.ParentOwner)
+  );
+}
+
+function inviterCanIssue(role: HouseholdRole, purpose: SetupInvitePurpose): boolean {
+  switch (purpose) {
+    case SetupInvitePurpose.CoParentInvite:
+    case SetupInvitePurpose.ObserverInvite:
+    case SetupInvitePurpose.ChildDevicePairing:
+      return role === HouseholdRole.ParentOwner || role === HouseholdRole.CoParentGuardian;
+    case SetupInvitePurpose.HouseholdTransfer:
+      return role === HouseholdRole.ParentOwner;
+  }
+
+  return false;
+}
+
+function requesterCanRecover(
+  role: HouseholdRole,
+  kind: RecoveryKind,
+  supportChannel: RecoverySupportChannel
+): boolean {
+  if (role === HouseholdRole.SupportAdmin) {
+    return supportChannel === RecoverySupportChannel.SupportAssisted;
+  }
+
+  if (kind === RecoveryKind.HouseholdTransfer) {
+    return role === HouseholdRole.ParentOwner;
+  }
+
+  return role === HouseholdRole.ParentOwner || role === HouseholdRole.CoParentGuardian;
+}
+
+function requiresOwnerApproval(kind: RecoveryKind, ownerApprovalRequired: boolean): boolean {
+  return (
+    ownerApprovalRequired ||
+    kind === RecoveryKind.LostParentDevice ||
+    kind === RecoveryKind.CompromisedAccount ||
+    kind === RecoveryKind.HouseholdTransfer
+  );
+}
+
+function dataCustodyHandoffState(
+  kind: RecoveryKind,
+  deleteExportHandoffRequired: boolean
+): RecoveryDataCustodyHandoffState {
+  if (kind === RecoveryKind.HouseholdTransfer) {
+    return RecoveryDataCustodyHandoffState.HouseholdTransferHandoffRequired;
+  }
+
+  if (deleteExportHandoffRequired) {
+    return RecoveryDataCustodyHandoffState.ExportDeleteHandoffRequired;
+  }
+
+  return RecoveryDataCustodyHandoffState.None;
+}
+
+function recoveryChildEvidenceAccessState(
+  requesterRole: HouseholdRole,
+  sameFamily: boolean,
+  supportChannel: RecoverySupportChannel
+): RecoveryChildEvidenceAccessState {
+  const hasHouseholdAuthority =
+    sameFamily &&
+    (requesterRole === HouseholdRole.ParentOwner || requesterRole === HouseholdRole.CoParentGuardian);
+
+  if (hasHouseholdAuthority && supportChannel !== RecoverySupportChannel.SupportAssisted) {
+    return RecoveryChildEvidenceAccessState.Allowed;
+  }
+
+  return RecoveryChildEvidenceAccessState.Blocked;
 }

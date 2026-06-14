@@ -26,6 +26,9 @@ pub(crate) struct NetworkProductPathServiceProofReport {
     pub(crate) adapter_action_executed_count: usize,
     pub(crate) ai_advisory_rows: usize,
     pub(crate) weak_or_unavailable_blocked_rows: usize,
+    pub(crate) analyzer_alert_refs: Vec<String>,
+    pub(crate) ai_detection_refs: Vec<String>,
+    pub(crate) risk_budget_refs: Vec<String>,
     pub(crate) policy_decision_refs: Vec<String>,
     pub(crate) action_result_refs: Vec<String>,
     pub(crate) retention_refs: Vec<String>,
@@ -76,6 +79,16 @@ impl NetworkProductPathServiceProofReport {
         self.ai_advisory_rows += usize::from(proof.ai_advisory_only);
         self.weak_or_unavailable_blocked_rows +=
             usize::from(proof.weak_or_unavailable_evidence_enforcement_blocked);
+        for result in &proof.ai_detection.results {
+            push_unique(&mut self.ai_detection_refs, result.detection_ref.clone());
+            for analyzer_alert_ref in &result.analyzer_alert_refs {
+                push_unique(&mut self.analyzer_alert_refs, analyzer_alert_ref.clone());
+            }
+        }
+        push_unique(
+            &mut self.risk_budget_refs,
+            proof.risk_budget.risk_budget_ref.clone(),
+        );
         push_unique(
             &mut self.policy_decision_refs,
             proof.policy_mapping.policy_decision_ref.clone(),

@@ -1,6 +1,6 @@
 use ocentra_parent_agent_protocol::{
-    constants, TrackingMissingDeviceEvaluationId, TrackingMissingDeviceState,
-    tracking_missing_device_evaluation_id_from_child_device_id,
+    constants, tracking_missing_device_evaluation_id_from_child_device_id,
+    TrackingMissingDeviceEvaluationId, TrackingMissingDeviceState,
 };
 
 use crate::{evaluate_tracking_device_status, TrackingDeviceStatusInput};

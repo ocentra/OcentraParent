@@ -1,63 +1,26 @@
-# Workpack 05: Invoice Tax Refund Dispute
+# Workpack 05: Invoice, Tax, Refund, and Dispute
 
-Goal: define billing back-office states before launch.
+Purpose: define invoice, tax, refund, dispute, cancellation, and grace behavior as one coordinated contract.
 
-Expected shape:
+## Owns
 
-- Invoices and receipts are visible through Stripe-hosted surfaces or app-supported links.
-- Tax handling is explicit and region-sensitive.
-- Refunds, disputes, chargebacks, cancellation, and failed payment recovery have state transitions.
-- Support/admin actions are authorized and audited.
+- `INVOICE_TAX_REFUND_DISPUTE_MODEL.md`
+- PSP-005 and the invoice/grace parts of the billing policy
 
-Expected proof:
+## Must prove
 
-- Invoice/customer portal proof.
-- Refund/dispute state proof.
-- Admin role proof.
-- Entitlement revoke/restore proof.
+- Invoice creation and finalization are recorded.
+- Tax is materialized in the app ledger.
+- Full and partial refunds are distinguishable.
+- Disputes freeze or limit entitlement per policy.
+- Cancellation and grace transitions are explicit.
 
-Failure: payment support docs that cannot explain what happens after cancellation, failed renewal, refund, or dispute.
+## Proof path
 
-## Execution Detail
+- Use `docs/proof/payment-subscription-plan/wp05/` or the owning crate's local proof directory.
 
-Minimum context:
+## Failure conditions
 
-- Official Stripe Billing, Customer Portal, invoice, refund, and dispute docs.
-- `E:\ocentra-games\infra\cloudflare\src\handlers\payments.ts`
-- `E:\ocentra-games\infra\cloudflare\src\logic\payment-state-machine.ts`
-
-Research required:
-
-- Decide with Sujan which countries/currencies/taxes are supported at launch.
-- Decide whether refunds are self-service, support-mediated, or both.
-- Decide grace period and safety behavior after failed renewal or chargeback.
-
-Required states:
-
-- active.
-- trialing.
-- past_due.
-- canceled.
-- unpaid.
-- refunded.
-- disputed.
-- dispute_won.
-- dispute_lost.
-- grace.
-- support_required.
-
-Expected tests/proof names:
-
-- `billing.invoice-visible`
-- `billing.tax-mode-decision`
-- `billing.refund-state`
-- `billing.dispute-state`
-- `billing.failed-renewal-grace`
-- `billing.support-admin-audited`
-
-Proof artifact expectations:
-
-- Billing lifecycle matrix.
-- Support/admin action matrix.
-- Entitlement side-effect proof.
-- Customer-visible copy expectations.
+- The workpack fails if refunds or disputes silently change access.
+- The workpack fails if invoice or tax data includes child telemetry.
+- The workpack fails if cancellation does not record its entitlement effect.

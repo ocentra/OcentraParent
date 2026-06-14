@@ -1,11 +1,16 @@
-use ocentra_eventing::EventingError;
+use ocentra_eventing::{
+    CorrelationId, EventBus, EventCustody, EventId, EventMetadata, EventSource, EventingError,
+    RecordedAt, RequestCompletionOutcome, RuntimeInstanceId, RuntimeRole, SourceComponent,
+    SourceService, TargetHandler,
+};
 use ocentra_parent_agent_protocol::{
-    constants, TrackingAlertSeverity, TrackingCheckInState, TrackingExpectedPlaceState,
-    TrackingTransitionKind,
-    tracking_ai_request_id_from_evidence_ref, tracking_check_in_id_from_observation_id,
+    constants, tracking_ai_request_id_from_evidence_ref, tracking_check_in_id_from_observation_id,
     tracking_evaluation_id_from_observation_id, tracking_evidence_ref_from_observation_id,
     tracking_notification_id_from_violation_id, tracking_transition_id_from_observation_id,
-    tracking_violation_id_from_ai_request_and_rule_ref,
+    tracking_violation_id_from_ai_request_and_rule_ref, TrackingAlertSeverity,
+    TrackingCheckInState, TrackingChildCheckInDeliveryState, TrackingChildCheckInRequestState,
+    TrackingChildCheckInRequestedEvent, TrackingExpectedPlaceState, TrackingPolicyViolationId,
+    TrackingReasonCode, TrackingTimestamp, TrackingTransitionKind,
 };
 
 #[tokio::test]
@@ -171,8 +176,8 @@ async fn tracking_runtime_flow_keeps_ai_policy_and_notification_decoupled_by_eve
             .as_ref()
             .expect(constants::tracking_runtime::ERROR_TRACKING_RUNTIME_FLOW_RECORDED)
             .severity,
-        TrackingAlertSeverity::parse(constants::tracking_runtime::ALERT_SEVERITY_REVIEW)
-            .expect(constants::tracking_runtime::ALERT_SEVERITY_REVIEW)
+        TrackingAlertSeverity::parse(constants::tracking_runtime::ALERT_SEVERITY_WATCH)
+            .expect(constants::tracking_runtime::ALERT_SEVERITY_WATCH)
     );
     assert_eq!(
         flow_report
@@ -246,14 +251,21 @@ async fn tracking_runtime_flow_can_attach_once_to_runtime_owned_bus() {
         .expect(constants::tracking_runtime::ERROR_TRACKING_RUNTIME_FLOW_RECORDED);
     let metrics_after = runtime_flow.metrics_snapshot().await;
 
-    assert_eq!(metrics_before.subscription_count, 5);
-    assert_eq!(metrics_after.subscription_count, 5);
+    assert_eq!(metrics_before.subscription_count, 6);
+    assert_eq!(metrics_after.subscription_count, 6);
     assert_eq!(
         flow_report
             .tracking_subscription_report
             .subscriber_id
             .as_str(),
         constants::tracking_runtime::SUBSCRIBER_CHILD_TRACKING_OBSERVER
+    );
+    assert_eq!(
+        flow_report
+            .child_check_in_request_subscription_report
+            .subscriber_id
+            .as_str(),
+        constants::tracking_runtime::SUBSCRIBER_CHILD_TRACKING_CHECK_IN_REQUESTER
     );
     assert_eq!(
         flow_report
@@ -321,8 +333,8 @@ async fn tracking_runtime_flow_can_route_away_from_expected_place_without_ai_bou
             .as_ref()
             .expect(constants::tracking_runtime::ERROR_TRACKING_RUNTIME_FLOW_RECORDED)
             .severity,
-        TrackingAlertSeverity::parse(constants::tracking_runtime::ALERT_SEVERITY_REVIEW)
-            .expect(constants::tracking_runtime::ALERT_SEVERITY_REVIEW)
+        TrackingAlertSeverity::parse(constants::tracking_runtime::ALERT_SEVERITY_WATCH)
+            .expect(constants::tracking_runtime::ALERT_SEVERITY_WATCH)
     );
     assert_eq!(
         flow_report
@@ -439,8 +451,8 @@ async fn tracking_runtime_flow_suppresses_duplicate_parent_notifications_on_repe
             .as_ref()
             .expect(constants::tracking_runtime::ERROR_TRACKING_RUNTIME_FLOW_RECORDED)
             .severity,
-        TrackingAlertSeverity::parse(constants::tracking_runtime::ALERT_SEVERITY_NONE)
-            .expect(constants::tracking_runtime::ALERT_SEVERITY_NONE)
+        TrackingAlertSeverity::parse(constants::tracking_runtime::ALERT_SEVERITY_WATCH)
+            .expect(constants::tracking_runtime::ALERT_SEVERITY_WATCH)
     );
     assert_eq!(
         second_report
@@ -448,7 +460,7 @@ async fn tracking_runtime_flow_suppresses_duplicate_parent_notifications_on_repe
             .as_ref()
             .expect(constants::tracking_runtime::ERROR_TRACKING_RUNTIME_FLOW_RECORDED)
             .parent_notification_state,
-        ocentra_tracking_core::TrackingParentNotificationDecisionState::Suppressed
+        ocentra_tracking_core::TrackingParentNotificationDecisionState::SuppressedDuplicate
     );
     assert!(second_report.policy_violation_detected.is_some());
     assert!(second_report.parent_notification_requested.is_none());
@@ -470,4 +482,204 @@ async fn tracking_runtime_flow_rejects_invalid_location_before_recording_evidenc
             value: String::from(constants::tracking_runtime::LOCATION_VALIDATION_REJECTED_ACCURACY),
         }
     );
+}
+
+#[tokio::test]
+async fn tracking_runtime_flow_marks_duplicate_parent_requested_check_in_receipts() {
+    let bus = EventBus::new();
+    let runtime_flow = ocentra_child_runtime::TrackingRuntimeEventFlow::with_bus(bus.clone())
+        .await
+        .expect(constants::tracking_runtime::ERROR_TRACKING_RUNTIME_FLOW_RECORDED);
+    let request = parent_requested_check_in_event(
+        TrackingChildCheckInDeliveryState::Queued,
+        TrackingChildCheckInRequestState::Pending,
+        "2026-06-12T12:05:00Z",
+    );
+
+    bus.publish(
+        request.clone(),
+        parent_requested_check_in_metadata(
+            request.check_in_id.as_str(),
+            constants::tracking_runtime::DEFAULT_OBSERVED_AT,
+        ),
+    )
+    .await
+    .expect(constants::tracking_runtime::ERROR_TRACKING_RUNTIME_FLOW_RECORDED);
+    bus.publish(
+        request,
+        parent_requested_check_in_metadata(
+            constants::tracking_runtime::DEFAULT_CHILD_CHECK_IN_ID,
+            "2026-06-12T12:00:01Z",
+        ),
+    )
+    .await
+    .expect(constants::tracking_runtime::ERROR_TRACKING_RUNTIME_FLOW_RECORDED);
+
+    let (_, _, receipt, completion) = runtime_flow
+        .latest_parent_requested_check_in()
+        .expect("duplicate request should be recorded");
+
+    assert_eq!(
+        receipt.delivery_state,
+        TrackingChildCheckInDeliveryState::Duplicate
+    );
+    assert_eq!(
+        receipt.reason_code,
+        Some(
+            TrackingReasonCode::parse(
+                constants::tracking_runtime::REASON_DUPLICATE_CHECK_IN_REQUEST,
+            )
+            .expect(constants::tracking_runtime::REASON_DUPLICATE_CHECK_IN_REQUEST),
+        )
+    );
+    assert_eq!(completion.outcome, RequestCompletionOutcome::Late);
+}
+
+#[tokio::test]
+async fn tracking_runtime_flow_marks_stale_parent_requested_check_in_receipts() {
+    let bus = EventBus::new();
+    let runtime_flow = ocentra_child_runtime::TrackingRuntimeEventFlow::with_bus(bus.clone())
+        .await
+        .expect(constants::tracking_runtime::ERROR_TRACKING_RUNTIME_FLOW_RECORDED);
+    let request = parent_requested_check_in_event(
+        TrackingChildCheckInDeliveryState::Queued,
+        TrackingChildCheckInRequestState::Pending,
+        "2026-06-12T11:59:59Z",
+    );
+
+    bus.publish(
+        request,
+        parent_requested_check_in_metadata(
+            constants::tracking_runtime::DEFAULT_CHILD_CHECK_IN_ID,
+            constants::tracking_runtime::DEFAULT_OBSERVED_AT,
+        ),
+    )
+    .await
+    .expect(constants::tracking_runtime::ERROR_TRACKING_RUNTIME_FLOW_RECORDED);
+
+    let (_, _, receipt, completion) = runtime_flow
+        .latest_parent_requested_check_in()
+        .expect("stale request should be recorded");
+
+    assert_eq!(
+        receipt.delivery_state,
+        TrackingChildCheckInDeliveryState::Stale
+    );
+    assert_eq!(
+        receipt.reason_code,
+        Some(
+            TrackingReasonCode::parse(constants::tracking_runtime::REASON_STALE_CHECK_IN_REQUEST)
+                .expect(constants::tracking_runtime::REASON_STALE_CHECK_IN_REQUEST),
+        )
+    );
+    assert_eq!(completion.outcome, RequestCompletionOutcome::Late);
+}
+
+#[tokio::test]
+async fn tracking_runtime_flow_marks_unsupported_parent_requested_check_in_delivery() {
+    let bus = EventBus::new();
+    let runtime_flow = ocentra_child_runtime::TrackingRuntimeEventFlow::with_bus(bus.clone())
+        .await
+        .expect(constants::tracking_runtime::ERROR_TRACKING_RUNTIME_FLOW_RECORDED);
+    let request = parent_requested_check_in_event(
+        TrackingChildCheckInDeliveryState::Requested,
+        TrackingChildCheckInRequestState::Pending,
+        "2026-06-12T12:05:00Z",
+    );
+
+    bus.publish(
+        request,
+        parent_requested_check_in_metadata(
+            constants::tracking_runtime::DEFAULT_CHILD_CHECK_IN_ID,
+            constants::tracking_runtime::DEFAULT_OBSERVED_AT,
+        ),
+    )
+    .await
+    .expect(constants::tracking_runtime::ERROR_TRACKING_RUNTIME_FLOW_RECORDED);
+
+    let (_, _, receipt, completion) = runtime_flow
+        .latest_parent_requested_check_in()
+        .expect("unsupported delivery should be recorded");
+
+    assert_eq!(
+        receipt.delivery_state,
+        TrackingChildCheckInDeliveryState::UnsupportedDelivery
+    );
+    assert_eq!(
+        receipt.reason_code,
+        Some(
+            TrackingReasonCode::parse(
+                constants::tracking_runtime::REASON_UNSUPPORTED_CHECK_IN_DELIVERY,
+            )
+            .expect(constants::tracking_runtime::REASON_UNSUPPORTED_CHECK_IN_DELIVERY),
+        )
+    );
+    assert_eq!(completion.outcome, RequestCompletionOutcome::Late);
+}
+
+fn parent_requested_check_in_event(
+    delivery_state: TrackingChildCheckInDeliveryState,
+    request_state: TrackingChildCheckInRequestState,
+    expires_at: &str,
+) -> TrackingChildCheckInRequestedEvent {
+    TrackingChildCheckInRequestedEvent {
+        child_device_id: ocentra_parent_agent_protocol::TrackingChildDeviceId::parse(
+            constants::tracking_runtime::DEFAULT_CHILD_DEVICE_ID,
+        )
+        .expect(constants::tracking_runtime::DEFAULT_CHILD_DEVICE_ID),
+        child_profile_id: ocentra_parent_agent_protocol::TrackingChildProfileId::parse(
+            constants::tracking_runtime::DEFAULT_CHILD_PROFILE_ID,
+        )
+        .expect(constants::tracking_runtime::DEFAULT_CHILD_PROFILE_ID),
+        check_in_id: ocentra_parent_agent_protocol::TrackingCheckInId::parse(
+            constants::tracking_runtime::DEFAULT_CHILD_CHECK_IN_ID,
+        )
+        .expect(constants::tracking_runtime::DEFAULT_CHILD_CHECK_IN_ID),
+        requested_at: TrackingTimestamp::parse(constants::tracking_runtime::DEFAULT_OBSERVED_AT)
+            .expect(constants::tracking_runtime::DEFAULT_OBSERVED_AT),
+        request_state,
+        delivery_state,
+        related_alert_id: TrackingPolicyViolationId::parse(
+            constants::tracking_runtime::DEFAULT_POLICY_VIOLATION_ID,
+        )
+        .expect(constants::tracking_runtime::DEFAULT_POLICY_VIOLATION_ID),
+        include_location_if_permitted: true,
+        expires_at: TrackingTimestamp::parse(expires_at).expect(expires_at),
+        evidence_refs: vec![ocentra_parent_agent_protocol::TrackingEvidenceRef::parse(
+            constants::tracking_runtime::DEFAULT_EVIDENCE_REF,
+        )
+        .expect(constants::tracking_runtime::DEFAULT_EVIDENCE_REF)],
+        audit_refs: vec![String::from("audit.tracking.child-check-in.request")],
+    }
+}
+
+fn parent_requested_check_in_metadata(check_in_id: &str, observed_at: &str) -> EventMetadata {
+    EventMetadata::from_parts(
+        EventId::generated(),
+        CorrelationId::parse(format!(
+            "{}{}",
+            constants::tracking_runtime::CORRELATION_PREFIX,
+            check_in_id
+        ))
+        .expect(constants::tracking_runtime::CORRELATION_PREFIX),
+        EventSource::new(
+            EventCustody::parse(constants::eventing_source::CUSTODY_LOCAL_JOURNAL)
+                .expect(constants::eventing_source::CUSTODY_LOCAL_JOURNAL),
+            RuntimeRole::parse(constants::eventing_source::ROLE_CONTROLLER)
+                .expect(constants::eventing_source::ROLE_CONTROLLER),
+            SourceService::parse(constants::peer::LOCAL_DEV_AGENT)
+                .expect(constants::peer::LOCAL_DEV_AGENT),
+            SourceComponent::parse(constants::tracking_runtime::SOURCE_COMPONENT_PARENT_RUNTIME)
+                .expect(constants::tracking_runtime::SOURCE_COMPONENT_PARENT_RUNTIME),
+            RuntimeInstanceId::parse(constants::peer::PORTAL_DEV)
+                .expect(constants::peer::PORTAL_DEV),
+        ),
+        RecordedAt::parse(observed_at).expect(observed_at),
+        Some(
+            TargetHandler::parse(
+                constants::tracking_runtime::TARGET_HANDLER_CHILD_TRACKING_CHECK_IN_REQUESTER,
+            )
+            .expect(constants::tracking_runtime::TARGET_HANDLER_CHILD_TRACKING_CHECK_IN_REQUESTER),
+        ),
+    )
 }

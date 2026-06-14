@@ -47,10 +47,10 @@ delivery, policy execution, broad app blocking, or platform support.
 
 ## DONE Checklist
 
-- [x] Cross-recorded from shared app/game WP56 without creating a separate
+- [ ] Cross-recorded from shared app/game WP56 without creating a separate
       native-app notification protocol.
-- [x] Native app notification readiness rows stay backed by the shared
+- [ ] Native app notification readiness rows stay backed by the shared
       app/game service read model and protocol constants.
-- [x] Proof pack records no provider delivery, no receipt ingestion, no local
+- [ ] Proof pack records no provider delivery, no receipt ingestion, no local
       outbox runtime, no scheduler runtime, no parent UI, no child delivery, no
       policy execution, no broad app blocking, and no platform support claim.

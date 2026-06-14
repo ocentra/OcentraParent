@@ -42,11 +42,11 @@ Proof root: `output/tracking-plan-proof/18-child-check-in-flow/`
 
 ## AI Worker Checklist
 
-- [x] Use calm child-safe copy.
-- [x] Support optional current location sample where permission allows.
-- [x] Audit every prompt and response.
-- [x] Resolve or update alert state from child response.
-- [x] Test unresolved check-in escalation by rule only.
+- [ ] Use calm child-safe copy.
+- [ ] Support optional current location sample where permission allows.
+- [ ] Audit every prompt and response.
+- [ ] Resolve or update alert state from child response.
+- [ ] Test unresolved check-in escalation by rule only.
 
 ## Where We Are
 
@@ -99,64 +99,64 @@ This workpack can be assigned independently, implemented against the owning doma
 
 ## Fill This Before Reporting DONE Or PR-ready
 
-- [x] Workpack id and branch: `codex/tracking-plan-full-scope`.
-- [x] Touched files: parent tracking policy runtime, tests, proof script,
+- [ ] Workpack id and branch: `codex/tracking-plan-full-scope`.
+- [ ] Touched files: parent tracking policy runtime, tests, proof script,
       tracking plan docs, checklist, and this workpack doc.
-- [x] Validation commands and results:
+- [ ] Validation commands and results:
       `node scripts/test/tracking-plan-runtime-proof.mjs` passed.
-- [x] Proof artifacts under
+- [ ] Proof artifacts under
       `output/tracking-plan-proof/18-child-check-in-flow/`, including
       `09-policy-alert-proof.json`.
 - [ ] Product doc/checklist updates: tracking plan/checklist updated; central
       product capability checklist reconciliation remains pending while that
       shared doc is actively locked outside this lane.
-- [x] Known gaps/manual-required states: child-device UI, delivery, timeout
+- [ ] Known gaps/manual-required states: child-device UI, delivery, timeout
       escalation wiring, Android/iOS physical proof, provider delivery, and
       notifications remain proof-gated as applicable.
-- [x] Workpack id and branch:
+- [ ] Workpack id and branch:
       `codex/tracking-plan-full-continuation-a`.
-- [x] Touched files: parent-domain child check-in timeout escalation
+- [ ] Touched files: parent-domain child check-in timeout escalation
       proof/test, proof script, owning tracking feature doc, implementation
       checklist, this workpack doc, WP33 proof-gate doc, generated WP18/WP33
       proof artifacts, and hub doc delta queue.
-- [x] Validation commands and results:
+- [ ] Validation commands and results:
       `node scripts/test/tracking-child-check-in-timeout-escalation-proof.mjs`
       passed.
-- [x] Proof artifacts:
+- [ ] Proof artifacts:
       `output/tracking-plan-proof/18-child-check-in-flow/31-child-check-in-timeout-escalation-proof.json`,
       `output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-gate/31-child-check-in-timeout-escalation-proof.json`,
       and
       `test-results/tracking-child-check-in-timeout-escalation-proof/proof.json`.
-- [x] Product doc/checklist updates: owning feature doc, implementation
+- [ ] Product doc/checklist updates: owning feature doc, implementation
       checklist, this workpack doc, and WP33 proof-gate doc updated. Central
       `docs/product-capability-checklist.md` update is queued through the hub
       doc delta.
-- [x] Known gaps/manual-required states: child-device delivery/runtime
+- [ ] Known gaps/manual-required states: child-device delivery/runtime
       execution, rendered child UI, provider delivery, notification receipt
       runtime, live location sample runtime, Android/iOS physical proof,
       authority, production timeout workers, adapter dispatch, and
       product-ready child check-in behavior remain proof-gated.
-- [x] Workpack id and branch:
+- [ ] Workpack id and branch:
       `codex/tracking-plan-full-continuation-a`.
-- [x] Touched files: parent-domain child check-in timeout proof model/test,
+- [ ] Touched files: parent-domain child check-in timeout proof model/test,
       proof harness, owning tracking feature doc, implementation checklist,
       this workpack doc, WP33 proof-gate doc, regenerated WP18/WP33/test-result
       proof artifacts, and hub doc delta queue.
-- [x] Validation commands and results:
+- [ ] Validation commands and results:
       `node scripts/test/tracking-child-check-in-timeout-escalation-proof.mjs`
       passed after adding optional location-sample, prompt/response audit,
       alert-outcome, and rule-only escalation assertions.
-- [x] Proof artifacts:
+- [ ] Proof artifacts:
       `output/tracking-plan-proof/18-child-check-in-flow/31-child-check-in-timeout-escalation-proof.json`,
       `output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-gate/31-child-check-in-timeout-escalation-proof.json`,
       `test-results/tracking-child-check-in-timeout-escalation-proof/proof.json`,
       and
       `test-results/tracking-child-check-in-timeout-escalation-proof/tracking-child-check-in-timeout-read-model.json`.
-- [x] Product doc/checklist updates: owning feature doc, implementation
+- [ ] Product doc/checklist updates: owning feature doc, implementation
       checklist, this workpack doc, and WP33 proof-gate doc updated. Central
       `docs/product-capability-checklist.md` update is queued through the hub
       doc delta.
-- [x] Known gaps/manual-required states: this remains P1 fixture proof.
+- [ ] Known gaps/manual-required states: this remains P1 fixture proof.
       Child-device delivery/runtime execution, rendered child-device UI,
       provider delivery, notification receipt runtime, live location sample
       runtime, Android/iOS physical proof, authority, production timeout

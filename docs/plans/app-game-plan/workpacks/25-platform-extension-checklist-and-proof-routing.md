@@ -30,10 +30,10 @@ checklists without bloating the base MVP or overclaiming support.
 
 ## Tests And Proof
 
-- [x] Extension row names platform and authority tier.
-- [x] Manual proof is attached before status moves.
-- [x] No platform row says simply unsupported when a more precise status exists.
-- [x] Cross-plan handoffs are linked.
+- [ ] Extension row names platform and authority tier.
+- [ ] Manual proof is attached before status moves.
+- [ ] No platform row says simply unsupported when a more precise status exists.
+- [ ] Cross-plan handoffs are linked.
 
 ## Current Proof - 2026-06-03
 

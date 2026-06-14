@@ -47,19 +47,19 @@ Proof root: `output/tracking-plan-proof/10-android-battery-connectivity-and-stat
 
 ## AI Worker Checklist
 
-- [x] Capture emulator battery percentage and charging state where available.
-- [x] Capture low-power/battery-saver degraded state. Proof:
+- [ ] Capture emulator battery percentage and charging state where available.
+- [ ] Capture low-power/battery-saver degraded state. Proof:
       `output/tracking-plan-proof/10-android-battery-connectivity-and-status-adapter/17-status-gap-proof.json`.
-- [x] Capture emulator connectivity dump and active-network summary.
-- [x] Capture app killed/restarted behavior. Proof:
+- [ ] Capture emulator connectivity dump and active-network summary.
+- [ ] Capture app killed/restarted behavior. Proof:
       `output/tracking-plan-proof/10-android-battery-connectivity-and-status-adapter/17-status-gap-proof.json`.
-- [x] Keep pending upload count auditable. Proof:
+- [ ] Keep pending upload count auditable. Proof:
       `test-results/tracking-android-status-proof/proof.json`.
-- [x] Capture Android package launch, foreground-service scaffold, UI tree,
+- [ ] Capture Android package launch, foreground-service scaffold, UI tree,
       screenshot, and logcat for local status proof.
-- [x] Generate the Android Studio/local and physical-device proof artifact plan
+- [ ] Generate the Android Studio/local and physical-device proof artifact plan
       before device work.
-- [x] Link Samsung S9 physical battery/connectivity/status artifacts into the
+- [ ] Link Samsung S9 physical battery/connectivity/status artifacts into the
       WP10 parent-domain status read model. Proof:
       `test-results/tracking-android-status-proof/proof.json`.
 
@@ -129,23 +129,23 @@ This workpack can be assigned independently, implemented against the owning doma
 
 ## Fill This Before Reporting DONE Or PR-ready
 
-- [x] Workpack id and branch:
+- [ ] Workpack id and branch:
       `codex/tracking-plan-full-continuation-a`.
-- [x] Touched files: Android status workpack doc, tracking implementation
+- [ ] Touched files: Android status workpack doc, tracking implementation
       checklist, owning tracking feature doc, WP10 generated proof artifacts,
       and focused Android status proof results.
-- [x] Validation commands and results:
+- [ ] Validation commands and results:
       `node scripts/test/tracking-android-status-proof.mjs` passed locally.
-- [x] Proof artifacts under
+- [ ] Proof artifacts under
       `output/tracking-plan-proof/10-android-battery-connectivity-and-status-adapter/`,
       including `04-device-status-proof.json`, `17-status-gap-proof.json`,
       `15-manual-platform-proof.md`, and `16-validation-commands.log`.
-- [x] Product doc/checklist updates: owning feature doc, implementation
+- [ ] Product doc/checklist updates: owning feature doc, implementation
       checklist, and this workpack doc updated for the local Android
       low-power, killed/restarted, pending-upload, Samsung S9 physical status,
       and manual-required status proof; central capability row update remains a
       hub/primary-owned doc delta.
-- [x] Known gaps/manual-required states: foreground-service-backed physical
+- [ ] Known gaps/manual-required states: foreground-service-backed physical
       background GPS samples are observed on the Samsung S9, but geofence
       transitions, Android system delivery, offline radio behavior, notification
       delivery, device-owner authority, production upload workers, and

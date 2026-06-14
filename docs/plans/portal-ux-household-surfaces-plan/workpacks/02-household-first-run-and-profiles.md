@@ -35,7 +35,7 @@ are live, unavailable, or manual-required.
 | Account/household/roles      | `../../account-identity-family-plan/AGENTS.md`                                               | role/authZ proof                  |
 | Pairing/device setup         | `../../setup-install-provisioning-plan/AGENTS.md` and `../../lan-plan/AGENTS.md` as assigned | pairing/setup proof               |
 | Child profile UI             | this workpack and owning profile/read-model source                                           | empty/partial/configured UI proof |
-| Parent desktop first launch  | `../../parent-desktop-runtime-package-plan/AGENTS.md`                                        | launch/setup handoff proof        |
+| Parent client first launch   | `../../parent-desktop-runtime-package-plan/AGENTS.md`                                        | launch/setup handoff proof        |
 
 ## Required First-Run States
 

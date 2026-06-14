@@ -57,6 +57,11 @@ interface SourceCapability {
   readonly affectsFields: readonly string[];
 }
 
+interface PolicySettingInput {
+  readonly settingId: string;
+  readonly value: string | number | boolean | readonly string[] | null;
+}
+
 interface SourceGuideSetting {
   readonly sectionTitle: string;
   readonly groupTitle: string;
@@ -69,6 +74,27 @@ interface SourceGuideSettingParse {
   readonly nextIndex: number;
 }
 
+const TrackingPlanWorkpackDocsPath = join(
+  process.cwd(),
+  '..',
+  '..',
+  'docs',
+  'plans',
+  'tracking-plan',
+  'workpacks'
+);
+const SourceGuideDocumentId = 'docs/device-location-tracking-capability-guide.md';
+const SourceGuideDocumentPath = join(TrackingPlanWorkpackDocsPath, 'device-location-tracking-capability-guide.md');
+const SourceGuideWorkpackPreambleLineCount = 13;
+const SourceProposalDocumentId = 'docs/device-location-tracking-schema-proposal.md';
+const SourceProposalDocumentPath = join(TrackingPlanWorkpackDocsPath, 'device-location-tracking-schema-proposal.md');
+const TemporaryLiveCompanionSettings = {
+  duration: 'live.maxSessionMinutes',
+  fallback: 'permissions.whenPermissionMissing',
+  custody: 'tracking-guide-custody-retention-and-audit-custody-retention-and-audit-196',
+  audit: 'tracking-guide-custody-retention-and-audit-custody-retention-and-audit-191',
+} as const;
+
 const SourceProposal = readSourceProposal();
 const SourceSections = SourceProposal.authoringManifest.sections;
 const SourceFields = SourceSections.flatMap((section) => section.fields);
@@ -77,10 +103,10 @@ const CatalogSettings = trackingControlCatalogSettings()
   .slice()
   .sort((left, right) => left.sourceOrder - right.sourceOrder);
 const ProposalSettings = CatalogSettings.filter(
-  (setting) => setting.sourceDocument === 'docs/device-location-tracking-schema-proposal.md'
+  (setting) => setting.sourceDocument === SourceProposalDocumentId
 );
 const GuideSettings = CatalogSettings.filter(
-  (setting) => setting.sourceDocument === 'docs/device-location-tracking-capability-guide.md'
+  (setting) => setting.sourceDocument === SourceGuideDocumentId
 ).sort((left, right) => left.sourceLine - right.sourceLine);
 
 describe('tracking-control policy catalog contracts', () => {
@@ -152,8 +178,8 @@ function registerHierarchyCases() {
   it('preserves side panel, tabs, sections, groups, settings, and proposal section counts', () => {
     expect(BaselineTrackingControlCatalog.sidePanelCategory).toBe('tracking');
     expect(BaselineTrackingControlCatalog.sourceDocuments).toEqual([
-      'docs/device-location-tracking-capability-guide.md',
-      'docs/device-location-tracking-schema-proposal.md',
+      SourceGuideDocumentId,
+      SourceProposalDocumentId,
     ]);
     expect(BaselineTrackingControlCatalog.tabs.map((tab) => String(tab.tabId))).toEqual([
       'rules',
@@ -399,13 +425,46 @@ function registerPolicyRejectionCases() {
     invalidCatalog.sidePanelCategory = 'browser';
     expect(TrackingControlCatalogSchema.safeParse(invalidCatalog).success).toBe(false);
   });
+
+  it('rejects temporary-live posture when duration, fallback, custody, or audit companions are missing', () => {
+    const reject = () =>
+      decodeTrackingControlPolicyValueForCatalog(
+        trackingPolicyInput([
+          { settingId: 'location.defaultPosture', value: 'temporary-live' },
+          { settingId: TemporaryLiveCompanionSettings.duration, value: 30 },
+        ])
+      );
+
+    expect(reject).toThrow('Temporary live posture requires companion tracking control settings');
+    expect(reject).toThrow(TemporaryLiveCompanionSettings.fallback);
+    expect(reject).toThrow(TemporaryLiveCompanionSettings.custody);
+    expect(reject).toThrow(TemporaryLiveCompanionSettings.audit);
+  });
+
+  it('accepts temporary-live posture when duration, fallback, custody, and audit companions are present', () => {
+    const policy = decodeTrackingControlPolicyValueForCatalog(
+      trackingPolicyInput([
+        { settingId: 'location.defaultPosture', value: 'temporary-live' },
+        { settingId: TemporaryLiveCompanionSettings.duration, value: 30 },
+        { settingId: TemporaryLiveCompanionSettings.fallback, value: 'fallback-to-check-in' },
+        { settingId: TemporaryLiveCompanionSettings.custody, value: 'represented' },
+        { settingId: TemporaryLiveCompanionSettings.audit, value: 'represented' },
+      ])
+    );
+    const plans = buildTrackingControlEffectivePolicyPlan(policy);
+
+    expect(plans.map((plan) => String(plan.settingId))).toEqual([
+      'location.defaultPosture',
+      TemporaryLiveCompanionSettings.duration,
+      TemporaryLiveCompanionSettings.fallback,
+      TemporaryLiveCompanionSettings.custody,
+      TemporaryLiveCompanionSettings.audit,
+    ]);
+  });
 }
 
 function readSourceProposal(): SourceProposal {
-  const markdown = readFileSync(
-    join(process.cwd(), '..', '..', 'docs', 'device-location-tracking-schema-proposal.md'),
-    'utf8'
-  );
+  const markdown = readFileSync(SourceProposalDocumentPath, 'utf8');
   const jsonBlock = markdown.match(/```json\n([\s\S]*?)\n```/u);
   if (jsonBlock === null) {
     throw new Error('Missing JSON block in device-location-tracking schema proposal.');
@@ -414,10 +473,7 @@ function readSourceProposal(): SourceProposal {
 }
 
 function readSourceGuideSettings(): SourceGuideSetting[] {
-  const lines = readFileSync(
-    join(process.cwd(), '..', '..', 'docs', 'device-location-tracking-capability-guide.md'),
-    'utf8'
-  ).split(/\r?\n/u);
+  const lines = readFileSync(SourceGuideDocumentPath, 'utf8').split(/\r?\n/u);
   const excludedSections = new Set(['Source References']);
   const settings: SourceGuideSetting[] = [];
   let sectionTitle = '';
@@ -466,7 +522,12 @@ function guideTableSettingFromLine(
     return null;
   }
   return {
-    setting: { sectionTitle, groupTitle, sourceLine: index + 1, sourceText: capabilityMatrixSourceText(cells) },
+    setting: {
+      sectionTitle,
+      groupTitle,
+      sourceLine: index + 1 - SourceGuideWorkpackPreambleLineCount,
+      sourceText: capabilityMatrixSourceText(cells),
+    },
     nextIndex: index,
   };
 }
@@ -482,7 +543,7 @@ function guideSettingFromLine(
   if (settingMatch === null || excludedSections.has(sectionTitle)) {
     return null;
   }
-  const sourceLine = index + 1;
+  const sourceLine = index + 1 - SourceGuideWorkpackPreambleLineCount;
   let sourceText = settingMatch[1] ?? '';
   let cursor = index + 1;
   while (cursor < lines.length) {
@@ -613,6 +674,18 @@ function countSettingsBy(property: 'cardKind' | 'effectStatus' | 'capabilityStat
 
 function optionIdsForSetting(setting: (typeof CatalogSettings)[number]) {
   return new Set(setting.acceptedOptions.map((option) => String(option.optionId)));
+}
+
+function trackingPolicyInput(settings: readonly PolicySettingInput[]) {
+  return {
+    documentId: 'tracking-policy-1',
+    policyKind: 'device-location-tracking',
+    schemaVersion: 'v0.6',
+    revision: 1,
+    targetDeviceId: 'device-1',
+    updatedAt: '2026-05-29T00:00:00.000Z',
+    settings,
+  };
 }
 
 function sortedObject(input: Record<string, number>) {

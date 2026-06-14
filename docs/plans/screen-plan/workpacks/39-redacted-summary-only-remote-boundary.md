@@ -28,11 +28,11 @@ summary mode requires a parent approval ref plus parent-owned export custody.
 
 ## Checklist
 
-- [x] Define remote disabled default.
-- [x] Block raw screenshot remote upload.
-- [x] Allow only parent-approved redacted summaries when explicitly enabled.
-- [x] Record parent approval/audit fields.
-- [x] Add negative tests for raw image upload.
+- [ ] Define remote disabled default.
+- [ ] Block raw screenshot remote upload.
+- [ ] Allow only parent-approved redacted summaries when explicitly enabled.
+- [ ] Record parent approval/audit fields.
+- [ ] Add negative tests for raw image upload.
 - [ ] Add privacy/legal review gate.
 
 ## Proof

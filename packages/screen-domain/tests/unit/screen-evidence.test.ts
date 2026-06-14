@@ -1,14 +1,14 @@
 import { describe, expect, it } from 'vitest';
 import { ActivityEvidenceKind } from '@ocentra-parent/evidence-domain/kinds';
+import { ScreenEvidenceSchemaVersion } from '../../src/screen-evidence-primitives';
 import {
-  ScreenAnalysisParentSettingSchema,
-  ScreenAnalysisQueueJobSchema,
   ScreenAnalysisResultSchema,
-  ScreenCapabilitySnapshotSchema,
-  ScreenEvidenceRecentSummarySchema,
-  ScreenEvidenceSchemaVersion,
   ScreenLocalModelOutputSchema,
-} from '../../src/screen-evidence';
+} from '../../src/screen-evidence-result';
+import { ScreenEvidenceRecentSummarySchema } from '../../src/screen-evidence-read-model';
+import { ScreenAnalysisQueueJobSchema } from '../../src/screen-evidence-queue';
+import { ScreenAnalysisParentSettingSchema, ScreenCapabilitySnapshotSchema } from '../../src/screen-evidence-settings';
+import { ScreenPolicyEvidenceChainWithDefaultsSchema } from '../../src/screen-policy-evidence-chain';
 
 const JournalEvidence = {
   evidenceId: 'journal-entry-screen-1',
@@ -109,6 +109,14 @@ const AnalysisResult = {
   imageDeletionState: 'deleted',
   custodyState: 'child-device-journal',
   policyEligible: true,
+  policyDecisionRef: 'screen-policy-decision-1',
+  policyAction: 'allow',
+  policyReasonCodes: ['screen-summary-linked', 'parent-rule-linked'],
+  parentRuleRefs: ['screen-parent-rule-school'],
+  localModelRuntimeRefs: ['local-vision-runtime-1'],
+  parentExplanationRefs: ['screen-parent-explanation-1'],
+  explanationReasons: ['screen-summary-cited', 'policy-decision-cited'],
+  deletionReasons: ['screen-image-deleted'],
 } as const;
 
 const RecentSummary = {
@@ -135,6 +143,14 @@ const RecentSummary = {
   latestConfidence: 0.88,
   latestImageDeletionState: 'deleted',
   latestPolicyEligible: true,
+  latestPolicyDecisionRef: 'screen-policy-decision-1',
+  latestPolicyAction: 'allow',
+  latestPolicyReasonCodes: ['screen-summary-linked', 'parent-rule-linked'],
+  latestParentRuleRefs: ['screen-parent-rule-school'],
+  latestLocalModelRuntimeRefs: ['local-vision-runtime-1'],
+  latestParentExplanationRefs: ['screen-parent-explanation-1'],
+  latestExplanationReasons: ['screen-summary-cited', 'policy-decision-cited'],
+  latestDeletionReasons: ['screen-image-deleted'],
   evidence: [JournalEvidence],
   results: [AnalysisResult],
 } as const;
@@ -158,12 +174,17 @@ function specifyScreenEvidenceParserContracts() {
     expect(setting.screenAnalysisEnabled).toBe(false);
     expect(job.custodyState).toBe('child-device-temp-queue');
     expect(result.rawImageRetained).toBe(false);
+    expect(result.parentRuleRefs).toEqual(['screen-parent-rule-school']);
+    expect(result.parentExplanationRefs).toEqual(['screen-parent-explanation-1']);
     expect(summary.latestPrimaryCategory).toBe('school');
+    expect(summary.latestPolicyDecisionRef).toBe('screen-policy-decision-1');
+    expect(summary.latestParentRuleRefs).toEqual(['screen-parent-rule-school']);
   });
 }
 
 function specifyScreenEvidenceRejectionContracts() {
   it('rejects unsafe retention, unbounded queue settings, confidence drift, and policy use without evidence', () => {
+    const defaultPolicyChain = ScreenPolicyEvidenceChainWithDefaultsSchema.parse({});
     const retainedImage = ScreenAnalysisParentSettingSchema.safeParse({
       ...ParentSetting,
       retainRawImage: true,
@@ -184,12 +205,23 @@ function specifyScreenEvidenceRejectionContracts() {
       ...AnalysisResult,
       sourceEvidenceRefs: [],
     });
+    const policyActionWithoutDecision = ScreenPolicyEvidenceChainWithDefaultsSchema.safeParse({
+      policyAction: 'allow',
+    });
+    const malformedSummaryPolicyRefs = ScreenEvidenceRecentSummarySchema.safeParse({
+      ...RecentSummary,
+      latestParentRuleRefs: [''],
+    });
 
+    expect(defaultPolicyChain.policyDecisionRef).toBeNull();
+    expect(defaultPolicyChain.parentRuleRefs).toEqual([]);
     expect(retainedImage.success).toBe(false);
     expect(lowCadence.success).toBe(false);
     expect(missingDeletionRequired.success).toBe(false);
     expect(highConfidence.success).toBe(false);
     expect(policyWithoutEvidence.success).toBe(false);
+    expect(policyActionWithoutDecision.success).toBe(false);
+    expect(malformedSummaryPolicyRefs.success).toBe(false);
   });
 }
 

@@ -75,14 +75,14 @@ define Ocentra Parent contracts, policy, custody, storage, or UI behavior.
 
 ## Audit Checklist
 
-- [x] Confirm each candidate file is still present before extracting logic.
-- [x] Map every reused idea to an Ocentra TypeScript contract first.
+- [ ] Confirm each candidate file is still present before extracting logic.
+- [ ] Map every reused idea to an Ocentra TypeScript contract first.
 - [ ] Add Rust parity before Rust runtime consumes extracted TabAgent contract
       logic.
 - [ ] Prove local route status, unavailable, timeout, and invalid payload cases
       for any extracted TabAgent route logic.
 - [ ] Prove model cache corruption never deletes or corrupts evidence.
-- [x] Prove memory/graph refs without source evidence are rejected.
+- [ ] Prove memory/graph refs without source evidence are rejected.
 - [ ] Document every copied/extracted module with source, license, changed
       ownership, and deleted unused behavior.
 

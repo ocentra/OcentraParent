@@ -46,45 +46,45 @@ Proof root: `output/tracking-plan-proof/09-android-background-location-and-geofe
 
 ## AI Worker Checklist
 
-- [x] Prove Android 10+ background permission where claimed.
+- [ ] Prove Android 10+ background permission where claimed.
 - [ ] Prove Android 11+ settings-page background permission flow on an image
       with a resolvable Settings activity.
 - [ ] Prove Android system enter, exit, and dwell transitions.
-- [x] Represent active geofence limit.
-- [x] Add battery/background degraded proof before claims.
-- [x] Record emulator package permission-grant proof for
+- [ ] Represent active geofence limit.
+- [ ] Add battery/background degraded proof before claims.
+- [ ] Record emulator package permission-grant proof for
       `ACCESS_BACKGROUND_LOCATION` while preserving no geofence-transition and
       no physical-device claims.
-- [x] Record emulator package/service scaffold proof and explicit
+- [ ] Record emulator package/service scaffold proof and explicit
       no-geofence-transition state before physical-device work.
-- [x] Generate the Android Studio/local and physical-device proof artifact plan
+- [ ] Generate the Android Studio/local and physical-device proof artifact plan
       before device work.
-- [x] Record parent-domain manual-required proof rows for missing background
+- [ ] Record parent-domain manual-required proof rows for missing background
       permission grant and geofence transition runtime before device/runtime work.
-- [x] Record emulator local-geofence enter/exit transition rows from an
+- [ ] Record emulator local-geofence enter/exit transition rows from an
       app-owned `LocationManager` GPS listener while preserving no Android
       system geofencing, no dwell, and no physical-device claims.
-- [x] Record emulator foreground-service-backed background-activity sample rows
+- [ ] Record emulator foreground-service-backed background-activity sample rows
       from app-owned `LocationManager` GPS listener proof storage while
       preserving no Android system background delivery, no physical-device, and
       no product-ready tracking claims.
-- [x] Record active app-owned local geofence count against Android's documented
+- [ ] Record active app-owned local geofence count against Android's documented
       100 geofences per app per device user limit while preserving no Android
       system geofencing, no dwell, and no physical-device claims.
-- [x] Record Android `LocationManager.addProximityAlert` registration separately
+- [ ] Record Android `LocationManager.addProximityAlert` registration separately
       from app-owned local listener transitions while preserving no Android
       system delivery, no dwell, and no physical-device claims.
-- [x] Split Android proximity-alert broadcast delivery counters from app-owned
+- [ ] Split Android proximity-alert broadcast delivery counters from app-owned
       local listener transition counters so emulator proof cannot treat local
       GPS-listener enter/exit rows as Android system geofence delivery.
-- [x] Add a parent-domain system-geofence blocker proof that consumes the
+- [ ] Add a parent-domain system-geofence blocker proof that consumes the
       emulator proof and fails if zero system proximity broadcast counters are
       treated as Android system geofence delivery.
-- [x] Classify local emulator evidence separately from the missing Android
+- [ ] Classify local emulator evidence separately from the missing Android
       system runtime artifact set for system proximity broadcasts, dwell
       transitions, physical-device background geofencing, and authority-enrolled
       runtime proof.
-- [x] Cross-reference WP10 low-power, app-killed/restarted, pending-upload, and
+- [ ] Cross-reference WP10 low-power, app-killed/restarted, pending-upload, and
       manual-required status-gap rows from the WP09 geofence proof while
       preserving no Android system geofencing, no dwell, and no physical-device
       background claims.
@@ -196,23 +196,23 @@ This workpack can be assigned independently, implemented against the owning doma
 
 ## Fill This Before Reporting DONE Or PR-ready
 
-- [x] Workpack id and branch:
+- [ ] Workpack id and branch:
       `codex/tracking-plan-full-continuation-a`.
-- [x] Touched files: Android background/geofence workpack doc, tracking
+- [ ] Touched files: Android background/geofence workpack doc, tracking
       implementation checklist, owning tracking feature doc, WP09 generated
       proof artifacts, and focused Android permission/background proof results.
-- [x] Validation commands and results:
+- [ ] Validation commands and results:
       `npm run test:tracking-plan-android-emulator-proof` passed locally.
-- [x] Proof artifacts under
+- [ ] Proof artifacts under
       `output/tracking-plan-proof/09-android-background-location-and-geofence-adapter/`,
       including `02-platform-permission-proof.md`,
       `05-geofence-transition-proof.json`, `15-manual-platform-proof.md`, and
       `16-validation-commands.log`.
-- [x] Product doc/checklist updates: owning feature doc, implementation
+- [ ] Product doc/checklist updates: owning feature doc, implementation
       checklist, and this workpack doc updated for the local manual-required
       background permission/geofence transition proof; central capability row
       update remains a hub/primary-owned doc delta.
-- [x] Known gaps/manual-required states: Android app settings-page route
+- [ ] Known gaps/manual-required states: Android app settings-page route
       attempt, background permission grant, foreground-service-backed background sample,
       app-owned local geofence enter/exit, and active geofence-limit
       representation are locally observed. Android proximity-alert registration

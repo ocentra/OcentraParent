@@ -1,5 +1,5 @@
-use ocentra_eventing::EventingError;
 use crate::constants;
+use ocentra_eventing::EventingError;
 use serde::{Deserialize, Serialize};
 
 macro_rules! tracking_text_identifier {
@@ -241,9 +241,8 @@ pub fn tracking_transition_id_from_observation_id(
         constants::tracking_runtime::TRACKING_GEOFENCE_TRANSITION_DETECTED_EVENT_TYPE,
         &[observation_id.as_str()],
     );
-    TrackingTransitionId::parse(value).expect(
-        constants::tracking_runtime::TRACKING_GEOFENCE_TRANSITION_DETECTED_EVENT_TYPE,
-    )
+    TrackingTransitionId::parse(value)
+        .expect(constants::tracking_runtime::TRACKING_GEOFENCE_TRANSITION_DETECTED_EVENT_TYPE)
 }
 
 pub fn tracking_evaluation_id_from_observation_id(
@@ -253,9 +252,8 @@ pub fn tracking_evaluation_id_from_observation_id(
         constants::tracking_runtime::TRACKING_EXPECTED_PLACE_STATE_EVALUATED_EVENT_TYPE,
         &[observation_id.as_str()],
     );
-    TrackingEvaluationId::parse(value).expect(
-        constants::tracking_runtime::TRACKING_EXPECTED_PLACE_STATE_EVALUATED_EVENT_TYPE,
-    )
+    TrackingEvaluationId::parse(value)
+        .expect(constants::tracking_runtime::TRACKING_EXPECTED_PLACE_STATE_EVALUATED_EVENT_TYPE)
 }
 
 pub fn tracking_check_in_id_from_observation_id(
@@ -313,10 +311,7 @@ pub fn tracking_violation_id_from_evaluation_and_rule_ref(
     evaluation_id: &TrackingEvaluationId,
     policy_rule_ref: &TrackingPolicyRuleRef,
 ) -> TrackingPolicyViolationId {
-    tracking_policy_violation_id_from_source_and_rule_ref(
-        evaluation_id.as_str(),
-        policy_rule_ref,
-    )
+    tracking_policy_violation_id_from_source_and_rule_ref(evaluation_id.as_str(), policy_rule_ref)
 }
 
 pub fn tracking_notification_id_from_violation_id(
@@ -337,9 +332,8 @@ pub fn tracking_acknowledgement_id_from_violation_id(
         constants::tracking_runtime::TRACKING_PARENT_ACKNOWLEDGEMENT_RECORDED_EVENT_TYPE,
         &[violation_id.as_str()],
     );
-    TrackingAcknowledgementId::parse(value).expect(
-        constants::tracking_runtime::TRACKING_PARENT_ACKNOWLEDGEMENT_RECORDED_EVENT_TYPE,
-    )
+    TrackingAcknowledgementId::parse(value)
+        .expect(constants::tracking_runtime::TRACKING_PARENT_ACKNOWLEDGEMENT_RECORDED_EVENT_TYPE)
 }
 
 pub fn tracking_alert_evaluation_id_from_violation_id(

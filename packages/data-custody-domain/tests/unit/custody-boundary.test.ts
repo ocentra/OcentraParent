@@ -5,6 +5,9 @@ import {
 } from '@ocentra-parent/family-domain/reference-primitives';
 import {
   DataCustodyBoundarySchema,
+  DataCustodyClassId,
+  DataCustodySourceOfTruth,
+  DataCustodySourceOfTruthSchema,
   DataCustodyRawPayloadState,
   DataCustodyRetentionDisposition,
   DataCustodyState,
@@ -42,6 +45,34 @@ describe('data custody boundary contracts', () => {
       DataCustodyBoundarySchema.safeParse({
         ...Boundary,
         recordId: '',
+      }).success
+    ).toBe(false);
+  });
+
+  it('parses canonical self and derived source-of-truth refs', () => {
+    const selfOwned = DataCustodySourceOfTruth.self();
+    const derived = DataCustodySourceOfTruth.derivedFromDataClass(
+      DataCustodyClassId.EncryptedJournalSegment
+    );
+
+    expect(selfOwned.kind).toBe('self');
+    expect(selfOwned.sourceClassId).toBe(null);
+    expect(derived.kind).toBe('derived-from-data-class');
+    expect(derived.sourceClassId).toBe(DataCustodyClassId.EncryptedJournalSegment);
+  });
+
+  it('rejects ambiguous source-of-truth refs', () => {
+    expect(
+      DataCustodySourceOfTruthSchema.safeParse({
+        kind: 'self',
+        sourceClassId: DataCustodyClassId.EncryptedJournalSegment,
+      }).success
+    ).toBe(false);
+
+    expect(
+      DataCustodySourceOfTruthSchema.safeParse({
+        kind: 'derived-from-data-class',
+        sourceClassId: null,
       }).success
     ).toBe(false);
   });

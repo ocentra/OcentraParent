@@ -170,6 +170,12 @@ describe('portal live activity network service state', () => {
       eventWithPayload(AgentEvent.NetworkWindowsWfpGateStatusReported, {
         [AgentProtocolDefaults.Field.NetworkWindowsWfpGateStatus]: '{',
       }),
+      eventWithPayload(AgentEvent.NetworkAndroidVpnServiceGateStatusReported, {
+        [AgentProtocolDefaults.Field.NetworkAndroidVpnServiceGateStatus]: '{',
+      }),
+      eventWithPayload(AgentEvent.NetworkAppleNetworkExtensionGateStatusReported, {
+        [AgentProtocolDefaults.Field.NetworkAppleNetworkExtensionGateStatus]: '{',
+      }),
     ]);
 
     expect(liveActivity.networkRuntimeEventChainEvent?.event).toBe('agent.network.runtime.event-chain.stream.reported');
@@ -212,6 +218,20 @@ describe('portal live activity network service state', () => {
     expect(liveActivity.networkWindowsWfpGateStatusResult).toEqual({
       ok: false,
       reason: 'invalid-windows-wfp-gate-status-json',
+    });
+    expect(liveActivity.networkAndroidVpnServiceGateStatusEvent?.event).toBe(
+      'agent.network.android-vpn-service-gate.status.reported'
+    );
+    expect(liveActivity.networkAndroidVpnServiceGateStatusResult).toEqual({
+      ok: false,
+      reason: 'invalid-android-vpn-service-gate-status-json',
+    });
+    expect(liveActivity.networkAppleNetworkExtensionGateStatusEvent?.event).toBe(
+      'agent.network.apple-network-extension-gate.status.reported'
+    );
+    expect(liveActivity.networkAppleNetworkExtensionGateStatusResult).toEqual({
+      ok: false,
+      reason: 'invalid-apple-network-extension-gate-status-json',
     });
   });
 });

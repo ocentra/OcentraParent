@@ -193,7 +193,9 @@ pub fn evaluate_app_runtime(input: AppRuntimeInput) -> AppRuntimeDecision {
     }
 }
 
-pub fn app_runtime_observed_event(input: AppRuntimeInput) -> ocentra_parent_agent_protocol::ChildDomainObservedEvent {
+pub fn app_runtime_observed_event(
+    input: AppRuntimeInput,
+) -> ocentra_parent_agent_protocol::ChildDomainObservedEvent {
     app_observed_event(evaluate_app_runtime(input).observation_intent)
 }
 

@@ -62,12 +62,16 @@ pub enum ActivityEventKind {
     ScreenAnalysisSummarized,
     #[serde(rename = "activity.location.observed")]
     LocationObserved,
+    #[serde(rename = "activity.tracking.alert.evaluated")]
+    TrackingAlertEvaluated,
     #[serde(rename = "activity.tracking.geofence-transition.evaluated")]
     TrackingGeofenceTransitionEvaluated,
     #[serde(rename = "activity.tracking.expected-place.evaluated")]
     TrackingExpectedPlaceEvaluated,
     #[serde(rename = "activity.tracking.child-check-in.responded")]
     TrackingChildCheckInResponded,
+    #[serde(rename = "activity.tracking.parent-notification.requested")]
+    TrackingParentNotificationRequested,
     #[serde(rename = "activity.tracking.retention.deleted")]
     TrackingRetentionDeleted,
     #[serde(rename = "activity.network.retention.deleted")]

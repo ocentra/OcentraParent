@@ -2,5 +2,7 @@
 mod device_scope;
 #[path = "unit/household_authority.rs"]
 mod household_authority;
+#[path = "unit/session_lifecycle.rs"]
+mod session_lifecycle;
 #[path = "unit/setup_lifecycle.rs"]
 mod setup_lifecycle;

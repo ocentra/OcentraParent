@@ -1,13 +1,16 @@
+use ocentra_eventing::{DomainEvent, EventResponseContract, RequestEvent};
 use ocentra_parent_agent_protocol::{
     constants, tracking_durable_settings_store_ref, tracking_local_service_state_snapshot_ref,
     tracking_mutation_proof_ref, tracking_read_model_proof_ref, tracking_retention_accepted_at,
     tracking_retention_command_id, tracking_retention_settings_kind,
     tracking_retention_write_state_accepted, tracking_writer_intent_ref, AgentCommandName,
-    AgentEventName, TrackingConfigAckState, TrackingConfigEffectiveState,
-    TrackingConfigUpdateResponseState, TrackingDeleteAfterAlertResolutionState,
-    TrackingDurableSettingsPersistenceState, TrackingExecutionClaimState,
-    TrackingParentExportState, TrackingRemoteAiState, TrackingRemoteSyncState,
-    TrackingRetentionSettingsWriteRequest, TrackingRetentionSettingsWriteResult,
+    AgentEventName, TrackingChildCheckInDeliveryState, TrackingChildCheckInRequestReceipt,
+    TrackingChildCheckInRequestState, TrackingChildCheckInRequestedEvent, TrackingConfigAckState,
+    TrackingConfigEffectiveState, TrackingConfigUpdateResponseState,
+    TrackingDeleteAfterAlertResolutionState, TrackingDurableSettingsPersistenceState,
+    TrackingExecutionClaimState, TrackingParentExportState, TrackingPolicyViolationId,
+    TrackingReasonCode, TrackingRemoteAiState, TrackingRemoteSyncState,
+    TrackingRetentionSettingsWriteRequest, TrackingRetentionSettingsWriteResult, TrackingTimestamp,
     AGENT_PROTOCOL_SCHEMA_VERSION,
 };
 
@@ -143,4 +146,119 @@ fn retention_settings_write_result_serializes_local_execution_without_product_ov
     assert_eq!(serialized["serviceMutationExecutionState"], "claimed");
     assert_eq!(serialized["portalWritableUiClaimState"], "unclaimed");
     assert_eq!(serialized["productClaimState"], "unclaimed");
+}
+
+#[test]
+fn child_check_in_request_contract_serializes_with_check_in_id_as_request_id() {
+    let request = TrackingChildCheckInRequestedEvent {
+        child_device_id: ocentra_parent_agent_protocol::TrackingChildDeviceId::parse(
+            constants::tracking_runtime::DEFAULT_CHILD_DEVICE_ID,
+        )
+        .expect(constants::tracking_runtime::DEFAULT_CHILD_DEVICE_ID),
+        child_profile_id: ocentra_parent_agent_protocol::TrackingChildProfileId::parse(
+            constants::tracking_runtime::DEFAULT_CHILD_PROFILE_ID,
+        )
+        .expect(constants::tracking_runtime::DEFAULT_CHILD_PROFILE_ID),
+        check_in_id: ocentra_parent_agent_protocol::TrackingCheckInId::parse(
+            constants::tracking_runtime::DEFAULT_CHILD_CHECK_IN_ID,
+        )
+        .expect(constants::tracking_runtime::DEFAULT_CHILD_CHECK_IN_ID),
+        requested_at: TrackingTimestamp::parse(constants::tracking_runtime::DEFAULT_OBSERVED_AT)
+            .expect(constants::tracking_runtime::DEFAULT_OBSERVED_AT),
+        request_state: TrackingChildCheckInRequestState::Pending,
+        delivery_state: TrackingChildCheckInDeliveryState::Queued,
+        related_alert_id: TrackingPolicyViolationId::parse(
+            constants::tracking_runtime::DEFAULT_POLICY_VIOLATION_ID,
+        )
+        .expect(constants::tracking_runtime::DEFAULT_POLICY_VIOLATION_ID),
+        include_location_if_permitted: true,
+        expires_at: TrackingTimestamp::parse("2026-06-12T12:05:00Z").expect("2026-06-12T12:05:00Z"),
+        evidence_refs: vec![ocentra_parent_agent_protocol::TrackingEvidenceRef::parse(
+            constants::tracking_runtime::DEFAULT_EVIDENCE_REF,
+        )
+        .expect(constants::tracking_runtime::DEFAULT_EVIDENCE_REF)],
+        audit_refs: vec![String::from("audit.tracking.child-check-in.request")],
+    };
+
+    let serialized =
+        serde_json::to_value(&request).expect(constants::error::AGENT_EVENT_SERIALIZES);
+
+    assert_eq!(
+        request
+            .contract()
+            .expect(constants::error::AGENT_EVENT_SERIALIZES)
+            .event_type
+            .as_str(),
+        constants::tracking_runtime::TRACKING_CHILD_CHECK_IN_REQUESTED_EVENT_TYPE
+    );
+    assert_eq!(
+        request
+            .request_id()
+            .expect(constants::error::AGENT_EVENT_SERIALIZES)
+            .as_str(),
+        constants::tracking_runtime::DEFAULT_CHILD_CHECK_IN_ID
+    );
+    assert_eq!(
+        serialized["requestState"],
+        constants::tracking_runtime::CHILD_CHECK_IN_REQUEST_STATE_PENDING
+    );
+    assert_eq!(
+        serialized["deliveryState"],
+        constants::tracking_runtime::CHILD_CHECK_IN_DELIVERY_STATE_QUEUED
+    );
+    assert_eq!(
+        serialized["relatedAlertId"],
+        constants::tracking_runtime::DEFAULT_POLICY_VIOLATION_ID
+    );
+}
+
+#[test]
+fn child_check_in_request_receipt_serializes_delivery_receipt_state_and_reason() {
+    let receipt = TrackingChildCheckInRequestReceipt {
+        schema_version: AGENT_PROTOCOL_SCHEMA_VERSION,
+        child_device_id: ocentra_parent_agent_protocol::TrackingChildDeviceId::parse(
+            constants::tracking_runtime::DEFAULT_CHILD_DEVICE_ID,
+        )
+        .expect(constants::tracking_runtime::DEFAULT_CHILD_DEVICE_ID),
+        child_profile_id: ocentra_parent_agent_protocol::TrackingChildProfileId::parse(
+            constants::tracking_runtime::DEFAULT_CHILD_PROFILE_ID,
+        )
+        .expect(constants::tracking_runtime::DEFAULT_CHILD_PROFILE_ID),
+        check_in_id: ocentra_parent_agent_protocol::TrackingCheckInId::parse(
+            constants::tracking_runtime::DEFAULT_CHILD_CHECK_IN_ID,
+        )
+        .expect(constants::tracking_runtime::DEFAULT_CHILD_CHECK_IN_ID),
+        related_alert_id: TrackingPolicyViolationId::parse(
+            constants::tracking_runtime::DEFAULT_POLICY_VIOLATION_ID,
+        )
+        .expect(constants::tracking_runtime::DEFAULT_POLICY_VIOLATION_ID),
+        request_state: TrackingChildCheckInRequestState::Pending,
+        delivery_state: TrackingChildCheckInDeliveryState::Duplicate,
+        receipt_recorded_at: TrackingTimestamp::parse(
+            constants::tracking_runtime::DEFAULT_OBSERVED_AT,
+        )
+        .expect(constants::tracking_runtime::DEFAULT_OBSERVED_AT),
+        reason_code: Some(
+            TrackingReasonCode::parse(
+                constants::tracking_runtime::REASON_DUPLICATE_CHECK_IN_REQUEST,
+            )
+            .expect(constants::tracking_runtime::REASON_DUPLICATE_CHECK_IN_REQUEST),
+        ),
+    };
+
+    let serialized =
+        serde_json::to_value(&receipt).expect(constants::error::AGENT_EVENT_SERIALIZES);
+
+    receipt
+        .validate()
+        .expect(constants::error::AGENT_EVENT_SERIALIZES);
+    assert_eq!(serialized["schemaVersion"], AGENT_PROTOCOL_SCHEMA_VERSION);
+    assert_eq!(
+        serialized["deliveryState"],
+        constants::tracking_runtime::CHILD_CHECK_IN_DELIVERY_STATE_DUPLICATE
+    );
+    assert_eq!(
+        serialized["reasonCode"],
+        constants::tracking_runtime::REASON_DUPLICATE_CHECK_IN_REQUEST
+    );
 }

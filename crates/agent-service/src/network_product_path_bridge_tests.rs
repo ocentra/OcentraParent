@@ -27,6 +27,22 @@ fn stored_network_flow_rows_drive_product_path_refs_without_enforcement() {
     assert_eq!(report.ai_advisory_rows, 1);
     assert_eq!(report.weak_or_unavailable_blocked_rows, 1);
     assert_eq!(
+        report.analyzer_alert_refs,
+        vec![row_ref(
+            constants::network_flow::PRODUCT_PATH_ANALYZER_ALERT_REF_PREFIX
+        )]
+    );
+    assert_eq!(
+        report.ai_detection_refs,
+        vec![row_ref(
+            constants::network_flow::PRODUCT_PATH_AI_DETECTION_REF_PREFIX
+        )]
+    );
+    assert_eq!(
+        report.risk_budget_refs,
+        vec![constants::network_flow::PRODUCT_PATH_RISK_BUDGET_REF.to_string()]
+    );
+    assert_eq!(
         report.policy_decision_refs,
         vec![row_ref(
             constants::network_flow::PRODUCT_PATH_POLICY_DECISION_REF_PREFIX
@@ -101,6 +117,9 @@ fn tombstoned_network_flow_rows_do_not_drive_product_path_decisions() {
     assert_eq!(report.export_record_count, 0);
     assert_eq!(report.portal_read_model_count, 0);
     assert_eq!(report.enforcement_command_events, 0);
+    assert!(report.analyzer_alert_refs.is_empty());
+    assert!(report.ai_detection_refs.is_empty());
+    assert!(report.risk_budget_refs.is_empty());
     assert!(report.policy_decision_refs.is_empty());
     assert!(report.action_result_refs.is_empty());
     assert!(report.retention_refs.is_empty());
@@ -121,6 +140,9 @@ fn rows_without_domain_target_are_skipped_without_inventing_policy_refs() {
     assert_eq!(report.policy_decision_count, 0);
     assert_eq!(report.action_result_count, 0);
     assert_eq!(report.enforcement_command_events, 0);
+    assert!(report.analyzer_alert_refs.is_empty());
+    assert!(report.ai_detection_refs.is_empty());
+    assert!(report.risk_budget_refs.is_empty());
     assert!(report.policy_decision_refs.is_empty());
 }
 

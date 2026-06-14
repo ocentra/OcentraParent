@@ -1,8 +1,8 @@
 use ocentra_parent_agent_protocol::{
-    constants, TrackingCapabilityStatus, TrackingGeofenceRuleRef,
-    TrackingGeofenceTransitionDetectedEvent, TrackingLocationObservedEvent, TrackingReasonCode,
-    TrackingTimestamp, TrackingTransitionKind, tracking_evidence_ref_from_observation_id,
-    tracking_transition_id_from_observation_id,
+    constants, tracking_evidence_ref_from_observation_id,
+    tracking_transition_id_from_observation_id, TrackingCapabilityStatus, TrackingEvidenceRef,
+    TrackingGeofenceRuleRef, TrackingGeofenceTransitionDetectedEvent,
+    TrackingLocationObservedEvent, TrackingReasonCode, TrackingTimestamp, TrackingTransitionKind,
 };
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
@@ -25,15 +25,31 @@ pub fn detect_geofence_transition(
     event: &TrackingLocationObservedEvent,
     evaluation: TrackingGeofenceEvaluation,
 ) -> TrackingGeofenceTransitionDetectedEvent {
+    detect_geofence_transition_with_refs(
+        event,
+        TrackingGeofenceRuleRef::parse(constants::tracking_runtime::DEFAULT_GEOFENCE_RULE_REF)
+            .expect(constants::tracking_runtime::DEFAULT_GEOFENCE_RULE_REF),
+        evaluation,
+        vec![tracking_evidence_ref_from_observation_id(
+            &event.observation_id,
+        )],
+    )
+}
+
+fn detect_geofence_transition_with_refs(
+    event: &TrackingLocationObservedEvent,
+    geofence_rule_ref: TrackingGeofenceRuleRef,
+    evaluation: TrackingGeofenceEvaluation,
+    evidence_refs: Vec<TrackingEvidenceRef>,
+) -> TrackingGeofenceTransitionDetectedEvent {
     geofence_transition_from_parts(
         event.child_device_id.clone(),
         event.child_profile_id.clone(),
         event.observation_id.clone(),
         event.observed_at.clone(),
-        TrackingGeofenceRuleRef::parse(constants::tracking_runtime::DEFAULT_GEOFENCE_RULE_REF)
-            .expect(constants::tracking_runtime::DEFAULT_GEOFENCE_RULE_REF),
+        geofence_rule_ref,
         evaluation,
-        vec![tracking_evidence_ref_from_observation_id(&event.observation_id)],
+        evidence_refs,
     )
 }
 

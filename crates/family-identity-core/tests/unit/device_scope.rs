@@ -2,14 +2,14 @@ use ocentra_eventing::DomainEvent;
 use ocentra_family_identity_core::{
     authorize_child_device_scope, record_device_scope_decision, ActorAccountState,
     ChildProfileBindingState, DeviceOwnershipScope, DeviceScopeAuthorizationState,
-    DeviceScopeEvaluationId, DeviceScopeEvaluationRequestedEvent, DeviceScopeInput, FamilyActorRole,
-    FamilyIdentityAggregateId, HouseholdMembership, ParentAuthorityRequirementState,
+    DeviceScopeEvaluationId, DeviceScopeEvaluationRequestedEvent, DeviceScopeInput,
+    FamilyActorRole, FamilyIdentityAggregateId, HouseholdMembership,
+    ParentAuthorityRequirementState,
 };
 
 const FAMILY_AGGREGATE_ID: &str = "family-identity-household-default";
 const DEVICE_SCOPE_EVALUATION_ID: &str = "family-device-scope-default";
-const DEVICE_SCOPE_REQUESTED_EVENT_TYPE: &str =
-    "family-identity.device-scope-evaluation.requested";
+const DEVICE_SCOPE_REQUESTED_EVENT_TYPE: &str = "family-identity.device-scope-evaluation.requested";
 const DEVICE_SCOPE_DECISION_EVENT_TYPE: &str = "family-identity.device-scope-decision.recorded";
 
 fn parent_child_device_input(actor_role: FamilyActorRole) -> DeviceScopeInput {
@@ -38,7 +38,8 @@ fn parent_household_member_can_target_owned_child_device() {
 
 #[test]
 fn guardian_household_member_can_target_owned_child_device() {
-    let decision = authorize_child_device_scope(parent_child_device_input(FamilyActorRole::Guardian));
+    let decision =
+        authorize_child_device_scope(parent_child_device_input(FamilyActorRole::Guardian));
 
     assert_eq!(
         decision.authorization_state,
@@ -54,7 +55,10 @@ fn guardian_household_member_can_target_owned_child_device() {
 fn child_actor_cannot_authorize_tracking_or_enforcement_scope() {
     let decision = authorize_child_device_scope(parent_child_device_input(FamilyActorRole::Child));
 
-    assert_eq!(decision.authorization_state, DeviceScopeAuthorizationState::Rejected);
+    assert_eq!(
+        decision.authorization_state,
+        DeviceScopeAuthorizationState::Rejected
+    );
     assert_eq!(
         decision.parent_authority_requirement_state,
         ParentAuthorityRequirementState::Required
@@ -68,7 +72,10 @@ fn parent_cannot_target_device_outside_child_profile_scope() {
         ..parent_child_device_input(FamilyActorRole::Parent)
     });
 
-    assert_eq!(decision.authorization_state, DeviceScopeAuthorizationState::Rejected);
+    assert_eq!(
+        decision.authorization_state,
+        DeviceScopeAuthorizationState::Rejected
+    );
     assert_eq!(
         decision.parent_authority_requirement_state,
         ParentAuthorityRequirementState::Required
@@ -82,7 +89,10 @@ fn non_household_actor_cannot_target_child_device() {
         ..parent_child_device_input(FamilyActorRole::Guardian)
     });
 
-    assert_eq!(decision.authorization_state, DeviceScopeAuthorizationState::Rejected);
+    assert_eq!(
+        decision.authorization_state,
+        DeviceScopeAuthorizationState::Rejected
+    );
     assert_eq!(
         decision.parent_authority_requirement_state,
         ParentAuthorityRequirementState::Required
@@ -96,7 +106,10 @@ fn suspended_parent_cannot_target_child_device() {
         ..parent_child_device_input(FamilyActorRole::Parent)
     });
 
-    assert_eq!(decision.authorization_state, DeviceScopeAuthorizationState::Rejected);
+    assert_eq!(
+        decision.authorization_state,
+        DeviceScopeAuthorizationState::Rejected
+    );
     assert_eq!(
         decision.parent_authority_requirement_state,
         ParentAuthorityRequirementState::Required
@@ -110,7 +123,10 @@ fn missing_child_profile_binding_rejects_device_scope() {
         ..parent_child_device_input(FamilyActorRole::Parent)
     });
 
-    assert_eq!(decision.authorization_state, DeviceScopeAuthorizationState::Rejected);
+    assert_eq!(
+        decision.authorization_state,
+        DeviceScopeAuthorizationState::Rejected
+    );
     assert_eq!(
         decision.parent_authority_requirement_state,
         ParentAuthorityRequirementState::Required

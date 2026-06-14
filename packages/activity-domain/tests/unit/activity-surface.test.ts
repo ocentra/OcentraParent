@@ -474,6 +474,31 @@ function specifyActivityScreenLegacyReadModelContracts() {
       ).success
     ).toBe(false);
   });
+
+  it('ActivityScreenReadModelSchema: rejects malformed screen policy evidence chain payloads', () => {
+    expect(
+      ActivityScreenReadModelSchema.safeParse(
+        screenReadModel(
+          screenReadModelRow({
+            rowId: 'screen-row-invalid-policy-action',
+            policyDecisionRef: null,
+            policyAction: 'allow',
+          })
+        )
+      ).success
+    ).toBe(false);
+
+    expect(
+      ActivityScreenReadModelSchema.safeParse(
+        screenReadModel(
+          screenReadModelRow({
+            rowId: 'screen-row-invalid-parent-rule-ref',
+            parentRuleRefs: [''],
+          })
+        )
+      ).success
+    ).toBe(false);
+  });
 }
 
 function specifyActivityAppUseReadModelContracts() {

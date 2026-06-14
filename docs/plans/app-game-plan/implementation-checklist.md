@@ -268,23 +268,23 @@ Required files:
 
 ## Merge-Blocking Failure Gates
 
-- [x] Inventory evidence is displayed as app/game usage.
-- [x] Running evidence is displayed as foreground usage.
-- [x] Foreground evidence is displayed as content knowledge.
-- [x] Launcher evidence is displayed as active game without child-game proof.
-- [x] Unknown process is auto-promoted to known game.
-- [x] AI output directly enforces.
-- [x] Dry-run terminates or blocks app/game.
-- [x] Manual-required action calls an adapter.
-- [x] Android normal mode claims package suspend/hide.
-- [x] iOS claims process scanning/killing.
-- [x] macOS hard block is claimed without MDM/Endpoint/System Extension proof.
-- [x] Linux universal block is claimed without mechanism/distro proof.
-- [x] Session duration changes after journal replay.
-- [x] Portal hides stale, permission-limited, manual-required, or not-claimed
+- [ ] Inventory evidence is displayed as app/game usage.
+- [ ] Running evidence is displayed as foreground usage.
+- [ ] Foreground evidence is displayed as content knowledge.
+- [ ] Launcher evidence is displayed as active game without child-game proof.
+- [ ] Unknown process is auto-promoted to known game.
+- [ ] AI output directly enforces.
+- [ ] Dry-run terminates or blocks app/game.
+- [ ] Manual-required action calls an adapter.
+- [ ] Android normal mode claims package suspend/hide.
+- [ ] iOS claims process scanning/killing.
+- [ ] macOS hard block is claimed without MDM/Endpoint/System Extension proof.
+- [ ] Linux universal block is claimed without mechanism/distro proof.
+- [ ] Session duration changes after journal replay.
+- [ ] Portal hides stale, permission-limited, manual-required, or not-claimed
       states.
-- [x] Raw private executable paths leak into parent UI.
-- [x] Malicious app/game metadata causes XSS or layout breakage.
+- [ ] Raw private executable paths leak into parent UI.
+- [ ] Malicious app/game metadata causes XSS or layout breakage.
 
 ## Platform Extension Checklist
 

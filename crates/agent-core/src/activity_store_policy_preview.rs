@@ -4,10 +4,13 @@ use ocentra_network_evidence::{
     NetworkEvidencePolicyMappingInput, NetworkEvidencePolicyMode,
 };
 use ocentra_parent_agent_protocol::{
-    constants, policy_constants as policy, ActivityEvidenceKind, ActivityEvidenceRef,
-    LocalAiParentRuleContextRef, LogFieldValue, LogFields, ParentEvidenceReference,
-    ParentEvidenceReferenceKind, PolicyAction, PolicyDecision, PolicyPreviewNetworkEvidenceMapping,
-    PolicyPreviewReadModel, PolicyPreviewReadModelRow, POLICY_DRY_RUN_SCHEMA_VERSION,
+    constants, policy_constants as policy, policy_preview_finding_kinds_csv, ActivityEvidenceKind,
+    ActivityEvidenceRef, LocalAiParentRuleContextRef, LogFieldValue, LogFields,
+    ParentEvidenceReference, ParentEvidenceReferenceKind, PolicyAction, PolicyDecision,
+    PolicyPreviewFindingKind, PolicyPreviewNetworkEvidenceMapping, PolicyPreviewReadModel,
+    PolicyPreviewReadModelRow, PolicyPreviewTargetState,
+    APP_GAME_CAPABILITY_STATUS_MANUAL_REQUIRED, APP_GAME_CAPABILITY_STATUS_STALE,
+    APP_GAME_CAPABILITY_STATUS_UNSUPPORTED_PLATFORM, POLICY_DRY_RUN_SCHEMA_VERSION,
 };
 use rusqlite::Connection;
 
@@ -83,6 +86,11 @@ fn preview_row(
             expires_at: None,
         }),
     );
+    let policy_preview_target_state = policy_preview_target_state_from_row(&row);
+    let policy_preview_target_explanation_code =
+        policy_preview_target_explanation_code_from_row(&row, policy_preview_target_state);
+    let policy_preview_finding_kinds =
+        policy_preview_target_finding_kinds(policy_preview_target_state);
 
     Some(PolicyPreviewReadModelRow {
         preview_id: prefixed_id(policy::PREVIEW_ID_PREFIX, &row.event_id),
@@ -92,6 +100,16 @@ fn preview_row(
         evidence_references,
         parent_rule_context_references,
         decision,
+        policy_preview_save_state: None,
+        policy_preview_manual_review_state: None,
+        policy_preview_target_state,
+        policy_preview_target_explanation_code,
+        policy_preview_finding_kinds,
+        policy_source_status: None,
+        policy_source_surface: None,
+        policy_request_origin: None,
+        policy_assistant_confirmation_state: None,
+        policy_request_status: None,
         network_evidence_mapping,
     })
 }
@@ -234,6 +252,69 @@ fn network_policy_action(action: PolicyAction) -> Option<NetworkEvidencePolicyAc
         PolicyAction::TimeLimit => Some(NetworkEvidencePolicyAction::Limit),
         PolicyAction::AskParent => Some(NetworkEvidencePolicyAction::AskParent),
         PolicyAction::Allow | PolicyAction::Unknown => None,
+    }
+}
+
+fn policy_preview_target_state_from_row(
+    row: &PolicyPreviewStoreRow,
+) -> Option<PolicyPreviewTargetState> {
+    let capability_status = string_field(&row.fields, constants::field::CAPABILITY_STATUS);
+    let capability_status = capability_status.as_deref();
+
+    if capability_status == Some(constants::browser::CAPABILITY_STATUS_STALE)
+        || capability_status == Some(constants::tracking_runtime::CAPABILITY_STATUS_STALE)
+        || capability_status == Some(APP_GAME_CAPABILITY_STATUS_STALE)
+    {
+        Some(PolicyPreviewTargetState::Stale)
+    } else if capability_status
+        == Some(constants::tracking_runtime::CAPABILITY_STATUS_OFFLINE_LAST_KNOWN_ONLY)
+    {
+        Some(PolicyPreviewTargetState::Offline)
+    } else if capability_status == Some(constants::browser::CAPABILITY_STATUS_UNSUPPORTED_BROWSER)
+        || capability_status == Some(APP_GAME_CAPABILITY_STATUS_UNSUPPORTED_PLATFORM)
+    {
+        Some(PolicyPreviewTargetState::Unsupported)
+    } else if capability_status == Some(constants::browser::CAPABILITY_STATUS_BRIDGE_MISSING)
+        || capability_status == Some(constants::browser::CAPABILITY_STATUS_MANAGED_PROFILE_MISSING)
+        || capability_status == Some(constants::browser::CAPABILITY_STATUS_PERMISSION_LIMITED)
+        || capability_status == Some(constants::browser::CAPABILITY_STATUS_ADAPTER_ERROR)
+        || capability_status == Some(constants::browser::CAPABILITY_STATUS_UNMANAGED_BROWSER)
+        || capability_status == Some(constants::tracking_runtime::CAPABILITY_STATUS_MANUAL_REQUIRED)
+        || capability_status == Some(APP_GAME_CAPABILITY_STATUS_MANUAL_REQUIRED)
+    {
+        Some(PolicyPreviewTargetState::ManualRequired)
+    } else {
+        None
+    }
+}
+
+fn policy_preview_target_explanation_code_from_row(
+    row: &PolicyPreviewStoreRow,
+    target_state: Option<PolicyPreviewTargetState>,
+) -> Option<String> {
+    target_state.and_then(|_| {
+        string_field(&row.fields, constants::field::DEGRADED_REASON)
+            .or_else(|| string_field(&row.fields, constants::field::CAPABILITY_STATUS))
+    })
+}
+
+fn policy_preview_target_finding_kinds(
+    target_state: Option<PolicyPreviewTargetState>,
+) -> Option<String> {
+    match target_state {
+        Some(PolicyPreviewTargetState::Unsupported) => {
+            policy_preview_finding_kinds_csv(&[PolicyPreviewFindingKind::UnsupportedTarget])
+        }
+        Some(PolicyPreviewTargetState::ManualRequired) => {
+            policy_preview_finding_kinds_csv(&[PolicyPreviewFindingKind::ManualRequiredTarget])
+        }
+        Some(PolicyPreviewTargetState::Offline) => {
+            policy_preview_finding_kinds_csv(&[PolicyPreviewFindingKind::OfflineTarget])
+        }
+        Some(PolicyPreviewTargetState::Stale) => {
+            policy_preview_finding_kinds_csv(&[PolicyPreviewFindingKind::StaleTarget])
+        }
+        Some(PolicyPreviewTargetState::Supported) | None => None,
     }
 }
 

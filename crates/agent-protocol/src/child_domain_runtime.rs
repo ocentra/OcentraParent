@@ -1142,9 +1142,7 @@ pub fn child_domain_notification_requested_event(
         domain: event.domain,
         child_device_id: event.child_device_id.clone(),
         child_profile_id: event.child_profile_id.clone(),
-        notification_id: child_domain_notification_id_from_policy_violation_id(
-            &event.violation_id,
-        ),
+        notification_id: child_domain_notification_id_from_policy_violation_id(&event.violation_id),
         source_policy_violation_id: event.violation_id.clone(),
         channel: child_domain_notification_channel(
             ChildDomainNotificationChannelKind::ParentPortal,

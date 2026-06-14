@@ -55,10 +55,10 @@ Proof root: `output/tracking-plan-proof/12-ios-background-region-significant-cha
 - [ ] Prove background/terminated degraded behavior. Parent-domain
       manual-required row now exists; real background delivery and relaunch proof
       remain pending.
-- [x] Document App Store/privacy disclosure implications before release claims.
-- [x] Generate the iOS simulator/local and physical-device proof artifact plan
+- [ ] Document App Store/privacy disclosure implications before release claims.
+- [ ] Generate the iOS simulator/local and physical-device proof artifact plan
       before device work.
-- [x] Route simulator package build/install/launch proof through the tracking
+- [ ] Route simulator package build/install/launch proof through the tracking
       proof harness while preserving Always/background/region behavior as
       physical-device manual-required.
 
@@ -129,22 +129,22 @@ This workpack can be assigned independently, implemented against the owning doma
 ## Fill This Before Reporting DONE Or PR-ready
 
 - [ ] Workpack id and branch.
-- [x] Touched files: proof script, root script wiring, package-preview CI
+- [ ] Touched files: proof script, root script wiring, package-preview CI
       upload wiring, feature doc, checklist, and this workpack doc.
-- [x] Validation commands and results: `npm run test:tracking-plan-ios-simulator-proof`
+- [ ] Validation commands and results: `npm run test:tracking-plan-ios-simulator-proof`
       writes local proof; macOS package-preview runs it with
       `--require-simulator` after the real iOS simulator smoke.
-- [x] Proof artifacts under `output/tracking-plan-proof/12-ios-background-region-significant-change-adapter/`.
-- [x] Product doc/checklist updates or reason none were needed: feature doc and
+- [ ] Proof artifacts under `output/tracking-plan-proof/12-ios-background-region-significant-change-adapter/`.
+- [ ] Product doc/checklist updates or reason none were needed: feature doc and
       tracking checklist updated; central product checklist delta remains
       primary-owned through hub.
-- [x] Known gaps/manual-required states: Always authorization, region
+- [ ] Known gaps/manual-required states: Always authorization, region
       monitoring, significant-change, visits, background delivery, low-power,
       terminated/relaunch, notification delivery, physical-device, and
       authority proof remain unclaimed.
-- [x] Parent-domain manual-required proof added:
+- [ ] Parent-domain manual-required proof added:
       `test-results/tracking-ios-location-manual-required-proof/proof.json`.
-- [x] WP33 companion gate added:
+- [ ] WP33 companion gate added:
       `test-results/tracking-ios-location-wp33-gate-proof/proof.json`.
-- [x] iOS privacy disclosure release gate proof added:
+- [ ] iOS privacy disclosure release gate proof added:
       `test-results/tracking-ios-privacy-disclosure-release-proof/proof.json`.

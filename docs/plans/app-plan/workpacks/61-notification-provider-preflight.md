@@ -39,9 +39,9 @@ after WP59 scheduler linking without claiming delivery.
 
 ## Validation
 
-- [x] Cross-recorded from shared app/game WP61 proof.
-- [x] Native app rows require provider adapter setup only after scheduler proof.
-- [x] Manual-required and unavailable rows remain blocked before provider
+- [ ] Cross-recorded from shared app/game WP61 proof.
+- [ ] Native app rows require provider adapter setup only after scheduler proof.
+- [ ] Manual-required and unavailable rows remain blocked before provider
       preflight.
-- [x] Delivery/provider credential/runtime/UI/child/adapter/platform claims
+- [ ] Delivery/provider credential/runtime/UI/child/adapter/platform claims
       remain false.

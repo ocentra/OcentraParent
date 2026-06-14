@@ -6,3 +6,6 @@ mod child_domain_runtime_flow_intent;
 
 #[path = "integration/child_domain_event_flow.rs"]
 mod child_domain_event_flow;
+
+#[path = "integration/policy_control_runtime_flow_intent.rs"]
+mod policy_control_runtime_flow_intent;

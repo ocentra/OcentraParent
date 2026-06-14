@@ -81,19 +81,19 @@ view remain open.
 
 ## Checklist
 
-- [x] Record product decision.
-- [x] Define LAN-only vs relay-backed mode.
-- [x] Define consent/disclosure.
-- [x] Define transport/custody.
-- [x] Define retention/no-retention behavior.
-- [x] Define viewer audit.
-- [x] Add separate contract/preflight proof.
-- [x] Add fail-closed platform permission gate proof.
-- [x] Add parent UI persistence carry-forward proof.
-- [x] Add fail-closed Rust service worker startup gate proof.
-- [x] Add local loopback live-view transport/session/runtime proof.
+- [ ] Record product decision.
+- [ ] Define LAN-only vs relay-backed mode.
+- [ ] Define consent/disclosure.
+- [ ] Define transport/custody.
+- [ ] Define retention/no-retention behavior.
+- [ ] Define viewer audit.
+- [ ] Add separate contract/preflight proof.
+- [ ] Add fail-closed platform permission gate proof.
+- [ ] Add parent UI persistence carry-forward proof.
+- [ ] Add fail-closed Rust service worker startup gate proof.
+- [ ] Add local loopback live-view transport/session/runtime proof.
 - [ ] Add real live-view platform prompt proof.
-- [x] Add relay/cache execution proof for relay-backed mode.
+- [ ] Add relay/cache execution proof for relay-backed mode.
 - [ ] Add physical-device parity and privacy/legal approval proof.
 
 ## Proof

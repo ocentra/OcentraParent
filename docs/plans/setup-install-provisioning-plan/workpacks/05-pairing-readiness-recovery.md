@@ -8,6 +8,7 @@ Handoff: `lan-plan` owns local pairing protocol; `account-identity-family-plan` 
 
 Expected shape:
 
+- Pairing is a two-stage flow: parent portal creates pairing authority, child bootstrap redeems pairing authority, and parent portal confirms the detected child device.
 - Pairing code/link/QR state has expiry, revocation, household binding, and replay rejection.
 - Readiness separates account, parent app, child app, permissions, network reachability, custody sync, and policy baseline.
 - Recovery handles lost parent device, child reinstall, revoked child, wrong account, offline device, and permission loss.
@@ -29,6 +30,8 @@ Minimum context:
 - `docs/plans/account-identity-family-plan/AGENTS.md`
 - `docs/expectations/lan-pairing.md`
 - `docs/features/family-setup-device-roles.md`
+- `docs/plans/setup-install-provisioning-plan/SETUP_STATE_MACHINE.md`
+- `docs/plans/setup-install-provisioning-plan/PAIRING_READINESS_MODEL.md`
 
 Agent decision tree:
 
@@ -46,15 +49,44 @@ Required output:
 
 Expected tests/proof names:
 
-- `pairing.stale-code-rejected`
-- `pairing.replay-rejected`
-- `pairing.wrong-household-rejected`
-- `pairing.revoked-device-rejected`
-- `readiness.no-fake-ready-state`
-- `readiness.offline-child-degraded`
+- `setup.pairing.lifecycle-state-machine`
+- `setup.pairing.code-generated-state`
+- `setup.pairing.code-expired-rejected`
+- `setup.pairing.code-revoked-rejected`
+- `setup.pairing.replay-rejected`
+- `setup.pairing.wrong-household-rejected`
+- `setup.pairing.wrong-device-rejected`
+- `setup.pairing.anonymous-device-rejected`
+- `setup.pairing.revoked-device-rejected`
+- `setup.pairing.stale-signed-hello-rejected`
+- `setup.pairing.parent-role-required`
+- `setup.readiness.matrix`
+- `setup.readiness.no-fake-ready-state`
+- `setup.readiness.offline-child-degraded`
+- `setup.readiness.permission-missing-degraded`
+- `setup.readiness.policy-baseline-missing`
+- `setup.readiness.data-custody-unavailable`
+- `setup.recovery.lost-parent-device`
+- `setup.recovery.child-reinstall`
+- `setup.recovery.revoked-child`
+- `setup.recovery.permission-loss`
+- `setup.recovery.offline-device`
+- `setup.observability.redacted-pairing-logs`
+- `setup.guided.parent-portal-generates-child-pairing`
+- `setup.guided.parent-sees-child-pending-confirmation`
+- `setup.guided.child-not-trusted-until-parent-confirmed`
+- `setup.guided.no-fake-ready-after-install`
+- `setup.guided.no-child-data-public-site`
+- `setup.guided.redacted-bootstrap-logs`
 
 Proof artifact expectations:
 
-- Pairing state table.
-- Logs/traces with redacted codes.
-- UI proof for success, expired, revoked, offline, permission missing.
+- `05-pairing-state-machine-proof.md`
+- `05-pairing-negative-proof.md`
+- `05-readiness-matrix-proof.md`
+- `05-no-fake-ready-state-proof.md`
+- `05-recovery-flow-proof.md`
+- `05-redacted-pairing-log-proof.md`
+- `guided-parent-child-pairing-proof.md`
+- `no-fake-ready-after-install-proof.md`
+- `redacted-bootstrap-logs-proof.md`

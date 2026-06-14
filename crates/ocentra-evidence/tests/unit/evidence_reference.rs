@@ -14,7 +14,10 @@ fn parent_owned_evidence_ref_can_cross_runtime_boundary_without_raw_payload() {
     });
 
     assert_eq!(decision.reference_state, EvidenceReferenceState::Stable);
-    assert_eq!(decision.runtime_boundary_state, RuntimeBoundaryState::MayCross);
+    assert_eq!(
+        decision.runtime_boundary_state,
+        RuntimeBoundaryState::MayCross
+    );
     assert_eq!(decision.manual_review_state, ManualReviewState::NotRequired);
 }
 

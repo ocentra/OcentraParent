@@ -1,41 +1,27 @@
 # Account Identity Family Plan State
 
-Status: first-pass plan created because login/user/household authority was not owned by a dedicated plan.
+Status: execution-grade architecture drafted; implementation and proof remain open.
 
-Research status: incomplete. This plan requires a full follow-up research pass against existing portal-domain, parent-domain, local API, agent protocol, games Cloudflare/Firebase auth, current official provider docs, and Sujan's account/privacy choices before implementation claims.
+Research status: current repo contract seeds and platform/identity expectations were inspected. Cloudflare-first custody is the current direction, and Firebase Auth is allowed only as an external identity provider/token issuer if it stays out of family data custody.
 
 Current direction:
 
-- Cloudflare-first app and custody architecture.
-- Firebase Auth may be evaluated as a pragmatic identity provider/token issuer, not as the family product data store.
-- Cloudflare D1/Durable Objects/R2/KV roles must be deliberate: D1 for relational account/household state, Durable Objects for live coordination, R2 for encrypted blobs/artifacts, KV for non-authoritative cache/rate limits.
-- Cloudflare Access is not a consumer family identity product by itself.
+- Cloudflare D1 owns relational account, household, membership, device, invite, and session metadata.
+- Cloudflare Durable Objects own short-lived coordination, rate limits, invite/recovery/session coordination, and live setup rooms.
+- Cloudflare KV is non-authoritative cache and rate-limit hint state only.
+- Cloudflare R2 is only for explicitly encrypted artifacts if a later decision approves it.
+- Household membership, child profile, device trust, invite, recovery, and controller lease are separate typed boundaries.
+- The first-run family setup UI must label live local, LAN, parent cache, parent-owned storage, stale, degraded, and unavailable states honestly.
 
 Open gaps:
 
-- No provider decision record.
-- No household role/device authority model.
-- No session/token lifecycle proof matrix.
-- No invite/recovery/delete/transfer state machine.
-- No cross-family authorization test inventory.
+- No runtime implementation for provider selection, household membership, sessions, invites, recovery, device authority, or setup UI yet.
+- No proof artifacts under `docs/proof/account-identity-family-plan/` yet.
+- No route sync or PR-ready proof gate has been satisfied.
+- No sibling plan handoff has been consumed for identity authority.
 
-## HID Execution Guard (added 2026-06-12)
+## Execution Gate
 
-- Scope and completion source:
-  - follow [PLAN_HID_MATRIX.md](../../PLAN_HID_MATRIX.md) execution slice, then this plan's assigned WORKPACK_INDEX.md and NEXT_ACTIONS.md.
-  - do not mark this plan complete from checklist deltas alone.
-- Before any checked update, attach:
-  - a real test run log (or explicit known blocker) from the assigned implementation boundary,
-  - a proof manifest under docs/proof/account-identity-family-plan/.
-- Required proof manifest names:
-  - docs/proof/account-identity-family-plan/slice-01-\*.md
-  - docs/proof/account-identity-family-plan/slice-02-\*.md
-  - docs/proof/account-identity-family-plan/slice-03-\*.md
-  - each proof file must include commands, pass/fail,
-    negative-cases, and manual-required notes.
-- Failure rule: no PR-ready claim until replay/idempotency, authZ/replay, and rollback/teardown proofs are present for the assigned slice.
-
-## HID execution blueprint
-
-Continue execution from: [PLAN_EXECUTION_BLUEPRINT.md](PLAN_EXECUTION_BLUEPRINT.md).
-Update this plan only via the blueprint and matching workpack checklist.
+- Route and implementation continue from [PLAN_EXECUTION_BLUEPRINT.md](PLAN_EXECUTION_BLUEPRINT.md).
+- Update this plan only through the blueprint, the selected workpack, and matching proof rows.
+- Do not mark this plan complete from checklist deltas alone.

@@ -30,5 +30,8 @@ fn http_host_parser_ignores_non_request_or_missing_host_payloads() {
 
 #[test]
 fn http_host_parser_ignores_invalid_utf8_without_claiming_evidence() {
-    assert_eq!(parse_http_host(&[0xff, 0xfe]).expect("invalid utf8 is ignored"), None);
+    assert_eq!(
+        parse_http_host(&[0xff, 0xfe]).expect("invalid utf8 is ignored"),
+        None
+    );
 }

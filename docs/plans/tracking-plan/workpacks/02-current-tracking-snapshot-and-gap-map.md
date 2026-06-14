@@ -83,20 +83,20 @@ This workpack can be assigned independently, implemented against the owning doma
 
 ## Fill This Before Reporting DONE Or PR-ready
 
-- [x] Workpack id and branch:
+- [ ] Workpack id and branch:
       `codex/tracking-plan-full-continuation-a`.
-- [x] Touched files: current snapshot, source index, implementation checklist,
+- [ ] Touched files: current snapshot, source index, implementation checklist,
       WP01/WP02 docs, source reconciliation proof script, generated WP01/WP02 proof
       roots, and product-checklist delta queue.
-- [x] Validation commands and results:
+- [ ] Validation commands and results:
       `node scripts/test/tracking-source-reconciliation-gap-map-proof.mjs` passed
       after regenerating the product-readiness closure proof.
-- [x] Proof artifacts under
+- [ ] Proof artifacts under
       `output/tracking-plan-proof/02-current-tracking-snapshot-and-gap-map/`.
-- [x] Product doc/checklist updates: current snapshot, source index,
+- [ ] Product doc/checklist updates: current snapshot, source index,
       implementation checklist, and owning feature doc/checklist delta queue; the
       shared capability checklist file was not edited by this lane.
-- [x] Known gaps/manual-required states: Android/iOS physical-device proof,
+- [ ] Known gaps/manual-required states: Android/iOS physical-device proof,
       actual child-device runtime, full product parent/child UI, authority,
       provider delivery/receipt runtime, retention product runtime, production
       workers, and product-ready tracking remain proof-gated.

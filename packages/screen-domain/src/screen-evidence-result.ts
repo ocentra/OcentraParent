@@ -25,6 +25,7 @@ import {
   ScreenEvidenceSummaryTextSchema,
   ScreenEvidenceTemplateVersionSchema,
 } from './screen-evidence-primitives';
+import { screenPolicyEvidenceChainFieldsWithDefaults } from './screen-policy-evidence-chain';
 
 const RequiredFalse = Schema.Literal(false);
 const PolicyEligibleConfidenceFloor = 0.5;
@@ -88,6 +89,7 @@ const ScreenAnalysisResultBaseSchema = Schema.Struct({
   imageDeletionState: ScreenDeletionStateSchema,
   custodyState: ScreenEvidenceCustodyStateSchema,
   policyEligible: Schema.Boolean,
+  ...screenPolicyEvidenceChainFieldsWithDefaults(),
 });
 
 export const ScreenAnalysisResultSchema = withParser(

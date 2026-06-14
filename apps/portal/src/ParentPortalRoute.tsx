@@ -49,6 +49,7 @@ import {
   BrowserParentExplanationRoutePanel,
   shouldRenderBrowserParentExplanationRoute,
 } from './BrowserParentExplanationRoutePanel';
+import { PolicyPreviewRoutePanel, shouldRenderPolicyPreviewRoute } from './PolicyPreviewRoutePanel';
 import {
   shouldRenderSocialAuditExplanationRoute,
   SocialAuditExplanationRoutePanel,
@@ -175,6 +176,13 @@ export function ParentPortalRoute({
           actions={actions}
           commandEnabled={state.socket?.readyState === WebSocket.OPEN}
           readModelResult={activityState.appGameTimerParentSurfaceReadModel}
+        />
+      ) : null}
+      {shouldRenderPolicyPreviewRoute(route) ? (
+        <PolicyPreviewRoutePanel
+          actions={actions}
+          commandEnabled={state.socket?.readyState === WebSocket.OPEN}
+          liveActivity={activityState}
         />
       ) : null}
       {shouldRenderAiRuntimeRoute(route) ? (

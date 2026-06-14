@@ -45,12 +45,12 @@ Proof root: `output/tracking-plan-proof/24-ai-provider-routing/`
 
 ## AI Worker Checklist
 
-- [x] Keep child-device local as default safety path.
-- [x] Require explicit parent approval for remote mode.
-- [x] Preserve provider unavailable/degraded state.
-- [x] Prevent assistant-only policy writes.
-- [x] Cite evidence and custody in all AI contexts.
-- [x] Require stored journal/read-model refs before AI report/policy consumer
+- [ ] Keep child-device local as default safety path.
+- [ ] Require explicit parent approval for remote mode.
+- [ ] Preserve provider unavailable/degraded state.
+- [ ] Prevent assistant-only policy writes.
+- [ ] Cite evidence and custody in all AI contexts.
+- [ ] Require stored journal/read-model refs before AI report/policy consumer
       use.
 
 ## AI Boundary Ownership
@@ -115,45 +115,45 @@ This workpack can be assigned independently, implemented against the owning doma
 
 ## Fill This Before Reporting DONE Or PR-ready
 
-- [x] Workpack id and branch: `codex/tracking-plan-full-scope`.
-- [x] Touched files: tracking contract files, proof script, product docs, checklist, and this workpack doc.
-- [x] Validation commands and results: `node scripts/test/tracking-plan-contract-proof.mjs` passed.
-- [x] Proof artifacts under `output/tracking-plan-proof/24-ai-provider-routing/`.
-- [x] Product doc/checklist updates: owning feature doc, feature list, capability checklist, implementation checklist, tracking snapshot, and package READMEs updated.
-- [x] Known gaps/manual-required states: Android/iOS, precise desktop, provider delivery, runtime engines, retention/delete/export, Rust journal/SQLite, notifications, and UI remain proof-gated as applicable.
-- [x] Workpack id and branch: `codex/tracking-plan-full-continuation-a`.
-- [x] Touched files: WP24 proof source, tests, proof harness, feature doc,
+- [ ] Workpack id and branch: `codex/tracking-plan-full-scope`.
+- [ ] Touched files: tracking contract files, proof script, product docs, checklist, and this workpack doc.
+- [ ] Validation commands and results: `node scripts/test/tracking-plan-contract-proof.mjs` passed.
+- [ ] Proof artifacts under `output/tracking-plan-proof/24-ai-provider-routing/`.
+- [ ] Product doc/checklist updates: owning feature doc, feature list, capability checklist, implementation checklist, tracking snapshot, and package READMEs updated.
+- [ ] Known gaps/manual-required states: Android/iOS, precise desktop, provider delivery, runtime engines, retention/delete/export, Rust journal/SQLite, notifications, and UI remain proof-gated as applicable.
+- [ ] Workpack id and branch: `codex/tracking-plan-full-continuation-a`.
+- [ ] Touched files: WP24 proof source, tests, proof harness, feature doc,
       implementation checklist, WP24/WP33 docs, and generated proof artifacts.
-- [x] Validation commands and results:
+- [ ] Validation commands and results:
       `node scripts/test/tracking-ai-provider-routing-proof.mjs` passed
       locally.
-- [x] Proof artifacts under
+- [ ] Proof artifacts under
       `output/tracking-plan-proof/24-ai-provider-routing/` and
       `test-results/tracking-ai-provider-routing-proof/`.
-- [x] Product doc/checklist updates: owning tracking feature doc, tracking
+- [ ] Product doc/checklist updates: owning tracking feature doc, tracking
       implementation checklist, WP24, and WP33 updated; central product
       checklist row remains unchanged because this does not upgrade product
       support beyond the existing local proof tier.
-- [x] Known gaps/manual-required states: model execution, provider delivery,
+- [ ] Known gaps/manual-required states: model execution, provider delivery,
       child-device runtime, rendered assistant/provider UI, authority,
       enforcement, production behavior, and physical-device proof remain
       unclaimed.
-- [x] Workpack id and branch: `codex/tracking-plan-full-continuation-a`.
-- [x] Touched files: WP24/WP32 AI stored-ref consumer proof source, tests,
+- [ ] Workpack id and branch: `codex/tracking-plan-full-continuation-a`.
+- [ ] Touched files: WP24/WP32 AI stored-ref consumer proof source, tests,
       proof harness, feature doc, implementation checklist, WP24/WP32 docs,
       central product checklist row, and generated proof artifacts.
-- [x] Validation commands and results:
+- [ ] Validation commands and results:
       `node scripts/test/tracking-ai-stored-ref-consumer-proof.mjs` passed
       locally.
-- [x] Proof artifacts under
+- [ ] Proof artifacts under
       `output/tracking-plan-proof/24-ai-provider-routing/19-ai-stored-ref-consumer-proof.json`,
       `output/tracking-plan-proof/32-journal-sqlite-and-read-model-proof/30-ai-stored-ref-consumer-proof.json`,
       `output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-gate/30-ai-stored-ref-consumer-proof.json`,
       and `test-results/tracking-ai-stored-ref-consumer-proof/`.
-- [x] Product doc/checklist updates: owning tracking feature doc,
+- [ ] Product doc/checklist updates: owning tracking feature doc,
       implementation checklist, WP24, WP32, and central product capability row
       updated.
-- [x] Known gaps/manual-required states: AI model execution, assistant policy
+- [ ] Known gaps/manual-required states: AI model execution, assistant policy
       writes, assistant enforcement, provider delivery, child-device runtime,
       notification receipt, authority, production behavior, physical-device
       proof, and product-ready tracking remain unclaimed.

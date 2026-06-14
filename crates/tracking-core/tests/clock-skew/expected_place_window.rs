@@ -5,16 +5,7 @@ fn expected_place_window_supports_midnight_crossing_boundaries() {
         end_minute_of_day: 6 * 60,
     };
 
-    assert!(ocentra_tracking_core::expected_place_window_contains_minute(
-        window.clone(),
-        23 * 60
-    ));
-    assert!(ocentra_tracking_core::expected_place_window_contains_minute(
-        window.clone(),
-        5 * 60
-    ));
-    assert!(!ocentra_tracking_core::expected_place_window_contains_minute(
-        window,
-        12 * 60
-    ));
+    assert!(ocentra_tracking_core::expected_place_window_contains_minute(window.clone(), 23 * 60));
+    assert!(ocentra_tracking_core::expected_place_window_contains_minute(window.clone(), 5 * 60));
+    assert!(!ocentra_tracking_core::expected_place_window_contains_minute(window, 12 * 60));
 }

@@ -20,11 +20,11 @@ Only schema-valid AI results reach deterministic parent policy.
 
 ## Checklist
 
-- [x] AI result cites evidence refs.
-- [x] AI result cites parent-rule refs.
-- [x] Confidence/degraded state valid.
-- [x] Invalid output rejected before policy.
-- [x] Stricter parent rule wins.
+- [ ] AI result cites evidence refs.
+- [ ] AI result cites parent-rule refs.
+- [ ] Confidence/degraded state valid.
+- [ ] Invalid output rejected before policy.
+- [ ] Stricter parent rule wins.
 
 ## Proof
 

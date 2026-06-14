@@ -35,6 +35,36 @@ npm run security:scan-repo
 cargo test
 ```
 
+Architecture policy gates:
+
+```powershell
+npm run lint:architecture -- --files <touched-file-or-dir> [more files or dirs]
+cargo lint-architecture <touched-rs-file-or-dir> [more files or dirs]
+```
+
+Use directory paths to run the same hard gate per module, crate, or domain without waiting for full validation.
+
+For PR diffs or full debt sweeps, use the explicit diff or all-files forms:
+
+```powershell
+npm run lint:architecture -- --base <base> --head <head>
+npm run lint:architecture:all
+cargo lint-architecture --base <base> --head <head>
+cargo lint-architecture --all
+```
+
+`lint:architecture` now covers:
+
+- TypeScript/JavaScript and Rust re-export bans
+- no validation-bypass directives
+- no focused/skipped/todo tests
+- no weak test assertions
+- no placeholder implementation markers in production source
+- import ownership boundaries
+- Rust raw domain primitive bans
+- Rust string-boundary checks
+- Rust dependency policy checks
+
 ## Stale Dev Services
 
 If `cargo build` or `cargo test` cannot overwrite the service binary on Windows, check whether the dev service is still running on port `4477` and stop it before rebuilding.

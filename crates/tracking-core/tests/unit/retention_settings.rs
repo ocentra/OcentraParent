@@ -1,7 +1,6 @@
 use ocentra_parent_agent_protocol::{
     default_tracking_config_update_request, tracking_read_model_proof_ref,
-    tracking_retention_command_id,
-    tracking_retention_settings_kind, tracking_writer_intent_ref,
+    tracking_retention_command_id, tracking_retention_settings_kind, tracking_writer_intent_ref,
     TrackingDeleteAfterAlertResolutionState, TrackingDurableSettingsPersistenceState,
     TrackingParentExportState, TrackingRemoteAiState, TrackingRemoteSyncState,
     TrackingRetentionSettingsWriteRequest, TrackingRuntimeEnabledState,

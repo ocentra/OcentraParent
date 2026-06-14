@@ -54,6 +54,9 @@ impl ActivityEventKind {
                 constants::activity_event_kind::SCREEN_ANALYSIS_SUMMARIZED
             }
             Self::LocationObserved => constants::activity_event_kind::LOCATION_OBSERVED,
+            Self::TrackingAlertEvaluated => {
+                constants::activity_event_kind::TRACKING_ALERT_EVALUATED
+            }
             Self::TrackingGeofenceTransitionEvaluated => {
                 constants::activity_event_kind::TRACKING_GEOFENCE_TRANSITION_EVALUATED
             }
@@ -62,6 +65,9 @@ impl ActivityEventKind {
             }
             Self::TrackingChildCheckInResponded => {
                 constants::activity_event_kind::TRACKING_CHILD_CHECK_IN_RESPONDED
+            }
+            Self::TrackingParentNotificationRequested => {
+                constants::activity_event_kind::TRACKING_PARENT_NOTIFICATION_REQUESTED
             }
             Self::TrackingRetentionDeleted => {
                 constants::activity_event_kind::TRACKING_RETENTION_DELETED
@@ -92,6 +98,9 @@ impl ActivityEventKind {
                 Some(Self::ScreenAnalysisSummarized)
             }
             constants::activity_event_kind::LOCATION_OBSERVED => Some(Self::LocationObserved),
+            constants::activity_event_kind::TRACKING_ALERT_EVALUATED => {
+                Some(Self::TrackingAlertEvaluated)
+            }
             constants::activity_event_kind::TRACKING_GEOFENCE_TRANSITION_EVALUATED => {
                 Some(Self::TrackingGeofenceTransitionEvaluated)
             }
@@ -100,6 +109,9 @@ impl ActivityEventKind {
             }
             constants::activity_event_kind::TRACKING_CHILD_CHECK_IN_RESPONDED => {
                 Some(Self::TrackingChildCheckInResponded)
+            }
+            constants::activity_event_kind::TRACKING_PARENT_NOTIFICATION_REQUESTED => {
+                Some(Self::TrackingParentNotificationRequested)
             }
             constants::activity_event_kind::TRACKING_RETENTION_DELETED => {
                 Some(Self::TrackingRetentionDeleted)

@@ -11,7 +11,7 @@ use ocentra_eventing::{
     AggregateKey, DomainEvent, EventContract, EventType, EventingError, IdempotencyKey,
     SchemaVersion,
 };
-use ocentra_policy_control_core::ParentAuthorityState;
+use ocentra_policy_control_core::policy_authority::ParentAuthorityState;
 use serde::{Deserialize, Serialize};
 
 pub const CRATE_NAME: &str = "ocentra-child-enforcement-core";

@@ -182,9 +182,9 @@ SELECT
   fields_json,
   evidence_json
 FROM activity_events
-WHERE kind IN (?1, ?2, ?3, ?4, ?5)
+WHERE kind IN (?1, ?2, ?3, ?4, ?5, ?6, ?7)
 ORDER BY observed_at DESC, event_id DESC
-LIMIT ?6;";
+LIMIT ?8;";
 
 pub const SELECT_RECENT_SCREEN_ANALYSIS_ACTIVITY: &str = "
 SELECT

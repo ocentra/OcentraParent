@@ -67,7 +67,7 @@ export {
   TrackingControlEffectivePolicySchema,
   TrackingControlPolicyValueSchema,
   TrackingControlUpdateCommandSchema,
-} from './tracking-control-catalog-schema';
+};
 export type {
   TrackingControlCapability,
   TrackingControlCatalog,
@@ -79,7 +79,7 @@ export type {
   TrackingControlOption,
   TrackingControlPolicyValue,
   TrackingControlUpdateCommand,
-} from './tracking-control-catalog-schema';
+};
 
 type GroupDraft = Omit<TrackingControlCatalogGroup, 'settings'> & {
   readonly settings: TrackingControlCatalogSetting[];
@@ -150,6 +150,19 @@ const TrackingControlTargetScopeOptions = optionLabels('tracking-control.target-
 const TrackingControlEffectModeOptions = optionLabels('tracking-control.effect-mode', [
   ...TrackingControlCatalogEffectModeLabels,
 ]);
+const TrackingControlDefaultPostureSettingId = 'location.defaultPosture';
+const TrackingControlTemporaryLiveCompanionSettings = [
+  { purpose: 'duration', settingId: 'live.maxSessionMinutes' },
+  { purpose: 'fallback', settingId: 'permissions.whenPermissionMissing' },
+  {
+    purpose: 'custody',
+    settingId: 'tracking-guide-custody-retention-and-audit-custody-retention-and-audit-196',
+  },
+  {
+    purpose: 'audit',
+    settingId: 'tracking-guide-custody-retention-and-audit-custody-retention-and-audit-191',
+  },
+] as const;
 
 export const BaselineTrackingControlCatalog: TrackingControlCatalog = TrackingControlCatalogSchema.parse({
   schemaVersion: ParentContractSchemaVersion.V0_6,
@@ -239,6 +252,7 @@ export function decodeTrackingControlPolicyValueForCatalog(
     }
     seenSettingIds.add(settingId);
   }
+  assertTrackingControlTemporaryLiveCompanionSettings(parsed.settings);
   return parsed;
 }
 
@@ -269,6 +283,7 @@ export function buildTrackingControlEffectivePolicyPlan(
   policy: TrackingControlPolicyValue,
   catalog = BaselineTrackingControlCatalog
 ): TrackingControlEffectivePolicy['plans'] {
+  assertTrackingControlTemporaryLiveCompanionSettings(policy.settings);
   const settingMetadata = new Map(
     trackingControlCatalogSettings(catalog).map((setting) => [String(setting.settingId), setting])
   );
@@ -286,6 +301,21 @@ export function buildTrackingControlEffectivePolicyPlan(
       fallback: setting.unsafeOrUnsupportedFallback,
     };
   });
+}
+
+function assertTrackingControlTemporaryLiveCompanionSettings(settings: TrackingControlPolicyValue['settings']) {
+  const settingsById = new Map(settings.map((setting) => [String(setting.settingId), setting.value]));
+  if (settingsById.get(TrackingControlDefaultPostureSettingId) !== 'temporary-live') {
+    return;
+  }
+  const missing = TrackingControlTemporaryLiveCompanionSettings.filter(
+    ({ settingId }) => !settingsById.has(settingId)
+  ).map(({ purpose, settingId }) => `${purpose}=${settingId}`);
+  if (missing.length > 0) {
+    throw new Error(
+      `Temporary live posture requires companion tracking control settings: ${missing.join(', ')}`
+    );
+  }
 }
 
 function buildTabsFromSettings(settings: readonly TrackingControlCatalogSetting[]): TrackingControlCatalogTab[] {

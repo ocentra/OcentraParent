@@ -7,6 +7,7 @@ Expected shape:
 - Relay connections are authenticated, scoped, rate-limited, and observable.
 - Partial outage, slow dependency, reconnect storm, and DoS are expected states.
 - Diagnostics are redacted and do not store screen content unless explicitly authorized.
+- Standing paired access remains visible until revoke or device removal.
 
 Expected proof:
 

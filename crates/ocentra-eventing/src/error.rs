@@ -1,6 +1,6 @@
 use std::{error::Error, fmt};
 
-use crate::{EventId, EventType, IdempotencyKey, RequestId, SubscriberId};
+use crate::{EventId, EventType, IdempotencyKey, RequestId, SchemaVersion, SubscriberId};
 
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub enum EventingError {
@@ -22,6 +22,8 @@ pub enum EventingError {
     ContractMismatch {
         expected: EventType,
         received: EventType,
+        expected_schema_version: SchemaVersion,
+        received_schema_version: SchemaVersion,
     },
     DuplicateEventContract {
         event_type: EventType,
@@ -229,11 +231,18 @@ fn fmt_contract_error(error: &EventingError, formatter: &mut fmt::Formatter<'_>)
                 event_type.as_str()
             )
         }
-        EventingError::ContractMismatch { expected, received } => write!(
+        EventingError::ContractMismatch {
+            expected,
+            received,
+            expected_schema_version,
+            received_schema_version,
+        } => write!(
             formatter,
-            "event contract mismatch: expected {}, received {}",
+            "event contract mismatch: expected {}@{}, received {}@{}",
             expected.as_str(),
-            received.as_str()
+            expected_schema_version.value(),
+            received.as_str(),
+            received_schema_version.value()
         ),
         EventingError::DuplicateEventContract { event_type } => {
             write!(

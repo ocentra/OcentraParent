@@ -7,8 +7,7 @@ use serde::{Deserialize, Serialize};
 use crate::{browser_observed_event, BrowserObservationIntent};
 
 const BROWSER_SCHEMA_VERSION: u16 = 1;
-const BROWSER_RUNTIME_DECISION_RECORDED_EVENT_TYPE: &str =
-    "browser.runtime.decision-recorded";
+const BROWSER_RUNTIME_DECISION_RECORDED_EVENT_TYPE: &str = "browser.runtime.decision-recorded";
 const BROWSER_IDEMPOTENCY_SEPARATOR: &str = ":";
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]

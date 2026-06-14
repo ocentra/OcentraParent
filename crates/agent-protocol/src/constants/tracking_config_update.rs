@@ -59,8 +59,7 @@ pub const POLICY_RULE_LOCAL_CHILD_RUNTIME: &str = "policy.rule.tracking.local-ch
 pub const POLICY_RULE_REMOTE_SYNC_DISABLED: &str = "policy.rule.tracking.remote-sync-disabled";
 pub const POLICY_RULE_REMOTE_AI_DISABLED: &str = "policy.rule.tracking.remote-ai-disabled";
 pub const REJECTION_REASON_INVALID_REQUEST: &str = "invalid-tracking-config-request";
-pub const REJECTION_REASON_CHILD_RUNTIME_DISPATCH_BLOCKED: &str =
-    "child-runtime-dispatch-blocked";
+pub const REJECTION_REASON_CHILD_RUNTIME_DISPATCH_BLOCKED: &str = "child-runtime-dispatch-blocked";
 pub const ERROR_PARENT_CONFIG_EVENT_APPLIED: &str = "parent tracking config event applied";
 pub const ERROR_CHILD_CONFIG_APPLIED_EVENT_RECORDED: &str =
     "child tracking config applied event recorded";

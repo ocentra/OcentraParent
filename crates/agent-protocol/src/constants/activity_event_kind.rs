@@ -8,9 +8,12 @@ pub const ENFORCEMENT_AUDIT_RECORDED: &str = "activity.enforcement.audit-recorde
 pub const DEVICE_IDLE_STATE_OBSERVED: &str = "activity.device.idle-state-observed";
 pub const SCREEN_ANALYSIS_SUMMARIZED: &str = "activity.screen.analysis.summarized";
 pub const LOCATION_OBSERVED: &str = "activity.location.observed";
+pub const TRACKING_ALERT_EVALUATED: &str = "activity.tracking.alert.evaluated";
 pub const TRACKING_GEOFENCE_TRANSITION_EVALUATED: &str =
     "activity.tracking.geofence-transition.evaluated";
 pub const TRACKING_EXPECTED_PLACE_EVALUATED: &str = "activity.tracking.expected-place.evaluated";
 pub const TRACKING_CHILD_CHECK_IN_RESPONDED: &str = "activity.tracking.child-check-in.responded";
+pub const TRACKING_PARENT_NOTIFICATION_REQUESTED: &str =
+    "activity.tracking.parent-notification.requested";
 pub const TRACKING_RETENTION_DELETED: &str = "activity.tracking.retention.deleted";
 pub const NETWORK_RETENTION_DELETED: &str = "activity.network.retention.deleted";

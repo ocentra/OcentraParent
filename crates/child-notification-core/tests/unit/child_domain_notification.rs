@@ -1,11 +1,9 @@
 use ocentra_parent_agent_protocol::{
     child_domain_child_device_id, child_domain_child_profile_id, child_domain_evidence_ref,
-    child_domain_notification_id_from_policy_violation_id,
-    child_domain_observed_at,
-    child_domain_policy_rule_ref, child_domain_policy_severity,
-    child_domain_policy_violation_id, ChildDomainEventType, ChildDomainPolicyRuleKind,
-    ChildDomainPolicySeverityKind, ChildDomainPolicyViolationDetectedEvent, ChildDomainRefSuffix,
-    ChildRuntimeDomain,
+    child_domain_notification_id_from_policy_violation_id, child_domain_observed_at,
+    child_domain_policy_rule_ref, child_domain_policy_severity, child_domain_policy_violation_id,
+    ChildDomainEventType, ChildDomainPolicyRuleKind, ChildDomainPolicySeverityKind,
+    ChildDomainPolicyViolationDetectedEvent, ChildDomainRefSuffix, ChildRuntimeDomain,
 };
 
 #[test]

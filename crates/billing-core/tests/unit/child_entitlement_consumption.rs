@@ -4,9 +4,8 @@ use ocentra_billing_core::{
     BillingChildEntitlementConsumptionRecordedEvent, BillingChildEntitlementConsumptionState,
     BillingChildEntitlementRejectionReason, BillingChildEntitlementSnapshot,
     BillingChildEntitlementSnapshotReceivedEvent, BillingChildSnapshotFreshnessState,
-    BillingChildSnapshotSignatureState,
-    BillingEntitlementSnapshotId, BillingEntitlementWriteState, BillingManualReviewRequirement,
-    BillingSubscriptionLifecycleState,
+    BillingChildSnapshotSignatureState, BillingEntitlementSnapshotId, BillingEntitlementWriteState,
+    BillingManualReviewRequirement, BillingSubscriptionLifecycleState,
 };
 use ocentra_eventing::DomainEvent;
 
@@ -14,8 +13,7 @@ const BILLING_AGGREGATE_ID: &str = "billing-household-default";
 const CHILD_DEVICE_ID: &str = "child-device-default";
 const SNAPSHOT_ID: &str = "billing-snapshot-default";
 const SNAPSHOT_RECEIVED_EVENT_TYPE: &str = "billing.child-entitlement-snapshot.received";
-const CONSUMPTION_RECORDED_EVENT_TYPE: &str =
-    "billing.child-entitlement-consumption.recorded";
+const CONSUMPTION_RECORDED_EVENT_TYPE: &str = "billing.child-entitlement-consumption.recorded";
 
 fn snapshot(
     lifecycle_state: BillingSubscriptionLifecycleState,
@@ -45,8 +43,14 @@ fn trusted_active_child_snapshot_grants_full_access() {
         decision.decision_state,
         BillingChildEntitlementConsumptionState::Accepted
     );
-    assert_eq!(decision.access_state, BillingChildEntitlementAccessState::FullAccess);
-    assert_eq!(decision.write_state, BillingEntitlementWriteState::WriteRequired);
+    assert_eq!(
+        decision.access_state,
+        BillingChildEntitlementAccessState::FullAccess
+    );
+    assert_eq!(
+        decision.write_state,
+        BillingEntitlementWriteState::WriteRequired
+    );
     assert_eq!(
         decision.manual_review_requirement,
         BillingManualReviewRequirement::NotRequired
@@ -70,7 +74,10 @@ fn trusted_grace_child_snapshot_projects_grace_access() {
         decision.access_state,
         BillingChildEntitlementAccessState::GraceAccess
     );
-    assert_eq!(decision.write_state, BillingEntitlementWriteState::WriteRequired);
+    assert_eq!(
+        decision.write_state,
+        BillingEntitlementWriteState::WriteRequired
+    );
 }
 
 #[test]
@@ -85,8 +92,14 @@ fn stale_child_snapshot_is_rejected_without_overwriting_local_state() {
         decision.decision_state,
         BillingChildEntitlementConsumptionState::Rejected
     );
-    assert_eq!(decision.access_state, BillingChildEntitlementAccessState::NoChange);
-    assert_eq!(decision.write_state, BillingEntitlementWriteState::DoNotWrite);
+    assert_eq!(
+        decision.access_state,
+        BillingChildEntitlementAccessState::NoChange
+    );
+    assert_eq!(
+        decision.write_state,
+        BillingEntitlementWriteState::DoNotWrite
+    );
     assert_eq!(
         decision.manual_review_requirement,
         BillingManualReviewRequirement::Required
@@ -109,7 +122,10 @@ fn invalid_signature_child_snapshot_is_rejected_before_lifecycle_changes() {
         decision.decision_state,
         BillingChildEntitlementConsumptionState::Rejected
     );
-    assert_eq!(decision.access_state, BillingChildEntitlementAccessState::NoChange);
+    assert_eq!(
+        decision.access_state,
+        BillingChildEntitlementAccessState::NoChange
+    );
     assert_eq!(
         decision.rejection_reason,
         Some(BillingChildEntitlementRejectionReason::InvalidSignature)
@@ -128,7 +144,10 @@ fn dispute_won_child_snapshot_restores_full_access() {
         decision.decision_state,
         BillingChildEntitlementConsumptionState::Accepted
     );
-    assert_eq!(decision.access_state, BillingChildEntitlementAccessState::FullAccess);
+    assert_eq!(
+        decision.access_state,
+        BillingChildEntitlementAccessState::FullAccess
+    );
     assert_eq!(
         decision.manual_review_requirement,
         BillingManualReviewRequirement::NotRequired

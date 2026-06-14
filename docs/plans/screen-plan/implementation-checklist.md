@@ -111,137 +111,137 @@ legacy household-provider route or runtime-discovery proofs.
 
 ## Main Gates
 
-- [x] Screen analysis starts disabled.
-- [x] Parent opt-in setting exists and is auditable.
-- [x] MVP scope is capture/routing first, AI model-quality proof second.
-- [x] Capture cadence and triggers are parent-controlled.
-- [x] Capture scope is parent-controlled and platform-gated.
-- [x] Real browser-use trigger proof exists, not only contract tests.
-- [x] Real app-use trigger proof exists, not only contract tests.
-- [x] Timed cadence proof captures multiple bounded frames and stops after disable.
-- [x] Capability status exists before capture.
-- [x] Screen evidence is treated as cross-slice, not browser-only.
-- [x] Existing browser/app/game/network/session evidence is checked before capture.
-- [x] Managed browser structured extraction runs before managed-browser screenshots.
-- [x] Managed browser CDP screenshot capture is page-scoped and never becomes desktop capture.
-- [x] OCR runs before VLM when text can answer the question.
-- [x] Guided detector prompts replace open-ended screen descriptions.
-- [x] A capable configured local model may be used after route/cost/privacy proof.
-- [x] Protected surfaces are skipped.
-- [x] Temporary image queue is encrypted.
-- [x] Raw image path is redacted outside child agent.
-- [x] Local OCR/vision returns schema-valid JSON only.
-- [x] Invalid model output cannot drive policy.
-- [x] Summary writes to journal/SQLite.
-- [x] Raw image deleted after success.
-- [x] Raw image deleted after expiry.
-- [x] Deletion state visible.
-- [x] Policy consumes summary/evidence refs only.
-- [x] Portal does not show raw screenshots by default.
-- [x] Screenshot retention is separate opt-in mode.
-- [x] Live view is separate opt-in mode.
-- [x] Optional raw-retention and live-view parent opt-in modes expose
+- [ ] Screen analysis starts disabled.
+- [ ] Parent opt-in setting exists and is auditable.
+- [ ] MVP scope is capture/routing first, AI model-quality proof second.
+- [ ] Capture cadence and triggers are parent-controlled.
+- [ ] Capture scope is parent-controlled and platform-gated.
+- [ ] Real browser-use trigger proof exists, not only contract tests.
+- [ ] Real app-use trigger proof exists, not only contract tests.
+- [ ] Timed cadence proof captures multiple bounded frames and stops after disable.
+- [ ] Capability status exists before capture.
+- [ ] Screen evidence is treated as cross-slice, not browser-only.
+- [ ] Existing browser/app/game/network/session evidence is checked before capture.
+- [ ] Managed browser structured extraction runs before managed-browser screenshots.
+- [ ] Managed browser CDP screenshot capture is page-scoped and never becomes desktop capture.
+- [ ] OCR runs before VLM when text can answer the question.
+- [ ] Guided detector prompts replace open-ended screen descriptions.
+- [ ] A capable configured local model may be used after route/cost/privacy proof.
+- [ ] Protected surfaces are skipped.
+- [ ] Temporary image queue is encrypted.
+- [ ] Raw image path is redacted outside child agent.
+- [ ] Local OCR/vision returns schema-valid JSON only.
+- [ ] Invalid model output cannot drive policy.
+- [ ] Summary writes to journal/SQLite.
+- [ ] Raw image deleted after success.
+- [ ] Raw image deleted after expiry.
+- [ ] Deletion state visible.
+- [ ] Policy consumes summary/evidence refs only.
+- [ ] Portal does not show raw screenshots by default.
+- [ ] Screenshot retention is separate opt-in mode.
+- [ ] Live view is separate opt-in mode.
+- [ ] Optional raw-retention and live-view parent opt-in modes expose
       child/device readiness status and fail closed without runtime, deletion,
       live-view permission, and transport proof.
-- [x] Optional raw-retention readiness becomes ready only when service-settings
+- [ ] Optional raw-retention readiness becomes ready only when service-settings
       runtime proof, deletion-event proof, child disclosure readiness, and child
       device readiness exist while current raw frames and raw remote upload stay
       false.
-- [x] Optional raw screenshot retention runtime accepts only parent-approved
+- [ ] Optional raw screenshot retention runtime accepts only parent-approved
       local short-TTL mode with delete-after-success and delete-after-expiry
       still required; default raw retention, long TTL, raw remote upload, and
       disabled-analysis retention remain rejected.
-- [x] Parent Settings route renders optional raw-retention and live-view
+- [ ] Parent Settings route renders optional raw-retention and live-view
       readiness rows from the domain proof without enabling raw retention,
       live view, live transport, relay/cache, remote input, or privacy/legal
       approval.
-- [x] Optional visibility runtime settings keep raw-retention and live-view
+- [ ] Optional visibility runtime settings keep raw-retention and live-view
       opt-ins separate from screen-analysis settings, reject stale writes and
       mixed raw-retention/live-view custody, and keep product live view false.
-- [x] Local live-view session transport proof captures one real active-window
+- [ ] Local live-view session transport proof captures one real active-window
       frame, sends it over a view-only loopback session with digest/HMAC
       validation, and deletes the raw frame after transport without enabling
       production live view, relay/cache, remote input, session recording, or
       product readiness.
-- [x] Live-view production readiness requires structured evidence, not opaque
+- [ ] Live-view production readiness requires structured evidence, not opaque
       proof refs: matching live-view prompt artifact ref/digest, viewer audit,
       live transport proof, physical-device parity proof, privacy/legal
       approval, production worker start proof, and relay/cache proof when
       relay-backed.
-- [x] Parent UI persistence proof carries live-view opt-in state into
+- [ ] Parent UI persistence proof carries live-view opt-in state into
       service-session/runtime decisions without enabling product live view.
-- [x] Rust agent-service live-view runtime decision proof rejects
+- [ ] Rust agent-service live-view runtime decision proof rejects
       capture-only permission, missing transport/deletion proof, frame cache,
       session recording, and remote input while preserving product-blocked
       service readiness until platform prompt, production worker, relay/cache,
       physical parity, and privacy/legal gates exist.
-- [x] Rust agent-service live-view worker startup gate separates startup
+- [ ] Rust agent-service live-view worker startup gate separates startup
       permission from actual worker execution and refuses startup permission
       until runtime readiness, real platform prompt artifact, relay/cache when
       needed, physical-device parity, and privacy/legal approval exist.
-- [x] Rust agent-service live-view worker execution record starts only after the
+- [ ] Rust agent-service live-view worker execution record starts only after the
       startup gate and rejects raw-frame cache, session recording, and remote
       input without claiming platform prompt, relay/cache, physical parity, or
       product-complete live view.
-- [x] Rust agent-service startup wires an env-gated live-view worker runtime
+- [ ] Rust agent-service startup wires an env-gated live-view worker runtime
       hook that defaults disabled, consumes protocol-owned live-view gate
       constants, starts only after the existing runtime/startup decisions are
       ready, and refuses unsafe raw-frame cache, recording, or remote-input
       settings.
-- [x] Remote/cloud screenshot upload disabled by default.
-- [x] Remote/API path accepts only parent-approved redacted summaries by default.
-- [x] Local AI resource scheduler prevents multiple heavy jobs on normal PCs.
-- [x] Local or trusted household provider route is used before remote/API for hard
+- [ ] Remote/cloud screenshot upload disabled by default.
+- [ ] Remote/API path accepts only parent-approved redacted summaries by default.
+- [ ] Local AI resource scheduler prevents multiple heavy jobs on normal PCs.
+- [ ] Local or trusted household provider route is used before remote/API for hard
       visual cases.
-- [x] Screen capture, queue, deletion, and summary lifecycle transitions publish
+- [ ] Screen capture, queue, deletion, and summary lifecycle transitions publish
       typed `ocentra-eventing` events before AI/policy/action consumers run.
-- [x] Service Activity Screen rows bridge into the typed screen event chain
+- [ ] Service Activity Screen rows bridge into the typed screen event chain
       without raw retention, missing policy refs, or duplicate event buses.
-- [x] Service analysis rows publish `screen.service.row.ready` into the
+- [ ] Service analysis rows publish `screen.service.row.ready` into the
       service-owned event subscriber and gate incomplete rows before downstream
       policy/action publication.
-- [x] Service policy-eligible analysis rows carry dry-run policy decision,
+- [ ] Service policy-eligible analysis rows carry dry-run policy decision,
       action, parent rule, explanation, and deletion proof refs before row-ready
       publication without fabricating refs for non-policy-eligible rows.
-- [x] Service cadence and native foreground capture loops publish typed
+- [ ] Service cadence and native foreground capture loops publish typed
       capture-observed and encrypted-queue events after encrypted queue handoff.
-- [x] Service retention sweeper publishes typed deletion-committed events after
+- [ ] Service retention sweeper publishes typed deletion-committed events after
       expired encrypted queue deletion without fabricating policy/action refs.
-- [x] Screen child disclosure contract defines child-visible disabled, paused,
+- [ ] Screen child disclosure contract defines child-visible disabled, paused,
       active capture, protected-surface, and deleted-summary status without
       hidden capture or raw screenshot display claims.
-- [x] Screen child disclosure renderer produces desktop/mobile child-visible
+- [ ] Screen child disclosure renderer produces desktop/mobile child-visible
       screenshots while keeping child-agent deployment/delivery unclaimed.
-- [x] Screen enforcement handoff guard requires dry-run policy, summary,
+- [ ] Screen enforcement handoff guard requires dry-run policy, summary,
       local-AI result, parent-rule, confidence, and audit refs before any
       action payload, while rejecting raw pixels/raw model text/retained
       screenshot/local-AI-authority claims.
-- [x] Screen Analysis route renders a parent summary UI from the real
+- [ ] Screen Analysis route renders a parent summary UI from the real
       portal/agent Activity Screen read-model command path with capability,
       queue, model, confidence, custody, policy, audit, evidence refs,
       parent explanation refs, not-claimed enforcement details, and
       desktop/mobile screenshots.
-- [x] Parent Settings route submits screen settings through the real
+- [ ] Parent Settings route submits screen settings through the real
       portal/agent get/replace command path and renders accepted service
       persistence status, including approved local short-TTL raw retention.
-- [x] Screen-derived household provider jobs prove no raw screenshot transfer,
+- [ ] Screen-derived household provider jobs prove no raw screenshot transfer,
       claim/lease, child-agent result validation, and custody before policy.
-- [x] Platform capture proof exists before platform claim.
-- [x] Operator live URL/app proof is recorded before product-complete claim.
-- [x] Playwright UI proof exists.
-- [x] Final stacked screen-AI product path artifact gate is completed in
+- [ ] Platform capture proof exists before platform claim.
+- [ ] Operator live URL/app proof is recorded before product-complete claim.
+- [ ] Playwright UI proof exists.
+- [ ] Final stacked screen-AI product path artifact gate is completed in
       `docs/plans/screen-ai-pipeline-plan`; this does not close remaining
       platform/model/live-view screen-plan gates.
-- [x] External proof-gate intake rejects fixture/static/raw-private artifacts,
+- [ ] External proof-gate intake rejects fixture/static/raw-private artifacts,
       pixel artifacts without structured local capture/analysis/deletion refs,
       authenticated account artifacts without consent/redaction/policy/deletion
       refs, and keeps product-complete wording blocked until real
       device/platform artifacts exist.
-- [x] Screen-plan closure audit records the remaining partial/open gates,
+- [ ] Screen-plan closure audit records the remaining partial/open gates,
       consumes live-view transport/platform/parent UI/service-session/runtime/
       worker/relay-cache proofs, and blocks product-complete screen wording
       until those gates are completed or explicitly left as non-claims.
-- [x] Delete-failed read-model proof records Rust protocol/read-model parity
+- [ ] Delete-failed read-model proof records Rust protocol/read-model parity
       for `deleteFailed` custody rows and failed queue-health status without
       claiming an OS filesystem failure simulation.
 
@@ -311,43 +311,43 @@ bridge before downstream publication
 
 | Status | Workpack                                           |
 | ------ | -------------------------------------------------- |
-| [x]    | 01 Source index and doc reconciliation             |
-| [x]    | 02 Current screen snapshot and gap map             |
-| [x]    | 03 Contract boundary and Effect schemas            |
-| [x]    | 04 Parent opt-in settings contract                 |
-| [x]    | 05 Capability/status contract                      |
-| [x]    | 06 Capture scope model                             |
-| [x]    | 07 Capture trigger model                           |
-| [x]    | 08 Platform adapter abstraction                    |
-| [x]    | 09 Windows capture adapter plan/proof              |
-| [~]    | 10 macOS capture adapter plan/proof                |
-| [x]    | 11 Linux capture adapter plan/proof                |
-| [~]    | 12 Android MediaProjection adapter plan/proof      |
-| [~]    | 13 iOS ReplayKit adapter plan/proof                |
-| [x]    | 14 Protected surface detector                      |
-| [x]    | 15 Encrypted temporary image queue                 |
-| [x]    | 16 Queue scheduler and debouncer                   |
-| [x]    | 17 Local OCR/vision runtime model                  |
-| [x]    | 18 Screen analysis result schema                   |
-| [x]    | 19 Sensitive text and redaction model              |
-| [x]    | 20 Result validator and invalid-output handling    |
-| [x]    | 21 Journal and SQLite ingest                       |
-| [x]    | 22 Deletion and retention proof                    |
-| [x]    | 23 Policy compiler for screen-derived evidence     |
-| [x]    | 24 Enforcement handoff guard                       |
-| [x]    | 25 Parent portal summary UI                        |
-| [x]    | 26 Child disclosure UX                             |
-| [x]    | 27 Screenshot retention optional mode              |
-| [~]    | 28 Live view optional mode                         |
-| [x]    | 29 Proof tiers and proof packs                     |
-| [~]    | 30 Test suite, Playwright, rollout, PR gate        |
-| [x]    | 31 Screen intelligence router                      |
-| [x]    | 32 Browser structured extraction before screenshot |
-| [x]    | 33 Managed browser CDP screenshot capture path     |
-| [x]    | 34 OCR Tesseract baseline                          |
-| [x]    | 35 OCR PaddleOCR/PP-OCR evaluation                 |
-| [x]    | 36 Small VLM guided classifier evaluation          |
-| [x]    | 37 Household mesh screen-analysis queue            |
-| [x]    | 38 Local AI resource scheduler/priority queue      |
-| [x]    | 39 Redacted summary-only remote boundary           |
-| [x]    | 40 Detector prompt packs and schema tests          |
+| [ ]    | 01 Source index and doc reconciliation             |
+| [ ]    | 02 Current screen snapshot and gap map             |
+| [ ]    | 03 Contract boundary and Effect schemas            |
+| [ ]    | 04 Parent opt-in settings contract                 |
+| [ ]    | 05 Capability/status contract                      |
+| [ ]    | 06 Capture scope model                             |
+| [ ]    | 07 Capture trigger model                           |
+| [ ]    | 08 Platform adapter abstraction                    |
+| [ ]    | 09 Windows capture adapter plan/proof              |
+| [ ]    | 10 macOS capture adapter plan/proof                |
+| [ ]    | 11 Linux capture adapter plan/proof                |
+| [ ]    | 12 Android MediaProjection adapter plan/proof      |
+| [ ]    | 13 iOS ReplayKit adapter plan/proof                |
+| [ ]    | 14 Protected surface detector                      |
+| [ ]    | 15 Encrypted temporary image queue                 |
+| [ ]    | 16 Queue scheduler and debouncer                   |
+| [ ]    | 17 Local OCR/vision runtime model                  |
+| [ ]    | 18 Screen analysis result schema                   |
+| [ ]    | 19 Sensitive text and redaction model              |
+| [ ]    | 20 Result validator and invalid-output handling    |
+| [ ]    | 21 Journal and SQLite ingest                       |
+| [ ]    | 22 Deletion and retention proof                    |
+| [ ]    | 23 Policy compiler for screen-derived evidence     |
+| [ ]    | 24 Enforcement handoff guard                       |
+| [ ]    | 25 Parent portal summary UI                        |
+| [ ]    | 26 Child disclosure UX                             |
+| [ ]    | 27 Screenshot retention optional mode              |
+| [ ]    | 28 Live view optional mode                         |
+| [ ]    | 29 Proof tiers and proof packs                     |
+| [ ]    | 30 Test suite, Playwright, rollout, PR gate        |
+| [ ]    | 31 Screen intelligence router                      |
+| [ ]    | 32 Browser structured extraction before screenshot |
+| [ ]    | 33 Managed browser CDP screenshot capture path     |
+| [ ]    | 34 OCR Tesseract baseline                          |
+| [ ]    | 35 OCR PaddleOCR/PP-OCR evaluation                 |
+| [ ]    | 36 Small VLM guided classifier evaluation          |
+| [ ]    | 37 Household mesh screen-analysis queue            |
+| [ ]    | 38 Local AI resource scheduler/priority queue      |
+| [ ]    | 39 Redacted summary-only remote boundary           |
+| [ ]    | 40 Detector prompt packs and schema tests          |

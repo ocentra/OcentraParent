@@ -368,6 +368,18 @@ it('AgentProtocolDefaults.Field: exposes read-model payload fields', () => {
   expect(AgentProtocolDefaults.Delimiter.List).toBe(',');
 });
 
+it('AgentProtocolDefaults.Field: exposes network product path ref fields', () => {
+  expect(AgentProtocolDefaults.Field.NetworkProductPathAnalyzerAlertRefs).toBe(
+    'networkProductPathAnalyzerAlertRefs'
+  );
+  expect(AgentProtocolDefaults.Field.NetworkProductPathAiDetectionRefs).toBe(
+    'networkProductPathAiDetectionRefs'
+  );
+  expect(AgentProtocolDefaults.Field.NetworkProductPathRiskBudgetRefs).toBe(
+    'networkProductPathRiskBudgetRefs'
+  );
+});
+
 it('AgentProtocolDefaults.PolicyPreview: exposes portal policy preview parser values', () => {
   expect(AgentProtocolDefaults.Primitive.Number).toBe('number');
   expect(AgentProtocolDefaults.PolicyPreview.TargetType.NetworkDomain).toBe('network-domain');

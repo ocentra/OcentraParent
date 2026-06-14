@@ -325,7 +325,10 @@ macro_rules! billing_text_id {
 billing_text_id!(BillingDecisionId, "billing.decision_id");
 billing_text_id!(BillingTransitionId, "billing.transition_id");
 billing_text_id!(BillingAggregateId, "billing.aggregate_id");
-billing_text_id!(BillingEntitlementSnapshotId, "billing.entitlement_snapshot_id");
+billing_text_id!(
+    BillingEntitlementSnapshotId,
+    "billing.entitlement_snapshot_id"
+);
 billing_text_id!(BillingChildDeviceId, "billing.child_device_id");
 billing_text_id!(
     BillingChildEntitlementConsumptionId,
@@ -606,9 +609,10 @@ pub fn record_child_entitlement_consumption_event(
     let child_device_id = event.snapshot.child_device_id.clone();
     BillingChildEntitlementConsumptionRecordedEvent {
         aggregate_id: event.aggregate_id,
-        consumption_id: BillingChildEntitlementConsumptionId::parse(
-            billing_child_consumption_ref(&snapshot_id, &child_device_id),
-        )
+        consumption_id: BillingChildEntitlementConsumptionId::parse(billing_child_consumption_ref(
+            &snapshot_id,
+            &child_device_id,
+        ))
         .expect(ERROR_BILLING_CHILD_CONSUMPTION_ID),
         decision: decide_child_entitlement_snapshot(event.snapshot),
     }

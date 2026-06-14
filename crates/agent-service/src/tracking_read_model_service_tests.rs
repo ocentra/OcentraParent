@@ -36,8 +36,8 @@ async fn tracking_read_model_command_reports_service_backed_sqlite_rows() {
         event.event,
         AgentEventName::AgentActivityTrackingReadModelReported
     );
-    assert_eq!(read_model.returned, 3);
-    assert_eq!(read_model.active_rows, 2);
+    assert_eq!(read_model.returned, 5);
+    assert_eq!(read_model.active_rows, 4);
     assert_eq!(read_model.tombstone_rows, 1);
     assert_service_read_model_latest_events(&read_model);
     assert_service_read_model_tombstone_row(&read_model);
@@ -63,6 +63,20 @@ fn seed_tracking_store(store_path: &Path) {
                 ActivitySubjectKind::TrackingRule,
             ),
             tracking_activity_event(
+                "tracking-alert-evaluated-event-1",
+                "2026-06-03T02:02:30Z",
+                ActivityEventKind::TrackingAlertEvaluated,
+                ActivityObserver::TrackingEngine,
+                ActivitySubjectKind::TrackingRule,
+            ),
+            tracking_activity_event(
+                "tracking-parent-notification-event-1",
+                "2026-06-03T02:03:30Z",
+                ActivityEventKind::TrackingParentNotificationRequested,
+                ActivityObserver::TrackingEngine,
+                ActivitySubjectKind::TrackingRule,
+            ),
+            tracking_activity_event(
                 constants::activity_store::TEST_TRACKING_RETENTION_DELETE_EVENT_ID,
                 constants::activity_store::TEST_TRACKING_RETENTION_DELETE_OBSERVED_AT,
                 ActivityEventKind::TrackingRetentionDeleted,
@@ -75,25 +89,32 @@ fn seed_tracking_store(store_path: &Path) {
 
 fn assert_service_read_model_latest_events(read_model: &TrackingReadModel) {
     assert_eq!(
-        read_model.latest_event_id.as_ref().map(|value| value.as_str()),
+        read_model
+            .latest_event_id
+            .as_ref()
+            .map(|value| value.as_str()),
         Some(constants::activity_store::TEST_TRACKING_RETENTION_DELETE_EVENT_ID)
     );
     assert_eq!(
-        read_model.latest_tombstone_event_id.as_ref().map(|value| value.as_str()),
+        read_model
+            .latest_tombstone_event_id
+            .as_ref()
+            .map(|value| value.as_str()),
         Some(constants::activity_store::TEST_TRACKING_RETENTION_DELETE_EVENT_ID)
     );
     assert_eq!(
-        read_model.latest_active_event_id.as_ref().map(|value| value.as_str()),
-        Some(constants::activity_store::TEST_TRACKING_GEOFENCE_EVENT_ID)
+        read_model
+            .latest_active_event_id
+            .as_ref()
+            .map(|value| value.as_str()),
+        Some("tracking-parent-notification-event-1")
     );
     assert_eq!(
         read_model.deleted_evidence_reference_ids,
-        vec![
-            TrackingEvidenceRef::parse(
-                constants::activity_store::TEST_TRACKING_EVIDENCE_REFERENCE_ID,
-            )
-            .expect(constants::activity_store::TEST_TRACKING_EVIDENCE_REFERENCE_ID)
-        ]
+        vec![TrackingEvidenceRef::parse(
+            constants::activity_store::TEST_TRACKING_EVIDENCE_REFERENCE_ID,
+        )
+        .expect(constants::activity_store::TEST_TRACKING_EVIDENCE_REFERENCE_ID)]
     );
 }
 
@@ -120,14 +141,24 @@ fn assert_service_read_model_active_product_surface_counts(read_model: &Tracking
         1,
     );
     assert_count(
+        &read_model.active_kind_counts,
+        constants::activity_event_kind::TRACKING_ALERT_EVALUATED,
+        1,
+    );
+    assert_count(
+        &read_model.active_kind_counts,
+        constants::activity_event_kind::TRACKING_PARENT_NOTIFICATION_REQUESTED,
+        1,
+    );
+    assert_count(
         &read_model.active_device_counts,
         constants::activity_store::TEST_REMOTE_DEVICE_ID,
-        2,
+        4,
     );
     assert_count(
         &read_model.active_capability_status_counts,
         constants::activity_store::TEST_TRACKING_CAPABILITY_STATUS_RECENT,
-        2,
+        4,
     );
 }
 

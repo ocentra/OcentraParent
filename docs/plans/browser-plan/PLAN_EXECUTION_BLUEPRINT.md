@@ -1,94 +1,22 @@
-# Browser Plan � HID Execution Blueprint
+# Execution Blueprint
+
+Status: reset.
 
 ## Execution objective
+Define the work flow from code to proof.
 
-Make managed browser behavior deterministic with request safety, custody-aware profile states, and audited intervention.
+## Execution stages
+1. Implement or update code.
+2. Write or update tests.
+3. Compile and validate the touched code.
+4. Run the tests.
+5. Run full crate or package validation.
+6. Collect proof in the designated local artifact path.
+7. Record the proof pointer outside the plan folder.
+8. Mark the workpack PR-ready.
 
-## Slice 01 � Managed Profile and Custody
+## Proof storage
+Proof artifacts live in the designated local artifact path for the workpack or crate, not in this plan folder.
 
-### Acceptance
-
-- Profile boundaries, redaction, and restart/repair behavior are proven.
-
-### Tests
-
-- `browser.profile.custody-redaction`
-- `browser.policy.authz-idempotency`
-
-### Proof
-
-- `docs/proof/browser-plan/slice-01-profile-custody.md`
-
-## Slice 02 � Setting/Schema Safety
-
-### Acceptance
-
-- Settings/state contracts reject invalid values and unknown state transitions.
-
-### Tests
-
-- `browser.setting.schema-boundary`
-- `browser.policy.authz-idempotency`
-
-### Proof
-
-- `docs/proof/browser-plan/slice-02-setting-schema.md`
-
-## Slice 03 � Network and Request Security
-
-### Acceptance
-
-- Origin/header/host/redirect/path handling fails closed for attack vectors.
-
-### Tests
-
-- `browser.origin.header-security`
-- `browser.security.request-smuggling-desync`
-
-### Proof
-
-- `docs/proof/browser-plan/slice-03-network-security.md`
-
-## Slice 04 � Intervention and Rollback
-
-### Acceptance
-
-- Intervention calls are idempotent and reversible via rollback states.
-
-### Tests
-
-- `browser.policy.authz-idempotency`
-- `browser.rate-limit.abuse`
-
-### Proof
-
-- `docs/proof/browser-plan/slice-04-intervention-rollback.md`
-
-## Workpacks (execution lane)
-
-### Slice-to-workpack binding
-
-- Slice 01: docs/plans/browser-plan/workpacks/01-contract-boundary-and-effect-schemas.md
-- Slice 02: docs/plans/browser-plan/workpacks/02-source-index-and-doc-reconciliation.md
-- Slice 03: docs/plans/browser-plan/workpacks/03-browser-inventory-model.md
-- Slice 04: docs/plans/browser-plan/workpacks/04-windows-browser-inventory-adapter.md
-
-## PR-ready gate
-
-- No browser PR claim until audit logs and request security negatives are passed and linked.
-
-## HID test floor (this plan)
-
-### Required test families for closed slice
-
-- Unit: setting/profile schema boundaries
-- Integration: intervention and lifecycle handoffs
-- E2E: managed/unmanaged runtime and control paths
-- Security: origin/header/request security and request-split probes
-- Non-functional: rate-limit and retry stability
-
-### Mandatory slice evidence checks
-
-- negative cases documented (at least one per slice)
-- rollback/teardown proof recorded
-- proof manifest references command output, artifacts, and manual review notes
+## Reset state
+This blueprint has been reset. Rebuild checklist items and proof pointers as work is rerun.

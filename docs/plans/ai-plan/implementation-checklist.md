@@ -76,405 +76,405 @@ consumes the same results.
 
 ## Contract And Source Truth
 
-- [x] Source index reconciled against current repo.
-- [x] TabAgent source audit refreshed before reuse.
-- [x] AI expectation doc remains source-of-truth input.
-- [x] Local AI feature doc updated when status changes.
-- [x] Parent assistant feature doc remains the owner for remote/assistant status
+- [ ] Source index reconciled against current repo.
+- [ ] TabAgent source audit refreshed before reuse.
+- [ ] AI expectation doc remains source-of-truth input.
+- [ ] Local AI feature doc updated when status changes.
+- [ ] Parent assistant feature doc remains the owner for remote/assistant status
       changes; no remote/assistant status change was made in this source-index
       reconciliation.
-- [x] Product capability checklist updated when proof/gaps change.
+- [ ] Product capability checklist updated when proof/gaps change.
 
 ## V0.6 Contracts
 
-- [x] Local AI input contract complete for evidence-cited request, current
+- [ ] Local AI input contract complete for evidence-cited request, current
       observation, parent-rule, memory, graph, model-request, and prompt refs.
-- [x] Local AI result contract complete for evidence-cited result, parent-rule,
+- [ ] Local AI result contract complete for evidence-cited result, parent-rule,
       memory, graph, local runtime, prompt, confidence, unknown, and degraded
       state refs.
-- [x] Runtime status contract complete.
-- [x] Provider capability contract complete for local-only provider task,
+- [ ] Runtime status contract complete.
+- [ ] Provider capability contract complete for local-only provider task,
       resource class, privacy mode, and fallback-order metadata.
-- [x] Job queue contract complete for physical-device scheduler state, queued
+- [ ] Job queue contract complete for physical-device scheduler state, queued
       child-safety job position, duplicate-runtime blocking, and unavailable
       route rejection.
-- [x] Provider route contract complete for selected local runtime refs and
+- [ ] Provider route contract complete for selected local runtime refs and
       provider/runtime/status alignment.
-- [x] Eventing consumer contract complete for the screen successful-path
+- [ ] Eventing consumer contract complete for the screen successful-path
       evidence-event -> AI-result event flow on `crates/ocentra-eventing`;
       final screen-AI proof now also requires service event producer/subscriber
       artifacts and the service WinRT OCR policy artifact before the retained
       product path can pass.
-- [x] Household AI provider mesh contracts complete for screen work item, claim,
+- [ ] Household AI provider mesh contracts complete for screen work item, claim,
       lease, result validation, custody, child-agent authority, provider
       advertisement, heartbeat, and capability eligibility. Physical household
       LAN execution, provider gossip runtime, model execution/quality, policy
       authority, enforcement, raw screenshot transfer, and remote/API AI remain
       unclaimed.
-- [x] Household AI provider route selection, no-raw-transfer, result
+- [ ] Household AI provider route selection, no-raw-transfer, result
       validation, event-bridge mediation, child-agent-only policy authority, and
       mobile dormant/fallback proofs are required by the AI closure audit. These
       proofs preserve the physical household LAN execution, provider gossip
       runtime, production model execution/quality, portal UI, policy authority,
       enforcement, and remote/API AI non-claims.
-- [x] LAN AI service route metadata implemented on `AgentLanAiJobSubmit` so the
+- [ ] LAN AI service route metadata implemented on `AgentLanAiJobSubmit` so the
       real Rust service event carries selected provider peer, route reason,
       claim/lease refs, child-agent-only authority, no provider policy publish,
       no raw screen transfer, and child-result-validation fields after normal
       LAN authorization.
-- [x] LAN AI provider heartbeat runtime implemented in `LanPairingRuntime` so
+- [ ] LAN AI provider heartbeat runtime implemented in `LanPairingRuntime` so
       stale provider heartbeat degrades job routing, offline heartbeat marks the
       provider unavailable, and the provider-selection read model does not
       select stale-heartbeat providers. Physical LAN sockets, multicast/mDNS
       gossip, model execution, policy authority, enforcement, and raw screen
       transfer remain unclaimed.
-- [x] Household AI provider claim/lease lifecycle contract proves one active
+- [ ] Household AI provider claim/lease lifecycle contract proves one active
       lease per job, duplicate claim rejection, lease expiry requeue,
       max-attempt dead-letter, and idempotent duplicate message behavior without
       physical LAN execution, model execution, policy authority, enforcement,
       raw screenshot transfer, or remote/API AI claims. Package export remains
       deferred while another lane owns `packages/parent-domain/package.json`.
-- [x] Mesh transport envelope contract complete for selected event export/import
+- [ ] Mesh transport envelope contract complete for selected event export/import
       through the Household Mesh Bridge.
-- [x] Household AI provider advertisement/heartbeat contract proves fresh
+- [ ] Household AI provider advertisement/heartbeat contract proves fresh
       trusted local `screen-ai-analysis` providers are eligible while stale,
       offline, revoked, and unsupported advertisements are rejected without
       physical LAN execution, provider gossip runtime, model execution, policy
       authority, enforcement, raw screenshot transfer, or remote/API AI claims.
-- [x] Context builder contracts complete, including stored-evidence replay,
+- [ ] Context builder contracts complete, including stored-evidence replay,
       screen-summary replay, recent-memory/graph selection, and parent-rule
       context builder proof rows.
-- [x] Prompt/template version contract complete for context-builder,
+- [ ] Prompt/template version contract complete for context-builder,
       evaluation-input, safety-result, provider/model, input-binding, output
       schema, and non-retention refs.
-- [x] Memory reference contract complete for source-cited recent-activity
+- [ ] Memory reference contract complete for source-cited recent-activity
       memory in the short-window read model; broader semantic/long-term memory
       quality remains product-scope follow-up.
-- [x] Graph reference contract complete for source-cited local AI graph refs and
+- [ ] Graph reference contract complete for source-cited local AI graph refs and
       minimal activity-memory graph edge proof; production graph storage/index
       runtime remains a follow-up.
-- [x] AI journal/read-model contract complete for screen VLM status
+- [ ] AI journal/read-model contract complete for screen VLM status
       projection; broader AI journal/read-model surfaces remain product-scope
       follow-ups.
-- [x] Remote assistant contract separated from child safety for
+- [ ] Remote assistant contract separated from child safety for
       parent-authorized report/explanation requests; production remote provider
       execution and portal assistant UI remain follow-up scope.
 
 ## V0.7 Runtime And Context
 
-- [x] Stored-evidence context builder implemented with replay proof over stored
+- [ ] Stored-evidence context builder implemented with replay proof over stored
       browser, app/game, network-flow, and screen-summary artifacts.
-- [x] Parent-rule context builder implemented with grounded selection and
+- [ ] Parent-rule context builder implemented with grounded selection and
       ungrounded-rule degradation proof.
-- [x] Deterministic classifier lane implemented for local-only dry-run
+- [ ] Deterministic classifier lane implemented for local-only dry-run
       classify/allow/warn/ask-parent/time-limit/block rows without
       model-execution, remote/API, raw-evidence retention, policy-authority,
       enforcement, portal UI, or production-model-quality claims.
-- [x] Classifier read-model/manual-required report bridge implemented for
+- [ ] Classifier read-model/manual-required report bridge implemented for
       ready, manual-required, and unavailable parent-facing rows without
       model-execution, remote/API, raw retention, policy-authority,
       enforcement, portal UI, or production-model-quality claims.
-- [x] Local text LLM adapter boundary implemented without model-execution,
+- [ ] Local text LLM adapter boundary implemented without model-execution,
       remote/API, policy-authority, enforcement, production-model-quality, raw
       prompt, or raw model-output retention claims.
-- [x] Local text inference dry-run implemented without model-execution,
+- [ ] Local text inference dry-run implemented without model-execution,
       remote/API, policy-authority, enforcement, production-model-quality, or
       raw prompt-retention claims.
-- [x] Output parser implemented for screen-derived local AI model input/output,
+- [ ] Output parser implemented for screen-derived local AI model input/output,
       with malformed output, remote runtime, and missing observation-evidence
       rejection proof.
-- [x] Invalid output and timeout degrade safely.
-- [x] Local provider queue and same-device routing implemented.
-- [x] Household provider route selection implemented and proved with desktop/
+- [ ] Invalid output and timeout degrade safely.
+- [ ] Local provider queue and same-device routing implemented.
+- [ ] Household provider route selection implemented and proved with desktop/
       laptop preference, mobile dormant/fallback, stale/offline/revoked
       rejection, and custody mismatch rejection.
-- [x] Provider claim/lease lifecycle implemented and proved for screen-derived
+- [ ] Provider claim/lease lifecycle implemented and proved for screen-derived
       household mesh work. Idempotent duplicate result rejection is proved;
       production retry lifecycle remains follow-up work.
-- [x] Provider result validation implemented and proved before policy
+- [ ] Provider result validation implemented and proved before policy
       consumption.
-- [x] Provider heartbeat reachability is enforced before service job completion
+- [ ] Provider heartbeat reachability is enforced before service job completion
       and provider-selection read-model selection.
-- [x] Runtime status parent-facing read-model proof implemented; production
+- [ ] Runtime status parent-facing read-model proof implemented; production
       service and portal rendering remain follow-up runtime work.
-- [x] AI result journal and SQLite ingest proof implemented without production
+- [ ] AI result journal and SQLite ingest proof implemented without production
       storage runtime, raw prompt/model-output retention, remote/API AI,
       policy authority, portal UI, or enforcement claims.
-- [x] Parent explanation read-model proof contract implemented; production
+- [ ] Parent explanation read-model proof contract implemented; production
       portal consumption remains a UI/runtime gap.
-- [x] Screen parent explanation refs preserved through service-backed Activity
+- [ ] Screen parent explanation refs preserved through service-backed Activity
       Screen query/read-model projection.
 
 ## Memory And Graph
 
-- [x] Recent memory contract implemented for source-grounded recent-activity
+- [ ] Recent memory contract implemented for source-grounded recent-activity
       read-model rows over the local AI context builder.
-- [x] Short-window recent activity implemented for the parent-domain read-model
+- [ ] Short-window recent activity implemented for the parent-domain read-model
       proof path, with stale/out-of-window evidence omitted.
-- [x] Semantic memory source-citation guard implemented for screen AI context.
-- [x] Graph reference contract implemented with source evidence, policy/action
+- [ ] Semantic memory source-citation guard implemented for screen AI context.
+- [ ] Graph reference contract implemented with source evidence, policy/action
       citation, confidence, derived-index version, and explicit non-claims.
-- [x] Minimal graph edges implemented for local activity-memory graph reads with
+- [ ] Minimal graph edges implemented for local activity-memory graph reads with
       selected evidence, policy/action refs, endpoint, freshness, and time-window
       filtering.
-- [x] Graph source-citation guard proof exists for screen AI context.
+- [ ] Graph source-citation guard proof exists for screen AI context.
 
 ## Screen OCR/VLM
 
-- [x] OCR worker contract implemented.
-- [x] OCR worker execution proof exists.
-- [x] Service WinRT OCR runtime proof exists.
-- [x] Service WinRT OCR policy-consumption proof exists.
-- [x] Guided VLM worker contract implemented.
-- [x] VLM worker execution proof exists.
-- [x] VLM execution readiness/status handoff proof exists.
-- [x] Raw image deletion proof exists.
-- [x] Screen summary feeds AI context builder.
-- [x] Real browser-use capture artifact feeds AI analysis.
-- [x] Real app-use capture artifact feeds AI analysis.
-- [x] Timed cadence capture sequence feeds repeated AI analysis without queue flood.
+- [ ] OCR worker contract implemented.
+- [ ] OCR worker execution proof exists.
+- [ ] Service WinRT OCR runtime proof exists.
+- [ ] Service WinRT OCR policy-consumption proof exists.
+- [ ] Guided VLM worker contract implemented.
+- [ ] VLM worker execution proof exists.
+- [ ] VLM execution readiness/status handoff proof exists.
+- [ ] Raw image deletion proof exists.
+- [ ] Screen summary feeds AI context builder.
+- [ ] Real browser-use capture artifact feeds AI analysis.
+- [ ] Real app-use capture artifact feeds AI analysis.
+- [ ] Timed cadence capture sequence feeds repeated AI analysis without queue flood.
 
 ## Real Analysis Proof
 
-- [x] YouTube ordinary video or controlled equivalent is analyzed.
-- [x] YouTube or Vimeo education video or controlled equivalent is analyzed.
-- [x] Vimeo video or controlled equivalent is analyzed.
-- [x] Facebook/social surface or controlled equivalent is analyzed.
-- [x] Browser game/cloud-game surface or controlled equivalent is analyzed.
-- [x] Native app foreground capture is analyzed.
-- [x] Native game or controlled game-window capture is analyzed.
-- [x] Native owned-process time-limit capture is analyzed and linked to adapter dispatch proof.
-- [x] Bypass-tool fixture/app is analyzed.
-- [x] Shopping fixture/page is analyzed.
-- [x] School/productivity fixture/page/app is analyzed.
-- [x] Unknown activity degrades to unknown/manual-required without invented certainty.
-- [x] Timed cadence captures can be analyzed repeatedly at bounded intervals.
-- [x] Disabled capture produces no AI analysis from screen.
-- [x] Live external URL/account captures prove real YouTube, Vimeo, social, shopping, and browser-game surfaces; `screen-ai-live-operator-artifact-gate` validates the existing operator-run artifacts while keeping authenticated-account social variants and final managed-trigger pipeline proof unclaimed.
-- [x] AI-plan closure audit proves current AI prerequisites are stacked and the
+- [ ] YouTube ordinary video or controlled equivalent is analyzed.
+- [ ] YouTube or Vimeo education video or controlled equivalent is analyzed.
+- [ ] Vimeo video or controlled equivalent is analyzed.
+- [ ] Facebook/social surface or controlled equivalent is analyzed.
+- [ ] Browser game/cloud-game surface or controlled equivalent is analyzed.
+- [ ] Native app foreground capture is analyzed.
+- [ ] Native game or controlled game-window capture is analyzed.
+- [ ] Native owned-process time-limit capture is analyzed and linked to adapter dispatch proof.
+- [ ] Bypass-tool fixture/app is analyzed.
+- [ ] Shopping fixture/page is analyzed.
+- [ ] School/productivity fixture/page/app is analyzed.
+- [ ] Unknown activity degrades to unknown/manual-required without invented certainty.
+- [ ] Timed cadence captures can be analyzed repeatedly at bounded intervals.
+- [ ] Disabled capture produces no AI analysis from screen.
+- [ ] Live external URL/account captures prove real YouTube, Vimeo, social, shopping, and browser-game surfaces; `screen-ai-live-operator-artifact-gate` validates the existing operator-run artifacts while keeping authenticated-account social variants and final managed-trigger pipeline proof unclaimed.
+- [ ] AI-plan closure audit proves current AI prerequisites are stacked and the
       only remaining open item is the screen-AI pipeline product-complete gate:
       `output/ai-plan-proof/local-ai-plan-closure-audit/proof-summary.json`.
 - [ ] Final product-complete pipeline proof is deferred to `docs/plans/screen-ai-pipeline-plan` after screen and AI prerequisites are merged or explicitly stacked.
 
 ## Policy And Enforcement
 
-- [x] Deterministic policy consumes valid AI results only.
-- [x] Service WinRT OCR Activity Screen row feeds typed parent policy dry-run.
-- [x] AI cannot override stricter parent rules for the screen service WinRT OCR
+- [ ] Deterministic policy consumes valid AI results only.
+- [ ] Service WinRT OCR Activity Screen row feeds typed parent policy dry-run.
+- [ ] AI cannot override stricter parent rules for the screen service WinRT OCR
       policy proof path.
-- [x] Policy decisions are journaled.
-- [x] Enforcement consumes policy decision only, with proof that the adapter
+- [ ] Policy decisions are journaled.
+- [ ] Enforcement consumes policy decision only, with proof that the adapter
       command cites a policy decision ref and the handoff guard rejects raw
       AI/pixel material before adapter execution.
-- [x] Windows owned-process time-limit adapter dispatch, restart recovery, parent cancel, expiry, and process termination tested from a screen-derived policy decision.
-- [x] Browser, network, mobile, and broad block adapter unavailable/rollback
+- [ ] Windows owned-process time-limit adapter dispatch, restart recovery, parent cancel, expiry, and process termination tested from a screen-derived policy decision.
+- [ ] Browser, network, mobile, and broad block adapter unavailable/rollback
       readiness states tested as screen-derived non-claim rows, while only
       Windows owned-process time-limit/block rows claim real adapter execution.
 
 ## UI/UX
 
-- [x] AI runtime status surface read-model proof; production portal screenshot
+- [ ] AI runtime status surface read-model proof; production portal screenshot
       remains follow-up UI work.
-- [x] AI jobs/activity surface renders existing local runtime status and LAN AI
+- [ ] AI jobs/activity surface renders existing local runtime status and LAN AI
       job events on the `#/ai-runtime` portal route.
-- [x] AI decision explanation surface renders service-backed Screen Analysis
+- [ ] AI decision explanation surface renders service-backed Screen Analysis
       rows with local AI evidence refs, dry-run policy decision/action/reason
       refs, parent rule refs, parent explanation refs, explanation reasons,
       redacted OCR snippets, deleted-image custody, and no enforcement claim.
-- [x] Memory/graph evidence surface renders source-cited service-backed
+- [ ] Memory/graph evidence surface renders source-cited service-backed
       activity-memory graph rows on the `#/ai-runtime` portal route without
       production graph storage/index runtime, model-quality, policy-authority,
       remote/API AI, or enforcement claims.
-- [x] Remote boundary surface: service-reported Parent Assistant
+- [ ] Remote boundary surface: service-reported Parent Assistant
       answer/degraded/error events render on `#/ai-runtime` with provider route,
       parent authorization, custody, deletion/retention, evidence summary,
       citation count, and local-policy-authority-only non-claims, without
       production remote provider execution, model-quality, policy-authority, or
       enforcement claims.
-- [x] Household AI provider mesh surface: provider class, trust, capability,
+- [ ] Household AI provider mesh surface: provider class, trust, capability,
       queue depth, heartbeat, resource state, worker-only status, claim/lease,
       validation, and child-agent authority render from service-reported LAN AI
       job/provider rows on `#/ai-runtime` without physical LAN execution,
       production gossip, model-quality, policy-authority, or enforcement claims.
-- [x] Screen OCR/VLM degraded states visible on the real Screen Analysis portal
+- [ ] Screen OCR/VLM degraded states visible on the real Screen Analysis portal
       route from the service-backed Activity Screen read model.
-- [x] UI screenshot captured for degraded OCR/VLM states under
+- [ ] UI screenshot captured for degraded OCR/VLM states under
       `output/ai-plan-proof/activity-screen-ai-degraded-portal-proof`.
 
 ## Validation
 
-- [x] TypeScript contract tests.
-- [x] Rust parity tests.
-- [x] Stored-evidence integration proof validates stored context output feeding
+- [ ] TypeScript contract tests.
+- [ ] Rust parity tests.
+- [ ] Stored-evidence integration proof validates stored context output feeding
       a schema-valid local AI evaluation input and local text dry-run result
       without raw retention, remote/API AI, policy authority, or enforcement.
-- [x] Provider route/status tests.
-- [x] LAN AI service route metadata tests.
-- [x] LAN AI provider heartbeat runtime tests.
-- [x] Model output parser tests exist in
+- [ ] Provider route/status tests.
+- [ ] LAN AI service route metadata tests.
+- [ ] LAN AI provider heartbeat runtime tests.
+- [ ] Model output parser tests exist in
       `packages/parent-domain/tests/screen-ai-model-output-parser-proof.test.ts`
       and `scripts/test/screen-ai-model-output-parser-proof.mjs`, with proof
       artifact
       `output/ai-plan-proof/screen-ai-model-output-parser-proof/proof-summary.json`.
-- [x] Policy integration tests for stricter parent-rule override on screen AI
+- [ ] Policy integration tests for stricter parent-rule override on screen AI
       policy decisions.
-- [x] Memory/graph source guard tests.
-- [x] Remote boundary tests cover parent-authorized remote assistant requests,
+- [ ] Memory/graph source guard tests.
+- [ ] Remote boundary tests cover parent-authorized remote assistant requests,
       local-only fallback, child-safety path rejection, raw-retention rejection,
       and policy/enforcement/override overclaim rejection in
       `packages/parent-domain/tests/local-ai-remote-assistant-boundary-proof.test.ts`
       and `scripts/test/local-ai-remote-assistant-boundary-proof.mjs`.
-- [x] Playwright UI proof.
-- [x] `git diff --check`.
-- [x] lane/hub guards.
-- [x] focused proof scripts.
-- [x] real capture proof artifacts under `output/screen-plan-proof/real-capture` when screen-derived AI is in scope.
-- [x] real AI analysis proof artifacts under `output/ai-plan-proof/real-analysis`.
-- [x] real WinRT OCR worker proof artifacts under `output/ai-plan-proof/screen-winrt-ocr-worker`.
-- [x] local AI runtime status read-model proof artifacts under
+- [ ] Playwright UI proof.
+- [ ] `git diff --check`.
+- [ ] lane/hub guards.
+- [ ] focused proof scripts.
+- [ ] real capture proof artifacts under `output/screen-plan-proof/real-capture` when screen-derived AI is in scope.
+- [ ] real AI analysis proof artifacts under `output/ai-plan-proof/real-analysis`.
+- [ ] real WinRT OCR worker proof artifacts under `output/ai-plan-proof/screen-winrt-ocr-worker`.
+- [ ] local AI runtime status read-model proof artifacts under
       `output/ai-plan-proof/local-ai-runtime-status-read-model-proof`.
-- [x] local AI runtime status read-model proof run:
+- [ ] local AI runtime status read-model proof run:
       `node --check scripts/test/local-ai-runtime-status-read-model-proof.mjs`
       and `node scripts/test/local-ai-runtime-status-read-model-proof.mjs`.
-- [x] local AI result journal/SQLite ingest proof artifacts under
+- [ ] local AI result journal/SQLite ingest proof artifacts under
       `output/ai-plan-proof/local-ai-result-journal-sqlite-proof`.
-- [x] local AI result journal/SQLite ingest proof run:
+- [ ] local AI result journal/SQLite ingest proof run:
       `node --check scripts/test/local-ai-result-journal-sqlite-proof.mjs` and
       `node scripts/test/local-ai-result-journal-sqlite-proof.mjs`.
-- [x] local AI stored-evidence context proof artifacts under
+- [ ] local AI stored-evidence context proof artifacts under
       `output/ai-plan-proof/local-ai-stored-evidence-context`.
-- [x] local AI stored-evidence context proof run:
+- [ ] local AI stored-evidence context proof run:
       `node --check scripts/test/local-ai-stored-evidence-context-proof.mjs`
       and `node scripts/test/local-ai-stored-evidence-context-proof.mjs`.
-- [x] local AI stored-evidence integration proof artifacts under
+- [ ] local AI stored-evidence integration proof artifacts under
       `output/ai-plan-proof/local-ai-stored-evidence-integration-proof`.
-- [x] local AI stored-evidence integration proof run:
+- [ ] local AI stored-evidence integration proof run:
       `node --check scripts/test/local-ai-stored-evidence-integration-proof.mjs`
       and `node scripts/test/local-ai-stored-evidence-integration-proof.mjs`.
-- [x] local AI prompt/template version proof artifacts under
+- [ ] local AI prompt/template version proof artifacts under
       `output/ai-plan-proof/local-ai-prompt-template-version-proof`.
-- [x] local AI prompt/template version proof run:
+- [ ] local AI prompt/template version proof run:
       `node --check scripts/test/local-ai-prompt-template-version-proof.mjs`
       and `node scripts/test/local-ai-prompt-template-version-proof.mjs`.
-- [x] local AI recent-memory and short-window activity proof artifacts under
+- [ ] local AI recent-memory and short-window activity proof artifacts under
       `output/ai-plan-proof/local-ai-recent-memory-window-proof`.
-- [x] local AI recent-memory and short-window activity proof run:
+- [ ] local AI recent-memory and short-window activity proof run:
       `node --check scripts/test/local-ai-recent-memory-window-proof.mjs` and
       `node scripts/test/local-ai-recent-memory-window-proof.mjs`.
-- [x] local AI contract completeness proof artifacts under
+- [ ] local AI contract completeness proof artifacts under
       `output/ai-plan-proof/local-ai-contract-completeness-proof`.
-- [x] local AI contract completeness proof run:
+- [ ] local AI contract completeness proof run:
       `node --check scripts/test/local-ai-contract-completeness-proof.mjs` and
       `node scripts/test/local-ai-contract-completeness-proof.mjs`.
-- [x] guided VLM worker contract proof artifacts under
+- [ ] guided VLM worker contract proof artifacts under
       `output/ai-plan-proof/screen-vlm-worker-contract-proof`.
-- [x] guided VLM worker contract proof run:
+- [ ] guided VLM worker contract proof run:
       `node --check scripts/test/screen-ai-vlm-worker-contract-proof.mjs` and
       `node scripts/test/screen-ai-vlm-worker-contract-proof.mjs`.
-- [x] VLM execution readiness/status handoff proof artifacts under
+- [ ] VLM execution readiness/status handoff proof artifacts under
       `output/ai-plan-proof/screen-vlm-execution-readiness-proof`.
-- [x] VLM execution readiness/status handoff proof run:
+- [ ] VLM execution readiness/status handoff proof run:
       `node --check scripts/test/screen-ai-vlm-execution-readiness-proof.mjs`
       and `node scripts/test/screen-ai-vlm-execution-readiness-proof.mjs`.
-- [x] VLM journal/read-model proof artifacts under
+- [ ] VLM journal/read-model proof artifacts under
       `output/ai-plan-proof/screen-vlm-journal-read-model-proof`.
-- [x] VLM journal/read-model proof run:
+- [ ] VLM journal/read-model proof run:
       `node --check scripts/test/screen-ai-vlm-journal-read-model-proof.mjs`
       and `node scripts/test/screen-ai-vlm-journal-read-model-proof.mjs`.
-- [x] service WinRT OCR runtime proof artifacts under
+- [ ] service WinRT OCR runtime proof artifacts under
       `output/screen-ai-pipeline-proof/service-winrt-ocr`.
-- [x] service WinRT OCR policy proof artifacts under
+- [ ] service WinRT OCR policy proof artifacts under
       `output/screen-ai-pipeline-proof/service-winrt-ocr-policy`.
-- [x] degraded Activity Screen OCR/VLM portal proof artifacts under
+- [ ] degraded Activity Screen OCR/VLM portal proof artifacts under
       `output/ai-plan-proof/activity-screen-ai-degraded-portal-proof`.
-- [x] degraded Activity Screen OCR/VLM portal proof run:
+- [ ] degraded Activity Screen OCR/VLM portal proof run:
       `node --check scripts/test/screen-ai-degraded-portal-proof.mjs` and
       `node scripts/test/screen-ai-degraded-portal-proof.mjs`.
-- [x] screen AI model artifact manifest proof artifacts under
+- [ ] screen AI model artifact manifest proof artifacts under
       `output/ai-plan-proof/screen-ai-model-artifact-manifest-proof`.
-- [x] screen AI invalid output degradation proof artifacts under
+- [ ] screen AI invalid output degradation proof artifacts under
       `output/ai-plan-proof/screen-ai-invalid-output-degrade-proof`.
-- [x] screen AI invalid output degradation proof run:
+- [ ] screen AI invalid output degradation proof run:
       `node --check scripts/test/screen-ai-invalid-output-degrade-proof.mjs`
       and `node scripts/test/screen-ai-invalid-output-degrade-proof.mjs`.
-- [x] screen AI model output parser proof artifacts under
+- [ ] screen AI model output parser proof artifacts under
       `output/ai-plan-proof/screen-ai-model-output-parser-proof`.
-- [x] screen AI model output parser proof run:
+- [ ] screen AI model output parser proof run:
       `node --check scripts/test/screen-ai-model-output-parser-proof.mjs` and
       `node scripts/test/screen-ai-model-output-parser-proof.mjs`.
-- [x] screen AI stricter parent-rule proof artifacts under
+- [ ] screen AI stricter parent-rule proof artifacts under
       `output/ai-plan-proof/screen-ai-stricter-parent-rule-proof`.
-- [x] screen AI stricter parent-rule proof run:
+- [ ] screen AI stricter parent-rule proof run:
       `node --check scripts/test/screen-ai-stricter-parent-rule-proof.mjs` and
       `node scripts/test/screen-ai-stricter-parent-rule-proof.mjs`.
-- [x] screen AI adapter readiness proof artifacts under
+- [ ] screen AI adapter readiness proof artifacts under
       `output/screen-ai-pipeline-proof/adapter-readiness`.
-- [x] screen AI adapter readiness proof run:
+- [ ] screen AI adapter readiness proof run:
       `node --check scripts/test/screen-ai-adapter-readiness-proof.mjs` and
       `node scripts/test/screen-ai-adapter-readiness-proof.mjs`.
-- [x] screen summary context-builder replay proof artifacts under `output/ai-plan-proof/screen-summary-ai-context`.
-- [x] screen summary parent explanation/audit replay proof artifacts under `output/ai-plan-proof/screen-summary-parent-explanation`.
-- [x] screen summary parent explanation read-model replay proof artifacts under
+- [ ] screen summary context-builder replay proof artifacts under `output/ai-plan-proof/screen-summary-ai-context`.
+- [ ] screen summary parent explanation/audit replay proof artifacts under `output/ai-plan-proof/screen-summary-parent-explanation`.
+- [ ] screen summary parent explanation read-model replay proof artifacts under
       `output/ai-plan-proof/screen-summary-parent-explanation-read-model`.
-- [x] screen summary parent explanation service read-model proof artifacts under
+- [ ] screen summary parent explanation service read-model proof artifacts under
       `output/ai-plan-proof/screen-summary-parent-explanation-service-read-model`.
-- [x] screen AI memory/graph source guard proof artifacts under
+- [ ] screen AI memory/graph source guard proof artifacts under
       `output/ai-plan-proof/screen-ai-memory-graph-source-guard-proof`.
-- [x] local AI remote assistant boundary proof artifacts under
+- [ ] local AI remote assistant boundary proof artifacts under
       `output/ai-plan-proof/local-ai-remote-assistant-boundary-proof`.
-- [x] local AI remote assistant boundary proof run:
+- [ ] local AI remote assistant boundary proof run:
       `node --check scripts/test/local-ai-remote-assistant-boundary-proof.mjs`
       and `node scripts/test/local-ai-remote-assistant-boundary-proof.mjs`.
-- [x] local AI deterministic classifier proof artifacts under
+- [ ] local AI deterministic classifier proof artifacts under
       `output/ai-plan-proof/local-ai-deterministic-classifier-proof`.
-- [x] local AI deterministic classifier proof run:
+- [ ] local AI deterministic classifier proof run:
       `node --check scripts/test/local-ai-deterministic-classifier-proof.mjs`
       and `node scripts/test/local-ai-deterministic-classifier-proof.mjs`.
-- [x] local AI classifier read-model/manual-required report proof artifacts under
+- [ ] local AI classifier read-model/manual-required report proof artifacts under
       `output/ai-plan-proof/local-ai-classifier-read-model-manual-report-proof`.
-- [x] local AI classifier read-model/manual-required report proof run:
+- [ ] local AI classifier read-model/manual-required report proof run:
       `node --check scripts/test/local-ai-classifier-read-model-manual-report-proof.mjs`
       and
       `node scripts/test/local-ai-classifier-read-model-manual-report-proof.mjs`.
-- [x] local text LLM adapter boundary proof artifacts under
+- [ ] local text LLM adapter boundary proof artifacts under
       `output/ai-plan-proof/local-ai-text-llm-adapter-boundary-proof`.
-- [x] local text LLM adapter boundary proof run:
+- [ ] local text LLM adapter boundary proof run:
       `node --check scripts/test/local-ai-text-llm-adapter-boundary-proof.mjs`
       and `node scripts/test/local-ai-text-llm-adapter-boundary-proof.mjs`.
-- [x] Household AI provider mesh contract proof run for screen-derived work:
+- [ ] Household AI provider mesh contract proof run for screen-derived work:
       `node --check scripts/test/screen-ai-household-mesh-proof.mjs` and
       `node scripts/test/screen-ai-household-mesh-proof.mjs`.
-- [x] Household mesh event bridge proof run:
+- [ ] Household mesh event bridge proof run:
       `node --check scripts/test/household-mesh-event-bridge-proof.mjs` and
       `node scripts/test/household-mesh-event-bridge-proof.mjs`.
-- [x] Household AI provider claim/lease proof run:
+- [ ] Household AI provider claim/lease proof run:
       `node --check scripts/test/screen-ai-household-mesh-proof.mjs` and
       `node scripts/test/screen-ai-household-mesh-proof.mjs`.
-- [x] LAN AI service route metadata proof run:
+- [ ] LAN AI service route metadata proof run:
       `node --check scripts/test/lan-ai-household-route-metadata-proof.mjs` and
       `node scripts/test/lan-ai-household-route-metadata-proof.mjs`.
-- [x] LAN AI provider heartbeat runtime proof run:
+- [ ] LAN AI provider heartbeat runtime proof run:
       `node --check scripts/test/lan-ai-provider-heartbeat-runtime-proof.mjs`
       and `node scripts/test/lan-ai-provider-heartbeat-runtime-proof.mjs`.
-- [x] Household AI provider result validation proof run:
+- [ ] Household AI provider result validation proof run:
       `node --check scripts/test/screen-ai-household-mesh-proof.mjs` and
       `node scripts/test/screen-ai-household-mesh-proof.mjs`.
-- [x] Child-agent AI policy authority proof run:
+- [ ] Child-agent AI policy authority proof run:
       `node --check scripts/test/child-agent-ai-policy-authority-proof.mjs`
       and `node scripts/test/child-agent-ai-policy-authority-proof.mjs`.
-- [x] local AI policy enforcement consumption proof artifacts under
+- [ ] local AI policy enforcement consumption proof artifacts under
       `output/ai-plan-proof/local-ai-policy-enforcement-consumption-proof`.
-- [x] local AI policy enforcement consumption proof run:
+- [ ] local AI policy enforcement consumption proof run:
       `node --check scripts/test/local-ai-policy-enforcement-consumption-proof.mjs`
       and `node scripts/test/local-ai-policy-enforcement-consumption-proof.mjs`.
-- [x] Mobile dormant AI provider proof run:
+- [ ] Mobile dormant AI provider proof run:
       `node --check scripts/test/household-ai-provider-route-selection-proof.mjs`
       and `node scripts/test/household-ai-provider-route-selection-proof.mjs`.
-- [x] No-raw-screen-transfer mesh proof run:
+- [ ] No-raw-screen-transfer mesh proof run:
       `node --check scripts/test/screen-ai-household-mesh-proof.mjs` and
       `node scripts/test/screen-ai-household-mesh-proof.mjs`.
-- [x] AI mesh event topology proof run:
+- [ ] AI mesh event topology proof run:
       `node --check scripts/test/household-mesh-event-bridge-proof.mjs` and
       `node scripts/test/household-mesh-event-bridge-proof.mjs`.
-- [x] `npm run validate` passed after rebasing
+- [ ] `npm run validate` passed after rebasing
       `codex/screen-ai-full-scope-b` onto `origin/main` `c3328c891`.

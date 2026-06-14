@@ -24,11 +24,11 @@ service, policy-evaluator, adapter, broad-blocking, or platform-support claims.
 
 ## DONE Checklist
 
-- [x] Cross-recorded from shared app/game WP53.
-- [x] Native app targets remain app/game evidence refs and policy refs, not
+- [ ] Cross-recorded from shared app/game WP53.
+- [ ] Native app targets remain app/game evidence refs and policy refs, not
       provider payload or adapter authority.
-- [x] Raw child evidence, URLs/titles, message text, screenshots, and reports
+- [ ] Raw child evidence, URLs/titles, message text, screenshots, and reports
       remain excluded from notification payload boundaries.
-- [x] Provider delivery, receipt ingestion, parent notification UI, service
+- [ ] Provider delivery, receipt ingestion, parent notification UI, service
       persistence, child delivery, policy evaluator execution, broad blocking,
       and platform support remain unclaimed.

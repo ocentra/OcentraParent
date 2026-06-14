@@ -31,11 +31,11 @@ agent claims remain scaffold/manual-required.
 
 ## Requirement Checklist
 
-- [x] Split parent mobile from child Android/iOS agent rows.
-- [x] Label mobile package scaffold/proof level.
-- [x] Avoid claiming Device Owner, Family Controls, VPN/DNS, or entitlements.
-- [x] Keep mobile service provider routing optional/degraded.
-- [x] Update platform docs when status changes.
+- [ ] Split parent mobile from child Android/iOS agent rows.
+- [ ] Label mobile package scaffold/proof level.
+- [ ] Avoid claiming Device Owner, Family Controls, VPN/DNS, or entitlements.
+- [ ] Keep mobile service provider routing optional/degraded.
+- [ ] Update platform docs when status changes.
 
 ## Acceptance And Proof
 

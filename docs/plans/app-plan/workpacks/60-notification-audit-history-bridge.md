@@ -38,9 +38,9 @@ after local outbox linking.
 
 ## Validation
 
-- [x] Cross-recorded from shared app/game WP60 proof.
-- [x] Native app rows become audit-history entries only after local outbox
+- [ ] Cross-recorded from shared app/game WP60 proof.
+- [ ] Native app rows become audit-history entries only after local outbox
       eligibility or manual/unavailable status is parsed.
-- [x] Manual-required and unavailable rows remain blocked/manual without
+- [ ] Manual-required and unavailable rows remain blocked/manual without
       provider sends.
-- [x] Runtime/provider/UI/child/adapter/platform claims remain false.
+- [ ] Runtime/provider/UI/child/adapter/platform claims remain false.

@@ -57,15 +57,15 @@ Launchers can help identify games without becoming fake game-session proof.
 
 ## AI Worker Checklist
 
-- [x] Confirm source docs read: [folder README](../README.md), [source index](../source-index.md), [current snapshot](../current-app-game-snapshot.md), [main checklist](../implementation-checklist.md), [app/game evidence expectation](../../../expectations/app-game-evidence.md), and this workpack.
-- [x] Hub lock covers this workpack and exact implementation/docs/proof paths.
-- [x] Existing app/game source layout inspected; no parallel app-control truth created.
-- [x] TypeScript Effect Schema contract added before Rust/core consumers.
-- [x] Rust protocol parity added for the new launcher evidence row.
-- [x] Staged Windows parser proof added without claiming live launcher crawling.
-- [x] Tests prove launcher installed/running/foreground/candidate states do not become known-game proof without child-game evidence.
-- [x] Required proof pack exists under `output/app-game-plan-proof/10-launcher-evidence-and-game-candidate-model/`.
-- [x] Feature/plan docs updated; product capability checklist unchanged because product status did not move and A owns that file.
+- [ ] Confirm source docs read: [folder README](../README.md), [source index](../source-index.md), [current snapshot](../current-app-game-snapshot.md), [main checklist](../implementation-checklist.md), [app/game evidence expectation](../../../expectations/app-game-evidence.md), and this workpack.
+- [ ] Hub lock covers this workpack and exact implementation/docs/proof paths.
+- [ ] Existing app/game source layout inspected; no parallel app-control truth created.
+- [ ] TypeScript Effect Schema contract added before Rust/core consumers.
+- [ ] Rust protocol parity added for the new launcher evidence row.
+- [ ] Staged Windows parser proof added without claiming live launcher crawling.
+- [ ] Tests prove launcher installed/running/foreground/candidate states do not become known-game proof without child-game evidence.
+- [ ] Required proof pack exists under `output/app-game-plan-proof/10-launcher-evidence-and-game-candidate-model/`.
+- [ ] Feature/plan docs updated; product capability checklist unchanged because product status did not move and A owns that file.
 
 ## Completion Notes
 

@@ -55,13 +55,13 @@ before any delivery can be claimed.
 
 ## Validation
 
-- [x] Provider preflight parses the WP59 app/game scheduler bridge read model
+- [ ] Provider preflight parses the WP59 app/game scheduler bridge read model
       before mapping rows.
-- [x] Scheduled local rows become provider-adapter-required preflight rows with
+- [ ] Scheduled local rows become provider-adapter-required preflight rows with
       source scheduler/outbox/decision/provider/reason refs.
-- [x] Manual-required and unavailable rows remain blocked before provider
+- [ ] Manual-required and unavailable rows remain blocked before provider
       preflight.
-- [x] Proof pack records no provider delivery, no receipt ingestion, no
+- [ ] Proof pack records no provider delivery, no receipt ingestion, no
       credentials, no retry-worker/quiet-hours timer runtime, no parent UI, no
       child delivery, no adapter dispatch, and no durable production outbox
       claim.

@@ -1,6 +1,7 @@
 use ocentra_parent_agent_protocol::{
-    constants, policy_constants as policy, ParentEvidenceReferenceKind, PolicyAction,
-    PolicyDecisionHandoffState, PolicyPreviewReadModelRow, PolicyTarget, PolicyTargetType,
+    constants, policy_constants as policy, LogFieldValue, ParentEvidenceReferenceKind,
+    PolicyAction, PolicyDecisionHandoffState, PolicyPreviewReadModelRow,
+    PolicyPreviewTargetState, PolicyTarget, PolicyTargetType,
 };
 
 use super::{
@@ -58,6 +59,11 @@ fn policy_preview_read_model_evaluates_stored_browser_evidence_without_enforceme
         row.decision.enforcement_handoff_state,
         PolicyDecisionHandoffState::Disabled
     );
+    assert_eq!(row.policy_preview_target_state, None);
+    assert_eq!(row.policy_preview_target_explanation_code, None);
+    assert_eq!(row.policy_preview_finding_kinds, None);
+    assert_eq!(row.policy_source_status, None);
+    assert_eq!(row.policy_request_status, None);
 }
 
 #[test]
@@ -149,6 +155,80 @@ fn assert_network_parent_rule_refs(row: &PolicyPreviewReadModelRow, network_evid
     assert_eq!(
         row.parent_rule_context_references[0].target_evidence_refs,
         vec![row.source_event_id.clone(), network_evidence_id.to_string()]
+    );
+}
+
+#[test]
+fn policy_preview_read_model_marks_unsupported_browser_targets_as_not_ready() {
+    let store = ActivityStore::open_in_memory().expect(constants::error::ACTIVITY_STORE_OPENS);
+    let mut event = browser_event();
+    event.fields.insert(
+        constants::field::CAPABILITY_STATUS.to_string(),
+        LogFieldValue::String(constants::browser::CAPABILITY_STATUS_UNSUPPORTED_BROWSER.to_string()),
+    );
+    event.fields.insert(
+        constants::field::DEGRADED_REASON.to_string(),
+        LogFieldValue::String(
+            constants::browser::INVENTORY_REASON_WINDOWS_UNSUPPORTED_LATER_ADAPTER.to_string(),
+        ),
+    );
+    store
+        .ingest_events(std::slice::from_ref(&event))
+        .expect(constants::error::ACTIVITY_STORE_INGESTS);
+
+    let read_model = store
+        .policy_preview_read_model(
+            constants::activity_store::DEFAULT_RECENT_LIMIT,
+            constants::activity_store::TEST_SECOND_OBSERVED_AT,
+        )
+        .expect(constants::error::ACTIVITY_STORE_QUERIES);
+
+    let row = &read_model.rows[0];
+    assert_eq!(
+        row.policy_preview_target_state,
+        Some(PolicyPreviewTargetState::Unsupported)
+    );
+    assert_eq!(
+        row.policy_preview_target_explanation_code.as_deref(),
+        Some(constants::browser::INVENTORY_REASON_WINDOWS_UNSUPPORTED_LATER_ADAPTER)
+    );
+    assert_eq!(
+        row.policy_preview_finding_kinds.as_deref(),
+        Some("unsupported-target")
+    );
+}
+
+#[test]
+fn policy_preview_read_model_marks_manual_required_browser_targets_as_not_ready() {
+    let store = ActivityStore::open_in_memory().expect(constants::error::ACTIVITY_STORE_OPENS);
+    let mut event = browser_event();
+    event.fields.insert(
+        constants::field::CAPABILITY_STATUS.to_string(),
+        LogFieldValue::String(constants::browser::CAPABILITY_STATUS_BRIDGE_MISSING.to_string()),
+    );
+    store
+        .ingest_events(std::slice::from_ref(&event))
+        .expect(constants::error::ACTIVITY_STORE_INGESTS);
+
+    let read_model = store
+        .policy_preview_read_model(
+            constants::activity_store::DEFAULT_RECENT_LIMIT,
+            constants::activity_store::TEST_SECOND_OBSERVED_AT,
+        )
+        .expect(constants::error::ACTIVITY_STORE_QUERIES);
+
+    let row = &read_model.rows[0];
+    assert_eq!(
+        row.policy_preview_target_state,
+        Some(PolicyPreviewTargetState::ManualRequired)
+    );
+    assert_eq!(
+        row.policy_preview_target_explanation_code.as_deref(),
+        Some(constants::browser::CAPABILITY_STATUS_BRIDGE_MISSING)
+    );
+    assert_eq!(
+        row.policy_preview_finding_kinds.as_deref(),
+        Some("manual-required-target")
     );
 }
 

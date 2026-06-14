@@ -10,9 +10,8 @@ use ocentra_parent_agent_protocol::{
     child_tracking_config_updated_event_from_parent, constants,
     tracking_config_update_applied_event_from_child, ChildTrackingConfigUpdatedEvent,
     ParentTrackingConfigUpdatedEvent, TrackingConfigEffectiveState,
-    TrackingConfigUpdateAppliedEvent, TrackingConfigUpdateEventName,
-    TrackingConfigUpdateResponse, TrackingConfigUpdateResponseState,
-    TrackingConfigUpdateTargetScope,
+    TrackingConfigUpdateAppliedEvent, TrackingConfigUpdateEventName, TrackingConfigUpdateResponse,
+    TrackingConfigUpdateResponseState, TrackingConfigUpdateTargetScope,
 };
 use ocentra_tracking_core::TrackingConfigUpdateAppliedState;
 
@@ -52,7 +51,8 @@ impl TrackingConfigUpdateEventFlow {
         let state = TrackingConfigUpdateEventState::default();
         let applied_subscription_report =
             subscribe_child_tracking_config_applied_events(&bus, state.clone()).await?;
-        let child_subscription_report = subscribe_child_tracking_config_updated_events(&bus).await?;
+        let child_subscription_report =
+            subscribe_child_tracking_config_updated_events(&bus).await?;
         let parent_subscription_report =
             subscribe_parent_tracking_config_updated_events(&bus, state.clone()).await?;
 
@@ -216,7 +216,10 @@ fn tracking_config_update_response(
         schema_version: ocentra_parent_agent_protocol::AGENT_PROTOCOL_SCHEMA_VERSION,
         source_command_id: parent_event.source_command_id.clone(),
         response_state: applied_report.response_state,
-        effective_tracking_state: applied_report.applied_state.effective_tracking_state.clone(),
+        effective_tracking_state: applied_report
+            .applied_state
+            .effective_tracking_state
+            .clone(),
         child_event_type: applied_report.child_event_type,
         target: parent_event.target.clone(),
         local_service_state_revision: Some(
@@ -436,8 +439,7 @@ fn tracking_config_update_applied_report(
         effective_tracking_state: applied_event.effective_tracking_state.clone(),
         applied_state: TrackingConfigUpdateAppliedState {
             local_service_state_revision: applied_event.local_service_state_revision,
-            durable_settings_persistence_state: applied_event
-                .durable_settings_persistence_state,
+            durable_settings_persistence_state: applied_event.durable_settings_persistence_state,
             effective_tracking_state: applied_event.effective_tracking_state.clone(),
         },
     }

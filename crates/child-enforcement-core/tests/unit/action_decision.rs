@@ -6,7 +6,7 @@ use ocentra_child_enforcement_core::{
     EnforcementRollbackState,
 };
 use ocentra_eventing::DomainEvent;
-use ocentra_policy_control_core::ParentAuthorityState;
+use ocentra_policy_control_core::policy_authority::ParentAuthorityState;
 
 #[test]
 fn execute_mode_requires_policy_adapter_and_rollback_boundary() {

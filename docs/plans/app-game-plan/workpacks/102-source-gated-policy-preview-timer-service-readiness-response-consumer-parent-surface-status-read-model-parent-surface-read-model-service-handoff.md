@@ -27,11 +27,11 @@ Add a parent-domain service handoff that consumes WP101 parent-safe read-model r
 
 ## Implementation Checklist
 
-- [x] Add parent-domain service handoff schemas, builder, no-claim flags, and state rules.
-- [x] Add focused parser/builder tests using the real WP101 proof output.
-- [x] Add proof harness and app-game/app proof artifacts.
-- [x] Update feature/checklist/README docs with the no-claim decision.
-- [x] Leave `docs/product-capability-checklist.md` unchanged because no feature status moved.
+- [ ] Add parent-domain service handoff schemas, builder, no-claim flags, and state rules.
+- [ ] Add focused parser/builder tests using the real WP101 proof output.
+- [ ] Add proof harness and app-game/app proof artifacts.
+- [ ] Update feature/checklist/README docs with the no-claim decision.
+- [ ] Leave `docs/product-capability-checklist.md` unchanged because no feature status moved.
 
 ## Evidence
 

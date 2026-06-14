@@ -71,22 +71,22 @@ owning domain package before Rust protocol or service code claims support.
 
 Fill this before reporting `DONE` or PR-ready:
 
-- [x] Confirm source docs read: [folder README](../README.md), [source index](../source-index.md), [current snapshot](../current-browser-snapshot.md), [full scope plan](../v0-5-managed-browser-full-scope-plan.md), [test blueprint](../v0-5-managed-browser-test-blueprint.md), [UI/UX guide](../ui-ux-requirements-guide.md), [main checklist](../implementation-checklist.md), and this workpack.
-- [x] Check enhancement overlap: URL/video AI intelligence, social platform/account/feed gating, and browser games/cloud gaming.
-- [x] Hub lock covers this workpack and exact implementation/docs paths.
-- [x] Existing source layout inspected; no parallel browser truth created.
-- [x] Before-state source snapshot recorded in `output/browser-plan-proof/01-contract-boundary-and-effect-schemas/00-source-snapshot.md`.
-- [x] Contracts updated first where this workpack changes behavior.
-- [x] Rust/service/portal parity updated only after contracts exist. Rust protocol parity was added; service and portal were not touched because this slice does not expose a runtime read model or UI.
-- [x] Raw evidence artifacts captured where applicable: contract-only slice marked runtime, journal, SQLite, and action artifacts N/A in the proof pack.
-- [x] Tests/proof listed in this workpack are implemented or explicitly marked manual-required with reason.
-- [x] Validation command outputs saved in the proof pack and summarized in [main checklist](../implementation-checklist.md).
-- [x] UI snapshots captured for every touched parent portal, child UX, block/warn, policy authoring, or dashboard state; no UI changed, so `ui-not-applicable.md` records why.
-- [x] Security/no-claim negative proof captured where applicable: unmanaged inventory rows cannot claim exact managed URL support in TypeScript or Rust proof.
-- [x] Manual platform proof captured for real browser/OS claims; no real browser/OS claim was made, so manual platform proof is N/A.
-- [x] Evidence/proof artifact paths recorded in [main checklist](../implementation-checklist.md).
-- [x] Feature/expectation/product-checklist/README update decision recorded in [main checklist](../implementation-checklist.md).
-- [x] Known gaps, deferred items, and no-claim boundaries recorded before `DONE`.
+- [ ] Confirm source docs read: [folder README](../README.md), [source index](../source-index.md), [current snapshot](../current-browser-snapshot.md), [full scope plan](../v0-5-managed-browser-full-scope-plan.md), [test blueprint](../v0-5-managed-browser-test-blueprint.md), [UI/UX guide](../ui-ux-requirements-guide.md), [main checklist](../implementation-checklist.md), and this workpack.
+- [ ] Check enhancement overlap: URL/video AI intelligence, social platform/account/feed gating, and browser games/cloud gaming.
+- [ ] Hub lock covers this workpack and exact implementation/docs paths.
+- [ ] Existing source layout inspected; no parallel browser truth created.
+- [ ] Before-state source snapshot recorded in `output/browser-plan-proof/01-contract-boundary-and-effect-schemas/00-source-snapshot.md`.
+- [ ] Contracts updated first where this workpack changes behavior.
+- [ ] Rust/service/portal parity updated only after contracts exist. Rust protocol parity was added; service and portal were not touched because this slice does not expose a runtime read model or UI.
+- [ ] Raw evidence artifacts captured where applicable: contract-only slice marked runtime, journal, SQLite, and action artifacts N/A in the proof pack.
+- [ ] Tests/proof listed in this workpack are implemented or explicitly marked manual-required with reason.
+- [ ] Validation command outputs saved in the proof pack and summarized in [main checklist](../implementation-checklist.md).
+- [ ] UI snapshots captured for every touched parent portal, child UX, block/warn, policy authoring, or dashboard state; no UI changed, so `ui-not-applicable.md` records why.
+- [ ] Security/no-claim negative proof captured where applicable: unmanaged inventory rows cannot claim exact managed URL support in TypeScript or Rust proof.
+- [ ] Manual platform proof captured for real browser/OS claims; no real browser/OS claim was made, so manual platform proof is N/A.
+- [ ] Evidence/proof artifact paths recorded in [main checklist](../implementation-checklist.md).
+- [ ] Feature/expectation/product-checklist/README update decision recorded in [main checklist](../implementation-checklist.md).
+- [ ] Known gaps, deferred items, and no-claim boundaries recorded before `DONE`.
 
 ## Manual-Required Gaps
 

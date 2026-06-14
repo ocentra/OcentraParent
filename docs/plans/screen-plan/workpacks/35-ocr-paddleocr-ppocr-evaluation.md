@@ -25,18 +25,18 @@ This is AI-pass work. Do not block capture MVP on final OCR selection.
 
 ## Checklist
 
-- [x] Verify current PaddleOCR/PP-OCR docs.
-- [x] Test Windows packaging and runtime dependencies.
-- [x] Test local-only execution; current PaddleOCR 3.x / PP-OCRv5 executes
+- [ ] Verify current PaddleOCR/PP-OCR docs.
+- [ ] Test Windows packaging and runtime dependencies.
+- [ ] Test local-only execution; current PaddleOCR 3.x / PP-OCRv5 executes
       locally but extracts zero text, while a pinned PaddleOCR 2.x fallback runs
       locally.
-- [x] Compare UI text extraction quality against Tesseract; the pinned 2.x
+- [ ] Compare UI text extraction quality against Tesseract; the pinned 2.x
       fallback matches the baseline terms, while current PP-OCRv5 remains
       rejected for this Windows route.
-- [x] Measure CPU/GPU/memory/runtime; the pinned 2.x fallback records CPU, peak
+- [ ] Measure CPU/GPU/memory/runtime; the pinned 2.x fallback records CPU, peak
       RSS, init, and predict timing, and the current 3.x candidate records
       runtime timings before its zero-text rejection.
-- [x] Decide whether the child device or a trusted household mesh provider
+- [ ] Decide whether the child device or a trusted household mesh provider
       should run it.
 
 ## Proof

@@ -1,8 +1,8 @@
 use ocentra_parent_agent_protocol::{
-    constants, TrackingCapabilityStatus, TrackingEvidenceRecordedEvent,
-    TrackingExpectedPlaceState, TrackingExpectedPlaceStateEvaluatedEvent,
-    TrackingParentActionRequirement, TrackingReasonCode, TrackingScheduleId,
-    TrackingTransitionKind, tracking_evaluation_id_from_observation_id,
+    constants, tracking_evaluation_id_from_observation_id, TrackingCapabilityStatus,
+    TrackingEvidenceRecordedEvent, TrackingExpectedPlaceExceptionState, TrackingExpectedPlaceState,
+    TrackingExpectedPlaceStateEvaluatedEvent, TrackingParentActionRequirement, TrackingReasonCode,
+    TrackingScheduleId, TrackingTransitionKind,
 };
 
 #[derive(Clone, Debug, PartialEq, Eq)]
@@ -16,10 +16,20 @@ pub struct TrackingExpectedPlaceEvaluation {
     pub schedule_id: TrackingScheduleId,
     pub schedule_enabled: bool,
     pub within_expected_window: bool,
+    pub distance_tolerance_meters: Option<u32>,
     pub capability_status: TrackingCapabilityStatus,
     pub transition_kind: TrackingTransitionKind,
+    pub late_grace_seconds: u32,
+    pub early_exit_grace_seconds: u32,
     pub late_grace_active: bool,
     pub early_exit_grace_active: bool,
+    pub active_exception: Option<TrackingExpectedPlaceException>,
+}
+
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub enum TrackingExpectedPlaceException {
+    HolidayMode,
+    TripException,
 }
 
 pub fn expected_place_window_contains_minute(
@@ -50,6 +60,13 @@ pub fn evaluate_expected_place_state(
         source_observed_at: event.source_observed_at.clone(),
         expected_place_state: TrackingExpectedPlaceState::parse(expected_place_state)
             .expect(constants::tracking_runtime::EXPECTED_PLACE_STATE_UNKNOWN),
+        distance_tolerance_meters: evaluation.distance_tolerance_meters,
+        late_grace_seconds: evaluation.late_grace_seconds,
+        early_exit_grace_seconds: evaluation.early_exit_grace_seconds,
+        exception_state: evaluation
+            .active_exception
+            .as_ref()
+            .map(protocol_exception_state_for_expected_place_exception),
         reason_codes,
         evidence_refs: vec![event.evidence_ref.clone()],
         parent_action_requirement: parent_action_requirement_for_expected_place_state(
@@ -88,6 +105,15 @@ fn expected_place_outcome_for(
             vec![reason_code(
                 constants::tracking_runtime::REASON_FRESH_LOCATION_REQUIRED,
             )],
+        );
+    }
+
+    if let Some(active_exception) = &evaluation.active_exception {
+        return (
+            constants::tracking_runtime::EXPECTED_PLACE_STATE_UNKNOWN,
+            vec![reason_code(reason_code_for_expected_place_exception(
+                active_exception,
+            ))],
         );
     }
 
@@ -180,6 +206,32 @@ fn reason_code(value: &'static str) -> TrackingReasonCode {
     TrackingReasonCode::parse(value).expect(value)
 }
 
+fn reason_code_for_expected_place_exception(
+    active_exception: &TrackingExpectedPlaceException,
+) -> &'static str {
+    match active_exception {
+        TrackingExpectedPlaceException::HolidayMode => {
+            constants::tracking_runtime::REASON_EXPECTED_PLACE_HOLIDAY_EXCEPTION_ACTIVE
+        }
+        TrackingExpectedPlaceException::TripException => {
+            constants::tracking_runtime::REASON_EXPECTED_PLACE_TRIP_EXCEPTION_ACTIVE
+        }
+    }
+}
+
+fn protocol_exception_state_for_expected_place_exception(
+    active_exception: &TrackingExpectedPlaceException,
+) -> TrackingExpectedPlaceExceptionState {
+    match active_exception {
+        TrackingExpectedPlaceException::HolidayMode => {
+            TrackingExpectedPlaceExceptionState::HolidayMode
+        }
+        TrackingExpectedPlaceException::TripException => {
+            TrackingExpectedPlaceExceptionState::TripException
+        }
+    }
+}
+
 pub fn default_expected_place_evaluation() -> TrackingExpectedPlaceEvaluation {
     TrackingExpectedPlaceEvaluation {
         schedule_id: TrackingScheduleId::parse(
@@ -188,6 +240,9 @@ pub fn default_expected_place_evaluation() -> TrackingExpectedPlaceEvaluation {
         .expect(constants::tracking_runtime::DEFAULT_EXPECTED_PLACE_SCHEDULE_ID),
         schedule_enabled: true,
         within_expected_window: true,
+        distance_tolerance_meters: Some(
+            constants::tracking_runtime::DEFAULT_EXPECTED_PLACE_DISTANCE_TOLERANCE_METERS,
+        ),
         capability_status: TrackingCapabilityStatus::parse(
             constants::tracking_runtime::CAPABILITY_STATUS_LIVE,
         )
@@ -196,7 +251,11 @@ pub fn default_expected_place_evaluation() -> TrackingExpectedPlaceEvaluation {
             constants::tracking_runtime::GEOFENCE_TRANSITION_AMBIGUOUS,
         )
         .expect(constants::tracking_runtime::GEOFENCE_TRANSITION_AMBIGUOUS),
+        late_grace_seconds: constants::tracking_runtime::DEFAULT_EXPECTED_PLACE_LATE_GRACE_SECONDS,
+        early_exit_grace_seconds:
+            constants::tracking_runtime::DEFAULT_EXPECTED_PLACE_EARLY_EXIT_GRACE_SECONDS,
         late_grace_active: false,
         early_exit_grace_active: false,
+        active_exception: None,
     }
 }

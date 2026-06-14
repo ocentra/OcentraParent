@@ -2,8 +2,8 @@ use ocentra_eventing::DomainEvent;
 use ocentra_storage_custody_core::{
     evaluate_storage_custody, plan_storage_custody_actions, storage_custody_action_planned_event,
     storage_custody_decision_recorded_event, LocalPayloadRetentionAction, ParentExportPacketState,
-    ParentExportState, RemoteSyncState, RemoteUploadState, RetentionWindowState,
-    StorageAuditState, StorageCustodyAggregateId, StorageCustodyDecisionId, StorageCustodyInput,
+    ParentExportState, RemoteSyncState, RemoteUploadState, RetentionWindowState, StorageAuditState,
+    StorageCustodyAggregateId, StorageCustodyDecisionId, StorageCustodyInput,
     StorageCustodyLocation, StorageTombstoneState,
 };
 
@@ -28,7 +28,10 @@ fn expired_parent_remote_payload_deletes_exports_uploads_and_tombstones() {
         decision.local_payload_retention_action,
         LocalPayloadRetentionAction::Delete
     );
-    assert_eq!(decision.parent_export_packet_state, ParentExportPacketState::Create);
+    assert_eq!(
+        decision.parent_export_packet_state,
+        ParentExportPacketState::Create
+    );
     assert_eq!(decision.remote_upload_state, RemoteUploadState::Allowed);
     assert_eq!(actions.tombstone_state, StorageTombstoneState::Write);
     assert_eq!(actions.audit_state, StorageAuditState::Record);

@@ -1,13 +1,13 @@
 use ocentra_parent_agent_protocol::{
     constants, default_tracking_config_update_request, AgentRoute,
     ParentTrackingConfigUpdatedEvent, TrackingConfigPolicyDecisionState,
-    TrackingConfigPortalUpdateKind, TrackingConfigUpdateResponseState,
-    TrackingConfigUpdateTarget, TrackingConfigUpdateTargetScope, TrackingSourceMessageId,
-    TrackingSourcePeerId, TrackingTargetDeviceId, TrackingTargetPlatform,
+    TrackingConfigPortalUpdateKind, TrackingConfigUpdateResponseState, TrackingConfigUpdateTarget,
+    TrackingConfigUpdateTargetScope, TrackingSourceMessageId, TrackingSourcePeerId,
+    TrackingTargetDeviceId, TrackingTargetPlatform,
 };
-use ocentra_parent_runtime_core::{
-    publish_parent_tracking_config_updated_event_flow, ChildAcknowledgementState,
-    ChildRuntimePublishState, ParentRuntimeOriginState,
+use ocentra_parent_runtime_core::tracking_config_update_flow::publish_parent_tracking_config_updated_event_flow;
+use ocentra_parent_runtime_core::tracking_dispatch::{
+    ChildAcknowledgementState, ChildRuntimePublishState, ParentRuntimeOriginState,
 };
 
 #[tokio::test]
@@ -32,7 +32,10 @@ async fn parent_runtime_tracking_config_flow_publishes_approved_chain_and_child_
         TrackingConfigPolicyDecisionState::Approved
     );
     assert_eq!(
-        flow_report.dispatch_event.decision.child_runtime_publish_state,
+        flow_report
+            .dispatch_event
+            .decision
+            .child_runtime_publish_state,
         ChildRuntimePublishState::Publish
     );
     assert!(flow_report.change_approved_event.is_some());
@@ -70,7 +73,10 @@ async fn parent_runtime_tracking_config_flow_rejects_untrusted_origin_without_ch
         TrackingConfigPolicyDecisionState::Rejected
     );
     assert_eq!(
-        flow_report.dispatch_event.decision.child_runtime_publish_state,
+        flow_report
+            .dispatch_event
+            .decision
+            .child_runtime_publish_state,
         ChildRuntimePublishState::DoNotPublish
     );
     assert!(flow_report.change_approved_event.is_none());

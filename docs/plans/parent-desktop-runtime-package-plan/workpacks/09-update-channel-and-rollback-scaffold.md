@@ -31,11 +31,11 @@ available, rollback unavailable, and production boundary.
 
 ## Requirement Checklist
 
-- [x] Represent update channel and rollback states.
-- [x] Keep unsigned preview labels.
-- [x] Reject production claims without signing proof.
-- [x] Add tests for matrix/proof output.
-- [x] Update release docs when status changes.
+- [ ] Represent update channel and rollback states.
+- [ ] Keep unsigned preview labels.
+- [ ] Reject production claims without signing proof.
+- [ ] Add tests for matrix/proof output.
+- [ ] Update release docs when status changes.
 
 ## Acceptance And Proof
 

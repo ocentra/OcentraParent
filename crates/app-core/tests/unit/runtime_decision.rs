@@ -27,7 +27,10 @@ fn foreground_known_policy_app_publishes_policy_without_ai() {
         AppRuntimeActionState::RecordForeground
     );
     assert_eq!(decision.ai_handoff_state, AppAiHandoffState::NotRequired);
-    assert_eq!(decision.policy_handoff_state, AppPolicyHandoffState::Publish);
+    assert_eq!(
+        decision.policy_handoff_state,
+        AppPolicyHandoffState::Publish
+    );
 }
 
 #[test]

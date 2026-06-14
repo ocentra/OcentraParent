@@ -44,21 +44,21 @@ Activity/Network diagnostics that make service behavior visually inspectable.
 
 ## Requirement Checklist
 
-- [x] Baseline read-model snapshots expose LAN pairing status, scan summary,
+- [ ] Baseline read-model snapshots expose LAN pairing status, scan summary,
       add-device route state, selected-device readiness, portal target
       filtering, and signed-discovery relay/cache proof states.
-- [x] Current branch labels relay/cache unavailable, physical household proof
+- [ ] Current branch labels relay/cache unavailable, physical household proof
       manual-required, and unsupported/non-controllable infrastructure states
       through typed service/domain state instead of prose-only docs.
-- [x] Portal LAN selected-device details and Activity/Network diagnostics now
+- [ ] Portal LAN selected-device details and Activity/Network diagnostics now
       consume the signed discovery relay spine, route custody, relay/cache,
       parent-decision, audit, route-requirement, and manual-proof read-model
       fields without inventing portal-only LAN state.
-- [x] The add-device read model now carries a `lanDiscoverySourceMatrix`
+- [ ] The add-device read model now carries a `lanDiscoverySourceMatrix`
       snapshot that maps all 20 LAN plan workpacks and concrete discovery
       sources into typed implemented, partial, manual-required, and
       not-implemented statuses.
-- [x] Activity/Network diagnostics render source-matrix rows for LAN workpacks,
+- [ ] Activity/Network diagnostics render source-matrix rows for LAN workpacks,
       implemented source proof, weak-source fencing, and matrix generation time
       from the service-backed read model.
 - [ ] Event types include interface changed, scan started, scan finished,
@@ -70,10 +70,10 @@ Activity/Network diagnostics that make service behavior visually inspectable.
 - [ ] Portal can replay snapshot plus events without duplicate cards.
 - [ ] Empty, unavailable, degraded, stale, offline, agent-offline, and
       manual-required states are explicit.
-- [x] Activity / Network diagnostics now show scan/evidence first-seen and
+- [ ] Activity / Network diagnostics now show scan/evidence first-seen and
       last-seen timing, evidence expiry, signed adapter proof state, and
       policy-target history.
-- [x] Visual snapshot proof exists for the current service-backed Devices/LAN,
+- [ ] Visual snapshot proof exists for the current service-backed Devices/LAN,
       Activity/Network diagnostics, and Network policy target surfaces under
       `output/playwright/lan-source-matrix-plan-completion/`.
 - [ ] Replayable scan sessions, full pairing/heartbeat event history, richer

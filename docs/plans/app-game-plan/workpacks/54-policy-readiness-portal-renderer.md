@@ -58,13 +58,13 @@ before any policy evaluator or adapter path is allowed to consume them.
 
 ## DONE Checklist
 
-- [x] Hub lock covers the exact portal, domain, text, docs, proof, and validation
+- [ ] Hub lock covers the exact portal, domain, text, docs, proof, and validation
       paths.
-- [x] Portal live state parses the latest policy readiness event with the
+- [ ] Portal live state parses the latest policy readiness event with the
       existing protocol parser.
-- [x] Portal-domain intent renders service-backed summary and row details
+- [ ] Portal-domain intent renders service-backed summary and row details
       without policy execution or adapter dispatch claims.
-- [x] App/Game Sessions route renders the readiness panel and keeps missing or
+- [ ] App/Game Sessions route renders the readiness panel and keeps missing or
       parser-failed state visibly non-ready.
-- [x] Proof pack records no service, product-checklist, evaluator, adapter,
+- [ ] Proof pack records no service, product-checklist, evaluator, adapter,
       broad blocking, or platform support claim.

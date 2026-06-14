@@ -1,10 +1,14 @@
-use ocentra_eventing::DomainEvent;
+use ocentra_child_runtime::TrackingRuntimeEventFlow;
+use ocentra_eventing::{DomainEvent, EventBus, EventingError, RequestCompletionOutcome};
 use ocentra_parent_agent_protocol::{
     constants, default_tracking_config_update_request, AgentRoute,
-    ParentTrackingConfigUpdatedEvent, TrackingConfigUpdateTarget, TrackingConfigUpdateTargetScope,
-    TrackingSourceMessageId, TrackingSourcePeerId, TrackingTargetDeviceId, TrackingTargetPlatform,
+    ParentTrackingConfigUpdatedEvent, TrackingChildCheckInDeliveryState,
+    TrackingChildCheckInRequestState, TrackingChildCheckInRequestedEvent,
+    TrackingConfigUpdateTarget, TrackingConfigUpdateTargetScope, TrackingEvidenceRef,
+    TrackingPolicyViolationId, TrackingSourceMessageId, TrackingSourcePeerId,
+    TrackingTargetDeviceId, TrackingTargetPlatform, TrackingTimestamp,
 };
-use ocentra_parent_runtime_core::{
+use ocentra_parent_runtime_core::tracking_dispatch::{
     parent_runtime_target_from_tracking_scope, parent_runtime_tracking_dispatch_evaluated_event,
     route_parent_runtime_change, route_parent_tracking_config_update_event,
     route_parent_tracking_config_update_event_from_origin, ChildAcknowledgementState,
@@ -225,6 +229,117 @@ fn tracking_config_parent_runtime_records_typed_dispatch_event() {
     );
 }
 
+#[tokio::test]
+async fn tracking_child_check_in_request_publishes_trusted_intent_and_awaits_receipt() {
+    let bus = EventBus::new();
+    let runtime_flow = TrackingRuntimeEventFlow::with_bus(bus.clone())
+        .await
+        .expect(constants::tracking_runtime::ERROR_TRACKING_RUNTIME_FLOW_RECORDED);
+    let decision = route_parent_runtime_change(ParentRuntimeChangeRequest {
+        target: ParentRuntimeTarget::ChildDevice,
+        origin_state: ParentRuntimeOriginState::TrustedLocalUi,
+        child_runtime_dispatch_state: ChildRuntimeDispatchState::Required,
+        child_acknowledgement_state: ChildAcknowledgementState::Required,
+    });
+
+    let report = decision
+        .publish_tracking_child_check_in_request(&bus, parent_requested_check_in_event())
+        .await
+        .expect(constants::tracking_runtime::ERROR_TRACKING_RUNTIME_FLOW_RECORDED)
+        .expect("awaited check-in request should return a receipt");
+    let (request, metadata, receipt, completion) = runtime_flow
+        .latest_parent_requested_check_in()
+        .expect("child runtime should record the parent check-in request");
+
+    assert_eq!(
+        report.response.delivery_state,
+        TrackingChildCheckInDeliveryState::Requested
+    );
+    assert_eq!(report.response.reason_code, None);
+    assert_eq!(receipt.check_in_id, request.check_in_id);
+    assert_eq!(
+        metadata.source.component.as_str(),
+        constants::tracking_runtime::SOURCE_COMPONENT_PARENT_RUNTIME
+    );
+    assert_eq!(
+        metadata
+            .target_handler
+            .as_ref()
+            .expect("target handler should be preserved")
+            .as_str(),
+        constants::tracking_runtime::TARGET_HANDLER_CHILD_TRACKING_CHECK_IN_REQUESTER
+    );
+    assert_eq!(completion.outcome, RequestCompletionOutcome::Completed);
+}
+
+#[tokio::test]
+async fn tracking_child_check_in_request_can_publish_without_waiting_for_receipt() {
+    let bus = EventBus::new();
+    let runtime_flow = TrackingRuntimeEventFlow::with_bus(bus.clone())
+        .await
+        .expect(constants::tracking_runtime::ERROR_TRACKING_RUNTIME_FLOW_RECORDED);
+    let decision = route_parent_runtime_change(ParentRuntimeChangeRequest {
+        target: ParentRuntimeTarget::ChildDevice,
+        origin_state: ParentRuntimeOriginState::TrustedLocalUi,
+        child_runtime_dispatch_state: ChildRuntimeDispatchState::Required,
+        child_acknowledgement_state: ChildAcknowledgementState::NotRequired,
+    });
+
+    let report = decision
+        .publish_tracking_child_check_in_request(&bus, parent_requested_check_in_event())
+        .await
+        .expect(constants::tracking_runtime::ERROR_TRACKING_RUNTIME_FLOW_RECORDED);
+    let (_, _, receipt, completion) = runtime_flow
+        .latest_parent_requested_check_in()
+        .expect("child runtime should record the fire-and-forget check-in request");
+
+    assert!(report.is_none());
+    assert_eq!(
+        receipt.delivery_state,
+        TrackingChildCheckInDeliveryState::Requested
+    );
+    assert_eq!(completion.outcome, RequestCompletionOutcome::Late);
+}
+
+#[tokio::test]
+async fn tracking_child_check_in_request_rejects_duplicate_awaited_request_ids() {
+    let bus = EventBus::new();
+    let runtime_flow = TrackingRuntimeEventFlow::with_bus(bus.clone())
+        .await
+        .expect(constants::tracking_runtime::ERROR_TRACKING_RUNTIME_FLOW_RECORDED);
+    let decision = route_parent_runtime_change(ParentRuntimeChangeRequest {
+        target: ParentRuntimeTarget::ChildDevice,
+        origin_state: ParentRuntimeOriginState::TrustedLocalUi,
+        child_runtime_dispatch_state: ChildRuntimeDispatchState::Required,
+        child_acknowledgement_state: ChildAcknowledgementState::Required,
+    });
+    let request = parent_requested_check_in_event();
+
+    let first = decision
+        .publish_tracking_child_check_in_request(&bus, request.clone())
+        .await
+        .expect(constants::tracking_runtime::ERROR_TRACKING_RUNTIME_FLOW_RECORDED);
+    let duplicate = decision
+        .publish_tracking_child_check_in_request(&bus, request)
+        .await
+        .expect_err("duplicate request id should be rejected");
+
+    assert!(first.is_some());
+    assert!(matches!(
+        duplicate,
+        EventingError::DuplicateRequest { ref request_id }
+            if request_id.as_str() == constants::tracking_runtime::DEFAULT_CHILD_CHECK_IN_ID
+    ));
+    assert_eq!(
+        runtime_flow
+            .latest_parent_requested_check_in()
+            .expect("initial request should still be recorded")
+            .3
+            .outcome,
+        RequestCompletionOutcome::Completed
+    );
+}
+
 fn parent_tracking_config_event(
     scope: TrackingConfigUpdateTargetScope,
 ) -> ParentTrackingConfigUpdatedEvent {
@@ -250,5 +365,37 @@ fn parent_tracking_config_event(
             route: AgentRoute::Localhost,
         },
         config: request,
+    }
+}
+
+fn parent_requested_check_in_event() -> TrackingChildCheckInRequestedEvent {
+    TrackingChildCheckInRequestedEvent {
+        child_device_id: ocentra_parent_agent_protocol::TrackingChildDeviceId::parse(
+            constants::tracking_runtime::DEFAULT_CHILD_DEVICE_ID,
+        )
+        .expect(constants::tracking_runtime::DEFAULT_CHILD_DEVICE_ID),
+        child_profile_id: ocentra_parent_agent_protocol::TrackingChildProfileId::parse(
+            constants::tracking_runtime::DEFAULT_CHILD_PROFILE_ID,
+        )
+        .expect(constants::tracking_runtime::DEFAULT_CHILD_PROFILE_ID),
+        check_in_id: ocentra_parent_agent_protocol::TrackingCheckInId::parse(
+            constants::tracking_runtime::DEFAULT_CHILD_CHECK_IN_ID,
+        )
+        .expect(constants::tracking_runtime::DEFAULT_CHILD_CHECK_IN_ID),
+        requested_at: TrackingTimestamp::parse(constants::tracking_runtime::DEFAULT_OBSERVED_AT)
+            .expect(constants::tracking_runtime::DEFAULT_OBSERVED_AT),
+        request_state: TrackingChildCheckInRequestState::Pending,
+        delivery_state: TrackingChildCheckInDeliveryState::Queued,
+        related_alert_id: TrackingPolicyViolationId::parse(
+            constants::tracking_runtime::DEFAULT_POLICY_VIOLATION_ID,
+        )
+        .expect(constants::tracking_runtime::DEFAULT_POLICY_VIOLATION_ID),
+        include_location_if_permitted: true,
+        expires_at: TrackingTimestamp::parse("2026-06-12T12:05:00Z").expect("2026-06-12T12:05:00Z"),
+        evidence_refs: vec![TrackingEvidenceRef::parse(
+            constants::tracking_runtime::DEFAULT_EVIDENCE_REF,
+        )
+        .expect(constants::tracking_runtime::DEFAULT_EVIDENCE_REF)],
+        audit_refs: vec![String::from("audit.tracking.child-check-in.request")],
     }
 }

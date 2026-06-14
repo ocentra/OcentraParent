@@ -1,13 +1,14 @@
 use ocentra_eventing::DomainEvent;
 use ocentra_family_identity_core::ChildDisclosureState;
-use ocentra_policy_control_core::ParentAuthorityState;
+use ocentra_policy_control_core::policy_authority::ParentAuthorityState;
 use ocentra_remote_access_core::{
     evaluate_remote_access_session, plan_remote_access_session_effects,
     resolve_remote_access_session_request, RemoteAccessAggregateId, RemoteAccessAuditState,
-    RemoteAccessAutoExpiryState, RemoteAccessDisclosureBannerState, RemoteAccessInputAuthorityState,
-    RemoteAccessInputBridgeState, RemoteAccessRelayRequirementState, RemoteAccessRelayState,
-    RemoteAccessReplayState, RemoteAccessSessionAuthorizationState, RemoteAccessSessionId,
-    RemoteAccessSessionRequest, RemoteAccessSessionRequestedEvent, RemoteAccessViewStreamState,
+    RemoteAccessAutoExpiryState, RemoteAccessDisclosureBannerState,
+    RemoteAccessInputAuthorityState, RemoteAccessInputBridgeState,
+    RemoteAccessRelayRequirementState, RemoteAccessRelayState, RemoteAccessReplayState,
+    RemoteAccessSessionAuthorizationState, RemoteAccessSessionId, RemoteAccessSessionRequest,
+    RemoteAccessSessionRequestedEvent, RemoteAccessViewStreamState,
 };
 
 const REMOTE_ACCESS_AGGREGATE_ID: &str = "remote-access-family-default";
@@ -15,7 +16,9 @@ const REMOTE_ACCESS_SESSION_ID: &str = "remote-access-session-default";
 const REMOTE_ACCESS_REQUESTED_EVENT_TYPE: &str = "remote-access.session.requested";
 const REMOTE_ACCESS_RESOLVED_EVENT_TYPE: &str = "remote-access.authorization.resolved";
 
-fn allowed_request(input_authority_state: RemoteAccessInputAuthorityState) -> RemoteAccessSessionRequest {
+fn allowed_request(
+    input_authority_state: RemoteAccessInputAuthorityState,
+) -> RemoteAccessSessionRequest {
     RemoteAccessSessionRequest {
         parent_authority_state: ParentAuthorityState::Authorized,
         child_disclosure_state: ChildDisclosureState::Disclosed,
@@ -52,9 +55,18 @@ fn allowed_session_starts_view_input_disclosure_and_expiry() {
         decision.relay_requirement_state,
         RemoteAccessRelayRequirementState::NotRequired
     );
-    assert_eq!(decision.auto_expiry_state, RemoteAccessAutoExpiryState::Required);
-    assert_eq!(effects.view_stream_state, RemoteAccessViewStreamState::Start);
-    assert_eq!(effects.input_bridge_state, RemoteAccessInputBridgeState::Start);
+    assert_eq!(
+        decision.auto_expiry_state,
+        RemoteAccessAutoExpiryState::Required
+    );
+    assert_eq!(
+        effects.view_stream_state,
+        RemoteAccessViewStreamState::Start
+    );
+    assert_eq!(
+        effects.input_bridge_state,
+        RemoteAccessInputBridgeState::Start
+    );
     assert_eq!(
         effects.disclosure_banner_state,
         RemoteAccessDisclosureBannerState::Show
@@ -78,8 +90,14 @@ fn replayed_or_oversized_session_is_rejected_without_effects() {
         decision.authorization_state,
         RemoteAccessSessionAuthorizationState::Rejected
     );
-    assert_eq!(effects.view_stream_state, RemoteAccessViewStreamState::DoNotStart);
-    assert_eq!(effects.input_bridge_state, RemoteAccessInputBridgeState::DoNotStart);
+    assert_eq!(
+        effects.view_stream_state,
+        RemoteAccessViewStreamState::DoNotStart
+    );
+    assert_eq!(
+        effects.input_bridge_state,
+        RemoteAccessInputBridgeState::DoNotStart
+    );
     assert_eq!(
         effects.disclosure_banner_state,
         RemoteAccessDisclosureBannerState::DoNotShow

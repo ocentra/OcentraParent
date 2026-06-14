@@ -31,11 +31,11 @@ promotion boundaries.
 
 ## Requirement Checklist
 
-- [x] Keep production publishing out of `main`.
-- [x] Label PR/merge as CI/package preview events.
-- [x] Document explicit production promotion.
-- [x] Avoid release notes that claim store/signing without proof.
-- [x] Review workflow changes carefully.
+- [ ] Keep production publishing out of `main`.
+- [ ] Label PR/merge as CI/package preview events.
+- [ ] Document explicit production promotion.
+- [ ] Avoid release notes that claim store/signing without proof.
+- [ ] Review workflow changes carefully.
 
 ## Acceptance And Proof
 

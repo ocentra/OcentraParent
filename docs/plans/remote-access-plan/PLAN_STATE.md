@@ -1,22 +1,22 @@
 # Remote Access Plan State
 
-Status: first-pass plan created because remote desktop/control and remote live view were scattered across screen, LAN, architecture, and roadmap docs.
+Status: execution-grade live-view-first plan. Standing paired access is the current model; remote control is deferred to a later slice.
 
-Research status: incomplete. This plan requires a full follow-up research pass against existing screen capture, LAN transport, portal remote routes, local service capabilities, RustDesk comparison docs, and Sujan's privacy/control decisions before implementation claims.
+Research status: current access model defined. This plan still needs focused proof work against screen capture, LAN transport, portal remote routes, local service capabilities, and RustDesk comparison docs before implementation claims, but repeated permission prompts are not part of the model.
 
 Current truth:
 
 - `screen-plan` can own capture primitives, but not the remote session product.
 - `lan-plan` can own local transport, but not relay-backed remote access.
-- Remote input/control is higher risk than remote viewing and must have separate authority, proof, and failure states.
-- Remote access requires account/household/device authority before any session is opened.
+- Initial pairing creates standing parent access until revoke or device removal.
+- Remote access requires account/household/device authority before pairing is opened.
+- Remote control is deferred; the current pass only proves live view and standing access.
 
 Open gaps:
 
-- No remote capability grant model.
-- No remote session lifecycle with consent, expiry, revocation, and audit.
+- No remote pairing/access lifecycle with standing authority, revoke, removal, and audit.
 - No relay availability/fallback state machine.
-- No proof matrix for remote viewing versus remote control.
+- No proof matrix for live view and standing access.
 - No retention/delete/export boundary for remote artifacts.
 
 ## HID Execution Guard (added 2026-06-12)
@@ -33,7 +33,7 @@ Open gaps:
   - docs/proof/remote-access-plan/slice-03-\*.md
   - each proof file must include commands, pass/fail,
     negative-cases, and manual-required notes.
-- Failure rule: no PR-ready claim until replay/idempotency, authZ/replay, and rollback/teardown proofs are present for the assigned slice.
+- Failure rule: no PR-ready claim until replay/idempotency, authZ/replay, and rollback/teardown proofs are present for the assigned slice. No PR-ready claim may imply control in this pass.
 
 ## HID execution blueprint
 

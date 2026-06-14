@@ -7,15 +7,29 @@ import {
   ChildRuntimeEntitlementAccessState,
   ChildRuntimeManualReviewState,
   ChildRuntimePreflightDecisionSchema,
+  ChildRuntimeProvisioningDecisionBlockerReason,
+  ChildRuntimeProvisioningDecisionSchema,
   ChildRuntimeProvisioningReadinessState,
   ChildRuntimeRemoteAccessAuthorizationState,
   ChildRuntimeRemoteAccessDecisionSchema,
   ChildRuntimeStartState,
   ChildRuntimeStorageRemoteUploadState,
 } from '../../src/child-runtime-gates';
+import {
+  SetupChildInstallState,
+  SetupChildServiceState,
+  SetupReadinessOverallState,
+} from '@ocentra-parent/setup-domain/readiness';
 
 describe('child runtime gate contracts', () => {
-  it('accepts a coherent child runtime preflight allow decision', () => {
+  it('accepts a coherent ready preflight decision with provisioningDecision', () => {
+    const provisioningDecision = ChildRuntimeProvisioningDecisionSchema.parse({
+      childInstallState: SetupChildInstallState.Installed,
+      childServiceState: SetupChildServiceState.ServiceStarted,
+      overallState: SetupReadinessOverallState.Ready,
+      blockerReason: null,
+    });
+
     const decision = ChildRuntimePreflightDecisionSchema.parse({
       runtimeStartState: ChildRuntimeStartState.Allowed,
       manualReviewState: ChildRuntimeManualReviewState.NotRequired,
@@ -23,9 +37,11 @@ describe('child runtime gate contracts', () => {
       provisioningReadiness: ChildRuntimeProvisioningReadinessState.Ready,
       entitlementAccess: ChildRuntimeEntitlementAccessState.Allowed,
       remoteUpload: ChildRuntimeStorageRemoteUploadState.Allowed,
+      provisioningDecision,
     });
 
     expect(decision.runtimeStartState).toBe(ChildRuntimeStartState.Allowed);
+    expect(decision.provisioningDecision.overallState).toBe(SetupReadinessOverallState.Ready);
   });
 
   it('rejects preflight allow decisions when entitlement blocks local child runtime', () => {
@@ -36,9 +52,144 @@ describe('child runtime gate contracts', () => {
       provisioningReadiness: ChildRuntimeProvisioningReadinessState.Ready,
       entitlementAccess: ChildRuntimeEntitlementAccessState.Blocked,
       remoteUpload: ChildRuntimeStorageRemoteUploadState.Blocked,
+      provisioningDecision: {
+        childInstallState: SetupChildInstallState.Installed,
+        childServiceState: SetupChildServiceState.ServiceStarted,
+        overallState: SetupReadinessOverallState.Ready,
+        blockerReason: null,
+      },
     });
 
     expect(result.success).toBe(false);
+  });
+
+  it('accepts installed + not-started blocked/manual review shape', () => {
+    const decision = ChildRuntimePreflightDecisionSchema.parse({
+      runtimeStartState: ChildRuntimeStartState.Blocked,
+      manualReviewState: ChildRuntimeManualReviewState.Required,
+      deviceAuthorization: ChildRuntimeDeviceAuthorizationState.Authorized,
+      provisioningReadiness: ChildRuntimeProvisioningReadinessState.NotReady,
+      entitlementAccess: ChildRuntimeEntitlementAccessState.Allowed,
+      remoteUpload: ChildRuntimeStorageRemoteUploadState.Blocked,
+      provisioningDecision: {
+        childInstallState: SetupChildInstallState.Installed,
+        childServiceState: SetupChildServiceState.NotStarted,
+        overallState: SetupReadinessOverallState.Blocked,
+        blockerReason: ChildRuntimeProvisioningDecisionBlockerReason.ChildServiceNotStarted,
+      },
+    });
+
+    expect(decision.provisioningDecision.childServiceState).toBe(
+      SetupChildServiceState.NotStarted
+    );
+  });
+
+  it('accepts installed + offline degraded/manual review shape', () => {
+    const decision = ChildRuntimePreflightDecisionSchema.parse({
+      runtimeStartState: ChildRuntimeStartState.Blocked,
+      manualReviewState: ChildRuntimeManualReviewState.Required,
+      deviceAuthorization: ChildRuntimeDeviceAuthorizationState.Authorized,
+      provisioningReadiness: ChildRuntimeProvisioningReadinessState.NotReady,
+      entitlementAccess: ChildRuntimeEntitlementAccessState.Allowed,
+      remoteUpload: ChildRuntimeStorageRemoteUploadState.Blocked,
+      provisioningDecision: {
+        childInstallState: SetupChildInstallState.Installed,
+        childServiceState: SetupChildServiceState.Offline,
+        overallState: SetupReadinessOverallState.Degraded,
+        blockerReason: ChildRuntimeProvisioningDecisionBlockerReason.ChildAppOffline,
+      },
+    });
+
+    expect(decision.provisioningDecision.overallState).toBe(SetupReadinessOverallState.Degraded);
+  });
+
+  it('accepts reinstall-required blocked/manual review shape', () => {
+    const decision = ChildRuntimePreflightDecisionSchema.parse({
+      runtimeStartState: ChildRuntimeStartState.Blocked,
+      manualReviewState: ChildRuntimeManualReviewState.Required,
+      deviceAuthorization: ChildRuntimeDeviceAuthorizationState.Authorized,
+      provisioningReadiness: ChildRuntimeProvisioningReadinessState.NotReady,
+      entitlementAccess: ChildRuntimeEntitlementAccessState.Allowed,
+      remoteUpload: ChildRuntimeStorageRemoteUploadState.Blocked,
+      provisioningDecision: {
+        childInstallState: SetupChildInstallState.ReinstallRequired,
+        childServiceState: SetupChildServiceState.NotStarted,
+        overallState: SetupReadinessOverallState.Blocked,
+        blockerReason: ChildRuntimeProvisioningDecisionBlockerReason.ChildAppReinstallRequired,
+      },
+    });
+
+    expect(decision.provisioningDecision.childInstallState).toBe(
+      SetupChildInstallState.ReinstallRequired
+    );
+  });
+
+  it('rejects mismatch when runtimeStartState is allowed but provisioning says blocked or degraded', () => {
+    const blockedResult = ChildRuntimePreflightDecisionSchema.safeParse({
+      runtimeStartState: ChildRuntimeStartState.Allowed,
+      manualReviewState: ChildRuntimeManualReviewState.Required,
+      deviceAuthorization: ChildRuntimeDeviceAuthorizationState.Authorized,
+      provisioningReadiness: ChildRuntimeProvisioningReadinessState.NotReady,
+      entitlementAccess: ChildRuntimeEntitlementAccessState.Allowed,
+      remoteUpload: ChildRuntimeStorageRemoteUploadState.Blocked,
+      provisioningDecision: {
+        childInstallState: SetupChildInstallState.Installed,
+        childServiceState: SetupChildServiceState.NotStarted,
+        overallState: SetupReadinessOverallState.Blocked,
+        blockerReason: ChildRuntimeProvisioningDecisionBlockerReason.ChildServiceNotStarted,
+      },
+    });
+    const degradedResult = ChildRuntimePreflightDecisionSchema.safeParse({
+      runtimeStartState: ChildRuntimeStartState.Allowed,
+      manualReviewState: ChildRuntimeManualReviewState.Required,
+      deviceAuthorization: ChildRuntimeDeviceAuthorizationState.Authorized,
+      provisioningReadiness: ChildRuntimeProvisioningReadinessState.NotReady,
+      entitlementAccess: ChildRuntimeEntitlementAccessState.Allowed,
+      remoteUpload: ChildRuntimeStorageRemoteUploadState.Blocked,
+      provisioningDecision: {
+        childInstallState: SetupChildInstallState.Installed,
+        childServiceState: SetupChildServiceState.Offline,
+        overallState: SetupReadinessOverallState.Degraded,
+        blockerReason: ChildRuntimeProvisioningDecisionBlockerReason.ChildAppOffline,
+      },
+    });
+
+    expect(blockedResult.success).toBe(false);
+    expect(degradedResult.success).toBe(false);
+  });
+
+  it('rejects mismatch when provisioningReadiness is ready but provisioningDecision says blocked or degraded', () => {
+    const blockedResult = ChildRuntimePreflightDecisionSchema.safeParse({
+      runtimeStartState: ChildRuntimeStartState.Blocked,
+      manualReviewState: ChildRuntimeManualReviewState.Required,
+      deviceAuthorization: ChildRuntimeDeviceAuthorizationState.Authorized,
+      provisioningReadiness: ChildRuntimeProvisioningReadinessState.Ready,
+      entitlementAccess: ChildRuntimeEntitlementAccessState.Allowed,
+      remoteUpload: ChildRuntimeStorageRemoteUploadState.Blocked,
+      provisioningDecision: {
+        childInstallState: SetupChildInstallState.Installed,
+        childServiceState: SetupChildServiceState.NotStarted,
+        overallState: SetupReadinessOverallState.Blocked,
+        blockerReason: ChildRuntimeProvisioningDecisionBlockerReason.ChildServiceNotStarted,
+      },
+    });
+    const degradedResult = ChildRuntimePreflightDecisionSchema.safeParse({
+      runtimeStartState: ChildRuntimeStartState.Blocked,
+      manualReviewState: ChildRuntimeManualReviewState.Required,
+      deviceAuthorization: ChildRuntimeDeviceAuthorizationState.Authorized,
+      provisioningReadiness: ChildRuntimeProvisioningReadinessState.Ready,
+      entitlementAccess: ChildRuntimeEntitlementAccessState.Allowed,
+      remoteUpload: ChildRuntimeStorageRemoteUploadState.Blocked,
+      provisioningDecision: {
+        childInstallState: SetupChildInstallState.Installed,
+        childServiceState: SetupChildServiceState.Offline,
+        overallState: SetupReadinessOverallState.Degraded,
+        blockerReason: ChildRuntimeProvisioningDecisionBlockerReason.ChildAppOffline,
+      },
+    });
+
+    expect(blockedResult.success).toBe(false);
+    expect(degradedResult.success).toBe(false);
   });
 
   it('accepts a coherent remote access allow decision', () => {

@@ -21,13 +21,13 @@ directly.
 
 ## Checklist
 
-- [x] Observe action proof.
-- [x] Allow action proof.
-- [x] Warn action proof.
-- [x] Ask-parent action proof.
-- [x] Time-limit action proof with timer/expiry refs.
-- [x] Block dry-run proof and owned-process Windows adapter proof.
-- [x] Unknown/manual-required proof.
+- [ ] Observe action proof.
+- [ ] Allow action proof.
+- [ ] Warn action proof.
+- [ ] Ask-parent action proof.
+- [ ] Time-limit action proof with timer/expiry refs.
+- [ ] Block dry-run proof and owned-process Windows adapter proof.
+- [ ] Unknown/manual-required proof.
 
 ## Proof
 

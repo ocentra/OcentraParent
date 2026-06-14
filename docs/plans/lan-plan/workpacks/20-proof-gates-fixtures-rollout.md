@@ -47,17 +47,17 @@ artifacts.
 
 ## Requirement Checklist
 
-- [x] `scripts/test/v0-9-lan-signed-discovery-relay-spine.mjs` proves the
+- [ ] `scripts/test/v0-9-lan-signed-discovery-relay-spine.mjs` proves the
       signed-discovery relay spine remains coherent for this branch slice.
-- [x] `scripts/test/v0-9-lan-source-matrix-plan-completion.mjs` proves the
+- [ ] `scripts/test/v0-9-lan-source-matrix-plan-completion.mjs` proves the
       plan-completion source matrix remains coherent across TypeScript
       contracts, Rust protocol, Rust service state, and portal render data.
       Latest local evidence is
       `test-results/v0-9-lan-source-matrix-plan-completion/proof.json`.
-- [x] Feature docs updated by this branch keep real physical household proof,
+- [ ] Feature docs updated by this branch keep real physical household proof,
       relay/cache, mobile parity, signing, and store readiness as remaining
       gaps.
-- [x] Portal tests cover LAN UI-intent consumption and live activity parser
+- [ ] Portal tests cover LAN UI-intent consumption and live activity parser
       preservation of signed-proof, route-custody, relay/cache unavailable,
       manual-proof, and parent-decision fields.
 - [ ] Keep test layout explicit: unit, integration, contract, e2e, fixtures,
@@ -69,11 +69,11 @@ artifacts.
 - [ ] Add proof matrix rows for ARP table, ARP sweep, mDNS, SSDP, IP-only
       merge avoidance, IP change, child confirmation, spoof rejection,
       offline, manual assignment, confidence explanation, and malformed packets.
-- [x] Add a source-matrix proof row family for all 20 workpacks and discovery
+- [ ] Add a source-matrix proof row family for all 20 workpacks and discovery
       sources. The matrix is intentionally status-based: weak/manual sources
       are visible but cannot confirm child-agent identity or assign a child
       profile.
-- [x] Add visual snapshot proof for Devices/LAN, Activity/Network diagnostics,
+- [ ] Add visual snapshot proof for Devices/LAN, Activity/Network diagnostics,
       policy network targeting, and the current pairing/assignment/trust/ignore
       action surface. Current artifacts:
       `output/playwright/lan-source-matrix-plan-completion/devices-lan-source-matrix.png`,

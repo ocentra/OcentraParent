@@ -56,7 +56,10 @@ async fn child_domain_runtime_flow_keeps_feature_ai_policy_and_notification_deco
             notification_requested.source_policy_violation_id,
             policy_violation_detected.violation_id
         );
-        assert_eq!(notification_requested.requested_at, policy_violation_detected.detected_at);
+        assert_eq!(
+            notification_requested.requested_at,
+            policy_violation_detected.detected_at
+        );
         if let Some(ai_analysis_requested) = &report.ai_analysis_requested {
             let ai_analysis_completed = report
                 .ai_analysis_completed
@@ -107,8 +110,14 @@ async fn child_domain_ai_only_flow_does_not_publish_policy_or_notification() {
         ai_analysis_completed.source_ai_request_id,
         ai_analysis_requested.ai_request_id
     );
-    assert_eq!(ai_analysis_requested.source_observed_at, report.evidence_recorded.source_observed_at);
-    assert_eq!(ai_analysis_completed.source_observed_at, ai_analysis_requested.source_observed_at);
+    assert_eq!(
+        ai_analysis_requested.source_observed_at,
+        report.evidence_recorded.source_observed_at
+    );
+    assert_eq!(
+        ai_analysis_completed.source_observed_at,
+        ai_analysis_requested.source_observed_at
+    );
     assert_eq!(report.policy_evaluation_requested, None);
     assert_eq!(report.policy_violation_detected, None);
     assert_eq!(report.notification_requested, None);
@@ -247,5 +256,8 @@ fn assert_ai_policy_notification_chain(
         notification_requested.source_policy_violation_id,
         policy_violation_detected.violation_id
     );
-    assert_eq!(notification_requested.requested_at, policy_violation_detected.detected_at);
+    assert_eq!(
+        notification_requested.requested_at,
+        policy_violation_detected.detected_at
+    );
 }

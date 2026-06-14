@@ -57,15 +57,15 @@ as manual-required or unavailable status rows without claiming delivery.
 
 ## Validation
 
-- [x] Provider-status handoff parses WP61 app/game provider-preflight rows before
+- [ ] Provider-status handoff parses WP61 app/game provider-preflight rows before
       mapping.
-- [x] Provider-adapter-required and manual-required preflight rows become
+- [ ] Provider-adapter-required and manual-required preflight rows become
       manual-required V0.8 provider-status boundary entries.
-- [x] Unavailable preflight rows become unavailable V0.8 provider-status
+- [ ] Unavailable preflight rows become unavailable V0.8 provider-status
       boundary entries.
-- [x] Proof pack records no provider delivery, no receipt ingestion, no
+- [ ] Proof pack records no provider delivery, no receipt ingestion, no
       credentials, no retry-worker/quiet-hours timer runtime, no parent UI, no
       child delivery, no adapter dispatch, no broad blocking, and no durable
       production outbox claim.
-- [x] Product checklist unchanged because this handoff does not move feature
+- [ ] Product checklist unchanged because this handoff does not move feature
       status and provider/runtime/UI/platform gaps remain.

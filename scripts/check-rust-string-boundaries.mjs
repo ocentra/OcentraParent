@@ -1,70 +1,68 @@
-import { existsSync, readdirSync, readFileSync, statSync } from 'node:fs';
-import { join, relative } from 'node:path';
+import path from 'node:path';
+import { pathToFileURL } from 'node:url';
+import { readRepoFile, resolveScopedFiles } from './check-architecture-scope.mjs';
 
-const repoRoot = process.cwd();
-const sourceRoots = ['crates/agent-core/src', 'crates/agent-service/src'];
-const ignoredPathParts = new Set(['ocentra-ledger', 'target']);
-const findings = [];
+const scriptName = 'node scripts/check-rust-string-boundaries.mjs';
+const usageLines = ['--all', '--base <sha> --head <sha>'];
+const ownerPrefixes = [
+  'crates/agent-protocol/src/',
+  'crates/ocentra-eventing/src/',
+  'crates/ocentra-evidence/src/',
+  'crates/ocentra-network-evidence/src/',
+  'crates/agent-updater/src/',
+];
+const lineAllowPatterns = [/env!\(/u, /#\[tokio::main/u, /#\[serde/u, /serde\(/u, /cfg\(/u];
 
-function toPosix(path) {
-  return path.split('\\').join('/');
+function isGuardedRustSource(filePath) {
+  return (
+    path.extname(filePath) === '.rs' &&
+    filePath.startsWith('crates/') &&
+    filePath.includes('/src/') &&
+    !ownerPrefixes.some((prefix) => filePath.startsWith(prefix))
+  );
 }
 
-function shouldIgnorePath(path) {
-  return toPosix(relative(repoRoot, path))
-    .split('/')
-    .some((part) => ignoredPathParts.has(part));
-}
-
-function walk(path, files) {
-  if (!existsSync(path) || shouldIgnorePath(path)) {
-    return;
-  }
-
-  const stats = statSync(path);
-  if (stats.isDirectory()) {
-    for (const entry of readdirSync(path)) {
-      walk(join(path, entry), files);
-    }
-    return;
-  }
-
-  if (stats.isFile() && path.endsWith('.rs')) {
-    files.push(path);
-  }
-}
-
-function inspectFile(path) {
-  const relativePath = toPosix(relative(repoRoot, path));
-  const lines = readFileSync(path, 'utf8').split(/\r?\n/u);
-
+function collectFindings(filePath) {
+  const findings = [];
+  const lines = readRepoFile(filePath).split(/\r?\n/u);
   lines.forEach((line, index) => {
-    if (line.includes('env!(') || line.includes('#[tokio::main')) {
+    if (lineAllowPatterns.some((pattern) => pattern.test(line))) {
       return;
     }
     if (/"(?:[^"\\]|\\.)*"/u.test(line)) {
-      findings.push({ path: relativePath, line: index + 1, text: line.trim() });
+      findings.push(`${filePath}:${index + 1} runtime Rust source cannot contain inline string literals.`);
     }
   });
+  return findings;
 }
 
-const files = [];
-for (const root of sourceRoots) {
-  walk(join(repoRoot, root), files);
-}
+export function main(rawArgs = process.argv.slice(2)) {
+  const scope = resolveScopedFiles(rawArgs, {
+    scriptName,
+    usageLines,
+    roots: ['crates'],
+    acceptPath: isGuardedRustSource,
+  });
 
-for (const file of files) {
-  inspectFile(file);
-}
-
-if (findings.length > 0) {
-  console.error(
-    'Rust service/core source cannot contain inline string literals. Move runtime values into agent-protocol constants.'
-  );
-  for (const finding of findings) {
-    console.error(`${finding.path}:${finding.line} ${finding.text}`);
+  if (scope.mode === 'skip') {
+    console.log(scope.reason);
+    return;
   }
-  process.exit(1);
+
+  const findings = scope.files.flatMap((filePath) => collectFindings(filePath));
+  if (findings.length > 0) {
+    console.error(
+      'Rust string boundary guard failed. Runtime/core Rust source cannot introduce inline strings outside explicit owner crates.'
+    );
+    for (const finding of findings) {
+      console.error(finding);
+    }
+    process.exit(1);
+  }
+
+  console.log(`Rust string boundary guard passed for ${scope.files.length} file(s).`);
 }
 
-console.log(`No inline Rust service/core string literals found across ${files.length} checked files.`);
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
+  main();
+}

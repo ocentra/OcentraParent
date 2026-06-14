@@ -1,48 +1,48 @@
 # Payment Subscription Plan State
 
-Status: first-pass plan created because roadmap billing and family registration need a dedicated owner.
+Status: execution-grade Cloudflare billing architecture documented; implementation and proof remain open.
 
-Research status: incomplete. This plan requires a full follow-up research pass against existing Parent account/portal/domain code, games Cloudflare Stripe implementation, official Stripe Billing/Checkout/webhook docs, and Sujan's pricing/product decisions before implementation claims.
+Research status: aligned against the current Parent codebase, the `E:\ocentra-games\infra\cloudflare` payment blueprint, Cloudflare storage primitives, Stripe Billing/Checkout/Portal/webhook docs, and the current product pricing direction from Sujan. This is the single monetization owner; do not split a separate subscription plan.
 
-Evidence from `E:\ocentra-games`:
+Evidence from `E:\ocentra-games\infra\cloudflare`:
 
-- Cloudflare Worker creates Stripe Checkout sessions and Customer Portal sessions.
-- Payment state is persisted behind a Durable Object keyed by user.
-- Stripe webhooks are signature-verified and idempotency-checked before fulfillment.
-- Turnstile protects checkout creation.
-- Firebase is used in games for auth/admin role checks and Firestore role reads, not as the only app platform.
-- Game payments include credits, marketplace, multiple providers, and game economy; those are not parent-product defaults.
+- Cloudflare Worker handlers own payment ingress, checkout creation, and webhook ingress.
+- `PaymentDO` stores per-payment state, event history, and idempotency markers.
+- Stripe checkout and portal flows are created server-side, not in the browser.
+- Stripe webhook handling is signature-verified before settlement.
+- Provider normalization exists for Stripe, PayPal, Razorpay, and Solana-style flows; Parent should reuse the adapter boundary, not the game-specific economy.
+- Integration tests already cover webhook idempotency, checkout settlement, malformed events, and refund/reconciliation-style flows.
+- Wrangler config and test scripts already express a Cloudflare-first deploy/test boundary.
 
-Current parent direction:
+Current Parent direction:
 
-- Cloudflare-first payment API.
-- Stripe Billing plus Checkout Sessions for subscriptions.
-- Stripe Customer Portal for self-service billing management.
-- App-owned entitlement ledger connected to account/household identity.
-- Privacy-safe Stripe metadata only.
+- Cloudflare Worker/API is the billing control plane.
+- D1 or equivalent SQL-backed storage owns queryable ledgers and dashboards.
+- Durable Objects serialize per-household or per-account billing writes.
+- Queues own retries, dead-letter handling, and reconciliation jobs.
+- Stripe Checkout, Billing, Portal, invoices, entitlements, and webhooks are the default web control-plane path.
+- Razorpay is the India-native adapter.
+- PayPal is the secondary wallet/subscription adapter.
+- Apple and Google store billing are channel adapters, not the root billing authority.
+- App-owned billing, referral, and entitlement ledgers decide access.
+- Signed entitlement snapshots are derived artifacts consumed by trusted devices, not the root of trust.
 
 Open gaps:
 
-- No parent pricing/tier/seat model.
-- No household entitlement contract.
-- No subscription lifecycle state machine.
-- No invoice/tax/refund/dispute policy.
-- No payment proof matrix in Parent docs.
+- Final launch order for regional providers and store billing adapters.
+- Dashboard surface detail for parent billing and support/admin operations.
+- Exact referral qualification and anti-abuse policy text.
+- Invoice/tax/refund/dispute/grace behavior under mixed provider and regional setups.
+- Proof matrix and route sync for the new workpack set.
 
-## HID Execution Guard (added 2026-06-12)
+## HID Execution Guard
 
 - Scope and completion source:
-  - follow [PLAN_HID_MATRIX.md](../../PLAN_HID_MATRIX.md) execution slice, then this plan's assigned WORKPACK_INDEX.md and NEXT_ACTIONS.md.
+  - follow `PLAN_EXECUTION_BLUEPRINT.md`, then this plan's assigned `WORKPACK_INDEX.md` and `NEXT_ACTIONS.md`.
   - do not mark this plan complete from checklist deltas alone.
 - Before any checked update, attach:
-  - a real test run log (or explicit known blocker) from the assigned implementation boundary,
-  - a proof manifest under docs/proof/payment-subscription-plan/.
-- Required proof manifest names:
-  - docs/proof/payment-subscription-plan/slice-01-\*.md
-  - docs/proof/payment-subscription-plan/slice-02-\*.md
-  - docs/proof/payment-subscription-plan/slice-03-\*.md
-  - each proof file must include commands, pass/fail,
-    negative-cases, and manual-required notes.
+  - a real test run log or explicit blocker from the assigned implementation boundary,
+  - a proof manifest under the designated local artifact path outside this plan folder.
 - Failure rule: no PR-ready claim until replay/idempotency, authZ/replay, and rollback/teardown proofs are present for the assigned slice.
 
 ## HID execution blueprint

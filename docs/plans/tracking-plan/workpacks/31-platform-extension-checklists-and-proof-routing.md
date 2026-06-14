@@ -49,14 +49,14 @@ Proof root: `output/tracking-plan-proof/31-platform-extension-checklists-and-pro
 
 ## AI Worker Checklist
 
-- [x] Maintain Android extension rows.
-- [x] Maintain iOS extension rows.
-- [x] Maintain desktop extension rows.
+- [ ] Maintain Android extension rows.
+- [ ] Maintain iOS extension rows.
+- [ ] Maintain desktop extension rows.
 - [ ] Add managed-device proof only when real enrollment/control exists.
-- [x] Keep CI/package proof separate from real device capability proof.
-- [x] Route iOS simulator package build/install/launch proof separately from
+- [ ] Keep CI/package proof separate from real device capability proof.
+- [ ] Route iOS simulator package build/install/launch proof separately from
       iOS Core Location, background, entitlement, and physical-device claims.
-- [x] Record authority enrollment/manual-required evidence requirements without
+- [ ] Record authority enrollment/manual-required evidence requirements without
       claiming hard-control runtime.
 
 ## Where We Are
@@ -161,93 +161,93 @@ This workpack can be assigned independently, implemented against the owning doma
 
 ## Fill This Before Reporting DONE Or PR-ready
 
-- [x] Workpack id and branch: `codex/tracking-plan-full-scope`.
-- [x] Touched files: tracking contract files, proof script, product docs, checklist, and this workpack doc.
-- [x] Validation commands and results: `node scripts/test/tracking-plan-contract-proof.mjs` passed.
-- [x] Proof artifacts under `output/tracking-plan-proof/31-platform-extension-checklists-and-proof-routing/`.
-- [x] Product doc/checklist updates: owning feature doc, feature list, capability checklist, implementation checklist, tracking snapshot, and package READMEs updated.
-- [x] Known gaps/manual-required states: Android/iOS, precise desktop, provider delivery, runtime engines, retention/delete/export, Rust journal/SQLite, notifications, and UI remain proof-gated as applicable.
-- [x] Workpack id and branch: `codex/tracking-ios-simulator-proof`.
-- [x] Touched files: iOS simulator proof script, root script wiring,
+- [ ] Workpack id and branch: `codex/tracking-plan-full-scope`.
+- [ ] Touched files: tracking contract files, proof script, product docs, checklist, and this workpack doc.
+- [ ] Validation commands and results: `node scripts/test/tracking-plan-contract-proof.mjs` passed.
+- [ ] Proof artifacts under `output/tracking-plan-proof/31-platform-extension-checklists-and-proof-routing/`.
+- [ ] Product doc/checklist updates: owning feature doc, feature list, capability checklist, implementation checklist, tracking snapshot, and package READMEs updated.
+- [ ] Known gaps/manual-required states: Android/iOS, precise desktop, provider delivery, runtime engines, retention/delete/export, Rust journal/SQLite, notifications, and UI remain proof-gated as applicable.
+- [ ] Workpack id and branch: `codex/tracking-ios-simulator-proof`.
+- [ ] Touched files: iOS simulator proof script, root script wiring,
       package-preview CI artifact wiring, tracking feature doc, implementation
       checklist, WP11, WP12, WP31, and generated tracking iOS proof artifacts.
-- [x] Validation commands and results: `npm run test:tracking-plan-ios-simulator-proof`
+- [ ] Validation commands and results: `npm run test:tracking-plan-ios-simulator-proof`
       writes local proof; macOS package-preview runs the same proof with
       `--require-simulator` after the real iOS simulator smoke.
-- [x] Proof artifacts under `output/tracking-plan-proof/31-platform-extension-checklists-and-proof-routing/`.
-- [x] Product doc/checklist updates: owning feature doc and tracking checklist
+- [ ] Proof artifacts under `output/tracking-plan-proof/31-platform-extension-checklists-and-proof-routing/`.
+- [ ] Product doc/checklist updates: owning feature doc and tracking checklist
       updated; central capability checklist delta remains primary-owned through
       hub.
-- [x] Known gaps/manual-required states: Core Location, background/region,
+- [ ] Known gaps/manual-required states: Core Location, background/region,
       notifications, entitlements, signing/TestFlight/App Store, physical-device,
       authority, and production proof remain unclaimed.
-- [x] Workpack id and branch:
+- [ ] Workpack id and branch:
       `codex/tracking-unsupported-manual-hosted-ui-proof`.
-- [x] Touched files: hosted tracking portal proof renderer, text/artifact
+- [ ] Touched files: hosted tracking portal proof renderer, text/artifact
       domain constants, Playwright hosted proof, proof script, portal README,
       feature doc, tracking implementation checklist, and this workpack doc.
-- [x] Validation commands and results: `npm run build:contracts` passed; focused
+- [ ] Validation commands and results: `npm run build:contracts` passed; focused
       portal tracking-status-panel test passed before hosted proof validation.
-- [x] Proof artifacts under
+- [ ] Proof artifacts under
       `output/tracking-plan-proof/31-platform-extension-checklists-and-proof-routing/`.
-- [x] Product doc/checklist updates: owning feature doc and tracking
+- [ ] Product doc/checklist updates: owning feature doc and tracking
       implementation checklist updated; central product capability checklist
       remains E-C/primary-owned and should receive the same row delta through
       hub.
-- [x] Known gaps/manual-required states: physical-device execution, authority
+- [ ] Known gaps/manual-required states: physical-device execution, authority
       enrollment, provider delivery, production worker, and product-ready
       tracking remain unclaimed.
-- [x] Workpack id and branch:
+- [ ] Workpack id and branch:
       `codex/tracking-plan-full-continuation-a`.
-- [x] Touched files: WP31 platform extension inventory proof script, owning
+- [ ] Touched files: WP31 platform extension inventory proof script, owning
       tracking feature doc, implementation checklist, this workpack doc, and
       generated WP31/test-results proof artifacts.
-- [x] Validation commands and results:
+- [ ] Validation commands and results:
       `node scripts/test/tracking-platform-extension-inventory-proof.mjs`
       passed.
-- [x] Proof artifacts:
+- [ ] Proof artifacts:
       `output/tracking-plan-proof/31-platform-extension-checklists-and-proof-routing/20-platform-extension-inventory-proof.json`,
       `output/tracking-plan-proof/31-platform-extension-checklists-and-proof-routing/20-platform-extension-inventory-source-snapshot.md`,
       and
       `test-results/tracking-platform-extension-inventory-proof/proof.json`.
-- [x] Product doc/checklist updates: owning feature doc, implementation
+- [ ] Product doc/checklist updates: owning feature doc, implementation
       checklist, and WP31 updated; central product capability checklist remains
       hub/primary sequenced.
-- [x] Known gaps/manual-required states: managed-device enrollment/control,
+- [ ] Known gaps/manual-required states: managed-device enrollment/control,
       Android/iOS foreground/background physical-device behavior, precise
       desktop location, authority enrollment, provider delivery, production
       upload workers, and product-ready tracking remain unclaimed.
-- [x] Workpack id and branch:
+- [ ] Workpack id and branch:
       `codex/tracking-plan-full-continuation-a`.
-- [x] Touched files: parent-domain authority enrollment proof/test, focused
+- [ ] Touched files: parent-domain authority enrollment proof/test, focused
       proof script, owning tracking feature doc, implementation checklist,
       WP31, WP33, generated WP31/WP33 proof artifacts, and hub doc delta queue.
-- [x] Validation commands and results:
+- [ ] Validation commands and results:
       `node scripts/test/tracking-authority-enrollment-manual-required-proof.mjs`
       passed.
-- [x] Proof artifacts:
+- [ ] Proof artifacts:
       `output/tracking-plan-proof/31-platform-extension-checklists-and-proof-routing/21-authority-enrollment-manual-required-proof.json`,
       `output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-gate/48-authority-enrollment-manual-required-proof.json`,
       and `test-results/tracking-authority-enrollment-manual-required-proof/proof.json`.
-- [x] Product doc/checklist updates: owning feature doc, implementation
+- [ ] Product doc/checklist updates: owning feature doc, implementation
       checklist, WP31, and WP33 updated. Central
       `docs/product-capability-checklist.md` update is queued through the hub
       doc delta instead of editing the shared checklist directly.
-- [x] Known gaps/manual-required states: real enrolled-device authority state,
+- [ ] Known gaps/manual-required states: real enrolled-device authority state,
       hard-control runtime, physical-device behavior, provider delivery,
       production workers, and product-ready tracking remain proof-gated.
-- [x] Workpack id and branch:
+- [ ] Workpack id and branch:
       `codex/tracking-plan-full-continuation-a`.
-- [x] Touched files: parent-domain authority-runtime readiness blocker
+- [ ] Touched files: parent-domain authority-runtime readiness blocker
       proof/test, focused proof script, product-readiness closure proof model,
       closure harness, owning tracking feature doc, implementation checklist,
       WP31, WP33, generated WP31/WP33 authority-runtime blocker artifacts, and
       refreshed closure proof artifacts.
-- [x] Validation commands and results:
+- [ ] Validation commands and results:
       `node scripts/test/tracking-authority-runtime-readiness-blocker-proof.mjs`
       passed; `node scripts/test/tracking-product-readiness-closure-proof.mjs`
       passed.
-- [x] Proof artifacts:
+- [ ] Proof artifacts:
       `output/tracking-plan-proof/31-platform-extension-checklists-and-proof-routing/22-authority-runtime-readiness-blocker-proof.json`,
       `output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-gate/55-authority-runtime-readiness-blocker-proof.json`,
       `output/tracking-plan-proof/tracking-authority-runtime-readiness-blocker-proof/proof.json`,
@@ -255,27 +255,27 @@ This workpack can be assigned independently, implemented against the owning doma
       `output/tracking-plan-proof/tracking-product-readiness-closure-proof/proof.json`,
       `test-results/tracking-authority-runtime-readiness-blocker-proof/proof.json`,
       and `test-results/tracking-product-readiness-closure-proof/proof.json`.
-- [x] Product doc/checklist updates: owning feature doc, implementation
+- [ ] Product doc/checklist updates: owning feature doc, implementation
       checklist, WP31, and WP33 updated. Central
       `docs/product-capability-checklist.md` update is queued through the hub
       doc delta instead of editing the shared checklist directly.
-- [x] Known gaps/manual-required states: real enrolled-device authority state,
+- [ ] Known gaps/manual-required states: real enrolled-device authority state,
       hard-control runtime, parent-visible authority runtime,
       physical-device behavior, provider delivery, production workers, and
       product-ready tracking remain proof-gated.
 
-- [x] Workpack id and branch:
+- [ ] Workpack id and branch:
       `codex/tracking-plan-full-continuation-a`.
-- [x] Touched files: parent-domain authority runtime artifact gate proof/test,
+- [ ] Touched files: parent-domain authority runtime artifact gate proof/test,
       focused proof script, product-readiness closure proof model, closure
       harness, owning tracking feature doc, implementation checklist, WP31,
       WP33, generated authority runtime artifact gate proof artifacts, and
       refreshed closure proof artifacts.
-- [x] Validation commands and results:
+- [ ] Validation commands and results:
       `node scripts/test/tracking-authority-runtime-artifact-gate-proof.mjs`
       passed; `node scripts/test/tracking-product-readiness-closure-proof.mjs`
       passed.
-- [x] Proof artifacts:
+- [ ] Proof artifacts:
       `output/tracking-plan-proof/31-platform-extension-checklists-and-proof-routing/23-authority-runtime-artifact-gate-proof.json`,
       `output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-gate/61-authority-runtime-artifact-gate-proof.json`,
       `output/tracking-plan-proof/tracking-authority-runtime-artifact-gate-proof/proof.json`,
@@ -283,11 +283,11 @@ This workpack can be assigned independently, implemented against the owning doma
       `output/tracking-plan-proof/tracking-product-readiness-closure-proof/proof.json`,
       `test-results/tracking-authority-runtime-artifact-gate-proof/proof.json`,
       and `test-results/tracking-product-readiness-closure-proof/proof.json`.
-- [x] Product doc/checklist updates: owning feature doc, implementation
+- [ ] Product doc/checklist updates: owning feature doc, implementation
       checklist, WP31, and WP33 updated. Central
       `docs/product-capability-checklist.md` update is queued through the hub
       doc delta instead of editing the shared checklist directly.
-- [x] Known gaps/manual-required states: real enrolled-device authority state,
+- [ ] Known gaps/manual-required states: real enrolled-device authority state,
       hard-control runtime, parent-visible authority runtime,
       physical-device behavior, provider delivery, production workers, and
       product-ready tracking remain proof-gated; this gate only classifies the

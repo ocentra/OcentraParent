@@ -196,6 +196,12 @@ mod local_ai_runtime_status;
 mod local_ai_runtime_status_tests;
 mod local_ai_runtime_status_unavailable;
 mod network;
+mod network_android_vpn_service_gate_status_bridge;
+#[cfg(test)]
+mod network_android_vpn_service_gate_status_bridge_tests;
+mod network_apple_network_extension_gate_status_bridge;
+#[cfg(test)]
+mod network_apple_network_extension_gate_status_bridge_tests;
 mod network_flow_digest;
 mod network_flow_digest_indicators;
 mod network_flow_digest_rollups;

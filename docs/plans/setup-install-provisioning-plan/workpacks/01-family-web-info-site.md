@@ -2,7 +2,7 @@
 
 Goal: define `family.ocentra.ca` as the public family product entry surface.
 
-Owns: informational pages, install/download entry, privacy promise copy, no-child-data boundary, deployment ownership, and route handoff to account registration.
+Owns: informational pages, invite/code entry, install/download entry, privacy promise copy, no-child-data boundary, deployment shape, bootstrap-code display states, and route handoff to account registration.
 
 Does not own: account/session implementation, installer build mechanics, portal app internals, or child activity storage.
 
@@ -10,9 +10,11 @@ Expected shape:
 
 - Separate Vite surface or Cloudflare Pages/Workers app with deploy/preview route.
 - Clear distinction between informational browsing and authenticated account actions.
+- Invite link entry, manual code entry, and QR/deep-link entry are explicit.
 - No child activity collection on public pages.
 - Minimal telemetry only if explicitly documented, privacy-safe, and disabled or consented where required.
 - Links to registration/login, installer download, support, privacy, and status.
+- Parent install link handoff and bootstrap code state display are visible.
 
 Expected proof:
 
@@ -37,7 +39,7 @@ Agent decision tree:
 
 - If the task is content-only, update page intent, route names, privacy wording, and proof expectations; do not touch app/runtime docs.
 - If the task needs registration, route to `account-identity-family-plan` after defining the website handoff.
-- If the task needs installer downloads, route to `parent-desktop-runtime-package-plan` after defining the visible download state.
+- If the task needs installer downloads, route to `parent-client-runtime-distribution-plan` after defining the visible download state.
 - If the task needs data collection or telemetry, route to `data-custody-storage-plan` before claiming it is privacy-safe.
 
 Required output:
@@ -49,16 +51,22 @@ Required output:
 
 Expected tests/proof names:
 
-- `family-web.no-child-activity-collection`
-- `family-web.route-and-link-map`
-- `family-web.privacy-copy-no-overclaim`
-- `family-web.cloudflare-preview-build`
-- `family-web.registration-handoff`
+- `setup.public-site.route-map`
+- `setup.public-site.no-child-activity-collection`
+- `setup.public-site.data-collection-matrix`
+- `setup.public-site.privacy-copy-no-overclaim`
+- `setup.public-site.download-entry-visible`
+- `setup.public-site.registration-handoff-visible`
+- `setup.public-site.support-privacy-status-links`
+- `setup.public-site.link-check`
+- `setup.public-site.accessibility-basic`
+- `setup.public-site.cloudflare-preview-build`
+- `setup.public-site.custom-domain-manual-required`
 
 Proof artifact expectations:
 
-- Build/deploy log when implementation exists.
-- Route screenshot or rendered artifact for each public page.
-- Link check report.
-- Data collection review note.
-- Explicit skipped-risk note for any page not yet implemented.
+- `01-public-site-route-map-proof.md`
+- `01-no-child-data-collection-proof.md`
+- `01-privacy-copy-no-overclaim-proof.md`
+- `01-link-accessibility-proof.md`
+- `01-deploy-preview-proof.md`

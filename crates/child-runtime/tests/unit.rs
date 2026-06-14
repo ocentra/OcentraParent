@@ -1,15 +1,14 @@
 use ocentra_evidence::PrivatePayloadState;
 use ocentra_parent_agent_protocol::{
-    constants, default_tracking_config_update_request, AgentCommandEnvelope,
-    AgentCommandName, AgentMessageTarget, AgentPeer, AgentPeerRole, AgentRoute, LogFields,
-    TrackingAiBoundaryMode, TrackingConfigEffectiveState, TrackingConfigUpdateEventName,
-    TrackingConfigUpdateRequest, TrackingConfigUpdateResponseState,
-    TrackingDurableSettingsPersistenceState, TrackingNotificationChannel,
-    TrackingNotificationMode, TrackingParentActionRequirement, TrackingPlaceCategory,
-    TrackingPolicyRuleRef, TrackingRuntimeEnabledState, TrackingRuntimeMode,
+    constants, default_tracking_config_update_request, tracking_ai_request_id_from_evidence_ref,
+    tracking_evidence_ref_from_observation_id, tracking_notification_id_from_violation_id,
+    tracking_violation_id_from_ai_request_and_rule_ref, AgentCommandEnvelope, AgentCommandName,
+    AgentMessageTarget, AgentPeer, AgentPeerRole, AgentRoute, LogFields, TrackingAiBoundaryMode,
+    TrackingConfigEffectiveState, TrackingConfigUpdateEventName, TrackingConfigUpdateRequest,
+    TrackingConfigUpdateResponseState, TrackingDurableSettingsPersistenceState,
+    TrackingNotificationChannel, TrackingNotificationMode, TrackingParentActionRequirement,
+    TrackingPlaceCategory, TrackingPolicyRuleRef, TrackingRuntimeEnabledState, TrackingRuntimeMode,
     AGENT_PROTOCOL_SCHEMA_VERSION,
-    tracking_ai_request_id_from_evidence_ref, tracking_evidence_ref_from_observation_id,
-    tracking_notification_id_from_violation_id, tracking_violation_id_from_ai_request_and_rule_ref,
 };
 use ocentra_tracking_core::TrackingPortalNotificationCandidateState;
 
@@ -189,9 +188,10 @@ async fn child_runtime_applies_disabled_tracking_runtime_config_without_rejectin
     let parent_event =
         ocentra_child_runtime::parent_tracking_config_updated_event_from_command(&command, request);
 
-    let flow_report = ocentra_child_runtime::publish_parent_tracking_config_updated_event(&parent_event)
-        .await
-        .expect(constants::tracking_config_update::ERROR_PARENT_CONFIG_EVENT_APPLIED);
+    let flow_report =
+        ocentra_child_runtime::publish_parent_tracking_config_updated_event(&parent_event)
+            .await
+            .expect(constants::tracking_config_update::ERROR_PARENT_CONFIG_EVENT_APPLIED);
 
     assert_eq!(
         flow_report

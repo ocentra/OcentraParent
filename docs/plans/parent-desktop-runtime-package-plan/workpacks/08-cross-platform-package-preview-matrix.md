@@ -34,7 +34,7 @@ states are separated by proof level.
 
 - [ ] Add or update platform matrix output.
 - [ ] Split package, parent shell, child agent, signing, store, and relay rows.
-- [x] Add separate parent Android and parent iOS package-preview targets; do
+- [ ] Add separate parent Android and parent iOS package-preview targets; do
       not reuse child-agent package previews as parent mobile proof.
 - [ ] Mark scaffold/manual-required honestly.
 - [ ] Test row stability.

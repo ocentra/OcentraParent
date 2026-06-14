@@ -26,14 +26,14 @@ needs worker contracts, model/tool selection, and deletion proof.
 
 ## Checklist
 
-- [x] Define OCR job contract.
-- [x] Define OCR result contract.
-- [x] Link to screen evidence refs and image digest.
-- [x] Prove temporary image deletion.
-- [x] Route OCR summary into context builder.
+- [ ] Define OCR job contract.
+- [ ] Define OCR result contract.
+- [ ] Link to screen evidence refs and image digest.
+- [ ] Prove temporary image deletion.
+- [ ] Route OCR summary into context builder.
 - [ ] Add unavailable/permission-required states.
-- [x] Prove OCR on a real browser-use capture artifact.
-- [x] Prove OCR on a real app-use capture artifact.
+- [ ] Prove OCR on a real browser-use capture artifact.
+- [ ] Prove OCR on a real app-use capture artifact.
 - [ ] Prove OCR on a timed cadence capture sequence artifact.
 
 ## Proof

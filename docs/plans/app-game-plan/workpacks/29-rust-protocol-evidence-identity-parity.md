@@ -53,13 +53,13 @@ It does not add:
 
 ## AI Worker Checklist
 
-- [x] Source docs read: app/game feature doc, app-game snapshot, app-plan
+- [ ] Source docs read: app/game feature doc, app-game snapshot, app-plan
       snapshot, agent-protocol README, protocol/test/rust rules.
-- [x] Hub lock covered exact source, docs, workpack, and proof output paths.
-- [x] Existing TypeScript contracts inspected before Rust shapes were added.
-- [x] Rust protocol structs mirror existing field names with camelCase serde.
-- [x] Rust serialization tests prove evidence claim, digest, identity, and
+- [ ] Hub lock covered exact source, docs, workpack, and proof output paths.
+- [ ] Existing TypeScript contracts inspected before Rust shapes were added.
+- [ ] Rust protocol structs mirror existing field names with camelCase serde.
+- [ ] Rust serialization tests prove evidence claim, digest, identity, and
       identity-merge field names and key literals.
-- [x] No service, runtime, journal, portal, policy, or platform adapter claim
+- [ ] No service, runtime, journal, portal, policy, or platform adapter claim
       was added.
-- [x] Product checklist was not edited; no product status moved.
+- [ ] Product checklist was not edited; no product status moved.

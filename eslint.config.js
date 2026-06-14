@@ -3,18 +3,47 @@ import globals from 'globals';
 import tseslint from 'typescript-eslint';
 import ocentraParentRules from './eslint-rules/index.js';
 
-export default tseslint.config(
-  {
-    ignores: [
-      '**/dist/**',
-      '**/node_modules/**',
-      '**/coverage/**',
-      '**/.turbo/**',
-      '**/target/**',
-      '**/*.d.ts',
-      '**/*.tsbuildinfo',
+const architectureRulesEnabled = process.env.OCENTRA_ARCHITECTURE_LINT === '1';
+const sharedIgnores = {
+  ignores: [
+    '**/dist/**',
+    '**/node_modules/**',
+    '**/coverage/**',
+    '**/.turbo/**',
+    '**/target/**',
+    '**/*.d.ts',
+    '**/*.tsbuildinfo',
+  ],
+};
+const architectureRuleConfig = tseslint.config(sharedIgnores, {
+  files: ['apps/**/*.{js,jsx,ts,tsx,mjs,mts,cjs,cts}', 'packages/**/*.{js,jsx,ts,tsx,mjs,mts,cjs,cts}'],
+  languageOptions: {
+    parser: tseslint.parser,
+    ecmaVersion: 2022,
+    globals: {
+      ...globals.browser,
+      ...globals.node,
+    },
+  },
+  rules: {
+    'no-restricted-syntax': [
+      'error',
+      {
+        selector: 'ExportAllDeclaration',
+        message:
+          'BARREL/REEXPORT BAN: `export * from ...` and namespace re-exports are forbidden. Import from the concrete module path directly.',
+      },
+      {
+        selector: 'ExportNamedDeclaration[source]',
+        message:
+          'BARREL/REEXPORT BAN: `export { ... } from ...`, `export type { ... } from ...`, and default re-exports are forbidden. Import from the concrete module path directly.',
+      },
     ],
   },
+});
+
+const standardConfig = tseslint.config(
+  sharedIgnores,
   js.configs.recommended,
   ...tseslint.configs.recommended,
   {
@@ -100,3 +129,5 @@ export default tseslint.config(
     },
   }
 );
+
+export default architectureRulesEnabled ? architectureRuleConfig : standardConfig;

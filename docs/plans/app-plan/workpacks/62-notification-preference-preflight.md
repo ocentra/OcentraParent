@@ -41,10 +41,10 @@ claiming UI or delivery.
 
 ## Validation
 
-- [x] Cross-recorded from shared app/game WP62 proof.
-- [x] Native app rows require parent preference/frequency/quiet-hours proof only
+- [ ] Cross-recorded from shared app/game WP62 proof.
+- [ ] Native app rows require parent preference/frequency/quiet-hours proof only
       after scheduler proof.
-- [x] Manual-required and unavailable rows remain blocked before preference
+- [ ] Manual-required and unavailable rows remain blocked before preference
       preflight.
-- [x] UI/delivery/provider credential/runtime/child/adapter/platform claims
+- [ ] UI/delivery/provider credential/runtime/child/adapter/platform claims
       remain false.

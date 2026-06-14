@@ -1,9 +1,12 @@
 use ocentra_parent_agent_protocol::{
-    constants, policy_constants as policy, ChildProfileReference, FamilyReference,
-    LocalAiParentRuleContextRef, LogFieldValue, ParentActorReference, ParentActorRole,
-    ParentDeviceReference, ParentEvidenceReference, ParentEvidenceReferenceKind, PolicyAction,
-    PolicyDecision, PolicyDecisionHandoffState, PolicyPreviewNetworkEvidenceMapping,
-    PolicyPreviewReadModel, PolicyPreviewReadModelRow, PolicyRule, PolicyTarget, PolicyTargetType,
+    constants, policy_constants as policy, policy_preview_finding_kinds_csv, ChildProfileReference,
+    FamilyReference, LocalAiParentRuleContextRef, LogFieldValue, ParentActorReference,
+    ParentActorRole, ParentDeviceReference, ParentEvidenceReference, ParentEvidenceReferenceKind,
+    PolicyAction, PolicyAssistantConfirmationState, PolicyDecision, PolicyDecisionHandoffState,
+    PolicyPreviewFindingKind, PolicyPreviewManualReviewState, PolicyPreviewNetworkEvidenceMapping,
+    PolicyPreviewReadModel, PolicyPreviewReadModelRow, PolicyPreviewSaveState,
+    PolicyPreviewTargetState, PolicyRequestOrigin, PolicyRequestStatus, PolicyRule,
+    PolicySourceStatus, PolicySourceSurface, PolicyTarget, PolicyTargetType,
 };
 
 use crate::policy_preview_payload::policy_preview_read_model_payload;
@@ -29,6 +32,48 @@ fn policy_preview_payload_exposes_latest_dry_run_decision_without_enforcement() 
     assert_eq!(
         payload.get(constants::field::POLICY_HANDOFF_STATE),
         Some(&LogFieldValue::String(policy::HANDOFF_DISABLED.to_string()))
+    );
+    assert_eq!(
+        payload.get(constants::field::POLICY_PREVIEW_SAVE_STATE),
+        Some(&LogFieldValue::String("preview-required".to_string()))
+    );
+    assert_eq!(
+        payload.get(constants::field::POLICY_PREVIEW_MANUAL_REVIEW_STATE),
+        Some(&LogFieldValue::String("required".to_string()))
+    );
+    assert_eq!(
+        payload.get(constants::field::POLICY_PREVIEW_TARGET_STATE),
+        Some(&LogFieldValue::String("unsupported".to_string()))
+    );
+    assert_eq!(
+        payload.get(constants::field::POLICY_PREVIEW_TARGET_EXPLANATION_CODE),
+        Some(&LogFieldValue::String(
+            constants::browser::INVENTORY_REASON_WINDOWS_UNSUPPORTED_LATER_ADAPTER.to_string()
+        ))
+    );
+    assert_eq!(
+        payload.get(constants::field::POLICY_PREVIEW_FINDING_KINDS),
+        Some(&LogFieldValue::String("unsupported-target".to_string()))
+    );
+    assert_eq!(
+        payload.get(constants::field::POLICY_SOURCE_STATUS),
+        Some(&LogFieldValue::String("preview".to_string()))
+    );
+    assert_eq!(
+        payload.get(constants::field::POLICY_SOURCE_SURFACE),
+        Some(&LogFieldValue::String("ai-preview".to_string()))
+    );
+    assert_eq!(
+        payload.get(constants::field::POLICY_REQUEST_ORIGIN),
+        Some(&LogFieldValue::Null(()))
+    );
+    assert_eq!(
+        payload.get(constants::field::POLICY_ASSISTANT_CONFIRMATION_STATE),
+        Some(&LogFieldValue::Null(()))
+    );
+    assert_eq!(
+        payload.get(constants::field::POLICY_REQUEST_STATUS),
+        Some(&LogFieldValue::Null(()))
     );
     assert_eq!(
         payload.get(constants::field::NETWORK_EVIDENCE_GRADE),
@@ -110,6 +155,20 @@ fn read_model_with_network_mapping() -> PolicyPreviewReadModel {
                 enforcement_handoff_state: PolicyDecisionHandoffState::Disabled,
                 expires_at: None,
             },
+            policy_preview_save_state: Some(PolicyPreviewSaveState::PreviewRequired),
+            policy_preview_manual_review_state: Some(PolicyPreviewManualReviewState::Required),
+            policy_preview_target_state: Some(PolicyPreviewTargetState::Unsupported),
+            policy_preview_target_explanation_code: Some(
+                constants::browser::INVENTORY_REASON_WINDOWS_UNSUPPORTED_LATER_ADAPTER.to_string(),
+            ),
+            policy_preview_finding_kinds: policy_preview_finding_kinds_csv(&[
+                PolicyPreviewFindingKind::UnsupportedTarget,
+            ]),
+            policy_source_status: Some(PolicySourceStatus::Preview),
+            policy_source_surface: Some(PolicySourceSurface::AiPreview),
+            policy_request_origin: None::<PolicyRequestOrigin>,
+            policy_assistant_confirmation_state: None::<PolicyAssistantConfirmationState>,
+            policy_request_status: None::<PolicyRequestStatus>,
             network_evidence_mapping: Some(PolicyPreviewNetworkEvidenceMapping {
                 evidence_grade: policy::NETWORK_EVIDENCE_GRADE_B.to_string(),
                 requested_action: policy::ACTION_BLOCK.to_string(),

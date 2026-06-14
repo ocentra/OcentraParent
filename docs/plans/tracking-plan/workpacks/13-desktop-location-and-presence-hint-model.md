@@ -42,11 +42,11 @@ Proof root: `output/tracking-plan-proof/13-desktop-location-and-presence-hint-mo
 
 ## AI Worker Checklist
 
-- [x] Add no-GPS guards for LAN/IP/Wi-Fi.
-- [x] Represent manual check-in separately.
-- [x] Label desktop precise location as manual-required until proved.
-- [x] Include stale/offline/missing-device state.
-- [x] Do not use LAN pairing as physical presence proof.
+- [ ] Add no-GPS guards for LAN/IP/Wi-Fi.
+- [ ] Represent manual check-in separately.
+- [ ] Label desktop precise location as manual-required until proved.
+- [ ] Include stale/offline/missing-device state.
+- [ ] Do not use LAN pairing as physical presence proof.
 
 ## Where We Are
 
@@ -89,25 +89,25 @@ This workpack can be assigned independently, implemented against the owning doma
 
 ## Fill This Before Reporting DONE Or PR-ready
 
-- [x] Workpack id and branch: `codex/tracking-plan-full-scope`.
-- [x] Touched files: tracking contract files, proof script, product docs, checklist, and this workpack doc.
-- [x] Validation commands and results: `node scripts/test/tracking-plan-contract-proof.mjs` passed.
-- [x] Proof artifacts under `output/tracking-plan-proof/13-desktop-location-and-presence-hint-model/`.
-- [x] Product doc/checklist updates: owning feature doc, feature list, capability checklist, implementation checklist, tracking snapshot, and package READMEs updated.
-- [x] Known gaps/manual-required states: Android/iOS, precise desktop, provider delivery, runtime engines, retention/delete/export, Rust journal/SQLite, notifications, and UI remain proof-gated as applicable.
-- [x] Workpack id and branch: `codex/tracking-plan-full-continuation-a`.
-- [x] Touched files: WP13 proof source, tests, proof harness, feature doc,
+- [ ] Workpack id and branch: `codex/tracking-plan-full-scope`.
+- [ ] Touched files: tracking contract files, proof script, product docs, checklist, and this workpack doc.
+- [ ] Validation commands and results: `node scripts/test/tracking-plan-contract-proof.mjs` passed.
+- [ ] Proof artifacts under `output/tracking-plan-proof/13-desktop-location-and-presence-hint-model/`.
+- [ ] Product doc/checklist updates: owning feature doc, feature list, capability checklist, implementation checklist, tracking snapshot, and package READMEs updated.
+- [ ] Known gaps/manual-required states: Android/iOS, precise desktop, provider delivery, runtime engines, retention/delete/export, Rust journal/SQLite, notifications, and UI remain proof-gated as applicable.
+- [ ] Workpack id and branch: `codex/tracking-plan-full-continuation-a`.
+- [ ] Touched files: WP13 proof source, tests, proof harness, feature doc,
       implementation checklist, WP13/WP33 docs, and generated proof artifacts.
-- [x] Validation commands and results:
+- [ ] Validation commands and results:
       `node scripts/test/tracking-desktop-presence-hint-proof.mjs` passed
       locally.
-- [x] Proof artifacts under
+- [ ] Proof artifacts under
       `output/tracking-plan-proof/13-desktop-location-and-presence-hint-model/`
       and `test-results/tracking-desktop-presence-hint-proof/`.
-- [x] Product doc/checklist updates: owning tracking feature doc, tracking
+- [ ] Product doc/checklist updates: owning tracking feature doc, tracking
       implementation checklist, WP13, and WP33 updated; central product
       checklist row remains unchanged because this does not upgrade product
       support beyond the existing local proof tier.
-- [x] Known gaps/manual-required states: desktop OS location runtime, exact
+- [ ] Known gaps/manual-required states: desktop OS location runtime, exact
       physical presence, physical-device proof, production behavior, and UI
       remain unclaimed.

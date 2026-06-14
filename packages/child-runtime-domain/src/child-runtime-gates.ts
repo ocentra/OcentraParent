@@ -1,4 +1,12 @@
 import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
+import {
+  SetupChildInstallState,
+  SetupChildInstallStateSchema,
+  SetupChildServiceState,
+  SetupChildServiceStateSchema,
+  SetupReadinessOverallState,
+  SetupReadinessOverallStateSchema,
+} from '@ocentra-parent/setup-domain/readiness';
 
 export const ChildRuntimeStartStateLiteral = {
   Allowed: 'allowed',
@@ -18,6 +26,13 @@ export const ChildRuntimeDeviceAuthorizationStateLiteral = {
 export const ChildRuntimeProvisioningReadinessStateLiteral = {
   Ready: 'ready',
   NotReady: 'not-ready',
+} as const;
+
+export const ChildRuntimeProvisioningDecisionBlockerReasonLiteral = {
+  ChildInstallNotInstalled: 'child-install-not-installed',
+  ChildServiceNotStarted: 'child-service-not-started',
+  ChildAppOffline: 'child-app-offline',
+  ChildAppReinstallRequired: 'child-app-reinstall-required',
 } as const;
 
 export const ChildRuntimeEntitlementAccessStateLiteral = {
@@ -42,11 +57,15 @@ export const ChildRuntimeEnforcementExecutionStateLiteral = {
 
 type LiteralValue<T extends Record<string, string>> = T[keyof T];
 type ChildRuntimeStartStateValue = LiteralValue<typeof ChildRuntimeStartStateLiteral>;
+type ChildRuntimeManualReviewStateValue = LiteralValue<typeof ChildRuntimeManualReviewStateLiteral>;
 type ChildRuntimeDeviceAuthorizationStateValue = LiteralValue<
   typeof ChildRuntimeDeviceAuthorizationStateLiteral
 >;
 type ChildRuntimeProvisioningReadinessStateValue = LiteralValue<
   typeof ChildRuntimeProvisioningReadinessStateLiteral
+>;
+type ChildRuntimeProvisioningDecisionBlockerReasonValue = LiteralValue<
+  typeof ChildRuntimeProvisioningDecisionBlockerReasonLiteral
 >;
 type ChildRuntimeEntitlementAccessStateValue = LiteralValue<
   typeof ChildRuntimeEntitlementAccessStateLiteral
@@ -60,9 +79,18 @@ type ChildRuntimeEnforcementExecutionStateValue = LiteralValue<
 
 type ChildRuntimePreflightGateFields = {
   runtimeStartState: ChildRuntimeStartStateValue;
+  manualReviewState: ChildRuntimeManualReviewStateValue;
   deviceAuthorization: ChildRuntimeDeviceAuthorizationStateValue;
   provisioningReadiness: ChildRuntimeProvisioningReadinessStateValue;
   entitlementAccess: ChildRuntimeEntitlementAccessStateValue;
+  provisioningDecision: ChildRuntimeProvisioningDecisionFields;
+};
+
+type ChildRuntimeProvisioningDecisionFields = {
+  childInstallState: Infer<typeof SetupChildInstallStateSchema>;
+  childServiceState: Infer<typeof SetupChildServiceStateSchema>;
+  overallState: Infer<typeof SetupReadinessOverallStateSchema>;
+  blockerReason: ChildRuntimeProvisioningDecisionBlockerReasonValue | null;
 };
 
 type ChildRuntimeRemoteAccessGateFields = {
@@ -100,6 +128,15 @@ export const ChildRuntimeProvisioningReadinessStateSchema = withParser(
   )
 );
 
+export const ChildRuntimeProvisioningDecisionBlockerReasonSchema = withParser(
+  Schema.Literal(
+    ChildRuntimeProvisioningDecisionBlockerReasonLiteral.ChildInstallNotInstalled,
+    ChildRuntimeProvisioningDecisionBlockerReasonLiteral.ChildServiceNotStarted,
+    ChildRuntimeProvisioningDecisionBlockerReasonLiteral.ChildAppOffline,
+    ChildRuntimeProvisioningDecisionBlockerReasonLiteral.ChildAppReinstallRequired
+  )
+);
+
 export const ChildRuntimeEntitlementAccessStateSchema = withParser(
   Schema.Literal(
     ChildRuntimeEntitlementAccessStateLiteral.Allowed,
@@ -128,6 +165,21 @@ export const ChildRuntimeEnforcementExecutionStateSchema = withParser(
   )
 );
 
+export const ChildRuntimeProvisioningDecisionSchema = withParser(
+  Schema.Struct({
+    childInstallState: SetupChildInstallStateSchema,
+    childServiceState: SetupChildServiceStateSchema,
+    overallState: SetupReadinessOverallStateSchema,
+    blockerReason: Schema.Union(ChildRuntimeProvisioningDecisionBlockerReasonSchema, Schema.Null),
+  }).pipe(
+    Schema.filter(
+      (decision) =>
+        childRuntimeProvisioningDecisionShapeMatchesCoherence(decision) ||
+        'Expected child runtime provisioningDecision to stay coherent with setup readiness states'
+    )
+  )
+);
+
 export const ChildRuntimePreflightDecisionSchema = withParser(
   Schema.Struct({
     runtimeStartState: ChildRuntimeStartStateSchema,
@@ -136,7 +188,18 @@ export const ChildRuntimePreflightDecisionSchema = withParser(
     provisioningReadiness: ChildRuntimeProvisioningReadinessStateSchema,
     entitlementAccess: ChildRuntimeEntitlementAccessStateSchema,
     remoteUpload: ChildRuntimeStorageRemoteUploadStateSchema,
+    provisioningDecision: ChildRuntimeProvisioningDecisionSchema,
   }).pipe(
+    Schema.filter(
+      (decision) =>
+        childRuntimePreflightManualReviewStateMatchesGates(decision) ||
+        'Expected child runtime manualReviewState to match provisioning readiness gates'
+    ),
+    Schema.filter(
+      (decision) =>
+        childRuntimeProvisioningDecisionMatchesGates(decision) ||
+        'Expected child runtime provisioningDecision to match readiness gates'
+    ),
     Schema.filter(
       (decision) =>
         childRuntimePreflightStartStateMatchesGates(decision) ||
@@ -179,6 +242,9 @@ export type ChildRuntimeDeviceAuthorizationState = Infer<
 export type ChildRuntimeProvisioningReadinessState = Infer<
   typeof ChildRuntimeProvisioningReadinessStateSchema
 >;
+export type ChildRuntimeProvisioningDecisionBlockerReason = Infer<
+  typeof ChildRuntimeProvisioningDecisionBlockerReasonSchema
+>;
 export type ChildRuntimeEntitlementAccessState = Infer<
   typeof ChildRuntimeEntitlementAccessStateSchema
 >;
@@ -192,6 +258,7 @@ export type ChildRuntimeEnforcementExecutionState = Infer<
   typeof ChildRuntimeEnforcementExecutionStateSchema
 >;
 export type ChildRuntimePreflightDecision = Infer<typeof ChildRuntimePreflightDecisionSchema>;
+export type ChildRuntimeProvisioningDecision = Infer<typeof ChildRuntimeProvisioningDecisionSchema>;
 export type ChildRuntimeRemoteAccessDecision = Infer<
   typeof ChildRuntimeRemoteAccessDecisionSchema
 >;
@@ -226,6 +293,21 @@ export const ChildRuntimeProvisioningReadinessState = {
   ),
   NotReady: ChildRuntimeProvisioningReadinessStateSchema.parse(
     ChildRuntimeProvisioningReadinessStateLiteral.NotReady
+  ),
+} as const;
+
+export const ChildRuntimeProvisioningDecisionBlockerReason = {
+  ChildInstallNotInstalled: ChildRuntimeProvisioningDecisionBlockerReasonSchema.parse(
+    ChildRuntimeProvisioningDecisionBlockerReasonLiteral.ChildInstallNotInstalled
+  ),
+  ChildServiceNotStarted: ChildRuntimeProvisioningDecisionBlockerReasonSchema.parse(
+    ChildRuntimeProvisioningDecisionBlockerReasonLiteral.ChildServiceNotStarted
+  ),
+  ChildAppOffline: ChildRuntimeProvisioningDecisionBlockerReasonSchema.parse(
+    ChildRuntimeProvisioningDecisionBlockerReasonLiteral.ChildAppOffline
+  ),
+  ChildAppReinstallRequired: ChildRuntimeProvisioningDecisionBlockerReasonSchema.parse(
+    ChildRuntimeProvisioningDecisionBlockerReasonLiteral.ChildAppReinstallRequired
   ),
 } as const;
 
@@ -271,10 +353,80 @@ function childRuntimePreflightStartStateMatchesGates(
   const gatesAllowStart =
     decision.deviceAuthorization === ChildRuntimeDeviceAuthorizationState.Authorized &&
     decision.provisioningReadiness === ChildRuntimeProvisioningReadinessState.Ready &&
-    decision.entitlementAccess === ChildRuntimeEntitlementAccessState.Allowed;
+    decision.entitlementAccess === ChildRuntimeEntitlementAccessState.Allowed &&
+    decision.provisioningDecision.overallState === SetupReadinessOverallState.Ready;
   return (
     (gatesAllowStart && decision.runtimeStartState === ChildRuntimeStartState.Allowed) ||
     (!gatesAllowStart && decision.runtimeStartState === ChildRuntimeStartState.Blocked)
+  );
+}
+
+function childRuntimePreflightManualReviewStateMatchesGates(
+  decision: ChildRuntimePreflightGateFields
+): boolean {
+  return (
+    (decision.provisioningDecision.overallState === SetupReadinessOverallState.Ready &&
+      decision.manualReviewState === ChildRuntimeManualReviewState.NotRequired) ||
+    (decision.provisioningDecision.overallState !== SetupReadinessOverallState.Ready &&
+      decision.manualReviewState === ChildRuntimeManualReviewState.Required)
+  );
+}
+
+function childRuntimeProvisioningDecisionMatchesGates(
+  decision: ChildRuntimePreflightGateFields
+): boolean {
+  return (
+    (decision.provisioningDecision.overallState === SetupReadinessOverallState.Ready &&
+      decision.provisioningReadiness === ChildRuntimeProvisioningReadinessState.Ready &&
+      decision.provisioningDecision.blockerReason === null) ||
+    (decision.provisioningDecision.overallState === SetupReadinessOverallState.Degraded &&
+      decision.provisioningReadiness === ChildRuntimeProvisioningReadinessState.NotReady &&
+      decision.provisioningDecision.blockerReason ===
+        ChildRuntimeProvisioningDecisionBlockerReason.ChildAppOffline) ||
+    (decision.provisioningDecision.overallState === SetupReadinessOverallState.Blocked &&
+      decision.provisioningReadiness === ChildRuntimeProvisioningReadinessState.NotReady &&
+      ((decision.provisioningDecision.blockerReason ===
+        ChildRuntimeProvisioningDecisionBlockerReason.ChildInstallNotInstalled &&
+        decision.provisioningDecision.childInstallState === SetupChildInstallState.NotInstalled &&
+        decision.provisioningDecision.childServiceState === SetupChildServiceState.NotStarted) ||
+        (decision.provisioningDecision.blockerReason ===
+          ChildRuntimeProvisioningDecisionBlockerReason.ChildServiceNotStarted &&
+          decision.provisioningDecision.childInstallState === SetupChildInstallState.Installed &&
+          decision.provisioningDecision.childServiceState === SetupChildServiceState.NotStarted) ||
+        (decision.provisioningDecision.blockerReason ===
+          ChildRuntimeProvisioningDecisionBlockerReason.ChildAppReinstallRequired &&
+          decision.provisioningDecision.childInstallState ===
+            SetupChildInstallState.ReinstallRequired &&
+          decision.provisioningDecision.childServiceState === SetupChildServiceState.NotStarted)))
+  );
+}
+
+function childRuntimeProvisioningDecisionShapeMatchesCoherence(
+  decision: ChildRuntimeProvisioningDecisionFields
+): boolean {
+  return (
+    (decision.overallState === SetupReadinessOverallState.Ready &&
+      decision.childInstallState === SetupChildInstallState.Installed &&
+      decision.childServiceState === SetupChildServiceState.ServiceStarted &&
+      decision.blockerReason === null) ||
+    (decision.overallState === SetupReadinessOverallState.Degraded &&
+      decision.childInstallState === SetupChildInstallState.Installed &&
+      decision.childServiceState === SetupChildServiceState.Offline &&
+      decision.blockerReason ===
+        ChildRuntimeProvisioningDecisionBlockerReason.ChildAppOffline) ||
+    (decision.overallState === SetupReadinessOverallState.Blocked &&
+      ((decision.childInstallState === SetupChildInstallState.NotInstalled &&
+        decision.childServiceState === SetupChildServiceState.NotStarted &&
+        decision.blockerReason ===
+          ChildRuntimeProvisioningDecisionBlockerReason.ChildInstallNotInstalled) ||
+        (decision.childInstallState === SetupChildInstallState.Installed &&
+          decision.childServiceState === SetupChildServiceState.NotStarted &&
+          decision.blockerReason ===
+            ChildRuntimeProvisioningDecisionBlockerReason.ChildServiceNotStarted) ||
+        (decision.childInstallState === SetupChildInstallState.ReinstallRequired &&
+          decision.childServiceState === SetupChildServiceState.NotStarted &&
+          decision.blockerReason ===
+            ChildRuntimeProvisioningDecisionBlockerReason.ChildAppReinstallRequired)))
   );
 }
 

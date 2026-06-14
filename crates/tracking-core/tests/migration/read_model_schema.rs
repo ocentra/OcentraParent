@@ -4,9 +4,7 @@ use ocentra_parent_agent_protocol::{
     },
     ACTIVITY_QUERY_SCHEMA_VERSION,
 };
-use ocentra_tracking_core::{
-    evaluate_tracking_read_model_schema, TrackingReadModelMigrationState,
-};
+use ocentra_tracking_core::{evaluate_tracking_read_model_schema, TrackingReadModelMigrationState};
 
 #[test]
 fn tracking_read_model_schema_accepts_current_version() {
@@ -33,5 +31,8 @@ fn tracking_read_model_schema_requires_migration_for_version_drift() {
         decision.migration_state,
         TrackingReadModelMigrationState::MigrationRequired
     );
-    assert_eq!(decision.decision_state, READ_MODEL_SCHEMA_MIGRATION_REQUIRED);
+    assert_eq!(
+        decision.decision_state,
+        READ_MODEL_SCHEMA_MIGRATION_REQUIRED
+    );
 }

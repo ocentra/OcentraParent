@@ -51,39 +51,39 @@ output/eventing-plan-proof/<workpack-id>/
 
 The proof pack must contain or explicitly mark N/A for each applicable item:
 
-- [x] `00-source-snapshot.md`: git branch, commit, `git status --short`,
+- [ ] `00-source-snapshot.md`: git branch, commit, `git status --short`,
       existing source paths inspected, existing behavior, and before-state gap.
-- [x] `01-contract-proof.log`: Rust event type/id/envelope/domain-event tests,
+- [ ] `01-contract-proof.log`: Rust event type/id/envelope/domain-event tests,
       validated newtypes, typed live envelope proof, no raw public API proof,
       serde roundtrips, duplicate event checks, generated registry docs,
       lineage compatibility proof, and invalid-state tests.
-- [x] `02-dispatch-proof.log`: sequential, concurrent, ordered, nested publish,
+- [ ] `02-dispatch-proof.log`: sequential, concurrent, ordered, nested publish,
       target-handler, and panic-isolation tests.
-- [x] `03-queue-retry-timeout-proof.log`: queue, retry, TTL, timeout,
+- [ ] `03-queue-retry-timeout-proof.log`: queue, retry, TTL, timeout,
       idempotency, in-flight guard, and dead-letter tests.
-- [x] `04-request-response-proof.log`: local request completion, timeout,
+- [ ] `04-request-response-proof.log`: local request completion, timeout,
       double-completion, late-response, and durable result-event tests.
-- [x] `05-journal-replay-proof.log`: NDJSON append, stable hash-chain with
+- [ ] `05-journal-replay-proof.log`: NDJSON append, stable hash-chain with
       recovery/replay tamper verification, replay cursor, projection-only gate,
       and temp filesystem proof.
-- [x] `06-parent-runtime-boundary-proof.log`: parent/controller and child-agent
+- [ ] `06-parent-runtime-boundary-proof.log`: parent/controller and child-agent
       Rust runtime integration tests when Parent runtime paths are touched.
-- [x] `07-ui-boundary-proof.log`: proof that Vite/TypeScript UI sends typed
+- [ ] `07-ui-boundary-proof.log`: proof that Vite/TypeScript UI sends typed
       intents and cannot publish business events when portal paths are touched.
-- [x] `08-security-negative-proof.log`: no AI/UI direct enforcement, no weak
+- [ ] `08-security-negative-proof.log`: no AI/UI direct enforcement, no weak
       evidence command, no mutable event payloads, no lock-held await, no
       silent queue loss, no payload-carried deferred/cancellation/resource
       handles, and no hidden global singleton.
-- [x] `09-manual-platform-proof.md`: explicit N/A unless the workpack touches a
+- [ ] `09-manual-platform-proof.md`: explicit N/A unless the workpack touches a
       real platform/manual runtime path.
-- [x] `10-validation-commands.log`: focused validation plus any requested
+- [ ] `10-validation-commands.log`: focused validation plus any requested
       `npm run validate`/`ci:local`/manual command output.
-- [x] `11-network-consumer-proof.log`: network consumer proof that validates
+- [ ] `11-network-consumer-proof.log`: network consumer proof that validates
       `agent-core` and service paths consume `ocentra-eventing` for typed
       publish/routing, queue/drain, request-response, and runtime event-chain
       streaming without moving network, AI, policy, enforcement, or portal
       business logic into the reusable bus.
-- [x] `12-household-mesh-consumer-proof.log`: consumer-layer proof that a
+- [ ] `12-household-mesh-consumer-proof.log`: consumer-layer proof that a
       Household Mesh Bridge exports only selected local events into typed
       authenticated LAN messages, validates incoming messages before local
       republish, rejects unselected or mismatched event/message refs, rejects
@@ -126,128 +126,128 @@ behavior.
 
 ## Evidence Quality Gates
 
-- [x] Every public event type is a constant. E-D reusable event bus proof:
+- [ ] Every public event type is a constant. E-D reusable event bus proof:
       `output/eventing-plan-proof/reusable-eventing-runtime/01-contract-proof.log`.
-- [x] Every event type has a schema version. E-D reusable event bus proof:
+- [ ] Every event type has a schema version. E-D reusable event bus proof:
       `output/eventing-plan-proof/reusable-eventing-runtime/01-contract-proof.log`.
-- [x] Every domain-bearing scalar is a validated Rust newtype, not a raw
+- [ ] Every domain-bearing scalar is a validated Rust newtype, not a raw
       `String`, `&str`, `Uuid`, or loose enum text.
-- [x] Serde deserialization validates newtypes and event structs before any
+- [ ] Serde deserialization validates newtypes and event structs before any
       event can be published or replayed.
-- [x] Event contract registry docs are generated from registered contracts and
+- [ ] Event contract registry docs are generated from registered contracts and
       duplicate event types are rejected.
-- [x] Event topology manifest records publishers, subscribers, event-family
+- [ ] Event topology manifest records publishers, subscribers, event-family
       variants, no-publisher, no-subscriber, and accepted one-sided events.
-- [x] Every event envelope carries event id, correlation id, source, custody,
+- [ ] Every event envelope carries event id, correlation id, source, custody,
       runtime role, and published timestamp.
-- [x] Live dispatch uses typed `EventEnvelope<E>`/`EventContext<E>` and never
+- [ ] Live dispatch uses typed `EventEnvelope<E>`/`EventContext<E>` and never
       routes `serde_json::Value` to handlers.
-- [x] Serialized `StoredEventEnvelope` appears only at journal, replay,
+- [ ] Serialized `StoredEventEnvelope` appears only at journal, replay,
       dead-letter, export, or transport boundaries.
-- [x] Every dispatch report names each subscriber and outcome.
-- [x] Every failure path has an exact error code or dead-letter reason.
-- [x] Queue overflow cannot silently drop events.
-- [x] Handler panic cannot crash the service runtime.
-- [x] Ordered aggregate transitions are serialized by aggregate key.
-- [x] Request completion response type is bound through
+- [ ] Every dispatch report names each subscriber and outcome.
+- [ ] Every failure path has an exact error code or dead-letter reason.
+- [ ] Queue overflow cannot silently drop events.
+- [ ] Handler panic cannot crash the service runtime.
+- [ ] Ordered aggregate transitions are serialized by aggregate key.
+- [ ] Request completion response type is bound through
       `RequestEvent::Response`, validates through `EventResponseContract`, and
       resolves once.
-- [x] Handler API never exposes `&mut E` or mutable event payload references.
-- [x] Event payloads do not use interior-mutability fields without an explicit
+- [ ] Handler API never exposes `&mut E` or mutable event payload references.
+- [ ] Event payloads do not use interior-mutability fields without an explicit
       exception proof.
-- [x] Event payloads do not carry deferred/completion handles, cancellation
+- [ ] Event payloads do not carry deferred/completion handles, cancellation
       handles, disposable resources, file/socket/task handles, service
       pointers, or cleanup callbacks.
-- [x] Manual clock controls TTL, retry, deadline, queue expiry, and request
+- [ ] Manual clock controls TTL, retry, deadline, queue expiry, and request
       timeout tests. E-D added injectable `EventClock`, `ManualEventClock`,
       deadline-aware envelopes/dispatch, deterministic manual-clock tests, and
       `output/eventing-plan-proof/71-manual-clock/proof-summary.json` via
       `scripts/test/eventing-manual-clock-proof.mjs`.
-- [x] Duplicate subscriber registration policy is explicit and tested. E-D
+- [ ] Duplicate subscriber registration policy is explicit and tested. E-D
       proved `EventingError::DuplicateSubscriber` rejects duplicate subscriber
       ids without replacing the existing handler via
       `scripts/test/eventing-duplicate-subscriber-proof.mjs` and
       `output/eventing-plan-proof/73-duplicate-subscriber/proof-summary.json`.
-- [x] Shutdown/clear lifecycle drains, dead-letters, cancels, or test-clears
+- [ ] Shutdown/clear lifecycle drains, dead-letters, cancels, or test-clears
       state according to documented policy. E-D added `EventBus::shutdown`
       production drain, queued dead-letter, pending-request cancellation,
       post-shutdown rejection, and explicit test-only queued-drop proof in
       `output/eventing-plan-proof/74-production-shutdown/proof-summary.json`;
       earlier `clear_for_test` reset proof remains in
       `output/eventing-plan-proof/74-lifecycle-clear/proof-summary.json`.
-- [x] Event contract registry docs are generated from registered contracts and
+- [ ] Event contract registry docs are generated from registered contracts and
       duplicate event types are rejected. E-D added `EventContractRegistry`,
       deterministic generated Markdown docs, duplicate `EventType` rejection,
       and `output/eventing-plan-proof/72-contract-registry/proof-summary.json`
       via `scripts/test/eventing-contract-registry-proof.mjs`.
-- [x] Event-family enum/wrapper variants preserve inherited/generic lineage
+- [ ] Event-family enum/wrapper variants preserve inherited/generic lineage
       patterns without downcasts, loose strings, or JSON shape inspection. E-D
       added typed `DecisionFamilyEvent` variant proof, distinct registry
       descriptors, stored-contract mismatch rejection, and
       `output/eventing-plan-proof/75-family-variants/proof-summary.json` via
       `scripts/test/eventing-family-variant-proof.mjs`.
-- [x] Event topology manifest records publishers, subscribers, event-family
+- [ ] Event topology manifest records publishers, subscribers, event-family
       variants, no-publisher, no-subscriber, and accepted one-sided event
       states. E-D added `EventTopologyManifest`, generated Markdown proof, and
       `output/eventing-plan-proof/70-topology-manifest/proof-summary.json` via
       `scripts/test/eventing-topology-manifest-proof.mjs`.
-- [x] Lineage compatibility proof maps Ocentra Games/TypeScript eventing
+- [ ] Lineage compatibility proof maps Ocentra Games/TypeScript eventing
       semantics to Rust surfaces, intentional deviations, and manual-required
       broker delivery scope. E-D added `EventCompatibilityMatrix`, generated
       Markdown proof, and
       `output/eventing-plan-proof/69-compatibility-matrix/proof-summary.json`
       via `scripts/test/eventing-compatibility-matrix-proof.mjs`.
-- [x] TypeScript/Rust branded fixture parity accepts and rejects the same
+- [ ] TypeScript/Rust branded fixture parity accepts and rejects the same
       canonical eventing scalar values. E-D added
       `crates/ocentra-eventing/fixtures/branded_scalar_parity.json`, Rust
       newtype fixture tests, TypeScript Effect Schema brand validation, and
       `output/eventing-plan-proof/68-fixture-parity/proof-summary.json` via
       `scripts/test/eventing-branded-fixture-parity-proof.mjs`.
-- [x] Runtime owns the bus explicitly; reusable crate exposes no hidden global
+- [ ] Runtime owns the bus explicitly; reusable crate exposes no hidden global
       singleton. E-D proof:
       `output/eventing-plan-proof/reusable-eventing-runtime/08-security-negative-proof.log`.
-- [x] Lock-held-await source audit passes. E-D proof:
+- [ ] Lock-held-await source audit passes. E-D proof:
       `output/eventing-plan-proof/reusable-eventing-runtime/08-security-negative-proof.log`.
-- [x] Journal-before-action mode exists before Parent enforcement consumes the
+- [ ] Journal-before-action mode exists before Parent enforcement consumes the
       bus. E-D proof:
       `output/eventing-plan-proof/reusable-eventing-runtime/05-journal-replay-proof.log`.
-- [x] Replay defaults to projection-only for Parent safety. E-D proof:
+- [ ] Replay defaults to projection-only for Parent safety. E-D proof:
       `output/eventing-plan-proof/reusable-eventing-runtime/05-journal-replay-proof.log`.
-- [x] Tests use real Tokio handlers, real serde, and real temp files; no mocks,
+- [ ] Tests use real Tokio handlers, real serde, and real temp files; no mocks,
       fakes, stubs, spies, or replacement transports. E-D proof:
       `output/eventing-plan-proof/reusable-eventing-runtime/10-validation-commands.log`.
-- [x] Vite/TypeScript UI is not a business-event publisher. E-D proof:
+- [ ] Vite/TypeScript UI is not a business-event publisher. E-D proof:
       `output/eventing-plan-proof/52-ui-typed-intent-boundary/proof-summary.json`.
 
 ## Main Execution Gates
 
-- [x] Source docs read: folder README, source index, current snapshot,
+- [ ] Source docs read: folder README, source index, current snapshot,
       full-scope plan, API/code shape, taxonomy, tests/proof plan,
       type-safety/ownership guide, implementation checklist, and assigned
       workpack.
-- [x] Hub lock covers the workpack file and exact implementation/docs paths.
-- [x] Existing Rust workspace inspected before editing.
-- [x] `crates/ocentra-eventing` stays reusable and Parent-product-type-free.
-- [x] Reusable event bus phase-1 proof is separated from consumer network and
+- [ ] Hub lock covers the workpack file and exact implementation/docs paths.
+- [ ] Existing Rust workspace inspected before editing.
+- [ ] `crates/ocentra-eventing` stays reusable and Parent-product-type-free.
+- [ ] Reusable event bus phase-1 proof is separated from consumer network and
       service proof: `scripts/test/eventing-runtime-proof.mjs` writes
       `output/eventing-plan-proof/reusable-eventing-runtime/proof-summary.json`
       and proves rows 05-41 plus 63-78 without running network runtime proofs.
-- [x] Full event-plan proof is also available for merge readiness:
+- [ ] Full event-plan proof is also available for merge readiness:
       `scripts/test/eventing-full-plan-proof.mjs` writes
       `output/eventing-plan-proof/full-eventing-plan/proof-summary.json` and
       `test-results/eventing-full-plan-proof/proof.json`, proving rows 05-78
       including the key network-consumer requirement that network publishes and
       routes typed runtime events through `ocentra-eventing` without private bus
       shortcuts.
-- [x] Parent event constants land in protocol/domain boundaries before Parent
+- [ ] Parent event constants land in protocol/domain boundaries before Parent
       runtime consumes them.
-- [x] Parent/controller and child-agent Rust runtimes use the same crate through
+- [ ] Parent/controller and child-agent Rust runtimes use the same crate through
       typed contracts.
-- [x] Cross-process parent-to-child handoff uses typed service, IPC, WebSocket,
+- [ ] Cross-process parent-to-child handoff uses typed service, IPC, WebSocket,
       LAN, relay, or journal/replay boundaries. E-D proof is typed local
       parent/controller-to-child-agent runtime handoff only; broker and
       relay-hub delivery remain not claimed.
-- [x] Network Workpack 10 consumes this crate after eventing proof exists. E-D
+- [ ] Network Workpack 10 consumes this crate after eventing proof exists. E-D
       added reusable `ocentra-eventing` consumption in the network runtime with
       no-subscriber queue/drain, local typed request-response proof, and
       network-specific overflow/TTL/idempotency backpressure proof plus service
@@ -255,12 +255,12 @@ behavior.
       relay-hub delivery, production retention/replay/delete/export, live
       analyzer/model/policy execution, adapter execution, and host filtering
       remain outside this row.
-- [x] Required reusable event bus proof pack exists with logs, JSON, or
+- [ ] Required reusable event bus proof pack exists with logs, JSON, or
       explicit N/A reasons for every applicable phase-1 gate.
-- [x] Feature docs, expectation docs, module READMEs, and product capability
+- [ ] Feature docs, expectation docs, module READMEs, and product capability
       checklist decisions are recorded. Eventing is infrastructure proof; no
       direct product capability checklist row was edited by E-D.
-- [x] `DONE` report includes workpack, touched paths, validation, proof, known
+- [ ] `DONE` report includes workpack, touched paths, validation, proof, known
       gaps, and documentation changes.
 
 ## Base Workpack Checklist

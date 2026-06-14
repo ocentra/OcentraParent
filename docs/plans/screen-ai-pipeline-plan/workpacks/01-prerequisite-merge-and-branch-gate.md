@@ -21,11 +21,11 @@ merged to `main` or explicitly approved as stacked heads.
 
 ## Checklist
 
-- [x] Record screen prerequisite branch/commit/PR.
-- [x] Record AI prerequisite branch/commit/PR.
-- [x] Confirm pipeline branch contains both implementations.
-- [x] Confirm no stale capture or AI proof assumptions.
-- [x] Run lane/hub guards before edits.
+- [ ] Record screen prerequisite branch/commit/PR.
+- [ ] Record AI prerequisite branch/commit/PR.
+- [ ] Confirm pipeline branch contains both implementations.
+- [ ] Confirm no stale capture or AI proof assumptions.
+- [ ] Run lane/hub guards before edits.
 
 ## Proof
 

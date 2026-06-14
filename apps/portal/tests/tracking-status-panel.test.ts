@@ -81,10 +81,15 @@ const TrackingReadModel = {
   activeRows: 1,
   tombstoneRows: 1,
   capabilityStatus: 'recent',
-  latestEventId: 'tracking-event-1',
-  latestObservedAt: '2026-06-03T07:24:00Z',
+  latestEventId: 'tracking-retention-delete-1',
+  latestObservedAt: '2026-06-03T07:26:00Z',
+  latestActiveEventId: 'tracking-event-1',
+  latestActiveObservedAt: '2026-06-03T07:24:00Z',
   latestTombstoneEventId: 'tracking-retention-delete-1',
   latestTombstoneObservedAt: '2026-06-03T07:26:00Z',
+  activeKindCounts: [{ value: 'tracking.expected-place.evaluated', count: 1 }],
+  activeDeviceCounts: [{ value: 'child-device-1', count: 1 }],
+  activeCapabilityStatusCounts: [{ value: 'recent', count: 1 }],
   deletedEvidenceReferenceIds: ['location-evidence-1'],
   rows: [
     {
@@ -119,7 +124,7 @@ const TrackingReadModel = {
       capabilityStatus: 'recent',
       queryVisibility: 'tombstone',
       deletedAt: '2026-06-03T07:26:00Z',
-      evidenceReferenceIds: [],
+      evidenceReferenceIds: ['location-evidence-1'],
       deletedEvidenceReferenceIds: ['location-evidence-1'],
       evidence: [],
     },
@@ -135,7 +140,7 @@ const ExpectedTrackingLiveSummary = {
   eventId: 'tracking-event-1',
   capability: 'recent',
   custody: 'child-device-query-store',
-  evidenceReferences: 'tracking-evidence-1 | location-evidence-1',
+  evidenceReferences: 'tracking-evidence-1',
   parserReason: null,
   productClaim: 'No product claim',
   citations: [
@@ -163,7 +168,7 @@ const ExpectedTrackingLiveSummary = {
       activityKind: 'activity.tracking.retention.deleted',
       subject: 'location-evidence | location-evidence-1',
       status: 'tombstone | recent',
-      evidenceReferences: 'Not reported',
+      evidenceReferences: 'location-evidence-1',
       deletedEvidence: 'location-evidence-1',
       productClaim: 'No product claim',
     },
@@ -178,12 +183,20 @@ const ExpectedTrackingServiceDataCoverage = {
   rowVisibility: '1 | 1',
   lastObserved: '2026-06-03T07:26:00Z',
   eventId: 'tracking-retention-delete-1',
-  capability: 'recent',
+  deviceCounts: 'child-device-1 (1)',
+  capability: 'recent (1)',
   custody: 'child-device-query-store',
-  activityKinds: 'tracking.expected-place.evaluated | activity.tracking.retention.deleted',
+  activityKinds: 'tracking.expected-place.evaluated (1)',
   evidenceReferences: 'tracking-evidence-1',
   deletedEvidence: 'location-evidence-1',
   productClaim: 'No product claim',
+} as const;
+
+const ExpectedLegacyTrackingServiceDataCoverage = {
+  ...ExpectedTrackingServiceDataCoverage,
+  deviceCounts: 'child-device-1',
+  capability: 'recent',
+  activityKinds: 'tracking.expected-place.evaluated',
 } as const;
 
 const ExpectedUnsupportedManualRows = [
@@ -593,6 +606,13 @@ describe('tracking status proof surface', () => {
     expect(trackingStatusServiceDataCoverage(liveActivity)).toEqual(ExpectedTrackingServiceDataCoverage);
   });
 
+  it('falls back to legacy summary fields when active summary/count fields are absent', () => {
+    const liveActivity = resolveLiveActivityState([trackingEvent(JSON.stringify(legacyTrackingReadModel()))]);
+
+    expect(trackingStatusLiveSummary(liveActivity)).toEqual(ExpectedTrackingLiveSummary);
+    expect(trackingStatusServiceDataCoverage(liveActivity)).toEqual(ExpectedLegacyTrackingServiceDataCoverage);
+  });
+
   it('renders evidence drawer proof from the selected citation without evaluator or dispatch claims', () => {
     const liveActivity = resolveLiveActivityState([trackingEvent(JSON.stringify(TrackingReadModel))]);
     const liveSummary = trackingStatusLiveSummary(liveActivity);
@@ -900,6 +920,23 @@ function trackingEvent(serializedReadModel: string): AgentEventEnvelope {
     },
     snapshot: null,
   });
+}
+
+function legacyTrackingReadModel() {
+  const {
+    latestActiveEventId: _latestActiveEventId,
+    latestActiveObservedAt: _latestActiveObservedAt,
+    activeKindCounts: _activeKindCounts,
+    activeDeviceCounts: _activeDeviceCounts,
+    activeCapabilityStatusCounts: _activeCapabilityStatusCounts,
+    ...legacy
+  } = TrackingReadModel;
+
+  return {
+    ...legacy,
+    latestEventId: 'tracking-event-1',
+    latestObservedAt: '2026-06-03T07:24:00Z',
+  };
 }
 
 function trackingRetentionSettingsWriteEvent(serializedResult: string): AgentEventEnvelope {
