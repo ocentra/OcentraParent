@@ -1,6 +1,8 @@
 # Cloudflare Control Plane Plan State
 
-Status: cross-cutting Cloudflare control-plane architecture documented and repo-local scaffold created; runtime implementation, validation, and proof remain open.
+Status: engineering-grade Cloudflare control-plane spec is complete and the
+repo-local scaffold exists; runtime implementation, validation, and proof
+remain open.
 
 Research status: aligned against the current Parent repo and a direct inspection of the reusable games Cloudflare module, summarized in `GAMES_INFRA_PARITY_MAP.md`, including its package scripts, wrangler config, route manifest, auth middleware, payment flows, `PaymentDO`, test runner, and module docs. Parent keeps the module and testing patterns; Parent strips game-only economy, Solana, matchmaking, social, AI proxy, and asset-delivery concerns.
 
@@ -8,6 +10,9 @@ Current Parent direction:
 
 - `infra/cloudflare/` is now a separate repo-local scaffold, not a payment-owned subfolder.
 - The scaffold includes module-local package scripts, Wrangler dev/prod configs, placeholder env docs, a safe worker entrypoint, route manifest, auth verifier interface, seed/test runner placeholders, and test-family placeholders.
+- The test/proof spec now includes an exhaustive required test-file inventory, a
+  file-level assertion matrix, explicit redaction and observability boundaries,
+  and proof-shape requirements for future execution agents.
 - Cloudflare Worker entrypoint owns env validation, CORS fail-fast, request-size limits, emergency kill switch, route-manifest dispatch, safe error handling, redacted logging, and scheduled reconciliation hooks.
 - Auth is an adapter boundary with explicit states: `public`, `parent-session-required`, `trusted-parent-device-required`, `admin-required`, `support-required`, `provider-webhook-signature-required`, and `internal-queue-only`.
 - Durable Objects coordinate per-account, per-household, and per-ledger idempotent writes.
@@ -23,7 +28,7 @@ Current Parent direction:
 | --- | --- | --- | --- |
 | CFCP-001 through CFCP-011 | architecture-closed / scaffold-present / implementation-open | Shared module, runtime guards, route/auth/storage ownership now have repo-local files, but no runtime proof exists yet. | `infra/cloudflare/` scaffold, bindings, route/docs, and future proof stay synchronized. |
 | CFCP-012 | architecture-closed / scaffold-present / manual-required | Local Wrangler and seed flow are specified and scaffolded, but no validated dev loop is captured yet. | Local start, seed, and teardown proof exists. |
-| CFCP-013 | architecture-closed / scaffold-present / proof-open | Test pyramid is named, exact test inventory exists, and placeholder files exist, but real runnable coverage is not proven. | Unit/integration/e2e/contract/security/property/fuzz proof exists or exact blocker is recorded. |
+| CFCP-013 | architecture-closed / spec-complete / runtime-open | Test pyramid is named, exact test inventory exists, and the file-level assertion matrix is now explicit, but real runnable coverage is not proven. | Unit/integration/e2e/contract/security/property/fuzz proof exists or exact blocker is recorded for the required assertion IDs. |
 | CFCP-014 | architecture-closed / proof-open | Payment dependency is explicit, but the handoff proof is not yet satisfied. | `payment-subscription-plan` WP00 proof points to this plan's accepted handoff artifact. |
 
 ## HID Execution Guard

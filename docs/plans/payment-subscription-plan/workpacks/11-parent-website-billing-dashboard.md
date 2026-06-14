@@ -17,6 +17,7 @@ Define the parent-facing billing dashboard surface and its self-service actions.
 - [RESEARCH_AND_UI_GUIDANCE.md](../RESEARCH_AND_UI_GUIDANCE.md)
 - [BILLING_API_BOUNDARY.md](../BILLING_API_BOUNDARY.md)
 - [APP_OWNED_ENTITLEMENT_LEDGER.md](../APP_OWNED_ENTITLEMENT_LEDGER.md)
+- [REQUIRED_TEST_ASSERTION_MATRIX.md](../REQUIRED_TEST_ASSERTION_MATRIX.md)
 
 ## Output files
 
@@ -31,6 +32,8 @@ Define the parent-facing billing dashboard surface and its self-service actions.
 - The portal handoff is available.
 - Child data and support-only fields stay hidden.
 - Cancel and change-plan actions reflect ledger state.
+- The targeted parent-domain proof file is required and billing-domain tests do
+  not substitute for it.
 
 ## Proof IDs
 
@@ -45,8 +48,9 @@ Define the parent-facing billing dashboard surface and its self-service actions.
 ## Validation
 
 - Docs validation: `npm run format:check`; `npm run lint:schema-boundaries`
-- Required proof families: `payment-dashboard.parent-account-visible`, `payment-dashboard.current-plan-visible`, `payment-dashboard.child-device-usage-visible`, `payment-dashboard.referral-credit-visible`, `payment-dashboard.paid-seat-visible`, `payment-dashboard.invoice-visible`, `payment-dashboard.change-plan-visible`, `payment-dashboard.cancel-visible`, `payment-dashboard.billing-portal-link`, `payment-dashboard.license-snapshot-visible`, `payment-dashboard.wrong-household-denied`, `payment-dashboard.no-child-private-data`
+- Required proof families: `payment-dashboard.parent-account-visible`, `payment-dashboard.current-plan-visible`, `payment-dashboard.child-device-usage-visible`, `payment-dashboard.referral-credit-visible`, `payment-dashboard.paid-seat-visible`, `payment-dashboard.invoice-visible`, `payment-dashboard.change-plan-visible`, `payment-dashboard.cancel-visible`, `payment-dashboard.billing-portal-link`, `payment-dashboard.license-snapshot-visible`, `payment-dashboard.wrong-household-denied`, `payment-dashboard.no-child-private-data`, `payment-dashboard.targeted-parent-proof-file`
 - Proof bundle: `docs/proof/payment-subscription-plan/11-parent-website-dashboard-proof.md`, `docs/proof/payment-subscription-plan/11-dashboard-wrong-household-negative-proof.md`, `docs/proof/payment-subscription-plan/11-dashboard-no-child-private-data-proof.md`
+- Execution note: `packages/parent-domain/tests/unit/billing-entitlement-proof.test.ts` is the targeted parent-surface proof file and is currently missing.
 
 ## Negative cases
 

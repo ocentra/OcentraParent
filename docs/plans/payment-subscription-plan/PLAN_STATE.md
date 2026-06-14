@@ -1,6 +1,8 @@
 # Payment Subscription Plan State
 
-Status: monetization architecture documented, but blocked behind the shared Cloudflare control-plane handoff; implementation and proof remain open.
+Status: engineering-grade monetization spec is complete, but runtime execution
+remains blocked behind the shared Cloudflare control-plane handoff; implementation
+and proof remain open.
 
 Research status: aligned against the current Parent codebase, billing-domain and parent-domain surfaces, the reusable games Cloudflare deep dive summarized in `docs/plans/cloudflare-control-plane-plan/GAMES_INFRA_PARITY_MAP.md`, and the new `cloudflare-control-plane-plan` that now owns the shared Worker/module scaffold. This plan remains the single monetization owner; the shared Cloudflare module itself is not owned here.
 
@@ -12,6 +14,10 @@ Current Parent direction:
 - Razorpay remains the India-native adapter; PayPal remains the secondary wallet/subscription adapter; Apple and Google remain channel adapters, not the root billing authority.
 - App-owned billing, referral, and entitlement ledgers remain the access authority.
 - Signed entitlement snapshots remain derived artifacts consumed by trusted devices, not the root of trust.
+- The payment spec now includes an exhaustive assertion matrix keyed to every
+  required workpack test and proof ID, plus explicit spec-versus-runtime
+  boundaries for dashboard, support/admin, regional, referral, and lifecycle
+  slices.
 - `packages/parent-domain/tests/unit/billing-entitlement-proof.test.ts` is currently missing; do not overclaim parent-surface proof from billing-domain tests.
 
 ## Decision records
@@ -22,7 +28,7 @@ Current Parent direction:
 | PSP-014 | architecture-closed / implementation-open / manual-required | Parent dashboard and support/admin field boundaries are documented but not runtime-proven. | Allow/deny field lists and parent/support proof remain synchronized. |
 | PSP-015 | architecture-closed / implementation-open / sujan-decision-required | Referral qualification and anti-abuse thresholds are documented but not business-approved or proven. | Qualification thresholds, abuse reviews, and referral grace are approved and proven. |
 | PSP-016 | architecture-closed / implementation-open / legal-tax-required | Mixed-provider invoice, tax, refund, dispute, and grace behavior is documented but not legal/tax-closed. | Billing-grace, refund, dispute, cancellation, and tax policy are approved and proven. |
-| PSP-017 | architecture-closed / proof-open | Proof matrix and route sync are documented but not fully backed by handoff and runtime proof. | Proof paths, validation logs, route docs, and Cloudflare prerequisite handoff all agree. |
+| PSP-017 | architecture-closed / spec-complete / runtime-open | Proof matrix, route sync, and exact assertion scope are documented, but not fully backed by handoff and runtime proof. | Proof paths, assertion matrix, validation logs, route docs, and Cloudflare prerequisite handoff all agree. |
 
 ## HID Execution Guard
 

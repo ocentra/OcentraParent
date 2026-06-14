@@ -1,10 +1,15 @@
 # Execution Blueprint
 
-Status: reset.
+Status: engineering-spec complete / runtime execution open.
 
 ## Execution objective
 
-Turn the monetization route from docs into code, tests, validation, and proof in slice order, starting with the shared Cloudflare prerequisite.
+Keep the monetization engineering spec complete and honest while future runtime
+execution turns it into code, tests, validation, and proof in slice order,
+starting with the shared Cloudflare prerequisite.
+
+Use `REQUIRED_TEST_ASSERTION_MATRIX.md` as the exact assertion scope for every
+runtime slice.
 
 ## Slice gates
 
@@ -29,14 +34,16 @@ Turn the monetization route from docs into code, tests, validation, and proof in
 
 1. Select exactly one slice/workpack.
 2. Read the slice docs and the matching proof rows only.
-3. Write or update the smallest scope for that slice.
-4. Run the validation command family for that slice or record the exact blocker.
-5. Collect negative-case proof and teardown proof.
-6. Update the proof bundle pointer, blueprint, next-actions queue, and source matrix.
-7. Do not mark PR-ready until the proof bundle exists and the negative case is captured.
+3. Read the matching assertion rows in `REQUIRED_TEST_ASSERTION_MATRIX.md`.
+4. Write or update the smallest scope for that slice.
+5. Run the validation command family for that slice or record the exact blocker.
+6. Collect negative-case proof and teardown proof.
+7. Update the proof bundle pointer, blueprint, next-actions queue, and source matrix.
+8. Do not mark PR-ready until the proof bundle exists and the negative case is captured.
 
 ## Stop rules
 
 - Do not mix proof from sibling workpacks into the current proof bundle.
 - Do not advance to a payment runtime slice until slice 00 has a proof pointer or a blocker that still keeps payment closed.
 - Do not mark a slice complete if the proof manifest, next-actions queue, or source matrix still names stale paths.
+- Do not confuse spec completeness with runtime readiness.

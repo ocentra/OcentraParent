@@ -4,9 +4,12 @@
 
 - Current slice: `00. Cloudflare control-plane prerequisite handoff`
 - Current owner: `payment-subscription-plan`
-- Current status: `pending`
+- Current status: `spec-complete / implementation-open`
 
 ## Ordered queue
+
+Queue statuses below describe runtime execution order. They do not reduce the
+engineering-spec score of this plan.
 
 | Order | Slice | Status | First-touch surface | Next action | Exit gate |
 |---|---|---|---|---|---|
@@ -30,4 +33,6 @@
 - Move exactly one row to `in_progress` when execution starts.
 - Do not start a payment runtime slice while row 00 still lacks handoff proof.
 - If proof artifacts live inside the plan folder, move them out before claiming progress.
+- Do not shrink, merge away, or reinterpret test scope outside
+  `REQUIRED_TEST_ASSERTION_MATRIX.md`.
 - Keep `PLAN_EXECUTION_SCORECARD.md` and `SOURCE_SURFACE_STATUS_MATRIX.md` aligned with the live queue and remaining manual-required gaps.

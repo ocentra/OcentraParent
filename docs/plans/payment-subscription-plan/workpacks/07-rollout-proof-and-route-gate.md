@@ -17,6 +17,7 @@ Close the loop on route sync, proof storage, and PR-ready readiness.
 - [NEXT_ACTIONS.md](../NEXT_ACTIONS.md)
 - [DOC_INDEX.md](../DOC_INDEX.md)
 - [PROOF_AND_TEST_INVENTORY.md](../PROOF_AND_TEST_INVENTORY.md)
+- [REQUIRED_TEST_ASSERTION_MATRIX.md](../REQUIRED_TEST_ASSERTION_MATRIX.md)
 - [PLAN_EXECUTION_SCORECARD_REVIEW.md](../PLAN_EXECUTION_SCORECARD_REVIEW.md)
 
 ## Output files
@@ -35,6 +36,7 @@ Close the loop on route sync, proof storage, and PR-ready readiness.
 - Validation commands are recorded.
 - No checklist item is being used as a proof artifact store.
 - Proof artifacts include at least one negative case and one rollback or teardown case.
+- Proof artifacts map to the exact assertion IDs for the selected workpack.
 
 ## Proof IDs
 
