@@ -2,7 +2,7 @@
 
 ## Goal
 
-Extract the reusable `ocentra-games/infra/cloudflare` control-plane pattern and reduce it to Parent-only needs.
+Extract the reusable games Cloudflare control-plane pattern and reduce it to Parent-only needs.
 
 ## First-touch surface
 

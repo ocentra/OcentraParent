@@ -2,7 +2,7 @@
 
 Status: monetization architecture documented, but blocked behind the shared Cloudflare control-plane handoff; implementation and proof remain open.
 
-Research status: aligned against the current Parent codebase, billing-domain and parent-domain surfaces, the direct `E:\ocentra-games\infra\cloudflare` deep dive, and the new `cloudflare-control-plane-plan` that now owns the shared Worker/module scaffold. This plan remains the single monetization owner; the shared Cloudflare module itself is not owned here.
+Research status: aligned against the current Parent codebase, billing-domain and parent-domain surfaces, the reusable games Cloudflare deep dive summarized in `docs/plans/cloudflare-control-plane-plan/GAMES_INFRA_PARITY_MAP.md`, and the new `cloudflare-control-plane-plan` that now owns the shared Worker/module scaffold. This plan remains the single monetization owner; the shared Cloudflare module itself is not owned here.
 
 Current Parent direction:
 

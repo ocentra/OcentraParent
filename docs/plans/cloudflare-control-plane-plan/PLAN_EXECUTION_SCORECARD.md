@@ -1,6 +1,6 @@
 # Plan Execution Scorecard: docs/plans/cloudflare-control-plane-plan/
 
-Overall score: 82
+Overall score: 84
 Grade: strong route scaffold / not runtime-ready
 Recommendation: CONDITIONAL PASS
 
@@ -12,7 +12,7 @@ Recommendation: CONDITIONAL PASS
 | Workpack structure | 14 | 15 | The plan slices the module into parity, scaffold, bindings, auth, storage, testing, deployment, and handoff workpacks. |
 | Execution blueprint / loop clarity | 9 | 10 | First-touch surfaces, proof paths, and handoff gates are explicit. |
 | Research and reduction quality | 10 | 10 | The games module was inspected directly and reduced into keep/adapt/strip decisions. |
-| Test/proof inventory | 9 | 15 | Test families and proof IDs are explicit, but they are still scaffold- and blocker-heavy. |
+| Test/proof inventory | 10 | 15 | Test families, exact test file inventory, and proof IDs are explicit, but they are still scaffold- and blocker-heavy. |
 | Boundary/ownership correctness | 10 | 10 | Payment, account, device trust, and portal ownership are separated cleanly. |
 | Implementation usefulness | 8 | 10 | Source surfaces and scaffold paths are explicit, but most runtime files still need real code. |
 | Security/privacy/observability coverage | 8 | 10 | Shared runtime guards and privacy boundaries are explicit, but unproven. |
@@ -22,7 +22,7 @@ Recommendation: CONDITIONAL PASS
 
 - `infra/cloudflare/` is still scaffold-only.
 - Auth provider choice is still an account-plan adapter blocker.
-- Test runner, test files, and local seed flows are not proven yet.
+- Test runner, exact test files, and local seed flows are not proven yet.
 - Queue, D1, Durable Object, and optional R2 bindings are documented but not runtime-validated.
 - Payment handoff proof does not exist yet.
 

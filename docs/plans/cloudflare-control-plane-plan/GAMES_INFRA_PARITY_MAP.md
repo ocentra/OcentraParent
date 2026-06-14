@@ -1,6 +1,6 @@
 # Games Infra Parity Map
 
-Purpose: record the `E:\ocentra-games\infra\cloudflare` deep dive and reduce it to the exact Parent Cloudflare control-plane prerequisites.
+Purpose: record the reusable games Cloudflare control-plane deep dive and reduce it to the exact Parent Cloudflare control-plane prerequisites.
 
 ## Sources inspected
 
