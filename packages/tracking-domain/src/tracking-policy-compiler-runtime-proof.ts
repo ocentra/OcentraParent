@@ -6,6 +6,11 @@ import {
 } from '@ocentra-parent/schema-domain/effect';
 import { ParentTimestampSchema } from '@ocentra-parent/family-domain/reference-primitives';
 import {
+  PolicyCompiledArtifactSchema,
+  PolicyCompilerDomain,
+  type PolicyCompiledArtifact,
+} from '@ocentra-parent/policy-domain/policy-compiler';
+import {
   TrackingAlertIntentSchema,
   TrackingChildCheckInRequestSchema,
   TrackingEscalationChainSchema,
@@ -62,6 +67,7 @@ export const TrackingPolicyCompilerRuntimeProofRequestSchema = withParser(
   Schema.Struct({
     schemaVersion: Schema.Literal(TrackingPolicySchemaVersion),
     requestId: TrackingPolicyCompilerRuntimeProofRequestIdSchema,
+    compiledArtifact: PolicyCompiledArtifactSchema,
     rule: TrackingPolicyRuleSchema,
     requestedAt: ParentTimestampSchema,
     decidedAt: ParentTimestampSchema,
@@ -83,6 +89,27 @@ export const TrackingPolicyCompilerRuntimeProofRequestSchema = withParser(
     reasonCodes: Schema.Array(TrackingPolicyReasonCodeSchema),
     auditRefs: Schema.Array(TrackingPolicyAuditRefSchema),
   })
+    .pipe(
+      Schema.filter(
+        (request) =>
+          request.compiledArtifact.domain === PolicyCompilerDomain.Tracking ||
+          'Tracking runtime-proof requests need a tracking compiled artifact'
+      )
+    )
+    .pipe(
+      Schema.filter(
+        (request) =>
+          request.compiledArtifact.sourcePolicyVersion === request.rule.policyVersion ||
+          'Tracking runtime-proof requests need compiled artifacts from the same source policy version as the requested rule'
+      )
+    )
+    .pipe(
+      Schema.filter(
+        (request) =>
+          compiledArtifactContainsRequestedRule(request.compiledArtifact, request.rule.ruleId) ||
+          'Tracking runtime-proof requests need the requested rule in the shared compiled artifact'
+      )
+    )
     .pipe(
       Schema.filter(
         (request) =>
@@ -186,6 +213,13 @@ export function compileTrackingPolicyRuntimeProofDecision(
 
 export function trackingPolicyCompilerActionNeedsAlert(action: TrackingPolicyRule['action']): boolean {
   return action === 'notify-parent' || action === 'request-parent-acknowledgement' || action === 'escalate';
+}
+
+function compiledArtifactContainsRequestedRule(
+  compiledArtifact: PolicyCompiledArtifact,
+  ruleId: TrackingPolicyRule['ruleId']
+): boolean {
+  return compiledArtifact.rules.some((rule) => rule.ruleId === ruleId);
 }
 
 function actionFor(

@@ -1,3 +1,5 @@
+import { PolicyCompilerCapabilityState } from '@ocentra-parent/policy-domain/policy-compiler';
+
 export const AppGamePolicyTargetKind = {
   SpecificApp: 'specific-app',
   PackageId: 'package-id',
@@ -45,12 +47,7 @@ export const AppGamePolicyCompilerEvidenceState = {
   WrongLocalUser: 'wrong-local-user',
 } as const;
 
-export const AppGamePolicyCompilerCapabilityState = {
-  Supported: 'supported',
-  ManualRequired: 'manual-required',
-  Unavailable: 'unavailable',
-  Unproved: 'unproved',
-} as const;
+export const AppGamePolicyCompilerCapabilityState = PolicyCompilerCapabilityState;
 
 export const AppGamePolicyCompilerAuthorityState = {
   Proved: 'proved',
@@ -94,7 +91,7 @@ type TargetKindValue = (typeof AppGamePolicyTargetKind)[keyof typeof AppGamePoli
 type ProofKindValue = (typeof AppGamePolicyCompilerProofKind)[keyof typeof AppGamePolicyCompilerProofKind];
 type EvidenceStateValue = (typeof AppGamePolicyCompilerEvidenceState)[keyof typeof AppGamePolicyCompilerEvidenceState];
 type CapabilityStateValue =
-  (typeof AppGamePolicyCompilerCapabilityState)[keyof typeof AppGamePolicyCompilerCapabilityState];
+  (typeof PolicyCompilerCapabilityState)[keyof typeof PolicyCompilerCapabilityState];
 type AuthorityStateValue =
   (typeof AppGamePolicyCompilerAuthorityState)[keyof typeof AppGamePolicyCompilerAuthorityState];
 type RequestedActionValue =
@@ -220,7 +217,12 @@ export const appGamePolicyRequestHasSupportedAuthority = (request: CompileReques
   request.authorityRefs.some((ref) => ref.authorityState === AppGamePolicyCompilerAuthorityState.Proved);
 
 export const appGamePolicyRequestHasSupportedCapability = (request: CompileRequestLike) =>
-  request.capabilityRefs.some((ref) => ref.capabilityState === AppGamePolicyCompilerCapabilityState.Supported);
+  request.capabilityRefs.length > 0 &&
+  request.capabilityRefs.every((ref) => ref.capabilityState === PolicyCompilerCapabilityState.Supported);
+
+export const appGamePolicyCapabilityRefsKeepNonReadyStatesExplicit = (decision: CompiledDecisionLike) =>
+  appGamePolicyRequestHasSupportedCapability(decision.request) ||
+  decision.outcomeState !== AppGamePolicyCompilerOutcomeState.DryRunReady;
 
 export const appGamePolicyRequestedActionIsHard = (request: CompileRequestLike) =>
   hardActions.some((action) => action === request.requestedAction);

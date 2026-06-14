@@ -1,6 +1,5 @@
 import {
   AppGamePolicyCompilerAuthorityState,
-  AppGamePolicyCompilerCapabilityState,
   AppGamePolicyCompilerEvidenceState,
   AppGamePolicyCompilerOutcomeState,
   AppGamePolicyCompilerProofKind,
@@ -9,6 +8,7 @@ import {
   AppGamePolicyTargetKind,
 } from '../../src/app-game-policy-target-compiler-rules';
 import { PolicyAction, PolicyDecisionHandoffState } from '@ocentra-parent/policy-domain/policy';
+import { PolicyCompilerCapabilityState } from '@ocentra-parent/policy-domain/policy-compiler';
 import { ParentContractSchemaVersion, ParentEvidenceReferenceKind, ParentPlatform } from '@ocentra-parent/family-domain/reference-primitives';
 
 export const Timestamp = '2026-06-05T14:45:00Z';
@@ -42,7 +42,7 @@ export const EvidenceReference = {
 
 const CapabilityRef = {
   capabilityRef: 'capability-preview-1',
-  capabilityState: AppGamePolicyCompilerCapabilityState.Supported,
+  capabilityState: PolicyCompilerCapabilityState.Supported,
   evidenceReferences: [EvidenceReference],
 } as const;
 
@@ -127,7 +127,7 @@ export const gameManualCompiledDecision = {
     capabilityRefs: [
       {
         ...CapabilityRef,
-        capabilityState: AppGamePolicyCompilerCapabilityState.ManualRequired,
+        capabilityState: PolicyCompilerCapabilityState.ManualRequired,
       },
     ],
     authorityRefs: [

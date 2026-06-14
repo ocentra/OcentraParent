@@ -1,5 +1,12 @@
 import { describe, expect, it } from 'vitest';
 import {
+  PolicyCompilerCapabilityState,
+  PolicyCompilerDomain,
+  PolicyCompilerNoClaimLabel,
+  PolicyCompilerRuleStatus,
+  parsePolicyCompiledArtifact,
+} from '@ocentra-parent/policy-domain/policy-compiler';
+import {
   TrackingLocationAiAnalysisResultSchema,
   TrackingPolicySchemaVersion,
 } from '../../src/tracking-location-policy';
@@ -148,6 +155,53 @@ function registerDegradedStateCases() {
 }
 
 function registerRequestValidationCases() {
+  it('accepts matching tracking compiled-artifact provenance for runtime-proof requests', () => {
+    const request = TrackingPolicyCompilerRuntimeProofRequestSchema.parse(requestShapeFor('observe'));
+
+    expect(request.compiledArtifact.domain).toBe(PolicyCompilerDomain.Tracking);
+    expect(request.compiledArtifact.sourcePolicyVersion).toBe(request.rule.policyVersion);
+    expect(request.compiledArtifact.rules.some((rule) => rule.ruleId === request.rule.ruleId)).toBe(true);
+  });
+
+  it('rejects runtime-proof requests whose compiled artifact targets another domain', () => {
+    const baseRequest = requestShapeFor('observe');
+    const result = TrackingPolicyCompilerRuntimeProofRequestSchema.safeParse({
+      ...baseRequest,
+      compiledArtifact: {
+        ...baseRequest.compiledArtifact,
+        domain: PolicyCompilerDomain.Browser,
+      },
+    });
+
+    expect(result.success).toBe(false);
+  });
+
+  it('rejects runtime-proof requests whose compiled artifact source version differs from the request rule', () => {
+    const baseRequest = requestShapeFor('observe');
+    const result = TrackingPolicyCompilerRuntimeProofRequestSchema.safeParse({
+      ...baseRequest,
+      compiledArtifact: {
+        ...baseRequest.compiledArtifact,
+        sourcePolicyVersion: 'tracking-policy-v999',
+      },
+    });
+
+    expect(result.success).toBe(false);
+  });
+
+  it('rejects runtime-proof requests whose compiled artifact omits the request rule', () => {
+    const baseRequest = requestShapeFor('observe');
+    const result = TrackingPolicyCompilerRuntimeProofRequestSchema.safeParse({
+      ...baseRequest,
+      compiledArtifact: {
+        ...baseRequest.compiledArtifact,
+        rules: [],
+      },
+    });
+
+    expect(result.success).toBe(false);
+  });
+
   it('rejects non-manual compiler requests without evidence and live grants without runtime grant data', () => {
     const missingEvidence = TrackingPolicyCompilerRuntimeProofRequestSchema.safeParse({
       ...requestFor('notify-parent', { alertId: 'tracking-alert-no-evidence' }),
@@ -198,6 +252,7 @@ function requestShapeFor(
   return {
     schemaVersion: TrackingPolicySchemaVersion,
     requestId: `tracking-policy-compile-${ruleAction}`,
+    compiledArtifact: compiledArtifactFor(rule),
     rule,
     requestedAt: '2026-06-05T17:00:00.000Z',
     decidedAt: '2026-06-05T17:01:00.000Z',
@@ -220,6 +275,65 @@ function requestShapeFor(
     auditRefs: ['tracking-compiler-audit'],
     ...requestOptions,
   };
+}
+
+function compiledArtifactFor(rule: TrackingPolicyRule) {
+  return parsePolicyCompiledArtifact({
+    compiledArtifactId: `policy-compiler:tracking:${rule.ruleId}`,
+    compilerSchemaVersion: 1,
+    householdId: 'tracking-household-1',
+    sourcePolicyVersion: rule.policyVersion,
+    consumerPolicyVersion: rule.policyVersion,
+    sourceDocumentId: 'tracking-policy-source-1',
+    sourceStatus: 'confirmed',
+    domain: PolicyCompilerDomain.Tracking,
+    deliveryTarget: {
+      childProfileIds: [rule.childProfileId],
+      deviceIds: [rule.deviceId],
+      domain: PolicyCompilerDomain.Tracking,
+    },
+    supportMatrix: {
+      domain: PolicyCompilerDomain.Tracking,
+      rows: [
+        { targetKind: 'child-profile', capabilityState: PolicyCompilerCapabilityState.Supported },
+        { targetKind: 'device', capabilityState: PolicyCompilerCapabilityState.Supported },
+        { targetKind: 'app', capabilityState: PolicyCompilerCapabilityState.Unsupported },
+        { targetKind: 'site', capabilityState: PolicyCompilerCapabilityState.Unsupported },
+        { targetKind: 'category', capabilityState: PolicyCompilerCapabilityState.Unsupported },
+        { targetKind: 'resource', capabilityState: PolicyCompilerCapabilityState.Supported },
+      ],
+    },
+    evidenceCustodyRequirements: {
+      exportAllowed: true,
+      deleteAllowed: true,
+      syncAllowed: true,
+    },
+    noClaimLabels: [
+      PolicyCompilerNoClaimLabel.CompiledArtifactNotSourceTruth,
+      PolicyCompilerNoClaimLabel.RuntimeMutationNotClaimed,
+      PolicyCompilerNoClaimLabel.EnforcementNotClaimed,
+      PolicyCompilerNoClaimLabel.UiDeliveryNotClaimed,
+      PolicyCompilerNoClaimLabel.PlatformSupportNotClaimed,
+    ],
+    auditReferenceIds: ['tracking-policy-compiler-audit'],
+    supersededByPolicyVersion: null,
+    rollbackRef: null,
+    schedules: [],
+    rules: [
+      {
+        ruleId: rule.ruleId,
+        target: {
+          kind: 'resource',
+          referenceId: `tracking:${rule.targetKind}:${rule.deviceId}`,
+        },
+        action: 'warn',
+        scheduleId: null,
+        capabilityState: PolicyCompilerCapabilityState.Supported,
+        status: PolicyCompilerRuleStatus.Ready,
+        reasonCode: null,
+      },
+    ],
+  });
 }
 
 function expectAction(
