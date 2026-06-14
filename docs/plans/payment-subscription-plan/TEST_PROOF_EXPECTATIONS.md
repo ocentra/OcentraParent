@@ -9,6 +9,7 @@ This file tracks the required execution flow. It does not store proof artifacts.
 ## Required flow
 
 - [ ] Select one workpack and its external proof path.
+- [ ] If the workpack is not WP00, confirm the Cloudflare prerequisite handoff or exact blocker first.
 - [ ] Write or update the code for that workpack.
 - [ ] Write or update tests, including at least one negative case.
 - [ ] Compile and validate the touched boundary.
@@ -25,4 +26,5 @@ Proof artifacts live in the designated local artifact path for the workpack or c
 ## Failure conditions
 
 - Do not mark DONE or PR_READY until the code, tests, validation, and proof flow are complete.
+- Do not treat scaffold-only Cloudflare docs as payment runtime proof.
 - Do not store proof inventories inside the plan folder.

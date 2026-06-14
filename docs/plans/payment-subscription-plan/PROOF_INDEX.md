@@ -7,8 +7,10 @@ Use this as the route pointer, not the proof store.
 - Current queue: [NEXT_ACTIONS.md](NEXT_ACTIONS.md)
 - First-touch surfaces: [PLAN_EXECUTION_BLUEPRINT.md](PLAN_EXECUTION_BLUEPRINT.md)
 - Harness and proof map: [PROOF_AND_TEST_INVENTORY.md](PROOF_AND_TEST_INVENTORY.md)
+- Source surface reality: [SOURCE_SURFACE_STATUS_MATRIX.md](SOURCE_SURFACE_STATUS_MATRIX.md)
 - Proof manifest: [docs/proof/payment-subscription-plan/PLAN_PROOF_MANIFEST.md](../../proof/payment-subscription-plan/PLAN_PROOF_MANIFEST.md)
 
 - [ ] Proof collected in the designated local artifact path.
 - [ ] Proof pointer recorded outside the plan folder.
+- [ ] Cloudflare prerequisite handoff recorded before payment runtime work starts.
 - [ ] Local artifacts kept uncommitted until PR time unless the workpack says otherwise.

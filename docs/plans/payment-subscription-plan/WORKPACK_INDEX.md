@@ -2,6 +2,7 @@
 
 | Workpack                                                                                | Purpose                                                                   | Status  |
 | --------------------------------------------------------------------------------------- | ------------------------------------------------------------------------- | ------- |
+| [00-cloudflare-control-plane-handoff](workpacks/00-cloudflare-control-plane-handoff.md) | Consume the shared Cloudflare plan handoff before payment runtime work.   | Planned |
 | [01-product-pricing-entitlement](workpacks/01-product-pricing-entitlement.md)           | Starter bundle, child seats, referral credits, and entitlement math.      | Planned |
 | [02-checkout-billing-portal](workpacks/02-checkout-billing-portal.md)                   | Worker/API boundary, checkout sessions, and portal sessions.              | Planned |
 | [03-subscription-webhook-lifecycle](workpacks/03-subscription-webhook-lifecycle.md)     | Webhooks, lifecycle transitions, idempotency, and settlement.             | Planned |
@@ -15,4 +16,4 @@
 | [11-parent-website-billing-dashboard](workpacks/11-parent-website-billing-dashboard.md) | Parent-facing billing status, seats, invoices, and self-service views.    | Planned |
 | [12-support-admin-billing-ops](workpacks/12-support-admin-billing-ops.md)               | Support/admin billing search, refunds, disputes, adjustments, and audits. | Planned |
 
-Each workpack must name its proof path outside this plan folder and the exact validation slice it expects.
+Each workpack must name its proof path outside this plan folder and the exact validation slice it expects. WP00 is a dependency gate, not a second owner for the shared Cloudflare module.

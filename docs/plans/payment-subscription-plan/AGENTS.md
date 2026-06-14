@@ -12,9 +12,9 @@
 
 # Payment Subscription Plan Agent Route
 
-Task: define the Cloudflare-first billing, subscription, referral, and entitlement architecture for the parent product. This plan is the single owner for monetization architecture; do not split a second subscription plan.
+Task: define the billing, subscription, referral, and entitlement architecture for the parent product on top of the shared Cloudflare control-plane prerequisite. This plan is the single owner for monetization architecture; do not split a second subscription plan.
 
-Context: the reusable billing control-plane pattern for this plan is the Cloudflare-style shape already summarized in the plan docs: Worker handlers, Durable Objects, provider-normalized checkout and portal flows, signed webhooks, provider adapters, queue-backed reconciliation, wrangler-based configuration, and a heavy test boundary. Parent should reuse that control-plane pattern, not the game economy model.
+Context: `cloudflare-control-plane-plan` now owns the repo-local `infra/cloudflare/` module, its bindings, auth boundary, route manifest, local dev loop, test runner, and deployment model. This plan consumes that module and owns monetization semantics: checkout meaning, referral meaning, webhook-to-ledger meaning, entitlement meaning, dashboard meaning, and support/admin meaning. Parent should reuse the shared control-plane pattern, not the game economy model.
 
 Scope: subscription plans, starter bundle, child-device seats, referral credits, provider adapters, checkout and portal sessions, billing dashboard surfaces, support/admin billing ops, invoices/tax/refunds/disputes, webhook lifecycle, app-owned ledgers, signed entitlement snapshots, and proof.
 
@@ -35,6 +35,7 @@ Before implementation, DONE, or PR_READY, the assigned agent must inspect the ow
 
 | If the task is about...                                           | Open                                               |
 | ----------------------------------------------------------------- | -------------------------------------------------- |
+| Cloudflare prerequisite handoff and payment dependency gate       | `workpacks/00-cloudflare-control-plane-handoff.md` |
 | Pricing, starter bundle, child seats, referral credits            | `workpacks/01-product-pricing-entitlement.md`      |
 | Worker/API boundary, checkout sessions, portal sessions           | `workpacks/02-checkout-billing-portal.md`          |
 | Webhooks, subscription lifecycle, event idempotency               | `workpacks/03-subscription-webhook-lifecycle.md`   |
@@ -50,7 +51,7 @@ Before implementation, DONE, or PR_READY, the assigned agent must inspect the ow
 
 ## Architecture Decisions
 
-- Cloudflare Worker/API is the default billing control plane.
+- Cloudflare Worker/API remains the billing runtime boundary, but `cloudflare-control-plane-plan` owns the shared module scaffold, bindings, auth, and test runner that this plan consumes.
 - Provider secret operations never leave the server boundary.
 - Hosted checkout and hosted portal are the default user-facing billing surfaces.
 - Provider is not product authority; app-owned ledgers decide entitlement.
@@ -66,6 +67,7 @@ Before implementation, DONE, or PR_READY, the assigned agent must inspect the ow
 - `account-identity-family-plan` owns account, household, role, and session authority.
 - `device-trust-bootstrap-plan` owns trusted-device bootstrap and the sealed trust required to unlock entitlements.
 - `data-custody-storage-plan` owns privacy, export/delete, and retention boundaries for billing-related app records.
+- `cloudflare-control-plane-plan` owns `infra/cloudflare/`, shared auth states, bindings, local dev/test shape, and payment handoff proof.
 - `setup-install-provisioning-plan` owns family site pricing/register/install entry points.
 - `portal-ux-household-surfaces-plan` owns the non-billing household shell; this plan owns the billing content and state model.
 - `policy-control-plane-plan` and domain plans consume entitlements only after account, payment, and device-trust authority are proven.
@@ -75,4 +77,4 @@ Before implementation, DONE, or PR_READY, the assigned agent must inspect the ow
 - Do not claim paid access from Checkout redirect success alone.
 - Do not expose provider secrets or webhook secrets to client code.
 - Do not send child data to provider metadata.
-- Do not claim subscription correctness without webhook signature, idempotency, lifecycle, refund/dispute, regional provider, and entitlement proof.
+- Do not claim subscription correctness without the Cloudflare handoff, webhook signature, idempotency, lifecycle, refund/dispute, regional provider, and entitlement proof.

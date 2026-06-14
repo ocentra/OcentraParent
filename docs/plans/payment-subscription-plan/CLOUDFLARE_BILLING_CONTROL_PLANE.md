@@ -1,21 +1,22 @@
 # Cloudflare Billing Control Plane
 
-Purpose: define the server boundary for monetization, not the provider-specific product logic.
+Purpose: define the billing overlay that runs on top of the shared Parent Cloudflare control-plane module. The shared `infra/cloudflare/` worker shell, bindings, auth adapter, route manifest, local dev loop, and test runner are owned by `cloudflare-control-plane-plan`; this doc only defines the monetization role mapping on that surface.
 
 ## Named components
 
 | Component | Responsibilities |
 | --- | --- |
-| `BillingWorker` | public/auth/admin/webhook API boundary |
-| `BillingDurableObject` | per account/household idempotency and state coordination |
-| `BillingD1` | queryable ledgers for dashboard, invoices, support/admin, referrals, entitlements |
-| `BillingQueue` | webhook processing, retry, reconciliation, dead-letter, provider polling |
+| `BillingWorker` | Billing route group running inside the shared `infra/cloudflare/` worker entrypoint. |
+| `BillingDurableObject` | Per-account or per-household idempotency and state coordination for billing-owned writes. |
+| `BillingD1` | Queryable ledgers for dashboard, invoices, support/admin, referrals, and entitlements. |
+| `BillingQueue` | Webhook processing, retry, reconciliation, dead-letter, and provider polling. |
 | `BillingSigner` | signs `EntitlementSnapshot` |
 | `BillingAdmin` | support/admin billing dashboard API |
 
 ## Boundary rules
 
-- Worker routes handle checkout creation, portal sessions, billing status, webhook ingress, and admin actions.
+- Billing routes consume the shared route manifest owned by `cloudflare-control-plane-plan`; payment does not define a second worker surface.
+- The shared worker shell owns env validation, CORS fail-fast, request-size limits, kill switch, safe errors, auth-state dispatch, and scheduled reconciliation hooks.
 - Durable Objects serialize per-household or per-account billing writes and idempotency markers.
 - D1 stores queryable ledgers and dashboard views.
 - Queues handle retries, dead-letter processing, reconciliation jobs, and provider polling.
@@ -34,5 +35,5 @@ Purpose: define the server boundary for monetization, not the provider-specific 
 
 - No client-side provider secrets.
 - No provider event accepted without signature verification.
-- No dashboard write bypasses the Worker/DO boundary.
+- No dashboard write bypasses the shared Worker/DO boundary.
 - No reconciliation job mutates state without a ledger entry.

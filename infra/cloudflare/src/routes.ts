@@ -1,0 +1,280 @@
+export type AuthState =
+  | "public"
+  | "parent-session-required"
+  | "trusted-parent-device-required"
+  | "admin-required"
+  | "support-required"
+  | "provider-webhook-signature-required"
+  | "internal-queue-only";
+
+export type RouteMethod = "GET" | "POST";
+
+export interface RouteManifestEntry {
+  path: string;
+  method: RouteMethod;
+  authState: AuthState;
+  handlerKey: string;
+  requestModel: string;
+  responseModel: string;
+  auditEvent: string;
+  proofIdFamily: string;
+}
+
+export const ROUTE_MANIFEST: RouteManifestEntry[] = [
+  {
+    path: "/health",
+    method: "GET",
+    authState: "public",
+    handlerKey: "health",
+    requestModel: "none",
+    responseModel: "HealthStatusResponse",
+    auditEvent: "cloudflare.health.read",
+    proofIdFamily: "cloudflare-control.worker-entrypoint",
+  },
+  {
+    path: "/public/pricing",
+    method: "GET",
+    authState: "public",
+    handlerKey: "pricing-public",
+    requestModel: "BillingPricingPublicRequest",
+    responseModel: "BillingPricingPublicResponse",
+    auditEvent: "billing.pricing.read",
+    proofIdFamily: "payment-route.cloudflare-prerequisite",
+  },
+  {
+    path: "/auth/billing/status",
+    method: "GET",
+    authState: "parent-session-required",
+    handlerKey: "billing-status",
+    requestModel: "BillingStatusRequest",
+    responseModel: "BillingStatusResponse",
+    auditEvent: "billing.status.read",
+    proofIdFamily: "cloudflare-control.portal-to-worker-smoke",
+  },
+  {
+    path: "/auth/billing/checkout",
+    method: "POST",
+    authState: "parent-session-required",
+    handlerKey: "billing-checkout",
+    requestModel: "BillingCheckoutRequest",
+    responseModel: "BillingCheckoutResponse",
+    auditEvent: "billing.checkout.create",
+    proofIdFamily: "payment-route.checkout",
+  },
+  {
+    path: "/auth/billing/portal",
+    method: "POST",
+    authState: "parent-session-required",
+    handlerKey: "billing-portal",
+    requestModel: "BillingPortalRequest",
+    responseModel: "BillingPortalResponse",
+    auditEvent: "billing.portal.open",
+    proofIdFamily: "payment-route.portal",
+  },
+  {
+    path: "/auth/billing/invoices",
+    method: "GET",
+    authState: "parent-session-required",
+    handlerKey: "billing-invoices",
+    requestModel: "BillingInvoicesRequest",
+    responseModel: "BillingInvoicesResponse",
+    auditEvent: "billing.invoices.read",
+    proofIdFamily: "payment-route.invoices",
+  },
+  {
+    path: "/auth/billing/change-plan",
+    method: "POST",
+    authState: "parent-session-required",
+    handlerKey: "billing-change-plan",
+    requestModel: "BillingChangePlanRequest",
+    responseModel: "BillingChangePlanResponse",
+    auditEvent: "billing.plan.change",
+    proofIdFamily: "payment-route.plan-change",
+  },
+  {
+    path: "/auth/billing/cancel",
+    method: "POST",
+    authState: "parent-session-required",
+    handlerKey: "billing-cancel",
+    requestModel: "BillingCancelRequest",
+    responseModel: "BillingCancelResponse",
+    auditEvent: "billing.subscription.cancel",
+    proofIdFamily: "payment-route.cancellation",
+  },
+  {
+    path: "/auth/billing/referrals",
+    method: "GET",
+    authState: "parent-session-required",
+    handlerKey: "billing-referrals",
+    requestModel: "BillingReferralsRequest",
+    responseModel: "BillingReferralsResponse",
+    auditEvent: "billing.referrals.read",
+    proofIdFamily: "payment-route.referrals",
+  },
+  {
+    path: "/auth/billing/referral-invite",
+    method: "POST",
+    authState: "parent-session-required",
+    handlerKey: "billing-referral-invite",
+    requestModel: "BillingReferralInviteRequest",
+    responseModel: "BillingReferralInviteResponse",
+    auditEvent: "billing.referrals.invite",
+    proofIdFamily: "payment-route.referrals",
+  },
+  {
+    path: "/auth/billing/entitlement-snapshot",
+    method: "GET",
+    authState: "trusted-parent-device-required",
+    handlerKey: "billing-entitlement-snapshot",
+    requestModel: "BillingEntitlementSnapshotRequest",
+    responseModel: "BillingEntitlementSnapshotResponse",
+    auditEvent: "billing.entitlement.snapshot",
+    proofIdFamily: "payment-route.entitlement-snapshot",
+  },
+  {
+    path: "/auth/billing/license-check",
+    method: "POST",
+    authState: "trusted-parent-device-required",
+    handlerKey: "billing-license-check",
+    requestModel: "BillingLicenseCheckRequest",
+    responseModel: "BillingLicenseCheckResponse",
+    auditEvent: "billing.license.check",
+    proofIdFamily: "payment-route.license-check",
+  },
+  {
+    path: "/auth/billing/manual-invoice",
+    method: "POST",
+    authState: "support-required",
+    handlerKey: "billing-manual-invoice",
+    requestModel: "BillingManualInvoiceRequest",
+    responseModel: "BillingManualInvoiceResponse",
+    auditEvent: "billing.manual-invoice.create",
+    proofIdFamily: "payment-route.support-admin",
+  },
+  {
+    path: "/webhooks/stripe",
+    method: "POST",
+    authState: "provider-webhook-signature-required",
+    handlerKey: "stripe-webhook",
+    requestModel: "StripeWebhookRequest",
+    responseModel: "WebhookAckResponse",
+    auditEvent: "billing.webhook.stripe",
+    proofIdFamily: "payment-route.webhook-stripe",
+  },
+  {
+    path: "/webhooks/razorpay",
+    method: "POST",
+    authState: "provider-webhook-signature-required",
+    handlerKey: "razorpay-webhook",
+    requestModel: "RazorpayWebhookRequest",
+    responseModel: "WebhookAckResponse",
+    auditEvent: "billing.webhook.razorpay",
+    proofIdFamily: "payment-route.webhook-razorpay",
+  },
+  {
+    path: "/webhooks/paypal",
+    method: "POST",
+    authState: "provider-webhook-signature-required",
+    handlerKey: "paypal-webhook",
+    requestModel: "PayPalWebhookRequest",
+    responseModel: "WebhookAckResponse",
+    auditEvent: "billing.webhook.paypal",
+    proofIdFamily: "payment-route.webhook-paypal",
+  },
+  {
+    path: "/webhooks/apple",
+    method: "POST",
+    authState: "provider-webhook-signature-required",
+    handlerKey: "apple-webhook",
+    requestModel: "AppleWebhookRequest",
+    responseModel: "WebhookAckResponse",
+    auditEvent: "billing.webhook.apple",
+    proofIdFamily: "payment-route.webhook-apple",
+  },
+  {
+    path: "/webhooks/google",
+    method: "POST",
+    authState: "provider-webhook-signature-required",
+    handlerKey: "google-webhook",
+    requestModel: "GoogleWebhookRequest",
+    responseModel: "WebhookAckResponse",
+    auditEvent: "billing.webhook.google",
+    proofIdFamily: "payment-route.webhook-google",
+  },
+  {
+    path: "/admin/billing/accounts",
+    method: "GET",
+    authState: "support-required",
+    handlerKey: "admin-billing-accounts",
+    requestModel: "AdminBillingAccountsRequest",
+    responseModel: "AdminBillingAccountsResponse",
+    auditEvent: "billing.admin.accounts.read",
+    proofIdFamily: "payment-route.support-admin",
+  },
+  {
+    path: "/admin/billing/invoices",
+    method: "GET",
+    authState: "support-required",
+    handlerKey: "admin-billing-invoices",
+    requestModel: "AdminBillingInvoicesRequest",
+    responseModel: "AdminBillingInvoicesResponse",
+    auditEvent: "billing.admin.invoices.read",
+    proofIdFamily: "payment-route.support-admin",
+  },
+  {
+    path: "/admin/billing/refunds",
+    method: "POST",
+    authState: "admin-required",
+    handlerKey: "admin-billing-refunds",
+    requestModel: "AdminBillingRefundRequest",
+    responseModel: "AdminBillingRefundResponse",
+    auditEvent: "billing.admin.refund.create",
+    proofIdFamily: "payment-route.refunds",
+  },
+  {
+    path: "/admin/billing/disputes",
+    method: "GET",
+    authState: "admin-required",
+    handlerKey: "admin-billing-disputes",
+    requestModel: "AdminBillingDisputesRequest",
+    responseModel: "AdminBillingDisputesResponse",
+    auditEvent: "billing.admin.disputes.read",
+    proofIdFamily: "payment-route.disputes",
+  },
+  {
+    path: "/admin/billing/referrals",
+    method: "GET",
+    authState: "admin-required",
+    handlerKey: "admin-billing-referrals",
+    requestModel: "AdminBillingReferralsRequest",
+    responseModel: "AdminBillingReferralsResponse",
+    auditEvent: "billing.admin.referrals.read",
+    proofIdFamily: "payment-route.referrals",
+  },
+  {
+    path: "/admin/billing/reconciliation",
+    method: "POST",
+    authState: "internal-queue-only",
+    handlerKey: "admin-billing-reconciliation",
+    requestModel: "AdminBillingReconciliationRequest",
+    responseModel: "AdminBillingReconciliationResponse",
+    auditEvent: "billing.admin.reconciliation.run",
+    proofIdFamily: "payment-route.reconciliation",
+  },
+  {
+    path: "/admin/billing/audit",
+    method: "GET",
+    authState: "admin-required",
+    handlerKey: "admin-billing-audit",
+    requestModel: "AdminBillingAuditRequest",
+    responseModel: "AdminBillingAuditResponse",
+    auditEvent: "billing.admin.audit.read",
+    proofIdFamily: "payment-route.audit",
+  },
+];
+
+export function findRoute(path: string, method: string): RouteManifestEntry | null {
+  return (
+    ROUTE_MANIFEST.find((entry) => entry.path === path && entry.method === method) ?? null
+  );
+}

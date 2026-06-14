@@ -1,6 +1,6 @@
 # Billing API Boundary
 
-Purpose: define which callers can touch billing state and what they are allowed to ask for.
+Purpose: define which callers can touch billing state and what they are allowed to ask for. The route groups below are consumed from `docs/plans/cloudflare-control-plane-plan/ROUTE_MANIFEST_MODEL.md`; payment owns the billing semantics attached to them, not the shared worker shell.
 
 ## Public API groups
 
@@ -53,7 +53,7 @@ Purpose: define which callers can touch billing state and what they are allowed 
 - Browser callers must never receive provider secrets or webhook secrets.
 - Checkout success URLs are not proof of payment.
 - Provider event payloads are inputs, not truth.
-- Billing writes must pass through the Worker and the per-account or per-household serialization boundary.
+- Billing writes must pass through the shared Worker and the per-account or per-household serialization boundary.
 - Sensitive actions may require device-trust proof, but the device-trust flow itself belongs to the device-trust plan.
 - Dashboard actions must return redacted, audit-friendly payloads.
 
