@@ -16,3 +16,7 @@ Status: locked architecture decisions for the payment route.
 | PSP-010 | Referral credits grant child-device entitlement only while the referred household remains qualified.               | Prevents permanent abuse of referral expansion.                                 | Losing qualification causes grace or blocked expansion, not data deletion. |
 | PSP-011 | Signed EntitlementSnapshot is derived and device-bound; it is not the root of trust.                               | Trusted devices must gate consumption, not replace ledger truth.                | Device-trust-bootstrap-plan supplies the binding check.                    |
 | PSP-012 | Regional provider adapters are mandatory before regional rollout.                                                  | Avoids shipping a US-only assumption globally.                                  | Market matrix must gate rollout order.                                     |
+
+## Control-plane boundary
+
+Cloudflare Worker/API is the default billing and entitlement control-plane boundary. It owns provider secrets, checkout/portal creation, webhook verification, idempotency, subscription projection, referral qualification, entitlement calculation, signed EntitlementSnapshot issuance, dashboard APIs, support/admin billing ops, reconciliation, and dead-letter handling. It must remain replaceable by a self-hosted Rust Billing API later, but desktop/mobile/browser clients must never own provider secrets or webhook truth.

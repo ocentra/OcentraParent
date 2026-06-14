@@ -4,12 +4,14 @@ Purpose: define the access history the product uses to decide whether a househol
 
 ## Ledger entries
 
-| Entry                      | Meaning                          | Required fields                                                       |
-| -------------------------- | -------------------------------- | --------------------------------------------------------------------- |
-| EntitlementGrant           | A seat or access unit was added. | `entitlementId`, `householdId`, `source`, `quantity`, `effectiveFrom` |
-| EntitlementHold            | Access is temporarily held.      | `entitlementId`, `reason`, `holdUntil`, `source`                      |
-| EntitlementRevoke          | Access is removed or reduced.    | `entitlementId`, `reason`, `effectiveTo`, `source`                    |
-| EntitlementSnapshotRequest | A signed snapshot was requested. | `householdId`, `deviceBindingId`, `requestedAt`, `mode`               |
+| Entry | Meaning | Required fields |
+| --- | --- | --- |
+| `HouseholdEntitlement` | Household-level entitlement state. | `householdRef`, `planTier`, `status`, `effectiveFrom`, `effectiveTo` |
+| `FeatureEntitlement` | Feature-level access state. | `householdRef`, `featureKey`, `status`, `source`, `effectiveFrom` |
+| `DeviceSeatEntitlement` | Child-device seat state. | `householdRef`, `deviceSeatCount`, `source`, `effectiveFrom`, `effectiveTo` |
+| `EffectiveEntitlementProjection` | Queryable current access state. | `householdRef`, `effectiveChildDeviceLimit`, `graceState`, `updatedAt` |
+| `EntitlementSnapshot` | Signed derived artifact consumed by trusted devices. | `snapshotId`, `householdRef`, `trustedDeviceRef`, `signature`, `expiresAt` |
+| `EntitlementAuditEvent` | Audited entitlement change. | `auditEventId`, `householdRef`, `actorRef`, `reason`, `createdAt` |
 
 ## Rules
 

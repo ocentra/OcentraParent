@@ -22,6 +22,12 @@ Purpose: define invoice, tax, refund, dispute, cancellation, and grace behavior 
 - Cancellation defaults to end-of-term unless policy or support action says otherwise.
 - Grace is time-bound and must be visible in the entitlement ledger and the snapshot.
 
+## Grace model
+
+- Billing grace uses the canonical state names `billingGraceActive` and `billingGraceExpired`.
+- Billing grace belongs to WP05 and must not be used to describe referral credit loss.
+- Referral grace lives in `REFERRAL_ENTITLEMENT_MODEL.md` as `referralGraceActive` and `referralCreditLost`.
+
 ## Failure conditions
 
 - Do not allow a refund or dispute to silently change access without a ledger entry.

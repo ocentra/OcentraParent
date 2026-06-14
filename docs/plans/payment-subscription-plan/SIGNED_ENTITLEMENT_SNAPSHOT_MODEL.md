@@ -4,20 +4,29 @@ Purpose: define the derived artifact the product can trust on-device after the s
 
 ## Snapshot fields
 
-| Field                    | Meaning                                                  |
-| ------------------------ | -------------------------------------------------------- |
-| `householdId`            | Billing household or parent account scope.               |
-| `parentAccountId`        | Parent who owns the billing relationship.                |
-| `baseChildSeats`         | Starter bundle child-device count.                       |
-| `paidChildSeats`         | Monthly paid add-on seats.                               |
-| `referralSeats`          | Seats created by qualified referral credits.             |
-| `graceSeats`             | Time-bound continuation seats.                           |
-| `providerMode`           | Stripe, Razorpay, PayPal, store, or manual invoice mode. |
-| `region`                 | Launch region or market bucket.                          |
-| `deviceBindingId`        | Trusted device binding identifier.                       |
-| `issuedAt` / `expiresAt` | Snapshot lifetime.                                       |
-| `snapshotVersion`        | Server-side schema version.                              |
-| `signature`              | Server signature over the snapshot payload.              |
+| Field | Meaning |
+| --- | --- |
+| `schemaVersion` | Snapshot schema version. |
+| `snapshotId` | Unique snapshot identifier. |
+| `accountRef` | Billing account reference. |
+| `householdRef` | Household reference. |
+| `trustedDeviceRef` | Trusted device binding reference. |
+| `planTier` | Current plan tier. |
+| `featureFlags` | Snapshot feature flags. |
+| `limits` | Snapshot limit bundle. |
+| `baseChildDeviceLimit` | Starter bundle child-device count. |
+| `activeReferralCredits` | Active referral-derived child-device credits. |
+| `paidExtraChildDeviceSeats` | Monthly paid add-on seats. |
+| `effectiveChildDeviceLimit` | Derived total child-device limit. |
+| `issuedAt` | Snapshot issuance time. |
+| `expiresAt` | Snapshot expiration time. |
+| `graceUntil` | Grace expiry time. |
+| `livemode` | Live or test mode indicator. |
+| `revocationCursor` | Cursor used to invalidate stale snapshots. |
+| `deviceTrustRequired` | Whether sealed device trust is required. |
+| `packageBuildRef` | Package or build channel reference. |
+| `signatureKeyId` | Signing key identifier. |
+| `signature` | Server signature over the payload. |
 
 ## Validation rules
 
@@ -25,6 +34,16 @@ Purpose: define the derived artifact the product can trust on-device after the s
 - The snapshot must match the household and device binding.
 - Expired or revoked snapshots must be rejected.
 - The snapshot must not contain child names, child activity, screenshots, or provider secrets.
+
+## Rejection rules
+
+- Reject if signature invalid.
+- Reject if wrong household.
+- Reject if wrong device.
+- Reject if expired beyond grace.
+- Reject if revoked.
+- Reject if local sealed device trust missing.
+- Reject if package or build channel invalid.
 
 ## Failure conditions
 

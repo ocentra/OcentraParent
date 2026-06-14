@@ -4,13 +4,14 @@ Purpose: define the canonical referral history owned by the app.
 
 ## Ledger entries
 
-| Entry                 | Meaning                                                   | Required fields                                              |
-| --------------------- | --------------------------------------------------------- | ------------------------------------------------------------ |
-| ReferralInvite        | A referral code or link was created.                      | `referralId`, `referrerAccountId`, `inviteType`, `createdAt` |
-| ReferralAcceptance    | The referred household accepted the invite.               | `referralId`, `referredAccountId`, `acceptedAt`              |
-| ReferralQualification | The referred household satisfied the qualification rules. | `referralId`, `qualifiedAt`, `qualificationReason`           |
-| ReferralCredit        | Child-device credit was granted.                          | `referralId`, `creditUnits`, `grantedAt`, `expiresAt`        |
-| ReferralRevocation    | Credit was removed or held.                               | `referralId`, `revokedAt`, `reason`, `holdUntil`             |
+| Entry | Meaning | Required fields |
+| --- | --- | --- |
+| `ReferralInvite` | A referral code or link was created. | `referralId`, `referrerAccountId`, `inviteType`, `createdAt` |
+| `ReferralRelationship` | A referred household or parent relationship exists. | `referralId`, `referredAccountId`, `relationshipState`, `createdAt` |
+| `ReferralQualification` | The referred household satisfied the qualification rules. | `referralId`, `qualifiedAt`, `qualificationReason` |
+| `ReferralCredit` | Child-device credit was granted. | `referralId`, `creditUnits`, `grantedAt`, `expiresAt` |
+| `ReferralCreditLedgerEntry` | A credit change or adjustment was recorded. | `referralId`, `deltaUnits`, `reason`, `actorRef`, `createdAt` |
+| `ReferralAbuseSignal` | A fraud or abuse signal was detected. | `referralId`, `signalType`, `detailsRef`, `createdAt` |
 
 ## Rules
 

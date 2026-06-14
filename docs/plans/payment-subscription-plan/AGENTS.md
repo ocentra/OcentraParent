@@ -14,7 +14,7 @@
 
 Task: define the Cloudflare-first billing, subscription, referral, and entitlement architecture for the parent product. This plan is the single owner for monetization architecture; do not split a second subscription plan.
 
-Context: the games repo at `E:\ocentra-games\infra\cloudflare` already demonstrates the control-plane shape this plan should reuse: Worker handlers, Durable Objects, provider-normalized checkout flows, signed Stripe webhooks, provider adapters, queue-backed reconciliation, wrangler-based configuration, and a heavy test boundary. Parent should reuse that control-plane pattern, not the game economy model.
+Context: the reusable billing control-plane pattern for this plan is the Cloudflare-style shape already summarized in the plan docs: Worker handlers, Durable Objects, provider-normalized checkout and portal flows, signed webhooks, provider adapters, queue-backed reconciliation, wrangler-based configuration, and a heavy test boundary. Parent should reuse that control-plane pattern, not the game economy model.
 
 Scope: subscription plans, starter bundle, child-device seats, referral credits, provider adapters, checkout and portal sessions, billing dashboard surfaces, support/admin billing ops, invoices/tax/refunds/disputes, webhook lifecycle, app-owned ledgers, signed entitlement snapshots, and proof.
 
@@ -29,7 +29,7 @@ Out of scope: account identity policy, device trust implementation, install/prov
 
 ## Research Gate
 
-Before implementation, DONE, or PR_READY, the assigned agent must inspect the owning parent code, `E:\ocentra-games\infra\cloudflare` payment patterns, official Cloudflare/Stripe/Razorpay/PayPal/Apple/Google docs for the touched slice, and the unresolved pricing/referral/dashboard choices with Sujan. Do not treat this route as final until those sources are reconciled.
+Before implementation, DONE, or PR_READY, the assigned agent must inspect the owning parent code, this plan's payment docs, official Cloudflare/Stripe/Razorpay/PayPal/Apple/Google docs for the touched slice, and the unresolved pricing/referral/dashboard choices with Sujan. Do not treat this route as final until those sources are reconciled.
 
 ## Decision Tree
 
