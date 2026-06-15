@@ -24,13 +24,14 @@ Use this index to select exactly one workpack.
 | open | [WP04 Rust Logging Core Crate](workpacks/04-rust-logging-core-crate.md) | 0/12 | `02-rust-logging-core-crate.md` |
 | open | [WP05 Local Validation Evidence](workpacks/05-local-validation-evidence.md) | 0/12 | `03-local-validation-evidence.md` |
 | open | [WP06 Validation and Enforcement](workpacks/06-validation-and-enforcement.md) | 0/12 | `04-validation-and-enforcement.md` |
+| open | [WP07 MCP Query Interface](workpacks/07-mcp-query-interface.md) | 0/16 | `06-mcp-query-interface.md` |
 
 ## Selection rules
 
 Default order:
 
 ```text
-WP01 -> WP02 -> WP03 -> WP04 -> WP05 -> WP06
+WP01 -> WP02 -> WP03 -> WP04 -> WP05 -> WP07 -> WP06
 ```
 
 Allowed parallelism:
@@ -39,11 +40,12 @@ Allowed parallelism:
 WP02 and WP04 can be developed in parallel if package exports and JSON fixtures are coordinated.
 WP03 can run after WP02 or in parallel with careful portal/agent route ownership.
 WP05 must wait until enough WP02/WP04 storage primitives exist.
-WP06 should be last, after the files it checks exist.
+WP07 must wait until enough WP02/WP05 query data exists.
+WP06 should be last, after the files it checks exist, including MCP checks if WP07 is in scope.
 ```
 
 ## Do not select
 
-Do not create new workpacks unless the existing six cannot represent the implementation slice.
+Do not create new workpacks unless the existing seven cannot represent the implementation slice.
 
 Do not split into tiny proof-only workpacks.
