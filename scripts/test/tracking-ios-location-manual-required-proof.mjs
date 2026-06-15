@@ -167,6 +167,11 @@ function summarize(readModel) {
     significantChangeVisitManualRequiredCount: readModel.significantChangeVisitManualRequiredCount,
     backgroundTerminatedRelaunchManualRequiredCount: readModel.backgroundTerminatedRelaunchManualRequiredCount,
     runtimeEvidenceRefs: readModel.runtimeEvidenceRefs.length,
+    localEvidenceArtifactRefs: readModel.localEvidenceArtifactRefs.length,
+    requiredRuntimeArtifactRefs: readModel.requiredRuntimeArtifactRefs.length,
+    presentRuntimeArtifactRefs: readModel.presentRuntimeArtifactRefs.length,
+    missingRuntimeArtifactRefs: readModel.missingRuntimeArtifactRefs.length,
+    runtimeArtifactSetComplete: readModel.runtimeArtifactSetComplete,
     claimStates: countBy(readModel.rows.map((row) => row.claimState)),
     caseKinds: countBy(readModel.rows.map((row) => row.caseKind)),
   };
@@ -202,7 +207,12 @@ function assertProof(proof) {
     proof.summary.alwaysAuthorizationManualRequiredCount !== 1 ||
     proof.summary.regionTransitionManualRequiredCount !== 1 ||
     proof.summary.significantChangeVisitManualRequiredCount !== 1 ||
-    proof.summary.backgroundTerminatedRelaunchManualRequiredCount !== 1
+    proof.summary.backgroundTerminatedRelaunchManualRequiredCount !== 1 ||
+    proof.summary.localEvidenceArtifactRefs !== 2 ||
+    proof.summary.requiredRuntimeArtifactRefs !== 9 ||
+    proof.summary.presentRuntimeArtifactRefs !== 0 ||
+    proof.summary.missingRuntimeArtifactRefs !== 9 ||
+    proof.summary.runtimeArtifactSetComplete !== false
   ) {
     throw new Error(`Unexpected iOS manual-required summary: ${JSON.stringify(proof.summary)}`);
   }
@@ -256,6 +266,14 @@ async function writeProofPacks(proof) {
     proofMode: proof.proofMode,
     generatedAt: proof.generatedAt,
     rows: foregroundRows,
+    localEvidenceArtifactRefs: proof.readModel.localEvidenceArtifactRefs,
+    requiredRuntimeArtifactRefs: proof.readModel.requiredRuntimeArtifactRefs.filter((ref) =>
+      ref.includes('ios-core-location')
+    ),
+    presentRuntimeArtifactRefs: [],
+    missingRuntimeArtifactRefs: proof.readModel.missingRuntimeArtifactRefs.filter((ref) =>
+      ref.includes('ios-core-location')
+    ),
     nonClaims: proof.nonClaims,
   });
   await writeJson(join(wp12ProofDir, '05-geofence-transition-proof.json'), {
@@ -265,6 +283,14 @@ async function writeProofPacks(proof) {
     regionTransitionCount: 0,
     significantChangeEventCount: 0,
     visitEventCount: 0,
+    localEvidenceArtifactRefs: proof.readModel.localEvidenceArtifactRefs,
+    requiredRuntimeArtifactRefs: proof.readModel.requiredRuntimeArtifactRefs.filter((ref) =>
+      ref.includes('ios-region-monitoring')
+    ),
+    presentRuntimeArtifactRefs: [],
+    missingRuntimeArtifactRefs: proof.readModel.missingRuntimeArtifactRefs.filter((ref) =>
+      ref.includes('ios-region-monitoring')
+    ),
     nonClaims: proof.nonClaims,
   });
   await writeFile(
@@ -298,6 +324,7 @@ function sourceSnapshot(proof, title, scope) {
     `- Scope: parent-domain iOS ${scope} read model against existing simulator package/manual proof plans.`,
     '- Source inspected: location/geofence feature doc, location/geofence expectations, platform expectations, WP11 workpack, and WP12 workpack.',
     '- Boundary: this proof keeps Core Location authorization, sample, region, background, entitlement, notification, physical-device, authority, and product-ready behavior manual-required until matching artifacts exist.',
+    `- Runtime artifact inventory: ${proof.readModel.presentRuntimeArtifactRefs.length} present of ${proof.readModel.requiredRuntimeArtifactRefs.length} required; missing refs remain ${proof.readModel.missingRuntimeArtifactRefs.join(', ')}.`,
     '',
   ].join('\n');
 }

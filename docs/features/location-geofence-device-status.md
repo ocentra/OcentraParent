@@ -257,7 +257,7 @@ expose location or device-status features. Parents expect this category.
   execution derivation proof and child-runtime artifact gate proof as closure
   evidence, and keeps full product UI runtime, child-device runtime,
   physical-device, authority, provider-delivery, production UI, and
-  product-ready claims false. The local capture proof records five local
+  product-ready claims false. The local capture proof records six local
   parent-side artifacts, one retention writable execution row/derivation, and
   ten missing child-runtime artifacts from the real child-device runtime gate.
   The hard runtime UI artifacts still missing from the product UI artifact root
@@ -338,7 +338,7 @@ expose location or device-status features. Parents expect this category.
   `output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-gate/46-product-readiness-closure-proof.json`,
   explicitly enumerates retention writable-settings and platform-enforcement
   blockers from the retention product-readiness proof, carries aggregate
-  evidence for five observed full-product UI local artifacts, one retention
+  evidence for six observed full-product UI local artifacts, one retention
   writable execution derivation row, two required retention runtime artifacts,
   one present local writable execution artifact, one missing platform retention
   runtime enforcement artifact, ten child-runtime artifact gaps, and the
@@ -1203,6 +1203,14 @@ accessibility beyond the hosted parent route are proved.
       geofence delivery, dwell transitions, physical-device, authority,
       provider delivery, production workers, and product-ready Android tracking
       remain unclaimed.
+- [x] WP11/WP12 iOS manual-required proof now records simulator package/manual
+      evidence refs plus required, present, and missing Core Location/region
+      runtime artifact refs for When In Use authorization, foreground samples,
+      degraded states, Always authorization, region transitions,
+      significant-change/visit events, background relaunch, and entitlement
+      approval. This is artifact accounting only; no iOS Core Location runtime,
+      physical-device, authority, provider delivery, production worker, or
+      product-ready tracking claim is made.
 - [x] Evidence-quality gate proof for tracking UI evidence refs, geofence
       source refs, nearby-place context fields, AI no-final-action constraints,
       alert policy-decision refs, and retention before/after proof. This is not
