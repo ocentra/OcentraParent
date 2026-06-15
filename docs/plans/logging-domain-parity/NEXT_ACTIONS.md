@@ -24,33 +24,76 @@
 
 ## Highest-priority queue
 
-Completed in this checkout:
+### 1. WP01 Current State and Reference Audit
 
-```text
-WP01 current-state/reference audit
-WP02 TypeScript package parity
-WP03 parent architecture and routing
-WP09 log control, retention, and bridge lifecycle
-WP04 Rust logging-core
-WP05 local validation evidence
-WP07 MCP query interface
-WP08 logger instrumentation and adoption
-WP10 proof trace pipeline
-WP06 validation and enforcement re-audit
-```
-
-### 1. No open workpacks remain in this plan
+Use first when Codex has not yet verified the actual current files against the reference implementation.
 
 Expected result:
 
 ```text
-if work resumes here, treat it as regression repair, rollout follow-up, or scope expansion backed by a new user assignment
+current state confirmed
+reference files mapped
+no source code changes unless audit finds a blocking route mismatch
 ```
 
-### 2. Preserve completion boundaries
+### 2. WP02 TypeScript Package Parity
+
+Use first implementation slice.
+
+Expected result:
 
 ```text
-do not reinterpret unrelated portal workspace build failures as logging-domain parity regressions unless the failing files or tests enter this plan's owned logging surfaces
+packages/logging-domain gains bridge/test-log/app-log parity modules and scripts
+existing contract exports remain intact
+no generic Cloudflare hardcode
+```
+
+### 3. WP03 Parent Architecture and Routing Fix
+
+Use after or alongside WP02 when wiring portal/agent/log scopes.
+
+Expected result:
+
+```text
+portal dev logs have a receiver or bridge path
+parent scopes are explicit
+package README explains local-dev-observability separately from product safe logging
+```
+
+### 4. WP04 Rust Logging Core
+
+Use when starting Rust parity.
+
+Expected result:
+
+```text
+crates/logging-core exists
+agent-service can delegate dev logging to it
+Rust/TS fixture parity tests exist
+```
+
+### 5. WP05 Local Validation Evidence
+
+Use after enough logging primitives exist to store local run evidence.
+
+Expected result:
+
+```text
+agent:run
+agent:query
+codex:evidence
+local artifacts
+agent_run / diagnostics / artifacts rows
+```
+
+### 6. WP06 Validation and Enforcement
+
+Use after implementation paths exist.
+
+Expected result:
+
+```text
+validate:logging and lint checks fail when parity files/routes/wrappers are missing
 ```
 
 ## PR readiness guard
@@ -70,12 +113,7 @@ unless the assigned workpack is explicitly proof-routing-only.
 
 ## Actioned completion tracker
 
-- [x] Re-check this plan route from `README.md`, `AGENTS.md`, and `PLAN_STATE.md`.
-- [x] Select one workpack from `WORKPACK_INDEX.md`.
-- [x] Implement at least one real source/test behavior before proof/doc updates.
-- [x] Record focused commands and evidence path before reporting progress.
-- [x] Close the remaining WP08 portal and script adoption rows before claiming the plan folder complete.
-- [x] Re-audit the downstream WP10 completion claims before calling the broader plan done.
-- [x] Re-audit the downstream WP06 completion claims before calling the broader plan done.
-- [x] Complete the final plan-level completion audit against live MCP, TS, Rust, portal proof-trace, and validation evidence.
-- [x] Report the completion boundary honestly, including the unrelated portal workspace build failures outside this plan scope.
+- [ ] Re-check this plan route from `README.md`, `AGENTS.md`, and `PLAN_STATE.md`.
+- [ ] Select one workpack from `WORKPACK_INDEX.md`.
+- [ ] Implement at least one real source/test behavior before proof/doc updates.
+- [ ] Record focused commands and evidence path before reporting progress.
