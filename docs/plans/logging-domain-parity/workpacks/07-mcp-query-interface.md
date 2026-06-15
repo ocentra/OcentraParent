@@ -16,7 +16,7 @@
 
 ## Purpose
 
-Add a Codex-native MCP query interface over the local logging evidence store.
+Add or upgrade a Codex-native MCP query interface over the local logging evidence store.
 
 CLI is useful, but MCP is the intended agent interface:
 
@@ -44,6 +44,47 @@ scripts/dev/agent-query.mjs
 scripts/dev/codex-evidence.mjs
 ```
 
+## Existing MCP audit gate
+
+Before implementing, check whether OcentraParent already has an MCP framework from earlier roadmap work.
+
+Run locally:
+
+```bash
+git grep -ni "mcp\|model context protocol\|modelcontextprotocol" -- .
+find . -iname '*mcp*' -o -iname '*modelcontext*'
+```
+
+Remote pre-check found no obvious parent MCP server or config in:
+
+```text
+root package scripts
+packages/logging-domain package scripts
+.mcp.json
+mcp.json
+.cursor/mcp.json
+packages/mcp-domain
+packages/mcp-server
+apps/mcp
+apps/mcp-server
+scripts/dev/mcp-server.mjs
+scripts/dev/mcp-logging-server.mjs
+packages/logging-domain/scripts/mcp-logging-server.ts
+```
+
+Decision rule:
+
+```text
+If existing MCP exists: upgrade/adapt it and do not create a second MCP framework.
+If existing MCP does not exist: implement the logging MCP server described here.
+```
+
+Record the audit result in:
+
+```text
+output/logging-domain-parity-proof/07-mcp-query-interface/00-existing-mcp-audit.json
+```
+
 ## Dependency gate
 
 Run this after the query/DuckDB path exists.
@@ -63,7 +104,7 @@ If these are missing, route to WP02/WP05 first.
 
 MCP server exists and can query local logging evidence.
 
-Preferred package files:
+Preferred package files when no parent MCP framework exists:
 
 ```text
 packages/logging-domain/src/mcp/**
@@ -139,18 +180,21 @@ output/logging-domain-parity-proof/07-mcp-query-interface/
 Required artifacts:
 
 ```text
-00-mcp-tool-list.json
-01-mcp-latest-failures-smoke.json
-02-mcp-run-diagnostics-smoke.json
-03-mcp-artifact-slice-smoke.json
-04-cli-mcp-query-parity-proof.json
+00-existing-mcp-audit.json
+01-mcp-tool-list.json
+02-mcp-latest-failures-smoke.json
+03-mcp-run-diagnostics-smoke.json
+04-mcp-artifact-slice-smoke.json
+05-cli-mcp-query-parity-proof.json
 16-validation-commands.log
 ```
 
 ## Checklist rows
 
+- [ ] Existing parent MCP framework audited.
+- [ ] Existing MCP reused/upgraded or absence recorded.
 - [ ] MCP source/query service designed around existing DuckDB/NDJSON query path.
-- [ ] MCP server script added.
+- [ ] MCP server script added or existing server extended.
 - [ ] `mcp:logging` package/root script added.
 - [ ] `get_errors` implemented.
 - [ ] `get_recent_logs` implemented.
