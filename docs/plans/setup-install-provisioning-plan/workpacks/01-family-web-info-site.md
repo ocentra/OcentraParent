@@ -1,72 +1,134 @@
-# Workpack 01: Family Web Info Site
+<!-- agent-capsule -->
 
-Goal: define `family.ocentra.ca` as the public family product entry surface.
+> Agent Capsule
+> Plan: `setup-install-provisioning-plan`
+> Doc: `WP01 Family Web Info Site`
+> Kind: assigned implementation/research workpack.
+> Read when: selected by WORKPACK_INDEX.md or explicit assignment.
+> Stop rule: do not implement account logic, installer build mechanics, or child activity storage here.
+> Proves: public family-site route/data-boundary shape only after proof artifacts exist.
+> Does not prove: deployed site, registration readiness, installer readiness, or setup readiness.
+> Proof rule: before DONE, write all WP01 proof artifacts and command log.
 
-Owns: informational pages, invite/code entry, install/download entry, privacy promise copy, no-child-data boundary, deployment shape, bootstrap-code display states, and route handoff to account registration.
+<!-- /agent-capsule -->
 
-Does not own: account/session implementation, installer build mechanics, portal app internals, or child activity storage.
+# WP01 Family Web Info Site
 
-Expected shape:
+## Goal
 
-- Separate Vite surface or Cloudflare Pages/Workers app with deploy/preview route.
-- Clear distinction between informational browsing and authenticated account actions.
-- Invite link entry, manual code entry, and QR/deep-link entry are explicit.
-- No child activity collection on public pages.
-- Minimal telemetry only if explicitly documented, privacy-safe, and disabled or consented where required.
-- Links to registration/login, installer download, support, privacy, and status.
-- Parent install link handoff and bootstrap code state display are visible.
+Define `family.ocentra.ca` as the public family product entry surface with honest privacy, download, support, status, and account-entry routing.
 
-Expected proof:
+## Required inputs
 
-- Route/content audit.
-- Build/deploy preview proof when implemented.
-- Privacy/data collection review.
-- Broken-link and basic accessibility proof.
+```text
+RESEARCH_AND_DECISIONS.md
+docs/expectations/family-setup.md
+docs/expectations/release-installer.md
+docs/expectations/data-custody.md
+docs/roadmaps/roadmap-v1-0-local-mvp.md
+docs/roadmaps/roadmap-v8-production-hardening.md
+```
 
-Failure: treating marketing analytics, contact capture, or child setup state as hidden website data collection.
+## Owned scope
 
-## Execution Detail
+```text
+public page map
+public data collection boundary
+privacy/no-overclaim wording
+download/register/support/privacy/status entry map
+Cloudflare Pages or Workers static-assets deployment shape
+preview/custom-domain/manual-required state
+```
 
-Minimum context:
+## Out of scope
 
-- `docs/expectations/family-setup.md`
-- `docs/expectations/release-installer.md`
-- `docs/expectations/data-custody.md`
-- `docs/roadmaps/roadmap-v1-0-local-mvp.md`
-- `docs/roadmaps/roadmap-v8-production-hardening.md`
+```text
+account/session implementation
+installer package build/signing/update
+child activity storage
+portal shell internals
+payment checkout
+```
 
-Agent decision tree:
+## Expected output
 
-- If the task is content-only, update page intent, route names, privacy wording, and proof expectations; do not touch app/runtime docs.
-- If the task needs registration, route to `account-identity-family-plan` after defining the website handoff.
-- If the task needs installer downloads, route to `parent-client-runtime-distribution-plan` after defining the visible download state.
-- If the task needs data collection or telemetry, route to `data-custody-storage-plan` before claiming it is privacy-safe.
+```text
+home route
+download route
+register/login entry route
+privacy route
+support route
+status route
+install help route
+invite/code entry route state
+public data collection matrix
+Cloudflare deploy shape decision or blocker
+```
 
-Required output:
+## Required proof root
 
-- Public page map: home, download, register/login, privacy, support, status, install help.
-- Data collection matrix: none, anonymous operational telemetry, explicit account data, forbidden child data.
-- Deployment shape: separate Vite/Cloudflare Pages or Workers app, preview URL expectation, production domain expectation.
-- Copy constraints: no unproven enforcement, no "we store nothing" overclaim, no vague privacy promise.
+```text
+output/setup-install-provisioning-plan-proof/01-family-web-info-site/
+```
 
-Expected tests/proof names:
+Required artifacts:
 
-- `setup.public-site.route-map`
-- `setup.public-site.no-child-activity-collection`
-- `setup.public-site.data-collection-matrix`
-- `setup.public-site.privacy-copy-no-overclaim`
-- `setup.public-site.download-entry-visible`
-- `setup.public-site.registration-handoff-visible`
-- `setup.public-site.support-privacy-status-links`
-- `setup.public-site.link-check`
-- `setup.public-site.accessibility-basic`
-- `setup.public-site.cloudflare-preview-build`
-- `setup.public-site.custom-domain-manual-required`
+```text
+00-public-site-route-map-proof.md
+01-no-private-activity-data-proof.md
+02-data-collection-matrix.md
+03-privacy-copy-no-overclaim-proof.md
+04-link-accessibility-proof.md
+05-deploy-preview-proof-or-blocker.md
+16-validation-commands.log
+```
 
-Proof artifact expectations:
+## Acceptance criteria
 
-- `01-public-site-route-map-proof.md`
-- `01-no-child-data-collection-proof.md`
-- `01-privacy-copy-no-overclaim-proof.md`
-- `01-link-accessibility-proof.md`
-- `01-deploy-preview-proof.md`
+- [ ] Public page map exists.
+- [ ] Public data collection matrix exists.
+- [ ] Private child activity data is explicitly forbidden on public pages.
+- [ ] Privacy copy avoids vague or unproven claims.
+- [ ] Register/login and download are handoff links, not owned runtime flows.
+- [ ] Support/privacy/status links are defined.
+- [ ] Cloudflare Pages or Workers static-assets deploy shape is selected or blocked.
+- [ ] Preview/custom-domain state is explicit.
+- [ ] Focused commands pass or blocker recorded.
+
+## Focused commands
+
+```bash
+node -e "console.log('family-web-info-site-docs-only')"
+npm run lint:architecture -- --files docs/plans/setup-install-provisioning-plan
+```
+
+If a site package exists later:
+
+```bash
+npm run build --workspace @ocentra-parent/family-site
+npm run test --workspace @ocentra-parent/family-site
+```
+
+## Negative states
+
+- Public site collects private activity data.
+- Download button implies installer is production-ready without package proof.
+- Register button implies household/device authority is implemented without account proof.
+- Privacy copy says “nothing is stored” without a data-custody proof.
+- Custom domain is claimed live without deployment proof.
+
+## Manual-required gaps
+
+Deployment, custom domain, analytics, account handoff, and downloads remain manual-required until the owning proof exists.
+
+## Fill before DONE
+
+```text
+Workpack id and branch:
+Public route/data-boundary changes:
+Touched files:
+Validation commands and results:
+Proof artifacts:
+Known gaps/manual-required states:
+No-claim boundaries:
+```
