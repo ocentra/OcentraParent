@@ -25,6 +25,7 @@ output/logging-domain-parity-proof/03-parent-logging-architecture-and-routing/
 output/logging-domain-parity-proof/04-rust-logging-core-crate/
 output/logging-domain-parity-proof/05-local-validation-evidence/
 output/logging-domain-parity-proof/06-validation-and-enforcement/
+output/logging-domain-parity-proof/07-mcp-query-interface/
 ```
 
 Test result roots:
@@ -36,6 +37,7 @@ test-results/logging-domain-parity-routing/
 test-results/logging-domain-parity-rust-core/
 test-results/logging-domain-parity-local-evidence/
 test-results/logging-domain-parity-validation/
+test-results/logging-domain-parity-mcp/
 ```
 
 ## Required proof files per workpack
@@ -101,6 +103,17 @@ test-results/logging-domain-parity-validation/
 16-validation-commands.log
 ```
 
+### WP07
+
+```text
+00-mcp-tool-list.json
+01-mcp-latest-failures-smoke.json
+02-mcp-run-diagnostics-smoke.json
+03-mcp-file-slice-smoke.json
+04-cli-mcp-query-parity-proof.json
+16-validation-commands.log
+```
+
 ## Command log format
 
 Every proof root must include a command log:
@@ -131,6 +144,7 @@ product runtime logging readiness
 full repo validation
 logging-domain parity complete
 Codex evidence wrapper complete
+MCP logging interface complete
 ```
 
 unless the assigned workpack acceptance criteria and validation scripts prove it.
@@ -142,5 +156,6 @@ local bridge smoke passed
 package export parity passed
 Rust NDJSON writer test passed
 agent-run controlled failure recorded
+MCP latest-failures smoke passed
 validation script negative check passed
 ```
