@@ -47,6 +47,8 @@ This plan intentionally separates:
 local development observability
 product/runtime safe logging
 cloudflare infra logging
+MCP/CLI query interface
+source instrumentation pattern
 ```
 
 Do not remove that split.
@@ -61,6 +63,8 @@ WP02 TypeScript package parity implemented
 WP03 parent routing fixed
 WP04 Rust logging-core implemented
 WP05 local validation evidence implemented
+WP07 MCP query interface implemented or existing MCP upgraded
+WP08 logger instrumentation/adoption implemented
 WP06 validation/enforcement implemented
 ```
 
@@ -87,6 +91,7 @@ proof/checklist changed before source/tests for implementation work
 other plan folders were edited by this plan without explicit user assignment
 root validation was wired before target files existed
 workpack status says checked but proof artifacts are missing
+MCP or instrumentation claims are made without WP07/WP08 proof
 ```
 
 ## PR-ready rule
