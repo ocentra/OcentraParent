@@ -20,10 +20,9 @@ route docs: present
 workpack index: present
 checklist index: present
 proof index: present
-test/proof expectations: present
 workpacks: present
-implementation: complete at workpack scope
-source proof: generated for WP01 through WP10
+implementation: not started by this plan
+source proof: not generated yet
 PR-ready: false
 ```
 
@@ -48,23 +47,21 @@ This plan intentionally separates:
 local development observability
 product/runtime safe logging
 cloudflare infra logging
-log controls / retention / bridge lifecycle
-MCP/CLI query interface
-source instrumentation pattern
-proof trace pipeline
 ```
 
 Do not remove that split.
 
-## Current completion boundary
+## Known incomplete areas
 
-The workpacks are complete, but broad completion claims must still preserve these boundaries:
+The plan is not implementation-complete until these are done:
 
 ```text
-the full @ocentra-parent/portal workspace build is still red for unrelated non-logging type errors
-repo-wide logging instrumentation is not claimed
-production telemetry readiness is not claimed
-product runtime logging readiness is not claimed
+WP01 audit artifacts generated
+WP02 TypeScript package parity implemented
+WP03 parent routing fixed
+WP04 Rust logging-core implemented
+WP05 local validation evidence implemented
+WP06 validation/enforcement implemented
 ```
 
 ## Stale-state triggers
@@ -90,9 +87,6 @@ proof/checklist changed before source/tests for implementation work
 other plan folders were edited by this plan without explicit user assignment
 root validation was wired before target files existed
 workpack status says checked but proof artifacts are missing
-MCP or instrumentation claims are made without WP07/WP08 proof
-proof-trace claims are made without WP10 proof
-log lifecycle/control claims are made without WP09 proof
 ```
 
 ## PR-ready rule
