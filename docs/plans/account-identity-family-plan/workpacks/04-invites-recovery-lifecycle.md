@@ -1,82 +1,146 @@
-# Workpack 04: Invites Recovery Lifecycle
+<!-- agent-capsule -->
 
-Goal: define parent invite, co-parent invite, child-device invite, recovery, deletion, and transfer lifecycle.
+> Agent Capsule
+> Plan: `account-identity-family-plan`
+> Doc: `WP04 Invites Recovery Lifecycle`
+> Kind: assigned implementation workpack.
+> Read when: selected by WORKPACK_INDEX.md or explicit assignment.
+> Stop rule: do not open sibling workpacks; do not implement data-custody side effects, UI polish, or support tooling here.
+> Proves: invite and recovery lifecycle only after tests/proof pass.
+> Does not prove: setup UI readiness, data export/delete execution, or support-admin production readiness.
+> Proof rule: before DONE, write all WP04 proof artifacts and command log.
 
-Expected shape:
+<!-- /agent-capsule -->
 
-- Invites are scoped to household, role, device intent, expiry, and inviter authority.
-- Recovery distinguishes forgotten login, lost parent device, compromised account, child reinstall, and household transfer.
-- Delete/export/recovery flows route to data custody for storage effects.
-- Every recovery path has fraud/abuse controls and audit.
+# WP04 Invites Recovery Lifecycle
 
-Expected proof:
+## Goal
 
-- Expired, replayed, and revoked invite proof.
-- Wrong-household and wrong-role proof.
-- Recovery identity proof.
-- Deletion/transfer handoff proof.
+Define parent invite, co-parent invite, observer invite, child-device invite/pairing, recovery, transfer, and deletion/export handoff lifecycle.
 
-Failure: recovery flow that bypasses household owner authority or data custody obligations.
+## Required inputs
 
-## Execution Detail
+```text
+workpacks/01-auth-provider-decision.md
+workpacks/02-identity-household-role-model.md
+workpacks/03-session-token-lifecycle.md
+RESEARCH_AND_DECISIONS.md
+docs/expectations/family-setup.md
+docs/expectations/data-custody.md
+packages/family-domain/src/setup-lifecycle.ts
+packages/family-domain/src/session-lifecycle.ts
+packages/family-domain/tests/unit/setup-lifecycle.test.ts
+```
 
-Minimum context:
+## Required lifecycle
 
-- `docs/expectations/family-setup.md`
-- `docs/expectations/data-custody.md`
-- `packages/family-domain/src/setup-lifecycle.ts`
+```text
+parent owner invite
+co-parent invite
+observer invite
+child device invite/pairing
+invite expiry
+invite revoke
+invite accept
+forgot-login recovery
+lost parent device recovery
+compromised account recovery
+child reinstall recovery
+household transfer
+account delete/export handoff to data custody
+support recovery audit
+```
 
-Required lifecycle:
+## Required rules
 
-- Parent owner invite.
-- Co-parent invite.
-- Observer invite.
-- Child device invite/pairing.
-- Invite expiry.
-- Invite revocation.
-- Account recovery.
-- Lost parent device recovery.
-- Compromised account recovery.
-- Child reinstall recovery.
-- Household transfer.
-- Account deletion and export handoff.
+```text
+invites are single-purpose
+invites are single-use
+invites carry household, role, device intent, expiry, and inviter authority
+recovery cannot grant child evidence access without household authority
+support recovery is minimized and audited
+delete/export effects are handed to data-custody-storage-plan
+responses are enumeration-resistant
+rate-limit behavior exists or is explicitly blocked
+```
 
-Rules:
+## Expected source changes
 
-- Recovery cannot grant access to child evidence without household authority.
-- Delete/export side effects route through data custody.
-- Invites are single-purpose and scoped.
-- Support recovery must be auditable and minimized.
+Likely paths:
 
-Expected tests/proof names:
+```text
+packages/family-domain/src/setup-lifecycle.ts
+packages/family-domain/src/session-lifecycle.ts
+packages/family-domain/src/household-authority.ts
+packages/family-domain/tests/unit/setup-lifecycle.test.ts
+packages/family-domain/tests/unit/session-lifecycle.test.ts
+```
 
-- `account-identity.invite.state-machine`
-- `account-identity.invite.single-use`
-- `account-identity.invite.expired-rejected`
-- `account-identity.invite.revoked-rejected`
-- `account-identity.invite.replayed-rejected`
-- `account-identity.invite.wrong-household-rejected`
-- `account-identity.invite.wrong-role-rejected`
-- `account-identity.invite.co-parent-scope`
-- `account-identity.invite.observer-scope`
-- `account-identity.invite.child-device-pairing-scope`
-- `account-identity.recovery.state-machine`
-- `account-identity.recovery.forgot-login`
-- `account-identity.recovery.lost-parent-device`
-- `account-identity.recovery.compromised-account`
-- `account-identity.recovery.child-reinstall`
-- `account-identity.recovery.household-transfer`
-- `account-identity.recovery.owner-approval-required`
-- `account-identity.recovery.rate-limit`
-- `account-identity.recovery.enumeration-resistant`
-- `account-identity.recovery.delete-export-handoff`
-- `account-identity.recovery.support-audited`
+## Required proof root
 
-Proof artifact expectations:
+```text
+output/account-identity-family-plan-proof/04-invites-recovery-lifecycle/
+```
 
-- `04-invite-state-machine-proof.md`
-- `04-invite-negative-proof.md`
-- `04-recovery-state-machine-proof.md`
-- `04-recovery-abuse-proof.md`
-- `04-delete-export-handoff-proof.md`
-- `04-support-recovery-audit-proof.md`
+Required artifacts:
+
+```text
+00-invite-state-machine-proof.md
+01-invite-negative-proof.md
+02-recovery-state-machine-proof.md
+03-recovery-abuse-proof.md
+04-delete-export-handoff-proof.md
+05-support-recovery-audit-proof.md
+16-validation-commands.log
+```
+
+## Acceptance criteria
+
+- [ ] Invite state machine exists.
+- [ ] Co-parent, observer, and child-device scopes are separated.
+- [ ] Single-use invite proof exists.
+- [ ] Expired, revoked, and reused invite negative proof exists.
+- [ ] Wrong-household and wrong-role negative proof exists.
+- [ ] Recovery state machine exists.
+- [ ] Forgotten-login, lost-parent-device, compromised-account, child-reinstall, and transfer flows are represented.
+- [ ] Recovery rate-limit or exact blocker exists.
+- [ ] Enumeration-resistant response behavior is documented/tested or blocked.
+- [ ] Delete/export handoff is explicit and does not implement data custody side effects here.
+- [ ] Support recovery audit proof exists.
+- [ ] Focused commands pass or blockers are recorded.
+
+## Focused commands
+
+```bash
+npm run build --workspace @ocentra-parent/family-domain
+npm run test --workspace @ocentra-parent/family-domain -- invite
+npm run test --workspace @ocentra-parent/family-domain -- recovery
+npm run lint:architecture -- --files packages/family-domain
+```
+
+## Negative cases
+
+- Expired invite denied.
+- Revoked invite denied.
+- Reused invite denied.
+- Wrong-household invite denied.
+- Wrong-role invite denied.
+- Recovery request cannot bypass owner authority.
+- Support recovery cannot act as owner without explicit audited support state.
+- Delete/export request is not executed by account plan.
+
+## Manual-required gaps
+
+Actual storage export/delete mechanics stay in `data-custody-storage-plan`. Support/admin UI and operational tooling remain blocked until later support/admin proof exists.
+
+## Fill before DONE
+
+```text
+Workpack id and branch:
+Invite/recovery changes:
+Touched files:
+Validation commands and results:
+Proof artifacts:
+Known gaps/manual-required states:
+No-claim boundaries:
+```
