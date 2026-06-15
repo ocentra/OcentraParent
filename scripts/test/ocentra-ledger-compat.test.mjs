@@ -7,7 +7,7 @@ import test from 'node:test';
 
 const wrapper = 'scripts/dev/ocentra-ledger-compat.mjs';
 
-test('ledger hook claims one active Codex session per lane', () => {
+test('ledger hook records a thread without turning duplicate chats read-only', () => {
   const root = mkdtempSync(join(tmpdir(), 'ocentra-ledger-session-test-'));
   const fakeLedger = writeFakeLedger(root);
   const first = runHook(root, fakeLedger, 'session-one', 'SessionStart');
@@ -15,8 +15,11 @@ test('ledger hook claims one active Codex session per lane', () => {
 
   assert.equal(first.status, 0);
   assert.equal(second.status, 0);
-  assert.match(first.context, /Active Codex session lease is held by this thread/u);
-  assert.match(second.context, /READ-ONLY: this lane is already owned by another active Codex session/u);
+  assert.match(first.context, /Active Codex session lease is recorded for this thread/u);
+  assert.match(
+    second.context,
+    /Active Codex session lease could not be refreshed, but this thread may still answer questions and inspect status/u
+  );
 });
 
 test('worker PR_READY reports also notify the primary inbox', () => {

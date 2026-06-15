@@ -174,16 +174,11 @@ function claimHookSession(input, eventName) {
     '--summary',
     `${eventName} hook active`,
   ]);
-  if (result.ok) {
-    return {
-      context: [
-        '- Active Codex session lease is held by this thread until another explicit session takes over or the lease expires.',
-      ],
-    };
-  }
   return {
     context: [
-      '- READ-ONLY: this lane is already owned by another active Codex session. You may answer questions and inspect status, but do not ack mail, edit files, claim paths, heartbeat, or report work from this thread unless the user explicitly retargets this lane.',
+      result.ok
+        ? '- Active Codex session lease is recorded for this thread; exact-file claims are the write gate.'
+        : '- Active Codex session lease could not be refreshed, but this thread may still answer questions and inspect status; exact-file claims are the write gate.',
     ],
   };
 }

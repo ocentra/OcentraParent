@@ -110,3 +110,7 @@ STARTED: policy compiler tests
 
 Acking a message marks it read. It does not delete the original message or
 report event; release is for claim ownership, not inbox history.
+
+A lane may have many active threads. `threadId` identifies the thread that is
+reporting or being routed, while exact-file claims enforce write ownership.
+The 10-file cap is per thread write pass, not per lane.

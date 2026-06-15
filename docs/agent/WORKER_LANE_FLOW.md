@@ -43,9 +43,9 @@ npm run hub:lock -- --paths "path/or/package,other/path" --reason "<short scope>
 ```
 
 Claims are file-level only: lock exact file paths, not folders or globs, and
-keep each claim batch to 10 files or fewer. If you need more than that, split
-the work into smaller write batches and release the claim as soon as the write
-is done.
+keep each claim batch to 10 files or fewer per thread write pass. That cap is
+per thread, not per lane. A lane can host many active threads, and each thread
+should claim only the files it actively intends to write.
 
 ## Read only your route
 
