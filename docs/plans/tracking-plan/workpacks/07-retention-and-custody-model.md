@@ -230,8 +230,10 @@ tracking-status-panel` passed; `cmd /c npm run build --workspace
 - [x] Product doc/checklist updates: owning feature doc, implementation
       checklist, WP07, WP30, and WP32 updated; central product capability
       checklist remains hub/primary sequenced.
-- [x] Known gaps/manual-required states: applied product-ready service mutation
-      execution, durable product settings, platform runtime, child-device
-      delivery, Android/iOS physical proof, authority, provider delivery,
+- [x] Known gaps/manual-required states: durable product settings and applied
+      product-ready service mutation execution remain pending; the current
+      service proof is local mutation plus local state revision only. Platform
+      runtime, child-device delivery, Android/iOS physical proof, authority,
+      provider delivery,
       notification receipts, production workers, full parent/child UI beyond
       the hosted route, and product-ready retention behavior remain proof-gated.

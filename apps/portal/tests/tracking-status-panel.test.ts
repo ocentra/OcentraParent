@@ -536,6 +536,9 @@ const TrackingRetentionSettingsWriteResult = {
   parentExportPrepared: false,
   remoteSyncEnabled: false,
   remoteAiEnabled: false,
+  localServiceStateRevision: 1,
+  localServiceStateSnapshotRef: 'agent-service-local-retention-settings-state',
+  durableSettingsPersisted: false,
   commandTransportClaimed: true,
   serviceWritePreflightClaimed: true,
   serviceMutationExecuted: true,
@@ -640,6 +643,9 @@ describe('tracking retention settings hosted proof surface', () => {
         parentExportPrepared: '0',
         remoteSyncEnabled: '0',
         remoteAiEnabled: '0',
+        localServiceStateRevision: '1',
+        localServiceStateSnapshotRef: 'agent-service-local-retention-settings-state',
+        durableSettingsPersistedRows: '0',
         commandTransportClaimedRows: '1',
         serviceWritePreflightClaimedRows: '1',
         serviceMutationExecutedRows: '1',
@@ -652,7 +658,7 @@ describe('tracking retention settings hosted proof surface', () => {
         productClaimReadyRows: '0',
         parserReason: 'Not reported',
         boundary:
-          'Portal command/result rendering only; service mutation execution is local proof, while platform runtime, child-device delivery, provider delivery, physical-device proof, authority, and product readiness remain unclaimed.',
+          'Portal command/result rendering only; service mutation execution and local state revision are local proof, while durable product persistence, platform runtime, child-device delivery, provider delivery, physical-device proof, authority, and product readiness remain unclaimed.',
       },
     });
   });

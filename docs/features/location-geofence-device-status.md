@@ -756,10 +756,11 @@ accessibility beyond the hosted parent route are proved.
 - [x] WP32 retention settings hosted UI proof for retention window,
       delete-after-alert, parent export, remote-sync disabled, and remote-AI
       disabled read-model rows on the hosted parent route, plus typed retention
-      settings local service execution command/result rendering. This is not
-      durable product settings, product-ready service mutation execution, platform
-      runtime, child-device delivery/runtime execution, provider delivery,
-      authority, physical-device, or product-complete proof.
+      settings local service execution command/result rendering with a local
+      service state revision. This is not durable product settings,
+      product-ready service mutation execution, platform runtime, child-device
+      delivery/runtime execution, provider delivery, authority, physical-device,
+      or product-complete proof.
 - [x] WP07/WP32 retention settings writer-boundary proof for retention window,
       delete-after-alert, parent export, remote-sync disabled, and remote-AI
       disabled write intents. This is local validation and service-mutation
@@ -770,6 +771,8 @@ accessibility beyond the hosted parent route are proved.
 - [x] WP07/WP32 typed retention settings service write command proof. This
       proves protocol request/result parsers, Rust protocol serialization, and
       Rust service WebSocket response for a no-product-claim local execution
+      result with a local in-service state revision and snapshot ref, while
+      durable settings persistence remains false.
       result; the hosted route now sends and renders that result without
       claiming product-ready service execution, platform runtime, child-device
       delivery/runtime execution, provider delivery, notification receipt

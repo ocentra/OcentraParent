@@ -107,8 +107,9 @@ Every checked item must cite one or more proof artifacts.
       and
       `output/tracking-plan-proof/32-journal-sqlite-and-read-model-proof/27-retention-settings-write-command-proof.json`.
       The hosted route now renders those read-model rows and sends/renders the
-      typed local service execution command result; durable product settings and
-      product-ready service mutation execution remain pending.
+      typed local service execution command result with a local service state
+      revision and snapshot ref; durable product settings and product-ready
+      service mutation execution remain pending.
 - [x] Remote sync and remote AI are disabled by default. Contract proof:
       `output/tracking-plan-proof/07-retention-and-custody-model/`,
       `output/tracking-plan-proof/24-ai-provider-routing/`.

@@ -56,8 +56,10 @@ async function main() {
       commandTransportClaimed: result.commandTransportClaimed,
       serviceWritePreflightClaimed: result.serviceWritePreflightClaimed,
       serviceMutationExecuted: result.serviceMutationExecuted,
+      localServiceStateRevisionRecorded: result.localServiceStateRevision !== null,
     },
     productClaims: {
+      durableSettingsPersisted: result.durableSettingsPersisted,
       portalWritableUiClaimed: result.portalWritableUiClaimed,
       platformRuntimeClaimed: result.platformRuntimeClaimed,
       childDeviceDeliveryClaimed: result.childDeviceDeliveryClaimed,
@@ -124,6 +126,9 @@ function writeResult() {
     parentExportPrepared: request.requestedParentExport,
     remoteSyncEnabled: false,
     remoteAiEnabled: false,
+    localServiceStateRevision: 1,
+    localServiceStateSnapshotRef: 'agent-service-local-retention-settings-state',
+    durableSettingsPersisted: false,
     commandTransportClaimed: true,
     serviceWritePreflightClaimed: true,
     serviceMutationExecuted: true,
@@ -147,6 +152,15 @@ function assertProof(proof) {
   }
   if (proof.result.appliedRetentionWindowHours !== proof.request.requestedRetentionWindowHours) {
     throw new Error('Retention write command proof must return the applied retention window.');
+  }
+  if (proof.result.localServiceStateRevision !== 1) {
+    throw new Error('Retention write command proof must record the local service state revision.');
+  }
+  if (proof.result.localServiceStateSnapshotRef !== 'agent-service-local-retention-settings-state') {
+    throw new Error('Retention write command proof must record the local service state snapshot ref.');
+  }
+  if (proof.result.durableSettingsPersisted) {
+    throw new Error('Retention write command proof must not claim durable product settings persistence.');
   }
   if (proof.result.remoteSyncEnabled || proof.result.remoteAiEnabled) {
     throw new Error('Retention write command proof must keep remote sync and remote AI disabled.');

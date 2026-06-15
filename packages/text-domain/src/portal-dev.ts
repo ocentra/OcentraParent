@@ -847,7 +847,7 @@ export const PortalDevText: Record<PortalDevTextTokenValue, DisplayText> = {
     'Send retention write preflight'
   ),
   [PortalDevTextToken.TrackingRetentionSettingsWritePreflightBoundary]: decodeDisplayText(
-    'Portal command/result rendering only; service mutation execution is local proof, while platform runtime, child-device delivery, provider delivery, physical-device proof, authority, and product readiness remain unclaimed.'
+    'Portal command/result rendering only; service mutation execution and local state revision are local proof, while durable product persistence, platform runtime, child-device delivery, provider delivery, physical-device proof, authority, and product readiness remain unclaimed.'
   ),
   [PortalDevTextToken.TrackingFirstTarget]: decodeDisplayText('First target'),
   [PortalDevTextToken.TrackingProofFixture]: decodeDisplayText('P1 fixture proof'),

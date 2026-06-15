@@ -74,6 +74,11 @@ fn retention_settings_write_result_serializes_local_execution_without_product_ov
         parent_export_prepared: false,
         remote_sync_enabled: false,
         remote_ai_enabled: false,
+        local_service_state_revision: Some(1),
+        local_service_state_snapshot_ref:
+            constants::tracking_retention_settings_write::LOCAL_SERVICE_STATE_SNAPSHOT_REF
+                .to_string(),
+        durable_settings_persisted: false,
         command_transport_claimed: true,
         service_write_preflight_claimed: true,
         service_mutation_executed: true,
@@ -97,6 +102,12 @@ fn retention_settings_write_result_serializes_local_execution_without_product_ov
     assert_eq!(serialized["appliedRetentionWindowHours"], 168);
     assert_eq!(serialized["remoteSyncEnabled"], false);
     assert_eq!(serialized["remoteAiEnabled"], false);
+    assert_eq!(serialized["localServiceStateRevision"], 1);
+    assert_eq!(
+        serialized["localServiceStateSnapshotRef"],
+        constants::tracking_retention_settings_write::LOCAL_SERVICE_STATE_SNAPSHOT_REF
+    );
+    assert_eq!(serialized["durableSettingsPersisted"], false);
     assert_eq!(serialized["commandTransportClaimed"], true);
     assert_eq!(serialized["serviceWritePreflightClaimed"], true);
     assert_eq!(serialized["serviceMutationExecuted"], true);

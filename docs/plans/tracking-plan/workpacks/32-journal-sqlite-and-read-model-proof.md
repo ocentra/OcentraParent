@@ -105,9 +105,9 @@ Proof root: `output/tracking-plan-proof/32-journal-sqlite-and-read-model-proof/`
       platform, device, provider, authority, notification receipt, or
       product-ready claims.
 - [x] Render the service-backed retention write result in hosted portal proof
-      from the typed command response without claiming durable product settings,
-      platform, device, provider, authority, notification receipt, or
-      product-ready behavior.
+      from the typed command response, including local service state revision
+      evidence, without claiming durable product settings, platform, device,
+      provider, authority, notification receipt, or product-ready behavior.
 - [x] Add redacted report/export read-model packet rows that compose service
       read-model, report/policy consumer, family dashboard rollup, and
       retention settings proof refs without claiming raw location payload
@@ -307,9 +307,9 @@ This workpack can be assigned independently, implemented against the owning doma
   rendered portal UI or child-device runtime proof.
 - Retention settings read-model and mutation rows are not writable product UI or
   live retention UI proof.
-- Retention settings write-command proof is local service execution proof, not
-  durable writable UI, production persistence, or product-ready service
-  execution proof.
+- Retention settings write-command proof is local service execution plus local
+  service state revision proof, not durable writable UI, production persistence,
+  or product-ready service execution proof.
 - Report/export read-model proof is redacted evidence-ref packet readiness plus
   hosted packet rendering only, not raw location payload export, service
   mutation, platform runtime, child-device/runtime execution, or product-ready
@@ -601,10 +601,11 @@ tracking-status-panel` passed; `cmd /c npm run build --workspace
       checklist, WP07, WP30, and WP32 updated; central product capability
       checklist remains hub/primary sequenced.
 - [x] Known gaps/manual-required states: hosted route consumes and renders the
-      typed local service execution response. Durable product settings, applied
-      product-ready service mutation execution, platform replay/runtime,
-      child-device delivery/runtime execution, Android/iOS physical-device
-      proof, authority, provider delivery, notification receipt ingestion,
+      typed local service execution response with local service state revision.
+      Durable product settings, applied product-ready service mutation
+      execution, platform replay/runtime, child-device delivery/runtime
+      execution, Android/iOS physical-device proof, authority, provider delivery,
+      notification receipt ingestion,
       production workers, and full parent/child
       UI beyond the hosted route remain proof-gated.
 - [x] Workpack id and branch:
