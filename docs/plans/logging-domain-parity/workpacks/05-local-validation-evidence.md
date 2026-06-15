@@ -85,18 +85,18 @@ Required artifacts:
 
 ## Checklist rows
 
-- [x] `agent:run` root script added.
-- [x] `agent:query` root script added.
-- [x] `codex:evidence` root script added.
-- [x] `scripts/dev/agent-run.mjs` implemented.
-- [x] `scripts/dev/agent-query.mjs` implemented.
-- [x] `scripts/dev/codex-evidence.mjs` implemented.
-- [x] Local artifact layout implemented.
-- [x] Agent run/diagnostics/artifacts NDJSON streams written.
-- [x] DuckDB tables/indexes added.
-- [x] Diagnostic parsers added for first supported toolchain set.
-- [x] Smoke test passes.
-- [x] Proof root and workpack completion filled.
+- [ ] `agent:run` root script added.
+- [ ] `agent:query` root script added.
+- [ ] `codex:evidence` root script added.
+- [ ] `scripts/dev/agent-run.mjs` implemented.
+- [ ] `scripts/dev/agent-query.mjs` implemented.
+- [ ] `scripts/dev/codex-evidence.mjs` implemented.
+- [ ] Local artifact layout implemented.
+- [ ] Agent run/diagnostics/artifacts NDJSON streams written.
+- [ ] DuckDB tables/indexes added.
+- [ ] Diagnostic parsers added for first supported toolchain set.
+- [ ] Smoke test passes.
+- [ ] Proof root and workpack completion filled.
 
 ## Required diagnostic parser set
 
@@ -165,49 +165,3 @@ Proof artifacts:
 Product/runtime claims:
 Known gaps/manual-required states:
 ```
-
-## Completion
-
-Workpack id and branch:
-WP05 on `codex/tracking-plan-full-continuation-a`
-
-Touched files:
-`package.json`
-`scripts/dev/agent-run.mjs`
-`scripts/dev/agent-query.mjs`
-`scripts/dev/codex-evidence.mjs`
-`scripts/dev/lib/agent-log-paths.mjs`
-`scripts/dev/lib/agent-artifacts.mjs`
-`scripts/dev/lib/agent-diagnostic-parsers.mjs`
-`scripts/dev/lib/agent-evidence-db.mjs`
-`scripts/dev/lib/agent-summary-format.mjs`
-
-Validation commands and results:
-`npm run agent:run -- node -e "process.exit(0)"` passed and wrote a passed `agent-run` event
-`node scripts/dev/agent-run.mjs node -e "process.exit(2)"` returned `node_exit=2`
-`npm run agent:run -- node -e "process.exit(2)"` returned `npm_exit=2` and wrote failed run evidence
-`npm run agent:query -- latest-failures` passed
-`npm run agent:query -- by-run run-20260615024414-eacf1ee1` passed
-`npm run agent:query -- diagnostics --run-id=run-20260615024414-eacf1ee1` passed
-`npm run agent:query -- stats` passed
-`npm run codex:evidence -- latest-failures` passed
-`LEDGER_LANE=codex-a npm run codex:evidence -- current-lane` passed on Windows PowerShell via `$env:LEDGER_LANE='codex-a'`
-`npm run lint:architecture -- --files package.json scripts/dev/agent-run.mjs scripts/dev/agent-query.mjs scripts/dev/codex-evidence.mjs scripts/dev/lib/agent-log-paths.mjs scripts/dev/lib/agent-artifacts.mjs scripts/dev/lib/agent-diagnostic-parsers.mjs scripts/dev/lib/agent-evidence-db.mjs scripts/dev/lib/agent-summary-format.mjs` passed
-
-Proof artifacts:
-`output/logging-domain-parity-proof/05-local-validation-evidence/00-agent-run-smoke.json`
-`output/logging-domain-parity-proof/05-local-validation-evidence/01-agent-query-smoke.json`
-`output/logging-domain-parity-proof/05-local-validation-evidence/02-codex-evidence-smoke.txt`
-`output/logging-domain-parity-proof/05-local-validation-evidence/03-diagnostic-parser-proof.json`
-`output/logging-domain-parity-proof/05-local-validation-evidence/04-local-artifact-proof.json`
-`output/logging-domain-parity-proof/05-local-validation-evidence/16-validation-commands.log`
-
-Product/runtime claims:
-Root validation wrappers now exist as `npm run agent:run`, `npm run agent:query`, and `npm run codex:evidence`.
-Validation runs now write compact local evidence under `.logs/parent-codex` with full stdout/stderr artifacts, metadata, NDJSON event streams, a DuckDB query surface, and deterministic diagnostics.
-The wrapper path preserves the wrapped command exit code for both direct `node scripts/dev/agent-run.mjs ...` execution and `npm run agent:run -- ...` execution on this checkout.
-Lane-scoped evidence packets are now available through `codex:evidence current-lane` when `LEDGER_LANE` is present in the environment.
-
-Known gaps/manual-required states:
-DuckDB is single-writer on Windows, so WP05 query and evidence commands must run sequentially rather than as parallel processes against the same `.logs/parent-codex/db/agent-evidence.duckdb` file.
-WP06 still owns broader validation-enforcement adoption across the repo rather than just the local evidence path implemented here.
