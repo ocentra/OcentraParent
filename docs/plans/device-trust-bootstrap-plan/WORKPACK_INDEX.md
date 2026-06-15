@@ -2,28 +2,52 @@
 
 > Agent Capsule
 > Plan: `device-trust-bootstrap-plan`
-> Doc: `WORKPACK_INDEX.md`
-> Kind: workpack chooser; do not read all workpacks.
-> Read when: After PLAN_STATE.md and NEXT_ACTIONS.md and before opening any workpack.
-> Stop rule: Do not continue into sibling docs, broad folders, source trees, or historical checkpoints unless this file gives an explicit next path.
-> Proves: only the local scope, status, route, or contract stated by this file and its named proof/checklist rows.
-> Does not prove: sibling plan completion, implementation correctness, product status, PR readiness, or broad DONE unless routed proof says so.
-> Proof rule: If this index changes, update PLAN_STATE.md and route sync docs.
+> Doc: `Device Trust Bootstrap Plan Workpack Index`
+> Kind: workpack selector.
+> Read when: after PLAN_STATE.md and NEXT_ACTIONS.md.
+> Stop rule: open exactly one selected workpack; do not read every workpack.
+> Proves: workpack routing only.
+> Does not prove: device trust implementation, recovery readiness, entitlement readiness, or PR readiness.
+> Proof rule: update counts/status only after matching checklist rows and proof artifacts exist.
 
 <!-- /agent-capsule -->
 
 # Device Trust Bootstrap Plan Workpack Index
 
-T00 route/no-overclaim proof is handled in [PLAN_EXECUTION_BLUEPRINT.md](PLAN_EXECUTION_BLUEPRINT.md) and [PROOF_AND_TEST_INVENTORY.md](PROOF_AND_TEST_INVENTORY.md), not as a workpack.
+Choose one workpack. Do not open all workpacks.
 
-| Workpack | Purpose | Status |
-| --- | --- | --- |
-| [01-device-trust-source-of-truth](workpacks/01-device-trust-source-of-truth.md) | Define trust ownership, trust states, bootstrap lifecycle, and cross-plan boundaries. | Planned |
-| [02-local-key-sealing](workpacks/02-local-key-sealing.md) | Define platform-backed key sealing, fallback behavior, and wrong-device negative cases. | Planned |
-| [03-parent-step-up-auth](workpacks/03-parent-step-up-auth.md) | Define parent step-up auth with passkeys, biometrics, and OS-native approval. | Planned |
-| [04-phone-qr-approval-bridge](workpacks/04-phone-qr-approval-bridge.md) | Define desktop QR approval, phone approval, and replay-resistant action binding. | Planned |
-| [05-entitlement-device-license](workpacks/05-entitlement-device-license.md) | Define signed entitlement snapshots and device-bound license unlock. | Planned |
-| [06-recovery-reset-re-pair](workpacks/06-recovery-reset-re-pair.md) | Define encrypted recovery bundles, reset, revoke, and re-pair flows. | Planned |
-| [07-child-tamper-uninstall](workpacks/07-child-tamper-uninstall.md) | Define child tamper, uninstall, and anti-tamper boundaries. | Planned |
-| [08-open-source-dependency-adoption](workpacks/08-open-source-dependency-adoption.md) | Evaluate WebAuthn, keyring, and encrypted-bundle dependencies for adoption. | Planned |
-| [09-cross-plan-route-gate](workpacks/09-cross-plan-route-gate.md) | Sync adjacent plan routes, feature routes, and proof gates. | Planned |
+| Status | Workpack | Boxes | Primary source docs | Proof root |
+| --- | --- | ---: | --- | --- |
+| open | [WP01 Device Trust Source Of Truth](workpacks/01-device-trust-source-of-truth.md) | 0/12 | `DEVICE_TRUST_MODEL.md`, `RESEARCH_AND_UI_GUIDANCE.md` | `output/device-trust-bootstrap-plan-proof/01-device-trust-source-of-truth/` |
+| open | [WP02 Local Key Sealing](workpacks/02-local-key-sealing.md) | 0/12 | `LOCAL_KEY_SEALING_MODEL.md`, `PLATFORM_KEY_CUSTODY_MATRIX.md` | `output/device-trust-bootstrap-plan-proof/02-local-key-sealing/` |
+| open | [WP03 Parent Step-Up Auth](workpacks/03-parent-step-up-auth.md) | 0/12 | `PARENT_STEP_UP_AUTH_MODEL.md`, `RESEARCH_AND_UI_GUIDANCE.md` | `output/device-trust-bootstrap-plan-proof/03-parent-step-up-auth/` |
+| open | [WP04 Phone QR Approval Bridge](workpacks/04-phone-qr-approval-bridge.md) | 0/12 | `PHONE_QR_APPROVAL_MODEL.md` | `output/device-trust-bootstrap-plan-proof/04-phone-qr-approval-bridge/` |
+| open | [WP05 Entitlement Device License](workpacks/05-entitlement-device-license.md) | 0/12 | `ENTITLEMENT_DEVICE_LICENSE_MODEL.md` | `output/device-trust-bootstrap-plan-proof/05-entitlement-device-license/` |
+| open | [WP06 Recovery Reset Re-Pair](workpacks/06-recovery-reset-re-pair.md) | 0/12 | `RECOVERY_RESET_MODEL.md`, `LOCAL_KEY_SEALING_MODEL.md` | `output/device-trust-bootstrap-plan-proof/06-recovery-reset-re-pair/` |
+| open | [WP07 Child Tamper Uninstall](workpacks/07-child-tamper-uninstall.md) | 0/12 | `CHILD_TAMPER_UNINSTALL_MODEL.md` | `output/device-trust-bootstrap-plan-proof/07-child-tamper-uninstall/` |
+| open | [WP08 Open Source Dependency Adoption](workpacks/08-open-source-dependency-adoption.md) | 0/10 | `RESEARCH_AND_UI_GUIDANCE.md` | `output/device-trust-bootstrap-plan-proof/08-open-source-dependency-adoption/` |
+| open | [WP09 Cross Plan Route Gate](workpacks/09-cross-plan-route-gate.md) | 0/14 | prior proof roots | `output/device-trust-bootstrap-plan-proof/09-cross-plan-route-gate/` |
+
+## Default execution order
+
+```text
+WP01 -> WP02 -> WP03 -> WP04 -> WP05 -> WP06 -> WP07 -> WP08 -> WP09
+```
+
+## Dependency rules
+
+```text
+WP01 establishes trust state/source of truth.
+WP02 depends on WP01 and blocks key/trust persistence claims.
+WP03 depends on WP01/WP02 and blocks high-risk action approval claims.
+WP04 depends on WP03 and blocks phone/QR approval claims.
+WP05 depends on WP01/WP02 and payment handoff; license never unlocks behavior alone.
+WP06 depends on WP02/WP03/WP04 and blocks recovery/reset claims.
+WP07 depends on WP01/WP02/WP06 and blocks child uninstall/tamper claims.
+WP08 can run in parallel as research but cannot approve adoption without proof.
+WP09 is last and consumes all previous proof roots.
+```
+
+## Do not select
+
+Do not move account identity, package distribution, LAN transport, remote access, payment entitlement, or data custody implementation into this plan.
