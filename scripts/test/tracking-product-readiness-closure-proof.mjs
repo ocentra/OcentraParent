@@ -143,6 +143,10 @@ const sourceProofs = [
     'output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-gate/60-retention-runtime-artifact-gate-proof.json'
   ),
   sourceProof(
+    'retention-applied-settings-runtime-bridge',
+    'output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-gate/76-retention-applied-settings-runtime-bridge-proof.json'
+  ),
+  sourceProof(
     'retention-platform-enforcement-preflight',
     'output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-gate/70-retention-platform-enforcement-preflight-proof.json'
   ),
@@ -180,6 +184,7 @@ async function main() {
   run('cmd', ['/c', 'node', 'scripts/test/tracking-physical-device-artifact-gate-proof.mjs']);
   run('cmd', ['/c', 'node', 'scripts/test/tracking-physical-device-evidence-review-proof.mjs']);
   run('cmd', ['/c', 'node', 'scripts/test/tracking-retention-runtime-artifact-gate-proof.mjs']);
+  run('cmd', ['/c', 'node', 'scripts/test/tracking-retention-applied-settings-runtime-bridge-proof.mjs']);
   run('cmd', ['/c', 'node', 'scripts/test/tracking-retention-platform-enforcement-preflight-proof.mjs']);
   run('cmd', ['/c', 'node', 'scripts/test/tracking-production-worker-runtime-preflight-proof.mjs']);
   run('cmd', ['/c', 'node', 'scripts/test/tracking-claim-audit-proof.mjs']);
@@ -234,6 +239,9 @@ async function aggregateEvidence() {
   const retentionRuntimeProof = await readJson(
     'test-results/tracking-retention-runtime-artifact-gate-proof/proof.json'
   );
+  const retentionAppliedSettingsBridgeProof = await readJson(
+    'test-results/tracking-retention-applied-settings-runtime-bridge-proof/proof.json'
+  );
   const retentionPlatformPreflightProof = await readJson(
     'test-results/tracking-retention-platform-enforcement-preflight-proof/proof.json'
   );
@@ -267,6 +275,7 @@ async function aggregateEvidence() {
   const claimAuditProof = await readJson('test-results/tracking-claim-audit-proof/proof.json');
   const childRuntimeArtifactSummary = artifactSummaryFromRows(childRuntimeArtifactGateProof);
   const productionWorkerArtifactSummary = artifactSummaryFromRows(productionWorkerRuntimeArtifactGateProof);
+  const retentionAppliedSettingsBridgeRows = retentionAppliedSettingsBridgeProof.rows ?? [];
   return {
     fullProductUiLocalArtifactCount: fullProductUiProof.readModel.localArtifactCount,
     fullProductUiClosureRetentionWritableExecutionRowCount:
@@ -351,6 +360,16 @@ async function aggregateEvidence() {
     retentionRuntimeMissingArtifactCount: retentionRuntimeProof.summary.missingArtifactCount,
     retentionRuntimeManualRequiredRowCount: retentionRuntimeProof.summary.manualRequiredRows,
     retentionRuntimeArtifactSetPresentRowCount: retentionRuntimeProof.summary.completeRows,
+    retentionAppliedSettingsBridgeRowCount: retentionAppliedSettingsBridgeRows.length,
+    retentionAppliedSettingsBridgeRequiredArtifactCount:
+      retentionAppliedSettingsBridgeProof.runtimeArtifactInventory.requiredArtifacts.length,
+    retentionAppliedSettingsBridgePresentArtifactCount:
+      retentionAppliedSettingsBridgeProof.runtimeArtifactInventory.presentArtifacts.length,
+    retentionAppliedSettingsBridgeMissingArtifactCount:
+      retentionAppliedSettingsBridgeProof.runtimeArtifactInventory.missingArtifacts.length,
+    retentionAppliedSettingsBridgeProductReadyRowCount: retentionAppliedSettingsBridgeRows.filter(
+      (row) => row.productClaimReady
+    ).length,
     retentionPlatformPreflightRowCount: retentionPlatformPreflightProof.summary.rowCount,
     retentionPlatformPreflightManualRequiredRowCount: retentionPlatformPreflightProof.summary.manualRequiredRowCount,
     retentionPlatformPreflightRequiredArtifactCount: retentionPlatformPreflightProof.summary.requiredArtifactCount,
@@ -505,6 +524,32 @@ function assertProof(proof) {
       `Tracking product readiness closure lost escalation runtime evidence: ${JSON.stringify(proof.aggregateEvidence)}`
     );
   }
+  if (
+    proof.aggregateEvidence.retentionRuntimeRequiredArtifactCount !==
+      proof.aggregateEvidence.retentionRuntimePresentArtifactCount +
+        proof.aggregateEvidence.retentionRuntimeMissingArtifactCount ||
+    proof.aggregateEvidence.retentionRuntimeMissingArtifactCount < 1
+  ) {
+    throw new Error(
+      `Tracking product readiness closure lost retention runtime artifact evidence: ${JSON.stringify(
+        proof.aggregateEvidence
+      )}`
+    );
+  }
+  if (
+    proof.aggregateEvidence.retentionAppliedSettingsBridgeRequiredArtifactCount !==
+      proof.aggregateEvidence.retentionAppliedSettingsBridgePresentArtifactCount +
+        proof.aggregateEvidence.retentionAppliedSettingsBridgeMissingArtifactCount ||
+    proof.aggregateEvidence.retentionAppliedSettingsBridgePresentArtifactCount < 1 ||
+    proof.aggregateEvidence.retentionAppliedSettingsBridgeMissingArtifactCount < 1 ||
+    proof.aggregateEvidence.retentionAppliedSettingsBridgeProductReadyRowCount !== 0
+  ) {
+    throw new Error(
+      `Tracking product readiness closure lost applied retention settings bridge evidence: ${JSON.stringify(
+        proof.aggregateEvidence
+      )}`
+    );
+  }
 }
 
 async function writeProofArtifacts(proof) {
@@ -579,6 +624,9 @@ function sourceSnapshot(proof) {
     `- retentionRuntimePresentArtifactCount: ${proof.aggregateEvidence.retentionRuntimePresentArtifactCount}`,
     `- retentionRuntimeMissingArtifactCount: ${proof.aggregateEvidence.retentionRuntimeMissingArtifactCount}`,
     `- retentionRuntimeManualRequiredRowCount: ${proof.aggregateEvidence.retentionRuntimeManualRequiredRowCount}`,
+    `- retentionAppliedSettingsBridgeRowCount: ${proof.aggregateEvidence.retentionAppliedSettingsBridgeRowCount}`,
+    `- retentionAppliedSettingsBridgePresentArtifactCount: ${proof.aggregateEvidence.retentionAppliedSettingsBridgePresentArtifactCount}`,
+    `- retentionAppliedSettingsBridgeMissingArtifactCount: ${proof.aggregateEvidence.retentionAppliedSettingsBridgeMissingArtifactCount}`,
     `- retentionPlatformPreflightRowCount: ${proof.aggregateEvidence.retentionPlatformPreflightRowCount}`,
     `- retentionPlatformPreflightManualRequiredRowCount: ${proof.aggregateEvidence.retentionPlatformPreflightManualRequiredRowCount}`,
     `- retentionPlatformPreflightRequiredArtifactCount: ${proof.aggregateEvidence.retentionPlatformPreflightRequiredArtifactCount}`,
@@ -610,6 +658,7 @@ function securityNegativeProof() {
     'iOS simulator artifact inventory records simulator package, manual-required Core Location, privacy disclosure, platform proof, and validation-log artifacts while keeping Core Location runtime and physical-device blockers open.',
     'Parent-child local runtime bridge records typed local transport handoff and child-agent phase coverage while keeping physical child-device runtime and product claims false.',
     'Retention runtime closure accounting records the local writable settings artifact as present and the platform runtime retention enforcement artifact as missing.',
+    'Applied retention settings bridge closure accounting records local durable applied settings as observed while keeping platform runtime enforcement and product-ready claims false.',
     'Retention platform enforcement preflight closure accounting records Android, iOS, and desktop manual-required acceptance rows while keeping product-ready retention false.',
     'Production worker runtime preflight closure accounting records eight manual-required production worker acceptance rows while keeping production and product-ready claims false.',
     'Rows do not claim writable retention product settings, platform retention enforcement, Android/iOS physical background behavior, authority enrollment, provider delivery/receipt runtime, production workers, actual child-device runtime, or product readiness.',

@@ -1452,6 +1452,12 @@ tracking-claim-audit-proof tracking-product-readiness-closure-proof`
       supporting the local retention writable execution proof. This keeps the
       production retention write-result artifact manual-required without
       treating hosted local write rendering as product runtime proof.
+- [x] Applied retention settings runtime bridge refresh: WP07/WP33 now consumes
+      the local writable execution proof, records the local writable execution
+      runtime artifact as present, records the platform retention enforcement
+      artifact as missing, and keeps product-ready, production, provider,
+      authority, physical-device, notification receipt, and child-device runtime
+      claims false.
 - [x] Android emulator artifact inventory refresh: new WP08/WP09/WP10/WP33
       inventory proof verifies the existing adb runtime outputs, foreground and
       background permission UI artifacts, app-reported location evidence, local

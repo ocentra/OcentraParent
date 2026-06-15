@@ -307,6 +307,18 @@ function assertProof(proof) {
     );
   }
   if (
+    proof.closureAccounting.retentionAppliedSettingsBridgeRequiredArtifactCount !==
+      proof.closureAccounting.retentionAppliedSettingsBridgePresentArtifactCount +
+        proof.closureAccounting.retentionAppliedSettingsBridgeMissingArtifactCount ||
+    proof.closureAccounting.retentionAppliedSettingsBridgePresentArtifactCount < 1 ||
+    proof.closureAccounting.retentionAppliedSettingsBridgeMissingArtifactCount < 1 ||
+    proof.closureAccounting.retentionAppliedSettingsBridgeProductReadyRowCount !== 0
+  ) {
+    throw new Error(
+      `Closure accounting lost applied retention settings bridge evidence: ${JSON.stringify(proof.closureAccounting)}`
+    );
+  }
+  if (
     proof.closureAccounting.retentionPlatformPreflightRequiredArtifactCount !==
       proof.closureAccounting.retentionPlatformPreflightPresentArtifactCount +
         proof.closureAccounting.retentionPlatformPreflightMissingArtifactCount ||
@@ -428,6 +440,9 @@ function sourceSnapshot(proof) {
     `- retentionRuntimeRequiredArtifactCount: ${proof.closureAccounting.retentionRuntimeRequiredArtifactCount}`,
     `- retentionRuntimePresentArtifactCount: ${proof.closureAccounting.retentionRuntimePresentArtifactCount}`,
     `- retentionRuntimeMissingArtifactCount: ${proof.closureAccounting.retentionRuntimeMissingArtifactCount}`,
+    `- retentionAppliedSettingsBridgeRowCount: ${proof.closureAccounting.retentionAppliedSettingsBridgeRowCount}`,
+    `- retentionAppliedSettingsBridgePresentArtifactCount: ${proof.closureAccounting.retentionAppliedSettingsBridgePresentArtifactCount}`,
+    `- retentionAppliedSettingsBridgeMissingArtifactCount: ${proof.closureAccounting.retentionAppliedSettingsBridgeMissingArtifactCount}`,
     `- retentionPlatformPreflightRowCount: ${proof.closureAccounting.retentionPlatformPreflightRowCount}`,
     `- retentionPlatformPreflightManualRequiredRowCount: ${proof.closureAccounting.retentionPlatformPreflightManualRequiredRowCount}`,
     `- retentionPlatformPreflightRequiredArtifactCount: ${proof.closureAccounting.retentionPlatformPreflightRequiredArtifactCount}`,

@@ -195,6 +195,11 @@ export const TrackingRealRuntimeHandoffClosureAccountingSchema = withParser(
     retentionRuntimeMissingArtifactCount: Schema.Number.pipe(Schema.int()),
     retentionRuntimeManualRequiredRowCount: Schema.Number.pipe(Schema.int()),
     retentionRuntimeArtifactSetPresentRowCount: Schema.Number.pipe(Schema.int()),
+    retentionAppliedSettingsBridgeRowCount: Schema.Number.pipe(Schema.int(), Schema.positive()),
+    retentionAppliedSettingsBridgeRequiredArtifactCount: Schema.Number.pipe(Schema.int(), Schema.positive()),
+    retentionAppliedSettingsBridgePresentArtifactCount: Schema.Number.pipe(Schema.int()),
+    retentionAppliedSettingsBridgeMissingArtifactCount: Schema.Number.pipe(Schema.int()),
+    retentionAppliedSettingsBridgeProductReadyRowCount: Schema.Literal(0),
     retentionPlatformPreflightRowCount: Schema.Number.pipe(Schema.int(), Schema.positive()),
     retentionPlatformPreflightManualRequiredRowCount: Schema.Number.pipe(Schema.int(), Schema.positive()),
     retentionPlatformPreflightRequiredArtifactCount: Schema.Number.pipe(Schema.int(), Schema.positive()),
@@ -345,6 +350,23 @@ export const TrackingRealRuntimeHandoffClosureAccountingSchema = withParser(
           accounting.retentionRuntimeRequiredArtifactCount ===
             accounting.retentionRuntimePresentArtifactCount + accounting.retentionRuntimeMissingArtifactCount ||
           'Real-runtime closure accounting must classify every retention runtime artifact'
+      )
+    )
+    .pipe(
+      Schema.filter(
+        (accounting) =>
+          accounting.retentionAppliedSettingsBridgeRequiredArtifactCount ===
+            accounting.retentionAppliedSettingsBridgePresentArtifactCount +
+              accounting.retentionAppliedSettingsBridgeMissingArtifactCount ||
+          'Real-runtime closure accounting must classify every applied retention settings bridge artifact'
+      )
+    )
+    .pipe(
+      Schema.filter(
+        (accounting) =>
+          (accounting.retentionAppliedSettingsBridgeRowCount > 0 &&
+            accounting.retentionAppliedSettingsBridgeProductReadyRowCount === 0) ||
+          'Real-runtime closure accounting must keep applied retention settings bridge non-product-ready'
       )
     )
     .pipe(

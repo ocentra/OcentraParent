@@ -9,7 +9,7 @@ Use this after the required Android/iOS physical-device artifact files exist. Th
 - artifactSetComplete: false
 - physicalDeviceStatusObserved: true
 - supportingStatusProofRef: test-results/tracking-android-physical-device-runtime-proof/proof.json
-- supportingStatusArtifacts: 13
+- supportingStatusArtifacts: 20
 - contentAccepted: false
 
 Review criteria:
@@ -34,6 +34,7 @@ Supporting status artifacts:
 - test-results/tracking-android-physical-device-runtime-proof/00-device.json
 - test-results/tracking-android-physical-device-runtime-proof/01-adb-connect.txt
 - test-results/tracking-android-physical-device-runtime-proof/02-adb-install.txt
+- test-results/tracking-android-physical-device-runtime-proof/03-prepare-device-for-launch.txt
 - test-results/tracking-android-physical-device-runtime-proof/03-launch-activity.txt
 - test-results/tracking-android-physical-device-runtime-proof/03-start-service.txt
 - test-results/tracking-android-physical-device-runtime-proof/04-service-dump.txt
@@ -44,6 +45,12 @@ Supporting status artifacts:
 - test-results/tracking-android-physical-device-runtime-proof/09-ui.xml
 - test-results/tracking-android-physical-device-runtime-proof/10-screen.png
 - test-results/tracking-android-physical-device-runtime-proof/11-logcat.txt
+- test-results/tracking-android-physical-device-runtime-proof/12-package-dump.txt
+- test-results/tracking-android-physical-device-runtime-proof/13-permission-state.json
+- test-results/tracking-android-physical-device-runtime-proof/14-background-location-sample-prefs.xml
+- test-results/tracking-android-physical-device-runtime-proof/15-geofence-transition-prefs.xml
+- test-results/tracking-android-physical-device-runtime-proof/16-physical-route-observation.txt
+- test-results/tracking-android-physical-device-runtime-proof/17-location-manager-state.txt
 
 ## ios
 
