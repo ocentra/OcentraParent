@@ -91,6 +91,10 @@ export const BillingEntitlementContractProofReadModel = BillingEntitlementContra
     generatedAt: Timestamp,
     expiresAt: ExpiryTimestamp,
     deviceLimit: 5,
+    baseChildDeviceLimit: 1,
+    activeReferralCredits: 2,
+    paidExtraChildDeviceSeats: 2,
+    effectiveChildDeviceLimit: 5,
     featureDecisions: [
       featureDecision('multi-device-sync', 'available', 'within-plan', false, 'unchanged'),
       featureDecision('advanced-reports', 'available', 'within-plan', false, 'unchanged'),
@@ -99,6 +103,12 @@ export const BillingEntitlementContractProofReadModel = BillingEntitlementContra
       featureDecision('evidence-export-access', 'local-only', 'within-plan', true, 'local-only'),
     ],
     failureState: null,
+  },
+  referralCreditSummary: {
+    activeQualifiedReferralParents: 2,
+    activeReferralCredits: 2,
+    pendingReferralInvites: 1,
+    revokedReferralCredits: 1,
   },
   subscriptionStatusProofRows: [
     subscriptionStatusProofRow('trialing', 'billing-backend', 'available', 'unchanged', 'allow-new-device', null),

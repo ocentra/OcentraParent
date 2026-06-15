@@ -2,7 +2,7 @@ use ocentra_child_enforcement_core::{
     evaluate_enforcement_action, EnforcementActionDecision, EnforcementActionInput,
     EnforcementAdapterExecutionState,
 };
-use ocentra_entitlement_core::{
+use ocentra_entitlement_core::entitlement_access::{
     evaluate_entitlement_capability, EntitlementCapabilityAccessState, EntitlementCapabilityInput,
     EntitlementDecision,
 };

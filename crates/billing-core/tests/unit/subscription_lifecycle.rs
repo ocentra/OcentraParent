@@ -1,4 +1,4 @@
-use ocentra_billing_core::{
+use ocentra_billing_core::billing_subscription::{
     decide_billing_provider_webhook, project_billing_entitlement_transition,
     project_billing_entitlement_transition_event, record_billing_provider_webhook_decision_event,
     BillingAccountMatchState, BillingAggregateId, BillingEntitlementScope,
@@ -179,6 +179,89 @@ fn supported_webhook_event_classes_follow_the_subscription_lifecycle_projection_
         assert_eq!(
             transition.write_state,
             BillingEntitlementWriteState::WriteRequired
+        );
+    }
+}
+
+#[test]
+fn remaining_lifecycle_edges_preserve_manual_review_and_write_rules() {
+    let scenarios = [
+        (
+            BillingProviderEventKind::SubscriptionUpdated,
+            BillingSubscriptionLifecycleState::Unpaid,
+            BillingEntitlementTransitionState::RevokeAccess,
+            BillingEntitlementWriteState::WriteRequired,
+            BillingEntitlementUpdateRequirement::Required,
+            BillingManualReviewRequirement::NotRequired,
+        ),
+        (
+            BillingProviderEventKind::SubscriptionUpdated,
+            BillingSubscriptionLifecycleState::Refunded,
+            BillingEntitlementTransitionState::RevokeAccess,
+            BillingEntitlementWriteState::WriteRequired,
+            BillingEntitlementUpdateRequirement::Required,
+            BillingManualReviewRequirement::NotRequired,
+        ),
+        (
+            BillingProviderEventKind::DisputeOpened,
+            BillingSubscriptionLifecycleState::Disputed,
+            BillingEntitlementTransitionState::HoldForReview,
+            BillingEntitlementWriteState::WriteRequired,
+            BillingEntitlementUpdateRequirement::Required,
+            BillingManualReviewRequirement::Required,
+        ),
+        (
+            BillingProviderEventKind::CustomerPortalUpdated,
+            BillingSubscriptionLifecycleState::SupportRequired,
+            BillingEntitlementTransitionState::NoWrite,
+            BillingEntitlementWriteState::DoNotWrite,
+            BillingEntitlementUpdateRequirement::NotRequired,
+            BillingManualReviewRequirement::Required,
+        ),
+        (
+            BillingProviderEventKind::CustomerPortalUpdated,
+            BillingSubscriptionLifecycleState::Unknown,
+            BillingEntitlementTransitionState::NoWrite,
+            BillingEntitlementWriteState::DoNotWrite,
+            BillingEntitlementUpdateRequirement::NotRequired,
+            BillingManualReviewRequirement::Required,
+        ),
+    ];
+
+    for (
+        event_kind,
+        lifecycle_state,
+        expected_transition_state,
+        expected_write_state,
+        expected_update_requirement,
+        expected_manual_review_requirement,
+    ) in scenarios
+    {
+        let decision = decide_billing_provider_webhook(BillingProviderWebhookEvent {
+            event_kind,
+            ..provider_event(lifecycle_state, BillingProviderSignatureState::Verified)
+        });
+        let transition =
+            project_billing_entitlement_transition(decision.clone(), BillingEntitlementScope::Household);
+
+        assert_eq!(
+            decision.decision_state,
+            BillingProviderEventDecisionState::Accepted
+        );
+        assert_eq!(
+            decision.entitlement_update_requirement,
+            expected_update_requirement
+        );
+        assert_eq!(
+            decision.manual_review_requirement,
+            expected_manual_review_requirement
+        );
+        assert_eq!(transition.lifecycle_state, lifecycle_state);
+        assert_eq!(transition.transition_state, expected_transition_state);
+        assert_eq!(transition.write_state, expected_write_state);
+        assert_eq!(
+            transition.manual_review_requirement,
+            expected_manual_review_requirement
         );
     }
 }

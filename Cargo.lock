@@ -2441,6 +2441,7 @@ dependencies = [
  "ocentra-network-evidence",
  "ocentra-parent-agent-core",
  "ocentra-parent-agent-protocol",
+ "ocentra-parent-logging-core",
  "ocentra-parent-runtime-core",
  "ocentra-parent-screen-capture-adapter",
  "ocentra-screen-live-view-core",
@@ -2449,6 +2450,16 @@ dependencies = [
  "sha2",
  "tokio",
  "tower-http",
+]
+
+[[package]]
+name = "ocentra-parent-logging-core"
+version = "0.1.1"
+dependencies = [
+ "chrono",
+ "serde",
+ "serde_json",
+ "sha2",
 ]
 
 [[package]]

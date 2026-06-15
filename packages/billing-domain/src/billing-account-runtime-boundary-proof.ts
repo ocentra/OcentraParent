@@ -1,16 +1,19 @@
 import { Schema } from '@ocentra-parent/schema-domain/effect';
 import {
   BillingAccountRuntimeBoundaryProofSchema,
-  type BillingAccountBackendRuntimeState,
   type BillingAccountRuntimeFailureState,
-  type BillingAccountRuntimeOperation,
-  type BillingAccountRuntimeStatus,
 } from './billing-account-runtime-boundary';
+import type {
+  BillingAccountBackendRuntimeState,
+  BillingAccountRuntimeOperation,
+  BillingAccountRuntimeStatus,
+} from './billing-account-runtime-boundary-values';
 import { ParentTimestampSchema } from '@ocentra-parent/family-domain/reference-primitives';
 
 const decodeParentTimestamp = Schema.decodeUnknownSync(ParentTimestampSchema);
 const Timestamp = decodeParentTimestamp('2026-06-03T13:39:17.000Z');
 const RetryTimestamp = decodeParentTimestamp('2026-06-03T14:39:17.000Z');
+const RenewalTimestamp = decodeParentTimestamp('2026-07-14T00:00:00.000Z');
 
 const ProviderUnavailableFailure = unavailableFailure('provider-unavailable');
 const NetworkUnavailableFailure = unavailableFailure('network-unavailable');
@@ -42,6 +45,9 @@ export const BillingAccountRuntimeBoundaryProofReadModel = BillingAccountRuntime
       'available',
       'available',
       'unchanged',
+      'stripe-hosted',
+      RenewalTimestamp,
+      false,
       null
     ),
     accountStatusRow(
@@ -52,6 +58,9 @@ export const BillingAccountRuntimeBoundaryProofReadModel = BillingAccountRuntime
       'manual-required',
       'past-due',
       'grace-with-local-safety',
+      'stripe-hosted',
+      RenewalTimestamp,
+      false,
       PaymentRequiredFailure
     ),
     accountStatusRow(
@@ -62,6 +71,9 @@ export const BillingAccountRuntimeBoundaryProofReadModel = BillingAccountRuntime
       'provider-unavailable',
       'unavailable',
       'local-only',
+      'stripe-hosted',
+      null,
+      false,
       ProviderUnavailableFailure
     ),
     accountStatusRow(
@@ -72,6 +84,9 @@ export const BillingAccountRuntimeBoundaryProofReadModel = BillingAccountRuntime
       'backend-unavailable',
       'unavailable',
       'local-only',
+      'stripe-hosted',
+      null,
+      false,
       NetworkUnavailableFailure
     ),
     accountStatusRow(
@@ -82,6 +97,9 @@ export const BillingAccountRuntimeBoundaryProofReadModel = BillingAccountRuntime
       'manual-required',
       'manual-review',
       'manual-review-with-local-safety',
+      'manual-invoice',
+      null,
+      true,
       ValidationFailedFailure
     ),
   ],
@@ -176,6 +194,9 @@ function accountStatusRow(
   backendRuntimeState: BillingAccountBackendRuntimeState,
   parentVisibleState: 'available' | 'past-due' | 'unavailable' | 'manual-review',
   localSafetyBehavior: 'unchanged' | 'local-only' | 'grace-with-local-safety' | 'manual-review-with-local-safety',
+  providerMode: 'stripe-hosted' | 'manual-invoice',
+  nextRenewalAt: typeof RenewalTimestamp | null,
+  manualInvoiceVisible: boolean,
   failureState: ReturnType<typeof billingFailureState> | null
 ) {
   return {
@@ -196,6 +217,12 @@ function accountStatusRow(
     evidenceExportAccess: 'retained',
     childActivityCustody: 'not-included',
     providerSecretCustody: 'not-present',
+    providerMode,
+    nextRenewalAt,
+    manualInvoiceState: {
+      visible: manualInvoiceVisible,
+      invoiceState: manualInvoiceVisible ? 'manual-support-required' : null,
+    },
     failureState,
     auditReference: `audit-${boundaryId}`,
   } as const;

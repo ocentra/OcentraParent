@@ -2,10 +2,12 @@ import { describe, expect, it } from 'vitest';
 import {
   BillingSupportAdminBoundaryProofSchema,
   BillingSupportAdminBoundaryRowSchema,
-  summarizeBillingSupportAdminActions,
-  summarizeBillingSupportAdminRuntimeStates,
 } from '../../src/billing-support-admin-boundary';
 import { BillingSupportAdminBoundaryProofReadModel } from '../../src/billing-support-admin-boundary-proof';
+import {
+  summarizeBillingSupportAdminActions,
+  summarizeBillingSupportAdminRuntimeStates,
+} from '../../src/billing-support-admin-boundary-values';
 
 describe('billing support admin boundary', () => {
   acceptsBillingSupportAdminBoundaryProof();

@@ -35,6 +35,9 @@ function coversBillingPricingTierMatrix(): void {
     expect(proof.tierMatrix.map((row) => row.plan.deviceLimit)).toEqual([1, 3, 5]);
 
     const freeRow = proof.tierMatrix[0];
+    if (freeRow === undefined) {
+      throw new Error('expected billing pricing proof to include a free tier row');
+    }
     expect(freeRow.defaultEntitlementSnapshot.featureDecisions.map((decision) => decision.decision)).toEqual([
       'local-only',
       'local-only',

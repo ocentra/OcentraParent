@@ -1,9 +1,14 @@
 #!/usr/bin/env node
 
-import { failWithBlocker } from "./manual-required.js";
+import { buildLocalSeedSnapshot } from "../src/billing-binding-read-model.js";
+import type { Env } from "../src/env.js";
 
-failWithBlocker(
-  "infra/cloudflare/scripts/seed-local.ts",
-  "local-seed-flow-not-implemented",
-  "Implement Wrangler-local billing fixtures, teardown, and proof before using shared Cloudflare seeding.",
-);
+const env: Env = {
+  ENVIRONMENT: "development",
+  APP_ORIGIN: "http://localhost:3000",
+  CORS_ALLOWED_ORIGINS: "http://localhost:3000",
+  AUTH_ADAPTER_MODE: "local-safe-fixture",
+  ENTITLEMENT_SIGNING_KEY_REF: "manual-required-local-ref",
+};
+
+console.log(JSON.stringify(buildLocalSeedSnapshot(env), null, 2));

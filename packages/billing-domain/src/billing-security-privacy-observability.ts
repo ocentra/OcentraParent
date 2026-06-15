@@ -22,8 +22,6 @@ import {
   type BillingSecurityPrivacyNonClaim,
 } from './billing-security-privacy-observability-values';
 
-export * from './billing-security-privacy-observability-values';
-
 export const BillingMetadataAllowlistRowSchema = withParser(
   Schema.Struct({
     schemaVersion: BillingSecurityPrivacyObservabilitySchemaVersionSchema,

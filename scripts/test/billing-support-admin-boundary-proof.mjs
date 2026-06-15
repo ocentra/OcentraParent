@@ -23,7 +23,10 @@ async function main() {
       '@ocentra-parent/parent-domain',
       '--',
       'tests/billing-support-admin-boundary.test.ts',
-    ])
+    ]),
+    {
+      OCENTRA_PARENT_DOMAIN_TEST_SKIP_PROOF_CHAIN: '1',
+    }
   );
 
   const contract = await assertBuiltContract();
@@ -108,10 +111,10 @@ async function assertBuiltContract() {
 }
 
 async function assertPublicPackageExport() {
-  const module = await import('@ocentra-parent/billing-domain/billing-entitlement');
+  const module = await import('@ocentra-parent/parent-domain/billing-support-admin-boundary');
   assert.equal(typeof module.decodeBillingSupportAdminBoundaryProof, 'function');
   assert.ok(module.BillingSupportAdminBoundaryProofSchema);
-  return '@ocentra-parent/billing-domain/billing-entitlement';
+  return '@ocentra-parent/parent-domain/billing-support-admin-boundary';
 }
 
 async function assertDocumentationProof() {
@@ -126,10 +129,15 @@ async function readRepoFile(path) {
   return readFile(join(repoRoot, path), 'utf8');
 }
 
-async function runCommand(commandName, args) {
+async function runCommand(commandName, args, env = {}) {
   commands.push([commandName, ...args].join(' '));
   await new Promise((resolve, reject) => {
-    const child = spawn(commandName, args, { cwd: repoRoot, stdio: 'inherit', windowsHide: true });
+    const child = spawn(commandName, args, {
+      cwd: repoRoot,
+      env: { ...process.env, ...env },
+      stdio: 'inherit',
+      windowsHide: true,
+    });
     child.once('exit', (code) =>
       code === 0 ? resolve() : reject(new Error(`${commandName} ${args.join(' ')} exited with ${code}`))
     );

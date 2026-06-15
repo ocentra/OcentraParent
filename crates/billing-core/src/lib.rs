@@ -1,5 +1,3 @@
 #![forbid(unsafe_code)]
 
-mod billing_subscription;
-
-pub use billing_subscription::*;
+pub mod billing_subscription;

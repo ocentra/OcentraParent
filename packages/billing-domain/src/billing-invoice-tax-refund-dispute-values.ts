@@ -13,6 +13,12 @@ export const BillingInvoiceVisibilityStateSchema = withParser(
   Schema.Literal('customer-portal-hosted', 'download-link-issued', 'manual-support-required')
 );
 
+export const BillingInvoiceProviderModeSchema = withParser(
+  Schema.Literal('stripe-hosted', 'manual-invoice')
+);
+
+export const BillingInvoiceCurrencyCodeSchema = withParser(Schema.Literal('USD'));
+
 export const BillingTaxModeDecisionSchema = withParser(
   Schema.Literal('stripe-automatic-tax', 'merchant-configured-tax', 'manual-support-required')
 );
@@ -53,6 +59,10 @@ export const BillingInvoiceLifecycleAuditReferenceSchema = brandedNonEmptyString
   'BillingInvoiceLifecycleAuditReference'
 );
 
+export const BillingInvoiceNumberSchema = brandedNonEmptyStringSchema(
+  'BillingInvoiceNumber'
+);
+
 export const BillingInvoiceLifecycleNonClaimSchema = withParser(
   Schema.Literal(
     'no-invoice-pdf-custody',
@@ -75,6 +85,8 @@ export const BillingInvoiceChildActivityCustodyClaimSchema = withParser(
 );
 
 export type BillingInvoiceVisibilityState = Infer<typeof BillingInvoiceVisibilityStateSchema>;
+export type BillingInvoiceProviderMode = Infer<typeof BillingInvoiceProviderModeSchema>;
+export type BillingInvoiceCurrencyCode = Infer<typeof BillingInvoiceCurrencyCodeSchema>;
 export type BillingTaxModeDecision = Infer<typeof BillingTaxModeDecisionSchema>;
 export type BillingTaxRegionState = Infer<typeof BillingTaxRegionStateSchema>;
 export type BillingRefundLifecycleState = Infer<typeof BillingRefundLifecycleStateSchema>;
@@ -82,3 +94,4 @@ export type BillingDisputeLifecycleState = Infer<typeof BillingDisputeLifecycleS
 export type BillingCollectionRecoveryState = Infer<typeof BillingCollectionRecoveryStateSchema>;
 export type BillingEntitlementSideEffect = Infer<typeof BillingEntitlementSideEffectSchema>;
 export type BillingInvoiceLifecycleNonClaim = Infer<typeof BillingInvoiceLifecycleNonClaimSchema>;
+export type BillingInvoiceNumber = Infer<typeof BillingInvoiceNumberSchema>;

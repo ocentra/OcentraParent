@@ -1,11 +1,28 @@
-use ocentra_entitlement_core::{
+use ocentra_entitlement_core::entitlement_access::{
     evaluate_entitlement_capability, record_entitlement_capability_decision,
     EntitlementAggregateId, EntitlementCapability, EntitlementCapabilityAccessState,
+    EntitlementCapabilityRejectionReason, EntitlementDeviceTrustRequirementState,
+    EntitlementDeviceTrustState, EntitlementPackageBuildState,
     EntitlementCapabilityEvaluationRequestedEvent, EntitlementCapabilityInput,
     EntitlementCapabilityScope, EntitlementEvaluationId, EntitlementManualReviewState,
-    EntitlementPolicyState, FamilySetupState, OfflineGraceState, SubscriptionState,
+    EntitlementPolicyState, EntitlementSnapshotBindingState,
+    EntitlementSnapshotContext, EntitlementSnapshotFreshnessState,
+    EntitlementSnapshotSignatureState, FamilySetupState, OfflineGraceState,
+    SubscriptionState,
 };
 use ocentra_eventing::DomainEvent;
+
+fn trusted_snapshot_context() -> EntitlementSnapshotContext {
+    EntitlementSnapshotContext {
+        signature_state: EntitlementSnapshotSignatureState::Trusted,
+        freshness_state: EntitlementSnapshotFreshnessState::Fresh,
+        household_binding_state: EntitlementSnapshotBindingState::Matched,
+        device_binding_state: EntitlementSnapshotBindingState::Matched,
+        device_trust_requirement_state: EntitlementDeviceTrustRequirementState::Required,
+        device_trust_state: EntitlementDeviceTrustState::Present,
+        package_build_state: EntitlementPackageBuildState::Valid,
+    }
+}
 
 #[test]
 fn active_subscription_allows_capability_after_family_setup() {
@@ -16,6 +33,7 @@ fn active_subscription_allows_capability_after_family_setup() {
         family_setup_state: FamilySetupState::Complete,
         policy_state: EntitlementPolicyState::Clean,
         capability_scope: EntitlementCapabilityScope::LocalChildRuntime,
+        snapshot_context: trusted_snapshot_context(),
     });
 
     assert_eq!(
@@ -27,6 +45,7 @@ fn active_subscription_allows_capability_after_family_setup() {
         EntitlementManualReviewState::NotRequired
     );
     assert_eq!(decision.capability, EntitlementCapability::Tracking);
+    assert_eq!(decision.rejection_reason, None);
 }
 
 #[test]
@@ -38,6 +57,7 @@ fn offline_grace_preserves_child_runtime_capability() {
         family_setup_state: FamilySetupState::Complete,
         policy_state: EntitlementPolicyState::Clean,
         capability_scope: EntitlementCapabilityScope::LocalChildRuntime,
+        snapshot_context: trusted_snapshot_context(),
     });
 
     assert_eq!(
@@ -45,6 +65,7 @@ fn offline_grace_preserves_child_runtime_capability() {
         EntitlementCapabilityAccessState::Allowed
     );
     assert_eq!(decision.capability, EntitlementCapability::Enforcement);
+    assert_eq!(decision.rejection_reason, None);
 }
 
 #[test]
@@ -56,6 +77,7 @@ fn incomplete_family_setup_blocks_capability_even_with_subscription() {
         family_setup_state: FamilySetupState::Incomplete,
         policy_state: EntitlementPolicyState::Clean,
         capability_scope: EntitlementCapabilityScope::LocalChildRuntime,
+        snapshot_context: trusted_snapshot_context(),
     });
 
     assert_eq!(
@@ -65,6 +87,10 @@ fn incomplete_family_setup_blocks_capability_even_with_subscription() {
     assert_eq!(
         decision.manual_review_state,
         EntitlementManualReviewState::Required
+    );
+    assert_eq!(
+        decision.rejection_reason,
+        Some(EntitlementCapabilityRejectionReason::IncompleteFamilySetup)
     );
 }
 
@@ -77,6 +103,7 @@ fn inactive_subscription_without_grace_blocks_capability_after_family_setup() {
         family_setup_state: FamilySetupState::Complete,
         policy_state: EntitlementPolicyState::Clean,
         capability_scope: EntitlementCapabilityScope::LocalChildRuntime,
+        snapshot_context: trusted_snapshot_context(),
     });
 
     assert_eq!(
@@ -88,6 +115,10 @@ fn inactive_subscription_without_grace_blocks_capability_after_family_setup() {
         EntitlementManualReviewState::Required
     );
     assert_eq!(decision.capability, EntitlementCapability::ScreenEvidence);
+    assert_eq!(
+        decision.rejection_reason,
+        Some(EntitlementCapabilityRejectionReason::InactiveSubscription)
+    );
 }
 
 #[test]
@@ -99,6 +130,7 @@ fn payment_dispute_blocks_capability_even_during_grace() {
         family_setup_state: FamilySetupState::Complete,
         policy_state: EntitlementPolicyState::PaymentDispute,
         capability_scope: EntitlementCapabilityScope::LocalChildRuntime,
+        snapshot_context: trusted_snapshot_context(),
     });
 
     assert_eq!(
@@ -108,6 +140,10 @@ fn payment_dispute_blocks_capability_even_during_grace() {
     assert_eq!(
         decision.manual_review_state,
         EntitlementManualReviewState::Required
+    );
+    assert_eq!(
+        decision.rejection_reason,
+        Some(EntitlementCapabilityRejectionReason::PaymentDispute)
     );
 }
 
@@ -120,6 +156,7 @@ fn parent_portal_only_capability_does_not_unlock_child_runtime() {
         family_setup_state: FamilySetupState::Complete,
         policy_state: EntitlementPolicyState::Clean,
         capability_scope: EntitlementCapabilityScope::ParentPortalOnly,
+        snapshot_context: trusted_snapshot_context(),
     });
 
     assert_eq!(
@@ -129,6 +166,110 @@ fn parent_portal_only_capability_does_not_unlock_child_runtime() {
     assert_eq!(
         decision.manual_review_state,
         EntitlementManualReviewState::Required
+    );
+    assert_eq!(
+        decision.rejection_reason,
+        Some(EntitlementCapabilityRejectionReason::ParentPortalOnlyScope)
+    );
+}
+
+#[test]
+fn wrong_household_snapshot_blocks_capability_even_when_subscription_is_active() {
+    let decision = evaluate_entitlement_capability(EntitlementCapabilityInput {
+        snapshot_context: EntitlementSnapshotContext {
+            household_binding_state: EntitlementSnapshotBindingState::Mismatched,
+            ..trusted_snapshot_context()
+        },
+        capability: EntitlementCapability::Tracking,
+        subscription_state: SubscriptionState::Active,
+        offline_grace_state: OfflineGraceState::Inactive,
+        family_setup_state: FamilySetupState::Complete,
+        policy_state: EntitlementPolicyState::Clean,
+        capability_scope: EntitlementCapabilityScope::LocalChildRuntime,
+    });
+
+    assert_eq!(
+        decision.access_state,
+        EntitlementCapabilityAccessState::Blocked
+    );
+    assert_eq!(
+        decision.rejection_reason,
+        Some(EntitlementCapabilityRejectionReason::WrongHousehold)
+    );
+}
+
+#[test]
+fn wrong_device_snapshot_blocks_capability_even_when_subscription_is_active() {
+    let decision = evaluate_entitlement_capability(EntitlementCapabilityInput {
+        snapshot_context: EntitlementSnapshotContext {
+            device_binding_state: EntitlementSnapshotBindingState::Mismatched,
+            ..trusted_snapshot_context()
+        },
+        capability: EntitlementCapability::Tracking,
+        subscription_state: SubscriptionState::Active,
+        offline_grace_state: OfflineGraceState::Inactive,
+        family_setup_state: FamilySetupState::Complete,
+        policy_state: EntitlementPolicyState::Clean,
+        capability_scope: EntitlementCapabilityScope::LocalChildRuntime,
+    });
+
+    assert_eq!(
+        decision.access_state,
+        EntitlementCapabilityAccessState::Blocked
+    );
+    assert_eq!(
+        decision.rejection_reason,
+        Some(EntitlementCapabilityRejectionReason::WrongDevice)
+    );
+}
+
+#[test]
+fn missing_device_trust_blocks_when_snapshot_requires_sealed_device_trust() {
+    let decision = evaluate_entitlement_capability(EntitlementCapabilityInput {
+        snapshot_context: EntitlementSnapshotContext {
+            device_trust_state: EntitlementDeviceTrustState::Missing,
+            ..trusted_snapshot_context()
+        },
+        capability: EntitlementCapability::RemoteAccess,
+        subscription_state: SubscriptionState::Active,
+        offline_grace_state: OfflineGraceState::Inactive,
+        family_setup_state: FamilySetupState::Complete,
+        policy_state: EntitlementPolicyState::Clean,
+        capability_scope: EntitlementCapabilityScope::LocalChildRuntime,
+    });
+
+    assert_eq!(
+        decision.access_state,
+        EntitlementCapabilityAccessState::Blocked
+    );
+    assert_eq!(
+        decision.rejection_reason,
+        Some(EntitlementCapabilityRejectionReason::MissingDeviceTrust)
+    );
+}
+
+#[test]
+fn invalid_signature_blocks_capability_before_subscription_state_is_considered() {
+    let decision = evaluate_entitlement_capability(EntitlementCapabilityInput {
+        snapshot_context: EntitlementSnapshotContext {
+            signature_state: EntitlementSnapshotSignatureState::Invalid,
+            ..trusted_snapshot_context()
+        },
+        capability: EntitlementCapability::Tracking,
+        subscription_state: SubscriptionState::Active,
+        offline_grace_state: OfflineGraceState::Active,
+        family_setup_state: FamilySetupState::Complete,
+        policy_state: EntitlementPolicyState::Clean,
+        capability_scope: EntitlementCapabilityScope::LocalChildRuntime,
+    });
+
+    assert_eq!(
+        decision.access_state,
+        EntitlementCapabilityAccessState::Blocked
+    );
+    assert_eq!(
+        decision.rejection_reason,
+        Some(EntitlementCapabilityRejectionReason::InvalidSignature)
     );
 }
 
@@ -146,6 +287,7 @@ fn entitlement_evaluation_request_records_typed_decision_event() {
             family_setup_state: FamilySetupState::Complete,
             policy_state: EntitlementPolicyState::Clean,
             capability_scope: EntitlementCapabilityScope::LocalChildRuntime,
+            snapshot_context: trusted_snapshot_context(),
         },
     };
 
@@ -161,6 +303,7 @@ fn entitlement_evaluation_request_records_typed_decision_event() {
         decision.decision.access_state,
         EntitlementCapabilityAccessState::Allowed
     );
+    assert_eq!(decision.decision.rejection_reason, None);
     assert_eq!(
         request
             .contract()

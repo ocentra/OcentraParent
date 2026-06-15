@@ -22,6 +22,8 @@ describe('billing entitlement contracts', () => {
   rejectsPaidGatesForSafetyCriticalBehavior();
   rejectsLockedSafetyCriticalDecisionAndDroppedExportAccess();
   rejectsUnavailableSnapshotsWithoutFailureState();
+  rejectsSeatCompositionDrift();
+  rejectsReferralCreditSummaryDrift();
   rejectsDegradedSubscriptionRowsWithoutFailureState();
   rejectsProviderReferencesOutsideBackendBoundary();
   rejectsDeniedDeviceLimitDecisionWithAllowedReason();
@@ -40,6 +42,16 @@ function acceptsBillingEntitlementProofWithoutProviderClaims(): void {
     expect(proof.plan.planId).toBe('family-plus-monthly');
     expect(proof.plan.deviceLimit).toBe(5);
     expect(proof.entitlementSnapshot.subscriptionStatus).toBe('active');
+    expect(proof.entitlementSnapshot.baseChildDeviceLimit).toBe(1);
+    expect(proof.entitlementSnapshot.activeReferralCredits).toBe(2);
+    expect(proof.entitlementSnapshot.paidExtraChildDeviceSeats).toBe(2);
+    expect(proof.entitlementSnapshot.effectiveChildDeviceLimit).toBe(5);
+    expect(proof.referralCreditSummary).toEqual({
+      activeQualifiedReferralParents: 2,
+      activeReferralCredits: 2,
+      pendingReferralInvites: 1,
+      revokedReferralCredits: 1,
+    });
     expect(subscriptionStatusCounts(proof)).toEqual({
       trialing: 1,
       active: 1,
@@ -142,6 +154,41 @@ function rejectsUnavailableSnapshotsWithoutFailureState(): void {
         failureState: BillingEntitlementContractProofReadModel.failureStates[0],
       }).success
     ).toBe(true);
+  });
+}
+
+function rejectsSeatCompositionDrift(): void {
+  it('rejects entitlement snapshots whose effective child-device limit drifts from base referral and paid-seat composition', () => {
+    const snapshot = BillingEntitlementContractProofReadModel.entitlementSnapshot;
+
+    expect(
+      BillingEntitlementSnapshotSchema.safeParse({
+        ...snapshot,
+        effectiveChildDeviceLimit: 4,
+      }).success
+    ).toBe(false);
+    expect(
+      BillingEntitlementSnapshotSchema.safeParse({
+        ...snapshot,
+        deviceLimit: 4,
+      }).success
+    ).toBe(false);
+  });
+}
+
+function rejectsReferralCreditSummaryDrift(): void {
+  it('rejects referral credit summaries that drift from the active referral credits carried by the signed entitlement snapshot', () => {
+    const proof = BillingEntitlementContractProofReadModel;
+
+    expect(
+      BillingEntitlementContractProofSchema.safeParse({
+        ...proof,
+        referralCreditSummary: {
+          ...proof.referralCreditSummary,
+          activeReferralCredits: 1,
+        },
+      }).success
+    ).toBe(false);
   });
 }
 

@@ -39,8 +39,6 @@ import {
   type BillingEntitlementRuntimeSnapshotState,
 } from './billing-entitlement-runtime-proof-values';
 
-export * from './billing-entitlement-runtime-proof-values';
-
 const Timestamp = '2026-06-04T23:34:57.000Z';
 const ExpiryTimestamp = '2026-06-11T23:34:57.000Z';
 const RetryTimestamp = '2026-06-05T00:34:57.000Z';
@@ -103,6 +101,15 @@ export const BillingEntitlementRuntimeSnapshotConsumptionSchema = withParser(
         row.source !== 'unavailable' ||
         row.entitlementSnapshot.source === 'unavailable' ||
         'Expected unavailable runtime source to consume an unavailable entitlement snapshot'
+    ),
+    Schema.filter(
+      (row) =>
+        row.runtimeState !== 'manual-review' ||
+        (row.source === 'manual-support-review' &&
+          row.entitlementSnapshot.source === 'manual-admin-review' &&
+          row.entitlementSnapshot.signatureState === 'manual-required' &&
+          row.failureState?.failureKind === 'validation-failed') ||
+        'Expected manual-review runtime rows to stay tied to manual support review and a manual-admin entitlement snapshot'
     )
   )
 );
@@ -223,6 +230,18 @@ export const BillingEntitlementRuntimeProofReadModel = BillingEntitlementRuntime
       degradedSnapshot('unavailable', 'unavailable', 'unavailable', RuntimeProviderUnavailableFailure),
       RuntimeProviderUnavailableFailure
     ),
+    snapshotConsumption(
+      'runtime-snapshot-manual-review',
+      'manual-review',
+      'manual-support-review',
+      degradedSnapshot(
+        'unknown',
+        'manual-admin-review',
+        'manual-required',
+        RuntimeValidationFailure
+      ),
+      RuntimeValidationFailure
+    ),
   ],
   deviceLimitConsumptions: [
     deviceLimitConsumption('runtime-device-allowed', 'allowed', 'accepted-local', null),
@@ -278,6 +297,30 @@ export const BillingEntitlementRuntimeKnownGaps = [
   'Portal billing UI and production subscription support remain unclaimed.',
 ] as const;
 
+export {
+  BillingEntitlementRuntimeAuditReferenceSchema,
+  BillingEntitlementRuntimeBoundaryIdSchema,
+  BillingEntitlementRuntimeChildCustodyClaimSchema,
+  BillingEntitlementRuntimeConsumptionStateSchema,
+  BillingEntitlementRuntimeNonClaimSchema,
+  BillingEntitlementRuntimeOperationSchema,
+  BillingEntitlementRuntimePortalUiClaimSchema,
+  BillingEntitlementRuntimeProductionBillingClaimSchema,
+  BillingEntitlementRuntimeProviderContactClaimSchema,
+  BillingEntitlementRuntimeProviderExecutionClaimSchema,
+  BillingEntitlementRuntimeRefundCreditClaimSchema,
+  BillingEntitlementRuntimeSchemaVersionSchema,
+  BillingEntitlementRuntimeSnapshotStateSchema,
+  BillingEntitlementRuntimeSourceSchema,
+};
+
+export type {
+  BillingEntitlementRuntimeConsumptionState,
+  BillingEntitlementRuntimeNonClaim,
+  BillingEntitlementRuntimeOperation,
+  BillingEntitlementRuntimeSnapshotState,
+};
+
 export { summarizeBillingEntitlementRuntimeConsumptionStates, summarizeBillingEntitlementRuntimeSnapshotStates };
 
 function billingEntitlementRuntimeProofIsHonest(proof: {
@@ -312,6 +355,7 @@ function billingEntitlementRuntimeProofIsHonest(proof: {
     'snapshot-stale',
     'payment-required',
     'provider-unavailable',
+    'manual-review',
   ];
   const requiredFailureKinds = ['provider-unavailable', 'stale-snapshot', 'payment-required', 'validation-failed'];
   return (
@@ -340,9 +384,9 @@ function activeSnapshot(): BillingEntitlementSnapshot {
 }
 
 function degradedSnapshot(
-  subscriptionStatus: 'past-due' | 'expired' | 'unavailable',
-  source: 'signed-local-snapshot' | 'unavailable',
-  signatureState: 'schema-valid-local' | 'unavailable',
+  subscriptionStatus: 'past-due' | 'expired' | 'unknown' | 'unavailable',
+  source: 'manual-admin-review' | 'signed-local-snapshot' | 'unavailable',
+  signatureState: 'manual-required' | 'schema-valid-local' | 'unavailable',
   failureState: BillingFailureState
 ): BillingEntitlementSnapshot {
   return BillingEntitlementSnapshotSchema.parse({
@@ -361,9 +405,10 @@ function snapshotConsumption(
     | 'runtime-snapshot-active'
     | 'runtime-snapshot-stale'
     | 'runtime-snapshot-payment-required'
-    | 'runtime-snapshot-provider-unavailable',
+    | 'runtime-snapshot-provider-unavailable'
+    | 'runtime-snapshot-manual-review',
   runtimeState: BillingEntitlementRuntimeSnapshotState,
-  source: 'signed-local-snapshot' | 'unavailable',
+  source: 'manual-support-review' | 'signed-local-snapshot' | 'unavailable',
   entitlementSnapshot: BillingEntitlementSnapshot,
   failureState: BillingFailureState | null
 ) {

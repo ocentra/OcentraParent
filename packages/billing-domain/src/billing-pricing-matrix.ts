@@ -271,7 +271,10 @@ function billingPricingMatrixProofIsHonest(proof: {
 
   return (
     uniquePlanIds.size === planIds.length &&
-    tierDeviceLimits.every((limit, index) => index === 0 || tierDeviceLimits[index - 1] < limit) &&
+    tierDeviceLimits.every((limit, index) => {
+      const previousLimit = index === 0 ? undefined : tierDeviceLimits[index - 1];
+      return previousLimit === undefined || previousLimit < limit;
+    }) &&
     planIds.includes(proof.trialGraceBoundary.paidPlan.planId) &&
     planIds.includes(proof.safetyCriticalFreeBoundary.freePlan.planId) &&
     proof.safetyCriticalFreeBoundary.degradedSnapshot.failureState?.failureKind === 'provider-unavailable' &&
