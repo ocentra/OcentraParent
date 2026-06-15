@@ -28,6 +28,7 @@ output/logging-domain-parity-proof/06-validation-and-enforcement/
 output/logging-domain-parity-proof/07-mcp-query-interface/
 output/logging-domain-parity-proof/08-logger-instrumentation-and-adoption/
 output/logging-domain-parity-proof/09-log-control-retention-bridge-lifecycle/
+output/logging-domain-parity-proof/10-proof-trace-pipeline/
 ```
 
 Test result roots:
@@ -42,6 +43,7 @@ test-results/logging-domain-parity-validation/
 test-results/logging-domain-parity-mcp/
 test-results/logging-domain-parity-instrumentation/
 test-results/logging-domain-parity-control-lifecycle/
+test-results/logging-domain-parity-proof-trace/
 ```
 
 ## Required proof files per workpack
@@ -109,16 +111,6 @@ test-results/logging-domain-parity-control-lifecycle/
 16-validation-commands.log
 ```
 
-### WP06
-
-```text
-00-validation-script-map.json
-01-negative-checks-proof.json
-02-root-script-wiring-proof.json
-03-agent-guidance-proof.md
-16-validation-commands.log
-```
-
 ### WP07
 
 ```text
@@ -139,6 +131,27 @@ test-results/logging-domain-parity-control-lifecycle/
 02-rust-logger-pattern-proof.json
 03-storage-observability-proof.json
 04-mcp-source-context-proof.json
+16-validation-commands.log
+```
+
+### WP10
+
+```text
+00-proof-trace-mode-proof.json
+01-playwright-click-trace-proof.json
+02-proof-trace-query-proof.json
+03-proof-trace-gap-proof.json
+04-mcp-proof-trace-proof.json
+16-validation-commands.log
+```
+
+### WP06
+
+```text
+00-validation-script-map.json
+01-negative-checks-proof.json
+02-root-script-wiring-proof.json
+03-agent-guidance-proof.md
 16-validation-commands.log
 ```
 
@@ -175,6 +188,7 @@ Codex evidence wrapper complete
 MCP logging interface complete
 logger instrumentation complete for the whole repo
 log retention policy complete for all products
+proof-trace coverage for all product flows
 ```
 
 unless the assigned workpack acceptance criteria and validation scripts prove it.
@@ -191,5 +205,6 @@ MCP latest-failures smoke passed
 source/context query proof passed
 log decision provider proof passed
 wipe/retention smoke passed
+one proof-trace smoke passed
 validation script negative check passed
 ```
