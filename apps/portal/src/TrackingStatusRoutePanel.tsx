@@ -1,5 +1,6 @@
 import type { ReactElement } from 'react';
-import { AgentCommand, AgentEvent } from '@ocentra-parent/agent-protocol-domain/contracts';
+import { AgentCommand, AgentEvent, AgentProtocolDefaults } from '@ocentra-parent/agent-protocol-domain/contracts';
+import { defaultAgentTrackingRetentionSettingsWriteRequest } from '@ocentra-parent/agent-protocol-domain/tracking-retention-settings-write-command';
 import {
   PortalDetails,
   PortalDom,
@@ -590,7 +591,11 @@ function TrackingRetentionSettingsHostedUiProofCard({
         type={PortalDom.ButtonType.Button}
         onClick={() => {
           actions.selectCommandResult(AgentEvent.ActivityTrackingRetentionSettingsWriteReported);
-          actions.sendCommand(AgentCommand.ActivityTrackingRetentionSettingsWrite, {});
+          actions.sendCommand(AgentCommand.ActivityTrackingRetentionSettingsWrite, {
+            [AgentProtocolDefaults.Field.ActivityTrackingRetentionSettingsWriteRequest]: JSON.stringify(
+              defaultAgentTrackingRetentionSettingsWriteRequest()
+            ),
+          });
         }}
       >
         {PortalText.Resolve(PortalTextToken.TrackingRetentionSettingsWritePreflightButton)}
@@ -631,6 +636,19 @@ function TrackingRetentionSettingsWritePreflightRow({
       <TrackingStatusDetail label={PortalDetails.ExecutionState} value={proof.writePreflight.writeState} />
       <TrackingStatusDetail label={PortalDetails.LastObserved} value={proof.writePreflight.acceptedAt} />
       <TrackingStatusDetail label={PortalDetails.Source} value={proof.writePreflight.sourceMutationProofRefs} />
+      <TrackingStatusDetail label={PortalDetails.EntryId} value={proof.writePreflight.sourceWriterIntentRefs} />
+      <TrackingStatusDetail
+        label={PortalDetails.RuntimeReference}
+        value={proof.writePreflight.sourceReadModelProofRefs}
+      />
+      <TrackingStatusDetail label={PortalDetails.State} value={proof.writePreflight.appliedRetentionWindowHours} />
+      <TrackingStatusDetail
+        label={PortalDetails.PolicyEvaluation}
+        value={proof.writePreflight.appliedDeleteAfterAlertResolved}
+      />
+      <TrackingStatusDetail label={PortalDetails.Custody} value={proof.writePreflight.parentExportPrepared} />
+      <TrackingStatusDetail label={PortalDetails.Destination} value={proof.writePreflight.remoteSyncEnabled} />
+      <TrackingStatusDetail label={PortalDetails.LocalAiResult} value={proof.writePreflight.remoteAiEnabled} />
       <TrackingStatusDetail label={PortalDetails.Transport} value={proof.writePreflight.commandTransportClaimedRows} />
       <TrackingStatusDetail
         label={PortalDetails.Events}

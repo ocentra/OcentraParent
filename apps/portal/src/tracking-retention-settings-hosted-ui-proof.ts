@@ -23,6 +23,13 @@ export type TrackingRetentionSettingsWritePreflight = {
   readonly writeState: PortalDetailValue;
   readonly acceptedAt: PortalDetailValue;
   readonly sourceMutationProofRefs: PortalDetailValue;
+  readonly sourceWriterIntentRefs: PortalDetailValue;
+  readonly sourceReadModelProofRefs: PortalDetailValue;
+  readonly appliedRetentionWindowHours: PortalDetailValue;
+  readonly appliedDeleteAfterAlertResolved: PortalDetailValue;
+  readonly parentExportPrepared: PortalDetailValue;
+  readonly remoteSyncEnabled: PortalDetailValue;
+  readonly remoteAiEnabled: PortalDetailValue;
   readonly commandTransportClaimedRows: PortalDetailValue;
   readonly serviceWritePreflightClaimedRows: PortalDetailValue;
   readonly serviceMutationExecutedRows: PortalDetailValue;
@@ -195,6 +202,15 @@ function retentionSettingsWritePreflight(
     writeState: detailFromValue(value.writeState),
     acceptedAt: detailFromValue(value.acceptedAt),
     sourceMutationProofRefs: detailFromValue(value.sourceMutationProofRefs.join(PortalFormatting.EventDetailSeparator)),
+    sourceWriterIntentRefs: detailFromValue(value.sourceWriterIntentRefs.join(PortalFormatting.EventDetailSeparator)),
+    sourceReadModelProofRefs: detailFromValue(
+      value.sourceReadModelProofRefs.join(PortalFormatting.EventDetailSeparator)
+    ),
+    appliedRetentionWindowHours: detailFromValue(value.appliedRetentionWindowHours ?? 0),
+    appliedDeleteAfterAlertResolved: detailFromFlag(value.appliedDeleteAfterAlertResolved),
+    parentExportPrepared: detailFromFlag(value.parentExportPrepared),
+    remoteSyncEnabled: detailFromFlag(value.remoteSyncEnabled),
+    remoteAiEnabled: detailFromFlag(value.remoteAiEnabled),
     commandTransportClaimedRows: detailFromFlag(value.commandTransportClaimed),
     serviceWritePreflightClaimedRows: detailFromFlag(value.serviceWritePreflightClaimed),
     serviceMutationExecutedRows: detailFromFlag(value.serviceMutationExecuted),
@@ -217,6 +233,13 @@ function emptyRetentionSettingsWritePreflight(): TrackingRetentionSettingsWriteP
     writeState: notReported(),
     acceptedAt: notReported(),
     sourceMutationProofRefs: notReported(),
+    sourceWriterIntentRefs: notReported(),
+    sourceReadModelProofRefs: notReported(),
+    appliedRetentionWindowHours: notReported(),
+    appliedDeleteAfterAlertResolved: detailFromValue(0),
+    parentExportPrepared: detailFromValue(0),
+    remoteSyncEnabled: detailFromValue(0),
+    remoteAiEnabled: detailFromValue(0),
     commandTransportClaimedRows: detailFromValue(0),
     serviceWritePreflightClaimedRows: detailFromValue(0),
     serviceMutationExecutedRows: detailFromValue(0),
@@ -242,6 +265,13 @@ function appendRetentionSettingsWritePreflight(
   appendDetail(metadata, PortalDetails.ExecutionState, writePreflight.writeState);
   appendDetail(metadata, PortalDetails.LastObserved, writePreflight.acceptedAt);
   appendDetail(metadata, PortalDetails.Source, writePreflight.sourceMutationProofRefs);
+  appendDetail(metadata, PortalDetails.EntryId, writePreflight.sourceWriterIntentRefs);
+  appendDetail(metadata, PortalDetails.RuntimeReference, writePreflight.sourceReadModelProofRefs);
+  appendDetail(metadata, PortalDetails.State, writePreflight.appliedRetentionWindowHours);
+  appendDetail(metadata, PortalDetails.PolicyEvaluation, writePreflight.appliedDeleteAfterAlertResolved);
+  appendDetail(metadata, PortalDetails.Custody, writePreflight.parentExportPrepared);
+  appendDetail(metadata, PortalDetails.Destination, writePreflight.remoteSyncEnabled);
+  appendDetail(metadata, PortalDetails.LocalAiResult, writePreflight.remoteAiEnabled);
   appendDetail(metadata, PortalDetails.Transport, writePreflight.commandTransportClaimedRows);
   appendDetail(metadata, PortalDetails.Events, writePreflight.serviceWritePreflightClaimedRows);
   appendDetail(metadata, PortalDetails.Database, writePreflight.serviceMutationExecutedRows);

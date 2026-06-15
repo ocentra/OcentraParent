@@ -3,20 +3,49 @@
   "proofMode": "tracking-retention-settings-write-command-proof",
   "generatedAt": "2026-06-06T20:05:00.000Z",
   "branch": "codex/tracking-plan-full-continuation-a",
-  "baseCommitAtGeneration": "27ee78f4f6c05230bd3226db8b6eac5a52847d38",
-  "gitStatusShort": "M  crates/agent-protocol/src/constants.rs\nM  crates/agent-protocol/src/constants/field.rs\nA  crates/agent-protocol/src/constants/tracking_retention_settings_write.rs\nM  crates/agent-protocol/src/lib.rs\nA  crates/agent-protocol/src/tracking_retention_settings_write_command.rs\nA  crates/agent-protocol/src/tracking_retention_settings_write_command_tests.rs\nM  crates/agent-protocol/src/transport.rs\nMM crates/agent-service/src/websocket.rs\nM  docs/features/location-geofence-device-status.md\nM  docs/plans/tracking-plan/implementation-checklist.md\nM  docs/plans/tracking-plan/workpacks/07-retention-and-custody-model.md\nM  docs/plans/tracking-plan/workpacks/32-journal-sqlite-and-read-model-proof.md\nA  output/tracking-plan-proof/07-retention-and-custody-model/21-retention-settings-write-command-proof.json\nA  output/tracking-plan-proof/07-retention-and-custody-model/21-retention-settings-write-command-validation.log\nA  output/tracking-plan-proof/32-journal-sqlite-and-read-model-proof/27-retention-settings-write-command-proof.json\nA  output/tracking-plan-proof/32-journal-sqlite-and-read-model-proof/27-retention-settings-write-command-validation.log\nA  output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-gate/33-retention-settings-write-command-proof.json\nM  packages/agent-protocol-domain/src/contracts.ts\nM  packages/agent-protocol-domain/src/defaults.ts\nA  packages/agent-protocol-domain/src/tracking-retention-settings-write-command.ts\nA  packages/agent-protocol-domain/tests/tracking-retention-settings-write-command.test.ts\nA  scripts/test/tracking-retention-settings-write-command-proof.mjs\nA  test-results/tracking-retention-settings-write-command-proof/proof.json\n?? crates/agent-service/src/websocket/",
+  "baseCommitAtGeneration": "07d7658e98d8a1df700e572cd511685f728025b3",
+  "gitStatusShort": "",
+  "request": {
+    "schemaVersion": 1,
+    "commandId": "tracking-retention-settings-write-command",
+    "settingsKind": "retention-window-setting",
+    "requestedRetentionWindowHours": 168,
+    "requestedDeleteAfterAlertResolved": false,
+    "requestedParentExport": false,
+    "requestedRemoteSyncEnabled": false,
+    "requestedRemoteAiEnabled": false,
+    "sourceWriterIntentRefs": [
+      "tracking-retention-settings-write-retention-window"
+    ],
+    "sourceReadModelProofRefs": [
+      "output/tracking-plan-proof/07-retention-and-custody-model/18-retention-settings-read-model-proof.json",
+      "output/tracking-plan-proof/32-journal-sqlite-and-read-model-proof/24-retention-settings-read-model-proof.json"
+    ]
+  },
   "result": {
     "schemaVersion": 1,
     "commandId": "tracking-retention-settings-write-command",
     "settingsKind": "retention-window-setting",
     "writeState": "service-write-command-accepted",
     "acceptedAt": "2026-06-06T19:50:00Z",
+    "sourceWriterIntentRefs": [
+      "tracking-retention-settings-write-retention-window"
+    ],
+    "sourceReadModelProofRefs": [
+      "output/tracking-plan-proof/07-retention-and-custody-model/18-retention-settings-read-model-proof.json",
+      "output/tracking-plan-proof/32-journal-sqlite-and-read-model-proof/24-retention-settings-read-model-proof.json"
+    ],
     "sourceMutationProofRefs": [
       "output/tracking-plan-proof/07-retention-and-custody-model/20-retention-settings-mutation-proof.json"
     ],
+    "appliedRetentionWindowHours": 168,
+    "appliedDeleteAfterAlertResolved": false,
+    "parentExportPrepared": false,
+    "remoteSyncEnabled": false,
+    "remoteAiEnabled": false,
     "commandTransportClaimed": true,
     "serviceWritePreflightClaimed": true,
-    "serviceMutationExecuted": false,
+    "serviceMutationExecuted": true,
     "portalWritableUiClaimed": false,
     "platformRuntimeClaimed": false,
     "childDeviceDeliveryClaimed": false,
@@ -28,10 +57,10 @@
   },
   "proofClaims": {
     "commandTransportClaimed": true,
-    "serviceWritePreflightClaimed": true
+    "serviceWritePreflightClaimed": true,
+    "serviceMutationExecuted": true
   },
   "productClaims": {
-    "serviceMutationExecuted": false,
     "portalWritableUiClaimed": false,
     "platformRuntimeClaimed": false,
     "childDeviceDeliveryClaimed": false,
@@ -51,20 +80,20 @@
     {
       "command": "cmd /c npm run test --workspace @ocentra-parent/agent-protocol-domain -- tracking-retention-settings-write-command",
       "status": 0,
-      "stdout": "> @ocentra-parent/agent-protocol-domain@0.1.1 test\n> vitest run tracking-retention-settings-write-command\n\n\n RUN  v4.1.6 C:/Users/sujan/.codex/worktrees/ocentra-parent-codex-a/OcentraParent/packages/agent-protocol-domain\n\n\n Test Files  1 passed (1)\n      Tests  2 passed (2)\n   Start at  16:04:51\n   Duration  1.00s (transform 204ms, setup 0ms, import 738ms, tests 13ms, environment 0ms)",
+      "stdout": "> @ocentra-parent/agent-protocol-domain@0.1.1 test\n> vitest run tracking-retention-settings-write-command\n\n\n RUN  v4.1.6 C:/Users/sujan/.codex/worktrees/ocentra-parent-codex-a/OcentraParent/packages/agent-protocol-domain\n\n\n Test Files  1 passed (1)\n      Tests  3 passed (3)\n   Start at  04:08:43\n   Duration  1.36s (transform 267ms, setup 0ms, import 1.01s, tests 17ms, environment 0ms)",
       "stderr": ""
     },
     {
       "command": "cargo test -p ocentra-parent-agent-protocol retention_settings_write -- --nocapture",
       "status": 0,
-      "stdout": "running 2 tests\ntest tracking_retention_settings_write_command_tests::retention_settings_write_command_and_event_names_serialize_to_contract_shape ... ok\ntest tracking_retention_settings_write_command_tests::retention_settings_write_result_serializes_without_product_overclaims ... ok\n\ntest result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 183 filtered out; finished in 0.00s",
-      "stderr": "Finished `test` profile [unoptimized + debuginfo] target(s) in 0.19s\n     Running unittests src\\lib.rs (target\\debug\\deps\\ocentra_parent_agent_protocol-8fbcfdb9341ad4a5.exe)"
+      "stdout": "running 3 tests\ntest tracking_retention_settings_write_command_tests::retention_settings_write_command_and_event_names_serialize_to_contract_shape ... ok\ntest tracking_retention_settings_write_command_tests::retention_settings_write_request_serializes_without_remote_overclaims ... ok\ntest tracking_retention_settings_write_command_tests::retention_settings_write_result_serializes_local_execution_without_product_overclaims ... ok\n\ntest result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 183 filtered out; finished in 0.00s",
+      "stderr": "Finished `test` profile [unoptimized + debuginfo] target(s) in 0.31s\n     Running unittests src\\lib.rs (target\\debug\\deps\\ocentra_parent_agent_protocol-8fbcfdb9341ad4a5.exe)"
     },
     {
       "command": "cargo test -p ocentra-parent-agent-service retention_settings_write -- --nocapture",
       "status": 0,
-      "stdout": "running 1 test\ntest websocket::tracking_retention_settings_write::tests::retention_settings_write_command_reports_service_backed_transport_boundary ... ok\n\ntest result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 263 filtered out; finished in 0.00s",
-      "stderr": "Compiling ocentra-parent-agent-service v0.1.1 (C:\\Users\\sujan\\.codex\\worktrees\\ocentra-parent-codex-a\\OcentraParent\\crates\\agent-service)\n    Finished `test` profile [unoptimized + debuginfo] target(s) in 11.95s\n     Running unittests src\\main.rs (target\\debug\\deps\\ocentra_parent_agent_service-f9b64d6b8709d212.exe)"
+      "stdout": "running 2 tests\ntest websocket::tracking_retention_settings_write::tests::retention_settings_write_command_reports_service_backed_transport_boundary ... ok\ntest websocket::tracking_retention_settings_write::tests::retention_settings_write_command_rejects_missing_typed_request_payload ... ok\n\ntest result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 263 filtered out; finished in 0.00s",
+      "stderr": "Finished `test` profile [unoptimized + debuginfo] target(s) in 0.56s\n     Running unittests src\\main.rs (target\\debug\\deps\\ocentra_parent_agent_service-f9b64d6b8709d212.exe)"
     }
   ],
   "artifactPaths": {
