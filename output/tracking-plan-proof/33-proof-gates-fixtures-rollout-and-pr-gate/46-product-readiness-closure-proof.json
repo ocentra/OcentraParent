@@ -245,8 +245,8 @@
     "productReadyClaimed": false
   },
   "branch": "codex/tracking-plan-full-continuation-a",
-  "baseCommitAtGeneration": "3e2a88b306ee8ece57432f622082269bc5fbd18b",
-  "gitStatusShort": "M docs/feature-list.md\n M docs/features/location-geofence-device-status.md\n M docs/plans/tracking-plan/implementation-checklist.md\n M output/tracking-plan-proof/01-source-index-and-repo-reconciliation/00-source-snapshot.md\n M output/tracking-plan-proof/01-source-index-and-repo-reconciliation/proof.json\n M output/tracking-plan-proof/02-current-tracking-snapshot-and-gap-map/00-source-snapshot.md\n M output/tracking-plan-proof/02-current-tracking-snapshot-and-gap-map/proof.json\n M output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-gate/46-product-readiness-closure-proof.json\n M output/tracking-plan-proof/tracking-product-readiness-closure-proof/00-source-snapshot.md\n M output/tracking-plan-proof/tracking-product-readiness-closure-proof/proof.json\n M test-results/tracking-product-readiness-closure-proof/proof.json\n D test-results/tracking-source-reconciliation-gap-map-proof/proof.json",
+  "baseCommitAtGeneration": "7d66994b269fc1fb92be87d4ba52de89316bf5a9",
+  "gitStatusShort": "M docs/plans/tracking-plan/implementation-checklist.md\n D output/tracking-plan-proof/tracking-hosted-ui-artifact-inventory-proof/00-source-snapshot.md\n D output/tracking-plan-proof/tracking-hosted-ui-artifact-inventory-proof/16-validation-commands.log\n D output/tracking-plan-proof/tracking-hosted-ui-artifact-inventory-proof/proof.json\n D test-results/tracking-hosted-ui-artifact-inventory-proof/proof.json\n D test-results/tracking-source-reconciliation-gap-map-proof/proof.json",
   "commands": [
     {
       "command": "cmd /c npm run build --workspace @ocentra-parent/parent-domain",
@@ -257,7 +257,7 @@
     {
       "command": "cmd /c npm run test --workspace @ocentra-parent/parent-domain -- tracking-product-readiness-closure-proof",
       "status": 0,
-      "stdout": "> @ocentra-parent/parent-domain@0.1.1 test\n> vitest run tracking-product-readiness-closure-proof\n\n\n RUN  v4.1.6 C:/Users/sujan/.codex/worktrees/ocentra-parent-codex-a/OcentraParent/packages/parent-domain\n\n\n Test Files  1 passed (1)\n      Tests  3 passed (3)\n   Start at  22:32:13\n   Duration  814ms (transform 131ms, setup 0ms, import 583ms, tests 20ms, environment 0ms)",
+      "stdout": "> @ocentra-parent/parent-domain@0.1.1 test\n> vitest run tracking-product-readiness-closure-proof\n\n\n RUN  v4.1.6 C:/Users/sujan/.codex/worktrees/ocentra-parent-codex-a/OcentraParent/packages/parent-domain\n\n\n Test Files  1 passed (1)\n      Tests  3 passed (3)\n   Start at  22:37:24\n   Duration  781ms (transform 127ms, setup 0ms, import 561ms, tests 17ms, environment 0ms)",
       "stderr": ""
     }
   ],
