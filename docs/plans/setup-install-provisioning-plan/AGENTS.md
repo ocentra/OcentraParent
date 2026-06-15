@@ -2,68 +2,126 @@
 
 > Agent Capsule
 > Plan: `setup-install-provisioning-plan`
-> Doc: AGENTS
+> Doc: `Setup Install Provisioning Plan Agent Route`
 > Kind: plan route and local agent contract.
-> Read when: First file inside this plan after a global route selects it.
-> Stop rule: Choose one route/workpack; do not continue into sibling plans unless a workpack names a handoff.
+> Read when: first file inside this plan after a global route selects it.
+> Stop rule: choose one route/workpack; do not continue into sibling plans unless the selected workpack names a handoff.
 > Proves: local routing and ownership only.
 > Does not prove: implementation completion, deployed website, signed installers, account readiness, pairing, or PR readiness.
-> Proof rule: Route changes must keep PLAN_STATE, WORKPACK_INDEX, TEST_PROOF_EXPECTATIONS, PLAN_INDEX, and FEATURE_ROUTE_INDEX aligned.
+> Proof rule: route changes must keep PLAN_STATE, WORKPACK_INDEX, TEST_PROOF_EXPECTATIONS, PROOF_INDEX, CHECKLIST_INDEX, PLAN_INDEX, and FEATURE_ROUTE_INDEX aligned when those routes are touched.
 
 <!-- /agent-capsule -->
 
 # Setup Install Provisioning Plan Agent Route
 
-Task: plan and verify the first-run journey from public family site to paired household.
-Context: parents start at `family.ocentra.ca`; the site is informational by default and must not collect child activity data. The intended flow is invite/code entry, account and household authority, parent bootstrap install, child bootstrap install, pairing, and readiness status.
-Scope: public web entry, install journey, provisioning state machine, role/device readiness, recovery, and handoff proof.
-Out of scope: package build mechanics, auth provider implementation, LAN protocol internals, portal component details, data sync internals, and enforcement adapters.
+## Mission
 
-## High-Density Execution Contract
+This plan owns the **first-run customer journey** from public family entry to parent-visible setup readiness.
 
-- Route first from `PLAN_STATE.md`; this plan owns the setup graph and must not absorb account, package, policy, or LAN implementation details.
-- Work one setup workpack at a time and the exact proof/checklist rows; keep handoffs explicit when ownership crosses plans.
-- Every completion claim must include journey boundary states (account, parent install, child install, pairing, permissions, recovery), proof artifact path, and failure conditions.
-- Stop condition: no DONE/PR_READY without evidence of degraded recovery states, explicit handoff boundaries to owned adjacent plans, and separate parent/bootstrap and child/bootstrap flows.
+It does not own the internals of identity, package signing, LAN protocol, device trust, data custody, payment, or portal shell implementation. It defines the product journey, state machine, user-facing readiness labels, proof manifest, and handoff boundaries that make those systems usable.
 
-## Research Gate
+## Core model
 
-This plan is execution-grade architecture and UI guidance. Before implementation, DONE, or PR_READY, the assigned agent must inspect existing repo code/docs for the touched slice, map what already exists versus missing, and record unresolved product/architecture choices with Sujan. Do not treat this plan as product-complete until the matching proof artifacts exist.
+```text
+public family site
+  -> account/login handoff
+  -> household setup handoff
+  -> parent bootstrap/install handoff
+  -> child bootstrap/install handoff
+  -> pairing/readiness handoff
+  -> first-run UI state machine
+  -> rollout proof gate
+```
 
-## Read Order
+No single step means setup is complete.
 
-1. [PLAN_STATE.md](PLAN_STATE.md)
-2. [NEXT_ACTIONS.md](NEXT_ACTIONS.md)
-3. [WORKPACK_INDEX.md](WORKPACK_INDEX.md)
-4. One assigned workpack only
-5. [TEST_PROOF_EXPECTATIONS.md](TEST_PROOF_EXPECTATIONS.md)
-6. [PROOF_INDEX.md](PROOF_INDEX.md) only for proof claims
+## Scope
 
-## Decision Tree
+This plan owns:
 
-| If the task is about...                                       | Open                                               |
-| ------------------------------------------------------------- | -------------------------------------------------- |
-| Public family website, content/data boundary, download entry  | `workpacks/01-family-web-info-site.md`             |
-| Register/login entry, account handoff, household start        | `workpacks/02-registration-login-entry.md`         |
-| Parent app install, package selection, update channel handoff | `workpacks/03-parent-install-journey.md`           |
-| Child agent install, permissions, platform readiness          | `workpacks/04-child-install-permission-journey.md` |
-| Pairing, first-run readiness, degraded/recovery states        | `workpacks/05-pairing-readiness-recovery.md`       |
-| First-run UI and state machine                                | `workpacks/07-first-run-setup-ui-and-state-machine.md` |
-| Launch gate, proof manifest, route/index sync                 | `workpacks/06-rollout-proof-and-route-gate.md`     |
+```text
+family.ocentra.ca public information and download entry boundary
+registration/login entry handoff into account identity
+parent bootstrap/install journey state labels
+child bootstrap/install/permission journey state labels
+pairing readiness and recovery state model
+first-run setup UI state machine and readiness cards
+proof manifest and route/index rollout gate
+```
 
-## Ownership Boundaries
+Out of scope:
 
-- `account-identity-family-plan` owns identity, session, account recovery, household membership, roles, invites, and auth provider decision.
-- `device-trust-bootstrap-plan` owns trusted-device bootstrap, local sealed trust keys, QR approval, and recovery/reset.
-- `parent-client-runtime-distribution-plan` owns package build, signing, update, rollback, and installer artifact proof.
-- `lan-plan` owns LAN discovery, peer trust, pairing protocol, signed hello, and local transport proof.
-- `portal-ux-household-surfaces-plan` owns rendered parent/child UI once setup state reaches portal surfaces.
-- `data-custody-storage-plan` owns custody labels, export/import, cloud sync, and storage privacy guarantees.
+```text
+auth provider/session implementation -> account-identity-family-plan
+installer package build/signing/notarization/update/rollback -> parent-client-runtime-distribution-plan / child-agent-runtime-distribution-plan
+LAN signed hello/pairing protocol internals -> lan-plan
+device trust/key sealing/QR approval -> device-trust-bootstrap-plan
+portal component implementation beyond selected setup surfaces -> portal-ux-household-surfaces-plan
+child activity storage/export/delete -> data-custody-storage-plan
+policy baseline semantics -> policy-control-plane-plan
+payment/subscription entitlement -> payment-subscription-plan
+```
 
-## Failure Conditions
+## Required read order
 
-- Do not claim setup complete without a parent-visible readiness state for account, parent install, child install, pairing, permissions, and degraded recovery.
-- Do not collect child activity data from the public information site.
-- Do not claim install support without platform-specific proof or an explicit manual-required state.
-- Do not bury account/login decisions in this plan; route them to account identity.
-- Do not collapse parent bootstrap and child pairing into one download claim.
+1. `PLAN_STATE.md`
+2. `NEXT_ACTIONS.md`
+3. `WORKPACK_INDEX.md`
+4. one selected workpack only
+5. `CHECKLIST_INDEX.md` only for that workpack rows
+6. `TEST_PROOF_EXPECTATIONS.md` only for that workpack command/proof set
+7. `PROOF_INDEX.md` only when writing or validating proof artifacts
+8. `PLAN_EXECUTION_BLUEPRINT.md` only when execution order or DONE/PR_READY criteria are unclear
+9. `RESEARCH_AND_DECISIONS.md` only when web/deploy/install/platform assumptions are touched
+
+Do not read all workpacks. Do not read sibling plans by default.
+
+## Decision tree
+
+| If the task is about... | Open |
+| --- | --- |
+| Public family website, content/data boundary, download entry | `workpacks/01-family-web-info-site.md` |
+| Register/login entry, account handoff, household start | `workpacks/02-registration-login-entry.md` |
+| Parent app install, package selection, update-channel handoff | `workpacks/03-parent-install-journey.md` |
+| Child agent install, permissions, platform readiness | `workpacks/04-child-install-permission-journey.md` |
+| Pairing, first-run readiness, degraded/recovery states | `workpacks/05-pairing-readiness-recovery.md` |
+| First-run UI and state machine | `workpacks/07-first-run-setup-ui-and-state-machine.md` |
+| Launch gate, proof manifest, route/index sync | `workpacks/06-rollout-proof-and-route-gate.md` |
+
+## Non-negotiable journey rules
+
+- Public pages must not collect child activity data.
+- Registration/login is a handoff to account identity, not website-owned auth logic.
+- Parent bootstrap code and child pairing/bootstrap code are separate.
+- Parent app installed is not child protected.
+- Child agent installed is not permissioned, paired, trusted, policy-ready, or enforcement-ready.
+- Pairing discovered is not pairing trusted until parent confirmation and authority proof exist.
+- Platform detection is advisory; parent can choose manually.
+- Every platform state must be one of: unsupported, planned, preview-only, manual-required, ready-for-test, or production-ready.
+- Claims about signed installers, notarization, store delivery, update/rollback, or device-owner capability require owning plan proof.
+- Setup complete requires visible readiness state for account, parent app, child agent, pairing, permissions, data custody, and policy baseline.
+
+## Local work loop
+
+1. Select exactly one workpack.
+2. Fill the pre-edit note from the workpack.
+3. Change only owned docs/source paths named by that workpack.
+4. Add/update the required tests or record the exact missing test location.
+5. Run focused commands from `TEST_PROOF_EXPECTATIONS.md` through `npm run agent:run --` when possible.
+6. Write proof artifacts to the selected proof root from `PROOF_INDEX.md`.
+7. Update `CHECKLIST_INDEX.md`, the selected workpack completion section, and `PLAN_STATE.md` only for proven rows.
+8. Report no-claim boundaries.
+
+## Failure conditions
+
+Do not claim DONE or PR_READY if any of these are true:
+
+- public website privacy/data boundary is unclear;
+- account/login implementation was added here instead of account-identity;
+- installer artifact/signing/update claims lack package-plan proof;
+- parent bootstrap and child bootstrap are collapsed;
+- child install is represented as protected/trusted without permissions/pairing/readiness proof;
+- missing/degraded/manual-required states are hidden;
+- child activity data is routed through public web/account pages;
+- proof artifacts or command logs are missing;
+- policy/eventing plan files are edited while active lanes own them.
