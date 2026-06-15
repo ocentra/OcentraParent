@@ -213,13 +213,22 @@ expose location or device-status features. Parents expect this category.
   retry/quiet-hours runtime, parent notification UI runtime, production durable
   outbox storage, child-device delivery, physical-device proof, authority, and
   product-ready tracking until the real provider-runtime artifacts exist.
+- WP27/WP33 escalation-runtime readiness blocker proof now exists through
+  `node scripts/test/tracking-escalation-runtime-readiness-blocker-proof.mjs`.
+  It consumes the escalation readiness proof and provider-runtime blocker proof,
+  writes WP27/WP33 artifacts, and records manual-required blockers for
+  production escalation workers, production quiet-hours timers, provider
+  delivery/receipt runtime, provider credentials, parent notification history
+  runtime, child-device delivery, durable escalation storage, physical-device
+  proof, authority proof, emergency auto-contact policy, and product-ready
+  escalation until real runtime artifacts exist.
 - WP33 tracking product-readiness closure proof now exists through
   `node scripts/test/tracking-product-readiness-closure-proof.mjs`. It cites the
   current pre-device, Android emulator, iOS simulator, WSL/local, hosted UI
   artifact inventory, Android system geofence blocker, child-runtime blocker,
   physical-device artifact gate, provider-delivery artifact gate,
-  provider-runtime readiness blocker, and retention product-readiness blocker
-  proof refs, writes
+  provider-runtime readiness blocker, escalation-runtime readiness blocker, and
+  retention product-readiness blocker proof refs, writes
   `output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-gate/46-product-readiness-closure-proof.json`,
   and keeps Android/iOS physical background, actual child-device runtime,
   full product parent/child UI, authority, provider delivery/receipt,

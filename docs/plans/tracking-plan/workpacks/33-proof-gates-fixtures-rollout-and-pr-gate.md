@@ -121,6 +121,8 @@ Proof root: `output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-g
 - Refreshed tracking product-readiness closure proof now consumes the
   physical-device artifact gate and provider-delivery artifact gate:
   `46-product-readiness-closure-proof.json`
+- Tracking escalation-runtime readiness blocker proof:
+  `53-escalation-runtime-readiness-blocker-proof.json`
 
 ## Merge Blockers
 
@@ -280,7 +282,8 @@ This branch adds `node scripts/test/tracking-product-readiness-closure-proof.mjs
 which verifies the current local/CI proof accounting bundle after the
 pre-device, Android emulator, iOS simulator, WSL/local, hosted artifact
 inventory, Android system geofence blocker, child-runtime product-readiness
-blocker, physical-device artifact gate, provider-delivery artifact gate, and
+blocker, physical-device artifact gate, provider-delivery artifact gate,
+provider-runtime readiness blocker, escalation-runtime readiness blocker, and
 retention product-readiness blocker proofs. It writes
 `46-product-readiness-closure-proof.json` and
 `test-results/tracking-product-readiness-closure-proof/proof.json` while
@@ -856,3 +859,33 @@ test:tracking-plan-hosted-ui-proof` passed.
       dispatch, retry/quiet-hours runtime, parent notification UI runtime,
       production durable outbox storage, child-device delivery, physical-device
       proof, authority proof, and product-ready tracking remain proof-gated.
+- [x] Workpack id and branch:
+      `codex/tracking-plan-full-continuation-a`.
+- [x] Touched files: escalation runtime blocker proof model/test, focused proof
+      script, product-readiness closure proof model, closure harness, owning
+      tracking feature doc, implementation checklist, WP27, this proof-gate
+      doc, generated escalation blocker proof artifacts, and refreshed closure
+      proof artifacts.
+- [x] Validation commands and results:
+      `node scripts/test/tracking-escalation-runtime-readiness-blocker-proof.mjs`
+      passed; `node scripts/test/tracking-product-readiness-closure-proof.mjs`
+      passed.
+- [x] Proof artifacts:
+      `output/tracking-plan-proof/27-escalation-engine/10-escalation-runtime-readiness-blocker-proof.json`,
+      `output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-gate/53-escalation-runtime-readiness-blocker-proof.json`,
+      `output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-gate/46-product-readiness-closure-proof.json`,
+      `output/tracking-plan-proof/tracking-escalation-runtime-readiness-blocker-proof/proof.json`,
+      `output/tracking-plan-proof/tracking-product-readiness-closure-proof/proof.json`,
+      `test-results/tracking-escalation-runtime-readiness-blocker-proof/proof.json`,
+      and `test-results/tracking-product-readiness-closure-proof/proof.json`.
+- [x] Product doc/checklist updates: owning feature doc, implementation
+      checklist, WP27, and this proof-gate doc updated. Central
+      `docs/product-capability-checklist.md` update is queued through the hub
+      doc delta instead of editing the shared checklist directly.
+- [x] Known gaps/manual-required states: closure now requires the
+      escalation-runtime readiness blocker proof ref too, but production
+      escalation workers, production quiet-hours timers, provider
+      delivery/receipt runtime, parent notification history runtime,
+      child-device delivery, durable escalation storage, physical-device proof,
+      authority proof, emergency auto-contact policy, and product-ready
+      escalation remain proof-gated until real runtime artifacts exist.
