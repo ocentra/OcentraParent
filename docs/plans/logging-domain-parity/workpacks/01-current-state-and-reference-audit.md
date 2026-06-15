@@ -1,0 +1,117 @@
+<!-- agent-capsule -->
+
+> Agent Capsule
+> Plan: `logging-domain-parity`
+> Doc: `WP01 Current State and Reference Audit`
+> Kind: assigned workpack.
+> Read when: selected by WORKPACK_INDEX.md or explicit assignment.
+> Stop rule: Do not open sibling workpacks unless this workpack routes there.
+> Proves: current-state/reference mapping only.
+> Does not prove: implementation completion, package parity, or PR readiness.
+> Proof rule: Before DONE, write proof artifacts under this workpack proof root.
+
+<!-- /agent-capsule -->
+
+# WP01 Current State and Reference Audit
+
+## Purpose
+
+Confirm the actual current parent state and reference games implementation before code edits.
+
+This prevents Codex from implementing from memory or interpreting `logging-domain` as more proof/read-model contracts.
+
+## Source inputs
+
+Read only these by default:
+
+```text
+docs/plans/logging-domain-parity/00-current-state-and-reference-audit.md
+docs/plans/logging-domain-parity/01-parent-logging-architecture.md
+OcentraParent/packages/logging-domain/package.json
+OcentraParent/packages/logging-domain/src/contracts.ts
+OcentraParent/apps/portal/src/dev-logger.ts
+OcentraParent/crates/agent-service/src/dev_log.rs
+OcentraParent/crates/agent-service/src/app.rs
+ocentra-games/packages/logging-domain/package.json
+ocentra-games/packages/logging-domain/src/test-log/**
+ocentra-games/packages/logging-domain/src/transport/**
+ocentra-games/packages/logging-domain/src/app-log/**
+ocentra-games/packages/logging-domain/scripts/**
+```
+
+## Target state
+
+A proof-backed audit exists showing:
+
+```text
+- games reference files mapped
+- parent current files mapped
+- live parent usage identified
+- missing parity capabilities listed
+- implementation workpack routing confirmed
+```
+
+## Required proof root
+
+```text
+output/logging-domain-parity-proof/01-current-state-and-reference-audit/
+```
+
+Required artifacts:
+
+```text
+00-reference-file-map.json
+01-parent-current-state.json
+02-live-usage-map.json
+03-gap-summary.md
+16-validation-commands.log
+```
+
+## Checklist rows
+
+- [ ] Reference games logging-domain files inspected.
+- [ ] Parent current package files inspected.
+- [ ] Live usage of parent logging-domain confirmed.
+- [ ] Dead-code or split-route risks documented.
+- [ ] Reference-to-target mapping confirmed.
+- [ ] Existing parent exports listed before code changes.
+- [ ] No unrelated plan folders touched.
+- [ ] Proof root written.
+- [ ] Workpack completion section filled.
+
+## Implementation notes
+
+This is audit work. Do not modify source code unless a path is clearly broken and the user explicitly asks for repair in the same turn.
+
+The audit must distinguish:
+
+```text
+live dependency / schema usage
+real logging pipeline
+proof-only contract
+local development observability
+product/runtime safe logging
+```
+
+## Focused commands
+
+```bash
+node -e "console.log('logging parity audit complete after artifact generation')"
+```
+
+## Manual-required gaps
+
+This workpack does not close any implementation gap. It only confirms the map.
+
+## Fill before DONE or PR-ready
+
+```text
+Workpack id and branch:
+Touched files:
+Validation commands and results:
+Proof artifacts:
+Product/runtime claims:
+Known gaps/manual-required states:
+```
+
+Do not report implementation completion from this workpack.
