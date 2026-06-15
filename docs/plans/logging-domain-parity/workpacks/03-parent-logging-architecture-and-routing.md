@@ -89,17 +89,17 @@ Required artifacts:
 
 ## Checklist rows
 
-- [x] Local-dev-observability and product-safe logging separated in docs/API.
-- [x] Parent scopes defined.
-- [x] Portal dev-log route implemented or moved to bridge path.
-- [x] Agent-service current logging path mapped to Rust crate migration.
-- [x] `/api/dev/log-snapshot` role documented as snapshot, not primary store.
-- [x] Cloudflare infra scope kept separate.
-- [x] README/package docs updated.
-- [x] Route tests or smoke checks added.
-- [x] Focused commands pass.
-- [x] Proof root written.
-- [x] Workpack completion section filled.
+- [ ] Local-dev-observability and product-safe logging separated in docs/API.
+- [ ] Parent scopes defined.
+- [ ] Portal dev-log route implemented or moved to bridge path.
+- [ ] Agent-service current logging path mapped to Rust crate migration.
+- [ ] `/api/dev/log-snapshot` role documented as snapshot, not primary store.
+- [ ] Cloudflare infra scope kept separate.
+- [ ] README/package docs updated.
+- [ ] Route tests or smoke checks added.
+- [ ] Focused commands pass.
+- [ ] Proof root written.
+- [ ] Workpack completion section filled.
 
 ## Expected source changes
 
@@ -141,46 +141,3 @@ Proof artifacts:
 Product/runtime claims:
 Known gaps/manual-required states:
 ```
-
-## Completion
-
-Workpack id and branch:
-WP03 on `codex/tracking-plan-full-continuation-a`
-
-Touched files:
-`apps/portal/src/dev-logger.ts`
-`apps/portal/tests/logging/portal-dev-log-route.test.ts`
-`packages/logging-domain/src/contracts.ts`
-`packages/logging-domain/README.md`
-`crates/agent-service/src/dev_log.rs`
-`crates/agent-service/src/app.rs`
-
-Validation commands and results:
-`npm run build --workspace @ocentra-parent/logging-domain` passed
-`npm --workspace @ocentra-parent/portal exec vitest run tests/logging/portal-dev-log-route.test.ts` passed
-`npm install` passed and restored missing workspace links in `node_modules/@ocentra-parent`
-`npm run build --workspace @ocentra-parent/event-domain` passed
-`node scripts/fix-esm-imports.mjs <packages/*/dist>` repair pass applied across existing package dist trees
-`npm run test --workspace @ocentra-parent/portal` still fails after the workspace/dist repair, now on upstream contract drift in `packages/agent-protocol-domain`:
-`packages/agent-protocol-domain/src/contracts.ts` and `src/security.ts` import shared agent schemas from `@ocentra-parent/evidence-domain/primitives`
-those agent schemas actually live in `packages/event-domain/src/primitives.ts`, not in `packages/evidence-domain/src/primitives.ts`
-the resulting runtime/schema mismatch crashes portal-adjacent suites outside WP03 source scope
-`cargo test -p ocentra-parent-agent-service dev_log` passed
-`npm run lint:architecture -- --files apps/portal/src/dev-logger.ts apps/portal/tests/logging/portal-dev-log-route.test.ts packages/logging-domain` passed
-`cargo lint-architecture crates/agent-service/src/dev_log.rs crates/agent-service/src/app.rs` passed
-
-Proof artifacts:
-`output/logging-domain-parity-proof/03-parent-logging-architecture-and-routing/00-routing-before-after.md`
-`output/logging-domain-parity-proof/03-parent-logging-architecture-and-routing/01-portal-dev-log-route-proof.json`
-`output/logging-domain-parity-proof/03-parent-logging-architecture-and-routing/02-agent-service-logging-route-proof.json`
-`output/logging-domain-parity-proof/03-parent-logging-architecture-and-routing/03-scope-model-proof.json`
-`output/logging-domain-parity-proof/03-parent-logging-architecture-and-routing/16-validation-commands.log`
-
-Product/runtime claims:
-Portal dev logs no longer depend on an unimplemented relative endpoint and instead emit bridge-compatible rows through the logging-domain local bridge transport.
-Parent logging docs now split local-dev observability from product/runtime-safe logging and Cloudflare infra logging.
-Agent-service keeps the current NDJSON compatibility path, and its snapshot route is explicitly documented as read-model/status output rather than the primary log store.
-
-Known gaps/manual-required states:
-WP04 still owns extraction of the Rust compatibility writer into `crates/logging-core`.
-WP03 cannot be marked fully complete until the upstream `agent-protocol-domain` to `event-domain`/`evidence-domain` contract drift is repaired and the required portal workspace command goes green.
