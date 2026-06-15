@@ -34,7 +34,6 @@ This workpack is the first real implementation slice.
 ```text
 docs/plans/logging-domain-parity/00-current-state-and-reference-audit.md
 docs/plans/logging-domain-parity/01-parent-logging-architecture.md
-docs/plans/logging-domain-parity/05-codex-continuation-plan.md
 ocentra-games/packages/logging-domain/package.json
 ocentra-games/packages/logging-domain/src/test-log/**
 ocentra-games/packages/logging-domain/src/transport/**
@@ -103,18 +102,18 @@ Required artifacts:
 
 ## Checklist rows
 
-- [x] `src/test-log` parity modules added/adapted.
-- [x] `src/transport` parity modules added/adapted.
-- [x] `src/app-log` parity modules added/adapted or explicit deferral recorded.
-- [x] `scripts/log-bridge.ts` added.
-- [x] DB ensure/rebuild/ingest/query/view scripts added.
-- [x] Package exports updated explicitly.
-- [x] Existing proof/contract exports preserved.
-- [x] Parent scopes added without generic Cloudflare default.
-- [x] TypeScript tests added/updated.
-- [x] Focused package build/test commands pass.
-- [x] Proof root written.
-- [x] Workpack completion section filled.
+- [ ] `src/test-log` parity modules added/adapted.
+- [ ] `src/transport` parity modules added/adapted.
+- [ ] `src/app-log` parity modules added/adapted or explicit deferral recorded.
+- [ ] `scripts/log-bridge.ts` added.
+- [ ] DB ensure/rebuild/ingest/query/view scripts added.
+- [ ] Package exports updated explicitly.
+- [ ] Existing proof/contract exports preserved.
+- [ ] Parent scopes added without generic Cloudflare default.
+- [ ] TypeScript tests added/updated.
+- [ ] Focused package build/test commands pass.
+- [ ] Proof root written.
+- [ ] Workpack completion section filled.
 
 ## Expected source changes
 
@@ -130,21 +129,6 @@ packages/logging-domain/tests/**
 ```
 
 Do not remove existing exports unless migration is documented and tests prove no consumers break.
-
-## Additional validation from continuation note
-
-`05-codex-continuation-plan.md` adds useful TypeScript validation details. Include them in this workpack:
-
-```text
-transport serialization and send behavior
-invalid bridge payload handling
-app/test-log retention behavior
-NDJSON serialization shape
-DuckDB ingest/query smoke
-existing production-safe contract exports still parse
-```
-
-Do not treat this as a new workpack. It strengthens WP02 validation.
 
 ## Focused commands
 
@@ -173,61 +157,3 @@ Proof artifacts:
 Product/runtime claims:
 Known gaps/manual-required states:
 ```
-
-## Completion
-
-Workpack id and branch:
-WP02 on `codex/tracking-plan-full-continuation-a`
-
-Touched files:
-`packages/logging-domain/package.json`
-`packages/logging-domain/tsconfig.json`
-`packages/logging-domain/src/test-log/types.ts`
-`packages/logging-domain/src/test-log/ndjsonPaths.ts`
-`packages/logging-domain/src/test-log/ndjsonWriter.ts`
-`packages/logging-domain/src/test-log/ingestManifest.ts`
-`packages/logging-domain/src/test-log/testLogDuckDb.ts`
-`packages/logging-domain/src/transport/bridgeLogPayload.ts`
-`packages/logging-domain/src/transport/bridgeTransport.ts`
-`packages/logging-domain/src/transport/bridgeServer.ts`
-`packages/logging-domain/src/app-log/types.ts`
-`packages/logging-domain/src/app-log/appNdjsonWriter.ts`
-`packages/logging-domain/src/app-log/createAppLogStorage.ts`
-`packages/logging-domain/scripts/log-bridge.ts`
-`packages/logging-domain/scripts/ensure-db.ts`
-`packages/logging-domain/scripts/rebuild-db-from-ndjson.ts`
-`packages/logging-domain/scripts/prepare-ndjson-logs.ts`
-`packages/logging-domain/scripts/query-test-logs.ts`
-`packages/logging-domain/scripts/view-ndjson.ts`
-`packages/logging-domain/tests/unit/bridge-transport.test.ts`
-`packages/logging-domain/tests/unit/ndjson-writer.test.ts`
-`packages/logging-domain/tests/unit/test-log-duckdb.test.ts`
-`packages/logging-domain/tests/unit/app-log-storage.test.ts`
-`packages/logging-domain/tests/unit/query-test-logs-script.test.ts`
-`package-lock.json`
-
-Validation commands and results:
-`npm run lint:architecture -- --files packages/logging-domain` passed
-`npm run build --workspace @ocentra-parent/logging-domain` passed
-`npm run test --workspace @ocentra-parent/logging-domain` passed
-`npm run test:query --workspace @ocentra-parent/logging-domain -- stats --scope=parent-test` passed
-`npm run lint:exec --workspace @ocentra-parent/logging-domain` passed
-
-Proof artifacts:
-`output/logging-domain-parity-proof/02-typescript-logging-package-parity/00-package-export-before-after.json`
-`output/logging-domain-parity-proof/02-typescript-logging-package-parity/01-typescript-parity-file-map.json`
-`output/logging-domain-parity-proof/02-typescript-logging-package-parity/02-scope-defaults-proof.json`
-`output/logging-domain-parity-proof/02-typescript-logging-package-parity/03-query-script-smoke.json`
-`output/logging-domain-parity-proof/02-typescript-logging-package-parity/16-validation-commands.log`
-
-Product/runtime claims:
-Parent TypeScript logging-domain now exposes explicit test-log, transport, and app-log modules.
-Bridge transport/server writes validated structured NDJSON for parent scopes.
-DuckDB-backed ingest/query support exists for parent-local test logs.
-App-log local storage enforces configurable retained-session limits.
-Existing production-safe contract exports remain in place.
-
-Known gaps/manual-required states:
-Rust logging-core parity remains in WP04.
-Parent dev-log routing into the new local logging slice remains in WP03.
-Validation wrappers and enforcement checks remain in WP05/WP06.
