@@ -27,6 +27,9 @@ ocentra-games/packages/logging-domain
 ocentra-games/vite/utils/testLogStorage.ts
 ocentra-games/AGENTS.md MCP tool list
 ocentra-games/.cursor/rules/ocentra-games-rules.mdc MCP guidance
+ocentra-games/.cursor/rules/ocentra-cloudflare-logging.mdc logger instrumentation guidance
+ocentra-games/infra/cloudflare/src/logging/log-config.ts
+ocentra-games/infra/cloudflare/scripts/run-suite-helper.ts
 ```
 
 Target implementation:
@@ -36,6 +39,7 @@ OcentraParent/packages/logging-domain
 OcentraParent/crates/logging-core
 OcentraParent/scripts/dev/*
 OcentraParent logging MCP query interface
+OcentraParent proof trace pipeline
 ```
 
 ## Key local docs
@@ -59,6 +63,9 @@ Reference source docs already written:
 - [04 Validation and Enforcement](04-validation-and-enforcement.md)
 - [05 Codex Continuation Plan](05-codex-continuation-plan.md)
 - [06 MCP Query Interface](06-mcp-query-interface.md)
+- [07 Logger Instrumentation Pattern](07-logger-instrumentation-pattern.md)
+- [08 Log Control, Retention, and Bridge Lifecycle](08-log-control-retention-bridge-lifecycle.md)
+- [09 Proof Trace Pipeline](09-proof-trace-pipeline.md)
 
 ## Current scope
 
@@ -67,11 +74,14 @@ This plan owns local developer/agent observability parity for OcentraParent:
 ```text
 TypeScript logging-domain parity
 bridge / NDJSON / DuckDB / query scripts
+log controls / fresh-run wipe / retention / bridge lifecycle
 Rust logging-core crate
 agent-service dev logging migration
 portal dev-log routing fix
 local validation evidence wrappers
 MCP query interface for Codex/local agents
+logger instrumentation/adoption pattern
+proof trace pipeline for tests and evidence collection
 validation/enforcement scripts
 ```
 
