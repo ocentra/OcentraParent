@@ -1,7 +1,7 @@
 # WP31 Tracking Authority Enrollment Manual-Required Proof
 
 - Branch: codex/tracking-plan-full-continuation-a
-- Commit: c61954488f86eb6b9cf9b7da0e611cc483c455a5
+- Commit: dc29674c5e842065a642a154793249449dbd9dc9
 - Evidence: test-results/tracking-authority-enrollment-manual-required-proof/proof.json
 - Status: authority_required
 
