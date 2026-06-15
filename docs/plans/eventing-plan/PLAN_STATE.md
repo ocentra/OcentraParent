@@ -75,6 +75,14 @@ This folder is the implementation plan for a reusable Rust event bus inspired by
 - WP11 type safety and ownership hardening.
 - WP12 rollout proof and PR gate.
 
+## Validation reality
+
+- `cargo test -p ocentra-eventing` passes for the reusable Rust crate.
+- `npm test` in `packages/event-domain` passes for the shared TypeScript contract mirror.
+- `node scripts/test/eventing-runtime-proof.mjs` still fails because the proof pack runs the workspace clippy gate on `ocentra-eventing`, and that crate currently violates denied clippy lints such as `expect_used`, `clone_on_ref_ptr`, and `needless_pass_by_value` across library and test targets.
+- `node scripts/test/eventing-compatibility-matrix-proof.mjs` fails for the same workspace clippy reason.
+- Current interpretation: the reusable runtime behavior is test-verified, but the plan is not proof-complete or DONE until the clippy debt and remaining consumer workpacks are addressed.
+
 ## Default no-read list
 
 - `README_FULL_ORIGINAL.md` unless you need historical full README context.
