@@ -47,8 +47,10 @@ This plan intentionally separates:
 local development observability
 product/runtime safe logging
 cloudflare infra logging
+log controls / retention / bridge lifecycle
 MCP/CLI query interface
 source instrumentation pattern
+proof trace pipeline
 ```
 
 Do not remove that split.
@@ -61,10 +63,12 @@ The plan is not implementation-complete until these are done:
 WP01 audit artifacts generated
 WP02 TypeScript package parity implemented
 WP03 parent routing fixed
+WP09 log control, retention, and bridge lifecycle implemented
 WP04 Rust logging-core implemented
 WP05 local validation evidence implemented
 WP07 MCP query interface implemented or existing MCP upgraded
 WP08 logger instrumentation/adoption implemented
+WP10 proof trace pipeline implemented
 WP06 validation/enforcement implemented
 ```
 
@@ -92,6 +96,8 @@ other plan folders were edited by this plan without explicit user assignment
 root validation was wired before target files existed
 workpack status says checked but proof artifacts are missing
 MCP or instrumentation claims are made without WP07/WP08 proof
+proof-trace claims are made without WP10 proof
+log lifecycle/control claims are made without WP09 proof
 ```
 
 ## PR-ready rule
